@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-openwork",
+    "slug": "openwork",
+    "name": "OpenWork"
+  },
+  "event": {
+    "id": "tle-d4bdd4bbae965394858d751b",
+    "eventDate": "2026-03-13",
+    "eventDateType": "announcement_date",
+    "title": "OpenWork enabled right side bar to collapse",
+    "summary": "OpenWork reported right side bar can now collapse.",
+    "category": "product_update",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-72451ffe0fe0e2d74c12cec1",
+        "title": "right side bar can now collapse",
+        "publisher": "getopenwork",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-03-13T20:58:27.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/getopenwork/status/2032561953181413580"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-72451ffe0fe0e2d74c12cec1",
+        "title": "right side bar can now collapse",
+        "publisher": "getopenwork",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-03-13T20:58:27.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/getopenwork/status/2032561953181413580",
+        "publicationDate": "2026-03-13T20:58:27.000Z",
+        "excerpt": "right side bar can now collapse",
+        "sourceEventDate": "2026-03-13",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-2c45f9de3f8a833e8bf83f0d",
+        "platform": "x",
+        "account": "getopenwork",
+        "postDate": "2026-03-13",
+        "excerpt": "right side bar can now collapse",
+        "url": "https://x.com/getopenwork/status/2032561953181413580",
+        "metrics": {
+          "views": 414,
+          "likes": 6,
+          "replies": 0,
+          "reposts": 0,
+          "quotes": 0,
+          "bookmarks": 0
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

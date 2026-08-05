@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-superset",
+    "slug": "superset",
+    "name": "Superset"
+  },
+  "event": {
+    "id": "tle-63402bb0977da14141b97bc2",
+    "eventDate": "2026-04-15",
+    "eventDateType": "announcement_date",
+    "title": "Superset released an open-source project",
+    "summary": "Yeah honestly I get the fear - I was pushing back on us open sourcing in the beginning too when we were starting Superset.",
+    "category": "open_source",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-4ac0b0a1d97607002846cbd8",
+        "title": "Yeah honestly I get the fear - I was pushing back on us open sourcing in the beginning too when we were starting Superset. I started realizing that if our goal is highly personalized productivity software for developers, we just can't be...",
+        "publisher": "saddle_paddle",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-04-15T16:51:23.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/saddle_paddle/status/2044458575360405608"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-4ac0b0a1d97607002846cbd8",
+        "title": "Yeah honestly I get the fear - I was pushing back on us open sourcing in the beginning too when we were starting Superset. I started realizing that if our goal is highly personalized productivity software for developers, we just can't be...",
+        "publisher": "saddle_paddle",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-04-15T16:51:23.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/saddle_paddle/status/2044458575360405608",
+        "publicationDate": "2026-04-15T16:51:23.000Z",
+        "excerpt": "Yeah honestly I get the fear - I was pushing back on us open sourcing in the beginning too when we were starting Superset. I started realizing that if our goal is highly personalized productivity software for developers, we just can't be the best company unless we open source.",
+        "sourceEventDate": "2026-04-15",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-f542cced0748307383191544",
+        "platform": "x",
+        "account": "saddle_paddle",
+        "postDate": "2026-04-15",
+        "excerpt": "Yeah honestly I get the fear - I was pushing back on us open sourcing in the beginning too when we were starting Superset. I started realizing that if our goal is highly personalized productivity software for developers, we just can't be the best company unless we open source.",
+        "url": "https://x.com/saddle_paddle/status/2044458575360405608",
+        "metrics": {
+          "views": 1193,
+          "likes": 8,
+          "replies": 1,
+          "reposts": 1,
+          "quotes": 0,
+          "bookmarks": 0
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

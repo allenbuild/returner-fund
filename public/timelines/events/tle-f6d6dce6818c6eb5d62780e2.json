@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-vendo",
+    "slug": "vendo",
+    "name": "Vendo"
+  },
+  "event": {
+    "id": "tle-f6d6dce6818c6eb5d62780e2",
+    "eventDate": "2026-06-29",
+    "eventDateType": "announcement_date",
+    "title": "Vendo was accepted into Y Combinator",
+    "summary": "Vendo just got into YC.",
+    "category": "accelerator",
+    "isMajor": true,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-f9a62471a7c64db7f529cbf1",
+        "title": "We just got into YC. Super excited for what's to come. Stay tuned!",
+        "publisher": "nourzahzah",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-06-29T21:07:39.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/nourzahzah/status/2071702156210782525"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-f9a62471a7c64db7f529cbf1",
+        "title": "We just got into YC. Super excited for what's to come. Stay tuned!",
+        "publisher": "nourzahzah",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-06-29T21:07:39.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/nourzahzah/status/2071702156210782525",
+        "publicationDate": "2026-06-29T21:07:39.000Z",
+        "excerpt": "We just got into YC. Super excited for what's to come. Stay tuned!",
+        "sourceEventDate": "2026-06-29",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-5510da48a28a7aa09903a348",
+        "platform": "x",
+        "account": "nourzahzah",
+        "postDate": "2026-06-29",
+        "excerpt": "We just got into YC. Super excited for what's to come. Stay tuned!",
+        "url": "https://x.com/nourzahzah/status/2071702156210782525",
+        "metrics": {
+          "views": 10063,
+          "likes": 84,
+          "replies": 30,
+          "reposts": 0,
+          "quotes": 0,
+          "bookmarks": 9
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

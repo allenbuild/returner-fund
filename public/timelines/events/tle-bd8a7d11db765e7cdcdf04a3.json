@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "a16z-speedrun-006-snapp-stats",
+    "slug": "snapp-stats",
+    "name": "Snapp Stats"
+  },
+  "event": {
+    "id": "tle-bd8a7d11db765e7cdcdf04a3",
+    "eventDate": "2026-03-26",
+    "eventDateType": "announcement_date",
+    "title": "Snapp Stats released with UC Berkeley Football and posts are already going viral 🐻 This is...",
+    "summary": "Snapp Stats just launched with UC Berkeley Football and posts are already going viral 🐻 This is what AI-powered fan engagement looks like.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-6817c422b886ad36393d1e6d",
+        "title": "We just launched with UC Berkeley Football and posts are already going viral 🐻 This is what AI-powered fan engagement looks like. Try it yourself → http://trysnapp.ai #CalFootball #SportsAI #GoBears",
+        "publisher": "themichelinmin",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-03-26T18:18:19.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/themichelinmin/status/2037232698616668240"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-6817c422b886ad36393d1e6d",
+        "title": "We just launched with UC Berkeley Football and posts are already going viral 🐻 This is what AI-powered fan engagement looks like. Try it yourself → http://trysnapp.ai #CalFootball #SportsAI #GoBears",
+        "publisher": "themichelinmin",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-03-26T18:18:19.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/themichelinmin/status/2037232698616668240",
+        "publicationDate": "2026-03-26T18:18:19.000Z",
+        "excerpt": "We just launched with UC Berkeley Football and posts are already going viral 🐻 This is what AI-powered fan engagement looks like. Try it yourself → http://trysnapp.ai #CalFootball #SportsAI #GoBears",
+        "sourceEventDate": "2026-03-26",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-718fe6a14b78110026148659",
+        "platform": "x",
+        "account": "themichelinmin",
+        "postDate": "2026-03-26",
+        "excerpt": "We just launched with UC Berkeley Football and posts are already going viral 🐻 This is what AI-powered fan engagement looks like. Try it yourself → http://trysnapp.ai #CalFootball #SportsAI #GoBears",
+        "url": "https://x.com/themichelinmin/status/2037232698616668240",
+        "metrics": {
+          "views": 163,
+          "likes": 1,
+          "replies": 0,
+          "reposts": 0,
+          "quotes": 0,
+          "bookmarks": 0
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-opentrade",
+    "slug": "opentrade",
+    "name": "OpenTrade"
+  },
+  "event": {
+    "id": "tle-54ccae7d1e709f0ae6cc1ee9",
+    "eventDate": "2026-06-30",
+    "eventDateType": "announcement_date",
+    "title": "OpenTrade was introduced",
+    "summary": "OpenTrade introduced OpenTrade: invest without reading a single chart We run 24/7 proactive AI agents that turn weeks of hedge-fund level quant research into one card you swipe: thesis, catalyst, risk, sizing, and timing all in one Comment \"YC\" + retweet for priority premium.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-50aca53238609df35b98138c",
+        "title": "Introducing OpenTrade: invest without reading a single chart We run 24/7 proactive AI agents that turn weeks of hedge-fund level quant research into one card you swipe: thesis, catalyst, risk, sizing, and timing all in one Comment \"YC\" +...",
+        "publisher": "ojaskandy",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-06-30T16:01:41.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/ojaskandy/status/2071987546498961714"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-50aca53238609df35b98138c",
+        "title": "Introducing OpenTrade: invest without reading a single chart We run 24/7 proactive AI agents that turn weeks of hedge-fund level quant research into one card you swipe: thesis, catalyst, risk, sizing, and timing all in one Comment \"YC\" +...",
+        "publisher": "ojaskandy",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-06-30T16:01:41.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/ojaskandy/status/2071987546498961714",
+        "publicationDate": "2026-06-30T16:01:41.000Z",
+        "excerpt": "Introducing OpenTrade: invest without reading a single chart We run 24/7 proactive AI agents that turn weeks of hedge-fund level quant research into one card you swipe: thesis, catalyst, risk, sizing, and timing all in one Comment \"YC\" + retweet for priority premium access",
+        "sourceEventDate": "2026-06-30",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-d98feb9b3e3ea69bc05f2979",
+        "platform": "x",
+        "account": "ojaskandy",
+        "postDate": "2026-06-30",
+        "excerpt": "Introducing OpenTrade: invest without reading a single chart We run 24/7 proactive AI agents that turn weeks of hedge-fund level quant research into one card you swipe: thesis, catalyst, risk, sizing, and timing all in one Comment \"YC\" + retweet for priority premium access",
+        "url": "https://x.com/ojaskandy/status/2071987546498961714",
+        "metrics": {
+          "views": 5427,
+          "likes": 63,
+          "replies": 35,
+          "reposts": 19,
+          "quotes": 16,
+          "bookmarks": 18
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

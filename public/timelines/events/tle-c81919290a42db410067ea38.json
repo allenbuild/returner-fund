@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-inkbox",
+    "slug": "inkbox",
+    "name": "Inkbox"
+  },
+  "event": {
+    "id": "tle-c81919290a42db410067ea38",
+    "eventDate": "2025-11-17",
+    "eventDateType": "announcement_date",
+    "title": "Inkbox released big developer upgrade 🚀 Every user",
+    "summary": "Inkbox just shipped a big developer upgrade 🚀 Every user now gets a dedicated, auto-provisioned MCP server.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-0f146b44ef1643cba90214cc",
+        "title": "We just shipped a big developer upgrade 🚀 Every user now gets a dedicated, auto-provisioned MCP server. Authenticate via OAuth directly from your LLM or IDE and start building immediately. Docs: https://www.vectorly.app/docs/mcp",
+        "publisher": "rayruizhiliao",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2025-11-17T18:28:33.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/rayruizhiliao/status/1990487235700142484"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-0f146b44ef1643cba90214cc",
+        "title": "We just shipped a big developer upgrade 🚀 Every user now gets a dedicated, auto-provisioned MCP server. Authenticate via OAuth directly from your LLM or IDE and start building immediately. Docs: https://www.vectorly.app/docs/mcp",
+        "publisher": "rayruizhiliao",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2025-11-17T18:28:33.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/rayruizhiliao/status/1990487235700142484",
+        "publicationDate": "2025-11-17T18:28:33.000Z",
+        "excerpt": "We just shipped a big developer upgrade 🚀 Every user now gets a dedicated, auto-provisioned MCP server. Authenticate via OAuth directly from your LLM or IDE and start building immediately. Docs: https://www.vectorly.app/docs/mcp",
+        "sourceEventDate": "2025-11-17",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-e178c8b2061c4f566dd5715b",
+        "platform": "x",
+        "account": "rayruizhiliao",
+        "postDate": "2025-11-17",
+        "excerpt": "We just shipped a big developer upgrade 🚀 Every user now gets a dedicated, auto-provisioned MCP server. Authenticate via OAuth directly from your LLM or IDE and start building immediately. Docs: https://www.vectorly.app/docs/mcp",
+        "url": "https://x.com/rayruizhiliao/status/1990487235700142484",
+        "metrics": {
+          "views": 640,
+          "likes": 5,
+          "replies": 1,
+          "reposts": 1,
+          "quotes": 0,
+          "bookmarks": 0
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

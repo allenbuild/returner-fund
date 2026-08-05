@@ -5,9 +5,57 @@
     "slug": "replicas",
     "name": "Replicas"
   },
-  "generatedAt": "2026-08-03T07:52:26.040Z",
-  "lastModifiedAt": "2026-08-03T07:52:26.040Z",
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z",
   "events": [
+    {
+      "id": "tle-1df63c87fd9e78f21b557718",
+      "eventDate": "2026-08-04",
+      "eventDateType": "announcement_date",
+      "title": "Replicas released Mobile Testing in Replicas agents can",
+      "summary": "Replicas introduced Mobile Testing in @tryreplicas Replicas agents can now build and test iOS or Android apps.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-fc18b9316f7edd0ba18a0117",
+          "title": "Introducing Mobile Testing in @tryreplicas Replicas agents can now build and test iOS or Android apps.",
+          "publisher": "connortbot",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-08-04T16:30:00.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/connortbot/status/2084678248689274985"
+        }
+      ]
+    },
+    {
+      "id": "tle-616f88d359de2c7f98740334",
+      "eventDate": "2026-07-29",
+      "eventDateType": "announcement_date",
+      "title": "Replicas released new way",
+      "summary": "Replicas announced it was launching a new way for you to add agents to your CI through @tryreplicas automations.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-8bca0b30149da06be4c48b33",
+          "title": "Today we're launching a new way for you to add agents to your CI through @tryreplicas automations. Link to docs in the comments 👇",
+          "publisher": "SaaiArora",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-07-29T20:09:02.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/SaaiArora/status/2082559041134621044"
+        }
+      ]
+    },
     {
       "id": "tle-9d83eaddf7fc167218419c3e",
       "eventDate": "2026-07-27",
@@ -23,12 +71,36 @@
         {
           "id": "src-611d35cb28a4e9ad9bdb7041",
           "title": "Run fully open-sourced coding agents on the cloud.",
-          "publisher": "Run fully open-sourced coding agents on the cloud.",
+          "publisher": "tryreplicas",
           "domain": "x.com",
           "sourceType": "company_post",
-          "publishedAt": "2026-07-27T00:00:00.000Z",
+          "publishedAt": "2026-07-27T16:24:00.000Z",
           "evidenceRole": "primary",
           "url": "https://x.com/tryreplicas/status/2081777634036617284"
+        }
+      ]
+    },
+    {
+      "id": "tle-297c3a9c390d45b28dc25ca6",
+      "eventDate": "2026-05-07",
+      "eventDateType": "announcement_date",
+      "title": "Replicas released Custom Environments - unlimited use cases",
+      "summary": "Replicas introduced Custom Environments - unlimited use cases for background agents.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-6965f66767995688dfc003a8",
+          "title": "Introducing Custom Environments - unlimited use cases for background agents. With each custom environment, you can configure it with system prompts, skills, MCPs, and dependencies/tooling tailored for the job. For example: - a Debugging ...",
+          "publisher": "connortbot",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-05-07T16:16:00.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/connortbot/status/2052422203963301991"
         }
       ]
     }
@@ -38,7 +110,15 @@
       "year": 2026,
       "months": [
         {
+          "month": "2026-08",
+          "count": 1
+        },
+        {
           "month": "2026-07",
+          "count": 2
+        },
+        {
+          "month": "2026-05",
           "count": 1
         }
       ]
@@ -46,8 +126,8 @@
   ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-08-03T07:52:26.040Z"
+    "publishedEventCount": 4,
+    "lastSuccessfulArtifactAt": "2026-08-05T00:49:13.374Z"
   },
   "nextCursor": null
 }

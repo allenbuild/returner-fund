@@ -1,0 +1,65 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "a16z-speedrun-006-taxnova",
+    "slug": "taxnova",
+    "name": "Taxnova"
+  },
+  "event": {
+    "id": "tle-700c9868f85f40fe93e41189",
+    "eventDate": "2026-05-11",
+    "eventDateType": "occurrence_date",
+    "title": "Taxnova launched on Product Hunt",
+    "summary": "Taxnova Product Hunt launch.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-ce5ad58cace305a2daf634dd",
+        "title": "Taxnova Product Hunt launch",
+        "publisher": "taxnova",
+        "domain": "producthunt.com",
+        "sourceType": "product_hunt",
+        "publishedAt": "2026-05-11T00:00:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://www.producthunt.com/products/taxnova"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-ce5ad58cace305a2daf634dd",
+        "title": "Taxnova Product Hunt launch",
+        "publisher": "taxnova",
+        "domain": "producthunt.com",
+        "sourceType": "product_hunt",
+        "publishedAt": "2026-05-11T00:00:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://www.producthunt.com/products/taxnova",
+        "publicationDate": "2026-05-11T00:00:00.000Z",
+        "excerpt": "Taxnova launched on Product Hunt with a profile describing its pre-seed as led by a16z Speedrun.",
+        "sourceEventDate": "2026-05-11",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-5c46b6f2f63463735ceb6d51",
+        "platform": "product_hunt",
+        "account": "taxnova",
+        "postDate": "2026-05-11",
+        "excerpt": "Taxnova launched on Product Hunt with a profile describing its pre-seed as led by a16z Speedrun.",
+        "url": "https://www.producthunt.com/products/taxnova",
+        "metrics": {
+          "upvotes": 66
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

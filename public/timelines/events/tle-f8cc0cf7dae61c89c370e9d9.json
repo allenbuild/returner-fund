@@ -12,10 +12,10 @@
     "title": "Wato was introduced",
     "summary": "Wato introduced Wato.",
     "category": "product_launch",
-    "isMajor": false,
+    "isMajor": true,
     "hasConflict": false,
     "conflictSummary": null,
-    "evidenceCount": 1,
+    "evidenceCount": 3,
     "sourcePreview": [
       {
         "id": "src-c0afb73bee64dd1c825d4d48",
@@ -26,6 +26,26 @@
         "publishedAt": "2026-05-17T20:28:05.231Z",
         "evidenceRole": "primary",
         "url": "https://linkedin.com/posts/watoinc_introducing-wato-were-building-the-shared-activity-7461875211051823104-sTAZ"
+      },
+      {
+        "id": "src-5c2593682a4e39c53ae4b782",
+        "title": "Introducing Wato: shared memory and living artifacts for AI in teams. Every team building with agents eventually hits the same wall: The work doesn’t compound. An agent will solve something useful, then the knowledge disappears. It fo...",
+        "publisher": "watolabs",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-05-17T19:54:30.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/watolabs/status/2056101072108920877"
+      },
+      {
+        "id": "src-2f8a903a18009fbed48db296",
+        "title": "Wato released the biggest update to artifacts for Claude and Codex. The flow is usually: prompt -> MCPs -> data -> HTML/CSS/JS -> static dashboard Then it becomes a static HTML file, a screenshot, or a Slack link nobody trusts two weeks ...",
+        "publisher": "watolabs",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-05-18T17:44:38.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/watolabs/status/2056430775537729842"
       }
     ],
     "evidence": [
@@ -43,11 +63,41 @@
         "sourceEventDate": "2026-05-17",
         "isConflicting": false,
         "conflictDescription": null
+      },
+      {
+        "id": "src-5c2593682a4e39c53ae4b782",
+        "title": "Introducing Wato: shared memory and living artifacts for AI in teams. Every team building with agents eventually hits the same wall: The work doesn’t compound. An agent will solve something useful, then the knowledge disappears. It fo...",
+        "publisher": "watolabs",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-05-17T19:54:30.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/watolabs/status/2056101072108920877",
+        "publicationDate": "2026-05-17T19:54:30.000Z",
+        "excerpt": "Introducing Wato: shared memory and living artifacts for AI in teams. Every team building with agents eventually hits the same wall: The work doesn’t compound. An agent will solve something useful, then the knowledge disappears. It found the right workflow. It found which source is trusted. It figured out the weird caveat. It built the useful dashboard. It wrote the playbook. Then the next agent starts from zero. So we built Wato. So your entire team can go from 0 -> 100 Wato lets agents read…",
+        "sourceEventDate": "2026-05-17",
+        "isConflicting": false,
+        "conflictDescription": null
+      },
+      {
+        "id": "src-2f8a903a18009fbed48db296",
+        "title": "Wato released the biggest update to artifacts for Claude and Codex. The flow is usually: prompt -> MCPs -> data -> HTML/CSS/JS -> static dashboard Then it becomes a static HTML file, a screenshot, or a Slack link nobody trusts two weeks ...",
+        "publisher": "watolabs",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-05-18T17:44:38.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/watolabs/status/2056430775537729842",
+        "publicationDate": "2026-05-18T17:44:38.000Z",
+        "excerpt": "Wato released the biggest update to artifacts for Claude and Codex. The flow is usually: prompt -> MCPs -> data -> HTML/CSS/JS -> static dashboard Then it becomes a static HTML file, a screenshot, or a Slack link nobody trusts two weeks later. Wato makes artifacts live: permissioned, versioned, shareable, connected to data, and reusable by agents. Here's a demo below.",
+        "sourceEventDate": "2026-05-17",
+        "isConflicting": false,
+        "conflictDescription": null
       }
     ],
     "posts": [
       {
-        "id": "post-abd00b8ee3c0124bef2f7d56",
+        "id": "post-3d7d15751d7261c2a0ad40aa",
         "platform": "linkedin",
         "account": "watoinc",
         "postDate": "2026-05-17",
@@ -58,9 +108,43 @@
           "comments": 0
         },
         "evidenceRole": "primary"
+      },
+      {
+        "id": "post-979c4823fe676bb0f7a0263c",
+        "platform": "x",
+        "account": "watolabs",
+        "postDate": "2026-05-17",
+        "excerpt": "Introducing Wato: shared memory and living artifacts for AI in teams. Every team building with agents eventually hits the same wall: The work doesn’t compound. An agent will solve something useful, then the knowledge disappears. It found the right workflow. It found which source is trusted. It figured out the weird caveat. It built the useful dashboard. It wrote the playbook. Then the next agent starts from zero. So we built Wato. So your entire team can go from 0 -> 100 Wato lets agents read…",
+        "url": "https://x.com/watolabs/status/2056101072108920877",
+        "metrics": {
+          "views": 1748577,
+          "likes": 35,
+          "replies": 3,
+          "reposts": 2,
+          "quotes": 1,
+          "bookmarks": 10
+        },
+        "evidenceRole": "primary"
+      },
+      {
+        "id": "post-066935df31ee68cad8587d07",
+        "platform": "x",
+        "account": "watolabs",
+        "postDate": "2026-05-18",
+        "excerpt": "Wato released the biggest update to artifacts for Claude and Codex. The flow is usually: prompt -> MCPs -> data -> HTML/CSS/JS -> static dashboard Then it becomes a static HTML file, a screenshot, or a Slack link nobody trusts two weeks later. Wato makes artifacts live: permissioned, versioned, shareable, connected to data, and reusable by agents. Here's a demo below.",
+        "url": "https://x.com/watolabs/status/2056430775537729842",
+        "metrics": {
+          "views": 332756,
+          "likes": 14,
+          "replies": 1,
+          "reposts": 3,
+          "quotes": 0,
+          "bookmarks": 1
+        },
+        "evidenceRole": "primary"
       }
     ]
   },
-  "generatedAt": "2026-08-03T07:52:26.040Z",
-  "lastModifiedAt": "2026-08-03T07:52:26.040Z"
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
 }

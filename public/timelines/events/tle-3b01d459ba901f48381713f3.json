@@ -1,0 +1,104 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "a16z-speedrun-006-pluvo",
+    "slug": "pluvo",
+    "name": "Pluvo"
+  },
+  "event": {
+    "id": "tle-3b01d459ba901f48381713f3",
+    "eventDate": "2026-02-26",
+    "eventDateType": "announcement_date",
+    "title": "Pluvo announced $5M Seed round",
+    "summary": "Pluvo reported today, we announced a $5M Seed round to build the next generation of AI-native analysis for finance.",
+    "category": "funding",
+    "isMajor": true,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 2,
+    "sourcePreview": [
+      {
+        "id": "src-2f3fac3ee5a2641d6f31b8ad",
+        "title": "Today, we announced a $5M Seed round to build the next generation of AI-native analysis for finance. The round includes participation from @speedrun , @getdeel, The Perseverance Fund, StandUp Ventures, @altaircapital, and a group of…",
+        "publisher": "pluvoapp",
+        "domain": "instagram.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-02-26T21:35:03.000Z",
+        "evidenceRole": "primary",
+        "url": "https://instagram.com/p/DVPISu_kn0U"
+      },
+      {
+        "id": "src-0f9ff2b8f9808624bba5210d",
+        "title": "ICYMI: We just raised $5M in seed funding. One of the coolest things about this round is that several of the angel investors are our own customers; the CFOs and finance leaders who use Pluvo every month to run their planning and analysis.…",
+        "publisher": "pluvoapp",
+        "domain": "instagram.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-03-09T18:37:10.000Z",
+        "evidenceRole": "primary",
+        "url": "https://instagram.com/p/DVrIqwBk_4B"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-2f3fac3ee5a2641d6f31b8ad",
+        "title": "Today, we announced a $5M Seed round to build the next generation of AI-native analysis for finance. The round includes participation from @speedrun , @getdeel, The Perseverance Fund, StandUp Ventures, @altaircapital, and a group of…",
+        "publisher": "pluvoapp",
+        "domain": "instagram.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-02-26T21:35:03.000Z",
+        "evidenceRole": "primary",
+        "url": "https://instagram.com/p/DVPISu_kn0U",
+        "publicationDate": "2026-02-26T21:35:03.000Z",
+        "excerpt": "Today, we announced a $5M Seed round to build the next generation of AI-native analysis for finance. The round includes participation from @speedrun , @getdeel, The Perseverance Fund, StandUp Ventures, @altaircapital, and a group of strategic angels. Modern finance teams don’t have a data problem. They have an analysis problem. While systems of record and dashboards have improved dramatically over the past decade, the leap from data to decisions remains slow and manual. Pluvo is building an…",
+        "sourceEventDate": "2026-02-26",
+        "isConflicting": false,
+        "conflictDescription": null
+      },
+      {
+        "id": "src-0f9ff2b8f9808624bba5210d",
+        "title": "ICYMI: We just raised $5M in seed funding. One of the coolest things about this round is that several of the angel investors are our own customers; the CFOs and finance leaders who use Pluvo every month to run their planning and analysis.…",
+        "publisher": "pluvoapp",
+        "domain": "instagram.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-03-09T18:37:10.000Z",
+        "evidenceRole": "primary",
+        "url": "https://instagram.com/p/DVrIqwBk_4B",
+        "publicationDate": "2026-03-09T18:37:10.000Z",
+        "excerpt": "ICYMI: We just raised $5M in seed funding. One of the coolest things about this round is that several of the angel investors are our own customers; the CFOs and finance leaders who use Pluvo every month to run their planning and analysis. When someone already pays for your product and then asks to own a piece of the business, that's a different kind of signal. No pitch deck does that. The product does that. The round was backed by a16z speedrun, @getdeel , The Perseverance fund, StandUp…",
+        "sourceEventDate": "2026-02-26",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-7049ebf7ed5b49265aeeb155",
+        "platform": "instagram",
+        "account": "pluvoapp",
+        "postDate": "2026-02-26",
+        "excerpt": "Today, we announced a $5M Seed round to build the next generation of AI-native analysis for finance. The round includes participation from @speedrun , @getdeel, The Perseverance Fund, StandUp Ventures, @altaircapital, and a group of strategic angels. Modern finance teams don’t have a data problem. They have an analysis problem. While systems of record and dashboards have improved dramatically over the past decade, the leap from data to decisions remains slow and manual. Pluvo is building an…",
+        "url": "https://instagram.com/p/DVPISu_kn0U",
+        "metrics": {
+          "likes": 24,
+          "comments": 0
+        },
+        "evidenceRole": "primary"
+      },
+      {
+        "id": "post-098463c22ded94834430f562",
+        "platform": "instagram",
+        "account": "pluvoapp",
+        "postDate": "2026-03-09",
+        "excerpt": "ICYMI: We just raised $5M in seed funding. One of the coolest things about this round is that several of the angel investors are our own customers; the CFOs and finance leaders who use Pluvo every month to run their planning and analysis. When someone already pays for your product and then asks to own a piece of the business, that's a different kind of signal. No pitch deck does that. The product does that. The round was backed by a16z speedrun, @getdeel , The Perseverance fund, StandUp…",
+        "url": "https://instagram.com/p/DVrIqwBk_4B",
+        "metrics": {
+          "likes": 31,
+          "comments": 1
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

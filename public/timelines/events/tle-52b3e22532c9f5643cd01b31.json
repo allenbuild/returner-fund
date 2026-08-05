@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-graphify-labs",
+    "slug": "graphify-labs",
+    "name": "Graphify Labs"
+  },
+  "event": {
+    "id": "tle-52b3e22532c9f5643cd01b31",
+    "eventDate": "2026-05-26",
+    "eventDateType": "announcement_date",
+    "title": "Graphify Labs was accepted into Y Combinator S26",
+    "summary": "Graphify Labs reported getting accepted into YC S26 with @graphify still feels unreal.",
+    "category": "accelerator",
+    "isMajor": true,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-78f269380eae68d8f9c3805a",
+        "title": "Getting accepted into YC S26 with @graphify still feels unreal. The journey was fast and intense. Applied on May 4th, went through two interviews, and got in last week. The traction and support from the community genuinely made the di...",
+        "publisher": "safishamsii",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-05-26T14:06:43.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/safishamsii/status/2059275039329993029"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-78f269380eae68d8f9c3805a",
+        "title": "Getting accepted into YC S26 with @graphify still feels unreal. The journey was fast and intense. Applied on May 4th, went through two interviews, and got in last week. The traction and support from the community genuinely made the di...",
+        "publisher": "safishamsii",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-05-26T14:06:43.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/safishamsii/status/2059275039329993029",
+        "publicationDate": "2026-05-26T14:06:43.000Z",
+        "excerpt": "Getting accepted into YC S26 with @graphify still feels unreal. The journey was fast and intense. Applied on May 4th, went through two interviews, and got in last week. The traction and support from the community genuinely made the difference.",
+        "sourceEventDate": "2026-05-26",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-d3de8a7508e3fd9175432d8c",
+        "platform": "x",
+        "account": "safishamsii",
+        "postDate": "2026-05-26",
+        "excerpt": "Getting accepted into YC S26 with @graphify still feels unreal. The journey was fast and intense. Applied on May 4th, went through two interviews, and got in last week. The traction and support from the community genuinely made the difference.",
+        "url": "https://x.com/safishamsii/status/2059275039329993029",
+        "metrics": {
+          "views": 11953,
+          "likes": 231,
+          "replies": 42,
+          "reposts": 1,
+          "quotes": 0,
+          "bookmarks": 35
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

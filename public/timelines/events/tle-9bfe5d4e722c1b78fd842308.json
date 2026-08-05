@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-insforge",
+    "slug": "insforge",
+    "name": "InsForge"
+  },
+  "event": {
+    "id": "tle-9bfe5d4e722c1b78fd842308",
+    "eventDate": "2026-05-29",
+    "eventDateType": "announcement_date",
+    "title": "InsForge added support for Clerk for authentication",
+    "summary": "InsForge now supports Clerk for authentication.",
+    "category": "product_update",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-501320ebc312f21a38e39f68",
+        "title": "InsForge now supports Clerk for authentication. Clerk handles sign-up, sessions, and user management. InsForge manages the database & RLS. The two connect through a single JWT template and skills that teach coding agents exactly how the…",
+        "publisher": "insforge",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-05-29T15:57:13.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/insforge/status/2060390010436596116"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-501320ebc312f21a38e39f68",
+        "title": "InsForge now supports Clerk for authentication. Clerk handles sign-up, sessions, and user management. InsForge manages the database & RLS. The two connect through a single JWT template and skills that teach coding agents exactly how the…",
+        "publisher": "insforge",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-05-29T15:57:13.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/insforge/status/2060390010436596116",
+        "publicationDate": "2026-05-29T15:57:13.000Z",
+        "excerpt": "InsForge now supports Clerk for authentication. Clerk handles sign-up, sessions, and user management. InsForge manages the database & RLS. The two connect through a single JWT template and skills that teach coding agents exactly how the SDK and integrations work.",
+        "sourceEventDate": "2026-05-29",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-529a49903495c44e74421bd5",
+        "platform": "x",
+        "account": "insforge",
+        "postDate": "2026-05-29",
+        "excerpt": "InsForge now supports Clerk for authentication. Clerk handles sign-up, sessions, and user management. InsForge manages the database & RLS. The two connect through a single JWT template and skills that teach coding agents exactly how the SDK and integrations work.",
+        "url": "https://x.com/insforge/status/2060390010436596116",
+        "metrics": {
+          "views": 2283,
+          "likes": 11,
+          "replies": 1,
+          "reposts": 4,
+          "quotes": 1,
+          "bookmarks": 0
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

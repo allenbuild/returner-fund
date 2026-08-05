@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-tsenta",
+    "slug": "tsenta",
+    "name": "Tsenta"
+  },
+  "event": {
+    "id": "tle-151719cf7fd4a63b4bcb8166",
+    "eventDate": "2026-03-02",
+    "eventDateType": "announcement_date",
+    "title": "Tsenta released YC startup",
+    "summary": "Tsenta launched our YC startup with a tech stack that costs $14.99/month.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-14e0c83ee5bead682f6ea2f9",
+        "title": "We launched our YC startup with a tech stack that costs $14.99/month. Every tool on this list is open source, self-hostable, and has zero vendor lock-in. Dokploy (@getdokploy) on a Hetzner VPS: Self-hosted PaaS with Docker templates and…",
+        "publisher": "AgnaySrivastava",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-03-02T16:59:15.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/AgnaySrivastava/status/2028515490021146843"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-14e0c83ee5bead682f6ea2f9",
+        "title": "We launched our YC startup with a tech stack that costs $14.99/month. Every tool on this list is open source, self-hostable, and has zero vendor lock-in. Dokploy (@getdokploy) on a Hetzner VPS: Self-hosted PaaS with Docker templates and…",
+        "publisher": "AgnaySrivastava",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-03-02T16:59:15.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/AgnaySrivastava/status/2028515490021146843",
+        "publicationDate": "2026-03-02T16:59:15.000Z",
+        "excerpt": "We launched our YC startup with a tech stack that costs $14.99/month. Every tool on this list is open source, self-hostable, and has zero vendor lock-in. Dokploy (@getdokploy) on a Hetzner VPS: Self-hosted PaaS with Docker templates and seamless CI/CD. Replaced Vercel and AWS for us. Can't recommend this enough. @better_auth - TypeScript-native authentication with full control over your user data, and one we wish we'd picked over Firebase. Rybbit (@yang_frog) - Privacy-friendly user analytics.…",
+        "sourceEventDate": "2026-03-02",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-c16b8ddbf6d2066411a58767",
+        "platform": "x",
+        "account": "AgnaySrivastava",
+        "postDate": "2026-03-02",
+        "excerpt": "We launched our YC startup with a tech stack that costs $14.99/month. Every tool on this list is open source, self-hostable, and has zero vendor lock-in. Dokploy (@getdokploy) on a Hetzner VPS: Self-hosted PaaS with Docker templates and seamless CI/CD. Replaced Vercel and AWS for us. Can't recommend this enough. @better_auth - TypeScript-native authentication with full control over your user data, and one we wish we'd picked over Firebase. Rybbit (@yang_frog) - Privacy-friendly user analytics.…",
+        "url": "https://x.com/AgnaySrivastava/status/2028515490021146843",
+        "metrics": {
+          "views": 720,
+          "likes": 17,
+          "replies": 3,
+          "reposts": 1,
+          "quotes": 0,
+          "bookmarks": 9
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-revnu",
+    "slug": "revnu",
+    "name": "Revnu"
+  },
+  "event": {
+    "id": "tle-6efa382cda47acc7b8aa4269",
+    "eventDate": "2026-05-21",
+    "eventDateType": "announcement_date",
+    "title": "Revnu released ON YC Building",
+    "summary": "Revnu JUST LAUNCHED ON YC Building @revnu_app with @artfreebrey has been the MOST fun thing I have EVER done in my life If you're busy shipping & want growth on autopilot, check us out.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-df1656190c4e1ca5356408fc",
+        "title": "🚨 WE JUST LAUNCHED ON YC Building @revnu_app with @artfreebrey has been the MOST fun thing I have EVER done in my life If you’re busy shipping & want growth on autopilot, check us out!",
+        "publisher": "GeorgeJeffersn",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-05-21T22:07:36.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/GeorgeJeffersn/status/2057584117450252459"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-df1656190c4e1ca5356408fc",
+        "title": "🚨 WE JUST LAUNCHED ON YC Building @revnu_app with @artfreebrey has been the MOST fun thing I have EVER done in my life If you’re busy shipping & want growth on autopilot, check us out!",
+        "publisher": "GeorgeJeffersn",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-05-21T22:07:36.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/GeorgeJeffersn/status/2057584117450252459",
+        "publicationDate": "2026-05-21T22:07:36.000Z",
+        "excerpt": "🚨 WE JUST LAUNCHED ON YC Building @revnu_app with @artfreebrey has been the MOST fun thing I have EVER done in my life If you’re busy shipping & want growth on autopilot, check us out!",
+        "sourceEventDate": "2026-05-21",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-0b5079f42e7544b9917b5428",
+        "platform": "x",
+        "account": "GeorgeJeffersn",
+        "postDate": "2026-05-21",
+        "excerpt": "🚨 WE JUST LAUNCHED ON YC Building @revnu_app with @artfreebrey has been the MOST fun thing I have EVER done in my life If you’re busy shipping & want growth on autopilot, check us out!",
+        "url": "https://x.com/GeorgeJeffersn/status/2057584117450252459",
+        "metrics": {
+          "views": 7748,
+          "likes": 48,
+          "replies": 6,
+          "reposts": 4,
+          "quotes": 0,
+          "bookmarks": 8
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

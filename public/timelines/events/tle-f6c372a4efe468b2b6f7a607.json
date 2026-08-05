@@ -1,0 +1,69 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-rentahuman",
+    "slug": "rentahuman",
+    "name": "RentAHuman"
+  },
+  "event": {
+    "id": "tle-f6c372a4efe468b2b6f7a607",
+    "eventDate": "2026-05-27",
+    "eventDateType": "announcement_date",
+    "title": "RentAHuman released Rentahuman is live",
+    "summary": "Rentahuman is live.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-7568ea5de15c8069c4f287e3",
+        "title": "Rentahuman is live!",
+        "publisher": "rentahumanx",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-05-27T17:17:54.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/rentahumanx/status/2059685540732219761"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-7568ea5de15c8069c4f287e3",
+        "title": "Rentahuman is live!",
+        "publisher": "rentahumanx",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-05-27T17:17:54.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/rentahumanx/status/2059685540732219761",
+        "publicationDate": "2026-05-27T17:17:54.000Z",
+        "excerpt": "Rentahuman is live!",
+        "sourceEventDate": "2026-05-27",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-3d4c1ec667808b4034764336",
+        "platform": "x",
+        "account": "rentahumanx",
+        "postDate": "2026-05-27",
+        "excerpt": "Rentahuman is live!",
+        "url": "https://x.com/rentahumanx/status/2059685540732219761",
+        "metrics": {
+          "likes": 27,
+          "reposts": 1,
+          "quotes": 1,
+          "replies": 8,
+          "views": 6758
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

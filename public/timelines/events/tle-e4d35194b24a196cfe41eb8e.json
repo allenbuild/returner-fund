@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-foaster",
+    "slug": "foaster",
+    "name": "Foaster"
+  },
+  "event": {
+    "id": "tle-e4d35194b24a196cfe41eb8e",
+    "eventDate": "2026-05-07",
+    "eventDateType": "announcement_date",
+    "title": "Foaster released We are live ! Show us some love in the comments 😃",
+    "summary": "Foaster is live .",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-4f029d8181fdc42ecf718975",
+        "title": "We are live ! Show us some love in the comments 😃",
+        "publisher": "RaphaelDabadie",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-05-07T15:00:59.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/RaphaelDabadie/status/2052403326394765594"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-4f029d8181fdc42ecf718975",
+        "title": "We are live ! Show us some love in the comments 😃",
+        "publisher": "RaphaelDabadie",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-05-07T15:00:59.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/RaphaelDabadie/status/2052403326394765594",
+        "publicationDate": "2026-05-07T15:00:59.000Z",
+        "excerpt": "We are live ! Show us some love in the comments 😃",
+        "sourceEventDate": "2026-05-07",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-c637a2022bb99a4f8c072eb2",
+        "platform": "x",
+        "account": "RaphaelDabadie",
+        "postDate": "2026-05-07",
+        "excerpt": "We are live ! Show us some love in the comments 😃",
+        "url": "https://x.com/RaphaelDabadie/status/2052403326394765594",
+        "metrics": {
+          "views": 8313,
+          "likes": 60,
+          "replies": 13,
+          "reposts": 3,
+          "quotes": 0,
+          "bookmarks": 16
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-screenpipe",
+    "slug": "screenpipe",
+    "name": "screenpipe"
+  },
+  "event": {
+    "id": "tle-02236c07be22c588a2ef6347",
+    "eventDate": "2026-05-11",
+    "eventDateType": "announcement_date",
+    "title": "screenpipe released 2 new AI models outperforming big tech SOTA open sourcing our... as open source",
+    "summary": "screenpipe released 2 new AI models outperforming big tech SOTA open sourcing our benchmark 🔜.",
+    "category": "open_source",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-e2301d68429ed851ec5f3b35",
+        "title": "we released 2 new AI models outperforming big tech SOTA open sourcing our benchmark 🔜",
+        "publisher": "screenpipe",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-05-11T14:40:56.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/screenpipe/status/2053847833636409620"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-e2301d68429ed851ec5f3b35",
+        "title": "we released 2 new AI models outperforming big tech SOTA open sourcing our benchmark 🔜",
+        "publisher": "screenpipe",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-05-11T14:40:56.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/screenpipe/status/2053847833636409620",
+        "publicationDate": "2026-05-11T14:40:56.000Z",
+        "excerpt": "we released 2 new AI models outperforming big tech SOTA open sourcing our benchmark 🔜",
+        "sourceEventDate": "2026-05-11",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-f4b4861b058fe5727eede39e",
+        "platform": "x",
+        "account": "screenpipe",
+        "postDate": "2026-05-11",
+        "excerpt": "we released 2 new AI models outperforming big tech SOTA open sourcing our benchmark 🔜",
+        "url": "https://x.com/screenpipe/status/2053847833636409620",
+        "metrics": {
+          "views": 751,
+          "likes": 7,
+          "replies": 2,
+          "reposts": 2,
+          "quotes": 0,
+          "bookmarks": 4
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

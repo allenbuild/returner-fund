@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-replicas",
+    "slug": "replicas",
+    "name": "Replicas"
+  },
+  "event": {
+    "id": "tle-616f88d359de2c7f98740334",
+    "eventDate": "2026-07-29",
+    "eventDateType": "announcement_date",
+    "title": "Replicas released new way",
+    "summary": "Replicas announced it was launching a new way for you to add agents to your CI through @tryreplicas automations.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-8bca0b30149da06be4c48b33",
+        "title": "Today we're launching a new way for you to add agents to your CI through @tryreplicas automations. Link to docs in the comments 👇",
+        "publisher": "SaaiArora",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-07-29T20:09:02.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/SaaiArora/status/2082559041134621044"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-8bca0b30149da06be4c48b33",
+        "title": "Today we're launching a new way for you to add agents to your CI through @tryreplicas automations. Link to docs in the comments 👇",
+        "publisher": "SaaiArora",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-07-29T20:09:02.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/SaaiArora/status/2082559041134621044",
+        "publicationDate": "2026-07-29T20:09:02.000Z",
+        "excerpt": "Today we're launching a new way for you to add agents to your CI through @tryreplicas automations. Link to docs in the comments 👇",
+        "sourceEventDate": "2026-07-29",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-2f98cf3cbd28fd72ff041d79",
+        "platform": "x",
+        "account": "SaaiArora",
+        "postDate": "2026-07-29",
+        "excerpt": "Today we're launching a new way for you to add agents to your CI through @tryreplicas automations. Link to docs in the comments 👇",
+        "url": "https://x.com/SaaiArora/status/2082559041134621044",
+        "metrics": {
+          "views": 1368,
+          "likes": 23,
+          "replies": 3,
+          "reposts": 2,
+          "quotes": 0,
+          "bookmarks": 2
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

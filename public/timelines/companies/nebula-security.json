@@ -5,9 +5,57 @@
     "slug": "nebula-security",
     "name": "Nebula Security"
   },
-  "generatedAt": "2026-08-03T07:52:26.040Z",
-  "lastModifiedAt": "2026-08-03T07:52:26.040Z",
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z",
   "events": [
+    {
+      "id": "tle-cf36fbd14a85345d32e58cec",
+      "eventDate": "2026-08-03",
+      "eventDateType": "announcement_date",
+      "title": "Nebula Security released an open-source project",
+      "summary": "Nebula Security has also open-sourced two more LPE exploits for the latest Android on CyberMeowfia, Have fun.",
+      "category": "open_source",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-983d8976d29520913a5c0943",
+          "title": "We've also open-sourced two more LPE exploits for the latest Android on CyberMeowfia, Have fun! CVE-2026-43074: https://github.com/NebuSec/CyberMeowfia/tree/main/security-research/Ndays/Android-CVE-2026-43074 CVE-2026-64560: https://gith...",
+          "publisher": "nebusecurity",
+          "domain": "x.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-08-03T23:15:48.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/nebusecurity/status/2084417983938781538"
+        }
+      ]
+    },
+    {
+      "id": "tle-a6ce56d05e140ff14441fea1",
+      "eventDate": "2026-07-30",
+      "eventDateType": "announcement_date",
+      "title": "Nebula Security released an open-source project",
+      "summary": "Nebula Security has open-sourced one-click Docker setups and full exploits for Nginx-{PoolSlip, QuicBurst}, both with remote ASLR bypasses.",
+      "category": "open_source",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-8c08b8b8ed0789a265f9f1c3",
+          "title": "We’ve open-sourced one-click Docker setups and full exploits for Nginx-{PoolSlip, QuicBurst}, both with remote ASLR bypasses.",
+          "publisher": "nebusecurity",
+          "domain": "x.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-07-30T23:04:01.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/nebusecurity/status/2082965465408979321"
+        }
+      ]
+    },
     {
       "id": "tle-7c1e74f4b4855c19d4525404",
       "eventDate": "2026-07-23",
@@ -38,16 +86,20 @@
       "year": 2026,
       "months": [
         {
-          "month": "2026-07",
+          "month": "2026-08",
           "count": 1
+        },
+        {
+          "month": "2026-07",
+          "count": 2
         }
       ]
     }
   ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-08-03T07:52:26.040Z"
+    "publishedEventCount": 3,
+    "lastSuccessfulArtifactAt": "2026-08-05T00:49:13.374Z"
   },
   "nextCursor": null
 }

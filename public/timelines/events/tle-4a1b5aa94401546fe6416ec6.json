@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "a16z-speedrun-006-snapp-stats",
+    "slug": "snapp-stats",
+    "name": "Snapp Stats"
+  },
+  "event": {
+    "id": "tle-4a1b5aa94401546fe6416ec6",
+    "eventDate": "2026-07-17",
+    "eventDateType": "announcement_date",
+    "title": "Snapp Stats released prediction models",
+    "summary": "Snapp Stats introduced prediction models.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-71ee394c8d704e215aa591b9",
+        "title": "Introducing prediction models. 🫰 Pro sports bettors hide their edge. Snapp AI's models put every pick on a public record — tracked in units, win rates visible, nothing deleted. Try Free → http://app.trysnapp.ai/models",
+        "publisher": "SnappStats",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-07-17T19:24:56.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/SnappStats/status/2078199290607137208"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-71ee394c8d704e215aa591b9",
+        "title": "Introducing prediction models. 🫰 Pro sports bettors hide their edge. Snapp AI's models put every pick on a public record — tracked in units, win rates visible, nothing deleted. Try Free → http://app.trysnapp.ai/models",
+        "publisher": "SnappStats",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-07-17T19:24:56.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/SnappStats/status/2078199290607137208",
+        "publicationDate": "2026-07-17T19:24:56.000Z",
+        "excerpt": "Introducing prediction models. 🫰 Pro sports bettors hide their edge. Snapp AI's models put every pick on a public record — tracked in units, win rates visible, nothing deleted. Try Free → http://app.trysnapp.ai/models",
+        "sourceEventDate": "2026-07-17",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-3877b2d40b7aa0dd527b4368",
+        "platform": "x",
+        "account": "SnappStats",
+        "postDate": "2026-07-17",
+        "excerpt": "Introducing prediction models. 🫰 Pro sports bettors hide their edge. Snapp AI's models put every pick on a public record — tracked in units, win rates visible, nothing deleted. Try Free → http://app.trysnapp.ai/models",
+        "url": "https://x.com/SnappStats/status/2078199290607137208",
+        "metrics": {
+          "views": 105,
+          "likes": 0,
+          "replies": 1,
+          "reposts": 0,
+          "quotes": 0,
+          "bookmarks": 0
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

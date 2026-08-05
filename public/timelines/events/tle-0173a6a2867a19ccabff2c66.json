@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-talentpluto",
+    "slug": "pluto",
+    "name": "Pluto"
+  },
+  "event": {
+    "id": "tle-0173a6a2867a19ccabff2c66",
+    "eventDate": "2026-02-23",
+    "eventDateType": "announcement_date",
+    "title": "Pluto announced $125M Series B",
+    "summary": "Pluto reported a snow day in NYC = the perfect opportunity to connect with the best startups To date, we've made 1,000+ successful matches for candidates Some of our partners include NYC & SF Fintech/Banking ($125M Raised, Series B) NYC Data Infrastructure (YC-backed, $6M.",
+    "category": "funding",
+    "isMajor": true,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-ef149c98ca556cd5beb1c807",
+        "title": "A snow day in NYC = the perfect opportunity to connect with the best startups To date, we’ve made 1,000+ successful matches for candidates Some of our partners include NYC & SF Fintech/Banking ($125M Raised, Series B) NYC Data Infrastru...",
+        "publisher": "talentpluto",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-02-23T20:40:37.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/talentpluto/status/2026034483846078487"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-ef149c98ca556cd5beb1c807",
+        "title": "A snow day in NYC = the perfect opportunity to connect with the best startups To date, we’ve made 1,000+ successful matches for candidates Some of our partners include NYC & SF Fintech/Banking ($125M Raised, Series B) NYC Data Infrastru...",
+        "publisher": "talentpluto",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-02-23T20:40:37.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/talentpluto/status/2026034483846078487",
+        "publicationDate": "2026-02-23T20:40:37.000Z",
+        "excerpt": "A snow day in NYC = the perfect opportunity to connect with the best startups To date, we’ve made 1,000+ successful matches for candidates Some of our partners include NYC & SF Fintech/Banking ($125M Raised, Series B) NYC Data Infrastructure (YC-backed, $6M Raised, Seed) SF Payroll (YC-backed, $24M Raised, Series A) NYC AI Infrastructure (OpenAI-backed, $14M Raised, Seed) NYC Stealth E-commerce ($26M Raised, Series A) NYC Customer Service Voice AI ($38M Raised, Series B) NYC Medicare Planning…",
+        "sourceEventDate": "2026-02-23",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-72585f73aa18a300e4b502e5",
+        "platform": "x",
+        "account": "talentpluto",
+        "postDate": "2026-02-23",
+        "excerpt": "A snow day in NYC = the perfect opportunity to connect with the best startups To date, we’ve made 1,000+ successful matches for candidates Some of our partners include NYC & SF Fintech/Banking ($125M Raised, Series B) NYC Data Infrastructure (YC-backed, $6M Raised, Seed) SF Payroll (YC-backed, $24M Raised, Series A) NYC AI Infrastructure (OpenAI-backed, $14M Raised, Seed) NYC Stealth E-commerce ($26M Raised, Series A) NYC Customer Service Voice AI ($38M Raised, Series B) NYC Medicare Planning…",
+        "url": "https://x.com/talentpluto/status/2026034483846078487",
+        "metrics": {
+          "views": 120,
+          "likes": 3,
+          "replies": 0,
+          "reposts": 0,
+          "quotes": 0,
+          "bookmarks": 0
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

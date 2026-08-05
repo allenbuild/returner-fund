@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-openwork",
+    "slug": "openwork",
+    "name": "OpenWork"
+  },
+  "event": {
+    "id": "tle-467a7bb687f507212be4f1e6",
+    "eventDate": "2026-03-12",
+    "eventDateType": "announcement_date",
+    "title": "OpenWork released Blueprints",
+    "summary": "OpenWork reported announcing Blueprints.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-34bb45b962c2a3e28238560d",
+        "title": "Announcing Blueprints. Love your setup? Want to share it with your coworker? Share a link and let them instantiate all your agents, mcp, skills, etc - instantly.",
+        "publisher": "getopenwork",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-03-12T04:34:02.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/getopenwork/status/2031951829890973884"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-34bb45b962c2a3e28238560d",
+        "title": "Announcing Blueprints. Love your setup? Want to share it with your coworker? Share a link and let them instantiate all your agents, mcp, skills, etc - instantly.",
+        "publisher": "getopenwork",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-03-12T04:34:02.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/getopenwork/status/2031951829890973884",
+        "publicationDate": "2026-03-12T04:34:02.000Z",
+        "excerpt": "Announcing Blueprints. Love your setup? Want to share it with your coworker? Share a link and let them instantiate all your agents, mcp, skills, etc - instantly.",
+        "sourceEventDate": "2026-03-12",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-0e7e950c4e7bf4561592eafc",
+        "platform": "x",
+        "account": "getopenwork",
+        "postDate": "2026-03-12",
+        "excerpt": "Announcing Blueprints. Love your setup? Want to share it with your coworker? Share a link and let them instantiate all your agents, mcp, skills, etc - instantly.",
+        "url": "https://x.com/getopenwork/status/2031951829890973884",
+        "metrics": {
+          "views": 503,
+          "likes": 6,
+          "replies": 0,
+          "reposts": 1,
+          "quotes": 0,
+          "bookmarks": 1
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

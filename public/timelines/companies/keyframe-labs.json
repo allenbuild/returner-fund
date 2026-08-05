@@ -5,8 +5,8 @@
     "slug": "keyframe-labs",
     "name": "Keyframe Labs"
   },
-  "generatedAt": "2026-08-03T07:52:26.040Z",
-  "lastModifiedAt": "2026-08-03T07:52:26.040Z",
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z",
   "events": [
     {
       "id": "tle-76697c166af471af2b1b0543",
@@ -21,22 +21,22 @@
       "evidenceCount": 1,
       "sourcePreview": [
         {
-          "id": "src-bdf4f61556963cd779902e26",
-          "title": "AI personas can now join Zoom, Google Meet, and Microsoft Teams. They look real. They sound real. They show up on time. Powered by our SOTA real-time video model, persona-1.5-live 0:10 / 0:19",
-          "publisher": "KeyframeLabs X post",
+          "id": "src-a9ef4d9d694bb98b31ba010b",
+          "title": "AI personas can now join Zoom, Google Meet, and Microsoft Teams.",
+          "publisher": "keyframelabs",
           "domain": "x.com",
           "sourceType": "company_post",
-          "publishedAt": "2026-04-29T00:00:00.000Z",
+          "publishedAt": "2026-04-29T19:48:19.000Z",
           "evidenceRole": "primary",
-          "url": "https://x.com/KeyframeLabs/status/2049576532948250897"
+          "url": "https://x.com/keyframelabs/status/2049576532948250897"
         }
       ]
     },
     {
-      "id": "tle-bf02240e48280cf303f661fb",
-      "eventDate": "2026-02-11",
+      "id": "tle-e1749af7e8856ed96dc81bbb",
+      "eventDate": "2026-02-12",
       "eventDateType": "announcement_date",
-      "title": "Keyframe Labs announced its public launch",
+      "title": "Keyframe Labs released the world's most expressive, conversational AI humans",
       "summary": "Keyframe Labs introduced the world's most expressive, conversational AI humans.",
       "category": "product_launch",
       "isMajor": false,
@@ -45,14 +45,14 @@
       "evidenceCount": 1,
       "sourcePreview": [
         {
-          "id": "src-821034a9a37629e5f4496ac3",
-          "title": "Introducing the world's most expressive, conversational AI humans. Runs in real-time at just $0.06 per minute. Watch Cosmo move fluidly through emotions in an unedited conversation with our CTO. 0:07 / 1:19",
-          "publisher": "KeyframeLabs X post",
+          "id": "src-169bd4efbf7ea886d1260a88",
+          "title": "Introducing the world's most expressive, conversational AI humans.",
+          "publisher": "keyframelabs",
           "domain": "x.com",
           "sourceType": "company_post",
-          "publishedAt": "2026-02-11T00:00:00.000Z",
+          "publishedAt": "2026-02-12T02:51:18.000Z",
           "evidenceRole": "primary",
-          "url": "https://x.com/KeyframeLabs/status/2021779113678405689"
+          "url": "https://x.com/keyframelabs/status/2021779113678405689"
         }
       ]
     }
@@ -75,7 +75,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 2,
-    "lastSuccessfulArtifactAt": "2026-08-03T07:52:26.040Z"
+    "lastSuccessfulArtifactAt": "2026-08-05T00:49:13.374Z"
   },
   "nextCursor": null
 }

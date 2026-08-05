@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-insforge",
+    "slug": "insforge",
+    "name": "InsForge"
+  },
+  "event": {
+    "id": "tle-1532b94679c285949ad16849",
+    "eventDate": "2026-04-30",
+    "eventDateType": "announcement_date",
+    "title": "InsForge released Database Migrations on Create a migration file",
+    "summary": "InsForge introduced Database Migrations on @insforge Create a migration file.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-4b5044a880d0685dd244dbdd",
+        "title": "Introducing Database Migrations on @insforge Create a migration file. Apply it to your database. Track every schema change in your codebase. Now supported through InsForge CLI + Skills, so your coding agent can manage database changes wi...",
+        "publisher": "insforge",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-04-30T21:54:57.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/insforge/status/2049970790934941832"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-4b5044a880d0685dd244dbdd",
+        "title": "Introducing Database Migrations on @insforge Create a migration file. Apply it to your database. Track every schema change in your codebase. Now supported through InsForge CLI + Skills, so your coding agent can manage database changes wi...",
+        "publisher": "insforge",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-04-30T21:54:57.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/insforge/status/2049970790934941832",
+        "publicationDate": "2026-04-30T21:54:57.000Z",
+        "excerpt": "Introducing Database Migrations on @insforge Create a migration file. Apply it to your database. Track every schema change in your codebase. Now supported through InsForge CLI + Skills, so your coding agent can manage database changes without touching the dashboard.",
+        "sourceEventDate": "2026-04-30",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-d326990c7a5b981f8ce113a2",
+        "platform": "x",
+        "account": "insforge",
+        "postDate": "2026-04-30",
+        "excerpt": "Introducing Database Migrations on @insforge Create a migration file. Apply it to your database. Track every schema change in your codebase. Now supported through InsForge CLI + Skills, so your coding agent can manage database changes without touching the dashboard.",
+        "url": "https://x.com/insforge/status/2049970790934941832",
+        "metrics": {
+          "views": 1883,
+          "likes": 9,
+          "replies": 1,
+          "reposts": 0,
+          "quotes": 1,
+          "bookmarks": 3
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

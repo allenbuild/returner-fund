@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-superlog",
+    "slug": "superlog",
+    "name": "Superlog"
+  },
+  "event": {
+    "id": "tle-29cc44ac1e6b625e952698f5",
+    "eventDate": "2026-07-09",
+    "eventDateType": "announcement_date",
+    "title": "Superlog released slack q&a",
+    "summary": "Superlog introduced slack q&a for now you can chat with Superlog in Slack and investigate incidents, handle support issues and help your teammates.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-783af020572b998a738cb816",
+        "title": "introducing slack q&a for http://superlog.sh now you can chat with Superlog in Slack and investigate incidents, handle support issues and help your teammates!",
+        "publisher": "arseniycodes",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-07-09T15:58:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/arseniycodes/status/2075248109492310417"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-783af020572b998a738cb816",
+        "title": "introducing slack q&a for http://superlog.sh now you can chat with Superlog in Slack and investigate incidents, handle support issues and help your teammates!",
+        "publisher": "arseniycodes",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-07-09T15:58:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/arseniycodes/status/2075248109492310417",
+        "publicationDate": "2026-07-09T15:58:00.000Z",
+        "excerpt": "introducing slack q&a for http://superlog.sh now you can chat with Superlog in Slack and investigate incidents, handle support issues and help your teammates!",
+        "sourceEventDate": "2026-07-09",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-3b889bcf6ee64726a9c72933",
+        "platform": "x",
+        "account": "arseniycodes",
+        "postDate": "2026-07-09",
+        "excerpt": "introducing slack q&a for http://superlog.sh now you can chat with Superlog in Slack and investigate incidents, handle support issues and help your teammates!",
+        "url": "https://x.com/arseniycodes/status/2075248109492310417",
+        "metrics": {
+          "views": 1793,
+          "likes": 19,
+          "replies": 6,
+          "reposts": 1,
+          "quotes": 1,
+          "bookmarks": 6
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

@@ -5,15 +5,15 @@
     "slug": "pluvo",
     "name": "Pluvo"
   },
-  "generatedAt": "2026-08-03T07:52:26.040Z",
-  "lastModifiedAt": "2026-08-03T07:52:26.040Z",
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z",
   "events": [
     {
-      "id": "tle-dacda55ef6d9f1cf9d1f8c98",
-      "eventDate": "2026-03-09",
+      "id": "tle-3b01d459ba901f48381713f3",
+      "eventDate": "2026-02-26",
       "eventDateType": "announcement_date",
-      "title": "Pluvo announced $5M seed funding",
-      "summary": "Pluvo reported iCYMI: We just raised $5M in seed funding.",
+      "title": "Pluvo announced $5M Seed round",
+      "summary": "Pluvo reported today, we announced a $5M Seed round to build the next generation of AI-native analysis for finance.",
       "category": "funding",
       "isMajor": true,
       "hasConflict": false,
@@ -21,24 +21,24 @@
       "evidenceCount": 2,
       "sourcePreview": [
         {
-          "id": "src-616daf1862f7c6979314f7cf",
-          "title": "ICYMI: We just raised $5M in seed funding. One of the coolest things about this round is that several of the angel investors are our own customers; th",
+          "id": "src-2f3fac3ee5a2641d6f31b8ad",
+          "title": "Today, we announced a $5M Seed round to build the next generation of AI-native analysis for finance. The round includes participation from @speedrun , @getdeel, The Perseverance Fund, StandUp Ventures, @altaircapital, and a group of…",
           "publisher": "pluvoapp",
           "domain": "instagram.com",
           "sourceType": "company_post",
-          "publishedAt": "2026-03-09T18:37:10Z",
+          "publishedAt": "2026-02-26T21:35:03.000Z",
           "evidenceRole": "primary",
-          "url": "https://www.instagram.com/p/DVrIqwBk_4B"
+          "url": "https://instagram.com/p/DVPISu_kn0U"
         },
         {
-          "id": "src-e8ec5a86d4d9f0237a330adc",
-          "title": "Today, we announced a $5M Seed round to build the next generation of AI-native analysis for finance. The round includes participation from @speedrun ,",
+          "id": "src-0f9ff2b8f9808624bba5210d",
+          "title": "ICYMI: We just raised $5M in seed funding. One of the coolest things about this round is that several of the angel investors are our own customers; the CFOs and finance leaders who use Pluvo every month to run their planning and analysis.…",
           "publisher": "pluvoapp",
           "domain": "instagram.com",
           "sourceType": "company_post",
-          "publishedAt": "2026-02-26T21:35:03Z",
+          "publishedAt": "2026-03-09T18:37:10.000Z",
           "evidenceRole": "primary",
-          "url": "https://www.instagram.com/p/DVPISu_kn0U"
+          "url": "https://instagram.com/p/DVrIqwBk_4B"
         }
       ]
     }
@@ -48,7 +48,7 @@
       "year": 2026,
       "months": [
         {
-          "month": "2026-03",
+          "month": "2026-02",
           "count": 1
         }
       ]
@@ -57,7 +57,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-08-03T07:52:26.040Z"
+    "lastSuccessfulArtifactAt": "2026-08-05T00:49:13.374Z"
   },
   "nextCursor": null
 }

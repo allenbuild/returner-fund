@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-projectx",
+    "slug": "projectx",
+    "name": "ProjectX"
+  },
+  "event": {
+    "id": "tle-0e5c52ee680f23fdf54e749e",
+    "eventDate": "2026-03-14",
+    "eventDateType": "announcement_date",
+    "title": "ProjectX was accepted into Y Combinator",
+    "summary": "ProjectX reported @BishalK_ @runallapps and me survived on $900 for 2 weeks, before: - we went viral with more than 2M views - we got into YC - we had thousands of users I still couldn't imagine what would have happened if things went otherwise.",
+    "category": "accelerator",
+    "isMajor": true,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-6eaede4ecf497fcabd057ba2",
+        "title": "@BishalK_ @runallapps and me survived on $900 for 2 weeks, before: - we went viral with more than 2M views - we got into YC - we had thousands of users I still couldn’t imagine what would have happened if things went otherwise. But now ...",
+        "publisher": "Rounacc",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-03-14T07:12:34.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/Rounacc/status/2032716499337855400"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-6eaede4ecf497fcabd057ba2",
+        "title": "@BishalK_ @runallapps and me survived on $900 for 2 weeks, before: - we went viral with more than 2M views - we got into YC - we had thousands of users I still couldn’t imagine what would have happened if things went otherwise. But now ...",
+        "publisher": "Rounacc",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-03-14T07:12:34.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/Rounacc/status/2032716499337855400",
+        "publicationDate": "2026-03-14T07:12:34.000Z",
+        "excerpt": "@BishalK_ @runallapps and me survived on $900 for 2 weeks, before: - we went viral with more than 2M views - we got into YC - we had thousands of users I still couldn’t imagine what would have happened if things went otherwise. But now that I look back, I have to say, YES, I was very scared but I had zero doubt that we were going to make it :) Super proud of team @ProjectX_Cloud",
+        "sourceEventDate": "2026-03-14",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-013403e4088c2aaafd037d66",
+        "platform": "x",
+        "account": "Rounacc",
+        "postDate": "2026-03-14",
+        "excerpt": "@BishalK_ @runallapps and me survived on $900 for 2 weeks, before: - we went viral with more than 2M views - we got into YC - we had thousands of users I still couldn’t imagine what would have happened if things went otherwise. But now that I look back, I have to say, YES, I was very scared but I had zero doubt that we were going to make it :) Super proud of team @ProjectX_Cloud",
+        "url": "https://x.com/Rounacc/status/2032716499337855400",
+        "metrics": {
+          "views": 2557,
+          "likes": 16,
+          "replies": 1,
+          "reposts": 0,
+          "quotes": 1,
+          "bookmarks": 1
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

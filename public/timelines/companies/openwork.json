@@ -5,31 +5,69 @@
     "slug": "openwork",
     "name": "OpenWork"
   },
-  "generatedAt": "2026-08-03T07:52:26.040Z",
-  "lastModifiedAt": "2026-08-03T07:52:26.040Z",
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z",
   "events": [
     {
-      "id": "tle-ab893d80478f236309dc1328",
+      "id": "tle-b1b8a22b8c3555944daa0fa7",
+      "eventDate": "2026-08-02",
+      "eventDateType": "announcement_date",
+      "title": "OpenWork reached 20k stars",
+      "summary": "OpenWork is trending and crossed 20k stars.",
+      "category": "traction_milestone",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-2b642c2469b27d30ec38e13a",
+          "title": "OpenWork is trending and crossed 20k stars.",
+          "publisher": "benjaminshafii",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-08-02T16:14:24.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/benjaminshafii/status/2083949544820060597"
+        }
+      ]
+    },
+    {
+      "id": "tle-2998725ce851dace786ad0ce",
+      "eventDate": "2026-07-26",
+      "eventDateType": "announcement_date",
+      "title": "OpenWork released OpenWork Web OpenWork web brings your setup to the cloud",
+      "summary": "OpenWork introduced OpenWork Web OpenWork web brings your setup to the cloud.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-85c7d208c6c10a4885c4f235",
+          "title": "Introducing OpenWork Web OpenWork web brings your setup to the cloud.",
+          "publisher": "getopenwork",
+          "domain": "x.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-07-26T11:19:43.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/getopenwork/status/2081338670527717862"
+        }
+      ]
+    },
+    {
+      "id": "tle-0c6a60fb663ed7efb3ec6391",
       "eventDate": "2026-06-18",
       "eventDateType": "announcement_date",
       "title": "OpenWork announced its public launch",
-      "summary": "OpenWork introduced \"OpenWork Coworker\".",
+      "summary": "OpenWork announced it was releasing OpenWork Connect.",
       "category": "product_launch",
       "isMajor": true,
       "hasConflict": false,
       "conflictSummary": null,
       "evidenceCount": 2,
       "sourcePreview": [
-        {
-          "id": "src-39514f314c1276ae57e202a6",
-          "title": "Introducing \"OpenWork Coworker\". OpenWork is all about helping you create and share workflows with the rest of your team. We've talked to many teams who deploy AI Coworkers onto Slack, emails, and beyond. They all make you either: a) make…",
-          "publisher": "benjaminshafii X post",
-          "domain": "x.com",
-          "sourceType": "founder_post",
-          "publishedAt": "2026-06-18T00:00:00.000Z",
-          "evidenceRole": "primary",
-          "url": "https://x.com/benjaminshafii/status/2067665463715549526"
-        },
         {
           "id": "src-4a4d0a3900d198d0dd59d0ad",
           "title": "Today we’re releasing OpenWork Connect. OpenWork started as a free, open-source desktop app. The goal was to make the fully configured a...",
@@ -39,6 +77,98 @@
           "publishedAt": "2026-07-17T01:35:10.000Z",
           "evidenceRole": "primary",
           "url": "https://x.com/benjaminshafii/status/2077930072850440564"
+        },
+        {
+          "id": "src-39514f314c1276ae57e202a6",
+          "title": "Introducing \"OpenWork Coworker\". OpenWork is all about helping you create and share workflows with the rest of your team. We've talked to many teams who deploy AI Coworkers onto Slack, emails, and beyond. They all make you either: a) make…",
+          "publisher": "benjaminshafii X post",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-06-18T00:00:00.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/benjaminshafii/status/2067665463715549526"
+        }
+      ]
+    },
+    {
+      "id": "tle-d4bdd4bbae965394858d751b",
+      "eventDate": "2026-03-13",
+      "eventDateType": "announcement_date",
+      "title": "OpenWork enabled right side bar to collapse",
+      "summary": "OpenWork reported right side bar can now collapse.",
+      "category": "product_update",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-72451ffe0fe0e2d74c12cec1",
+          "title": "right side bar can now collapse",
+          "publisher": "getopenwork",
+          "domain": "x.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-03-13T20:58:27.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/getopenwork/status/2032561953181413580"
+        }
+      ]
+    },
+    {
+      "id": "tle-467a7bb687f507212be4f1e6",
+      "eventDate": "2026-03-12",
+      "eventDateType": "announcement_date",
+      "title": "OpenWork released Blueprints",
+      "summary": "OpenWork reported announcing Blueprints.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-34bb45b962c2a3e28238560d",
+          "title": "Announcing Blueprints. Love your setup? Want to share it with your coworker? Share a link and let them instantiate all your agents, mcp, skills, etc - instantly.",
+          "publisher": "getopenwork",
+          "domain": "x.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-03-12T04:34:02.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/getopenwork/status/2031951829890973884"
+        }
+      ]
+    },
+    {
+      "id": "tle-51bf49f4327aa57b3f979f04",
+      "eventDate": "2026-01-17",
+      "eventDateType": "occurrence_date",
+      "title": "OpenWork launched on Product Hunt",
+      "summary": "OpenWork announced openWork launched on Product Hunt.",
+      "category": "product_launch",
+      "isMajor": true,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 2,
+      "sourcePreview": [
+        {
+          "id": "src-38df550e3261843c8d3553ac",
+          "title": "OpenWork",
+          "publisher": "benjamin_shafii",
+          "domain": "producthunt.com",
+          "sourceType": "product_hunt",
+          "publishedAt": "2026-01-17T15:00:00.000Z",
+          "evidenceRole": "primary",
+          "url": "https://producthunt.com/products/openwork/launches/openwork"
+        },
+        {
+          "id": "src-34b5ed8887c8c911ff082960",
+          "title": "Announcing OpenWork Share Share any skills through a nice unique link. Free to use, no account required.",
+          "publisher": "getopenwork",
+          "domain": "x.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-03-12T04:31:28.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/getopenwork/status/2031951181036339687"
         }
       ]
     }
@@ -48,7 +178,23 @@
       "year": 2026,
       "months": [
         {
+          "month": "2026-08",
+          "count": 1
+        },
+        {
+          "month": "2026-07",
+          "count": 1
+        },
+        {
           "month": "2026-06",
+          "count": 1
+        },
+        {
+          "month": "2026-03",
+          "count": 2
+        },
+        {
+          "month": "2026-01",
           "count": 1
         }
       ]
@@ -56,8 +202,8 @@
   ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-08-03T07:52:26.040Z"
+    "publishedEventCount": 6,
+    "lastSuccessfulArtifactAt": "2026-08-05T00:49:13.374Z"
   },
   "nextCursor": null
 }

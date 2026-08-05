@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-screenpipe",
+    "slug": "screenpipe",
+    "name": "screenpipe"
+  },
+  "event": {
+    "id": "tle-a2df9021907927c3752b0500",
+    "eventDate": "2026-05-26",
+    "eventDateType": "announcement_date",
+    "title": "screenpipe released spii-45",
+    "summary": "screenpipe introduced spii-45: a privacy foundation model It removes PII from text and images with near-frontier model performance at 9ms inference time on consumer device Outperforms by far PII-specialized model from Google, OpenAI, Microsoft read more.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-3bb867aaa182336c967d8d15",
+        "title": "Introducing spii-45: a privacy foundation model It removes PII from text and images with near-frontier model performance at 9ms inference time on consumer device Outperforms by far PII-specialized model from Google, OpenAI, Microsoft ...",
+        "publisher": "screenpipe",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-05-26T13:00:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/screenpipe/status/2059258250315321661"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-3bb867aaa182336c967d8d15",
+        "title": "Introducing spii-45: a privacy foundation model It removes PII from text and images with near-frontier model performance at 9ms inference time on consumer device Outperforms by far PII-specialized model from Google, OpenAI, Microsoft ...",
+        "publisher": "screenpipe",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-05-26T13:00:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/screenpipe/status/2059258250315321661",
+        "publicationDate": "2026-05-26T13:00:00.000Z",
+        "excerpt": "Introducing spii-45: a privacy foundation model It removes PII from text and images with near-frontier model performance at 9ms inference time on consumer device Outperforms by far PII-specialized model from Google, OpenAI, Microsoft read more: http://screenpipe.github.io/screenleak",
+        "sourceEventDate": "2026-05-26",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-8aafb1e560ecd8f77d2d62e9",
+        "platform": "x",
+        "account": "screenpipe",
+        "postDate": "2026-05-26",
+        "excerpt": "Introducing spii-45: a privacy foundation model It removes PII from text and images with near-frontier model performance at 9ms inference time on consumer device Outperforms by far PII-specialized model from Google, OpenAI, Microsoft read more: http://screenpipe.github.io/screenleak",
+        "url": "https://x.com/screenpipe/status/2059258250315321661",
+        "metrics": {
+          "views": 975,
+          "likes": 7,
+          "replies": 1,
+          "reposts": 1,
+          "quotes": 1,
+          "bookmarks": 4
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

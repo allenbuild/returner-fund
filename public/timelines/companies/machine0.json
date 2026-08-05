@@ -5,8 +5,8 @@
     "slug": "machine0",
     "name": "machine0"
   },
-  "generatedAt": "2026-08-03T07:52:26.040Z",
-  "lastModifiedAt": "2026-08-03T07:52:26.040Z",
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z",
   "events": [
     {
       "id": "tle-36916e4d5689431dae77870b",
@@ -71,10 +71,10 @@
         {
           "id": "src-1479e87fa2b632542882b882",
           "title": "We just launched Environments, which allows you to inject variables into VMs at creation time.",
-          "publisher": "We just launched Environments, which allows you to inject variables into VMs at creation time.",
+          "publisher": "machine__0",
           "domain": "x.com",
           "sourceType": "company_post",
-          "publishedAt": "2026-07-01T00:00:00.000Z",
+          "publishedAt": "2026-07-01T15:39:24.000Z",
           "evidenceRole": "primary",
           "url": "https://x.com/machine__0/status/2072344325686755678"
         }
@@ -103,6 +103,30 @@
           "url": "https://x.com/machine__0/status/2066529624872399032"
         }
       ]
+    },
+    {
+      "id": "tle-1fbd32b96a23b36de9913ce6",
+      "eventDate": "2026-06-09",
+      "eventDateType": "announcement_date",
+      "title": "machine0 was accepted into Y Combinator S26",
+      "summary": "machine0 reported i just got into YC S26 as a 40yo solo founder.",
+      "category": "accelerator",
+      "isMajor": true,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-a2f3e649b6af1439130b0690",
+          "title": "I just got into YC S26 as a 40yo solo founder. Did YC W20 with Upflow, was CTO/CPO for 6 years. Company is doing millions in ARR and still growing. But I’m a maker at heart, so I left to go 0-1 again. Last year I built an MCP gateway wi...",
+          "publisher": "barnabymalet",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-06-09T17:09:31.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/barnabymalet/status/2064394472314613791"
+        }
+      ]
     }
   ],
   "groups": [
@@ -119,15 +143,15 @@
         },
         {
           "month": "2026-06",
-          "count": 1
+          "count": 2
         }
       ]
     }
   ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 4,
-    "lastSuccessfulArtifactAt": "2026-08-03T07:52:26.040Z"
+    "publishedEventCount": 5,
+    "lastSuccessfulArtifactAt": "2026-08-05T00:49:13.374Z"
   },
   "nextCursor": null
 }

@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-tasklet-2",
+    "slug": "tasklet",
+    "name": "Tasklet"
+  },
+  "event": {
+    "id": "tle-a072ebc16a3c9f486c888fa1",
+    "eventDate": "2026-04-07",
+    "eventDateType": "announcement_date",
+    "title": "Tasklet announced $20M funding round",
+    "summary": "Tasklet just raised $20M to build the cloud agent operating system for work.",
+    "category": "funding",
+    "isMajor": true,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-8378ae1988d81c7249624e7c",
+        "title": "We just raised $20M to build the cloud agent operating system for work. The investment is led by @usv & @lightspeedvp and includes @ycombinator, @JeffDean, @patrickc & others. It values the company at $175M. 🧵",
+        "publisher": "TaskletAI",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-04-07T16:48:55.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/TaskletAI/status/2041558853456949387"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-8378ae1988d81c7249624e7c",
+        "title": "We just raised $20M to build the cloud agent operating system for work. The investment is led by @usv & @lightspeedvp and includes @ycombinator, @JeffDean, @patrickc & others. It values the company at $175M. 🧵",
+        "publisher": "TaskletAI",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-04-07T16:48:55.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/TaskletAI/status/2041558853456949387",
+        "publicationDate": "2026-04-07T16:48:55.000Z",
+        "excerpt": "We just raised $20M to build the cloud agent operating system for work. The investment is led by @usv & @lightspeedvp and includes @ycombinator, @JeffDean, @patrickc & others. It values the company at $175M. 🧵",
+        "sourceEventDate": "2026-04-07",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-e7eb5d97cc0418039cdd87a0",
+        "platform": "x",
+        "account": "TaskletAI",
+        "postDate": "2026-04-07",
+        "excerpt": "We just raised $20M to build the cloud agent operating system for work. The investment is led by @usv & @lightspeedvp and includes @ycombinator, @JeffDean, @patrickc & others. It values the company at $175M. 🧵",
+        "url": "https://x.com/TaskletAI/status/2041558853456949387",
+        "metrics": {
+          "views": 196570,
+          "likes": 128,
+          "replies": 11,
+          "reposts": 13,
+          "quotes": 9,
+          "bookmarks": 111
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

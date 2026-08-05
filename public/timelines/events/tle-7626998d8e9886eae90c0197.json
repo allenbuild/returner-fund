@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-interfaze",
+    "slug": "interfaze",
+    "name": "Interfaze"
+  },
+  "event": {
+    "id": "tle-7626998d8e9886eae90c0197",
+    "eventDate": "2026-04-28",
+    "eventDateType": "announcement_date",
+    "title": "Interfaze released SOB",
+    "summary": "Interfaze introduced SOB, the Structured Output Benchmark for LLMs.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-a8442fe562a9f1bd80c05171",
+        "title": "Introducing SOB, the Structured Output Benchmark for LLMs! Existing benchmarks only measure schema accuracy. SOB also measures output value accuracy across text, image, and audio. Open source GLM 4.7 is number 2, right after GPT-5.4.",
+        "publisher": "interfaze_ai",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-04-28T16:27:20.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/interfaze_ai/status/2049163565807157282"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-a8442fe562a9f1bd80c05171",
+        "title": "Introducing SOB, the Structured Output Benchmark for LLMs! Existing benchmarks only measure schema accuracy. SOB also measures output value accuracy across text, image, and audio. Open source GLM 4.7 is number 2, right after GPT-5.4.",
+        "publisher": "interfaze_ai",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-04-28T16:27:20.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/interfaze_ai/status/2049163565807157282",
+        "publicationDate": "2026-04-28T16:27:20.000Z",
+        "excerpt": "Introducing SOB, the Structured Output Benchmark for LLMs! Existing benchmarks only measure schema accuracy. SOB also measures output value accuracy across text, image, and audio. Open source GLM 4.7 is number 2, right after GPT-5.4.",
+        "sourceEventDate": "2026-04-28",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-a0420b57514e2c135397884b",
+        "platform": "x",
+        "account": "interfaze_ai",
+        "postDate": "2026-04-28",
+        "excerpt": "Introducing SOB, the Structured Output Benchmark for LLMs! Existing benchmarks only measure schema accuracy. SOB also measures output value accuracy across text, image, and audio. Open source GLM 4.7 is number 2, right after GPT-5.4.",
+        "url": "https://x.com/interfaze_ai/status/2049163565807157282",
+        "metrics": {
+          "views": 7197,
+          "likes": 26,
+          "replies": 1,
+          "reposts": 2,
+          "quotes": 4,
+          "bookmarks": 11
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

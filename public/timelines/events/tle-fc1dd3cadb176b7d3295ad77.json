@@ -1,0 +1,110 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-pentagon",
+    "slug": "pentagon",
+    "name": "Pentagon"
+  },
+  "event": {
+    "id": "tle-fc1dd3cadb176b7d3295ad77",
+    "eventDate": "2026-05-20",
+    "eventDateType": "announcement_date",
+    "title": "Pentagon released Pentagon: a coordination layer for humans and agents",
+    "summary": "Pentagon introduced Pentagon: a coordination layer for humans and agents.",
+    "category": "product_launch",
+    "isMajor": true,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 2,
+    "sourcePreview": [
+      {
+        "id": "src-17948f78d9aff050c8915458",
+        "title": "Introducing Pentagon: a coordination layer for humans and agents.",
+        "publisher": "runpentagon",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-05-20T23:33:10.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/runpentagon/status/2057243262214410382"
+      },
+      {
+        "id": "src-a1d647f9f88fb5fff90f03cb",
+        "title": "Introducing Pentagon: a coordination layer for humans and agents.",
+        "publisher": "edgarpavlovsky",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-05-19T22:38:11.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/edgarpavlovsky/status/2056867039860625431"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-17948f78d9aff050c8915458",
+        "title": "Introducing Pentagon: a coordination layer for humans and agents.",
+        "publisher": "runpentagon",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-05-20T23:33:10.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/runpentagon/status/2057243262214410382",
+        "publicationDate": "2026-05-20T23:33:10.000Z",
+        "excerpt": "Yesterday, I became. Introducing Pentagon: a coordination layer for humans and agents. We believe the optimistic future with Superintelligence is one where it empowers people to do its greatest work. See us in action and learn more: https://t.co/NfcTWzJEPE",
+        "sourceEventDate": "2026-05-20",
+        "isConflicting": false,
+        "conflictDescription": null
+      },
+      {
+        "id": "src-a1d647f9f88fb5fff90f03cb",
+        "title": "Introducing Pentagon: a coordination layer for humans and agents.",
+        "publisher": "edgarpavlovsky",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-05-19T22:38:11.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/edgarpavlovsky/status/2056867039860625431",
+        "publicationDate": "2026-05-19T22:38:11.000Z",
+        "excerpt": "Introducing Pentagon: a coordination layer for humans and agents. ASI yields two futures: 1. AI replaces us. 2. AI empowers us to do our greatest work. We're building for the latter. Our first product is Pentagon Studio: https://t.co/7Ipulc7zmH An in-depth article below: https://t.co/bkkgIT7Ag0",
+        "sourceEventDate": "2026-05-20",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-bd1ec25a22eccac8caf79b08",
+        "platform": "x",
+        "account": "runpentagon",
+        "postDate": "2026-05-20",
+        "excerpt": "Yesterday, I became. Introducing Pentagon: a coordination layer for humans and agents. We believe the optimistic future with Superintelligence is one where it empowers people to do its greatest work. See us in action and learn more: https://t.co/NfcTWzJEPE",
+        "url": "https://x.com/runpentagon/status/2057243262214410382",
+        "metrics": {
+          "likes": 17,
+          "reposts": 2,
+          "quotes": 1,
+          "replies": 6,
+          "views": 3844
+        },
+        "evidenceRole": "primary"
+      },
+      {
+        "id": "post-c1c44526e9141394bfe13a82",
+        "platform": "x",
+        "account": "edgarpavlovsky",
+        "postDate": "2026-05-19",
+        "excerpt": "Introducing Pentagon: a coordination layer for humans and agents. ASI yields two futures: 1. AI replaces us. 2. AI empowers us to do our greatest work. We're building for the latter. Our first product is Pentagon Studio: https://t.co/7Ipulc7zmH An in-depth article below: https://t.co/bkkgIT7Ag0",
+        "url": "https://x.com/edgarpavlovsky/status/2056867039860625431",
+        "metrics": {
+          "likes": 433,
+          "reposts": 55,
+          "quotes": 43,
+          "replies": 89,
+          "views": 93696
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

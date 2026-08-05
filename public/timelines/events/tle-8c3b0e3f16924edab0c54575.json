@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-superlog",
+    "slug": "superlog",
+    "name": "Superlog"
+  },
+  "event": {
+    "id": "tle-8c3b0e3f16924edab0c54575",
+    "eventDate": "2026-06-29",
+    "eventDateType": "announcement_date",
+    "title": "Superlog released dashboard variables",
+    "summary": "Superlog just shipped dashboard variables to Now you can easily switch between environments, datacenters, and regions.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-55d9015a9c5ada49a3e6452d",
+        "title": "We just shipped dashboard variables to http://superlog.sh. Now you can easily switch between environments, datacenters, and regions. Obviously, it's 2026, so variables are fully controllable via the Superlog MCP (Claude can build that ...",
+        "publisher": "arseniycodes",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-06-29T15:30:24.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/arseniycodes/status/2071617285924524084"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-55d9015a9c5ada49a3e6452d",
+        "title": "We just shipped dashboard variables to http://superlog.sh. Now you can easily switch between environments, datacenters, and regions. Obviously, it's 2026, so variables are fully controllable via the Superlog MCP (Claude can build that ...",
+        "publisher": "arseniycodes",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-06-29T15:30:24.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/arseniycodes/status/2071617285924524084",
+        "publicationDate": "2026-06-29T15:30:24.000Z",
+        "excerpt": "We just shipped dashboard variables to http://superlog.sh. Now you can easily switch between environments, datacenters, and regions. Obviously, it's 2026, so variables are fully controllable via the Superlog MCP (Claude can build that for you!)",
+        "sourceEventDate": "2026-06-29",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-41a6af21d693414bca0df93a",
+        "platform": "x",
+        "account": "arseniycodes",
+        "postDate": "2026-06-29",
+        "excerpt": "We just shipped dashboard variables to http://superlog.sh. Now you can easily switch between environments, datacenters, and regions. Obviously, it's 2026, so variables are fully controllable via the Superlog MCP (Claude can build that for you!)",
+        "url": "https://x.com/arseniycodes/status/2071617285924524084",
+        "metrics": {
+          "views": 28069,
+          "likes": 56,
+          "replies": 11,
+          "reposts": 3,
+          "quotes": 0,
+          "bookmarks": 25
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

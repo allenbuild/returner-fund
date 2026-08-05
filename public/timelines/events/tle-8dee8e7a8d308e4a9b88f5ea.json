@@ -12,59 +12,34 @@
     "title": "BentoLabs AI released Issues",
     "summary": "BentoLabs AI introduced Issues.",
     "category": "product_launch",
-    "isMajor": true,
+    "isMajor": false,
     "hasConflict": false,
     "conflictSummary": null,
-    "evidenceCount": 2,
+    "evidenceCount": 1,
     "sourcePreview": [
       {
-        "id": "src-e1bdcb3bf8334b5a971c9584",
-        "title": "Introducing Issues! Quote Kaushik @kacppian · Jun 15 We’re introducing Issues by @BentoLabsAI. Issues are recurring production problems Bento surfaces directly from your agent’s traces, logs, and runs. Instead of treating every failed run…",
-        "publisher": "BentoLabsAI X post",
+        "id": "src-1409a1c3b8a65c6c5c00330b",
+        "title": "Introducing Issues!",
+        "publisher": "bentolabsai",
         "domain": "x.com",
         "sourceType": "company_post",
-        "publishedAt": "2026-06-15T00:00:00.000Z",
+        "publishedAt": "2026-06-15T11:28:13.000Z",
         "evidenceRole": "primary",
-        "url": "https://x.com/BentoLabsAI/status/2066482910241390800"
-      },
-      {
-        "id": "src-208775be8afd0576b9180dcd",
-        "title": "Introducing Issues. Quote Kaushik @kacppian · Jun 15 We’re introducing Issues by @BentoLabsAI. Issues are recurring production problems Bento surfaces directly from your agent’s traces, logs, and runs. Instead of treating every failed run…",
-        "publisher": "Abhinavv_soni X post",
-        "domain": "x.com",
-        "sourceType": "founder_post",
-        "publishedAt": "2026-06-15T00:00:00.000Z",
-        "evidenceRole": "primary",
-        "url": "https://x.com/Abhinavv_soni/status/2066508222459220347"
+        "url": "https://x.com/bentolabsai/status/2066482910241390800"
       }
     ],
     "evidence": [
       {
-        "id": "src-e1bdcb3bf8334b5a971c9584",
-        "title": "Introducing Issues! Quote Kaushik @kacppian · Jun 15 We’re introducing Issues by @BentoLabsAI. Issues are recurring production problems Bento surfaces directly from your agent’s traces, logs, and runs. Instead of treating every failed run…",
-        "publisher": "BentoLabsAI X post",
+        "id": "src-1409a1c3b8a65c6c5c00330b",
+        "title": "Introducing Issues!",
+        "publisher": "bentolabsai",
         "domain": "x.com",
         "sourceType": "company_post",
-        "publishedAt": "2026-06-15T00:00:00.000Z",
+        "publishedAt": "2026-06-15T11:28:13.000Z",
         "evidenceRole": "primary",
-        "url": "https://x.com/BentoLabsAI/status/2066482910241390800",
-        "publicationDate": "2026-06-15T00:00:00.000Z",
-        "excerpt": "Introducing Issues! Quote Kaushik @kacppian · Jun 15 We’re introducing Issues by @BentoLabsAI. Issues are recurring production problems Bento surfaces directly from your agent’s traces, logs, and runs. Instead of treating every failed run as a one-off, Bento groups similar agent failures into clear, trackable Issues into a",
-        "sourceEventDate": "2026-06-15",
-        "isConflicting": false,
-        "conflictDescription": null
-      },
-      {
-        "id": "src-208775be8afd0576b9180dcd",
-        "title": "Introducing Issues. Quote Kaushik @kacppian · Jun 15 We’re introducing Issues by @BentoLabsAI. Issues are recurring production problems Bento surfaces directly from your agent’s traces, logs, and runs. Instead of treating every failed run…",
-        "publisher": "Abhinavv_soni X post",
-        "domain": "x.com",
-        "sourceType": "founder_post",
-        "publishedAt": "2026-06-15T00:00:00.000Z",
-        "evidenceRole": "primary",
-        "url": "https://x.com/Abhinavv_soni/status/2066508222459220347",
-        "publicationDate": "2026-06-15T00:00:00.000Z",
-        "excerpt": "Introducing Issues. Quote Kaushik @kacppian · Jun 15 We’re introducing Issues by @BentoLabsAI. Issues are recurring production problems Bento surfaces directly from your agent’s traces, logs, and runs. Instead of treating every failed run as a one-off, Bento groups similar agent failures into clear, trackable Issues into a",
+        "url": "https://x.com/bentolabsai/status/2066482910241390800",
+        "publicationDate": "2026-06-15T11:28:13.000Z",
+        "excerpt": "Introducing Issues!",
         "sourceEventDate": "2026-06-15",
         "isConflicting": false,
         "conflictDescription": null
@@ -72,37 +47,23 @@
     ],
     "posts": [
       {
-        "id": "post-44249877a02d260cc4ce35a4",
+        "id": "post-e6ee0348f565a055d1643cb3",
         "platform": "x",
-        "account": "BentoLabsAI X post",
+        "account": "bentolabsai",
         "postDate": "2026-06-15",
-        "excerpt": "Introducing Issues! Quote Kaushik @kacppian · Jun 15 We’re introducing Issues by @BentoLabsAI. Issues are recurring production problems Bento surfaces directly from your agent’s traces, logs, and runs. Instead of treating every failed run as a one-off, Bento groups similar agent failures into clear, trackable Issues into a",
-        "url": "https://x.com/BentoLabsAI/status/2066482910241390800",
+        "excerpt": "Introducing Issues!",
+        "url": "https://x.com/bentolabsai/status/2066482910241390800",
         "metrics": {
-          "likes": 3,
+          "likes": 4,
           "reposts": 2,
-          "comments": 0,
-          "views": 110
-        },
-        "evidenceRole": "primary"
-      },
-      {
-        "id": "post-c93a4aa46f8b8828ad4e9f3f",
-        "platform": "x",
-        "account": "Abhinavv_soni X post",
-        "postDate": "2026-06-15",
-        "excerpt": "Introducing Issues. Quote Kaushik @kacppian · Jun 15 We’re introducing Issues by @BentoLabsAI. Issues are recurring production problems Bento surfaces directly from your agent’s traces, logs, and runs. Instead of treating every failed run as a one-off, Bento groups similar agent failures into clear, trackable Issues into a",
-        "url": "https://x.com/Abhinavv_soni/status/2066508222459220347",
-        "metrics": {
-          "likes": 3,
-          "reposts": 0,
-          "comments": 0,
-          "views": 86
+          "quotes": 0,
+          "replies": 0,
+          "views": 177
         },
         "evidenceRole": "primary"
       }
     ]
   },
-  "generatedAt": "2026-08-03T07:52:26.040Z",
-  "lastModifiedAt": "2026-08-03T07:52:26.040Z"
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
 }

@@ -5,14 +5,49 @@
     "slug": "os3",
     "name": "OS3"
   },
-  "generatedAt": "2026-08-03T07:52:26.040Z",
-  "lastModifiedAt": "2026-08-03T07:52:26.040Z",
-  "events": [],
-  "groups": [],
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z",
+  "events": [
+    {
+      "id": "tle-fa2920fb6f6fca0f1a8850ba",
+      "eventDate": "2025-08-20",
+      "eventDateType": "announcement_date",
+      "title": "OS3 announced its public launch",
+      "summary": "OS3 launched today.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-1bacb63d355b399aaa18ebcf",
+          "title": "We launched today! Chat with us if you are building agents in any vertical!",
+          "publisher": "realChrisHailey",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2025-08-20T19:02:53.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/realChrisHailey/status/1958243355567239218"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2025,
+      "months": [
+        {
+          "month": "2025-08",
+          "count": 1
+        }
+      ]
+    }
+  ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 0,
-    "lastSuccessfulArtifactAt": "2026-08-03T07:52:26.040Z"
+    "publishedEventCount": 1,
+    "lastSuccessfulArtifactAt": "2026-08-05T00:49:13.374Z"
   },
   "nextCursor": null
 }

@@ -149,14 +149,14 @@ function uniqueGlobalCalibration(entries) {
 }
 
 async function fetchFreshGraph(server, descriptor) {
-  const deadline = Date.now() + 120_000;
+  const deadline = Date.now() + 10 * 60_000;
   let lastError;
   while (Date.now() < deadline) {
     try {
       return await fetchGraph(server.baseUrl, descriptor.slug, descriptor.topVoices, {
         publicationToken: server.publicationToken,
         signal: server.signal,
-        timeoutMs: 15_000
+        timeoutMs: 120_000
       });
     } catch (error) {
       lastError = error;

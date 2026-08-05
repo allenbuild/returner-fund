@@ -5,14 +5,49 @@
     "slug": "sazabi",
     "name": "Sazabi"
   },
-  "generatedAt": "2026-08-03T07:52:26.040Z",
-  "lastModifiedAt": "2026-08-03T07:52:26.040Z",
-  "events": [],
-  "groups": [],
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z",
+  "events": [
+    {
+      "id": "tle-f692ab07896890121c6730bb",
+      "eventDate": "2026-06-25",
+      "eventDateType": "announcement_date",
+      "title": "Sazabi announced $8m funding round",
+      "summary": "Sazabi raised $8m to build self-healing software.",
+      "category": "funding",
+      "isMajor": true,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-cf828ee2dc54f31020dd8010",
+          "title": "We raised $8m to build self-healing software.",
+          "publisher": "shcallaway",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-06-25T14:26:02.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/shcallaway/status/2070151536257503519"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-06",
+          "count": 1
+        }
+      ]
+    }
+  ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 0,
-    "lastSuccessfulArtifactAt": "2026-08-03T07:52:26.040Z"
+    "publishedEventCount": 1,
+    "lastSuccessfulArtifactAt": "2026-08-05T00:49:13.374Z"
   },
   "nextCursor": null
 }

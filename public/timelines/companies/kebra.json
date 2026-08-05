@@ -5,9 +5,33 @@
     "slug": "kebra",
     "name": "Kebra"
   },
-  "generatedAt": "2026-08-03T07:52:26.040Z",
-  "lastModifiedAt": "2026-08-03T07:52:26.040Z",
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z",
   "events": [
+    {
+      "id": "tle-ed8ec2de3380ddb7e34de5c9",
+      "eventDate": "2026-07-31",
+      "eventDateType": "announcement_date",
+      "title": "Kebra released Kebra (YC S26), built to make field service companies AI-native",
+      "summary": "Kebra introduced Kebra (YC S26), built to make field service companies AI-native.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-8f129c3d6dd562a1b4627322",
+          "title": "Introducing Kebra (YC S26), built to make field service companies AI-native.",
+          "publisher": "lucahadife",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-07-31T00:08:09.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/lucahadife/status/2082981607104041324"
+        }
+      ]
+    },
     {
       "id": "tle-db02d34fe0fb49d0cfbf226d",
       "eventDate": "2026-07-30",
@@ -39,15 +63,15 @@
       "months": [
         {
           "month": "2026-07",
-          "count": 1
+          "count": 2
         }
       ]
     }
   ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-08-03T07:52:26.040Z"
+    "publishedEventCount": 2,
+    "lastSuccessfulArtifactAt": "2026-08-05T00:49:13.374Z"
   },
   "nextCursor": null
 }

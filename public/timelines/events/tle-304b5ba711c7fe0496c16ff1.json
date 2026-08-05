@@ -18,27 +18,27 @@
     "evidenceCount": 1,
     "sourcePreview": [
       {
-        "id": "src-b9d5239a7f59920e5eade2cb",
+        "id": "src-f13bfd4f68dc4337f057ca9b",
         "title": "i am celebrating $10k mrr at a gas station",
         "publisher": "_heyclicky",
         "domain": "instagram.com",
         "sourceType": "company_post",
-        "publishedAt": "2026-06-27T05:00:00.000Z",
+        "publishedAt": "2026-06-27T22:15:55.000Z",
         "evidenceRole": "primary",
-        "url": "https://www.instagram.com/reel/DaGxCB0Sm5N"
+        "url": "https://instagram.com/reel/DaGxCB0Sm5N"
       }
     ],
     "evidence": [
       {
-        "id": "src-b9d5239a7f59920e5eade2cb",
+        "id": "src-f13bfd4f68dc4337f057ca9b",
         "title": "i am celebrating $10k mrr at a gas station",
         "publisher": "_heyclicky",
         "domain": "instagram.com",
         "sourceType": "company_post",
-        "publishedAt": "2026-06-27T05:00:00.000Z",
+        "publishedAt": "2026-06-27T22:15:55.000Z",
         "evidenceRole": "primary",
-        "url": "https://www.instagram.com/reel/DaGxCB0Sm5N",
-        "publicationDate": "2026-06-27T05:00:00.000Z",
+        "url": "https://instagram.com/reel/DaGxCB0Sm5N",
+        "publicationDate": "2026-06-27T22:15:55.000Z",
         "excerpt": "i am celebrating $10k mrr at a gas station",
         "sourceEventDate": "2026-06-27",
         "isConflicting": false,
@@ -47,20 +47,21 @@
     ],
     "posts": [
       {
-        "id": "post-838f4c7bcbf20b7d94f98a13",
+        "id": "post-c980ee22507aa962f29c63fe",
         "platform": "instagram",
         "account": "_heyclicky",
         "postDate": "2026-06-27",
         "excerpt": "i am celebrating $10k mrr at a gas station",
-        "url": "https://www.instagram.com/reel/DaGxCB0Sm5N",
+        "url": "https://instagram.com/reel/DaGxCB0Sm5N",
         "metrics": {
-          "likes": 455,
-          "comments": 28
+          "likes": 675,
+          "comments": 36,
+          "views": 17980
         },
         "evidenceRole": "primary"
       }
     ]
   },
-  "generatedAt": "2026-08-03T07:52:26.040Z",
-  "lastModifiedAt": "2026-08-03T07:52:26.040Z"
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
 }

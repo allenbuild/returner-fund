@@ -20,6 +20,7 @@
     "test:logged-social": "node --test tests/instagram-official-identity.node-test.mjs tests/logged-in-checkpoint-union.node-test.mjs tests/logged-in-evidence-content-dedupe.node-test.mjs tests/logged-in-instagram-collection.node-test.mjs tests/logged-in-linkedin-collection.node-test.mjs tests/logged-in-owner-collision-reconciliation.node-test.mjs tests/logged-in-social-help.node-test.mjs tests/logged-in-social-target-selection.node-test.mjs tests/logged-in-x-collection.node-test.mjs",
     "test:watch": "vitest",
     "topics:backfill:dry-run": "node --experimental-strip-types scripts/reclassify-post-topics.mjs --dry-run",
+    "topics:facets": "node --experimental-strip-types scripts/build-topic-facets.mjs",
     "topics:review-set": "node --experimental-strip-types scripts/build-post-topic-review-set.mjs --count=300",
     "topics:evaluate": "node --experimental-strip-types scripts/evaluate-post-topic-review-set.mjs --input=work/post-topic-review-set.json",
     "test:benchmarks:daily": "vitest run tests/update-daily-benchmarks.test.mjs",

@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-agentphone",
+    "slug": "agentphone",
+    "name": "AgentPhone"
+  },
+  "event": {
+    "id": "tle-d25bcedc7926f04f5e8d7453",
+    "eventDate": "2026-04-21",
+    "eventDateType": "announcement_date",
+    "title": "AgentPhone announced a product update",
+    "summary": "AgentPhone is now officially integrated with @LangChain Your LangChain agents can now make and receive real phone calls, send messages, and manage numbers, all with one pip install.",
+    "category": "product_update",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-155ffdee20828f8c15eccbc5",
+        "title": "AgentPhone is now officially integrated with @LangChain Your LangChain agents can now make and receive real phone calls, send messages, and manage numbers, all with one pip install. Read the full announcement below ↓",
+        "publisher": "AgentPhoneHQ",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-04-21T02:43:24.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/AgentPhoneHQ/status/2046419502628471295"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-155ffdee20828f8c15eccbc5",
+        "title": "AgentPhone is now officially integrated with @LangChain Your LangChain agents can now make and receive real phone calls, send messages, and manage numbers, all with one pip install. Read the full announcement below ↓",
+        "publisher": "AgentPhoneHQ",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-04-21T02:43:24.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/AgentPhoneHQ/status/2046419502628471295",
+        "publicationDate": "2026-04-21T02:43:24.000Z",
+        "excerpt": "AgentPhone is now officially integrated with @LangChain Your LangChain agents can now make and receive real phone calls, send messages, and manage numbers, all with one pip install. Read the full announcement below ↓",
+        "sourceEventDate": "2026-04-21",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-d607a55175a5d805330af141",
+        "platform": "x",
+        "account": "AgentPhoneHQ",
+        "postDate": "2026-04-21",
+        "excerpt": "AgentPhone is now officially integrated with @LangChain Your LangChain agents can now make and receive real phone calls, send messages, and manage numbers, all with one pip install. Read the full announcement below ↓",
+        "url": "https://x.com/AgentPhoneHQ/status/2046419502628471295",
+        "metrics": {
+          "views": 959,
+          "likes": 8,
+          "replies": 3,
+          "reposts": 2,
+          "quotes": 1,
+          "bookmarks": 1
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

@@ -107,7 +107,9 @@ export function timelineEventQualityViolations(company, event) {
   if (containsRepeatedOpeningPhrase(normalizedTitleTokens)) {
     issues.push("title repeats the same opening phrase");
   }
-  if (/(?:^|[-\s])[a-z]$/i.test(event.title) && !/[.!?…]$/.test(event.title)) {
+  if (/(?:^|[-\s])[a-z]$/i.test(event.title)
+      && !/\b(?:series|version|v)\s+[a-z]$/i.test(event.title)
+      && !/[.!?…]$/.test(event.title)) {
     issues.push("title appears to be cut off mid-word");
   }
   if (/\b(?:launched a new product|released a product update)\b/i.test(event.title)) {

@@ -5,12 +5,12 @@
     "slug": "stablebrowse",
     "name": "StableBrowse"
   },
-  "generatedAt": "2026-08-03T07:52:26.040Z",
-  "lastModifiedAt": "2026-08-03T07:52:26.040Z",
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z",
   "events": [
     {
-      "id": "tle-a514d3688ba84bdce03c4cb7",
-      "eventDate": "2026-05-26",
+      "id": "tle-4c7eb640088211ecc771899a",
+      "eventDate": "2026-05-27",
       "eventDateType": "announcement_date",
       "title": "StableBrowse launched on Y Combinator",
       "summary": "StableBrowse just launched on @ycombinator's Launch YC.",
@@ -21,24 +21,24 @@
       "evidenceCount": 2,
       "sourcePreview": [
         {
-          "id": "src-af6d6c71298145b648394d1d",
-          "title": "StableBrowse just launched on @ycombinator's Launch YC! StableBrowse - Browser Layer For AI Agents. Check them out: https://www.ycombina...",
-          "publisher": "_sarthak____",
-          "domain": "x.com",
-          "sourceType": "founder_post",
-          "publishedAt": "2026-05-26T21:08:35.000Z",
-          "evidenceRole": "primary",
-          "url": "https://x.com/_sarthak____/status/2059381204009509220"
-        },
-        {
           "id": "src-0db0a753cc39187d683e56c7",
-          "title": "StableBrowse just launched on @ycombinator's Launch YC! StableBrowse - Browser Layer For AI Agents. Check them out: https://www.ycombina...",
+          "title": "StableBrowse just launched on @ycombinator's Launch YC! StableBrowse - Browser Layer For AI Agents.",
           "publisher": "deepitshah5",
           "domain": "x.com",
           "sourceType": "founder_post",
           "publishedAt": "2026-05-27T06:12:21.000Z",
           "evidenceRole": "primary",
           "url": "https://x.com/deepitshah5/status/2059518049783558528"
+        },
+        {
+          "id": "src-af6d6c71298145b648394d1d",
+          "title": "StableBrowse just launched on @ycombinator's Launch YC! StableBrowse - Browser Layer For AI Agents.",
+          "publisher": "_sarthak____",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-05-26T21:08:35.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/_sarthak____/status/2059381204009509220"
         }
       ]
     }
@@ -57,7 +57,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-08-03T07:52:26.040Z"
+    "lastSuccessfulArtifactAt": "2026-08-05T00:49:13.374Z"
   },
   "nextCursor": null
 }

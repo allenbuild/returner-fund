@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-graphify-labs",
+    "slug": "graphify-labs",
+    "name": "Graphify Labs"
+  },
+  "event": {
+    "id": "tle-d41405fa08581d1d8a36f14a",
+    "eventDate": "2026-04-10",
+    "eventDateType": "announcement_date",
+    "title": "Graphify Labs reached 20k stars",
+    "summary": "Graphify Labs reported graphify is about to hit 20k stars in 5 days.",
+    "category": "traction_milestone",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-34170f3908f97fbafc3855c8",
+        "title": "Graphify is about to hit 20k stars in 5 days. Shipped v4. v4 now supports video corpora, YouTube and Instagram URLs. Run it locally on your machine. Your knowledge graph stays private, like a digital twin of yours. 20k stars · 2k forks ...",
+        "publisher": "safishamsii",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-04-10T15:18:28.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/safishamsii/status/2042623254582460759"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-34170f3908f97fbafc3855c8",
+        "title": "Graphify is about to hit 20k stars in 5 days. Shipped v4. v4 now supports video corpora, YouTube and Instagram URLs. Run it locally on your machine. Your knowledge graph stays private, like a digital twin of yours. 20k stars · 2k forks ...",
+        "publisher": "safishamsii",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-04-10T15:18:28.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/safishamsii/status/2042623254582460759",
+        "publicationDate": "2026-04-10T15:18:28.000Z",
+        "excerpt": "Graphify is about to hit 20k stars in 5 days. Shipped v4. v4 now supports video corpora, YouTube and Instagram URLs. Run it locally on your machine. Your knowledge graph stays private, like a digital twin of yours. 20k stars · 2k forks · 51k PyPI downloads",
+        "sourceEventDate": "2026-04-10",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-90b7bcfbe7de138073577fe3",
+        "platform": "x",
+        "account": "safishamsii",
+        "postDate": "2026-04-10",
+        "excerpt": "Graphify is about to hit 20k stars in 5 days. Shipped v4. v4 now supports video corpora, YouTube and Instagram URLs. Run it locally on your machine. Your knowledge graph stays private, like a digital twin of yours. 20k stars · 2k forks · 51k PyPI downloads",
+        "url": "https://x.com/safishamsii/status/2042623254582460759",
+        "metrics": {
+          "views": 1701,
+          "likes": 19,
+          "replies": 2,
+          "reposts": 1,
+          "quotes": 0,
+          "bookmarks": 5
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

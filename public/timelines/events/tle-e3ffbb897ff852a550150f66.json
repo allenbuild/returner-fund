@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-testerarmy",
+    "slug": "testerarmy",
+    "name": "TesterArmy"
+  },
+  "event": {
+    "id": "tle-e3ffbb897ff852a550150f66",
+    "eventDate": "2026-06-18",
+    "eventDateType": "announcement_date",
+    "title": "TesterArmy released on Hacker News",
+    "summary": "TesterArmy just launched on Hacker News.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-fc7687093e662ef1e217b893",
+        "title": "We just launched on Hacker News!",
+        "publisher": "o_kwasniewski",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-06-18T14:52:26.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/o_kwasniewski/status/2067621466628370470"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-fc7687093e662ef1e217b893",
+        "title": "We just launched on Hacker News!",
+        "publisher": "o_kwasniewski",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-06-18T14:52:26.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/o_kwasniewski/status/2067621466628370470",
+        "publicationDate": "2026-06-18T14:52:26.000Z",
+        "excerpt": "We just launched on Hacker News!",
+        "sourceEventDate": "2026-06-18",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-5e52450c1feb2dde6790ecda",
+        "platform": "x",
+        "account": "o_kwasniewski",
+        "postDate": "2026-06-18",
+        "excerpt": "We just launched on Hacker News!",
+        "url": "https://x.com/o_kwasniewski/status/2067621466628370470",
+        "metrics": {
+          "views": 5153,
+          "likes": 24,
+          "replies": 0,
+          "reposts": 2,
+          "quotes": 1,
+          "bookmarks": 1
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

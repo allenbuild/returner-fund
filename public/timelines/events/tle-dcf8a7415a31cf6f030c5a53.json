@@ -1,0 +1,63 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-interfaze",
+    "slug": "interfaze",
+    "name": "Interfaze"
+  },
+  "event": {
+    "id": "tle-dcf8a7415a31cf6f030c5a53",
+    "eventDate": "2026-05-05",
+    "eventDateType": "announcement_date",
+    "title": "Interfaze released an open-source project",
+    "summary": "Interfaze has open-sourced all code, and test sets.",
+    "category": "open_source",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-0c9aab63e7081987fce767a8",
+        "title": "We&#x27;ve open-sourced all code, and test sets. You can find them here: https:&#x2F;&#x2F;interfaze.ai&#x2F;blog&#x2F;introducing-structured-o...",
+        "publisher": "khurdula",
+        "domain": "news.ycombinator.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-05-05T22:33:34.000Z",
+        "evidenceRole": "primary",
+        "url": "https://news.ycombinator.com/item?id=48029646"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-0c9aab63e7081987fce767a8",
+        "title": "We&#x27;ve open-sourced all code, and test sets. You can find them here: https:&#x2F;&#x2F;interfaze.ai&#x2F;blog&#x2F;introducing-structured-o...",
+        "publisher": "khurdula",
+        "domain": "news.ycombinator.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-05-05T22:33:34.000Z",
+        "evidenceRole": "primary",
+        "url": "https://news.ycombinator.com/item?id=48029646",
+        "publicationDate": "2026-05-05T22:33:34.000Z",
+        "excerpt": "We&#x27;ve open-sourced all code, and test sets. You can find them here: https:&#x2F;&#x2F;interfaze.ai&#x2F;blog&#x2F;introducing-structured-output-benc... To validate the choices and configurations, feel free to give it a reading. We also breakdown our methodology in the blog and in-depth within the paper.",
+        "sourceEventDate": "2026-05-05",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-2eb41dcb8c749304a0a20dd2",
+        "platform": "hacker_news",
+        "account": "khurdula",
+        "postDate": "2026-05-05",
+        "excerpt": "We&#x27;ve open-sourced all code, and test sets. You can find them here: https:&#x2F;&#x2F;interfaze.ai&#x2F;blog&#x2F;introducing-structured-output-benc... To validate the choices and configurations, feel free to give it a reading. We also breakdown our methodology in the blog and in-depth within the paper.",
+        "url": "https://news.ycombinator.com/item?id=48029646",
+        "metrics": {},
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

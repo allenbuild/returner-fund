@@ -5,31 +5,21 @@
     "slug": "kinro",
     "name": "Kinro"
   },
-  "generatedAt": "2026-08-03T07:52:26.040Z",
-  "lastModifiedAt": "2026-08-03T07:52:26.040Z",
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z",
   "events": [
     {
-      "id": "tle-8b812802578dc1db7f731b08",
+      "id": "tle-09d7c5477910a881b4eb63eb",
       "eventDate": "2026-04-02",
       "eventDateType": "announcement_date",
-      "title": "Kinro launched on Y Combinator",
-      "summary": "Kinro reported share that @kinroai is now live on @ycombinator.",
+      "title": "Kinro announced its public launch",
+      "summary": "Kinro announced its public launch in a dated company video.",
       "category": "product_launch",
-      "isMajor": true,
+      "isMajor": false,
       "hasConflict": false,
       "conflictSummary": null,
-      "evidenceCount": 2,
+      "evidenceCount": 1,
       "sourcePreview": [
-        {
-          "id": "src-9e1e22bf8afdfc169f53ec4d",
-          "title": "Excited to share that @kinroai is now live on @ycombinator! We’re building the first compliant AI sales agents for the insurance indust...",
-          "publisher": "corentin_hgt",
-          "domain": "x.com",
-          "sourceType": "founder_post",
-          "publishedAt": "2026-04-02T15:26:53.000Z",
-          "evidenceRole": "primary",
-          "url": "https://x.com/corentin_hgt/status/2039726267650707639"
-        },
         {
           "id": "src-45b22bd3184b1251d9aa1fbd",
           "title": "Kinro - Launch Video (YC P2026). AI sales agent for insurance industry",
@@ -56,13 +46,37 @@
       "sourcePreview": [
         {
           "id": "src-56306c604c8ee53446f6b9ef",
-          "title": "We’re excited to share that @kinroai has been accepted into Y Combinator’s Spring 2026 batch!",
-          "publisher": "We’re excited to share that @kinroai has been accepted into Y Combinator’s Spring 2026 batch!",
+          "title": "We’re excited to share that @kinroai has been accepted into Y Combinator’s Spring 2026 batch! At Kinro, we’re building AI sales agents for financial services, starting with insurance.",
+          "publisher": "kinroai",
           "domain": "x.com",
           "sourceType": "company_post",
-          "publishedAt": "2026-03-31T00:00:00.000Z",
+          "publishedAt": "2026-03-31T15:05:54.000Z",
           "evidenceRole": "primary",
           "url": "https://x.com/kinroai/status/2038996213257888218"
+        }
+      ]
+    },
+    {
+      "id": "tle-5ec19bd787a76ed37fe03681",
+      "eventDate": "2026-03-19",
+      "eventDateType": "announcement_date",
+      "title": "Kinro released We're building the future of compliant and high-performance AI...",
+      "summary": "Kinro introduced We're building the future of compliant and high-performance AI distribution in financial services, starting with insurance.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-ea6b6aa9e02007a94bee57c7",
+          "title": "Introducing https://t.co/2dTi0TU0Kf We're building the future of compliant and high-performance AI distribution in financial services, starting with insurance.",
+          "publisher": "kinroai",
+          "domain": "x.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-03-19T14:55:17.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/kinroai/status/2034644885421105153"
         }
       ]
     }
@@ -77,15 +91,15 @@
         },
         {
           "month": "2026-03",
-          "count": 1
+          "count": 2
         }
       ]
     }
   ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 2,
-    "lastSuccessfulArtifactAt": "2026-08-03T07:52:26.040Z"
+    "publishedEventCount": 3,
+    "lastSuccessfulArtifactAt": "2026-08-05T00:49:13.374Z"
   },
   "nextCursor": null
 }

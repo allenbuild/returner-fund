@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-machine0",
+    "slug": "machine0",
+    "name": "machine0"
+  },
+  "event": {
+    "id": "tle-1fbd32b96a23b36de9913ce6",
+    "eventDate": "2026-06-09",
+    "eventDateType": "announcement_date",
+    "title": "machine0 was accepted into Y Combinator S26",
+    "summary": "machine0 reported i just got into YC S26 as a 40yo solo founder.",
+    "category": "accelerator",
+    "isMajor": true,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-a2f3e649b6af1439130b0690",
+        "title": "I just got into YC S26 as a 40yo solo founder. Did YC W20 with Upflow, was CTO/CPO for 6 years. Company is doing millions in ARR and still growing. But I’m a maker at heart, so I left to go 0-1 again. Last year I built an MCP gateway wi...",
+        "publisher": "barnabymalet",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-06-09T17:09:31.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/barnabymalet/status/2064394472314613791"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-a2f3e649b6af1439130b0690",
+        "title": "I just got into YC S26 as a 40yo solo founder. Did YC W20 with Upflow, was CTO/CPO for 6 years. Company is doing millions in ARR and still growing. But I’m a maker at heart, so I left to go 0-1 again. Last year I built an MCP gateway wi...",
+        "publisher": "barnabymalet",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-06-09T17:09:31.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/barnabymalet/status/2064394472314613791",
+        "publicationDate": "2026-06-09T17:09:31.000Z",
+        "excerpt": "I just got into YC S26 as a 40yo solo founder. Did YC W20 with Upflow, was CTO/CPO for 6 years. Company is doing millions in ARR and still growing. But I’m a maker at heart, so I left to go 0-1 again. Last year I built an MCP gateway with a friend. MCP servers are notoriously insecure, so I wrote a CLI to run them inside VMs. There was pull on the gateway, but I wasn’t passionate about the problem. I loved the CLI though, so I pivoted, and started selling it to friends. They loved it too. It…",
+        "sourceEventDate": "2026-06-09",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-b204858fc24214d00a5bade0",
+        "platform": "x",
+        "account": "barnabymalet",
+        "postDate": "2026-06-09",
+        "excerpt": "I just got into YC S26 as a 40yo solo founder. Did YC W20 with Upflow, was CTO/CPO for 6 years. Company is doing millions in ARR and still growing. But I’m a maker at heart, so I left to go 0-1 again. Last year I built an MCP gateway with a friend. MCP servers are notoriously insecure, so I wrote a CLI to run them inside VMs. There was pull on the gateway, but I wasn’t passionate about the problem. I loved the CLI though, so I pivoted, and started selling it to friends. They loved it too. It…",
+        "url": "https://x.com/barnabymalet/status/2064394472314613791",
+        "metrics": {
+          "views": 2510,
+          "likes": 42,
+          "replies": 10,
+          "reposts": 3,
+          "quotes": 1,
+          "bookmarks": 7
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

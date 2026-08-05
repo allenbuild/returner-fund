@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "a16z-speedrun-006-mirror-mirror-ai",
+    "slug": "mirror-mirror-ai",
+    "name": "Mirror Mirror AI"
+  },
+  "event": {
+    "id": "tle-5b23949529f0628908d60c89",
+    "eventDate": "2025-07-10",
+    "eventDateType": "announcement_date",
+    "title": "Mirror Mirror AI released Studio by Mirror Mirror AI",
+    "summary": "Mirror Mirror AI launched The Studio by Mirror Mirror AI.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-2dce0f09b9e9127bdefa9ec3",
+        "title": "🚀 We launched The Studio by Mirror Mirror AI. Generating fashion campaigns with AI should save you time and budget—without compromising your brand’s identity or aesthetic. That’s why we built The Studio. ✨ The Studio lets brands create...",
+        "publisher": "yusan_lin",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2025-07-10T16:00:01.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/yusan_lin/status/1943339433417384052"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-2dce0f09b9e9127bdefa9ec3",
+        "title": "🚀 We launched The Studio by Mirror Mirror AI. Generating fashion campaigns with AI should save you time and budget—without compromising your brand’s identity or aesthetic. That’s why we built The Studio. ✨ The Studio lets brands create...",
+        "publisher": "yusan_lin",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2025-07-10T16:00:01.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/yusan_lin/status/1943339433417384052",
+        "publicationDate": "2025-07-10T16:00:01.000Z",
+        "excerpt": "🚀 We launched The Studio by Mirror Mirror AI. Generating fashion campaigns with AI should save you time and budget—without compromising your brand’s identity or aesthetic. That’s why we built The Studio. ✨ The Studio lets brands create campaign-quality imagery in minutes, not weeks: ✅ Drag & drop your products and models—no prompting needed ✅ Instantly generate on-brand visuals ✅ Transform any shot with Editorial Mode polish After a year refining this with high-end fashion teams, it’s finally…",
+        "sourceEventDate": "2025-07-10",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-3d096be34b94e0191a8ac081",
+        "platform": "x",
+        "account": "yusan_lin",
+        "postDate": "2025-07-10",
+        "excerpt": "🚀 We launched The Studio by Mirror Mirror AI. Generating fashion campaigns with AI should save you time and budget—without compromising your brand’s identity or aesthetic. That’s why we built The Studio. ✨ The Studio lets brands create campaign-quality imagery in minutes, not weeks: ✅ Drag & drop your products and models—no prompting needed ✅ Instantly generate on-brand visuals ✅ Transform any shot with Editorial Mode polish After a year refining this with high-end fashion teams, it’s finally…",
+        "url": "https://x.com/yusan_lin/status/1943339433417384052",
+        "metrics": {
+          "views": 28686,
+          "likes": 132,
+          "replies": 12,
+          "reposts": 8,
+          "quotes": 2,
+          "bookmarks": 62
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

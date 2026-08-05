@@ -1,0 +1,69 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-agnost-ai",
+    "slug": "agnost-ai",
+    "name": "Agnost AI"
+  },
+  "event": {
+    "id": "tle-fe08c0669606a6382f745ecd",
+    "eventDate": "2026-07-24",
+    "eventDateType": "announcement_date",
+    "title": "Agnost AI released Agnost AI (YC S26): Product Analytics for AI Agents",
+    "summary": "Agnost AI introduced Agnost AI (YC S26): Product Analytics for AI Agents.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-d5e0bd1c80f344cf3464a81f",
+        "title": "Introducing Agnost AI (YC S26): Product Analytics for AI Agents.",
+        "publisher": "shubhamintech",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-07-24T15:56:44.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/shubhamintech/status/2080683611070800180"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-d5e0bd1c80f344cf3464a81f",
+        "title": "Introducing Agnost AI (YC S26): Product Analytics for AI Agents.",
+        "publisher": "shubhamintech",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-07-24T15:56:44.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/shubhamintech/status/2080683611070800180",
+        "publicationDate": "2026-07-24T15:56:44.000Z",
+        "excerpt": "Introducing Agnost AI (YC S26): Product Analytics for AI Agents. Analytics was never built for chat & voice. And that is the new interface. Your users' hidden feature requests, bugs & churn hide in conversations with your agent. Analyzing 1M+ daily. Yours are still unread. https://t.co/sKQ3NvgZH3",
+        "sourceEventDate": "2026-07-24",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-aef09b9cc8f3a21f93c5d799",
+        "platform": "x",
+        "account": "shubhamintech",
+        "postDate": "2026-07-24",
+        "excerpt": "Introducing Agnost AI (YC S26): Product Analytics for AI Agents. Analytics was never built for chat & voice. And that is the new interface. Your users' hidden feature requests, bugs & churn hide in conversations with your agent. Analyzing 1M+ daily. Yours are still unread. https://t.co/sKQ3NvgZH3",
+        "url": "https://x.com/shubhamintech/status/2080683611070800180",
+        "metrics": {
+          "likes": 610,
+          "reposts": 81,
+          "quotes": 47,
+          "replies": 211,
+          "views": 89440
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

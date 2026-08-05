@@ -18,16 +18,6 @@
     "evidenceCount": 2,
     "sourcePreview": [
       {
-        "id": "src-b1225ef90bd26e8ae02ef4f0",
-        "title": "we just launched hyper: it's how every company of the future will be run. https://t.co/BghNbht01k",
-        "publisher": "_shalinshah_ X post",
-        "domain": "x.com",
-        "sourceType": "founder_post",
-        "publishedAt": "2026-05-11T20:07:10.000Z",
-        "evidenceRole": "primary",
-        "url": "https://x.com/_shalinshah_/status/2053929929981755673"
-      },
-      {
         "id": "src-385cc3fb7cae892ae5882f76",
         "title": "Launch HN: Hyper (YC P26) – Company brain to power agentic development",
         "publisher": "shalinshah",
@@ -36,9 +26,7 @@
         "publishedAt": "2026-06-03T17:39:53Z",
         "evidenceRole": "primary",
         "url": "https://news.ycombinator.com/item?id=48387095"
-      }
-    ],
-    "evidence": [
+      },
       {
         "id": "src-b1225ef90bd26e8ae02ef4f0",
         "title": "we just launched hyper: it's how every company of the future will be run. https://t.co/BghNbht01k",
@@ -47,13 +35,10 @@
         "sourceType": "founder_post",
         "publishedAt": "2026-05-11T20:07:10.000Z",
         "evidenceRole": "primary",
-        "url": "https://x.com/_shalinshah_/status/2053929929981755673",
-        "publicationDate": "2026-05-11T20:07:10.000Z",
-        "excerpt": "we just launched hyper: it's how every company of the future will be run. https://t.co/BghNbht01k",
-        "sourceEventDate": "2026-05-11",
-        "isConflicting": false,
-        "conflictDescription": null
-      },
+        "url": "https://x.com/_shalinshah_/status/2053929929981755673"
+      }
+    ],
+    "evidence": [
       {
         "id": "src-385cc3fb7cae892ae5882f76",
         "title": "Launch HN: Hyper (YC P26) – Company brain to power agentic development",
@@ -68,11 +53,40 @@
         "sourceEventDate": "2026-06-03",
         "isConflicting": false,
         "conflictDescription": null
+      },
+      {
+        "id": "src-b1225ef90bd26e8ae02ef4f0",
+        "title": "we just launched hyper: it's how every company of the future will be run. https://t.co/BghNbht01k",
+        "publisher": "_shalinshah_ X post",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-05-11T20:07:10.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/_shalinshah_/status/2053929929981755673",
+        "publicationDate": "2026-05-11T20:07:10.000Z",
+        "excerpt": "we just launched hyper: it's how every company of the future will be run. https://t.co/BghNbht01k",
+        "sourceEventDate": "2026-05-11",
+        "isConflicting": false,
+        "conflictDescription": null
       }
     ],
     "posts": [
       {
-        "id": "post-c8fa4806b369213ad11aaa02",
+        "id": "post-ec256e517c5553efa3565845",
+        "platform": "hacker_news",
+        "account": "shalinshah",
+        "postDate": "2026-06-03",
+        "excerpt": "Hey HN, we’re Shalin Kanyes, best friends who ve been hacking together for 10+yrs, and now founders of Hyper ( https: heyhyper.ai ). Hyper is a shared “company brain” that plugs into information flowing inside a company to make AI agents and automations better and ultimately save people time. Models have gotten good enough that they can (mostly) take on long-horizon, complex tasks. We believe the bottleneck now is that these smart-enough models often lack information about your company, which…",
+        "url": "https://news.ycombinator.com/item?id=48387095",
+        "metrics": {
+          "points": 79,
+          "upvotes": 79,
+          "comments": 78
+        },
+        "evidenceRole": "primary"
+      },
+      {
+        "id": "post-3db8254ccf5504ab64eade9d",
         "platform": "x",
         "account": "_shalinshah_ X post",
         "postDate": "2026-05-11",
@@ -85,23 +99,9 @@
           "views": 493670
         },
         "evidenceRole": "primary"
-      },
-      {
-        "id": "post-aff45dc89555a01336de4386",
-        "platform": "hacker_news",
-        "account": "shalinshah",
-        "postDate": "2026-06-03",
-        "excerpt": "Hey HN, we’re Shalin Kanyes, best friends who ve been hacking together for 10+yrs, and now founders of Hyper ( https: heyhyper.ai ). Hyper is a shared “company brain” that plugs into information flowing inside a company to make AI agents and automations better and ultimately save people time. Models have gotten good enough that they can (mostly) take on long-horizon, complex tasks. We believe the bottleneck now is that these smart-enough models often lack information about your company, which…",
-        "url": "https://news.ycombinator.com/item?id=48387095",
-        "metrics": {
-          "points": 79,
-          "upvotes": 79,
-          "comments": 78
-        },
-        "evidenceRole": "primary"
       }
     ]
   },
-  "generatedAt": "2026-08-03T07:52:26.040Z",
-  "lastModifiedAt": "2026-08-03T07:52:26.040Z"
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
 }

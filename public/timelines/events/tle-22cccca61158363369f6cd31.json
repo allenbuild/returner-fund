@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-standout",
+    "slug": "standout",
+    "name": "Standout"
+  },
+  "event": {
+    "id": "tle-22cccca61158363369f6cd31",
+    "eventDate": "2026-06-03",
+    "eventDateType": "announcement_date",
+    "title": "Standout released ai agent",
+    "summary": "Standout shipped an ai agent that introduces talent to startup founders acting in full autonomy and it crossed $700k run rate no dashboard and nothing fancy it lives in slack and imessage we launched it a month ago so still very early and and there are a ton of improvements.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-0ecf4eb6f38e5c4558dece53",
+        "title": "we shipped an ai agent that introduces talent to startup founders acting in full autonomy and it crossed $700k run rate no dashboard and nothing fancy it lives in slack and imessage we launched it a month ago so still very early and ...",
+        "publisher": "alexisaftalion",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-06-03T17:48:13.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/alexisaftalion/status/2062229883330380286"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-0ecf4eb6f38e5c4558dece53",
+        "title": "we shipped an ai agent that introduces talent to startup founders acting in full autonomy and it crossed $700k run rate no dashboard and nothing fancy it lives in slack and imessage we launched it a month ago so still very early and ...",
+        "publisher": "alexisaftalion",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-06-03T17:48:13.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/alexisaftalion/status/2062229883330380286",
+        "publicationDate": "2026-06-03T17:48:13.000Z",
+        "excerpt": "we shipped an ai agent that introduces talent to startup founders acting in full autonomy and it crossed $700k run rate no dashboard and nothing fancy it lives in slack and imessage we launched it a month ago so still very early and and there are a ton of improvements left to make but was not expecting such a promising start",
+        "sourceEventDate": "2026-06-03",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-f996ca6a4dd3a3abda671c33",
+        "platform": "x",
+        "account": "alexisaftalion",
+        "postDate": "2026-06-03",
+        "excerpt": "we shipped an ai agent that introduces talent to startup founders acting in full autonomy and it crossed $700k run rate no dashboard and nothing fancy it lives in slack and imessage we launched it a month ago so still very early and and there are a ton of improvements left to make but was not expecting such a promising start",
+        "url": "https://x.com/alexisaftalion/status/2062229883330380286",
+        "metrics": {
+          "views": 41605,
+          "likes": 94,
+          "replies": 24,
+          "reposts": 7,
+          "quotes": 10,
+          "bookmarks": 52
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

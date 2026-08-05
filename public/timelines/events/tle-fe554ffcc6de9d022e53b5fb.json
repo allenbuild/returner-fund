@@ -1,0 +1,104 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "a16z-speedrun-006-sun",
+    "slug": "sun",
+    "name": "SUN"
+  },
+  "event": {
+    "id": "tle-fe554ffcc6de9d022e53b5fb",
+    "eventDate": "2026-05-16",
+    "eventDateType": "occurrence_date",
+    "title": "SUN launched SUN-to-Spotify on Product Hunt",
+    "summary": "SUN-to-Spotify.",
+    "category": "product_launch",
+    "isMajor": true,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 2,
+    "sourcePreview": [
+      {
+        "id": "src-a2444260fcf45b7aa2b6a5b0",
+        "title": "SUN-to-Spotify",
+        "publisher": "artinbogdanov",
+        "domain": "producthunt.com",
+        "sourceType": "product_hunt",
+        "publishedAt": "2026-05-16T15:00:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://producthunt.com/products/sun-ai/launches/sun-ai"
+      },
+      {
+        "id": "src-4474ce39fe4e71a48dd592bf",
+        "title": "SUN-to-Spotify Product Hunt launch",
+        "publisher": "sun-ai",
+        "domain": "producthunt.com",
+        "sourceType": "product_hunt",
+        "publishedAt": "2026-05-17T00:00:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://www.producthunt.com/products/sun-ai/launches/sun-to-spotify"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-a2444260fcf45b7aa2b6a5b0",
+        "title": "SUN-to-Spotify",
+        "publisher": "artinbogdanov",
+        "domain": "producthunt.com",
+        "sourceType": "product_hunt",
+        "publishedAt": "2026-05-16T15:00:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://producthunt.com/products/sun-ai/launches/sun-ai",
+        "publicationDate": "2026-05-16T15:00:00.000Z",
+        "excerpt": "SUN-to-Spotify",
+        "sourceEventDate": "2026-05-16",
+        "isConflicting": false,
+        "conflictDescription": null
+      },
+      {
+        "id": "src-4474ce39fe4e71a48dd592bf",
+        "title": "SUN-to-Spotify Product Hunt launch",
+        "publisher": "sun-ai",
+        "domain": "producthunt.com",
+        "sourceType": "product_hunt",
+        "publishedAt": "2026-05-17T00:00:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://www.producthunt.com/products/sun-ai/launches/sun-to-spotify",
+        "publicationDate": "2026-05-17T00:00:00.000Z",
+        "excerpt": "SUN-to-Spotify launched on Product Hunt and was ranked #3 of the day.",
+        "sourceEventDate": "2026-05-16",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-f2b67b0e0ccd352f953a3dc2",
+        "platform": "product_hunt",
+        "account": "artinbogdanov",
+        "postDate": "2026-05-16",
+        "excerpt": "SUN-to-Spotify",
+        "url": "https://producthunt.com/products/sun-ai/launches/sun-ai",
+        "metrics": {
+          "comments": 32,
+          "upvotes": 347
+        },
+        "evidenceRole": "primary"
+      },
+      {
+        "id": "post-9ed0e126c151ac41ad616e59",
+        "platform": "product_hunt",
+        "account": "sun-ai",
+        "postDate": "2026-05-17",
+        "excerpt": "SUN-to-Spotify launched on Product Hunt and was ranked #3 of the day.",
+        "url": "https://www.producthunt.com/products/sun-ai/launches/sun-to-spotify",
+        "metrics": {
+          "comments": 32,
+          "upvotes": 361
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

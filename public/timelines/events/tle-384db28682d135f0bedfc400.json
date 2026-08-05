@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-graphify-labs",
+    "slug": "graphify-labs",
+    "name": "Graphify Labs"
+  },
+  "event": {
+    "id": "tle-384db28682d135f0bedfc400",
+    "eventDate": "2026-08-02",
+    "eventDateType": "announcement_date",
+    "title": "Graphify Labs reached 100K github stars",
+    "summary": "Graphify Labs is the first YC company to hit 100K github stars during the batch.",
+    "category": "traction_milestone",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-9fb18deb06a39604dbbab085",
+        "title": "Graphify Labs is the first YC company to hit 100K github stars during the batch.",
+        "publisher": null,
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-08-02T00:36:17.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/snowmaker/status/2083713463956979779"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-9fb18deb06a39604dbbab085",
+        "title": "Graphify Labs is the first YC company to hit 100K github stars during the batch.",
+        "publisher": null,
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-08-02T00:36:17.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/snowmaker/status/2083713463956979779",
+        "publicationDate": "2026-08-02T00:36:17.000Z",
+        "excerpt": "Graphify Labs is the first YC company to hit 100K github stars during the batch.",
+        "sourceEventDate": "2026-08-02",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-0be8cdd257ddacc987648a7c",
+        "platform": "x",
+        "account": null,
+        "postDate": "2026-08-02",
+        "excerpt": "Graphify Labs is the first YC company to hit 100K github stars during the batch.",
+        "url": "https://x.com/snowmaker/status/2083713463956979779",
+        "metrics": {
+          "views": 299997,
+          "likes": 1918,
+          "replies": 56,
+          "reposts": 102,
+          "quotes": 8,
+          "saves": 2209
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

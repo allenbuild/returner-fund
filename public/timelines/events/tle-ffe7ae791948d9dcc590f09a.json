@@ -12,37 +12,27 @@
     "title": "Prescience, Inc. released Prescience",
     "summary": "Prescience, Inc. introduced Prescience, healthcare for the age of abundant intelligence.",
     "category": "product_launch",
-    "isMajor": true,
+    "isMajor": false,
     "hasConflict": false,
     "conflictSummary": null,
-    "evidenceCount": 2,
+    "evidenceCount": 1,
     "sourcePreview": [
       {
         "id": "src-1c274c82972a0e601048107d",
         "title": "Introducing Prescience, healthcare for the age of abundant intelligence",
-        "publisher": "Introducing Prescience, healthcare for the age of abundant intelligence",
+        "publisher": "getprescience",
         "domain": "x.com",
         "sourceType": "company_post",
         "publishedAt": "2026-07-21T15:50:34.000Z",
         "evidenceRole": "primary",
         "url": "https://x.com/getprescience/status/2079594896437166552"
-      },
-      {
-        "id": "src-1415801f1f1a8fd91d8ff20c",
-        "title": "Introducing Prescience",
-        "publisher": "RishabJainK",
-        "domain": "x.com",
-        "sourceType": "founder_post",
-        "publishedAt": "2026-07-21T15:36:45.000Z",
-        "evidenceRole": "primary",
-        "url": "https://x.com/RishabJainK/status/2079591417522110884"
       }
     ],
     "evidence": [
       {
         "id": "src-1c274c82972a0e601048107d",
         "title": "Introducing Prescience, healthcare for the age of abundant intelligence",
-        "publisher": "Introducing Prescience, healthcare for the age of abundant intelligence",
+        "publisher": "getprescience",
         "domain": "x.com",
         "sourceType": "company_post",
         "publishedAt": "2026-07-21T15:50:34.000Z",
@@ -53,58 +43,27 @@
         "sourceEventDate": "2026-07-21",
         "isConflicting": false,
         "conflictDescription": null
-      },
-      {
-        "id": "src-1415801f1f1a8fd91d8ff20c",
-        "title": "Introducing Prescience",
-        "publisher": "RishabJainK",
-        "domain": "x.com",
-        "sourceType": "founder_post",
-        "publishedAt": "2026-07-21T15:36:45.000Z",
-        "evidenceRole": "primary",
-        "url": "https://x.com/RishabJainK/status/2079591417522110884",
-        "publicationDate": "2026-07-21T15:36:45.000Z",
-        "excerpt": "Aditya Jain and I have been building a company that answers what healthcare looks like with AGI. Introducing Prescience.",
-        "sourceEventDate": "2026-07-21",
-        "isConflicting": false,
-        "conflictDescription": null
       }
     ],
     "posts": [
       {
-        "id": "post-95d4154975d4e7bf949cc6c5",
+        "id": "post-dd980b73b58c35f00868ed08",
         "platform": "x",
-        "account": "Introducing Prescience, healthcare for the age of abundant intelligence",
+        "account": "getprescience",
         "postDate": "2026-07-21",
         "excerpt": "Introducing Prescience, healthcare for the age of abundant intelligence",
         "url": "https://x.com/getprescience/status/2079594896437166552",
         "metrics": {
           "likes": 3,
           "reposts": 0,
-          "comments": 0,
-          "views": 98
-        },
-        "evidenceRole": "primary"
-      },
-      {
-        "id": "post-fdc5e91e953b5860aefd8761",
-        "platform": "x",
-        "account": "RishabJainK",
-        "postDate": "2026-07-21",
-        "excerpt": "Aditya Jain and I have been building a company that answers what healthcare looks like with AGI. Introducing Prescience.",
-        "url": "https://x.com/RishabJainK/status/2079591417522110884",
-        "metrics": {
-          "likes": 118,
-          "replies": 41,
-          "reposts": 9,
-          "views": 22659,
-          "quotes": 2,
-          "bookmarks": 51
+          "quotes": 0,
+          "replies": 0,
+          "views": 117
         },
         "evidenceRole": "primary"
       }
     ]
   },
-  "generatedAt": "2026-08-03T07:52:26.040Z",
-  "lastModifiedAt": "2026-08-03T07:52:26.040Z"
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
 }

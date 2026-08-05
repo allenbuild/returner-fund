@@ -15,7 +15,7 @@
     "isMajor": true,
     "hasConflict": false,
     "conflictSummary": null,
-    "evidenceCount": 2,
+    "evidenceCount": 3,
     "sourcePreview": [
       {
         "id": "src-64592268e75cebbf55098ca3",
@@ -36,6 +36,16 @@
         "publishedAt": "2026-04-07T16:10:00.000Z",
         "evidenceRole": "primary",
         "url": "https://x.com/superset_sh/status/2041549058012058043"
+      },
+      {
+        "id": "src-fa3f04cf3fdb58ecf2048aec",
+        "title": "If you're one of the lucky ones, @Kimi_Moonshot support is now live in @superset_sh 😎",
+        "publisher": "FlyaKiet",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-07-20T22:13:22.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/FlyaKiet/status/2079328840376283205"
       }
     ],
     "evidence": [
@@ -68,11 +78,26 @@
         "sourceEventDate": "2026-04-07",
         "isConflicting": false,
         "conflictDescription": null
+      },
+      {
+        "id": "src-fa3f04cf3fdb58ecf2048aec",
+        "title": "If you're one of the lucky ones, @Kimi_Moonshot support is now live in @superset_sh 😎",
+        "publisher": "FlyaKiet",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-07-20T22:13:22.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/FlyaKiet/status/2079328840376283205",
+        "publicationDate": "2026-07-20T22:13:22.000Z",
+        "excerpt": "If you're one of the lucky ones, @Kimi_Moonshot support is now live in @superset_sh 😎",
+        "sourceEventDate": "2026-07-20",
+        "isConflicting": false,
+        "conflictDescription": null
       }
     ],
     "posts": [
       {
-        "id": "post-9319b6826c3aabb3cf929fcc",
+        "id": "post-afe478a88357fa018c9648f4",
         "platform": "hacker_news",
         "account": "avipeltz",
         "postDate": "2026-05-22",
@@ -86,7 +111,7 @@
         "evidenceRole": "primary"
       },
       {
-        "id": "post-9605a2159470d62bef832e3a",
+        "id": "post-b9aa16987037e29fb5de9608",
         "platform": "x",
         "account": "superset_sh",
         "postDate": "2026-04-07",
@@ -102,9 +127,26 @@
           "saves": 878
         },
         "evidenceRole": "primary"
+      },
+      {
+        "id": "post-16d77d928872c90525be72d3",
+        "platform": "x",
+        "account": "FlyaKiet",
+        "postDate": "2026-07-20",
+        "excerpt": "If you're one of the lucky ones, @Kimi_Moonshot support is now live in @superset_sh 😎",
+        "url": "https://x.com/FlyaKiet/status/2079328840376283205",
+        "metrics": {
+          "views": 2696,
+          "likes": 24,
+          "replies": 2,
+          "reposts": 1,
+          "quotes": 0,
+          "bookmarks": 2
+        },
+        "evidenceRole": "primary"
       }
     ]
   },
-  "generatedAt": "2026-08-03T07:52:26.040Z",
-  "lastModifiedAt": "2026-08-03T07:52:26.040Z"
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
 }

@@ -1,0 +1,111 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-egoist-machines",
+    "slug": "egoist-machines",
+    "name": "Egoist Machines"
+  },
+  "event": {
+    "id": "tle-10c6e4463ffbef0f2d204004",
+    "eventDate": "2026-07-09",
+    "eventDateType": "announcement_date",
+    "title": "Egoist Machines released waitlist",
+    "summary": "Egoist Machines is launching a waitlist for our flagship - AI passport - as a personal context layer that allows data interoperability between all of your favourite AI apps, with privacy in mind > < think of it as a company brain but for everyone.",
+    "category": "product_launch",
+    "isMajor": true,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 2,
+    "sourcePreview": [
+      {
+        "id": "src-f1343209c17dd62e546f815d",
+        "title": "we're launching a waitlist for our flagship - AI passport - as a personal context layer that allows data interoperability between all of your favourite AI apps, with privacy in mind > https://ego.ist < think of it as a company brain but ...",
+        "publisher": "davidobot_",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-07-09T15:33:32.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/davidobot_/status/2075241953487384609"
+      },
+      {
+        "id": "src-1c020ecc4375634042e53fee",
+        "title": "we're launching the waitlist for EGOIST AI passport control what AI apps know about you let your apps talk to each other, yes even Claude and ChatGPT private by default; free for life https://t.co/5JRrHHaTF4 https://t.co/D2QsVEZ1r0",
+        "publisher": "egoistmachines",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-07-09T16:44:30.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/egoistmachines/status/2075259813907579279"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-f1343209c17dd62e546f815d",
+        "title": "we're launching a waitlist for our flagship - AI passport - as a personal context layer that allows data interoperability between all of your favourite AI apps, with privacy in mind > https://ego.ist < think of it as a company brain but ...",
+        "publisher": "davidobot_",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-07-09T15:33:32.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/davidobot_/status/2075241953487384609",
+        "publicationDate": "2026-07-09T15:33:32.000Z",
+        "excerpt": "we're launching a waitlist for our flagship - AI passport - as a personal context layer that allows data interoperability between all of your favourite AI apps, with privacy in mind > https://ego.ist < think of it as a company brain but for everyone",
+        "sourceEventDate": "2026-07-09",
+        "isConflicting": false,
+        "conflictDescription": null
+      },
+      {
+        "id": "src-1c020ecc4375634042e53fee",
+        "title": "we're launching the waitlist for EGOIST AI passport control what AI apps know about you let your apps talk to each other, yes even Claude and ChatGPT private by default; free for life https://t.co/5JRrHHaTF4 https://t.co/D2QsVEZ1r0",
+        "publisher": "egoistmachines",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-07-09T16:44:30.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/egoistmachines/status/2075259813907579279",
+        "publicationDate": "2026-07-09T16:44:30.000Z",
+        "excerpt": "we're launching the waitlist for EGOIST AI passport control what AI apps know about you let your apps talk to each other, yes even Claude and ChatGPT private by default; free for life https://t.co/5JRrHHaTF4 https://t.co/D2QsVEZ1r0",
+        "sourceEventDate": "2026-07-09",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-15797d7dd61d6cd3bc7105ae",
+        "platform": "x",
+        "account": "davidobot_",
+        "postDate": "2026-07-09",
+        "excerpt": "we're launching a waitlist for our flagship - AI passport - as a personal context layer that allows data interoperability between all of your favourite AI apps, with privacy in mind > https://ego.ist < think of it as a company brain but for everyone",
+        "url": "https://x.com/davidobot_/status/2075241953487384609",
+        "metrics": {
+          "views": 1515,
+          "likes": 4,
+          "replies": 3,
+          "reposts": 0,
+          "quotes": 0,
+          "bookmarks": 0
+        },
+        "evidenceRole": "primary"
+      },
+      {
+        "id": "post-ce79bd1c606742fe03630ff2",
+        "platform": "x",
+        "account": "egoistmachines",
+        "postDate": "2026-07-09",
+        "excerpt": "we're launching the waitlist for EGOIST AI passport control what AI apps know about you let your apps talk to each other, yes even Claude and ChatGPT private by default; free for life https://t.co/5JRrHHaTF4 https://t.co/D2QsVEZ1r0",
+        "url": "https://x.com/egoistmachines/status/2075259813907579279",
+        "metrics": {
+          "likes": 53,
+          "reposts": 3,
+          "quotes": 5,
+          "replies": 11,
+          "views": 313833
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

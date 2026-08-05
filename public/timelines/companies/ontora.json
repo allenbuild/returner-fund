@@ -5,8 +5,8 @@
     "slug": "ontora",
     "name": "Ontora"
   },
-  "generatedAt": "2026-08-03T07:52:26.040Z",
-  "lastModifiedAt": "2026-08-03T07:52:26.040Z",
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z",
   "events": [
     {
       "id": "tle-31b007a7488ba1bc38a3fdf5",
@@ -31,30 +31,6 @@
           "url": "https://www.youtube.com/watch?v=vI8shNqqmRE"
         }
       ]
-    },
-    {
-      "id": "tle-eb9d480f376017fc7b57b8c2",
-      "eventDate": "2026-04-20",
-      "eventDateType": "announcement_date",
-      "title": "Ontora was accepted into Y Combinator",
-      "summary": "Ontora just got into YC.",
-      "category": "accelerator",
-      "isMajor": true,
-      "hasConflict": false,
-      "conflictSummary": null,
-      "evidenceCount": 1,
-      "sourcePreview": [
-        {
-          "id": "src-59f373eb3877f712ff79c92b",
-          "title": "We just got into YC!! Companies spend too much money on consultants who tell them things they already know. @ontoratech interviews all your employees to build AI & context native organizations. Ontora (YC P26) and 2 others Quote Y…",
-          "publisher": "maxonary X post",
-          "domain": "x.com",
-          "sourceType": "founder_post",
-          "publishedAt": "2026-04-20T00:00:00.000Z",
-          "evidenceRole": "primary",
-          "url": "https://x.com/maxonary/status/2046245379889619196"
-        }
-      ]
     }
   ],
   "groups": [
@@ -64,18 +40,14 @@
         {
           "month": "2026-06",
           "count": 1
-        },
-        {
-          "month": "2026-04",
-          "count": 1
         }
       ]
     }
   ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 2,
-    "lastSuccessfulArtifactAt": "2026-08-03T07:52:26.040Z"
+    "publishedEventCount": 1,
+    "lastSuccessfulArtifactAt": "2026-08-05T00:49:13.374Z"
   },
   "nextCursor": null
 }

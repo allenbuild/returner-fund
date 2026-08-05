@@ -5,14 +5,49 @@
     "slug": "agentphone",
     "name": "AgentPhone"
   },
-  "generatedAt": "2026-08-03T07:52:26.040Z",
-  "lastModifiedAt": "2026-08-03T07:52:26.040Z",
-  "events": [],
-  "groups": [],
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z",
+  "events": [
+    {
+      "id": "tle-d25bcedc7926f04f5e8d7453",
+      "eventDate": "2026-04-21",
+      "eventDateType": "announcement_date",
+      "title": "AgentPhone announced a product update",
+      "summary": "AgentPhone is now officially integrated with @LangChain Your LangChain agents can now make and receive real phone calls, send messages, and manage numbers, all with one pip install.",
+      "category": "product_update",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-155ffdee20828f8c15eccbc5",
+          "title": "AgentPhone is now officially integrated with @LangChain Your LangChain agents can now make and receive real phone calls, send messages, and manage numbers, all with one pip install. Read the full announcement below ↓",
+          "publisher": "AgentPhoneHQ",
+          "domain": "x.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-04-21T02:43:24.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/AgentPhoneHQ/status/2046419502628471295"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-04",
+          "count": 1
+        }
+      ]
+    }
+  ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 0,
-    "lastSuccessfulArtifactAt": "2026-08-03T07:52:26.040Z"
+    "publishedEventCount": 1,
+    "lastSuccessfulArtifactAt": "2026-08-05T00:49:13.374Z"
   },
   "nextCursor": null
 }

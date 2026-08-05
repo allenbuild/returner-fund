@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-insforge",
+    "slug": "insforge",
+    "name": "InsForge"
+  },
+  "event": {
+    "id": "tle-24c0a3e8dd37e7627796cb49",
+    "eventDate": "2026-06-19",
+    "eventDateType": "announcement_date",
+    "title": "InsForge released ALL THE INSFORGE LAUNCH WEEK 2 WINNERS 🎉 We'll also be reaching out...",
+    "summary": "ANNOUNCING ALL THE INSFORGE LAUNCH WEEK 2 WINNERS 🎉 We'll also be reaching out by email with the next steps.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-41a912a7750b31d73c4edc97",
+        "title": "ANNOUNCING ALL THE INSFORGE LAUNCH WEEK 2 WINNERS 🎉 We’ll also be reaching out by email with the next steps. Thank you to everyone for the support, we have much much more coming soon :) Check if you won anything below ↓",
+        "publisher": "insforge",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-06-19T01:17:48.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/insforge/status/2067778842907779085"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-41a912a7750b31d73c4edc97",
+        "title": "ANNOUNCING ALL THE INSFORGE LAUNCH WEEK 2 WINNERS 🎉 We’ll also be reaching out by email with the next steps. Thank you to everyone for the support, we have much much more coming soon :) Check if you won anything below ↓",
+        "publisher": "insforge",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-06-19T01:17:48.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/insforge/status/2067778842907779085",
+        "publicationDate": "2026-06-19T01:17:48.000Z",
+        "excerpt": "ANNOUNCING ALL THE INSFORGE LAUNCH WEEK 2 WINNERS 🎉 We’ll also be reaching out by email with the next steps. Thank you to everyone for the support, we have much much more coming soon :) Check if you won anything below ↓",
+        "sourceEventDate": "2026-06-19",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-db5af6377616b32d3fed6108",
+        "platform": "x",
+        "account": "insforge",
+        "postDate": "2026-06-19",
+        "excerpt": "ANNOUNCING ALL THE INSFORGE LAUNCH WEEK 2 WINNERS 🎉 We’ll also be reaching out by email with the next steps. Thank you to everyone for the support, we have much much more coming soon :) Check if you won anything below ↓",
+        "url": "https://x.com/insforge/status/2067778842907779085",
+        "metrics": {
+          "views": 2542,
+          "likes": 25,
+          "replies": 6,
+          "reposts": 3,
+          "quotes": 0,
+          "bookmarks": 1
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

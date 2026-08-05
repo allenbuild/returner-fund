@@ -1,0 +1,154 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-almanac",
+    "slug": "almanac",
+    "name": "Almanac"
+  },
+  "event": {
+    "id": "tle-f1cebc974abde6ba7f1ccdb1",
+    "eventDate": "2025-12-04",
+    "eventDateType": "announcement_date",
+    "title": "Almanac announced its public launch",
+    "summary": "Almanac announced it was launching Almanac, a people-Wikipedia written by AI.",
+    "category": "product_launch",
+    "isMajor": true,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 3,
+    "sourcePreview": [
+      {
+        "id": "src-8faab7888e207d915133d138",
+        "title": "Today we’re launching Almanac, a people-Wikipedia written by AI. Almanac uses news, personal websites, LinkedIn, X, YouTube, and more to create a detailed biography for you. Get your article today at http://thealmanac.ai",
+        "publisher": "divitsheth007",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-02-19T22:16:31.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/divitsheth007/status/2024609065406779808"
+      },
+      {
+        "id": "src-edce382334fdc5cfa13ef0c0",
+        "title": "Today we’re launching Almanac, a people-Wikipedia written by AI. Almanac uses news, personal websites, LinkedIn, X, YouTube, and more to create a detailed biography for you. Get your article today at https://thealmanac.ai",
+        "publisher": "usealmanac",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-02-19T13:28:30.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/usealmanac/status/2024476187607912711"
+      },
+      {
+        "id": "src-19b2aa101f6a19c34ebfc9b4",
+        "title": "Today we’re launching The Almanac, a people-Wikipedia written by AI. You can generate a profile for yourself or anyone else. Our agent crawls news, personal sites, LinkedIn, YouTube, and more to produce a detailed biography. Would love…",
+        "publisher": "rohansharma0509",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2025-12-04T18:41:28.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/rohansharma0509/status/1996651081934184907"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-8faab7888e207d915133d138",
+        "title": "Today we’re launching Almanac, a people-Wikipedia written by AI. Almanac uses news, personal websites, LinkedIn, X, YouTube, and more to create a detailed biography for you. Get your article today at http://thealmanac.ai",
+        "publisher": "divitsheth007",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-02-19T22:16:31.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/divitsheth007/status/2024609065406779808",
+        "publicationDate": "2026-02-19T22:16:31.000Z",
+        "excerpt": "Today we’re launching Almanac, a people-Wikipedia written by AI. Almanac uses news, personal websites, LinkedIn, X, YouTube, and more to create a detailed biography for you. Get your article today at http://thealmanac.ai",
+        "sourceEventDate": "2026-02-19",
+        "isConflicting": false,
+        "conflictDescription": null
+      },
+      {
+        "id": "src-edce382334fdc5cfa13ef0c0",
+        "title": "Today we’re launching Almanac, a people-Wikipedia written by AI. Almanac uses news, personal websites, LinkedIn, X, YouTube, and more to create a detailed biography for you. Get your article today at https://thealmanac.ai",
+        "publisher": "usealmanac",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-02-19T13:28:30.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/usealmanac/status/2024476187607912711",
+        "publicationDate": "2026-02-19T13:28:30.000Z",
+        "excerpt": "Today we’re launching Almanac, a people-Wikipedia written by AI. Almanac uses news, personal websites, LinkedIn, X, YouTube, and more to create a detailed biography for you. Get your article today at https://thealmanac.ai",
+        "sourceEventDate": "2026-02-19",
+        "isConflicting": false,
+        "conflictDescription": null
+      },
+      {
+        "id": "src-19b2aa101f6a19c34ebfc9b4",
+        "title": "Today we’re launching The Almanac, a people-Wikipedia written by AI. You can generate a profile for yourself or anyone else. Our agent crawls news, personal sites, LinkedIn, YouTube, and more to produce a detailed biography. Would love…",
+        "publisher": "rohansharma0509",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2025-12-04T18:41:28.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/rohansharma0509/status/1996651081934184907",
+        "publicationDate": "2025-12-04T18:41:28.000Z",
+        "excerpt": "Today we’re launching The Almanac, a people-Wikipedia written by AI. You can generate a profile for yourself or anyone else. Our agent crawls news, personal sites, LinkedIn, YouTube, and more to produce a detailed biography. Would love to see how your profile turns out: https://thealmanac.ai",
+        "sourceEventDate": "2025-12-04",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-a032b317ec4958bbca4b6877",
+        "platform": "x",
+        "account": "divitsheth007",
+        "postDate": "2026-02-19",
+        "excerpt": "Today we’re launching Almanac, a people-Wikipedia written by AI. Almanac uses news, personal websites, LinkedIn, X, YouTube, and more to create a detailed biography for you. Get your article today at http://thealmanac.ai",
+        "url": "https://x.com/divitsheth007/status/2024609065406779808",
+        "metrics": {
+          "views": 72,
+          "likes": 8,
+          "replies": 0,
+          "reposts": 0,
+          "quotes": 0,
+          "bookmarks": 0
+        },
+        "evidenceRole": "primary"
+      },
+      {
+        "id": "post-4070fd51300618a1b0bdd4ba",
+        "platform": "x",
+        "account": "usealmanac",
+        "postDate": "2026-02-19",
+        "excerpt": "Today we’re launching Almanac, a people-Wikipedia written by AI. Almanac uses news, personal websites, LinkedIn, X, YouTube, and more to create a detailed biography for you. Get your article today at https://thealmanac.ai",
+        "url": "https://x.com/usealmanac/status/2024476187607912711",
+        "metrics": {
+          "views": 2720,
+          "likes": 45,
+          "replies": 13,
+          "reposts": 13,
+          "quotes": 5,
+          "bookmarks": 5
+        },
+        "evidenceRole": "primary"
+      },
+      {
+        "id": "post-363b08391d085b3122099aa2",
+        "platform": "x",
+        "account": "rohansharma0509",
+        "postDate": "2025-12-04",
+        "excerpt": "Today we’re launching The Almanac, a people-Wikipedia written by AI. You can generate a profile for yourself or anyone else. Our agent crawls news, personal sites, LinkedIn, YouTube, and more to produce a detailed biography. Would love to see how your profile turns out: https://thealmanac.ai",
+        "url": "https://x.com/rohansharma0509/status/1996651081934184907",
+        "metrics": {
+          "views": 218,
+          "likes": 9,
+          "replies": 1,
+          "reposts": 0,
+          "quotes": 0,
+          "bookmarks": 0
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

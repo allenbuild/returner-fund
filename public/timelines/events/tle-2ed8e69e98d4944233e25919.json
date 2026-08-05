@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-prized",
+    "slug": "prized",
+    "name": "Prized"
+  },
+  "event": {
+    "id": "tle-2ed8e69e98d4944233e25919",
+    "eventDate": "2025-11-07",
+    "eventDateType": "announcement_date",
+    "title": "Prized released Loophole",
+    "summary": "Prized announced it was launching Loophole.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-dfd388cbae39c8178aea0297",
+        "title": "Today we’re launching Loophole! An AI onboarding assistant that answers questions, guides workflows, and automates first-week tasks. Hidden during screen shares, always ready in the background. Faster ramp, less chaos.",
+        "publisher": "hudson_gri",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2025-11-07T17:01:02.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/hudson_gri/status/1986841334867481025"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-dfd388cbae39c8178aea0297",
+        "title": "Today we’re launching Loophole! An AI onboarding assistant that answers questions, guides workflows, and automates first-week tasks. Hidden during screen shares, always ready in the background. Faster ramp, less chaos.",
+        "publisher": "hudson_gri",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2025-11-07T17:01:02.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/hudson_gri/status/1986841334867481025",
+        "publicationDate": "2025-11-07T17:01:02.000Z",
+        "excerpt": "Today we’re launching Loophole! An AI onboarding assistant that answers questions, guides workflows, and automates first-week tasks. Hidden during screen shares, always ready in the background. Faster ramp, less chaos.",
+        "sourceEventDate": "2025-11-07",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-beacaa12ec0a92099768f8cb",
+        "platform": "x",
+        "account": "hudson_gri",
+        "postDate": "2025-11-07",
+        "excerpt": "Today we’re launching Loophole! An AI onboarding assistant that answers questions, guides workflows, and automates first-week tasks. Hidden during screen shares, always ready in the background. Faster ramp, less chaos.",
+        "url": "https://x.com/hudson_gri/status/1986841334867481025",
+        "metrics": {
+          "views": 149600,
+          "likes": 19,
+          "replies": 1,
+          "reposts": 0,
+          "quotes": 0,
+          "bookmarks": 0
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

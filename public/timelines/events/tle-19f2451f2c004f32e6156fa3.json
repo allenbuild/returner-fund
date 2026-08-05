@@ -1,0 +1,69 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-joinmarble",
+    "slug": "marble",
+    "name": "Marble"
+  },
+  "event": {
+    "id": "tle-19f2451f2c004f32e6156fa3",
+    "eventDate": "2026-07-30",
+    "eventDateType": "announcement_date",
+    "title": "Marble released Marble (YC S26) — the autonomous back of house for restaurants",
+    "summary": "Marble introduced Marble (YC S26) — the autonomous back of house for restaurants.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-62a964b28b2a3fda0f49b222",
+        "title": "Introducing Marble (YC S26) — the autonomous back of house for restaurants.",
+        "publisher": "arjunjchaliha",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-07-30T18:24:26.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/arjunjchaliha/status/2082895107557339601"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-62a964b28b2a3fda0f49b222",
+        "title": "Introducing Marble (YC S26) — the autonomous back of house for restaurants.",
+        "publisher": "arjunjchaliha",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-07-30T18:24:26.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/arjunjchaliha/status/2082895107557339601",
+        "publicationDate": "2026-07-30T18:24:26.000Z",
+        "excerpt": "Introducing Marble (YC S26) — the autonomous back of house for restaurants. If you own or have worked in a restaurant, you know: 5% margins, and the whole back of house still runs on a clipboard and whatever the GM remembers. Marble counts your stock in minutes with computer https://t.co/XMrhfpYXZF",
+        "sourceEventDate": "2026-07-30",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-c28002f10f26e383bcb00728",
+        "platform": "x",
+        "account": "arjunjchaliha",
+        "postDate": "2026-07-30",
+        "excerpt": "Introducing Marble (YC S26) — the autonomous back of house for restaurants. If you own or have worked in a restaurant, you know: 5% margins, and the whole back of house still runs on a clipboard and whatever the GM remembers. Marble counts your stock in minutes with computer https://t.co/XMrhfpYXZF",
+        "url": "https://x.com/arjunjchaliha/status/2082895107557339601",
+        "metrics": {
+          "likes": 404,
+          "reposts": 30,
+          "quotes": 14,
+          "replies": 69,
+          "views": 120755
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

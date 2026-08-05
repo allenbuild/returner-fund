@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-insforge",
+    "slug": "insforge",
+    "name": "InsForge"
+  },
+  "event": {
+    "id": "tle-7e8147737022d28669e218d0",
+    "eventDate": "2026-07-16",
+    "eventDateType": "announcement_date",
+    "title": "InsForge announced seed round",
+    "summary": "InsForge just closed our seed round.",
+    "category": "funding",
+    "isMajor": true,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-a229da9b2db999f4095756af",
+        "title": "We just closed our seed round! Now the real work begins. YC was never the finish line. It just means we got a real ticket to compete in this marathon. We just crossed 41,000 total projects. But this is just the start. Now, my focus is ...",
+        "publisher": "hanghuang_",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-07-16T01:16:40.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/hanghuang_/status/2077563030108271092"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-a229da9b2db999f4095756af",
+        "title": "We just closed our seed round! Now the real work begins. YC was never the finish line. It just means we got a real ticket to compete in this marathon. We just crossed 41,000 total projects. But this is just the start. Now, my focus is ...",
+        "publisher": "hanghuang_",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-07-16T01:16:40.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/hanghuang_/status/2077563030108271092",
+        "publicationDate": "2026-07-16T01:16:40.000Z",
+        "excerpt": "We just closed our seed round! Now the real work begins. YC was never the finish line. It just means we got a real ticket to compete in this marathon. We just crossed 41,000 total projects. But this is just the start. Now, my focus is on finalizing the roadmap, having deeper conversations with our users to improve the product experience, hiring our first DevRel engineer, running more demos and workshops, and educating more people about our product to grow our community. Series A is the next…",
+        "sourceEventDate": "2026-07-16",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-2136afed3cb9eb25953e1fb4",
+        "platform": "x",
+        "account": "hanghuang_",
+        "postDate": "2026-07-16",
+        "excerpt": "We just closed our seed round! Now the real work begins. YC was never the finish line. It just means we got a real ticket to compete in this marathon. We just crossed 41,000 total projects. But this is just the start. Now, my focus is on finalizing the roadmap, having deeper conversations with our users to improve the product experience, hiring our first DevRel engineer, running more demos and workshops, and educating more people about our product to grow our community. Series A is the next…",
+        "url": "https://x.com/hanghuang_/status/2077563030108271092",
+        "metrics": {
+          "views": 7677,
+          "likes": 166,
+          "replies": 59,
+          "reposts": 1,
+          "quotes": 1,
+          "bookmarks": 7
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

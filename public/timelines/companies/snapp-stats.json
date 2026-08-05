@@ -5,9 +5,33 @@
     "slug": "snapp-stats",
     "name": "Snapp Stats"
   },
-  "generatedAt": "2026-08-03T07:52:26.040Z",
-  "lastModifiedAt": "2026-08-03T07:52:26.040Z",
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z",
   "events": [
+    {
+      "id": "tle-4a1b5aa94401546fe6416ec6",
+      "eventDate": "2026-07-17",
+      "eventDateType": "announcement_date",
+      "title": "Snapp Stats released prediction models",
+      "summary": "Snapp Stats introduced prediction models.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-71ee394c8d704e215aa591b9",
+          "title": "Introducing prediction models. 🫰 Pro sports bettors hide their edge. Snapp AI's models put every pick on a public record — tracked in units, win rates visible, nothing deleted. Try Free → http://app.trysnapp.ai/models",
+          "publisher": "SnappStats",
+          "domain": "x.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-07-17T19:24:56.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/SnappStats/status/2078199290607137208"
+        }
+      ]
+    },
     {
       "id": "tle-e542dde7ced712f673804f8d",
       "eventDate": "2026-05-19",
@@ -31,6 +55,30 @@
           "url": "https://linkedin.com/posts/andrewtamura_exciting-news-from-snapp-ai-todayweve-raised-activity-7462630457973764097-K-hs"
         }
       ]
+    },
+    {
+      "id": "tle-bd8a7d11db765e7cdcdf04a3",
+      "eventDate": "2026-03-26",
+      "eventDateType": "announcement_date",
+      "title": "Snapp Stats released with UC Berkeley Football and posts are already going viral 🐻 This is...",
+      "summary": "Snapp Stats just launched with UC Berkeley Football and posts are already going viral 🐻 This is what AI-powered fan engagement looks like.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-6817c422b886ad36393d1e6d",
+          "title": "We just launched with UC Berkeley Football and posts are already going viral 🐻 This is what AI-powered fan engagement looks like. Try it yourself → http://trysnapp.ai #CalFootball #SportsAI #GoBears",
+          "publisher": "themichelinmin",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-03-26T18:18:19.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/themichelinmin/status/2037232698616668240"
+        }
+      ]
     }
   ],
   "groups": [
@@ -38,7 +86,15 @@
       "year": 2026,
       "months": [
         {
+          "month": "2026-07",
+          "count": 1
+        },
+        {
           "month": "2026-05",
+          "count": 1
+        },
+        {
+          "month": "2026-03",
           "count": 1
         }
       ]
@@ -46,8 +102,8 @@
   ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-08-03T07:52:26.040Z"
+    "publishedEventCount": 3,
+    "lastSuccessfulArtifactAt": "2026-08-05T00:49:13.374Z"
   },
   "nextCursor": null
 }

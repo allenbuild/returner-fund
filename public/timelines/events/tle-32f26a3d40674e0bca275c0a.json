@@ -1,0 +1,148 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-result",
+    "slug": "result",
+    "name": "Result"
+  },
+  "event": {
+    "id": "tle-32f26a3d40674e0bca275c0a",
+    "eventDate": "2026-05-15",
+    "eventDateType": "announcement_date",
+    "title": "Result was accepted into Y Combinator P26",
+    "summary": "Result got into Y Combinator P26 as some of the youngest Indians ever to get in.",
+    "category": "accelerator",
+    "isMajor": true,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 3,
+    "sourcePreview": [
+      {
+        "id": "src-584e2b4fa8b357ace76c9895",
+        "title": "We got into Y Combinator P26 as some of the youngest Indians ever to get in.",
+        "publisher": "aaryan-kushwah",
+        "domain": "linkedin.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-05-15T17:49:52.462Z",
+        "evidenceRole": "primary",
+        "url": "https://www.linkedin.com/posts/aaryan-kushwah_we-got-into-y-combinator-p26-as-some-of-the-activity-7461110619740487681-qQOY"
+      },
+      {
+        "id": "src-e5ddd6fc10ea111dcd982b41",
+        "title": "We got into Y Combinator (P26).",
+        "publisher": "saviomartin",
+        "domain": "linkedin.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-05-15T17:50:20.409Z",
+        "evidenceRole": "primary",
+        "url": "https://www.linkedin.com/posts/saviomartin_we-got-into-y-combinator-p26-after-scaling-activity-7461110736979857408-uzU7"
+      },
+      {
+        "id": "src-3459dc54fa8adb76e487a123",
+        "title": "We got into Y Combinator (P26) After scaling SimpleClaw to $40k MRR in <3 weeks, we learnt what our users were trying to accomplish - bu...",
+        "publisher": "saviomartin7",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-05-15T17:40:38.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/saviomartin7/status/2055342607753203731"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-584e2b4fa8b357ace76c9895",
+        "title": "We got into Y Combinator P26 as some of the youngest Indians ever to get in.",
+        "publisher": "aaryan-kushwah",
+        "domain": "linkedin.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-05-15T17:49:52.462Z",
+        "evidenceRole": "primary",
+        "url": "https://www.linkedin.com/posts/aaryan-kushwah_we-got-into-y-combinator-p26-as-some-of-the-activity-7461110619740487681-qQOY",
+        "publicationDate": "2026-05-15T17:49:52.462Z",
+        "excerpt": "We got into Y Combinator P26 as some of the youngest Indians ever to get in. The founder names Result (YC P26). The post calls Result the platform for one-to-three-person teams in a post-work economy. Visible metrics: 558 likes, 558 reactions, 49 comments.",
+        "sourceEventDate": "2026-05-15",
+        "isConflicting": false,
+        "conflictDescription": null
+      },
+      {
+        "id": "src-e5ddd6fc10ea111dcd982b41",
+        "title": "We got into Y Combinator (P26).",
+        "publisher": "saviomartin",
+        "domain": "linkedin.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-05-15T17:50:20.409Z",
+        "evidenceRole": "primary",
+        "url": "https://www.linkedin.com/posts/saviomartin_we-got-into-y-combinator-p26-after-scaling-activity-7461110736979857408-uzU7",
+        "publicationDate": "2026-05-15T17:50:20.409Z",
+        "excerpt": "We got into Y Combinator (P26). The founder says he is skipping college to build Result. The post reports scaling SimpleClaw to $40k MRR in under three weeks before the Result announcement. Visible metrics: 551 likes, 551 reactions, 37 comments.",
+        "sourceEventDate": "2026-05-15",
+        "isConflicting": false,
+        "conflictDescription": null
+      },
+      {
+        "id": "src-3459dc54fa8adb76e487a123",
+        "title": "We got into Y Combinator (P26) After scaling SimpleClaw to $40k MRR in <3 weeks, we learnt what our users were trying to accomplish - bu...",
+        "publisher": "saviomartin7",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-05-15T17:40:38.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/saviomartin7/status/2055342607753203731",
+        "publicationDate": "2026-05-15T17:40:38.000Z",
+        "excerpt": "We got into Y Combinator (P26) After scaling SimpleClaw to $40k MRR in <3 weeks, we learnt what our users were trying to accomplish - build companies with agents. SimpleClaw is shutting down; I’m now 19, and made the hard decision to skip college to build Result, my biggest bet so far. Company announcement tomorrow. ok, back to work.",
+        "sourceEventDate": "2026-05-15",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-09b64fb64b79ca59f22d83f8",
+        "platform": "linkedin",
+        "account": "aaryan-kushwah",
+        "postDate": "2026-05-15",
+        "excerpt": "We got into Y Combinator P26 as some of the youngest Indians ever to get in. The founder names Result (YC P26). The post calls Result the platform for one-to-three-person teams in a post-work economy. Visible metrics: 558 likes, 558 reactions, 49 comments.",
+        "url": "https://www.linkedin.com/posts/aaryan-kushwah_we-got-into-y-combinator-p26-as-some-of-the-activity-7461110619740487681-qQOY",
+        "metrics": {
+          "likes": 558,
+          "comments": 49,
+          "reactions": 558
+        },
+        "evidenceRole": "primary"
+      },
+      {
+        "id": "post-76be8f7cbbd3119be1749f3e",
+        "platform": "linkedin",
+        "account": "saviomartin",
+        "postDate": "2026-05-15",
+        "excerpt": "We got into Y Combinator (P26). The founder says he is skipping college to build Result. The post reports scaling SimpleClaw to $40k MRR in under three weeks before the Result announcement. Visible metrics: 551 likes, 551 reactions, 37 comments.",
+        "url": "https://www.linkedin.com/posts/saviomartin_we-got-into-y-combinator-p26-after-scaling-activity-7461110736979857408-uzU7",
+        "metrics": {
+          "likes": 551,
+          "comments": 37,
+          "reactions": 551
+        },
+        "evidenceRole": "primary"
+      },
+      {
+        "id": "post-007c4bcbf7619417f1629de5",
+        "platform": "x",
+        "account": "saviomartin7",
+        "postDate": "2026-05-15",
+        "excerpt": "We got into Y Combinator (P26) After scaling SimpleClaw to $40k MRR in <3 weeks, we learnt what our users were trying to accomplish - build companies with agents. SimpleClaw is shutting down; I’m now 19, and made the hard decision to skip college to build Result, my biggest bet so far. Company announcement tomorrow. ok, back to work.",
+        "url": "https://x.com/saviomartin7/status/2055342607753203731",
+        "metrics": {
+          "views": 83369,
+          "likes": 1031,
+          "replies": 143,
+          "reposts": 25,
+          "quotes": 6,
+          "bookmarks": 195
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

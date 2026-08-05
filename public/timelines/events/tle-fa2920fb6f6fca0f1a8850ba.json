@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-os3",
+    "slug": "os3",
+    "name": "OS3"
+  },
+  "event": {
+    "id": "tle-fa2920fb6f6fca0f1a8850ba",
+    "eventDate": "2025-08-20",
+    "eventDateType": "announcement_date",
+    "title": "OS3 announced its public launch",
+    "summary": "OS3 launched today.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-1bacb63d355b399aaa18ebcf",
+        "title": "We launched today! Chat with us if you are building agents in any vertical!",
+        "publisher": "realChrisHailey",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2025-08-20T19:02:53.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/realChrisHailey/status/1958243355567239218"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-1bacb63d355b399aaa18ebcf",
+        "title": "We launched today! Chat with us if you are building agents in any vertical!",
+        "publisher": "realChrisHailey",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2025-08-20T19:02:53.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/realChrisHailey/status/1958243355567239218",
+        "publicationDate": "2025-08-20T19:02:53.000Z",
+        "excerpt": "We launched today! Chat with us if you are building agents in any vertical!",
+        "sourceEventDate": "2025-08-20",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-4510f985f48d7efc7af5e6b2",
+        "platform": "x",
+        "account": "realChrisHailey",
+        "postDate": "2025-08-20",
+        "excerpt": "We launched today! Chat with us if you are building agents in any vertical!",
+        "url": "https://x.com/realChrisHailey/status/1958243355567239218",
+        "metrics": {
+          "views": 845,
+          "likes": 5,
+          "replies": 0,
+          "reposts": 1,
+          "quotes": 0,
+          "bookmarks": 0
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

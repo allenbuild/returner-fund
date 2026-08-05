@@ -15,17 +15,17 @@
     "isMajor": true,
     "hasConflict": false,
     "conflictSummary": null,
-    "evidenceCount": 2,
+    "evidenceCount": 3,
     "sourcePreview": [
       {
-        "id": "src-629adb0fad273f94f797ebe1",
-        "title": "screenpipe - Your AI finally knows what you're doing",
-        "publisher": "screenpipe",
-        "domain": "producthunt.com",
-        "sourceType": "product_hunt",
-        "publishedAt": "2026-07-15T22:30:00.000Z",
+        "id": "src-3f69097f6d07062145093c35",
+        "title": "Launch HN: Screenpipe (YC S26) – Record how you work and turn that into agents",
+        "publisher": "Launch HN: Screenpipe (YC S26) – Record how you work and turn that into agents",
+        "domain": "news.ycombinator.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-07-23T16:48:38Z",
         "evidenceRole": "primary",
-        "url": "https://www.producthunt.com/products/screenpipe/launches/screenpipe-2"
+        "url": "https://news.ycombinator.com/item?id=49024620"
       },
       {
         "id": "src-33f93ac2e9bab48cbc6898b8",
@@ -36,9 +36,7 @@
         "publishedAt": "2026-07-14T15:00:00.000Z",
         "evidenceRole": "primary",
         "url": "https://x.com/screenpipe/status/2077045452579778664"
-      }
-    ],
-    "evidence": [
+      },
       {
         "id": "src-629adb0fad273f94f797ebe1",
         "title": "screenpipe - Your AI finally knows what you're doing",
@@ -47,9 +45,21 @@
         "sourceType": "product_hunt",
         "publishedAt": "2026-07-15T22:30:00.000Z",
         "evidenceRole": "primary",
-        "url": "https://www.producthunt.com/products/screenpipe/launches/screenpipe-2",
-        "publicationDate": "2026-07-15T22:30:00.000Z",
-        "excerpt": "screenpipe - Your AI finally knows what you're doing. Product Hunt launch page is native to Screenpipe, links company info to screenpi.pe, and matches the YC S26 screenpipe product identity.",
+        "url": "https://www.producthunt.com/products/screenpipe/launches/screenpipe-2"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-3f69097f6d07062145093c35",
+        "title": "Launch HN: Screenpipe (YC S26) – Record how you work and turn that into agents",
+        "publisher": "Launch HN: Screenpipe (YC S26) – Record how you work and turn that into agents",
+        "domain": "news.ycombinator.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-07-23T16:48:38Z",
+        "evidenceRole": "primary",
+        "url": "https://news.ycombinator.com/item?id=49024620",
+        "publicationDate": "2026-07-23T16:48:38Z",
+        "excerpt": "Launch HN: Screenpipe (YC S26) – Record how you work and turn that into agents",
         "sourceEventDate": "2026-07-15",
         "isConflicting": false,
         "conflictDescription": null
@@ -68,27 +78,42 @@
         "sourceEventDate": "2026-07-15",
         "isConflicting": false,
         "conflictDescription": null
+      },
+      {
+        "id": "src-629adb0fad273f94f797ebe1",
+        "title": "screenpipe - Your AI finally knows what you're doing",
+        "publisher": "screenpipe",
+        "domain": "producthunt.com",
+        "sourceType": "product_hunt",
+        "publishedAt": "2026-07-15T22:30:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://www.producthunt.com/products/screenpipe/launches/screenpipe-2",
+        "publicationDate": "2026-07-15T22:30:00.000Z",
+        "excerpt": "screenpipe - Your AI finally knows what you're doing. Product Hunt launch page is native to Screenpipe, links company info to screenpi.pe, and matches the YC S26 screenpipe product identity.",
+        "sourceEventDate": "2026-07-15",
+        "isConflicting": false,
+        "conflictDescription": null
       }
     ],
     "posts": [
       {
-        "id": "post-ad3ee9daf790b42b8e71460d",
-        "platform": "product_hunt",
-        "account": "screenpipe",
-        "postDate": "2026-07-15",
-        "excerpt": "screenpipe - Your AI finally knows what you're doing. Product Hunt launch page is native to Screenpipe, links company info to screenpi.pe, and matches the YC S26 screenpipe product identity.",
-        "url": "https://www.producthunt.com/products/screenpipe/launches/screenpipe-2",
+        "id": "post-246ec4ea303ce059f22f89a6",
+        "platform": "hacker_news",
+        "account": null,
+        "postDate": "2026-07-23",
+        "excerpt": "Launch HN: Screenpipe (YC S26) – Record how you work and turn that into agents",
+        "url": "https://news.ycombinator.com/item?id=49024620",
         "metrics": {
-          "upvotes": 106,
-          "comments": 23
+          "upvotes": 88,
+          "comments": 67
         },
         "evidenceRole": "primary"
       },
       {
-        "id": "post-ee15b116a9f18cd20f1e36ef",
+        "id": "post-953b3b703a38307c61d98802",
         "platform": "x",
         "account": "screenpipe",
-        "postDate": "2026-07-15",
+        "postDate": "2026-07-14",
         "excerpt": "introducing screenpipe: it records and learns how you work and turns it into a searchable memory, SOPs, and AI agents open source, local-first, 20K+ GitHub stars, 1,900+ forks, and 130+ contributors",
         "url": "https://x.com/screenpipe/status/2077045452579778664",
         "metrics": {
@@ -101,9 +126,22 @@
           "saves": 1359
         },
         "evidenceRole": "primary"
+      },
+      {
+        "id": "post-bf0e2c92bb06d075407b88b0",
+        "platform": "product_hunt",
+        "account": "screenpipe",
+        "postDate": "2026-07-15",
+        "excerpt": "screenpipe - Your AI finally knows what you're doing. Product Hunt launch page is native to Screenpipe, links company info to screenpi.pe, and matches the YC S26 screenpipe product identity.",
+        "url": "https://www.producthunt.com/products/screenpipe/launches/screenpipe-2",
+        "metrics": {
+          "upvotes": 106,
+          "comments": 23
+        },
+        "evidenceRole": "primary"
       }
     ]
   },
-  "generatedAt": "2026-08-03T07:52:26.040Z",
-  "lastModifiedAt": "2026-08-03T07:52:26.040Z"
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
 }

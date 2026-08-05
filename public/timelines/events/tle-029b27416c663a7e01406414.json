@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-kimpton-ai",
+    "slug": "kimpton-ai",
+    "name": "Kimpton AI"
+  },
+  "event": {
+    "id": "tle-029b27416c663a7e01406414",
+    "eventDate": "2026-02-10",
+    "eventDateType": "announcement_date",
+    "title": "Kimpton AI released Kimpton",
+    "summary": "Kimpton AI introduced Kimpton.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-eea114fcf36f6dd79bf9dd22",
+        "title": "Introducing Kimpton. Cursor for investing. Multi-agent orchestration, 27 financial tools. Live data on 120,000+ assets. Equities, futures, ETFs, crypto. Connected to your portfolio in 2500+ brokerages through Plaid. Every answer is gro...",
+        "publisher": "KimptonAI",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-02-10T18:53:05.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/KimptonAI/status/2021296379029500026"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-eea114fcf36f6dd79bf9dd22",
+        "title": "Introducing Kimpton. Cursor for investing. Multi-agent orchestration, 27 financial tools. Live data on 120,000+ assets. Equities, futures, ETFs, crypto. Connected to your portfolio in 2500+ brokerages through Plaid. Every answer is gro...",
+        "publisher": "KimptonAI",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-02-10T18:53:05.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/KimptonAI/status/2021296379029500026",
+        "publicationDate": "2026-02-10T18:53:05.000Z",
+        "excerpt": "Introducing Kimpton. Cursor for investing. Multi-agent orchestration, 27 financial tools. Live data on 120,000+ assets. Equities, futures, ETFs, crypto. Connected to your portfolio in 2500+ brokerages through Plaid. Every answer is grounded in real computation. Every chart is interactive. Every query runs against your actual holdings. We're augmenting traders of the future. For our next act, we'll be automating it. Come try it for free. http://www.kimpton.ai",
+        "sourceEventDate": "2026-02-10",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-6e22b151fc26b750d7eb6a7f",
+        "platform": "x",
+        "account": "KimptonAI",
+        "postDate": "2026-02-10",
+        "excerpt": "Introducing Kimpton. Cursor for investing. Multi-agent orchestration, 27 financial tools. Live data on 120,000+ assets. Equities, futures, ETFs, crypto. Connected to your portfolio in 2500+ brokerages through Plaid. Every answer is grounded in real computation. Every chart is interactive. Every query runs against your actual holdings. We're augmenting traders of the future. For our next act, we'll be automating it. Come try it for free. http://www.kimpton.ai",
+        "url": "https://x.com/KimptonAI/status/2021296379029500026",
+        "metrics": {
+          "views": 290968,
+          "likes": 29,
+          "replies": 2,
+          "reposts": 5,
+          "quotes": 1,
+          "bookmarks": 26
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

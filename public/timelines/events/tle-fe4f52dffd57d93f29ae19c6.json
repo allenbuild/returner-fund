@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-scope",
+    "slug": "scope",
+    "name": "Scope"
+  },
+  "event": {
+    "id": "tle-fe4f52dffd57d93f29ae19c6",
+    "eventDate": "2026-05-19",
+    "eventDateType": "announcement_date",
+    "title": "Scope announced its public launch",
+    "summary": "Scope introduced Scope (@tryscope_app): the platform that breaks down exactly how AI agents see and interact with your product.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-329c55f856ffc32911346c86",
+        "title": "Introducing Scope (@tryscope_app): the platform that breaks down exactly how AI agents see and interact with your product. Products are increasingly being used through Claude Code, Codex, Cursor, and similar AI agents. Most companies…",
+        "publisher": "anandPa94",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-05-19T18:32:47.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/anandPa94/status/2056805283142480052"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-329c55f856ffc32911346c86",
+        "title": "Introducing Scope (@tryscope_app): the platform that breaks down exactly how AI agents see and interact with your product. Products are increasingly being used through Claude Code, Codex, Cursor, and similar AI agents. Most companies…",
+        "publisher": "anandPa94",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-05-19T18:32:47.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/anandPa94/status/2056805283142480052",
+        "publicationDate": "2026-05-19T18:32:47.000Z",
+        "excerpt": "Introducing Scope (@tryscope_app): the platform that breaks down exactly how AI agents see and interact with your product. Products are increasingly being used through Claude Code, Codex, Cursor, and similar AI agents. Most companies have no idea what an agent's decisions look like. Scope fixes that. What Scope does: → Run real workflows across Claude Code, Codex, and Cursor, and show you when agents choose you vs. a competitor → Pinpoint exactly where agents get stuck: auth, onboarding, docs,…",
+        "sourceEventDate": "2026-05-19",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-48b20bf521c481f69fce2e02",
+        "platform": "x",
+        "account": "anandPa94",
+        "postDate": "2026-05-19",
+        "excerpt": "Introducing Scope (@tryscope_app): the platform that breaks down exactly how AI agents see and interact with your product. Products are increasingly being used through Claude Code, Codex, Cursor, and similar AI agents. Most companies have no idea what an agent's decisions look like. Scope fixes that. What Scope does: → Run real workflows across Claude Code, Codex, and Cursor, and show you when agents choose you vs. a competitor → Pinpoint exactly where agents get stuck: auth, onboarding, docs,…",
+        "url": "https://x.com/anandPa94/status/2056805283142480052",
+        "metrics": {
+          "views": 3244,
+          "likes": 46,
+          "replies": 17,
+          "reposts": 8,
+          "quotes": 1,
+          "bookmarks": 10
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

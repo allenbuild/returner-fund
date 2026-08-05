@@ -1,0 +1,108 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-fabraix",
+    "slug": "fabraix",
+    "name": "Fabraix"
+  },
+  "event": {
+    "id": "tle-2861049254722e979ec5b6ad",
+    "eventDate": "2026-07-20",
+    "eventDateType": "announcement_date",
+    "title": "Fabraix released Nyx",
+    "summary": "Fabraix introduced Nyx, the world's frontier hacker of AI agents.",
+    "category": "product_launch",
+    "isMajor": true,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 2,
+    "sourcePreview": [
+      {
+        "id": "src-83ba0ae807450f5995182b56",
+        "title": "Introducing Nyx, the world’s frontier hacker of AI agents.",
+        "publisher": "fabraixhq",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-07-20T15:31:33.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/fabraixhq/status/2079227721905999970"
+      },
+      {
+        "id": "src-0c0ea587f14ef2fb01611300",
+        "title": "Launching Nyx: The World's Frontier Hacker for AI Agents.",
+        "publisher": "Launching Nyx: The World's Frontier Hacker for AI Agents.",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-07-17T22:48:35-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=WHmJIMIuAEM"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-83ba0ae807450f5995182b56",
+        "title": "Introducing Nyx, the world’s frontier hacker of AI agents.",
+        "publisher": "fabraixhq",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-07-20T15:31:33.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/fabraixhq/status/2079227721905999970",
+        "publicationDate": "2026-07-20T15:31:33.000Z",
+        "excerpt": "Introducing Nyx, the world’s frontier hacker of AI agents. On AgentHarm, Nyx achieved a 78% attack success rate - compared with 67% for GPT-5.6 Sol. Here’s more about how it works 🧵 https://t.co/QdnHo1Hvup",
+        "sourceEventDate": "2026-07-20",
+        "isConflicting": false,
+        "conflictDescription": null
+      },
+      {
+        "id": "src-0c0ea587f14ef2fb01611300",
+        "title": "Launching Nyx: The World's Frontier Hacker for AI Agents.",
+        "publisher": "Launching Nyx: The World's Frontier Hacker for AI Agents.",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-07-17T22:48:35-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=WHmJIMIuAEM",
+        "publicationDate": "2026-07-17T22:48:35-07:00",
+        "excerpt": "Embedded in the official Fabraix YC company page.",
+        "sourceEventDate": "2026-07-20",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-981d34f666383303bdbbbe37",
+        "platform": "x",
+        "account": "fabraixhq",
+        "postDate": "2026-07-20",
+        "excerpt": "Introducing Nyx, the world’s frontier hacker of AI agents. On AgentHarm, Nyx achieved a 78% attack success rate - compared with 67% for GPT-5.6 Sol. Here’s more about how it works 🧵 https://t.co/QdnHo1Hvup",
+        "url": "https://x.com/fabraixhq/status/2079227721905999970",
+        "metrics": {
+          "likes": 355,
+          "reposts": 39,
+          "quotes": 18,
+          "replies": 86,
+          "views": 43152
+        },
+        "evidenceRole": "primary"
+      },
+      {
+        "id": "post-d7a19f618a5c6079e8a1320b",
+        "platform": "youtube",
+        "account": "Launching Nyx: The World's Frontier Hacker for AI Agents.",
+        "postDate": "2026-07-18",
+        "excerpt": "Embedded in the official Fabraix YC company page.",
+        "url": "https://youtube.com/watch?v=WHmJIMIuAEM",
+        "metrics": {
+          "views": 123,
+          "likes": 1,
+          "comments": 0
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

@@ -11,6 +11,7 @@ const PUBLIC_INDEX_SCHEMA = "company-timeline-public-index.v1";
 const TIMELINE_SCHEMA = "company-timeline.v1";
 const DETAIL_SCHEMA = "company-timeline-event.v1";
 const BASE_GRAPH_FILES = ["s2026.json", "s26.json", "a16zsr006.json"];
+const SUPPLEMENTAL_TIMELINE_FILES = ["src/lib/social/volume-evidence-current.json"];
 const CATEGORIES = new Set([
   "founded", "accelerator", "funding", "product_launch", "product_update",
   "traction_milestone", "revenue_milestone", "user_milestone", "customer",
@@ -205,8 +206,10 @@ function validateCoverageShape(value, violations) {
   if (value.schemaVersion !== COVERAGE_SCHEMA) violations.push(`coverage.schemaVersion must be ${COVERAGE_SCHEMA}`);
   requireTimestamp(value.generatedAt, "coverage.generatedAt", violations);
   requireSha(value.inventorySha256, "coverage.inventorySha256", violations);
-  if (!Array.isArray(value.sourceArtifacts) || value.sourceArtifacts.length !== BASE_GRAPH_FILES.length) {
+  if (!Array.isArray(value.sourceArtifacts)) {
     violations.push(`coverage.sourceArtifacts must list the ${BASE_GRAPH_FILES.length} canonical base graph artifacts`);
+  } else if (!BASE_GRAPH_FILES.every((filename) => value.sourceArtifacts.some((source) => path.basename(source?.path ?? "") === filename))) {
+    violations.push(`coverage.sourceArtifacts must list all ${BASE_GRAPH_FILES.length} canonical base graph artifacts`);
   }
   if (!Array.isArray(value.companies)) violations.push("coverage.companies must be an array");
   if (!isRecord(value.totals)) return violations.push("coverage.totals must be an object");
@@ -451,13 +454,16 @@ async function validateSourceArtifactHashes(rootDir, coverage, violations) {
   const seen = new Set();
   for (const [index, source] of coverage.sourceArtifacts.entries()) {
     const scope = `coverage.sourceArtifacts[${index}]`;
-    if (!isRecord(source) || typeof source.path !== "string" || !BASE_GRAPH_FILES.includes(path.basename(source.path))) {
-      violations.push(`${scope}.path must identify one canonical base graph artifact`);
+    if (!isRecord(source) || typeof source.path !== "string") {
+      violations.push(`${scope}.path must identify a canonical timeline source artifact`);
       continue;
     }
     const normalized = path.posix.normalize(source.path);
-    if (!normalized.startsWith("public/graph/") || normalized.includes("..")) {
-      violations.push(`${scope}.path must stay under public/graph`);
+    const allowed = normalized.startsWith("public/graph/")
+      && BASE_GRAPH_FILES.includes(path.basename(normalized))
+      || SUPPLEMENTAL_TIMELINE_FILES.includes(normalized);
+    if (!allowed || normalized.includes("..")) {
+      violations.push(`${scope}.path must identify an allowed canonical timeline source artifact`);
       continue;
     }
     if (seen.has(normalized)) violations.push(`${scope}.path duplicates ${normalized}`);

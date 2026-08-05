@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-superlog",
+    "slug": "superlog",
+    "name": "Superlog"
+  },
+  "event": {
+    "id": "tle-2964ef40c2cffe43a8daeb62",
+    "eventDate": "2026-07-01",
+    "eventDateType": "announcement_date",
+    "title": "Superlog released integration",
+    "summary": "Superlog just shipped a integration with @Cloudflare to Get logs and traces from Workers in 1 click.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-5df125056b78776b9914d0aa",
+        "title": "We just shipped a integration with @Cloudflare to http://superlog.sh. Get logs and traces from Workers in 1 click! Fully open-source, of course. (i'm using our own last-resort dialtoner for the demo)",
+        "publisher": "arseniycodes",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-07-01T16:00:31.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/arseniycodes/status/2072349641123746279"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-5df125056b78776b9914d0aa",
+        "title": "We just shipped a integration with @Cloudflare to http://superlog.sh. Get logs and traces from Workers in 1 click! Fully open-source, of course. (i'm using our own last-resort dialtoner for the demo)",
+        "publisher": "arseniycodes",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-07-01T16:00:31.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/arseniycodes/status/2072349641123746279",
+        "publicationDate": "2026-07-01T16:00:31.000Z",
+        "excerpt": "We just shipped a integration with @Cloudflare to http://superlog.sh. Get logs and traces from Workers in 1 click! Fully open-source, of course. (i'm using our own last-resort dialtoner for the demo)",
+        "sourceEventDate": "2026-07-01",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-e1afdd9a59e2ec5ea1c694a7",
+        "platform": "x",
+        "account": "arseniycodes",
+        "postDate": "2026-07-01",
+        "excerpt": "We just shipped a integration with @Cloudflare to http://superlog.sh. Get logs and traces from Workers in 1 click! Fully open-source, of course. (i'm using our own last-resort dialtoner for the demo)",
+        "url": "https://x.com/arseniycodes/status/2072349641123746279",
+        "metrics": {
+          "views": 6129,
+          "likes": 74,
+          "replies": 9,
+          "reposts": 5,
+          "quotes": 0,
+          "bookmarks": 56
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

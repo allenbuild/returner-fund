@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-graphify-labs",
+    "slug": "graphify-labs",
+    "name": "Graphify Labs"
+  },
+  "event": {
+    "id": "tle-86f5cba67256fef5862b9e22",
+    "eventDate": "2026-05-25",
+    "eventDateType": "announcement_date",
+    "title": "Graphify Labs reached 1 million downloads",
+    "summary": "Graphify Labs reported graphify just crossed 1 million downloads in ~50 days as a fully open-source project.",
+    "category": "user_milestone",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-a6deecc5d443e0fa6afa9ccc",
+        "title": "Graphify just crossed 1 million downloads in ~50 days as a fully open-source project. Thanks to everyone using it, starring it, and building with it. This project keeps getting better because of the community, always open to PRs and idea...",
+        "publisher": "safishamsii",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-05-25T10:07:33.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/safishamsii/status/2058852461398405604"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-a6deecc5d443e0fa6afa9ccc",
+        "title": "Graphify just crossed 1 million downloads in ~50 days as a fully open-source project. Thanks to everyone using it, starring it, and building with it. This project keeps getting better because of the community, always open to PRs and idea...",
+        "publisher": "safishamsii",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-05-25T10:07:33.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/safishamsii/status/2058852461398405604",
+        "publicationDate": "2026-05-25T10:07:33.000Z",
+        "excerpt": "Graphify just crossed 1 million downloads in ~50 days as a fully open-source project. Thanks to everyone using it, starring it, and building with it. This project keeps getting better because of the community, always open to PRs and ideas from fellow devs.",
+        "sourceEventDate": "2026-05-25",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-a4864f8eb408bd3cd694ef0c",
+        "platform": "x",
+        "account": "safishamsii",
+        "postDate": "2026-05-25",
+        "excerpt": "Graphify just crossed 1 million downloads in ~50 days as a fully open-source project. Thanks to everyone using it, starring it, and building with it. This project keeps getting better because of the community, always open to PRs and ideas from fellow devs.",
+        "url": "https://x.com/safishamsii/status/2058852461398405604",
+        "metrics": {
+          "views": 6950,
+          "likes": 46,
+          "replies": 5,
+          "reposts": 0,
+          "quotes": 0,
+          "bookmarks": 12
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

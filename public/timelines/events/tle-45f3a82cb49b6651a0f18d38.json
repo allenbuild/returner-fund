@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-fabraix",
+    "slug": "fabraix",
+    "name": "Fabraix"
+  },
+  "event": {
+    "id": "tle-45f3a82cb49b6651a0f18d38",
+    "eventDate": "2026-04-20",
+    "eventDateType": "announcement_date",
+    "title": "Fabraix released Nyx",
+    "summary": "Fabraix introduced Nyx, the most advanced verification engine for AI agents.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-5e16ffa173ebba80e50f54c1",
+        "title": "Introducing Nyx, the most advanced verification engine for AI agents. AI agents fail in ways traditional software doesn't. Nyx is your own team of AI security engineers, on demand, that helps you find all the ways in which your AI agents…",
+        "publisher": "FabraixHQ",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-04-20T17:37:41.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/FabraixHQ/status/2046282169254072626"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-5e16ffa173ebba80e50f54c1",
+        "title": "Introducing Nyx, the most advanced verification engine for AI agents. AI agents fail in ways traditional software doesn't. Nyx is your own team of AI security engineers, on demand, that helps you find all the ways in which your AI agents…",
+        "publisher": "FabraixHQ",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-04-20T17:37:41.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/FabraixHQ/status/2046282169254072626",
+        "publicationDate": "2026-04-20T17:37:41.000Z",
+        "excerpt": "Introducing Nyx, the most advanced verification engine for AI agents. AI agents fail in ways traditional software doesn't. Nyx is your own team of AI security engineers, on demand, that helps you find all the ways in which your AI agents fail. Point it at any AI agent, or multi-agent system, and it launches 1,000+ attack strategies that adapt to your system in real time - pure blackbox, no integration needed. Sign up using the link below",
+        "sourceEventDate": "2026-04-20",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-15a5c3dda533d7362829ae14",
+        "platform": "x",
+        "account": "FabraixHQ",
+        "postDate": "2026-04-20",
+        "excerpt": "Introducing Nyx, the most advanced verification engine for AI agents. AI agents fail in ways traditional software doesn't. Nyx is your own team of AI security engineers, on demand, that helps you find all the ways in which your AI agents fail. Point it at any AI agent, or multi-agent system, and it launches 1,000+ attack strategies that adapt to your system in real time - pure blackbox, no integration needed. Sign up using the link below",
+        "url": "https://x.com/FabraixHQ/status/2046282169254072626",
+        "metrics": {
+          "views": 10273,
+          "likes": 136,
+          "replies": 47,
+          "reposts": 19,
+          "quotes": 4,
+          "bookmarks": 14
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

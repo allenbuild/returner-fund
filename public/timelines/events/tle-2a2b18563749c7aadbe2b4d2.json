@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-tasklet-2",
+    "slug": "tasklet",
+    "name": "Tasklet"
+  },
+  "event": {
+    "id": "tle-2a2b18563749c7aadbe2b4d2",
+    "eventDate": "2026-05-22",
+    "eventDateType": "announcement_date",
+    "title": "Tasklet added support for audio transcription + video generation",
+    "summary": "Tasklet now supports audio transcription + video generation.",
+    "category": "product_update",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-8f12d9f9501314454809bec3",
+        "title": "Tasklet now supports audio transcription + video generation. Upload calls, podcasts, meetings, or voice notes → get transcripts, summaries, action items, clips, drafts, and more. And with triggers, it can run automatically. Subscribe to...",
+        "publisher": "TaskletAI",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-05-22T17:55:59.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/TaskletAI/status/2057883182922694887"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-8f12d9f9501314454809bec3",
+        "title": "Tasklet now supports audio transcription + video generation. Upload calls, podcasts, meetings, or voice notes → get transcripts, summaries, action items, clips, drafts, and more. And with triggers, it can run automatically. Subscribe to...",
+        "publisher": "TaskletAI",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-05-22T17:55:59.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/TaskletAI/status/2057883182922694887",
+        "publicationDate": "2026-05-22T17:55:59.000Z",
+        "excerpt": "Tasklet now supports audio transcription + video generation. Upload calls, podcasts, meetings, or voice notes → get transcripts, summaries, action items, clips, drafts, and more. And with triggers, it can run automatically. Subscribe to a podcast RSS feed, and Tasklet can transcribe every new episode, monitor for topics, summarize the best ideas, and send you the takeaways. New media comes in. Tasklet gets to work. https://tasklet.ai/release-notes#audio-transcription-video-gen",
+        "sourceEventDate": "2026-05-22",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-740697cfb49f3a338cd2f7e3",
+        "platform": "x",
+        "account": "TaskletAI",
+        "postDate": "2026-05-22",
+        "excerpt": "Tasklet now supports audio transcription + video generation. Upload calls, podcasts, meetings, or voice notes → get transcripts, summaries, action items, clips, drafts, and more. And with triggers, it can run automatically. Subscribe to a podcast RSS feed, and Tasklet can transcribe every new episode, monitor for topics, summarize the best ideas, and send you the takeaways. New media comes in. Tasklet gets to work. https://tasklet.ai/release-notes#audio-transcription-video-gen",
+        "url": "https://x.com/TaskletAI/status/2057883182922694887",
+        "metrics": {
+          "views": 2054,
+          "likes": 11,
+          "replies": 4,
+          "reposts": 4,
+          "quotes": 2,
+          "bookmarks": 1
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

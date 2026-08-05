@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "a16z-speedrun-006-sun",
+    "slug": "sun",
+    "name": "SUN"
+  },
+  "event": {
+    "id": "tle-cc5183933c247cbcdf983997",
+    "eventDate": "2026-03-29",
+    "eventDateType": "announcement_date",
+    "title": "SUN released We just launched SUN on Product Hunt 🚀 Try now 👉",
+    "summary": "SUN just launched SUN on Product Hunt 🚀 Try now 👉.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-9afc69c9f32ae6833d36f190",
+        "title": "We just launched SUN on Product Hunt 🚀 Try now 👉 https://lnkd.in/gbiuwtQx",
+        "publisher": "ArtinBogdanov",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-03-29T08:45:04.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/ArtinBogdanov/status/2038175597013451228"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-9afc69c9f32ae6833d36f190",
+        "title": "We just launched SUN on Product Hunt 🚀 Try now 👉 https://lnkd.in/gbiuwtQx",
+        "publisher": "ArtinBogdanov",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-03-29T08:45:04.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/ArtinBogdanov/status/2038175597013451228",
+        "publicationDate": "2026-03-29T08:45:04.000Z",
+        "excerpt": "We just launched SUN on Product Hunt 🚀 Try now 👉 https://lnkd.in/gbiuwtQx",
+        "sourceEventDate": "2026-03-29",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-0fa373d2181414f2a0d32f12",
+        "platform": "x",
+        "account": "ArtinBogdanov",
+        "postDate": "2026-03-29",
+        "excerpt": "We just launched SUN on Product Hunt 🚀 Try now 👉 https://lnkd.in/gbiuwtQx",
+        "url": "https://x.com/ArtinBogdanov/status/2038175597013451228",
+        "metrics": {
+          "views": 471,
+          "likes": 6,
+          "replies": 2,
+          "reposts": 1,
+          "quotes": 1,
+          "bookmarks": 0
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

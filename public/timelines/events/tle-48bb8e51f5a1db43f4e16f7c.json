@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-voquill",
+    "slug": "voquill",
+    "name": "Voquill"
+  },
+  "event": {
+    "id": "tle-48bb8e51f5a1db43f4e16f7c",
+    "eventDate": "2026-03-09",
+    "eventDateType": "announcement_date",
+    "title": "Voquill released an open-source project",
+    "summary": "Voquill is an open-sourced alternative to Wispr Flow, so you know where your audio bytes are going.",
+    "category": "open_source",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-1f6cda1bf8e282f3fa6f8f4b",
+        "title": "Voquill is an open-sourced alternative to Wispr Flow, so you know where your audio bytes are going. We're also building up some awesome features that our Discord users want. We just built a new one called styles, that add a layer of post...",
+        "publisher": "HenryHabibAI",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-03-09T23:18:08.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/HenryHabibAI/status/2031147555237548252"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-1f6cda1bf8e282f3fa6f8f4b",
+        "title": "Voquill is an open-sourced alternative to Wispr Flow, so you know where your audio bytes are going. We're also building up some awesome features that our Discord users want. We just built a new one called styles, that add a layer of post...",
+        "publisher": "HenryHabibAI",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-03-09T23:18:08.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/HenryHabibAI/status/2031147555237548252",
+        "publicationDate": "2026-03-09T23:18:08.000Z",
+        "excerpt": "Voquill is an open-sourced alternative to Wispr Flow, so you know where your audio bytes are going. We're also building up some awesome features that our Discord users want. We just built a new one called styles, that add a layer of post processing to whatever you say.",
+        "sourceEventDate": "2026-03-09",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-97fb4cc6e45d67625b8da2ff",
+        "platform": "x",
+        "account": "HenryHabibAI",
+        "postDate": "2026-03-09",
+        "excerpt": "Voquill is an open-sourced alternative to Wispr Flow, so you know where your audio bytes are going. We're also building up some awesome features that our Discord users want. We just built a new one called styles, that add a layer of post processing to whatever you say.",
+        "url": "https://x.com/HenryHabibAI/status/2031147555237548252",
+        "metrics": {
+          "views": 97,
+          "likes": 0,
+          "replies": 0,
+          "reposts": 0,
+          "quotes": 0,
+          "bookmarks": 0
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

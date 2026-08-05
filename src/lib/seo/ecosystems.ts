@@ -1,5 +1,8 @@
 import type { Platform } from "@/lib/graph/types";
 import {
+  companyRankingEvidenceCount,
+  graphEvidenceCount,
+  graphPlatformEvidenceCount,
   getCatalog,
   platformLabel,
   type PublicCohort,
@@ -40,10 +43,10 @@ export function getEcosystemSnapshot(key: EcosystemKey): EcosystemSnapshot {
     .sort(
       (left, right) =>
         right.node.score - left.node.score ||
-        right.evidence.length - left.evidence.length ||
+        companyRankingEvidenceCount(right) - companyRankingEvidenceCount(left) ||
         left.node.label.localeCompare(right.node.label)
     );
-  const evidence = companies.flatMap((company) => company.evidence);
+  const graphs = [...new Map(companies.map((company) => [company.graph.batch.slug, company.graph])).values()];
   const generatedAt = cohorts
     .map((cohort) => cohort.companies[0]?.graph.generatedAt)
     .filter((value): value is string => Boolean(value))
@@ -59,12 +62,12 @@ export function getEcosystemSnapshot(key: EcosystemKey): EcosystemSnapshot {
     companies,
     companyCount: companies.length,
     founderCount: companies.reduce((total, company) => total + company.node.founders.length, 0),
-    evidenceCount: companies.reduce((total, company) => total + company.evidence.length, 0),
+    evidenceCount: graphs.reduce((total, graph) => total + graphEvidenceCount(graph), 0),
     partnerCount: new Set(companies.map((company) => company.node.groupPartner).filter(Boolean)).size,
     generatedAt,
     snapshotLabel: formatSnapshotDate(generatedAt),
     industries: countIndustries(companies),
-    platforms: countPlatforms(evidence)
+    platforms: countPlatforms(graphs)
   };
 }
 
@@ -80,10 +83,15 @@ function countIndustries(companies: PublicCompany[]) {
     .sort((left, right) => right.count - left.count || left.name.localeCompare(right.name));
 }
 
-function countPlatforms(evidence: PublicCompany["evidence"]) {
+function countPlatforms(graphs: PublicCompany["graph"][]) {
   const counts = new Map<Platform, number>();
-  for (const item of evidence) {
-    counts.set(item.platform, (counts.get(item.platform) ?? 0) + 1);
+  for (const graph of graphs) {
+    const platforms = graph.evidenceStats
+      ? Object.keys(graph.evidenceStats.byPlatform) as Platform[]
+      : [...new Set(graph.evidence.map((item) => item.platform))];
+    for (const platform of platforms) {
+      counts.set(platform, (counts.get(platform) ?? 0) + graphPlatformEvidenceCount(graph, platform));
+    }
   }
   return [...counts.entries()]
     .map(([platform, count]) => ({

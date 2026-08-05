@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-tsenta",
+    "slug": "tsenta",
+    "name": "Tsenta"
+  },
+  "event": {
+    "id": "tle-f9825c1a9f1d732da1f15ee0",
+    "eventDate": "2026-02-03",
+    "eventDateType": "announcement_date",
+    "title": "Tsenta was accepted into Y Combinator",
+    "summary": "Tsenta reported i can't believe that we got into Y Combinator.",
+    "category": "accelerator",
+    "isMajor": true,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-3427560858cc4ad8cb1cc379",
+        "title": "I can't believe that we got into Y Combinator. Six years ago, I made a decision that felt like career suicide. I dropped out of India's IIT-JEE rat race, where I had spent hours studying mind-numbing subjects, knowing the entire time t...",
+        "publisher": "AgnaySrivastava",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-02-03T16:51:20.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/AgnaySrivastava/status/2018729023434625302"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-3427560858cc4ad8cb1cc379",
+        "title": "I can't believe that we got into Y Combinator. Six years ago, I made a decision that felt like career suicide. I dropped out of India's IIT-JEE rat race, where I had spent hours studying mind-numbing subjects, knowing the entire time t...",
+        "publisher": "AgnaySrivastava",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-02-03T16:51:20.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/AgnaySrivastava/status/2018729023434625302",
+        "publicationDate": "2026-02-03T16:51:20.000Z",
+        "excerpt": "I can't believe that we got into Y Combinator. Six years ago, I made a decision that felt like career suicide. I dropped out of India's IIT-JEE rat race, where I had spent hours studying mind-numbing subjects, knowing the entire time that I could be building something that truly helped people. When I came to the US for college, I thought things would click. Instead, I spent two years sending applications into the void while internship openings hit all-time lows. Just me, a few cool projects,…",
+        "sourceEventDate": "2026-02-03",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-2e3bf237d5224ad744b98f39",
+        "platform": "x",
+        "account": "AgnaySrivastava",
+        "postDate": "2026-02-03",
+        "excerpt": "I can't believe that we got into Y Combinator. Six years ago, I made a decision that felt like career suicide. I dropped out of India's IIT-JEE rat race, where I had spent hours studying mind-numbing subjects, knowing the entire time that I could be building something that truly helped people. When I came to the US for college, I thought things would click. Instead, I spent two years sending applications into the void while internship openings hit all-time lows. Just me, a few cool projects,…",
+        "url": "https://x.com/AgnaySrivastava/status/2018729023434625302",
+        "metrics": {
+          "views": 473,
+          "likes": 17,
+          "replies": 4,
+          "reposts": 1,
+          "quotes": 0,
+          "bookmarks": 0
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

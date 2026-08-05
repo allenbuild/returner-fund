@@ -39,7 +39,7 @@
         "evidenceRole": "primary",
         "url": "https://x.com/machine__0/status/2066529624872399032",
         "publicationDate": "2026-06-15T14:33:51.000Z",
-        "excerpt": "Introducing machine0: Persistent, powerful NixOS and Ubuntu VMS from your CLI.",
+        "excerpt": "Introducing machine0: Persistent, powerful NixOS and Ubuntu VMS from your CLI. https://t.co/F2xW4cBN3J",
         "sourceEventDate": "2026-06-15",
         "isConflicting": false,
         "conflictDescription": null
@@ -47,24 +47,23 @@
     ],
     "posts": [
       {
-        "id": "post-10786ae459ee51285e1e5acd",
+        "id": "post-0a83748df7193b95fcd6c007",
         "platform": "x",
         "account": "machine__0",
         "postDate": "2026-06-15",
-        "excerpt": "Introducing machine0: Persistent, powerful NixOS and Ubuntu VMS from your CLI.",
+        "excerpt": "Introducing machine0: Persistent, powerful NixOS and Ubuntu VMS from your CLI. https://t.co/F2xW4cBN3J",
         "url": "https://x.com/machine__0/status/2066529624872399032",
         "metrics": {
-          "views": 125,
-          "likes": 3,
-          "replies": 1,
+          "likes": 4,
           "reposts": 0,
           "quotes": 0,
-          "bookmarks": 0
+          "replies": 1,
+          "views": 222
         },
         "evidenceRole": "primary"
       }
     ]
   },
-  "generatedAt": "2026-08-03T07:52:26.040Z",
-  "lastModifiedAt": "2026-08-03T07:52:26.040Z"
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
 }

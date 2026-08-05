@@ -5,14 +5,106 @@
     "slug": "inkbox",
     "name": "Inkbox"
   },
-  "generatedAt": "2026-08-03T07:52:26.040Z",
-  "lastModifiedAt": "2026-08-03T07:52:26.040Z",
-  "events": [],
-  "groups": [],
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z",
+  "events": [
+    {
+      "id": "tle-95d55b51621f351ecd9668ef",
+      "eventDate": "2026-07-08",
+      "eventDateType": "announcement_date",
+      "title": "Inkbox announced its public launch",
+      "summary": "Inkbox announced it was launching Inkbox: the identity and communication layer for AI agents.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-1ebdde611b9cb80f0ed9ddc3",
+          "title": "Today we're launching Inkbox: the identity and communication layer for AI agents.",
+          "publisher": "rayruizhiliao",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-07-08T16:30:02.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/rayruizhiliao/status/2074893783133733039"
+        }
+      ]
+    },
+    {
+      "id": "tle-05609c2b9a0519118574f926",
+      "eventDate": "2026-07-02",
+      "eventDateType": "announcement_date",
+      "title": "Inkbox released agent self-signup (no human account required) and started watching",
+      "summary": "Inkbox launched agent self-signup (no human account required) and started watching which harnesses show up on their own last 2 days: it's all hermes.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-e8a15bc3abd1ae28c3c4ff57",
+          "title": "we launched agent self-signup (no human account required) and started watching which harnesses show up on their own last 2 days: it's all hermes",
+          "publisher": "rayruizhiliao",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-07-02T02:21:48.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/rayruizhiliao/status/2072505992387125685"
+        }
+      ]
+    },
+    {
+      "id": "tle-c81919290a42db410067ea38",
+      "eventDate": "2025-11-17",
+      "eventDateType": "announcement_date",
+      "title": "Inkbox released big developer upgrade 🚀 Every user",
+      "summary": "Inkbox just shipped a big developer upgrade 🚀 Every user now gets a dedicated, auto-provisioned MCP server.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-0f146b44ef1643cba90214cc",
+          "title": "We just shipped a big developer upgrade 🚀 Every user now gets a dedicated, auto-provisioned MCP server. Authenticate via OAuth directly from your LLM or IDE and start building immediately. Docs: https://www.vectorly.app/docs/mcp",
+          "publisher": "rayruizhiliao",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2025-11-17T18:28:33.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/rayruizhiliao/status/1990487235700142484"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-07",
+          "count": 2
+        }
+      ]
+    },
+    {
+      "year": 2025,
+      "months": [
+        {
+          "month": "2025-11",
+          "count": 1
+        }
+      ]
+    }
+  ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 0,
-    "lastSuccessfulArtifactAt": "2026-08-03T07:52:26.040Z"
+    "publishedEventCount": 3,
+    "lastSuccessfulArtifactAt": "2026-08-05T00:49:13.374Z"
   },
   "nextCursor": null
 }

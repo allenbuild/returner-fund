@@ -5,15 +5,15 @@
     "slug": "walter",
     "name": "Walter"
   },
-  "generatedAt": "2026-08-03T07:52:26.040Z",
-  "lastModifiedAt": "2026-08-03T07:52:26.040Z",
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z",
   "events": [
     {
       "id": "tle-666eb058cae520072df90c53",
       "eventDate": "2026-06-02",
       "eventDateType": "announcement_date",
       "title": "Walter launched on Y Combinator",
-      "summary": "Walter just launched on @ycombinator 's Launch YC.",
+      "summary": "Walter just launched on @ycombinator's Launch YC.",
       "category": "product_launch",
       "isMajor": false,
       "hasConflict": false,
@@ -22,11 +22,11 @@
       "sourcePreview": [
         {
           "id": "src-20ba5998d648db1ee81a8a99",
-          "title": "Walter just launched on @ycombinator 's Launch YC!",
-          "publisher": "Walter just launched on @ycombinator 's Launch YC!",
+          "title": "Walter just launched on @ycombinator's Launch YC! Walter: AI Employee for the Manufacturing Back Office.",
+          "publisher": "walterindustry",
           "domain": "x.com",
           "sourceType": "company_post",
-          "publishedAt": "2026-06-02T00:00:00.000Z",
+          "publishedAt": "2026-06-02T18:46:33.000Z",
           "evidenceRole": "primary",
           "url": "https://x.com/walterindustry/status/2061882176145387562"
         }
@@ -47,7 +47,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-08-03T07:52:26.040Z"
+    "lastSuccessfulArtifactAt": "2026-08-05T00:49:13.374Z"
   },
   "nextCursor": null
 }

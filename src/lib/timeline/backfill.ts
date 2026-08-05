@@ -2,7 +2,7 @@ import { createHash } from "node:crypto";
 import { mkdir, readFile, readdir, rename, unlink, writeFile } from "node:fs/promises";
 import { dirname, extname, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
-import type { EvidenceItem, GraphNode, GraphResponse } from "@/lib/graph/types";
+import { PLATFORM_VALUES, type EvidenceItem, type GraphNode, type GraphResponse } from "@/lib/graph/types";
 import { getCatalog } from "@/lib/seo/catalog";
 import {
   TIMELINE_ARTIFACT_SCHEMA_VERSION,
@@ -26,6 +26,7 @@ import {
   classifySourceDeterministically,
   timelineClassificationSourceFromGraphEvidence,
 } from "./classification";
+import { isoDateFromExactTimestamp } from "./validation";
 import { clusterTimelineEvents, shouldMergeTimelineEvents } from "./dedupe";
 import type {
   TimelineCandidateProposal,
@@ -49,6 +50,7 @@ import {
 import type { TimelineIngestionCompany } from "./ingestion-runner";
 
 const SOURCE_ARTIFACT_PREFIX = "public/graph";
+const DEFAULT_VOLUME_EVIDENCE_PATH = "src/lib/social/volume-evidence-current.json";
 const DEFAULT_CHECKPOINT = "work/timeline-backfill-checkpoint.json";
 const INTERNAL_COVERAGE_PATH = "artifacts/company-timeline/coverage.json";
 const PUBLIC_INDEX_PATH = "public/timelines/coverage.json";
@@ -76,6 +78,7 @@ export interface TimelineBackfillOptions {
   databaseSnapshot?: TimelineDatabaseSnapshot;
   publicDiscoveryPath?: string;
   publicDiscoverySnapshot?: TimelinePublicDiscoverySnapshot;
+  volumeEvidencePath?: string | null;
   logger?: (message: string, data?: Record<string, unknown>) => void;
 }
 
@@ -146,7 +149,7 @@ export async function runCompanyTimelineBackfill(
     throw new TypeError("--max-companies is restricted to --dry-run so publication cannot omit companies.");
   }
   const log = options.logger ?? ((message, data) => console.log(JSON.stringify({ at: new Date().toISOString(), message, ...data })));
-  const loaded = await loadCanonicalInventory(rootDir);
+  const loaded = await loadCanonicalInventory(rootDir, options.volumeEvidencePath);
   const database = options.databaseSnapshot ?? await loadPublishedTimelineDatabaseSnapshot(options.env ?? process.env);
   const publicDiscovery = options.publicDiscoverySnapshot
     ? timelinePublicDiscoverySnapshotFromValue(options.publicDiscoverySnapshot)
@@ -638,7 +641,7 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
-async function loadCanonicalInventory(rootDir: string) {
+async function loadCanonicalInventory(rootDir: string, volumeEvidencePath?: string | null) {
   const graphEntries: Array<{ graph: GraphResponse; path: string; sha256: string }> = [];
   let inventoryRecords = 0;
   const inventoryForHash = new Map<string, { name: string; batches: string[] }>();
@@ -670,6 +673,9 @@ async function loadCanonicalInventory(rootDir: string) {
   for (const company of getCatalog().companies) {
     if (!catalogSlugById.has(company.node.entityId)) catalogSlugById.set(company.node.entityId, company.slug);
   }
+  const companyIdBySlug = new Map(
+    [...catalogSlugById.entries()].map(([companyId, slug]) => [slug, companyId]),
+  );
   const byCompany = new Map<string, CanonicalCompanyInventory>();
   for (const entry of graphEntries) {
     const evidenceByEntity = groupEvidenceByCompany(entry.graph.evidence);
@@ -689,17 +695,104 @@ async function loadCanonicalInventory(rootDir: string) {
       byCompany.set(node.entityId, existing);
     }
   }
+  for (const company of byCompany.values()) {
+    companyIdBySlug.set(catalogSlugById.get(company.id) ?? slugify(company.name), company.id);
+  }
+  const volumeEvidence = await loadVolumeEvidence(rootDir, volumeEvidencePath);
+  for (const evidence of volumeEvidence?.evidence ?? []) {
+    const companyId = evidence.entityType === "company"
+      ? evidence.entityId
+      : evidence.attachedCompanyId ?? companyIdBySlug.get(evidence.companySlug ?? "");
+    const company = companyId ? byCompany.get(companyId) : undefined;
+    if (company) company.evidence.push(evidence);
+  }
   const companies = [...byCompany.values()].map((company) => ({
     ...company,
     evidence: dedupeCompanyEvidence(company.evidence),
   })).sort((left, right) => left.id.localeCompare(right.id));
-  const generatedAt = graphEntries.map((entry) => entry.graph.generatedAt).sort().at(-1) ?? new Date(0).toISOString();
+  const generatedAt = [
+    ...graphEntries.map((entry) => entry.graph.generatedAt),
+    ...(volumeEvidence?.generatedAt ? [volumeEvidence.generatedAt] : []),
+  ].sort().at(-1) ?? new Date(0).toISOString();
   return {
     companies,
     inventoryRecords,
     inventorySha256,
-    sourceArtifacts: graphEntries.map(({ path, sha256: digest }) => ({ path, sha256: digest })),
+    sourceArtifacts: [
+      ...graphEntries.map(({ path, sha256: digest }) => ({ path, sha256: digest })),
+      ...(volumeEvidence ? [{ path: volumeEvidence.path, sha256: volumeEvidence.sha256 }] : []),
+    ],
     generatedAt,
+  };
+}
+
+interface TimelineVolumeEvidence extends EvidenceItem {
+  companySlug?: string;
+}
+
+interface LoadedVolumeEvidence {
+  path: string;
+  sha256: string;
+  generatedAt: string | null;
+  evidence: TimelineVolumeEvidence[];
+}
+
+async function loadVolumeEvidence(rootDir: string, configuredPath?: string | null): Promise<LoadedVolumeEvidence | null> {
+  const relativePath = configuredPath === undefined ? DEFAULT_VOLUME_EVIDENCE_PATH : configuredPath;
+  if (!relativePath) return null;
+  const normalizedPath = normalizeRepositoryPath(relativePath);
+  const absolutePath = resolveWithinRoot(rootDir, normalizedPath);
+  let bytes: Buffer;
+  try {
+    bytes = await readFile(absolutePath);
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException)?.code === "ENOENT") return null;
+    throw error;
+  }
+  const payload = JSON.parse(bytes.toString("utf8")) as unknown;
+  const rawEvidence = isRecord(payload) && Array.isArray(payload.evidence) ? payload.evidence : null;
+  if (!rawEvidence) throw new Error(`${normalizedPath} must contain an evidence array.`);
+  const evidence = rawEvidence.map((value, index) => normalizeVolumeEvidence(value, normalizedPath, index));
+  const fetchedAt = isRecord(payload) && isRecord(payload.source) && typeof payload.source.fetchedAt === "string"
+    ? payload.source.fetchedAt
+    : null;
+  return { path: normalizedPath, sha256: sha256(bytes), generatedAt: fetchedAt, evidence };
+}
+
+function normalizeVolumeEvidence(value: unknown, path: string, index: number): TimelineVolumeEvidence {
+  if (!isRecord(value)) throw new TypeError(`${path}.evidence[${index}] must be an object.`);
+  const entityType = value.entityType === "founder" ? "founder" : value.entityType === "company" ? "company" : null;
+  const platform = typeof value.platform === "string" && (PLATFORM_VALUES as readonly string[]).includes(value.platform)
+    ? value.platform as EvidenceItem["platform"] : null;
+  if (!entityType || !platform || typeof value.entityId !== "string"
+      || typeof value.sourceUrl !== "string" || typeof value.id !== "string") {
+    throw new TypeError(`${path}.evidence[${index}] is missing timeline identity fields.`);
+  }
+  const text = typeof value.text === "string" && value.text.trim()
+    ? value.text
+    : typeof value.title === "string" ? value.title : "";
+  const postedAt = typeof value.postedAt === "string" ? value.postedAt : "";
+  return {
+    ...(value as unknown as TimelineVolumeEvidence),
+    id: value.id,
+    entityType,
+    entityId: value.entityId,
+    platform,
+    authorName: typeof value.authorName === "string" ? value.authorName : "",
+    authorHandle: typeof value.authorHandle === "string" ? value.authorHandle : null,
+    postedAt,
+    publishedAtPrecision: value.publishedAtPrecision === "exact" || value.publishedAtPrecision === "day"
+      ? value.publishedAtPrecision : "unknown",
+    title: typeof value.title === "string" ? value.title : undefined,
+    text,
+    mediaType: typeof value.mediaType === "string" ? value.mediaType as EvidenceItem["mediaType"] : "text",
+    metrics: isRecord(value.metrics) ? value.metrics as EvidenceItem["metrics"] : {},
+    contributionScore: typeof value.contributionScore === "number" ? value.contributionScore : 0,
+    sourceUrl: value.sourceUrl,
+    review_state: value.review_state === "needs_review" ? "needs_review" : "verified",
+    linkStatus: value.linkStatus === "invalid" || value.linkStatus === "blocked" ? value.linkStatus : "verified",
+    why: typeof value.why === "string" ? value.why : typeof value.matchReason === "string" ? value.matchReason : "verified volume evidence",
+    companySlug: typeof value.companySlug === "string" ? value.companySlug : undefined,
   };
 }
 
@@ -1100,7 +1193,7 @@ function postDetail(
     id: `post-${sha256(Buffer.from(`${item.evidence.platform}|${item.evidence.id}|${url}`)).slice(0, 24)}`,
     platform: item.evidence.platform,
     account: safePostAccount(item.evidence.authorHandle || item.evidence.authorName || null),
-    postDate: item.proposal.eventDate,
+    postDate: isoDateFromExactTimestamp(item.evidence.postedAt) ?? item.proposal.eventDate,
     excerpt: item.source.evidenceExcerpt ? boundedText(item.source.evidenceExcerpt, 500) : null,
     url,
     metrics: Object.fromEntries(Object.entries(item.evidence.metrics).map(([key, value]) => [key, value ?? null])),

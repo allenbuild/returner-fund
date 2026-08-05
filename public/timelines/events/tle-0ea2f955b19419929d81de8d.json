@@ -1,0 +1,69 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-interfaze",
+    "slug": "interfaze",
+    "name": "Interfaze"
+  },
+  "event": {
+    "id": "tle-0ea2f955b19419929d81de8d",
+    "eventDate": "2026-07-29",
+    "eventDateType": "announcement_date",
+    "title": "Interfaze released Ask Box",
+    "summary": "Interfaze introduced Ask Box: a chrome extension you can install and make all your @Box files into your company brain There's no setup, just install, connect your Box account and you're good to go Works with all the security feature of Box with permissions and authorizations.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-5adc4dc7052974c5086a54d0",
+        "title": "Introducing Ask Box: a chrome extension you can install and make all your @Box files into your company brain There's no setup, just install, connect your Box account and you're good to go Works with all the security feature of Box with…",
+        "publisher": "interfaze_ai",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-07-29T17:57:16.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/interfaze_ai/status/2082525883261472949"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-5adc4dc7052974c5086a54d0",
+        "title": "Introducing Ask Box: a chrome extension you can install and make all your @Box files into your company brain There's no setup, just install, connect your Box account and you're good to go Works with all the security feature of Box with…",
+        "publisher": "interfaze_ai",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-07-29T17:57:16.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/interfaze_ai/status/2082525883261472949",
+        "publicationDate": "2026-07-29T17:57:16.000Z",
+        "excerpt": "Introducing Ask Box: a chrome extension you can install and make all your @Box files into your company brain There's no setup, just install, connect your Box account and you're good to go Works with all the security feature of Box with permissions and authorizations https://t.co/8gb3Y6hqXA",
+        "sourceEventDate": "2026-07-29",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-20438c40c27aa1a3216a25e6",
+        "platform": "x",
+        "account": "interfaze_ai",
+        "postDate": "2026-07-29",
+        "excerpt": "Introducing Ask Box: a chrome extension you can install and make all your @Box files into your company brain There's no setup, just install, connect your Box account and you're good to go Works with all the security feature of Box with permissions and authorizations https://t.co/8gb3Y6hqXA",
+        "url": "https://x.com/interfaze_ai/status/2082525883261472949",
+        "metrics": {
+          "likes": 15,
+          "reposts": 2,
+          "quotes": 6,
+          "replies": 5,
+          "views": 80671
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

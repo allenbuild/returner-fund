@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-insforge",
+    "slug": "insforge",
+    "name": "InsForge"
+  },
+  "event": {
+    "id": "tle-c7508b9d7d83e2ea95569779",
+    "eventDate": "2026-06-04",
+    "eventDateType": "announcement_date",
+    "title": "InsForge released Diagnose and Debug",
+    "summary": "InsForge introduced Diagnose and Debug.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-a54c5f1739600ad68e8ac9e1",
+        "title": "Introducing Diagnose and Debug. Give your agent first-party backend context: health metrics, logs, errors, database checks, and more. Your coding agent catches backend issues now, then fixes them by working with your dedicated InsForge d...",
+        "publisher": "insforge",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-06-04T18:40:46.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/insforge/status/2062605497174290488"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-a54c5f1739600ad68e8ac9e1",
+        "title": "Introducing Diagnose and Debug. Give your agent first-party backend context: health metrics, logs, errors, database checks, and more. Your coding agent catches backend issues now, then fixes them by working with your dedicated InsForge d...",
+        "publisher": "insforge",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-06-04T18:40:46.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/insforge/status/2062605497174290488",
+        "publicationDate": "2026-06-04T18:40:46.000Z",
+        "excerpt": "Introducing Diagnose and Debug. Give your agent first-party backend context: health metrics, logs, errors, database checks, and more. Your coding agent catches backend issues now, then fixes them by working with your dedicated InsForge debugging agent. Agent Agent.",
+        "sourceEventDate": "2026-06-04",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-2d7213a3a66263c84de0e4aa",
+        "platform": "x",
+        "account": "insforge",
+        "postDate": "2026-06-04",
+        "excerpt": "Introducing Diagnose and Debug. Give your agent first-party backend context: health metrics, logs, errors, database checks, and more. Your coding agent catches backend issues now, then fixes them by working with your dedicated InsForge debugging agent. Agent Agent.",
+        "url": "https://x.com/insforge/status/2062605497174290488",
+        "metrics": {
+          "views": 52981,
+          "likes": 36,
+          "replies": 5,
+          "reposts": 6,
+          "quotes": 4,
+          "bookmarks": 6
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

@@ -79,8 +79,23 @@ describe("public SEO catalog", () => {
     const catalog = getCatalog();
 
     expect(catalog.industries.filter((industry) => industry.indexable).every((industry) => industry.companies.length >= 3)).toBe(true);
-    expect(catalog.platforms.filter((platform) => platform.indexable).every((platform) => platform.evidence.length > 0)).toBe(true);
+    expect(catalog.platforms.filter((platform) => platform.indexable).every((platform) => platform.evidenceCount > 0)).toBe(true);
     expect(catalog.partners.find((partner) => partner.name.toLowerCase() === "a16z speedrun")?.indexable).toBe(false);
+  });
+
+  it("uses full graph evidence stats for aggregate platform counts", () => {
+    const catalog = getCatalog();
+    const expectedTotal = catalog.graphs.reduce((total, graph) => total + (graph.evidenceStats?.totalCount ?? graph.evidence.length), 0);
+
+    expect(catalog.cohorts.reduce((total, cohort) => total + cohort.evidenceCount, 0)).toBe(expectedTotal);
+    for (const platform of catalog.platforms) {
+      const expectedPlatformCount = catalog.graphs.reduce(
+        (total, graph) => total + (graph.evidenceStats?.byPlatform[platform.platform] ?? graph.evidence.filter((item) => item.platform === platform.platform).length),
+        0
+      );
+      expect(platform.evidenceCount).toBe(expectedPlatformCount);
+    }
+    expect(expectedTotal).toBeGreaterThan(catalog.graphs.reduce((total, graph) => total + graph.evidence.length, 0));
   });
 });
 

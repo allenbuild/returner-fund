@@ -1,0 +1,108 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-revnu",
+    "slug": "revnu",
+    "name": "Revnu"
+  },
+  "event": {
+    "id": "tle-d3c26a50957979a58883c6eb",
+    "eventDate": "2026-05-21",
+    "eventDateType": "announcement_date",
+    "title": "Revnu launched on Y Combinator",
+    "summary": "Revnu is now live on @ycombinator The future means anyone can run a business never having to worry about growth again Check us out at.",
+    "category": "product_launch",
+    "isMajor": true,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 2,
+    "sourcePreview": [
+      {
+        "id": "src-ea21db15a8f2d92a5db15e1c",
+        "title": "Revnu is now live on @ycombinator The future means anyone can run a business never having to worry about growth again Check us out at https://t.co/ipHUKwOziO",
+        "publisher": "revnu_app",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-05-21T22:44:54.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/revnu_app/status/2057593506567512169"
+      },
+      {
+        "id": "src-97a643eb34e40848f6ea9571",
+        "title": "Revnu Launch Video (YC P26)",
+        "publisher": "Revnu Launch Video (YC P26)",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-05-20T18:58:33-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=cL_dwhuRvGM"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-ea21db15a8f2d92a5db15e1c",
+        "title": "Revnu is now live on @ycombinator The future means anyone can run a business never having to worry about growth again Check us out at https://t.co/ipHUKwOziO",
+        "publisher": "revnu_app",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-05-21T22:44:54.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/revnu_app/status/2057593506567512169",
+        "publicationDate": "2026-05-21T22:44:54.000Z",
+        "excerpt": "Revnu is now live on @ycombinator The future means anyone can run a business never having to worry about growth again Check us out at https://t.co/ipHUKwOziO",
+        "sourceEventDate": "2026-05-21",
+        "isConflicting": false,
+        "conflictDescription": null
+      },
+      {
+        "id": "src-97a643eb34e40848f6ea9571",
+        "title": "Revnu Launch Video (YC P26)",
+        "publisher": "Revnu Launch Video (YC P26)",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-05-20T18:58:33-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=cL_dwhuRvGM",
+        "publicationDate": "2026-05-20T18:58:33-07:00",
+        "excerpt": "Revnu Launch Video (YC P26) https://revnu.com",
+        "sourceEventDate": "2026-05-21",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-d131058429d3d041daacb3e2",
+        "platform": "x",
+        "account": "revnu_app",
+        "postDate": "2026-05-21",
+        "excerpt": "Revnu is now live on @ycombinator The future means anyone can run a business never having to worry about growth again Check us out at https://t.co/ipHUKwOziO",
+        "url": "https://x.com/revnu_app/status/2057593506567512169",
+        "metrics": {
+          "likes": 49,
+          "reposts": 4,
+          "quotes": 0,
+          "replies": 6,
+          "views": 11510
+        },
+        "evidenceRole": "primary"
+      },
+      {
+        "id": "post-b8fc963a136e7bc2ba26c62d",
+        "platform": "youtube",
+        "account": "Revnu Launch Video (YC P26)",
+        "postDate": "2026-05-21",
+        "excerpt": "Revnu Launch Video (YC P26) https://revnu.com",
+        "url": "https://youtube.com/watch?v=cL_dwhuRvGM",
+        "metrics": {
+          "views": 364,
+          "likes": 0,
+          "comments": 0
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

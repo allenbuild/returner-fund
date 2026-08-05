@@ -1,0 +1,69 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-lamina-labs",
+    "slug": "lamina-labs",
+    "name": "Lamina Labs"
+  },
+  "event": {
+    "id": "tle-a243a2c0d98de7032bcca241",
+    "eventDate": "2026-07-30",
+    "eventDateType": "announcement_date",
+    "title": "Lamina Labs enabled The biggest shift is not that software to be built faster",
+    "summary": "Lamina Labs reported the biggest shift is not that software can now be built faster.",
+    "category": "product_update",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-4069be6bccac52b7d1122af4",
+        "title": "The biggest shift is not that software can now be built faster.",
+        "publisher": "laminalabs",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-07-30T01:46:32.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/laminalabs/status/2082643977426407544"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-4069be6bccac52b7d1122af4",
+        "title": "The biggest shift is not that software can now be built faster.",
+        "publisher": "laminalabs",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-07-30T01:46:32.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/laminalabs/status/2082643977426407544",
+        "publicationDate": "2026-07-30T01:46:32.000Z",
+        "excerpt": "The biggest shift is not that software can now be built faster. It is that complex systems can finally be explained at the same speed they are created. That is the communication layer we are building with Simi.",
+        "sourceEventDate": "2026-07-30",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-0afa1606c56789f325b16e9d",
+        "platform": "x",
+        "account": "laminalabs",
+        "postDate": "2026-07-30",
+        "excerpt": "The biggest shift is not that software can now be built faster. It is that complex systems can finally be explained at the same speed they are created. That is the communication layer we are building with Simi.",
+        "url": "https://x.com/laminalabs/status/2082643977426407544",
+        "metrics": {
+          "likes": 6,
+          "reposts": 0,
+          "quotes": 0,
+          "replies": 1,
+          "views": 751
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

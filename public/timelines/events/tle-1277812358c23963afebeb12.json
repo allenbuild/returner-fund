@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-superset",
+    "slug": "superset",
+    "name": "Superset"
+  },
+  "event": {
+    "id": "tle-1277812358c23963afebeb12",
+    "eventDate": "2026-05-23",
+    "eventDateType": "announcement_date",
+    "title": "Superset released on HN",
+    "summary": "Superset Launched on HN today:).",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-869227cabd51ef26a7f85638",
+        "title": "Superset Launched on HN today :)",
+        "publisher": "avimakesrobots",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-05-23T02:35:25.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/avimakesrobots/status/2058013903909691807"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-869227cabd51ef26a7f85638",
+        "title": "Superset Launched on HN today :)",
+        "publisher": "avimakesrobots",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-05-23T02:35:25.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/avimakesrobots/status/2058013903909691807",
+        "publicationDate": "2026-05-23T02:35:25.000Z",
+        "excerpt": "Superset Launched on HN today :)",
+        "sourceEventDate": "2026-05-23",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-e28dd766dcb1395a0bcfe70e",
+        "platform": "x",
+        "account": "avimakesrobots",
+        "postDate": "2026-05-23",
+        "excerpt": "Superset Launched on HN today :)",
+        "url": "https://x.com/avimakesrobots/status/2058013903909691807",
+        "metrics": {
+          "views": 1596,
+          "likes": 20,
+          "replies": 0,
+          "reposts": 1,
+          "quotes": 0,
+          "bookmarks": 3
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

@@ -5,14 +5,49 @@
     "slug": "panorama",
     "name": "Panorama"
   },
-  "generatedAt": "2026-08-03T07:52:26.040Z",
-  "lastModifiedAt": "2026-08-03T07:52:26.040Z",
-  "events": [],
-  "groups": [],
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z",
+  "events": [
+    {
+      "id": "tle-160bf3f1c925b2a6db8a2c44",
+      "eventDate": "2026-04-05",
+      "eventDateType": "occurrence_date",
+      "title": "Panorama launched on Product Hunt",
+      "summary": "Panorama announced panorama launched on Product Hunt.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-af3b9ea3a4db0ccb765a25b5",
+          "title": "Panorama",
+          "publisher": "jaclyn_lunger",
+          "domain": "producthunt.com",
+          "sourceType": "product_hunt",
+          "publishedAt": "2026-04-05T00:00:00.000Z",
+          "evidenceRole": "primary",
+          "url": "https://www.producthunt.com/products/panorama/launches/panorama"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-04",
+          "count": 1
+        }
+      ]
+    }
+  ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 0,
-    "lastSuccessfulArtifactAt": "2026-08-03T07:52:26.040Z"
+    "publishedEventCount": 1,
+    "lastSuccessfulArtifactAt": "2026-08-05T00:49:13.374Z"
   },
   "nextCursor": null
 }

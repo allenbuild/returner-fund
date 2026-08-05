@@ -1,6 +1,11 @@
 import { YC_SPRING_2026_BATCH_SLUG, yc2026GraphDataset } from "./yc-spring-2026-dataset";
 import { graphNodeMatchesSearchQuery } from "./search";
-import { enrichCompanyRecordVerticals, enrichGraphTaxonomies } from "./graph-taxonomies";
+import {
+  enrichCompanyRecordVerticals,
+  enrichEvidenceTopics,
+  enrichGraphTaxonomies,
+  topicPhysicalPostCounts
+} from "./graph-taxonomies";
 import { withForwardCompatiblePlatformStatus } from "./platform-status";
 import { getNodeRadius } from "./score-radius";
 import { TRACTION_SCORING_CONFIG } from "./traction-scoring-config";
@@ -224,6 +229,9 @@ export function buildGraphResponse(
 
 function buildEvidenceStats(evidence: EvidenceItem[]): EvidenceStats {
   const byPlatform: EvidenceStats["byPlatform"] = {};
+  const byTopic = Object.fromEntries(
+    topicPhysicalPostCounts(evidence.map(enrichEvidenceTopics)).entries()
+  ) as EvidenceStats["byTopic"];
   const firstSeenByDay: Record<string, number> = {};
   let scoringEligibleCount = 0;
 
@@ -242,7 +250,7 @@ function buildEvidenceStats(evidence: EvidenceItem[]): EvidenceStats {
     }
   }
 
-  return { totalCount: evidence.length, scoringEligibleCount, byPlatform, firstSeenByDay };
+  return { totalCount: evidence.length, scoringEligibleCount, byPlatform, byTopic, firstSeenByDay };
 }
 
 export function buildGraphEdges(

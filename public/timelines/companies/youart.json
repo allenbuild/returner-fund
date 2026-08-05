@@ -5,14 +5,49 @@
     "slug": "youart",
     "name": "YouArt"
   },
-  "generatedAt": "2026-08-03T07:52:26.040Z",
-  "lastModifiedAt": "2026-08-03T07:52:26.040Z",
-  "events": [],
-  "groups": [],
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z",
+  "events": [
+    {
+      "id": "tle-6ab4b550e87d795de88b84e5",
+      "eventDate": "2025-11-06",
+      "eventDateType": "announcement_date",
+      "title": "YouArt released YouArt launched today",
+      "summary": "YouArt launched today.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-48cddffab7f5b748339b925c",
+          "title": "YouArt launched today",
+          "publisher": "YouArt launched today",
+          "domain": "youtube.com",
+          "sourceType": "video",
+          "publishedAt": "2025-11-06T03:52:52.000Z",
+          "evidenceRole": "primary",
+          "url": "https://youtube.com/watch?v=TM2JI-5iv-s"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2025,
+      "months": [
+        {
+          "month": "2025-11",
+          "count": 1
+        }
+      ]
+    }
+  ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 0,
-    "lastSuccessfulArtifactAt": "2026-08-03T07:52:26.040Z"
+    "publishedEventCount": 1,
+    "lastSuccessfulArtifactAt": "2026-08-05T00:49:13.374Z"
   },
   "nextCursor": null
 }

@@ -1,0 +1,69 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-palette-2",
+    "slug": "palette",
+    "name": "Palette"
+  },
+  "event": {
+    "id": "tle-7fe93b7009de7a175cbf8879",
+    "eventDate": "2026-07-31",
+    "eventDateType": "announcement_date",
+    "title": "Palette announced its public launch",
+    "summary": "Palette announced it was launching Palette.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-62cb7030c8431c1f30fb3735",
+        "title": "Today we’re launching Palette! Built by MIT AI researchers, Palette unifies fragmented creative tools into a single multimodal generation engine.",
+        "publisher": "spei04",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-07-31T17:45:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/spei04/status/2083247570202042789"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-62cb7030c8431c1f30fb3735",
+        "title": "Today we’re launching Palette! Built by MIT AI researchers, Palette unifies fragmented creative tools into a single multimodal generation engine.",
+        "publisher": "spei04",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-07-31T17:45:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/spei04/status/2083247570202042789",
+        "publicationDate": "2026-07-31T17:45:00.000Z",
+        "excerpt": "Today we’re launching Palette! Built by MIT AI researchers, Palette unifies fragmented creative tools into a single multimodal generation engine. Now, enterprise teams and content creators can generate, edit, and automate brand-consistent video, ads, and training media entirely https://t.co/0Oi2u8HeNK",
+        "sourceEventDate": "2026-07-31",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-a06e5d6539144fe0806ffe37",
+        "platform": "x",
+        "account": "spei04",
+        "postDate": "2026-07-31",
+        "excerpt": "Today we’re launching Palette! Built by MIT AI researchers, Palette unifies fragmented creative tools into a single multimodal generation engine. Now, enterprise teams and content creators can generate, edit, and automate brand-consistent video, ads, and training media entirely https://t.co/0Oi2u8HeNK",
+        "url": "https://x.com/spei04/status/2083247570202042789",
+        "metrics": {
+          "likes": 293,
+          "reposts": 26,
+          "quotes": 21,
+          "replies": 75,
+          "views": 40113
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

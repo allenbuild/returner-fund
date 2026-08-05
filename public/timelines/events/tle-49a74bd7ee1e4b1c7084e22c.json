@@ -19,7 +19,7 @@
     "sourcePreview": [
       {
         "id": "src-741f4087a7b57bdffefc2387",
-        "title": "Auto now supports Connections. Build Frames that connect to your Notion pages, pull in a database of your favorite books or export your...",
+        "title": "Auto now supports Connections.",
         "publisher": "autoaicam",
         "domain": "x.com",
         "sourceType": "company_post",
@@ -31,7 +31,7 @@
     "evidence": [
       {
         "id": "src-741f4087a7b57bdffefc2387",
-        "title": "Auto now supports Connections. Build Frames that connect to your Notion pages, pull in a database of your favorite books or export your...",
+        "title": "Auto now supports Connections.",
         "publisher": "autoaicam",
         "domain": "x.com",
         "sourceType": "company_post",
@@ -39,7 +39,7 @@
         "evidenceRole": "primary",
         "url": "https://x.com/autoaicam/status/2077452103715561819",
         "publicationDate": "2026-07-15T17:55:53.000Z",
-        "excerpt": "Auto now supports Connections. Build Frames that connect to your Notion pages, pull in a database of your favorite books or export your receipts into a structured list. Connect your Calendar and Auto can natively add events to your calendar from a Frame.",
+        "excerpt": "Auto now supports Connections. Build Frames that connect to your Notion pages, pull in a database of your favorite books or export your receipts into a structured list. Connect your Calendar and Auto can natively add events to your calendar from a Frame. https://t.co/uICorTkzKL",
         "sourceEventDate": "2026-07-15",
         "isConflicting": false,
         "conflictDescription": null
@@ -47,24 +47,23 @@
     ],
     "posts": [
       {
-        "id": "post-761cc802af9411050fc4b2f5",
+        "id": "post-16bd5de1846b2ae771fbcb6e",
         "platform": "x",
         "account": "autoaicam",
         "postDate": "2026-07-15",
-        "excerpt": "Auto now supports Connections. Build Frames that connect to your Notion pages, pull in a database of your favorite books or export your receipts into a structured list. Connect your Calendar and Auto can natively add events to your calendar from a Frame.",
+        "excerpt": "Auto now supports Connections. Build Frames that connect to your Notion pages, pull in a database of your favorite books or export your receipts into a structured list. Connect your Calendar and Auto can natively add events to your calendar from a Frame. https://t.co/uICorTkzKL",
         "url": "https://x.com/autoaicam/status/2077452103715561819",
         "metrics": {
-          "views": 118,
-          "likes": 2,
-          "replies": 0,
+          "likes": 3,
           "reposts": 2,
           "quotes": 0,
-          "bookmarks": 0
+          "replies": 0,
+          "views": 143
         },
         "evidenceRole": "primary"
       }
     ]
   },
-  "generatedAt": "2026-08-03T07:52:26.040Z",
-  "lastModifiedAt": "2026-08-03T07:52:26.040Z"
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
 }

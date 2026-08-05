@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-ara",
+    "slug": "ara",
+    "name": "Ara"
+  },
+  "event": {
+    "id": "tle-69c660121326d06bca13b39c",
+    "eventDate": "2026-04-26",
+    "eventDateType": "announcement_date",
+    "title": "Ara released fastest way to get a live website/app in seconds and a single sms has...",
+    "summary": "Ara introduced the fastest way to get a live website/app in seconds and a single sms @aradotso has been obsessed with AI computers and giving users a easy way to use openclaw like tech Today we launched the fastest website builder in imessages, first sms to deployed site in 30s.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-22e11aac589e2b28a7df5b2c",
+        "title": "Introducing the fastest way to get a live website/app in seconds and a single sms @aradotso has been obsessed with AI computers and giving users a easy way to use openclaw like tech Today we launched the fastest website builder in imessa...",
+        "publisher": "xadisingh",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-04-26T23:04:15.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/xadisingh/status/2048538678482678104"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-22e11aac589e2b28a7df5b2c",
+        "title": "Introducing the fastest way to get a live website/app in seconds and a single sms @aradotso has been obsessed with AI computers and giving users a easy way to use openclaw like tech Today we launched the fastest website builder in imessa...",
+        "publisher": "xadisingh",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-04-26T23:04:15.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/xadisingh/status/2048538678482678104",
+        "publicationDate": "2026-04-26T23:04:15.000Z",
+        "excerpt": "Introducing the fastest way to get a live website/app in seconds and a single sms @aradotso has been obsessed with AI computers and giving users a easy way to use openclaw like tech Today we launched the fastest website builder in imessages, first sms to deployed site in 30s ish give it a try ara[.]so",
+        "sourceEventDate": "2026-04-26",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-a86995577d6221ee5db5f6bb",
+        "platform": "x",
+        "account": "xadisingh",
+        "postDate": "2026-04-26",
+        "excerpt": "Introducing the fastest way to get a live website/app in seconds and a single sms @aradotso has been obsessed with AI computers and giving users a easy way to use openclaw like tech Today we launched the fastest website builder in imessages, first sms to deployed site in 30s ish give it a try ara[.]so",
+        "url": "https://x.com/xadisingh/status/2048538678482678104",
+        "metrics": {
+          "views": 1275,
+          "likes": 19,
+          "replies": 6,
+          "reposts": 0,
+          "quotes": 0,
+          "bookmarks": 5
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

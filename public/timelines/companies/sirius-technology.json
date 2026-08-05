@@ -5,14 +5,49 @@
     "slug": "sirius-technology",
     "name": "Sirius Technology"
   },
-  "generatedAt": "2026-08-03T07:52:26.040Z",
-  "lastModifiedAt": "2026-08-03T07:52:26.040Z",
-  "events": [],
-  "groups": [],
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z",
+  "events": [
+    {
+      "id": "tle-35769ef91cc0be62bd2a0e45",
+      "eventDate": "2026-07-28",
+      "eventDateType": "announcement_date",
+      "title": "Sirius Technology released Sirius Blog 🚀 Give it a read and stay tuned",
+      "summary": "Sirius Technology introduced the Sirius Blog 🚀 Give it a read and stay tuned for more soon → #SaaS #CustomerRetention #ChurnPrevention.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-139fe1fcfbfb860888dbd3f6",
+          "title": "Introducing the Sirius Blog 🚀 Give it a read and stay tuned for more soon → https://thesirius.ai/blog/ #SaaS #CustomerRetention #ChurnPrevention",
+          "publisher": "ChiefSnack",
+          "domain": "x.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-07-28T15:30:23.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/ChiefSnack/status/2082126529706750421"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-07",
+          "count": 1
+        }
+      ]
+    }
+  ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 0,
-    "lastSuccessfulArtifactAt": "2026-08-03T07:52:26.040Z"
+    "publishedEventCount": 1,
+    "lastSuccessfulArtifactAt": "2026-08-05T00:49:13.374Z"
   },
   "nextCursor": null
 }

@@ -5,21 +5,79 @@
     "slug": "lamina-labs",
     "name": "Lamina Labs"
   },
-  "generatedAt": "2026-08-03T07:52:26.040Z",
-  "lastModifiedAt": "2026-08-03T07:52:26.040Z",
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z",
   "events": [
     {
-      "id": "tle-6fa277e9fa97ebff4c8a7f9f",
-      "eventDate": "2026-07-31",
+      "id": "tle-a243a2c0d98de7032bcca241",
+      "eventDate": "2026-07-30",
       "eventDateType": "announcement_date",
-      "title": "Lamina Labs announced $4.8M funding round",
-      "summary": "Lamina Labs Raised $4.8M to Build ChatGPT for Explainer Videos.",
-      "category": "funding",
-      "isMajor": true,
+      "title": "Lamina Labs enabled The biggest shift is not that software to be built faster",
+      "summary": "Lamina Labs reported the biggest shift is not that software can now be built faster.",
+      "category": "product_update",
+      "isMajor": false,
       "hasConflict": false,
       "conflictSummary": null,
       "evidenceCount": 1,
       "sourcePreview": [
+        {
+          "id": "src-4069be6bccac52b7d1122af4",
+          "title": "The biggest shift is not that software can now be built faster.",
+          "publisher": "laminalabs",
+          "domain": "x.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-07-30T01:46:32.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/laminalabs/status/2082643977426407544"
+        }
+      ]
+    },
+    {
+      "id": "tle-97db3d6624040b55abe41367",
+      "eventDate": "2026-07-30",
+      "eventDateType": "announcement_date",
+      "title": "Lamina Labs enabled AI to answer almost anything",
+      "summary": "Lamina Labs reported AI can now answer almost anything.",
+      "category": "product_update",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-2172112dbdf92db6be0347f7",
+          "title": "AI can now answer almost anything.",
+          "publisher": "laminalabs",
+          "domain": "x.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-07-30T17:21:26.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/laminalabs/status/2082879254279364704"
+        }
+      ]
+    },
+    {
+      "id": "tle-1edd64b62e1b9b9c0f4280f1",
+      "eventDate": "2026-07-30",
+      "eventDateType": "announcement_date",
+      "title": "Lamina Labs announced $4.8m funding round",
+      "summary": "Lamina Labs raised $4.8 million to make AI explain with video, not just text.",
+      "category": "funding",
+      "isMajor": true,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 2,
+      "sourcePreview": [
+        {
+          "id": "src-5ce4f0ebaebf5357c7d1d4d2",
+          "title": "We raised $4.8 million to make AI explain with video, not just text. Today, we are announcing Lamina Labs and Simi, our first product and the fastest way to make an explainer video. Give Simi a single prompt, document, or script, and it…",
+          "publisher": "Kartikesh Mishra LinkedIn post",
+          "domain": "linkedin.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-07-30T17:24:24.714Z",
+          "evidenceRole": "primary",
+          "url": "https://www.linkedin.com/feed/update/urn:li:activity:7488645689619447808"
+        },
         {
           "id": "src-54eec352535b240a1e798ad8",
           "title": "We Raised $4.8M to Build ChatGPT for Explainer Videos",
@@ -87,7 +145,7 @@
       "months": [
         {
           "month": "2026-07",
-          "count": 1
+          "count": 3
         },
         {
           "month": "2026-06",
@@ -98,8 +156,8 @@
   ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 3,
-    "lastSuccessfulArtifactAt": "2026-08-03T07:52:26.040Z"
+    "publishedEventCount": 5,
+    "lastSuccessfulArtifactAt": "2026-08-05T00:49:13.374Z"
   },
   "nextCursor": null
 }

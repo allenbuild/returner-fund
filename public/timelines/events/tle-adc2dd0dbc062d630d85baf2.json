@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-projectx",
+    "slug": "projectx",
+    "name": "ProjectX"
+  },
+  "event": {
+    "id": "tle-adc2dd0dbc062d630d85baf2",
+    "eventDate": "2026-02-16",
+    "eventDateType": "announcement_date",
+    "title": "ProjectX released We just launched :",
+    "summary": "ProjectX just launched.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-99d0847edae0887935b2f2a1",
+        "title": "We just launched : http://Projectx.cloud",
+        "publisher": "runallapps",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-02-16T23:26:28.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/runallapps/status/2023539504938971308"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-99d0847edae0887935b2f2a1",
+        "title": "We just launched : http://Projectx.cloud",
+        "publisher": "runallapps",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-02-16T23:26:28.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/runallapps/status/2023539504938971308",
+        "publicationDate": "2026-02-16T23:26:28.000Z",
+        "excerpt": "We just launched : http://Projectx.cloud",
+        "sourceEventDate": "2026-02-16",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-8fa93cbf922f03fdbd279b3d",
+        "platform": "x",
+        "account": "runallapps",
+        "postDate": "2026-02-16",
+        "excerpt": "We just launched : http://Projectx.cloud",
+        "url": "https://x.com/runallapps/status/2023539504938971308",
+        "metrics": {
+          "views": 26,
+          "likes": 0,
+          "replies": 0,
+          "reposts": 0,
+          "quotes": 0,
+          "bookmarks": 0
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

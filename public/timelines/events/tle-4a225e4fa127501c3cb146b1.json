@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-egoist-machines",
+    "slug": "egoist-machines",
+    "name": "Egoist Machines"
+  },
+  "event": {
+    "id": "tle-4a225e4fa127501c3cb146b1",
+    "eventDate": "2026-06-25",
+    "eventDateType": "announcement_date",
+    "title": "Egoist Machines released newsletter",
+    "summary": "Egoist Machines reported i just launched the newsletter that will change your life.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-36d34b8703c70520a4c16fc5",
+        "title": "I just launched the newsletter that will change your life. Check it out: https://open.substack.com/pub/egoistmachines/p/egoist-ideas-1?r=8ni4ej&utm_campaign=post&utm_medium=web&showWelcomeOnShare=true",
+        "publisher": "erinmerylstudy",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-06-25T16:51:38.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/erinmerylstudy/status/2070188179794370850"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-36d34b8703c70520a4c16fc5",
+        "title": "I just launched the newsletter that will change your life. Check it out: https://open.substack.com/pub/egoistmachines/p/egoist-ideas-1?r=8ni4ej&utm_campaign=post&utm_medium=web&showWelcomeOnShare=true",
+        "publisher": "erinmerylstudy",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-06-25T16:51:38.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/erinmerylstudy/status/2070188179794370850",
+        "publicationDate": "2026-06-25T16:51:38.000Z",
+        "excerpt": "I just launched the newsletter that will change your life. Check it out: https://open.substack.com/pub/egoistmachines/p/egoist-ideas-1?r=8ni4ej&utm_campaign=post&utm_medium=web&showWelcomeOnShare=true",
+        "sourceEventDate": "2026-06-25",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-19e6476f53f486b1c47024be",
+        "platform": "x",
+        "account": "erinmerylstudy",
+        "postDate": "2026-06-25",
+        "excerpt": "I just launched the newsletter that will change your life. Check it out: https://open.substack.com/pub/egoistmachines/p/egoist-ideas-1?r=8ni4ej&utm_campaign=post&utm_medium=web&showWelcomeOnShare=true",
+        "url": "https://x.com/erinmerylstudy/status/2070188179794370850",
+        "metrics": {
+          "views": 194,
+          "likes": 1,
+          "replies": 0,
+          "reposts": 0,
+          "quotes": 0,
+          "bookmarks": 0
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

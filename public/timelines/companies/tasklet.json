@@ -5,14 +5,214 @@
     "slug": "tasklet",
     "name": "Tasklet"
   },
-  "generatedAt": "2026-08-03T07:52:26.040Z",
-  "lastModifiedAt": "2026-08-03T07:52:26.040Z",
-  "events": [],
-  "groups": [],
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z",
+  "events": [
+    {
+      "id": "tle-2a2b18563749c7aadbe2b4d2",
+      "eventDate": "2026-05-22",
+      "eventDateType": "announcement_date",
+      "title": "Tasklet added support for audio transcription + video generation",
+      "summary": "Tasklet now supports audio transcription + video generation.",
+      "category": "product_update",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-8f12d9f9501314454809bec3",
+          "title": "Tasklet now supports audio transcription + video generation. Upload calls, podcasts, meetings, or voice notes → get transcripts, summaries, action items, clips, drafts, and more. And with triggers, it can run automatically. Subscribe to...",
+          "publisher": "TaskletAI",
+          "domain": "x.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-05-22T17:55:59.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/TaskletAI/status/2057883182922694887"
+        }
+      ]
+    },
+    {
+      "id": "tle-cf1c1716d8a98b55989cc258",
+      "eventDate": "2026-04-15",
+      "eventDateType": "announcement_date",
+      "title": "Tasklet released 14 new triggers across Slack",
+      "summary": "Tasklet just launched 14 new triggers across Slack, Google Calendar, Google Drive, Outlook, Telegram, and more.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-b7b7995700a3b8fa8a27f10c",
+          "title": "We just launched 14 new triggers across Slack, Google Calendar, Google Drive, Outlook, Telegram, and more. Your agents now respond to more events natively so you don’t have to poll. 🧵",
+          "publisher": "TaskletAI",
+          "domain": "x.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-04-15T16:44:03.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/TaskletAI/status/2044456729191321881"
+        }
+      ]
+    },
+    {
+      "id": "tle-a072ebc16a3c9f486c888fa1",
+      "eventDate": "2026-04-07",
+      "eventDateType": "announcement_date",
+      "title": "Tasklet announced $20M funding round",
+      "summary": "Tasklet just raised $20M to build the cloud agent operating system for work.",
+      "category": "funding",
+      "isMajor": true,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-8378ae1988d81c7249624e7c",
+          "title": "We just raised $20M to build the cloud agent operating system for work. The investment is led by @usv & @lightspeedvp and includes @ycombinator, @JeffDean, @patrickc & others. It values the company at $175M. 🧵",
+          "publisher": "TaskletAI",
+          "domain": "x.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-04-07T16:48:55.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/TaskletAI/status/2041558853456949387"
+        }
+      ]
+    },
+    {
+      "id": "tle-dc4976226231fbf7bc6cdc47",
+      "eventDate": "2026-03-17",
+      "eventDateType": "announcement_date",
+      "title": "Tasklet partnered with @AnthropicAI to build Tasklet — and today they're sharing our story",
+      "summary": "Tasklet confirmed the event in a dated public announcement.",
+      "category": "partnership",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-5d8c3a1970cf6dcad29860c4",
+          "title": "We partnered with @AnthropicAI to build Tasklet — and today they're sharing our story. Tasklet is powering 450K agent actions/day across thousands of businesses, and growing 160% MoM. Every LLM call is Claude. http://claude.com/customer...",
+          "publisher": "TaskletAI",
+          "domain": "x.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-03-17T20:52:53.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/TaskletAI/status/2034010103607923070"
+        }
+      ]
+    },
+    {
+      "id": "tle-8cb03e04b1af78f0808f10d5",
+      "eventDate": "2026-03-12",
+      "eventDateType": "announcement_date",
+      "title": "Tasklet released Android texting support",
+      "summary": "Tasklet just launched Android texting support for Tasklet.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-d740f964c5ebd57386190f6e",
+          "title": "We just launched Android texting support for Tasklet. You can now text with your agent directly from your Android phone. Just ask it to \"contact me via my phone number\".",
+          "publisher": "TaskletAI",
+          "domain": "x.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-03-12T21:47:44.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/TaskletAI/status/2032211967012962764"
+        }
+      ]
+    },
+    {
+      "id": "tle-bec4e894ada0da5bc4d07986",
+      "eventDate": "2026-02-26",
+      "eventDateType": "announcement_date",
+      "title": "Tasklet enabled Introducing Instant Apps — your Tasklet agent to build live, interactive apps for you on-demand",
+      "summary": "Tasklet introduced Instant Apps — your Tasklet agent can now build live, interactive apps for you on-demand.",
+      "category": "product_update",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-e8527c664e40460db44a32ca",
+          "title": "Introducing Instant Apps — your Tasklet agent can now build live, interactive apps for you on-demand. Describe what you need & get the perfect custom UI in seconds — connected to your real, live data. 🧵",
+          "publisher": "TaskletAI",
+          "domain": "x.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-02-26T17:42:22.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/TaskletAI/status/2027076787268890852"
+        }
+      ]
+    },
+    {
+      "id": "tle-a271e9ad1aaec3f522cd65a4",
+      "eventDate": "2025-10-09",
+      "eventDateType": "announcement_date",
+      "title": "Tasklet released Tasklet: Automate your business with AI agents",
+      "summary": "Tasklet introduced Tasklet: Automate your business with AI agents.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-e46172bcfb0b45ce79b7f0cf",
+          "title": "Introducing Tasklet: Automate your business with AI agents",
+          "publisher": "Tasklet",
+          "domain": "tasklet.ai",
+          "sourceType": "company_post",
+          "publishedAt": "2025-10-09T00:00:00.000Z",
+          "evidenceRole": "primary",
+          "url": "https://tasklet.ai/blog.xml"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-05",
+          "count": 1
+        },
+        {
+          "month": "2026-04",
+          "count": 2
+        },
+        {
+          "month": "2026-03",
+          "count": 2
+        },
+        {
+          "month": "2026-02",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "year": 2025,
+      "months": [
+        {
+          "month": "2025-10",
+          "count": 1
+        }
+      ]
+    }
+  ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 0,
-    "lastSuccessfulArtifactAt": "2026-08-03T07:52:26.040Z"
+    "publishedEventCount": 7,
+    "lastSuccessfulArtifactAt": "2026-08-05T00:49:13.374Z"
   },
   "nextCursor": null
 }

@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-klaimee",
+    "slug": "klaimee",
+    "name": "Klaimee"
+  },
+  "event": {
+    "id": "tle-bbf8d1cb97331340dcb5df36",
+    "eventDate": "2026-05-03",
+    "eventDateType": "announcement_date",
+    "title": "Klaimee launched on Y Combinator",
+    "summary": "Klaimee just launched @klaimee_ai on @ycombinator's Launch YC.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-b89b9d8d29210e8efff47a76",
+        "title": "We just launched @klaimee_ai on @ycombinator's Launch YC! We insure your AI Agents. Check us out: https://www.ycombinator.com/launches/QCC-klaimee-insures-your-ai-agents",
+        "publisher": "inesboutem",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-05-03T23:57:36.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/inesboutem/status/2051088820561756633"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-b89b9d8d29210e8efff47a76",
+        "title": "We just launched @klaimee_ai on @ycombinator's Launch YC! We insure your AI Agents. Check us out: https://www.ycombinator.com/launches/QCC-klaimee-insures-your-ai-agents",
+        "publisher": "inesboutem",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-05-03T23:57:36.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/inesboutem/status/2051088820561756633",
+        "publicationDate": "2026-05-03T23:57:36.000Z",
+        "excerpt": "We just launched @klaimee_ai on @ycombinator's Launch YC! We insure your AI Agents. Check us out: https://www.ycombinator.com/launches/QCC-klaimee-insures-your-ai-agents",
+        "sourceEventDate": "2026-05-03",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-626393eeb6ae55e65dcae84c",
+        "platform": "x",
+        "account": "inesboutem",
+        "postDate": "2026-05-03",
+        "excerpt": "We just launched @klaimee_ai on @ycombinator's Launch YC! We insure your AI Agents. Check us out: https://www.ycombinator.com/launches/QCC-klaimee-insures-your-ai-agents",
+        "url": "https://x.com/inesboutem/status/2051088820561756633",
+        "metrics": {
+          "views": 321,
+          "likes": 4,
+          "replies": 0,
+          "reposts": 0,
+          "quotes": 0,
+          "bookmarks": 0
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

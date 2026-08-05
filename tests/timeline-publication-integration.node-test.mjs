@@ -14,8 +14,9 @@ const fileDiscovery = read("src/lib/timeline/file-discovery.ts");
 const packageJson = JSON.parse(read("package.json"));
 
 test("release and scheduled publication gates validate Company Timeline artifacts", () => {
-  assert.match(packageJson.scripts["check:release"], /timeline:validate/);
-  assert.match(packageJson.scripts["check:release"], /timeline:audit/);
+  assert.match(packageJson.scripts["check:release"], /check:release:artifacts/);
+  assert.match(packageJson.scripts["check:release:artifacts"], /timeline:validate/);
+  assert.match(packageJson.scripts["check:release:artifacts"], /timeline:audit/);
   assert.match(autonomousWorkflow, /npm run timeline:validate/);
   assert.match(dailyWorkflow, /npm run timeline:backfill/);
   assert.match(dailyWorkflow, /npm run timeline:validate/);

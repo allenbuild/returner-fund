@@ -85,15 +85,15 @@ describe("timeline artifact store", () => {
   });
 
   it("serves exact-day source provenance without inventing a timestamp", async () => {
-    const page = await listPublishedTimelineEvents({ companyId: "company-ara", limit: 100 });
+    const page = await listPublishedTimelineEvents({ companyId: "company-ontora", limit: 100 });
     const event = page.events.find((item) =>
-      item.sourcePreview.some((source) => source.publishedAt === "2026-07-12")
+      item.sourcePreview.some((source) => source.publishedAt === "2026-06-08")
     );
 
     expect(event).toBeDefined();
     const detail = await getPublishedTimelineEventDetail(event!.id);
     expect(detail?.event.evidence).toEqual(expect.arrayContaining([
-      expect.objectContaining({ publicationDate: "2026-07-12" }),
+      expect.objectContaining({ publicationDate: "2026-06-08" }),
     ]));
   });
 

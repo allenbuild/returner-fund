@@ -5,8 +5,8 @@
     "slug": "hyper",
     "name": "Hyper"
   },
-  "generatedAt": "2026-08-03T07:52:26.040Z",
-  "lastModifiedAt": "2026-08-03T07:52:26.040Z",
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z",
   "events": [
     {
       "id": "tle-39c9b9305ffa51218cb174a3",
@@ -21,16 +21,6 @@
       "evidenceCount": 2,
       "sourcePreview": [
         {
-          "id": "src-b1225ef90bd26e8ae02ef4f0",
-          "title": "we just launched hyper: it's how every company of the future will be run. https://t.co/BghNbht01k",
-          "publisher": "_shalinshah_ X post",
-          "domain": "x.com",
-          "sourceType": "founder_post",
-          "publishedAt": "2026-05-11T20:07:10.000Z",
-          "evidenceRole": "primary",
-          "url": "https://x.com/_shalinshah_/status/2053929929981755673"
-        },
-        {
           "id": "src-385cc3fb7cae892ae5882f76",
           "title": "Launch HN: Hyper (YC P26) – Company brain to power agentic development",
           "publisher": "shalinshah",
@@ -39,6 +29,16 @@
           "publishedAt": "2026-06-03T17:39:53Z",
           "evidenceRole": "primary",
           "url": "https://news.ycombinator.com/item?id=48387095"
+        },
+        {
+          "id": "src-b1225ef90bd26e8ae02ef4f0",
+          "title": "we just launched hyper: it's how every company of the future will be run. https://t.co/BghNbht01k",
+          "publisher": "_shalinshah_ X post",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-05-11T20:07:10.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/_shalinshah_/status/2053929929981755673"
         }
       ]
     }
@@ -57,7 +57,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-08-03T07:52:26.040Z"
+    "lastSuccessfulArtifactAt": "2026-08-05T00:49:13.374Z"
   },
   "nextCursor": null
 }

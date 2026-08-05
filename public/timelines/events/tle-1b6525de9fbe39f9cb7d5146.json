@@ -1,0 +1,66 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "a16z-speedrun-006-advocate",
+    "slug": "advocate",
+    "name": "Advocate"
+  },
+  "event": {
+    "id": "tle-1b6525de9fbe39f9cb7d5146",
+    "eventDate": "2017-09-25",
+    "eventDateType": "occurrence_date",
+    "title": "Advocate launched on Product Hunt",
+    "summary": "Advocate announced advocate launched on Product Hunt.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-6e684303c9a027073148f085",
+        "title": "Advocate",
+        "publisher": "chriszeunstrom",
+        "domain": "producthunt.com",
+        "sourceType": "product_hunt",
+        "publishedAt": "2017-09-25T15:00:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://producthunt.com/products/advocate/launches/advocate"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-6e684303c9a027073148f085",
+        "title": "Advocate",
+        "publisher": "chriszeunstrom",
+        "domain": "producthunt.com",
+        "sourceType": "product_hunt",
+        "publishedAt": "2017-09-25T15:00:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://producthunt.com/products/advocate/launches/advocate",
+        "publicationDate": "2017-09-25T15:00:00.000Z",
+        "excerpt": "Advocate",
+        "sourceEventDate": "2017-09-25",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-508b014988f4c08bc548609d",
+        "platform": "product_hunt",
+        "account": "chriszeunstrom",
+        "postDate": "2017-09-25",
+        "excerpt": "Advocate",
+        "url": "https://producthunt.com/products/advocate/launches/advocate",
+        "metrics": {
+          "comments": 0,
+          "upvotes": 8
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

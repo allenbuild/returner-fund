@@ -10,7 +10,7 @@
     "eventDate": "2026-05-19",
     "eventDateType": "announcement_date",
     "title": "Archer launched on Y Combinator",
-    "summary": "Archer just launched on @ycombinator 's Launch YC.",
+    "summary": "Archer just launched on @ycombinator's Launch YC.",
     "category": "product_launch",
     "isMajor": false,
     "hasConflict": false,
@@ -18,28 +18,28 @@
     "evidenceCount": 1,
     "sourcePreview": [
       {
-        "id": "src-670898f025e35e94faa1d4a9",
-        "title": "Archer just launched on @ycombinator 's Launch YC! Archer: Reward. Anything.. Check them out: https:// ycombinator.com/launches/QLx-a rcher-reward-anything ...",
-        "publisher": "VivekYanamadula X post",
+        "id": "src-bc31ec8cdadbc3970f0d2e1b",
+        "title": "Archer just launched on @ycombinator's Launch YC! Archer: Reward.",
+        "publisher": "vivekyanamadula",
         "domain": "x.com",
         "sourceType": "founder_post",
-        "publishedAt": "2026-05-19T00:00:00.000Z",
+        "publishedAt": "2026-05-19T17:02:58.000Z",
         "evidenceRole": "primary",
-        "url": "https://x.com/VivekYanamadula/status/2056782680235413703"
+        "url": "https://x.com/vivekyanamadula/status/2056782680235413703"
       }
     ],
     "evidence": [
       {
-        "id": "src-670898f025e35e94faa1d4a9",
-        "title": "Archer just launched on @ycombinator 's Launch YC! Archer: Reward. Anything.. Check them out: https:// ycombinator.com/launches/QLx-a rcher-reward-anything ...",
-        "publisher": "VivekYanamadula X post",
+        "id": "src-bc31ec8cdadbc3970f0d2e1b",
+        "title": "Archer just launched on @ycombinator's Launch YC! Archer: Reward.",
+        "publisher": "vivekyanamadula",
         "domain": "x.com",
         "sourceType": "founder_post",
-        "publishedAt": "2026-05-19T00:00:00.000Z",
+        "publishedAt": "2026-05-19T17:02:58.000Z",
         "evidenceRole": "primary",
-        "url": "https://x.com/VivekYanamadula/status/2056782680235413703",
-        "publicationDate": "2026-05-19T00:00:00.000Z",
-        "excerpt": "Archer just launched on @ycombinator 's Launch YC! Archer: Reward. Anything.. Check them out: https:// ycombinator.com/launches/QLx-a rcher-reward-anything ...",
+        "url": "https://x.com/vivekyanamadula/status/2056782680235413703",
+        "publicationDate": "2026-05-19T17:02:58.000Z",
+        "excerpt": "Archer just launched on @ycombinator's Launch YC! Archer: Reward. Anything.. Check them out: https://t.co/Exvdyxyjk3",
         "sourceEventDate": "2026-05-19",
         "isConflicting": false,
         "conflictDescription": null
@@ -47,22 +47,23 @@
     ],
     "posts": [
       {
-        "id": "post-63842b619e6ce0b4cda6423e",
+        "id": "post-09e2afb637de6bb62ed259c7",
         "platform": "x",
-        "account": "VivekYanamadula X post",
+        "account": "vivekyanamadula",
         "postDate": "2026-05-19",
-        "excerpt": "Archer just launched on @ycombinator 's Launch YC! Archer: Reward. Anything.. Check them out: https:// ycombinator.com/launches/QLx-a rcher-reward-anything ...",
-        "url": "https://x.com/VivekYanamadula/status/2056782680235413703",
+        "excerpt": "Archer just launched on @ycombinator's Launch YC! Archer: Reward. Anything.. Check them out: https://t.co/Exvdyxyjk3",
+        "url": "https://x.com/vivekyanamadula/status/2056782680235413703",
         "metrics": {
-          "likes": 5,
+          "likes": 6,
           "reposts": 0,
-          "comments": 0,
-          "views": 57
+          "quotes": 0,
+          "replies": 1,
+          "views": 66
         },
         "evidenceRole": "primary"
       }
     ]
   },
-  "generatedAt": "2026-08-03T07:52:26.040Z",
-  "lastModifiedAt": "2026-08-03T07:52:26.040Z"
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
 }

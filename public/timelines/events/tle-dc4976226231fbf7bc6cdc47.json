@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-tasklet-2",
+    "slug": "tasklet",
+    "name": "Tasklet"
+  },
+  "event": {
+    "id": "tle-dc4976226231fbf7bc6cdc47",
+    "eventDate": "2026-03-17",
+    "eventDateType": "announcement_date",
+    "title": "Tasklet partnered with @AnthropicAI to build Tasklet — and today they're sharing our story",
+    "summary": "Tasklet confirmed the event in a dated public announcement.",
+    "category": "partnership",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-5d8c3a1970cf6dcad29860c4",
+        "title": "We partnered with @AnthropicAI to build Tasklet — and today they're sharing our story. Tasklet is powering 450K agent actions/day across thousands of businesses, and growing 160% MoM. Every LLM call is Claude. http://claude.com/customer...",
+        "publisher": "TaskletAI",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-03-17T20:52:53.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/TaskletAI/status/2034010103607923070"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-5d8c3a1970cf6dcad29860c4",
+        "title": "We partnered with @AnthropicAI to build Tasklet — and today they're sharing our story. Tasklet is powering 450K agent actions/day across thousands of businesses, and growing 160% MoM. Every LLM call is Claude. http://claude.com/customer...",
+        "publisher": "TaskletAI",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-03-17T20:52:53.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/TaskletAI/status/2034010103607923070",
+        "publicationDate": "2026-03-17T20:52:53.000Z",
+        "excerpt": "We partnered with @AnthropicAI to build Tasklet — and today they're sharing our story. Tasklet is powering 450K agent actions/day across thousands of businesses, and growing 160% MoM. Every LLM call is Claude. http://claude.com/customers/tasklet",
+        "sourceEventDate": "2026-03-17",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-11109ab09ad779f5a2c9c590",
+        "platform": "x",
+        "account": "TaskletAI",
+        "postDate": "2026-03-17",
+        "excerpt": "We partnered with @AnthropicAI to build Tasklet — and today they're sharing our story. Tasklet is powering 450K agent actions/day across thousands of businesses, and growing 160% MoM. Every LLM call is Claude. http://claude.com/customers/tasklet",
+        "url": "https://x.com/TaskletAI/status/2034010103607923070",
+        "metrics": {
+          "views": 3370,
+          "likes": 28,
+          "replies": 2,
+          "reposts": 9,
+          "quotes": 1,
+          "bookmarks": 27
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

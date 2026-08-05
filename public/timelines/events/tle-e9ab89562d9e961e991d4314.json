@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-ara",
+    "slug": "ara",
+    "name": "Ara"
+  },
+  "event": {
+    "id": "tle-e9ab89562d9e961e991d4314",
+    "eventDate": "2026-06-08",
+    "eventDateType": "announcement_date",
+    "title": "Ara released worlds first Proactive Agent - Ara Ara has full codebase and role...",
+    "summary": "Ara introduced the worlds first Proactive Agent - Ara Ara has full codebase and role memory and automatically drafts pr's on its own.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-8f4a56ed7e24269cca79d74f",
+        "title": "Introducing the worlds first Proactive Agent - Ara Ara has full codebase and role memory and automatically drafts pr's on its own. All built in the app. You only steer it towards your goal and have the agent loops working for you. Try ...",
+        "publisher": "xadisingh",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-06-08T02:45:08.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/xadisingh/status/2063814556179468591"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-8f4a56ed7e24269cca79d74f",
+        "title": "Introducing the worlds first Proactive Agent - Ara Ara has full codebase and role memory and automatically drafts pr's on its own. All built in the app. You only steer it towards your goal and have the agent loops working for you. Try ...",
+        "publisher": "xadisingh",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-06-08T02:45:08.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/xadisingh/status/2063814556179468591",
+        "publicationDate": "2026-06-08T02:45:08.000Z",
+        "excerpt": "Introducing the worlds first Proactive Agent - Ara Ara has full codebase and role memory and automatically drafts pr's on its own. All built in the app. You only steer it towards your goal and have the agent loops working for you. Try it for free today, or get 2000$ on our 200/mo plan",
+        "sourceEventDate": "2026-06-08",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-60baad13be41c2de5b569ab7",
+        "platform": "x",
+        "account": "xadisingh",
+        "postDate": "2026-06-08",
+        "excerpt": "Introducing the worlds first Proactive Agent - Ara Ara has full codebase and role memory and automatically drafts pr's on its own. All built in the app. You only steer it towards your goal and have the agent loops working for you. Try it for free today, or get 2000$ on our 200/mo plan",
+        "url": "https://x.com/xadisingh/status/2063814556179468591",
+        "metrics": {
+          "views": 10415,
+          "likes": 109,
+          "replies": 13,
+          "reposts": 3,
+          "quotes": 1,
+          "bookmarks": 96
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

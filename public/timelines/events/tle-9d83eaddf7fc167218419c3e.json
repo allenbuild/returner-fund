@@ -20,10 +20,10 @@
       {
         "id": "src-611d35cb28a4e9ad9bdb7041",
         "title": "Run fully open-sourced coding agents on the cloud.",
-        "publisher": "Run fully open-sourced coding agents on the cloud.",
+        "publisher": "tryreplicas",
         "domain": "x.com",
         "sourceType": "company_post",
-        "publishedAt": "2026-07-27T00:00:00.000Z",
+        "publishedAt": "2026-07-27T16:24:00.000Z",
         "evidenceRole": "primary",
         "url": "https://x.com/tryreplicas/status/2081777634036617284"
       }
@@ -32,14 +32,14 @@
       {
         "id": "src-611d35cb28a4e9ad9bdb7041",
         "title": "Run fully open-sourced coding agents on the cloud.",
-        "publisher": "Run fully open-sourced coding agents on the cloud.",
+        "publisher": "tryreplicas",
         "domain": "x.com",
         "sourceType": "company_post",
-        "publishedAt": "2026-07-27T00:00:00.000Z",
+        "publishedAt": "2026-07-27T16:24:00.000Z",
         "evidenceRole": "primary",
         "url": "https://x.com/tryreplicas/status/2081777634036617284",
-        "publicationDate": "2026-07-27T00:00:00.000Z",
-        "excerpt": "Run fully open-sourced coding agents on the cloud. Pi harness and @OpenRouter now available on Replicas.",
+        "publicationDate": "2026-07-27T16:24:00.000Z",
+        "excerpt": "Run fully open-sourced coding agents on the cloud. Pi harness and @OpenRouter now available on Replicas. https://t.co/7NpkGuYSeU",
         "sourceEventDate": "2026-07-27",
         "isConflicting": false,
         "conflictDescription": null
@@ -47,22 +47,23 @@
     ],
     "posts": [
       {
-        "id": "post-109d384c6904832cf3c43375",
+        "id": "post-3ea038f3e35d194759329d9b",
         "platform": "x",
-        "account": "Run fully open-sourced coding agents on the cloud.",
+        "account": "tryreplicas",
         "postDate": "2026-07-27",
-        "excerpt": "Run fully open-sourced coding agents on the cloud. Pi harness and @OpenRouter now available on Replicas.",
+        "excerpt": "Run fully open-sourced coding agents on the cloud. Pi harness and @OpenRouter now available on Replicas. https://t.co/7NpkGuYSeU",
         "url": "https://x.com/tryreplicas/status/2081777634036617284",
         "metrics": {
-          "likes": 62,
-          "reposts": 8,
-          "comments": 36,
-          "views": 5164
+          "likes": 63,
+          "reposts": 6,
+          "quotes": 2,
+          "replies": 37,
+          "views": 5672
         },
         "evidenceRole": "primary"
       }
     ]
   },
-  "generatedAt": "2026-08-03T07:52:26.040Z",
-  "lastModifiedAt": "2026-08-03T07:52:26.040Z"
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
 }

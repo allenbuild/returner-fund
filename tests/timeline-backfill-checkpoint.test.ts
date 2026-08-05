@@ -85,6 +85,71 @@ describe("Company Timeline backfill checkpoint integrity", () => {
       company: { id: "company-acme", slug: "acme", name: "Acme" },
     });
   });
+
+  it("unions verified volume evidence into company timelines without weakening date gating", async () => {
+    const root = await timelineFixtureRoot();
+    const volumePath = join(root, "src", "lib", "social", "volume-evidence-current.json");
+    await mkdir(join(root, "src", "lib", "social"), { recursive: true });
+    await writeFile(volumePath, serialized({
+      source: { fetchedAt: "2026-08-03T12:00:00.000Z" },
+      evidence: [
+        {
+          id: "volume-funding",
+          entityType: "company",
+          entityId: "company-acme",
+          companySlug: "acme",
+          platform: "linkedin",
+          authorName: "Acme",
+          authorHandle: "acme",
+          postedAt: "2026-08-02T10:00:00.000Z",
+          publishedAtPrecision: "exact",
+          title: "Acme raised a $10M Series A",
+          text: "Acme raised a $10M Series A to expand its product.",
+          sourceUrl: "https://www.linkedin.com/posts/acme_series-a-activity-456",
+          metrics: { reactions: 100 },
+          contributionScore: 50,
+          review_state: "verified",
+          linkStatus: "verified",
+        },
+        {
+          id: "volume-founder-without-date",
+          entityType: "founder",
+          entityId: "founder-acme-alex-1",
+          companySlug: "acme",
+          platform: "linkedin",
+          authorName: "Alex",
+          authorHandle: "alex",
+          postedAt: null,
+          publishedAtPrecision: "unknown",
+          title: "Acme reached 100 customers",
+          text: "Acme reached 100 customers.",
+          sourceUrl: "https://www.linkedin.com/posts/alex_milestone-activity-789",
+          metrics: {},
+          contributionScore: 0,
+          review_state: "verified",
+          linkStatus: "verified",
+        },
+      ],
+    }));
+
+    const result = await runCompanyTimelineBackfill({
+      rootDir: root,
+      volumeEvidencePath: "src/lib/social/volume-evidence-current.json",
+      databaseSnapshot: emptyDatabaseSnapshot(),
+      env: {} as NodeJS.ProcessEnv,
+      logger: () => {},
+    });
+    expect(result).toMatchObject({ processedCompanies: 1, publishedEvents: 2, candidateEvents: 1 });
+    const artifact = await readJson(join(root, "public", "timelines", "companies", "acme.json")) as {
+      events: Array<{ title: string }>;
+    };
+    expect(artifact.events.map((event) => event.title)).toEqual(expect.arrayContaining([
+      expect.stringMatching(/Acme announced \$10M Series A/),
+    ]));
+    expect(artifact.events.map((event) => event.title)).toEqual(expect.arrayContaining([
+      expect.stringMatching(/\$5M/),
+    ]));
+  });
 });
 
 async function timelineFixtureRoot(): Promise<string> {

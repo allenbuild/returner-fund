@@ -1,0 +1,69 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-ai-coach",
+    "slug": "coach",
+    "name": "COACH"
+  },
+  "event": {
+    "id": "tle-c1aaf25e76670a1b8297c1ba",
+    "eventDate": "2026-07-30",
+    "eventDateType": "announcement_date",
+    "title": "COACH released Coach, the AI Coach for in-person sales reps",
+    "summary": "COACH introduced Coach, the AI Coach for in-person sales reps.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-74cb83f20d050dadc7b70787",
+        "title": "Introducing Coach, the AI Coach for in-person sales reps.",
+        "publisher": "sebcny",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-07-30T21:10:47.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/sebcny/status/2082936969424928812"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-74cb83f20d050dadc7b70787",
+        "title": "Introducing Coach, the AI Coach for in-person sales reps.",
+        "publisher": "sebcny",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-07-30T21:10:47.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/sebcny/status/2082936969424928812",
+        "publicationDate": "2026-07-30T21:10:47.000Z",
+        "excerpt": "Introducing Coach, the AI Coach for in-person sales reps. In every field sales team, the top 20% of reps bring in 80% of the revenue. We learn how the top 20% close your customers and give every rep a personalised coach to perform like them. Thousands of reps already run on https://t.co/LrwYQ1kX6T",
+        "sourceEventDate": "2026-07-30",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-a10fb57a7ad417b36376ffb0",
+        "platform": "x",
+        "account": "sebcny",
+        "postDate": "2026-07-30",
+        "excerpt": "Introducing Coach, the AI Coach for in-person sales reps. In every field sales team, the top 20% of reps bring in 80% of the revenue. We learn how the top 20% close your customers and give every rep a personalised coach to perform like them. Thousands of reps already run on https://t.co/LrwYQ1kX6T",
+        "url": "https://x.com/sebcny/status/2082936969424928812",
+        "metrics": {
+          "likes": 47,
+          "reposts": 6,
+          "quotes": 3,
+          "replies": 14,
+          "views": 18709
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

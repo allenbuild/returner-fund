@@ -1,0 +1,69 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-applied-electrodynamics-inc",
+    "slug": "applied-electrodynamics-inc",
+    "name": "Applied Electrodynamics, Inc."
+  },
+  "event": {
+    "id": "tle-50f4bc84f8e802ef1df8f138",
+    "eventDate": "2026-07-30",
+    "eventDateType": "announcement_date",
+    "title": "Applied Electrodynamics, Inc. released Applied Electrodynamics",
+    "summary": "Applied Electrodynamics, Inc. introduced Applied Electrodynamics.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-f4435ebdae1269e2ae118bd3",
+        "title": "Introducing Applied Electrodynamics.",
+        "publisher": "ae_dynamics",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-07-30T15:28:39.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/ae_dynamics/status/2082850868383318193"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-f4435ebdae1269e2ae118bd3",
+        "title": "Introducing Applied Electrodynamics.",
+        "publisher": "ae_dynamics",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-07-30T15:28:39.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/ae_dynamics/status/2082850868383318193",
+        "publicationDate": "2026-07-30T15:28:39.000Z",
+        "excerpt": "Introducing Applied Electrodynamics. See through walls: https://t.co/WRD01f2qIY https://t.co/Kz5yrOaxaT",
+        "sourceEventDate": "2026-07-30",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-f2842cc00c65a26a868b9256",
+        "platform": "x",
+        "account": "ae_dynamics",
+        "postDate": "2026-07-30",
+        "excerpt": "Introducing Applied Electrodynamics. See through walls: https://t.co/WRD01f2qIY https://t.co/Kz5yrOaxaT",
+        "url": "https://x.com/ae_dynamics/status/2082850868383318193",
+        "metrics": {
+          "likes": 193,
+          "reposts": 21,
+          "quotes": 11,
+          "replies": 19,
+          "views": 28534
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

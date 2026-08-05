@@ -5,14 +5,49 @@
     "slug": "dock",
     "name": "Dock"
   },
-  "generatedAt": "2026-08-03T07:52:26.040Z",
-  "lastModifiedAt": "2026-08-03T07:52:26.040Z",
-  "events": [],
-  "groups": [],
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z",
+  "events": [
+    {
+      "id": "tle-d996e39051828ed90df9d64a",
+      "eventDate": "2026-06-14",
+      "eventDateType": "announcement_date",
+      "title": "Dock was accepted into Y Combinator S26",
+      "summary": "Dock got into YC S26 to fix this problem.",
+      "category": "accelerator",
+      "isMajor": true,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-41517c0dadcdb1cf4443cdb4",
+          "title": "We got into YC S26 to fix this problem. We talked to companies who spend a million dollars on their team using AI, but produce nothing meaningful. It's clear AI alone can't figure out solutions to companies problems. It's less about put...",
+          "publisher": "Govikavaturi",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-06-14T19:46:15.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/Govikavaturi/status/2066245855921992029"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-06",
+          "count": 1
+        }
+      ]
+    }
+  ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 0,
-    "lastSuccessfulArtifactAt": "2026-08-03T07:52:26.040Z"
+    "publishedEventCount": 1,
+    "lastSuccessfulArtifactAt": "2026-08-05T00:49:13.374Z"
   },
   "nextCursor": null
 }

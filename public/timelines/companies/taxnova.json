@@ -5,14 +5,49 @@
     "slug": "taxnova",
     "name": "Taxnova"
   },
-  "generatedAt": "2026-08-03T07:52:26.040Z",
-  "lastModifiedAt": "2026-08-03T07:52:26.040Z",
-  "events": [],
-  "groups": [],
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z",
+  "events": [
+    {
+      "id": "tle-700c9868f85f40fe93e41189",
+      "eventDate": "2026-05-11",
+      "eventDateType": "occurrence_date",
+      "title": "Taxnova launched on Product Hunt",
+      "summary": "Taxnova Product Hunt launch.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-ce5ad58cace305a2daf634dd",
+          "title": "Taxnova Product Hunt launch",
+          "publisher": "taxnova",
+          "domain": "producthunt.com",
+          "sourceType": "product_hunt",
+          "publishedAt": "2026-05-11T00:00:00.000Z",
+          "evidenceRole": "primary",
+          "url": "https://www.producthunt.com/products/taxnova"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-05",
+          "count": 1
+        }
+      ]
+    }
+  ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 0,
-    "lastSuccessfulArtifactAt": "2026-08-03T07:52:26.040Z"
+    "publishedEventCount": 1,
+    "lastSuccessfulArtifactAt": "2026-08-05T00:49:13.374Z"
   },
   "nextCursor": null
 }

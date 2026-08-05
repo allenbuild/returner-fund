@@ -1,0 +1,69 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-openwork",
+    "slug": "openwork",
+    "name": "OpenWork"
+  },
+  "event": {
+    "id": "tle-b1b8a22b8c3555944daa0fa7",
+    "eventDate": "2026-08-02",
+    "eventDateType": "announcement_date",
+    "title": "OpenWork reached 20k stars",
+    "summary": "OpenWork is trending and crossed 20k stars.",
+    "category": "traction_milestone",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-2b642c2469b27d30ec38e13a",
+        "title": "OpenWork is trending and crossed 20k stars.",
+        "publisher": "benjaminshafii",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-08-02T16:14:24.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/benjaminshafii/status/2083949544820060597"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-2b642c2469b27d30ec38e13a",
+        "title": "OpenWork is trending and crossed 20k stars.",
+        "publisher": "benjaminshafii",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-08-02T16:14:24.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/benjaminshafii/status/2083949544820060597",
+        "publicationDate": "2026-08-02T16:14:24.000Z",
+        "excerpt": "OpenWork is trending and crossed 20k stars. https://t.co/Wq9yyENe73",
+        "sourceEventDate": "2026-08-02",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-916cdf2962ac07a4a1cee0a0",
+        "platform": "x",
+        "account": "benjaminshafii",
+        "postDate": "2026-08-02",
+        "excerpt": "OpenWork is trending and crossed 20k stars. https://t.co/Wq9yyENe73",
+        "url": "https://x.com/benjaminshafii/status/2083949544820060597",
+        "metrics": {
+          "likes": 117,
+          "reposts": 4,
+          "quotes": 0,
+          "replies": 6,
+          "views": 11552
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

@@ -5,14 +5,73 @@
     "slug": "asendia-ai",
     "name": "Asendia AI"
   },
-  "generatedAt": "2026-08-03T07:52:26.040Z",
-  "lastModifiedAt": "2026-08-03T07:52:26.040Z",
-  "events": [],
-  "groups": [],
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z",
+  "events": [
+    {
+      "id": "tle-10c4e49d4a737e7538e90d3e",
+      "eventDate": "2025-08-06",
+      "eventDateType": "announcement_date",
+      "title": "Asendia AI became publicly available",
+      "summary": "⁦@AsendiaAI⁩'s Talent Sourcing Agent is now live 🔥.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-511b7a3c80891bf756af1313",
+          "title": "⁦@AsendiaAI⁩’s Talent Sourcing Agent is now live 🔥",
+          "publisher": "LajmiRihab",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2025-08-06T06:06:56.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/LajmiRihab/status/1952974655062515932"
+        }
+      ]
+    },
+    {
+      "id": "tle-b10c57f65ddde73a626e4b25",
+      "eventDate": "2025-08-05",
+      "eventDateType": "announcement_date",
+      "title": "Asendia AI released ⁦⁩'s Talent Sourcing Agent 👀",
+      "summary": "Asendia AI introduced ⁦@AsendiaAI⁩'s Talent Sourcing Agent 👀 Today is the beginning of a world where finding exceptional talent doesn't have to be frustrating anymore.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-afcbcb5a48dd0f1b30648f56",
+          "title": "Introducing ⁦@AsendiaAI⁩’s Talent Sourcing Agent 👀 Today is the beginning of a world where finding exceptional talent doesn’t have to be frustrating anymore! It should be as easy and seamless as describing that talent to a friend 😃 Bye...",
+          "publisher": "LajmiRihab",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2025-08-05T18:25:51.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/LajmiRihab/status/1952798219429134747"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2025,
+      "months": [
+        {
+          "month": "2025-08",
+          "count": 2
+        }
+      ]
+    }
+  ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 0,
-    "lastSuccessfulArtifactAt": "2026-08-03T07:52:26.040Z"
+    "publishedEventCount": 2,
+    "lastSuccessfulArtifactAt": "2026-08-05T00:49:13.374Z"
   },
   "nextCursor": null
 }

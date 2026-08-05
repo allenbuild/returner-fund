@@ -5,8 +5,8 @@
     "slug": "minicor",
     "name": "Minicor"
   },
-  "generatedAt": "2026-08-03T07:52:26.040Z",
-  "lastModifiedAt": "2026-08-03T07:52:26.040Z",
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z",
   "events": [
     {
       "id": "tle-4f1406d3910450241b829011",
@@ -31,6 +31,30 @@
           "url": "https://news.ycombinator.com/item?id=48280729"
         }
       ]
+    },
+    {
+      "id": "tle-078e559a1c7a5b3cea0e08fc",
+      "eventDate": "2026-03-06",
+      "eventDateType": "announcement_date",
+      "title": "Minicor was accepted into Y Combinator P26",
+      "summary": "So so incredibly grateful to share that Minicor (YC P26) (formerly Laminar) has been accepted into Y Combinator's upcoming Spring 2026 batch working with Tom Blomfield as our GP alongside Kulveer Taggar.",
+      "category": "accelerator",
+      "isMajor": true,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-48b6dea6fdad8a49020d966b",
+          "title": "So so incredibly grateful to share that Minicor (YC P26) (formerly Laminar) has been accepted into Y Combinator's upcoming Spring 2026 batch working with Tom Blomfield as our GP alongside Kulveer Taggar! We started off trying to solve…",
+          "publisher": "Saheed Akinbile LinkedIn post",
+          "domain": "linkedin.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-03-06T18:38:26.501Z",
+          "evidenceRole": "primary",
+          "url": "https://www.linkedin.com/feed/update/urn:li:activity:7435755691446788096"
+        }
+      ]
     }
   ],
   "groups": [
@@ -40,14 +64,18 @@
         {
           "month": "2026-05",
           "count": 1
+        },
+        {
+          "month": "2026-03",
+          "count": 1
         }
       ]
     }
   ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-08-03T07:52:26.040Z"
+    "publishedEventCount": 2,
+    "lastSuccessfulArtifactAt": "2026-08-05T00:49:13.374Z"
   },
   "nextCursor": null
 }

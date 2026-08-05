@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-foaster",
+    "slug": "foaster",
+    "name": "Foaster"
+  },
+  "event": {
+    "id": "tle-d7d97c757e79ec224b8aae8d",
+    "eventDate": "2026-05-05",
+    "eventDateType": "announcement_date",
+    "title": "Foaster released on social media on Wednesday 👀🍿",
+    "summary": "Foaster is launching on social media on Wednesday 👀🍿.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-c37c7e7ba373db2051dd63cc",
+        "title": "We are launching on social media on Wednesday 👀🍿",
+        "publisher": "RaphaelDabadie",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-05-05T07:34:16.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/RaphaelDabadie/status/2051566130536563079"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-c37c7e7ba373db2051dd63cc",
+        "title": "We are launching on social media on Wednesday 👀🍿",
+        "publisher": "RaphaelDabadie",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-05-05T07:34:16.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/RaphaelDabadie/status/2051566130536563079",
+        "publicationDate": "2026-05-05T07:34:16.000Z",
+        "excerpt": "We are launching on social media on Wednesday 👀🍿",
+        "sourceEventDate": "2026-05-05",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-1446e2cd4379f684249c3f46",
+        "platform": "x",
+        "account": "RaphaelDabadie",
+        "postDate": "2026-05-05",
+        "excerpt": "We are launching on social media on Wednesday 👀🍿",
+        "url": "https://x.com/RaphaelDabadie/status/2051566130536563079",
+        "metrics": {
+          "views": 2913,
+          "likes": 42,
+          "replies": 14,
+          "reposts": 1,
+          "quotes": 0,
+          "bookmarks": 2
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

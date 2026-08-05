@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-testerarmy",
+    "slug": "testerarmy",
+    "name": "TesterArmy"
+  },
+  "event": {
+    "id": "tle-46c30c99526a253c8a45eeb6",
+    "eventDate": "2026-07-17",
+    "eventDateType": "announcement_date",
+    "title": "TesterArmy added support for @Netlify ✨ If you use Netlify,",
+    "summary": "TesterArmy now supports @Netlify ✨ If you use Netlify,, so users can now run agentic tests on your Pull Request preview deployments in minutes.",
+    "category": "product_update",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-f26b5b375f31ad128dc7dd98",
+        "title": "TesterArmy now supports @Netlify ✨ If you use Netlify, you can now run agentic tests on your Pull Request preview deployments in minutes. Learn more: https://tester.army/blog/testerarmy-netlify-deploy-previews",
+        "publisher": "TesterArmy",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-07-17T15:55:39.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/TesterArmy/status/2078146621653635387"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-f26b5b375f31ad128dc7dd98",
+        "title": "TesterArmy now supports @Netlify ✨ If you use Netlify, you can now run agentic tests on your Pull Request preview deployments in minutes. Learn more: https://tester.army/blog/testerarmy-netlify-deploy-previews",
+        "publisher": "TesterArmy",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-07-17T15:55:39.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/TesterArmy/status/2078146621653635387",
+        "publicationDate": "2026-07-17T15:55:39.000Z",
+        "excerpt": "TesterArmy now supports @Netlify ✨ If you use Netlify, you can now run agentic tests on your Pull Request preview deployments in minutes. Learn more: https://tester.army/blog/testerarmy-netlify-deploy-previews",
+        "sourceEventDate": "2026-07-17",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-17e59a48e2958a38fe5000ca",
+        "platform": "x",
+        "account": "TesterArmy",
+        "postDate": "2026-07-17",
+        "excerpt": "TesterArmy now supports @Netlify ✨ If you use Netlify, you can now run agentic tests on your Pull Request preview deployments in minutes. Learn more: https://tester.army/blog/testerarmy-netlify-deploy-previews",
+        "url": "https://x.com/TesterArmy/status/2078146621653635387",
+        "metrics": {
+          "views": 1969,
+          "likes": 10,
+          "replies": 0,
+          "reposts": 2,
+          "quotes": 1,
+          "bookmarks": 0
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

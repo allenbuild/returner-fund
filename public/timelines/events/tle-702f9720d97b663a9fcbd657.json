@@ -1,0 +1,108 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-voquill",
+    "slug": "voquill",
+    "name": "Voquill"
+  },
+  "event": {
+    "id": "tle-702f9720d97b663a9fcbd657",
+    "eventDate": "2026-04-08",
+    "eventDateType": "occurrence_date",
+    "title": "Voquill launched on Product Hunt",
+    "summary": "Voquill announced voquill launched on Product Hunt.",
+    "category": "product_launch",
+    "isMajor": true,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 2,
+    "sourcePreview": [
+      {
+        "id": "src-41335f8da1610a31c0b50ef5",
+        "title": "Voquill",
+        "publisher": "josiahsrc",
+        "domain": "producthunt.com",
+        "sourceType": "product_hunt",
+        "publishedAt": "2026-04-08T15:00:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://producthunt.com/products/voquill/launches/voquill"
+      },
+      {
+        "id": "src-94290935e5e221da6e5e6c07",
+        "title": "We launched Voquill on Product Hunt today. If your keyboard is slowing you down - your voice won’t. Type faster in any app, on any OS, just by speaking. It’s open‐source, private, and works offline too. Try it free → https://p...",
+        "publisher": "HenryHabibAI",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-01-13T13:47:43.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/HenryHabibAI/status/2011072671337902364"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-41335f8da1610a31c0b50ef5",
+        "title": "Voquill",
+        "publisher": "josiahsrc",
+        "domain": "producthunt.com",
+        "sourceType": "product_hunt",
+        "publishedAt": "2026-04-08T15:00:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://producthunt.com/products/voquill/launches/voquill",
+        "publicationDate": "2026-04-08T15:00:00.000Z",
+        "excerpt": "Voquill",
+        "sourceEventDate": "2026-04-08",
+        "isConflicting": false,
+        "conflictDescription": null
+      },
+      {
+        "id": "src-94290935e5e221da6e5e6c07",
+        "title": "We launched Voquill on Product Hunt today. If your keyboard is slowing you down - your voice won’t. Type faster in any app, on any OS, just by speaking. It’s open‐source, private, and works offline too. Try it free → https://p...",
+        "publisher": "HenryHabibAI",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-01-13T13:47:43.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/HenryHabibAI/status/2011072671337902364",
+        "publicationDate": "2026-01-13T13:47:43.000Z",
+        "excerpt": "We launched Voquill on Product Hunt today. If your keyboard is slowing you down - your voice won’t. Type faster in any app, on any OS, just by speaking. It’s open‐source, private, and works offline too. Try it free → https://producthunt.com/posts/voquill-2 #BuildInPublic #VoiceAI",
+        "sourceEventDate": "2026-01-13",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-c90d2e788cfc6d9adc9b0009",
+        "platform": "product_hunt",
+        "account": "josiahsrc",
+        "postDate": "2026-04-08",
+        "excerpt": "Voquill",
+        "url": "https://producthunt.com/products/voquill/launches/voquill",
+        "metrics": {
+          "comments": 12,
+          "upvotes": 112
+        },
+        "evidenceRole": "primary"
+      },
+      {
+        "id": "post-bb6f6073b8936e82fb9865db",
+        "platform": "x",
+        "account": "HenryHabibAI",
+        "postDate": "2026-01-13",
+        "excerpt": "We launched Voquill on Product Hunt today. If your keyboard is slowing you down - your voice won’t. Type faster in any app, on any OS, just by speaking. It’s open‐source, private, and works offline too. Try it free → https://producthunt.com/posts/voquill-2 #BuildInPublic #VoiceAI",
+        "url": "https://x.com/HenryHabibAI/status/2011072671337902364",
+        "metrics": {
+          "views": 175,
+          "likes": 3,
+          "replies": 4,
+          "reposts": 0,
+          "quotes": 0,
+          "bookmarks": 0
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

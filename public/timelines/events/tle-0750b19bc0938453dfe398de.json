@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-wondering",
+    "slug": "wondering",
+    "name": "Wondering"
+  },
+  "event": {
+    "id": "tle-0750b19bc0938453dfe398de",
+    "eventDate": "2026-04-27",
+    "eventDateType": "announcement_date",
+    "title": "Wondering added support for in-app purchase on iOS",
+    "summary": "Wondering now supports in-app purchase on iOS.",
+    "category": "product_update",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-62479b7009c6ecca80ed6544",
+        "title": "Wondering now supports in-app purchase on iOS! Claim your lifetime discount by May 1 ⭐",
+        "publisher": "WonderingApp",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-04-27T21:24:53.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/WonderingApp/status/2048876059651961223"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-62479b7009c6ecca80ed6544",
+        "title": "Wondering now supports in-app purchase on iOS! Claim your lifetime discount by May 1 ⭐",
+        "publisher": "WonderingApp",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-04-27T21:24:53.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/WonderingApp/status/2048876059651961223",
+        "publicationDate": "2026-04-27T21:24:53.000Z",
+        "excerpt": "Wondering now supports in-app purchase on iOS! Claim your lifetime discount by May 1 ⭐",
+        "sourceEventDate": "2026-04-27",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-02a53b09aec7e00234361d7a",
+        "platform": "x",
+        "account": "WonderingApp",
+        "postDate": "2026-04-27",
+        "excerpt": "Wondering now supports in-app purchase on iOS! Claim your lifetime discount by May 1 ⭐",
+        "url": "https://x.com/WonderingApp/status/2048876059651961223",
+        "metrics": {
+          "views": 1116,
+          "likes": 3,
+          "replies": 0,
+          "reposts": 1,
+          "quotes": 0,
+          "bookmarks": 0
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

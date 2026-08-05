@@ -5,8 +5,8 @@
     "slug": "projectx",
     "name": "ProjectX"
   },
-  "generatedAt": "2026-08-03T07:52:26.040Z",
-  "lastModifiedAt": "2026-08-03T07:52:26.040Z",
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z",
   "events": [
     {
       "id": "tle-c1a8da11524b6aaf2dc87518",
@@ -55,6 +55,54 @@
           "url": "https://youtube.com/watch?v=ZYf2vdWMkDk"
         }
       ]
+    },
+    {
+      "id": "tle-0e5c52ee680f23fdf54e749e",
+      "eventDate": "2026-03-14",
+      "eventDateType": "announcement_date",
+      "title": "ProjectX was accepted into Y Combinator",
+      "summary": "ProjectX reported @BishalK_ @runallapps and me survived on $900 for 2 weeks, before: - we went viral with more than 2M views - we got into YC - we had thousands of users I still couldn't imagine what would have happened if things went otherwise.",
+      "category": "accelerator",
+      "isMajor": true,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-6eaede4ecf497fcabd057ba2",
+          "title": "@BishalK_ @runallapps and me survived on $900 for 2 weeks, before: - we went viral with more than 2M views - we got into YC - we had thousands of users I still couldn’t imagine what would have happened if things went otherwise. But now ...",
+          "publisher": "Rounacc",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-03-14T07:12:34.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/Rounacc/status/2032716499337855400"
+        }
+      ]
+    },
+    {
+      "id": "tle-adc2dd0dbc062d630d85baf2",
+      "eventDate": "2026-02-16",
+      "eventDateType": "announcement_date",
+      "title": "ProjectX released We just launched :",
+      "summary": "ProjectX just launched.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-99d0847edae0887935b2f2a1",
+          "title": "We just launched : http://Projectx.cloud",
+          "publisher": "runallapps",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-02-16T23:26:28.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/runallapps/status/2023539504938971308"
+        }
+      ]
     }
   ],
   "groups": [
@@ -64,14 +112,22 @@
         {
           "month": "2026-05",
           "count": 2
+        },
+        {
+          "month": "2026-03",
+          "count": 1
+        },
+        {
+          "month": "2026-02",
+          "count": 1
         }
       ]
     }
   ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 2,
-    "lastSuccessfulArtifactAt": "2026-08-03T07:52:26.040Z"
+    "publishedEventCount": 4,
+    "lastSuccessfulArtifactAt": "2026-08-05T00:49:13.374Z"
   },
   "nextCursor": null
 }

@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-standout",
+    "slug": "standout",
+    "name": "Standout"
+  },
+  "event": {
+    "id": "tle-17f91d302c31e3f5f50b2296",
+    "eventDate": "2026-05-10",
+    "eventDateType": "announcement_date",
+    "title": "Standout launched on Y Combinator",
+    "summary": "Standout just launched on @ycombinator's Launch YC.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-b61236b3f00a64fb7caab1e9",
+        "title": "Standout just launched on @ycombinator's Launch YC! Signup to @standoutwork and get hired by a YC startup. https://www.ycombinator.com/launches/QEL-standout-the-agentic-hiring-marketplace",
+        "publisher": "alexisaftalion",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-05-10T03:58:24.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/alexisaftalion/status/2053323743708287372"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-b61236b3f00a64fb7caab1e9",
+        "title": "Standout just launched on @ycombinator's Launch YC! Signup to @standoutwork and get hired by a YC startup. https://www.ycombinator.com/launches/QEL-standout-the-agentic-hiring-marketplace",
+        "publisher": "alexisaftalion",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-05-10T03:58:24.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/alexisaftalion/status/2053323743708287372",
+        "publicationDate": "2026-05-10T03:58:24.000Z",
+        "excerpt": "Standout just launched on @ycombinator's Launch YC! Signup to @standoutwork and get hired by a YC startup. https://www.ycombinator.com/launches/QEL-standout-the-agentic-hiring-marketplace",
+        "sourceEventDate": "2026-05-10",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-8273ea830b23458a567c9066",
+        "platform": "x",
+        "account": "alexisaftalion",
+        "postDate": "2026-05-10",
+        "excerpt": "Standout just launched on @ycombinator's Launch YC! Signup to @standoutwork and get hired by a YC startup. https://www.ycombinator.com/launches/QEL-standout-the-agentic-hiring-marketplace",
+        "url": "https://x.com/alexisaftalion/status/2053323743708287372",
+        "metrics": {
+          "views": 4105,
+          "likes": 21,
+          "replies": 2,
+          "reposts": 1,
+          "quotes": 0,
+          "bookmarks": 8
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

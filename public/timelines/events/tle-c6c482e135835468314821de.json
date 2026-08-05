@@ -18,28 +18,28 @@
     "evidenceCount": 1,
     "sourcePreview": [
       {
-        "id": "src-5aace73e54ceff1cfbf742f7",
+        "id": "src-75a846aaac37d10d52c2f0da",
         "title": "SNAG IS LIVE!! 🎆🥳🎉🥹🤩 feels surreal!! app link in bio ✨",
         "publisher": "subletgirl",
         "domain": "instagram.com",
         "sourceType": "founder_post",
-        "publishedAt": "2025-04-17T22:40:17Z",
+        "publishedAt": "2025-04-17T22:40:17.000Z",
         "evidenceRole": "primary",
-        "url": "https://www.instagram.com/reel/DIkJC8Vp-Gl"
+        "url": "https://instagram.com/reel/DIkJC8Vp-Gl"
       }
     ],
     "evidence": [
       {
-        "id": "src-5aace73e54ceff1cfbf742f7",
+        "id": "src-75a846aaac37d10d52c2f0da",
         "title": "SNAG IS LIVE!! 🎆🥳🎉🥹🤩 feels surreal!! app link in bio ✨",
         "publisher": "subletgirl",
         "domain": "instagram.com",
         "sourceType": "founder_post",
-        "publishedAt": "2025-04-17T22:40:17Z",
+        "publishedAt": "2025-04-17T22:40:17.000Z",
         "evidenceRole": "primary",
-        "url": "https://www.instagram.com/reel/DIkJC8Vp-Gl",
-        "publicationDate": "2025-04-17T22:40:17Z",
-        "excerpt": "SNAG IS LIVE!! 🎆🥳🎉🥹🤩 feels surreal!! app link in bio ✨ SNAG IS LIVE!! 🎆🥳🎉🥹🤩 feels surreal!! app link in bio ✨",
+        "url": "https://instagram.com/reel/DIkJC8Vp-Gl",
+        "publicationDate": "2025-04-17T22:40:17.000Z",
+        "excerpt": "SNAG IS LIVE!! 🎆🥳🎉🥹🤩 feels surreal!! app link in bio ✨",
         "sourceEventDate": "2025-04-17",
         "isConflicting": false,
         "conflictDescription": null
@@ -47,20 +47,21 @@
     ],
     "posts": [
       {
-        "id": "post-a81f6c14f6e78052c6910cc0",
+        "id": "post-365e150ce5b823efb1ec77b3",
         "platform": "instagram",
         "account": "subletgirl",
         "postDate": "2025-04-17",
-        "excerpt": "SNAG IS LIVE!! 🎆🥳🎉🥹🤩 feels surreal!! app link in bio ✨ SNAG IS LIVE!! 🎆🥳🎉🥹🤩 feels surreal!! app link in bio ✨",
-        "url": "https://www.instagram.com/reel/DIkJC8Vp-Gl",
+        "excerpt": "SNAG IS LIVE!! 🎆🥳🎉🥹🤩 feels surreal!! app link in bio ✨",
+        "url": "https://instagram.com/reel/DIkJC8Vp-Gl",
         "metrics": {
-          "likes": 152,
-          "comments": 95
+          "likes": 3,
+          "comments": 95,
+          "views": 7130
         },
         "evidenceRole": "primary"
       }
     ]
   },
-  "generatedAt": "2026-08-03T07:52:26.040Z",
-  "lastModifiedAt": "2026-08-03T07:52:26.040Z"
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
 }

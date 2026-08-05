@@ -1,0 +1,69 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-illume-labs",
+    "slug": "illume-labs",
+    "name": "Illume Labs"
+  },
+  "event": {
+    "id": "tle-bd996ee5b2f31b83ee8b7337",
+    "eventDate": "2026-07-20",
+    "eventDateType": "announcement_date",
+    "title": "Illume Labs released Illume",
+    "summary": "Illume Labs introduced Illume, your personalized health companion you can text anytime, anywhere.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-79d39e79d4d274e14e566900",
+        "title": "Introducing Illume, your personalized health companion you can text anytime, anywhere.",
+        "publisher": "parilatawa",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-07-20T17:18:06.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/parilatawa/status/2079254533381947735"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-79d39e79d4d274e14e566900",
+        "title": "Introducing Illume, your personalized health companion you can text anytime, anywhere.",
+        "publisher": "parilatawa",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-07-20T17:18:06.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/parilatawa/status/2079254533381947735",
+        "publicationDate": "2026-07-20T17:18:06.000Z",
+        "excerpt": "Introducing Illume, your personalized health companion you can text anytime, anywhere. Today, we’re tracking more about our bodies than ever before - our nutrition, sleep, workouts, and even biomarkers. These signals are scattered across apps, wearables, dashboards, and lab https://t.co/rXzoOjSpYR",
+        "sourceEventDate": "2026-07-20",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-18142249afdd3dd4ce088f5b",
+        "platform": "x",
+        "account": "parilatawa",
+        "postDate": "2026-07-20",
+        "excerpt": "Introducing Illume, your personalized health companion you can text anytime, anywhere. Today, we’re tracking more about our bodies than ever before - our nutrition, sleep, workouts, and even biomarkers. These signals are scattered across apps, wearables, dashboards, and lab https://t.co/rXzoOjSpYR",
+        "url": "https://x.com/parilatawa/status/2079254533381947735",
+        "metrics": {
+          "likes": 213,
+          "reposts": 19,
+          "quotes": 7,
+          "replies": 54,
+          "views": 67057
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

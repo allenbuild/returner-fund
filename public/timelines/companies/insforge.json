@@ -5,9 +5,33 @@
     "slug": "insforge",
     "name": "InsForge"
   },
-  "generatedAt": "2026-08-03T07:52:26.040Z",
-  "lastModifiedAt": "2026-08-03T07:52:26.040Z",
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z",
   "events": [
+    {
+      "id": "tle-7e8147737022d28669e218d0",
+      "eventDate": "2026-07-16",
+      "eventDateType": "announcement_date",
+      "title": "InsForge announced seed round",
+      "summary": "InsForge just closed our seed round.",
+      "category": "funding",
+      "isMajor": true,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-a229da9b2db999f4095756af",
+          "title": "We just closed our seed round! Now the real work begins. YC was never the finish line. It just means we got a real ticket to compete in this marathon. We just crossed 41,000 total projects. But this is just the start. Now, my focus is ...",
+          "publisher": "hanghuang_",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-07-16T01:16:40.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/hanghuang_/status/2077563030108271092"
+        }
+      ]
+    },
     {
       "id": "tle-ec10341e516973989f23fe12",
       "eventDate": "2026-07-15",
@@ -42,18 +66,8 @@
       "isMajor": true,
       "hasConflict": false,
       "conflictSummary": null,
-      "evidenceCount": 2,
+      "evidenceCount": 6,
       "sourcePreview": [
-        {
-          "id": "src-cd99d78a242cad3f8e24e4f8",
-          "title": "InsForge YC Launch Video",
-          "publisher": "InsForge YC Launch Video",
-          "domain": "youtube.com",
-          "sourceType": "video",
-          "publishedAt": "2026-05-18T00:05:55-07:00",
-          "evidenceRole": "primary",
-          "url": "https://youtube.com/watch?v=7Bax5qz0IfM"
-        },
         {
           "id": "src-00c9dfe1e52710ecc1f638de",
           "title": "InsForge - Give agents everything they need to ship fullstack apps",
@@ -63,6 +77,194 @@
           "publishedAt": "2026-07-15T22:30:00.000Z",
           "evidenceRole": "primary",
           "url": "https://www.producthunt.com/products/insforge-alpha/launches/insforge-3"
+        },
+        {
+          "id": "src-d436166e182256b3e38009bc",
+          "title": "Introducing InsForge Backend Branching. We made agentic coding production-safe. Your agent creates isolated backend branches when working. Every backend service, policy, and config is copied into a secure, isolated environment. Review ...",
+          "publisher": "insforge",
+          "domain": "x.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-06-03T16:28:15.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/insforge/status/2062209758933713085"
+        },
+        {
+          "id": "src-3ce633c926c0afadde2b2f21",
+          "title": "Introducing InsForge Payments. Your coding agent can now set up Stripe payments for your app using InsForge. Describe your pricing and watch it create products and prices in Stripe, add checkout, and set up billing portal sessions. Test...",
+          "publisher": "insforge",
+          "domain": "x.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-06-02T15:12:23.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/insforge/status/2061828281683304556"
+        }
+      ]
+    },
+    {
+      "id": "tle-24c0a3e8dd37e7627796cb49",
+      "eventDate": "2026-06-19",
+      "eventDateType": "announcement_date",
+      "title": "InsForge released ALL THE INSFORGE LAUNCH WEEK 2 WINNERS 🎉 We'll also be reaching out...",
+      "summary": "ANNOUNCING ALL THE INSFORGE LAUNCH WEEK 2 WINNERS 🎉 We'll also be reaching out by email with the next steps.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-41a912a7750b31d73c4edc97",
+          "title": "ANNOUNCING ALL THE INSFORGE LAUNCH WEEK 2 WINNERS 🎉 We’ll also be reaching out by email with the next steps. Thank you to everyone for the support, we have much much more coming soon :) Check if you won anything below ↓",
+          "publisher": "insforge",
+          "domain": "x.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-06-19T01:17:48.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/insforge/status/2067778842907779085"
+        }
+      ]
+    },
+    {
+      "id": "tle-c7508b9d7d83e2ea95569779",
+      "eventDate": "2026-06-04",
+      "eventDateType": "announcement_date",
+      "title": "InsForge released Diagnose and Debug",
+      "summary": "InsForge introduced Diagnose and Debug.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-a54c5f1739600ad68e8ac9e1",
+          "title": "Introducing Diagnose and Debug. Give your agent first-party backend context: health metrics, logs, errors, database checks, and more. Your coding agent catches backend issues now, then fixes them by working with your dedicated InsForge d...",
+          "publisher": "insforge",
+          "domain": "x.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-06-04T18:40:46.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/insforge/status/2062605497174290488"
+        }
+      ]
+    },
+    {
+      "id": "tle-a1d60c3c658400b77a323974",
+      "eventDate": "2026-05-30",
+      "eventDateType": "announcement_date",
+      "title": "InsForge added support for custom SMTP and an auth email template editor",
+      "summary": "InsForge now supports custom SMTP and an auth email template editor.",
+      "category": "product_update",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-1d0924f29729e5895927bb3d",
+          "title": "InsForge now supports custom SMTP and an auth email template editor. Bring your own SES, Resend, Postmark, Mailgun, or self-hosted Postfix, and start customizing and sending emails to your users exactly the way you want.",
+          "publisher": "insforge",
+          "domain": "x.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-05-30T17:27:08.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/insforge/status/2060775027599978800"
+        }
+      ]
+    },
+    {
+      "id": "tle-9bfe5d4e722c1b78fd842308",
+      "eventDate": "2026-05-29",
+      "eventDateType": "announcement_date",
+      "title": "InsForge added support for Clerk for authentication",
+      "summary": "InsForge now supports Clerk for authentication.",
+      "category": "product_update",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-501320ebc312f21a38e39f68",
+          "title": "InsForge now supports Clerk for authentication. Clerk handles sign-up, sessions, and user management. InsForge manages the database & RLS. The two connect through a single JWT template and skills that teach coding agents exactly how the…",
+          "publisher": "insforge",
+          "domain": "x.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-05-29T15:57:13.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/insforge/status/2060390010436596116"
+        }
+      ]
+    },
+    {
+      "id": "tle-6ed93ea6333ae07996d997fd",
+      "eventDate": "2026-05-28",
+      "eventDateType": "announcement_date",
+      "title": "InsForge added support for Database Migrations",
+      "summary": "InsForge now supports Database Migrations.",
+      "category": "product_update",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-dafda94270cbec02ddabf5e0",
+          "title": "InsForge now supports Database Migrations. AI shouldn't alter production schemas on vibes alone. Now, every schema change is versioned, tracked, and safely reviewable by your team and agents.",
+          "publisher": "insforge",
+          "domain": "x.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-05-28T23:15:58.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/insforge/status/2060138036281655470"
+        }
+      ]
+    },
+    {
+      "id": "tle-2f6e7c0cf12861df6715986d",
+      "eventDate": "2026-05-28",
+      "eventDateType": "announcement_date",
+      "title": "InsForge added support for Backup & Restore AI agents need reversible state for backend work",
+      "summary": "InsForge now supports Backup & Restore AI agents need reversible state for backend work.",
+      "category": "product_update",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-4ffca17d8affd482a6d52638",
+          "title": "InsForge now supports Backup & Restore AI agents need reversible state for backend work. Now, every InsForge project can create long-term database backups and roll back to any of them on demand",
+          "publisher": "insforge",
+          "domain": "x.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-05-28T19:34:24.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/insforge/status/2060082281230815305"
+        }
+      ]
+    },
+    {
+      "id": "tle-1532b94679c285949ad16849",
+      "eventDate": "2026-04-30",
+      "eventDateType": "announcement_date",
+      "title": "InsForge released Database Migrations on Create a migration file",
+      "summary": "InsForge introduced Database Migrations on @insforge Create a migration file.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-4b5044a880d0685dd244dbdd",
+          "title": "Introducing Database Migrations on @insforge Create a migration file. Apply it to your database. Track every schema change in your codebase. Now supported through InsForge CLI + Skills, so your coding agent can manage database changes wi...",
+          "publisher": "insforge",
+          "domain": "x.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-04-30T21:54:57.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/insforge/status/2049970790934941832"
         }
       ]
     }
@@ -73,15 +275,27 @@
       "months": [
         {
           "month": "2026-07",
+          "count": 3
+        },
+        {
+          "month": "2026-06",
           "count": 2
+        },
+        {
+          "month": "2026-05",
+          "count": 4
+        },
+        {
+          "month": "2026-04",
+          "count": 1
         }
       ]
     }
   ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 2,
-    "lastSuccessfulArtifactAt": "2026-08-03T07:52:26.040Z"
+    "publishedEventCount": 10,
+    "lastSuccessfulArtifactAt": "2026-08-05T00:49:13.374Z"
   },
   "nextCursor": null
 }

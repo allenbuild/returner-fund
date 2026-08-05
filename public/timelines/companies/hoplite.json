@@ -5,30 +5,54 @@
     "slug": "hoplite",
     "name": "Hoplite"
   },
-  "generatedAt": "2026-08-03T07:52:26.040Z",
-  "lastModifiedAt": "2026-08-03T07:52:26.040Z",
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z",
   "events": [
     {
-      "id": "tle-593bd3511a372a65475d221c",
-      "eventDate": "2026-07-22",
+      "id": "tle-3e527f7b6dfdf7adcbfd4d50",
+      "eventDate": "2026-08-03",
       "eventDateType": "announcement_date",
-      "title": "Hoplite added support for iMessage",
-      "summary": "Hoplite now supports iMessage, so users can now spin up cloud coding agents from their phones.",
-      "category": "product_update",
+      "title": "Hoplite launched on Hacker News",
+      "summary": "Launch HN: Hoplite (YC S26) – Effortlessly deploy cloud coding agents.",
+      "category": "product_launch",
       "isMajor": false,
       "hasConflict": false,
       "conflictSummary": null,
       "evidenceCount": 1,
       "sourcePreview": [
         {
-          "id": "src-ee713527c12eed54df914517",
-          "title": "iMessage Quote Ryan Morrissey @ryan_morr · Jul 22 Hoplite now supports iMessage You can now spin up cloud coding agents from your phone.",
-          "publisher": "iMessage Quote Ryan Morrissey @ryan_morr · Jul 22 Hoplite now supports iMessage You can now spin up cloud coding agents from your phone.",
-          "domain": "x.com",
+          "id": "src-f613a22e95116ec5088e4ff4",
+          "title": "Launch HN: Hoplite (YC S26) – Effortlessly deploy cloud coding agents",
+          "publisher": "Launch HN: Hoplite (YC S26) – Effortlessly deploy cloud coding agents",
+          "domain": "news.ycombinator.com",
           "sourceType": "company_post",
-          "publishedAt": "2026-07-22T00:00:00.000Z",
+          "publishedAt": "2026-08-03T16:32:06Z",
           "evidenceRole": "primary",
-          "url": "https://x.com/hoplite_sh/status/2080008977866534957"
+          "url": "https://news.ycombinator.com/item?id=49157997"
+        }
+      ]
+    },
+    {
+      "id": "tle-91bfaf90e34d18b68190c934",
+      "eventDate": "2026-07-30",
+      "eventDateType": "announcement_date",
+      "title": "Hoplite released Hoplite (YC S26): effortless cloud coding agents",
+      "summary": "Hoplite introduced Hoplite (YC S26): effortless cloud coding agents.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-77cdc428c66a4102fd7eae9c",
+          "title": "Introducing Hoplite (YC S26): effortless cloud coding agents.",
+          "publisher": "ryan_morr",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-07-30T19:00:13.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/ryan_morr/status/2082904114053451916"
         }
       ]
     }
@@ -38,6 +62,10 @@
       "year": 2026,
       "months": [
         {
+          "month": "2026-08",
+          "count": 1
+        },
+        {
           "month": "2026-07",
           "count": 1
         }
@@ -46,8 +74,8 @@
   ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-08-03T07:52:26.040Z"
+    "publishedEventCount": 2,
+    "lastSuccessfulArtifactAt": "2026-08-05T00:49:13.374Z"
   },
   "nextCursor": null
 }

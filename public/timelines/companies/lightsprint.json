@@ -5,14 +5,73 @@
     "slug": "lightsprint",
     "name": "Lightsprint"
   },
-  "generatedAt": "2026-08-03T07:52:26.040Z",
-  "lastModifiedAt": "2026-08-03T07:52:26.040Z",
-  "events": [],
-  "groups": [],
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z",
+  "events": [
+    {
+      "id": "tle-38aba30e9dc09d03ae66f5d9",
+      "eventDate": "2026-05-21",
+      "eventDateType": "announcement_date",
+      "title": "Lightsprint released missing team layer",
+      "summary": "Lightsprint is launching the missing team layer for AI-powered development 🚀 The SDLC was built around coding.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-405723371f9523a0a747febc",
+          "title": "We’re launching the missing team layer for AI-powered development 🚀 The SDLC was built around coding.",
+          "publisher": "lightsprintai",
+          "domain": "x.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-05-21T23:42:15.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/lightsprintai/status/2057607939456971248"
+        }
+      ]
+    },
+    {
+      "id": "tle-5baa25f846658b3bdd6b1343",
+      "eventDate": "2026-05-06",
+      "eventDateType": "announcement_date",
+      "title": "Lightsprint added support for Gstack",
+      "summary": "Lightsprint now supports Gstack.",
+      "category": "product_update",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-87ba02d41ffe9e9fa3a84835",
+          "title": "Lightsprint now supports Gstack! Go to https://lightsprint.ai/gstack to try out our design shotgun and implement the plan in one-shot",
+          "publisher": "lightsprintai",
+          "domain": "x.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-05-06T04:30:17.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/lightsprintai/status/2051882215756439860"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-05",
+          "count": 2
+        }
+      ]
+    }
+  ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 0,
-    "lastSuccessfulArtifactAt": "2026-08-03T07:52:26.040Z"
+    "publishedEventCount": 2,
+    "lastSuccessfulArtifactAt": "2026-08-05T00:49:13.374Z"
   },
   "nextCursor": null
 }

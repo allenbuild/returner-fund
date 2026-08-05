@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-asendia-ai",
+    "slug": "asendia-ai",
+    "name": "Asendia AI"
+  },
+  "event": {
+    "id": "tle-10c4e49d4a737e7538e90d3e",
+    "eventDate": "2025-08-06",
+    "eventDateType": "announcement_date",
+    "title": "Asendia AI became publicly available",
+    "summary": "⁦@AsendiaAI⁩'s Talent Sourcing Agent is now live 🔥.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-511b7a3c80891bf756af1313",
+        "title": "⁦@AsendiaAI⁩’s Talent Sourcing Agent is now live 🔥",
+        "publisher": "LajmiRihab",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2025-08-06T06:06:56.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/LajmiRihab/status/1952974655062515932"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-511b7a3c80891bf756af1313",
+        "title": "⁦@AsendiaAI⁩’s Talent Sourcing Agent is now live 🔥",
+        "publisher": "LajmiRihab",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2025-08-06T06:06:56.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/LajmiRihab/status/1952974655062515932",
+        "publicationDate": "2025-08-06T06:06:56.000Z",
+        "excerpt": "⁦@AsendiaAI⁩’s Talent Sourcing Agent is now live 🔥",
+        "sourceEventDate": "2025-08-06",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-f9c9e30ab88b2dbb5d6a7ba9",
+        "platform": "x",
+        "account": "LajmiRihab",
+        "postDate": "2025-08-06",
+        "excerpt": "⁦@AsendiaAI⁩’s Talent Sourcing Agent is now live 🔥",
+        "url": "https://x.com/LajmiRihab/status/1952974655062515932",
+        "metrics": {
+          "views": 20453,
+          "likes": 17,
+          "replies": 2,
+          "reposts": 0,
+          "quotes": 1,
+          "bookmarks": 7
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

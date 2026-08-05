@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-insforge",
+    "slug": "insforge",
+    "name": "InsForge"
+  },
+  "event": {
+    "id": "tle-a1d60c3c658400b77a323974",
+    "eventDate": "2026-05-30",
+    "eventDateType": "announcement_date",
+    "title": "InsForge added support for custom SMTP and an auth email template editor",
+    "summary": "InsForge now supports custom SMTP and an auth email template editor.",
+    "category": "product_update",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-1d0924f29729e5895927bb3d",
+        "title": "InsForge now supports custom SMTP and an auth email template editor. Bring your own SES, Resend, Postmark, Mailgun, or self-hosted Postfix, and start customizing and sending emails to your users exactly the way you want.",
+        "publisher": "insforge",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-05-30T17:27:08.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/insforge/status/2060775027599978800"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-1d0924f29729e5895927bb3d",
+        "title": "InsForge now supports custom SMTP and an auth email template editor. Bring your own SES, Resend, Postmark, Mailgun, or self-hosted Postfix, and start customizing and sending emails to your users exactly the way you want.",
+        "publisher": "insforge",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-05-30T17:27:08.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/insforge/status/2060775027599978800",
+        "publicationDate": "2026-05-30T17:27:08.000Z",
+        "excerpt": "InsForge now supports custom SMTP and an auth email template editor. Bring your own SES, Resend, Postmark, Mailgun, or self-hosted Postfix, and start customizing and sending emails to your users exactly the way you want.",
+        "sourceEventDate": "2026-05-30",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-33dfb9e0e83ee712d6b98aff",
+        "platform": "x",
+        "account": "insforge",
+        "postDate": "2026-05-30",
+        "excerpt": "InsForge now supports custom SMTP and an auth email template editor. Bring your own SES, Resend, Postmark, Mailgun, or self-hosted Postfix, and start customizing and sending emails to your users exactly the way you want.",
+        "url": "https://x.com/insforge/status/2060775027599978800",
+        "metrics": {
+          "views": 1947,
+          "likes": 9,
+          "replies": 3,
+          "reposts": 3,
+          "quotes": 1,
+          "bookmarks": 0
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

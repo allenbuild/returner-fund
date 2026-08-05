@@ -5,33 +5,9 @@
     "slug": "vendo",
     "name": "Vendo"
   },
-  "generatedAt": "2026-08-03T07:52:26.040Z",
-  "lastModifiedAt": "2026-08-03T07:52:26.040Z",
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z",
   "events": [
-    {
-      "id": "tle-a1c87698c546455ef8bf820f",
-      "eventDate": "2026-07-21",
-      "eventDateType": "announcement_date",
-      "title": "Vendo announced its public launch",
-      "summary": "Vendo introduced Vendo (YC S26), the customization layer that lets your users build their own features and micro-apps on top of your product For 50 years, software has been shipped one way for everyone.",
-      "category": "product_launch",
-      "isMajor": false,
-      "hasConflict": false,
-      "conflictSummary": null,
-      "evidenceCount": 1,
-      "sourcePreview": [
-        {
-          "id": "src-18f8d82d2a887122669c4d8e",
-          "title": "Introducing Vendo (YC S26), the customization layer that lets your users build their own features and micro-apps on top of your product For 50 years, software has been shipped one way for everyone.",
-          "publisher": "yousefhll",
-          "domain": "x.com",
-          "sourceType": "founder_post",
-          "publishedAt": "2026-07-21T17:32:05.000Z",
-          "evidenceRole": "primary",
-          "url": "https://x.com/yousefhll/status/2079620440038002750"
-        }
-      ]
-    },
     {
       "id": "tle-06faef83b9d9e92539e3f537",
       "eventDate": "2026-07-21",
@@ -55,6 +31,88 @@
           "url": "https://youtube.com/watch?v=JjtDhA7DZw8"
         }
       ]
+    },
+    {
+      "id": "tle-e0a173657d6b910875789eb0",
+      "eventDate": "2026-07-06",
+      "eventDateType": "announcement_date",
+      "title": "Vendo was introduced",
+      "summary": "Vendo introduced Vendo.",
+      "category": "product_launch",
+      "isMajor": true,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 2,
+      "sourcePreview": [
+        {
+          "id": "src-4a3b6d88a825a4f85d632a8e",
+          "title": "Introducing Vendo. Now every user gets their own personalized agentic experience of your product. Try it now 👇",
+          "publisher": "nourzahzah",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-07-06T16:49:44.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/nourzahzah/status/2074173966571511892"
+        },
+        {
+          "id": "src-18f8d82d2a887122669c4d8e",
+          "title": "Introducing Vendo (YC S26), the customization layer that lets your users build their own features and micro-apps on top of your product For 50 years, software has been shipped one way for everyone.",
+          "publisher": "yousefhll",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-07-21T17:32:05.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/yousefhll/status/2079620440038002750"
+        }
+      ]
+    },
+    {
+      "id": "tle-f6d6dce6818c6eb5d62780e2",
+      "eventDate": "2026-06-29",
+      "eventDateType": "announcement_date",
+      "title": "Vendo was accepted into Y Combinator",
+      "summary": "Vendo just got into YC.",
+      "category": "accelerator",
+      "isMajor": true,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-f9a62471a7c64db7f529cbf1",
+          "title": "We just got into YC. Super excited for what's to come. Stay tuned!",
+          "publisher": "nourzahzah",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-06-29T21:07:39.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/nourzahzah/status/2071702156210782525"
+        }
+      ]
+    },
+    {
+      "id": "tle-17975432342e67ee13931789",
+      "eventDate": "2026-03-05",
+      "eventDateType": "announcement_date",
+      "title": "Vendo was introduced",
+      "summary": "Vendo introduced Vendo.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-845ef2055fac6b77a82cf6c3",
+          "title": "Introducing Vendo. Customizable B2B software, built on proven open-source tools. No seat pricing. Unlimited access. Make it your own. 50 early access spots. http://vendo.run",
+          "publisher": "nourzahzah",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-03-05T18:39:39.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/nourzahzah/status/2029627918201278804"
+        }
+      ]
     }
   ],
   "groups": [
@@ -64,14 +122,22 @@
         {
           "month": "2026-07",
           "count": 2
+        },
+        {
+          "month": "2026-06",
+          "count": 1
+        },
+        {
+          "month": "2026-03",
+          "count": 1
         }
       ]
     }
   ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 2,
-    "lastSuccessfulArtifactAt": "2026-08-03T07:52:26.040Z"
+    "publishedEventCount": 4,
+    "lastSuccessfulArtifactAt": "2026-08-05T00:49:13.374Z"
   },
   "nextCursor": null
 }

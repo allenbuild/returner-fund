@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-screenpipe",
+    "slug": "screenpipe",
+    "name": "screenpipe"
+  },
+  "event": {
+    "id": "tle-8d76775e8f416f64a41ba950",
+    "eventDate": "2026-05-20",
+    "eventDateType": "announcement_date",
+    "title": "screenpipe released screenpipe SDK",
+    "summary": "screenpipe introduced screenpipe SDK: capture high fidelity human workflows in a one liner Meta started recording 70k employees for computer use data.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-b9e173fcfadf5c7c54bbe9a8",
+        "title": "Introducing screenpipe SDK: capture high fidelity human workflows in a one liner Meta started recording 70k employees for computer use data. Amazon started recording all their employees for computer use data. Everyone's trying to transi...",
+        "publisher": "screenpipe",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-05-20T15:15:25.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/screenpipe/status/2057118002504778017"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-b9e173fcfadf5c7c54bbe9a8",
+        "title": "Introducing screenpipe SDK: capture high fidelity human workflows in a one liner Meta started recording 70k employees for computer use data. Amazon started recording all their employees for computer use data. Everyone's trying to transi...",
+        "publisher": "screenpipe",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-05-20T15:15:25.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/screenpipe/status/2057118002504778017",
+        "publicationDate": "2026-05-20T15:15:25.000Z",
+        "excerpt": "Introducing screenpipe SDK: capture high fidelity human workflows in a one liner Meta started recording 70k employees for computer use data. Amazon started recording all their employees for computer use data. Everyone's trying to transition into the AI era. But first you need to understand the bottleneck, which are what people are doing, the processes inside companies. screenpipe SDK is battle tested on 250k+ installs, cross platform, highly optimized. Try today 👇",
+        "sourceEventDate": "2026-05-20",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-fbea3f970dcca989f9615750",
+        "platform": "x",
+        "account": "screenpipe",
+        "postDate": "2026-05-20",
+        "excerpt": "Introducing screenpipe SDK: capture high fidelity human workflows in a one liner Meta started recording 70k employees for computer use data. Amazon started recording all their employees for computer use data. Everyone's trying to transition into the AI era. But first you need to understand the bottleneck, which are what people are doing, the processes inside companies. screenpipe SDK is battle tested on 250k+ installs, cross platform, highly optimized. Try today 👇",
+        "url": "https://x.com/screenpipe/status/2057118002504778017",
+        "metrics": {
+          "views": 816,
+          "likes": 11,
+          "replies": 2,
+          "reposts": 4,
+          "quotes": 0,
+          "bookmarks": 7
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-vendo",
+    "slug": "vendo",
+    "name": "Vendo"
+  },
+  "event": {
+    "id": "tle-17975432342e67ee13931789",
+    "eventDate": "2026-03-05",
+    "eventDateType": "announcement_date",
+    "title": "Vendo was introduced",
+    "summary": "Vendo introduced Vendo.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-845ef2055fac6b77a82cf6c3",
+        "title": "Introducing Vendo. Customizable B2B software, built on proven open-source tools. No seat pricing. Unlimited access. Make it your own. 50 early access spots. http://vendo.run",
+        "publisher": "nourzahzah",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-03-05T18:39:39.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/nourzahzah/status/2029627918201278804"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-845ef2055fac6b77a82cf6c3",
+        "title": "Introducing Vendo. Customizable B2B software, built on proven open-source tools. No seat pricing. Unlimited access. Make it your own. 50 early access spots. http://vendo.run",
+        "publisher": "nourzahzah",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-03-05T18:39:39.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/nourzahzah/status/2029627918201278804",
+        "publicationDate": "2026-03-05T18:39:39.000Z",
+        "excerpt": "Introducing Vendo. Customizable B2B software, built on proven open-source tools. No seat pricing. Unlimited access. Make it your own. 50 early access spots. http://vendo.run",
+        "sourceEventDate": "2026-03-05",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-53d4dc3c3f80fbd7c362a68e",
+        "platform": "x",
+        "account": "nourzahzah",
+        "postDate": "2026-03-05",
+        "excerpt": "Introducing Vendo. Customizable B2B software, built on proven open-source tools. No seat pricing. Unlimited access. Make it your own. 50 early access spots. http://vendo.run",
+        "url": "https://x.com/nourzahzah/status/2029627918201278804",
+        "metrics": {
+          "views": 4373,
+          "likes": 36,
+          "replies": 10,
+          "reposts": 1,
+          "quotes": 4,
+          "bookmarks": 11
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-kimpton-ai",
+    "slug": "kimpton-ai",
+    "name": "Kimpton AI"
+  },
+  "event": {
+    "id": "tle-8a589133a624b4c1259e579e",
+    "eventDate": "2026-04-09",
+    "eventDateType": "announcement_date",
+    "title": "Kimpton AI released Reports",
+    "summary": "Kimpton AI introduced Reports.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-5803ee2eab99fe183065aa0b",
+        "title": "Introducing Reports. Reports are AI-generated institutional research briefs that are detailed, precise, and structured. You can make fund tear sheets, morning briefings, investment committee memos, client reports, or due diligence packag...",
+        "publisher": "jackzumwalt",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-04-09T18:46:12.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/jackzumwalt/status/2042313144673190337"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-5803ee2eab99fe183065aa0b",
+        "title": "Introducing Reports. Reports are AI-generated institutional research briefs that are detailed, precise, and structured. You can make fund tear sheets, morning briefings, investment committee memos, client reports, or due diligence packag...",
+        "publisher": "jackzumwalt",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-04-09T18:46:12.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/jackzumwalt/status/2042313144673190337",
+        "publicationDate": "2026-04-09T18:46:12.000Z",
+        "excerpt": "Introducing Reports. Reports are AI-generated institutional research briefs that are detailed, precise, and structured. You can make fund tear sheets, morning briefings, investment committee memos, client reports, or due diligence packages. Instead of paying thousands of dollars for general-purpose research reports, @KimptonAI will go down the rabbit holes for you. I like to call a report a \"structured thought.\" Well-thought out, intended for an audience, and an actionable output. Every report…",
+        "sourceEventDate": "2026-04-09",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-dcd5b0ef99a262f78cfff5c7",
+        "platform": "x",
+        "account": "jackzumwalt",
+        "postDate": "2026-04-09",
+        "excerpt": "Introducing Reports. Reports are AI-generated institutional research briefs that are detailed, precise, and structured. You can make fund tear sheets, morning briefings, investment committee memos, client reports, or due diligence packages. Instead of paying thousands of dollars for general-purpose research reports, @KimptonAI will go down the rabbit holes for you. I like to call a report a \"structured thought.\" Well-thought out, intended for an audience, and an actionable output. Every report…",
+        "url": "https://x.com/jackzumwalt/status/2042313144673190337",
+        "metrics": {
+          "views": 958,
+          "likes": 10,
+          "replies": 2,
+          "reposts": 2,
+          "quotes": 0,
+          "bookmarks": 7
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

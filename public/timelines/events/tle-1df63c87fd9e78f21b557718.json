@@ -1,0 +1,69 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-replicas",
+    "slug": "replicas",
+    "name": "Replicas"
+  },
+  "event": {
+    "id": "tle-1df63c87fd9e78f21b557718",
+    "eventDate": "2026-08-04",
+    "eventDateType": "announcement_date",
+    "title": "Replicas released Mobile Testing in Replicas agents can",
+    "summary": "Replicas introduced Mobile Testing in @tryreplicas Replicas agents can now build and test iOS or Android apps.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-fc18b9316f7edd0ba18a0117",
+        "title": "Introducing Mobile Testing in @tryreplicas Replicas agents can now build and test iOS or Android apps.",
+        "publisher": "connortbot",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-08-04T16:30:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/connortbot/status/2084678248689274985"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-fc18b9316f7edd0ba18a0117",
+        "title": "Introducing Mobile Testing in @tryreplicas Replicas agents can now build and test iOS or Android apps.",
+        "publisher": "connortbot",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-08-04T16:30:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/connortbot/status/2084678248689274985",
+        "publicationDate": "2026-08-04T16:30:00.000Z",
+        "excerpt": "Introducing Mobile Testing in @tryreplicas Replicas agents can now build and test iOS or Android apps. Watch them do it live in our dashboard, view screen recordings, or jump in yourself. (powered by our YC batchmates @limrun) https://t.co/hrQzqqCAwR",
+        "sourceEventDate": "2026-08-04",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-0b824381888f5e10a53ad105",
+        "platform": "x",
+        "account": "connortbot",
+        "postDate": "2026-08-04",
+        "excerpt": "Introducing Mobile Testing in @tryreplicas Replicas agents can now build and test iOS or Android apps. Watch them do it live in our dashboard, view screen recordings, or jump in yourself. (powered by our YC batchmates @limrun) https://t.co/hrQzqqCAwR",
+        "url": "https://x.com/connortbot/status/2084678248689274985",
+        "metrics": {
+          "likes": 6,
+          "reposts": 0,
+          "quotes": 0,
+          "replies": 1,
+          "views": 119
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

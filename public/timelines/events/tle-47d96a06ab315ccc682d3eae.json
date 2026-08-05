@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-arga-labs",
+    "slug": "arga-labs",
+    "name": "Arga Labs"
+  },
+  "event": {
+    "id": "tle-47d96a06ab315ccc682d3eae",
+    "eventDate": "2026-03-10",
+    "eventDateType": "announcement_date",
+    "title": "Arga Labs released ArgaLabs' newest feature",
+    "summary": "Arga Labs introduced @ArgaLabs' newest feature: red-team your agent, hosted on any software, autonomously.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-28e8fed04edd836299312347",
+        "title": "Introducing @ArgaLabs' newest feature: red-team your agent, hosted on any software, autonomously. We built infrastructure that enables us to recreate a behavioural clone of any app, aka Digital Twin (inspired by @jtaylor), extremely…",
+        "publisher": "akkkkiira",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-03-10T22:32:04.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/akkkkiira/status/2031498348281344243"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-28e8fed04edd836299312347",
+        "title": "Introducing @ArgaLabs' newest feature: red-team your agent, hosted on any software, autonomously. We built infrastructure that enables us to recreate a behavioural clone of any app, aka Digital Twin (inspired by @jtaylor), extremely…",
+        "publisher": "akkkkiira",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-03-10T22:32:04.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/akkkkiira/status/2031498348281344243",
+        "publicationDate": "2026-03-10T22:32:04.000Z",
+        "excerpt": "Introducing @ArgaLabs' newest feature: red-team your agent, hosted on any software, autonomously. We built infrastructure that enables us to recreate a behavioural clone of any app, aka Digital Twin (inspired by @jtaylor), extremely fast. Here’s an example of Arga testing newly-added guardrails to a bot in our Discord digital twin. The clones have full official API/SDK support, are fully functional, and you can directly preview your changes on the Arga website. We also support red-teaming on…",
+        "sourceEventDate": "2026-03-10",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-0874ebc634d91df312e5365c",
+        "platform": "x",
+        "account": "akkkkiira",
+        "postDate": "2026-03-10",
+        "excerpt": "Introducing @ArgaLabs' newest feature: red-team your agent, hosted on any software, autonomously. We built infrastructure that enables us to recreate a behavioural clone of any app, aka Digital Twin (inspired by @jtaylor), extremely fast. Here’s an example of Arga testing newly-added guardrails to a bot in our Discord digital twin. The clones have full official API/SDK support, are fully functional, and you can directly preview your changes on the Arga website. We also support red-teaming on…",
+        "url": "https://x.com/akkkkiira/status/2031498348281344243",
+        "metrics": {
+          "views": 1532,
+          "likes": 22,
+          "replies": 10,
+          "reposts": 3,
+          "quotes": 1,
+          "bookmarks": 3
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

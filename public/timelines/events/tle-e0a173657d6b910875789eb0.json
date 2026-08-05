@@ -1,0 +1,111 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-vendo",
+    "slug": "vendo",
+    "name": "Vendo"
+  },
+  "event": {
+    "id": "tle-e0a173657d6b910875789eb0",
+    "eventDate": "2026-07-06",
+    "eventDateType": "announcement_date",
+    "title": "Vendo was introduced",
+    "summary": "Vendo introduced Vendo.",
+    "category": "product_launch",
+    "isMajor": true,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 2,
+    "sourcePreview": [
+      {
+        "id": "src-4a3b6d88a825a4f85d632a8e",
+        "title": "Introducing Vendo. Now every user gets their own personalized agentic experience of your product. Try it now 👇",
+        "publisher": "nourzahzah",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-07-06T16:49:44.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/nourzahzah/status/2074173966571511892"
+      },
+      {
+        "id": "src-18f8d82d2a887122669c4d8e",
+        "title": "Introducing Vendo (YC S26), the customization layer that lets your users build their own features and micro-apps on top of your product For 50 years, software has been shipped one way for everyone.",
+        "publisher": "yousefhll",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-07-21T17:32:05.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/yousefhll/status/2079620440038002750"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-4a3b6d88a825a4f85d632a8e",
+        "title": "Introducing Vendo. Now every user gets their own personalized agentic experience of your product. Try it now 👇",
+        "publisher": "nourzahzah",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-07-06T16:49:44.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/nourzahzah/status/2074173966571511892",
+        "publicationDate": "2026-07-06T16:49:44.000Z",
+        "excerpt": "Introducing Vendo. Now every user gets their own personalized agentic experience of your product. Try it now 👇",
+        "sourceEventDate": "2026-07-06",
+        "isConflicting": false,
+        "conflictDescription": null
+      },
+      {
+        "id": "src-18f8d82d2a887122669c4d8e",
+        "title": "Introducing Vendo (YC S26), the customization layer that lets your users build their own features and micro-apps on top of your product For 50 years, software has been shipped one way for everyone.",
+        "publisher": "yousefhll",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-07-21T17:32:05.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/yousefhll/status/2079620440038002750",
+        "publicationDate": "2026-07-21T17:32:05.000Z",
+        "excerpt": "Introducing Vendo (YC S26), the customization layer that lets your users build their own features and micro-apps on top of your product For 50 years, software has been shipped one way for everyone. That era is over. With Vendo, every user shapes your product into exactly what https://t.co/hHASxo0MIM",
+        "sourceEventDate": "2026-07-21",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-247ae1be5f8301739de022df",
+        "platform": "x",
+        "account": "nourzahzah",
+        "postDate": "2026-07-06",
+        "excerpt": "Introducing Vendo. Now every user gets their own personalized agentic experience of your product. Try it now 👇",
+        "url": "https://x.com/nourzahzah/status/2074173966571511892",
+        "metrics": {
+          "views": 1708,
+          "likes": 18,
+          "replies": 1,
+          "reposts": 0,
+          "quotes": 0,
+          "bookmarks": 5
+        },
+        "evidenceRole": "primary"
+      },
+      {
+        "id": "post-96df72d7cd33208bb96f6a74",
+        "platform": "x",
+        "account": "yousefhll",
+        "postDate": "2026-07-21",
+        "excerpt": "Introducing Vendo (YC S26), the customization layer that lets your users build their own features and micro-apps on top of your product For 50 years, software has been shipped one way for everyone. That era is over. With Vendo, every user shapes your product into exactly what https://t.co/hHASxo0MIM",
+        "url": "https://x.com/yousefhll/status/2079620440038002750",
+        "metrics": {
+          "likes": 1138,
+          "reposts": 89,
+          "quotes": 76,
+          "replies": 183,
+          "views": 376442
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

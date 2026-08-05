@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-inkbox",
+    "slug": "inkbox",
+    "name": "Inkbox"
+  },
+  "event": {
+    "id": "tle-05609c2b9a0519118574f926",
+    "eventDate": "2026-07-02",
+    "eventDateType": "announcement_date",
+    "title": "Inkbox released agent self-signup (no human account required) and started watching",
+    "summary": "Inkbox launched agent self-signup (no human account required) and started watching which harnesses show up on their own last 2 days: it's all hermes.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-e8a15bc3abd1ae28c3c4ff57",
+        "title": "we launched agent self-signup (no human account required) and started watching which harnesses show up on their own last 2 days: it's all hermes",
+        "publisher": "rayruizhiliao",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-07-02T02:21:48.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/rayruizhiliao/status/2072505992387125685"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-e8a15bc3abd1ae28c3c4ff57",
+        "title": "we launched agent self-signup (no human account required) and started watching which harnesses show up on their own last 2 days: it's all hermes",
+        "publisher": "rayruizhiliao",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-07-02T02:21:48.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/rayruizhiliao/status/2072505992387125685",
+        "publicationDate": "2026-07-02T02:21:48.000Z",
+        "excerpt": "we launched agent self-signup (no human account required) and started watching which harnesses show up on their own last 2 days: it's all hermes",
+        "sourceEventDate": "2026-07-02",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-ea99414624816d2667b462cf",
+        "platform": "x",
+        "account": "rayruizhiliao",
+        "postDate": "2026-07-02",
+        "excerpt": "we launched agent self-signup (no human account required) and started watching which harnesses show up on their own last 2 days: it's all hermes",
+        "url": "https://x.com/rayruizhiliao/status/2072505992387125685",
+        "metrics": {
+          "views": 908,
+          "likes": 12,
+          "replies": 3,
+          "reposts": 1,
+          "quotes": 0,
+          "bookmarks": 5
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

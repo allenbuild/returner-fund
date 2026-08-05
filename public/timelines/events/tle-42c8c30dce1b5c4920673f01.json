@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-kuli",
+    "slug": "kuli",
+    "name": "Kuli"
+  },
+  "event": {
+    "id": "tle-42c8c30dce1b5c4920673f01",
+    "eventDate": "2026-05-04",
+    "eventDateType": "announcement_date",
+    "title": "Kuli released end of manual scrolling Hello",
+    "summary": "Kuli introduced the end of manual scrolling Hello @kuli_ai.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-222a3ef784c92fae8905fb99",
+        "title": "Introducing the end of manual scrolling Hello @kuli_ai",
+        "publisher": "maradoh22",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-05-04T16:36:22.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/maradoh22/status/2051340167349407795"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-222a3ef784c92fae8905fb99",
+        "title": "Introducing the end of manual scrolling Hello @kuli_ai",
+        "publisher": "maradoh22",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-05-04T16:36:22.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/maradoh22/status/2051340167349407795",
+        "publicationDate": "2026-05-04T16:36:22.000Z",
+        "excerpt": "Introducing the end of manual scrolling Hello @kuli_ai",
+        "sourceEventDate": "2026-05-04",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-9a3d41ffcfae6736c5de8a26",
+        "platform": "x",
+        "account": "maradoh22",
+        "postDate": "2026-05-04",
+        "excerpt": "Introducing the end of manual scrolling Hello @kuli_ai",
+        "url": "https://x.com/maradoh22/status/2051340167349407795",
+        "metrics": {
+          "views": 2262997,
+          "likes": 376,
+          "replies": 8,
+          "reposts": 15,
+          "quotes": 1,
+          "bookmarks": 186
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

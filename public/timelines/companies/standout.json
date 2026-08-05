@@ -5,14 +5,77 @@
     "slug": "standout",
     "name": "Standout"
   },
-  "generatedAt": "2026-08-03T07:52:26.040Z",
-  "lastModifiedAt": "2026-08-03T07:52:26.040Z",
-  "events": [],
-  "groups": [],
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z",
+  "events": [
+    {
+      "id": "tle-22cccca61158363369f6cd31",
+      "eventDate": "2026-06-03",
+      "eventDateType": "announcement_date",
+      "title": "Standout released ai agent",
+      "summary": "Standout shipped an ai agent that introduces talent to startup founders acting in full autonomy and it crossed $700k run rate no dashboard and nothing fancy it lives in slack and imessage we launched it a month ago so still very early and and there are a ton of improvements.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-0ecf4eb6f38e5c4558dece53",
+          "title": "we shipped an ai agent that introduces talent to startup founders acting in full autonomy and it crossed $700k run rate no dashboard and nothing fancy it lives in slack and imessage we launched it a month ago so still very early and ...",
+          "publisher": "alexisaftalion",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-06-03T17:48:13.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/alexisaftalion/status/2062229883330380286"
+        }
+      ]
+    },
+    {
+      "id": "tle-17f91d302c31e3f5f50b2296",
+      "eventDate": "2026-05-10",
+      "eventDateType": "announcement_date",
+      "title": "Standout launched on Y Combinator",
+      "summary": "Standout just launched on @ycombinator's Launch YC.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-b61236b3f00a64fb7caab1e9",
+          "title": "Standout just launched on @ycombinator's Launch YC! Signup to @standoutwork and get hired by a YC startup. https://www.ycombinator.com/launches/QEL-standout-the-agentic-hiring-marketplace",
+          "publisher": "alexisaftalion",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-05-10T03:58:24.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/alexisaftalion/status/2053323743708287372"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-06",
+          "count": 1
+        },
+        {
+          "month": "2026-05",
+          "count": 1
+        }
+      ]
+    }
+  ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 0,
-    "lastSuccessfulArtifactAt": "2026-08-03T07:52:26.040Z"
+    "publishedEventCount": 2,
+    "lastSuccessfulArtifactAt": "2026-08-05T00:49:13.374Z"
   },
   "nextCursor": null
 }

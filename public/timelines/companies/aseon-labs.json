@@ -5,8 +5,8 @@
     "slug": "aseon-labs",
     "name": "Aseon Labs"
   },
-  "generatedAt": "2026-08-03T07:52:26.040Z",
-  "lastModifiedAt": "2026-08-03T07:52:26.040Z",
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z",
   "events": [
     {
       "id": "tle-43a512c77f8265e54f3b50ea",
@@ -22,11 +22,11 @@
       "sourcePreview": [
         {
           "id": "src-faa1399983e69ac1bf94a028",
-          "title": "Aseon Labs has raised $10M in seed funding. Led by @Crane_VC , with @ycombinator , @RobinhoodApp Ventures, @expa ( @gc ), @adrianaoun , @rajatsuri , @immad and more. Full story @TechCrunch",
-          "publisher": "aseonlabs X post",
+          "title": "Aseon Labs has raised $10M in seed funding.",
+          "publisher": "aseonlabs",
           "domain": "x.com",
           "sourceType": "company_post",
-          "publishedAt": "2026-06-26T00:00:00.000Z",
+          "publishedAt": "2026-06-26T16:20:10.000Z",
           "evidenceRole": "primary",
           "url": "https://x.com/aseonlabs/status/2070542648151101759"
         },
@@ -57,7 +57,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-08-03T07:52:26.040Z"
+    "lastSuccessfulArtifactAt": "2026-08-05T00:49:13.374Z"
   },
   "nextCursor": null
 }

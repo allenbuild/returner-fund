@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-minicor",
+    "slug": "minicor",
+    "name": "Minicor"
+  },
+  "event": {
+    "id": "tle-078e559a1c7a5b3cea0e08fc",
+    "eventDate": "2026-03-06",
+    "eventDateType": "announcement_date",
+    "title": "Minicor was accepted into Y Combinator P26",
+    "summary": "So so incredibly grateful to share that Minicor (YC P26) (formerly Laminar) has been accepted into Y Combinator's upcoming Spring 2026 batch working with Tom Blomfield as our GP alongside Kulveer Taggar.",
+    "category": "accelerator",
+    "isMajor": true,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-48b6dea6fdad8a49020d966b",
+        "title": "So so incredibly grateful to share that Minicor (YC P26) (formerly Laminar) has been accepted into Y Combinator's upcoming Spring 2026 batch working with Tom Blomfield as our GP alongside Kulveer Taggar! We started off trying to solve…",
+        "publisher": "Saheed Akinbile LinkedIn post",
+        "domain": "linkedin.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-03-06T18:38:26.501Z",
+        "evidenceRole": "primary",
+        "url": "https://www.linkedin.com/feed/update/urn:li:activity:7435755691446788096"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-48b6dea6fdad8a49020d966b",
+        "title": "So so incredibly grateful to share that Minicor (YC P26) (formerly Laminar) has been accepted into Y Combinator's upcoming Spring 2026 batch working with Tom Blomfield as our GP alongside Kulveer Taggar! We started off trying to solve…",
+        "publisher": "Saheed Akinbile LinkedIn post",
+        "domain": "linkedin.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-03-06T18:38:26.501Z",
+        "evidenceRole": "primary",
+        "url": "https://www.linkedin.com/feed/update/urn:li:activity:7435755691446788096",
+        "publicationDate": "2026-03-06T18:38:26.501Z",
+        "excerpt": "So so incredibly grateful to share that Minicor (YC P26) (formerly Laminar) has been accepted into Y Combinator's upcoming Spring 2026 batch working with Tom Blomfield as our GP alongside Kulveer Taggar! We started off trying to solve bespoke API integrations, and after raising our pre-seed from Rahul Prakash and Kate R. at NOMO Ventures began plugging away at GTM (with a lot of help from Rob Snyder). It was hard, and we felt stuck, but then some serendipity: a good friend Shreyansh A. dropped…",
+        "sourceEventDate": "2026-03-06",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-9ba7ca6bf81c88f403fbc2c4",
+        "platform": "linkedin",
+        "account": "Saheed Akinbile LinkedIn post",
+        "postDate": "2026-03-06",
+        "excerpt": "So so incredibly grateful to share that Minicor (YC P26) (formerly Laminar) has been accepted into Y Combinator's upcoming Spring 2026 batch working with Tom Blomfield as our GP alongside Kulveer Taggar! We started off trying to solve bespoke API integrations, and after raising our pre-seed from Rahul Prakash and Kate R. at NOMO Ventures began plugging away at GTM (with a lot of help from Rob Snyder). It was hard, and we felt stuck, but then some serendipity: a good friend Shreyansh A. dropped…",
+        "url": "https://www.linkedin.com/feed/update/urn:li:activity:7435755691446788096",
+        "metrics": {
+          "likes": 103,
+          "comments": 36,
+          "reposts": 1,
+          "views": 0
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

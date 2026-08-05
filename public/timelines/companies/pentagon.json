@@ -5,28 +5,38 @@
     "slug": "pentagon",
     "name": "Pentagon"
   },
-  "generatedAt": "2026-08-03T07:52:26.040Z",
-  "lastModifiedAt": "2026-08-03T07:52:26.040Z",
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z",
   "events": [
     {
-      "id": "tle-95b39bf1797685aed1597086",
-      "eventDate": "2026-05-19",
+      "id": "tle-fc1dd3cadb176b7d3295ad77",
+      "eventDate": "2026-05-20",
       "eventDateType": "announcement_date",
-      "title": "Pentagon was introduced",
+      "title": "Pentagon released Pentagon: a coordination layer for humans and agents",
       "summary": "Pentagon introduced Pentagon: a coordination layer for humans and agents.",
       "category": "product_launch",
-      "isMajor": false,
+      "isMajor": true,
       "hasConflict": false,
       "conflictSummary": null,
-      "evidenceCount": 1,
+      "evidenceCount": 2,
       "sourcePreview": [
         {
+          "id": "src-17948f78d9aff050c8915458",
+          "title": "Introducing Pentagon: a coordination layer for humans and agents.",
+          "publisher": "runpentagon",
+          "domain": "x.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-05-20T23:33:10.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/runpentagon/status/2057243262214410382"
+        },
+        {
           "id": "src-a1d647f9f88fb5fff90f03cb",
-          "title": "Introducing Pentagon: a coordination layer for humans and agents. ASI yields two futures: 1. AI replaces us. 2. AI empowers us to do our greatest work. We're building for the latter. Our first product is Pentagon Studio: https://…",
-          "publisher": "edgarpavlovsky X post",
+          "title": "Introducing Pentagon: a coordination layer for humans and agents.",
+          "publisher": "edgarpavlovsky",
           "domain": "x.com",
           "sourceType": "founder_post",
-          "publishedAt": "2026-05-19T00:00:00.000Z",
+          "publishedAt": "2026-05-19T22:38:11.000Z",
           "evidenceRole": "primary",
           "url": "https://x.com/edgarpavlovsky/status/2056867039860625431"
         }
@@ -47,7 +57,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-08-03T07:52:26.040Z"
+    "lastSuccessfulArtifactAt": "2026-08-05T00:49:13.374Z"
   },
   "nextCursor": null
 }

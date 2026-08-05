@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-insforge",
+    "slug": "insforge",
+    "name": "InsForge"
+  },
+  "event": {
+    "id": "tle-2f6e7c0cf12861df6715986d",
+    "eventDate": "2026-05-28",
+    "eventDateType": "announcement_date",
+    "title": "InsForge added support for Backup & Restore AI agents need reversible state for backend work",
+    "summary": "InsForge now supports Backup & Restore AI agents need reversible state for backend work.",
+    "category": "product_update",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-4ffca17d8affd482a6d52638",
+        "title": "InsForge now supports Backup & Restore AI agents need reversible state for backend work. Now, every InsForge project can create long-term database backups and roll back to any of them on demand",
+        "publisher": "insforge",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-05-28T19:34:24.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/insforge/status/2060082281230815305"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-4ffca17d8affd482a6d52638",
+        "title": "InsForge now supports Backup & Restore AI agents need reversible state for backend work. Now, every InsForge project can create long-term database backups and roll back to any of them on demand",
+        "publisher": "insforge",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-05-28T19:34:24.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/insforge/status/2060082281230815305",
+        "publicationDate": "2026-05-28T19:34:24.000Z",
+        "excerpt": "InsForge now supports Backup & Restore AI agents need reversible state for backend work. Now, every InsForge project can create long-term database backups and roll back to any of them on demand",
+        "sourceEventDate": "2026-05-28",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-67ecafe269dbf1803f3ff8eb",
+        "platform": "x",
+        "account": "insforge",
+        "postDate": "2026-05-28",
+        "excerpt": "InsForge now supports Backup & Restore AI agents need reversible state for backend work. Now, every InsForge project can create long-term database backups and roll back to any of them on demand",
+        "url": "https://x.com/insforge/status/2060082281230815305",
+        "metrics": {
+          "views": 984,
+          "likes": 8,
+          "replies": 2,
+          "reposts": 3,
+          "quotes": 1,
+          "bookmarks": 0
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

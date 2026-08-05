@@ -1,0 +1,110 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-stablebrowse",
+    "slug": "stablebrowse",
+    "name": "StableBrowse"
+  },
+  "event": {
+    "id": "tle-4c7eb640088211ecc771899a",
+    "eventDate": "2026-05-27",
+    "eventDateType": "announcement_date",
+    "title": "StableBrowse launched on Y Combinator",
+    "summary": "StableBrowse just launched on @ycombinator's Launch YC.",
+    "category": "product_launch",
+    "isMajor": true,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 2,
+    "sourcePreview": [
+      {
+        "id": "src-0db0a753cc39187d683e56c7",
+        "title": "StableBrowse just launched on @ycombinator's Launch YC! StableBrowse - Browser Layer For AI Agents.",
+        "publisher": "deepitshah5",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-05-27T06:12:21.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/deepitshah5/status/2059518049783558528"
+      },
+      {
+        "id": "src-af6d6c71298145b648394d1d",
+        "title": "StableBrowse just launched on @ycombinator's Launch YC! StableBrowse - Browser Layer For AI Agents.",
+        "publisher": "_sarthak____",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-05-26T21:08:35.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/_sarthak____/status/2059381204009509220"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-0db0a753cc39187d683e56c7",
+        "title": "StableBrowse just launched on @ycombinator's Launch YC! StableBrowse - Browser Layer For AI Agents.",
+        "publisher": "deepitshah5",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-05-27T06:12:21.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/deepitshah5/status/2059518049783558528",
+        "publicationDate": "2026-05-27T06:12:21.000Z",
+        "excerpt": "StableBrowse just launched on @ycombinator's Launch YC! StableBrowse - Browser Layer For AI Agents. Check them out: https://t.co/AfowfJiD74",
+        "sourceEventDate": "2026-05-27",
+        "isConflicting": false,
+        "conflictDescription": null
+      },
+      {
+        "id": "src-af6d6c71298145b648394d1d",
+        "title": "StableBrowse just launched on @ycombinator's Launch YC! StableBrowse - Browser Layer For AI Agents.",
+        "publisher": "_sarthak____",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-05-26T21:08:35.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/_sarthak____/status/2059381204009509220",
+        "publicationDate": "2026-05-26T21:08:35.000Z",
+        "excerpt": "StableBrowse just launched on @ycombinator's Launch YC! StableBrowse - Browser Layer For AI Agents. Check them out: https://t.co/yQwANyam9X",
+        "sourceEventDate": "2026-05-27",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-9ec02464617f93a3e99c1948",
+        "platform": "x",
+        "account": "deepitshah5",
+        "postDate": "2026-05-27",
+        "excerpt": "StableBrowse just launched on @ycombinator's Launch YC! StableBrowse - Browser Layer For AI Agents. Check them out: https://t.co/AfowfJiD74",
+        "url": "https://x.com/deepitshah5/status/2059518049783558528",
+        "metrics": {
+          "likes": 3,
+          "reposts": 0,
+          "quotes": 0,
+          "replies": 1,
+          "views": 188
+        },
+        "evidenceRole": "primary"
+      },
+      {
+        "id": "post-10cc132e8d105c7445049f07",
+        "platform": "x",
+        "account": "_sarthak____",
+        "postDate": "2026-05-26",
+        "excerpt": "StableBrowse just launched on @ycombinator's Launch YC! StableBrowse - Browser Layer For AI Agents. Check them out: https://t.co/yQwANyam9X",
+        "url": "https://x.com/_sarthak____/status/2059381204009509220",
+        "metrics": {
+          "likes": 4,
+          "reposts": 0,
+          "quotes": 0,
+          "replies": 1,
+          "views": 175
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

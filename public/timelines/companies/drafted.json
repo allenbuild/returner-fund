@@ -5,8 +5,8 @@
     "slug": "drafted",
     "name": "Drafted"
   },
-  "generatedAt": "2026-08-03T07:52:26.040Z",
-  "lastModifiedAt": "2026-08-03T07:52:26.040Z",
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z",
   "events": [
     {
       "id": "tle-21f9fe1d74498b265e148232",
@@ -21,14 +21,38 @@
       "evidenceCount": 1,
       "sourcePreview": [
         {
-          "id": "src-056d1c337ea40b2d1866bd63",
-          "title": "Introducing Projects &amp; Collaborators in Drafted. Create a project, invite collaborators, design together in one shared space, and approve or reject designs as a team.",
-          "publisher": "DraftedAI",
+          "id": "src-1f01aa89cd90a0fbfd73fd0e",
+          "title": "Introducing Projects & Collaborators in Drafted.",
+          "publisher": "draftedai",
           "domain": "x.com",
           "sourceType": "company_post",
           "publishedAt": "2026-07-23T17:05:03.000Z",
           "evidenceRole": "primary",
-          "url": "https://x.com/DraftedAI/status/2080338414675902844"
+          "url": "https://x.com/draftedai/status/2080338414675902844"
+        }
+      ]
+    },
+    {
+      "id": "tle-0197636e6e6e444a237cae59",
+      "eventDate": "2026-07-14",
+      "eventDateType": "announcement_date",
+      "title": "Drafted released Regenerate in Drafted",
+      "summary": "Drafted introduced Regenerate in Drafted.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-8a97ca1734e95e8dd2568bb0",
+          "title": "Introducing Regenerate in Drafted. Traditionally, changing one part of a floor plan meant spending hours redrawing or regenerating the entire plan. Now, select one or more areas on your floor plan, choose Regenerate, and Drafted redesign...",
+          "publisher": "DraftedAI",
+          "domain": "x.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-07-14T17:10:47.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/DraftedAI/status/2077078367741063413"
         }
       ]
     },
@@ -63,7 +87,7 @@
       "months": [
         {
           "month": "2026-07",
-          "count": 1
+          "count": 2
         },
         {
           "month": "2026-06",
@@ -74,8 +98,8 @@
   ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 2,
-    "lastSuccessfulArtifactAt": "2026-08-03T07:52:26.040Z"
+    "publishedEventCount": 3,
+    "lastSuccessfulArtifactAt": "2026-08-05T00:49:13.374Z"
   },
   "nextCursor": null
 }

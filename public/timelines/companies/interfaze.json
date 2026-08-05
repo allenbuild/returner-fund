@@ -5,14 +5,157 @@
     "slug": "interfaze",
     "name": "Interfaze"
   },
-  "generatedAt": "2026-08-03T07:52:26.040Z",
-  "lastModifiedAt": "2026-08-03T07:52:26.040Z",
-  "events": [],
-  "groups": [],
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z",
+  "events": [
+    {
+      "id": "tle-9cbdc927692f194955b3e1ae",
+      "eventDate": "2026-08-01",
+      "eventDateType": "announcement_date",
+      "title": "Interfaze released whole thing as open source",
+      "summary": "Interfaze open sourced the whole thing so you can see how we used @Box APIs with interfaze to build the company brain.",
+      "category": "open_source",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-437ba3e4fa0c62dc8445ebc6",
+          "title": "We open sourced the whole thing so you can see how we used @Box APIs with interfaze to build the company brain https://t.co/xuudyfkiHH",
+          "publisher": "interfaze_ai",
+          "domain": "x.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-08-01T03:15:23.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/interfaze_ai/status/2083391114640577019"
+        }
+      ]
+    },
+    {
+      "id": "tle-0ea2f955b19419929d81de8d",
+      "eventDate": "2026-07-29",
+      "eventDateType": "announcement_date",
+      "title": "Interfaze released Ask Box",
+      "summary": "Interfaze introduced Ask Box: a chrome extension you can install and make all your @Box files into your company brain There's no setup, just install, connect your Box account and you're good to go Works with all the security feature of Box with permissions and authorizations.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-5adc4dc7052974c5086a54d0",
+          "title": "Introducing Ask Box: a chrome extension you can install and make all your @Box files into your company brain There's no setup, just install, connect your Box account and you're good to go Works with all the security feature of Box with…",
+          "publisher": "interfaze_ai",
+          "domain": "x.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-07-29T17:57:16.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/interfaze_ai/status/2082525883261472949"
+        }
+      ]
+    },
+    {
+      "id": "tle-dcf8a7415a31cf6f030c5a53",
+      "eventDate": "2026-05-05",
+      "eventDateType": "announcement_date",
+      "title": "Interfaze released an open-source project",
+      "summary": "Interfaze has open-sourced all code, and test sets.",
+      "category": "open_source",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-0c9aab63e7081987fce767a8",
+          "title": "We&#x27;ve open-sourced all code, and test sets. You can find them here: https:&#x2F;&#x2F;interfaze.ai&#x2F;blog&#x2F;introducing-structured-o...",
+          "publisher": "khurdula",
+          "domain": "news.ycombinator.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-05-05T22:33:34.000Z",
+          "evidenceRole": "primary",
+          "url": "https://news.ycombinator.com/item?id=48029646"
+        }
+      ]
+    },
+    {
+      "id": "tle-7626998d8e9886eae90c0197",
+      "eventDate": "2026-04-28",
+      "eventDateType": "announcement_date",
+      "title": "Interfaze released SOB",
+      "summary": "Interfaze introduced SOB, the Structured Output Benchmark for LLMs.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-a8442fe562a9f1bd80c05171",
+          "title": "Introducing SOB, the Structured Output Benchmark for LLMs! Existing benchmarks only measure schema accuracy. SOB also measures output value accuracy across text, image, and audio. Open source GLM 4.7 is number 2, right after GPT-5.4.",
+          "publisher": "interfaze_ai",
+          "domain": "x.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-04-28T16:27:20.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/interfaze_ai/status/2049163565807157282"
+        }
+      ]
+    },
+    {
+      "id": "tle-7c89415e42922f79481a1932",
+      "eventDate": "2026-04-14",
+      "eventDateType": "announcement_date",
+      "title": "Interfaze was accepted into Y Combinator",
+      "summary": "Interfaze reported big week at we got into Y Combinator also shipped this week: - 40% faster first-token latency - OCR: better accuracy on dense documents - STT cleanup: ~50% fewer output tokens - scraper: ~10x speed improvement on most websites.",
+      "category": "accelerator",
+      "isMajor": true,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-cdff217edf867b4b57ce4427",
+          "title": "big week at http://interfaze.ai we got into Y Combinator also shipped this week: - 40% faster first-token latency - OCR: better accuracy on dense documents - STT cleanup: ~50% fewer output tokens - scraper: ~10x speed improvement on most...",
+          "publisher": "interfaze_ai",
+          "domain": "x.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-04-14T18:43:27.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/interfaze_ai/status/2044124391857082496"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-08",
+          "count": 1
+        },
+        {
+          "month": "2026-07",
+          "count": 1
+        },
+        {
+          "month": "2026-05",
+          "count": 1
+        },
+        {
+          "month": "2026-04",
+          "count": 2
+        }
+      ]
+    }
+  ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 0,
-    "lastSuccessfulArtifactAt": "2026-08-03T07:52:26.040Z"
+    "publishedEventCount": 5,
+    "lastSuccessfulArtifactAt": "2026-08-05T00:49:13.374Z"
   },
   "nextCursor": null
 }

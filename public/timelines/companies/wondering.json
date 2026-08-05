@@ -5,9 +5,33 @@
     "slug": "wondering",
     "name": "Wondering"
   },
-  "generatedAt": "2026-08-03T07:52:26.040Z",
-  "lastModifiedAt": "2026-08-03T07:52:26.040Z",
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z",
   "events": [
+    {
+      "id": "tle-7ba92087cef59d281bcab624",
+      "eventDate": "2026-07-28",
+      "eventDateType": "announcement_date",
+      "title": "Wondering announced its public launch",
+      "summary": "Wondering introduced Wondering Podcast.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-d1a1773b4bfc605b73c83873",
+          "title": "Introducing Wondering Podcast. Turn any complex topic, from distributed systems to product design, into personalized podcasts, structured as a guided learning path. Bite-sized. Adapts to how you learn best. And it remembers what you've ...",
+          "publisher": "HcwXd",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-07-28T19:50:48.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/HcwXd/status/2082192065627316545"
+        }
+      ]
+    },
     {
       "id": "tle-3e00932323727397afd3d84c",
       "eventDate": "2026-07-28",
@@ -65,6 +89,64 @@
           "url": "https://x.com/wonderingapp/status/2080716627734302884"
         }
       ]
+    },
+    {
+      "id": "tle-0750b19bc0938453dfe398de",
+      "eventDate": "2026-04-27",
+      "eventDateType": "announcement_date",
+      "title": "Wondering added support for in-app purchase on iOS",
+      "summary": "Wondering now supports in-app purchase on iOS.",
+      "category": "product_update",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-62479b7009c6ecca80ed6544",
+          "title": "Wondering now supports in-app purchase on iOS! Claim your lifetime discount by May 1 ⭐",
+          "publisher": "WonderingApp",
+          "domain": "x.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-04-27T21:24:53.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/WonderingApp/status/2048876059651961223"
+        }
+      ]
+    },
+    {
+      "id": "tle-5decae31331f984249fb8a34",
+      "eventDate": "2026-04-21",
+      "eventDateType": "announcement_date",
+      "title": "Wondering was founded",
+      "summary": "Wondering started @Wondering with a simple idea: Duolingo for anything.",
+      "category": "founded",
+      "isMajor": true,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 2,
+      "sourcePreview": [
+        {
+          "id": "src-e778c64625c3b323a68ee153",
+          "title": "We started @Wondering with a simple idea: Duolingo for anything. But after our soft launch, something became clear: Our learners didn’t want to just go through lessons. They wanted deep understanding, true retention, and real progress.",
+          "publisher": "WonderingApp",
+          "domain": "x.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-04-21T18:08:32.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/WonderingApp/status/2046652318847009179"
+        },
+        {
+          "id": "src-594d5808860519ab20c4b7ad",
+          "title": "I started @Wondering with a simple idea: Duolingo for anything. But after our soft launch, something became clear: Our learners didn’t want to just go through lessons. They wanted deep understanding, true retention, and real progress. S...",
+          "publisher": "HcwXd",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-04-21T18:03:21.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/HcwXd/status/2046651014028349799"
+        }
+      ]
     }
   ],
   "groups": [
@@ -73,6 +155,10 @@
       "months": [
         {
           "month": "2026-07",
+          "count": 3
+        },
+        {
+          "month": "2026-04",
           "count": 2
         }
       ]
@@ -80,8 +166,8 @@
   ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 2,
-    "lastSuccessfulArtifactAt": "2026-08-03T07:52:26.040Z"
+    "publishedEventCount": 5,
+    "lastSuccessfulArtifactAt": "2026-08-05T00:49:13.374Z"
   },
   "nextCursor": null
 }

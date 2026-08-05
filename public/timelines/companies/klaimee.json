@@ -5,8 +5,8 @@
     "slug": "klaimee",
     "name": "Klaimee"
   },
-  "generatedAt": "2026-08-03T07:52:26.040Z",
-  "lastModifiedAt": "2026-08-03T07:52:26.040Z",
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z",
   "events": [
     {
       "id": "tle-7206f84613b8162d01648fb5",
@@ -22,13 +22,37 @@
       "sourcePreview": [
         {
           "id": "src-89a1ea39f43512eca55a3de5",
-          "title": "We just raised $5.5M to answer one question: Who pays when your AI agent **** up ? Until now, nobody had a good answer. That's why we ...",
+          "title": "We just raised $5.5M to answer one question: Who pays when your AI agent **** up ? Until now, nobody had a good answer.",
           "publisher": "inesboutem",
           "domain": "x.com",
           "sourceType": "founder_post",
           "publishedAt": "2026-07-21T19:52:39.000Z",
           "evidenceRole": "primary",
           "url": "https://x.com/inesboutem/status/2079655816261455880"
+        }
+      ]
+    },
+    {
+      "id": "tle-bbf8d1cb97331340dcb5df36",
+      "eventDate": "2026-05-03",
+      "eventDateType": "announcement_date",
+      "title": "Klaimee launched on Y Combinator",
+      "summary": "Klaimee just launched @klaimee_ai on @ycombinator's Launch YC.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-b89b9d8d29210e8efff47a76",
+          "title": "We just launched @klaimee_ai on @ycombinator's Launch YC! We insure your AI Agents. Check us out: https://www.ycombinator.com/launches/QCC-klaimee-insures-your-ai-agents",
+          "publisher": "inesboutem",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-05-03T23:57:36.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/inesboutem/status/2051088820561756633"
         }
       ]
     }
@@ -40,14 +64,18 @@
         {
           "month": "2026-07",
           "count": 1
+        },
+        {
+          "month": "2026-05",
+          "count": 1
         }
       ]
     }
   ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-08-03T07:52:26.040Z"
+    "publishedEventCount": 2,
+    "lastSuccessfulArtifactAt": "2026-08-05T00:49:13.374Z"
   },
   "nextCursor": null
 }

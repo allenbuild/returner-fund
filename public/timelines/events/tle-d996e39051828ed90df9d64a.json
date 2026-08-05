@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-dock",
+    "slug": "dock",
+    "name": "Dock"
+  },
+  "event": {
+    "id": "tle-d996e39051828ed90df9d64a",
+    "eventDate": "2026-06-14",
+    "eventDateType": "announcement_date",
+    "title": "Dock was accepted into Y Combinator S26",
+    "summary": "Dock got into YC S26 to fix this problem.",
+    "category": "accelerator",
+    "isMajor": true,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-41517c0dadcdb1cf4443cdb4",
+        "title": "We got into YC S26 to fix this problem. We talked to companies who spend a million dollars on their team using AI, but produce nothing meaningful. It's clear AI alone can't figure out solutions to companies problems. It's less about put...",
+        "publisher": "Govikavaturi",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-06-14T19:46:15.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/Govikavaturi/status/2066245855921992029"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-41517c0dadcdb1cf4443cdb4",
+        "title": "We got into YC S26 to fix this problem. We talked to companies who spend a million dollars on their team using AI, but produce nothing meaningful. It's clear AI alone can't figure out solutions to companies problems. It's less about put...",
+        "publisher": "Govikavaturi",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-06-14T19:46:15.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/Govikavaturi/status/2066245855921992029",
+        "publicationDate": "2026-06-14T19:46:15.000Z",
+        "excerpt": "We got into YC S26 to fix this problem. We talked to companies who spend a million dollars on their team using AI, but produce nothing meaningful. It's clear AI alone can't figure out solutions to companies problems. It's less about putting AI in the hands of people, and more about humans finding ways to effectively work with AI to drive the creation at all levels. The processes, practices, and workflows between AI and humans inside a team will define the next 20 years. They don't exist yet.",
+        "sourceEventDate": "2026-06-14",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-aa804e2237cf91614aec3337",
+        "platform": "x",
+        "account": "Govikavaturi",
+        "postDate": "2026-06-14",
+        "excerpt": "We got into YC S26 to fix this problem. We talked to companies who spend a million dollars on their team using AI, but produce nothing meaningful. It's clear AI alone can't figure out solutions to companies problems. It's less about putting AI in the hands of people, and more about humans finding ways to effectively work with AI to drive the creation at all levels. The processes, practices, and workflows between AI and humans inside a team will define the next 20 years. They don't exist yet.",
+        "url": "https://x.com/Govikavaturi/status/2066245855921992029",
+        "metrics": {
+          "views": 120,
+          "likes": 2,
+          "replies": 1,
+          "reposts": 0,
+          "quotes": 0,
+          "bookmarks": 0
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

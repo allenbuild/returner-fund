@@ -1,0 +1,65 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-kinro",
+    "slug": "kinro",
+    "name": "Kinro"
+  },
+  "event": {
+    "id": "tle-09d7c5477910a881b4eb63eb",
+    "eventDate": "2026-04-02",
+    "eventDateType": "announcement_date",
+    "title": "Kinro announced its public launch",
+    "summary": "Kinro announced its public launch in a dated company video.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-45b22bd3184b1251d9aa1fbd",
+        "title": "Kinro - Launch Video (YC P2026). AI sales agent for insurance industry",
+        "publisher": "kinroai",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-04-02T00:00:06-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=z_bC6nejbbg"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-45b22bd3184b1251d9aa1fbd",
+        "title": "Kinro - Launch Video (YC P2026). AI sales agent for insurance industry",
+        "publisher": "kinroai",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-04-02T00:00:06-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=z_bC6nejbbg",
+        "publicationDate": "2026-04-02T00:00:06-07:00",
+        "excerpt": "Kinro launch video for Y Combinator P2026: an AI sales agent for the insurance industry.",
+        "sourceEventDate": "2026-04-02",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-2eeb60cd9f86d0dd17dc9841",
+        "platform": "youtube",
+        "account": "kinroai",
+        "postDate": "2026-04-02",
+        "excerpt": "Kinro launch video for Y Combinator P2026: an AI sales agent for the insurance industry.",
+        "url": "https://youtube.com/watch?v=z_bC6nejbbg",
+        "metrics": {
+          "views": 591
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

@@ -295,6 +295,7 @@ function PlatformContributions({ node }: { node: GraphNode }) {
     .filter((platform) => numberValue(platform?.contribution) !== null && platform.contribution > 0)
     .sort((left, right) => right.contribution - left.contribution);
   const platformContributions = rawPlatformContributions;
+  const calibrationMultiplier = scoreContributionMultiplier(node);
 
   return (
     <section className="score-platform-section" aria-labelledby={`score-platforms-${node.id}`}>
@@ -305,7 +306,7 @@ function PlatformContributions({ node }: { node: GraphNode }) {
             <li key={platform.platform}>
               <PlatformIdentity platform={platform.platform} />
               <span className="score-platform-contribution">
-                <strong>{formatScore(platform.contribution)} pts</strong>
+                <strong>{formatScore(platform.contribution * calibrationMultiplier)} pts</strong>
                 <small>{formatItemCount(Math.max(0, Math.round(numberValue(platform.evidenceCount) ?? 0)))}</small>
               </span>
             </li>
@@ -316,6 +317,15 @@ function PlatformContributions({ node }: { node: GraphNode }) {
       )}
     </section>
   );
+}
+
+function scoreContributionMultiplier(node: GraphNode): number {
+  const scaleFactor = node.scoreBreakdown?.calibration?.scaleFactor;
+  return node.scoreBreakdown?.calibration?.method === "global_best_ratio" &&
+    typeof scaleFactor === "number" &&
+    Number.isFinite(scaleFactor)
+    ? scaleFactor
+    : 1;
 }
 
 function isScoredEvidence(item: EvidenceItem): boolean {

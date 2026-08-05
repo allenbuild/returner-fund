@@ -1,0 +1,63 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-tasklet-2",
+    "slug": "tasklet",
+    "name": "Tasklet"
+  },
+  "event": {
+    "id": "tle-a271e9ad1aaec3f522cd65a4",
+    "eventDate": "2025-10-09",
+    "eventDateType": "announcement_date",
+    "title": "Tasklet released Tasklet: Automate your business with AI agents",
+    "summary": "Tasklet introduced Tasklet: Automate your business with AI agents.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-e46172bcfb0b45ce79b7f0cf",
+        "title": "Introducing Tasklet: Automate your business with AI agents",
+        "publisher": "Tasklet",
+        "domain": "tasklet.ai",
+        "sourceType": "company_post",
+        "publishedAt": "2025-10-09T00:00:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://tasklet.ai/blog.xml"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-e46172bcfb0b45ce79b7f0cf",
+        "title": "Introducing Tasklet: Automate your business with AI agents",
+        "publisher": "Tasklet",
+        "domain": "tasklet.ai",
+        "sourceType": "company_post",
+        "publishedAt": "2025-10-09T00:00:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://tasklet.ai/blog.xml",
+        "publicationDate": "2025-10-09T00:00:00.000Z",
+        "excerpt": "Tasklet is an AI agent platform for automating business operations. Describe the work in plain English, connect your tools, and let agents run automatically.",
+        "sourceEventDate": "2025-10-09",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-33b3cca7aa04f10042df3c0a",
+        "platform": "rss",
+        "account": "Tasklet",
+        "postDate": "2025-10-09",
+        "excerpt": "Tasklet is an AI agent platform for automating business operations. Describe the work in plain English, connect your tools, and let agents run automatically.",
+        "url": "https://tasklet.ai/blog.xml",
+        "metrics": {},
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

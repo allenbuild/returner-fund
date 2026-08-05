@@ -1,0 +1,108 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-openwork",
+    "slug": "openwork",
+    "name": "OpenWork"
+  },
+  "event": {
+    "id": "tle-51bf49f4327aa57b3f979f04",
+    "eventDate": "2026-01-17",
+    "eventDateType": "occurrence_date",
+    "title": "OpenWork launched on Product Hunt",
+    "summary": "OpenWork announced openWork launched on Product Hunt.",
+    "category": "product_launch",
+    "isMajor": true,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 2,
+    "sourcePreview": [
+      {
+        "id": "src-38df550e3261843c8d3553ac",
+        "title": "OpenWork",
+        "publisher": "benjamin_shafii",
+        "domain": "producthunt.com",
+        "sourceType": "product_hunt",
+        "publishedAt": "2026-01-17T15:00:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://producthunt.com/products/openwork/launches/openwork"
+      },
+      {
+        "id": "src-34b5ed8887c8c911ff082960",
+        "title": "Announcing OpenWork Share Share any skills through a nice unique link. Free to use, no account required.",
+        "publisher": "getopenwork",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-03-12T04:31:28.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/getopenwork/status/2031951181036339687"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-38df550e3261843c8d3553ac",
+        "title": "OpenWork",
+        "publisher": "benjamin_shafii",
+        "domain": "producthunt.com",
+        "sourceType": "product_hunt",
+        "publishedAt": "2026-01-17T15:00:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://producthunt.com/products/openwork/launches/openwork",
+        "publicationDate": "2026-01-17T15:00:00.000Z",
+        "excerpt": "OpenWork",
+        "sourceEventDate": "2026-01-17",
+        "isConflicting": false,
+        "conflictDescription": null
+      },
+      {
+        "id": "src-34b5ed8887c8c911ff082960",
+        "title": "Announcing OpenWork Share Share any skills through a nice unique link. Free to use, no account required.",
+        "publisher": "getopenwork",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-03-12T04:31:28.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/getopenwork/status/2031951181036339687",
+        "publicationDate": "2026-03-12T04:31:28.000Z",
+        "excerpt": "Announcing OpenWork Share Share any skills through a nice unique link. Free to use, no account required.",
+        "sourceEventDate": "2026-03-12",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-69c090943ab26dea70878324",
+        "platform": "product_hunt",
+        "account": "benjamin_shafii",
+        "postDate": "2026-01-17",
+        "excerpt": "OpenWork",
+        "url": "https://producthunt.com/products/openwork/launches/openwork",
+        "metrics": {
+          "comments": 17,
+          "upvotes": 61
+        },
+        "evidenceRole": "primary"
+      },
+      {
+        "id": "post-d9c5f664be9032a79db97880",
+        "platform": "x",
+        "account": "getopenwork",
+        "postDate": "2026-03-12",
+        "excerpt": "Announcing OpenWork Share Share any skills through a nice unique link. Free to use, no account required.",
+        "url": "https://x.com/getopenwork/status/2031951181036339687",
+        "metrics": {
+          "views": 318,
+          "likes": 11,
+          "replies": 0,
+          "reposts": 0,
+          "quotes": 0,
+          "bookmarks": 3
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

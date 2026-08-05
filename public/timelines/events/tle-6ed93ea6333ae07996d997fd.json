@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-insforge",
+    "slug": "insforge",
+    "name": "InsForge"
+  },
+  "event": {
+    "id": "tle-6ed93ea6333ae07996d997fd",
+    "eventDate": "2026-05-28",
+    "eventDateType": "announcement_date",
+    "title": "InsForge added support for Database Migrations",
+    "summary": "InsForge now supports Database Migrations.",
+    "category": "product_update",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-dafda94270cbec02ddabf5e0",
+        "title": "InsForge now supports Database Migrations. AI shouldn't alter production schemas on vibes alone. Now, every schema change is versioned, tracked, and safely reviewable by your team and agents.",
+        "publisher": "insforge",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-05-28T23:15:58.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/insforge/status/2060138036281655470"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-dafda94270cbec02ddabf5e0",
+        "title": "InsForge now supports Database Migrations. AI shouldn't alter production schemas on vibes alone. Now, every schema change is versioned, tracked, and safely reviewable by your team and agents.",
+        "publisher": "insforge",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-05-28T23:15:58.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/insforge/status/2060138036281655470",
+        "publicationDate": "2026-05-28T23:15:58.000Z",
+        "excerpt": "InsForge now supports Database Migrations. AI shouldn't alter production schemas on vibes alone. Now, every schema change is versioned, tracked, and safely reviewable by your team and agents.",
+        "sourceEventDate": "2026-05-28",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-92f5e82a36607228d90fd1ab",
+        "platform": "x",
+        "account": "insforge",
+        "postDate": "2026-05-28",
+        "excerpt": "InsForge now supports Database Migrations. AI shouldn't alter production schemas on vibes alone. Now, every schema change is versioned, tracked, and safely reviewable by your team and agents.",
+        "url": "https://x.com/insforge/status/2060138036281655470",
+        "metrics": {
+          "views": 990,
+          "likes": 8,
+          "replies": 3,
+          "reposts": 0,
+          "quotes": 1,
+          "bookmarks": 3
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

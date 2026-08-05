@@ -1,0 +1,69 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-caution",
+    "slug": "caution",
+    "name": "Caution"
+  },
+  "event": {
+    "id": "tle-5623d0c9306fe4df4e5546d1",
+    "eventDate": "2026-08-04",
+    "eventDateType": "announcement_date",
+    "title": "Caution released CautionHosting",
+    "summary": "Caution announced it was launching @CautionHosting, a hosting platform for software you can't afford to have hacked.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-af12ebd2ddf667db3f477342",
+        "title": "Today we're launching @CautionHosting, a hosting platform for software you can't afford to have hacked.",
+        "publisher": "antonlivaja",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-08-04T17:13:34.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/antonlivaja/status/2084689212293681364"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-af12ebd2ddf667db3f477342",
+        "title": "Today we're launching @CautionHosting, a hosting platform for software you can't afford to have hacked.",
+        "publisher": "antonlivaja",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-08-04T17:13:34.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/antonlivaja/status/2084689212293681364",
+        "publicationDate": "2026-08-04T17:13:34.000Z",
+        "excerpt": "Today we're launching @CautionHosting, a hosting platform for software you can't afford to have hacked. Deploy sensitive workloads to secure enclaves in minutes and give customers cryptographic proof that prod is running the exact release you approved, not an opaque binary you https://t.co/D1DtuKEtfe",
+        "sourceEventDate": "2026-08-04",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-8b0021608a9cdcbe414be0aa",
+        "platform": "x",
+        "account": "antonlivaja",
+        "postDate": "2026-08-04",
+        "excerpt": "Today we're launching @CautionHosting, a hosting platform for software you can't afford to have hacked. Deploy sensitive workloads to secure enclaves in minutes and give customers cryptographic proof that prod is running the exact release you approved, not an opaque binary you https://t.co/D1DtuKEtfe",
+        "url": "https://x.com/antonlivaja/status/2084689212293681364",
+        "metrics": {
+          "likes": 2,
+          "reposts": 1,
+          "quotes": 1,
+          "replies": 4,
+          "views": 17
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

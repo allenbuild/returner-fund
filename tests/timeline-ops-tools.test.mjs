@@ -107,5 +107,11 @@ describe("timeline operational tooling", () => {
       title: "Graphify Labs announced a seed round",
       summary: "Graphify Labs announced a seed round led by Example Ventures,.",
     })).toContain("summary ends with malformed punctuation");
+    expect(timelineEventQualityViolations(company, {
+      ...base,
+      category: "funding",
+      title: "Graphify Labs announced Series D",
+      summary: "Graphify Labs announced Series D funding.",
+    })).not.toContain("title appears to be cut off mid-word");
   });
 });

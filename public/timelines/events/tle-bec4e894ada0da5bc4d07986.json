@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-tasklet-2",
+    "slug": "tasklet",
+    "name": "Tasklet"
+  },
+  "event": {
+    "id": "tle-bec4e894ada0da5bc4d07986",
+    "eventDate": "2026-02-26",
+    "eventDateType": "announcement_date",
+    "title": "Tasklet enabled Introducing Instant Apps — your Tasklet agent to build live, interactive apps for you on-demand",
+    "summary": "Tasklet introduced Instant Apps — your Tasklet agent can now build live, interactive apps for you on-demand.",
+    "category": "product_update",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-e8527c664e40460db44a32ca",
+        "title": "Introducing Instant Apps — your Tasklet agent can now build live, interactive apps for you on-demand. Describe what you need & get the perfect custom UI in seconds — connected to your real, live data. 🧵",
+        "publisher": "TaskletAI",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-02-26T17:42:22.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/TaskletAI/status/2027076787268890852"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-e8527c664e40460db44a32ca",
+        "title": "Introducing Instant Apps — your Tasklet agent can now build live, interactive apps for you on-demand. Describe what you need & get the perfect custom UI in seconds — connected to your real, live data. 🧵",
+        "publisher": "TaskletAI",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-02-26T17:42:22.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/TaskletAI/status/2027076787268890852",
+        "publicationDate": "2026-02-26T17:42:22.000Z",
+        "excerpt": "Introducing Instant Apps — your Tasklet agent can now build live, interactive apps for you on-demand. Describe what you need & get the perfect custom UI in seconds — connected to your real, live data. 🧵",
+        "sourceEventDate": "2026-02-26",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-4e6d88b7e32bb7a31883347a",
+        "platform": "x",
+        "account": "TaskletAI",
+        "postDate": "2026-02-26",
+        "excerpt": "Introducing Instant Apps — your Tasklet agent can now build live, interactive apps for you on-demand. Describe what you need & get the perfect custom UI in seconds — connected to your real, live data. 🧵",
+        "url": "https://x.com/TaskletAI/status/2027076787268890852",
+        "metrics": {
+          "views": 12599769,
+          "likes": 697,
+          "replies": 22,
+          "reposts": 54,
+          "quotes": 15,
+          "bookmarks": 558
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

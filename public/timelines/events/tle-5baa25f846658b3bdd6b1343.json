@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-lightsprint",
+    "slug": "lightsprint",
+    "name": "Lightsprint"
+  },
+  "event": {
+    "id": "tle-5baa25f846658b3bdd6b1343",
+    "eventDate": "2026-05-06",
+    "eventDateType": "announcement_date",
+    "title": "Lightsprint added support for Gstack",
+    "summary": "Lightsprint now supports Gstack.",
+    "category": "product_update",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-87ba02d41ffe9e9fa3a84835",
+        "title": "Lightsprint now supports Gstack! Go to https://lightsprint.ai/gstack to try out our design shotgun and implement the plan in one-shot",
+        "publisher": "lightsprintai",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-05-06T04:30:17.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/lightsprintai/status/2051882215756439860"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-87ba02d41ffe9e9fa3a84835",
+        "title": "Lightsprint now supports Gstack! Go to https://lightsprint.ai/gstack to try out our design shotgun and implement the plan in one-shot",
+        "publisher": "lightsprintai",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-05-06T04:30:17.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/lightsprintai/status/2051882215756439860",
+        "publicationDate": "2026-05-06T04:30:17.000Z",
+        "excerpt": "Lightsprint now supports Gstack! Go to https://lightsprint.ai/gstack to try out our design shotgun and implement the plan in one-shot",
+        "sourceEventDate": "2026-05-06",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-9776d3c6ba8f4ff2e92f4a7d",
+        "platform": "x",
+        "account": "lightsprintai",
+        "postDate": "2026-05-06",
+        "excerpt": "Lightsprint now supports Gstack! Go to https://lightsprint.ai/gstack to try out our design shotgun and implement the plan in one-shot",
+        "url": "https://x.com/lightsprintai/status/2051882215756439860",
+        "metrics": {
+          "views": 30068,
+          "likes": 15,
+          "replies": 1,
+          "reposts": 2,
+          "quotes": 1,
+          "bookmarks": 16
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

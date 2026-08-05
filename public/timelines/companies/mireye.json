@@ -5,14 +5,73 @@
     "slug": "mireye",
     "name": "Mireye"
   },
-  "generatedAt": "2026-08-03T07:52:26.040Z",
-  "lastModifiedAt": "2026-08-03T07:52:26.040Z",
-  "events": [],
-  "groups": [],
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z",
+  "events": [
+    {
+      "id": "tle-a9f13d6818d2ed165a6de13d",
+      "eventDate": "2026-07-31",
+      "eventDateType": "announcement_date",
+      "title": "Mireye released We are live 🚀",
+      "summary": "Mireye is live 🚀.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-10187aa81f168844ec25c0b5",
+          "title": "We are live 🚀",
+          "publisher": "mireyehq",
+          "domain": "x.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-07-31T14:17:48.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/mireyehq/status/2083195425784533364"
+        }
+      ]
+    },
+    {
+      "id": "tle-9223ce0b25ea1618893b0588",
+      "eventDate": "2026-07-31",
+      "eventDateType": "announcement_date",
+      "title": "Mireye released mireyehq",
+      "summary": "Mireye announced it was launching @mireyehq with @ycombinator The easiest way to build agentic applications for the physical world.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-ae133c5ede36019f81b4845a",
+          "title": "Today we are launching @mireyehq with @ycombinator The easiest way to build agentic applications for the physical world. AI agents are starting to act in the real world, but they can't reliably understand it. Mireye is one API and MCP t...",
+          "publisher": "ansh_chokshi",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-07-31T13:48:59.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/ansh_chokshi/status/2083188175259029891"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-07",
+          "count": 2
+        }
+      ]
+    }
+  ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 0,
-    "lastSuccessfulArtifactAt": "2026-08-03T07:52:26.040Z"
+    "publishedEventCount": 2,
+    "lastSuccessfulArtifactAt": "2026-08-05T00:49:13.374Z"
   },
   "nextCursor": null
 }

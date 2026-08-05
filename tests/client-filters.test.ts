@@ -329,6 +329,34 @@ describe("client graph filters", () => {
     expect(counts.get("traction-growth") ?? 0).toBe(0);
   });
 
+  it("uses full-snapshot topic counts when the public evidence payload is capped", () => {
+    const canonical = canonicalGraph();
+    const source: GraphResponse = {
+      ...canonical,
+      evidence: canonical.evidence.slice(0, 1),
+      evidenceStats: {
+        ...canonical.evidenceStats!,
+        totalCount: 44_480,
+        byTopic: {
+          "product-launch": 12_345,
+          "traction-growth": 6_789
+        }
+      }
+    };
+
+    const counts = topicPostFacetCounts(source, {
+      platforms: [],
+      topics: [],
+      verticals: [],
+      industries: [],
+      groupPartners: [],
+      minScore: 0
+    });
+
+    expect(counts.get("product-launch")).toBe(12_345);
+    expect(counts.get("traction-growth")).toBe(6_789);
+  });
+
   it("uses only the active Top Voices audience when calculating Topic facet counts", () => {
     const canonical = canonicalGraph();
     const source: GraphResponse = {
@@ -365,6 +393,43 @@ describe("client graph filters", () => {
 
     expect(counts.get("traction-growth")).toBe(2);
     expect(counts.get("product-launch") ?? 0).toBe(0);
+  });
+
+  it("uses compact topic facets for volume posts omitted from the public evidence payload", () => {
+    const canonical = canonicalGraph();
+    const source: GraphResponse = {
+      ...canonical,
+      evidence: canonical.evidence.map((item) => ({ ...item, topics: [] })),
+      topicFacetRows: [
+        {
+          topic: "product-launch",
+          postKey: "x:post:volume-1",
+          platform: "x",
+          companyId: "canonical-high",
+          contributionScore: 0,
+          audienceId: "off"
+        },
+        {
+          topic: "product-launch",
+          postKey: "x:post:volume-1",
+          platform: "x",
+          companyId: "canonical-high",
+          contributionScore: 0,
+          audienceId: "off"
+        }
+      ]
+    };
+    const filters = {
+      platforms: ["x"] as Platform[],
+      topics: ["product-launch" as const],
+      verticals: [],
+      industries: [],
+      groupPartners: [],
+      minScore: 0
+    };
+
+    expect(companyIds(applyClientGraphFilters(source, filters))).toContain("canonical-high");
+    expect(topicPostFacetCounts(source, filters).get("product-launch")).toBe(1);
   });
 });
 

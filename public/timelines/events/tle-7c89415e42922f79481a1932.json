@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-interfaze",
+    "slug": "interfaze",
+    "name": "Interfaze"
+  },
+  "event": {
+    "id": "tle-7c89415e42922f79481a1932",
+    "eventDate": "2026-04-14",
+    "eventDateType": "announcement_date",
+    "title": "Interfaze was accepted into Y Combinator",
+    "summary": "Interfaze reported big week at we got into Y Combinator also shipped this week: - 40% faster first-token latency - OCR: better accuracy on dense documents - STT cleanup: ~50% fewer output tokens - scraper: ~10x speed improvement on most websites.",
+    "category": "accelerator",
+    "isMajor": true,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-cdff217edf867b4b57ce4427",
+        "title": "big week at http://interfaze.ai we got into Y Combinator also shipped this week: - 40% faster first-token latency - OCR: better accuracy on dense documents - STT cleanup: ~50% fewer output tokens - scraper: ~10x speed improvement on most...",
+        "publisher": "interfaze_ai",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-04-14T18:43:27.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/interfaze_ai/status/2044124391857082496"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-cdff217edf867b4b57ce4427",
+        "title": "big week at http://interfaze.ai we got into Y Combinator also shipped this week: - 40% faster first-token latency - OCR: better accuracy on dense documents - STT cleanup: ~50% fewer output tokens - scraper: ~10x speed improvement on most...",
+        "publisher": "interfaze_ai",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-04-14T18:43:27.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/interfaze_ai/status/2044124391857082496",
+        "publicationDate": "2026-04-14T18:43:27.000Z",
+        "excerpt": "big week at http://interfaze.ai we got into Y Combinator also shipped this week: - 40% faster first-token latency - OCR: better accuracy on dense documents - STT cleanup: ~50% fewer output tokens - scraper: ~10x speed improvement on most websites https://interfaze.ai/blog/13-04-26-updates",
+        "sourceEventDate": "2026-04-14",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-da8792d297348213cbf7faf6",
+        "platform": "x",
+        "account": "interfaze_ai",
+        "postDate": "2026-04-14",
+        "excerpt": "big week at http://interfaze.ai we got into Y Combinator also shipped this week: - 40% faster first-token latency - OCR: better accuracy on dense documents - STT cleanup: ~50% fewer output tokens - scraper: ~10x speed improvement on most websites https://interfaze.ai/blog/13-04-26-updates",
+        "url": "https://x.com/interfaze_ai/status/2044124391857082496",
+        "metrics": {
+          "views": 2630,
+          "likes": 18,
+          "replies": 5,
+          "reposts": 2,
+          "quotes": 1,
+          "bookmarks": 5
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

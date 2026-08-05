@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-tasklet-2",
+    "slug": "tasklet",
+    "name": "Tasklet"
+  },
+  "event": {
+    "id": "tle-cf1c1716d8a98b55989cc258",
+    "eventDate": "2026-04-15",
+    "eventDateType": "announcement_date",
+    "title": "Tasklet released 14 new triggers across Slack",
+    "summary": "Tasklet just launched 14 new triggers across Slack, Google Calendar, Google Drive, Outlook, Telegram, and more.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-b7b7995700a3b8fa8a27f10c",
+        "title": "We just launched 14 new triggers across Slack, Google Calendar, Google Drive, Outlook, Telegram, and more. Your agents now respond to more events natively so you don’t have to poll. 🧵",
+        "publisher": "TaskletAI",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-04-15T16:44:03.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/TaskletAI/status/2044456729191321881"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-b7b7995700a3b8fa8a27f10c",
+        "title": "We just launched 14 new triggers across Slack, Google Calendar, Google Drive, Outlook, Telegram, and more. Your agents now respond to more events natively so you don’t have to poll. 🧵",
+        "publisher": "TaskletAI",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-04-15T16:44:03.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/TaskletAI/status/2044456729191321881",
+        "publicationDate": "2026-04-15T16:44:03.000Z",
+        "excerpt": "We just launched 14 new triggers across Slack, Google Calendar, Google Drive, Outlook, Telegram, and more. Your agents now respond to more events natively so you don’t have to poll. 🧵",
+        "sourceEventDate": "2026-04-15",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-f9233463721d1261c9f92897",
+        "platform": "x",
+        "account": "TaskletAI",
+        "postDate": "2026-04-15",
+        "excerpt": "We just launched 14 new triggers across Slack, Google Calendar, Google Drive, Outlook, Telegram, and more. Your agents now respond to more events natively so you don’t have to poll. 🧵",
+        "url": "https://x.com/TaskletAI/status/2044456729191321881",
+        "metrics": {
+          "views": 1518,
+          "likes": 12,
+          "replies": 7,
+          "reposts": 5,
+          "quotes": 1,
+          "bookmarks": 3
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

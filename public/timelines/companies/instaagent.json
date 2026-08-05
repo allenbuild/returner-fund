@@ -5,9 +5,33 @@
     "slug": "instaagent",
     "name": "InstaAgent"
   },
-  "generatedAt": "2026-08-03T07:52:26.040Z",
-  "lastModifiedAt": "2026-08-03T07:52:26.040Z",
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z",
   "events": [
+    {
+      "id": "tle-0df2d9363897f81a3490a8ed",
+      "eventDate": "2026-05-15",
+      "eventDateType": "announcement_date",
+      "title": "InstaAgent was accepted into Y Combinator P26",
+      "summary": "InstaAgent reported so we got into YC P26 — a milestone that still feels surreal to write 🚀 Getting here was not a straight line.",
+      "category": "accelerator",
+      "isMajor": true,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-f88563319249d75b3874f85c",
+          "title": "So we got into YC P26 — a milestone that still feels surreal to write 🚀 Getting here was not a straight line. There were failed attempts, rebuilt versions, sharper questions, and many moments where the easiest option would have been to…",
+          "publisher": "instaagent.ai",
+          "domain": "instagram.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-05-15T05:37:40.000Z",
+          "evidenceRole": "primary",
+          "url": "https://instagram.com/p/DYWQu84m37S"
+        }
+      ]
+    },
     {
       "id": "tle-7077e46bf6c238e08c272d3d",
       "eventDate": "2026-05-11",
@@ -39,15 +63,15 @@
       "months": [
         {
           "month": "2026-05",
-          "count": 1
+          "count": 2
         }
       ]
     }
   ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-08-03T07:52:26.040Z"
+    "publishedEventCount": 2,
+    "lastSuccessfulArtifactAt": "2026-08-05T00:49:13.374Z"
   },
   "nextCursor": null
 }

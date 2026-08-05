@@ -5,8 +5,8 @@
     "slug": "regbase",
     "name": "Regbase"
   },
-  "generatedAt": "2026-08-03T07:52:26.040Z",
-  "lastModifiedAt": "2026-08-03T07:52:26.040Z",
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z",
   "events": [
     {
       "id": "tle-114046b430d985a88c9d5654",
@@ -23,20 +23,20 @@
         {
           "id": "src-291a5917480a4b974cf09f0d",
           "title": "Introducing Regbase: The AI-native Legal Research Platform Built alongside big law firms, Regbase cuts 100-hour research projects into down to just one.",
-          "publisher": "theregbase X post",
+          "publisher": "theregbase",
           "domain": "x.com",
           "sourceType": "company_post",
-          "publishedAt": "2026-04-17T00:00:00.000Z",
+          "publishedAt": "2026-04-17T20:24:00.000Z",
           "evidenceRole": "primary",
           "url": "https://x.com/theregbase/status/2045236858154807379"
         },
         {
           "id": "src-90db06ec3dc4f36e830e9ebf",
           "title": "Introducing Regbase: The AI-native Legal Research Platform Built alongside big law firms, @theregbase cuts 100-hour research projects into work that can be done in just one.",
-          "publisher": "ethshea X post",
+          "publisher": "ethshea",
           "domain": "x.com",
           "sourceType": "founder_post",
-          "publishedAt": "2026-04-16T00:00:00.000Z",
+          "publishedAt": "2026-04-16T21:24:04.000Z",
           "evidenceRole": "primary",
           "url": "https://x.com/ethshea/status/2044889586040713438"
         },
@@ -67,7 +67,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-08-03T07:52:26.040Z"
+    "lastSuccessfulArtifactAt": "2026-08-05T00:49:13.374Z"
   },
   "nextCursor": null
 }

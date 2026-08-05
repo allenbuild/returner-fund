@@ -19,7 +19,7 @@
     "sourcePreview": [
       {
         "id": "src-31f516eb636b3ced46cebdec",
-        "title": "Introducing OneCLI, lets AI agents do real work in companies without storing passwords. Here's how it works 🧵",
+        "title": "Introducing OneCLI, lets AI agents do real work in companies without storing passwords.",
         "publisher": "jonathanfishner",
         "domain": "x.com",
         "sourceType": "founder_post",
@@ -31,7 +31,7 @@
     "evidence": [
       {
         "id": "src-31f516eb636b3ced46cebdec",
-        "title": "Introducing OneCLI, lets AI agents do real work in companies without storing passwords. Here's how it works 🧵",
+        "title": "Introducing OneCLI, lets AI agents do real work in companies without storing passwords.",
         "publisher": "jonathanfishner",
         "domain": "x.com",
         "sourceType": "founder_post",
@@ -39,7 +39,7 @@
         "evidenceRole": "primary",
         "url": "https://x.com/jonathanfishner/status/2080304874282258697",
         "publicationDate": "2026-07-23T14:51:46.000Z",
-        "excerpt": "Introducing OneCLI, lets AI agents do real work in companies without storing passwords. Here's how it works 🧵",
+        "excerpt": "Introducing OneCLI, lets AI agents do real work in companies without storing passwords. Here's how it works 🧵 https://t.co/G2ccdiCEKx",
         "sourceEventDate": "2026-07-23",
         "isConflicting": false,
         "conflictDescription": null
@@ -47,24 +47,23 @@
     ],
     "posts": [
       {
-        "id": "post-0ea228ac0987eec53e8cd8ca",
+        "id": "post-4d2cdd5e4a6b29daf6bd7c3e",
         "platform": "x",
         "account": "jonathanfishner",
         "postDate": "2026-07-23",
-        "excerpt": "Introducing OneCLI, lets AI agents do real work in companies without storing passwords. Here's how it works 🧵",
+        "excerpt": "Introducing OneCLI, lets AI agents do real work in companies without storing passwords. Here's how it works 🧵 https://t.co/G2ccdiCEKx",
         "url": "https://x.com/jonathanfishner/status/2080304874282258697",
         "metrics": {
-          "views": 24912,
-          "likes": 41,
-          "replies": 4,
-          "reposts": 2,
+          "likes": 50,
+          "reposts": 3,
           "quotes": 1,
-          "bookmarks": 38
+          "replies": 7,
+          "views": 33073
         },
         "evidenceRole": "primary"
       }
     ]
   },
-  "generatedAt": "2026-08-03T07:52:26.040Z",
-  "lastModifiedAt": "2026-08-03T07:52:26.040Z"
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
 }

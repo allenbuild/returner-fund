@@ -44,6 +44,8 @@ export interface PublicPlatform {
   label: string;
   companies: PublicCompany[];
   evidence: EvidenceItem[];
+  /** Full-snapshot count; `evidence` is only the bounded public preview. */
+  evidenceCount: number;
   indexable: boolean;
 }
 
@@ -114,7 +116,7 @@ export function getCatalog(): Catalog {
       batchSlug: graph.batch.slug,
       label: graph.batch.label,
       companies: cohortCompanies,
-      evidenceCount: graph.evidenceStats?.totalCount ?? cohortCompanies.reduce((sum, company) => sum + company.evidence.length, 0)
+      evidenceCount: graphEvidenceCount(graph)
     } satisfies PublicCohort;
   });
 
@@ -130,8 +132,13 @@ export function getCatalog(): Catalog {
   const platforms = platformValues()
     .map((platform) => {
       const platformEvidence = companies.flatMap((company) => company.evidence.filter((item) => item.platform === platform));
+      const evidenceCount = graphs.reduce(
+        (total, graph) => total + graphPlatformEvidenceCount(graph, platform),
+        0
+      );
       const platformCompanies = companies.filter((company) =>
         company.evidence.some((item) => item.platform === platform) ||
+        platform in company.node.platformScores ||
         company.node.socialAccounts.some((account) => account.platform === platform) ||
         company.node.founders.some((founder) => founder.socialAccounts.some((account) => account.platform === platform))
       );
@@ -141,11 +148,12 @@ export function getCatalog(): Catalog {
         label: platformLabel(platform),
         companies: platformCompanies,
         evidence: platformEvidence,
-        indexable: platformEvidence.length > 0
+        evidenceCount,
+        indexable: evidenceCount > 0
       } satisfies PublicPlatform;
     })
-    .filter((platform) => platform.companies.length > 0)
-    .sort((left, right) => right.evidence.length - left.evidence.length);
+    .filter((platform) => platform.evidenceCount > 0 || platform.companies.length > 0)
+    .sort((left, right) => right.evidenceCount - left.evidenceCount);
 
   const partners = groupedCompanies(companies, (company) => company.node.groupPartner ? [company.node.groupPartner] : [])
     .map(([name, grouped]) => ({
@@ -190,6 +198,19 @@ export function graphUrl(company: PublicCompany): string {
   params.set("node", company.node.id);
   const query = params.toString();
   return query ? `/?${query}` : "/";
+}
+
+export function graphEvidenceCount(graph: GraphResponse): number {
+  return graph.evidenceStats?.totalCount ?? graph.evidence.length;
+}
+
+export function graphPlatformEvidenceCount(graph: GraphResponse, platform: Platform): number {
+  return graph.evidenceStats?.byPlatform[platform] ?? graph.evidence.filter((item) => item.platform === platform).length;
+}
+
+/** Full scored input count used only for deterministic ranking tie-breaks. */
+export function companyRankingEvidenceCount(company: PublicCompany): number {
+  return company.node.scoreBreakdown?.confidence.scoredEvidenceCount ?? company.evidence.length;
 }
 
 export function platformLabel(platform: Platform): string {

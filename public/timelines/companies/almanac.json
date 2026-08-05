@@ -5,8 +5,8 @@
     "slug": "almanac",
     "name": "Almanac"
   },
-  "generatedAt": "2026-08-03T07:52:26.040Z",
-  "lastModifiedAt": "2026-08-03T07:52:26.040Z",
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z",
   "events": [
     {
       "id": "tle-5bd7e5ea31d0906a35d6c588",
@@ -22,13 +22,37 @@
       "sourcePreview": [
         {
           "id": "src-7ab14df80af71ae8d190d4f1",
-          "title": "Introducing CodeAlmanac, the context layer for your engineering team. For years, critical codebase knowledge has lived across people, docs, and old conversations. Agents start from scratch every time. That era is over. CodeAlmanac let’s…",
+          "title": "Introducing CodeAlmanac, the context layer for your engineering team.",
           "publisher": "kushagrchitkar",
           "domain": "x.com",
           "sourceType": "founder_post",
           "publishedAt": "2026-07-23T16:20:51.000Z",
           "evidenceRole": "primary",
           "url": "https://x.com/kushagrchitkar/status/2080327292866474047"
+        }
+      ]
+    },
+    {
+      "id": "tle-05e9c2f860a4dd9ca0c24606",
+      "eventDate": "2026-05-16",
+      "eventDateType": "announcement_date",
+      "title": "Almanac reached 50 stars",
+      "summary": "Almanac just hit 50 stars on Github.",
+      "category": "traction_milestone",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-3ecda3146078a6935d312880",
+          "title": "We just hit 50 stars on Github! If you want claude or codex to stop fucking up try codealmanac from the link below",
+          "publisher": "rohansharma0509",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-05-16T06:44:11.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/rohansharma0509/status/2055539794994766169"
         }
       ]
     },
@@ -55,6 +79,50 @@
           "url": "https://x.com/usealmanac/status/2033693731552170192"
         }
       ]
+    },
+    {
+      "id": "tle-f1cebc974abde6ba7f1ccdb1",
+      "eventDate": "2025-12-04",
+      "eventDateType": "announcement_date",
+      "title": "Almanac announced its public launch",
+      "summary": "Almanac announced it was launching Almanac, a people-Wikipedia written by AI.",
+      "category": "product_launch",
+      "isMajor": true,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 3,
+      "sourcePreview": [
+        {
+          "id": "src-8faab7888e207d915133d138",
+          "title": "Today we’re launching Almanac, a people-Wikipedia written by AI. Almanac uses news, personal websites, LinkedIn, X, YouTube, and more to create a detailed biography for you. Get your article today at http://thealmanac.ai",
+          "publisher": "divitsheth007",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-02-19T22:16:31.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/divitsheth007/status/2024609065406779808"
+        },
+        {
+          "id": "src-edce382334fdc5cfa13ef0c0",
+          "title": "Today we’re launching Almanac, a people-Wikipedia written by AI. Almanac uses news, personal websites, LinkedIn, X, YouTube, and more to create a detailed biography for you. Get your article today at https://thealmanac.ai",
+          "publisher": "usealmanac",
+          "domain": "x.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-02-19T13:28:30.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/usealmanac/status/2024476187607912711"
+        },
+        {
+          "id": "src-19b2aa101f6a19c34ebfc9b4",
+          "title": "Today we’re launching The Almanac, a people-Wikipedia written by AI. You can generate a profile for yourself or anyone else. Our agent crawls news, personal sites, LinkedIn, YouTube, and more to produce a detailed biography. Would love…",
+          "publisher": "rohansharma0509",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2025-12-04T18:41:28.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/rohansharma0509/status/1996651081934184907"
+        }
+      ]
     }
   ],
   "groups": [
@@ -66,7 +134,20 @@
           "count": 1
         },
         {
+          "month": "2026-05",
+          "count": 1
+        },
+        {
           "month": "2026-03",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "year": 2025,
+      "months": [
+        {
+          "month": "2025-12",
           "count": 1
         }
       ]
@@ -74,8 +155,8 @@
   ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 2,
-    "lastSuccessfulArtifactAt": "2026-08-03T07:52:26.040Z"
+    "publishedEventCount": 4,
+    "lastSuccessfulArtifactAt": "2026-08-05T00:49:13.374Z"
   },
   "nextCursor": null
 }

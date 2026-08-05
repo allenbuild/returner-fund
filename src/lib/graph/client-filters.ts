@@ -137,6 +137,17 @@ function companyIdsWithSelectedEvidence(
       (item.entityType === "company" ? item.entityId : founderIdToCompanyId.get(item.entityId));
     if (companyId) companyIds.add(companyId);
   }
+
+  // The public graph intentionally caps materialized evidence rows. Topic
+  // facet rows keep omitted volume evidence usable for company visibility and
+  // filter composition without shipping the full post payload to the client.
+  for (const row of graph.topicFacetRows ?? []) {
+    if (options.topVoiceAudience && row.audienceId !== options.topVoiceAudience) continue;
+    if (options.positiveOnly && row.contributionScore <= 0) continue;
+    if (selectedPlatforms.size > 0 && !selectedPlatforms.has(row.platform)) continue;
+    if (selectedTopics.size > 0 && !selectedTopics.has(row.topic)) continue;
+    companyIds.add(row.companyId);
+  }
   return companyIds;
 }
 

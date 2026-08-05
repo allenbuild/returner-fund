@@ -1,0 +1,147 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-stage",
+    "slug": "stage",
+    "name": "Stage"
+  },
+  "event": {
+    "id": "tle-bf446f6a0c631cedccfaa0f8",
+    "eventDate": "2026-04-30",
+    "eventDateType": "announcement_date",
+    "title": "Stage was introduced",
+    "summary": "Stage introduced Stage, a modern code review platform that your engineering team actually want to use.",
+    "category": "product_launch",
+    "isMajor": true,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 3,
+    "sourcePreview": [
+      {
+        "id": "src-0e01ef8d77be9a4cebbb694c",
+        "title": "Introducing Stage, a modern code review platform that your engineering team actually want to use.",
+        "publisher": "stagereview",
+        "domain": "linkedin.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-04-30T17:48:06.865Z",
+        "evidenceRole": "primary",
+        "url": "https://linkedin.com/posts/stagereview_introducing-stage-a-modern-code-review-platform-activity-7455674358871760896-nKGz"
+      },
+      {
+        "id": "src-57fdec74d469b59dba99418d",
+        "title": "Introducing the Stage CLI: a better way of reading your AI generated changes via a guided, elegant UI Our early users begged us for a way to use the Stage chapters experience before they open a PR, so we did Open source and runs complete...",
+        "publisher": "DeanStratakos",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-05-07T16:24:19.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/DeanStratakos/status/2052424299827634676"
+      },
+      {
+        "id": "src-4f2dc620c07b5548266e796c",
+        "title": "Introducing Stage",
+        "publisher": "Introducing Stage",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-05-19T18:05:59-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=EjMjGAqSLvo"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-0e01ef8d77be9a4cebbb694c",
+        "title": "Introducing Stage, a modern code review platform that your engineering team actually want to use.",
+        "publisher": "stagereview",
+        "domain": "linkedin.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-04-30T17:48:06.865Z",
+        "evidenceRole": "primary",
+        "url": "https://linkedin.com/posts/stagereview_introducing-stage-a-modern-code-review-platform-activity-7455674358871760896-nKGz",
+        "publicationDate": "2026-04-30T17:48:06.865Z",
+        "excerpt": "Introducing Stage, a modern code review platform that your engineering team actually want to use. We got tired of using GitHub to review AI generated code so we rebuilt the review process around the way you already naturally think, letting you ship faster and with more confidence. Try it out on your next PR today.",
+        "sourceEventDate": "2026-04-30",
+        "isConflicting": false,
+        "conflictDescription": null
+      },
+      {
+        "id": "src-57fdec74d469b59dba99418d",
+        "title": "Introducing the Stage CLI: a better way of reading your AI generated changes via a guided, elegant UI Our early users begged us for a way to use the Stage chapters experience before they open a PR, so we did Open source and runs complete...",
+        "publisher": "DeanStratakos",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-05-07T16:24:19.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/DeanStratakos/status/2052424299827634676",
+        "publicationDate": "2026-05-07T16:24:19.000Z",
+        "excerpt": "Introducing the Stage CLI: a better way of reading your AI generated changes via a guided, elegant UI Our early users begged us for a way to use the Stage chapters experience before they open a PR, so we did Open source and runs completely locally. Just run /stage-chapters in any coding agent",
+        "sourceEventDate": "2026-04-30",
+        "isConflicting": false,
+        "conflictDescription": null
+      },
+      {
+        "id": "src-4f2dc620c07b5548266e796c",
+        "title": "Introducing Stage",
+        "publisher": "Introducing Stage",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-05-19T18:05:59-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=EjMjGAqSLvo",
+        "publicationDate": "2026-05-19T18:05:59-07:00",
+        "excerpt": "A better code review platform.",
+        "sourceEventDate": "2026-05-07",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-49540df2cb2a8ac53141d485",
+        "platform": "linkedin",
+        "account": "stagereview",
+        "postDate": "2026-04-30",
+        "excerpt": "Introducing Stage, a modern code review platform that your engineering team actually want to use. We got tired of using GitHub to review AI generated code so we rebuilt the review process around the way you already naturally think, letting you ship faster and with more confidence. Try it out on your next PR today.",
+        "url": "https://linkedin.com/posts/stagereview_introducing-stage-a-modern-code-review-platform-activity-7455674358871760896-nKGz",
+        "metrics": {
+          "reactions": 39,
+          "comments": 12
+        },
+        "evidenceRole": "primary"
+      },
+      {
+        "id": "post-36cc0f08e68927d46500db1d",
+        "platform": "x",
+        "account": "DeanStratakos",
+        "postDate": "2026-05-07",
+        "excerpt": "Introducing the Stage CLI: a better way of reading your AI generated changes via a guided, elegant UI Our early users begged us for a way to use the Stage chapters experience before they open a PR, so we did Open source and runs completely locally. Just run /stage-chapters in any coding agent",
+        "url": "https://x.com/DeanStratakos/status/2052424299827634676",
+        "metrics": {
+          "views": 3647,
+          "likes": 52,
+          "replies": 11,
+          "reposts": 8,
+          "quotes": 2,
+          "bookmarks": 16
+        },
+        "evidenceRole": "primary"
+      },
+      {
+        "id": "post-ad1565bd0838976b56438e0f",
+        "platform": "youtube",
+        "account": "Introducing Stage",
+        "postDate": "2026-05-20",
+        "excerpt": "A better code review platform.",
+        "url": "https://youtube.com/watch?v=EjMjGAqSLvo",
+        "metrics": {
+          "views": 284,
+          "likes": 2,
+          "comments": 0
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

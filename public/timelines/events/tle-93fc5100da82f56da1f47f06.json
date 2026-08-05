@@ -19,7 +19,7 @@
     "sourcePreview": [
       {
         "id": "src-7db3c7478dc72497cc79d6c2",
-        "title": "ZeroDrift raised an oversubscribed $10,000,000 seed round to enforce compliance on AI communications, just 3 months after launching out o...",
+        "title": "ZeroDrift raised an oversubscribed $10,000,000 seed round to enforce compliance on AI communications, just 3 months after launching out of stealth.",
         "publisher": "kumesh_a",
         "domain": "x.com",
         "sourceType": "founder_post",
@@ -31,7 +31,7 @@
     "evidence": [
       {
         "id": "src-7db3c7478dc72497cc79d6c2",
-        "title": "ZeroDrift raised an oversubscribed $10,000,000 seed round to enforce compliance on AI communications, just 3 months after launching out o...",
+        "title": "ZeroDrift raised an oversubscribed $10,000,000 seed round to enforce compliance on AI communications, just 3 months after launching out of stealth.",
         "publisher": "kumesh_a",
         "domain": "x.com",
         "sourceType": "founder_post",
@@ -39,7 +39,7 @@
         "evidenceRole": "primary",
         "url": "https://x.com/kumesh_a/status/2061836966891565337",
         "publicationDate": "2026-06-02T15:46:54.000Z",
-        "excerpt": "ZeroDrift raised an oversubscribed $10,000,000 seed round to enforce compliance on AI communications, just 3 months after launching out of stealth. AI agents are becoming the next enterprise communication layer, and every regulated company will need compliance enforced before AI writes, speaks, calls, or publishes on its behalf. TechCrunch exclusive: https://techcrunch.com/2026/06/02/zerodrift-raises-10-million-to-protect-ai-models-from-themselves/",
+        "excerpt": "ZeroDrift raised an oversubscribed $10,000,000 seed round to enforce compliance on AI communications, just 3 months after launching out of stealth. AI agents are becoming the next enterprise communication layer, and every regulated company will need compliance enforced before AI https://t.co/v0VtNe4eN0",
         "sourceEventDate": "2026-06-02",
         "isConflicting": false,
         "conflictDescription": null
@@ -47,24 +47,23 @@
     ],
     "posts": [
       {
-        "id": "post-7afd79161b9a24cb91e6e56f",
+        "id": "post-51d4866be6781d4c31364968",
         "platform": "x",
         "account": "kumesh_a",
         "postDate": "2026-06-02",
-        "excerpt": "ZeroDrift raised an oversubscribed $10,000,000 seed round to enforce compliance on AI communications, just 3 months after launching out of stealth. AI agents are becoming the next enterprise communication layer, and every regulated company will need compliance enforced before AI writes, speaks, calls, or publishes on its behalf. TechCrunch exclusive: https://techcrunch.com/2026/06/02/zerodrift-raises-10-million-to-protect-ai-models-from-themselves/",
+        "excerpt": "ZeroDrift raised an oversubscribed $10,000,000 seed round to enforce compliance on AI communications, just 3 months after launching out of stealth. AI agents are becoming the next enterprise communication layer, and every regulated company will need compliance enforced before AI https://t.co/v0VtNe4eN0",
         "url": "https://x.com/kumesh_a/status/2061836966891565337",
         "metrics": {
-          "views": 5801307,
-          "likes": 292,
-          "replies": 30,
+          "likes": 293,
           "reposts": 40,
           "quotes": 2,
-          "bookmarks": 90
+          "replies": 30,
+          "views": 5802463
         },
         "evidenceRole": "primary"
       }
     ]
   },
-  "generatedAt": "2026-08-03T07:52:26.040Z",
-  "lastModifiedAt": "2026-08-03T07:52:26.040Z"
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
 }

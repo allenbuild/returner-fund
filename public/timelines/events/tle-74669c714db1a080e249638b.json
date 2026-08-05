@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-graphify-labs",
+    "slug": "graphify-labs",
+    "name": "Graphify Labs"
+  },
+  "event": {
+    "id": "tle-74669c714db1a080e249638b",
+    "eventDate": "2026-06-06",
+    "eventDateType": "announcement_date",
+    "title": "Graphify Labs reached 1.4M downloads",
+    "summary": "Graphify Labs reported just hit 60k+ stars and 1.4M downloads on @graphify.",
+    "category": "user_milestone",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-d22d25f1dbb992062be74115",
+        "title": "Just hit 60k+ stars and 1.4M downloads on @graphify. It’s been exactly two months since I open sourced it, the PRs have been crazy and seeing people from all over the world actually use it daily is genuinely wild. Huge thanks to everyone...",
+        "publisher": "safishamsii",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-06-06T09:19:29.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/safishamsii/status/2063189021627437558"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-d22d25f1dbb992062be74115",
+        "title": "Just hit 60k+ stars and 1.4M downloads on @graphify. It’s been exactly two months since I open sourced it, the PRs have been crazy and seeing people from all over the world actually use it daily is genuinely wild. Huge thanks to everyone...",
+        "publisher": "safishamsii",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-06-06T09:19:29.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/safishamsii/status/2063189021627437558",
+        "publicationDate": "2026-06-06T09:19:29.000Z",
+        "excerpt": "Just hit 60k+ stars and 1.4M downloads on @graphify. It’s been exactly two months since I open sourced it, the PRs have been crazy and seeing people from all over the world actually use it daily is genuinely wild. Huge thanks to everyone who’s been building with it. Coming from a research background in knowledge graphs, with YC I’m now building something even more interesting: an enterprise brain that self-learns and evolves over time. Can’t wait for cracked builders to play with graphify at…",
+        "sourceEventDate": "2026-06-06",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-a59a4d311c9290674e1b888d",
+        "platform": "x",
+        "account": "safishamsii",
+        "postDate": "2026-06-06",
+        "excerpt": "Just hit 60k+ stars and 1.4M downloads on @graphify. It’s been exactly two months since I open sourced it, the PRs have been crazy and seeing people from all over the world actually use it daily is genuinely wild. Huge thanks to everyone who’s been building with it. Coming from a research background in knowledge graphs, with YC I’m now building something even more interesting: an enterprise brain that self-learns and evolves over time. Can’t wait for cracked builders to play with graphify at…",
+        "url": "https://x.com/safishamsii/status/2063189021627437558",
+        "metrics": {
+          "views": 3613,
+          "likes": 48,
+          "replies": 11,
+          "reposts": 0,
+          "quotes": 0,
+          "bookmarks": 10
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

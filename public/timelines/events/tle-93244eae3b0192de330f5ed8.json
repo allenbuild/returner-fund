@@ -1,0 +1,69 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-tsenta",
+    "slug": "tsenta",
+    "name": "Tsenta"
+  },
+  "event": {
+    "id": "tle-93244eae3b0192de330f5ed8",
+    "eventDate": "2026-07-19",
+    "eventDateType": "announcement_date",
+    "title": "Tsenta released Tsenta. Built for Careermaxxing",
+    "summary": "Tsenta introduced Tsenta.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-4bc8c01e336e111bfd49cc10",
+        "title": "Introducing Tsenta. Built for Careermaxxing. https://t.co/eaOosMuywY",
+        "publisher": "agnaysrivastava",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-07-19T03:18:57.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/agnaysrivastava/status/2078680968366628924"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-4bc8c01e336e111bfd49cc10",
+        "title": "Introducing Tsenta. Built for Careermaxxing. https://t.co/eaOosMuywY",
+        "publisher": "agnaysrivastava",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-07-19T03:18:57.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/agnaysrivastava/status/2078680968366628924",
+        "publicationDate": "2026-07-19T03:18:57.000Z",
+        "excerpt": "Introducing Tsenta. Built for Careermaxxing. https://t.co/eaOosMuywY",
+        "sourceEventDate": "2026-07-19",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-7ebedc8e445a65f632a6fd63",
+        "platform": "x",
+        "account": "agnaysrivastava",
+        "postDate": "2026-07-19",
+        "excerpt": "Introducing Tsenta. Built for Careermaxxing. https://t.co/eaOosMuywY",
+        "url": "https://x.com/agnaysrivastava/status/2078680968366628924",
+        "metrics": {
+          "likes": 34,
+          "reposts": 5,
+          "quotes": 0,
+          "replies": 7,
+          "views": 2563
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

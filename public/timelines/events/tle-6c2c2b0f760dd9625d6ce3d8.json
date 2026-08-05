@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-ara",
+    "slug": "ara",
+    "name": "Ara"
+  },
+  "event": {
+    "id": "tle-6c2c2b0f760dd9625d6ce3d8",
+    "eventDate": "2026-02-02",
+    "eventDateType": "announcement_date",
+    "title": "Ara released only way to setup openclaw in under 2 minutes forreal",
+    "summary": "Ara launched the only way to setup openclaw in under 2 minutes forreal.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-db2cd8264d7f09783733cab9",
+        "title": "We launched the only way to setup openclaw in under 2 minutes forreal! try us out today!",
+        "publisher": "aradotso",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-02-02T09:02:04.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/aradotso/status/2018248544814018979"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-db2cd8264d7f09783733cab9",
+        "title": "We launched the only way to setup openclaw in under 2 minutes forreal! try us out today!",
+        "publisher": "aradotso",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-02-02T09:02:04.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/aradotso/status/2018248544814018979",
+        "publicationDate": "2026-02-02T09:02:04.000Z",
+        "excerpt": "We launched the only way to setup openclaw in under 2 minutes forreal! try us out today!",
+        "sourceEventDate": "2026-02-02",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-1cc04155796a3a46cd8818a4",
+        "platform": "x",
+        "account": "aradotso",
+        "postDate": "2026-02-02",
+        "excerpt": "We launched the only way to setup openclaw in under 2 minutes forreal! try us out today!",
+        "url": "https://x.com/aradotso/status/2018248544814018979",
+        "metrics": {
+          "views": 708,
+          "likes": 5,
+          "replies": 1,
+          "reposts": 2,
+          "quotes": 0,
+          "bookmarks": 3
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

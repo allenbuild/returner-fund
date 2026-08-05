@@ -5,15 +5,15 @@
     "slug": "oasiz",
     "name": "Oasiz"
   },
-  "generatedAt": "2026-08-03T07:52:26.040Z",
-  "lastModifiedAt": "2026-08-03T07:52:26.040Z",
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z",
   "events": [
     {
       "id": "tle-c2ecc7f1bd531d8437ed724f",
       "eventDate": "2025-10-08",
       "eventDateType": "announcement_date",
       "title": "Oasiz announced $2.5m funding round",
-      "summary": "Oasiz reported announcing our $2.5m raise led by @TheVRFund and @speedrun .",
+      "summary": "Oasiz reported announcing our $2.5m raise led by @TheVRFund and @speedrun.",
       "category": "funding",
       "isMajor": true,
       "hasConflict": false,
@@ -22,11 +22,11 @@
       "sourcePreview": [
         {
           "id": "src-884aab276bb4494cdd4e8636",
-          "title": "Announcing our $2.5m raise led by @TheVRFund and @speedrun !",
+          "title": "Announcing our $2.5m raise led by @TheVRFund and @speedrun! We've all used AI for work, school ...",
           "publisher": "playoasiz",
           "domain": "x.com",
           "sourceType": "company_post",
-          "publishedAt": "2025-10-08T05:00:00.000Z",
+          "publishedAt": "2025-10-08T18:48:58.000Z",
           "evidenceRole": "primary",
           "url": "https://x.com/playoasiz/status/1975996861510291753"
         }
@@ -47,7 +47,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-08-03T07:52:26.040Z"
+    "lastSuccessfulArtifactAt": "2026-08-05T00:49:13.374Z"
   },
   "nextCursor": null
 }

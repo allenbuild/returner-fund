@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-wondering",
+    "slug": "wondering",
+    "name": "Wondering"
+  },
+  "event": {
+    "id": "tle-7ba92087cef59d281bcab624",
+    "eventDate": "2026-07-28",
+    "eventDateType": "announcement_date",
+    "title": "Wondering announced its public launch",
+    "summary": "Wondering introduced Wondering Podcast.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-d1a1773b4bfc605b73c83873",
+        "title": "Introducing Wondering Podcast. Turn any complex topic, from distributed systems to product design, into personalized podcasts, structured as a guided learning path. Bite-sized. Adapts to how you learn best. And it remembers what you've ...",
+        "publisher": "HcwXd",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-07-28T19:50:48.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/HcwXd/status/2082192065627316545"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-d1a1773b4bfc605b73c83873",
+        "title": "Introducing Wondering Podcast. Turn any complex topic, from distributed systems to product design, into personalized podcasts, structured as a guided learning path. Bite-sized. Adapts to how you learn best. And it remembers what you've ...",
+        "publisher": "HcwXd",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-07-28T19:50:48.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/HcwXd/status/2082192065627316545",
+        "publicationDate": "2026-07-28T19:50:48.000Z",
+        "excerpt": "Introducing Wondering Podcast. Turn any complex topic, from distributed systems to product design, into personalized podcasts, structured as a guided learning path. Bite-sized. Adapts to how you learn best. And it remembers what you've already learned, so every episode builds on the last, with visuals and interactive practice built in. Start learning free at @WonderingApp",
+        "sourceEventDate": "2026-07-28",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-7cc85d71ba2c44d01248d03b",
+        "platform": "x",
+        "account": "HcwXd",
+        "postDate": "2026-07-28",
+        "excerpt": "Introducing Wondering Podcast. Turn any complex topic, from distributed systems to product design, into personalized podcasts, structured as a guided learning path. Bite-sized. Adapts to how you learn best. And it remembers what you've already learned, so every episode builds on the last, with visuals and interactive practice built in. Start learning free at @WonderingApp",
+        "url": "https://x.com/HcwXd/status/2082192065627316545",
+        "metrics": {
+          "views": 1908,
+          "likes": 31,
+          "replies": 3,
+          "reposts": 6,
+          "quotes": 0,
+          "bookmarks": 19
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

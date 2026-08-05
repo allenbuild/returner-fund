@@ -1,0 +1,107 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-prized",
+    "slug": "prized",
+    "name": "Prized"
+  },
+  "event": {
+    "id": "tle-051e39616b340a50a0cec4fb",
+    "eventDate": "2026-07-30",
+    "eventDateType": "announcement_date",
+    "title": "Prized launched on Hacker News",
+    "summary": "Launch HN: Prized (YC S26) – Let non-engineer staff build secure internal tools.",
+    "category": "product_launch",
+    "isMajor": true,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 2,
+    "sourcePreview": [
+      {
+        "id": "src-21cfdb86eb27c6c5ec573915",
+        "title": "Launch HN: Prized (YC S26) – Let non-engineer staff build secure internal tools",
+        "publisher": "Launch HN: Prized (YC S26) – Let non-engineer staff build secure internal tools",
+        "domain": "news.ycombinator.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-07-30T13:29:03Z",
+        "evidenceRole": "primary",
+        "url": "https://news.ycombinator.com/item?id=49109721"
+      },
+      {
+        "id": "src-4545b629cc7be112dbfdb134",
+        "title": "Today we're launching Prized Sandboxes Someone on your team asks to point Claude Code at the customer database.",
+        "publisher": "hudson_gri",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-07-29T16:05:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/hudson_gri/status/2082497628953338023"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-21cfdb86eb27c6c5ec573915",
+        "title": "Launch HN: Prized (YC S26) – Let non-engineer staff build secure internal tools",
+        "publisher": "Launch HN: Prized (YC S26) – Let non-engineer staff build secure internal tools",
+        "domain": "news.ycombinator.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-07-30T13:29:03Z",
+        "evidenceRole": "primary",
+        "url": "https://news.ycombinator.com/item?id=49109721",
+        "publicationDate": "2026-07-30T13:29:03Z",
+        "excerpt": "Launch HN: Prized (YC S26) – Let non-engineer staff build secure internal tools",
+        "sourceEventDate": "2026-07-30",
+        "isConflicting": false,
+        "conflictDescription": null
+      },
+      {
+        "id": "src-4545b629cc7be112dbfdb134",
+        "title": "Today we're launching Prized Sandboxes Someone on your team asks to point Claude Code at the customer database.",
+        "publisher": "hudson_gri",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-07-29T16:05:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/hudson_gri/status/2082497628953338023",
+        "publicationDate": "2026-07-29T16:05:00.000Z",
+        "excerpt": "Today we're launching Prized Sandboxes Someone on your team asks to point Claude Code at the customer database. You want to say yes. You just have no way to know it's being done safely. Now you do: isolated workspaces, data already connected, the AI never touches a real https://t.co/2ot9A5ZrSE",
+        "sourceEventDate": "2026-07-30",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-480901948cd97aabe15625b9",
+        "platform": "hacker_news",
+        "account": null,
+        "postDate": "2026-07-30",
+        "excerpt": "Launch HN: Prized (YC S26) – Let non-engineer staff build secure internal tools",
+        "url": "https://news.ycombinator.com/item?id=49109721",
+        "metrics": {
+          "upvotes": 77,
+          "comments": 59
+        },
+        "evidenceRole": "primary"
+      },
+      {
+        "id": "post-0a0f10398c75c641d89f53bd",
+        "platform": "x",
+        "account": "hudson_gri",
+        "postDate": "2026-07-29",
+        "excerpt": "Today we're launching Prized Sandboxes Someone on your team asks to point Claude Code at the customer database. You want to say yes. You just have no way to know it's being done safely. Now you do: isolated workspaces, data already connected, the AI never touches a real https://t.co/2ot9A5ZrSE",
+        "url": "https://x.com/hudson_gri/status/2082497628953338023",
+        "metrics": {
+          "likes": 43,
+          "reposts": 5,
+          "quotes": 0,
+          "replies": 22,
+          "views": 5278
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

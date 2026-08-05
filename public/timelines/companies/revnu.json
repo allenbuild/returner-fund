@@ -5,21 +5,31 @@
     "slug": "revnu",
     "name": "Revnu"
   },
-  "generatedAt": "2026-08-03T07:52:26.040Z",
-  "lastModifiedAt": "2026-08-03T07:52:26.040Z",
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z",
   "events": [
     {
-      "id": "tle-a73e15eb9f7207416782b67a",
+      "id": "tle-d3c26a50957979a58883c6eb",
       "eventDate": "2026-05-21",
       "eventDateType": "announcement_date",
-      "title": "Revnu announced its public launch",
-      "summary": "Revnu announced its public launch in a dated company video.",
+      "title": "Revnu launched on Y Combinator",
+      "summary": "Revnu is now live on @ycombinator The future means anyone can run a business never having to worry about growth again Check us out at.",
       "category": "product_launch",
       "isMajor": true,
       "hasConflict": false,
       "conflictSummary": null,
       "evidenceCount": 2,
       "sourcePreview": [
+        {
+          "id": "src-ea21db15a8f2d92a5db15e1c",
+          "title": "Revnu is now live on @ycombinator The future means anyone can run a business never having to worry about growth again Check us out at https://t.co/ipHUKwOziO",
+          "publisher": "revnu_app",
+          "domain": "x.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-05-21T22:44:54.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/revnu_app/status/2057593506567512169"
+        },
         {
           "id": "src-97a643eb34e40848f6ea9571",
           "title": "Revnu Launch Video (YC P26)",
@@ -29,16 +39,54 @@
           "publishedAt": "2026-05-20T18:58:33-07:00",
           "evidenceRole": "primary",
           "url": "https://youtube.com/watch?v=cL_dwhuRvGM"
-        },
+        }
+      ]
+    },
+    {
+      "id": "tle-6efa382cda47acc7b8aa4269",
+      "eventDate": "2026-05-21",
+      "eventDateType": "announcement_date",
+      "title": "Revnu released ON YC Building",
+      "summary": "Revnu JUST LAUNCHED ON YC Building @revnu_app with @artfreebrey has been the MOST fun thing I have EVER done in my life If you're busy shipping & want growth on autopilot, check us out.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
         {
-          "id": "src-ea21db15a8f2d92a5db15e1c",
-          "title": "Revnu is now live on @ycombinator The future means anyone can run a business never having to worry about growth again Check us out at http:// revnu.com Quote Y Combinator @ycombinator · May 21 Revnu (@revnu_app) makes growth a solved…",
-          "publisher": "revnu_app X post",
+          "id": "src-df1656190c4e1ca5356408fc",
+          "title": "🚨 WE JUST LAUNCHED ON YC Building @revnu_app with @artfreebrey has been the MOST fun thing I have EVER done in my life If you’re busy shipping & want growth on autopilot, check us out!",
+          "publisher": "GeorgeJeffersn",
           "domain": "x.com",
-          "sourceType": "company_post",
-          "publishedAt": "2026-05-21T00:00:00.000Z",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-05-21T22:07:36.000Z",
           "evidenceRole": "primary",
-          "url": "https://x.com/revnu_app/status/2057593506567512169"
+          "url": "https://x.com/GeorgeJeffersn/status/2057584117450252459"
+        }
+      ]
+    },
+    {
+      "id": "tle-a223dad7f2844fcacddc0c08",
+      "eventDate": "2026-04-02",
+      "eventDateType": "announcement_date",
+      "title": "Revnu was accepted into Y Combinator",
+      "summary": "Revnu just got accepted into YC.",
+      "category": "accelerator",
+      "isMajor": true,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-9fff5dc4e682c7954977f7e8",
+          "title": "we just got accepted into YC!! were building Revnu! founders are addicted to shipping but nobody wants to do the growth work (Ads, SEO, A/B tests, etc) so we built AI agents that do it automatically if you're in SF hit us up and we can o...",
+          "publisher": "artfreebrey",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-04-02T20:36:22.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/artfreebrey/status/2039804155037122633"
         }
       ]
     }
@@ -49,6 +97,10 @@
       "months": [
         {
           "month": "2026-05",
+          "count": 2
+        },
+        {
+          "month": "2026-04",
           "count": 1
         }
       ]
@@ -56,8 +108,8 @@
   ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-08-03T07:52:26.040Z"
+    "publishedEventCount": 3,
+    "lastSuccessfulArtifactAt": "2026-08-05T00:49:13.374Z"
   },
   "nextCursor": null
 }

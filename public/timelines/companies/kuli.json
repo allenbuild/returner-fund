@@ -5,14 +5,49 @@
     "slug": "kuli",
     "name": "Kuli"
   },
-  "generatedAt": "2026-08-03T07:52:26.040Z",
-  "lastModifiedAt": "2026-08-03T07:52:26.040Z",
-  "events": [],
-  "groups": [],
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z",
+  "events": [
+    {
+      "id": "tle-42c8c30dce1b5c4920673f01",
+      "eventDate": "2026-05-04",
+      "eventDateType": "announcement_date",
+      "title": "Kuli released end of manual scrolling Hello",
+      "summary": "Kuli introduced the end of manual scrolling Hello @kuli_ai.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-222a3ef784c92fae8905fb99",
+          "title": "Introducing the end of manual scrolling Hello @kuli_ai",
+          "publisher": "maradoh22",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-05-04T16:36:22.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/maradoh22/status/2051340167349407795"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-05",
+          "count": 1
+        }
+      ]
+    }
+  ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 0,
-    "lastSuccessfulArtifactAt": "2026-08-03T07:52:26.040Z"
+    "publishedEventCount": 1,
+    "lastSuccessfulArtifactAt": "2026-08-05T00:49:13.374Z"
   },
   "nextCursor": null
 }

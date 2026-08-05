@@ -1,0 +1,69 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-waddle-labs",
+    "slug": "waddle-labs",
+    "name": "Waddle Labs"
+  },
+  "event": {
+    "id": "tle-f4691be69c392fd4eab93cfd",
+    "eventDate": "2026-07-27",
+    "eventDateType": "announcement_date",
+    "title": "Waddle Labs released Waddle Labs: Claude Code for robots",
+    "summary": "Waddle Labs introduced Waddle Labs: Claude Code for robots.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-2c7c2660492add54b517b2d6",
+        "title": "Introducing Waddle Labs: Claude Code for robots.",
+        "publisher": "dozenducc",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-07-27T18:03:14.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/dozenducc/status/2081802609128788393"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-2c7c2660492add54b517b2d6",
+        "title": "Introducing Waddle Labs: Claude Code for robots.",
+        "publisher": "dozenducc",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-07-27T18:03:14.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/dozenducc/status/2081802609128788393",
+        "publicationDate": "2026-07-27T18:03:14.000Z",
+        "excerpt": "Introducing Waddle Labs: Claude Code for robots. Connect our API to your robot and enter a prompt, then our agents write code to achieve the task in 20 minutes. @yiding_song @theWaddleLabs https://t.co/t3iBPJsZa7",
+        "sourceEventDate": "2026-07-27",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-97836202f9ccbaeebb93843e",
+        "platform": "x",
+        "account": "dozenducc",
+        "postDate": "2026-07-27",
+        "excerpt": "Introducing Waddle Labs: Claude Code for robots. Connect our API to your robot and enter a prompt, then our agents write code to achieve the task in 20 minutes. @yiding_song @theWaddleLabs https://t.co/t3iBPJsZa7",
+        "url": "https://x.com/dozenducc/status/2081802609128788393",
+        "metrics": {
+          "likes": 2454,
+          "reposts": 231,
+          "quotes": 131,
+          "replies": 206,
+          "views": 684856
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

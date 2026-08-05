@@ -506,6 +506,7 @@ export interface GraphResponse {
   needsReview: NeedsReviewItem[];
   evidence: EvidenceItem[];
   evidenceStats?: EvidenceStats;
+  topicFacetRows?: TopicFacetRow[];
   platformStatus: PlatformStatus[];
   selectedTopVoiceAudience: TopVoiceAudienceSummary;
   topVoiceAudiences: TopVoiceAudienceSummary[];
@@ -521,5 +522,21 @@ export interface EvidenceStats {
   totalCount: number;
   scoringEligibleCount: number;
   byPlatform: Partial<Record<Platform, number>>;
+  /** Full-snapshot physical post counts, independent of the public evidence cap. */
+  byTopic: Partial<Record<PostTopic, number>>;
   firstSeenByDay: Record<string, number>;
+}
+
+/**
+ * Compact topic index entries for evidence that may be omitted from the
+ * public graph payload cap. They contain only filter/count dimensions; the
+ * full post remains in the source evidence corpus or published graph.
+ */
+export interface TopicFacetRow {
+  topic: PostTopic;
+  postKey: string;
+  platform: Platform;
+  companyId: string;
+  contributionScore: number;
+  audienceId: TopVoiceAudienceId;
 }

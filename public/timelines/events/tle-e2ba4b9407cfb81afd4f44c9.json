@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-graphify-labs",
+    "slug": "graphify-labs",
+    "name": "Graphify Labs"
+  },
+  "event": {
+    "id": "tle-e2ba4b9407cfb81afd4f44c9",
+    "eventDate": "2026-04-13",
+    "eventDateType": "announcement_date",
+    "title": "Graphify Labs reached 107k downloads",
+    "summary": "Graphify Labs reported graphify has hit 107k downloads in 8 days.",
+    "category": "user_milestone",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-24db914f99f627f4de0f8345",
+        "title": "Graphify has hit 107k downloads in 8 days. The OSS ecosystem is bigger than any launch strategy. Ship something useful and the world finds it. 24.3k stars. 2.6k forks. 8 days old",
+        "publisher": "safishamsii",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-04-13T09:20:22.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/safishamsii/status/2043620297924890888"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-24db914f99f627f4de0f8345",
+        "title": "Graphify has hit 107k downloads in 8 days. The OSS ecosystem is bigger than any launch strategy. Ship something useful and the world finds it. 24.3k stars. 2.6k forks. 8 days old",
+        "publisher": "safishamsii",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-04-13T09:20:22.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/safishamsii/status/2043620297924890888",
+        "publicationDate": "2026-04-13T09:20:22.000Z",
+        "excerpt": "Graphify has hit 107k downloads in 8 days. The OSS ecosystem is bigger than any launch strategy. Ship something useful and the world finds it. 24.3k stars. 2.6k forks. 8 days old",
+        "sourceEventDate": "2026-04-13",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-8588969a87347e2a89c028b7",
+        "platform": "x",
+        "account": "safishamsii",
+        "postDate": "2026-04-13",
+        "excerpt": "Graphify has hit 107k downloads in 8 days. The OSS ecosystem is bigger than any launch strategy. Ship something useful and the world finds it. 24.3k stars. 2.6k forks. 8 days old",
+        "url": "https://x.com/safishamsii/status/2043620297924890888",
+        "metrics": {
+          "views": 1429,
+          "likes": 32,
+          "replies": 1,
+          "reposts": 2,
+          "quotes": 0,
+          "bookmarks": 3
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

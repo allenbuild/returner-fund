@@ -1,0 +1,69 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-mireye",
+    "slug": "mireye",
+    "name": "Mireye"
+  },
+  "event": {
+    "id": "tle-a9f13d6818d2ed165a6de13d",
+    "eventDate": "2026-07-31",
+    "eventDateType": "announcement_date",
+    "title": "Mireye released We are live 🚀",
+    "summary": "Mireye is live 🚀.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-10187aa81f168844ec25c0b5",
+        "title": "We are live 🚀",
+        "publisher": "mireyehq",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-07-31T14:17:48.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/mireyehq/status/2083195425784533364"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-10187aa81f168844ec25c0b5",
+        "title": "We are live 🚀",
+        "publisher": "mireyehq",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-07-31T14:17:48.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/mireyehq/status/2083195425784533364",
+        "publicationDate": "2026-07-31T14:17:48.000Z",
+        "excerpt": "We are live 🚀",
+        "sourceEventDate": "2026-07-31",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-14b76b4d9b2a7c4132ccc0bb",
+        "platform": "x",
+        "account": "mireyehq",
+        "postDate": "2026-07-31",
+        "excerpt": "We are live 🚀",
+        "url": "https://x.com/mireyehq/status/2083195425784533364",
+        "metrics": {
+          "likes": 5,
+          "reposts": 0,
+          "quotes": 0,
+          "replies": 1,
+          "views": 560
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

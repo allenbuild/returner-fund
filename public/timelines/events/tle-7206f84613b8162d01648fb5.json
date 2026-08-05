@@ -19,7 +19,7 @@
     "sourcePreview": [
       {
         "id": "src-89a1ea39f43512eca55a3de5",
-        "title": "We just raised $5.5M to answer one question: Who pays when your AI agent **** up ? Until now, nobody had a good answer. That's why we ...",
+        "title": "We just raised $5.5M to answer one question: Who pays when your AI agent **** up ? Until now, nobody had a good answer.",
         "publisher": "inesboutem",
         "domain": "x.com",
         "sourceType": "founder_post",
@@ -31,7 +31,7 @@
     "evidence": [
       {
         "id": "src-89a1ea39f43512eca55a3de5",
-        "title": "We just raised $5.5M to answer one question: Who pays when your AI agent **** up ? Until now, nobody had a good answer. That's why we ...",
+        "title": "We just raised $5.5M to answer one question: Who pays when your AI agent **** up ? Until now, nobody had a good answer.",
         "publisher": "inesboutem",
         "domain": "x.com",
         "sourceType": "founder_post",
@@ -39,7 +39,7 @@
         "evidenceRole": "primary",
         "url": "https://x.com/inesboutem/status/2079655816261455880",
         "publicationDate": "2026-07-21T19:52:39.000Z",
-        "excerpt": "We just raised $5.5M to answer one question: Who pays when your AI agent **** up ? Until now, nobody had a good answer. That's why we built @klaimee_ai : insurance-backed performance warranty for AI agents. AI agents are taking real actions inside enterprises. They can hallucinate, leak data, make incorrect decisions, or take actions they shouldn't. Traditional Tech E&O and Cyber weren't built for autonomous AI. We think AI agents deserve insurance designed specifically for them. @JulsCaton…",
+        "excerpt": "We just raised $5.5M to answer one question: Who pays when your AI agent **** up ? Until now, nobody had a good answer. That's why we built @klaimee_ai : insurance-backed performance warranty for AI agents. AI agents are taking real actions inside enterprises. They can https://t.co/V9NUCDFhBb",
         "sourceEventDate": "2026-07-21",
         "isConflicting": false,
         "conflictDescription": null
@@ -47,24 +47,23 @@
     ],
     "posts": [
       {
-        "id": "post-3823592168975032b558dc7f",
+        "id": "post-233e4e873113a6eca11a84ca",
         "platform": "x",
         "account": "inesboutem",
         "postDate": "2026-07-21",
-        "excerpt": "We just raised $5.5M to answer one question: Who pays when your AI agent **** up ? Until now, nobody had a good answer. That's why we built @klaimee_ai : insurance-backed performance warranty for AI agents. AI agents are taking real actions inside enterprises. They can hallucinate, leak data, make incorrect decisions, or take actions they shouldn't. Traditional Tech E&O and Cyber weren't built for autonomous AI. We think AI agents deserve insurance designed specifically for them. @JulsCaton…",
+        "excerpt": "We just raised $5.5M to answer one question: Who pays when your AI agent **** up ? Until now, nobody had a good answer. That's why we built @klaimee_ai : insurance-backed performance warranty for AI agents. AI agents are taking real actions inside enterprises. They can https://t.co/V9NUCDFhBb",
         "url": "https://x.com/inesboutem/status/2079655816261455880",
         "metrics": {
-          "views": 39039,
-          "likes": 242,
-          "replies": 44,
+          "likes": 247,
           "reposts": 20,
           "quotes": 2,
-          "bookmarks": 112
+          "replies": 47,
+          "views": 40032
         },
         "evidenceRole": "primary"
       }
     ]
   },
-  "generatedAt": "2026-08-03T07:52:26.040Z",
-  "lastModifiedAt": "2026-08-03T07:52:26.040Z"
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
 }

@@ -5,8 +5,8 @@
     "slug": "mirror-mirror-ai",
     "name": "Mirror Mirror AI"
   },
-  "generatedAt": "2026-08-03T07:52:26.040Z",
-  "lastModifiedAt": "2026-08-03T07:52:26.040Z",
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z",
   "events": [
     {
       "id": "tle-c821ec3afe8e613fafb1b118",
@@ -21,18 +21,18 @@
       "evidenceCount": 2,
       "sourcePreview": [
         {
-          "id": "src-7d0250a52a0d01ed05dff0c7",
+          "id": "src-a5e7c256f5a5b2c9fc3819fb",
           "title": "Introducing Digital Twin Studio! Finally the solution to give you full control of how you’re represented. Link in bio to access our beta version!",
           "publisher": "mirrormirror.ai",
           "domain": "instagram.com",
           "sourceType": "company_post",
           "publishedAt": "2026-06-10T13:31:09.000Z",
           "evidenceRole": "primary",
-          "url": "https://www.instagram.com/reel/DZaUqGAB-5G"
+          "url": "https://instagram.com/reel/DZaUqGAB-5G"
         },
         {
           "id": "src-63255856eaae936e193c57f8",
-          "title": "Introducing Digital Twin Studio, a new feature on Mirror Mirror AI. Build your own AI likeness for licensing through an iterative process...",
+          "title": "Introducing Digital Twin Studio, a new feature on Mirror Mirror AI.",
           "publisher": "mirrormirror_ai",
           "domain": "x.com",
           "sourceType": "company_post",
@@ -55,14 +55,14 @@
       "evidenceCount": 2,
       "sourcePreview": [
         {
-          "id": "src-4efaec54563b8a83fd5e44c7",
+          "id": "src-1b7cc957b697c5410a034947",
           "title": "Introducing e-commerce imagery, now live on Mirror Mirror AI. A complete e-commerce shoot with real models, done in hours, not weeks. Every shot consistent across the catalog. Consent, licensing, and compensation built into every image.…",
           "publisher": "mirrormirror.ai",
           "domain": "instagram.com",
           "sourceType": "company_post",
           "publishedAt": "2026-05-27T18:31:50.000Z",
           "evidenceRole": "primary",
-          "url": "https://www.instagram.com/reel/DY2iw5kRRvZ"
+          "url": "https://instagram.com/reel/DY2iw5kRRvZ"
         },
         {
           "id": "src-7068fb04546d01a80e5f7b65",
@@ -73,6 +73,30 @@
           "publishedAt": "2026-03-22T07:36:33.000Z",
           "evidenceRole": "primary",
           "url": "https://www.youtube.com/watch?v=SnIE-Rqr2bw"
+        }
+      ]
+    },
+    {
+      "id": "tle-5b23949529f0628908d60c89",
+      "eventDate": "2025-07-10",
+      "eventDateType": "announcement_date",
+      "title": "Mirror Mirror AI released Studio by Mirror Mirror AI",
+      "summary": "Mirror Mirror AI launched The Studio by Mirror Mirror AI.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-2dce0f09b9e9127bdefa9ec3",
+          "title": "🚀 We launched The Studio by Mirror Mirror AI. Generating fashion campaigns with AI should save you time and budget—without compromising your brand’s identity or aesthetic. That’s why we built The Studio. ✨ The Studio lets brands create...",
+          "publisher": "yusan_lin",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2025-07-10T16:00:01.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/yusan_lin/status/1943339433417384052"
         }
       ]
     }
@@ -90,12 +114,21 @@
           "count": 1
         }
       ]
+    },
+    {
+      "year": 2025,
+      "months": [
+        {
+          "month": "2025-07",
+          "count": 1
+        }
+      ]
     }
   ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 2,
-    "lastSuccessfulArtifactAt": "2026-08-03T07:52:26.040Z"
+    "publishedEventCount": 3,
+    "lastSuccessfulArtifactAt": "2026-08-05T00:49:13.374Z"
   },
   "nextCursor": null
 }

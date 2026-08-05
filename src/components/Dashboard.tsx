@@ -42,6 +42,13 @@ import {
   companyVerticalCounts,
   enrichGraphTaxonomies
 } from "@/lib/graph/graph-taxonomies";
+import {
+  isTopicFacetSnapshot,
+  topicFacetRowsForAudience,
+  topicFacetSnapshotUrl,
+  withTopicFacetRows,
+  type TopicFacetSnapshot
+} from "@/lib/graph/topic-facets";
 import { networkMapTitle } from "@/lib/graph/network-map-branding";
 import {
   normalizePostTopics,
@@ -257,6 +264,33 @@ async function fetchGraphPayloadWithStaticSnapshot(
     graph: apiGraph,
     source: "api"
   };
+}
+
+async function hydrateGraphTopicFacets(
+  graph: GraphResponse,
+  batchSlug: string,
+  audienceId: TopVoiceAudienceId,
+  signal?: AbortSignal
+): Promise<GraphResponse> {
+  const url = topicFacetSnapshotUrl(batchSlug);
+  if (!url || graph.topicFacetRows?.length) return graph;
+  try {
+    const snapshot = await fetchWithTimeout(
+      url,
+      { cache: "no-store" },
+      STATIC_GRAPH_TIMEOUT_MS,
+      async (response) => {
+        if (!response.ok) throw new Error(`Topic facet snapshot unavailable (${response.status})`);
+        return (await response.json()) as TopicFacetSnapshot;
+      },
+      signal
+    );
+    if (!isTopicFacetSnapshot(snapshot) || snapshot.batchSlug !== batchSlug) return graph;
+    return withTopicFacetRows(graph, topicFacetRowsForAudience(snapshot, audienceId));
+  } catch (caught) {
+    if (isAbortError(caught) || signal?.aborted) throw caught;
+    return graph;
+  }
 }
 
 async function fetchWithTimeout<T>(
@@ -1033,6 +1067,30 @@ export function Dashboard({
         setFilterMetadataGraph(payload);
       }
       setGraph(options.unfiltered ? applyClientGraphFilters(payload, currentFiltersRef.current) : payload);
+      if (options.unfiltered && !payload.topicFacetRows?.length) {
+        void hydrateGraphTopicFacets(
+          payload,
+          selected.batchSlug,
+          selected.topVoiceAudience,
+          request.controller.signal
+        ).then((hydrated) => {
+          if (hydrated === payload || !isCurrentGraphRequest(request)) return;
+          const latest = selectionRef.current;
+          if (
+            !graphMatchesSelection(hydrated, latest.batchSlug, latest.topVoiceAudience) ||
+            !sameValues(hydrated.selectedInsiderIds ?? [], latest.insiderIds)
+          ) return;
+          rememberGraph(hydrated, result.source);
+          setFilterMetadataGraph(hydrated);
+          setGraph(applyClientGraphFilters(hydrated, currentFiltersRef.current));
+        }).catch((caught) => {
+          if (!isAbortError(caught)) {
+            // Topic facets are an enhancement over the already usable graph;
+            // a missing snapshot must not turn a successful graph load into an
+            // error state.
+          }
+        });
+      }
     } catch (caught) {
       const failure = caught instanceof Error ? caught : new Error("Graph request failed");
       if (!background && requestId !== graphRequestIdRef.current) {

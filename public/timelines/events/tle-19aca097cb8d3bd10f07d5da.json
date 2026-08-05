@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-superlog",
+    "slug": "superlog",
+    "name": "Superlog"
+  },
+  "event": {
+    "id": "tle-19aca097cb8d3bd10f07d5da",
+    "eventDate": "2026-07-08",
+    "eventDateType": "announcement_date",
+    "title": "Superlog reached 996 stars",
+    "summary": "Superlog reported now has 996 stars - i guess this is a sign.",
+    "category": "traction_milestone",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-98b63c022735e5aa4e7ddbb6",
+        "title": "http://github.com/superloglabs/superlog now has 996 stars - i guess this is a sign",
+        "publisher": "arseniycodes",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-07-08T08:44:52.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/arseniycodes/status/2074776720129868279"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-98b63c022735e5aa4e7ddbb6",
+        "title": "http://github.com/superloglabs/superlog now has 996 stars - i guess this is a sign",
+        "publisher": "arseniycodes",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-07-08T08:44:52.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/arseniycodes/status/2074776720129868279",
+        "publicationDate": "2026-07-08T08:44:52.000Z",
+        "excerpt": "http://github.com/superloglabs/superlog now has 996 stars - i guess this is a sign",
+        "sourceEventDate": "2026-07-08",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-e0be376bf0b8bea8040ae9b1",
+        "platform": "x",
+        "account": "arseniycodes",
+        "postDate": "2026-07-08",
+        "excerpt": "http://github.com/superloglabs/superlog now has 996 stars - i guess this is a sign",
+        "url": "https://x.com/arseniycodes/status/2074776720129868279",
+        "metrics": {
+          "views": 1453,
+          "likes": 19,
+          "replies": 3,
+          "reposts": 0,
+          "quotes": 0,
+          "bookmarks": 9
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

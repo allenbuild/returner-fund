@@ -1,0 +1,66 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-hoplite",
+    "slug": "hoplite",
+    "name": "Hoplite"
+  },
+  "event": {
+    "id": "tle-3e527f7b6dfdf7adcbfd4d50",
+    "eventDate": "2026-08-03",
+    "eventDateType": "announcement_date",
+    "title": "Hoplite launched on Hacker News",
+    "summary": "Launch HN: Hoplite (YC S26) – Effortlessly deploy cloud coding agents.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-f613a22e95116ec5088e4ff4",
+        "title": "Launch HN: Hoplite (YC S26) – Effortlessly deploy cloud coding agents",
+        "publisher": "Launch HN: Hoplite (YC S26) – Effortlessly deploy cloud coding agents",
+        "domain": "news.ycombinator.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-08-03T16:32:06Z",
+        "evidenceRole": "primary",
+        "url": "https://news.ycombinator.com/item?id=49157997"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-f613a22e95116ec5088e4ff4",
+        "title": "Launch HN: Hoplite (YC S26) – Effortlessly deploy cloud coding agents",
+        "publisher": "Launch HN: Hoplite (YC S26) – Effortlessly deploy cloud coding agents",
+        "domain": "news.ycombinator.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-08-03T16:32:06Z",
+        "evidenceRole": "primary",
+        "url": "https://news.ycombinator.com/item?id=49157997",
+        "publicationDate": "2026-08-03T16:32:06Z",
+        "excerpt": "Launch HN: Hoplite (YC S26) – Effortlessly deploy cloud coding agents",
+        "sourceEventDate": "2026-08-03",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-52fd12e3eaa7282e5390dcce",
+        "platform": "hacker_news",
+        "account": "Launch HN: Hoplite (YC S26) – Effortlessly deploy cloud coding agents",
+        "postDate": "2026-08-03",
+        "excerpt": "Launch HN: Hoplite (YC S26) – Effortlessly deploy cloud coding agents",
+        "url": "https://news.ycombinator.com/item?id=49157997",
+        "metrics": {
+          "upvotes": 75,
+          "comments": 60
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

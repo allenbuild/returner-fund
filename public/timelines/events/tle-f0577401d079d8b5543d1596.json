@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-instance",
+    "slug": "instance",
+    "name": "Instance"
+  },
+  "event": {
+    "id": "tle-f0577401d079d8b5543d1596",
+    "eventDate": "2026-01-20",
+    "eventDateType": "announcement_date",
+    "title": "Instance released tryinstance",
+    "summary": "Instance announced it was launching @tryinstance — an AI data analyst for your team.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-e69b34627c62dc4c1c358f2c",
+        "title": "Today we’re launching @tryinstance — an AI data analyst for your team. Instead of waiting on someone who knows SQL (or pasting sensitive data into ChatGPT), you can just ask stuff like: “Which features do paid customers use most?” and get…",
+        "publisher": "clairemao78",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-01-20T20:24:36.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/clairemao78/status/2013709265656058055"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-e69b34627c62dc4c1c358f2c",
+        "title": "Today we’re launching @tryinstance — an AI data analyst for your team. Instead of waiting on someone who knows SQL (or pasting sensitive data into ChatGPT), you can just ask stuff like: “Which features do paid customers use most?” and get…",
+        "publisher": "clairemao78",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-01-20T20:24:36.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/clairemao78/status/2013709265656058055",
+        "publicationDate": "2026-01-20T20:24:36.000Z",
+        "excerpt": "Today we’re launching @tryinstance — an AI data analyst for your team. Instead of waiting on someone who knows SQL (or pasting sensitive data into ChatGPT), you can just ask stuff like: “Which features do paid customers use most?” and get real answers straight from your database in seconds. @LucyCai9 and I have been building this with a month-long @ycombinator program at MIT and we’re now running early demos with startups + data-driven teams. If questions about internal data slow your team…",
+        "sourceEventDate": "2026-01-20",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-a3a7e572b04e735a12c5707b",
+        "platform": "x",
+        "account": "clairemao78",
+        "postDate": "2026-01-20",
+        "excerpt": "Today we’re launching @tryinstance — an AI data analyst for your team. Instead of waiting on someone who knows SQL (or pasting sensitive data into ChatGPT), you can just ask stuff like: “Which features do paid customers use most?” and get real answers straight from your database in seconds. @LucyCai9 and I have been building this with a month-long @ycombinator program at MIT and we’re now running early demos with startups + data-driven teams. If questions about internal data slow your team…",
+        "url": "https://x.com/clairemao78/status/2013709265656058055",
+        "metrics": {
+          "views": 847,
+          "likes": 10,
+          "replies": 0,
+          "reposts": 0,
+          "quotes": 0,
+          "bookmarks": 1
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

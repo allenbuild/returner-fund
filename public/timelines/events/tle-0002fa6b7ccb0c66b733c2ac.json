@@ -1,0 +1,69 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-asterlab",
+    "slug": "aster",
+    "name": "Aster"
+  },
+  "event": {
+    "id": "tle-0002fa6b7ccb0c66b733c2ac",
+    "eventDate": "2026-07-28",
+    "eventDateType": "announcement_date",
+    "title": "Aster released Kimi K3 on Aster",
+    "summary": "Announcing Kimi K3 on Aster.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-fe0839d395b88f4fb79af1de",
+        "title": "Announcing Kimi K3 on Aster.",
+        "publisher": "asterailabs",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-07-28T01:41:53.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/asterailabs/status/2081918031660458002"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-fe0839d395b88f4fb79af1de",
+        "title": "Announcing Kimi K3 on Aster.",
+        "publisher": "asterailabs",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-07-28T01:41:53.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/asterailabs/status/2081918031660458002",
+        "publicationDate": "2026-07-28T01:41:53.000Z",
+        "excerpt": "Announcing Kimi K3 on Aster. Fable-level intelligence at: - 2x the speed - 1/3 cost - 131 tokens per second We're driving down costs and increasing speed to create the fastest Kimi K3 inference in the world. Try below. https://t.co/QNi6b1KQrq",
+        "sourceEventDate": "2026-07-28",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-f4dbc2837b268a055c1a4114",
+        "platform": "x",
+        "account": "asterailabs",
+        "postDate": "2026-07-28",
+        "excerpt": "Announcing Kimi K3 on Aster. Fable-level intelligence at: - 2x the speed - 1/3 cost - 131 tokens per second We're driving down costs and increasing speed to create the fastest Kimi K3 inference in the world. Try below. https://t.co/QNi6b1KQrq",
+        "url": "https://x.com/asterailabs/status/2081918031660458002",
+        "metrics": {
+          "likes": 179,
+          "reposts": 4,
+          "quotes": 1,
+          "replies": 18,
+          "views": 16813
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-userlens",
+    "slug": "userlens",
+    "name": "Userlens"
+  },
+  "event": {
+    "id": "tle-ce94a6d794c5b39fdfe605f0",
+    "eventDate": "2026-05-28",
+    "eventDateType": "announcement_date",
+    "title": "Userlens was accepted into Y Combinator",
+    "summary": "Demo Day is in a few weeks at @ycombinator Quick recap of what happened since we joined YC: - came in from Helsinki with $35k ARR - grew @userlens_hq to $250k ARR ($300k+ by Demo Day) - held over 20% WoW growth through the batch - raised prices and still kept closing customers.",
+    "category": "accelerator",
+    "isMajor": true,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-7f496d58f38780f1a47aa017",
+        "title": "Demo Day is in a few weeks at @ycombinator Quick recap of what happened since we joined YC: - came in from Helsinki with $35k ARR - grew @userlens_hq to $250k ARR ($300k+ by Demo Day) - held over 20% WoW growth through the batch - raised...",
+        "publisher": "ankur_d",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-05-28T13:56:28.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/ankur_d/status/2059997236310970390"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-7f496d58f38780f1a47aa017",
+        "title": "Demo Day is in a few weeks at @ycombinator Quick recap of what happened since we joined YC: - came in from Helsinki with $35k ARR - grew @userlens_hq to $250k ARR ($300k+ by Demo Day) - held over 20% WoW growth through the batch - raised...",
+        "publisher": "ankur_d",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-05-28T13:56:28.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/ankur_d/status/2059997236310970390",
+        "publicationDate": "2026-05-28T13:56:28.000Z",
+        "excerpt": "Demo Day is in a few weeks at @ycombinator Quick recap of what happened since we joined YC: - came in from Helsinki with $35k ARR - grew @userlens_hq to $250k ARR ($300k+ by Demo Day) - held over 20% WoW growth through the batch - raised prices and still kept closing customers - closed our FIRST ENTERPRISE DEAL with 100+ CSMs onboarded (went from first meeting to winning the pilot in 9 weeks) - @HaiTa personally delivered 50+ cakes to some of the best startups in SF (literally walked into…",
+        "sourceEventDate": "2026-05-28",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-194d34d310adbd0ba2b250df",
+        "platform": "x",
+        "account": "ankur_d",
+        "postDate": "2026-05-28",
+        "excerpt": "Demo Day is in a few weeks at @ycombinator Quick recap of what happened since we joined YC: - came in from Helsinki with $35k ARR - grew @userlens_hq to $250k ARR ($300k+ by Demo Day) - held over 20% WoW growth through the batch - raised prices and still kept closing customers - closed our FIRST ENTERPRISE DEAL with 100+ CSMs onboarded (went from first meeting to winning the pilot in 9 weeks) - @HaiTa personally delivered 50+ cakes to some of the best startups in SF (literally walked into…",
+        "url": "https://x.com/ankur_d/status/2059997236310970390",
+        "metrics": {
+          "views": 34631,
+          "likes": 46,
+          "replies": 7,
+          "reposts": 5,
+          "quotes": 1,
+          "bookmarks": 13
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

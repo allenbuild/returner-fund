@@ -5,9 +5,33 @@
     "slug": "graphify-labs",
     "name": "Graphify Labs"
   },
-  "generatedAt": "2026-08-03T07:52:26.040Z",
-  "lastModifiedAt": "2026-08-03T07:52:26.040Z",
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z",
   "events": [
+    {
+      "id": "tle-384db28682d135f0bedfc400",
+      "eventDate": "2026-08-02",
+      "eventDateType": "announcement_date",
+      "title": "Graphify Labs reached 100K github stars",
+      "summary": "Graphify Labs is the first YC company to hit 100K github stars during the batch.",
+      "category": "traction_milestone",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-9fb18deb06a39604dbbab085",
+          "title": "Graphify Labs is the first YC company to hit 100K github stars during the batch.",
+          "publisher": null,
+          "domain": "x.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-08-02T00:36:17.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/snowmaker/status/2083713463956979779"
+        }
+      ]
+    },
     {
       "id": "tle-a97b6ace2c0a1d43f2648b68",
       "eventDate": "2026-07-10",
@@ -31,6 +55,126 @@
           "url": "https://x.com/safishamsii/status/2075691513099481374"
         }
       ]
+    },
+    {
+      "id": "tle-74669c714db1a080e249638b",
+      "eventDate": "2026-06-06",
+      "eventDateType": "announcement_date",
+      "title": "Graphify Labs reached 1.4M downloads",
+      "summary": "Graphify Labs reported just hit 60k+ stars and 1.4M downloads on @graphify.",
+      "category": "user_milestone",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-d22d25f1dbb992062be74115",
+          "title": "Just hit 60k+ stars and 1.4M downloads on @graphify. It’s been exactly two months since I open sourced it, the PRs have been crazy and seeing people from all over the world actually use it daily is genuinely wild. Huge thanks to everyone...",
+          "publisher": "safishamsii",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-06-06T09:19:29.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/safishamsii/status/2063189021627437558"
+        }
+      ]
+    },
+    {
+      "id": "tle-52b3e22532c9f5643cd01b31",
+      "eventDate": "2026-05-26",
+      "eventDateType": "announcement_date",
+      "title": "Graphify Labs was accepted into Y Combinator S26",
+      "summary": "Graphify Labs reported getting accepted into YC S26 with @graphify still feels unreal.",
+      "category": "accelerator",
+      "isMajor": true,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-78f269380eae68d8f9c3805a",
+          "title": "Getting accepted into YC S26 with @graphify still feels unreal. The journey was fast and intense. Applied on May 4th, went through two interviews, and got in last week. The traction and support from the community genuinely made the di...",
+          "publisher": "safishamsii",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-05-26T14:06:43.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/safishamsii/status/2059275039329993029"
+        }
+      ]
+    },
+    {
+      "id": "tle-86f5cba67256fef5862b9e22",
+      "eventDate": "2026-05-25",
+      "eventDateType": "announcement_date",
+      "title": "Graphify Labs reached 1 million downloads",
+      "summary": "Graphify Labs reported graphify just crossed 1 million downloads in ~50 days as a fully open-source project.",
+      "category": "user_milestone",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-a6deecc5d443e0fa6afa9ccc",
+          "title": "Graphify just crossed 1 million downloads in ~50 days as a fully open-source project. Thanks to everyone using it, starring it, and building with it. This project keeps getting better because of the community, always open to PRs and idea...",
+          "publisher": "safishamsii",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-05-25T10:07:33.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/safishamsii/status/2058852461398405604"
+        }
+      ]
+    },
+    {
+      "id": "tle-e2ba4b9407cfb81afd4f44c9",
+      "eventDate": "2026-04-13",
+      "eventDateType": "announcement_date",
+      "title": "Graphify Labs reached 107k downloads",
+      "summary": "Graphify Labs reported graphify has hit 107k downloads in 8 days.",
+      "category": "user_milestone",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-24db914f99f627f4de0f8345",
+          "title": "Graphify has hit 107k downloads in 8 days. The OSS ecosystem is bigger than any launch strategy. Ship something useful and the world finds it. 24.3k stars. 2.6k forks. 8 days old",
+          "publisher": "safishamsii",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-04-13T09:20:22.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/safishamsii/status/2043620297924890888"
+        }
+      ]
+    },
+    {
+      "id": "tle-d41405fa08581d1d8a36f14a",
+      "eventDate": "2026-04-10",
+      "eventDateType": "announcement_date",
+      "title": "Graphify Labs reached 20k stars",
+      "summary": "Graphify Labs reported graphify is about to hit 20k stars in 5 days.",
+      "category": "traction_milestone",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-34170f3908f97fbafc3855c8",
+          "title": "Graphify is about to hit 20k stars in 5 days. Shipped v4. v4 now supports video corpora, YouTube and Instagram URLs. Run it locally on your machine. Your knowledge graph stays private, like a digital twin of yours. 20k stars · 2k forks ...",
+          "publisher": "safishamsii",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-04-10T15:18:28.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/safishamsii/status/2042623254582460759"
+        }
+      ]
     }
   ],
   "groups": [
@@ -38,16 +182,32 @@
       "year": 2026,
       "months": [
         {
+          "month": "2026-08",
+          "count": 1
+        },
+        {
           "month": "2026-07",
           "count": 1
+        },
+        {
+          "month": "2026-06",
+          "count": 1
+        },
+        {
+          "month": "2026-05",
+          "count": 2
+        },
+        {
+          "month": "2026-04",
+          "count": 2
         }
       ]
     }
   ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-08-03T07:52:26.040Z"
+    "publishedEventCount": 7,
+    "lastSuccessfulArtifactAt": "2026-08-05T00:49:13.374Z"
   },
   "nextCursor": null
 }

@@ -5,14 +5,49 @@
     "slug": "modaic",
     "name": "Modaic"
   },
-  "generatedAt": "2026-08-03T07:52:26.040Z",
-  "lastModifiedAt": "2026-08-03T07:52:26.040Z",
-  "events": [],
-  "groups": [],
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z",
+  "events": [
+    {
+      "id": "tle-e57d60f93a5f81401107672f",
+      "eventDate": "2026-01-15",
+      "eventDateType": "announcement_date",
+      "title": "Modaic released gepa-rpc as open source",
+      "summary": "Modaic reported just open sourced gepa-rpc.",
+      "category": "open_source",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-355c597fddb0e80d91a03d90",
+          "title": "just open sourced gepa-rpc! GEPA prompt optimization for Vercel's AI SDK. dead simple, DSPy-inspired API, and still feels native to AI SDK. multi-agent systems, tools, structured outputs - all supported, all optimized. https://github.co...",
+          "publisher": "ty_todd1",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-01-15T19:11:32.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/ty_todd1/status/2011878937677480224"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-01",
+          "count": 1
+        }
+      ]
+    }
+  ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 0,
-    "lastSuccessfulArtifactAt": "2026-08-03T07:52:26.040Z"
+    "publishedEventCount": 1,
+    "lastSuccessfulArtifactAt": "2026-08-05T00:49:13.374Z"
   },
   "nextCursor": null
 }

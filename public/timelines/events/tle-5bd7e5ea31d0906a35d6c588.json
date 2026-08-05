@@ -19,7 +19,7 @@
     "sourcePreview": [
       {
         "id": "src-7ab14df80af71ae8d190d4f1",
-        "title": "Introducing CodeAlmanac, the context layer for your engineering team. For years, critical codebase knowledge has lived across people, docs, and old conversations. Agents start from scratch every time. That era is over. CodeAlmanac let’s…",
+        "title": "Introducing CodeAlmanac, the context layer for your engineering team.",
         "publisher": "kushagrchitkar",
         "domain": "x.com",
         "sourceType": "founder_post",
@@ -31,7 +31,7 @@
     "evidence": [
       {
         "id": "src-7ab14df80af71ae8d190d4f1",
-        "title": "Introducing CodeAlmanac, the context layer for your engineering team. For years, critical codebase knowledge has lived across people, docs, and old conversations. Agents start from scratch every time. That era is over. CodeAlmanac let’s…",
+        "title": "Introducing CodeAlmanac, the context layer for your engineering team.",
         "publisher": "kushagrchitkar",
         "domain": "x.com",
         "sourceType": "founder_post",
@@ -39,7 +39,7 @@
         "evidenceRole": "primary",
         "url": "https://x.com/kushagrchitkar/status/2080327292866474047",
         "publicationDate": "2026-07-23T16:20:51.000Z",
-        "excerpt": "Introducing CodeAlmanac, the context layer for your engineering team. For years, critical codebase knowledge has lived across people, docs, and old conversations. Agents start from scratch every time. That era is over. CodeAlmanac let’s you make a shared wiki for your entire",
+        "excerpt": "Introducing CodeAlmanac, the context layer for your engineering team. For years, critical codebase knowledge has lived across people, docs, and old conversations. Agents start from scratch every time. That era is over. CodeAlmanac let’s you make a shared wiki for your entire https://t.co/v8rCIoCPcr",
         "sourceEventDate": "2026-07-23",
         "isConflicting": false,
         "conflictDescription": null
@@ -47,23 +47,23 @@
     ],
     "posts": [
       {
-        "id": "post-08aa7e2883583c8c4ec08fdd",
+        "id": "post-550dcfd6761abcff43a79d19",
         "platform": "x",
         "account": "kushagrchitkar",
         "postDate": "2026-07-23",
-        "excerpt": "Introducing CodeAlmanac, the context layer for your engineering team. For years, critical codebase knowledge has lived across people, docs, and old conversations. Agents start from scratch every time. That era is over. CodeAlmanac let’s you make a shared wiki for your entire",
+        "excerpt": "Introducing CodeAlmanac, the context layer for your engineering team. For years, critical codebase knowledge has lived across people, docs, and old conversations. Agents start from scratch every time. That era is over. CodeAlmanac let’s you make a shared wiki for your entire https://t.co/v8rCIoCPcr",
         "url": "https://x.com/kushagrchitkar/status/2080327292866474047",
         "metrics": {
-          "likes": 130,
-          "reposts": 28,
+          "likes": 150,
+          "reposts": 29,
           "quotes": 4,
           "replies": 39,
-          "views": 9214
+          "views": 11313
         },
         "evidenceRole": "primary"
       }
     ]
   },
-  "generatedAt": "2026-08-03T07:52:26.040Z",
-  "lastModifiedAt": "2026-08-03T07:52:26.040Z"
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
 }

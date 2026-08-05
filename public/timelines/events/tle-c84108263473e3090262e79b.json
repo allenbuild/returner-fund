@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-screenpipe",
+    "slug": "screenpipe",
+    "name": "screenpipe"
+  },
+  "event": {
+    "id": "tle-c84108263473e3090262e79b",
+    "eventDate": "2026-07-29",
+    "eventDateType": "announcement_date",
+    "title": "screenpipe announced a product update",
+    "summary": "screenpipe just released a new update that make screenpipe the most context efficient screen recorder app on internet (beating gpt and claude recording feature) we had an agent testing all major software on internet for weeks.",
+    "category": "product_update",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-24c8691e29b785a1e31b0d40",
+        "title": "we just released a new update that make screenpipe the most context efficient screen recorder app on internet (beating gpt and claude recording feature) we had an agent testing all major software on internet for weeks",
+        "publisher": "louis030195",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-07-29T16:01:58.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/louis030195/status/2082496867896889703"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-24c8691e29b785a1e31b0d40",
+        "title": "we just released a new update that make screenpipe the most context efficient screen recorder app on internet (beating gpt and claude recording feature) we had an agent testing all major software on internet for weeks",
+        "publisher": "louis030195",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-07-29T16:01:58.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/louis030195/status/2082496867896889703",
+        "publicationDate": "2026-07-29T16:01:58.000Z",
+        "excerpt": "we just released a new update that make screenpipe the most context efficient screen recorder app on internet (beating gpt and claude recording feature) we had an agent testing all major software on internet for weeks",
+        "sourceEventDate": "2026-07-29",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-30c675ed981d211b607f7efb",
+        "platform": "x",
+        "account": "louis030195",
+        "postDate": "2026-07-29",
+        "excerpt": "we just released a new update that make screenpipe the most context efficient screen recorder app on internet (beating gpt and claude recording feature) we had an agent testing all major software on internet for weeks",
+        "url": "https://x.com/louis030195/status/2082496867896889703",
+        "metrics": {
+          "views": 1054,
+          "likes": 24,
+          "replies": 3,
+          "reposts": 0,
+          "quotes": 0,
+          "bookmarks": 1
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

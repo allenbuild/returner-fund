@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-glen",
+    "slug": "glen",
+    "name": "Glen"
+  },
+  "event": {
+    "id": "tle-7f78176404f672c60a1504f7",
+    "eventDate": "2026-05-08",
+    "eventDateType": "announcement_date",
+    "title": "Glen released agent sign up",
+    "summary": "Glen announced it was launching agent sign up.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-ad96795ac0aaf01de92a0f12",
+        "title": "Today we are launching agent sign up. Agents can now sign up for their own @composio account with no human in the loop. Composio was built for agents from day one. The experience of the agent mattered more than the experience of the hum...",
+        "publisher": "nikos1",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-05-08T17:37:50.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/nikos1/status/2052805187320807794"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-ad96795ac0aaf01de92a0f12",
+        "title": "Today we are launching agent sign up. Agents can now sign up for their own @composio account with no human in the loop. Composio was built for agents from day one. The experience of the agent mattered more than the experience of the hum...",
+        "publisher": "nikos1",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-05-08T17:37:50.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/nikos1/status/2052805187320807794",
+        "publicationDate": "2026-05-08T17:37:50.000Z",
+        "excerpt": "Today we are launching agent sign up. Agents can now sign up for their own @composio account with no human in the loop. Composio was built for agents from day one. The experience of the agent mattered more than the experience of the human using it, and that shows in the primitives. Today goes further. Your agent can sign up for its own Composio account. Anonymous, full-featured, claimable by you later if it does anything worth keeping. Just send your agent to the link below and ask it to sign…",
+        "sourceEventDate": "2026-05-08",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-dbb25fc55f0e7fc22957e6cc",
+        "platform": "x",
+        "account": "nikos1",
+        "postDate": "2026-05-08",
+        "excerpt": "Today we are launching agent sign up. Agents can now sign up for their own @composio account with no human in the loop. Composio was built for agents from day one. The experience of the agent mattered more than the experience of the human using it, and that shows in the primitives. Today goes further. Your agent can sign up for its own Composio account. Anonymous, full-featured, claimable by you later if it does anything worth keeping. Just send your agent to the link below and ask it to sign…",
+        "url": "https://x.com/nikos1/status/2052805187320807794",
+        "metrics": {
+          "views": 10418,
+          "likes": 48,
+          "replies": 20,
+          "reposts": 7,
+          "quotes": 7,
+          "bookmarks": 10
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

@@ -5,8 +5,8 @@
     "slug": "pluto",
     "name": "Pluto"
   },
-  "generatedAt": "2026-08-03T07:52:26.040Z",
-  "lastModifiedAt": "2026-08-03T07:52:26.040Z",
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z",
   "events": [
     {
       "id": "tle-fbd1da080384b59ad972d8e5",
@@ -21,14 +21,38 @@
       "evidenceCount": 1,
       "sourcePreview": [
         {
-          "id": "src-926716dec61733fdd1999e1f",
+          "id": "src-e411ab2c05a894d3fa2ee583",
           "title": "Launching Pluto - an AI voice agent that helps professionals get discovered. Pluto learns your story in 10 minutes, makes you discoverable to AI agents, and connects you with the right people. Your career needs an agent.",
           "publisher": "talentpluto_",
           "domain": "instagram.com",
           "sourceType": "company_post",
           "publishedAt": "2026-07-16T17:46:11.000Z",
           "evidenceRole": "primary",
-          "url": "https://www.instagram.com/reel/Da3NNO7PeeH"
+          "url": "https://instagram.com/reel/Da3NNO7PeeH"
+        }
+      ]
+    },
+    {
+      "id": "tle-0173a6a2867a19ccabff2c66",
+      "eventDate": "2026-02-23",
+      "eventDateType": "announcement_date",
+      "title": "Pluto announced $125M Series B",
+      "summary": "Pluto reported a snow day in NYC = the perfect opportunity to connect with the best startups To date, we've made 1,000+ successful matches for candidates Some of our partners include NYC & SF Fintech/Banking ($125M Raised, Series B) NYC Data Infrastructure (YC-backed, $6M.",
+      "category": "funding",
+      "isMajor": true,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-ef149c98ca556cd5beb1c807",
+          "title": "A snow day in NYC = the perfect opportunity to connect with the best startups To date, we’ve made 1,000+ successful matches for candidates Some of our partners include NYC & SF Fintech/Banking ($125M Raised, Series B) NYC Data Infrastru...",
+          "publisher": "talentpluto",
+          "domain": "x.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-02-23T20:40:37.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/talentpluto/status/2026034483846078487"
         }
       ]
     }
@@ -40,14 +64,18 @@
         {
           "month": "2026-07",
           "count": 1
+        },
+        {
+          "month": "2026-02",
+          "count": 1
         }
       ]
     }
   ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-08-03T07:52:26.040Z"
+    "publishedEventCount": 2,
+    "lastSuccessfulArtifactAt": "2026-08-05T00:49:13.374Z"
   },
   "nextCursor": null
 }

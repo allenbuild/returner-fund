@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-replicas",
+    "slug": "replicas",
+    "name": "Replicas"
+  },
+  "event": {
+    "id": "tle-297c3a9c390d45b28dc25ca6",
+    "eventDate": "2026-05-07",
+    "eventDateType": "announcement_date",
+    "title": "Replicas released Custom Environments - unlimited use cases",
+    "summary": "Replicas introduced Custom Environments - unlimited use cases for background agents.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-6965f66767995688dfc003a8",
+        "title": "Introducing Custom Environments - unlimited use cases for background agents. With each custom environment, you can configure it with system prompts, skills, MCPs, and dependencies/tooling tailored for the job. For example: - a Debugging ...",
+        "publisher": "connortbot",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-05-07T16:16:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/connortbot/status/2052422203963301991"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-6965f66767995688dfc003a8",
+        "title": "Introducing Custom Environments - unlimited use cases for background agents. With each custom environment, you can configure it with system prompts, skills, MCPs, and dependencies/tooling tailored for the job. For example: - a Debugging ...",
+        "publisher": "connortbot",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-05-07T16:16:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/connortbot/status/2052422203963301991",
+        "publicationDate": "2026-05-07T16:16:00.000Z",
+        "excerpt": "Introducing Custom Environments - unlimited use cases for background agents. With each custom environment, you can configure it with system prompts, skills, MCPs, and dependencies/tooling tailored for the job. For example: - a Debugging environment that has access to Cloudwatch logs and our traces - a Data Analyst that has Postgres & Snowflake - a Marketing environment instructed to read X and LinkedIn posts - a ML environment with access to an H100 and datasets - a Sales environment with…",
+        "sourceEventDate": "2026-05-07",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-3efbca08483392bc01033a91",
+        "platform": "x",
+        "account": "connortbot",
+        "postDate": "2026-05-07",
+        "excerpt": "Introducing Custom Environments - unlimited use cases for background agents. With each custom environment, you can configure it with system prompts, skills, MCPs, and dependencies/tooling tailored for the job. For example: - a Debugging environment that has access to Cloudwatch logs and our traces - a Data Analyst that has Postgres & Snowflake - a Marketing environment instructed to read X and LinkedIn posts - a ML environment with access to an H100 and datasets - a Sales environment with…",
+        "url": "https://x.com/connortbot/status/2052422203963301991",
+        "metrics": {
+          "views": 1602,
+          "likes": 16,
+          "replies": 3,
+          "reposts": 3,
+          "quotes": 0,
+          "bookmarks": 2
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-ara",
+    "slug": "ara",
+    "name": "Ara"
+  },
+  "event": {
+    "id": "tle-b613b83b46ad2185d834a8ad",
+    "eventDate": "2026-06-03",
+    "eventDateType": "announcement_date",
+    "title": "Ara reached 1000 downloads",
+    "summary": "Ara has reached over a 1000 downloads since launch less than a week ago.",
+    "category": "user_milestone",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-53a5665f152006b5f3b52fb8",
+        "title": "Ara has reached over a 1000 downloads since launch less than a week ago. Super optimistic that the future of coding will need some mix of invention and copying greats. If you have’nt tried it yet @aradotso",
+        "publisher": "xadisingh",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-06-03T09:32:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/xadisingh/status/2062105008875933893"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-53a5665f152006b5f3b52fb8",
+        "title": "Ara has reached over a 1000 downloads since launch less than a week ago. Super optimistic that the future of coding will need some mix of invention and copying greats. If you have’nt tried it yet @aradotso",
+        "publisher": "xadisingh",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-06-03T09:32:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/xadisingh/status/2062105008875933893",
+        "publicationDate": "2026-06-03T09:32:00.000Z",
+        "excerpt": "Ara has reached over a 1000 downloads since launch less than a week ago. Super optimistic that the future of coding will need some mix of invention and copying greats. If you have’nt tried it yet @aradotso",
+        "sourceEventDate": "2026-06-03",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-fef36bd1d27d2dca192ee8af",
+        "platform": "x",
+        "account": "xadisingh",
+        "postDate": "2026-06-03",
+        "excerpt": "Ara has reached over a 1000 downloads since launch less than a week ago. Super optimistic that the future of coding will need some mix of invention and copying greats. If you have’nt tried it yet @aradotso",
+        "url": "https://x.com/xadisingh/status/2062105008875933893",
+        "metrics": {
+          "views": 546,
+          "likes": 6,
+          "replies": 0,
+          "reposts": 0,
+          "quotes": 0,
+          "bookmarks": 2
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

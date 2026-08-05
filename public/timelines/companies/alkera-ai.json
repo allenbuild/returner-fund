@@ -5,9 +5,33 @@
     "slug": "alkera-ai",
     "name": "Alkera AI"
   },
-  "generatedAt": "2026-08-03T07:52:26.040Z",
-  "lastModifiedAt": "2026-08-03T07:52:26.040Z",
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z",
   "events": [
+    {
+      "id": "tle-ea7878b34eabb6a5839d62af",
+      "eventDate": "2026-07-17",
+      "eventDateType": "announcement_date",
+      "title": "Alkera AI released Alkera – the reliable and safe data engineering/analysis/science agent",
+      "summary": "Alkera AI introduced Alkera – the reliable and safe data engineering/analysis/science agent that is #1 on UC Berkeley's DataAgentBench.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-21444d9a451e0f83327c3b06",
+          "title": "Introducing Alkera – the reliable and safe data engineering/analysis/science agent that is #1 on UC Berkeley’s DataAgentBench.",
+          "publisher": "alkera_ai",
+          "domain": "x.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-07-17T19:00:00.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/alkera_ai/status/2078193016775274831"
+        }
+      ]
+    },
     {
       "id": "tle-721018f570afa59fec6699e6",
       "eventDate": "2026-07-17",
@@ -39,15 +63,15 @@
       "months": [
         {
           "month": "2026-07",
-          "count": 1
+          "count": 2
         }
       ]
     }
   ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-08-03T07:52:26.040Z"
+    "publishedEventCount": 2,
+    "lastSuccessfulArtifactAt": "2026-08-05T00:49:13.374Z"
   },
   "nextCursor": null
 }

@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-rekursivai",
+    "slug": "rekursiv-ai",
+    "name": "rekursiv.ai"
+  },
+  "event": {
+    "id": "tle-6efebe83966c8cf4d98136d6",
+    "eventDate": "2025-01-15",
+    "eventDateType": "announcement_date",
+    "title": "rekursiv.ai announced its public launch",
+    "summary": "rekursiv.ai announced it was launching #Ray2, our brand new video model to everyone.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-13b25eefcccce3881db64f1a",
+        "title": "Today we're launching #Ray2, our brand new video model to everyone. Excited to see what you all create with this, it was a blast to play around with the model and see so many of my generations look this good.",
+        "publisher": "hyperparticle",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2025-01-15T18:21:22.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/hyperparticle/status/1879594740636926085"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-13b25eefcccce3881db64f1a",
+        "title": "Today we're launching #Ray2, our brand new video model to everyone. Excited to see what you all create with this, it was a blast to play around with the model and see so many of my generations look this good.",
+        "publisher": "hyperparticle",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2025-01-15T18:21:22.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/hyperparticle/status/1879594740636926085",
+        "publicationDate": "2025-01-15T18:21:22.000Z",
+        "excerpt": "Today we're launching #Ray2, our brand new video model to everyone. Excited to see what you all create with this, it was a blast to play around with the model and see so many of my generations look this good.",
+        "sourceEventDate": "2025-01-15",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-a6d561f6516ae28586530564",
+        "platform": "x",
+        "account": "hyperparticle",
+        "postDate": "2025-01-15",
+        "excerpt": "Today we're launching #Ray2, our brand new video model to everyone. Excited to see what you all create with this, it was a blast to play around with the model and see so many of my generations look this good.",
+        "url": "https://x.com/hyperparticle/status/1879594740636926085",
+        "metrics": {
+          "views": 7164,
+          "likes": 126,
+          "replies": 14,
+          "reposts": 16,
+          "quotes": 0,
+          "bookmarks": 17
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

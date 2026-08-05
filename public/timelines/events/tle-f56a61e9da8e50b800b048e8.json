@@ -1,0 +1,107 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-napkin-math",
+    "slug": "napkin-math",
+    "name": "Napkin Math"
+  },
+  "event": {
+    "id": "tle-f56a61e9da8e50b800b048e8",
+    "eventDate": "2026-03-25",
+    "eventDateType": "announcement_date",
+    "title": "Napkin Math was introduced",
+    "summary": "Napkin Math introduced napkin math.",
+    "category": "product_launch",
+    "isMajor": true,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 2,
+    "sourcePreview": [
+      {
+        "id": "src-827bef980c64fab23e9e45ee",
+        "title": "introducing napkin math! the first healthy gamified food tracker <3 i’m excited to share this project we’ve been working on. food & health is so personal to me, and this has felt like something that has been lacking in the space for so…",
+        "publisher": "napkinmath.club",
+        "domain": "instagram.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-03-25T00:43:09.000Z",
+        "evidenceRole": "primary",
+        "url": "https://instagram.com/reel/DWSaOqLE-WV"
+      },
+      {
+        "id": "src-1949b904f21e5b35282f3544",
+        "title": "we are live on product hunt now ! Napkin Math: personalized AI food journal + nutrition coach | Product Hunt From producthunt.com",
+        "publisher": "clairen19 X post",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-06-10T00:00:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/clairen19/status/2064614549781958754"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-827bef980c64fab23e9e45ee",
+        "title": "introducing napkin math! the first healthy gamified food tracker <3 i’m excited to share this project we’ve been working on. food & health is so personal to me, and this has felt like something that has been lacking in the space for so…",
+        "publisher": "napkinmath.club",
+        "domain": "instagram.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-03-25T00:43:09.000Z",
+        "evidenceRole": "primary",
+        "url": "https://instagram.com/reel/DWSaOqLE-WV",
+        "publicationDate": "2026-03-25T00:43:09.000Z",
+        "excerpt": "introducing napkin math! the first healthy gamified food tracker <3 i’m excited to share this project we’ve been working on. food & health is so personal to me, and this has felt like something that has been lacking in the space for so long. looking forward to sharing our development journey 🧑‍🍳 join the waitlist with link in bio #whatieat #healthylifestyle #japanfood",
+        "sourceEventDate": "2026-03-25",
+        "isConflicting": false,
+        "conflictDescription": null
+      },
+      {
+        "id": "src-1949b904f21e5b35282f3544",
+        "title": "we are live on product hunt now ! Napkin Math: personalized AI food journal + nutrition coach | Product Hunt From producthunt.com",
+        "publisher": "clairen19 X post",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-06-10T00:00:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/clairen19/status/2064614549781958754",
+        "publicationDate": "2026-06-10T00:00:00.000Z",
+        "excerpt": "we are live on product hunt now ! Napkin Math: personalized AI food journal + nutrition coach | Product Hunt From producthunt.com",
+        "sourceEventDate": "2026-06-10",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-35b3127449987f439fba2afb",
+        "platform": "instagram",
+        "account": "napkinmath.club",
+        "postDate": "2026-03-25",
+        "excerpt": "introducing napkin math! the first healthy gamified food tracker <3 i’m excited to share this project we’ve been working on. food & health is so personal to me, and this has felt like something that has been lacking in the space for so long. looking forward to sharing our development journey 🧑‍🍳 join the waitlist with link in bio #whatieat #healthylifestyle #japanfood",
+        "url": "https://instagram.com/reel/DWSaOqLE-WV",
+        "metrics": {
+          "likes": 58,
+          "comments": 5,
+          "views": 1084
+        },
+        "evidenceRole": "primary"
+      },
+      {
+        "id": "post-f1040f62e3489db977274c1e",
+        "platform": "x",
+        "account": "clairen19 X post",
+        "postDate": "2026-06-10",
+        "excerpt": "we are live on product hunt now ! Napkin Math: personalized AI food journal + nutrition coach | Product Hunt From producthunt.com",
+        "url": "https://x.com/clairen19/status/2064614549781958754",
+        "metrics": {
+          "likes": 4,
+          "reposts": 0,
+          "comments": 4,
+          "views": 82
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

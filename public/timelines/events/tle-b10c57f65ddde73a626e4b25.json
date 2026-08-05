@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-asendia-ai",
+    "slug": "asendia-ai",
+    "name": "Asendia AI"
+  },
+  "event": {
+    "id": "tle-b10c57f65ddde73a626e4b25",
+    "eventDate": "2025-08-05",
+    "eventDateType": "announcement_date",
+    "title": "Asendia AI released ⁦⁩'s Talent Sourcing Agent 👀",
+    "summary": "Asendia AI introduced ⁦@AsendiaAI⁩'s Talent Sourcing Agent 👀 Today is the beginning of a world where finding exceptional talent doesn't have to be frustrating anymore.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-afcbcb5a48dd0f1b30648f56",
+        "title": "Introducing ⁦@AsendiaAI⁩’s Talent Sourcing Agent 👀 Today is the beginning of a world where finding exceptional talent doesn’t have to be frustrating anymore! It should be as easy and seamless as describing that talent to a friend 😃 Bye...",
+        "publisher": "LajmiRihab",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2025-08-05T18:25:51.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/LajmiRihab/status/1952798219429134747"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-afcbcb5a48dd0f1b30648f56",
+        "title": "Introducing ⁦@AsendiaAI⁩’s Talent Sourcing Agent 👀 Today is the beginning of a world where finding exceptional talent doesn’t have to be frustrating anymore! It should be as easy and seamless as describing that talent to a friend 😃 Bye...",
+        "publisher": "LajmiRihab",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2025-08-05T18:25:51.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/LajmiRihab/status/1952798219429134747",
+        "publicationDate": "2025-08-05T18:25:51.000Z",
+        "excerpt": "Introducing ⁦@AsendiaAI⁩’s Talent Sourcing Agent 👀 Today is the beginning of a world where finding exceptional talent doesn’t have to be frustrating anymore! It should be as easy and seamless as describing that talent to a friend 😃 Bye Bye Linkedin Recruiter 👋",
+        "sourceEventDate": "2025-08-05",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-816165d2b4c5e0ae1e13dba4",
+        "platform": "x",
+        "account": "LajmiRihab",
+        "postDate": "2025-08-05",
+        "excerpt": "Introducing ⁦@AsendiaAI⁩’s Talent Sourcing Agent 👀 Today is the beginning of a world where finding exceptional talent doesn’t have to be frustrating anymore! It should be as easy and seamless as describing that talent to a friend 😃 Bye Bye Linkedin Recruiter 👋",
+        "url": "https://x.com/LajmiRihab/status/1952798219429134747",
+        "metrics": {
+          "views": 2313,
+          "likes": 7,
+          "replies": 2,
+          "reposts": 2,
+          "quotes": 0,
+          "bookmarks": 4
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

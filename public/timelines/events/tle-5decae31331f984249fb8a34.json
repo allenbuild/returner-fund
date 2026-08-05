@@ -1,0 +1,112 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-wondering",
+    "slug": "wondering",
+    "name": "Wondering"
+  },
+  "event": {
+    "id": "tle-5decae31331f984249fb8a34",
+    "eventDate": "2026-04-21",
+    "eventDateType": "announcement_date",
+    "title": "Wondering was founded",
+    "summary": "Wondering started @Wondering with a simple idea: Duolingo for anything.",
+    "category": "founded",
+    "isMajor": true,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 2,
+    "sourcePreview": [
+      {
+        "id": "src-e778c64625c3b323a68ee153",
+        "title": "We started @Wondering with a simple idea: Duolingo for anything. But after our soft launch, something became clear: Our learners didn’t want to just go through lessons. They wanted deep understanding, true retention, and real progress.",
+        "publisher": "WonderingApp",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-04-21T18:08:32.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/WonderingApp/status/2046652318847009179"
+      },
+      {
+        "id": "src-594d5808860519ab20c4b7ad",
+        "title": "I started @Wondering with a simple idea: Duolingo for anything. But after our soft launch, something became clear: Our learners didn’t want to just go through lessons. They wanted deep understanding, true retention, and real progress. S...",
+        "publisher": "HcwXd",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-04-21T18:03:21.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/HcwXd/status/2046651014028349799"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-e778c64625c3b323a68ee153",
+        "title": "We started @Wondering with a simple idea: Duolingo for anything. But after our soft launch, something became clear: Our learners didn’t want to just go through lessons. They wanted deep understanding, true retention, and real progress.",
+        "publisher": "WonderingApp",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-04-21T18:08:32.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/WonderingApp/status/2046652318847009179",
+        "publicationDate": "2026-04-21T18:08:32.000Z",
+        "excerpt": "We started @Wondering with a simple idea: Duolingo for anything. But after our soft launch, something became clear: Our learners didn’t want to just go through lessons. They wanted deep understanding, true retention, and real progress.",
+        "sourceEventDate": "2026-04-21",
+        "isConflicting": false,
+        "conflictDescription": null
+      },
+      {
+        "id": "src-594d5808860519ab20c4b7ad",
+        "title": "I started @Wondering with a simple idea: Duolingo for anything. But after our soft launch, something became clear: Our learners didn’t want to just go through lessons. They wanted deep understanding, true retention, and real progress. S...",
+        "publisher": "HcwXd",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-04-21T18:03:21.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/HcwXd/status/2046651014028349799",
+        "publicationDate": "2026-04-21T18:03:21.000Z",
+        "excerpt": "I started @Wondering with a simple idea: Duolingo for anything. But after our soft launch, something became clear: Our learners didn’t want to just go through lessons. They wanted deep understanding, true retention, and real progress. So we doubled down on one goal: turn your limited time into tutor-level mastery. Early access is now open to everyone, no code needed",
+        "sourceEventDate": "2026-04-21",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-694c0c9e35665041268db516",
+        "platform": "x",
+        "account": "WonderingApp",
+        "postDate": "2026-04-21",
+        "excerpt": "We started @Wondering with a simple idea: Duolingo for anything. But after our soft launch, something became clear: Our learners didn’t want to just go through lessons. They wanted deep understanding, true retention, and real progress.",
+        "url": "https://x.com/WonderingApp/status/2046652318847009179",
+        "metrics": {
+          "views": 1018,
+          "likes": 11,
+          "replies": 3,
+          "reposts": 1,
+          "quotes": 0,
+          "bookmarks": 7
+        },
+        "evidenceRole": "primary"
+      },
+      {
+        "id": "post-c32c28830d1aa11fc7027c76",
+        "platform": "x",
+        "account": "HcwXd",
+        "postDate": "2026-04-21",
+        "excerpt": "I started @Wondering with a simple idea: Duolingo for anything. But after our soft launch, something became clear: Our learners didn’t want to just go through lessons. They wanted deep understanding, true retention, and real progress. So we doubled down on one goal: turn your limited time into tutor-level mastery. Early access is now open to everyone, no code needed",
+        "url": "https://x.com/HcwXd/status/2046651014028349799",
+        "metrics": {
+          "views": 2119,
+          "likes": 19,
+          "replies": 4,
+          "reposts": 4,
+          "quotes": 1,
+          "bookmarks": 9
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

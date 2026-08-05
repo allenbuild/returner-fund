@@ -1,0 +1,53 @@
+{
+  "schemaVersion": "company-timeline.v1",
+  "company": {
+    "id": "company-caution",
+    "slug": "caution",
+    "name": "Caution"
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z",
+  "events": [
+    {
+      "id": "tle-5623d0c9306fe4df4e5546d1",
+      "eventDate": "2026-08-04",
+      "eventDateType": "announcement_date",
+      "title": "Caution released CautionHosting",
+      "summary": "Caution announced it was launching @CautionHosting, a hosting platform for software you can't afford to have hacked.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-af12ebd2ddf667db3f477342",
+          "title": "Today we're launching @CautionHosting, a hosting platform for software you can't afford to have hacked.",
+          "publisher": "antonlivaja",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-08-04T17:13:34.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/antonlivaja/status/2084689212293681364"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-08",
+          "count": 1
+        }
+      ]
+    }
+  ],
+  "coverage": {
+    "status": "partial",
+    "publishedEventCount": 1,
+    "lastSuccessfulArtifactAt": "2026-08-05T00:49:13.374Z"
+  },
+  "nextCursor": null
+}

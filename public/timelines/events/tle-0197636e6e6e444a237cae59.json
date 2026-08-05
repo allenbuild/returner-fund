@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-drafted",
+    "slug": "drafted",
+    "name": "Drafted"
+  },
+  "event": {
+    "id": "tle-0197636e6e6e444a237cae59",
+    "eventDate": "2026-07-14",
+    "eventDateType": "announcement_date",
+    "title": "Drafted released Regenerate in Drafted",
+    "summary": "Drafted introduced Regenerate in Drafted.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-8a97ca1734e95e8dd2568bb0",
+        "title": "Introducing Regenerate in Drafted. Traditionally, changing one part of a floor plan meant spending hours redrawing or regenerating the entire plan. Now, select one or more areas on your floor plan, choose Regenerate, and Drafted redesign...",
+        "publisher": "DraftedAI",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-07-14T17:10:47.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/DraftedAI/status/2077078367741063413"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-8a97ca1734e95e8dd2568bb0",
+        "title": "Introducing Regenerate in Drafted. Traditionally, changing one part of a floor plan meant spending hours redrawing or regenerating the entire plan. Now, select one or more areas on your floor plan, choose Regenerate, and Drafted redesign...",
+        "publisher": "DraftedAI",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-07-14T17:10:47.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/DraftedAI/status/2077078367741063413",
+        "publicationDate": "2026-07-14T17:10:47.000Z",
+        "excerpt": "Introducing Regenerate in Drafted. Traditionally, changing one part of a floor plan meant spending hours redrawing or regenerating the entire plan. Now, select one or more areas on your floor plan, choose Regenerate, and Drafted redesigns only those sections while keeping the rest of your floor plan intact.",
+        "sourceEventDate": "2026-07-14",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-b24e20edabdbea8c8bc345c5",
+        "platform": "x",
+        "account": "DraftedAI",
+        "postDate": "2026-07-14",
+        "excerpt": "Introducing Regenerate in Drafted. Traditionally, changing one part of a floor plan meant spending hours redrawing or regenerating the entire plan. Now, select one or more areas on your floor plan, choose Regenerate, and Drafted redesigns only those sections while keeping the rest of your floor plan intact.",
+        "url": "https://x.com/DraftedAI/status/2077078367741063413",
+        "metrics": {
+          "views": 11796,
+          "likes": 68,
+          "replies": 4,
+          "reposts": 8,
+          "quotes": 3,
+          "bookmarks": 39
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

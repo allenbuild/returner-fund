@@ -1,0 +1,65 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-youart",
+    "slug": "youart",
+    "name": "YouArt"
+  },
+  "event": {
+    "id": "tle-6ab4b550e87d795de88b84e5",
+    "eventDate": "2025-11-06",
+    "eventDateType": "announcement_date",
+    "title": "YouArt released YouArt launched today",
+    "summary": "YouArt launched today.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-48cddffab7f5b748339b925c",
+        "title": "YouArt launched today",
+        "publisher": "YouArt launched today",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2025-11-06T03:52:52.000Z",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=TM2JI-5iv-s"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-48cddffab7f5b748339b925c",
+        "title": "YouArt launched today",
+        "publisher": "YouArt launched today",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2025-11-06T03:52:52.000Z",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=TM2JI-5iv-s",
+        "publicationDate": "2025-11-06T03:52:52.000Z",
+        "excerpt": "I'm thrilled to introduce YouArt – a groundbreaking creative AI Agentic-Workflow studio. link: YouArt.ai Why YouArt exists: We loved AI art tools but hated the randomness. Hours of regenerating, wasted credits, inconsistent results. We built YouArt to fix this. The Breakthrough: We started with a simple workflow editor for power users. The results were incredible, but the learning curve was steep. Then we had a breakthrough: What if an AI agent could build workflows for you?That's when YouArt…",
+        "sourceEventDate": "2025-11-06",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-ab6bde6eeb3c22470cfaa5bc",
+        "platform": "youtube",
+        "account": "YouArt launched today",
+        "postDate": "2025-11-06",
+        "excerpt": "I'm thrilled to introduce YouArt – a groundbreaking creative AI Agentic-Workflow studio. link: YouArt.ai Why YouArt exists: We loved AI art tools but hated the randomness. Hours of regenerating, wasted credits, inconsistent results. We built YouArt to fix this. The Breakthrough: We started with a simple workflow editor for power users. The results were incredible, but the learning curve was steep. Then we had a breakthrough: What if an AI agent could build workflows for you?That's when YouArt…",
+        "url": "https://youtube.com/watch?v=TM2JI-5iv-s",
+        "metrics": {
+          "views": 439
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-tasklet-2",
+    "slug": "tasklet",
+    "name": "Tasklet"
+  },
+  "event": {
+    "id": "tle-8cb03e04b1af78f0808f10d5",
+    "eventDate": "2026-03-12",
+    "eventDateType": "announcement_date",
+    "title": "Tasklet released Android texting support",
+    "summary": "Tasklet just launched Android texting support for Tasklet.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-d740f964c5ebd57386190f6e",
+        "title": "We just launched Android texting support for Tasklet. You can now text with your agent directly from your Android phone. Just ask it to \"contact me via my phone number\".",
+        "publisher": "TaskletAI",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-03-12T21:47:44.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/TaskletAI/status/2032211967012962764"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-d740f964c5ebd57386190f6e",
+        "title": "We just launched Android texting support for Tasklet. You can now text with your agent directly from your Android phone. Just ask it to \"contact me via my phone number\".",
+        "publisher": "TaskletAI",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-03-12T21:47:44.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/TaskletAI/status/2032211967012962764",
+        "publicationDate": "2026-03-12T21:47:44.000Z",
+        "excerpt": "We just launched Android texting support for Tasklet. You can now text with your agent directly from your Android phone. Just ask it to \"contact me via my phone number\".",
+        "sourceEventDate": "2026-03-12",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-a7620d8037515432fdcdae23",
+        "platform": "x",
+        "account": "TaskletAI",
+        "postDate": "2026-03-12",
+        "excerpt": "We just launched Android texting support for Tasklet. You can now text with your agent directly from your Android phone. Just ask it to \"contact me via my phone number\".",
+        "url": "https://x.com/TaskletAI/status/2032211967012962764",
+        "metrics": {
+          "views": 1065,
+          "likes": 7,
+          "replies": 1,
+          "reposts": 2,
+          "quotes": 1,
+          "bookmarks": 0
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

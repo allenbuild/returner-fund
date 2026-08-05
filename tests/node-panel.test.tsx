@@ -8,7 +8,7 @@ import type { EvidenceItem, GraphNode } from "@/lib/graph/types";
 import { ycSpring2026GraphDataset } from "@/lib/graph/yc-spring-2026-dataset";
 
 describe("NodePanel", () => {
-  it("keeps the score in the header and shows platform contributions without a disclosure", () => {
+  it("keeps the score in the header and shows platform contributions", () => {
     const graph = buildGraphResponse({ batchSlug: "S26", query: "Conifer" }, ycSpring2026GraphDataset);
     const node = graph.nodes.find((item) => item.label === "Conifer");
 
@@ -26,20 +26,20 @@ describe("NodePanel", () => {
     expect(screen.queryByText(/founder evidence/i)).not.toBeInTheDocument();
   });
 
-  it("shows every positive platform contribution in descending order and no extra score facts", () => {
+  it("shows every positive platform contribution in descending order", () => {
     const graph = buildGraphResponse({ batchSlug: "S26", query: "Conifer" }, ycSpring2026GraphDataset);
     const node = graph.nodes.find((item) => item.label === "Conifer");
 
     expect(node).toBeDefined();
     const explainableNode: GraphNode = {
       ...node!,
-      score: 82,
+      score: 87,
       scoreBreakdown: {
         modelId: "traction-v2",
         modelVersion: "2.1.0",
         modelName: "Traction Model",
-        totalScore: 82,
-        absoluteScore: 67,
+        totalScore: 87,
+        absoluteScore: 46,
         weightedAvailableScore: 71.4,
         coverageFactor: 0.94,
         platformsWithEvidence: 4,
@@ -68,12 +68,7 @@ describe("NodePanel", () => {
           datedEvidenceCount: 16,
           verifiedLinkCount: 14
         },
-        calibration: {
-          method: "none",
-          cohortSize: 83,
-          percentile: null,
-          inputScore: 67
-        },
+        calibration: { method: "none", cohortSize: 83, percentile: null, inputScore: 46 },
         limitations: [
           "Private community activity is not included.",
           "LinkedIn engagement may be undercounted."
@@ -126,8 +121,7 @@ describe("NodePanel", () => {
     expect(screen.queryByText("High confidence")).not.toBeInTheDocument();
     expect(screen.queryByText("Scored evidence")).not.toBeInTheDocument();
     expect(screen.queryByText("Score comparison")).not.toBeInTheDocument();
-    expect(screen.queryByText(/calibrated/i)).not.toBeInTheDocument();
-    expect(screen.queryByText(/absolute/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/positive platform rows shown/i)).not.toBeInTheDocument();
     expect(screen.queryByText("Evidence as of")).not.toBeInTheDocument();
     expect(screen.queryByText("Jul 15, 2026")).not.toBeInTheDocument();
     expect(screen.queryByText("Limitations")).not.toBeInTheDocument();
@@ -166,7 +160,65 @@ describe("NodePanel", () => {
     expect(section).toHaveTextContent("9.5 pts");
     expect(section).toHaveTextContent("2 items");
     expect(section).not.toHaveTextContent("undefined");
+    expect(section).not.toHaveTextContent(/raw score/i);
     expect(document.querySelector(".node-panel details")).not.toBeInTheDocument();
+  });
+
+  it("applies global calibration to each individual platform contribution", () => {
+    const graph = buildGraphResponse({ batchSlug: "S26", query: "Conifer" }, ycSpring2026GraphDataset);
+    const node = graph.nodes.find((item) => item.label === "Conifer");
+
+    expect(node).toBeDefined();
+    const calibratedNode: GraphNode = {
+      ...node!,
+      score: 87,
+      scoreBreakdown: {
+        ...node!.scoreBreakdown!,
+        totalScore: 87,
+        absoluteScore: 46,
+        weightedPlatforms: [
+          { platform: "instagram", score: 95, configuredWeight: 0.21, appliedWeight: 0.21, contribution: 20, evidenceCount: 63 }
+        ],
+        calibration: {
+          method: "global_best_ratio",
+          cohortSize: 423,
+          percentile: null,
+          inputScore: 46,
+          benchmarkScore: 53,
+          scaleFactor: 100 / 53,
+          benchmarkScope: "all_supported_batches",
+          benchmarkPopulation: "current_company_snapshot"
+        }
+      }
+    };
+
+    render(<NodePanel node={calibratedNode} relatedNodes={[]} evidence={[]} />);
+
+    const section = screen.getByRole("heading", { name: "Platform contributions" }).closest("section");
+    expect(section).toHaveTextContent("37.7 pts");
+    expect(section).not.toHaveTextContent("20 pts");
+  });
+
+  it("keeps contributions unscaled when no global calibration is applied", () => {
+    const graph = buildGraphResponse({ batchSlug: "S26", query: "Conifer" }, ycSpring2026GraphDataset);
+    const node = graph.nodes.find((item) => item.label === "Conifer");
+
+    expect(node).toBeDefined();
+    const noCalibrationNode: GraphNode = {
+      ...node!,
+      score: 67,
+      scoreBreakdown: {
+        ...node!.scoreBreakdown!,
+        totalScore: 67,
+        absoluteScore: 67,
+        calibration: { method: "none", cohortSize: 1, percentile: null, inputScore: 67 }
+      }
+    };
+
+    render(<NodePanel node={noCalibrationNode} relatedNodes={[]} evidence={[]} />);
+
+    expect(screen.getByRole("heading", { name: "Platform contributions" })).toBeInTheDocument();
+    expect(screen.queryByText(/global calibration/i)).not.toBeInTheDocument();
   });
 
   it("explains quadratic Insider influence and the adjustment from the published score", () => {

@@ -1,0 +1,111 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-tracer",
+    "slug": "tracer",
+    "name": "Tracer"
+  },
+  "event": {
+    "id": "tle-42894bd8ed0eb07448ba7320",
+    "eventDate": "2026-07-22",
+    "eventDateType": "announcement_date",
+    "title": "Tracer released Echo",
+    "summary": "Tracer is releasing Echo now to learn from real workloads and keep pushing the approach forward.",
+    "category": "product_launch",
+    "isMajor": true,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 2,
+    "sourcePreview": [
+      {
+        "id": "src-9de6150ad6869bf7bb8bd415",
+        "title": "We’re releasing Echo now to learn from real workloads and keep pushing the approach forward. Full evaluation methodology, results, and limitations: http://echo.tracerml.ai/eval",
+        "publisher": "TracerML",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-07-22T19:07:20.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/TracerML/status/2080006801924522291"
+      },
+      {
+        "id": "src-7f92f64f9d29430801cd0bf1",
+        "title": "Today we’re launching Echo: Fable-level quality at ~1/3 the inference cost using open-weight models.",
+        "publisher": "tracerml",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-07-31T21:02:46.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/tracerml/status/2083297340207886775"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-9de6150ad6869bf7bb8bd415",
+        "title": "We’re releasing Echo now to learn from real workloads and keep pushing the approach forward. Full evaluation methodology, results, and limitations: http://echo.tracerml.ai/eval",
+        "publisher": "TracerML",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-07-22T19:07:20.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/TracerML/status/2080006801924522291",
+        "publicationDate": "2026-07-22T19:07:20.000Z",
+        "excerpt": "We’re releasing Echo now to learn from real workloads and keep pushing the approach forward. Full evaluation methodology, results, and limitations: http://echo.tracerml.ai/eval",
+        "sourceEventDate": "2026-07-22",
+        "isConflicting": false,
+        "conflictDescription": null
+      },
+      {
+        "id": "src-7f92f64f9d29430801cd0bf1",
+        "title": "Today we’re launching Echo: Fable-level quality at ~1/3 the inference cost using open-weight models.",
+        "publisher": "tracerml",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-07-31T21:02:46.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/tracerml/status/2083297340207886775",
+        "publicationDate": "2026-07-31T21:02:46.000Z",
+        "excerpt": "Today we’re launching Echo: Fable-level quality at ~1/3 the inference cost using open-weight models. Echo matches or nearly matches Fable on math, science, and the coding benchmarks we currently cover, while trailing on multilingual and broader knowledge. 🧵 https://t.co/eBmS43HmcW",
+        "sourceEventDate": "2026-07-22",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-ffae36658943ea3b3e1ce6a4",
+        "platform": "x",
+        "account": "TracerML",
+        "postDate": "2026-07-22",
+        "excerpt": "We’re releasing Echo now to learn from real workloads and keep pushing the approach forward. Full evaluation methodology, results, and limitations: http://echo.tracerml.ai/eval",
+        "url": "https://x.com/TracerML/status/2080006801924522291",
+        "metrics": {
+          "views": 92,
+          "likes": 1,
+          "replies": 0,
+          "reposts": 0,
+          "quotes": 0,
+          "bookmarks": 0
+        },
+        "evidenceRole": "primary"
+      },
+      {
+        "id": "post-e8768b35ccde85ff9a717cb1",
+        "platform": "x",
+        "account": "tracerml",
+        "postDate": "2026-07-31",
+        "excerpt": "Today we’re launching Echo: Fable-level quality at ~1/3 the inference cost using open-weight models. Echo matches or nearly matches Fable on math, science, and the coding benchmarks we currently cover, while trailing on multilingual and broader knowledge. 🧵 https://t.co/eBmS43HmcW",
+        "url": "https://x.com/tracerml/status/2083297340207886775",
+        "metrics": {
+          "likes": 62,
+          "reposts": 15,
+          "quotes": 3,
+          "replies": 13,
+          "views": 9229
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

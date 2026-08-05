@@ -1,0 +1,65 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "a16z-speedrun-006-quanto",
+    "slug": "quanto",
+    "name": "Quanto"
+  },
+  "event": {
+    "id": "tle-50fa7246689ca2ee37515950",
+    "eventDate": "2026-05-11",
+    "eventDateType": "occurrence_date",
+    "title": "Quanto launched on Product Hunt",
+    "summary": "Quanto Product Hunt launch.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-01ab79fd8ebc060fc019c97e",
+        "title": "Quanto Product Hunt launch",
+        "publisher": "quanto",
+        "domain": "producthunt.com",
+        "sourceType": "product_hunt",
+        "publishedAt": "2026-05-11T00:00:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://www.producthunt.com/products/quanto"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-01ab79fd8ebc060fc019c97e",
+        "title": "Quanto Product Hunt launch",
+        "publisher": "quanto",
+        "domain": "producthunt.com",
+        "sourceType": "product_hunt",
+        "publishedAt": "2026-05-11T00:00:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://www.producthunt.com/products/quanto",
+        "publicationDate": "2026-05-11T00:00:00.000Z",
+        "excerpt": "Quanto launched on Product Hunt with a profile describing the company as backed by a16z Speedrun.",
+        "sourceEventDate": "2026-05-11",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-b798cfcb77eafaca94253c68",
+        "platform": "product_hunt",
+        "account": "quanto",
+        "postDate": "2026-05-11",
+        "excerpt": "Quanto launched on Product Hunt with a profile describing the company as backed by a16z Speedrun.",
+        "url": "https://www.producthunt.com/products/quanto",
+        "metrics": {
+          "upvotes": 62
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

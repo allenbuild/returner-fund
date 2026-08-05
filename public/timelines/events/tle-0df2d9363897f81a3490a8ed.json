@@ -1,0 +1,66 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-instaagent",
+    "slug": "instaagent",
+    "name": "InstaAgent"
+  },
+  "event": {
+    "id": "tle-0df2d9363897f81a3490a8ed",
+    "eventDate": "2026-05-15",
+    "eventDateType": "announcement_date",
+    "title": "InstaAgent was accepted into Y Combinator P26",
+    "summary": "InstaAgent reported so we got into YC P26 — a milestone that still feels surreal to write 🚀 Getting here was not a straight line.",
+    "category": "accelerator",
+    "isMajor": true,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-f88563319249d75b3874f85c",
+        "title": "So we got into YC P26 — a milestone that still feels surreal to write 🚀 Getting here was not a straight line. There were failed attempts, rebuilt versions, sharper questions, and many moments where the easiest option would have been to…",
+        "publisher": "instaagent.ai",
+        "domain": "instagram.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-05-15T05:37:40.000Z",
+        "evidenceRole": "primary",
+        "url": "https://instagram.com/p/DYWQu84m37S"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-f88563319249d75b3874f85c",
+        "title": "So we got into YC P26 — a milestone that still feels surreal to write 🚀 Getting here was not a straight line. There were failed attempts, rebuilt versions, sharper questions, and many moments where the easiest option would have been to…",
+        "publisher": "instaagent.ai",
+        "domain": "instagram.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-05-15T05:37:40.000Z",
+        "evidenceRole": "primary",
+        "url": "https://instagram.com/p/DYWQu84m37S",
+        "publicationDate": "2026-05-15T05:37:40.000Z",
+        "excerpt": "So we got into YC P26 — a milestone that still feels surreal to write 🚀 Getting here was not a straight line. There were failed attempts, rebuilt versions, sharper questions, and many moments where the easiest option would have been to stop. But every iteration made the vision clearer. For us, joining the YC community is not the finish line. It is just the starting point. Stay tuned for the exciting journey ahead! 🔥 @instaagent.ai #YCP26 #YCombinator #StartupJourney #HongKongStartup",
+        "sourceEventDate": "2026-05-15",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-517f7bce1ca92c3958111b0b",
+        "platform": "instagram",
+        "account": "instaagent.ai",
+        "postDate": "2026-05-15",
+        "excerpt": "So we got into YC P26 — a milestone that still feels surreal to write 🚀 Getting here was not a straight line. There were failed attempts, rebuilt versions, sharper questions, and many moments where the easiest option would have been to stop. But every iteration made the vision clearer. For us, joining the YC community is not the finish line. It is just the starting point. Stay tuned for the exciting journey ahead! 🔥 @instaagent.ai #YCP26 #YCombinator #StartupJourney #HongKongStartup",
+        "url": "https://instagram.com/p/DYWQu84m37S",
+        "metrics": {
+          "likes": 32,
+          "comments": 2
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

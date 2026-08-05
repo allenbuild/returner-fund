@@ -5,14 +5,49 @@
     "slug": "opentrade",
     "name": "OpenTrade"
   },
-  "generatedAt": "2026-08-03T07:52:26.040Z",
-  "lastModifiedAt": "2026-08-03T07:52:26.040Z",
-  "events": [],
-  "groups": [],
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z",
+  "events": [
+    {
+      "id": "tle-54ccae7d1e709f0ae6cc1ee9",
+      "eventDate": "2026-06-30",
+      "eventDateType": "announcement_date",
+      "title": "OpenTrade was introduced",
+      "summary": "OpenTrade introduced OpenTrade: invest without reading a single chart We run 24/7 proactive AI agents that turn weeks of hedge-fund level quant research into one card you swipe: thesis, catalyst, risk, sizing, and timing all in one Comment \"YC\" + retweet for priority premium.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-50aca53238609df35b98138c",
+          "title": "Introducing OpenTrade: invest without reading a single chart We run 24/7 proactive AI agents that turn weeks of hedge-fund level quant research into one card you swipe: thesis, catalyst, risk, sizing, and timing all in one Comment \"YC\" +...",
+          "publisher": "ojaskandy",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-06-30T16:01:41.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/ojaskandy/status/2071987546498961714"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-06",
+          "count": 1
+        }
+      ]
+    }
+  ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 0,
-    "lastSuccessfulArtifactAt": "2026-08-03T07:52:26.040Z"
+    "publishedEventCount": 1,
+    "lastSuccessfulArtifactAt": "2026-08-05T00:49:13.374Z"
   },
   "nextCursor": null
 }

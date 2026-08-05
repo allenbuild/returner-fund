@@ -1,0 +1,53 @@
+{
+  "schemaVersion": "company-timeline.v1",
+  "company": {
+    "id": "company-rasyn",
+    "slug": "rasyn",
+    "name": "Rasyn"
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z",
+  "events": [
+    {
+      "id": "tle-93110b14fc96523dbbced545",
+      "eventDate": "2026-08-03",
+      "eventDateType": "announcement_date",
+      "title": "Rasyn launched on Y Combinator",
+      "summary": "Launch YC (Rasyn- S26).",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-2dd4e9bf43f16cf481f7f8e2",
+          "title": "Launch YC (Rasyn- S26)",
+          "publisher": "Launch YC (Rasyn- S26)",
+          "domain": "youtube.com",
+          "sourceType": "video",
+          "publishedAt": "2026-08-03T12:34:09-07:00",
+          "evidenceRole": "primary",
+          "url": "https://youtube.com/watch?v=ru1BeRBlRec"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-08",
+          "count": 1
+        }
+      ]
+    }
+  ],
+  "coverage": {
+    "status": "partial",
+    "publishedEventCount": 1,
+    "lastSuccessfulArtifactAt": "2026-08-05T00:49:13.374Z"
+  },
+  "nextCursor": null
+}

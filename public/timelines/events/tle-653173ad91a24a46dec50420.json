@@ -19,7 +19,7 @@
     "sourcePreview": [
       {
         "id": "src-5c2033b510a3e75e47df1fe6",
-        "title": "I’m excited to share that Osmaura has joined Y Combinator’s S26 batch. Yeabkal and I left MIT last semester to work on our startup toget...",
+        "title": "I’m excited to share that Osmaura has joined Y Combinator’s S26 batch.",
         "publisher": "rookunderfire",
         "domain": "x.com",
         "sourceType": "founder_post",
@@ -31,7 +31,7 @@
     "evidence": [
       {
         "id": "src-5c2033b510a3e75e47df1fe6",
-        "title": "I’m excited to share that Osmaura has joined Y Combinator’s S26 batch. Yeabkal and I left MIT last semester to work on our startup toget...",
+        "title": "I’m excited to share that Osmaura has joined Y Combinator’s S26 batch.",
         "publisher": "rookunderfire",
         "domain": "x.com",
         "sourceType": "founder_post",
@@ -39,7 +39,7 @@
         "evidenceRole": "primary",
         "url": "https://x.com/rookunderfire/status/2070188523563708454",
         "publicationDate": "2026-06-25T16:53:00.000Z",
-        "excerpt": "I’m excited to share that Osmaura has joined Y Combinator’s S26 batch. Yeabkal and I left MIT last semester to work on our startup together full time. We spent months in pivot hell, chasing ideas, throwing things away, and trying to find a problem that felt both important and real. After months of trying, we've landed on a problem that's exciting to us. Law firm partners are under constant pressure to originate more work, stay close to clients, and spot new matter opportunities week after…",
+        "excerpt": "I’m excited to share that Osmaura has joined Y Combinator’s S26 batch. Yeabkal and I left MIT last semester to work on our startup together full time. We spent months in pivot hell, chasing ideas, throwing things away, and trying to find a problem that felt both important and https://t.co/WInsjic7Wd",
         "sourceEventDate": "2026-06-25",
         "isConflicting": false,
         "conflictDescription": null
@@ -47,24 +47,23 @@
     ],
     "posts": [
       {
-        "id": "post-c8ce0cd621a667a584c0c3be",
+        "id": "post-941232f33b1256e9fc54ead3",
         "platform": "x",
         "account": "rookunderfire",
         "postDate": "2026-06-25",
-        "excerpt": "I’m excited to share that Osmaura has joined Y Combinator’s S26 batch. Yeabkal and I left MIT last semester to work on our startup together full time. We spent months in pivot hell, chasing ideas, throwing things away, and trying to find a problem that felt both important and real. After months of trying, we've landed on a problem that's exciting to us. Law firm partners are under constant pressure to originate more work, stay close to clients, and spot new matter opportunities week after…",
+        "excerpt": "I’m excited to share that Osmaura has joined Y Combinator’s S26 batch. Yeabkal and I left MIT last semester to work on our startup together full time. We spent months in pivot hell, chasing ideas, throwing things away, and trying to find a problem that felt both important and https://t.co/WInsjic7Wd",
         "url": "https://x.com/rookunderfire/status/2070188523563708454",
         "metrics": {
-          "views": 2965,
           "likes": 123,
-          "replies": 12,
           "reposts": 9,
           "quotes": 1,
-          "bookmarks": 4
+          "replies": 12,
+          "views": 2985
         },
         "evidenceRole": "primary"
       }
     ]
   },
-  "generatedAt": "2026-08-03T07:52:26.040Z",
-  "lastModifiedAt": "2026-08-03T07:52:26.040Z"
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
 }

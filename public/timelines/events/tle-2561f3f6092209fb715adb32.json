@@ -18,14 +18,14 @@
     "evidenceCount": 2,
     "sourcePreview": [
       {
-        "id": "src-4efaec54563b8a83fd5e44c7",
+        "id": "src-1b7cc957b697c5410a034947",
         "title": "Introducing e-commerce imagery, now live on Mirror Mirror AI. A complete e-commerce shoot with real models, done in hours, not weeks. Every shot consistent across the catalog. Consent, licensing, and compensation built into every image.…",
         "publisher": "mirrormirror.ai",
         "domain": "instagram.com",
         "sourceType": "company_post",
         "publishedAt": "2026-05-27T18:31:50.000Z",
         "evidenceRole": "primary",
-        "url": "https://www.instagram.com/reel/DY2iw5kRRvZ"
+        "url": "https://instagram.com/reel/DY2iw5kRRvZ"
       },
       {
         "id": "src-7068fb04546d01a80e5f7b65",
@@ -40,14 +40,14 @@
     ],
     "evidence": [
       {
-        "id": "src-4efaec54563b8a83fd5e44c7",
+        "id": "src-1b7cc957b697c5410a034947",
         "title": "Introducing e-commerce imagery, now live on Mirror Mirror AI. A complete e-commerce shoot with real models, done in hours, not weeks. Every shot consistent across the catalog. Consent, licensing, and compensation built into every image.…",
         "publisher": "mirrormirror.ai",
         "domain": "instagram.com",
         "sourceType": "company_post",
         "publishedAt": "2026-05-27T18:31:50.000Z",
         "evidenceRole": "primary",
-        "url": "https://www.instagram.com/reel/DY2iw5kRRvZ",
+        "url": "https://instagram.com/reel/DY2iw5kRRvZ",
         "publicationDate": "2026-05-27T18:31:50.000Z",
         "excerpt": "Introducing e-commerce imagery, now live on Mirror Mirror AI. A complete e-commerce shoot with real models, done in hours, not weeks. Every shot consistent across the catalog. Consent, licensing, and compensation built into every image. Link in bio to get started.",
         "sourceEventDate": "2026-05-27",
@@ -72,20 +72,21 @@
     ],
     "posts": [
       {
-        "id": "post-696e31aef78a0590ea8f088d",
+        "id": "post-58b58c185cf5359cd5c7129d",
         "platform": "instagram",
         "account": "mirrormirror.ai",
         "postDate": "2026-05-27",
         "excerpt": "Introducing e-commerce imagery, now live on Mirror Mirror AI. A complete e-commerce shoot with real models, done in hours, not weeks. Every shot consistent across the catalog. Consent, licensing, and compensation built into every image. Link in bio to get started.",
-        "url": "https://www.instagram.com/reel/DY2iw5kRRvZ",
+        "url": "https://instagram.com/reel/DY2iw5kRRvZ",
         "metrics": {
           "likes": 21,
-          "comments": 3
+          "comments": 3,
+          "views": 7743
         },
         "evidenceRole": "primary"
       },
       {
-        "id": "post-fcba4541f6d550ebe79b9fe1",
+        "id": "post-fc2bf12635968d36b821b30d",
         "platform": "youtube",
         "account": "Mirror Mirror AI",
         "postDate": "2026-03-22",
@@ -99,6 +100,6 @@
       }
     ]
   },
-  "generatedAt": "2026-08-03T07:52:26.040Z",
-  "lastModifiedAt": "2026-08-03T07:52:26.040Z"
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
 }

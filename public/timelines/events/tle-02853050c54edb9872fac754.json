@@ -1,0 +1,67 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-omanta",
+    "slug": "omanta",
+    "name": "Omanta"
+  },
+  "event": {
+    "id": "tle-02853050c54edb9872fac754",
+    "eventDate": "2026-08-03",
+    "eventDateType": "announcement_date",
+    "title": "Omanta released Omanta: A Personal Research Lab for Every Patient",
+    "summary": "Omanta introduced Omanta: A Personal Research Lab for Every Patient.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-9e4e32539ce65851d143d6a4",
+        "title": "Introducing Omanta: A Personal Research Lab for Every Patient",
+        "publisher": "Introducing Omanta: A Personal Research Lab for Every Patient",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-08-03T16:03:05-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=AwMthrNP7Bs"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-9e4e32539ce65851d143d6a4",
+        "title": "Introducing Omanta: A Personal Research Lab for Every Patient",
+        "publisher": "Introducing Omanta: A Personal Research Lab for Every Patient",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-08-03T16:03:05-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=AwMthrNP7Bs",
+        "publicationDate": "2026-08-03T16:03:05-07:00",
+        "excerpt": "Omanta is a personal research lab dedicated to each patient. We integrate a patient's complete medical record, personal genomics, AI, and the latest clinical evidence to understand the molecular drivers of their disease. We map every existing therapy against their biology, and when the right treatment doesn't exist, we launch a personalized therapeutic campaign to build it. Most doctors have limited time per patient, while the science never stops moving. New discoveries emerge every day, yet…",
+        "sourceEventDate": "2026-08-03",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-e16c2514cd33c68d48d0c14f",
+        "platform": "youtube",
+        "account": "Introducing Omanta: A Personal Research Lab for Every Patient",
+        "postDate": "2026-08-03",
+        "excerpt": "Omanta is a personal research lab dedicated to each patient. We integrate a patient's complete medical record, personal genomics, AI, and the latest clinical evidence to understand the molecular drivers of their disease. We map every existing therapy against their biology, and when the right treatment doesn't exist, we launch a personalized therapeutic campaign to build it. Most doctors have limited time per patient, while the science never stops moving. New discoveries emerge every day, yet…",
+        "url": "https://youtube.com/watch?v=AwMthrNP7Bs",
+        "metrics": {
+          "views": 57,
+          "likes": 0,
+          "comments": 0
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

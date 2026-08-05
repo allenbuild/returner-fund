@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-revnu",
+    "slug": "revnu",
+    "name": "Revnu"
+  },
+  "event": {
+    "id": "tle-a223dad7f2844fcacddc0c08",
+    "eventDate": "2026-04-02",
+    "eventDateType": "announcement_date",
+    "title": "Revnu was accepted into Y Combinator",
+    "summary": "Revnu just got accepted into YC.",
+    "category": "accelerator",
+    "isMajor": true,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-9fff5dc4e682c7954977f7e8",
+        "title": "we just got accepted into YC!! were building Revnu! founders are addicted to shipping but nobody wants to do the growth work (Ads, SEO, A/B tests, etc) so we built AI agents that do it automatically if you're in SF hit us up and we can o...",
+        "publisher": "artfreebrey",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-04-02T20:36:22.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/artfreebrey/status/2039804155037122633"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-9fff5dc4e682c7954977f7e8",
+        "title": "we just got accepted into YC!! were building Revnu! founders are addicted to shipping but nobody wants to do the growth work (Ads, SEO, A/B tests, etc) so we built AI agents that do it automatically if you're in SF hit us up and we can o...",
+        "publisher": "artfreebrey",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-04-02T20:36:22.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/artfreebrey/status/2039804155037122633",
+        "publicationDate": "2026-04-02T20:36:22.000Z",
+        "excerpt": "we just got accepted into YC!! were building Revnu! founders are addicted to shipping but nobody wants to do the growth work (Ads, SEO, A/B tests, etc) so we built AI agents that do it automatically if you're in SF hit us up and we can onboard you ❤️",
+        "sourceEventDate": "2026-04-02",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-48ec6a051d9f983bce9de8ec",
+        "platform": "x",
+        "account": "artfreebrey",
+        "postDate": "2026-04-02",
+        "excerpt": "we just got accepted into YC!! were building Revnu! founders are addicted to shipping but nobody wants to do the growth work (Ads, SEO, A/B tests, etc) so we built AI agents that do it automatically if you're in SF hit us up and we can onboard you ❤️",
+        "url": "https://x.com/artfreebrey/status/2039804155037122633",
+        "metrics": {
+          "views": 22944,
+          "likes": 271,
+          "replies": 60,
+          "reposts": 11,
+          "quotes": 4,
+          "bookmarks": 39
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}

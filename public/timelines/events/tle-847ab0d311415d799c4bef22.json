@@ -1,0 +1,69 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-ara",
+    "slug": "ara",
+    "name": "Ara"
+  },
+  "event": {
+    "id": "tle-847ab0d311415d799c4bef22",
+    "eventDate": "2026-07-17",
+    "eventDateType": "announcement_date",
+    "title": "Ara released Walkthrough in Ara Ara",
+    "summary": "Ara introduced Walkthrough in Ara Ara now works with your repo to produce a screenshot or recording of its work.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-cf0982472f19fb221b1bc05a",
+        "title": "Introducing Walkthrough in Ara Ara now works with your repo to produce a screenshot or recording of its work.",
+        "publisher": "aradotso",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-07-17T13:30:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/aradotso/status/2078109968184553940"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-cf0982472f19fb221b1bc05a",
+        "title": "Introducing Walkthrough in Ara Ara now works with your repo to produce a screenshot or recording of its work.",
+        "publisher": "aradotso",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-07-17T13:30:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/aradotso/status/2078109968184553940",
+        "publicationDate": "2026-07-17T13:30:00.000Z",
+        "excerpt": "Introducing Walkthrough in Ara Ara now works with your repo to produce a screenshot or recording of its work. The internal skills in Ara make it very powerful for coding. So review should be trusted well! Just view the difference, and merge to main! https://t.co/854phBXKv9",
+        "sourceEventDate": "2026-07-17",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-0740bd5d4086eb90d3772a7b",
+        "platform": "x",
+        "account": "aradotso",
+        "postDate": "2026-07-17",
+        "excerpt": "Introducing Walkthrough in Ara Ara now works with your repo to produce a screenshot or recording of its work. The internal skills in Ara make it very powerful for coding. So review should be trusted well! Just view the difference, and merge to main! https://t.co/854phBXKv9",
+        "url": "https://x.com/aradotso/status/2078109968184553940",
+        "metrics": {
+          "likes": 22,
+          "reposts": 0,
+          "quotes": 0,
+          "replies": 4,
+          "views": 1791
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-05T00:49:13.374Z",
+  "lastModifiedAt": "2026-08-05T00:49:13.374Z"
+}
