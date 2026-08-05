@@ -427,17 +427,17 @@ describe("daily benchmark updater", () => {
       {
         publicationToken: "per-run-secret-token",
         authorization: undefined,
-        url: "/api/graph/full?batch=S2026"
+        url: "/api/graph/full?batch=S2026&includeNonScoring=true"
       },
       {
         publicationToken: undefined,
         authorization: undefined,
-        url: "/api/graph/full?batch=S2026&includeRaw=true"
+        url: "/api/graph/full?batch=S2026&includeNonScoring=true"
       },
       {
         publicationToken: undefined,
         authorization: "Bearer diagnostics-secret",
-        url: "/api/graph/full?batch=S2026&includeRaw=true"
+        url: "/api/graph/full?batch=S2026&includeNonScoring=true"
       }
     ]);
   });
