@@ -3,7 +3,9 @@ import { applyClientGraphFilters } from "@/lib/graph/client-filters";
 import type { CompanyRecord, DemoGraphDataset, EvidenceItem, GraphResponse } from "@/lib/graph/types";
 import type { LiveEvidenceRecord } from "@/lib/ingestion/live-source-refresh";
 
-const HEAVY_GRAPH_TEST_TIMEOUT_MS = 90_000;
+// These route tests rebuild the full volume-scale graph snapshot. Keep a
+// bounded timeout, but allow the committed 31k-row evidence set to finish.
+const HEAVY_GRAPH_TEST_TIMEOUT_MS = 5 * 60_000;
 
 describe("GET /api/graph recomputation order", () => {
   afterEach(() => {

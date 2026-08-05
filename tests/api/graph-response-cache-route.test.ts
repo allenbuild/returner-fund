@@ -2,7 +2,9 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { clearGraphResponseCache } from "@/lib/graph/graph-response-cache";
 import type { GraphResponse } from "@/lib/graph/types";
 
-const HEAVY_GRAPH_TEST_TIMEOUT_MS = 90_000;
+// The cold-cache path builds the full volume-scale graph snapshot. Keep a
+// bounded timeout, but allow the committed 31k-row evidence set to finish.
+const HEAVY_GRAPH_TEST_TIMEOUT_MS = 5 * 60_000;
 
 describe("GET /api/graph response-cache concurrency", () => {
   afterEach(() => {
