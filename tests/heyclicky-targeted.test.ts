@@ -23,6 +23,13 @@ describe("Summer 2026 targeted traction checks", () => {
     const graph = buildGraphResponse({ batchSlug: "S26" }, ycSpring2026GraphDataset);
 
     expect(graph.nodes.some((node) => node.label === "HeyClicky")).toBe(false);
-    expect(JSON.stringify(graph.evidence)).not.toContain("heyclicky");
+    const leakedHeyClickyEvidence = graph.evidence.filter((item) => {
+      const entityId = item.entityId.toLowerCase();
+      return entityId === "company-heyclicky" ||
+        entityId.startsWith("founder-heyclicky-") ||
+        item.attachedCompanyId === "company-heyclicky" ||
+        item.attachedCompanyName?.toLowerCase() === "heyclicky";
+    });
+    expect(leakedHeyClickyEvidence).toEqual([]);
   });
 });

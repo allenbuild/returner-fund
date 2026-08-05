@@ -8,7 +8,8 @@ const validatorPath = join(process.cwd(), "scripts/validate-graph-function-trace
 const graphRuntimeProjections = [
   "generated-runtime/graph/public-evidence-current.json",
   "generated-runtime/graph/logged-in-evidence-current.json",
-  "generated-runtime/graph/targeted-evidence-current.json"
+  "generated-runtime/graph/targeted-evidence-current.json",
+  "generated-runtime/graph/volume-evidence-current.json"
 ];
 const publishedGraphSnapshots = [
   "public/graph/s2026.json",
