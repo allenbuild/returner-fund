@@ -12,7 +12,7 @@ const workflow = readFileSync(
 describe("Public Artifact Validation workflow", () => {
   it("runs independent release gates in parallel behind one required result", () => {
     for (const [job, command, jobTimeout, gateTimeout] of [
-      ["application", "npm run check", 90, 75],
+      ["application", "npm run check", 150, 135],
       ["scoring", "npm run check:release:scoring", 70, 55],
       ["artifacts", "npm run check:release:artifacts", 70, 55]
     ]) {
