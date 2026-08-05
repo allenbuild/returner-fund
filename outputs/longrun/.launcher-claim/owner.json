@@ -1,0 +1,15 @@
+{
+  "version": 2,
+  "token": "26f5a8e0-e8a0-4a7f-9c88-526fe35b3a42",
+  "ownerKind": "released",
+  "ownerPid": null,
+  "ownerFingerprint": null,
+  "launcherPid": 18943,
+  "childPid": null,
+  "createdAt": "2026-08-04T14:23:00.249Z",
+  "supersededToken": "55444a41-01ea-442f-af61-1368f8d69ebe",
+  "runId": "source-sweep-resume-2026-08-04",
+  "acknowledgedAt": "2026-08-04T14:23:00.288Z",
+  "terminalStatus": "failed",
+  "releasedAt": "2026-08-04T14:49:16.809Z"
+}
