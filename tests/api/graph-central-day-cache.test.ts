@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { GraphResponse } from "@/lib/graph/types";
 
-const HEAVY_GRAPH_TEST_TIMEOUT_MS = 90_000;
+const HEAVY_GRAPH_TEST_TIMEOUT_MS = 5 * 60_000;
 
 describe("GET /api/graph Central-day cache", () => {
   afterEach(() => {

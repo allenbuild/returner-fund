@@ -142,7 +142,8 @@ function projectLedgerRow(ledgerRow, catalog) {
   const sourceUrl = stringValue(row.sourceUrl ?? row.nativeUrl ?? row.url ?? row.exactUrl ?? row.canonicalUrl);
   const platformPostId = canonicalPlatformPostId(
     platform,
-    row.platformPostId ?? row.nativeId ?? row.native_id ?? row.postId ?? row.externalId ?? row.external_id
+    row.platformPostId ?? row.nativeId ?? row.native_id ?? row.postId ?? row.externalId ?? row.external_id,
+    sourceUrl
   );
   const postedAt = timestampValue(row.postedAt ?? row.publishedAt ?? row.published_at ?? row.timestamp ?? row.createdAt ?? row.created_at);
   if (!platform || !sourceUrl || !platformPostId) {
@@ -379,9 +380,11 @@ function compactProvenance(ledgerRow, row, owner, platformPostId, sourceUrl) {
 
 function nativeKey(row) {
   const platform = stringValue(row.platform)?.toLowerCase();
+  const sourceUrl = stringValue(row.sourceUrl ?? row.nativeUrl ?? row.url ?? row.exactUrl ?? row.canonicalUrl);
   const id = canonicalPlatformPostId(
     platform,
-    row.platformPostId ?? row.nativeId ?? row.native_id ?? row.postId ?? row.externalId ?? row.external_id
+    row.platformPostId ?? row.nativeId ?? row.native_id ?? row.postId ?? row.externalId ?? row.external_id,
+    sourceUrl
   );
   return platform && id ? `${platform}:${id}` : null;
 }
@@ -390,14 +393,39 @@ function canonicalLedgerNativeKey(ledgerRow) {
   const row = ledgerRow?.row;
   return row && typeof row === "object" ? nativeKey({
     platform: row.platform ?? ledgerRow.platform,
-    platformPostId: row.platformPostId ?? row.nativeId ?? row.native_id ?? row.postId ?? row.externalId ?? row.external_id
+    platformPostId: row.platformPostId ?? row.nativeId ?? row.native_id ?? row.postId ?? row.externalId ?? row.external_id,
+    sourceUrl: row.sourceUrl ?? row.nativeUrl ?? row.url ?? row.exactUrl ?? row.canonicalUrl
   }) : stringValue(ledgerRow?.nativeKey);
 }
 
-function canonicalPlatformPostId(platform, value) {
+function canonicalPlatformPostId(platform, value, sourceUrl = null) {
   const id = stringValue(value);
   if (!id) return null;
-  return platform === "hacker_news" ? id.replace(/^hn:/i, "") : id;
+  if (platform === "hacker_news") return id.replace(/^hn:/i, "");
+  if (platform === "product_hunt") {
+    // Product Hunt public URLs are the validator's canonical native identity.
+    // Recovery rows sometimes carry a numeric API object ID alongside the
+    // human-readable launch URL; publishing both identities creates a false
+    // native-ID conflict and quarantines an otherwise valid post.
+    const urlIdentity = productHuntUrlIdentity(sourceUrl);
+    if (urlIdentity) return urlIdentity;
+  }
+  return id;
+}
+
+function productHuntUrlIdentity(rawUrl) {
+  if (!rawUrl) return null;
+  try {
+    const url = new URL(rawUrl);
+    if (url.hostname.replace(/^www\./i, "").toLowerCase() !== "producthunt.com") return null;
+    const path = url.pathname.replace(/^\/+|\/+$/g, "").toLowerCase();
+    if (/^posts\/[a-z0-9][a-z0-9_-]*$/.test(path)) return path;
+    if (/^p\/[a-z0-9][a-z0-9_-]*(?:\/[a-z0-9][a-z0-9_-]*)?$/.test(path)) return path;
+    if (/^products\/[a-z0-9][a-z0-9_-]*\/launches\/[a-z0-9][a-z0-9_-]*$/.test(path)) return path;
+    return null;
+  } catch {
+    return null;
+  }
 }
 
 function statusRank(status) {

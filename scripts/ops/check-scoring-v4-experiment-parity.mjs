@@ -78,7 +78,11 @@ export async function main(
         cwd: temporaryRoot,
         env: { ...env, SCORING_EXPERIMENTS_TYPESCRIPT_READY: "1" },
         capture: true,
-        timeoutMs: 5 * 60_000
+        // The parity matrix is intentionally isolated, but it now exercises
+        // the verified volume projection as well as the compact scored set.
+        // Keep the guard below the workflow's 55-minute step ceiling while
+        // allowing the larger three-cohort matrix to finish deterministically.
+        timeoutMs: 15 * 60_000
       }
     );
 
