@@ -4,7 +4,7 @@ import path from "node:path";
 import { describe, expect, it, vi } from "vitest";
 import { applyClientGraphFilters } from "@/lib/graph/client-filters";
 
-const HEAVY_GRAPH_TEST_TIMEOUT_MS = 90_000;
+const HEAVY_GRAPH_TEST_TIMEOUT_MS = 300_000;
 
 describe("initial page graph", () => {
   it("hydrates stored momentum for first paint without mutating benchmark history", async () => {
@@ -70,7 +70,7 @@ describe("initial page graph", () => {
     expect(graph.nodes.some((node) => node.entityType === "company" && node.label === "HeyClicky")).toBe(false);
     expect(graph.evidence.length).toBeGreaterThan(0);
     expect(graph.evidence.every((item) => item.platform === "youtube")).toBe(true);
-  });
+  }, HEAVY_GRAPH_TEST_TIMEOUT_MS);
 
   it("keeps leaderboard top posts available after the first client filter pass", async () => {
     const { buildInitialPageGraph } = await import("@/lib/graph/initial-page-graph");

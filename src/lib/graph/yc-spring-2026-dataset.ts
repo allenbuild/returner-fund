@@ -373,6 +373,12 @@ const loggedInSnapshot = loggedInEvidenceSnapshot as PublicEvidenceSnapshot;
 const targetedSnapshot = targetedEvidenceSnapshot as PublicEvidenceSnapshot;
 const volumeSnapshot = volumeEvidenceSnapshot as PublicEvidenceSnapshot;
 const verifiedSocialOverrides = verifiedSocialOverridesJson as Record<string, VerifiedSocialOverride>;
+const companyIdByEntityId = buildCompanyIdByEntityId([
+  ...snapshot.companies,
+  ...springSnapshot.companies
+]);
+const summerCompanyById = new Map(snapshot.companies.map((company) => [companyId(company), company]));
+const springCompanyById = new Map(springSnapshot.companies.map((company) => [companyId(company), company]));
 const summerVerifiedFounderAliases = buildVerifiedFounderAliases(snapshot.companies);
 const springVerifiedFounderAliases = buildVerifiedFounderAliases(springSnapshot.companies);
 const attributionContext = buildAttributionContext(snapshot.companies.map(attributionCompanyProfile));
@@ -407,10 +413,10 @@ const rawPublicEvidenceItems = [
 ]
   .map(canonicalizeRenamedSummerEntity)
   .map((item) => canonicalizeVerifiedFounderEntity(item, summerVerifiedFounderAliases))
-  .filter((item) => item.review_state === "verified")
   .filter(isKnownSummerEvidenceRecord)
+  .filter((item) => item.review_state === "verified")
   .filter(isAcceptedPublicEvidence)
-  .map((item) => publicEvidenceItemWithAttributionGuard(item, attributionContext, snapshot.companies));
+  .map((item) => publicEvidenceItemWithAttributionGuard(item, attributionContext, summerCompanyById));
 const rawGithubEvidenceItems = githubSnapshot.accounts
   .map(reconcileLegacySummerGithubAccount)
   .map((account) => canonicalizeVerifiedFounderEntity(account, summerVerifiedFounderAliases))
@@ -597,15 +603,15 @@ function buildSpring2026GraphDataset(): DemoGraphDataset {
     ...volumeSnapshot.evidence
   ]
     .map((item) => canonicalizeVerifiedFounderEntity(item, springVerifiedFounderAliases))
-    .filter((item) => item.review_state === "verified")
     .filter((item) => springKnownEntityIds.has(item.entityId))
     .filter((item) => evidenceMatchesBatchScope(
       item,
       YC_SPRING_2026_BATCH_SLUG,
       !hasSummerBatchContext(evidenceBatchText(item))
     ))
+    .filter((item) => item.review_state === "verified")
     .filter((item) => springPublicEvidenceAccepted(item))
-    .map((item) => publicEvidenceItemWithAttributionGuard(item, springAttributionContext, springSnapshot.companies));
+    .map((item) => publicEvidenceItemWithAttributionGuard(item, springAttributionContext, springCompanyById));
   const springGithubEvidenceItems = springGithubSnapshot.accounts
     .map((account) => canonicalizeVerifiedFounderEntity(account, springVerifiedFounderAliases))
     .filter((account) => springKnownEntityIds.has(account.entityId))
@@ -1362,10 +1368,10 @@ function timestampRecordValue(record: Record<string, unknown>, ...keys: string[]
 function publicEvidenceItemWithAttributionGuard(
   item: PublicEvidenceRecord,
   context: AttributionContext,
-  companies: RawCompany[]
+  companiesById: Map<string, RawCompany>
 ): EvidenceItem {
   const evidence = publicEvidenceItem(item);
-  const company = companies.find((candidate) => companyId(candidate) === item.entityId);
+  const company = companiesById.get(item.entityId);
 
   if (
     shouldTrustCanonicalAttributionReceiptAtGraphBoundary(item) ||
@@ -1386,19 +1392,7 @@ function attachedCompanyIdForPublicEvidence(item: PublicEvidenceRecord): string 
 }
 
 function companyIdForEvidenceEntityId(entityId: string): string | null {
-  for (const company of [...snapshot.companies, ...springSnapshot.companies]) {
-    if (companyId(company) === entityId) {
-      return companyId(company);
-    }
-    if ((company.founders ?? []).some((founder) => founderId(company, founder) === entityId)) {
-      return companyId(company);
-    }
-    if (manualFounderOverrides(company).some((founder) => manualFounderId(company, founder) === entityId)) {
-      return companyId(company);
-    }
-  }
-
-  return null;
+  return companyIdByEntityId.get(entityId) ?? null;
 }
 
 function nativeAuthorFromRawVisibleText(rawVisibleText: string | undefined): { name: string | null; handle: string | null } {
@@ -2688,6 +2682,21 @@ function industryTags(raw: RawCompany): string[] {
     .map((value) => value.toLowerCase().trim())
     .filter(Boolean);
   return [...new Set(values)];
+}
+
+function buildCompanyIdByEntityId(companies: RawCompany[]): Map<string, string> {
+  const result = new Map<string, string>();
+  for (const company of companies) {
+    const companyIdValue = companyId(company);
+    result.set(companyIdValue, companyIdValue);
+    for (const founder of company.founders ?? []) {
+      result.set(founderId(company, founder), companyIdValue);
+    }
+    for (const founder of manualFounderOverrides(company)) {
+      result.set(manualFounderId(company, founder), companyIdValue);
+    }
+  }
+  return result;
 }
 
 function companyId(raw: RawCompany): string {

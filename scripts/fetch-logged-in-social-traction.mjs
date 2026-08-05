@@ -661,8 +661,10 @@ function verifiedOwnerSocialAccounts(owner = {}, positiveLinks = {}, ownerOverri
     }))
   ]
     .filter((account) => ["x", "linkedin", "instagram"].includes(account.platform) && account.url)
-    .filter((account) => !retiredKeys.has(`${account.platform}:${normalizeComparableUrl(account.url)}`));
-  return mergeVerifiedSocialAccountCandidates(candidates);
+    .filter((account) => urlMatchesPlatform(account.url, account.platform));
+  return mergeVerifiedSocialAccountCandidates(candidates.filter(
+    (account) => !retiredKeys.has(`${account.platform}:${normalizeComparableUrl(account.url)}`)
+  ));
 }
 
 function retiredOwnerSocialAccounts(ownerOverride) {
@@ -843,7 +845,7 @@ function manualTargetsForCompany(company) {
         : founderOverride;
       for (const platform of ["instagram", "x", "linkedin"]) {
         const url = founder.socialLinks?.[platform] ?? founder[platform];
-        if (url && platformFilter.has(platform)) {
+        if (url && platformFilter.has(platform) && urlMatchesPlatform(url, platform)) {
           if (platform === "linkedin" && !allowLinkedIn) continue;
           if (
             platform === "instagram" &&

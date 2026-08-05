@@ -133,7 +133,7 @@ describe("instagram coverage debug report", () => {
     );
 
     expect(platforms).toEqual(
-      new Set(["github", "youtube", "x", "linkedin", "instagram", "hacker_news", "product_hunt"])
+      new Set(["github", "youtube", "x", "linkedin", "instagram", "hacker_news", "product_hunt", "rss", "web"])
     );
     expect(platforms.has("x")).toBe(true);
     expect(platforms.has("linkedin")).toBe(true);

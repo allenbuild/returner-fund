@@ -20,7 +20,9 @@ export function buildInitialPageGraph(filters: GraphFilters = {}): GraphResponse
   });
   if (cachedInitialPageGraph?.cacheKey !== cacheKey) {
     const graph = sanitizeGraphResponse(buildGraphResponse({ ...filters, batchSlug }, yc2026GraphDataset));
-    const benchmarkGraph = sanitizeGraphResponse(buildGraphResponse({ batchSlug }, yc2026GraphDataset));
+    const benchmarkGraph = hasScopedGraphFilters(filters)
+      ? sanitizeGraphResponse(buildGraphResponse({ batchSlug }, yc2026GraphDataset))
+      : graph;
     const benchmarkRows =
       (filters.topVoices ?? "off") === "off"
         ? ensureBenchmarkMomentum(benchmarkGraph, { now }).graph.fastestGaining
@@ -31,6 +33,19 @@ export function buildInitialPageGraph(filters: GraphFilters = {}): GraphResponse
     };
   }
   return cachedInitialPageGraph.graph;
+}
+
+function hasScopedGraphFilters(filters: GraphFilters): boolean {
+  return Boolean(
+    filters.platforms?.length ||
+    filters.industries?.length ||
+    filters.groupPartners?.length ||
+    filters.businessModels?.length ||
+    filters.edgeTypes?.length ||
+    filters.query?.trim() ||
+    filters.minScore !== undefined ||
+    filters.similarityThreshold !== undefined
+  );
 }
 
 function localDayKey(date: Date): string {

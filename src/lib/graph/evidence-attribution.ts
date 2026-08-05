@@ -24,6 +24,7 @@ export interface AttributionContext {
   companiesById: Map<string, AttributionCompanyProfile>;
   companyIdByEntityId: Map<string, string>;
   allCompanies: AttributionCompanyProfile[];
+  signalsByCompanyId: Map<string, EntitySignals>;
 }
 
 export interface AttributionAuditResult {
@@ -92,9 +93,11 @@ const GENERIC_SINGLE_WORD_NAMES = new Set([
 export function buildAttributionContext(companies: AttributionCompanyProfile[]): AttributionContext {
   const companiesById = new Map(companies.map((company) => [company.id, company]));
   const companyIdByEntityId = new Map<string, string>();
+  const signalsByCompanyId = new Map<string, EntitySignals>();
 
   for (const company of companies) {
     companyIdByEntityId.set(company.id, company.id);
+    signalsByCompanyId.set(company.id, entitySignals(company));
     for (const founder of company.founders) {
       companyIdByEntityId.set(founder.id, company.id);
     }
@@ -103,7 +106,8 @@ export function buildAttributionContext(companies: AttributionCompanyProfile[]):
   return {
     companiesById,
     companyIdByEntityId,
-    allCompanies: companies
+    allCompanies: companies,
+    signalsByCompanyId
   };
 }
 
@@ -140,7 +144,7 @@ export function auditEvidenceAttribution(
   }
 
   const visibleText = nativeEvidenceText(item);
-  const signals = entitySignals(company);
+  const signals = context.signalsByCompanyId.get(company.id) ?? entitySignals(company);
   const hasVerifiedSnapshotCompanyNameSignal = hasVerifiedSnapshotCompanyNameSignalForCompany(item, company, visibleText);
   const hasValidatedTopVoiceTargetSignal = hasValidatedTopVoiceTargetSignalForCompany(item, company, visibleText);
   const hasVerifiedAccountSignal = hasVerifiedAccountSignalForCompany(item, signals);
@@ -293,7 +297,7 @@ function auditGithubEvidence(
   context: AttributionContext,
   company: AttributionCompanyProfile
 ): AttributionAuditResult {
-  const signals = entitySignals(company);
+  const signals = context.signalsByCompanyId.get(company.id) ?? entitySignals(company);
   const evidenceText = nativeEvidenceText(item);
   const ownGithubSignal = hasEntitySignal(evidenceText, signals, "github");
   const verifiedAccount = hasVerifiedAccountSignalForCompany(item, signals);
@@ -481,7 +485,7 @@ function conflictingCompanyMatches(
 
   for (const company of context.allCompanies) {
     if (company.id === ownCompany.id) continue;
-    const signals = entitySignals(company);
+    const signals = context.signalsByCompanyId.get(company.id) ?? entitySignals(company);
     if (
       distinctiveConflictNames(company).some((name) => hasPhrase(normalized, name)) ||
       signals.domains.some((domain) => domain && normalized.includes(domain)) ||
