@@ -15,7 +15,7 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: PlatformPageProps): Promise<Metadata> {
   const platform = findPlatform((await params).slug);
   if (!platform) return publicMetadata({ title: "Platform not found", description: "This platform is not in the public catalog.", path: "/platforms", index: false });
-  const description = truncateDescription(`Explore ${platform.companies.length} startups with ${platform.label} accounts or evidence and ${platform.evidence.length} public evidence items in Returner.`);
+  const description = truncateDescription(`Explore ${platform.companies.length} startups with ${platform.label} accounts or evidence and ${platform.evidenceCount} public evidence items in Returner.`);
   return publicMetadata({ title: `${platform.label} startup traction`, description, path: `/platforms/${platform.slug}`, index: platform.indexable });
 }
 
@@ -23,7 +23,7 @@ export default async function PlatformDetailPage({ params }: PlatformPageProps) 
   const platform = findPlatform((await params).slug);
   if (!platform) notFound();
   const companies = [...platform.companies].sort((a, b) => b.node.score - a.node.score || a.node.label.localeCompare(b.node.label));
-  const description = `${platform.companies.length} companies have a public ${platform.label} account or evidence signal in the catalog. ${platform.evidence.length} company evidence items are currently attributed to this platform.`;
+  const description = `${platform.companies.length} companies have a public ${platform.label} account or evidence signal in the catalog. ${platform.evidenceCount} company evidence items are currently attributed to this platform.`;
 
   return (
     <DirectoryShell
@@ -33,7 +33,7 @@ export default async function PlatformDetailPage({ params }: PlatformPageProps) 
       breadcrumbs={[{ label: "Platforms", href: "/platforms" }, { label: platform.label }]}
       stats={[
         { label: "Companies", value: companies.length },
-        { label: "Evidence items", value: platform.evidence.length },
+        { label: "Evidence items", value: platform.evidenceCount },
         { label: "Catalog key", value: platform.platform }
       ]}
     >

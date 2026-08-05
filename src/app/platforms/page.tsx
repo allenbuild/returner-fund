@@ -11,7 +11,7 @@ export const metadata = publicMetadata({ title, description, path: "/platforms" 
 
 export default function PlatformsPage() {
   const { platforms } = getCatalog();
-  const evidenceCount = platforms.reduce((sum, platform) => sum + platform.evidence.length, 0);
+  const evidenceCount = platforms.reduce((sum, platform) => sum + platform.evidenceCount, 0);
 
   return (
     <DirectoryShell
@@ -40,7 +40,7 @@ export default function PlatformsPage() {
           title: platform.label,
           href: `/platforms/${platform.slug}`,
           description: `${platform.companies.length} companies have an account or evidence signal associated with ${platform.label}.`,
-          meta: [`${platform.companies.length} companies`, `${platform.evidence.length} evidence items`]
+          meta: [`${platform.companies.length} companies`, `${platform.evidenceCount} evidence items`]
         }))} />
       </section>
       <div className="rf-inline-links"><DirectoryLink href="/data-sources">Data source policy</DirectoryLink><DirectoryLink href="/methodology">Scoring methodology</DirectoryLink><DirectoryLink href="/industries">Browse industries</DirectoryLink></div>

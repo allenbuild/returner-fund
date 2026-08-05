@@ -11,7 +11,7 @@ export const metadata = publicMetadata({ title, description, path: "/data-source
 
 export default function DataSourcesPage() {
   const catalog = getCatalog();
-  const evidenceCount = catalog.companies.reduce((sum, company) => sum + company.evidence.length, 0);
+  const evidenceCount = catalog.cohorts.reduce((sum, cohort) => sum + cohort.evidenceCount, 0);
   const verifiedCompanies = catalog.companies.filter((company) => company.node.review_state === "verified").length;
 
   return (
@@ -38,8 +38,8 @@ export default function DataSourcesPage() {
         <DirectoryCards items={catalog.platforms.map((platform) => ({
           title: platform.label,
           href: `/platforms/${platform.slug}`,
-          description: `${platform.evidence.length} company evidence items and ${platform.companies.length} companies with an account or evidence signal.`,
-          meta: [`${platform.evidence.length} evidence items`, `${platform.companies.length} companies`]
+          description: `${platform.evidenceCount} company evidence items and ${platform.companies.length} companies with an account or evidence signal.`,
+          meta: [`${platform.evidenceCount} evidence items`, `${platform.companies.length} companies`]
         }))} />
       </section>
       <div className="rf-inline-links"><DirectoryLink href="/methodology">Scoring methodology</DirectoryLink><DirectoryLink href="/faq">Frequently asked questions</DirectoryLink><DirectoryLink href="/corrections">Correction requests</DirectoryLink></div>

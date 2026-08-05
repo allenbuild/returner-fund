@@ -1,7 +1,7 @@
 import { DirectoryCompanyList } from "@/components/seo/DirectoryCompanyList";
 import { DirectoryLink, DirectoryShell } from "@/components/seo/DirectoryShell";
 import { DirectoryCollectionJsonLd } from "@/components/seo/DirectoryStructuredData";
-import { getCatalog } from "@/lib/seo/catalog";
+import { companyRankingEvidenceCount, getCatalog } from "@/lib/seo/catalog";
 import { publicMetadata } from "@/lib/seo/site";
 
 const title = "Startup traction rankings";
@@ -13,7 +13,7 @@ export default function RankingsPage() {
   const catalog = getCatalog();
   const companies = catalog.companies
     .filter((company) => company.indexable)
-    .sort((a, b) => b.node.score - a.node.score || b.evidence.length - a.evidence.length || a.node.label.localeCompare(b.node.label));
+    .sort((a, b) => b.node.score - a.node.score || companyRankingEvidenceCount(b) - companyRankingEvidenceCount(a) || a.node.label.localeCompare(b.node.label));
   const generatedAt = catalog.graphs.map((graph) => graph.generatedAt).sort().at(-1);
   const asOf = generatedAt ? new Intl.DateTimeFormat("en-US", { dateStyle: "medium", timeZone: "UTC" }).format(new Date(generatedAt)) : "Current snapshot";
 

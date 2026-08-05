@@ -35,9 +35,10 @@ const REPORT_PATH = path.join(
   "scoring-diagnostics-v4-report.md"
 );
 // This audit deliberately loads and rescans every scored row in all three cohorts.
-// GitHub's shared runners take roughly twice as long as a warm local run, so keep a
-// bounded three-minute watchdog instead of the previous 55-second flaky threshold.
-const DIAGNOSTICS_TIMEOUT_MS = 180_000;
+// The volume publication can add tens of thousands of rows to the runtime snapshot,
+// so allow the bounded watchdog to scale to a cold shared-runner execution while
+// keeping the release job's own timeout as the outer safety limit.
+const DIAGNOSTICS_TIMEOUT_MS = 900_000;
 const TEST_TIMEOUT_MS = DIAGNOSTICS_TIMEOUT_MS + 15_000;
 
 test(
