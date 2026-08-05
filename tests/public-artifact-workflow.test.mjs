@@ -11,17 +11,17 @@ const workflow = readFileSync(
 
 describe("Public Artifact Validation workflow", () => {
   it("runs independent release gates in parallel behind one required result", () => {
-    for (const [job, command] of [
-      ["application", "npm run check"],
-      ["scoring", "npm run check:release:scoring"],
-      ["artifacts", "npm run check:release:artifacts"]
+    for (const [job, command, jobTimeout, gateTimeout] of [
+      ["application", "npm run check", 90, 75],
+      ["scoring", "npm run check:release:scoring", 70, 55],
+      ["artifacts", "npm run check:release:artifacts", 70, 55]
     ]) {
       const section = workflow.match(
         new RegExp(`\\n  ${job}:[\\s\\S]*?(?=\\n  [a-z][a-z-]*:|$)`)
       )?.[0] ?? "";
-      expect(section).toContain("timeout-minutes: 70");
+      expect(section).toContain(`timeout-minutes: ${jobTimeout}`);
       expect(section).toContain("timeout-minutes: 10");
-      expect(section).toContain("timeout-minutes: 55");
+      expect(section).toContain(`timeout-minutes: ${gateTimeout}`);
       expect(section).toContain("run: npm ci");
       expect(section).toContain(`run: ${command}`);
     }
