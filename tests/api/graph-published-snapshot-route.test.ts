@@ -34,8 +34,8 @@ const snapshotBodies = new Map(
     )
   ])
 );
-const PUBLISHED_GRAPH_TIME = new Date(
-  new Date((JSON.parse(snapshotBodies.get("s26.json")!) as GraphResponse).generatedAt).getTime() + 1_000
+const BENCHMARK_REPLAY = exactModelBenchmarkReplay(
+  JSON.parse(snapshotBodies.get("s26.json")!) as GraphResponse
 );
 
 describe("GET /api/graph published snapshot runtime", () => {
@@ -43,7 +43,7 @@ describe("GET /api/graph published snapshot runtime", () => {
     vi.resetModules();
     vi.clearAllMocks();
     vi.useFakeTimers();
-    vi.setSystemTime(PUBLISHED_GRAPH_TIME);
+    vi.setSystemTime(BENCHMARK_REPLAY.now);
     readRuntimeGraphSnapshotFile.mockImplementation(async (filename) => {
       const body = snapshotBodies.get(filename);
       if (!body) {
@@ -64,11 +64,12 @@ describe("GET /api/graph published snapshot runtime", () => {
     const published = snapshot("s26.json");
     const publishedScreenpipe = momentumRow(published, "company-screenpipe");
     const expectedScreenpipe = momentumRow(
-      applyStoredBenchmarkMomentum(published, { now: PUBLISHED_GRAPH_TIME }),
+      applyStoredBenchmarkMomentum(published, { now: BENCHMARK_REPLAY.now }),
       "company-screenpipe"
     );
     expect(publishedScreenpipe.dod.baselineScore).toBeNull();
     expect(expectedScreenpipe.dod.baselineScore).not.toBeNull();
+    expect(expectedScreenpipe.dod.benchmarkedAt).toBe(BENCHMARK_REPLAY.recordedAt);
 
     const { GET } = await import("@/app/api/graph/route");
     const response = await GET(new Request("http://localhost/api/graph?batch=S26"));
@@ -101,7 +102,7 @@ describe("GET /api/graph published snapshot runtime", () => {
   it("applies canonical display filters after benchmark hydration", async () => {
     const published = snapshot("s26-yc-partners.json");
     const benchmarked = applyStoredBenchmarkMomentum(published, {
-      now: PUBLISHED_GRAPH_TIME
+      now: BENCHMARK_REPLAY.now
     });
     const expected = applyClientGraphFilters(benchmarked, {
       platforms: ["x"],
@@ -272,6 +273,42 @@ function forbiddenHeavyImport(moduleName: string): never {
 
 function snapshot(filename: string): GraphResponse {
   return JSON.parse(snapshotBodies.get(filename)!) as GraphResponse;
+}
+
+function exactModelBenchmarkReplay(graph: GraphResponse) {
+  const store = JSON.parse(readFileSync(
+    join(process.cwd(), "outputs", "benchmarks", `${graph.batch.slug.toLowerCase()}-score-benchmarks.json`),
+    "utf8"
+  )) as {
+    daily?: Array<{ recordedAt?: string; scoringModelVersion?: string }>;
+  };
+  const modelVersion = graph.scoringContext?.modelVersion;
+  const latest = (store.daily ?? [])
+    .filter((snapshot) =>
+      snapshot.scoringModelVersion === modelVersion &&
+      typeof snapshot.recordedAt === "string" &&
+      Number.isFinite(Date.parse(snapshot.recordedAt))
+    )
+    .sort((left, right) => Date.parse(right.recordedAt!) - Date.parse(left.recordedAt!))[0];
+  if (!latest?.recordedAt) {
+    throw new Error(`Missing exact-model benchmark fixture for ${graph.batch.slug}@${modelVersion ?? "unknown"}.`);
+  }
+
+  const centralDateParts = new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/Chicago",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit"
+  }).formatToParts(new Date(latest.recordedAt));
+  const part = (type: Intl.DateTimeFormatPartTypes) =>
+    Number(centralDateParts.find((candidate) => candidate.type === type)?.value);
+
+  // Noon-ish Central on the following calendar day makes the selected DoD
+  // baseline deterministic even when the committed history has skipped days.
+  return {
+    recordedAt: latest.recordedAt,
+    now: new Date(Date.UTC(part("year"), part("month") - 1, part("day") + 1, 18))
+  };
 }
 
 function neutralizePublishedMomentum(raw: string): string {
