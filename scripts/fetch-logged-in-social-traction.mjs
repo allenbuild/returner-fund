@@ -1109,6 +1109,7 @@ async function fetchLinkedInPostsFromBrowser(target, workerIndex, activityUrl) {
         { timeoutMs: perTargetTimeoutMs },
         { label: "browser DOM extraction" }
       );
+      await probeSafety();
       return parseJsonOutput(raw);
     }
   });

@@ -263,6 +263,10 @@ describe("logged-in LinkedIn collection", () => {
       null
     );
     assert.match(collectorSource, /await probeSafety\(\);/);
+    assert.match(
+      collectorSource,
+      /const raw = await interact\([\s\S]*?linkedInExtractJs\(\)[\s\S]*?await probeSafety\(\);\s+return parseJsonOutput\(raw\);/
+    );
     assert.doesNotMatch(collectorSource, /fetchLinkedInPostsFromAdapter/);
     assert.match(collectorSource, /stringArg\("--linkedin-mode"\) \?\? "browser"/);
     assert.match(
