@@ -6,6 +6,12 @@ import { afterEach, describe, expect, it } from "vitest";
 import { TimelineArtifactValidationError, validateTimelineArtifacts } from "../scripts/validate-timeline-artifacts.mjs";
 
 const temporaryDirectories = [];
+const FULL_CORPUS_SOURCE_PATHS = [
+  "src/lib/social/public-evidence-current.json",
+  "src/lib/social/logged-in-evidence-current.json",
+  "src/lib/social/targeted-evidence-current.json",
+  "src/lib/social/volume-evidence-current.json",
+];
 
 afterEach(async () => {
   await Promise.all(temporaryDirectories.splice(0).map((directory) => rm(directory, { recursive: true, force: true })));
@@ -54,9 +60,32 @@ describe("timeline artifact validator", () => {
       .rejects.toSatisfy((error) => error instanceof TimelineArtifactValidationError
         && error.violations.some((violation) => violation.includes("tracking parameter")));
   });
+
+  it("rehashes every direct full-corpus source artifact", async () => {
+    const fixture = await writeFixture({ includeFullCorpusSources: true });
+    await expect(validateTimelineArtifacts({
+      rootDir: fixture,
+      now: new Date("2026-08-02T12:00:00Z"),
+    })).resolves.toMatchObject({ publishedEvents: 1 });
+
+    await writeFile(
+      path.join(fixture, "src/lib/social/public-evidence-current.json"),
+      JSON.stringify({ evidence: [], changed: true }),
+    );
+    await expect(validateTimelineArtifacts({
+      rootDir: fixture,
+      now: new Date("2026-08-02T12:00:00Z"),
+    })).rejects.toSatisfy((error) => error instanceof TimelineArtifactValidationError
+      && error.violations.some((violation) => violation.includes(
+        "src/lib/social/public-evidence-current.json",
+      )));
+  });
 });
 
-async function writeFixture({ sourceUrl = "https://acme.example/launch" } = {}) {
+async function writeFixture({
+  sourceUrl = "https://acme.example/launch",
+  includeFullCorpusSources = false,
+} = {}) {
   const root = await mkdtemp(path.join(tmpdir(), "returner-timeline-validator-"));
   temporaryDirectories.push(root);
   await Promise.all([
@@ -78,6 +107,14 @@ async function writeFixture({ sourceUrl = "https://acme.example/launch" } = {}) 
     const body = JSON.stringify({ nodes: [{ entityType: "company", entityId: company.id, label: company.name, batchSlug }] });
     await writeFile(path.join(root, relative), body);
     sourceArtifacts.push({ path: relative, sha256: sha256(body) });
+  }
+  if (includeFullCorpusSources) {
+    await mkdir(path.join(root, "src", "lib", "social"), { recursive: true });
+    for (const relative of FULL_CORPUS_SOURCE_PATHS) {
+      const body = JSON.stringify({ source: { fetchedAt: generatedAt }, evidence: [], path: relative });
+      await writeFile(path.join(root, relative), body);
+      sourceArtifacts.push({ path: relative, sha256: sha256(body) });
+    }
   }
 
   const source = {

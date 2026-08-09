@@ -11,7 +11,12 @@ const PUBLIC_INDEX_SCHEMA = "company-timeline-public-index.v1";
 const TIMELINE_SCHEMA = "company-timeline.v1";
 const DETAIL_SCHEMA = "company-timeline-event.v1";
 const BASE_GRAPH_FILES = ["s2026.json", "s26.json", "a16zsr006.json"];
-const SUPPLEMENTAL_TIMELINE_FILES = ["src/lib/social/volume-evidence-current.json"];
+const SUPPLEMENTAL_TIMELINE_FILES = [
+  "src/lib/social/public-evidence-current.json",
+  "src/lib/social/logged-in-evidence-current.json",
+  "src/lib/social/targeted-evidence-current.json",
+  "src/lib/social/volume-evidence-current.json",
+];
 const CATEGORIES = new Set([
   "founded", "accelerator", "funding", "product_launch", "product_update",
   "traction_milestone", "revenue_milestone", "user_milestone", "customer",

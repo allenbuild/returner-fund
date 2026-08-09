@@ -267,7 +267,11 @@ describe("file-backed Timeline public discovery", () => {
   });
 
   it("feeds verified cache sources into deterministic public artifact classification", async () => {
-    const inventory = await loadCanonicalTimelinePublicDiscoveryInventory(process.cwd());
+    const canonicalEvidenceSnapshot = { evidence: [] };
+    const inventory = await loadCanonicalTimelinePublicDiscoveryInventory(
+      process.cwd(),
+      canonicalEvidenceSnapshot,
+    );
     const target = inventory.companies[0]!;
     const databaseSnapshot = {
       status: "not_configured" as const,
@@ -281,12 +285,14 @@ describe("file-backed Timeline public discovery", () => {
       dryRun: true,
       maxCompanies: 1,
       databaseSnapshot,
+      canonicalEvidenceSnapshot,
       logger: () => undefined,
     });
     const discovered = await runCompanyTimelineBackfill({
       dryRun: true,
       maxCompanies: 1,
       databaseSnapshot,
+      canonicalEvidenceSnapshot,
       logger: () => undefined,
       publicDiscoverySnapshot: {
         schemaVersion: TIMELINE_PUBLIC_DISCOVERY_SCHEMA_VERSION,

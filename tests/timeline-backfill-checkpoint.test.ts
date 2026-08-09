@@ -5,11 +5,20 @@ import { join } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 import {
   computeTimelineBackfillBuildFingerprint,
+  loadCanonicalTimelinePublicDiscoveryInventory,
   runCompanyTimelineBackfill,
 } from "@/lib/timeline/backfill";
+import type { EvidenceItem, GraphResponse } from "@/lib/graph/types";
 import type { TimelineDatabaseSnapshot } from "@/lib/timeline/database-backfill";
+import { canonicalizeSourceUrl } from "@/lib/timeline/source-document";
 
 const GENERATED_AT = "2026-08-02T12:00:00.000Z";
+const FULL_CORPUS_SOURCE_PATHS = [
+  "src/lib/social/public-evidence-current.json",
+  "src/lib/social/logged-in-evidence-current.json",
+  "src/lib/social/targeted-evidence-current.json",
+  "src/lib/social/volume-evidence-current.json",
+] as const;
 const temporaryRoots: string[] = [];
 
 afterEach(async () => {
@@ -150,6 +159,176 @@ describe("Company Timeline backfill checkpoint integrity", () => {
       expect.stringMatching(/\$5M/),
     ]));
   });
+
+  it("keeps full canonical source parity while deduplicating capped preview rows", async () => {
+    const root = await timelineFixtureRoot();
+    const canonicalEvidence = [
+      evidence({
+        id: "full-public-duplicate-of-preview",
+        postedAt: "2026-08-01T10:00:00.000Z",
+        title: "Acme raised a $5M seed round",
+        text: "Acme raised a $5M seed round to expand its product.",
+        sourceUrl: "https://www.linkedin.com/posts/acme_seed-funding-activity-123",
+      }),
+      evidence({
+        id: "full-public-product-launch",
+        platform: "web",
+        postedAt: "2026-05-01T10:00:00.000Z",
+        title: "Acme launched Acme Cloud",
+        text: "Acme launched Acme Cloud for development teams.",
+        sourceUrl: "https://acme.example/news/acme-cloud-launch",
+      }),
+      evidence({
+        id: "full-logged-in-traction",
+        entityType: "founder",
+        entityId: "founder-acme-alex-1",
+        attachedCompanyId: "company-acme",
+        platform: "x",
+        postedAt: "2026-06-01T10:00:00.000Z",
+        title: "Acme reached 1,000 customers",
+        text: "Acme reached 1,000 customers this month.",
+        sourceUrl: "https://x.com/alex/status/1000",
+      }),
+      evidence({
+        id: "full-targeted-partnership",
+        platform: "rss",
+        postedAt: "2026-07-01T10:00:00.000Z",
+        title: "Acme partnered with Beta Corp",
+        text: "Acme partnered with Beta Corp to distribute Acme Cloud.",
+        sourceUrl: "https://acme.example/feed/beta-partnership",
+      }),
+    ];
+
+    const result = await runCompanyTimelineBackfill({
+      rootDir: root,
+      canonicalEvidenceSnapshot: { evidence: canonicalEvidence },
+      volumeEvidencePath: null,
+      databaseSnapshot: emptyDatabaseSnapshot(),
+      env: {} as NodeJS.ProcessEnv,
+      logger: () => {},
+    });
+    expect(result).toMatchObject({
+      processedCompanies: 1,
+      publishedEvents: 4,
+      candidateEvents: 0,
+    });
+
+    const artifact = await readJson(join(root, "public", "timelines", "companies", "acme.json")) as {
+      events: Array<{ sourcePreview: Array<{ url: string }> }>;
+    };
+    const sourceUrls = artifact.events.flatMap((event) => event.sourcePreview.map((source) => source.url));
+    expect(sourceUrls).toHaveLength(4);
+    expect(new Set(sourceUrls)).toEqual(new Set([
+      "https://acme.example/feed/beta-partnership",
+      "https://acme.example/news/acme-cloud-launch",
+      "https://www.linkedin.com/posts/acme_seed-funding-activity-123",
+      "https://x.com/alex/status/1000",
+    ]));
+  });
+
+  it("matches every mapped full graph evidence identity beyond the capped previews", async () => {
+    const graphPaths = ["s2026.json", "s26.json", "a16zsr006.json"];
+    const graphs = await Promise.all(graphPaths.map(async (filename) => JSON.parse(await readFile(
+      join(process.cwd(), "public", "graph", filename),
+      "utf8",
+    )) as GraphResponse));
+    const { yc2026GraphDataset } = await import("@/lib/graph/yc-spring-2026-dataset");
+    const inventory = await loadCanonicalTimelinePublicDiscoveryInventory(process.cwd());
+    const fullCorpusArtifacts = inventory.sourceArtifacts.filter((artifact) =>
+      (FULL_CORPUS_SOURCE_PATHS as readonly string[]).includes(artifact.path));
+    expect(fullCorpusArtifacts.map((artifact) => artifact.path)).toEqual(FULL_CORPUS_SOURCE_PATHS);
+    for (const artifact of fullCorpusArtifacts) {
+      expect(artifact.sha256).toBe(sha256(await readFile(join(process.cwd(), artifact.path))));
+    }
+    expect(fullCorpusArtifacts.filter((artifact) =>
+      artifact.path === "src/lib/social/volume-evidence-current.json")).toHaveLength(1);
+    const companyIds = new Set(
+      graphs.flatMap((graph) => graph.nodes)
+        .filter((node) => node.entityType === "company")
+        .map((node) => node.entityId),
+    );
+    const founderCompanyIdById = new Map(
+      graphs.flatMap((graph) => graph.nodes)
+        .filter((node) => node.entityType === "company")
+        .flatMap((node) => node.founders.map((founder) => [founder.id, node.entityId] as const)),
+    );
+    const previewKeys = new Set(graphs.flatMap((graph) => graph.evidence).map(timelineEvidenceKey));
+    const fullSourceOnlyKeys = new Set(
+      yc2026GraphDataset.evidence.map(timelineEvidenceKey).filter((key) => !previewKeys.has(key)),
+    );
+    expect(fullSourceOnlyKeys.size).toBeGreaterThan(1_000);
+
+    const expectedByCompany = new Map<string, Set<string>>();
+    for (const item of [
+      ...graphs.flatMap((graph) => graph.evidence),
+      ...yc2026GraphDataset.evidence,
+    ]) {
+      const companyId = item.attachedCompanyId && companyIds.has(item.attachedCompanyId)
+        ? item.attachedCompanyId
+        : item.entityType === "company" && companyIds.has(item.entityId)
+          ? item.entityId
+          : founderCompanyIdById.get(item.entityId);
+      if (!companyId) continue;
+      const keys = expectedByCompany.get(companyId) ?? new Set<string>();
+      keys.add(timelineEvidenceKey(item));
+      expectedByCompany.set(companyId, keys);
+    }
+
+    expect(inventory.companies.map((company) => [company.id, company.existingEvidenceCount]))
+      .toEqual(inventory.companies.map((company) => [
+        company.id,
+        expectedByCompany.get(company.id)?.size ?? 0,
+      ]));
+  }, 120_000);
+
+  it("invalidates resume when a direct full-corpus source digest changes", async () => {
+    const root = await timelineFixtureRoot();
+    const initialSourceArtifacts = await writeFullCorpusSourceArtifacts(root, "initial");
+    const initialOptions = {
+      rootDir: root,
+      resume: true,
+      canonicalEvidenceSnapshot: { evidence: [], sourceArtifacts: initialSourceArtifacts },
+      volumeEvidencePath: null,
+      databaseSnapshot: emptyDatabaseSnapshot(),
+      env: {} as NodeJS.ProcessEnv,
+      logger: () => {},
+    };
+
+    await expect(runCompanyTimelineBackfill(initialOptions)).resolves.toMatchObject({
+      processedCompanies: 1,
+      resumedCompanies: 0,
+    });
+    await expect(runCompanyTimelineBackfill(initialOptions)).resolves.toMatchObject({
+      processedCompanies: 0,
+      resumedCompanies: 1,
+    });
+
+    const coverage = await readJson(join(root, "artifacts", "company-timeline", "coverage.json")) as {
+      sourceArtifacts: Array<{ path: string; sha256: string }>;
+    };
+    const fullCorpusArtifacts = coverage.sourceArtifacts.filter((artifact) =>
+      (FULL_CORPUS_SOURCE_PATHS as readonly string[]).includes(artifact.path));
+    expect(fullCorpusArtifacts).toEqual(initialSourceArtifacts);
+    expect(fullCorpusArtifacts.filter((artifact) =>
+      artifact.path === "src/lib/social/volume-evidence-current.json")).toHaveLength(1);
+
+    const changedSourceArtifacts = await writeFullCorpusSourceArtifacts(root, "public-changed");
+    await expect(runCompanyTimelineBackfill({
+      ...initialOptions,
+      canonicalEvidenceSnapshot: { evidence: [], sourceArtifacts: changedSourceArtifacts },
+    })).resolves.toMatchObject({
+      processedCompanies: 1,
+      resumedCompanies: 0,
+    });
+
+    const checkpoint = await readJson(join(root, "work", "timeline-backfill-checkpoint.json")) as {
+      sourceArtifacts: Array<{ path: string; sha256: string }>;
+    };
+    expect(checkpoint.sourceArtifacts.find((artifact) =>
+      artifact.path === "src/lib/social/public-evidence-current.json")?.sha256)
+      .toBe(changedSourceArtifacts[0]?.sha256);
+    expect(changedSourceArtifacts[0]?.sha256).not.toBe(initialSourceArtifacts[0]?.sha256);
+  });
 });
 
 async function timelineFixtureRoot(): Promise<string> {
@@ -240,12 +419,53 @@ async function temporaryRoot(): Promise<string> {
   return root;
 }
 
+async function writeFullCorpusSourceArtifacts(
+  root: string,
+  publicRevision: string,
+): Promise<Array<{ path: string; sha256: string }>> {
+  const artifacts: Array<{ path: string; sha256: string }> = [];
+  await mkdir(join(root, "src", "lib", "social"), { recursive: true });
+  for (const path of FULL_CORPUS_SOURCE_PATHS) {
+    const body = serialized({
+      source: { fetchedAt: GENERATED_AT },
+      evidence: [],
+      revision: path === "src/lib/social/public-evidence-current.json" ? publicRevision : "stable",
+    });
+    const absolutePath = join(root, path);
+    await writeFile(absolutePath, body);
+    artifacts.push({ path, sha256: sha256(body) });
+  }
+  return artifacts;
+}
+
 async function readJson(path: string): Promise<unknown> {
   return JSON.parse(await readFile(path, "utf8")) as unknown;
 }
 
 function serialized(value: unknown): Buffer {
   return Buffer.from(`${JSON.stringify(value, null, 2)}\n`, "utf8");
+}
+
+function evidence(overrides: Partial<EvidenceItem> & Pick<EvidenceItem, "id" | "postedAt" | "sourceUrl" | "text">): EvidenceItem {
+  return {
+    entityType: "company",
+    entityId: "company-acme",
+    platform: "linkedin",
+    authorName: "Acme",
+    authorHandle: "acme",
+    publishedAtPrecision: "exact",
+    mediaType: "text",
+    metrics: {},
+    contributionScore: 25,
+    why: "canonical graph evidence fixture",
+    review_state: "verified",
+    linkStatus: "verified",
+    ...overrides,
+  };
+}
+
+function timelineEvidenceKey(item: EvidenceItem): string {
+  return `${item.platform}|${item.platformObjectId ?? item.platformPostId ?? ""}|${canonicalizeSourceUrl(item.sourceUrl)}`;
 }
 
 function sha256(value: Uint8Array): string {

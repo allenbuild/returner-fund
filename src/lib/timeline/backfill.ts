@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { mkdir, readFile, readdir, rename, unlink, writeFile } from "node:fs/promises";
+import { access, mkdir, readFile, readdir, rename, unlink, writeFile } from "node:fs/promises";
 import { dirname, extname, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import { PLATFORM_VALUES, type EvidenceItem, type GraphNode, type GraphResponse } from "@/lib/graph/types";
@@ -51,6 +51,18 @@ import type { TimelineIngestionCompany } from "./ingestion-runner";
 
 const SOURCE_ARTIFACT_PREFIX = "public/graph";
 const DEFAULT_VOLUME_EVIDENCE_PATH = "src/lib/social/volume-evidence-current.json";
+const CANONICAL_DIRECT_EVIDENCE_PATHS = [
+  "src/lib/social/public-evidence-current.json",
+  "src/lib/social/logged-in-evidence-current.json",
+  "src/lib/social/targeted-evidence-current.json",
+  "src/lib/social/volume-evidence-current.json",
+] as const;
+const CANONICAL_GRAPH_RUNTIME_EVIDENCE_PATHS = [
+  "generated-runtime/graph/public-evidence-current.json",
+  "generated-runtime/graph/logged-in-evidence-current.json",
+  "generated-runtime/graph/targeted-evidence-current.json",
+  "generated-runtime/graph/volume-evidence-current.json",
+] as const;
 const DEFAULT_CHECKPOINT = "work/timeline-backfill-checkpoint.json";
 const INTERNAL_COVERAGE_PATH = "artifacts/company-timeline/coverage.json";
 const PUBLIC_INDEX_PATH = "public/timelines/coverage.json";
@@ -79,7 +91,13 @@ export interface TimelineBackfillOptions {
   publicDiscoveryPath?: string;
   publicDiscoverySnapshot?: TimelinePublicDiscoverySnapshot;
   volumeEvidencePath?: string | null;
+  canonicalEvidenceSnapshot?: TimelineCanonicalEvidenceSnapshot;
   logger?: (message: string, data?: Record<string, unknown>) => void;
+}
+
+export interface TimelineCanonicalEvidenceSnapshot {
+  evidence: readonly EvidenceItem[];
+  sourceArtifacts?: ReadonlyArray<{ path: string; sha256: string }>;
 }
 
 export interface TimelineBackfillResult {
@@ -98,6 +116,7 @@ export interface TimelineBackfillResult {
 
 export interface TimelinePublicDiscoveryInventory {
   inventorySha256: string;
+  sourceArtifacts: Array<{ path: string; sha256: string }>;
   companies: TimelineIngestionCompany[];
 }
 
@@ -149,14 +168,7 @@ export async function runCompanyTimelineBackfill(
     throw new TypeError("--max-companies is restricted to --dry-run so publication cannot omit companies.");
   }
   const log = options.logger ?? ((message, data) => console.log(JSON.stringify({ at: new Date().toISOString(), message, ...data })));
-  const loaded = await loadCanonicalInventory(rootDir, options.volumeEvidencePath);
   const database = options.databaseSnapshot ?? await loadPublishedTimelineDatabaseSnapshot(options.env ?? process.env);
-  const publicDiscovery = options.publicDiscoverySnapshot
-    ? timelinePublicDiscoverySnapshotFromValue(options.publicDiscoverySnapshot)
-    : await loadTimelinePublicDiscoverySnapshot(resolveWithinRoot(
-      rootDir,
-      options.publicDiscoveryPath ?? DEFAULT_TIMELINE_PUBLIC_DISCOVERY_PATH,
-    ));
   if (database.status === "migration_unavailable") {
     throw new Error(
       "Company Timeline database projections are unavailable; refusing to replace last-good artifacts with a graph-only rebuild.",
@@ -167,6 +179,17 @@ export async function runCompanyTimelineBackfill(
       "TIMELINE_REQUIRE_DATABASE is enabled but the Company Timeline database snapshot is not configured.",
     );
   }
+  const loaded = await loadCanonicalInventory(
+    rootDir,
+    options.volumeEvidencePath,
+    options.canonicalEvidenceSnapshot,
+  );
+  const publicDiscovery = options.publicDiscoverySnapshot
+    ? timelinePublicDiscoverySnapshotFromValue(options.publicDiscoverySnapshot)
+    : await loadTimelinePublicDiscoverySnapshot(resolveWithinRoot(
+      rootDir,
+      options.publicDiscoveryPath ?? DEFAULT_TIMELINE_PUBLIC_DISCOVERY_PATH,
+    ));
   const inventorySha256 = loaded.inventorySha256;
   // A stale discovery cache may describe a prior graph inventory. Ignore it
   // entirely rather than attaching a recycled company name or source to the
@@ -641,7 +664,11 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
-async function loadCanonicalInventory(rootDir: string, volumeEvidencePath?: string | null) {
+async function loadCanonicalInventory(
+  rootDir: string,
+  volumeEvidencePath?: string | null,
+  canonicalEvidenceSnapshot?: TimelineCanonicalEvidenceSnapshot,
+) {
   const graphEntries: Array<{ graph: GraphResponse; path: string; sha256: string }> = [];
   let inventoryRecords = 0;
   const inventoryForHash = new Map<string, { name: string; batches: string[] }>();
@@ -698,7 +725,44 @@ async function loadCanonicalInventory(rootDir: string, volumeEvidencePath?: stri
   for (const company of byCompany.values()) {
     companyIdBySlug.set(catalogSlugById.get(company.id) ?? slugify(company.name), company.id);
   }
-  const volumeEvidence = await loadVolumeEvidence(rootDir, volumeEvidencePath);
+  const founderCompanyIdById = new Map<string, string>();
+  const companyIdByBatchAndSlug = new Map<string, string>();
+  const companyIdsByUnqualifiedSlug = new Map<string, Set<string>>();
+  for (const company of byCompany.values()) {
+    for (const node of company.nodes) {
+      const slugs = new Set([
+        catalogSlugById.get(company.id),
+        slugify(node.label),
+        slugify(company.name),
+      ].filter((value): value is string => Boolean(value)));
+      for (const slug of slugs) {
+        companyIdByBatchAndSlug.set(`${node.batchSlug.toUpperCase()}|${slug}`, company.id);
+        const companyIds = companyIdsByUnqualifiedSlug.get(slug) ?? new Set<string>();
+        companyIds.add(company.id);
+        companyIdsByUnqualifiedSlug.set(slug, companyIds);
+      }
+      for (const founder of node.founders) founderCompanyIdById.set(founder.id, company.id);
+    }
+  }
+  const canonicalEvidence = canonicalEvidenceSnapshot
+    ?? await loadCanonicalCohortEvidenceSnapshot(rootDir);
+  for (const evidence of canonicalEvidence?.evidence ?? []) {
+    const companyId = resolveCanonicalEvidenceCompanyId(evidence, {
+      byCompany,
+      founderCompanyIdById,
+      companyIdByBatchAndSlug,
+      companyIdsByUnqualifiedSlug,
+    });
+    const company = companyId ? byCompany.get(companyId) : undefined;
+    if (company) company.evidence.push(evidence);
+  }
+  // The full graph dataset already contains the accepted volume projection.
+  // Keep the source hash in Timeline provenance without parsing and appending
+  // the raw ledger a second time. Fixture/fallback mode still normalizes the
+  // standalone volume artifact because no full graph projection is available.
+  const volumeEvidence = canonicalEvidence
+    ? null
+    : await loadVolumeEvidence(rootDir, volumeEvidencePath);
   for (const evidence of volumeEvidence?.evidence ?? []) {
     const companyId = evidence.entityType === "company"
       ? evidence.entityId
@@ -718,12 +782,115 @@ async function loadCanonicalInventory(rootDir: string, volumeEvidencePath?: stri
     companies,
     inventoryRecords,
     inventorySha256,
-    sourceArtifacts: [
+    sourceArtifacts: mergeSourceArtifactDigests([
       ...graphEntries.map(({ path, sha256: digest }) => ({ path, sha256: digest })),
+      ...(canonicalEvidence?.sourceArtifacts ?? []),
       ...(volumeEvidence ? [{ path: volumeEvidence.path, sha256: volumeEvidence.sha256 }] : []),
-    ],
+    ]),
     generatedAt,
   };
+}
+
+async function loadCanonicalCohortEvidenceSnapshot(
+  rootDir: string,
+): Promise<TimelineCanonicalEvidenceSnapshot | null> {
+  const directSourcePresence = await Promise.all(
+    CANONICAL_DIRECT_EVIDENCE_PATHS.map((path) => fileExists(resolveWithinRoot(rootDir, path))),
+  );
+  const primarySourcePresence = directSourcePresence.slice(0, 3);
+  if (primarySourcePresence.every((present) => !present)) return null;
+  if (directSourcePresence.some((present) => !present)) {
+    throw new Error(
+      "Canonical cohort evidence is incomplete: public, logged-in, targeted, and volume artifacts must be present together.",
+    );
+  }
+  if (resolve(rootDir) !== resolve(process.cwd())) {
+    throw new Error(
+      "Canonical cohort evidence must be loaded with the repository root as the current working directory.",
+    );
+  }
+
+  const missingRuntimePaths: string[] = [];
+  for (const path of CANONICAL_GRAPH_RUNTIME_EVIDENCE_PATHS) {
+    if (!await fileExists(resolveWithinRoot(rootDir, path))) missingRuntimePaths.push(path);
+  }
+  if (missingRuntimePaths.length) {
+    throw new Error(
+      `Canonical graph evidence projections are missing (${missingRuntimePaths.join(", ")}). Run npm run prepare:graph-runtime before Timeline backfill.`,
+    );
+  }
+
+  // The graph dataset is the canonical normalization boundary for the direct
+  // public, logged-in, targeted, volume, GitHub, and curated cohort sources.
+  // Reading its full evidence projection keeps Timeline input in exact parity
+  // with cohort graph construction instead of reinterpreting raw receipts or
+  // relying on the bounded public graph previews.
+  const { yc2026GraphDataset } = await import("@/lib/graph/yc-spring-2026-dataset");
+  const sourceArtifacts: Array<{ path: string; sha256: string }> = [];
+  for (const path of CANONICAL_DIRECT_EVIDENCE_PATHS) {
+    const artifact = await loadEvidenceArtifactDigest(rootDir, path);
+    if (!artifact) throw new Error(`Canonical cohort evidence artifact disappeared while loading: ${path}`);
+    sourceArtifacts.push(artifact);
+  }
+  return { evidence: yc2026GraphDataset.evidence, sourceArtifacts };
+}
+
+async function fileExists(path: string): Promise<boolean> {
+  try {
+    await access(path);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function mergeSourceArtifactDigests(
+  artifacts: ReadonlyArray<{ path: string; sha256: string }>,
+): Array<{ path: string; sha256: string }> {
+  const byPath = new Map<string, { path: string; sha256: string }>();
+  for (const artifact of artifacts) {
+    const path = normalizeRepositoryPath(artifact.path);
+    const prior = byPath.get(path);
+    if (prior && prior.sha256 !== artifact.sha256) {
+      throw new Error(`Conflicting Timeline source artifact digests for ${path}.`);
+    }
+    byPath.set(path, { path, sha256: artifact.sha256 });
+  }
+  return [...byPath.values()];
+}
+
+function resolveCanonicalEvidenceCompanyId(
+  evidence: EvidenceItem,
+  inventory: {
+    byCompany: ReadonlyMap<string, CanonicalCompanyInventory>;
+    founderCompanyIdById: ReadonlyMap<string, string>;
+    companyIdByBatchAndSlug: ReadonlyMap<string, string>;
+    companyIdsByUnqualifiedSlug: ReadonlyMap<string, ReadonlySet<string>>;
+  },
+): string | null {
+  if (evidence.attachedCompanyId && inventory.byCompany.has(evidence.attachedCompanyId)) {
+    return evidence.attachedCompanyId;
+  }
+  if (evidence.entityType === "company" && inventory.byCompany.has(evidence.entityId)) {
+    return evidence.entityId;
+  }
+  const founderCompanyId = inventory.founderCompanyIdById.get(evidence.entityId);
+  if (founderCompanyId) return founderCompanyId;
+
+  const evidenceWithCompanySlug = evidence as EvidenceItem & { companySlug?: string };
+  const companySlug = typeof evidenceWithCompanySlug.companySlug === "string"
+    ? slugify(evidenceWithCompanySlug.companySlug)
+    : null;
+  const batchSlug = typeof evidence.batchSlug === "string" ? evidence.batchSlug.trim().toUpperCase() : null;
+  if (companySlug && batchSlug) {
+    const batchCompanyId = inventory.companyIdByBatchAndSlug.get(`${batchSlug}|${companySlug}`);
+    if (batchCompanyId) return batchCompanyId;
+  }
+  if (companySlug) {
+    const companyIds = inventory.companyIdsByUnqualifiedSlug.get(companySlug);
+    if (companyIds?.size === 1) return [...companyIds][0] ?? null;
+  }
+  return null;
 }
 
 interface TimelineVolumeEvidence extends EvidenceItem {
@@ -735,6 +902,22 @@ interface LoadedVolumeEvidence {
   sha256: string;
   generatedAt: string | null;
   evidence: TimelineVolumeEvidence[];
+}
+
+async function loadEvidenceArtifactDigest(
+  rootDir: string,
+  configuredPath?: string | null,
+): Promise<Pick<LoadedVolumeEvidence, "path" | "sha256"> | null> {
+  const relativePath = configuredPath === undefined ? DEFAULT_VOLUME_EVIDENCE_PATH : configuredPath;
+  if (!relativePath) return null;
+  const normalizedPath = normalizeRepositoryPath(relativePath);
+  try {
+    const bytes = await readFile(resolveWithinRoot(rootDir, normalizedPath));
+    return { path: normalizedPath, sha256: sha256(bytes) };
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException)?.code === "ENOENT") return null;
+    throw error;
+  }
 }
 
 async function loadVolumeEvidence(rootDir: string, configuredPath?: string | null): Promise<LoadedVolumeEvidence | null> {
@@ -803,10 +986,12 @@ function normalizeVolumeEvidence(value: unknown, path: string, index: number): T
  */
 export async function loadCanonicalTimelinePublicDiscoveryInventory(
   rootDir: string = process.cwd(),
+  canonicalEvidenceSnapshot?: TimelineCanonicalEvidenceSnapshot,
 ): Promise<TimelinePublicDiscoveryInventory> {
-  const loaded = await loadCanonicalInventory(resolve(rootDir));
+  const loaded = await loadCanonicalInventory(resolve(rootDir), undefined, canonicalEvidenceSnapshot);
   return {
     inventorySha256: loaded.inventorySha256,
+    sourceArtifacts: loaded.sourceArtifacts,
     companies: loaded.companies.map((company) => {
       const websiteUrl = company.nodes.find((node) => node.websiteUrl)?.websiteUrl ?? null;
       const profileUrl = company.nodes.find((node) => node.ycProfileUrl || node.sourceUrl);
