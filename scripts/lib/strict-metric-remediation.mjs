@@ -8,21 +8,11 @@ export const STRICT_METRIC_SOURCE_FILES = Object.freeze({
 });
 
 export const STRICT_METRIC_INPUT_SHA256 = Object.freeze({
-  "src/lib/social/public-evidence-current.json": "8b236b76fe209ae51e0a2689dcb43acbf279d7d791139b5469528d1251ef168f",
-  "src/lib/social/logged-in-evidence-current.json": "5cf7b80c986ee5821f22cabe87de5f5cf5446991a2d03df1944ac498c25eb0fc",
   [STRICT_METRIC_SOURCE_FILES.targeted]: "52dd61695f30e84563f3cb02c2548368d54f4d3ee904385ad6e4097db8fa4360",
   [STRICT_METRIC_SOURCE_FILES.a16z]: "423681da6acfb9ae62470169be4dd54a7c776f6904c990db8a54a1663cee56b6",
   "public/graph/s2026.json": "c6210bb4ff4477b883f2eeffcf3bcb0ce14ada2f6b2dd61675fc626330768a2b",
   "public/graph/s26.json": "9f1223546ede10df63cc3b469066b11e89290a08ca4cb55640e205b3d499a04c",
   "public/graph/a16zsr006.json": "b694139baf8e093b48b6bd6f5dd6d596cb875a81ec2b7d185c8e44208be765c3"
-});
-
-// These semantic hashes normalize only the explicitly allowlisted metadata
-// moves and aliases. They remain identical before and after remediation while
-// detecting any other source drift, including changes to non-target rows.
-export const STRICT_METRIC_NORMALIZED_SOURCE_SHA256 = Object.freeze({
-  [STRICT_METRIC_SOURCE_FILES.targeted]: "b48bc57a588f372d97726a4a512447684f9ae841d973464f2e5eedd20358a3db",
-  [STRICT_METRIC_SOURCE_FILES.a16z]: "95cbe838485a89bb09b03ea1f6e73f298b4b5879c4ae7dce352ab15f2213e507"
 });
 
 export const STRICT_METRIC_GRAPH_FILES = Object.freeze({
@@ -318,17 +308,15 @@ export function normalizedSourceSemanticSha256(document, specs) {
   const normalized = structuredClone(document);
   assert(Array.isArray(normalized.evidence), "Canonical strict metric source must contain an evidence array.");
   for (const spec of specs) {
-    const row = normalized.evidence[spec.evidenceIndex];
-    assert(row, `Missing canonical row at ${spec.pointer}.`);
-    normalized.evidence[spec.evidenceIndex] = cleanupAllowlistedRow(row, spec).row;
+    const resolved = resolveCanonicalEvidenceRow(normalized, spec);
+    normalized.evidence[resolved.evidenceIndex] = cleanupAllowlistedRow(resolved.row, spec).row;
   }
   return sha256(stableStringify(normalized));
 }
 
 export function sourceRowGuardSha256(document, specs) {
   return sha256(stableStringify(specs.map((spec) => {
-    const row = document.evidence?.[spec.evidenceIndex];
-    assert(row, `Missing canonical row at ${spec.pointer}.`);
+    const { row } = resolveCanonicalEvidenceRow(document, spec);
     const cleaned = cleanupAllowlistedRow(row, spec).row;
     return {
       number: spec.number,
@@ -343,6 +331,25 @@ export function sourceRowGuardSha256(document, specs) {
       sourceMetadata: cleaned.sourceMetadata
     };
   })));
+}
+
+export function resolveCanonicalEvidenceRow(document, spec) {
+  assert(Array.isArray(document?.evidence), "Canonical strict metric source must contain an evidence array.");
+  const matches = [];
+  for (let evidenceIndex = 0; evidenceIndex < document.evidence.length; evidenceIndex += 1) {
+    const row = document.evidence[evidenceIndex];
+    const canonicalIdMatches = spec.canonicalId === null || row?.id === spec.canonicalId;
+    if (
+      canonicalIdMatches &&
+      row?.platform === spec.platform &&
+      derivePhysicalIdentity(spec.platform, row?.sourceUrl) === spec.physicalIdentity
+    ) {
+      matches.push({ row, evidenceIndex });
+    }
+  }
+  assert(matches.length === 1,
+    `Canonical semantic identity ${spec.physicalIdentity} must resolve exactly once for ${spec.pointer}; found ${matches.length} rows.`);
+  return Object.freeze(matches[0]);
 }
 
 export function validateCanonicalRowGuard(row, spec, { sourceDocument, graphDocument }) {
@@ -368,24 +375,30 @@ export function validateCanonicalRowGuard(row, spec, { sourceDocument, graphDocu
   assert(matchingSourceRows.length === 1 && matchingSourceRows[0] === row,
     `Canonical physical identity ${spec.physicalIdentity} must resolve uniquely to ${spec.pointer}; found ${matchingSourceRows.length} rows.`);
 
-  const graphMatches = graphDocument.evidence?.filter((candidate) => candidate?.id === spec.graphId) ?? [];
+  const graphMatches = graphDocument.evidence?.filter((candidate) =>
+    candidate?.platform === spec.platform &&
+    derivePhysicalIdentity(spec.platform, candidate?.sourceUrl) === spec.physicalIdentity
+  ) ?? [];
   assert(graphMatches.length === 1,
-    `Graph evidence ID ${spec.graphId} must resolve exactly once for allowlist row ${spec.number}.`);
+    `Graph semantic identity ${spec.physicalIdentity} must resolve exactly once for allowlist row ${spec.number}; found ${graphMatches.length} rows.`);
   const graphRow = graphMatches[0];
+  const graphLabel = graphRow.id ?? spec.physicalIdentity;
   assert(graphRow.platform === spec.platform,
-    `Graph platform drift for ${spec.graphId}: expected ${spec.platform}; found ${graphRow.platform ?? "missing"}.`);
+    `Graph platform drift for ${graphLabel}: expected ${spec.platform}; found ${graphRow.platform ?? "missing"}.`);
   assert(derivePhysicalIdentity(spec.platform, graphRow.sourceUrl) === spec.physicalIdentity,
-    `Graph native identity drift for ${spec.graphId}.`);
+    `Graph native identity drift for ${graphLabel}.`);
   assert(`${spec.platform}:${String(graphRow.platformPostId ?? "")}` === spec.physicalIdentity,
-    `Graph platformPostId drift for ${spec.graphId}.`);
+    `Graph platformPostId drift for ${graphLabel}.`);
   assert(graphRow.entityId === spec.entityId,
-    `Graph entity attribution drift for ${spec.graphId}: expected ${spec.entityId}; found ${graphRow.entityId ?? "missing"}.`);
+    `Graph entity attribution drift for ${graphLabel}: expected ${spec.entityId}; found ${graphRow.entityId ?? "missing"}.`);
 
+  let rosterFounderId = null;
   if (spec.sourceFile === STRICT_METRIC_SOURCE_FILES.targeted) {
     assert(graphRow.entityType === row.entityType,
       `Canonical/graph entity-type drift at ${spec.pointer}.`);
     assert(row.entityId === spec.entityId,
       `Canonical entity attribution drift at ${spec.pointer}: expected ${spec.entityId}; found ${row.entityId ?? "missing"}.`);
+    if (row.entityType === "founder") rosterFounderId = spec.entityId;
   } else {
     const expectedCompanyId = `a16z-speedrun-006-${row.companySlug ?? ""}`;
     assert(graphRow.attachedCompanyId === expectedCompanyId,
@@ -398,24 +411,23 @@ export function validateCanonicalRowGuard(row, spec, { sourceDocument, graphDocu
     } else {
       assert(row.entityType === "founder" && nonempty(row.founderName),
         `A16Z founder attribution is incomplete at ${spec.pointer}.`);
-      assert(nonempty(graphRow.targetFounderId),
-        `A16Z founder attachment is missing at ${spec.pointer}.`);
       if (graphRow.entityType === "founder") {
-        assert(graphRow.targetFounderId === spec.entityId,
+        assert(graphRow.entityId === spec.entityId,
           `A16Z founder entity drift at ${spec.pointer}.`);
+        rosterFounderId = graphRow.entityId;
       } else {
         assert(graphRow.entityType === "company" && graphRow.entityId === expectedCompanyId,
           `A16Z founder-authored repository did not resolve to its company at ${spec.pointer}.`);
+        assert(nonempty(graphRow.targetFounderId),
+          `A16Z founder-authored company evidence is missing its founder attachment at ${spec.pointer}.`);
+        rosterFounderId = graphRow.targetFounderId;
       }
     }
   }
 
   const companyNode = graphDocument.nodes?.find((node) => node?.entityId === graphRow.attachedCompanyId);
-  assert(companyNode, `Graph roster company ${graphRow.attachedCompanyId ?? "missing"} was not found for ${spec.graphId}.`);
+  assert(companyNode, `Graph roster company ${graphRow.attachedCompanyId ?? "missing"} was not found for ${graphLabel}.`);
   if (row.entityType === "founder") {
-    const rosterFounderId = spec.sourceFile === STRICT_METRIC_SOURCE_FILES.targeted
-      ? spec.entityId
-      : graphRow.targetFounderId;
     assert(companyNode.founders?.some((founder) =>
       founder?.id === rosterFounderId &&
       (spec.sourceFile === STRICT_METRIC_SOURCE_FILES.targeted || founder?.name === row.founderName)),

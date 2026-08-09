@@ -115,6 +115,7 @@ describe("strict metric remediation", () => {
     assert.equal(plan.retainedRows, 164);
     assert.equal(plan.quarantinedRows, 0);
     assert.equal(plan.preservedMetadataFields, 167);
+    assert.ok(plan.allRows.some((row) => row.pointer !== row.resolvedPointer));
     assert.equal(new Set(plan.allRows.map((row) => row.physicalIdentity)).size, 164);
   });
 });
