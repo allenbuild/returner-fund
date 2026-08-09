@@ -65,6 +65,10 @@ describe("logged-in social collector help", () => {
           result.stdout,
           /--fresh-for-hours=N\s+Re-run completed targets after N hours \(default: 12\)/
         );
+        assert.match(
+          result.stdout,
+          /--delay-ms=N\s+LinkedIn enforces a 30000ms minimum between targets/
+        );
         assert.doesNotMatch(result.stdout, /Logged-in social targets:|Wrote/);
         assert.equal(result.stderr, "");
         assert.equal(readFileSync(evidencePath, "utf8"), evidenceSentinel);

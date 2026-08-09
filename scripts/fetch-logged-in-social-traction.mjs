@@ -5,12 +5,17 @@ import {
   linkedinPostIdFromUrl
 } from "./lib/social-native-identity.mjs";
 import {
+  LINKEDIN_MINIMUM_INTERACTION_DELAY_MS,
   linkedinAdapterSupportsAccountUrl,
   linkedinCircuitStateTransition,
   linkedinCollectionAttemptState,
+  linkedinExecutionPolicy,
   linkedinFailureKind,
+  linkedinFailureRequiresImmediateAbort,
+  linkedinSafetySignal,
   mergeOwnedLinkedInPosts,
-  prioritizeLinkedInTargets
+  prioritizeLinkedInTargets,
+  runLinkedInSerialLane
 } from "./lib/logged-in-linkedin-collection.mjs";
 import { readRequiredCanonicalJson } from "./lib/canonical-json.mjs";
 import { finalizeLoggedInEvidenceContent } from "./lib/logged-in-evidence-content-dedupe.mjs";
@@ -123,6 +128,10 @@ const allowLinkedIn = platformFilter.has("linkedin") && booleanArg("--allow-link
 const linkedinCollectionMode = resolveLinkedInCollectionMode(
   stringArg("--linkedin-mode") ?? "hybrid"
 );
+const linkedinExecution = linkedinExecutionPolicy({
+  requestedWorkers: workers,
+  requestedDelayMs: delayMs
+});
 const maxConsecutiveLinkedInFailures = Math.max(
   1,
   Math.floor(numberArg("--max-consecutive-linkedin-failures") ?? 5)
@@ -276,6 +285,14 @@ const runnableTargets = selectRunnableCollectionTargets(prioritizedTargets, {
 // complete. Only runtime execution uses the bounded runnable subset.
 const targets = planOnly ? prioritizedTargets : runnableTargets;
 console.log(`Logged-in social targets: ${targets.length} (${workers} workers, up to ${postLimit} posts each, ${scrollPasses} scroll passes).`);
+const linkedinTargets = targets.filter((target) => target.platform === "linkedin");
+const otherTargets = targets.filter((target) => target.platform !== "linkedin");
+if (linkedinTargets.length > 0) {
+  console.log(
+    `LinkedIn safety lane: ${linkedinExecution.workers} worker, serial, ` +
+    `minimum ${linkedinExecution.delayMs}ms between targets.`
+  );
+}
 
 if (planOnly) {
   const coverage = socialTargetCoverage(targetCompanies, prioritizedTargets);
@@ -289,6 +306,11 @@ if (planOnly) {
     coverage,
     xCollectionMode,
     linkedinCollectionMode,
+    linkedinExecution: {
+      workers: linkedinExecution.workers,
+      delayMs: linkedinExecution.delayMs,
+      serial: true
+    },
     quarantinedTargetCount: targetPartition.quarantinedTargets.length,
     ownerCollisionReconciliationSummary,
     ownerAccountCollisions: targetPartition.collisions.map((collision) => ({
@@ -337,7 +359,7 @@ if (planOnly) {
   process.exit(0);
 }
 
-await runWorkerPool(targets, workers, async (target, workerIndex) => {
+async function collectTarget(target, workerIndex) {
   if (target.platform === "x" && xCircuitOpen) return;
   if (target.platform === "linkedin" && linkedinCircuitOpen) return;
   if (target.platform === "instagram" && instagramCircuitOpen) return;
@@ -412,12 +434,30 @@ await runWorkerPool(targets, workers, async (target, workerIndex) => {
         },
         target
       );
+    } else if (target.platform === "linkedin") {
+      updateLinkedInCircuitState(
+        {
+          collectionFailed: true,
+          failures: [{ message }]
+        },
+        target
+      );
     }
     console.warn(`${target.platform} ${target.companyName} / ${target.name}: ${message}`);
   }
 
   await writeCheckpoint();
+}
+
+await runWorkerPool(otherTargets, workers, async (target, workerIndex) => {
+  await collectTarget(target, workerIndex);
   await delay(delayMs);
+});
+
+await runLinkedInSerialLane(linkedinTargets, collectTarget, {
+  delayMs: linkedinExecution.delayMs,
+  sleep: delay,
+  shouldAbort: () => linkedinCircuitOpen
 });
 
 if (xCircuitOpen) {
@@ -460,7 +500,8 @@ const payload = {
       "Instagram profile grids and X profile timelines are treated as opt-in authenticated/read-only sources when explicitly targeted.",
       `X ingestion mode: ${xCollectionMode}. Browser, adapter, and hybrid modes are read-only; hybrid prefers the authenticated adapter and uses the DOM only to fill incomplete results.`,
       `LinkedIn ingestion mode: ${linkedinCollectionMode}. Personal /in/ profiles may use the authenticated adapter; company /company/ pages always retain DOM collection support.`,
-      "Logged-in LinkedIn activity scraping is disabled unless both --platforms=linkedin and --allow-linkedin are passed. Auth and rate-limit failures open a circuit so untouched targets remain retryable.",
+      `Logged-in LinkedIn activity scraping is disabled unless both --platforms=linkedin and --allow-linkedin are passed. It always uses one serial worker with at least ${linkedinExecution.delayMs}ms between targets.`,
+      "LinkedIn challenge, checkpoint, account-warning, authentication, and HTTP 429 signals abort the LinkedIn lane immediately so untouched targets remain retryable.",
       "Instagram login, challenge, and rate-limit failures open a circuit immediately; repeated command or profile failures open it after three consecutive failed targets. Legitimate empty native timelines remain completed empty checks.",
       `Checkpoint owner-collision reconciliation: ${ownerCollisionReconciliationSummary.reattributedCount} stale company rows reattributed, ${ownerCollisionReconciliationSummary.quarantinedCount} quarantined.`,
       "Each target is checkpointed independently; blocked or timed-out profiles are logged and do not stop the batch."
@@ -932,12 +973,16 @@ async function fetchLinkedInPosts(target, workerIndex) {
       }
     } catch (error) {
       const message = errorMessage(error);
-      if (linkedinFailureKind(message) === "empty") {
+      const failureKind = linkedinFailureKind(message);
+      if (failureKind === "empty") {
         completedSourceCount += 1;
       } else {
         sourceFailures.push(
           failure(target, `LinkedIn adapter failed: ${message}`, target.url)
         );
+        if (linkedinFailureRequiresImmediateAbort(failureKind)) {
+          return linkedinFailedCollection(sourceFailures);
+        }
       }
     }
   }
@@ -970,12 +1015,16 @@ async function fetchLinkedInPosts(target, workerIndex) {
       }
     } catch (error) {
       const message = errorMessage(error);
-      if (linkedinFailureKind(message) === "empty") {
+      const failureKind = linkedinFailureKind(message);
+      if (failureKind === "empty") {
         completedSourceCount += 1;
       } else {
         sourceFailures.push(
           failure(target, `LinkedIn browser DOM extractor failed: ${message}`, activityUrl)
         );
+        if (linkedinFailureRequiresImmediateAbort(failureKind)) {
+          return linkedinFailedCollection(sourceFailures);
+        }
       }
     }
   }
@@ -1062,6 +1111,7 @@ async function fetchLinkedInPostsFromAdapter(target) {
     ],
     { timeoutMs: Math.min(perTargetTimeoutMs, 45_000) }
   );
+  assertLinkedInSafetyClear(raw, "adapter response");
   return parseJsonOutput(raw);
 }
 
@@ -1072,27 +1122,78 @@ async function fetchLinkedInPostsFromBrowser(target, workerIndex, activityUrl) {
     session,
     runOpenCli,
     operation: async () => {
-      await runOpenCli(["browser", session, "open", activityUrl], {
-        timeoutMs: perTargetTimeoutMs
-      });
-      await runOpenCli(["browser", session, "wait", "time", "5"], {
-        timeoutMs: 12_000
-      });
+      const interact = async (args, options, { optional = false, label } = {}) => {
+        try {
+          const raw = await runOpenCli(args, options);
+          assertLinkedInSafetyClear(raw, label ?? args.slice(2).join(" "));
+          return raw;
+        } catch (error) {
+          if (linkedinFailureRequiresImmediateAbort(errorMessage(error)) || !optional) {
+            throw error;
+          }
+          return null;
+        }
+      };
+      const probeSafety = () =>
+        interact(
+          ["browser", session, "eval", linkedInSafetyProbeJs()],
+          { timeoutMs: 12_000 },
+          { label: "browser safety probe" }
+        );
+
+      await interact(
+        ["browser", session, "open", activityUrl],
+        { timeoutMs: perTargetTimeoutMs },
+        { label: "browser navigation" }
+      );
+      await interact(
+        ["browser", session, "wait", "time", "5"],
+        { timeoutMs: 12_000 },
+        { label: "initial browser wait" }
+      );
+      await probeSafety();
       for (let index = 0; index < scrollPasses; index += 1) {
-        await runOpenCli(["browser", session, "scroll", "down", "--amount", "1200"], {
-          timeoutMs: 12_000
-        }).catch(() => null);
-        await runOpenCli(["browser", session, "wait", "time", "2"], {
-          timeoutMs: 8_000
-        }).catch(() => null);
+        await interact(
+          ["browser", session, "scroll", "down", "--amount", "1200"],
+          { timeoutMs: 12_000 },
+          { optional: true, label: "browser scroll" }
+        );
+        await interact(
+          [
+            "browser",
+            session,
+            "wait",
+            "time",
+            String(Math.ceil(LINKEDIN_MINIMUM_INTERACTION_DELAY_MS / 1000))
+          ],
+          { timeoutMs: 8_000 },
+          { optional: true, label: "browser interaction wait" }
+        );
+        await probeSafety();
       }
-      const raw = await runOpenCli(
+      const raw = await interact(
         ["browser", session, "eval", linkedInExtractJs()],
-        { timeoutMs: perTargetTimeoutMs }
+        { timeoutMs: perTargetTimeoutMs },
+        { label: "browser DOM extraction" }
       );
       return parseJsonOutput(raw);
     }
   });
+}
+
+function linkedinFailedCollection(sourceFailures) {
+  return {
+    evidence: [],
+    failures: sourceFailures,
+    needsReview: [],
+    collectionFailed: true
+  };
+}
+
+function assertLinkedInSafetyClear(value, context) {
+  const signal = linkedinSafetySignal(value);
+  if (!signal) return;
+  throw new Error(`LinkedIn safety stop (${signal}) during ${context}.`);
 }
 
 async function fetchInstagramPosts(target, workerIndex) {
@@ -2186,7 +2287,7 @@ function usage() {
     "  --output-path=PATH          Isolate the evidence output path",
     "  --checkpoint-path=PATH      Isolate the active checkpoint path",
     "  --timeout-ms=N",
-    "  --delay-ms=N",
+    "  --delay-ms=N              LinkedIn enforces a 30000ms minimum between targets",
     "  --allow-linkedin",
     "  --linkedin-mode=browser|adapter|hybrid",
     "  --x-mode=browser|adapter|hybrid",
@@ -2653,4 +2754,12 @@ function linkedInExtractJs() {
     };
   }).filter((post) => post && post.url && clean(post.body).length > 20);
 })()`;
+}
+
+function linkedInSafetyProbeJs() {
+  return `(() => [{
+    currentUrl: location.href,
+    title: document.title || "",
+    visibleText: String(document.body?.innerText || "").slice(0, 8000)
+  }])()`;
 }

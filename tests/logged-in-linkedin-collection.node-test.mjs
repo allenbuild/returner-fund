@@ -1,19 +1,31 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import { describe, it } from "node:test";
 import {
   withOpenCliBrowserSession
 } from "../scripts/lib/opencli-browser-session.mjs";
 import {
+  LINKEDIN_MINIMUM_INTERACTION_DELAY_MS,
+  LINKEDIN_MINIMUM_TARGET_DELAY_MS,
   linkedinAdapterSupportsAccountUrl,
   linkedinCircuitDecision,
   linkedinCircuitStateTransition,
   linkedinCollectionAttemptState,
+  linkedinExecutionPolicy,
   linkedinFailureKind,
+  linkedinFailureRequiresImmediateAbort,
   linkedinPostIsExplicitRepost,
   linkedinPostStrictlyBelongsToAccount,
+  linkedinSafetySignal,
   mergeOwnedLinkedInPosts,
-  prioritizeLinkedInTargets
+  prioritizeLinkedInTargets,
+  runLinkedInSerialLane
 } from "../scripts/lib/logged-in-linkedin-collection.mjs";
+
+const collectorSource = readFileSync(
+  new URL("../scripts/fetch-logged-in-social-traction.mjs", import.meta.url),
+  "utf8"
+);
 
 describe("OpenCLI browser session cleanup", () => {
   it("releases the exact browser session lease after successful collection", async () => {
@@ -70,6 +82,133 @@ describe("OpenCLI browser session cleanup", () => {
 });
 
 describe("logged-in LinkedIn collection", () => {
+  it("forces one serial worker and a conservative delay without throttling other platform workers", () => {
+    assert.equal(LINKEDIN_MINIMUM_TARGET_DELAY_MS, 30_000);
+    assert.ok(LINKEDIN_MINIMUM_INTERACTION_DELAY_MS >= 3_000);
+    assert.deepEqual(
+      linkedinExecutionPolicy({ requestedWorkers: 8, requestedDelayMs: 1_500 }),
+      { requestedWorkers: 8, workers: 1, delayMs: 30_000 }
+    );
+    assert.deepEqual(
+      linkedinExecutionPolicy({ requestedWorkers: 4, requestedDelayMs: 45_000 }),
+      { requestedWorkers: 4, workers: 1, delayMs: 45_000 }
+    );
+
+    assert.match(
+      collectorSource,
+      /runWorkerPool\(otherTargets, workers, async \(target, workerIndex\)/
+    );
+    assert.match(
+      collectorSource,
+      /runLinkedInSerialLane\(linkedinTargets, collectTarget, \{/
+    );
+    assert.match(collectorSource, /shouldAbort: \(\) => linkedinCircuitOpen/);
+  });
+
+  it("executes LinkedIn targets serially, always as worker zero, with the delay floor", async () => {
+    let active = 0;
+    let maximumActive = 0;
+    const calls = [];
+    const sleeps = [];
+    const summary = await runLinkedInSerialLane(
+      ["first", "second", "third"],
+      async (target, workerIndex) => {
+        active += 1;
+        maximumActive = Math.max(maximumActive, active);
+        calls.push({ target, workerIndex });
+        await Promise.resolve();
+        active -= 1;
+      },
+      {
+        delayMs: 500,
+        sleep: async (ms) => {
+          sleeps.push(ms);
+        }
+      }
+    );
+
+    assert.equal(maximumActive, 1);
+    assert.deepEqual(calls, [
+      { target: "first", workerIndex: 0 },
+      { target: "second", workerIndex: 0 },
+      { target: "third", workerIndex: 0 }
+    ]);
+    assert.deepEqual(sleeps, [30_000, 30_000]);
+    assert.deepEqual(summary, {
+      attemptedCount: 3,
+      untouchedCount: 0,
+      aborted: false,
+      workers: 1,
+      delayMs: 30_000
+    });
+  });
+
+  it("stops the serial lane immediately and leaves later targets untouched", async () => {
+    let circuitOpen = false;
+    const calls = [];
+    const sleeps = [];
+    const summary = await runLinkedInSerialLane(
+      ["warning", "untouched-one", "untouched-two"],
+      async (target) => {
+        calls.push(target);
+        circuitOpen = true;
+      },
+      {
+        sleep: async (ms) => sleeps.push(ms),
+        shouldAbort: () => circuitOpen
+      }
+    );
+
+    assert.deepEqual(calls, ["warning"]);
+    assert.deepEqual(sleeps, []);
+    assert.deepEqual(summary, {
+      attemptedCount: 1,
+      untouchedCount: 2,
+      aborted: true,
+      workers: 1,
+      delayMs: 30_000
+    });
+  });
+
+  it("treats challenge, checkpoint, account-warning, and 429 responses as immediate stops", () => {
+    const cases = [
+      ["https://www.linkedin.com/checkpoint/challenge/", "account_safety"],
+      ["Security checkpoint required", "account_safety"],
+      ["We've detected automated activity on your account", "account_safety"],
+      ["Your account has been temporarily restricted", "account_safety"],
+      ["Account warning: verify your identity", "account_safety"],
+      ["HTTP 429 Too Many Requests", "rate_limited"],
+      [{ statusCode: 429, message: "Too many requests" }, "rate_limited"],
+      ["LinkedIn safety stop (account_safety) during browser safety probe.", "account_safety"],
+      ["Sign in to continue", "auth"]
+    ];
+
+    for (const [value, expected] of cases) {
+      assert.equal(linkedinSafetySignal(value), expected);
+      assert.equal(linkedinFailureKind(typeof value === "string" ? value : JSON.stringify(value)), expected);
+      assert.equal(linkedinFailureRequiresImmediateAbort(value), true);
+      assert.deepEqual(
+        linkedinCircuitStateTransition({
+          previousConsecutiveFailures: 0,
+          collectionFailed: true,
+          failureKind: expected
+        }),
+        { consecutiveFailures: 1, open: true, reason: expected }
+      );
+    }
+
+    assert.equal(
+      linkedinSafetySignal("A founder explained a generic account-security challenge."),
+      null
+    );
+    assert.match(collectorSource, /await probeSafety\(\);/);
+    assert.match(collectorSource, /assertLinkedInSafetyClear\(raw, "adapter response"\)/);
+    assert.match(
+      collectorSource,
+      /if \(linkedinFailureRequiresImmediateAbort\(failureKind\)\) \{\s+return linkedinFailedCollection/
+    );
+  });
+
   it("uses the adapter only for supported personal profile URLs", () => {
     assert.equal(
       linkedinAdapterSupportsAccountUrl("https://www.linkedin.com/in/founder/"),

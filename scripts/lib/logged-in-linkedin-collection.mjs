@@ -4,6 +4,74 @@ import {
   linkedinPostIdFromUrl
 } from "./social-native-identity.mjs";
 
+export const LINKEDIN_MINIMUM_TARGET_DELAY_MS = 30_000;
+export const LINKEDIN_MINIMUM_INTERACTION_DELAY_MS = 3_000;
+
+export function linkedinExecutionPolicy({
+  requestedWorkers = 1,
+  requestedDelayMs = 0
+} = {}) {
+  return {
+    requestedWorkers: Math.max(1, finiteNonnegativeInteger(requestedWorkers)),
+    workers: 1,
+    delayMs: Math.max(
+      LINKEDIN_MINIMUM_TARGET_DELAY_MS,
+      finiteNonnegativeInteger(requestedDelayMs)
+    )
+  };
+}
+
+export async function runLinkedInSerialLane(
+  items,
+  collect,
+  {
+    delayMs = LINKEDIN_MINIMUM_TARGET_DELAY_MS,
+    sleep = defaultSleep,
+    shouldAbort = () => false
+  } = {}
+) {
+  if (typeof collect !== "function") {
+    throw new TypeError("LinkedIn serial collection requires a collector function.");
+  }
+  if (typeof sleep !== "function" || typeof shouldAbort !== "function") {
+    throw new TypeError("LinkedIn serial collection safety hooks must be functions.");
+  }
+
+  const queue = Array.from(items ?? []);
+  const policy = linkedinExecutionPolicy({ requestedWorkers: 1, requestedDelayMs: delayMs });
+  let attemptedCount = 0;
+  let aborted = false;
+
+  for (let index = 0; index < queue.length; index += 1) {
+    if (shouldAbort()) {
+      aborted = true;
+      break;
+    }
+
+    // The worker index is deliberately fixed at zero. This lane never starts
+    // a second LinkedIn request until the first request and its checkpoint have
+    // completed.
+    await collect(queue[index], 0);
+    attemptedCount += 1;
+
+    if (shouldAbort()) {
+      aborted = true;
+      break;
+    }
+    if (index < queue.length - 1) {
+      await sleep(policy.delayMs);
+    }
+  }
+
+  return {
+    attemptedCount,
+    untouchedCount: Math.max(0, queue.length - attemptedCount),
+    aborted,
+    workers: policy.workers,
+    delayMs: policy.delayMs
+  };
+}
+
 export function linkedinAdapterSupportsAccountUrl(accountUrl) {
   try {
     const url = new URL(accountUrl);
@@ -273,17 +341,51 @@ export function prioritizeLinkedInTargets(
   );
 }
 
-export function linkedinFailureKind(value) {
-  const message = String(value ?? "");
+export function linkedinSafetySignal(value) {
+  const message = typeof value === "string" ? value : safeJson(value);
+  const taggedSignal = message.match(
+    /\bLinkedIn safety stop \((account_safety|auth|rate_limited)\)/i
+  )?.[1]?.toLowerCase();
+  if (taggedSignal) return taggedSignal;
   if (
-    /\b(?:429|rate limit(?:ed)?|too many requests|slow down|temporarily restricted)\b/i.test(
+    /(?:\bHTTP(?:\/\d(?:\.\d)?)?\s*429\b|\bstatus(?:\s+code)?\s*[:=]?\s*429\b|\b429\s+(?:too many requests|rate limit)|\brate limit(?:ed|ing)?\b|\btoo many requests\b|\bslow down\b|\btemporarily restricted due to (?:request|activity) volume\b)/i.test(
       message
     )
   ) {
     return "rate_limited";
   }
   if (
-    /\b(?:log in|login|sign in|authenticated|authentication|session expired|checkpoint)\b/i.test(
+    /(?:linkedin\.com\/checkpoint\b|\/checkpoint\/(?:challenge|lg)\b|\bsecurity checkpoint\b|\bcheckpoint (?:challenge|required)\b|^\s*checkpoint\s*$|\b(?:linkedin )?challenge (?:page|required)\b|^\s*challenge\s*$|\bconfirm it['’]?s you\b|\bsecurity code\b|\bverify (?:your )?(?:identity|account)\b|\bidentity verification\b|\bsuspicious (?:login|activity)\b|\bunusual activity (?:was detected|on your account)\b|\bwe(?:'ve| have) detected automated activity\b|\bautomated activity (?:has been )?detected\b|\bcommercial use limit\b|\byour account (?:has been |is )?(?:temporarily |permanently )?(?:restricted|suspended)\b|\baccount[-\s]+warning\b|\bprotect your account\b|\bcaptcha\b)/i.test(
+      message
+    )
+  ) {
+    return "account_safety";
+  }
+  if (
+    /(?:\bsign in to (?:continue|linkedin)\b|\blog in to (?:continue|linkedin)\b|\blinkedin (?:login|sign in)\b|\bsession expired\b)/i.test(
+      message
+    )
+  ) {
+    return "auth";
+  }
+  return null;
+}
+
+export function linkedinFailureRequiresImmediateAbort(value) {
+  const safetySignal = linkedinSafetySignal(value);
+  if (safetySignal) return true;
+  const kind = ["account_safety", "auth", "rate_limited"].includes(value)
+    ? value
+    : linkedinFailureKind(value);
+  return kind === "account_safety" || kind === "auth" || kind === "rate_limited";
+}
+
+export function linkedinFailureKind(value) {
+  const message = String(value ?? "");
+  const safetySignal = linkedinSafetySignal(message);
+  if (safetySignal) return safetySignal;
+  if (
+    /\b(?:log in|login|sign in|authenticated|authentication|session expired)\b/i.test(
       message
     )
   ) {
@@ -316,7 +418,10 @@ export function linkedinCircuitDecision({
 } = {}) {
   const count = finiteNonnegativeInteger(consecutiveFailures);
   const threshold = Math.max(1, finiteNonnegativeInteger(maxConsecutiveFailures));
-  const immediate = failureKind === "auth" || failureKind === "rate_limited";
+  const immediate =
+    failureKind === "account_safety" ||
+    failureKind === "auth" ||
+    failureKind === "rate_limited";
   const repeatable = failureKind === "transport" || failureKind === "system";
   return {
     open: immediate || (repeatable && count >= threshold),
@@ -335,6 +440,7 @@ export function linkedinCircuitStateTransition({
   failureKind = "system"
 } = {}) {
   const infrastructureFailure =
+    failureKind === "account_safety" ||
     failureKind === "auth" ||
     failureKind === "rate_limited" ||
     failureKind === "transport" ||
@@ -489,4 +595,16 @@ function defaultAttemptKey(target) {
     target?.entityId ?? "",
     target?.url ?? ""
   ].join(":");
+}
+
+function safeJson(value) {
+  try {
+    return JSON.stringify(value ?? "");
+  } catch {
+    return String(value ?? "");
+  }
+}
+
+function defaultSleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
