@@ -99,7 +99,7 @@ jobs:
 
       - name: Run autonomous ingestion
         id: ingestion
-        timeout-minutes: 344
+        timeout-minutes: 330
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}

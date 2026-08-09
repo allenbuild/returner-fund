@@ -69,8 +69,15 @@ const MINUTE_MS = 60_000;
 
 export const AUTONOMOUS_PROCESS_BUDGETS = Object.freeze({
   catalogRefreshMs: 6 * MINUTE_MS,
+  // Every public shard, GitHub cohort, retry backoff, and Top Voice refresh
+  // shares this enforced wall-clock phase. Per-process attempt limits alone
+  // cannot bound the runner because public shards queue behind a global
+  // process guard and GitHub cohorts retry serially.
+  collectionPhaseMs: 120 * MINUTE_MS,
+  collectionDeadlineDrainHeadroomMs: 5 * MINUTE_MS,
   collectorAttempts: 2,
   collectorRetryDelayMaxMs: 5_000,
+  collectorRateLimitRetryDelayMs: 65_000,
   publicCollectorAttemptMs: 70 * MINUTE_MS,
   collectorCheckpointFlushMs: 2 * MINUTE_MS,
   githubCollectorAttemptMs: 20 * MINUTE_MS,
@@ -112,20 +119,14 @@ export function autonomousMappedTerminalFailureBudget(mappedExpected = 0) {
 }
 
 export function maxAutonomousRunnerProcessBudgetMs(budgets = AUTONOMOUS_PROCESS_BUDGETS) {
-  const retriedCollectorWindow =
-    budgets.collectorAttempts * Math.max(
-      budgets.publicCollectorAttemptMs,
-      budgets.githubCollectorAttemptMs
-    ) +
-    (budgets.collectorAttempts - 1) * budgets.collectorRetryDelayMaxMs +
-    budgets.collectorAttempts * (
-      (2 * budgets.processKillGraceMs) + // timed-out collector + checkpoint flush
-      budgets.collectorCheckpointFlushMs
-    );
-  const collectorWindow = Math.max(
-    retriedCollectorWindow,
-    budgets.topVoiceCollectorMs + budgets.processKillGraceMs
-  );
+  // Collection has a phase-wide deadline enforced by the runner. This is the
+  // only sound wall-clock bound: seven public shards share two process slots,
+  // GitHub cohorts run through a serial retry queue, and rate limits use a
+  // longer backoff than ordinary retries. Drain headroom covers termination,
+  // checkpoint reads, and final in-process snapshot reconciliation.
+  const collectorWindow =
+    budgets.collectionPhaseMs +
+    budgets.collectionDeadlineDrainHeadroomMs;
   const catalogRefreshWindow = budgets.catalogRefreshMs + budgets.processKillGraceMs;
   const publicationBaseSynchronizationWindow =
     2 * budgets.gitPushMs; // initial fetch + rebase

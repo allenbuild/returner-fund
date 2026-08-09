@@ -95,6 +95,50 @@ describe("autonomous ingestion runner CLI", () => {
     assert.match(result.stderr, /File-backed collection and publication will continue/);
     assert.doesNotMatch(result.stderr, /Invalid supabaseUrl/);
   });
+
+  it("stops a GitHub Actions file-backed replay before catalogs or collectors", async () => {
+    const root = await mkdtemp(path.join(os.tmpdir(), "autonomous-ingestion-published-replay-"));
+    temporaryRoots.push(root);
+    const outputPath = path.join(root, "github-output.txt");
+    const idempotencyKey = "central-2026-08-09-1800";
+    await mkdir(path.join(root, "outputs"), { recursive: true });
+    await writeFile(
+      path.join(root, "outputs", "ingestion-source-delta-history.json"),
+      `${JSON.stringify([{
+        schemaVersion: 1,
+        idempotencyKey,
+        collectionHealth: "degraded",
+        newPhysicalSources: 4,
+        dailyNewPhysicalSources: 9,
+        dailySourceHealth: "healthy"
+      }])}\n`,
+      "utf8"
+    );
+    const env = {
+      ...process.env,
+      GITHUB_ACTIONS: "true",
+      GITHUB_OUTPUT: outputPath,
+      NEXT_PUBLIC_SUPABASE_URL: "",
+      SUPABASE_SERVICE_ROLE_KEY: ""
+    };
+
+    const result = spawnSync(
+      process.execPath,
+      [runnerPath, `--idempotency-key=${idempotencyKey}`],
+      { cwd: root, env, encoding: "utf8" }
+    );
+
+    assert.equal(result.status, 0, result.stderr);
+    assert.equal(result.stderr, "");
+    assert.match(result.stdout, /validated publication receipt in main/);
+    assert.doesNotMatch(result.stdout, /collection\.started|Public collectors started/);
+    const outputs = await readFile(outputPath, "utf8");
+    assert.match(outputs, /runner_status=already_completed/);
+    assert.match(outputs, /publication_status=already_completed/);
+    assert.match(outputs, /collection_health=degraded/);
+    assert.match(outputs, /new_physical_sources=4/);
+    assert.match(outputs, /daily_new_physical_sources=9/);
+  });
 });
 
 describe("autonomous ingestion runner static safety contracts", () => {
@@ -180,7 +224,18 @@ describe("autonomous ingestion runner static safety contracts", () => {
     const completedReplay = section('if (run?.status === "completed")', "} else {");
     assert.ok(completedReplay.includes("publishedSourceDeltaPath"));
     assert.ok(completedReplay.includes("publishedSourceDeltaHistoryPath"));
-    assert.ok(completedReplay.includes("sourceDeltaHistory.find"));
+    assert.ok(completedReplay.includes("selectPublishedAutonomousIngestionReceipt"));
+  });
+
+  it("uses a commit-backed receipt to make file-backed GitHub Actions replays idempotent", () => {
+    const replayGate = section("const commitBackedReplay", "await Promise.all([");
+    assert.ok(replayGate.includes('process.env.GITHUB_ACTIONS === "true"'));
+    assert.ok(replayGate.includes("!durableStorageConfigured"));
+    assert.ok(replayGate.includes("!args.skipPublish"));
+    assert.ok(replayGate.includes('status: "already_completed"'));
+    assert.ok(replayGate.includes('publicationStatus: "already_completed"'));
+    assert.ok(runner.indexOf("const commitBackedReplay") < runner.indexOf("await refreshMutableYcCatalog()"));
+    assert.ok(runner.indexOf("const commitBackedReplay") < runner.indexOf("runCollectors()"));
   });
 
   it("counts all canonical GitHub traction exports in source freshness after publication merge", () => {
@@ -333,6 +388,48 @@ describe("autonomous ingestion runner static safety contracts", () => {
     assert.doesNotMatch(collectors, /run:\s*async\s*\(\)\s*=>\s*await runCommand\(/);
   });
 
+  it("enforces one wall-clock collection deadline across queued shards, retries, and Top Voice", () => {
+    assert.ok(runner.includes("createAutonomousCollectionBudget"));
+    assert.ok(runner.includes(
+      "phaseMs: AUTONOMOUS_PROCESS_BUDGETS.collectionPhaseMs"
+    ));
+    assert.ok(runner.includes(
+      "AUTONOMOUS_PROCESS_BUDGETS.collectorRateLimitRetryDelayMs"
+    ));
+    assert.ok(runner.includes("boundedCollectionTimeoutMs("));
+    assert.ok(runner.includes("boundedCollectionDelayMs("));
+
+    const publicCollector = section(
+      "async function runPublicCollectorWithCheckpointRecovery",
+      "async function runTopVoiceCollector"
+    );
+    const topVoiceCollector = section(
+      "async function runTopVoiceCollector",
+      "async function resumeTopVoiceRefresh"
+    );
+    const githubCollector = section(
+      "async function runShardedGithubCollector",
+      "function githubShardSearchBudget"
+    );
+    const retryLoop = section(
+      "async function runCollectorWithRetries",
+      "function retryableFailuresFromSnapshot"
+    );
+    assert.ok(publicCollector.includes("boundedCollectionTimeoutMs("));
+    assert.ok(publicCollector.includes("deadlineAt: collectionBudget.deadlineAt"));
+    assert.ok(topVoiceCollector.includes("boundedCollectionTimeoutMs("));
+    assert.ok(topVoiceCollector.includes("deadlineAt: collectionBudget.deadlineAt"));
+    assert.ok(githubCollector.includes("boundedCollectionTimeoutMs("));
+    assert.ok(githubCollector.includes("deadlineAt: collectionBudget.deadlineAt"));
+    assert.ok(retryLoop.includes("boundedCollectionDelayMs("));
+    assert.doesNotMatch(retryLoop, /\?\s*65_000/);
+
+    const commandRunner = section("async function runCommand", "function batchCompanyKey");
+    assert.ok(commandRunner.includes("deadlineAt = null"));
+    assert.ok(commandRunner.includes("deadlineAt - Date.now()"));
+    assert.ok(commandRunner.includes("effectiveTimeoutMs"));
+  });
+
   it("retries exact failure ledgers and accepts exhaustion only after explicit terminal coverage", () => {
     const retry = section("async function runCollectorWithRetries", "function retryableFailuresFromSnapshot");
     const failures = section("function retryableFailuresFromSnapshot", "function successfulCollectorRowCount");
@@ -342,7 +439,7 @@ describe("autonomous ingestion runner static safety contracts", () => {
     assert.ok(retry.includes("terminalCoverage.nonTerminal"));
     assert.ok(retry.includes("exhaustedRetryableFailures"));
     assert.ok(retry.includes("every planned task reached an explicit terminal outcome"));
-    assert.ok(retry.includes("65_000"));
+    assert.ok(retry.includes("AUTONOMOUS_PROCESS_BUDGETS.collectorRateLimitRetryDelayMs"));
     assert.ok(retry.includes("exhausted retries with"));
     assert.doesNotMatch(retry, /retryableFailures\.length === 0 \|\| attempt === maxAttempts/);
     assert.ok(retry.includes("args.resumeSnapshots"));

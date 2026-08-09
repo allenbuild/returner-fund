@@ -5,6 +5,35 @@ const HEALTHY_DAILY_STATES = new Set(["healthy", "awaiting_second_slot"]);
 const RECOGNIZED_DAILY_STATES = new Set([...HEALTHY_DAILY_STATES, "stale_day"]);
 const KNOWN_COLLECTION_STATES = new Set(["complete", "degraded"]);
 
+export function selectPublishedAutonomousIngestionReceipt({
+  idempotencyKey,
+  currentReceipt = null,
+  history = []
+}) {
+  const expectedKey = clean(idempotencyKey);
+  if (!expectedKey) return null;
+
+  const candidates = [
+    currentReceipt,
+    ...(Array.isArray(history) ? [...history].reverse() : [])
+  ];
+  for (const receipt of candidates) {
+    if (receipt?.schemaVersion !== 1 || clean(receipt?.idempotencyKey) !== expectedKey) continue;
+    if (nonNegativeNumber(receipt?.dailyNewPhysicalSources) === null) continue;
+    const classification = classifyAutonomousIngestionReceipt({
+      runnerStatus: "already_completed",
+      publicationStatus: "already_completed",
+      collectionHealth: receipt.collectionHealth,
+      newPhysicalSources: receipt.newPhysicalSources,
+      dailySourceHealth: receipt.dailySourceHealth
+    });
+    if (classification.conclusion !== "failure") {
+      return { receipt, classification };
+    }
+  }
+  return null;
+}
+
 export function classifyAutonomousIngestionReceipt({
   runnerStatus,
   publicationStatus,

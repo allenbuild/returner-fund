@@ -854,10 +854,16 @@ globalThis.fetch = async (input) => {
   });
 
   it("keeps process retries, durable persistence, and lock-release headroom below the workflow timeout", () => {
-    const runnerTimeoutMs = 344 * 60_000;
+    const runnerTimeoutMs = 330 * 60_000;
 
     assert.equal(AUTONOMOUS_PROCESS_BUDGETS.catalogRefreshMs, 6 * 60_000);
+    assert.equal(AUTONOMOUS_PROCESS_BUDGETS.collectionPhaseMs, 120 * 60_000);
+    assert.equal(
+      AUTONOMOUS_PROCESS_BUDGETS.collectionDeadlineDrainHeadroomMs,
+      5 * 60_000
+    );
     assert.equal(AUTONOMOUS_PROCESS_BUDGETS.collectorAttempts, 2);
+    assert.equal(AUTONOMOUS_PROCESS_BUDGETS.collectorRateLimitRetryDelayMs, 65_000);
     assert.equal(AUTONOMOUS_PROCESS_BUDGETS.publicCollectorAttemptMs, 70 * 60_000);
     assert.equal(AUTONOMOUS_PROCESS_BUDGETS.collectorCheckpointFlushMs, 2 * 60_000);
     assert.equal(AUTONOMOUS_PROCESS_BUDGETS.timelineDiscoveryCommandHeadroomMs, 30_000);
@@ -889,6 +895,14 @@ globalThis.fetch = async (input) => {
       ...zeroBudgets,
       catalogRefreshMs: 1
     }), 1, "mutable catalog refresh must be part of the runner budget");
+    assert.equal(maxAutonomousRunnerProcessBudgetMs({
+      ...zeroBudgets,
+      collectionPhaseMs: 7,
+      publicCollectorAttemptMs: 10_000,
+      githubCollectorAttemptMs: 10_000,
+      topVoiceCollectorMs: 10_000,
+      collectorRateLimitRetryDelayMs: 10_000
+    }), 7, "the enforced collection phase, not queued subprocess totals, bounds collection");
   });
 
   it("queues unresolved discoverable founder targets again under every new run key", async () => {

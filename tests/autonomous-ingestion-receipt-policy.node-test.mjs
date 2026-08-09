@@ -4,7 +4,8 @@ import path from "node:path";
 import { describe, it } from "node:test";
 import {
   classifyAutonomousIngestionReceipt,
-  recordAutonomousIngestionReceipt
+  recordAutonomousIngestionReceipt,
+  selectPublishedAutonomousIngestionReceipt
 } from "../scripts/lib/autonomous-ingestion-receipt-policy.mjs";
 
 const healthyPublication = {
@@ -16,6 +17,54 @@ const healthyPublication = {
 };
 
 describe("autonomous ingestion receipt policy", () => {
+  it("selects only an exact, schema-valid, recognized published replay receipt", () => {
+    const valid = {
+      schemaVersion: 1,
+      idempotencyKey: "central-2026-08-09-1800",
+      collectionHealth: "degraded",
+      newPhysicalSources: 7,
+      dailyNewPhysicalSources: 11,
+      dailySourceHealth: "healthy"
+    };
+    const selected = selectPublishedAutonomousIngestionReceipt({
+      idempotencyKey: valid.idempotencyKey,
+      currentReceipt: { ...valid, idempotencyKey: "another-slot" },
+      history: [
+        valid,
+        { ...valid, schemaVersion: 2 },
+        { ...valid, collectionHealth: "unknown" }
+      ]
+    });
+
+    assert.deepEqual(selected?.receipt, valid);
+    assert.equal(selected?.classification.receiptStatus, "noop_degraded");
+    assert.equal(selected?.classification.conclusion, "warning");
+  });
+
+  it("rejects mismatched, malformed, and incomplete commit-backed replay receipts", () => {
+    const base = {
+      schemaVersion: 1,
+      idempotencyKey: "central-2026-08-09-0600",
+      collectionHealth: "complete",
+      newPhysicalSources: 1,
+      dailyNewPhysicalSources: 1,
+      dailySourceHealth: "healthy"
+    };
+
+    for (const receipt of [
+      { ...base, idempotencyKey: "wrong-slot" },
+      { ...base, schemaVersion: 2 },
+      { ...base, newPhysicalSources: "" },
+      { ...base, dailyNewPhysicalSources: "" },
+      { ...base, dailySourceHealth: "unknown" }
+    ]) {
+      assert.equal(selectPublishedAutonomousIngestionReceipt({
+        idempotencyKey: base.idempotencyKey,
+        history: [receipt]
+      }), null);
+    }
+  });
+
   it("keeps a validated degraded publication successful with a visible warning", () => {
     assert.deepEqual(
       classifyAutonomousIngestionReceipt({

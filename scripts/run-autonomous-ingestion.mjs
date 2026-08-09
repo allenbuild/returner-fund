@@ -45,6 +45,8 @@ import {
   summarizeIngestionSourceDelta
 } from "./lib/ingestion-source-delta.mjs";
 import { resumeValidatedSnapshotOrRun } from "./lib/autonomous-ingestion-resume.mjs";
+import { createAutonomousCollectionBudget } from "./lib/autonomous-ingestion-budget.mjs";
+import { selectPublishedAutonomousIngestionReceipt } from "./lib/autonomous-ingestion-receipt-policy.mjs";
 import { mergeTargetedEvidenceSnapshots } from "./lib/targeted-evidence-merge.mjs";
 import { archiveAcceptedPublicSnapshot } from "./lib/archive-public-ingestion.mjs";
 import { openLosslessPostArchive } from "./lib/lossless-post-archive.mjs";
@@ -107,6 +109,29 @@ const discoveryCredentialGaps = [
   ...supabaseConfiguration.blockers
 ].filter(Boolean);
 
+const commitBackedReplay = !args.plan &&
+  !args.skipPublish &&
+  !durableStorageConfigured &&
+  process.env.GITHUB_ACTIONS === "true"
+  ? await readCommitBackedReplayReceipt()
+  : null;
+if (commitBackedReplay) {
+  const { receipt, classification } = commitBackedReplay;
+  console.log(
+    `Ingestion ${idempotencyKey} already has a validated publication receipt in main; ` +
+    `the file-backed replay is a no-op (${classification.receiptStatus}).`
+  );
+  await writeRunnerOutcome({
+    status: "already_completed",
+    publicationStatus: "already_completed",
+    collectionHealth: receipt.collectionHealth,
+    newPhysicalSources: receipt.newPhysicalSources,
+    dailyNewPhysicalSources: receipt.dailyNewPhysicalSources,
+    dailySourceHealth: receipt.dailySourceHealth
+  });
+  process.exit(0);
+}
+
 await Promise.all([
   mkdir(workRoot, { recursive: true }),
   mkdir(collectorRoot, { recursive: true })
@@ -152,6 +177,7 @@ let run = null;
 let heartbeatTimer = null;
 let hardFailure = null;
 let heartbeatFailure = null;
+let collectionBudget = null;
 
 try {
   if (durableStorageConfigured) {
@@ -172,9 +198,11 @@ try {
       readJson(publishedSourceDeltaPath, null),
       readJson(publishedSourceDeltaHistoryPath, [])
     ]);
-    const priorSourceDelta = currentSourceDelta?.idempotencyKey === idempotencyKey
-      ? currentSourceDelta
-      : sourceDeltaHistory.find((receipt) => receipt?.idempotencyKey === idempotencyKey) ?? null;
+    const priorSourceDelta = selectPublishedAutonomousIngestionReceipt({
+      idempotencyKey,
+      currentReceipt: currentSourceDelta,
+      history: sourceDeltaHistory
+    })?.receipt ?? null;
     await writeRunnerOutcome({
       status: "already_completed",
       publicationStatus: "already_completed",
@@ -216,6 +244,11 @@ try {
       );
     }
 
+    if (!args.skipNetwork) {
+      collectionBudget = createAutonomousCollectionBudget({
+        phaseMs: AUTONOMOUS_PROCESS_BUDGETS.collectionPhaseMs
+      });
+    }
     const [collectionResults, topVoiceRefresh] = args.skipNetwork
       ? [[], null]
       : await Promise.all([
@@ -1281,6 +1314,8 @@ function withSnapshotBatchProvenance(snapshot) {
 async function runCollectors() {
   await prepareBatchDiscoveryState();
   await event("collection.started", "info", "Public collectors started with bounded parallelism.", {
+    collectionDeadlineAt: new Date(collectionBudget.deadlineAt).toISOString(),
+    collectionPhaseMs: AUTONOMOUS_PROCESS_BUDGETS.collectionPhaseMs,
     publicShardProcessConcurrency: PUBLIC_SHARD_PROCESS_CONCURRENCY,
     publicTaskConcurrencyPerProcess: PUBLIC_COLLECTOR_TASK_CONCURRENCY,
     publicTaskConcurrencyAcrossProcesses:
@@ -1532,7 +1567,11 @@ async function runShardedGithubCollector({
         `--output=${shard.outputPath}`
       ],
       {
-        timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.githubCollectorAttemptMs,
+        timeoutMs: boundedCollectionTimeoutMs(
+          AUTONOMOUS_PROCESS_BUDGETS.githubCollectorAttemptMs,
+          `github ${batchSlug} shard ${shard.shardIndex + 1}/${shardCount}`
+        ),
+        deadlineAt: collectionBudget.deadlineAt,
         label: `github ${batchSlug} shard ${shard.shardIndex + 1}/${shardCount}`
       }
     )
@@ -1668,7 +1707,11 @@ async function runPublicCollectorWithCheckpointRecovery({
 }) {
   try {
     return await runCommand(process.execPath, args, {
-      timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.publicCollectorAttemptMs,
+      timeoutMs: boundedCollectionTimeoutMs(
+        AUTONOMOUS_PROCESS_BUDGETS.publicCollectorAttemptMs,
+        `public ${batchSlug} shard ${shardIndex + 1}/${shardCount}`
+      ),
+      deadlineAt: collectionBudget.deadlineAt,
       label: `public ${batchSlug} shard ${shardIndex + 1}/${shardCount}`
     });
   } catch (error) {
@@ -1680,7 +1723,11 @@ async function runPublicCollectorWithCheckpointRecovery({
       { batchSlug, shardIndex, shardCount, outputPath, checkpointPath }
     );
     return runCommand(process.execPath, [...args, "--max-companies=0"], {
-      timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.collectorCheckpointFlushMs,
+      timeoutMs: boundedCollectionTimeoutMs(
+        AUTONOMOUS_PROCESS_BUDGETS.collectorCheckpointFlushMs,
+        `public ${batchSlug} shard ${shardIndex + 1}/${shardCount} checkpoint flush`
+      ),
+      deadlineAt: collectionBudget.deadlineAt,
       label: `public ${batchSlug} shard ${shardIndex + 1}/${shardCount} checkpoint flush`
     });
   }
@@ -1710,7 +1757,11 @@ async function runTopVoiceCollector() {
       "--deadline-minutes=10"
     ],
     {
-      timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.topVoiceCollectorMs,
+      timeoutMs: boundedCollectionTimeoutMs(
+        AUTONOMOUS_PROCESS_BUDGETS.topVoiceCollectorMs,
+        "Top Voice X discovery"
+      ),
+      deadlineAt: collectionBudget.deadlineAt,
       label: "Top Voice X discovery"
     }
   );
@@ -1858,12 +1909,16 @@ async function runCollectorWithRetries(command, maxAttempts = AUTONOMOUS_PROCESS
     const rateLimited = retryReasons.some((reason) =>
       /(?:rate.?limit|secondary.?limit|\b403\b|forbidden|\b429\b)/i.test(String(reason))
     );
-    await delay(rateLimited
-      ? 65_000
+    const retryDelayMs = rateLimited
+      ? AUTONOMOUS_PROCESS_BUDGETS.collectorRateLimitRetryDelayMs
       : Math.min(
           AUTONOMOUS_PROCESS_BUDGETS.collectorRetryDelayMaxMs,
           1_000 * (2 ** (attempt - 1)) + Math.floor(Math.random() * 1_000)
-        ));
+        );
+    await delay(boundedCollectionDelayMs(
+      retryDelayMs,
+      `${command.kind} ${command.batchSlug} retry backoff`
+    ));
   }
   throw lastError ?? new Error(`${command.kind} ${command.batchSlug} exhausted retries.`);
 }
@@ -3042,6 +3097,7 @@ async function completeRun(status, stats) {
 
 async function runCommand(command, commandArgs, {
   timeoutMs,
+  deadlineAt = null,
   label,
   env = {},
   allowedExitCodes = [0],
@@ -3050,6 +3106,13 @@ async function runCommand(command, commandArgs, {
 }) {
   assertLeaseHealthy();
   await event("command.started", "info", `${label} started.`, { command, args: commandArgs });
+  const deadlineRemainingMs = deadlineAt === null
+    ? timeoutMs
+    : Math.floor(deadlineAt - Date.now());
+  if (deadlineRemainingMs <= 0) {
+    throw new Error(`${label} did not start before the autonomous collection deadline.`);
+  }
+  const effectiveTimeoutMs = Math.min(timeoutMs, deadlineRemainingMs);
   return new Promise((resolve, reject) => {
     const child = spawn(command, commandArgs, {
       cwd: root,
@@ -3068,7 +3131,7 @@ async function runCommand(command, commandArgs, {
         AUTONOMOUS_PROCESS_BUDGETS.processKillGraceMs
       );
       killTimer.unref?.();
-    }, timeoutMs);
+    }, effectiveTimeoutMs);
     child.stdout.on("data", (chunk) => {
       stdout = tail(`${stdout}${chunk}`, captureLimit);
       if (!quiet) process.stdout.write(`[${label}] ${chunk}`);
@@ -3085,11 +3148,18 @@ async function runCommand(command, commandArgs, {
     child.once("exit", async (code, signal) => {
       clearTimeout(timer);
       if (killTimer) clearTimeout(killTimer);
-      const payload = { code, signal, timedOut, timeoutMs, stdout, stderr };
+      const payload = {
+        code,
+        signal,
+        timedOut,
+        timeoutMs: effectiveTimeoutMs,
+        stdout,
+        stderr
+      };
       const eventPayload = { ...payload, stdout: tail(stdout, 40_000), stderr: tail(stderr, 40_000) };
       if (timedOut) {
         await event("command.failed", "error", `${label} timed out.`, eventPayload).catch(() => {});
-        reject(new Error(`${label} timed out after ${timeoutMs}ms.`));
+        reject(new Error(`${label} timed out after ${effectiveTimeoutMs}ms.`));
         return;
       }
       if (code !== null && allowedExitCodes.includes(code)) {
@@ -3169,6 +3239,18 @@ async function writeRunnerOutcome(outcome) {
     `${Object.entries(outputs).map(([key, value]) => `${key}=${value}`).join("\n")}\n`,
     "utf8"
   );
+}
+
+async function readCommitBackedReplayReceipt() {
+  const [currentReceipt, history] = await Promise.all([
+    readJson(publishedSourceDeltaPath, null),
+    readJson(publishedSourceDeltaHistoryPath, [])
+  ]);
+  return selectPublishedAutonomousIngestionReceipt({
+    idempotencyKey,
+    currentReceipt,
+    history
+  });
 }
 
 async function readJson(path, fallback) {
@@ -3302,6 +3384,20 @@ function createConcurrencyGuard(limit) {
 
 function delay(milliseconds) {
   return new Promise((resolve) => setTimeout(resolve, milliseconds));
+}
+
+function boundedCollectionTimeoutMs(requestedMs, label) {
+  if (!collectionBudget) {
+    throw new Error(`Collection budget is unavailable before ${label}.`);
+  }
+  return collectionBudget.timeoutMs(requestedMs, label);
+}
+
+function boundedCollectionDelayMs(requestedMs, label) {
+  if (!collectionBudget) {
+    throw new Error(`Collection budget is unavailable before ${label}.`);
+  }
+  return collectionBudget.delayMs(requestedMs, label);
 }
 
 function tail(value, limit) {
