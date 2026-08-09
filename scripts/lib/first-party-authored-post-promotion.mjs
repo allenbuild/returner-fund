@@ -79,7 +79,7 @@ export function planFirstPartyAuthoredPostPromotion({
     if (!evaluation.accepted || !evaluation.owner) {
       throw rowError(row, `failed current recovery gates: ${evaluation.reasons.join(",")}`);
     }
-    assertCandidateTrust(row, evaluation);
+    assertCandidateTrust(row, evaluation, candidateObservedAt);
     additions.push(row);
   }
 
@@ -132,7 +132,7 @@ function trustedCandidateObservation(value, now) {
   return new Date(timestamp).toISOString();
 }
 
-function assertCandidateTrust(row, evaluation) {
+function assertCandidateTrust(row, evaluation, candidateObservedAt) {
   const owner = evaluation.owner;
   const fields = [
     ["batchSlug", row?.batchSlug, owner.batchSlug],
@@ -168,6 +168,26 @@ function assertCandidateTrust(row, evaluation) {
     !isZeroEngagement(row)
   ) {
     throw rowError(row, "is not verified zero-engagement context evidence");
+  }
+  const candidateObservedTime = Date.parse(candidateObservedAt);
+  const timestampKeys = [
+    "postedAt",
+    "observedAt",
+    "metricsCheckedAt",
+    "linkCheckedAt",
+    "first_seen_at",
+    "last_checked_at",
+    "last_updated_at"
+  ];
+  if (!Number.isFinite(Date.parse(String(row?.first_seen_at ?? "")))) {
+    throw rowError(row, "is missing a valid first observation timestamp");
+  }
+  for (const key of timestampKeys) {
+    if (row?.[key] === undefined || row?.[key] === null) continue;
+    const timestamp = Date.parse(String(row[key]));
+    if (!Number.isFinite(timestamp) || timestamp > candidateObservedTime) {
+      throw rowError(row, `${key} exceeds the trusted candidate observation`);
+    }
   }
   const requiredSignals = [
     "current_cohort_owner",

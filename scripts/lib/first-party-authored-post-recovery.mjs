@@ -338,13 +338,26 @@ export function evaluateFirstPartyAuthoredPost(
       row?.created_at ??
       row?.datePublished,
   );
-  const observationAt = preferredTimestamp([
+  const recoveryObservedAt = timestampValue(observedAt);
+  const rowObservationValues = [
     row?.first_seen_at,
     row?.observedAt,
     row?.last_checked_at,
     row?.linkCheckedAt,
-    observedAt,
-  ]);
+  ];
+  if (
+    recoveryObservedAt &&
+    rowObservationValues
+      .map(timestampValue)
+      .filter(Boolean)
+      .some((value) => Date.parse(value) > Date.parse(recoveryObservedAt))
+  ) {
+    reasons.push("observation_time_after_recovery");
+  }
+  const observationAt =
+    preferredTimestamp(rowObservationValues, {
+      latestAt: recoveryObservedAt,
+    }) ?? recoveryObservedAt;
   if (!observationAt) reasons.push("observation_time_missing");
   if (!title || title.length < 8 || GENERIC_TITLE.test(title))
     reasons.push("authored_title_missing");
@@ -988,10 +1001,16 @@ function timestampValue(value) {
     : null;
 }
 
-function preferredTimestamp(values) {
+function preferredTimestamp(values, { latestAt = null } = {}) {
+  const latestTimestamp = timestampValue(latestAt);
   for (const value of values ?? []) {
     const timestamp = timestampValue(value);
-    if (timestamp) return timestamp;
+    if (
+      timestamp &&
+      (!latestTimestamp || Date.parse(timestamp) <= Date.parse(latestTimestamp))
+    ) {
+      return timestamp;
+    }
   }
   return null;
 }

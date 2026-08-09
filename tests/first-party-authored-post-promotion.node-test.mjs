@@ -50,6 +50,16 @@ test("requires a valid non-future candidate observation timestamp", () => {
   }
 });
 
+test("rejects candidate row timestamps beyond the trusted generation time", () => {
+  assert.throws(
+    () => makePlan(snapshot(), [candidateRow({
+      postedAt: "2026-08-08T00:00:00.000Z",
+      first_seen_at: "2099-01-01T00:00:00.000Z"
+    })]),
+    /(?:observation_time_after_recovery|exceeds the trusted candidate observation)/,
+  );
+});
+
 function makePlan(canonical, evidence, extraReferences = [], candidateOverrides = {}) {
   return planFirstPartyAuthoredPostPromotion({
     canonical,
@@ -83,6 +93,7 @@ function candidateRow(overrides = {}) {
     platformPostId: sourceUrl,
     text: "This is a substantive authored article with enough exact content for recovery.",
     postedAt: "2026-08-01T00:00:00.000Z",
+    first_seen_at: "2026-08-08T00:00:00.000Z",
     metrics: {},
     contributionScore: 0,
     review_state: "verified",
