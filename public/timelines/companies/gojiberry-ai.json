@@ -5,8 +5,8 @@
     "slug": "gojiberry-ai",
     "name": "Gojiberry AI"
   },
-  "generatedAt": "2026-08-09T17:55:00.387Z",
-  "lastModifiedAt": "2026-08-09T17:55:00.387Z",
+  "generatedAt": "2026-08-09T18:47:34.041Z",
+  "lastModifiedAt": "2026-08-09T18:47:34.041Z",
   "events": [
     {
       "id": "tle-3022fc1867f778b67929d841",
@@ -103,7 +103,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 3,
-    "lastSuccessfulArtifactAt": "2026-08-09T17:55:00.387Z"
+    "lastSuccessfulArtifactAt": "2026-08-09T18:47:34.041Z"
   },
   "nextCursor": null
 }

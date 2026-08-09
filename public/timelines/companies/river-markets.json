@@ -5,8 +5,8 @@
     "slug": "river-markets",
     "name": "River Markets"
   },
-  "generatedAt": "2026-08-09T17:55:00.387Z",
-  "lastModifiedAt": "2026-08-09T17:55:00.387Z",
+  "generatedAt": "2026-08-09T18:47:34.041Z",
+  "lastModifiedAt": "2026-08-09T18:47:34.041Z",
   "events": [
     {
       "id": "tle-4581e21277023ef717ff7305",
@@ -47,7 +47,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-08-09T17:55:00.387Z"
+    "lastSuccessfulArtifactAt": "2026-08-09T18:47:34.041Z"
   },
   "nextCursor": null
 }

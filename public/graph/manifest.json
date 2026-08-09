@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "publishedAt": "2026-08-09T18:01:19.769Z",
+  "publishedAt": "2026-08-09T18:53:43.654Z",
   "ingestionRunId": "source-sweep-resume-2026-08-04",
   "evidenceCollectedAt": "2026-08-09T13:37:58.620Z",
   "oldestPlatformRefreshAt": "2026-07-29T07:11:00.000Z",
@@ -37,65 +37,65 @@
   "graphArtifacts": [
     {
       "filename": "a16zsr006-insiders.json",
-      "sha256": "130bb959ff0e9074382003c858c138973123f4c63e8f988267881c40f88ed7d3",
-      "byteSize": 175042,
-      "generatedAt": "2026-08-09T17:55:03.821Z",
+      "sha256": "6da477fbd816557e560087386efa9d29ea3cd720038c564f7a383a8d51c734e3",
+      "byteSize": 175605,
+      "generatedAt": "2026-08-09T18:47:37.503Z",
       "modelVersion": "4.2.0"
     },
     {
       "filename": "a16zsr006-yc-partners.json",
-      "sha256": "6b769e91a109c46c8e5202340f57192e5ced2880f4d7ddbf5cad52f2e4d60cd3",
-      "byteSize": 4083,
-      "generatedAt": "2026-08-09T17:55:01.496Z",
+      "sha256": "8145d846db0e9ca639a35ed79eeed36c9648f2f0d78b92d4349e5d427c6b6d82",
+      "byteSize": 4082,
+      "generatedAt": "2026-08-09T18:47:35.164Z",
       "modelVersion": "4.2.0"
     },
     {
       "filename": "a16zsr006.json",
-      "sha256": "1b82e6725b79db1d3949e04fdb429363d37c39979bffca13bb4d3ca3b14954d6",
-      "byteSize": 19676618,
-      "generatedAt": "2026-08-09T17:55:00.387Z",
+      "sha256": "f265cd75242c432e6b7f28ccfe855cad809497ebb04f251a6d50bdd3c9d74c6d",
+      "byteSize": 19682163,
+      "generatedAt": "2026-08-09T18:47:34.041Z",
       "modelVersion": "4.2.0"
     },
     {
       "filename": "s2026-insiders.json",
-      "sha256": "c937ddbe8118669bdf7331e448d59513d11a198eb740bcb5950b08370e0ebf9d",
-      "byteSize": 1135833,
-      "generatedAt": "2026-08-09T17:54:46.457Z",
+      "sha256": "475786ec94d1b84f5a1c468f98c82447a7cc533fd53b5504345a11741d899f0b",
+      "byteSize": 1137619,
+      "generatedAt": "2026-08-09T18:47:20.061Z",
       "modelVersion": "4.2.0"
     },
     {
       "filename": "s2026-yc-partners.json",
-      "sha256": "094e9160732c808438028e9473d05a6c3aa8e03987a091669e76b09d56b2d949",
-      "byteSize": 1840286,
-      "generatedAt": "2026-08-09T17:54:41.299Z",
+      "sha256": "832be2a30e174f217a0692303c7144c2f4c9402d894eb539855ed0f1e8c84a1b",
+      "byteSize": 1843858,
+      "generatedAt": "2026-08-09T18:47:14.877Z",
       "modelVersion": "4.2.0"
     },
     {
       "filename": "s2026.json",
-      "sha256": "7810581945496c71043661d5b88f238e5e1e2b3acd5d602fe45cb1a85f2e19ef",
-      "byteSize": 18574048,
-      "generatedAt": "2026-08-09T17:54:38.200Z",
+      "sha256": "860ecdebddbd146bef606bb373a423830af2e0a3db52aac684acf868b622c2eb",
+      "byteSize": 18592566,
+      "generatedAt": "2026-08-09T18:47:11.768Z",
       "modelVersion": "4.2.0"
     },
     {
       "filename": "s26-insiders.json",
-      "sha256": "f527114cdccb144292006dd5c7690ecbf9c516b5e3ae2657fa9d6932236d32c2",
-      "byteSize": 7037,
-      "generatedAt": "2026-08-09T17:54:56.997Z",
+      "sha256": "17dce38166aac09436c433a41cd7f53ff7f776676221a15a161baef974226e84",
+      "byteSize": 7036,
+      "generatedAt": "2026-08-09T18:47:30.641Z",
       "modelVersion": "4.2.0"
     },
     {
       "filename": "s26-yc-partners.json",
-      "sha256": "ae7636eac88d8aeb0e223677fcaef0c5cff9723bdd5132a4b9a48a7475cc3b74",
-      "byteSize": 585128,
-      "generatedAt": "2026-08-09T17:54:53.619Z",
+      "sha256": "620476c895e501c52cab013d5a86333f5dcb5b7bd9d741bbc8024b2a820a33e4",
+      "byteSize": 586443,
+      "generatedAt": "2026-08-09T18:47:27.265Z",
       "modelVersion": "4.2.0"
     },
     {
       "filename": "s26.json",
-      "sha256": "5ba63050933db7f676d13c9e7cfd965325ae0a5c30f8d7d94cbce5076dc8e486",
-      "byteSize": 14681748,
-      "generatedAt": "2026-08-09T17:54:51.729Z",
+      "sha256": "8253c60f786344b3ac5e62c4b9458e907c06369f5bedeb253bd4ebd67c6f32fa",
+      "byteSize": 14710238,
+      "generatedAt": "2026-08-09T18:47:25.349Z",
       "modelVersion": "4.2.0"
     }
   ],
@@ -131,5 +131,5 @@
       "generatedAt": "2026-07-01T05:30:37.139Z"
     }
   ],
-  "contentHash": "a80d79d9adfcd2b7786b235734ebc7770aaacf2a7b9ac07ee0cdd0e203391067"
+  "contentHash": "90627c9dfcb9da1cd7c3b2c473b890ea3f1574d9b3529f9ce939450a41d4f94f"
 }

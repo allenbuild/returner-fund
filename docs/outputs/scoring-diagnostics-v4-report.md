@@ -3,10 +3,10 @@
 - Frozen clock: `2026-07-17T12:00:00.000Z`
 - Production model: `returner-traction-v4-absolute-fixed-platform-global-best` (`returner-traction` v4.2.0)
 - Git SHA: excluded from deterministic artifacts; the runtime command logs the executing revision.
-- Input envelope SHA-256: `d088759d0df5fe4b6960b09fe31b5eb76178006db4300809d71543afde77bde4`
-- Effective versioned scoring-input SHA-256: `f3e207ce27b7eadbe7ba6e68fc95e275379bbe0fa2bc88e6368f02a24e5b4d42`
+- Input envelope SHA-256: `55dd7a8e88b081a8ea426419e3f8126fa68b2b0940769adf602ac5d030298dd0`
+- Effective versioned scoring-input SHA-256: `865d24925fe56c5be5a165d52ef8c3413341407d713561d3c7c426caa01d2efe`
 - Canonical config: 70 leaf parameters across scoring, calibration, and confidence; 9 role-labeled runtime source files.
-- Audit JSON SHA-256: `053edac5eb7693e5990bfc71ac233ff2073d313c6a544f7809e09ca6995ff1c8`
+- Audit JSON SHA-256: `5ac82f3e5d3214c16d42cd4a5687f1a43f0b431f9fed56d32b278cc709ca4e08`
 - Detail retention: at most 32 examples per repetitive collection; 107213 repeated records omitted across 128 collections with full SHA-256 commitments.
 - Release size ceiling: 50331648 bytes.
 - Command: `npm run scoring:audit:v4`
@@ -143,7 +143,7 @@ No score or rank changes.
 | --- | --- | --- |
 | versioned_runtime_parameter_hashes_complete | yes | {"category_hash_mismatch_count":0,"parameter_count":70,"parameter_mismatch_count":0} |
 | versioned_source_hashes_complete | yes | {"source_file_count":9,"source_mismatch_count":0} |
-| input_envelope_hash_consistent | yes | "d088759d0df5fe4b6960b09fe31b5eb76178006db4300809d71543afde77bde4" |
+| input_envelope_hash_consistent | yes | "55dd7a8e88b081a8ea426419e3f8126fa68b2b0940769adf602ac5d030298dd0" |
 | required_cohort_coverage | yes | ["A16ZSR006","S2026","S26"] |
 | cohort_evidence_partition_exact | yes | {"cohort_entity_evidence_rows":44644,"cohort_evidence_rows":{"A16ZSR006":9223,"S2026":21107,"S26":14314},"invalid_batch_scope_evidence_rows":0} |
 | company_rankings_complete_unique_ordered_and_bounded | yes | 0 |

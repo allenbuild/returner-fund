@@ -40,7 +40,7 @@
     "input_hashes": {
       "scope": "graph, scoring, social, and YC local input envelope plus profiler runtime files; canonical runtime values and effective scoring/calibration/confidence sources are hashed separately",
       "file_count": 99,
-      "combined_sha256": "d088759d0df5fe4b6960b09fe31b5eb76178006db4300809d71543afde77bde4",
+      "combined_sha256": "55dd7a8e88b081a8ea426419e3f8126fa68b2b0940769adf602ac5d030298dd0",
       "files": [
         {
           "path": "package.json",
@@ -109,8 +109,8 @@
         },
         {
           "path": "src/lib/graph/dedupe.ts",
-          "bytes": 21459,
-          "sha256": "1388063839e3660637a9bf320307b0c60bb929c7310b156d536e5964f96c73f9"
+          "bytes": 26644,
+          "sha256": "2f20ba19bde6932ab21191d310fc7be4a5b77d0c9ac14d21b48ff878d3aff721"
         },
         {
           "path": "src/lib/graph/demo-data.ts",
@@ -164,8 +164,8 @@
         },
         {
           "path": "src/lib/graph/graph-builder.ts",
-          "bytes": 44207,
-          "sha256": "7da7ab436b58195aadae4de4981950106d69c9944cd21b53bc43359a1ddd3f5e"
+          "bytes": 44355,
+          "sha256": "8053eafc68ccfd0713a88350537d57806d0beec52259db21723f67cd3360f297"
         },
         {
           "path": "src/lib/graph/graph-response-cache.ts",
@@ -240,7 +240,7 @@
         {
           "path": "src/lib/graph/ranked-posts-sidecar.generated.json",
           "bytes": 27561,
-          "sha256": "c97a5c494a3829f38ce39b89d90aea076157fedbcf9634a1fcc4d4516bc08087"
+          "sha256": "9bc58ba027ad9d31e6ac0615296b6a7291913fed3e55bb611aa02131b9f685d1"
         },
         {
           "path": "src/lib/graph/ranked-posts-sidecar.ts",
@@ -334,8 +334,8 @@
         },
         {
           "path": "src/lib/scoring/global-score-benchmark.ts",
-          "bytes": 6005,
-          "sha256": "b109cb3d438a3bd265ae6ec6193035f32a49fc2fbe50b60f0da5b8cdb62cc37c"
+          "bytes": 6099,
+          "sha256": "3eff38d1a2340af3fa4de8f61ab667f6dae2235d95edc0f0b85261de81252d0f"
         },
         {
           "path": "src/lib/scoring/index.ts",
@@ -985,7 +985,7 @@
           }
         ],
         "source_file_count": 9,
-        "source_combined_sha256": "91ce7e6254143fb741a65acd3c64fd54a4e2a1dcbd3dac89984ebf42c2b5fb8e",
+        "source_combined_sha256": "9eb2e717d4967cad3afbc4c81c03f970650d5483155f7527541eff4177ae57ff",
         "source_files": [
           {
             "role": "a16z_batch_assembly_and_calibration_application",
@@ -1008,14 +1008,14 @@
           {
             "role": "eligibility_and_physical_dedupe_algorithm",
             "path": "src/lib/graph/dedupe.ts",
-            "bytes": 21459,
-            "sha256": "1388063839e3660637a9bf320307b0c60bb929c7310b156d536e5964f96c73f9"
+            "bytes": 26644,
+            "sha256": "2f20ba19bde6932ab21191d310fc7be4a5b77d0c9ac14d21b48ff878d3aff721"
           },
           {
             "role": "global_company_headline_benchmark_algorithm",
             "path": "src/lib/scoring/global-score-benchmark.ts",
-            "bytes": 6005,
-            "sha256": "b109cb3d438a3bd265ae6ec6193035f32a49fc2fbe50b60f0da5b8cdb62cc37c"
+            "bytes": 6099,
+            "sha256": "3eff38d1a2340af3fa4de8f61ab667f6dae2235d95edc0f0b85261de81252d0f"
           },
           {
             "role": "graph_config_reexport",
@@ -1042,7 +1042,7 @@
             "sha256": "caf64563f7f02bed0849ce486577a6ba4704a5edecee62f8ceb0505548cdcbf1"
           }
         ],
-        "combined_sha256": "f3e207ce27b7eadbe7ba6e68fc95e275379bbe0fa2bc88e6368f02a24e5b4d42"
+        "combined_sha256": "865d24925fe56c5be5a165d52ef8c3413341407d713561d3c7c426caa01d2efe"
       }
     },
     "detail_retention": {
@@ -74384,8 +74384,8 @@
       {
         "id": "input_envelope_hash_consistent",
         "passed": true,
-        "expected": "d088759d0df5fe4b6960b09fe31b5eb76178006db4300809d71543afde77bde4",
-        "observed": "d088759d0df5fe4b6960b09fe31b5eb76178006db4300809d71543afde77bde4"
+        "expected": "55dd7a8e88b081a8ea426419e3f8126fa68b2b0940769adf602ac5d030298dd0",
+        "observed": "55dd7a8e88b081a8ea426419e3f8126fa68b2b0940769adf602ac5d030298dd0"
       },
       {
         "id": "required_cohort_coverage",

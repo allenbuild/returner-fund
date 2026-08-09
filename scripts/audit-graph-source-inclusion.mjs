@@ -29,6 +29,7 @@ for (const sourceName of SOURCE_NAMES) {
 
 const graphIdentities = new Set(yc2026GraphDataset.evidence.map(sourcePhysicalIdentity));
 const catalogs = buildCatalogs(yc2026GraphDataset);
+const entityCohortMemberships = buildEntityCohortMemberships(yc2026GraphDataset);
 const categories = new Map();
 const excludedRows = [];
 let includedPhysicalIdentities = 0;
@@ -76,15 +77,23 @@ for (const [identity, observations] of sourceObservations) {
 }
 
 const perCohort = Object.fromEntries(BATCHES.map((batchSlug) => {
+  const sourceReceipts = yc2026GraphDataset.evidence.filter((item) =>
+    resolveEvidenceCohort(item, entityCohortMemberships) === batchSlug
+  );
   const graph = buildGraphResponse({ batchSlug }, yc2026GraphDataset);
   return [batchSlug, {
-    evidenceRows: graph.evidence.length,
-    physicalIdentities: new Set(graph.evidence.map(sourcePhysicalIdentity)).size
+    sourceReceiptRows: sourceReceipts.length,
+    publishedUniqueContentRows: graph.evidence.length,
+    publishedUniquePhysicalIdentities: new Set(graph.evidence.map(sourcePhysicalIdentity)).size
   }];
 }));
+const publishedUniqueContentRows = Object.values(perCohort)
+  .reduce((total, cohort) => total + cohort.publishedUniqueContentRows, 0);
+const publishedUniquePhysicalIdentities = Object.values(perCohort)
+  .reduce((total, cohort) => total + cohort.publishedUniquePhysicalIdentities, 0);
 
 const report = {
-  schema: "returner_graph_source_inclusion_audit_v1",
+  schema: "returner_graph_source_inclusion_audit_v2",
   offlineOnly: true,
   source: {
     verifiedRows: verifiedSourceRows,
@@ -92,8 +101,10 @@ const report = {
     exactCatalogPhysicalIdentities
   },
   graph: {
-    evidenceRows: yc2026GraphDataset.evidence.length,
-    physicalIdentities: graphIdentities.size,
+    sourceReceiptRows: yc2026GraphDataset.evidence.length,
+    sourceReceiptPhysicalIdentities: graphIdentities.size,
+    publishedUniqueContentRows,
+    publishedUniquePhysicalIdentities,
     sourcePhysicalIdentitiesIncluded: includedPhysicalIdentities,
     perCohort
   },
@@ -169,6 +180,25 @@ function buildCatalogs(dataset) {
       companiesBySlug: new Map(companies.map((company) => [company.slug, company]))
     }];
   }));
+}
+
+function buildEntityCohortMemberships(dataset) {
+  const memberships = new Map();
+  for (const entity of [...dataset.companies, ...dataset.founders]) {
+    const cohorts = memberships.get(entity.id) ?? new Set();
+    cohorts.add(entity.batchSlug);
+    memberships.set(entity.id, cohorts);
+  }
+  return memberships;
+}
+
+function resolveEvidenceCohort(item, memberships) {
+  const cohorts = memberships.get(item.entityId);
+  if (!cohorts?.size) return null;
+  if (typeof item.batchSlug === "string" && item.batchSlug.trim()) {
+    return cohorts.has(item.batchSlug) ? item.batchSlug : null;
+  }
+  return cohorts.size === 1 ? [...cohorts][0] : null;
 }
 
 function rowMatchesCatalog(row, catalog) {
