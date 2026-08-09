@@ -13,10 +13,66 @@ export class AutonomousCollectionBudgetExceededError extends Error {
   }
 }
 
+export class AutonomousRunnerBudgetExceededError extends Error {
+  constructor(label, { requestedMs, remainingMs, deadlineAt }) {
+    super(
+      `Autonomous runner deadline exhausted before ${label}: ` +
+      `requested ${requestedMs}ms with ${remainingMs}ms remaining ` +
+      `(deadline ${new Date(deadlineAt).toISOString()}).`
+    );
+    this.name = "AutonomousRunnerBudgetExceededError";
+    this.code = "AUTONOMOUS_RUNNER_BUDGET_EXCEEDED";
+    this.requestedMs = requestedMs;
+    this.remainingMs = remainingMs;
+    this.deadlineAt = deadlineAt;
+  }
+}
+
+const MINUTE_MS = 60_000;
+
+// GitHub Actions grants the runner step 330 minutes. Stop starting or running
+// subprocess work after 324 minutes so child termination, error receipts, and
+// lease cleanup retain six minutes inside that outer step timeout.
+export const AUTONOMOUS_RUNNER_WALL_CLOCK_BUDGET_MS = 324 * MINUTE_MS;
+export const AUTONOMOUS_RUNNER_WORKFLOW_HEADROOM_MS = 6 * MINUTE_MS;
+
+export function createAutonomousRunnerBudget({
+  phaseMs = AUTONOMOUS_RUNNER_WALL_CLOCK_BUDGET_MS,
+  startedAt = Date.now(),
+  now = Date.now
+} = {}) {
+  return createWallClockBudget({
+    phaseMs,
+    startedAt,
+    now,
+    defaultTimeoutLabel: "runner command",
+    defaultDelayLabel: "runner delay",
+    BudgetExceededError: AutonomousRunnerBudgetExceededError
+  });
+}
+
 export function createAutonomousCollectionBudget({
   phaseMs,
   startedAt = Date.now(),
   now = Date.now
+}) {
+  return createWallClockBudget({
+    phaseMs,
+    startedAt,
+    now,
+    defaultTimeoutLabel: "collector command",
+    defaultDelayLabel: "collector retry delay",
+    BudgetExceededError: AutonomousCollectionBudgetExceededError
+  });
+}
+
+function createWallClockBudget({
+  phaseMs,
+  startedAt,
+  now,
+  defaultTimeoutLabel,
+  defaultDelayLabel,
+  BudgetExceededError
 }) {
   assertPositiveMilliseconds(phaseMs, "phaseMs");
   assertFiniteTimestamp(startedAt, "startedAt");
@@ -29,11 +85,11 @@ export function createAutonomousCollectionBudget({
     startedAt,
     deadlineAt,
     remainingMs,
-    timeoutMs(requestedMs, label = "collector command") {
+    timeoutMs(requestedMs, label = defaultTimeoutLabel) {
       assertPositiveMilliseconds(requestedMs, "requestedMs");
       const remaining = remainingMs();
       if (remaining <= 0) {
-        throw new AutonomousCollectionBudgetExceededError(label, {
+        throw new BudgetExceededError(label, {
           requestedMs,
           remainingMs: remaining,
           deadlineAt
@@ -41,11 +97,11 @@ export function createAutonomousCollectionBudget({
       }
       return Math.max(1, Math.min(requestedMs, remaining));
     },
-    delayMs(requestedMs, label = "collector retry delay") {
+    delayMs(requestedMs, label = defaultDelayLabel) {
       assertNonNegativeMilliseconds(requestedMs, "requestedMs");
       const remaining = remainingMs();
       if (requestedMs > remaining) {
-        throw new AutonomousCollectionBudgetExceededError(label, {
+        throw new BudgetExceededError(label, {
           requestedMs,
           remainingMs: remaining,
           deadlineAt

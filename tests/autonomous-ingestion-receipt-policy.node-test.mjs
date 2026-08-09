@@ -13,6 +13,7 @@ const healthyPublication = {
   publicationStatus: "published",
   collectionHealth: "complete",
   newPhysicalSources: 12,
+  dailyNewPhysicalSources: 12,
   dailySourceHealth: "healthy"
 };
 
@@ -56,6 +57,14 @@ describe("autonomous ingestion receipt policy", () => {
       { ...base, schemaVersion: 2 },
       { ...base, newPhysicalSources: "" },
       { ...base, dailyNewPhysicalSources: "" },
+      { ...base, newPhysicalSources: 0.5 },
+      { ...base, newPhysicalSources: [1] },
+      { ...base, dailyNewPhysicalSources: -1 },
+      { ...base, dailyNewPhysicalSources: Number.MAX_SAFE_INTEGER + 1 },
+      { ...base, newPhysicalSources: 2, dailyNewPhysicalSources: 1 },
+      { ...base, newPhysicalSources: 0, dailyNewPhysicalSources: 5, dailySourceHealth: "stale_day" },
+      { ...base, newPhysicalSources: 0, dailyNewPhysicalSources: 5, dailySourceHealth: "awaiting_second_slot" },
+      { ...base, newPhysicalSources: 0, dailyNewPhysicalSources: 0, dailySourceHealth: "healthy" },
       { ...base, dailySourceHealth: "unknown" }
     ]) {
       assert.equal(selectPublishedAutonomousIngestionReceipt({
@@ -83,12 +92,14 @@ describe("autonomous ingestion receipt policy", () => {
     const published = classifyAutonomousIngestionReceipt({
       ...healthyPublication,
       newPhysicalSources: 0,
+      dailyNewPhysicalSources: 0,
       dailySourceHealth: "awaiting_second_slot"
     });
     const unchanged = classifyAutonomousIngestionReceipt({
       ...healthyPublication,
       publicationStatus: "no_changes",
       newPhysicalSources: 0,
+      dailyNewPhysicalSources: 0,
       dailySourceHealth: "awaiting_second_slot"
     });
 
@@ -104,6 +115,7 @@ describe("autonomous ingestion receipt policy", () => {
     const result = classifyAutonomousIngestionReceipt({
       ...healthyPublication,
       newPhysicalSources: 0,
+      dailyNewPhysicalSources: 0,
       dailySourceHealth: "stale_day"
     });
 
@@ -117,6 +129,7 @@ describe("autonomous ingestion receipt policy", () => {
       ...healthyPublication,
       publicationStatus: "no_changes",
       newPhysicalSources: 0,
+      dailyNewPhysicalSources: 0,
       dailySourceHealth: "stale_day"
     });
     const replay = classifyAutonomousIngestionReceipt({
@@ -124,6 +137,7 @@ describe("autonomous ingestion receipt policy", () => {
       runnerStatus: "already_completed",
       publicationStatus: "already_completed",
       newPhysicalSources: 0,
+      dailyNewPhysicalSources: 0,
       dailySourceHealth: "stale_day"
     });
 
@@ -163,8 +177,37 @@ describe("autonomous ingestion receipt policy", () => {
     }).receiptStatus, "noop_missing_receipt");
     assert.equal(classifyAutonomousIngestionReceipt({
       ...healthyPublication,
+      dailyNewPhysicalSources: "",
       dailySourceHealth: "stale_day"
     }).receiptStatus, "published_missing_receipt");
+  });
+
+  it("requires exact count and daily-health invariants for every outcome", () => {
+    const cases = [
+      [{ newPhysicalSources: -1 }, /non-negative safe integers/],
+      [{ newPhysicalSources: 1.5 }, /non-negative safe integers/],
+      [{ dailyNewPhysicalSources: 1.5 }, /non-negative safe integers/],
+      [{ newPhysicalSources: 4, dailyNewPhysicalSources: 3 }, /cannot be smaller/],
+      [{ newPhysicalSources: 0, dailyNewPhysicalSources: 0, dailySourceHealth: "healthy" }, /requires a positive/],
+      [{ newPhysicalSources: 0, dailyNewPhysicalSources: 2, dailySourceHealth: "stale_day" }, /requires a zero/],
+      [{ newPhysicalSources: 0, dailyNewPhysicalSources: 2, dailySourceHealth: "awaiting_second_slot" }, /requires a zero/]
+    ];
+    for (const [overrides, message] of cases) {
+      const result = classifyAutonomousIngestionReceipt({
+        ...healthyPublication,
+        ...overrides
+      });
+      assert.equal(result.conclusion, "failure");
+      assert.match(result.message, message);
+    }
+
+    const healthySecondSlot = classifyAutonomousIngestionReceipt({
+      ...healthyPublication,
+      newPhysicalSources: 0,
+      dailyNewPhysicalSources: 8
+    });
+    assert.equal(healthySecondSlot.conclusion, "warning");
+    assert.equal(healthySecondSlot.receiptStatus, "published_no_new_sources");
   });
 
   it("writes auditable outputs and a summary without changing warning into failure", async () => {
@@ -207,6 +250,7 @@ describe("autonomous ingestion receipt policy", () => {
           PUBLICATION_STATUS: "published",
           COLLECTION_HEALTH: "complete",
           NEW_PHYSICAL_SOURCES: "12",
+          DAILY_NEW_PHYSICAL_SOURCES: "12",
           DAILY_SOURCE_HEALTH: "healthy",
           SLOT_KEY: "central-2026-07-26-0600",
           GITHUB_OUTPUT: "",

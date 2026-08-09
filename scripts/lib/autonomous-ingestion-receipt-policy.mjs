@@ -19,12 +19,12 @@ export function selectPublishedAutonomousIngestionReceipt({
   ];
   for (const receipt of candidates) {
     if (receipt?.schemaVersion !== 1 || clean(receipt?.idempotencyKey) !== expectedKey) continue;
-    if (nonNegativeNumber(receipt?.dailyNewPhysicalSources) === null) continue;
     const classification = classifyAutonomousIngestionReceipt({
       runnerStatus: "already_completed",
       publicationStatus: "already_completed",
       collectionHealth: receipt.collectionHealth,
       newPhysicalSources: receipt.newPhysicalSources,
+      dailyNewPhysicalSources: receipt.dailyNewPhysicalSources,
       dailySourceHealth: receipt.dailySourceHealth
     });
     if (classification.conclusion !== "failure") {
@@ -39,28 +39,31 @@ export function classifyAutonomousIngestionReceipt({
   publicationStatus,
   collectionHealth,
   newPhysicalSources,
+  dailyNewPhysicalSources,
   dailySourceHealth
 }) {
   const normalizedRunnerStatus = clean(runnerStatus);
   const normalizedPublicationStatus = clean(publicationStatus);
   const normalizedCollectionHealth = clean(collectionHealth);
   const normalizedDailySourceHealth = clean(dailySourceHealth);
-  const normalizedNewPhysicalSources = nonNegativeNumber(newPhysicalSources);
+  const normalizedNewPhysicalSources = nonNegativeInteger(newPhysicalSources);
+  const normalizedDailyNewPhysicalSources = nonNegativeInteger(dailyNewPhysicalSources);
+  const healthReceiptError = validateHealthReceipt({
+    collectionHealth: normalizedCollectionHealth,
+    newPhysicalSources: normalizedNewPhysicalSources,
+    dailyNewPhysicalSources: normalizedDailyNewPhysicalSources,
+    dailySourceHealth: normalizedDailySourceHealth
+  });
 
   if (normalizedRunnerStatus === "already_completed") {
     if (normalizedPublicationStatus !== "already_completed" ||
-        normalizedNewPhysicalSources === null ||
-        !RECOGNIZED_DAILY_STATES.has(normalizedDailySourceHealth) ||
-        !KNOWN_COLLECTION_STATES.has(normalizedCollectionHealth)) {
-      return failure("noop_missing_receipt", "The completed run is missing a recognized health receipt.");
+        healthReceiptError) {
+      return failure(
+        "noop_missing_receipt",
+        healthReceiptError ?? "The completed run is missing a recognized health receipt."
+      );
     }
     if (normalizedDailySourceHealth === "stale_day") {
-      if (normalizedNewPhysicalSources !== 0) {
-        return failure(
-          "noop_missing_receipt",
-          "The stale daily receipt contradicts its non-zero physical-source count."
-        );
-      }
       return warning(
         "noop_stale_day",
         "The idempotent replay confirms a verified final slot with no new physical sources."
@@ -83,13 +86,12 @@ export function classifyAutonomousIngestionReceipt({
     );
   }
 
-  if (!RECOGNIZED_DAILY_STATES.has(normalizedDailySourceHealth) ||
-      !KNOWN_COLLECTION_STATES.has(normalizedCollectionHealth)) {
+  if (healthReceiptError) {
     return failure(
       normalizedPublicationStatus === "no_changes"
         ? "no_changes_missing_receipt"
         : "published_missing_receipt",
-      "The refreshed run is missing a recognized health receipt."
+      healthReceiptError
     );
   }
 
@@ -100,24 +102,7 @@ export function classifyAutonomousIngestionReceipt({
     );
   }
 
-  if (normalizedNewPhysicalSources === null) {
-    return failure(
-      normalizedPublicationStatus === "no_changes"
-        ? "no_changes_missing_receipt"
-        : "published_missing_receipt",
-      "The refreshed run is missing its physical-source count."
-    );
-  }
-
   if (normalizedDailySourceHealth === "stale_day") {
-    if (normalizedNewPhysicalSources !== 0) {
-      return failure(
-        normalizedPublicationStatus === "no_changes"
-          ? "no_changes_missing_receipt"
-          : "published_missing_receipt",
-        "The stale daily receipt contradicts its non-zero physical-source count."
-      );
-    }
     return warning(
       normalizedPublicationStatus === "no_changes" ? "no_changes_stale_day" : "published_stale_day",
       "Both Central ingestion slots completed without a new physical source; verified publication remains successful."
@@ -162,6 +147,7 @@ export async function recordAutonomousIngestionReceipt({
     publicationStatus: env.PUBLICATION_STATUS,
     collectionHealth: env.COLLECTION_HEALTH,
     newPhysicalSources: env.NEW_PHYSICAL_SOURCES,
+    dailyNewPhysicalSources: env.DAILY_NEW_PHYSICAL_SOURCES,
     dailySourceHealth: env.DAILY_SOURCE_HEALTH
   });
   const publishedCommit = clean(env.PUBLISHED_COMMIT);
@@ -222,11 +208,41 @@ function failure(receiptStatus, message) {
   return { receiptStatus, conclusion: "failure", message };
 }
 
-function nonNegativeNumber(value) {
+function nonNegativeInteger(value) {
+  if (typeof value !== "number" && typeof value !== "string") return null;
   const normalized = clean(value);
   if (!normalized) return null;
   const parsed = Number(normalized);
-  return Number.isFinite(parsed) && parsed >= 0 ? parsed : null;
+  return Number.isSafeInteger(parsed) && parsed >= 0 ? parsed : null;
+}
+
+function validateHealthReceipt({
+  collectionHealth,
+  newPhysicalSources,
+  dailyNewPhysicalSources,
+  dailySourceHealth
+}) {
+  if (!KNOWN_COLLECTION_STATES.has(collectionHealth) ||
+      !RECOGNIZED_DAILY_STATES.has(dailySourceHealth)) {
+    return "The run is missing a recognized collection or daily source health state.";
+  }
+  if (newPhysicalSources === null || dailyNewPhysicalSources === null) {
+    return "Source counts must be non-negative safe integers.";
+  }
+  if (dailyNewPhysicalSources < newPhysicalSources) {
+    return (
+      "The Central-day physical-source count cannot be smaller than the current slot count."
+    );
+  }
+  if (dailySourceHealth === "healthy" && dailyNewPhysicalSources === 0) {
+    return "Healthy daily source state requires a positive Central-day physical-source count.";
+  }
+  if (dailySourceHealth !== "healthy" && dailyNewPhysicalSources !== 0) {
+    return (
+      `${dailySourceHealth} daily source state requires a zero Central-day physical-source count.`
+    );
+  }
+  return null;
 }
 
 function clean(value) {

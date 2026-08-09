@@ -4,6 +4,10 @@ import path from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 import { maxAutonomousRunnerProcessBudgetMs } from "../scripts/lib/autonomous-ingestion-plan.mjs";
+import {
+  AUTONOMOUS_RUNNER_WALL_CLOCK_BUDGET_MS,
+  AUTONOMOUS_RUNNER_WORKFLOW_HEADROOM_MS
+} from "../scripts/lib/autonomous-ingestion-budget.mjs";
 import { DAILY_BENCHMARK_UTC_CRON_CANDIDATES } from "../scripts/lib/daily-benchmark-schedule.mjs";
 import { INGESTION_UTC_CRON_CANDIDATES } from "../scripts/lib/ingestion-schedule.mjs";
 
@@ -214,6 +218,12 @@ test("workflow step budgets leave setup and scheduling headroom", () => {
     "checkout, setup-node, receipt, and post steps require explicit job-level headroom"
   );
   assert.ok(maxAutonomousRunnerProcessBudgetMs() < runnerTimeout * 60_000);
+  assert.equal(
+    AUTONOMOUS_RUNNER_WALL_CLOCK_BUDGET_MS + AUTONOMOUS_RUNNER_WORKFLOW_HEADROOM_MS,
+    runnerTimeout * 60_000,
+    "the enforced runner deadline must leave explicit cleanup headroom inside the workflow step"
+  );
+  assert.ok(maxAutonomousRunnerProcessBudgetMs() < AUTONOMOUS_RUNNER_WALL_CLOCK_BUDGET_MS);
   assert.ok(
     (installTimeout + validationTimeout) * 60_000 + maxAutonomousRunnerProcessBudgetMs() <
       jobTimeout * 60_000

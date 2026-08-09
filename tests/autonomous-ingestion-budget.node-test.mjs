@@ -2,7 +2,11 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import {
   AutonomousCollectionBudgetExceededError,
-  createAutonomousCollectionBudget
+  AutonomousRunnerBudgetExceededError,
+  AUTONOMOUS_RUNNER_WALL_CLOCK_BUDGET_MS,
+  AUTONOMOUS_RUNNER_WORKFLOW_HEADROOM_MS,
+  createAutonomousCollectionBudget,
+  createAutonomousRunnerBudget
 } from "../scripts/lib/autonomous-ingestion-budget.mjs";
 
 describe("autonomous collection wall-clock budget", () => {
@@ -65,5 +69,37 @@ describe("autonomous collection wall-clock budget", () => {
       now: () => Number.NaN
     });
     assert.throws(() => brokenClock.remainingMs(), /now\(\) must be a finite/);
+  });
+});
+
+describe("autonomous runner wall-clock budget", () => {
+  it("caps all commands at one deadline and leaves workflow cleanup headroom", () => {
+    let currentTime = 20_000;
+    const budget = createAutonomousRunnerBudget({
+      phaseMs: 5_000,
+      startedAt: currentTime,
+      now: () => currentTime
+    });
+
+    assert.equal(budget.timeoutMs(9_000, "publication build"), 5_000);
+    currentTime = 24_750;
+    assert.equal(budget.timeoutMs(30_000, "git show"), 250);
+    currentTime = 25_000;
+    assert.throws(
+      () => budget.timeoutMs(1, "rebase conflict check"),
+      (error) => {
+        assert.ok(error instanceof AutonomousRunnerBudgetExceededError);
+        assert.equal(error.code, "AUTONOMOUS_RUNNER_BUDGET_EXCEEDED");
+        assert.match(error.message, /runner deadline exhausted/);
+        return true;
+      }
+    );
+
+    assert.equal(AUTONOMOUS_RUNNER_WALL_CLOCK_BUDGET_MS, 324 * 60_000);
+    assert.equal(AUTONOMOUS_RUNNER_WORKFLOW_HEADROOM_MS, 6 * 60_000);
+    assert.equal(
+      AUTONOMOUS_RUNNER_WALL_CLOCK_BUDGET_MS + AUTONOMOUS_RUNNER_WORKFLOW_HEADROOM_MS,
+      330 * 60_000
+    );
   });
 });

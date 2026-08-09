@@ -45,7 +45,11 @@ import {
   summarizeIngestionSourceDelta
 } from "./lib/ingestion-source-delta.mjs";
 import { resumeValidatedSnapshotOrRun } from "./lib/autonomous-ingestion-resume.mjs";
-import { createAutonomousCollectionBudget } from "./lib/autonomous-ingestion-budget.mjs";
+import {
+  AUTONOMOUS_RUNNER_WALL_CLOCK_BUDGET_MS,
+  createAutonomousCollectionBudget,
+  createAutonomousRunnerBudget
+} from "./lib/autonomous-ingestion-budget.mjs";
 import { selectPublishedAutonomousIngestionReceipt } from "./lib/autonomous-ingestion-receipt-policy.mjs";
 import { mergeTargetedEvidenceSnapshots } from "./lib/targeted-evidence-merge.mjs";
 import { archiveAcceptedPublicSnapshot } from "./lib/archive-public-ingestion.mjs";
@@ -56,6 +60,10 @@ const args = parseArgs(process.argv.slice(2));
 const idempotencyKey = args.idempotencyKey ?? process.env.INGESTION_IDEMPOTENCY_KEY;
 const workerId = `${process.env.GITHUB_RUN_ID ?? "local"}:${process.pid}:${randomUUID()}`;
 const runStartedAt = new Date();
+const runnerBudget = createAutonomousRunnerBudget({
+  phaseMs: AUTONOMOUS_RUNNER_WALL_CLOCK_BUDGET_MS,
+  startedAt: runStartedAt.getTime()
+});
 const workRoot = join(root, "work", "autonomous-ingestion", safePathSegment(idempotencyKey ?? "missing"));
 const collectorRoot = args.campaignKey
   ? join(root, "work", "autonomous-ingestion-campaigns", safePathSegment(args.campaignKey))
@@ -3000,6 +3008,10 @@ function repositoryArtifactPaths() {
 }
 
 async function refreshMutableYcCatalog() {
+  const timeoutMs = runnerBudget.timeoutMs(
+    AUTONOMOUS_PROCESS_BUDGETS.catalogRefreshMs,
+    "official mutable YC catalog refresh"
+  );
   await new Promise((resolve, reject) => {
     const child = spawn(process.execPath, ["scripts/fetch-yc-spring-2026.mjs"], {
       cwd: root,
@@ -3014,7 +3026,7 @@ async function refreshMutableYcCatalog() {
         AUTONOMOUS_PROCESS_BUDGETS.processKillGraceMs
       );
       killTimer.unref?.();
-    }, AUTONOMOUS_PROCESS_BUDGETS.catalogRefreshMs);
+    }, timeoutMs);
     child.once("error", (error) => {
       clearTimeout(timer);
       if (killTimer) clearTimeout(killTimer);
@@ -3105,14 +3117,18 @@ async function runCommand(command, commandArgs, {
   captureLimit = 40_000
 }) {
   assertLeaseHealthy();
+  // Fail before event I/O when the runner is already exhausted, then recalculate
+  // after that I/O so the child timeout still ends at the absolute deadline.
+  runnerBudget.timeoutMs(timeoutMs, label);
   await event("command.started", "info", `${label} started.`, { command, args: commandArgs });
+  const runnerRemainingMs = runnerBudget.timeoutMs(timeoutMs, label);
   const deadlineRemainingMs = deadlineAt === null
-    ? timeoutMs
+    ? runnerRemainingMs
     : Math.floor(deadlineAt - Date.now());
   if (deadlineRemainingMs <= 0) {
-    throw new Error(`${label} did not start before the autonomous collection deadline.`);
+    throw new Error(`${label} did not start before its phase deadline.`);
   }
-  const effectiveTimeoutMs = Math.min(timeoutMs, deadlineRemainingMs);
+  const effectiveTimeoutMs = Math.min(timeoutMs, runnerRemainingMs, deadlineRemainingMs);
   return new Promise((resolve, reject) => {
     const child = spawn(command, commandArgs, {
       cwd: root,

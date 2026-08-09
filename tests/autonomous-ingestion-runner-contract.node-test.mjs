@@ -430,6 +430,44 @@ describe("autonomous ingestion runner static safety contracts", () => {
     assert.ok(commandRunner.includes("effectiveTimeoutMs"));
   });
 
+  it("enforces one runner deadline across every publication and git subprocess path", () => {
+    assert.ok(runner.includes("createAutonomousRunnerBudget"));
+    assert.ok(runner.includes("AUTONOMOUS_RUNNER_WALL_CLOCK_BUDGET_MS"));
+    assert.ok(runner.includes("startedAt: runStartedAt.getTime()"));
+
+    const commandRunner = section("async function runCommand", "function batchCompanyKey");
+    assert.equal(
+      (commandRunner.match(/runnerBudget\.timeoutMs\(timeoutMs, label\)/g) ?? []).length,
+      2,
+      "commands must check the absolute runner deadline before and after event I/O"
+    );
+    assert.ok(commandRunner.includes("Math.min(timeoutMs, runnerRemainingMs, deadlineRemainingMs)"));
+
+    for (const [start, end] of [
+      ["async function readTextFromGitRef", "function gitRefCaptureLimit"],
+      ["async function buildAndValidatePublication", "async function synchronizePublicationBase"],
+      ["async function synchronizePublicationBase", "async function publishGithubExports"],
+      ["async function publishRepositoryArtifacts", "async function stageRepositoryArtifacts"],
+      ["async function assertNoPublicationConflicts", "async function abortPublicationRebase"],
+      ["async function abortPublicationRebase", "async function completeRun"]
+    ]) {
+      const boundedPath = section(start, end);
+      assert.ok(boundedPath.includes("runCommand("), `${start} must use the globally bounded command runner`);
+      assert.doesNotMatch(boundedPath, /\bspawn\(/);
+    }
+
+    const mutableCatalogRefresh = section(
+      "async function refreshMutableYcCatalog",
+      "function publicationBranch"
+    );
+    assert.ok(mutableCatalogRefresh.includes("runnerBudget.timeoutMs("));
+    assert.ok(
+      mutableCatalogRefresh.indexOf("runnerBudget.timeoutMs(") < mutableCatalogRefresh.indexOf("spawn("),
+      "the catalog child must not spawn before the runner deadline check"
+    );
+    assert.ok(mutableCatalogRefresh.includes("}, timeoutMs)"));
+  });
+
   it("retries exact failure ledgers and accepts exhaustion only after explicit terminal coverage", () => {
     const retry = section("async function runCollectorWithRetries", "function retryableFailuresFromSnapshot");
     const failures = section("function retryableFailuresFromSnapshot", "function successfulCollectorRowCount");
