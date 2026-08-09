@@ -1,5 +1,6 @@
 import { canonicalEvidenceUrl, canonicalPostKey, dedupeEvidenceForScoring } from "./dedupe";
 import {
+  credibleNativePublicationDate,
   isCrediblyPublishedToday,
   isCrediblyPublishedWithinWindow
 } from "./native-publication-date";
@@ -141,7 +142,7 @@ export function compareRankedPostEvidence(left: EvidenceItem, right: EvidenceIte
   return (
     rankedPostScore(right) - rankedPostScore(left) ||
     finiteNumber(right.rawEngagement) - finiteNumber(left.rawEngagement) ||
-    publicationSortValue(right.postedAt) - publicationSortValue(left.postedAt) ||
+    publicationSortValue(right) - publicationSortValue(left) ||
     canonicalEvidenceUrl(left.sourceUrl).localeCompare(canonicalEvidenceUrl(right.sourceUrl)) ||
     left.id.localeCompare(right.id)
   );
@@ -165,14 +166,10 @@ function finiteNumber(value: number | null | undefined): number {
   return typeof value === "number" && Number.isFinite(value) ? value : 0;
 }
 
-function publicationTimestamp(value: string | null | undefined): number | null {
-  if (!value) return null;
-  const timestamp = Date.parse(value);
-  return Number.isFinite(timestamp) ? timestamp : null;
-}
-
-function publicationSortValue(value: string | null | undefined): number {
-  return publicationTimestamp(value) ?? Number.NEGATIVE_INFINITY;
+function publicationSortValue(
+  evidence: Pick<EvidenceItem, "postedAt" | "publishedAtPrecision">
+): number {
+  return credibleNativePublicationDate(evidence)?.timestamp ?? Number.NEGATIVE_INFINITY;
 }
 
 function founderCompanyIndex(companyNodes: GraphNode[]): Map<string, string> {

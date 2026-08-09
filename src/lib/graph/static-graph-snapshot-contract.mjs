@@ -46,6 +46,117 @@ const EVIDENCE_TIMESTAMP_KEYS = [
   "last_checked_at",
   "last_updated_at"
 ];
+const PUBLICATION_PRECISIONS = new Set(["exact", "day", "unknown"]);
+const TRUSTED_OBSERVATION_KEYS = [
+  "first_seen_at",
+  "observedAt",
+  "last_checked_at",
+  "linkCheckedAt",
+  "metricsCheckedAt"
+];
+const EXPLICIT_PUBLICATION_INSTANT =
+  /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$/i;
+const CANONICAL_PUBLICATION_DAY = /^\d{4}-\d{2}-\d{2}$/;
+
+/**
+ * Rejects raw evidence snapshots whose active clocks extend past the snapshot
+ * observation that contains them. This runs before attribution, dedupe, or
+ * scoring so a future timestamp cannot poison graph generation invisibly.
+ */
+export function assertRawEvidenceTemporalPreflight(records, options = {}) {
+  if (!Array.isArray(records)) {
+    throw new Error("Raw evidence temporal preflight requires an evidence array.");
+  }
+
+  const sourceObservedAt = validTemporalTimestamp(options.sourceObservedAt);
+  const sourceLabel = nonEmptyString(options.sourceLabel) ?? "raw evidence";
+  if (!sourceObservedAt) {
+    throw new Error(`${sourceLabel} temporal preflight requires a valid sourceObservedAt timestamp.`);
+  }
+
+  const sourceObservedAtMs = Date.parse(sourceObservedAt);
+  const sourceObservedDay = isoCalendarDay(sourceObservedAt);
+  const issues = [];
+
+  for (const [index, record] of records.entries()) {
+    if (!isRecord(record)) {
+      issues.push(`[${index}] must be an object`);
+      continue;
+    }
+    const identity = nonEmptyString(record.id) ?? `index ${index}`;
+    for (const key of EVIDENCE_TIMESTAMP_KEYS) {
+      const value = record[key];
+      if (value === undefined || value === null || value === "") continue;
+      const timestamp = validTemporalTimestamp(value);
+      if (!timestamp) {
+        issues.push(`${identity}.${key} must be a valid timestamp`);
+        continue;
+      }
+      const laterThanSource =
+        key === "postedAt" && record.publishedAtPrecision === "day"
+          ? publicationCalendarDay(timestamp) > sourceObservedDay
+          : Date.parse(timestamp) > sourceObservedAtMs;
+      if (laterThanSource) {
+        issues.push(`${identity}.${key} must not be later than ${sourceLabel}.sourceObservedAt`);
+      }
+    }
+  }
+
+  if (issues.length > 0) {
+    throw new Error(
+      `${sourceLabel} temporal preflight failed (${issues.length} issue${issues.length === 1 ? "" : "s"}): ` +
+      issues.slice(0, MAX_ISSUES).join("; ")
+    );
+  }
+}
+
+/**
+ * Materializes one evidence row with explicit publication/observation
+ * semantics. Unsupported or post-observation publication claims are retained
+ * as evidence but demoted to an unknown-precision observation fallback. No
+ * score, metric, identity, or attribution field is changed.
+ */
+export function normalizeEvidenceTemporalSemantics(record, options = {}) {
+  if (!isRecord(record)) {
+    throw new Error("Evidence temporal normalization requires an evidence object.");
+  }
+
+  const observation = trustedObservationTimestamp(record, options.sourceObservedAt);
+  if (!observation) {
+    const identity = nonEmptyString(record.id) ?? "unidentified evidence";
+    throw new Error(`${identity} has no trusted observation timestamp.`);
+  }
+
+  const precision = PUBLICATION_PRECISIONS.has(record.publishedAtPrecision)
+    ? record.publishedAtPrecision
+    : "unknown";
+  const publication = validTemporalTimestamp(record.postedAt);
+  const observationMs = Date.parse(observation);
+  const observationDay = isoCalendarDay(observation);
+
+  if (
+    precision === "exact" &&
+    publication &&
+    EXPLICIT_PUBLICATION_INSTANT.test(publication) &&
+    Date.parse(publication) <= observationMs
+  ) {
+    return { ...record, postedAt: publication, publishedAtPrecision: "exact", observedAt: observation };
+  }
+
+  const publicationDay = precision === "day" && publication
+    ? publicationCalendarDay(publication)
+    : null;
+  if (publicationDay && publicationDay <= observationDay) {
+    return { ...record, postedAt: publicationDay, publishedAtPrecision: "day", observedAt: observation };
+  }
+
+  return {
+    ...record,
+    postedAt: observation,
+    publishedAtPrecision: "unknown",
+    observedAt: observation
+  };
+}
 
 export function validateStaticGraphSnapshotContract(value, options = {}) {
   const issues = [];
@@ -705,6 +816,7 @@ function validateEvidence(evidence, context, addIssue) {
         latestMessage: "must not be later than generatedAt"
       });
     }
+    validateEvidencePublicationSemantics(item, path, addIssue);
     if (context.audienceId && context.audienceId !== "off") {
       if (!isRecord(item.topVoice) || item.topVoice.audienceId !== context.audienceId) {
         addIssue(`${path}.topVoice.audienceId`, `must be ${context.audienceId}`);
@@ -792,6 +904,38 @@ function validateEvidenceSocialAccountLineage(item, path, accountsById, addIssue
       `${path}.socialAccountId`,
       `must reference an account on platform ${String(item.platform)}`
     );
+  }
+}
+
+function validateEvidencePublicationSemantics(item, path, addIssue) {
+  if (!PUBLICATION_PRECISIONS.has(item.publishedAtPrecision)) {
+    addIssue(`${path}.publishedAtPrecision`, "must be exact, day, or unknown");
+    return;
+  }
+  if (item.publishedAtPrecision === "unknown") return;
+
+  const observation = trustedObservationTimestamp(item);
+  if (!observation) return;
+
+  if (item.publishedAtPrecision === "exact") {
+    const publication = validTemporalTimestamp(item.postedAt);
+    if (!publication || !EXPLICIT_PUBLICATION_INSTANT.test(publication)) {
+      addIssue(`${path}.postedAt`, "must be an explicit timezone-qualified instant for exact precision");
+      return;
+    }
+    if (Date.parse(publication) > Date.parse(observation)) {
+      addIssue(`${path}.postedAt`, "must not be later than the trusted observation timestamp");
+    }
+    return;
+  }
+
+  const publicationDay = publicationCalendarDay(item.postedAt);
+  if (!publicationDay) {
+    addIssue(`${path}.postedAt`, "must contain a valid calendar date for day precision");
+    return;
+  }
+  if (publicationDay > isoCalendarDay(observation)) {
+    addIssue(`${path}.postedAt`, "calendar date must not be later than the trusted observation date");
   }
 }
 
@@ -1615,6 +1759,35 @@ function validateEvidenceTimestamp(value, path, addIssue, { latestTime = null, l
     addIssue(path, latestMessage || "is later than allowed");
   }
   return time;
+}
+
+function trustedObservationTimestamp(record, sourceObservedAt) {
+  for (const key of TRUSTED_OBSERVATION_KEYS) {
+    const timestamp = validTemporalTimestamp(record[key]);
+    if (timestamp) return timestamp;
+  }
+  return validTemporalTimestamp(sourceObservedAt);
+}
+
+function validTemporalTimestamp(value) {
+  if (typeof value !== "string" || !value.trim()) return null;
+  const timestamp = Date.parse(value);
+  return Number.isFinite(timestamp) ? value : null;
+}
+
+function publicationCalendarDay(value) {
+  const timestamp = validTemporalTimestamp(value);
+  if (!timestamp) return null;
+  if (CANONICAL_PUBLICATION_DAY.test(timestamp)) {
+    const parsed = new Date(`${timestamp}T00:00:00.000Z`);
+    return parsed.toISOString().slice(0, 10) === timestamp ? timestamp : null;
+  }
+  return isoCalendarDay(timestamp);
+}
+
+function isoCalendarDay(value) {
+  const timestamp = Date.parse(value);
+  return Number.isFinite(timestamp) ? new Date(timestamp).toISOString().slice(0, 10) : null;
 }
 
 function validDateTime(value) {

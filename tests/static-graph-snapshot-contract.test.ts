@@ -2,7 +2,9 @@ import { describe, expect, it } from "vitest";
 import { buildGraphResponse } from "@/lib/graph/graph-builder";
 import { sanitizeGraphResponse } from "@/lib/graph/response-sanitizer";
 import {
+  assertRawEvidenceTemporalPreflight,
   formatStaticGraphSnapshotContractIssue,
+  normalizeEvidenceTemporalSemantics,
   validateStaticGraphSnapshotContract
 } from "@/lib/graph/static-graph-snapshot-contract.mjs";
 import { yc2026GraphDataset } from "@/lib/graph/yc-spring-2026-dataset";
@@ -48,6 +50,126 @@ describe("canonical v4 static graph snapshot contract", () => {
         maxFutureSkewMs: 0
       })
     ).toEqual({ ok: true, issues: [] });
+  });
+
+  it("fails the raw-corpus preflight on active timestamps after the source observation", () => {
+    expect(() => assertRawEvidenceTemporalPreflight([
+      {
+        id: "future-row",
+        postedAt: "2026-07-16T05:00:00.000Z",
+        publishedAtPrecision: "exact",
+        first_seen_at: "2026-07-16T05:00:00.000Z",
+        last_updated_at: "2026-07-16T05:00:01.000Z"
+      }
+    ], {
+      sourceObservedAt: "2026-07-16T05:00:00.000Z",
+      sourceLabel: "fixture evidence"
+    })).toThrow(/future-row\.last_updated_at must not be later than fixture evidence\.sourceObservedAt/);
+  });
+
+  it("demotes post-observation claims without deleting evidence or changing points", () => {
+    const exact = normalizeEvidenceTemporalSemantics({
+      id: "future-exact",
+      postedAt: "2026-07-16T05:00:01.000Z",
+      publishedAtPrecision: "exact",
+      first_seen_at: "2026-07-16T05:00:00.000Z",
+      contributionScore: 37
+    }, { sourceObservedAt: "2026-07-16T06:00:00.000Z" });
+    const day = normalizeEvidenceTemporalSemantics({
+      id: "future-day",
+      postedAt: "2026-07-17T00:00:00.000Z",
+      publishedAtPrecision: "day",
+      first_seen_at: "2026-07-16T23:59:59.000Z",
+      contributionScore: 19
+    }, { sourceObservedAt: "2026-07-18T00:00:00.000Z" });
+
+    expect(exact).toMatchObject({
+      id: "future-exact",
+      postedAt: "2026-07-16T05:00:00.000Z",
+      publishedAtPrecision: "unknown",
+      observedAt: "2026-07-16T05:00:00.000Z",
+      contributionScore: 37
+    });
+    expect(day).toMatchObject({
+      id: "future-day",
+      postedAt: "2026-07-16T23:59:59.000Z",
+      publishedAtPrecision: "unknown",
+      observedAt: "2026-07-16T23:59:59.000Z",
+      contributionScore: 19
+    });
+  });
+
+  it("uses a row observation—not a later snapshot refresh—for unknown publication time", () => {
+    expect(normalizeEvidenceTemporalSemantics({
+      id: "unknown-publication",
+      postedAt: "2026-07-16T06:00:00.000Z",
+      publishedAtPrecision: "unknown",
+      first_seen_at: "2026-07-15T04:00:00.000Z"
+    }, { sourceObservedAt: "2026-07-16T06:00:00.000Z" })).toMatchObject({
+      postedAt: "2026-07-15T04:00:00.000Z",
+      publishedAtPrecision: "unknown",
+      observedAt: "2026-07-15T04:00:00.000Z"
+    });
+  });
+
+  it("keeps valid exact and day publication claims while canonicalizing day precision", () => {
+    expect(normalizeEvidenceTemporalSemantics({
+      id: "valid-exact",
+      postedAt: "2026-07-15T04:00:00.000Z",
+      publishedAtPrecision: "exact",
+      first_seen_at: "2026-07-16T05:00:00.000Z"
+    })).toMatchObject({
+      postedAt: "2026-07-15T04:00:00.000Z",
+      publishedAtPrecision: "exact"
+    });
+    expect(normalizeEvidenceTemporalSemantics({
+      id: "valid-day",
+      postedAt: "2026-07-15T00:00:00.000Z",
+      publishedAtPrecision: "day",
+      first_seen_at: "2026-07-16T05:00:00.000Z"
+    })).toMatchObject({
+      postedAt: "2026-07-15",
+      publishedAtPrecision: "day"
+    });
+  });
+
+  it("rejects exact and day publication claims after their trusted observation", () => {
+    const exactGraph = validSnapshot();
+    Object.assign(exactGraph.evidence[0]!, {
+      postedAt: "2026-07-16T05:00:00.000Z",
+      observedAt: "2026-07-16T04:59:59.999Z"
+    });
+    const exactResult = validateStaticGraphSnapshotContract(exactGraph, {
+      now: VALIDATION_NOW,
+      maxFutureSkewMs: 0
+    });
+    expect(exactResult.ok).toBe(false);
+    if (!exactResult.ok) {
+      expect(exactResult.issues).toContainEqual({
+        path: "evidence[0].postedAt",
+        message: "must not be later than the trusted observation timestamp"
+      });
+    }
+
+    const dayGraph = validSnapshot();
+    Object.assign(dayGraph.evidence[0]!, {
+      postedAt: "2026-07-17",
+      publishedAtPrecision: "day",
+      observedAt: "2026-07-16T23:59:59.999Z"
+    });
+    dayGraph.generatedAt = "2026-07-17T01:00:00.000Z";
+    dayGraph.scoringContext.responseBuiltAt = dayGraph.generatedAt;
+    const dayResult = validateStaticGraphSnapshotContract(dayGraph, {
+      now: new Date("2026-07-18T00:00:00.000Z"),
+      maxFutureSkewMs: 0
+    });
+    expect(dayResult.ok).toBe(false);
+    if (!dayResult.ok) {
+      expect(dayResult.issues).toContainEqual({
+        path: "evidence[0].postedAt",
+        message: "calendar date must not be later than the trusted observation date"
+      });
+    }
   });
 
   it.each(MISMATCHED_PLATFORM_WEIGHT_CASES)(

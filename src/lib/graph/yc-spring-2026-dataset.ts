@@ -47,6 +47,10 @@ import {
   reconcileLegacySummerEvidenceEntity,
   reconcileLegacySummerGithubAccount
 } from "./summer-company-rename-reconciliation";
+import {
+  assertRawEvidenceTemporalPreflight,
+  normalizeEvidenceTemporalSemantics
+} from "./static-graph-snapshot-contract.mjs";
 
 interface RawSnapshot {
   source: {
@@ -373,6 +377,22 @@ const publicSnapshot = publicEvidenceSnapshot as PublicEvidenceSnapshot;
 const loggedInSnapshot = loggedInEvidenceSnapshot as PublicEvidenceSnapshot;
 const targetedSnapshot = targetedEvidenceSnapshot as PublicEvidenceSnapshot;
 const volumeSnapshot = volumeEvidenceSnapshot as PublicEvidenceSnapshot;
+assertRawEvidenceTemporalPreflight(publicSnapshot.evidence, {
+  sourceObservedAt: publicSnapshot.source.fetchedAt,
+  sourceLabel: "public evidence"
+});
+assertRawEvidenceTemporalPreflight(loggedInSnapshot.evidence, {
+  sourceObservedAt: loggedInSnapshot.source.fetchedAt,
+  sourceLabel: "logged-in evidence"
+});
+assertRawEvidenceTemporalPreflight(targetedSnapshot.evidence, {
+  sourceObservedAt: targetedSnapshot.source.fetchedAt,
+  sourceLabel: "targeted evidence"
+});
+assertRawEvidenceTemporalPreflight(volumeSnapshot.evidence, {
+  sourceObservedAt: volumeSnapshot.source.fetchedAt,
+  sourceLabel: "volume evidence"
+});
 const verifiedSocialOverrides = verifiedSocialOverridesJson as Record<string, VerifiedSocialOverride>;
 const companyIdByEntityId = buildCompanyIdByEntityId([
   ...snapshot.companies,
@@ -426,6 +446,7 @@ const rawGithubEvidenceItems = githubSnapshot.accounts
   .map((item) => applyAttributionGuard(item, attributionContext));
 const unresolvedAllEvidenceItems = normalizeEvidenceScores(
   canonicalizeBatchEvidence(dedupeBatchEvidence([...rawGithubEvidenceItems, ...rawPublicEvidenceItems]))
+    .map((item) => normalizeEvidenceTemporalSemantics(item))
 );
 const officialSocialLinkCounts = countOfficialSocialLinks(snapshot.companies);
 const summerEvidenceCounts = countEvidenceByPlatform(unresolvedAllEvidenceItems);
@@ -620,6 +641,7 @@ function buildSpring2026GraphDataset(): DemoGraphDataset {
     .map((item) => applyAttributionGuard(item, springAttributionContext));
   const unresolvedSpringEvidenceItems = normalizeEvidenceScores(
     canonicalizeBatchEvidence(dedupeBatchEvidence([...springGithubEvidenceItems, ...springPublicEvidenceItems]))
+      .map((item) => normalizeEvidenceTemporalSemantics(item))
   );
   const springEvidenceByEntityId = groupEvidenceByEntity(unresolvedSpringEvidenceItems);
   const springCompanies = calibrateBatchCompanyScores(

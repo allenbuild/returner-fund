@@ -12,6 +12,10 @@ import {
 } from "./dedupe";
 import { enrichEvidenceThumbnail } from "./evidence-thumbnails";
 import { aggregateBalancedTractionScore, normalizeEvidenceScores } from "./traction-scoring";
+import {
+  assertRawEvidenceTemporalPreflight,
+  normalizeEvidenceTemporalSemantics
+} from "./static-graph-snapshot-contract.mjs";
 import type {
   BusinessModel,
   CompanyRecord,
@@ -914,6 +918,22 @@ const publicSnapshot = publicEvidenceSnapshot as unknown as PublicEvidenceSnapsh
 const loggedInSnapshot = loggedInEvidenceSnapshot as unknown as PublicEvidenceSnapshot;
 const targetedSnapshot = targetedEvidenceSnapshot as unknown as PublicEvidenceSnapshot;
 const volumeSnapshot = volumeEvidenceSnapshot as unknown as PublicEvidenceSnapshot;
+assertRawEvidenceTemporalPreflight(publicSnapshot.evidence, {
+  sourceObservedAt: publicSnapshot.source.fetchedAt,
+  sourceLabel: "public evidence"
+});
+assertRawEvidenceTemporalPreflight(loggedInSnapshot.evidence, {
+  sourceObservedAt: loggedInSnapshot.source.fetchedAt,
+  sourceLabel: "logged-in evidence"
+});
+assertRawEvidenceTemporalPreflight(targetedSnapshot.evidence, {
+  sourceObservedAt: targetedSnapshot.source.fetchedAt,
+  sourceLabel: "targeted evidence"
+});
+assertRawEvidenceTemporalPreflight(volumeSnapshot.evidence, {
+  sourceObservedAt: volumeSnapshot.source.fetchedAt,
+  sourceLabel: "volume evidence"
+});
 const seededSocialSnapshot = seededSocialEvidenceSnapshot as unknown as SeededSocialEvidenceSnapshot;
 const seededAttributionReconciliation =
   seededAttributionReconciliationSnapshot as SeededAttributionReconciliationSnapshot;
@@ -1121,6 +1141,7 @@ function buildSpeedrunEvidenceItems(): A16zSpeedrun006EvidenceItem[] {
   return normalizeEvidenceScores(
     dedupeEvidenceItems([...legacyEvidence, ...netNewSupplementalEvidence])
       .filter(isAllowedSpeedrunEvidenceItem)
+      .map((item) => normalizeEvidenceTemporalSemantics(item))
       .map(enrichEvidenceThumbnail)
   );
 }

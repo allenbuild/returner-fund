@@ -109,6 +109,30 @@ describe("ranked posts", () => {
     ]);
   });
 
+  it("never lets an unknown observation fallback outrank a genuine publication date", () => {
+    const ranked = selectRankedPosts(graph([
+      evidence({
+        id: "unknown-newer-observation",
+        postedAt: "2026-07-20T11:59:59.000Z",
+        publishedAtPrecision: "unknown",
+        sourceUrl: "https://x.com/c/status/621",
+        platformPostId: "621"
+      }),
+      evidence({
+        id: "genuine-older-publication",
+        postedAt: "2026-07-01T12:00:00.000Z",
+        publishedAtPrecision: "exact",
+        sourceUrl: "https://x.com/c/status/622",
+        platformPostId: "622"
+      })
+    ]), { period: "all_time" });
+
+    expect(ranked.map((item) => item.evidence.id)).toEqual([
+      "genuine-older-publication",
+      "unknown-newer-observation"
+    ]);
+  });
+
   it("uses the America/Chicago publication day on both sides of midnight", () => {
     const now = new Date("2026-07-20T12:00:00.000Z");
     const ranked = selectRankedPosts(graph([

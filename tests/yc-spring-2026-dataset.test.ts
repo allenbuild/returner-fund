@@ -21,8 +21,13 @@ const targetedEvidenceSnapshot = JSON.parse(
   readFileSync(join(process.cwd(), "src/lib/social/targeted-evidence-current.json"), "utf8")
 ) as {
   evidence: Array<{
+    id: string;
     sourceUrl: string;
     postedAt?: string | null;
+    publishedAtPrecision?: string | null;
+    first_seen_at?: string | null;
+    last_checked_at?: string | null;
+    contributionScore?: number;
     rawVisibleText: string;
   }>;
 };
@@ -237,6 +242,21 @@ describe("YC Summer 2026 official snapshot", () => {
     );
     expect(materializedRelativeX).toEqual(expect.objectContaining({
       platform: "x",
+      publishedAtPrecision: "unknown"
+    }));
+  });
+
+  it("demotes a post-observation raw claim to a row-level observation fallback", () => {
+    const source = targetedEvidenceSnapshot.evidence.find(
+      (item) => item.id === "product_hunt-all_batches_nonx_nonlinkedin_sol_ultra-s2026-company-cignara-nalin-gupta1-products-cignara"
+    );
+    const evidence = ycSpring2026GraphDataset.evidence.find((item) => item.id === source?.id);
+
+    expect(source).toBeDefined();
+    expect(Date.parse(source?.postedAt ?? "")).toBeGreaterThan(Date.parse(source?.first_seen_at ?? ""));
+    expect(evidence).toEqual(expect.objectContaining({
+      postedAt: source?.first_seen_at,
+      observedAt: source?.first_seen_at,
       publishedAtPrecision: "unknown"
     }));
   });

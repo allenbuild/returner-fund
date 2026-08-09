@@ -1789,7 +1789,8 @@ describe("a16z speedrun 006 dataset", () => {
         expect.objectContaining({
           sourceUrl: repositoryCase.sourceUrl,
           platformPostId: repositoryCase.platformPostId,
-          postedAt: sourceSeed?.postedAt,
+          postedAt: seededSocialEvidenceSnapshot.source.generatedAt,
+          observedAt: seededSocialEvidenceSnapshot.source.generatedAt,
           publishedAtPrecision: "unknown",
           last_updated_at: sourceSeed?.postedAt,
           mediaType: "repo",
@@ -1839,6 +1840,18 @@ describe("a16z speedrun 006 dataset", () => {
     expect(simula?.platformScores.github).toBeGreaterThan(0);
     expect(simula?.scoreBreakdown?.absoluteScore).toBeGreaterThan(0);
     expect(simula?.score).toBeGreaterThan(0);
+  });
+
+  it("uses explicit observation fallbacks for every unknown A16Z publication", () => {
+    const unknownPublicationRows = a16zSpeedrun006GraphDataset.evidence.filter(
+      (item) => item.publishedAtPrecision === "unknown"
+    );
+
+    expect(unknownPublicationRows.length).toBeGreaterThan(0);
+    for (const item of unknownPublicationRows) {
+      expect(item.observedAt, item.id).toBeTruthy();
+      expect(item.postedAt, item.id).toBe(item.observedAt);
+    }
   });
 
   it("uses GitHub repository creation—not later activity or collection—as publication time", () => {

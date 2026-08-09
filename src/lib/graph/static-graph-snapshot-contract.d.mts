@@ -16,6 +16,28 @@ export interface StaticGraphSnapshotContractOptions {
   maxFutureSkewMs?: number;
 }
 
+export interface RawEvidenceTemporalPreflightOptions {
+  sourceObservedAt: string;
+  sourceLabel?: string;
+}
+
+export interface EvidenceTemporalNormalizationOptions {
+  sourceObservedAt?: string;
+}
+
+export function assertRawEvidenceTemporalPreflight<T extends object>(
+  records: readonly T[],
+  options: RawEvidenceTemporalPreflightOptions
+): void;
+export function normalizeEvidenceTemporalSemantics<T extends object>(
+  record: T,
+  options?: EvidenceTemporalNormalizationOptions
+): T & {
+  postedAt: string;
+  publishedAtPrecision: "exact" | "day" | "unknown";
+  observedAt: string;
+};
+
 export function validateStaticGraphSnapshotContract(
   value: unknown,
   options?: StaticGraphSnapshotContractOptions
