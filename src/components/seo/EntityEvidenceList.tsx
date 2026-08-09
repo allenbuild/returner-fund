@@ -21,39 +21,43 @@ export function EntityEvidenceList({ evidence }: { evidence: EvidenceItem[] }) {
 
   return (
     <ol className="entity-evidence-list">
-      {evidence.map((item) => (
-        <li key={item.id} className="entity-evidence-item">
-          <div className="entity-evidence-heading">
-            <span className="platform-badge">{platformNames[item.platform] ?? item.platform}</span>
-            <time dateTime={item.postedAt}>{formatDate(item.postedAt)}</time>
-          </div>
-          <h3>{item.title?.trim() || evidenceTitle(item)}</h3>
-          {item.text.trim() ? <p>{shorten(item.text, 280)}</p> : null}
-          <div className="entity-evidence-footer">
-            <dl aria-label="Public engagement metrics">
-              {topMetrics(item).map(([label, value]) => (
-                <div key={label}>
-                  <dt>{label}</dt>
-                  <dd>{compactNumber(value)}</dd>
+      {evidence.map((item) => {
+        const body = stringValue(item.text);
+        const postedAt = stringValue(item.postedAt);
+        return (
+          <li key={item.id} className="entity-evidence-item">
+            <div className="entity-evidence-heading">
+              <span className="platform-badge">{platformNames[item.platform] ?? item.platform}</span>
+              <time dateTime={postedAt || undefined}>{formatDate(postedAt)}</time>
+            </div>
+            <h3>{stringValue(item.title) || evidenceTitle(item)}</h3>
+            {body ? <p>{shorten(body, 280)}</p> : null}
+            <div className="entity-evidence-footer">
+              <dl aria-label="Public engagement metrics">
+                {topMetrics(item).map(([label, value]) => (
+                  <div key={label}>
+                    <dt>{label}</dt>
+                    <dd>{compactNumber(value)}</dd>
+                  </div>
+                ))}
+                <div>
+                  <dt>Signal score</dt>
+                  <dd>{Number.isFinite(item.contributionScore) ? Math.round(item.contributionScore) : 0}</dd>
                 </div>
-              ))}
-              <div>
-                <dt>Signal score</dt>
-                <dd>{Math.round(item.contributionScore)}</dd>
-              </div>
-            </dl>
-            <a href={item.sourceUrl} target="_blank" rel="nofollow noopener noreferrer">
-              View source
-            </a>
-          </div>
-        </li>
-      ))}
+              </dl>
+              <a href={item.sourceUrl} target="_blank" rel="nofollow noopener noreferrer">
+                View source
+              </a>
+            </div>
+          </li>
+        );
+      })}
     </ol>
   );
 }
 
 function evidenceTitle(item: EvidenceItem): string {
-  const author = item.authorName.trim() || item.authorHandle?.trim();
+  const author = stringValue(item.authorName) || stringValue(item.authorHandle);
   return author ? `${platformNames[item.platform] ?? item.platform} signal from ${author}` : "Public traction signal";
 }
 
@@ -73,11 +77,15 @@ function shorten(value: string, maxLength: number): string {
 }
 
 function topMetrics(item: EvidenceItem): [string, number][] {
-  return Object.entries(item.metrics)
+  return Object.entries(item.metrics ?? {})
     .filter((entry): entry is [string, number] => typeof entry[1] === "number" && entry[1] > 0)
     .sort((left, right) => right[1] - left[1])
     .slice(0, 3)
     .map(([key, value]) => [metricLabel(key), value]);
+}
+
+function stringValue(value: unknown): string {
+  return typeof value === "string" ? value.trim() : "";
 }
 
 function metricLabel(value: string): string {
