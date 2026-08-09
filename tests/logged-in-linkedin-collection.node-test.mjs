@@ -1,5 +1,8 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
+import { mkdtemp, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { describe, it } from "node:test";
 import {
   withOpenCliBrowserSession
@@ -7,6 +10,7 @@ import {
 import {
   LINKEDIN_MINIMUM_INTERACTION_DELAY_MS,
   LINKEDIN_MINIMUM_TARGET_DELAY_MS,
+  createLinkedInInteractionPacer,
   linkedinAdapterSupportsAccountUrl,
   linkedinCircuitDecision,
   linkedinCircuitStateTransition,
@@ -19,7 +23,8 @@ import {
   linkedinSafetySignal,
   mergeOwnedLinkedInPosts,
   prioritizeLinkedInTargets,
-  runLinkedInSerialLane
+  runLinkedInSerialLane,
+  withLinkedInAccountLock
 } from "../scripts/lib/logged-in-linkedin-collection.mjs";
 
 const collectorSource = readFileSync(
@@ -143,6 +148,62 @@ describe("logged-in LinkedIn collection", () => {
     });
   });
 
+  it("paces every browser interaction with a process-level fail-closed delay", async () => {
+    let clock = 1_000;
+    const sleeps = [];
+    const pacer = createLinkedInInteractionPacer({
+      minimumDelayMs: 500,
+      now: () => clock,
+      sleep: async (ms) => {
+        sleeps.push(ms);
+        clock += ms;
+      }
+    });
+
+    await pacer.beforeInteraction();
+    pacer.afterInteraction();
+    await pacer.beforeInteraction();
+    pacer.afterInteraction();
+
+    assert.equal(pacer.delayMs, 3_000);
+    assert.deepEqual(sleeps, [3_000]);
+    assert.match(collectorSource, /createLinkedInInteractionPacer\(\{ sleep: delay \}\)/);
+    assert.match(collectorSource, /finally \{\s+interactionPacer\.afterInteraction\(\)/);
+  });
+
+  it("refuses overlapping authenticated collectors with an account-global lock", async () => {
+    const directory = await mkdtemp(join(tmpdir(), "returner-linkedin-lock-test-"));
+    const lockPath = join(directory, "linkedin.lock");
+    let releaseFirst;
+    let firstAcquired;
+    const acquired = new Promise((resolve) => {
+      firstAcquired = resolve;
+    });
+    const hold = new Promise((resolve) => {
+      releaseFirst = resolve;
+    });
+
+    try {
+      const first = withLinkedInAccountLock(async () => {
+        firstAcquired();
+        await hold;
+      }, { lockPath });
+      await acquired;
+
+      await assert.rejects(
+        withLinkedInAccountLock(async () => undefined, { lockPath }),
+        /another authenticated collector already holds the account lock/
+      );
+
+      releaseFirst();
+      await first;
+      await withLinkedInAccountLock(async () => undefined, { lockPath });
+    } finally {
+      releaseFirst?.();
+      await rm(directory, { recursive: true, force: true });
+    }
+  });
+
   it("stops the serial lane immediately and leaves later targets untouched", async () => {
     let circuitOpen = false;
     const calls = [];
@@ -202,14 +263,15 @@ describe("logged-in LinkedIn collection", () => {
       null
     );
     assert.match(collectorSource, /await probeSafety\(\);/);
-    assert.match(collectorSource, /assertLinkedInSafetyClear\(raw, "adapter response"\)/);
+    assert.doesNotMatch(collectorSource, /fetchLinkedInPostsFromAdapter/);
+    assert.match(collectorSource, /stringArg\("--linkedin-mode"\) \?\? "browser"/);
     assert.match(
       collectorSource,
       /if \(linkedinFailureRequiresImmediateAbort\(failureKind\)\) \{\s+return linkedinFailedCollection/
     );
   });
 
-  it("uses the adapter only for supported personal profile URLs", () => {
+  it("recognizes legacy adapter-compatible personal profile URLs without invoking the adapter", () => {
     assert.equal(
       linkedinAdapterSupportsAccountUrl("https://www.linkedin.com/in/founder/"),
       true

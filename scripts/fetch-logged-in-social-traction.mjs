@@ -5,8 +5,7 @@ import {
   linkedinPostIdFromUrl
 } from "./lib/social-native-identity.mjs";
 import {
-  LINKEDIN_MINIMUM_INTERACTION_DELAY_MS,
-  linkedinAdapterSupportsAccountUrl,
+  createLinkedInInteractionPacer,
   linkedinCircuitStateTransition,
   linkedinCollectionAttemptState,
   linkedinExecutionPolicy,
@@ -15,7 +14,8 @@ import {
   linkedinSafetySignal,
   mergeOwnedLinkedInPosts,
   prioritizeLinkedInTargets,
-  runLinkedInSerialLane
+  runLinkedInSerialLane,
+  withLinkedInAccountLock
 } from "./lib/logged-in-linkedin-collection.mjs";
 import { readRequiredCanonicalJson } from "./lib/canonical-json.mjs";
 import { finalizeLoggedInEvidenceContent } from "./lib/logged-in-evidence-content-dedupe.mjs";
@@ -126,7 +126,7 @@ const finalizeOnly = booleanArg("--finalize-only");
 const retryEmpty = booleanArg("--retry-empty");
 const allowLinkedIn = platformFilter.has("linkedin") && booleanArg("--allow-linkedin");
 const linkedinCollectionMode = resolveLinkedInCollectionMode(
-  stringArg("--linkedin-mode") ?? "hybrid"
+  stringArg("--linkedin-mode") ?? "browser"
 );
 const linkedinExecution = linkedinExecutionPolicy({
   requestedWorkers: workers,
@@ -454,11 +454,15 @@ await runWorkerPool(otherTargets, workers, async (target, workerIndex) => {
   await delay(delayMs);
 });
 
-await runLinkedInSerialLane(linkedinTargets, collectTarget, {
-  delayMs: linkedinExecution.delayMs,
-  sleep: delay,
-  shouldAbort: () => linkedinCircuitOpen
-});
+if (linkedinTargets.length > 0) {
+  await withLinkedInAccountLock(() =>
+    runLinkedInSerialLane(linkedinTargets, collectTarget, {
+      delayMs: linkedinExecution.delayMs,
+      sleep: delay,
+      shouldAbort: () => linkedinCircuitOpen
+    })
+  );
+}
 
 if (xCircuitOpen) {
   console.warn(
@@ -499,8 +503,8 @@ const payload = {
       "No likes, follows, comments, messages, saves, stars, subscriptions, profile edits, or other mutations are performed.",
       "Instagram profile grids and X profile timelines are treated as opt-in authenticated/read-only sources when explicitly targeted.",
       `X ingestion mode: ${xCollectionMode}. Browser, adapter, and hybrid modes are read-only; hybrid prefers the authenticated adapter and uses the DOM only to fill incomplete results.`,
-      `LinkedIn ingestion mode: ${linkedinCollectionMode}. Personal /in/ profiles may use the authenticated adapter; company /company/ pages always retain DOM collection support.`,
-      `Logged-in LinkedIn activity scraping is disabled unless both --platforms=linkedin and --allow-linkedin are passed. It always uses one serial worker with at least ${linkedinExecution.delayMs}ms between targets.`,
+      `LinkedIn ingestion mode: ${linkedinCollectionMode}. Authenticated browser DOM collection is the only supported mode so interaction pacing remains locally auditable.`,
+      `Logged-in LinkedIn activity scraping is disabled unless both --platforms=linkedin and --allow-linkedin are passed. It uses one account-global locked serial worker with at least ${linkedinExecution.delayMs}ms between targets.`,
       "LinkedIn challenge, checkpoint, account-warning, authentication, and HTTP 429 signals abort the LinkedIn lane immediately so untouched targets remain retryable.",
       "Instagram login, challenge, and rate-limit failures open a circuit immediately; repeated command or profile failures open it after three consecutive failed targets. Legitimate empty native timelines remain completed empty checks.",
       `Checkpoint owner-collision reconciliation: ${ownerCollisionReconciliationSummary.reattributedCount} stale company rows reattributed, ${ownerCollisionReconciliationSummary.quarantinedCount} quarantined.`,
@@ -946,54 +950,12 @@ async function fetchLinkedInPosts(target, workerIndex) {
     };
   }
 
-  const adapterSupported = linkedinAdapterSupportsAccountUrl(target.url);
   const postGroups = [];
   const sourceFailures = [];
   let attemptedSourceCount = 0;
   let completedSourceCount = 0;
 
-  if (
-    adapterSupported &&
-    (linkedinCollectionMode === "adapter" || linkedinCollectionMode === "hybrid")
-  ) {
-    attemptedSourceCount += 1;
-    try {
-      const adapterPosts = await fetchLinkedInPostsFromAdapter(target);
-      postGroups.push(adapterPosts);
-      const attributableAdapterPosts = mergeOwnedLinkedInPosts(
-        [adapterPosts],
-        {
-          accountUrl: target.url,
-          targetName: target.name,
-          limit: postLimit
-        }
-      );
-      if (!adapterPosts.length || attributableAdapterPosts.length) {
-        completedSourceCount += 1;
-      }
-    } catch (error) {
-      const message = errorMessage(error);
-      const failureKind = linkedinFailureKind(message);
-      if (failureKind === "empty") {
-        completedSourceCount += 1;
-      } else {
-        sourceFailures.push(
-          failure(target, `LinkedIn adapter failed: ${message}`, target.url)
-        );
-        if (linkedinFailureRequiresImmediateAbort(failureKind)) {
-          return linkedinFailedCollection(sourceFailures);
-        }
-      }
-    }
-  }
-
-  // OpenCLI's LinkedIn adapter only accepts /in/ profiles. Keep the DOM path
-  // for every /company/ page even when adapter mode is requested.
-  if (
-    linkedinCollectionMode === "browser" ||
-    linkedinCollectionMode === "hybrid" ||
-    !adapterSupported
-  ) {
+  if (linkedinCollectionMode === "browser") {
     attemptedSourceCount += 1;
     try {
       const browserPosts = await fetchLinkedInPostsFromBrowser(
@@ -1093,28 +1055,6 @@ async function fetchLinkedInPosts(target, workerIndex) {
   };
 }
 
-async function fetchLinkedInPostsFromAdapter(target) {
-  const raw = await runOpenCli(
-    [
-      "linkedin",
-      "posts",
-      "--profile-url",
-      target.url,
-      "--limit",
-      String(postLimit),
-      "-f",
-      "json",
-      "--site-session",
-      "ephemeral",
-      "--keep-tab",
-      "false"
-    ],
-    { timeoutMs: Math.min(perTargetTimeoutMs, 45_000) }
-  );
-  assertLinkedInSafetyClear(raw, "adapter response");
-  return parseJsonOutput(raw);
-}
-
 async function fetchLinkedInPostsFromBrowser(target, workerIndex, activityUrl) {
   const session =
     `yc-li-${workerIndex}-${slugify(target.entityId || target.name)}-${Date.now()}`;
@@ -1122,7 +1062,9 @@ async function fetchLinkedInPostsFromBrowser(target, workerIndex, activityUrl) {
     session,
     runOpenCli,
     operation: async () => {
+      const interactionPacer = createLinkedInInteractionPacer({ sleep: delay });
       const interact = async (args, options, { optional = false, label } = {}) => {
+        await interactionPacer.beforeInteraction();
         try {
           const raw = await runOpenCli(args, options);
           assertLinkedInSafetyClear(raw, label ?? args.slice(2).join(" "));
@@ -1132,6 +1074,8 @@ async function fetchLinkedInPostsFromBrowser(target, workerIndex, activityUrl) {
             throw error;
           }
           return null;
+        } finally {
+          interactionPacer.afterInteraction();
         }
       };
       const probeSafety = () =>
@@ -1157,17 +1101,6 @@ async function fetchLinkedInPostsFromBrowser(target, workerIndex, activityUrl) {
           ["browser", session, "scroll", "down", "--amount", "1200"],
           { timeoutMs: 12_000 },
           { optional: true, label: "browser scroll" }
-        );
-        await interact(
-          [
-            "browser",
-            session,
-            "wait",
-            "time",
-            String(Math.ceil(LINKEDIN_MINIMUM_INTERACTION_DELAY_MS / 1000))
-          ],
-          { timeoutMs: 8_000 },
-          { optional: true, label: "browser interaction wait" }
         );
         await probeSafety();
       }
@@ -2289,7 +2222,7 @@ function usage() {
     "  --timeout-ms=N",
     "  --delay-ms=N              LinkedIn enforces a 30000ms minimum between targets",
     "  --allow-linkedin",
-    "  --linkedin-mode=browser|adapter|hybrid",
+    "  --linkedin-mode=browser   Authenticated DOM mode; adapter modes are disabled for auditable pacing",
     "  --x-mode=browser|adapter|hybrid",
     "  --allow-x-adapter-fallback",
     "  --include-retweets",
@@ -2314,9 +2247,9 @@ function resolveXCollectionMode(value) {
 
 function resolveLinkedInCollectionMode(value) {
   const mode = String(value ?? "").trim().toLowerCase();
-  if (["browser", "adapter", "hybrid"].includes(mode)) return mode;
+  if (mode === "browser") return mode;
   throw new Error(
-    `Unsupported --linkedin-mode=${value}. Supported modes: browser, adapter, hybrid.`
+    `Unsupported --linkedin-mode=${value}. Only browser mode is supported so pacing remains auditable.`
   );
 }
 

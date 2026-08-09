@@ -1,3 +1,7 @@
+import { randomUUID } from "node:crypto";
+import { open, readFile, unlink } from "node:fs/promises";
+import { join } from "node:path";
+import { tmpdir } from "node:os";
 import {
   linkedinAccountSlugFromUrl,
   linkedinNativeAuthorSlugFromUrl,
@@ -6,6 +10,59 @@ import {
 
 export const LINKEDIN_MINIMUM_TARGET_DELAY_MS = 30_000;
 export const LINKEDIN_MINIMUM_INTERACTION_DELAY_MS = 3_000;
+export const LINKEDIN_ACCOUNT_LOCK_PATH = join(
+  tmpdir(),
+  "returner-fund-linkedin-account-collector.lock"
+);
+
+export function createLinkedInInteractionPacer({
+  minimumDelayMs = LINKEDIN_MINIMUM_INTERACTION_DELAY_MS,
+  sleep = defaultSleep,
+  now = Date.now
+} = {}) {
+  if (typeof sleep !== "function" || typeof now !== "function") {
+    throw new TypeError("LinkedIn interaction pacing hooks must be functions.");
+  }
+  const delayMs = Math.max(
+    LINKEDIN_MINIMUM_INTERACTION_DELAY_MS,
+    finiteNonnegativeInteger(minimumDelayMs)
+  );
+  let nextAllowedAt = null;
+
+  return {
+    delayMs,
+    async beforeInteraction() {
+      const currentTime = finiteClockValue(now());
+      if (nextAllowedAt !== null && currentTime < nextAllowedAt) {
+        await sleep(nextAllowedAt - currentTime);
+      }
+    },
+    afterInteraction() {
+      nextAllowedAt = finiteClockValue(now()) + delayMs;
+    }
+  };
+}
+
+export async function withLinkedInAccountLock(
+  operation,
+  { lockPath = LINKEDIN_ACCOUNT_LOCK_PATH } = {}
+) {
+  if (typeof operation !== "function") {
+    throw new TypeError("LinkedIn account lock requires an operation function.");
+  }
+
+  const token = randomUUID();
+  const handle = await acquireLinkedInAccountLock(lockPath, token);
+  try {
+    return await operation();
+  } finally {
+    await handle.close().catch(() => undefined);
+    const current = await readLinkedInLock(lockPath);
+    if (current?.token === token) {
+      await unlink(lockPath).catch(() => undefined);
+    }
+  }
+}
 
 export function linkedinExecutionPolicy({
   requestedWorkers = 1,
@@ -19,6 +76,63 @@ export function linkedinExecutionPolicy({
       finiteNonnegativeInteger(requestedDelayMs)
     )
   };
+}
+
+async function acquireLinkedInAccountLock(lockPath, token, allowStaleRetry = true) {
+  let handle = null;
+  try {
+    handle = await open(lockPath, "wx", 0o600);
+    try {
+      await handle.writeFile(JSON.stringify({
+        pid: process.pid,
+        token,
+        acquiredAt: new Date().toISOString()
+      }));
+    } catch (error) {
+      await handle.close().catch(() => undefined);
+      await unlink(lockPath).catch(() => undefined);
+      throw error;
+    }
+    return handle;
+  } catch (error) {
+    if (error?.code !== "EEXIST") throw error;
+    const holder = await readLinkedInLock(lockPath);
+    if (allowStaleRetry && holder && !processIsAlive(holder.pid)) {
+      await unlink(lockPath).catch(() => undefined);
+      return acquireLinkedInAccountLock(lockPath, token, false);
+    }
+    throw new Error(
+      "LinkedIn collection refused: another authenticated collector already holds the account lock."
+    );
+  }
+}
+
+async function readLinkedInLock(lockPath) {
+  try {
+    const value = JSON.parse(await readFile(lockPath, "utf8"));
+    return value && Number.isInteger(value.pid) && typeof value.token === "string"
+      ? value
+      : null;
+  } catch {
+    return null;
+  }
+}
+
+function processIsAlive(pid) {
+  if (!Number.isInteger(pid) || pid <= 0) return true;
+  try {
+    process.kill(pid, 0);
+    return true;
+  } catch (error) {
+    return error?.code !== "ESRCH";
+  }
+}
+
+function finiteClockValue(value) {
+  if (!Number.isFinite(value)) {
+    throw new TypeError("LinkedIn interaction pacing clock must return a finite number.");
+  }
+  return value;
 }
 
 export async function runLinkedInSerialLane(
