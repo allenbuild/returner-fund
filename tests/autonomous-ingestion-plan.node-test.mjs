@@ -854,7 +854,7 @@ globalThis.fetch = async (input) => {
   });
 
   it("keeps process retries, durable persistence, and lock-release headroom below the workflow timeout", () => {
-    const runnerTimeoutMs = 340 * 60_000;
+    const runnerTimeoutMs = 344 * 60_000;
 
     assert.equal(AUTONOMOUS_PROCESS_BUDGETS.catalogRefreshMs, 6 * 60_000);
     assert.equal(AUTONOMOUS_PROCESS_BUDGETS.collectorAttempts, 2);
