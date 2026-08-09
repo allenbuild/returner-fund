@@ -1,14 +1,20 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { applyStoredBenchmarkMomentum } from "@/lib/graph/benchmarks";
 import { applyClientGraphFilters } from "@/lib/graph/client-filters";
 import type { GraphResponse } from "@/lib/graph/types";
 
+const benchmarkMocks = vi.hoisted(() => ({
+  applyStoredBenchmarkMomentum: vi.fn()
+}));
 const readRuntimeGraphSnapshotFile = vi.fn<(filename: string) => Promise<string>>();
 const authenticateInsiderRequest = vi.fn(async () => null);
 const loadUserInsiderConfiguration = vi.fn();
 
+vi.mock("@/lib/graph/benchmarks", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@/lib/graph/benchmarks")>()),
+  applyStoredBenchmarkMomentum: benchmarkMocks.applyStoredBenchmarkMomentum
+}));
 vi.mock("@/lib/graph/runtime-graph-snapshot-file", () => ({
   readRuntimeGraphSnapshotFile
 }));
@@ -34,16 +40,19 @@ const snapshotBodies = new Map(
     )
   ])
 );
-const BENCHMARK_REPLAY = exactModelBenchmarkReplay(
-  JSON.parse(snapshotBodies.get("s26.json")!) as GraphResponse
-);
+const FIXED_ROUTE_NOW = new Date("2031-04-15T12:00:00.000Z");
+const FIXED_DOD_BENCHMARKED_AT = "2031-04-14T12:00:00.000Z";
+const FIXED_WOW_BENCHMARKED_AT = "2031-04-08T12:00:00.000Z";
 
 describe("GET /api/graph published snapshot runtime", () => {
   beforeEach(async () => {
     vi.resetModules();
     vi.clearAllMocks();
     vi.useFakeTimers();
-    vi.setSystemTime(BENCHMARK_REPLAY.now);
+    vi.setSystemTime(FIXED_ROUTE_NOW);
+    benchmarkMocks.applyStoredBenchmarkMomentum.mockImplementation(
+      (graph: GraphResponse) => fixedBenchmarkHydration(graph)
+    );
     readRuntimeGraphSnapshotFile.mockImplementation(async (filename) => {
       const body = snapshotBodies.get(filename);
       if (!body) {
@@ -60,21 +69,18 @@ describe("GET /api/graph published snapshot runtime", () => {
     vi.unstubAllEnvs();
   });
 
-  it("rehydrates today's exact-model DoD baseline without changing the published graph", async () => {
+  it("hydrates benchmark momentum without changing the published graph", async () => {
     const published = snapshot("s26.json");
-    const publishedScreenpipe = momentumRow(published, "company-screenpipe");
-    const expectedScreenpipe = momentumRow(
-      applyStoredBenchmarkMomentum(published, { now: BENCHMARK_REPLAY.now }),
-      "company-screenpipe"
-    );
-    expect(publishedScreenpipe.dod.baselineScore).toBeNull();
-    expect(expectedScreenpipe.dod.baselineScore).not.toBeNull();
-    expect(expectedScreenpipe.dod.benchmarkedAt).toBe(BENCHMARK_REPLAY.recordedAt);
+    const companyId = published.fastestGaining[0]?.companyId;
+    expect(companyId).toBeDefined();
+    const publishedRow = momentumRow(published, companyId!);
+    const expectedRow = momentumRow(fixedBenchmarkHydration(published), companyId!);
+    expect(publishedRow.dod.baselineScore).toBeNull();
 
     const { GET } = await import("@/app/api/graph/route");
     const response = await GET(new Request("http://localhost/api/graph?batch=S26"));
     const graph = await response.json() as GraphResponse;
-    const screenpipe = momentumRow(graph, "company-screenpipe");
+    const hydratedRow = momentumRow(graph, companyId!);
 
     expect(response.status).toBe(200);
     expect(response.headers.get("cache-control")).toBe("no-store, max-age=0");
@@ -82,6 +88,11 @@ describe("GET /api/graph published snapshot runtime", () => {
     expect(response.headers.get("x-graph-source")).toBe("published_snapshot");
     expect(readRuntimeGraphSnapshotFile).toHaveBeenCalledOnce();
     expect(readRuntimeGraphSnapshotFile).toHaveBeenCalledWith("s26.json");
+    expect(benchmarkMocks.applyStoredBenchmarkMomentum).toHaveBeenCalledOnce();
+    expect(benchmarkMocks.applyStoredBenchmarkMomentum).toHaveBeenCalledWith(
+      expect.objectContaining({ fastestGaining: published.fastestGaining }),
+      { now: FIXED_ROUTE_NOW }
+    );
     expect(graph.generatedAt).toBe(published.generatedAt);
     expect(graph.scoringContext).toEqual(published.scoringContext);
     expect(graph.nodes).toEqual(published.nodes);
@@ -94,16 +105,15 @@ describe("GET /api/graph published snapshot runtime", () => {
       JSON.stringify(item) === JSON.stringify(publishedEvidence.get(item.id))
     )).toBe(true);
     expect(graph.leaderboard).toEqual(published.leaderboard);
-    expect(screenpipe.dod).toEqual(expectedScreenpipe.dod);
-    expect(screenpipe.dod.benchmarkedAt).not.toBeNull();
-    expect(screenpipe.wow).toEqual(expectedScreenpipe.wow);
+    expect(hydratedRow.dod).toEqual(expectedRow.dod);
+    expect(hydratedRow.dod.benchmarkedAt).toBe(FIXED_DOD_BENCHMARKED_AT);
+    expect(hydratedRow.wow).toEqual(expectedRow.wow);
+    expect(hydratedRow.wow.benchmarkedAt).toBe(FIXED_WOW_BENCHMARKED_AT);
   }, 30_000);
 
   it("applies canonical display filters after benchmark hydration", async () => {
     const published = snapshot("s26-yc-partners.json");
-    const benchmarked = applyStoredBenchmarkMomentum(published, {
-      now: BENCHMARK_REPLAY.now
-    });
+    const benchmarked = fixedBenchmarkHydration(published);
     const expected = applyClientGraphFilters(benchmarked, {
       platforms: ["x"],
       industries: [],
@@ -118,9 +128,20 @@ describe("GET /api/graph published snapshot runtime", () => {
 
     expect(response.status).toBe(200);
     expect(readRuntimeGraphSnapshotFile).toHaveBeenCalledWith("s26-yc-partners.json");
+    expect(benchmarkMocks.applyStoredBenchmarkMomentum).toHaveBeenCalledOnce();
+    const [hydrationInput, hydrationOptions] = benchmarkMocks.applyStoredBenchmarkMomentum.mock.calls[0] as [
+      GraphResponse,
+      { now: Date }
+    ];
+    expect(canonicalProjection(hydrationInput)).toEqual(canonicalProjection(published));
+    expect(hydrationOptions).toEqual({ now: FIXED_ROUTE_NOW });
     expect(graph.selectedTopVoiceAudience.id).toBe("yc_partners");
     expect(canonicalProjection(graph)).toEqual(canonicalProjection(expected));
     expect(graph.nodes.every((node) => node.entityType !== "company" || node.score >= 60)).toBe(true);
+    expect(graph.fastestGaining.every((row) =>
+      row.dod.benchmarkedAt === FIXED_DOD_BENCHMARKED_AT &&
+      row.wow.benchmarkedAt === FIXED_WOW_BENCHMARKED_AT
+    )).toBe(true);
   }, 30_000);
 
   it.each([
@@ -275,42 +296,6 @@ function snapshot(filename: string): GraphResponse {
   return JSON.parse(snapshotBodies.get(filename)!) as GraphResponse;
 }
 
-function exactModelBenchmarkReplay(graph: GraphResponse) {
-  const store = JSON.parse(readFileSync(
-    join(process.cwd(), "outputs", "benchmarks", `${graph.batch.slug.toLowerCase()}-score-benchmarks.json`),
-    "utf8"
-  )) as {
-    daily?: Array<{ recordedAt?: string; scoringModelVersion?: string }>;
-  };
-  const modelVersion = graph.scoringContext?.modelVersion;
-  const latest = (store.daily ?? [])
-    .filter((snapshot) =>
-      snapshot.scoringModelVersion === modelVersion &&
-      typeof snapshot.recordedAt === "string" &&
-      Number.isFinite(Date.parse(snapshot.recordedAt))
-    )
-    .sort((left, right) => Date.parse(right.recordedAt!) - Date.parse(left.recordedAt!))[0];
-  if (!latest?.recordedAt) {
-    throw new Error(`Missing exact-model benchmark fixture for ${graph.batch.slug}@${modelVersion ?? "unknown"}.`);
-  }
-
-  const centralDateParts = new Intl.DateTimeFormat("en-US", {
-    timeZone: "America/Chicago",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit"
-  }).formatToParts(new Date(latest.recordedAt));
-  const part = (type: Intl.DateTimeFormatPartTypes) =>
-    Number(centralDateParts.find((candidate) => candidate.type === type)?.value);
-
-  // Noon-ish Central on the following calendar day makes the selected DoD
-  // baseline deterministic even when the committed history has skipped days.
-  return {
-    recordedAt: latest.recordedAt,
-    now: new Date(Date.UTC(part("year"), part("month") - 1, part("day") + 1, 18))
-  };
-}
-
 function neutralizePublishedMomentum(raw: string): string {
   const graph = JSON.parse(raw) as GraphResponse;
   graph.fastestGaining = graph.fastestGaining
@@ -326,6 +311,45 @@ function neutralizePublishedMomentum(raw: string): string {
     )
     .map((row, index) => ({ ...row, rank: index + 1 }));
   return JSON.stringify(graph);
+}
+
+function fixedBenchmarkHydration(graph: GraphResponse): GraphResponse {
+  return {
+    ...graph,
+    fastestGaining: graph.fastestGaining.map((row) => ({
+      ...row,
+      dod: syntheticMomentum(row.dod.currentScore, row.dod.currentRank, {
+        scoreDelta: 2,
+        rankDelta: 1,
+        benchmarkedAt: FIXED_DOD_BENCHMARKED_AT
+      }),
+      wow: syntheticMomentum(row.wow.currentScore, row.wow.currentRank, {
+        scoreDelta: 5,
+        rankDelta: 3,
+        benchmarkedAt: FIXED_WOW_BENCHMARKED_AT
+      })
+    }))
+  };
+}
+
+function syntheticMomentum(
+  currentScore: number,
+  currentRank: number,
+  fixture: { scoreDelta: number; rankDelta: number; benchmarkedAt: string }
+) {
+  const baselineScore = Math.max(0, currentScore - fixture.scoreDelta);
+  return {
+    scoreDelta: currentScore - baselineScore,
+    percentDelta: baselineScore > 0
+      ? ((currentScore - baselineScore) / baselineScore) * 100
+      : 0,
+    rankDelta: fixture.rankDelta,
+    currentScore,
+    currentRank,
+    baselineScore,
+    baselineRank: currentRank + fixture.rankDelta,
+    benchmarkedAt: fixture.benchmarkedAt
+  };
 }
 
 function neutralDelta(currentScore: number, currentRank: number) {
