@@ -5,8 +5,8 @@
     "slug": "keyframe-labs",
     "name": "Keyframe Labs"
   },
-  "generatedAt": "2026-08-09T11:35:33.164Z",
-  "lastModifiedAt": "2026-08-09T11:35:33.164Z",
+  "generatedAt": "2026-08-09T12:09:17.709Z",
+  "lastModifiedAt": "2026-08-09T12:09:17.709Z",
   "events": [
     {
       "id": "tle-76697c166af471af2b1b0543",
@@ -75,7 +75,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 2,
-    "lastSuccessfulArtifactAt": "2026-08-09T11:35:33.164Z"
+    "lastSuccessfulArtifactAt": "2026-08-09T12:09:17.709Z"
   },
   "nextCursor": null
 }
