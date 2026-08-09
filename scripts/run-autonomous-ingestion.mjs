@@ -48,6 +48,7 @@ import { resumeValidatedSnapshotOrRun } from "./lib/autonomous-ingestion-resume.
 import {
   AUTONOMOUS_RUNNER_WALL_CLOCK_BUDGET_MS,
   createAutonomousCollectionBudget,
+  createAutonomousCollectionDrainBudget,
   createAutonomousRunnerBudget
 } from "./lib/autonomous-ingestion-budget.mjs";
 import { selectPublishedAutonomousIngestionReceipt } from "./lib/autonomous-ingestion-receipt-policy.mjs";
@@ -186,6 +187,7 @@ let heartbeatTimer = null;
 let hardFailure = null;
 let heartbeatFailure = null;
 let collectionBudget = null;
+let collectionDrainBudget = null;
 
 try {
   if (durableStorageConfigured) {
@@ -255,6 +257,11 @@ try {
     if (!args.skipNetwork) {
       collectionBudget = createAutonomousCollectionBudget({
         phaseMs: AUTONOMOUS_PROCESS_BUDGETS.collectionPhaseMs
+      });
+      collectionDrainBudget = createAutonomousCollectionDrainBudget({
+        collectionDeadlineAt: collectionBudget.deadlineAt,
+        drainHeadroomMs: AUTONOMOUS_PROCESS_BUDGETS.collectionDeadlineDrainHeadroomMs,
+        runnerDeadlineAt: runnerBudget.deadlineAt
       });
     }
     const [collectionResults, topVoiceRefresh] = args.skipNetwork
@@ -1731,11 +1738,11 @@ async function runPublicCollectorWithCheckpointRecovery({
       { batchSlug, shardIndex, shardCount, outputPath, checkpointPath }
     );
     return runCommand(process.execPath, [...args, "--max-companies=0"], {
-      timeoutMs: boundedCollectionTimeoutMs(
+      timeoutMs: boundedCollectionDrainTimeoutMs(
         AUTONOMOUS_PROCESS_BUDGETS.collectorCheckpointFlushMs,
         `public ${batchSlug} shard ${shardIndex + 1}/${shardCount} checkpoint flush`
       ),
-      deadlineAt: collectionBudget.deadlineAt,
+      deadlineAt: collectionDrainBudget.deadlineAt,
       label: `public ${batchSlug} shard ${shardIndex + 1}/${shardCount} checkpoint flush`
     });
   }
@@ -3415,6 +3422,13 @@ function boundedCollectionDelayMs(requestedMs, label) {
     throw new Error(`Collection budget is unavailable before ${label}.`);
   }
   return collectionBudget.delayMs(requestedMs, label);
+}
+
+function boundedCollectionDrainTimeoutMs(requestedMs, label) {
+  if (!collectionDrainBudget) {
+    throw new Error(`Collection drain budget is unavailable before ${label}.`);
+  }
+  return collectionDrainBudget.timeoutMs(requestedMs, label);
 }
 
 function tail(value, limit) {

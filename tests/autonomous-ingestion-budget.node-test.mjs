@@ -2,10 +2,12 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import {
   AutonomousCollectionBudgetExceededError,
+  AutonomousCollectionDrainBudgetExceededError,
   AutonomousRunnerBudgetExceededError,
   AUTONOMOUS_RUNNER_WALL_CLOCK_BUDGET_MS,
   AUTONOMOUS_RUNNER_WORKFLOW_HEADROOM_MS,
   createAutonomousCollectionBudget,
+  createAutonomousCollectionDrainBudget,
   createAutonomousRunnerBudget
 } from "../scripts/lib/autonomous-ingestion-budget.mjs";
 
@@ -23,6 +25,51 @@ describe("autonomous collection wall-clock budget", () => {
     currentTime = 8_500;
     assert.equal(budget.remainingMs(), 2_500);
     assert.equal(budget.timeoutMs(20_000, "queued shard"), 2_500);
+  });
+
+  it("successfully flushes within bounded drain headroom after the collection deadline expires", async () => {
+    let currentTime = 1_000;
+    const collectionBudget = createAutonomousCollectionBudget({
+      phaseMs: 2_000,
+      startedAt: currentTime,
+      now: () => currentTime
+    });
+    const runnerBudget = createAutonomousRunnerBudget({
+      phaseMs: 3_500,
+      startedAt: currentTime,
+      now: () => currentTime
+    });
+    const drainBudget = createAutonomousCollectionDrainBudget({
+      collectionDeadlineAt: collectionBudget.deadlineAt,
+      drainHeadroomMs: 5_000,
+      runnerDeadlineAt: runnerBudget.deadlineAt,
+      now: () => currentTime
+    });
+
+    currentTime = collectionBudget.deadlineAt + 100;
+    assert.throws(
+      () => collectionBudget.timeoutMs(1, "expired collector"),
+      /collection phase exhausted/
+    );
+    assert.equal(drainBudget.deadlineAt, runnerBudget.deadlineAt);
+    assert.equal(drainBudget.timeoutMs(2_000, "checkpoint flush"), 1_400);
+
+    const flushResult = await runBoundedFlush(
+      drainBudget.timeoutMs(2_000, "checkpoint flush"),
+      async () => "checkpoint-flushed"
+    );
+    assert.equal(flushResult, "checkpoint-flushed");
+
+    currentTime = runnerBudget.deadlineAt;
+    assert.throws(
+      () => drainBudget.timeoutMs(1, "late checkpoint flush"),
+      (error) => {
+        assert.ok(error instanceof AutonomousCollectionDrainBudgetExceededError);
+        assert.equal(error.code, "AUTONOMOUS_COLLECTION_DRAIN_BUDGET_EXCEEDED");
+        assert.equal(error.deadlineAt, runnerBudget.deadlineAt);
+        return true;
+      }
+    );
   });
 
   it("refuses a queued command or retry delay that would cross the deadline", () => {
@@ -71,6 +118,20 @@ describe("autonomous collection wall-clock budget", () => {
     assert.throws(() => brokenClock.remainingMs(), /now\(\) must be a finite/);
   });
 });
+
+async function runBoundedFlush(timeoutMs, flush) {
+  let timer;
+  try {
+    return await Promise.race([
+      flush(),
+      new Promise((_, reject) => {
+        timer = setTimeout(() => reject(new Error("checkpoint flush timed out")), timeoutMs);
+      })
+    ]);
+  } finally {
+    if (timer) clearTimeout(timer);
+  }
+}
 
 describe("autonomous runner wall-clock budget", () => {
   it("caps all commands at one deadline and leaves workflow cleanup headroom", () => {

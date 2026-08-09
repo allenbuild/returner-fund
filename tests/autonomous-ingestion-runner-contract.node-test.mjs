@@ -682,6 +682,18 @@ describe("autonomous ingestion runner static safety contracts", () => {
     assert.ok(collectorRunner.includes("collector.timeout_checkpoint_flush"));
     assert.ok(collectorRunner.includes('"--max-companies=0"'));
     assert.ok(collectorRunner.includes("AUTONOMOUS_PROCESS_BUDGETS.collectorCheckpointFlushMs"));
+    assert.ok(collectorRunner.includes("boundedCollectionDrainTimeoutMs("));
+    assert.ok(collectorRunner.includes("deadlineAt: collectionDrainBudget.deadlineAt"));
+    assert.equal(
+      (collectorRunner.match(/deadlineAt: collectionBudget\.deadlineAt/g) ?? []).length,
+      1,
+      "only the collector attempt may use the collection deadline; checkpoint flushes use drain headroom"
+    );
+    assert.ok(runner.includes("createAutonomousCollectionDrainBudget"));
+    assert.ok(runner.includes(
+      "drainHeadroomMs: AUTONOMOUS_PROCESS_BUDGETS.collectionDeadlineDrainHeadroomMs"
+    ));
+    assert.ok(runner.includes("runnerDeadlineAt: runnerBudget.deadlineAt"));
     assert.match(runner, /`--x-workers=\$\{PUBLIC_SOCIAL_LANE_CONCURRENCY\}`/);
   });
 

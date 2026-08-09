@@ -13,6 +13,21 @@ export class AutonomousCollectionBudgetExceededError extends Error {
   }
 }
 
+export class AutonomousCollectionDrainBudgetExceededError extends Error {
+  constructor(label, { requestedMs, remainingMs, deadlineAt }) {
+    super(
+      `Autonomous collection drain deadline exhausted before ${label}: ` +
+      `requested ${requestedMs}ms with ${remainingMs}ms remaining ` +
+      `(deadline ${new Date(deadlineAt).toISOString()}).`
+    );
+    this.name = "AutonomousCollectionDrainBudgetExceededError";
+    this.code = "AUTONOMOUS_COLLECTION_DRAIN_BUDGET_EXCEEDED";
+    this.requestedMs = requestedMs;
+    this.remainingMs = remainingMs;
+    this.deadlineAt = deadlineAt;
+  }
+}
+
 export class AutonomousRunnerBudgetExceededError extends Error {
   constructor(label, { requestedMs, remainingMs, deadlineAt }) {
     super(
@@ -66,6 +81,28 @@ export function createAutonomousCollectionBudget({
   });
 }
 
+export function createAutonomousCollectionDrainBudget({
+  collectionDeadlineAt,
+  drainHeadroomMs,
+  runnerDeadlineAt,
+  now = Date.now
+}) {
+  assertFiniteTimestamp(collectionDeadlineAt, "collectionDeadlineAt");
+  assertNonNegativeMilliseconds(drainHeadroomMs, "drainHeadroomMs");
+  assertFiniteTimestamp(runnerDeadlineAt, "runnerDeadlineAt");
+  const requestedDeadlineAt = collectionDeadlineAt + drainHeadroomMs;
+  assertFiniteTimestamp(requestedDeadlineAt, "collectionDeadlineAt + drainHeadroomMs");
+
+  return createAbsoluteDeadlineBudget({
+    startedAt: collectionDeadlineAt,
+    deadlineAt: Math.min(requestedDeadlineAt, runnerDeadlineAt),
+    now,
+    defaultTimeoutLabel: "collector checkpoint flush",
+    defaultDelayLabel: "collector checkpoint drain delay",
+    BudgetExceededError: AutonomousCollectionDrainBudgetExceededError
+  });
+}
+
 function createWallClockBudget({
   phaseMs,
   startedAt,
@@ -79,6 +116,29 @@ function createWallClockBudget({
   if (typeof now !== "function") throw new TypeError("now must be a function.");
 
   const deadlineAt = startedAt + phaseMs;
+  assertFiniteTimestamp(deadlineAt, "startedAt + phaseMs");
+  return createAbsoluteDeadlineBudget({
+    startedAt,
+    deadlineAt,
+    now,
+    defaultTimeoutLabel,
+    defaultDelayLabel,
+    BudgetExceededError
+  });
+}
+
+function createAbsoluteDeadlineBudget({
+  startedAt,
+  deadlineAt,
+  now,
+  defaultTimeoutLabel,
+  defaultDelayLabel,
+  BudgetExceededError
+}) {
+  assertFiniteTimestamp(startedAt, "startedAt");
+  assertFiniteTimestamp(deadlineAt, "deadlineAt");
+  if (typeof now !== "function") throw new TypeError("now must be a function.");
+
   const remainingMs = () => Math.max(0, Math.floor(deadlineAt - currentTime(now)));
 
   return Object.freeze({
