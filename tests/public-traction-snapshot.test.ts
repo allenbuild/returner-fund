@@ -16,6 +16,18 @@ interface PublicEvidenceRow {
   matchReason?: string;
   companySlug?: string;
   platformPostId?: string | null;
+  postedAt?: string | null;
+  publishedAtPrecision?: string;
+  linkStatus?: string;
+  attributionStatus?: string;
+  attributionSignals?: string[];
+  _recoveryProvenance?: {
+    schemaVersion?: number;
+    officialHost?: string;
+    officialWebsiteUrl?: string;
+    contentSha256?: string;
+    zeroEngagementAccepted?: boolean;
+  };
 }
 
 interface PublicReviewRow {
@@ -163,7 +175,7 @@ describe("public traction snapshot", () => {
     expect(conflictingUrls).toEqual([]);
   });
 
-  it("quarantines web and RSS context instead of publishing it as traction evidence", () => {
+  it("publishes only verified first-party web and RSS context without scoring it", () => {
     const publishedContext = publicEvidence.evidence.filter(
       (item) => item.platform === "web" || item.platform === "rss"
     );
@@ -171,7 +183,36 @@ describe("public traction snapshot", () => {
       (item) => item.platform === "web" || item.platform === "rss"
     );
 
-    expect(publishedContext).toEqual([]);
+    expect(publishedContext.length).toBeGreaterThan(0);
+    expect(new Set(publishedContext.map((item) => item.sourceUrl)).size).toBe(
+      publishedContext.length
+    );
+    for (const item of publishedContext) {
+      const source = new URL(item.sourceUrl);
+      expect(item.review_state).toBe("verified");
+      expect(item.linkStatus).toBe("verified");
+      expect(item.attributionStatus).toBe("verified");
+      expect(item.contributionScore).toBe(0);
+      expect(Object.values(item.metrics).every((value) => Number(value ?? 0) === 0)).toBe(true);
+      expect(item.platformPostId).toBe(item.sourceUrl);
+      expect(item.postedAt).toEqual(expect.any(String));
+      expect(["exact", "day", "unknown"]).toContain(item.publishedAtPrecision);
+      expect(item._recoveryProvenance).toMatchObject({
+        schemaVersion: 1,
+        officialHost: source.hostname.replace(/^www\./, ""),
+        zeroEngagementAccepted: true
+      });
+      expect(item._recoveryProvenance?.contentSha256).toMatch(/^[a-f0-9]{64}$/);
+      expect(item.attributionSignals).toEqual(expect.arrayContaining([
+        "current_cohort_owner",
+        "exact_current_official_domain",
+        "stable_authored_item_url"
+      ]));
+      expect(item.attributionSignals?.some((signal) => [
+        "title_text_date_provenance",
+        "publication_date_observation_fallback"
+      ].includes(signal))).toBe(true);
+    }
     expect(quarantinedContext.length).toBeGreaterThan(0);
     expect(quarantinedContext.every((item) => item.review_state === "needs_review")).toBe(true);
     expect(

@@ -5,14 +5,14 @@
     "slug": "flowscope",
     "name": "flowscope"
   },
-  "generatedAt": "2026-08-09T16:13:15.624Z",
-  "lastModifiedAt": "2026-08-09T16:13:15.624Z",
+  "generatedAt": "2026-08-09T17:55:00.387Z",
+  "lastModifiedAt": "2026-08-09T17:55:00.387Z",
   "events": [],
   "groups": [],
   "coverage": {
     "status": "partial",
     "publishedEventCount": 0,
-    "lastSuccessfulArtifactAt": "2026-08-09T16:13:15.624Z"
+    "lastSuccessfulArtifactAt": "2026-08-09T17:55:00.387Z"
   },
   "nextCursor": null
 }

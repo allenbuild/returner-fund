@@ -840,7 +840,7 @@ function promotionEvidence(candidate, decision) {
       },
       owner: publicOwner(owner)
     },
-    rawVisibleText: {
+    rawVisibleText: stableStringify({
       source: YOUTUBE_NATIVE_RECOVERY_SCHEMA_VERSION,
       videoId: candidate.videoId,
       oembed: {
@@ -859,7 +859,7 @@ function promotionEvidence(candidate, decision) {
       metricsReceipt: zeroEngagement
         ? "no_positive_public_metrics_observed_zero_engagement_explicitly_permitted"
         : "preserved_nonnegative_public_metrics_from_existing_candidate"
-    },
+    }, 2),
     _youtubeNativeRecovery: {
       schemaVersion: YOUTUBE_NATIVE_RECOVERY_SCHEMA_VERSION,
       physicalKey: candidate.physicalKey,

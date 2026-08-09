@@ -200,6 +200,8 @@ test("validates anonymous official X oEmbed identity and materializes a verified
   assert.equal(promoted.sourceUrl, "https://x.com/aliceexample/status/123456789");
   assert.equal(promoted.platformPostId, "123456789");
   assert.equal(promoted.nativeAuthorResolution.owner.entityId, owner.entityId);
+  assert.equal(promoted.text, "Hello");
+  assert.match(promoted.rawVisibleText, /twitter-tweet/);
   assert.ok(promoted.attributionSignals.includes("official_x_oembed_author_match"));
 });
 

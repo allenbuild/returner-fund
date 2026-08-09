@@ -115,6 +115,7 @@ function recoveredX(id, overrides = {}) {
     sourceUrl: `https://x.com/example/status/${id}`,
     platformPostId: id,
     text: "A verified native post",
+    rawVisibleText: '<blockquote class="twitter-tweet"><p>A verified native post</p></blockquote>',
     review_state: "verified",
     linkStatus: "verified",
     attributionStatus: "verified",
@@ -134,7 +135,9 @@ function recoveredX(id, overrides = {}) {
       validation: {
         kind: "official_x_oembed",
         author: "example",
-        returnedUrl: `https://x.com/example/status/${id}`
+        returnedUrl: `https://x.com/example/status/${id}`,
+        text: "A verified native post",
+        rawVisibleText: '<blockquote class="twitter-tweet"><p>A verified native post</p></blockquote>'
       }
     },
     ...overrides

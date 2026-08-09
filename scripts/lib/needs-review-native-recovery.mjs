@@ -215,12 +215,27 @@ export function buildPromotionEvidence(candidate, validation) {
     : applyResolvedNativeAuthor(candidate.row, candidate.ownership);
   const extractedText = validation?.receipt?.text;
   const checkedAt = validation?.checkedAt ?? null;
+  const rawVisibleText = serializeRawVisibleText(
+    resolved.rawVisibleText,
+    validation?.receipt?.rawVisibleText,
+    extractedText,
+    {
+      recovery: NEEDS_REVIEW_NATIVE_RECOVERY_VERSION,
+      physicalKey: candidate.physicalKey,
+      sourceUrl: candidate.native.sourceUrl,
+      validation: validation?.receipt ?? null
+    }
+  );
   const row = {
     ...resolved,
     sourceEvidenceId: resolved.sourceEvidenceId ?? resolved.id ?? null,
     sourceUrl: candidate.native.sourceUrl,
     platformPostId: candidate.native.postId,
     ...(extractedText ? { text: extractedText } : {}),
+    ...(extractedText && !resolved.title
+      ? { title: extractedText.slice(0, 300) }
+      : {}),
+    rawVisibleText,
     review_state: "verified",
     linkStatus: "verified",
     ...(checkedAt ? { linkCheckedAt: checkedAt, last_checked_at: checkedAt } : {}),
@@ -331,12 +346,14 @@ function validateXOembed(candidate, payload) {
   const returned = canonicalNativePost({ platform: "x", sourceUrl: payload?.url });
   const returnedAuthor = xAccountIdentity(payload?.author_url);
   const expectedAuthor = candidate.ownership?.author?.key;
+  const rawVisibleText = String(payload?.html ?? "").trim();
+  const text = visibleTextFromOembedHtml(rawVisibleText);
   const reasons = [];
   if (returned?.physicalKey !== candidate.physicalKey) reasons.push("x_oembed_post_id_mismatch");
   if (!expectedAuthor || returnedAuthor !== expectedAuthor) {
     reasons.push("x_oembed_author_identity_mismatch");
   }
-  if (!String(payload?.html ?? "").includes("twitter-tweet")) {
+  if (!rawVisibleText.includes("twitter-tweet") || !text) {
     reasons.push("x_oembed_post_body_missing");
   }
   return {
@@ -346,7 +363,9 @@ function validateXOembed(candidate, payload) {
       ? {
           kind: "official_x_oembed",
           author: returnedAuthor,
-          returnedUrl: returned.sourceUrl
+          returnedUrl: returned.sourceUrl,
+          text,
+          rawVisibleText
         }
       : null
   };
@@ -364,9 +383,53 @@ function validateYouTubeOembed(candidate, payload) {
     accepted: reasons.length === 0,
     reasons,
     receipt: reasons.length === 0
-      ? { kind: "official_youtube_oembed", author: returnedAuthor }
+      ? {
+          kind: "official_youtube_oembed",
+          author: returnedAuthor,
+          text: String(payload.title).trim(),
+          rawVisibleText: stableStringify({
+            authorName: payload?.author_name ?? null,
+            authorUrl: payload?.author_url ?? null,
+            providerName: payload?.provider_name ?? null,
+            title: payload?.title ?? null,
+            type: payload?.type ?? null
+          })
+        }
       : null
   };
+}
+
+function visibleTextFromOembedHtml(value) {
+  const html = String(value ?? "");
+  const paragraph = html.match(/<p\b[^>]*>([\s\S]*?)<\/p>/i)?.[1] ?? "";
+  return decodeHtmlEntities(
+    paragraph
+      .replace(/<br\s*\/?>/gi, "\n")
+      .replace(/<[^>]+>/g, " ")
+      .replace(/[ \t]+/g, " ")
+      .replace(/\s*\n\s*/g, "\n")
+      .trim()
+  );
+}
+
+function decodeHtmlEntities(value) {
+  return String(value ?? "")
+    .replace(/&#(\d+);/g, (_, code) => String.fromCodePoint(Number(code)))
+    .replace(/&#x([0-9a-f]+);/gi, (_, code) => String.fromCodePoint(Number.parseInt(code, 16)))
+    .replace(/&quot;/gi, '"')
+    .replace(/&apos;|&#39;/gi, "'")
+    .replace(/&lt;/gi, "<")
+    .replace(/&gt;/gi, ">")
+    .replace(/&nbsp;/gi, " ")
+    .replace(/&amp;/gi, "&");
+}
+
+function serializeRawVisibleText(...values) {
+  for (const value of values) {
+    if (typeof value === "string" && value.trim()) return value.trim();
+    if (value && typeof value === "object") return stableStringify(value);
+  }
+  throw new Error("Verified recovery evidence is missing a raw visible text receipt.");
 }
 
 function buildYouTubeOwnerIndex(catalogs) {

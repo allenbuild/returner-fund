@@ -3,7 +3,10 @@ import { createHash } from "node:crypto";
 import test from "node:test";
 
 import { planYouTubeNativePromotion } from "../scripts/lib/youtube-native-promotion.mjs";
-import { YOUTUBE_NATIVE_RECOVERY_SCHEMA_VERSION } from "../scripts/lib/youtube-native-recovery.mjs";
+import {
+  YOUTUBE_NATIVE_RECOVERY_SCHEMA_VERSION,
+  stableStringify
+} from "../scripts/lib/youtube-native-recovery.mjs";
 import {
   parseYouTubePromotionArgs,
   promoteYouTubeNativeRecovery
@@ -374,7 +377,7 @@ function recoveredYouTube({
       author: { platform: "youtube", keys, name: authorName, url: authorUrl },
       owner: value
     },
-    rawVisibleText: {
+    rawVisibleText: stableStringify({
       source: YOUTUBE_NATIVE_RECOVERY_SCHEMA_VERSION,
       videoId,
       oembed: {
@@ -391,7 +394,7 @@ function recoveredYouTube({
       },
       sourceOccurrences: [{ sourceKind: "current_review", sourceRowId: `review-${videoId}` }],
       metricsReceipt: "no_positive_public_metrics_observed_zero_engagement_explicitly_permitted"
-    },
+    }),
     _youtubeNativeRecovery: {
       physicalKey,
       schemaVersion: YOUTUBE_NATIVE_RECOVERY_SCHEMA_VERSION,

@@ -3,11 +3,11 @@
 - Frozen clock: `2026-07-17T12:00:00.000Z`
 - Production model: `returner-traction-v4-absolute-fixed-platform-global-best` (`returner-traction` v4.2.0)
 - Git SHA: excluded from deterministic artifacts; the runtime command logs the executing revision.
-- Input envelope SHA-256: `8af4d26fa983815074ddcc059a0a9ad2001003545c6e04e0690557be371c055d`
+- Input envelope SHA-256: `d088759d0df5fe4b6960b09fe31b5eb76178006db4300809d71543afde77bde4`
 - Effective versioned scoring-input SHA-256: `f3e207ce27b7eadbe7ba6e68fc95e275379bbe0fa2bc88e6368f02a24e5b4d42`
 - Canonical config: 70 leaf parameters across scoring, calibration, and confidence; 9 role-labeled runtime source files.
-- Audit JSON SHA-256: `840cf1484eb945f962b7b2cb2cef23d1388acc7ac01bce41d283369ba3aa32be`
-- Detail retention: at most 32 examples per repetitive collection; 107308 repeated records omitted across 128 collections with full SHA-256 commitments.
+- Audit JSON SHA-256: `053edac5eb7693e5990bfc71ac233ff2073d313c6a544f7809e09ca6995ff1c8`
+- Detail retention: at most 32 examples per repetitive collection; 107213 repeated records omitted across 128 collections with full SHA-256 commitments.
 - Release size ceiling: 50331648 bytes.
 - Command: `npm run scoring:audit:v4`
 - Direct command: `node --experimental-strip-types --loader ./scripts/lib/scoring-diagnostics-ts-loader.mjs ./scripts/run-scoring-diagnostics-v4.mjs`
@@ -39,9 +39,9 @@ The after view is a diagnostic simulation only. It does not update the productio
 
 | Cohort | Post duplicate groups | URL duplicate groups | Eligibility rejects | Enabled rejects | Physical rows removed | Alias rows | URL findings | Publication gaps | Metric gaps | Evidence outliers | Company outliers B/A |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| S2026 | 0 | 179 | 16164 | 0 | 0 | 348 | 52 | 1103 | 5804 | 121 | 4/4 |
-| S26 | 0 | 609 | 11749 | 0 | 0 | 156 | 37 | 522 | 4822 | 61 | 1/1 |
-| A16ZSR006 | 0 | 22 | 5039 | 0 | 0 | 69 | 2 | 224 | 2671 | 294 | 2/2 |
+| S2026 | 0 | 179 | 16164 | 0 | 0 | 348 | 52 | 1053 | 5804 | 121 | 4/4 |
+| S26 | 0 | 609 | 11749 | 0 | 0 | 156 | 37 | 489 | 4822 | 61 | 1/1 |
+| A16ZSR006 | 0 | 22 | 5039 | 0 | 0 | 69 | 2 | 212 | 2671 | 294 | 2/2 |
 
 ## Batch/platform score and rank shifts
 
@@ -143,7 +143,7 @@ No score or rank changes.
 | --- | --- | --- |
 | versioned_runtime_parameter_hashes_complete | yes | {"category_hash_mismatch_count":0,"parameter_count":70,"parameter_mismatch_count":0} |
 | versioned_source_hashes_complete | yes | {"source_file_count":9,"source_mismatch_count":0} |
-| input_envelope_hash_consistent | yes | "8af4d26fa983815074ddcc059a0a9ad2001003545c6e04e0690557be371c055d" |
+| input_envelope_hash_consistent | yes | "d088759d0df5fe4b6960b09fe31b5eb76178006db4300809d71543afde77bde4" |
 | required_cohort_coverage | yes | ["A16ZSR006","S2026","S26"] |
 | cohort_evidence_partition_exact | yes | {"cohort_entity_evidence_rows":44644,"cohort_evidence_rows":{"A16ZSR006":9223,"S2026":21107,"S26":14314},"invalid_batch_scope_evidence_rows":0} |
 | company_rankings_complete_unique_ordered_and_bounded | yes | 0 |

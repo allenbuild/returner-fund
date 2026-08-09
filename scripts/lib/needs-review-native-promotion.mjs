@@ -180,6 +180,9 @@ function assertRecoveryReceipt(row, native, currentResolution) {
       !(row?.attributionSignals ?? []).includes(expectedValidation.signal)) {
     throw rowError(row, "is missing required native-author attribution signals");
   }
+  if (typeof row?.rawVisibleText !== "string" || !row.rawVisibleText.trim()) {
+    throw rowError(row, "is missing serialized raw visible text");
+  }
 
   const storedResolution = row?.nativeAuthorResolution;
   if (storedResolution?.status !== "matched" || currentResolution?.status !== "matched") {
@@ -205,6 +208,12 @@ function assertRecoveryReceipt(row, native, currentResolution) {
       String(recovery.validation?.author) !== String(currentResolution.author?.key)
     ) {
       throw rowError(row, "has a mismatched official X receipt");
+    }
+    if (
+      !String(recovery.validation?.text ?? "").trim() ||
+      !String(recovery.validation?.rawVisibleText ?? "").includes("twitter-tweet")
+    ) {
+      throw rowError(row, "does not preserve its official X post body");
     }
   } else if (native.platform === "instagram") {
     if (

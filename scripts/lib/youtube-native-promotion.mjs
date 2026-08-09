@@ -348,7 +348,10 @@ function assertCandidateRow(row) {
 }
 
 function assertRawReceipt(row, validation, recovery, channelKeys, zeroEngagement) {
-  const raw = row?.rawVisibleText;
+  if (typeof row?.rawVisibleText !== "string" || !row.rawVisibleText.trim()) {
+    throw rowError(row, "has no serialized raw trust receipt");
+  }
+  const raw = parseRawObject(row.rawVisibleText);
   if (!isPlainObject(raw)) throw rowError(row, "has no structured raw trust receipt");
   if (
     raw.source !== YOUTUBE_NATIVE_RECOVERY_SCHEMA_VERSION ||
@@ -555,6 +558,15 @@ function newestTimestamp(...values) {
 
 function isPlainObject(value) {
   return Boolean(value) && typeof value === "object" && !Array.isArray(value);
+}
+
+function parseRawObject(value) {
+  try {
+    const parsed = JSON.parse(String(value ?? ""));
+    return isPlainObject(parsed) ? parsed : null;
+  } catch {
+    return null;
+  }
 }
 
 function clean(value) {

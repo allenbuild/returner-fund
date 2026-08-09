@@ -5,8 +5,8 @@
     "slug": "graphify-labs",
     "name": "Graphify Labs"
   },
-  "generatedAt": "2026-08-09T16:13:15.624Z",
-  "lastModifiedAt": "2026-08-09T16:13:15.624Z",
+  "generatedAt": "2026-08-09T17:55:00.387Z",
+  "lastModifiedAt": "2026-08-09T17:55:00.387Z",
   "events": [
     {
       "id": "tle-a97b6ace2c0a1d43f2648b68",
@@ -203,7 +203,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 7,
-    "lastSuccessfulArtifactAt": "2026-08-09T16:13:15.624Z"
+    "lastSuccessfulArtifactAt": "2026-08-09T17:55:00.387Z"
   },
   "nextCursor": null
 }

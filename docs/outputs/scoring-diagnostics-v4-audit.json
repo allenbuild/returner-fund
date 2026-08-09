@@ -40,7 +40,7 @@
     "input_hashes": {
       "scope": "graph, scoring, social, and YC local input envelope plus profiler runtime files; canonical runtime values and effective scoring/calibration/confidence sources are hashed separately",
       "file_count": 99,
-      "combined_sha256": "8af4d26fa983815074ddcc059a0a9ad2001003545c6e04e0690557be371c055d",
+      "combined_sha256": "d088759d0df5fe4b6960b09fe31b5eb76178006db4300809d71543afde77bde4",
       "files": [
         {
           "path": "package.json",
@@ -240,7 +240,7 @@
         {
           "path": "src/lib/graph/ranked-posts-sidecar.generated.json",
           "bytes": 27561,
-          "sha256": "8ba8b3b5575261bf1744f0e2658eb9cde8912ec81caada14148794bb111b6da6"
+          "sha256": "c97a5c494a3829f38ce39b89d90aea076157fedbcf9634a1fcc4d4516bc08087"
         },
         {
           "path": "src/lib/graph/ranked-posts-sidecar.ts",
@@ -479,8 +479,8 @@
         },
         {
           "path": "src/lib/social/public-evidence-current.json",
-          "bytes": 36659847,
-          "sha256": "502f0351ac772c17e773a83b0e94a8210048a6d522174572b4abf50dabdaf1aa"
+          "bytes": 36817029,
+          "sha256": "aa93a6bc757b5728bd173fbb048e8d27766ae19b30e6e474b5c0b7af01b0e94c"
         },
         {
           "path": "src/lib/social/targeted-evidence-current.json",
@@ -1051,11 +1051,11 @@
       "example_limit_per_collection": 32,
       "artifact_byte_limit": 50331648,
       "bounded_collection_count": 128,
-      "full_record_count": 111404,
+      "full_record_count": 111309,
       "retained_record_count": 4096,
-      "omitted_record_count": 107308,
-      "full_detail_sha256": "554409b2f1e6894f1f4c5f11190971b946920f96a717b81c83b78583af428b69",
-      "collection_manifest_sha256": "2b81d947ad331aaa279e8c66bd4ac6e38c94ee9855427f626b0c4ace87300687",
+      "omitted_record_count": 107213,
+      "full_detail_sha256": "357f351bfbbf9068d8e53786f041205198b5837a95addda2812c04e1c9d5bea3",
+      "collection_manifest_sha256": "3b4e021da74a9846e6710380a233c2fc2c7465df411b48242ba4fc9c995b8fe7",
       "collections": [
         {
           "json_pointer": "/cohorts/0/alias_metric_duplication/findings",
@@ -1087,19 +1087,19 @@
           "omitted_count": 16132,
           "diagnostic_signature_count": 27,
           "retained_signature_count": 27,
-          "full_collection_sha256": "02a34061c508e7a4ca71e97d7d473315524c81f4ebd68c2050584f7cdce24554",
-          "retained_examples_sha256": "d3d10dfb9659f72a20b15c1889cabd699c9ddbfae2dbccfee059941beb894b7f"
+          "full_collection_sha256": "5fafe395d6c56264406cc44054af6624187978ab9432a66ece7abe9612cd4530",
+          "retained_examples_sha256": "cc1a98e6cf9399c5c0c072a860c1ce9995242387066b6d317bcef16ba9e5d121"
         },
         {
           "json_pointer": "/cohorts/0/missing_data/findings",
           "field": "findings",
-          "total_count": 11776,
+          "total_count": 11726,
           "retained_count": 32,
-          "omitted_count": 11744,
+          "omitted_count": 11694,
           "diagnostic_signature_count": 43,
           "retained_signature_count": 32,
-          "full_collection_sha256": "a27e2c61ccd057872923567f0a32fe9c5dca4960f8a3ff3f37bc789f79c1a6b4",
-          "retained_examples_sha256": "3334949e5222ef87008d41cc9e0f2fc60069d14e11b968caf09ec20e156bd3cd"
+          "full_collection_sha256": "7f1e044189f7414e8eefc7b62019781424e9b0b7bcf573440f294af5af1181cf",
+          "retained_examples_sha256": "36372a4585ff78557da83a203c8a506d69a88e9706ca999111bc5cc213607f2c"
         },
         {
           "json_pointer": "/cohorts/0/outliers/evidence_raw_engagement/by_platform/7/findings",
@@ -1164,8 +1164,8 @@
           "omitted_count": 16132,
           "diagnostic_signature_count": 44,
           "retained_signature_count": 32,
-          "full_collection_sha256": "ce8eac711d82225aa53d0ea770d775fbc170581929a7dc95645f17dc013d9925",
-          "retained_examples_sha256": "8c3663b33766a22eed8ed95c02ea0f4207b4fac5a84dfe55d912c7193f3ae62b"
+          "full_collection_sha256": "b72f99a15b00dfeb8b9d112516359d06db96dcce45cc16edb6e36dc1416452e4",
+          "retained_examples_sha256": "85a54f434ed2ee9380e2b4e109f067e8df387cd134f93dd079a3dd4da2b6b3bc"
         },
         {
           "json_pointer": "/cohorts/0/scoring/before_vs_after/company_changes",
@@ -1560,18 +1560,18 @@
           "omitted_count": 11717,
           "diagnostic_signature_count": 20,
           "retained_signature_count": 20,
-          "full_collection_sha256": "bddcc8a2285cfa3b54dc8db82373ee5b5b352b66c027bbb89b36c932ed0f16bb",
-          "retained_examples_sha256": "29f64744e044e1f99334d6156fac69adefc11591e5dd0ef94e5b31036386b553"
+          "full_collection_sha256": "e141d80c766ae99491b492d69f92599983ebc08f509c0ff9a569480fe0107e1b",
+          "retained_examples_sha256": "752db480deca10be3ea3a3de0202e133fd9366237adb898942b2a0d22b437be4"
         },
         {
           "json_pointer": "/cohorts/1/missing_data/findings",
           "field": "findings",
-          "total_count": 9972,
+          "total_count": 9939,
           "retained_count": 32,
-          "omitted_count": 9940,
+          "omitted_count": 9907,
           "diagnostic_signature_count": 39,
           "retained_signature_count": 32,
-          "full_collection_sha256": "a2f7c451318f85e305422c6ff852be5f80ca8d1500520fd23989f2f369ab2a50",
+          "full_collection_sha256": "8690ce1805ba72d777478d110b5a75f781fb38fce59b6f05bd561b30d312f20d",
           "retained_examples_sha256": "9d51c42fc3e7ba814e376a661b9c0ceebf65c61bb4ec3a64b710dbaae9791272"
         },
         {
@@ -1637,8 +1637,8 @@
           "omitted_count": 11717,
           "diagnostic_signature_count": 37,
           "retained_signature_count": 32,
-          "full_collection_sha256": "6998682f1cffe990eda66306f430c4966d24d97fdb98cd92f6a69b3a7e47a311",
-          "retained_examples_sha256": "aab6e3ed87be99e9623e5b736d769faab79607194dce6e6b4b0e9e371e540f90"
+          "full_collection_sha256": "63ce77663e0a1af01126da7b297242bbb6d3423845619ecc3b75551ab816de0b",
+          "retained_examples_sha256": "6316978f5c03902d9f6bdbfe569a57198133357c6dccfaf8123ed5c7eb047bdd"
         },
         {
           "json_pointer": "/cohorts/1/scoring/before_vs_after/company_changes",
@@ -2020,21 +2020,21 @@
           "total_count": 5039,
           "retained_count": 32,
           "omitted_count": 5007,
-          "diagnostic_signature_count": 16,
-          "retained_signature_count": 16,
-          "full_collection_sha256": "3b54261d031fc955f8800c1a7a376076e6a1e8c6c74a3a0b12287502569873ac",
-          "retained_examples_sha256": "30d3677bc3c51a6defa5ae086ea895b72b8164481cb5f06dfd6f706d0f8ecb0e"
+          "diagnostic_signature_count": 15,
+          "retained_signature_count": 15,
+          "full_collection_sha256": "b4c34a20365d13586918b0a26d778b54738e8b12e55c3d40f7b259d4c74c08c7",
+          "retained_examples_sha256": "78f7372b8cc57e79ed8ceb7677059bcf60ee6908511f04ec5af55c0d324b2fea"
         },
         {
           "json_pointer": "/cohorts/2/missing_data/findings",
           "field": "findings",
-          "total_count": 5556,
+          "total_count": 5544,
           "retained_count": 32,
-          "omitted_count": 5524,
-          "diagnostic_signature_count": 35,
+          "omitted_count": 5512,
+          "diagnostic_signature_count": 33,
           "retained_signature_count": 32,
-          "full_collection_sha256": "2827475115fcaf73caad5b323b5a28b7bc674b62c4217141db179bd7efd5bf2a",
-          "retained_examples_sha256": "d6b07d62825b01b09a71f9d700e66a75d222bb8616b0532c581ae58676d9ff08"
+          "full_collection_sha256": "b4cc8b358268e9281115264c73e8b0a69831295663b6ac10109dc223333a67af",
+          "retained_examples_sha256": "652e92d688a0eeaab805db87cb33fe9c5fae9f7ceb92a68fa9f4da7c16b8c67c"
         },
         {
           "json_pointer": "/cohorts/2/outliers/evidence_raw_engagement/by_platform/3/findings",
@@ -2099,8 +2099,8 @@
           "omitted_count": 5007,
           "diagnostic_signature_count": 20,
           "retained_signature_count": 20,
-          "full_collection_sha256": "54669d7d48de8f64337a0e9ac6ac3e9afb683bdc569e32587acfc102b4e3f7bb",
-          "retained_examples_sha256": "e82bf9194ca95222565459b08c6631f2a5f1dbceafcd34235b5cf88b35e5bffe"
+          "full_collection_sha256": "b1e0acafeb96a963becd5b4aa253165d533ed351d08284f6c8b6fd483478c17a",
+          "retained_examples_sha256": "72443bd0870661eb00ae95a4fdffff096c3ce2b9c9e9440fdc8e1bcc79d3a6b1"
         },
         {
           "json_pointer": "/cohorts/2/scoring/before_vs_after/company_changes",
@@ -9982,28 +9982,23 @@
             "reason": "upstream_excluded"
           },
           {
-            "audit_key": "S2026:016989:x-founder-stablebrowse-sarthak-awasthi-3414133-x-com-sarthak-status-1375175416055537665-restorethesnyderverse",
-            "evidence_id": "x-founder-stablebrowse-sarthak-awasthi-3414133-x-com-sarthak-status-1375175416055537665-restorethesnyderverse",
-            "entity_id": "founder-stablebrowse-sarthak-awasthi-3414133",
+            "audit_key": "S2026:016988:review-x-company-linzumi-x-com-sgrove-status-1219701469617590272",
+            "evidence_id": "review-x-company-linzumi-x-com-sgrove-status-1219701469617590272",
+            "entity_id": "founder-linzumi-sean-grove-19683",
             "owner_company_ids": [
-              "company-stablebrowse"
+              "company-linzumi"
             ],
             "cohort_memberships": [
               "S2026"
             ],
             "platform": "x",
-            "platform_post_id": "1375175416055537665",
-            "source_url": "https://x.com/_sarthak____/status/1375175416055537665",
-            "canonical_source_url": "https://x.com/_sarthak____/status/1375175416055537665",
-            "posted_at": "2021-03-25T19:59:03.000Z",
+            "platform_post_id": "1219701469617590272",
+            "source_url": "https://x.com/sgrove/status/1219701469617590272",
+            "canonical_source_url": "https://x.com/sgrove/status/1219701469617590272",
+            "posted_at": "2020-01-21T19:21:05.971Z",
             "published_at_precision": "exact",
-            "metrics_checked_at": "2026-08-09T13:38:09.029Z",
-            "metrics": {
-              "likes": 0,
-              "quotes": 0,
-              "replies": 0,
-              "reposts": 0
-            },
+            "metrics_checked_at": "2026-08-09T13:38:02.986Z",
+            "metrics": {},
             "contribution_score": 0,
             "scored": false,
             "reason": "upstream_excluded"
@@ -10198,7 +10193,7 @@
         ]
       },
       "missing_data": {
-        "finding_count": 11776,
+        "finding_count": 11726,
         "row_count": 6199,
         "scored_row_count": 345,
         "by_issue": [
@@ -10212,7 +10207,7 @@
           },
           {
             "key": "publication_date_precision_unknown",
-            "count": 1103
+            "count": 1053
           },
           {
             "key": "no_positive_metric_values",
@@ -10227,8 +10222,8 @@
         ],
         "by_category": {
           "publication_date": {
-            "finding_count": 1103,
-            "row_count": 1103,
+            "finding_count": 1053,
+            "row_count": 1053,
             "scored_row_count": 345
           },
           "metrics": {
@@ -10349,22 +10344,22 @@
             "issue": "no_metric_values"
           },
           {
-            "audit_key": "S2026:017009:review-x-company-advanced-metal-research-x-com-dirtman-status-2010142567242043611",
-            "evidence_id": "review-x-company-advanced-metal-research-x-com-dirtman-status-2010142567242043611",
-            "entity_id": "founder-advanced-metal-research-angus-muffatti-2387747",
+            "audit_key": "S2026:017059:review-x-company-atrisa-x-com-cyan9800-status-2082095842442576027",
+            "evidence_id": "review-x-company-atrisa-x-com-cyan9800-status-2082095842442576027",
+            "entity_id": "founder-atrisa-sayan-mitra-3404216",
             "owner_company_ids": [
-              "company-advanced-metal-research"
+              "company-atrisa"
             ],
             "cohort_memberships": [
               "S2026"
             ],
             "platform": "x",
-            "platform_post_id": "2010142567242043611",
-            "source_url": "https://x.com/dirtman/status/2010142567242043611",
-            "canonical_source_url": "https://x.com/dirtman/status/2010142567242043611",
-            "posted_at": "2026-07-23T12:27:02.855Z",
+            "platform_post_id": "2082095842442576027",
+            "source_url": "https://x.com/cyan9800/status/2082095842442576027",
+            "canonical_source_url": "https://x.com/cyan9800/status/2082095842442576027",
+            "posted_at": "2026-07-28T13:27:37.373Z",
             "published_at_precision": "unknown",
-            "metrics_checked_at": "2026-08-09T13:39:01.191Z",
+            "metrics_checked_at": "2026-08-09T13:42:20.364Z",
             "metrics": {},
             "contribution_score": 0,
             "scored": false,
@@ -10713,22 +10708,22 @@
             "issue": "no_positive_scoring_engagement"
           },
           {
-            "audit_key": "S2026:017009:review-x-company-advanced-metal-research-x-com-dirtman-status-2010142567242043611",
-            "evidence_id": "review-x-company-advanced-metal-research-x-com-dirtman-status-2010142567242043611",
-            "entity_id": "founder-advanced-metal-research-angus-muffatti-2387747",
+            "audit_key": "S2026:017059:review-x-company-atrisa-x-com-cyan9800-status-2082095842442576027",
+            "evidence_id": "review-x-company-atrisa-x-com-cyan9800-status-2082095842442576027",
+            "entity_id": "founder-atrisa-sayan-mitra-3404216",
             "owner_company_ids": [
-              "company-advanced-metal-research"
+              "company-atrisa"
             ],
             "cohort_memberships": [
               "S2026"
             ],
             "platform": "x",
-            "platform_post_id": "2010142567242043611",
-            "source_url": "https://x.com/dirtman/status/2010142567242043611",
-            "canonical_source_url": "https://x.com/dirtman/status/2010142567242043611",
-            "posted_at": "2026-07-23T12:27:02.855Z",
+            "platform_post_id": "2082095842442576027",
+            "source_url": "https://x.com/cyan9800/status/2082095842442576027",
+            "canonical_source_url": "https://x.com/cyan9800/status/2082095842442576027",
+            "posted_at": "2026-07-28T13:27:37.373Z",
             "published_at_precision": "unknown",
-            "metrics_checked_at": "2026-08-09T13:39:01.191Z",
+            "metrics_checked_at": "2026-08-09T13:42:20.364Z",
             "metrics": {},
             "contribution_score": 0,
             "scored": false,
@@ -10895,22 +10890,22 @@
             "issue": "publication_date_precision_unknown"
           },
           {
-            "audit_key": "S2026:017009:review-x-company-advanced-metal-research-x-com-dirtman-status-2010142567242043611",
-            "evidence_id": "review-x-company-advanced-metal-research-x-com-dirtman-status-2010142567242043611",
-            "entity_id": "founder-advanced-metal-research-angus-muffatti-2387747",
+            "audit_key": "S2026:017059:review-x-company-atrisa-x-com-cyan9800-status-2082095842442576027",
+            "evidence_id": "review-x-company-atrisa-x-com-cyan9800-status-2082095842442576027",
+            "entity_id": "founder-atrisa-sayan-mitra-3404216",
             "owner_company_ids": [
-              "company-advanced-metal-research"
+              "company-atrisa"
             ],
             "cohort_memberships": [
               "S2026"
             ],
             "platform": "x",
-            "platform_post_id": "2010142567242043611",
-            "source_url": "https://x.com/dirtman/status/2010142567242043611",
-            "canonical_source_url": "https://x.com/dirtman/status/2010142567242043611",
-            "posted_at": "2026-07-23T12:27:02.855Z",
+            "platform_post_id": "2082095842442576027",
+            "source_url": "https://x.com/cyan9800/status/2082095842442576027",
+            "canonical_source_url": "https://x.com/cyan9800/status/2082095842442576027",
+            "posted_at": "2026-07-28T13:27:37.373Z",
             "published_at_precision": "unknown",
-            "metrics_checked_at": "2026-08-09T13:39:01.191Z",
+            "metrics_checked_at": "2026-08-09T13:42:20.364Z",
             "metrics": {},
             "contribution_score": 0,
             "scored": false,
@@ -25500,33 +25495,6 @@
               ]
             },
             {
-              "audit_key": "S2026:016988:review-x-company-linzumi-x-com-sgrove-status-1219701469617590272",
-              "evidence_id": "review-x-company-linzumi-x-com-sgrove-status-1219701469617590272",
-              "entity_id": "founder-linzumi-sean-grove-19683",
-              "owner_company_ids": [
-                "company-linzumi"
-              ],
-              "cohort_memberships": [
-                "S2026"
-              ],
-              "platform": "x",
-              "platform_post_id": "1219701469617590272",
-              "source_url": "https://x.com/sgrove/status/1219701469617590272",
-              "canonical_source_url": "https://x.com/sgrove/status/1219701469617590272",
-              "posted_at": "2026-07-20T18:50:17.812Z",
-              "published_at_precision": "unknown",
-              "metrics_checked_at": "2026-08-09T13:38:02.986Z",
-              "metrics": {},
-              "contribution_score": 0,
-              "scored": false,
-              "production_eligibility_reason": "upstream_excluded",
-              "reasons": [
-                "no_metric_values",
-                "no_positive_scoring_engagement",
-                "production_rejection_upstream_excluded"
-              ]
-            },
-            {
               "audit_key": "S2026:016989:x-founder-stablebrowse-sarthak-awasthi-3414133-x-com-sarthak-status-1375175416055537665-restorethesnyderverse",
               "evidence_id": "x-founder-stablebrowse-sarthak-awasthi-3414133-x-com-sarthak-status-1375175416055537665-restorethesnyderverse",
               "entity_id": "founder-stablebrowse-sarthak-awasthi-3414133",
@@ -25583,6 +25551,33 @@
                 "no_metric_values",
                 "no_positive_scoring_engagement",
                 "production_rejection_not_verified"
+              ]
+            },
+            {
+              "audit_key": "S2026:017057:x-founder-gojiberry-ai-pierre-eliott-lallemant-2154047-x-com-pierreeliottlal-status-2082035317729841182-photo-1-pierre-eliott-lallemant-pierreeliottlal-on-x",
+              "evidence_id": "x-founder-gojiberry-ai-pierre-eliott-lallemant-2154047-x-com-pierreeliottlal-status-2082035317729841182-photo-1-pierre-eliott-lallemant-pierreeliottlal-on-x",
+              "entity_id": "founder-gojiberry-ai-pierre-eliott-lallemant-2154047",
+              "owner_company_ids": [
+                "company-gojiberry-ai"
+              ],
+              "cohort_memberships": [
+                "S2026"
+              ],
+              "platform": "x",
+              "platform_post_id": "2082035317729841182",
+              "source_url": "https://x.com/pierreeliottlal/status/2082035317729841182",
+              "canonical_source_url": "https://x.com/pierreeliottlal/status/2082035317729841182",
+              "posted_at": "2026-07-31T00:32:24.882Z",
+              "published_at_precision": "unknown",
+              "metrics_checked_at": "2026-08-09T13:42:17.347Z",
+              "metrics": {},
+              "contribution_score": 0,
+              "scored": false,
+              "production_eligibility_reason": "upstream_excluded",
+              "reasons": [
+                "no_metric_values",
+                "no_positive_scoring_engagement",
+                "production_rejection_upstream_excluded"
               ]
             },
             {
@@ -33456,8 +33451,8 @@
             "reason": "upstream_excluded"
           },
           {
-            "audit_key": "S26:001685:x-founder-alloovium-zander-schweitzer-3047254-x-com-zandergs15-status-1087279578953871360-i-entered-to-win-a-custom-ps4-system-kf-prize-packs-and-more-from-legiqn-kontrolfreek-kfpe",
-            "evidence_id": "x-founder-alloovium-zander-schweitzer-3047254-x-com-zandergs15-status-1087279578953871360-i-entered-to-win-a-custom-ps4-system-kf-prize-packs-and-more-from-legiqn-kontrolfreek-kfpe",
+            "audit_key": "S26:001683:review-x-company-alloovium-x-com-zandergs15-status-1087279136261910528",
+            "evidence_id": "review-x-company-alloovium-x-com-zandergs15-status-1087279136261910528",
             "entity_id": "founder-alloovium-zander-schweitzer-3047254",
             "owner_company_ids": [
               "company-alloovium"
@@ -33466,18 +33461,13 @@
               "S26"
             ],
             "platform": "x",
-            "platform_post_id": "1087279578953871360",
-            "source_url": "https://x.com/zandergs15/status/1087279578953871360",
-            "canonical_source_url": "https://x.com/zandergs15/status/1087279578953871360",
-            "posted_at": "2019-01-21T09:23:46.000Z",
+            "platform_post_id": "1087279136261910528",
+            "source_url": "https://x.com/zandergs15/status/1087279136261910528",
+            "canonical_source_url": "https://x.com/zandergs15/status/1087279136261910528",
+            "posted_at": "2019-01-21T09:22:01.411Z",
             "published_at_precision": "exact",
-            "metrics_checked_at": "2026-08-09T13:38:02.019Z",
-            "metrics": {
-              "likes": 0,
-              "quotes": 0,
-              "replies": 0,
-              "reposts": 0
-            },
+            "metrics_checked_at": "2026-08-09T13:38:00.030Z",
+            "metrics": {},
             "contribution_score": 0,
             "scored": false,
             "reason": "upstream_excluded"
@@ -33762,7 +33752,7 @@
         ]
       },
       "missing_data": {
-        "finding_count": 9972,
+        "finding_count": 9939,
         "row_count": 4983,
         "scored_row_count": 128,
         "by_issue": [
@@ -33776,7 +33766,7 @@
           },
           {
             "key": "publication_date_precision_unknown",
-            "count": 522
+            "count": 489
           },
           {
             "key": "no_positive_metric_values",
@@ -33791,8 +33781,8 @@
         ],
         "by_category": {
           "publication_date": {
-            "finding_count": 522,
-            "row_count": 522,
+            "finding_count": 489,
+            "row_count": 489,
             "scored_row_count": 128
           },
           "metrics": {
@@ -49022,8 +49012,8 @@
               "platform_post_id": "1087279136261910528",
               "source_url": "https://x.com/zandergs15/status/1087279136261910528",
               "canonical_source_url": "https://x.com/zandergs15/status/1087279136261910528",
-              "posted_at": "2026-07-31T00:35:57.170Z",
-              "published_at_precision": "unknown",
+              "posted_at": "2019-01-21T09:22:01.411Z",
+              "published_at_precision": "exact",
               "metrics_checked_at": "2026-08-09T13:38:00.030Z",
               "metrics": {},
               "contribution_score": 0,
@@ -49068,22 +49058,22 @@
               ]
             },
             {
-              "audit_key": "S26:001702:recovered-x-s26-company-dock-2049559052448125098",
-              "evidence_id": "recovered-x-s26-company-dock-2049559052448125098",
-              "entity_id": "company-dock",
+              "audit_key": "S26:001712:x-company-rekursivai-x-com-hyperparticle-status-2060025463410446790-i-ve-started-a-new-company-t-co-pkv6jwtamd-as-a-co-founder-with-my-good-friend-josh-dillon",
+              "evidence_id": "x-company-rekursivai-x-com-hyperparticle-status-2060025463410446790-i-ve-started-a-new-company-t-co-pkv6jwtamd-as-a-co-founder-with-my-good-friend-josh-dillon",
+              "entity_id": "founder-rekursivai-dan-kondratyuk-3527564",
               "owner_company_ids": [
-                "company-dock"
+                "company-rekursivai"
               ],
               "cohort_memberships": [
                 "S26"
               ],
               "platform": "x",
-              "platform_post_id": "2049559052448125098",
-              "source_url": "https://x.com/trydock/status/2049559052448125098",
-              "canonical_source_url": "https://x.com/trydock/status/2049559052448125098",
-              "posted_at": "2026-04-29T18:38:51.000Z",
-              "published_at_precision": "exact",
-              "metrics_checked_at": "2026-08-09T13:39:37.147Z",
+              "platform_post_id": "2060025463410446790",
+              "source_url": "https://x.com/hyperparticle/status/2060025463410446790",
+              "canonical_source_url": "https://x.com/hyperparticle/status/2060025463410446790",
+              "posted_at": "2026-07-20T18:50:17.812Z",
+              "published_at_precision": "unknown",
+              "metrics_checked_at": "2026-08-09T13:40:10.173Z",
               "metrics": {},
               "contribution_score": 0,
               "scored": false,
@@ -54959,8 +54949,8 @@
             "reason": "unsupported_platform"
           },
           {
-            "audit_key": "A16ZSR006:039962:web-a16z-%5B%22company%22%2C%22a16z-speedrun-006-snag%22%2C%22https%3A%2F%2Fsnagsublets.com%2Fpost%2F5ca18ff5-25ed-49af-ac9c-cef3aa5ef930%22%5D",
-            "evidence_id": "web-a16z-%5B%22company%22%2C%22a16z-speedrun-006-snag%22%2C%22https%3A%2F%2Fsnagsublets.com%2Fpost%2F5ca18ff5-25ed-49af-ac9c-cef3aa5ef930%22%5D",
+            "audit_key": "A16ZSR006:039941:web-a16z-%5B%22company%22%2C%22a16z-speedrun-006-snag%22%2C%22https%3A%2F%2Fsnagsublets.com%2Fpost%2F5742e9dd-4b66-49af-9f27-f588a10af1fe%22%5D",
+            "evidence_id": "web-a16z-%5B%22company%22%2C%22a16z-speedrun-006-snag%22%2C%22https%3A%2F%2Fsnagsublets.com%2Fpost%2F5742e9dd-4b66-49af-9f27-f588a10af1fe%22%5D",
             "entity_id": "a16z-speedrun-006-snag",
             "owner_company_ids": [
               "a16z-speedrun-006-snag"
@@ -54969,9 +54959,9 @@
               "A16ZSR006"
             ],
             "platform": "web",
-            "platform_post_id": "https://snagsublets.com/post/5ca18ff5-25ed-49af-ac9c-cef3aa5ef930",
-            "source_url": "https://snagsublets.com/post/5ca18ff5-25ed-49af-ac9c-cef3aa5ef930",
-            "canonical_source_url": "https://snagsublets.com/post/5ca18ff5-25ed-49af-ac9c-cef3aa5ef930",
+            "platform_post_id": "https://snagsublets.com/post/5742e9dd-4b66-49af-9f27-f588a10af1fe",
+            "source_url": "https://snagsublets.com/post/5742e9dd-4b66-49af-9f27-f588a10af1fe",
+            "canonical_source_url": "https://snagsublets.com/post/5742e9dd-4b66-49af-9f27-f588a10af1fe",
             "posted_at": "2026-08-04T00:00:00.000Z",
             "published_at_precision": "exact",
             "metrics_checked_at": "2026-08-04T23:46:38.755Z",
@@ -54981,8 +54971,8 @@
             "reason": "unsupported_platform"
           },
           {
-            "audit_key": "A16ZSR006:040297:web-a16z-%5B%22company%22%2C%22a16z-speedrun-006-snag%22%2C%22https%3A%2F%2Fsnagsublets.com%2Fpost%2Fc60e8a58-b108-4251-977c-24010db79294%22%5D",
-            "evidence_id": "web-a16z-%5B%22company%22%2C%22a16z-speedrun-006-snag%22%2C%22https%3A%2F%2Fsnagsublets.com%2Fpost%2Fc60e8a58-b108-4251-977c-24010db79294%22%5D",
+            "audit_key": "A16ZSR006:040255:web-a16z-%5B%22company%22%2C%22a16z-speedrun-006-snag%22%2C%22https%3A%2F%2Fsnagsublets.com%2Fpost%2Fb52f5a84-aa17-41fe-8719-b49153270e89%22%5D",
+            "evidence_id": "web-a16z-%5B%22company%22%2C%22a16z-speedrun-006-snag%22%2C%22https%3A%2F%2Fsnagsublets.com%2Fpost%2Fb52f5a84-aa17-41fe-8719-b49153270e89%22%5D",
             "entity_id": "a16z-speedrun-006-snag",
             "owner_company_ids": [
               "a16z-speedrun-006-snag"
@@ -54991,9 +54981,9 @@
               "A16ZSR006"
             ],
             "platform": "web",
-            "platform_post_id": "https://snagsublets.com/post/c60e8a58-b108-4251-977c-24010db79294",
-            "source_url": "https://snagsublets.com/post/c60e8a58-b108-4251-977c-24010db79294",
-            "canonical_source_url": "https://snagsublets.com/post/c60e8a58-b108-4251-977c-24010db79294",
+            "platform_post_id": "https://snagsublets.com/post/b52f5a84-aa17-41fe-8719-b49153270e89",
+            "source_url": "https://snagsublets.com/post/b52f5a84-aa17-41fe-8719-b49153270e89",
+            "canonical_source_url": "https://snagsublets.com/post/b52f5a84-aa17-41fe-8719-b49153270e89",
             "posted_at": "2026-08-04T00:00:00.000Z",
             "published_at_precision": "exact",
             "metrics_checked_at": "2026-08-04T23:46:38.756Z",
@@ -55025,8 +55015,8 @@
             "reason": "unsupported_platform"
           },
           {
-            "audit_key": "A16ZSR006:040632:web-a16z-%5B%22company%22%2C%22a16z-speedrun-006-antihero-studios%22%2C%22web%3Ahttps%3A%2F%2Fantiherostudios.com%2Ffil%2Fblog%2Ffuture-of-mobile-extraction-shooters%22%5D",
-            "evidence_id": "web-a16z-%5B%22company%22%2C%22a16z-speedrun-006-antihero-studios%22%2C%22web%3Ahttps%3A%2F%2Fantiherostudios.com%2Ffil%2Fblog%2Ffuture-of-mobile-extraction-shooters%22%5D",
+            "audit_key": "A16ZSR006:040570:web-a16z-%5B%22company%22%2C%22a16z-speedrun-006-antihero-studios%22%2C%22web%3Ahttps%3A%2F%2Fantiherostudios.com%2Fde%2Fblog%2Fmobile-games-like-among-us-with-combat%22%5D",
+            "evidence_id": "web-a16z-%5B%22company%22%2C%22a16z-speedrun-006-antihero-studios%22%2C%22web%3Ahttps%3A%2F%2Fantiherostudios.com%2Fde%2Fblog%2Fmobile-games-like-among-us-with-combat%22%5D",
             "entity_id": "a16z-speedrun-006-antihero-studios",
             "owner_company_ids": [
               "a16z-speedrun-006-antihero-studios"
@@ -55035,32 +55025,10 @@
               "A16ZSR006"
             ],
             "platform": "web",
-            "platform_post_id": "web:https://antiherostudios.com/fil/blog/future-of-mobile-extraction-shooters",
-            "source_url": "https://antiherostudios.com/fil/blog/future-of-mobile-extraction-shooters",
-            "canonical_source_url": "https://antiherostudios.com/fil/blog/future-of-mobile-extraction-shooters",
-            "posted_at": "2026-08-04T17:09:30.386Z",
-            "published_at_precision": "unknown",
-            "metrics_checked_at": "2026-08-04T17:09:30.386Z",
-            "metrics": {},
-            "contribution_score": 0,
-            "scored": false,
-            "reason": "unsupported_platform"
-          },
-          {
-            "audit_key": "A16ZSR006:040967:web-a16z-%5B%22company%22%2C%22a16z-speedrun-006-antihero-studios%22%2C%22web%3Ahttps%3A%2F%2Fantiherostudios.com%2Fth%2Fblog%22%5D",
-            "evidence_id": "web-a16z-%5B%22company%22%2C%22a16z-speedrun-006-antihero-studios%22%2C%22web%3Ahttps%3A%2F%2Fantiherostudios.com%2Fth%2Fblog%22%5D",
-            "entity_id": "a16z-speedrun-006-antihero-studios",
-            "owner_company_ids": [
-              "a16z-speedrun-006-antihero-studios"
-            ],
-            "cohort_memberships": [
-              "A16ZSR006"
-            ],
-            "platform": "web",
-            "platform_post_id": "web:https://antiherostudios.com/th/blog",
-            "source_url": "https://antiherostudios.com/th/blog",
-            "canonical_source_url": "https://antiherostudios.com/th/blog",
-            "posted_at": "2026-06-10T00:00:00.000Z",
+            "platform_post_id": "web:https://antiherostudios.com/de/blog/mobile-games-like-among-us-with-combat",
+            "source_url": "https://antiherostudios.com/de/blog/mobile-games-like-among-us-with-combat",
+            "canonical_source_url": "https://antiherostudios.com/de/blog/mobile-games-like-among-us-with-combat",
+            "posted_at": "2026-05-06T00:00:00.000Z",
             "published_at_precision": "exact",
             "metrics_checked_at": "2026-08-04T16:11:09.908Z",
             "metrics": {},
@@ -55069,44 +55037,66 @@
             "reason": "unsupported_platform"
           },
           {
-            "audit_key": "A16ZSR006:041302:web-a16z-%5B%22company%22%2C%22a16z-speedrun-006-pluvo%22%2C%22web%3Ahttps%3A%2F%2Fpluvo.io%2Fblog%2F9-powerful-metrics-that-franchisers-need-to-maximize-seasonal-profits%22%5D",
-            "evidence_id": "web-a16z-%5B%22company%22%2C%22a16z-speedrun-006-pluvo%22%2C%22web%3Ahttps%3A%2F%2Fpluvo.io%2Fblog%2F9-powerful-metrics-that-franchisers-need-to-maximize-seasonal-profits%22%5D",
-            "entity_id": "a16z-speedrun-006-pluvo",
+            "audit_key": "A16ZSR006:040884:web-a16z-%5B%22company%22%2C%22a16z-speedrun-006-antihero-studios%22%2C%22web%3Ahttps%3A%2F%2Fantiherostudios.com%2Fpl%2Fblog%2Fwhat-is-an-extraction-shooter%22%5D",
+            "evidence_id": "web-a16z-%5B%22company%22%2C%22a16z-speedrun-006-antihero-studios%22%2C%22web%3Ahttps%3A%2F%2Fantiherostudios.com%2Fpl%2Fblog%2Fwhat-is-an-extraction-shooter%22%5D",
+            "entity_id": "a16z-speedrun-006-antihero-studios",
             "owner_company_ids": [
-              "a16z-speedrun-006-pluvo"
+              "a16z-speedrun-006-antihero-studios"
             ],
             "cohort_memberships": [
               "A16ZSR006"
             ],
             "platform": "web",
-            "platform_post_id": "web:https://pluvo.io/blog/9-powerful-metrics-that-franchisers-need-to-maximize-seasonal-profits",
-            "source_url": "https://pluvo.io/blog/9-powerful-metrics-that-franchisers-need-to-maximize-seasonal-profits",
-            "canonical_source_url": "https://pluvo.io/blog/9-powerful-metrics-that-franchisers-need-to-maximize-seasonal-profits",
-            "posted_at": "2024-09-23T00:00:00.000Z",
+            "platform_post_id": "web:https://antiherostudios.com/pl/blog/what-is-an-extraction-shooter",
+            "source_url": "https://antiherostudios.com/pl/blog/what-is-an-extraction-shooter",
+            "canonical_source_url": "https://antiherostudios.com/pl/blog/what-is-an-extraction-shooter",
+            "posted_at": "2026-04-01T00:00:00.000Z",
             "published_at_precision": "exact",
-            "metrics_checked_at": "2026-08-04T16:12:42.405Z",
+            "metrics_checked_at": "2026-08-04T16:11:09.908Z",
             "metrics": {},
             "contribution_score": 0,
             "scored": false,
             "reason": "unsupported_platform"
           },
           {
-            "audit_key": "A16ZSR006:041637:web-a16z-%5B%22company%22%2C%22a16z-speedrun-006-hammock%22%2C%22web%3Ahttps%3A%2F%2Fwww.usehammock.co%2Fblog%2Fis-ag1-athletic-greens-hsa-eligible%22%5D",
-            "evidence_id": "web-a16z-%5B%22company%22%2C%22a16z-speedrun-006-hammock%22%2C%22web%3Ahttps%3A%2F%2Fwww.usehammock.co%2Fblog%2Fis-ag1-athletic-greens-hsa-eligible%22%5D",
-            "entity_id": "a16z-speedrun-006-hammock",
+            "audit_key": "A16ZSR006:041198:web-a16z-%5B%22company%22%2C%22a16z-speedrun-006-quinn%22%2C%22web%3Ahttps%3A%2F%2Fmeetquinn.ai%2Fblog%2Finteractive-scenario-based-training-field-technicians%22%5D",
+            "evidence_id": "web-a16z-%5B%22company%22%2C%22a16z-speedrun-006-quinn%22%2C%22web%3Ahttps%3A%2F%2Fmeetquinn.ai%2Fblog%2Finteractive-scenario-based-training-field-technicians%22%5D",
+            "entity_id": "a16z-speedrun-006-quinn",
             "owner_company_ids": [
-              "a16z-speedrun-006-hammock"
+              "a16z-speedrun-006-quinn"
             ],
             "cohort_memberships": [
               "A16ZSR006"
             ],
             "platform": "web",
-            "platform_post_id": "web:https://www.usehammock.co/blog/is-ag1-athletic-greens-hsa-eligible",
-            "source_url": "https://usehammock.co/blog/is-ag1-athletic-greens-hsa-eligible",
-            "canonical_source_url": "https://usehammock.co/blog/is-ag1-athletic-greens-hsa-eligible",
-            "posted_at": "2026-06-05T00:00:00.000Z",
+            "platform_post_id": "web:https://meetquinn.ai/blog/interactive-scenario-based-training-field-technicians",
+            "source_url": "https://meetquinn.ai/blog/interactive-scenario-based-training-field-technicians",
+            "canonical_source_url": "https://meetquinn.ai/blog/interactive-scenario-based-training-field-technicians",
+            "posted_at": "2026-07-09T00:00:00.000Z",
             "published_at_precision": "exact",
-            "metrics_checked_at": "2026-08-04T16:11:46.148Z",
+            "metrics_checked_at": "2026-08-04T16:12:45.930Z",
+            "metrics": {},
+            "contribution_score": 0,
+            "scored": false,
+            "reason": "unsupported_platform"
+          },
+          {
+            "audit_key": "A16ZSR006:041512:web-a16z-%5B%22company%22%2C%22a16z-speedrun-006-sentra%22%2C%22web%3Ahttps%3A%2F%2Fwww.sentra.app%2Farticles%2Fagent-efficiency-optimization-cost%22%5D",
+            "evidence_id": "web-a16z-%5B%22company%22%2C%22a16z-speedrun-006-sentra%22%2C%22web%3Ahttps%3A%2F%2Fwww.sentra.app%2Farticles%2Fagent-efficiency-optimization-cost%22%5D",
+            "entity_id": "a16z-speedrun-006-sentra",
+            "owner_company_ids": [
+              "a16z-speedrun-006-sentra"
+            ],
+            "cohort_memberships": [
+              "A16ZSR006"
+            ],
+            "platform": "web",
+            "platform_post_id": "web:https://www.sentra.app/articles/agent-efficiency-optimization-cost",
+            "source_url": "https://sentra.app/articles/agent-efficiency-optimization-cost",
+            "canonical_source_url": "https://sentra.app/articles/agent-efficiency-optimization-cost",
+            "posted_at": "2026-06-25T00:00:00.000Z",
+            "published_at_precision": "exact",
+            "metrics_checked_at": "2026-08-04T16:12:55.991Z",
             "metrics": {},
             "contribution_score": 0,
             "scored": false,
@@ -55287,28 +55277,6 @@
             "reason": "upstream_excluded"
           },
           {
-            "audit_key": "A16ZSR006:039589:x-a16z-%5B%22founder%22%2C%22a16z-speedrun-006-safeworld-founder-simo-rachidi%22%2C%221678006829165715457%22%5D",
-            "evidence_id": "x-a16z-%5B%22founder%22%2C%22a16z-speedrun-006-safeworld-founder-simo-rachidi%22%2C%221678006829165715457%22%5D",
-            "entity_id": "a16z-speedrun-006-safeworld-founder-simo-rachidi",
-            "owner_company_ids": [
-              "a16z-speedrun-006-safeworld"
-            ],
-            "cohort_memberships": [
-              "A16ZSR006"
-            ],
-            "platform": "x",
-            "platform_post_id": "1678006829165715457",
-            "source_url": "https://x.com/sim0rachidi/status/1678006829165715457",
-            "canonical_source_url": "https://x.com/sim0rachidi/status/1678006829165715457",
-            "posted_at": "2026-07-23T12:27:02.999Z",
-            "published_at_precision": "unknown",
-            "metrics_checked_at": "2026-08-09T13:38:18.024Z",
-            "metrics": {},
-            "contribution_score": 0,
-            "scored": false,
-            "reason": "upstream_excluded"
-          },
-          {
             "audit_key": "A16ZSR006:039603:youtube-a16z-%5B%22company%22%2C%22a16z-speedrun-006-syncere%22%2C%22ahBF2XkA9No%22%5D",
             "evidence_id": "youtube-a16z-%5B%22company%22%2C%22a16z-speedrun-006-syncere%22%2C%22ahBF2XkA9No%22%5D",
             "entity_id": "a16z-speedrun-006-syncere",
@@ -55381,50 +55349,22 @@
             "reason": "upstream_excluded"
           },
           {
-            "audit_key": "A16ZSR006:041865:x-a16z-%5B%22founder%22%2C%22a16z-speedrun-006-cascade-founder-hannia-zia%22%2C%221362512575129284612%22%5D",
-            "evidence_id": "x-a16z-%5B%22founder%22%2C%22a16z-speedrun-006-cascade-founder-hannia-zia%22%2C%221362512575129284612%22%5D",
-            "entity_id": "a16z-speedrun-006-cascade-founder-hannia-zia",
+            "audit_key": "A16ZSR006:041718:x-a16z-%5B%22founder%22%2C%22a16z-speedrun-006-hammock-founder-jesse-rose%22%2C%221058746252140208128%22%5D",
+            "evidence_id": "x-a16z-%5B%22founder%22%2C%22a16z-speedrun-006-hammock-founder-jesse-rose%22%2C%221058746252140208128%22%5D",
+            "entity_id": "a16z-speedrun-006-hammock-founder-jesse-rose",
             "owner_company_ids": [
-              "a16z-speedrun-006-cascade"
+              "a16z-speedrun-006-hammock"
             ],
             "cohort_memberships": [
               "A16ZSR006"
             ],
             "platform": "x",
-            "platform_post_id": "1362512575129284612",
-            "source_url": "https://x.com/Hannia_zia/status/1362512575129284612",
-            "canonical_source_url": "https://x.com/hannia_zia/status/1362512575129284612",
-            "posted_at": "2021-02-18T21:21:26.000Z",
+            "platform_post_id": "1058746252140208128",
+            "source_url": "https://x.com/senor_rose/status/1058746252140208128",
+            "canonical_source_url": "https://x.com/senor_rose/status/1058746252140208128",
+            "posted_at": "2018-11-03T15:42:31.000Z",
             "published_at_precision": "exact",
-            "metrics_checked_at": "2026-08-04T23:46:38.793Z",
-            "metrics": {
-              "bookmarks": 0,
-              "likes": 5,
-              "quotes": 0,
-              "replies": 2,
-              "reposts": 3
-            },
-            "contribution_score": 0,
-            "scored": false,
-            "reason": "upstream_excluded"
-          },
-          {
-            "audit_key": "A16ZSR006:042199:x-a16z-%5B%22founder%22%2C%22a16z-speedrun-006-zerodrift-founder-kumesh-aroomoogan%22%2C%221597616060215488515%22%5D",
-            "evidence_id": "x-a16z-%5B%22founder%22%2C%22a16z-speedrun-006-zerodrift-founder-kumesh-aroomoogan%22%2C%221597616060215488515%22%5D",
-            "entity_id": "a16z-speedrun-006-zerodrift-founder-kumesh-aroomoogan",
-            "owner_company_ids": [
-              "a16z-speedrun-006-zerodrift"
-            ],
-            "cohort_memberships": [
-              "A16ZSR006"
-            ],
-            "platform": "x",
-            "platform_post_id": "1597616060215488515",
-            "source_url": "https://x.com/kumesh_a/status/1597616060215488515",
-            "canonical_source_url": "https://x.com/kumesh_a/status/1597616060215488515",
-            "posted_at": "2022-11-29T15:38:45.000Z",
-            "published_at_precision": "exact",
-            "metrics_checked_at": "2026-08-04T23:46:38.804Z",
+            "metrics_checked_at": "2026-08-04T23:46:38.789Z",
             "metrics": {
               "bookmarks": 0,
               "likes": 0,
@@ -55437,145 +55377,202 @@
             "reason": "upstream_excluded"
           },
           {
-            "audit_key": "A16ZSR006:042534:x-a16z-%5B%22founder%22%2C%22a16z-speedrun-006-mirror-mirror-ai-founder-yusan-lin%22%2C%221895552239974138103%22%5D",
-            "evidence_id": "x-a16z-%5B%22founder%22%2C%22a16z-speedrun-006-mirror-mirror-ai-founder-yusan-lin%22%2C%221895552239974138103%22%5D",
-            "entity_id": "a16z-speedrun-006-mirror-mirror-ai-founder-yusan-lin",
+            "audit_key": "A16ZSR006:042032:x-a16z-%5B%22founder%22%2C%22a16z-speedrun-006-amdahl-founder-arya-soltanieh%22%2C%221477033476754976773%22%5D",
+            "evidence_id": "x-a16z-%5B%22founder%22%2C%22a16z-speedrun-006-amdahl-founder-arya-soltanieh%22%2C%221477033476754976773%22%5D",
+            "entity_id": "a16z-speedrun-006-amdahl-founder-arya-soltanieh",
             "owner_company_ids": [
-              "a16z-speedrun-006-mirror-mirror-ai"
+              "a16z-speedrun-006-amdahl"
             ],
             "cohort_memberships": [
               "A16ZSR006"
             ],
             "platform": "x",
-            "platform_post_id": "1895552239974138103",
-            "source_url": "https://x.com/yusan_lin/status/1895552239974138103",
-            "canonical_source_url": "https://x.com/yusan_lin/status/1895552239974138103",
-            "posted_at": "2025-02-28T19:10:46.000Z",
+            "platform_post_id": "1477033476754976773",
+            "source_url": "https://x.com/LostCod3r/status/1477033476754976773",
+            "canonical_source_url": "https://x.com/lostcod3r/status/1477033476754976773",
+            "posted_at": "2021-12-31T21:46:37.000Z",
             "published_at_precision": "exact",
-            "metrics_checked_at": "2026-08-04T23:46:38.817Z",
-            "metrics": {
-              "bookmarks": 66,
-              "likes": 120,
-              "quotes": 9,
-              "replies": 11,
-              "reposts": 9,
-              "views": 64528
-            },
-            "contribution_score": 0,
-            "scored": false,
-            "reason": "upstream_excluded"
-          },
-          {
-            "audit_key": "A16ZSR006:042869:x-a16z-%5B%22founder%22%2C%22a16z-speedrun-006-safeworld-founder-simo-rachidi%22%2C%221963750356426584491%22%5D",
-            "evidence_id": "x-a16z-%5B%22founder%22%2C%22a16z-speedrun-006-safeworld-founder-simo-rachidi%22%2C%221963750356426584491%22%5D",
-            "entity_id": "a16z-speedrun-006-safeworld-founder-simo-rachidi",
-            "owner_company_ids": [
-              "a16z-speedrun-006-safeworld"
-            ],
-            "cohort_memberships": [
-              "A16ZSR006"
-            ],
-            "platform": "x",
-            "platform_post_id": "1963750356426584491",
-            "source_url": "https://x.com/Sim0Rachidi/status/1963750356426584491",
-            "canonical_source_url": "https://x.com/sim0rachidi/status/1963750356426584491",
-            "posted_at": "2025-09-04T23:45:44.000Z",
-            "published_at_precision": "exact",
-            "metrics_checked_at": "2026-08-04T23:46:38.834Z",
+            "metrics_checked_at": "2026-08-04T23:46:38.799Z",
             "metrics": {
               "bookmarks": 0,
-              "likes": 0,
-              "quotes": 0,
-              "replies": 0,
-              "reposts": 0,
-              "views": 150
-            },
-            "contribution_score": 0,
-            "scored": false,
-            "reason": "upstream_excluded"
-          },
-          {
-            "audit_key": "A16ZSR006:043204:x-a16z-%5B%22company%22%2C%22a16z-speedrun-006-pluvo%22%2C%222029624000998003060%22%5D",
-            "evidence_id": "x-a16z-%5B%22company%22%2C%22a16z-speedrun-006-pluvo%22%2C%222029624000998003060%22%5D",
-            "entity_id": "a16z-speedrun-006-pluvo",
-            "owner_company_ids": [
-              "a16z-speedrun-006-pluvo"
-            ],
-            "cohort_memberships": [
-              "A16ZSR006"
-            ],
-            "platform": "x",
-            "platform_post_id": "2029624000998003060",
-            "source_url": "https://x.com/Pluvoapp/status/2029624000998003060",
-            "canonical_source_url": "https://x.com/pluvoapp/status/2029624000998003060",
-            "posted_at": "2026-03-05T18:24:05.000Z",
-            "published_at_precision": "exact",
-            "metrics_checked_at": "2026-08-04T23:46:38.852Z",
-            "metrics": {
-              "bookmarks": 0,
-              "likes": 0,
-              "quotes": 0,
-              "replies": 0,
-              "reposts": 0,
-              "views": 40
-            },
-            "contribution_score": 0,
-            "scored": false,
-            "reason": "upstream_excluded"
-          },
-          {
-            "audit_key": "A16ZSR006:043540:x-a16z-%5B%22founder%22%2C%22a16z-speedrun-006-sun-founder-artin-bogdanov%22%2C%222054261810501460394%22%5D",
-            "evidence_id": "x-a16z-%5B%22founder%22%2C%22a16z-speedrun-006-sun-founder-artin-bogdanov%22%2C%222054261810501460394%22%5D",
-            "entity_id": "a16z-speedrun-006-sun-founder-artin-bogdanov",
-            "owner_company_ids": [
-              "a16z-speedrun-006-sun"
-            ],
-            "cohort_memberships": [
-              "A16ZSR006"
-            ],
-            "platform": "x",
-            "platform_post_id": "2054261810501460394",
-            "source_url": "https://x.com/ArtinBogdanov/status/2054261810501460394",
-            "canonical_source_url": "https://x.com/artinbogdanov/status/2054261810501460394",
-            "posted_at": "2026-05-12T18:05:56.000Z",
-            "published_at_precision": "exact",
-            "metrics_checked_at": "2026-08-04T23:46:38.873Z",
-            "metrics": {
-              "bookmarks": 1,
               "likes": 2,
               "quotes": 0,
-              "replies": 0,
-              "reposts": 0,
-              "views": 941
+              "replies": 1,
+              "reposts": 0
             },
             "contribution_score": 0,
             "scored": false,
             "reason": "upstream_excluded"
           },
           {
-            "audit_key": "A16ZSR006:043874:x-a16z-%5B%22company%22%2C%22a16z-speedrun-006-snapp-stats%22%2C%222079417166391386382%22%5D",
-            "evidence_id": "x-a16z-%5B%22company%22%2C%22a16z-speedrun-006-snapp-stats%22%2C%222079417166391386382%22%5D",
-            "entity_id": "a16z-speedrun-006-snapp-stats",
+            "audit_key": "A16ZSR006:042345:x-a16z-%5B%22founder%22%2C%22a16z-speedrun-006-bilrost-founder-silvia-chen%22%2C%221713043474621354077%22%5D",
+            "evidence_id": "x-a16z-%5B%22founder%22%2C%22a16z-speedrun-006-bilrost-founder-silvia-chen%22%2C%221713043474621354077%22%5D",
+            "entity_id": "a16z-speedrun-006-bilrost-founder-silvia-chen",
             "owner_company_ids": [
-              "a16z-speedrun-006-snapp-stats"
+              "a16z-speedrun-006-bilrost"
             ],
             "cohort_memberships": [
               "A16ZSR006"
             ],
             "platform": "x",
-            "platform_post_id": "2079417166391386382",
-            "source_url": "https://x.com/SnappStats/status/2079417166391386382",
-            "canonical_source_url": "https://x.com/snappstats/status/2079417166391386382",
-            "posted_at": "2026-07-21T04:04:20.000Z",
+            "platform_post_id": "1713043474621354077",
+            "source_url": "https://x.com/thesilviachen/status/1713043474621354077",
+            "canonical_source_url": "https://x.com/thesilviachen/status/1713043474621354077",
+            "posted_at": "2023-10-14T04:06:05.000Z",
             "published_at_precision": "exact",
-            "metrics_checked_at": "2026-08-04T23:46:38.903Z",
+            "metrics_checked_at": "2026-08-04T23:46:38.809Z",
             "metrics": {
               "bookmarks": 0,
               "likes": 0,
               "quotes": 0,
               "replies": 0,
               "reposts": 0,
-              "views": 86
+              "views": 42
+            },
+            "contribution_score": 0,
+            "scored": false,
+            "reason": "upstream_excluded"
+          },
+          {
+            "audit_key": "A16ZSR006:042659:x-a16z-%5B%22company%22%2C%22a16z-speedrun-006-antihero-studios%22%2C%221939066789574373686%22%5D",
+            "evidence_id": "x-a16z-%5B%22company%22%2C%22a16z-speedrun-006-antihero-studios%22%2C%221939066789574373686%22%5D",
+            "entity_id": "a16z-speedrun-006-antihero-studios",
+            "owner_company_ids": [
+              "a16z-speedrun-006-antihero-studios"
+            ],
+            "cohort_memberships": [
+              "A16ZSR006"
+            ],
+            "platform": "x",
+            "platform_post_id": "1939066789574373686",
+            "source_url": "https://x.com/antihero_games/status/1939066789574373686",
+            "canonical_source_url": "https://x.com/antihero_games/status/1939066789574373686",
+            "posted_at": "2025-06-28T21:02:03.000Z",
+            "published_at_precision": "exact",
+            "metrics_checked_at": "2026-08-04T23:46:38.827Z",
+            "metrics": {
+              "bookmarks": 0,
+              "likes": 21,
+              "quotes": 0,
+              "replies": 1,
+              "reposts": 5,
+              "views": 1209
+            },
+            "contribution_score": 0,
+            "scored": false,
+            "reason": "upstream_excluded"
+          },
+          {
+            "audit_key": "A16ZSR006:042973:x-a16z-%5B%22founder%22%2C%22a16z-speedrun-006-quo-labs-founder-jenny-wen%22%2C%221994908736650187213%22%5D",
+            "evidence_id": "x-a16z-%5B%22founder%22%2C%22a16z-speedrun-006-quo-labs-founder-jenny-wen%22%2C%221994908736650187213%22%5D",
+            "entity_id": "a16z-speedrun-006-quo-labs-founder-jenny-wen",
+            "owner_company_ids": [
+              "a16z-speedrun-006-quo-labs"
+            ],
+            "cohort_memberships": [
+              "A16ZSR006"
+            ],
+            "platform": "x",
+            "platform_post_id": "1994908736650187213",
+            "source_url": "https://x.com/imjennywen/status/1994908736650187213",
+            "canonical_source_url": "https://x.com/imjennywen/status/1994908736650187213",
+            "posted_at": "2025-11-29T23:18:01.000Z",
+            "published_at_precision": "exact",
+            "metrics_checked_at": "2026-08-04T23:46:38.840Z",
+            "metrics": {
+              "bookmarks": 0,
+              "likes": 18,
+              "quotes": 1,
+              "replies": 2,
+              "reposts": 0,
+              "views": 931
+            },
+            "contribution_score": 0,
+            "scored": false,
+            "reason": "upstream_excluded"
+          },
+          {
+            "audit_key": "A16ZSR006:043287:x-a16z-%5B%22company%22%2C%22a16z-speedrun-006-omi-health%22%2C%222033579694910496789%22%5D",
+            "evidence_id": "x-a16z-%5B%22company%22%2C%22a16z-speedrun-006-omi-health%22%2C%222033579694910496789%22%5D",
+            "entity_id": "a16z-speedrun-006-omi-health",
+            "owner_company_ids": [
+              "a16z-speedrun-006-omi-health"
+            ],
+            "cohort_memberships": [
+              "A16ZSR006"
+            ],
+            "platform": "x",
+            "platform_post_id": "2033579694910496789",
+            "source_url": "https://x.com/omipethealth/status/2033579694910496789",
+            "canonical_source_url": "https://x.com/omipethealth/status/2033579694910496789",
+            "posted_at": "2026-03-16T16:22:36.000Z",
+            "published_at_precision": "exact",
+            "metrics_checked_at": "2026-08-04T23:46:38.857Z",
+            "metrics": {
+              "bookmarks": 0,
+              "likes": 0,
+              "quotes": 0,
+              "replies": 0,
+              "reposts": 0,
+              "views": 25
+            },
+            "contribution_score": 0,
+            "scored": false,
+            "reason": "upstream_excluded"
+          },
+          {
+            "audit_key": "A16ZSR006:043602:x-a16z-%5B%22company%22%2C%22a16z-speedrun-006-sirius-technology%22%2C%222059711563863589180%22%5D",
+            "evidence_id": "x-a16z-%5B%22company%22%2C%22a16z-speedrun-006-sirius-technology%22%2C%222059711563863589180%22%5D",
+            "entity_id": "a16z-speedrun-006-sirius-technology",
+            "owner_company_ids": [
+              "a16z-speedrun-006-sirius-technology"
+            ],
+            "cohort_memberships": [
+              "A16ZSR006"
+            ],
+            "platform": "x",
+            "platform_post_id": "2059711563863589180",
+            "source_url": "https://x.com/ChiefSnack/status/2059711563863589180",
+            "canonical_source_url": "https://x.com/chiefsnack/status/2059711563863589180",
+            "posted_at": "2026-05-27T19:01:19.000Z",
+            "published_at_precision": "exact",
+            "metrics_checked_at": "2026-08-04T23:46:38.878Z",
+            "metrics": {
+              "bookmarks": 1,
+              "likes": 3,
+              "quotes": 0,
+              "replies": 0,
+              "reposts": 1,
+              "views": 224
+            },
+            "contribution_score": 0,
+            "scored": false,
+            "reason": "upstream_excluded"
+          },
+          {
+            "audit_key": "A16ZSR006:043916:x-a16z-%5B%22founder%22%2C%22a16z-speedrun-006-quo-labs-founder-audrey-lo%22%2C%222082548211605270857%22%5D",
+            "evidence_id": "x-a16z-%5B%22founder%22%2C%22a16z-speedrun-006-quo-labs-founder-audrey-lo%22%2C%222082548211605270857%22%5D",
+            "entity_id": "a16z-speedrun-006-quo-labs-founder-audrey-lo",
+            "owner_company_ids": [
+              "a16z-speedrun-006-quo-labs"
+            ],
+            "cohort_memberships": [
+              "A16ZSR006"
+            ],
+            "platform": "x",
+            "platform_post_id": "2082548211605270857",
+            "source_url": "https://x.com/audrlo/status/2082548211605270857",
+            "canonical_source_url": "https://x.com/audrlo/status/2082548211605270857",
+            "posted_at": "2026-07-29T19:26:00.000Z",
+            "published_at_precision": "exact",
+            "metrics_checked_at": "2026-08-04T23:46:38.907Z",
+            "metrics": {
+              "bookmarks": 6,
+              "likes": 53,
+              "quotes": 0,
+              "replies": 31,
+              "reposts": 0,
+              "views": 6200
             },
             "contribution_score": 0,
             "scored": false,
@@ -55604,20 +55601,20 @@
             "reason": "upstream_excluded"
           },
           {
-            "audit_key": "A16ZSR006:044215:youtube-a16z-%5B%22company%22%2C%22a16z-speedrun-006-loops-ai%22%2C%222bfo7xfHVkI%22%5D",
-            "evidence_id": "youtube-a16z-%5B%22company%22%2C%22a16z-speedrun-006-loops-ai%22%2C%222bfo7xfHVkI%22%5D",
-            "entity_id": "a16z-speedrun-006-loops-ai",
+            "audit_key": "A16ZSR006:044236:youtube-a16z-%5B%22company%22%2C%22a16z-speedrun-006-picpet%22%2C%227L157fKo7us%22%5D",
+            "evidence_id": "youtube-a16z-%5B%22company%22%2C%22a16z-speedrun-006-picpet%22%2C%227L157fKo7us%22%5D",
+            "entity_id": "a16z-speedrun-006-picpet",
             "owner_company_ids": [
-              "a16z-speedrun-006-loops-ai"
+              "a16z-speedrun-006-picpet"
             ],
             "cohort_memberships": [
               "A16ZSR006"
             ],
             "platform": "youtube",
-            "platform_post_id": "2bfo7xfHVkI",
-            "source_url": "https://www.youtube.com/watch?v=2bfo7xfHVkI",
-            "canonical_source_url": "https://youtube.com/watch?v=2bfo7xfHVkI",
-            "posted_at": "2025-10-14T23:04:09.000Z",
+            "platform_post_id": "7L157fKo7us",
+            "source_url": "https://www.youtube.com/watch?v=7L157fKo7us",
+            "canonical_source_url": "https://youtube.com/watch?v=7L157fKo7us",
+            "posted_at": "2026-08-03T17:04:57.000Z",
             "published_at_precision": "exact",
             "metrics_checked_at": "2026-08-04T23:46:38.919Z",
             "metrics": {},
@@ -55650,7 +55647,7 @@
         ]
       },
       "missing_data": {
-        "finding_count": 5556,
+        "finding_count": 5544,
         "row_count": 2706,
         "scored_row_count": 34,
         "by_issue": [
@@ -55668,7 +55665,7 @@
           },
           {
             "key": "publication_date_precision_unknown",
-            "count": 224
+            "count": 212
           }
         ],
         "scored_by_issue": [
@@ -55679,8 +55676,8 @@
         ],
         "by_category": {
           "publication_date": {
-            "finding_count": 224,
-            "row_count": 224,
+            "finding_count": 212,
+            "row_count": 212,
             "scored_row_count": 34
           },
           "metrics": {
@@ -55823,6 +55820,28 @@
             "issue": "no_metric_values"
           },
           {
+            "audit_key": "A16ZSR006:039595:x-a16z-%5B%22founder%22%2C%22a16z-speedrun-006-alike-founder-max-van-kleek%22%2C%222081085905591210216%22%5D",
+            "evidence_id": "x-a16z-%5B%22founder%22%2C%22a16z-speedrun-006-alike-founder-max-van-kleek%22%2C%222081085905591210216%22%5D",
+            "entity_id": "a16z-speedrun-006-alike-founder-max-van-kleek",
+            "owner_company_ids": [
+              "a16z-speedrun-006-alike"
+            ],
+            "cohort_memberships": [
+              "A16ZSR006"
+            ],
+            "platform": "x",
+            "platform_post_id": "2081085905591210216",
+            "source_url": "https://x.com/emax/status/2081085905591210216",
+            "canonical_source_url": "https://x.com/emax/status/2081085905591210216",
+            "posted_at": "2026-07-25T18:35:19.256Z",
+            "published_at_precision": "exact",
+            "metrics_checked_at": "2026-08-09T13:41:40.259Z",
+            "metrics": {},
+            "contribution_score": 0,
+            "scored": false,
+            "issue": "no_metric_values"
+          },
+          {
             "audit_key": "A16ZSR006:044219:youtube-a16z-%5B%22company%22%2C%22a16z-speedrun-006-antihero-studios%22%2C%223aNOcqD6Pag%22%5D",
             "evidence_id": "youtube-a16z-%5B%22company%22%2C%22a16z-speedrun-006-antihero-studios%22%2C%223aNOcqD6Pag%22%5D",
             "entity_id": "a16z-speedrun-006-antihero-studios",
@@ -56054,26 +56073,23 @@
             "issue": "no_positive_scoring_engagement"
           },
           {
-            "audit_key": "A16ZSR006:039505:instagram-a16z-%5B%22company%22%2C%22a16z-speedrun-006-hammock%22%2C%22DWkKGswEsg-%22%5D",
-            "evidence_id": "instagram-a16z-%5B%22company%22%2C%22a16z-speedrun-006-hammock%22%2C%22DWkKGswEsg-%22%5D",
-            "entity_id": "a16z-speedrun-006-hammock",
+            "audit_key": "A16ZSR006:039576:linkedin-a16z-%5B%22company%22%2C%22a16z-speedrun-006-antihero-studios%22%2C%227437599816760717312%22%5D",
+            "evidence_id": "linkedin-a16z-%5B%22company%22%2C%22a16z-speedrun-006-antihero-studios%22%2C%227437599816760717312%22%5D",
+            "entity_id": "a16z-speedrun-006-antihero-studios",
             "owner_company_ids": [
-              "a16z-speedrun-006-hammock"
+              "a16z-speedrun-006-antihero-studios"
             ],
             "cohort_memberships": [
               "A16ZSR006"
             ],
-            "platform": "instagram",
-            "platform_post_id": "DWkKGswEsg-",
-            "source_url": "https://instagram.com/p/DWkKGswEsg-",
-            "canonical_source_url": "https://instagram.com/p/DWkKGswEsg-",
-            "posted_at": "2026-03-31T22:06:26.000Z",
+            "platform": "linkedin",
+            "platform_post_id": "7437599816760717312",
+            "source_url": "https://linkedin.com/feed/update/urn:li:activity:7437599816760717312",
+            "canonical_source_url": "https://linkedin.com/feed/update/urn:li:activity:7437599816760717312",
+            "posted_at": "2026-03-11T20:46:20.217Z",
             "published_at_precision": "exact",
-            "metrics_checked_at": "2026-08-09T13:37:58.350Z",
-            "metrics": {
-              "comments": 0,
-              "likes": 0
-            },
+            "metrics_checked_at": "2026-08-09T13:37:58.480Z",
+            "metrics": {},
             "contribution_score": 0,
             "scored": false,
             "issue": "no_positive_scoring_engagement"
@@ -56195,28 +56211,6 @@
             "issue": "no_positive_scoring_engagement"
           },
           {
-            "audit_key": "A16ZSR006:039595:x-a16z-%5B%22founder%22%2C%22a16z-speedrun-006-alike-founder-max-van-kleek%22%2C%222081085905591210216%22%5D",
-            "evidence_id": "x-a16z-%5B%22founder%22%2C%22a16z-speedrun-006-alike-founder-max-van-kleek%22%2C%222081085905591210216%22%5D",
-            "entity_id": "a16z-speedrun-006-alike-founder-max-van-kleek",
-            "owner_company_ids": [
-              "a16z-speedrun-006-alike"
-            ],
-            "cohort_memberships": [
-              "A16ZSR006"
-            ],
-            "platform": "x",
-            "platform_post_id": "2081085905591210216",
-            "source_url": "https://x.com/emax/status/2081085905591210216",
-            "canonical_source_url": "https://x.com/emax/status/2081085905591210216",
-            "posted_at": "2026-07-26T00:32:00.953Z",
-            "published_at_precision": "unknown",
-            "metrics_checked_at": "2026-08-09T13:41:40.259Z",
-            "metrics": {},
-            "contribution_score": 0,
-            "scored": false,
-            "issue": "no_positive_scoring_engagement"
-          },
-          {
             "audit_key": "A16ZSR006:044219:youtube-a16z-%5B%22company%22%2C%22a16z-speedrun-006-antihero-studios%22%2C%223aNOcqD6Pag%22%5D",
             "evidence_id": "youtube-a16z-%5B%22company%22%2C%22a16z-speedrun-006-antihero-studios%22%2C%223aNOcqD6Pag%22%5D",
             "entity_id": "a16z-speedrun-006-antihero-studios",
@@ -56317,6 +56311,30 @@
             "issue": "publication_date_precision_unknown"
           },
           {
+            "audit_key": "A16ZSR006:039605:instagram-a16z-%5B%22company%22%2C%22a16z-speedrun-006-partyhat%22%2C%22DYM0MOwkRqS%22%5D",
+            "evidence_id": "instagram-a16z-%5B%22company%22%2C%22a16z-speedrun-006-partyhat%22%2C%22DYM0MOwkRqS%22%5D",
+            "entity_id": "a16z-speedrun-006-partyhat",
+            "owner_company_ids": [
+              "a16z-speedrun-006-partyhat"
+            ],
+            "cohort_memberships": [
+              "A16ZSR006"
+            ],
+            "platform": "instagram",
+            "platform_post_id": "DYM0MOwkRqS",
+            "source_url": "https://www.instagram.com/p/DYM0MOwkRqS/",
+            "canonical_source_url": "https://instagram.com/p/DYM0MOwkRqS",
+            "posted_at": "2026-08-04T23:46:38.746Z",
+            "published_at_precision": "unknown",
+            "metrics_checked_at": "2026-08-04T23:46:38.746Z",
+            "metrics": {
+              "likes": 8
+            },
+            "contribution_score": 0,
+            "scored": false,
+            "issue": "publication_date_precision_unknown"
+          },
+          {
             "audit_key": "A16ZSR006:036533:linkedin-a16z-%5B%22company%22%2C%22a16z-speedrun-006-amdahl%22%2C%227450625523120238592%22%5D",
             "evidence_id": "linkedin-a16z-%5B%22company%22%2C%22a16z-speedrun-006-amdahl%22%2C%227450625523120238592%22%5D",
             "entity_id": "a16z-speedrun-006-amdahl",
@@ -56379,28 +56397,6 @@
             "posted_at": "2026-08-04T16:11:11.646Z",
             "published_at_precision": "unknown",
             "metrics_checked_at": "2026-08-04T16:11:11.646Z",
-            "metrics": {},
-            "contribution_score": 0,
-            "scored": false,
-            "issue": "publication_date_precision_unknown"
-          },
-          {
-            "audit_key": "A16ZSR006:039595:x-a16z-%5B%22founder%22%2C%22a16z-speedrun-006-alike-founder-max-van-kleek%22%2C%222081085905591210216%22%5D",
-            "evidence_id": "x-a16z-%5B%22founder%22%2C%22a16z-speedrun-006-alike-founder-max-van-kleek%22%2C%222081085905591210216%22%5D",
-            "entity_id": "a16z-speedrun-006-alike-founder-max-van-kleek",
-            "owner_company_ids": [
-              "a16z-speedrun-006-alike"
-            ],
-            "cohort_memberships": [
-              "A16ZSR006"
-            ],
-            "platform": "x",
-            "platform_post_id": "2081085905591210216",
-            "source_url": "https://x.com/emax/status/2081085905591210216",
-            "canonical_source_url": "https://x.com/emax/status/2081085905591210216",
-            "posted_at": "2026-07-26T00:32:00.953Z",
-            "published_at_precision": "unknown",
-            "metrics_checked_at": "2026-08-09T13:41:40.259Z",
             "metrics": {},
             "contribution_score": 0,
             "scored": false,
@@ -71371,8 +71367,8 @@
               "platform_post_id": "1678006829165715457",
               "source_url": "https://x.com/sim0rachidi/status/1678006829165715457",
               "canonical_source_url": "https://x.com/sim0rachidi/status/1678006829165715457",
-              "posted_at": "2026-07-23T12:27:02.999Z",
-              "published_at_precision": "unknown",
+              "posted_at": "2023-07-09T11:42:58.589Z",
+              "published_at_precision": "exact",
               "metrics_checked_at": "2026-08-09T13:38:18.024Z",
               "metrics": {},
               "contribution_score": 0,
@@ -74388,8 +74384,8 @@
       {
         "id": "input_envelope_hash_consistent",
         "passed": true,
-        "expected": "8af4d26fa983815074ddcc059a0a9ad2001003545c6e04e0690557be371c055d",
-        "observed": "8af4d26fa983815074ddcc059a0a9ad2001003545c6e04e0690557be371c055d"
+        "expected": "d088759d0df5fe4b6960b09fe31b5eb76178006db4300809d71543afde77bde4",
+        "observed": "d088759d0df5fe4b6960b09fe31b5eb76178006db4300809d71543afde77bde4"
       },
       {
         "id": "required_cohort_coverage",
