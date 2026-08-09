@@ -84,7 +84,7 @@ function applyGlobalBenchmark(
           benchmarkScope: GLOBAL_BENCHMARK_SCOPE,
           benchmarkPopulation: GLOBAL_BENCHMARK_POPULATION
         },
-        explanation: `${company.scoreBreakdown.explanation} Headline scores use one global current-company benchmark across all supported batches: the strongest absolute evidence score is 100. Raw platform contributions are not scaled.`
+        explanation: `${company.scoreBreakdown.explanation} Headline scores use one global current-company benchmark across all supported batches: the strongest absolute evidence score is 100. Stored platform contributions remain raw; each displayed platform component applies this benchmark scale and reconciles to the headline.`
       }
     };
   });
