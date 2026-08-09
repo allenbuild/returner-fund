@@ -2988,6 +2988,7 @@ function repositoryArtifactPaths() {
     "public/topic-facets",
     "src/lib/graph/ranked-posts-sidecar.generated.json",
     "artifacts/company-timeline/coverage.json",
+    "artifacts/company-timeline/public-discovery-current.json",
     "outputs/benchmarks",
     "outputs/cohort-coverage-current.json",
     "outputs/ingestion-source-delta-current.json",

@@ -58,9 +58,9 @@ test("autonomous publication has a bounded database-free public discovery lane",
   assert.match(runner, /--per-fetch-timeout-ms=6000/);
   assert.match(runner, /timeline\.discovery\.file_backed/);
   assert.match(runner, /network_collection_explicitly_skipped/);
-  assert.match(fileDiscovery, /work\/timeline-public-discovery-current\.json/);
+  assert.match(fileDiscovery, /artifacts\/company-timeline\/public-discovery-current\.json/);
   const stagedArtifacts = runner.slice(runner.indexOf("function repositoryArtifactPaths"));
-  assert.doesNotMatch(stagedArtifacts, /outputs\/timeline-public-discovery-current\.json/);
+  assert.match(stagedArtifacts, /artifacts\/company-timeline\/public-discovery-current\.json/);
 });
 
 test("autonomous publication consumes only Timeline invalidations claimed before its build", () => {

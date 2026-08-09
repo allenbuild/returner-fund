@@ -14,7 +14,8 @@ import { createConfiguredTimelineSearchProviders, type TimelineSearchProvider } 
 
 export const TIMELINE_PUBLIC_DISCOVERY_SCHEMA_VERSION = "company-timeline-public-discovery.v1" as const;
 export const TIMELINE_PUBLIC_DISCOVERY_RUNNER_VERSION = "timeline-public-discovery-runner-2026-08-02.v1" as const;
-export const DEFAULT_TIMELINE_PUBLIC_DISCOVERY_PATH = "work/timeline-public-discovery-current.json" as const;
+export const DEFAULT_TIMELINE_PUBLIC_DISCOVERY_PATH =
+  "artifacts/company-timeline/public-discovery-current.json" as const;
 
 /**
  * File-backed discovery intentionally excludes canonical graph evidence and
