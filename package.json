@@ -7,6 +7,7 @@
   },
   "scripts": {
     "prepare:graph-runtime": "node scripts/prepare-graph-runtime-evidence.mjs",
+    "graph:inclusion:audit": "node --experimental-strip-types --loader ./scripts/lib/scoring-diagnostics-ts-loader.mjs scripts/audit-graph-source-inclusion.mjs",
     "dev": "npm run prepare:graph-runtime && next dev",
     "build": "npm run prepare:graph-runtime && next build",
     "postbuild": "node scripts/validate-graph-function-trace.mjs",

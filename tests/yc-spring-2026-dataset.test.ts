@@ -552,6 +552,23 @@ describe("YC Summer 2026 official snapshot", () => {
     expect(JSON.stringify(graph.evidence)).not.toContain("yc-public-directory");
   }, 30_000);
 
+  it("materializes distinct web and RSS articles discovered through one feed or sitemap", () => {
+    const summer = buildGraphResponse({ batchSlug: "S26" }, ycSpring2026GraphDataset);
+    const agencyToolArticles = summer.evidence.filter(
+      (item) => item.platform === "web" && item.sourceUrl.startsWith("https://agencytool.com/blog")
+    );
+    const spring = buildGraphResponse({ batchSlug: "S2026" }, ycSpring2026GraphDataset);
+    const springContext = spring.evidence.filter(
+      (item) => item.platform === "web" || item.platform === "rss"
+    );
+
+    expect(agencyToolArticles.length).toBeGreaterThan(1);
+    expect(agencyToolArticles.some((item) => item.sourceUrl.endsWith("/sitemap.xml"))).toBe(false);
+    expect(new Set(agencyToolArticles.map(canonicalPostKey)).size).toBe(agencyToolArticles.length);
+    expect(springContext.length).toBeGreaterThan(3_000);
+    expect(new Set(springContext.map(canonicalPostKey)).size).toBe(springContext.length);
+  }, 30_000);
+
   it("preserves historical evidence across Summer 2026 company renames", () => {
     const summer = buildGraphResponse({ batchSlug: "S26" }, ycSpring2026GraphDataset);
     const spring = buildGraphResponse({ batchSlug: "S2026" }, ycSpring2026GraphDataset);

@@ -5,6 +5,7 @@ import { join } from "node:path";
 import {
   canonicalEvidenceKey,
   canonicalPostKey,
+  contextEvidenceContentUrl,
   dedupeEvidenceForScoring,
   dedupeEvidenceItems,
   nativeEvidenceIdentityFromUrl
@@ -93,6 +94,7 @@ const SPEEDRUN_NATIVE_EVIDENCE_PLATFORMS = new Set<Platform>([
   "tiktok",
   "bluesky"
 ]);
+const SPEEDRUN_CONTEXT_EVIDENCE_PLATFORMS = new Set<Platform>(["web", "rss"]);
 const ACCEPTED_GITHUB_LOGINS = new Set([
   "amdahlco",
   "belong-dev",
@@ -1118,7 +1120,7 @@ function buildSpeedrunEvidenceItems(): A16zSpeedrun006EvidenceItem[] {
 
   return normalizeEvidenceScores(
     dedupeEvidenceItems([...legacyEvidence, ...netNewSupplementalEvidence])
-      .filter(isNativeSpeedrunEvidenceItem)
+      .filter(isAllowedSpeedrunEvidenceItem)
       .map(enrichEvidenceThumbnail)
   );
 }
@@ -1470,10 +1472,39 @@ function publicEvidenceItemFromCanonicalAttribution(
 
   const companySlug = slugify(source.companySlug ?? "");
   const profile = speedrun006Profiles.find((candidate) => slugify(candidate.name) === companySlug);
-  const nativePostId = nativeEvidenceIdentityFromUrl(source.platform, source.sourceUrl);
   const attribution = profile
     ? canonicalPublicEvidenceAttribution(source, profile, companySlug)
     : null;
+  const contextUrl = profile ? a16zFirstPartyContextEvidenceUrl(source, profile) : null;
+  if (contextUrl && profile) {
+    if (
+      source.entityType !== "company" ||
+      source.entityId !== companyIdFromSlug(companySlug) ||
+      attribution?.entityType !== "company" ||
+      attribution.entityId !== source.entityId
+    ) {
+      return [];
+    }
+
+    return publicEvidenceItemFromSource(
+      {
+        ...source,
+        sourceUrl: contextUrl,
+        contributionScore: 0
+      },
+      {
+        sourceUrl: contextUrl,
+        companySlug,
+        companyName: profile.name,
+        matchReason: source.matchReason ?? "Verified first-party A16Z context evidence.",
+        entityType: "company",
+        entityId: source.entityId,
+        observedAtFallback
+      }
+    );
+  }
+
+  const nativePostId = nativeEvidenceIdentityFromUrl(source.platform, source.sourceUrl);
   if (
     !profile ||
     !attribution ||
@@ -1781,7 +1812,10 @@ function publicEvidenceItemFromSource(
   source: PublicEvidenceRecord,
   attachment: PublicSocialEvidenceAttachment
 ): EvidenceItem[] {
-  if (!SPEEDRUN_NATIVE_EVIDENCE_PLATFORMS.has(source.platform)) return [];
+  if (
+    !SPEEDRUN_NATIVE_EVIDENCE_PLATFORMS.has(source.platform) &&
+    !SPEEDRUN_CONTEXT_EVIDENCE_PLATFORMS.has(source.platform)
+  ) return [];
 
   const companyId = companyIdFromSlug(attachment.companySlug);
   const entityType = attachment.entityType ?? "company";
@@ -1792,6 +1826,7 @@ function publicEvidenceItemFromSource(
   const accountUrl = normalizedAccount?.url ?? null;
   const handle = source.authorHandle ?? normalizedAccount?.handle ?? handleFromUrl(accountUrl);
   const isLinkedInActivityFragment = isLinkedInProfileActivityFragmentUrl(source.platform, source.sourceUrl);
+  const isContextEvidence = SPEEDRUN_CONTEXT_EVIDENCE_PLATFORMS.has(source.platform);
   const snapshotFetchedAt = attachment.observedAtFallback ?? publicSnapshot.source.fetchedAt;
   const observedAt = source.observedAt ?? source.first_seen_at ?? snapshotFetchedAt;
   const githubRepository = resolveGithubRepository(
@@ -1827,7 +1862,7 @@ function publicEvidenceItemFromSource(
       observedAt,
       metricsCheckedAt: source.metricsCheckedAt ?? source.last_checked_at ?? snapshotFetchedAt,
       authorHandle: handle,
-      contributionScore: isLinkedInActivityFragment ? 0 : source.contributionScore ?? 1,
+      contributionScore: isLinkedInActivityFragment || isContextEvidence ? 0 : source.contributionScore ?? 1,
       first_seen_at: source.first_seen_at ?? snapshotFetchedAt,
       last_checked_at: source.last_checked_at ?? snapshotFetchedAt,
       last_updated_at: githubTimestamps?.lastUpdatedAt ?? source.last_updated_at ?? snapshotFetchedAt,
@@ -2446,8 +2481,12 @@ function socialAccountFromSnapshot(
   };
 }
 
-function isNativeSpeedrunEvidenceItem(item: EvidenceItem): boolean {
+function isAllowedSpeedrunEvidenceItem(item: EvidenceItem): boolean {
   const media = item as EvidenceItem & { mediaUrl?: string | null; mediaUrls?: string[] | null };
+  if (SPEEDRUN_CONTEXT_EVIDENCE_PLATFORMS.has(item.platform)) {
+    return a16zIsFirstPartyContextEvidence(item);
+  }
+
   return (
     SPEEDRUN_NATIVE_EVIDENCE_PLATFORMS.has(item.platform) &&
     a16zIsAllowedNativeEvidenceUrl(item.platform, item.sourceUrl) &&
@@ -2455,6 +2494,53 @@ function isNativeSpeedrunEvidenceItem(item: EvidenceItem): boolean {
     !isA16zProfileUrl(media.mediaUrl) &&
     !(media.mediaUrls ?? []).some(isA16zProfileUrl)
   );
+}
+
+export function a16zIsFirstPartyContextEvidence(item: EvidenceItem): boolean {
+  if (!SPEEDRUN_CONTEXT_EVIDENCE_PLATFORMS.has(item.platform)) return false;
+
+  const companyId = item.attachedCompanyId ?? (item.entityType === "company" ? item.entityId : null);
+  const profile = speedrun006Profiles.find(
+    (candidate) => companyIdFromSlug(slugify(candidate.name)) === companyId
+  );
+  return Boolean(
+    profile &&
+    item.entityType === "company" &&
+    item.review_state === "verified" &&
+    item.contributionScore === 0 &&
+    a16zUrlMatchesFirstPartyWebsite(item.sourceUrl, profile.websiteUrl)
+  );
+}
+
+function a16zFirstPartyContextEvidenceUrl(
+  source: PublicEvidenceRecord,
+  profile: SpeedrunCompanyProfile
+): string | null {
+  if (!SPEEDRUN_CONTEXT_EVIDENCE_PLATFORMS.has(source.platform)) return null;
+  if (
+    source.review_state !== "verified" ||
+    Number(source.attributionVersion ?? 0) < 3 ||
+    source.attributionStatus !== "verified" ||
+    source.linkStatus === "invalid" ||
+    source.linkStatus === "blocked" ||
+    source.contributionScore !== 0
+  ) return null;
+
+  const contentUrl = contextEvidenceContentUrl(source.platform, source.platformPostId)
+    ?? contextEvidenceContentUrl(source.platform, source.sourceUrl);
+  return contentUrl && a16zUrlMatchesFirstPartyWebsite(contentUrl, profile.websiteUrl)
+    ? contentUrl
+    : null;
+}
+
+function a16zUrlMatchesFirstPartyWebsite(rawUrl: string, rawWebsiteUrl: string): boolean {
+  const url = strictHttpsUrl(rawUrl);
+  const website = strictHttpsUrl(rawWebsiteUrl);
+  if (!url || !website) return false;
+
+  const host = url.hostname.replace(/^www\./i, "").toLowerCase();
+  const websiteHost = website.hostname.replace(/^www\./i, "").toLowerCase();
+  return host === websiteHost || host.endsWith(`.${websiteHost}`);
 }
 
 export function a16zIsAllowedNativeEvidenceUrl(

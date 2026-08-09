@@ -8,6 +8,7 @@ import {
   a16zEvidenceItemId,
   a16zExactEvidenceIdentity,
   a16zInstagramGridAuthorHandle,
+  a16zIsFirstPartyContextEvidence,
   a16zIsAllowedNativeEvidenceUrl,
   a16zNativeAuthorEvidenceMatches,
   a16zNativePostIdsMatch,
@@ -15,6 +16,7 @@ import {
 } from "@/lib/graph/a16z-speedrun-006-dataset";
 import { calibrateBatchCompanyScores } from "@/lib/scoring/batch-calibration";
 import { buildGraphResponse } from "@/lib/graph/graph-builder";
+import { canonicalPostKey } from "@/lib/graph/dedupe";
 import { TRACTION_SCORING_CONFIG } from "@/lib/graph/traction-scoring-config";
 import { scoringEligibility } from "@/lib/graph/traction-scoring";
 import { isCrediblyPublishedToday } from "@/lib/graph/native-publication-date";
@@ -866,6 +868,10 @@ describe("a16z speedrun 006 dataset", () => {
       expect(a16zIsAllowedNativeEvidenceUrl("instagram", url)).toBe(false);
     }
     for (const item of a16zSpeedrun006GraphDataset.evidence) {
+      if (item.platform === "web" || item.platform === "rss") {
+        expect(a16zIsFirstPartyContextEvidence(item)).toBe(true);
+        continue;
+      }
       expect(a16zIsAllowedNativeEvidenceUrl(item.platform, item.sourceUrl)).toBe(true);
       if (item.accountUrl) {
         expect(a16zIsAllowedNativeEvidenceUrl(item.platform, item.accountUrl)).toBe(true);
@@ -877,6 +883,18 @@ describe("a16z speedrun 006 dataset", () => {
     ]) {
       expect(a16zIsAllowedNativeEvidenceUrl(account.platform, account.url)).toBe(true);
     }
+  });
+
+  it("publishes verified first-party web and RSS context without scoring it", () => {
+    const context = a16zSpeedrun006GraphDataset.evidence.filter(
+      (item) => item.platform === "web" || item.platform === "rss"
+    );
+
+    expect(context.length).toBeGreaterThan(1_000);
+    expect(context.every(a16zIsFirstPartyContextEvidence)).toBe(true);
+    expect(context.every((item) => item.contributionScore === 0)).toBe(true);
+    expect(context.some((item) => item.sourceUrl.includes("/feed"))).toBe(false);
+    expect(new Set(context.map(canonicalPostKey)).size).toBe(context.length);
   });
 
   it("uses receipts only when no native author was observed", () => {

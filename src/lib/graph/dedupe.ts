@@ -108,6 +108,27 @@ export function canonicalEvidenceUrl(rawUrl: string): string {
   }
 }
 
+/**
+ * Web/RSS volume receipts keep the crawl endpoint in `sourceUrl` and the
+ * physical article URL in `platformPostId`.  Normalize that article locator so
+ * graph materializers and dedupe operate on the published item rather than
+ * collapsing every item discovered through one sitemap or feed.
+ */
+export function contextEvidenceContentUrl(
+  platform: EvidenceItem["platform"],
+  rawPlatformPostId: string | null | undefined
+): string | null {
+  if (platform !== "web" && platform !== "rss") return null;
+
+  const value = String(rawPlatformPostId ?? "")
+    .trim()
+    .replace(/^(?:(?:web|rss):)?(?:url:)?(?=https?:\/\/)/i, "");
+  if (!/^https?:\/\//i.test(value)) return null;
+
+  const canonical = canonicalEvidenceUrl(value);
+  return canonical && /^https?:\/\//i.test(canonical) ? canonical : null;
+}
+
 export function dedupeEvidenceItems<T extends EvidenceItem>(items: T[]): T[] {
   return dedupeEvidenceByAliases(items, (item) => [
     canonicalEvidenceKey(item),
@@ -344,6 +365,10 @@ function platformPostIdIdentity(
   const value = rawValue?.trim();
   if (!value) {
     return null;
+  }
+
+  if (platform === "web" || platform === "rss") {
+    return contextEvidenceContentUrl(platform, value);
   }
 
   if (/^https?:\/\//i.test(value)) {

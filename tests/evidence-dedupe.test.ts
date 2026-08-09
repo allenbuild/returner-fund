@@ -3,6 +3,7 @@ import {
   canonicalEvidenceKey,
   canonicalEvidenceUrl,
   canonicalPostKey,
+  contextEvidenceContentUrl,
   dedupeEvidenceForScoring,
   dedupeEvidenceItems,
   hasEvidenceIdentityConflict,
@@ -21,6 +22,35 @@ describe("evidence dedupe", () => {
     expect(canonicalEvidenceUrl("https://www.instagram.com/reel/ABC123/?igshid=test&utm_campaign=x")).toBe(
       "https://instagram.com/reel/ABC123"
     );
+  });
+
+  it("keeps distinct articles discovered through the same sitemap or feed", () => {
+    const context = [
+      {
+        ...evidence("article-a", "https://example.com/sitemap.xml", 0),
+        platform: "web" as const,
+        platformPostId: "web:https://example.com/blog/a"
+      },
+      {
+        ...evidence("article-b", "https://example.com/sitemap.xml", 0),
+        platform: "web" as const,
+        platformPostId: "web:https://example.com/blog/b"
+      },
+      {
+        ...evidence("feed-a", "https://example.com/feed", 0),
+        platform: "rss" as const,
+        platformPostId: "url:https://example.com/news/a"
+      }
+    ];
+
+    expect(contextEvidenceContentUrl("web", context[0].platformPostId)).toBe(
+      "https://example.com/blog/a"
+    );
+    expect(contextEvidenceContentUrl("rss", context[2].platformPostId)).toBe(
+      "https://example.com/news/a"
+    );
+    expect(new Set(context.map(canonicalPostKey)).size).toBe(3);
+    expect(dedupeEvidenceItems(context)).toHaveLength(3);
   });
 
   it("accepts LinkedIn locale subdomains without accepting lookalike hosts", () => {

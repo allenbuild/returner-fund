@@ -27,6 +27,7 @@ import {
 } from "./traction-scoring";
 import {
   canonicalPostKey,
+  contextEvidenceContentUrl,
   dedupeEvidenceForScoring,
   dedupeEvidenceItems,
   hasEvidenceIdentityConflict,
@@ -1138,6 +1139,7 @@ function publicEvidenceItem(item: PublicEvidenceRecord): EvidenceItem {
   const authorHandle = item.platform === "linkedin"
     ? linkedInProfileHandle(rawAuthorHandle ?? undefined) ?? rawAuthorHandle
     : rawAuthorHandle;
+  const sourceUrl = contextEvidenceContentUrl(item.platform, item.platformPostId) ?? item.sourceUrl;
 
   return enrichEvidenceThumbnail({
     id: item.id,
@@ -1171,7 +1173,7 @@ function publicEvidenceItem(item: PublicEvidenceRecord): EvidenceItem {
     linkFailureReason: item.linkFailureReason ?? null,
     metrics: item.metrics ?? {},
     contributionScore,
-    sourceUrl: linkedInActivity.kind === "native_comment" ? linkedInActivity.contextUrl : item.sourceUrl,
+    sourceUrl: linkedInActivity.kind === "native_comment" ? linkedInActivity.contextUrl : sourceUrl,
     platformPostId:
       linkedInActivity.kind === "native_comment"
         ? linkedInActivity.reference.commentId
