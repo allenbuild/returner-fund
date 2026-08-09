@@ -1,4 +1,5 @@
 import { YC_SPRING_2026_BATCH_SLUG, yc2026GraphDataset } from "./yc-spring-2026-dataset";
+import { dedupePublishedContextEvidence } from "./dedupe";
 import { buildEvidenceStats, evidenceBelongsToEntityScope } from "./evidence-stats";
 import { graphNodeMatchesSearchQuery } from "./search";
 import {
@@ -109,9 +110,10 @@ export function buildGraphResponse(
     .filter((company) => company.batchSlug === batch.slug)
     .map(enrichCompanyRecordVerticals);
   const batchFounders = dataset.founders.filter((founder) => founder.batchSlug === batch.slug);
-  const batchEvidence = dataset.evidence.filter((item) =>
+  const rawBatchEvidence = dataset.evidence.filter((item) =>
     !item.batchSlug || item.batchSlug.toUpperCase() === batch.slug.toUpperCase()
   );
+  const batchEvidence = dedupePublishedContextEvidence(rawBatchEvidence, batch.slug);
   const topVoiceRollups = topVoiceMode
     ? buildTopVoiceRollups(
         baseBatchCompanies,

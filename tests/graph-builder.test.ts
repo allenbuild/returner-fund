@@ -15,6 +15,52 @@ import type { CompanyRecord, DemoGraphDataset, EvidenceItem, FounderRecord } fro
 const graphBuilderBenchmark = process.env.RUN_GRAPH_BUILDER_BENCHMARK === "1" ? it : it.skip;
 
 describe("graph builder", () => {
+  it("publishes one score-neutral receipt for duplicate first-party web and RSS observations", () => {
+    const company = makeCompany({
+      id: "company-context",
+      name: "Context Company",
+      totalScore: 31,
+      previousScore: 31
+    });
+    const shared = {
+      batchSlug: "S2026",
+      entityId: company.id,
+      contributionScore: 0,
+      tractionStatus: "unscored" as const,
+      metrics: {},
+      linkStatus: "verified" as const,
+      review_state: "verified" as const,
+      platformPostId: "https://context.example/blog/launch",
+      sourceUrl: "https://context.example/blog/launch",
+      title: "Context Company launch",
+      text: "Context Company shared its launch update.",
+      publishedAtPrecision: "exact" as const
+    };
+    const dataset: DemoGraphDataset = {
+      mode: "official_snapshot",
+      batches: [{ slug: "S2026", label: "Test batch" }],
+      companies: [company],
+      founders: [],
+      evidence: [
+        makeEvidence({ ...shared, id: "context-web", platform: "web" }),
+        makeEvidence({ ...shared, id: "context-rss", platform: "rss" })
+      ],
+      needsReview: [],
+      platformStatus: []
+    };
+
+    const graph = buildGraphResponse({ batchSlug: "S2026" }, dataset);
+
+    expect(graph.evidence.map((item) => item.id)).toEqual(["context-rss"]);
+    expect(graph.evidenceStats).toEqual(
+      expect.objectContaining({
+        totalCount: 1,
+        byPlatform: { rss: 1 }
+      })
+    );
+    expect(graph.nodes.find((node) => node.id === nodeId("company", company.id))?.score).toBe(31);
+  });
+
   it("sizes company and founder nodes from the global headline score, independent of peers", () => {
     const smallCompany = getNodeRadius(10, [10, 40, 90], "company");
     const largeCompany = getNodeRadius(90, [10, 40, 90], "company");

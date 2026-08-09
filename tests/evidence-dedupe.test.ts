@@ -4,6 +4,7 @@ import {
   canonicalEvidenceUrl,
   canonicalPostKey,
   contextEvidenceContentUrl,
+  dedupePublishedContextEvidence,
   dedupeEvidenceForScoring,
   dedupeEvidenceItems,
   hasEvidenceIdentityConflict,
@@ -51,6 +52,97 @@ describe("evidence dedupe", () => {
     );
     expect(new Set(context.map(canonicalPostKey)).size).toBe(3);
     expect(dedupeEvidenceItems(context)).toHaveLength(3);
+  });
+
+  it("publishes one deterministic rich receipt for the same verified web and RSS article", () => {
+    const web = {
+      ...evidence("web-alias", "https://example.com/sitemap.xml", 0),
+      batchSlug: "S2026",
+      platform: "web" as const,
+      platformPostId: "web:https://example.com/blog/launch?utm_source=site",
+      review_state: "verified" as const,
+      linkStatus: "verified" as const,
+      tractionStatus: "unscored" as const,
+      metrics: {},
+      title: "Untitled",
+      text: "Article",
+      publishedAtPrecision: "day" as const,
+      last_checked_at: "2026-08-02T00:00:00.000Z"
+    };
+    const rss = {
+      ...web,
+      id: "rss-rich",
+      platform: "rss" as const,
+      platformPostId: "url:https://example.com/blog/launch",
+      title: "Acme launches its production platform",
+      text: "The Acme team announced its production platform and shared customer results.",
+      publishedAtPrecision: "exact" as const,
+      last_checked_at: "2026-08-01T00:00:00.000Z"
+    };
+
+    expect(dedupePublishedContextEvidence([web, rss], "S2026").map((item) => item.id)).toEqual([
+      "rss-rich"
+    ]);
+    expect(dedupePublishedContextEvidence([rss, web], "S2026").map((item) => item.id)).toEqual([
+      "rss-rich"
+    ]);
+  });
+
+  it("keeps context articles separate across owners and cohorts", () => {
+    const base = {
+      ...evidence("context-a", "https://example.com/feed", 0),
+      batchSlug: "S2026",
+      platform: "rss" as const,
+      platformPostId: "https://example.com/blog/shared",
+      review_state: "verified" as const,
+      linkStatus: "verified" as const,
+      tractionStatus: "unscored" as const,
+      metrics: {},
+      title: "Shared article",
+      text: "A verified first-party article."
+    };
+    const differentOwner = { ...base, id: "context-b", entityId: "company-other", platform: "web" as const };
+    const differentCohort = { ...base, id: "context-c", batchSlug: "S26", platform: "web" as const };
+
+    expect(
+      dedupePublishedContextEvidence([base, differentOwner, differentCohort], "S2026").map(
+        (item) => item.id
+      )
+    ).toEqual(["context-a", "context-b", "context-c"]);
+  });
+
+  it("fails closed instead of hiding scored or ambiguously owned context aliases", () => {
+    const base = {
+      ...evidence("context-safe", "https://example.com/feed", 0),
+      batchSlug: "S2026",
+      platform: "rss" as const,
+      platformPostId: "https://example.com/blog/shared",
+      review_state: "verified" as const,
+      linkStatus: "verified" as const,
+      tractionStatus: "unscored" as const,
+      metrics: {},
+      title: "Shared article",
+      text: "A verified first-party article."
+    };
+    const scored = {
+      ...base,
+      id: "context-scored",
+      platform: "web" as const,
+      contributionScore: 1,
+      tractionStatus: "scored" as const
+    };
+    const ambiguous = {
+      ...base,
+      id: "context-ambiguous",
+      attachedCompanyId: "company-other"
+    };
+
+    expect(() => dedupePublishedContextEvidence([base, scored], "S2026")).toThrow(
+      /Refusing to collapse scored context evidence aliases/
+    );
+    expect(() => dedupePublishedContextEvidence([ambiguous], "S2026")).toThrow(
+      /ambiguous or missing company ownership/
+    );
   });
 
   it("accepts LinkedIn locale subdomains without accepting lookalike hosts", () => {

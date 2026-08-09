@@ -1,8 +1,13 @@
 import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { canonicalPostKey } from "@/lib/graph/dedupe";
+import {
+  canonicalPostKey,
+  contextEvidenceContentUrl,
+  dedupePublishedContextEvidence
+} from "@/lib/graph/dedupe";
 import { buildGraphResponse } from "@/lib/graph/graph-builder";
+import { evidenceBelongsToEntityScope } from "@/lib/graph/evidence-stats";
 import { isCrediblyPublishedToday } from "@/lib/graph/native-publication-date";
 import { scoringEligibility } from "@/lib/graph/traction-scoring";
 import {
@@ -92,6 +97,53 @@ const VERIFIED_S26_LINKEDIN_POST_IDS = [
 ] as const;
 
 describe("YC Summer 2026 official snapshot", () => {
+  it("publishes more than 40,000 unique content rows without RSS/web alias inflation", () => {
+    const expectedCounts: Record<string, number> = {
+      S2026: 20_928,
+      S26: 13_705,
+      A16ZSR006: 9_201
+    };
+    let total = 0;
+
+    for (const [batchSlug, expectedCount] of Object.entries(expectedCounts)) {
+      const batchEvidence = ycSpring2026GraphDataset.evidence.filter(
+        (item) => !item.batchSlug || item.batchSlug.toUpperCase() === batchSlug
+      );
+      const published = dedupePublishedContextEvidence(batchEvidence, batchSlug);
+      const companyIds = new Set(
+        ycSpring2026GraphDataset.companies
+          .filter((company) => company.batchSlug === batchSlug)
+          .map((company) => company.id)
+      );
+      const founderIds = new Set(
+        ycSpring2026GraphDataset.founders
+          .filter((founder) => founder.batchSlug === batchSlug)
+          .map((founder) => founder.id)
+      );
+      const entityIds = new Set([...companyIds, ...founderIds]);
+      const attributable = published.filter((item) =>
+        evidenceBelongsToEntityScope(item, companyIds, entityIds)
+      );
+      const contextKeys = attributable.flatMap((item) => {
+        if (item.platform !== "web" && item.platform !== "rss") return [];
+        const contentUrl = contextEvidenceContentUrl(item.platform, item.platformPostId);
+        const ownerCompanyId = item.attachedCompanyId ||
+          (item.entityType === "company" ? item.entityId : null);
+        return contentUrl && ownerCompanyId
+          ? [`${item.batchSlug}:${ownerCompanyId}:${contentUrl}`]
+          : [];
+      });
+
+      expect(attributable).toHaveLength(expectedCount);
+      expect(new Set(contextKeys).size).toBe(contextKeys.length);
+      total += attributable.length;
+    }
+
+    expect(total).toBe(43_834);
+    expect(total).toBeGreaterThanOrEqual(40_000);
+    expect(total).toBeLessThanOrEqual(70_000);
+  });
+
   it("normalizes structured public trust receipts before graph materialization", () => {
     const evidence = ycSpring2026GraphDataset.evidence.find(
       (item) => item.platform === "youtube" && item.platformPostId === "MLEMTnvl5c4"

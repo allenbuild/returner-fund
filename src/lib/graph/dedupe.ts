@@ -129,6 +129,75 @@ export function contextEvidenceContentUrl(
   return canonical && /^https?:\/\//i.test(canonical) ? canonical : null;
 }
 
+/**
+ * Collapse duplicate first-party article observations only for the published
+ * graph projection. RSS and web crawlers can independently observe the same
+ * article, and both receipts remain in the canonical source ledgers for audit.
+ * The public graph, counts, topics, and ranked-post projections should expose
+ * that physical article once.
+ *
+ * This intentionally does not alter canonicalPostKey or ingestion/scoring
+ * dedupe. Context receipts are eligible only when they are verified,
+ * explicitly cohort/owner scoped, and provably score-neutral.
+ */
+export function dedupePublishedContextEvidence<T extends EvidenceItem>(
+  items: T[],
+  cohortSlug: string
+): T[] {
+  const requestedCohort = normalizeCohortSlug(cohortSlug);
+  if (!requestedCohort) {
+    throw new Error("Published context evidence dedupe requires an explicit cohort slug.");
+  }
+
+  const groups = new Map<string, T[]>();
+  for (const item of items) {
+    if (!isVerifiedContextEvidence(item)) continue;
+
+    const itemCohort = normalizeCohortSlug(item.batchSlug);
+    if (!itemCohort) {
+      throw new Error(
+        `Verified context evidence ${item.id} is missing an explicit cohort scope for ${requestedCohort}.`
+      );
+    }
+    const ownerCompanyId = contextEvidenceOwnerCompanyId(item);
+    if (!ownerCompanyId) {
+      throw new Error(
+        `Verified context evidence ${item.id} has ambiguous or missing company ownership.`
+      );
+    }
+    const contentUrl = contextEvidenceContentUrl(item.platform, item.platformPostId);
+    if (!contentUrl) {
+      throw new Error(
+        `Verified context evidence ${item.id} is missing a canonical physical article URL.`
+      );
+    }
+
+    const key = `${itemCohort}:${ownerCompanyId}:${contentUrl}`;
+    const group = groups.get(key);
+    if (group) group.push(item);
+    else groups.set(key, [item]);
+  }
+
+  const collapsed = new Set<T>();
+  const retained = new Set<T>();
+  for (const [key, group] of groups) {
+    if (group.length < 2) continue;
+    if (group.some(contextEvidenceHasScoringSignal)) {
+      throw new Error(
+        `Refusing to collapse scored context evidence aliases for ${key}.`
+      );
+    }
+
+    const preferred = group.reduce((current, candidate) =>
+      preferPublishedContextEvidence(current, candidate) ? candidate : current
+    );
+    for (const item of group) collapsed.add(item);
+    retained.add(preferred);
+  }
+
+  return items.filter((item) => !collapsed.has(item) || retained.has(item));
+}
+
 export function dedupeEvidenceItems<T extends EvidenceItem>(items: T[]): T[] {
   return dedupeEvidenceByAliases(items, (item) => [
     canonicalEvidenceKey(item),
@@ -529,6 +598,79 @@ function evidenceFreshness(item: EvidenceItem): number {
     parseDateMs(item.last_updated_at),
     parseDateMs(item.first_seen_at)
   );
+}
+
+function isVerifiedContextEvidence(item: EvidenceItem): boolean {
+  return (
+    (item.platform === "web" || item.platform === "rss") &&
+    item.review_state === "verified" &&
+    item.linkStatus === "verified"
+  );
+}
+
+function contextEvidenceOwnerCompanyId(item: EvidenceItem): string | null {
+  const entityId = String(item.entityId ?? "").trim();
+  const attachedCompanyId = String(item.attachedCompanyId ?? "").trim();
+
+  if (item.entityType === "company") {
+    if (!entityId || (attachedCompanyId && attachedCompanyId !== entityId)) return null;
+    return entityId;
+  }
+  return attachedCompanyId || null;
+}
+
+function contextEvidenceHasScoringSignal(item: EvidenceItem): boolean {
+  if (!Number.isFinite(item.contributionScore) || item.contributionScore !== 0) return true;
+  if (item.tractionStatus === "scored") return true;
+  if (Number.isFinite(item.normalizedScore) && Number(item.normalizedScore) !== 0) return true;
+  return Object.values(normalizeMetricsForScoring(item.platform, item.metrics)).some(
+    (value) => typeof value === "number" && Number.isFinite(value) && value !== 0
+  );
+}
+
+function preferPublishedContextEvidence(existing: EvidenceItem, candidate: EvidenceItem): boolean {
+  const existingQuality = publishedContextEvidenceQuality(existing);
+  const candidateQuality = publishedContextEvidenceQuality(candidate);
+  for (let index = 0; index < existingQuality.length; index += 1) {
+    if (candidateQuality[index] !== existingQuality[index]) {
+      return candidateQuality[index] > existingQuality[index];
+    }
+  }
+  return candidate.id.localeCompare(existing.id) < 0;
+}
+
+function publishedContextEvidenceQuality(item: EvidenceItem): number[] {
+  const contentUrl = contextEvidenceContentUrl(item.platform, item.platformPostId) ?? "";
+  return [
+    meaningfulContextText(item.title, contentUrl, item.sourceUrl) ? 1 : 0,
+    meaningfulContextText(item.text, contentUrl, item.sourceUrl) ? 1 : 0,
+    item.publishedAtPrecision === "exact" ? 1 : 0,
+    item.platform === "rss" ? 1 : 0,
+    evidenceFreshness(item)
+  ];
+}
+
+function meaningfulContextText(
+  value: string | null | undefined,
+  contentUrl: string,
+  sourceUrl: string
+): boolean {
+  const normalized = String(value ?? "").replace(/\s+/g, " ").trim();
+  if (!normalized) return false;
+  const lower = normalized.toLowerCase();
+  if (
+    lower === contentUrl.toLowerCase() ||
+    lower === String(sourceUrl ?? "").trim().toLowerCase()
+  ) {
+    return false;
+  }
+  return !/^(?:untitled|no title|article|post|link|rss(?: item| post)?|web(?: item| article| post)?)$/i.test(
+    normalized
+  );
+}
+
+function normalizeCohortSlug(value: string | null | undefined): string {
+  return String(value ?? "").trim().toUpperCase();
 }
 
 function normalizedHost(url: URL): string {
