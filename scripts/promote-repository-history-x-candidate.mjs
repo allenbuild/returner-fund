@@ -257,6 +257,8 @@ export async function promoteRepositoryHistoryXCandidate(
     canonicalHashAfter: canonicalHashBefore,
     operationalLedgerHashBefore: canonicalArtifact.ledgerSha256,
     operationalLedgerHashAfter: canonicalArtifact.ledgerSha256,
+    reviewLedgerHashBefore: canonicalArtifact.reviewLedgerSha256,
+    reviewLedgerHashAfter: canonicalArtifact.reviewLedgerSha256,
     audit
   };
 
@@ -266,10 +268,12 @@ export async function promoteRepositoryHistoryXCandidate(
       canonicalPath,
       snapshot: plan.promoted,
       expectedCanonicalSha256: canonicalArtifact.canonicalSha256,
-      expectedLedgerSha256: canonicalArtifact.ledgerSha256
+      expectedLedgerSha256: canonicalArtifact.ledgerSha256,
+      expectedReviewLedgerSha256: canonicalArtifact.reviewLedgerSha256
     });
     receipt.canonicalHashAfter = published.canonicalSha256;
     receipt.operationalLedgerHashAfter = published.ledgerSha256;
+    receipt.reviewLedgerHashAfter = published.reviewLedgerSha256;
   }
   if (receiptPath) await atomicWrite(receiptPath, `${JSON.stringify(receipt, null, 2)}\n`);
   (dependencies.stdout ?? process.stdout).write(`${JSON.stringify(receipt, null, 2)}\n`);
