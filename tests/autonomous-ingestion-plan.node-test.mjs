@@ -1696,6 +1696,87 @@ describe("autonomous collector task accounting", () => {
     assert.equal(coverage.byStatus.blocked_or_empty, 1);
   });
 
+  it("reconciles account-mapped company connectors against their company-level receipt", () => {
+    const index = indexAutonomousCollectorTaskOutcomes({
+      evidence: [],
+      needsReview: [],
+      failures: [],
+      attempts: {
+        reddit: {
+          platform: "reddit",
+          entityType: "company",
+          entityId: "company-acme",
+          accountUrl: null,
+          outcomeStatus: "blocked_or_empty",
+          outcomeReason: "collector_checked_blocked_or_empty"
+        }
+      }
+    }, {
+      kind: "public",
+      batchSlug: "S26",
+      explicitTerminalOnly: true
+    });
+
+    assert.deepEqual(classifyAutonomousCollectorTaskOutcome(index, {
+      platform: "reddit",
+      entityType: "company",
+      entityId: "company-acme",
+      accountUrl: "https://reddit.com/r/acme"
+    }), {
+      status: "blocked_or_empty",
+      reason: "collector_checked_blocked_or_empty"
+    });
+    assert.deepEqual(classifyAutonomousCollectorTaskOutcome(index, {
+      platform: "x",
+      entityType: "company",
+      entityId: "company-acme",
+      accountUrl: "https://x.com/acme"
+    }), {
+      status: "nonterminal",
+      reason: "collector_returned_no_account_attempt"
+    });
+  });
+
+  it("terminalizes exhausted anonymous transport access without accepting invalid mappings", () => {
+    const index = indexAutonomousCollectorTaskOutcomes({
+      evidence: [],
+      needsReview: [],
+      failures: [{
+        platform: "linkedin",
+        entityType: "company",
+        entityId: "company-transport",
+        message: "fetch failed: ECONNRESET"
+      }, {
+        platform: "instagram",
+        entityType: "company",
+        entityId: "company-http-access",
+        message: "instagram_web_profile_info_http_401"
+      }, {
+        platform: "x",
+        entityType: "company",
+        entityId: "company-invalid",
+        message: "Invalid URL mapping: host did not match x.com."
+      }],
+      attempts: {}
+    }, { kind: "public", batchSlug: "S26" });
+
+    for (const [platform, entityId] of [
+      ["linkedin", "company-transport"],
+      ["instagram", "company-http-access"]
+    ]) {
+      assert.equal(classifyAutonomousCollectorTaskOutcome(index, {
+        platform,
+        entityType: "company",
+        entityId
+      }).status, "blocked_or_empty");
+    }
+    assert.equal(classifyAutonomousCollectorTaskOutcome(index, {
+      platform: "x",
+      entityType: "company",
+      entityId: "company-invalid"
+    }).status, "failed");
+  });
+
   it("indexes explicit terminal receipts for URL-less social discovery tasks", () => {
     const entityId = "founder-6thsense-james-baek-3429291";
     const baseAttempt = {

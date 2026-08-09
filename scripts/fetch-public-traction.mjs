@@ -1463,10 +1463,10 @@ function collectorOutcomeReason(summary) {
 
 function expectedAccessOrEmptyMessage(value) {
   const message = String(value ?? "").toLowerCase();
-  if (/(?:\b404\b|not found|invalid (?:url|mapping|host|identity)|dead (?:url|mapping|account)|wrong host|host did not match|unsupported .*url)/i.test(message)) {
+  if (/(?:\b404\b|http[_ -]?404|not found|invalid (?:url|mapping|host|identity)|dead (?:url|mapping|account)|wrong host|host did not match|unsupported .*url)/i.test(message)) {
     return false;
   }
-  return /(?:no\b[^.\n]{0,100}\b(?:matches?|posts?|videos?|content|results?|items?|candidates?|evidence|mentions?|links?)\b|empty|login|log in|sign in|signup|join (?:linkedin|x)|access (?:blocked|denied)|\bblocked\b|rate.?limit|\b429\b|captcha|robots|authentication required)/i.test(message);
+  return /(?:no\b[^.\n]{0,100}\b(?:matches?|posts?|videos?|content|results?|items?|candidates?|evidence|mentions?|links?)\b|empty|login|log in|sign in|signup|join (?:linkedin|x)|access (?:blocked|denied)|\bblocked\b|rate.?limit|\b429\b|captcha|robots|authentication required|http[_ -]?(?:401|403|408|425|429|5\d\d)|\b(?:unauthori[sz]ed|forbidden|timeout|timed out|temporar(?:y|ily)|unavailable|network|transport)\b|fetch failed|operation was aborted|aborterror|\betimedout\b|\beconn[a-z]*\b|socket (?:hang up|closed)|circuit is open)/i.test(message);
 }
 
 function retryableCollectorFailure(value) {

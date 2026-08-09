@@ -2228,6 +2228,11 @@ async function recordCollectionCoverage(
 ) {
   const degraded = (coverage.mappedFailed ?? 0) > 0;
   const budgetExceeded = (coverage.mappedFailed ?? 0) > terminalFailureBudget;
+  const failedTaskSamples = (coverage.mappedFailureSamples ?? []).slice(0, 20);
+  const omittedFailureSamples = Math.max(
+    0,
+    (coverage.mappedFailureSamples?.length ?? 0) - failedTaskSamples.length
+  );
   const summary = {
     mappedExpected: coverage.mappedExpected,
     mappedSucceeded: coverage.mappedSucceeded,
@@ -2237,7 +2242,9 @@ async function recordCollectionCoverage(
     mappedNonTerminal: coverage.mappedNonTerminal,
     terminalFailureBudget,
     status: budgetExceeded ? "failed_budget_exceeded" : degraded ? "degraded" : "complete",
-    failedTaskSamples: coverage.mappedFailureSamples
+    failedTaskSampleCount: coverage.mappedFailureSamples?.length ?? 0,
+    failedTaskSamples,
+    omittedFailureSamples
   };
   console.log(`COLLECTION_COVERAGE_RECEIPT ${JSON.stringify(summary)}`);
   if (degraded) {
@@ -2260,9 +2267,12 @@ async function recordCollectionCoverage(
     `- Blocked or empty: ${coverage.mappedBlockedOrEmpty}`,
     `- Terminal failures: ${coverage.mappedFailed}/${terminalFailureBudget}`,
     `- Nonterminal tasks: ${coverage.mappedNonTerminal}`,
-    ...(coverage.mappedFailureSamples ?? []).map((sample) =>
+    ...failedTaskSamples.map((sample) =>
       `- Failed task: \`${sample.checkpointKey}\` — ${sample.reason}`
     ),
+    ...(omittedFailureSamples > 0
+      ? [`- Additional failed-task samples omitted from the summary: ${omittedFailureSamples}`]
+      : []),
     ""
   ].join("\n"), "utf8");
 }

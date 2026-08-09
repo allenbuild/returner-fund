@@ -1029,6 +1029,16 @@ const MISSING_COLLECTOR_OUTCOME_REASONS = new Set([
   "collector_returned_no_account_attempt",
   "collector_returned_no_entity_attempt"
 ]);
+// These collectors execute once per company and consume any catalog URL as an
+// input to that company-level request. They do not emit one receipt per mapped
+// URL, so account-specific plan rows must reconcile against the exact owner
+// receipt instead of remaining permanently nonterminal.
+const COMPANY_SCOPED_PUBLIC_CONNECTOR_PLATFORMS = new Set([
+  "reddit",
+  "hacker_news",
+  "rss",
+  "web"
+]);
 const RETRYABLE_COLLECTOR_FAILURE_PATTERN =
   /(?:rate.?limit|secondary.?limit|\b403\b|\b408\b|\b425\b|forbidden|\b429\b|\b5\d\d\b|timeout|timed out|\babort(?:ed|error)?\b|\betimedout\b|network|fetch failed|econn|socket|temporar|unavailable)/i;
 const NON_RETRYABLE_COLLECTOR_FAILURE_PATTERN =
@@ -1347,10 +1357,17 @@ export function classifyAutonomousCollectorTaskOutcome(
   outcomeIndex,
   { platform, entityType, entityId, accountUrl = null, collectorOk = true, collectorError = null }
 ) {
+  const normalizedPlatform = normalizePlatform(platform);
   const key = accountUrl
     ? autonomousCollectorAccountKey(platform, entityType, entityId, accountUrl)
     : autonomousCollectorEntityKey(platform, entityType, entityId);
-  const outcome = outcomeIndex?.get(key);
+  const outcome = outcomeIndex?.get(key) ?? (
+    accountUrl &&
+    entityType === "company" &&
+    COMPANY_SCOPED_PUBLIC_CONNECTOR_PLATFORMS.has(normalizedPlatform)
+      ? outcomeIndex?.get(autonomousCollectorEntityKey(platform, entityType, entityId))
+      : null
+  );
   if (outcome) return outcome;
   // A process-level retry failure is not evidence that every task in the
   // collector failed. Sharded collectors durably flush task-level receipts
@@ -1365,13 +1382,13 @@ export function classifyAutonomousCollectorTaskOutcome(
       reason: "collector_returned_no_account_attempt"
     };
   }
-  if (normalizePlatform(platform) === "github" && outcomeIndex) {
+  if (normalizedPlatform === "github" && outcomeIndex) {
     return {
       status: "blocked_or_empty",
       reason: "collector_checked_no_github_mapping"
     };
   }
-  if (normalizePlatform(platform) === "rss" && outcomeIndex) {
+  if (normalizedPlatform === "rss" && outcomeIndex) {
     return {
       status: "blocked_or_empty",
       reason: "collector_checked_no_rss_feed"
@@ -2082,10 +2099,10 @@ function isSuccessfulPublicEvidenceRow(row) {
 
 function isExpectedPublicAccessOrEmptyFailure(failure) {
   const message = String(failure?.message ?? failure?.error ?? "").toLowerCase();
-  if (/(?:\b404\b|not found|invalid (?:url|mapping|host|identity)|dead (?:url|mapping|account)|wrong host|host did not match|unsupported .*url|referential)/i.test(message)) {
+  if (/(?:\b404\b|http[_ -]?404|not found|invalid (?:url|mapping|host|identity)|dead (?:url|mapping|account)|wrong host|host did not match|unsupported .*url|referential)/i.test(message)) {
     return false;
   }
-  return /(?:no\b[^.\n]{0,100}\b(?:matches?|posts?|videos?|content|results?|items?|candidates?|evidence|mentions?|links?)\b|empty|login|log in|sign in|signup|join (?:linkedin|x)|access (?:blocked|denied)|\bblocked\b|rate.?limit|\b429\b|captcha|robots|authentication required)/i.test(message);
+  return /(?:no\b[^.\n]{0,100}\b(?:matches?|posts?|videos?|content|results?|items?|candidates?|evidence|mentions?|links?)\b|empty|login|log in|sign in|signup|join (?:linkedin|x)|access (?:blocked|denied)|\bblocked\b|rate.?limit|\b429\b|captcha|robots|authentication required|http[_ -]?(?:401|403|408|425|429|5\d\d)|\b(?:unauthori[sz]ed|forbidden|timeout|timed out|temporar(?:y|ily)|unavailable|network|transport)\b|fetch failed|operation was aborted|aborterror|\betimedout\b|\beconn[a-z]*\b|socket (?:hang up|closed)|circuit is open)/i.test(message);
 }
 
 function canonicalSocialAccountUrl(platform, rawUrl) {
