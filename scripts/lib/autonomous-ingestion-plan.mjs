@@ -82,7 +82,8 @@ export const AUTONOMOUS_PROCESS_BUDGETS = Object.freeze({
   timelineBackfillMs: 4 * MINUTE_MS,
   scoringDiagnosticsMs: 3 * MINUTE_MS,
   artifactManifestMs: MINUTE_MS,
-  artifactValidationMs: 3 * MINUTE_MS,
+  artifactValidationMs: 2 * MINUTE_MS,
+  derivedArtifactMs: 3.5 * MINUTE_MS,
   gitConfigMs: 30_000,
   gitStageMs: MINUTE_MS,
   gitDiffMs: 30_000,
@@ -129,10 +130,10 @@ export function maxAutonomousRunnerProcessBudgetMs(budgets = AUTONOMOUS_PROCESS_
   const publicationBaseSynchronizationWindow =
     2 * budgets.gitPushMs; // initial fetch + rebase
   // buildAndValidatePublication() builds once for the benchmark server and a
-  // second time after graph/timeline generation. It also runs seven commands
-  // under artifactValidationMs: two runtime preparations, Timeline validation,
-  // derived-artifact build + validation, cohort audit, and final public-artifact
-  // validation.
+  // second time after graph/timeline generation. Five compact validation
+  // commands use artifactValidationMs (two runtime preparations, Timeline,
+  // cohort audit, and final artifact validation), while the four full-corpus
+  // topic/Ranked Posts build and validation commands use derivedArtifactMs.
   const publicationBuildWindow =
     (2 * budgets.productionBuildMs) +
     budgets.benchmarkPublicationMs +
@@ -141,7 +142,8 @@ export function maxAutonomousRunnerProcessBudgetMs(budgets = AUTONOMOUS_PROCESS_
     budgets.timelineBackfillMs +
     budgets.scoringDiagnosticsMs +
     budgets.artifactManifestMs +
-    (7 * budgets.artifactValidationMs);
+    (5 * budgets.artifactValidationMs) +
+    (4 * budgets.derivedArtifactMs);
   const initialPublicationWindow =
     publicationBuildWindow +
     (2 * budgets.gitConfigMs) +

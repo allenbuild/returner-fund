@@ -2597,13 +2597,21 @@ async function buildAndValidatePublication(publicationRunId, catalogState) {
     timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.artifactValidationMs,
     label: "compact graph runtime preparation"
   });
-  await runCommand("npm", ["run", "artifacts:derived:build"], {
-    timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.artifactValidationMs,
-    label: "topic facet and Ranked Posts sidecar regeneration"
+  await runCommand("npm", ["run", "topics:facets"], {
+    timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.derivedArtifactMs,
+    label: "topic facet regeneration"
   });
-  await runCommand("npm", ["run", "artifacts:derived:validate"], {
-    timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.artifactValidationMs,
-    label: "topic facet and Ranked Posts sidecar validation"
+  await runCommand("npm", ["run", "ranked-posts:sidecar"], {
+    timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.derivedArtifactMs,
+    label: "Ranked Posts sidecar regeneration"
+  });
+  await runCommand("npm", ["run", "topics:facets:validate"], {
+    timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.derivedArtifactMs,
+    label: "topic facet validation"
+  });
+  await runCommand("npm", ["run", "ranked-posts:sidecar:validate"], {
+    timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.derivedArtifactMs,
+    label: "Ranked Posts sidecar validation"
   });
   // Build only after all public graph, Timeline, topic-facet, and Ranked Posts
   // artifacts have been rebuilt and strictly validated, so the deployable

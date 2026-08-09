@@ -679,17 +679,21 @@ describe("autonomous ingestion runner static safety contracts", () => {
     const graphIndex = publicationBuild.indexOf('"scripts/update-daily-benchmarks.mjs"');
     const timelineIndex = publicationBuild.indexOf('"scripts/validate-timeline-artifacts.mjs"');
     const prepareIndex = publicationBuild.indexOf('label: "compact graph runtime preparation"');
-    const derivedBuildIndex = publicationBuild.indexOf('["run", "artifacts:derived:build"]');
-    const derivedValidateIndex = publicationBuild.indexOf('["run", "artifacts:derived:validate"]');
+    const topicBuildIndex = publicationBuild.indexOf('["run", "topics:facets"]');
+    const rankedBuildIndex = publicationBuild.indexOf('["run", "ranked-posts:sidecar"]');
+    const topicValidateIndex = publicationBuild.indexOf('["run", "topics:facets:validate"]');
+    const rankedValidateIndex = publicationBuild.indexOf('["run", "ranked-posts:sidecar:validate"]');
     const productionBuildIndex = publicationBuild.indexOf('label: "production build"');
 
     assert.ok(
       graphIndex > -1 &&
       timelineIndex > graphIndex &&
       prepareIndex > timelineIndex &&
-      derivedBuildIndex > prepareIndex &&
-      derivedValidateIndex > derivedBuildIndex &&
-      productionBuildIndex > derivedValidateIndex
+      topicBuildIndex > prepareIndex &&
+      rankedBuildIndex > topicBuildIndex &&
+      topicValidateIndex > rankedBuildIndex &&
+      rankedValidateIndex > topicValidateIndex &&
+      productionBuildIndex > rankedValidateIndex
     );
     assert.ok(artifactPaths.includes('"public/graph"'));
     assert.ok(artifactPaths.includes('"public/timelines"'));
