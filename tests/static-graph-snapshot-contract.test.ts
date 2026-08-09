@@ -112,6 +112,66 @@ describe("canonical v4 static graph snapshot contract", () => {
     });
   });
 
+  it("uses the earliest trusted row observation when clocks disagree", () => {
+    expect(normalizeEvidenceTemporalSemantics({
+      id: "conflicting-observations",
+      postedAt: "2026-07-16T04:30:00.000Z",
+      publishedAtPrecision: "exact",
+      first_seen_at: "2026-07-16T05:00:00.000Z",
+      observedAt: "2026-07-16T04:00:00.000Z"
+    })).toMatchObject({
+      postedAt: "2026-07-16T04:00:00.000Z",
+      publishedAtPrecision: "unknown",
+      observedAt: "2026-07-16T04:00:00.000Z"
+    });
+  });
+
+  it("compares day-only claims with the Central observation day", () => {
+    expect(normalizeEvidenceTemporalSemantics({
+      id: "central-boundary",
+      postedAt: "2026-07-16",
+      publishedAtPrecision: "day",
+      observedAt: "2026-07-16T02:00:00.000Z"
+    })).toMatchObject({
+      postedAt: "2026-07-16T02:00:00.000Z",
+      publishedAtPrecision: "unknown",
+      observedAt: "2026-07-16T02:00:00.000Z"
+    });
+  });
+
+  it("demotes impossible exact publication dates", () => {
+    expect(normalizeEvidenceTemporalSemantics({
+      id: "impossible-date",
+      postedAt: "2026-02-30T12:00:00Z",
+      publishedAtPrecision: "exact",
+      observedAt: "2026-03-03T12:00:00.000Z"
+    })).toMatchObject({
+      postedAt: "2026-03-03T12:00:00.000Z",
+      publishedAtPrecision: "unknown"
+    });
+  });
+
+  it("requires unknown publication fallbacks to equal their earliest observation", () => {
+    const graph = validSnapshot();
+    Object.assign(graph.evidence[0]!, {
+      postedAt: "2026-07-16T05:00:00.000Z",
+      publishedAtPrecision: "unknown",
+      observedAt: "2026-07-16T04:00:00.000Z"
+    });
+    const result = validateStaticGraphSnapshotContract(graph, {
+      now: VALIDATION_NOW,
+      maxFutureSkewMs: 0
+    });
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.issues).toContainEqual({
+        path: "evidence[0].postedAt",
+        message: "must equal the earliest trusted observation for unknown precision"
+      });
+    }
+  });
+
   it("keeps valid exact and day publication claims while canonicalizing day precision", () => {
     expect(normalizeEvidenceTemporalSemantics({
       id: "valid-exact",
@@ -124,7 +184,7 @@ describe("canonical v4 static graph snapshot contract", () => {
     });
     expect(normalizeEvidenceTemporalSemantics({
       id: "valid-day",
-      postedAt: "2026-07-15T00:00:00.000Z",
+      postedAt: "2026-07-15",
       publishedAtPrecision: "day",
       first_seen_at: "2026-07-16T05:00:00.000Z"
     })).toMatchObject({

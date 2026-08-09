@@ -55,8 +55,16 @@ const TRUSTED_OBSERVATION_KEYS = [
   "metricsCheckedAt"
 ];
 const EXPLICIT_PUBLICATION_INSTANT =
-  /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$/i;
+  /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.(\d+))?(Z|[+-](\d{2}):(\d{2}))$/i;
 const CANONICAL_PUBLICATION_DAY = /^\d{4}-\d{2}-\d{2}$/;
+const CENTRAL_DAY_FORMATTER = new Intl.DateTimeFormat("en-US", {
+  timeZone: "America/Chicago",
+  calendar: "gregory",
+  numberingSystem: "latn",
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit"
+});
 
 /**
  * Rejects raw evidence snapshots whose active clocks extend past the snapshot
@@ -75,7 +83,10 @@ export function assertRawEvidenceTemporalPreflight(records, options = {}) {
   }
 
   const sourceObservedAtMs = Date.parse(sourceObservedAt);
-  const sourceObservedDay = isoCalendarDay(sourceObservedAt);
+  const sourceObservedDay = centralCalendarDay(sourceObservedAt);
+  if (!sourceObservedDay) {
+    throw new Error(`${sourceLabel} temporal preflight could not resolve its Central observation day.`);
+  }
   const issues = [];
 
   for (const [index, record] of records.entries()) {
@@ -130,23 +141,24 @@ export function normalizeEvidenceTemporalSemantics(record, options = {}) {
   const precision = PUBLICATION_PRECISIONS.has(record.publishedAtPrecision)
     ? record.publishedAtPrecision
     : "unknown";
-  const publication = validTemporalTimestamp(record.postedAt);
+  const exactPublication = precision === "exact"
+    ? validExplicitPublicationInstant(record.postedAt)
+    : null;
   const observationMs = Date.parse(observation);
-  const observationDay = isoCalendarDay(observation);
+  const observationDay = centralCalendarDay(observation);
 
   if (
     precision === "exact" &&
-    publication &&
-    EXPLICIT_PUBLICATION_INSTANT.test(publication) &&
-    Date.parse(publication) <= observationMs
+    exactPublication &&
+    Date.parse(exactPublication) <= observationMs
   ) {
-    return { ...record, postedAt: publication, publishedAtPrecision: "exact", observedAt: observation };
+    return { ...record, postedAt: exactPublication, publishedAtPrecision: "exact", observedAt: observation };
   }
 
-  const publicationDay = precision === "day" && publication
-    ? publicationCalendarDay(publication)
+  const publicationDay = precision === "day"
+    ? publicationCalendarDay(record.postedAt)
     : null;
-  if (publicationDay && publicationDay <= observationDay) {
+  if (publicationDay && observationDay && publicationDay <= observationDay) {
     return { ...record, postedAt: publicationDay, publishedAtPrecision: "day", observedAt: observation };
   }
 
@@ -912,14 +924,18 @@ function validateEvidencePublicationSemantics(item, path, addIssue) {
     addIssue(`${path}.publishedAtPrecision`, "must be exact, day, or unknown");
     return;
   }
-  if (item.publishedAtPrecision === "unknown") return;
-
   const observation = trustedObservationTimestamp(item);
+  if (item.publishedAtPrecision === "unknown") {
+    if (!observation || item.postedAt !== observation) {
+      addIssue(`${path}.postedAt`, "must equal the earliest trusted observation for unknown precision");
+    }
+    return;
+  }
   if (!observation) return;
 
   if (item.publishedAtPrecision === "exact") {
-    const publication = validTemporalTimestamp(item.postedAt);
-    if (!publication || !EXPLICIT_PUBLICATION_INSTANT.test(publication)) {
+    const publication = validExplicitPublicationInstant(item.postedAt);
+    if (!publication) {
       addIssue(`${path}.postedAt`, "must be an explicit timezone-qualified instant for exact precision");
       return;
     }
@@ -934,7 +950,7 @@ function validateEvidencePublicationSemantics(item, path, addIssue) {
     addIssue(`${path}.postedAt`, "must contain a valid calendar date for day precision");
     return;
   }
-  if (publicationDay > isoCalendarDay(observation)) {
+  if (publicationDay > centralCalendarDay(observation)) {
     addIssue(`${path}.postedAt`, "calendar date must not be later than the trusted observation date");
   }
 }
@@ -1762,11 +1778,12 @@ function validateEvidenceTimestamp(value, path, addIssue, { latestTime = null, l
 }
 
 function trustedObservationTimestamp(record, sourceObservedAt) {
-  for (const key of TRUSTED_OBSERVATION_KEYS) {
-    const timestamp = validTemporalTimestamp(record[key]);
-    if (timestamp) return timestamp;
-  }
-  return validTemporalTimestamp(sourceObservedAt);
+  const candidates = [
+    ...TRUSTED_OBSERVATION_KEYS.map((key) => validTemporalTimestamp(record[key])),
+    validTemporalTimestamp(sourceObservedAt)
+  ].filter(Boolean);
+  candidates.sort((left, right) => Date.parse(left) - Date.parse(right));
+  return candidates[0] ?? null;
 }
 
 function validTemporalTimestamp(value) {
@@ -1776,18 +1793,70 @@ function validTemporalTimestamp(value) {
 }
 
 function publicationCalendarDay(value) {
-  const timestamp = validTemporalTimestamp(value);
-  if (!timestamp) return null;
-  if (CANONICAL_PUBLICATION_DAY.test(timestamp)) {
-    const parsed = new Date(`${timestamp}T00:00:00.000Z`);
-    return parsed.toISOString().slice(0, 10) === timestamp ? timestamp : null;
-  }
-  return isoCalendarDay(timestamp);
+  if (typeof value !== "string") return null;
+  const timestamp = value.trim();
+  const day = CANONICAL_PUBLICATION_DAY.test(timestamp)
+    ? timestamp
+    : timestamp.match(/^(\d{4}-\d{2}-\d{2})T/)?.[1] ?? null;
+  if (!day || !validTemporalTimestamp(timestamp)) return null;
+  const parsed = new Date(`${day}T12:00:00.000Z`);
+  return parsed.toISOString().slice(0, 10) === day ? day : null;
 }
 
-function isoCalendarDay(value) {
+function centralCalendarDay(value) {
   const timestamp = Date.parse(value);
-  return Number.isFinite(timestamp) ? new Date(timestamp).toISOString().slice(0, 10) : null;
+  if (!Number.isFinite(timestamp)) return null;
+  const parts = Object.fromEntries(
+    CENTRAL_DAY_FORMATTER.formatToParts(new Date(timestamp)).map((part) => [part.type, part.value])
+  );
+  if (!parts.year || !parts.month || !parts.day) return null;
+  return `${parts.year}-${parts.month}-${parts.day}`;
+}
+
+function validExplicitPublicationInstant(value) {
+  if (typeof value !== "string") return null;
+  const timestamp = value.trim();
+  const parts = timestamp.match(EXPLICIT_PUBLICATION_INSTANT);
+  if (!parts || !validExactInstantParts(parts)) return null;
+  return Number.isFinite(Date.parse(timestamp)) ? timestamp : null;
+}
+
+function validExactInstantParts(parts) {
+  const year = Number(parts[1]);
+  const month = Number(parts[2]);
+  const day = Number(parts[3]);
+  const hour = Number(parts[4]);
+  const minute = Number(parts[5]);
+  const second = Number(parts[6]);
+  const offsetHour = parts[8].toUpperCase() === "Z" ? 0 : Number(parts[9]);
+  const offsetMinute = parts[8].toUpperCase() === "Z" ? 0 : Number(parts[10]);
+
+  return (
+    Number.isInteger(year) &&
+    month >= 1 &&
+    month <= 12 &&
+    day >= 1 &&
+    day <= daysInMonth(year, month) &&
+    hour >= 0 &&
+    hour <= 23 &&
+    minute >= 0 &&
+    minute <= 59 &&
+    second >= 0 &&
+    second <= 59 &&
+    offsetHour >= 0 &&
+    offsetHour <= 14 &&
+    offsetMinute >= 0 &&
+    offsetMinute <= 59 &&
+    (offsetHour < 14 || offsetMinute === 0)
+  );
+}
+
+function daysInMonth(year, month) {
+  if (month === 2) {
+    const leapYear = year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0);
+    return leapYear ? 29 : 28;
+  }
+  return [4, 6, 9, 11].includes(month) ? 30 : 31;
 }
 
 function validDateTime(value) {
