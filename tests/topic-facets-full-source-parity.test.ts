@@ -4,7 +4,10 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 import { buildGraphResponse } from "@/lib/graph/graph-builder";
-import { canonicalPostKey } from "@/lib/graph/dedupe";
+import {
+  canonicalPostKey,
+  dedupePublishedContextEvidence
+} from "@/lib/graph/dedupe";
 import { enrichEvidenceTopics } from "@/lib/graph/graph-taxonomies";
 import { normalizePostTopics } from "@/lib/graph/post-topics";
 import {
@@ -35,12 +38,17 @@ describe("topic facet full-source parity", () => {
       const ownedEvidence = ycSpring2026GraphDataset.evidence.filter((item) =>
         evidenceBelongsToCohort(item, cohort.batchSlug, ownership)
       );
-      const expectedRows = rowsForEvidence(ownedEvidence, ownership.companyByEntity);
+      const publishedEvidence = dedupePublishedContextEvidence(
+        ownedEvidence,
+        cohort.batchSlug
+      );
+      const expectedRows = rowsForEvidence(publishedEvidence, ownership.companyByEntity);
       const actualByIdentity = rowsByIdentity(actualRows);
       const expectedByIdentity = rowsByIdentity(expectedRows);
       const graphByIdentity = rowsByIdentity(rowsForGraph(graph));
 
-      expect(graph.evidence).toHaveLength(ownedEvidence.length);
+      expect(publishedEvidence.length).toBeLessThanOrEqual(ownedEvidence.length);
+      expect(graph.evidence).toHaveLength(publishedEvidence.length);
       expect(actualByIdentity.size).toBe(graph.evidence.length);
       expect(parityFailures(actualByIdentity, expectedByIdentity)).toEqual([]);
       expect(parityFailures(actualByIdentity, graphByIdentity)).toEqual([]);
