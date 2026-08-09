@@ -5,14 +5,14 @@
     "slug": "characterquilt",
     "name": "CharacterQuilt"
   },
-  "generatedAt": "2026-08-05T00:49:13.374Z",
-  "lastModifiedAt": "2026-08-05T00:49:13.374Z",
+  "generatedAt": "2026-08-09T11:35:33.164Z",
+  "lastModifiedAt": "2026-08-09T11:35:33.164Z",
   "events": [],
   "groups": [],
   "coverage": {
     "status": "partial",
     "publishedEventCount": 0,
-    "lastSuccessfulArtifactAt": "2026-08-05T00:49:13.374Z"
+    "lastSuccessfulArtifactAt": "2026-08-09T11:35:33.164Z"
   },
   "nextCursor": null
 }
