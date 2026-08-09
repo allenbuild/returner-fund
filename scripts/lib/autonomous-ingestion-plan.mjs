@@ -1451,7 +1451,8 @@ export function mergePublicEvidenceSnapshots(
     durableStorageConfigured = true,
     resolveBatchSlug = null,
     resolveNativeAuthor = null,
-    contentIdentityReferenceRows = []
+    contentIdentityReferenceRows = [],
+    allowVerifiedMetriclessEvidence = null
   } = {}
 ) {
   const acceptedEvidence = [];
@@ -1488,7 +1489,8 @@ export function mergePublicEvidenceSnapshots(
       const row = companySubjectReassignment?.row ?? nativeResolvedRow;
       const validation = validateMergedPublicEvidence(row, {
         resolveNativeAuthor,
-        nativeAuthorResolution
+        nativeAuthorResolution,
+        allowVerifiedMetriclessEvidence
       });
       if (validation.ok) {
         acceptedEvidence.push(validation.row);
@@ -2620,7 +2622,11 @@ function reconciliationPhysicalIdentity(row) {
 
 function validateMergedPublicEvidence(
   row,
-  { resolveNativeAuthor = null, nativeAuthorResolution = null } = {}
+  {
+    resolveNativeAuthor = null,
+    nativeAuthorResolution = null,
+    allowVerifiedMetriclessEvidence = null
+  } = {}
 ) {
   const platform = normalizePlatform(row.platform ?? "");
   const sourceUrl = canonicalUrl(row.sourceUrl ?? row.canonicalUrl ?? row.url);
@@ -2647,7 +2653,12 @@ function validateMergedPublicEvidence(
       row.linkedinParentMetricReceipt.reason ?? "linkedin_parent_engagement_not_structurally_verified"
     );
   }
-  if (!metricValidation.hasPositiveScoringMetric) reasons.push("no_visible_positive_scoring_metrics");
+  const verifiedMetriclessException = !metricValidation.hasPositiveScoringMetric &&
+    typeof allowVerifiedMetriclessEvidence === "function" &&
+    allowVerifiedMetriclessEvidence(row);
+  if (!metricValidation.hasPositiveScoringMetric && !verifiedMetriclessException) {
+    reasons.push("no_visible_positive_scoring_metrics");
+  }
 
   let semanticAttribution = null;
   if (typeof resolveNativeAuthor === "function") {
