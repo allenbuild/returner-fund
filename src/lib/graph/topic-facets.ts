@@ -2,7 +2,7 @@ import { POST_TOPIC_SLUGS } from "./post-topics";
 import { PLATFORM_VALUES } from "./types";
 import type { GraphResponse, TopicFacetRow, TopVoiceAudienceId } from "./types";
 
-export const TOPIC_FACET_SNAPSHOT_VERSION = "2026-08-05-volume-topics" as const;
+export const TOPIC_FACET_SNAPSHOT_VERSION = "2026-08-09-full-corpus-topics" as const;
 
 export interface TopicFacetSnapshot {
   version: typeof TOPIC_FACET_SNAPSHOT_VERSION;

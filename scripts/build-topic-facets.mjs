@@ -1,6 +1,9 @@
 import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
-import { classifyPostTopics, normalizePostTopics } from "../src/lib/graph/post-topics.ts";
+import { pathToFileURL } from "node:url";
+
+import { createServer } from "vite";
 
 const BATCHES = [
   { slug: "S2026", file: "s2026" },
@@ -8,104 +11,222 @@ const BATCHES = [
   { slug: "A16ZSR006", file: "a16zsr006" }
 ];
 const AUDIENCES = ["off", "yc_partners", "insiders"];
-const VOLUME_PATH = path.join("src", "lib", "social", "volume-evidence-current.json");
-const OUTPUT_DIR = path.join("public", "topic-facets");
-const snapshotVersion = "2026-08-05-volume-topics";
+const SNAPSHOT_VERSION = "2026-08-09-full-corpus-topics";
 
-const volume = readJson(VOLUME_PATH).evidence ?? [];
-fs.mkdirSync(OUTPUT_DIR, { recursive: true });
+export async function buildExpectedTopicFacetSnapshots({ repoRoot = process.cwd() } = {}) {
+  const absoluteRepoRoot = path.resolve(repoRoot);
+  const runtimeRoot = fs.mkdtempSync(path.join(os.tmpdir(), "returner-topic-facets-runtime-"));
+  const originalCwd = process.cwd();
+  let vite = null;
 
-for (const batch of BATCHES) {
-  const records = new Map();
-  const aliasToRecord = new Map();
-
-  for (const audience of AUDIENCES) {
-    const graph = readJson(path.join("public", "graph", `${batch.file}${audienceSuffix(audience)}.json`));
-    const companyByEntity = companyOwnershipIndex(graph.nodes ?? []);
-    for (const item of graph.evidence ?? []) {
-      addEvidence(records, aliasToRecord, item, {
-        audienceId: audience,
-        companyId: item.attachedCompanyId ?? companyByEntity.get(item.entityId),
-        source: "published"
-      });
-    }
-  }
-
-  const offGraph = readJson(path.join("public", "graph", `${batch.file}.json`));
-  const companyByEntity = companyOwnershipIndex(offGraph.nodes ?? []);
-  for (const item of volume.filter((candidate) => batchSlug(candidate) === batch.slug)) {
-    addEvidence(records, aliasToRecord, item, {
-      audienceId: "off",
-      companyId: item.attachedCompanyId ?? companyByEntity.get(item.entityId),
-      source: "volume"
-    });
-  }
-
-  const rows = [...records.values()]
-    .flatMap((record) => record.topics.map((topic) => ({
-      topic,
-      postKey: record.postKey,
-      platform: record.platform,
-      companyId: record.companyId,
-      contributionScore: record.contributionScore,
-      audienceId: record.audienceId
-    })))
-    .sort((left, right) =>
-      left.audienceId.localeCompare(right.audienceId) ||
-      left.topic.localeCompare(right.topic) ||
-      left.postKey.localeCompare(right.postKey) ||
-      left.companyId.localeCompare(right.companyId)
+  try {
+    fs.symlinkSync(
+      path.join(absoluteRepoRoot, "src"),
+      path.join(runtimeRoot, "src"),
+      process.platform === "win32" ? "junction" : "dir"
     );
+    process.chdir(runtimeRoot);
 
-  const output = {
-    version: snapshotVersion,
-    batchSlug: batch.slug,
-    rowCount: rows.length,
-    rows
-  };
-  fs.writeFileSync(
-    path.join(OUTPUT_DIR, `${batch.file}.json`),
-    JSON.stringify(output)
-  );
-  console.log(JSON.stringify({ batch: batch.slug, records: records.size, rows: rows.length }));
+    // Dataset modules read compact generated-runtime projections. Build those
+    // from the canonical snapshots in an isolated temporary root so validation
+    // is source-fresh without mutating the checkout.
+    const prepareUrl = pathToFileURL(
+      path.join(absoluteRepoRoot, "scripts", "prepare-graph-runtime-evidence.mjs")
+    );
+    prepareUrl.searchParams.set("topicFacetsRun", `${process.pid}-${Date.now()}`);
+    await import(prepareUrl.href);
+
+    vite = await createServer({
+      root: absoluteRepoRoot,
+      configFile: false,
+      appType: "custom",
+      logLevel: "error",
+      resolve: {
+        alias: {
+          "@": path.join(absoluteRepoRoot, "src")
+        }
+      },
+      server: {
+        middlewareMode: true
+      }
+    });
+
+    const [
+      { buildGraphResponse },
+      { canonicalPostKey },
+      { normalizePostTopics }
+    ] = await Promise.all([
+      vite.ssrLoadModule("/src/lib/graph/graph-builder.ts"),
+      vite.ssrLoadModule("/src/lib/graph/dedupe.ts"),
+      vite.ssrLoadModule("/src/lib/graph/post-topics.ts")
+    ]);
+
+    return BATCHES.map((batch) => {
+      const records = new Map();
+
+      for (const audienceId of AUDIENCES) {
+        const graph = buildGraphResponse({
+          batchSlug: batch.slug,
+          topVoices: audienceId
+        });
+        const evidence = graph.evidence ?? [];
+        const companyByEntity = companyOwnershipIndex(graph.nodes ?? []);
+
+        for (const item of evidence) {
+          const companyId = item.attachedCompanyId ?? companyByEntity.get(item.entityId);
+          const postKey = canonicalPostKey(item);
+          if (!companyId || !postKey) continue;
+
+          for (const topic of normalizePostTopics(item.topics ?? [])) {
+            addFacetRow(records, {
+              topic,
+              postKey,
+              platform: item.platform,
+              companyId,
+              contributionScore: Number.isFinite(item.contributionScore)
+                ? item.contributionScore
+                : 0,
+              audienceId
+            });
+          }
+        }
+
+        if (audienceId === "off") {
+          const offPostCount = new Set(
+            [...records.values()]
+              .filter((row) => row.audienceId === "off")
+              .map((row) => row.postKey)
+          ).size;
+          if (offPostCount !== evidence.length) {
+            throw new Error(
+              `${batch.slug} owned-corpus topic facets cover ${offPostCount}/${evidence.length} posts.`
+            );
+          }
+        }
+      }
+
+      const rows = [...records.values()].sort((left, right) =>
+        left.audienceId.localeCompare(right.audienceId) ||
+        left.topic.localeCompare(right.topic) ||
+        left.postKey.localeCompare(right.postKey) ||
+        left.companyId.localeCompare(right.companyId)
+      );
+      const output = {
+        version: SNAPSHOT_VERSION,
+        batchSlug: batch.slug,
+        rowCount: rows.length,
+        rows
+      };
+      const displayPath = path.posix.join("public", "topic-facets", `${batch.file}.json`);
+
+      return {
+        batchSlug: batch.slug,
+        displayPath,
+        outputPath: path.join(absoluteRepoRoot, ...displayPath.split("/")),
+        serialized: JSON.stringify(output),
+        summary: {
+          batch: batch.slug,
+          records: records.size,
+          rows: rows.length,
+          byAudience: countRowsByAudience(rows)
+        }
+      };
+    });
+  } finally {
+    if (vite) await vite.close();
+    process.chdir(originalCwd);
+    fs.rmSync(runtimeRoot, { recursive: true, force: true });
+  }
 }
 
-function addEvidence(records, aliasToRecord, item, options) {
-  if (!options.companyId || !item.platform || !item.sourceUrl) return;
-  const topics = topicsForEvidence(item);
-  if (!topics.length) return;
-
-  const aliases = postAliases(item);
-  const scopedAliases = aliases.map((alias) => `${options.audienceId}:${alias}`);
-  const existingKey = scopedAliases.map((alias) => aliasToRecord.get(alias)).find(Boolean);
-  if (existingKey) return;
-
-  const postKey = aliases[0];
-  const recordKey = `${options.audienceId}:${postKey}`;
-  records.set(recordKey, {
-    audienceId: options.audienceId,
-    companyId: options.companyId,
-    contributionScore: Number.isFinite(item.contributionScore) ? item.contributionScore : 0,
-    platform: item.platform,
-    postKey,
-    source: options.source,
-    topics
-  });
-  for (const alias of scopedAliases) aliasToRecord.set(alias, recordKey);
+export function validateTopicFacetSnapshots(snapshots) {
+  const stalePaths = [];
+  for (const snapshot of snapshots) {
+    let actual;
+    try {
+      actual = fs.readFileSync(snapshot.outputPath);
+    } catch {
+      stalePaths.push(snapshot.displayPath);
+      continue;
+    }
+    const expected = Buffer.from(snapshot.serialized, "utf8");
+    if (!actual.equals(expected)) stalePaths.push(snapshot.displayPath);
+  }
+  return { valid: stalePaths.length === 0, stalePaths };
 }
 
-function topicsForEvidence(item) {
-  const existing = normalizePostTopics(Array.isArray(item.topics) ? item.topics : []);
-  if (existing.length && item.topicClassification?.method === "manual") return existing;
-  const classification = classifyPostTopics({
-    title: item.title,
-    text: item.text,
-    rawVisibleText: item.rawVisibleText,
-    platform: item.platform,
-    mediaType: item.mediaType,
-    authorType: item.entityType === "founder" ? "founder" : "company"
-  });
-  return normalizePostTopics(classification.topics);
+export function writeTopicFacetSnapshotsAtomically(snapshots) {
+  if (!snapshots.length) return;
+  const outputDirectory = path.dirname(snapshots[0].outputPath);
+  fs.mkdirSync(outputDirectory, { recursive: true });
+  const temporaryDirectory = fs.mkdtempSync(path.join(outputDirectory, ".topic-facets-"));
+
+  try {
+    const staged = snapshots.map((snapshot, index) => {
+      const temporaryPath = path.join(
+        temporaryDirectory,
+        `${String(index).padStart(2, "0")}-${path.basename(snapshot.outputPath)}`
+      );
+      fs.writeFileSync(temporaryPath, snapshot.serialized, "utf8");
+      return { snapshot, temporaryPath };
+    });
+    for (const { snapshot, temporaryPath } of staged) {
+      fs.renameSync(temporaryPath, snapshot.outputPath);
+    }
+  } finally {
+    fs.rmSync(temporaryDirectory, { recursive: true, force: true });
+  }
+}
+
+async function runCli() {
+  const args = process.argv.slice(2);
+  const unknownArgs = args.filter((arg) => arg !== "--validate");
+  if (unknownArgs.length) {
+    throw new Error(`Unknown topic facet argument(s): ${unknownArgs.join(", ")}`);
+  }
+  const validateOnly = args.includes("--validate");
+  const snapshots = await buildExpectedTopicFacetSnapshots();
+  for (const snapshot of snapshots) console.log(JSON.stringify(snapshot.summary));
+
+  if (validateOnly) {
+    const result = validateTopicFacetSnapshots(snapshots);
+    if (!result.valid) {
+      console.error(JSON.stringify({ status: "stale", stalePaths: result.stalePaths }));
+      process.exitCode = 1;
+      return;
+    }
+    console.log(JSON.stringify({
+      status: "valid",
+      paths: snapshots.map((snapshot) => snapshot.displayPath)
+    }));
+    return;
+  }
+
+  writeTopicFacetSnapshotsAtomically(snapshots);
+  console.log(JSON.stringify({
+    status: "written",
+    paths: snapshots.map((snapshot) => snapshot.displayPath)
+  }));
+}
+
+function addFacetRow(records, row) {
+  const recordKey = `${row.audienceId}:${row.topic}:${row.postKey}`;
+  const existing = records.get(recordKey);
+  if (!existing) {
+    records.set(recordKey, row);
+    return;
+  }
+
+  if (
+    existing.companyId !== row.companyId ||
+    existing.platform !== row.platform ||
+    existing.contributionScore !== row.contributionScore
+  ) {
+    throw new Error(
+      `Conflicting topic facet rows for ${recordKey}: ` +
+      `${JSON.stringify(existing)} versus ${JSON.stringify(row)}`
+    );
+  }
 }
 
 function companyOwnershipIndex(nodes) {
@@ -118,60 +239,13 @@ function companyOwnershipIndex(nodes) {
   return index;
 }
 
-function batchSlug(item) {
-  return String(item.batchSlug ?? item.batch_slug ?? "").trim().toUpperCase();
+function countRowsByAudience(rows) {
+  const counts = {};
+  for (const row of rows) {
+    counts[row.audienceId] = (counts[row.audienceId] ?? 0) + 1;
+  }
+  return counts;
 }
 
-function postAliases(item) {
-  const platform = String(item.platform).toLowerCase();
-  const aliases = new Set();
-  const sourceUrl = canonicalUrl(item.sourceUrl);
-  if (sourceUrl) aliases.add(`${platform}:url:${sourceUrl}`);
-
-  const nativeId = String(item.platformPostId ?? "").trim();
-  if (nativeId) aliases.add(`${platform}:id:${nativeId}`);
-  if (platform === "x") {
-    const match = sourceUrl.match(/\/status\/(\d+)/i);
-    if (match) aliases.add(`${platform}:post:${match[1]}`);
-  }
-  if (platform === "instagram") {
-    const match = sourceUrl.match(/\/(?:p|reel|tv)\/([^/]+)/i);
-    if (match) aliases.add(`${platform}:post:${match[1]}`);
-  }
-  if (platform === "youtube") {
-    const match = sourceUrl.match(/[?&]v=([^&]+)/i) ?? sourceUrl.match(/youtu\.be\/([^/]+)/i);
-    if (match) aliases.add(`${platform}:post:${match[1]}`);
-  }
-  if (platform === "linkedin") {
-    const match = sourceUrl.match(/activity[-:](\d+)/i) ?? sourceUrl.match(/urn:li:activity:(\d+)/i);
-    if (match) aliases.add(`${platform}:post:${match[1]}`);
-  }
-  return [...aliases];
-}
-
-function canonicalUrl(rawUrl) {
-  try {
-    const url = new URL(rawUrl);
-    url.hostname = url.hostname.replace(/^www\./i, "").toLowerCase();
-    url.hash = "";
-    for (const key of [...url.searchParams.keys()]) {
-      if (/^(?:utm_|fbclid$|gclid$|igshid$|mc_|ref$|ref_src$|s$|t$)/i.test(key)) {
-        url.searchParams.delete(key);
-      }
-    }
-    if (url.hostname === "twitter.com" || url.hostname === "mobile.twitter.com") url.hostname = "x.com";
-    url.pathname = url.pathname.replace(/\/$/, "");
-    return url.toString();
-  } catch {
-    return "";
-  }
-}
-
-function audienceSuffix(audience) {
-  if (audience === "off") return "";
-  return audience === "yc_partners" ? "-yc-partners" : "-insiders";
-}
-
-function readJson(filePath) {
-  return JSON.parse(fs.readFileSync(filePath, "utf8"));
-}
+const entryPath = process.argv[1] ? pathToFileURL(path.resolve(process.argv[1])).href : null;
+if (entryPath === import.meta.url) await runCli();
