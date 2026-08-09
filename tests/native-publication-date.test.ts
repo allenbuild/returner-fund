@@ -55,6 +55,10 @@ describe("native publication date contract", () => {
   );
 
   it("fails closed for missing precision, unknown precision, invalid dates, and false exactness", () => {
+    expect(credibleNativePublicationDate({
+      postedAt: undefined,
+      publishedAtPrecision: "exact"
+    } as unknown as Pick<EvidenceItem, "postedAt" | "publishedAtPrecision">)).toBeNull();
     expect(credibleNativePublicationDate(evidence("x", { publishedAtPrecision: undefined }))).toBeNull();
     expect(credibleNativePublicationDate(evidence("x", { publishedAtPrecision: "unknown" }))).toBeNull();
     expect(credibleNativePublicationDate(evidence("x", {

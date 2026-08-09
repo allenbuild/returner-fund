@@ -25,6 +25,8 @@ const EXPLICIT_INSTANT = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.(
 export function credibleNativePublicationDate(
   evidence: Pick<EvidenceItem, "postedAt" | "publishedAtPrecision">
 ): CredibleNativePublicationDate | null {
+  if (typeof evidence.postedAt !== "string") return null;
+
   if (evidence.publishedAtPrecision === "exact") {
     // Exact instants require an explicit zone so results cannot depend on the
     // browser or server's local timezone.
