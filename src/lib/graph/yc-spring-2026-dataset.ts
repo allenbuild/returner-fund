@@ -1372,17 +1372,36 @@ function publicEvidenceItemWithAttributionGuard(
   context: AttributionContext,
   companiesById: Map<string, RawCompany>
 ): EvidenceItem {
-  const evidence = publicEvidenceItem(item);
-  const company = companiesById.get(item.entityId);
+  const normalizedItem = normalizePublicEvidenceRawVisibleText(item);
+  const evidence = publicEvidenceItem(normalizedItem);
+  const company = companiesById.get(normalizedItem.entityId);
 
   if (
-    shouldTrustCanonicalAttributionReceiptAtGraphBoundary(item) ||
-    (company && linkedInNativeCompanyAuthorMatchesKnownEntity(item, company))
+    shouldTrustCanonicalAttributionReceiptAtGraphBoundary(normalizedItem) ||
+    (company && linkedInNativeCompanyAuthorMatchesKnownEntity(normalizedItem, company))
   ) {
     return evidence;
   }
 
   return applyAttributionGuard(evidence, context);
+}
+
+function normalizePublicEvidenceRawVisibleText(item: PublicEvidenceRecord): PublicEvidenceRecord {
+  const value: unknown = item.rawVisibleText;
+  if (typeof value === "string") return item;
+
+  let rawVisibleText = "";
+  if (value !== null && value !== undefined) {
+    try {
+      rawVisibleText = JSON.stringify(value) ?? "";
+    } catch {
+      // Public evidence is loaded from JSON, so this is defensive only. An
+      // unserializable receipt must not crash graph publication or become
+      // trusted author text.
+      rawVisibleText = "";
+    }
+  }
+  return { ...item, rawVisibleText };
 }
 
 function attachedCompanyIdForPublicEvidence(item: PublicEvidenceRecord): string {

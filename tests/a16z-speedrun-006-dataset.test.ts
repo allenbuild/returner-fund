@@ -306,6 +306,30 @@ describe("a16z speedrun 006 dataset", () => {
     );
   });
 
+  it("materializes an exact roster-owned YouTube receipt with a canonical company id", () => {
+    const evidence = a16zSpeedrun006GraphDataset.evidence.find(
+      (item) => item.platform === "youtube" && item.platformPostId === "ahBF2XkA9No"
+    );
+
+    expect(evidence).toEqual(
+      expect.objectContaining({
+        entityType: "company",
+        entityId: "a16z-speedrun-006-syncere",
+        attachedCompanyId: "a16z-speedrun-006-syncere",
+        sourceUrl: "https://www.youtube.com/watch?v=ahBF2XkA9No",
+        contributionScore: 0,
+        review_state: "verified"
+      })
+    );
+    expect(typeof evidence?.rawVisibleText).toBe("string");
+    expect(JSON.parse(evidence?.rawVisibleText ?? "null")).toEqual(
+      expect.objectContaining({
+        source: "youtube-native-recovery.v1",
+        oembed: expect.objectContaining({ authorName: "Syncere" })
+      })
+    );
+  });
+
   it("uses absolute scores without cohort stretching", () => {
     const calibrated = calibrateBatchCompanyScores([
       calibrationCompany("low-a", 10),

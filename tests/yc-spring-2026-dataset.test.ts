@@ -87,6 +87,23 @@ const VERIFIED_S26_LINKEDIN_POST_IDS = [
 ] as const;
 
 describe("YC Summer 2026 official snapshot", () => {
+  it("normalizes structured public trust receipts before graph materialization", () => {
+    const evidence = ycSpring2026GraphDataset.evidence.find(
+      (item) => item.platform === "youtube" && item.platformPostId === "MLEMTnvl5c4"
+    );
+
+    expect(evidence).toBeDefined();
+    expect(typeof evidence?.rawVisibleText).toBe("string");
+    expect(JSON.parse(evidence?.rawVisibleText ?? "null")).toEqual(
+      expect.objectContaining({
+        source: "youtube-native-recovery.v1",
+        oembed: expect.objectContaining({
+          authorName: "Ploy"
+        })
+      })
+    );
+  });
+
   it("uses GitHub repository creation—not a later refresh or push—as publication time", () => {
     const repository = summerGithubSnapshot.accounts
       .flatMap((account) => account.repos ?? [])

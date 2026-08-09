@@ -1470,8 +1470,17 @@ function publicEvidenceItemFromCanonicalAttribution(
     return [];
   }
 
-  const companySlug = slugify(source.companySlug ?? "");
-  const profile = speedrun006Profiles.find((candidate) => slugify(candidate.name) === companySlug);
+  const sourceCompanySlug = slugify(source.companySlug ?? "");
+  const profile = speedrun006Profiles.find((candidate) => {
+    const candidateSlug = slugify(candidate.name);
+    const candidateId = companyIdFromSlug(candidateSlug);
+    return (
+      candidateId === source.entityId ||
+      candidateSlug === sourceCompanySlug ||
+      candidateId === sourceCompanySlug
+    );
+  });
+  const companySlug = profile ? slugify(profile.name) : sourceCompanySlug;
   const attribution = profile
     ? canonicalPublicEvidenceAttribution(source, profile, companySlug)
     : null;
@@ -1827,13 +1836,14 @@ function publicEvidenceItemFromSource(
   const handle = source.authorHandle ?? normalizedAccount?.handle ?? handleFromUrl(accountUrl);
   const isLinkedInActivityFragment = isLinkedInProfileActivityFragmentUrl(source.platform, source.sourceUrl);
   const isContextEvidence = SPEEDRUN_CONTEXT_EVIDENCE_PLATFORMS.has(source.platform);
+  const rawVisibleText = serializedRawVisibleText(source.rawVisibleText);
   const snapshotFetchedAt = attachment.observedAtFallback ?? publicSnapshot.source.fetchedAt;
   const observedAt = source.observedAt ?? source.first_seen_at ?? snapshotFetchedAt;
   const githubRepository = resolveGithubRepository(
     source.platform,
     source.sourceUrl,
     source.platformPostId,
-    source.rawVisibleText
+    rawVisibleText
   );
   const githubTimestamps = githubRepository
     ? githubRepositoryEvidenceTimestamps(githubRepository, observedAt)
@@ -1869,8 +1879,8 @@ function publicEvidenceItemFromSource(
       platformObjectId:
         source.platformObjectId ?? (githubRepository?.id == null ? null : String(githubRepository.id)),
       rawVisibleText: githubTimestamps
-        ? githubRawVisibleText(source.rawVisibleText, githubTimestamps.provenance)
-        : source.rawVisibleText,
+        ? githubRawVisibleText(rawVisibleText, githubTimestamps.provenance)
+        : rawVisibleText,
       why: isLinkedInActivityFragment
         ? "Stored as context only. LinkedIn profile activity fragments lack a stable native post identity and are not counted as post-level traction."
         : `${source.why ?? source.matchReason ?? "Verified public native evidence."} Reattached to ${attachment.companyName} from explicit a16z speedrun attribution.`,
@@ -1882,6 +1892,16 @@ function publicEvidenceItemFromSource(
       review_state: "verified"
     }
   ];
+}
+
+function serializedRawVisibleText(value: unknown): string {
+  if (typeof value === "string") return value;
+  if (value === null || value === undefined) return "";
+  try {
+    return JSON.stringify(value) ?? "";
+  } catch {
+    return "";
+  }
 }
 
 function publicEvidenceAccountForAttribution(
