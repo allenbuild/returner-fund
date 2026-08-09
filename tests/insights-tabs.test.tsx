@@ -259,6 +259,44 @@ describe("insights tabs", () => {
     expect(screen.queryByText("Platform weights")).not.toBeInTheDocument();
   });
 
+  it("renders complete published entity coverage when the client evidence preview is capped", () => {
+    const statsGraph = {
+      ...graphResponse(),
+      nodes: [
+        { entityType: "company", entityId: "company-a", founders: [{ id: "founder-a" }, { id: "founder-b" }] },
+        { entityType: "company", entityId: "company-b", founders: [{ id: "founder-c" }] },
+        { entityType: "company", entityId: "company-c", founders: [{ id: "founder-d" }] }
+      ] as GraphResponse["nodes"],
+      evidence: [
+        {
+          ...graphResponse().leaderboard[0].biggestContribution!,
+          entityType: "founder" as const,
+          entityId: "founder-a",
+          attachedCompanyId: "company-a",
+          observedAt: "2026-06-29T00:00:00.000Z"
+        }
+      ],
+      evidenceStats: {
+        totalCount: 36_663,
+        scoringEligibleCount: 15_563,
+        byPlatform: { x: 28_649 },
+        byTopic: {},
+        firstSeenByDay: { "2026-06-29": 36_663 },
+        entityCoverage: {
+          company: { withSourcesCount: 2, firstSeenByDay: { "2026-06-28": 2 } },
+          founder: { withSourcesCount: 3, firstSeenByDay: { "2026-06-28": 3 } }
+        }
+      }
+    } satisfies GraphResponse;
+
+    render(<InsightsTabs graph={graphResponse()} statsGraph={statsGraph} onSelectNode={vi.fn()} />);
+    fireEvent.click(screen.getByRole("tab", { name: "Stats" }));
+
+    expect(screen.getByText("Sources").closest(".stats-metric")).toHaveTextContent("36,663");
+    expect(screen.getByText("Companies").closest(".stats-metric")).toHaveTextContent("67% have sources");
+    expect(screen.getByText("Founders").closest(".stats-metric")).toHaveTextContent("75% have sources");
+  });
+
   it("renders at most 100 physically deduplicated ranked posts and a reliable Today empty state", () => {
     const graph = buildGraphResponse({ batchSlug: "S2026" }, ycSpring2026GraphDataset);
     render(

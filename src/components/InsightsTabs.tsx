@@ -30,6 +30,10 @@ import {
   generatedEvidenceThumbnailDataUri,
   generatedEvidenceThumbnailUrl
 } from "@/lib/graph/generated-evidence-thumbnail";
+import {
+  buildDatabaseStats,
+  type DailyDatabaseGrowthPoint
+} from "@/lib/graph/database-stats";
 import { evidenceDisplayText, isGenericEvidenceLabel } from "@/lib/graph/evidence-display";
 import { selectRankedPosts, type RankedPostsPeriod } from "@/lib/graph/ranked-posts";
 import type {
@@ -511,25 +515,7 @@ export function InsightsTabs({ graph, statsGraph = graph, onSelectNode, now }: I
 }
 
 type DailyGrowthField = "sources" | "companies" | "founders";
-
-interface DailyGrowthPoint {
-  dayKey: string;
-  label: string;
-  sources: number;
-  companies: number;
-  founders: number;
-}
-
-interface DatabaseStats {
-  sourceCount: number;
-  companyCount: number;
-  founderCount: number;
-  sourcesToday: number;
-  sourcesLast7Days: number;
-  companyCoverage: number;
-  founderCoverage: number;
-  dailyGrowth: DailyGrowthPoint[];
-}
+type DailyGrowthPoint = DailyDatabaseGrowthPoint;
 
 function StatMetric({
   label,
@@ -749,97 +735,10 @@ function cubicBezier(start: number, controlA: number, controlB: number, end: num
   );
 }
 
-function buildDatabaseStats(graph: GraphResponse): DatabaseStats {
-  const companyNodes = graph.nodes.filter((node) => node.entityType === "company");
-  const companyIds = new Set(companyNodes.map((node) => node.entityId));
-  const founderIds = new Set(companyNodes.flatMap((node) => node.founders.map((founder) => founder.id)));
-  const companyFirstSeen = new Map<string, number>();
-  const founderFirstSeen = new Map<string, number>();
-  const sourceDates = graph.evidence
-    .map((item) => ({ item, timestamp: statsTimestamp(item.first_seen_at ?? item.observedAt ?? null) }))
-    .filter((entry): entry is { item: EvidenceItem; timestamp: number } => entry.timestamp !== null);
-
-  for (const { item, timestamp } of sourceDates) {
-    if (item.entityType === "company") {
-      setEarliest(companyFirstSeen, item.entityId, timestamp);
-    } else {
-      setEarliest(founderFirstSeen, item.entityId, timestamp);
-    }
-    if (item.attachedCompanyId) {
-      setEarliest(companyFirstSeen, item.attachedCompanyId, timestamp);
-    }
-  }
-
-  const generatedTimestamp = statsTimestamp(graph.generatedAt);
-  const latestSourceTimestamp = sourceDates.reduce((latest, entry) => Math.max(latest, entry.timestamp), 0);
-  const anchorTimestamp = generatedTimestamp ?? (latestSourceTimestamp || Date.now());
-  const anchorDate = startUtcDay(anchorTimestamp);
-  const dailyGrowth = Array.from({ length: 14 }, (_, index) => {
-    const date = new Date(anchorDate);
-    date.setUTCDate(anchorDate.getUTCDate() - (13 - index));
-    return {
-      dayKey: date.toISOString().slice(0, 10),
-      label: date.toLocaleDateString(undefined, { month: "short", day: "numeric", timeZone: "UTC" }),
-      sources: 0,
-      companies: 0,
-      founders: 0
-    } satisfies DailyGrowthPoint;
-  });
-  const pointsByDay = new Map(dailyGrowth.map((point) => [point.dayKey, point]));
-
-  if (graph.evidenceStats) {
-    for (const point of dailyGrowth) {
-      point.sources = graph.evidenceStats.firstSeenByDay[point.dayKey] ?? 0;
-    }
-  } else {
-    for (const { timestamp } of sourceDates) {
-      const point = pointsByDay.get(dayKey(timestamp));
-      if (point) point.sources += 1;
-    }
-  }
-  for (const timestamp of companyFirstSeen.values()) {
-    const point = pointsByDay.get(dayKey(timestamp));
-    if (point) point.companies += 1;
-  }
-  for (const timestamp of founderFirstSeen.values()) {
-    const point = pointsByDay.get(dayKey(timestamp));
-    if (point) point.founders += 1;
-  }
-
-  return {
-    sourceCount: graph.evidenceStats?.totalCount ?? graph.evidence.length,
-    companyCount: companyIds.size,
-    founderCount: founderIds.size,
-    sourcesToday: dailyGrowth.at(-1)?.sources ?? 0,
-    sourcesLast7Days: dailyGrowth.slice(-7).reduce((sum, point) => sum + point.sources, 0),
-    companyCoverage: percentage(companyFirstSeen.size, companyIds.size),
-    founderCoverage: percentage(founderFirstSeen.size, founderIds.size),
-    dailyGrowth
-  };
-}
-
 function statsTimestamp(value: string | null | undefined): number | null {
   if (!value) return null;
   const timestamp = new Date(value).getTime();
   return Number.isFinite(timestamp) ? timestamp : null;
-}
-
-function setEarliest(target: Map<string, number>, id: string, timestamp: number) {
-  const current = target.get(id);
-  if (current === undefined || timestamp < current) target.set(id, timestamp);
-}
-
-function startUtcDay(timestamp: number): Date {
-  const date = new Date(timestamp);
-  return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
-}
-
-function dayKey(timestamp: number): string {
-  return new Date(timestamp).toISOString().slice(0, 10);
-}
-
-function percentage(numerator: number, denominator: number): number {
-  return denominator ? Math.round((numerator / denominator) * 100) : 0;
 }
 
 function formatStatsTimestamp(value: string): string {

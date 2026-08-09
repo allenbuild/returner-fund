@@ -522,8 +522,21 @@ export interface EvidenceStats {
   totalCount: number;
   scoringEligibleCount: number;
   byPlatform: Partial<Record<Platform, number>>;
-  /** Full-snapshot physical post counts, independent of the public evidence cap. */
+  /** Attributable full-snapshot physical post counts, independent of the public evidence cap. */
   byTopic: Partial<Record<PostTopic, number>>;
+  firstSeenByDay: Record<string, number>;
+  /**
+   * Attributable full-snapshot entity coverage, independent of the public evidence cap.
+   * Optional so previously published snapshots remain readable during rollout.
+   */
+  entityCoverage?: {
+    company: EntityEvidenceCoverageStats;
+    founder: EntityEvidenceCoverageStats;
+  };
+}
+
+export interface EntityEvidenceCoverageStats {
+  withSourcesCount: number;
   firstSeenByDay: Record<string, number>;
 }
 

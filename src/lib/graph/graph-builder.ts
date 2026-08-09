@@ -1,10 +1,9 @@
 import { YC_SPRING_2026_BATCH_SLUG, yc2026GraphDataset } from "./yc-spring-2026-dataset";
+import { buildEvidenceStats, evidenceBelongsToEntityScope } from "./evidence-stats";
 import { graphNodeMatchesSearchQuery } from "./search";
 import {
   enrichCompanyRecordVerticals,
-  enrichEvidenceTopics,
-  enrichGraphTaxonomies,
-  topicPhysicalPostCounts
+  enrichGraphTaxonomies
 } from "./graph-taxonomies";
 import { withForwardCompatiblePlatformStatus } from "./platform-status";
 import { getNodeRadius } from "./score-radius";
@@ -19,7 +18,6 @@ import type {
   DemoGraphDataset,
   EdgeType,
   EvidenceItem,
-  EvidenceStats,
   FastestGainingRow,
   FounderRecord,
   FounderSummary,
@@ -179,9 +177,7 @@ export function buildGraphResponse(
   const visibleEvidence = graphEvidence
     .filter((item) => evidenceMatchesPlatforms(item, selectedPlatforms))
     .filter((item) =>
-      item.attachedCompanyId
-        ? visibleCompanyIds.has(item.attachedCompanyId)
-        : visibleEvidenceEntityIds.has(item.entityId)
+      evidenceBelongsToEntityScope(item, visibleCompanyIds, visibleEvidenceEntityIds)
     )
     .sort((a, b) => b.contributionScore - a.contributionScore);
 
@@ -209,7 +205,10 @@ export function buildGraphResponse(
       )
     ],
     evidence: visibleEvidence,
-    evidenceStats: buildEvidenceStats(batchEvidence),
+    evidenceStats: buildEvidenceStats(batchEvidence, {
+      companyIds: new Set(baseBatchCompanies.map((company) => company.id)),
+      founderIds: new Set(batchFounders.map((founder) => founder.id))
+    }),
     platformStatus: withForwardCompatiblePlatformStatus(
       dataset.platformStatus.filter(
         (status) => !status.batchSlugs?.length || status.batchSlugs.includes(batch.slug)
@@ -225,32 +224,6 @@ export function buildGraphResponse(
     }),
     mode: dataset.mode ?? "demo"
   });
-}
-
-function buildEvidenceStats(evidence: EvidenceItem[]): EvidenceStats {
-  const byPlatform: EvidenceStats["byPlatform"] = {};
-  const byTopic = Object.fromEntries(
-    topicPhysicalPostCounts(evidence.map(enrichEvidenceTopics)).entries()
-  ) as EvidenceStats["byTopic"];
-  const firstSeenByDay: Record<string, number> = {};
-  let scoringEligibleCount = 0;
-
-  for (const item of evidence) {
-    byPlatform[item.platform] = (byPlatform[item.platform] ?? 0) + 1;
-    if (item.contributionScore > 0 || item.tractionStatus === "unscored") {
-      scoringEligibleCount += 1;
-    }
-    const timestamp = item.first_seen_at ?? item.observedAt ?? null;
-    if (timestamp) {
-      const date = new Date(timestamp);
-      if (Number.isFinite(date.getTime())) {
-        const day = date.toISOString().slice(0, 10);
-        firstSeenByDay[day] = (firstSeenByDay[day] ?? 0) + 1;
-      }
-    }
-  }
-
-  return { totalCount: evidence.length, scoringEligibleCount, byPlatform, byTopic, firstSeenByDay };
 }
 
 export function buildGraphEdges(
@@ -348,9 +321,7 @@ function evidenceForBatchEntities(
   const entityIds = new Set([...companyIds, ...founders.map((founder) => founder.id)]);
 
   return evidence.filter((item) =>
-    item.attachedCompanyId
-      ? companyIds.has(item.attachedCompanyId)
-      : entityIds.has(item.entityId)
+    evidenceBelongsToEntityScope(item, companyIds, entityIds)
   );
 }
 
