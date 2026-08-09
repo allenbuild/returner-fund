@@ -25,6 +25,14 @@ export async function buildExpectedTopicFacetSnapshots({ repoRoot = process.cwd(
       path.join(runtimeRoot, "src"),
       process.platform === "win32" ? "junction" : "dir"
     );
+    // The canonical public snapshot references lossless operational and review
+    // ledgers under outputs/. Make those immutable source artifacts visible to
+    // the isolated runtime without copying tens of megabytes or mutating them.
+    fs.symlinkSync(
+      path.join(absoluteRepoRoot, "outputs"),
+      path.join(runtimeRoot, "outputs"),
+      process.platform === "win32" ? "junction" : "dir"
+    );
     process.chdir(runtimeRoot);
 
     // Dataset modules read compact generated-runtime projections. Build those

@@ -35,12 +35,18 @@ interface PublicEvidenceFixture {
   failures: Array<{ platform?: string }>;
 }
 
-interface PublicEvidenceCanonical extends Omit<PublicEvidenceFixture, "failures"> {
+interface PublicEvidenceCanonical extends Omit<PublicEvidenceFixture, "failures" | "needsReview"> {
   operationalLedgerRef: {
     path: string;
     sha256: string;
     bytes: number;
     counts: { failures: number };
+  };
+  reviewLedgerRef: {
+    path: string;
+    sha256: string;
+    bytes: number;
+    counts: { needsReview: number; attributionReconciliationLedger: number };
   };
 }
 
@@ -56,6 +62,14 @@ const publicEvidenceOperationalLedgerBytes = readFileSync(
 const publicEvidenceOperationalLedger = JSON.parse(
   publicEvidenceOperationalLedgerBytes.toString("utf8")
 ) as Pick<PublicEvidenceFixture, "failures">;
+const publicEvidenceReviewLedgerBytes = readFileSync(
+  join(process.cwd(), publicEvidenceCanonical.reviewLedgerRef.path)
+);
+const publicEvidenceReviewLedger = JSON.parse(
+  publicEvidenceReviewLedgerBytes.toString("utf8")
+) as Pick<PublicEvidenceFixture, "needsReview"> & {
+  attributionReconciliationLedger: unknown[];
+};
 if (
   publicEvidenceOperationalLedgerBytes.length !== publicEvidenceCanonical.operationalLedgerRef.bytes ||
   createHash("sha256").update(publicEvidenceOperationalLedgerBytes).digest("hex") !==
@@ -65,9 +79,21 @@ if (
 ) {
   throw new Error("Public evidence operational ledger reference failed integrity verification.");
 }
+if (
+  publicEvidenceReviewLedgerBytes.length !== publicEvidenceCanonical.reviewLedgerRef.bytes ||
+  createHash("sha256").update(publicEvidenceReviewLedgerBytes).digest("hex") !==
+    publicEvidenceCanonical.reviewLedgerRef.sha256 ||
+  publicEvidenceReviewLedger.needsReview.length !==
+    publicEvidenceCanonical.reviewLedgerRef.counts.needsReview ||
+  publicEvidenceReviewLedger.attributionReconciliationLedger.length !==
+    publicEvidenceCanonical.reviewLedgerRef.counts.attributionReconciliationLedger
+) {
+  throw new Error("Public evidence review ledger reference failed integrity verification.");
+}
 const publicEvidence: PublicEvidenceFixture = {
   ...publicEvidenceCanonical,
-  ...publicEvidenceOperationalLedger
+  ...publicEvidenceOperationalLedger,
+  ...publicEvidenceReviewLedger
 };
 
 const SUPPORTED_METRICS: Record<string, string[]> = {

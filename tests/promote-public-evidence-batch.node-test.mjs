@@ -193,7 +193,7 @@ describe("public evidence batch promotion publication", () => {
       assert.equal(receipt.status, "promoted");
       assert.equal(receipt.addedEvidence, 1);
       assert.equal(receipt.addedReviews, 1);
-      assert.equal(renameCalls, 2);
+      assert.equal(renameCalls, 3);
       assert.equal(fixture.mergeCalls.length, 1);
       assert.equal(fixture.mergeCalls[0].snapshots.length, 2);
       assert.deepEqual(
@@ -208,6 +208,10 @@ describe("public evidence batch promotion publication", () => {
       })).snapshot;
       assert.deepEqual(promoted.evidence, [...canonical.evidence, added]);
       assert.deepEqual(promoted.needsReview, [...canonical.needsReview, review]);
+      assert.deepEqual(
+        promoted.attributionReconciliationLedger,
+        canonical.attributionReconciliationLedger
+      );
       assert.deepEqual(promoted.failures, canonical.failures);
       assert.deepEqual(promoted.attempts, canonical.attempts);
       assert.deepEqual(promoted.discoveryAttempts, canonical.discoveryAttempts);

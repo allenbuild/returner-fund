@@ -9,6 +9,8 @@ import {
   PUBLIC_EVIDENCE_ARTIFACT_MAX_BYTES,
   PUBLIC_EVIDENCE_OPERATIONAL_LEDGER_MAX_BYTES,
   PUBLIC_EVIDENCE_OPERATIONAL_LEDGER_PATH,
+  PUBLIC_EVIDENCE_REVIEW_LEDGER_MAX_BYTES,
+  PUBLIC_EVIDENCE_REVIEW_LEDGER_PATH,
   assertPublicEvidenceArtifactSize,
   serializeCompactPublicEvidenceArtifact
 } from "../scripts/lib/public-evidence-artifact.mjs";
@@ -92,13 +94,22 @@ test("compact public evidence serialization is deterministic and preserves every
   );
 });
 
-test("canonical public evidence and its operational ledger stay below 75 MiB", async () => {
+test("canonical public evidence and both ledgers stay below 75 MiB", async () => {
   const artifactPath = join(root, "src", "lib", "social", "public-evidence-current.json");
   const ledgerPath = join(root, PUBLIC_EVIDENCE_OPERATIONAL_LEDGER_PATH);
-  const [artifact, ledger] = await Promise.all([stat(artifactPath), stat(ledgerPath)]);
+  const reviewLedgerPath = join(root, PUBLIC_EVIDENCE_REVIEW_LEDGER_PATH);
+  const [artifact, ledger, reviewLedger] = await Promise.all([
+    stat(artifactPath),
+    stat(ledgerPath),
+    stat(reviewLedgerPath)
+  ]);
   assert.ok(
     artifact.size < PUBLIC_EVIDENCE_ARTIFACT_MAX_BYTES,
     `public evidence is ${artifact.size} bytes; expected less than ${PUBLIC_EVIDENCE_ARTIFACT_MAX_BYTES}`
+  );
+  assert.ok(
+    reviewLedger.size < PUBLIC_EVIDENCE_REVIEW_LEDGER_MAX_BYTES,
+    `public evidence review ledger is ${reviewLedger.size} bytes; expected less than ${PUBLIC_EVIDENCE_REVIEW_LEDGER_MAX_BYTES}`
   );
   assert.ok(
     ledger.size < PUBLIC_EVIDENCE_OPERATIONAL_LEDGER_MAX_BYTES,
@@ -106,24 +117,46 @@ test("canonical public evidence and its operational ledger stay below 75 MiB", a
   );
   assertJqParsesIfAvailable(artifactPath);
   assertJqParsesIfAvailable(ledgerPath);
+  assertJqParsesIfAvailable(reviewLedgerPath);
 
-  const [runner, collector, batchPromotion, candidatePromotion, thumbnailBackfill] = await Promise.all([
+  const [
+    runner,
+    collector,
+    batchPromotion,
+    candidatePromotion,
+    thumbnailBackfill,
+    importer,
+    checkpointMerge,
+    historicalMerge
+  ] = await Promise.all([
     readFile(join(root, "scripts", "run-autonomous-ingestion.mjs"), "utf8"),
     readFile(join(root, "scripts", "fetch-public-traction.mjs"), "utf8"),
     readFile(join(root, "scripts", "promote-public-evidence-batch.mjs"), "utf8"),
     readFile(join(root, "scripts", "promote-public-evidence-candidate.mjs"), "utf8"),
-    readFile(join(root, "scripts", "backfill-evidence-thumbnails.mjs"), "utf8")
+    readFile(join(root, "scripts", "backfill-evidence-thumbnails.mjs"), "utf8"),
+    readFile(join(root, "scripts", "import-source-hunt-evidence.mjs"), "utf8"),
+    readFile(join(root, "scripts", "merge-public-checkpoint-candidates.mjs"), "utf8"),
+    readFile(join(root, "scripts", "merge-historical-journal-candidate.mjs"), "utf8")
   ]);
   assert.match(runner, /writePublicEvidenceArtifactPairAtomic\(\{/);
   assert.match(runner, /"outputs\/public-ingestion-operational-ledger-current\.json"/);
+  assert.match(runner, /"outputs\/public-ingestion-review-ledger-current\.json"/);
   assert.match(collector, /writePublicEvidenceArtifactPairAtomic\(\{/);
   assert.match(collector, /expectedLedgerSha256:/);
+  assert.match(collector, /expectedReviewLedgerSha256:/);
   assert.match(batchPromotion, /writePublicEvidenceArtifactPairAtomic\(\{/);
+  assert.match(batchPromotion, /expectedReviewLedgerSha256:/);
   assert.match(candidatePromotion, /writePublicEvidenceArtifactPairAtomic\(\{/);
+  assert.match(candidatePromotion, /expectedReviewLedgerSha256:/);
   assert.match(thumbnailBackfill, /readPublicEvidenceArtifact\(absolutePath/);
   assert.match(thumbnailBackfill, /writePublicEvidenceCanonicalArtifactAtomic\(\{/);
   assert.match(thumbnailBackfill, /expectedCanonicalSha256:/);
   assert.match(thumbnailBackfill, /expectedLedgerSha256:/);
+  assert.match(thumbnailBackfill, /expectedReviewLedgerSha256:/);
+  for (const writer of [importer, checkpointMerge, historicalMerge]) {
+    assert.match(writer, /writePublicEvidenceArtifactPairAtomic\(\{/);
+    assert.match(writer, /expectedReviewLedgerSha256:/);
+  }
 });
 
 test("public collection globally bounds tasks and safely clamps lane overrides", () => {

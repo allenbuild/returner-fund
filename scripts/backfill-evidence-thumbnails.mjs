@@ -57,7 +57,8 @@ for (const relativePath of evidenceFiles) {
     if (loaded.split) {
       publicEvidenceWriteState = {
         expectedCanonicalSha256: loaded.canonicalSha256,
-        expectedLedgerSha256: loaded.ledgerSha256
+        expectedLedgerSha256: loaded.ledgerSha256,
+        expectedReviewLedgerSha256: loaded.reviewLedgerSha256
       };
     }
   } else {
@@ -1475,10 +1476,14 @@ async function writeJsonWithRetries(
           canonicalPath: absolutePath,
           canonical: value,
           expectedCanonicalSha256: publicEvidenceWriteState.expectedCanonicalSha256,
-          expectedLedgerSha256: publicEvidenceWriteState.expectedLedgerSha256
+          expectedLedgerSha256: publicEvidenceWriteState.expectedLedgerSha256,
+          expectedReviewLedgerSha256:
+            publicEvidenceWriteState.expectedReviewLedgerSha256
         });
         publicEvidenceWriteState.expectedCanonicalSha256 = published.canonicalSha256;
         publicEvidenceWriteState.expectedLedgerSha256 = published.ledgerSha256;
+        publicEvidenceWriteState.expectedReviewLedgerSha256 =
+          published.reviewLedgerSha256;
         return;
       }
       fs.writeFileSync(absolutePath, payload);

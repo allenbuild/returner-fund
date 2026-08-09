@@ -36,12 +36,18 @@ const [candidateBytes, targeted, loggedIn, a16z, catalogs] = await Promise.all([
 ]);
 const canonicalDocument = JSON.parse(canonicalBytes.toString("utf8"));
 let canonicalOperationalLedgerBytes = null;
+let canonicalReviewLedgerBytes = null;
 const canonical = await hydratePublicEvidenceArtifactWithLoader(
   canonicalDocument,
   {
     loadLedger: async (relativePath) => {
-      canonicalOperationalLedgerBytes = await readFile(resolve(root, relativePath));
-      return canonicalOperationalLedgerBytes;
+      const bytes = await readFile(resolve(root, relativePath));
+      if (canonicalDocument.reviewLedgerRef?.path === relativePath) {
+        canonicalReviewLedgerBytes = bytes;
+      } else {
+        canonicalOperationalLedgerBytes = bytes;
+      }
+      return bytes;
     }
   }
 );
@@ -112,6 +118,9 @@ const published = await writePublicEvidenceArtifactPairAtomic({
   expectedCanonicalSha256: canonicalHash,
   expectedLedgerSha256: canonicalOperationalLedgerBytes
     ? sha256(canonicalOperationalLedgerBytes)
+    : null,
+  expectedReviewLedgerSha256: canonicalReviewLedgerBytes
+    ? sha256(canonicalReviewLedgerBytes)
     : null
 });
 
@@ -129,7 +138,11 @@ console.log(JSON.stringify({
   operationalLedgerHashBefore: canonicalOperationalLedgerBytes
     ? sha256(canonicalOperationalLedgerBytes)
     : null,
-  operationalLedgerHashAfter: published.ledgerSha256
+  operationalLedgerHashAfter: published.ledgerSha256,
+  reviewLedgerHashBefore: canonicalReviewLedgerBytes
+    ? sha256(canonicalReviewLedgerBytes)
+    : null,
+  reviewLedgerHashAfter: published.reviewLedgerSha256
 }, null, 2));
 
 function updateCanonicalSource(canonicalSource = {}, mergedSource = {}) {

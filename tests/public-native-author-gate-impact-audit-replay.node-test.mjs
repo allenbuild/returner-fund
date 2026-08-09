@@ -10,6 +10,7 @@ import {
   mergePublicEvidenceSnapshots
 } from "../scripts/lib/autonomous-ingestion-plan.mjs";
 import { assessLinkedInPrimaryPostBody } from "../scripts/lib/public-evidence-attribution.mjs";
+import { readPublicEvidenceArtifact } from "../scripts/lib/public-evidence-artifact.mjs";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const auditPath = join(
@@ -353,22 +354,37 @@ describe("public native-author gate-impact artifact replay", () => {
 });
 
 async function replayUnresolvedAuthorAudit() {
-  const [audit, canonical, catalogs] = await Promise.all([
+  const [audit, canonicalArtifact, catalogs] = await Promise.all([
     readJson(auditPath),
-    readJson(canonicalPath),
+    readPublicEvidenceArtifact(canonicalPath, { rootDir: root }),
     loadAutonomousCatalogs(root)
   ]);
+  const canonical = canonicalArtifact.snapshot;
+  const canonicalRows = [...(canonical.evidence ?? []), ...(canonical.needsReview ?? [])];
   const canonicalById = new Map(
-    [...(canonical.evidence ?? []), ...(canonical.needsReview ?? [])]
+    canonicalRows
       .flatMap((row) => [
         [row.id, row],
         ...(row.sourceEvidenceId ? [[row.sourceEvidenceId, row]] : [])
       ])
   );
+  const canonicalByPhysicalIdentity = new Map(
+    canonicalRows.flatMap((row) => {
+      const activityId = String(
+        row.platformPostId ??
+        row.nativeId ??
+        row.sourceUrl?.match(/(?:activity[-:]|activity%3A)(\d{12,})/i)?.[1] ??
+        ""
+      ).match(/\d{12,}/)?.[0];
+      return activityId ? [[`linkedin:post:${activityId}`, row]] : [];
+    })
+  );
   const auditRecords = audit.records.filter((record) => record.action === "review");
   assert.equal(auditRecords.length, 105);
   const rows = auditRecords.map((record) => {
-    const canonicalRow = canonicalById.get(record.canonicalRowId);
+    const exactCanonicalRow = canonicalById.get(record.canonicalRowId);
+    const canonicalRow = exactCanonicalRow ??
+      canonicalByPhysicalIdentity.get(record.physicalIdentity);
     assert(canonicalRow, `Missing canonical fixture ${record.canonicalRowId}`);
     const {
       attributionReconciliationDirective: _attributionReconciliationDirective,
@@ -378,8 +394,11 @@ async function replayUnresolvedAuthorAudit() {
       sourceEvidenceId: _sourceEvidenceId,
       ...candidate
     } = canonicalRow;
+    const replayCandidate = exactCanonicalRow
+      ? candidate
+      : withoutNativeAuthorHints(candidate, record);
     return {
-      ...candidate,
+      ...replayCandidate,
       id: record.canonicalRowId,
       batchSlug: record.currentAttribution.batchSlug,
       entityType: record.currentAttribution.entityType,
@@ -416,6 +435,21 @@ async function replayUnresolvedAuthorAudit() {
     reviewByCanonicalId: new Map(
       merged.needsReview.map((row) => [row.sourceEvidenceId ?? row.id, row])
     )
+  };
+}
+
+function withoutNativeAuthorHints(candidate, record) {
+  const {
+    accountUrl: _accountUrl,
+    authorHandle: _authorHandle,
+    nativeAuthorResolution: _nativeAuthorResolution,
+    ...historicalCandidate
+  } = candidate;
+  return {
+    ...historicalCandidate,
+    sourceUrl: record.sourceUrl,
+    title: record.title,
+    metrics: record.metrics
   };
 }
 

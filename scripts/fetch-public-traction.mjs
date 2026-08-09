@@ -6542,6 +6542,8 @@ async function writeJson(path, value) {
       snapshot: sanitized,
       expectedCanonicalSha256: currentCanonicalArtifact?.canonicalSha256,
       expectedLedgerSha256: currentCanonicalArtifact?.ledgerSha256 ?? null,
+      expectedReviewLedgerSha256:
+        currentCanonicalArtifact?.reviewLedgerSha256 ?? null,
       renameImpl: renameWithRetries
     });
     return;

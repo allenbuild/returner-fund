@@ -246,7 +246,8 @@ if (writeMode) {
       canonicalPath: targetPath,
       snapshot: target,
       expectedCanonicalSha256: targetPublicArtifact.canonicalSha256,
-      expectedLedgerSha256: targetPublicArtifact.ledgerSha256
+      expectedLedgerSha256: targetPublicArtifact.ledgerSha256,
+      expectedReviewLedgerSha256: targetPublicArtifact.reviewLedgerSha256
     });
   } else {
     await writeJsonAtomic(targetPath, target);

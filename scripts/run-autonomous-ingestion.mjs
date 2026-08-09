@@ -34,6 +34,8 @@ import {
   PUBLIC_EVIDENCE_LEGACY_MAX_BYTES,
   PUBLIC_EVIDENCE_OPERATIONAL_LEDGER_MAX_BYTES,
   PUBLIC_EVIDENCE_OPERATIONAL_LEDGER_PATH,
+  PUBLIC_EVIDENCE_REVIEW_LEDGER_MAX_BYTES,
+  PUBLIC_EVIDENCE_REVIEW_LEDGER_PATH,
   hydratePublicEvidenceArtifactWithLoader,
   readPublicEvidenceArtifact,
   writePublicEvidenceArtifactPairAtomic
@@ -1109,7 +1111,8 @@ async function mergePublicationInputs(
       rootDir: root,
       canonicalPath: join(root, publicEvidencePath),
       snapshot: trustedPublicSnapshot,
-      ledgerRelativePath: PUBLIC_EVIDENCE_OPERATIONAL_LEDGER_PATH
+      ledgerRelativePath: PUBLIC_EVIDENCE_OPERATIONAL_LEDGER_PATH,
+      reviewLedgerRelativePath: PUBLIC_EVIDENCE_REVIEW_LEDGER_PATH
     });
   }
 
@@ -1210,6 +1213,9 @@ function gitRefCaptureLimit(path) {
   }
   if (path === PUBLIC_EVIDENCE_OPERATIONAL_LEDGER_PATH) {
     return PUBLIC_EVIDENCE_OPERATIONAL_LEDGER_MAX_BYTES;
+  }
+  if (path === PUBLIC_EVIDENCE_REVIEW_LEDGER_PATH) {
+    return PUBLIC_EVIDENCE_REVIEW_LEDGER_MAX_BYTES;
   }
   return 50_000_000;
 }
@@ -2591,9 +2597,18 @@ async function buildAndValidatePublication(publicationRunId, catalogState) {
     timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.artifactValidationMs,
     label: "compact graph runtime preparation"
   });
-  // Build only after all public graph + Timeline artifacts have been rebuilt
-  // and strictly validated, so the deployable trace is the exact publication
-  // we are about to commit rather than the previous artifact generation.
+  await runCommand("npm", ["run", "artifacts:derived:build"], {
+    timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.artifactValidationMs,
+    label: "topic facet and Ranked Posts sidecar regeneration"
+  });
+  await runCommand("npm", ["run", "artifacts:derived:validate"], {
+    timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.artifactValidationMs,
+    label: "topic facet and Ranked Posts sidecar validation"
+  });
+  // Build only after all public graph, Timeline, topic-facet, and Ranked Posts
+  // artifacts have been rebuilt and strictly validated, so the deployable
+  // trace is the exact publication we are about to commit rather than the
+  // previous artifact generation.
   await runCommand(process.execPath, ["node_modules/next/dist/bin/next", "build"], {
     timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.productionBuildMs,
     label: "production build"
@@ -2899,6 +2914,8 @@ function repositoryArtifactPaths() {
     "src/lib/yc/summer-2026-company-aliases.json",
     "public/graph",
     "public/timelines",
+    "public/topic-facets",
+    "src/lib/graph/ranked-posts-sidecar.generated.json",
     "artifacts/company-timeline/coverage.json",
     "outputs/benchmarks",
     "outputs/cohort-coverage-current.json",
@@ -2907,6 +2924,7 @@ function repositoryArtifactPaths() {
     "outputs/discovery-attempts-current.json",
     "outputs/source-discovery-paths-current.json",
     "outputs/public-ingestion-operational-ledger-current.json",
+    "outputs/public-ingestion-review-ledger-current.json",
     "docs/outputs/scoring-diagnostics-v4-audit.json",
     "docs/outputs/scoring-diagnostics-v4-report.md",
     "src/lib/social/public-evidence-current.json",

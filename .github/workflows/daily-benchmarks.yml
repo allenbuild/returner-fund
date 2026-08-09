@@ -166,21 +166,26 @@ jobs:
             env -u NEXT_PUBLIC_SUPABASE_URL -u SUPABASE_SERVICE_ROLE_KEY TIMELINE_REQUIRE_DATABASE=false npm run timeline:backfill
           fi
 
+      - name: Rebuild graph-derived artifacts
+        timeout-minutes: 10
+        run: npm run artifacts:derived:build
+
       - name: Refresh artifact manifest
         run: |
           INGESTION_RUN_ID="$(node -p "require('./public/graph/manifest.json').ingestionRunId")"
           node scripts/write-artifact-manifest.mjs --ingestion-run-id="$INGESTION_RUN_ID"
 
       - name: Validate generated public artifacts
-        timeout-minutes: 5
+        timeout-minutes: 10
         run: |
           npm run artifacts:validate
           npm run artifacts:manifest:validate
           npm run timeline:validate
+          npm run artifacts:derived:validate
 
       - name: Commit and publish benchmark snapshots
         id: publish
-        timeout-minutes: 75
+        timeout-minutes: 110
         env:
           PUBLICATION_BRANCH: main
           SCHEDULED_UTC_HOUR: ${{ needs.resolve.outputs.scheduled_utc_hour }}
@@ -203,6 +208,8 @@ jobs:
             public/graph/a16zsr006-insiders.json
             public/graph/manifest.json
             public/timelines
+            public/topic-facets
+            src/lib/graph/ranked-posts-sidecar.generated.json
             artifacts/company-timeline/coverage.json
           )
 
@@ -240,11 +247,13 @@ jobs:
             else
               timeout 4m env -u NEXT_PUBLIC_SUPABASE_URL -u SUPABASE_SERVICE_ROLE_KEY TIMELINE_REQUIRE_DATABASE=false npm run timeline:backfill
             fi
+            timeout 10m npm run artifacts:derived:build
             INGESTION_RUN_ID="$(node -p "require('./public/graph/manifest.json').ingestionRunId")"
             node scripts/write-artifact-manifest.mjs --ingestion-run-id="$INGESTION_RUN_ID"
             npm run artifacts:validate
             npm run artifacts:manifest:validate
             npm run timeline:validate
+            timeout 10m npm run artifacts:derived:validate
             git add -- "${benchmark_files[@]}"
             if ! git diff --cached --quiet; then
               git commit --amend --no-edit

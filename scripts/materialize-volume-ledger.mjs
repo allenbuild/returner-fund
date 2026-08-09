@@ -4,6 +4,7 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { createReadStream } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { createInterface } from "node:readline";
+import { readPublicEvidenceArtifact } from "./lib/public-evidence-artifact.mjs";
 
 const root = process.cwd();
 const outputDir = resolve(root, argValue("--output-dir") ?? "work/volume-target-2026-08-05");
@@ -84,7 +85,9 @@ for (const [label, relativePath] of sourceFiles) {
   const path = resolve(root, relativePath);
   let payload;
   try {
-    payload = JSON.parse(await readFile(path, "utf8"));
+    payload = label === "public"
+      ? (await readPublicEvidenceArtifact(path, { rootDir: root })).snapshot
+      : JSON.parse(await readFile(path, "utf8"));
   } catch (error) {
     if (error?.code === "ENOENT") {
       counters.skippedMissingSources += 1;

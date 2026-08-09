@@ -82,7 +82,7 @@ export const AUTONOMOUS_PROCESS_BUDGETS = Object.freeze({
   timelineBackfillMs: 4 * MINUTE_MS,
   scoringDiagnosticsMs: 3 * MINUTE_MS,
   artifactManifestMs: MINUTE_MS,
-  artifactValidationMs: 4 * MINUTE_MS,
+  artifactValidationMs: 3 * MINUTE_MS,
   gitConfigMs: 30_000,
   gitStageMs: MINUTE_MS,
   gitDiffMs: 30_000,
@@ -129,9 +129,10 @@ export function maxAutonomousRunnerProcessBudgetMs(budgets = AUTONOMOUS_PROCESS_
   const publicationBaseSynchronizationWindow =
     2 * budgets.gitPushMs; // initial fetch + rebase
   // buildAndValidatePublication() builds once for the benchmark server and a
-  // second time after graph/timeline generation. It also runs five commands
+  // second time after graph/timeline generation. It also runs seven commands
   // under artifactValidationMs: two runtime preparations, Timeline validation,
-  // cohort audit, and final public-artifact validation.
+  // derived-artifact build + validation, cohort audit, and final public-artifact
+  // validation.
   const publicationBuildWindow =
     (2 * budgets.productionBuildMs) +
     budgets.benchmarkPublicationMs +
@@ -140,7 +141,7 @@ export function maxAutonomousRunnerProcessBudgetMs(budgets = AUTONOMOUS_PROCESS_
     budgets.timelineBackfillMs +
     budgets.scoringDiagnosticsMs +
     budgets.artifactManifestMs +
-    (5 * budgets.artifactValidationMs);
+    (7 * budgets.artifactValidationMs);
   const initialPublicationWindow =
     publicationBuildWindow +
     (2 * budgets.gitConfigMs) +

@@ -606,6 +606,20 @@ describe("autonomous ingestion runner static safety contracts", () => {
     assert.ok(artifactPaths.includes('"src/lib/social/github-traction-quarantine.json"'));
   });
 
+  it("stages and reloads the split review ledger across publication rebases", () => {
+    const artifactPaths = section("function repositoryArtifactPaths", "async function refreshMutableYcCatalog");
+    const captureLimit = section("function gitRefCaptureLimit", "function newestRowsById");
+    const gitRefReader = section("async function readPublicEvidenceFromGitRef", "async function readJsonFromGitRef");
+
+    assert.ok(
+      artifactPaths.includes('"outputs/public-ingestion-review-ledger-current.json"')
+    );
+    assert.match(captureLimit, /PUBLIC_EVIDENCE_REVIEW_LEDGER_PATH/);
+    assert.match(captureLimit, /PUBLIC_EVIDENCE_REVIEW_LEDGER_MAX_BYTES/);
+    assert.match(gitRefReader, /hydratePublicEvidenceArtifactWithLoader/);
+    assert.match(gitRefReader, /readTextFromGitRef\(ref, relativePath/);
+  });
+
   it("runs the ingestion safety contracts through the collector and release gates", () => {
     const contractScript = packageJson.scripts["test:ingestion-contracts"];
     assert.equal(
@@ -651,6 +665,49 @@ describe("autonomous ingestion runner static safety contracts", () => {
     assert.ok(publicationBuild.includes('"./scripts/lib/scoring-diagnostics-ts-loader.mjs"'));
     assert.ok(artifactPaths.includes('"docs/outputs/scoring-diagnostics-v4-audit.json"'));
     assert.ok(artifactPaths.includes('"docs/outputs/scoring-diagnostics-v4-report.md"'));
+  });
+
+  it("regenerates, validates, and stages every graph-derived publication artifact", () => {
+    const publicationBuild = section(
+      "async function buildAndValidatePublication",
+      "async function synchronizePublicationBase"
+    );
+    const artifactPaths = section(
+      "function repositoryArtifactPaths",
+      "async function refreshMutableYcCatalog"
+    );
+    const graphIndex = publicationBuild.indexOf('"scripts/update-daily-benchmarks.mjs"');
+    const timelineIndex = publicationBuild.indexOf('"scripts/validate-timeline-artifacts.mjs"');
+    const prepareIndex = publicationBuild.indexOf('label: "compact graph runtime preparation"');
+    const derivedBuildIndex = publicationBuild.indexOf('["run", "artifacts:derived:build"]');
+    const derivedValidateIndex = publicationBuild.indexOf('["run", "artifacts:derived:validate"]');
+    const productionBuildIndex = publicationBuild.indexOf('label: "production build"');
+
+    assert.ok(
+      graphIndex > -1 &&
+      timelineIndex > graphIndex &&
+      prepareIndex > timelineIndex &&
+      derivedBuildIndex > prepareIndex &&
+      derivedValidateIndex > derivedBuildIndex &&
+      productionBuildIndex > derivedValidateIndex
+    );
+    assert.ok(artifactPaths.includes('"public/graph"'));
+    assert.ok(artifactPaths.includes('"public/timelines"'));
+    assert.ok(artifactPaths.includes('"public/topic-facets"'));
+    assert.ok(artifactPaths.includes('"src/lib/graph/ranked-posts-sidecar.generated.json"'));
+
+    assert.match(packageJson.scripts["artifacts:derived:build"], /topics:facets/);
+    assert.match(packageJson.scripts["artifacts:derived:build"], /ranked-posts:sidecar/);
+    assert.match(packageJson.scripts["topics:facets"], /scripts\/build-topic-facets\.mjs/);
+    assert.match(
+      packageJson.scripts["ranked-posts:sidecar"],
+      /scripts\/build-ranked-posts-sidecar\.mjs/
+    );
+    assert.match(packageJson.scripts["topics:facets:validate"], /--validate/);
+    assert.match(packageJson.scripts["ranked-posts:sidecar:validate"], /--validate/);
+    assert.match(packageJson.scripts["artifacts:derived:validate"], /topics:facets:validate/);
+    assert.match(packageJson.scripts["artifacts:derived:validate"], /ranked-posts:sidecar:validate/);
+    assert.match(packageJson.scripts["check:release:artifacts"], /artifacts:derived:validate/);
   });
 
   it("builds current graph inputs before starting the benchmark publication server", () => {

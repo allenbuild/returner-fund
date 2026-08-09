@@ -211,12 +211,18 @@ export async function promotePublicEvidenceBatch(
   ]);
   const canonicalDocument = parseJson(canonicalBytes, canonicalPath);
   let canonicalOperationalLedgerBytes = null;
+  let canonicalReviewLedgerBytes = null;
   const canonical = await hydratePublicEvidenceArtifactWithLoader(
     canonicalDocument,
     {
       loadLedger: async (relativePath) => {
-        canonicalOperationalLedgerBytes = await readFileImpl(path.resolve(rootDir, relativePath));
-        return canonicalOperationalLedgerBytes;
+        const bytes = await readFileImpl(path.resolve(rootDir, relativePath));
+        if (canonicalDocument.reviewLedgerRef?.path === relativePath) {
+          canonicalReviewLedgerBytes = bytes;
+        } else {
+          canonicalOperationalLedgerBytes = bytes;
+        }
+        return bytes;
       }
     }
   );
@@ -252,6 +258,9 @@ export async function promotePublicEvidenceBatch(
     canonicalHashBefore: canonicalHash,
     operationalLedgerHashBefore: canonicalOperationalLedgerBytes
       ? sha256(canonicalOperationalLedgerBytes)
+      : null,
+    reviewLedgerHashBefore: canonicalReviewLedgerBytes
+      ? sha256(canonicalReviewLedgerBytes)
       : null
   };
 
@@ -278,6 +287,9 @@ export async function promotePublicEvidenceBatch(
     expectedLedgerSha256: canonicalOperationalLedgerBytes
       ? sha256(canonicalOperationalLedgerBytes)
       : null,
+    expectedReviewLedgerSha256: canonicalReviewLedgerBytes
+      ? sha256(canonicalReviewLedgerBytes)
+      : null,
     readFileImpl,
     writeFileImpl,
     renameImpl,
@@ -289,7 +301,8 @@ export async function promotePublicEvidenceBatch(
     status: "promoted",
     ...baseReceipt,
     canonicalHashAfter: sha256(await readFileImpl(canonicalPath)),
-    operationalLedgerHashAfter: published.ledgerSha256
+    operationalLedgerHashAfter: published.ledgerSha256,
+    reviewLedgerHashAfter: published.reviewLedgerSha256
   });
 }
 

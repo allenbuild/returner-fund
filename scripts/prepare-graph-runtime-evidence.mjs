@@ -2,6 +2,7 @@
 
 import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import { join, resolve } from "node:path";
+import { readPublicEvidenceArtifact } from "./lib/public-evidence-artifact.mjs";
 
 const root = resolve(process.cwd());
 const outputRoot = join(root, "generated-runtime", "graph");
@@ -38,7 +39,9 @@ await mkdir(outputRoot, { recursive: true });
 const results = [];
 for (const name of snapshotNames) {
   const sourcePath = `src/lib/social/${name}-evidence-current.json`;
-  const source = await readJson(sourcePath);
+  const source = name === "public"
+    ? (await readPublicEvidenceArtifact(sourcePath, { rootDir: root })).snapshot
+    : await readJson(sourcePath);
   // Evidence rows are already compact and several graph pipelines consume
   // forward-compatible provenance fields. Preserve each accepted row exactly;
   // the memory win comes from excluding tens of thousands of crawl failures,

@@ -87,10 +87,12 @@ if (writeMode) {
     canonicalPath,
     snapshot: mergedWithBaseline,
     expectedCanonicalSha256: canonicalArtifact.canonicalSha256,
-    expectedLedgerSha256: canonicalArtifact.ledgerSha256
+    expectedLedgerSha256: canonicalArtifact.ledgerSha256,
+    expectedReviewLedgerSha256: canonicalArtifact.reviewLedgerSha256
   });
   summary.canonicalSha256 = published.canonicalSha256;
   summary.ledgerSha256 = published.ledgerSha256;
+  summary.reviewLedgerSha256 = published.reviewLedgerSha256;
 }
 process.stdout.write(`${JSON.stringify(summary, null, 2)}\n`);
 

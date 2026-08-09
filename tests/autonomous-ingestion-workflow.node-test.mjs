@@ -90,7 +90,7 @@ test("daily benchmarks synchronize, rebuild on push races, and verify main", () 
     (match) => Number(match[1])
   );
   assert.equal(jobTimeout, 240);
-  assert.deepEqual(stepTimeouts, [10, 10, 15, 50, 10, 5, 75]);
+  assert.deepEqual(stepTimeouts, [10, 10, 15, 50, 10, 10, 10, 110]);
   assert.ok(stepTimeouts.reduce((total, timeout) => total + timeout, 0) < jobTimeout);
 });
 
@@ -119,6 +119,38 @@ test("daily benchmarks rebuild and validate timelines with a database-free fallb
   assert.ok((updateJob.match(/npm run timeline:validate/g) ?? []).length >= 2);
 });
 
+test("daily publication rebuilds and validates graph-derived artifacts before both push attempts", () => {
+  const updateJob = dailyBenchmarkWorkflow.match(/\n  update:[\s\S]*?(?=\n  receipt:)/)?.[0] ?? "";
+  const publishStep = updateJob.match(
+    /- name: Commit and publish benchmark snapshots([\s\S]*?)$/
+  )?.[1] ?? "";
+
+  assert.equal((updateJob.match(/npm run artifacts:derived:build/g) ?? []).length, 2);
+  assert.equal((updateJob.match(/npm run artifacts:derived:validate/g) ?? []).length, 2);
+  assert.match(
+    updateJob,
+    /benchmark_files=\([\s\S]*public\/graph[\s\S]*public\/timelines[\s\S]*public\/topic-facets[\s\S]*src\/lib\/graph\/ranked-posts-sidecar\.generated\.json/
+  );
+
+  const rebaseIndex = publishStep.indexOf('git rebase "origin/$PUBLICATION_BRANCH"');
+  const graphIndex = publishStep.indexOf("npm run benchmarks:daily", rebaseIndex);
+  const timelineIndex = publishStep.indexOf("npm run timeline:backfill", graphIndex);
+  const derivedBuildIndex = publishStep.indexOf("npm run artifacts:derived:build", timelineIndex);
+  const manifestIndex = publishStep.indexOf("scripts/write-artifact-manifest.mjs", derivedBuildIndex);
+  const derivedValidateIndex = publishStep.indexOf("npm run artifacts:derived:validate", manifestIndex);
+  const stageIndex = publishStep.indexOf('git add -- "${benchmark_files[@]}"', derivedValidateIndex);
+
+  assert.ok(
+    rebaseIndex > -1 &&
+    graphIndex > rebaseIndex &&
+    timelineIndex > graphIndex &&
+    derivedBuildIndex > timelineIndex &&
+    manifestIndex > derivedBuildIndex &&
+    derivedValidateIndex > manifestIndex &&
+    stageIndex > derivedValidateIndex
+  );
+});
+
 test("workflow gates work through the schedule helper and stable key", () => {
   assert.match(workflow, /id:\s*schedule[\s\S]*?node scripts\/lib\/ingestion-schedule\.mjs/);
   assert.match(workflow, /GITHUB_EVENT_SCHEDULE:\s*\$\{\{ github\.event\.schedule \}\}/);
@@ -134,7 +166,7 @@ test("autonomous runner receives optional durability secrets and owns validated 
   )?.[1];
   assert.ok(runnerStep, "missing autonomous ingestion step");
   assert.match(runnerStep, /id:\s*ingestion/);
-  assert.match(runnerStep, /timeout-minutes:\s*340/);
+  assert.match(runnerStep, /timeout-minutes:\s*344/);
   assert.match(runnerStep, /NEXT_PUBLIC_SUPABASE_URL:\s*\$\{\{ secrets\.NEXT_PUBLIC_SUPABASE_URL \}\}/);
   assert.match(runnerStep, /SUPABASE_SERVICE_ROLE_KEY:\s*\$\{\{ secrets\.SUPABASE_SERVICE_ROLE_KEY \}\}/);
   assert.match(runnerStep, /GITHUB_TOKEN:\s*\$\{\{ github\.token \}\}/);
@@ -151,6 +183,12 @@ test("autonomous runner receives optional durability secrets and owns validated 
   const validateIndex = workflow.indexOf("npm run artifacts:validate");
   const runnerIndex = workflow.indexOf("node scripts/run-autonomous-ingestion.mjs");
   assert.ok(runnerIndex >= 0 && validateIndex > runnerIndex);
+  const validationStep = workflow.match(
+    /- name: Validate generated public artifacts([\s\S]*?)(?=\n\s{6}- name:)/
+  )?.[1] ?? "";
+  assert.match(validationStep, /npm run artifacts:manifest:validate/);
+  assert.match(validationStep, /npm run timeline:validate/);
+  assert.match(validationStep, /npm run artifacts:derived:validate/);
   const runnerSource = readFileSync(path.join(repositoryRoot, "scripts", "run-autonomous-ingestion.mjs"), "utf8");
   const pushIndex = runnerSource.indexOf("await publishRepositoryArtifacts(publicationRunId, publicationInputs)");
   const completionIndex = runnerSource.indexOf('await completeRun("completed"');
@@ -167,7 +205,7 @@ test("workflow step budgets leave setup and scheduling headroom", () => {
 
   assert.equal(jobTimeout, 360);
   assert.equal(installTimeout, 10);
-  assert.equal(runnerTimeout, 340);
+  assert.equal(runnerTimeout, 344);
   assert.equal(validationTimeout, 5);
   assert.ok(runnerTimeout < jobTimeout);
   assert.ok(installTimeout + runnerTimeout + validationTimeout < jobTimeout);
