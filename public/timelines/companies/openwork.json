@@ -5,8 +5,8 @@
     "slug": "openwork",
     "name": "OpenWork"
   },
-  "generatedAt": "2026-08-09T18:47:34.041Z",
-  "lastModifiedAt": "2026-08-09T18:47:34.041Z",
+  "generatedAt": "2026-08-09T22:27:16.508Z",
+  "lastModifiedAt": "2026-08-09T22:27:16.508Z",
   "events": [
     {
       "id": "tle-b1b8a22b8c3555944daa0fa7",
@@ -185,7 +185,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 6,
-    "lastSuccessfulArtifactAt": "2026-08-09T18:47:34.041Z"
+    "lastSuccessfulArtifactAt": "2026-08-09T22:27:16.508Z"
   },
   "nextCursor": null
 }

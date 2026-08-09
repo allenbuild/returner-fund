@@ -5,8 +5,8 @@
     "slug": "ara",
     "name": "Ara"
   },
-  "generatedAt": "2026-08-09T18:47:34.041Z",
-  "lastModifiedAt": "2026-08-09T18:47:34.041Z",
+  "generatedAt": "2026-08-09T22:27:16.508Z",
+  "lastModifiedAt": "2026-08-09T22:27:16.508Z",
   "events": [
     {
       "id": "tle-9f5620487a94b41bfddd9f83",
@@ -303,7 +303,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 11,
-    "lastSuccessfulArtifactAt": "2026-08-09T18:47:34.041Z"
+    "lastSuccessfulArtifactAt": "2026-08-09T22:27:16.508Z"
   },
   "nextCursor": null
 }

@@ -5,8 +5,8 @@
     "slug": "framewise-health",
     "name": "Framewise Health"
   },
-  "generatedAt": "2026-08-09T18:47:34.041Z",
-  "lastModifiedAt": "2026-08-09T18:47:34.041Z",
+  "generatedAt": "2026-08-09T22:27:16.508Z",
+  "lastModifiedAt": "2026-08-09T22:27:16.508Z",
   "events": [
     {
       "id": "tle-4c68bc2f4df662bb29b0cbb9",
@@ -47,7 +47,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-08-09T18:47:34.041Z"
+    "lastSuccessfulArtifactAt": "2026-08-09T22:27:16.508Z"
   },
   "nextCursor": null
 }

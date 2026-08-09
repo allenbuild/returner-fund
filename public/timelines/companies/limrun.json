@@ -5,14 +5,14 @@
     "slug": "limrun",
     "name": "Limrun"
   },
-  "generatedAt": "2026-08-09T18:47:34.041Z",
-  "lastModifiedAt": "2026-08-09T18:47:34.041Z",
+  "generatedAt": "2026-08-09T22:27:16.508Z",
+  "lastModifiedAt": "2026-08-09T22:27:16.508Z",
   "events": [],
   "groups": [],
   "coverage": {
     "status": "partial",
     "publishedEventCount": 0,
-    "lastSuccessfulArtifactAt": "2026-08-09T18:47:34.041Z"
+    "lastSuccessfulArtifactAt": "2026-08-09T22:27:16.508Z"
   },
   "nextCursor": null
 }

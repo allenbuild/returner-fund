@@ -5,8 +5,8 @@
     "slug": "superlog",
     "name": "Superlog"
   },
-  "generatedAt": "2026-08-09T18:47:34.041Z",
-  "lastModifiedAt": "2026-08-09T18:47:34.041Z",
+  "generatedAt": "2026-08-09T22:27:16.508Z",
+  "lastModifiedAt": "2026-08-09T22:27:16.508Z",
   "events": [
     {
       "id": "tle-01197a4ccb8f5928ae8a172b",
@@ -223,7 +223,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 8,
-    "lastSuccessfulArtifactAt": "2026-08-09T18:47:34.041Z"
+    "lastSuccessfulArtifactAt": "2026-08-09T22:27:16.508Z"
   },
   "nextCursor": null
 }
