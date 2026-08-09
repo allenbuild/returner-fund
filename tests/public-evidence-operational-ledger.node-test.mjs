@@ -7,8 +7,10 @@ import { describe, it } from "node:test";
 import {
   PUBLIC_EVIDENCE_ARTIFACT_MAX_BYTES,
   PUBLIC_EVIDENCE_OPERATIONAL_KEYS,
+  PUBLIC_EVIDENCE_OPERATIONAL_LEDGER_VERSION,
   PUBLIC_EVIDENCE_OPERATIONAL_LEDGER_MAX_BYTES,
   PUBLIC_EVIDENCE_OPERATIONAL_LEDGER_PATH,
+  PUBLIC_EVIDENCE_OPERATIONAL_RETENTION_VERSION,
   PUBLIC_EVIDENCE_REVIEW_KEYS,
   PUBLIC_EVIDENCE_REVIEW_LEDGER_MAX_BYTES,
   PUBLIC_EVIDENCE_REVIEW_LEDGER_PATH,
@@ -35,6 +37,19 @@ describe("public evidence operational ledger split", () => {
     assert.ok(Buffer.byteLength(first.ledgerBody) < PUBLIC_EVIDENCE_OPERATIONAL_LEDGER_MAX_BYTES);
     assert.ok(Buffer.byteLength(first.reviewLedgerBody) < PUBLIC_EVIDENCE_REVIEW_LEDGER_MAX_BYTES);
     assert.equal(first.reference.path, PUBLIC_EVIDENCE_OPERATIONAL_LEDGER_PATH);
+    assert.equal(first.operationalLedger.schemaVersion, PUBLIC_EVIDENCE_OPERATIONAL_LEDGER_VERSION);
+    assert.equal(
+      first.reference.retention.schemaVersion,
+      PUBLIC_EVIDENCE_OPERATIONAL_RETENTION_VERSION
+    );
+    assert.deepEqual(first.reference.retention.prunedCounts, {
+      failures: 0,
+      attempts: 0,
+      discoveryAttempts: 0,
+      sourceDiscoveryPaths: 0
+    });
+    assert.deepEqual(first.operationalLedger.retention, first.reference.retention);
+    assert.deepEqual(first.canonical.source.operationalRetention, first.reference.retention);
     assert.deepEqual(first.reference.counts, {
       failures: 2,
       attempts: 2,
@@ -58,10 +73,14 @@ describe("public evidence operational ledger split", () => {
       first.ledgerBody,
       { reviewLedgerSource: first.reviewLedgerBody }
     );
-    assert.deepEqual(hydrated, fixture);
+    assert.deepEqual(hydrated, retainedFixtureSnapshot(fixture, first));
     for (const key of PUBLIC_EVIDENCE_OPERATIONAL_KEYS) {
       assert.deepEqual(hydrated[key], fixture[key], key);
     }
+    const rebuilt = buildPublicEvidenceArtifactPair(hydrated);
+    assert.equal(rebuilt.canonicalBody, first.canonicalBody);
+    assert.equal(rebuilt.ledgerBody, first.ledgerBody);
+    assert.equal(rebuilt.reviewLedgerBody, first.reviewLedgerBody);
   });
 
   it("fails closed on a tampered hash, count, hybrid document, or unsafe path", () => {
@@ -88,6 +107,24 @@ describe("public evidence operational ledger split", () => {
         reviewLedgerSource: pair.reviewLedgerBody
       }),
       /must not embed failures/
+    );
+    const legacyLedgerBody = `${JSON.stringify({
+      schemaVersion: "public-ingestion-operational-ledger.v1",
+      failures: pair.operationalLedger.failures,
+      attempts: pair.operationalLedger.attempts,
+      discoveryAttempts: pair.operationalLedger.discoveryAttempts,
+      sourceDiscoveryPaths: pair.operationalLedger.sourceDiscoveryPaths
+    })}\n`;
+    assert.throws(
+      () => hydratePublicEvidenceArtifact({
+        ...canonical,
+        operationalLedgerRef: {
+          ...canonical.operationalLedgerRef,
+          sha256: sha256(legacyLedgerBody),
+          bytes: Buffer.byteLength(legacyLedgerBody)
+        }
+      }, legacyLedgerBody, { reviewLedgerSource: pair.reviewLedgerBody }),
+      /ledger\/reference version mismatch/
     );
     assert.throws(
       () => hydratePublicEvidenceArtifact({
@@ -173,13 +210,13 @@ describe("public evidence operational ledger split", () => {
     };
     delete previousCanonical.reviewLedgerRef;
     const hydrated = hydratePublicEvidenceArtifact(previousCanonical, pair.ledgerBody);
-    assert.deepEqual(hydrated, fixture);
+    assert.deepEqual(hydrated, retainedFixtureSnapshot(fixture, pair));
     const rebuilt = buildPublicEvidenceArtifactPair(hydrated);
     assert.deepEqual(
       hydratePublicEvidenceArtifact(rebuilt.canonical, rebuilt.ledgerBody, {
         reviewLedgerSource: rebuilt.reviewLedgerBody
       }),
-      fixture
+      retainedFixtureSnapshot(fixture, rebuilt)
     );
   });
 
@@ -215,7 +252,7 @@ describe("public evidence operational ledger split", () => {
         expectedReviewLedgerSha256: null
       });
       const loaded = await readPublicEvidenceArtifact(canonicalPath, { rootDir: root });
-      assert.deepEqual(loaded.snapshot, fixture);
+      assert.deepEqual(loaded.snapshot, retainedFixtureSnapshot(fixture, result));
       assert.equal(loaded.canonicalSha256, result.canonicalSha256);
       assert.equal(loaded.ledgerSha256, result.ledgerSha256);
       assert.equal(loaded.reviewLedgerSha256, result.reviewLedgerSha256);
@@ -269,7 +306,7 @@ describe("public evidence operational ledger split", () => {
       );
       assert.deepEqual(
         (await readPublicEvidenceArtifact(canonicalPath, { rootDir: root })).snapshot,
-        original
+        retainedFixtureSnapshot(original, originalPair)
       );
     });
   });
@@ -455,31 +492,111 @@ describe("public evidence operational ledger split", () => {
     });
   });
 
-  it("keeps the checked-in artifact pair reproducible and fully hydratable", async () => {
+  it("prunes superseded history under byte pressure without dropping terminal receipts", () => {
+    const fixture = boundedRetentionFixture();
+    const reversed = {
+      ...structuredClone(fixture),
+      failures: [...fixture.failures].reverse(),
+      attempts: Object.fromEntries(Object.entries(fixture.attempts).reverse()),
+      discoveryAttempts: [...fixture.discoveryAttempts].reverse(),
+      sourceDiscoveryPaths: [...fixture.sourceDiscoveryPaths].reverse()
+    };
+    const options = { ledgerMaxBytes: 14 * 1024 };
+    const first = buildPublicEvidenceArtifactPair(fixture, options);
+    const second = buildPublicEvidenceArtifactPair(reversed, options);
+
+    assert.equal(first.ledgerBody, second.ledgerBody);
+    assert.equal(first.canonicalBody, second.canonicalBody);
+    assert.equal(first.reference.sha256, second.reference.sha256);
+    assert.ok(Buffer.byteLength(first.ledgerBody) < options.ledgerMaxBytes);
+    assert.deepEqual(first.operationalLedger.attempts, fixture.attempts);
+    assert.deepEqual(first.canonical.evidence, fixture.evidence);
+    assert.deepEqual(first.reviewLedger.needsReview, fixture.needsReview);
+    assert.equal(first.operationalLedger.failures[0].checkedAt, "2026-08-02T12:00:09.000Z");
+    assert.equal(
+      first.operationalLedger.discoveryAttempts[0].created_at,
+      "2026-08-02T12:01:09.000Z"
+    );
+    assert.equal(first.operationalLedger.sourceDiscoveryPaths.length, 1);
+    assert.ok(first.reference.retention.prunedCounts.failures > 0);
+    assert.ok(first.reference.retention.prunedCounts.discoveryAttempts > 0);
+    assert.equal(first.reference.retention.prunedCounts.attempts, 0);
+    assert.match(first.reference.retention.prunedRowsSha256, /^[a-f0-9]{64}$/);
+    assert.match(first.reference.retention.historySha256, /^[a-f0-9]{64}$/);
+    assert.deepEqual(first.reference.retention, first.operationalLedger.retention);
+
+    const hydrated = hydratePublicEvidenceArtifact(first.canonical, first.ledgerBody, {
+      reviewLedgerSource: first.reviewLedgerBody,
+      ledgerMaxBytes: options.ledgerMaxBytes
+    });
+    const rebuilt = buildPublicEvidenceArtifactPair(hydrated, options);
+    assert.equal(rebuilt.canonicalBody, first.canonicalBody);
+    assert.equal(rebuilt.ledgerBody, first.ledgerBody);
+    assert.equal(rebuilt.reviewLedgerBody, first.reviewLedgerBody);
+  });
+
+  it("rejects retention metadata that no longer describes the retained rows", () => {
+    const pair = buildPublicEvidenceArtifactPair(publicEvidenceFixture());
+    const ledger = structuredClone(pair.operationalLedger);
+    ledger.retention.retainedSha256 = "0".repeat(64);
+    const ledgerBody = `${JSON.stringify(ledger)}\n`;
+    const canonical = structuredClone(pair.canonical);
+    canonical.operationalLedgerRef.sha256 = sha256(ledgerBody);
+    canonical.operationalLedgerRef.bytes = Buffer.byteLength(ledgerBody);
+    canonical.operationalLedgerRef.retention = ledger.retention;
+    canonical.source.operationalRetention = ledger.retention;
+    assert.throws(
+      () => hydratePublicEvidenceArtifact(canonical, ledgerBody, {
+        reviewLedgerSource: pair.reviewLedgerBody
+      }),
+      /retained SHA-256 does not match the ledger/
+    );
+  });
+
+  it("reads the checked-in v1 pair and deterministically upgrades it in memory", async () => {
     const root = process.cwd();
     const canonicalPath = join(root, "src/lib/social/public-evidence-current.json");
     const loaded = await readPublicEvidenceArtifact(canonicalPath, { rootDir: root });
     assert.equal(loaded.split, true);
     assert.equal(loaded.fullySplit, true);
     const rebuilt = buildPublicEvidenceArtifactPair(loaded.snapshot);
-    assert.equal(rebuilt.canonicalBody, loaded.canonicalBytes.toString("utf8"));
-    assert.equal(rebuilt.ledgerBody, loaded.ledgerBytes.toString("utf8"));
+    assert.equal(rebuilt.operationalLedger.schemaVersion, PUBLIC_EVIDENCE_OPERATIONAL_LEDGER_VERSION);
+    assert.notEqual(rebuilt.canonicalBody, loaded.canonicalBytes.toString("utf8"));
+    assert.notEqual(rebuilt.ledgerBody, loaded.ledgerBytes.toString("utf8"));
     assert.equal(
       rebuilt.reviewLedgerBody,
       loaded.reviewLedgerBytes.toString("utf8")
     );
+    assert.deepEqual(rebuilt.canonical.evidence, loaded.snapshot.evidence);
+    assert.deepEqual(rebuilt.reviewLedger.needsReview, loaded.snapshot.needsReview);
+    assert.equal(
+      rebuilt.reference.counts.attempts,
+      Object.keys(loaded.snapshot.attempts).length
+    );
+    assert.ok(rebuilt.reference.retention.prunedCounts.failures > 0);
+    assert.ok(rebuilt.reference.retention.prunedCounts.discoveryAttempts > 0);
+    assert.ok(Buffer.byteLength(rebuilt.ledgerBody) < loaded.ledgerBytes.length);
+    const hydrated = hydratePublicEvidenceArtifact(
+      rebuilt.canonical,
+      rebuilt.ledgerBody,
+      { reviewLedgerSource: rebuilt.reviewLedgerBody }
+    );
+    const replayed = buildPublicEvidenceArtifactPair(hydrated);
+    assert.equal(replayed.canonicalBody, rebuilt.canonicalBody);
+    assert.equal(replayed.ledgerBody, rebuilt.ledgerBody);
+    assert.equal(replayed.reviewLedgerBody, rebuilt.reviewLedgerBody);
     assert.ok(loaded.canonicalBytes.length < PUBLIC_EVIDENCE_ARTIFACT_MAX_BYTES);
-    assert.ok(loaded.ledgerBytes.length < PUBLIC_EVIDENCE_OPERATIONAL_LEDGER_MAX_BYTES);
+    assert.ok(Buffer.byteLength(rebuilt.ledgerBody) < PUBLIC_EVIDENCE_OPERATIONAL_LEDGER_MAX_BYTES);
     assert.ok(
       loaded.reviewLedgerBytes.length < PUBLIC_EVIDENCE_REVIEW_LEDGER_MAX_BYTES
     );
     for (const key of PUBLIC_EVIDENCE_OPERATIONAL_KEYS) {
       assert.equal(Object.hasOwn(loaded.canonical, key), false, key);
       assert.equal(
-        loaded.reference.counts[key],
+        rebuilt.reference.counts[key],
         key === "attempts"
-          ? Object.keys(loaded.snapshot.attempts).length
-          : loaded.snapshot[key].length,
+          ? Object.keys(hydrated.attempts).length
+          : hydrated[key].length,
         key
       );
     }
@@ -512,6 +629,77 @@ function publicEvidenceFixture() {
       { id: "path-1", source_url: "https://example.com/one" },
       { id: "path-2", source_url: "https://example.com/two" }
     ]
+  };
+}
+
+function retainedFixtureSnapshot(fixture, pair) {
+  return {
+    ...fixture,
+    source: {
+      ...fixture.source,
+      failureCount: pair.reference.counts.failures,
+      discoveryAttemptCount: pair.reference.counts.discoveryAttempts,
+      sourceDiscoveryPathCount: pair.reference.counts.sourceDiscoveryPaths,
+      attemptCount: pair.reference.counts.attempts,
+      operationalRetention: pair.reference.retention
+    }
+  };
+}
+
+function boundedRetentionFixture() {
+  const fixture = publicEvidenceFixture();
+  const largePayload = "x".repeat(8 * 1024);
+  return {
+    ...fixture,
+    failures: Array.from({ length: 10 }, (_, index) => ({
+      id: `failure-${index}`,
+      batchSlug: "S26",
+      attemptKey: "x:company:company-acme:https://x.com/acme",
+      platform: "x",
+      entityType: "company",
+      entityId: "company-acme",
+      message: index === 9 ? "latest terminal failure" : largePayload,
+      checkedAt: `2026-08-02T12:00:0${index}.000Z`
+    })),
+    attempts: {
+      "S26:x:company:company-acme:https://x.com/acme": {
+        attemptKey: "x:company:company-acme:https://x.com/acme",
+        batchSlug: "S26",
+        platform: "x",
+        entityType: "company",
+        entityId: "company-acme",
+        accountUrl: "https://x.com/acme",
+        status: "failed",
+        outcomeStatus: "failed",
+        outcomeReason: "latest terminal failure",
+        retryable: true,
+        checkedAt: "2026-08-02T12:00:09.000Z",
+        receiptMarker: "must-survive-byte-pressure"
+      }
+    },
+    discoveryAttempts: Array.from({ length: 10 }, (_, index) => ({
+      id: `discovery-${index}`,
+      batch_slug: "S26",
+      entityType: "company",
+      entityId: "company-acme",
+      platform: "x",
+      source: "public_connector",
+      query: "Acme X",
+      status: index === 9 ? "failed" : "skipped",
+      failure_reason: index === 9 ? "latest discovery failure" : largePayload,
+      created_at: `2026-08-02T12:01:0${index}.000Z`
+    })),
+    sourceDiscoveryPaths: Array.from({ length: 5 }, (_, index) => ({
+      id: `path-${index}`,
+      batch_slug: "S26",
+      company_id: "company-acme",
+      discovered_entity_type: "company",
+      discovered_entity_id: "company-acme",
+      source_url: "https://acme.example",
+      discovered_platform: "x",
+      discovered_url: "https://x.com/acme",
+      created_at: `2026-08-02T12:02:0${index}.000Z`
+    }))
   };
 }
 

@@ -37,7 +37,10 @@ export const DEFAULT_CURRENT_EVIDENCE_PATHS = Object.freeze([
   "outputs/source-hunt/2026-07-22-two-hour-official-youtube-s2026.json"
 ]);
 
-const LEDGER_SCHEMA_VERSION = "public-ingestion-operational-ledger.v1";
+const LEDGER_SCHEMA_VERSIONS = new Set([
+  "public-ingestion-operational-ledger.v1",
+  "public-ingestion-operational-ledger.v2"
+]);
 const URL_PATTERN = /https?:\/\/[^\s"'<>\[\]{}\\]+/giu;
 const TRAILING_URL_PUNCTUATION = /[),.;:!?]+$/u;
 const X_POST_ID = /^\d{15,22}$/u;
@@ -847,7 +850,7 @@ function validateOperationalLedger(ledger) {
   if (!ledger || typeof ledger !== "object" || Array.isArray(ledger)) {
     throw new TypeError("Operational ledger must be an object.");
   }
-  if (ledger.schemaVersion !== LEDGER_SCHEMA_VERSION) {
+  if (!LEDGER_SCHEMA_VERSIONS.has(ledger.schemaVersion)) {
     throw new Error(`Unsupported operational ledger schema: ${ledger.schemaVersion ?? "missing"}.`);
   }
   for (const section of ["failures", "discoveryAttempts", "sourceDiscoveryPaths"]) {

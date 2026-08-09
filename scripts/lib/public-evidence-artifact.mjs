@@ -4,14 +4,18 @@ import { dirname, isAbsolute, relative, resolve, sep } from "node:path";
 
 export const PUBLIC_EVIDENCE_ARTIFACT_MAX_BYTES = 75 * 1024 * 1024;
 export const PUBLIC_EVIDENCE_OPERATIONAL_LEDGER_MAX_BYTES = 75 * 1024 * 1024;
+export const PUBLIC_EVIDENCE_OPERATIONAL_LEDGER_TARGET_BYTES = 60 * 1024 * 1024;
+export const PUBLIC_EVIDENCE_OPERATIONAL_HISTORY_PER_IDENTITY = 2;
 export const PUBLIC_EVIDENCE_REVIEW_LEDGER_MAX_BYTES = 75 * 1024 * 1024;
 export const PUBLIC_EVIDENCE_LEGACY_MAX_BYTES = 128 * 1024 * 1024;
 export const PUBLIC_EVIDENCE_OPERATIONAL_LEDGER_PATH =
   "outputs/public-ingestion-operational-ledger-current.json";
 export const PUBLIC_EVIDENCE_OPERATIONAL_LEDGER_VERSION =
-  "public-ingestion-operational-ledger.v1";
+  "public-ingestion-operational-ledger.v2";
 export const PUBLIC_EVIDENCE_OPERATIONAL_LEDGER_REFERENCE_VERSION =
-  "public-evidence-operational-ledger-reference.v1";
+  "public-evidence-operational-ledger-reference.v2";
+export const PUBLIC_EVIDENCE_OPERATIONAL_RETENTION_VERSION =
+  "public-evidence-operational-retention.v1";
 export const PUBLIC_EVIDENCE_REVIEW_LEDGER_PATH =
   "outputs/public-ingestion-review-ledger-current.json";
 export const PUBLIC_EVIDENCE_REVIEW_LEDGER_VERSION =
@@ -32,6 +36,10 @@ export const PUBLIC_EVIDENCE_REVIEW_KEYS = Object.freeze([
 ]);
 
 const SHA256_PATTERN = /^[a-f0-9]{64}$/;
+const LEGACY_PUBLIC_EVIDENCE_OPERATIONAL_LEDGER_VERSION =
+  "public-ingestion-operational-ledger.v1";
+const LEGACY_PUBLIC_EVIDENCE_OPERATIONAL_LEDGER_REFERENCE_VERSION =
+  "public-evidence-operational-ledger-reference.v1";
 
 export function serializeCompactPublicEvidenceArtifact(
   value,
@@ -82,6 +90,505 @@ export function assertPublicEvidenceReviewLedgerSize(
 }
 
 /**
+ * Keep every latest terminal receipt/task identity while bounding superseded
+ * operational history. Canonical evidence and review evidence are deliberately
+ * outside this transform.
+ */
+export function applyPublicEvidenceOperationalRetention(
+  snapshot,
+  {
+    maxBytes = PUBLIC_EVIDENCE_OPERATIONAL_LEDGER_MAX_BYTES,
+    targetBytes = Math.min(
+      PUBLIC_EVIDENCE_OPERATIONAL_LEDGER_TARGET_BYTES,
+      maxBytes - 1
+    ),
+    historyPerIdentity = PUBLIC_EVIDENCE_OPERATIONAL_HISTORY_PER_IDENTITY,
+    priorRetentionMetadata = []
+  } = {}
+) {
+  assertPlainObject(snapshot, "Public evidence snapshot");
+  if (!Number.isSafeInteger(maxBytes) || maxBytes <= 1) {
+    throw new TypeError(
+      "Public evidence operational retention maxBytes must exceed one byte."
+    );
+  }
+  if (!Number.isSafeInteger(targetBytes) || targetBytes <= 0 || targetBytes >= maxBytes) {
+    throw new TypeError(
+      "Public evidence operational retention targetBytes must be positive and below maxBytes."
+    );
+  }
+  if (!Number.isSafeInteger(historyPerIdentity) || historyPerIdentity < 1) {
+    throw new TypeError(
+      "Public evidence operational retention historyPerIdentity must be a positive safe integer."
+    );
+  }
+
+  const operational = stableOperationalCollections(normalizeOperationalCollections(snapshot, {
+    requireOwnProperties: true,
+    label: "Public evidence snapshot"
+  }));
+  const inputCounts = operationalCounts(operational);
+  const inputSha256 = digestOperationalCollections(operational);
+  const currentRetention = snapshot?.source?.operationalRetention ?? null;
+  if (
+    reusableOperationalRetention(currentRetention, {
+      operational,
+      inputCounts,
+      inputSha256,
+      maxBytes,
+      targetBytes,
+      historyPerIdentity
+    })
+  ) {
+    return publicEvidenceWithRetainedOperationalCollections(
+      snapshot,
+      operational,
+      currentRetention
+    );
+  }
+
+  const parents = retentionParentHistoryDigests([
+    currentRetention,
+    ...(Array.isArray(priorRetentionMetadata) ? priorRetentionMetadata : [])
+  ]);
+  const partitions = {
+    failures: partitionOperationalRows(
+      "failures",
+      operational.failures,
+      historyPerIdentity
+    ),
+    discoveryAttempts: partitionOperationalRows(
+      "discoveryAttempts",
+      operational.discoveryAttempts,
+      historyPerIdentity
+    ),
+    sourceDiscoveryPaths: partitionOperationalRows(
+      "sourceDiscoveryPaths",
+      operational.sourceDiscoveryPaths,
+      1
+    )
+  };
+  const requiredEntries = Object.values(partitions).flatMap((partition) => partition.required);
+  const optionalEntries = Object.values(partitions)
+    .flatMap((partition) => partition.optional)
+    .sort(compareOptionalRetentionEntry);
+  const allEntries = Object.values(partitions).flatMap((partition) => partition.all);
+
+  const candidateFor = (optionalCount) => buildOperationalRetentionCandidate({
+    operational,
+    inputCounts,
+    inputSha256,
+    requiredEntries,
+    optionalEntries: optionalEntries.slice(0, optionalCount),
+    allEntries,
+    parentHistorySha256: parents,
+    maxBytes,
+    targetBytes,
+    historyPerIdentity
+  });
+
+  const requiredCandidate = candidateFor(0);
+  if (requiredCandidate.bytes >= maxBytes) {
+    throw new Error(
+      `Public evidence operational ledger requires ${requiredCandidate.bytes} bytes to preserve ` +
+      `latest terminal coverage; it must remain below ${maxBytes} bytes.`
+    );
+  }
+
+  let selected = requiredCandidate;
+  const fullHistoryCandidate = candidateFor(optionalEntries.length);
+  if (fullHistoryCandidate.bytes < targetBytes) {
+    selected = fullHistoryCandidate;
+  } else if (requiredCandidate.bytes < targetBytes && optionalEntries.length > 0) {
+    let low = 0;
+    let high = optionalEntries.length;
+    while (low < high) {
+      const middle = Math.ceil((low + high) / 2);
+      const candidate = candidateFor(middle);
+      if (candidate.bytes < targetBytes) {
+        low = middle;
+        selected = candidate;
+      } else {
+        high = middle - 1;
+      }
+    }
+    if (selected.optionalCount !== low) selected = candidateFor(low);
+  }
+  if (selected.bytes >= maxBytes) {
+    throw new Error(
+      `Public evidence operational retention produced ${selected.bytes} bytes; ` +
+      `it must remain below ${maxBytes} bytes.`
+    );
+  }
+  return publicEvidenceWithRetainedOperationalCollections(
+    snapshot,
+    selected.operational,
+    selected.retention
+  );
+}
+
+function buildOperationalRetentionCandidate({
+  operational,
+  inputCounts,
+  inputSha256,
+  requiredEntries,
+  optionalEntries,
+  allEntries,
+  parentHistorySha256,
+  maxBytes,
+  targetBytes,
+  historyPerIdentity
+}) {
+  const selectedTokens = new Set(
+    [...requiredEntries, ...optionalEntries].map((entry) => entry.token)
+  );
+  const retainedRows = {
+    failures: [],
+    discoveryAttempts: [],
+    sourceDiscoveryPaths: []
+  };
+  const prunedEntries = [];
+  for (const entry of allEntries) {
+    if (selectedTokens.has(entry.token)) retainedRows[entry.collection].push(entry);
+    else prunedEntries.push(entry);
+  }
+  const retained = stableOperationalCollections({
+    failures: retainedRows.failures.sort(compareRetainedOperationalEntry).map((entry) => entry.row),
+    attempts: operational.attempts,
+    discoveryAttempts: retainedRows.discoveryAttempts
+      .sort(compareRetainedOperationalEntry)
+      .map((entry) => entry.row),
+    sourceDiscoveryPaths: retainedRows.sourceDiscoveryPaths
+      .sort(compareRetainedOperationalEntry)
+      .map((entry) => entry.row)
+  });
+  const retainedCounts = operationalCounts(retained);
+  const requiredCounts = {
+    failures: requiredEntries.filter((entry) => entry.collection === "failures").length,
+    attempts: inputCounts.attempts,
+    discoveryAttempts: requiredEntries.filter(
+      (entry) => entry.collection === "discoveryAttempts"
+    ).length,
+    sourceDiscoveryPaths: requiredEntries.filter(
+      (entry) => entry.collection === "sourceDiscoveryPaths"
+    ).length
+  };
+  const historyCounts = subtractOperationalCounts(retainedCounts, requiredCounts);
+  const prunedCounts = subtractOperationalCounts(inputCounts, retainedCounts);
+  const prunedRowsSha256 = digestRetentionEntries(prunedEntries);
+  const historySha256 = sha256(stableJsonStringify({
+    schemaVersion: PUBLIC_EVIDENCE_OPERATIONAL_RETENTION_VERSION,
+    parentHistorySha256,
+    prunedCounts,
+    prunedRowsSha256
+  }));
+  const retention = {
+    schemaVersion: PUBLIC_EVIDENCE_OPERATIONAL_RETENTION_VERSION,
+    strategy: "latest_terminal_plus_bounded_history",
+    maxArtifactBytes: maxBytes,
+    targetArtifactBytes: targetBytes,
+    historyPerIdentity,
+    inputCounts,
+    requiredCounts,
+    retainedCounts,
+    historyCounts,
+    prunedCounts,
+    inputSha256,
+    retainedSha256: digestOperationalCollections(retained),
+    prunedRowsSha256,
+    parentHistorySha256,
+    historySha256
+  };
+  const ledger = {
+    schemaVersion: PUBLIC_EVIDENCE_OPERATIONAL_LEDGER_VERSION,
+    retention,
+    failures: retained.failures,
+    attempts: retained.attempts,
+    discoveryAttempts: retained.discoveryAttempts,
+    sourceDiscoveryPaths: retained.sourceDiscoveryPaths
+  };
+  return {
+    operational: retained,
+    retention,
+    optionalCount: optionalEntries.length,
+    bytes: Buffer.byteLength(serializeCompactJson(
+      ledger,
+      "Public evidence operational ledger retention candidate"
+    ))
+  };
+}
+
+function partitionOperationalRows(collection, rows, retainedDepth) {
+  const groups = new Map();
+  for (const row of rows) {
+    const stableRow = stableJsonValue(row);
+    const identity = operationalRetentionIdentity(collection, stableRow);
+    const digest = sha256(stableJsonStringify(stableRow));
+    const entries = groups.get(identity) ?? [];
+    entries.push({
+      collection,
+      identity,
+      row: stableRow,
+      digest,
+      timestamp: operationalRowTimestamp(stableRow)
+    });
+    groups.set(identity, entries);
+  }
+  const all = [];
+  const required = [];
+  const optional = [];
+  for (const identity of [...groups.keys()].sort((left, right) => left.localeCompare(right))) {
+    const group = groups.get(identity).sort(compareNewestOperationalEntry);
+    for (let index = 0; index < group.length; index += 1) {
+      const entry = {
+        ...group[index],
+        token: `${collection}\u0000${identity}\u0000${index}\u0000${group[index].digest}`
+      };
+      all.push(entry);
+      if (index === 0) required.push(entry);
+      else if (index < retainedDepth) optional.push(entry);
+    }
+  }
+  return { all, required, optional };
+}
+
+function operationalRetentionIdentity(collection, row) {
+  const value = (...keys) => {
+    for (const key of keys) {
+      const text = String(row?.[key] ?? "").trim().toLowerCase();
+      if (text) return text;
+    }
+    return "";
+  };
+  const batch = value("batchSlug", "batch_slug");
+  const entityType = value("entityType", "entity_type", "discovered_entity_type") || "company";
+  const entityId = value(
+    "entityId",
+    "entity_id",
+    "discovered_entity_id",
+    "company_id",
+    "companySlug",
+    "company_slug"
+  );
+  const platform = value("platform", "discovered_platform");
+  const explicitId = value("id");
+  if (collection === "failures") {
+    const attemptKey = value("attemptKey", "attempt_key");
+    if (attemptKey) return `attempt:${batch}:${attemptKey}`;
+    const account = value(
+      "accountUrl",
+      "account_url",
+      "sourceUrl",
+      "source_url",
+      "url"
+    );
+    if (entityId || account) {
+      return `owner:${batch}:${platform}:${entityType}:${entityId}:${account}`;
+    }
+  } else if (collection === "discoveryAttempts") {
+    const query = value("query");
+    const source = value("source");
+    if (entityId || query) {
+      return `discovery:${batch}:${platform}:${entityType}:${entityId}:${source}:${query}`;
+    }
+  } else if (collection === "sourceDiscoveryPaths") {
+    const sourceUrl = value("source_url", "sourceUrl");
+    const discoveredUrl = value("discovered_url", "discoveredUrl");
+    if (entityId || sourceUrl || discoveredUrl) {
+      return `path:${batch}:${platform}:${entityType}:${entityId}:${sourceUrl}:${discoveredUrl}`;
+    }
+  }
+  if (explicitId) return `id:${explicitId}`;
+  return `row:${sha256(stableJsonStringify(row))}`;
+}
+
+function operationalRowTimestamp(row) {
+  for (const key of [
+    "checkedAt",
+    "checked_at",
+    "created_at",
+    "createdAt",
+    "last_checked_at",
+    "lastCheckedAt",
+    "observedAt",
+    "fetchedAt"
+  ]) {
+    const parsed = Date.parse(row?.[key] ?? "");
+    if (Number.isFinite(parsed)) return parsed;
+  }
+  return 0;
+}
+
+function compareNewestOperationalEntry(left, right) {
+  return right.timestamp - left.timestamp ||
+    right.digest.localeCompare(left.digest);
+}
+
+function compareOptionalRetentionEntry(left, right) {
+  return compareNewestOperationalEntry(left, right) ||
+    left.collection.localeCompare(right.collection) ||
+    left.identity.localeCompare(right.identity);
+}
+
+function compareRetainedOperationalEntry(left, right) {
+  return left.collection.localeCompare(right.collection) ||
+    left.identity.localeCompare(right.identity) ||
+    compareNewestOperationalEntry(left, right);
+}
+
+function stableOperationalCollections(operational) {
+  const stableRows = (collection, rows) => rows
+    .map((row) => ({
+      row: stableJsonValue(row),
+      identity: operationalRetentionIdentity(collection, row),
+      timestamp: operationalRowTimestamp(row),
+      digest: sha256(stableJsonStringify(row))
+    }))
+    .sort((left, right) =>
+      left.identity.localeCompare(right.identity) ||
+      right.timestamp - left.timestamp ||
+      left.digest.localeCompare(right.digest)
+    )
+    .map((entry) => entry.row);
+  return {
+    failures: stableRows("failures", operational.failures),
+    attempts: Object.fromEntries(
+      Object.entries(operational.attempts)
+        .sort(([left], [right]) => left.localeCompare(right))
+        .map(([key, value]) => [key, stableJsonValue(value)])
+    ),
+    discoveryAttempts: stableRows("discoveryAttempts", operational.discoveryAttempts),
+    sourceDiscoveryPaths: stableRows("sourceDiscoveryPaths", operational.sourceDiscoveryPaths)
+  };
+}
+
+function digestOperationalCollections(operational) {
+  const digest = createHash("sha256");
+  for (const key of PUBLIC_EVIDENCE_OPERATIONAL_KEYS) {
+    digest.update(`${key}\n`);
+    if (key === "attempts") {
+      for (const [attemptKey, attempt] of Object.entries(operational.attempts)) {
+        digest.update(attemptKey);
+        digest.update("\u0000");
+        digest.update(stableJsonStringify(attempt));
+        digest.update("\n");
+      }
+    } else {
+      for (const row of operational[key]) {
+        digest.update(stableJsonStringify(row));
+        digest.update("\n");
+      }
+    }
+  }
+  return digest.digest("hex");
+}
+
+function digestRetentionEntries(entries) {
+  const digest = createHash("sha256");
+  for (const entry of [...entries].sort(compareRetainedOperationalEntry)) {
+    digest.update(entry.collection);
+    digest.update("\u0000");
+    digest.update(entry.identity);
+    digest.update("\u0000");
+    digest.update(stableJsonStringify(entry.row));
+    digest.update("\n");
+  }
+  return digest.digest("hex");
+}
+
+function retentionParentHistoryDigests(metadata) {
+  return [...new Set(
+    metadata
+      .filter((value) => {
+        try {
+          validateOperationalRetentionMetadata(value);
+          return true;
+        } catch {
+          return false;
+        }
+      })
+      .map((value) => String(value?.historySha256 ?? ""))
+      .filter((value) => SHA256_PATTERN.test(value))
+  )].sort((left, right) => left.localeCompare(right));
+}
+
+function reusableOperationalRetention(metadata, {
+  operational,
+  inputCounts,
+  inputSha256,
+  maxBytes,
+  targetBytes,
+  historyPerIdentity
+}) {
+  if (!metadata || metadata.schemaVersion !== PUBLIC_EVIDENCE_OPERATIONAL_RETENTION_VERSION) {
+    return false;
+  }
+  try {
+    validateOperationalRetentionMetadata(metadata, operational);
+  } catch {
+    return false;
+  }
+  if (
+    metadata.retainedSha256 !== inputSha256 ||
+    JSON.stringify(metadata.retainedCounts) !== JSON.stringify(inputCounts) ||
+    metadata.maxArtifactBytes !== maxBytes ||
+    metadata.targetArtifactBytes !== targetBytes ||
+    metadata.historyPerIdentity !== historyPerIdentity
+  ) {
+    return false;
+  }
+  const body = serializeCompactJson({
+    schemaVersion: PUBLIC_EVIDENCE_OPERATIONAL_LEDGER_VERSION,
+    retention: metadata,
+    failures: operational.failures,
+    attempts: operational.attempts,
+    discoveryAttempts: operational.discoveryAttempts,
+    sourceDiscoveryPaths: operational.sourceDiscoveryPaths
+  }, "Reusable public evidence operational ledger");
+  return Buffer.byteLength(body) < maxBytes;
+}
+
+function publicEvidenceWithRetainedOperationalCollections(snapshot, operational, retention) {
+  const source = {
+    ...(snapshot.source ?? {}),
+    failureCount: operational.failures.length,
+    discoveryAttemptCount: operational.discoveryAttempts.length,
+    sourceDiscoveryPathCount: operational.sourceDiscoveryPaths.length,
+    attemptCount: Object.keys(operational.attempts).length,
+    operationalRetention: retention
+  };
+  return {
+    ...snapshot,
+    source,
+    failures: operational.failures,
+    attempts: operational.attempts,
+    discoveryAttempts: operational.discoveryAttempts,
+    sourceDiscoveryPaths: operational.sourceDiscoveryPaths
+  };
+}
+
+function subtractOperationalCounts(left, right) {
+  return Object.fromEntries(
+    PUBLIC_EVIDENCE_OPERATIONAL_KEYS.map((key) => [key, left[key] - right[key]])
+  );
+}
+
+function stableJsonStringify(value) {
+  return JSON.stringify(stableJsonValue(value));
+}
+
+function stableJsonValue(value) {
+  if (Array.isArray(value)) return value.map(stableJsonValue);
+  if (!value || typeof value !== "object") return value;
+  return Object.fromEntries(
+    Object.keys(value)
+      .filter((key) => value[key] !== undefined)
+      .sort((left, right) => left.localeCompare(right))
+      .map((key) => [key, stableJsonValue(value[key])])
+  );
+}
+
+/**
  * Extract the operational and review collections from one hydrated/legacy
  * public snapshot. The three returned JSON bodies are deterministic and individually
  * bounded below GitHub's 100 MiB hard limit.
@@ -116,12 +623,17 @@ export function buildPublicEvidenceArtifactPair(
       "Public evidence snapshot is already split; hydrate it before rebuilding the artifact set."
     );
   }
-  const operational = normalizeOperationalCollections(snapshot, {
-    requireOwnProperties: true,
-    label: "Public evidence snapshot"
+  const retainedSnapshot = applyPublicEvidenceOperationalRetention(snapshot, {
+    maxBytes: ledgerMaxBytes
   });
+  const operational = normalizeOperationalCollections(retainedSnapshot, {
+    requireOwnProperties: true,
+    label: "Retained public evidence snapshot"
+  });
+  const retention = retainedSnapshot.source.operationalRetention;
   const operationalLedger = {
     schemaVersion: PUBLIC_EVIDENCE_OPERATIONAL_LEDGER_VERSION,
+    retention,
     failures: operational.failures,
     attempts: operational.attempts,
     discoveryAttempts: operational.discoveryAttempts,
@@ -136,7 +648,8 @@ export function buildPublicEvidenceArtifactPair(
     path: normalizedLedgerPath,
     sha256: sha256(ledgerBody),
     bytes: Buffer.byteLength(ledgerBody),
-    counts: operationalCounts(operational)
+    counts: operationalCounts(operational),
+    retention
   };
   const review = normalizeReviewCollections(snapshot, {
     requireOwnProperties: true,
@@ -158,7 +671,7 @@ export function buildPublicEvidenceArtifactPair(
     counts: reviewCounts(review)
   };
   const canonical = publicEvidenceWithoutExternalCollections(
-    snapshot,
+    retainedSnapshot,
     operationalReference,
     reviewReference
   );
@@ -936,10 +1449,36 @@ function hydrateOperationalCollections(
   validateReferencedBytes(ledgerBody, reference, "Public evidence operational ledger");
   const ledger = parseJsonSource(ledgerBody, "Public evidence operational ledger");
   validateOperationalLedger(ledger);
+  const expectedLedgerVersion = reference.schemaVersion ===
+    PUBLIC_EVIDENCE_OPERATIONAL_LEDGER_REFERENCE_VERSION
+    ? PUBLIC_EVIDENCE_OPERATIONAL_LEDGER_VERSION
+    : LEGACY_PUBLIC_EVIDENCE_OPERATIONAL_LEDGER_VERSION;
+  if (ledger.schemaVersion !== expectedLedgerVersion) {
+    throw new Error(
+      `Public evidence operational ledger/reference version mismatch: ` +
+      `${ledger.schemaVersion} vs ${reference.schemaVersion}.`
+    );
+  }
   const operational = normalizeOperationalCollections(ledger, {
     requireOwnProperties: true,
     label: "Public evidence operational ledger"
   });
+  if (ledger.schemaVersion === PUBLIC_EVIDENCE_OPERATIONAL_LEDGER_VERSION) {
+    validateOperationalRetentionMetadata(ledger.retention, operational);
+    if (JSON.stringify(reference.retention) !== JSON.stringify(ledger.retention)) {
+      throw new Error(
+        "Public evidence operational ledger retention metadata does not match its reference."
+      );
+    }
+    if (
+      JSON.stringify(canonical?.source?.operationalRetention) !==
+      JSON.stringify(ledger.retention)
+    ) {
+      throw new Error(
+        "Public evidence operational ledger retention metadata does not match canonical source metadata."
+      );
+    }
+  }
   assertReferencedCounts(
     operationalCounts(operational),
     reference.counts,
@@ -1019,7 +1558,9 @@ function assertReferencedCounts(actual, expected, keys, label) {
 
 function validateOperationalLedgerReference(reference, { expectedLedgerPath }) {
   assertPlainObject(reference, "Public evidence operational ledger reference");
-  if (reference.schemaVersion !== PUBLIC_EVIDENCE_OPERATIONAL_LEDGER_REFERENCE_VERSION) {
+  if (![PUBLIC_EVIDENCE_OPERATIONAL_LEDGER_REFERENCE_VERSION,
+    LEGACY_PUBLIC_EVIDENCE_OPERATIONAL_LEDGER_REFERENCE_VERSION]
+    .includes(reference.schemaVersion)) {
     throw new Error(
       `Unsupported public evidence operational ledger reference version: ${reference.schemaVersion ?? "missing"}.`
     );
@@ -1050,6 +1591,13 @@ function validateOperationalLedgerReference(reference, { expectedLedgerPath }) {
     if (!Number.isSafeInteger(reference.counts[key]) || reference.counts[key] < 0) {
       throw new Error(`Public evidence operational ledger reference count ${key} is invalid.`);
     }
+  }
+  if (reference.schemaVersion === PUBLIC_EVIDENCE_OPERATIONAL_LEDGER_REFERENCE_VERSION) {
+    validateOperationalRetentionMetadata(reference.retention);
+  } else if (Object.hasOwn(reference, "retention")) {
+    throw new Error(
+      "Legacy public evidence operational ledger references must not contain retention metadata."
+    );
   }
 }
 
@@ -1091,17 +1639,159 @@ function validateReviewLedgerReference(reference, { expectedReviewLedgerPath }) 
 
 function validateOperationalLedger(ledger) {
   assertPlainObject(ledger, "Public evidence operational ledger");
-  if (ledger.schemaVersion !== PUBLIC_EVIDENCE_OPERATIONAL_LEDGER_VERSION) {
+  if (![PUBLIC_EVIDENCE_OPERATIONAL_LEDGER_VERSION,
+    LEGACY_PUBLIC_EVIDENCE_OPERATIONAL_LEDGER_VERSION]
+    .includes(ledger.schemaVersion)) {
     throw new Error(
       `Unsupported public evidence operational ledger version: ${ledger.schemaVersion ?? "missing"}.`
     );
   }
-  const expected = new Set(["schemaVersion", ...PUBLIC_EVIDENCE_OPERATIONAL_KEYS]);
+  const expected = new Set([
+    "schemaVersion",
+    ...(ledger.schemaVersion === PUBLIC_EVIDENCE_OPERATIONAL_LEDGER_VERSION
+      ? ["retention"]
+      : []),
+    ...PUBLIC_EVIDENCE_OPERATIONAL_KEYS
+  ]);
   const unexpected = Object.keys(ledger).filter((key) => !expected.has(key));
   if (unexpected.length > 0) {
     throw new Error(
       `Public evidence operational ledger contains unexpected keys: ${unexpected.join(", ")}.`
     );
+  }
+  if (ledger.schemaVersion === PUBLIC_EVIDENCE_OPERATIONAL_LEDGER_VERSION) {
+    validateOperationalRetentionMetadata(ledger.retention);
+  }
+}
+
+function validateOperationalRetentionMetadata(metadata, operational = null) {
+  assertPlainObject(metadata, "Public evidence operational retention metadata");
+  if (metadata.schemaVersion !== PUBLIC_EVIDENCE_OPERATIONAL_RETENTION_VERSION) {
+    throw new Error(
+      `Unsupported public evidence operational retention version: ${metadata.schemaVersion ?? "missing"}.`
+    );
+  }
+  const expected = new Set([
+    "schemaVersion",
+    "strategy",
+    "maxArtifactBytes",
+    "targetArtifactBytes",
+    "historyPerIdentity",
+    "inputCounts",
+    "requiredCounts",
+    "retainedCounts",
+    "historyCounts",
+    "prunedCounts",
+    "inputSha256",
+    "retainedSha256",
+    "prunedRowsSha256",
+    "parentHistorySha256",
+    "historySha256"
+  ]);
+  const unexpected = Object.keys(metadata).filter((key) => !expected.has(key));
+  if (unexpected.length > 0) {
+    throw new Error(
+      `Public evidence operational retention metadata contains unexpected keys: ${unexpected.join(", ")}.`
+    );
+  }
+  if (metadata.strategy !== "latest_terminal_plus_bounded_history") {
+    throw new Error("Public evidence operational retention strategy is invalid.");
+  }
+  for (const key of ["maxArtifactBytes", "targetArtifactBytes", "historyPerIdentity"]) {
+    if (!Number.isSafeInteger(metadata[key]) || metadata[key] <= 0) {
+      throw new Error(`Public evidence operational retention ${key} is invalid.`);
+    }
+  }
+  if (metadata.targetArtifactBytes >= metadata.maxArtifactBytes) {
+    throw new Error(
+      "Public evidence operational retention targetArtifactBytes must be below maxArtifactBytes."
+    );
+  }
+  for (const countName of [
+    "inputCounts",
+    "requiredCounts",
+    "retainedCounts",
+    "historyCounts",
+    "prunedCounts"
+  ]) {
+    assertPlainObject(
+      metadata[countName],
+      `Public evidence operational retention ${countName}`
+    );
+    for (const key of PUBLIC_EVIDENCE_OPERATIONAL_KEYS) {
+      if (!Number.isSafeInteger(metadata[countName][key]) || metadata[countName][key] < 0) {
+        throw new Error(
+          `Public evidence operational retention ${countName}.${key} is invalid.`
+        );
+      }
+    }
+  }
+  for (const key of PUBLIC_EVIDENCE_OPERATIONAL_KEYS) {
+    if (
+      metadata.requiredCounts[key] + metadata.historyCounts[key] !==
+      metadata.retainedCounts[key]
+    ) {
+      throw new Error(
+        `Public evidence operational retention retained count equation failed for ${key}.`
+      );
+    }
+    if (
+      metadata.retainedCounts[key] + metadata.prunedCounts[key] !==
+      metadata.inputCounts[key]
+    ) {
+      throw new Error(
+        `Public evidence operational retention input count equation failed for ${key}.`
+      );
+    }
+  }
+  for (const key of [
+    "inputSha256",
+    "retainedSha256",
+    "prunedRowsSha256",
+    "historySha256"
+  ]) {
+    if (!SHA256_PATTERN.test(String(metadata[key] ?? ""))) {
+      throw new Error(`Public evidence operational retention ${key} is invalid.`);
+    }
+  }
+  if (!Array.isArray(metadata.parentHistorySha256)) {
+    throw new TypeError(
+      "Public evidence operational retention parentHistorySha256 must be an array."
+    );
+  }
+  const normalizedParents = [...new Set(metadata.parentHistorySha256)]
+    .sort((left, right) => String(left).localeCompare(String(right)));
+  if (
+    normalizedParents.length !== metadata.parentHistorySha256.length ||
+    normalizedParents.some((value, index) =>
+      value !== metadata.parentHistorySha256[index] || !SHA256_PATTERN.test(String(value))
+    )
+  ) {
+    throw new Error(
+      "Public evidence operational retention parent history digests must be unique sorted SHA-256 values."
+    );
+  }
+  const expectedHistorySha256 = sha256(stableJsonStringify({
+    schemaVersion: PUBLIC_EVIDENCE_OPERATIONAL_RETENTION_VERSION,
+    parentHistorySha256: metadata.parentHistorySha256,
+    prunedCounts: metadata.prunedCounts,
+    prunedRowsSha256: metadata.prunedRowsSha256
+  }));
+  if (metadata.historySha256 !== expectedHistorySha256) {
+    throw new Error("Public evidence operational retention history SHA-256 is invalid.");
+  }
+  if (operational) {
+    const counts = operationalCounts(operational);
+    if (JSON.stringify(counts) !== JSON.stringify(metadata.retainedCounts)) {
+      throw new Error(
+        "Public evidence operational retention retained counts do not match the ledger."
+      );
+    }
+    if (digestOperationalCollections(operational) !== metadata.retainedSha256) {
+      throw new Error(
+        "Public evidence operational retention retained SHA-256 does not match the ledger."
+      );
+    }
   }
 }
 

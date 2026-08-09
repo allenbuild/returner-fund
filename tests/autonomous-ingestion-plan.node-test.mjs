@@ -1991,6 +1991,85 @@ describe("autonomous collector failure identities", () => {
 });
 
 describe("autonomous public evidence merge", () => {
+  it("bounds repeated operational histories while preserving the latest terminal receipt", () => {
+    const attemptKey = "x:company:company-example:https://x.com/example";
+    let merged = null;
+    for (let index = 0; index < 30; index += 1) {
+      const checkedAt = `2026-07-24T18:00:${String(index).padStart(2, "0")}.000Z`;
+      const fresh = {
+        source: { batchSlug: "S26", fetchedAt: checkedAt },
+        evidence: [],
+        needsReview: [],
+        failures: [{
+          id: `failure-${index}`,
+          batchSlug: "S26",
+          attemptKey,
+          platform: "x",
+          entityType: "company",
+          entityId: "company-example",
+          message: `terminal failure ${index}`,
+          checkedAt
+        }],
+        attempts: {
+          [attemptKey]: {
+            attemptKey,
+            batchSlug: "S26",
+            platform: "x",
+            entityType: "company",
+            entityId: "company-example",
+            accountUrl: "https://x.com/example",
+            status: "failed",
+            outcomeStatus: "failed",
+            outcomeReason: `terminal failure ${index}`,
+            retryable: true,
+            checkedAt
+          }
+        },
+        discoveryAttempts: [{
+          id: `discovery-${index}`,
+          batch_slug: "S26",
+          entityType: "company",
+          entityId: "company-example",
+          platform: "x",
+          source: "public_connector",
+          query: "Example X",
+          status: "failed",
+          created_at: checkedAt
+        }],
+        sourceDiscoveryPaths: [{
+          id: `path-${index}`,
+          batch_slug: "S26",
+          company_id: "company-example",
+          discovered_entity_type: "company",
+          discovered_entity_id: "company-example",
+          source_url: "https://example.com",
+          discovered_platform: "x",
+          discovered_url: "https://x.com/example",
+          created_at: checkedAt
+        }]
+      };
+      merged = mergePublicEvidenceSnapshots(
+        [merged, fresh].filter(Boolean),
+        { fetchedAt: checkedAt }
+      );
+      assert.ok(merged.failures.length <= 2);
+      assert.ok(merged.discoveryAttempts.length <= 2);
+      assert.equal(merged.sourceDiscoveryPaths.length, 1);
+      assert.equal(Object.keys(merged.attempts).length, 1);
+    }
+
+    assert.equal(merged.failures[0].checkedAt, "2026-07-24T18:00:29.000Z");
+    assert.equal(
+      merged.attempts[`S26:${attemptKey}`].outcomeReason,
+      "terminal failure 29"
+    );
+    assert.equal(merged.source.failureCount, 2);
+    assert.equal(merged.source.attemptCount, 1);
+    assert.equal(merged.source.operationalRetention.prunedCounts.failures, 1);
+    assert.ok(merged.source.operationalRetention.parentHistorySha256.length > 0);
+    assert.match(merged.source.operationalRetention.historySha256, /^[a-f0-9]{64}$/);
+  });
+
   it("persists batch-scoped terminal attempt receipts so later slots can resume", () => {
     const merged = mergePublicEvidenceSnapshots([
       {

@@ -2,6 +2,7 @@ import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { readRequiredCanonicalJson } from "./canonical-json.mjs";
 import { canonicalGithubTargetUrl } from "./github-url.mjs";
+import { applyPublicEvidenceOperationalRetention } from "./public-evidence-artifact.mjs";
 import {
   publicationTimesCompatible,
   sourceAuthorsCompatible,
@@ -1620,22 +1621,22 @@ export function mergePublicEvidenceSnapshots(
         acceptedPhysicalIdentity !== reconciliationPhysicalIdentity(row);
     })
     .map(stableJsonObjectKeyOrder);
-  const failures = dedupeRows(
+  const failures = dedupeOperationalRows(
     snapshots.flatMap((snapshot) =>
       (snapshot.failures ?? []).map((row) => withSnapshotRowBatch(row, snapshot, resolveBatchSlug))
     ),
     (row) => `${rowBatchScope(row)}:${row.id ?? `${row.platform}:${row.companySlug}:${row.sourceUrl ?? ""}:${row.message ?? ""}`}`
   );
-  const discoveryAttempts = dedupeRows(
+  const discoveryAttempts = dedupeOperationalRows(
     snapshots.flatMap((snapshot) => snapshot.discoveryAttempts ?? []),
     (row) => row.id ?? `${row.batch_slug ?? row.batchSlug}:${row.entityId}:${row.platform}:${row.query}:${row.selected_url ?? ""}`
   );
-  const sourceDiscoveryPaths = dedupeRows(
+  const sourceDiscoveryPaths = dedupeOperationalRows(
     snapshots.flatMap((snapshot) => snapshot.sourceDiscoveryPaths ?? []),
     (row) => row.id ?? `${row.batch_slug ?? row.batchSlug}:${row.discovered_entity_id}:${row.source_url}:${row.discovered_url}`
   );
   const attempts = mergePublicCollectorAttempts(snapshots);
-  return {
+  const mergedSnapshot = {
     source: {
       label: "Autonomous public ingestion merged export",
       fetchedAt,
@@ -1668,6 +1669,11 @@ export function mergePublicEvidenceSnapshots(
     discoveryAttempts,
     sourceDiscoveryPaths
   };
+  return applyPublicEvidenceOperationalRetention(mergedSnapshot, {
+    priorRetentionMetadata: snapshots
+      .map((snapshot) => snapshot?.source?.operationalRetention)
+      .filter(Boolean)
+  });
 }
 
 function mergePublicCollectorAttempts(snapshots) {
@@ -1697,7 +1703,13 @@ function mergePublicCollectorAttempts(snapshots) {
       const previousCheckedAt = Date.parse(previous?.checkedAt ?? "") || 0;
       if (
         !previous ||
-        candidateCheckedAt >= previousCheckedAt
+        candidateCheckedAt > previousCheckedAt ||
+        (
+          candidateCheckedAt === previousCheckedAt &&
+          JSON.stringify(stableJsonObjectKeyOrder(candidate)).localeCompare(
+            JSON.stringify(stableJsonObjectKeyOrder(previous))
+          ) >= 0
+        )
       ) {
         attempts.set(canonicalKey, candidate);
       }
@@ -3306,6 +3318,32 @@ function dedupeRows(rows, keyForRow) {
     const key = keyForRow(row);
     const previous = byKey.get(key);
     if (!previous || rowTimestamp(row) >= rowTimestamp(previous)) {
+      byKey.set(key, row);
+    }
+  }
+  return [...byKey.values()];
+}
+
+function dedupeOperationalRows(rows, keyForRow) {
+  const byKey = new Map();
+  for (const row of rows) {
+    const key = keyForRow(row);
+    const previous = byKey.get(key);
+    if (!previous) {
+      byKey.set(key, row);
+      continue;
+    }
+    const rowTime = rowTimestamp(row);
+    const previousTime = rowTimestamp(previous);
+    if (
+      rowTime > previousTime ||
+      (
+        rowTime === previousTime &&
+        JSON.stringify(stableJsonObjectKeyOrder(row)).localeCompare(
+          JSON.stringify(stableJsonObjectKeyOrder(previous))
+        ) >= 0
+      )
+    ) {
       byKey.set(key, row);
     }
   }

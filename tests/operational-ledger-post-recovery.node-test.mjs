@@ -119,6 +119,24 @@ test("extracts all four operational sections, embedded JSON, and explicit IDs de
   assert.equal(first[0].provenance[0].sourceKind, "embedded_native_id");
 });
 
+test("accepts retained v2 operational ledgers without treating retention metadata as evidence", () => {
+  const candidates = extractOperationalLedgerCandidates(ledgerFixture({
+    schemaVersion: "public-ingestion-operational-ledger.v2",
+    retention: { schemaVersion: "public-evidence-operational-retention.v1" },
+    failures: [{
+      id: "failure-x-v2",
+      platform: "x",
+      sourceUrl: "https://x.com/acme/status/2059258665668911561",
+      batchSlug: "S2026",
+      entityType: "company",
+      entityId: "company-acme"
+    }]
+  }));
+  assert.deepEqual(candidates.map((candidate) => candidate.identity), [
+    "x:2059258665668911561"
+  ]);
+});
+
 test("does not turn metadata slugs or partial URLs into physical post identities", () => {
   const candidates = extractOperationalLedgerCandidates(ledgerFixture({
     failures: [{
@@ -383,7 +401,8 @@ test("journal resume and atomic artifact output are deterministic", async () => 
 
 function ledgerFixture(overrides = {}) {
   return {
-    schemaVersion: "public-ingestion-operational-ledger.v1",
+    schemaVersion: overrides.schemaVersion ?? "public-ingestion-operational-ledger.v1",
+    ...(overrides.retention ? { retention: overrides.retention } : {}),
     failures: overrides.failures ?? [],
     attempts: overrides.attempts ?? {},
     discoveryAttempts: overrides.discoveryAttempts ?? [],
