@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { cp, mkdtemp, readFile, rm, symlink } from "node:fs/promises";
+import { cp, mkdir, mkdtemp, readFile, rm, symlink } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -10,6 +10,10 @@ const EXPERIMENT_ARTIFACTS = Object.freeze([
   "docs/outputs/scoring-experiments-v4.json",
   "docs/outputs/scoring-experiments-v4.md",
   "docs/SCORING_EXPERIMENTS.md"
+]);
+const PUBLIC_EVIDENCE_LEDGER_ARTIFACTS = Object.freeze([
+  "outputs/public-ingestion-operational-ledger-current.json",
+  "outputs/public-ingestion-review-ledger-current.json"
 ]);
 
 export function parseExperimentParityArgs(rawArgs) {
@@ -47,10 +51,14 @@ export async function main(
   const beforeHashes = await hashRepositoryArtifacts(rootDir);
   const temporaryRoot = await mkdtemp(path.join(tmpdir(), "returner-scoring-v4-parity-"));
   try {
+    await mkdir(path.join(temporaryRoot, "outputs"), { recursive: true });
     await Promise.all([
       cp(path.join(rootDir, "src"), path.join(temporaryRoot, "src"), { recursive: true }),
       cp(path.join(rootDir, "scripts"), path.join(temporaryRoot, "scripts"), { recursive: true }),
-      symlink(path.join(rootDir, "node_modules"), path.join(temporaryRoot, "node_modules"), "dir")
+      symlink(path.join(rootDir, "node_modules"), path.join(temporaryRoot, "node_modules"), "dir"),
+      ...PUBLIC_EVIDENCE_LEDGER_ARTIFACTS.map((artifact) =>
+        cp(path.join(rootDir, artifact), path.join(temporaryRoot, artifact))
+      )
     ]);
 
     const loaderPath = path.join(

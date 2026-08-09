@@ -261,6 +261,8 @@ test("experiment parity gate is isolated and validates the complete parity surfa
         const runtimeRoot = path.join(options.cwd, "generated-runtime", "graph");
         if (calls.length === 1) {
           assert.equal(path.basename(args[0]), "prepare-graph-runtime-evidence.mjs");
+          await access(path.join(options.cwd, "outputs", "public-ingestion-operational-ledger-current.json"));
+          await access(path.join(options.cwd, "outputs", "public-ingestion-review-ledger-current.json"));
           await mkdir(runtimeRoot, { recursive: true });
           await Promise.all(
             ["public", "logged-in", "targeted"].map((name) =>
