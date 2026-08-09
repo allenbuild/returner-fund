@@ -3,6 +3,13 @@ import { execFileSync } from "node:child_process";
 import { mkdir, readFile, readdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import {
+  SCORING_AUDIT_SCHEMA_VERSION,
+  applyBoundedScoringAuditRetention,
+  canonicalJson,
+  serializeBoundedScoringAudit,
+  validateBoundedScoringAuditRetention
+} from "./lib/scoring-audit-bounded-artifact.mjs";
 
 const REPOSITORY_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const OUTPUT_DIRECTORY = path.join(REPOSITORY_ROOT, "docs", "outputs");
@@ -14,6 +21,16 @@ const DEFAULT_FROZEN_CLOCK = "2026-07-17T12:00:00.000Z";
 const FROZEN_CLOCK = argumentValue("--clock") ?? DEFAULT_FROZEN_CLOCK;
 const EXPECTED_INPUT_SHA256 = argumentValue("--expect-input-sha256");
 const COHORT_SLUGS = ["S2026", "S26", "A16ZSR006"];
+const PUBLICATION_DATE_ISSUES = new Set([
+  "missing_or_invalid_publication_date",
+  "publication_date_precision_unknown",
+  "publication_date_precision_unrecorded"
+]);
+const METRIC_DATA_ISSUES = new Set([
+  "no_metric_values",
+  "no_positive_metric_values",
+  "no_positive_scoring_engagement"
+]);
 const PORTABLE_COMMAND =
   "node --experimental-strip-types --loader ./scripts/lib/scoring-diagnostics-ts-loader.mjs ./scripts/run-scoring-diagnostics-v4.mjs";
 const PACKAGE_COMMAND = "npm run scoring:audit:v4";
@@ -137,7 +154,7 @@ const globalDuplicates = auditGlobalDuplicates();
 const audit = {
   metadata: {
     report_version: "scoring-diagnostics-v4",
-    schema_version: 4,
+    schema_version: SCORING_AUDIT_SCHEMA_VERSION,
     generated_at: FROZEN_CLOCK,
     frozen_clock: FROZEN_CLOCK,
     production_model_id: TRACTION_SCORING_CONFIG.modelId,
@@ -201,9 +218,13 @@ const audit = {
 
 audit.invariants = buildInvariantResults(audit);
 
+validateFullAuditDetailAggregates(audit);
+validateAudit(audit);
+applyBoundedScoringAuditRetention(audit);
+validateBoundedScoringAuditRetention(audit);
 validateAudit(audit);
 
-const auditJson = `${JSON.stringify(audit, null, 2)}\n`;
+const { json: auditJson, bytes: auditBytes } = serializeBoundedScoringAudit(audit);
 const auditSha256 = sha256(auditJson);
 const markdown = renderMarkdownReport(audit, auditSha256);
 
@@ -224,6 +245,8 @@ console.log(
       frozen_clock: audit.metadata.frozen_clock,
       git_sha: EXECUTION_GIT_SHA,
       audit_sha256: auditSha256,
+      audit_bytes: auditBytes,
+      audit_byte_limit: audit.metadata.detail_retention.artifact_byte_limit,
       outputs: [relativePath(AUDIT_WRITE_PATH), relativePath(REPORT_WRITE_PATH)],
       summary: audit.global_summary
     },
@@ -762,6 +785,17 @@ function auditUrlQuality(context, evidence) {
   };
 }
 
+function summarizeFindingCategory(findings, issues) {
+  const matching = findings.filter((finding) => issues.has(finding.issue));
+  return {
+    finding_count: matching.length,
+    row_count: new Set(matching.map((finding) => finding.audit_key)).size,
+    scored_row_count: new Set(
+      matching.filter((finding) => finding.scored).map((finding) => finding.audit_key)
+    ).size
+  };
+}
+
 function classifyEvidenceUrl(item) {
   let parsed;
   try {
@@ -897,6 +931,10 @@ function auditMissingData(context, evidence) {
       findings.filter((finding) => finding.scored),
       (finding) => finding.issue
     ),
+    by_category: {
+      publication_date: summarizeFindingCategory(findings, PUBLICATION_DATE_ISSUES),
+      metrics: summarizeFindingCategory(findings, METRIC_DATA_ISSUES)
+    },
     findings
   };
 }
@@ -1640,17 +1678,6 @@ function buildGlobalSummary(cohorts, duplicates) {
   const monotonicFailures = cohorts.flatMap(
     (cohort) => cohort.perturbations.monotonicity.failures
   );
-  const publicationDateIssues = new Set([
-    "missing_or_invalid_publication_date",
-    "publication_date_precision_unknown",
-    "publication_date_precision_unrecorded"
-  ]);
-  const metricIssues = new Set([
-    "no_metric_values",
-    "no_positive_metric_values",
-    "no_positive_scoring_engagement"
-  ]);
-
   return {
     cohort_count: cohorts.length,
     company_count: cohorts.reduce((sum, cohort) => sum + cohort.input_counts.companies, 0),
@@ -1682,12 +1709,12 @@ function buildGlobalSummary(cohorts, duplicates) {
     ).size,
     scored_publication_date_gap_row_count: new Set(
       allMissingFindings
-        .filter((finding) => finding.scored && publicationDateIssues.has(finding.issue))
+        .filter((finding) => finding.scored && PUBLICATION_DATE_ISSUES.has(finding.issue))
         .map((finding) => finding.audit_key)
     ).size,
     scored_metric_gap_row_count: new Set(
       allMissingFindings
-        .filter((finding) => finding.scored && metricIssues.has(finding.issue))
+        .filter((finding) => finding.scored && METRIC_DATA_ISSUES.has(finding.issue))
         .map((finding) => finding.audit_key)
     ).size,
     evidence_raw_engagement_outlier_count: allEvidenceOutliers.length,
@@ -2091,6 +2118,8 @@ function renderMarkdownReport(payload, auditSha256) {
     `- Effective versioned scoring-input SHA-256: \`${payload.metadata.input_hashes.versioned_scoring_inputs.combined_sha256}\``,
     `- Canonical config: ${payload.metadata.input_hashes.versioned_scoring_inputs.parameter_count} leaf parameters across scoring, calibration, and confidence; ${payload.metadata.input_hashes.versioned_scoring_inputs.source_file_count} role-labeled runtime source files.`,
     `- Audit JSON SHA-256: \`${auditSha256}\``,
+    `- Detail retention: at most ${payload.metadata.detail_retention.example_limit_per_collection} examples per repetitive collection; ${payload.metadata.detail_retention.omitted_record_count} repeated records omitted across ${payload.metadata.detail_retention.bounded_collection_count} collections with full SHA-256 commitments.`,
+    `- Release size ceiling: ${payload.metadata.detail_retention.artifact_byte_limit} bytes.`,
     `- Command: \`${payload.metadata.command}\``,
     `- Direct command: \`${payload.metadata.direct_command}\``,
     "- Safety: local snapshots only; `fetch` disabled; no API calls, benchmark writes, source edits, or user-data mutation.",
@@ -2129,21 +2158,8 @@ function renderMarkdownReport(payload, auditSha256) {
     "| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |"
   );
   for (const cohort of payload.cohorts) {
-    const publicationGaps =
-      countValue(cohort.missing_data.by_issue, "missing_or_invalid_publication_date") +
-      countValue(cohort.missing_data.by_issue, "publication_date_precision_unknown") +
-      countValue(cohort.missing_data.by_issue, "publication_date_precision_unrecorded");
-    const metricGaps = new Set(
-      cohort.missing_data.findings
-        .filter((finding) =>
-          [
-            "no_metric_values",
-            "no_positive_metric_values",
-            "no_positive_scoring_engagement"
-          ].includes(finding.issue)
-        )
-        .map((finding) => finding.audit_key)
-    ).size;
+    const publicationGaps = cohort.missing_data.by_category.publication_date.row_count;
+    const metricGaps = cohort.missing_data.by_category.metrics.row_count;
     lines.push(
       `| ${cohort.cohort} | ${cohort.canonical_duplicates.production_canonical_post_keys.group_count} | ${cohort.canonical_duplicates.canonical_source_urls.group_count} | ${cohort.eligibility_rejections.rejected_row_count} | ${cohort.eligibility_rejections.rejected_upstream_enabled_row_count} | ${cohort.scoring.after_transformation.eligible_physical_dedupe.removed_row_count} | ${cohort.alias_metric_duplication.row_count} | ${cohort.url_quality.finding_count} | ${publicationGaps} | ${metricGaps} | ${cohort.outliers.evidence_raw_engagement.outlier_count} | ${cohort.outliers.company_scores.before.outlier_count}/${cohort.outliers.company_scores.after.outlier_count} |`
     );
@@ -2261,7 +2277,7 @@ function renderMarkdownReport(payload, auditSha256) {
     "- Evidence outliers use Tukey 1.5 IQR fences over `log1p` production-weighted raw engagement; company score outliers use direct 0-100 scores. These are inventory flags, not invariant failures or automatic exclusions.",
     "- Monotonicity uses a deterministic raw-engagement-stratified sample capped at 40 scored rows per platform; exact eligible, sampled, and coverage counts are recorded per cohort in the JSON audit.",
     "- Published scores can include cohort calibration in dataset builders. The before/after comparison therefore uses a fresh exported-scorer baseline on both sides; published ranks remain a separate reference.",
-    "- The JSON audit includes every config leaf hash, role-labeled effective source hashes, full company changes for overall and batch/platform comparisons, row-level findings, transformations, and invariant observations.",
+    "- The JSON audit includes every config leaf hash, role-labeled effective source hash, all aggregate findings and invariant observations, and deterministic bounded examples for repetitive row-level collections. Each omitted collection retains its full record count and SHA-256 commitment in `metadata.detail_retention.collections`.",
     "- The full machine-readable artifact is `docs/outputs/scoring-diagnostics-v4-audit.json`.",
     "",
     "The profiler writes only the two allowlisted files under `docs/outputs/` and performs no network or mutable API calls.",
@@ -2283,6 +2299,12 @@ async function buildInputHashManifest() {
     path.join(REPOSITORY_ROOT, "tsconfig.json"),
     path.join(REPOSITORY_ROOT, "scripts", "prepare-graph-runtime-evidence.mjs"),
     path.join(REPOSITORY_ROOT, "scripts", "run-scoring-diagnostics-v4.mjs"),
+    path.join(
+      REPOSITORY_ROOT,
+      "scripts",
+      "lib",
+      "scoring-audit-bounded-artifact.mjs"
+    ),
     path.join(REPOSITORY_ROOT, "scripts", "lib", "scoring-diagnostics-ts-loader.mjs")
   ];
   const discovered = [];
@@ -2540,10 +2562,6 @@ function countBy(items, keyFunction) {
     .sort((left, right) => right.count - left.count || compareText(String(left.key), String(right.key)));
 }
 
-function countValue(counts, key) {
-  return counts.find((entry) => entry.key === key)?.count ?? 0;
-}
-
 function groupBy(items, keyFunction) {
   const grouped = new Map();
   for (const item of items) {
@@ -2668,19 +2686,6 @@ function sha256(value) {
   return createHash("sha256").update(value).digest("hex");
 }
 
-function canonicalJson(value) {
-  if (Array.isArray(value)) {
-    return `[${value.map((item) => canonicalJson(item)).join(",")}]`;
-  }
-  if (value && typeof value === "object") {
-    return `{${Object.keys(value)
-      .sort(compareText)
-      .map((key) => `${JSON.stringify(key)}:${canonicalJson(value[key])}`)
-      .join(",")}}`;
-  }
-  return JSON.stringify(value);
-}
-
 function relativePath(filePath) {
   return path.relative(REPOSITORY_ROOT, filePath).split(path.sep).join("/");
 }
@@ -2720,6 +2725,167 @@ function assertExpectedInputHash(inputHashes) {
   if (EXPECTED_INPUT_SHA256 !== inputHashes.combined_sha256) {
     throw new Error(
       `Scoring diagnostics invariant violation: expected_input_envelope_sha256 (expected ${EXPECTED_INPUT_SHA256}, observed ${inputHashes.combined_sha256})`
+    );
+  }
+}
+
+function validateFullAuditDetailAggregates(payload) {
+  const mismatches = [];
+  const assertCount = (label, expected, observed) => {
+    if (expected !== observed) mismatches.push({ label, expected, observed });
+  };
+  const validateDuplicateResult = (result, label) => {
+    assertCount(`${label}.group_count`, result.group_count, result.groups.length);
+    assertCount(
+      `${label}.row_count`,
+      result.row_count,
+      result.groups.reduce((sum, group) => sum + group.row_count, 0)
+    );
+    for (const group of result.groups) {
+      if (Array.isArray(group.rows)) {
+        assertCount(`${label}.groups[${group.key}].row_count`, group.row_count, group.rows.length);
+      }
+    }
+  };
+  const validateScoredSummary = (summary, label) => {
+    assertCount(`${label}.company_count`, summary.company_count, summary.ranked_companies.length);
+  };
+  const validateComparison = (comparison, label) => {
+    assertCount(
+      `${label}.compared_company_count`,
+      comparison.compared_company_count,
+      comparison.company_changes.length
+    );
+  };
+
+  for (const key of [
+    "canonical_company_ids",
+    "canonical_founder_ids",
+    "canonical_social_account_urls"
+  ]) {
+    validateDuplicateResult(payload.global_canonical_duplicates[key], `global.${key}`);
+  }
+  for (const [key, result] of Object.entries(payload.global_canonical_duplicates.evidence)) {
+    validateDuplicateResult(result, `global.evidence.${key}`);
+  }
+
+  for (const cohort of payload.cohorts) {
+    const prefix = `cohorts.${cohort.cohort}`;
+    for (const [key, result] of Object.entries(cohort.canonical_duplicates)) {
+      validateDuplicateResult(result, `${prefix}.canonical_duplicates.${key}`);
+    }
+    assertCount(
+      `${prefix}.alias_metric_duplication.finding_count`,
+      cohort.alias_metric_duplication.finding_count,
+      cohort.alias_metric_duplication.findings.length
+    );
+    assertCount(
+      `${prefix}.url_quality.finding_count`,
+      cohort.url_quality.finding_count,
+      cohort.url_quality.findings.length
+    );
+    assertCount(
+      `${prefix}.eligibility_rejections.rejected_row_count`,
+      cohort.eligibility_rejections.rejected_row_count,
+      cohort.eligibility_rejections.findings.length
+    );
+    assertCount(
+      `${prefix}.missing_data.finding_count`,
+      cohort.missing_data.finding_count,
+      cohort.missing_data.findings.length
+    );
+    for (const [category, issues] of [
+      ["publication_date", PUBLICATION_DATE_ISSUES],
+      ["metrics", METRIC_DATA_ISSUES]
+    ]) {
+      const findings = cohort.missing_data.findings.filter((finding) =>
+        issues.has(finding.issue)
+      );
+      const recorded = cohort.missing_data.by_category[category];
+      assertCount(`${prefix}.missing_data.${category}.finding_count`, recorded.finding_count, findings.length);
+      assertCount(
+        `${prefix}.missing_data.${category}.row_count`,
+        recorded.row_count,
+        new Set(findings.map((finding) => finding.audit_key)).size
+      );
+      assertCount(
+        `${prefix}.missing_data.${category}.scored_row_count`,
+        recorded.scored_row_count,
+        new Set(
+          findings.filter((finding) => finding.scored).map((finding) => finding.audit_key)
+        ).size
+      );
+    }
+    for (const profile of cohort.outliers.evidence_raw_engagement.by_platform) {
+      assertCount(
+        `${prefix}.outliers.${profile.platform}.outlier_count`,
+        profile.outlier_count,
+        profile.findings.length
+      );
+    }
+    for (const phase of ["before", "after"]) {
+      const result = cohort.outliers.company_scores[phase];
+      assertCount(
+        `${prefix}.company_score_outliers.${phase}.outlier_count`,
+        result.outlier_count,
+        result.findings.length
+      );
+    }
+
+    const transformation = cohort.scoring.after_transformation;
+    assertCount(
+      `${prefix}.after_transformation.removed_row_count`,
+      transformation.removed_row_count,
+      transformation.removed_rows.length
+    );
+    assertCount(
+      `${prefix}.after_transformation.alias_changed_row_count`,
+      transformation.alias_changed_row_count,
+      new Set(transformation.alias_changed_rows.map((row) => row.audit_key)).size
+    );
+    assertCount(
+      `${prefix}.eligible_physical_dedupe.group_count`,
+      transformation.eligible_physical_dedupe.group_count,
+      transformation.eligible_physical_dedupe.groups.length
+    );
+
+    for (const [key, summary] of [
+      ["published_reference", cohort.scoring.published_reference],
+      ["diagnostic_before", cohort.scoring.diagnostic_before],
+      ["diagnostic_after", cohort.scoring.diagnostic_after]
+    ]) {
+      validateScoredSummary(summary, `${prefix}.scoring.${key}`);
+    }
+    validateComparison(
+      cohort.scoring.published_vs_diagnostic_before,
+      `${prefix}.scoring.published_vs_diagnostic_before`
+    );
+    validateComparison(
+      cohort.scoring.before_vs_after,
+      `${prefix}.scoring.before_vs_after`
+    );
+    for (const slice of cohort.scoring.before_vs_after_by_platform) {
+      validateScoredSummary(
+        slice.score_before,
+        `${prefix}.scoring.${slice.platform}.score_before`
+      );
+      validateScoredSummary(
+        slice.score_after,
+        `${prefix}.scoring.${slice.platform}.score_after`
+      );
+      validateComparison(
+        slice.before_vs_after,
+        `${prefix}.scoring.${slice.platform}.before_vs_after`
+      );
+    }
+    for (const scenario of cohort.perturbations.stability) {
+      validateComparison(scenario, `${prefix}.perturbations.${scenario.name}`);
+    }
+  }
+
+  if (mismatches.length) {
+    throw new Error(
+      `Scoring diagnostics aggregate/detail mismatch: ${JSON.stringify(mismatches.slice(0, 10))}`
     );
   }
 }
