@@ -199,6 +199,49 @@ describe("NodePanel", () => {
     expect(section).not.toHaveTextContent("20 pts");
   });
 
+  it("reconciles calibrated platform rows to the published base score", () => {
+    const graph = buildGraphResponse({ batchSlug: "S26", query: "Conifer" }, ycSpring2026GraphDataset);
+    const node = graph.nodes.find((item) => item.label === "Conifer");
+
+    expect(node).toBeDefined();
+    const calibratedNode: GraphNode = {
+      ...node!,
+      score: 87,
+      scoreBreakdown: {
+        ...node!.scoreBreakdown!,
+        totalScore: 87,
+        absoluteScore: 46,
+        weightedPlatforms: [
+          { platform: "instagram", score: 95, configuredWeight: 0.21, appliedWeight: 0.21, contribution: 19.95, evidenceCount: 63 },
+          { platform: "x", score: 52, configuredWeight: 0.21, appliedWeight: 0.21, contribution: 10.92, evidenceCount: 20 },
+          { platform: "linkedin", score: 52, configuredWeight: 0.15, appliedWeight: 0.15, contribution: 7.8, evidenceCount: 11 },
+          { platform: "youtube", score: 69, configuredWeight: 0.1, appliedWeight: 0.1, contribution: 6.9, evidenceCount: 20 }
+        ],
+        calibration: {
+          method: "global_best_ratio",
+          cohortSize: 423,
+          percentile: null,
+          inputScore: 46,
+          benchmarkScore: 53,
+          scaleFactor: 100 / 53,
+          benchmarkScope: "all_supported_batches",
+          benchmarkPopulation: "current_company_snapshot"
+        }
+      }
+    };
+
+    render(<NodePanel node={calibratedNode} relatedNodes={[]} evidence={[]} />);
+
+    const section = screen.getByRole("heading", { name: "Platform contributions" }).closest("section");
+    const contributionRows = [...section!.querySelectorAll(".score-platform-contributions li")];
+    const displayedTenths = contributionRows.reduce((sum, row) => {
+      const value = Number.parseFloat(row.querySelector("strong")?.textContent ?? "0");
+      return sum + Math.round(value * 10);
+    }, 0);
+    expect(contributionRows).toHaveLength(4);
+    expect(displayedTenths).toBe(870);
+  });
+
   it("keeps contributions unscaled when no global calibration is applied", () => {
     const graph = buildGraphResponse({ batchSlug: "S26", query: "Conifer" }, ycSpring2026GraphDataset);
     const node = graph.nodes.find((item) => item.label === "Conifer");

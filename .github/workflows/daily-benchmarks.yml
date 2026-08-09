@@ -121,29 +121,50 @@ jobs:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: |
-          if [ -n "$NEXT_PUBLIC_SUPABASE_URL" ] && [ -n "$SUPABASE_SERVICE_ROLE_KEY" ]; then
+          if node --input-type=module <<'NODE'
+          import { validateSupabaseConfiguration } from "./scripts/lib/supabase-configuration.mjs";
+          const result = validateSupabaseConfiguration(
+            process.env.NEXT_PUBLIC_SUPABASE_URL,
+            process.env.SUPABASE_SERVICE_ROLE_KEY,
+            { githubActions: true }
+          );
+          if (!result.valid) {
+            console.error(`Timeline database configuration unavailable: ${result.blockers.join(", ")}`);
+            process.exit(1);
+          }
+          NODE
+          then
             echo "configured=true" >> "$GITHUB_OUTPUT"
             echo "::notice title=Timeline database configured::The strict database-backed timeline publication gate will run."
-          else
-            echo "configured=false" >> "$GITHUB_OUTPUT"
-            echo "::warning title=Timeline publication preserved::Supabase publication credentials are not configured as a complete pair. Skipping the timeline rebuild and preserving the last-good public timeline artifacts."
             {
               echo "## Company Timeline publication"
-              echo "- Status: skipped (database credentials unavailable)"
-              echo "- Safety action: preserve last-good timeline artifacts"
-              echo "- Benchmark publication: continues independently"
+              echo "- Mode: database-backed"
+              echo "- Safety gate: validated privileged endpoint and service-role key"
+            } >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+            echo "::warning title=Timeline file-backed fallback::Supabase publication credentials are unavailable or invalid. Rebuilding the complete public timeline from canonical repository evidence without a database write."
+            {
+              echo "## Company Timeline publication"
+              echo "- Mode: file-backed fallback"
+              echo "- Safety action: rebuild public timelines from canonical evidence and preserve all validated events"
+              echo "- Database writes: disabled"
             } >> "$GITHUB_STEP_SUMMARY"
           fi
 
-      - name: Rebuild database-backed timeline artifacts
-        if: steps.timeline_database.outputs.configured == 'true'
+      - name: Rebuild timeline artifacts
         timeout-minutes: 10
         env:
+          TIMELINE_DATABASE_CONFIGURED: ${{ steps.timeline_database.outputs.configured }}
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           EXA_API_KEY: ${{ secrets.EXA_API_KEY }}
-          TIMELINE_REQUIRE_DATABASE: "true"
-        run: npm run timeline:backfill
+        run: |
+          if [ "$TIMELINE_DATABASE_CONFIGURED" = "true" ]; then
+            TIMELINE_REQUIRE_DATABASE=true npm run timeline:backfill
+          else
+            env -u NEXT_PUBLIC_SUPABASE_URL -u SUPABASE_SERVICE_ROLE_KEY TIMELINE_REQUIRE_DATABASE=false npm run timeline:backfill
+          fi
 
       - name: Refresh artifact manifest
         run: |
@@ -152,16 +173,10 @@ jobs:
 
       - name: Validate generated public artifacts
         timeout-minutes: 5
-        env:
-          TIMELINE_DATABASE_CONFIGURED: ${{ steps.timeline_database.outputs.configured }}
         run: |
           npm run artifacts:validate
           npm run artifacts:manifest:validate
-          if [ "$TIMELINE_DATABASE_CONFIGURED" = "true" ]; then
-            npm run timeline:validate
-          else
-            echo "::notice title=Timeline validation skipped::Timeline artifacts were intentionally left unchanged while canonical graph artifacts advanced."
-          fi
+          npm run timeline:validate
 
       - name: Commit and publish benchmark snapshots
         id: publish
@@ -187,11 +202,9 @@ jobs:
             public/graph/a16zsr006-yc-partners.json
             public/graph/a16zsr006-insiders.json
             public/graph/manifest.json
+            public/timelines
+            artifacts/company-timeline/coverage.json
           )
-          if [ "$TIMELINE_DATABASE_CONFIGURED" = "true" ]; then
-            benchmark_files+=(public/timelines)
-            benchmark_files+=(artifacts/company-timeline/coverage.json)
-          fi
 
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -225,15 +238,13 @@ jobs:
             if [ "$TIMELINE_DATABASE_CONFIGURED" = "true" ]; then
               timeout 4m env TIMELINE_REQUIRE_DATABASE=true npm run timeline:backfill
             else
-              echo "::notice title=Timeline retry preserved::Skipping timeline rebuild after rebase because database credentials are unavailable."
+              timeout 4m env -u NEXT_PUBLIC_SUPABASE_URL -u SUPABASE_SERVICE_ROLE_KEY TIMELINE_REQUIRE_DATABASE=false npm run timeline:backfill
             fi
             INGESTION_RUN_ID="$(node -p "require('./public/graph/manifest.json').ingestionRunId")"
             node scripts/write-artifact-manifest.mjs --ingestion-run-id="$INGESTION_RUN_ID"
             npm run artifacts:validate
             npm run artifacts:manifest:validate
-            if [ "$TIMELINE_DATABASE_CONFIGURED" = "true" ]; then
-              npm run timeline:validate
-            fi
+            npm run timeline:validate
             git add -- "${benchmark_files[@]}"
             if ! git diff --cached --quiet; then
               git commit --amend --no-edit

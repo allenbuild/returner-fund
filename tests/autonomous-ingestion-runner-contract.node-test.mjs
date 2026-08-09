@@ -120,6 +120,26 @@ describe("autonomous ingestion runner static safety contracts", () => {
     assert.ok(runner.includes('runId: run?.id ?? null'));
   });
 
+  it("runs timeline backfill in strict database mode only with validated durable storage", () => {
+    const publicationBuild = section("async function buildAndValidatePublication", "async function synchronizePublicationBase");
+    const timelineBackfill = section(
+      "const timelineBackfillEnv = durableStorageConfigured",
+      'await runCommand(process.execPath, ["scripts/validate-timeline-artifacts.mjs"]',
+      publicationBuild
+    );
+
+    assert.match(
+      timelineBackfill,
+      /durableStorageConfigured\s*\?\s*{\s*TIMELINE_REQUIRE_DATABASE:\s*"true"\s*}/
+    );
+    assert.match(
+      timelineBackfill,
+      /:\s*{\s*NEXT_PUBLIC_SUPABASE_URL:\s*"",\s*SUPABASE_SERVICE_ROLE_KEY:\s*"",\s*TIMELINE_REQUIRE_DATABASE:\s*"false"\s*}/
+    );
+    assert.ok(timelineBackfill.includes('"scripts/backfill-company-timelines.mjs"'));
+    assert.ok(timelineBackfill.includes("env: timelineBackfillEnv"));
+  });
+
   it("carries credential gaps and mapped efficacy into the published health receipt", () => {
     assert.ok(runner.includes('!cleanEnv(process.env.X_BEARER_TOKEN) ? "X_BEARER_TOKEN"'));
     assert.ok(runner.includes('!cleanEnv(process.env.EXA_API_KEY) ? "EXA_API_KEY"'));

@@ -94,25 +94,29 @@ test("daily benchmarks synchronize, rebuild on push races, and verify main", () 
   assert.ok(stepTimeouts.reduce((total, timeout) => total + timeout, 0) < jobTimeout);
 });
 
-test("daily benchmarks preserve legacy publication without timeline database secrets", () => {
+test("daily benchmarks rebuild and validate timelines with a database-free fallback", () => {
   const updateJob = dailyBenchmarkWorkflow.match(/\n  update:[\s\S]*?(?=\n  receipt:)/)?.[0] ?? "";
   const benchmarkStep = updateJob.match(
     /- name: Update daily benchmark snapshots([\s\S]*?)(?=\n\s{6}- name:)/
   )?.[1] ?? "";
   const timelineStep = updateJob.match(
-    /- name: Rebuild database-backed timeline artifacts([\s\S]*?)(?=\n\s{6}- name:)/
+    /- name: Rebuild timeline artifacts([\s\S]*?)(?=\n\s{6}- name:)/
   )?.[1] ?? "";
 
   assert.doesNotMatch(benchmarkStep, /SUPABASE|TIMELINE_REQUIRE_DATABASE|exit 1/);
   assert.match(updateJob, /id:\s*timeline_database/);
+  assert.match(updateJob, /validateSupabaseConfiguration/);
   assert.match(updateJob, /configured=false/);
-  assert.match(updateJob, /preserving the last-good public timeline artifacts/);
-  assert.match(timelineStep, /if:\s*steps\.timeline_database\.outputs\.configured == 'true'/);
-  assert.match(timelineStep, /TIMELINE_REQUIRE_DATABASE:\s*"true"/);
+  assert.match(updateJob, /file-backed fallback/);
+  assert.doesNotMatch(timelineStep, /^\s*if:\s*steps\.timeline_database/m);
+  assert.match(timelineStep, /TIMELINE_DATABASE_CONFIGURED/);
+  assert.match(timelineStep, /TIMELINE_REQUIRE_DATABASE=true npm run timeline:backfill/);
+  assert.match(timelineStep, /env -u NEXT_PUBLIC_SUPABASE_URL -u SUPABASE_SERVICE_ROLE_KEY TIMELINE_REQUIRE_DATABASE=false npm run timeline:backfill/);
   assert.match(timelineStep, /npm run timeline:backfill/);
-  assert.match(updateJob, /if \[ "\$TIMELINE_DATABASE_CONFIGURED" = "true" \]; then\s*\n\s*benchmark_files\+=\(public\/timelines\)/);
+  assert.match(updateJob, /benchmark_files=\([\s\S]*public\/timelines[\s\S]*artifacts\/company-timeline\/coverage\.json/);
   assert.match(updateJob, /npm run artifacts:validate/);
   assert.match(updateJob, /npm run artifacts:manifest:validate/);
+  assert.ok((updateJob.match(/npm run timeline:validate/g) ?? []).length >= 2);
 });
 
 test("workflow gates work through the schedule helper and stable key", () => {

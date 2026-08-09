@@ -8,18 +8,21 @@ import {
 } from "../scripts/audit-timeline-quality.mjs";
 
 describe("timeline operational tooling", () => {
-  it("preserves legacy publication without credentials and requires the database when configured", () => {
+  it("rebuilds public timelines without credentials and requires the database when configured", () => {
     const workflow = readFileSync(join(process.cwd(), ".github", "workflows", "daily-benchmarks.yml"), "utf8");
     expect(workflow).toContain("NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}");
     expect(workflow).toContain("SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}");
     expect(workflow).toContain("id: timeline_database");
+    expect(workflow).toContain("validateSupabaseConfiguration");
     expect(workflow).toContain("configured=false");
-    expect(workflow).toContain("preserving the last-good public timeline artifacts");
-    expect(workflow).toContain("if: steps.timeline_database.outputs.configured == 'true'");
-    expect(workflow).toContain('TIMELINE_REQUIRE_DATABASE: "true"');
+    expect(workflow).toContain("file-backed fallback");
+    expect(workflow).toContain("TIMELINE_REQUIRE_DATABASE=true npm run timeline:backfill");
+    expect(workflow).toContain("env -u NEXT_PUBLIC_SUPABASE_URL -u SUPABASE_SERVICE_ROLE_KEY TIMELINE_REQUIRE_DATABASE=false npm run timeline:backfill");
     expect(workflow).toContain("timeout 4m env TIMELINE_REQUIRE_DATABASE=true npm run timeline:backfill");
-    expect(workflow).toContain('if [ "$TIMELINE_DATABASE_CONFIGURED" = "true" ]; then');
-    expect(workflow).toContain("benchmark_files+=(public/timelines)");
+    expect(workflow).toContain("timeout 4m env -u NEXT_PUBLIC_SUPABASE_URL -u SUPABASE_SERVICE_ROLE_KEY TIMELINE_REQUIRE_DATABASE=false npm run timeline:backfill");
+    expect(workflow).toContain("public/timelines");
+    expect(workflow).toContain("artifacts/company-timeline/coverage.json");
+    expect((workflow.match(/npm run timeline:validate/g) ?? []).length).toBeGreaterThanOrEqual(2);
     expect(workflow).not.toContain("Refusing to rebuild timeline artifacts without Supabase service-role configuration");
   });
 

@@ -2563,6 +2563,15 @@ async function buildAndValidatePublication(publicationRunId, catalogState) {
   // published database events. A failure aborts publication, preserving the
   // repository's last-good timeline artifacts.
   await runTimelineDiscoveryBeforeBackfill(catalogState);
+  const timelineBackfillEnv = durableStorageConfigured
+    ? {
+        TIMELINE_REQUIRE_DATABASE: "true"
+      }
+    : {
+        NEXT_PUBLIC_SUPABASE_URL: "",
+        SUPABASE_SERVICE_ROLE_KEY: "",
+        TIMELINE_REQUIRE_DATABASE: "false"
+      };
   await runCommand(process.execPath, [
     "--experimental-strip-types",
     "--loader",
@@ -2571,7 +2580,8 @@ async function buildAndValidatePublication(publicationRunId, catalogState) {
     "--resume"
   ], {
     timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.timelineBackfillMs,
-    label: "company timeline backfill"
+    label: "company timeline backfill",
+    env: timelineBackfillEnv
   });
   await runCommand(process.execPath, ["scripts/validate-timeline-artifacts.mjs"], {
     timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.artifactValidationMs,

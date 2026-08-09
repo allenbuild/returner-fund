@@ -6,6 +6,7 @@ import { dedupeEvidenceItems } from "@/lib/graph/dedupe";
 import { getCompanyVerticalDefinition } from "@/lib/graph/company-verticals";
 import { TOP_POSTS_LIMIT } from "@/lib/graph/presentation-limits";
 import type { EvidenceItem, GraphNode } from "@/lib/graph/types";
+import { displayPlatformContributions } from "@/lib/scoring/presentation";
 import { timelineCompanyRefFromGraphNode } from "@/lib/timeline/company-identity";
 import { EvidenceMediaCard } from "./EvidenceMediaCard";
 import { PlatformIdentity } from "./PlatformLogo";
@@ -289,13 +290,7 @@ function InsiderContributions({ node }: { node: GraphNode }) {
 }
 
 function PlatformContributions({ node }: { node: GraphNode }) {
-  const rawPlatformContributions = [
-    ...(Array.isArray(node.scoreBreakdown?.weightedPlatforms) ? node.scoreBreakdown.weightedPlatforms : [])
-  ]
-    .filter((platform) => numberValue(platform?.contribution) !== null && platform.contribution > 0)
-    .sort((left, right) => right.contribution - left.contribution);
-  const platformContributions = rawPlatformContributions;
-  const calibrationMultiplier = scoreContributionMultiplier(node);
+  const platformContributions = displayPlatformContributions(node);
 
   return (
     <section className="score-platform-section" aria-labelledby={`score-platforms-${node.id}`}>
@@ -306,7 +301,7 @@ function PlatformContributions({ node }: { node: GraphNode }) {
             <li key={platform.platform}>
               <PlatformIdentity platform={platform.platform} />
               <span className="score-platform-contribution">
-                <strong>{formatScore(platform.contribution * calibrationMultiplier)} pts</strong>
+                <strong>{formatScore(platform.displayContribution)} pts</strong>
                 <small>{formatItemCount(Math.max(0, Math.round(numberValue(platform.evidenceCount) ?? 0)))}</small>
               </span>
             </li>
@@ -317,15 +312,6 @@ function PlatformContributions({ node }: { node: GraphNode }) {
       )}
     </section>
   );
-}
-
-function scoreContributionMultiplier(node: GraphNode): number {
-  const scaleFactor = node.scoreBreakdown?.calibration?.scaleFactor;
-  return node.scoreBreakdown?.calibration?.method === "global_best_ratio" &&
-    typeof scaleFactor === "number" &&
-    Number.isFinite(scaleFactor)
-    ? scaleFactor
-    : 1;
 }
 
 function isScoredEvidence(item: EvidenceItem): boolean {

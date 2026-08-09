@@ -67,8 +67,7 @@ export function ScoringMethodology({ currentModel }: ScoringMethodologyProps) {
             {baseline.calibration.cohortPercentilePercent}% cohort-percentile signal). The displayed headline uses one
             ratio shared by every supported batch: the strongest current company&apos;s absolute score maps to 100 and
             every other company receives the same multiplier. There is no per-batch min/max stretch, and platform
-            contributions themselves are never inflated. Filters only change visibility and never recompute this
-            canonical global factor.
+            visibility filters never recompute this canonical global factor.
           </p>
 
           <div className="scoring-baseline-table-wrap">
