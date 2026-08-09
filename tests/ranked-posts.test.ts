@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { selectRankedPosts } from "@/lib/graph/ranked-posts";
+import type { RankedPostsSidecarScope } from "@/lib/graph/ranked-posts-sidecar";
 import type { EvidenceItem, GraphNode, GraphResponse } from "@/lib/graph/types";
 
 describe("ranked posts", () => {
@@ -218,6 +219,46 @@ describe("ranked posts", () => {
 
     expect(ranked.map((item) => item.evidence.id)).toEqual(["at-now", "window-start"]);
   });
+
+  it("merges rankable full-corpus overflow beyond the published graph preview", () => {
+    const preview = evidence({
+      id: "preview-post",
+      normalizedScore: 70,
+      contributionScore: 70,
+      sourceUrl: "https://x.com/company/status/970",
+      platformPostId: "970"
+    });
+    const overflow = evidence({
+      id: "overflow-post",
+      normalizedScore: 95,
+      contributionScore: 95,
+      sourceUrl: "https://x.com/company/status/971",
+      platformPostId: "971"
+    });
+
+    const ranked = selectRankedPosts(graph([preview]), {
+      period: "all_time",
+      sidecarScope: sidecarScope([overflow], { "company-1": 1 })
+    });
+
+    expect(ranked.map((item) => item.evidence.id)).toEqual(["overflow-post", "preview-post"]);
+  });
+
+  it("fails closed on overflow when an evidence facet has reduced preview coverage", () => {
+    const preview = evidence({ id: "visible-preview" });
+    const overflow = evidence({
+      id: "must-not-leak",
+      sourceUrl: "https://x.com/company/status/972",
+      platformPostId: "972"
+    });
+
+    const ranked = selectRankedPosts(graph([preview]), {
+      period: "all_time",
+      sidecarScope: sidecarScope([overflow], { "company-1": 2 })
+    });
+
+    expect(ranked.map((item) => item.evidence.id)).toEqual(["visible-preview"]);
+  });
 });
 
 function graph(evidenceItems: EvidenceItem[]): GraphResponse {
@@ -320,5 +361,24 @@ function audience() {
     scoreDescription: "Canonical score",
     active: true,
     memberCount: 0
+  };
+}
+
+function sidecarScope(
+  overflow: EvidenceItem[],
+  previewRankableByCompany: Record<string, number>
+): RankedPostsSidecarScope {
+  return {
+    previewGeneratedAt: "2026-07-20T12:00:00.000Z",
+    sourceEvidenceCount: overflow.length + 1,
+    previewEvidenceCount: 1,
+    fullRankableCount: overflow.length + 1,
+    previewRankableCount: 1,
+    overflowRankableCount: overflow.length,
+    fullRankableDigest: "0".repeat(64),
+    representedRankableDigest: "0".repeat(64),
+    previewRankableByCompany,
+    fullRankableByCompany: { "company-1": overflow.length + 1 },
+    evidence: overflow
   };
 }
