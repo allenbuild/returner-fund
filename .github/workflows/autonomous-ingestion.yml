@@ -128,9 +128,8 @@ jobs:
           NEW_PHYSICAL_SOURCES: ${{ steps.ingestion.outputs.new_physical_sources }}
           DAILY_NEW_PHYSICAL_SOURCES: ${{ steps.ingestion.outputs.daily_new_physical_sources }}
           DAILY_SOURCE_HEALTH: ${{ steps.ingestion.outputs.daily_source_health }}
-        run: |
-          export PUBLISHED_COMMIT="$(git rev-parse HEAD)"
-          node scripts/lib/autonomous-ingestion-receipt-policy.mjs
+          PUBLISHED_COMMIT: ${{ steps.ingestion.outputs.published_commit }}
+        run: node scripts/lib/autonomous-ingestion-receipt-policy.mjs
 
   receipt:
     name: Audit refresh outcome
@@ -149,13 +148,22 @@ jobs:
           RECEIPT_CONCLUSION: ${{ needs.ingest.outputs.receipt_conclusion }}
           PUBLISHED_COMMIT: ${{ needs.ingest.outputs.published_commit }}
         run: |
+          RECEIPT_RECOGNIZED=false
+          case "$RECEIPT_CONCLUSION:$RECEIPT_STATUS" in
+            success:published|success:noop_completed|warning:published_degraded|warning:published_no_new_sources|warning:published_stale_day|warning:no_changes|warning:no_changes_stale_day|warning:noop_degraded|warning:noop_no_new_sources|warning:noop_stale_day)
+              RECEIPT_RECOGNIZED=true
+              ;;
+          esac
+          COMMIT_PROOF_VALID=false
+          if [[ "$PUBLISHED_COMMIT" =~ ^[0-9a-fA-F]{40}$ ]]; then
+            COMMIT_PROOF_VALID=true
+          fi
+
           if [ "$RESOLVE_RESULT" != "success" ]; then
             STATUS="resolver_failed"
           elif [ "$SHOULD_RUN" != "true" ]; then
             STATUS="inactive_candidate_no_refresh"
-          elif [ -n "$RECEIPT_STATUS" ] && { [ "$RECEIPT_CONCLUSION" = "success" ] || [ "$RECEIPT_CONCLUSION" = "warning" ]; } && [ "$INGEST_RESULT" = "success" ]; then
-            STATUS="$RECEIPT_STATUS"
-          elif [ -n "$RECEIPT_STATUS" ] && [ "$RECEIPT_CONCLUSION" = "failure" ]; then
+          elif [ "$INGEST_RESULT" = "success" ] && [ "$RECEIPT_RECOGNIZED" = "true" ] && [ "$COMMIT_PROOF_VALID" = "true" ]; then
             STATUS="$RECEIPT_STATUS"
           else
             STATUS="accepted_slot_failed"
@@ -166,14 +174,16 @@ jobs:
             echo "- Slot: ${SLOT_KEY:-none}"
             echo "- Resolver result: $RESOLVE_RESULT"
             echo "- Ingestion result: $INGEST_RESULT"
+            echo "- Receipt recognized: $RECEIPT_RECOGNIZED"
             echo "- Receipt conclusion: ${RECEIPT_CONCLUSION:-none}"
+            echo "- Commit proof valid: $COMMIT_PROOF_VALID"
             echo "- Published commit: ${PUBLISHED_COMMIT:-none}"
           } >> "$GITHUB_STEP_SUMMARY"
-          if [ "$RECEIPT_CONCLUSION" = "warning" ]; then
-            echo "::warning title=Autonomous ingestion completed with warnings::$STATUS for ${SLOT_KEY:-unknown slot}"
-          elif [ "$STATUS" = "resolver_failed" ] || [ "$STATUS" = "accepted_slot_failed" ] || [ "$RECEIPT_CONCLUSION" = "failure" ]; then
+          if [ "$STATUS" = "resolver_failed" ] || [ "$STATUS" = "accepted_slot_failed" ]; then
             echo "::error title=Autonomous ingestion failed::$STATUS for ${SLOT_KEY:-unknown slot}"
-            echo "The upstream resolver or ingestion job is the single failing job for this run."
-            exit 0
+            echo "The accepted slot requires a successful publication job, a recognized receipt, and an exact repository-backed commit."
+            exit 1
+          elif [ "$RECEIPT_CONCLUSION" = "warning" ]; then
+            echo "::warning title=Autonomous ingestion completed with warnings::$STATUS for ${SLOT_KEY:-unknown slot}"
           fi
           echo "::notice title=Autonomous ingestion outcome::$STATUS for ${SLOT_KEY:-inactive candidate}"

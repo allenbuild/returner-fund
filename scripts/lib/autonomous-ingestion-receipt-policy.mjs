@@ -4,9 +4,11 @@ import { pathToFileURL } from "node:url";
 const HEALTHY_DAILY_STATES = new Set(["healthy", "awaiting_second_slot"]);
 const RECOGNIZED_DAILY_STATES = new Set([...HEALTHY_DAILY_STATES, "stale_day"]);
 const KNOWN_COLLECTION_STATES = new Set(["complete", "degraded"]);
+const FULL_COMMIT_SHA_PATTERN = /^[0-9a-f]{40}$/i;
 
 export function selectPublishedAutonomousIngestionReceipt({
   idempotencyKey,
+  publishedCommit,
   currentReceipt = null,
   history = []
 }) {
@@ -22,13 +24,14 @@ export function selectPublishedAutonomousIngestionReceipt({
     const classification = classifyAutonomousIngestionReceipt({
       runnerStatus: "already_completed",
       publicationStatus: "already_completed",
+      publishedCommit,
       collectionHealth: receipt.collectionHealth,
       newPhysicalSources: receipt.newPhysicalSources,
       dailyNewPhysicalSources: receipt.dailyNewPhysicalSources,
       dailySourceHealth: receipt.dailySourceHealth
     });
     if (classification.conclusion !== "failure") {
-      return { receipt, classification };
+      return { receipt, classification, publishedCommit: clean(publishedCommit) };
     }
   }
   return null;
@@ -37,6 +40,7 @@ export function selectPublishedAutonomousIngestionReceipt({
 export function classifyAutonomousIngestionReceipt({
   runnerStatus,
   publicationStatus,
+  publishedCommit,
   collectionHealth,
   newPhysicalSources,
   dailyNewPhysicalSources,
@@ -44,6 +48,7 @@ export function classifyAutonomousIngestionReceipt({
 }) {
   const normalizedRunnerStatus = clean(runnerStatus);
   const normalizedPublicationStatus = clean(publicationStatus);
+  const normalizedPublishedCommit = clean(publishedCommit);
   const normalizedCollectionHealth = clean(collectionHealth);
   const normalizedDailySourceHealth = clean(dailySourceHealth);
   const normalizedNewPhysicalSources = nonNegativeInteger(newPhysicalSources);
@@ -54,6 +59,14 @@ export function classifyAutonomousIngestionReceipt({
     dailyNewPhysicalSources: normalizedDailyNewPhysicalSources,
     dailySourceHealth: normalizedDailySourceHealth
   });
+  const commitReceiptError = validateCommitReceipt({
+    publicationStatus: normalizedPublicationStatus,
+    publishedCommit: normalizedPublishedCommit
+  });
+
+  if (commitReceiptError) {
+    return failure(commitFailureStatus(normalizedPublicationStatus), commitReceiptError);
+  }
 
   if (normalizedRunnerStatus === "already_completed") {
     if (normalizedPublicationStatus !== "already_completed" ||
@@ -142,15 +155,16 @@ export async function recordAutonomousIngestionReceipt({
   writeOutput = appendFile,
   writeSummary = appendFile
 } = {}) {
+  const publishedCommit = clean(env.PUBLISHED_COMMIT);
   const result = classifyAutonomousIngestionReceipt({
     runnerStatus: env.RUNNER_STATUS,
     publicationStatus: env.PUBLICATION_STATUS,
+    publishedCommit,
     collectionHealth: env.COLLECTION_HEALTH,
     newPhysicalSources: env.NEW_PHYSICAL_SOURCES,
     dailyNewPhysicalSources: env.DAILY_NEW_PHYSICAL_SOURCES,
     dailySourceHealth: env.DAILY_SOURCE_HEALTH
   });
-  const publishedCommit = clean(env.PUBLISHED_COMMIT);
   const slotKey = clean(env.SLOT_KEY) || "unknown-slot";
   const outputPath = clean(env.GITHUB_OUTPUT);
   const summaryPath = clean(env.GITHUB_STEP_SUMMARY);
@@ -243,6 +257,24 @@ function validateHealthReceipt({
     );
   }
   return null;
+}
+
+function validateCommitReceipt({ publicationStatus, publishedCommit }) {
+  if (!["published", "no_changes", "already_completed"].includes(publicationStatus)) {
+    return null;
+  }
+  if (!FULL_COMMIT_SHA_PATTERN.test(publishedCommit)) {
+    return (
+      `The ${publicationStatus} outcome requires an exact full 40-hex repository commit SHA.`
+    );
+  }
+  return null;
+}
+
+function commitFailureStatus(publicationStatus) {
+  if (publicationStatus === "already_completed") return "noop_missing_commit";
+  if (publicationStatus === "no_changes") return "no_changes_missing_commit";
+  return "published_missing_commit";
 }
 
 function clean(value) {

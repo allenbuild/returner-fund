@@ -287,11 +287,22 @@ jobs:
           PUBLISHED_COMMIT: ${{ needs.update.outputs.published_commit }}
           CENTRAL_DATE: ${{ needs.resolve.outputs.central_date }}
         run: |
+          RECEIPT_RECOGNIZED=false
+          case "$PUBLICATION_STATUS" in
+            published|no_changes)
+              RECEIPT_RECOGNIZED=true
+              ;;
+          esac
+          COMMIT_PROOF_VALID=false
+          if [[ "$PUBLISHED_COMMIT" =~ ^[0-9a-fA-F]{40}$ ]]; then
+            COMMIT_PROOF_VALID=true
+          fi
+
           if [ "$RESOLVE_RESULT" != "success" ]; then
             STATUS="resolver_failed"
           elif [ "$SHOULD_RUN" != "true" ]; then
             STATUS="inactive_candidate_no_update"
-          elif [ "$UPDATE_RESULT" = "success" ] && { [ "$PUBLICATION_STATUS" = "published" ] || [ "$PUBLICATION_STATUS" = "no_changes" ]; }; then
+          elif [ "$UPDATE_RESULT" = "success" ] && [ "$RECEIPT_RECOGNIZED" = "true" ] && [ "$COMMIT_PROOF_VALID" = "true" ]; then
             STATUS="$PUBLICATION_STATUS"
           else
             STATUS="accepted_candidate_failed"
@@ -302,11 +313,13 @@ jobs:
             echo "- Central date: ${CENTRAL_DATE:-manual}"
             echo "- Resolver result: $RESOLVE_RESULT"
             echo "- Update result: $UPDATE_RESULT"
+            echo "- Receipt recognized: $RECEIPT_RECOGNIZED"
+            echo "- Commit proof valid: $COMMIT_PROOF_VALID"
             echo "- Published commit: ${PUBLISHED_COMMIT:-none}"
           } >> "$GITHUB_STEP_SUMMARY"
           if [ "$STATUS" = "resolver_failed" ] || [ "$STATUS" = "accepted_candidate_failed" ]; then
             echo "::error title=Daily benchmark failed::$STATUS for ${CENTRAL_DATE:-manual dispatch}"
-            echo "The upstream resolver or update job is the single failing job for this run."
-            exit 0
+            echo "The accepted candidate requires a successful publication job, a recognized receipt, and an exact repository-backed commit."
+            exit 1
           fi
           echo "::notice title=Daily benchmark outcome::$STATUS for ${CENTRAL_DATE:-manual dispatch}"

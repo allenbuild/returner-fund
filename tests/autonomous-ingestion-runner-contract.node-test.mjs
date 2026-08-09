@@ -98,7 +98,9 @@ describe("autonomous ingestion runner CLI", () => {
 
   it("stops a GitHub Actions file-backed replay before catalogs or collectors", async () => {
     const root = await mkdtemp(path.join(os.tmpdir(), "autonomous-ingestion-published-replay-"));
+    const remote = await mkdtemp(path.join(os.tmpdir(), "autonomous-ingestion-published-remote-"));
     temporaryRoots.push(root);
+    temporaryRoots.push(remote);
     const outputPath = path.join(root, "github-output.txt");
     const idempotencyKey = "central-2026-08-09-1800";
     await mkdir(path.join(root, "outputs"), { recursive: true });
@@ -114,6 +116,15 @@ describe("autonomous ingestion runner CLI", () => {
       }])}\n`,
       "utf8"
     );
+    runGit(root, ["init", "-b", "main"]);
+    runGit(root, ["config", "user.name", "Receipt Contract"]);
+    runGit(root, ["config", "user.email", "receipt-contract@example.com"]);
+    runGit(root, ["add", "outputs/ingestion-source-delta-history.json"]);
+    runGit(root, ["commit", "-m", "Record ingestion receipt"]);
+    runGit(remote, ["init", "--bare"]);
+    runGit(root, ["remote", "add", "origin", remote]);
+    runGit(root, ["push", "-u", "origin", "main"]);
+    const publishedCommit = runGit(root, ["rev-parse", "HEAD"]).stdout.trim();
     const env = {
       ...process.env,
       GITHUB_ACTIONS: "true",
@@ -129,7 +140,7 @@ describe("autonomous ingestion runner CLI", () => {
     );
 
     assert.equal(result.status, 0, result.stderr);
-    assert.equal(result.stderr, "");
+    assert.doesNotMatch(result.stderr, /Publication verification failed|fatal:/);
     assert.match(result.stdout, /validated publication receipt in main/);
     assert.doesNotMatch(result.stdout, /collection\.started|Public collectors started/);
     const outputs = await readFile(outputPath, "utf8");
@@ -138,6 +149,7 @@ describe("autonomous ingestion runner CLI", () => {
     assert.match(outputs, /collection_health=degraded/);
     assert.match(outputs, /new_physical_sources=4/);
     assert.match(outputs, /daily_new_physical_sources=9/);
+    assert.match(outputs, new RegExp(`published_commit=${publishedCommit}`));
   });
 });
 
@@ -222,9 +234,15 @@ describe("autonomous ingestion runner static safety contracts", () => {
 
   it("recovers completed-slot freshness metadata from current or historical receipts", () => {
     const completedReplay = section('if (run?.status === "completed")', "} else {");
-    assert.ok(completedReplay.includes("publishedSourceDeltaPath"));
-    assert.ok(completedReplay.includes("publishedSourceDeltaHistoryPath"));
-    assert.ok(completedReplay.includes("selectPublishedAutonomousIngestionReceipt"));
+    const receiptReader = section(
+      "async function readCommitBackedReplayReceipt",
+      "async function resolveVerifiedCurrentPublicationCommit"
+    );
+    assert.ok(completedReplay.includes("readCommitBackedReplayReceipt"));
+    assert.ok(completedReplay.includes("repositoryBackedReplay.publishedCommit"));
+    assert.ok(receiptReader.includes('"outputs/ingestion-source-delta-current.json"'));
+    assert.ok(receiptReader.includes('"outputs/ingestion-source-delta-history.json"'));
+    assert.ok(receiptReader.includes("selectPublishedAutonomousIngestionReceipt"));
   });
 
   it("uses a commit-backed receipt to make file-backed GitHub Actions replays idempotent", () => {
@@ -234,8 +252,40 @@ describe("autonomous ingestion runner static safety contracts", () => {
     assert.ok(replayGate.includes("!args.skipPublish"));
     assert.ok(replayGate.includes('status: "already_completed"'));
     assert.ok(replayGate.includes('publicationStatus: "already_completed"'));
+    assert.ok(replayGate.includes("publishedCommit"));
     assert.ok(runner.indexOf("const commitBackedReplay") < runner.indexOf("await refreshMutableYcCatalog()"));
     assert.ok(runner.indexOf("const commitBackedReplay") < runner.indexOf("runCollectors()"));
+    const receiptReader = section("async function readCommitBackedReplayReceipt", "async function resolveVerifiedCurrentPublicationCommit");
+    assert.ok(receiptReader.includes("readJsonFromGitRef"));
+    assert.ok(receiptReader.includes("publishedCommit"));
+  });
+
+  it("uses one remote ancestry verifier for published, unchanged, and replay outcomes", () => {
+    const publication = section(
+      "async function publishRepositoryArtifacts",
+      "async function stageRepositoryArtifacts"
+    );
+    const replay = section(
+      "async function resolveVerifiedCurrentPublicationCommit",
+      "async function readJson"
+    );
+    const verifier = section(
+      "async function verifyPublicationCommitOnRemote",
+      "async function assertNoPublicationConflicts"
+    );
+
+    assert.match(publication, /status:\s*"no_changes"[\s\S]*publishedCommit/);
+    assert.ok(publication.match(/verifyPublicationCommitOnRemote/g)?.length >= 2);
+    assert.ok(replay.includes("verifyPublicationCommitOnRemote"));
+    assert.match(verifier, /\^\[0-9a-f\]\{40\}\$/i);
+    assert.ok(verifier.includes('["fetch", "--prune", "origin", branch]'));
+    assert.ok(verifier.includes('["merge-base", "--is-ancestor", publishedCommit, `origin/${branch}`]'));
+  });
+
+  it("exports the verified publication commit for workflow receipt wiring", () => {
+    const outcomeWriter = section("async function writeRunnerOutcome", "async function readCommitBackedReplayReceipt");
+    assert.ok(outcomeWriter.includes("published_commit: normalized.publishedCommit"));
+    assert.match(runner, /publicationStatus:\s*publicationReceipt\.status[\s\S]*publishedCommit:\s*publicationReceipt\.publishedCommit/);
   });
 
   it("counts all canonical GitHub traction exports in source freshness after publication merge", () => {
@@ -1025,4 +1075,14 @@ async function createRunnerRoot(prefix) {
 async function replacePeerAfterRequiredCanonicalRead(requiredPath, peerPath, label) {
   const value = await readRequiredCanonicalJson(requiredPath, label);
   await writeFile(peerPath, `${JSON.stringify(value)}\n`, "utf8");
+}
+
+function runGit(cwd, args) {
+  const result = spawnSync("git", args, { cwd, encoding: "utf8" });
+  assert.equal(
+    result.status,
+    0,
+    `git ${args.join(" ")} failed in ${cwd}: ${result.stderr || result.stdout}`
+  );
+  return result;
 }

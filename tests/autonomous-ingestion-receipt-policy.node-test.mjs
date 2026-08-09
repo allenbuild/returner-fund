@@ -8,9 +8,11 @@ import {
   selectPublishedAutonomousIngestionReceipt
 } from "../scripts/lib/autonomous-ingestion-receipt-policy.mjs";
 
+const PUBLISHED_COMMIT = "0123456789abcdef0123456789abcdef01234567";
 const healthyPublication = {
   runnerStatus: "refreshed",
   publicationStatus: "published",
+  publishedCommit: PUBLISHED_COMMIT,
   collectionHealth: "complete",
   newPhysicalSources: 12,
   dailyNewPhysicalSources: 12,
@@ -29,6 +31,7 @@ describe("autonomous ingestion receipt policy", () => {
     };
     const selected = selectPublishedAutonomousIngestionReceipt({
       idempotencyKey: valid.idempotencyKey,
+      publishedCommit: PUBLISHED_COMMIT,
       currentReceipt: { ...valid, idempotencyKey: "another-slot" },
       history: [
         valid,
@@ -69,9 +72,51 @@ describe("autonomous ingestion receipt policy", () => {
     ]) {
       assert.equal(selectPublishedAutonomousIngestionReceipt({
         idempotencyKey: base.idempotencyKey,
+        publishedCommit: PUBLISHED_COMMIT,
         history: [receipt]
       }), null);
     }
+  });
+
+  it("requires an exact full commit SHA for published, unchanged, and replay receipts", () => {
+    for (const [runnerStatus, publicationStatus, expectedStatus] of [
+      ["refreshed", "published", "published_missing_commit"],
+      ["refreshed", "no_changes", "no_changes_missing_commit"],
+      ["already_completed", "already_completed", "noop_missing_commit"]
+    ]) {
+      for (const publishedCommit of ["", "c5506de", "g".repeat(40), "a".repeat(39), "a".repeat(41)]) {
+        const result = classifyAutonomousIngestionReceipt({
+          ...healthyPublication,
+          runnerStatus,
+          publicationStatus,
+          publishedCommit
+        });
+        assert.equal(result.receiptStatus, expectedStatus);
+        assert.equal(result.conclusion, "failure");
+        assert.match(result.message, /exact full 40-hex repository commit SHA/);
+      }
+    }
+  });
+
+  it("rejects an idempotent replay health receipt without repository commit proof", () => {
+    const receipt = {
+      schemaVersion: 1,
+      idempotencyKey: "central-2026-08-09-1800",
+      collectionHealth: "complete",
+      newPhysicalSources: 2,
+      dailyNewPhysicalSources: 2,
+      dailySourceHealth: "healthy"
+    };
+
+    assert.equal(selectPublishedAutonomousIngestionReceipt({
+      idempotencyKey: receipt.idempotencyKey,
+      history: [receipt]
+    }), null);
+    assert.equal(selectPublishedAutonomousIngestionReceipt({
+      idempotencyKey: receipt.idempotencyKey,
+      publishedCommit: "c5506de",
+      history: [receipt]
+    }), null);
   });
 
   it("keeps a validated degraded publication successful with a visible warning", () => {
@@ -221,7 +266,7 @@ describe("autonomous ingestion receipt policy", () => {
         DAILY_NEW_PHYSICAL_SOURCES: "33",
         DAILY_SOURCE_HEALTH: "healthy",
         SLOT_KEY: "central-2026-07-25-1800",
-        PUBLISHED_COMMIT: "c5506de",
+        PUBLISHED_COMMIT,
         GITHUB_OUTPUT: "/fake/output",
         GITHUB_STEP_SUMMARY: "/fake/summary"
       },
@@ -252,6 +297,7 @@ describe("autonomous ingestion receipt policy", () => {
           NEW_PHYSICAL_SOURCES: "12",
           DAILY_NEW_PHYSICAL_SOURCES: "12",
           DAILY_SOURCE_HEALTH: "healthy",
+          PUBLISHED_COMMIT,
           SLOT_KEY: "central-2026-07-26-0600",
           GITHUB_OUTPUT: "",
           GITHUB_STEP_SUMMARY: ""

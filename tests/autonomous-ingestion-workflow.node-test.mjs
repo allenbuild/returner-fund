@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { spawnSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import test from "node:test";
@@ -24,6 +25,7 @@ const receiptPolicy = readFileSync(
   path.join(repositoryRoot, "scripts", "lib", "autonomous-ingestion-receipt-policy.mjs"),
   "utf8"
 );
+const FULL_COMMIT_SHA = "0123456789abcdef0123456789abcdef01234567";
 
 test("workflow declares exactly the four DST-safe UTC candidates", () => {
   const cronCandidates = Array.from(
@@ -245,9 +247,11 @@ test("inactive candidates and accepted publication outcomes have distinct audita
   assert.match(workflow, /DAILY_NEW_PHYSICAL_SOURCES/);
   assert.match(workflow, /DAILY_SOURCE_HEALTH/);
   assert.match(workflow, /RUNNER_STATUS:\s*\$\{\{ steps\.ingestion\.outputs\.runner_status \}\}/);
+  assert.match(workflow, /PUBLISHED_COMMIT:\s*\$\{\{ steps\.ingestion\.outputs\.published_commit \}\}/);
   assert.match(workflow, /Receipt conclusion:/);
   assert.match(workflow, /if \[ "\$STATUS" = "resolver_failed" \] \|\| \[ "\$STATUS" = "accepted_slot_failed" \]/);
-  assert.match(workflow, /upstream resolver or ingestion job is the single failing job/);
+  assert.match(workflow, /accepted slot requires a successful publication job/i);
+  assert.match(workflow, /exit 1/);
   assert.match(workflow, /::warning title=Autonomous ingestion completed with warnings/);
   assert.doesNotMatch(workflow, /Autonomous ingestion health gate failed/);
   for (const warningStatus of [
@@ -266,3 +270,126 @@ test("inactive candidates and accepted publication outcomes have distinct audita
   assert.match(runnerSource, /writeRunnerOutcome\(\{\s*status:\s*"already_completed"/);
   assert.match(runnerSource, /writeRunnerOutcome\(\{\s*status:\s*"refreshed"/);
 });
+
+test("autonomous audit fails closed for every accepted job without a recognized commit-backed receipt", () => {
+  const script = workflowStepScript(workflow, "Record auditable slot outcome");
+  const base = {
+    SHOULD_RUN: "true",
+    SLOT_KEY: "central-2026-08-09-1800",
+    RESOLVE_RESULT: "success",
+    INGEST_RESULT: "success",
+    RECEIPT_STATUS: "published",
+    RECEIPT_CONCLUSION: "success",
+    PUBLISHED_COMMIT: FULL_COMMIT_SHA
+  };
+
+  for (const ingestResult of ["skipped", "cancelled", "failure"]) {
+    const result = runAuditScript(script, { ...base, INGEST_RESULT: ingestResult });
+    assert.equal(result.status, 1, `${ingestResult}: ${result.stdout}\n${result.stderr}`);
+    assert.match(result.stdout, /accepted_slot_failed/);
+  }
+
+  for (const overrides of [
+    { PUBLISHED_COMMIT: "" },
+    { PUBLISHED_COMMIT: "c5506de" },
+    { RECEIPT_STATUS: "invented_warning", RECEIPT_CONCLUSION: "warning" },
+    { RECEIPT_STATUS: "published", RECEIPT_CONCLUSION: "failure" }
+  ]) {
+    const result = runAuditScript(script, { ...base, ...overrides });
+    assert.equal(result.status, 1, `${JSON.stringify(overrides)}: ${result.stdout}\n${result.stderr}`);
+    assert.match(result.stdout, /accepted_slot_failed/);
+  }
+
+  const valid = runAuditScript(script, base);
+  assert.equal(valid.status, 0, valid.stderr);
+  assert.match(valid.stdout, /Autonomous ingestion outcome::published/);
+
+  const inactive = runAuditScript(script, {
+    ...base,
+    SHOULD_RUN: "false",
+    INGEST_RESULT: "skipped",
+    RECEIPT_STATUS: "",
+    RECEIPT_CONCLUSION: "",
+    PUBLISHED_COMMIT: ""
+  });
+  assert.equal(inactive.status, 0, inactive.stderr);
+  assert.match(inactive.stdout, /inactive_candidate_no_refresh/);
+});
+
+test("daily benchmark audit fails closed for accepted jobs without exact publication proof", () => {
+  const script = workflowStepScript(dailyBenchmarkWorkflow, "Record auditable benchmark outcome");
+  const base = {
+    SHOULD_RUN: "true",
+    RESOLVE_RESULT: "success",
+    UPDATE_RESULT: "success",
+    PUBLICATION_STATUS: "published",
+    PUBLISHED_COMMIT: FULL_COMMIT_SHA,
+    CENTRAL_DATE: "2026-08-09"
+  };
+
+  for (const updateResult of ["skipped", "cancelled", "failure"]) {
+    const result = runAuditScript(script, { ...base, UPDATE_RESULT: updateResult });
+    assert.equal(result.status, 1, `${updateResult}: ${result.stdout}\n${result.stderr}`);
+    assert.match(result.stdout, /accepted_candidate_failed/);
+  }
+
+  for (const overrides of [
+    { PUBLISHED_COMMIT: "" },
+    { PUBLISHED_COMMIT: "c5506de" },
+    { PUBLICATION_STATUS: "invented_warning" }
+  ]) {
+    const result = runAuditScript(script, { ...base, ...overrides });
+    assert.equal(result.status, 1, `${JSON.stringify(overrides)}: ${result.stdout}\n${result.stderr}`);
+    assert.match(result.stdout, /accepted_candidate_failed/);
+  }
+
+  for (const publicationStatus of ["published", "no_changes"]) {
+    const result = runAuditScript(script, { ...base, PUBLICATION_STATUS: publicationStatus });
+    assert.equal(result.status, 0, result.stderr);
+    assert.match(result.stdout, new RegExp(`Daily benchmark outcome::${publicationStatus}`));
+  }
+
+  const inactive = runAuditScript(script, {
+    ...base,
+    SHOULD_RUN: "false",
+    UPDATE_RESULT: "skipped",
+    PUBLICATION_STATUS: "",
+    PUBLISHED_COMMIT: ""
+  });
+  assert.equal(inactive.status, 0, inactive.stderr);
+  assert.match(inactive.stdout, /inactive_candidate_no_update/);
+});
+
+function workflowStepScript(source, stepName) {
+  const lines = source.split("\n");
+  const stepIndex = lines.findIndex((line) => line.trim() === `- name: ${stepName}`);
+  assert.ok(stepIndex >= 0, `missing workflow step: ${stepName}`);
+  const runIndex = lines.findIndex(
+    (line, index) => index > stepIndex && line.trim() === "run: |"
+  );
+  assert.ok(runIndex > stepIndex, `missing run script for workflow step: ${stepName}`);
+  const runIndent = lines[runIndex].match(/^\s*/)?.[0].length ?? 0;
+  const body = [];
+  for (let index = runIndex + 1; index < lines.length; index += 1) {
+    const line = lines[index];
+    const indent = line.match(/^\s*/)?.[0].length ?? 0;
+    if (line.trim() && indent <= runIndent) break;
+    body.push(line.slice(Math.min(line.length, runIndent + 2)));
+  }
+  return body.join("\n");
+}
+
+function runAuditScript(script, env) {
+  return spawnSync(
+    "bash",
+    ["--noprofile", "--norc", "-e", "-o", "pipefail", "-c", script],
+    {
+      encoding: "utf8",
+      env: {
+        ...process.env,
+        GITHUB_STEP_SUMMARY: "/dev/null",
+        ...env
+      }
+    }
+  );
+}

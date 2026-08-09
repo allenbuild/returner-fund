@@ -117,6 +117,19 @@ const discoveryCredentialGaps = [
   !cleanEnv(process.env.EXA_API_KEY) ? "EXA_API_KEY" : null,
   ...supabaseConfiguration.blockers
 ].filter(Boolean);
+const supabase = durableStorageConfigured
+  ? createClient(url, serviceKey, {
+      auth: { autoRefreshToken: false, detectSessionInUrl: false, persistSession: false },
+      global: { headers: { "X-Client-Info": "returner-autonomous-ingestion" } }
+    })
+  : null;
+let runtimeLock = null;
+let run = null;
+let heartbeatTimer = null;
+let hardFailure = null;
+let heartbeatFailure = null;
+let collectionBudget = null;
+let collectionDrainBudget = null;
 
 const commitBackedReplay = !args.plan &&
   !args.skipPublish &&
@@ -125,7 +138,7 @@ const commitBackedReplay = !args.plan &&
   ? await readCommitBackedReplayReceipt()
   : null;
 if (commitBackedReplay) {
-  const { receipt, classification } = commitBackedReplay;
+  const { receipt, classification, publishedCommit } = commitBackedReplay;
   console.log(
     `Ingestion ${idempotencyKey} already has a validated publication receipt in main; ` +
     `the file-backed replay is a no-op (${classification.receiptStatus}).`
@@ -136,7 +149,8 @@ if (commitBackedReplay) {
     collectionHealth: receipt.collectionHealth,
     newPhysicalSources: receipt.newPhysicalSources,
     dailyNewPhysicalSources: receipt.dailyNewPhysicalSources,
-    dailySourceHealth: receipt.dailySourceHealth
+    dailySourceHealth: receipt.dailySourceHealth,
+    publishedCommit
   });
   process.exit(0);
 }
@@ -174,21 +188,6 @@ if (args.plan) {
   process.exit(0);
 }
 
-const supabase = durableStorageConfigured
-  ? createClient(url, serviceKey, {
-      auth: { autoRefreshToken: false, detectSessionInUrl: false, persistSession: false },
-      global: { headers: { "X-Client-Info": "returner-autonomous-ingestion" } }
-    })
-  : null;
-
-let runtimeLock = null;
-let run = null;
-let heartbeatTimer = null;
-let hardFailure = null;
-let heartbeatFailure = null;
-let collectionBudget = null;
-let collectionDrainBudget = null;
-
 try {
   if (durableStorageConfigured) {
     runtimeLock = await claimRuntimeLock();
@@ -204,22 +203,21 @@ try {
   }
   if (run?.status === "completed") {
     console.log(`Ingestion ${idempotencyKey} already completed as run ${run.id}; replay is a no-op.`);
-    const [currentSourceDelta, sourceDeltaHistory] = await Promise.all([
-      readJson(publishedSourceDeltaPath, null),
-      readJson(publishedSourceDeltaHistoryPath, [])
-    ]);
-    const priorSourceDelta = selectPublishedAutonomousIngestionReceipt({
-      idempotencyKey,
-      currentReceipt: currentSourceDelta,
-      history: sourceDeltaHistory
-    })?.receipt ?? null;
+    const repositoryBackedReplay = await readCommitBackedReplayReceipt();
+    if (!repositoryBackedReplay) {
+      throw new Error(
+        `Completed ingestion ${idempotencyKey} lacks an exact repository-backed publication receipt.`
+      );
+    }
+    const priorSourceDelta = repositoryBackedReplay.receipt;
     await writeRunnerOutcome({
       status: "already_completed",
       publicationStatus: "already_completed",
-      collectionHealth: priorSourceDelta?.collectionHealth ?? "unknown",
-      newPhysicalSources: priorSourceDelta?.newPhysicalSources ?? "",
-      dailyNewPhysicalSources: priorSourceDelta?.dailyNewPhysicalSources ?? "",
-      dailySourceHealth: priorSourceDelta?.dailySourceHealth ?? "unknown"
+      collectionHealth: priorSourceDelta.collectionHealth,
+      newPhysicalSources: priorSourceDelta.newPhysicalSources,
+      dailyNewPhysicalSources: priorSourceDelta.dailyNewPhysicalSources,
+      dailySourceHealth: priorSourceDelta.dailySourceHealth,
+      publishedCommit: repositoryBackedReplay.publishedCommit
     });
     process.exitCode = 0;
   } else {
@@ -486,7 +484,8 @@ try {
       collectionHealth: publicationInputs.sourceDelta.collectionHealth,
       newPhysicalSources: publicationInputs.sourceDelta.newPhysicalSources,
       dailyNewPhysicalSources: publicationInputs.sourceDelta.dailyNewPhysicalSources,
-      dailySourceHealth: publicationInputs.sourceDelta.dailySourceHealth
+      dailySourceHealth: publicationInputs.sourceDelta.dailySourceHealth,
+      publishedCommit: publicationReceipt.publishedCommit
     });
   }
 } catch (error) {
@@ -2825,6 +2824,7 @@ async function publishRepositoryArtifacts(publicationRunId, publicationInputs) {
     label: "configure publication email"
   });
   await stageRepositoryArtifacts();
+  const branch = publicationBranch();
 
   const diff = await runCommand("git", ["diff", "--cached", "--quiet"], {
     timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitDiffMs,
@@ -2832,13 +2832,23 @@ async function publishRepositoryArtifacts(publicationRunId, publicationInputs) {
     allowedExitCodes: [0, 1]
   });
   if (diff.code === 0) {
-    await event("publication.no_changes", "info", "No public artifact changes required publication.", {});
+    const claimedCommit = (await runCommand("git", ["rev-parse", "HEAD"], {
+      timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitDiffMs,
+      label: "resolve unchanged publication commit"
+    })).stdout.trim();
+    const publishedCommit = await verifyPublicationCommitOnRemote(claimedCommit, {
+      branch,
+      label: "unchanged publication"
+    });
+    await event(
+      "publication.no_changes",
+      "info",
+      "No public artifact changes required publication; the claimed commit is repository-backed.",
+      { branch, publishedCommit }
+    );
     return {
       status: "no_changes",
-      publishedCommit: (await runCommand("git", ["rev-parse", "HEAD"], {
-        timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitDiffMs,
-        label: "resolve unchanged publication commit"
-      })).stdout.trim()
+      publishedCommit
     };
   }
 
@@ -2846,7 +2856,6 @@ async function publishRepositoryArtifacts(publicationRunId, publicationInputs) {
     timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitCommitMs,
     label: "commit refreshed artifacts"
   });
-  const branch = publicationBranch();
   const firstPush = await runCommand("git", ["push", "origin", `HEAD:${branch}`], {
     timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitPushMs,
     label: "push refreshed artifacts",
@@ -2951,24 +2960,10 @@ async function publishRepositoryArtifacts(publicationRunId, publicationInputs) {
     timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitDiffMs,
     label: "resolve published commit"
   })).stdout.trim();
-  await runCommand("git", ["fetch", "origin", branch], {
-    timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitPushMs,
-    label: "fetch published remote commit"
+  await verifyPublicationCommitOnRemote(publishedCommit, {
+    branch,
+    label: "published publication"
   });
-  const remoteContainsPublication = await runCommand(
-    "git",
-    ["merge-base", "--is-ancestor", publishedCommit, `origin/${branch}`],
-    {
-      timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitDiffMs,
-      label: "verify published commit ancestry",
-      allowedExitCodes: [0, 1]
-    }
-  );
-  if (remoteContainsPublication.code !== 0) {
-    throw new Error(
-      `Publication verification failed: remote ${branch} does not contain ${publishedCommit || "the local commit"}.`
-    );
-  }
   await event("publication.completed", "info", "Refreshed artifacts were committed and pushed.", {
     idempotencyKey,
     publicationRunId,
@@ -3063,6 +3058,37 @@ function publicationBranch() {
     throw new Error(`Unsafe publication branch: ${branch || "empty"}.`);
   }
   return branch;
+}
+
+async function verifyPublicationCommitOnRemote(
+  claimedCommit,
+  { branch = publicationBranch(), label = "publication" } = {}
+) {
+  const publishedCommit = String(claimedCommit ?? "").trim();
+  if (!/^[0-9a-f]{40}$/i.test(publishedCommit)) {
+    throw new Error(
+      `Publication verification failed: ${label} requires an exact full 40-hex commit SHA.`
+    );
+  }
+  await runCommand("git", ["fetch", "--prune", "origin", branch], {
+    timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitPushMs,
+    label: `fetch ${label} remote commit`
+  });
+  const remoteContainsPublication = await runCommand(
+    "git",
+    ["merge-base", "--is-ancestor", publishedCommit, `origin/${branch}`],
+    {
+      timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitDiffMs,
+      label: `verify ${label} commit ancestry`,
+      allowedExitCodes: [0, 1]
+    }
+  );
+  if (remoteContainsPublication.code !== 0) {
+    throw new Error(
+      `Publication verification failed: remote ${branch} does not contain ${publishedCommit}.`
+    );
+  }
+  return publishedCommit;
 }
 
 async function assertNoPublicationConflicts() {
@@ -3256,7 +3282,8 @@ async function writeRunnerOutcome(outcome) {
     collection_health: normalized.collectionHealth ?? "",
     new_physical_sources: normalized.newPhysicalSources ?? "",
     daily_new_physical_sources: normalized.dailyNewPhysicalSources ?? "",
-    daily_source_health: normalized.dailySourceHealth ?? ""
+    daily_source_health: normalized.dailySourceHealth ?? "",
+    published_commit: normalized.publishedCommit ?? ""
   };
   await appendFile(
     githubOutput,
@@ -3266,14 +3293,35 @@ async function writeRunnerOutcome(outcome) {
 }
 
 async function readCommitBackedReplayReceipt() {
+  const publishedCommit = await resolveVerifiedCurrentPublicationCommit();
   const [currentReceipt, history] = await Promise.all([
-    readJson(publishedSourceDeltaPath, null),
-    readJson(publishedSourceDeltaHistoryPath, [])
+    readJsonFromGitRef(
+      publishedCommit,
+      "outputs/ingestion-source-delta-current.json",
+      null
+    ),
+    readJsonFromGitRef(
+      publishedCommit,
+      "outputs/ingestion-source-delta-history.json",
+      []
+    )
   ]);
   return selectPublishedAutonomousIngestionReceipt({
     idempotencyKey,
+    publishedCommit,
     currentReceipt,
     history
+  });
+}
+
+async function resolveVerifiedCurrentPublicationCommit() {
+  const claimedCommit = (await runCommand("git", ["rev-parse", "HEAD"], {
+    timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitDiffMs,
+    label: "resolve replay publication commit"
+  })).stdout.trim();
+  return verifyPublicationCommitOnRemote(claimedCommit, {
+    branch: publicationBranch(),
+    label: "replay publication"
   });
 }
 
