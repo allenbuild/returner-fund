@@ -1,0 +1,22 @@
+{
+  "schemaVersion": "future-publication-date-remediation.v1",
+  "status": "already_remediated",
+  "repairs": [
+    {
+      "id": "first-party-rss-eac6547190ee8655e7235561",
+      "platform": "rss",
+      "sourceUrl": "https://tryreplicas.com/customers/knowunity",
+      "reportedPostedAt": "2026-08-13T00:00:00.000Z",
+      "observationFallbackAt": "2026-08-09T13:51:36.894Z"
+    }
+  ],
+  "newRepairs": 0,
+  "alreadyRemediated": 1,
+  "unresolved": [],
+  "canonicalHashBefore": "6f063ae43bca79f3d4d9c49af9c5b24b2b2ea29fdac52e13399f248f15afeef8",
+  "canonicalHashAfter": "6f063ae43bca79f3d4d9c49af9c5b24b2b2ea29fdac52e13399f248f15afeef8",
+  "operationalLedgerHashBefore": "640f873892cdcac536a4b729e1965e8c9650991440f09eb0d8725c30a3a71ef5",
+  "operationalLedgerHashAfter": "640f873892cdcac536a4b729e1965e8c9650991440f09eb0d8725c30a3a71ef5",
+  "reviewLedgerHashBefore": "5582fa35cbae8da59f9a671f4dabf48fefda2586541fdc619259a62724a209be",
+  "reviewLedgerHashAfter": "5582fa35cbae8da59f9a671f4dabf48fefda2586541fdc619259a62724a209be"
+}

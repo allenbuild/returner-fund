@@ -20,7 +20,8 @@ export function planFirstPartyAuthoredPostPromotion({
   canonical,
   candidate,
   graphDocuments,
-  referenceDocuments
+  referenceDocuments,
+  now = new Date()
 }) {
   if (candidate?.schemaVersion !== CANDIDATE_SCHEMA) {
     throw new Error(`Candidate schema must be ${CANDIDATE_SCHEMA}.`);
@@ -35,6 +36,7 @@ export function planFirstPartyAuthoredPostPromotion({
   ) {
     throw new Error("Candidate does not carry a complete zero-duplicate audit.");
   }
+  const candidateObservedAt = trustedCandidateObservation(candidate?.generatedAt, now);
 
   const canonicalEvidence = requiredRows(canonical?.evidence, "canonical evidence");
   const canonicalReview = requiredRows(canonical?.needsReview, "canonical review");
@@ -71,7 +73,8 @@ export function planFirstPartyAuthoredPostPromotion({
       catalog,
       referenceIndex,
       sourcePath: provenance?.sourcePath,
-      sourceKind: provenance?.sourceKind
+      sourceKind: provenance?.sourceKind,
+      observedAt: candidateObservedAt
     });
     if (!evaluation.accepted || !evaluation.owner) {
       throw rowError(row, `failed current recovery gates: ${evaluation.reasons.join(",")}`);
@@ -111,6 +114,22 @@ export function planFirstPartyAuthoredPostPromotion({
     addedByBatch: countBy(additions, (row) => String(row.batchSlug)),
     addedByPlatform: countBy(additions, (row) => String(row.platform))
   };
+}
+
+function trustedCandidateObservation(value, now) {
+  const raw = String(value ?? "").trim();
+  const timestamp = Date.parse(raw);
+  const nowTimestamp = now instanceof Date ? now.getTime() : Date.parse(String(now ?? ""));
+  if (!raw || !Number.isFinite(timestamp)) {
+    throw new Error("Candidate generatedAt must be a valid observation timestamp.");
+  }
+  if (!Number.isFinite(nowTimestamp)) {
+    throw new Error("Promotion clock must be a valid timestamp.");
+  }
+  if (timestamp > nowTimestamp + 60_000) {
+    throw new Error("Candidate generatedAt must not be in the future.");
+  }
+  return new Date(timestamp).toISOString();
 }
 
 function assertCandidateTrust(row, evaluation) {

@@ -130,6 +130,7 @@ test("requires title, authored text, publication date, and a clean source attrib
     ],
     [{ ...rssRow(), text: "" }, "authored_text_missing"],
     [{ ...rssRow(), postedAt: null }, "publication_date_missing"],
+    [{ ...rssRow(), first_seen_at: null }, "observation_time_missing"],
     [{ ...rssRow(), linkStatus: "invalid" }, "source_link_marked_invalid"],
     [
       {
@@ -147,6 +148,29 @@ test("requires title, authored text, publication date, and a clean source attrib
     assert.equal(decision.accepted, false);
     assert.ok(decision.reasons.includes(reason), decision.reasons.join(", "));
   }
+});
+
+test("rejects a claimed publication date later than the earliest observation", () => {
+  const catalog = buildOfficialDomainCatalog([graph]);
+  const decision = evaluateFirstPartyAuthoredPost(
+    {
+      ...rssRow(),
+      postedAt: "2026-08-13T00:00:00.000Z",
+      first_seen_at: "2026-08-09T13:51:36.894Z",
+      last_checked_at: "2026-08-10T00:00:00.000Z",
+    },
+    {
+      catalog,
+      referenceIndex: emptyReferenceIndex(),
+      observedAt: "2026-08-11T00:00:00.000Z",
+    },
+  );
+
+  assert.equal(decision.accepted, false);
+  assert.ok(
+    decision.reasons.includes("publication_date_after_observation"),
+    decision.reasons.join(", "),
+  );
 });
 
 test("founder attribution requires an exact current founder byline", () => {
@@ -332,6 +356,7 @@ function rssRow() {
     sourceUrl: "https://www.acme.example/blog/launching-acme/",
     text: "We built Acme for serious teams. Read more at https://acme.example.",
     postedAt: "2026-07-20T12:00:00Z",
+    first_seen_at: "2026-08-09T00:00:00.000Z",
     metrics: {},
     matchReason: "Public RSS/Atom item from the company website.",
     review_state: "needs_review",

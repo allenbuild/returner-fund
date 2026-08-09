@@ -291,6 +291,7 @@ export function evaluateFirstPartyAuthoredPost(
     sourcePath = null,
     sourceKind = "current_artifact",
     fallbackBatchSlug = historyPathBatchSlug(sourcePath),
+    observedAt = null,
   } = {},
 ) {
   const reasons = [];
@@ -337,11 +338,26 @@ export function evaluateFirstPartyAuthoredPost(
       row?.created_at ??
       row?.datePublished,
   );
+  const observationAt = preferredTimestamp([
+    row?.first_seen_at,
+    row?.observedAt,
+    row?.last_checked_at,
+    row?.linkCheckedAt,
+    observedAt,
+  ]);
+  if (!observationAt) reasons.push("observation_time_missing");
   if (!title || title.length < 8 || GENERIC_TITLE.test(title))
     reasons.push("authored_title_missing");
   if (!text || normalizeText(text).length < 20)
     reasons.push("authored_text_missing");
   if (!postedAt) reasons.push("publication_date_missing");
+  if (
+    postedAt &&
+    observationAt &&
+    Date.parse(postedAt) > Date.parse(observationAt)
+  ) {
+    reasons.push("publication_date_after_observation");
+  }
 
   const urlClassification = sourceUrl
     ? classifyAuthoredPostUrl(sourceUrl, {
@@ -400,6 +416,7 @@ export function evaluateFirstPartyAuthoredPost(
         sourceKind,
         contentKey,
         sourceHost,
+        observationAt,
       })
     : null;
 
@@ -687,11 +704,22 @@ function projectFirstPartyCandidate({
   sourceKind,
   contentKey,
   sourceHost,
+  observationAt,
 }) {
   const metrics = normalizeMetrics(row?.metrics ?? row?.counts);
-  const checkedAt = timestampValue(
-    row?.last_checked_at ?? row?.linkCheckedAt ?? row?.first_seen_at,
-  );
+  const checkedAt = preferredTimestamp([
+    row?.last_checked_at,
+    row?.linkCheckedAt,
+    row?.first_seen_at,
+    observationAt,
+  ]);
+  const firstSeenAt =
+    preferredTimestamp([row?.first_seen_at, observationAt, checkedAt]) ??
+    postedAt;
+  const lastUpdatedAt = timestampAtOrBefore(
+    row?.last_updated_at ?? row?.updatedAt ?? row?.updated_at,
+    observationAt,
+  ) ?? postedAt;
   const id = `first-party-${platform}-${sha256(
     `${owner.batchSlug}|${owner.entityId}|${sourceUrl}`,
   ).slice(0, 24)}`;
@@ -717,6 +745,7 @@ function projectFirstPartyCandidate({
       sourceEvidenceId: clean(row?.id),
       title,
       postedAt,
+      observedAt: observationAt,
       zeroEngagementAccepted: Object.values(metrics).every(
         (value) => Number(value) === 0,
       ),
@@ -730,11 +759,8 @@ function projectFirstPartyCandidate({
     ...(checkedAt
       ? { linkCheckedAt: checkedAt, last_checked_at: checkedAt }
       : {}),
-    first_seen_at: timestampValue(row?.first_seen_at) ?? postedAt,
-    last_updated_at:
-      timestampValue(
-        row?.last_updated_at ?? row?.updatedAt ?? row?.updated_at,
-      ) ?? postedAt,
+    first_seen_at: firstSeenAt,
+    last_updated_at: lastUpdatedAt,
     matchReason:
       `Verified first-party ${platform.toUpperCase()} authored item on the current official ` +
       `${owner.companyName} domain; title, text, date, and stable item URL are preserved.`,
@@ -960,6 +986,22 @@ function timestampValue(value) {
   return year >= 2000 && year <= 2100
     ? new Date(timestamp).toISOString()
     : null;
+}
+
+function preferredTimestamp(values) {
+  for (const value of values ?? []) {
+    const timestamp = timestampValue(value);
+    if (timestamp) return timestamp;
+  }
+  return null;
+}
+
+function timestampAtOrBefore(value, upperBound) {
+  const timestamp = timestampValue(value);
+  const maximum = timestampValue(upperBound);
+  if (!timestamp) return null;
+  if (!maximum || Date.parse(timestamp) <= Date.parse(maximum)) return timestamp;
+  return maximum;
 }
 
 function publicationPrecisionFromRow(row, postedAt) {

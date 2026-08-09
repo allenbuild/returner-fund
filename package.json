@@ -80,6 +80,7 @@
     "ingest:historical": "node scripts/run-historical-backfill.mjs",
     "ingest:historical:plan": "node scripts/run-historical-backfill.mjs --plan",
     "recover:first-party-authored-posts": "node scripts/run-first-party-authored-post-recovery.mjs",
+    "remediate:future-publication-dates": "node scripts/remediate-future-publication-dates.mjs",
     "artifacts:manifest": "node scripts/write-artifact-manifest.mjs",
     "timeline:backfill:dry-run": "node --experimental-strip-types --loader ./scripts/lib/scoring-diagnostics-ts-loader.mjs scripts/backfill-company-timelines.mjs --dry-run",
     "timeline:backfill": "node --experimental-strip-types --loader ./scripts/lib/scoring-diagnostics-ts-loader.mjs scripts/backfill-company-timelines.mjs --resume",

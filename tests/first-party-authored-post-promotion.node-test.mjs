@@ -31,7 +31,26 @@ test("fails closed on current overlap, duplicate content, owner drift, and prove
   }]), /mismatched recovery provenance/);
 });
 
-function makePlan(canonical, evidence, extraReferences = []) {
+test("fails closed when a candidate publication date follows candidate generation", () => {
+  assert.throws(
+    () =>
+      makePlan(snapshot(), [
+        candidateRow({ postedAt: "2026-08-13T00:00:00.000Z" }),
+      ]),
+    /publication_date_after_observation/,
+  );
+});
+
+test("requires a valid non-future candidate observation timestamp", () => {
+  for (const generatedAt of [undefined, "not-a-date", "2099-01-01T00:00:00.000Z"]) {
+    assert.throws(
+      () => makePlan(snapshot(), [candidateRow()], [], { generatedAt }),
+      /generatedAt must (?:be a valid observation timestamp|not be in the future)/,
+    );
+  }
+});
+
+function makePlan(canonical, evidence, extraReferences = [], candidateOverrides = {}) {
   return planFirstPartyAuthoredPostPromotion({
     canonical,
     candidate: {
@@ -39,10 +58,12 @@ function makePlan(canonical, evidence, extraReferences = []) {
       generatedAt: "2026-08-09T00:00:00.000Z",
       counts: { total: evidence.length },
       audit: { zeroDuplicateAudit: true, referenceUrlOverlap: 0, referenceContentOverlap: 0 },
-      evidence
+      evidence,
+      ...candidateOverrides
     },
     graphDocuments: [graphDocument()],
-    referenceDocuments: extraReferences
+    referenceDocuments: extraReferences,
+    now: new Date("2026-08-09T12:00:00.000Z")
   });
 }
 

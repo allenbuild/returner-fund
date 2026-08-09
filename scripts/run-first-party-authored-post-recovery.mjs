@@ -33,6 +33,7 @@ const baselineCommit = (await gitText(["rev-parse", baselineRef])).trim();
 const baselineCommittedAt = (
   await gitText(["show", "-s", "--format=%cI", baselineCommit])
 ).trim();
+const recoveryObservedAt = new Date().toISOString();
 const includeHistory = args.history !== false;
 const maxHistoryBlobs = integerArg(
   args.maxHistoryBlobs,
@@ -169,7 +170,7 @@ if (!reconciliation.audit.zeroDuplicateAudit) {
 
 const artifact = buildFirstPartyPromotionArtifact({
   baselineCommit,
-  generatedAt: new Date(baselineCommittedAt).toISOString(),
+  generatedAt: recoveryObservedAt,
   sources: sourcePaths,
   reconciliation,
   scanAudit: {
@@ -212,6 +213,7 @@ function scanDocument(document, { sourcePath, sourceKind }) {
         referenceIndex,
         sourcePath,
         sourceKind,
+        observedAt: recoveryObservedAt,
       }),
     );
   }
