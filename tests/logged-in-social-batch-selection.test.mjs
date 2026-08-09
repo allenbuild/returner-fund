@@ -222,17 +222,16 @@ describe("logged-in social batch selection", () => {
     ]));
   });
 
-  it("reports the explicit LinkedIn mode while retaining company DOM targets", () => {
+  it("retains company DOM targets in browser mode and rejects unpaced adapter mode", () => {
     const plan = runPlan([
       "--batch=S2026",
       "--company=eden-robotics",
       "--entities=company",
       "--platforms=linkedin",
-      "--allow-linkedin",
-      "--linkedin-mode=adapter"
+      "--allow-linkedin"
     ]);
 
-    expect(plan.linkedinCollectionMode).toBe("adapter");
+    expect(plan.linkedinCollectionMode).toBe("browser");
     expect(plan.targets).toEqual(expect.arrayContaining([
       expect.objectContaining({
         platform: "linkedin",
@@ -240,6 +239,14 @@ describe("logged-in social batch selection", () => {
         activityUrl: expect.stringContaining("/company/")
       })
     ]));
+    expect(() => runPlan([
+      "--batch=S2026",
+      "--company=eden-robotics",
+      "--entities=company",
+      "--platforms=linkedin",
+      "--allow-linkedin",
+      "--linkedin-mode=adapter"
+    ])).toThrow(/Only browser mode is supported so pacing remains auditable/);
   });
 });
 
