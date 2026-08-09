@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { open, readFile, unlink } from "node:fs/promises";
+import { open, readFile, rename, unlink } from "node:fs/promises";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import {
@@ -10,9 +10,14 @@ import {
 
 export const LINKEDIN_MINIMUM_TARGET_DELAY_MS = 30_000;
 export const LINKEDIN_MINIMUM_INTERACTION_DELAY_MS = 3_000;
+export const LINKEDIN_MAX_TARGETS_PER_INVOCATION = 5;
 export const LINKEDIN_ACCOUNT_LOCK_PATH = join(
   tmpdir(),
   "returner-fund-linkedin-account-collector.lock"
+);
+export const LINKEDIN_ACCOUNT_PACING_STATE_PATH = join(
+  tmpdir(),
+  "returner-fund-linkedin-account-pacing.json"
 );
 
 export function createLinkedInInteractionPacer({
@@ -66,16 +71,34 @@ export async function withLinkedInAccountLock(
 
 export function linkedinExecutionPolicy({
   requestedWorkers = 1,
-  requestedDelayMs = 0
+  requestedDelayMs = 0,
+  requestedTargetCap = LINKEDIN_MAX_TARGETS_PER_INVOCATION
 } = {}) {
+  const targetCap = normalizeLinkedInTargetCap(requestedTargetCap);
   return {
     requestedWorkers: Math.max(1, finiteNonnegativeInteger(requestedWorkers)),
     workers: 1,
     delayMs: Math.max(
       LINKEDIN_MINIMUM_TARGET_DELAY_MS,
       finiteNonnegativeInteger(requestedDelayMs)
-    )
+    ),
+    requestedTargetCap: targetCap,
+    targetCap,
+    maximumTargetCap: LINKEDIN_MAX_TARGETS_PER_INVOCATION
   };
+}
+
+export function limitLinkedInTargetsPerInvocation(
+  items,
+  targetCap = LINKEDIN_MAX_TARGETS_PER_INVOCATION
+) {
+  const normalizedTargetCap = normalizeLinkedInTargetCap(targetCap);
+  let linkedinCount = 0;
+  return Array.from(items ?? []).filter((item) => {
+    if (item?.platform !== "linkedin") return true;
+    linkedinCount += 1;
+    return linkedinCount <= normalizedTargetCap;
+  });
 }
 
 async function acquireLinkedInAccountLock(lockPath, token, allowStaleRetry = true) {
@@ -141,18 +164,39 @@ export async function runLinkedInSerialLane(
   {
     delayMs = LINKEDIN_MINIMUM_TARGET_DELAY_MS,
     sleep = defaultSleep,
-    shouldAbort = () => false
+    shouldAbort = () => false,
+    pacingStatePath = LINKEDIN_ACCOUNT_PACING_STATE_PATH,
+    now = Date.now,
+    targetCap = LINKEDIN_MAX_TARGETS_PER_INVOCATION
   } = {}
 ) {
   if (typeof collect !== "function") {
     throw new TypeError("LinkedIn serial collection requires a collector function.");
   }
-  if (typeof sleep !== "function" || typeof shouldAbort !== "function") {
+  if (
+    typeof sleep !== "function" ||
+    typeof shouldAbort !== "function" ||
+    typeof now !== "function"
+  ) {
     throw new TypeError("LinkedIn serial collection safety hooks must be functions.");
   }
+  if (typeof pacingStatePath !== "string" || !pacingStatePath.trim()) {
+    throw new TypeError("LinkedIn serial collection requires a pacing state path.");
+  }
 
-  const queue = Array.from(items ?? []);
-  const policy = linkedinExecutionPolicy({ requestedWorkers: 1, requestedDelayMs: delayMs });
+  const allItems = Array.from(items ?? []);
+  const policy = linkedinExecutionPolicy({
+    requestedWorkers: 1,
+    requestedDelayMs: delayMs,
+    requestedTargetCap: targetCap
+  });
+  const queue = allItems.slice(0, policy.targetCap);
+  const targetPacer = createLinkedInTargetPacer({
+    delayMs: policy.delayMs,
+    now,
+    pacingStatePath,
+    sleep
+  });
   let attemptedCount = 0;
   let aborted = false;
 
@@ -165,25 +209,154 @@ export async function runLinkedInSerialLane(
     // The worker index is deliberately fixed at zero. This lane never starts
     // a second LinkedIn request until the first request and its checkpoint have
     // completed.
-    await collect(queue[index], 0);
-    attemptedCount += 1;
+    await targetPacer.beforeTarget();
+    try {
+      await collect(queue[index], 0);
+      attemptedCount += 1;
+    } finally {
+      await targetPacer.afterTarget();
+    }
 
     if (shouldAbort()) {
       aborted = true;
       break;
     }
-    if (index < queue.length - 1) {
-      await sleep(policy.delayMs);
-    }
   }
 
   return {
     attemptedCount,
-    untouchedCount: Math.max(0, queue.length - attemptedCount),
+    untouchedCount: Math.max(0, allItems.length - attemptedCount),
     aborted,
     workers: policy.workers,
     delayMs: policy.delayMs
   };
+}
+
+function createLinkedInTargetPacer({ delayMs, now, pacingStatePath, sleep }) {
+  let activeAttemptToken = null;
+
+  return {
+    async beforeTarget() {
+      const state = await readLinkedInPacingState(pacingStatePath);
+      if (state?.phase === "in_progress") {
+        throw new Error(
+          "LinkedIn collection refused: the prior host-local target attempt did not finish cleanly."
+        );
+      }
+
+      if (state) {
+        const nextAllowedAt = state.lastTargetAttemptAtMs + delayMs;
+        while (true) {
+          const currentTime = finiteClockValue(now());
+          if (currentTime >= nextAllowedAt) break;
+          await sleep(nextAllowedAt - currentTime);
+          if (finiteClockValue(now()) <= currentTime) {
+            throw new Error(
+              "LinkedIn collection refused: target pacing delay did not advance the clock."
+            );
+          }
+        }
+      }
+
+      const startedAtMs = finiteClockValue(now());
+      activeAttemptToken = randomUUID();
+      await writeLinkedInPacingState(pacingStatePath, {
+        version: 1,
+        phase: "in_progress",
+        attemptToken: activeAttemptToken,
+        pid: process.pid,
+        lastTargetAttemptAtMs: startedAtMs,
+        lastTargetAttemptAt: new Date(startedAtMs).toISOString()
+      });
+    },
+
+    async afterTarget() {
+      if (!activeAttemptToken) {
+        throw new Error(
+          "LinkedIn collection refused: target pacing completion had no active attempt."
+        );
+      }
+      const completedAtMs = finiteClockValue(now());
+      await writeLinkedInPacingState(pacingStatePath, {
+        version: 1,
+        phase: "completed",
+        attemptToken: activeAttemptToken,
+        pid: process.pid,
+        lastTargetAttemptAtMs: completedAtMs,
+        lastTargetAttemptAt: new Date(completedAtMs).toISOString()
+      });
+      activeAttemptToken = null;
+    }
+  };
+}
+
+async function readLinkedInPacingState(statePath) {
+  let raw;
+  try {
+    raw = await readFile(statePath, "utf8");
+  } catch (error) {
+    if (error?.code === "ENOENT") return null;
+    throw linkedInPacingStateError("could not be read", error);
+  }
+
+  let value;
+  try {
+    value = JSON.parse(raw);
+  } catch (error) {
+    throw linkedInPacingStateError("is malformed", error);
+  }
+
+  if (
+    value?.version !== 1 ||
+    !["in_progress", "completed"].includes(value?.phase) ||
+    typeof value?.attemptToken !== "string" ||
+    !value.attemptToken ||
+    !Number.isInteger(value?.pid) ||
+    value.pid <= 0 ||
+    !Number.isFinite(value?.lastTargetAttemptAtMs) ||
+    value.lastTargetAttemptAtMs < 0
+  ) {
+    throw linkedInPacingStateError("is malformed");
+  }
+
+  return value;
+}
+
+async function writeLinkedInPacingState(statePath, value) {
+  const temporaryPath = `${statePath}.${process.pid}.${randomUUID()}.tmp`;
+  let handle = null;
+  try {
+    handle = await open(temporaryPath, "wx", 0o600);
+    await handle.writeFile(`${JSON.stringify(value)}\n`);
+    await handle.sync();
+    await handle.close();
+    handle = null;
+    await rename(temporaryPath, statePath);
+  } catch (error) {
+    await handle?.close().catch(() => undefined);
+    await unlink(temporaryPath).catch(() => undefined);
+    throw linkedInPacingStateError("could not be persisted", error);
+  }
+}
+
+function linkedInPacingStateError(reason, cause) {
+  return new Error(
+    `LinkedIn collection refused: host-local pacing state ${reason}.`,
+    cause ? { cause } : undefined
+  );
+}
+
+function normalizeLinkedInTargetCap(value) {
+  const number = Number(value);
+  if (!Number.isSafeInteger(number) || number < 0) {
+    throw new RangeError("LinkedIn target cap must be a nonnegative integer.");
+  }
+  if (number > LINKEDIN_MAX_TARGETS_PER_INVOCATION) {
+    throw new RangeError(
+      `LinkedIn target cap cannot exceed ${LINKEDIN_MAX_TARGETS_PER_INVOCATION} per invocation.`
+    );
+  }
+  return number;
 }
 
 export function linkedinAdapterSupportsAccountUrl(accountUrl) {

@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { mkdtemp, rm } from "node:fs/promises";
+import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, it } from "node:test";
@@ -10,6 +10,7 @@ import {
 import {
   LINKEDIN_MINIMUM_INTERACTION_DELAY_MS,
   LINKEDIN_MINIMUM_TARGET_DELAY_MS,
+  LINKEDIN_MAX_TARGETS_PER_INVOCATION,
   createLinkedInInteractionPacer,
   linkedinAdapterSupportsAccountUrl,
   linkedinCircuitDecision,
@@ -18,6 +19,7 @@ import {
   linkedinExecutionPolicy,
   linkedinFailureKind,
   linkedinFailureRequiresImmediateAbort,
+  limitLinkedInTargetsPerInvocation,
   linkedinPostIsExplicitRepost,
   linkedinPostStrictlyBelongsToAccount,
   linkedinSafetySignal,
@@ -90,13 +92,60 @@ describe("logged-in LinkedIn collection", () => {
   it("forces one serial worker and a conservative delay without throttling other platform workers", () => {
     assert.equal(LINKEDIN_MINIMUM_TARGET_DELAY_MS, 30_000);
     assert.ok(LINKEDIN_MINIMUM_INTERACTION_DELAY_MS >= 3_000);
+    assert.equal(LINKEDIN_MAX_TARGETS_PER_INVOCATION, 5);
     assert.deepEqual(
       linkedinExecutionPolicy({ requestedWorkers: 8, requestedDelayMs: 1_500 }),
-      { requestedWorkers: 8, workers: 1, delayMs: 30_000 }
+      {
+        requestedWorkers: 8,
+        workers: 1,
+        delayMs: 30_000,
+        requestedTargetCap: 5,
+        targetCap: 5,
+        maximumTargetCap: 5
+      }
     );
     assert.deepEqual(
-      linkedinExecutionPolicy({ requestedWorkers: 4, requestedDelayMs: 45_000 }),
-      { requestedWorkers: 4, workers: 1, delayMs: 45_000 }
+      linkedinExecutionPolicy({
+        requestedWorkers: 4,
+        requestedDelayMs: 45_000,
+        requestedTargetCap: 2
+      }),
+      {
+        requestedWorkers: 4,
+        workers: 1,
+        delayMs: 45_000,
+        requestedTargetCap: 2,
+        targetCap: 2,
+        maximumTargetCap: 5
+      }
+    );
+    assert.throws(
+      () => linkedinExecutionPolicy({ requestedTargetCap: 6 }),
+      /cannot exceed 5 per invocation/
+    );
+    assert.throws(
+      () => linkedinExecutionPolicy({ requestedTargetCap: 1.5 }),
+      /must be a nonnegative integer/
+    );
+
+    assert.deepEqual(
+      limitLinkedInTargetsPerInvocation([
+        { platform: "linkedin", id: "li-1" },
+        { platform: "x", id: "x-1" },
+        { platform: "linkedin", id: "li-2" },
+        { platform: "instagram", id: "ig-1" },
+        { platform: "linkedin", id: "li-3" }
+      ], 2).map((item) => item.id),
+      ["li-1", "x-1", "li-2", "ig-1"]
+    );
+    assert.equal(
+      limitLinkedInTargetsPerInvocation(
+        Array.from({ length: 8 }, (_, index) => ({
+          platform: "linkedin",
+          id: `li-${index}`
+        }))
+      ).length,
+      5
     );
 
     assert.match(
@@ -107,45 +156,166 @@ describe("logged-in LinkedIn collection", () => {
       collectorSource,
       /runLinkedInSerialLane\(linkedinTargets, collectTarget, \{/
     );
+    assert.match(
+      collectorSource,
+      /limitLinkedInTargetsPerInvocation\(\s+globallyBoundedRunnableTargets,\s+linkedinExecution\.targetCap/
+    );
+    assert.match(collectorSource, /targetCap: linkedinExecution\.targetCap/);
     assert.match(collectorSource, /shouldAbort: \(\) => linkedinCircuitOpen/);
   });
 
   it("executes LinkedIn targets serially, always as worker zero, with the delay floor", async () => {
+    const directory = await mkdtemp(join(tmpdir(), "returner-linkedin-pacing-test-"));
+    const pacingStatePath = join(directory, "pacing.json");
     let active = 0;
     let maximumActive = 0;
+    let clock = 1_000;
     const calls = [];
     const sleeps = [];
-    const summary = await runLinkedInSerialLane(
-      ["first", "second", "third"],
-      async (target, workerIndex) => {
-        active += 1;
-        maximumActive = Math.max(maximumActive, active);
-        calls.push({ target, workerIndex });
-        await Promise.resolve();
-        active -= 1;
-      },
-      {
-        delayMs: 500,
-        sleep: async (ms) => {
-          sleeps.push(ms);
+    try {
+      const summary = await runLinkedInSerialLane(
+        ["first", "second", "third"],
+        async (target, workerIndex) => {
+          active += 1;
+          maximumActive = Math.max(maximumActive, active);
+          calls.push({ target, workerIndex });
+          await Promise.resolve();
+          active -= 1;
+        },
+        {
+          delayMs: 500,
+          now: () => clock,
+          pacingStatePath,
+          sleep: async (ms) => {
+            sleeps.push(ms);
+            clock += ms;
+          }
         }
-      }
-    );
+      );
 
-    assert.equal(maximumActive, 1);
-    assert.deepEqual(calls, [
-      { target: "first", workerIndex: 0 },
-      { target: "second", workerIndex: 0 },
-      { target: "third", workerIndex: 0 }
-    ]);
-    assert.deepEqual(sleeps, [30_000, 30_000]);
-    assert.deepEqual(summary, {
-      attemptedCount: 3,
-      untouchedCount: 0,
-      aborted: false,
-      workers: 1,
-      delayMs: 30_000
-    });
+      assert.equal(maximumActive, 1);
+      assert.deepEqual(calls, [
+        { target: "first", workerIndex: 0 },
+        { target: "second", workerIndex: 0 },
+        { target: "third", workerIndex: 0 }
+      ]);
+      assert.deepEqual(sleeps, [30_000, 30_000]);
+      assert.deepEqual(summary, {
+        attemptedCount: 3,
+        untouchedCount: 0,
+        aborted: false,
+        workers: 1,
+        delayMs: 30_000
+      });
+    } finally {
+      await rm(directory, { recursive: true, force: true });
+    }
+  });
+
+  it("persists completion pacing across separate serial-lane process handoffs", async () => {
+    const directory = await mkdtemp(join(tmpdir(), "returner-linkedin-handoff-test-"));
+    const pacingStatePath = join(directory, "pacing.json");
+    let clock = 10_000;
+    const calls = [];
+    const sleeps = [];
+    const options = {
+      now: () => clock,
+      pacingStatePath,
+      sleep: async (ms) => {
+        sleeps.push(ms);
+        clock += ms;
+      }
+    };
+
+    try {
+      await runLinkedInSerialLane(["first-process"], async (target) => {
+        calls.push(target);
+      }, options);
+      await runLinkedInSerialLane(["second-process"], async (target) => {
+        calls.push(target);
+      }, options);
+
+      assert.deepEqual(calls, ["first-process", "second-process"]);
+      assert.deepEqual(sleeps, [30_000]);
+      const state = JSON.parse(await readFile(pacingStatePath, "utf8"));
+      assert.equal(state.version, 1);
+      assert.equal(state.phase, "completed");
+      assert.equal(state.lastTargetAttemptAtMs, 40_000);
+    } finally {
+      await rm(directory, { recursive: true, force: true });
+    }
+  });
+
+  it("enforces the per-invocation cap inside the serial lane", async () => {
+    const directory = await mkdtemp(join(tmpdir(), "returner-linkedin-lane-cap-test-"));
+    const pacingStatePath = join(directory, "pacing.json");
+    let clock = 1_000;
+    const calls = [];
+
+    try {
+      const summary = await runLinkedInSerialLane(
+        ["first", "second", "untouched"],
+        async (target) => calls.push(target),
+        {
+          now: () => clock,
+          pacingStatePath,
+          sleep: async (ms) => {
+            clock += ms;
+          },
+          targetCap: 2
+        }
+      );
+
+      assert.deepEqual(calls, ["first", "second"]);
+      assert.deepEqual(summary, {
+        attemptedCount: 2,
+        untouchedCount: 1,
+        aborted: false,
+        workers: 1,
+        delayMs: 30_000
+      });
+      await assert.rejects(
+        runLinkedInSerialLane(["refused"], async () => undefined, {
+          pacingStatePath,
+          targetCap: 6
+        }),
+        /cannot exceed 5 per invocation/
+      );
+    } finally {
+      await rm(directory, { recursive: true, force: true });
+    }
+  });
+
+  it("fails closed for malformed or interrupted host-local pacing state", async () => {
+    const directory = await mkdtemp(join(tmpdir(), "returner-linkedin-malformed-test-"));
+    const pacingStatePath = join(directory, "pacing.json");
+    let collectCalls = 0;
+    const collect = async () => {
+      collectCalls += 1;
+    };
+
+    try {
+      await writeFile(pacingStatePath, "not-json\n");
+      await assert.rejects(
+        runLinkedInSerialLane(["untouched"], collect, { pacingStatePath }),
+        /host-local pacing state is malformed/
+      );
+
+      await writeFile(pacingStatePath, JSON.stringify({
+        version: 1,
+        phase: "in_progress",
+        attemptToken: "interrupted-attempt",
+        pid: process.pid,
+        lastTargetAttemptAtMs: Date.now()
+      }));
+      await assert.rejects(
+        runLinkedInSerialLane(["still-untouched"], collect, { pacingStatePath }),
+        /prior host-local target attempt did not finish cleanly/
+      );
+      assert.equal(collectCalls, 0);
+    } finally {
+      await rm(directory, { recursive: true, force: true });
+    }
   });
 
   it("paces every browser interaction with a process-level fail-closed delay", async () => {
@@ -205,30 +375,42 @@ describe("logged-in LinkedIn collection", () => {
   });
 
   it("stops the serial lane immediately and leaves later targets untouched", async () => {
+    const directory = await mkdtemp(join(tmpdir(), "returner-linkedin-circuit-test-"));
+    const pacingStatePath = join(directory, "pacing.json");
     let circuitOpen = false;
+    let clock = 1_000;
     const calls = [];
     const sleeps = [];
-    const summary = await runLinkedInSerialLane(
-      ["warning", "untouched-one", "untouched-two"],
-      async (target) => {
-        calls.push(target);
-        circuitOpen = true;
-      },
-      {
-        sleep: async (ms) => sleeps.push(ms),
-        shouldAbort: () => circuitOpen
-      }
-    );
+    try {
+      const summary = await runLinkedInSerialLane(
+        ["warning", "untouched-one", "untouched-two"],
+        async (target) => {
+          calls.push(target);
+          circuitOpen = true;
+        },
+        {
+          now: () => clock,
+          pacingStatePath,
+          sleep: async (ms) => {
+            sleeps.push(ms);
+            clock += ms;
+          },
+          shouldAbort: () => circuitOpen
+        }
+      );
 
-    assert.deepEqual(calls, ["warning"]);
-    assert.deepEqual(sleeps, []);
-    assert.deepEqual(summary, {
-      attemptedCount: 1,
-      untouchedCount: 2,
-      aborted: true,
-      workers: 1,
-      delayMs: 30_000
-    });
+      assert.deepEqual(calls, ["warning"]);
+      assert.deepEqual(sleeps, []);
+      assert.deepEqual(summary, {
+        attemptedCount: 1,
+        untouchedCount: 2,
+        aborted: true,
+        workers: 1,
+        delayMs: 30_000
+      });
+    } finally {
+      await rm(directory, { recursive: true, force: true });
+    }
   });
 
   it("treats challenge, checkpoint, account-warning, and 429 responses as immediate stops", () => {

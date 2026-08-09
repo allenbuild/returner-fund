@@ -12,6 +12,7 @@ import {
   linkedinFailureKind,
   linkedinFailureRequiresImmediateAbort,
   linkedinSafetySignal,
+  limitLinkedInTargetsPerInvocation,
   mergeOwnedLinkedInPosts,
   prioritizeLinkedInTargets,
   runLinkedInSerialLane,
@@ -128,9 +129,11 @@ const allowLinkedIn = platformFilter.has("linkedin") && booleanArg("--allow-link
 const linkedinCollectionMode = resolveLinkedInCollectionMode(
   stringArg("--linkedin-mode") ?? "browser"
 );
+const requestedLinkedInTargetCap = nonnegativeIntegerArg("--linkedin-max-targets");
 const linkedinExecution = linkedinExecutionPolicy({
   requestedWorkers: workers,
-  requestedDelayMs: delayMs
+  requestedDelayMs: delayMs,
+  requestedTargetCap: requestedLinkedInTargetCap ?? undefined
 });
 const maxConsecutiveLinkedInFailures = Math.max(
   1,
@@ -272,7 +275,7 @@ const prioritizedTargets = prioritizeInstagramTargets(
     attemptKey: attemptKeyFor
   },
 );
-const runnableTargets = selectRunnableCollectionTargets(prioritizedTargets, {
+const globallyBoundedRunnableTargets = selectRunnableCollectionTargets(prioritizedTargets, {
   attempts: attemptMap,
   attemptKey: attemptKeyFor,
   force,
@@ -281,16 +284,22 @@ const runnableTargets = selectRunnableCollectionTargets(prioritizedTargets, {
   now,
   limit: targetLimit
 });
+const runnableTargets = limitLinkedInTargetsPerInvocation(
+  globallyBoundedRunnableTargets,
+  linkedinExecution.targetCap
+);
 // The plan is a canonical account map and must not shrink as checkpoints
 // complete. Only runtime execution uses the bounded runnable subset.
 const targets = planOnly ? prioritizedTargets : runnableTargets;
 console.log(`Logged-in social targets: ${targets.length} (${workers} workers, up to ${postLimit} posts each, ${scrollPasses} scroll passes).`);
 const linkedinTargets = targets.filter((target) => target.platform === "linkedin");
 const otherTargets = targets.filter((target) => target.platform !== "linkedin");
-if (linkedinTargets.length > 0) {
+if (prioritizedTargets.some((target) => target.platform === "linkedin")) {
   console.log(
     `LinkedIn safety lane: ${linkedinExecution.workers} worker, serial, ` +
-    `minimum ${linkedinExecution.delayMs}ms between targets.`
+    `maximum ${linkedinExecution.targetCap} targets this invocation ` +
+    `(hard cap ${linkedinExecution.maximumTargetCap}), minimum ` +
+    `${linkedinExecution.delayMs}ms between targets with persistent host-local handoff pacing.`
   );
 }
 
@@ -307,9 +316,17 @@ if (planOnly) {
     xCollectionMode,
     linkedinCollectionMode,
     linkedinExecution: {
+      requestedWorkers: linkedinExecution.requestedWorkers,
       workers: linkedinExecution.workers,
       delayMs: linkedinExecution.delayMs,
-      serial: true
+      requestedTargetCap: linkedinExecution.requestedTargetCap,
+      targetCap: linkedinExecution.targetCap,
+      maximumTargetCap: linkedinExecution.maximumTargetCap,
+      runnableTargetCount: runnableTargets.filter(
+        (target) => target.platform === "linkedin"
+      ).length,
+      serial: true,
+      persistentHostPacing: true
     },
     quarantinedTargetCount: targetPartition.quarantinedTargets.length,
     ownerCollisionReconciliationSummary,
@@ -459,7 +476,8 @@ if (linkedinTargets.length > 0) {
     runLinkedInSerialLane(linkedinTargets, collectTarget, {
       delayMs: linkedinExecution.delayMs,
       sleep: delay,
-      shouldAbort: () => linkedinCircuitOpen
+      shouldAbort: () => linkedinCircuitOpen,
+      targetCap: linkedinExecution.targetCap
     })
   );
 }
@@ -504,7 +522,7 @@ const payload = {
       "Instagram profile grids and X profile timelines are treated as opt-in authenticated/read-only sources when explicitly targeted.",
       `X ingestion mode: ${xCollectionMode}. Browser, adapter, and hybrid modes are read-only; hybrid prefers the authenticated adapter and uses the DOM only to fill incomplete results.`,
       `LinkedIn ingestion mode: ${linkedinCollectionMode}. Authenticated browser DOM collection is the only supported mode so interaction pacing remains locally auditable.`,
-      `Logged-in LinkedIn activity scraping is disabled unless both --platforms=linkedin and --allow-linkedin are passed. It uses one account-global locked serial worker with at least ${linkedinExecution.delayMs}ms between targets.`,
+      `Logged-in LinkedIn activity scraping is disabled unless both --platforms=linkedin and --allow-linkedin are passed. It uses one account-global locked serial worker, a hard cap of ${linkedinExecution.maximumTargetCap} targets per invocation, and persistent host-local pacing with at least ${linkedinExecution.delayMs}ms between completed target attempts.`,
       "LinkedIn challenge, checkpoint, account-warning, authentication, and HTTP 429 signals abort the LinkedIn lane immediately so untouched targets remain retryable.",
       "Instagram login, challenge, and rate-limit failures open a circuit immediately; repeated command or profile failures open it after three consecutive failed targets. Legitimate empty native timelines remain completed empty checks.",
       `Checkpoint owner-collision reconciliation: ${ownerCollisionReconciliationSummary.reattributedCount} stale company rows reattributed, ${ownerCollisionReconciliationSummary.quarantinedCount} quarantined.`,
@@ -2196,6 +2214,19 @@ function numberArg(name) {
   return Number.isFinite(parsed) ? parsed : null;
 }
 
+function nonnegativeIntegerArg(name) {
+  const raw = stringArg(name);
+  if (raw === undefined) return null;
+  if (!/^\d+$/.test(raw)) {
+    throw new Error(`${name} must be a nonnegative integer.`);
+  }
+  const parsed = Number(raw);
+  if (!Number.isSafeInteger(parsed)) {
+    throw new Error(`${name} must be a safe nonnegative integer.`);
+  }
+  return parsed;
+}
+
 function stringArg(name) {
   return process.argv.find((arg) => arg.startsWith(`${name}=`))?.split("=").slice(1).join("=");
 }
@@ -2215,6 +2246,7 @@ function usage() {
     "  --entities=all|company|founder",
     "  --company=NAME",
     "  --max-targets=N",
+    "  --linkedin-max-targets=N   LinkedIn-only cap (default/hard maximum: 5; lower values only)",
     "  --workers=N",
     "  --limit=N",
     "  --scrolls=N",

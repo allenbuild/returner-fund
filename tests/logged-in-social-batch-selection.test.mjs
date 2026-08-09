@@ -22,6 +22,15 @@ describe("logged-in social batch selection", () => {
 
     expect(plan.batchSlug).toBe("S2026");
     expect(plan.snapshotPath).toContain("spring-2026-companies.json");
+    expect(plan.linkedinExecution).toEqual(expect.objectContaining({
+      workers: 1,
+      delayMs: 30_000,
+      requestedTargetCap: 5,
+      targetCap: 5,
+      maximumTargetCap: 5,
+      serial: true,
+      persistentHostPacing: true
+    }));
     expect(plan.targets).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
@@ -98,6 +107,12 @@ describe("logged-in social batch selection", () => {
       "--social=all",
       "--platforms=x,linkedin,instagram"
     ]);
+
+    expect(logged.linkedinExecution.maximumTargetCap).toBe(5);
+    expect(logged.linkedinExecution.runnableTargetCount).toBeLessThanOrEqual(5);
+    expect(
+      logged.runnableTargets.filter((target) => target.platform === "linkedin").length
+    ).toBeLessThanOrEqual(5);
 
     if (batchSlug === "S26") {
       expect(logged.companyCount).toBeGreaterThanOrEqual(167);
@@ -247,6 +262,50 @@ describe("logged-in social batch selection", () => {
       "--allow-linkedin",
       "--linkedin-mode=adapter"
     ])).toThrow(/Only browser mode is supported so pacing remains auditable/);
+  });
+
+  it("caps each LinkedIn invocation at five and permits only a lower explicit cap", () => {
+    const defaultPlan = runPlan([
+      "--batch=S2026",
+      "--company=eden-robotics",
+      "--entities=founder",
+      "--platforms=linkedin",
+      "--allow-linkedin",
+      "--force"
+    ]);
+    expect(defaultPlan.linkedinExecution.targetCap).toBe(5);
+    expect(defaultPlan.linkedinExecution.maximumTargetCap).toBe(5);
+
+    const lowerPlan = runPlan([
+      "--batch=S2026",
+      "--company=eden-robotics",
+      "--entities=founder",
+      "--platforms=linkedin",
+      "--allow-linkedin",
+      "--force",
+      "--linkedin-max-targets=1"
+    ]);
+    expect(lowerPlan.linkedinExecution).toEqual(expect.objectContaining({
+      requestedTargetCap: 1,
+      targetCap: 1,
+      maximumTargetCap: 5,
+      runnableTargetCount: 1
+    }));
+    expect(
+      lowerPlan.runnableTargets.filter((target) => target.platform === "linkedin")
+    ).toHaveLength(1);
+    expect(
+      lowerPlan.targets.filter((target) => target.platform === "linkedin").length
+    ).toBeGreaterThan(1);
+
+    expect(() => runPlan([
+      "--batch=S2026",
+      "--company=eden-robotics",
+      "--entities=founder",
+      "--platforms=linkedin",
+      "--allow-linkedin",
+      "--linkedin-max-targets=6"
+    ])).toThrow(/LinkedIn target cap cannot exceed 5 per invocation/);
   });
 });
 

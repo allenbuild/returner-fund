@@ -69,6 +69,10 @@ describe("logged-in social collector help", () => {
           result.stdout,
           /--delay-ms=N\s+LinkedIn enforces a 30000ms minimum between targets/
         );
+        assert.match(
+          result.stdout,
+          /--linkedin-max-targets=N\s+LinkedIn-only cap \(default\/hard maximum: 5; lower values only\)/
+        );
         assert.doesNotMatch(result.stdout, /Logged-in social targets:|Wrote/);
         assert.equal(result.stderr, "");
         assert.equal(readFileSync(evidencePath, "utf8"), evidenceSentinel);
