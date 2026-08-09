@@ -243,7 +243,7 @@ describe("NodePanel", () => {
     expect(contributionRows).toHaveLength(4);
     expect(
       contributionRows.map((row) => row.querySelector("strong")?.textContent)
-    ).toEqual(["37.7 pts", "20.6 pts", "14.7 pts", "14 pts"]);
+    ).toEqual(["37.7 pts", "20.6 pts", "14.7 pts", "14.0 pts"]);
     expect(displayedTenths).toBe(870);
     expect(screen.queryByText("SCORING EXPLANATION MUST NOT RENDER IN NODEPANEL")).not.toBeInTheDocument();
     expect(screen.queryByText(/global calibration|multiplier|rounding residual/i)).not.toBeInTheDocument();
@@ -276,7 +276,10 @@ describe("NodePanel", () => {
         (left, right) =>
           right.contribution - left.contribution || left.platform.localeCompare(right.platform)
       )
-      .map((row) => `${new Intl.NumberFormat("en-US", { maximumFractionDigits: 1 }).format(row.contribution)} pts`);
+      .map((row) => `${new Intl.NumberFormat("en-US", {
+        minimumFractionDigits: 1,
+        maximumFractionDigits: 1
+      }).format(row.contribution)} pts`);
     expect(displayed).toEqual(expected);
     expect(screen.queryByText(/global calibration/i)).not.toBeInTheDocument();
   });

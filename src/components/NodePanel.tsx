@@ -271,7 +271,7 @@ function PlatformContributions({ node }: { node: GraphNode }) {
             <li key={platform.platform}>
               <PlatformIdentity platform={platform.platform} />
               <span className="score-platform-contribution">
-                <strong>{formatScore(platform.displayContribution)} pts</strong>
+                <strong>{formatPlatformContribution(platform.displayContribution)} pts</strong>
                 <small>{formatItemCount(Math.max(0, Math.round(numberValue(platform.evidenceCount) ?? 0)))}</small>
               </span>
             </li>
@@ -298,6 +298,13 @@ function formatItemCount(count: number): string {
 
 function formatScore(score: number): string {
   return new Intl.NumberFormat("en-US", { maximumFractionDigits: 1 }).format(score);
+}
+
+function formatPlatformContribution(score: number): string {
+  return new Intl.NumberFormat("en-US", {
+    minimumFractionDigits: 1,
+    maximumFractionDigits: 1
+  }).format(score);
 }
 
 function formatSignedScore(score: number): string {
