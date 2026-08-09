@@ -5,33 +5,9 @@
     "slug": "graphify-labs",
     "name": "Graphify Labs"
   },
-  "generatedAt": "2026-08-09T12:09:17.709Z",
-  "lastModifiedAt": "2026-08-09T12:09:17.709Z",
+  "generatedAt": "2026-08-09T16:13:15.624Z",
+  "lastModifiedAt": "2026-08-09T16:13:15.624Z",
   "events": [
-    {
-      "id": "tle-384db28682d135f0bedfc400",
-      "eventDate": "2026-08-02",
-      "eventDateType": "announcement_date",
-      "title": "Graphify Labs reached 100K github stars",
-      "summary": "Graphify Labs is the first YC company to hit 100K github stars during the batch.",
-      "category": "traction_milestone",
-      "isMajor": false,
-      "hasConflict": false,
-      "conflictSummary": null,
-      "evidenceCount": 1,
-      "sourcePreview": [
-        {
-          "id": "src-9fb18deb06a39604dbbab085",
-          "title": "Graphify Labs is the first YC company to hit 100K github stars during the batch.",
-          "publisher": null,
-          "domain": "x.com",
-          "sourceType": "company_post",
-          "publishedAt": "2026-08-02T00:36:17.000Z",
-          "evidenceRole": "primary",
-          "url": "https://x.com/snowmaker/status/2083713463956979779"
-        }
-      ]
-    },
     {
       "id": "tle-a97b6ace2c0a1d43f2648b68",
       "eventDate": "2026-07-10",
@@ -53,6 +29,30 @@
           "publishedAt": "2026-07-10T21:19:55.000Z",
           "evidenceRole": "primary",
           "url": "https://x.com/safishamsii/status/2075691513099481374"
+        }
+      ]
+    },
+    {
+      "id": "tle-97e477549dffcfd79b87ab69",
+      "eventDate": "2026-07-01",
+      "eventDateType": "announcement_date",
+      "title": "Graphify Labs released Graphify",
+      "summary": "Graphify Labs introduced Graphify: a knowledge graph for your codebase, inside your coding assistant.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-f6dbf38e546a4bac913d38c5",
+          "title": "Introducing Graphify: a knowledge graph for your codebase, inside your coding assistant",
+          "publisher": "Graphify Labs",
+          "domain": "graphify.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-07-01T00:00:00.000Z",
+          "evidenceRole": "primary",
+          "url": "https://graphify.com/blog/introducing-graphify"
         }
       ]
     },
@@ -182,12 +182,8 @@
       "year": 2026,
       "months": [
         {
-          "month": "2026-08",
-          "count": 1
-        },
-        {
           "month": "2026-07",
-          "count": 1
+          "count": 2
         },
         {
           "month": "2026-06",
@@ -207,7 +203,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 7,
-    "lastSuccessfulArtifactAt": "2026-08-09T12:09:17.709Z"
+    "lastSuccessfulArtifactAt": "2026-08-09T16:13:15.624Z"
   },
   "nextCursor": null
 }

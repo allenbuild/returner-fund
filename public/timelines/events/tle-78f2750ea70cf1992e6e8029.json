@@ -1,0 +1,63 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-tasklet-2",
+    "slug": "tasklet",
+    "name": "Tasklet"
+  },
+  "event": {
+    "id": "tle-78f2750ea70cf1992e6e8029",
+    "eventDate": "2026-02-26",
+    "eventDateType": "announcement_date",
+    "title": "Tasklet released Instant Apps",
+    "summary": "Tasklet introduced Instant Apps: create the perfect app for yourself, right when you need it.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-5438dc779418dffbe9941f98",
+        "title": "Introducing Instant Apps: create the perfect app for yourself, right when you need it",
+        "publisher": "Tasklet",
+        "domain": "tasklet.ai",
+        "sourceType": "company_post",
+        "publishedAt": "2026-02-26T00:00:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://tasklet.ai/blog/2026-02-26-instant-apps"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-5438dc779418dffbe9941f98",
+        "title": "Introducing Instant Apps: create the perfect app for yourself, right when you need it",
+        "publisher": "Tasklet",
+        "domain": "tasklet.ai",
+        "sourceType": "company_post",
+        "publishedAt": "2026-02-26T00:00:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://tasklet.ai/blog/2026-02-26-instant-apps",
+        "publicationDate": "2026-02-26T00:00:00.000Z",
+        "excerpt": "Instant Apps let Tasklet agents build focused, interactive tools on demand and connect them to the data and workflows your team already uses.",
+        "sourceEventDate": "2026-02-26",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-02e36ec8a831633e92f3cd02",
+        "platform": "rss",
+        "account": "Tasklet",
+        "postDate": "2026-02-26",
+        "excerpt": "Instant Apps let Tasklet agents build focused, interactive tools on demand and connect them to the data and workflows your team already uses.",
+        "url": "https://tasklet.ai/blog/2026-02-26-instant-apps",
+        "metrics": {},
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-09T16:13:15.624Z",
+  "lastModifiedAt": "2026-08-09T16:13:15.624Z"
+}

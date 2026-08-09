@@ -10,13 +10,33 @@
     "eventDate": "2026-04-07",
     "eventDateType": "announcement_date",
     "title": "Tasklet announced $20M funding round",
-    "summary": "Tasklet just raised $20M to build the cloud agent operating system for work.",
+    "summary": "Tasklet has raised $20M to build the cloud agent OS for work.",
     "category": "funding",
     "isMajor": true,
     "hasConflict": false,
     "conflictSummary": null,
-    "evidenceCount": 1,
+    "evidenceCount": 3,
     "sourcePreview": [
+      {
+        "id": "src-62acd0c30b21d8f1a97fd1e9",
+        "title": "We've raised $20M to build the cloud agent OS for work",
+        "publisher": "Tasklet",
+        "domain": "tasklet.ai",
+        "sourceType": "company_post",
+        "publishedAt": "2026-04-07T00:00:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://tasklet.ai/blog/2026-04-07-20m-funding"
+      },
+      {
+        "id": "src-106e6f4781609ebee6993d9d",
+        "title": "We just raised $20M from @usv, @lightspeedvp, @ycombinator, @JeffDean, @patrickc, and others to build the cloud agent OS for work. ...and I’m officially back in @ycombinator — spring ‘26 batch. It’s time to seize the moment. We're hiring!…",
+        "publisher": "startupandrew",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-04-07T17:13:22.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/startupandrew/status/2041565004621869423"
+      },
       {
         "id": "src-8378ae1988d81c7249624e7c",
         "title": "We just raised $20M to build the cloud agent operating system for work. The investment is led by @usv & @lightspeedvp and includes @ycombinator, @JeffDean, @patrickc & others. It values the company at $175M. 🧵",
@@ -29,6 +49,36 @@
       }
     ],
     "evidence": [
+      {
+        "id": "src-62acd0c30b21d8f1a97fd1e9",
+        "title": "We've raised $20M to build the cloud agent OS for work",
+        "publisher": "Tasklet",
+        "domain": "tasklet.ai",
+        "sourceType": "company_post",
+        "publishedAt": "2026-04-07T00:00:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://tasklet.ai/blog/2026-04-07-20m-funding",
+        "publicationDate": "2026-04-07T00:00:00.000Z",
+        "excerpt": "Tasklet has raised $20 million to build the cloud agent OS for work and make capable AI agents available to every team.",
+        "sourceEventDate": "2026-04-07",
+        "isConflicting": false,
+        "conflictDescription": null
+      },
+      {
+        "id": "src-106e6f4781609ebee6993d9d",
+        "title": "We just raised $20M from @usv, @lightspeedvp, @ycombinator, @JeffDean, @patrickc, and others to build the cloud agent OS for work. ...and I’m officially back in @ycombinator — spring ‘26 batch. It’s time to seize the moment. We're hiring!…",
+        "publisher": "startupandrew",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-04-07T17:13:22.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/startupandrew/status/2041565004621869423",
+        "publicationDate": "2026-04-07T17:13:22.000Z",
+        "excerpt": "We just raised $20M from @usv, @lightspeedvp, @ycombinator, @JeffDean, @patrickc, and others to build the cloud agent OS for work. ...and I’m officially back in @ycombinator — spring ‘26 batch. It’s time to seize the moment. We're hiring! Read on... 🧵",
+        "sourceEventDate": "2026-04-07",
+        "isConflicting": false,
+        "conflictDescription": null
+      },
       {
         "id": "src-8378ae1988d81c7249624e7c",
         "title": "We just raised $20M to build the cloud agent operating system for work. The investment is led by @usv & @lightspeedvp and includes @ycombinator, @JeffDean, @patrickc & others. It values the company at $175M. 🧵",
@@ -46,6 +96,33 @@
       }
     ],
     "posts": [
+      {
+        "id": "post-4241d7cd67b9099d1a9b4f1a",
+        "platform": "rss",
+        "account": "Tasklet",
+        "postDate": "2026-04-07",
+        "excerpt": "Tasklet has raised $20 million to build the cloud agent OS for work and make capable AI agents available to every team.",
+        "url": "https://tasklet.ai/blog/2026-04-07-20m-funding",
+        "metrics": {},
+        "evidenceRole": "primary"
+      },
+      {
+        "id": "post-ed839651e61d435d31a55ab4",
+        "platform": "x",
+        "account": "startupandrew",
+        "postDate": "2026-04-07",
+        "excerpt": "We just raised $20M from @usv, @lightspeedvp, @ycombinator, @JeffDean, @patrickc, and others to build the cloud agent OS for work. ...and I’m officially back in @ycombinator — spring ‘26 batch. It’s time to seize the moment. We're hiring! Read on... 🧵",
+        "url": "https://x.com/startupandrew/status/2041565004621869423",
+        "metrics": {
+          "views": 94838,
+          "likes": 374,
+          "replies": 42,
+          "reposts": 18,
+          "quotes": 7,
+          "bookmarks": 193
+        },
+        "evidenceRole": "primary"
+      },
       {
         "id": "post-e7eb5d97cc0418039cdd87a0",
         "platform": "x",
@@ -65,6 +142,6 @@
       }
     ]
   },
-  "generatedAt": "2026-08-09T12:09:17.709Z",
-  "lastModifiedAt": "2026-08-09T12:09:17.709Z"
+  "generatedAt": "2026-08-09T16:13:15.624Z",
+  "lastModifiedAt": "2026-08-09T16:13:15.624Z"
 }

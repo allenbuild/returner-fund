@@ -5,14 +5,14 @@
     "slug": "hub",
     "name": "Hub"
   },
-  "generatedAt": "2026-08-09T12:09:17.709Z",
-  "lastModifiedAt": "2026-08-09T12:09:17.709Z",
+  "generatedAt": "2026-08-09T16:13:15.624Z",
+  "lastModifiedAt": "2026-08-09T16:13:15.624Z",
   "events": [],
   "groups": [],
   "coverage": {
     "status": "partial",
     "publishedEventCount": 0,
-    "lastSuccessfulArtifactAt": "2026-08-09T12:09:17.709Z"
+    "lastSuccessfulArtifactAt": "2026-08-09T16:13:15.624Z"
   },
   "nextCursor": null
 }

@@ -5,43 +5,9 @@
     "slug": "voquill",
     "name": "Voquill"
   },
-  "generatedAt": "2026-08-09T12:09:17.709Z",
-  "lastModifiedAt": "2026-08-09T12:09:17.709Z",
+  "generatedAt": "2026-08-09T16:13:15.624Z",
+  "lastModifiedAt": "2026-08-09T16:13:15.624Z",
   "events": [
-    {
-      "id": "tle-702f9720d97b663a9fcbd657",
-      "eventDate": "2026-04-08",
-      "eventDateType": "occurrence_date",
-      "title": "Voquill launched on Product Hunt",
-      "summary": "Voquill announced voquill launched on Product Hunt.",
-      "category": "product_launch",
-      "isMajor": true,
-      "hasConflict": false,
-      "conflictSummary": null,
-      "evidenceCount": 2,
-      "sourcePreview": [
-        {
-          "id": "src-41335f8da1610a31c0b50ef5",
-          "title": "Voquill",
-          "publisher": "josiahsrc",
-          "domain": "producthunt.com",
-          "sourceType": "product_hunt",
-          "publishedAt": "2026-04-08T15:00:00.000Z",
-          "evidenceRole": "primary",
-          "url": "https://producthunt.com/products/voquill/launches/voquill"
-        },
-        {
-          "id": "src-94290935e5e221da6e5e6c07",
-          "title": "We launched Voquill on Product Hunt today. If your keyboard is slowing you down - your voice won’t. Type faster in any app, on any OS, just by speaking. It’s open‐source, private, and works offline too. Try it free → https://p...",
-          "publisher": "HenryHabibAI",
-          "domain": "x.com",
-          "sourceType": "founder_post",
-          "publishedAt": "2026-01-13T13:47:43.000Z",
-          "evidenceRole": "primary",
-          "url": "https://x.com/HenryHabibAI/status/2011072671337902364"
-        }
-      ]
-    },
     {
       "id": "tle-48bb8e51f5a1db43f4e16f7c",
       "eventDate": "2026-03-09",
@@ -65,6 +31,30 @@
           "url": "https://x.com/HenryHabibAI/status/2031147555237548252"
         }
       ]
+    },
+    {
+      "id": "tle-9999cea489ac6d193753cd3a",
+      "eventDate": "2026-01-13",
+      "eventDateType": "announcement_date",
+      "title": "Voquill announced its public launch",
+      "summary": "Voquill launched Voquill on Product Hunt today.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-94290935e5e221da6e5e6c07",
+          "title": "We launched Voquill on Product Hunt today. If your keyboard is slowing you down - your voice won’t. Type faster in any app, on any OS, just by speaking. It’s open‐source, private, and works offline too. Try it free → https://p...",
+          "publisher": "HenryHabibAI",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-01-13T13:47:43.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/HenryHabibAI/status/2011072671337902364"
+        }
+      ]
     }
   ],
   "groups": [
@@ -72,11 +62,11 @@
       "year": 2026,
       "months": [
         {
-          "month": "2026-04",
+          "month": "2026-03",
           "count": 1
         },
         {
-          "month": "2026-03",
+          "month": "2026-01",
           "count": 1
         }
       ]
@@ -85,7 +75,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 2,
-    "lastSuccessfulArtifactAt": "2026-08-09T12:09:17.709Z"
+    "lastSuccessfulArtifactAt": "2026-08-09T16:13:15.624Z"
   },
   "nextCursor": null
 }

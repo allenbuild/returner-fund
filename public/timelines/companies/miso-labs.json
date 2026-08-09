@@ -5,8 +5,8 @@
     "slug": "miso-labs",
     "name": "Miso Labs"
   },
-  "generatedAt": "2026-08-09T12:09:17.709Z",
-  "lastModifiedAt": "2026-08-09T12:09:17.709Z",
+  "generatedAt": "2026-08-09T16:13:15.624Z",
+  "lastModifiedAt": "2026-08-09T16:13:15.624Z",
   "events": [
     {
       "id": "tle-4b82f079c2ea8050d4e61622",
@@ -47,7 +47,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-08-09T12:09:17.709Z"
+    "lastSuccessfulArtifactAt": "2026-08-09T16:13:15.624Z"
   },
   "nextCursor": null
 }

@@ -1,0 +1,63 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-dock",
+    "slug": "dock",
+    "name": "Dock"
+  },
+  "event": {
+    "id": "tle-ccf579bb7058b04392fd3551",
+    "eventDate": "2026-05-04",
+    "eventDateType": "announcement_date",
+    "title": "Dock released UI components we built as open source",
+    "summary": "Dock open-sourced the UI components we built for Dock.",
+    "category": "open_source",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-a6c94fd22bbff53b660cb658",
+        "title": "We open-sourced the UI components we built for Dock",
+        "publisher": "Dock",
+        "domain": "trydock.ai",
+        "sourceType": "company_post",
+        "publishedAt": "2026-05-04T00:00:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://trydock.ai/blog/dock-ui-open-source"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-a6c94fd22bbff53b660cb658",
+        "title": "We open-sourced the UI components we built for Dock",
+        "publisher": "Dock",
+        "domain": "trydock.ai",
+        "sourceType": "company_post",
+        "publishedAt": "2026-05-04T00:00:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://trydock.ai/blog/dock-ui-open-source",
+        "publicationDate": "2026-05-04T00:00:00.000Z",
+        "excerpt": "About 55 React components, MIT-licensed, free to copy into your app. The agent orb, the comment thread that survives AI rewrites, the inbox card with severity color, the data table that powers Dock's table mode. No npm install, no signup, no telemetry.",
+        "sourceEventDate": "2026-05-04",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-b53d646683a47e6f010130b6",
+        "platform": "rss",
+        "account": "Dock",
+        "postDate": "2026-05-04",
+        "excerpt": "About 55 React components, MIT-licensed, free to copy into your app. The agent orb, the comment thread that survives AI rewrites, the inbox card with severity color, the data table that powers Dock's table mode. No npm install, no signup, no telemetry.",
+        "url": "https://trydock.ai/blog/dock-ui-open-source",
+        "metrics": {},
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-09T16:13:15.624Z",
+  "lastModifiedAt": "2026-08-09T16:13:15.624Z"
+}

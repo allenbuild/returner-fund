@@ -5,21 +5,31 @@
     "slug": "oddpool",
     "name": "Oddpool"
   },
-  "generatedAt": "2026-08-09T12:09:17.709Z",
-  "lastModifiedAt": "2026-08-09T12:09:17.709Z",
+  "generatedAt": "2026-08-09T16:13:15.624Z",
+  "lastModifiedAt": "2026-08-09T16:13:15.624Z",
   "events": [
     {
       "id": "tle-a23e4965812a54175fe0b000",
-      "eventDate": "2026-05-12",
+      "eventDate": "2026-03-21",
       "eventDateType": "announcement_date",
       "title": "Oddpool was introduced",
       "summary": "Oddpool introduced Oddpool, the institutional data layer for prediction markets, backed by @ycombinator.",
       "category": "product_launch",
-      "isMajor": false,
+      "isMajor": true,
       "hasConflict": false,
       "conflictSummary": null,
-      "evidenceCount": 1,
+      "evidenceCount": 2,
       "sourcePreview": [
+        {
+          "id": "src-472bccd36d2ca04db9711c30",
+          "title": "Introducing the Oddpool Macro Feed. One websocket. every macro event. real-time probability data from Kalshi and Polymarket, normalized into a single stream. Built for institutions. Free to connect.",
+          "publisher": "@oddpool_alerts",
+          "domain": "x.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-03-21T23:30:00.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/oddpool_alerts/status/2035499195671449717"
+        },
         {
           "id": "src-5c9d3c0ac3879220737bca0b",
           "title": "Introducing Oddpool, the institutional data layer for prediction markets, backed by @ycombinator https://t.co/nLaJjW43jT",
@@ -38,7 +48,7 @@
       "year": 2026,
       "months": [
         {
-          "month": "2026-05",
+          "month": "2026-03",
           "count": 1
         }
       ]
@@ -47,7 +57,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-08-09T12:09:17.709Z"
+    "lastSuccessfulArtifactAt": "2026-08-09T16:13:15.624Z"
   },
   "nextCursor": null
 }

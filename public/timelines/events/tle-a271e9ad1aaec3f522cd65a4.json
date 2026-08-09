@@ -18,26 +18,26 @@
     "evidenceCount": 1,
     "sourcePreview": [
       {
-        "id": "src-e46172bcfb0b45ce79b7f0cf",
+        "id": "src-6e76e03fb86d0aa1d76a4b25",
         "title": "Introducing Tasklet: Automate your business with AI agents",
         "publisher": "Tasklet",
         "domain": "tasklet.ai",
         "sourceType": "company_post",
         "publishedAt": "2025-10-09T00:00:00.000Z",
         "evidenceRole": "primary",
-        "url": "https://tasklet.ai/blog.xml"
+        "url": "https://tasklet.ai/blog/2025-10-09-introducing-tasklet"
       }
     ],
     "evidence": [
       {
-        "id": "src-e46172bcfb0b45ce79b7f0cf",
+        "id": "src-6e76e03fb86d0aa1d76a4b25",
         "title": "Introducing Tasklet: Automate your business with AI agents",
         "publisher": "Tasklet",
         "domain": "tasklet.ai",
         "sourceType": "company_post",
         "publishedAt": "2025-10-09T00:00:00.000Z",
         "evidenceRole": "primary",
-        "url": "https://tasklet.ai/blog.xml",
+        "url": "https://tasklet.ai/blog/2025-10-09-introducing-tasklet",
         "publicationDate": "2025-10-09T00:00:00.000Z",
         "excerpt": "Tasklet is an AI agent platform for automating business operations. Describe the work in plain English, connect your tools, and let agents run automatically.",
         "sourceEventDate": "2025-10-09",
@@ -47,17 +47,17 @@
     ],
     "posts": [
       {
-        "id": "post-33b3cca7aa04f10042df3c0a",
+        "id": "post-22560efc50ab13e454cb8795",
         "platform": "rss",
         "account": "Tasklet",
         "postDate": "2025-10-09",
         "excerpt": "Tasklet is an AI agent platform for automating business operations. Describe the work in plain English, connect your tools, and let agents run automatically.",
-        "url": "https://tasklet.ai/blog.xml",
+        "url": "https://tasklet.ai/blog/2025-10-09-introducing-tasklet",
         "metrics": {},
         "evidenceRole": "primary"
       }
     ]
   },
-  "generatedAt": "2026-08-09T12:09:17.709Z",
-  "lastModifiedAt": "2026-08-09T12:09:17.709Z"
+  "generatedAt": "2026-08-09T16:13:15.624Z",
+  "lastModifiedAt": "2026-08-09T16:13:15.624Z"
 }

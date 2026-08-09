@@ -5,8 +5,8 @@
     "slug": "openwork",
     "name": "OpenWork"
   },
-  "generatedAt": "2026-08-09T12:09:17.709Z",
-  "lastModifiedAt": "2026-08-09T12:09:17.709Z",
+  "generatedAt": "2026-08-09T16:13:15.624Z",
+  "lastModifiedAt": "2026-08-09T16:13:15.624Z",
   "events": [
     {
       "id": "tle-b1b8a22b8c3555944daa0fa7",
@@ -58,15 +58,15 @@
     },
     {
       "id": "tle-0c6a60fb663ed7efb3ec6391",
-      "eventDate": "2026-06-18",
+      "eventDate": "2026-07-17",
       "eventDateType": "announcement_date",
       "title": "OpenWork announced its public launch",
       "summary": "OpenWork announced it was releasing OpenWork Connect.",
       "category": "product_launch",
-      "isMajor": true,
+      "isMajor": false,
       "hasConflict": false,
       "conflictSummary": null,
-      "evidenceCount": 2,
+      "evidenceCount": 1,
       "sourcePreview": [
         {
           "id": "src-4a4d0a3900d198d0dd59d0ad",
@@ -77,16 +77,6 @@
           "publishedAt": "2026-07-17T01:35:10.000Z",
           "evidenceRole": "primary",
           "url": "https://x.com/benjaminshafii/status/2077930072850440564"
-        },
-        {
-          "id": "src-39514f314c1276ae57e202a6",
-          "title": "Introducing \"OpenWork Coworker\". OpenWork is all about helping you create and share workflows with the rest of your team. We've talked to many teams who deploy AI Coworkers onto Slack, emails, and beyond. They all make you either: a) make…",
-          "publisher": "benjaminshafii X post",
-          "domain": "x.com",
-          "sourceType": "founder_post",
-          "publishedAt": "2026-06-18T00:00:00.000Z",
-          "evidenceRole": "primary",
-          "url": "https://x.com/benjaminshafii/status/2067665463715549526"
         }
       ]
     },
@@ -115,6 +105,40 @@
       ]
     },
     {
+      "id": "tle-853f1a704a9da60a26a477c9",
+      "eventDate": "2026-03-12",
+      "eventDateType": "announcement_date",
+      "title": "OpenWork announced its public launch",
+      "summary": "Announcing OpenWork Share Share any skills through a nice unique link.",
+      "category": "product_launch",
+      "isMajor": true,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 2,
+      "sourcePreview": [
+        {
+          "id": "src-34b5ed8887c8c911ff082960",
+          "title": "Announcing OpenWork Share Share any skills through a nice unique link. Free to use, no account required.",
+          "publisher": "getopenwork",
+          "domain": "x.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-03-12T04:31:28.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/getopenwork/status/2031951181036339687"
+        },
+        {
+          "id": "src-39514f314c1276ae57e202a6",
+          "title": "Introducing \"OpenWork Coworker\". OpenWork is all about helping you create and share workflows with the rest of your team. We've talked to many teams who deploy AI Coworkers onto Slack, emails, and beyond. They all make you either: a) make…",
+          "publisher": "benjaminshafii X post",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-06-18T00:00:00.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/benjaminshafii/status/2067665463715549526"
+        }
+      ]
+    },
+    {
       "id": "tle-467a7bb687f507212be4f1e6",
       "eventDate": "2026-03-12",
       "eventDateType": "announcement_date",
@@ -137,40 +161,6 @@
           "url": "https://x.com/getopenwork/status/2031951829890973884"
         }
       ]
-    },
-    {
-      "id": "tle-51bf49f4327aa57b3f979f04",
-      "eventDate": "2026-01-17",
-      "eventDateType": "occurrence_date",
-      "title": "OpenWork launched on Product Hunt",
-      "summary": "OpenWork announced openWork launched on Product Hunt.",
-      "category": "product_launch",
-      "isMajor": true,
-      "hasConflict": false,
-      "conflictSummary": null,
-      "evidenceCount": 2,
-      "sourcePreview": [
-        {
-          "id": "src-38df550e3261843c8d3553ac",
-          "title": "OpenWork",
-          "publisher": "benjamin_shafii",
-          "domain": "producthunt.com",
-          "sourceType": "product_hunt",
-          "publishedAt": "2026-01-17T15:00:00.000Z",
-          "evidenceRole": "primary",
-          "url": "https://producthunt.com/products/openwork/launches/openwork"
-        },
-        {
-          "id": "src-34b5ed8887c8c911ff082960",
-          "title": "Announcing OpenWork Share Share any skills through a nice unique link. Free to use, no account required.",
-          "publisher": "getopenwork",
-          "domain": "x.com",
-          "sourceType": "company_post",
-          "publishedAt": "2026-03-12T04:31:28.000Z",
-          "evidenceRole": "primary",
-          "url": "https://x.com/getopenwork/status/2031951181036339687"
-        }
-      ]
     }
   ],
   "groups": [
@@ -183,19 +173,11 @@
         },
         {
           "month": "2026-07",
-          "count": 1
-        },
-        {
-          "month": "2026-06",
-          "count": 1
-        },
-        {
-          "month": "2026-03",
           "count": 2
         },
         {
-          "month": "2026-01",
-          "count": 1
+          "month": "2026-03",
+          "count": 3
         }
       ]
     }
@@ -203,7 +185,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 6,
-    "lastSuccessfulArtifactAt": "2026-08-09T12:09:17.709Z"
+    "lastSuccessfulArtifactAt": "2026-08-09T16:13:15.624Z"
   },
   "nextCursor": null
 }

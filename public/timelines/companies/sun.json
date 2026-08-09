@@ -5,8 +5,8 @@
     "slug": "sun",
     "name": "SUN"
   },
-  "generatedAt": "2026-08-09T12:09:17.709Z",
-  "lastModifiedAt": "2026-08-09T12:09:17.709Z",
+  "generatedAt": "2026-08-09T16:13:15.624Z",
+  "lastModifiedAt": "2026-08-09T16:13:15.624Z",
   "events": [
     {
       "id": "tle-fe554ffcc6de9d022e53b5fb",
@@ -39,30 +39,6 @@
           "publishedAt": "2026-05-17T00:00:00.000Z",
           "evidenceRole": "primary",
           "url": "https://www.producthunt.com/products/sun-ai/launches/sun-to-spotify"
-        }
-      ]
-    },
-    {
-      "id": "tle-8288053c6f6c59064edadd0c",
-      "eventDate": "2026-04-03",
-      "eventDateType": "announcement_date",
-      "title": "SUN released on Product Hunt",
-      "summary": "SUN reported i launched on Product Hunt today, how do you get initial upvotes.",
-      "category": "product_launch",
-      "isMajor": false,
-      "hasConflict": false,
-      "conflictSummary": null,
-      "evidenceCount": 1,
-      "sourcePreview": [
-        {
-          "id": "src-14d4f1262773369223f8d8ef",
-          "title": "I launched on Product Hunt today, how do you get initial upvotes?",
-          "publisher": "Total_Birthday8070",
-          "domain": "old.reddit.com",
-          "sourceType": "company_post",
-          "publishedAt": "2026-04-03T04:35:51.000Z",
-          "evidenceRole": "primary",
-          "url": "https://old.reddit.com/r/ProductHunters/comments/1s2af51/i_launched_on_product_hunt_today_how_do_you_get/oe0kecu"
         }
       ]
     },
@@ -222,10 +198,6 @@
           "count": 1
         },
         {
-          "month": "2026-04",
-          "count": 1
-        },
-        {
           "month": "2026-03",
           "count": 4
         }
@@ -234,8 +206,8 @@
   ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 6,
-    "lastSuccessfulArtifactAt": "2026-08-09T12:09:17.709Z"
+    "publishedEventCount": 5,
+    "lastSuccessfulArtifactAt": "2026-08-09T16:13:15.624Z"
   },
   "nextCursor": null
 }

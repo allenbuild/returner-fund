@@ -1,0 +1,63 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-graphify-labs",
+    "slug": "graphify-labs",
+    "name": "Graphify Labs"
+  },
+  "event": {
+    "id": "tle-97e477549dffcfd79b87ab69",
+    "eventDate": "2026-07-01",
+    "eventDateType": "announcement_date",
+    "title": "Graphify Labs released Graphify",
+    "summary": "Graphify Labs introduced Graphify: a knowledge graph for your codebase, inside your coding assistant.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-f6dbf38e546a4bac913d38c5",
+        "title": "Introducing Graphify: a knowledge graph for your codebase, inside your coding assistant",
+        "publisher": "Graphify Labs",
+        "domain": "graphify.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-07-01T00:00:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://graphify.com/blog/introducing-graphify"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-f6dbf38e546a4bac913d38c5",
+        "title": "Introducing Graphify: a knowledge graph for your codebase, inside your coding assistant",
+        "publisher": "Graphify Labs",
+        "domain": "graphify.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-07-01T00:00:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://graphify.com/blog/introducing-graphify",
+        "publicationDate": "2026-07-01T00:00:00.000Z",
+        "excerpt": "One command, /graphify ., maps your repo into a knowledge graph your AI assistant queries instead of grepping. Open source, on-device, works in 17 assistants.",
+        "sourceEventDate": "2026-07-01",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-e176cdfb5d4c9fdab604efca",
+        "platform": "rss",
+        "account": "Graphify Labs",
+        "postDate": "2026-07-01",
+        "excerpt": "One command, /graphify ., maps your repo into a knowledge graph your AI assistant queries instead of grepping. Open source, on-device, works in 17 assistants.",
+        "url": "https://graphify.com/blog/introducing-graphify",
+        "metrics": {},
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-09T16:13:15.624Z",
+  "lastModifiedAt": "2026-08-09T16:13:15.624Z"
+}

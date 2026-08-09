@@ -5,8 +5,8 @@
     "slug": "superlog",
     "name": "Superlog"
   },
-  "generatedAt": "2026-08-09T12:09:17.709Z",
-  "lastModifiedAt": "2026-08-09T12:09:17.709Z",
+  "generatedAt": "2026-08-09T16:13:15.624Z",
+  "lastModifiedAt": "2026-08-09T16:13:15.624Z",
   "events": [
     {
       "id": "tle-01197a4ccb8f5928ae8a172b",
@@ -153,27 +153,17 @@
       ]
     },
     {
-      "id": "tle-de1c53642537b36390742bc4",
-      "eventDate": "2026-06-02",
-      "eventDateType": "occurrence_date",
+      "id": "tle-aca423a22adbb3ae852ad62b",
+      "eventDate": "2026-06-03",
+      "eventDateType": "announcement_date",
       "title": "Superlog launched on Product Hunt",
-      "summary": "Superlog announced superlog launched on Product Hunt.",
+      "summary": "Superlog is live on Product Hunt with @superlogYC, and we need your vote.",
       "category": "product_launch",
-      "isMajor": true,
+      "isMajor": false,
       "hasConflict": false,
       "conflictSummary": null,
-      "evidenceCount": 2,
+      "evidenceCount": 1,
       "sourcePreview": [
-        {
-          "id": "src-ef42005b138f4d329c8dc9cc",
-          "title": "superlog",
-          "publisher": "garrytan",
-          "domain": "producthunt.com",
-          "sourceType": "product_hunt",
-          "publishedAt": "2026-06-02T15:00:00.000Z",
-          "evidenceRole": "primary",
-          "url": "https://producthunt.com/products/superlog/launches/superlog"
-        },
         {
           "id": "src-76b465fb305ee432d682ee2f",
           "title": "We are live on Product Hunt with @superlogYC, and we need your vote! This launch was never meant to stop at a single milestone. After topping #Bookface and reaching the front page of #HackerNews, we decided to go all in and launch Super...",
@@ -233,7 +223,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 8,
-    "lastSuccessfulArtifactAt": "2026-08-09T12:09:17.709Z"
+    "lastSuccessfulArtifactAt": "2026-08-09T16:13:15.624Z"
   },
   "nextCursor": null
 }

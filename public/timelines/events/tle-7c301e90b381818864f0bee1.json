@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-tasklet-2",
+    "slug": "tasklet",
+    "name": "Tasklet"
+  },
+  "event": {
+    "id": "tle-7c301e90b381818864f0bee1",
+    "eventDate": "2026-01-13",
+    "eventDateType": "announcement_date",
+    "title": "Tasklet released talking to via iMessage - DM me if you want early access",
+    "summary": "Tasklet is shipping talking to @taskletai via iMessage - DM me if you want early access.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-2d9cd2ab7740bd2c8997e1f3",
+        "title": "we're shipping talking to @taskletai via iMessage - DM me if you want early access!",
+        "publisher": "jonnydimond",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-01-13T02:21:10.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/jonnydimond/status/2010899896828920122"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-2d9cd2ab7740bd2c8997e1f3",
+        "title": "we're shipping talking to @taskletai via iMessage - DM me if you want early access!",
+        "publisher": "jonnydimond",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-01-13T02:21:10.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/jonnydimond/status/2010899896828920122",
+        "publicationDate": "2026-01-13T02:21:10.000Z",
+        "excerpt": "we're shipping talking to @taskletai via iMessage - DM me if you want early access!",
+        "sourceEventDate": "2026-01-13",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-087041bf7370369219af885f",
+        "platform": "x",
+        "account": "jonnydimond",
+        "postDate": "2026-01-13",
+        "excerpt": "we're shipping talking to @taskletai via iMessage - DM me if you want early access!",
+        "url": "https://x.com/jonnydimond/status/2010899896828920122",
+        "metrics": {
+          "views": 65,
+          "likes": 0,
+          "replies": 0,
+          "reposts": 0,
+          "quotes": 0,
+          "bookmarks": 0
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-09T16:13:15.624Z",
+  "lastModifiedAt": "2026-08-09T16:13:15.624Z"
+}

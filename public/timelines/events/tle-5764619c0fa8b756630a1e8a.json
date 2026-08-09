@@ -1,0 +1,63 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-allowance",
+    "slug": "allowance",
+    "name": "Allowance"
+  },
+  "event": {
+    "id": "tle-5764619c0fa8b756630a1e8a",
+    "eventDate": "2026-07-29",
+    "eventDateType": "announcement_date",
+    "title": "Allowance released Rewards Optimization",
+    "summary": "Allowance introduced Rewards Optimization.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-4ac8aa1fe0e28b7eeb026fec",
+        "title": "Introducing Rewards Optimization",
+        "publisher": "Allowance",
+        "domain": "useallowance.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-07-29T00:00:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://useallowance.com/blog/introducing-rewards-optimization"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-4ac8aa1fe0e28b7eeb026fec",
+        "title": "Introducing Rewards Optimization",
+        "publisher": "Allowance",
+        "domain": "useallowance.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-07-29T00:00:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://useallowance.com/blog/introducing-rewards-optimization",
+        "publicationDate": "2026-07-29T00:00:00.000Z",
+        "excerpt": "Turn on Rewards Optimization and Allowance will choose the best eligible card for every purchase you approve.",
+        "sourceEventDate": "2026-07-29",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-82cb6a5db0fa35395100bc84",
+        "platform": "rss",
+        "account": "Allowance",
+        "postDate": "2026-07-29",
+        "excerpt": "Turn on Rewards Optimization and Allowance will choose the best eligible card for every purchase you approve.",
+        "url": "https://useallowance.com/blog/introducing-rewards-optimization",
+        "metrics": {},
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-09T16:13:15.624Z",
+  "lastModifiedAt": "2026-08-09T16:13:15.624Z"
+}

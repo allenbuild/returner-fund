@@ -5,9 +5,57 @@
     "slug": "testerarmy",
     "name": "TesterArmy"
   },
-  "generatedAt": "2026-08-09T12:09:17.709Z",
-  "lastModifiedAt": "2026-08-09T12:09:17.709Z",
+  "generatedAt": "2026-08-09T16:13:15.624Z",
+  "lastModifiedAt": "2026-08-09T16:13:15.624Z",
   "events": [
+    {
+      "id": "tle-41d46060945ea1a9cf1af2be",
+      "eventDate": "2026-07-22",
+      "eventDateType": "announcement_date",
+      "title": "TesterArmy released Scout",
+      "summary": "TesterArmy introduced Scout: API Testing Built for AI Agents.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-8ce747a65ff5f8d74567a575",
+          "title": "Introducing Scout: API Testing Built for AI Agents",
+          "publisher": "TesterArmy",
+          "domain": "tester.army",
+          "sourceType": "company_post",
+          "publishedAt": "2026-07-22T00:00:00.000Z",
+          "evidenceRole": "primary",
+          "url": "https://tester.army/blog/introducing-scout-api-testing-for-agents"
+        }
+      ]
+    },
+    {
+      "id": "tle-c3ffc30257215d220781caec",
+      "eventDate": "2026-07-17",
+      "eventDateType": "announcement_date",
+      "title": "TesterArmy added support for Netlify Deploy Previews",
+      "summary": "TesterArmy Now Supports Netlify Deploy Previews.",
+      "category": "product_update",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-4610b19a2a338f469b21b78c",
+          "title": "TesterArmy Now Supports Netlify Deploy Previews",
+          "publisher": "TesterArmy",
+          "domain": "tester.army",
+          "sourceType": "company_post",
+          "publishedAt": "2026-07-17T00:00:00.000Z",
+          "evidenceRole": "primary",
+          "url": "https://tester.army/blog/testerarmy-netlify-deploy-previews"
+        }
+      ]
+    },
     {
       "id": "tle-46c30c99526a253c8a45eeb6",
       "eventDate": "2026-07-17",
@@ -111,7 +159,7 @@
       "months": [
         {
           "month": "2026-07",
-          "count": 1
+          "count": 3
         },
         {
           "month": "2026-06",
@@ -122,8 +170,8 @@
   ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 4,
-    "lastSuccessfulArtifactAt": "2026-08-09T12:09:17.709Z"
+    "publishedEventCount": 6,
+    "lastSuccessfulArtifactAt": "2026-08-09T16:13:15.624Z"
   },
   "nextCursor": null
 }

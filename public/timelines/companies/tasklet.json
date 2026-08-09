@@ -5,8 +5,8 @@
     "slug": "tasklet",
     "name": "Tasklet"
   },
-  "generatedAt": "2026-08-09T12:09:17.709Z",
-  "lastModifiedAt": "2026-08-09T12:09:17.709Z",
+  "generatedAt": "2026-08-09T16:13:15.624Z",
+  "lastModifiedAt": "2026-08-09T16:13:15.624Z",
   "events": [
     {
       "id": "tle-2a2b18563749c7aadbe2b4d2",
@@ -29,6 +29,54 @@
           "publishedAt": "2026-05-22T17:55:59.000Z",
           "evidenceRole": "primary",
           "url": "https://x.com/TaskletAI/status/2057883182922694887"
+        }
+      ]
+    },
+    {
+      "id": "tle-184bd5da6294a2739a2d4670",
+      "eventDate": "2026-05-13",
+      "eventDateType": "announcement_date",
+      "title": "Tasklet released version 5.5",
+      "summary": "Tasklet now supports GPT-5.5 & Image Generation.",
+      "category": "product_update",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-9f0e49b4e4bb0d77ba12bbbb",
+          "title": "Tasklet now supports GPT-5.5 & Image Generation",
+          "publisher": "Tasklet",
+          "domain": "tasklet.ai",
+          "sourceType": "company_post",
+          "publishedAt": "2026-05-13T00:00:00.000Z",
+          "evidenceRole": "primary",
+          "url": "https://tasklet.ai/blog/2026-05-13-gpt-5-5-image-generation"
+        }
+      ]
+    },
+    {
+      "id": "tle-99817e49e0c837a1c06068e2",
+      "eventDate": "2026-04-27",
+      "eventDateType": "announcement_date",
+      "title": "Tasklet released agent web browser",
+      "summary": "Tasklet introduced the agent web browser: faster, cheaper & more reliable.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-2a73e0fe90e085dd69385662",
+          "title": "Introducing the agent web browser: faster, cheaper & more reliable",
+          "publisher": "Tasklet",
+          "domain": "tasklet.ai",
+          "sourceType": "company_post",
+          "publishedAt": "2026-04-27T00:00:00.000Z",
+          "evidenceRole": "primary",
+          "url": "https://tasklet.ai/blog/2026-04-27-agent-browser"
         }
       ]
     },
@@ -61,13 +109,33 @@
       "eventDate": "2026-04-07",
       "eventDateType": "announcement_date",
       "title": "Tasklet announced $20M funding round",
-      "summary": "Tasklet just raised $20M to build the cloud agent operating system for work.",
+      "summary": "Tasklet has raised $20M to build the cloud agent OS for work.",
       "category": "funding",
       "isMajor": true,
       "hasConflict": false,
       "conflictSummary": null,
-      "evidenceCount": 1,
+      "evidenceCount": 3,
       "sourcePreview": [
+        {
+          "id": "src-62acd0c30b21d8f1a97fd1e9",
+          "title": "We've raised $20M to build the cloud agent OS for work",
+          "publisher": "Tasklet",
+          "domain": "tasklet.ai",
+          "sourceType": "company_post",
+          "publishedAt": "2026-04-07T00:00:00.000Z",
+          "evidenceRole": "primary",
+          "url": "https://tasklet.ai/blog/2026-04-07-20m-funding"
+        },
+        {
+          "id": "src-106e6f4781609ebee6993d9d",
+          "title": "We just raised $20M from @usv, @lightspeedvp, @ycombinator, @JeffDean, @patrickc, and others to build the cloud agent OS for work. ...and I’m officially back in @ycombinator — spring ‘26 batch. It’s time to seize the moment. We're hiring!…",
+          "publisher": "startupandrew",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-04-07T17:13:22.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/startupandrew/status/2041565004621869423"
+        },
         {
           "id": "src-8378ae1988d81c7249624e7c",
           "title": "We just raised $20M to build the cloud agent operating system for work. The investment is led by @usv & @lightspeedvp and includes @ycombinator, @JeffDean, @patrickc & others. It values the company at $175M. 🧵",
@@ -153,6 +221,54 @@
       ]
     },
     {
+      "id": "tle-78f2750ea70cf1992e6e8029",
+      "eventDate": "2026-02-26",
+      "eventDateType": "announcement_date",
+      "title": "Tasklet released Instant Apps",
+      "summary": "Tasklet introduced Instant Apps: create the perfect app for yourself, right when you need it.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-5438dc779418dffbe9941f98",
+          "title": "Introducing Instant Apps: create the perfect app for yourself, right when you need it",
+          "publisher": "Tasklet",
+          "domain": "tasklet.ai",
+          "sourceType": "company_post",
+          "publishedAt": "2026-02-26T00:00:00.000Z",
+          "evidenceRole": "primary",
+          "url": "https://tasklet.ai/blog/2026-02-26-instant-apps"
+        }
+      ]
+    },
+    {
+      "id": "tle-7c301e90b381818864f0bee1",
+      "eventDate": "2026-01-13",
+      "eventDateType": "announcement_date",
+      "title": "Tasklet released talking to via iMessage - DM me if you want early access",
+      "summary": "Tasklet is shipping talking to @taskletai via iMessage - DM me if you want early access.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-2d9cd2ab7740bd2c8997e1f3",
+          "title": "we're shipping talking to @taskletai via iMessage - DM me if you want early access!",
+          "publisher": "jonnydimond",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-01-13T02:21:10.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/jonnydimond/status/2010899896828920122"
+        }
+      ]
+    },
+    {
       "id": "tle-a271e9ad1aaec3f522cd65a4",
       "eventDate": "2025-10-09",
       "eventDateType": "announcement_date",
@@ -165,14 +281,14 @@
       "evidenceCount": 1,
       "sourcePreview": [
         {
-          "id": "src-e46172bcfb0b45ce79b7f0cf",
+          "id": "src-6e76e03fb86d0aa1d76a4b25",
           "title": "Introducing Tasklet: Automate your business with AI agents",
           "publisher": "Tasklet",
           "domain": "tasklet.ai",
           "sourceType": "company_post",
           "publishedAt": "2025-10-09T00:00:00.000Z",
           "evidenceRole": "primary",
-          "url": "https://tasklet.ai/blog.xml"
+          "url": "https://tasklet.ai/blog/2025-10-09-introducing-tasklet"
         }
       ]
     }
@@ -183,11 +299,11 @@
       "months": [
         {
           "month": "2026-05",
-          "count": 1
+          "count": 2
         },
         {
           "month": "2026-04",
-          "count": 2
+          "count": 3
         },
         {
           "month": "2026-03",
@@ -195,6 +311,10 @@
         },
         {
           "month": "2026-02",
+          "count": 2
+        },
+        {
+          "month": "2026-01",
           "count": 1
         }
       ]
@@ -211,8 +331,8 @@
   ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 7,
-    "lastSuccessfulArtifactAt": "2026-08-09T12:09:17.709Z"
+    "publishedEventCount": 11,
+    "lastSuccessfulArtifactAt": "2026-08-09T16:13:15.624Z"
   },
   "nextCursor": null
 }

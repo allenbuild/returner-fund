@@ -1,0 +1,63 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-testerarmy",
+    "slug": "testerarmy",
+    "name": "TesterArmy"
+  },
+  "event": {
+    "id": "tle-c3ffc30257215d220781caec",
+    "eventDate": "2026-07-17",
+    "eventDateType": "announcement_date",
+    "title": "TesterArmy added support for Netlify Deploy Previews",
+    "summary": "TesterArmy Now Supports Netlify Deploy Previews.",
+    "category": "product_update",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-4610b19a2a338f469b21b78c",
+        "title": "TesterArmy Now Supports Netlify Deploy Previews",
+        "publisher": "TesterArmy",
+        "domain": "tester.army",
+        "sourceType": "company_post",
+        "publishedAt": "2026-07-17T00:00:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://tester.army/blog/testerarmy-netlify-deploy-previews"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-4610b19a2a338f469b21b78c",
+        "title": "TesterArmy Now Supports Netlify Deploy Previews",
+        "publisher": "TesterArmy",
+        "domain": "tester.army",
+        "sourceType": "company_post",
+        "publishedAt": "2026-07-17T00:00:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://tester.army/blog/testerarmy-netlify-deploy-previews",
+        "publicationDate": "2026-07-17T00:00:00.000Z",
+        "excerpt": "Netlify Deploy Previews can now trigger TesterArmy automatically. Test every pull request on its real preview URL and get the results back in GitHub before merge.",
+        "sourceEventDate": "2026-07-17",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-a21ee5d554ae0795634f99d0",
+        "platform": "rss",
+        "account": "TesterArmy",
+        "postDate": "2026-07-17",
+        "excerpt": "Netlify Deploy Previews can now trigger TesterArmy automatically. Test every pull request on its real preview URL and get the results back in GitHub before merge.",
+        "url": "https://tester.army/blog/testerarmy-netlify-deploy-previews",
+        "metrics": {},
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-09T16:13:15.624Z",
+  "lastModifiedAt": "2026-08-09T16:13:15.624Z"
+}

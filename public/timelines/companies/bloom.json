@@ -5,8 +5,8 @@
     "slug": "bloom",
     "name": "Bloom"
   },
-  "generatedAt": "2026-08-09T12:09:17.709Z",
-  "lastModifiedAt": "2026-08-09T12:09:17.709Z",
+  "generatedAt": "2026-08-09T16:13:15.624Z",
+  "lastModifiedAt": "2026-08-09T16:13:15.624Z",
   "events": [
     {
       "id": "tle-8674ef48150c3a3d1f8ffd2f",
@@ -31,6 +31,30 @@
           "url": "https://x.com/trybloomai/status/2061469236871225652"
         }
       ]
+    },
+    {
+      "id": "tle-806557bea577404fa64c205a",
+      "eventDate": "2026-06-01",
+      "eventDateType": "announcement_date",
+      "title": "Bloom announced its public launch",
+      "summary": "Bloom launched Bloom on @ycombinator🌸 > New positioning > Big customers and use cases > Fresh website (check below).",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-b7a5a987ffc5db97f803fc90",
+          "title": "We launched Bloom on @ycombinator🌸 > New positioning > Big customers and use cases > Fresh website (check below)",
+          "publisher": "rincidium",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-06-01T16:17:38.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/rincidium/status/2061482314266481094"
+        }
+      ]
     }
   ],
   "groups": [
@@ -39,15 +63,15 @@
       "months": [
         {
           "month": "2026-06",
-          "count": 1
+          "count": 2
         }
       ]
     }
   ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-08-09T12:09:17.709Z"
+    "publishedEventCount": 2,
+    "lastSuccessfulArtifactAt": "2026-08-09T16:13:15.624Z"
   },
   "nextCursor": null
 }

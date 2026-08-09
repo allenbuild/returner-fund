@@ -1,0 +1,63 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-tasklet-2",
+    "slug": "tasklet",
+    "name": "Tasklet"
+  },
+  "event": {
+    "id": "tle-184bd5da6294a2739a2d4670",
+    "eventDate": "2026-05-13",
+    "eventDateType": "announcement_date",
+    "title": "Tasklet released version 5.5",
+    "summary": "Tasklet now supports GPT-5.5 & Image Generation.",
+    "category": "product_update",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-9f0e49b4e4bb0d77ba12bbbb",
+        "title": "Tasklet now supports GPT-5.5 & Image Generation",
+        "publisher": "Tasklet",
+        "domain": "tasklet.ai",
+        "sourceType": "company_post",
+        "publishedAt": "2026-05-13T00:00:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://tasklet.ai/blog/2026-05-13-gpt-5-5-image-generation"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-9f0e49b4e4bb0d77ba12bbbb",
+        "title": "Tasklet now supports GPT-5.5 & Image Generation",
+        "publisher": "Tasklet",
+        "domain": "tasklet.ai",
+        "sourceType": "company_post",
+        "publishedAt": "2026-05-13T00:00:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://tasklet.ai/blog/2026-05-13-gpt-5-5-image-generation",
+        "publicationDate": "2026-05-13T00:00:00.000Z",
+        "excerpt": "Tasklet agents can now use GPT-5.5 across connected workflows and generate visual assets with GPT Image 2.0.",
+        "sourceEventDate": "2026-05-13",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-43172e62cff1ab3a9cebd30b",
+        "platform": "rss",
+        "account": "Tasklet",
+        "postDate": "2026-05-13",
+        "excerpt": "Tasklet agents can now use GPT-5.5 across connected workflows and generate visual assets with GPT Image 2.0.",
+        "url": "https://tasklet.ai/blog/2026-05-13-gpt-5-5-image-generation",
+        "metrics": {},
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-09T16:13:15.624Z",
+  "lastModifiedAt": "2026-08-09T16:13:15.624Z"
+}

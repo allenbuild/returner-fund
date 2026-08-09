@@ -553,7 +553,54 @@ describe("public evidence operational ledger split", () => {
     );
   });
 
-  it("reads the checked-in v1 pair and deterministically upgrades it in memory", async () => {
+  it("deterministically upgrades a legacy v1 pair in memory", () => {
+    const pair = buildPublicEvidenceArtifactPair(publicEvidenceFixture());
+    const legacyLedgerBody = `${JSON.stringify({
+      schemaVersion: "public-ingestion-operational-ledger.v1",
+      failures: pair.operationalLedger.failures,
+      attempts: pair.operationalLedger.attempts,
+      discoveryAttempts: pair.operationalLedger.discoveryAttempts,
+      sourceDiscoveryPaths: pair.operationalLedger.sourceDiscoveryPaths
+    })}\n`;
+    const legacyCanonical = structuredClone(pair.canonical);
+    delete legacyCanonical.source.operationalRetention;
+    legacyCanonical.operationalLedgerRef = {
+      schemaVersion: "public-evidence-operational-ledger-reference.v1",
+      path: PUBLIC_EVIDENCE_OPERATIONAL_LEDGER_PATH,
+      sha256: sha256(legacyLedgerBody),
+      bytes: Buffer.byteLength(legacyLedgerBody),
+      counts: pair.reference.counts
+    };
+
+    const hydrated = hydratePublicEvidenceArtifact(
+      legacyCanonical,
+      legacyLedgerBody,
+      { reviewLedgerSource: pair.reviewLedgerBody }
+    );
+    const rebuilt = buildPublicEvidenceArtifactPair(hydrated);
+
+    assert.equal(rebuilt.operationalLedger.schemaVersion, PUBLIC_EVIDENCE_OPERATIONAL_LEDGER_VERSION);
+    assert.equal(
+      rebuilt.reference.schemaVersion,
+      "public-evidence-operational-ledger-reference.v2"
+    );
+    assert.notEqual(rebuilt.canonicalBody, `${JSON.stringify(legacyCanonical)}\n`);
+    assert.notEqual(rebuilt.ledgerBody, legacyLedgerBody);
+    assert.equal(rebuilt.reviewLedgerBody, pair.reviewLedgerBody);
+    assert.deepEqual(rebuilt.canonical.evidence, hydrated.evidence);
+    assert.deepEqual(rebuilt.reviewLedger.needsReview, hydrated.needsReview);
+
+    const replayed = buildPublicEvidenceArtifactPair(
+      hydratePublicEvidenceArtifact(rebuilt.canonical, rebuilt.ledgerBody, {
+        reviewLedgerSource: rebuilt.reviewLedgerBody
+      })
+    );
+    assert.equal(replayed.canonicalBody, rebuilt.canonicalBody);
+    assert.equal(replayed.ledgerBody, rebuilt.ledgerBody);
+    assert.equal(replayed.reviewLedgerBody, rebuilt.reviewLedgerBody);
+  });
+
+  it("reads the checked-in bounded pair and rebuilds it idempotently", async () => {
     const root = process.cwd();
     const canonicalPath = join(root, "src/lib/social/public-evidence-current.json");
     const loaded = await readPublicEvidenceArtifact(canonicalPath, { rootDir: root });
@@ -561,8 +608,8 @@ describe("public evidence operational ledger split", () => {
     assert.equal(loaded.fullySplit, true);
     const rebuilt = buildPublicEvidenceArtifactPair(loaded.snapshot);
     assert.equal(rebuilt.operationalLedger.schemaVersion, PUBLIC_EVIDENCE_OPERATIONAL_LEDGER_VERSION);
-    assert.notEqual(rebuilt.canonicalBody, loaded.canonicalBytes.toString("utf8"));
-    assert.notEqual(rebuilt.ledgerBody, loaded.ledgerBytes.toString("utf8"));
+    assert.equal(rebuilt.canonicalBody, loaded.canonicalBytes.toString("utf8"));
+    assert.equal(rebuilt.ledgerBody, loaded.ledgerBytes.toString("utf8"));
     assert.equal(
       rebuilt.reviewLedgerBody,
       loaded.reviewLedgerBytes.toString("utf8")
@@ -575,7 +622,7 @@ describe("public evidence operational ledger split", () => {
     );
     assert.ok(rebuilt.reference.retention.prunedCounts.failures > 0);
     assert.ok(rebuilt.reference.retention.prunedCounts.discoveryAttempts > 0);
-    assert.ok(Buffer.byteLength(rebuilt.ledgerBody) < loaded.ledgerBytes.length);
+    assert.equal(Buffer.byteLength(rebuilt.ledgerBody), loaded.ledgerBytes.length);
     const hydrated = hydratePublicEvidenceArtifact(
       rebuilt.canonical,
       rebuilt.ledgerBody,

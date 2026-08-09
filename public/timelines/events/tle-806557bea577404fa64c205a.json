@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-trybloom",
+    "slug": "bloom",
+    "name": "Bloom"
+  },
+  "event": {
+    "id": "tle-806557bea577404fa64c205a",
+    "eventDate": "2026-06-01",
+    "eventDateType": "announcement_date",
+    "title": "Bloom announced its public launch",
+    "summary": "Bloom launched Bloom on @ycombinator🌸 > New positioning > Big customers and use cases > Fresh website (check below).",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-b7a5a987ffc5db97f803fc90",
+        "title": "We launched Bloom on @ycombinator🌸 > New positioning > Big customers and use cases > Fresh website (check below)",
+        "publisher": "rincidium",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-06-01T16:17:38.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/rincidium/status/2061482314266481094"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-b7a5a987ffc5db97f803fc90",
+        "title": "We launched Bloom on @ycombinator🌸 > New positioning > Big customers and use cases > Fresh website (check below)",
+        "publisher": "rincidium",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-06-01T16:17:38.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/rincidium/status/2061482314266481094",
+        "publicationDate": "2026-06-01T16:17:38.000Z",
+        "excerpt": "We launched Bloom on @ycombinator🌸 > New positioning > Big customers and use cases > Fresh website (check below)",
+        "sourceEventDate": "2026-06-01",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-960996c1169f09031ef8f3c1",
+        "platform": "x",
+        "account": "rincidium",
+        "postDate": "2026-06-01",
+        "excerpt": "We launched Bloom on @ycombinator🌸 > New positioning > Big customers and use cases > Fresh website (check below)",
+        "url": "https://x.com/rincidium/status/2061482314266481094",
+        "metrics": {
+          "views": 8971,
+          "likes": 63,
+          "replies": 6,
+          "reposts": 1,
+          "quotes": 0,
+          "bookmarks": 10
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-09T16:13:15.624Z",
+  "lastModifiedAt": "2026-08-09T16:13:15.624Z"
+}

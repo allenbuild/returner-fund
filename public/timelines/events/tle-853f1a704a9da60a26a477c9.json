@@ -1,0 +1,109 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-openwork",
+    "slug": "openwork",
+    "name": "OpenWork"
+  },
+  "event": {
+    "id": "tle-853f1a704a9da60a26a477c9",
+    "eventDate": "2026-03-12",
+    "eventDateType": "announcement_date",
+    "title": "OpenWork announced its public launch",
+    "summary": "Announcing OpenWork Share Share any skills through a nice unique link.",
+    "category": "product_launch",
+    "isMajor": true,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 2,
+    "sourcePreview": [
+      {
+        "id": "src-34b5ed8887c8c911ff082960",
+        "title": "Announcing OpenWork Share Share any skills through a nice unique link. Free to use, no account required.",
+        "publisher": "getopenwork",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-03-12T04:31:28.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/getopenwork/status/2031951181036339687"
+      },
+      {
+        "id": "src-39514f314c1276ae57e202a6",
+        "title": "Introducing \"OpenWork Coworker\". OpenWork is all about helping you create and share workflows with the rest of your team. We've talked to many teams who deploy AI Coworkers onto Slack, emails, and beyond. They all make you either: a) make…",
+        "publisher": "benjaminshafii X post",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-06-18T00:00:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/benjaminshafii/status/2067665463715549526"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-34b5ed8887c8c911ff082960",
+        "title": "Announcing OpenWork Share Share any skills through a nice unique link. Free to use, no account required.",
+        "publisher": "getopenwork",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-03-12T04:31:28.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/getopenwork/status/2031951181036339687",
+        "publicationDate": "2026-03-12T04:31:28.000Z",
+        "excerpt": "Announcing OpenWork Share Share any skills through a nice unique link. Free to use, no account required.",
+        "sourceEventDate": "2026-03-12",
+        "isConflicting": false,
+        "conflictDescription": null
+      },
+      {
+        "id": "src-39514f314c1276ae57e202a6",
+        "title": "Introducing \"OpenWork Coworker\". OpenWork is all about helping you create and share workflows with the rest of your team. We've talked to many teams who deploy AI Coworkers onto Slack, emails, and beyond. They all make you either: a) make…",
+        "publisher": "benjaminshafii X post",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-06-18T00:00:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/benjaminshafii/status/2067665463715549526",
+        "publicationDate": "2026-06-18T00:00:00.000Z",
+        "excerpt": "Introducing \"OpenWork Coworker\". OpenWork is all about helping you create and share workflows with the rest of your team. We've talked to many teams who deploy AI Coworkers onto Slack, emails, and beyond. They all make you either: a) make you host the entire infra on your Show more",
+        "sourceEventDate": "2026-06-18",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-d9c5f664be9032a79db97880",
+        "platform": "x",
+        "account": "getopenwork",
+        "postDate": "2026-03-12",
+        "excerpt": "Announcing OpenWork Share Share any skills through a nice unique link. Free to use, no account required.",
+        "url": "https://x.com/getopenwork/status/2031951181036339687",
+        "metrics": {
+          "views": 318,
+          "likes": 11,
+          "replies": 0,
+          "reposts": 0,
+          "quotes": 0,
+          "bookmarks": 3
+        },
+        "evidenceRole": "primary"
+      },
+      {
+        "id": "post-f9918994c0bc861ba356d222",
+        "platform": "x",
+        "account": "benjaminshafii X post",
+        "postDate": "2026-06-18",
+        "excerpt": "Introducing \"OpenWork Coworker\". OpenWork is all about helping you create and share workflows with the rest of your team. We've talked to many teams who deploy AI Coworkers onto Slack, emails, and beyond. They all make you either: a) make you host the entire infra on your Show more",
+        "url": "https://x.com/benjaminshafii/status/2067665463715549526",
+        "metrics": {
+          "likes": 16,
+          "reposts": 0,
+          "views": 902
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-09T16:13:15.624Z",
+  "lastModifiedAt": "2026-08-09T16:13:15.624Z"
+}

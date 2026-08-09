@@ -1,0 +1,63 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-tasklet-2",
+    "slug": "tasklet",
+    "name": "Tasklet"
+  },
+  "event": {
+    "id": "tle-99817e49e0c837a1c06068e2",
+    "eventDate": "2026-04-27",
+    "eventDateType": "announcement_date",
+    "title": "Tasklet released agent web browser",
+    "summary": "Tasklet introduced the agent web browser: faster, cheaper & more reliable.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-2a73e0fe90e085dd69385662",
+        "title": "Introducing the agent web browser: faster, cheaper & more reliable",
+        "publisher": "Tasklet",
+        "domain": "tasklet.ai",
+        "sourceType": "company_post",
+        "publishedAt": "2026-04-27T00:00:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://tasklet.ai/blog/2026-04-27-agent-browser"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-2a73e0fe90e085dd69385662",
+        "title": "Introducing the agent web browser: faster, cheaper & more reliable",
+        "publisher": "Tasklet",
+        "domain": "tasklet.ai",
+        "sourceType": "company_post",
+        "publishedAt": "2026-04-27T00:00:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://tasklet.ai/blog/2026-04-27-agent-browser",
+        "publicationDate": "2026-04-27T00:00:00.000Z",
+        "excerpt": "Every Tasklet agent now has a built-in browser for fast web automation, with shared control for logins and persistent sessions.",
+        "sourceEventDate": "2026-04-27",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-b57754b1e1d5d1484c1bf9d2",
+        "platform": "rss",
+        "account": "Tasklet",
+        "postDate": "2026-04-27",
+        "excerpt": "Every Tasklet agent now has a built-in browser for fast web automation, with shared control for logins and persistent sessions.",
+        "url": "https://tasklet.ai/blog/2026-04-27-agent-browser",
+        "metrics": {},
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-09T16:13:15.624Z",
+  "lastModifiedAt": "2026-08-09T16:13:15.624Z"
+}

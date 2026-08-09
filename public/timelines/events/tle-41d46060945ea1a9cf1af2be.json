@@ -1,0 +1,63 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-testerarmy",
+    "slug": "testerarmy",
+    "name": "TesterArmy"
+  },
+  "event": {
+    "id": "tle-41d46060945ea1a9cf1af2be",
+    "eventDate": "2026-07-22",
+    "eventDateType": "announcement_date",
+    "title": "TesterArmy released Scout",
+    "summary": "TesterArmy introduced Scout: API Testing Built for AI Agents.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-8ce747a65ff5f8d74567a575",
+        "title": "Introducing Scout: API Testing Built for AI Agents",
+        "publisher": "TesterArmy",
+        "domain": "tester.army",
+        "sourceType": "company_post",
+        "publishedAt": "2026-07-22T00:00:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://tester.army/blog/introducing-scout-api-testing-for-agents"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-8ce747a65ff5f8d74567a575",
+        "title": "Introducing Scout: API Testing Built for AI Agents",
+        "publisher": "TesterArmy",
+        "domain": "tester.army",
+        "sourceType": "company_post",
+        "publishedAt": "2026-07-22T00:00:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://tester.army/blog/introducing-scout-api-testing-for-agents",
+        "publicationDate": "2026-07-22T00:00:00.000Z",
+        "excerpt": "We built Scout, an open source CLI that gives coding agents a safe harness for testing APIs. Point it at an OpenAPI spec and it sweeps, fuzzes, and records findings - with guardrails on by default. In this walkthrough it finds three real bugs in the Swagger Petstore.",
+        "sourceEventDate": "2026-07-22",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-5f5aa6ca6434577e4f8f94ac",
+        "platform": "rss",
+        "account": "TesterArmy",
+        "postDate": "2026-07-22",
+        "excerpt": "We built Scout, an open source CLI that gives coding agents a safe harness for testing APIs. Point it at an OpenAPI spec and it sweeps, fuzzes, and records findings - with guardrails on by default. In this walkthrough it finds three real bugs in the Swagger Petstore.",
+        "url": "https://tester.army/blog/introducing-scout-api-testing-for-agents",
+        "metrics": {},
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-09T16:13:15.624Z",
+  "lastModifiedAt": "2026-08-09T16:13:15.624Z"
+}

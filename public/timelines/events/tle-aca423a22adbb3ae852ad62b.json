@@ -6,27 +6,17 @@
     "name": "Superlog"
   },
   "event": {
-    "id": "tle-de1c53642537b36390742bc4",
-    "eventDate": "2026-06-02",
-    "eventDateType": "occurrence_date",
+    "id": "tle-aca423a22adbb3ae852ad62b",
+    "eventDate": "2026-06-03",
+    "eventDateType": "announcement_date",
     "title": "Superlog launched on Product Hunt",
-    "summary": "Superlog announced superlog launched on Product Hunt.",
+    "summary": "Superlog is live on Product Hunt with @superlogYC, and we need your vote.",
     "category": "product_launch",
-    "isMajor": true,
+    "isMajor": false,
     "hasConflict": false,
     "conflictSummary": null,
-    "evidenceCount": 2,
+    "evidenceCount": 1,
     "sourcePreview": [
-      {
-        "id": "src-ef42005b138f4d329c8dc9cc",
-        "title": "superlog",
-        "publisher": "garrytan",
-        "domain": "producthunt.com",
-        "sourceType": "product_hunt",
-        "publishedAt": "2026-06-02T15:00:00.000Z",
-        "evidenceRole": "primary",
-        "url": "https://producthunt.com/products/superlog/launches/superlog"
-      },
       {
         "id": "src-76b465fb305ee432d682ee2f",
         "title": "We are live on Product Hunt with @superlogYC, and we need your vote! This launch was never meant to stop at a single milestone. After topping #Bookface and reaching the front page of #HackerNews, we decided to go all in and launch Super...",
@@ -40,21 +30,6 @@
     ],
     "evidence": [
       {
-        "id": "src-ef42005b138f4d329c8dc9cc",
-        "title": "superlog",
-        "publisher": "garrytan",
-        "domain": "producthunt.com",
-        "sourceType": "product_hunt",
-        "publishedAt": "2026-06-02T15:00:00.000Z",
-        "evidenceRole": "primary",
-        "url": "https://producthunt.com/products/superlog/launches/superlog",
-        "publicationDate": "2026-06-02T15:00:00.000Z",
-        "excerpt": "superlog",
-        "sourceEventDate": "2026-06-02",
-        "isConflicting": false,
-        "conflictDescription": null
-      },
-      {
         "id": "src-76b465fb305ee432d682ee2f",
         "title": "We are live on Product Hunt with @superlogYC, and we need your vote! This launch was never meant to stop at a single milestone. After topping #Bookface and reaching the front page of #HackerNews, we decided to go all in and launch Super...",
         "publisher": "nicolomagnante",
@@ -65,25 +40,12 @@
         "url": "https://x.com/nicolomagnante/status/2062199908388708427",
         "publicationDate": "2026-06-03T15:49:06.000Z",
         "excerpt": "We are live on Product Hunt with @superlogYC, and we need your vote! This launch was never meant to stop at a single milestone. After topping #Bookface and reaching the front page of #HackerNews, we decided to go all in and launch Superlog on Product Hunt, hunted by @garrytan, president of @ycombinator. We only have 12 hours, and every single upvote makes a difference. So once again, we need your support. Link in the first comment: 👉 Upvote/Comment Superlog (YC P26) on Product Hunt 🔁 Share…",
-        "sourceEventDate": "2026-06-02",
+        "sourceEventDate": "2026-06-03",
         "isConflicting": false,
         "conflictDescription": null
       }
     ],
     "posts": [
-      {
-        "id": "post-7d0c0ac6895f8ef781f51127",
-        "platform": "product_hunt",
-        "account": "garrytan",
-        "postDate": "2026-06-02",
-        "excerpt": "superlog",
-        "url": "https://producthunt.com/products/superlog/launches/superlog",
-        "metrics": {
-          "comments": 80,
-          "upvotes": 519
-        },
-        "evidenceRole": "primary"
-      },
       {
         "id": "post-9e328de7e9c4253ecf28c441",
         "platform": "x",
@@ -103,6 +65,6 @@
       }
     ]
   },
-  "generatedAt": "2026-08-09T12:09:17.709Z",
-  "lastModifiedAt": "2026-08-09T12:09:17.709Z"
+  "generatedAt": "2026-08-09T16:13:15.624Z",
+  "lastModifiedAt": "2026-08-09T16:13:15.624Z"
 }
