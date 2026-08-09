@@ -250,41 +250,11 @@ export function NodePanel({ node, evidence, highlightedFounderId }: NodePanelPro
 function InsiderContributions({ node }: { node: GraphNode }) {
   const breakdown = node.insiderScoreBreakdown!;
   return (
-    <section className="score-platform-section insider-score-section" aria-label="Insider score breakdown">
+    <section className="score-platform-section insider-score-section" aria-label="Insider adjustment">
       <h3>Insider adjustment</h3>
-      <p>
-        Published score {formatScore(breakdown.baseScore)}. Insider adjustment{" "}
-        {formatSignedScore(breakdown.insiderScoreAdjustment)}. Result{" "}
-        <strong>{formatScore(breakdown.finalScore)}</strong>.
-      </p>
-      <small>
-        Each matched insider contributes weight² influence and counts once, even with multiple posts. Published{" "}
-        influence {formatScore(breakdown.publishedInsiderInfluence)} → current influence{" "}
-        {formatScore(breakdown.weightedInsiderSubtotal)}.
-      </small>
-      <ol className="score-platform-contributions">
-        {breakdown.matches.map((match) => {
-          return (
-            <li key={match.memberId} className={match.included ? "" : "excluded"}>
-              <span>{match.displayName}</span>
-              <span className="score-platform-contribution">
-                <strong>
-                  {match.included
-                    ? `Weight ${match.effectiveWeight}² = ${formatScore(match.influenceScore)} influence`
-                    : "Excluded"}
-                </strong>
-                <small>
-                  Published {match.publishedWeight}² = {formatScore(match.publishedInfluenceScore)} · adjustment{" "}
-                  {formatSignedScore(match.adjustment)} · {formatItemCount(match.evidenceCount)}
-                </small>
-              </span>
-            </li>
-          );
-        })}
-      </ol>
-      {breakdown.selectedInsiderIds.length > 0 && (
-        <small>Visible score uses the selected Insider subset.</small>
-      )}
+      <span className="score-platform-contribution">
+        <strong>{formatSignedScore(breakdown.insiderScoreAdjustment)} pts</strong>
+      </span>
     </section>
   );
 }

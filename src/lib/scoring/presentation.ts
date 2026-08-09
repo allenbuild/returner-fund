@@ -19,10 +19,11 @@ export interface DisplayPlatformContribution extends WeightedPlatformScore {
 }
 
 /**
- * Apply the published global calibration to every visible platform row and
- * reconcile only the sub-point rounding residual to the published base score.
- * The model rounds the raw platform subtotal before headline calibration, so
- * independently formatted rows otherwise disagree with the score orb.
+ * Apply the published global calibration to each user-visible platform value.
+ * The scoring model and the UI both round, so the independently calibrated
+ * tenths can differ from the integer headline. Reconcile that residual through
+ * existing lower-ranked platform rows without inventing a synthetic row or
+ * changing the leading before/after contribution when the tail can absorb it.
  */
 export function displayPlatformContributions(
   node: Pick<GraphNode, "score" | "scoreBreakdown" | "insiderScoreBreakdown">
@@ -36,14 +37,16 @@ export function displayPlatformContributions(
   if (rows.length === 0) return [];
 
   const calibration = node.scoreBreakdown?.calibration;
-  const multiplier =
+  const scaleFactor = calibration?.scaleFactor;
+  const hasValidGlobalCalibration =
     calibration?.method === "global_best_ratio" &&
-    typeof calibration.scaleFactor === "number" &&
-    Number.isFinite(calibration.scaleFactor) &&
-    calibration.scaleFactor >= 0
-      ? calibration.scaleFactor
-      : 1;
-  const scaled = rows.map((row) => row.contribution * multiplier);
+    typeof scaleFactor === "number" &&
+    Number.isFinite(scaleFactor) &&
+    scaleFactor > 0;
+  const multiplier = hasValidGlobalCalibration ? Number(scaleFactor) : 1;
+  const scaled = rows.map((row) =>
+    roundToTenths(roundToTenths(row.contribution) * multiplier)
+  );
   const rawTotal = rows.reduce((sum, row) => sum + row.contribution, 0);
   const absoluteScore = node.scoreBreakdown?.absoluteScore;
   const baseScore = node.insiderScoreBreakdown?.baseScore ?? node.score;
@@ -52,9 +55,12 @@ export function displayPlatformContributions(
     Number.isFinite(absoluteScore) &&
     Math.abs(rawTotal - absoluteScore) <= 1;
   const displayValues =
-    isCanonicalRoundedSubtotal && Number.isFinite(baseScore) && baseScore >= 0
-      ? allocateTenths(scaled, baseScore)
-      : scaled.map((value) => roundToTenths(value));
+    hasValidGlobalCalibration &&
+    isCanonicalRoundedSubtotal &&
+    Number.isFinite(baseScore) &&
+    baseScore >= 0
+      ? reconcileVisibleTenths(scaled, baseScore)
+      : scaled;
 
   return rows.map((row, index) => ({
     ...row,
@@ -153,25 +159,41 @@ function percent(value: number): number {
   return Math.round(value * 10_000) / 100;
 }
 
-function allocateTenths(values: number[], target: number): number[] {
+function reconcileVisibleTenths(values: number[], target: number): number[] {
   const targetTenths = Math.max(0, Math.round(target * 10));
-  const total = values.reduce((sum, value) => sum + value, 0);
-  if (!(total > 0) || targetTenths === 0) return values.map(() => 0);
-
-  const exactTenths = values.map((value) => (value / total) * targetTenths);
-  const allocatedTenths = exactTenths.map((value) => Math.floor(value));
-  const remainder = targetTenths - allocatedTenths.reduce((sum, value) => sum + value, 0);
-  const allocationOrder = exactTenths
-    .map((value, index) => ({ index, fraction: value - Math.floor(value), value: values[index] ?? 0 }))
-    .sort(
-      (left, right) =>
-        right.fraction - left.fraction || right.value - left.value || left.index - right.index
-    );
-
-  for (let index = 0; index < remainder; index += 1) {
-    const targetIndex = allocationOrder[index]?.index;
-    if (targetIndex !== undefined) allocatedTenths[targetIndex] += 1;
+  const allocatedTenths = values.map((value) => Math.max(0, Math.round(value * 10)));
+  const minimumTenths = allocatedTenths.map((value) => (value > 0 ? 1 : 0));
+  if (targetTenths < minimumTenths.reduce<number>((sum, value) => sum + value, 0)) {
+    return allocatedTenths.map((value) => value / 10);
   }
+
+  let residual = targetTenths - allocatedTenths.reduce((sum, value) => sum + value, 0);
+  if (residual > 0) {
+    for (let index = allocatedTenths.length - 1; index >= 0 && residual > 0; index -= 1) {
+      const capacity = index === 0
+        ? residual
+        : Math.max(0, allocatedTenths[index - 1] - allocatedTenths[index]);
+      const adjustment = Math.min(residual, capacity);
+      allocatedTenths[index] += adjustment;
+      residual -= adjustment;
+    }
+  } else if (residual < 0) {
+    let reduction = -residual;
+    for (let index = allocatedTenths.length - 1; index >= 0 && reduction > 0; index -= 1) {
+      const lowerBound = index === allocatedTenths.length - 1
+        ? minimumTenths[index]
+        : Math.max(minimumTenths[index], allocatedTenths[index + 1]);
+      const adjustment = Math.min(reduction, Math.max(0, allocatedTenths[index] - lowerBound));
+      allocatedTenths[index] -= adjustment;
+      reduction -= adjustment;
+    }
+    residual = -reduction;
+  }
+
+  // Incoherent metadata must not create negative, NaN, or synthetic values.
+  // Falling back to independently calibrated tenths is safer than fabricating
+  // a reconciliation that the visible platform rows cannot represent.
+  if (residual !== 0) return values.map((value) => roundToTenths(value));
   return allocatedTenths.map((value) => value / 10);
 }
 

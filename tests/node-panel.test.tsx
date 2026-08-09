@@ -188,7 +188,8 @@ describe("NodePanel", () => {
           scaleFactor: 100 / 53,
           benchmarkScope: "all_supported_batches",
           benchmarkPopulation: "current_company_snapshot"
-        }
+        },
+        explanation: "SCORING EXPLANATION MUST NOT RENDER IN NODEPANEL"
       }
     };
 
@@ -226,7 +227,8 @@ describe("NodePanel", () => {
           scaleFactor: 100 / 53,
           benchmarkScope: "all_supported_batches",
           benchmarkPopulation: "current_company_snapshot"
-        }
+        },
+        explanation: "SCORING EXPLANATION MUST NOT RENDER IN NODEPANEL"
       }
     };
 
@@ -239,7 +241,12 @@ describe("NodePanel", () => {
       return sum + Math.round(value * 10);
     }, 0);
     expect(contributionRows).toHaveLength(4);
+    expect(
+      contributionRows.map((row) => row.querySelector("strong")?.textContent)
+    ).toEqual(["37.7 pts", "20.6 pts", "14.7 pts", "14 pts"]);
     expect(displayedTenths).toBe(870);
+    expect(screen.queryByText("SCORING EXPLANATION MUST NOT RENDER IN NODEPANEL")).not.toBeInTheDocument();
+    expect(screen.queryByText(/global calibration|multiplier|rounding residual/i)).not.toBeInTheDocument();
   });
 
   it("keeps contributions unscaled when no global calibration is applied", () => {
@@ -260,11 +267,21 @@ describe("NodePanel", () => {
 
     render(<NodePanel node={noCalibrationNode} relatedNodes={[]} evidence={[]} />);
 
-    expect(screen.getByRole("heading", { name: "Platform contributions" })).toBeInTheDocument();
+    const section = screen.getByRole("heading", { name: "Platform contributions" }).closest("section");
+    const displayed = [...section!.querySelectorAll(".score-platform-contributions li strong")]
+      .map((row) => row.textContent);
+    const expected = [...noCalibrationNode.scoreBreakdown!.weightedPlatforms]
+      .filter((row) => Number.isFinite(row.contribution) && row.contribution > 0)
+      .sort(
+        (left, right) =>
+          right.contribution - left.contribution || left.platform.localeCompare(right.platform)
+      )
+      .map((row) => `${new Intl.NumberFormat("en-US", { maximumFractionDigits: 1 }).format(row.contribution)} pts`);
+    expect(displayed).toEqual(expected);
     expect(screen.queryByText(/global calibration/i)).not.toBeInTheDocument();
   });
 
-  it("explains quadratic Insider influence and the adjustment from the published score", () => {
+  it("keeps the Insider adjustment separate from the calibrated platform base without an explainer", () => {
     const graph = buildGraphResponse({ batchSlug: "S26", query: "Conifer" }, ycSpring2026GraphDataset);
     const node = graph.nodes.find((item) => item.label === "Conifer");
 
@@ -301,12 +318,17 @@ describe("NodePanel", () => {
     );
 
     const section = screen.getByRole("heading", { name: "Insider adjustment" }).closest("section");
-    expect(section).toHaveTextContent("Published score 100. Insider adjustment −24. Result 76.");
-    expect(section).toHaveTextContent("Each matched insider contributes weight² influence and counts once");
-    expect(section).toHaveTextContent("Published influence 25 → current influence 1");
-    expect(section).toHaveTextContent("Paul Graham");
-    expect(section).toHaveTextContent("Weight 1² = 1 influence");
-    expect(section).toHaveTextContent("Published 5² = 25 · adjustment −24 · 3 items");
+    expect(screen.getByLabelText("Score 76")).toBeInTheDocument();
+    expect(section).toHaveTextContent("−24 pts");
+    expect(section).not.toHaveTextContent("Published score");
+    expect(section).not.toHaveTextContent("Each matched insider");
+    expect(section).not.toHaveTextContent("Published influence");
+    expect(section).not.toHaveTextContent("Paul Graham");
+    expect(section).not.toHaveTextContent("Weight 1²");
+    const platformSection = screen.getByRole("heading", { name: "Platform contributions" }).closest("section");
+    const displayedBaseTenths = [...platformSection!.querySelectorAll(".score-platform-contributions li strong")]
+      .reduce((sum, row) => sum + Math.round(Number.parseFloat(row.textContent ?? "0") * 10), 0);
+    expect(displayedBaseTenths).toBe(1_000);
   });
 
   it("counts and renders only evidence that contributes to the score", () => {
