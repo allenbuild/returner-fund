@@ -430,9 +430,21 @@ describe("autonomous ingestion runner static safety contracts", () => {
     assert.ok(guardIndex > -1 && guardIndex < importIndex);
     assert.ok(publicationIndex > guardIndex);
     assert.ok(completionIndex > publicationIndex);
-    assert.ok(guard.includes("collectionResults.some((result) => result.ok)"));
-    assert.ok(guard.includes("result.ok && result.successfulRows > 0"));
+    assert.ok(guard.includes("collectionResults.some((result) => result.snapshotAvailable)"));
+    assert.ok(guard.includes("result.snapshotAvailable && result.successfulRows > 0"));
     assert.ok(guard.includes("coverage.succeeded === 0"));
+  });
+
+  it("publishes validated snapshots recovered from collectors that exhausted retries", () => {
+    const publicationInputs = section(
+      "const publishableCollectorResults",
+      "const collectionCoverage = await summarizeCollectionCoverage"
+    );
+
+    assert.ok(publicationInputs.includes("result.snapshotAvailable"));
+    assert.ok(publicationInputs.includes('result.kind === "public"'));
+    assert.ok(publicationInputs.includes('result.kind === "github"'));
+    assert.doesNotMatch(publicationInputs, /filter\(\(result\) => result\.ok\)/);
   });
 
   it("batches task persistence and reconciliation with bounded concurrency", () => {
@@ -445,6 +457,8 @@ describe("autonomous ingestion runner static safety contracts", () => {
     assert.ok(reconcile.includes("mapWithConcurrency(updates, 4"));
     assert.ok(reconcile.includes("indexAutonomousCollectorTaskOutcomes"));
     assert.ok(reconcile.includes("classifyAutonomousCollectorTaskOutcome"));
+    assert.ok(reconcile.includes("const snapshot = await readCollectorSnapshot"));
+    assert.doesNotMatch(reconcile, /const snapshot = result\.ok\s*\?/);
     assert.doesNotMatch(reconcile, /failed \? "failed" : "completed"/);
     assert.ok(finish.includes('.in("id", ids)'));
     assert.ok(concurrency.includes("await Promise.allSettled(workers)"));

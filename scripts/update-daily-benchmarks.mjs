@@ -27,8 +27,12 @@ const DEFAULT_PORT = 3100;
 const SERVER_READY_TIMEOUT_MS = 120_000;
 const SERVER_READY_FETCH_TIMEOUT_MS = 10_000;
 const SERVER_READY_POLL_MS = 1_000;
-const GRAPH_FETCH_TIMEOUT_MS = 30_000;
-const SERVER_COMMAND_TIMEOUT_MS = 5 * 60_000;
+// The first full graph request loads and scores the complete runtime evidence
+// corpus. On Actions this legitimately takes longer than a short HTTP request,
+// so readiness uses a cheap invalid-query probe and publication requests get a
+// bounded five-minute window of their own.
+const GRAPH_FETCH_TIMEOUT_MS = 5 * 60_000;
+const SERVER_COMMAND_TIMEOUT_MS = 45 * 60_000;
 const SERVER_STOP_TIMEOUT_MS = 5_000;
 const TERMINATION_SIGNALS = ["SIGINT", "SIGTERM"];
 const GENERATED_AT_CLOCK_SKEW_MS = 60_000;
@@ -905,7 +909,7 @@ async function waitForGraphApi(baseUrl, { publicationToken, diagnosticsSecret, s
   while (Date.now() - startedAt < SERVER_READY_TIMEOUT_MS) {
     throwIfAborted(signal);
     try {
-      await fetchGraph(baseUrl, BATCH_SNAPSHOTS[0].slug, undefined, {
+      await probeGraphApi(baseUrl, {
         publicationToken,
         diagnosticsSecret,
         signal,
@@ -920,6 +924,47 @@ async function waitForGraphApi(baseUrl, { publicationToken, diagnosticsSecret, s
   }
 
   throw new Error(`Graph API was not ready after ${SERVER_READY_TIMEOUT_MS}ms: ${lastError}`);
+}
+
+async function probeGraphApi(
+  baseUrl,
+  { publicationToken, diagnosticsSecret, signal, timeoutMs = SERVER_READY_FETCH_TIMEOUT_MS } = {}
+) {
+  // An invalid batch reaches the authenticated route and query parser without
+  // importing or scoring the multi-gigabyte graph dependencies. A 400 response
+  // therefore proves the server is ready without doing the first publication
+  // build twice or repeatedly aborting it during startup polling.
+  const url = new URL("/api/graph/full", `${trimTrailingSlash(baseUrl)}/`);
+  url.searchParams.set("batch", "__benchmark_readiness__");
+  const controller = new AbortController();
+  const abortFromParent = () => controller.abort(signal?.reason ?? new Error("Graph readiness probe aborted."));
+  if (signal?.aborted) abortFromParent();
+  else signal?.addEventListener("abort", abortFromParent, { once: true });
+  const timeout = setTimeout(
+    () => controller.abort(new Error(`Graph API readiness probe timed out after ${timeoutMs}ms.`)),
+    timeoutMs
+  );
+  timeout.unref();
+
+  try {
+    const headers = { accept: "application/json" };
+    if (publicationToken) headers["x-returner-publication-build"] = publicationToken;
+    else if (diagnosticsSecret) headers.authorization = `Bearer ${diagnosticsSecret}`;
+    const response = await fetch(url, { headers, signal: controller.signal });
+    if (response.status !== 400) {
+      throw new Error(
+        `Graph API readiness probe returned ${response.status} ${response.statusText}; expected the invalid-query contract.`
+      );
+    }
+  } catch (error) {
+    if (controller.signal.aborted && controller.signal.reason instanceof Error) {
+      throw controller.signal.reason;
+    }
+    throw error;
+  } finally {
+    clearTimeout(timeout);
+    signal?.removeEventListener("abort", abortFromParent);
+  }
 }
 
 export async function fetchGraph(

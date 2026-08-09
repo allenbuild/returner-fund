@@ -1342,14 +1342,18 @@ export function classifyAutonomousCollectorTaskOutcome(
   outcomeIndex,
   { platform, entityType, entityId, accountUrl = null, collectorOk = true, collectorError = null }
 ) {
-  if (!collectorOk) {
-    return { status: "failed", reason: collectorError ?? "collector_process_failed" };
-  }
   const key = accountUrl
     ? autonomousCollectorAccountKey(platform, entityType, entityId, accountUrl)
     : autonomousCollectorEntityKey(platform, entityType, entityId);
   const outcome = outcomeIndex?.get(key);
   if (outcome) return outcome;
+  // A process-level retry failure is not evidence that every task in the
+  // collector failed. Sharded collectors durably flush task-level receipts
+  // before the runner evaluates coverage, so preserve those exact outcomes
+  // and apply the process failure only to tasks absent from the snapshot.
+  if (!collectorOk) {
+    return { status: "failed", reason: collectorError ?? "collector_process_failed" };
+  }
   if (accountUrl) {
     return {
       status: "nonterminal",

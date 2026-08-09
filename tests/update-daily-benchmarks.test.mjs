@@ -755,17 +755,23 @@ class FakeChildProcess extends EventEmitter {
 }
 
 function createGraphFixtureServer({ failAfterReady }) {
-  let requestCount = 0;
+  let graphRequestCount = 0;
   const generatedAt = new Date("2026-07-16T05:01:00.000Z");
   return http.createServer((request, response) => {
-    requestCount += 1;
-    if (failAfterReady && requestCount > 1) {
+    const requestUrl = new URL(request.url, "http://127.0.0.1");
+    if (requestUrl.searchParams.get("batch") === "__benchmark_readiness__") {
+      response.writeHead(400, { "content-type": "application/json" });
+      response.end('{"error":"invalid readiness batch"}\n');
+      return;
+    }
+
+    graphRequestCount += 1;
+    if (failAfterReady && graphRequestCount >= 1) {
       response.writeHead(503, { "content-type": "application/json" });
       response.end('{"error":"fixture failure"}\n');
       return;
     }
 
-    const requestUrl = new URL(request.url, "http://127.0.0.1");
     const slug = requestUrl.searchParams.get("batch");
     const topVoices = requestUrl.searchParams.get("topVoices") ?? undefined;
     const descriptor = BATCH_SNAPSHOTS.find(

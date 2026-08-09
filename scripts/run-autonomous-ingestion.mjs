@@ -228,9 +228,13 @@ try {
       await reconcileCollectorTasks(collectionResults, catalogState);
     }
 
-    const successfulCollectorResults = collectionResults.filter((result) => result.ok);
+    // A collector that exhausted retries may still have a fully validated
+    // snapshot containing thousands of exact task outcomes and evidence rows.
+    // Publish that recovered snapshot; result.ok only describes the process
+    // conclusion and must not discard durable collection output.
+    const publishableCollectorResults = collectionResults.filter((result) => result.snapshotAvailable);
     const publicSnapshots = (await readAvailableSnapshots(
-      successfulCollectorResults.filter((result) => result.kind === "public")
+      publishableCollectorResults.filter((result) => result.kind === "public")
     )).map(withSnapshotBatchProvenance);
     const credentialedDiscoveryFailures = publicSnapshots.flatMap((snapshot) => {
       const credentialed = snapshot?.source?.credentialedDiscovery;
@@ -248,7 +252,7 @@ try {
       ...credentialedDiscoveryFailures
     ])];
     const githubSnapshots = await readAvailableSnapshots(
-      successfulCollectorResults.filter((result) => result.kind === "github")
+      publishableCollectorResults.filter((result) => result.kind === "github")
     );
     const collectionCoverage = await summarizeCollectionCoverage(
       plannedTasks,
@@ -273,7 +277,7 @@ try {
     const publicationInputs = {
       publicSnapshots,
       githubSnapshots,
-      publicResults: successfulCollectorResults.filter((result) => result.kind === "public"),
+      publicResults: publishableCollectorResults.filter((result) => result.kind === "public"),
       topVoiceRefresh,
       catalogState,
       collectionCoverage,
@@ -1347,19 +1351,36 @@ async function runCollectors() {
   for (let index = 0; index < commands.length; index += 1) {
     const command = commands[index];
     const result = settled[index];
+    const recoveredSnapshot = result.status === "rejected"
+      ? await readCollectorSnapshot(command.outputPath, command.kind, command)
+      : null;
+    const recoveredTerminalCoverage = recoveredSnapshot
+      ? summarizeAutonomousCollectorTerminalTaskCoverage(recoveredSnapshot, {
+          kind: command.kind,
+          batchSlug: command.batchSlug,
+          tasks: plannedTasks
+        })
+      : null;
     results.push({
       ...command,
       promise: undefined,
       ok: result.status === "fulfilled",
+      snapshotAvailable: result.status === "fulfilled" || Boolean(recoveredSnapshot),
       attempts: result.status === "fulfilled"
         ? result.value.attempts
         : AUTONOMOUS_PROCESS_BUDGETS.collectorAttempts,
-      successfulRows: result.status === "fulfilled" ? result.value.successfulRows : 0,
+      successfulRows: result.status === "fulfilled"
+        ? result.value.successfulRows
+        : recoveredSnapshot
+          ? successfulCollectorRowCount(recoveredSnapshot, command.kind)
+          : 0,
       retryableFailures: result.status === "fulfilled" ? result.value.retryableFailures : 0,
       exhaustedRetryableFailures: result.status === "fulfilled"
         ? result.value.exhaustedRetryableFailures
         : 0,
-      terminalCoverage: result.status === "fulfilled" ? result.value.terminalCoverage : null,
+      terminalCoverage: result.status === "fulfilled"
+        ? result.value.terminalCoverage
+        : recoveredTerminalCoverage,
       error: result.status === "rejected" ? errorMessage(result.reason) : null
     });
   }
@@ -1855,10 +1876,8 @@ async function reconcileCollectorTasks(results, catalogState) {
     const platforms = result.kind === "github"
       ? ["github"]
       : ["x", "instagram", "linkedin", "youtube", "product_hunt", "reddit", "hacker_news", "rss", "web"];
-    const snapshot = result.ok
-      ? await readCollectorSnapshot(result.outputPath, result.kind, result)
-      : null;
-    const outcomeIndex = result.ok
+    const snapshot = await readCollectorSnapshot(result.outputPath, result.kind, result);
+    const outcomeIndex = snapshot
       ? indexAutonomousCollectorTaskOutcomes(snapshot, {
           kind: result.kind,
           batchSlug: result.batchSlug
@@ -2035,9 +2054,7 @@ async function summarizeCollectionCoverage(tasks, collectionResults, { skipNetwo
   );
   const outcomeIndexByCollector = new Map();
   for (const result of collectionResults) {
-    const snapshot = result.ok
-      ? await readCollectorSnapshot(result.outputPath, result.kind, result)
-      : null;
+    const snapshot = await readCollectorSnapshot(result.outputPath, result.kind, result);
     outcomeIndexByCollector.set(
       `${result.batchSlug}:${result.kind}`,
       snapshot
@@ -2176,10 +2193,10 @@ async function recordCollectionCoverage(
 }
 
 function assertSuccessfulCollection(collectionResults, coverage) {
-  if (collectionResults.length === 0 || !collectionResults.some((result) => result.ok)) {
+  if (collectionResults.length === 0 || !collectionResults.some((result) => result.snapshotAvailable)) {
     throw new Error("No collector completed successfully; publication and run completion are prohibited.");
   }
-  if (!collectionResults.some((result) => result.ok && result.successfulRows > 0)) {
+  if (!collectionResults.some((result) => result.snapshotAvailable && result.successfulRows > 0)) {
     throw new Error("Collector snapshots contained no successful rows; publication and run completion are prohibited.");
   }
   if (coverage.succeeded === 0) {

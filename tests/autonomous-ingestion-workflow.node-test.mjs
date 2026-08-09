@@ -89,8 +89,8 @@ test("daily benchmarks synchronize, rebuild on push races, and verify main", () 
     updateJob.matchAll(/^\s{8}timeout-minutes:\s*(\d+)/gm),
     (match) => Number(match[1])
   );
-  assert.equal(jobTimeout, 120);
-  assert.deepEqual(stepTimeouts, [10, 10, 15, 10, 10, 5, 45]);
+  assert.equal(jobTimeout, 240);
+  assert.deepEqual(stepTimeouts, [10, 10, 15, 50, 10, 5, 75]);
   assert.ok(stepTimeouts.reduce((total, timeout) => total + timeout, 0) < jobTimeout);
 });
 

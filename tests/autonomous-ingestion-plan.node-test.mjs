@@ -790,7 +790,7 @@ globalThis.fetch = async (input) => {
       "a16z-speedrun-006-sun"
     ].includes(task.entitySourceKey) && task.account);
     for (const [entitySourceKey, platform, expectedUrls] of [
-      ["founder-eden-robotics-stamatios-floratos-1956825", "x", ["cybermetheus", "StamatisTWIY"]],
+      ["founder-eden-robotics-stamatios-floratos-1956825", "x", ["cybermetheus", "stamatistwiy"]],
       ["a16z-speedrun-006-antihero-studios", "linkedin", ["antihero-studios", "antiherostudios-games"]],
       ["a16z-speedrun-006-quinn", "linkedin", ["meetquinn", "meetquinnai"]],
       ["a16z-speedrun-006-smart-bricks", "instagram", ["smartbricks_invest", "smartbricks.invest"]],
@@ -1755,6 +1755,45 @@ describe("autonomous collector task accounting", () => {
       status: "completed",
       reason: "collector_evidence_collected"
     });
+  });
+
+  it("preserves exact task receipts when the surrounding collector process exhausts retries", () => {
+    const completedTask = {
+      platform: "x",
+      entityType: "company",
+      entityId: "company-completed",
+      accountUrl: "https://x.com/completed"
+    };
+    const missingTask = {
+      platform: "x",
+      entityType: "company",
+      entityId: "company-missing",
+      accountUrl: "https://x.com/missing"
+    };
+    const index = indexAutonomousCollectorTaskOutcomes({
+      evidence: [{
+        ...completedTask,
+        sourceUrl: "https://x.com/completed/status/42",
+        nativeId: "42",
+        review_state: "verified"
+      }],
+      needsReview: [],
+      failures: [],
+      attempts: {}
+    }, { kind: "public", batchSlug: "S26" });
+    const processFailure = {
+      collectorOk: false,
+      collectorError: "public S26 exhausted retries with 1/2811 planned task(s) lacking explicit terminal outcomes."
+    };
+
+    assert.deepEqual(
+      classifyAutonomousCollectorTaskOutcome(index, { ...completedTask, ...processFailure }),
+      { status: "completed", reason: "collector_evidence_collected" }
+    );
+    assert.deepEqual(
+      classifyAutonomousCollectorTaskOutcome(index, { ...missingTask, ...processFailure }),
+      { status: "failed", reason: processFailure.collectorError }
+    );
   });
 
   it("keeps outcomes isolated for multiple accounts owned by the same entity and platform", () => {
