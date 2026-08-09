@@ -11,6 +11,7 @@ import {
   autonomousMappedTerminalFailureBudget,
   autonomousCollectorRetryableFailures,
   isAutonomousCollectorFailureRetryable,
+  isAutonomousProviderBlocker,
   buildAutonomousTaskPlan,
   classifyAutonomousCollectorTaskOutcome,
   countSuccessfulAutonomousCollectorRows,
@@ -1602,7 +1603,10 @@ describe("autonomous collector task accounting", () => {
       platform: "youtube",
       entityType: "company",
       entityId: "company-failed"
-    }), { status: "blocked_or_empty", reason: "collector_checked_blocked_or_empty" });
+    }), {
+      status: "blocked_or_empty",
+      reason: "collector_checked_blocked_or_empty"
+    });
     assert.deepEqual(classifyAutonomousCollectorTaskOutcome(index, {
       platform: "youtube",
       entityType: "company",
@@ -1630,7 +1634,7 @@ describe("autonomous collector task accounting", () => {
     }), { status: "nonterminal", reason: "collector_returned_no_entity_attempt" });
   });
 
-  it("terminalizes only an unmapped RSS discovery task after its public collector completed", () => {
+  it("requires an explicit RSS discovery receipt instead of trusting an empty snapshot", () => {
     const completedPublicOutcomeIndex = indexAutonomousCollectorTaskOutcomes({
       evidence: [],
       needsReview: [],
@@ -1651,17 +1655,34 @@ describe("autonomous collector task accounting", () => {
     assert.deepEqual(
       classifyAutonomousCollectorTaskOutcome(completedPublicOutcomeIndex, rssTask),
       {
-        status: "blocked_or_empty",
-        reason: "collector_checked_no_rss_feed"
-      }
-    );
-    assert.deepEqual(
-      classifyAutonomousCollectorTaskOutcome(null, rssTask),
-      {
         status: "nonterminal",
         reason: "collector_returned_no_entity_attempt"
       }
     );
+
+    const explicitRssIndex = indexAutonomousCollectorTaskOutcomes({
+      evidence: [],
+      needsReview: [],
+      failures: [],
+      attempts: {
+        rss: {
+          platform: "rss",
+          entityType: "company",
+          entityId: "company-no-feed",
+          accountUrl: null,
+          outcomeStatus: "blocked_or_empty",
+          outcomeReason: "collector_checked_no_rss_feed"
+        }
+      }
+    }, {
+      kind: "public",
+      batchSlug: "S26",
+      explicitTerminalOnly: true
+    });
+    assert.deepEqual(classifyAutonomousCollectorTaskOutcome(explicitRssIndex, rssTask), {
+      status: "blocked_or_empty",
+      reason: "collector_checked_no_rss_feed"
+    });
     assert.deepEqual(
       classifyAutonomousCollectorTaskOutcome(completedPublicOutcomeIndex, {
         ...rssTask,
@@ -1677,7 +1698,16 @@ describe("autonomous collector task accounting", () => {
       evidence: [],
       needsReview: [],
       failures: [],
-      attempts: {}
+      attempts: {
+        rss: {
+          platform: "rss",
+          entityType: "company",
+          entityId: "company-no-feed",
+          accountUrl: null,
+          outcomeStatus: "blocked_or_empty",
+          outcomeReason: "collector_checked_no_rss_feed"
+        }
+      }
     }, {
       kind: "public",
       batchSlug: "S26",
@@ -1696,8 +1726,8 @@ describe("autonomous collector task accounting", () => {
     assert.equal(coverage.byStatus.blocked_or_empty, 1);
   });
 
-  it("reconciles account-mapped company connectors against their company-level receipt", () => {
-    const index = indexAutonomousCollectorTaskOutcomes({
+  it("requires an exact unsupported receipt for company-scoped mapped accounts", () => {
+    const companyOnlyIndex = indexAutonomousCollectorTaskOutcomes({
       evidence: [],
       needsReview: [],
       failures: [],
@@ -1717,16 +1747,23 @@ describe("autonomous collector task accounting", () => {
       explicitTerminalOnly: true
     });
 
-    assert.deepEqual(classifyAutonomousCollectorTaskOutcome(index, {
-      platform: "reddit",
-      entityType: "company",
-      entityId: "company-acme",
-      accountUrl: "https://reddit.com/r/acme"
-    }), {
-      status: "blocked_or_empty",
-      reason: "collector_checked_blocked_or_empty"
-    });
-    assert.deepEqual(classifyAutonomousCollectorTaskOutcome(index, {
+    for (const [platform, accountUrl] of [
+      ["reddit", "https://reddit.com/r/acme"],
+      ["hacker_news", "https://news.ycombinator.com/user?id=acme"],
+      ["rss", "https://acme.example/feed.xml"],
+      ["web", "https://acme.example"]
+    ]) {
+      assert.deepEqual(classifyAutonomousCollectorTaskOutcome(companyOnlyIndex, {
+        platform,
+        entityType: "company",
+        entityId: "company-acme",
+        accountUrl
+      }), {
+        status: "nonterminal",
+        reason: "collector_returned_no_account_attempt"
+      });
+    }
+    assert.deepEqual(classifyAutonomousCollectorTaskOutcome(companyOnlyIndex, {
       platform: "x",
       entityType: "company",
       entityId: "company-acme",
@@ -1735,9 +1772,59 @@ describe("autonomous collector task accounting", () => {
       status: "nonterminal",
       reason: "collector_returned_no_account_attempt"
     });
+
+    const redditUrl = "https://reddit.com/r/acme";
+    const exactIndex = indexAutonomousCollectorTaskOutcomes({
+      evidence: [],
+      needsReview: [],
+      failures: [],
+      attempts: {
+        reddit: {
+          attemptKey: `reddit:company:company-acme:${redditUrl}`,
+          platform: "reddit",
+          entityType: "company",
+          entityId: "company-acme",
+          accountUrl: redditUrl,
+          attempted: false,
+          outcomeStatus: "blocked_or_empty",
+          outcomeReason: "collector_scope_unsupported"
+        }
+      }
+    }, {
+      kind: "public",
+      batchSlug: "S26",
+      explicitTerminalOnly: true
+    });
+    assert.deepEqual(classifyAutonomousCollectorTaskOutcome(exactIndex, {
+      platform: "reddit",
+      entityType: "company",
+      entityId: "company-acme",
+      accountUrl: redditUrl
+    }), {
+      status: "blocked_or_empty",
+      reason: "collector_scope_unsupported"
+    });
+    assert.deepEqual(classifyAutonomousCollectorTaskOutcome(exactIndex, {
+      platform: "reddit",
+      entityType: "company",
+      entityId: "company-acme",
+      accountUrl: "https://reddit.com/user/acme"
+    }), {
+      status: "nonterminal",
+      reason: "collector_returned_no_account_attempt"
+    });
   });
 
   it("terminalizes exhausted anonymous transport access without accepting invalid mappings", () => {
+    const linkedinUrl = "https://linkedin.com/company/transport";
+    const linkedinAttemptKey = `linkedin:company:company-transport:${linkedinUrl}`;
+    const linkedinBlocker = {
+      provider: "jina_linkedin_reader",
+      code: "linkedin_public_circuit_open",
+      retryAt: "2026-08-09T22:30:00.000Z",
+      httpStatus: null,
+      message: "Jina LinkedIn reader circuit is open."
+    };
     const index = indexAutonomousCollectorTaskOutcomes({
       evidence: [],
       needsReview: [],
@@ -1745,7 +1832,10 @@ describe("autonomous collector task accounting", () => {
         platform: "linkedin",
         entityType: "company",
         entityId: "company-transport",
-        message: "fetch failed: ECONNRESET"
+        accountUrl: linkedinUrl,
+        attemptKey: linkedinAttemptKey,
+        message: "reader request failed",
+        blocker: linkedinBlocker
       }, {
         platform: "instagram",
         entityType: "company",
@@ -1757,23 +1847,412 @@ describe("autonomous collector task accounting", () => {
         entityId: "company-invalid",
         message: "Invalid URL mapping: host did not match x.com."
       }],
-      attempts: {}
-    }, { kind: "public", batchSlug: "S26" });
+      attempts: {
+        linkedin: {
+          attemptKey: linkedinAttemptKey,
+          platform: "linkedin",
+          entityType: "company",
+          entityId: "company-transport",
+          accountUrl: linkedinUrl,
+          outcomeStatus: "blocked_or_empty",
+          outcomeReason: "collector_provider_blocked",
+          blocker: linkedinBlocker
+        }
+      }
+    }, { kind: "public", batchSlug: "S26", explicitTerminalOnly: true });
 
     for (const [platform, entityId] of [
       ["linkedin", "company-transport"],
       ["instagram", "company-http-access"]
     ]) {
-      assert.equal(classifyAutonomousCollectorTaskOutcome(index, {
+      const outcome = classifyAutonomousCollectorTaskOutcome(index, {
         platform,
         entityType: "company",
-        entityId
-      }).status, "blocked_or_empty");
+        entityId,
+        ...(platform === "linkedin" ? { accountUrl: linkedinUrl } : {})
+      });
+      assert.equal(outcome.status, "blocked_or_empty");
+      assert.equal(outcome.providerBlocked, platform === "linkedin" ? true : undefined);
     }
     assert.equal(classifyAutonomousCollectorTaskOutcome(index, {
       platform: "x",
       entityType: "company",
       entityId: "company-invalid"
+    }).status, "failed");
+  });
+
+  it("keeps bounded X no-owner surfaces reviewable without masking hard failures", () => {
+    const boundedUrl = "https://x.com/bounded";
+    const boundedKey = `x:company:company-bounded:${boundedUrl}`;
+    const index = indexAutonomousCollectorTaskOutcomes({
+      evidence: [],
+      needsReview: [],
+      failures: [{
+        attemptKey: boundedKey,
+        platform: "x",
+        entityType: "company",
+        entityId: "company-bounded",
+        accountUrl: boundedUrl,
+        message: "Anonymous X public profile verification failed: no_exact_owner_social_media_postings."
+      }],
+      attempts: {
+        bounded: {
+          attemptKey: boundedKey,
+          platform: "x",
+          entityType: "company",
+          entityId: "company-bounded",
+          accountUrl: boundedUrl,
+          outcomeStatus: "needs_review",
+          outcomeReason: "collector_needs_review"
+        }
+      }
+    }, { kind: "public", batchSlug: "S26", explicitTerminalOnly: true });
+
+    assert.deepEqual(classifyAutonomousCollectorTaskOutcome(index, {
+      platform: "x",
+      entityType: "company",
+      entityId: "company-bounded",
+      accountUrl: boundedUrl
+    }), {
+      status: "needs_review",
+      reason: "collector_needs_review"
+    });
+  });
+
+  it("does not let typed receipts erase hard failures without validated evidence", () => {
+    const cases = [
+      ["company-invalid", "https://x.com/invalid", "Invalid URL mapping: host did not match x.com.", "blocked_or_empty"],
+      ["company-not-found", "https://x.com/not-found", "HTTP 404 Not Found", "needs_review"],
+      ["company-unknown", "https://x.com/unknown", "Unexpected response schema", "completed"]
+    ];
+    const index = indexAutonomousCollectorTaskOutcomes({
+      evidence: [],
+      needsReview: [],
+      failures: cases.map(([entityId, accountUrl, message]) => ({
+        attemptKey: `x:company:${entityId}:${accountUrl}`,
+        platform: "x",
+        entityType: "company",
+        entityId,
+        accountUrl,
+        message
+      })),
+      attempts: Object.fromEntries(cases.map(([entityId, accountUrl, , outcomeStatus]) => [
+        entityId,
+        {
+          attemptKey: `x:company:${entityId}:${accountUrl}`,
+          platform: "x",
+          entityType: "company",
+          entityId,
+          accountUrl,
+          outcomeStatus,
+          outcomeReason: `typed_${outcomeStatus}`
+        }
+      ]))
+    }, { kind: "public", batchSlug: "S26", explicitTerminalOnly: true });
+
+    for (const [entityId, accountUrl] of cases) {
+      assert.equal(classifyAutonomousCollectorTaskOutcome(index, {
+        platform: "x",
+        entityType: "company",
+        entityId,
+        accountUrl
+      }).status, "failed");
+    }
+  });
+
+  it("requires an allowlisted exact-identity provider blocker", () => {
+    const accountA = "https://linkedin.com/company/account-a";
+    const accountB = "https://linkedin.com/company/account-b";
+    const attemptKey = `linkedin:company:company-identity:${accountA}`;
+    const index = indexAutonomousCollectorTaskOutcomes({
+      evidence: [],
+      needsReview: [],
+      failures: [{
+        attemptKey,
+        platform: "linkedin",
+        entityType: "company",
+        entityId: "company-identity",
+        accountUrl: accountB,
+        message: "reader request failed"
+      }, {
+        attemptKey: "linkedin:company:company-parser:https://linkedin.com/company/parser",
+        platform: "linkedin",
+        entityType: "company",
+        entityId: "company-parser",
+        accountUrl: "https://linkedin.com/company/parser",
+        message: "Unexpected response schema",
+        blocker: { provider: "parser", code: "schema_error" }
+      }],
+      attempts: {
+        identity: {
+          attemptKey,
+          platform: "linkedin",
+          entityType: "company",
+          entityId: "company-identity",
+          accountUrl: accountA,
+          outcomeStatus: "blocked_or_empty",
+          outcomeReason: "collector_provider_blocked",
+          blocker: {
+            provider: "jina_linkedin_reader",
+            code: "linkedin_public_circuit_open",
+            retryAt: "2026-08-10T00:00:00.000Z",
+            httpStatus: null,
+            message: "Jina LinkedIn reader circuit is open."
+          }
+        }
+      }
+    }, { kind: "public", batchSlug: "S26", explicitTerminalOnly: true });
+
+    assert.equal(classifyAutonomousCollectorTaskOutcome(index, {
+      platform: "linkedin",
+      entityType: "company",
+      entityId: "company-identity",
+      accountUrl: accountB
+    }).status, "failed");
+    assert.deepEqual(classifyAutonomousCollectorTaskOutcome(index, {
+      platform: "linkedin",
+      entityType: "company",
+      entityId: "company-parser",
+      accountUrl: "https://linkedin.com/company/parser"
+    }), {
+      status: "failed",
+      reason: "Unexpected response schema"
+    });
+  });
+
+  it("rejects standalone, ambiguous, untyped, and platform-incompatible blockers", () => {
+    const blocker = {
+      provider: "jina_linkedin_reader",
+      code: "linkedin_public_circuit_open",
+      retryAt: "2026-08-10T00:00:00.000Z",
+      httpStatus: null,
+      message: "Jina LinkedIn reader circuit is open."
+    };
+    const duplicateUrl = "https://linkedin.com/company/duplicate";
+    const duplicateKey = `linkedin:company:company-duplicate:${duplicateUrl}`;
+    const borrowedUrl = "https://linkedin.com/company/borrowed";
+    const borrowedKey = `linkedin:company:company-borrowed:${borrowedUrl}`;
+    const index = indexAutonomousCollectorTaskOutcomes({
+      evidence: [],
+      needsReview: [],
+      failures: [{
+        attemptKey: "linkedin:company:company-standalone:https://linkedin.com/company/standalone",
+        platform: "linkedin",
+        entityType: "company",
+        entityId: "company-standalone",
+        accountUrl: "https://linkedin.com/company/standalone",
+        message: "reader request failed",
+        blocker
+      }, {
+        attemptKey: duplicateKey,
+        platform: "linkedin",
+        entityType: "company",
+        entityId: "company-duplicate",
+        accountUrl: duplicateUrl,
+        message: "reader request failed"
+      }, {
+        attemptKey: borrowedKey,
+        platform: "linkedin",
+        entityType: "company",
+        entityId: "company-borrowed",
+        accountUrl: borrowedUrl,
+        message: "Unexpected parser schema corruption"
+      }, {
+        platform: "x",
+        entityType: "company",
+        entityId: "company-untyped",
+        accountUrl: "https://x.com/untyped",
+        message: "Unexpected parser schema unavailable"
+      }],
+      attempts: {
+        borrowed: {
+          attemptKey: borrowedKey,
+          platform: "linkedin",
+          entityType: "company",
+          entityId: "company-borrowed",
+          accountUrl: borrowedUrl,
+          outcomeStatus: "blocked_or_empty",
+          outcomeReason: "collector_provider_blocked",
+          blocker
+        },
+        duplicateA: {
+          attemptKey: duplicateKey,
+          platform: "linkedin",
+          entityType: "company",
+          entityId: "company-duplicate",
+          accountUrl: duplicateUrl,
+          outcomeStatus: "blocked_or_empty",
+          outcomeReason: "collector_provider_blocked",
+          blocker
+        },
+        duplicateB: {
+          attemptKey: duplicateKey,
+          platform: "linkedin",
+          entityType: "company",
+          entityId: "company-duplicate",
+          accountUrl: duplicateUrl,
+          outcomeStatus: "blocked_or_empty",
+          outcomeReason: "collector_provider_blocked",
+          blocker
+        }
+      }
+    }, { kind: "public", batchSlug: "S26", explicitTerminalOnly: true });
+
+    for (const [platform, entityId, accountUrl, providerBlocked] of [
+      ["linkedin", "company-standalone", "https://linkedin.com/company/standalone", undefined],
+      ["linkedin", "company-borrowed", borrowedUrl, true],
+      ["linkedin", "company-duplicate", duplicateUrl, undefined],
+      ["x", "company-untyped", "https://x.com/untyped", undefined]
+    ]) {
+      const outcome = classifyAutonomousCollectorTaskOutcome(index, {
+        platform,
+        entityType: "company",
+        entityId,
+        accountUrl
+      });
+      assert.equal(outcome.status, "failed");
+      assert.equal(outcome.providerBlocked, providerBlocked);
+    }
+  });
+
+  it("validates the complete provider blocker schema and platform pairing", () => {
+    const blocker = {
+      provider: "jina_linkedin_reader",
+      code: "linkedin_public_circuit_open",
+      retryAt: "2026-08-10T00:00:00.000Z",
+      httpStatus: null,
+      message: "Jina LinkedIn reader circuit is open."
+    };
+    assert.equal(isAutonomousProviderBlocker(blocker, { platform: "linkedin" }), true);
+    assert.equal(isAutonomousProviderBlocker(blocker, { platform: "x" }), false);
+    assert.equal(isAutonomousProviderBlocker({ ...blocker, provider: "JINA_LINKEDIN_READER" }, { platform: "linkedin" }), false);
+    assert.equal(isAutonomousProviderBlocker({ ...blocker, retryAt: null }, { platform: "linkedin" }), false);
+    assert.equal(isAutonomousProviderBlocker({ ...blocker, message: "" }, { platform: "linkedin" }), false);
+    assert.equal(isAutonomousProviderBlocker({ ...blocker, extra: true }, { platform: "linkedin" }), false);
+    assert.equal(isAutonomousProviderBlocker({
+      provider: "duckduckgo_html",
+      code: "public_search_discovery_failure",
+      retryAt: null,
+      httpStatus: null,
+      message: "Arbitrary parser failure."
+    }, { platform: "x" }), false);
+  });
+
+  it("normalizes legacy blocker failures and preserves provider health beside valid evidence", () => {
+    const accountUrl = "https://linkedin.com/company/partial";
+    const attemptKey = `linkedin:company:company-partial:${accountUrl}`;
+    const blocker = {
+      provider: "jina_linkedin_reader",
+      code: "linkedin_public_circuit_open",
+      retryAt: "2026-08-10T00:00:00.000Z",
+      httpStatus: null,
+      message: "Jina LinkedIn reader circuit is open."
+    };
+    const index = indexAutonomousCollectorTaskOutcomes({
+      evidence: [{
+        platform: "linkedin",
+        entityType: "company",
+        entityId: "company-partial",
+        accountUrl,
+        sourceUrl: "https://linkedin.com/posts/partial_native-post",
+        nativeId: "partial-native-post"
+      }],
+      needsReview: [],
+      failures: [{
+        attemptKey,
+        platform: "linkedin",
+        entityType: "company",
+        entityId: "company-partial",
+        accountUrl,
+        message: "reader request failed",
+        blocker
+      }],
+      attempts: {
+        partial: {
+          attemptKey,
+          platform: "linkedin",
+          entityType: "company",
+          entityId: "company-partial",
+          accountUrl,
+          outcomeStatus: "failed",
+          outcomeReason: "legacy_provider_failure",
+          error: "reader request failed",
+          blocker
+        }
+      }
+    }, { kind: "public", batchSlug: "S26", explicitTerminalOnly: true });
+
+    assert.deepEqual(classifyAutonomousCollectorTaskOutcome(index, {
+      platform: "linkedin",
+      entityType: "company",
+      entityId: "company-partial",
+      accountUrl
+    }), {
+      status: "completed",
+      reason: "collector_evidence_collected",
+      providerBlocked: true,
+      providerBlockerReason: "provider_blocked:jina_linkedin_reader:linkedin_public_circuit_open"
+    });
+  });
+
+  it("distinguishes a trusted provider HTTP 404 from an untyped target 404", () => {
+    const providerUrl = "https://linkedin.com/company/provider-404";
+    const targetUrl = "https://linkedin.com/company/target-404";
+    const index = indexAutonomousCollectorTaskOutcomes({
+      evidence: [],
+      needsReview: [],
+      failures: [{
+        attemptKey: `linkedin:company:company-provider-404:${providerUrl}`,
+        platform: "linkedin",
+        entityType: "company",
+        entityId: "company-provider-404",
+        accountUrl: providerUrl,
+        message: "LinkedIn public source returned HTTP 404",
+        blocker: {
+          provider: "jina_linkedin_reader",
+          code: "linkedin_public_http_failure",
+          retryAt: null,
+          httpStatus: 404,
+          message: "LinkedIn public source returned HTTP 404"
+        }
+      }, {
+        platform: "linkedin",
+        entityType: "company",
+        entityId: "company-target-404",
+        accountUrl: targetUrl,
+        message: "HTTP 404 Not Found"
+      }],
+      attempts: {
+        provider404: {
+          attemptKey: `linkedin:company:company-provider-404:${providerUrl}`,
+          platform: "linkedin",
+          entityType: "company",
+          entityId: "company-provider-404",
+          accountUrl: providerUrl,
+          outcomeStatus: "blocked_or_empty",
+          outcomeReason: "collector_provider_blocked",
+          blocker: {
+            provider: "jina_linkedin_reader",
+            code: "linkedin_public_http_failure",
+            retryAt: null,
+            httpStatus: 404,
+            message: "LinkedIn public source returned HTTP 404"
+          }
+        }
+      }
+    }, { kind: "public", batchSlug: "S26", explicitTerminalOnly: true });
+
+    assert.equal(classifyAutonomousCollectorTaskOutcome(index, {
+      platform: "linkedin",
+      entityType: "company",
+      entityId: "company-provider-404",
+      accountUrl: providerUrl
+    }).status, "blocked_or_empty");
+    assert.equal(classifyAutonomousCollectorTaskOutcome(index, {
+      platform: "linkedin",
+      entityType: "company",
+      entityId: "company-target-404",
+      accountUrl: targetUrl
     }).status, "failed");
   });
 

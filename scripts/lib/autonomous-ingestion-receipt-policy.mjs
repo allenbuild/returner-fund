@@ -26,6 +26,10 @@ export function selectPublishedAutonomousIngestionReceipt({
       publicationStatus: "already_completed",
       publishedCommit,
       collectionHealth: receipt.collectionHealth,
+      providerBlocked: receipt.providerBlocked,
+      mappedProviderBlocked: receipt.mappedProviderBlocked,
+      mappedScopeUnsupported: receipt.mappedScopeUnsupported,
+      mappedFailures: receipt.mappedFailures,
       newPhysicalSources: receipt.newPhysicalSources,
       dailyNewPhysicalSources: receipt.dailyNewPhysicalSources,
       dailySourceHealth: receipt.dailySourceHealth
@@ -42,6 +46,10 @@ export function classifyAutonomousIngestionReceipt({
   publicationStatus,
   publishedCommit,
   collectionHealth,
+  providerBlocked,
+  mappedProviderBlocked,
+  mappedScopeUnsupported,
+  mappedFailures,
   newPhysicalSources,
   dailyNewPhysicalSources,
   dailySourceHealth
@@ -49,11 +57,18 @@ export function classifyAutonomousIngestionReceipt({
   const normalizedRunnerStatus = clean(runnerStatus);
   const normalizedPublicationStatus = clean(publicationStatus);
   const normalizedPublishedCommit = clean(publishedCommit);
-  const normalizedCollectionHealth = clean(collectionHealth);
+  const normalizedCoverageHealth = normalizeCoverageHealth({
+    collectionHealth,
+    providerBlocked,
+    mappedProviderBlocked,
+    mappedScopeUnsupported,
+    mappedFailures
+  });
+  const normalizedCollectionHealth = normalizedCoverageHealth.collectionHealth;
   const normalizedDailySourceHealth = clean(dailySourceHealth);
   const normalizedNewPhysicalSources = nonNegativeInteger(newPhysicalSources);
   const normalizedDailyNewPhysicalSources = nonNegativeInteger(dailyNewPhysicalSources);
-  const healthReceiptError = validateHealthReceipt({
+  const healthReceiptError = normalizedCoverageHealth.error ?? validateHealthReceipt({
     collectionHealth: normalizedCollectionHealth,
     newPhysicalSources: normalizedNewPhysicalSources,
     dailyNewPhysicalSources: normalizedDailyNewPhysicalSources,
@@ -161,6 +176,10 @@ export async function recordAutonomousIngestionReceipt({
     publicationStatus: env.PUBLICATION_STATUS,
     publishedCommit,
     collectionHealth: env.COLLECTION_HEALTH,
+    providerBlocked: env.PROVIDER_BLOCKED,
+    mappedProviderBlocked: env.MAPPED_PROVIDER_BLOCKED,
+    mappedScopeUnsupported: env.MAPPED_SCOPE_UNSUPPORTED,
+    mappedFailures: env.MAPPED_FAILURES,
     newPhysicalSources: env.NEW_PHYSICAL_SOURCES,
     dailyNewPhysicalSources: env.DAILY_NEW_PHYSICAL_SOURCES,
     dailySourceHealth: env.DAILY_SOURCE_HEALTH
@@ -168,6 +187,13 @@ export async function recordAutonomousIngestionReceipt({
   const slotKey = clean(env.SLOT_KEY) || "unknown-slot";
   const outputPath = clean(env.GITHUB_OUTPUT);
   const summaryPath = clean(env.GITHUB_STEP_SUMMARY);
+  const normalizedCoverageHealth = normalizeCoverageHealth({
+    collectionHealth: env.COLLECTION_HEALTH,
+    providerBlocked: env.PROVIDER_BLOCKED,
+    mappedProviderBlocked: env.MAPPED_PROVIDER_BLOCKED,
+    mappedScopeUnsupported: env.MAPPED_SCOPE_UNSUPPORTED,
+    mappedFailures: env.MAPPED_FAILURES
+  });
 
   if (outputPath) {
     await writeOutput(
@@ -191,7 +217,14 @@ export async function recordAutonomousIngestionReceipt({
         `- Conclusion: ${result.conclusion}`,
         `- Slot: ${slotKey}`,
         `- Commit: ${publishedCommit || "none"}`,
-        `- Collection health: ${clean(env.COLLECTION_HEALTH) || "unknown"}`,
+        `- Collection health: ${normalizedCoverageHealth.collectionHealth || "unknown"}`,
+        `- Collection health reasons: ${clean(env.COLLECTION_HEALTH_REASONS) || "none"}`,
+        `- Provider-blocked tasks (all): ${clean(env.PROVIDER_BLOCKED) || "0"}`,
+        `- Provider blocker reasons (all): ${clean(env.PROVIDER_BLOCKED_BY_REASON) || "none"}`,
+        `- Provider-blocked mapped tasks: ${clean(env.MAPPED_PROVIDER_BLOCKED) || "0"}`,
+        `- Provider blocker reasons (mapped): ${clean(env.MAPPED_PROVIDER_BLOCKED_BY_REASON) || "none"}`,
+        `- Mapped scope unsupported: ${clean(env.MAPPED_SCOPE_UNSUPPORTED) || "0"}`,
+        `- Mapped hard failures: ${clean(env.MAPPED_FAILURES) || "0"}`,
         `- New physical sources this slot: ${clean(env.NEW_PHYSICAL_SOURCES) || "unknown"}`,
         `- New physical sources this Central day: ${clean(env.DAILY_NEW_PHYSICAL_SOURCES) || "unknown"}`,
         `- Daily source health: ${clean(env.DAILY_SOURCE_HEALTH) || "unknown"}`,
@@ -228,6 +261,38 @@ function nonNegativeInteger(value) {
   if (!normalized) return null;
   const parsed = Number(normalized);
   return Number.isSafeInteger(parsed) && parsed >= 0 ? parsed : null;
+}
+
+function normalizeCoverageHealth({
+  collectionHealth,
+  providerBlocked,
+  mappedProviderBlocked,
+  mappedScopeUnsupported,
+  mappedFailures
+}) {
+  const counts = {
+    providerBlocked: optionalNonNegativeInteger(providerBlocked),
+    mappedProviderBlocked: optionalNonNegativeInteger(mappedProviderBlocked),
+    mappedScopeUnsupported: optionalNonNegativeInteger(mappedScopeUnsupported),
+    mappedFailures: optionalNonNegativeInteger(mappedFailures)
+  };
+  if (Object.values(counts).some((value) => value === null)) {
+    return {
+      collectionHealth: clean(collectionHealth),
+      error: "Collection coverage counts must be non-negative safe integers."
+    };
+  }
+  const degraded = Object.values(counts).some((value) => value > 0);
+  const declaredHealth = clean(collectionHealth);
+  return {
+    collectionHealth: declaredHealth === "complete" && degraded ? "degraded" : declaredHealth,
+    error: null
+  };
+}
+
+function optionalNonNegativeInteger(value) {
+  if (!clean(value)) return 0;
+  return nonNegativeInteger(value);
 }
 
 function validateHealthReceipt({

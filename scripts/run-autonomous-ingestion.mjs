@@ -55,40 +55,28 @@ import { selectPublishedAutonomousIngestionReceipt } from "./lib/autonomous-inge
 import { mergeTargetedEvidenceSnapshots } from "./lib/targeted-evidence-merge.mjs";
 import { archiveAcceptedPublicSnapshot } from "./lib/archive-public-ingestion.mjs";
 import { openLosslessPostArchive } from "./lib/lossless-post-archive.mjs";
+import { sanitizeRunnerFailureMessage } from "./lib/runner-failure-sanitizer.mjs";
 
-const root = process.cwd();
-const args = parseArgs(process.argv.slice(2));
-const idempotencyKey = args.idempotencyKey ?? process.env.INGESTION_IDEMPOTENCY_KEY;
-const workerId = `${process.env.GITHUB_RUN_ID ?? "local"}:${process.pid}:${randomUUID()}`;
-const runStartedAt = new Date();
-const runnerBudget = createAutonomousRunnerBudget({
-  phaseMs: AUTONOMOUS_RUNNER_WALL_CLOCK_BUDGET_MS,
-  startedAt: runStartedAt.getTime()
-});
-const workRoot = join(root, "work", "autonomous-ingestion", safePathSegment(idempotencyKey ?? "missing"));
-const collectorRoot = args.campaignKey
-  ? join(root, "work", "autonomous-ingestion-campaigns", safePathSegment(args.campaignKey))
-  : workRoot;
-const publicOutputs = new Map(
-  AUTONOMOUS_BATCHES.map((batch) => [batch.slug, join(collectorRoot, `public-${batch.slug.toLowerCase()}.json`)])
-);
-const githubOutputs = new Map(
-  AUTONOMOUS_BATCHES.map((batch) => [batch.slug, join(collectorRoot, `github-${batch.slug.toLowerCase()}.json`)])
-);
-const discoveryAttemptOutputs = new Map(
-  AUTONOMOUS_BATCHES.map((batch) => [batch.slug, join(collectorRoot, `discovery-attempts-${batch.slug.toLowerCase()}.json`)])
-);
-const sourceDiscoveryPathOutputs = new Map(
-  AUTONOMOUS_BATCHES.map((batch) => [batch.slug, join(collectorRoot, `source-discovery-paths-${batch.slug.toLowerCase()}.json`)])
-);
-const publishedDiscoveryAttemptsPath = join(root, "outputs", "discovery-attempts-current.json");
-const publishedSourceDiscoveryPathsPath = join(root, "outputs", "source-discovery-paths-current.json");
-const publishedCohortAuditPath = join(root, "outputs", "cohort-coverage-current.json");
-const publishedSourceDeltaPath = join(root, "outputs", "ingestion-source-delta-current.json");
-const publishedSourceDeltaHistoryPath = join(root, "outputs", "ingestion-source-delta-history.json");
-const publishedGithubQuarantinePath = join(root, "src", "lib", "social", "github-traction-quarantine.json");
-const topVoiceOutput = join(collectorRoot, "top-voice-refresh.json");
-const losslessPublicArchiveRoot = join(collectorRoot, "lossless-public-post-archive");
+let root;
+let args;
+let idempotencyKey;
+let workerId;
+let runStartedAt;
+let runnerBudget;
+let workRoot;
+let collectorRoot;
+let publicOutputs;
+let githubOutputs;
+let discoveryAttemptOutputs;
+let sourceDiscoveryPathOutputs;
+let publishedDiscoveryAttemptsPath;
+let publishedSourceDiscoveryPathsPath;
+let publishedCohortAuditPath;
+let publishedSourceDeltaPath;
+let publishedSourceDeltaHistoryPath;
+let publishedGithubQuarantinePath;
+let topVoiceOutput;
+let losslessPublicArchiveRoot;
 const PUBLIC_COLLECTOR_SHARDS = Object.freeze({
   S2026: 4,
   S26: 2,
@@ -103,26 +91,12 @@ const GITHUB_COLLECTOR_SHARDS = Object.freeze({
   S26: 2,
   A16ZSR006: 1
 });
-
-if (!idempotencyKey) {
-  throw new Error("--idempotency-key or INGESTION_IDEMPOTENCY_KEY is required.");
-}
-
-const url = cleanEnv(process.env.NEXT_PUBLIC_SUPABASE_URL);
-const serviceKey = cleanEnv(process.env.SUPABASE_SERVICE_ROLE_KEY);
-const supabaseConfiguration = validateSupabaseConfiguration(url, serviceKey);
-const durableStorageConfigured = supabaseConfiguration.valid;
-const discoveryCredentialGaps = [
-  !cleanEnv(process.env.X_BEARER_TOKEN) ? "X_BEARER_TOKEN" : null,
-  !cleanEnv(process.env.EXA_API_KEY) ? "EXA_API_KEY" : null,
-  ...supabaseConfiguration.blockers
-].filter(Boolean);
-const supabase = durableStorageConfigured
-  ? createClient(url, serviceKey, {
-      auth: { autoRefreshToken: false, detectSessionInUrl: false, persistSession: false },
-      global: { headers: { "X-Client-Info": "returner-autonomous-ingestion" } }
-    })
-  : null;
+let url;
+let serviceKey;
+let supabaseConfiguration;
+let durableStorageConfigured = false;
+let discoveryCredentialGaps = [];
+let supabase = null;
 let runtimeLock = null;
 let run = null;
 let heartbeatTimer = null;
@@ -130,6 +104,63 @@ let hardFailure = null;
 let heartbeatFailure = null;
 let collectionBudget = null;
 let collectionDrainBudget = null;
+let latestCollectionCoverage = null;
+let latestTerminalFailureBudget = null;
+let latestPublishedCommit = null;
+let pendingRunnerOutcome = null;
+
+try {
+root = process.cwd();
+args = parseArgs(process.argv.slice(2));
+idempotencyKey = args.idempotencyKey ?? process.env.INGESTION_IDEMPOTENCY_KEY;
+workerId = `${process.env.GITHUB_RUN_ID ?? "local"}:${process.pid}:${randomUUID()}`;
+runStartedAt = new Date();
+runnerBudget = createAutonomousRunnerBudget({
+  phaseMs: AUTONOMOUS_RUNNER_WALL_CLOCK_BUDGET_MS,
+  startedAt: runStartedAt.getTime()
+});
+if (!idempotencyKey) {
+  throw new Error("--idempotency-key or INGESTION_IDEMPOTENCY_KEY is required.");
+}
+workRoot = join(root, "work", "autonomous-ingestion", safePathSegment(idempotencyKey));
+collectorRoot = args.campaignKey
+  ? join(root, "work", "autonomous-ingestion-campaigns", safePathSegment(args.campaignKey))
+  : workRoot;
+publicOutputs = new Map(
+  AUTONOMOUS_BATCHES.map((batch) => [batch.slug, join(collectorRoot, `public-${batch.slug.toLowerCase()}.json`)])
+);
+githubOutputs = new Map(
+  AUTONOMOUS_BATCHES.map((batch) => [batch.slug, join(collectorRoot, `github-${batch.slug.toLowerCase()}.json`)])
+);
+discoveryAttemptOutputs = new Map(
+  AUTONOMOUS_BATCHES.map((batch) => [batch.slug, join(collectorRoot, `discovery-attempts-${batch.slug.toLowerCase()}.json`)])
+);
+sourceDiscoveryPathOutputs = new Map(
+  AUTONOMOUS_BATCHES.map((batch) => [batch.slug, join(collectorRoot, `source-discovery-paths-${batch.slug.toLowerCase()}.json`)])
+);
+publishedDiscoveryAttemptsPath = join(root, "outputs", "discovery-attempts-current.json");
+publishedSourceDiscoveryPathsPath = join(root, "outputs", "source-discovery-paths-current.json");
+publishedCohortAuditPath = join(root, "outputs", "cohort-coverage-current.json");
+publishedSourceDeltaPath = join(root, "outputs", "ingestion-source-delta-current.json");
+publishedSourceDeltaHistoryPath = join(root, "outputs", "ingestion-source-delta-history.json");
+publishedGithubQuarantinePath = join(root, "src", "lib", "social", "github-traction-quarantine.json");
+topVoiceOutput = join(collectorRoot, "top-voice-refresh.json");
+losslessPublicArchiveRoot = join(collectorRoot, "lossless-public-post-archive");
+url = cleanEnv(process.env.NEXT_PUBLIC_SUPABASE_URL);
+serviceKey = cleanEnv(process.env.SUPABASE_SERVICE_ROLE_KEY);
+supabaseConfiguration = validateSupabaseConfiguration(url, serviceKey);
+durableStorageConfigured = supabaseConfiguration.valid;
+discoveryCredentialGaps = [
+  !cleanEnv(process.env.X_BEARER_TOKEN) ? "X_BEARER_TOKEN" : null,
+  !cleanEnv(process.env.EXA_API_KEY) ? "EXA_API_KEY" : null,
+  ...supabaseConfiguration.blockers
+].filter(Boolean);
+supabase = durableStorageConfigured
+  ? createClient(url, serviceKey, {
+      auth: { autoRefreshToken: false, detectSessionInUrl: false, persistSession: false },
+      global: { headers: { "X-Client-Info": "returner-autonomous-ingestion" } }
+    })
+  : null;
 
 const commitBackedReplay = !args.plan &&
   !args.skipPublish &&
@@ -147,6 +178,13 @@ if (commitBackedReplay) {
     status: "already_completed",
     publicationStatus: "already_completed",
     collectionHealth: receipt.collectionHealth,
+    collectionHealthReasons: receipt.collectionHealthReasons,
+    providerBlocked: receipt.providerBlocked,
+    providerBlockedByReason: receipt.providerBlockedByReason,
+    mappedProviderBlocked: receipt.mappedProviderBlocked,
+    mappedProviderBlockedByReason: receipt.mappedProviderBlockedByReason,
+    mappedScopeUnsupported: receipt.mappedScopeUnsupported,
+    mappedFailed: receipt.mappedFailures,
     newPhysicalSources: receipt.newPhysicalSources,
     dailyNewPhysicalSources: receipt.dailyNewPhysicalSources,
     dailySourceHealth: receipt.dailySourceHealth,
@@ -188,7 +226,6 @@ if (args.plan) {
   process.exit(0);
 }
 
-try {
   if (durableStorageConfigured) {
     runtimeLock = await claimRuntimeLock();
     if (!runtimeLock) {
@@ -210,15 +247,23 @@ try {
       );
     }
     const priorSourceDelta = repositoryBackedReplay.receipt;
-    await writeRunnerOutcome({
+    latestPublishedCommit = repositoryBackedReplay.publishedCommit;
+    pendingRunnerOutcome = {
       status: "already_completed",
       publicationStatus: "already_completed",
       collectionHealth: priorSourceDelta.collectionHealth,
+      collectionHealthReasons: priorSourceDelta.collectionHealthReasons,
+      providerBlocked: priorSourceDelta.providerBlocked,
+      providerBlockedByReason: priorSourceDelta.providerBlockedByReason,
+      mappedProviderBlocked: priorSourceDelta.mappedProviderBlocked,
+      mappedProviderBlockedByReason: priorSourceDelta.mappedProviderBlockedByReason,
+      mappedScopeUnsupported: priorSourceDelta.mappedScopeUnsupported,
+      mappedFailed: priorSourceDelta.mappedFailures,
       newPhysicalSources: priorSourceDelta.newPhysicalSources,
       dailyNewPhysicalSources: priorSourceDelta.dailyNewPhysicalSources,
       dailySourceHealth: priorSourceDelta.dailySourceHealth,
       publishedCommit: repositoryBackedReplay.publishedCommit
-    });
+    };
     process.exitCode = 0;
   } else {
     if (durableStorageConfigured) {
@@ -310,6 +355,8 @@ try {
     const terminalFailureBudget = autonomousMappedTerminalFailureBudget(
       collectionCoverage.mappedExpected
     );
+    latestCollectionCoverage = collectionCoverage;
+    latestTerminalFailureBudget = terminalFailureBudget;
     assertSuccessfulCollection(collectionResults, collectionCoverage);
     await recordCollectionCoverage(collectionCoverage, terminalFailureBudget);
     validateMappedAutonomousCoverage(collectionCoverage, {
@@ -434,6 +481,7 @@ try {
         );
       }
       publicationReceipt = await publishRepositoryArtifacts(publicationRunId, publicationInputs);
+      latestPublishedCommit = publicationReceipt.publishedCommit ?? null;
       await completePublishedTimelineInvalidations(publicationReceipt, timelineInvalidationClaim);
     }
 
@@ -478,31 +526,67 @@ try {
       publicationReceipt,
       topVoiceRefresh
     }, null, 2));
-    await writeRunnerOutcome({
+    pendingRunnerOutcome = {
       status: "refreshed",
       publicationStatus: publicationReceipt.status,
       collectionHealth: publicationInputs.sourceDelta.collectionHealth,
+      collectionHealthReasons: publicationInputs.sourceDelta.collectionHealthReasons,
+      providerBlocked: publicationInputs.sourceDelta.providerBlocked,
+      providerBlockedByReason: publicationInputs.sourceDelta.providerBlockedByReason,
+      mappedProviderBlocked: publicationInputs.sourceDelta.mappedProviderBlocked,
+      mappedProviderBlockedByReason: publicationInputs.sourceDelta.mappedProviderBlockedByReason,
+      mappedScopeUnsupported: publicationInputs.sourceDelta.mappedScopeUnsupported,
+      mappedFailed: publicationInputs.sourceDelta.mappedFailures,
       newPhysicalSources: publicationInputs.sourceDelta.newPhysicalSources,
       dailyNewPhysicalSources: publicationInputs.sourceDelta.dailyNewPhysicalSources,
       dailySourceHealth: publicationInputs.sourceDelta.dailySourceHealth,
       publishedCommit: publicationReceipt.publishedCommit
-    });
+    };
   }
 } catch (error) {
   hardFailure = error;
-  const message = errorMessage(error);
-  console.error(message);
+  const failure = sanitizedRunnerFailure(error);
+  console.error(failure.message);
+  pendingRunnerOutcome = failedRunnerOutcome(failure.message);
   if (run?.id) {
-    await event("run.failed", "error", message, { stack: error instanceof Error ? error.stack ?? null : null }).catch(() => {});
-    await completeRun("failed", { error: message, failedAt: new Date().toISOString() }).catch(() => {});
+    await event("run.failed", "error", failure.message, { stack: failure.stack }).catch(() => {});
+    await completeRun("failed", {
+      error: failure.message,
+      stack: failure.stack,
+      failedAt: new Date().toISOString()
+    }).catch(() => {});
   }
   process.exitCode = 1;
 } finally {
   if (heartbeatTimer) clearInterval(heartbeatTimer);
   if (runtimeLock) {
-    await releaseRuntimeLock().catch((error) => {
-      console.error(`Failed to release ingestion lease: ${errorMessage(error)}`);
-      if (!hardFailure) process.exitCode = 1;
+    try {
+      await releaseRuntimeLock();
+    } catch (error) {
+      const failure = sanitizedRunnerFailure(error);
+      console.error(`Failed to release ingestion lease: ${failure.message}`);
+      if (!hardFailure) {
+        hardFailure = error;
+        pendingRunnerOutcome = failedRunnerOutcome(
+          `Failed to release ingestion lease: ${failure.message}`
+        );
+        if (run?.id) {
+          await event(
+            "run.cleanup_failed",
+            "error",
+            "Autonomous ingestion completed its main work but failed to release the runtime lock.",
+            { error: failure.message, stack: failure.stack, publishedCommit: latestPublishedCommit }
+          ).catch(() => {});
+        }
+        process.exitCode = 1;
+      }
+    }
+  }
+  if (pendingRunnerOutcome) {
+    await writeRunnerOutcome(pendingRunnerOutcome).catch((error) => {
+      const failure = sanitizedRunnerFailure(error);
+      console.error(`Failed to write autonomous runner outcome: ${failure.message}`);
+      process.exitCode = 1;
     });
   }
 }
@@ -549,7 +633,7 @@ async function heartbeat() {
 
 function failHeartbeat(error) {
   heartbeatFailure = error instanceof Error ? error : new Error(errorMessage(error));
-  console.error(`Heartbeat failure: ${errorMessage(heartbeatFailure)}`);
+  console.error(`Heartbeat failure: ${sanitizeRunnerDiagnosticText(errorMessage(heartbeatFailure))}`);
   process.exitCode = 1;
 }
 
@@ -607,8 +691,10 @@ async function getOrCreateRun() {
 }
 
 async function event(eventType, severity, message, payload = {}, eventKey = null) {
+  const sanitizedMessage = sanitizeRunnerDiagnosticText(message);
+  const sanitizedPayload = sanitizeRunnerDiagnosticValue(payload);
   if (!supabase || !run?.id) {
-    console.log(`[${severity}] ${eventType}: ${message}`);
+    console.log(`[${severity}] ${eventType}: ${sanitizedMessage}`);
     return;
   }
   const { error } = await supabase.from("ingestion_run_events").insert({
@@ -616,8 +702,8 @@ async function event(eventType, severity, message, payload = {}, eventKey = null
     event_key: eventKey,
     event_type: eventType,
     severity,
-    message,
-    payload_json: payload
+    message: sanitizedMessage,
+    payload_json: sanitizedPayload
   });
   check(error, `record ${eventType} event`);
 }
@@ -1071,6 +1157,8 @@ async function writeSourceDeltaReceipt(receipt, previousHistory) {
     `- Daily source health: ${receipt.dailySourceHealth}`,
     `- Collection health: ${receipt.collectionHealth}`,
     `- Collection health reasons: ${receipt.collectionHealthReasons?.join(", ") || "none"}`,
+    `- Provider blocked (all tasks): ${receipt.providerBlocked ?? 0}`,
+    `- Provider blocked (mapped tasks): ${receipt.mappedProviderBlocked ?? 0}`,
     `- Mapped native-evidence success: ${receipt.mappedSucceeded}/${receipt.mappedExpected}`,
     `- Published physical sources: ${receipt.publishedPhysicalSources}`,
     `- Newest new-source post: ${receipt.newestNewSourcePostedAt ?? "none"}`,
@@ -2135,7 +2223,8 @@ async function summarizeCollectionCoverage(tasks, collectionResults, { skipNetwo
       snapshot
         ? indexAutonomousCollectorTaskOutcomes(snapshot, {
             kind: result.kind,
-            batchSlug: result.batchSlug
+            batchSlug: result.batchSlug,
+            explicitTerminalOnly: true
           })
         : null
     );
@@ -2154,6 +2243,11 @@ async function summarizeCollectionCoverage(tasks, collectionResults, { skipNetwo
     mappedSucceeded: 0,
     mappedNeedsReview: 0,
     mappedBlockedOrEmpty: 0,
+    providerBlocked: 0,
+    providerBlockedByReason: {},
+    mappedProviderBlocked: 0,
+    mappedProviderBlockedByReason: {},
+    mappedScopeUnsupported: 0,
     mappedFailed: 0,
     mappedNonTerminal: 0,
     mappedFailureSamples: [],
@@ -2196,6 +2290,12 @@ async function summarizeCollectionCoverage(tasks, collectionResults, { skipNetwo
     else if (outcome.status === "blocked_or_empty") report.blockedOrEmpty += 1;
     else if (outcome.status === "nonterminal") report.nonTerminal += 1;
     else report.failed += 1;
+    if (outcome.providerBlocked === true) {
+      report.providerBlocked += 1;
+      const reason = outcome.providerBlockerReason ?? "provider_blocked:unknown";
+      report.providerBlockedByReason[reason] =
+        (report.providerBlockedByReason[reason] ?? 0) + 1;
+    }
     if (task.account) {
       if (outcome.status === "completed") report.mappedSucceeded += 1;
       else if (outcome.status === "needs_review") report.mappedNeedsReview += 1;
@@ -2213,6 +2313,13 @@ async function summarizeCollectionCoverage(tasks, collectionResults, { skipNetwo
           reason: outcome.reason
         });
       }
+      if (outcome.providerBlocked === true) {
+        report.mappedProviderBlocked += 1;
+        const reason = outcome.providerBlockerReason ?? "provider_blocked:unknown";
+        report.mappedProviderBlockedByReason[reason] =
+          (report.mappedProviderBlockedByReason[reason] ?? 0) + 1;
+      }
+      if (outcome.reason === "collector_scope_unsupported") report.mappedScopeUnsupported += 1;
     }
   }
   report.attempted = report.expected - report.nonTerminal;
@@ -2226,7 +2333,9 @@ async function recordCollectionCoverage(
   coverage,
   terminalFailureBudget = autonomousMappedTerminalFailureBudget(coverage?.mappedExpected)
 ) {
-  const degraded = (coverage.mappedFailed ?? 0) > 0;
+  const degraded = (coverage.mappedFailed ?? 0) > 0 ||
+    (coverage.providerBlocked ?? 0) > 0 ||
+    (coverage.mappedScopeUnsupported ?? 0) > 0;
   const budgetExceeded = (coverage.mappedFailed ?? 0) > terminalFailureBudget;
   const failedTaskSamples = (coverage.mappedFailureSamples ?? []).slice(0, 20);
   const omittedFailureSamples = Math.max(
@@ -2238,6 +2347,11 @@ async function recordCollectionCoverage(
     mappedSucceeded: coverage.mappedSucceeded,
     mappedNeedsReview: coverage.mappedNeedsReview,
     mappedBlockedOrEmpty: coverage.mappedBlockedOrEmpty,
+    providerBlocked: coverage.providerBlocked,
+    providerBlockedByReason: coverage.providerBlockedByReason,
+    mappedProviderBlocked: coverage.mappedProviderBlocked,
+    mappedProviderBlockedByReason: coverage.mappedProviderBlockedByReason,
+    mappedScopeUnsupported: coverage.mappedScopeUnsupported,
     mappedFailed: coverage.mappedFailed,
     mappedNonTerminal: coverage.mappedNonTerminal,
     terminalFailureBudget,
@@ -2253,7 +2367,10 @@ async function recordCollectionCoverage(
         ? `Refusing publication because ${coverage.mappedFailed} explicit terminal mapped failure(s) exceed ` +
           `the budget of ${terminalFailureBudget}.`
         : `Publishing a degraded refresh with ${coverage.mappedFailed} explicit terminal mapped failure(s) ` +
-          `within the budget of ${terminalFailureBudget}.`
+          `within the budget of ${terminalFailureBudget} and ${coverage.providerBlocked ?? 0} ` +
+          `provider-blocked task(s) (${coverage.mappedProviderBlocked ?? 0} mapped); ` +
+          `${coverage.mappedScopeUnsupported ?? 0} mapped account task(s) ` +
+          "are outside the collector's verified scope."
     );
   }
   const githubSummary = cleanEnv(process.env.GITHUB_STEP_SUMMARY);
@@ -2265,6 +2382,15 @@ async function recordCollectionCoverage(
     `- Native evidence: ${coverage.mappedSucceeded}`,
     `- Needs review: ${coverage.mappedNeedsReview}`,
     `- Blocked or empty: ${coverage.mappedBlockedOrEmpty}`,
+    `- Provider blocked (all tasks): ${coverage.providerBlocked}`,
+    ...Object.entries(coverage.providerBlockedByReason ?? {})
+      .sort(([left], [right]) => left.localeCompare(right))
+      .map(([reason, count]) => `- Provider blocker (all tasks): \`${reason}\` — ${count}`),
+    `- Provider blocked (mapped tasks): ${coverage.mappedProviderBlocked}`,
+    `- Mapped account scope unsupported: ${coverage.mappedScopeUnsupported}`,
+    ...Object.entries(coverage.mappedProviderBlockedByReason ?? {})
+      .sort(([left], [right]) => left.localeCompare(right))
+      .map(([reason, count]) => `- Provider blocker (mapped tasks): \`${reason}\` — ${count}`),
     `- Terminal failures: ${coverage.mappedFailed}/${terminalFailureBudget}`,
     `- Nonterminal tasks: ${coverage.mappedNonTerminal}`,
     ...failedTaskSamples.map((sample) =>
@@ -2866,10 +2992,17 @@ async function publishRepositoryArtifacts(publicationRunId, publicationInputs) {
     timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitCommitMs,
     label: "commit refreshed artifacts"
   });
+  const firstPushCommit = (await runCommand("git", ["rev-parse", "HEAD"], {
+    timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitDiffMs,
+    label: "resolve first publication push commit"
+  })).stdout.trim();
   const firstPush = await runCommand("git", ["push", "origin", `HEAD:${branch}`], {
     timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitPushMs,
     label: "push refreshed artifacts",
-    allowedExitCodes: [0, 1]
+    allowedExitCodes: [0, 1],
+    onAllowedExit: ({ code }) => {
+      if (code === 0) latestPublishedCommit = firstPushCommit;
+    }
   });
   if (firstPush.code !== 0) {
     await event(
@@ -2960,16 +3093,23 @@ async function publishRepositoryArtifacts(publicationRunId, publicationInputs) {
         label: "amend rebuilt artifacts"
       });
     }
+    const retryPushCommit = (await runCommand("git", ["rev-parse", "HEAD"], {
+      timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitDiffMs,
+      label: "resolve retry publication push commit"
+    })).stdout.trim();
     await runCommand("git", ["push", "origin", `HEAD:${branch}`], {
       timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitPushMs,
-      label: "retry refreshed artifact push"
+      label: "retry refreshed artifact push",
+      onAllowedExit: () => {
+        latestPublishedCommit = retryPushCommit;
+      }
     });
     publicationInputs.sourceDelta = rebasedPublicationInputs.sourceDelta;
   }
-  const publishedCommit = (await runCommand("git", ["rev-parse", "HEAD"], {
-    timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitDiffMs,
-    label: "resolve published commit"
-  })).stdout.trim();
+  const publishedCommit = latestPublishedCommit;
+  if (!publishedCommit) {
+    throw new Error("Publication push completed without capturing its exact commit SHA.");
+  }
   await verifyPublicationCommitOnRemote(publishedCommit, {
     branch,
     label: "published publication"
@@ -3157,6 +3297,7 @@ async function runCommand(command, commandArgs, {
   label,
   env = {},
   allowedExitCodes = [0],
+  onAllowedExit = null,
   quiet = false,
   captureLimit = 40_000
 }) {
@@ -3194,11 +3335,9 @@ async function runCommand(command, commandArgs, {
     }, effectiveTimeoutMs);
     child.stdout.on("data", (chunk) => {
       stdout = tail(`${stdout}${chunk}`, captureLimit);
-      if (!quiet) process.stdout.write(`[${label}] ${chunk}`);
     });
     child.stderr.on("data", (chunk) => {
       stderr = tail(`${stderr}${chunk}`, captureLimit);
-      if (!quiet) process.stderr.write(`[${label}] ${chunk}`);
     });
     child.once("error", (error) => {
       clearTimeout(timer);
@@ -3216,13 +3355,24 @@ async function runCommand(command, commandArgs, {
         stdout,
         stderr
       };
-      const eventPayload = { ...payload, stdout: tail(stdout, 40_000), stderr: tail(stderr, 40_000) };
+      const eventPayload = sanitizeRunnerDiagnosticValue({
+        ...payload,
+        stdout: tail(stdout, 40_000),
+        stderr: tail(stderr, 40_000)
+      });
+      if (!quiet) {
+        const safeStdout = sanitizeRunnerDiagnosticText(stdout, captureLimit);
+        const safeStderr = sanitizeRunnerDiagnosticText(stderr, captureLimit);
+        if (safeStdout) process.stdout.write(`[${label}] ${safeStdout}\n`);
+        if (safeStderr) process.stderr.write(`[${label}] ${safeStderr}\n`);
+      }
       if (timedOut) {
         await event("command.failed", "error", `${label} timed out.`, eventPayload).catch(() => {});
         reject(new Error(`${label} timed out after ${effectiveTimeoutMs}ms.`));
         return;
       }
       if (code !== null && allowedExitCodes.includes(code)) {
+        if (typeof onAllowedExit === "function") onAllowedExit(payload);
         if (heartbeatFailure) {
           reject(new Error(`Ingestion lease heartbeat failed while ${label} was running.`));
           return;
@@ -3290,6 +3440,17 @@ async function writeRunnerOutcome(outcome) {
     runner_status: normalized.status,
     publication_status: normalized.publicationStatus ?? "",
     collection_health: normalized.collectionHealth ?? "",
+    collection_health_reasons: (normalized.collectionHealthReasons ?? []).join(","),
+    provider_blocked: normalized.providerBlocked ?? "",
+    provider_blocked_by_reason: JSON.stringify(normalized.providerBlockedByReason ?? {}),
+    mapped_provider_blocked: normalized.mappedProviderBlocked ?? "",
+    mapped_provider_blocked_by_reason: JSON.stringify(normalized.mappedProviderBlockedByReason ?? {}),
+    mapped_scope_unsupported: normalized.mappedScopeUnsupported ?? "",
+    failure_message: normalized.failureMessage ?? "",
+    mapped_expected: normalized.mappedExpected ?? "",
+    mapped_failed: normalized.mappedFailed ?? "",
+    mapped_nonterminal: normalized.mappedNonTerminal ?? "",
+    terminal_failure_budget: normalized.terminalFailureBudget ?? "",
     new_physical_sources: normalized.newPhysicalSources ?? "",
     daily_new_physical_sources: normalized.dailyNewPhysicalSources ?? "",
     daily_source_health: normalized.dailySourceHealth ?? "",
@@ -3495,4 +3656,64 @@ function tail(value, limit) {
 
 function errorMessage(error) {
   return error instanceof Error ? error.message : String(error);
+}
+
+function runnerDiagnosticSecrets() {
+  return [
+    serviceKey,
+    cleanEnv(process.env.GITHUB_TOKEN),
+    cleanEnv(process.env.X_BEARER_TOKEN),
+    cleanEnv(process.env.EXA_API_KEY)
+  ];
+}
+
+function sanitizeRunnerDiagnosticText(value, maxLength = 40_000) {
+  return sanitizeRunnerFailureMessage(value, {
+    secrets: runnerDiagnosticSecrets(),
+    maxLength
+  });
+}
+
+function sanitizeRunnerDiagnosticValue(value, depth = 0) {
+  if (typeof value === "string") return sanitizeRunnerDiagnosticText(value);
+  if (value === null || value === undefined || typeof value !== "object") return value;
+  if (depth >= 8) return "[truncated-diagnostic-depth]";
+  if (Array.isArray(value)) {
+    return value.slice(0, 1_000).map((item) => sanitizeRunnerDiagnosticValue(item, depth + 1));
+  }
+  return Object.fromEntries(
+    Object.entries(value).slice(0, 1_000).map(([key, item]) => [
+      key,
+      sanitizeRunnerDiagnosticValue(item, depth + 1)
+    ])
+  );
+}
+
+function sanitizedRunnerFailure(error) {
+  const options = {
+    secrets: runnerDiagnosticSecrets()
+  };
+  return {
+    message: sanitizeRunnerFailureMessage(errorMessage(error), options),
+    stack: error instanceof Error && error.stack
+      ? sanitizeRunnerFailureMessage(error.stack, { ...options, maxLength: 8192 })
+      : null
+  };
+}
+
+function failedRunnerOutcome(failureMessage) {
+  return {
+    status: "failed",
+    failureMessage,
+    providerBlocked: latestCollectionCoverage?.providerBlocked,
+    providerBlockedByReason: latestCollectionCoverage?.providerBlockedByReason,
+    mappedProviderBlocked: latestCollectionCoverage?.mappedProviderBlocked,
+    mappedProviderBlockedByReason: latestCollectionCoverage?.mappedProviderBlockedByReason,
+    mappedScopeUnsupported: latestCollectionCoverage?.mappedScopeUnsupported,
+    mappedExpected: latestCollectionCoverage?.mappedExpected,
+    mappedFailed: latestCollectionCoverage?.mappedFailed,
+    mappedNonTerminal: latestCollectionCoverage?.mappedNonTerminal,
+    terminalFailureBudget: latestTerminalFailureBudget,
+    publishedCommit: latestPublishedCommit ?? pendingRunnerOutcome?.publishedCommit ?? null
+  };
 }

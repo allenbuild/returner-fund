@@ -58,6 +58,7 @@ import {
   xUsernameFromUrl
 } from "./lib/credentialed-source-discovery.mjs";
 import {
+  isAutonomousProviderBlocker,
   isAutonomousCollectorFailureRetryable,
   prioritizeAutonomousCompaniesByCoverage
 } from "./lib/autonomous-ingestion-plan.mjs";
@@ -359,7 +360,17 @@ const PUBLIC_COLLECTION_PLATFORMS = Object.freeze([
 const MAPPED_ACCOUNT_PLATFORMS = Object.freeze([
   ...DISCOVERABLE_SOCIAL_PLATFORMS,
   "youtube",
-  "product_hunt"
+  "product_hunt",
+  "reddit",
+  "hacker_news",
+  "rss",
+  "web"
+]);
+const COMPANY_SCOPED_ACCOUNT_UNSUPPORTED_PLATFORMS = new Set([
+  "reddit",
+  "hacker_news",
+  "rss",
+  "web"
 ]);
 
 function attemptedPlatformsForRun() {
@@ -824,9 +835,15 @@ async function attempt(platform, key, company, fn) {
     );
     addItems(result?.sourceDiscoveryPaths ?? [], sourceDiscoveryPaths);
     const attemptSummary = summarizeConnectorResult(result);
+    const providerBlocker = (result?.failures ?? [])
+      .find((row) => isAutonomousProviderBlocker(row?.blocker, {
+        platform: row?.platform ?? normalizedPlatform
+      }))?.blocker ?? null;
     const outcomeStatus = recentProof?.recentWindowProof
       ? "completed"
-      : collectorOutcomeStatus(attemptSummary);
+      : providerBlocker
+        ? "blocked_or_empty"
+        : collectorOutcomeStatus(attemptSummary);
     const retryable = recentProof?.recentWindowProof
       ? false
       : retryableCollectorFailure(attemptSummary.failureReason);
@@ -860,11 +877,14 @@ async function attempt(platform, key, company, fn) {
         ? { recentWindowCoverageCutoff: recentProof.coverageCutoff }
         : {}),
       ...(result?.coverageReceipt ? { coverageReceipt: result.coverageReceipt } : {}),
-      retryable,
+      ...(providerBlocker ? { blocker: providerBlocker } : {}),
+      retryable: providerBlocker ? !providerBlocker.retryAt : retryable,
       outcomeStatus,
       outcomeReason: recentProof?.recentWindowProof
         ? "collector_native_recent_window_exhausted"
-        : collectorOutcomeReason(attemptSummary)
+        : providerBlocker
+          ? "collector_provider_blocked"
+          : collectorOutcomeReason(attemptSummary)
     }, {
       platform: normalizedPlatform,
       companySlug: company.slug,
@@ -986,13 +1006,67 @@ function hasValidatedReplacement(result) {
 }
 
 async function attemptSocialProfile(company, entity, entityType, platform, accountUrl) {
-  const url = accountUrl ?? null;
+  const rawUrl = accountUrl ?? null;
+  const canonicalMappedUrl = rawUrl ? canonicalSocialAccountUrl(platform, rawUrl) : null;
+  const url = canonicalMappedUrl ?? rawUrl;
   const entityId = entityIdFor(company, entity, entityType);
   const name = entityName(entity, entityType);
   const key = url
     ? `${platform}:${entityType}:${entityId}:${url}`
     : `${platform}:${entityType}:${entityId}:missing-url`;
-  if (!forceRefresh && isFreshCompletedAttempt(attemptMap.get(key))) return;
+  if (!url && !forceRefresh && isFreshCompletedAttempt(attemptMap.get(key))) return;
+
+  if (url && (!canonicalMappedUrl || !mappedAccountUrlMatchesPlatform(url, platform, company))) {
+    const mappingMessage = `Invalid URL mapping: ${platform} account URL host did not match the declared platform.`;
+    failures.push({
+      ...failure(platform, company, url, mappingMessage, entityType, name, entityId),
+      attemptKey: key,
+      retryable: false
+    });
+    discoveryAttempts.push(
+      discoveryAttempt({
+        company,
+        entityType,
+        entityId,
+        entityName: name,
+        platform,
+        query: `${name} ${company.name} ${platform}`,
+        source: "canonical_account_mapping",
+        resultCount: 0,
+        usefulResultCount: 0,
+        selectedUrl: url,
+        status: "failed",
+        failureReason: mappingMessage
+      })
+    );
+    attemptMap.set(key, socialAttemptRecord({
+      attemptKey: key,
+      status: "failed",
+      checkedAt: now,
+      error: mappingMessage,
+      retryable: false,
+      outcomeStatus: "failed",
+      outcomeReason: "collector_invalid_account_mapping"
+    }, { platform, companySlug: company.slug, entityType, entityId, name, accountUrl: url }));
+    await writeCheckpoint();
+    return;
+  }
+
+  if (url && !forceRefresh && isFreshCompletedAttempt(attemptMap.get(key))) return;
+
+  if (url && COMPANY_SCOPED_ACCOUNT_UNSUPPORTED_PLATFORMS.has(platform)) {
+    attemptMap.set(key, socialAttemptRecord({
+      attemptKey: key,
+      status: "done",
+      checkedAt: now,
+      attempted: false,
+      retryable: false,
+      outcomeStatus: "blocked_or_empty",
+      outcomeReason: "collector_scope_unsupported"
+    }, { platform, companySlug: company.slug, entityType, entityId, name, accountUrl: url }));
+    await writeCheckpoint();
+    return;
+  }
 
   if (!url) {
     const discoveredPathCandidates = discoveredSocialCandidatesFromPaths(
@@ -1015,7 +1089,10 @@ async function attemptSocialProfile(company, entity, entityType, platform, accou
       );
       const verifiedPostResults = await verifyPublicSocialPostCandidates(company, platform, postCandidates);
       const verificationFailures = verifiedPostResults.flatMap((result) => result.failures ?? []);
-      const verificationBlocker = verificationFailures.find((row) => row.blocker)?.blocker ?? null;
+      const verificationBlocker = verificationFailures
+        .find((row) => isAutonomousProviderBlocker(row?.blocker, {
+          platform: row?.platform ?? platform
+        }))?.blocker ?? null;
       terminalProviderBlocker = publicSearchBlocker ?? verificationBlocker;
       const rawVerifiedPosts = verifiedPostResults.flatMap((result) => result.evidence ?? []);
       const attributedPosts = attributePostEvidenceToEntity(
@@ -1160,47 +1237,6 @@ async function attemptSocialProfile(company, entity, entityType, platform, accou
     return;
   }
 
-  if (!urlMatchesPlatform(url, platform)) {
-    const candidate = reviewCandidate(
-      company,
-      platform,
-      url,
-      `Batch-linked ${platform} URL points to a different platform host and was not scored.`,
-      entityType,
-      entityId,
-      name
-    );
-    needsReview.push(candidate);
-    discoveryAttempts.push(
-      discoveryAttempt({
-        company,
-        entityType,
-        entityId,
-        entityName: name,
-        platform,
-        query: `${name} ${company.name} ${platform}`,
-        source: "yc_profile_social_links",
-        resultCount: 1,
-        usefulResultCount: 0,
-        selectedUrl: url,
-        status: "needs_review",
-        failureReason: candidate.matchReason
-      })
-    );
-    attemptMap.set(key, socialAttemptRecord({
-      attemptKey: key,
-      status: "done",
-      checkedAt: now,
-      ...recentWindowTerminalFields(platform, "native_account_url_platform_mismatch"),
-      retryable: false,
-      outcomeStatus: "needs_review",
-      outcomeReason: "collector_needs_review"
-    }, { platform, companySlug: company.slug, entityType, entityId, name, accountUrl: url }));
-    await writeCheckpoint();
-    await delay(requestDelayMs);
-    return;
-  }
-
   try {
     const result = annotateSocialResultAccount(
       await ingestMappedAccount(company, entity, entityType, platform, url),
@@ -1224,7 +1260,10 @@ async function attemptSocialProfile(company, entity, entityType, platform, accou
     addItems(attributedFailures, failures);
     addItems(result.sourceDiscoveryPaths ?? [], sourceDiscoveryPaths);
     const attemptSummary = summarizeConnectorResult(result);
-    const providerBlocker = attributedFailures.find((row) => row.blocker)?.blocker ?? null;
+    const providerBlocker = attributedFailures
+      .find((row) => isAutonomousProviderBlocker(row?.blocker, {
+        platform: row?.platform ?? platform
+      }))?.blocker ?? null;
     discoveryAttempts.push(
       discoveryAttempt({
         company,
@@ -1244,7 +1283,9 @@ async function attemptSocialProfile(company, entity, entityType, platform, accou
     );
     const outcomeStatus = recentProof?.recentWindowProof
       ? "completed"
-      : collectorOutcomeStatus(attemptSummary);
+      : providerBlocker
+        ? "blocked_or_empty"
+        : collectorOutcomeStatus(attemptSummary);
     const failureReason = String(attemptSummary.failureReason ?? "").trim();
     attemptMap.set(key, socialAttemptRecord({
       attemptKey: key,
@@ -1270,7 +1311,9 @@ async function attemptSocialProfile(company, entity, entityType, platform, accou
       outcomeStatus,
       outcomeReason: recentProof?.recentWindowProof
         ? "collector_native_recent_window_exhausted"
-        : collectorOutcomeReason(attemptSummary)
+        : providerBlocker
+          ? "collector_provider_blocked"
+          : collectorOutcomeReason(attemptSummary)
     }, { platform, companySlug: company.slug, entityType, entityId, name, accountUrl: url }));
   } catch (error) {
     recordPlatformCooldownIfNeeded(platform, error);
@@ -2302,6 +2345,7 @@ async function discoverSocialCandidates(company, platform, entity = null) {
           });
         });
     } catch (error) {
+      if (!(error instanceof PublicSearchUnavailableError)) throw error;
       const blocker = publicSearchBlockerFromError(error);
       publicSearchFailures.push(blocker);
       if (blocker.retryAt) break;
@@ -3391,17 +3435,9 @@ async function ingestInstagramPublicProfile(company, entity, entityType, account
     : overlayInstagramNativeFeedMetrics(profileReceipt, nativeFeedReceipt);
 
   const collectionFailures = [];
-  if (nativeFeedOnly && profileFailureMessage) {
-    collectionFailures.push(failure(
-      "instagram",
-      company,
-      accountUrl,
-      `${profileFailureMessage} Exact anonymous native-feed fallback succeeded.`,
-      entityType,
-      entityName(entity, entityType),
-      entityIdFor(company, entity, entityType)
-    ));
-  }
+  const profileFallbackDiagnostic = nativeFeedOnly && profileFailureMessage
+    ? profileFailureMessage
+    : null;
   if (nativeFeedFailure) {
     collectionFailures.push(failure(
       "instagram",
@@ -3442,6 +3478,7 @@ async function ingestInstagramPublicProfile(company, entity, entityType, account
     duplicateEdgeCount: receipt.duplicateEdgeCount,
     truncated: receipt.truncated,
     hasNextPage: receipt.pageInfo?.hasNextPage === true,
+    ...(profileFallbackDiagnostic ? { profileFallbackDiagnostic } : {}),
     ...(receipt.nativeFeedReceipt
       ? { nativeFeed: receipt.nativeFeedReceipt }
       : {})
@@ -5243,13 +5280,30 @@ function normalizeSearchUrl(url) {
 
 function urlMatchesPlatform(url, platform) {
   try {
-    const host = new URL(url).hostname.replace(/^www\./, "").toLowerCase();
+    const parsed = new URL(url);
+    if (!["http:", "https:"].includes(parsed.protocol)) return false;
+    const host = parsed.hostname.replace(/^www\./, "").toLowerCase();
     if (platform === "x") return host === "x.com" || host === "twitter.com";
     if (platform === "linkedin") return host === "linkedin.com" || host.endsWith(".linkedin.com");
     if (platform === "instagram") return host === "instagram.com" || host.endsWith(".instagram.com");
     if (platform === "youtube") return host === "youtube.com" || host.endsWith(".youtube.com") || host === "youtu.be";
     if (platform === "product_hunt") return host === "producthunt.com" || host.endsWith(".producthunt.com");
-    return true;
+    if (platform === "reddit") return host === "reddit.com" || host.endsWith(".reddit.com");
+    if (platform === "hacker_news") return host === "news.ycombinator.com";
+    if (platform === "rss" || platform === "web") return Boolean(host);
+    return false;
+  } catch {
+    return false;
+  }
+}
+
+function mappedAccountUrlMatchesPlatform(url, platform, company) {
+  if (!urlMatchesPlatform(url, platform)) return false;
+  if (platform !== "rss" && platform !== "web") return true;
+  try {
+    const mappedHost = new URL(url).hostname.replace(/^www\./, "").toLowerCase();
+    const officialHost = new URL(company?.websiteUrl).hostname.replace(/^www\./, "").toLowerCase();
+    return mappedHost === officialHost || mappedHost.endsWith(`.${officialHost}`);
   } catch {
     return false;
   }
@@ -5569,13 +5623,17 @@ function mergeVerifiedOwnerSocialLinks(baseLinks = {}, positiveLinks = {}, owner
     retiredOwnerSocialAccounts(ownerOverride)
       .map(({ platform, url }) => retiredSocialAccountKey(platform, url))
   );
+  const overridePrimaryLinks = {};
+  for (const { platform, url } of verifiedPositiveSocialLinkEntries(positiveLinks)) {
+    if (!overridePrimaryLinks[platform]) overridePrimaryLinks[platform] = url;
+  }
   return {
     ...Object.fromEntries(
       Object.entries(baseLinks ?? {}).filter(([platform, url]) =>
         !retiredKeys.has(retiredSocialAccountKey(platform, url))
       )
     ),
-    ...(positiveLinks ?? {})
+    ...overridePrimaryLinks
   };
 }
 
@@ -5596,14 +5654,25 @@ function mergeVerifiedOwnerSocialAccounts(baseAccounts = [], baseLinks = {}, pos
     const canonicalUrl = canonicalSocialAccountUrl(platform, account?.url);
     byIdentity.set(key, { ...account, platform, url: canonicalUrl });
   }
-  for (const [rawPlatform, url] of Object.entries(positiveLinks ?? {})) {
-    const platform = normalizePlatformArg(rawPlatform);
+  for (const { platform, url } of verifiedPositiveSocialLinkEntries(positiveLinks)) {
     const key = socialAccountKey(platform, url);
     const canonicalUrl = canonicalSocialAccountUrl(platform, url);
     if (!key || !canonicalUrl) continue;
     byIdentity.set(key, { platform, url: canonicalUrl });
   }
   return [...byIdentity.values()];
+}
+
+function verifiedPositiveSocialLinkEntries(positiveLinks = {}) {
+  const entries = [];
+  for (const [rawPlatform, rawValue] of Object.entries(positiveLinks ?? {})) {
+    const platform = normalizePlatformArg(rawPlatform);
+    const values = Array.isArray(rawValue) ? rawValue : [rawValue];
+    for (const url of values) {
+      if (typeof url === "string" && url.trim()) entries.push({ platform, url });
+    }
+  }
+  return entries;
 }
 
 function retiredOwnerSocialAccounts(ownerOverride) {
@@ -6666,6 +6735,13 @@ function isFreshCompletedAttempt(attempt) {
     // freshness and do not hammer a public endpoint during process recovery.
     return false;
   }
+  if (isAutonomousProviderBlocker(attempt.blocker, { platform: attempt.platform })) {
+    const blockerRetryAt = Date.parse(attempt.blocker.retryAt ?? "");
+    // A provider block is terminal only while an explicit live cooldown is in
+    // force. Missing, malformed, or expired retry metadata must re-probe on
+    // the next scheduled run instead of preserving a stale false failure.
+    return Number.isFinite(blockerRetryAt) && Date.now() < blockerRetryAt;
+  }
   const error = String(attempt.error ?? "").trim();
   const retryable =
     typeof attempt.retryable === "boolean"
@@ -6686,13 +6762,6 @@ function isFreshCompletedAttempt(attempt) {
   }
   if (attempt.platform === "youtube" && !attempt.accountUrl && staleAttributionVersion) {
     return false;
-  }
-  const blockerRetryAt = Date.parse(attempt.blocker?.retryAt ?? "");
-  if (Number.isFinite(blockerRetryAt)) {
-    // A provider circuit is terminal only through its recorded cooldown. Once
-    // that instant passes, retry immediately even if the ordinary freshness
-    // window has not expired.
-    return Date.now() < blockerRetryAt;
   }
   const checkedAt = Date.parse(attempt.checkedAt);
   if (!Number.isFinite(checkedAt)) return false;
@@ -6748,9 +6817,12 @@ function errorMessage(error) {
 }
 
 function publicSearchBlockerFromError(error) {
+  if (!(error instanceof PublicSearchUnavailableError)) {
+    throw new TypeError("Only a typed public-search circuit failure can become a provider blocker.");
+  }
   return Object.freeze({
-    provider: error?.provider ?? "duckduckgo_html",
-    code: error?.code ?? "public_search_discovery_failure",
+    provider: error.provider,
+    code: error.code,
     retryAt: error?.retryAt ?? null,
     httpStatus: Number.isInteger(error?.status) ? error.status : null,
     message: errorMessage(error)

@@ -252,6 +252,28 @@ test("inactive candidates and accepted publication outcomes have distinct audita
   assert.match(workflow, /if \[ "\$STATUS" = "resolver_failed" \] \|\| \[ "\$STATUS" = "accepted_slot_failed" \]/);
   assert.match(workflow, /accepted slot requires a successful publication job/i);
   assert.match(workflow, /exit 1/);
+  assert.match(workflow, /runner_failure_message:\s*\$\{\{ steps\.ingestion\.outputs\.failure_message \}\}/);
+  assert.match(workflow, /PROVIDER_BLOCKED:\s*\$\{\{ steps\.ingestion\.outputs\.provider_blocked \}\}/);
+  assert.match(workflow, /PROVIDER_BLOCKED_BY_REASON:\s*\$\{\{ steps\.ingestion\.outputs\.provider_blocked_by_reason \}\}/);
+  assert.match(workflow, /MAPPED_PROVIDER_BLOCKED:\s*\$\{\{ steps\.ingestion\.outputs\.mapped_provider_blocked \}\}/);
+  assert.match(workflow, /MAPPED_SCOPE_UNSUPPORTED:\s*\$\{\{ steps\.ingestion\.outputs\.mapped_scope_unsupported \}\}/);
+  assert.match(workflow, /MAPPED_FAILURES:\s*\$\{\{ steps\.ingestion\.outputs\.mapped_failed \}\}/);
+  assert.match(workflow, /name:\s*Materialize failed-run receipt/);
+  assert.match(workflow, /name:\s*Upload failed-run receipt/);
+  assert.match(workflow, /actions\/upload-artifact@[0-9a-f]{40}\s+# v4/);
+  assert.match(workflow, /executed_sha:\s*\$\{\{ steps\.checkout_state\.outputs\.executed_sha \}\}/);
+  assert.match(workflow, /triggerSha:\s*process\.env\.TRIGGER_SHA/);
+  assert.match(workflow, /executedSha:\s*process\.env\.EXECUTED_SHA/);
+  assert.match(workflow, /process\.env\.PUBLISHED_COMMIT \|\| process\.env\.RUNNER_PUBLISHED_COMMIT/);
+  assert.match(workflow, /providerBlocked:\s*integerOrNull\(process\.env\.PROVIDER_BLOCKED\)/);
+  assert.match(workflow, /providerBlockedByReason:\s*countMap\(process\.env\.PROVIDER_BLOCKED_BY_REASON\)/);
+  assert.match(workflow, /mappedProviderBlocked:\s*integerOrNull\(process\.env\.MAPPED_PROVIDER_BLOCKED\)/);
+  assert.match(workflow, /mappedProviderBlockedByReason:\s*countMap\(process\.env\.MAPPED_PROVIDER_BLOCKED_BY_REASON\)/);
+  assert.match(workflow, /steps\.audit_outcome\.outcome != 'success'/);
+  assert.match(workflow, /autonomous-ingestion-failure-\$\{\{ github\.run_id \}\}-\$\{\{ github\.run_attempt \}\}/);
+  assert.match(workflow, /\$\{\{ runner\.temp \}\}\/autonomous-ingestion-diagnostics\/failure-receipt\.json/);
+  const diagnosticSteps = workflow.slice(workflow.indexOf("- name: Materialize failed-run receipt"));
+  assert.doesNotMatch(diagnosticSteps, /continue-on-error/);
   assert.match(workflow, /::warning title=Autonomous ingestion completed with warnings/);
   assert.doesNotMatch(workflow, /Autonomous ingestion health gate failed/);
   for (const warningStatus of [
@@ -268,7 +290,8 @@ test("inactive candidates and accepted publication outcomes have distinct audita
   ]) assert.ok(receiptPolicy.includes(`"${failureStatus}"`));
   const runnerSource = readFileSync(path.join(repositoryRoot, "scripts", "run-autonomous-ingestion.mjs"), "utf8");
   assert.match(runnerSource, /writeRunnerOutcome\(\{\s*status:\s*"already_completed"/);
-  assert.match(runnerSource, /writeRunnerOutcome\(\{\s*status:\s*"refreshed"/);
+  assert.match(runnerSource, /pendingRunnerOutcome\s*=\s*\{\s*status:\s*"refreshed"/);
+  assert.match(runnerSource, /finally\s*\{[\s\S]*writeRunnerOutcome\(pendingRunnerOutcome\)/);
 });
 
 test("autonomous audit fails closed for every accepted job without a recognized commit-backed receipt", () => {

@@ -80,12 +80,29 @@ jobs:
       published_commit: ${{ steps.publication_receipt.outputs.published_commit }}
       receipt_status: ${{ steps.publication_receipt.outputs.receipt_status }}
       receipt_conclusion: ${{ steps.publication_receipt.outputs.receipt_conclusion }}
+      runner_status: ${{ steps.ingestion.outputs.runner_status }}
+      runner_failure_message: ${{ steps.ingestion.outputs.failure_message }}
+      provider_blocked: ${{ steps.ingestion.outputs.provider_blocked }}
+      provider_blocked_by_reason: ${{ steps.ingestion.outputs.provider_blocked_by_reason }}
+      mapped_provider_blocked: ${{ steps.ingestion.outputs.mapped_provider_blocked }}
+      mapped_provider_blocked_by_reason: ${{ steps.ingestion.outputs.mapped_provider_blocked_by_reason }}
+      mapped_scope_unsupported: ${{ steps.ingestion.outputs.mapped_scope_unsupported }}
+      mapped_expected: ${{ steps.ingestion.outputs.mapped_expected }}
+      mapped_failed: ${{ steps.ingestion.outputs.mapped_failed }}
+      mapped_nonterminal: ${{ steps.ingestion.outputs.mapped_nonterminal }}
+      terminal_failure_budget: ${{ steps.ingestion.outputs.terminal_failure_budget }}
+      runner_published_commit: ${{ steps.ingestion.outputs.published_commit }}
+      executed_sha: ${{ steps.checkout_state.outputs.executed_sha }}
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
         with:
           ref: main
           fetch-depth: 0
+
+      - name: Record executed checkout
+        id: checkout_state
+        run: echo "executed_sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
       - name: Use Node.js
         uses: actions/setup-node@v4
@@ -125,6 +142,13 @@ jobs:
           RUNNER_STATUS: ${{ steps.ingestion.outputs.runner_status }}
           PUBLICATION_STATUS: ${{ steps.ingestion.outputs.publication_status }}
           COLLECTION_HEALTH: ${{ steps.ingestion.outputs.collection_health }}
+          COLLECTION_HEALTH_REASONS: ${{ steps.ingestion.outputs.collection_health_reasons }}
+          PROVIDER_BLOCKED: ${{ steps.ingestion.outputs.provider_blocked }}
+          PROVIDER_BLOCKED_BY_REASON: ${{ steps.ingestion.outputs.provider_blocked_by_reason }}
+          MAPPED_PROVIDER_BLOCKED: ${{ steps.ingestion.outputs.mapped_provider_blocked }}
+          MAPPED_PROVIDER_BLOCKED_BY_REASON: ${{ steps.ingestion.outputs.mapped_provider_blocked_by_reason }}
+          MAPPED_SCOPE_UNSUPPORTED: ${{ steps.ingestion.outputs.mapped_scope_unsupported }}
+          MAPPED_FAILURES: ${{ steps.ingestion.outputs.mapped_failed }}
           NEW_PHYSICAL_SOURCES: ${{ steps.ingestion.outputs.new_physical_sources }}
           DAILY_NEW_PHYSICAL_SOURCES: ${{ steps.ingestion.outputs.daily_new_physical_sources }}
           DAILY_SOURCE_HEALTH: ${{ steps.ingestion.outputs.daily_source_health }}
@@ -139,6 +163,7 @@ jobs:
     timeout-minutes: 5
     steps:
       - name: Record auditable slot outcome
+        id: audit_outcome
         env:
           SHOULD_RUN: ${{ needs.resolve.outputs.should_run }}
           SLOT_KEY: ${{ needs.resolve.outputs.slot_key }}
@@ -179,6 +204,13 @@ jobs:
             echo "- Commit proof valid: $COMMIT_PROOF_VALID"
             echo "- Published commit: ${PUBLISHED_COMMIT:-none}"
           } >> "$GITHUB_STEP_SUMMARY"
+          if [ -n "${GITHUB_OUTPUT:-}" ]; then
+            {
+              echo "status=$STATUS"
+              echo "receipt_recognized=$RECEIPT_RECOGNIZED"
+              echo "commit_proof_valid=$COMMIT_PROOF_VALID"
+            } >> "$GITHUB_OUTPUT"
+          fi
           if [ "$STATUS" = "resolver_failed" ] || [ "$STATUS" = "accepted_slot_failed" ]; then
             echo "::error title=Autonomous ingestion failed::$STATUS for ${SLOT_KEY:-unknown slot}"
             echo "The accepted slot requires a successful publication job, a recognized receipt, and an exact repository-backed commit."
@@ -187,3 +219,90 @@ jobs:
             echo "::warning title=Autonomous ingestion completed with warnings::$STATUS for ${SLOT_KEY:-unknown slot}"
           fi
           echo "::notice title=Autonomous ingestion outcome::$STATUS for ${SLOT_KEY:-inactive candidate}"
+
+      - name: Materialize failed-run receipt
+        if: ${{ always() && steps.audit_outcome.outcome != 'success' }}
+        env:
+          AUDIT_STATUS: ${{ steps.audit_outcome.outputs.status }}
+          SHOULD_RUN: ${{ needs.resolve.outputs.should_run }}
+          SLOT_KEY: ${{ needs.resolve.outputs.slot_key }}
+          RESOLVE_RESULT: ${{ needs.resolve.result }}
+          INGEST_RESULT: ${{ needs.ingest.result }}
+          RUNNER_STATUS: ${{ needs.ingest.outputs.runner_status }}
+          RUNNER_FAILURE_MESSAGE: ${{ needs.ingest.outputs.runner_failure_message }}
+          PROVIDER_BLOCKED: ${{ needs.ingest.outputs.provider_blocked }}
+          PROVIDER_BLOCKED_BY_REASON: ${{ needs.ingest.outputs.provider_blocked_by_reason }}
+          MAPPED_PROVIDER_BLOCKED: ${{ needs.ingest.outputs.mapped_provider_blocked }}
+          MAPPED_PROVIDER_BLOCKED_BY_REASON: ${{ needs.ingest.outputs.mapped_provider_blocked_by_reason }}
+          MAPPED_SCOPE_UNSUPPORTED: ${{ needs.ingest.outputs.mapped_scope_unsupported }}
+          MAPPED_EXPECTED: ${{ needs.ingest.outputs.mapped_expected }}
+          MAPPED_FAILED: ${{ needs.ingest.outputs.mapped_failed }}
+          MAPPED_NONTERMINAL: ${{ needs.ingest.outputs.mapped_nonterminal }}
+          TERMINAL_FAILURE_BUDGET: ${{ needs.ingest.outputs.terminal_failure_budget }}
+          RECEIPT_STATUS: ${{ needs.ingest.outputs.receipt_status }}
+          RECEIPT_CONCLUSION: ${{ needs.ingest.outputs.receipt_conclusion }}
+          RECEIPT_RECOGNIZED: ${{ steps.audit_outcome.outputs.receipt_recognized }}
+          COMMIT_PROOF_VALID: ${{ steps.audit_outcome.outputs.commit_proof_valid }}
+          PUBLISHED_COMMIT: ${{ needs.ingest.outputs.published_commit }}
+          RUNNER_PUBLISHED_COMMIT: ${{ needs.ingest.outputs.runner_published_commit }}
+          RUN_ID: ${{ github.run_id }}
+          RUN_ATTEMPT: ${{ github.run_attempt }}
+          TRIGGER_SHA: ${{ github.sha }}
+          EXECUTED_SHA: ${{ needs.ingest.outputs.executed_sha }}
+        run: |
+          node --input-type=module <<'NODE'
+          import { mkdir, writeFile } from "node:fs/promises";
+          import { join } from "node:path";
+
+          const integerOrNull = (value) => /^\d+$/.test(String(value ?? "")) ? Number(value) : null;
+          const countMap = (value) => {
+            try {
+              const parsed = JSON.parse(String(value ?? "{}"));
+              return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? parsed : {};
+            } catch {
+              return {};
+            }
+          };
+          const directory = join(process.env.RUNNER_TEMP, "autonomous-ingestion-diagnostics");
+          const receipt = {
+            schemaVersion: 1,
+            status: process.env.AUDIT_STATUS || "accepted_slot_failed",
+            slotKey: process.env.SLOT_KEY || null,
+            shouldRun: process.env.SHOULD_RUN === "true",
+            resolveResult: process.env.RESOLVE_RESULT || null,
+            ingestResult: process.env.INGEST_RESULT || null,
+            runnerStatus: process.env.RUNNER_STATUS || null,
+            runnerFailureMessage: process.env.RUNNER_FAILURE_MESSAGE || null,
+            providerBlocked: integerOrNull(process.env.PROVIDER_BLOCKED),
+            providerBlockedByReason: countMap(process.env.PROVIDER_BLOCKED_BY_REASON),
+            mappedProviderBlocked: integerOrNull(process.env.MAPPED_PROVIDER_BLOCKED),
+            mappedProviderBlockedByReason: countMap(process.env.MAPPED_PROVIDER_BLOCKED_BY_REASON),
+            mappedScopeUnsupported: integerOrNull(process.env.MAPPED_SCOPE_UNSUPPORTED),
+            mappedExpected: integerOrNull(process.env.MAPPED_EXPECTED),
+            mappedFailed: integerOrNull(process.env.MAPPED_FAILED),
+            mappedNonterminal: integerOrNull(process.env.MAPPED_NONTERMINAL),
+            terminalFailureBudget: integerOrNull(process.env.TERMINAL_FAILURE_BUDGET),
+            receiptStatus: process.env.RECEIPT_STATUS || null,
+            receiptConclusion: process.env.RECEIPT_CONCLUSION || null,
+            receiptRecognized: process.env.RECEIPT_RECOGNIZED === "true",
+            commitProofValid: process.env.COMMIT_PROOF_VALID === "true",
+            publishedCommit: process.env.PUBLISHED_COMMIT || process.env.RUNNER_PUBLISHED_COMMIT || null,
+            runId: process.env.RUN_ID,
+            runAttempt: process.env.RUN_ATTEMPT,
+            headSha: process.env.TRIGGER_SHA,
+            triggerSha: process.env.TRIGGER_SHA,
+            executedSha: process.env.EXECUTED_SHA || null,
+            generatedAt: new Date().toISOString()
+          };
+          await mkdir(directory, { recursive: true });
+          await writeFile(join(directory, "failure-receipt.json"), `${JSON.stringify(receipt, null, 2)}\n`);
+          NODE
+
+      - name: Upload failed-run receipt
+        if: ${{ always() && steps.audit_outcome.outcome != 'success' }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: autonomous-ingestion-failure-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/autonomous-ingestion-diagnostics/failure-receipt.json
+          if-no-files-found: error
+          retention-days: 14

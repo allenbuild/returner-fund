@@ -85,9 +85,9 @@ describe("logged-in social batch selection", () => {
   });
 
   it.each([
-    ["S2026", 197, 397, 1_783, 2_971, 967],
+    ["S2026", 197, 397, 1_783, 5_347, 967],
     ["S26", null, null, null, null, null],
-    ["A16ZSR006", 59, 128, 564, 938, 289]
+    ["A16ZSR006", 59, 128, 564, 1_686, 289]
   ])("covers every exact %s account target and matches the public plan", (
     batchSlug,
     companyCount,
@@ -120,7 +120,7 @@ describe("logged-in social batch selection", () => {
       expect(logged.founderCount).toBe(publicPlan.founderCount);
       expect(logged.coverage).toHaveLength((logged.companyCount + logged.founderCount) * 3);
       expect(publicPlan.socialCoverage).toHaveLength(
-        (publicPlan.companyCount + publicPlan.founderCount) * 5
+        (publicPlan.companyCount + publicPlan.founderCount) * 9
       );
       targetCount = publicPlan.socialTargets.length;
     } else {

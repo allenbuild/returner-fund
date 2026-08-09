@@ -227,7 +227,17 @@ test("public collection independently plans every active a16z account alias", ()
 });
 
 test("public collector plans every canonical public account mapping across all cohorts", async () => {
-  const publicPlatforms = new Set(["x", "instagram", "linkedin", "youtube", "product_hunt"]);
+  const publicPlatforms = new Set([
+    "x",
+    "instagram",
+    "linkedin",
+    "youtube",
+    "product_hunt",
+    "reddit",
+    "hacker_news",
+    "rss",
+    "web"
+  ]);
   for (const catalog of await loadAutonomousCatalogs(root)) {
     const plan = JSON.parse(execFileSync(process.execPath, [
       "scripts/fetch-public-traction.mjs",
@@ -241,7 +251,7 @@ test("public collector plans every canonical public account mapping across all c
           .filter((account) => publicPlatforms.has(account.platform))
           .flatMap((account) => {
             const canonicalUrl = canonicalSocialAccountUrl(account.platform, account.url);
-            return canonicalUrl ? [`${entity.sourceKey}:${account.platform}:${canonicalUrl}`] : [];
+            return canonicalUrl ? [`${entity.sourceKey}:${account.platform}:${canonicalUrl.toLowerCase()}`] : [];
           })
       )
     ).sort();
@@ -1004,6 +1014,62 @@ globalThis.fetch = async (url) => {
       failure.platform === "reddit" &&
       failure.message === "Reddit public access blocked: HTTP 403."
   ));
+});
+
+test("mapped Reddit accounts receive exact unsupported receipts separate from generic company search", async () => {
+  const directory = await mkdtemp(join(tmpdir(), "returner-public-reddit-mapped-scope-"));
+  const output = join(directory, "public-evidence.json");
+  const checkpoint = join(directory, "checkpoint.json");
+  const discoveryAttempts = join(directory, "discovery-attempts.json");
+  const sourceDiscoveryPaths = join(directory, "source-discovery-paths.json");
+  const preload = join(directory, "mock-fetch.mjs");
+  await Promise.all([
+    writeFile(discoveryAttempts, "[]\n"),
+    writeFile(sourceDiscoveryPaths, "[]\n"),
+    writeFile(preload, `
+globalThis.fetch = async (url) => {
+  if (String(url).startsWith("https://www.reddit.com/search.json")) {
+    return Response.json({ message: "Forbidden" }, { status: 403 });
+  }
+  if (String(url).startsWith("https://r.jina.ai/http")) {
+    return new Response("Title: Reddit Search", { status: 200 });
+  }
+  throw new Error("unexpected request");
+};
+`)
+  ]);
+
+  execFileSync(process.execPath, [
+    "scripts/fetch-public-traction.mjs",
+    "--batch=S2026",
+    "--company=gojiberry-ai",
+    "--platforms=reddit",
+    "--social=company",
+    "--workers=1",
+    "--delay-ms=0",
+    "--force",
+    `--output=${output}`,
+    `--checkpoint=${checkpoint}`,
+    `--discovery-attempts=${discoveryAttempts}`,
+    `--source-discovery-paths=${sourceDiscoveryPaths}`
+  ], {
+    cwd: root,
+    env: { ...process.env, NODE_OPTIONS: `--import=${preload}` },
+    stdio: "pipe"
+  });
+
+  const snapshot = JSON.parse(await readFile(output, "utf8"));
+  const accountUrl = "https://reddit.com/user/ecstatic-tough6503";
+  const exactReceipt = Object.values(snapshot.attempts).find((attempt) =>
+    attempt.platform === "reddit" &&
+    attempt.entityId === "company-gojiberry-ai" &&
+    String(attempt.accountUrl ?? "").toLowerCase() === accountUrl.toLowerCase()
+  );
+  assert.equal(snapshot.attempts["reddit:gojiberry-ai"].accountUrl, null);
+  assert.equal(exactReceipt?.accountUrl, accountUrl);
+  assert.equal(exactReceipt?.attempted, false);
+  assert.equal(exactReceipt?.outcomeStatus, "blocked_or_empty");
+  assert.equal(exactReceipt?.outcomeReason, "collector_scope_unsupported");
 });
 
 test("platform cooldown skips still write exact terminal receipts for every skipped task", async () => {

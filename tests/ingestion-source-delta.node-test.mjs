@@ -64,6 +64,18 @@ test("marks terminal-but-ineffective mapped collection and missing credentials a
       mappedSucceeded: 90,
       mappedNeedsReview: 503,
       mappedBlockedOrEmpty: 1243,
+      providerBlocked: 412,
+      providerBlockedByReason: {
+        "provider_blocked:duckduckgo_html:public_search_circuit_open": 55,
+        "provider_blocked:jina_reader:linkedin_public_circuit_open": 321,
+        "provider_transport_or_access_blocked:instagram": 36
+      },
+      mappedProviderBlocked: 357,
+      mappedProviderBlockedByReason: {
+        "provider_blocked:jina_reader:linkedin_public_circuit_open": 321,
+        "provider_transport_or_access_blocked:instagram": 36
+      },
+      mappedScopeUnsupported: 10,
       mappedFailed: 1,
       mappedNonTerminal: 0
     },
@@ -77,8 +89,55 @@ test("marks terminal-but-ineffective mapped collection and missing credentials a
     "missing_credential:SUPABASE_SERVICE_ROLE_KEY",
     "connector_failure:X_RECENT_SEARCH_ERRORS:3",
     "mapped_failures:1",
+    "provider_blocked:412",
+    "mapped_provider_blocked:357",
+    "mapped_scope_unsupported:10",
     "mapped_success_rate_below_10_percent:0.0490"
   ]);
+  assert.equal(receipt.providerBlocked, 412);
+  assert.deepEqual(receipt.providerBlockedByReason, {
+    "provider_blocked:duckduckgo_html:public_search_circuit_open": 55,
+    "provider_blocked:jina_reader:linkedin_public_circuit_open": 321,
+    "provider_transport_or_access_blocked:instagram": 36
+  });
+  assert.equal(receipt.mappedProviderBlocked, 357);
+  assert.deepEqual(receipt.mappedProviderBlockedByReason, {
+    "provider_blocked:jina_reader:linkedin_public_circuit_open": 321,
+    "provider_transport_or_access_blocked:instagram": 36
+  });
+  assert.equal(receipt.mappedScopeUnsupported, 10);
+});
+
+test("marks URL-less provider outages degraded without changing mapped efficacy", () => {
+  const receipt = summarizeIngestionSourceDelta({
+    idempotencyKey: "central-2026-07-22-0600",
+    beforeSnapshots: [{ evidence: [row("100")] }],
+    afterSnapshots: [{ evidence: [row("100"), row("101")] }],
+    collectionCoverage: {
+      mappedExpected: 100,
+      mappedSucceeded: 50,
+      mappedNeedsReview: 25,
+      mappedBlockedOrEmpty: 25,
+      providerBlocked: 17,
+      providerBlockedByReason: {
+        "provider_blocked:duckduckgo_html:public_search_circuit_open": 17
+      },
+      mappedProviderBlocked: 0,
+      mappedProviderBlockedByReason: {},
+      mappedScopeUnsupported: 0,
+      mappedFailed: 0,
+      mappedNonTerminal: 0
+    }
+  });
+
+  assert.equal(receipt.collectionHealth, "degraded");
+  assert.deepEqual(receipt.collectionHealthReasons, ["provider_blocked:17"]);
+  assert.equal(receipt.providerBlocked, 17);
+  assert.deepEqual(receipt.providerBlockedByReason, {
+    "provider_blocked:duckduckgo_html:public_search_circuit_open": 17
+  });
+  assert.equal(receipt.mappedProviderBlocked, 0);
+  assert.equal(receipt.mappedSuccessRate, 0.5);
 });
 
 test("accepts healthy mapped efficacy when credentials and terminal outcomes are sound", () => {

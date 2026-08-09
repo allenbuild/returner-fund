@@ -206,6 +206,35 @@ const PUBLIC_PLATFORM_COLLECTORS = new Set([
 ]);
 const FOUNDER_SOCIAL_PLATFORMS = new Set(["github", "x", "instagram", "linkedin"]);
 const EXPLICITLY_UNAVAILABLE = new Set(["bilibili", "tiktok", "bluesky"]);
+const AUTONOMOUS_PROVIDER_BLOCKER_CODES = new Map([
+  ["duckduckgo_html", new Set([
+    "public_search_access_blocked",
+    "public_search_http_failure",
+    "public_search_soft_block",
+    "public_search_body_limit",
+    "public_search_timeout",
+    "public_search_transport_failure",
+    "public_search_circuit_open"
+  ])],
+  ["linkedin_public_html", new Set([
+    "linkedin_public_access_blocked",
+    "linkedin_public_http_failure",
+    "linkedin_public_soft_block",
+    "linkedin_public_body_limit",
+    "linkedin_public_timeout",
+    "linkedin_public_transport_failure",
+    "linkedin_public_circuit_open"
+  ])],
+  ["jina_linkedin_reader", new Set([
+    "linkedin_public_access_blocked",
+    "linkedin_public_http_failure",
+    "linkedin_public_soft_block",
+    "linkedin_public_body_limit",
+    "linkedin_public_timeout",
+    "linkedin_public_transport_failure",
+    "linkedin_public_circuit_open"
+  ])]
+]);
 
 export async function loadAutonomousCatalogs(root) {
   const verifiedSocialOverrides = await readRequiredCanonicalJson(
@@ -1029,16 +1058,6 @@ const MISSING_COLLECTOR_OUTCOME_REASONS = new Set([
   "collector_returned_no_account_attempt",
   "collector_returned_no_entity_attempt"
 ]);
-// These collectors execute once per company and consume any catalog URL as an
-// input to that company-level request. They do not emit one receipt per mapped
-// URL, so account-specific plan rows must reconcile against the exact owner
-// receipt instead of remaining permanently nonterminal.
-const COMPANY_SCOPED_PUBLIC_CONNECTOR_PLATFORMS = new Set([
-  "reddit",
-  "hacker_news",
-  "rss",
-  "web"
-]);
 const RETRYABLE_COLLECTOR_FAILURE_PATTERN =
   /(?:rate.?limit|secondary.?limit|\b403\b|\b408\b|\b425\b|forbidden|\b429\b|\b5\d\d\b|timeout|timed out|\babort(?:ed|error)?\b|\betimedout\b|network|fetch failed|econn|socket|temporar|unavailable)/i;
 const NON_RETRYABLE_COLLECTOR_FAILURE_PATTERN =
@@ -1222,7 +1241,7 @@ export function indexAutonomousCollectorTaskOutcomes(
   { kind, batchSlug, explicitTerminalOnly = false }
 ) {
   const outcomes = new Map();
-  const record = (row, platform, status, reason, accountUrl = null) => {
+  const record = (row, platform, status, reason, accountUrl = null, metadata = {}) => {
     const entityType = row?.entityType ?? "company";
     const rawEntityId = row?.entityId ?? row?.attachedCompanyId ?? row?.companySlug ?? row?.companyName;
     const entityId = normalizeAutonomousFailureEntityId(
@@ -1230,17 +1249,27 @@ export function indexAutonomousCollectorTaskOutcomes(
       { batchSlug }
     );
     if (!entityId) return;
-    const candidate = { status, reason };
-    const keys = [autonomousCollectorEntityKey(platform, entityType, entityId)];
+    const candidate = { status, reason, ...metadata };
+    const entityKey = autonomousCollectorEntityKey(platform, entityType, entityId);
     const resolvedAccountUrl = accountUrl ?? row?.accountUrl ?? row?.account_url ?? null;
+    const keys = [{ key: entityKey, exactTaskKey: !resolvedAccountUrl }];
     if (resolvedAccountUrl) {
-      keys.push(autonomousCollectorAccountKey(platform, entityType, entityId, resolvedAccountUrl));
+      keys.push({
+        key: autonomousCollectorAccountKey(platform, entityType, entityId, resolvedAccountUrl),
+        exactTaskKey: true
+      });
     }
-    for (const key of keys) {
+    for (const { key, exactTaskKey } of keys) {
       const previous = outcomes.get(key);
-      if (!previous || collectorOutcomePriority(candidate.status) > collectorOutcomePriority(previous.status)) {
-        outcomes.set(key, candidate);
-      }
+      const scopedCandidate = {
+        ...candidate,
+        exactTypedReceipt: candidate.exactTypedReceipt === true && exactTaskKey
+      };
+      const selected = !previous || shouldReplaceCollectorOutcome(previous, scopedCandidate)
+        ? scopedCandidate
+        : previous;
+      const other = selected === scopedCandidate ? previous : scopedCandidate;
+      outcomes.set(key, preserveCollectorBlockerMetadata(other, selected));
     }
   };
 
@@ -1297,7 +1326,9 @@ export function indexAutonomousCollectorTaskOutcomes(
         ? "collector_evidence_collected"
         : needsReview
           ? "collector_needs_review"
-          : "collector_context_only"
+          : "collector_context_only",
+      null,
+      { validatedCompletedEvidence: successful }
     );
   }
   for (const review of snapshot?.needsReview ?? []) {
@@ -1308,10 +1339,37 @@ export function indexAutonomousCollectorTaskOutcomes(
       "collector_needs_review"
     );
   }
+  const providerBlockerAttemptsByKey = new Map();
+  for (const attempt of Object.values(snapshot?.attempts ?? {})) {
+    if (!attempt?.attemptKey) continue;
+    const key = String(attempt.attemptKey);
+    const attempts = providerBlockerAttemptsByKey.get(key) ?? [];
+    attempts.push(attempt);
+    providerBlockerAttemptsByKey.set(key, attempts);
+  }
   for (const failure of snapshot?.failures ?? []) {
     const exactFailureReason = nonEmptyCollectorReason(failure.message ?? failure.error);
     if (explicitTerminalOnly && !exactFailureReason) continue;
-    const expectedEmpty = isExpectedPublicAccessOrEmptyFailure(failure);
+    const matchingBlockerAttempts = (
+      providerBlockerAttemptsByKey.get(String(failure?.attemptKey ?? "")) ?? []
+    ).filter((attempt) =>
+      collectorAttemptMatchesFailureIdentity(attempt, failure, batchSlug) &&
+      TERMINAL_COLLECTOR_OUTCOME_STATUSES.has(attempt.outcomeStatus) &&
+      nonEmptyCollectorReason(attempt.error ?? attempt.outcomeReason) &&
+      isAutonomousProviderBlocker(attempt.blocker, { platform: attempt.platform }) &&
+      isAutonomousProviderBlocker(failure?.blocker, { platform: failure.platform }) &&
+      sameAutonomousProviderBlocker(failure.blocker, attempt.blocker)
+    );
+    const candidateProviderBlocker = matchingBlockerAttempts.length === 1
+      ? matchingBlockerAttempts[0].blocker
+      : null;
+    const typedProviderBlocker = isDeterministicPublicMappingFailure(failure, {
+      trustedProviderBlocker: Boolean(candidateProviderBlocker)
+    })
+      ? null
+      : candidateProviderBlocker;
+    const providerBlocked = Boolean(typedProviderBlocker);
+    const expectedEmpty = providerBlocked || isExpectedPublicAccessOrEmptyFailure(failure);
     record(
       failure,
       failure.platform,
@@ -1320,14 +1378,35 @@ export function indexAutonomousCollectorTaskOutcomes(
         ? exactFailureReason
         : expectedEmpty
           ? "collector_checked_blocked_or_empty"
-          : "collector_reported_failure"
+          : "collector_reported_failure",
+      null,
+      providerBlocked
+        ? {
+            incidentalRawFailure: true,
+            providerBlocked: true,
+            providerBlockerReason: typedProviderBlockerReason(
+              typedProviderBlocker,
+              failure.platform
+            )
+          }
+        : {
+            incidentalRawFailure: expectedEmpty,
+            hardRawFailure: !expectedEmpty
+          }
     );
   }
   for (const attempt of Object.values(snapshot?.attempts ?? {})) {
     if (!attempt?.entityId || !attempt?.platform) continue;
-    const terminalStatus = TERMINAL_COLLECTOR_OUTCOME_STATUSES.has(attempt.outcomeStatus)
-      ? attempt.outcomeStatus
+    const sameKeyAttempts = providerBlockerAttemptsByKey.get(String(attempt?.attemptKey ?? "")) ?? [];
+    const providerBlocker = sameKeyAttempts.length === 1 &&
+      isAutonomousProviderBlocker(attempt?.blocker, { platform: attempt.platform })
+      ? attempt.blocker
       : null;
+    const terminalStatus = providerBlocker && attempt.outcomeStatus === "failed"
+      ? "blocked_or_empty"
+      : TERMINAL_COLLECTOR_OUTCOME_STATUSES.has(attempt.outcomeStatus)
+        ? attempt.outcomeStatus
+        : null;
     const exactReason = nonEmptyCollectorReason(attempt.error ?? attempt.outcomeReason);
     if (explicitTerminalOnly && (!terminalStatus || !exactReason)) continue;
     // URL-less social discovery is a real queued task. Once the collector has
@@ -1347,7 +1426,14 @@ export function indexAutonomousCollectorTaskOutcomes(
         : attempt.outcomeReason ?? (status === "failed"
           ? "collector_reported_failure"
           : "collector_account_attempted"),
-      attempt.accountUrl
+      attempt.accountUrl,
+      providerBlocker
+        ? {
+            exactTypedReceipt: Boolean(terminalStatus && exactReason),
+            providerBlocked: true,
+            providerBlockerReason: typedProviderBlockerReason(providerBlocker, attempt.platform)
+          }
+        : { exactTypedReceipt: Boolean(terminalStatus && exactReason) }
     );
   }
   return outcomes;
@@ -1361,14 +1447,8 @@ export function classifyAutonomousCollectorTaskOutcome(
   const key = accountUrl
     ? autonomousCollectorAccountKey(platform, entityType, entityId, accountUrl)
     : autonomousCollectorEntityKey(platform, entityType, entityId);
-  const outcome = outcomeIndex?.get(key) ?? (
-    accountUrl &&
-    entityType === "company" &&
-    COMPANY_SCOPED_PUBLIC_CONNECTOR_PLATFORMS.has(normalizedPlatform)
-      ? outcomeIndex?.get(autonomousCollectorEntityKey(platform, entityType, entityId))
-      : null
-  );
-  if (outcome) return outcome;
+  const outcome = outcomeIndex?.get(key);
+  if (outcome) return collectorOutcomePublicView(outcome);
   // A process-level retry failure is not evidence that every task in the
   // collector failed. Sharded collectors durably flush task-level receipts
   // before the runner evaluates coverage, so preserve those exact outcomes
@@ -1386,12 +1466,6 @@ export function classifyAutonomousCollectorTaskOutcome(
     return {
       status: "blocked_or_empty",
       reason: "collector_checked_no_github_mapping"
-    };
-  }
-  if (normalizedPlatform === "rss" && outcomeIndex) {
-    return {
-      status: "blocked_or_empty",
-      reason: "collector_checked_no_rss_feed"
     };
   }
   return {
@@ -2089,6 +2163,38 @@ function collectorOutcomePriority(status) {
   return ({ blocked_or_empty: 1, failed: 2, needs_review: 3, completed: 4 })[status] ?? 0;
 }
 
+function shouldReplaceCollectorOutcome(previous, candidate) {
+  if (candidate.validatedCompletedEvidence === true) return true;
+  if (previous.validatedCompletedEvidence === true) return false;
+  if (candidate.hardRawFailure === true) return true;
+  if (previous.hardRawFailure === true) return false;
+  if (candidate.exactTypedReceipt === true && previous.incidentalRawFailure === true) return true;
+  if (previous.exactTypedReceipt === true && candidate.incidentalRawFailure === true) return false;
+  return collectorOutcomePriority(candidate.status) > collectorOutcomePriority(previous.status);
+}
+
+function preserveCollectorBlockerMetadata(previous, candidate) {
+  if (candidate.providerBlocked === true || previous?.providerBlocked !== true) return candidate;
+  return {
+    ...candidate,
+    providerBlocked: true,
+    providerBlockerReason: previous.providerBlockerReason
+  };
+}
+
+function collectorOutcomePublicView(outcome) {
+  return {
+    status: outcome.status,
+    reason: outcome.reason,
+    ...(outcome.providerBlocked === true
+      ? {
+          providerBlocked: true,
+          providerBlockerReason: outcome.providerBlockerReason
+        }
+      : {})
+  };
+}
+
 function isSuccessfulPublicEvidenceRow(row) {
   if (["needs_review", "rejected"].includes(row?.review_state)) return false;
   if (Number(row?.contributionScore ?? 0) > 0) return true;
@@ -2102,7 +2208,109 @@ function isExpectedPublicAccessOrEmptyFailure(failure) {
   if (/(?:\b404\b|http[_ -]?404|not found|invalid (?:url|mapping|host|identity)|dead (?:url|mapping|account)|wrong host|host did not match|unsupported .*url|referential)/i.test(message)) {
     return false;
   }
-  return /(?:no\b[^.\n]{0,100}\b(?:matches?|posts?|videos?|content|results?|items?|candidates?|evidence|mentions?|links?)\b|empty|login|log in|sign in|signup|join (?:linkedin|x)|access (?:blocked|denied)|\bblocked\b|rate.?limit|\b429\b|captcha|robots|authentication required|http[_ -]?(?:401|403|408|425|429|5\d\d)|\b(?:unauthori[sz]ed|forbidden|timeout|timed out|temporar(?:y|ily)|unavailable|network|transport)\b|fetch failed|operation was aborted|aborterror|\betimedout\b|\beconn[a-z]*\b|socket (?:hang up|closed)|circuit is open)/i.test(message);
+  if (normalizePlatform(failure?.platform) === "x" &&
+      /(?:^|[^a-z0-9])no_exact_owner_social_media_postings(?:$|[^a-z0-9])/.test(message)) {
+    return true;
+  }
+  return /(?:no\b[^.\n]{0,100}\b(?:matches?|posts?|videos?|content|results?|items?|candidates?|evidence|mentions?|links?)\b|empty|login|log in|sign in|signup|join (?:linkedin|x)|access (?:blocked|denied)|\bblocked\b|rate.?limit|\b429\b|captcha|robots|authentication required|http[_ -]?(?:401|403|408|425|429|5\d\d)|\b(?:unauthori[sz]ed|forbidden|timeout|timed out)\b|(?:network|transport) (?:error|failed|failure)|fetch failed|operation was aborted|aborterror|\betimedout\b|\beconn[a-z]*\b|socket (?:hang up|closed)|circuit is open)/i.test(message);
+}
+
+function isDeterministicPublicMappingFailure(
+  failure,
+  { trustedProviderBlocker = false } = {}
+) {
+  const message = String(failure?.message ?? failure?.error ?? "").toLowerCase();
+  if (/(?:invalid (?:url|mapping|host|identity)|dead (?:url|mapping|account)|wrong host|host did not match|unsupported .*url|referential)/i.test(message)) {
+    return true;
+  }
+  return !trustedProviderBlocker && /(?:\b404\b|http[_ -]?404|not found)/i.test(message);
+}
+
+export function isAutonomousProviderBlocker(blocker, { platform = null } = {}) {
+  if (!blocker || typeof blocker !== "object" || Array.isArray(blocker)) return false;
+  const provider = String(blocker.provider ?? "").trim();
+  const code = String(blocker.code ?? "").trim();
+  if (!provider || provider !== provider.toLowerCase() || !code || code !== code.toLowerCase()) {
+    return false;
+  }
+  if (AUTONOMOUS_PROVIDER_BLOCKER_CODES.get(provider)?.has(code) !== true) return false;
+  const normalizedPlatform = normalizePlatform(platform);
+  if (normalizedPlatform) {
+    if (provider === "duckduckgo_html" && !["x", "linkedin", "instagram", "product_hunt", "web"].includes(normalizedPlatform)) {
+      return false;
+    }
+    if (provider !== "duckduckgo_html" && normalizedPlatform !== "linkedin") return false;
+  }
+  const allowedKeys = new Set(["provider", "code", "retryAt", "httpStatus", "message"]);
+  if (Object.keys(blocker).some((key) => !allowedKeys.has(key))) return false;
+  if (!Object.prototype.hasOwnProperty.call(blocker, "retryAt") ||
+      !Object.prototype.hasOwnProperty.call(blocker, "httpStatus") ||
+      !String(blocker.message ?? "").trim()) {
+    return false;
+  }
+  if (blocker.retryAt !== null) {
+    const timestamp = Date.parse(blocker.retryAt);
+    if (!Number.isFinite(timestamp) || new Date(timestamp).toISOString() !== blocker.retryAt) return false;
+  }
+  if (blocker.httpStatus !== null &&
+      (!Number.isInteger(blocker.httpStatus) || blocker.httpStatus < 100 || blocker.httpStatus > 599)) {
+    return false;
+  }
+  if (code.endsWith("_circuit_open") && blocker.retryAt === null) return false;
+  if (code.endsWith("_access_blocked") || code.endsWith("_http_failure")) {
+    if (blocker.httpStatus === null || blocker.httpStatus < 400) return false;
+  } else if (code.endsWith("_soft_block")) {
+    if (blocker.httpStatus !== 200) return false;
+  } else if (blocker.httpStatus !== null) {
+    return false;
+  }
+  return true;
+}
+
+function sameAutonomousProviderBlocker(left, right) {
+  if (!left || !right) return false;
+  return ["provider", "code", "retryAt", "httpStatus", "message"]
+    .every((key) => (left[key] ?? null) === (right[key] ?? null));
+}
+
+function collectorAttemptMatchesFailureIdentity(attempt, failure, batchSlug) {
+  if (String(attempt?.attemptKey ?? "") !== String(failure?.attemptKey ?? "")) return false;
+  const attemptPlatform = normalizePlatform(attempt?.platform);
+  const failurePlatform = normalizePlatform(failure?.platform);
+  if (!attemptPlatform || attemptPlatform !== failurePlatform) return false;
+  const attemptType = attempt?.entityType ?? "company";
+  const failureType = failure?.entityType ?? "company";
+  if (attemptType !== failureType) return false;
+  const attemptId = normalizeAutonomousFailureEntityId(attempt, { batchSlug });
+  const failureId = normalizeAutonomousFailureEntityId(failure, { batchSlug });
+  if (!attemptId || attemptId !== failureId) return false;
+  const attemptUrl = attempt?.accountUrl ?? attempt?.account_url ?? null;
+  const failureUrl = failure?.accountUrl ?? failure?.account_url ?? null;
+  if (Boolean(attemptUrl) !== Boolean(failureUrl)) return false;
+  if (!attemptUrl) return true;
+  return autonomousCollectorAccountKey(
+    attemptPlatform,
+    attemptType,
+    attemptId,
+    attemptUrl
+  ) === autonomousCollectorAccountKey(
+    failurePlatform,
+    failureType,
+    failureId,
+    failureUrl
+  );
+}
+
+function typedProviderBlockerReason(blocker, platform) {
+  const provider = String(blocker?.provider ?? normalizePlatform(platform) ?? "unknown")
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9_.-]+/g, "_");
+  const code = String(blocker?.code ?? "provider_blocked")
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9_:-]+/g, "_");
+  return `provider_blocked:${provider || "unknown"}:${code || "provider_blocked"}`;
 }
 
 function canonicalSocialAccountUrl(platform, rawUrl) {

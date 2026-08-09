@@ -182,9 +182,14 @@ test("exact native-feed fallback survives web profile failure and quarantines no
     ["COAUTHOR", "SURFACE"]
   );
   assert.ok(review.every((row) => row.attributionStatus === "needs_review"));
-  assert.ok(snapshot.failures.some((row) =>
-    /native-feed fallback succeeded/i.test(row.message)
-  ));
+  assert.equal(snapshot.failures.some((row) =>
+    /web profile endpoint returned HTTP 400/i.test(row.message)
+  ), false);
+  const receipt = JSON.parse(accepted[0].rawVisibleText).receipt;
+  assert.match(
+    receipt.profileFallbackDiagnostic,
+    /Instagram public profile endpoint returned HTTP 400/i
+  );
 });
 
 test("--mapped-only disables discovery and exits before URL-less task fanout", () => {

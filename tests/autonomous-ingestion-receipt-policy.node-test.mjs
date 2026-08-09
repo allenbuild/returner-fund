@@ -133,6 +133,23 @@ describe("autonomous ingestion receipt policy", () => {
     );
   });
 
+  it("promotes provider outages and mapped collector defects to degraded warnings", () => {
+    for (const coverageSignal of [
+      { providerBlocked: 17 },
+      { mappedProviderBlocked: 9 },
+      { mappedScopeUnsupported: 4 },
+      { mappedFailures: 2 }
+    ]) {
+      const result = classifyAutonomousIngestionReceipt({
+        ...healthyPublication,
+        collectionHealth: "complete",
+        ...coverageSignal
+      });
+      assert.equal(result.receiptStatus, "published_degraded");
+      assert.equal(result.conclusion, "warning");
+    }
+  });
+
   it("warns for a quiet morning slot while leaving the final daily slot pending", () => {
     const published = classifyAutonomousIngestionReceipt({
       ...healthyPublication,
@@ -261,7 +278,14 @@ describe("autonomous ingestion receipt policy", () => {
       env: {
         RUNNER_STATUS: "refreshed",
         PUBLICATION_STATUS: "published",
-        COLLECTION_HEALTH: "degraded",
+        COLLECTION_HEALTH: "complete",
+        COLLECTION_HEALTH_REASONS: "provider_blocked:412,mapped_provider_blocked:357,mapped_scope_unsupported:10",
+        PROVIDER_BLOCKED: "412",
+        PROVIDER_BLOCKED_BY_REASON: '{"provider_blocked:duckduckgo_html:public_search_circuit_open":55,"provider_blocked:jina_reader:linkedin_public_circuit_open":321,"provider_transport_or_access_blocked:instagram":36}',
+        MAPPED_PROVIDER_BLOCKED: "357",
+        MAPPED_PROVIDER_BLOCKED_BY_REASON: '{"provider_blocked:jina_reader:linkedin_public_circuit_open":321,"provider_transport_or_access_blocked:instagram":36}',
+        MAPPED_SCOPE_UNSUPPORTED: "10",
+        MAPPED_FAILURES: "1",
         NEW_PHYSICAL_SOURCES: "30",
         DAILY_NEW_PHYSICAL_SOURCES: "33",
         DAILY_SOURCE_HEALTH: "healthy",
@@ -280,6 +304,13 @@ describe("autonomous ingestion receipt policy", () => {
     assert.match(writes[0][2], /receipt_conclusion=warning/);
     assert.match(writes[1][2], /New physical sources this slot: 30/);
     assert.match(writes[1][2], /New physical sources this Central day: 33/);
+    assert.match(writes[1][2], /Collection health: degraded/);
+    assert.match(writes[1][2], /Collection health reasons: provider_blocked:412,mapped_provider_blocked:357,mapped_scope_unsupported:10/);
+    assert.match(writes[1][2], /Provider-blocked tasks \(all\): 412/);
+    assert.match(writes[1][2], /Provider blocker reasons \(all\): \{"provider_blocked:duckduckgo_html:public_search_circuit_open":55/);
+    assert.match(writes[1][2], /Provider-blocked mapped tasks: 357/);
+    assert.match(writes[1][2], /Mapped scope unsupported: 10/);
+    assert.match(writes[1][2], /Mapped hard failures: 1/);
     assert.match(writes[1][2], /Artifact validation: passed/);
   });
 

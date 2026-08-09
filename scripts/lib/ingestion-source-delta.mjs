@@ -56,6 +56,15 @@ export function summarizeIngestionSourceDelta({
   const mappedSucceeded = Number(collectionCoverage?.mappedSucceeded ?? 0);
   const mappedNeedsReview = Number(collectionCoverage?.mappedNeedsReview ?? 0);
   const mappedBlockedOrEmpty = Number(collectionCoverage?.mappedBlockedOrEmpty ?? 0);
+  const providerBlocked = Number(collectionCoverage?.providerBlocked ?? 0);
+  const providerBlockedByReason = normalizeCountMap(
+    collectionCoverage?.providerBlockedByReason
+  );
+  const mappedProviderBlocked = Number(collectionCoverage?.mappedProviderBlocked ?? 0);
+  const mappedProviderBlockedByReason = normalizeCountMap(
+    collectionCoverage?.mappedProviderBlockedByReason
+  );
+  const mappedScopeUnsupported = Number(collectionCoverage?.mappedScopeUnsupported ?? 0);
   const mappedFailureCount = Number(collectionCoverage?.mappedFailed ?? mappedFailures ?? 0);
   const mappedNonTerminal = Number(collectionCoverage?.mappedNonTerminal ?? 0);
   const mappedSuccessRate = mappedExpected > 0 ? mappedSucceeded / mappedExpected : null;
@@ -65,6 +74,9 @@ export function summarizeIngestionSourceDelta({
       return issue.includes(":") ? `connector_failure:${issue}` : `missing_credential:${issue}`;
     }),
     ...(mappedFailureCount > 0 ? [`mapped_failures:${mappedFailureCount}`] : []),
+    ...(providerBlocked > 0 ? [`provider_blocked:${providerBlocked}`] : []),
+    ...(mappedProviderBlocked > 0 ? [`mapped_provider_blocked:${mappedProviderBlocked}`] : []),
+    ...(mappedScopeUnsupported > 0 ? [`mapped_scope_unsupported:${mappedScopeUnsupported}`] : []),
     ...(mappedNonTerminal > 0 ? [`mapped_nonterminal:${mappedNonTerminal}`] : []),
     ...(mappedExpected > 0 && mappedSuccessRate < 0.1
       ? [`mapped_success_rate_below_10_percent:${mappedSuccessRate.toFixed(4)}`]
@@ -94,6 +106,11 @@ export function summarizeIngestionSourceDelta({
     mappedSucceeded,
     mappedNeedsReview,
     mappedBlockedOrEmpty,
+    providerBlocked,
+    providerBlockedByReason,
+    mappedProviderBlocked,
+    mappedProviderBlockedByReason,
+    mappedScopeUnsupported,
     mappedFailures: mappedFailureCount,
     mappedNonTerminal,
     mappedSuccessRate: mappedSuccessRate === null ? null : Number(mappedSuccessRate.toFixed(4)),
@@ -101,6 +118,15 @@ export function summarizeIngestionSourceDelta({
     insertedByBatchPlatform,
     insertedSourceSamples
   };
+}
+
+function normalizeCountMap(value) {
+  return Object.fromEntries(
+    Object.entries(value ?? {})
+      .filter(([, count]) => Number.isSafeInteger(Number(count)) && Number(count) >= 0)
+      .sort(([left], [right]) => left.localeCompare(right))
+      .map(([reason, count]) => [reason, Number(count)])
+  );
 }
 
 export function mergeIngestionSourceDeltaHistory(previousHistory, receipt) {

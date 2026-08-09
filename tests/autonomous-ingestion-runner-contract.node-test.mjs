@@ -58,9 +58,35 @@ describe("autonomous ingestion runner CLI", () => {
     });
   });
 
+  it("reports a missing idempotency key through GitHub outputs", async () => {
+    const root = await mkdtemp(path.join(os.tmpdir(), "autonomous-ingestion-missing-key-"));
+    temporaryRoots.push(root);
+    const outputPath = path.join(root, "github-output.txt");
+    const env = { ...process.env, GITHUB_OUTPUT: outputPath };
+    delete env.INGESTION_IDEMPOTENCY_KEY;
+    delete env.NEXT_PUBLIC_SUPABASE_URL;
+    delete env.SUPABASE_SERVICE_ROLE_KEY;
+
+    const result = spawnSync(process.execPath, [runnerPath], {
+      cwd: root,
+      env,
+      encoding: "utf8"
+    });
+
+    assert.equal(result.status, 1, result.stderr);
+    assert.match(result.stderr, /--idempotency-key or INGESTION_IDEMPOTENCY_KEY is required/);
+    const outputs = await readFile(outputPath, "utf8");
+    assert.match(outputs, /^runner_status=failed$/m);
+    assert.match(
+      outputs,
+      /^failure_message=--idempotency-key or INGESTION_IDEMPOTENCY_KEY is required\.$/m
+    );
+  });
+
   it("refuses to complete file-backed mode when collection was explicitly skipped", async () => {
     const root = await createRunnerRoot("autonomous-ingestion-file-mode-");
-    const env = { ...process.env };
+    const outputPath = path.join(root, "github-output.txt");
+    const env = { ...process.env, GITHUB_OUTPUT: outputPath };
     delete env.NEXT_PUBLIC_SUPABASE_URL;
     delete env.SUPABASE_SERVICE_ROLE_KEY;
 
@@ -74,6 +100,13 @@ describe("autonomous ingestion runner CLI", () => {
     assert.match(result.stderr, /Durable Supabase import skipped/);
     assert.match(result.stderr, /No collector completed successfully/);
     assert.doesNotMatch(result.stdout, /"status": "completed"/);
+    const outputs = await readFile(outputPath, "utf8");
+    assert.match(outputs, /^runner_status=failed$/m);
+    assert.match(outputs, /^failure_message=No collector completed successfully;/m);
+    assert.match(outputs, /^mapped_expected=\d+$/m);
+    assert.match(outputs, /^mapped_failed=0$/m);
+    assert.match(outputs, /^mapped_nonterminal=0$/m);
+    assert.match(outputs, /^terminal_failure_budget=\d+$/m);
   });
 
   it("records an invalid Supabase URL as a blocker and continues in file-backed mode", async () => {
@@ -110,6 +143,14 @@ describe("autonomous ingestion runner CLI", () => {
         schemaVersion: 1,
         idempotencyKey,
         collectionHealth: "degraded",
+        providerBlocked: 8,
+        providerBlockedByReason: {
+          "provider_blocked:duckduckgo_html:public_search_circuit_open": 8
+        },
+        mappedProviderBlocked: 0,
+        mappedProviderBlockedByReason: {},
+        mappedScopeUnsupported: 0,
+        mappedFailures: 0,
         newPhysicalSources: 4,
         dailyNewPhysicalSources: 9,
         dailySourceHealth: "healthy"
@@ -147,6 +188,10 @@ describe("autonomous ingestion runner CLI", () => {
     assert.match(outputs, /runner_status=already_completed/);
     assert.match(outputs, /publication_status=already_completed/);
     assert.match(outputs, /collection_health=degraded/);
+    assert.match(outputs, /provider_blocked=8/);
+    assert.match(outputs, /provider_blocked_by_reason=\{"provider_blocked:duckduckgo_html:public_search_circuit_open":8\}/);
+    assert.match(outputs, /mapped_provider_blocked=0/);
+    assert.match(outputs, /mapped_scope_unsupported=0/);
     assert.match(outputs, /new_physical_sources=4/);
     assert.match(outputs, /daily_new_physical_sources=9/);
     assert.match(outputs, new RegExp(`published_commit=${publishedCommit}`));
@@ -165,8 +210,8 @@ describe("autonomous ingestion runner static safety contracts", () => {
   });
 
   it("allows file-backed recovery without Supabase but explicitly degrades workflow health", () => {
-    assert.ok(runner.includes("const supabaseConfiguration = validateSupabaseConfiguration(url, serviceKey)"));
-    assert.ok(runner.includes("const durableStorageConfigured = supabaseConfiguration.valid"));
+    assert.ok(runner.includes("supabaseConfiguration = validateSupabaseConfiguration(url, serviceKey)"));
+    assert.ok(runner.includes("durableStorageConfigured = supabaseConfiguration.valid"));
     assert.ok(supabaseConfiguration.includes('`${SUPABASE_URL_BLOCKER}:invalid_http_url`'));
     assert.doesNotMatch(runner, /SUPABASE_SERVICE_ROLE_KEY are required/);
     assert.ok(runner.includes("workflow receipt will report degraded collection health"));
@@ -196,12 +241,29 @@ describe("autonomous ingestion runner static safety contracts", () => {
     assert.ok(timelineBackfill.includes("env: timelineBackfillEnv"));
   });
 
-  it("carries credential gaps and mapped efficacy into the published health receipt", () => {
+  it("carries provider health, credential gaps, and mapped efficacy into the published health receipt", () => {
+    const coverageSummary = section(
+      "async function summarizeCollectionCoverage",
+      "async function recordCollectionCoverage"
+    );
+    const outcomeWriter = section(
+      "async function writeRunnerOutcome",
+      "async function readCommitBackedReplayReceipt"
+    );
     assert.ok(runner.includes('!cleanEnv(process.env.X_BEARER_TOKEN) ? "X_BEARER_TOKEN"'));
     assert.ok(runner.includes('!cleanEnv(process.env.EXA_API_KEY) ? "EXA_API_KEY"'));
     assert.ok(runner.includes("collectionCoverage,"));
     assert.ok(runner.includes("credentialGaps: collectionCredentialGaps"));
     assert.ok(runner.includes("collectionHealthReasons"));
+    assert.ok(runner.includes("explicitTerminalOnly: true"));
+    assert.ok(runner.includes("providerBlocked"));
+    assert.ok(runner.includes("mappedProviderBlocked"));
+    const totalProviderBlocker = coverageSummary.indexOf("if (outcome.providerBlocked === true)");
+    const mappedAccountingAfterBlocker = coverageSummary.indexOf("if (task.account)", totalProviderBlocker);
+    assert.ok(totalProviderBlocker > -1 && mappedAccountingAfterBlocker > totalProviderBlocker);
+    assert.match(outcomeWriter, /provider_blocked:\s*normalized\.providerBlocked/);
+    assert.match(outcomeWriter, /provider_blocked_by_reason:\s*JSON\.stringify/);
+    assert.match(outcomeWriter, /mapped_scope_unsupported:\s*normalized\.mappedScopeUnsupported/);
   });
 
   it("uses an explicit bounded terminal-failure budget for publication", () => {
@@ -284,8 +346,78 @@ describe("autonomous ingestion runner static safety contracts", () => {
 
   it("exports the verified publication commit for workflow receipt wiring", () => {
     const outcomeWriter = section("async function writeRunnerOutcome", "async function readCommitBackedReplayReceipt");
+    const publication = section(
+      "async function publishRepositoryArtifacts",
+      "async function stageRepositoryArtifacts"
+    );
     assert.ok(outcomeWriter.includes("published_commit: normalized.publishedCommit"));
     assert.match(runner, /publicationStatus:\s*publicationReceipt\.status[\s\S]*publishedCommit:\s*publicationReceipt\.publishedCommit/);
+    assert.match(runner, /latestPublishedCommit = publicationReceipt\.publishedCommit/);
+    assert.match(runner, /terminalFailureBudget:\s*latestTerminalFailureBudget,[\s\S]*publishedCommit:\s*latestPublishedCommit/);
+
+    const firstPush = publication.indexOf('label: "push refreshed artifacts"');
+    const firstCapture = publication.indexOf(
+      "if (code === 0) latestPublishedCommit = firstPushCommit"
+    );
+    const retryPush = publication.indexOf('label: "retry refreshed artifact push"');
+    const retryCapture = publication.indexOf("latestPublishedCommit = retryPushCommit");
+    const verification = publication.indexOf("await verifyPublicationCommitOnRemote(publishedCommit");
+    const completionEvent = publication.indexOf('await event("publication.completed"');
+    assert.ok(firstPush > -1 && firstCapture > firstPush);
+    assert.ok(retryPush > firstCapture && retryCapture > retryPush);
+    assert.ok(verification > retryCapture && completionEvent > verification);
+    const commandRunner = section("async function runCommand", "async function writeRunnerOutcome");
+    assert.ok(commandRunner.indexOf("onAllowedExit(payload)") < commandRunner.indexOf('event("command.completed"'));
+  });
+
+  it("captures bootstrap failures inside the diagnostic outcome boundary", () => {
+    const tryBoundary = runner.indexOf("try {\nroot = process.cwd()");
+    assert.ok(tryBoundary >= 0);
+    for (const bootstrapStep of [
+      "parseArgs(process.argv.slice(2))",
+      "randomUUID()",
+      "createAutonomousRunnerBudget({",
+      "if (!idempotencyKey)",
+      "validateSupabaseConfiguration(url, serviceKey)",
+      "readCommitBackedReplayReceipt()",
+      "mkdir(workRoot",
+      "refreshMutableYcCatalog()",
+      "loadAutonomousCatalogs(root)",
+      "buildAutonomousTaskPlan(catalogs"
+    ]) {
+      assert.ok(runner.indexOf(bootstrapStep) > tryBoundary, bootstrapStep);
+    }
+    assert.ok(runner.indexOf("} catch (error) {") > runner.indexOf("buildAutonomousTaskPlan(catalogs"));
+  });
+
+  it("sanitizes every top-level failure sink", () => {
+    const catchPath = section("} catch (error) {", "} finally {");
+    const sanitizer = section("function sanitizedRunnerFailure", "function failedRunnerOutcome");
+
+    assert.ok(catchPath.includes("const failure = sanitizedRunnerFailure(error)"));
+    assert.ok(catchPath.includes("console.error(failure.message)"));
+    assert.ok(catchPath.includes('event("run.failed", "error", failure.message, { stack: failure.stack })'));
+    assert.ok(catchPath.includes("error: failure.message"));
+    assert.ok(catchPath.includes("stack: failure.stack"));
+    assert.doesNotMatch(catchPath, /console\.error\(message\)/);
+    assert.doesNotMatch(catchPath, /error\.stack/);
+    assert.ok(sanitizer.includes("sanitizeRunnerFailureMessage(errorMessage(error), options)"));
+    assert.ok(sanitizer.includes("sanitizeRunnerFailureMessage(error.stack"));
+  });
+
+  it("turns runtime-lock cleanup failure into a failed outcome after preserving publication", () => {
+    const lifecycle = section("} finally {", "async function claimRuntimeLock");
+    const release = lifecycle.indexOf("await releaseRuntimeLock()");
+    const failureOutcome = lifecycle.indexOf("pendingRunnerOutcome = failedRunnerOutcome(");
+    const outcomeWrite = lifecycle.indexOf("await writeRunnerOutcome(pendingRunnerOutcome)");
+
+    assert.ok(release > -1 && failureOutcome > release && outcomeWrite > failureOutcome);
+    assert.ok(lifecycle.includes('event(\n            "run.cleanup_failed"'));
+    assert.ok(lifecycle.includes("publishedCommit: latestPublishedCommit"));
+    assert.ok(lifecycle.includes("process.exitCode = 1"));
+    assert.ok(runner.includes(
+      "publishedCommit: latestPublishedCommit ?? pendingRunnerOutcome?.publishedCommit ?? null"
+    ));
   });
 
   it("counts all canonical GitHub traction exports in source freshness after publication merge", () => {
@@ -406,9 +538,9 @@ describe("autonomous ingestion runner static safety contracts", () => {
     assert.ok(collectors.includes("run: () => runShardedGithubCollector({"));
     assert.ok(collectors.includes("totalCompanyCount: companyCount"));
     assert.ok(collectors.includes("command.promise = runCollectorWithRetries(command)"));
-    assert.ok(runner.includes("const PUBLIC_SHARD_PROCESS_CONCURRENCY = 2"));
-    assert.ok(runner.includes("const PUBLIC_COLLECTOR_TASK_CONCURRENCY = 8"));
-    assert.ok(runner.includes("const PUBLIC_SOCIAL_LANE_CONCURRENCY = 1"));
+    assert.ok(runner.includes("PUBLIC_SHARD_PROCESS_CONCURRENCY = 2"));
+    assert.ok(runner.includes("PUBLIC_COLLECTOR_TASK_CONCURRENCY = 8"));
+    assert.ok(runner.includes("PUBLIC_SOCIAL_LANE_CONCURRENCY = 1"));
     assert.ok(shardedCollector.includes("runWithPublicShardProcessSlot(() =>"));
     assert.ok(collectors.includes("let githubQueue = Promise.resolve()"));
     assert.ok(collectors.includes("command.promise = githubQueue.then(() => runCollectorWithRetries(command))"));
@@ -543,10 +675,10 @@ describe("autonomous ingestion runner static safety contracts", () => {
 
     assert.ok(runner.includes('campaignKey: value("--campaign-key")'));
     assert.ok(runner.includes('"autonomous-ingestion-campaigns"'));
-    assert.ok(runner.includes("const collectorRoot = args.campaignKey"));
+    assert.ok(runner.includes("collectorRoot = args.campaignKey"));
     assert.ok(runner.includes("join(collectorRoot, `public-${batch.slug.toLowerCase()}.json`)"));
     assert.ok(runner.includes("join(collectorRoot, `github-${batch.slug.toLowerCase()}.json`)"));
-    assert.ok(runner.includes('const topVoiceOutput = join(collectorRoot, "top-voice-refresh.json")'));
+    assert.ok(runner.includes('topVoiceOutput = join(collectorRoot, "top-voice-refresh.json")'));
     assert.ok(preparation.includes("seedShardLedger(discoveryAttemptOutputs.get(batch.slug)"));
     assert.ok(preparation.includes("seedShardLedger(sourceDiscoveryPathOutputs.get(batch.slug)"));
     assert.doesNotMatch(preparation, /writeJsonAtomic\(discoveryAttemptOutputs/);
