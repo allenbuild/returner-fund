@@ -40,7 +40,7 @@
     "input_hashes": {
       "scope": "graph, scoring, social, and YC local input envelope plus profiler runtime files; canonical runtime values and effective scoring/calibration/confidence sources are hashed separately",
       "file_count": 99,
-      "combined_sha256": "c43f4bf3ab582daca5c42d13f4ca20149fe9bfddaf30c3e0969ec24959bd3a83",
+      "combined_sha256": "8af4d26fa983815074ddcc059a0a9ad2001003545c6e04e0690557be371c055d",
       "files": [
         {
           "path": "package.json",
@@ -64,8 +64,8 @@
         },
         {
           "path": "scripts/run-scoring-diagnostics-v4.mjs",
-          "bytes": 112055,
-          "sha256": "e05a5dec69cd309ea5f85bd87ab1b9f6e8a90334fe8ffda95f225f94fbd09ef8"
+          "bytes": 114908,
+          "sha256": "81c6de1166ee5161d0de77726d0b9b03faf28321971228d3980ee73345d656f2"
         },
         {
           "path": "src/lib/graph/a16z-speedrun-006-dataset.ts",
@@ -1051,11 +1051,11 @@
       "example_limit_per_collection": 32,
       "artifact_byte_limit": 50331648,
       "bounded_collection_count": 128,
-      "full_record_count": 111406,
+      "full_record_count": 111404,
       "retained_record_count": 4096,
-      "omitted_record_count": 107310,
-      "full_detail_sha256": "f7d5eaf7143e0a8e16baf7f3ba4474d436b0b5f84846221b3696afc8e4267480",
-      "collection_manifest_sha256": "5c31235a3f271f1001db9737393d097ecaa9ea7cb32bdfc8e9103b81e1de9a27",
+      "omitted_record_count": 107308,
+      "full_detail_sha256": "554409b2f1e6894f1f4c5f11190971b946920f96a717b81c83b78583af428b69",
+      "collection_manifest_sha256": "2b81d947ad331aaa279e8c66bd4ac6e38c94ee9855427f626b0c4ace87300687",
       "collections": [
         {
           "json_pointer": "/cohorts/0/alias_metric_duplication/findings",
@@ -1093,12 +1093,12 @@
         {
           "json_pointer": "/cohorts/0/missing_data/findings",
           "field": "findings",
-          "total_count": 11778,
+          "total_count": 11776,
           "retained_count": 32,
-          "omitted_count": 11746,
+          "omitted_count": 11744,
           "diagnostic_signature_count": 43,
           "retained_signature_count": 32,
-          "full_collection_sha256": "b99d3c615587e3b5013c96bb2b74af360a1595eefdc9e6798fd0a1a165492497",
+          "full_collection_sha256": "a27e2c61ccd057872923567f0a32fe9c5dca4960f8a3ff3f37bc789f79c1a6b4",
           "retained_examples_sha256": "3334949e5222ef87008d41cc9e0f2fc60069d14e11b968caf09ec20e156bd3cd"
         },
         {
@@ -1120,8 +1120,8 @@
           "omitted_count": 165,
           "diagnostic_signature_count": 1,
           "retained_signature_count": 1,
-          "full_collection_sha256": "a22d790389346575182cf2a534ea39f2ec711ad4e5a92bfc538528384a59c8d6",
-          "retained_examples_sha256": "069629bd5fbc91971e1081ab42c21da91e006e9a0f445c442e89f8186c2a86cf"
+          "full_collection_sha256": "e94d36574f83c3fab3e8a086376396407841af4420321e1e0fbcb6c69d520b10",
+          "retained_examples_sha256": "c1728d7401732b44c46ef25f435c0a8e666f52a843900b96e68f11d46e5473c5"
         },
         {
           "json_pointer": "/cohorts/0/perturbations/stability/1/company_changes",
@@ -1131,8 +1131,8 @@
           "omitted_count": 165,
           "diagnostic_signature_count": 3,
           "retained_signature_count": 3,
-          "full_collection_sha256": "580dac7b90057c7008ba2726f59d4a9e35a7fd12e3d41d1cce7a47d4a5282ce8",
-          "retained_examples_sha256": "0a436574396761906995b76501ebd680c934ba61a60aa5571790a20de1a29d23"
+          "full_collection_sha256": "f145e03f726545fb806157f942c8e2cf8db124dd5ee97e5f4e1c371f20413412",
+          "retained_examples_sha256": "614d23f5b41a4576da415a32f2c9c172b341f6363376cff4533b3a1e8132fb60"
         },
         {
           "json_pointer": "/cohorts/0/perturbations/stability/2/company_changes",
@@ -1142,8 +1142,8 @@
           "omitted_count": 165,
           "diagnostic_signature_count": 1,
           "retained_signature_count": 1,
-          "full_collection_sha256": "a22d790389346575182cf2a534ea39f2ec711ad4e5a92bfc538528384a59c8d6",
-          "retained_examples_sha256": "069629bd5fbc91971e1081ab42c21da91e006e9a0f445c442e89f8186c2a86cf"
+          "full_collection_sha256": "e94d36574f83c3fab3e8a086376396407841af4420321e1e0fbcb6c69d520b10",
+          "retained_examples_sha256": "c1728d7401732b44c46ef25f435c0a8e666f52a843900b96e68f11d46e5473c5"
         },
         {
           "json_pointer": "/cohorts/0/scoring/after_transformation/alias_changed_rows",
@@ -1175,8 +1175,8 @@
           "omitted_count": 165,
           "diagnostic_signature_count": 1,
           "retained_signature_count": 1,
-          "full_collection_sha256": "a22d790389346575182cf2a534ea39f2ec711ad4e5a92bfc538528384a59c8d6",
-          "retained_examples_sha256": "069629bd5fbc91971e1081ab42c21da91e006e9a0f445c442e89f8186c2a86cf"
+          "full_collection_sha256": "e94d36574f83c3fab3e8a086376396407841af4420321e1e0fbcb6c69d520b10",
+          "retained_examples_sha256": "c1728d7401732b44c46ef25f435c0a8e666f52a843900b96e68f11d46e5473c5"
         },
         {
           "json_pointer": "/cohorts/0/scoring/before_vs_after_by_platform/0/before_vs_after/company_changes",
@@ -1318,8 +1318,8 @@
           "omitted_count": 165,
           "diagnostic_signature_count": 1,
           "retained_signature_count": 1,
-          "full_collection_sha256": "504b89ac1adaa58df0a152904728b91d337a6a3e1ad1d5405640fcd43d4721cc",
-          "retained_examples_sha256": "57975518b50b33760a5dd2214c3f705e584b44cb20408c50c9bfb5a11c5d84fe"
+          "full_collection_sha256": "19c322b0c1389b5222f239261a16af5a67e2a6709d5bcb49be9509d4c98ea9cf",
+          "retained_examples_sha256": "5773c8a68d3c2a779e2489ddede1bb06163c264b1511ff05b78df6c4dce0c99e"
         },
         {
           "json_pointer": "/cohorts/0/scoring/before_vs_after_by_platform/4/score_after/ranked_companies",
@@ -1329,8 +1329,8 @@
           "omitted_count": 165,
           "diagnostic_signature_count": 2,
           "retained_signature_count": 2,
-          "full_collection_sha256": "36c8845ed07954ba9ec19ff4e123f091b9941c5d33a929916b1b9b8b8b49eeb2",
-          "retained_examples_sha256": "917393ad0029765801972508a3667214c6c3fe2af8543121774672bda1aece4e"
+          "full_collection_sha256": "254b0fe714f990f08c954e971d2898ff7a09df5798dba522cf8e8f891bd9a400",
+          "retained_examples_sha256": "6e9d7a86c76f5cf820590ff30407ce1ef9dc1436c32ac6b7238b8575020b7c7f"
         },
         {
           "json_pointer": "/cohorts/0/scoring/before_vs_after_by_platform/4/score_before/ranked_companies",
@@ -1340,8 +1340,8 @@
           "omitted_count": 165,
           "diagnostic_signature_count": 2,
           "retained_signature_count": 2,
-          "full_collection_sha256": "36c8845ed07954ba9ec19ff4e123f091b9941c5d33a929916b1b9b8b8b49eeb2",
-          "retained_examples_sha256": "917393ad0029765801972508a3667214c6c3fe2af8543121774672bda1aece4e"
+          "full_collection_sha256": "254b0fe714f990f08c954e971d2898ff7a09df5798dba522cf8e8f891bd9a400",
+          "retained_examples_sha256": "6e9d7a86c76f5cf820590ff30407ce1ef9dc1436c32ac6b7238b8575020b7c7f"
         },
         {
           "json_pointer": "/cohorts/0/scoring/before_vs_after_by_platform/5/before_vs_after/company_changes",
@@ -1483,8 +1483,8 @@
           "omitted_count": 165,
           "diagnostic_signature_count": 6,
           "retained_signature_count": 6,
-          "full_collection_sha256": "04f5b17ea331d9d7674ad503f44076cd13f1b7e4a615ac4aff4d2b34f6c6c935",
-          "retained_examples_sha256": "86df9c990aacc530982b35f500c27173126e85ebc79ebc9d779b77feac5ba5bc"
+          "full_collection_sha256": "3f346b09e86603bd034e0e4360562dcd93ff526738dfa0d9e4e86c314af18a91",
+          "retained_examples_sha256": "5c49884b56ea082de11003c0b37c0c1d809a341cfef1542652bae24530fd4c73"
         },
         {
           "json_pointer": "/cohorts/0/scoring/diagnostic_before/ranked_companies",
@@ -1494,8 +1494,8 @@
           "omitted_count": 165,
           "diagnostic_signature_count": 6,
           "retained_signature_count": 6,
-          "full_collection_sha256": "04f5b17ea331d9d7674ad503f44076cd13f1b7e4a615ac4aff4d2b34f6c6c935",
-          "retained_examples_sha256": "86df9c990aacc530982b35f500c27173126e85ebc79ebc9d779b77feac5ba5bc"
+          "full_collection_sha256": "3f346b09e86603bd034e0e4360562dcd93ff526738dfa0d9e4e86c314af18a91",
+          "retained_examples_sha256": "5c49884b56ea082de11003c0b37c0c1d809a341cfef1542652bae24530fd4c73"
         },
         {
           "json_pointer": "/cohorts/0/scoring/published_reference/ranked_companies",
@@ -1514,10 +1514,10 @@
           "total_count": 197,
           "retained_count": 32,
           "omitted_count": 165,
-          "diagnostic_signature_count": 4,
-          "retained_signature_count": 4,
-          "full_collection_sha256": "712c6297d2294b97dcf5572b0f0b261243debc5f5284363fd41a7b6fbb87e52e",
-          "retained_examples_sha256": "b61ca9ac0db055ff9d979375dcf578fa4ed682da9b3b35f96266d1e96fda94b2"
+          "diagnostic_signature_count": 2,
+          "retained_signature_count": 2,
+          "full_collection_sha256": "85c5ea61c646fbe13dabda3e05f4b19eb94cea60b6e948a271771a57ef9a5240",
+          "retained_examples_sha256": "e26c4153b888ff76f9a9e70093bab34ee7e9f256e12a7d38f17bdc5d3399c14d"
         },
         {
           "json_pointer": "/cohorts/0/url_quality/findings",
@@ -1593,8 +1593,8 @@
           "omitted_count": 142,
           "diagnostic_signature_count": 1,
           "retained_signature_count": 1,
-          "full_collection_sha256": "666ad2364726ba641efbb60705e9a131c2ec2c326616133710adc774c1412a63",
-          "retained_examples_sha256": "8fa60a68a3be73e46b5ade0563de8c8e3812e5d270cebc526e9e9cdd1643d1a0"
+          "full_collection_sha256": "4f7bbb78dcc8ca23b68474e5329d6d0baf493ac862daee0180137ea221810891",
+          "retained_examples_sha256": "6880ac47402abd46ce633197cfd1be6f20e31bdee6dba2fe14df71b82fd069b1"
         },
         {
           "json_pointer": "/cohorts/1/perturbations/stability/1/company_changes",
@@ -1604,8 +1604,8 @@
           "omitted_count": 142,
           "diagnostic_signature_count": 3,
           "retained_signature_count": 3,
-          "full_collection_sha256": "05431e91353262ce6a137939f99c9b8543c956903a1e0a8a6eaced5a64fc2886",
-          "retained_examples_sha256": "141678172b3eaa612b2e4c433c129caa7362e0b06c923e259883635f484ce1d3"
+          "full_collection_sha256": "83edc73344d8990a1308934ba1be57c05cb347dac357139554044f33a98a64d5",
+          "retained_examples_sha256": "2ef3b1fb534b4bedc4482090c340be7dd2037112fc77e65df10a187f1fb61d4b"
         },
         {
           "json_pointer": "/cohorts/1/perturbations/stability/2/company_changes",
@@ -1615,8 +1615,8 @@
           "omitted_count": 142,
           "diagnostic_signature_count": 1,
           "retained_signature_count": 1,
-          "full_collection_sha256": "666ad2364726ba641efbb60705e9a131c2ec2c326616133710adc774c1412a63",
-          "retained_examples_sha256": "8fa60a68a3be73e46b5ade0563de8c8e3812e5d270cebc526e9e9cdd1643d1a0"
+          "full_collection_sha256": "4f7bbb78dcc8ca23b68474e5329d6d0baf493ac862daee0180137ea221810891",
+          "retained_examples_sha256": "6880ac47402abd46ce633197cfd1be6f20e31bdee6dba2fe14df71b82fd069b1"
         },
         {
           "json_pointer": "/cohorts/1/scoring/after_transformation/alias_changed_rows",
@@ -1648,8 +1648,8 @@
           "omitted_count": 142,
           "diagnostic_signature_count": 1,
           "retained_signature_count": 1,
-          "full_collection_sha256": "666ad2364726ba641efbb60705e9a131c2ec2c326616133710adc774c1412a63",
-          "retained_examples_sha256": "8fa60a68a3be73e46b5ade0563de8c8e3812e5d270cebc526e9e9cdd1643d1a0"
+          "full_collection_sha256": "4f7bbb78dcc8ca23b68474e5329d6d0baf493ac862daee0180137ea221810891",
+          "retained_examples_sha256": "6880ac47402abd46ce633197cfd1be6f20e31bdee6dba2fe14df71b82fd069b1"
         },
         {
           "json_pointer": "/cohorts/1/scoring/before_vs_after_by_platform/0/before_vs_after/company_changes",
@@ -1791,8 +1791,8 @@
           "omitted_count": 142,
           "diagnostic_signature_count": 1,
           "retained_signature_count": 1,
-          "full_collection_sha256": "91eb52b1dba0d96be6893a1557f0c6654de49d6b692fee225981d2bbe054f0bf",
-          "retained_examples_sha256": "37cbdfaff9e205b8fe262f9bb3cb0aec50db2f704345e7625c002250a5af7fed"
+          "full_collection_sha256": "875fb1b9fc3dba2706b257e0569d750d1af07a5ba1fa7807440233eeeced9d4a",
+          "retained_examples_sha256": "f2dd40a0825c32f7e1f0bea6f0cd93f1f3dea60daebb0217e78c0256aff02136"
         },
         {
           "json_pointer": "/cohorts/1/scoring/before_vs_after_by_platform/4/score_after/ranked_companies",
@@ -1802,8 +1802,8 @@
           "omitted_count": 142,
           "diagnostic_signature_count": 2,
           "retained_signature_count": 2,
-          "full_collection_sha256": "3edc85b40c3f5f3e68a5b80de8a47bc5adb03ced1b6cd61fbf1e0da8311c0f3c",
-          "retained_examples_sha256": "20823724901634f934cf74912e435be0ee2d6e45137d19f28d7d77765b540d76"
+          "full_collection_sha256": "f92d32806c1d22d6a40e42e1c8e0989a0a1eca66b80d5d792d7c402b950f377c",
+          "retained_examples_sha256": "38ac589ce507e2c2089dd814b98d9b1523652afd14ca45fc50b534eef92dc974"
         },
         {
           "json_pointer": "/cohorts/1/scoring/before_vs_after_by_platform/4/score_before/ranked_companies",
@@ -1813,8 +1813,8 @@
           "omitted_count": 142,
           "diagnostic_signature_count": 2,
           "retained_signature_count": 2,
-          "full_collection_sha256": "3edc85b40c3f5f3e68a5b80de8a47bc5adb03ced1b6cd61fbf1e0da8311c0f3c",
-          "retained_examples_sha256": "20823724901634f934cf74912e435be0ee2d6e45137d19f28d7d77765b540d76"
+          "full_collection_sha256": "f92d32806c1d22d6a40e42e1c8e0989a0a1eca66b80d5d792d7c402b950f377c",
+          "retained_examples_sha256": "38ac589ce507e2c2089dd814b98d9b1523652afd14ca45fc50b534eef92dc974"
         },
         {
           "json_pointer": "/cohorts/1/scoring/before_vs_after_by_platform/5/before_vs_after/company_changes",
@@ -1956,8 +1956,8 @@
           "omitted_count": 142,
           "diagnostic_signature_count": 7,
           "retained_signature_count": 7,
-          "full_collection_sha256": "62b3d1536e25104102a25e6fa281e127a40d9bc8e1e3f25a6ed526912d5de234",
-          "retained_examples_sha256": "95d0d4689abe8f760eb1dfb18a644f73f0c756aff863409dee326e41553fe3bb"
+          "full_collection_sha256": "e7efa12ed4c3ac11f4882664e076f33a9f5b39cb42364819c111bcd92c69db08",
+          "retained_examples_sha256": "6608f19c5370e02afd7e3d6514608f5d10e054c60ae84b882839e29cb943b7fc"
         },
         {
           "json_pointer": "/cohorts/1/scoring/diagnostic_before/ranked_companies",
@@ -1967,8 +1967,8 @@
           "omitted_count": 142,
           "diagnostic_signature_count": 7,
           "retained_signature_count": 7,
-          "full_collection_sha256": "62b3d1536e25104102a25e6fa281e127a40d9bc8e1e3f25a6ed526912d5de234",
-          "retained_examples_sha256": "95d0d4689abe8f760eb1dfb18a644f73f0c756aff863409dee326e41553fe3bb"
+          "full_collection_sha256": "e7efa12ed4c3ac11f4882664e076f33a9f5b39cb42364819c111bcd92c69db08",
+          "retained_examples_sha256": "6608f19c5370e02afd7e3d6514608f5d10e054c60ae84b882839e29cb943b7fc"
         },
         {
           "json_pointer": "/cohorts/1/scoring/published_reference/ranked_companies",
@@ -1987,10 +1987,10 @@
           "total_count": 174,
           "retained_count": 32,
           "omitted_count": 142,
-          "diagnostic_signature_count": 4,
-          "retained_signature_count": 4,
-          "full_collection_sha256": "b403867f8ed86bfb8e341dbfd73b469a38741f1800d64c54652a102dab7d5fd0",
-          "retained_examples_sha256": "a8020e950c977c7b296daaffcb92348a3088e320f119d9d79219c66040a7f1c9"
+          "diagnostic_signature_count": 2,
+          "retained_signature_count": 2,
+          "full_collection_sha256": "b4f8b11e30482bc7b036f34068081e982a2f1b7561b391c5c7eecd47e83bfb0c",
+          "retained_examples_sha256": "5d42efc3014f92add3a168f50287b19cb0beeaa986f373fa29e909455392a7ba"
         },
         {
           "json_pointer": "/cohorts/1/url_quality/findings",
@@ -2484,7 +2484,11 @@
   "global_summary": {
     "cohort_count": 3,
     "company_count": 430,
-    "cohort_scoped_evidence_rows": 44649,
+    "source_dataset_evidence_rows": 44644,
+    "cohort_entity_evidence_rows": 44644,
+    "inferred_batch_scope_evidence_rows": 2422,
+    "invalid_batch_scope_evidence_rows": 0,
+    "cohort_scoped_evidence_rows": 44644,
     "global_duplicate_company_id_groups": 1,
     "global_duplicate_founder_id_groups": 1,
     "global_duplicate_social_account_url_groups": 5,
@@ -2495,8 +2499,8 @@
     "eligibility_rejection_count": 32952,
     "upstream_enabled_eligibility_rejection_count": 0,
     "scored_profile_search_non_native_row_count": 0,
-    "scored_missing_date_or_metric_row_count": 509,
-    "scored_publication_date_gap_row_count": 509,
+    "scored_missing_date_or_metric_row_count": 507,
+    "scored_publication_date_gap_row_count": 507,
     "scored_metric_gap_row_count": 0,
     "evidence_raw_engagement_outlier_count": 476,
     "company_score_outlier_count_before": 7,
@@ -5074,8 +5078,8 @@
       "input_counts": {
         "companies": 197,
         "founders": 397,
-        "evidence_rows": 21110,
-        "scored_evidence_rows": 4946
+        "evidence_rows": 21107,
+        "scored_evidence_rows": 4943
       },
       "canonical_duplicates": {
         "canonical_evidence_ids": {
@@ -9330,8 +9334,8 @@
         ]
       },
       "eligibility_rejections": {
-        "evaluated_row_count": 21110,
-        "eligible_row_count": 4946,
+        "evaluated_row_count": 21107,
+        "eligible_row_count": 4943,
         "rejected_row_count": 16164,
         "rejected_upstream_enabled_row_count": 0,
         "by_reason": [
@@ -10194,9 +10198,9 @@
         ]
       },
       "missing_data": {
-        "finding_count": 11778,
-        "row_count": 6201,
-        "scored_row_count": 347,
+        "finding_count": 11776,
+        "row_count": 6199,
+        "scored_row_count": 345,
         "by_issue": [
           {
             "key": "no_positive_scoring_engagement",
@@ -10208,7 +10212,7 @@
           },
           {
             "key": "publication_date_precision_unknown",
-            "count": 1105
+            "count": 1103
           },
           {
             "key": "no_positive_metric_values",
@@ -10218,14 +10222,14 @@
         "scored_by_issue": [
           {
             "key": "publication_date_precision_unknown",
-            "count": 347
+            "count": 345
           }
         ],
         "by_category": {
           "publication_date": {
-            "finding_count": 1105,
-            "row_count": 1105,
-            "scored_row_count": 347
+            "finding_count": 1103,
+            "row_count": 1103,
+            "scored_row_count": 345
           },
           "metrics": {
             "finding_count": 10673,
@@ -10988,7 +10992,7 @@
       "outliers": {
         "method": "Tukey 1.5 IQR fences; evidence uses log1p(raw production-weighted engagement), company scores use the 0-100 score directly, and samples smaller than four are not classified.",
         "evidence_raw_engagement": {
-          "eligible_row_count": 4946,
+          "eligible_row_count": 4943,
           "outlier_count": 121,
           "by_platform": [
             {
@@ -11300,14 +11304,14 @@
             },
             {
               "platform": "linkedin",
-              "sample_count": 709,
+              "sample_count": 706,
               "q1": 21.3,
-              "q3": 169.4,
-              "iqr": 2.033562,
-              "lower_fence": 0.0557,
-              "upper_fence": 3598.2887,
-              "transformed_lower_fence": 0.054244,
-              "transformed_upper_fence": 8.188492,
+              "q3": 168.6999,
+              "iqr": 2.029445,
+              "lower_fence": 0.0623,
+              "upper_fence": 3561.4333,
+              "transformed_lower_fence": 0.060419,
+              "transformed_upper_fence": 8.178199,
               "outlier_count": 0,
               "findings": []
             },
@@ -12561,7 +12565,7 @@
             {
               "key": "x",
               "count": 13193,
-              "share": 0.625
+              "share": 0.6251
             },
             {
               "key": "web",
@@ -12580,8 +12584,8 @@
             },
             {
               "key": "linkedin",
-              "count": 733,
-              "share": 0.0347
+              "count": 730,
+              "share": 0.0346
             },
             {
               "key": "github",
@@ -12613,17 +12617,17 @@
             {
               "key": "x",
               "count": 3486,
-              "share": 0.7048
+              "share": 0.7052
             },
             {
               "key": "linkedin",
-              "count": 709,
-              "share": 0.1433
+              "count": 706,
+              "share": 0.1428
             },
             {
               "key": "instagram",
               "count": 295,
-              "share": 0.0596
+              "share": 0.0597
             },
             {
               "key": "youtube",
@@ -12655,22 +12659,22 @@
             {
               "key": "x",
               "value": 1907.01,
-              "share": 0.4823
+              "share": 0.4827
             },
             {
               "key": "linkedin",
-              "value": 1247.7,
-              "share": 0.3155
+              "value": 1244.1,
+              "share": 0.3149
             },
             {
               "key": "youtube",
               "value": 379.5,
-              "share": 0.096
+              "share": 0.0961
             },
             {
               "key": "github",
               "value": 173.7,
-              "share": 0.0439
+              "share": 0.044
             },
             {
               "key": "instagram",
@@ -12729,17 +12733,17 @@
             {
               "key": "x",
               "count": 3486,
-              "share": 0.7048
+              "share": 0.7052
             },
             {
               "key": "linkedin",
-              "count": 709,
-              "share": 0.1433
+              "count": 706,
+              "share": 0.1428
             },
             {
               "key": "instagram",
               "count": 295,
-              "share": 0.0596
+              "share": 0.0597
             },
             {
               "key": "youtube",
@@ -12771,17 +12775,17 @@
             {
               "key": "x",
               "count": 3486,
-              "share": 0.7048
+              "share": 0.7052
             },
             {
               "key": "linkedin",
-              "count": 709,
-              "share": 0.1433
+              "count": 706,
+              "share": 0.1428
             },
             {
               "key": "instagram",
               "count": 295,
-              "share": 0.0596
+              "share": 0.0597
             },
             {
               "key": "youtube",
@@ -12813,22 +12817,22 @@
             {
               "key": "x",
               "value": 1907.01,
-              "share": 0.4823
+              "share": 0.4827
             },
             {
               "key": "linkedin",
-              "value": 1247.7,
-              "share": 0.3155
+              "value": 1244.1,
+              "share": 0.3149
             },
             {
               "key": "youtube",
               "value": 379.5,
-              "share": 0.096
+              "share": 0.0961
             },
             {
               "key": "github",
               "value": 173.7,
-              "share": 0.0439
+              "share": 0.044
             },
             {
               "key": "instagram",
@@ -13285,7 +13289,7 @@
             "min": 0,
             "p25": 13,
             "median": 20,
-            "mean": 20.0964,
+            "mean": 20.0761,
             "p75": 26,
             "max": 53
           },
@@ -13609,38 +13613,38 @@
             },
             {
               "rank": 165,
-              "company_id": "company-textsidekick",
-              "company_name": "Sidekick",
+              "company_id": "company-wealor",
+              "company_name": "Wealor",
               "score": 11,
-              "top_platform": "linkedin",
-              "scored_evidence_rows": 5,
-              "platforms_with_evidence": 1
-            },
-            {
-              "rank": 172,
-              "company_id": "company-hexa",
-              "company_name": "Hexa",
-              "score": 10,
               "top_platform": "linkedin",
               "scored_evidence_rows": 2,
               "platforms_with_evidence": 2
             },
             {
+              "rank": 172,
+              "company_id": "company-pairio",
+              "company_name": "Pairio",
+              "score": 10,
+              "top_platform": "linkedin",
+              "scored_evidence_rows": 4,
+              "platforms_with_evidence": 2
+            },
+            {
               "rank": 180,
-              "company_id": "company-shotwellai",
-              "company_name": "shotwell.ai",
-              "score": 9,
-              "top_platform": "x",
-              "scored_evidence_rows": 18,
+              "company_id": "company-arctic-health",
+              "company_name": "Arctic Health",
+              "score": 8,
+              "top_platform": "linkedin",
+              "scored_evidence_rows": 8,
               "platforms_with_evidence": 1
             },
             {
               "rank": 187,
-              "company_id": "company-mount",
-              "company_name": "Mount",
+              "company_id": "company-nine-fives",
+              "company_name": "Nine Fives",
               "score": 7,
               "top_platform": "linkedin",
-              "scored_evidence_rows": 3,
+              "scored_evidence_rows": 4,
               "platforms_with_evidence": 2
             },
             {
@@ -13679,7 +13683,7 @@
             "min": 0,
             "p25": 13,
             "median": 20,
-            "mean": 20.0964,
+            "mean": 20.0761,
             "p75": 26,
             "max": 53
           },
@@ -14003,38 +14007,38 @@
             },
             {
               "rank": 165,
-              "company_id": "company-textsidekick",
-              "company_name": "Sidekick",
+              "company_id": "company-wealor",
+              "company_name": "Wealor",
               "score": 11,
-              "top_platform": "linkedin",
-              "scored_evidence_rows": 5,
-              "platforms_with_evidence": 1
-            },
-            {
-              "rank": 172,
-              "company_id": "company-hexa",
-              "company_name": "Hexa",
-              "score": 10,
               "top_platform": "linkedin",
               "scored_evidence_rows": 2,
               "platforms_with_evidence": 2
             },
             {
+              "rank": 172,
+              "company_id": "company-pairio",
+              "company_name": "Pairio",
+              "score": 10,
+              "top_platform": "linkedin",
+              "scored_evidence_rows": 4,
+              "platforms_with_evidence": 2
+            },
+            {
               "rank": 180,
-              "company_id": "company-shotwellai",
-              "company_name": "shotwell.ai",
-              "score": 9,
-              "top_platform": "x",
-              "scored_evidence_rows": 18,
+              "company_id": "company-arctic-health",
+              "company_name": "Arctic Health",
+              "score": 8,
+              "top_platform": "linkedin",
+              "scored_evidence_rows": 8,
               "platforms_with_evidence": 1
             },
             {
               "rank": 187,
-              "company_id": "company-mount",
-              "company_name": "Mount",
+              "company_id": "company-nine-fives",
+              "company_name": "Nine Fives",
               "score": 7,
               "top_platform": "linkedin",
-              "scored_evidence_rows": 3,
+              "scored_evidence_rows": 4,
               "platforms_with_evidence": 2
             },
             {
@@ -14071,11 +14075,11 @@
           "baseline_only_company_ids": [],
           "variant_only_company_ids": [],
           "score_changed_company_count": 196,
-          "rank_changed_company_count": 24,
-          "mean_absolute_score_delta": 17.8274,
+          "rank_changed_company_count": 0,
+          "mean_absolute_score_delta": 17.8477,
           "max_absolute_score_delta": 47,
-          "max_absolute_rank_shift": 23,
-          "spearman_rank_correlation": 0.999567,
+          "max_absolute_rank_shift": 0,
+          "spearman_rank_correlation": 1,
           "top_10_overlap_count": 10,
           "top_10_overlap_rate": 1,
           "company_changes": [
@@ -14100,213 +14104,223 @@
               "rank_delta": 0
             },
             {
-              "company_id": "company-aice",
-              "company_name": "AICE",
-              "score_before": 19,
-              "score_after": 10,
-              "score_delta": -9,
-              "rank_before": 167,
-              "rank_after": 168,
-              "rank_delta": -1
-            },
-            {
-              "company_id": "company-amboras",
-              "company_name": "Amboras",
-              "score_before": 53,
-              "score_after": 28,
-              "score_delta": -25,
-              "rank_before": 28,
-              "rank_after": 28,
+              "company_id": "company-allowance",
+              "company_name": "Allowance",
+              "score_before": 58,
+              "score_after": 31,
+              "score_delta": -27,
+              "rank_before": 19,
+              "rank_after": 19,
               "rank_delta": 0
             },
             {
-              "company_id": "company-archer",
-              "company_name": "Archer",
-              "score_before": 21,
-              "score_after": 11,
-              "score_delta": -10,
-              "rank_before": 155,
-              "rank_after": 155,
+              "company_id": "company-aquashield",
+              "company_name": "AquaShield",
+              "score_before": 17,
+              "score_after": 9,
+              "score_delta": -8,
+              "rank_before": 175,
+              "rank_after": 175,
               "rank_delta": 0
             },
             {
-              "company_id": "company-arzana",
-              "company_name": "Arzana",
-              "score_before": 21,
-              "score_after": 11,
-              "score_delta": -10,
-              "rank_before": 156,
-              "rank_after": 156,
-              "rank_delta": 0
-            },
-            {
-              "company_id": "company-auxos",
-              "company_name": "Auxos",
-              "score_before": 36,
-              "score_after": 19,
-              "score_delta": -17,
-              "rank_before": 105,
-              "rank_after": 105,
-              "rank_delta": 0
-            },
-            {
-              "company_id": "company-chronicle-labs",
-              "company_name": "Chronicle Labs",
-              "score_before": 36,
-              "score_after": 19,
-              "score_delta": -17,
-              "rank_before": 106,
-              "rank_after": 106,
-              "rank_delta": 0
-            },
-            {
-              "company_id": "company-dayjob",
-              "company_name": "Dayjob",
-              "score_before": 19,
-              "score_after": 10,
-              "score_delta": -9,
-              "rank_before": 169,
-              "rank_after": 170,
-              "rank_delta": -1
-            },
-            {
-              "company_id": "company-enjamb-labs",
-              "company_name": "Enjamb Labs",
-              "score_before": 45,
-              "score_after": 24,
-              "score_delta": -21,
-              "rank_before": 63,
-              "rank_after": 63,
-              "rank_delta": 0
-            },
-            {
-              "company_id": "company-fuchsia",
-              "company_name": "Fuchsia",
-              "score_before": 28,
-              "score_after": 15,
-              "score_delta": -13,
-              "rank_before": 137,
-              "rank_after": 137,
-              "rank_delta": 0
-            },
-            {
-              "company_id": "company-hedge",
-              "company_name": "Hedge",
-              "score_before": 38,
-              "score_after": 20,
-              "score_delta": -18,
-              "rank_before": 97,
-              "rank_after": 97,
-              "rank_delta": 0
-            },
-            {
-              "company_id": "company-huscarl",
-              "company_name": "Huscarl",
-              "score_before": 4,
-              "score_after": 2,
-              "score_delta": -2,
-              "rank_before": 195,
-              "rank_after": 195,
-              "rank_delta": 0
-            },
-            {
-              "company_id": "company-instaagent",
-              "company_name": "InstaAgent",
-              "score_before": 53,
-              "score_after": 28,
-              "score_delta": -25,
-              "rank_before": 33,
-              "rank_after": 33,
-              "rank_delta": 0
-            },
-            {
-              "company_id": "company-keyframe-labs",
-              "company_name": "Keyframe Labs",
-              "score_before": 38,
-              "score_after": 20,
-              "score_delta": -18,
-              "rank_before": 99,
-              "rank_after": 99,
-              "rank_delta": 0
-            },
-            {
-              "company_id": "company-kugelaudio",
-              "company_name": "KugelAudio",
-              "score_before": 40,
-              "score_after": 21,
-              "score_delta": -19,
-              "rank_before": 87,
-              "rank_after": 87,
-              "rank_delta": 0
-            },
-            {
-              "company_id": "company-linzumi",
-              "company_name": "Linzumi",
-              "score_before": 47,
-              "score_after": 25,
-              "score_delta": -22,
-              "rank_before": 57,
-              "rank_after": 57,
-              "rank_delta": 0
-            },
-            {
-              "company_id": "company-memory-store",
-              "company_name": "Memory Store",
+              "company_id": "company-arlo-industries",
+              "company_name": "Arlo Industries",
               "score_before": 43,
               "score_after": 23,
               "score_delta": -20,
-              "rank_before": 73,
-              "rank_after": 73,
+              "rank_before": 70,
+              "rank_after": 70,
               "rank_delta": 0
             },
             {
-              "company_id": "company-netter",
-              "company_name": "Netter",
+              "company_id": "company-atrisa",
+              "company_name": "Atrisa",
+              "score_before": 28,
+              "score_after": 15,
+              "score_delta": -13,
+              "rank_before": 135,
+              "rank_after": 135,
+              "rank_delta": 0
+            },
+            {
+              "company_id": "company-callab-ai",
+              "company_name": "Callab AI",
+              "score_before": 30,
+              "score_after": 16,
+              "score_delta": -14,
+              "rank_before": 128,
+              "rank_after": 128,
+              "rank_delta": 0
+            },
+            {
+              "company_id": "company-clawvisor",
+              "company_name": "Clawvisor",
+              "score_before": 49,
+              "score_after": 26,
+              "score_delta": -23,
+              "rank_before": 47,
+              "rank_after": 47,
+              "rank_delta": 0
+            },
+            {
+              "company_id": "company-drafted",
+              "company_name": "Drafted",
+              "score_before": 68,
+              "score_after": 36,
+              "score_delta": -32,
+              "rank_before": 8,
+              "rank_after": 8,
+              "rank_delta": 0
+            },
+            {
+              "company_id": "company-flowscope",
+              "company_name": "flowscope",
+              "score_before": 25,
+              "score_after": 13,
+              "score_delta": -12,
+              "rank_before": 149,
+              "rank_after": 149,
+              "rank_delta": 0
+            },
+            {
+              "company_id": "company-general-instinct",
+              "company_name": "General Instinct",
+              "score_before": 51,
+              "score_after": 27,
+              "score_delta": -24,
+              "rank_before": 45,
+              "rank_after": 45,
+              "rank_delta": 0
+            },
+            {
+              "company_id": "company-hevn-inc",
+              "company_name": "HEVN, inc",
+              "score_before": 38,
+              "score_after": 20,
+              "score_delta": -18,
+              "rank_before": 96,
+              "rank_after": 96,
+              "rank_delta": 0
+            },
+            {
+              "company_id": "company-imperfect",
+              "company_name": "Imperfect",
+              "score_before": 25,
+              "score_after": 13,
+              "score_delta": -12,
+              "rank_before": 145,
+              "rank_after": 145,
+              "rank_delta": 0
+            },
+            {
+              "company_id": "company-intelligence-factory",
+              "company_name": "Intelligence Factory",
               "score_before": 21,
               "score_after": 11,
               "score_delta": -10,
-              "rank_before": 163,
-              "rank_after": 163,
+              "rank_before": 159,
+              "rank_after": 159,
               "rank_delta": 0
             },
             {
-              "company_id": "company-pairio",
-              "company_name": "Pairio",
-              "score_before": 19,
-              "score_after": 10,
-              "score_delta": -9,
-              "rank_before": 172,
-              "rank_after": 173,
-              "rank_delta": -1
-            },
-            {
-              "company_id": "company-plena-health",
-              "company_name": "Plena Health",
-              "score_before": 32,
-              "score_after": 17,
-              "score_delta": -15,
-              "rank_before": 123,
-              "rank_after": 123,
+              "company_id": "company-kimpton-ai",
+              "company_name": "Kimpton AI",
+              "score_before": 51,
+              "score_after": 27,
+              "score_delta": -24,
+              "rank_before": 46,
+              "rank_after": 46,
               "rank_delta": 0
             },
             {
-              "company_id": "company-raspire",
-              "company_name": "RASPIRE",
-              "score_before": 45,
-              "score_after": 24,
-              "score_delta": -21,
-              "rank_before": 64,
-              "rank_after": 64,
+              "company_id": "company-kuli",
+              "company_name": "Kuli",
+              "score_before": 49,
+              "score_after": 26,
+              "score_delta": -23,
+              "rank_before": 48,
+              "rank_after": 48,
               "rank_delta": 0
             },
             {
-              "company_id": "company-river-markets",
-              "company_name": "River Markets",
-              "score_before": 40,
-              "score_after": 21,
-              "score_delta": -19,
-              "rank_before": 91,
-              "rank_after": 91,
+              "company_id": "company-limrun",
+              "company_name": "Limrun",
+              "score_before": 43,
+              "score_after": 23,
+              "score_delta": -20,
+              "rank_before": 72,
+              "rank_after": 72,
+              "rank_delta": 0
+            },
+            {
+              "company_id": "company-memoir",
+              "company_name": "Memoir",
+              "score_before": 23,
+              "score_after": 12,
+              "score_delta": -11,
+              "rank_before": 151,
+              "rank_after": 151,
+              "rank_delta": 0
+            },
+            {
+              "company_id": "company-napkin-math",
+              "company_name": "Napkin Math",
+              "score_before": 87,
+              "score_after": 46,
+              "score_delta": -41,
+              "rank_before": 3,
+              "rank_after": 3,
+              "rank_delta": 0
+            },
+            {
+              "company_id": "company-openwork",
+              "company_name": "OpenWork",
+              "score_before": 64,
+              "score_after": 34,
+              "score_delta": -30,
+              "rank_before": 12,
+              "rank_after": 12,
+              "rank_delta": 0
+            },
+            {
+              "company_id": "company-plan0-ai",
+              "company_name": "PLAN0 AI",
+              "score_before": 15,
+              "score_after": 8,
+              "score_delta": -7,
+              "rank_before": 182,
+              "rank_after": 182,
+              "rank_delta": 0
+            },
+            {
+              "company_id": "company-prototypingio",
+              "company_name": "Prototyping.io",
+              "score_before": 42,
+              "score_after": 22,
+              "score_delta": -20,
+              "rank_before": 84,
+              "rank_after": 84,
+              "rank_delta": 0
+            },
+            {
+              "company_id": "company-replicas",
+              "company_name": "Replicas",
+              "score_before": 47,
+              "score_after": 25,
+              "score_delta": -22,
+              "rank_before": 58,
+              "rank_after": 58,
+              "rank_delta": 0
+            },
+            {
+              "company_id": "company-saffron",
+              "company_name": "Saffron",
+              "score_before": 38,
+              "score_after": 20,
+              "score_delta": -18,
+              "rank_before": 101,
+              "rank_after": 101,
               "rank_delta": 0
             },
             {
@@ -14320,64 +14334,54 @@
               "rank_delta": 0
             },
             {
-              "company_id": "company-sazabi",
-              "company_name": "Sazabi",
-              "score_before": 57,
-              "score_after": 30,
-              "score_delta": -27,
-              "rank_before": 24,
-              "rank_after": 24,
+              "company_id": "company-silmaril",
+              "company_name": "Silmaril",
+              "score_before": 34,
+              "score_after": 18,
+              "score_delta": -16,
+              "rank_before": 118,
+              "rank_after": 118,
               "rank_delta": 0
             },
             {
-              "company_id": "company-soria",
-              "company_name": "Soria",
-              "score_before": 19,
-              "score_after": 10,
-              "score_delta": -9,
-              "rank_before": 173,
-              "rank_after": 174,
-              "rank_delta": -1
-            },
-            {
-              "company_id": "company-synphony",
-              "company_name": "Synphony",
-              "score_before": 49,
-              "score_after": 26,
-              "score_delta": -23,
-              "rank_before": 54,
-              "rank_after": 54,
+              "company_id": "company-standout",
+              "company_name": "Standout",
+              "score_before": 47,
+              "score_after": 25,
+              "score_delta": -22,
+              "rank_before": 59,
+              "rank_after": 59,
               "rank_delta": 0
             },
             {
-              "company_id": "company-textsidekick",
-              "company_name": "Sidekick",
-              "score_before": 13,
-              "score_after": 11,
-              "score_delta": -2,
-              "rank_before": 188,
-              "rank_after": 165,
-              "rank_delta": 23
-            },
-            {
-              "company_id": "company-the-company-company",
-              "company_name": "The Company Company",
-              "score_before": 11,
-              "score_after": 6,
-              "score_delta": -5,
-              "rank_before": 191,
-              "rank_after": 191,
+              "company_id": "company-takecareos",
+              "company_name": "TakeCareOS",
+              "score_before": 36,
+              "score_after": 19,
+              "score_delta": -17,
+              "rank_before": 109,
+              "rank_after": 109,
               "rank_delta": 0
             },
             {
-              "company_id": "company-tryprism",
-              "company_name": "Prism",
-              "score_before": 17,
-              "score_after": 9,
-              "score_delta": -8,
-              "rank_before": 178,
-              "rank_after": 179,
-              "rank_delta": -1
+              "company_id": "company-thomas",
+              "company_name": "Thomas",
+              "score_before": 32,
+              "score_after": 17,
+              "score_delta": -15,
+              "rank_before": 126,
+              "rank_after": 126,
+              "rank_delta": 0
+            },
+            {
+              "company_id": "company-twolabs",
+              "company_name": "Twolabs",
+              "score_before": 45,
+              "score_after": 24,
+              "score_delta": -21,
+              "rank_before": 67,
+              "rank_after": 67,
+              "rank_delta": 0
             },
             {
               "company_id": "company-walter",
@@ -14396,210 +14400,210 @@
               "score_after": 11,
               "score_delta": -10,
               "rank_before": 166,
-              "rank_after": 167,
-              "rank_delta": -1
+              "rank_after": 166,
+              "rank_delta": 0
             }
           ],
           "largest_changes": [
             {
-              "company_id": "company-textsidekick",
-              "company_name": "Sidekick",
-              "score_before": 13,
-              "score_after": 11,
-              "score_delta": -2,
-              "rank_before": 188,
-              "rank_after": 165,
-              "rank_delta": 23
+              "company_id": "company-heyclicky",
+              "company_name": "HeyClicky",
+              "score_before": 100,
+              "score_after": 53,
+              "score_delta": -47,
+              "rank_before": 1,
+              "rank_after": 1,
+              "rank_delta": 0
             },
             {
-              "company_id": "company-wealor",
-              "company_name": "Wealor",
-              "score_before": 21,
-              "score_after": 11,
-              "score_delta": -10,
-              "rank_before": 165,
-              "rank_after": 166,
-              "rank_delta": -1
+              "company_id": "company-insforge",
+              "company_name": "InsForge",
+              "score_before": 94,
+              "score_after": 50,
+              "score_delta": -44,
+              "rank_before": 2,
+              "rank_after": 2,
+              "rank_delta": 0
             },
             {
-              "company_id": "company-zolvo",
-              "company_name": "Zolvo",
-              "score_before": 21,
-              "score_after": 11,
-              "score_delta": -10,
-              "rank_before": 166,
-              "rank_after": 167,
-              "rank_delta": -1
+              "company_id": "company-napkin-math",
+              "company_name": "Napkin Math",
+              "score_before": 87,
+              "score_after": 46,
+              "score_delta": -41,
+              "rank_before": 3,
+              "rank_after": 3,
+              "rank_delta": 0
             },
             {
-              "company_id": "company-aice",
-              "company_name": "AICE",
-              "score_before": 19,
-              "score_after": 10,
-              "score_delta": -9,
-              "rank_before": 167,
-              "rank_after": 168,
-              "rank_delta": -1
+              "company_id": "company-superset",
+              "company_name": "Superset",
+              "score_before": 87,
+              "score_after": 46,
+              "score_delta": -41,
+              "rank_before": 4,
+              "rank_after": 4,
+              "rank_delta": 0
             },
             {
-              "company_id": "company-complir",
-              "company_name": "Complir",
-              "score_before": 19,
-              "score_after": 10,
-              "score_delta": -9,
-              "rank_before": 168,
-              "rank_after": 169,
-              "rank_delta": -1
+              "company_id": "company-pavoot",
+              "company_name": "Pavoot",
+              "score_before": 79,
+              "score_after": 42,
+              "score_delta": -37,
+              "rank_before": 5,
+              "rank_after": 5,
+              "rank_delta": 0
             },
             {
-              "company_id": "company-dayjob",
-              "company_name": "Dayjob",
-              "score_before": 19,
-              "score_after": 10,
-              "score_delta": -9,
-              "rank_before": 169,
-              "rank_after": 170,
-              "rank_delta": -1
+              "company_id": "company-youart",
+              "company_name": "YouArt",
+              "score_before": 77,
+              "score_after": 41,
+              "score_delta": -36,
+              "rank_before": 6,
+              "rank_after": 6,
+              "rank_delta": 0
             },
             {
-              "company_id": "company-govguard",
-              "company_name": "GovGuard",
-              "score_before": 19,
-              "score_after": 10,
-              "score_delta": -9,
-              "rank_before": 170,
-              "rank_after": 171,
-              "rank_delta": -1
+              "company_id": "company-anoria",
+              "company_name": "ANORIA",
+              "score_before": 75,
+              "score_after": 40,
+              "score_delta": -35,
+              "rank_before": 7,
+              "rank_after": 7,
+              "rank_delta": 0
             },
             {
-              "company_id": "company-hexa",
-              "company_name": "Hexa",
-              "score_before": 19,
-              "score_after": 10,
-              "score_delta": -9,
-              "rank_before": 171,
-              "rank_after": 172,
-              "rank_delta": -1
+              "company_id": "company-drafted",
+              "company_name": "Drafted",
+              "score_before": 68,
+              "score_after": 36,
+              "score_delta": -32,
+              "rank_before": 8,
+              "rank_after": 8,
+              "rank_delta": 0
             },
             {
-              "company_id": "company-pairio",
-              "company_name": "Pairio",
-              "score_before": 19,
-              "score_after": 10,
-              "score_delta": -9,
-              "rank_before": 172,
-              "rank_after": 173,
-              "rank_delta": -1
+              "company_id": "company-superlog",
+              "company_name": "Superlog",
+              "score_before": 68,
+              "score_after": 36,
+              "score_delta": -32,
+              "rank_before": 9,
+              "rank_after": 9,
+              "rank_delta": 0
             },
             {
-              "company_id": "company-soria",
-              "company_name": "Soria",
-              "score_before": 19,
-              "score_after": 10,
-              "score_delta": -9,
-              "rank_before": 173,
-              "rank_after": 174,
-              "rank_delta": -1
+              "company_id": "company-interfaze",
+              "company_name": "Interfaze",
+              "score_before": 66,
+              "score_after": 35,
+              "score_delta": -31,
+              "rank_before": 10,
+              "rank_after": 10,
+              "rank_delta": 0
             },
             {
-              "company_id": "company-zibra-labs",
-              "company_name": "Zibra Labs",
-              "score_before": 19,
-              "score_after": 10,
-              "score_delta": -9,
-              "rank_before": 174,
-              "rank_after": 175,
-              "rank_delta": -1
+              "company_id": "company-ploy",
+              "company_name": "Ploy",
+              "score_before": 66,
+              "score_after": 35,
+              "score_delta": -31,
+              "rank_before": 11,
+              "rank_after": 11,
+              "rank_delta": 0
             },
             {
-              "company_id": "company-aquashield",
-              "company_name": "AquaShield",
-              "score_before": 17,
-              "score_after": 9,
-              "score_delta": -8,
-              "rank_before": 175,
-              "rank_after": 176,
-              "rank_delta": -1
+              "company_id": "company-openwork",
+              "company_name": "OpenWork",
+              "score_before": 64,
+              "score_after": 34,
+              "score_delta": -30,
+              "rank_before": 12,
+              "rank_after": 12,
+              "rank_delta": 0
             },
             {
-              "company_id": "company-gravy",
-              "company_name": "Gravy",
-              "score_before": 17,
-              "score_after": 9,
-              "score_delta": -8,
-              "rank_before": 176,
-              "rank_after": 177,
-              "rank_delta": -1
+              "company_id": "company-saudara-ai",
+              "company_name": "Saudara AI",
+              "score_before": 62,
+              "score_after": 33,
+              "score_delta": -29,
+              "rank_before": 13,
+              "rank_after": 13,
+              "rank_delta": 0
             },
             {
-              "company_id": "company-maquoketa-research",
-              "company_name": "Maquoketa Research",
-              "score_before": 17,
-              "score_after": 9,
-              "score_delta": -8,
-              "rank_before": 177,
-              "rank_after": 178,
-              "rank_delta": -1
+              "company_id": "company-stage",
+              "company_name": "Stage",
+              "score_before": 62,
+              "score_after": 33,
+              "score_delta": -29,
+              "rank_before": 14,
+              "rank_after": 14,
+              "rank_delta": 0
             },
             {
-              "company_id": "company-shotwellai",
-              "company_name": "shotwell.ai",
-              "score_before": 17,
-              "score_after": 9,
-              "score_delta": -8,
-              "rank_before": 179,
-              "rank_after": 180,
-              "rank_delta": -1
+              "company_id": "company-eden-robotics",
+              "company_name": "Eden Robotics",
+              "score_before": 60,
+              "score_after": 32,
+              "score_delta": -28,
+              "rank_before": 15,
+              "rank_after": 15,
+              "rank_delta": 0
             },
             {
-              "company_id": "company-tryprism",
-              "company_name": "Prism",
-              "score_before": 17,
-              "score_after": 9,
-              "score_delta": -8,
-              "rank_before": 178,
-              "rank_after": 179,
-              "rank_delta": -1
+              "company_id": "company-expanse",
+              "company_name": "Expanse",
+              "score_before": 60,
+              "score_after": 32,
+              "score_delta": -28,
+              "rank_before": 16,
+              "rank_after": 16,
+              "rank_delta": 0
             },
             {
-              "company_id": "company-arctic-health",
-              "company_name": "Arctic Health",
-              "score_before": 15,
-              "score_after": 8,
-              "score_delta": -7,
-              "rank_before": 180,
-              "rank_after": 181,
-              "rank_delta": -1
+              "company_id": "company-hyper-4",
+              "company_name": "Hyper",
+              "score_before": 60,
+              "score_after": 32,
+              "score_delta": -28,
+              "rank_before": 17,
+              "rank_after": 17,
+              "rank_delta": 0
             },
             {
-              "company_id": "company-hessian",
-              "company_name": "Hessian",
-              "score_before": 15,
-              "score_after": 8,
-              "score_delta": -7,
-              "rank_before": 181,
-              "rank_after": 182,
-              "rank_delta": -1
+              "company_id": "company-testerarmy",
+              "company_name": "TesterArmy",
+              "score_before": 60,
+              "score_after": 32,
+              "score_delta": -28,
+              "rank_before": 18,
+              "rank_after": 18,
+              "rank_delta": 0
             },
             {
-              "company_id": "company-plan0-ai",
-              "company_name": "PLAN0 AI",
-              "score_before": 15,
-              "score_after": 8,
-              "score_delta": -7,
-              "rank_before": 182,
-              "rank_after": 183,
-              "rank_delta": -1
+              "company_id": "company-allowance",
+              "company_name": "Allowance",
+              "score_before": 58,
+              "score_after": 31,
+              "score_delta": -27,
+              "rank_before": 19,
+              "rank_after": 19,
+              "rank_delta": 0
             },
             {
-              "company_id": "company-smartbase",
-              "company_name": "Smartbase",
-              "score_before": 15,
-              "score_after": 8,
-              "score_delta": -7,
-              "rank_before": 183,
-              "rank_after": 184,
-              "rank_delta": -1
+              "company_id": "company-ara",
+              "company_name": "Ara",
+              "score_before": 57,
+              "score_after": 30,
+              "score_delta": -27,
+              "rank_before": 20,
+              "rank_after": 20,
+              "rank_delta": 0
             }
           ]
         },
@@ -14652,8 +14656,8 @@
               "score_before": 9,
               "score_after": 9,
               "score_delta": 0,
-              "rank_before": 176,
-              "rank_after": 176,
+              "rank_before": 175,
+              "rank_after": 175,
               "rank_delta": 0
             },
             {
@@ -14872,8 +14876,8 @@
               "score_before": 8,
               "score_after": 8,
               "score_delta": 0,
-              "rank_before": 184,
-              "rank_after": 184,
+              "rank_before": 183,
+              "rank_after": 183,
               "rank_delta": 0
             },
             {
@@ -14932,8 +14936,8 @@
               "score_before": 11,
               "score_after": 11,
               "score_delta": 0,
-              "rank_before": 167,
-              "rank_after": 167,
+              "rank_before": 166,
+              "rank_after": 166,
               "rank_delta": 0
             }
           ],
@@ -19466,10 +19470,10 @@
           },
           {
             "platform": "linkedin",
-            "evidence_rows_before": 733,
-            "evidence_rows_after": 709,
-            "scored_evidence_rows_before": 709,
-            "scored_evidence_rows_after": 709,
+            "evidence_rows_before": 730,
+            "evidence_rows_after": 706,
+            "scored_evidence_rows_before": 706,
+            "scored_evidence_rows_after": 706,
             "score_before": {
               "company_count": 197,
               "nonzero_company_count": 164,
@@ -19477,7 +19481,7 @@
                 "min": 0,
                 "p25": 5,
                 "median": 7,
-                "mean": 6.3553,
+                "mean": 6.335,
                 "p75": 9,
                 "max": 11
               },
@@ -19603,8 +19607,8 @@
                 },
                 {
                   "rank": 15,
-                  "company_id": "company-armature",
-                  "company_name": "Armature",
+                  "company_id": "company-chert",
+                  "company_name": "Chert",
                   "score": 10,
                   "top_platform": "linkedin",
                   "scored_evidence_rows": 3,
@@ -19612,8 +19616,8 @@
                 },
                 {
                   "rank": 22,
-                  "company_id": "company-modern",
-                  "company_name": "Modern",
+                  "company_id": "company-pavoot",
+                  "company_name": "Pavoot",
                   "score": 10,
                   "top_platform": "linkedin",
                   "scored_evidence_rows": 5,
@@ -19621,119 +19625,119 @@
                 },
                 {
                   "rank": 29,
-                  "company_id": "company-scope",
-                  "company_name": "Scope",
+                  "company_id": "company-trellistech",
+                  "company_name": "Trellis",
                   "score": 10,
+                  "top_platform": "linkedin",
+                  "scored_evidence_rows": 4,
+                  "platforms_with_evidence": 1
+                },
+                {
+                  "rank": 35,
+                  "company_id": "company-biostack-platforms",
+                  "company_name": "BioStack Platforms",
+                  "score": 9,
                   "top_platform": "linkedin",
                   "scored_evidence_rows": 1,
                   "platforms_with_evidence": 1
                 },
                 {
-                  "rank": 35,
-                  "company_id": "company-auxos",
-                  "company_name": "Auxos",
+                  "rank": 42,
+                  "company_id": "company-light-anchor",
+                  "company_name": "Light Anchor",
                   "score": 9,
+                  "top_platform": "linkedin",
+                  "scored_evidence_rows": 4,
+                  "platforms_with_evidence": 1
+                },
+                {
+                  "rank": 49,
+                  "company_id": "company-replicas",
+                  "company_name": "Replicas",
+                  "score": 9,
+                  "top_platform": "linkedin",
+                  "scored_evidence_rows": 4,
+                  "platforms_with_evidence": 1
+                },
+                {
+                  "rank": 56,
+                  "company_id": "company-allowance",
+                  "company_name": "Allowance",
+                  "score": 8,
                   "top_platform": "linkedin",
                   "scored_evidence_rows": 6,
                   "platforms_with_evidence": 1
                 },
                 {
-                  "rank": 42,
-                  "company_id": "company-kinro",
-                  "company_name": "Kinro",
-                  "score": 9,
+                  "rank": 62,
+                  "company_id": "company-dayjob",
+                  "company_name": "Dayjob",
+                  "score": 8,
                   "top_platform": "linkedin",
-                  "scored_evidence_rows": 11,
+                  "scored_evidence_rows": 13,
                   "platforms_with_evidence": 1
                 },
                 {
-                  "rank": 49,
-                  "company_id": "company-tryprism",
-                  "company_name": "Prism",
-                  "score": 9,
+                  "rank": 69,
+                  "company_id": "company-hyper-4",
+                  "company_name": "Hyper",
+                  "score": 8,
                   "top_platform": "linkedin",
-                  "scored_evidence_rows": 5,
+                  "scored_evidence_rows": 4,
                   "platforms_with_evidence": 1
                 },
                 {
-                  "rank": 56,
-                  "company_id": "company-adialante",
-                  "company_name": "Adialante",
+                  "rank": 76,
+                  "company_id": "company-pairio",
+                  "company_name": "Pairio",
                   "score": 8,
                   "top_platform": "linkedin",
                   "scored_evidence_rows": 3,
                   "platforms_with_evidence": 1
                 },
                 {
-                  "rank": 62,
-                  "company_id": "company-complir",
-                  "company_name": "Complir",
+                  "rank": 82,
+                  "company_id": "company-sazabi",
+                  "company_name": "Sazabi",
                   "score": 8,
+                  "top_platform": "linkedin",
+                  "scored_evidence_rows": 6,
+                  "platforms_with_evidence": 1
+                },
+                {
+                  "rank": 89,
+                  "company_id": "company-testerarmy",
+                  "company_name": "TesterArmy",
+                  "score": 8,
+                  "top_platform": "linkedin",
+                  "scored_evidence_rows": 10,
+                  "platforms_with_evidence": 1
+                },
+                {
+                  "rank": 96,
+                  "company_id": "company-abinitio-bio",
+                  "company_name": "AbInitio Bio",
+                  "score": 7,
+                  "top_platform": "linkedin",
+                  "scored_evidence_rows": 2,
+                  "platforms_with_evidence": 1
+                },
+                {
+                  "rank": 102,
+                  "company_id": "company-cignara",
+                  "company_name": "Cignara",
+                  "score": 7,
                   "top_platform": "linkedin",
                   "scored_evidence_rows": 8,
                   "platforms_with_evidence": 1
                 },
                 {
-                  "rank": 69,
-                  "company_id": "company-hexa",
-                  "company_name": "Hexa",
-                  "score": 8,
-                  "top_platform": "linkedin",
-                  "scored_evidence_rows": 1,
-                  "platforms_with_evidence": 1
-                },
-                {
-                  "rank": 76,
-                  "company_id": "company-lamina-labs",
-                  "company_name": "Lamina Labs",
-                  "score": 8,
-                  "top_platform": "linkedin",
-                  "scored_evidence_rows": 5,
-                  "platforms_with_evidence": 1
-                },
-                {
-                  "rank": 82,
-                  "company_id": "company-rudus",
-                  "company_name": "Rudus",
-                  "score": 8,
-                  "top_platform": "linkedin",
-                  "scored_evidence_rows": 4,
-                  "platforms_with_evidence": 1
-                },
-                {
-                  "rank": 89,
-                  "company_id": "company-tenet-industries",
-                  "company_name": "Tenet Industries",
-                  "score": 8,
-                  "top_platform": "linkedin",
-                  "scored_evidence_rows": 4,
-                  "platforms_with_evidence": 1
-                },
-                {
-                  "rank": 96,
-                  "company_id": "company-qomplement",
-                  "company_name": "qomplement",
-                  "score": 8,
-                  "top_platform": "linkedin",
-                  "scored_evidence_rows": 7,
-                  "platforms_with_evidence": 1
-                },
-                {
-                  "rank": 102,
-                  "company_id": "company-characterquilt",
-                  "company_name": "CharacterQuilt",
-                  "score": 7,
-                  "top_platform": "linkedin",
-                  "scored_evidence_rows": 3,
-                  "platforms_with_evidence": 1
-                },
-                {
                   "rank": 109,
-                  "company_id": "company-klarify",
-                  "company_name": "Klarify",
+                  "company_id": "company-lumius",
+                  "company_name": "Lumius",
                   "score": 7,
                   "top_platform": "linkedin",
-                  "scored_evidence_rows": 5,
+                  "scored_evidence_rows": 2,
                   "platforms_with_evidence": 1
                 },
                 {
@@ -19871,7 +19875,7 @@
                 "min": 0,
                 "p25": 5,
                 "median": 7,
-                "mean": 6.3553,
+                "mean": 6.335,
                 "p75": 9,
                 "max": 11
               },
@@ -19997,8 +20001,8 @@
                 },
                 {
                   "rank": 15,
-                  "company_id": "company-armature",
-                  "company_name": "Armature",
+                  "company_id": "company-chert",
+                  "company_name": "Chert",
                   "score": 10,
                   "top_platform": "linkedin",
                   "scored_evidence_rows": 3,
@@ -20006,8 +20010,8 @@
                 },
                 {
                   "rank": 22,
-                  "company_id": "company-modern",
-                  "company_name": "Modern",
+                  "company_id": "company-pavoot",
+                  "company_name": "Pavoot",
                   "score": 10,
                   "top_platform": "linkedin",
                   "scored_evidence_rows": 5,
@@ -20015,119 +20019,119 @@
                 },
                 {
                   "rank": 29,
-                  "company_id": "company-scope",
-                  "company_name": "Scope",
+                  "company_id": "company-trellistech",
+                  "company_name": "Trellis",
                   "score": 10,
+                  "top_platform": "linkedin",
+                  "scored_evidence_rows": 4,
+                  "platforms_with_evidence": 1
+                },
+                {
+                  "rank": 35,
+                  "company_id": "company-biostack-platforms",
+                  "company_name": "BioStack Platforms",
+                  "score": 9,
                   "top_platform": "linkedin",
                   "scored_evidence_rows": 1,
                   "platforms_with_evidence": 1
                 },
                 {
-                  "rank": 35,
-                  "company_id": "company-auxos",
-                  "company_name": "Auxos",
+                  "rank": 42,
+                  "company_id": "company-light-anchor",
+                  "company_name": "Light Anchor",
                   "score": 9,
+                  "top_platform": "linkedin",
+                  "scored_evidence_rows": 4,
+                  "platforms_with_evidence": 1
+                },
+                {
+                  "rank": 49,
+                  "company_id": "company-replicas",
+                  "company_name": "Replicas",
+                  "score": 9,
+                  "top_platform": "linkedin",
+                  "scored_evidence_rows": 4,
+                  "platforms_with_evidence": 1
+                },
+                {
+                  "rank": 56,
+                  "company_id": "company-allowance",
+                  "company_name": "Allowance",
+                  "score": 8,
                   "top_platform": "linkedin",
                   "scored_evidence_rows": 6,
                   "platforms_with_evidence": 1
                 },
                 {
-                  "rank": 42,
-                  "company_id": "company-kinro",
-                  "company_name": "Kinro",
-                  "score": 9,
+                  "rank": 62,
+                  "company_id": "company-dayjob",
+                  "company_name": "Dayjob",
+                  "score": 8,
                   "top_platform": "linkedin",
-                  "scored_evidence_rows": 11,
+                  "scored_evidence_rows": 13,
                   "platforms_with_evidence": 1
                 },
                 {
-                  "rank": 49,
-                  "company_id": "company-tryprism",
-                  "company_name": "Prism",
-                  "score": 9,
+                  "rank": 69,
+                  "company_id": "company-hyper-4",
+                  "company_name": "Hyper",
+                  "score": 8,
                   "top_platform": "linkedin",
-                  "scored_evidence_rows": 5,
+                  "scored_evidence_rows": 4,
                   "platforms_with_evidence": 1
                 },
                 {
-                  "rank": 56,
-                  "company_id": "company-adialante",
-                  "company_name": "Adialante",
+                  "rank": 76,
+                  "company_id": "company-pairio",
+                  "company_name": "Pairio",
                   "score": 8,
                   "top_platform": "linkedin",
                   "scored_evidence_rows": 3,
                   "platforms_with_evidence": 1
                 },
                 {
-                  "rank": 62,
-                  "company_id": "company-complir",
-                  "company_name": "Complir",
+                  "rank": 82,
+                  "company_id": "company-sazabi",
+                  "company_name": "Sazabi",
                   "score": 8,
+                  "top_platform": "linkedin",
+                  "scored_evidence_rows": 6,
+                  "platforms_with_evidence": 1
+                },
+                {
+                  "rank": 89,
+                  "company_id": "company-testerarmy",
+                  "company_name": "TesterArmy",
+                  "score": 8,
+                  "top_platform": "linkedin",
+                  "scored_evidence_rows": 10,
+                  "platforms_with_evidence": 1
+                },
+                {
+                  "rank": 96,
+                  "company_id": "company-abinitio-bio",
+                  "company_name": "AbInitio Bio",
+                  "score": 7,
+                  "top_platform": "linkedin",
+                  "scored_evidence_rows": 2,
+                  "platforms_with_evidence": 1
+                },
+                {
+                  "rank": 102,
+                  "company_id": "company-cignara",
+                  "company_name": "Cignara",
+                  "score": 7,
                   "top_platform": "linkedin",
                   "scored_evidence_rows": 8,
                   "platforms_with_evidence": 1
                 },
                 {
-                  "rank": 69,
-                  "company_id": "company-hexa",
-                  "company_name": "Hexa",
-                  "score": 8,
-                  "top_platform": "linkedin",
-                  "scored_evidence_rows": 1,
-                  "platforms_with_evidence": 1
-                },
-                {
-                  "rank": 76,
-                  "company_id": "company-lamina-labs",
-                  "company_name": "Lamina Labs",
-                  "score": 8,
-                  "top_platform": "linkedin",
-                  "scored_evidence_rows": 5,
-                  "platforms_with_evidence": 1
-                },
-                {
-                  "rank": 82,
-                  "company_id": "company-rudus",
-                  "company_name": "Rudus",
-                  "score": 8,
-                  "top_platform": "linkedin",
-                  "scored_evidence_rows": 4,
-                  "platforms_with_evidence": 1
-                },
-                {
-                  "rank": 89,
-                  "company_id": "company-tenet-industries",
-                  "company_name": "Tenet Industries",
-                  "score": 8,
-                  "top_platform": "linkedin",
-                  "scored_evidence_rows": 4,
-                  "platforms_with_evidence": 1
-                },
-                {
-                  "rank": 96,
-                  "company_id": "company-qomplement",
-                  "company_name": "qomplement",
-                  "score": 8,
-                  "top_platform": "linkedin",
-                  "scored_evidence_rows": 7,
-                  "platforms_with_evidence": 1
-                },
-                {
-                  "rank": 102,
-                  "company_id": "company-characterquilt",
-                  "company_name": "CharacterQuilt",
-                  "score": 7,
-                  "top_platform": "linkedin",
-                  "scored_evidence_rows": 3,
-                  "platforms_with_evidence": 1
-                },
-                {
                   "rank": 109,
-                  "company_id": "company-klarify",
-                  "company_name": "Klarify",
+                  "company_id": "company-lumius",
+                  "company_name": "Lumius",
                   "score": 7,
                   "top_platform": "linkedin",
-                  "scored_evidence_rows": 5,
+                  "scored_evidence_rows": 2,
                   "platforms_with_evidence": 1
                 },
                 {
@@ -20277,8 +20281,8 @@
                   "score_before": 8,
                   "score_after": 8,
                   "score_delta": 0,
-                  "rank_before": 55,
-                  "rank_after": 55,
+                  "rank_before": 54,
+                  "rank_after": 54,
                   "rank_delta": 0
                 },
                 {
@@ -20287,8 +20291,8 @@
                   "score_before": 7,
                   "score_after": 7,
                   "score_delta": 0,
-                  "rank_before": 97,
-                  "rank_after": 97,
+                  "rank_before": 96,
+                  "rank_after": 96,
                   "rank_delta": 0
                 },
                 {
@@ -20297,8 +20301,8 @@
                   "score_before": 8,
                   "score_after": 8,
                   "score_delta": 0,
-                  "rank_before": 57,
-                  "rank_after": 57,
+                  "rank_before": 56,
+                  "rank_after": 56,
                   "rank_delta": 0
                 },
                 {
@@ -20307,8 +20311,8 @@
                   "score_before": 7,
                   "score_after": 7,
                   "score_delta": 0,
-                  "rank_before": 98,
-                  "rank_after": 98,
+                  "rank_before": 97,
+                  "rank_after": 97,
                   "rank_delta": 0
                 },
                 {
@@ -20337,8 +20341,8 @@
                   "score_before": 8,
                   "score_after": 8,
                   "score_delta": 0,
-                  "rank_before": 60,
-                  "rank_after": 60,
+                  "rank_before": 59,
+                  "rank_after": 59,
                   "rank_delta": 0
                 },
                 {
@@ -20347,8 +20351,8 @@
                   "score_before": 8,
                   "score_after": 8,
                   "score_delta": 0,
-                  "rank_before": 61,
-                  "rank_after": 61,
+                  "rank_before": 60,
+                  "rank_after": 60,
                   "rank_delta": 0
                 },
                 {
@@ -20357,8 +20361,8 @@
                   "score_before": 9,
                   "score_after": 9,
                   "score_delta": 0,
-                  "rank_before": 39,
-                  "rank_after": 39,
+                  "rank_before": 38,
+                  "rank_after": 38,
                   "rank_delta": 0
                 },
                 {
@@ -20387,8 +20391,8 @@
                   "score_before": 7,
                   "score_after": 7,
                   "score_delta": 0,
-                  "rank_before": 107,
-                  "rank_after": 107,
+                  "rank_before": 106,
+                  "rank_after": 106,
                   "rank_delta": 0
                 },
                 {
@@ -20407,8 +20411,8 @@
                   "score_before": 8,
                   "score_after": 8,
                   "score_delta": 0,
-                  "rank_before": 71,
-                  "rank_after": 71,
+                  "rank_before": 70,
+                  "rank_after": 70,
                   "rank_delta": 0
                 },
                 {
@@ -20417,8 +20421,8 @@
                   "score_before": 8,
                   "score_after": 8,
                   "score_delta": 0,
-                  "rank_before": 73,
-                  "rank_after": 73,
+                  "rank_before": 72,
+                  "rank_after": 72,
                   "rank_delta": 0
                 },
                 {
@@ -20427,8 +20431,8 @@
                   "score_before": 7,
                   "score_after": 7,
                   "score_delta": 0,
-                  "rank_before": 109,
-                  "rank_after": 109,
+                  "rank_before": 108,
+                  "rank_after": 108,
                   "rank_delta": 0
                 },
                 {
@@ -20437,8 +20441,8 @@
                   "score_before": 9,
                   "score_after": 9,
                   "score_delta": 0,
-                  "rank_before": 43,
-                  "rank_after": 43,
+                  "rank_before": 42,
+                  "rank_after": 42,
                   "rank_delta": 0
                 },
                 {
@@ -20477,8 +20481,8 @@
                   "score_before": 10,
                   "score_after": 10,
                   "score_delta": 0,
-                  "rank_before": 23,
-                  "rank_after": 23,
+                  "rank_before": 22,
+                  "rank_after": 22,
                   "rank_delta": 0
                 },
                 {
@@ -20487,8 +20491,8 @@
                   "score_before": 10,
                   "score_after": 10,
                   "score_delta": 0,
-                  "rank_before": 25,
-                  "rank_after": 25,
+                  "rank_before": 24,
+                  "rank_after": 24,
                   "rank_delta": 0
                 },
                 {
@@ -20497,8 +20501,8 @@
                   "score_before": 7,
                   "score_after": 7,
                   "score_delta": 0,
-                  "rank_before": 113,
-                  "rank_after": 113,
+                  "rank_before": 112,
+                  "rank_after": 112,
                   "rank_delta": 0
                 },
                 {
@@ -20507,8 +20511,8 @@
                   "score_before": 8,
                   "score_after": 8,
                   "score_delta": 0,
-                  "rank_before": 81,
-                  "rank_after": 81,
+                  "rank_before": 80,
+                  "rank_after": 80,
                   "rank_delta": 0
                 },
                 {
@@ -20567,8 +20571,8 @@
                   "score_before": 8,
                   "score_after": 8,
                   "score_delta": 0,
-                  "rank_before": 91,
-                  "rank_after": 91,
+                  "rank_before": 90,
+                  "rank_after": 90,
                   "rank_delta": 0
                 },
                 {
@@ -20587,8 +20591,8 @@
                   "score_before": 8,
                   "score_after": 8,
                   "score_delta": 0,
-                  "rank_before": 94,
-                  "rank_after": 94,
+                  "rank_before": 93,
+                  "rank_after": 93,
                   "rank_delta": 0
                 }
               ],
@@ -25121,8 +25125,8 @@
           }
         ],
         "after_transformation": {
-          "before_evidence_rows": 21110,
-          "after_evidence_rows": 4946,
+          "before_evidence_rows": 21107,
+          "after_evidence_rows": 4943,
           "removed_row_count": 16164,
           "alias_changed_row_count": 273,
           "removed_by_reason": [
@@ -27050,7 +27054,7 @@
       },
       "perturbations": {
         "monotonicity": {
-          "eligible_scored_rows": 4944,
+          "eligible_scored_rows": 4941,
           "sampled_evidence_rows": 244,
           "sample_limit_per_platform": 40,
           "sample_coverage": 0.0494,
@@ -27114,8 +27118,8 @@
                 "score_before": 9,
                 "score_after": 9,
                 "score_delta": 0,
-                "rank_before": 176,
-                "rank_after": 176,
+                "rank_before": 175,
+                "rank_after": 175,
                 "rank_delta": 0
               },
               {
@@ -27334,8 +27338,8 @@
                 "score_before": 8,
                 "score_after": 8,
                 "score_delta": 0,
-                "rank_before": 184,
-                "rank_after": 184,
+                "rank_before": 183,
+                "rank_after": 183,
                 "rank_delta": 0
               },
               {
@@ -27394,8 +27398,8 @@
                 "score_before": 11,
                 "score_after": 11,
                 "score_delta": 0,
-                "rank_before": 167,
-                "rank_after": 167,
+                "rank_before": 166,
+                "rank_after": 166,
                 "rank_delta": 0
               }
             ],
@@ -27521,8 +27525,8 @@
                 "score_before": 7,
                 "score_after": 7,
                 "score_delta": 0,
-                "rank_before": 186,
-                "rank_after": 186,
+                "rank_before": 185,
+                "rank_after": 185,
                 "rank_delta": 0
               },
               {
@@ -27541,8 +27545,8 @@
                 "score_before": 9,
                 "score_after": 9,
                 "score_delta": 0,
-                "rank_before": 177,
-                "rank_after": 177,
+                "rank_before": 176,
+                "rank_after": 176,
                 "rank_delta": 0
               },
               {
@@ -27601,8 +27605,8 @@
                 "score_before": 9,
                 "score_after": 9,
                 "score_delta": 0,
-                "rank_before": 178,
-                "rank_after": 178,
+                "rank_before": 177,
+                "rank_after": 177,
                 "rank_delta": 0
               },
               {
@@ -27671,8 +27675,8 @@
                 "score_before": 9,
                 "score_after": 9,
                 "score_delta": 0,
-                "rank_before": 180,
-                "rank_after": 180,
+                "rank_before": 179,
+                "rank_after": 179,
                 "rank_delta": 0
               },
               {
@@ -27711,8 +27715,8 @@
                 "score_before": 9,
                 "score_after": 9,
                 "score_delta": 0,
-                "rank_before": 179,
-                "rank_after": 179,
+                "rank_before": 178,
+                "rank_after": 178,
                 "rank_delta": 0
               },
               {
@@ -27731,8 +27735,8 @@
                 "score_before": 11,
                 "score_after": 11,
                 "score_delta": 0,
-                "rank_before": 167,
-                "rank_after": 167,
+                "rank_before": 166,
+                "rank_after": 166,
                 "rank_delta": 0
               }
             ],
@@ -27989,8 +27993,8 @@
                 "score_before": 9,
                 "score_after": 9,
                 "score_delta": 0,
-                "rank_before": 176,
-                "rank_after": 176,
+                "rank_before": 175,
+                "rank_after": 175,
                 "rank_delta": 0
               },
               {
@@ -28209,8 +28213,8 @@
                 "score_before": 8,
                 "score_after": 8,
                 "score_delta": 0,
-                "rank_before": 184,
-                "rank_after": 184,
+                "rank_before": 183,
+                "rank_after": 183,
                 "rank_delta": 0
               },
               {
@@ -28269,8 +28273,8 @@
                 "score_before": 11,
                 "score_after": 11,
                 "score_delta": 0,
-                "rank_before": 167,
-                "rank_after": 167,
+                "rank_before": 166,
+                "rank_after": 166,
                 "rank_delta": 0
               }
             ],
@@ -28566,8 +28570,8 @@
       "input_counts": {
         "companies": 174,
         "founders": 342,
-        "evidence_rows": 14316,
-        "scored_evidence_rows": 2567
+        "evidence_rows": 14314,
+        "scored_evidence_rows": 2565
       },
       "canonical_duplicates": {
         "canonical_evidence_ids": {
@@ -32895,8 +32899,8 @@
         ]
       },
       "eligibility_rejections": {
-        "evaluated_row_count": 14316,
-        "eligible_row_count": 2567,
+        "evaluated_row_count": 14314,
+        "eligible_row_count": 2565,
         "rejected_row_count": 11749,
         "rejected_upstream_enabled_row_count": 0,
         "by_reason": [
@@ -34558,7 +34562,7 @@
       "outliers": {
         "method": "Tukey 1.5 IQR fences; evidence uses log1p(raw production-weighted engagement), company scores use the 0-100 score directly, and samples smaller than four are not classified.",
         "evidence_raw_engagement": {
-          "eligible_row_count": 2567,
+          "eligible_row_count": 2565,
           "outlier_count": 61,
           "by_platform": [
             {
@@ -34784,14 +34788,14 @@
             },
             {
               "platform": "linkedin",
-              "sample_count": 274,
-              "q1": 30.949,
-              "q3": 392.9339,
-              "iqr": 2.512044,
+              "sample_count": 272,
+              "q1": 30.8,
+              "q3": 395.9218,
+              "iqr": 2.524273,
               "lower_fence": 0,
-              "upper_fence": 17054.8537,
-              "transformed_lower_fence": -0.303926,
-              "transformed_upper_fence": 9.744249,
+              "upper_fence": 17502.3685,
+              "transformed_lower_fence": -0.326943,
+              "transformed_upper_fence": 9.770149,
               "outlier_count": 0,
               "findings": []
             },
@@ -36146,17 +36150,17 @@
             {
               "key": "x",
               "count": 8915,
-              "share": 0.6227
+              "share": 0.6228
             },
             {
               "key": "web",
               "count": 3206,
-              "share": 0.2239
+              "share": 0.224
             },
             {
               "key": "rss",
               "count": 715,
-              "share": 0.0499
+              "share": 0.05
             },
             {
               "key": "hacker_news",
@@ -36170,8 +36174,8 @@
             },
             {
               "key": "linkedin",
-              "count": 280,
-              "share": 0.0196
+              "count": 278,
+              "share": 0.0194
             },
             {
               "key": "github",
@@ -36193,17 +36197,17 @@
             {
               "key": "x",
               "count": 1872,
-              "share": 0.7293
+              "share": 0.7298
             },
             {
               "key": "linkedin",
-              "count": 274,
-              "share": 0.1067
+              "count": 272,
+              "share": 0.106
             },
             {
               "key": "youtube",
               "count": 247,
-              "share": 0.0962
+              "share": 0.0963
             },
             {
               "key": "github",
@@ -36230,12 +36234,12 @@
             {
               "key": "x",
               "value": 1522.29,
-              "share": 0.5446
+              "share": 0.5447
             },
             {
               "key": "linkedin",
-              "value": 848.25,
-              "share": 0.3035
+              "value": 847.8,
+              "share": 0.3034
             },
             {
               "key": "github",
@@ -36263,7 +36267,7 @@
               "share": 0.0029
             }
           ],
-          "contribution_hhi": 0.3961,
+          "contribution_hhi": 0.3962,
           "dominant_platform_company_counts": [
             {
               "key": "x",
@@ -36304,17 +36308,17 @@
             {
               "key": "x",
               "count": 1872,
-              "share": 0.7293
+              "share": 0.7298
             },
             {
               "key": "linkedin",
-              "count": 274,
-              "share": 0.1067
+              "count": 272,
+              "share": 0.106
             },
             {
               "key": "youtube",
               "count": 247,
-              "share": 0.0962
+              "share": 0.0963
             },
             {
               "key": "github",
@@ -36341,17 +36345,17 @@
             {
               "key": "x",
               "count": 1872,
-              "share": 0.7293
+              "share": 0.7298
             },
             {
               "key": "linkedin",
-              "count": 274,
-              "share": 0.1067
+              "count": 272,
+              "share": 0.106
             },
             {
               "key": "youtube",
               "count": 247,
-              "share": 0.0962
+              "share": 0.0963
             },
             {
               "key": "github",
@@ -36378,12 +36382,12 @@
             {
               "key": "x",
               "value": 1522.29,
-              "share": 0.5446
+              "share": 0.5447
             },
             {
               "key": "linkedin",
-              "value": 848.25,
-              "share": 0.3035
+              "value": 847.8,
+              "share": 0.3034
             },
             {
               "key": "github",
@@ -36411,7 +36415,7 @@
               "share": 0.0029
             }
           ],
-          "contribution_hhi": 0.3961,
+          "contribution_hhi": 0.3962,
           "dominant_platform_company_counts": [
             {
               "key": "x",
@@ -36850,7 +36854,7 @@
             "min": 0,
             "p25": 9,
             "median": 14.5,
-            "mean": 16.1092,
+            "mean": 16.1034,
             "p75": 23,
             "max": 52
           },
@@ -37138,12 +37142,12 @@
             },
             {
               "rank": 123,
-              "company_id": "company-daqstra",
-              "company_name": "Daqstra",
+              "company_id": "company-levocred-ai",
+              "company_name": "Levocred AI",
               "score": 10,
-              "top_platform": "x",
-              "scored_evidence_rows": 15,
-              "platforms_with_evidence": 2
+              "top_platform": "linkedin",
+              "scored_evidence_rows": 3,
+              "platforms_with_evidence": 1
             },
             {
               "rank": 130,
@@ -37244,7 +37248,7 @@
             "min": 0,
             "p25": 9,
             "median": 14.5,
-            "mean": 16.1092,
+            "mean": 16.1034,
             "p75": 23,
             "max": 52
           },
@@ -37532,12 +37536,12 @@
             },
             {
               "rank": 123,
-              "company_id": "company-daqstra",
-              "company_name": "Daqstra",
+              "company_id": "company-levocred-ai",
+              "company_name": "Levocred AI",
               "score": 10,
-              "top_platform": "x",
-              "scored_evidence_rows": 15,
-              "platforms_with_evidence": 2
+              "top_platform": "linkedin",
+              "scored_evidence_rows": 3,
+              "platforms_with_evidence": 1
             },
             {
               "rank": 130,
@@ -37636,11 +37640,11 @@
           "baseline_only_company_ids": [],
           "variant_only_company_ids": [],
           "score_changed_company_count": 169,
-          "rank_changed_company_count": 10,
-          "mean_absolute_score_delta": 14.2931,
+          "rank_changed_company_count": 0,
+          "mean_absolute_score_delta": 14.2989,
           "max_absolute_score_delta": 46,
-          "max_absolute_rank_shift": 9,
-          "spearman_rank_correlation": 0.999897,
+          "max_absolute_rank_shift": 0,
+          "spearman_rank_correlation": 1,
           "top_10_overlap_count": 10,
           "top_10_overlap_rate": 1,
           "company_changes": [
@@ -37675,63 +37679,63 @@
               "rank_delta": 0
             },
             {
-              "company_id": "company-assemble",
-              "company_name": "Assemble",
-              "score_before": 40,
-              "score_after": 21,
-              "score_delta": -19,
-              "rank_before": 57,
-              "rank_after": 57,
+              "company_id": "company-archal",
+              "company_name": "Archal",
+              "score_before": 49,
+              "score_after": 26,
+              "score_delta": -23,
+              "rank_before": 24,
+              "rank_after": 24,
               "rank_delta": 0
             },
             {
-              "company_id": "company-avoca-systems",
-              "company_name": "Avoca Systems",
-              "score_before": 19,
-              "score_after": 10,
-              "score_delta": -9,
-              "rank_before": 121,
-              "rank_after": 122,
-              "rank_delta": -1
-            },
-            {
-              "company_id": "company-belvedir",
-              "company_name": "Belvedir",
-              "score_before": 21,
-              "score_after": 11,
-              "score_delta": -10,
-              "rank_before": 114,
-              "rank_after": 114,
-              "rank_delta": 0
-            },
-            {
-              "company_id": "company-carsignal",
-              "company_name": "CarSignal",
+              "company_id": "company-axelrod",
+              "company_name": "Axelrod",
               "score_before": 4,
               "score_after": 2,
               "score_delta": -2,
-              "rank_before": 163,
-              "rank_after": 163,
+              "rank_before": 162,
+              "rank_after": 162,
               "rank_delta": 0
             },
             {
-              "company_id": "company-conifer",
-              "company_name": "Conifer",
-              "score_before": 38,
-              "score_after": 20,
-              "score_delta": -18,
-              "rank_before": 59,
-              "rank_after": 59,
+              "company_id": "company-buildbox",
+              "company_name": "Buildbox",
+              "score_before": 25,
+              "score_after": 13,
+              "score_delta": -12,
+              "rank_before": 96,
+              "rank_after": 96,
               "rank_delta": 0
             },
             {
-              "company_id": "company-decawork",
-              "company_name": "Decawork",
-              "score_before": 36,
-              "score_after": 19,
-              "score_delta": -17,
-              "rank_before": 67,
-              "rank_after": 67,
+              "company_id": "company-coasty",
+              "company_name": "Coasty",
+              "score_before": 57,
+              "score_after": 30,
+              "score_delta": -27,
+              "rank_before": 12,
+              "rank_after": 12,
+              "rank_delta": 0
+            },
+            {
+              "company_id": "company-cosmic-robotics",
+              "company_name": "Cosmic Robotics",
+              "score_before": 53,
+              "score_after": 28,
+              "score_delta": -25,
+              "rank_before": 15,
+              "rank_after": 15,
+              "rank_delta": 0
+            },
+            {
+              "company_id": "company-denta",
+              "company_name": "Denta",
+              "score_before": 26,
+              "score_after": 14,
+              "score_delta": -12,
+              "rank_before": 89,
+              "rank_after": 89,
               "rank_delta": 0
             },
             {
@@ -37745,203 +37749,203 @@
               "rank_delta": 0
             },
             {
-              "company_id": "company-earendil-robotics",
-              "company_name": "Earendil Robotics",
-              "score_before": 9,
-              "score_after": 5,
-              "score_delta": -4,
-              "rank_before": 156,
-              "rank_after": 156,
+              "company_id": "company-egoist-machines",
+              "company_name": "Egoist Machines",
+              "score_before": 55,
+              "score_after": 29,
+              "score_delta": -26,
+              "rank_before": 13,
+              "rank_after": 13,
               "rank_delta": 0
             },
             {
-              "company_id": "company-experiential-labs",
-              "company_name": "Experiential Labs",
-              "score_before": 40,
-              "score_after": 21,
-              "score_delta": -19,
-              "rank_before": 58,
-              "rank_after": 58,
+              "company_id": "company-floracene",
+              "company_name": "Floracene",
+              "score_before": 0,
+              "score_after": 0,
+              "score_delta": 0,
+              "rank_before": 171,
+              "rank_after": 171,
               "rank_delta": 0
             },
             {
-              "company_id": "company-gitcafe",
-              "company_name": "GitCafe",
+              "company_id": "company-graphify-labs",
+              "company_name": "Graphify Labs",
+              "score_before": 70,
+              "score_after": 37,
+              "score_delta": -33,
+              "rank_before": 2,
+              "rank_after": 2,
+              "rank_delta": 0
+            },
+            {
+              "company_id": "company-hiloop",
+              "company_name": "hiloop",
+              "score_before": 30,
+              "score_after": 16,
+              "score_delta": -14,
+              "rank_before": 86,
+              "rank_after": 86,
+              "rank_delta": 0
+            },
+            {
+              "company_id": "company-impact-drones",
+              "company_name": "IMPACT Drones",
               "score_before": 11,
               "score_after": 6,
               "score_delta": -5,
-              "rank_before": 150,
-              "rank_after": 150,
+              "rank_before": 152,
+              "rank_after": 152,
               "rank_delta": 0
             },
             {
-              "company_id": "company-hardware-intelligence",
-              "company_name": "hardware intelligence",
-              "score_before": 21,
-              "score_after": 11,
-              "score_delta": -10,
-              "rank_before": 120,
-              "rank_after": 121,
-              "rank_delta": -1
-            },
-            {
-              "company_id": "company-illume-labs",
-              "company_name": "Illume Labs",
-              "score_before": 32,
-              "score_after": 17,
-              "score_delta": -15,
-              "rank_before": 76,
-              "rank_after": 76,
-              "rank_delta": 0
-            },
-            {
-              "company_id": "company-insurf",
-              "company_name": "Insurf",
-              "score_before": 17,
-              "score_after": 9,
-              "score_delta": -8,
-              "rank_before": 130,
-              "rank_after": 130,
-              "rank_delta": 0
-            },
-            {
-              "company_id": "company-last-accounting-company",
-              "company_name": "Last Accounting Company",
-              "score_before": 23,
-              "score_after": 12,
-              "score_delta": -11,
-              "rank_before": 108,
-              "rank_after": 108,
-              "rank_delta": 0
-            },
-            {
-              "company_id": "company-luca-iq",
-              "company_name": "Luca IQ",
+              "company_id": "company-isengard-industries-inc",
+              "company_name": "Isengard Industries Inc",
               "score_before": 9,
               "score_after": 5,
               "score_delta": -4,
-              "rank_before": 158,
-              "rank_after": 158,
+              "rank_before": 157,
+              "rank_after": 157,
               "rank_delta": 0
             },
             {
-              "company_id": "company-markov",
-              "company_name": "Markov",
-              "score_before": 47,
-              "score_after": 25,
-              "score_delta": -22,
-              "rank_before": 30,
-              "rank_after": 30,
+              "company_id": "company-lato",
+              "company_name": "LATO",
+              "score_before": 36,
+              "score_after": 19,
+              "score_delta": -17,
+              "rank_before": 70,
+              "rank_after": 70,
               "rank_delta": 0
             },
             {
-              "company_id": "company-noril1",
-              "company_name": "Nori",
-              "score_before": 32,
-              "score_after": 17,
-              "score_delta": -15,
-              "rank_before": 77,
-              "rank_after": 77,
-              "rank_delta": 0
-            },
-            {
-              "company_id": "company-opentrade",
-              "company_name": "OpenTrade",
-              "score_before": 43,
-              "score_after": 23,
-              "score_delta": -20,
-              "rank_before": 45,
-              "rank_after": 45,
-              "rank_delta": 0
-            },
-            {
-              "company_id": "company-palette-2",
-              "company_name": "Palette",
-              "score_before": 26,
-              "score_after": 14,
-              "score_delta": -12,
-              "rank_before": 92,
-              "rank_after": 92,
-              "rank_delta": 0
-            },
-            {
-              "company_id": "company-pokerclubhub",
-              "company_name": "PokerClubHub",
+              "company_id": "company-locke",
+              "company_name": "Locke",
               "score_before": 19,
               "score_after": 10,
               "score_delta": -9,
-              "rank_before": 125,
-              "rank_after": 126,
-              "rank_delta": -1
-            },
-            {
-              "company_id": "company-provenmetal",
-              "company_name": "ProvenMetal",
-              "score_before": 25,
-              "score_after": 13,
-              "score_delta": -12,
-              "rank_before": 104,
-              "rank_after": 104,
+              "rank_before": 124,
+              "rank_after": 124,
               "rank_delta": 0
             },
             {
-              "company_id": "company-rex-inc",
-              "company_name": "Rex",
-              "score_before": 42,
-              "score_after": 22,
+              "company_id": "company-manufacturingintelligence",
+              "company_name": "HERA",
+              "score_before": 43,
+              "score_after": 23,
               "score_delta": -20,
-              "rank_before": 55,
-              "rank_after": 55,
+              "rank_before": 40,
+              "rank_after": 40,
               "rank_delta": 0
             },
             {
-              "company_id": "company-screenpipe",
-              "company_name": "screenpipe",
-              "score_before": 98,
-              "score_after": 52,
-              "score_delta": -46,
-              "rank_before": 1,
-              "rank_after": 1,
+              "company_id": "company-nex",
+              "company_name": "Nex",
+              "score_before": 43,
+              "score_after": 23,
+              "score_delta": -20,
+              "rank_before": 43,
+              "rank_after": 43,
               "rank_delta": 0
             },
             {
-              "company_id": "company-standard-machines",
-              "company_name": "Standard Machines",
-              "score_before": 17,
-              "score_after": 9,
-              "score_delta": -8,
-              "rank_before": 138,
-              "rank_after": 138,
+              "company_id": "company-openrelay",
+              "company_name": "OpenRelay",
+              "score_before": 15,
+              "score_after": 8,
+              "score_delta": -7,
+              "rank_before": 147,
+              "rank_after": 147,
               "rank_delta": 0
             },
             {
-              "company_id": "company-tarebio",
-              "company_name": "TareBio",
-              "score_before": 2,
-              "score_after": 1,
-              "score_delta": -1,
-              "rank_before": 169,
-              "rank_after": 169,
+              "company_id": "company-osmaura",
+              "company_name": "Osmaura",
+              "score_before": 45,
+              "score_after": 24,
+              "score_delta": -21,
+              "rank_before": 37,
+              "rank_after": 37,
+              "rank_delta": 0
+            },
+            {
+              "company_id": "company-perceptron-ml",
+              "company_name": "Perceptron ML",
+              "score_before": 21,
+              "score_after": 11,
+              "score_delta": -10,
+              "rank_before": 116,
+              "rank_after": 116,
+              "rank_delta": 0
+            },
+            {
+              "company_id": "company-prized",
+              "company_name": "Prized",
+              "score_before": 38,
+              "score_after": 20,
+              "score_delta": -18,
+              "rank_before": 61,
+              "rank_after": 61,
+              "rank_delta": 0
+            },
+            {
+              "company_id": "company-realpact",
+              "company_name": "RealPact",
+              "score_before": 38,
+              "score_after": 20,
+              "score_delta": -18,
+              "rank_before": 62,
+              "rank_after": 62,
+              "rank_delta": 0
+            },
+            {
+              "company_id": "company-robocurve",
+              "company_name": "Robocurve",
+              "score_before": 49,
+              "score_after": 26,
+              "score_delta": -23,
+              "rank_before": 27,
+              "rank_after": 27,
+              "rank_delta": 0
+            },
+            {
+              "company_id": "company-skymerse",
+              "company_name": "Skymerse",
+              "score_before": 19,
+              "score_after": 10,
+              "score_delta": -9,
+              "rank_before": 128,
+              "rank_after": 128,
+              "rank_delta": 0
+            },
+            {
+              "company_id": "company-stratum-industries",
+              "company_name": "Stratum Industries",
+              "score_before": 21,
+              "score_after": 11,
+              "score_delta": -10,
+              "rank_before": 119,
+              "rank_after": 119,
               "rank_delta": 0
             },
             {
               "company_id": "company-textsidekick",
               "company_name": "Sidekick",
               "score_before": 19,
-              "score_after": 11,
-              "score_delta": -8,
+              "score_after": 10,
+              "score_delta": -9,
               "rank_before": 127,
-              "rank_after": 118,
-              "rank_delta": 9
+              "rank_after": 127,
+              "rank_delta": 0
             },
             {
-              "company_id": "company-trident",
-              "company_name": "Trident",
-              "score_before": 25,
-              "score_after": 13,
-              "score_delta": -12,
-              "rank_before": 106,
-              "rank_after": 106,
+              "company_id": "company-trope",
+              "company_name": "Trope",
+              "score_before": 45,
+              "score_after": 24,
+              "score_delta": -21,
+              "rank_before": 39,
+              "rank_after": 39,
               "rank_delta": 0
             },
             {
@@ -37966,106 +37970,6 @@
             }
           ],
           "largest_changes": [
-            {
-              "company_id": "company-textsidekick",
-              "company_name": "Sidekick",
-              "score_before": 19,
-              "score_after": 11,
-              "score_delta": -8,
-              "rank_before": 127,
-              "rank_after": 118,
-              "rank_delta": 9
-            },
-            {
-              "company_id": "company-hardware-intelligence",
-              "company_name": "hardware intelligence",
-              "score_before": 21,
-              "score_after": 11,
-              "score_delta": -10,
-              "rank_before": 120,
-              "rank_after": 121,
-              "rank_delta": -1
-            },
-            {
-              "company_id": "company-spaceflow-technologies-inc",
-              "company_name": "SpaceFlow Technologies, Inc.",
-              "score_before": 21,
-              "score_after": 11,
-              "score_delta": -10,
-              "rank_before": 118,
-              "rank_after": 119,
-              "rank_delta": -1
-            },
-            {
-              "company_id": "company-stratum-industries",
-              "company_name": "Stratum Industries",
-              "score_before": 21,
-              "score_after": 11,
-              "score_delta": -10,
-              "rank_before": 119,
-              "rank_after": 120,
-              "rank_delta": -1
-            },
-            {
-              "company_id": "company-avoca-systems",
-              "company_name": "Avoca Systems",
-              "score_before": 19,
-              "score_after": 10,
-              "score_delta": -9,
-              "rank_before": 121,
-              "rank_after": 122,
-              "rank_delta": -1
-            },
-            {
-              "company_id": "company-daqstra",
-              "company_name": "Daqstra",
-              "score_before": 19,
-              "score_after": 10,
-              "score_delta": -9,
-              "rank_before": 122,
-              "rank_after": 123,
-              "rank_delta": -1
-            },
-            {
-              "company_id": "company-levocred-ai",
-              "company_name": "Levocred AI",
-              "score_before": 19,
-              "score_after": 10,
-              "score_delta": -9,
-              "rank_before": 123,
-              "rank_after": 124,
-              "rank_delta": -1
-            },
-            {
-              "company_id": "company-locke",
-              "company_name": "Locke",
-              "score_before": 19,
-              "score_after": 10,
-              "score_delta": -9,
-              "rank_before": 124,
-              "rank_after": 125,
-              "rank_delta": -1
-            },
-            {
-              "company_id": "company-pokerclubhub",
-              "company_name": "PokerClubHub",
-              "score_before": 19,
-              "score_after": 10,
-              "score_delta": -9,
-              "rank_before": 125,
-              "rank_after": 126,
-              "rank_delta": -1
-            },
-            {
-              "company_id": "company-rapidfolio",
-              "company_name": "Rapidfolio",
-              "score_before": 19,
-              "score_after": 10,
-              "score_delta": -9,
-              "rank_before": 126,
-              "rank_after": 127,
-              "rank_delta": -1
-            },
             {
               "company_id": "company-screenpipe",
               "company_name": "screenpipe",
@@ -38165,6 +38069,106 @@
               "rank_before": 9,
               "rank_after": 9,
               "rank_delta": 0
+            },
+            {
+              "company_id": "company-tsenta",
+              "company_name": "Tsenta",
+              "score_before": 58,
+              "score_after": 31,
+              "score_delta": -27,
+              "rank_before": 10,
+              "rank_after": 10,
+              "rank_delta": 0
+            },
+            {
+              "company_id": "company-vendo",
+              "company_name": "Vendo",
+              "score_before": 58,
+              "score_after": 31,
+              "score_delta": -27,
+              "rank_before": 11,
+              "rank_after": 11,
+              "rank_delta": 0
+            },
+            {
+              "company_id": "company-egoist-machines",
+              "company_name": "Egoist Machines",
+              "score_before": 55,
+              "score_after": 29,
+              "score_delta": -26,
+              "rank_before": 13,
+              "rank_after": 13,
+              "rank_delta": 0
+            },
+            {
+              "company_id": "company-wondering",
+              "company_name": "Wondering",
+              "score_before": 55,
+              "score_after": 29,
+              "score_delta": -26,
+              "rank_before": 14,
+              "rank_after": 14,
+              "rank_delta": 0
+            },
+            {
+              "company_id": "company-cosmic-robotics",
+              "company_name": "Cosmic Robotics",
+              "score_before": 53,
+              "score_after": 28,
+              "score_delta": -25,
+              "rank_before": 15,
+              "rank_after": 15,
+              "rank_delta": 0
+            },
+            {
+              "company_id": "company-nebula-security",
+              "company_name": "Nebula Security",
+              "score_before": 53,
+              "score_after": 28,
+              "score_delta": -25,
+              "rank_before": 16,
+              "rank_after": 16,
+              "rank_delta": 0
+            },
+            {
+              "company_id": "company-rekursivai",
+              "company_name": "rekursiv.ai",
+              "score_before": 53,
+              "score_after": 28,
+              "score_delta": -25,
+              "rank_before": 18,
+              "rank_after": 18,
+              "rank_delta": 0
+            },
+            {
+              "company_id": "company-stoa",
+              "company_name": "Stoa",
+              "score_before": 53,
+              "score_after": 28,
+              "score_delta": -25,
+              "rank_before": 17,
+              "rank_after": 17,
+              "rank_delta": 0
+            },
+            {
+              "company_id": "company-almanac",
+              "company_name": "Almanac",
+              "score_before": 51,
+              "score_after": 27,
+              "score_delta": -24,
+              "rank_before": 19,
+              "rank_after": 19,
+              "rank_delta": 0
+            },
+            {
+              "company_id": "company-contextdev",
+              "company_name": "Context.dev",
+              "score_before": 51,
+              "score_after": 27,
+              "score_delta": -24,
+              "rank_before": 20,
+              "rank_after": 20,
+              "rank_delta": 0
             }
           ]
         },
@@ -38227,8 +38231,8 @@
               "score_before": 10,
               "score_after": 10,
               "score_delta": 0,
-              "rank_before": 122,
-              "rank_after": 122,
+              "rank_before": 121,
+              "rank_after": 121,
               "rank_delta": 0
             },
             {
@@ -38347,8 +38351,8 @@
               "score_before": 10,
               "score_after": 10,
               "score_delta": 0,
-              "rank_before": 124,
-              "rank_after": 124,
+              "rank_before": 123,
+              "rank_after": 123,
               "rank_delta": 0
             },
             {
@@ -43031,10 +43035,10 @@
           },
           {
             "platform": "linkedin",
-            "evidence_rows_before": 280,
-            "evidence_rows_after": 274,
-            "scored_evidence_rows_before": 274,
-            "scored_evidence_rows_after": 274,
+            "evidence_rows_before": 278,
+            "evidence_rows_after": 272,
+            "scored_evidence_rows_before": 272,
+            "scored_evidence_rows_after": 272,
             "score_before": {
               "company_count": 174,
               "nonzero_company_count": 113,
@@ -43042,7 +43046,7 @@
                 "min": 0,
                 "p25": 0,
                 "median": 6,
-                "mean": 4.9023,
+                "mean": 4.8966,
                 "p75": 9,
                 "max": 11
               },
@@ -43085,15 +43089,6 @@
                 },
                 {
                   "rank": 5,
-                  "company_id": "company-textsidekick",
-                  "company_name": "Sidekick",
-                  "score": 11,
-                  "top_platform": "linkedin",
-                  "scored_evidence_rows": 5,
-                  "platforms_with_evidence": 1
-                },
-                {
-                  "rank": 6,
                   "company_id": "company-tsenta",
                   "company_name": "Tsenta",
                   "score": 11,
@@ -43102,7 +43097,7 @@
                   "platforms_with_evidence": 1
                 },
                 {
-                  "rank": 7,
+                  "rank": 6,
                   "company_id": "company-agnost-ai",
                   "company_name": "Agnost AI",
                   "score": 10,
@@ -43111,7 +43106,7 @@
                   "platforms_with_evidence": 1
                 },
                 {
-                  "rank": 8,
+                  "rank": 7,
                   "company_id": "company-codag",
                   "company_name": "Codag",
                   "score": 10,
@@ -43120,7 +43115,7 @@
                   "platforms_with_evidence": 1
                 },
                 {
-                  "rank": 9,
+                  "rank": 8,
                   "company_id": "company-dialogus",
                   "company_name": "Dialogus",
                   "score": 10,
@@ -43129,12 +43124,21 @@
                   "platforms_with_evidence": 1
                 },
                 {
-                  "rank": 10,
+                  "rank": 9,
                   "company_id": "company-gutgutgoose",
                   "company_name": "Gutgutgoose",
                   "score": 10,
                   "top_platform": "linkedin",
                   "scored_evidence_rows": 8,
+                  "platforms_with_evidence": 1
+                },
+                {
+                  "rank": 10,
+                  "company_id": "company-manufacturingintelligence",
+                  "company_name": "HERA",
+                  "score": 10,
+                  "top_platform": "linkedin",
+                  "scored_evidence_rows": 3,
                   "platforms_with_evidence": 1
                 }
               ],
@@ -43159,8 +43163,8 @@
                 },
                 {
                   "rank": 8,
-                  "company_id": "company-codag",
-                  "company_name": "Codag",
+                  "company_id": "company-dialogus",
+                  "company_name": "Dialogus",
                   "score": 10,
                   "top_platform": "linkedin",
                   "scored_evidence_rows": 2,
@@ -43168,11 +43172,11 @@
                 },
                 {
                   "rank": 14,
-                  "company_id": "company-onecli",
-                  "company_name": "OneCLI",
+                  "company_id": "company-rex-inc",
+                  "company_name": "Rex",
                   "score": 10,
                   "top_platform": "linkedin",
-                  "scored_evidence_rows": 2,
+                  "scored_evidence_rows": 3,
                   "platforms_with_evidence": 1
                 },
                 {
@@ -43436,7 +43440,7 @@
                 "min": 0,
                 "p25": 0,
                 "median": 6,
-                "mean": 4.9023,
+                "mean": 4.8966,
                 "p75": 9,
                 "max": 11
               },
@@ -43479,15 +43483,6 @@
                 },
                 {
                   "rank": 5,
-                  "company_id": "company-textsidekick",
-                  "company_name": "Sidekick",
-                  "score": 11,
-                  "top_platform": "linkedin",
-                  "scored_evidence_rows": 5,
-                  "platforms_with_evidence": 1
-                },
-                {
-                  "rank": 6,
                   "company_id": "company-tsenta",
                   "company_name": "Tsenta",
                   "score": 11,
@@ -43496,7 +43491,7 @@
                   "platforms_with_evidence": 1
                 },
                 {
-                  "rank": 7,
+                  "rank": 6,
                   "company_id": "company-agnost-ai",
                   "company_name": "Agnost AI",
                   "score": 10,
@@ -43505,7 +43500,7 @@
                   "platforms_with_evidence": 1
                 },
                 {
-                  "rank": 8,
+                  "rank": 7,
                   "company_id": "company-codag",
                   "company_name": "Codag",
                   "score": 10,
@@ -43514,7 +43509,7 @@
                   "platforms_with_evidence": 1
                 },
                 {
-                  "rank": 9,
+                  "rank": 8,
                   "company_id": "company-dialogus",
                   "company_name": "Dialogus",
                   "score": 10,
@@ -43523,12 +43518,21 @@
                   "platforms_with_evidence": 1
                 },
                 {
-                  "rank": 10,
+                  "rank": 9,
                   "company_id": "company-gutgutgoose",
                   "company_name": "Gutgutgoose",
                   "score": 10,
                   "top_platform": "linkedin",
                   "scored_evidence_rows": 8,
+                  "platforms_with_evidence": 1
+                },
+                {
+                  "rank": 10,
+                  "company_id": "company-manufacturingintelligence",
+                  "company_name": "HERA",
+                  "score": 10,
+                  "top_platform": "linkedin",
+                  "scored_evidence_rows": 3,
                   "platforms_with_evidence": 1
                 }
               ],
@@ -43553,8 +43557,8 @@
                 },
                 {
                   "rank": 8,
-                  "company_id": "company-codag",
-                  "company_name": "Codag",
+                  "company_id": "company-dialogus",
+                  "company_name": "Dialogus",
                   "score": 10,
                   "top_platform": "linkedin",
                   "scored_evidence_rows": 2,
@@ -43562,11 +43566,11 @@
                 },
                 {
                   "rank": 14,
-                  "company_id": "company-onecli",
-                  "company_name": "OneCLI",
+                  "company_id": "company-rex-inc",
+                  "company_name": "Rex",
                   "score": 10,
                   "top_platform": "linkedin",
-                  "scored_evidence_rows": 2,
+                  "scored_evidence_rows": 3,
                   "platforms_with_evidence": 1
                 },
                 {
@@ -44002,8 +44006,8 @@
                   "score_before": 10,
                   "score_after": 10,
                   "score_delta": 0,
-                  "rank_before": 12,
-                  "rank_after": 12,
+                  "rank_before": 11,
+                  "rank_after": 11,
                   "rank_delta": 0
                 },
                 {
@@ -44022,8 +44026,8 @@
                   "score_before": 10,
                   "score_after": 10,
                   "score_delta": 0,
-                  "rank_before": 13,
-                  "rank_after": 13,
+                  "rank_before": 12,
+                  "rank_after": 12,
                   "rank_delta": 0
                 },
                 {
@@ -48686,8 +48690,8 @@
           }
         ],
         "after_transformation": {
-          "before_evidence_rows": 14316,
-          "after_evidence_rows": 2567,
+          "before_evidence_rows": 14314,
+          "after_evidence_rows": 2565,
           "removed_row_count": 11749,
           "alias_changed_row_count": 131,
           "removed_by_reason": [
@@ -50620,10 +50624,10 @@
       },
       "perturbations": {
         "monotonicity": {
-          "eligible_scored_rows": 2567,
+          "eligible_scored_rows": 2565,
           "sampled_evidence_rows": 221,
           "sample_limit_per_platform": 40,
-          "sample_coverage": 0.0861,
+          "sample_coverage": 0.0862,
           "sample_selection": "Evenly spaced by production raw engagement within each platform.",
           "tested_evidence_rows": 221,
           "company_tests": 221,
@@ -50694,8 +50698,8 @@
                 "score_before": 10,
                 "score_after": 10,
                 "score_delta": 0,
-                "rank_before": 122,
-                "rank_after": 122,
+                "rank_before": 121,
+                "rank_after": 121,
                 "rank_delta": 0
               },
               {
@@ -50814,8 +50818,8 @@
                 "score_before": 10,
                 "score_after": 10,
                 "score_delta": 0,
-                "rank_before": 124,
-                "rank_after": 124,
+                "rank_before": 123,
+                "rank_after": 123,
                 "rank_delta": 0
               },
               {
@@ -51071,8 +51075,8 @@
                 "score_before": 10,
                 "score_after": 10,
                 "score_delta": 0,
-                "rank_before": 123,
-                "rank_after": 123,
+                "rank_before": 122,
+                "rank_after": 122,
                 "rank_delta": 0
               },
               {
@@ -51151,8 +51155,8 @@
                 "score_before": 10,
                 "score_after": 10,
                 "score_delta": 0,
-                "rank_before": 124,
-                "rank_after": 124,
+                "rank_before": 123,
+                "rank_after": 123,
                 "rank_delta": 0
               },
               {
@@ -51261,18 +51265,18 @@
                 "score_before": 11,
                 "score_after": 11,
                 "score_delta": 0,
-                "rank_before": 120,
-                "rank_after": 120,
+                "rank_before": 119,
+                "rank_after": 119,
                 "rank_delta": 0
               },
               {
                 "company_id": "company-textsidekick",
                 "company_name": "Sidekick",
-                "score_before": 11,
-                "score_after": 11,
+                "score_before": 10,
+                "score_after": 10,
                 "score_delta": 0,
-                "rank_before": 118,
-                "rank_after": 118,
+                "rank_before": 127,
+                "rank_after": 127,
                 "rank_delta": 0
               },
               {
@@ -51489,8 +51493,8 @@
                 "score_before": 10,
                 "score_after": 10,
                 "score_delta": 0,
-                "rank_before": 122,
-                "rank_after": 122,
+                "rank_before": 121,
+                "rank_after": 121,
                 "rank_delta": 0
               },
               {
@@ -51609,8 +51613,8 @@
                 "score_before": 10,
                 "score_after": 10,
                 "score_delta": 0,
-                "rank_before": 124,
-                "rank_after": 124,
+                "rank_before": 123,
+                "rank_after": 123,
                 "rank_delta": 0
               },
               {
@@ -74350,8 +74354,8 @@
   ],
   "invariants": {
     "policy": "Any failed invariant throws before artifact writes and makes the process exit nonzero; dirty-data findings such as rejections, missingness, duplicates, outliers, and concentration are diagnostic rather than invariant failures.",
-    "check_count": 13,
-    "passed_count": 13,
+    "check_count": 14,
+    "passed_count": 14,
     "violation_count": 0,
     "all_passed": true,
     "checks": [
@@ -74384,8 +74388,8 @@
       {
         "id": "input_envelope_hash_consistent",
         "passed": true,
-        "expected": "c43f4bf3ab582daca5c42d13f4ca20149fe9bfddaf30c3e0969ec24959bd3a83",
-        "observed": "c43f4bf3ab582daca5c42d13f4ca20149fe9bfddaf30c3e0969ec24959bd3a83"
+        "expected": "8af4d26fa983815074ddcc059a0a9ad2001003545c6e04e0690557be371c055d",
+        "observed": "8af4d26fa983815074ddcc059a0a9ad2001003545c6e04e0690557be371c055d"
       },
       {
         "id": "required_cohort_coverage",
@@ -74400,6 +74404,28 @@
           "S2026",
           "S26"
         ]
+      },
+      {
+        "id": "cohort_evidence_partition_exact",
+        "passed": true,
+        "expected": {
+          "cohort_evidence_rows": {
+            "S2026": 21107,
+            "S26": 14314,
+            "A16ZSR006": 9223
+          },
+          "cohort_entity_evidence_rows": 44644,
+          "invalid_batch_scope_evidence_rows": 0
+        },
+        "observed": {
+          "cohort_evidence_rows": {
+            "S2026": 21107,
+            "S26": 14314,
+            "A16ZSR006": 9223
+          },
+          "cohort_entity_evidence_rows": 44644,
+          "invalid_batch_scope_evidence_rows": 0
+        }
       },
       {
         "id": "company_rankings_complete_unique_ordered_and_bounded",

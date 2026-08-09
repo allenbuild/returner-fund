@@ -148,6 +148,7 @@ const WEIGHTED_PLATFORMS = Object.entries(TRACTION_SCORING_CONFIG.platformWeight
 const inputHashes = await buildInputHashManifest();
 assertExpectedInputHash(inputHashes);
 const cohortMemberships = entityCohortMemberships(yc2026GraphDataset);
+const cohortEvidencePartition = cohortEvidencePartitionObservation(yc2026GraphDataset);
 const cohortContexts = COHORT_SLUGS.map((slug) => buildCohortContext(slug));
 const cohortAudits = cohortContexts.map(runCohortAudit);
 const globalDuplicates = auditGlobalDuplicates();
@@ -412,7 +413,8 @@ function buildCohortContext(slug) {
   }
 
   const evidence = yc2026GraphDataset.evidence.flatMap((item, index) =>
-    entityIds.has(item.entityId)
+    entityIds.has(item.entityId) &&
+    resolvedEvidenceCohortSlug(item, cohortMemberships.get(item.entityId)) === slug
       ? [
           {
             ...item,
@@ -1681,6 +1683,12 @@ function buildGlobalSummary(cohorts, duplicates) {
   return {
     cohort_count: cohorts.length,
     company_count: cohorts.reduce((sum, cohort) => sum + cohort.input_counts.companies, 0),
+    source_dataset_evidence_rows: yc2026GraphDataset.evidence.length,
+    cohort_entity_evidence_rows: cohortEvidencePartition.cohortEntityEvidenceRows,
+    inferred_batch_scope_evidence_rows:
+      cohortEvidencePartition.inferredBatchScopeEvidenceRows,
+    invalid_batch_scope_evidence_rows:
+      cohortEvidencePartition.invalidBatchScopeEvidenceRows,
     cohort_scoped_evidence_rows: cohorts.reduce(
       (sum, cohort) => sum + cohort.input_counts.evidence_rows,
       0
@@ -1835,6 +1843,10 @@ function buildInvariantResults(payload) {
       .join("")
   );
   const cohortSlugs = payload.cohorts.map((cohort) => cohort.cohort).sort(compareText);
+  const expectedCohortEvidenceRows = cohortEvidencePartition.byCohort;
+  const observedCohortEvidenceRows = Object.fromEntries(
+    payload.cohorts.map((cohort) => [cohort.cohort, cohort.input_counts.evidence_rows])
+  );
   const rankingViolationCount = payload.cohorts.reduce((sum, cohort) => {
     const observations = cohort.invariant_observations;
     return (
@@ -1942,6 +1954,27 @@ function buildInvariantResults(payload) {
       canonicalJson(cohortSlugs) === canonicalJson([...COHORT_SLUGS].sort(compareText)),
       [...COHORT_SLUGS].sort(compareText),
       cohortSlugs
+    ),
+    invariantCheck(
+      "cohort_evidence_partition_exact",
+      canonicalJson(observedCohortEvidenceRows) ===
+        canonicalJson(expectedCohortEvidenceRows) &&
+        payload.global_summary.cohort_scoped_evidence_rows ===
+          cohortEvidencePartition.cohortEntityEvidenceRows &&
+        cohortEvidencePartition.invalidBatchScopeEvidenceRows === 0,
+      {
+        cohort_evidence_rows: expectedCohortEvidenceRows,
+        cohort_entity_evidence_rows:
+          cohortEvidencePartition.cohortEntityEvidenceRows,
+        invalid_batch_scope_evidence_rows: 0
+      },
+      {
+        cohort_evidence_rows: observedCohortEvidenceRows,
+        cohort_entity_evidence_rows:
+          payload.global_summary.cohort_scoped_evidence_rows,
+        invalid_batch_scope_evidence_rows:
+          cohortEvidencePartition.invalidBatchScopeEvidenceRows
+      }
     ),
     invariantCheck(
       "company_rankings_complete_unique_ordered_and_bounded",
@@ -2477,6 +2510,42 @@ function entityCohortMemberships(dataset) {
     );
   }
   return memberships;
+}
+
+function cohortEvidencePartitionObservation(dataset) {
+  const memberships = entityCohortMemberships(dataset);
+  const byCohort = Object.fromEntries(COHORT_SLUGS.map((slug) => [slug, 0]));
+  let cohortEntityEvidenceRows = 0;
+  let inferredBatchScopeEvidenceRows = 0;
+  let invalidBatchScopeEvidenceRows = 0;
+
+  for (const item of dataset.evidence) {
+    const entityMemberships = memberships.get(item.entityId);
+    if (!entityMemberships) continue;
+    cohortEntityEvidenceRows += 1;
+    const resolvedSlug = resolvedEvidenceCohortSlug(item, entityMemberships);
+    if (!resolvedSlug || !(resolvedSlug in byCohort)) {
+      invalidBatchScopeEvidenceRows += 1;
+      continue;
+    }
+    if (!item.batchSlug) inferredBatchScopeEvidenceRows += 1;
+    byCohort[resolvedSlug] += 1;
+  }
+
+  return {
+    byCohort,
+    cohortEntityEvidenceRows,
+    inferredBatchScopeEvidenceRows,
+    invalidBatchScopeEvidenceRows
+  };
+}
+
+function resolvedEvidenceCohortSlug(item, memberships) {
+  if (!memberships || memberships.size === 0) return null;
+  if (typeof item.batchSlug === "string" && item.batchSlug.trim()) {
+    return memberships.has(item.batchSlug) ? item.batchSlug : null;
+  }
+  return memberships.size === 1 ? [...memberships][0] : null;
 }
 
 function evidenceReference(item, context) {

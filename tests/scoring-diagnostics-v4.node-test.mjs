@@ -136,6 +136,19 @@ test(
     assert.equal(audit.invariants.all_passed, true);
     assert.equal(audit.invariants.violation_count, 0);
     assert.equal(audit.invariants.checks.every((check) => check.passed), true);
+    assert.equal(
+      audit.global_summary.cohort_scoped_evidence_rows,
+      audit.global_summary.cohort_entity_evidence_rows
+    );
+    assert.equal(audit.global_summary.invalid_batch_scope_evidence_rows, 0);
+    const cohortPartition = audit.invariants.checks.find(
+      (check) => check.id === "cohort_evidence_partition_exact"
+    );
+    assert.equal(cohortPartition?.passed, true);
+    assert.deepEqual(
+      cohortPartition?.observed.cohort_evidence_rows,
+      cohortPartition?.expected.cohort_evidence_rows
+    );
 
     const versionedInputs = audit.metadata.input_hashes.versioned_scoring_inputs;
     assert.equal(versionedInputs.parameters.length, versionedInputs.parameter_count);
