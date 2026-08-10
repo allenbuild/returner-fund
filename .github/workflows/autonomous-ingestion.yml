@@ -332,7 +332,7 @@ jobs:
           } >> "$GITHUB_OUTPUT"
 
       - name: Validate generated public artifacts
-        timeout-minutes: 5
+        timeout-minutes: 10
         run: |
           npm run artifacts:validate
           npm run artifacts:manifest:validate
@@ -912,7 +912,7 @@ jobs:
           assert.equal(typeof receipt.receiptRecognized, "boolean");
           assert.equal(typeof receipt.commitProofValid, "boolean");
           assert.equal(typeof receipt.commitRepositoryVerified, "boolean");
-          assert.ok(receipt.recoveryMethod === null || ["verified_output", "runner_output", "trailers"].includes(receipt.recoveryMethod));
+          assert.ok(receipt.recoveryMethod === null || ["none", "verified_output", "runner_output", "trailers"].includes(receipt.recoveryMethod));
           for (const field of [
             "providerBlocked",
             "mappedProviderBlocked",

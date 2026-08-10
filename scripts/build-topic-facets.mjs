@@ -213,8 +213,14 @@ async function runCli() {
   }
 
   writeTopicFacetSnapshotsAtomically(snapshots);
+  const written = validateTopicFacetSnapshots(snapshots);
+  if (!written.valid) {
+    throw new Error(
+      `Topic facet publication verification failed for ${written.stalePaths.join(", ")}.`
+    );
+  }
   console.log(JSON.stringify({
-    status: "written",
+    status: "written_and_validated",
     paths: snapshots.map((snapshot) => snapshot.displayPath)
   }));
 }

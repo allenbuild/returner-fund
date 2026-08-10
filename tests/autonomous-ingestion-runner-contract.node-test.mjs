@@ -2041,10 +2041,12 @@ describe("autonomous ingestion runner static safety contracts", () => {
     const graphIndex = publicationBuild.indexOf('"scripts/update-daily-benchmarks.mjs"');
     const timelineIndex = publicationBuild.indexOf('"scripts/validate-timeline-artifacts.mjs"');
     const prepareIndex = publicationBuild.indexOf('label: "compact graph runtime preparation"');
-    const topicBuildIndex = publicationBuild.indexOf('label: "topic facet regeneration"');
-    const rankedBuildIndex = publicationBuild.indexOf('label: "Ranked Posts sidecar regeneration"');
-    const topicValidateIndex = publicationBuild.indexOf('label: "topic facet validation"');
-    const rankedValidateIndex = publicationBuild.indexOf('label: "Ranked Posts sidecar validation"');
+    const topicBuildIndex = publicationBuild.indexOf(
+      'label: "topic facet regeneration and validation"'
+    );
+    const rankedBuildIndex = publicationBuild.indexOf(
+      'label: "Ranked Posts sidecar regeneration and validation"'
+    );
     const scoringIndex = publicationBuild.indexOf('label: "scoring diagnostics regeneration"');
     const manifestIndex = publicationBuild.indexOf('label: "artifact manifest"');
     const validationIndex = publicationBuild.indexOf('label: "artifact validation"');
@@ -2055,11 +2057,21 @@ describe("autonomous ingestion runner static safety contracts", () => {
       prepareIndex > timelineIndex &&
       topicBuildIndex > prepareIndex &&
       rankedBuildIndex > topicBuildIndex &&
-      topicValidateIndex > rankedBuildIndex &&
-      rankedValidateIndex > topicValidateIndex &&
-      scoringIndex > rankedValidateIndex &&
+      scoringIndex > rankedBuildIndex &&
       manifestIndex > scoringIndex &&
       validationIndex > manifestIndex
+    );
+    assert.equal(
+      (publicationBuild.match(/"scripts\/build-topic-facets\.mjs"/g) ?? []).length,
+      1
+    );
+    assert.equal(
+      (publicationBuild.match(/"scripts\/build-ranked-posts-sidecar\.mjs"/g) ?? []).length,
+      1
+    );
+    assert.equal(
+      (publicationBuild.match(/`--max-old-space-size=\$\{FULL_CORPUS_NODE_HEAP_MB\}`/g) ?? []).length,
+      4
     );
     assert.doesNotMatch(publicationBuild, /node_modules\/next|production build|npm\s+(?:run|ci)/);
     assert.ok(artifactPaths.includes('"public/graph"'));

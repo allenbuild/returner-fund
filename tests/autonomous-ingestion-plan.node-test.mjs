@@ -909,8 +909,13 @@ globalThis.fetch = async (input) => {
     assert.equal(AUTONOMOUS_PROCESS_BUDGETS.collectorRateLimitRetryDelayMs, 65_000);
     assert.equal(AUTONOMOUS_PROCESS_BUDGETS.publicCollectorAttemptMs, 70 * 60_000);
     assert.equal(AUTONOMOUS_PROCESS_BUDGETS.collectorCheckpointFlushMs, 2 * 60_000);
+    assert.equal(AUTONOMOUS_PROCESS_BUDGETS.benchmarkPublicationMs, 8 * 60_000);
+    assert.equal(AUTONOMOUS_PROCESS_BUDGETS.timelineDiscoveryMs, 6 * 60_000);
     assert.equal(AUTONOMOUS_PROCESS_BUDGETS.timelineDiscoveryCommandHeadroomMs, 30_000);
-    assert.equal(AUTONOMOUS_PROCESS_BUDGETS.scoringDiagnosticsMs, 3 * 60_000);
+    assert.equal(AUTONOMOUS_PROCESS_BUDGETS.timelineBackfillMs, 6 * 60_000);
+    assert.equal(AUTONOMOUS_PROCESS_BUDGETS.scoringDiagnosticsMs, 6 * 60_000);
+    assert.equal(AUTONOMOUS_PROCESS_BUDGETS.artifactValidationMs, 3 * 60_000);
+    assert.equal(AUTONOMOUS_PROCESS_BUDGETS.derivedArtifactMs, 6 * 60_000);
     assert.equal(AUTONOMOUS_PROCESS_BUDGETS.durablePersistenceHeadroomMs, 25 * 60_000);
     assert.equal(AUTONOMOUS_PROCESS_BUDGETS.lockReleaseHeadroomMs, 2 * 60_000);
     assert.ok(maxAutonomousRunnerProcessBudgetMs() < runnerTimeoutMs);
@@ -924,8 +929,12 @@ globalThis.fetch = async (input) => {
 
     assert.equal(maxAutonomousRunnerProcessBudgetMs({
       ...zeroBudgets,
-      productionBuildMs: 1
-    }), 4, "two builds must be budgeted for both initial publication and retry");
+      derivedArtifactMs: 1
+    }), 4, "two combined derived-artifact passes must be budgeted for both publication attempts");
+    assert.equal(maxAutonomousRunnerProcessBudgetMs({
+      ...zeroBudgets,
+      scoringDiagnosticsMs: 1
+    }), 2, "scoring diagnostics must be budgeted for both publication attempts");
     assert.equal(maxAutonomousRunnerProcessBudgetMs({
       ...zeroBudgets,
       artifactValidationMs: 1

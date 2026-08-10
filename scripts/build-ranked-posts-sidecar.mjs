@@ -344,9 +344,14 @@ export async function main(rawArgs = process.argv.slice(2)) {
   }
 
   const temporary = `${outputPath}.${process.pid}.tmp`;
-  await writeFile(temporary, `${JSON.stringify(snapshot)}\n`, "utf8");
+  const serialized = `${JSON.stringify(snapshot)}\n`;
+  await writeFile(temporary, serialized, "utf8");
   await rename(temporary, outputPath);
-  process.stdout.write(`${JSON.stringify(summary(snapshot, "written"))}\n`);
+  const written = await readFile(outputPath, "utf8");
+  if (written !== serialized) {
+    throw new Error("Ranked Posts sidecar publication verification failed after atomic rename.");
+  }
+  process.stdout.write(`${JSON.stringify(summary(snapshot, "written_and_validated"))}\n`);
   return snapshot;
 }
 

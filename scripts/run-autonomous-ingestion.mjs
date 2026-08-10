@@ -202,6 +202,7 @@ const COLLECTOR_RESUME_MAX_AGE_MS = 12 * 60 * 60_000;
 const PROCESS_DESCENDANT_SAMPLE_MS = 250;
 const PROCESS_NORMAL_EXIT_DRAIN_MS = 500;
 const CHILD_PROCESS_LEDGER_MAX_ENTRIES = 4_096;
+const FULL_CORPUS_NODE_HEAP_MB = 3_072;
 const GIT_PUSH_RETRYABLE_EXIT_CODES = new Set([128, 129, 130, 137, 143]);
 
 const SAFE_CHILD_ENV_KEYS = Object.freeze([
@@ -4284,6 +4285,7 @@ async function buildAndValidatePublication(publicationRunId, catalogState) {
     cwd: targetRoot
   });
   await runCommand(process.execPath, [
+    `--max-old-space-size=${FULL_CORPUS_NODE_HEAP_MB}`,
     "--experimental-strip-types",
     "--loader",
     sourcePath("scripts", "lib", "scoring-diagnostics-ts-loader.mjs"),
@@ -4364,6 +4366,7 @@ async function buildAndValidatePublication(publicationRunId, catalogState) {
     cwd: targetRoot
   });
   await runCommand(process.execPath, [
+    `--max-old-space-size=${FULL_CORPUS_NODE_HEAP_MB}`,
     "--experimental-strip-types",
     "--loader",
     sourcePath("scripts", "lib", "scoring-diagnostics-ts-loader.mjs"),
@@ -4371,12 +4374,13 @@ async function buildAndValidatePublication(publicationRunId, catalogState) {
     `--root=${targetRoot}`
   ], {
     timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.derivedArtifactMs,
-    label: "topic facet regeneration",
+    label: "topic facet regeneration and validation",
     envCategory: "publication_data",
     env: { SCORING_DATA_ROOT: targetRoot },
     cwd: targetRoot
   });
   await runCommand(process.execPath, [
+    `--max-old-space-size=${FULL_CORPUS_NODE_HEAP_MB}`,
     "--experimental-strip-types",
     "--loader",
     sourcePath("scripts", "lib", "scoring-diagnostics-ts-loader.mjs"),
@@ -4384,40 +4388,13 @@ async function buildAndValidatePublication(publicationRunId, catalogState) {
     `--root=${targetRoot}`
   ], {
     timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.derivedArtifactMs,
-    label: "Ranked Posts sidecar regeneration",
+    label: "Ranked Posts sidecar regeneration and validation",
     envCategory: "publication_data",
     env: { SCORING_DATA_ROOT: targetRoot },
     cwd: targetRoot
   });
   await runCommand(process.execPath, [
-    "--experimental-strip-types",
-    "--loader",
-    sourcePath("scripts", "lib", "scoring-diagnostics-ts-loader.mjs"),
-    sourcePath("scripts", "build-topic-facets.mjs"),
-    "--validate",
-    `--root=${targetRoot}`
-  ], {
-    timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.derivedArtifactMs,
-    label: "topic facet validation",
-    envCategory: "publication_data",
-    env: { SCORING_DATA_ROOT: targetRoot },
-    cwd: targetRoot
-  });
-  await runCommand(process.execPath, [
-    "--experimental-strip-types",
-    "--loader",
-    sourcePath("scripts", "lib", "scoring-diagnostics-ts-loader.mjs"),
-    sourcePath("scripts", "build-ranked-posts-sidecar.mjs"),
-    "--validate",
-    `--root=${targetRoot}`
-  ], {
-    timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.derivedArtifactMs,
-    label: "Ranked Posts sidecar validation",
-    envCategory: "publication_data",
-    env: { SCORING_DATA_ROOT: targetRoot },
-    cwd: targetRoot
-  });
-  await runCommand(process.execPath, [
+    `--max-old-space-size=${FULL_CORPUS_NODE_HEAP_MB}`,
     "--experimental-strip-types",
     "--loader",
     sourcePath("scripts", "lib", "scoring-diagnostics-ts-loader.mjs"),

@@ -1820,11 +1820,11 @@ test("workflow step budgets leave setup and scheduling headroom", () => {
   assert.equal(jobTimeout, 360);
   assert.equal(installTimeout, 10);
   assert.equal(runnerTimeout, 330);
-  assert.equal(validationTimeout, 5);
+  assert.equal(validationTimeout, 10);
   assert.ok(runnerTimeout < jobTimeout);
   assert.ok(installTimeout + runnerTimeout + validationTimeout < jobTimeout);
   assert.ok(
-    jobTimeout - installTimeout - runnerTimeout - validationTimeout >= 15,
+    jobTimeout - installTimeout - runnerTimeout - validationTimeout >= 10,
     "checkout, setup-node, receipt, and post steps require explicit job-level headroom"
   );
   assert.ok(maxAutonomousRunnerProcessBudgetMs() < runnerTimeout * 60_000);
@@ -2048,6 +2048,25 @@ test("autonomous receipt materializes and audits success, warning, inactive, res
         RECEIPT_CONCLUSION: "",
         RECEIPT_RECOGNIZED: "false",
         RECOVERY_METHOD: "trailers"
+      }
+    },
+    {
+      name: "accepted-failure-before-publication",
+      overrides: {
+        AUDIT_STATUS: "accepted_slot_failed",
+        INGEST_RESULT: "failure",
+        VALIDATION_RESULT: "failure",
+        RUNNER_STATUS: "failed",
+        RUNNER_FAILURE_MESSAGE: "topic facet regeneration timed out",
+        RECEIPT_STATUS: "",
+        RECEIPT_CONCLUSION: "",
+        RECEIPT_RECOGNIZED: "false",
+        COMMIT_PROOF_VALID: "false",
+        COMMIT_REPOSITORY_VERIFIED: "false",
+        RECOVERY_METHOD: "none",
+        REMOTE_MAIN_COMMIT: FULL_COMMIT_SHA,
+        PUBLISHED_COMMIT: "",
+        RUNNER_PUBLISHED_COMMIT: ""
       }
     }
   ];

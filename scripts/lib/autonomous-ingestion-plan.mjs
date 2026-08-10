@@ -83,15 +83,18 @@ export const AUTONOMOUS_PROCESS_BUDGETS = Object.freeze({
   collectorCheckpointFlushMs: 2 * MINUTE_MS,
   githubCollectorAttemptMs: 20 * MINUTE_MS,
   topVoiceCollectorMs: 22 * MINUTE_MS,
-  productionBuildMs: 10 * MINUTE_MS,
-  benchmarkPublicationMs: 6 * MINUTE_MS,
-  timelineDiscoveryMs: 4 * MINUTE_MS,
+  benchmarkPublicationMs: 8 * MINUTE_MS,
+  timelineDiscoveryMs: 6 * MINUTE_MS,
   timelineDiscoveryCommandHeadroomMs: 30_000,
-  timelineBackfillMs: 4 * MINUTE_MS,
-  scoringDiagnosticsMs: 3 * MINUTE_MS,
+  timelineBackfillMs: 6 * MINUTE_MS,
+  scoringDiagnosticsMs: 6 * MINUTE_MS,
   artifactManifestMs: MINUTE_MS,
-  artifactValidationMs: 2.5 * MINUTE_MS,
-  derivedArtifactMs: 3.25 * MINUTE_MS,
+  artifactValidationMs: 3 * MINUTE_MS,
+  // Topic facets and Ranked Posts each rebuild all 43k+ attributable posts.
+  // Linux runners are roughly twice as slow as local development for these
+  // serial, memory-heavy passes, so each combined build-and-verify command
+  // receives a bounded six-minute window.
+  derivedArtifactMs: 6 * MINUTE_MS,
   gitConfigMs: 30_000,
   gitStageMs: MINUTE_MS,
   gitDiffMs: 30_000,
@@ -131,13 +134,11 @@ export function maxAutonomousRunnerProcessBudgetMs(budgets = AUTONOMOUS_PROCESS_
   const catalogRefreshWindow = budgets.catalogRefreshMs + budgets.processKillGraceMs;
   const publicationBaseSynchronizationWindow =
     2 * budgets.gitPushMs; // initial fetch + rebase
-  // buildAndValidatePublication() builds once for the benchmark server and a
-  // second time after graph/timeline generation. Five compact validation
-  // commands use artifactValidationMs (two runtime preparations, Timeline,
-  // cohort audit, and final artifact validation), while the four full-corpus
-  // topic/Ranked Posts build and validation commands use derivedArtifactMs.
+  // Five compact validation commands use artifactValidationMs (two runtime
+  // preparations, Timeline, cohort audit, and final artifact validation).
+  // Topic facets and Ranked Posts validate the bytes they write in-process,
+  // so each publication attempt has two, not four, full-corpus commands.
   const publicationBuildWindow =
-    (2 * budgets.productionBuildMs) +
     budgets.benchmarkPublicationMs +
     budgets.timelineDiscoveryMs +
     budgets.timelineDiscoveryCommandHeadroomMs +
@@ -145,7 +146,7 @@ export function maxAutonomousRunnerProcessBudgetMs(budgets = AUTONOMOUS_PROCESS_
     budgets.scoringDiagnosticsMs +
     budgets.artifactManifestMs +
     (5 * budgets.artifactValidationMs) +
-    (4 * budgets.derivedArtifactMs);
+    (2 * budgets.derivedArtifactMs);
   const initialPublicationWindow =
     publicationBuildWindow +
     (2 * budgets.gitConfigMs) +

@@ -63,7 +63,7 @@ describe("topic facet full-source parity", () => {
       expect(foreignUnscopedPostKeys.size).toBeGreaterThan(0);
       expect(actualRows.some((row) => foreignUnscopedPostKeys.has(row.postKey))).toBe(false);
     }
-  }, 180_000);
+  }, 300_000);
 });
 
 function readSnapshot(filename: string): TopicFacetSnapshot {
