@@ -1,4 +1,5 @@
 import type { EvidenceItem, GraphResponse } from "./types";
+import { scoringEligibility } from "./traction-scoring";
 
 interface SanitizeGraphOptions {
   includeRaw?: boolean;
@@ -23,10 +24,12 @@ export function sanitizeGraphResponse(
   const eligibleEvidence = graph.evidence.filter(
     (item) => options.includeNonScoring || item.contributionScore > 0 || item.tractionStatus === "unscored"
   );
+  const maxEvidence = publicEvidenceLimit(options.maxEvidence);
   const rawEvidence = limitPublicEvidence(
     eligibleEvidence,
-    options.maxEvidence ?? PUBLIC_GRAPH_EVIDENCE_LIMIT
+    maxEvidence
   );
+  const evidenceProjection = buildEvidenceProjection(eligibleEvidence, rawEvidence, maxEvidence);
   const evidenceIdByOriginalId = new Map(
     rawEvidence.map((item, index) => [item.id, compactIds ? `ev-${index.toString(36)}` : item.id])
   );
@@ -43,6 +46,7 @@ export function sanitizeGraphResponse(
 
   return {
     ...graph,
+    evidenceProjection,
     nodes: graph.nodes.map((node) => ({
       ...node,
       evidenceIds: compactEvidenceIds(node.evidenceIds, evidenceIdByOriginalId),
@@ -57,17 +61,14 @@ export function sanitizeGraphResponse(
       ...row,
       topVoiceConnections: compactTopVoiceConnectionEvidenceIds(row.topVoiceConnections, evidenceIdByOriginalId),
       biggestContribution: row.biggestContribution
-        ? evidenceByOriginalId.get(row.biggestContribution.id) ??
-          sanitizeEvidenceItem(row.biggestContribution, evidenceIdByOriginalId.get(row.biggestContribution.id), {
-            includeWhy
-          })
+        ? evidenceByOriginalId.get(row.biggestContribution.id) ?? null
         : null
     }))
   };
 }
 
 function limitPublicEvidence(evidence: EvidenceItem[], maxEvidence: number): EvidenceItem[] {
-  if (!Number.isFinite(maxEvidence) || maxEvidence <= 0 || evidence.length <= maxEvidence) {
+  if (evidence.length <= maxEvidence) {
     return evidence;
   }
   return [...evidence]
@@ -78,6 +79,36 @@ function limitPublicEvidence(evidence: EvidenceItem[], maxEvidence: number): Evi
         left.id.localeCompare(right.id)
     )
     .slice(0, Math.floor(maxEvidence));
+}
+
+function publicEvidenceLimit(requestedLimit: number | undefined): number {
+  if (requestedLimit === undefined) return PUBLIC_GRAPH_EVIDENCE_LIMIT;
+  if (!Number.isFinite(requestedLimit) || requestedLimit <= 0) return 0;
+  return Math.min(PUBLIC_GRAPH_EVIDENCE_LIMIT, Math.floor(requestedLimit));
+}
+
+function buildEvidenceProjection(
+  sourceEvidence: EvidenceItem[],
+  retainedEvidence: EvidenceItem[],
+  maxEvidence: number
+): GraphResponse["evidenceProjection"] {
+  if (retainedEvidence.length === sourceEvidence.length) return undefined;
+
+  const sourcePositiveEvidenceCount = sourceEvidence.filter(isPositiveScoringEvidence).length;
+  const retainedPositiveEvidenceCount = retainedEvidence.filter(isPositiveScoringEvidence).length;
+  return {
+    maxEvidence: Math.floor(maxEvidence),
+    sourceEvidenceCount: sourceEvidence.length,
+    retainedEvidenceCount: retainedEvidence.length,
+    omittedEvidenceCount: sourceEvidence.length - retainedEvidence.length,
+    sourcePositiveEvidenceCount,
+    retainedPositiveEvidenceCount,
+    omittedPositiveEvidenceCount: sourcePositiveEvidenceCount - retainedPositiveEvidenceCount
+  };
+}
+
+function isPositiveScoringEvidence(item: EvidenceItem): boolean {
+  return item.contributionScore > 0 && scoringEligibility(item).eligible;
 }
 
 function compactTopVoiceConnectionEvidenceIds<

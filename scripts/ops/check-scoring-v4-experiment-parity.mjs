@@ -53,6 +53,7 @@ export async function main(
   try {
     await mkdir(path.join(temporaryRoot, "outputs"), { recursive: true });
     await Promise.all([
+      cp(path.join(rootDir, "package.json"), path.join(temporaryRoot, "package.json")),
       cp(path.join(rootDir, "src"), path.join(temporaryRoot, "src"), { recursive: true }),
       cp(path.join(rootDir, "scripts"), path.join(temporaryRoot, "scripts"), { recursive: true }),
       symlink(path.join(rootDir, "node_modules"), path.join(temporaryRoot, "node_modules"), "dir"),

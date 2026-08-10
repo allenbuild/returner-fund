@@ -5,8 +5,8 @@
     "slug": "rentahuman",
     "name": "RentAHuman"
   },
-  "generatedAt": "2026-08-09T22:27:16.508Z",
-  "lastModifiedAt": "2026-08-09T22:27:16.508Z",
+  "generatedAt": "2026-08-10T05:38:30.818Z",
+  "lastModifiedAt": "2026-08-10T05:38:30.818Z",
   "events": [
     {
       "id": "tle-f6c372a4efe468b2b6f7a607",
@@ -71,7 +71,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 2,
-    "lastSuccessfulArtifactAt": "2026-08-09T22:27:16.508Z"
+    "lastSuccessfulArtifactAt": "2026-08-10T05:38:30.818Z"
   },
   "nextCursor": null
 }

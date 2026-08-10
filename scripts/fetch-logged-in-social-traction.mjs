@@ -1,11 +1,16 @@
+import { createClient } from "@supabase/supabase-js";
 import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import { dirname, join, resolve as resolvePath } from "node:path";
-import { runOpenCli as executeOpenCli } from "./lib/opencli-runtime.mjs";
+import {
+  runOpenCli as executeOpenCli,
+  sanitizeOpenCliDiagnostic
+} from "./lib/opencli-runtime.mjs";
 import {
   linkedinPostIdFromUrl
 } from "./lib/social-native-identity.mjs";
 import {
   createLinkedInInteractionPacer,
+  createSupabaseLinkedInGlobalLeaseProvider,
   linkedinCircuitStateTransition,
   linkedinCollectionAttemptState,
   linkedinExecutionPolicy,
@@ -161,6 +166,7 @@ let linkedinCircuitReason = null;
 let consecutiveInstagramCollectionFailures = 0;
 let instagramCircuitOpen = false;
 let instagramCircuitReason = null;
+let cachedLinkedInGlobalLockConfiguration = null;
 
 const ycSnapshot = normalizeCollectorSnapshot(
   JSON.parse(await readFile(ycSnapshotPath, "utf8")),
@@ -376,7 +382,8 @@ if (planOnly) {
   process.exit(0);
 }
 
-async function collectTarget(target, workerIndex) {
+async function collectTarget(target, workerIndex, collectionGuard = null) {
+  collectionGuard?.assertHealthy?.();
   if (target.platform === "x" && xCircuitOpen) return;
   if (target.platform === "linkedin" && linkedinCircuitOpen) return;
   if (target.platform === "instagram" && instagramCircuitOpen) return;
@@ -396,10 +403,11 @@ async function collectTarget(target, workerIndex) {
   try {
     const result =
       target.platform === "linkedin"
-        ? await fetchLinkedInPosts(target, workerIndex)
+        ? await fetchLinkedInPosts(target, workerIndex, collectionGuard)
         : target.platform === "instagram"
           ? await fetchInstagramPosts(target, workerIndex)
           : await fetchXTweets(target, workerIndex);
+    collectionGuard?.assertHealthy?.();
     if (force) removeTargetEvidence(target);
     removeTargetFailures(target);
     addItems(result.evidence, evidence);
@@ -472,13 +480,19 @@ await runWorkerPool(otherTargets, workers, async (target, workerIndex) => {
 });
 
 if (linkedinTargets.length > 0) {
-  await withLinkedInAccountLock(() =>
-    runLinkedInSerialLane(linkedinTargets, collectTarget, {
-      delayMs: linkedinExecution.delayMs,
-      sleep: delay,
-      shouldAbort: () => linkedinCircuitOpen,
-      targetCap: linkedinExecution.targetCap
-    })
+  const globalLock = requiredLinkedInGlobalLockConfiguration();
+  await withLinkedInAccountLock(
+    ({ signal, assertHealthy }) =>
+      runLinkedInSerialLane(linkedinTargets, (target, workerIndex) => {
+        assertHealthy();
+        return collectTarget(target, workerIndex, { signal, assertHealthy });
+      }, {
+        delayMs: linkedinExecution.delayMs,
+        sleep: delay,
+        shouldAbort: () => linkedinCircuitOpen || signal.aborted,
+        targetCap: linkedinExecution.targetCap
+      }),
+    globalLock
   );
 }
 
@@ -948,7 +962,8 @@ function dedupeTargets(targets) {
   ];
 }
 
-async function fetchLinkedInPosts(target, workerIndex) {
+async function fetchLinkedInPosts(target, workerIndex, collectionGuard = null) {
+  collectionGuard?.assertHealthy?.();
   if (!urlMatchesPlatform(target.url, "linkedin")) {
     return {
       evidence: [],
@@ -979,7 +994,8 @@ async function fetchLinkedInPosts(target, workerIndex) {
       const browserPosts = await fetchLinkedInPostsFromBrowser(
         target,
         workerIndex,
-        activityUrl
+        activityUrl,
+        collectionGuard
       );
       postGroups.push(browserPosts);
       const attributableBrowserPosts = mergeOwnedLinkedInPosts(
@@ -1073,7 +1089,12 @@ async function fetchLinkedInPosts(target, workerIndex) {
   };
 }
 
-async function fetchLinkedInPostsFromBrowser(target, workerIndex, activityUrl) {
+async function fetchLinkedInPostsFromBrowser(
+  target,
+  workerIndex,
+  activityUrl,
+  collectionGuard = null
+) {
   const session =
     `yc-li-${workerIndex}-${slugify(target.entityId || target.name)}-${Date.now()}`;
   return withOpenCliBrowserSession({
@@ -1082,9 +1103,14 @@ async function fetchLinkedInPostsFromBrowser(target, workerIndex, activityUrl) {
     operation: async () => {
       const interactionPacer = createLinkedInInteractionPacer({ sleep: delay });
       const interact = async (args, options, { optional = false, label } = {}) => {
+        collectionGuard?.assertHealthy?.();
         await interactionPacer.beforeInteraction();
         try {
-          const raw = await runOpenCli(args, options);
+          const raw = await runOpenCli(args, {
+            ...options,
+            signal: collectionGuard?.signal
+          });
+          collectionGuard?.assertHealthy?.();
           assertLinkedInSafetyClear(raw, label ?? args.slice(2).join(" "));
           return raw;
         } catch (error) {
@@ -1127,8 +1153,15 @@ async function fetchLinkedInPostsFromBrowser(target, workerIndex, activityUrl) {
         { timeoutMs: perTargetTimeoutMs },
         { label: "browser DOM extraction" }
       );
-      await probeSafety();
-      return parseJsonOutput(raw);
+      const safetyProbe = await probeSafety();
+      const posts = parseJsonOutput(raw);
+      // The post-extraction probe is a hard boundary: an empty result behind
+      // a login wall is an authentication failure, never a completed empty
+      // timeline that can be checkpointed.
+      if (posts.length === 0) {
+        assertLinkedInSafetyClear(safetyProbe, "empty browser DOM extraction");
+      }
+      return posts;
     }
   });
 }
@@ -1232,7 +1265,15 @@ async function fetchInstagramPosts(target, workerIndex) {
     };
   }
   const detailItems = instagramFetchDetails
-    ? await fetchInstagramPostDetails(handle, gridUrls, workerIndex).catch(() => [])
+    ? await fetchInstagramPostDetails(handle, gridUrls, workerIndex).catch((error) => {
+        adapterFailures.push(
+          failure(
+            target,
+            `Instagram browser detail extractor failed: ${errorMessage(error)}`
+          )
+        );
+        return [];
+      })
     : [];
   let rejectedAdapterIdentityCount = 0;
   const adapterEvidence = posts.flatMap((post) => {
@@ -1835,12 +1876,18 @@ async function runOpenCli(args, options = {}) {
     return await executeOpenCli(args, {
       cwd: root,
       timeoutMs: options.timeoutMs ?? perTargetTimeoutMs,
-      maxBuffer: 20 * 1024 * 1024
+      maxBuffer: 20 * 1024 * 1024,
+      signal: options.signal
     });
   } catch (error) {
-    const stdout = error.stdout ? String(error.stdout) : "";
-    const stderr = error.stderr ? String(error.stderr) : "";
-    throw new Error(cleanText(`${stdout}\n${stderr}\n${error.message}`));
+    const stdout = sanitizeOpenCliDiagnostic(error?.stdout);
+    const stderr = sanitizeOpenCliDiagnostic(error?.stderr);
+    const message = sanitizeOpenCliDiagnostic(
+      error instanceof Error ? error.message : String(error)
+    );
+    throw new Error(
+      cleanText(`${stdout}\n${stderr}\n${message}`) || "OpenCLI command failed."
+    );
   }
 }
 
@@ -2003,19 +2050,7 @@ function serializeJson(value) {
 }
 
 function redactTokenLikeStrings(value) {
-  return String(value)
-    .replace(/gh[pousr]_[A-Za-z0-9_]{12,}/g, "[redacted-public-token]")
-    .replace(/github_pat_[A-Za-z0-9_]{12,}/g, "[redacted-public-token]")
-    .replace(/sk-[A-Za-z0-9_-]{12,}/g, "[redacted-public-token]")
-    .replace(/xox[baprs]-[A-Za-z0-9-]{12,}/g, "[redacted-public-token]")
-    .replace(/AKIA[0-9A-Z]{16}/g, "[redacted-public-token]")
-    .replace(/\bBearer\s+[A-Za-z0-9._-]{12,}/gi, "Bearer [redacted-public-token]")
-    .replace(/\bJSESSIONID=\"[^\"]+\"/gi, "JSESSIONID=\"[redacted-cookie]\"")
-    .replace(/\bli_at=[A-Za-z0-9%._/-]{16,}/gi, "li_at=[redacted-cookie]")
-    .replace(/\b[A-Za-z0-9_-]{3,}=[A-Za-z0-9%._/-]{16,}/g, (match) => {
-      const key = match.split("=")[0];
-      return `${key}=[redacted-public-param]`;
-    });
+  return sanitizeOpenCliDiagnostic(value);
 }
 
 function cleanText(value) {
@@ -2268,8 +2303,53 @@ function usage() {
     "  --force",
     "  --plan                     Print the read-only target plan and exit",
     "  --finalize-only             Rebuild evidence from checkpoints without collection",
-    "  --help, -h"
+    "  --help, -h",
+    "",
+    "Authenticated LinkedIn requires NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY,",
+    "and an explicit LINKEDIN_GLOBAL_LOCK_NAMESPACE for the durable cross-host account lease."
   ].join("\n");
+}
+
+function requiredLinkedInGlobalLockConfiguration() {
+  if (cachedLinkedInGlobalLockConfiguration) {
+    return cachedLinkedInGlobalLockConfiguration;
+  }
+  const supabaseUrl = cleanEnvironmentValue(process.env.NEXT_PUBLIC_SUPABASE_URL);
+  const serviceRoleKey = cleanEnvironmentValue(process.env.SUPABASE_SERVICE_ROLE_KEY);
+  const globalLockNamespace = cleanEnvironmentValue(
+    process.env.LINKEDIN_GLOBAL_LOCK_NAMESPACE
+  );
+  if (!supabaseUrl || !serviceRoleKey) {
+    throw new Error(
+      "LinkedIn safety stop (account_safety): authenticated collection requires the configured durable Supabase global-lock backend."
+    );
+  }
+  if (!globalLockNamespace) {
+    throw new Error(
+      "LinkedIn safety stop (account_safety): authenticated collection requires an explicit stable LINKEDIN_GLOBAL_LOCK_NAMESPACE."
+    );
+  }
+
+  const client = createClient(supabaseUrl, serviceRoleKey, {
+    auth: {
+      autoRefreshToken: false,
+      detectSessionInUrl: false,
+      persistSession: false
+    },
+    global: {
+      headers: { "X-Client-Info": "returner-authenticated-linkedin-lock" }
+    }
+  });
+  cachedLinkedInGlobalLockConfiguration = Object.freeze({
+    globalLeaseProvider: createSupabaseLinkedInGlobalLeaseProvider(client),
+    globalLockNamespace
+  });
+  return cachedLinkedInGlobalLockConfiguration;
+}
+
+function cleanEnvironmentValue(value) {
+  const cleaned = String(value ?? "").trim();
+  return cleaned || null;
 }
 
 function resolveXCollectionMode(value) {
@@ -2316,7 +2396,14 @@ function resolveBatchConfig(value) {
 }
 
 function errorMessage(error) {
-  return error instanceof Error ? error.message : String(error);
+  const primaryError = error?.primaryError ?? error;
+  const primary = sanitizeOpenCliDiagnostic(
+    primaryError instanceof Error ? primaryError.message : String(primaryError)
+  );
+  const cleanup = error?.sessionCleanupFailure instanceof Error
+    ? sanitizeOpenCliDiagnostic(error.sessionCleanupFailure.message)
+    : null;
+  return cleanup ? `${primary} | ${cleanup}` : primary;
 }
 
 function instagramBrowserProfileIdentityExtractJs() {

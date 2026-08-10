@@ -114,18 +114,8 @@ globalThis.fetch = async (input) => {
   urls.push(value);
   const url = new URL(value);
   if (url.hostname === "duckduckgo.com") throw new Error("mock provider offline");
-  if (url.hostname === "r.jina.ai") return new Response("Forbidden", { status: 200 });
   if (url.hostname.endsWith("linkedin.com")) {
-    if (url.pathname.startsWith("/company/")) {
-      return new Response("<html><body>LinkedIn profile unavailable</body></html>", { status: 200 });
-    }
-    return new Response(
-      '<html><head><link rel="canonical" href="' + value + '">' +
-        '<meta property="og:title" content="Exact mapped LinkedIn profile">' +
-        '<meta property="og:description" content="Public profile with no posts">' +
-        '</head></html>',
-      { status: 200 }
-    );
+    return new Response("<html><body>Forbidden</body></html>", { status: 403 });
   }
   throw new Error("unexpected mock URL: " + value);
 };
@@ -167,24 +157,200 @@ globalThis.fetch = async (input) => {
   const searchBlockers = storedCheckpoint.failures.filter((failure) =>
     failure.platform === "linkedin" &&
     failure.blocker?.provider === "duckduckgo_html" &&
-    /Public post discovery was blocked: DuckDuckGo public search/.test(failure.message)
+      /Public post discovery was blocked: DuckDuckGo public search/.test(failure.message)
   );
-  const blockedProfiles = storedCheckpoint.failures.filter((failure) =>
-    failure.platform === "linkedin" && failure.message === "Public page blocked or login-walled."
+  const profileBlockers = storedCheckpoint.failures.filter((failure) =>
+    failure.platform === "linkedin" &&
+    failure.blocker?.provider === "linkedin_public_html" &&
+    /LinkedIn public profile verification was blocked:/.test(failure.message)
   );
   const blockerAttemptKeys = new Set(searchBlockers.map((failure) => failure.attemptKey));
+  const profileBlockerAttemptKeys = new Set(profileBlockers.map((failure) => failure.attemptKey));
+  const profileRequests = fetchedUrls.filter((value) => {
+    const url = new URL(value);
+    return url.hostname.endsWith("linkedin.com") &&
+      (url.pathname.startsWith("/company/") || url.pathname.startsWith("/in/"));
+  });
 
-  assert.ok(mappedAttempts.length > 1, "fixture must exercise company and founder profiles");
+  assert.equal(mappedAttempts.length, 5, "fixture must exercise one company and four founder profiles");
+  assert.equal(
+    profileRequests.length,
+    1,
+    "the first HTTP 403 must open the serial LinkedIn circuit without re-fetching that profile"
+  );
+  assert.equal(new Set(profileRequests).size, 1);
   assert.equal(
     fetchedUrls.filter((url) => url.startsWith("https://duckduckgo.com/html/")).length,
     2,
     "mapped fallbacks must share the same bounded search circuit"
   );
-  assert.equal(searchBlockers.length, mappedAttempts.length);
-  assert.ok(mappedAttempts.every((attempt) => blockerAttemptKeys.has(attempt.attemptKey)));
-  assert.equal(blockedProfiles.length, 1, "the company fixture must exercise the blocked-profile branch");
-  assert.ok(
-    searchBlockers.some((failure) => failure.attemptKey === blockedProfiles[0].attemptKey),
-    "the blocked-profile branch must retain both its profile failure and its search blocker"
-  );
+  assert.equal(profileBlockers.length, 5, "every mapped profile needs a structured direct blocker receipt");
+  assert.equal(searchBlockers.length, 5, "every mapped profile needs search-fallback evidence");
+  assert.ok(mappedAttempts.every((attempt) =>
+    profileBlockerAttemptKeys.has(attempt.attemptKey) && blockerAttemptKeys.has(attempt.attemptKey)
+  ));
+});
+
+test("DuckDuckGo redirects use a pinned manual dispatcher and reject private next hops", async () => {
+  const directory = await mkdtemp(join(tmpdir(), "returner-public-search-redirect-"));
+  const output = join(directory, "public-evidence.json");
+  const checkpoint = join(directory, "checkpoint.json");
+  const discoveryAttempts = join(directory, "discovery-attempts.json");
+  const sourceDiscoveryPaths = join(directory, "source-discovery-paths.json");
+  const auditPath = join(directory, "search-transport-audit.json");
+  const preload = join(directory, "mock-fetch.mjs");
+
+  await Promise.all([
+    writeFile(discoveryAttempts, "[]\n"),
+    writeFile(sourceDiscoveryPaths, "[]\n"),
+    writeFile(preload, `
+import { writeFileSync } from "node:fs";
+const calls = [];
+process.on("exit", () => writeFileSync(${JSON.stringify(auditPath)}, JSON.stringify(calls)));
+globalThis.fetch = async (input, options = {}) => {
+  const value = String(input);
+  calls.push({
+    url: value,
+    redirect: options.redirect ?? null,
+    pinnedDispatcher: Boolean(options.dispatcher)
+  });
+  if (value === "https://www.edenrobotics.ai/") {
+    return new Response("<html><body>Eden Robotics</body></html>");
+  }
+  if (value.startsWith("https://duckduckgo.com/html/")) {
+    return new Response(null, {
+      status: 302,
+      headers: { location: "http://127.0.0.1/latest/meta-data" }
+    });
+  }
+  throw new Error("private redirect target was fetched: " + value);
+};
+`)
+  ]);
+
+  execFileSync(process.execPath, [
+    "scripts/fetch-public-traction.mjs",
+    "--batch=S2026",
+    "--company=eden-robotics",
+    "--platforms=news_web",
+    "--social=none",
+    "--workers=1",
+    "--delay-ms=0",
+    "--force",
+    `--output=${output}`,
+    `--checkpoint=${checkpoint}`,
+    `--discovery-attempts=${discoveryAttempts}`,
+    `--source-discovery-paths=${sourceDiscoveryPaths}`
+  ], {
+    cwd: root,
+    env: { ...process.env, NODE_OPTIONS: `--import=${preload}` },
+    stdio: "pipe"
+  });
+
+  const [snapshot, calls] = await Promise.all([
+    readFile(output, "utf8").then(JSON.parse),
+    readFile(auditPath, "utf8").then(JSON.parse)
+  ]);
+  const searchCalls = calls.filter((call) => call.url.startsWith("https://duckduckgo.com/html/"));
+  assert.equal(searchCalls.length, 1);
+  assert.deepEqual(searchCalls[0], {
+    url: searchCalls[0].url,
+    redirect: "manual",
+    pinnedDispatcher: true
+  });
+  assert.ok(calls.every((call) => !call.url.startsWith("http://127.0.0.1/")));
+  assert.ok(snapshot.failures.some((failure) =>
+    failure.platform === "web" && /non-public address 127\.0\.0\.1/.test(failure.message)
+  ));
+});
+
+test("DuckDuckGo raw transport rejects oversized encoded gzip before decoded expansion", async () => {
+  const directory = await mkdtemp(join(tmpdir(), "returner-public-search-encoded-limit-"));
+  const output = join(directory, "public-evidence.json");
+  const checkpoint = join(directory, "checkpoint.json");
+  const discoveryAttempts = join(directory, "discovery-attempts.json");
+  const sourceDiscoveryPaths = join(directory, "source-discovery-paths.json");
+  const auditPath = join(directory, "raw-search-audit.json");
+  const preload = join(directory, "mock-raw-request.mjs");
+
+  await Promise.all([
+    writeFile(discoveryAttempts, "[]\n"),
+    writeFile(sourceDiscoveryPaths, "[]\n"),
+    writeFile(preload, `
+import { randomBytes } from "node:crypto";
+import { writeFileSync } from "node:fs";
+import { Readable } from "node:stream";
+import { gzipSync } from "node:zlib";
+const calls = [];
+const decoded = randomBytes(2 * 1024 * 1024 + 1);
+const encoded = gzipSync(decoded);
+if (encoded.length <= 2 * 1024 * 1024 || decoded.length >= 4 * 1024 * 1024) {
+  throw new Error("invalid independent encoded-limit fixture");
+}
+process.on("exit", () => writeFileSync(${JSON.stringify(auditPath)}, JSON.stringify(calls)));
+globalThis.__RETURNER_PUBLIC_RAW_REQUEST__ = async (input, options = {}) => {
+  const value = String(input);
+  calls.push({
+    url: value,
+    maxRedirections: options.maxRedirections ?? null,
+    pinnedDispatcher: Boolean(options.dispatcher),
+    encodedBytes: encoded.length,
+    decodedBytes: decoded.length
+  });
+  if (value === "https://www.edenrobotics.ai/") {
+    return {
+      statusCode: 200,
+      headers: { "content-type": "text/html" },
+      body: Readable.from([Buffer.from("<html><body>Eden Robotics</body></html>")])
+    };
+  }
+  if (value.startsWith("https://duckduckgo.com/html/")) {
+    return {
+      statusCode: 200,
+      headers: {
+        "content-type": "text/html",
+        "content-encoding": "gzip"
+      },
+      body: Readable.from([encoded])
+    };
+  }
+  throw new Error("unexpected raw request: " + value);
+};
+`)
+  ]);
+
+  execFileSync(process.execPath, [
+    "scripts/fetch-public-traction.mjs",
+    "--batch=S2026",
+    "--company=eden-robotics",
+    "--platforms=news_web",
+    "--social=none",
+    "--workers=1",
+    "--delay-ms=0",
+    "--force",
+    `--output=${output}`,
+    `--checkpoint=${checkpoint}`,
+    `--discovery-attempts=${discoveryAttempts}`,
+    `--source-discovery-paths=${sourceDiscoveryPaths}`
+  ], {
+    cwd: root,
+    env: { ...process.env, NODE_OPTIONS: `--import=${preload}` },
+    stdio: "pipe"
+  });
+
+  const [snapshot, calls] = await Promise.all([
+    readFile(output, "utf8").then(JSON.parse),
+    readFile(auditPath, "utf8").then(JSON.parse)
+  ]);
+  const searchCalls = calls.filter((call) => call.url.startsWith("https://duckduckgo.com/html/"));
+  assert.equal(searchCalls.length, 1);
+  assert.equal(searchCalls[0].maxRedirections, 0);
+  assert.equal(searchCalls[0].pinnedDispatcher, true);
+  assert.ok(searchCalls[0].encodedBytes > 2 * 1024 * 1024);
+  assert.ok(searchCalls[0].decodedBytes < 4 * 1024 * 1024);
+  assert.ok(snapshot.failures.some((failure) =>
+    failure.platform === "web" &&
+      /2097152-byte encoded body limit/.test(failure.message) &&
+      !/decoded body limit/.test(failure.message)
+  ));
 });

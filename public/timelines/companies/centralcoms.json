@@ -5,8 +5,8 @@
     "slug": "centralcoms",
     "name": "CentralComs"
   },
-  "generatedAt": "2026-08-09T22:27:16.508Z",
-  "lastModifiedAt": "2026-08-09T22:27:16.508Z",
+  "generatedAt": "2026-08-10T05:38:30.818Z",
+  "lastModifiedAt": "2026-08-10T05:38:30.818Z",
   "events": [
     {
       "id": "tle-ed9a07a65e2e2e6970ab5420",
@@ -47,7 +47,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-08-09T22:27:16.508Z"
+    "lastSuccessfulArtifactAt": "2026-08-10T05:38:30.818Z"
   },
   "nextCursor": null
 }

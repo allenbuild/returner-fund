@@ -1,8 +1,8 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { readRequiredCanonicalJson } from "./canonical-json.mjs";
-import { canonicalGithubTargetUrl } from "./github-url.mjs";
 import { applyPublicEvidenceOperationalRetention } from "./public-evidence-artifact.mjs";
+import { canonicalSocialAccountUrl } from "./social-account-url.mjs";
 import {
   publicationTimesCompatible,
   sourceAuthorsCompatible,
@@ -72,8 +72,8 @@ export const AUTONOMOUS_PROCESS_BUDGETS = Object.freeze({
   catalogRefreshMs: 6 * MINUTE_MS,
   // Every public shard, GitHub cohort, retry backoff, and Top Voice refresh
   // shares this enforced wall-clock phase. Per-process attempt limits alone
-  // cannot bound the runner because public shards queue behind a global
-  // process guard and GitHub cohorts retry serially.
+  // cannot bound the runner, so public and GitHub shards remain under their
+  // distinct process guards while cohorts may start concurrently.
   collectionPhaseMs: 120 * MINUTE_MS,
   collectionDeadlineDrainHeadroomMs: 5 * MINUTE_MS,
   collectorAttempts: 2,
@@ -122,9 +122,9 @@ export function autonomousMappedTerminalFailureBudget(mappedExpected = 0) {
 export function maxAutonomousRunnerProcessBudgetMs(budgets = AUTONOMOUS_PROCESS_BUDGETS) {
   // Collection has a phase-wide deadline enforced by the runner. This is the
   // only sound wall-clock bound: seven public shards share two process slots,
-  // GitHub cohorts run through a serial retry queue, and rate limits use a
-  // longer backoff than ordinary retries. Drain headroom covers termination,
-  // checkpoint reads, and final in-process snapshot reconciliation.
+  // seven GitHub shards share two process slots with four workers per process,
+  // and rate limits use a longer backoff than ordinary retries. Drain headroom
+  // covers termination, checkpoint reads, and final in-process reconciliation.
   const collectorWindow =
     budgets.collectionPhaseMs +
     budgets.collectionDeadlineDrainHeadroomMs;
@@ -920,7 +920,19 @@ export function validateAutonomousTerminalCoverage(coverage, { expectedTaskCount
 
 export function validateAutonomousCollectorSnapshot(
   snapshot,
-  { kind, batchSlug, expectedSourcePath = null, notBefore = null }
+  {
+    kind,
+    batchSlug,
+    expectedSourcePath = null,
+    notBefore = null,
+    notAfter = Date.now() + 60_000,
+    requireAttemptBinding = false,
+    expectedAttemptId = null,
+    expectedCampaignKey = null,
+    expectedExecutionNonce = null,
+    expectedIdempotencyKey = null,
+    expectedNotBefore = null
+  }
 ) {
   if (!snapshot || typeof snapshot !== "object" || Array.isArray(snapshot)) {
     throw new Error(`Invalid ${kind} collector snapshot: expected an object.`);
@@ -954,6 +966,31 @@ export function validateAutonomousCollectorSnapshot(
   if (notBefore !== null && fetchedAt < notBefore) {
     throw new Error(`Invalid ${kind} collector snapshot: source fetchedAt predates this collector attempt.`);
   }
+  if (notAfter !== null && fetchedAt > notAfter) {
+    throw new Error(`Invalid ${kind} collector snapshot: source fetchedAt is in the future.`);
+  }
+  const attemptBinding = snapshot.source.autonomousAttempt;
+  if (
+    requireAttemptBinding ||
+    expectedAttemptId !== null ||
+    expectedCampaignKey !== null ||
+    expectedExecutionNonce !== null ||
+    expectedIdempotencyKey !== null ||
+    expectedNotBefore !== null
+  ) {
+    validateCollectorAttemptBinding(attemptBinding, {
+      kind,
+      batchSlug,
+      fetchedAt,
+      notBefore,
+      notAfter,
+      expectedAttemptId,
+      expectedCampaignKey,
+      expectedExecutionNonce,
+      expectedIdempotencyKey,
+      expectedNotBefore
+    });
+  }
 
   const collections = kind === "github"
     ? [["accounts", snapshot.accounts]]
@@ -974,6 +1011,71 @@ export function validateAutonomousCollectorSnapshot(
     throw new Error(`Invalid ${kind} collector snapshot: collector output is empty.`);
   }
   return snapshot;
+}
+
+function validateCollectorAttemptBinding(
+  binding,
+  {
+    kind,
+    batchSlug,
+    fetchedAt,
+    notBefore,
+    notAfter,
+    expectedAttemptId,
+    expectedCampaignKey,
+    expectedExecutionNonce,
+    expectedIdempotencyKey,
+    expectedNotBefore
+  }
+) {
+  if (!binding || typeof binding !== "object" || Array.isArray(binding)) {
+    throw new Error(`Invalid ${kind} collector snapshot: source autonomousAttempt binding is required.`);
+  }
+  if (binding.schemaVersion !== 1) {
+    throw new Error(`Invalid ${kind} collector snapshot: unsupported autonomousAttempt schema.`);
+  }
+  for (const key of ["attemptId", "campaignKey", "idempotencyKey", "executionNonce"]) {
+    if (typeof binding[key] !== "string" || !binding[key].trim()) {
+      throw new Error(`Invalid ${kind} collector snapshot: autonomousAttempt ${key} is required.`);
+    }
+  }
+  if (binding.kind !== kind || binding.batchSlug !== batchSlug) {
+    throw new Error(`Invalid ${kind} collector snapshot: autonomousAttempt scope does not match the snapshot.`);
+  }
+  if (expectedAttemptId !== null && binding.attemptId !== expectedAttemptId) {
+    throw new Error(`Invalid ${kind} collector snapshot: autonomousAttempt belongs to a foreign attempt.`);
+  }
+  if (expectedCampaignKey !== null && binding.campaignKey !== expectedCampaignKey) {
+    throw new Error(`Invalid ${kind} collector snapshot: autonomousAttempt belongs to a foreign campaign.`);
+  }
+  if (expectedExecutionNonce !== null && binding.executionNonce !== expectedExecutionNonce) {
+    throw new Error(`Invalid ${kind} collector snapshot: autonomousAttempt belongs to a foreign execution.`);
+  }
+  if (expectedIdempotencyKey !== null && binding.idempotencyKey !== expectedIdempotencyKey) {
+    throw new Error(`Invalid ${kind} collector snapshot: autonomousAttempt belongs to a foreign run.`);
+  }
+  const startedAt = Date.parse(binding.startedAt);
+  const completedAt = Date.parse(binding.completedAt);
+  if (!Number.isFinite(startedAt) || !Number.isFinite(completedAt) || completedAt < startedAt) {
+    throw new Error(`Invalid ${kind} collector snapshot: autonomousAttempt timestamps are invalid.`);
+  }
+  if (fetchedAt < startedAt - 2_000 || fetchedAt > completedAt + 60_000) {
+    throw new Error(`Invalid ${kind} collector snapshot: fetchedAt falls outside its autonomousAttempt.`);
+  }
+  if (notBefore !== null && startedAt < notBefore - 2_000) {
+    throw new Error(`Invalid ${kind} collector snapshot: autonomousAttempt started before this attempt window.`);
+  }
+  if (expectedNotBefore !== null) {
+    const exactNotBefore = typeof expectedNotBefore === "number"
+      ? new Date(expectedNotBefore).toISOString()
+      : String(expectedNotBefore);
+    if (binding.startedAt !== exactNotBefore) {
+      throw new Error(`Invalid ${kind} collector snapshot: autonomousAttempt notBefore does not match its launch.`);
+    }
+  }
+  if (notAfter !== null && completedAt > notAfter) {
+    throw new Error(`Invalid ${kind} collector snapshot: autonomousAttempt completed in the future.`);
+  }
 }
 
 export function validateAutonomousCollectorReferentialIntegrity(
@@ -1163,10 +1265,11 @@ function collectorFailureRetryDecision(row, attemptsByKey, attemptsByOwner) {
 function canonicalCollectorFailureAccountUrl(row) {
   const raw = row?.accountUrl ?? row?.account_url ?? row?.githubUrl ?? row?.url ?? null;
   if (!raw) return null;
-  return canonicalSocialAccountUrl(
+  const canonicalUrl = canonicalSocialAccountUrl(
     normalizePlatform(row?.platform ?? "github"),
     raw
-  ).toLowerCase();
+  );
+  return canonicalUrl?.toLowerCase() ?? null;
 }
 
 function newestCollectorAttempt(attempts) {
@@ -1252,10 +1355,17 @@ export function indexAutonomousCollectorTaskOutcomes(
     const candidate = { status, reason, ...metadata };
     const entityKey = autonomousCollectorEntityKey(platform, entityType, entityId);
     const resolvedAccountUrl = accountUrl ?? row?.accountUrl ?? row?.account_url ?? null;
+    const accountKey = resolvedAccountUrl
+      ? autonomousCollectorAccountKey(platform, entityType, entityId, resolvedAccountUrl)
+      : null;
+    // An unsafe or malformed mapped URL is not an owner-level receipt. Dropping
+    // it here prevents a rejected account identity from inheriting blocker
+    // metadata into either another mapped account or the discovery task.
+    if (resolvedAccountUrl && !accountKey) return;
     const keys = [{ key: entityKey, exactTaskKey: !resolvedAccountUrl }];
-    if (resolvedAccountUrl) {
+    if (accountKey) {
       keys.push({
-        key: autonomousCollectorAccountKey(platform, entityType, entityId, resolvedAccountUrl),
+        key: accountKey,
         exactTaskKey: true
       });
     }
@@ -1444,9 +1554,13 @@ export function classifyAutonomousCollectorTaskOutcome(
   { platform, entityType, entityId, accountUrl = null, collectorOk = true, collectorError = null }
 ) {
   const normalizedPlatform = normalizePlatform(platform);
-  const key = accountUrl
+  const accountKey = accountUrl
     ? autonomousCollectorAccountKey(platform, entityType, entityId, accountUrl)
-    : autonomousCollectorEntityKey(platform, entityType, entityId);
+    : null;
+  if (accountUrl && !accountKey) {
+    return { status: "failed", reason: "collector_invalid_account_url" };
+  }
+  const key = accountKey ?? autonomousCollectorEntityKey(platform, entityType, entityId);
   const outcome = outcomeIndex?.get(key);
   if (outcome) return collectorOutcomePublicView(outcome);
   // A process-level retry failure is not evidence that every task in the
@@ -1480,7 +1594,9 @@ export function autonomousCollectorEntityKey(platform, entityType, entityId) {
 
 export function autonomousCollectorAccountKey(platform, entityType, entityId, accountUrl) {
   const normalizedPlatform = normalizePlatform(platform);
-  return `${autonomousCollectorEntityKey(normalizedPlatform, entityType, entityId)}:account:${canonicalSocialAccountUrl(normalizedPlatform, accountUrl).toLowerCase()}`;
+  const canonicalUrl = canonicalSocialAccountUrl(normalizedPlatform, accountUrl);
+  if (!canonicalUrl) return null;
+  return `${autonomousCollectorEntityKey(normalizedPlatform, entityType, entityId)}:account:${canonicalUrl.toLowerCase()}`;
 }
 
 function collectorOwnerKey(row) {
@@ -1953,14 +2069,13 @@ function mergeOwnerAccounts(entity, overrideLinks, { discoveredFromUrl, matchRea
   );
   const byOwnerIdentity = new Map(
     (entity.accounts ?? [])
-      .filter((account) => !retiredKeys.has(ownerAccountCanonicalKey(account.platform, account.url)))
-      .map((account) => [
-        `${account.platform}:${canonicalSocialAccountUrl(account.platform, account.url)}`,
-        account
-      ])
+      .flatMap((account) => {
+        const identity = ownerAccountCanonicalKey(account.platform, account.url);
+        return identity && !retiredKeys.has(identity) ? [[identity, account]] : [];
+      })
   );
   for (const { platform, rawUrl, canonicalUrl, handle } of normalizeVerifiedSocialOverrideLinks(overrideLinks)) {
-    byOwnerIdentity.set(`${platform}:${canonicalUrl}`, {
+    byOwnerIdentity.set(ownerAccountCanonicalKey(platform, canonicalUrl), {
       sourceKey: `acct:${entity.entityType}:${entity.sourceKey}:${platform}:${encodeURIComponent(canonicalUrl)}`,
       platform,
       handle,
@@ -1977,7 +2092,9 @@ function mergeOwnerAccounts(entity, overrideLinks, { discoveredFromUrl, matchRea
     (left, right) =>
       Number(right.overridePriority ?? 0) - Number(left.overridePriority ?? 0) ||
       left.platform.localeCompare(right.platform) ||
-      canonicalSocialAccountUrl(left.platform, left.url).localeCompare(canonicalSocialAccountUrl(right.platform, right.url))
+      ownerAccountCanonicalKey(left.platform, left.url).localeCompare(
+        ownerAccountCanonicalKey(right.platform, right.url)
+      )
   );
 }
 
@@ -2007,10 +2124,10 @@ export function normalizeVerifiedSocialOverrideLinks(overrideLinks) {
       if (!AUTONOMOUS_PLATFORMS.includes(platform)) {
         throw new Error(`Verified social override uses unsupported platform: ${rawPlatform}`);
       }
-      if (!socialUrlMatchesPlatform(platform, rawUrl)) {
+      const canonicalUrl = canonicalSocialAccountUrl(platform, rawUrl);
+      if (!canonicalUrl) {
         throw new Error(`Verified ${platform} override URL does not match its platform: ${rawUrl}`);
       }
-      const canonicalUrl = canonicalSocialAccountUrl(platform, rawUrl);
       const handle = socialHandle(canonicalUrl);
       if (!handle) throw new Error(`Verified ${platform} override URL has no account identity: ${rawUrl}`);
       const identity = `${platform}:${canonicalUrl.toLowerCase()}`;
@@ -2047,7 +2164,8 @@ function retiredOwnerAccounts(ownerOverride) {
 function ownerAccountCanonicalKey(platform, rawUrl) {
   if (!platform || !rawUrl) return null;
   const normalizedPlatform = normalizePlatform(platform);
-  return `${normalizedPlatform}:${canonicalSocialAccountUrl(normalizedPlatform, rawUrl).toLowerCase()}`;
+  const canonicalUrl = canonicalSocialAccountUrl(normalizedPlatform, rawUrl);
+  return canonicalUrl ? `${normalizedPlatform}:${canonicalUrl.toLowerCase()}` : null;
 }
 
 function autonomousCompanySlug(company) {
@@ -2117,8 +2235,16 @@ function tasksForEntity({ runKey, batch, company, entity, platform }) {
 
 function taskForEntityAccount({ runKey, batch, company, entity, platform, account }) {
   const entityType = entity.entityType;
-  const accountIdentity = account
-    ? `account:${encodeURIComponent(canonicalSocialAccountUrl(platform, account.url))}`
+  const canonicalAccountUrl = account
+    ? canonicalSocialAccountUrl(platform, account.url)
+    : null;
+  if (account && !canonicalAccountUrl) {
+    throw new Error(
+      `Invalid ${platform} account URL for ${batch.slug}:${entityType}:${entity.sourceKey}: ${account.url}`
+    );
+  }
+  const accountIdentity = canonicalAccountUrl
+    ? `account:${encodeURIComponent(canonicalAccountUrl)}`
     : "discovery";
   const base = {
     batchSlug: batch.slug,
@@ -2288,16 +2414,22 @@ function collectorAttemptMatchesFailureIdentity(attempt, failure, batchSlug) {
   const failureUrl = failure?.accountUrl ?? failure?.account_url ?? null;
   if (Boolean(attemptUrl) !== Boolean(failureUrl)) return false;
   if (!attemptUrl) return true;
-  return autonomousCollectorAccountKey(
+  const attemptAccountKey = autonomousCollectorAccountKey(
     attemptPlatform,
     attemptType,
     attemptId,
     attemptUrl
-  ) === autonomousCollectorAccountKey(
+  );
+  const failureAccountKey = autonomousCollectorAccountKey(
     failurePlatform,
     failureType,
     failureId,
     failureUrl
+  );
+  return Boolean(
+    attemptAccountKey &&
+    failureAccountKey &&
+    attemptAccountKey === failureAccountKey
   );
 }
 
@@ -2311,66 +2443,6 @@ function typedProviderBlockerReason(blocker, platform) {
     .toLowerCase()
     .replace(/[^a-z0-9_:-]+/g, "_");
   return `provider_blocked:${provider || "unknown"}:${code || "provider_blocked"}`;
-}
-
-function canonicalSocialAccountUrl(platform, rawUrl) {
-  try {
-    const url = new URL(rawUrl);
-    const parts = url.pathname.split("/").filter(Boolean).map(decodeURIComponent);
-    const host = url.hostname.replace(/^www\./i, "").toLowerCase();
-    if (platform === "github" && host === "github.com") {
-      const canonicalUrl = canonicalGithubTargetUrl(rawUrl);
-      if (canonicalUrl) return canonicalUrl.toLowerCase();
-    }
-    if (platform === "linkedin" && (host === "linkedin.com" || host.endsWith(".linkedin.com"))) {
-      const markerIndex = parts.findIndex((part) => ["company", "in", "school"].includes(part.toLowerCase()));
-      const namespace = markerIndex >= 0 ? parts[markerIndex]?.toLowerCase() : null;
-      const handle = markerIndex >= 0 ? parts[markerIndex + 1] : null;
-      if (namespace && handle) return `https://linkedin.com/${namespace}/${handle.toLowerCase()}`;
-    }
-    if (platform === "x" && (host === "x.com" || host === "twitter.com")) {
-      const handle = parts[0]?.replace(/^@/, "");
-      if (handle) return `https://x.com/${handle.toLowerCase()}`;
-    }
-    if (platform === "instagram" && (host === "instagram.com" || host.endsWith(".instagram.com"))) {
-      const handle = parts[0]?.replace(/^@/, "");
-      if (handle) return `https://instagram.com/${handle.toLowerCase()}`;
-    }
-    if (platform === "youtube" && host === "youtube.com") {
-      if (parts[0]?.startsWith("@") && parts[0].length > 1) {
-        return `https://youtube.com/@${parts[0].slice(1).toLowerCase()}`;
-      }
-      const namespace = parts[0]?.toLowerCase();
-      const handle = parts[1];
-      if (namespace && handle && ["channel", "c", "user"].includes(namespace)) {
-        return `https://youtube.com/${namespace}/${handle.toLowerCase()}`;
-      }
-    }
-    if (platform === "reddit" && (host === "reddit.com" || host.endsWith(".reddit.com"))) {
-      const namespace = parts[0]?.toLowerCase();
-      const handle = ["r", "u", "user"].includes(namespace ?? "") ? parts[1] : parts[0];
-      const pathNamespace = ["r", "u", "user"].includes(namespace ?? "") ? namespace : "user";
-      if (handle) return `https://reddit.com/${pathNamespace}/${handle.toLowerCase()}`;
-    }
-    if (platform === "product_hunt" && host === "producthunt.com") {
-      if (parts[0]?.startsWith("@") && parts[0].length > 1) {
-        return `https://producthunt.com/@${parts[0].slice(1).toLowerCase()}`;
-      }
-      const namespace = parts[0]?.toLowerCase();
-      const handle = parts[1];
-      if (namespace && handle && ["products", "posts"].includes(namespace)) {
-        return `https://producthunt.com/${namespace}/${handle.toLowerCase()}`;
-      }
-    }
-    url.hash = "";
-    url.search = "";
-    url.protocol = "https:";
-    url.hostname = host;
-    url.pathname = `/${parts.join("/")}`.replace(/\/$/, "");
-    return url.toString();
-  } catch {
-    return String(rawUrl).trim().toLowerCase();
-  }
 }
 
 function socialUrlMatchesPlatform(platform, rawUrl) {
@@ -3248,18 +3320,14 @@ function mergedMappedAccountMatches(company, row) {
 }
 
 function canonicalMappedAccountIdentity(platform, rawUrl) {
-  try {
-    const url = new URL(rawUrl);
-    const host = url.hostname.replace(/^www\./, "").toLowerCase();
-    const path = decodeURIComponent(url.pathname).replace(/\/$/, "").toLowerCase();
-    if (platform === "youtube") {
-      const channel = path.match(/^\/channel\/(uc[\w-]+)$/i)?.[1];
-      if (channel) return `youtube:channel:${channel.toLowerCase()}`;
-    }
-    return `${platform}:${host}:${path}`;
-  } catch {
-    return null;
+  const normalizedPlatform = normalizePlatform(platform);
+  const canonicalUrl = canonicalSocialAccountUrl(normalizedPlatform, rawUrl);
+  if (!canonicalUrl) return null;
+  if (normalizedPlatform === "youtube") {
+    const channel = new URL(canonicalUrl).pathname.match(/^\/channel\/(uc[\w-]+)$/i)?.[1];
+    if (channel) return `youtube:channel:${channel.toLowerCase()}`;
   }
+  return `${normalizedPlatform}:${canonicalUrl.toLowerCase()}`;
 }
 
 function mergedCompanyDescriptorMatches(company, text) {

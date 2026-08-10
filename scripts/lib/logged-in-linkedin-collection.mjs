@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import { open, readFile, rename, unlink } from "node:fs/promises";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
+import { performance } from "node:perf_hooks";
 import {
   linkedinAccountSlugFromUrl,
   linkedinNativeAuthorSlugFromUrl,
@@ -11,6 +12,7 @@ import {
 export const LINKEDIN_MINIMUM_TARGET_DELAY_MS = 30_000;
 export const LINKEDIN_MINIMUM_INTERACTION_DELAY_MS = 3_000;
 export const LINKEDIN_MAX_TARGETS_PER_INVOCATION = 5;
+export const LINKEDIN_GLOBAL_LEASE_DURATION_MS = 20 * 60_000;
 export const LINKEDIN_ACCOUNT_LOCK_PATH = join(
   tmpdir(),
   "returner-fund-linkedin-account-collector.lock"
@@ -23,7 +25,7 @@ export const LINKEDIN_ACCOUNT_PACING_STATE_PATH = join(
 export function createLinkedInInteractionPacer({
   minimumDelayMs = LINKEDIN_MINIMUM_INTERACTION_DELAY_MS,
   sleep = defaultSleep,
-  now = Date.now
+  now = monotonicNow
 } = {}) {
   if (typeof sleep !== "function" || typeof now !== "function") {
     throw new TypeError("LinkedIn interaction pacing hooks must be functions.");
@@ -33,40 +35,350 @@ export function createLinkedInInteractionPacer({
     finiteNonnegativeInteger(minimumDelayMs)
   );
   let nextAllowedAt = null;
+  let lastObservedAt = null;
+
+  const readClock = () => {
+    const observedAt = finiteClockValue(now());
+    if (lastObservedAt !== null && observedAt < lastObservedAt) {
+      throw linkedInInteractionPacingError("clock moved backwards");
+    }
+    lastObservedAt = observedAt;
+    return observedAt;
+  };
 
   return {
     delayMs,
     async beforeInteraction() {
-      const currentTime = finiteClockValue(now());
-      if (nextAllowedAt !== null && currentTime < nextAllowedAt) {
+      let currentTime = readClock();
+      if (nextAllowedAt === null || currentTime >= nextAllowedAt) return;
+
+      // A timer hook is not proof that time elapsed. Re-read a monotonic clock
+      // after every sleep and fail closed if the hook made no progress, moved
+      // backwards, or repeatedly woke before the required boundary.
+      const maximumSleepAttempts = 4;
+      for (let attempt = 0; attempt < maximumSleepAttempts; attempt += 1) {
         await sleep(nextAllowedAt - currentTime);
+        const observedAt = readClock();
+        if (observedAt <= currentTime) {
+          throw linkedInInteractionPacingError(
+            "sleep completed without advancing the clock"
+          );
+        }
+        if (observedAt >= nextAllowedAt) return;
+        currentTime = observedAt;
       }
+
+      throw linkedInInteractionPacingError(
+        "sleep repeatedly completed before the required delay elapsed"
+      );
     },
     afterInteraction() {
-      nextAllowedAt = finiteClockValue(now()) + delayMs;
+      nextAllowedAt = readClock() + delayMs;
     }
   };
 }
 
+function linkedInInteractionPacingError(reason) {
+  return new Error(
+    `LinkedIn safety stop (account_safety): interaction pacing ${reason}.`
+  );
+}
+
 export async function withLinkedInAccountLock(
   operation,
-  { lockPath = LINKEDIN_ACCOUNT_LOCK_PATH } = {}
+  {
+    lockPath = LINKEDIN_ACCOUNT_LOCK_PATH,
+    globalLeaseProvider,
+    globalLockNamespace,
+    leaseDurationMs = LINKEDIN_GLOBAL_LEASE_DURATION_MS,
+    heartbeatIntervalMs = Math.floor(leaseDurationMs / 3)
+  } = {}
 ) {
   if (typeof operation !== "function") {
     throw new TypeError("LinkedIn account lock requires an operation function.");
   }
+  assertLinkedInGlobalLeaseConfiguration(globalLeaseProvider, globalLockNamespace);
+  const boundedLeaseDurationMs = linkedInLeaseDuration(leaseDurationMs);
+  const boundedHeartbeatIntervalMs = linkedInHeartbeatInterval(
+    heartbeatIntervalMs,
+    boundedLeaseDurationMs
+  );
 
-  const token = randomUUID();
-  const handle = await acquireLinkedInAccountLock(lockPath, token);
+  const ownerId = randomUUID();
+  const lockKey = linkedinGlobalLockKey(globalLockNamespace);
+  let lease;
   try {
-    return await operation();
+    lease = await globalLeaseProvider.claim({
+      lockKey,
+      ownerId,
+      leaseDurationMs: boundedLeaseDurationMs,
+      metadata: {
+        collector: "authenticated-linkedin",
+        pid: process.pid
+      }
+    });
+  } catch (error) {
+    throw linkedInGlobalLeaseFailure("claim failed closed", error);
+  }
+  if (!lease || typeof lease.leaseToken !== "string" || !lease.leaseToken.trim()) {
+    throw linkedInGlobalLeaseFailure(
+      "another authenticated collector already holds the durable global lease"
+    );
+  }
+
+  const localToken = randomUUID();
+  let localHandle = null;
+  let heartbeat = null;
+  let result;
+  let primaryError = null;
+  try {
+    localHandle = await acquireLinkedInAccountLock(lockPath, localToken);
+    heartbeat = createLinkedInLeaseHeartbeat({
+      globalLeaseProvider,
+      lockKey,
+      ownerId,
+      leaseToken: lease.leaseToken,
+      leaseDurationMs: boundedLeaseDurationMs,
+      heartbeatIntervalMs: boundedHeartbeatIntervalMs
+    });
+    result = await operation({
+      signal: heartbeat.signal,
+      assertHealthy: heartbeat.assertHealthy
+    });
+    heartbeat.assertHealthy();
+  } catch (error) {
+    primaryError = error;
   } finally {
-    await handle.close().catch(() => undefined);
+    try {
+      await heartbeat?.stop();
+    } catch (error) {
+      primaryError ??= error;
+    }
+    await localHandle?.close().catch(() => undefined);
     const current = await readLinkedInLock(lockPath);
-    if (current?.token === token) {
+    if (current?.token === localToken) {
       await unlink(lockPath).catch(() => undefined);
     }
   }
+
+  let releaseError = null;
+  try {
+    const released = await globalLeaseProvider.release({
+      lockKey,
+      ownerId,
+      leaseToken: lease.leaseToken
+    });
+    if (released !== true) {
+      throw new Error("Durable lock provider did not confirm release.");
+    }
+  } catch (error) {
+    releaseError = linkedInGlobalLeaseFailure("release failed closed", error);
+  }
+
+  if (releaseError) {
+    if (primaryError && (typeof primaryError === "object" || typeof primaryError === "function")) {
+      try {
+        Object.defineProperty(primaryError, "globalLeaseCleanupFailure", {
+          configurable: false,
+          enumerable: false,
+          writable: false,
+          value: releaseError
+        });
+      } catch {
+        // The tagged cleanup failure below remains the terminal safety result.
+      }
+    }
+    throw releaseError;
+  }
+  if (primaryError) throw primaryError;
+  return result;
+}
+
+export function createSupabaseLinkedInGlobalLeaseProvider(client, {
+  operationTimeoutMs = 15_000
+} = {}) {
+  if (!client || typeof client.rpc !== "function") {
+    throw new TypeError("LinkedIn Supabase lease provider requires a Supabase client.");
+  }
+  const timeoutMs = finitePositiveInteger(operationTimeoutMs);
+
+  return Object.freeze({
+    provider: "supabase_ingestion_runtime_locks",
+    async claim({ lockKey, ownerId, leaseDurationMs, metadata = {} }) {
+      const { data, error } = await runBoundedSupabaseLeaseOperation(
+        () => client.rpc("claim_ingestion_runtime_lock", {
+          p_lock_key: lockKey,
+          p_owner_id: ownerId,
+          p_lease_duration: linkedInLeaseInterval(leaseDurationMs),
+          p_metadata_json: metadata
+        }),
+        timeoutMs
+      );
+      if (error) throw new Error("Durable LinkedIn lease claim RPC failed.", { cause: error });
+      const row = Array.isArray(data) ? data[0] ?? null : data;
+      return row && typeof row.lease_token === "string"
+        ? { leaseToken: row.lease_token }
+        : null;
+    },
+    async renew({ lockKey, ownerId, leaseToken, leaseDurationMs }) {
+      const { data, error } = await runBoundedSupabaseLeaseOperation(
+        () => client.rpc("renew_ingestion_runtime_lock", {
+          p_lock_key: lockKey,
+          p_owner_id: ownerId,
+          p_lease_token: leaseToken,
+          p_lease_duration: linkedInLeaseInterval(leaseDurationMs)
+        }),
+        timeoutMs
+      );
+      if (error) throw new Error("Durable LinkedIn lease renewal RPC failed.", { cause: error });
+      return data === true;
+    },
+    async release({ lockKey, ownerId, leaseToken }) {
+      const { data, error } = await runBoundedSupabaseLeaseOperation(
+        () => client.rpc("release_ingestion_runtime_lock", {
+          p_lock_key: lockKey,
+          p_owner_id: ownerId,
+          p_lease_token: leaseToken
+        }),
+        timeoutMs
+      );
+      if (error) throw new Error("Durable LinkedIn lease release RPC failed.", { cause: error });
+      return data === true;
+    }
+  });
+}
+
+function createLinkedInLeaseHeartbeat({
+  globalLeaseProvider,
+  lockKey,
+  ownerId,
+  leaseToken,
+  leaseDurationMs,
+  heartbeatIntervalMs
+}) {
+  const controller = new AbortController();
+  let timer = null;
+  let inFlight = null;
+  let stopped = false;
+  let failure = null;
+
+  const fail = (error) => {
+    if (failure) return;
+    failure = linkedInGlobalLeaseFailure("heartbeat failed closed", error);
+    controller.abort(failure);
+  };
+  const schedule = () => {
+    if (stopped || failure) return;
+    timer = setTimeout(() => {
+      timer = null;
+      inFlight = Promise.resolve().then(() => globalLeaseProvider.renew({
+        lockKey,
+        ownerId,
+        leaseToken,
+        leaseDurationMs
+      })).then((renewed) => {
+        if (renewed !== true) {
+          throw new Error("Durable lock provider did not confirm renewal.");
+        }
+      }).catch(fail).finally(() => {
+        inFlight = null;
+        schedule();
+      });
+    }, heartbeatIntervalMs);
+  };
+  schedule();
+
+  return {
+    signal: controller.signal,
+    assertHealthy() {
+      if (failure) throw failure;
+    },
+    async stop() {
+      stopped = true;
+      if (timer) clearTimeout(timer);
+      await inFlight;
+      if (failure) throw failure;
+    }
+  };
+}
+
+async function runBoundedSupabaseLeaseOperation(createOperation, timeoutMs) {
+  const controller = new AbortController();
+  const timeoutError = new Error("Durable LinkedIn lease operation timed out.");
+  const timer = setTimeout(() => controller.abort(timeoutError), timeoutMs);
+  try {
+    const operation = createOperation();
+    const abortBound = typeof operation?.abortSignal === "function"
+      ? operation.abortSignal(controller.signal)
+      : operation;
+    return await Promise.race([
+      Promise.resolve(abortBound),
+      new Promise((_, reject) => {
+        controller.signal.addEventListener("abort", () => reject(timeoutError), { once: true });
+      })
+    ]);
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+function assertLinkedInGlobalLeaseConfiguration(provider, namespace) {
+  if (
+    !provider ||
+    typeof provider.claim !== "function" ||
+    typeof provider.renew !== "function" ||
+    typeof provider.release !== "function"
+  ) {
+    throw linkedInGlobalLeaseFailure(
+      "authenticated collection requires a configured durable global-lock provider"
+    );
+  }
+  if (
+    typeof namespace !== "string" ||
+    !/^[A-Za-z0-9][A-Za-z0-9._:/-]{2,127}$/.test(namespace.trim())
+  ) {
+    throw linkedInGlobalLeaseFailure(
+      "authenticated collection requires an explicit stable global-lock namespace"
+    );
+  }
+}
+
+function linkedinGlobalLockKey(namespace) {
+  return `authenticated-linkedin:${namespace.trim()}`;
+}
+
+function linkedInGlobalLeaseFailure(reason, cause) {
+  return new Error(
+    `LinkedIn safety stop (account_safety): durable global account lease ${reason}.`,
+    cause === undefined ? undefined : { cause }
+  );
+}
+
+function linkedInLeaseDuration(value) {
+  const duration = finitePositiveInteger(value);
+  if (duration < 60_000 || duration > 60 * 60_000) {
+    throw new RangeError("LinkedIn global lease duration must be between one minute and one hour.");
+  }
+  return duration;
+}
+
+function linkedInHeartbeatInterval(value, leaseDurationMs) {
+  const interval = finitePositiveInteger(value);
+  if (interval >= leaseDurationMs / 2) {
+    throw new RangeError("LinkedIn global lease heartbeat must run before half the lease duration.");
+  }
+  return interval;
+}
+
+function linkedInLeaseInterval(value) {
+  return `${Math.ceil(linkedInLeaseDuration(value) / 1_000)} seconds`;
+}
+
+function finitePositiveInteger(value) {
+  if (!Number.isSafeInteger(value) || value <= 0) {
+    throw new RangeError("LinkedIn lease timing values must be positive integers.");
+  }
+  return value;
 }
 
 export function linkedinExecutionPolicy({
@@ -101,33 +413,86 @@ export function limitLinkedInTargetsPerInvocation(
   });
 }
 
-async function acquireLinkedInAccountLock(lockPath, token, allowStaleRetry = true) {
-  let handle = null;
+async function acquireLinkedInAccountLock(lockPath, token) {
+  const acquisitionGuardPath = `${lockPath}.acquire`;
+  const acquisitionGuardToken = randomUUID();
+  let acquisitionGuard = null;
   try {
-    handle = await open(lockPath, "wx", 0o600);
-    try {
-      await handle.writeFile(JSON.stringify({
-        pid: process.pid,
-        token,
-        acquiredAt: new Date().toISOString()
-      }));
-    } catch (error) {
-      await handle.close().catch(() => undefined);
-      await unlink(lockPath).catch(() => undefined);
-      throw error;
-    }
-    return handle;
+    acquisitionGuard = await createLinkedInOwnedLock(
+      acquisitionGuardPath,
+      acquisitionGuardToken
+    );
   } catch (error) {
-    if (error?.code !== "EEXIST") throw error;
-    const holder = await readLinkedInLock(lockPath);
-    if (allowStaleRetry && holder && !processIsAlive(holder.pid)) {
-      await unlink(lockPath).catch(() => undefined);
-      return acquireLinkedInAccountLock(lockPath, token, false);
+    if (error?.code === "EEXIST") {
+      throw new Error(
+        "LinkedIn collection refused: another collector is acquiring the account lock or a prior acquisition was interrupted."
+      );
     }
-    throw new Error(
-      "LinkedIn collection refused: another authenticated collector already holds the account lock."
+    throw error;
+  }
+
+  try {
+    try {
+      return await createLinkedInOwnedLock(lockPath, token);
+    } catch (error) {
+      if (error?.code !== "EEXIST") throw error;
+    }
+
+    const holder = await readLinkedInLock(lockPath);
+    if (!holder) {
+      throw new Error(
+        "LinkedIn collection refused: the existing account lock is malformed."
+      );
+    }
+    if (processIsAlive(holder.pid)) {
+      throw new Error(
+        "LinkedIn collection refused: another authenticated collector already holds the account lock."
+      );
+    }
+
+    const current = await readLinkedInLock(lockPath);
+    if (current?.token !== holder.token || current?.pid !== holder.pid) {
+      throw new Error(
+        "LinkedIn collection refused: account lock ownership changed during stale-lock recovery."
+      );
+    }
+
+    // Every acquisition and stale reclaim must hold acquisitionGuardPath. No
+    // conforming contender can replace the lock between this ownership check
+    // and unlink, so a stale reclaimer cannot delete another collector's lock.
+    await unlink(lockPath);
+    return await createLinkedInOwnedLock(lockPath, token);
+  } finally {
+    await releaseLinkedInOwnedLock(
+      acquisitionGuardPath,
+      acquisitionGuardToken,
+      acquisitionGuard
     );
   }
+}
+
+async function createLinkedInOwnedLock(lockPath, token) {
+  const handle = await open(lockPath, "wx", 0o600);
+  try {
+    await handle.writeFile(JSON.stringify({
+      pid: process.pid,
+      token,
+      acquiredAt: new Date().toISOString()
+    }));
+    await handle.sync();
+    return handle;
+  } catch (error) {
+    await handle.close().catch(() => undefined);
+    const current = await readLinkedInLock(lockPath);
+    if (current?.token === token) await unlink(lockPath).catch(() => undefined);
+    throw error;
+  }
+}
+
+async function releaseLinkedInOwnedLock(lockPath, token, handle) {
+  await handle?.close().catch(() => undefined);
+  const current = await readLinkedInLock(lockPath);
+  if (current?.token === token) await unlink(lockPath).catch(() => undefined);
 }
 
 async function readLinkedInLock(lockPath) {
@@ -635,24 +1000,33 @@ export function linkedinSafetySignal(value) {
   )?.[1]?.toLowerCase();
   if (taggedSignal) return taggedSignal;
   if (
-    /(?:\bHTTP(?:\/\d(?:\.\d)?)?\s*429\b|\bstatus(?:\s+code)?\s*[:=]?\s*429\b|\b429\s+(?:too many requests|rate limit)|\brate limit(?:ed|ing)?\b|\btoo many requests\b|\bslow down\b|\btemporarily restricted due to (?:request|activity) volume\b)/i.test(
+    /(?:\bOpenCLI browser session cleanup failed\b|\bauthenticated session lease may still be active\b)/i.test(
+      message
+    )
+  ) {
+    return "account_safety";
+  }
+  const httpStatus = linkedInHttpStatus(value, message);
+  if (httpStatus === 401 || httpStatus === 403) {
+    return "auth";
+  }
+  if (httpStatus === 999) return "account_safety";
+  if (httpStatus === 429) return "rate_limited";
+  if (
+    /(?:\bHTTP(?:\/\d(?:\.\d)?)?\s*429\b|\bstatus(?:\s+code)?\s*[:=]?\s*429\b|\b429\s+(?:too many requests|rate limit)|\brate limit(?:ed|ing)?\b|\btoo many requests\b|\bslow down\b|\btemporarily restricted due to (?:request|activity) volume\b|\byou['’]?ve reached the (?:commercial use|weekly invitation|search) limit\b|\bmaximum number of requests\b)/i.test(
       message
     )
   ) {
     return "rate_limited";
   }
   if (
-    /(?:linkedin\.com\/checkpoint\b|\/checkpoint\/(?:challenge|lg)\b|\bsecurity checkpoint\b|\bcheckpoint (?:challenge|required)\b|^\s*checkpoint\s*$|\b(?:linkedin )?challenge (?:page|required)\b|^\s*challenge\s*$|\bconfirm it['’]?s you\b|\bsecurity code\b|\bverify (?:your )?(?:identity|account)\b|\bidentity verification\b|\bsuspicious (?:login|activity)\b|\bunusual activity (?:was detected|on your account)\b|\bwe(?:'ve| have) detected automated activity\b|\bautomated activity (?:has been )?detected\b|\bcommercial use limit\b|\byour account (?:has been |is )?(?:temporarily |permanently )?(?:restricted|suspended)\b|\baccount[-\s]+warning\b|\bprotect your account\b|\bcaptcha\b)/i.test(
+    /(?:linkedin\.com\/checkpoint\b|\/checkpoint\/(?:challenge|lg)\b|\/challenge(?:\/|\b)|\bsecurity checkpoint\b|\bcheckpoint (?:challenge|required)\b|^\s*checkpoint\s*$|\b(?:linkedin )?challenge (?:page|required)\b|^\s*challenge\s*$|\bconfirm it['’]?s you\b|\bsecurity code\b|\bverify (?:your )?(?:identity|account)\b|\bidentity verification\b|\bsuspicious (?:login|activity)\b|\bunusual activity (?:was detected|on your account)\b|\bwe(?:'ve| have) detected automated activity\b|\bautomated activity (?:has been )?detected\b|\bcommercial use limit\b|\byour account (?:has been |is )?(?:temporarily |permanently )?(?:restricted|suspended)\b|\baccount[-\s]+warning\b|\bprotect your account\b|\bcaptcha\b)/i.test(
       message
     )
   ) {
     return "account_safety";
   }
-  if (
-    /(?:\bsign in to (?:continue|linkedin)\b|\blog in to (?:continue|linkedin)\b|\blinkedin (?:login|sign in)\b|\bsession expired\b)/i.test(
-      message
-    )
-  ) {
+  if (linkedinLoginWallDetected(message)) {
     return "auth";
   }
   return null;
@@ -672,7 +1046,7 @@ export function linkedinFailureKind(value) {
   const safetySignal = linkedinSafetySignal(message);
   if (safetySignal) return safetySignal;
   if (
-    /\b(?:log in|login|sign in|authenticated|authentication|session expired)\b/i.test(
+    /\b(?:authenticated|authentication)\b[^\r\n]{0,80}\b(?:failed|required|missing|expired|unavailable|not available)\b/i.test(
       message
     )
   ) {
@@ -696,6 +1070,24 @@ export function linkedinFailureKind(value) {
     return "transport";
   }
   return "system";
+}
+
+function linkedinLoginWallDetected(message) {
+  const normalized = String(message ?? "").replace(/\\r?\\n/g, "\n");
+  const loginUrl = /(?:^|["'\s:=])(?:https?:\/\/)?(?:www\.)?linkedin\.com\/(?:uas\/)?login(?:[/?#"'\s]|$)|(?:^|["'\s:=])\/login(?:[/?#"'\s]|$)/i;
+  if (loginUrl.test(normalized)) return true;
+
+  const exactWallText = /^\s*(?:(?:linkedin\s*[:|]\s*)?(?:log\s*in(?:\s+or\s+sign\s+up)?|log\s+in\s+to\s+continue|sign\s+in(?:\s+(?:to\s+(?:continue|linkedin)|\|\s*linkedin))?|session\s+expired)(?:\s*[|:]\s*linkedin)?|linkedin\s+(?:log\s*in|sign\s+in)(?:\s+page)?)\s*$/i;
+  if (exactWallText.test(normalized.trim())) return true;
+
+  const structuredFields = /["'](?:title|pageTitle|og:title|visibleText|bodyText)["']\s*:\s*["']([^"']{0,800})["']/gi;
+  for (const match of normalized.matchAll(structuredFields)) {
+    if (exactWallText.test(match[1].trim())) return true;
+  }
+
+  return normalized
+    .split(/\n+/)
+    .some((line) => exactWallText.test(line.trim()));
 }
 
 export function linkedinCircuitDecision({
@@ -892,6 +1284,87 @@ function safeJson(value) {
   }
 }
 
+function linkedInHttpStatus(value, message) {
+  const structuredStatus = linkedInStructuredHttpStatus(value);
+  if (structuredStatus !== null) return structuredStatus;
+
+  if (typeof value === "string") {
+    let nested = value.trim();
+    for (let depth = 0; depth < 4; depth += 1) {
+      if (!/^(?:\{|\[|\")/.test(nested)) break;
+      try {
+        const parsed = JSON.parse(nested);
+        const parsedStatus = linkedInStructuredHttpStatus(parsed);
+        if (parsedStatus !== null) return parsedStatus;
+        if (typeof parsed !== "string" || parsed === nested) break;
+        nested = parsed.trim();
+      } catch {
+        break;
+      }
+    }
+  }
+
+  const patterns = [
+    /\bHTTP(?:\/\d(?:\.\d)?)?\s*(?:status|error)?\s*[:=-]?\s*(401|403|429|999)\b/i,
+    /\b(?:request|response|server|upstream|fetch)\b[^\r\n]{0,80}?\bstatus(?:\s+code)?\s*[:=]?\s*(401|403|429|999)\b/i,
+    /\bstatus\s+code\s*[:=]?\s*(401|403|429|999)\b/i,
+    /\bstatus\s*[:=]\s*(401|403|429|999)\b/i,
+    /\bresponse\s+code\s*[:=]?\s*(401|403|429|999)\b/i,
+    /["']?(?:status[_-]?code|http[_-]?status(?:[_-]?code)?|response[_-]?code)["']?\s*[:=]\s*["']?(401|403|429|999)\b/i,
+    /\b(?:request|response)\s+(?:failed|returned|responded)\b[^\d\r\n]{0,40}\b(401|403|429|999)\b/i
+  ];
+  for (const pattern of patterns) {
+    const match = pattern.exec(message);
+    if (match) return Number(match[1]);
+  }
+  return null;
+}
+
+function linkedInStructuredHttpStatus(value) {
+  if (!value || typeof value !== "object") return null;
+  const queue = [{ value, depth: 0, httpContext: false }];
+  const seen = new Set();
+  let inspected = 0;
+  while (queue.length > 0 && inspected < 128) {
+    const current = queue.shift();
+    if (!current || current.depth > 6 || !current.value || typeof current.value !== "object") {
+      continue;
+    }
+    if (seen.has(current.value)) continue;
+    seen.add(current.value);
+    inspected += 1;
+    for (const [key, nestedValue] of Object.entries(current.value)) {
+      const normalizedKey = key.toLowerCase().replace(/[^a-z0-9]/g, "");
+      const explicitStatusKey = [
+        "statuscode",
+        "httpstatus",
+        "httpstatuscode",
+        "responsecode"
+      ].includes(normalizedKey);
+      const contextualStatusKey =
+        normalizedKey === "status" && (current.depth === 0 || current.httpContext);
+      if (explicitStatusKey || contextualStatusKey) {
+        const status = Number(nestedValue);
+        if ([401, 403, 429, 999].includes(status)) return status;
+      }
+      if (nestedValue && typeof nestedValue === "object") {
+        queue.push({
+          value: nestedValue,
+          depth: current.depth + 1,
+          httpContext:
+            current.httpContext ||
+            /^(?:response|error|cause|request|http|result)$/.test(normalizedKey)
+        });
+      }
+    }
+  }
+  return null;
+}
+
 function defaultSleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function monotonicNow() {
+  return performance.now();
 }

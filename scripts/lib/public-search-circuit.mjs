@@ -1,16 +1,9 @@
 const DEFAULT_TIMEOUT_MS = 8_000;
-const DEFAULT_MAX_BODY_BYTES = 2 * 1024 * 1024;
+const DEFAULT_MAX_ENCODED_BODY_BYTES = 2 * 1024 * 1024;
+const DEFAULT_MAX_DECODED_BODY_BYTES = 4 * 1024 * 1024;
 const DEFAULT_FAILURE_THRESHOLD = 2;
 const DEFAULT_COOLDOWN_MS = 15 * 60_000;
 const IMMEDIATE_BLOCK_STATUSES = new Set([401, 403, 429, 451]);
-
-class PublicSearchBodyLimitError extends Error {
-  constructor(limit) {
-    super(`DuckDuckGo public search exceeded the ${limit}-byte response limit`);
-    this.name = "PublicSearchBodyLimitError";
-    this.limit = limit;
-  }
-}
 
 export class PublicSearchUnavailableError extends Error {
   constructor(message, {
@@ -41,15 +34,19 @@ export class PublicSearchUnavailableError extends Error {
  * blocker without converting the outage into a false "no account exists".
  */
 export function createPublicSearchCircuit(options = {}) {
-  const fetchImplementation = options.fetch ?? globalThis.fetch;
-  if (typeof fetchImplementation !== "function") {
-    throw new TypeError("createPublicSearchCircuit requires a fetch implementation");
+  const boundedTransport = options.transport;
+  if (typeof boundedTransport !== "function") {
+    throw new TypeError("createPublicSearchCircuit requires a bounded transport implementation");
   }
 
   const timeoutMs = positiveInteger(options.timeoutMs ?? DEFAULT_TIMEOUT_MS, "timeoutMs");
-  const maxBodyBytes = positiveInteger(
-    options.maxBodyBytes ?? DEFAULT_MAX_BODY_BYTES,
-    "maxBodyBytes"
+  const maxEncodedBodyBytes = positiveInteger(
+    options.maxEncodedBodyBytes ?? DEFAULT_MAX_ENCODED_BODY_BYTES,
+    "maxEncodedBodyBytes"
+  );
+  const maxDecodedBodyBytes = positiveInteger(
+    options.maxDecodedBodyBytes ?? DEFAULT_MAX_DECODED_BODY_BYTES,
+    "maxDecodedBodyBytes"
   );
   const failureThreshold = positiveInteger(
     options.failureThreshold ?? DEFAULT_FAILURE_THRESHOLD,
@@ -75,6 +72,7 @@ export function createPublicSearchCircuit(options = {}) {
       release = resolve;
     });
     let admitted = false;
+    const teardownRegistry = createTransportTeardownRegistry();
 
     try {
       await waitForAdmission(previous, init.signal);
@@ -88,16 +86,18 @@ export function createPublicSearchCircuit(options = {}) {
       const parentSignal = init.signal;
 
       try {
-        const { response, responseText } = await fetchWithDeadline({
-          fetchImplementation,
+        const { response, text } = await fetchWithDeadline({
+          boundedTransport,
           input,
           init,
           controller,
           parentSignal,
           timeoutMs,
-          maxBodyBytes,
+          maxEncodedBodyBytes,
+          maxDecodedBodyBytes,
           setTimer,
-          clearTimer
+          clearTimer,
+          teardownRegistry
         });
         if (isProviderFailureStatus(response.status)) {
           const immediate = IMMEDIATE_BLOCK_STATUSES.has(response.status);
@@ -109,7 +109,7 @@ export function createPublicSearchCircuit(options = {}) {
           });
         }
 
-        if (looksLikePublicSearchSoftBlock(responseText)) {
+        if (looksLikePublicSearchSoftBlock(text)) {
           const failure = "DuckDuckGo public search returned an HTTP 200 challenge/block page";
           recordFailure(failure, { immediate: true });
           throw unavailableError(failure, {
@@ -120,28 +120,29 @@ export function createPublicSearchCircuit(options = {}) {
 
         consecutiveFailures = 0;
         lastFailure = null;
-        return response;
+        return Object.freeze({ response, text });
       } catch (error) {
         if (error instanceof PublicSearchUnavailableError) throw error;
         if (parentSignal?.aborted) throw error;
-        if (error instanceof PublicSearchBodyLimitError) {
-          throw unavailableError(error.message, {
+        if (isPublicBodyLimitError(error)) {
+          throw unavailableError(`DuckDuckGo public search ${errorMessage(error)}`, {
             code: "public_search_body_limit",
             cause: error
           });
         }
 
-        const failure = controller.signal.aborted
+        const timedOut = controller.signal.aborted || isPublicTimeoutError(error);
+        const failure = timedOut
           ? `DuckDuckGo public search timed out after ${timeoutMs}ms`
           : `DuckDuckGo public search transport failed: ${errorMessage(error)}`;
         recordFailure(failure);
         throw unavailableError(failure, {
-          code: controller.signal.aborted ? "public_search_timeout" : "public_search_transport_failure",
+          code: timedOut ? "public_search_timeout" : "public_search_transport_failure",
           cause: error
         });
       }
     } finally {
-      if (admitted) release();
+      if (admitted) void teardownRegistry.drain().then(release, release);
       else void previous.then(release, release);
     }
   }
@@ -163,7 +164,7 @@ export function createPublicSearchCircuit(options = {}) {
   }
 
   return Object.freeze({
-    fetch: fetchThroughCircuit,
+    fetchText: fetchThroughCircuit,
     snapshot() {
       const currentTime = now();
       return Object.freeze({
@@ -200,15 +201,17 @@ function waitForAdmission(previous, signal) {
 }
 
 async function fetchWithDeadline({
-  fetchImplementation,
+  boundedTransport,
   input,
   init,
   controller,
   parentSignal,
   timeoutMs,
-  maxBodyBytes,
+  maxEncodedBodyBytes,
+  maxDecodedBodyBytes,
   setTimer,
-  clearTimer
+  clearTimer,
+  teardownRegistry
 }) {
   let timer;
   let onParentAbort;
@@ -233,80 +236,56 @@ async function fetchWithDeadline({
     : new Promise(() => {});
 
   try {
-    return await Promise.race([
-      Promise.resolve().then(async () => {
-        const response = await fetchImplementation(input, { ...init, signal: controller.signal });
-        if (isProviderFailureStatus(response.status)) {
-          return { response, responseText: "" };
-        }
-        const responseText = await boundedResponseText(response.clone(), maxBodyBytes, {
-          signal: controller.signal,
-          siblingBody: response.body
-        });
-        return { response, responseText };
-      }),
+    const transportPromise = Promise.resolve().then(() => boundedTransport(input, {
+      ...init,
+      signal: controller.signal,
+      timeoutMs,
+      maxResponseBytes: maxEncodedBodyBytes,
+      maxDecodedBytes: maxDecodedBodyBytes,
+      cancelErrorBody: true,
+      registerTeardown: teardownRegistry.register
+    }));
+    transportPromise.catch(() => {});
+    teardownRegistry.register(transportPromise);
+    const result = await Promise.race([
+      transportPromise,
       deadline,
       callerAbort
     ]);
+    if (!result?.response || typeof result.text !== "string") {
+      throw new TypeError(
+        "DuckDuckGo bounded transport must return { response, text }."
+      );
+    }
+    return result;
   } finally {
     clearTimer(timer);
     parentSignal?.removeEventListener("abort", onParentAbort);
   }
 }
 
-async function boundedResponseText(response, maxBodyBytes, { signal, siblingBody } = {}) {
-  const contentLength = Number(response.headers?.get?.("content-length"));
-  if (Number.isFinite(contentLength) && contentLength > maxBodyBytes) {
-    cancelBody(response.body);
-    cancelBody(siblingBody);
-    throw new PublicSearchBodyLimitError(maxBodyBytes);
-  }
-  if (!response.body?.getReader) {
-    const text = await response.text();
-    if (new TextEncoder().encode(text).byteLength > maxBodyBytes) {
-      throw new PublicSearchBodyLimitError(maxBodyBytes);
-    }
-    return text;
-  }
-
-  const reader = response.body.getReader();
-  const decoder = new TextDecoder();
-  let totalBytes = 0;
-  let text = "";
-  const onAbort = () => {
-    const reason = abortReason(signal);
-    cancelReader(reader, reason);
-    cancelBody(siblingBody, reason);
+function createTransportTeardownRegistry() {
+  const pending = [];
+  const register = (value) => {
+    if (!value || typeof value.then !== "function") return;
+    pending.push(Promise.resolve(value).catch(() => undefined));
   };
-  if (signal?.aborted) onAbort();
-  else signal?.addEventListener("abort", onAbort, { once: true });
-  try {
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-      totalBytes += value.byteLength;
-      if (totalBytes > maxBodyBytes) {
-        cancelReader(reader);
-        cancelBody(siblingBody);
-        throw new PublicSearchBodyLimitError(maxBodyBytes);
+  return {
+    register,
+    async drain() {
+      let drainedThrough = 0;
+      while (true) {
+        const batch = pending.slice(drainedThrough);
+        drainedThrough = pending.length;
+        if (batch.length > 0) await Promise.all(batch);
+        // A transport can register its dispatcher/body teardown while the
+        // outer transport promise is settling. Recheck after a microtask so a
+        // timeout never releases admission ahead of that deeper cleanup.
+        await Promise.resolve();
+        if (drainedThrough === pending.length) return;
       }
-      text += decoder.decode(value, { stream: true });
     }
-    text += decoder.decode();
-    return text;
-  } finally {
-    signal?.removeEventListener("abort", onAbort);
-    reader.releaseLock();
-  }
-}
-
-function cancelReader(reader, reason) {
-  void reader.cancel(reason).catch(() => {});
-}
-
-function cancelBody(body, reason) {
-  if (!body?.cancel) return;
-  void body.cancel(reason).catch(() => {});
+  };
 }
 
 function abortReason(signal) {
@@ -327,6 +306,14 @@ function circuitOpenError(openUntil, lastFailure) {
 
 function isProviderFailureStatus(status) {
   return status >= 400;
+}
+
+function isPublicBodyLimitError(error) {
+  return error?.code === "public_body_limit";
+}
+
+function isPublicTimeoutError(error) {
+  return error?.code === "public_fetch_timeout" || error?.code === "PUBLIC_SEARCH_TIMEOUT";
 }
 
 function looksLikePublicSearchSoftBlock(value) {

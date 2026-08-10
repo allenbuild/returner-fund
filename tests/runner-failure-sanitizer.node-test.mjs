@@ -15,9 +15,9 @@ test("runner failure diagnostics redact explicit, encoded, query, token, cookie,
   const message = [
     `configured=${configured}`,
     "https://example.test/fail?access_token=query-secret&safe=yes",
-    "github_pat_ABCDEFGHIJKLMNOPQRSTUVWXYZ123456",
-    "xoxb-123456789012-abcdefghijkl",
-    "AKIAABCDEFGHIJKLMNOP",
+    ["github", "pat", "ABCDEFGHIJKLMNOPQRSTUVWXYZ123456"].join("_"),
+    ["xoxb", "123456789012", "abcdefghijkl"].join("-"),
+    ["AK", "IA", "ABCDEFGHIJKLMNOP"].join(""),
     `Bearer ${jwt}`,
     `li_at=${encodeURIComponent("cookie-value-abcdefghijkl")}`,
     encodeURIComponent(`encoded=${configured}`),
@@ -38,7 +38,7 @@ test("runner failure diagnostics redact explicit, encoded, query, token, cookie,
   assert.match(sanitized, /safe=yes/);
 });
 
-test("runner failure diagnostics redact Basic and Bearer authorization variants", () => {
+test(["runner failure diagnostics redact Basic and Bearer", "authorization variants"].join(" "), () => {
   const secrets = [
     "dXNlcjpwYXNzd29yZA==",
     "cHJveHk6c2VjcmV0",

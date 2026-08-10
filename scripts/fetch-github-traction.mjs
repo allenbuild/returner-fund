@@ -1,4 +1,4 @@
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { readRequiredCanonicalJson } from "./lib/canonical-json.mjs";
 import { isAutonomousCollectorFailureRetryable } from "./lib/autonomous-ingestion-plan.mjs";
@@ -17,8 +17,17 @@ import {
   githubApiFailureReceipt,
   githubCollectorFailureOutcomeReason
 } from "./lib/github-api-client.mjs";
+import {
+  completeAutonomousCollectorProvenance,
+  readAutonomousCollectorLaunchProvenance
+} from "./lib/autonomous-collector-provenance.mjs";
+import { validatedRepositoryDataRoot } from "./lib/validated-repository-data-root.mjs";
 
-const root = process.cwd();
+const root = validatedRepositoryDataRoot(
+  stringArg("--catalog-root") ?? process.env.AUTONOMOUS_CATALOG_ROOT,
+  { fallbackRoot: process.cwd(), label: "GitHub collector catalog root" }
+);
+const autonomousLaunchProvenance = readAutonomousCollectorLaunchProvenance();
 const batchConfig = resolveBatchConfig(stringArg("--batch") ?? stringArg("--batch-slug") ?? "S26");
 const outputPath = resolveOutputPath(stringArg("--output") ?? stringArg("--out") ?? batchConfig.outputPath);
 const apiBase = "https://api.github.com";
@@ -120,17 +129,31 @@ await runWorkerPool(githubTargets, workers, async (target) => {
   }
 });
 
+const fetchedAt = new Date().toISOString();
+const completedAt = new Date().toISOString();
+const autonomousAttempt = completeAutonomousCollectorProvenance(
+  autonomousLaunchProvenance,
+  {
+    kind: "github",
+    batchSlug: batchConfig.slug,
+    shardIndex: companyShardIndex,
+    shardCount: companyShardCount,
+    fetchedAt,
+    completedAt
+  }
+);
 const payload = {
   source: {
     label: batchConfig.sourceLabel,
     batchSlug: batchConfig.slug,
     batchLabel: batchConfig.label,
     sourcePath: batchConfig.sourcePath,
-    fetchedAt: new Date().toISOString(),
+    fetchedAt,
     companyCount: companies.length,
     totalCompanyCount: limitedCompanies.length,
     companyShardCount,
     companyShardIndex,
+    ...(autonomousAttempt ? { autonomousAttempt } : {}),
     targetCount: githubTargets.length,
     fetchedCount: results.filter((result) => result.fetched).length,
     repositoryPageLimit: maxRepositoryPages,
@@ -162,9 +185,15 @@ const payload = {
   accounts: results.sort((a, b) => (b.aggregate?.profileScore ?? 0) - (a.aggregate?.profileScore ?? 0))
 };
 
-await mkdir(dirname(outputPath), { recursive: true });
-await writeFile(outputPath, `${JSON.stringify(payload, null, 2)}\n`);
+await writeJsonAtomic(outputPath, payload);
 console.log(`Wrote ${outputPath}`);
+
+async function writeJsonAtomic(path, value) {
+  await mkdir(dirname(path), { recursive: true });
+  const temporaryPath = `${path}.${process.pid}.${Date.now()}.tmp`;
+  await writeFile(temporaryPath, `${JSON.stringify(value, null, 2)}\n`, "utf8");
+  await rename(temporaryPath, path);
+}
 
 function collectExplicitGithubTargets(companies) {
   const targets = [];

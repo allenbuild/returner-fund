@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { execFileSync, spawnSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
@@ -7,6 +8,11 @@ import { describe, it } from "node:test";
 import {
   withOpenCliBrowserSession
 } from "../scripts/lib/opencli-browser-session.mjs";
+import {
+  buildOpenCliChildEnvironment,
+  openCliProcessSignalAuthorization,
+  sanitizeOpenCliDiagnostic
+} from "../scripts/lib/opencli-runtime.mjs";
 import {
   LINKEDIN_MINIMUM_INTERACTION_DELAY_MS,
   LINKEDIN_MINIMUM_TARGET_DELAY_MS,
@@ -33,6 +39,30 @@ const collectorSource = readFileSync(
   new URL("../scripts/fetch-logged-in-social-traction.mjs", import.meta.url),
   "utf8"
 );
+
+function permissiveGlobalLeaseProvider() {
+  let sequence = 0;
+  return {
+    async claim() {
+      sequence += 1;
+      return { leaseToken: `test-lease-${sequence}` };
+    },
+    async renew() {
+      return true;
+    },
+    async release() {
+      return true;
+    }
+  };
+}
+
+function linkedInLockOptions(lockPath, globalLeaseProvider = permissiveGlobalLeaseProvider()) {
+  return {
+    lockPath,
+    globalLeaseProvider,
+    globalLockNamespace: "returner-test-linkedin-account"
+  };
+}
 
 describe("OpenCLI browser session cleanup", () => {
   it("releases the exact browser session lease after successful collection", async () => {
@@ -70,21 +100,305 @@ describe("OpenCLI browser session cleanup", () => {
           throw collectionError;
         }
       }),
-      (error) => error === collectionError
+      (error) => {
+        assert.equal(error, collectionError);
+        assert.equal(
+          error.sessionCleanupFailure?.code,
+          "OPENCLI_BROWSER_SESSION_CLOSE_FAILED"
+        );
+        assert.match(
+          error.sessionCleanupFailure?.message ?? "",
+          /authenticated session lease may still be active/
+        );
+        return true;
+      }
     );
     assert.equal(closeAttempts, 1);
   });
 
-  it("preserves a successful result when releasing the lease fails", async () => {
-    const result = await withOpenCliBrowserSession({
-      session: "linkedin-worker-5",
-      runOpenCli: async () => {
-        throw new Error("browser close failed");
-      },
-      operation: async () => ["native-post"]
-    });
+  it("turns a successful operation into an explicit terminal failure when lease cleanup fails", async () => {
+    await assert.rejects(
+      withOpenCliBrowserSession({
+        session: "linkedin-worker-5",
+        runOpenCli: async () => {
+          throw new Error("browser close failed with li_at=must-not-escape");
+        },
+        operation: async () => ["native-post"]
+      }),
+      (error) => {
+        assert.equal(error.code, "OPENCLI_BROWSER_SESSION_CLOSE_FAILED");
+        assert.match(error.message, /collection outcome is failed/);
+        assert.doesNotMatch(error.message, /must-not-escape/);
+        assert.equal(linkedinFailureRequiresImmediateAbort(error.message), true);
+        return true;
+      }
+    );
+    assert.match(collectorSource, /error\?\.sessionCleanupFailure instanceof Error/);
+  });
 
-    assert.deepEqual(result, ["native-post"]);
+  it("preserves a non-extensible primary failure when cleanup also fails", async () => {
+    const primaryError = Object.freeze(new Error("primary navigation failure"));
+    await assert.rejects(
+      withOpenCliBrowserSession({
+        session: "linkedin-worker-frozen-error",
+        runOpenCli: async () => {
+          throw new Error("browser close failed");
+        },
+        operation: async () => {
+          throw primaryError;
+        }
+      }),
+      (error) => {
+        assert.equal(error.code, "OPENCLI_BROWSER_OPERATION_AND_CLOSE_FAILED");
+        assert.equal(error.primaryError, primaryError);
+        assert.equal(
+          error.sessionCleanupFailure?.code,
+          "OPENCLI_BROWSER_SESSION_CLOSE_FAILED"
+        );
+        return true;
+      }
+    );
+    assert.match(collectorSource, /const primaryError = error\?\.primaryError \?\? error/);
+  });
+});
+
+describe("OpenCLI subprocess isolation", () => {
+  it("records a unique owner marker and revalidates process identity before teardown signals", () => {
+    assert.match(
+      readFileSync(new URL("../scripts/lib/opencli-runtime.mjs", import.meta.url), "utf8"),
+      /RETURNER_OPENCLI_PROCESS_OWNER=\$\{owner\.marker\}/
+    );
+    assert.match(
+      readFileSync(new URL("../scripts/lib/opencli-runtime.mjs", import.meta.url), "utf8"),
+      /ownedProcessIdentityIsCurrent\(pid, processState, owner\)/
+    );
+    assert.match(
+      readFileSync(new URL("../scripts/lib/opencli-runtime.mjs", import.meta.url), "utf8"),
+      /expectedStartIdentity: processState\.startIdentity/
+    );
+    assert.match(
+      readFileSync(new URL("../scripts/lib/opencli-runtime.mjs", import.meta.url), "utf8"),
+      /processOwnerMarker\(pid, owner\.marker\)/
+    );
+  });
+
+  it("fails closed for same-second PID reuse and Windows PID-only signaling", () => {
+    const sameSecond = "ps-lstart:Sun Aug 09 12:00:00 2026";
+    assert.equal(openCliProcessSignalAuthorization({
+      platform: "darwin",
+      expectedStartIdentity: sameSecond,
+      currentStartIdentity: sameSecond,
+      expectedMarker: "owner-a",
+      currentMarker: "owner-b"
+    }), false);
+    assert.equal(openCliProcessSignalAuthorization({
+      platform: "darwin",
+      expectedStartIdentity: sameSecond,
+      currentStartIdentity: sameSecond,
+      expectedMarker: "owner-a",
+      currentMarker: "owner-a"
+    }), true);
+    assert.equal(openCliProcessSignalAuthorization({
+      platform: "win32",
+      expectedStartIdentity: "windows-start-a",
+      currentStartIdentity: "windows-start-a",
+      expectedMarker: "owner-a",
+      currentMarker: "owner-a"
+    }), false);
+    const runtimeSource = readFileSync(new URL("../scripts/lib/opencli-runtime.mjs", import.meta.url), "utf8");
+    assert.doesNotMatch(runtimeSource, /execFileAsync\(["']taskkill["']/);
+    assert.match(runtimeSource, /OPENCLI_UNSAFE_PLATFORM/);
+  });
+
+  it("builds a strict child environment without unrelated parent secrets", () => {
+    const childEnv = buildOpenCliChildEnvironment({
+      PATH: "/usr/bin:/bin",
+      HOME: "/tmp/opencli-home",
+      LANG: "C.UTF-8",
+      TMPDIR: "/tmp/opencli-tmp",
+      OPENCLI_BIN: "/tmp/opencli",
+      AUDIT_PARENT_SECRET_SENTINEL: "must-not-be-forwarded",
+      LINKEDIN_COOKIE: "must-not-be-forwarded",
+      SUPABASE_SERVICE_ROLE_KEY: "must-not-be-forwarded",
+      GITHUB_TOKEN: "must-not-be-forwarded"
+    }, { nodeBinDir: "/runtime/node/bin" });
+
+    assert.deepEqual(childEnv, {
+      HOME: "/tmp/opencli-home",
+      LANG: "C.UTF-8",
+      TMPDIR: "/tmp/opencli-tmp",
+      PATH: `/runtime/node/bin${process.platform === "win32" ? ";" : ":"}/usr/bin:/bin`
+    });
+    assert.equal(JSON.stringify(childEnv).includes("must-not-be-forwarded"), false);
+  });
+
+  it("redacts secret sentinels from child stdout, stderr, and thrown diagnostics", () => {
+    const secretValue = "abcdefghijklmnopqrstuvwxyz0123456789";
+    const cookieSecret = `li_at=${secretValue}`;
+    const bearerSecret = "Bearer abcdefghijklmnopqrstuvwxyz012345";
+    const genericSecret = "AUDIT_OUTPUT_SECRET=0123456789abcdefghijklmnopqrstuvwxyz";
+    const nestedCookieJson = JSON.stringify({
+      payload: JSON.stringify({
+        li_at: secretValue,
+        JSESSIONID: secretValue,
+        sessionSecret: secretValue
+      })
+    });
+    const failingProgram = [
+      `process.stdout.write("env-leak=" + String(Boolean(process.env.AUDIT_PARENT_SECRET_SENTINEL)) + " " + ${JSON.stringify(`${cookieSecret} ${genericSecret} ${nestedCookieJson}`)});`,
+      `process.stderr.write(${JSON.stringify(`${bearerSecret} JSESSIONID: ${secretValue}`)});`,
+      "process.exit(7);"
+    ].join("");
+    const runtimeUrl = new URL(
+      "../scripts/lib/opencli-runtime.mjs",
+      import.meta.url
+    ).href;
+    const probeProgram = `
+      import { runOpenCli } from ${JSON.stringify(runtimeUrl)};
+      try {
+        await runOpenCli(["--input-type=module", "-e", ${JSON.stringify(failingProgram)}]);
+        process.exitCode = 2;
+      } catch (error) {
+        process.stdout.write(JSON.stringify({
+          message: error.message,
+          stdout: error.stdout,
+          stderr: error.stderr,
+          code: error.code
+        }));
+      }
+    `;
+    const raw = execFileSync(
+      process.execPath,
+      ["--input-type=module", "-e", probeProgram],
+      {
+        encoding: "utf8",
+        env: {
+          HOME: process.env.HOME,
+          LANG: process.env.LANG,
+          PATH: process.env.PATH,
+          TMPDIR: process.env.TMPDIR,
+          OPENCLI_BIN: process.execPath,
+          AUDIT_PARENT_SECRET_SENTINEL: "parent-secret-must-not-be-forwarded"
+        }
+      }
+    );
+    const diagnostic = JSON.parse(raw);
+    const serialized = JSON.stringify(diagnostic);
+
+    for (const secret of [cookieSecret, bearerSecret, genericSecret, secretValue]) {
+      assert.doesNotMatch(serialized, new RegExp(escapeRegExp(secret)));
+    }
+    assert.match(serialized, /redacted-(?:cookie|public-token|public-param)/);
+    assert.equal(diagnostic.code, 7);
+    assert.match(diagnostic.stdout, /env-leak=false/);
+    assert.doesNotMatch(
+      sanitizeOpenCliDiagnostic(`cookie: ${cookieSecret}`),
+      /abcdefghijklmnopqrstuvwxyz0123456789/
+    );
+  });
+
+  it("iteratively redacts escaped, nested, JSON, colon, and equals session assignments", () => {
+    const secret = "linkedin-session-cookie-secret-0123456789";
+    const variants = [
+      `li_at=${secret}`,
+      `li_at: ${secret}`,
+      `JSESSIONID=${secret}`,
+      `JSESSIONID: ${secret}`,
+      `Cookie: li_at=${secret}; JSESSIONID=${secret}`,
+      `Authorization: Bearer ${secret}`,
+      JSON.stringify({ li_at: secret, JSESSIONID: secret }),
+      JSON.stringify({ authorization: `Bearer ${secret}` }),
+      JSON.stringify({ sessionSecret: secret }),
+      JSON.stringify({ payload: JSON.stringify({ li_at: secret }) }),
+      JSON.stringify({
+        payload: JSON.stringify({
+          nested: JSON.stringify({ JSESSIONID: secret })
+        })
+      }),
+      String.raw`{\"li_at\":\"${secret}\",\"sessionToken\":\"${secret}\"}`
+    ];
+
+    for (const variant of variants) {
+      const sanitized = sanitizeOpenCliDiagnostic(variant);
+      assert.doesNotMatch(sanitized, new RegExp(escapeRegExp(secret)), variant);
+      assert.match(sanitized, /redacted-(?:secret|public-token|public-param)/);
+    }
+  });
+
+  it("drains a detached descendant before a timed-out OpenCLI command returns", {
+    skip: process.platform === "win32"
+  }, async () => {
+    const directory = await mkdtemp(join(tmpdir(), "returner-opencli-drain-test-"));
+    const pidPath = join(directory, "detached.pid");
+    const survivedPath = join(directory, "detached-survived");
+    const runtimeUrl = new URL(
+      "../scripts/lib/opencli-runtime.mjs",
+      import.meta.url
+    ).href;
+    const detachedProgram = [
+      `setTimeout(() => require("node:fs").writeFileSync(${JSON.stringify(survivedPath)}, "survived"), 750);`,
+      "setInterval(() => {}, 1000);"
+    ].join("");
+    const rootProgram = `
+      const { spawn } = require("node:child_process");
+      const { writeFileSync } = require("node:fs");
+      const child = spawn(process.execPath, ["-e", ${JSON.stringify(detachedProgram)}], {
+        detached: true,
+        stdio: "ignore"
+      });
+      writeFileSync(${JSON.stringify(pidPath)}, String(child.pid));
+      child.unref();
+      setInterval(() => {}, 1000);
+    `;
+    const probeProgram = `
+      import { execFileSync } from "node:child_process";
+      import { readFileSync } from "node:fs";
+      import { runOpenCli } from ${JSON.stringify(runtimeUrl)};
+      let errorCode = null;
+      try {
+        await runOpenCli(["--input-type=commonjs", "-e", ${JSON.stringify(rootProgram)}], {
+          timeoutMs: 150
+        });
+      } catch (error) {
+        errorCode = error.code;
+      }
+      const pid = Number(readFileSync(${JSON.stringify(pidPath)}, "utf8"));
+      let processState = "";
+      try {
+        processState = execFileSync("/bin/ps", ["-p", String(pid), "-o", "stat="], {
+          encoding: "utf8"
+        }).trim();
+      } catch {}
+      process.stdout.write(JSON.stringify({
+        errorCode,
+        descendantRunning: Boolean(processState && !processState.startsWith("Z"))
+      }));
+    `;
+
+    try {
+      const raw = execFileSync(
+        process.execPath,
+        ["--input-type=module", "-e", probeProgram],
+        {
+          encoding: "utf8",
+          timeout: 5_000,
+          env: {
+            HOME: process.env.HOME,
+            LANG: process.env.LANG,
+            PATH: process.env.PATH,
+            TMPDIR: process.env.TMPDIR,
+            OPENCLI_BIN: process.execPath
+          }
+        }
+      );
+      const result = JSON.parse(raw);
+      assert.equal(result.errorCode, "ETIMEDOUT");
+      assert.equal(result.descendantRunning, false);
+      await new Promise((resolve) => setTimeout(resolve, 850));
+      await assert.rejects(readFile(survivedPath, "utf8"), { code: "ENOENT" });
+    } finally {
+      await rm(directory, { recursive: true, force: true });
+    }
   });
 });
 
@@ -154,14 +468,20 @@ describe("logged-in LinkedIn collection", () => {
     );
     assert.match(
       collectorSource,
-      /runLinkedInSerialLane\(linkedinTargets, collectTarget, \{/
+      /runLinkedInSerialLane\(linkedinTargets, \(target, workerIndex\) => \{/
     );
     assert.match(
       collectorSource,
       /limitLinkedInTargetsPerInvocation\(\s+globallyBoundedRunnableTargets,\s+linkedinExecution\.targetCap/
     );
     assert.match(collectorSource, /targetCap: linkedinExecution\.targetCap/);
-    assert.match(collectorSource, /shouldAbort: \(\) => linkedinCircuitOpen/);
+    assert.match(
+      collectorSource,
+      /shouldAbort: \(\) => linkedinCircuitOpen \|\| signal\.aborted/
+    );
+    assert.match(collectorSource, /requiredLinkedInGlobalLockConfiguration\(\)/);
+    assert.match(collectorSource, /LINKEDIN_GLOBAL_LOCK_NAMESPACE/);
+    assert.match(collectorSource, /createSupabaseLinkedInGlobalLeaseProvider\(client\)/);
   });
 
   it("executes LinkedIn targets serially, always as worker zero, with the delay floor", async () => {
@@ -341,9 +661,177 @@ describe("logged-in LinkedIn collection", () => {
     assert.match(collectorSource, /finally \{\s+interactionPacer\.afterInteraction\(\)/);
   });
 
-  it("refuses overlapping authenticated collectors with an account-global lock", async () => {
+  it("fails closed when interaction pacing makes no progress, rolls back, or wakes early repeatedly", async () => {
+    let fixedClock = 1_000;
+    let noProgressSleeps = 0;
+    const noProgress = createLinkedInInteractionPacer({
+      now: () => fixedClock,
+      sleep: async () => {
+        noProgressSleeps += 1;
+      }
+    });
+    await noProgress.beforeInteraction();
+    noProgress.afterInteraction();
+    await assert.rejects(
+      noProgress.beforeInteraction(),
+      (error) => {
+        assert.match(error.message, /LinkedIn safety stop \(account_safety\)/);
+        assert.match(error.message, /without advancing the clock/);
+        assert.equal(linkedinFailureRequiresImmediateAbort(error.message), true);
+        return true;
+      }
+    );
+    assert.equal(noProgressSleeps, 1);
+
+    let rollbackClock = 5_000;
+    const rollback = createLinkedInInteractionPacer({
+      now: () => rollbackClock,
+      sleep: async () => undefined
+    });
+    await rollback.beforeInteraction();
+    rollback.afterInteraction();
+    rollbackClock = 4_999;
+    await assert.rejects(
+      rollback.beforeInteraction(),
+      /interaction pacing clock moved backwards/
+    );
+
+    let partialClock = 10_000;
+    let partialSleeps = 0;
+    const partialProgress = createLinkedInInteractionPacer({
+      now: () => partialClock,
+      sleep: async () => {
+        partialSleeps += 1;
+        partialClock += 1;
+      }
+    });
+    await partialProgress.beforeInteraction();
+    partialProgress.afterInteraction();
+    await assert.rejects(
+      partialProgress.beforeInteraction(),
+      /sleep repeatedly completed before the required delay elapsed/
+    );
+    assert.equal(partialSleeps, 4);
+  });
+
+  it("fails closed before collection without a durable provider and stable namespace", async () => {
+    let operationCalls = 0;
+    await assert.rejects(
+      withLinkedInAccountLock(async () => {
+        operationCalls += 1;
+      }),
+      /requires a configured durable global-lock provider/
+    );
+    await assert.rejects(
+      withLinkedInAccountLock(async () => {
+        operationCalls += 1;
+      }, {
+        globalLeaseProvider: permissiveGlobalLeaseProvider()
+      }),
+      /requires an explicit stable global-lock namespace/
+    );
+    assert.equal(operationCalls, 0);
+  });
+
+  it("uses a shared durable lease across different host-local lock paths", async () => {
+    const directory = await mkdtemp(join(tmpdir(), "returner-linkedin-global-lock-test-"));
+    const activeLeases = new Map();
+    let leaseSequence = 0;
+    const provider = {
+      async claim({ lockKey, ownerId }) {
+        if (activeLeases.has(lockKey)) return null;
+        leaseSequence += 1;
+        const leaseToken = `shared-lease-${leaseSequence}`;
+        activeLeases.set(lockKey, { ownerId, leaseToken });
+        return { leaseToken };
+      },
+      async renew({ lockKey, ownerId, leaseToken }) {
+        const lease = activeLeases.get(lockKey);
+        return lease?.ownerId === ownerId && lease?.leaseToken === leaseToken;
+      },
+      async release({ lockKey, ownerId, leaseToken }) {
+        const lease = activeLeases.get(lockKey);
+        if (lease?.ownerId !== ownerId || lease?.leaseToken !== leaseToken) return false;
+        activeLeases.delete(lockKey);
+        return true;
+      }
+    };
+    let releaseFirst;
+    let firstAcquired;
+    const acquired = new Promise((resolve) => {
+      firstAcquired = resolve;
+    });
+    const hold = new Promise((resolve) => {
+      releaseFirst = resolve;
+    });
+    const firstOptions = linkedInLockOptions(join(directory, "host-a.lock"), provider);
+    const secondOptions = linkedInLockOptions(join(directory, "host-b.lock"), provider);
+
+    try {
+      const first = withLinkedInAccountLock(async () => {
+        firstAcquired();
+        await hold;
+      }, firstOptions);
+      await acquired;
+      await assert.rejects(
+        withLinkedInAccountLock(async () => undefined, secondOptions),
+        /another authenticated collector already holds the durable global lease/
+      );
+      releaseFirst();
+      await first;
+      await withLinkedInAccountLock(async () => undefined, secondOptions);
+    } finally {
+      releaseFirst?.();
+      await rm(directory, { recursive: true, force: true });
+    }
+  });
+
+  it("aborts authenticated work immediately when the durable lease heartbeat is lost", async () => {
+    const directory = await mkdtemp(join(tmpdir(), "returner-linkedin-heartbeat-test-"));
+    const lockPath = join(directory, "linkedin.lock");
+    let releases = 0;
+    const provider = {
+      async claim() {
+        return { leaseToken: "heartbeat-lease" };
+      },
+      async renew() {
+        return false;
+      },
+      async release() {
+        releases += 1;
+        return true;
+      }
+    };
+
+    try {
+      await assert.rejects(
+        withLinkedInAccountLock(async ({ signal }) => {
+          await new Promise((resolve) => {
+            if (signal.aborted) resolve();
+            else signal.addEventListener("abort", resolve, { once: true });
+          });
+        }, {
+          ...linkedInLockOptions(lockPath, provider),
+          leaseDurationMs: 60_000,
+          heartbeatIntervalMs: 10
+        }),
+        (error) => {
+          assert.match(error.message, /LinkedIn safety stop \(account_safety\)/);
+          assert.match(error.message, /heartbeat failed closed/);
+          return true;
+        }
+      );
+      assert.equal(releases, 1);
+      await assert.rejects(readFile(lockPath, "utf8"), { code: "ENOENT" });
+    } finally {
+      await rm(directory, { recursive: true, force: true });
+    }
+  });
+
+  it("preserves a host-local serialized lock as defense in depth", async () => {
     const directory = await mkdtemp(join(tmpdir(), "returner-linkedin-lock-test-"));
     const lockPath = join(directory, "linkedin.lock");
+    const lockOptions = linkedInLockOptions(lockPath);
     let releaseFirst;
     let firstAcquired;
     const acquired = new Promise((resolve) => {
@@ -357,19 +845,83 @@ describe("logged-in LinkedIn collection", () => {
       const first = withLinkedInAccountLock(async () => {
         firstAcquired();
         await hold;
-      }, { lockPath });
+      }, lockOptions);
       await acquired;
 
       await assert.rejects(
-        withLinkedInAccountLock(async () => undefined, { lockPath }),
+        withLinkedInAccountLock(async () => undefined, lockOptions),
         /another authenticated collector already holds the account lock/
       );
 
       releaseFirst();
       await first;
-      await withLinkedInAccountLock(async () => undefined, { lockPath });
+      await withLinkedInAccountLock(async () => undefined, lockOptions);
     } finally {
       releaseFirst?.();
+      await rm(directory, { recursive: true, force: true });
+    }
+  });
+
+  it("serializes concurrent stale-lock reclaim without unlinking a replacement lock", async () => {
+    const directory = await mkdtemp(join(tmpdir(), "returner-linkedin-stale-lock-test-"));
+    const lockPath = join(directory, "linkedin.lock");
+    const lockOptions = linkedInLockOptions(lockPath);
+    const exited = spawnSync(process.execPath, ["-e", "process.exit(0)"]);
+    assert.ok(Number.isInteger(exited.pid));
+    await writeFile(lockPath, JSON.stringify({
+      pid: exited.pid,
+      token: "stale-owner-token",
+      acquiredAt: new Date(0).toISOString()
+    }));
+
+    let active = 0;
+    let maximumActive = 0;
+    let acquiredCount = 0;
+    let releaseWinner;
+    let markWinnerAcquired;
+    const winnerAcquired = new Promise((resolve) => {
+      markWinnerAcquired = resolve;
+    });
+    const holdWinner = new Promise((resolve) => {
+      releaseWinner = resolve;
+    });
+
+    try {
+      const contenders = Array.from({ length: 12 }, () =>
+        withLinkedInAccountLock(async () => {
+          active += 1;
+          acquiredCount += 1;
+          maximumActive = Math.max(maximumActive, active);
+          markWinnerAcquired();
+          await holdWinner;
+          active -= 1;
+        }, lockOptions).then(
+          (value) => ({ status: "fulfilled", value }),
+          (reason) => ({ status: "rejected", reason })
+        )
+      );
+
+      await winnerAcquired;
+      await new Promise((resolve) => setTimeout(resolve, 25));
+      releaseWinner();
+      const settled = await Promise.all(contenders);
+      const fulfilled = settled.filter((result) => result.status === "fulfilled");
+      const rejected = settled.filter((result) => result.status === "rejected");
+
+      assert.equal(fulfilled.length, 1);
+      assert.equal(rejected.length, 11);
+      assert.equal(acquiredCount, 1);
+      assert.equal(maximumActive, 1);
+      for (const result of rejected) {
+        assert.match(
+          result.reason?.message ?? "",
+          /another collector is acquiring the account lock|another authenticated collector already holds the account lock/
+        );
+      }
+      await assert.rejects(readFile(lockPath, "utf8"), { code: "ENOENT" });
+      await assert.rejects(readFile(`${lockPath}.acquire`, "utf8"), { code: "ENOENT" });
+    } finally {
+      releaseWinner?.();
       await rm(directory, { recursive: true, force: true });
     }
   });
@@ -415,6 +967,24 @@ describe("logged-in LinkedIn collection", () => {
 
   it("treats challenge, checkpoint, account-warning, and 429 responses as immediate stops", () => {
     const cases = [
+      ["HTTP 401 Unauthorized", "auth"],
+      ["HTTP/2 403 Forbidden", "auth"],
+      ["Request failed with status 401", "auth"],
+      ["Request failed with status code 403", "auth"],
+      ["Response status 401", "auth"],
+      ["Response status code 403", "auth"],
+      ["Response code 401 (Unauthorized)", "auth"],
+      ["HTTPError: Response code 403 (Forbidden)", "auth"],
+      [{ statusCode: 401, message: "Unauthorized" }, "auth"],
+      [{ status: 403, message: "Forbidden" }, "auth"],
+      [{ response: { statusCode: 401 } }, "auth"],
+      [{ responseCode: "403" }, "auth"],
+      [JSON.stringify({ response: { status: 401 } }), "auth"],
+      [JSON.stringify(JSON.stringify({ http_status_code: 403 })), "auth"],
+      [
+        "OpenCLI browser session cleanup failed; the authenticated session lease may still be active.",
+        "account_safety"
+      ],
       ["https://www.linkedin.com/checkpoint/challenge/", "account_safety"],
       ["Security checkpoint required", "account_safety"],
       ["We've detected automated activity on your account", "account_safety"],
@@ -422,8 +992,22 @@ describe("logged-in LinkedIn collection", () => {
       ["Account warning: verify your identity", "account_safety"],
       ["HTTP 429 Too Many Requests", "rate_limited"],
       [{ statusCode: 429, message: "Too many requests" }, "rate_limited"],
+      ["HTTP 999 Request Denied", "account_safety"],
+      [{ response: { statusCode: 999 } }, "account_safety"],
       ["LinkedIn safety stop (account_safety) during browser safety probe.", "account_safety"],
-      ["Sign in to continue", "auth"]
+      ["Sign in to continue", "auth"],
+      ["LinkedIn: Log In or Sign Up", "auth"],
+      ["Log In", "auth"],
+      ["Log in to continue", "auth"],
+      ["LinkedIn Login", "auth"],
+      [JSON.stringify({ title: "Log In", visibleText: "Log In" }), "auth"],
+      [JSON.stringify({ title: "LinkedIn: Log In or Sign Up", visibleText: "Log In" }), "auth"],
+      ["https://www.linkedin.com/login?fromSignIn=true", "auth"],
+      ["/login", "auth"],
+      ["Sign In | LinkedIn", "auth"],
+      ["Sign in", "auth"],
+      [JSON.stringify([{ currentUrl: "https://www.linkedin.com/login", title: "Sign In | LinkedIn", visibleText: "Sign in" }]), "auth"],
+      ["You've reached the commercial use limit", "rate_limited"]
     ];
 
     for (const [value, expected] of cases) {
@@ -444,10 +1028,24 @@ describe("logged-in LinkedIn collection", () => {
       linkedinSafetySignal("A founder explained a generic account-security challenge."),
       null
     );
+    for (const unrelated of [
+      "The post says you should log in to continue reading.",
+      "Our support guide explains how to log in to continue.",
+      "The founder interviewed 401 customers and published 403 roadmap notes.",
+      "Activity identifier 401403429 was processed normally.",
+      "Release status improved after 401 commits.",
+      "Project status 401 was an internal milestone label.",
+      { code: 401, metric: 403 },
+      { metrics: { status: 200, count: 401 } },
+      { metrics: { status: 401 } }
+    ]) {
+      assert.equal(linkedinSafetySignal(unrelated), null);
+      assert.equal(linkedinFailureRequiresImmediateAbort(unrelated), false);
+    }
     assert.match(collectorSource, /await probeSafety\(\);/);
     assert.match(
       collectorSource,
-      /const raw = await interact\([\s\S]*?linkedInExtractJs\(\)[\s\S]*?await probeSafety\(\);\s+return parseJsonOutput\(raw\);/
+      /const raw = await interact\([\s\S]*?linkedInExtractJs\(\)[\s\S]*?const safetyProbe = await probeSafety\(\);[\s\S]*?if \(posts\.length === 0\)/
     );
     assert.doesNotMatch(collectorSource, /fetchLinkedInPostsFromAdapter/);
     assert.match(collectorSource, /stringArg\("--linkedin-mode"\) \?\? "browser"/);
@@ -1046,3 +1644,7 @@ describe("logged-in LinkedIn collection", () => {
     );
   });
 });
+
+function escapeRegExp(value) {
+  return String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}

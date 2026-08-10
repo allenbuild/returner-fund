@@ -255,6 +255,44 @@ describe("daily benchmark updater", () => {
     expect(fs.existsSync(path.join(rootDir, "outputs"))).toBe(false);
   });
 
+  it("rejects a Central-midnight rollover before writing any graph or history", async () => {
+    const rootDir = fs.mkdtempSync(path.join(os.tmpdir(), "daily-benchmark-central-rollover-"));
+    const sentinelPath = path.join(rootDir, "public", "graph", "s2026.json");
+    fs.mkdirSync(path.dirname(sentinelPath), { recursive: true });
+    fs.writeFileSync(sentinelPath, "sentinel\n", "utf8");
+    const recordedAt = new Date("2026-07-17T05:01:00.000Z");
+
+    await expect(
+      publishBenchmarkSnapshots(graphSnapshots(new Date("2026-07-17T05:00:10.000Z")), {
+        rootDir,
+        recordedAt,
+        validationNow: recordedAt,
+        windowStart: new Date("2026-07-17T05:00:00.000Z"),
+        expectedCentralDate: "2026-07-16"
+      })
+    ).rejects.toThrow(/Central date changed before publication.*expected 2026-07-16.*2026-07-17/i);
+
+    expect(fs.readFileSync(sentinelPath, "utf8")).toBe("sentinel\n");
+    expect(fs.readdirSync(path.dirname(sentinelPath))).toEqual(["s2026.json"]);
+    expect(fs.existsSync(path.join(rootDir, "outputs"))).toBe(false);
+  });
+
+  it.each(["2026-02-29", "2026-02-30", "2026-2-03", "not-a-date"])
+    ("rejects malformed expected Central date %s before fetching", async (expectedCentralDate) => {
+      let fetched = false;
+
+      await expect(
+        main([`--expected-central-date=${expectedCentralDate}`], {
+          fetchGraphImpl: async () => {
+            fetched = true;
+            throw new Error("fetch should not run");
+          }
+        })
+      ).rejects.toThrow(/Invalid expected Central date.*real YYYY-MM-DD/i);
+
+      expect(fetched).toBe(false);
+    });
+
   it("rejects contradictory v4 scoring state before publication", () => {
     const generatedAt = new Date("2026-07-16T05:00:10.000Z");
     const snapshots = graphSnapshots(generatedAt);
@@ -322,7 +360,8 @@ describe("daily benchmark updater", () => {
       rootDir,
       recordedAt,
       validationNow: recordedAt,
-      windowStart: new Date("2026-07-16T05:00:00.000Z")
+      windowStart: new Date("2026-07-16T05:00:00.000Z"),
+      expectedCentralDate: "2026-07-16"
     });
 
     expect(result.writtenFiles.filter((file) => file.kind === "graph")).toHaveLength(9);

@@ -10,9 +10,20 @@ import {
   serializeBoundedScoringAudit,
   validateBoundedScoringAuditRetention
 } from "./lib/scoring-audit-bounded-artifact.mjs";
+import { validatedRepositoryDataRoot } from "./lib/validated-repository-data-root.mjs";
 
-const REPOSITORY_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const OUTPUT_DIRECTORY = path.join(REPOSITORY_ROOT, "docs", "outputs");
+const CODE_ROOT = validatedRepositoryDataRoot(
+  path.resolve(path.dirname(fileURLToPath(import.meta.url)), ".."),
+  { label: "pinned scoring diagnostics code root" }
+);
+const DATA_ROOT = validatedRepositoryDataRoot(
+  argumentValue("--root") ?? process.env.SCORING_DATA_ROOT ?? process.env.SCORING_ROOT,
+  { fallbackRoot: CODE_ROOT, label: "scoring diagnostics data root" }
+);
+const EXPECTED_SOURCE_SHA = argumentValue("--expected-source-sha");
+const EXECUTION_GIT_SHA = readGitSha(CODE_ROOT);
+assertExpectedSourceSha(EXPECTED_SOURCE_SHA, EXECUTION_GIT_SHA);
+const OUTPUT_DIRECTORY = path.join(DATA_ROOT, "docs", "outputs");
 const AUDIT_OUTPUT_PATH = path.join(OUTPUT_DIRECTORY, "scoring-diagnostics-v4-audit.json");
 const REPORT_OUTPUT_PATH = path.join(OUTPUT_DIRECTORY, "scoring-diagnostics-v4-report.md");
 const AUDIT_WRITE_PATH = resolveOutputPath("--audit-output", AUDIT_OUTPUT_PATH);
@@ -34,8 +45,30 @@ const METRIC_DATA_ISSUES = new Set([
 const PORTABLE_COMMAND =
   "node --experimental-strip-types --loader ./scripts/lib/scoring-diagnostics-ts-loader.mjs ./scripts/run-scoring-diagnostics-v4.mjs";
 const PACKAGE_COMMAND = "npm run scoring:audit:v4";
+const ROOT_INTERFACE_TEST_FIXTURE = process.argv.includes("--root-interface-test-fixture");
+
+if (ROOT_INTERFACE_TEST_FIXTURE) {
+  if (process.env.NODE_ENV !== "test") {
+    throw new Error("The scoring root-interface fixture is available only under NODE_ENV=test.");
+  }
+  await mkdir(OUTPUT_DIRECTORY, { recursive: true });
+  await writeArtifact(
+    AUDIT_WRITE_PATH,
+    `${JSON.stringify({
+      fixture: "scoring-root-interface",
+      codeRoot: CODE_ROOT,
+      dataRoot: DATA_ROOT,
+      sourceSha: EXECUTION_GIT_SHA
+    })}\n`
+  );
+  await writeArtifact(
+    REPORT_WRITE_PATH,
+    `# Scoring root interface fixture\n\nCode root: ${CODE_ROOT}\nData root: ${DATA_ROOT}\nSource SHA: ${EXECUTION_GIT_SHA}\n`
+  );
+  process.exit(0);
+}
+
 const COMPATIBILITY_SHIMS = await detectCompatibilityShims();
-const EXECUTION_GIT_SHA = readGitSha();
 
 assertValidClock(FROZEN_CLOCK);
 freezeClock(FROZEN_CLOCK);
@@ -2321,37 +2354,56 @@ function renderMarkdownReport(payload, auditSha256) {
 }
 
 async function buildInputHashManifest() {
-  const roots = [
-    path.join(REPOSITORY_ROOT, "src", "lib", "graph"),
-    path.join(REPOSITORY_ROOT, "src", "lib", "scoring"),
-    path.join(REPOSITORY_ROOT, "src", "lib", "social"),
-    path.join(REPOSITORY_ROOT, "src", "lib", "yc")
+  const codeRoots = [
+    path.join(CODE_ROOT, "src", "lib", "graph"),
+    path.join(CODE_ROOT, "src", "lib", "scoring"),
+    path.join(CODE_ROOT, "src", "lib", "social"),
+    path.join(CODE_ROOT, "src", "lib", "yc")
+  ];
+  const dataRoots = [
+    path.join(DATA_ROOT, "src", "lib", "graph"),
+    path.join(DATA_ROOT, "src", "lib", "scoring"),
+    path.join(DATA_ROOT, "src", "lib", "social"),
+    path.join(DATA_ROOT, "src", "lib", "yc"),
+    path.join(DATA_ROOT, "generated-runtime", "graph"),
+    path.join(DATA_ROOT, "public", "graph")
   ];
   const explicitFiles = [
-    path.join(REPOSITORY_ROOT, "package.json"),
-    path.join(REPOSITORY_ROOT, "tsconfig.json"),
-    path.join(REPOSITORY_ROOT, "scripts", "prepare-graph-runtime-evidence.mjs"),
-    path.join(REPOSITORY_ROOT, "scripts", "run-scoring-diagnostics-v4.mjs"),
+    path.join(CODE_ROOT, "package.json"),
+    path.join(CODE_ROOT, "tsconfig.json"),
+    path.join(CODE_ROOT, "scripts", "prepare-graph-runtime-evidence.mjs"),
+    path.join(CODE_ROOT, "scripts", "run-scoring-diagnostics-v4.mjs"),
     path.join(
-      REPOSITORY_ROOT,
+      CODE_ROOT,
       "scripts",
       "lib",
       "scoring-audit-bounded-artifact.mjs"
     ),
-    path.join(REPOSITORY_ROOT, "scripts", "lib", "scoring-diagnostics-ts-loader.mjs")
+    path.join(CODE_ROOT, "scripts", "lib", "scoring-diagnostics-ts-loader.mjs")
   ];
-  const discovered = [];
-  for (const root of roots) {
-    discovered.push(...(await listFilesRecursively(root)));
+  const codeFiles = [];
+  for (const root of codeRoots) {
+    codeFiles.push(...(await listFilesRecursively(root)));
   }
-  const files = sortedUnique([...discovered, ...explicitFiles]).filter((filePath) =>
-    /\.(json|mjs|ts|tsx)$/.test(filePath) || path.basename(filePath) === "package.json"
-  );
+  const dataFiles = [];
+  for (const root of dataRoots) {
+    dataFiles.push(...(await listFilesRecursively(root)));
+  }
+  const files = [
+    ...sortedUnique([...codeFiles, ...explicitFiles])
+      .filter((filePath) => /\.(?:cjs|js|mjs|ts|tsx)$/.test(filePath) ||
+        ["package.json", "tsconfig.json"].includes(path.basename(filePath)))
+      .map((filePath) => ({ filePath, path: codeRelativePath(filePath), provenance: "pinned_code" })),
+    ...sortedUnique(dataFiles)
+      .filter((filePath) => filePath.endsWith(".json"))
+      .map((filePath) => ({ filePath, path: dataRelativePath(filePath), provenance: "publication_data" }))
+  ];
   const entries = [];
-  for (const filePath of files) {
+  for (const { filePath, path: logicalPath, provenance } of files) {
     const content = await readFile(filePath);
     entries.push({
-      path: relativePath(filePath),
+      path: logicalPath,
+      provenance,
       bytes: content.byteLength,
       sha256: sha256(content)
     });
@@ -2362,7 +2414,7 @@ async function buildInputHashManifest() {
 
   return {
     scope:
-      "graph, scoring, social, and YC local input envelope plus profiler runtime files; canonical runtime values and effective scoring/calibration/confidence sources are hashed separately",
+      "pinned graph/scoring source code plus publication-root JSON/runtime inputs; canonical runtime values and effective scoring/calibration/confidence sources are hashed separately",
     file_count: entries.length,
     combined_sha256: sha256(combined),
     files: entries,
@@ -2405,7 +2457,7 @@ async function buildVersionedScoringInputManifest() {
   );
   const sourceFiles = [];
   for (const descriptor of VERSIONED_INPUT_SOURCE_ROLES) {
-    const filePath = path.join(REPOSITORY_ROOT, descriptor.path);
+    const filePath = path.join(CODE_ROOT, descriptor.path);
     const content = await readFile(filePath);
     sourceFiles.push({
       ...descriptor,
@@ -2466,7 +2518,7 @@ function versionedInputCategory(parameterPath) {
 
 async function detectCompatibilityShims() {
   const filePath = path.join(
-    REPOSITORY_ROOT,
+    CODE_ROOT,
     "src",
     "lib",
     "graph",
@@ -2479,7 +2531,7 @@ async function detectCompatibilityShims() {
     ? [
         {
           id: "a16z_dataset_missing_round_helper",
-          file: relativePath(filePath),
+          file: codeRelativePath(filePath),
           behavior:
             "Loader supplies a local decimal formatter so the current dataset module can evaluate; production scoring modules are not transformed."
         }
@@ -2756,18 +2808,38 @@ function sha256(value) {
 }
 
 function relativePath(filePath) {
-  return path.relative(REPOSITORY_ROOT, filePath).split(path.sep).join("/");
+  return dataRelativePath(filePath);
 }
 
-function readGitSha() {
+function dataRelativePath(filePath) {
+  return path.relative(DATA_ROOT, filePath).split(path.sep).join("/");
+}
+
+function codeRelativePath(filePath) {
+  return path.relative(CODE_ROOT, filePath).split(path.sep).join("/");
+}
+
+function readGitSha(codeRoot) {
   try {
     return execFileSync("git", ["rev-parse", "HEAD"], {
-      cwd: REPOSITORY_ROOT,
+      cwd: codeRoot,
       encoding: "utf8",
       stdio: ["ignore", "pipe", "ignore"]
     }).trim();
   } catch {
     return null;
+  }
+}
+
+function assertExpectedSourceSha(expected, observed) {
+  if (expected === undefined) return;
+  if (!/^[0-9a-f]{40}$/i.test(expected)) {
+    throw new Error("--expected-source-sha must be a full 40-hex commit SHA.");
+  }
+  if (!observed || observed.toLowerCase() !== expected.toLowerCase()) {
+    throw new Error(
+      `Pinned scoring source SHA mismatch (expected ${expected.toLowerCase()}, observed ${observed ?? "unavailable"}).`
+    );
   }
 }
 
@@ -2786,7 +2858,7 @@ function resolveOutputPath(argumentName, fallbackPath) {
   if (!configuredPath.trim()) {
     throw new Error(`${argumentName} requires a non-empty path.`);
   }
-  return path.resolve(REPOSITORY_ROOT, configuredPath);
+  return path.resolve(DATA_ROOT, configuredPath);
 }
 
 function assertExpectedInputHash(inputHashes) {

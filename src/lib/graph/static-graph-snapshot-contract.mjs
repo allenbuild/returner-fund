@@ -4,6 +4,7 @@ export const STATIC_GRAPH_SCORING_MODEL_NAME = "returner-traction-v4-absolute-fi
 
 const MAX_ISSUES = 100;
 const DEFAULT_MAX_FUTURE_SKEW_MS = 60_000;
+const PUBLIC_GRAPH_EVIDENCE_LIMIT = 5_000;
 const CONFIDENCE_LEVELS = new Set(["low", "medium", "high"]);
 const CALIBRATION_METHODS = new Set(["global_best_ratio"]);
 const EDGE_TYPES = new Set(["industry_similarity", "same_group_partner"]);
@@ -212,6 +213,15 @@ export function validateStaticGraphSnapshotContract(value, options = {}) {
   const nodes = readArray(value.nodes, "nodes", addIssue);
   const edges = readArray(value.edges, "edges", addIssue);
   const evidence = readArray(value.evidence, "evidence", addIssue);
+  const evidenceProjection = validateEvidenceProjection(
+    value.evidenceProjection,
+    evidence,
+    {
+      audienceId: identity.audienceId,
+      evidenceStats: value.evidenceStats
+    },
+    addIssue
+  );
   const leaderboard = readArray(value.leaderboard, "leaderboard", addIssue);
   const fastestGaining = readArray(value.fastestGaining, "fastestGaining", addIssue);
   const materializedSocialAccountsById = validateMaterializedSocialAccounts(nodes, addIssue);
@@ -231,7 +241,8 @@ export function validateStaticGraphSnapshotContract(value, options = {}) {
       audienceId: identity.audienceId,
       batchSlug: identity.batchSlug,
       generatedAtMs,
-      canonicalEvidenceFullyVisible: identity.audienceId === "off"
+      canonicalEvidenceFullyVisible:
+        identity.audienceId === "off" && evidenceProjection.positiveEvidenceFullyVisible
     },
     addIssue
   );
@@ -259,6 +270,157 @@ export function validateStaticGraphSnapshotContract(value, options = {}) {
   }
 
   return issues.length === 0 ? { ok: true, issues: [] } : { ok: false, issues };
+}
+
+function validateEvidenceProjection(value, evidence, context, addIssue) {
+  const sourceEvidenceCount = context.audienceId === "off" &&
+    isRecord(context.evidenceStats) &&
+    Number.isInteger(context.evidenceStats.totalCount) &&
+    context.evidenceStats.totalCount >= 0
+      ? context.evidenceStats.totalCount
+      : null;
+  const sourcePositiveEvidenceCount = context.audienceId === "off" &&
+    isRecord(context.evidenceStats) &&
+    Number.isInteger(context.evidenceStats.scoringEligibleCount) &&
+    context.evidenceStats.scoringEligibleCount >= 0
+      ? context.evidenceStats.scoringEligibleCount
+      : null;
+
+  if (value === undefined) {
+    if (
+      sourceEvidenceCount !== null &&
+      sourceEvidenceCount > evidence.length &&
+      evidence.length >= PUBLIC_GRAPH_EVIDENCE_LIMIT
+    ) {
+      addIssue(
+        "evidenceProjection",
+        `is required because evidenceStats.totalCount=${sourceEvidenceCount} exceeds the ${evidence.length} retained rows`
+      );
+    }
+    if (evidence.length > PUBLIC_GRAPH_EVIDENCE_LIMIT) {
+      addIssue(
+        "evidence",
+        `must not exceed the ${PUBLIC_GRAPH_EVIDENCE_LIMIT}-row public payload limit`
+      );
+    }
+    return {
+      positiveEvidenceFullyVisible:
+        sourceEvidenceCount === null || sourceEvidenceCount <= evidence.length
+    };
+  }
+  if (!isRecord(value)) {
+    addIssue("evidenceProjection", "must be an object when present");
+    return { positiveEvidenceFullyVisible: false };
+  }
+
+  const fields = [
+    "maxEvidence",
+    "sourceEvidenceCount",
+    "retainedEvidenceCount",
+    "omittedEvidenceCount",
+    "sourcePositiveEvidenceCount",
+    "retainedPositiveEvidenceCount",
+    "omittedPositiveEvidenceCount"
+  ];
+  const valid = Object.fromEntries(fields.map((field) => [
+    field,
+    validateNonNegativeInteger(value[field], `evidenceProjection.${field}`, addIssue)
+  ]));
+
+  if (valid.maxEvidence && value.maxEvidence > PUBLIC_GRAPH_EVIDENCE_LIMIT) {
+    addIssue(
+      "evidenceProjection.maxEvidence",
+      `must not exceed the ${PUBLIC_GRAPH_EVIDENCE_LIMIT}-row public payload limit`
+    );
+  }
+  if (
+    valid.retainedEvidenceCount &&
+    value.retainedEvidenceCount !== evidence.length
+  ) {
+    addIssue(
+      "evidenceProjection.retainedEvidenceCount",
+      `must equal the ${evidence.length} retained evidence rows`
+    );
+  }
+  if (
+    valid.sourceEvidenceCount &&
+    valid.retainedEvidenceCount &&
+    valid.omittedEvidenceCount &&
+    value.sourceEvidenceCount !== value.retainedEvidenceCount + value.omittedEvidenceCount
+  ) {
+    addIssue(
+      "evidenceProjection.sourceEvidenceCount",
+      "must equal retainedEvidenceCount plus omittedEvidenceCount"
+    );
+  }
+  if (
+    valid.sourceEvidenceCount &&
+    sourceEvidenceCount !== null &&
+    value.sourceEvidenceCount !== sourceEvidenceCount
+  ) {
+    addIssue(
+      "evidenceProjection.sourceEvidenceCount",
+      `must equal evidenceStats.totalCount (${sourceEvidenceCount})`
+    );
+  }
+  if (valid.omittedEvidenceCount && value.omittedEvidenceCount <= 0) {
+    addIssue("evidenceProjection.omittedEvidenceCount", "must be positive when projection metadata is present");
+  }
+  if (
+    valid.maxEvidence &&
+    valid.retainedEvidenceCount &&
+    value.retainedEvidenceCount > value.maxEvidence
+  ) {
+    addIssue("evidenceProjection.retainedEvidenceCount", "must not exceed maxEvidence");
+  }
+
+  const visiblePositiveEvidenceCount = evidence.filter(hasEligiblePositiveScore).length;
+  if (
+    valid.retainedPositiveEvidenceCount &&
+    value.retainedPositiveEvidenceCount !== visiblePositiveEvidenceCount
+  ) {
+    addIssue(
+      "evidenceProjection.retainedPositiveEvidenceCount",
+      `must equal the ${visiblePositiveEvidenceCount} retained eligible positive evidence rows`
+    );
+  }
+  if (
+    valid.sourcePositiveEvidenceCount &&
+    valid.retainedPositiveEvidenceCount &&
+    valid.omittedPositiveEvidenceCount &&
+    value.sourcePositiveEvidenceCount !==
+      value.retainedPositiveEvidenceCount + value.omittedPositiveEvidenceCount
+  ) {
+    addIssue(
+      "evidenceProjection.sourcePositiveEvidenceCount",
+      "must equal retainedPositiveEvidenceCount plus omittedPositiveEvidenceCount"
+    );
+  }
+  if (
+    valid.sourcePositiveEvidenceCount &&
+    valid.sourceEvidenceCount &&
+    value.sourcePositiveEvidenceCount > value.sourceEvidenceCount
+  ) {
+    addIssue(
+      "evidenceProjection.sourcePositiveEvidenceCount",
+      "must not exceed sourceEvidenceCount"
+    );
+  }
+  if (
+    valid.sourcePositiveEvidenceCount &&
+    sourcePositiveEvidenceCount !== null &&
+    value.sourcePositiveEvidenceCount !== sourcePositiveEvidenceCount
+  ) {
+    addIssue(
+      "evidenceProjection.sourcePositiveEvidenceCount",
+      `must equal evidenceStats.scoringEligibleCount (${sourcePositiveEvidenceCount})`
+    );
+  }
+
+  return {
+    positiveEvidenceFullyVisible:
+      valid.omittedPositiveEvidenceCount && value.omittedPositiveEvidenceCount === 0
+  };
 }
 
 export function formatStaticGraphSnapshotContractIssue(issue) {

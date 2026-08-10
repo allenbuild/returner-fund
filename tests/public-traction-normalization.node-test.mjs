@@ -18,12 +18,105 @@ import { canonicalSocialAccountUrl } from "../scripts/lib/social-account-url.mjs
 
 const root = process.cwd();
 
+function withMockPublicDns(source) {
+  return `
+import dns from "node:dns";
+import { isIP } from "node:net";
+const nativeDnsLookup = dns.lookup.bind(dns);
+dns.lookup = (_hostname, options, callback) => {
+  if (typeof options === "function") {
+    callback = options;
+    options = {};
+  }
+  if (isIP(_hostname)) {
+    nativeDnsLookup(_hostname, options, callback);
+    return;
+  }
+  const addresses = [{ address: "93.184.216.34", family: 4 }];
+  if (options?.all) callback(null, addresses);
+  else callback(null, addresses[0].address, addresses[0].family);
+};
+${source}
+`;
+}
+
+async function runMockedRssCollector(prefix, preloadSource, extraArgs = []) {
+  const directory = await mkdtemp(join(tmpdir(), prefix));
+  const output = join(directory, "public-evidence.json");
+  const checkpoint = join(directory, "checkpoint.json");
+  const discoveryAttempts = join(directory, "discovery-attempts.json");
+  const sourceDiscoveryPaths = join(directory, "source-discovery-paths.json");
+  const preload = join(directory, "mock-fetch.mjs");
+  await Promise.all([
+    writeFile(discoveryAttempts, "[]\n"),
+    writeFile(sourceDiscoveryPaths, "[]\n"),
+    writeFile(preload, withMockPublicDns(preloadSource))
+  ]);
+
+  execFileSync(process.execPath, [
+    "scripts/fetch-public-traction.mjs",
+    "--batch=S2026",
+    "--company=eden-robotics",
+    "--platforms=rss",
+    "--social=none",
+    "--workers=1",
+    "--delay-ms=0",
+    "--force",
+    `--output=${output}`,
+    `--checkpoint=${checkpoint}`,
+    `--discovery-attempts=${discoveryAttempts}`,
+    `--source-discovery-paths=${sourceDiscoveryPaths}`,
+    ...extraArgs
+  ], {
+    cwd: root,
+    env: { ...process.env, NODE_OPTIONS: `--import=${preload}` },
+    stdio: "pipe"
+  });
+
+  return {
+    directory,
+    snapshot: JSON.parse(await readFile(output, "utf8"))
+  };
+}
+
 test("public lane pools share one process-wide task concurrency guard", async () => {
   const collector = await readFile(join(root, "scripts", "fetch-public-traction.mjs"), "utf8");
   assert.match(collector, /const MAX_PUBLIC_TASK_WORKERS = 16/);
   assert.match(collector, /const publicTaskConcurrencyGuard = createConcurrencyGuard\(workerCount\)/);
   assert.match(collector, /await publicTaskConcurrencyGuard\(async \(\) =>/);
   assert.match(collector, /taskConcurrencyCap: workerCount/);
+});
+
+test("fixed-domain fetches never expose an unbounded response body read", async () => {
+  const collector = await readFile(join(root, "scripts", "fetch-public-traction.mjs"), "utf8");
+  assert.doesNotMatch(collector, /\b(?:response|feedResponse)\.json\(\)/);
+  const directBodyReads = collector
+    .split("\n")
+    .map((line) => line.trim())
+    .filter((line) => /\b(?:response|feedResponse)\.text\(\)/.test(line));
+  assert.deepEqual(directBodyReads, []);
+  assert.match(
+    collector,
+    /fetchPublic is restricted to the bounded DuckDuckGo public-search circuit/
+  );
+  assert.match(collector, /transport: fetchPublicSearchBoundedTransport/);
+  assert.match(collector, /maxEncodedBodyBytes: PUBLIC_SEARCH_MAX_ENCODED_BODY_BYTES/);
+  assert.match(collector, /maxDecodedBodyBytes: PUBLIC_SEARCH_MAX_DECODED_BODY_BYTES/);
+  assert.match(collector, /return publicSearchCircuit\.fetchText\(searchUrl,/);
+  assert.match(collector, /const data = parsePublicJson\(text, url\)/);
+  assert.match(collector, /const payload = parsePublicJson\(text, oEmbedUrl\)/);
+});
+
+test("remote reader fallback cannot introduce a second DNS resolution hop", async () => {
+  const collector = await readFile(join(root, "scripts", "fetch-public-traction.mjs"), "utf8");
+  const start = collector.indexOf("async function fetchReader");
+  const end = collector.indexOf("async function fetchXPublicReaderFallback", start);
+  assert.notEqual(start, -1);
+  assert.notEqual(end, -1);
+  const reader = collector.slice(start, end);
+  assert.match(reader, /fetchPublicBoundedText\(url/);
+  assert.doesNotMatch(reader, /r\.jina\.ai|resolvePublicDestination\(url, \{ resolveDns: true \}\)/);
+  assert.doesNotMatch(collector, /r\.jina\.ai\/http/);
 });
 
 function assertWellFormedStrings(value, path = "$") {
@@ -338,14 +431,14 @@ test("legacy fresh generic checkpoints are rerun into explicit RSS receipts and 
       discoveryAttempts: [],
       sourceDiscoveryPaths: []
     }, null, 2)}\n`),
-    writeFile(preload, `
+    writeFile(preload, withMockPublicDns(`
 globalThis.fetch = async (url) => new Response(
   String(url).includes("feed")
     ? "<?xml version=\\"1.0\\"?><rss><channel></channel></rss>"
     : "<html><head><link rel=\\"alternate\\" type=\\"application/rss+xml\\" href=\\"/feed.xml\\"></head><body>Eden Robotics</body></html>",
   { status: 200 }
 );
-`),
+`)),
     writeFile(noFetchPreload, `globalThis.fetch = async () => { throw new Error("structured fresh RSS receipt must skip network"); };\n`)
   ]);
 
@@ -413,21 +506,21 @@ test("RSS feed collection keeps every unique entry in each bounded response", as
   await Promise.all([
     writeFile(discoveryAttempts, "[]\n"),
     writeFile(sourceDiscoveryPaths, "[]\n"),
-    writeFile(preload, `
+    writeFile(preload, withMockPublicDns(`
 const entries = Array.from({ length: 7 }, (_, index) => {
   const number = index + 1;
   return "<item><title>Post " + number + "</title><link>https://www.edenrobotics.ai/blog/post-" + number + "</link><description>Eden Robotics update " + number + "</description><pubDate>Mon, " + String(number).padStart(2, "0") + " Jun 2026 12:00:00 GMT</pubDate></item>";
 }).join("");
 const duplicate = "<item><title>Duplicate title for post 3</title><link>https://www.edenrobotics.ai/blog/post-3</link><description>Duplicate feed entry</description><pubDate>Mon, 03 Jun 2026 12:00:00 GMT</pubDate></item>";
 const feed = '<?xml version="1.0"?><rss><channel>' + entries + duplicate + '</channel></rss>';
-globalThis.fetch = async (url) => {
+globalThis.fetch = async (url, options = {}) => {
   const value = String(url);
   if (/\\/(?:feed(?:\\.xml)?|rss(?:\\.xml)?)$/.test(value)) {
     return new Response(feed, { status: 200, headers: { "content-type": "application/rss+xml" } });
   }
   return new Response('<html><head><link rel="alternate" type="application/rss+xml" href="/feed.xml"></head><body>Eden Robotics</body></html>', { status: 200 });
 };
-`)
+`))
   ]);
 
   execFileSync(process.execPath, [
@@ -461,7 +554,7 @@ globalThis.fetch = async (url) => {
   );
 });
 
-test("RSS feed collection rejects a response above the byte guard", async () => {
+test("RSS feed collection rejects a streamed response above the byte guard", async () => {
   const directory = await mkdtemp(join(tmpdir(), "returner-public-rss-size-"));
   const output = join(directory, "public-evidence.json");
   const checkpoint = join(directory, "checkpoint.json");
@@ -471,18 +564,18 @@ test("RSS feed collection rejects a response above the byte guard", async () => 
   await Promise.all([
     writeFile(discoveryAttempts, "[]\n"),
     writeFile(sourceDiscoveryPaths, "[]\n"),
-    writeFile(preload, `
+    writeFile(preload, withMockPublicDns(`
 globalThis.fetch = async (url) => {
   const value = String(url);
   if (/\\/(?:feed(?:\\.xml)?|rss(?:\\.xml)?)$/.test(value)) {
-    return new Response("<rss><channel></channel></rss>", {
+    return new Response("x".repeat(2 * 1024 * 1024 + 1), {
       status: 200,
-      headers: { "content-type": "application/rss+xml", "content-length": String(2 * 1024 * 1024 + 1) }
+      headers: { "content-type": "application/rss+xml" }
     });
   }
   return new Response('<html><head><link rel="alternate" type="application/rss+xml" href="/feed.xml"></head><body>Eden Robotics</body></html>', { status: 200 });
 };
-`)
+`))
   ]);
 
   execFileSync(process.execPath, [
@@ -509,8 +602,581 @@ globalThis.fetch = async (url) => {
     .filter((row) => row.platform === "rss");
   assert.equal(rssRows.length, 0);
   assert.ok(snapshot.failures.some(
-    (row) => row.platform === "rss" && /above the 2097152-byte limit/.test(row.message)
+    (row) => row.platform === "rss" && /2097152-byte encoded body limit/.test(row.message)
   ));
+});
+
+test("RSS feed collection rejects a declared Content-Length above the byte guard", async () => {
+  const fixture = await runMockedRssCollector(
+    "returner-public-rss-declared-size-",
+    `
+globalThis.fetch = async (url) => {
+  const value = String(url);
+  if (value === "https://www.edenrobotics.ai/") {
+    return new Response('<html><head><link rel="alternate" type="application/rss+xml" href="https://feeds.edenrobotics.ai/declared.xml"></head><body>Eden Robotics</body></html>');
+  }
+  if (value === "https://feeds.edenrobotics.ai/declared.xml") {
+    return new Response("<rss><channel></channel></rss>", {
+      headers: {
+        "content-type": "application/rss+xml",
+        "content-length": String(2 * 1024 * 1024 + 1)
+      }
+    });
+  }
+  return new Response("<rss><channel></channel></rss>", {
+    headers: { "content-type": "application/rss+xml" }
+  });
+};
+`
+  );
+  assert.ok(fixture.snapshot.failures.some(
+    (row) => row.platform === "rss" &&
+      /Response declared 2097153 bytes, above the 2097152-byte limit/.test(row.message)
+  ));
+});
+
+test("declared oversized raw bodies are canceled before pinned Agent shutdown", async () => {
+  const directory = await mkdtemp(join(tmpdir(), "returner-public-declared-cancel-"));
+  const cancelMarker = join(directory, "body-canceled.txt");
+  const target = "https://feeds.edenrobotics.ai/stalled-declared.xml";
+  const fixture = await runMockedRssCollector(
+    "returner-public-rss-real-declared-cancel-",
+    `
+import { createServer } from "node:http";
+import { writeFileSync } from "node:fs";
+import { createRequire } from "node:module";
+const { request: rawRequest } = createRequire(process.cwd() + "/package.json")("undici");
+const target = ${JSON.stringify(target)};
+const server = createServer((request, response) => {
+  const logicalUrl = String(request.headers["x-returner-logical-url"] ?? "");
+  if (logicalUrl === "https://www.edenrobotics.ai/") {
+    response.end('<html><head><link rel="alternate" type="application/rss+xml" href="' + target + '"></head><body>Eden Robotics</body></html>');
+    return;
+  }
+  if (logicalUrl === target) {
+    response.on("close", () => writeFileSync(${JSON.stringify(cancelMarker)}, "closed\\n"));
+    response.writeHead(200, {
+      "content-type": "application/rss+xml",
+      "content-length": String(10 * 1024 * 1024)
+    });
+    response.write("x");
+    return;
+  }
+  response.end("<rss><channel></channel></rss>");
+});
+await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
+server.unref();
+const localUrl = "http://127.0.0.1:" + server.address().port + "/";
+globalThis.__RETURNER_PUBLIC_RAW_REQUEST__ = (logicalUrl, options) => {
+  const { dispatcher, ...forwardOptions } = options;
+  return rawRequest(localUrl, {
+    ...forwardOptions,
+    headers: { ...options.headers, "x-returner-logical-url": String(logicalUrl) },
+    maxRedirections: 0
+  });
+};
+`,
+    ["--public-fetch-timeout-ms=1000"]
+  );
+
+  assert.equal(await readFile(cancelMarker, "utf8"), "closed\n");
+  assert.ok(fixture.snapshot.failures.some(
+    (row) => row.platform === "rss" &&
+      /Response declared 10485760 bytes, above the 2097152-byte limit/.test(row.message)
+  ));
+  assert.ok(fixture.snapshot.failures.every(
+    (row) => !/Public fetch timed out/.test(row.message)
+  ));
+});
+
+test("RSS feed redirects are revalidated and private destinations are never fetched", async () => {
+  const auditDirectory = await mkdtemp(join(tmpdir(), "returner-public-rss-redirect-audit-"));
+  const callLog = join(auditDirectory, "fetch-calls.jsonl");
+  const fixture = await runMockedRssCollector(
+    "returner-public-rss-private-redirect-",
+    `
+import { appendFileSync } from "node:fs";
+const callLog = ${JSON.stringify(callLog)};
+globalThis.fetch = async (url, options = {}) => {
+  const value = String(url);
+  appendFileSync(callLog, JSON.stringify({
+    url: value,
+    redirect: options.redirect,
+    pinned: Boolean(options.dispatcher)
+  }) + "\\n");
+  if (value === "https://www.edenrobotics.ai/") {
+    return new Response('<html><head><link rel="alternate" type="application/rss+xml" href="https://feeds.edenrobotics.ai/latest.xml"></head><body>Eden Robotics</body></html>');
+  }
+  if (value === "https://feeds.edenrobotics.ai/latest.xml") {
+    return new Response(null, {
+      status: 302,
+      headers: { location: "http://127.0.0.1/private-metadata" }
+    });
+  }
+  return new Response("<rss><channel></channel></rss>", {
+    headers: { "content-type": "application/rss+xml" }
+  });
+};
+`
+  );
+  const calls = (await readFile(callLog, "utf8"))
+    .trim()
+    .split("\n")
+    .filter(Boolean)
+    .map((line) => JSON.parse(line));
+  assert.ok(calls.some((call) => call.url === "https://feeds.edenrobotics.ai/latest.xml"));
+  assert.ok(calls.every((call) => !call.url.includes("127.0.0.1")));
+  assert.ok(calls.every((call) => call.redirect === "manual" && call.pinned));
+  assert.ok(fixture.snapshot.failures.some(
+    (row) => row.platform === "rss" &&
+      /Public destination rejected: hostname 127\.0\.0\.1 resolved to non-public address/.test(row.message)
+  ));
+});
+
+test("RSS feed redirects reject hostnames whose pinned DNS answer is private", async () => {
+  const fixture = await runMockedRssCollector(
+    "returner-public-rss-private-dns-redirect-",
+    `
+const nativeFetch = globalThis.fetch;
+const publicLookup = dns.lookup;
+dns.lookup = (hostname, options, callback) => {
+  if (hostname === "rebind.example") {
+    callback(null, [{ address: "169.254.169.254", family: 4 }]);
+    return;
+  }
+  publicLookup(hostname, options, callback);
+};
+globalThis.fetch = async (url, options = {}) => {
+  const value = String(url);
+  if (value === "https://www.edenrobotics.ai/") {
+    return new Response('<html><head><link rel="alternate" type="application/rss+xml" href="https://feeds.edenrobotics.ai/latest.xml"></head><body>Eden Robotics</body></html>');
+  }
+  if (value === "https://feeds.edenrobotics.ai/latest.xml") {
+    return new Response(null, {
+      status: 302,
+      headers: { location: "https://rebind.example/private-metadata" }
+    });
+  }
+  if (value === "https://rebind.example/private-metadata") {
+    return nativeFetch(url, options);
+  }
+  return new Response("<rss><channel></channel></rss>", {
+    headers: { "content-type": "application/rss+xml" }
+  });
+};
+`
+  );
+  assert.ok(fixture.snapshot.failures.some(
+    (row) => row.platform === "rss" &&
+      /Public destination rejected: hostname rebind\.example resolved to non-public address 169\.254\.169\.254/.test(row.message)
+  ));
+});
+
+test("RSS feed body timeout remains active after response headers", async () => {
+  const startedAt = Date.now();
+  const fixture = await runMockedRssCollector(
+    "returner-public-rss-stalled-body-",
+    `
+process.on("unhandledRejection", (error) => {
+  console.error("late unhandled request settlement", error);
+  process.exitCode = 91;
+});
+globalThis.fetch = async (url) => {
+  const value = String(url);
+  if (value === "https://www.edenrobotics.ai/") {
+    return new Response('<html><head><link rel="alternate" type="application/rss+xml" href="https://feeds.edenrobotics.ai/stalled.xml"></head><body>Eden Robotics</body></html>');
+  }
+  if (value === "https://feeds.edenrobotics.ai/stalled.xml") {
+    return new Response(new ReadableStream({
+      pull() {
+        return new Promise((_, reject) => {
+          setTimeout(() => reject(new Error("late stalled-body failure")), 125);
+        });
+      }
+    }), { headers: { "content-type": "application/rss+xml" } });
+  }
+  return new Response("<rss><channel></channel></rss>", {
+    headers: { "content-type": "application/rss+xml" }
+  });
+};
+`,
+    ["--public-fetch-timeout-ms=50"]
+  );
+  assert.ok(Date.now() - startedAt < 5_000, "stalled response body must terminate promptly");
+  assert.ok(fixture.snapshot.failures.some(
+    (row) => row.platform === "rss" &&
+      /Public fetch timed out after 50ms before the bounded response body completed/.test(row.message)
+  ));
+});
+
+test("Hacker News JSON body timeout remains active after response headers", async () => {
+  const directory = await mkdtemp(join(tmpdir(), "returner-public-hn-stalled-json-"));
+  const output = join(directory, "public-evidence.json");
+  const checkpoint = join(directory, "checkpoint.json");
+  const discoveryAttempts = join(directory, "discovery-attempts.json");
+  const sourceDiscoveryPaths = join(directory, "source-discovery-paths.json");
+  const preload = join(directory, "mock-fetch.mjs");
+  await Promise.all([
+    writeFile(discoveryAttempts, "[]\n"),
+    writeFile(sourceDiscoveryPaths, "[]\n"),
+    writeFile(preload, withMockPublicDns(`
+process.on("unhandledRejection", (error) => {
+  console.error("late unhandled JSON request settlement", error);
+  process.exitCode = 91;
+});
+globalThis.fetch = async (url) => {
+  if (!String(url).startsWith("https://hn.algolia.com/api/v1/search?")) {
+    throw new Error("unexpected URL: " + url);
+  }
+  return new Response(new ReadableStream({
+    pull() {
+      return new Promise((_, reject) => {
+        setTimeout(() => reject(new Error("late stalled JSON body failure")), 125);
+      });
+    }
+  }), { headers: { "content-type": "application/json" } });
+};
+`))
+  ]);
+
+  const startedAt = Date.now();
+  execFileSync(process.execPath, [
+    "scripts/fetch-public-traction.mjs",
+    "--batch=S2026",
+    "--company=eden-robotics",
+    "--platforms=hacker_news",
+    "--social=none",
+    "--workers=1",
+    "--delay-ms=0",
+    "--force",
+    "--public-fetch-timeout-ms=50",
+    `--output=${output}`,
+    `--checkpoint=${checkpoint}`,
+    `--discovery-attempts=${discoveryAttempts}`,
+    `--source-discovery-paths=${sourceDiscoveryPaths}`
+  ], {
+    cwd: root,
+    env: { ...process.env, NODE_OPTIONS: `--import=${preload}` },
+    stdio: "pipe"
+  });
+  assert.ok(Date.now() - startedAt < 5_000, "stalled JSON body must terminate promptly");
+  const snapshot = JSON.parse(await readFile(output, "utf8"));
+  assert.ok(snapshot.failures.some(
+    (row) => row.platform === "hacker_news" &&
+      /Public fetch timed out after 50ms before the bounded response body completed/.test(row.message)
+  ));
+});
+
+test("YouTube fixed-domain text rejects a streamed response above the byte guard", async () => {
+  const directory = await mkdtemp(join(tmpdir(), "returner-public-youtube-size-"));
+  const output = join(directory, "public-evidence.json");
+  const checkpoint = join(directory, "checkpoint.json");
+  const discoveryAttempts = join(directory, "discovery-attempts.json");
+  const sourceDiscoveryPaths = join(directory, "source-discovery-paths.json");
+  const preload = join(directory, "mock-fetch.mjs");
+  await Promise.all([
+    writeFile(discoveryAttempts, "[]\n"),
+    writeFile(sourceDiscoveryPaths, "[]\n"),
+    writeFile(preload, withMockPublicDns(`
+globalThis.fetch = async (url) => {
+  const value = String(url);
+  if (value.startsWith("https://www.ycombinator.com/companies/")) {
+    return new Response("<html><body>Eden Robotics</body></html>");
+  }
+  if (value.startsWith("https://www.youtube.com/results?")) {
+    return new Response("x".repeat(2 * 1024 * 1024 + 1), {
+      headers: { "content-type": "text/html" }
+    });
+  }
+  throw new Error("unexpected URL: " + value);
+};
+`))
+  ]);
+
+  execFileSync(process.execPath, [
+    "scripts/fetch-public-traction.mjs",
+    "--batch=S2026",
+    "--company=eden-robotics",
+    "--platforms=youtube",
+    "--social=none",
+    "--workers=1",
+    "--delay-ms=0",
+    "--force",
+    `--output=${output}`,
+    `--checkpoint=${checkpoint}`,
+    `--discovery-attempts=${discoveryAttempts}`,
+    `--source-discovery-paths=${sourceDiscoveryPaths}`
+  ], {
+    cwd: root,
+    env: { ...process.env, NODE_OPTIONS: `--import=${preload}` },
+    stdio: "pipe"
+  });
+  const snapshot = JSON.parse(await readFile(output, "utf8"));
+  assert.ok(snapshot.failures.some(
+    (row) => row.platform === "youtube" &&
+      /Response exceeded the 2097152-byte encoded body limit/.test(row.message)
+  ));
+});
+
+test("RSS feed collection enforces decoded expansion for a Content-Encoding gzip body", async () => {
+  const fixture = await runMockedRssCollector(
+    "returner-public-rss-decoded-size-",
+    `
+import { gzipSync } from "node:zlib";
+const oversizedDecodedFeed = gzipSync(Buffer.alloc(4 * 1024 * 1024 + 1, 120));
+globalThis.fetch = async (url) => {
+  const value = String(url);
+  if (value === "https://www.edenrobotics.ai/") {
+    return new Response('<html><head><link rel="alternate" type="application/rss+xml" href="https://feeds.edenrobotics.ai/compressed.xml"></head><body>Eden Robotics</body></html>');
+  }
+  if (value === "https://feeds.edenrobotics.ai/compressed.xml") {
+    return new Response(oversizedDecodedFeed, {
+      headers: {
+        "content-type": "application/rss+xml",
+        "content-encoding": "gzip",
+        "content-length": String(oversizedDecodedFeed.length)
+      }
+    });
+  }
+  return new Response("<rss><channel></channel></rss>", {
+    headers: { "content-type": "application/rss+xml" }
+  });
+};
+`
+  );
+  assert.ok(fixture.snapshot.failures.some(
+    (row) => row.platform === "rss" && /4194304-byte decoded body limit/.test(row.message)
+  ));
+});
+
+test("auto-decompressed gzip delivery is bounded by the decoded limit, not the encoded limit", async () => {
+  const fixture = await runMockedRssCollector(
+    "returner-public-rss-auto-decoded-size-",
+    `
+import { gzipSync } from "node:zlib";
+const decoded = Buffer.alloc(4 * 1024 * 1024 + 1, 120);
+const encodedLength = gzipSync(decoded).length;
+globalThis.fetch = async (url) => {
+  const value = String(url);
+  if (value === "https://www.edenrobotics.ai/") {
+    return new Response('<html><head><link rel="alternate" type="application/rss+xml" href="https://feeds.edenrobotics.ai/auto-decoded.xml"></head><body>Eden Robotics</body></html>');
+  }
+  if (value === "https://feeds.edenrobotics.ai/auto-decoded.xml") {
+    // This is the shape Undici exposes after transparent decompression: the
+    // body is decoded while the original encoding metadata remains present.
+    return new Response(decoded, {
+      headers: {
+        "content-type": "application/rss+xml",
+        "content-encoding": "gzip",
+        "content-length": String(encodedLength)
+      }
+    });
+  }
+  return new Response("<rss><channel></channel></rss>", {
+    headers: { "content-type": "application/rss+xml" }
+  });
+};
+`
+  );
+  assert.ok(fixture.snapshot.failures.some(
+    (row) => row.platform === "rss" && /4194304-byte decoded body limit/.test(row.message)
+  ));
+});
+
+test("raw Undici transport bounds chunked gzip wire bytes before decompression", async () => {
+  const target = "https://feeds.edenrobotics.ai/chunked-gzip.xml";
+  const fixture = await runMockedRssCollector(
+    "returner-public-rss-live-chunked-gzip-",
+    `
+import { createServer } from "node:http";
+import { gunzipSync, gzipSync } from "node:zlib";
+import { createRequire } from "node:module";
+const { request: rawRequest } = createRequire(process.cwd() + "/package.json")("undici");
+const target = ${JSON.stringify(target)};
+const baseMember = gzipSync(Buffer.alloc(0));
+const header = Buffer.from(baseMember.subarray(0, 10));
+header[3] |= 0x10;
+const commentMember = Buffer.concat([
+  header,
+  Buffer.alloc(65_535, 0x61),
+  Buffer.from([0]),
+  baseMember.subarray(10)
+]);
+const oversizedEncodedBody = Buffer.concat(Array.from({ length: 33 }, () => commentMember));
+if (oversizedEncodedBody.length <= 2 * 1024 * 1024 || gunzipSync(oversizedEncodedBody).length !== 0) {
+  throw new Error("chunked gzip fixture did not exceed only the encoded limit");
+}
+const server = createServer((request, response) => {
+  const logicalUrl = String(request.headers["x-returner-logical-url"] ?? "");
+  if (logicalUrl === "https://www.edenrobotics.ai/") {
+    response.end('<html><head><link rel="alternate" type="application/rss+xml" href="' + target + '"></head><body>Eden Robotics</body></html>');
+    return;
+  }
+  if (logicalUrl === target) {
+    response.writeHead(200, {
+      "content-type": "application/rss+xml",
+      "content-encoding": "gzip"
+    });
+    for (let offset = 0; offset < oversizedEncodedBody.length; offset += 8192) {
+      response.write(oversizedEncodedBody.subarray(offset, offset + 8192));
+    }
+    response.end();
+    return;
+  }
+  response.end("<rss><channel></channel></rss>");
+});
+await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
+server.unref();
+const localUrl = "http://127.0.0.1:" + server.address().port + "/";
+globalThis.__RETURNER_PUBLIC_RAW_REQUEST__ = (logicalUrl, options) => {
+  const { dispatcher, ...forwardOptions } = options;
+  return rawRequest(localUrl, {
+    ...forwardOptions,
+    headers: { ...options.headers, "x-returner-logical-url": String(logicalUrl) },
+    maxRedirections: 0
+  });
+};
+`
+  );
+
+  assert.ok(fixture.snapshot.failures.some(
+    (row) => row.platform === "rss" &&
+      /Response exceeded the 2097152-byte encoded body limit/.test(row.message)
+  ));
+  assert.ok(fixture.snapshot.failures.every(
+    (row) => !/decoded body limit/.test(row.message)
+  ));
+});
+
+test("direct readable retrieval rejects private DNS without forwarding a URL", async () => {
+  const directory = await mkdtemp(join(tmpdir(), "returner-public-reader-private-dns-"));
+  const output = join(directory, "public-evidence.json");
+  const checkpoint = join(directory, "checkpoint.json");
+  const discoveryAttempts = join(directory, "discovery-attempts.json");
+  const sourceDiscoveryPaths = join(directory, "source-discovery-paths.json");
+  const preload = join(directory, "mock-fetch.mjs");
+  const callLog = join(directory, "fetch-calls.jsonl");
+  await Promise.all([
+    writeFile(discoveryAttempts, "[]\n"),
+    writeFile(sourceDiscoveryPaths, "[]\n"),
+    writeFile(preload, withMockPublicDns(`
+import { appendFileSync } from "node:fs";
+const nativeFetch = globalThis.fetch;
+const publicLookup = dns.lookup;
+dns.lookup = (hostname, options, callback) => {
+  if (hostname === "www.edenrobotics.ai") {
+    callback(null, [{ address: "169.254.169.254", family: 4 }]);
+    return;
+  }
+  publicLookup(hostname, options, callback);
+};
+const callLog = ${JSON.stringify(callLog)};
+globalThis.fetch = async (url, options = {}) => {
+  const value = String(url);
+  appendFileSync(callLog, value + "\\n");
+  if (value.startsWith("https://duckduckgo.com/html/")) {
+    return new Response("<html><body></body></html>");
+  }
+  if (value === "https://www.edenrobotics.ai/") {
+    return nativeFetch(url, options);
+  }
+  throw new Error("unexpected request: " + value);
+};
+`))
+  ]);
+
+  execFileSync(process.execPath, [
+    "scripts/fetch-public-traction.mjs",
+    "--batch=S2026",
+    "--company=eden-robotics",
+    "--platforms=web",
+    "--social=none",
+    "--workers=1",
+    "--delay-ms=0",
+    "--force",
+    `--output=${output}`,
+    `--checkpoint=${checkpoint}`,
+    `--discovery-attempts=${discoveryAttempts}`,
+    `--source-discovery-paths=${sourceDiscoveryPaths}`
+  ], {
+    cwd: root,
+    env: { ...process.env, NODE_OPTIONS: `--import=${preload}` },
+    stdio: "pipe"
+  });
+
+  const [snapshot, calls] = await Promise.all([
+    readFile(output, "utf8").then(JSON.parse),
+    readFile(callLog, "utf8")
+  ]);
+  assert.doesNotMatch(calls, /https:\/\/r\.jina\.ai\//);
+  assert.ok(snapshot.failures.some(
+    (row) => row.platform === "web" &&
+      /Public destination rejected: hostname www\.edenrobotics\.ai resolved to non-public address 169\.254\.169\.254/.test(row.message)
+  ));
+});
+
+test("IPv6 redirect validation allows only currently allocated global unicast ranges", async () => {
+  const cases = [
+    ["ipv4-compatible", "http://[::7f00:1]/metadata", false],
+    ["translation", "http://[64:ff9b::1]/metadata", false],
+    ["discard-only", "http://[100::1]/metadata", false],
+    ["dummy-prefix", "http://[100:0:0:1::1]/metadata", false],
+    ["site-local", "http://[fec0::1]/metadata", false],
+    ["link-local", "http://[fe80::1]/metadata", false],
+    ["unique-local", "http://[fc00::1]/metadata", false],
+    ["multicast", "http://[ff00::1]/metadata", false],
+    ["reserved-fe00", "http://[fe00::1]/metadata", false],
+    ["reserved-4000", "http://[4000::1]/metadata", false],
+    ["reserved-f000", "http://[f000::1]/metadata", false],
+    ["reserved-5f00", "http://[5f00::1]/metadata", false],
+    ["unallocated-2d00", "http://[2d00::1]/metadata", false],
+    ["documentation", "http://[3fff::1]/metadata", false],
+    ["documentation-db8", "http://[2001:db8::1]/metadata", false],
+    ["protocol-assignment", "http://[2001::1]/metadata", false],
+    ["benchmarking", "http://[2001:2::1]/metadata", false],
+    ["six-to-four", "http://[2002::1]/metadata", false],
+    ["as112-special", "http://[2620:4f:8000::1]/metadata", false],
+    ["amt-anycast", "http://[2001:3::1]/feed.xml", true],
+    ["google-public-dns", "http://[2001:4860:4860::8888]/feed.xml", true],
+    ["cloudflare-public-dns", "http://[2606:4700:4700::1111]/feed.xml", true],
+    ["ripe-allocation", "http://[2a00:1450:4001:81b::200e]/feed.xml", true]
+  ];
+
+  for (const [label, target, accepted] of cases) {
+    const auditDirectory = await mkdtemp(join(tmpdir(), `returner-public-ipv6-${label}-`));
+    const callLog = join(auditDirectory, "fetch-calls.jsonl");
+    const fixture = await runMockedRssCollector(
+      `returner-public-rss-${label}-`,
+      `
+import { appendFileSync } from "node:fs";
+const callLog = ${JSON.stringify(callLog)};
+globalThis.fetch = async (url) => {
+  const value = String(url);
+  appendFileSync(callLog, value + "\\n");
+  if (value === "https://www.edenrobotics.ai/") {
+    return new Response('<html><head><link rel="alternate" type="application/rss+xml" href="https://feeds.edenrobotics.ai/latest.xml"></head><body>Eden Robotics</body></html>');
+  }
+  if (value === "https://feeds.edenrobotics.ai/latest.xml") {
+    return new Response(null, { status: 302, headers: { location: ${JSON.stringify(target)} } });
+  }
+  return new Response("<rss><channel></channel></rss>", {
+    headers: { "content-type": "application/rss+xml" }
+  });
+};
+`
+    );
+    const calls = await readFile(callLog, "utf8");
+    const targetPattern = new RegExp(target.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
+    if (accepted) {
+      assert.match(calls, targetPattern, `${label} should pass the allocated IPv6 allowlist`);
+    } else {
+      assert.doesNotMatch(calls, targetPattern, `${label} must be rejected before fetch`);
+      const address = new URL(target).hostname.replace(/^\[|\]$/g, "");
+      assert.ok(fixture.snapshot.failures.some(
+        (row) => row.platform === "rss" && row.message.includes(`non-public address ${address}`)
+      ));
+    }
+  }
 });
 
 test("legacy fresh Hacker News rows rerun once into instrumented recent-window state", async () => {
@@ -716,14 +1382,14 @@ test("retryable receipts rerun once and a shared campaign checkpoint skips the n
       discoveryAttempts: [],
       sourceDiscoveryPaths: []
     }, null, 2)}\n`),
-    writeFile(preload, `
+    writeFile(preload, withMockPublicDns(`
 globalThis.fetch = async (url) => new Response(
   String(url).includes("feed")
     ? "<?xml version=\\"1.0\\"?><rss><channel></channel></rss>"
     : "<html><head><link rel=\\"alternate\\" type=\\"application/rss+xml\\" href=\\"/feed.xml\\"></head><body>Eden Robotics</body></html>",
   { status: 200 }
 );
-`),
+`)),
     writeFile(noFetchPreload, `globalThis.fetch = async () => { throw new Error("shared campaign checkpoint must skip completed work"); };\n`)
   ]);
   const args = (output) => [
@@ -972,7 +1638,7 @@ test("Reddit access errors with JSON bodies are explicit blocked outcomes rather
   await Promise.all([
     writeFile(discoveryAttempts, "[]\n"),
     writeFile(sourceDiscoveryPaths, "[]\n"),
-    writeFile(preload, `
+    writeFile(preload, withMockPublicDns(`
 globalThis.fetch = async (url) => {
   if (String(url).startsWith("https://www.reddit.com/search.json")) {
     return Response.json({ message: "Forbidden" }, { status: 403 });
@@ -982,7 +1648,7 @@ globalThis.fetch = async (url) => {
   }
   throw new Error("unexpected request");
 };
-`)
+`))
   ]);
 
   execFileSync(process.execPath, [
@@ -1026,7 +1692,7 @@ test("mapped Reddit accounts receive exact unsupported receipts separate from ge
   await Promise.all([
     writeFile(discoveryAttempts, "[]\n"),
     writeFile(sourceDiscoveryPaths, "[]\n"),
-    writeFile(preload, `
+    writeFile(preload, withMockPublicDns(`
 globalThis.fetch = async (url) => {
   if (String(url).startsWith("https://www.reddit.com/search.json")) {
     return Response.json({ message: "Forbidden" }, { status: 403 });
@@ -1036,7 +1702,7 @@ globalThis.fetch = async (url) => {
   }
   throw new Error("unexpected request");
 };
-`)
+`))
   ]);
 
   execFileSync(process.execPath, [
@@ -1072,7 +1738,7 @@ globalThis.fetch = async (url) => {
   assert.equal(exactReceipt?.outcomeReason, "collector_scope_unsupported");
 });
 
-test("platform cooldown skips still write exact terminal receipts for every skipped task", async () => {
+test("disabled remote reader fallback leaves exact direct and search failure receipts", async () => {
   const directory = await mkdtemp(join(tmpdir(), "returner-public-cooldown-receipt-"));
   const output = join(directory, "public-evidence.json");
   const checkpoint = join(directory, "checkpoint.json");
@@ -1082,14 +1748,14 @@ test("platform cooldown skips still write exact terminal receipts for every skip
   await Promise.all([
     writeFile(discoveryAttempts, "[]\n"),
     writeFile(sourceDiscoveryPaths, "[]\n"),
-    writeFile(preload, `
+    writeFile(preload, withMockPublicDns(`
 globalThis.fetch = async (url) => {
   if (String(url).startsWith("https://r.jina.ai/http")) {
     return new Response("SecurityCompromiseError", { status: 451 });
   }
   throw new Error("force reader fallback");
 };
-`)
+`))
   ]);
 
   execFileSync(process.execPath, [
@@ -1121,9 +1787,14 @@ globalThis.fetch = async (url) => {
     assert.equal(receipt.entityType, "company");
     assert.equal(receipt.entityId, "company-eden-robotics");
     assert.equal(receipt.accountUrl, null);
-    assert.equal(receipt.outcomeStatus, "blocked_or_empty");
-    assert.equal(receipt.outcomeReason, "collector_checked_blocked_or_empty");
   }
+  assert.equal(snapshot.attempts["website:eden-robotics"].outcomeStatus, "failed");
+  assert.equal(snapshot.attempts["website:eden-robotics"].outcomeReason, "collector_reported_failure");
+  assert.equal(snapshot.attempts["news_web:eden-robotics"].outcomeStatus, "blocked_or_empty");
+  assert.equal(
+    snapshot.attempts["news_web:eden-robotics"].outcomeReason,
+    "collector_checked_blocked_or_empty"
+  );
 });
 
 test("A16Z cooldown retains distinct terminal failures for same-company founders without URLs", async () => {
@@ -1136,14 +1807,14 @@ test("A16Z cooldown retains distinct terminal failures for same-company founders
   await Promise.all([
     writeFile(discoveryAttempts, "[]\n"),
     writeFile(sourceDiscoveryPaths, "[]\n"),
-    writeFile(preload, `
+    writeFile(preload, withMockPublicDns(`
 globalThis.fetch = async (url) => {
   if (String(url).startsWith("https://r.jina.ai/http")) {
     return new Response("SecurityCompromiseError", { status: 451 });
   }
   throw new Error("unexpected non-reader request");
 };
-`)
+`))
   ]);
 
   execFileSync(process.execPath, [
@@ -1330,6 +2001,74 @@ globalThis.fetch = async () => {
   assert.equal([...row.rawVisibleText].filter((character) => character === "😀").length, 1);
   assert.doesNotMatch(row.rawVisibleText, /\uFFFD/u);
   assertWellFormedStrings(snapshot);
+});
+
+test("Product Hunt search-page relative hrefs remain discoverable after direct HTML retrieval", async () => {
+  const directory = await mkdtemp(join(tmpdir(), "returner-product-hunt-html-links-"));
+  const output = join(directory, "public-evidence.json");
+  const checkpoint = join(directory, "checkpoint.json");
+  const discoveryAttempts = join(directory, "discovery-attempts.json");
+  const sourceDiscoveryPaths = join(directory, "source-discovery-paths.json");
+  const fetchLog = join(directory, "fetch-log.json");
+  const preload = join(directory, "mock-fetch.mjs");
+  const searchOnlyUrl = "https://www.producthunt.com/products/eden-robotics-search-only";
+  await Promise.all([
+    writeFile(discoveryAttempts, "[]\n"),
+    writeFile(sourceDiscoveryPaths, "[]\n"),
+    writeFile(preload, withMockPublicDns(`
+import { writeFileSync } from "node:fs";
+const calls = [];
+process.on("exit", () => writeFileSync(${JSON.stringify(fetchLog)}, JSON.stringify(calls)));
+globalThis.fetch = async (input) => {
+  const value = String(input);
+  calls.push(value);
+  if (value.startsWith("https://www.producthunt.com/search?")) {
+    return new Response('<html><body><a href="/products/eden-robotics-search-only">Eden Robotics launch</a></body></html>');
+  }
+  if (value === ${JSON.stringify(searchOnlyUrl)}) {
+    return new Response('<html><head><title>Eden Robotics | Product Hunt</title></head><body>Eden Robotics builds robots at https://www.edenrobotics.ai. 42 upvotes 3 comments.</body></html>');
+  }
+  if (value.startsWith("https://duckduckgo.com/html/")) {
+    return new Response("<html><body>No results</body></html>");
+  }
+  if (value.startsWith("https://www.ycombinator.com/companies/")) {
+    return new Response("<html><body>Eden Robotics</body></html>");
+  }
+  if (value.startsWith("https://www.producthunt.com/")) {
+    return new Response("<html><head><title>Not Found</title></head><body>Not Found</body></html>", { status: 404 });
+  }
+  throw new Error("unexpected URL: " + value);
+};
+`))
+  ]);
+
+  execFileSync(process.execPath, [
+    "scripts/fetch-public-traction.mjs",
+    "--batch=S2026",
+    "--company=eden-robotics",
+    "--platforms=product_hunt",
+    "--social=none",
+    "--workers=1",
+    "--delay-ms=0",
+    "--force",
+    `--output=${output}`,
+    `--checkpoint=${checkpoint}`,
+    `--discovery-attempts=${discoveryAttempts}`,
+    `--source-discovery-paths=${sourceDiscoveryPaths}`
+  ], {
+    cwd: root,
+    env: { ...process.env, NODE_OPTIONS: `--import=${preload}` },
+    stdio: "pipe"
+  });
+
+  const [snapshot, calls] = await Promise.all([
+    readFile(output, "utf8").then(JSON.parse),
+    readFile(fetchLog, "utf8").then(JSON.parse)
+  ]);
+  assert.ok(calls.includes(searchOnlyUrl));
+  assert.ok(snapshot.evidence.some(
+    (row) => row.platform === "product_hunt" && row.sourceUrl === searchOnlyUrl
+  ));
 });
 
 test("mapped YouTube and Product Hunt URLs get direct account-attributed attempts", async () => {

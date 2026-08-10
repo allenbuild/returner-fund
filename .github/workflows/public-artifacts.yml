@@ -6,24 +6,357 @@ on:
     branches:
       - main
   workflow_dispatch:
+    inputs:
+      target_sha:
+        description: Exact main-reachable commit SHA to validate (defaults to the dispatched ref SHA)
+        required: false
+        type: string
+  workflow_call:
+    inputs:
+      target_sha:
+        description: Exact main-reachable commit SHA to validate
+        required: true
+        type: string
+      policy_source_sha:
+        description: Exact caller/source commit whose reusable validation policy was loaded
+        required: true
+        type: string
+      publication_kind:
+        description: Optional publication provenance kind for bot-authored commits
+        required: false
+        type: string
+      publication_receipt_path:
+        description: Exact committed receipt path whose SHA-256 is bound by commit trailer
+        required: false
+        type: string
+      publication_source_sha:
+        description: Exact publication source commit bound by receipt and commit trailer
+        required: false
+        type: string
+      publication_slot_key:
+        description: Exact publication slot key expected in immutable commit provenance
+        required: false
+        type: string
+      publication_run_id:
+        description: Exact workflow run id expected in immutable commit provenance
+        required: false
+        type: string
+      publication_run_attempt:
+        description: Exact workflow run attempt expected in immutable commit provenance
+        required: false
+        type: string
+      publication_trigger:
+        description: Exact resolver trigger expected in the committed receipt
+        required: false
+        type: string
+      publication_scheduled_at:
+        description: Exact resolver scheduled_at expected in the committed receipt
+        required: false
+        type: string
+      publication_central_date:
+        description: Exact Central date expected in the committed receipt when applicable
+        required: false
+        type: string
+      publication_scheduled_utc_hour:
+        description: Exact scheduled UTC hour expected in the committed receipt when applicable
+        required: false
+        type: string
+    outputs:
+      validated_sha:
+        description: Exact commit validated by every public release gate
+        value: ${{ jobs.validate.outputs.validated_sha }}
 
 permissions:
   contents: read
 
 concurrency:
-  group: public-artifacts-${{ github.ref }}
-  cancel-in-progress: true
+  group: public-artifacts-${{ inputs.target_sha || github.sha }}
+  cancel-in-progress: false
 
 jobs:
-  application:
+  resolve_target:
+    name: Resolve exact validation target
     runs-on: ubuntu-latest
-    timeout-minutes: 150
+    timeout-minutes: 10
+    outputs:
+      target_sha: ${{ steps.target.outputs.target_sha }}
     steps:
-      - name: Check out repository
-        uses: actions/checkout@v4
+      - name: Check out requested validation target
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ inputs.target_sha || github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Verify exact validation target
+        id: target
+        env:
+          REQUESTED_SHA: ${{ inputs.target_sha || github.sha }}
+          REQUIRE_MAIN_REACHABILITY: ${{ github.event_name != 'pull_request' }}
+          POLICY_SOURCE_SHA: ${{ inputs.policy_source_sha }}
+          PUBLICATION_KIND: ${{ inputs.publication_kind }}
+          PUBLICATION_RECEIPT_PATH: ${{ inputs.publication_receipt_path }}
+          PUBLICATION_SOURCE_SHA: ${{ inputs.publication_source_sha }}
+          PUBLICATION_SLOT_KEY: ${{ inputs.publication_slot_key }}
+          PUBLICATION_RUN_ID: ${{ inputs.publication_run_id }}
+          PUBLICATION_RUN_ATTEMPT: ${{ inputs.publication_run_attempt }}
+          PUBLICATION_TRIGGER: ${{ inputs.publication_trigger }}
+          PUBLICATION_SCHEDULED_AT: ${{ inputs.publication_scheduled_at }}
+          PUBLICATION_CENTRAL_DATE: ${{ inputs.publication_central_date }}
+          PUBLICATION_SCHEDULED_UTC_HOUR: ${{ inputs.publication_scheduled_utc_hour }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ ! "$REQUESTED_SHA" =~ ^[0-9a-fA-F]{40}$ ]]; then
+            echo "::error title=Invalid validation target::target_sha must be a full 40-hex commit SHA."
+            exit 1
+          fi
+
+          EXECUTED_SHA="$(git rev-parse HEAD)"
+          NORMALIZED_REQUESTED_SHA="$(printf '%s' "$REQUESTED_SHA" | tr '[:upper:]' '[:lower:]')"
+          if [ "$EXECUTED_SHA" != "$NORMALIZED_REQUESTED_SHA" ]; then
+            echo "::error title=Validation checkout mismatch::Requested $REQUESTED_SHA but checked out $EXECUTED_SHA."
+            exit 1
+          fi
+          git cat-file -e "${EXECUTED_SHA}^{commit}"
+          EXECUTED_SHA="$EXECUTED_SHA" node --input-type=module <<'NODE'
+          import assert from "node:assert/strict";
+          import { spawnSync } from "node:child_process";
+
+          const tree = spawnSync(
+            "git",
+            ["ls-tree", "-r", "-z", "--full-tree", process.env.EXECUTED_SHA],
+            { encoding: "utf8" }
+          );
+          assert.equal(tree.status, 0, tree.stderr || "unable to inspect validation target modes");
+          const unsafe = tree.stdout.split("\0").filter(Boolean).flatMap((entry) => {
+            const match = /^(\d{6})\s+\S+\s+[0-9a-f]+\t([\s\S]+)$/i.exec(entry);
+            return match && ["120000", "160000"].includes(match[1])
+              ? [`${match[2]} (${match[1]})`]
+              : [];
+          });
+          assert.deepEqual(unsafe, [], `validation target contains prohibited symlink/submodule entries: ${unsafe.join(", ")}`);
+          NODE
+
+          fetch_main_with_retry() {
+            local delay_seconds="${PUBLICATION_FETCH_RETRY_DELAY_SECONDS:-2}"
+            local attempt
+            for attempt in 1 2 3 4; do
+              if git fetch --no-tags origin +refs/heads/main:refs/remotes/origin/main; then
+                return 0
+              fi
+              if [ "$attempt" -lt 4 ]; then
+                echo "::warning title=Validation fetch retry::Unauthenticated main fetch attempt $attempt failed."
+                sleep "$delay_seconds"
+                delay_seconds=$((delay_seconds * 2))
+              fi
+            done
+            echo "::error title=Validation fetch failed::Unable to refresh origin/main after four bounded attempts."
+            return 1
+          }
+
+          if [ "$REQUIRE_MAIN_REACHABILITY" = "true" ]; then
+            fetch_main_with_retry
+            if ! git merge-base --is-ancestor "$EXECUTED_SHA" refs/remotes/origin/main; then
+              echo "::error title=Unpublished validation target::$EXECUTED_SHA is not reachable from origin/main."
+              exit 1
+            fi
+          fi
+
+          PROVENANCE_INPUTS="$PUBLICATION_KIND$PUBLICATION_RECEIPT_PATH$PUBLICATION_SOURCE_SHA$PUBLICATION_SLOT_KEY$PUBLICATION_RUN_ID$PUBLICATION_RUN_ATTEMPT$PUBLICATION_TRIGGER$PUBLICATION_SCHEDULED_AT$PUBLICATION_CENTRAL_DATE$PUBLICATION_SCHEDULED_UTC_HOUR"
+          if [ -n "$PROVENANCE_INPUTS" ]; then
+            case "$PUBLICATION_KIND" in
+              autonomous-ingestion|daily-benchmark) ;;
+              *)
+                echo "::error title=Invalid publication provenance::publication_kind is not recognized."
+                exit 1
+                ;;
+            esac
+            if [[ ! "$PUBLICATION_RECEIPT_PATH" =~ ^[A-Za-z0-9._/-]+$ ]] || [[ "$PUBLICATION_RECEIPT_PATH" = /* ]] || [[ "$PUBLICATION_RECEIPT_PATH" == *".."* ]]; then
+              echo "::error title=Invalid publication provenance::publication_receipt_path is unsafe."
+              exit 1
+            fi
+            if [[ ! "$PUBLICATION_SLOT_KEY" =~ ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$ ]] || [[ ! "$PUBLICATION_RUN_ID" =~ ^[0-9]+$ ]] || [[ ! "$PUBLICATION_RUN_ATTEMPT" =~ ^[0-9]+$ ]]; then
+              echo "::error title=Invalid publication provenance::Slot, run id, or run attempt is malformed."
+              exit 1
+            fi
+            if [[ ! "$POLICY_SOURCE_SHA" =~ ^[0-9a-fA-F]{40}$ ]]; then
+              echo "::error title=Invalid publication provenance::Bot publication provenance requires an exact source SHA."
+              exit 1
+            fi
+            EFFECTIVE_PUBLICATION_SOURCE_SHA="${PUBLICATION_SOURCE_SHA:-$POLICY_SOURCE_SHA}"
+            NORMALIZED_PUBLICATION_SOURCE_SHA="$(printf '%s' "$EFFECTIVE_PUBLICATION_SOURCE_SHA" | tr '[:upper:]' '[:lower:]')"
+            if [[ ! "$EFFECTIVE_PUBLICATION_SOURCE_SHA" =~ ^[0-9a-fA-F]{40}$ ]] ||
+              ! git merge-base --is-ancestor "$NORMALIZED_PUBLICATION_SOURCE_SHA" "$EXECUTED_SHA"; then
+              echo "::error title=Invalid publication provenance::Publication target is not descended from its receipt-bound source SHA."
+              exit 1
+            fi
+
+            TRAILER_BLOCK="$(git show -s --format=%B "$EXECUTED_SHA" | git interpret-trailers --parse)"
+            RECEIPT_TRAILER_SHA="$(TRAILER_BLOCK="$TRAILER_BLOCK" \
+              EXPECTED_SLOT_KEY="$PUBLICATION_SLOT_KEY" \
+              EXPECTED_SOURCE_SHA="$NORMALIZED_PUBLICATION_SOURCE_SHA" \
+              EXPECTED_RUN_ID="$PUBLICATION_RUN_ID" \
+              EXPECTED_RUN_ATTEMPT="$PUBLICATION_RUN_ATTEMPT" \
+              node --input-type=module <<'NODE'
+            import assert from "node:assert/strict";
+            const expected = new Map([
+              ["Returner-Slot-Key", process.env.EXPECTED_SLOT_KEY],
+              ["Returner-Source-SHA", process.env.EXPECTED_SOURCE_SHA],
+              ["Returner-Run-ID", process.env.EXPECTED_RUN_ID],
+              ["Returner-Run-Attempt", process.env.EXPECTED_RUN_ATTEMPT]
+            ]);
+            const values = new Map();
+            for (const line of (process.env.TRAILER_BLOCK ?? "").split(/\r?\n/).filter(Boolean)) {
+              const match = /^(Returner-(?:Slot-Key|Source-SHA|Run-ID|Run-Attempt|Receipt-SHA256)): (.+)$/.exec(line);
+              if (!match) continue;
+              const entries = values.get(match[1]) ?? [];
+              entries.push(match[2]);
+              values.set(match[1], entries);
+            }
+            for (const [key, value] of expected) {
+              assert.deepEqual(values.get(key), [value], `${key} must occur exactly once with the expected value`);
+            }
+            const receiptHashes = values.get("Returner-Receipt-SHA256");
+            assert.ok(receiptHashes?.length === 1 && /^[0-9a-f]{64}$/.test(receiptHashes[0]), "Returner-Receipt-SHA256 must be one lowercase SHA-256");
+            process.stdout.write(receiptHashes[0]);
+          NODE
+            )"
+            ACTUAL_RECEIPT_SHA="$(node --input-type=module 3< <(git show "$EXECUTED_SHA:$PUBLICATION_RECEIPT_PATH") <<'NODE'
+            import { createHash } from "node:crypto";
+            import { readFileSync } from "node:fs";
+            process.stdout.write(createHash("sha256").update(readFileSync(3)).digest("hex"));
+          NODE
+            )"
+            if [ "$ACTUAL_RECEIPT_SHA" != "$RECEIPT_TRAILER_SHA" ]; then
+              echo "::error title=Invalid publication provenance::Committed receipt does not match Returner-Receipt-SHA256."
+              exit 1
+            fi
+            EXPECTED_KIND="$PUBLICATION_KIND" \
+            EXPECTED_SLOT_KEY="$PUBLICATION_SLOT_KEY" \
+            EXPECTED_SOURCE_SHA="$NORMALIZED_PUBLICATION_SOURCE_SHA" \
+            EXPECTED_RUN_ID="$PUBLICATION_RUN_ID" \
+            EXPECTED_RUN_ATTEMPT="$PUBLICATION_RUN_ATTEMPT" \
+            EXPECTED_TRIGGER="$PUBLICATION_TRIGGER" \
+            EXPECTED_SCHEDULED_AT="$PUBLICATION_SCHEDULED_AT" \
+            EXPECTED_CENTRAL_DATE="$PUBLICATION_CENTRAL_DATE" \
+            EXPECTED_SCHEDULED_UTC_HOUR="$PUBLICATION_SCHEDULED_UTC_HOUR" \
+            node --input-type=module 3< <(git show "$EXECUTED_SHA:$PUBLICATION_RECEIPT_PATH") <<'NODE'
+            import assert from "node:assert/strict";
+            import { readFileSync } from "node:fs";
+            const receipt = JSON.parse(readFileSync(3, "utf8"));
+            const provenance = receipt.publicationProvenance ?? receipt.provenance ?? receipt;
+            const value = (...keys) => keys.map((key) => provenance?.[key] ?? receipt?.[key]).find((entry) => entry !== undefined);
+            const strictUtcRfc3339 = (input) => {
+              if (typeof input !== "string") return false;
+              const match = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.\d{1,9})?Z$/.exec(input);
+              if (!match) return false;
+              const [, year, month, day, hour, minute, second] = match.map(Number);
+              const instant = new Date(0);
+              instant.setUTCFullYear(year, month - 1, day);
+              instant.setUTCHours(hour, minute, second, 0);
+              return instant.getUTCFullYear() === year && instant.getUTCMonth() === month - 1 &&
+                instant.getUTCDate() === day && instant.getUTCHours() === hour &&
+                instant.getUTCMinutes() === minute && instant.getUTCSeconds() === second;
+            };
+            const chicagoParts = (instant) => Object.fromEntries(new Intl.DateTimeFormat("en-US", {
+              timeZone: "America/Chicago",
+              calendar: "gregory",
+              numberingSystem: "latn",
+              year: "numeric",
+              month: "2-digit",
+              day: "2-digit",
+              hour: "2-digit",
+              minute: "2-digit",
+              second: "2-digit",
+              hourCycle: "h23"
+            }).formatToParts(instant).filter(({ type }) => type !== "literal").map(({ type, value: entry }) => [type, entry]));
+            assert.equal(receipt.schemaVersion, 1);
+            assert.equal(value("slotKey", "idempotencyKey"), process.env.EXPECTED_SLOT_KEY);
+            if (process.env.EXPECTED_KIND === "autonomous-ingestion") {
+              assert.equal(receipt.idempotencyKey, process.env.EXPECTED_SLOT_KEY);
+              assert.equal(receipt.trigger, process.env.EXPECTED_TRIGGER);
+              if (process.env.EXPECTED_TRIGGER === "manual-replay") {
+                assert.equal(process.env.EXPECTED_SCHEDULED_AT, "");
+                assert.equal(receipt.scheduledAt, null);
+              } else {
+                assert.equal(process.env.EXPECTED_TRIGGER, "schedule");
+                assert.ok(strictUtcRfc3339(process.env.EXPECTED_SCHEDULED_AT));
+                assert.equal(receipt.scheduledAt, process.env.EXPECTED_SCHEDULED_AT);
+                assert.ok(strictUtcRfc3339(receipt.scheduledAt));
+                const parts = chicagoParts(new Date(receipt.scheduledAt));
+                assert.equal(parts.second, "00");
+                assert.ok(parts.hour === "06" || parts.hour === "18");
+                assert.equal(process.env.EXPECTED_SLOT_KEY, `central-${parts.year}-${parts.month}-${parts.day}-${parts.hour}${parts.minute}`);
+              }
+            } else if (process.env.EXPECTED_KIND === "daily-benchmark") {
+              assert.equal(receipt.kind, "daily-score-benchmark-publication");
+              assert.equal(receipt.sourceSha, process.env.EXPECTED_SOURCE_SHA);
+              assert.equal(String(receipt.runId), process.env.EXPECTED_RUN_ID);
+              assert.equal(String(receipt.runAttempt), process.env.EXPECTED_RUN_ATTEMPT);
+              assert.equal(receipt.trigger, process.env.EXPECTED_TRIGGER);
+              assert.equal(receipt.scheduledAt, process.env.EXPECTED_SCHEDULED_AT);
+              assert.equal(receipt.centralDate, process.env.EXPECTED_CENTRAL_DATE);
+              assert.equal(String(receipt.scheduledUtcHour ?? ""), process.env.EXPECTED_SCHEDULED_UTC_HOUR);
+              assert.ok(strictUtcRfc3339(process.env.EXPECTED_SCHEDULED_AT));
+              const scheduled = new Date(process.env.EXPECTED_SCHEDULED_AT);
+              const parts = chicagoParts(scheduled);
+              assert.equal(process.env.EXPECTED_CENTRAL_DATE, `${parts.year}-${parts.month}-${parts.day}`);
+              assert.equal(process.env.EXPECTED_SLOT_KEY, `daily-benchmark-${process.env.EXPECTED_CENTRAL_DATE}`);
+              if (process.env.EXPECTED_TRIGGER === "schedule") {
+                assert.match(process.env.EXPECTED_SCHEDULED_UTC_HOUR, /^(?:5|6)$/);
+                assert.equal(String(scheduled.getUTCHours()), process.env.EXPECTED_SCHEDULED_UTC_HOUR);
+                assert.equal(`${parts.hour}:${parts.minute}:${parts.second}`, "00:00:00");
+              } else {
+                assert.equal(process.env.EXPECTED_TRIGGER, "manual-dispatch");
+                assert.equal(process.env.EXPECTED_SCHEDULED_UTC_HOUR, "");
+              }
+            }
+          NODE
+          fi
+
+          if [ -n "$POLICY_SOURCE_SHA" ]; then
+            if [[ ! "$POLICY_SOURCE_SHA" =~ ^[0-9a-fA-F]{40}$ ]]; then
+              echo "::error title=Invalid validation policy source::The caller source SHA must be a full 40-hex commit SHA."
+              exit 1
+            fi
+            NORMALIZED_CALLER_SOURCE_SHA="$(printf '%s' "$POLICY_SOURCE_SHA" | tr '[:upper:]' '[:lower:]')"
+            git cat-file -e "${NORMALIZED_CALLER_SOURCE_SHA}^{commit}"
+            if ! git merge-base --is-ancestor "$NORMALIZED_CALLER_SOURCE_SHA" "$EXECUTED_SHA" &&
+              ! git merge-base --is-ancestor "$EXECUTED_SHA" "$NORMALIZED_CALLER_SOURCE_SHA"; then
+              echo "::error title=Validation policy source mismatch::Target $EXECUTED_SHA and caller source $NORMALIZED_CALLER_SOURCE_SHA are not on the same main lineage."
+              exit 1
+            fi
+            CALLER_POLICY_BLOB="$(git rev-parse "${NORMALIZED_CALLER_SOURCE_SHA}:.github/workflows/public-artifacts.yml")"
+            TARGET_POLICY_BLOB="$(git rev-parse "${EXECUTED_SHA}:.github/workflows/public-artifacts.yml")"
+            if [ "$CALLER_POLICY_BLOB" != "$TARGET_POLICY_BLOB" ]; then
+              echo "::error title=Validation policy drift::Target $EXECUTED_SHA does not contain the exact public-artifacts workflow policy loaded from caller source $NORMALIZED_CALLER_SOURCE_SHA."
+              exit 1
+            fi
+          fi
+
+          echo "target_sha=$EXECUTED_SHA" >> "$GITHUB_OUTPUT"
+          {
+            echo "## Public artifact validation target"
+            echo "- Event: $GITHUB_EVENT_NAME"
+            echo "- Exact commit: $EXECUTED_SHA"
+            echo "- Main reachability required: $REQUIRE_MAIN_REACHABILITY"
+            echo "- Workflow policy parity required: $([ -n "$POLICY_SOURCE_SHA" ] && echo true || echo false)"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  quality:
+    needs: resolve_target
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - name: Check out verified target
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ needs.resolve_target.outputs.target_sha }}
+          persist-credentials: false
 
       - name: Use Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 24.14.0
           cache: npm
@@ -32,19 +365,127 @@ jobs:
         timeout-minutes: 10
         run: npm ci
 
-      - name: Run application gate
-        timeout-minutes: 135
-        run: npm run check
+      - name: Lint application
+        timeout-minutes: 10
+        run: npm run lint
+
+      - name: Type-check application
+        timeout-minutes: 10
+        run: npm run typecheck
+
+  app_tests:
+    needs: resolve_target
+    runs-on: ubuntu-latest
+    timeout-minutes: 100
+    steps:
+      - name: Check out verified target
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ needs.resolve_target.outputs.target_sha }}
+          persist-credentials: false
+
+      - name: Use Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 24.14.0
+          cache: npm
+
+      - name: Install dependencies
+        timeout-minutes: 10
+        run: npm ci
+
+      - name: Run Vitest application suite
+        timeout-minutes: 85
+        run: npm run test
+
+  collectors:
+    needs: resolve_target
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Check out verified target
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ needs.resolve_target.outputs.target_sha }}
+          persist-credentials: false
+
+      - name: Use Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 24.14.0
+          cache: npm
+
+      - name: Install dependencies
+        timeout-minutes: 10
+        run: npm ci
+
+      - name: Run collector contracts
+        timeout-minutes: 45
+        run: npm run test:collectors
+
+  logged_social:
+    needs: resolve_target
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Check out verified target
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ needs.resolve_target.outputs.target_sha }}
+          persist-credentials: false
+
+      - name: Use Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 24.14.0
+          cache: npm
+
+      - name: Install dependencies
+        timeout-minutes: 10
+        run: npm ci
+
+      - name: Run logged-social contracts
+        timeout-minutes: 15
+        run: npm run test:logged-social
+
+  build:
+    needs: resolve_target
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - name: Check out verified target
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ needs.resolve_target.outputs.target_sha }}
+          persist-credentials: false
+
+      - name: Use Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 24.14.0
+          cache: npm
+
+      - name: Install dependencies
+        timeout-minutes: 10
+        run: npm ci
+
+      - name: Build production application
+        timeout-minutes: 20
+        run: npm run build
 
   scoring:
+    needs: resolve_target
     runs-on: ubuntu-latest
     timeout-minutes: 70
     steps:
-      - name: Check out repository
-        uses: actions/checkout@v4
+      - name: Check out verified target
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ needs.resolve_target.outputs.target_sha }}
+          persist-credentials: false
 
       - name: Use Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 24.14.0
           cache: npm
@@ -58,14 +499,18 @@ jobs:
         run: npm run check:release:scoring
 
   artifacts:
+    needs: resolve_target
     runs-on: ubuntu-latest
     timeout-minutes: 70
     steps:
-      - name: Check out repository
-        uses: actions/checkout@v4
+      - name: Check out verified target
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ needs.resolve_target.outputs.target_sha }}
+          persist-credentials: false
 
       - name: Use Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 24.14.0
           cache: npm
@@ -81,18 +526,90 @@ jobs:
   validate:
     if: always()
     needs:
-      - application
+      - resolve_target
+      - quality
+      - app_tests
+      - collectors
+      - logged_social
+      - build
       - scoring
       - artifacts
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 10
+    outputs:
+      validated_sha: ${{ steps.finalize.outputs.validated_sha }}
     steps:
-      - name: Require every release gate
+      - name: Check out exact target for final audit
+        if: needs.resolve_target.result == 'success'
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ needs.resolve_target.outputs.target_sha }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Require every release gate and reverify target
+        id: finalize
         env:
-          APPLICATION_RESULT: ${{ needs.application.result }}
+          TARGET_RESULT: ${{ needs.resolve_target.result }}
+          TARGET_SHA: ${{ needs.resolve_target.outputs.target_sha }}
+          REQUIRE_MAIN_REACHABILITY: ${{ github.event_name != 'pull_request' }}
+          QUALITY_RESULT: ${{ needs.quality.result }}
+          APP_TESTS_RESULT: ${{ needs.app_tests.result }}
+          COLLECTORS_RESULT: ${{ needs.collectors.result }}
+          LOGGED_SOCIAL_RESULT: ${{ needs.logged_social.result }}
+          BUILD_RESULT: ${{ needs.build.result }}
           SCORING_RESULT: ${{ needs.scoring.result }}
           ARTIFACTS_RESULT: ${{ needs.artifacts.result }}
         run: |
-          test "$APPLICATION_RESULT" = success
+          set -euo pipefail
+          test "$TARGET_RESULT" = success
+          test "$QUALITY_RESULT" = success
+          test "$APP_TESTS_RESULT" = success
+          test "$COLLECTORS_RESULT" = success
+          test "$LOGGED_SOCIAL_RESULT" = success
+          test "$BUILD_RESULT" = success
           test "$SCORING_RESULT" = success
           test "$ARTIFACTS_RESULT" = success
+          if [[ ! "$TARGET_SHA" =~ ^[0-9a-fA-F]{40}$ ]]; then
+            echo "::error title=Invalid final validation target::Resolved target_sha is not a full 40-hex commit SHA."
+            exit 1
+          fi
+          FINAL_SHA="$(git rev-parse HEAD)"
+          NORMALIZED_TARGET_SHA="$(printf '%s' "$TARGET_SHA" | tr '[:upper:]' '[:lower:]')"
+          if [ "$FINAL_SHA" != "$NORMALIZED_TARGET_SHA" ]; then
+            echo "::error title=Final validation checkout mismatch::Expected $TARGET_SHA but checked out $FINAL_SHA."
+            exit 1
+          fi
+          if [ "$REQUIRE_MAIN_REACHABILITY" = "true" ]; then
+            fetch_main_with_retry() {
+              local delay_seconds="${PUBLICATION_FETCH_RETRY_DELAY_SECONDS:-2}"
+              local attempt
+              for attempt in 1 2 3 4; do
+                if git fetch --no-tags origin +refs/heads/main:refs/remotes/origin/main; then return 0; fi
+                if [ "$attempt" -lt 4 ]; then
+                  sleep "$delay_seconds"
+                  delay_seconds=$((delay_seconds * 2))
+                fi
+              done
+              return 1
+            }
+            fetch_main_with_retry
+            REMOTE_MAIN_SHA="$(git rev-parse refs/remotes/origin/main)"
+            if ! git merge-base --is-ancestor "$FINAL_SHA" refs/remotes/origin/main; then
+              echo "::error title=Validation target no longer published::$FINAL_SHA is not reachable from final origin/main $REMOTE_MAIN_SHA."
+              exit 1
+            fi
+          fi
+          echo "validated_sha=$FINAL_SHA" >> "$GITHUB_OUTPUT"
+          {
+            echo "## Public artifact validation completed"
+            echo "- Exact commit: $FINAL_SHA"
+            echo "- Main reachability reverified: $REQUIRE_MAIN_REACHABILITY"
+            echo "- Quality: $QUALITY_RESULT"
+            echo "- Application tests: $APP_TESTS_RESULT"
+            echo "- Collector contracts: $COLLECTORS_RESULT"
+            echo "- Logged-social contracts: $LOGGED_SOCIAL_RESULT"
+            echo "- Production build: $BUILD_RESULT"
+            echo "- Scoring: $SCORING_RESULT"
+            echo "- Artifacts: $ARTIFACTS_RESULT"
+          } >> "$GITHUB_STEP_SUMMARY"

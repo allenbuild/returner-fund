@@ -47,7 +47,7 @@ export function ScoringMethodology({ currentModel }: ScoringMethodologyProps) {
           <p>
             This explains {baseline.modelId} v{baseline.modelVersion}, not the intended learned V5 formula. The model
             starts with verified native evidence whose configured visible metrics are normalized
-            to canonical aliases. It multiplies each raw count by the table value, then applies a platform-specific
+            to canonical aliases. It maps each raw count through the table value, then applies a platform-specific
             logarithmic reference. The current monotonic patch uses {baseline.evidenceBlend.absolutePercent}%
             reference-anchored absolute signal and {baseline.evidenceBlend.platformMidrankPercent}% evidence-level
             cohort midrank, so changing one row cannot lower an unchanged same-platform peer.
@@ -66,8 +66,8 @@ export function ScoringMethodology({ currentModel }: ScoringMethodologyProps) {
             auditable benchmark input ({baseline.calibration.absolutePercent}% absolute and {" "}
             {baseline.calibration.cohortPercentilePercent}% cohort-percentile signal). The displayed headline uses one
             ratio shared by every supported batch: the strongest current company&apos;s absolute score maps to 100 and
-            every other company receives the same multiplier. There is no per-batch min/max stretch, and platform
-            visibility filters never recompute this canonical global factor.
+            every other company receives the same global calibration. There is no per-batch min/max stretch, and
+            platform visibility filters never recompute this canonical factor.
           </p>
 
           <div className="scoring-baseline-table-wrap">
@@ -138,8 +138,8 @@ export function ScoringMethodology({ currentModel }: ScoringMethodologyProps) {
           held-out acceptance requirement; none is reported for the current zero-row rejected artifact.
         </MethodQuestion>
 
-        <MethodQuestion title="5. Are there fixed multipliers or additive post slots?">
-          No hand-picked multiplier or top-post slot vector is accepted for V5. Linear coefficients, spline effects,
+        <MethodQuestion title="5. Are there fixed coefficients or additive post slots?">
+          No hand-picked coefficient or top-post slot vector is accepted for V5. Linear coefficients, spline effects,
           calibration maps, temporal curves, and company pooling parameters must be fitted under the frozen search
           protocol and survive held-out evaluation. Nonlinear marginal effects depend on platform, age, and context.
         </MethodQuestion>

@@ -18,17 +18,33 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     outputs:
-      should_run: ${{ steps.schedule.outputs.should_run }}
-      scheduled_utc_hour: ${{ steps.schedule.outputs.scheduled_utc_hour }}
-      trigger: ${{ steps.schedule.outputs.trigger }}
-      reason: ${{ steps.schedule.outputs.reason }}
-      scheduled_at: ${{ steps.schedule.outputs.scheduled_at }}
-      central_date: ${{ steps.schedule.outputs.central_date }}
+      should_run: ${{ steps.decision.outputs.should_run }}
+      scheduled_utc_hour: ${{ steps.decision.outputs.scheduled_utc_hour }}
+      trigger: ${{ steps.decision.outputs.trigger }}
+      reason: ${{ steps.decision.outputs.reason }}
+      scheduled_at: ${{ steps.decision.outputs.scheduled_at }}
+      central_date: ${{ steps.decision.outputs.central_date }}
+      source_sha: ${{ steps.source.outputs.source_sha }}
     steps:
       - name: Check out main
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
-          ref: main
+          ref: ${{ github.sha }}
+          persist-credentials: false
+
+      - name: Record source checkout
+        id: source
+        env:
+          TRIGGER_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          SOURCE_SHA="$(git rev-parse HEAD)"
+          NORMALIZED_TRIGGER_SHA="$(printf '%s' "$TRIGGER_SHA" | tr '[:upper:]' '[:lower:]')"
+          if [[ ! "$TRIGGER_SHA" =~ ^[0-9a-fA-F]{40}$ ]] || [ "$SOURCE_SHA" != "$NORMALIZED_TRIGGER_SHA" ]; then
+            echo "::error title=Source checkout mismatch::Triggered at $TRIGGER_SHA but checked out $SOURCE_SHA."
+            exit 1
+          fi
+          echo "source_sha=$SOURCE_SHA" >> "$GITHUB_OUTPUT"
 
       - name: Resolve daily benchmark schedule
         id: schedule
@@ -37,17 +53,137 @@ jobs:
         run: node scripts/lib/daily-benchmark-schedule.mjs
 
       - name: Record candidate decision
+        id: decision
         env:
           SHOULD_RUN: ${{ steps.schedule.outputs.should_run }}
+          SCHEDULED_UTC_HOUR: ${{ steps.schedule.outputs.scheduled_utc_hour }}
+          TRIGGER: ${{ steps.schedule.outputs.trigger }}
           REASON: ${{ steps.schedule.outputs.reason }}
           SCHEDULED_AT: ${{ steps.schedule.outputs.scheduled_at }}
           CENTRAL_DATE: ${{ steps.schedule.outputs.central_date }}
         run: |
-          if [ "$SHOULD_RUN" = "true" ]; then
-            STATUS="accepted_candidate"
-          else
-            STATUS="inactive_candidate"
-          fi
+          set -euo pipefail
+          contains_line_break() {
+            [[ "$1" == *$'\n'* || "$1" == *$'\r'* ]]
+          }
+          is_real_date() {
+            node --input-type=module - "$1" <<'NODE'
+          const value = process.argv[2] ?? "";
+          const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+          if (!match) process.exit(1);
+          const [, year, month, day] = match.map(Number);
+          const instant = new Date(0);
+          instant.setUTCFullYear(year, month - 1, day);
+          instant.setUTCHours(0, 0, 0, 0);
+          if (
+            instant.getUTCFullYear() !== year ||
+            instant.getUTCMonth() !== month - 1 ||
+            instant.getUTCDate() !== day
+          ) process.exit(1);
+          NODE
+          }
+          is_strict_utc_rfc3339() {
+            node --input-type=module - "$1" <<'NODE'
+          const value = process.argv[2] ?? "";
+          const match = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.\d{1,9})?Z$/.exec(value);
+          if (!match) process.exit(1);
+          const [, year, month, day, hour, minute, second] = match.map(Number);
+          const instant = new Date(0);
+          instant.setUTCFullYear(year, month - 1, day);
+          instant.setUTCHours(hour, minute, second, 0);
+          if (
+            instant.getUTCFullYear() !== year ||
+            instant.getUTCMonth() !== month - 1 ||
+            instant.getUTCDate() !== day ||
+            instant.getUTCHours() !== hour ||
+            instant.getUTCMinutes() !== minute ||
+            instant.getUTCSeconds() !== second
+          ) process.exit(1);
+          NODE
+          }
+          for value in "$SHOULD_RUN" "$SCHEDULED_UTC_HOUR" "$TRIGGER" "$REASON" "$SCHEDULED_AT" "$CENTRAL_DATE"; do
+            if contains_line_break "$value"; then
+              echo "::error title=Malformed benchmark resolver output::Resolver outputs must not contain CR or LF characters."
+              exit 1
+            fi
+          done
+          case "$SHOULD_RUN" in
+            true)
+              if [ -z "$TRIGGER" ] || [ -z "$REASON" ]; then
+                echo "::error title=Malformed benchmark resolver output::Accepted candidates require nonempty trigger and reason outputs."
+                exit 1
+              fi
+              case "$TRIGGER" in
+                schedule)
+                  if [[ ! "$SCHEDULED_UTC_HOUR" =~ ^(5|6)$ ]] || [ -z "$SCHEDULED_AT" ] || [ -z "$CENTRAL_DATE" ]; then
+                    echo "::error title=Malformed benchmark resolver output::Scheduled candidates require hour 5 or 6, scheduled_at, and central_date."
+                    exit 1
+                  fi
+                  ;;
+                manual-dispatch)
+                  if [ -n "$SCHEDULED_UTC_HOUR" ]; then
+                    echo "::error title=Malformed benchmark resolver output::Manual candidates must not claim a scheduled UTC hour."
+                    exit 1
+                  fi
+                  if [ -z "$SCHEDULED_AT" ]; then
+                    MANUAL_CAPTURED_AT="$(node -p 'new Date().toISOString()')"
+                    SCHEDULED_AT="$MANUAL_CAPTURED_AT"
+                  else
+                    MANUAL_CAPTURED_AT="$SCHEDULED_AT"
+                  fi
+                  if [ -z "$CENTRAL_DATE" ]; then
+                    CENTRAL_DATE="$(SCHEDULED_AT="$MANUAL_CAPTURED_AT" node --input-type=module <<'NODE'
+          const parts = Object.fromEntries(new Intl.DateTimeFormat("en-US", {
+            timeZone: "America/Chicago", calendar: "gregory", numberingSystem: "latn",
+            year: "numeric", month: "2-digit", day: "2-digit"
+          }).formatToParts(new Date(process.env.SCHEDULED_AT)).filter(({ type }) => type !== "literal").map(({ type, value }) => [type, value]));
+          process.stdout.write(`${parts.year}-${parts.month}-${parts.day}`);
+          NODE
+                    )"
+                  fi
+                  if ! SCHEDULED_AT="$SCHEDULED_AT" CENTRAL_DATE="$CENTRAL_DATE" node --input-type=module <<'NODE'
+          const parts = Object.fromEntries(new Intl.DateTimeFormat("en-US", {
+            timeZone: "America/Chicago", calendar: "gregory", numberingSystem: "latn",
+            year: "numeric", month: "2-digit", day: "2-digit"
+          }).formatToParts(new Date(process.env.SCHEDULED_AT)).filter(({ type }) => type !== "literal").map(({ type, value }) => [type, value]));
+          if (process.env.CENTRAL_DATE !== `${parts.year}-${parts.month}-${parts.day}`) process.exit(1);
+          NODE
+                  then
+                    echo "::error title=Malformed benchmark resolver output::Manual central_date must describe the same captured instant as scheduled_at."
+                    exit 1
+                  fi
+                  ;;
+                *)
+                  echo "::error title=Malformed benchmark resolver output::Accepted trigger '$TRIGGER' is not recognized."
+                  exit 1
+                  ;;
+              esac
+              if ! is_real_date "$CENTRAL_DATE" || ! is_strict_utc_rfc3339 "$SCHEDULED_AT"; then
+                echo "::error title=Malformed benchmark resolver output::Accepted candidates require a real central_date and valid UTC RFC3339 scheduled_at."
+                exit 1
+              fi
+              STATUS="accepted_candidate"
+              ;;
+            false)
+              if [ -z "$TRIGGER" ] || [ -z "$REASON" ] || [ -n "$SCHEDULED_UTC_HOUR" ] || [ -n "$CENTRAL_DATE" ] || [ -n "$SCHEDULED_AT" ]; then
+                echo "::error title=Malformed benchmark resolver output::Inactive candidates require trigger and reason and must not expose schedule metadata."
+                exit 1
+              fi
+              STATUS="inactive_candidate"
+              ;;
+            *)
+              echo "::error title=Malformed benchmark resolver output::should_run must be exactly true or false."
+              exit 1
+              ;;
+          esac
+          {
+            echo "should_run=$SHOULD_RUN"
+            echo "scheduled_utc_hour=$SCHEDULED_UTC_HOUR"
+            echo "trigger=$TRIGGER"
+            echo "reason=$REASON"
+            echo "scheduled_at=$SCHEDULED_AT"
+            echo "central_date=$CENTRAL_DATE"
+          } >> "$GITHUB_OUTPUT"
           {
             echo "## Daily benchmark candidate"
             echo "- Status: $STATUS"
@@ -67,55 +203,307 @@ jobs:
     concurrency:
       group: repository-publication-main
       cancel-in-progress: false
-      queue: max
     outputs:
-      publication_status: ${{ steps.publish.outputs.publication_status }}
-      published_commit: ${{ steps.publish.outputs.published_commit }}
+      publication_status: ${{ steps.recover_publication.outputs.publication_status }}
+      published_commit: ${{ steps.recover_publication.outputs.published_commit }}
+      validation_candidate: ${{ steps.recover_publication.outputs.validation_candidate }}
+      commit_verified: ${{ steps.recover_publication.outputs.commit_verified }}
+      remote_main_commit: ${{ steps.recover_publication.outputs.remote_main_commit }}
+      recovery_method: ${{ steps.recover_publication.outputs.recovery_method }}
+      executed_sha: ${{ steps.checkout_state.outputs.executed_sha }}
+      publication_source_sha: ${{ steps.recover_publication.outputs.publication_source_sha }}
+      publication_run_id: ${{ steps.recover_publication.outputs.publication_run_id }}
+      publication_run_attempt: ${{ steps.recover_publication.outputs.publication_run_attempt }}
+      publication_trigger: ${{ steps.recover_publication.outputs.publication_trigger }}
+      publication_scheduled_at: ${{ steps.recover_publication.outputs.publication_scheduled_at }}
+      publication_central_date: ${{ steps.recover_publication.outputs.publication_central_date }}
+      publication_scheduled_utc_hour: ${{ steps.recover_publication.outputs.publication_scheduled_utc_hour }}
     steps:
       - name: Check out main
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
-          ref: main
+          ref: ${{ needs.resolve.outputs.source_sha }}
           fetch-depth: 0
+          persist-credentials: false
 
-      - name: Synchronize publication base
+      - name: Record executed checkout
+        id: checkout_state
+        env:
+          SOURCE_SHA: ${{ needs.resolve.outputs.source_sha }}
         run: |
-          git fetch --prune origin main
-          git rebase origin/main
+          set -euo pipefail
+          EXECUTED_SHA="$(git rev-parse HEAD)"
+          NORMALIZED_SOURCE_SHA="$(printf '%s' "$SOURCE_SHA" | tr '[:upper:]' '[:lower:]')"
+          if [ "$EXECUTED_SHA" != "$NORMALIZED_SOURCE_SHA" ]; then
+            echo "::error title=Execution checkout mismatch::Expected $SOURCE_SHA but checked out $EXECUTED_SHA."
+            exit 1
+          fi
+          echo "executed_sha=$EXECUTED_SHA" >> "$GITHUB_OUTPUT"
+
+      - name: Verify publication base
+        run: |
+          set -euo pipefail
+          git fetch --no-tags origin +refs/heads/main:refs/remotes/origin/main
+          if ! git merge-base --is-ancestor HEAD refs/remotes/origin/main; then
+            echo "::error title=Invalid benchmark source::The snapshotted source commit is not reachable from origin/main."
+            exit 1
+          fi
 
       - name: Use Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 24.14.0
           cache: npm
 
+      - name: Resolve existing daily benchmark slot
+        id: existing_slot
+        env:
+          SOURCE_SHA: ${{ needs.resolve.outputs.source_sha }}
+          SCHEDULE_TRIGGER: ${{ needs.resolve.outputs.trigger }}
+          SCHEDULED_UTC_HOUR: ${{ needs.resolve.outputs.scheduled_utc_hour }}
+          SCHEDULED_AT: ${{ needs.resolve.outputs.scheduled_at }}
+          CENTRAL_DATE: ${{ needs.resolve.outputs.central_date }}
+          PUBLICATION_BRANCH: main
+        run: |
+          set -euo pipefail
+          RECEIPT_PATH="outputs/benchmarks/daily-publication-receipt.json"
+          SLOT_KEY="daily-benchmark-$CENTRAL_DATE"
+          {
+            echo "publication_status=fresh"
+            echo "published_commit="
+            echo "publication_source_sha="
+            echo "publication_run_id="
+            echo "publication_run_attempt="
+            echo "publication_trigger="
+            echo "publication_scheduled_at="
+            echo "publication_central_date="
+            echo "publication_scheduled_utc_hour="
+          } >> "$GITHUB_OUTPUT"
+          if [[ ! "$SOURCE_SHA" =~ ^[0-9a-fA-F]{40}$ ]] || [[ ! "$CENTRAL_DATE" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]]; then
+            echo "::error title=Daily slot resolution failed::An exact source SHA and Central date are required."
+            exit 1
+          fi
+
+          fetch_main_with_retry() {
+            local delay_seconds="${PUBLICATION_FETCH_RETRY_DELAY_SECONDS:-2}"
+            local attempt
+            for attempt in 1 2 3 4; do
+              if git fetch --no-tags origin "+refs/heads/$PUBLICATION_BRANCH:refs/remotes/origin/$PUBLICATION_BRANCH"; then return 0; fi
+              if [ "$attempt" -lt 4 ]; then
+                sleep "$delay_seconds"
+                delay_seconds=$((delay_seconds * 2))
+              fi
+            done
+            echo "::error title=Daily slot resolution failed::Unable to refresh origin/main after four bounded attempts."
+            return 1
+          }
+          fetch_main_with_retry
+          REMOTE_MAIN_COMMIT="$(git rev-parse "refs/remotes/origin/$PUBLICATION_BRANCH")"
+          if ! git merge-base --is-ancestor "$SOURCE_SHA" "refs/remotes/origin/$PUBLICATION_BRANCH"; then
+            echo "::error title=Daily slot resolution failed::Source $SOURCE_SHA is not reachable from current main $REMOTE_MAIN_COMMIT."
+            exit 1
+          fi
+
+          verify_existing_slot() {
+            local value="$1"
+            local commit trailer_block trailer_metadata
+            local candidate_source_sha candidate_run_id candidate_run_attempt receipt_trailer_sha
+            local actual_receipt_sha receipt_metadata
+            [[ "$value" =~ ^[0-9a-fA-F]{40}$ ]] || return 1
+            commit="$(git rev-parse "${value}^{commit}" 2>/dev/null)" || return 1
+            git merge-base --is-ancestor "$commit" "refs/remotes/origin/$PUBLICATION_BRANCH" || return 1
+            if ! git merge-base --is-ancestor "$SOURCE_SHA" "$commit" &&
+              ! git merge-base --is-ancestor "$commit" "$SOURCE_SHA"; then
+              return 1
+            fi
+            trailer_block="$(git show -s --format=%B "$commit" | git interpret-trailers --parse)"
+            grep -Fqx "Returner-Slot-Key: $SLOT_KEY" <<< "$trailer_block" || return 1
+            trailer_metadata="$(TRAILER_BLOCK="$trailer_block" EXPECTED_SLOT_KEY="$SLOT_KEY" node --input-type=module <<'NODE'
+          import assert from "node:assert/strict";
+          const values = new Map();
+          for (const line of (process.env.TRAILER_BLOCK ?? "").split(/\r?\n/).filter(Boolean)) {
+            const match = /^(Returner-(?:Slot-Key|Source-SHA|Run-ID|Run-Attempt|Receipt-SHA256)): (.+)$/.exec(line);
+            if (!match) continue;
+            values.set(match[1], [...(values.get(match[1]) ?? []), match[2]]);
+          }
+          for (const key of ["Returner-Slot-Key", "Returner-Source-SHA", "Returner-Run-ID", "Returner-Run-Attempt", "Returner-Receipt-SHA256"]) {
+            assert.equal(values.get(key)?.length, 1, `${key} must occur exactly once`);
+          }
+          assert.equal(values.get("Returner-Slot-Key")[0], process.env.EXPECTED_SLOT_KEY);
+          const sourceSha = values.get("Returner-Source-SHA")[0];
+          const runId = values.get("Returner-Run-ID")[0];
+          const runAttempt = values.get("Returner-Run-Attempt")[0];
+          const receiptHash = values.get("Returner-Receipt-SHA256")[0];
+          assert.match(sourceSha, /^[0-9a-f]{40}$/);
+          assert.match(runId, /^[1-9][0-9]*$/);
+          assert.match(runAttempt, /^[1-9][0-9]*$/);
+          assert.match(receiptHash, /^[0-9a-f]{64}$/);
+          process.stdout.write(`${sourceSha}\t${runId}\t${runAttempt}\t${receiptHash}`);
+          NODE
+            )" || return 1
+            IFS=$'\t' read -r candidate_source_sha candidate_run_id candidate_run_attempt receipt_trailer_sha <<< "$trailer_metadata"
+            git cat-file -e "${candidate_source_sha}^{commit}" 2>/dev/null || return 1
+            git merge-base --is-ancestor "$candidate_source_sha" "$commit" || return 1
+            actual_receipt_sha="$(node --input-type=module 3< <(git show "$commit:$RECEIPT_PATH") <<'NODE'
+          import { createHash } from "node:crypto";
+          import { readFileSync } from "node:fs";
+          process.stdout.write(createHash("sha256").update(readFileSync(3)).digest("hex"));
+          NODE
+            )" || return 1
+            [ "$actual_receipt_sha" = "$receipt_trailer_sha" ] || return 1
+            receipt_metadata="$(EXPECTED_SLOT_KEY="$SLOT_KEY" \
+              EXPECTED_SOURCE_SHA="$candidate_source_sha" \
+              EXPECTED_RUN_ID="$candidate_run_id" \
+              EXPECTED_RUN_ATTEMPT="$candidate_run_attempt" \
+              EXPECTED_CENTRAL_DATE="$CENTRAL_DATE" \
+              node --input-type=module 3< <(git show "$commit:$RECEIPT_PATH") <<'NODE'
+          import assert from "node:assert/strict";
+          import { readFileSync } from "node:fs";
+          const receipt = JSON.parse(readFileSync(3, "utf8"));
+          const strictUtcRfc3339 = (input) => {
+            if (typeof input !== "string") return false;
+            const match = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.\d{1,9})?Z$/.exec(input);
+            if (!match) return false;
+            const [, year, month, day, hour, minute, second] = match.map(Number);
+            const instant = new Date(0);
+            instant.setUTCFullYear(year, month - 1, day);
+            instant.setUTCHours(hour, minute, second, 0);
+            return instant.getUTCFullYear() === year && instant.getUTCMonth() === month - 1 &&
+              instant.getUTCDate() === day && instant.getUTCHours() === hour &&
+              instant.getUTCMinutes() === minute && instant.getUTCSeconds() === second;
+          };
+          const chicagoParts = (instant) => Object.fromEntries(new Intl.DateTimeFormat("en-US", {
+            timeZone: "America/Chicago", calendar: "gregory", numberingSystem: "latn",
+            year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit",
+            minute: "2-digit", second: "2-digit", hourCycle: "h23"
+          }).formatToParts(instant).filter(({ type }) => type !== "literal").map(({ type, value }) => [type, value]));
+          assert.equal(receipt.schemaVersion, 1);
+          assert.equal(receipt.kind, "daily-score-benchmark-publication");
+          assert.equal(receipt.slotKey, process.env.EXPECTED_SLOT_KEY);
+          assert.equal(receipt.sourceSha, process.env.EXPECTED_SOURCE_SHA);
+          assert.equal(String(receipt.runId), process.env.EXPECTED_RUN_ID);
+          assert.equal(String(receipt.runAttempt), process.env.EXPECTED_RUN_ATTEMPT);
+          assert.equal(receipt.centralDate, process.env.EXPECTED_CENTRAL_DATE);
+          assert.ok(strictUtcRfc3339(receipt.scheduledAt));
+          const scheduled = new Date(receipt.scheduledAt);
+          const parts = chicagoParts(scheduled);
+          assert.equal(receipt.centralDate, `${parts.year}-${parts.month}-${parts.day}`);
+          if (receipt.trigger === "schedule") {
+            assert.match(String(receipt.scheduledUtcHour ?? ""), /^(?:5|6)$/);
+            assert.equal(String(scheduled.getUTCHours()), String(receipt.scheduledUtcHour));
+            assert.equal(`${parts.hour}:${parts.minute}:${parts.second}`, "00:00:00");
+          } else {
+            assert.equal(receipt.trigger, "manual-dispatch");
+            assert.equal(receipt.scheduledUtcHour, null);
+          }
+          process.stdout.write(`${receipt.trigger}|${receipt.scheduledAt}|${receipt.centralDate}|${receipt.scheduledUtcHour ?? ""}`);
+          NODE
+            )" || return 1
+            printf '%s|%s|%s|%s|%s\n' "$commit" "$candidate_source_sha" "$candidate_run_id" "$candidate_run_attempt" "$receipt_metadata"
+          }
+
+          MATCHES=()
+          while IFS= read -r candidate; do
+            if verified="$(verify_existing_slot "$candidate" 2>/dev/null)"; then
+              MATCHES+=("$verified")
+            fi
+          done < <(git rev-list --first-parent "refs/remotes/origin/$PUBLICATION_BRANCH")
+          if [ "${#MATCHES[@]}" -gt 1 ]; then
+            echo "::error title=Daily slot resolution ambiguous::Multiple valid main commits claim immutable slot $SLOT_KEY."
+            exit 1
+          fi
+          if [ "${#MATCHES[@]}" -eq 1 ]; then
+            IFS='|' read -r EXISTING_COMMIT EXISTING_SOURCE_SHA EXISTING_RUN_ID EXISTING_RUN_ATTEMPT EXISTING_TRIGGER EXISTING_SCHEDULED_AT EXISTING_CENTRAL_DATE EXISTING_SCHEDULED_UTC_HOUR <<< "${MATCHES[0]}"
+            {
+              echo "publication_status=already_completed"
+              echo "published_commit=$EXISTING_COMMIT"
+              echo "publication_source_sha=$EXISTING_SOURCE_SHA"
+              echo "publication_run_id=$EXISTING_RUN_ID"
+              echo "publication_run_attempt=$EXISTING_RUN_ATTEMPT"
+              echo "publication_trigger=$EXISTING_TRIGGER"
+              echo "publication_scheduled_at=$EXISTING_SCHEDULED_AT"
+              echo "publication_central_date=$EXISTING_CENTRAL_DATE"
+              echo "publication_scheduled_utc_hour=$EXISTING_SCHEDULED_UTC_HOUR"
+            } >> "$GITHUB_OUTPUT"
+            echo "::notice title=Daily benchmark already completed::Adopting exact repository-backed slot $SLOT_KEY at $EXISTING_COMMIT."
+          fi
+
       - name: Install dependencies
+        if: steps.existing_slot.outputs.publication_status != 'already_completed'
         timeout-minutes: 10
         run: npm ci
 
       - name: Test daily benchmark updater
+        if: steps.existing_slot.outputs.publication_status != 'already_completed'
         timeout-minutes: 10
         run: npm run test:benchmarks:daily
 
       - name: Record graph generation window
+        if: steps.existing_slot.outputs.publication_status != 'already_completed'
         run: echo "BENCHMARK_WINDOW_START=$(date -u +%Y-%m-%dT%H:%M:%S.000Z)" >> "$GITHUB_ENV"
 
       - name: Build app
+        if: steps.existing_slot.outputs.publication_status != 'already_completed'
         timeout-minutes: 15
         run: npm run build
 
       - name: Update daily benchmark snapshots
+        if: steps.existing_slot.outputs.publication_status != 'already_completed'
         timeout-minutes: 50
         env:
           SCHEDULED_UTC_HOUR: ${{ needs.resolve.outputs.scheduled_utc_hour }}
+          BENCHMARK_EXPECTED_CENTRAL_DATE: ${{ needs.resolve.outputs.central_date }}
+          CANDIDATE_SCHEDULED_UTC_HOUR: ${{ needs.resolve.outputs.scheduled_utc_hour }}
+          CANDIDATE_TRIGGER: ${{ needs.resolve.outputs.trigger }}
+          CANDIDATE_SCHEDULED_AT: ${{ needs.resolve.outputs.scheduled_at }}
+          CANDIDATE_CENTRAL_DATE: ${{ needs.resolve.outputs.central_date }}
+          WORKFLOW_EVENT_NAME: ${{ github.event_name }}
         run: |
-          scheduled_args=()
+          set -euo pipefail
           if [ -n "$SCHEDULED_UTC_HOUR" ]; then
-            scheduled_args+=("--scheduled-utc-hour=$SCHEDULED_UTC_HOUR")
+            npm run benchmarks:daily -- "--scheduled-utc-hour=$SCHEDULED_UTC_HOUR"
+          else
+            npm run benchmarks:daily
           fi
-          npm run benchmarks:daily -- "${scheduled_args[@]}"
+          node --input-type=module <<'NODE'
+          import assert from "node:assert/strict";
+
+          const trigger = process.env.CANDIDATE_TRIGGER ?? "";
+          const scheduledUtcHour = process.env.CANDIDATE_SCHEDULED_UTC_HOUR ?? "";
+          const scheduledAt = process.env.CANDIDATE_SCHEDULED_AT ?? "";
+          const centralDate = process.env.CANDIDATE_CENTRAL_DATE ?? "";
+          const eventName = process.env.WORKFLOW_EVENT_NAME ?? "";
+          if (trigger === "manual-dispatch") {
+            assert.equal(eventName, "workflow_dispatch", "manual benchmark must originate from workflow_dispatch");
+            process.exit(0);
+          }
+          assert.equal(trigger, "schedule", "queued benchmark trigger must be schedule or manual-dispatch");
+          assert.equal(eventName, "schedule", "scheduled benchmark must originate from a schedule event");
+          assert.match(scheduledUtcHour, /^(?:5|6)$/);
+          assert.match(centralDate, /^\d{4}-\d{2}-\d{2}$/);
+          const scheduled = new Date(scheduledAt);
+          assert.ok(Number.isFinite(scheduled.getTime()), "scheduled benchmark requires a valid scheduled_at");
+          const ageMs = Date.now() - scheduled.getTime();
+          assert.ok(ageMs >= 0 && ageMs <= 11 * 60 * 60 * 1000, "scheduled benchmark became stale while queued");
+          assert.equal(String(scheduled.getUTCHours()), scheduledUtcHour);
+          const parts = Object.fromEntries(new Intl.DateTimeFormat("en-US", {
+            timeZone: "America/Chicago",
+            calendar: "gregory",
+            numberingSystem: "latn",
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+            hour: "2-digit",
+            minute: "2-digit",
+            second: "2-digit",
+            hourCycle: "h23"
+          }).formatToParts(scheduled).filter(({ type }) => type !== "literal").map(({ type, value }) => [type, value]));
+          assert.equal(`${parts.hour}:${parts.minute}:${parts.second}`, "00:00:00");
+          assert.equal(centralDate, `${parts.year}-${parts.month}-${parts.day}`);
+          NODE
 
       - name: Resolve timeline publication mode
+        if: steps.existing_slot.outputs.publication_status != 'already_completed'
         id: timeline_database
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
@@ -153,6 +541,7 @@ jobs:
           fi
 
       - name: Rebuild timeline artifacts
+        if: steps.existing_slot.outputs.publication_status != 'already_completed'
         timeout-minutes: 10
         env:
           TIMELINE_DATABASE_CONFIGURED: ${{ steps.timeline_database.outputs.configured }}
@@ -161,21 +550,24 @@ jobs:
           EXA_API_KEY: ${{ secrets.EXA_API_KEY }}
         run: |
           if [ "$TIMELINE_DATABASE_CONFIGURED" = "true" ]; then
-            TIMELINE_REQUIRE_DATABASE=true npm run timeline:backfill
+            timeout 4m env TIMELINE_REQUIRE_DATABASE=true npm run timeline:backfill
           else
-            env -u NEXT_PUBLIC_SUPABASE_URL -u SUPABASE_SERVICE_ROLE_KEY TIMELINE_REQUIRE_DATABASE=false npm run timeline:backfill
+            timeout 4m env -u NEXT_PUBLIC_SUPABASE_URL -u SUPABASE_SERVICE_ROLE_KEY TIMELINE_REQUIRE_DATABASE=false npm run timeline:backfill
           fi
 
       - name: Rebuild graph-derived artifacts
+        if: steps.existing_slot.outputs.publication_status != 'already_completed'
         timeout-minutes: 10
         run: npm run artifacts:derived:build
 
       - name: Refresh artifact manifest
+        if: steps.existing_slot.outputs.publication_status != 'already_completed'
         run: |
           INGESTION_RUN_ID="$(node -p "require('./public/graph/manifest.json').ingestionRunId")"
           node scripts/write-artifact-manifest.mjs --ingestion-run-id="$INGESTION_RUN_ID"
 
       - name: Validate generated public artifacts
+        if: steps.existing_slot.outputs.publication_status != 'already_completed'
         timeout-minutes: 10
         run: |
           npm run artifacts:validate
@@ -183,20 +575,236 @@ jobs:
           npm run timeline:validate
           npm run artifacts:derived:validate
 
+      - name: Require process-scoped publication credential
+        if: steps.existing_slot.outputs.publication_status != 'already_completed'
+        run: |
+          set -euo pipefail
+          if git config --local --get-all http.https://github.com/.extraheader | grep -q .; then
+            echo "::error title=Persisted publication credential::Daily publication must start without a repository credential."
+            exit 1
+          fi
+
       - name: Commit and publish benchmark snapshots
         id: publish
+        if: steps.existing_slot.outputs.publication_status != 'already_completed'
         timeout-minutes: 110
         env:
+          GITHUB_TOKEN: ${{ github.token }}
           PUBLICATION_BRANCH: main
           SCHEDULED_UTC_HOUR: ${{ needs.resolve.outputs.scheduled_utc_hour }}
-          TIMELINE_DATABASE_CONFIGURED: ${{ steps.timeline_database.outputs.configured }}
-          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          SCHEDULE_TRIGGER: ${{ needs.resolve.outputs.trigger }}
+          SCHEDULED_AT: ${{ needs.resolve.outputs.scheduled_at }}
+          CENTRAL_DATE: ${{ needs.resolve.outputs.central_date }}
+          SOURCE_SHA: ${{ needs.resolve.outputs.source_sha }}
+          WORKFLOW_RUN_ID: ${{ github.run_id }}
+          WORKFLOW_RUN_ATTEMPT: ${{ github.run_attempt }}
         run: |
+          set -euo pipefail
+          PUBLICATION_CREDENTIAL_KEY="http.https://github.com/.extraheader"
+          if [ -z "${GITHUB_TOKEN:-}" ]; then
+            echo "::error title=Missing publication credential::GITHUB_TOKEN is required for process-scoped publication."
+            exit 1
+          fi
+          echo "::add-mask::$GITHUB_TOKEN"
+          AUTH_PAYLOAD="$(printf 'x-access-token:%s' "$GITHUB_TOKEN")"
+          AUTH_BASE64="$(printf '%s' "$AUTH_PAYLOAD" | base64 | tr -d '\n')"
+          PUBLICATION_EXTRAHEADER="AUTHORIZATION: basic $AUTH_BASE64"
+          echo "::add-mask::$AUTH_PAYLOAD"
+          echo "::add-mask::$AUTH_BASE64"
+          echo "::add-mask::$PUBLICATION_EXTRAHEADER"
+          unset GITHUB_TOKEN AUTH_PAYLOAD AUTH_BASE64
+          unset NEXT_PUBLIC_SUPABASE_URL SUPABASE_SERVICE_ROLE_KEY
+          export -n PUBLICATION_EXTRAHEADER 2>/dev/null || true
+
+          assert_publication_credential_absent() {
+            if git config --local --get-all "$PUBLICATION_CREDENTIAL_KEY" | grep -q .; then
+              echo "::error title=Publication credential leak::The Git credential must never be persisted in repository config."
+              return 1
+            fi
+          }
+          recheck_candidate_freshness() {
+            SCHEDULE_TRIGGER="$SCHEDULE_TRIGGER" \
+            SCHEDULED_UTC_HOUR="$SCHEDULED_UTC_HOUR" \
+            SCHEDULED_AT="$SCHEDULED_AT" \
+            CENTRAL_DATE="$CENTRAL_DATE" \
+            node --input-type=module <<'NODE'
+          import assert from "node:assert/strict";
+          const trigger = process.env.SCHEDULE_TRIGGER ?? "";
+          const scheduledUtcHour = process.env.SCHEDULED_UTC_HOUR ?? "";
+          const scheduledAt = process.env.SCHEDULED_AT ?? "";
+          const centralDate = process.env.CENTRAL_DATE ?? "";
+          const timestampMatch = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.\d{1,9})?Z$/.exec(scheduledAt);
+          assert.ok(timestampMatch, "benchmark requires strict scheduled_at");
+          const [, year, month, day, hour, minute, second] = timestampMatch.map(Number);
+          const scheduled = new Date(0);
+          scheduled.setUTCFullYear(year, month - 1, day);
+          scheduled.setUTCHours(hour, minute, second, 0);
+          assert.equal(scheduled.getUTCFullYear(), year, "scheduled_at year is invalid");
+          assert.equal(scheduled.getUTCMonth(), month - 1, "scheduled_at month is invalid");
+          assert.equal(scheduled.getUTCDate(), day, "scheduled_at day is invalid");
+          assert.equal(scheduled.getUTCHours(), hour, "scheduled_at hour is invalid");
+          assert.equal(scheduled.getUTCMinutes(), minute, "scheduled_at minute is invalid");
+          assert.equal(scheduled.getUTCSeconds(), second, "scheduled_at second is invalid");
+          const parts = Object.fromEntries(new Intl.DateTimeFormat("en-US", {
+            timeZone: "America/Chicago", calendar: "gregory", numberingSystem: "latn",
+            year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit",
+            minute: "2-digit", second: "2-digit", hourCycle: "h23"
+          }).formatToParts(scheduled).filter(({ type }) => type !== "literal").map(({ type, value }) => [type, value]));
+          assert.equal(centralDate, `${parts.year}-${parts.month}-${parts.day}`);
+          if (trigger === "manual-dispatch") {
+            assert.equal(scheduledUtcHour, "", "manual benchmark must not claim a scheduled UTC hour");
+            process.exit(0);
+          }
+          assert.equal(trigger, "schedule", "benchmark trigger must be schedule or manual-dispatch");
+          assert.match(scheduledUtcHour, /^(?:5|6)$/);
+          const ageMs = Date.now() - scheduled.getTime();
+          assert.ok(ageMs >= 0 && ageMs <= 11 * 60 * 60 * 1000, "scheduled benchmark became stale before publication");
+          assert.equal(String(scheduled.getUTCHours()), scheduledUtcHour);
+          assert.equal(`${parts.hour}:${parts.minute}:${parts.second}`, "00:00:00");
+          NODE
+          }
+          assert_safe_candidate_modes() {
+            local candidate="$1"
+            CANDIDATE="$candidate" node --input-type=module <<'NODE'
+          import assert from "node:assert/strict";
+          import { spawnSync } from "node:child_process";
+          const tree = spawnSync(
+            "git",
+            ["ls-tree", "-r", "-z", "--full-tree", process.env.CANDIDATE],
+            { encoding: "utf8" }
+          );
+          assert.equal(tree.status, 0, tree.stderr || "unable to inspect daily publication candidate modes");
+          const unsafe = tree.stdout.split("\0").filter(Boolean).flatMap((entry) => {
+            const match = /^(\d{6})\s+\S+\s+[0-9a-f]+\t([\s\S]+)$/i.exec(entry);
+            return match && ["120000", "160000"].includes(match[1])
+              ? [`${match[2]} (${match[1]})`]
+              : [];
+          });
+          assert.deepEqual(unsafe, [], `daily publication candidate contains prohibited symlink/submodule entries: ${unsafe.join(", ")}`);
+          NODE
+          }
+          push_with_process_auth() {
+            local candidate="$1"
+            assert_safe_candidate_modes "$candidate" || return $?
+            assert_publication_credential_absent || return $?
+            recheck_candidate_freshness || return $?
+            GIT_CONFIG_COUNT=3 \
+            GIT_CONFIG_KEY_0="$PUBLICATION_CREDENTIAL_KEY" \
+            GIT_CONFIG_VALUE_0="$PUBLICATION_EXTRAHEADER" \
+            GIT_CONFIG_KEY_1="core.hooksPath" \
+            GIT_CONFIG_VALUE_1="/dev/null" \
+            GIT_CONFIG_KEY_2="credential.helper" \
+            GIT_CONFIG_VALUE_2="" \
+            GIT_CONFIG_NOSYSTEM=1 \
+            GIT_CONFIG_GLOBAL=/dev/null \
+            GIT_TERMINAL_PROMPT=0 \
+            git push origin "$candidate:$PUBLICATION_BRANCH"
+          }
+          fetch_publication_branch() {
+            local fetch_args=("$@")
+            local delay_seconds="${PUBLICATION_FETCH_RETRY_DELAY_SECONDS:-2}"
+            local attempt
+            for attempt in 1 2 3 4; do
+              assert_publication_credential_absent
+              if git fetch "${fetch_args[@]}"; then
+                return 0
+              fi
+              if [ "$attempt" -lt 4 ]; then
+                echo "::warning title=Benchmark fetch retry::Unauthenticated fetch attempt $attempt failed."
+                sleep "$delay_seconds"
+                delay_seconds=$((delay_seconds * 2))
+              fi
+            done
+            return 1
+          }
+          reconcile_pushed_candidate() {
+            local candidate="$1"
+            assert_publication_credential_absent
+            if ! fetch_publication_branch --no-tags origin "+refs/heads/$PUBLICATION_BRANCH:refs/remotes/origin/$PUBLICATION_BRANCH"; then
+              return 1
+            fi
+            if git merge-base --is-ancestor "$candidate" "refs/remotes/origin/$PUBLICATION_BRANCH"; then
+              echo "::notice title=Benchmark push reconciled::Remote main already contains $candidate after an ambiguous push response."
+              return 0
+            fi
+            return 1
+          }
+          publish_exact_candidate() {
+            local candidate="$1"
+            local attempt remote_commit
+            for attempt in 1 2; do
+              if push_with_process_auth "$candidate"; then
+                return 0
+              fi
+              if reconcile_pushed_candidate "$candidate"; then
+                return 0
+              fi
+              remote_commit="$(git rev-parse "refs/remotes/origin/$PUBLICATION_BRANCH")"
+              if ! git merge-base --is-ancestor "$remote_commit" "$candidate"; then
+                echo "::error title=Benchmark publication race::Remote main advanced to $remote_commit; refusing to execute or rebase newer target code in the credential-bearing step."
+                return 1
+              fi
+              if [ "$attempt" -lt 2 ]; then
+                echo "::warning title=Exact benchmark push retry::Retrying the same immutable candidate $candidate after an ambiguous response."
+                sleep "${PUBLICATION_PUSH_RETRY_DELAY_SECONDS:-2}"
+              fi
+            done
+            return 1
+          }
+          assert_publication_credential_absent
+
+          PUBLICATION_SLOT_KEY="daily-benchmark-$CENTRAL_DATE"
+          PUBLICATION_RECEIPT_PATH="outputs/benchmarks/daily-publication-receipt.json"
+          mkdir -p "$(dirname "$PUBLICATION_RECEIPT_PATH")"
+          PUBLICATION_SLOT_KEY="$PUBLICATION_SLOT_KEY" \
+          PUBLICATION_RECEIPT_PATH="$PUBLICATION_RECEIPT_PATH" \
+          SOURCE_SHA="$SOURCE_SHA" \
+          SCHEDULE_TRIGGER="$SCHEDULE_TRIGGER" \
+          SCHEDULED_UTC_HOUR="$SCHEDULED_UTC_HOUR" \
+          SCHEDULED_AT="$SCHEDULED_AT" \
+          CENTRAL_DATE="$CENTRAL_DATE" \
+          WORKFLOW_RUN_ID="$WORKFLOW_RUN_ID" \
+          WORKFLOW_RUN_ATTEMPT="$WORKFLOW_RUN_ATTEMPT" \
+          node --input-type=module <<'NODE'
+          import { writeFile } from "node:fs/promises";
+
+          const receipt = {
+            schemaVersion: 1,
+            kind: "daily-score-benchmark-publication",
+            slotKey: process.env.PUBLICATION_SLOT_KEY,
+            sourceSha: process.env.SOURCE_SHA,
+            runId: process.env.WORKFLOW_RUN_ID,
+            runAttempt: process.env.WORKFLOW_RUN_ATTEMPT,
+            trigger: process.env.SCHEDULE_TRIGGER,
+            scheduledUtcHour: process.env.SCHEDULED_UTC_HOUR || null,
+            scheduledAt: process.env.SCHEDULED_AT,
+            centralDate: process.env.CENTRAL_DATE
+          };
+          await writeFile(process.env.PUBLICATION_RECEIPT_PATH, `${JSON.stringify(receipt, null, 2)}\n`);
+          NODE
+          PUBLICATION_RECEIPT_SHA256="$(node --input-type=module - "$PUBLICATION_RECEIPT_PATH" <<'NODE'
+          import { createHash } from "node:crypto";
+          import { readFile } from "node:fs/promises";
+          const content = await readFile(process.argv[2]);
+          process.stdout.write(createHash("sha256").update(content).digest("hex"));
+          NODE
+          )"
+          if [[ ! "$PUBLICATION_RECEIPT_SHA256" =~ ^[0-9a-f]{64}$ ]]; then
+            echo "::error title=Invalid publication provenance::Daily receipt hash is not SHA-256."
+            exit 1
+          fi
+          PUBLICATION_TRAILERS="$(printf '%s\n' \
+            "Returner-Slot-Key: $PUBLICATION_SLOT_KEY" \
+            "Returner-Source-SHA: $SOURCE_SHA" \
+            "Returner-Run-ID: $WORKFLOW_RUN_ID" \
+            "Returner-Run-Attempt: $WORKFLOW_RUN_ATTEMPT" \
+            "Returner-Receipt-SHA256: $PUBLICATION_RECEIPT_SHA256")"
+
           benchmark_files=(
             outputs/benchmarks/s2026-score-benchmarks.json
             outputs/benchmarks/s26-score-benchmarks.json
             outputs/benchmarks/a16zsr006-score-benchmarks.json
+            "$PUBLICATION_RECEIPT_PATH"
             public/graph/s2026.json
             public/graph/s2026-yc-partners.json
             public/graph/s2026-insiders.json
@@ -218,78 +826,327 @@ jobs:
           git add -- "${benchmark_files[@]}"
           if git diff --cached --quiet; then
             echo "No benchmark snapshot changes to commit."
-            git fetch --prune origin "$PUBLICATION_BRANCH"
+            assert_publication_credential_absent
+            fetch_publication_branch --no-tags origin "+refs/heads/$PUBLICATION_BRANCH:refs/remotes/origin/$PUBLICATION_BRANCH"
+            REMOTE_COMMIT="$(git rev-parse "refs/remotes/origin/$PUBLICATION_BRANCH")"
             echo "publication_status=no_changes" >> "$GITHUB_OUTPUT"
-            echo "published_commit=$(git rev-parse "origin/$PUBLICATION_BRANCH")" >> "$GITHUB_OUTPUT"
+            echo "publish_candidate=$REMOTE_COMMIT" >> "$GITHUB_OUTPUT"
+            echo "published_commit=$REMOTE_COMMIT" >> "$GITHUB_OUTPUT"
+            echo "remote_main_commit=$REMOTE_COMMIT" >> "$GITHUB_OUTPUT"
+            echo "commit_verified=true" >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
-          git commit -m "Update daily score benchmark snapshots"
-          if ! git push origin "HEAD:$PUBLICATION_BRANCH"; then
-            echo "::warning title=Benchmark push retry::The publication branch advanced; rebuilding once from the new main."
-            git fetch --prune origin "$PUBLICATION_BRANCH"
-            if ! git rebase "origin/$PUBLICATION_BRANCH"; then
-              git rebase --abort || true
-              echo "::error title=Benchmark rebase failed::Manual conflict resolution is required."
-              exit 1
-            fi
-
-            timeout 10m npm ci
-            export BENCHMARK_WINDOW_START="$(date -u +%Y-%m-%dT%H:%M:%S.000Z)"
-            timeout 15m npm run build
-            scheduled_args=()
-            if [ -n "$SCHEDULED_UTC_HOUR" ]; then
-              scheduled_args+=("--scheduled-utc-hour=$SCHEDULED_UTC_HOUR")
-            fi
-            timeout 50m npm run benchmarks:daily -- "${scheduled_args[@]}"
-            if [ "$TIMELINE_DATABASE_CONFIGURED" = "true" ]; then
-              timeout 4m env TIMELINE_REQUIRE_DATABASE=true npm run timeline:backfill
-            else
-              timeout 4m env -u NEXT_PUBLIC_SUPABASE_URL -u SUPABASE_SERVICE_ROLE_KEY TIMELINE_REQUIRE_DATABASE=false npm run timeline:backfill
-            fi
-            timeout 10m npm run artifacts:derived:build
-            INGESTION_RUN_ID="$(node -p "require('./public/graph/manifest.json').ingestionRunId")"
-            node scripts/write-artifact-manifest.mjs --ingestion-run-id="$INGESTION_RUN_ID"
-            npm run artifacts:validate
-            npm run artifacts:manifest:validate
-            npm run timeline:validate
-            timeout 10m npm run artifacts:derived:validate
-            git add -- "${benchmark_files[@]}"
-            if ! git diff --cached --quiet; then
-              git commit --amend --no-edit
-            fi
-            git push origin "HEAD:$PUBLICATION_BRANCH"
+          git -c core.hooksPath=/dev/null -c credential.helper= \
+            commit -m "Update daily score benchmark snapshots" -m "$PUBLICATION_TRAILERS"
+          FIRST_PUSH_CANDIDATE="$(git rev-parse HEAD)"
+          echo "publish_candidate=$FIRST_PUSH_CANDIDATE" >> "$GITHUB_OUTPUT"
+          if ! publish_exact_candidate "$FIRST_PUSH_CANDIDATE"; then
+            echo "::error title=Benchmark push failed::The exact prepared candidate was not published; a fresh run against current main is required."
+            exit 1
           fi
 
           PUBLISHED_COMMIT="$(git rev-parse HEAD)"
-          git fetch --prune origin "$PUBLICATION_BRANCH"
-          REMOTE_COMMIT="$(git rev-parse "origin/$PUBLICATION_BRANCH")"
-          if ! git merge-base --is-ancestor "$PUBLISHED_COMMIT" "$REMOTE_COMMIT"; then
-            echo "::error title=Benchmark publication verification failed::Published commit $PUBLISHED_COMMIT is not reachable from remote ${REMOTE_COMMIT:-missing}."
+          fetch_publication_branch --no-tags origin "+refs/heads/$PUBLICATION_BRANCH:refs/remotes/origin/$PUBLICATION_BRANCH"
+          VERIFIED_COMMIT="$(git rev-parse "${PUBLISHED_COMMIT}^{commit}")"
+          REMOTE_COMMIT="$(git rev-parse "refs/remotes/origin/$PUBLICATION_BRANCH")"
+          if ! git merge-base --is-ancestor "$VERIFIED_COMMIT" "refs/remotes/origin/$PUBLICATION_BRANCH"; then
+            echo "::error title=Benchmark publication verification failed::Published commit $VERIFIED_COMMIT is not reachable from remote main $REMOTE_COMMIT."
             exit 1
           fi
           echo "publication_status=published" >> "$GITHUB_OUTPUT"
-          echo "published_commit=$PUBLISHED_COMMIT" >> "$GITHUB_OUTPUT"
+          echo "published_commit=$VERIFIED_COMMIT" >> "$GITHUB_OUTPUT"
+          echo "remote_main_commit=$REMOTE_COMMIT" >> "$GITHUB_OUTPUT"
+          echo "commit_verified=true" >> "$GITHUB_OUTPUT"
+
+      - name: Verify publication credential isolation
+        if: always()
+        run: |
+          set -euo pipefail
+          if git config --local --get-all http.https://github.com/.extraheader | grep -q .; then
+            echo "::error title=Persisted publication credential::Daily publication left a repository credential behind."
+            exit 1
+          fi
+
+      - name: Recover exact benchmark publication commit
+        id: recover_publication
+        if: always()
+        env:
+          VERIFIED_PUBLISHED_COMMIT: ${{ steps.publish.outputs.published_commit }}
+          PUBLISH_CANDIDATE: ${{ steps.publish.outputs.publish_candidate }}
+          PUBLISH_STATUS: ${{ steps.publish.outputs.publication_status }}
+          EXISTING_PUBLICATION_STATUS: ${{ steps.existing_slot.outputs.publication_status }}
+          EXISTING_PUBLISHED_COMMIT: ${{ steps.existing_slot.outputs.published_commit }}
+          EXISTING_SOURCE_SHA: ${{ steps.existing_slot.outputs.publication_source_sha }}
+          EXISTING_RUN_ID: ${{ steps.existing_slot.outputs.publication_run_id }}
+          EXISTING_RUN_ATTEMPT: ${{ steps.existing_slot.outputs.publication_run_attempt }}
+          EXISTING_TRIGGER: ${{ steps.existing_slot.outputs.publication_trigger }}
+          EXISTING_SCHEDULED_AT: ${{ steps.existing_slot.outputs.publication_scheduled_at }}
+          EXISTING_CENTRAL_DATE: ${{ steps.existing_slot.outputs.publication_central_date }}
+          EXISTING_SCHEDULED_UTC_HOUR: ${{ steps.existing_slot.outputs.publication_scheduled_utc_hour }}
+          SOURCE_SHA: ${{ needs.resolve.outputs.source_sha }}
+          SCHEDULE_TRIGGER: ${{ needs.resolve.outputs.trigger }}
+          SCHEDULED_UTC_HOUR: ${{ needs.resolve.outputs.scheduled_utc_hour }}
+          SCHEDULED_AT: ${{ needs.resolve.outputs.scheduled_at }}
+          CENTRAL_DATE: ${{ needs.resolve.outputs.central_date }}
+          WORKFLOW_RUN_ID: ${{ github.run_id }}
+          WORKFLOW_RUN_ATTEMPT: ${{ github.run_attempt }}
+          PUBLICATION_BRANCH: main
+        run: |
+          set -euo pipefail
+          RECEIPT_PATH="outputs/benchmarks/daily-publication-receipt.json"
+          SLOT_KEY="daily-benchmark-$CENTRAL_DATE"
+          ADOPTION_MODE="false"
+          EXPECTED_SOURCE_SHA="$SOURCE_SHA"
+          EXPECTED_RUN_ID="$WORKFLOW_RUN_ID"
+          EXPECTED_RUN_ATTEMPT="$WORKFLOW_RUN_ATTEMPT"
+          EXPECTED_TRIGGER="$SCHEDULE_TRIGGER"
+          EXPECTED_SCHEDULED_UTC_HOUR="$SCHEDULED_UTC_HOUR"
+          EXPECTED_SCHEDULED_AT="$SCHEDULED_AT"
+          EXPECTED_CENTRAL_DATE="$CENTRAL_DATE"
+          if [ "$EXISTING_PUBLICATION_STATUS" = "already_completed" ]; then
+            ADOPTION_MODE="true"
+            EXPECTED_SOURCE_SHA="$EXISTING_SOURCE_SHA"
+            EXPECTED_RUN_ID="$EXISTING_RUN_ID"
+            EXPECTED_RUN_ATTEMPT="$EXISTING_RUN_ATTEMPT"
+            EXPECTED_TRIGGER="$EXISTING_TRIGGER"
+            EXPECTED_SCHEDULED_UTC_HOUR="$EXISTING_SCHEDULED_UTC_HOUR"
+            EXPECTED_SCHEDULED_AT="$EXISTING_SCHEDULED_AT"
+            EXPECTED_CENTRAL_DATE="$EXISTING_CENTRAL_DATE"
+          elif [ "$EXISTING_PUBLICATION_STATUS" != "fresh" ]; then
+            echo "::error title=Benchmark recovery failed::Existing-slot status '$EXISTING_PUBLICATION_STATUS' is not recognized."
+            exit 1
+          fi
+          VALIDATION_CANDIDATE=""
+          for candidate in "$EXISTING_PUBLISHED_COMMIT" "$VERIFIED_PUBLISHED_COMMIT" "$PUBLISH_CANDIDATE"; do
+            if [[ "$candidate" =~ ^[0-9a-fA-F]{40}$ ]]; then
+              VALIDATION_CANDIDATE="$(printf '%s' "$candidate" | tr '[:upper:]' '[:lower:]')"
+              break
+            fi
+          done
+          {
+            echo "publication_status="
+            echo "published_commit="
+            echo "validation_candidate=$VALIDATION_CANDIDATE"
+            echo "remote_main_commit="
+            echo "commit_verified=false"
+            echo "recovery_method=none"
+            echo "publication_source_sha="
+            echo "publication_run_id="
+            echo "publication_run_attempt="
+            echo "publication_trigger="
+            echo "publication_scheduled_at="
+            echo "publication_central_date="
+            echo "publication_scheduled_utc_hour="
+          } >> "$GITHUB_OUTPUT"
+          git config --local --unset-all http.https://github.com/.extraheader || true
+          if [[ ! "$SOURCE_SHA" =~ ^[0-9a-fA-F]{40}$ ]] || [[ ! "$EXPECTED_SOURCE_SHA" =~ ^[0-9a-fA-F]{40}$ ]] ||
+            [[ ! "$CENTRAL_DATE" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]] || [ "$EXPECTED_CENTRAL_DATE" != "$CENTRAL_DATE" ]; then
+            echo "::error title=Benchmark recovery failed::Accepted publication recovery requires exact source SHA and Central date bindings."
+            exit 1
+          fi
+
+          fetch_main_with_retry() {
+            local delay_seconds="${PUBLICATION_FETCH_RETRY_DELAY_SECONDS:-2}"
+            local attempt
+            for attempt in 1 2 3 4; do
+              if git fetch --no-tags origin "+refs/heads/$PUBLICATION_BRANCH:refs/remotes/origin/$PUBLICATION_BRANCH"; then return 0; fi
+              if [ "$attempt" -lt 4 ]; then
+                echo "::warning title=Benchmark recovery retry::Unauthenticated main fetch attempt $attempt failed."
+                sleep "$delay_seconds"
+                delay_seconds=$((delay_seconds * 2))
+              fi
+            done
+            echo "::error title=Benchmark recovery failed::Unable to refresh origin/main after four bounded attempts."
+            return 1
+          }
+          fetch_main_with_retry
+          REMOTE_MAIN_COMMIT="$(git rev-parse "refs/remotes/origin/$PUBLICATION_BRANCH")"
+          echo "remote_main_commit=$REMOTE_MAIN_COMMIT" >> "$GITHUB_OUTPUT"
+          if ! git merge-base --is-ancestor "$SOURCE_SHA" "refs/remotes/origin/$PUBLICATION_BRANCH"; then
+            echo "::error title=Benchmark recovery failed::Source commit $SOURCE_SHA is not reachable from remote main $REMOTE_MAIN_COMMIT."
+            exit 1
+          fi
+
+          verify_candidate() {
+            local value="$1"
+            local commit trailer_block receipt_trailer_sha actual_receipt_sha
+            [[ "$value" =~ ^[0-9a-fA-F]{40}$ ]] || return 1
+            commit="$(git rev-parse "${value}^{commit}" 2>/dev/null)" || return 1
+            git merge-base --is-ancestor "$EXPECTED_SOURCE_SHA" "$commit" || return 1
+            git merge-base --is-ancestor "$commit" "refs/remotes/origin/$PUBLICATION_BRANCH" || return 1
+            if [ "$ADOPTION_MODE" = "true" ]; then
+              if ! git merge-base --is-ancestor "$SOURCE_SHA" "$commit" &&
+                ! git merge-base --is-ancestor "$commit" "$SOURCE_SHA"; then
+                return 1
+              fi
+            else
+              git merge-base --is-ancestor "$SOURCE_SHA" "$commit" || return 1
+            fi
+            trailer_block="$(git show -s --format=%B "$commit" | git interpret-trailers --parse)"
+            grep -Fqx "Returner-Slot-Key: $SLOT_KEY" <<< "$trailer_block" || return 1
+            receipt_trailer_sha="$(TRAILER_BLOCK="$trailer_block" \
+              EXPECTED_SLOT_KEY="$SLOT_KEY" \
+              EXPECTED_SOURCE_SHA="$EXPECTED_SOURCE_SHA" \
+              EXPECTED_RUN_ID="$EXPECTED_RUN_ID" \
+              EXPECTED_RUN_ATTEMPT="$EXPECTED_RUN_ATTEMPT" \
+              node --input-type=module <<'NODE'
+            import assert from "node:assert/strict";
+            const expected = new Map([
+              ["Returner-Slot-Key", process.env.EXPECTED_SLOT_KEY],
+              ["Returner-Source-SHA", process.env.EXPECTED_SOURCE_SHA],
+              ["Returner-Run-ID", process.env.EXPECTED_RUN_ID],
+              ["Returner-Run-Attempt", process.env.EXPECTED_RUN_ATTEMPT]
+            ]);
+            const values = new Map();
+            for (const line of (process.env.TRAILER_BLOCK ?? "").split(/\r?\n/).filter(Boolean)) {
+              const match = /^(Returner-(?:Slot-Key|Source-SHA|Run-ID|Run-Attempt|Receipt-SHA256)): (.+)$/.exec(line);
+              if (!match) continue;
+              values.set(match[1], [...(values.get(match[1]) ?? []), match[2]]);
+            }
+            for (const [key, expectedValue] of expected) assert.deepEqual(values.get(key), [expectedValue]);
+            const hashes = values.get("Returner-Receipt-SHA256");
+            assert.ok(hashes?.length === 1 && /^[0-9a-f]{64}$/.test(hashes[0]));
+            process.stdout.write(hashes[0]);
+          NODE
+            )" || return 1
+            actual_receipt_sha="$(node --input-type=module 3< <(git show "$commit:$RECEIPT_PATH") <<'NODE'
+            import { createHash } from "node:crypto";
+            import { readFileSync } from "node:fs";
+            process.stdout.write(createHash("sha256").update(readFileSync(3)).digest("hex"));
+          NODE
+            )" || return 1
+            [ "$actual_receipt_sha" = "$receipt_trailer_sha" ] || return 1
+            EXPECTED_SLOT_KEY="$SLOT_KEY" \
+            EXPECTED_SOURCE_SHA="$EXPECTED_SOURCE_SHA" \
+            EXPECTED_RUN_ID="$EXPECTED_RUN_ID" \
+            EXPECTED_RUN_ATTEMPT="$EXPECTED_RUN_ATTEMPT" \
+            EXPECTED_TRIGGER="$EXPECTED_TRIGGER" \
+            EXPECTED_SCHEDULED_UTC_HOUR="$EXPECTED_SCHEDULED_UTC_HOUR" \
+            EXPECTED_SCHEDULED_AT="$EXPECTED_SCHEDULED_AT" \
+            EXPECTED_CENTRAL_DATE="$EXPECTED_CENTRAL_DATE" \
+            node --input-type=module 3< <(git show "$commit:$RECEIPT_PATH") <<'NODE' || return 1
+            import assert from "node:assert/strict";
+            import { readFileSync } from "node:fs";
+            const receipt = JSON.parse(readFileSync(3, "utf8"));
+            assert.equal(receipt.schemaVersion, 1);
+            assert.equal(receipt.kind, "daily-score-benchmark-publication");
+            assert.equal(receipt.slotKey, process.env.EXPECTED_SLOT_KEY);
+            assert.equal(receipt.sourceSha, process.env.EXPECTED_SOURCE_SHA);
+            assert.equal(String(receipt.runId), process.env.EXPECTED_RUN_ID);
+            assert.equal(String(receipt.runAttempt), process.env.EXPECTED_RUN_ATTEMPT);
+            assert.equal(receipt.trigger, process.env.EXPECTED_TRIGGER);
+            assert.equal(String(receipt.scheduledUtcHour ?? ""), process.env.EXPECTED_SCHEDULED_UTC_HOUR);
+            assert.equal(receipt.scheduledAt, process.env.EXPECTED_SCHEDULED_AT);
+            assert.equal(receipt.centralDate, process.env.EXPECTED_CENTRAL_DATE);
+          NODE
+            printf '%s\n' "$commit"
+          }
+
+          RECOVERED_COMMIT=""
+          RECOVERY_METHOD="none"
+          RECOVERED_STATUS="$([ "$ADOPTION_MODE" = "true" ] && echo already_completed || printf '%s' "$PUBLISH_STATUS")"
+          MATCHES=()
+          while IFS= read -r candidate; do
+            if verified="$(verify_candidate "$candidate" 2>/dev/null)"; then
+              MATCHES+=("$verified")
+            fi
+          done < <(git rev-list --first-parent "refs/remotes/origin/$PUBLICATION_BRANCH")
+          if [ "${#MATCHES[@]}" -eq 1 ]; then
+            RECOVERED_COMMIT="${MATCHES[0]}"
+          elif [ "${#MATCHES[@]}" -gt 1 ]; then
+            echo "::error title=Benchmark recovery ambiguous::Multiple remote-main commits contain the exact immutable publication provenance."
+            exit 1
+          fi
+
+          if [ -z "$RECOVERED_COMMIT" ]; then
+            echo "::error title=Benchmark recovery failed::No exact repository-backed benchmark commit is recoverable for run $WORKFLOW_RUN_ID/$WORKFLOW_RUN_ATTEMPT."
+            exit 1
+          fi
+          if [ -z "$RECOVERED_STATUS" ]; then
+            RECOVERED_STATUS="published"
+          fi
+          case "$RECOVERED_STATUS" in
+            published|no_changes|already_completed) ;;
+            *)
+              echo "::error title=Benchmark recovery failed::Recovered publication status '$RECOVERED_STATUS' is not recognized."
+              exit 1
+              ;;
+          esac
+          if [[ "$EXISTING_PUBLISHED_COMMIT" =~ ^[0-9a-fA-F]{40}$ ]] &&
+            [ "$(git rev-parse "${EXISTING_PUBLISHED_COMMIT}^{commit}" 2>/dev/null || true)" = "$RECOVERED_COMMIT" ]; then
+            RECOVERY_METHOD="existing_slot"
+          elif [[ "$VERIFIED_PUBLISHED_COMMIT" =~ ^[0-9a-fA-F]{40}$ ]] &&
+            [ "$(git rev-parse "${VERIFIED_PUBLISHED_COMMIT}^{commit}" 2>/dev/null || true)" = "$RECOVERED_COMMIT" ]; then
+            RECOVERY_METHOD="verified_output"
+          elif [[ "$PUBLISH_CANDIDATE" =~ ^[0-9a-fA-F]{40}$ ]] &&
+            [ "$(git rev-parse "${PUBLISH_CANDIDATE}^{commit}" 2>/dev/null || true)" = "$RECOVERED_COMMIT" ]; then
+            RECOVERY_METHOD="publish_output"
+          else
+            RECOVERY_METHOD="trailers"
+          fi
+          {
+            echo "publication_status=$RECOVERED_STATUS"
+            echo "published_commit=$RECOVERED_COMMIT"
+            echo "validation_candidate=$RECOVERED_COMMIT"
+            echo "remote_main_commit=$REMOTE_MAIN_COMMIT"
+            echo "commit_verified=true"
+            echo "recovery_method=$RECOVERY_METHOD"
+            echo "publication_source_sha=$EXPECTED_SOURCE_SHA"
+            echo "publication_run_id=$EXPECTED_RUN_ID"
+            echo "publication_run_attempt=$EXPECTED_RUN_ATTEMPT"
+            echo "publication_trigger=$EXPECTED_TRIGGER"
+            echo "publication_scheduled_at=$EXPECTED_SCHEDULED_AT"
+            echo "publication_central_date=$EXPECTED_CENTRAL_DATE"
+            echo "publication_scheduled_utc_hour=$EXPECTED_SCHEDULED_UTC_HOUR"
+          } >> "$GITHUB_OUTPUT"
+
+  validate_publication:
+    name: Validate published benchmark commit ${{ needs.update.outputs.published_commit }}
+    needs: [resolve, update]
+    if: ${{ always() && needs.resolve.outputs.should_run == 'true' }}
+    permissions:
+      contents: read
+    uses: ./.github/workflows/public-artifacts.yml
+    with:
+      target_sha: ${{ needs.update.outputs.validation_candidate || needs.resolve.outputs.source_sha }}
+      policy_source_sha: ${{ needs.resolve.outputs.source_sha }}
+      publication_kind: daily-benchmark
+      publication_receipt_path: outputs/benchmarks/daily-publication-receipt.json
+      publication_source_sha: ${{ needs.update.outputs.publication_source_sha }}
+      publication_slot_key: daily-benchmark-${{ needs.resolve.outputs.central_date }}
+      publication_run_id: ${{ needs.update.outputs.publication_run_id }}
+      publication_run_attempt: ${{ needs.update.outputs.publication_run_attempt }}
+      publication_trigger: ${{ needs.update.outputs.publication_trigger }}
+      publication_scheduled_at: ${{ needs.update.outputs.publication_scheduled_at }}
+      publication_central_date: ${{ needs.update.outputs.publication_central_date }}
+      publication_scheduled_utc_hour: ${{ needs.update.outputs.publication_scheduled_utc_hour }}
 
   receipt:
     name: Audit benchmark outcome
-    needs: [resolve, update]
+    needs: [resolve, update, validate_publication]
     if: always()
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
       - name: Record auditable benchmark outcome
+        id: audit_outcome
         env:
           SHOULD_RUN: ${{ needs.resolve.outputs.should_run }}
           RESOLVE_RESULT: ${{ needs.resolve.result }}
           UPDATE_RESULT: ${{ needs.update.result }}
+          VALIDATION_RESULT: ${{ needs.validate_publication.result }}
           PUBLICATION_STATUS: ${{ needs.update.outputs.publication_status }}
           PUBLISHED_COMMIT: ${{ needs.update.outputs.published_commit }}
+          COMMIT_REPOSITORY_VERIFIED: ${{ needs.update.outputs.commit_verified }}
           CENTRAL_DATE: ${{ needs.resolve.outputs.central_date }}
+          TRIGGER_SHA: ${{ github.sha }}
+          SOURCE_SHA: ${{ needs.resolve.outputs.source_sha }}
+          EXECUTED_SHA: ${{ needs.update.outputs.executed_sha }}
         run: |
           RECEIPT_RECOGNIZED=false
           case "$PUBLICATION_STATUS" in
-            published|no_changes)
+            published|no_changes|already_completed)
               RECEIPT_RECOGNIZED=true
               ;;
           esac
@@ -300,9 +1157,11 @@ jobs:
 
           if [ "$RESOLVE_RESULT" != "success" ]; then
             STATUS="resolver_failed"
-          elif [ "$SHOULD_RUN" != "true" ]; then
+          elif [ "$SHOULD_RUN" = "false" ]; then
             STATUS="inactive_candidate_no_update"
-          elif [ "$UPDATE_RESULT" = "success" ] && [ "$RECEIPT_RECOGNIZED" = "true" ] && [ "$COMMIT_PROOF_VALID" = "true" ]; then
+          elif [ "$SHOULD_RUN" != "true" ] || [[ ! "$CENTRAL_DATE" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]]; then
+            STATUS="resolver_failed"
+          elif [ "$UPDATE_RESULT" = "success" ] && [ "$VALIDATION_RESULT" = "success" ] && [ "$RECEIPT_RECOGNIZED" = "true" ] && [ "$COMMIT_PROOF_VALID" = "true" ] && [ "$COMMIT_REPOSITORY_VERIFIED" = "true" ]; then
             STATUS="$PUBLICATION_STATUS"
           else
             STATUS="accepted_candidate_failed"
@@ -313,13 +1172,249 @@ jobs:
             echo "- Central date: ${CENTRAL_DATE:-manual}"
             echo "- Resolver result: $RESOLVE_RESULT"
             echo "- Update result: $UPDATE_RESULT"
+            echo "- Public validation result: $VALIDATION_RESULT"
             echo "- Receipt recognized: $RECEIPT_RECOGNIZED"
             echo "- Commit proof valid: $COMMIT_PROOF_VALID"
+            echo "- Commit repository verified: ${COMMIT_REPOSITORY_VERIFIED:-false}"
+            echo "- Trigger SHA: ${TRIGGER_SHA:-none}"
+            echo "- Source SHA: ${SOURCE_SHA:-none}"
+            echo "- Executed SHA: ${EXECUTED_SHA:-none}"
             echo "- Published commit: ${PUBLISHED_COMMIT:-none}"
           } >> "$GITHUB_STEP_SUMMARY"
+          {
+            echo "status=$STATUS"
+            echo "receipt_recognized=$RECEIPT_RECOGNIZED"
+            echo "commit_proof_valid=$COMMIT_PROOF_VALID"
+          } >> "$GITHUB_OUTPUT"
           if [ "$STATUS" = "resolver_failed" ] || [ "$STATUS" = "accepted_candidate_failed" ]; then
             echo "::error title=Daily benchmark failed::$STATUS for ${CENTRAL_DATE:-manual dispatch}"
             echo "The accepted candidate requires a successful publication job, a recognized receipt, and an exact repository-backed commit."
             exit 1
           fi
           echo "::notice title=Daily benchmark outcome::$STATUS for ${CENTRAL_DATE:-manual dispatch}"
+
+      - name: Materialize daily benchmark receipt
+        if: always()
+        env:
+          AUDIT_STATUS: ${{ steps.audit_outcome.outputs.status }}
+          SHOULD_RUN: ${{ needs.resolve.outputs.should_run }}
+          SCHEDULE_TRIGGER: ${{ needs.resolve.outputs.trigger }}
+          SCHEDULED_UTC_HOUR: ${{ needs.resolve.outputs.scheduled_utc_hour }}
+          SCHEDULED_AT: ${{ needs.resolve.outputs.scheduled_at }}
+          CENTRAL_DATE: ${{ needs.resolve.outputs.central_date }}
+          RESOLVE_RESULT: ${{ needs.resolve.result }}
+          UPDATE_RESULT: ${{ needs.update.result }}
+          VALIDATION_RESULT: ${{ needs.validate_publication.result }}
+          PUBLICATION_STATUS: ${{ needs.update.outputs.publication_status }}
+          RECEIPT_RECOGNIZED: ${{ steps.audit_outcome.outputs.receipt_recognized }}
+          COMMIT_PROOF_VALID: ${{ steps.audit_outcome.outputs.commit_proof_valid }}
+          COMMIT_REPOSITORY_VERIFIED: ${{ needs.update.outputs.commit_verified }}
+          TRIGGER_SHA: ${{ github.sha }}
+          SOURCE_SHA: ${{ needs.resolve.outputs.source_sha }}
+          EXECUTED_SHA: ${{ needs.update.outputs.executed_sha }}
+          PUBLISHED_COMMIT: ${{ needs.update.outputs.published_commit }}
+          RUN_ID: ${{ github.run_id }}
+          RUN_ATTEMPT: ${{ github.run_attempt }}
+          EVENT_NAME: ${{ github.event_name }}
+          WORKFLOW_NAME: ${{ github.workflow }}
+          REPOSITORY: ${{ github.repository }}
+          ACTOR: ${{ github.actor }}
+          REF: ${{ github.ref }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          node --input-type=module <<'NODE'
+          import { mkdir, writeFile } from "node:fs/promises";
+          import { join } from "node:path";
+
+          const optional = (value) => String(value ?? "").trim() || null;
+          const booleanOrNull = (value) => value === "true" ? true : value === "false" ? false : null;
+          const directory = join(process.env.RUNNER_TEMP, "daily-benchmark-receipt");
+          const receipt = {
+            schemaVersion: 1,
+            status: optional(process.env.AUDIT_STATUS) ?? "resolver_failed",
+            shouldRun: booleanOrNull(process.env.SHOULD_RUN),
+            trigger: optional(process.env.SCHEDULE_TRIGGER),
+            scheduledUtcHour: optional(process.env.SCHEDULED_UTC_HOUR),
+            scheduledAt: optional(process.env.SCHEDULED_AT),
+            centralDate: optional(process.env.CENTRAL_DATE),
+            resolveResult: optional(process.env.RESOLVE_RESULT),
+            updateResult: optional(process.env.UPDATE_RESULT),
+            validationResult: optional(process.env.VALIDATION_RESULT),
+            publicationStatus: optional(process.env.PUBLICATION_STATUS),
+            receiptRecognized: process.env.RECEIPT_RECOGNIZED === "true",
+            commitProofValid: process.env.COMMIT_PROOF_VALID === "true",
+            commitRepositoryVerified: process.env.COMMIT_REPOSITORY_VERIFIED === "true",
+            triggerSha: optional(process.env.TRIGGER_SHA),
+            sourceSha: optional(process.env.SOURCE_SHA),
+            executedSha: optional(process.env.EXECUTED_SHA),
+            publishedCommit: optional(process.env.PUBLISHED_COMMIT),
+            run: {
+              id: optional(process.env.RUN_ID),
+              attempt: optional(process.env.RUN_ATTEMPT),
+              eventName: optional(process.env.EVENT_NAME),
+              workflow: optional(process.env.WORKFLOW_NAME),
+              repository: optional(process.env.REPOSITORY),
+              actor: optional(process.env.ACTOR),
+              ref: optional(process.env.REF),
+              url: optional(process.env.RUN_URL)
+            },
+            generatedAt: new Date().toISOString()
+          };
+          await mkdir(directory, { recursive: true });
+          await writeFile(join(directory, "receipt.json"), `${JSON.stringify(receipt, null, 2)}\n`);
+          NODE
+
+      - name: Audit machine-readable benchmark receipt
+        if: always()
+        env:
+          EXPECTED_TRIGGER_SHA: ${{ github.sha }}
+          EXPECTED_RUN_ID: ${{ github.run_id }}
+          EXPECTED_RUN_ATTEMPT: ${{ github.run_attempt }}
+        run: |
+          node --input-type=module <<'NODE'
+          import assert from "node:assert/strict";
+          import { readFile } from "node:fs/promises";
+          import { join } from "node:path";
+
+          const receiptPath = join(process.env.RUNNER_TEMP, "daily-benchmark-receipt", "receipt.json");
+          const receipt = JSON.parse(await readFile(receiptPath, "utf8"));
+          const exactSha = (value) => typeof value === "string" && /^[0-9a-f]{40}$/i.test(value);
+          const nullableExactSha = (value) => value === null || exactSha(value);
+          const realDate = (value) => {
+            if (typeof value !== "string") return false;
+            const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+            if (!match) return false;
+            const [, year, month, day] = match.map(Number);
+            const instant = new Date(0);
+            instant.setUTCFullYear(year, month - 1, day);
+            instant.setUTCHours(0, 0, 0, 0);
+            return instant.getUTCFullYear() === year &&
+              instant.getUTCMonth() === month - 1 &&
+              instant.getUTCDate() === day;
+          };
+          const strictUtcRfc3339 = (value) => {
+            if (typeof value !== "string") return false;
+            const match = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.\d{1,9})?Z$/.exec(value);
+            if (!match) return false;
+            const [, year, month, day, hour, minute, second] = match.map(Number);
+            const instant = new Date(0);
+            instant.setUTCFullYear(year, month - 1, day);
+            instant.setUTCHours(hour, minute, second, 0);
+            return instant.getUTCFullYear() === year && instant.getUTCMonth() === month - 1 &&
+              instant.getUTCDate() === day && instant.getUTCHours() === hour &&
+              instant.getUTCMinutes() === minute && instant.getUTCSeconds() === second;
+          };
+          const resultValues = new Set(["success", "failure", "cancelled", "skipped"]);
+          const statusValues = new Set([
+            "published",
+            "no_changes",
+            "already_completed",
+            "inactive_candidate_no_update",
+            "resolver_failed",
+            "accepted_candidate_failed"
+          ]);
+
+          assert.equal(receipt?.schemaVersion, 1, "receipt schemaVersion must be 1");
+          assert.ok(statusValues.has(receipt.status), "receipt status is not recognized");
+          assert.ok(
+            typeof receipt.shouldRun === "boolean" || receipt.shouldRun === null,
+            "receipt shouldRun must be boolean or null"
+          );
+          for (const field of ["resolveResult", "updateResult", "validationResult"]) {
+            assert.ok(resultValues.has(receipt[field]), `${field} is not a workflow result`);
+          }
+          for (const field of ["triggerSha", "sourceSha", "executedSha", "publishedCommit"]) {
+            assert.ok(nullableExactSha(receipt[field]), `${field} must be null or a full commit SHA`);
+          }
+          assert.equal(receipt.triggerSha, process.env.EXPECTED_TRIGGER_SHA);
+          assert.equal(typeof receipt.receiptRecognized, "boolean");
+          assert.equal(typeof receipt.commitProofValid, "boolean");
+          assert.equal(typeof receipt.commitRepositoryVerified, "boolean");
+          assert.equal(receipt.run?.id, process.env.EXPECTED_RUN_ID);
+          assert.equal(receipt.run?.attempt, process.env.EXPECTED_RUN_ATTEMPT);
+          for (const field of ["eventName", "workflow", "repository", "actor", "ref", "url"]) {
+            assert.equal(typeof receipt.run?.[field], "string", `run.${field} must be present`);
+            assert.ok(receipt.run[field].length > 0, `run.${field} must be nonempty`);
+          }
+          assert.ok(Number.isFinite(Date.parse(receipt.generatedAt)), "generatedAt must be an ISO timestamp");
+
+          if (receipt.resolveResult === "success") {
+            assert.ok(exactSha(receipt.sourceSha), "successful resolver requires sourceSha");
+            assert.equal(receipt.sourceSha, receipt.triggerSha, "sourceSha must bind to triggerSha");
+            assert.equal(typeof receipt.trigger, "string", "successful resolver requires trigger");
+            assert.ok(receipt.trigger.length > 0, "successful resolver trigger must be nonempty");
+          }
+          if (receipt.shouldRun === true) {
+            assert.ok(realDate(receipt.centralDate), "accepted benchmark requires a real centralDate");
+            assert.ok(strictUtcRfc3339(receipt.scheduledAt), "accepted benchmark requires valid scheduledAt");
+            const scheduled = new Date(receipt.scheduledAt);
+            const parts = Object.fromEntries(new Intl.DateTimeFormat("en-US", {
+              timeZone: "America/Chicago",
+              calendar: "gregory",
+              numberingSystem: "latn",
+              year: "numeric",
+              month: "2-digit",
+              day: "2-digit",
+              hour: "2-digit",
+              minute: "2-digit",
+              second: "2-digit",
+              hourCycle: "h23"
+            }).formatToParts(scheduled).filter(({ type }) => type !== "literal").map(({ type, value }) => [type, value]));
+            assert.equal(receipt.centralDate, `${parts.year}-${parts.month}-${parts.day}`);
+            if (receipt.trigger === "schedule") {
+              assert.equal(receipt.run.eventName, "schedule", "scheduled benchmark must bind to schedule event");
+              assert.match(receipt.scheduledUtcHour ?? "", /^(?:5|6)$/);
+              assert.equal(String(scheduled.getUTCHours()), receipt.scheduledUtcHour);
+              assert.equal(`${parts.hour}:${parts.minute}:${parts.second}`, "00:00:00");
+            } else {
+              assert.equal(receipt.trigger, "manual-dispatch", "accepted benchmark trigger is not recognized");
+              assert.equal(receipt.run.eventName, "workflow_dispatch", "manual benchmark must bind to workflow_dispatch");
+              assert.equal(receipt.scheduledUtcHour, null, "manual benchmark must not claim a scheduled UTC hour");
+            }
+          }
+          if (receipt.updateResult === "success") {
+            assert.ok(exactSha(receipt.executedSha), "successful update requires executedSha");
+            assert.ok(exactSha(receipt.publishedCommit), "successful update requires publishedCommit");
+          }
+          if (["published", "no_changes", "already_completed"].includes(receipt.status)) {
+            assert.equal(receipt.shouldRun, true);
+            assert.equal(receipt.updateResult, "success");
+            assert.equal(receipt.validationResult, "success");
+            assert.equal(receipt.publicationStatus, receipt.status);
+            assert.equal(receipt.receiptRecognized, true);
+            assert.equal(receipt.commitProofValid, true);
+            assert.equal(receipt.commitRepositoryVerified, true);
+          } else if (receipt.status === "inactive_candidate_no_update") {
+            assert.equal(receipt.shouldRun, false);
+            assert.equal(receipt.resolveResult, "success");
+            assert.equal(receipt.updateResult, "skipped");
+            assert.equal(receipt.validationResult, "skipped");
+            assert.equal(receipt.publicationStatus, null);
+          } else if (receipt.status === "accepted_candidate_failed") {
+            assert.equal(receipt.shouldRun, true);
+            assert.equal(receipt.resolveResult, "success", "accepted failure requires a successful resolver");
+            assert.ok(realDate(receipt.centralDate), "accepted failure requires a real centralDate");
+            assert.ok(exactSha(receipt.sourceSha), "accepted failure requires sourceSha");
+            assert.equal(receipt.sourceSha, receipt.triggerSha, "accepted failure sourceSha must bind to triggerSha");
+            assert.equal(typeof receipt.trigger, "string", "accepted failure requires a resolver trigger");
+            assert.ok(receipt.trigger.length > 0, "accepted failure resolver trigger must be nonempty");
+            const publicationInvariantFailed = receipt.updateResult !== "success" ||
+              receipt.validationResult !== "success" ||
+              !["published", "no_changes", "already_completed"].includes(receipt.publicationStatus) ||
+              receipt.receiptRecognized !== true ||
+              receipt.commitProofValid !== true ||
+              receipt.commitRepositoryVerified !== true;
+            assert.equal(publicationInvariantFailed, true, "accepted failure requires a failed or skipped publication invariant");
+          } else if (receipt.status === "resolver_failed") {
+            assert.notEqual(receipt.resolveResult, "success");
+          }
+          NODE
+
+      - name: Upload daily benchmark receipt
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: daily-benchmark-receipt-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/daily-benchmark-receipt/receipt.json
+          if-no-files-found: error
+          retention-days: 14

@@ -506,6 +506,9 @@ export interface GraphResponse {
   needsReview: NeedsReviewItem[];
   evidence: EvidenceItem[];
   evidenceStats?: EvidenceStats;
+  /** Compact proof that a bounded public payload intentionally omits rows
+   * after scores and full-corpus statistics have already been materialized. */
+  evidenceProjection?: EvidenceProjectionStats;
   topicFacetRows?: TopicFacetRow[];
   platformStatus: PlatformStatus[];
   selectedTopVoiceAudience: TopVoiceAudienceSummary;
@@ -516,6 +519,16 @@ export interface GraphResponse {
   generatedAt: string;
   scoringContext?: ScoringContext;
   mode: "demo" | "database" | "official_snapshot";
+}
+
+export interface EvidenceProjectionStats {
+  maxEvidence: number;
+  sourceEvidenceCount: number;
+  retainedEvidenceCount: number;
+  omittedEvidenceCount: number;
+  sourcePositiveEvidenceCount: number;
+  retainedPositiveEvidenceCount: number;
+  omittedPositiveEvidenceCount: number;
 }
 
 export interface EvidenceStats {

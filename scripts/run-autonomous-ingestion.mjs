@@ -1,8 +1,23 @@
 import { createClient } from "@supabase/supabase-js";
-import { spawn } from "node:child_process";
+import { spawn, spawnSync } from "node:child_process";
 import { createHash, randomUUID } from "node:crypto";
-import { appendFile, mkdir, readFile, rename, stat, writeFile } from "node:fs/promises";
-import { dirname, join } from "node:path";
+import { readFileSync } from "node:fs";
+import {
+  appendFile,
+  mkdir,
+  mkdtemp,
+  readFile,
+  realpath,
+  rename,
+  rm,
+  stat,
+  symlink,
+  unlink,
+  writeFile
+} from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { basename, dirname, extname, isAbsolute, join, relative, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import {
   AUTONOMOUS_BATCHES,
   AUTONOMOUS_PROCESS_BUDGETS,
@@ -52,12 +67,30 @@ import {
   createAutonomousRunnerBudget
 } from "./lib/autonomous-ingestion-budget.mjs";
 import { selectPublishedAutonomousIngestionReceipt } from "./lib/autonomous-ingestion-receipt-policy.mjs";
+import {
+  CENTRAL_TIME_ZONE,
+  DEFAULT_LATENESS_WINDOW_MINUTES,
+  INGESTION_CENTRAL_SLOTS,
+  centralDateTimeParts
+} from "./lib/ingestion-schedule.mjs";
 import { mergeTargetedEvidenceSnapshots } from "./lib/targeted-evidence-merge.mjs";
 import { archiveAcceptedPublicSnapshot } from "./lib/archive-public-ingestion.mjs";
 import { openLosslessPostArchive } from "./lib/lossless-post-archive.mjs";
 import { sanitizeRunnerFailureMessage } from "./lib/runner-failure-sanitizer.mjs";
+import { importEvidenceSnapshots } from "./lib/durable-evidence-import.mjs";
+import {
+  assertReplaySafePublicationChanges,
+  isProtectedSourcePolicyPath
+} from "./lib/autonomous-publication-trust.mjs";
 
 let root;
+const pinnedSourceRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+let sourceCommit;
+let publicationRoot = null;
+let publicationWorktreeParent = null;
+let publicationBaseCommit = null;
+let publicationReceiptSha256 = null;
+let preverifiedPublicationBaseCommit = null;
 let args;
 let idempotencyKey;
 let workerId;
@@ -77,6 +110,13 @@ let publishedSourceDeltaHistoryPath;
 let publishedGithubQuarantinePath;
 let topVoiceOutput;
 let losslessPublicArchiveRoot;
+let catalogs;
+let resolvePublicNativeAuthor;
+let resolveCanonicalTargetedAttribution;
+let resolveLegacyPublicEvidenceBatch;
+let plannedTasks;
+let plannedTaskByCheckpointKey;
+let plannedCoverage;
 const PUBLIC_COLLECTOR_SHARDS = Object.freeze({
   S2026: 4,
   S26: 2,
@@ -86,6 +126,12 @@ const PUBLIC_SHARD_PROCESS_CONCURRENCY = 2;
 const PUBLIC_COLLECTOR_TASK_CONCURRENCY = 8;
 const PUBLIC_SOCIAL_LANE_CONCURRENCY = 1;
 const runWithPublicShardProcessSlot = createConcurrencyGuard(PUBLIC_SHARD_PROCESS_CONCURRENCY);
+// GitHub has a separate two-process lane. Each process uses four ordinary
+// collector workers, so the initial request fan-out is capped at eight while
+// seven shards still finish within the 120-minute collection phase.
+const GITHUB_SHARD_PROCESS_CONCURRENCY = 2;
+const GITHUB_COLLECTOR_TASK_CONCURRENCY = 4;
+const runWithGithubShardProcessSlot = createConcurrencyGuard(GITHUB_SHARD_PROCESS_CONCURRENCY);
 const GITHUB_COLLECTOR_SHARDS = Object.freeze({
   S2026: 4,
   S26: 2,
@@ -100,6 +146,10 @@ let supabase = null;
 let runtimeLock = null;
 let run = null;
 let heartbeatTimer = null;
+let heartbeatInFlight = null;
+let heartbeatDrainPromise = null;
+let heartbeatSchedulingStopped = false;
+let heartbeatAbortController = null;
 let hardFailure = null;
 let heartbeatFailure = null;
 let collectionBudget = null;
@@ -108,12 +158,114 @@ let latestCollectionCoverage = null;
 let latestTerminalFailureBudget = null;
 let latestPublishedCommit = null;
 let pendingRunnerOutcome = null;
+let terminationSignal = null;
+let cancellationDeadlineTimer = null;
+let cancellationEmergencyTimer = null;
+let cancellationEmergencyPromise = null;
+let runtimeLockReleasePromise = null;
+let canceledRunRecordPromise = null;
+let runnerOutcomeWritePromise = null;
+let publicationPushCandidate = null;
+let publicationCancellationResolutionPromise = null;
+let publicationWorktreeCleanupPromise = null;
+let runFinalizationPromise = null;
+let finalizedRunStatus = null;
+let successfulRunnerOutcomeCandidate = null;
+let completedOutcomeVerifiedByThisExecution = false;
+let lifecycleOperationTimeoutOverrideMs = null;
+let executionCompletionNonce = null;
+let candidateMetadata = null;
+const activeChildProcesses = new Set();
+const HEARTBEAT_DRAIN_TIMEOUT_MS = 10_000;
+const CANCELLATION_CLEANUP_TIMEOUT_MS = 15_000;
+const COMMAND_FAILURE_TAIL_MAX_LENGTH = 4_096;
+const LIFECYCLE_OPERATION_TIMEOUT_MS = 15_000;
+const SUPABASE_BULK_OPERATION_TIMEOUT_MS = 5 * 60_000;
+const COMMAND_EVENT_TIMEOUT_MS = 2_000;
+const PROCESS_KILL_WATCHDOG_MS = 1_000;
+const CANCELLATION_REMOTE_VERIFY_TIMEOUT_MS = 10_000;
+// Emergency cleanup may need to terminate a process tree, reconcile one remote
+// push, finalize a run, release/reconcile the global lock, and drain an
+// abort-insensitive heartbeat. Keep the force-exit watchdog beyond that entire
+// bounded sequence (and comfortably inside the workflow's six-minute headroom).
+const CANCELLATION_EMERGENCY_TIMEOUT_MS = 150_000;
+const CHILD_HARD_SETTLE = Symbol("autonomous-ingestion-child-hard-settle");
+const CHILD_ROOT_START_IDENTITY = Symbol("autonomous-ingestion-child-root-start-identity");
+const CHILD_DESCENDANT_PIDS = Symbol("autonomous-ingestion-child-descendants");
+const CHILD_DESCENDANT_SAMPLER = Symbol("autonomous-ingestion-child-descendant-sampler");
+const CHILD_PROCESS_LEDGER = Symbol("autonomous-ingestion-child-process-ledger");
+const CHILD_TREE_DRAIN_PROMISE = Symbol("autonomous-ingestion-child-tree-drain-promise");
+const CHILD_TREE_DRAIN_RESOLVE = Symbol("autonomous-ingestion-child-tree-drain-resolve");
+const COLLECTOR_SNAPSHOT_FUTURE_SKEW_MS = 60_000;
+const COLLECTOR_SNAPSHOT_FILE_SKEW_MS = 2_000;
+const COLLECTOR_RESUME_MAX_AGE_MS = 12 * 60 * 60_000;
+const PROCESS_DESCENDANT_SAMPLE_MS = 250;
+const PROCESS_NORMAL_EXIT_DRAIN_MS = 500;
+const CHILD_PROCESS_LEDGER_MAX_ENTRIES = 4_096;
+const GIT_PUSH_RETRYABLE_EXIT_CODES = new Set([128, 129, 130, 137, 143]);
+
+const SAFE_CHILD_ENV_KEYS = Object.freeze([
+  "PATH",
+  "TMPDIR",
+  "TMP",
+  "TEMP",
+  "LANG",
+  "LC_ALL",
+  "TZ",
+  "CI",
+  "GITHUB_ACTIONS"
+]);
+const CHILD_ENV_CATEGORY_KEYS = Object.freeze({
+  runtime: [],
+  public_collector: ["X_BEARER_TOKEN", "EXA_API_KEY", "SCORING_DATA_ROOT"],
+  github_collector: ["GITHUB_TOKEN"],
+  durable_timeline: ["NEXT_PUBLIC_SUPABASE_URL", "SUPABASE_SERVICE_ROLE_KEY", "SCORING_DATA_ROOT"],
+  publication_data: ["SCORING_DATA_ROOT"],
+  benchmark: [
+    "BENCHMARK_NOW",
+    "BENCHMARK_WINDOW_START",
+    "GRAPH_API_BASE_URL",
+    "GRAPH_API_PORT",
+    "INGESTION_RUN_ID",
+    "SCORING_DATA_ROOT"
+  ],
+  timeline_backfill: [
+    "TIMELINE_REQUIRE_DATABASE",
+    "SCORING_DATA_ROOT"
+  ],
+  publication_push: [
+    "GIT_CONFIG_COUNT",
+    "GIT_CONFIG_KEY_0",
+    "GIT_CONFIG_VALUE_0",
+    "GIT_CONFIG_KEY_1",
+    "GIT_CONFIG_VALUE_1",
+    "GIT_CONFIG_KEY_2",
+    "GIT_CONFIG_VALUE_2",
+    "GIT_CONFIG_NOSYSTEM",
+    "GIT_CONFIG_GLOBAL",
+    "GIT_TERMINAL_PROMPT"
+  ],
+  test_fixture: ["LIFECYCLE_FIXTURE_MARKER"]
+});
+const PRIVILEGED_CHILD_ENV_KEYS = Object.freeze([
+  "SUPABASE_SERVICE_ROLE_KEY",
+  "X_BEARER_TOKEN",
+  "EXA_API_KEY",
+  "GITHUB_TOKEN",
+  "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+  "GRAPH_DIAGNOSTICS_SECRET",
+  "GRAPH_PUBLICATION_BUILD_TOKEN",
+  "GIT_CONFIG_VALUE_0"
+]);
+
+installTerminationSignalHandlers();
 
 try {
-root = process.cwd();
+root = resolve(process.cwd());
 args = parseArgs(process.argv.slice(2));
 idempotencyKey = args.idempotencyKey ?? process.env.INGESTION_IDEMPOTENCY_KEY;
 workerId = `${process.env.GITHUB_RUN_ID ?? "local"}:${process.pid}:${randomUUID()}`;
+executionCompletionNonce = randomUUID();
 runStartedAt = new Date();
 runnerBudget = createAutonomousRunnerBudget({
   phaseMs: AUTONOMOUS_RUNNER_WALL_CLOCK_BUDGET_MS,
@@ -122,6 +274,24 @@ runnerBudget = createAutonomousRunnerBudget({
 if (!idempotencyKey) {
   throw new Error("--idempotency-key or INGESTION_IDEMPOTENCY_KEY is required.");
 }
+const lifecycleContractFixture = cleanEnv(
+  process.env.AUTONOMOUS_INGESTION_LIFECYCLE_TEST_FIXTURE
+);
+if (lifecycleContractFixture) {
+  if (process.env.NODE_ENV !== "test") {
+    throw new Error("Lifecycle contract fixtures are available only when NODE_ENV=test.");
+  }
+  const fixtureExitCode = await runLifecycleContractFixture(lifecycleContractFixture);
+  process.exit(fixtureExitCode);
+}
+await verifyPinnedSourceExecutionBoundary({ verifyPolicyCleanliness: !args.plan });
+candidateMetadata = validateCandidateMetadata({
+  trigger: args.candidateTrigger,
+  scheduledAt: args.scheduledAt,
+  slotKey: idempotencyKey,
+  required: process.env.GITHUB_ACTIONS === "true" && !args.skipPublish
+});
+assertCandidateFreshForPublication("runner start");
 workRoot = join(root, "work", "autonomous-ingestion", safePathSegment(idempotencyKey));
 collectorRoot = args.campaignKey
   ? join(root, "work", "autonomous-ingestion-campaigns", safePathSegment(args.campaignKey))
@@ -138,12 +308,7 @@ discoveryAttemptOutputs = new Map(
 sourceDiscoveryPathOutputs = new Map(
   AUTONOMOUS_BATCHES.map((batch) => [batch.slug, join(collectorRoot, `source-discovery-paths-${batch.slug.toLowerCase()}.json`)])
 );
-publishedDiscoveryAttemptsPath = join(root, "outputs", "discovery-attempts-current.json");
-publishedSourceDiscoveryPathsPath = join(root, "outputs", "source-discovery-paths-current.json");
-publishedCohortAuditPath = join(root, "outputs", "cohort-coverage-current.json");
-publishedSourceDeltaPath = join(root, "outputs", "ingestion-source-delta-current.json");
-publishedSourceDeltaHistoryPath = join(root, "outputs", "ingestion-source-delta-history.json");
-publishedGithubQuarantinePath = join(root, "src", "lib", "social", "github-traction-quarantine.json");
+configurePublicationArtifactPaths(root);
 topVoiceOutput = join(collectorRoot, "top-voice-refresh.json");
 losslessPublicArchiveRoot = join(collectorRoot, "lossless-public-post-archive");
 url = cleanEnv(process.env.NEXT_PUBLIC_SUPABASE_URL);
@@ -162,12 +327,10 @@ supabase = durableStorageConfigured
     })
   : null;
 
-const commitBackedReplay = !args.plan &&
-  !args.skipPublish &&
-  !durableStorageConfigured &&
-  process.env.GITHUB_ACTIONS === "true"
-  ? await readCommitBackedReplayReceipt()
-  : null;
+let commitBackedReplay = null;
+if (!args.plan && !args.skipPublish && !durableStorageConfigured && process.env.GITHUB_ACTIONS === "true") {
+  commitBackedReplay = await readCommitBackedReplayReceipt();
+}
 if (commitBackedReplay) {
   const { receipt, classification, publishedCommit } = commitBackedReplay;
   console.log(
@@ -184,6 +347,7 @@ if (commitBackedReplay) {
     mappedProviderBlocked: receipt.mappedProviderBlocked,
     mappedProviderBlockedByReason: receipt.mappedProviderBlockedByReason,
     mappedScopeUnsupported: receipt.mappedScopeUnsupported,
+    ...replayCoverageOutcome(receipt),
     mappedFailed: receipt.mappedFailures,
     newPhysicalSources: receipt.newPhysicalSources,
     dailyNewPhysicalSources: receipt.dailyNewPhysicalSources,
@@ -192,51 +356,27 @@ if (commitBackedReplay) {
   });
   process.exit(0);
 }
+if (!args.plan && !args.skipPublish) {
+  preverifiedPublicationBaseCommit = await resolveVerifiedCurrentPublicationCommit({
+    labelPrefix: "initial publication base"
+  });
+}
 
 await Promise.all([
   mkdir(workRoot, { recursive: true }),
   mkdir(collectorRoot, { recursive: true })
 ]);
-if (!args.plan && !args.skipNetwork) {
-  await refreshMutableYcCatalog();
-}
-const catalogs = await loadAutonomousCatalogs(root);
-const resolvePublicNativeAuthor = buildAutonomousPublicNativeAuthorResolver(catalogs);
-const resolveCanonicalTargetedAttribution = buildCanonicalTargetedAttributionResolver(catalogs);
-const resolveLegacyPublicEvidenceBatch = buildLegacyPublicEvidenceBatchResolver(catalogs);
-const plannedTasks = buildAutonomousTaskPlan(catalogs, { runKey: idempotencyKey });
-const plannedTaskByCheckpointKey = new Map(plannedTasks.map((task) => [task.checkpointKey, task]));
-const plannedCoverage = summarizeTaskCoverage(plannedTasks);
-
-if (args.plan) {
-  console.log(JSON.stringify({
-    idempotencyKey,
-    batches: catalogSummary(catalogs),
-    coverage: plannedCoverage,
-    concurrency: {
-      publicShardProcesses: PUBLIC_SHARD_PROCESS_CONCURRENCY,
-      publicTasksPerProcess: PUBLIC_COLLECTOR_TASK_CONCURRENCY,
-      publicTasksAcrossProcesses:
-        PUBLIC_SHARD_PROCESS_CONCURRENCY * PUBLIC_COLLECTOR_TASK_CONCURRENCY,
-      publicSocialLanePerProcess: PUBLIC_SOCIAL_LANE_CONCURRENCY,
-      publicSocialLaneAcrossProcesses:
-        PUBLIC_SHARD_PROCESS_CONCURRENCY * PUBLIC_SOCIAL_LANE_CONCURRENCY
-    }
-  }, null, 2));
-  process.exit(0);
-}
-
-  if (durableStorageConfigured) {
+  // The mutable catalog refresh performs network I/O and rewrites the source
+  // inventory. Claim the account-global coordinator lock first, then read the
+  // idempotent run while holding that lock. This second state read closes the
+  // claim/read TOCTOU window and lets a durable completed replay return before
+  // any mutable refresh can fail or race another coordinator.
+  if (!args.plan && durableStorageConfigured) {
     runtimeLock = await claimRuntimeLock();
     if (!runtimeLock) {
       throw new Error("Another ingestion coordinator owns the non-expired autonomous-ingestion lease.");
     }
     run = await getOrCreateRun();
-  } else {
-    console.warn(
-      `Durable Supabase import skipped because required production configuration is unusable (${supabaseConfiguration.blockers.join(", ")}). ` +
-      "File-backed collection and publication will continue, and the workflow receipt will report degraded collection health."
-    );
   }
   if (run?.status === "completed") {
     console.log(`Ingestion ${idempotencyKey} already completed as run ${run.id}; replay is a no-op.`);
@@ -258,18 +398,62 @@ if (args.plan) {
       mappedProviderBlocked: priorSourceDelta.mappedProviderBlocked,
       mappedProviderBlockedByReason: priorSourceDelta.mappedProviderBlockedByReason,
       mappedScopeUnsupported: priorSourceDelta.mappedScopeUnsupported,
+      ...replayCoverageOutcome(priorSourceDelta),
       mappedFailed: priorSourceDelta.mappedFailures,
       newPhysicalSources: priorSourceDelta.newPhysicalSources,
       dailyNewPhysicalSources: priorSourceDelta.dailyNewPhysicalSources,
       dailySourceHealth: priorSourceDelta.dailySourceHealth,
       publishedCommit: repositoryBackedReplay.publishedCommit
     };
+    successfulRunnerOutcomeCandidate = pendingRunnerOutcome;
+    completedOutcomeVerifiedByThisExecution = true;
     process.exitCode = 0;
   } else {
-    if (durableStorageConfigured) {
-      heartbeatTimer = setInterval(() => void heartbeat().catch(failHeartbeat), 60_000);
-      heartbeatTimer.unref?.();
+    if (!args.plan && !args.skipPublish) {
+      await ensurePublicationWorktree();
     }
+    if (!args.plan && !args.skipNetwork) {
+      await refreshMutableYcCatalog();
+    }
+    catalogs = await loadAutonomousCatalogs(publicationArtifactRoot());
+    resolvePublicNativeAuthor = buildAutonomousPublicNativeAuthorResolver(catalogs);
+    resolveCanonicalTargetedAttribution = buildCanonicalTargetedAttributionResolver(catalogs);
+    resolveLegacyPublicEvidenceBatch = buildLegacyPublicEvidenceBatchResolver(catalogs);
+    plannedTasks = buildAutonomousTaskPlan(catalogs, { runKey: idempotencyKey });
+    plannedTaskByCheckpointKey = new Map(
+      plannedTasks.map((task) => [task.checkpointKey, task])
+    );
+    plannedCoverage = summarizeTaskCoverage(plannedTasks);
+
+    if (args.plan) {
+      console.log(JSON.stringify({
+        idempotencyKey,
+        batches: catalogSummary(catalogs),
+        coverage: plannedCoverage,
+        concurrency: {
+          publicShardProcesses: PUBLIC_SHARD_PROCESS_CONCURRENCY,
+          publicTasksPerProcess: PUBLIC_COLLECTOR_TASK_CONCURRENCY,
+          publicTasksAcrossProcesses:
+            PUBLIC_SHARD_PROCESS_CONCURRENCY * PUBLIC_COLLECTOR_TASK_CONCURRENCY,
+          publicSocialLanePerProcess: PUBLIC_SOCIAL_LANE_CONCURRENCY,
+          publicSocialLaneAcrossProcesses:
+            PUBLIC_SHARD_PROCESS_CONCURRENCY * PUBLIC_SOCIAL_LANE_CONCURRENCY,
+          githubShardProcesses: GITHUB_SHARD_PROCESS_CONCURRENCY,
+          githubTasksPerProcess: GITHUB_COLLECTOR_TASK_CONCURRENCY,
+          githubInitialRequestsAcrossProcesses:
+            GITHUB_SHARD_PROCESS_CONCURRENCY * GITHUB_COLLECTOR_TASK_CONCURRENCY
+        }
+      }, null, 2));
+      process.exit(0);
+    }
+
+    if (!durableStorageConfigured) {
+      console.warn(
+        `Durable Supabase import skipped because required production configuration is unusable (${supabaseConfiguration.blockers.join(", ")}). ` +
+        "File-backed collection and publication will continue, and the workflow receipt will report degraded collection health."
+      );
+    }
+    if (durableStorageConfigured) startHeartbeatScheduling();
     await event("run.started", "info", "Autonomous ingestion run started.", {
       workerId,
       durability: durableStorageConfigured ? "supabase" : "file_backed",
@@ -309,9 +493,9 @@ if (args.plan) {
     }
     const [collectionResults, topVoiceRefresh] = args.skipNetwork
       ? [[], null]
-      : await Promise.all([
-          runCollectors(),
-          resumeTopVoiceRefresh()
+      : await runFailFastBranches([
+          () => runCollectors(),
+          () => resumeTopVoiceRefresh()
         ]);
     assertLeaseHealthy();
     if (!args.skipNetwork) validateAutonomousCollectorMatrix(collectionResults);
@@ -452,18 +636,24 @@ if (args.plan) {
     // synchronizePublicationBase() can overwrite evidence or discovery rows
     // that another completed ingestion pushed while these collectors ran.
     await mergePublicationInputs(publicationInputs);
-    publicationInputs.sourceDelta = summarizeIngestionSourceDelta({
-      idempotencyKey,
-      beforeSnapshots: publicationBaseline,
-      afterSnapshots: await readPublicationEvidenceBaseline(),
-      previousHistory: sourceDeltaHistory,
-      mappedFailures: collectionCoverage.mappedFailed,
-      collectionCoverage,
-      credentialGaps: collectionCredentialGaps
-    });
+    publicationInputs.sourceDelta = {
+      ...summarizeIngestionSourceDelta({
+        idempotencyKey,
+        beforeSnapshots: publicationBaseline,
+        afterSnapshots: await readPublicationEvidenceBaseline(),
+        previousHistory: sourceDeltaHistory,
+        mappedFailures: collectionCoverage.mappedFailed,
+        collectionCoverage,
+        credentialGaps: collectionCredentialGaps
+      }),
+      ...publicationCandidateReceiptFields(),
+      mappedExpected: collectionCoverage.mappedExpected,
+      mappedNonTerminal: collectionCoverage.mappedNonTerminal,
+      terminalFailureBudget: terminalFailureBudget
+    };
     await writeSourceDeltaReceipt(publicationInputs.sourceDelta, sourceDeltaHistory);
 
-    let publicationReceipt = { status: "skipped", publishedCommit: null };
+    let publicationReceipt = { status: "skipped", publishedCommit: null, receiptSha256: null };
     if (!args.skipPublish) {
       // Freeze the exact invalidation set represented by this build. Admin
       // edits that arrive after this claim remain pending for the next build
@@ -501,13 +691,50 @@ if (args.plan) {
     const finalCoverage = catalogState
       ? await persistCoverage(catalogState, durableImport)
       : prePublishCoverage;
+    successfulRunnerOutcomeCandidate = {
+      status: "refreshed",
+      publicationStatus: publicationReceipt.status,
+      collectionHealth: publicationInputs.sourceDelta.collectionHealth,
+      collectionHealthReasons: publicationInputs.sourceDelta.collectionHealthReasons,
+      providerBlocked: publicationInputs.sourceDelta.providerBlocked,
+      providerBlockedByReason: publicationInputs.sourceDelta.providerBlockedByReason,
+      mappedProviderBlocked: publicationInputs.sourceDelta.mappedProviderBlocked,
+      mappedProviderBlockedByReason: publicationInputs.sourceDelta.mappedProviderBlockedByReason,
+      mappedScopeUnsupported: publicationInputs.sourceDelta.mappedScopeUnsupported,
+      mappedExpected: publicationInputs.sourceDelta.mappedExpected,
+      mappedFailed: publicationInputs.sourceDelta.mappedFailures,
+      mappedNonTerminal: publicationInputs.sourceDelta.mappedNonTerminal,
+      terminalFailureBudget: publicationInputs.sourceDelta.terminalFailureBudget,
+      newPhysicalSources: publicationInputs.sourceDelta.newPhysicalSources,
+      dailyNewPhysicalSources: publicationInputs.sourceDelta.dailyNewPhysicalSources,
+      dailySourceHealth: publicationInputs.sourceDelta.dailySourceHealth,
+      publishedCommit: publicationReceipt.publishedCommit,
+      publicationReceiptSha256: publicationReceipt.receiptSha256
+    };
+    await stopHeartbeatAndDrain();
+    assertLeaseHealthy();
     if (run) {
-      await completeRun("completed", {
+      const completionStats = bindCompletionProvenance({
         ...finalCoverage,
         stageCounters: durableImport,
         finishedAt: new Date().toISOString()
+      }, {
+        publicationStatus: publicationReceipt.status,
+        publishedCommit: publicationReceipt.publishedCommit,
+        receipt: publicationInputs.sourceDelta
       });
-      await event("run.completed", "info", "Autonomous ingestion completed with every task terminal.", finalCoverage);
+      await completeRun("completed", completionStats);
+      await event(
+        "run.completed",
+        "info",
+        "Autonomous ingestion completed with every task terminal.",
+        finalCoverage
+      ).catch((error) => {
+        console.warn(
+          `Completed-run telemetry was not persisted and did not change the durable outcome: ` +
+          sanitizeRunnerDiagnosticText(errorMessage(error))
+        );
+      });
     } else {
       await event(
         "run.completed",
@@ -526,42 +753,57 @@ if (args.plan) {
       publicationReceipt,
       topVoiceRefresh
     }, null, 2));
-    pendingRunnerOutcome = {
-      status: "refreshed",
-      publicationStatus: publicationReceipt.status,
-      collectionHealth: publicationInputs.sourceDelta.collectionHealth,
-      collectionHealthReasons: publicationInputs.sourceDelta.collectionHealthReasons,
-      providerBlocked: publicationInputs.sourceDelta.providerBlocked,
-      providerBlockedByReason: publicationInputs.sourceDelta.providerBlockedByReason,
-      mappedProviderBlocked: publicationInputs.sourceDelta.mappedProviderBlocked,
-      mappedProviderBlockedByReason: publicationInputs.sourceDelta.mappedProviderBlockedByReason,
-      mappedScopeUnsupported: publicationInputs.sourceDelta.mappedScopeUnsupported,
-      mappedFailed: publicationInputs.sourceDelta.mappedFailures,
-      newPhysicalSources: publicationInputs.sourceDelta.newPhysicalSources,
-      dailyNewPhysicalSources: publicationInputs.sourceDelta.dailyNewPhysicalSources,
-      dailySourceHealth: publicationInputs.sourceDelta.dailySourceHealth,
-      publishedCommit: publicationReceipt.publishedCommit
-    };
+    pendingRunnerOutcome = successfulRunnerOutcomeCandidate;
   }
 } catch (error) {
-  hardFailure = error;
-  const failure = sanitizedRunnerFailure(error);
-  console.error(failure.message);
-  pendingRunnerOutcome = failedRunnerOutcome(failure.message);
-  if (run?.id) {
-    await event("run.failed", "error", failure.message, { stack: failure.stack }).catch(() => {});
-    await completeRun("failed", {
-      error: failure.message,
-      stack: failure.stack,
-      failedAt: new Date().toISOString()
-    }).catch(() => {});
+  await stopHeartbeatAndDrain();
+  await terminateActiveChildProcesses();
+  if (terminationSignal) {
+    hardFailure ??= error;
+    const message = cancellationMessage(terminationSignal);
+    console.error(sanitizeRunnerDiagnosticText(message));
+    pendingRunnerOutcome = canceledRunnerOutcome(terminationSignal);
+    process.exitCode = signalExitCode(terminationSignal);
+  } else {
+    hardFailure = error;
+    const failure = sanitizedRunnerFailure(error);
+    console.error(failure.message);
+    pendingRunnerOutcome = failedRunnerOutcome(failure.message);
+    if (run?.id) {
+      await event("run.failed", "error", failure.message, { stack: failure.stack }).catch(() => {});
+      await completeRun("failed", {
+        error: failure.message,
+        stack: failure.stack,
+        failedAt: new Date().toISOString()
+      }).catch(() => {});
+    }
+    process.exitCode = 1;
   }
-  process.exitCode = 1;
 } finally {
-  if (heartbeatTimer) clearInterval(heartbeatTimer);
+  await stopHeartbeatAndDrain();
+  await terminateActiveChildProcesses();
+  if (terminationSignal) {
+    await waitForRunFinalization();
+    if (completedFinalizationWon()) {
+      hardFailure = null;
+      pendingRunnerOutcome = successfulRunnerOutcomeCandidate ?? pendingRunnerOutcome;
+      process.exitCode = 0;
+    } else {
+      await resolveAmbiguousPublicationAfterCancellation();
+      pendingRunnerOutcome = canceledRunnerOutcome(terminationSignal);
+      await writeRunnerOutcomeOnce(pendingRunnerOutcome).catch((error) => {
+        const failure = sanitizedRunnerFailure(error);
+        console.error(`Failed to write canceled autonomous runner outcome: ${failure.message}`);
+      });
+      await recordCanceledRun(terminationSignal).catch((error) => {
+        const failure = sanitizedRunnerFailure(error);
+        console.error(`Failed to record canceled ingestion run: ${failure.message}`);
+      });
+    }
+  }
   if (runtimeLock) {
     try {
-      await releaseRuntimeLock();
+      await releaseRuntimeLockOnce();
     } catch (error) {
       const failure = sanitizedRunnerFailure(error);
       console.error(`Failed to release ingestion lease: ${failure.message}`);
@@ -582,51 +824,911 @@ if (args.plan) {
       }
     }
   }
+  await cleanupPublicationWorktree().catch((error) => {
+    const failure = sanitizedRunnerFailure(error);
+    console.error(`Failed to clean publication worktree: ${failure.message}`);
+    if (!hardFailure) {
+      hardFailure = error;
+      pendingRunnerOutcome = failedRunnerOutcome(
+        `Failed to clean publication worktree: ${failure.message}`
+      );
+      process.exitCode = 1;
+    }
+  });
   if (pendingRunnerOutcome) {
-    await writeRunnerOutcome(pendingRunnerOutcome).catch((error) => {
+    await writeRunnerOutcomeOnce(pendingRunnerOutcome).catch((error) => {
       const failure = sanitizedRunnerFailure(error);
       console.error(`Failed to write autonomous runner outcome: ${failure.message}`);
       process.exitCode = 1;
     });
   }
+  clearCancellationDeadline();
+}
+
+function installTerminationSignalHandlers() {
+  for (const signal of ["SIGINT", "SIGTERM"]) {
+    process.on(signal, () => {
+      if (terminationSignal) {
+        signalActiveChildProcesses("SIGKILL");
+        beginEmergencyCancellationCleanup();
+        return;
+      }
+      terminationSignal = signal;
+      hardFailure ??= new Error(cancellationMessage(signal));
+      pendingRunnerOutcome = canceledRunnerOutcome(signal);
+      process.exitCode = signalExitCode(signal);
+      stopHeartbeatScheduling();
+      signalActiveChildProcesses("SIGTERM");
+      scheduleCancellationDeadline();
+    });
+  }
+}
+
+function scheduleCancellationDeadline() {
+  if (cancellationDeadlineTimer || !terminationSignal) return;
+  cancellationDeadlineTimer = setTimeout(
+    beginEmergencyCancellationCleanup,
+    CANCELLATION_CLEANUP_TIMEOUT_MS
+  );
+}
+
+function beginEmergencyCancellationCleanup() {
+  if (cancellationEmergencyPromise || !terminationSignal) return cancellationEmergencyPromise;
+  stopHeartbeatScheduling();
+  heartbeatAbortController?.abort(new Error("Emergency cancellation cleanup started."));
+  signalActiveChildProcesses("SIGKILL");
+  cancellationEmergencyTimer = setTimeout(
+    () => process.exit(effectiveTerminationExitCode()),
+    CANCELLATION_EMERGENCY_TIMEOUT_MS
+  );
+  cancellationEmergencyPromise = emergencyCancellationCleanup().finally(() => {
+    if (cancellationEmergencyTimer) clearTimeout(cancellationEmergencyTimer);
+    process.exit(effectiveTerminationExitCode());
+  });
+  return cancellationEmergencyPromise;
+}
+
+async function emergencyCancellationCleanup() {
+  // Terminate children and release durable ownership before waiting on a
+  // transport that may ignore AbortSignal. The heartbeat was already stopped
+  // and aborted by beginEmergencyCancellationCleanup (or immediately below for
+  // direct fixture calls), so any late renewal is fenced by the exact lease
+  // token and cannot recreate a released row.
+  stopHeartbeatScheduling();
+  heartbeatAbortController?.abort(new Error("Emergency cancellation cleanup started."));
+  await terminateActiveChildProcesses();
+  await cleanupPublicationWorktree().catch(() => {});
+  await waitForRunFinalization();
+  if (completedFinalizationWon()) {
+    hardFailure = null;
+    pendingRunnerOutcome = successfulRunnerOutcomeCandidate ?? pendingRunnerOutcome;
+    process.exitCode = 0;
+  } else {
+    await resolveAmbiguousPublicationAfterCancellation();
+    pendingRunnerOutcome = canceledRunnerOutcome(terminationSignal);
+    try {
+      await recordCanceledRun(terminationSignal);
+    } catch (error) {
+      const failure = sanitizedRunnerFailure(error);
+      hardFailure = error;
+      pendingRunnerOutcome = failedRunnerOutcome(
+        `Failed to record canceled ingestion run: ${failure.message}`
+      );
+      process.exitCode = 1;
+    }
+  }
+  try {
+    await releaseRuntimeLockOnce();
+  } catch (error) {
+    const failure = sanitizedRunnerFailure(error);
+    hardFailure = error;
+    pendingRunnerOutcome = failedRunnerOutcome(
+      `Failed to release ingestion lease: ${failure.message}`
+    );
+    process.exitCode = 1;
+  }
+  try {
+    await writeRunnerOutcomeOnce(pendingRunnerOutcome);
+  } catch (error) {
+    const failure = sanitizedRunnerFailure(error);
+    console.error(`Failed to write emergency autonomous runner outcome: ${failure.message}`);
+    process.exitCode = 1;
+  }
+  await stopHeartbeatAndDrain();
+}
+
+function clearCancellationDeadline() {
+  if (cancellationDeadlineTimer) clearTimeout(cancellationDeadlineTimer);
+  if (cancellationEmergencyTimer) clearTimeout(cancellationEmergencyTimer);
+  cancellationDeadlineTimer = null;
+  cancellationEmergencyTimer = null;
+}
+
+function effectiveTerminationExitCode() {
+  if (completedFinalizationWon() && !hardFailure && process.exitCode !== 1) return 0;
+  if (process.exitCode === 1) return 1;
+  return signalExitCode(terminationSignal);
+}
+
+function signalExitCode(signal) {
+  return signal === "SIGINT" ? 130 : 143;
+}
+
+function cancellationMessage(signal) {
+  return `Autonomous ingestion canceled by ${signal ?? "termination signal"}.`;
+}
+
+async function waitForRunFinalization() {
+  if (runFinalizationPromise) await runFinalizationPromise.catch(() => {});
+  return finalizedRunStatus;
+}
+
+function completedFinalizationWon() {
+  return completedOutcomeVerifiedByThisExecution && (
+    finalizedRunStatus === "completed" ||
+    successfulRunnerOutcomeCandidate?.status === "already_completed"
+  );
+}
+
+function canceledRunnerOutcome(signal) {
+  return {
+    status: "canceled",
+    failureMessage: cancellationMessage(signal),
+    providerBlocked: latestCollectionCoverage?.providerBlocked,
+    providerBlockedByReason: latestCollectionCoverage?.providerBlockedByReason,
+    mappedProviderBlocked: latestCollectionCoverage?.mappedProviderBlocked,
+    mappedProviderBlockedByReason: latestCollectionCoverage?.mappedProviderBlockedByReason,
+    mappedScopeUnsupported: latestCollectionCoverage?.mappedScopeUnsupported,
+    mappedExpected: latestCollectionCoverage?.mappedExpected,
+    mappedFailed: latestCollectionCoverage?.mappedFailed,
+    mappedNonTerminal: latestCollectionCoverage?.mappedNonTerminal,
+    terminalFailureBudget: latestTerminalFailureBudget,
+    publishedCommit: latestPublishedCommit
+  };
+}
+
+async function recordCanceledRun(signal) {
+  if (canceledRunRecordPromise) return canceledRunRecordPromise;
+  if (!run?.id || completedFinalizationWon()) return finalizedRunStatus;
+  const message = cancellationMessage(signal);
+  canceledRunRecordPromise = (async () => {
+    const finalStatus = await completeRun("canceled", {
+      error: message,
+      signal,
+      canceledAt: new Date().toISOString(),
+      publishedCommit: latestPublishedCommit
+    });
+    if (finalStatus !== "canceled") return finalStatus;
+    await event("run.canceled", "warning", message, {
+      signal,
+      canceledAt: new Date().toISOString(),
+      publishedCommit: latestPublishedCommit
+    }).catch(() => {});
+    return finalStatus;
+  })();
+  return canceledRunRecordPromise;
+}
+
+function trackChildProcess(child, { ledgerPath = null, ledgerRunId = null } = {}) {
+  child[CHILD_DESCENDANT_PIDS] = new Set();
+  child[CHILD_ROOT_START_IDENTITY] = processStartIdentity(child.pid);
+  child[CHILD_PROCESS_LEDGER] = {
+    path: ledgerPath,
+    runId: ledgerRunId,
+    identities: new Map()
+  };
+  child[CHILD_TREE_DRAIN_PROMISE] = new Promise((resolveDrain) => {
+    child[CHILD_TREE_DRAIN_RESOLVE] = resolveDrain;
+  });
+  activeChildProcesses.add(child);
+  if (process.platform !== "win32") {
+    child[CHILD_DESCENDANT_SAMPLER] = setInterval(
+      () => rememberProcessDescendants(child),
+      PROCESS_DESCENDANT_SAMPLE_MS
+    );
+    child[CHILD_DESCENDANT_SAMPLER].unref?.();
+  }
+  return child;
+}
+
+function disposeTrackedChildProcess(child, reason = null) {
+  if (!child) return;
+  const hardSettle = child[CHILD_HARD_SETTLE];
+  const descendantSampler = child[CHILD_DESCENDANT_SAMPLER];
+  if (descendantSampler) clearInterval(descendantSampler);
+  rememberLedgerDescendants(child);
+  delete child[CHILD_HARD_SETTLE];
+  delete child[CHILD_DESCENDANT_SAMPLER];
+  delete child[CHILD_ROOT_START_IDENTITY];
+  delete child[CHILD_DESCENDANT_PIDS];
+  const ledger = child[CHILD_PROCESS_LEDGER];
+  delete child[CHILD_PROCESS_LEDGER];
+  if (reason && typeof hardSettle === "function") hardSettle(reason);
+  activeChildProcesses.delete(child);
+  for (const stream of [child.stdin, child.stdout, child.stderr]) {
+    if (!stream || stream.destroyed) continue;
+    try {
+      stream.destroy();
+    } catch {}
+  }
+  try {
+    child.unref?.();
+  } catch {}
+  child[CHILD_TREE_DRAIN_RESOLVE]?.();
+  delete child[CHILD_TREE_DRAIN_RESOLVE];
+  delete child[CHILD_TREE_DRAIN_PROMISE];
+  if (ledger?.path) void unlink(ledger.path).catch(() => {});
+}
+
+function signalChildProcessGroup(child, signal, readStartIdentity = processStartIdentity) {
+  if (!child || !activeChildProcesses.has(child)) return;
+  if (process.platform !== "win32" && Number.isInteger(child.pid) && child.pid > 0) {
+    const expectedStartIdentity = child[CHILD_ROOT_START_IDENTITY];
+    if (!expectedStartIdentity || readStartIdentity(child.pid) !== expectedStartIdentity) return;
+    try {
+      process.kill(-child.pid, signal);
+      return;
+    } catch (error) {
+      if (error?.code === "ESRCH") return;
+    }
+  }
+  try {
+    child.kill(signal);
+  } catch {}
+}
+
+function snapshotProcessDescendants(rootPid) {
+  if (process.platform === "win32" || !Number.isInteger(rootPid) || rootPid <= 0) return [];
+  const result = spawnSync("/bin/ps", ["-axo", "pid=,ppid="], {
+    encoding: "utf8",
+    timeout: 1_000,
+    stdio: ["ignore", "pipe", "ignore"]
+  });
+  if (result.status !== 0 || result.error) return [];
+  const childrenByParent = new Map();
+  for (const line of result.stdout.split("\n")) {
+    const match = line.trim().match(/^(\d+)\s+(\d+)$/);
+    if (!match) continue;
+    const pid = Number(match[1]);
+    const parentPid = Number(match[2]);
+    const children = childrenByParent.get(parentPid) ?? [];
+    children.push(pid);
+    childrenByParent.set(parentPid, children);
+  }
+  const descendants = [];
+  const visit = (parentPid, depth) => {
+    for (const pid of childrenByParent.get(parentPid) ?? []) {
+      descendants.push({ pid, depth });
+      visit(pid, depth + 1);
+    }
+  };
+  visit(rootPid, 1);
+  return descendants.sort((left, right) => right.depth - left.depth || right.pid - left.pid);
+}
+
+function rememberProcessDescendants(child) {
+  const remembered = child?.[CHILD_DESCENDANT_PIDS];
+  if (!(remembered instanceof Set)) return [];
+  const descendants = snapshotProcessDescendants(child.pid);
+  for (const { pid } of descendants) remembered.add(pid);
+  return descendants;
+}
+
+function linuxProcessStartIdentity(pid) {
+  if (process.platform !== "linux") return null;
+  try {
+    const stat = readFileSync(`/proc/${pid}/stat`, "utf8");
+    const commandEnd = stat.lastIndexOf(")");
+    if (commandEnd < 0) return null;
+    // Fields after the command name begin at proc(5) field 3. starttime is
+    // field 22, therefore index 19 in this suffix.
+    const startTicks = stat.slice(commandEnd + 1).trim().split(/\s+/)[19];
+    return /^\d+$/.test(startTicks ?? "")
+      ? `linux-proc-start:${startTicks}`
+      : null;
+  } catch {
+    return null;
+  }
+}
+
+function portableProcessStartIdentity(pid) {
+  if (process.platform === "win32") return null;
+  const result = spawnSync("/bin/ps", ["-p", String(pid), "-o", "lstart="], {
+    encoding: "utf8",
+    timeout: 500,
+    stdio: ["ignore", "pipe", "ignore"],
+    env: { LC_ALL: "C", LANG: "C", PATH: "/usr/bin:/bin" }
+  });
+  if (result.status !== 0 || result.error) return null;
+  const startedAt = result.stdout.trim().replace(/\s+/g, " ");
+  return startedAt ? `ps-lstart:${startedAt}` : null;
+}
+
+function processStartIdentity(pid) {
+  if (!Number.isInteger(pid) || pid <= 0) return null;
+  return linuxProcessStartIdentity(pid) ?? portableProcessStartIdentity(pid);
+}
+
+function snapshotProcessStartIdentities(pids) {
+  const requested = new Set(
+    [...pids]
+      .filter((pid) => Number.isInteger(pid) && pid > 0)
+      .slice(0, CHILD_PROCESS_LEDGER_MAX_ENTRIES)
+  );
+  const identities = new Map();
+  for (const pid of requested) {
+    const identity = linuxProcessStartIdentity(pid);
+    if (identity) identities.set(pid, identity);
+  }
+  const unresolved = new Set([...requested].filter((pid) => !identities.has(pid)));
+  if (process.platform === "win32" || unresolved.size === 0) return identities;
+  const result = spawnSync("/bin/ps", ["-axo", "pid=,lstart="], {
+    encoding: "utf8",
+    timeout: 500,
+    stdio: ["ignore", "pipe", "ignore"],
+    env: { LC_ALL: "C", LANG: "C", PATH: "/usr/bin:/bin" }
+  });
+  if (result.status !== 0 || result.error) return identities;
+  for (const line of result.stdout.split("\n")) {
+    const match = line.trim().match(/^(\d+)\s+(.+)$/);
+    if (!match) continue;
+    const pid = Number(match[1]);
+    if (!unresolved.has(pid)) continue;
+    const startedAt = match[2].trim().replace(/\s+/g, " ");
+    if (startedAt) identities.set(pid, `ps-lstart:${startedAt}`);
+  }
+  return identities;
+}
+
+function rememberLedgerDescendants(child) {
+  const remembered = child?.[CHILD_DESCENDANT_PIDS];
+  const ledger = child?.[CHILD_PROCESS_LEDGER];
+  if (!(remembered instanceof Set) || !ledger?.path || !ledger.runId) return [];
+  let source = "";
+  try {
+    source = readFileSync(ledger.path, "utf8");
+  } catch (error) {
+    if (error?.code !== "ENOENT") {
+      console.warn(`Could not read child-process ledger: ${sanitizeRunnerDiagnosticText(errorMessage(error))}`);
+    }
+    return [];
+  }
+  const recordedIdentities = new Map();
+  for (const line of source.split("\n")) {
+    const [runId, rawPid, startIdentity, ...unexpected] = line.trim().split("\t");
+    const pid = Number(rawPid);
+    if (
+      runId !== ledger.runId ||
+      !Number.isInteger(pid) ||
+      pid <= 0 ||
+      pid === process.pid ||
+      !startIdentity ||
+      unexpected.length > 0
+    ) continue;
+    if (
+      !recordedIdentities.has(pid) &&
+      recordedIdentities.size >= CHILD_PROCESS_LEDGER_MAX_ENTRIES
+    ) continue;
+    const identities = recordedIdentities.get(pid) ?? new Set();
+    identities.add(startIdentity);
+    recordedIdentities.set(pid, identities);
+  }
+  const validEntries = [];
+  const validIdentities = new Map();
+  const observedIdentities = snapshotProcessStartIdentities(recordedIdentities.keys());
+  for (const [pid, identities] of recordedIdentities) {
+    const observedIdentity = observedIdentities.get(pid);
+    if (!observedIdentity || !identities.has(observedIdentity)) continue;
+    remembered.add(pid);
+    validIdentities.set(pid, observedIdentity);
+    validEntries.push({ pid, startIdentity: observedIdentity });
+  }
+  // Drop exited and identity-mismatched entries from the in-memory recovery
+  // index. The append-only file may still be written by live descendants, so
+  // rewriting it here would create a lost-update race.
+  ledger.identities = validIdentities;
+  return validEntries;
+}
+
+function processHasChildLedgerMarker(pid, ledgerPath) {
+  if (process.platform === "win32" || !ledgerPath || !Number.isInteger(pid) || pid <= 0) return false;
+  const result = spawnSync("/bin/ps", ["eww", "-p", String(pid), "-o", "command="], {
+    encoding: "utf8",
+    timeout: 1_000,
+    stdio: ["ignore", "pipe", "ignore"]
+  });
+  return result.status === 0 && result.stdout.includes(`RETURNER_CHILD_PROCESS_LEDGER=${ledgerPath}`);
+}
+
+function signalPid(pid, signal, expectedStartIdentity = null, readStartIdentity = processStartIdentity) {
+  if (!Number.isInteger(pid) || pid <= 0 || pid === process.pid) return;
+  if (expectedStartIdentity) {
+    const observedStartIdentity = readStartIdentity(pid);
+    if (observedStartIdentity !== expectedStartIdentity) return false;
+  }
+  try {
+    process.kill(pid, signal);
+    return true;
+  } catch (error) {
+    if (error?.code !== "ESRCH") {
+      console.warn(`Could not signal descendant ${pid}: ${sanitizeRunnerDiagnosticText(errorMessage(error))}`);
+    }
+    return error?.code !== "ESRCH";
+  }
+}
+
+function isNodeExecutable(command) {
+  const normalized = resolve(String(command));
+  return normalized === resolve(process.execPath) || /^node(?:\.exe)?$/i.test(basename(String(command)));
+}
+
+function processExists(pid) {
+  if (!Number.isInteger(pid) || pid <= 0) return false;
+  try {
+    process.kill(pid, 0);
+    return true;
+  } catch (error) {
+    return error?.code === "EPERM";
+  }
+}
+
+function processGroupExists(groupId) {
+  if (process.platform === "win32" || !Number.isInteger(groupId) || groupId <= 0) return false;
+  try {
+    process.kill(-groupId, 0);
+    return true;
+  } catch (error) {
+    return error?.code === "EPERM";
+  }
+}
+
+function trackedDescendantsRemain(child) {
+  const ledgerIdentities = new Map(
+    rememberLedgerDescendants(child).map(({ pid, startIdentity }) => [pid, startIdentity])
+  );
+  const ledgerPath = child?.[CHILD_PROCESS_LEDGER]?.path;
+  return processGroupExists(child?.pid) || [...(child?.[CHILD_DESCENDANT_PIDS] ?? [])].some((pid) =>
+    processExists(pid) && (
+      ledgerIdentities.has(pid) ||
+      processHasChildLedgerMarker(pid, ledgerPath) ||
+      snapshotProcessDescendants(child?.pid).some((entry) => entry.pid === pid)
+    )
+  );
+}
+
+async function drainChildProcessTreeAfterRootClose(child) {
+  rememberProcessDescendants(child);
+  rememberLedgerDescendants(child);
+  if (!trackedDescendantsRemain(child)) return;
+  signalChildProcessTree(child, "SIGTERM");
+  const deadline = Date.now() + PROCESS_NORMAL_EXIT_DRAIN_MS;
+  while (trackedDescendantsRemain(child) && Date.now() < deadline) {
+    await delay(25);
+  }
+  if (!trackedDescendantsRemain(child)) return;
+  signalChildProcessTree(child, "SIGKILL");
+  const killDeadline = Date.now() + PROCESS_KILL_WATCHDOG_MS;
+  while (trackedDescendantsRemain(child) && Date.now() < killDeadline) {
+    await delay(25);
+  }
+  if (trackedDescendantsRemain(child)) {
+    throw new Error("A subprocess descendant survived normal root-process exit cleanup.");
+  }
+}
+
+function signalChildProcessTree(child, signal, { readStartIdentity = processStartIdentity } = {}) {
+  if (!child || !activeChildProcesses.has(child)) return;
+  // Snapshot descendants while the root still owns them. This catches a child
+  // that created a fresh process group; after the root is reaped that process
+  // would be reparented and no longer discoverable from the original PID.
+  const descendants = rememberProcessDescendants(child);
+  const descendantPids = new Set(descendants.map(({ pid }) => pid));
+  const ledgerIdentities = new Map(
+    rememberLedgerDescendants(child).map(({ pid, startIdentity }) => [pid, startIdentity])
+  );
+  for (const { pid } of descendants) {
+    const expectedStartIdentity = readStartIdentity(pid);
+    if (expectedStartIdentity) signalPid(pid, signal, expectedStartIdentity, readStartIdentity);
+  }
+  const ledgerPath = child[CHILD_PROCESS_LEDGER]?.path;
+  for (const pid of child[CHILD_DESCENDANT_PIDS] ?? []) {
+    if (descendantPids.has(pid)) continue;
+    const expectedStartIdentity = ledgerIdentities.get(pid);
+    if (expectedStartIdentity) {
+      // Re-read the live start identity immediately before every kill(2). If
+      // the PID exited or was reused after the ledger snapshot, fail closed and
+      // prune it from the in-memory recovery index.
+      if (readStartIdentity(pid) !== expectedStartIdentity) {
+        child[CHILD_DESCENDANT_PIDS]?.delete(pid);
+        child[CHILD_PROCESS_LEDGER]?.identities?.delete(pid);
+        continue;
+      }
+      if (!signalPid(pid, signal, expectedStartIdentity, readStartIdentity)) {
+        child[CHILD_DESCENDANT_PIDS]?.delete(pid);
+        child[CHILD_PROCESS_LEDGER]?.identities?.delete(pid);
+      }
+      continue;
+    }
+    if (processHasChildLedgerMarker(pid, ledgerPath)) {
+      const expectedStartIdentity = readStartIdentity(pid);
+      if (expectedStartIdentity) signalPid(pid, signal, expectedStartIdentity, readStartIdentity);
+    }
+  }
+  signalChildProcessGroup(child, signal, readStartIdentity);
+  if (Number.isInteger(child.pid) && child.pid > 0 && child[CHILD_ROOT_START_IDENTITY]) {
+    signalPid(child.pid, signal, child[CHILD_ROOT_START_IDENTITY], readStartIdentity);
+  }
+}
+
+function signalActiveChildProcesses(signal) {
+  for (const child of [...activeChildProcesses]) signalChildProcessTree(child, signal);
+}
+
+function waitForTrackedChildClose(child) {
+  if (!activeChildProcesses.has(child)) return Promise.resolve();
+  return child[CHILD_TREE_DRAIN_PROMISE] ?? Promise.resolve();
+}
+
+async function waitForTrackedChildren(children, timeoutMs) {
+  if (!children.length) return true;
+  let completed = false;
+  await new Promise((resolve) => {
+    const timer = setTimeout(resolve, timeoutMs);
+    void Promise.all(children.map(waitForTrackedChildClose)).then(() => {
+      completed = true;
+      clearTimeout(timer);
+      resolve();
+    });
+  });
+  return completed;
+}
+
+async function terminateActiveChildProcesses() {
+  let children = [...activeChildProcesses];
+  if (!children.length) return;
+  signalActiveChildProcesses("SIGTERM");
+  await waitForTrackedChildren(children, AUTONOMOUS_PROCESS_BUDGETS.processKillGraceMs);
+  children = [...activeChildProcesses];
+  if (!children.length) return;
+  signalActiveChildProcesses("SIGKILL");
+  await waitForTrackedChildren(
+    children,
+    PROCESS_KILL_WATCHDOG_MS
+  );
+  for (const child of children) {
+    if (activeChildProcesses.has(child)) {
+      disposeTrackedChildProcess(
+        child,
+        new Error("Tracked subprocess did not close after SIGTERM and SIGKILL cleanup.")
+      );
+    }
+  }
+}
+
+async function writeRunnerOutcomeOnce(outcome) {
+  if (runnerOutcomeWritePromise) return runnerOutcomeWritePromise;
+  const writePromise = writeRunnerOutcome(outcome);
+  runnerOutcomeWritePromise = writePromise;
+  try {
+    return await writePromise;
+  } catch (error) {
+    if (runnerOutcomeWritePromise === writePromise) runnerOutcomeWritePromise = null;
+    throw error;
+  }
+}
+
+function lifecycleTimeoutMs(requestedMs = LIFECYCLE_OPERATION_TIMEOUT_MS) {
+  return lifecycleOperationTimeoutOverrideMs ?? requestedMs;
+}
+
+async function withLifecycleDeadline(label, operation, {
+  timeoutMs = LIFECYCLE_OPERATION_TIMEOUT_MS,
+  signal: externalSignal = null,
+  cleanup = false
+} = {}) {
+  const requestedTimeoutMs = lifecycleTimeoutMs(timeoutMs);
+  const effectiveTimeoutMs = cleanup || !runnerBudget
+    ? requestedTimeoutMs
+    : runnerBudget.timeoutMs(requestedTimeoutMs, label);
+  const controller = new AbortController();
+  const abortFromExternalSignal = () => {
+    controller.abort(externalSignal?.reason ?? new Error(`${label} was canceled.`));
+  };
+  if (externalSignal?.aborted) abortFromExternalSignal();
+  else externalSignal?.addEventListener("abort", abortFromExternalSignal, { once: true });
+  let timer = null;
+  const operationPromise = Promise.resolve().then(() => {
+    if (controller.signal.aborted) throw controller.signal.reason;
+    return operation(controller.signal);
+  });
+  // The timeout can win before an underlying client notices abort. Keep a
+  // rejection observer attached so late transport settlement is always handled.
+  operationPromise.catch(() => {});
+  const timeoutPromise = new Promise((_, reject) => {
+    timer = setTimeout(() => {
+      const timeoutError = new Error(
+        `${label} timed out after ${effectiveTimeoutMs}ms.`
+      );
+      controller.abort(timeoutError);
+      reject(timeoutError);
+    }, effectiveTimeoutMs);
+  });
+  try {
+    return await Promise.race([operationPromise, timeoutPromise]);
+  } finally {
+    if (timer) clearTimeout(timer);
+    externalSignal?.removeEventListener("abort", abortFromExternalSignal);
+  }
+}
+
+async function runSupabaseOperation(label, createOperation, options = {}) {
+  return withLifecycleDeadline(label, (signal) => {
+    const operation = createOperation(signal);
+    return typeof operation?.abortSignal === "function"
+      ? operation.abortSignal(signal)
+      : operation;
+  }, options);
+}
+
+function createAbortBoundSupabaseClient(client, signal) {
+  const seen = new WeakMap();
+  const wrap = (value) => {
+    if (!value || (typeof value !== "object" && typeof value !== "function")) return value;
+    if (seen.has(value)) return seen.get(value);
+    const proxy = new Proxy(value, {
+      get(target, property) {
+        if (property === "then" && typeof target.then === "function") {
+          return (onFulfilled, onRejected) => {
+            const bound = typeof target.abortSignal === "function"
+              ? target.abortSignal(signal)
+              : target;
+            return Promise.resolve(bound).then(onFulfilled, onRejected);
+          };
+        }
+        const member = Reflect.get(target, property, target);
+        if (typeof member === "function") {
+          return (...callArgs) => wrap(Reflect.apply(member, target, callArgs));
+        }
+        return wrap(member);
+      }
+    });
+    seen.set(value, proxy);
+    return proxy;
+  };
+  return wrap(client);
 }
 
 async function claimRuntimeLock() {
-  const { data, error } = await supabase.rpc("claim_ingestion_runtime_lock", {
-    p_lock_key: "autonomous-ingestion",
-    p_owner_id: workerId,
-    p_lease_duration: "20 minutes",
-    p_metadata_json: { idempotencyKey, startedAt: runStartedAt.toISOString() }
-  });
-  check(error, "claim runtime lock");
-  return Array.isArray(data) ? data[0] ?? null : data;
+  let claimFailure = null;
+  try {
+    const { data, error } = await runSupabaseOperation(
+      "claim ingestion runtime lock",
+      () => supabase.rpc("claim_ingestion_runtime_lock", {
+        p_lock_key: "autonomous-ingestion",
+        p_owner_id: workerId,
+        p_lease_duration: "20 minutes",
+        p_metadata_json: {
+          idempotencyKey,
+          startedAt: runStartedAt.toISOString(),
+          executionCompletionNonce
+        }
+      })
+    );
+    check(error, "claim runtime lock");
+    return Array.isArray(data) ? data[0] ?? null : data;
+  } catch (error) {
+    claimFailure = error;
+  }
+
+  try {
+    const reconciled = await reconcileAmbiguousRuntimeLockClaim();
+    if (reconciled) return reconciled;
+  } catch (reconciliationError) {
+    throw new Error(
+      `${errorMessage(claimFailure)} Runtime-lock claim read-back failed: ` +
+      errorMessage(reconciliationError),
+      { cause: claimFailure }
+    );
+  }
+  throw claimFailure;
 }
 
-async function releaseRuntimeLock() {
-  const { data, error } = await supabase.rpc("release_ingestion_runtime_lock", {
-    p_lock_key: runtimeLock.lock_key,
-    p_owner_id: workerId,
-    p_lease_token: runtimeLock.lease_token
-  });
-  check(error, "release runtime lock");
-  if (data !== true) throw new Error("The ingestion runtime lock was lost before release.");
+async function reconcileAmbiguousRuntimeLockClaim() {
+  const { data, error } = await runSupabaseOperation(
+    "reconcile ambiguous ingestion runtime lock claim",
+    () => supabase
+      .from("ingestion_runtime_locks")
+      .select("lock_key,owner_id,lease_token,lease_expires_at,metadata_json")
+      .eq("lock_key", "autonomous-ingestion")
+      .maybeSingle(),
+    { cleanup: true }
+  );
+  check(error, "reconcile ambiguous runtime lock claim");
+  if (!data) return null;
+  const metadata = data.metadata_json;
+  const leaseExpiresAt = Date.parse(data.lease_expires_at ?? "");
+  const exactOwner = data.owner_id === workerId &&
+    typeof data.lease_token === "string" &&
+    data.lease_token.length > 0;
+  const exactExecution = metadata &&
+    typeof metadata === "object" &&
+    !Array.isArray(metadata) &&
+    metadata.idempotencyKey === idempotencyKey &&
+    metadata.executionCompletionNonce === executionCompletionNonce &&
+    metadata.startedAt === runStartedAt.toISOString();
+  if (!exactOwner || !exactExecution || !Number.isFinite(leaseExpiresAt) || leaseExpiresAt <= Date.now()) {
+    return null;
+  }
+  return data;
 }
 
-async function heartbeat() {
-  if (!run || !runtimeLock) return;
+async function releaseRuntimeLock(lock = runtimeLock) {
+  if (!lock) return;
+  let lastFailure = null;
+  for (let attempt = 1; attempt <= 2; attempt += 1) {
+    try {
+      const { data, error } = await runSupabaseOperation(
+        `release ingestion runtime lock (attempt ${attempt})`,
+        () => supabase.rpc("release_ingestion_runtime_lock", {
+          p_lock_key: lock.lock_key,
+          p_owner_id: workerId,
+          p_lease_token: lock.lease_token
+        }),
+        { cleanup: true }
+      );
+      check(error, "release runtime lock");
+      if (data === true) return;
+      lastFailure = new Error("The runtime-lock release RPC did not confirm deletion.");
+    } catch (error) {
+      lastFailure = error;
+    }
+
+    // A successful DELETE can lose its response. Read back the exact key and
+    // ownership tuple before retrying; absence or a different lease proves this
+    // execution no longer owns the global lock.
+    try {
+      if (await runtimeLockIsReleased(lock)) return;
+    } catch (error) {
+      lastFailure = new Error(
+        `${errorMessage(lastFailure)} Runtime-lock read-back failed: ${errorMessage(error)}`,
+        { cause: lastFailure }
+      );
+    }
+  }
+  throw new Error(
+    `Failed to release the ingestion runtime lock after retry and read-back: ${errorMessage(lastFailure)}`,
+    { cause: lastFailure }
+  );
+}
+
+async function runtimeLockIsReleased(lock) {
+  const { data, error } = await runSupabaseOperation(
+    "reconcile ingestion runtime lock release",
+    () => supabase
+      .from("ingestion_runtime_locks")
+      .select("lock_key,owner_id,lease_token")
+      .eq("lock_key", lock.lock_key)
+      .maybeSingle(),
+    { cleanup: true }
+  );
+  check(error, "reconcile runtime lock release");
+  if (!data) return true;
+  return data.owner_id !== workerId || data.lease_token !== lock.lease_token;
+}
+
+async function releaseRuntimeLockOnce() {
+  if (runtimeLockReleasePromise) return runtimeLockReleasePromise;
+  const lock = runtimeLock;
+  if (!lock) return;
+  const releasePromise = releaseRuntimeLock(lock)
+    .then(() => {
+      if (
+        runtimeLock?.lock_key === lock.lock_key &&
+        runtimeLock?.lease_token === lock.lease_token
+      ) {
+        runtimeLock = null;
+      }
+    })
+    .finally(() => {
+      if (runtimeLockReleasePromise === releasePromise) {
+        runtimeLockReleasePromise = null;
+      }
+    });
+  runtimeLockReleasePromise = releasePromise;
+  return releasePromise;
+}
+
+function startHeartbeatScheduling() {
+  assertLeaseHealthy();
+  if (heartbeatSchedulingStopped || heartbeatTimer) return;
+  heartbeatTimer = setInterval(() => {
+    void scheduleHeartbeat();
+  }, 60_000);
+  heartbeatTimer.unref?.();
+}
+
+function scheduleHeartbeat() {
+  if (heartbeatSchedulingStopped || terminationSignal || heartbeatInFlight) {
+    return heartbeatInFlight;
+  }
+  const abortController = new AbortController();
+  heartbeatAbortController = abortController;
+  const operation = heartbeat(abortController.signal)
+    .catch((error) => {
+      if (!(heartbeatSchedulingStopped && abortController.signal.aborted)) {
+        failHeartbeat(error);
+      }
+    })
+    .finally(() => {
+      if (heartbeatInFlight === operation) heartbeatInFlight = null;
+      if (heartbeatAbortController === abortController) heartbeatAbortController = null;
+    });
+  heartbeatInFlight = operation;
+  return operation;
+}
+
+function stopHeartbeatScheduling() {
+  heartbeatSchedulingStopped = true;
+  if (heartbeatTimer) clearInterval(heartbeatTimer);
+  heartbeatTimer = null;
+}
+
+async function stopHeartbeatAndDrain() {
+  stopHeartbeatScheduling();
+  if (heartbeatDrainPromise) return heartbeatDrainPromise;
+  const inFlight = heartbeatInFlight;
+  if (!inFlight) return;
+  heartbeatAbortController?.abort(new Error("Heartbeat canceled before run finalization."));
+  heartbeatDrainPromise = (async () => {
+    let timedOut = false;
+    await new Promise((resolve) => {
+      const timer = setTimeout(() => {
+        timedOut = true;
+        resolve();
+      }, HEARTBEAT_DRAIN_TIMEOUT_MS);
+      void inFlight.finally(() => {
+        clearTimeout(timer);
+        resolve();
+      });
+    });
+    if (timedOut) {
+      failHeartbeat(new Error(
+        `Ingestion lease heartbeat did not drain within ${HEARTBEAT_DRAIN_TIMEOUT_MS}ms.`
+      ));
+    }
+  })();
+  return heartbeatDrainPromise;
+}
+
+async function heartbeat(signal = null) {
+  const runSnapshot = run?.id && run?.lease_token
+    ? { id: run.id, leaseToken: run.lease_token }
+    : null;
+  const lockSnapshot = runtimeLock?.lock_key && runtimeLock?.lease_token
+    ? { lockKey: runtimeLock.lock_key, leaseToken: runtimeLock.lease_token }
+    : null;
+  if (!runSnapshot || !lockSnapshot) return;
   const now = new Date().toISOString();
-  const { error: runError } = await supabase
-    .from("ingestion_runs")
-    .update({ heartbeat_at: now, lease_expires_at: new Date(Date.now() + 20 * 60_000).toISOString() })
-    .eq("id", run.id)
-    .eq("lease_token", run.lease_token);
+  const { error: runError } = await runSupabaseOperation(
+    "heartbeat ingestion run",
+    () => supabase
+      .from("ingestion_runs")
+      .update({ heartbeat_at: now, lease_expires_at: new Date(Date.now() + 20 * 60_000).toISOString() })
+      .eq("id", runSnapshot.id)
+      .eq("lease_token", runSnapshot.leaseToken),
+    { signal }
+  );
   check(runError, "heartbeat ingestion run");
-  const { data, error } = await supabase.rpc("renew_ingestion_runtime_lock", {
-    p_lock_key: runtimeLock.lock_key,
-    p_owner_id: workerId,
-    p_lease_token: runtimeLock.lease_token,
-    p_lease_duration: "20 minutes"
-  });
+  const { data, error } = await runSupabaseOperation(
+    "heartbeat ingestion runtime lock",
+    () => supabase.rpc("renew_ingestion_runtime_lock", {
+      p_lock_key: lockSnapshot.lockKey,
+      p_owner_id: workerId,
+      p_lease_token: lockSnapshot.leaseToken,
+      p_lease_duration: "20 minutes"
+    }),
+    { signal }
+  );
   check(error, "heartbeat runtime lock");
   if (data !== true) throw new Error("The ingestion runtime lock expired or was taken by another worker.");
 }
@@ -634,35 +1736,45 @@ async function heartbeat() {
 function failHeartbeat(error) {
   heartbeatFailure = error instanceof Error ? error : new Error(errorMessage(error));
   console.error(`Heartbeat failure: ${sanitizeRunnerDiagnosticText(errorMessage(heartbeatFailure))}`);
-  process.exitCode = 1;
 }
 
 function assertLeaseHealthy() {
+  if (terminationSignal) throw new Error(cancellationMessage(terminationSignal));
   if (heartbeatFailure) {
     throw new Error(`Ingestion lease heartbeat failed; publication aborted: ${errorMessage(heartbeatFailure)}`);
   }
 }
 
 async function getOrCreateRun() {
-  const existing = await selectMaybeSingle(
-    supabase.from("ingestion_runs").select("*").eq("idempotency_key", idempotencyKey).limit(1),
-    "read idempotent ingestion run"
+  const { data: existingData, error: existingError } = await runSupabaseOperation(
+    "read idempotent ingestion run",
+    () => supabase
+      .from("ingestion_runs")
+      .select("*")
+      .eq("idempotency_key", idempotencyKey)
+      .limit(1)
+      .maybeSingle()
   );
+  check(existingError, "read idempotent ingestion run");
+  const existing = existingData ?? null;
   if (existing?.status === "completed") return existing;
   if (existing) {
     const leaseToken = randomUUID();
-    const { data, error } = await supabase
-      .from("ingestion_runs")
-      .update({
-        status: "running",
-        heartbeat_at: runStartedAt.toISOString(),
-        lease_owner: workerId,
-        lease_token: leaseToken,
-        lease_expires_at: new Date(Date.now() + 20 * 60_000).toISOString()
-      })
-      .eq("id", existing.id)
-      .select("*")
-      .single();
+    const { data, error } = await runSupabaseOperation(
+      "recover idempotent ingestion run lease",
+      () => supabase
+        .from("ingestion_runs")
+        .update({
+          status: "running",
+          heartbeat_at: runStartedAt.toISOString(),
+          lease_owner: workerId,
+          lease_token: leaseToken,
+          lease_expires_at: new Date(Date.now() + 20 * 60_000).toISOString()
+        })
+        .eq("id", existing.id)
+        .select("*")
+        .single()
+    );
     check(error, "recover idempotent ingestion run lease");
     return data;
   }
@@ -679,32 +1791,53 @@ async function getOrCreateRun() {
     logs: [`Started autonomous ingestion ${idempotencyKey}.`],
     errors_json: []
   };
-  const { data, error } = await supabase.from("ingestion_runs").insert(payload).select("*").single();
+  const { data, error } = await runSupabaseOperation(
+    "create ingestion run",
+    () => supabase.from("ingestion_runs").insert(payload).select("*").single()
+  );
   if (error?.code === "23505") {
-    return selectSingle(
-      supabase.from("ingestion_runs").select("*").eq("idempotency_key", idempotencyKey).limit(1),
-      "recover concurrent ingestion run"
+    const { data: concurrent, error: concurrentError } = await runSupabaseOperation(
+      "recover concurrent ingestion run",
+      () => supabase
+        .from("ingestion_runs")
+        .select("*")
+        .eq("idempotency_key", idempotencyKey)
+        .limit(1)
+        .single()
     );
+    check(concurrentError, "recover concurrent ingestion run");
+    return concurrent;
   }
   check(error, "create ingestion run");
   return data;
 }
 
-async function event(eventType, severity, message, payload = {}, eventKey = null) {
+async function event(
+  eventType,
+  severity,
+  message,
+  payload = {},
+  eventKey = null,
+  { timeoutMs = LIFECYCLE_OPERATION_TIMEOUT_MS } = {}
+) {
   const sanitizedMessage = sanitizeRunnerDiagnosticText(message);
   const sanitizedPayload = sanitizeRunnerDiagnosticValue(payload);
   if (!supabase || !run?.id) {
     console.log(`[${severity}] ${eventType}: ${sanitizedMessage}`);
     return;
   }
-  const { error } = await supabase.from("ingestion_run_events").insert({
-    ingestion_run_id: run.id,
-    event_key: eventKey,
-    event_type: eventType,
-    severity,
-    message: sanitizedMessage,
-    payload_json: sanitizedPayload
-  });
+  const { error } = await runSupabaseOperation(
+    `record ${eventType} event`,
+    () => supabase.from("ingestion_run_events").insert({
+      ingestion_run_id: run.id,
+      event_key: eventKey,
+      event_type: eventType,
+      severity,
+      message: sanitizedMessage,
+      payload_json: sanitizedPayload
+    }),
+    { timeoutMs }
+  );
   check(error, `record ${eventType} event`);
 }
 
@@ -719,14 +1852,17 @@ async function syncCatalogs(allCatalogs) {
   const ownerInventory = [];
 
   for (const catalog of allCatalogs) {
-    const { data: batch, error: batchError } = await supabase
-      .from("batches")
-      .upsert(
-        { slug: catalog.slug, label: catalog.label, company_count_expected: catalog.companies.length },
-        { onConflict: "slug" }
-      )
-      .select("id,slug")
-      .single();
+    const { data: batch, error: batchError } = await runSupabaseOperation(
+      `upsert batch ${catalog.slug}`,
+      () => supabase
+        .from("batches")
+        .upsert(
+          { slug: catalog.slug, label: catalog.label, company_count_expected: catalog.companies.length },
+          { onConflict: "slug" }
+        )
+        .select("id,slug")
+        .single()
+    );
     check(batchError, `upsert batch ${catalog.slug}`);
     batchBySlug.set(catalog.slug, batch.id);
 
@@ -741,10 +1877,13 @@ async function syncCatalogs(allCatalogs) {
       group_partner: company.groupPartner,
       review_state: normalizeReviewState(company.reviewState)
     }));
-    const { data: companies, error: companyError } = await supabase
-      .from("companies")
-      .upsert(companyRows, { onConflict: "batch_id,source_key" })
-      .select("id,source_key");
+    const { data: companies, error: companyError } = await runSupabaseOperation(
+      `upsert companies for ${catalog.slug}`,
+      () => supabase
+        .from("companies")
+        .upsert(companyRows, { onConflict: "batch_id,source_key" })
+        .select("id,source_key")
+    );
     check(companyError, `upsert companies for ${catalog.slug}`);
     for (const company of companies ?? []) {
       companyByBatchSourceKey.set(batchCompanyKey(catalog.slug, company.source_key), company.id);
@@ -764,10 +1903,13 @@ async function syncCatalogs(allCatalogs) {
       }])
     )).values()];
     if (founderRows.length) {
-      const { data: founders, error: founderError } = await supabase
-        .from("founders")
-        .upsert(founderRows, { onConflict: "source_key" })
-        .select("id,source_key");
+      const { data: founders, error: founderError } = await runSupabaseOperation(
+        `upsert founders for ${catalog.slug}`,
+        () => supabase
+          .from("founders")
+          .upsert(founderRows, { onConflict: "source_key" })
+          .select("id,source_key")
+      );
       check(founderError, `upsert founders for ${catalog.slug}`);
       for (const founder of founders ?? []) {
         founderBySourceKey.set(founder.source_key, founder.id);
@@ -784,7 +1926,12 @@ async function syncCatalogs(allCatalogs) {
       }))
     );
     if (joins.length) {
-      const { error } = await supabase.from("company_founders").upsert(joins, { onConflict: "company_id,founder_id" });
+      const { error } = await runSupabaseOperation(
+        `upsert founder relationships for ${catalog.slug}`,
+        () => supabase
+          .from("company_founders")
+          .upsert(joins, { onConflict: "company_id,founder_id" })
+      );
       check(error, `upsert founder relationships for ${catalog.slug}`);
     }
 
@@ -828,10 +1975,13 @@ async function syncCatalogs(allCatalogs) {
   const accountIdByIdentity = new Map();
   await mapWithConcurrency(chunks([...canonicalAccounts.values()], 250), 4, async (accountRows) => {
     if (accountRows.length === 0) return;
-    const { data, error } = await supabase
-      .from("social_accounts")
-      .upsert(accountRows, { onConflict: "platform,url" })
-      .select("id,source_key,platform,url");
+    const { data, error } = await runSupabaseOperation(
+      "upsert canonical social accounts",
+      () => supabase
+        .from("social_accounts")
+        .upsert(accountRows, { onConflict: "platform,url" })
+        .select("id,source_key,platform,url")
+    );
     check(error, "upsert canonical social accounts");
     for (const account of data ?? []) {
       accountIdByIdentity.set(socialAccountIdentity(account), account.id);
@@ -866,9 +2016,12 @@ async function syncCatalogs(allCatalogs) {
   }
   await mapWithConcurrency(chunks([...ownerRowsByKey.values()], 250), 4, async (ownerRows) => {
     if (ownerRows.length === 0) return;
-    const { error } = await supabase
-      .from("social_account_owners")
-      .upsert(ownerRows, { onConflict: "owner_key" });
+    const { error } = await runSupabaseOperation(
+      "upsert batch-scoped social account owners",
+      () => supabase
+        .from("social_account_owners")
+        .upsert(ownerRows, { onConflict: "owner_key" })
+    );
     check(error, "upsert batch-scoped social account owners");
   });
   const retiredOwnerAccounts = await retireAbsentSocialAccountOwners(
@@ -911,12 +2064,15 @@ function accountRow(account, entityType, entityId) {
 async function retireAbsentSocialAccountOwners(activeOwnerKeys, batchIds, retiredAt) {
   const existingOwners = [];
   for (let offset = 0; ; offset += 1_000) {
-    const { data, error } = await supabase
-      .from("social_account_owners")
-      .select("id,owner_key")
-      .in("batch_id", batchIds)
-      .order("id", { ascending: true })
-      .range(offset, offset + 999);
+    const { data, error } = await runSupabaseOperation(
+      "read batch-scoped social account owners for retirement",
+      () => supabase
+        .from("social_account_owners")
+        .select("id,owner_key")
+        .in("batch_id", batchIds)
+        .order("id", { ascending: true })
+        .range(offset, offset + 999)
+    );
     check(error, "read batch-scoped social account owners for retirement");
     existingOwners.push(...(data ?? []));
     if ((data?.length ?? 0) < 1_000) break;
@@ -926,14 +2082,17 @@ async function retireAbsentSocialAccountOwners(activeOwnerKeys, batchIds, retire
     .map((owner) => owner.id);
   await mapWithConcurrency(chunks(staleIds, 250), 4, async (ids) => {
     if (ids.length === 0) return;
-    const { error } = await supabase
-      .from("social_account_owners")
-      .update({
-        review_state: "rejected",
-        retired_at: retiredAt,
-        retirement_reason: "absent_from_current_batch_owner_inventory"
-      })
-      .in("id", ids);
+    const { error } = await runSupabaseOperation(
+      "retire absent batch-scoped social account owners",
+      () => supabase
+        .from("social_account_owners")
+        .update({
+          review_state: "rejected",
+          retired_at: retiredAt,
+          retirement_reason: "absent_from_current_batch_owner_inventory"
+        })
+        .in("id", ids)
+    );
     check(error, "retire absent batch-scoped social account owners");
   });
   return staleIds.length;
@@ -988,7 +2147,12 @@ async function enqueueTasks(tasks, catalogState) {
     rate_limit_ms: platformDelay(task.platform)
   }));
   await mapWithConcurrency(chunks(rows, 250), 4, async (taskRows) => {
-    const { error } = await supabase.from("ingestion_tasks").upsert(taskRows, { onConflict: "checkpoint_key" });
+    const { error } = await runSupabaseOperation(
+      "enqueue account/platform tasks",
+      () => supabase
+        .from("ingestion_tasks")
+        .upsert(taskRows, { onConflict: "checkpoint_key" })
+    );
     check(error, "enqueue account/platform tasks");
   });
 }
@@ -1027,12 +2191,13 @@ async function prepareSanitizedPublicSnapshot(
   { baseRef = null, contentIdentityReferenceRows = [] } = {}
 ) {
   if (publicSnapshots.length === 0) return null;
+  const targetRoot = publicationArtifactRoot();
   const publicEvidencePath = "src/lib/social/public-evidence-current.json";
   const basePublicSnapshot = baseRef
     ? await readPublicEvidenceFromGitRef(baseRef, null)
     : null;
   const previousPublicSnapshot = (
-    await readPublicEvidenceArtifact(join(root, publicEvidencePath), { rootDir: root })
+    await readPublicEvidenceArtifact(join(targetRoot, publicEvidencePath), { rootDir: targetRoot })
   ).snapshot;
   return mergePublicEvidenceSnapshots(
     [basePublicSnapshot, previousPublicSnapshot, ...publicSnapshots].filter(Boolean),
@@ -1046,6 +2211,7 @@ async function prepareSanitizedPublicSnapshot(
 }
 
 async function readCanonicalContentIdentityReferenceRows(targetedSnapshot, { baseRef = null } = {}) {
+  const targetRoot = publicationArtifactRoot();
   const evidencePaths = [
     "src/lib/social/logged-in-evidence-current.json",
     "src/lib/social/a16z-speedrun-006-social-evidence.json"
@@ -1057,11 +2223,11 @@ async function readCanonicalContentIdentityReferenceRows(targetedSnapshot, { bas
   ];
   const currentSnapshots = await Promise.all([
     ...evidencePaths.map((path) => readRequiredCanonicalJson(
-      join(root, path),
+      join(targetRoot, path),
       `Canonical content-identity evidence ${path}`
     )),
     ...githubPaths.map((path) => readRequiredCanonicalJson(
-      join(root, path),
+      join(targetRoot, path),
       `Canonical content-identity GitHub evidence ${path}`
     ))
   ]);
@@ -1078,9 +2244,10 @@ async function readCanonicalContentIdentityReferenceRows(targetedSnapshot, { bas
 }
 
 async function readCanonicalLoggedInAttributionReconciliationLedger({ baseRef = null } = {}) {
+  const targetRoot = publicationArtifactRoot();
   const loggedInEvidencePath = "src/lib/social/logged-in-evidence-current.json";
   const current = await readRequiredCanonicalJson(
-    join(root, loggedInEvidencePath),
+    join(targetRoot, loggedInEvidencePath),
     "Canonical logged-in attribution reconciliation ledger"
   );
   const base = baseRef ? await readJsonFromGitRef(baseRef, loggedInEvidencePath, null) : null;
@@ -1091,9 +2258,10 @@ async function readCanonicalLoggedInAttributionReconciliationLedger({ baseRef = 
 }
 
 async function readCanonicalSeededAttributionReconciliationLedger({ baseRef = null } = {}) {
+  const targetRoot = publicationArtifactRoot();
   const reconciliationPath = "src/lib/social/a16z-speedrun-006-attribution-reconciliation.json";
   const current = await readRequiredCanonicalJson(
-    join(root, reconciliationPath),
+    join(targetRoot, reconciliationPath),
     "Canonical A16Z seeded attribution reconciliation ledger"
   );
   const base = baseRef ? await readJsonFromGitRef(baseRef, reconciliationPath, null) : null;
@@ -1104,6 +2272,7 @@ async function readCanonicalSeededAttributionReconciliationLedger({ baseRef = nu
 }
 
 async function readPublicationEvidenceBaseline({ baseRef = null } = {}) {
+  const targetRoot = publicationArtifactRoot();
   const evidencePaths = [
     "src/lib/social/public-evidence-current.json",
     "src/lib/social/targeted-evidence-current.json",
@@ -1120,7 +2289,7 @@ async function readPublicationEvidenceBaseline({ baseRef = null } = {}) {
   ];
   const snapshots = await Promise.all([...evidencePaths, ...githubPaths].map((path) => baseRef
     ? readJsonFromGitRef(baseRef, path, { evidence: [] })
-    : readRequiredCanonicalJson(join(root, path), `Canonical publication baseline ${path}`)
+    : readRequiredCanonicalJson(join(targetRoot, path), `Canonical publication baseline ${path}`)
   ));
   return [
     ...snapshots.slice(0, evidencePaths.length),
@@ -1187,10 +2356,11 @@ function canonicalGithubContentIdentityRows(snapshot) {
 }
 
 async function prepareSanitizedTargetedSnapshot(topVoiceRefresh, { baseRef = null } = {}) {
+  const targetRoot = publicationArtifactRoot();
   const targetedEvidencePath = "src/lib/social/targeted-evidence-current.json";
   const [baseTargetedSnapshot, previousTargetedSnapshot] = await Promise.all([
     baseRef ? readJsonFromGitRef(baseRef, targetedEvidencePath, null) : null,
-    readRequiredCanonicalJson(join(root, targetedEvidencePath), "Canonical targeted evidence snapshot")
+    readRequiredCanonicalJson(join(targetRoot, targetedEvidencePath), "Canonical targeted evidence snapshot")
   ]);
   return mergeTargetedEvidenceSnapshots(
     [baseTargetedSnapshot, previousTargetedSnapshot].filter(Boolean),
@@ -1235,6 +2405,7 @@ async function mergePublicationInputs(
   },
   { baseRef = null } = {}
 ) {
+  const targetRoot = publicationArtifactRoot();
   const publicEvidencePath = "src/lib/social/public-evidence-current.json";
   if (publicSnapshots.length > 0) {
     const trustedPublicSnapshot = sanitizedPublicSnapshot ?? (
@@ -1243,8 +2414,8 @@ async function mergePublicationInputs(
         : await prepareSanitizedPublicSnapshot(publicSnapshots)
     );
     await writePublicEvidenceArtifactPairAtomic({
-      rootDir: root,
-      canonicalPath: join(root, publicEvidencePath),
+      rootDir: targetRoot,
+      canonicalPath: join(targetRoot, publicEvidencePath),
       snapshot: trustedPublicSnapshot,
       ledgerRelativePath: PUBLIC_EVIDENCE_OPERATIONAL_LEDGER_PATH,
       reviewLedgerRelativePath: PUBLIC_EVIDENCE_REVIEW_LEDGER_PATH
@@ -1258,7 +2429,7 @@ async function mergePublicationInputs(
       : await prepareSanitizedTargetedSnapshot(topVoiceRefresh)
   );
   await writeJsonAtomic(
-    join(root, targetedEvidencePath),
+    join(targetRoot, targetedEvidencePath),
     trustedTargetedSnapshot
   );
 
@@ -1355,6 +2526,29 @@ function gitRefCaptureLimit(path) {
   return 50_000_000;
 }
 
+function publicationArtifactRoot() {
+  return publicationRoot ?? root;
+}
+
+function configurePublicationArtifactPaths(targetRoot) {
+  publishedDiscoveryAttemptsPath = join(targetRoot, "outputs", "discovery-attempts-current.json");
+  publishedSourceDiscoveryPathsPath = join(targetRoot, "outputs", "source-discovery-paths-current.json");
+  publishedCohortAuditPath = join(targetRoot, "outputs", "cohort-coverage-current.json");
+  publishedSourceDeltaPath = join(targetRoot, "outputs", "ingestion-source-delta-current.json");
+  publishedSourceDeltaHistoryPath = join(targetRoot, "outputs", "ingestion-source-delta-history.json");
+  publishedGithubQuarantinePath = join(
+    targetRoot,
+    "src",
+    "lib",
+    "social",
+    "github-traction-quarantine.json"
+  );
+}
+
+function sourcePath(...segments) {
+  return join(pinnedSourceRoot, ...segments);
+}
+
 function newestRowsById(rows) {
   const byId = new Map();
   for (const row of rows) {
@@ -1413,9 +2607,28 @@ function withSnapshotBatchProvenance(snapshot) {
   };
 }
 
+async function runFailFastBranches(branchFactories) {
+  let firstFailure = null;
+  let cancellationPromise = null;
+  const branches = branchFactories.map((factory) => Promise.resolve()
+    .then(factory)
+    .catch(async (error) => {
+      if (!firstFailure) firstFailure = error;
+      if (!cancellationPromise) {
+        cancellationPromise = terminateActiveChildProcesses();
+      }
+      await cancellationPromise;
+      throw error;
+    }));
+  const settled = await Promise.allSettled(branches);
+  if (cancellationPromise) await cancellationPromise;
+  if (firstFailure) throw firstFailure;
+  return settled.map((result) => result.value);
+}
+
 async function runCollectors() {
   await prepareBatchDiscoveryState();
-  await event("collection.started", "info", "Public collectors started with bounded parallelism.", {
+  await event("collection.started", "info", "Public and GitHub collectors started with bounded parallelism.", {
     collectionDeadlineAt: new Date(collectionBudget.deadlineAt).toISOString(),
     collectionPhaseMs: AUTONOMOUS_PROCESS_BUDGETS.collectionPhaseMs,
     publicShardProcessConcurrency: PUBLIC_SHARD_PROCESS_CONCURRENCY,
@@ -1424,7 +2637,11 @@ async function runCollectors() {
       PUBLIC_SHARD_PROCESS_CONCURRENCY * PUBLIC_COLLECTOR_TASK_CONCURRENCY,
     publicSocialLaneConcurrencyPerProcess: PUBLIC_SOCIAL_LANE_CONCURRENCY,
     publicSocialLaneConcurrencyAcrossProcesses:
-      PUBLIC_SHARD_PROCESS_CONCURRENCY * PUBLIC_SOCIAL_LANE_CONCURRENCY
+      PUBLIC_SHARD_PROCESS_CONCURRENCY * PUBLIC_SOCIAL_LANE_CONCURRENCY,
+    githubShardProcessConcurrency: GITHUB_SHARD_PROCESS_CONCURRENCY,
+    githubTaskConcurrencyPerProcess: GITHUB_COLLECTOR_TASK_CONCURRENCY,
+    githubInitialRequestConcurrencyAcrossProcesses:
+      GITHUB_SHARD_PROCESS_CONCURRENCY * GITHUB_COLLECTOR_TASK_CONCURRENCY
   });
   const githubSearchArg = process.env.GITHUB_TOKEN?.trim() ? "--search" : "--no-search";
   const commands = [
@@ -1432,13 +2649,15 @@ async function runCollectors() {
       kind: "public",
       batchSlug,
       outputPath: publicOutputs.get(batchSlug),
-      run: () => runShardedPublicCollector({
+      run: (attemptContext) => runShardedPublicCollector({
+        attemptContext,
         batchSlug,
         outputPath: publicOutputs.get(batchSlug),
         shardCount: PUBLIC_COLLECTOR_SHARDS[batchSlug] ?? 1,
         baseArgs: [
-          "scripts/fetch-public-traction.mjs",
+          sourcePath("scripts", "fetch-public-traction.mjs"),
           `--batch=${batchSlug}`,
+          `--catalog-root=${publicationArtifactRoot()}`,
           "--social=all",
           "--discover-missing-social",
           `--workers=${PUBLIC_COLLECTOR_TASK_CONCURRENCY}`,
@@ -1459,19 +2678,21 @@ async function runCollectors() {
         batchSlug: batch.slug,
         outputPath: githubOutputs.get(batch.slug),
         expectedSourcePath: batch.githubSourcePath,
-        run: () => runShardedGithubCollector({
+        run: (attemptContext) => runShardedGithubCollector({
+          attemptContext,
           batchSlug: batch.slug,
           outputPath: githubOutputs.get(batch.slug),
           shardCount: GITHUB_COLLECTOR_SHARDS[batch.slug] ?? 1,
           totalCompanyCount: companyCount,
           baseArgs: [
-            "scripts/fetch-github-traction.mjs",
+            sourcePath("scripts", "fetch-github-traction.mjs"),
             `--batch=${batch.slug}`,
+            `--catalog-root=${publicationArtifactRoot()}`,
             // Official-page and mapped-account fetches are ordinary GitHub/web
             // reads and must cover the full cohort within the process budget.
             // Search API calls use their own single-worker lane because all
             // cohorts share one workflow token and search rate-limit bucket.
-            "--workers=16",
+            `--workers=${GITHUB_COLLECTOR_TASK_CONCURRENCY}`,
             "--search-workers=1",
             "--website",
             githubSearchArg
@@ -1480,14 +2701,11 @@ async function runCollectors() {
       };
     })
   ];
-  let githubQueue = Promise.resolve();
   for (const command of commands) {
-    if (command.kind === "github") {
-      command.promise = githubQueue.then(() => runCollectorWithRetries(command));
-      githubQueue = command.promise.catch(() => {});
-    } else {
-      command.promise = runCollectorWithRetries(command);
-    }
+    // Cohorts are admitted together; each GitHub shard remains inside
+    // runWithGithubShardProcessSlot, capping the lane at two four-worker
+    // processes while this Promise.allSettled waits for every sibling.
+    command.promise = runCollectorWithRetries(command);
   }
   const settled = await Promise.allSettled(commands.map((command) => command.promise));
   const results = [];
@@ -1495,7 +2713,19 @@ async function runCollectors() {
     const command = commands[index];
     const result = settled[index];
     const recoveredSnapshot = result.status === "rejected"
-      ? await readCollectorSnapshot(command.outputPath, command.kind, command)
+      ? await readCollectorSnapshot(command.outputPath, command.kind, {
+          ...command,
+          requireAttemptBinding: true,
+          expectedAttemptId: command.latestAttemptContext?.attemptId ?? null,
+          expectedCampaignKey: collectorCampaignKey(),
+          expectedExecutionNonce: executionCompletionNonce,
+          expectedIdempotencyKey: command.latestAttemptContext?.idempotencyKey ?? null,
+          expectedNotBefore: command.latestAttemptContext?.startedAtMs ?? null,
+          notBefore: command.latestAttemptContext?.startedAtMs !== undefined
+            ? command.latestAttemptContext.startedAtMs - COLLECTOR_SNAPSHOT_FILE_SKEW_MS
+            : null,
+          notAfter: command.latestAttemptContext?.notAfterMs ?? Date.now() + COLLECTOR_SNAPSHOT_FUTURE_SKEW_MS
+        })
       : null;
     const recoveredTerminalCoverage = recoveredSnapshot
       ? summarizeAutonomousCollectorTerminalTaskCoverage(recoveredSnapshot, {
@@ -1507,6 +2737,16 @@ async function runCollectors() {
     results.push({
       ...command,
       promise: undefined,
+      requireAttemptBinding: true,
+      expectedAttemptId: command.latestAttemptContext?.attemptId ?? null,
+      expectedCampaignKey: collectorCampaignKey(),
+      expectedExecutionNonce: command.latestAttemptContext?.executionNonce ?? null,
+      expectedIdempotencyKey: command.latestAttemptContext?.idempotencyKey ?? null,
+      expectedNotBefore: command.latestAttemptContext?.startedAtMs ?? null,
+      notBefore: command.latestAttemptContext?.startedAtMs !== undefined
+        ? command.latestAttemptContext.startedAtMs - COLLECTOR_SNAPSHOT_FILE_SKEW_MS
+        : Date.now() - COLLECTOR_RESUME_MAX_AGE_MS,
+      notAfter: command.latestAttemptContext?.notAfterMs ?? Date.now() + COLLECTOR_SNAPSHOT_FUTURE_SKEW_MS,
       ok: result.status === "fulfilled",
       snapshotAvailable: result.status === "fulfilled" || Boolean(recoveredSnapshot),
       attempts: result.status === "fulfilled"
@@ -1532,6 +2772,7 @@ async function runCollectors() {
 }
 
 async function runShardedPublicCollector({
+  attemptContext,
   batchSlug,
   outputPath,
   shardCount,
@@ -1549,6 +2790,7 @@ async function runShardedPublicCollector({
       recentProofJournalDir: join(collectorRoot, "recent-window-journals", suffix)
     };
   });
+  await Promise.all(shards.map((shard) => removeCollectorAttemptOutput(shard.outputPath)));
   // The batch-level ledgers were seeded from the canonical publication by
   // prepareBatchDiscoveryState(). Give each new shard that same learned state
   // without overwriting a shard's newer retry/resume ledger.
@@ -1572,6 +2814,7 @@ async function runShardedPublicCollector({
       checkpointPath: shard.checkpointPath,
       args: [
         ...baseArgs,
+        ...collectorLaunchProvenanceArgs(attemptContext),
         `--company-shard-count=${shardCount}`,
         `--company-shard-index=${shard.shardIndex}`,
         `--output=${shard.outputPath}`,
@@ -1592,12 +2835,15 @@ async function runShardedPublicCollector({
       `public ${batchSlug} shard collection failed after every sibling stopped: ${shardFailures.join("; ")}`
     );
   }
-  const snapshots = await Promise.all(
-    shards.map((shard) => readJson(shard.outputPath, null))
-  );
-  if (snapshots.some((snapshot) => !snapshot)) {
-    throw new Error(`public ${batchSlug} did not write every shard snapshot.`);
-  }
+  const snapshots = await Promise.all(shards.map((shard) =>
+    readFreshCollectorShard(shard.outputPath, {
+      kind: "public",
+      batchSlug,
+      shardIndex: shard.shardIndex,
+      shardCount,
+      attemptContext
+    })
+  ));
   const recentCoverageCutoffs = new Set(
     snapshots.map((snapshot) => snapshot?.source?.recentCoverageCutoff).filter(Boolean)
   );
@@ -1608,8 +2854,10 @@ async function runShardedPublicCollector({
     );
   }
   const recentCoverageCutoff = [...recentCoverageCutoffs][0];
+  const originalShardAttempts = snapshots.map((snapshot) => snapshot.source.autonomousAttempt);
+  const aggregateAttempt = latestOriginalCollectorAttempt(originalShardAttempts);
   const merged = mergePublicEvidenceSnapshots(snapshots, {
-    fetchedAt: new Date().toISOString(),
+    fetchedAt: latestCollectorFetchedAt(snapshots),
     durableStorageConfigured
   });
   merged.source = {
@@ -1623,8 +2871,25 @@ async function runShardedPublicCollector({
     label: "Public unauthenticated platform/page ingestion",
     batchSlug,
     shardCount,
-    recentCoverageCutoff
+    recentCoverageCutoff,
+    // Keep one byte-for-byte collector-authored binding as the aggregate
+    // identity and retain every original shard binding for provenance. The
+    // merger never invents a nonce or rewrites a collector receipt.
+    autonomousAttempt: aggregateAttempt,
+    shardAttempts: originalShardAttempts
   };
+  validateAutonomousCollectorSnapshot(merged, {
+    kind: "public",
+    batchSlug,
+    notBefore: attemptContext.startedAtMs - COLLECTOR_SNAPSHOT_FILE_SKEW_MS,
+    notAfter: attemptContext.notAfterMs,
+    requireAttemptBinding: true,
+    expectedAttemptId: attemptContext.attemptId,
+    expectedCampaignKey: attemptContext.campaignKey,
+    expectedExecutionNonce: executionCompletionNonce,
+    expectedIdempotencyKey: idempotencyKey,
+    expectedNotBefore: attemptContext.startedAtMs
+  });
   await Promise.all([
     writeJsonAtomic(outputPath, merged),
     writeJsonAtomic(discoveryAttemptOutputs.get(batchSlug), merged.discoveryAttempts ?? []),
@@ -1638,7 +2903,122 @@ async function seedShardLedger(path, canonicalRows) {
   await writeJsonAtomic(path, Array.isArray(canonicalRows) ? canonicalRows : []);
 }
 
+async function removeCollectorAttemptOutput(path) {
+  try {
+    await unlink(path);
+  } catch (error) {
+    if (error?.code !== "ENOENT") throw error;
+  }
+}
+
+function collectorCampaignKey() {
+  return String(args.campaignKey ?? idempotencyKey);
+}
+
+function createCollectorAttemptContext(command, attempt) {
+  const startedAtMs = Date.now();
+  const hardDeadlineAt = Math.min(
+    collectionBudget?.deadlineAt ?? runnerBudget.deadlineAt,
+    runnerBudget.deadlineAt
+  );
+  return {
+    attemptId: randomUUID(),
+    attempt,
+    campaignKey: collectorCampaignKey(),
+    idempotencyKey,
+    executionNonce: executionCompletionNonce,
+    kind: command.kind,
+    batchSlug: command.batchSlug,
+    startedAtMs,
+    startedAt: new Date(startedAtMs).toISOString(),
+    notAfterMs: hardDeadlineAt + COLLECTOR_SNAPSHOT_FUTURE_SKEW_MS
+  };
+}
+
+function collectorLaunchProvenanceArgs(attemptContext) {
+  return [
+    `--autonomous-attempt-nonce=${attemptContext.attemptId}`,
+    `--autonomous-campaign-key=${attemptContext.campaignKey}`,
+    `--autonomous-idempotency-key=${attemptContext.idempotencyKey}`,
+    `--autonomous-run-nonce=${attemptContext.executionNonce}`,
+    `--autonomous-not-before=${attemptContext.startedAt}`
+  ];
+}
+
+function latestOriginalCollectorAttempt(bindings) {
+  if (!Array.isArray(bindings) || bindings.length === 0) {
+    throw new Error("Collector shard provenance is missing.");
+  }
+  return bindings.reduce((latest, binding) =>
+    Date.parse(binding.completedAt) > Date.parse(latest.completedAt) ? binding : latest
+  );
+}
+
+async function readFreshCollectorShard(
+  path,
+  { kind, batchSlug, expectedSourcePath = null, shardIndex, shardCount, attemptContext }
+) {
+  let fileStat;
+  let snapshot;
+  try {
+    [fileStat, snapshot] = await Promise.all([stat(path), readJson(path, null)]);
+  } catch (error) {
+    throw new Error(`${kind} ${batchSlug} shard ${shardIndex + 1}/${shardCount} is missing: ${errorMessage(error)}`);
+  }
+  if (!snapshot) {
+    throw new Error(`${kind} ${batchSlug} shard ${shardIndex + 1}/${shardCount} did not write a snapshot.`);
+  }
+  const completedAtMs = fileStat.mtimeMs;
+  const observedAtMs = Date.now();
+  const notBefore = attemptContext.startedAtMs - COLLECTOR_SNAPSHOT_FILE_SKEW_MS;
+  const notAfter = Math.min(
+    attemptContext.notAfterMs,
+    observedAtMs + COLLECTOR_SNAPSHOT_FUTURE_SKEW_MS
+  );
+  if (completedAtMs < notBefore) {
+    throw new Error(`${kind} ${batchSlug} shard ${shardIndex + 1}/${shardCount} is stale.`);
+  }
+  if (completedAtMs > notAfter) {
+    throw new Error(`${kind} ${batchSlug} shard ${shardIndex + 1}/${shardCount} has a future file timestamp.`);
+  }
+  const sourceShardCount = Number(snapshot?.source?.companyShardCount);
+  const sourceShardIndex = Number(snapshot?.source?.companyShardIndex);
+  if (sourceShardCount !== shardCount || sourceShardIndex !== shardIndex) {
+    throw new Error(
+      `${kind} ${batchSlug} shard ${shardIndex + 1}/${shardCount} carries foreign shard provenance.`
+    );
+  }
+  validateAutonomousCollectorSnapshot(snapshot, {
+    kind,
+    batchSlug,
+    expectedSourcePath,
+    notBefore,
+    notAfter,
+    requireAttemptBinding: true,
+    expectedAttemptId: attemptContext.attemptId,
+    expectedCampaignKey: attemptContext.campaignKey,
+    expectedExecutionNonce: attemptContext.executionNonce,
+    expectedIdempotencyKey: attemptContext.idempotencyKey,
+    expectedNotBefore: attemptContext.startedAtMs
+  });
+  const binding = snapshot.source.autonomousAttempt;
+  if (binding.shardCount !== shardCount || binding.shardIndex !== shardIndex) {
+    throw new Error(
+      `${kind} ${batchSlug} shard ${shardIndex + 1}/${shardCount} carries a foreign collector-authored attempt shard.`
+    );
+  }
+  return snapshot;
+}
+
+function latestCollectorFetchedAt(snapshots) {
+  const timestamps = snapshots.map((snapshot) => Date.parse(snapshot.source.fetchedAt));
+  const latest = Math.max(...timestamps);
+  if (!Number.isFinite(latest)) throw new Error("Collector shard fetchedAt timestamps are invalid.");
+  return new Date(latest).toISOString();
+}
+
 async function runShardedGithubCollector({
+  attemptContext,
   batchSlug,
   outputPath,
   shardCount,
@@ -1654,15 +3034,17 @@ async function runShardedGithubCollector({
       `github-${batchKey}-shard-${shardIndex}-of-${shardCount}.json`
     )
   }));
+  await Promise.all(shards.map((shard) => removeCollectorAttemptOutput(shard.outputPath)));
   // The GitHub search lane remains bounded to one worker per shard. Sharding
   // makes full-cohort discovery finish inside the process budget while every
   // output stays isolated, so a timed-out process can never clobber a sibling.
   // Wait for every sibling to stop before a retry begins.
   const shardResults = await Promise.allSettled(shards.map((shard) =>
-    runCommand(
+    runWithGithubShardProcessSlot(() => runCommand(
       process.execPath,
       [
         ...baseArgs,
+        ...collectorLaunchProvenanceArgs(attemptContext),
         `--company-shard-count=${shardCount}`,
         `--company-shard-index=${shard.shardIndex}`,
         `--max-searches=${shard.searchBudget}`,
@@ -1674,9 +3056,11 @@ async function runShardedGithubCollector({
           `github ${batchSlug} shard ${shard.shardIndex + 1}/${shardCount}`
         ),
         deadlineAt: collectionBudget.deadlineAt,
-        label: `github ${batchSlug} shard ${shard.shardIndex + 1}/${shardCount}`
+        label: `github ${batchSlug} shard ${shard.shardIndex + 1}/${shardCount}`,
+        envCategory: "github_collector",
+        cwd: root
       }
-    )
+    ))
   ));
   const shardFailures = shardResults.flatMap((result, shardIndex) =>
     result.status === "rejected"
@@ -1688,19 +3072,41 @@ async function runShardedGithubCollector({
       `github ${batchSlug} shard collection failed after every sibling stopped: ${shardFailures.join("; ")}`
     );
   }
-  const snapshots = await Promise.all(
-    shards.map((shard) => readJson(shard.outputPath, null))
-  );
-  if (snapshots.some((snapshot) => !snapshot)) {
-    throw new Error(`github ${batchSlug} did not write every shard snapshot.`);
-  }
+  const snapshots = await Promise.all(shards.map((shard) =>
+    readFreshCollectorShard(shard.outputPath, {
+      kind: "github",
+      batchSlug,
+      expectedSourcePath: AUTONOMOUS_BATCHES.find((batch) => batch.slug === batchSlug)?.githubSourcePath,
+      shardIndex: shard.shardIndex,
+      shardCount,
+      attemptContext
+    })
+  ));
+  const mergedFetchedAt = latestCollectorFetchedAt(snapshots);
+  const merged = mergeGithubCollectorShards(snapshots, {
+    batchSlug,
+    shardCount,
+    fetchedAt: mergedFetchedAt
+  });
+  const originalShardAttempts = snapshots.map((snapshot) => snapshot.source.autonomousAttempt);
+  merged.source.autonomousAttempt = latestOriginalCollectorAttempt(originalShardAttempts);
+  merged.source.shardAttempts = originalShardAttempts;
+  validateAutonomousCollectorSnapshot(merged, {
+    kind: "github",
+    batchSlug,
+    expectedSourcePath: AUTONOMOUS_BATCHES.find((batch) => batch.slug === batchSlug)?.githubSourcePath,
+    notBefore: attemptContext.startedAtMs - COLLECTOR_SNAPSHOT_FILE_SKEW_MS,
+    notAfter: attemptContext.notAfterMs,
+    requireAttemptBinding: true,
+    expectedAttemptId: attemptContext.attemptId,
+    expectedCampaignKey: attemptContext.campaignKey,
+    expectedExecutionNonce: executionCompletionNonce,
+    expectedIdempotencyKey: idempotencyKey,
+    expectedNotBefore: attemptContext.startedAtMs
+  });
   await writeJsonAtomic(
     outputPath,
-    mergeGithubCollectorShards(snapshots, {
-      batchSlug,
-      shardCount,
-      fetchedAt: new Date().toISOString()
-    })
+    merged
   );
 }
 
@@ -1814,7 +3220,9 @@ async function runPublicCollectorWithCheckpointRecovery({
         `public ${batchSlug} shard ${shardIndex + 1}/${shardCount}`
       ),
       deadlineAt: collectionBudget.deadlineAt,
-      label: `public ${batchSlug} shard ${shardIndex + 1}/${shardCount}`
+      label: `public ${batchSlug} shard ${shardIndex + 1}/${shardCount}`,
+      envCategory: "public_collector",
+      cwd: root
     });
   } catch (error) {
     if (!/timed out after/i.test(errorMessage(error))) throw error;
@@ -1830,12 +3238,20 @@ async function runPublicCollectorWithCheckpointRecovery({
         `public ${batchSlug} shard ${shardIndex + 1}/${shardCount} checkpoint flush`
       ),
       deadlineAt: collectionDrainBudget.deadlineAt,
-      label: `public ${batchSlug} shard ${shardIndex + 1}/${shardCount} checkpoint flush`
+      label: `public ${batchSlug} shard ${shardIndex + 1}/${shardCount} checkpoint flush`,
+      envCategory: "public_collector",
+      cwd: root
     });
   }
 }
 
 async function runTopVoiceCollector() {
+  const batchSlug = AUTONOMOUS_BATCHES.map((batch) => batch.slug).join(",");
+  const attemptContext = createCollectorAttemptContext(
+    { kind: "top_voice", batchSlug },
+    1
+  );
+  await removeCollectorAttemptOutput(topVoiceOutput);
   await event(
     "top_voice_collection.started",
     "info",
@@ -1847,10 +3263,12 @@ async function runTopVoiceCollector() {
     [
       "--experimental-strip-types",
       "--loader",
-      "./scripts/lib/scoring-diagnostics-ts-loader.mjs",
-      "scripts/run-top-voice-ingestion.mjs",
+      sourcePath("scripts", "lib", "scoring-diagnostics-ts-loader.mjs"),
+      sourcePath("scripts", "run-top-voice-ingestion.mjs"),
       `--output=${topVoiceOutput}`,
-      `--batches=${AUTONOMOUS_BATCHES.map((batch) => batch.slug).join(",")}`,
+      `--root=${publicationArtifactRoot()}`,
+      `--batches=${batchSlug}`,
+      ...collectorLaunchProvenanceArgs(attemptContext),
       "--audiences=insiders,yc_partners",
       "--x-concurrency=16",
       "--max-posts-per-target=20",
@@ -1864,10 +3282,14 @@ async function runTopVoiceCollector() {
         "Top Voice X discovery"
       ),
       deadlineAt: collectionBudget.deadlineAt,
-      label: "Top Voice X discovery"
+      label: "Top Voice X discovery",
+      envCategory: "public_collector",
+      env: { SCORING_DATA_ROOT: publicationArtifactRoot() },
+      cwd: root
     }
   );
   const receipt = await readJson(topVoiceOutput, null);
+  assertExactTopVoiceAttemptBinding(receipt?.autonomousAttempt, attemptContext, batchSlug);
   await event(
     "top_voice_collection.finished",
     "info",
@@ -1881,7 +3303,18 @@ async function resumeTopVoiceRefresh() {
   const result = await resumeValidatedSnapshotOrRun({
     resume: args.resumeSnapshots,
     readSnapshot: () => readJson(topVoiceOutput, null),
-    validateSnapshot: assertSuccessfulTopVoiceRefresh,
+    validateSnapshot: (receipt) => {
+      assertSuccessfulTopVoiceRefresh(receipt);
+      const binding = receipt?.autonomousAttempt;
+      if (
+        !binding ||
+        binding.campaignKey !== collectorCampaignKey() ||
+        Date.parse(binding.completedAt) < Date.now() - COLLECTOR_RESUME_MAX_AGE_MS ||
+        Date.parse(binding.completedAt) > Date.now() + COLLECTOR_SNAPSHOT_FUTURE_SKEW_MS
+      ) {
+        throw new Error("Top Voice discovery snapshot has stale, future, or foreign collector provenance.");
+      }
+    },
     runFresh: runTopVoiceCollector
   });
   if (result.resumed) {
@@ -1898,12 +3331,54 @@ async function resumeTopVoiceRefresh() {
   return result.snapshot;
 }
 
+function assertExactTopVoiceAttemptBinding(binding, attemptContext, batchSlug) {
+  const expected = {
+    schemaVersion: 1,
+    attemptId: attemptContext.attemptId,
+    campaignKey: attemptContext.campaignKey,
+    idempotencyKey: attemptContext.idempotencyKey,
+    executionNonce: attemptContext.executionNonce,
+    kind: "top_voice",
+    batchSlug,
+    shardIndex: 0,
+    shardCount: 1,
+    startedAt: attemptContext.startedAt
+  };
+  for (const [key, value] of Object.entries(expected)) {
+    if (binding?.[key] !== value) {
+      throw new Error(`Top Voice collector provenance does not match its launch (${key}).`);
+    }
+  }
+  const completedAt = Date.parse(binding.completedAt);
+  if (
+    !Number.isFinite(completedAt) ||
+    completedAt < attemptContext.startedAtMs ||
+    completedAt > Math.min(attemptContext.notAfterMs, Date.now() + COLLECTOR_SNAPSHOT_FUTURE_SKEW_MS)
+  ) {
+    throw new Error("Top Voice collector provenance has a stale or future completion timestamp.");
+  }
+}
+
 async function runCollectorWithRetries(command, maxAttempts = AUTONOMOUS_PROCESS_BUDGETS.collectorAttempts) {
   if (args.resumeSnapshots) {
-    const snapshot = await readCollectorSnapshot(command.outputPath, command.kind, {
-      batchSlug: command.batchSlug,
-      expectedSourcePath: command.expectedSourcePath
-    });
+    let snapshot = null;
+    try {
+      snapshot = await readCollectorSnapshot(command.outputPath, command.kind, {
+        batchSlug: command.batchSlug,
+        expectedSourcePath: command.expectedSourcePath,
+        notBefore: Date.now() - COLLECTOR_RESUME_MAX_AGE_MS,
+        notAfter: Date.now() + COLLECTOR_SNAPSHOT_FUTURE_SKEW_MS,
+        requireAttemptBinding: true,
+        expectedCampaignKey: collectorCampaignKey()
+      });
+    } catch (error) {
+      await event(
+        "collector.snapshot_resume_rejected",
+        "warning",
+        `${command.kind} ${command.batchSlug} rejected an unbound, stale, future, or foreign resume snapshot.`,
+        { error: errorMessage(error) }
+      );
+    }
     if (snapshot) {
       const retryableFailures = retryableFailuresFromSnapshot(snapshot);
       const terminalCoverage = summarizeAutonomousCollectorTerminalTaskCoverage(snapshot, {
@@ -1936,12 +3411,20 @@ async function runCollectorWithRetries(command, maxAttempts = AUTONOMOUS_PROCESS
   for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
     let retryReasons = [];
     try {
-      const attemptStartedAt = Date.now();
-      await command.run();
+      const attemptContext = createCollectorAttemptContext(command, attempt);
+      command.latestAttemptContext = attemptContext;
+      await removeCollectorAttemptOutput(command.outputPath);
+      await command.run(attemptContext);
+      attemptContext.notAfterMs = Date.now() + COLLECTOR_SNAPSHOT_FUTURE_SKEW_MS;
       const snapshot = await readCollectorSnapshot(command.outputPath, command.kind, {
         batchSlug: command.batchSlug,
         expectedSourcePath: command.expectedSourcePath,
-        notBefore: attemptStartedAt
+        notBefore: attemptContext.startedAtMs - COLLECTOR_SNAPSHOT_FILE_SKEW_MS,
+        notAfter: attemptContext.notAfterMs,
+        requireAttemptBinding: true,
+        expectedAttemptId: attemptContext.attemptId,
+        expectedCampaignKey: attemptContext.campaignKey,
+        expectedExecutionNonce: attemptContext.executionNonce
       });
       if (!snapshot) throw new Error(`${command.kind} ${command.batchSlug} did not write a collector snapshot.`);
       const retryableFailures = retryableFailuresFromSnapshot(snapshot);
@@ -2076,13 +3559,16 @@ async function reconcileCollectorTasks(results, catalogState) {
 }
 
 async function tasksFor(batchSlug, platform, catalogState) {
-  const { data, error } = await supabase
-    .from("ingestion_tasks")
-    .select("id,company_name,entity_type,status,checkpoint_key")
-    .eq("ingestion_run_id", run.id)
-    .eq("batch_id", catalogState.batchBySlug.get(batchSlug))
-    .eq("platform", platform)
-    .eq("status", "queued");
+  const { data, error } = await runSupabaseOperation(
+    `read ${batchSlug}/${platform} tasks`,
+    () => supabase
+      .from("ingestion_tasks")
+      .select("id,company_name,entity_type,status,checkpoint_key")
+      .eq("ingestion_run_id", run.id)
+      .eq("batch_id", catalogState.batchBySlug.get(batchSlug))
+      .eq("platform", platform)
+      .eq("status", "queued")
+  );
   check(error, `read ${batchSlug}/${platform} tasks`);
   return data ?? [];
 }
@@ -2090,29 +3576,35 @@ async function tasksFor(batchSlug, platform, catalogState) {
 async function finishTasks(ids, status, reason, attempts = 1) {
   if (ids.length === 0) return;
   const terminalAt = new Date().toISOString();
-  const { error } = await supabase
-    .from("ingestion_tasks")
-    .update({
-      status,
-      attempts,
-      last_attempt_at: terminalAt,
-      terminal_at: terminalAt,
-      terminal_reason: reason,
-      last_failure_kind: status === "failed" ? "collector_failure" : null,
-      last_error: status === "failed" ? reason : null,
-      last_error_json: status === "failed" ? { reason } : {}
-    })
-    .in("id", ids)
-    .eq("status", "queued");
+  const { error } = await runSupabaseOperation(
+    `finish ${ids.length} ingestion tasks`,
+    () => supabase
+      .from("ingestion_tasks")
+      .update({
+        status,
+        attempts,
+        last_attempt_at: terminalAt,
+        terminal_at: terminalAt,
+        terminal_reason: reason,
+        last_failure_kind: status === "failed" ? "collector_failure" : null,
+        last_error: status === "failed" ? reason : null,
+        last_error_json: status === "failed" ? { reason } : {}
+      })
+      .in("id", ids)
+      .eq("status", "queued")
+  );
   check(error, `finish ${ids.length} ingestion tasks`);
 }
 
 async function terminalizeQueuedTasks(runId, status, reason) {
-  const { error } = await supabase
-    .from("ingestion_tasks")
-    .update({ status, terminal_at: new Date().toISOString(), terminal_reason: reason })
-    .eq("ingestion_run_id", runId)
-    .eq("status", "queued");
+  const { error } = await runSupabaseOperation(
+    "terminalize skipped network tasks",
+    () => supabase
+      .from("ingestion_tasks")
+      .update({ status, terminal_at: new Date().toISOString(), terminal_reason: reason })
+      .eq("ingestion_run_id", runId)
+      .eq("status", "queued")
+  );
   check(error, "terminalize skipped network tasks");
 }
 
@@ -2147,7 +3639,6 @@ async function importDurableEvidence({
       rejections: []
     };
   }
-  const importer = await import("./lib/durable-evidence-import.mjs");
   const companyAliasesByBatch = new Map();
   const founderAliasesByBatch = new Map();
   const founderBatchSlugsById = new Map();
@@ -2178,23 +3669,27 @@ async function importDurableEvidence({
       }
     }
   }
-  const result = await importer.importEvidenceSnapshots({
-    client: supabase,
-    ingestionRunId: run.id,
-    requireCompleteAttribution: true,
-    publicSnapshots,
-    githubSnapshots,
-    attributionReconciliationLedger,
-    catalog: {
-      batchBySlug: catalogState.batchBySlug,
-      companyByBatchEntityId: companyAliasesByBatch,
-      companyByBatchSlug: companyAliasesByBatch,
-      founderByBatchEntityId: founderAliasesByBatch,
-      founderBatchCountById: new Map(
-        [...founderBatchSlugsById].map(([founderId, batchSlugs]) => [founderId, batchSlugs.size])
-      )
-    }
-  });
+  const result = await runSupabaseOperation(
+    "import durable evidence snapshots",
+    (signal) => importEvidenceSnapshots({
+      client: createAbortBoundSupabaseClient(supabase, signal),
+      ingestionRunId: run.id,
+      requireCompleteAttribution: true,
+      publicSnapshots,
+      githubSnapshots,
+      attributionReconciliationLedger,
+      catalog: {
+        batchBySlug: catalogState.batchBySlug,
+        companyByBatchEntityId: companyAliasesByBatch,
+        companyByBatchSlug: companyAliasesByBatch,
+        founderByBatchEntityId: founderAliasesByBatch,
+        founderBatchCountById: new Map(
+          [...founderBatchSlugsById].map(([founderId, batchSlugs]) => [founderId, batchSlugs.size])
+        )
+      }
+    }),
+    { timeoutMs: SUPABASE_BULK_OPERATION_TIMEOUT_MS }
+  );
   return { status: "completed", configured: true, ...result };
 }
 
@@ -2445,10 +3940,13 @@ function assertSuccessfulTopVoiceRefresh(receipt) {
 }
 
 async function persistCoverage(catalogState, stageCounters) {
-  const { data: tasks, error } = await supabase
-    .from("ingestion_tasks")
-    .select("status,platform,batch_id,terminal_reason,checkpoint_key")
-    .eq("ingestion_run_id", run.id);
+  const { data: tasks, error } = await runSupabaseOperation(
+    "read terminal coverage",
+    () => supabase
+      .from("ingestion_tasks")
+      .select("status,platform,batch_id,terminal_reason,checkpoint_key")
+      .eq("ingestion_run_id", run.id)
+  );
   check(error, "read terminal coverage");
   const terminalStatuses = new Set(["completed", "needs_review", "blocked_or_empty", "skipped", "failed", "canceled", "dead_lettered"]);
   const needsReview = (tasks ?? []).filter((task) => task.status === "needs_review").length;
@@ -2481,40 +3979,46 @@ async function persistCoverage(catalogState, stageCounters) {
     stageCounters,
     generatedAt: new Date().toISOString()
   };
-  const { error: reportError } = await supabase.from("ingestion_coverage_reports").upsert(
-    {
-      ingestion_run_id: run.id,
-      report_key: "overall",
-      expected_count: report.expected,
-      attempted_count: report.attempted,
-      succeeded_count: report.succeeded,
-      failed_count: report.failed,
-      skipped_count: report.skipped + report.needsReview + report.blockedOrEmpty,
-      report_json: report
-    },
-    { onConflict: "ingestion_run_id,report_key" }
+  const { error: reportError } = await runSupabaseOperation(
+    "persist coverage report",
+    () => supabase.from("ingestion_coverage_reports").upsert(
+      {
+        ingestion_run_id: run.id,
+        report_key: "overall",
+        expected_count: report.expected,
+        attempted_count: report.attempted,
+        succeeded_count: report.succeeded,
+        failed_count: report.failed,
+        skipped_count: report.skipped + report.needsReview + report.blockedOrEmpty,
+        report_json: report
+      },
+      { onConflict: "ingestion_run_id,report_key" }
+    )
   );
   check(reportError, "persist coverage report");
   return report;
 }
 
 async function persistArtifactManifest(runId) {
-  const path = join(root, "public", "graph", "manifest.json");
+  const path = join(publicationArtifactRoot(), "public", "graph", "manifest.json");
   const content = await readFile(path);
   const details = await stat(path);
   const sha256 = createHash("sha256").update(content).digest("hex");
-  const { error } = await supabase.from("ingestion_artifact_manifests").upsert(
-    {
-      ingestion_run_id: runId,
-      artifact_key: "public-graph-manifest",
-      artifact_type: "graph_manifest",
-      storage_uri: "repo://public/graph/manifest.json",
-      content_type: "application/json",
-      byte_size: details.size,
-      sha256,
-      metadata_json: JSON.parse(content.toString("utf8"))
-    },
-    { onConflict: "ingestion_run_id,artifact_key" }
+  const { error } = await runSupabaseOperation(
+    "persist artifact manifest",
+    () => supabase.from("ingestion_artifact_manifests").upsert(
+      {
+        ingestion_run_id: runId,
+        artifact_key: "public-graph-manifest",
+        artifact_type: "graph_manifest",
+        storage_uri: "repo://public/graph/manifest.json",
+        content_type: "application/json",
+        byte_size: details.size,
+        sha256,
+        metadata_json: JSON.parse(content.toString("utf8"))
+      },
+      { onConflict: "ingestion_run_id,artifact_key" }
+    )
   );
   check(error, "persist artifact manifest");
 }
@@ -2522,11 +4026,14 @@ async function persistArtifactManifest(runId) {
 async function claimTimelineArtifactInvalidationsForBuild() {
   if (!supabase) return { ids: [], claimedAt: null };
   const claimedAt = new Date().toISOString();
-  const { data, error } = await supabase
-    .from("timeline_artifact_invalidations")
-    .update({ status: "processing", processed_at: null, last_error: null })
-    .in("status", ["pending", "processing", "failed"])
-    .select("id,company_id,invalidated_at");
+  const { data, error } = await runSupabaseOperation(
+    "claim Timeline artifact invalidations for publication build",
+    () => supabase
+      .from("timeline_artifact_invalidations")
+      .update({ status: "processing", processed_at: null, last_error: null })
+      .in("status", ["pending", "processing", "failed"])
+      .select("id,company_id,invalidated_at")
+  );
   if (error && isTimelineMigrationUnavailable(error)) return { ids: [], claimedAt: null };
   check(error, "claim Timeline artifact invalidations for publication build");
   const ids = [...new Set((data ?? []).map((row) => row.id).filter(Boolean))].sort();
@@ -2546,12 +4053,15 @@ async function completePublishedTimelineInvalidations(publicationReceipt, invali
     || !invalidationClaim?.ids?.length
   ) return;
   const processedAt = new Date().toISOString();
-  const { data, error } = await supabase
-    .from("timeline_artifact_invalidations")
-    .update({ status: "completed", processed_at: processedAt, last_error: null })
-    .eq("status", "processing")
-    .in("id", invalidationClaim.ids)
-    .select("id,company_id");
+  const { data, error } = await runSupabaseOperation(
+    "complete published Timeline artifact invalidations",
+    () => supabase
+      .from("timeline_artifact_invalidations")
+      .update({ status: "completed", processed_at: processedAt, last_error: null })
+      .eq("status", "processing")
+      .in("id", invalidationClaim.ids)
+      .select("id,company_id")
+  );
   if (error && isTimelineMigrationUnavailable(error)) return;
   check(error, "complete published Timeline artifact invalidations");
   await event(
@@ -2569,6 +4079,7 @@ async function completePublishedTimelineInvalidations(publicationReceipt, invali
 }
 
 async function runTimelineDiscoveryBeforeBackfill(catalogState) {
+  const targetRoot = publicationArtifactRoot();
   if (!durableStorageConfigured || !supabase || !run?.id) {
     if (args.skipNetwork) {
       await event(
@@ -2583,8 +4094,9 @@ async function runTimelineDiscoveryBeforeBackfill(catalogState) {
       const result = await runCommand(process.execPath, [
         "--experimental-strip-types",
         "--loader",
-        "./scripts/lib/scoring-diagnostics-ts-loader.mjs",
-        "scripts/discover-company-timeline-public-sources.mjs",
+        sourcePath("scripts", "lib", "scoring-diagnostics-ts-loader.mjs"),
+        sourcePath("scripts", "discover-company-timeline-public-sources.mjs"),
+        `--root=${targetRoot}`,
         `--budget-ms=${AUTONOMOUS_PROCESS_BUDGETS.timelineDiscoveryMs}`,
         "--concurrency=2",
         "--max-companies=12",
@@ -2592,7 +4104,10 @@ async function runTimelineDiscoveryBeforeBackfill(catalogState) {
       ], {
         timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.timelineDiscoveryMs + 30_000,
         label: "file-backed Company Timeline public discovery",
-        captureLimit: 100_000
+        captureLimit: 100_000,
+        envCategory: "publication_data",
+        env: { SCORING_DATA_ROOT: targetRoot },
+        cwd: targetRoot
       });
       const receipt = JSON.parse(result.stdout.trim());
       await event(
@@ -2622,9 +4137,12 @@ async function runTimelineDiscoveryBeforeBackfill(catalogState) {
     return { status: "skipped", reason: "durable_storage_unavailable" };
   }
 
-  const { error: migrationError } = await supabase
-    .from("timeline_source_coverage")
-    .select("company_id", { count: "exact", head: true });
+  const { error: migrationError } = await runSupabaseOperation(
+    "preflight Company Timeline migration",
+    () => supabase
+      .from("timeline_source_coverage")
+      .select("company_id", { count: "exact", head: true })
+  );
   if (migrationError && isTimelineMigrationUnavailable(migrationError)) {
     await event(
       "timeline.discovery.skipped",
@@ -2644,8 +4162,8 @@ async function runTimelineDiscoveryBeforeBackfill(catalogState) {
   const result = await runCommand(process.execPath, [
     "--experimental-strip-types",
     "--loader",
-    "./scripts/lib/scoring-diagnostics-ts-loader.mjs",
-    "scripts/run-company-timeline-ingestion.mjs",
+    sourcePath("scripts", "lib", "scoring-diagnostics-ts-loader.mjs"),
+    sourcePath("scripts", "run-company-timeline-ingestion.mjs"),
     `--run-id=${run.id}`,
     `--worker-id=${workerId}:timeline`,
     `--inventory=${inventoryPath}`,
@@ -2653,7 +4171,10 @@ async function runTimelineDiscoveryBeforeBackfill(catalogState) {
   ], {
     timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.timelineDiscoveryMs + 30_000,
     label: "durable Company Timeline discovery",
-    captureLimit: 100_000
+    captureLimit: 100_000,
+    envCategory: "durable_timeline",
+    env: { SCORING_DATA_ROOT: targetRoot },
+    cwd: root
   });
   const receipt = JSON.parse(result.stdout.trim());
   await event(
@@ -2666,11 +4187,12 @@ async function runTimelineDiscoveryBeforeBackfill(catalogState) {
 }
 
 async function buildCanonicalTimelineIngestionInventory(catalogState) {
+  const targetRoot = publicationArtifactRoot();
   const evidenceByCompany = new Map();
   const graphCompanyIds = new Set();
   for (const batch of AUTONOMOUS_BATCHES) {
     const graph = await readRequiredCanonicalJson(
-      join(root, "public", "graph", batch.graphFile),
+      join(targetRoot, "public", "graph", batch.graphFile),
       `Published ${batch.slug} graph for Timeline inventory`
     );
     for (const node of graph.nodes ?? []) {
@@ -2748,138 +4270,515 @@ function isTimelineMigrationUnavailable(error) {
 }
 
 async function buildAndValidatePublication(publicationRunId, catalogState) {
-  // The benchmark publisher boots `next start`; build the current canonical
-  // evidence first so a clean runner never depends on an absent or stale
-  // `.next` directory. A second build below captures the newly written graph
-  // and Timeline artifacts in the deployable trace.
+  const targetRoot = publicationArtifactRoot();
+  // All code executed in this secret-bearing process is pinned to sourceCommit.
+  // Mutable publication-root files are data only. The exact pushed SHA receives
+  // its application build in the separate secretless reusable validation job.
   const benchmarkWindowStart = new Date().toISOString();
-  await runCommand(process.execPath, ["scripts/prepare-graph-runtime-evidence.mjs"], {
+  await runCommand(process.execPath, [
+    sourcePath("scripts", "prepare-graph-runtime-evidence.mjs"),
+    `--root=${targetRoot}`
+  ], {
     timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.artifactValidationMs,
-    label: "pre-publication compact graph runtime preparation"
+    label: "pre-publication compact graph runtime preparation",
+    cwd: targetRoot
   });
-  await runCommand(process.execPath, ["node_modules/next/dist/bin/next", "build"], {
-    timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.productionBuildMs,
-    label: "pre-publication production build"
-  });
-  await runCommand(process.execPath, ["scripts/update-daily-benchmarks.mjs"], {
+  await runCommand(process.execPath, [
+    "--experimental-strip-types",
+    "--loader",
+    sourcePath("scripts", "lib", "scoring-diagnostics-ts-loader.mjs"),
+    sourcePath("scripts", "update-daily-benchmarks.mjs"),
+    `--root=${targetRoot}`,
+    "--pinned-source-in-process"
+  ], {
     timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.benchmarkPublicationMs,
     label: "graph and benchmark publication",
+    envCategory: "benchmark",
     env: {
       INGESTION_RUN_ID: publicationRunId,
-      BENCHMARK_WINDOW_START: benchmarkWindowStart
-    }
+      BENCHMARK_WINDOW_START: benchmarkWindowStart,
+      GRAPH_API_BASE_URL: "",
+      SCORING_DATA_ROOT: targetRoot
+    },
+    cwd: targetRoot
   });
   // Durable discovery runs against the just-refreshed canonical inventory and
   // must reach terminal source coverage before the artifact backfill reads
   // published database events. A failure aborts publication, preserving the
   // repository's last-good timeline artifacts.
   await runTimelineDiscoveryBeforeBackfill(catalogState);
+  const timelineDatabaseSnapshotPath = join(workRoot, "timeline-database-snapshot.json");
+  if (durableStorageConfigured) {
+    await runCommand(process.execPath, [
+      "--experimental-strip-types",
+      "--loader",
+      sourcePath("scripts", "lib", "scoring-diagnostics-ts-loader.mjs"),
+      sourcePath("scripts", "backfill-company-timelines.mjs"),
+      `--root=${targetRoot}`,
+      `--export-database-snapshot=${timelineDatabaseSnapshotPath}`
+    ], {
+      timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.timelineBackfillMs,
+      label: "export durable Company Timeline database snapshot",
+      envCategory: "durable_timeline",
+      env: { SCORING_DATA_ROOT: targetRoot },
+      cwd: root
+    });
+  }
   const timelineBackfillEnv = durableStorageConfigured
     ? {
-        TIMELINE_REQUIRE_DATABASE: "true"
+        TIMELINE_REQUIRE_DATABASE: "true",
+        SCORING_DATA_ROOT: targetRoot
       }
     : {
-        NEXT_PUBLIC_SUPABASE_URL: "",
-        SUPABASE_SERVICE_ROLE_KEY: "",
-        TIMELINE_REQUIRE_DATABASE: "false"
+        TIMELINE_REQUIRE_DATABASE: "false",
+        SCORING_DATA_ROOT: targetRoot
       };
   await runCommand(process.execPath, [
     "--experimental-strip-types",
     "--loader",
-    "./scripts/lib/scoring-diagnostics-ts-loader.mjs",
-    "scripts/backfill-company-timelines.mjs",
-    "--resume"
+    sourcePath("scripts", "lib", "scoring-diagnostics-ts-loader.mjs"),
+    sourcePath("scripts", "backfill-company-timelines.mjs"),
+    `--root=${targetRoot}`,
+    "--resume",
+    ...(durableStorageConfigured
+      ? [`--database-snapshot=${timelineDatabaseSnapshotPath}`]
+      : [])
   ], {
     timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.timelineBackfillMs,
     label: "company timeline backfill",
-    env: timelineBackfillEnv
+    envCategory: "timeline_backfill",
+    env: timelineBackfillEnv,
+    cwd: targetRoot
   });
-  await runCommand(process.execPath, ["scripts/validate-timeline-artifacts.mjs"], {
+  await runCommand(process.execPath, [sourcePath("scripts", "validate-timeline-artifacts.mjs")], {
     timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.artifactValidationMs,
-    label: "company timeline artifact validation"
+    label: "company timeline artifact validation",
+    cwd: targetRoot
   });
-  await runCommand(process.execPath, ["scripts/prepare-graph-runtime-evidence.mjs"], {
+  await runCommand(process.execPath, [
+    sourcePath("scripts", "prepare-graph-runtime-evidence.mjs"),
+    `--root=${targetRoot}`
+  ], {
     timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.artifactValidationMs,
-    label: "compact graph runtime preparation"
-  });
-  await runCommand("npm", ["run", "topics:facets"], {
-    timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.derivedArtifactMs,
-    label: "topic facet regeneration"
-  });
-  await runCommand("npm", ["run", "ranked-posts:sidecar"], {
-    timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.derivedArtifactMs,
-    label: "Ranked Posts sidecar regeneration"
-  });
-  await runCommand("npm", ["run", "topics:facets:validate"], {
-    timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.derivedArtifactMs,
-    label: "topic facet validation"
-  });
-  await runCommand("npm", ["run", "ranked-posts:sidecar:validate"], {
-    timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.derivedArtifactMs,
-    label: "Ranked Posts sidecar validation"
-  });
-  // Build only after all public graph, Timeline, topic-facet, and Ranked Posts
-  // artifacts have been rebuilt and strictly validated, so the deployable
-  // trace is the exact publication we are about to commit rather than the
-  // previous artifact generation.
-  await runCommand(process.execPath, ["node_modules/next/dist/bin/next", "build"], {
-    timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.productionBuildMs,
-    label: "production build"
+    label: "compact graph runtime preparation",
+    cwd: targetRoot
   });
   await runCommand(process.execPath, [
     "--experimental-strip-types",
     "--loader",
-    "./scripts/lib/scoring-diagnostics-ts-loader.mjs",
-    "./scripts/run-scoring-diagnostics-v4.mjs"
+    sourcePath("scripts", "lib", "scoring-diagnostics-ts-loader.mjs"),
+    sourcePath("scripts", "build-topic-facets.mjs"),
+    `--root=${targetRoot}`
   ], {
-    timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.scoringDiagnosticsMs,
-    label: "scoring diagnostics regeneration"
+    timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.derivedArtifactMs,
+    label: "topic facet regeneration",
+    envCategory: "publication_data",
+    env: { SCORING_DATA_ROOT: targetRoot },
+    cwd: targetRoot
   });
   await runCommand(process.execPath, [
-    "scripts/audit-cohort-coverage.mjs",
+    "--experimental-strip-types",
+    "--loader",
+    sourcePath("scripts", "lib", "scoring-diagnostics-ts-loader.mjs"),
+    sourcePath("scripts", "build-ranked-posts-sidecar.mjs"),
+    `--root=${targetRoot}`
+  ], {
+    timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.derivedArtifactMs,
+    label: "Ranked Posts sidecar regeneration",
+    envCategory: "publication_data",
+    env: { SCORING_DATA_ROOT: targetRoot },
+    cwd: targetRoot
+  });
+  await runCommand(process.execPath, [
+    "--experimental-strip-types",
+    "--loader",
+    sourcePath("scripts", "lib", "scoring-diagnostics-ts-loader.mjs"),
+    sourcePath("scripts", "build-topic-facets.mjs"),
+    "--validate",
+    `--root=${targetRoot}`
+  ], {
+    timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.derivedArtifactMs,
+    label: "topic facet validation",
+    envCategory: "publication_data",
+    env: { SCORING_DATA_ROOT: targetRoot },
+    cwd: targetRoot
+  });
+  await runCommand(process.execPath, [
+    "--experimental-strip-types",
+    "--loader",
+    sourcePath("scripts", "lib", "scoring-diagnostics-ts-loader.mjs"),
+    sourcePath("scripts", "build-ranked-posts-sidecar.mjs"),
+    "--validate",
+    `--root=${targetRoot}`
+  ], {
+    timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.derivedArtifactMs,
+    label: "Ranked Posts sidecar validation",
+    envCategory: "publication_data",
+    env: { SCORING_DATA_ROOT: targetRoot },
+    cwd: targetRoot
+  });
+  await runCommand(process.execPath, [
+    "--experimental-strip-types",
+    "--loader",
+    sourcePath("scripts", "lib", "scoring-diagnostics-ts-loader.mjs"),
+    sourcePath("scripts", "run-scoring-diagnostics-v4.mjs"),
+    `--root=${targetRoot}`,
+    `--expected-source-sha=${sourceCommit}`
+  ], {
+    timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.scoringDiagnosticsMs,
+    label: "scoring diagnostics regeneration",
+    envCategory: "publication_data",
+    env: { SCORING_DATA_ROOT: targetRoot },
+    cwd: targetRoot
+  });
+  await runCommand(process.execPath, [
+    sourcePath("scripts", "audit-cohort-coverage.mjs"),
     `--run-dir=${workRoot}`,
     `--output=${publishedCohortAuditPath}`
   ], {
     timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.artifactValidationMs,
-    label: "cohort coverage audit"
+    label: "cohort coverage audit",
+    cwd: targetRoot
   });
-  await runCommand(process.execPath, ["scripts/write-artifact-manifest.mjs", `--ingestion-run-id=${publicationRunId}`], {
+  await runCommand(process.execPath, [
+    sourcePath("scripts", "write-artifact-manifest.mjs"),
+    `--ingestion-run-id=${publicationRunId}`
+  ], {
     timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.artifactManifestMs,
-    label: "artifact manifest"
+    label: "artifact manifest",
+    cwd: targetRoot
   });
-  await runCommand(process.execPath, ["scripts/validate-public-artifacts.mjs"], {
+  await runCommand(process.execPath, [sourcePath("scripts", "validate-public-artifacts.mjs")], {
     timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.artifactValidationMs,
-    label: "artifact validation"
+    label: "artifact validation",
+    cwd: targetRoot
+  });
+  await runCommand(process.execPath, [sourcePath("scripts", "write-artifact-manifest.mjs"), "--validate"], {
+    timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.artifactManifestMs,
+    label: "strict artifact manifest validation",
+    cwd: targetRoot
   });
 }
 
 async function synchronizePublicationBase() {
-  if (process.env.GITHUB_ACTIONS !== "true") return;
-  const branch = publicationBranch();
-  await runCommand("git", ["fetch", "origin", branch], {
-    timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitPushMs,
-    label: "fetch publication base"
-  });
-  try {
-    await runCommand("git", ["rebase", "--autostash", `origin/${branch}`], {
-      timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitPushMs,
-      label: "synchronize publication base"
-    });
-  } catch (error) {
-    await abortPublicationRebase();
-    throw error;
-  }
-  await assertNoPublicationConflicts();
+  await ensurePublicationWorktree();
   await event("publication.base_synchronized", "info", "Publication base synchronized before artifact generation.", {
-    branch
+    branch: publicationBranch(),
+    sourceCommit,
+    publicationBaseCommit,
+    publicationRoot
   });
 }
 
+async function ensurePublicationWorktree() {
+  if (publicationRoot) return publicationRoot;
+  sourceCommit = await resolveSourceExecutionCommit();
+  const baseCommit = process.env.GITHUB_ACTIONS === "true"
+    ? preverifiedPublicationBaseCommit ?? await resolveVerifiedCurrentPublicationCommit({
+        labelPrefix: "isolated publication base"
+      })
+    : sourceCommit;
+  await assertTrustedPublicationBaseCommit(baseCommit, {
+    label: "isolated publication base"
+  });
+
+  const temporaryBase = resolve(cleanEnv(process.env.RUNNER_TEMP) ?? tmpdir());
+  await mkdir(temporaryBase, { recursive: true });
+  publicationWorktreeParent = await mkdtemp(join(temporaryBase, "returner-publication-"));
+  const target = join(publicationWorktreeParent, "checkout");
+  try {
+    await runCommand(
+      "git",
+      ["-c", "core.hooksPath=/dev/null", "worktree", "add", "--detach", target, baseCommit],
+      {
+        timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitPushMs,
+        label: "create isolated publication worktree",
+        cwd: root
+      }
+    );
+    publicationRoot = target;
+    publicationBaseCommit = baseCommit;
+    configurePublicationArtifactPaths(publicationRoot);
+    await exposePinnedDependenciesToPublicationWorktree();
+    return publicationRoot;
+  } catch (error) {
+    publicationRoot = target;
+    await cleanupPublicationWorktree().catch(() => {});
+    throw error;
+  }
+}
+
+async function resolveSourceExecutionCommit() {
+  if (sourceCommit) return sourceCommit;
+  const resolved = (await runCommand("git", ["rev-parse", "HEAD^{commit}"], {
+    timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitDiffMs,
+    label: "resolve immutable source execution commit",
+    cwd: pinnedSourceRoot
+  })).stdout.trim();
+  if (!/^[0-9a-f]{40}$/i.test(resolved)) {
+    throw new Error("Immutable source execution commit is not a full 40-hex SHA.");
+  }
+  sourceCommit = resolved.toLowerCase();
+  return sourceCommit;
+}
+
+async function verifyPinnedSourceExecutionBoundary({
+  workingDirectory = root,
+  executingCodeRoot = pinnedSourceRoot,
+  expectedSourceCommit = cleanEnv(process.env.RETURNER_EXPECTED_SOURCE_SHA ?? process.env.GITHUB_SHA),
+  verifyPolicyCleanliness = true
+} = {}) {
+  const [workingRoot, codeRoot] = await Promise.all([
+    realpath(workingDirectory),
+    realpath(executingCodeRoot)
+  ]);
+  if (workingRoot !== codeRoot) {
+    throw new Error(
+      `Runner source-root mismatch: cwd resolves to ${workingRoot}, but executing code resolves to ${codeRoot}.`
+    );
+  }
+  const repositoryTopLevel = (await runCommand("git", ["rev-parse", "--show-toplevel"], {
+    timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitDiffMs,
+    label: "resolve pinned source repository root",
+    quiet: true,
+    recordEvents: false,
+    cwd: codeRoot
+  })).stdout.trim();
+  if (await realpath(repositoryTopLevel) !== codeRoot) {
+    throw new Error("Pinned runner code is not executing from its exact Git repository root.");
+  }
+
+  const immutableSourceCommit = (await runCommand("git", ["rev-parse", "HEAD^{commit}"], {
+    timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitDiffMs,
+    label: "resolve cryptographically pinned source commit",
+    quiet: true,
+    recordEvents: false,
+    cwd: codeRoot
+  })).stdout.trim().toLowerCase();
+  if (!/^[0-9a-f]{40}$/.test(immutableSourceCommit)) {
+    throw new Error("Pinned source commit is not a full 40-hex SHA.");
+  }
+  if (codeRoot === await realpath(pinnedSourceRoot)) sourceCommit = immutableSourceCommit;
+  if (expectedSourceCommit) {
+    if (!/^[0-9a-f]{40}$/i.test(expectedSourceCommit)) {
+      throw new Error("Expected runner source SHA must be a full 40-hex commit SHA.");
+    }
+    if (expectedSourceCommit.toLowerCase() !== immutableSourceCommit) {
+      throw new Error(
+        `Runner source SHA mismatch (expected ${expectedSourceCommit.toLowerCase()}, observed ${immutableSourceCommit}).`
+      );
+    }
+  }
+
+  if (verifyPolicyCleanliness) {
+    const [trackedDiff, untracked] = await Promise.all([
+      runCommand("git", ["diff", "--name-only", "--no-renames", "-z", immutableSourceCommit, "--"], {
+        timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitDiffMs,
+        label: "verify pinned tracked source policy cleanliness",
+        captureLimit: 2_000_000,
+        quiet: true,
+        recordEvents: false,
+        cwd: codeRoot
+      }),
+      runCommand("git", ["ls-files", "--others", "--exclude-standard", "-z"], {
+        timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitDiffMs,
+        label: "verify pinned untracked source policy cleanliness",
+        captureLimit: 2_000_000,
+        quiet: true,
+        recordEvents: false,
+        cwd: codeRoot
+      })
+    ]);
+    const dirtyPolicyPaths = [...new Set([
+      ...parseNulPaths(trackedDiff.stdout),
+      ...parseNulPaths(untracked.stdout)
+    ].filter(isProtectedSourcePolicyPath))].sort();
+    if (dirtyPolicyPaths.length > 0) {
+      throw new Error(
+        `Pinned source executable/policy files are not byte-bound to ${immutableSourceCommit}: ${dirtyPolicyPaths.join(", ")}`
+      );
+    }
+  }
+  await assertNoTrackedSymlinksAtCommit(immutableSourceCommit, {
+    label: "pinned source commit",
+    repositoryRoot: codeRoot
+  });
+  return immutableSourceCommit;
+}
+
+async function assertTrustedPublicationBaseCommit(commit, { label }) {
+  if (!/^[0-9a-f]{40}$/i.test(String(commit))) {
+    throw new Error(`${label} is not a full 40-hex commit SHA.`);
+  }
+  const immutableSourceCommit = await resolveSourceExecutionCommit();
+  const sourceReachable = await runCommand(
+    "git",
+    ["merge-base", "--is-ancestor", immutableSourceCommit, commit],
+    {
+      timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitDiffMs,
+      label: `verify source reachability for ${label}`,
+      allowedExitCodes: [0, 1],
+      quiet: true,
+      recordEvents: false,
+      cwd: pinnedSourceRoot
+    }
+  );
+  if (sourceReachable.code !== 0) {
+    throw new Error(`${label} ${commit} does not descend from pinned source ${immutableSourceCommit}.`);
+  }
+  const changed = await runCommand(
+    "git",
+    ["diff", "--name-only", "--no-renames", "-z", immutableSourceCommit, commit, "--"],
+    {
+      timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitDiffMs,
+      label: `inspect data-only drift for ${label}`,
+      captureLimit: 2_000_000,
+      quiet: true,
+      recordEvents: false,
+      cwd: pinnedSourceRoot
+    }
+  );
+  assertReplaySafePublicationChanges(parseNulPaths(changed.stdout), { label });
+  await assertNoTrackedSymlinksAtCommit(commit, { label });
+  return commit.toLowerCase();
+}
+
+async function assertNoTrackedSymlinksAtCommit(
+  commit,
+  { label, repositoryRoot = pinnedSourceRoot }
+) {
+  const tree = await runCommand("git", ["ls-tree", "-r", "-z", "--full-tree", commit], {
+    timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitDiffMs,
+    label: `inspect tracked file modes for ${label}`,
+    captureLimit: 5_000_000,
+    quiet: true,
+    recordEvents: false,
+    cwd: repositoryRoot
+  });
+  const unsafeEntries = unsafeTrackedTreeEntries(tree.stdout);
+  if (unsafeEntries.length > 0) {
+    throw new Error(`${label} contains prohibited tracked symlink/submodule entries: ${unsafeEntries.join(", ")}`);
+  }
+}
+
+function assertNoTrackedSymlinksAtCommitSync(
+  commit,
+  { label, repositoryRoot = pinnedSourceRoot }
+) {
+  const tree = spawnSync(
+    "git",
+    ["-C", repositoryRoot, "ls-tree", "-r", "-z", "--full-tree", commit],
+    {
+      encoding: "utf8",
+      timeout: AUTONOMOUS_PROCESS_BUDGETS.gitDiffMs,
+      maxBuffer: 5_000_000,
+      stdio: ["ignore", "pipe", "pipe"],
+      env: {
+        PATH: cleanEnv(process.env.PATH) ?? "/usr/local/bin:/usr/bin:/bin",
+        LANG: "C",
+        LC_ALL: "C",
+        GIT_CONFIG_COUNT: "2",
+        GIT_CONFIG_KEY_0: "core.hooksPath",
+        GIT_CONFIG_VALUE_0: "/dev/null",
+        GIT_CONFIG_KEY_1: "credential.helper",
+        GIT_CONFIG_VALUE_1: "",
+        GIT_CONFIG_NOSYSTEM: "1",
+        GIT_CONFIG_GLOBAL: "/dev/null",
+        GIT_TERMINAL_PROMPT: "0"
+      }
+    }
+  );
+  if (tree.error || tree.status !== 0) {
+    throw new Error(
+      `Could not inspect tracked file modes for ${label}: ${tree.error?.message ?? tree.stderr?.trim() ?? `git exited ${tree.status}`}`
+    );
+  }
+  const unsafeEntries = unsafeTrackedTreeEntries(tree.stdout);
+  if (unsafeEntries.length > 0) {
+    throw new Error(`${label} contains prohibited tracked symlink/submodule entries: ${unsafeEntries.join(", ")}`);
+  }
+}
+
+function unsafeTrackedTreeEntries(treeOutput) {
+  return String(treeOutput).split("\0").filter(Boolean).flatMap((entry) => {
+    const match = entry.match(/^(\d{6})\s+\S+\s+[0-9a-f]+\t([\s\S]+)$/i);
+    if (!match || !["120000", "160000"].includes(match[1])) return [];
+    return [`${match[2]} (${match[1]})`];
+  });
+}
+
+function parseNulPaths(value) {
+  return String(value ?? "").split("\0").filter(Boolean);
+}
+
+async function exposePinnedDependenciesToPublicationWorktree() {
+  const sourceNodeModules = sourcePath("node_modules");
+  try {
+    await stat(sourceNodeModules);
+  } catch (error) {
+    if (error?.code === "ENOENT") return;
+    throw error;
+  }
+  const targetNodeModules = join(publicationRoot, "node_modules");
+  try {
+    await symlink(
+      sourceNodeModules,
+      targetNodeModules,
+      process.platform === "win32" ? "junction" : "dir"
+    );
+  } catch (error) {
+    if (error?.code !== "EEXIST") throw error;
+  }
+}
+
+async function cleanupPublicationWorktree() {
+  if (publicationWorktreeCleanupPromise) return publicationWorktreeCleanupPromise;
+  if (!publicationWorktreeParent && !publicationRoot) return;
+  const parent = publicationWorktreeParent;
+  const target = publicationRoot;
+  publicationWorktreeCleanupPromise = (async () => {
+    if (target) {
+      await runCommand(
+        "git",
+        ["-c", "core.hooksPath=/dev/null", "worktree", "remove", "--force", target],
+        {
+          timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitDiffMs,
+          label: "remove isolated publication worktree",
+          allowedExitCodes: [0, 128],
+          cancellationCleanup: true,
+          cwd: root
+        }
+      ).catch(() => {});
+    }
+    if (parent) {
+      const parentName = basename(parent);
+      if (!parentName.startsWith("returner-publication-")) {
+        throw new Error(`Refusing to remove unexpected publication worktree parent ${parent}.`);
+      }
+      await rm(parent, { recursive: true, force: true });
+    }
+    await runCommand("git", ["worktree", "prune"], {
+      timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitDiffMs,
+      label: "prune isolated publication worktree metadata",
+      allowedExitCodes: [0, 128],
+      cancellationCleanup: true,
+      cwd: root
+    }).catch(() => {});
+    publicationRoot = null;
+    publicationWorktreeParent = null;
+    configurePublicationArtifactPaths(root);
+  })().finally(() => {
+    publicationWorktreeCleanupPromise = null;
+  });
+  return publicationWorktreeCleanupPromise;
+}
+
 async function publishGithubExports(snapshots, { baseRef = null } = {}) {
+  const targetRoot = publicationArtifactRoot();
   const destinations = new Map([
-    ["S2026", join(root, "src", "lib", "social", "github-traction.json")],
-    ["S26", join(root, "src", "lib", "social", "github-traction-summer-2026.json")],
-    ["A16ZSR006", join(root, "src", "lib", "social", "github-traction-a16z-speedrun-006.json")]
+    ["S2026", join(targetRoot, "src", "lib", "social", "github-traction.json")],
+    ["S26", join(targetRoot, "src", "lib", "social", "github-traction-summer-2026.json")],
+    ["A16ZSR006", join(targetRoot, "src", "lib", "social", "github-traction-a16z-speedrun-006.json")]
   ]);
 
   // Read every canonical export before writing any of them. A missing or
@@ -2915,7 +4814,7 @@ async function publishGithubExports(snapshots, { baseRef = null } = {}) {
   for (const snapshot of snapshots) {
     const batchSlug = snapshot.source.batchSlug;
     const destination = destinations.get(batchSlug);
-    const relativeDestination = destination.slice(root.length + 1);
+    const relativeDestination = destination.slice(targetRoot.length + 1);
     const base = baseRef ? await readJsonFromGitRef(baseRef, relativeDestination, null) : null;
     const previous = previousByBatch.get(batchSlug);
     const synchronized = base ? mergeGithubTractionSnapshots(base, previous) : previous;
@@ -2950,59 +4849,40 @@ async function publishRepositoryArtifacts(publicationRunId, publicationInputs) {
     );
     return { status: "skipped", publishedCommit: null };
   }
-
-  await runCommand("git", ["config", "user.name", "github-actions[bot]"], {
-    timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitConfigMs,
-    label: "configure publication author"
-  });
-  await runCommand("git", ["config", "user.email", "41898282+github-actions[bot]@users.noreply.github.com"], {
-    timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitConfigMs,
-    label: "configure publication email"
-  });
+  await ensurePublicationWorktree();
+  assertIsolatedPublicationWorktree();
   await stageRepositoryArtifacts();
   const branch = publicationBranch();
 
   const diff = await runCommand("git", ["diff", "--cached", "--quiet"], {
     timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitDiffMs,
     label: "check staged artifacts",
-    allowedExitCodes: [0, 1]
-  });
-  if (diff.code === 0) {
-    const claimedCommit = (await runCommand("git", ["rev-parse", "HEAD"], {
-      timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitDiffMs,
-      label: "resolve unchanged publication commit"
-    })).stdout.trim();
-    const publishedCommit = await verifyPublicationCommitOnRemote(claimedCommit, {
-      branch,
-      label: "unchanged publication"
-    });
-    await event(
-      "publication.no_changes",
-      "info",
-      "No public artifact changes required publication; the claimed commit is repository-backed.",
-      { branch, publishedCommit }
-    );
-    return {
-      status: "no_changes",
-      publishedCommit
-    };
-  }
-
-  await runCommand("git", ["commit", "-m", `Publish autonomous ingestion ${idempotencyKey}`], {
-    timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitCommitMs,
-    label: "commit refreshed artifacts"
-  });
-  const firstPushCommit = (await runCommand("git", ["rev-parse", "HEAD"], {
-    timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitDiffMs,
-    label: "resolve first publication push commit"
-  })).stdout.trim();
-  const firstPush = await runCommand("git", ["push", "origin", `HEAD:${branch}`], {
-    timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitPushMs,
-    label: "push refreshed artifacts",
     allowedExitCodes: [0, 1],
-    onAllowedExit: ({ code }) => {
-      if (code === 0) latestPublishedCommit = firstPushCommit;
-    }
+    cwd: publicationRoot
+  });
+  let publicationTreeChanged = diff.code !== 0;
+
+  assertLeaseHealthy();
+  // Even an unchanged tree receives a new empty provenance commit. The
+  // workflow validates this execution's exact slot/source/run/attempt tuple;
+  // reusing an older commit would make a truthful no-change run unverifiable.
+  const firstCommit = await commitPublicationArtifacts({
+    amend: false,
+    allowUnchangedTree: !publicationTreeChanged
+  });
+  const firstPushCommit = firstCommit.publishedCommit;
+  publicationReceiptSha256 = firstCommit.receiptSha256;
+  let firstPush;
+  const firstPushCandidate = {
+    publishedCommit: firstPushCommit,
+    branch,
+    label: "first publication push"
+  };
+  assertLeaseHealthy();
+  firstPush = await runPublicationPush(firstPushCandidate, {
+    commandLabel: "push refreshed artifacts",
+    allowedExitCodes: [0, 1],
+    retryTransportFailures: true
   });
   if (firstPush.code !== 0) {
     await event(
@@ -3012,14 +4892,46 @@ async function publishRepositoryArtifacts(publicationRunId, publicationInputs) {
       { branch, stderr: firstPush.stderr }
     );
     try {
-      await runCommand("git", ["fetch", "origin", branch], {
+      await runCommand("git", [
+        "-C",
+        publicationRoot,
+        "fetch",
+        "--no-tags",
+        "origin",
+        `+refs/heads/${branch}:refs/remotes/origin/${branch}`
+      ], {
         timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitPushMs,
-        label: "fetch publication retry base"
+        label: "fetch publication retry base",
+        envCategory: "publication_push",
+        env: publicationPushAuthEnvironment(),
+        cwd: root
       });
-      await runCommand("git", ["rebase", `origin/${branch}`], {
+      const retryBaseCommit = (await runCommand(
+        "git",
+        ["rev-parse", `refs/remotes/origin/${branch}^{commit}`],
+        {
+          timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitDiffMs,
+          label: "resolve publication retry base",
+          cwd: root
+        }
+      )).stdout.trim();
+      await assertTrustedPublicationBaseCommit(retryBaseCommit, {
+        label: "publication retry base"
+      });
+      await runCommand("git", ["-c", "core.hooksPath=/dev/null", "rebase", retryBaseCommit], {
         timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitPushMs,
-        label: "rebase publication commit"
+        label: "rebase publication commit",
+        cwd: publicationRoot
       });
+      const rebasedHeadCommit = (await runCommand("git", ["rev-parse", "HEAD^{commit}"], {
+        timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitDiffMs,
+        label: "resolve rebased publication tree",
+        cwd: publicationRoot
+      })).stdout.trim();
+      await assertNoTrackedSymlinksAtCommit(rebasedHeadCommit, {
+        label: "rebased publication tree"
+      });
+      publicationBaseCommit = retryBaseCommit;
     } catch (error) {
       await abortPublicationRebase();
       throw error;
@@ -3027,20 +4939,20 @@ async function publishRepositoryArtifacts(publicationRunId, publicationInputs) {
     await assertNoPublicationConflicts();
     const rebasedSanitizedTargetedSnapshot = await prepareSanitizedTargetedSnapshot(
       publicationInputs.topVoiceRefresh,
-      { baseRef: `origin/${branch}` }
+      { baseRef: publicationBaseCommit }
     );
     const rebasedContentIdentityReferenceRows = await readCanonicalContentIdentityReferenceRows(
       rebasedSanitizedTargetedSnapshot,
-      { baseRef: `origin/${branch}` }
+      { baseRef: publicationBaseCommit }
     );
     const rebasedLoggedInAttributionReconciliationLedger =
-      await readCanonicalLoggedInAttributionReconciliationLedger({ baseRef: `origin/${branch}` });
+      await readCanonicalLoggedInAttributionReconciliationLedger({ baseRef: publicationBaseCommit });
     const rebasedSeededAttributionReconciliationLedger =
-      await readCanonicalSeededAttributionReconciliationLedger({ baseRef: `origin/${branch}` });
+      await readCanonicalSeededAttributionReconciliationLedger({ baseRef: publicationBaseCommit });
     const rebasedSanitizedPublicSnapshot = await prepareSanitizedPublicSnapshot(
       publicationInputs.publicSnapshots,
       {
-        baseRef: `origin/${branch}`,
+        baseRef: publicationBaseCommit,
         contentIdentityReferenceRows: rebasedContentIdentityReferenceRows
       }
     );
@@ -3050,8 +4962,8 @@ async function publishRepositoryArtifacts(publicationRunId, publicationInputs) {
       sanitizedTargetedSnapshot: rebasedSanitizedTargetedSnapshot
     };
     const [rebasedBaseline, rebasedSourceDeltaHistory] = await Promise.all([
-      readPublicationEvidenceBaseline({ baseRef: `origin/${branch}` }),
-      readSourceDeltaHistory({ baseRef: `origin/${branch}` })
+      readPublicationEvidenceBaseline({ baseRef: publicationBaseCommit }),
+      readSourceDeltaHistory({ baseRef: publicationBaseCommit })
     ]);
     const retryDurableImport = await importDurableEvidence({
       publicSnapshots: [
@@ -3068,16 +4980,22 @@ async function publishRepositoryArtifacts(publicationRunId, publicationInputs) {
       )
     });
     assertDurableAttributionCompleteness(retryDurableImport);
-    await mergePublicationInputs(rebasedPublicationInputs, { baseRef: `origin/${branch}` });
-    rebasedPublicationInputs.sourceDelta = summarizeIngestionSourceDelta({
-      idempotencyKey,
-      beforeSnapshots: rebasedBaseline,
-      afterSnapshots: await readPublicationEvidenceBaseline(),
-      previousHistory: rebasedSourceDeltaHistory,
-      mappedFailures: publicationInputs.sourceDelta?.mappedFailures ?? 0,
-      collectionCoverage: publicationInputs.collectionCoverage,
-      credentialGaps: publicationInputs.credentialGaps
-    });
+    await mergePublicationInputs(rebasedPublicationInputs, { baseRef: publicationBaseCommit });
+    rebasedPublicationInputs.sourceDelta = {
+      ...summarizeIngestionSourceDelta({
+        idempotencyKey,
+        beforeSnapshots: rebasedBaseline,
+        afterSnapshots: await readPublicationEvidenceBaseline(),
+        previousHistory: rebasedSourceDeltaHistory,
+        mappedFailures: publicationInputs.sourceDelta?.mappedFailures ?? 0,
+        collectionCoverage: publicationInputs.collectionCoverage,
+        credentialGaps: publicationInputs.credentialGaps
+      }),
+      ...publicationCandidateReceiptFields(),
+      mappedExpected: publicationInputs.collectionCoverage.mappedExpected,
+      mappedNonTerminal: publicationInputs.collectionCoverage.mappedNonTerminal,
+      terminalFailureBudget: publicationInputs.sourceDelta.terminalFailureBudget
+    };
     await writeSourceDeltaReceipt(rebasedPublicationInputs.sourceDelta, rebasedSourceDeltaHistory);
     await buildAndValidatePublication(publicationRunId, publicationInputs.catalogState);
     if (run) await persistArtifactManifest(run.id);
@@ -3085,24 +5003,26 @@ async function publishRepositoryArtifacts(publicationRunId, publicationInputs) {
     const rebuiltDiff = await runCommand("git", ["diff", "--cached", "--quiet"], {
       timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitDiffMs,
       label: "check rebuilt artifacts",
-      allowedExitCodes: [0, 1]
+      allowedExitCodes: [0, 1],
+      cwd: publicationRoot
     });
-    if (rebuiltDiff.code === 1) {
-      await runCommand("git", ["commit", "--amend", "--no-edit"], {
-        timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitCommitMs,
-        label: "amend rebuilt artifacts"
-      });
-    }
-    const retryPushCommit = (await runCommand("git", ["rev-parse", "HEAD"], {
-      timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitDiffMs,
-      label: "resolve retry publication push commit"
-    })).stdout.trim();
-    await runCommand("git", ["push", "origin", `HEAD:${branch}`], {
-      timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitPushMs,
-      label: "retry refreshed artifact push",
-      onAllowedExit: () => {
-        latestPublishedCommit = retryPushCommit;
-      }
+    publicationTreeChanged = publicationTreeChanged || rebuiltDiff.code !== 0;
+    assertLeaseHealthy();
+    const amendCurrentRunCommit = await headHasPublicationRunIdentity();
+    const retryCommit = await commitPublicationArtifacts({
+      amend: amendCurrentRunCommit,
+      allowUnchangedTree: rebuiltDiff.code === 0
+    });
+    const retryPushCommit = retryCommit.publishedCommit;
+    publicationReceiptSha256 = retryCommit.receiptSha256;
+    const retryPushCandidate = {
+      publishedCommit: retryPushCommit,
+      branch,
+      label: "retry publication push"
+    };
+    assertLeaseHealthy();
+    await runPublicationPush(retryPushCandidate, {
+      commandLabel: "retry refreshed artifact push"
     });
     publicationInputs.sourceDelta = rebasedPublicationInputs.sourceDelta;
   }
@@ -3114,21 +5034,38 @@ async function publishRepositoryArtifacts(publicationRunId, publicationInputs) {
     branch,
     label: "published publication"
   });
-  await event("publication.completed", "info", "Refreshed artifacts were committed and pushed.", {
+  const publicationStatus = publicationTreeChanged ? "published" : "no_changes";
+  await event(
+    publicationTreeChanged ? "publication.completed" : "publication.no_changes",
+    "info",
+    publicationTreeChanged
+      ? "Refreshed artifacts were committed and pushed."
+      : "No artifact bytes changed; an immutable provenance commit was pushed.",
+    {
     idempotencyKey,
     publicationRunId,
     branch,
     retriedAfterNonFastForward: firstPush.code !== 0,
     publishedPaths: repositoryArtifactPaths()
-  });
-  return { status: "published", publishedCommit };
+    }
+  );
+  return {
+    status: publicationStatus,
+    publishedCommit,
+    receiptSha256: publicationReceiptSha256
+  };
 }
 
 async function stageRepositoryArtifacts() {
+  assertIsolatedPublicationWorktree();
   await runCommand("git", [
     "add", "--",
     ...repositoryArtifactPaths()
-  ], { timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitStageMs, label: "stage refreshed artifacts" });
+  ], {
+    timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitStageMs,
+    label: "stage refreshed artifacts",
+    cwd: publicationRoot
+  });
 }
 
 function repositoryArtifactPaths() {
@@ -3160,46 +5097,162 @@ function repositoryArtifactPaths() {
   ];
 }
 
+function assertIsolatedPublicationWorktree() {
+  if (!publicationRoot || resolve(publicationRoot) === resolve(root)) {
+    throw new Error("Repository publication requires a separate isolated worktree.");
+  }
+  if (!publicationWorktreeParent || !resolve(publicationRoot).startsWith(`${resolve(publicationWorktreeParent)}/`)) {
+    throw new Error("Publication worktree is outside its runner-owned temporary parent.");
+  }
+}
+
+async function commitPublicationArtifacts({ amend, allowUnchangedTree = false }) {
+  assertIsolatedPublicationWorktree();
+  const provenance = await publicationCommitProvenance();
+  const subject = `Publish autonomous ingestion ${idempotencyKey}`;
+  const trailers = publicationCommitTrailers(provenance);
+  const commandArgs = [
+    "-c",
+    "user.name=github-actions[bot]",
+    "-c",
+    "user.email=41898282+github-actions[bot]@users.noreply.github.com",
+    "-c",
+    "core.hooksPath=/dev/null",
+    "commit"
+  ];
+  if (amend) commandArgs.push("--amend");
+  if (allowUnchangedTree) commandArgs.push("--allow-empty");
+  commandArgs.push("-m", subject, "-m", trailers);
+  await runCommand("git", commandArgs, {
+    timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitCommitMs,
+    label: amend ? "amend rebuilt artifacts with immutable provenance" : "commit refreshed artifacts with immutable provenance",
+    cwd: publicationRoot
+  });
+  const publishedCommit = (await runCommand("git", ["rev-parse", "HEAD^{commit}"], {
+    timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitDiffMs,
+    label: "resolve provenance-bound publication commit",
+    cwd: publicationRoot
+  })).stdout.trim();
+  await verifyPublicationCommitProvenance(publishedCommit, provenance);
+  return { publishedCommit, receiptSha256: provenance.receiptSha256 };
+}
+
+async function headHasPublicationRunIdentity() {
+  const provenance = await publicationCommitProvenance();
+  const message = (await runCommand("git", ["show", "-s", "--format=%B", "HEAD"], {
+    timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitDiffMs,
+    label: "inspect rebased publication provenance",
+    quiet: true,
+    cwd: publicationRoot
+  })).stdout;
+  return publicationCommitTrailers(provenance)
+    .split("\n")
+    .slice(0, 4)
+    .every((trailer) => message.split("\n").filter((line) => line === trailer).length === 1);
+}
+
+async function publicationCommitProvenance() {
+  const receiptPath = join(publicationArtifactRoot(), "outputs", "ingestion-source-delta-current.json");
+  const receiptBytes = await readFile(receiptPath);
+  let receipt;
+  try {
+    receipt = JSON.parse(receiptBytes.toString("utf8"));
+  } catch (error) {
+    throw new Error(`Publication receipt is not valid JSON: ${errorMessage(error)}`);
+  }
+  if (receipt?.idempotencyKey !== idempotencyKey) {
+    throw new Error(
+      `Publication receipt belongs to ${receipt?.idempotencyKey ?? "no slot"}, expected ${idempotencyKey}.`
+    );
+  }
+  const expectedCandidateFields = publicationCandidateReceiptFields({ required: true });
+  if (
+    receipt?.trigger !== expectedCandidateFields.trigger ||
+    receipt?.scheduledAt !== expectedCandidateFields.scheduledAt
+  ) {
+    throw new Error(
+      "Publication receipt trigger/scheduledAt metadata is not bound to the accepted candidate."
+    );
+  }
+  const provenance = {
+    slotKey: idempotencyKey,
+    sourceSha: await resolveSourceExecutionCommit(),
+    runId: cleanEnv(process.env.GITHUB_RUN_ID) ?? String(run?.id ?? `file-${executionCompletionNonce}`),
+    runAttempt: cleanEnv(process.env.GITHUB_RUN_ATTEMPT) ?? "local",
+    receiptSha256: createHash("sha256").update(receiptBytes).digest("hex")
+  };
+  for (const [field, value] of Object.entries(provenance)) {
+    if (!value || /[\r\n\0]/.test(value)) {
+      throw new Error(`Publication provenance ${field} is empty or contains a control line break.`);
+    }
+  }
+  if (!/^[0-9a-f]{40}$/i.test(provenance.sourceSha)) {
+    throw new Error("Publication provenance source SHA is not exact.");
+  }
+  if (!/^[0-9a-f]{64}$/i.test(provenance.receiptSha256)) {
+    throw new Error("Publication provenance receipt hash is not exact.");
+  }
+  return provenance;
+}
+
+function publicationCommitTrailers(provenance) {
+  return [
+    `Returner-Slot-Key: ${provenance.slotKey}`,
+    `Returner-Source-SHA: ${provenance.sourceSha}`,
+    `Returner-Run-ID: ${provenance.runId}`,
+    `Returner-Run-Attempt: ${provenance.runAttempt}`,
+    `Returner-Receipt-SHA256: ${provenance.receiptSha256}`
+  ].join("\n");
+}
+
+async function verifyPublicationCommitProvenance(commit, expected) {
+  const message = (await runCommand("git", ["show", "-s", "--format=%B", commit], {
+    timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitDiffMs,
+    label: "verify publication commit trailers",
+    quiet: true,
+    cwd: publicationRoot
+  })).stdout;
+  for (const trailer of publicationCommitTrailers(expected).split("\n")) {
+    const count = message.split("\n").filter((line) => line === trailer).length;
+    if (count !== 1) {
+      throw new Error(`Publication commit ${commit} must contain exactly one ${trailer.split(":")[0]} trailer.`);
+    }
+  }
+  const committedReceipt = await readTextFromGitRef(
+    commit,
+    "outputs/ingestion-source-delta-current.json",
+    null
+  );
+  if (committedReceipt === null) {
+    throw new Error(`Publication commit ${commit} does not contain its source-delta receipt.`);
+  }
+  const committedHash = createHash("sha256").update(committedReceipt).digest("hex");
+  if (committedHash !== expected.receiptSha256) {
+    throw new Error(
+      `Publication commit ${commit} receipt hash ${committedHash} does not match trailer ${expected.receiptSha256}.`
+    );
+  }
+}
+
 async function refreshMutableYcCatalog() {
+  assertLeaseHealthy();
   const timeoutMs = runnerBudget.timeoutMs(
     AUTONOMOUS_PROCESS_BUDGETS.catalogRefreshMs,
     "official mutable YC catalog refresh"
   );
-  await new Promise((resolve, reject) => {
-    const child = spawn(process.execPath, ["scripts/fetch-yc-spring-2026.mjs"], {
-      cwd: root,
-      env: process.env,
-      stdio: ["ignore", "inherit", "inherit"]
+  try {
+    await runCommand(process.execPath, [sourcePath("scripts", "fetch-yc-spring-2026.mjs")], {
+      timeoutMs,
+      label: "official mutable YC catalog refresh",
+      cwd: publicationArtifactRoot()
     });
-    let killTimer = null;
-    const timer = setTimeout(() => {
-      child.kill("SIGTERM");
-      killTimer = setTimeout(
-        () => child.kill("SIGKILL"),
-        AUTONOMOUS_PROCESS_BUDGETS.processKillGraceMs
-      );
-      killTimer.unref?.();
-    }, timeoutMs);
-    child.once("error", (error) => {
-      clearTimeout(timer);
-      if (killTimer) clearTimeout(killTimer);
-      reject(error);
-    });
-    child.once("exit", (code, signal) => {
-      clearTimeout(timer);
-      if (killTimer) clearTimeout(killTimer);
-      if (code === 0) {
-        resolve();
-        return;
-      }
-      reject(
-        new Error(
-          `Official mutable YC catalog refresh failed with ${code ?? signal ?? "unknown status"}; ` +
-          "refusing to plan against a stale roster."
-        )
-      );
-    });
-  });
+  } catch (error) {
+    throw new Error(
+      "Official mutable YC catalog refresh failed; refusing to plan against a stale roster. " +
+      errorMessage(error),
+      { cause: error }
+    );
+  }
 }
 
 function publicationBranch() {
@@ -3212,7 +5265,12 @@ function publicationBranch() {
 
 async function verifyPublicationCommitOnRemote(
   claimedCommit,
-  { branch = publicationBranch(), label = "publication" } = {}
+  {
+    branch = publicationBranch(),
+    label = "publication",
+    allowDuringCancellation = false,
+    timeoutMs = AUTONOMOUS_PROCESS_BUDGETS.gitPushMs
+  } = {}
 ) {
   const publishedCommit = String(claimedCommit ?? "").trim();
   if (!/^[0-9a-f]{40}$/i.test(publishedCommit)) {
@@ -3221,16 +5279,18 @@ async function verifyPublicationCommitOnRemote(
     );
   }
   await runCommand("git", ["fetch", "--prune", "origin", branch], {
-    timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitPushMs,
-    label: `fetch ${label} remote commit`
+    timeoutMs,
+    label: `fetch ${label} remote commit`,
+    cancellationCleanup: allowDuringCancellation
   });
   const remoteContainsPublication = await runCommand(
     "git",
     ["merge-base", "--is-ancestor", publishedCommit, `origin/${branch}`],
     {
-      timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitDiffMs,
+      timeoutMs: Math.min(timeoutMs, AUTONOMOUS_PROCESS_BUDGETS.gitDiffMs),
       label: `verify ${label} commit ancestry`,
-      allowedExitCodes: [0, 1]
+      allowedExitCodes: [0, 1],
+      cancellationCleanup: allowDuringCancellation
     }
   );
   if (remoteContainsPublication.code !== 0) {
@@ -3239,6 +5299,171 @@ async function verifyPublicationCommitOnRemote(
     );
   }
   return publishedCommit;
+}
+
+async function reconcilePublicationPushCandidate(candidate, context) {
+  if (!candidate) return false;
+  try {
+    latestPublishedCommit = await verifyPublicationCommitOnRemote(candidate.publishedCommit, {
+      branch: candidate.branch,
+      label: `${candidate.label} ${context}`,
+      // Ambiguity reconciliation is cleanup: it must still run after the push
+      // command timed out, lost its response, exhausted the main budget, or
+      // observed a termination signal. It has its own small absolute bound.
+      allowDuringCancellation: true,
+      timeoutMs: CANCELLATION_REMOTE_VERIFY_TIMEOUT_MS
+    });
+    publicationPushCandidate = null;
+    console.warn(
+      `Remote reconciliation confirmed ${candidate.label} at ${latestPublishedCommit} after ${context}.`
+    );
+    return true;
+  } catch (error) {
+    const failure = sanitizedRunnerFailure(error);
+    console.warn(
+      `Remote reconciliation could not confirm ${candidate.label} after ${context}: ${failure.message}`
+    );
+    if (!terminationSignal) publicationPushCandidate = null;
+    return false;
+  }
+}
+
+async function runPublicationPush(candidate, {
+  commandLabel,
+  allowedExitCodes = [0],
+  retryTransportFailures = false
+}) {
+  assertIsolatedPublicationWorktree();
+  publicationPushCandidate = candidate;
+  try {
+    const result = await runCommand(
+      "git",
+      [
+        "-c",
+        "core.hooksPath=/dev/null",
+        "-C",
+        publicationRoot,
+        "push",
+        "origin",
+        `${candidate.publishedCommit}:${candidate.branch}`
+      ],
+      {
+        timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitPushMs,
+        label: commandLabel,
+        envCategory: "publication_push",
+        env: publicationPushAuthEnvironment(),
+        allowedExitCodes,
+        // This synchronous guard runs after command.started event I/O and every
+        // other awaited setup step, directly before spawn().
+        preSpawnGuard: () => {
+          assertNoTrackedSymlinksAtCommitSync(candidate.publishedCommit, {
+            label: `${candidate.label} candidate`,
+            repositoryRoot: publicationRoot
+          });
+          assertCandidateFreshForPublication(candidate.label);
+        },
+        cwd: root
+      }
+    );
+    if (result.code === 0) {
+      latestPublishedCommit = candidate.publishedCommit;
+      publicationPushCandidate = null;
+      return result;
+    }
+    if (await reconcilePublicationPushCandidate(candidate, `exit ${result.code}`)) {
+      return { ...result, code: 0, reconciledAfterAmbiguousFailure: true };
+    }
+    return result;
+  } catch (error) {
+    if (error?.preSpawnGuardFailed === true) {
+      publicationPushCandidate = null;
+      throw error;
+    }
+    if (await reconcilePublicationPushCandidate(candidate, "failure or response loss")) {
+      return {
+        code: 0,
+        signal: null,
+        timedOut: /timed out/i.test(errorMessage(error)),
+        stdout: "",
+        stderr: "",
+        reconciledAfterAmbiguousFailure: true
+      };
+    }
+    if (retryTransportFailures && isRetryableGitTransportFailure(error)) {
+      const commandResult = error?.commandResult ?? {};
+      publicationPushCandidate = null;
+      return {
+        code: Number.isInteger(commandResult.code) ? commandResult.code : 128,
+        signal: commandResult.signal ?? null,
+        timedOut: commandResult.timedOut === true,
+        stdout: commandResult.stdout ?? "",
+        stderr: commandResult.stderr ?? errorMessage(error),
+        retryableTransportFailure: true
+      };
+    }
+    throw error;
+  }
+}
+
+function isRetryableGitTransportFailure(error) {
+  const result = error?.commandResult ?? {};
+  const code = Number.isInteger(result.code) ? result.code : null;
+  const diagnostics = `${result.stderr ?? ""}\n${result.stdout ?? ""}\n${errorMessage(error)}`;
+  if (/authentication failed|permission denied|repository not found|http\s+(?:401|403)|access denied/i.test(diagnostics)) {
+    return false;
+  }
+  if (result.timedOut === true) return true;
+  if (code !== null && !GIT_PUSH_RETRYABLE_EXIT_CODES.has(code)) return false;
+  return /could not resolve host|connection (?:timed out|reset|refused|closed)|remote end hung up|tls|ssl|rpc failed|http\s+5\d\d|service unavailable|temporary failure|network|unable to access|operation timed out|early eof|unexpected disconnect/i.test(
+    diagnostics
+  );
+}
+
+function publicationPushAuthEnvironment() {
+  const authorizationHeader = githubPublicationAuthorizationHeader();
+  if (!authorizationHeader) {
+    throw new Error("GITHUB_TOKEN is required for repository publication.");
+  }
+  return {
+    // Inject authentication into this git push process only. No credential is
+    // persisted in .git/config while a rebase or rebuilt repository code runs.
+    GIT_CONFIG_COUNT: "3",
+    GIT_CONFIG_KEY_0: "http.https://github.com/.extraheader",
+    GIT_CONFIG_VALUE_0: authorizationHeader,
+    // A repository-controlled pre-push hook must not inherit the scoped header.
+    GIT_CONFIG_KEY_1: "core.hooksPath",
+    GIT_CONFIG_VALUE_1: "/dev/null",
+    // Ignore credential helpers from repository, global, and system config.
+    // The process-scoped HTTP header above is the sole authentication source.
+    GIT_CONFIG_KEY_2: "credential.helper",
+    GIT_CONFIG_VALUE_2: "",
+    GIT_CONFIG_NOSYSTEM: "1",
+    GIT_CONFIG_GLOBAL: "/dev/null",
+    GIT_TERMINAL_PROMPT: "0"
+  };
+}
+
+function githubPublicationAuthorizationHeader() {
+  const token = cleanEnv(process.env.GITHUB_TOKEN);
+  return token
+    ? `AUTHORIZATION: basic ${Buffer.from(`x-access-token:${token}`).toString("base64")}`
+    : null;
+}
+
+async function resolveAmbiguousPublicationAfterCancellation() {
+  if (publicationCancellationResolutionPromise) {
+    return publicationCancellationResolutionPromise;
+  }
+  const candidate = publicationPushCandidate;
+  if (!terminationSignal || !candidate) return latestPublishedCommit;
+  publicationCancellationResolutionPromise = (async () => {
+    await reconcilePublicationPushCandidate(
+      candidate,
+      `interruption by ${terminationSignal}`
+    );
+    return latestPublishedCommit;
+  })();
+  return publicationCancellationResolutionPromise;
 }
 
 async function assertNoPublicationConflicts() {
@@ -3259,23 +5484,150 @@ async function abortPublicationRebase() {
   }).catch(() => {});
 }
 
+function bindCompletionProvenance(stats, {
+  publicationStatus,
+  publishedCommit,
+  receipt
+}) {
+  if (!executionCompletionNonce) {
+    throw new Error("Execution completion nonce is unavailable.");
+  }
+  const normalizedCommit = publishedCommit ?? null;
+  if (
+    ["published", "no_changes", "already_completed"].includes(publicationStatus) &&
+    !/^[0-9a-f]{40}$/i.test(normalizedCommit ?? "")
+  ) {
+    throw new Error("A repository-backed completion requires its exact 40-hex publication SHA.");
+  }
+  const statsHash = hashCanonicalJson(stats);
+  const provenanceCore = {
+    schemaVersion: 1,
+    executionNonce: executionCompletionNonce,
+    idempotencyKey,
+    runId: run?.id ?? null,
+    publicationStatus,
+    publishedCommit: normalizedCommit,
+    receiptHash: hashCanonicalJson(receipt),
+    receiptFileSha256: publicationReceiptSha256,
+    statsHash
+  };
+  return {
+    ...stats,
+    completionProvenance: {
+      ...provenanceCore,
+      fingerprint: hashCanonicalJson(provenanceCore)
+    }
+  };
+}
+
+function completionProvenanceMatches(storedStats, expectedStats) {
+  if (!storedStats || typeof storedStats !== "object" || Array.isArray(storedStats)) return false;
+  const expected = expectedStats?.completionProvenance;
+  const stored = storedStats.completionProvenance;
+  if (!expected || !stored || typeof stored !== "object" || Array.isArray(stored)) return false;
+  const storedBaseStats = { ...storedStats };
+  delete storedBaseStats.completionProvenance;
+  const { fingerprint: storedFingerprint, ...storedCore } = stored;
+  return canonicalJson(stored) === canonicalJson(expected) &&
+    stored.statsHash === hashCanonicalJson(storedBaseStats) &&
+    storedFingerprint === hashCanonicalJson(storedCore) &&
+    stored.executionNonce === executionCompletionNonce &&
+    stored.idempotencyKey === idempotencyKey &&
+    String(stored.runId) === String(run?.id ?? "") &&
+    stored.publishedCommit === expected.publishedCommit &&
+    stored.receiptHash === expected.receiptHash;
+}
+
+function hashCanonicalJson(value) {
+  return createHash("sha256").update(canonicalJson(value)).digest("hex");
+}
+
+function canonicalJson(value) {
+  if (value === undefined || value === null) return "null";
+  if (typeof value !== "object") return JSON.stringify(value) ?? "null";
+  if (Array.isArray(value)) return `[${value.map(canonicalJson).join(",")}]`;
+  return `{${Object.keys(value).filter((key) => value[key] !== undefined).sort().map((key) =>
+    `${JSON.stringify(key)}:${canonicalJson(value[key])}`
+  ).join(",")}}`;
+}
+
 async function completeRun(status, stats) {
+  if (!run?.id) return null;
+  if (status === "completed") assertLeaseHealthy();
+  if (runFinalizationPromise) {
+    await runFinalizationPromise.catch(() => {});
+    if (finalizedRunStatus) return finalizedRunStatus;
+    return completeRun(status, stats);
+  }
+  const finalization = finalizeRunWithClaimedLease(status, stats);
+  runFinalizationPromise = finalization;
+  try {
+    await finalization;
+    if (status === "completed") completedOutcomeVerifiedByThisExecution = true;
+    finalizedRunStatus = status;
+    return finalizedRunStatus;
+  } catch (error) {
+    if (runFinalizationPromise === finalization) runFinalizationPromise = null;
+    throw error;
+  }
+}
+
+async function finalizeRunWithClaimedLease(status, stats) {
+  const runSnapshot = {
+    id: run.id,
+    leaseOwner: workerId,
+    leaseToken: run.lease_token
+  };
+  if (!runSnapshot.leaseToken) {
+    throw new Error(`Cannot mark ingestion run ${status} without its claimed lease token.`);
+  }
   if (status === "completed") {
     assertLeaseHealthy();
-    const { data, error } = await supabase.rpc("finalize_completed_ingestion_run", {
-      p_run_id: run.id,
-      p_lease_owner: workerId,
-      p_lease_token: run.lease_token,
-      p_stats_json: stats
-    });
-    check(error, "atomically finalize completed ingestion run");
-    const finalized = Array.isArray(data) ? data[0] ?? null : data;
-    if (!finalized) throw new Error("The ingestion run lease was lost before atomic finalization.");
-    run = finalized;
-    return;
+    if (!completionProvenanceMatches(stats, stats)) {
+      throw new Error(
+        "Completed ingestion finalization is missing exact execution/publication/receipt provenance."
+      );
+    }
+    let finalizationFailure = null;
+    try {
+      const { data, error } = await runSupabaseOperation(
+        "atomically finalize completed ingestion run",
+        () => supabase.rpc("finalize_completed_ingestion_run", {
+          p_run_id: runSnapshot.id,
+          p_lease_owner: runSnapshot.leaseOwner,
+          p_lease_token: runSnapshot.leaseToken,
+          p_stats_json: stats
+        })
+      );
+      check(error, "atomically finalize completed ingestion run");
+      const finalized = Array.isArray(data) ? data[0] ?? null : data;
+      if (finalized) {
+        run = finalized;
+        return;
+      }
+      finalizationFailure = new Error(
+        "The ingestion run lease was lost before atomic finalization."
+      );
+    } catch (error) {
+      finalizationFailure = error;
+    }
+    try {
+      const reconciled = await reconcileAmbiguousCompletedRun(runSnapshot, stats);
+      if (reconciled) {
+        run = reconciled;
+        return;
+      }
+    } catch (reconciliationError) {
+      throw new Error(
+        `${errorMessage(finalizationFailure)} Completion reconciliation failed: ` +
+        errorMessage(reconciliationError),
+        { cause: finalizationFailure }
+      );
+    }
+    throw finalizationFailure;
   }
   const finishedAt = new Date().toISOString();
-  const { error } = await supabase
+  const update = supabase
     .from("ingestion_runs")
     .update({
       status,
@@ -3285,10 +5637,124 @@ async function completeRun(status, stats) {
       lease_owner: null,
       lease_token: null,
       stats_json: stats,
-      errors_json: status === "failed" ? [stats.error ?? "unknown failure"] : []
+      errors_json: ["failed", "canceled"].includes(status)
+        ? [stats.error ?? `unknown ${status} outcome`]
+        : []
     })
-    .eq("id", run.id);
-  check(error, `mark ingestion run ${status}`);
+    .eq("id", runSnapshot.id)
+    .eq("lease_owner", runSnapshot.leaseOwner)
+    .eq("lease_token", runSnapshot.leaseToken)
+    .select("*");
+  const { data, error } = await runSupabaseOperation(
+    `mark ingestion run ${status} with its claimed lease`,
+    () => update.maybeSingle()
+  );
+  check(error, `mark ingestion run ${status} with its claimed lease`);
+  if (!data) throw new Error(`The ingestion run lease was lost before ${status} was recorded.`);
+  run = data;
+}
+
+async function reconcileAmbiguousCompletedRun(runSnapshot, expectedStats) {
+  const { data, error } = await runSupabaseOperation(
+    "reconcile ambiguous completed ingestion run",
+    () => supabase
+      .from("ingestion_runs")
+      .select("*")
+      .eq("id", runSnapshot.id)
+      .maybeSingle()
+  );
+  check(error, "reconcile ambiguous completed ingestion run");
+  if (!data) return null;
+  const finishedAt = Date.parse(data.finished_at ?? "");
+  const valid = String(data.id) === String(runSnapshot.id) &&
+    data.status === "completed" &&
+    Number.isFinite(finishedAt) &&
+    data.lease_owner === null &&
+    data.lease_token === null &&
+    data.lease_expires_at === null &&
+    completionProvenanceMatches(data.stats_json, expectedStats);
+  return valid ? data : null;
+}
+
+function buildChildEnvironment(category, overrides = {}, cwd = root) {
+  const categoryKeys = CHILD_ENV_CATEGORY_KEYS[category];
+  if (!categoryKeys) throw new Error(`Unknown child environment category: ${category}`);
+  const allowedKeys = new Set([...SAFE_CHILD_ENV_KEYS, ...categoryKeys]);
+  const isolatedHome = join(workRoot ?? root, ".autonomous-child-home");
+  const childEnv = {
+    HOME: isolatedHome,
+    XDG_CONFIG_HOME: join(isolatedHome, ".config"),
+    npm_config_cache: join(isolatedHome, ".npm-cache"),
+    PWD: cwd,
+    INIT_CWD: cwd
+  };
+  for (const key of allowedKeys) {
+    if (process.env[key] !== undefined) childEnv[key] = process.env[key];
+  }
+  for (const [key, value] of Object.entries(overrides)) {
+    if (!allowedKeys.has(key)) {
+      throw new Error(`Child environment override ${key} is not allowed for ${category}.`);
+    }
+    if (value !== undefined && value !== null) childEnv[key] = String(value);
+  }
+  return childEnv;
+}
+
+function assertPublicationCommandCredentialBoundary(command, cwd, childEnvironment) {
+  if (!publicationRoot || resolve(cwd) !== resolve(publicationRoot)) return;
+  const exposed = PRIVILEGED_CHILD_ENV_KEYS.filter((key) => cleanEnv(childEnvironment[key]));
+  if (exposed.length === 0) return;
+  throw new Error(
+    `Refusing to expose privileged environment ${exposed.join(", ")} to a command in the publication worktree (${command}).`
+  );
+}
+
+function assertPublicationExecutableBoundary(command, commandArgs, cwd) {
+  if (!publicationRoot) return;
+  const commandName = basename(String(command)).toLowerCase();
+  if (new Set(["npm", "npx", "pnpm", "yarn", "bun"]).has(commandName)) {
+    throw new Error(`Package lifecycle command ${commandName} is prohibited in the secret-bearing runner.`);
+  }
+
+  const executableCandidates = [];
+  if (isAbsolute(String(command)) || String(command).includes("/")) {
+    executableCandidates.push(resolve(cwd, String(command)));
+  }
+  if (isNodeExecutable(command)) {
+    for (let index = 0; index < commandArgs.length; index += 1) {
+      const argument = String(commandArgs[index]);
+      if (argument === "--loader" || argument === "--require" || argument === "-r") {
+        const loader = commandArgs[index + 1];
+        if (loader) executableCandidates.push(resolve(cwd, String(loader)));
+        index += 1;
+        continue;
+      }
+      const inlineLoader = argument.match(/^--(?:loader|require)=(.+)$/);
+      if (inlineLoader) {
+        executableCandidates.push(resolve(cwd, inlineLoader[1].replace(/^['"]|['"]$/g, "")));
+        continue;
+      }
+      if ([".cjs", ".js", ".mjs", ".node", ".sh", ".ts", ".tsx"].includes(extname(argument))) {
+        executableCandidates.push(resolve(cwd, argument));
+      }
+    }
+  }
+
+  for (const candidate of executableCandidates) {
+    if (pathIsWithin(publicationRoot, candidate)) {
+      throw new Error(
+        `Refusing to execute publication-worktree code while the secret-bearing runner exists: ${candidate}`
+      );
+    }
+    if (/[/\\]node_modules[/\\]next[/\\]dist[/\\]bin[/\\]next$/i.test(candidate)) {
+      throw new Error("Next application execution is deferred to the secretless exact-SHA validation job.");
+    }
+  }
+}
+
+function pathIsWithin(parent, candidate) {
+  const pathFromParent = relative(resolve(parent), resolve(candidate));
+  return pathFromParent === "" || (!pathFromParent.startsWith("..") && !isAbsolute(pathFromParent));
 }
 
 async function runCommand(command, commandArgs, {
@@ -3296,17 +5762,35 @@ async function runCommand(command, commandArgs, {
   deadlineAt = null,
   label,
   env = {},
+  envCategory = "runtime",
   allowedExitCodes = [0],
   onAllowedExit = null,
   quiet = false,
-  captureLimit = 40_000
+  recordEvents = true,
+  preSpawnGuard = null,
+  captureLimit = 40_000,
+  cancellationCleanup = false,
+  terminationGraceMs = AUTONOMOUS_PROCESS_BUDGETS.processKillGraceMs,
+  hardSettleWatchdogMs = PROCESS_KILL_WATCHDOG_MS,
+  cwd = root
 }) {
-  assertLeaseHealthy();
-  // Fail before event I/O when the runner is already exhausted, then recalculate
-  // after that I/O so the child timeout still ends at the absolute deadline.
-  runnerBudget.timeoutMs(timeoutMs, label);
-  await event("command.started", "info", `${label} started.`, { command, args: commandArgs });
-  const runnerRemainingMs = runnerBudget.timeoutMs(timeoutMs, label);
+  if (preSpawnGuard !== null && typeof preSpawnGuard !== "function") {
+    throw new Error(`${label} preSpawnGuard must be a function.`);
+  }
+  assertPublicationExecutableBoundary(command, commandArgs, cwd);
+  if (!cancellationCleanup) {
+    assertLeaseHealthy();
+    // Fail before event I/O when the runner is already exhausted, then recalculate
+    // after that I/O so the child timeout still ends at the absolute deadline.
+    runnerBudget.timeoutMs(timeoutMs, label);
+    if (recordEvents) {
+      await event("command.started", "info", `${label} started.`, { command, args: commandArgs });
+    }
+    assertLeaseHealthy();
+  }
+  const runnerRemainingMs = cancellationCleanup
+    ? timeoutMs
+    : runnerBudget.timeoutMs(timeoutMs, label);
   const deadlineRemainingMs = deadlineAt === null
     ? runnerRemainingMs
     : Math.floor(deadlineAt - Date.now());
@@ -3314,24 +5798,120 @@ async function runCommand(command, commandArgs, {
     throw new Error(`${label} did not start before its phase deadline.`);
   }
   const effectiveTimeoutMs = Math.min(timeoutMs, runnerRemainingMs, deadlineRemainingMs);
+  const childEnvironment = buildChildEnvironment(envCategory, env, cwd);
+  assertPublicationCommandCredentialBoundary(command, cwd, childEnvironment);
+  const ledgerRunId = randomUUID();
+  const ledgerPath = join(
+    resolve(cleanEnv(process.env.RUNNER_TEMP) ?? tmpdir()),
+    `returner-child-ledger-${process.pid}-${ledgerRunId}.log`
+  );
+  if (isNodeExecutable(command)) {
+    await writeFile(ledgerPath, "", { encoding: "utf8", mode: 0o600 });
+    childEnvironment.RETURNER_CHILD_PROCESS_LEDGER = ledgerPath;
+    childEnvironment.RETURNER_CHILD_PROCESS_RUN_ID = ledgerRunId;
+    childEnvironment.NODE_OPTIONS = [
+      childEnvironment.NODE_OPTIONS,
+      `--require=${JSON.stringify(sourcePath("scripts", "lib", "child-process-ledger-hook.cjs"))}`
+    ].filter(Boolean).join(" ");
+  }
   return new Promise((resolve, reject) => {
-    const child = spawn(command, commandArgs, {
-      cwd: root,
-      env: { ...process.env, ...env },
-      stdio: ["ignore", "pipe", "pipe"]
-    });
+    let child;
+    let preSpawnGuardCompleted = preSpawnGuard === null;
+    try {
+      if (preSpawnGuard) {
+        preSpawnGuard();
+        preSpawnGuardCompleted = true;
+      }
+      child = trackChildProcess(spawn(command, commandArgs, {
+        cwd,
+        env: childEnvironment,
+        stdio: ["ignore", "pipe", "pipe"],
+        detached: process.platform !== "win32"
+      }), {
+        ledgerPath: isNodeExecutable(command) ? ledgerPath : null,
+        ledgerRunId: isNodeExecutable(command) ? ledgerRunId : null
+      });
+    } catch (error) {
+      void unlink(ledgerPath).catch(() => {});
+      const executionError = commandExecutionError(
+        `${label} could not start: ${errorMessage(error)}`,
+        { code: null, signal: null, timedOut: false, stdout: "", stderr: "" },
+        error
+      );
+      if (!preSpawnGuardCompleted) executionError.preSpawnGuardFailed = true;
+      reject(executionError);
+      return;
+    }
     let stdout = "";
     let stderr = "";
     let timedOut = false;
     let killTimer = null;
+    let hardSettleTimer = null;
+    let settled = false;
+    const clearCommandTimers = () => {
+      clearTimeout(timer);
+      if (killTimer) clearTimeout(killTimer);
+      if (hardSettleTimer) clearTimeout(hardSettleTimer);
+    };
+    const payloadFor = (code = null, signal = null) => ({
+      code,
+      signal,
+      timedOut,
+      timeoutMs: effectiveTimeoutMs,
+      stdout,
+      stderr
+    });
+    const emitCapturedOutput = () => {
+      if (quiet) return;
+      const safeStdout = sanitizeRunnerDiagnosticText(stdout, captureLimit);
+      const safeStderr = sanitizeRunnerDiagnosticText(stderr, captureLimit);
+      if (safeStdout) process.stdout.write(`[${label}] ${safeStdout}\n`);
+      if (safeStderr) process.stderr.write(`[${label}] ${safeStderr}\n`);
+    };
+    const recordCommandEventBestEffort = (eventType, severity, message, payload) => {
+      if (!recordEvents || cancellationCleanup || terminationSignal) return;
+      const eventPayload = sanitizeRunnerDiagnosticValue({
+        ...payload,
+        stdout: tail(payload.stdout, 40_000),
+        stderr: tail(payload.stderr, 40_000)
+      });
+      void event(eventType, severity, message, eventPayload, null, {
+        timeoutMs: COMMAND_EVENT_TIMEOUT_MS
+      }).catch(() => {});
+    };
+    const rejectHardSettledCommand = (reason) => {
+      if (settled) return;
+      settled = true;
+      clearCommandTimers();
+      const payload = payloadFor(null, "SIGKILL");
+      emitCapturedOutput();
+      disposeTrackedChildProcess(child);
+      recordCommandEventBestEffort(
+        "command.failed",
+        "error",
+        `${label} did not close after forced termination.`,
+        payload
+      );
+      reject(commandExecutionError(
+        reason instanceof Error
+          ? reason.message
+          : `${label} did not close after forced termination.`,
+        payload
+      ));
+    };
+    child[CHILD_HARD_SETTLE] = rejectHardSettledCommand;
     const timer = setTimeout(() => {
       timedOut = true;
-      child.kill("SIGTERM");
-      killTimer = setTimeout(
-        () => child.kill("SIGKILL"),
-        AUTONOMOUS_PROCESS_BUDGETS.processKillGraceMs
-      );
-      killTimer.unref?.();
+      signalChildProcessTree(child, "SIGTERM");
+      killTimer = setTimeout(() => {
+        signalChildProcessTree(child, "SIGKILL");
+        hardSettleTimer = setTimeout(() => {
+          rejectHardSettledCommand(new Error(
+            `${label} timed out after ${effectiveTimeoutMs}ms and did not close within ` +
+            `${hardSettleWatchdogMs}ms after SIGKILL.`
+          ));
+        }, hardSettleWatchdogMs);
+      }, terminationGraceMs);
     }, effectiveTimeoutMs);
     child.stdout.on("data", (chunk) => {
       stdout = tail(`${stdout}${chunk}`, captureLimit);
@@ -3340,49 +5920,98 @@ async function runCommand(command, commandArgs, {
       stderr = tail(`${stderr}${chunk}`, captureLimit);
     });
     child.once("error", (error) => {
-      clearTimeout(timer);
-      if (killTimer) clearTimeout(killTimer);
-      reject(error);
-    });
-    child.once("exit", async (code, signal) => {
-      clearTimeout(timer);
-      if (killTimer) clearTimeout(killTimer);
-      const payload = {
-        code,
-        signal,
-        timedOut,
-        timeoutMs: effectiveTimeoutMs,
-        stdout,
-        stderr
-      };
-      const eventPayload = sanitizeRunnerDiagnosticValue({
-        ...payload,
-        stdout: tail(stdout, 40_000),
-        stderr: tail(stderr, 40_000)
-      });
-      if (!quiet) {
-        const safeStdout = sanitizeRunnerDiagnosticText(stdout, captureLimit);
-        const safeStderr = sanitizeRunnerDiagnosticText(stderr, captureLimit);
-        if (safeStdout) process.stdout.write(`[${label}] ${safeStdout}\n`);
-        if (safeStderr) process.stderr.write(`[${label}] ${safeStderr}\n`);
+      if (settled) return;
+      settled = true;
+      clearCommandTimers();
+      delete child[CHILD_HARD_SETTLE];
+      if (Number.isInteger(child.pid) && child.pid > 0) {
+        signalChildProcessTree(child, "SIGKILL");
+        hardSettleTimer = setTimeout(
+          () => disposeTrackedChildProcess(child),
+          hardSettleWatchdogMs
+        );
+      } else {
+        disposeTrackedChildProcess(child);
       }
-      if (timedOut) {
-        await event("command.failed", "error", `${label} timed out.`, eventPayload).catch(() => {});
-        reject(new Error(`${label} timed out after ${effectiveTimeoutMs}ms.`));
+      reject(commandExecutionError(
+        `${label} could not start: ${errorMessage(error)}`,
+        { ...payloadFor(null, null), stdout, stderr },
+        error
+      ));
+    });
+    child.once("close", (code, signal) => {
+      if (settled) {
+        clearCommandTimers();
+        delete child[CHILD_HARD_SETTLE];
+        disposeTrackedChildProcess(child);
         return;
       }
-      if (code !== null && allowedExitCodes.includes(code)) {
-        if (typeof onAllowedExit === "function") onAllowedExit(payload);
-        if (heartbeatFailure) {
-          reject(new Error(`Ingestion lease heartbeat failed while ${label} was running.`));
+      settled = true;
+      clearCommandTimers();
+      delete child[CHILD_HARD_SETTLE];
+      const payload = payloadFor(code, signal);
+      void (async () => {
+        try {
+          await drainChildProcessTreeAfterRootClose(child);
+        } catch (error) {
+          disposeTrackedChildProcess(child);
+          emitCapturedOutput();
+          recordCommandEventBestEffort(
+            "command.failed",
+            "error",
+            `${label} left a surviving subprocess descendant.`,
+            payload
+          );
+          reject(commandExecutionError(
+            `${label} left a surviving subprocess descendant: ${errorMessage(error)}`,
+            payload,
+            error
+          ));
           return;
         }
-        await event("command.completed", "info", `${label} completed.`, eventPayload).catch(() => {});
-        resolve(payload);
-      } else {
-        await event("command.failed", "error", `${label} failed.`, eventPayload).catch(() => {});
-        reject(new Error(`${label} exited with ${code ?? signal ?? "unknown status"}.`));
-      }
+        disposeTrackedChildProcess(child);
+        emitCapturedOutput();
+        if (timedOut) {
+          recordCommandEventBestEffort(
+            "command.failed",
+            "error",
+            `${label} timed out.`,
+            payload
+          );
+          reject(commandExecutionError(
+            `${label} timed out after ${effectiveTimeoutMs}ms with ${code ?? signal ?? "unknown status"}.`,
+            payload
+          ));
+          return;
+        }
+        if (code !== null && allowedExitCodes.includes(code)) {
+          try {
+            if (typeof onAllowedExit === "function") onAllowedExit(payload);
+            if (!cancellationCleanup) assertLeaseHealthy();
+          } catch (error) {
+            reject(error);
+            return;
+          }
+          recordCommandEventBestEffort(
+            "command.completed",
+            "info",
+            `${label} completed.`,
+            payload
+          );
+          resolve(payload);
+        } else {
+          recordCommandEventBestEffort(
+            "command.failed",
+            "error",
+            `${label} failed.`,
+            payload
+          );
+          reject(commandExecutionError(
+            `${label} exited with ${code ?? signal ?? "unknown status"}.`,
+            payload
+          ));
+        }
+      })();
     });
   });
 }
@@ -3413,7 +6042,14 @@ async function readCollectorSnapshot(path, kind, validation) {
       kind,
       batchSlug: validation.batchSlug,
       expectedSourcePath: validation.expectedSourcePath,
-      notBefore: validation.notBefore ?? null
+      notBefore: validation.notBefore ?? null,
+      notAfter: validation.notAfter ?? Date.now() + COLLECTOR_SNAPSHOT_FUTURE_SKEW_MS,
+      requireAttemptBinding: validation.requireAttemptBinding === true,
+      expectedAttemptId: validation.expectedAttemptId ?? null,
+      expectedCampaignKey: validation.expectedCampaignKey ?? null,
+      expectedExecutionNonce: validation.expectedExecutionNonce ?? null,
+      expectedIdempotencyKey: validation.expectedIdempotencyKey ?? null,
+      expectedNotBefore: validation.expectedNotBefore ?? null
     });
     return validateAutonomousCollectorReferentialIntegrity(snapshot, {
       kind,
@@ -3454,7 +6090,8 @@ async function writeRunnerOutcome(outcome) {
     new_physical_sources: normalized.newPhysicalSources ?? "",
     daily_new_physical_sources: normalized.dailyNewPhysicalSources ?? "",
     daily_source_health: normalized.dailySourceHealth ?? "",
-    published_commit: normalized.publishedCommit ?? ""
+    published_commit: normalized.publishedCommit ?? "",
+    publication_receipt_sha256: normalized.publicationReceiptSha256 ?? ""
   };
   await appendFile(
     githubOutput,
@@ -3464,7 +6101,97 @@ async function writeRunnerOutcome(outcome) {
 }
 
 async function readCommitBackedReplayReceipt() {
-  const publishedCommit = await resolveVerifiedCurrentPublicationCommit();
+  const remoteCommit = await resolvePublicationRemoteTip({
+    labelPrefix: "current replay publication"
+  });
+  const immutableSourceCommit = await resolveSourceExecutionCommit();
+  const [remoteCurrentReceipt, remoteHistory] = await Promise.all([
+    readJsonFromGitRef(
+      remoteCommit,
+      "outputs/ingestion-source-delta-current.json",
+      null
+    ),
+    readJsonFromGitRef(
+      remoteCommit,
+      "outputs/ingestion-source-delta-history.json",
+      []
+    )
+  ]);
+  const remoteClaimsReplay = [remoteCurrentReceipt, ...(Array.isArray(remoteHistory) ? remoteHistory : [])]
+    .some((receipt) => receipt && typeof receipt === "object" && receipt.idempotencyKey === idempotencyKey);
+  const log = await runCommand(
+    "git",
+    [
+      "log",
+      "--format=%H%x00%B%x00",
+      "--grep=Returner-Slot-Key:",
+      "--fixed-strings",
+      remoteCommit,
+      "--"
+    ],
+    {
+      timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitDiffMs,
+      label: "locate commit-backed replay publication",
+      captureLimit: 5_000_000,
+      quiet: true,
+      cwd: root
+    }
+  );
+  const candidates = parsePublicationLogEntries(log.stdout)
+    .filter(({ message }) => exactPublicationTrailer(message, "Returner-Slot-Key") === idempotencyKey);
+  if (candidates.length === 0) {
+    if (remoteClaimsReplay) {
+      throw new Error(
+        `Replay slot ${idempotencyKey} has repository receipt data but no reachable provenance-bearing publication commit.`
+      );
+    }
+    return null;
+  }
+
+  // The newest commit claiming this slot is authoritative. If it is malformed,
+  // forged, or no longer a valid data-only descendant, fail closed instead of
+  // falling back to an older receipt or mistaking the current code tip for the
+  // publication.
+  const { commit: publishedCommit, message } = candidates[0];
+  const publicationProvenance = validateReplayPublicationTrailers({
+    message,
+    sourceCommit: immutableSourceCommit
+  });
+  const committedReceipt = await readTextFromGitRef(
+    publishedCommit,
+    "outputs/ingestion-source-delta-current.json",
+    null
+  );
+  if (committedReceipt === null) {
+    throw new Error(`Replay publication ${publishedCommit} does not contain its source-delta receipt.`);
+  }
+  const committedReceiptSha256 = createHash("sha256").update(committedReceipt).digest("hex");
+  if (committedReceiptSha256 !== publicationProvenance.receiptSha256) {
+    throw new Error(
+      `Replay publication ${publishedCommit} receipt hash ${committedReceiptSha256} ` +
+      `does not match its Returner-Receipt-SHA256 trailer.`
+    );
+  }
+  const remoteContainsPublication = await runCommand(
+    "git",
+    ["merge-base", "--is-ancestor", publishedCommit, remoteCommit],
+    {
+      timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitDiffMs,
+      label: "verify replay publication ancestry",
+      allowedExitCodes: [0, 1],
+      quiet: true,
+      recordEvents: false,
+      cwd: root
+    }
+  );
+  if (remoteContainsPublication.code !== 0) {
+    throw new Error(
+      `Replay publication ${publishedCommit} is not an ancestor of current origin/${publicationBranch()}.`
+    );
+  }
+  await assertTrustedPublicationBaseCommit(publishedCommit, {
+    label: "commit-backed replay publication"
+  });
   const [currentReceipt, history] = await Promise.all([
     readJsonFromGitRef(
       publishedCommit,
@@ -3477,23 +6204,105 @@ async function readCommitBackedReplayReceipt() {
       []
     )
   ]);
-  return selectPublishedAutonomousIngestionReceipt({
+  const selected = selectPublishedAutonomousIngestionReceipt({
     idempotencyKey,
     publishedCommit,
     currentReceipt,
     history
   });
+  if (!selected) {
+    throw new Error(
+      `Replay publication ${publishedCommit} has no exact schema-valid receipt for ${idempotencyKey}.`
+    );
+  }
+  return selected;
 }
 
-async function resolveVerifiedCurrentPublicationCommit() {
-  const claimedCommit = (await runCommand("git", ["rev-parse", "HEAD"], {
-    timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitDiffMs,
-    label: "resolve replay publication commit"
-  })).stdout.trim();
-  return verifyPublicationCommitOnRemote(claimedCommit, {
-    branch: publicationBranch(),
-    label: "replay publication"
-  });
+function parsePublicationLogEntries(output) {
+  const fields = String(output ?? "").split("\0");
+  const entries = [];
+  for (let index = 0; index + 1 < fields.length; index += 2) {
+    const commit = fields[index]?.trim();
+    const message = fields[index + 1] ?? "";
+    if (/^[0-9a-f]{40}$/i.test(commit)) entries.push({ commit: commit.toLowerCase(), message });
+  }
+  return entries;
+}
+
+function exactPublicationTrailer(message, key) {
+  const values = String(message ?? "")
+    .split(/\r?\n/)
+    .filter((line) => line.startsWith(`${key}: `))
+    .map((line) => line.slice(key.length + 2));
+  if (values.length !== 1 || !values[0] || /[\r\n\0]/.test(values[0])) return null;
+  return values[0];
+}
+
+function validateReplayPublicationTrailers({ message, sourceCommit }) {
+  const slotKey = exactPublicationTrailer(message, "Returner-Slot-Key");
+  const sourceSha = exactPublicationTrailer(message, "Returner-Source-SHA");
+  const runId = exactPublicationTrailer(message, "Returner-Run-ID");
+  const runAttempt = exactPublicationTrailer(message, "Returner-Run-Attempt");
+  const receiptSha256 = exactPublicationTrailer(message, "Returner-Receipt-SHA256");
+  if (!slotKey || !sourceSha || !runId || !runAttempt || !receiptSha256) {
+    throw new Error("Replay publication provenance must contain exactly one complete Returner trailer for every field.");
+  }
+  if (!/^[0-9a-f]{40}$/i.test(sourceSha) || sourceSha.toLowerCase() !== sourceCommit.toLowerCase()) {
+    throw new Error("Replay publication Returner-Source-SHA does not match the dispatch source commit.");
+  }
+  if (!/^[0-9a-f]{64}$/i.test(receiptSha256)) {
+    throw new Error("Replay publication Returner-Receipt-SHA256 is not exact.");
+  }
+  return { slotKey, sourceSha: sourceSha.toLowerCase(), runId, runAttempt, receiptSha256: receiptSha256.toLowerCase() };
+}
+
+async function resolvePublicationRemoteTip({ labelPrefix = "current replay publication" } = {}) {
+  const branch = publicationBranch();
+  const fetchOptions = {
+    timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitPushMs,
+    label: `fetch ${labelPrefix} history`,
+    cwd: root
+  };
+  if (cleanEnv(process.env.GITHUB_TOKEN)) {
+    fetchOptions.envCategory = "publication_push";
+    fetchOptions.env = publicationPushAuthEnvironment();
+  }
+  await runCommand(
+    "git",
+    ["fetch", "--no-tags", "origin", `+refs/heads/${branch}:refs/remotes/origin/${branch}`],
+    fetchOptions
+  );
+  const remoteCommit = (await runCommand(
+    "git",
+    ["rev-parse", `refs/remotes/origin/${branch}^{commit}`],
+    {
+      timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitDiffMs,
+      label: `resolve ${labelPrefix} commit`,
+      cwd: root
+    }
+  )).stdout.trim();
+  const immutableSourceCommit = await resolveSourceExecutionCommit();
+  const sourceReachable = await runCommand(
+    "git",
+    ["merge-base", "--is-ancestor", immutableSourceCommit, remoteCommit],
+    {
+      timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitDiffMs,
+      label: `verify ${labelPrefix} source reachability`,
+      allowedExitCodes: [0, 1],
+      cwd: root
+    }
+  );
+  if (sourceReachable.code !== 0) {
+    throw new Error(
+      `Replay publication ${remoteCommit} does not descend from source execution commit ${immutableSourceCommit}.`
+    );
+  }
+  return remoteCommit;
+}
+
+async function resolveVerifiedCurrentPublicationCommit({ labelPrefix = "current replay publication" } = {}) {
+  const remoteCommit = await resolvePublicationRemoteTip({ labelPrefix });
+  return assertTrustedPublicationBaseCommit(remoteCommit, { label: labelPrefix });
 }
 
 async function readJson(path, fallback) {
@@ -3510,18 +6319,6 @@ async function readRequiredCanonicalRows(path, label) {
     throw new Error(`${label} must contain a JSON array at ${path}.`);
   }
   return rows;
-}
-
-async function selectMaybeSingle(query, operation) {
-  const { data, error } = await query.maybeSingle();
-  check(error, operation);
-  return data ?? null;
-}
-
-async function selectSingle(query, operation) {
-  const { data, error } = await query.single();
-  check(error, operation);
-  return data;
 }
 
 function check(error, operation) {
@@ -3552,11 +6349,119 @@ function catalogSummary(allCatalogs) {
   }));
 }
 
+function validateCandidateMetadata({ trigger, scheduledAt, slotKey, required = false }) {
+  const normalizedTrigger = cleanEnv(trigger);
+  const normalizedScheduledAt = cleanEnv(scheduledAt);
+  if (!normalizedTrigger) {
+    if (normalizedScheduledAt) {
+      throw new Error("Candidate scheduled_at requires a candidate trigger.");
+    }
+    if (required) {
+      throw new Error("Accepted GitHub Actions publication requires --candidate-trigger metadata.");
+    }
+    return null;
+  }
+  if (!/^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/.test(String(slotKey))) {
+    throw new Error("Candidate slot key is not a valid stable idempotency key.");
+  }
+  if (normalizedTrigger === "manual-replay") {
+    if (normalizedScheduledAt) {
+      throw new Error("Manual replay candidate must not claim scheduled_at metadata.");
+    }
+    return Object.freeze({
+      trigger: normalizedTrigger,
+      slotKey: String(slotKey),
+      scheduledAt: null,
+      scheduledAtMs: null
+    });
+  }
+  if (normalizedTrigger !== "schedule") {
+    throw new Error(`Candidate trigger ${normalizedTrigger} is not recognized.`);
+  }
+  if (!normalizedScheduledAt) {
+    throw new Error("Scheduled candidate requires scheduled_at metadata.");
+  }
+  const scheduled = parseStrictUtcRfc3339(normalizedScheduledAt);
+  const central = centralDateTimeParts(scheduled);
+  const centralTime = `${central.hour}:${central.minute}`;
+  if (!INGESTION_CENTRAL_SLOTS.includes(centralTime) || central.second !== "00") {
+    throw new Error(
+      `Scheduled candidate is not a 06:00 or 18:00 ${CENTRAL_TIME_ZONE} slot.`
+    );
+  }
+  const expectedSlotKey =
+    `central-${central.year}-${central.month}-${central.day}-${central.hour}${central.minute}`;
+  if (slotKey !== expectedSlotKey) {
+    throw new Error(
+      `Scheduled candidate slot key mismatch (expected ${expectedSlotKey}, observed ${slotKey}).`
+    );
+  }
+  return Object.freeze({
+    trigger: normalizedTrigger,
+    slotKey: String(slotKey),
+    scheduledAt: normalizedScheduledAt,
+    scheduledAtMs: scheduled.getTime()
+  });
+}
+
+function publicationCandidateReceiptFields({ required = false } = {}) {
+  if (!candidateMetadata) {
+    if (required) {
+      throw new Error("Publication requires exact candidate trigger/scheduledAt metadata.");
+    }
+    return { trigger: null, scheduledAt: null };
+  }
+  return {
+    trigger: candidateMetadata.trigger,
+    scheduledAt: candidateMetadata.scheduledAt
+  };
+}
+
+function parseStrictUtcRfc3339(value) {
+  const match = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.\d{1,9})?Z$/.exec(value);
+  if (!match) throw new Error("Candidate scheduled_at must be a strict UTC RFC3339 timestamp.");
+  const [, year, month, day, hour, minute, second] = match.map(Number);
+  const calendarProbe = new Date(0);
+  calendarProbe.setUTCFullYear(year, month - 1, day);
+  calendarProbe.setUTCHours(hour, minute, second, 0);
+  if (
+    calendarProbe.getUTCFullYear() !== year ||
+    calendarProbe.getUTCMonth() !== month - 1 ||
+    calendarProbe.getUTCDate() !== day ||
+    calendarProbe.getUTCHours() !== hour ||
+    calendarProbe.getUTCMinutes() !== minute ||
+    calendarProbe.getUTCSeconds() !== second
+  ) {
+    throw new Error("Candidate scheduled_at is not a real UTC calendar instant.");
+  }
+  const scheduled = new Date(value);
+  if (!Number.isFinite(scheduled.getTime())) {
+    throw new Error("Candidate scheduled_at is not a valid UTC instant.");
+  }
+  return scheduled;
+}
+
+function assertCandidateFreshForPublication(label, nowMs = Date.now()) {
+  if (!candidateMetadata || candidateMetadata.trigger === "manual-replay") return;
+  const ageMs = nowMs - candidateMetadata.scheduledAtMs;
+  const freshnessWindowMs = DEFAULT_LATENESS_WINDOW_MINUTES * 60_000;
+  if (ageMs < 0) {
+    throw new Error(`Scheduled candidate is in the future before ${label}.`);
+  }
+  if (ageMs > freshnessWindowMs) {
+    throw new Error(
+      `Scheduled candidate exceeded the 11-hour freshness window before ${label}; publication is prohibited.`
+    );
+  }
+}
+
 function parseArgs(rawArgs) {
   const value = (name) => rawArgs.find((arg) => arg.startsWith(`${name}=`))?.slice(name.length + 1) ?? null;
   return {
     idempotencyKey: value("--idempotency-key"),
     campaignKey: value("--campaign-key"),
+    candidateTrigger: value("--candidate-trigger"),
+    scheduledAt: value("--scheduled-at"),
     plan: rawArgs.includes("--plan"),
     resumeSnapshots: rawArgs.includes("--resume-snapshots"),
     skipNetwork: rawArgs.includes("--skip-network"),
@@ -3650,6 +6555,32 @@ function boundedCollectionDrainTimeoutMs(requestedMs, label) {
   return collectionDrainBudget.timeoutMs(requestedMs, label);
 }
 
+function commandFailureMessage(status, { stderr = "", stdout = "" } = {}) {
+  const safeStatus = sanitizeRunnerDiagnosticText(status, 1_024);
+  const outputTail = [
+    stderr ? `stderr: ${tail(stderr, COMMAND_FAILURE_TAIL_MAX_LENGTH)}` : "",
+    stdout ? `stdout: ${tail(stdout, COMMAND_FAILURE_TAIL_MAX_LENGTH)}` : ""
+  ].filter(Boolean).join(" | ");
+  const safeOutputTail = sanitizeRunnerDiagnosticText(
+    outputTail,
+    COMMAND_FAILURE_TAIL_MAX_LENGTH
+  );
+  return safeOutputTail ? `${safeStatus} Output tail: ${safeOutputTail}` : safeStatus;
+}
+
+function commandExecutionError(status, payload = {}, cause = null) {
+  const error = new Error(commandFailureMessage(status, payload), cause ? { cause } : undefined);
+  error.commandResult = {
+    code: payload.code ?? null,
+    signal: payload.signal ?? null,
+    timedOut: payload.timedOut === true,
+    timeoutMs: payload.timeoutMs ?? null,
+    stdout: payload.stdout ?? "",
+    stderr: payload.stderr ?? ""
+  };
+  return error;
+}
+
 function tail(value, limit) {
   return value.length > limit ? value.slice(-limit) : value;
 }
@@ -3659,9 +6590,12 @@ function errorMessage(error) {
 }
 
 function runnerDiagnosticSecrets() {
+  const publicationAuthorizationHeader = githubPublicationAuthorizationHeader();
   return [
     serviceKey,
     cleanEnv(process.env.GITHUB_TOKEN),
+    publicationAuthorizationHeader,
+    publicationAuthorizationHeader?.replace(/^AUTHORIZATION: basic /, ""),
     cleanEnv(process.env.X_BEARER_TOKEN),
     cleanEnv(process.env.EXA_API_KEY)
   ];
@@ -3701,6 +6635,18 @@ function sanitizedRunnerFailure(error) {
   };
 }
 
+function replayCoverageOutcome(receipt) {
+  const mappedExpected = receipt?.mappedExpected;
+  const hasMappedExpected = mappedExpected !== null && mappedExpected !== undefined;
+  return {
+    mappedExpected,
+    mappedNonTerminal: receipt?.mappedNonTerminal,
+    terminalFailureBudget: receipt?.terminalFailureBudget ?? (
+      hasMappedExpected ? autonomousMappedTerminalFailureBudget(mappedExpected) : undefined
+    )
+  };
+}
+
 function failedRunnerOutcome(failureMessage) {
   return {
     status: "failed",
@@ -3716,4 +6662,675 @@ function failedRunnerOutcome(failureMessage) {
     terminalFailureBudget: latestTerminalFailureBudget,
     publishedCommit: latestPublishedCommit ?? pendingRunnerOutcome?.publishedCommit ?? null
   };
+}
+
+async function runLifecycleContractFixture(fixture) {
+  const emit = (value) => {
+    console.log(`LIFECYCLE_FIXTURE_RESULT=${JSON.stringify(value)}`);
+    return 0;
+  };
+  if (fixture === "candidate-metadata") {
+    const previousCandidateMetadata = candidateMetadata;
+    try {
+      candidateMetadata = validateCandidateMetadata({
+        trigger: cleanEnv(process.env.LIFECYCLE_FIXTURE_CANDIDATE_TRIGGER),
+        scheduledAt: cleanEnv(process.env.LIFECYCLE_FIXTURE_SCHEDULED_AT),
+        slotKey: cleanEnv(process.env.LIFECYCLE_FIXTURE_SLOT_KEY),
+        required: true
+      });
+      const nowMs = Number(process.env.LIFECYCLE_FIXTURE_NOW_MS ?? Date.now());
+      assertCandidateFreshForPublication(
+        cleanEnv(process.env.LIFECYCLE_FIXTURE_PUSH_LABEL) ?? "fixture publication push",
+        nowMs
+      );
+      return emit({ fixture, accepted: true, candidateMetadata });
+    } catch (error) {
+      return emit({ fixture, accepted: false, error: errorMessage(error) });
+    } finally {
+      candidateMetadata = previousCandidateMetadata;
+    }
+  }
+  if (fixture === "source-boundary") {
+    const workingDirectory = cleanEnv(process.env.LIFECYCLE_FIXTURE_WORKING_ROOT);
+    const executingCodeRoot = cleanEnv(process.env.LIFECYCLE_FIXTURE_CODE_ROOT);
+    if (!workingDirectory || !executingCodeRoot) {
+      throw new Error("Source-boundary fixture requires working and code roots.");
+    }
+    const previousSourceCommit = sourceCommit;
+    sourceCommit = null;
+    try {
+      const verifiedSourceCommit = await verifyPinnedSourceExecutionBoundary({
+        workingDirectory,
+        executingCodeRoot,
+        expectedSourceCommit: cleanEnv(process.env.LIFECYCLE_FIXTURE_EXPECTED_SOURCE_SHA)
+      });
+      return emit({ fixture, accepted: true, sourceCommit: verifiedSourceCommit });
+    } catch (error) {
+      return emit({ fixture, accepted: false, error: errorMessage(error) });
+    } finally {
+      sourceCommit = previousSourceCommit;
+    }
+  }
+
+  if (fixture === "publication-base-trust") {
+    const candidateCommit = cleanEnv(process.env.LIFECYCLE_FIXTURE_BASE_COMMIT);
+    const fixtureSourceCommit = cleanEnv(process.env.LIFECYCLE_FIXTURE_SOURCE_COMMIT);
+    if (!candidateCommit || !fixtureSourceCommit) {
+      throw new Error("Publication-base trust fixture requires source and candidate commits.");
+    }
+    const previousSourceCommit = sourceCommit;
+    sourceCommit = fixtureSourceCommit.toLowerCase();
+    try {
+      await assertTrustedPublicationBaseCommit(candidateCommit, {
+        label: cleanEnv(process.env.LIFECYCLE_FIXTURE_BASE_LABEL) ?? "fixture publication base"
+      });
+      return emit({ fixture, accepted: true, sourceCommit, candidateCommit });
+    } catch (error) {
+      return emit({ fixture, accepted: false, error: errorMessage(error) });
+    } finally {
+      sourceCommit = previousSourceCommit;
+    }
+  }
+
+  if (fixture === "pid-reuse-ledger") {
+    const fixtureRoot = cleanEnv(process.env.LIFECYCLE_FIXTURE_MARKER);
+    if (!fixtureRoot) throw new Error("PID-reuse fixture requires a marker directory.");
+    await mkdir(fixtureRoot, { recursive: true });
+    const readyPath = join(fixtureRoot, "victim-ready");
+    const signaledPath = join(fixtureRoot, "victim-signaled");
+    const ledgerPath = join(fixtureRoot, "forged-child-ledger.log");
+    const victim = spawn(process.execPath, ["-e", [
+      'const { writeFileSync } = require("node:fs");',
+      'process.on("SIGTERM", () => writeFileSync(process.env.VICTIM_SIGNALED, "yes"));',
+      'writeFileSync(process.env.VICTIM_READY, "yes");',
+      "setInterval(() => {}, 1000);"
+    ].join("")], {
+      env: {
+        ...process.env,
+        VICTIM_READY: readyPath,
+        VICTIM_SIGNALED: signaledPath
+      },
+      stdio: "ignore"
+    });
+    const victimClosed = new Promise((resolveClose) => victim.once("close", resolveClose));
+    const fakeRoot = {
+      pid: 2_147_000_000,
+      kill() {}
+    };
+    const ledgerRunId = randomUUID();
+    try {
+      const readyDeadline = Date.now() + 1_000;
+      while (Date.now() < readyDeadline) {
+        try {
+          await stat(readyPath);
+          break;
+        } catch (error) {
+          if (error?.code !== "ENOENT") throw error;
+          await delay(10);
+        }
+      }
+      await stat(readyPath);
+      const actualIdentity = processStartIdentity(victim.pid);
+      if (!actualIdentity) throw new Error("Could not resolve fixture victim process identity.");
+      await writeFile(
+        ledgerPath,
+        `${ledgerRunId}\t${victim.pid}\t${actualIdentity}\n`,
+        { encoding: "utf8", mode: 0o600 }
+      );
+      fakeRoot[CHILD_DESCENDANT_PIDS] = new Set();
+      fakeRoot[CHILD_PROCESS_LEDGER] = {
+        path: ledgerPath,
+        runId: ledgerRunId,
+        identities: new Map()
+      };
+      activeChildProcesses.add(fakeRoot);
+      let preSignalIdentityReads = 0;
+      signalChildProcessTree(fakeRoot, "SIGTERM", {
+        readStartIdentity(pid) {
+          preSignalIdentityReads += 1;
+          if (pid !== victim.pid) return null;
+          return preSignalIdentityReads === 1 ? actualIdentity : `${actualIdentity}:reused`;
+        }
+      });
+      await delay(100);
+      const victimAlive = processExists(victim.pid);
+      let victimSignaled = false;
+      try {
+        await stat(signaledPath);
+        victimSignaled = true;
+      } catch (error) {
+        if (error?.code !== "ENOENT") throw error;
+      }
+      return emit({
+        fixture,
+        victimAlive,
+        victimSignaled,
+        preSignalIdentityReads,
+        victimPruned: !fakeRoot[CHILD_DESCENDANT_PIDS].has(victim.pid) &&
+          !fakeRoot[CHILD_PROCESS_LEDGER].identities.has(victim.pid)
+      });
+    } finally {
+      activeChildProcesses.delete(fakeRoot);
+      try {
+        victim.kill("SIGKILL");
+      } catch {}
+      await Promise.race([victimClosed, delay(500)]);
+      await unlink(ledgerPath).catch(() => {});
+    }
+  }
+
+  if (fixture === "escaped-descendant") {
+    const commandPath = cleanEnv(process.env.LIFECYCLE_FIXTURE_COMMAND);
+    if (!commandPath) throw new Error("LIFECYCLE_FIXTURE_COMMAND is required.");
+    const startedAt = Date.now();
+    let failure = null;
+    try {
+      await runCommand(process.execPath, [commandPath], {
+        timeoutMs: 150,
+        label: "escaped descendant lifecycle fixture",
+        quiet: true,
+        envCategory: "test_fixture",
+        env: {
+          LIFECYCLE_FIXTURE_MARKER: cleanEnv(process.env.LIFECYCLE_FIXTURE_MARKER)
+        },
+        terminationGraceMs: 100,
+        hardSettleWatchdogMs: 100
+      });
+    } catch (error) {
+      failure = error;
+    }
+    const elapsedMs = Date.now() - startedAt;
+    if (!failure || !/timed out after 150ms/.test(errorMessage(failure))) {
+      throw new Error(`Escaped descendant fixture did not terminate as expected: ${errorMessage(failure)}`);
+    }
+    if (elapsedMs > 1_500) {
+      throw new Error(`Escaped descendant fixture exceeded its bounded exit: ${elapsedMs}ms.`);
+    }
+    return emit({ fixture, elapsedMs, activeChildren: activeChildProcesses.size });
+  }
+
+  if (fixture === "normal-exit-descendant") {
+    const commandPath = cleanEnv(process.env.LIFECYCLE_FIXTURE_COMMAND);
+    if (!commandPath) throw new Error("LIFECYCLE_FIXTURE_COMMAND is required.");
+    await runCommand(process.execPath, [commandPath, "normal"], {
+      timeoutMs: 2_000,
+      label: "normal-exit descendant lifecycle fixture",
+      quiet: true,
+      envCategory: "test_fixture",
+      env: {
+        LIFECYCLE_FIXTURE_MARKER: cleanEnv(process.env.LIFECYCLE_FIXTURE_MARKER)
+      }
+    });
+    return emit({ fixture, activeChildren: activeChildProcesses.size });
+  }
+
+  if (fixture === "fail-fast-siblings") {
+    const commandPath = cleanEnv(process.env.LIFECYCLE_FIXTURE_COMMAND);
+    if (!commandPath) throw new Error("LIFECYCLE_FIXTURE_COMMAND is required.");
+    let failure = null;
+    try {
+      await runFailFastBranches([
+        () => runCommand(process.execPath, [commandPath, "fail"], {
+          timeoutMs: 2_000,
+          label: "fail-fast failing branch",
+          quiet: true,
+          envCategory: "test_fixture",
+          env: { LIFECYCLE_FIXTURE_MARKER: cleanEnv(process.env.LIFECYCLE_FIXTURE_MARKER) }
+        }),
+        () => runCommand(process.execPath, [commandPath, "hang"], {
+          timeoutMs: 2_000,
+          label: "fail-fast hanging sibling",
+          quiet: true,
+          envCategory: "test_fixture",
+          env: { LIFECYCLE_FIXTURE_MARKER: cleanEnv(process.env.LIFECYCLE_FIXTURE_MARKER) }
+        })
+      ]);
+    } catch (error) {
+      failure = error;
+    }
+    if (!failure || !/failing branch exited with 7/.test(errorMessage(failure))) {
+      throw new Error(`Fail-fast fixture did not preserve its first failure: ${errorMessage(failure)}`);
+    }
+    if (activeChildProcesses.size !== 0) {
+      throw new Error("Fail-fast fixture terminalized before every sibling process drained.");
+    }
+    return emit({ fixture, activeChildren: activeChildProcesses.size });
+  }
+
+  if (fixture === "event-timeout") {
+    lifecycleOperationTimeoutOverrideMs = 25;
+    run = { id: "event-timeout-fixture" };
+    supabase = {
+      from: () => ({
+        insert: () => new Promise((_, reject) => {
+          setTimeout(() => reject(new Error("late event rejection")), 80);
+        })
+      })
+    };
+    const startedAt = Date.now();
+    let failure = null;
+    try {
+      await event("fixture.timeout", "info", "fixture event");
+    } catch (error) {
+      failure = error;
+    }
+    const elapsedMs = Date.now() - startedAt;
+    await delay(120);
+    if (!failure || !/timed out after 25ms/.test(errorMessage(failure))) {
+      throw new Error(`Lifecycle event fixture did not time out: ${errorMessage(failure)}`);
+    }
+    if (elapsedMs > 250) throw new Error(`Lifecycle event timeout was not bounded: ${elapsedMs}ms.`);
+    supabase = null;
+    run = null;
+    lifecycleOperationTimeoutOverrideMs = null;
+    return emit({ fixture, elapsedMs });
+  }
+
+  if (fixture === "heartbeat-drain") {
+    let abortObserved = false;
+    heartbeatSchedulingStopped = false;
+    heartbeatFailure = null;
+    heartbeatDrainPromise = null;
+    heartbeatInFlight = null;
+    heartbeatAbortController = null;
+    terminationSignal = null;
+    run = {
+      id: "heartbeat-drain-fixture",
+      lease_token: "22222222-2222-4222-8222-222222222222"
+    };
+    runtimeLock = {
+      lock_key: "autonomous-ingestion",
+      lease_token: "33333333-3333-4333-8333-333333333333"
+    };
+    supabase = {
+      from: () => {
+        const query = {
+          update: () => query,
+          eq: () => query,
+          abortSignal: (signal) => new Promise((_, reject) => {
+            signal.addEventListener("abort", () => {
+              abortObserved = true;
+              reject(signal.reason ?? new Error("heartbeat fixture aborted"));
+            }, { once: true });
+          })
+        };
+        return query;
+      },
+      rpc: () => Promise.resolve({ data: true, error: null })
+    };
+    scheduleHeartbeat();
+    await delay(10);
+    await stopHeartbeatAndDrain();
+    if (!abortObserved || heartbeatInFlight !== null || heartbeatFailure) {
+      throw new Error("Heartbeat did not abort and drain cleanly before finalization.");
+    }
+    return emit({ fixture, abortObserved, drained: heartbeatInFlight === null });
+  }
+
+  if (fixture === "ambiguous-completion") {
+    executionCompletionNonce = "44444444-4444-4444-8444-444444444444";
+    run = { id: "ambiguous-completion-fixture", status: "completed" };
+    finalizedRunStatus = null;
+    successfulRunnerOutcomeCandidate = null;
+    completedOutcomeVerifiedByThisExecution = false;
+    if (completedFinalizationWon()) {
+      throw new Error("A pre-existing completed row won before repository receipt verification.");
+    }
+
+    const leaseToken = "11111111-1111-4111-8111-111111111111";
+    workerId = "lifecycle-fixture-worker";
+    run = {
+      id: "ambiguous-completion-fixture",
+      status: "running",
+      lease_owner: workerId,
+      lease_token: leaseToken
+    };
+    const completionStats = bindCompletionProvenance(
+      { fixture: true },
+      {
+        publicationStatus: "published",
+        publishedCommit: "b".repeat(40),
+        receipt: { fixture: "ambiguous-completion" }
+      }
+    );
+    const durableCompletedRun = {
+      id: run.id,
+      status: "completed",
+      finished_at: new Date().toISOString(),
+      lease_owner: null,
+      lease_token: null,
+      lease_expires_at: null,
+      stats_json: completionStats
+    };
+    let exposeBoundProvenance = false;
+    supabase = {
+      rpc: () => Promise.resolve({
+        data: null,
+        error: { message: "simulated response loss after commit" }
+      }),
+      from: () => {
+        const query = {
+          select: () => query,
+          eq: () => query,
+          maybeSingle: () => Promise.resolve({
+            data: exposeBoundProvenance
+              ? durableCompletedRun
+              : { ...durableCompletedRun, stats_json: { fixture: true } },
+            error: null
+          })
+        };
+        return query;
+      }
+    };
+    terminationSignal = null;
+    heartbeatFailure = null;
+    runFinalizationPromise = null;
+    finalizedRunStatus = null;
+    const provenanceFree = await reconcileAmbiguousCompletedRun(
+      { id: run.id },
+      completionStats
+    );
+    if (provenanceFree) {
+      throw new Error("A provenance-free completed row incorrectly won reconciliation.");
+    }
+    exposeBoundProvenance = true;
+    const status = await completeRun("completed", completionStats);
+    if (status !== "completed" || !completedFinalizationWon()) {
+      throw new Error("Ambiguous completion was not reconciled to the durable completed row.");
+    }
+    supabase = null;
+    return emit({ fixture, status, completionVerified: completedOutcomeVerifiedByThisExecution });
+  }
+
+  if (fixture === "emergency-release-failure") {
+    const publishedCommit = "a".repeat(40);
+    terminationSignal = "SIGINT";
+    hardFailure = null;
+    process.exitCode = 130;
+    completedOutcomeVerifiedByThisExecution = true;
+    finalizedRunStatus = "completed";
+    successfulRunnerOutcomeCandidate = {
+      status: "refreshed",
+      publicationStatus: "published",
+      publishedCommit
+    };
+    pendingRunnerOutcome = successfulRunnerOutcomeCandidate;
+    latestPublishedCommit = publishedCommit;
+    runtimeLock = { lock_key: "autonomous-ingestion", lease_token: "fixture-lock-token" };
+    runtimeLockReleasePromise = null;
+    runnerOutcomeWritePromise = null;
+    supabase = {
+      rpc: () => Promise.resolve({
+        data: null,
+        error: { message: "simulated runtime lock release failure" }
+      })
+    };
+    await emergencyCancellationCleanup();
+    if (pendingRunnerOutcome?.status !== "failed" || effectiveTerminationExitCode() !== 1) {
+      throw new Error("Emergency lock release failure did not replace the successful outcome.");
+    }
+    return emit({
+      fixture,
+      status: pendingRunnerOutcome.status,
+      exitCode: effectiveTerminationExitCode()
+    });
+  }
+
+  if (fixture === "lock-release-response-loss") {
+    workerId = "lifecycle-fixture-worker";
+    runtimeLock = {
+      lock_key: "autonomous-ingestion",
+      lease_token: "55555555-5555-4555-8555-555555555555"
+    };
+    runtimeLockReleasePromise = null;
+    let releaseCalls = 0;
+    let readBackCalls = 0;
+    supabase = {
+      rpc: () => {
+        releaseCalls += 1;
+        return Promise.resolve({
+          data: null,
+          error: { message: "simulated response loss after lock deletion" }
+        });
+      },
+      from: () => {
+        const query = {
+          select: () => query,
+          eq: () => query,
+          maybeSingle: () => {
+            readBackCalls += 1;
+            return Promise.resolve({ data: null, error: null });
+          }
+        };
+        return query;
+      }
+    };
+    await releaseRuntimeLockOnce();
+    if (runtimeLock !== null || releaseCalls !== 1 || readBackCalls !== 1) {
+      throw new Error("Runtime-lock response loss was not reconciled exactly once.");
+    }
+    return emit({ fixture, releaseCalls, readBackCalls, released: runtimeLock === null });
+  }
+
+  if (fixture === "emergency-heartbeat-order") {
+    terminationSignal = "SIGTERM";
+    workerId = "lifecycle-fixture-worker";
+    hardFailure = null;
+    process.exitCode = 143;
+    runtimeLock = {
+      lock_key: "autonomous-ingestion",
+      lease_token: "66666666-6666-4666-8666-666666666666"
+    };
+    runtimeLockReleasePromise = null;
+    heartbeatSchedulingStopped = false;
+    heartbeatDrainPromise = null;
+    heartbeatAbortController = new AbortController();
+    let settleHeartbeat;
+    heartbeatInFlight = new Promise((resolve) => {
+      settleHeartbeat = resolve;
+    }).finally(() => {
+      heartbeatInFlight = null;
+    });
+    let releaseObservedBeforeHeartbeatDrain = false;
+    supabase = {
+      rpc: () => {
+        releaseObservedBeforeHeartbeatDrain = heartbeatInFlight !== null;
+        settleHeartbeat();
+        return Promise.resolve({ data: true, error: null });
+      }
+    };
+    await emergencyCancellationCleanup();
+    if (!releaseObservedBeforeHeartbeatDrain || runtimeLock !== null || heartbeatInFlight !== null) {
+      throw new Error("Emergency cleanup did not release the lock before heartbeat drain.");
+    }
+    return emit({
+      fixture,
+      releaseObservedBeforeHeartbeatDrain,
+      released: runtimeLock === null,
+      heartbeatDrained: heartbeatInFlight === null
+    });
+  }
+
+  if (fixture === "outcome-write-retry") {
+    const badOutput = cleanEnv(process.env.LIFECYCLE_FIXTURE_BAD_OUTPUT);
+    const goodOutput = cleanEnv(process.env.LIFECYCLE_FIXTURE_GOOD_OUTPUT);
+    if (!badOutput || !goodOutput) throw new Error("Outcome retry fixture paths are required.");
+    runnerOutcomeWritePromise = null;
+    process.env.GITHUB_OUTPUT = badOutput;
+    let firstRejected = false;
+    try {
+      await writeRunnerOutcomeOnce({ status: "failed", failureMessage: "first write" });
+    } catch {
+      firstRejected = true;
+    }
+    if (!firstRejected || runnerOutcomeWritePromise !== null) {
+      throw new Error("Rejected outcome write was not cleared for retry.");
+    }
+    process.env.GITHUB_OUTPUT = goodOutput;
+    await writeRunnerOutcomeOnce({ status: "failed", failureMessage: "retry write" });
+    await writeRunnerOutcomeOnce({ status: "refreshed" });
+    const output = await readFile(goodOutput, "utf8");
+    const statusLines = output.match(/^runner_status=/gm) ?? [];
+    if (statusLines.length !== 1 || !/^runner_status=failed$/m.test(output)) {
+      throw new Error("Successful outcome write was duplicated or replaced.");
+    }
+    return emit({ fixture, writes: statusLines.length });
+  }
+
+  if (fixture === "catalog-sanitize") {
+    const commandPath = cleanEnv(process.env.LIFECYCLE_FIXTURE_COMMAND);
+    if (!commandPath) throw new Error("LIFECYCLE_FIXTURE_COMMAND is required.");
+    let failure = null;
+    try {
+      await runCommand(process.execPath, [commandPath], {
+        timeoutMs: 1_000,
+        label: "official mutable YC catalog refresh",
+        envCategory: "github_collector"
+      });
+    } catch (error) {
+      failure = error;
+    }
+    if (!failure) throw new Error("Catalog sanitization fixture unexpectedly succeeded.");
+    console.error(sanitizeRunnerDiagnosticText(errorMessage(failure)));
+    return emit({ fixture, failedAsExpected: true });
+  }
+
+  if (fixture === "publication-trailers") {
+    const fixturePublicationRoot = cleanEnv(process.env.LIFECYCLE_FIXTURE_PUBLICATION_ROOT);
+    const fixturePublicationParent = cleanEnv(process.env.LIFECYCLE_FIXTURE_PUBLICATION_PARENT);
+    if (!fixturePublicationRoot || !fixturePublicationParent) {
+      throw new Error("Publication trailer fixture requires its isolated worktree paths.");
+    }
+    publicationRoot = resolve(fixturePublicationRoot);
+    publicationWorktreeParent = resolve(fixturePublicationParent);
+    configurePublicationArtifactPaths(publicationRoot);
+    const previousCandidateMetadata = candidateMetadata;
+    try {
+      candidateMetadata = validateCandidateMetadata({
+        trigger: cleanEnv(process.env.LIFECYCLE_FIXTURE_CANDIDATE_TRIGGER) ?? "manual-replay",
+        scheduledAt: cleanEnv(process.env.LIFECYCLE_FIXTURE_SCHEDULED_AT),
+        slotKey: idempotencyKey,
+        required: true
+      });
+      const committed = await commitPublicationArtifacts({
+        amend: false,
+        allowUnchangedTree: process.env.LIFECYCLE_FIXTURE_ALLOW_EMPTY === "true"
+      });
+      return emit({
+        fixture,
+        publishedCommit: committed.publishedCommit,
+        receiptSha256: committed.receiptSha256
+      });
+    } finally {
+      candidateMetadata = previousCandidateMetadata;
+    }
+  }
+
+  if (fixture === "lock-claim-ambiguity") {
+    workerId = "lifecycle-fixture-worker";
+    executionCompletionNonce = "77777777-7777-4777-8777-777777777777";
+    runStartedAt = new Date("2026-08-10T00:00:00.000Z");
+    const row = {
+      lock_key: "autonomous-ingestion",
+      owner_id: workerId,
+      lease_token: "88888888-8888-4888-8888-888888888888",
+      lease_expires_at: new Date(Date.now() + 60_000).toISOString(),
+      metadata_json: {
+        idempotencyKey,
+        startedAt: runStartedAt.toISOString(),
+        executionCompletionNonce: "foreign-execution-nonce"
+      }
+    };
+    supabase = {
+      from: () => {
+        const query = {
+          select: () => query,
+          eq: () => query,
+          maybeSingle: () => Promise.resolve({ data: row, error: null })
+        };
+        return query;
+      }
+    };
+    const rejected = await reconcileAmbiguousRuntimeLockClaim();
+    row.metadata_json.executionCompletionNonce = executionCompletionNonce;
+    const accepted = await reconcileAmbiguousRuntimeLockClaim();
+    supabase = null;
+    if (rejected !== null || accepted?.lease_token !== row.lease_token) {
+      throw new Error("Ambiguous runtime-lock claim was not reconciled by exact owner and execution nonce.");
+    }
+    return emit({ fixture, foreignRejected: true, exactAccepted: true });
+  }
+
+  if (fixture === "git-transport-classification") {
+    const networkError = commandExecutionError("git push failed", {
+      code: 128,
+      stderr: "fatal: unable to access remote: connection reset by peer"
+    });
+    const authError = commandExecutionError("git push failed", {
+      code: 128,
+      stderr: "fatal: authentication failed"
+    });
+    const ordinaryRejection = commandExecutionError("git push failed", {
+      code: 1,
+      stderr: "non-fast-forward"
+    });
+    return emit({
+      fixture,
+      networkRetryable: isRetryableGitTransportFailure(networkError),
+      authRetryable: isRetryableGitTransportFailure(authError),
+      rejectionRetryable: isRetryableGitTransportFailure(ordinaryRejection)
+    });
+  }
+
+  if (fixture === "publication-credential-boundary") {
+    const fixturePublicationRoot = cleanEnv(process.env.LIFECYCLE_FIXTURE_PUBLICATION_ROOT);
+    const fixturePublicationParent = cleanEnv(process.env.LIFECYCLE_FIXTURE_PUBLICATION_PARENT);
+    if (!fixturePublicationRoot || !fixturePublicationParent) {
+      throw new Error("Publication credential-boundary fixture requires its worktree paths.");
+    }
+    publicationRoot = resolve(fixturePublicationRoot);
+    publicationWorktreeParent = resolve(fixturePublicationParent);
+    let failure = null;
+    try {
+      await runCommand(process.execPath, ["-e", "process.exit(99)"], {
+        timeoutMs: 1_000,
+        label: "publication credential boundary fixture",
+        envCategory: "github_collector",
+        cwd: publicationRoot
+      });
+    } catch (error) {
+      failure = error;
+    }
+    if (!failure || !/Refusing to expose privileged environment GITHUB_TOKEN/.test(errorMessage(failure))) {
+      throw new Error(`Publication credential boundary did not fail closed: ${errorMessage(failure)}`);
+    }
+    return emit({ fixture, rejectedBeforeSpawn: true });
+  }
+
+  if (fixture === "publication-executable-boundary") {
+    const fixturePublicationRoot = cleanEnv(process.env.LIFECYCLE_FIXTURE_PUBLICATION_ROOT);
+    const fixturePublicationParent = cleanEnv(process.env.LIFECYCLE_FIXTURE_PUBLICATION_PARENT);
+    const commandPath = cleanEnv(process.env.LIFECYCLE_FIXTURE_COMMAND);
+    if (!fixturePublicationRoot || !fixturePublicationParent || !commandPath) {
+      throw new Error("Publication executable-boundary fixture requires worktree and command paths.");
+    }
+    publicationRoot = resolve(fixturePublicationRoot);
+    publicationWorktreeParent = resolve(fixturePublicationParent);
+    let failure = null;
+    try {
+      await runCommand(process.execPath, [commandPath], {
+        timeoutMs: 1_000,
+        label: "publication executable boundary fixture",
+        cwd: root
+      });
+    } catch (error) {
+      failure = error;
+    }
+    if (!failure || !/Refusing to execute publication-worktree code/.test(errorMessage(failure))) {
+      throw new Error(`Publication executable boundary did not fail closed: ${errorMessage(failure)}`);
+    }
+    return emit({ fixture, rejectedBeforeSpawn: true });
+  }
+
+  throw new Error(`Unknown lifecycle contract fixture: ${fixture}.`);
 }

@@ -1,6 +1,10 @@
 import * as cheerio from "cheerio";
+import dns from "node:dns";
 import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
+import { BlockList, isIP } from "node:net";
 import { dirname, join, resolve } from "node:path";
+import { gunzipSync } from "node:zlib";
+import { Agent, request as undiciRequest } from "undici";
 import {
   linkedinAccountSlugFromUrl,
   linkedinNativeAuthorSlugFromPayload,
@@ -77,8 +81,7 @@ import {
 } from "./lib/recent-window-proof-instrumentation.mjs";
 import {
   HISTORICAL_BACKFILL_LIMITS,
-  matchesHnCompanyStory,
-  readBoundedResponseText
+  matchesHnCompanyStory
 } from "./lib/historical-backfill.mjs";
 import {
   parseYouTubeFeed,
@@ -86,8 +89,17 @@ import {
   youtubeChannelIdFromAccountUrl,
   youtubeFeedUrl
 } from "./lib/historical-depth-sources.mjs";
+import {
+  completeAutonomousCollectorProvenance,
+  readAutonomousCollectorLaunchProvenance
+} from "./lib/autonomous-collector-provenance.mjs";
+import { validatedRepositoryDataRoot } from "./lib/validated-repository-data-root.mjs";
 
-const root = process.cwd();
+const root = validatedRepositoryDataRoot(
+  stringArg("--catalog-root") ?? process.env.AUTONOMOUS_CATALOG_ROOT,
+  { fallbackRoot: process.cwd(), label: "public collector catalog root" }
+);
+const autonomousLaunchProvenance = readAutonomousCollectorLaunchProvenance();
 const batchConfig = resolveBatchConfig(stringArg("--batch") ?? stringArg("--batch-slug") ?? "S26");
 const batchSnapshotPath = batchConfig.snapshotPath;
 const outputPath = resolvePathArg(
@@ -122,6 +134,20 @@ const platformFilter = new Set(
     .filter(Boolean)
 );
 const requestDelayMs = numberArg("--delay-ms") ?? 450;
+const DEFAULT_PUBLIC_FETCH_TIMEOUT_MS = 20_000;
+const publicFetchTimeoutMs = Math.max(
+  25,
+  Math.min(
+    DEFAULT_PUBLIC_FETCH_TIMEOUT_MS,
+    Math.floor(numberArg("--public-fetch-timeout-ms") ?? DEFAULT_PUBLIC_FETCH_TIMEOUT_MS)
+  )
+);
+const PUBLIC_SEARCH_TIMEOUT_MS = 8_000;
+const PUBLIC_SEARCH_MAX_ENCODED_BODY_BYTES = 2 * 1024 * 1024;
+const PUBLIC_SEARCH_MAX_DECODED_BODY_BYTES = 4 * 1024 * 1024;
+const MAX_PUBLIC_REDIRECTS = 5;
+const PUBLIC_DESTINATION_BLOCK_LIST = createPublicDestinationBlockList();
+const PUBLIC_IPV6_GLOBAL_UNICAST_ALLOW_LIST = createPublicIpv6GlobalUnicastAllowList();
 const MAX_PUBLIC_TASK_WORKERS = 16;
 const workerCount = Math.max(
   1,
@@ -190,7 +216,10 @@ const exaApiKey = cleanEnv(process.env.EXA_API_KEY);
 const publicSearchCircuit = createPublicSearchCircuit({
   // Search is a discovery fallback, so a short bounded probe is preferable to
   // multiplying a 20-second outage across every unmapped owner.
-  timeoutMs: 8_000,
+  transport: fetchPublicSearchBoundedTransport,
+  timeoutMs: PUBLIC_SEARCH_TIMEOUT_MS,
+  maxEncodedBodyBytes: PUBLIC_SEARCH_MAX_ENCODED_BODY_BYTES,
+  maxDecodedBodyBytes: PUBLIC_SEARCH_MAX_DECODED_BODY_BYTES,
   failureThreshold: 2,
   cooldownMs: 15 * 60_000
 });
@@ -203,6 +232,7 @@ const linkedinPublicCircuit = createLinkedInPublicCircuit({
   directDegradedTimeoutMs: 5_000,
   readerTimeoutMs: 10_000,
   readerDegradedTimeoutMs: 6_000,
+  fetch: fetchLinkedInBoundedResponse,
   failureThreshold: 2,
   cooldownMs: 15 * 60_000
 });
@@ -399,10 +429,12 @@ function usage() {
     `  --instagram-native-feed-max-items=N  Native feed item cap (1-${MAX_INSTAGRAM_NATIVE_FEED_ITEMS})`,
     `  --checkpoint-every=N     Persist after N task completions (1-${MAX_CHECKPOINT_EVERY}; default 25)`,
     "  --delay-ms=N",
+    `  --public-fetch-timeout-ms=N  Website/feed deadline (25-${DEFAULT_PUBLIC_FETCH_TIMEOUT_MS}ms)`,
     "  --fresh-for-hours=N",
     "  --discover-missing-social",
     "  --mapped-only             Skip every URL-less social discovery task",
     "  --force",
+    "  --catalog-root=ABSOLUTE_PATH  Read every mutable catalog from this repository root",
     "  --output=PATH",
     "  --checkpoint=PATH",
     "  --discovery-attempts=PATH",
@@ -480,6 +512,18 @@ if (xRecentCollection.errors.length) {
 const taskPlan = companies.flatMap(buildCompanyTasks);
 await runTaskPlan(taskPlan, workerCount);
 const normalizedOutputEvidence = normalizeEvidenceForStorage(evidence);
+const collectorCompletedAt = new Date().toISOString();
+const autonomousAttempt = completeAutonomousCollectorProvenance(
+  autonomousLaunchProvenance,
+  {
+    kind: "public",
+    batchSlug: batchConfig.slug,
+    shardIndex: companyShardIndex,
+    shardCount: companyShardCount,
+    fetchedAt: now,
+    completedAt: collectorCompletedAt
+  }
+);
 
 const payload = {
   source: {
@@ -487,6 +531,9 @@ const payload = {
     batchSlug: batchConfig.slug,
     batchLabel: batchConfig.label,
     fetchedAt: now,
+    companyShardCount,
+    companyShardIndex,
+    ...(autonomousAttempt ? { autonomousAttempt } : {}),
     ...(recentCoverageCutoff ? { recentCoverageCutoff } : {}),
     companiesAttemptedThisRun: companies.length,
     checkpointFlushOnly: taskPlan.length === 0,
@@ -1624,8 +1671,8 @@ async function ingestRss(company) {
   const feedFailures = [];
   for (const feedUrl of feedUrls.slice(0, 2)) {
     try {
-      const response = await fetchPublic(feedUrl);
-      const xml = await readBoundedResponseText(response, {
+      const { text: xml } = await fetchPublicBoundedText(feedUrl, {
+        accept: "application/atom+xml,application/rss+xml,application/xml,text/xml",
         maxResponseBytes: HISTORICAL_BACKFILL_LIMITS.maxResponseBytes,
         maxDecodedBytes: HISTORICAL_BACKFILL_LIMITS.maxDecodedBytes
       });
@@ -1713,8 +1760,8 @@ async function ingestHackerNews(company) {
 
   const query = encodeURIComponent(`"${company.name}"`);
   const url = `https://hn.algolia.com/api/v1/search?query=${query}&tags=story&hitsPerPage=5`;
-  const response = await fetchPublic(url, { accept: "application/json" });
-  const data = await response.json();
+  const { text } = await fetchPublicBoundedText(url, { accept: "application/json" });
+  const data = parsePublicJson(text, url);
   const hits = (data.hits ?? []).filter((hit) =>
     isStrongPublicMatch(company, `${hit.title ?? ""} ${hit.url ?? ""}`, hit.url ?? "") &&
     isCurrentBatchHackerNewsHit(`${hit.title ?? ""} ${hit.url ?? ""}`)
@@ -1757,8 +1804,7 @@ async function ingestHackerNews(company) {
 async function ingestYouTube(company) {
   const officialLaunchResults = await ingestOfficialEmbeddedYouTube(company);
   const url = `https://www.youtube.com/results?search_query=${encodeURIComponent(`${company.name} ${currentBatchContext.label}`)}`;
-  const response = await fetchPublic(url);
-  const html = await response.text();
+  const { text: html } = await fetchPublicBoundedText(url);
   const candidates = parseYouTubeResults(html)
     .filter((item) => isPotentialCompanyMention(company, `${item.title} ${item.description}`))
     .slice(0, 12);
@@ -1931,9 +1977,10 @@ async function ingestOfficialEmbeddedYouTube(company) {
 
 async function fetchYouTubeWatchMetadata(videoId) {
   try {
-    const response = await fetchPublic(`https://www.youtube.com/watch?v=${videoId}`);
+    const { response, text: html } = await fetchPublicBoundedText(
+      `https://www.youtube.com/watch?v=${videoId}`
+    );
     if (!response.ok) return null;
-    const html = await response.text();
     const detailsStart = html.indexOf('"videoDetails":{');
     const details = detailsStart >= 0 ? html.slice(detailsStart, detailsStart + 120_000) : html;
     const youtubeChannelId = jsonStringField(details, "channelId");
@@ -1977,11 +2024,9 @@ async function enrichYouTubeNativeChannel(video) {
   if (video.youtubeChannelId || video.youtubeChannelUrl) return video;
   try {
     const videoUrl = `https://www.youtube.com/watch?v=${video.videoId}`;
-    const response = await fetchPublic(
-      `https://www.youtube.com/oembed?url=${encodeURIComponent(videoUrl)}&format=json`,
-      { accept: "application/json" }
-    );
-    const payload = await response.json();
+    const oEmbedUrl = `https://www.youtube.com/oembed?url=${encodeURIComponent(videoUrl)}&format=json`;
+    const { text } = await fetchPublicBoundedText(oEmbedUrl, { accept: "application/json" });
+    const payload = parsePublicJson(text, oEmbedUrl);
     return {
       ...video,
       youtubeChannelName: cleanText(payload.author_name ?? "") || null,
@@ -2010,8 +2055,7 @@ function canonicalYouTubeChannelUrl(value) {
 async function ingestMappedYouTubeAccount(company, entity, entityType, accountUrl) {
   const canonicalAccountUrl = canonicalProfileUrl(accountUrl, "youtube").replace(/\/$/, "");
   const videosUrl = `${canonicalAccountUrl}/videos`;
-  const response = await fetchPublic(videosUrl);
-  const html = await response.text();
+  const { text: html } = await fetchPublicBoundedText(videosUrl);
   const pageObservation = parseYouTubePublicPage(html);
   const mappedChannelId = youtubeChannelIdFromAccountUrl(canonicalAccountUrl);
   if (mappedChannelId && pageObservation.channelId && mappedChannelId !== pageObservation.channelId) {
@@ -2037,8 +2081,9 @@ async function ingestMappedYouTubeAccount(company, entity, entityType, accountUr
   if (channelId) {
     const feedSourceUrl = youtubeFeedUrl(channelId);
     try {
-      const feedResponse = await fetchPublic(feedSourceUrl, { accept: "application/atom+xml,application/xml,text/xml" });
-      const feedBody = await feedResponse.text();
+      const { response: feedResponse, text: feedBody } = await fetchPublicBoundedText(feedSourceUrl, {
+        accept: "application/atom+xml,application/xml,text/xml"
+      });
       if (!feedResponse.ok) {
         throw new Error(`Official YouTube Atom feed returned HTTP ${feedResponse.status}.`);
       }
@@ -2194,7 +2239,13 @@ async function ingestProductHunt(company) {
   const url = `https://www.producthunt.com/search?q=${encodeURIComponent(company.name)}`;
   const page = await fetchReader(url).catch(() => null);
   const publicSearchBlocked = !page || isBlocked(page.text);
-  const searchPageLinks = (publicSearchBlocked ? [] : extractMarkdownLinks(page.text))
+  const searchPageLinks = (publicSearchBlocked
+    ? []
+    : [
+        ...extractHtmlLinks(page.html, page.url),
+        ...extractMarkdownLinks(page.text),
+        ...extractProductHuntLinks(page.text).map((link) => ({ text: "", url: link }))
+      ])
     .filter((link) => link.url.includes("producthunt.com"))
     .filter((link) => /\/(products|posts)\//.test(link.url))
     .filter((link) => !/\/reviews\b|\/products\/lovable\b/i.test(link.url));
@@ -2277,9 +2328,10 @@ async function searchProductHuntLinks(company) {
   const links = [];
 
   for (const query of queries) {
-    const response = await fetchPublic(`https://duckduckgo.com/html/?q=${encodeURIComponent(query)}`);
+    const { response, text: html } = await fetchPublicSearchText(
+      `https://duckduckgo.com/html/?q=${encodeURIComponent(query)}`
+    );
     if (response.status >= 400) continue;
-    const html = await response.text();
     const $ = cheerio.load(html);
     $(".result")
       .toArray()
@@ -2324,9 +2376,8 @@ async function discoverSocialCandidates(company, platform, entity = null) {
   for (const query of queries.slice(0, maxQueries)) {
     try {
       const searchUrl = `https://duckduckgo.com/html/?q=${encodeURIComponent(query)}`;
-      const response = await fetchPublic(searchUrl);
+      const { response, text: html } = await fetchPublicSearchText(searchUrl);
       if (response.status >= 400) continue;
-      const html = await response.text();
       const $ = cheerio.load(html);
       selectPublicSocialCandidates($(".result").toArray(), platform, 8)
         .forEach((node) => {
@@ -2673,8 +2724,7 @@ function escapeRegExp(value) {
 
 async function ingestNewsWeb(company) {
   const url = `https://duckduckgo.com/html/?q=${encodeURIComponent(`${company.name} ${currentBatchContext.label}`)}`;
-  const response = await fetchPublic(url);
-  const html = await response.text();
+  const { text: html } = await fetchPublicSearchText(url);
   const $ = cheerio.load(html);
   const results = $(".result")
     .toArray()
@@ -2718,14 +2768,14 @@ async function ingestNewsWeb(company) {
 async function ingestReddit(company) {
   const url = `https://www.reddit.com/search.json?q=${encodeURIComponent(`${company.name} ${currentBatchContext.organization}`)}&limit=5&raw_json=1`;
   try {
-    const response = await fetchPublic(url, { accept: "application/json" });
+    const { response, text } = await fetchPublicBoundedText(url, { accept: "application/json" });
     if (!response.ok) {
       const accessMessage = [401, 403, 429].includes(response.status)
         ? "Reddit public access blocked"
         : "Reddit public search JSON failed";
       throw new Error(`${accessMessage}: HTTP ${response.status}.`);
     }
-    const data = await response.json();
+    const data = parsePublicJson(text, url);
     const posts = (data.data?.children ?? [])
       .map((child) => child.data)
       .filter((post) => isCompanyMatch(company, `${post.title ?? ""} ${post.selftext ?? ""}`))
@@ -2821,9 +2871,51 @@ async function ingestSocialProfile(company, entity, entityType, platform, url) {
     if (publicProfileResult) return publicProfileResult;
   }
 
-  const linkedInPublicSurface = platform === "linkedin"
-    ? await fetchLinkedInPublicProfileSurface(url).catch(() => null)
-    : null;
+  let linkedInPublicSurface = null;
+  let linkedInPublicSurfaceError = null;
+  if (platform === "linkedin") {
+    try {
+      linkedInPublicSurface = await fetchLinkedInPublicProfileSurface(url);
+    } catch (error) {
+      linkedInPublicSurfaceError = error;
+    }
+  }
+  if (linkedInPublicSurfaceError) {
+    const providerBlocker = linkedinPublicBlockerFromError(linkedInPublicSurfaceError);
+    const fallback = discoverMissingSocial
+      ? await discoverAndVerifyPublicSocialPosts(
+          company,
+          platform,
+          url,
+          "Batch-linked LinkedIn profile retrieval failed, so public post-search fallback was attempted.",
+          entity,
+          entityType
+        )
+      : { evidence: [], needsReview: [], failures: [], sourceDiscoveryPaths: [] };
+    const profileFailure = {
+      ...failure(
+        platform,
+        company,
+        url,
+        providerBlocker
+          ? `LinkedIn public profile verification was blocked: ${providerBlocker.message}`
+          : `LinkedIn public profile request failed: ${errorMessage(linkedInPublicSurfaceError)}`,
+        entityType,
+        entityName(entity, entityType),
+        entityIdFor(company, entity, entityType)
+      ),
+      ...(providerBlocker
+        ? { retryable: !providerBlocker.retryAt, blocker: providerBlocker }
+        : { retryable: true })
+    };
+    return {
+      evidence: fallback.evidence,
+      needsReview: fallback.needsReview,
+      failures: [profileFailure, ...(fallback.failures ?? [])],
+      sourceDiscoveryPaths: fallback.sourceDiscoveryPaths,
+      mergeOnly: true
+    };
+  }
   let page;
   try {
     page = linkedInPublicSurface?.verified
@@ -2838,6 +2930,8 @@ async function ingestSocialProfile(company, entity, entityType, platform, url) {
         }
       : platform === "x" && directXCoverageReceipt
         ? await fetchXPublicReaderFallback(url)
+        : platform === "linkedin" && linkedInPublicSurface?.readablePage
+          ? linkedInPublicSurface.readablePage
         : await fetchReader(url);
   } catch (error) {
     if (platform !== "x" || !directXCoverageReceipt) throw error;
@@ -3352,24 +3446,18 @@ function latestIsoTimestamp(...values) {
 async function ingestInstagramPublicProfile(company, entity, entityType, accountUrl) {
   const request = instagramPublicProfileRequest({ accountUrl });
   const requestedAt = new Date().toISOString();
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 20_000);
   let response = null;
   let payloadText = "";
   let profileRequestError = null;
   try {
-    response = await fetch(request.url, {
-      ...request.options,
-      signal: controller.signal
-    });
-    payloadText = await readBoundedResponseText(response, {
+    ({ response, text: payloadText } = await fetchPublicBoundedText(request.url, {
+      headers: request.options.headers,
+      redirect: "error",
       maxResponseBytes: HISTORICAL_BACKFILL_LIMITS.maxResponseBytes,
       maxDecodedBytes: HISTORICAL_BACKFILL_LIMITS.maxDecodedBytes
-    });
+    }));
   } catch (error) {
     profileRequestError = error;
-  } finally {
-    clearTimeout(timeout);
   }
   const completedAt = new Date().toISOString();
 
@@ -3561,6 +3649,25 @@ async function ingestInstagramPublicProfile(company, entity, entityType, account
         receipt
       })
     : null;
+  const nativeFeedVerifiedEmpty =
+    nativeFeedOnly &&
+    nativeFeedReceipt?.verified === true &&
+    nativeFeedReceipt?.sourceExhausted === true &&
+    Number(nativeFeedReceipt?.uniqueItemCount ?? nativeFeedReceipt?.posts?.length ?? 0) === 0;
+  const nativeFeedEmptyCoverageReceipt = nativeFeedVerifiedEmpty
+    ? {
+        source: "instagram_anonymous_native_feed_standalone_v1",
+        verified: true,
+        verifiedEmpty: true,
+        username: receipt.username,
+        accountUrl: receipt.accountUrl,
+        fetchedAt: receipt.fetchedAt,
+        sourceExhausted: true,
+        uniqueItemCount: 0,
+        pageCount: nativeFeedReceipt.pageCount ?? 0,
+        outcome: "verified_empty_exact_native_feed"
+      }
+    : null;
 
   return {
     evidence: rowRecords.filter((item) => item.accepted).map((item) => item.row),
@@ -3571,6 +3678,10 @@ async function ingestInstagramPublicProfile(company, entity, entityType, account
       : "instagram_public_web_profile_info",
     mergeOnly: true,
     receipt: receiptSummary,
+    ...(nativeFeedVerifiedEmpty ? { verifiedEmpty: true } : {}),
+    ...(nativeFeedEmptyCoverageReceipt
+      ? { coverageReceipt: nativeFeedEmptyCoverageReceipt }
+      : {}),
     ...(recentWindowObservation ? { recentWindowObservation } : {})
   };
 }
@@ -3615,19 +3726,15 @@ async function fetchInstagramNativeFeedMetricReceipt(accountUrl) {
 
   for (let pageIndex = 0; pageIndex < instagramNativeFeedMaxPages; pageIndex += 1) {
     const request = instagramNativeFeedRequest({ accountUrl, maxId });
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 20_000);
     let response;
     let payloadText;
     try {
-      response = await fetch(request.url, {
-        ...request.options,
-        signal: controller.signal
-      });
-      payloadText = await readBoundedResponseText(response, {
+      ({ response, text: payloadText } = await fetchPublicBoundedText(request.url, {
+        headers: request.options.headers,
+        redirect: "error",
         maxResponseBytes: HISTORICAL_BACKFILL_LIMITS.maxResponseBytes,
         maxDecodedBytes: HISTORICAL_BACKFILL_LIMITS.maxDecodedBytes
-      });
+      }));
     } catch (error) {
       if (pages.length > 0) {
         return partialReceipt(
@@ -3636,8 +3743,6 @@ async function fetchInstagramNativeFeedMetricReceipt(accountUrl) {
         );
       }
       throw error;
-    } finally {
-      clearTimeout(timeout);
     }
     const completedAt = new Date().toISOString();
 
@@ -4421,15 +4526,12 @@ function normalizePlatformArg(platform) {
   return platform;
 }
 
-async function fetchReadable(url, options = {}) {
-  try {
-    const response = await fetchPublic(url);
-    const html = await response.text();
-    return htmlToReadable(url, html);
-  } catch (error) {
-    if (!options.readerFallback) throw error;
-    return fetchReader(url);
-  }
+async function fetchReadable(url) {
+  const { text: html } = await fetchPublicBoundedText(url, {
+    maxResponseBytes: HISTORICAL_BACKFILL_LIMITS.maxResponseBytes,
+    maxDecodedBytes: HISTORICAL_BACKFILL_LIMITS.maxDecodedBytes
+  });
+  return htmlToReadable(url, html);
 }
 
 async function fetchLinkedInPublicProfileSurface(profileUrl) {
@@ -4441,7 +4543,10 @@ async function fetchLinkedInPublicProfileSurface(profileUrl) {
   if (!response.ok) {
     throw new Error(`LinkedIn public profile returned HTTP ${response.status}.`);
   }
-  return extractLinkedInPublicProfileSurface({ html, profileUrl });
+  return {
+    ...extractLinkedInPublicProfileSurface({ html, profileUrl }),
+    readablePage: htmlToReadable(profileUrl, html)
+  };
 }
 
 async function fetchLinkedInPublicPostReceipt(postUrl, expectedAccountUrl) {
@@ -4457,20 +4562,18 @@ async function fetchLinkedInPublicPostReceipt(postUrl, expectedAccountUrl) {
 }
 
 async function fetchReader(url) {
-  const pageUrl = `https://r.jina.ai/http://${url}`;
-  const linkedInReader = urlMatchesPlatform(url, "linkedin");
-  const { response, text } = linkedInReader
-    ? await fetchLinkedInPublicText(pageUrl, "jina_linkedin_reader")
-    : await fetchPublic(pageUrl).then(async (publicResponse) => ({
-        response: publicResponse,
-        text: await publicResponse.text()
-      }));
+  // Do not forward an attacker-controlled hostname to a remote reader. A
+  // public-first/private-second DNS answer could otherwise pass local
+  // validation and then be resolved independently by that service. Direct
+  // retrieval keeps DNS validation, address pinning, redirects, and the body
+  // deadline in one operation under this process's control.
+  const { response, text } = await fetchPublicBoundedText(url, {
+    maxResponseBytes: HISTORICAL_BACKFILL_LIMITS.maxResponseBytes,
+    maxDecodedBytes: HISTORICAL_BACKFILL_LIMITS.maxDecodedBytes
+  });
   throwIfPlatformCooldown(response, text);
-  return {
-    html: text,
-    text: cleanText(text),
-    title: cleanText((text.match(/^Title:\s*(.+)$/m) ?? [])[1] ?? "")
-  };
+  if (!response.ok) throw new Error(`Direct public page returned HTTP ${response.status}.`);
+  return htmlToReadable(url, text);
 }
 
 async function fetchXPublicReaderFallback(url) {
@@ -4488,66 +4591,784 @@ async function fetchXPublicReaderFallback(url) {
   }
 }
 
-async function fetchPublic(url, options = {}) {
-  const headers = publicRequestHeaders(options);
-  if (isDuckDuckGoPublicSearchUrl(url)) {
-    return publicSearchCircuit.fetch(url, { headers });
-  }
-
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 20_000);
+async function fetchPublicSearchText(url, options = {}) {
+  let searchUrl;
   try {
-    return await fetch(url, {
-      signal: controller.signal,
-      headers
-    });
-  } finally {
-    clearTimeout(timeout);
+    searchUrl = new URL(String(url));
+  } catch {
+    throw new Error("fetchPublic is restricted to the bounded DuckDuckGo public-search circuit.");
   }
+  if (!isDuckDuckGoPublicSearchUrl(searchUrl)) {
+    throw new Error("fetchPublic is restricted to the bounded DuckDuckGo public-search circuit.");
+  }
+  return publicSearchCircuit.fetchText(searchUrl, { headers: publicRequestHeaders(options) });
+}
+
+function fetchPublicSearchBoundedTransport(input, options = {}) {
+  return fetchPublicBoundedText(input, options);
 }
 
 async function fetchPublicBoundedText(url, {
-  maxResponseBytes,
-  maxDecodedBytes,
+  maxResponseBytes = HISTORICAL_BACKFILL_LIMITS.maxResponseBytes,
+  maxDecodedBytes = HISTORICAL_BACKFILL_LIMITS.maxDecodedBytes,
+  timeoutMs = publicFetchTimeoutMs,
+  signal: parentSignal,
+  cancelErrorBody = false,
+  registerTeardown,
   ...options
 } = {}) {
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 20_000);
-  try {
-    const response = await fetch(url, {
-      signal: controller.signal,
-      headers: publicRequestHeaders(options)
-    });
-    const text = await readBoundedResponseText(response, {
-      maxResponseBytes,
-      maxDecodedBytes
-    });
-    return { response, text };
-  } finally {
-    // Keep the timeout live through the entire bounded body read. Clearing it
-    // after headers would allow a stalled X response body to hang the lane.
-    clearTimeout(timeout);
+  if (!Number.isSafeInteger(timeoutMs) || timeoutMs < 25 || timeoutMs > DEFAULT_PUBLIC_FETCH_TIMEOUT_MS) {
+    throw new RangeError(
+      `Public fetch timeout must be an integer between 25 and ${DEFAULT_PUBLIC_FETCH_TIMEOUT_MS}ms.`
+    );
   }
+  const controller = new AbortController();
+  const timeoutError = new Error(
+    `Public fetch timed out after ${timeoutMs}ms before the bounded response body completed.`
+  );
+  timeoutError.name = "AbortError";
+  timeoutError.code = "public_fetch_timeout";
+  let activeDispatcher = null;
+  let activeResponse = null;
+  let rejectTimeout;
+  let rejectParentAbort;
+  let onParentAbort;
+  const timeoutPromise = new Promise((_, reject) => {
+    rejectTimeout = reject;
+  });
+  const timeout = setTimeout(() => {
+    controller.abort(timeoutError);
+    void cancelPublicBody(activeResponse?.body, timeoutError);
+    activeDispatcher?.destroy?.(timeoutError).catch?.(() => {});
+    rejectTimeout(timeoutError);
+  }, timeoutMs);
+  const parentAbortPromise = parentSignal
+    ? new Promise((_, reject) => {
+        rejectParentAbort = reject;
+      })
+    : new Promise(() => {});
+  if (parentSignal) {
+    onParentAbort = () => {
+      const reason = parentSignal.reason instanceof Error
+        ? parentSignal.reason
+        : new Error("Public fetch aborted by caller.");
+      controller.abort(reason);
+      void cancelPublicBody(activeResponse?.body, reason);
+      activeDispatcher?.destroy?.(reason).catch?.(() => {});
+      rejectParentAbort(reason);
+    };
+    if (parentSignal.aborted) onParentAbort();
+    else parentSignal.addEventListener("abort", onParentAbort, { once: true });
+  }
+
+  const request = async () => {
+    let currentUrl = url;
+    for (let redirectCount = 0; ; redirectCount += 1) {
+      const destination = await resolvePublicDestination(currentUrl);
+      if (controller.signal.aborted) throw timeoutError;
+      const dispatcher = createPinnedPublicDispatcher(destination);
+      activeDispatcher = dispatcher;
+      let response;
+      let bodyIsEncoded = false;
+      try {
+        const result = await requestPublicDestination(destination, {
+          signal: controller.signal,
+          headers: publicRequestHeaders(options),
+          dispatcher,
+          timeoutMs
+        });
+        response = result.response;
+        bodyIsEncoded = result.bodyIsEncoded;
+      } catch (error) {
+        await closePublicDispatcher(dispatcher, error);
+        if (activeDispatcher === dispatcher) activeDispatcher = null;
+        throw publicDestinationCause(error) ?? error;
+      }
+      activeResponse = response;
+
+      if (isRedirectResponse(response)) {
+        const location = response.headers.get("location");
+        await cancelPublicBody(response.body);
+        activeResponse = null;
+        await closePublicDispatcher(dispatcher);
+        if (activeDispatcher === dispatcher) activeDispatcher = null;
+        if (options.redirect === "error") {
+          throw new Error(`Public fetch refused HTTP ${response.status} redirect.`);
+        }
+        if (!location) {
+          throw new Error(`Public redirect returned HTTP ${response.status} without a Location header.`);
+        }
+        if (redirectCount >= MAX_PUBLIC_REDIRECTS) {
+          throw new Error(`Public fetch exceeded the ${MAX_PUBLIC_REDIRECTS}-redirect limit.`);
+        }
+        currentUrl = new URL(location, destination.url).toString();
+        continue;
+      }
+
+      try {
+        if (cancelErrorBody && response.status >= 400) {
+          await cancelPublicBody(response.body);
+          return { response, text: "" };
+        }
+        const text = await readBoundedResponseText(response, {
+          maxResponseBytes,
+          maxDecodedBytes,
+          signal: controller.signal,
+          bodyIsEncoded
+        });
+        return { response, text };
+      } catch (error) {
+        await cancelPublicBody(response.body, error);
+        throw error;
+      } finally {
+        activeResponse = null;
+        await closePublicDispatcher(dispatcher);
+        if (activeDispatcher === dispatcher) activeDispatcher = null;
+      }
+    }
+  };
+
+  try {
+    const requestPromise = request();
+    registerTeardown?.(requestPromise);
+    // Promise.race installs a rejection handler, and this explicit sink keeps
+    // late DNS/body/dispatcher settlement handled even after the deadline has
+    // already won and the caller has moved on.
+    requestPromise.catch(() => {});
+    return await Promise.race([requestPromise, timeoutPromise, parentAbortPromise]);
+  } finally {
+    // The timer remains live through DNS, redirects, headers, and the complete
+    // bounded body read. A headers-only timeout would still permit a stalled
+    // response stream to hang an ingestion worker indefinitely.
+    clearTimeout(timeout);
+    parentSignal?.removeEventListener("abort", onParentAbort);
+  }
+}
+
+async function requestPublicDestination(destination, { signal, headers, dispatcher, timeoutMs }) {
+  const fetchImplementation = injectedPublicFetchImplementation();
+  if (fetchImplementation) {
+    return {
+      response: await fetchImplementation(destination.url, {
+        signal,
+        headers,
+        redirect: "manual",
+        dispatcher
+      }),
+      // WHATWG fetch implementations may transparently decompress while
+      // retaining Content-Encoding. The bounded reader accounts for that
+      // injected-test shape separately from the production raw transport.
+      bodyIsEncoded: false
+    };
+  }
+
+  const requestImplementation = typeof globalThis.__RETURNER_PUBLIC_RAW_REQUEST__ === "function"
+    ? globalThis.__RETURNER_PUBLIC_RAW_REQUEST__
+    : undiciRequest;
+  const result = await requestImplementation(destination.url, {
+    method: "GET",
+    signal,
+    headers,
+    dispatcher,
+    maxRedirections: 0,
+    headersTimeout: timeoutMs,
+    bodyTimeout: timeoutMs
+  });
+  return {
+    response: rawPublicResponse(result, destination.url),
+    // Undici request() exposes the encoded wire entity. Counting this stream
+    // before decoding is the only way to enforce both independent limits.
+    bodyIsEncoded: true
+  };
+}
+
+function injectedPublicFetchImplementation() {
+  const candidate = globalThis.fetch;
+  if (typeof candidate !== "function") return null;
+  const source = Function.prototype.toString.call(candidate);
+  const nodeBuiltin = source.includes("lazyUndici") ||
+    source.includes("internal/deps/undici/undici");
+  return nodeBuiltin ? null : candidate;
+}
+
+function rawPublicResponse(result, url) {
+  const headers = new Headers();
+  for (const [name, rawValue] of Object.entries(result?.headers ?? {})) {
+    if (rawValue == null) continue;
+    const values = Array.isArray(rawValue) ? rawValue : [rawValue];
+    for (const value of values) headers.append(name, String(value));
+  }
+  const status = Number(result?.statusCode);
+  return {
+    body: result?.body ?? null,
+    headers,
+    ok: status >= 200 && status < 300,
+    status,
+    url
+  };
+}
+
+async function readBoundedResponseText(response, {
+  maxResponseBytes = HISTORICAL_BACKFILL_LIMITS.maxResponseBytes,
+  maxDecodedBytes = HISTORICAL_BACKFILL_LIMITS.maxDecodedBytes,
+  signal,
+  bodyIsEncoded = false
+} = {}) {
+  assertPositivePublicBodyLimit(maxResponseBytes, "maxResponseBytes");
+  assertPositivePublicBodyLimit(maxDecodedBytes, "maxDecodedBytes");
+
+  const contentEncoding = String(response.headers?.get?.("content-encoding") ?? "")
+    .trim()
+    .toLowerCase();
+  const declaredLengthHeader = response.headers?.get?.("content-length");
+  const declaredLength = declaredLengthHeader == null ? Number.NaN : Number(declaredLengthHeader);
+  if (Number.isFinite(declaredLength) && declaredLength > maxResponseBytes) {
+    const error = publicBodyLimitError(
+      `Response declared ${declaredLength} bytes, above the ${maxResponseBytes}-byte limit.`
+    );
+    await cancelPublicBody(response.body, error);
+    throw error;
+  }
+
+  const chunks = [];
+  let observed = 0;
+  let prefix = Buffer.alloc(0);
+  const body = response.body;
+  if (!body) return "";
+
+  const appendChunk = (value) => {
+    const chunk = Buffer.from(value);
+    chunks.push(chunk);
+    observed += chunk.length;
+    if (prefix.length < 2) prefix = Buffer.concat([prefix, chunk]).subarray(0, 2);
+
+    const rawGzip = prefix.length >= 2 && prefix[0] === 0x1f && prefix[1] === 0x8b;
+    const encodedDelivery = bodyIsEncoded &&
+      (Boolean(contentEncoding && contentEncoding !== "identity") || rawGzip);
+    const deliveredLimit = bodyIsEncoded
+      ? encodedDelivery
+        ? maxResponseBytes
+        : Math.min(maxResponseBytes, maxDecodedBytes)
+      : rawGzip
+        ? maxResponseBytes
+        : contentEncoding && contentEncoding !== "identity"
+          ? maxDecodedBytes
+          : Math.min(maxResponseBytes, maxDecodedBytes);
+    if (observed > deliveredLimit) {
+      const phase = bodyIsEncoded || rawGzip || !contentEncoding || contentEncoding === "identity"
+        ? "encoded"
+        : "decoded";
+      throw publicBodyLimitError(
+        `Response exceeded the ${deliveredLimit}-byte ${phase} body limit.`
+      );
+    }
+  };
+
+  const abortBody = () => {
+    void cancelPublicBody(body, signal?.reason);
+  };
+  if (signal?.aborted) abortBody();
+  else signal?.addEventListener("abort", abortBody, { once: true });
+  try {
+    if (typeof body.getReader === "function") {
+      const reader = body.getReader();
+      const abortReader = () => {
+        void reader.cancel(signal?.reason).catch(() => {});
+      };
+      if (signal?.aborted) abortReader();
+      else signal?.addEventListener("abort", abortReader, { once: true });
+      try {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          appendChunk(value);
+        }
+      } catch (error) {
+        await reader.cancel(error).catch(() => {});
+        throw error;
+      } finally {
+        signal?.removeEventListener("abort", abortReader);
+        reader.releaseLock?.();
+      }
+    } else if (typeof body[Symbol.asyncIterator] === "function") {
+      for await (const chunk of body) appendChunk(chunk);
+    } else {
+      throw new TypeError("Public response body does not expose a bounded streaming reader.");
+    }
+
+    return decodeBoundedPublicBody(Buffer.concat(chunks, observed), {
+      contentEncoding,
+      maxResponseBytes,
+      maxDecodedBytes,
+      bodyIsEncoded
+    }).toString("utf8");
+  } catch (error) {
+    await cancelPublicBody(body, error);
+    throw error;
+  } finally {
+    signal?.removeEventListener("abort", abortBody);
+  }
+}
+
+function decodeBoundedPublicBody(bytes, {
+  contentEncoding,
+  maxResponseBytes,
+  maxDecodedBytes,
+  bodyIsEncoded = false
+}) {
+  const rawGzip = bytes.length >= 2 && bytes[0] === 0x1f && bytes[1] === 0x8b;
+  const encodings = String(contentEncoding ?? "")
+    .split(",")
+    .map((value) => value.trim())
+    .filter((value) => value && value !== "identity");
+  if (bodyIsEncoded && encodings.some((value) => value !== "gzip" && value !== "x-gzip")) {
+    throw new Error(`Unsupported encoded public response: ${encodings.join(", ")}.`);
+  }
+  if (bodyIsEncoded && encodings.length > 0 && !rawGzip) {
+    throw new Error("Encoded public response declared gzip but did not contain a gzip entity.");
+  }
+  if (rawGzip) {
+    if (bytes.length > maxResponseBytes) {
+      throw publicBodyLimitError(
+        `Response exceeded the ${maxResponseBytes}-byte encoded body limit.`
+      );
+    }
+    let decoded;
+    try {
+      decoded = gunzipSync(bytes, { maxOutputLength: maxDecodedBytes + 1 });
+    } catch (error) {
+      if (error?.code === "ERR_BUFFER_TOO_LARGE") {
+        throw publicBodyLimitError(
+          `Gzip response exceeded the ${maxDecodedBytes}-byte decoded body limit.`
+        );
+      }
+      throw error;
+    }
+    if (decoded.length > maxDecodedBytes) {
+      throw publicBodyLimitError(
+        `Gzip response exceeded the ${maxDecodedBytes}-byte decoded body limit.`
+      );
+    }
+    return decoded;
+  }
+
+  // Undici's fetch implementation transparently decompresses encoded bodies
+  // while retaining Content-Encoding/Content-Length. In that case the bytes
+  // delivered here are decoded bytes; Content-Length above guarded the encoded
+  // wire size when present, and this check guards expansion independently.
+  const autoDecoded = contentEncoding && contentEncoding !== "identity";
+  const deliveredLimit = autoDecoded
+    ? maxDecodedBytes
+    : Math.min(maxResponseBytes, maxDecodedBytes);
+  if (bytes.length > deliveredLimit) {
+    throw publicBodyLimitError(
+      `Response exceeded the ${deliveredLimit}-byte ${autoDecoded ? "decoded" : "encoded"} body limit.`
+    );
+  }
+  return bytes;
+}
+
+function publicBodyLimitError(message) {
+  const error = new Error(message);
+  error.code = "public_body_limit";
+  return error;
+}
+
+async function cancelPublicBody(body, reason) {
+  if (!body) return;
+  try {
+    if (typeof body.cancel === "function") {
+      await body.cancel(reason);
+      return;
+    }
+    if (typeof body.destroy === "function") {
+      body.on?.("error", () => {});
+      body.destroy(reason instanceof Error ? reason : undefined);
+      return;
+    }
+    if (typeof body.return === "function") await body.return();
+  } catch {
+    // Cancellation is best-effort; the pinned dispatcher is destroyed/closed
+    // by the owning request operation immediately afterward.
+  }
+}
+
+function assertPositivePublicBodyLimit(value, name) {
+  if (!Number.isSafeInteger(value) || value <= 0) {
+    throw new TypeError(`${name} must be a positive safe integer.`);
+  }
+}
+
+function parsePublicJson(text, url) {
+  try {
+    return JSON.parse(text);
+  } catch (error) {
+    throw new Error(`Public JSON response from ${new URL(url).origin} was invalid: ${errorMessage(error)}`);
+  }
+}
+
+function createPublicDestinationBlockList() {
+  const blockList = new BlockList();
+  for (const [network, prefix] of [
+    ["0.0.0.0", 8],
+    ["10.0.0.0", 8],
+    ["100.64.0.0", 10],
+    ["127.0.0.0", 8],
+    ["169.254.0.0", 16],
+    ["172.16.0.0", 12],
+    ["192.0.0.0", 24],
+    ["192.0.2.0", 24],
+    ["192.31.196.0", 24],
+    ["192.52.193.0", 24],
+    ["192.88.99.0", 24],
+    ["192.168.0.0", 16],
+    ["192.175.48.0", 24],
+    ["198.18.0.0", 15],
+    ["198.51.100.0", 24],
+    ["203.0.113.0", 24],
+    ["224.0.0.0", 3]
+  ]) {
+    blockList.addSubnet(network, prefix, "ipv4");
+  }
+  for (const [network, prefix] of [
+    ["::", 128],
+    ["::", 96],
+    ["::1", 128],
+    ["64:ff9b::", 96],
+    ["64:ff9b:1::", 48],
+    ["100::", 64],
+    ["2001::", 32],
+    ["2001:2::", 48],
+    ["2001:10::", 28],
+    ["2001:db8::", 32],
+    ["2002::", 16],
+    ["2620:4f:8000::", 48],
+    ["3fff::", 20],
+    ["5f00::", 16],
+    ["fc00::", 7],
+    ["fec0::", 10],
+    ["fe80::", 10],
+    ["ff00::", 8]
+  ]) {
+    blockList.addSubnet(network, prefix, "ipv6");
+  }
+  return blockList;
+}
+
+function createPublicIpv6GlobalUnicastAllowList() {
+  const allowList = new BlockList();
+  // IANA's currently allocated global-unicast delegations. The IANA protocol
+  // assignment block is represented only by its globally reachable
+  // exceptions; every unallocated/reserved range therefore fails closed.
+  for (const [network, prefix] of [
+    ["2001:1::1", 128],
+    ["2001:1::2", 128],
+    ["2001:1::3", 128],
+    ["2001:3::", 32],
+    ["2001:4:112::", 48],
+    ["2001:20::", 28],
+    ["2001:30::", 28],
+    ["2001:200::", 23],
+    ["2001:400::", 23],
+    ["2001:600::", 23],
+    ["2001:800::", 22],
+    ["2001:c00::", 23],
+    ["2001:e00::", 23],
+    ["2001:1200::", 23],
+    ["2001:1400::", 22],
+    ["2001:1800::", 23],
+    ["2001:1a00::", 23],
+    ["2001:1c00::", 22],
+    ["2001:2000::", 19],
+    ["2001:4000::", 23],
+    ["2001:4200::", 23],
+    ["2001:4400::", 23],
+    ["2001:4600::", 23],
+    ["2001:4800::", 23],
+    ["2001:4a00::", 23],
+    ["2001:4c00::", 23],
+    ["2001:5000::", 20],
+    ["2001:8000::", 19],
+    ["2001:a000::", 20],
+    ["2001:b000::", 20],
+    ["2003::", 18],
+    ["2400::", 12],
+    ["2410::", 12],
+    ["2600::", 12],
+    ["2610::", 23],
+    ["2620::", 23],
+    ["2630::", 12],
+    ["2800::", 12],
+    ["2a00::", 12],
+    ["2a10::", 12],
+    ["2c00::", 12]
+  ]) {
+    allowList.addSubnet(network, prefix, "ipv6");
+  }
+  return allowList;
+}
+
+async function resolvePublicDestination(input, { resolveDns = false } = {}) {
+  let url;
+  try {
+    url = input instanceof URL ? input : new URL(String(input));
+  } catch {
+    throw publicDestinationError("URL is malformed");
+  }
+  if (url.protocol !== "http:" && url.protocol !== "https:") {
+    throw publicDestinationError(`protocol ${url.protocol || "unknown"} is not allowed`);
+  }
+  if (url.username || url.password) {
+    throw publicDestinationError("embedded URL credentials are not allowed");
+  }
+  if (url.port) {
+    throw publicDestinationError(`non-default port ${url.port} is not allowed`);
+  }
+
+  const hostname = normalizePublicHostname(url.hostname);
+  if (!hostname || isInternalHostname(hostname)) {
+    throw publicDestinationError(`hostname ${hostname || "unknown"} is local or internal`);
+  }
+
+  const literalFamily = isIP(hostname);
+  const addresses = literalFamily
+    ? [{ address: hostname, family: literalFamily }]
+    : resolveDns
+      ? await lookupPublicAddresses(hostname)
+      : null;
+  if (addresses) assertPublicResolvedAddresses(hostname, addresses);
+
+  return {
+    url: url.toString(),
+    hostname,
+    addresses: addresses ? dedupeResolvedAddresses(addresses) : null
+  };
+}
+
+function publicDestinationError(reason) {
+  const error = new Error(`Public destination rejected: ${reason}.`);
+  error.code = "public_destination_rejected";
+  return error;
+}
+
+function publicDestinationCause(error) {
+  const seen = new Set();
+  let current = error;
+  while (current && typeof current === "object" && !seen.has(current)) {
+    if (current.code === "public_destination_rejected") return current;
+    seen.add(current);
+    current = current.cause;
+  }
+  return null;
+}
+
+function normalizePublicHostname(value) {
+  return String(value ?? "")
+    .trim()
+    .toLowerCase()
+    .replace(/^\[|\]$/g, "")
+    .replace(/\.+$/, "");
+}
+
+function isInternalHostname(hostname) {
+  return hostname === "localhost" ||
+    hostname.endsWith(".localhost") ||
+    hostname === "local" ||
+    hostname.endsWith(".local") ||
+    hostname === "internal" ||
+    hostname.endsWith(".internal");
+}
+
+function lookupPublicAddresses(hostname) {
+  return new Promise((resolveLookup, rejectLookup) => {
+    let settled = false;
+    const timeout = setTimeout(() => {
+      if (settled) return;
+      settled = true;
+      rejectLookup(publicDestinationError(
+        `hostname ${hostname} did not resolve within ${publicFetchTimeoutMs}ms`
+      ));
+    }, publicFetchTimeoutMs);
+    dns.lookup(hostname, { all: true, verbatim: true }, (error, addresses) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timeout);
+      if (error) {
+        rejectLookup(publicDestinationError(`hostname ${hostname} could not be resolved`));
+        return;
+      }
+      resolveLookup(Array.isArray(addresses) ? addresses : []);
+    });
+  });
+}
+
+function assertPublicResolvedAddresses(hostname, addresses) {
+  if (addresses.length === 0) {
+    throw publicDestinationError(`hostname ${hostname} did not resolve to a public address`);
+  }
+  for (const entry of addresses) {
+    if (!isGloballyRoutableAddress(entry.address, entry.family)) {
+      throw publicDestinationError(`hostname ${hostname} resolved to non-public address ${entry.address}`);
+    }
+  }
+}
+
+function dedupeResolvedAddresses(addresses) {
+  return [...new Map(addresses.map((entry) => [
+    `${entry.family}:${entry.address}`,
+    { address: entry.address, family: Number(entry.family) }
+  ])).values()];
+}
+
+function isGloballyRoutableAddress(address, familyHint) {
+  const normalized = normalizePublicHostname(address);
+  const family = Number(familyHint) || isIP(normalized);
+  if (family !== 4 && family !== 6) return false;
+  // Reject every IPv4-mapped IPv6 spelling. Native DNS A records remain
+  // supported, while mapped literals cannot bypass the IPv4 special-use list.
+  if (family === 6 && /^::ffff:/i.test(normalized)) return false;
+  if (family === 6 && !PUBLIC_IPV6_GLOBAL_UNICAST_ALLOW_LIST.check(normalized, "ipv6")) {
+    return false;
+  }
+  return !PUBLIC_DESTINATION_BLOCK_LIST.check(
+    normalized,
+    family === 4 ? "ipv4" : "ipv6"
+  );
+}
+
+function createPinnedPublicDispatcher(destination) {
+  let cursor = 0;
+  let pinnedAddressesPromise = null;
+  // Resolve once per URL hop, validate the complete answer set, then reuse only
+  // those addresses for every connection attempt. The socket never performs a
+  // second unvalidated DNS lookup, closing the DNS-rebinding window.
+  const pinnedAddresses = () => {
+    if (!pinnedAddressesPromise) {
+      pinnedAddressesPromise = destination.addresses
+        ? Promise.resolve(destination.addresses)
+        : lookupPublicAddresses(destination.hostname).then((addresses) => {
+            assertPublicResolvedAddresses(destination.hostname, addresses);
+            return dedupeResolvedAddresses(addresses);
+          });
+      pinnedAddressesPromise.catch(() => {});
+    }
+    return pinnedAddressesPromise;
+  };
+  return new Agent({
+    connect: {
+      lookup(requestedHostname, lookupOptions, callback) {
+        if (normalizePublicHostname(requestedHostname) !== destination.hostname) {
+          const error = new Error("Pinned public dispatcher refused a hostname change.");
+          error.code = "ENOTFOUND";
+          callback(error);
+          return;
+        }
+        pinnedAddresses().then((addresses) => {
+          const requestedFamily = Number(
+            typeof lookupOptions === "number" ? lookupOptions : lookupOptions?.family
+          );
+          const candidates = addresses.filter(
+            (entry) => !requestedFamily || entry.family === requestedFamily
+          );
+          if (candidates.length === 0) {
+            const error = new Error(`No pinned public address supports family ${requestedFamily || "any"}.`);
+            error.code = "ENOTFOUND";
+            callback(error);
+            return;
+          }
+          if (typeof lookupOptions === "object" && lookupOptions?.all) {
+            callback(null, candidates);
+            return;
+          }
+          const selected = candidates[cursor % candidates.length];
+          cursor += 1;
+          callback(null, selected.address, selected.family);
+        }, callback);
+      }
+    }
+  });
+}
+
+async function closePublicDispatcher(dispatcher, error = null) {
+  if (!dispatcher) return;
+  if (error) {
+    await dispatcher.destroy(error).catch(() => {});
+    return;
+  }
+  await dispatcher.close().catch(() => {});
+}
+
+function isRedirectResponse(response) {
+  return [301, 302, 303, 307, 308].includes(response.status);
 }
 
 function fetchLinkedInPublicText(url, provider, options = {}) {
   return linkedinPublicCircuit.fetchText(url, {
-    headers: publicRequestHeaders(options),
+    headers: anonymousLinkedInRequestHeaders(options),
     provider
   });
 }
 
-function publicRequestHeaders(options = {}) {
+async function fetchLinkedInBoundedResponse(input, options = {}) {
+  const { response, text } = await fetchPublicBoundedText(input, {
+    headers: options.headers,
+    signal: options.signal,
+    registerTeardown: options.registerTeardown,
+    cancelErrorBody: true,
+    maxResponseBytes: 5 * 1024 * 1024,
+    maxDecodedBytes: 5 * 1024 * 1024
+  });
+  const body = [204, 205, 304].includes(response.status)
+    ? null
+    : new Response(text).body;
   return {
-    "User-Agent": "ReturnerNetworkIntelligence/0.2 read-only public ingestion",
-    Accept: options.accept ?? "text/html,application/xhtml+xml,application/xml,text/plain,application/json;q=0.9,*/*;q=0.8"
+    body,
+    headers: response.headers,
+    ok: response.status >= 200 && response.status < 300,
+    status: response.status,
+    url: response.url
   };
+}
+
+function publicRequestHeaders(options = {}) {
+  const headers = new Headers(options.headers ?? {});
+  if (!headers.has("user-agent")) {
+    headers.set("User-Agent", "ReturnerNetworkIntelligence/0.2 read-only public ingestion");
+  }
+  headers.set("Accept-Encoding", "identity");
+  if (!headers.has("accept")) {
+    headers.set(
+      "Accept",
+      options.accept ?? "text/html,application/xhtml+xml,application/xml,text/plain,application/json;q=0.9,*/*;q=0.8"
+    );
+  }
+  return Object.fromEntries(headers.entries());
+}
+
+function anonymousLinkedInRequestHeaders(options = {}) {
+  const headers = new Headers(publicRequestHeaders(options));
+  for (const name of [
+    "authorization",
+    "cookie",
+    "csrf-token",
+    "proxy-authorization",
+    "x-csrf-token",
+    "x-li-at",
+    "x-linkedin-auth-token"
+  ]) {
+    headers.delete(name);
+  }
+  return Object.fromEntries(headers.entries());
 }
 
 function isDuckDuckGoPublicSearchUrl(input) {
   try {
-    const url = new URL(String(input));
-    return /(^|\.)duckduckgo\.com$/i.test(url.hostname) && url.pathname.startsWith("/html");
+    const url = input instanceof URL ? input : new URL(String(input));
+    return url.protocol === "https:" &&
+      !url.username &&
+      !url.password &&
+      /(^|\.)duckduckgo\.com$/i.test(url.hostname) &&
+      url.pathname.startsWith("/html");
   } catch {
     return false;
   }
@@ -4750,6 +5571,25 @@ function extractMarkdownLinks(text) {
   while ((match = regex.exec(text))) {
     links.push({ text: cleanText(match[1]), url: match[2] });
   }
+  return links;
+}
+
+function extractHtmlLinks(html, baseUrl) {
+  if (!html) return [];
+  const $ = cheerio.load(html);
+  const links = [];
+  $("a[href]").each((_, element) => {
+    const href = $(element).attr("href");
+    if (!href) return;
+    try {
+      links.push({
+        text: cleanText($(element).text()),
+        url: new URL(href, baseUrl).toString()
+      });
+    } catch {
+      // Ignore malformed or non-URL href values.
+    }
+  });
   return links;
 }
 
@@ -5233,6 +6073,9 @@ function isSocialPostUrl(url, platform) {
 function isBlocked(text, { platform = null, url = null } = {}) {
   const value = String(text ?? "");
   if (/captcha|blocked by network security|target url returned error 403|forbidden|access denied|temporarily blocked|unusual traffic|enable javascript to continue|SecurityCompromiseError|anonymous access .* blocked until/i.test(value)) {
+    return true;
+  }
+  if (platform === "linkedin" && /linkedin profile unavailable|this linkedin profile is unavailable|profile not found/i.test(value)) {
     return true;
   }
 

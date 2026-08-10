@@ -10,6 +10,7 @@ import {
   STATIC_GRAPH_SCORING_MODEL_VERSION,
   validateStaticGraphSnapshotContract
 } from "../src/lib/graph/static-graph-snapshot-contract.mjs";
+import { validatedRepositoryDataRoot } from "./lib/validated-repository-data-root.mjs";
 
 export const BATCH_SNAPSHOTS = [
   { slug: "S2026", filename: "s2026.json" },
@@ -58,14 +59,15 @@ const CENTRAL_DATE_TIME_FORMATTER = new Intl.DateTimeFormat("en-US", {
 
 export async function main(
   rawArgs = process.argv.slice(2),
-  {
-    rootDir = process.cwd(),
-    fetchGraphImpl = fetchGraph,
-    graphServerOptions,
-    publicationOptions
-  } = {}
+  options = {}
 ) {
   const args = parseArgs(rawArgs);
+  const rootDir = args.root
+    ? validatedRepositoryDataRoot(args.root, { label: "benchmark publication root" })
+    : path.resolve(options.rootDir ?? process.cwd());
+  const fetchGraphImpl = options.fetchGraphImpl ?? fetchGraph;
+  const graphServerOptions = options.graphServerOptions;
+  const publicationOptions = options.publicationOptions;
   const runStartedAt = args.now ? new Date(args.now) : new Date();
   if (!Number.isFinite(runStartedAt.getTime())) {
     throw new Error(`Invalid benchmark run timestamp: ${args.now}`);
@@ -86,47 +88,98 @@ export async function main(
     return { status: "skipped" };
   }
 
-  const server = getGraphApiServer(args, graphServerOptions);
+  const pinnedProvider = args.pinnedSourceInProcess
+    ? options.graphSnapshotProvider ?? await createPinnedSourceGraphProvider()
+    : null;
+  const server = pinnedProvider ? null : getGraphApiServer(args, graphServerOptions);
 
   try {
-    await waitForGraphApi(server.baseUrl, {
-      publicationToken: server.publicationToken,
-      diagnosticsSecret: server.diagnosticsSecret,
-      signal: server.signal
-    });
-    const snapshots = [];
-
-    for (const descriptor of BATCH_SNAPSHOTS) {
-      const graph = await fetchGraphImpl(server.baseUrl, descriptor.slug, descriptor.topVoices, {
+    if (server) {
+      await waitForGraphApi(server.baseUrl, {
         publicationToken: server.publicationToken,
         diagnosticsSecret: server.diagnosticsSecret,
         signal: server.signal
       });
+    }
+    const snapshots = [];
+
+    for (const descriptor of BATCH_SNAPSHOTS) {
+      const graph = pinnedProvider
+        ? await pinnedProvider.fetchGraph(descriptor.slug, descriptor.topVoices)
+        : await fetchGraphImpl(server.baseUrl, descriptor.slug, descriptor.topVoices, {
+            publicationToken: server.publicationToken,
+            diagnosticsSecret: server.diagnosticsSecret,
+            signal: server.signal
+          });
       snapshots.push({ descriptor, graph });
     }
-    throwIfAborted(server.signal);
+    throwIfAborted(server?.signal);
 
     const recordedAt = args.now ? runStartedAt : new Date();
     const result = await publishBenchmarkSnapshots(snapshots, {
-      signal: server.signal,
+      signal: server?.signal,
       rootDir,
       recordedAt,
       validationNow: recordedAt,
       windowStart,
+      expectedCentralDate: args.expectedCentralDate,
       publicationOptions
     });
-    throwIfAborted(server.signal);
+    throwIfAborted(server?.signal);
     const payload = {
       status: "updated",
-      baseUrl: server.baseUrl,
+      baseUrl: server?.baseUrl ?? "pinned-source-in-process",
       scoringModelVersion: result.scoringModelVersion,
       writtenFiles: result.writtenFiles
     };
     console.log(JSON.stringify(payload, null, 2));
     return payload;
   } finally {
-    await server.finish();
+    if (pinnedProvider) await pinnedProvider.finish();
+    else await server.finish();
   }
+}
+
+export async function createPinnedSourceGraphProvider() {
+  const publicationToken = randomBytes(32).toString("base64url");
+  const previousToken = process.env.GRAPH_PUBLICATION_BUILD_TOKEN;
+  process.env.GRAPH_PUBLICATION_BUILD_TOKEN = publicationToken;
+  let finished = false;
+  try {
+    const { GET } = await import("../src/app/api/graph/full/route.ts");
+    return {
+      async fetchGraph(batchSlug, topVoices) {
+        if (finished) throw new Error("Pinned graph provider was already finalized.");
+        const url = new URL("http://127.0.0.1/api/graph/full");
+        url.searchParams.set("batch", batchSlug);
+        url.searchParams.set("includeNonScoring", "true");
+        if (topVoices) url.searchParams.set("topVoices", topVoices);
+        const response = await GET(new Request(url, {
+          headers: { "x-returner-publication-build": publicationToken }
+        }));
+        if (!response.ok) {
+          throw new Error(
+            `Pinned graph computation failed for ${batchSlug}/${topVoices ?? "off"}: ` +
+            `${response.status} ${response.statusText}`
+          );
+        }
+        return response.json();
+      },
+      async finish() {
+        if (finished) return;
+        finished = true;
+        restoreEnvironmentValue("GRAPH_PUBLICATION_BUILD_TOKEN", previousToken);
+      }
+    };
+  } catch (error) {
+    restoreEnvironmentValue("GRAPH_PUBLICATION_BUILD_TOKEN", previousToken);
+    throw error;
+  }
+}
+
+function restoreEnvironmentValue(key, value) {
+  if (value === undefined) delete process.env[key];
+  else process.env[key] = value;
 }
 
 export async function publishBenchmarkSnapshots(
@@ -136,6 +189,7 @@ export async function publishBenchmarkSnapshots(
     recordedAt,
     validationNow = recordedAt,
     windowStart,
+    expectedCentralDate,
     signal,
     publicationOptions
   }
@@ -146,6 +200,7 @@ export async function publishBenchmarkSnapshots(
   throwIfAborted(signal);
   const operations = await buildPublicationOperations(canonicalSnapshots, { rootDir, recordedAt, signal });
   throwIfAborted(signal);
+  assertExpectedCentralDateMatchesRecordedAt(expectedCentralDate, recordedAt);
   await publishOperationsAtomically(operations, { ...publicationOptions, signal });
   throwIfAborted(signal);
 
@@ -1054,7 +1109,10 @@ function parseArgs(rawArgs) {
     port: Number(process.env.GRAPH_API_PORT) || DEFAULT_PORT,
     now: process.env.BENCHMARK_NOW,
     windowStart: process.env.BENCHMARK_WINDOW_START,
-    scheduledUtcHour: undefined
+    expectedCentralDate: process.env.BENCHMARK_EXPECTED_CENTRAL_DATE,
+    scheduledUtcHour: undefined,
+    root: undefined,
+    pinnedSourceInProcess: false
   };
 
   for (const arg of rawArgs) {
@@ -1078,6 +1136,10 @@ function parseArgs(rawArgs) {
       parsed.windowStart = arg.slice("--window-start=".length);
       continue;
     }
+    if (arg.startsWith("--expected-central-date=")) {
+      parsed.expectedCentralDate = arg.slice("--expected-central-date=".length);
+      continue;
+    }
     if (arg.startsWith("--scheduled-utc-hour=")) {
       const hour = Number(arg.slice("--scheduled-utc-hour=".length));
       if (!Number.isInteger(hour) || hour < 0 || hour > 23) {
@@ -1086,10 +1148,56 @@ function parseArgs(rawArgs) {
       parsed.scheduledUtcHour = hour;
       continue;
     }
+    if (arg.startsWith("--root=")) {
+      parsed.root = arg.slice("--root=".length);
+      continue;
+    }
+    if (arg === "--pinned-source-in-process") {
+      parsed.pinnedSourceInProcess = true;
+      continue;
+    }
     throw new Error(`Unknown benchmark update argument: ${arg}`);
   }
 
+  if (parsed.expectedCentralDate !== undefined) {
+    assertRealCentralDate(parsed.expectedCentralDate, "expected Central date");
+  }
+
   return parsed;
+}
+
+function assertExpectedCentralDateMatchesRecordedAt(expectedCentralDate, recordedAt) {
+  if (expectedCentralDate === undefined) {
+    return;
+  }
+  assertRealCentralDate(expectedCentralDate, "expected Central date");
+  const recordedCentralDate = centralDayKey(recordedAt);
+  if (recordedCentralDate !== expectedCentralDate) {
+    throw new Error(
+      `Daily benchmark Central date changed before publication: expected ${expectedCentralDate}, ` +
+      `but recordedAt ${recordedAt.toISOString()} is ${recordedCentralDate}.`
+    );
+  }
+}
+
+function assertRealCentralDate(value, label) {
+  if (!isRealCalendarDate(value)) {
+    throw new Error(`Invalid ${label}: ${String(value)}; expected a real YYYY-MM-DD date.`);
+  }
+}
+
+function isRealCalendarDate(value) {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(value));
+  if (!match) {
+    return false;
+  }
+  const [, year, month, day] = match.map(Number);
+  const instant = new Date(0);
+  instant.setUTCFullYear(year, month - 1, day);
+  instant.setUTCHours(0, 0, 0, 0);
+  return instant.getUTCFullYear() === year &&
+    instant.getUTCMonth() === month - 1 &&
+    instant.getUTCDate() === day;
 }
 
 function cleanSecret(value) {

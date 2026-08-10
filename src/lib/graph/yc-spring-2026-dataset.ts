@@ -35,6 +35,7 @@ import {
 } from "./dedupe";
 import { evidenceDisplayText } from "./evidence-display";
 import { enrichEvidenceThumbnail } from "./evidence-thumbnails";
+import { reconcilePublishedCompanyScores } from "./published-score-reconciliation";
 import {
   applyAttributionGuard,
   buildAttributionContext,
@@ -570,9 +571,24 @@ const rawGlobalCompanyPopulation = [
   ...springDataset.companies,
   ...a16zSpeedrun006GraphDataset.companies
 ];
-const globallyBenchmarkedCompanies = benchmarkGlobalCompanyScores(
+const globallyPublishedEvidence = dedupeEvidenceItems(
+  [
+    ...rawYcSummer2026GraphDataset.evidence,
+    ...springDataset.evidence,
+    ...a16zSpeedrun006GraphDataset.evidence
+  ].filter((item) => !hasCrossBatchEntityAmbiguity(item))
+);
+const reconciledGlobalCompanyPopulation = reconcilePublishedCompanyScores(
   rawGlobalCompanyPopulation,
-  rawGlobalCompanyPopulation
+  globallyPublishedEvidence
+);
+const calibratedGlobalCompanyPopulation = calibrateBatchCompanyScores(
+  reconciledGlobalCompanyPopulation,
+  reconciledGlobalCompanyPopulation
+);
+const globallyBenchmarkedCompanies = benchmarkGlobalCompanyScores(
+  calibratedGlobalCompanyPopulation,
+  calibratedGlobalCompanyPopulation
 );
 
 export const ycSummer2026GraphDataset: DemoGraphDataset = {
@@ -595,13 +611,7 @@ export const yc2026GraphDataset: DemoGraphDataset = {
     ...springDataset.founders,
     ...a16zSpeedrun006GraphDataset.founders
   ],
-  evidence: dedupeEvidenceItems(
-    [
-      ...ycSummer2026GraphDataset.evidence,
-      ...springDataset.evidence,
-      ...a16zSpeedrun006GraphDataset.evidence
-    ].filter((item) => !hasCrossBatchEntityAmbiguity(item))
-  ),
+  evidence: globallyPublishedEvidence,
   needsReview: [
     ...(ycSummer2026GraphDataset.needsReview ?? []),
     ...(springDataset.needsReview ?? []),

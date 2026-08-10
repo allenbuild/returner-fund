@@ -27,20 +27,18 @@ test("autonomous publication rebuilds timelines after graph publication and stag
     runner.indexOf("async function buildAndValidatePublication"),
     runner.indexOf("async function synchronizePublicationBase"),
   );
-  const benchmarks = publication.indexOf('"scripts/update-daily-benchmarks.mjs"');
-  const prepare = publication.indexOf('"scripts/prepare-graph-runtime-evidence.mjs"');
-  const prebuild = publication.indexOf('label: "pre-publication production build"');
+  const prepare = publication.indexOf('sourcePath("scripts", "prepare-graph-runtime-evidence.mjs")');
+  const benchmarks = publication.indexOf('sourcePath("scripts", "update-daily-benchmarks.mjs")');
   const discovery = publication.indexOf("runTimelineDiscoveryBeforeBackfill(catalogState)");
-  const timeline = publication.indexOf('"scripts/backfill-company-timelines.mjs"');
-  const validation = publication.indexOf('"scripts/validate-timeline-artifacts.mjs"');
-  const build = publication.indexOf('"node_modules/next/dist/bin/next", "build"', validation);
-  const graphManifest = publication.indexOf('"scripts/write-artifact-manifest.mjs"');
+  const timeline = publication.indexOf('sourcePath("scripts", "backfill-company-timelines.mjs")');
+  const validation = publication.indexOf('sourcePath("scripts", "validate-timeline-artifacts.mjs")');
+  const graphManifest = publication.indexOf('sourcePath("scripts", "write-artifact-manifest.mjs")');
   assert.ok(
-    prepare >= 0 && prebuild > prepare && benchmarks > prebuild
-    && discovery > benchmarks && timeline > discovery && validation > timeline
-    && build > validation && graphManifest > build
+    prepare >= 0 && benchmarks > prepare && discovery > benchmarks
+    && timeline > discovery && validation > timeline && graphManifest > validation
   );
-  assert.match(runner, /scripts\/run-company-timeline-ingestion\.mjs/);
+  assert.doesNotMatch(publication, /pre-publication production build|node_modules\/next\/dist\/bin\/next/);
+  assert.match(runner, /sourcePath\("scripts", "run-company-timeline-ingestion\.mjs"\)/);
   assert.match(runner, /buildCanonicalTimelineIngestionInventory/);
   assert.match(runner, /graphCompanyIds/);
   assert.match(runner, /companyByBatchSourceKey/);
@@ -52,7 +50,7 @@ test("autonomous publication rebuilds timelines after graph publication and stag
 });
 
 test("autonomous publication has a bounded database-free public discovery lane", () => {
-  assert.match(runner, /scripts\/discover-company-timeline-public-sources\.mjs/);
+  assert.match(runner, /sourcePath\("scripts", "discover-company-timeline-public-sources\.mjs"\)/);
   assert.match(runner, /--concurrency=2/);
   assert.match(runner, /--max-companies=12/);
   assert.match(runner, /--per-fetch-timeout-ms=6000/);
@@ -112,9 +110,10 @@ test("durable Timeline publication is bounded, source-complete, and database-awa
   assert.match(databaseBackfill, /published_timeline_source_metadata/);
 });
 
-test("daily benchmark publication keeps timeline source hashes synchronized on normal and retry paths", () => {
-  assert.ok((dailyWorkflow.match(/npm run timeline:backfill/g) ?? []).length >= 2);
-  assert.ok((dailyWorkflow.match(/npm run timeline:validate/g) ?? []).length >= 2);
+test("daily benchmark publication validates timelines before exact-candidate publication", () => {
+  assert.equal((dailyWorkflow.match(/npm run timeline:backfill/g) ?? []).length, 2);
+  assert.equal((dailyWorkflow.match(/npm run timeline:validate/g) ?? []).length, 1);
+  assert.doesNotMatch(dailyWorkflow, /^\s*git rebase\b/m);
   assert.match(dailyWorkflow, /public\/timelines/);
   assert.match(dailyWorkflow, /EXA_API_KEY:\s*\$\{\{ secrets\.EXA_API_KEY \}\}/);
 });

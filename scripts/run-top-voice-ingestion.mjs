@@ -1,12 +1,21 @@
 import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { runLiveSourceRefresh } from "../src/lib/ingestion/live-source-refresh.ts";
+import {
+  completeAutonomousCollectorProvenance,
+  readAutonomousCollectorLaunchProvenance
+} from "./lib/autonomous-collector-provenance.mjs";
+import { validatedRepositoryDataRoot } from "./lib/validated-repository-data-root.mjs";
 
 const DEFAULT_BATCHES = Object.freeze(["S2026", "S26", "A16ZSR006"]);
 const DEFAULT_AUDIENCES = Object.freeze(["insiders", "yc_partners"]);
 
 const args = parseArgs(process.argv.slice(2));
-const rootDir = process.cwd();
+const rootDir = validatedRepositoryDataRoot(args.root, {
+  fallbackRoot: process.cwd(),
+  label: "Top Voice collector catalog root"
+});
+const autonomousLaunchProvenance = readAutonomousCollectorLaunchProvenance();
 const outputPath = resolve(rootDir, args.output ?? "work/autonomous-ingestion/top-voice-refresh.json");
 const isolatedEvidencePath = resolve(
   dirname(outputPath),
@@ -66,11 +75,24 @@ if (audienceResults.some((result) => result.targetsLoaded === 0)) {
 }
 
 const isolatedEvidenceSnapshot = await readIsolatedEvidenceSnapshot(isolatedEvidencePath);
+const completedAt = new Date().toISOString();
+const autonomousAttempt = completeAutonomousCollectorProvenance(
+  autonomousLaunchProvenance,
+  {
+    kind: "top_voice",
+    batchSlug: batchSlugs.join(","),
+    shardIndex: 0,
+    shardCount: 1,
+    fetchedAt: generatedAt,
+    completedAt
+  }
+);
 
 const receipt = {
   schemaVersion: 2,
   status: audienceResults.every((result) => result.status === "completed") ? "completed" : "partial",
   generatedAt,
+  ...(autonomousAttempt ? { autonomousAttempt } : {}),
   batches: batchSlugs,
   audiences: audienceResults,
   isolatedEvidence: {

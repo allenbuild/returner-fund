@@ -7,9 +7,10 @@ import test from "node:test";
 import { AUTONOMOUS_BATCHES } from "../scripts/lib/autonomous-ingestion-plan.mjs";
 
 const root = process.cwd();
-const [summerCycle, autonomousRunner] = await Promise.all([
+const [summerCycle, autonomousRunner, publicCollector] = await Promise.all([
   readFile(join(root, "scripts", "run-summer-collection-cycle.mjs"), "utf8"),
-  readFile(join(root, "scripts", "run-autonomous-ingestion.mjs"), "utf8")
+  readFile(join(root, "scripts", "run-autonomous-ingestion.mjs"), "utf8"),
+  readFile(join(root, "scripts", "fetch-public-traction.mjs"), "utf8")
 ]);
 
 function section(source, start, end) {
@@ -54,7 +55,10 @@ test("S26 autonomous collection keeps LinkedIn on the public lane", () => {
     "async function runTopVoiceCollector"
   );
   assert.match(collectors, /AUTONOMOUS_BATCHES\.map/);
-  assert.match(collectors, /"scripts\/fetch-public-traction\.mjs"/);
+  assert.match(
+    collectors,
+    /sourcePath\(\s*"scripts",\s*"fetch-public-traction\.mjs"\s*\)/
+  );
   assert.match(collectors, /`--batch=\$\{batchSlug\}`/);
   assert.match(collectors, /"--social=all"/);
   assert.match(collectors, /`--linkedin-workers=\$\{PUBLIC_SOCIAL_LANE_CONCURRENCY\}`/);
@@ -63,6 +67,33 @@ test("S26 autonomous collection keeps LinkedIn on the public lane", () => {
     collectors,
     /fetch-logged-in-social-traction|ingest:logged-social|--allow-linkedin/
   );
+});
+
+test("the anonymous LinkedIn transport strips credential-bearing headers", () => {
+  const fetchHelper = section(
+    publicCollector,
+    "function fetchLinkedInPublicText",
+    "async function fetchLinkedInBoundedResponse"
+  );
+  const headerHelper = section(
+    publicCollector,
+    "function anonymousLinkedInRequestHeaders",
+    "function isDuckDuckGoPublicSearchUrl"
+  );
+  assert.match(fetchHelper, /headers: anonymousLinkedInRequestHeaders\(options\)/);
+  assert.match(headerHelper, /headers\.delete\(name\)/);
+  for (const header of [
+    "authorization",
+    "cookie",
+    "csrf-token",
+    "proxy-authorization",
+    "x-csrf-token",
+    "x-li-at",
+    "x-linkedin-auth-token"
+  ]) {
+    assert.ok(headerHelper.includes(`"${header}"`), `missing explicit ${header} removal`);
+  }
+  assert.doesNotMatch(fetchHelper, /credentials|browser|cookieJar|session/i);
 });
 
 test("S26 public LinkedIn fetches send no Cookie or Authorization headers", async () => {
@@ -88,7 +119,8 @@ globalThis.fetch = async (input, options = {}) => {
   calls.push({
     url: String(input),
     headers,
-    credentials: options.credentials ?? null
+    credentials: options.credentials ?? null,
+    optionKeys: Object.keys(options).sort()
   });
   return new Response(
     "Title: Public LinkedIn page\\nNo public posts were exposed by this test fixture.",
@@ -117,6 +149,10 @@ globalThis.fetch = async (input, options = {}) => {
         ...process.env,
         EXA_API_KEY: "",
         X_BEARER_TOKEN: "",
+        LINKEDIN_COOKIE: "must-not-be-forwarded",
+        LINKEDIN_AUTHORIZATION: "must-not-be-forwarded",
+        LINKEDIN_SESSION: "must-not-be-forwarded",
+        LI_AT: "must-not-be-forwarded",
         PUBLIC_FETCH_AUDIT_PATH: auditPath,
         NODE_OPTIONS: [process.env.NODE_OPTIONS, `--import=${preload}`].filter(Boolean).join(" ")
       },
@@ -124,19 +160,40 @@ globalThis.fetch = async (input, options = {}) => {
     });
 
     const calls = JSON.parse(await readFile(auditPath, "utf8"));
-    const linkedInReaderCalls = calls.filter((call) =>
-      call.url.startsWith("https://r.jina.ai/http://https://linkedin.com/") ||
-      call.url.startsWith("https://r.jina.ai/http://https://www.linkedin.com/")
+    const linkedInDirectCalls = calls.filter((call) => {
+      const url = new URL(call.url);
+      return url.hostname.endsWith("linkedin.com") &&
+        (url.pathname.startsWith("/company/") || url.pathname.startsWith("/in/"));
+    });
+    assert.ok(linkedInDirectCalls.length >= 2, "expected direct company and founder public LinkedIn reads");
+    assert.ok(
+      calls.every((call) => new URL(call.url).hostname !== "r.jina.ai"),
+      "LinkedIn URLs must not be forwarded through a remote reader"
     );
-    assert.ok(linkedInReaderCalls.length >= 2, "expected company and founder public LinkedIn reads");
+    const directCounts = new Map();
+    for (const call of linkedInDirectCalls) {
+      directCounts.set(call.url, (directCounts.get(call.url) ?? 0) + 1);
+    }
+    assert.ok(
+      [...directCounts.values()].every((count) => count === 1),
+      "each anonymous LinkedIn profile must be requested at most once"
+    );
 
     for (const call of calls) {
       const headerNames = Object.keys(call.headers).map((name) => name.toLowerCase());
       assert.ok(!headerNames.includes("cookie"), `Cookie leaked to ${call.url}`);
       assert.ok(!headerNames.includes("authorization"), `Authorization leaked to ${call.url}`);
       assert.ok(
+        !JSON.stringify(call.headers).includes("must-not-be-forwarded"),
+        `LinkedIn environment credentials leaked to ${call.url}`
+      );
+      assert.ok(
         call.credentials === null || call.credentials === "omit",
         `credentialed fetch mode leaked to ${call.url}`
+      );
+      assert.ok(
+        call.optionKeys.every((key) => !/(?:browser|cookiejar|auth|session)/i.test(key)),
+        `browser/authenticated session option leaked to ${call.url}`
       );
     }
 

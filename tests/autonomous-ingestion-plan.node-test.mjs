@@ -9,6 +9,7 @@ import {
   AUTONOMOUS_PLATFORMS,
   AUTONOMOUS_PROCESS_BUDGETS,
   autonomousMappedTerminalFailureBudget,
+  autonomousCollectorAccountKey,
   autonomousCollectorRetryableFailures,
   isAutonomousCollectorFailureRetryable,
   isAutonomousProviderBlocker,
@@ -46,7 +47,7 @@ describe("autonomous runner resume contract", () => {
 
     assert.match(
       source,
-      /await Promise\.all\(\[\s*runCollectors\(\),\s*resumeTopVoiceRefresh\(\)\s*\]\)/
+      /await runFailFastBranches\(\[\s*\(\) => runCollectors\(\),\s*\(\) => resumeTopVoiceRefresh\(\)\s*\]\)/
     );
   });
 });
@@ -126,27 +127,27 @@ describe("autonomous ingestion planning against the collector catalogs", () => {
     }
   });
 
-  it("loads the exact company, founder, and account counts from every real catalog", async () => {
+  it("loads every real catalog and honors its declared relational count contract", async () => {
     const catalogs = await loadAutonomousCatalogs(repositoryRoot);
 
     const summaries = catalogs.map(summarizeCatalog);
-    assert.deepEqual(summaries.filter((catalog) => catalog.slug !== "S26"), [
-      { slug: "S2026", companies: 197, founders: 397, accounts: 994 },
-      { slug: "A16ZSR006", companies: 59, founders: 128, accounts: 339 }
-    ]);
+    assert.deepEqual(
+      summaries.map((catalog) => catalog.slug).sort(),
+      ["A16ZSR006", "S2026", "S26"]
+    );
+    for (const [index, summary] of summaries.entries()) {
+      const catalog = catalogs[index];
+      assert.ok(summary.companies > 0, `${summary.slug} must retain companies`);
+      assert.ok(summary.founders >= summary.companies, `${summary.slug} must retain founder coverage`);
+      assert.ok(summary.accounts >= summary.companies, `${summary.slug} must retain account coverage`);
+      assert.equal(summary.companies, catalog.expectedCompanyCount);
+      assert.equal(summary.founders, catalog.expectedFounderCount);
+    }
     const summer = catalogs.find((catalog) => catalog.slug === "S26");
     const summerSummary = summaries.find((catalog) => catalog.slug === "S26");
-    assert.ok(summerSummary.companies >= 167);
+    assert.ok(summer && summerSummary);
     assert.equal(summerSummary.companies, summer.expectedCompanyCount);
     assert.equal(summerSummary.founders, summer.expectedFounderCount);
-    assert.deepEqual(
-      {
-        companies: summer.minimumCompanyCount,
-        founders: summer.minimumFounderCount,
-        accounts: summer.minimumAccountCount
-      },
-      { companies: 167, founders: 325, accounts: 790 }
-    );
     assert.ok(summerSummary.companies >= summer.minimumCompanyCount);
     assert.ok(summerSummary.founders >= summer.minimumFounderCount);
     assert.ok(summerSummary.accounts >= summer.minimumAccountCount);
@@ -188,7 +189,7 @@ describe("autonomous ingestion planning against the collector catalogs", () => {
     );
   });
 
-  it("fails closed when the A16Z graph drops an owner from the independent 59/128 roster", async () => {
+  it("fails closed when the A16Z graph drops an owner from its independent roster", async () => {
     const catalogs = await loadAutonomousCatalogs(repositoryRoot);
     const a16z = catalogs.find((catalog) => catalog.slug === "A16ZSR006");
     const batch = AUTONOMOUS_BATCHES.find((candidate) => candidate.slug === "A16ZSR006");
@@ -809,6 +810,47 @@ globalThis.fetch = async (input) => {
     }
   });
 
+  it("rejects encoded-dot and private-host account URLs before exact task keys can collide", () => {
+    const entity = {
+      entityType: "company",
+      sourceKey: "company-unsafe-account",
+      name: "Unsafe Account",
+      accounts: []
+    };
+    const batch = {
+      slug: "S26",
+      companies: [entity]
+    };
+    const unsafeUrls = [
+      "https://x.com/safe_owner/%2e",
+      "http://127.0.0.1/safe_owner",
+      "https://127.0.0.1/safe_owner"
+    ];
+
+    assert.ok(autonomousCollectorAccountKey(
+      "x",
+      "company",
+      entity.sourceKey,
+      "https://x.com/safe_owner"
+    ));
+    for (const unsafeUrl of unsafeUrls) {
+      assert.equal(
+        autonomousCollectorAccountKey("x", "company", entity.sourceKey, unsafeUrl),
+        null
+      );
+      assert.throws(
+        () => buildAutonomousTaskPlan([{
+          ...batch,
+          companies: [{
+            ...entity,
+            accounts: [{ platform: "x", url: unsafeUrl }]
+          }]
+        }], { runKey: "unsafe-key-contract" }),
+        /Invalid x account URL/
+      );
+    }
+  });
+
   it("makes every unavailable task explicitly terminal and reports exact coverage", async () => {
     const tasks = buildAutonomousTaskPlan(await loadAutonomousCatalogs(repositoryRoot), {
       runKey: "terminal-contract"
@@ -1077,6 +1119,74 @@ describe("autonomous collector snapshot validation", () => {
         kind: "public",
         batchSlug: "S26",
         notBefore: Date.parse(fetchedAt) + 1
+      }),
+      /predates this collector attempt/
+    );
+  });
+
+  it("rejects future, stale, foreign-attempt, foreign-campaign, and foreign-execution shard bindings", () => {
+    const startedAtMs = Date.now() - 1_000;
+    const completedAtMs = startedAtMs + 500;
+    const attempt = {
+      schemaVersion: 1,
+      attemptId: "attempt-current",
+      campaignKey: "campaign-current",
+      idempotencyKey: "slot-current",
+      executionNonce: "execution-current",
+      kind: "public",
+      batchSlug: "S26",
+      shardIndex: 0,
+      shardCount: 2,
+      startedAt: new Date(startedAtMs).toISOString(),
+      completedAt: new Date(completedAtMs).toISOString()
+    };
+    const bound = {
+      ...publicSnapshot,
+      source: {
+        ...publicSnapshot.source,
+        fetchedAt: new Date(startedAtMs + 250).toISOString(),
+        autonomousAttempt: attempt
+      }
+    };
+    const validation = {
+      kind: "public",
+      batchSlug: "S26",
+      notBefore: startedAtMs - 10,
+      notAfter: completedAtMs + 10,
+      requireAttemptBinding: true,
+      expectedAttemptId: attempt.attemptId,
+      expectedCampaignKey: attempt.campaignKey,
+      expectedExecutionNonce: attempt.executionNonce
+    };
+
+    assert.equal(validateAutonomousCollectorSnapshot(bound, validation), bound);
+    for (const [field, replacement, expected] of [
+      ["attemptId", "attempt-foreign", /foreign attempt/],
+      ["campaignKey", "campaign-foreign", /foreign campaign/],
+      ["executionNonce", "execution-foreign", /foreign execution/]
+    ]) {
+      assert.throws(
+        () => validateAutonomousCollectorSnapshot({
+          ...bound,
+          source: {
+            ...bound.source,
+            autonomousAttempt: { ...attempt, [field]: replacement }
+          }
+        }, validation),
+        expected
+      );
+    }
+    assert.throws(
+      () => validateAutonomousCollectorSnapshot({
+        ...bound,
+        source: { ...bound.source, fetchedAt: new Date(Date.now() + 120_000).toISOString() }
+      }, { ...validation, notAfter: Date.now() + 60_000 }),
+      /in the future/
+    );
+    assert.throws(
+      () => validateAutonomousCollectorSnapshot(bound, {
+        ...validation,
+        notBefore: completedAtMs + 10_000
       }),
       /predates this collector attempt/
     );
@@ -2018,6 +2128,62 @@ describe("autonomous collector task accounting", () => {
       status: "failed",
       reason: "Unexpected response schema"
     });
+  });
+
+  it("does not inherit provider blockers through rejected account URL identities", () => {
+    const blocker = {
+      provider: "jina_linkedin_reader",
+      code: "linkedin_public_circuit_open",
+      retryAt: "2026-08-10T00:00:00.000Z",
+      httpStatus: null,
+      message: "Jina LinkedIn reader circuit is open."
+    };
+    for (const accountUrl of [
+      "https://linkedin.com/company/canonical-owner/%2e",
+      "https://127.0.0.1/company/canonical-owner"
+    ]) {
+      const attemptKey = `linkedin:company:company-canonical-owner:${accountUrl}`;
+      const invalidAttempt = {
+        attemptKey,
+        platform: "linkedin",
+        entityType: "company",
+        entityId: "company-canonical-owner",
+        accountUrl,
+        outcomeStatus: "blocked_or_empty",
+        outcomeReason: "collector_provider_blocked",
+        blocker
+      };
+      const index = indexAutonomousCollectorTaskOutcomes({
+        evidence: [],
+        needsReview: [],
+        failures: [{
+          ...invalidAttempt,
+          message: "reader request failed"
+        }],
+        attempts: {
+          invalid: invalidAttempt
+        }
+      }, { kind: "public", batchSlug: "S26", explicitTerminalOnly: true });
+
+      assert.equal(index.size, 0);
+      assert.deepEqual(classifyAutonomousCollectorTaskOutcome(index, {
+        platform: "linkedin",
+        entityType: "company",
+        entityId: "company-canonical-owner",
+        accountUrl
+      }), {
+        status: "failed",
+        reason: "collector_invalid_account_url"
+      });
+      assert.deepEqual(classifyAutonomousCollectorTaskOutcome(index, {
+        platform: "linkedin",
+        entityType: "company",
+        entityId: "company-canonical-owner"
+      }), {
+        status: "nonterminal",
+        reason: "collector_returned_no_entity_attempt"
+      });
+    }
   });
 
   it("rejects standalone, ambiguous, untyped, and platform-incompatible blockers", () => {

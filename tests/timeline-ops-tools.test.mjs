@@ -22,7 +22,7 @@ describe("timeline operational tooling", () => {
     expect(workflow).toContain("timeout 4m env -u NEXT_PUBLIC_SUPABASE_URL -u SUPABASE_SERVICE_ROLE_KEY TIMELINE_REQUIRE_DATABASE=false npm run timeline:backfill");
     expect(workflow).toContain("public/timelines");
     expect(workflow).toContain("artifacts/company-timeline/coverage.json");
-    expect((workflow.match(/npm run timeline:validate/g) ?? []).length).toBeGreaterThanOrEqual(2);
+    expect((workflow.match(/npm run timeline:validate/g) ?? []).length).toBe(1);
     expect(workflow).not.toContain("Refusing to rebuild timeline artifacts without Supabase service-role configuration");
   });
 

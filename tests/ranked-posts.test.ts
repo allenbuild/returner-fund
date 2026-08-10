@@ -401,6 +401,8 @@ function sidecarScope(
     overflowRankableCount: overflow.length,
     fullRankableDigest: "0".repeat(64),
     representedRankableDigest: "0".repeat(64),
+    crossAudiencePreviewProjectionCount: 0,
+    crossAudiencePreviewProjectionKeys: [],
     previewRankableByCompany,
     fullRankableByCompany: { "company-1": overflow.length + 1 },
     evidence: overflow

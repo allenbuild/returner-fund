@@ -1,5 +1,6 @@
 const DEFAULT_MAX_ATTEMPTS = 3;
 const DEFAULT_MAX_RATE_LIMIT_WAIT_MS = 65_000;
+const defaultGitHubRetryAdmission = createGitHubRetryAdmission();
 
 export class GitHubApiError extends Error {
   constructor(message, {
@@ -32,7 +33,8 @@ export async function fetchGitHubJsonResponse(url, {
   sleep = delay,
   now = Date.now,
   maxAttempts = DEFAULT_MAX_ATTEMPTS,
-  maxRateLimitWaitMs = DEFAULT_MAX_RATE_LIMIT_WAIT_MS
+  maxRateLimitWaitMs = DEFAULT_MAX_RATE_LIMIT_WAIT_MS,
+  retryAdmission = defaultGitHubRetryAdmission
 } = {}) {
   if (typeof fetchImplementation !== "function") {
     throw new TypeError("fetchGitHubJsonResponse requires a fetch implementation.");
@@ -40,12 +42,18 @@ export async function fetchGitHubJsonResponse(url, {
   if (!Number.isInteger(maxAttempts) || maxAttempts < 1) {
     throw new TypeError("maxAttempts must be a positive integer.");
   }
+  if (!retryAdmission || typeof retryAdmission.run !== "function") {
+    throw new TypeError("retryAdmission must expose a run(operation) function.");
+  }
   const endpoint = safeGitHubEndpoint(url);
 
   for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
     let response;
     try {
-      response = await fetchImplementation(url, { headers });
+      const request = () => fetchImplementation(url, { headers });
+      response = attempt === 1
+        ? await request()
+        : await retryAdmission.run(request);
     } catch (error) {
       const causeCode = safeErrorCode(error);
       const detail = causeCode ? ` (${causeCode})` : "";
@@ -124,6 +132,78 @@ export async function fetchGitHubJsonResponse(url, {
   throw new Error("GitHub API request exhausted attempts without a result.");
 }
 
+export function createGitHubRetryAdmission({
+  minimumSpacingMs = 250,
+  jitterMs = 250,
+  now = Date.now,
+  sleep = delay,
+  random = Math.random
+} = {}) {
+  if (!Number.isSafeInteger(minimumSpacingMs) || minimumSpacingMs < 0) {
+    throw new RangeError("minimumSpacingMs must be a nonnegative integer.");
+  }
+  if (!Number.isSafeInteger(jitterMs) || jitterMs < 0) {
+    throw new RangeError("jitterMs must be a nonnegative integer.");
+  }
+  if (
+    typeof now !== "function" ||
+    typeof sleep !== "function" ||
+    typeof random !== "function"
+  ) {
+    throw new TypeError("GitHub retry admission hooks must be functions.");
+  }
+
+  let tail = Promise.resolve();
+  let nextAllowedAt = 0;
+  let queued = 0;
+  let active = false;
+
+  const admission = {
+    run(operation) {
+      if (typeof operation !== "function") {
+        return Promise.reject(new TypeError("GitHub retry admission requires an operation."));
+      }
+      queued += 1;
+      const previous = tail;
+      const current = previous.then(async () => {
+        queued -= 1;
+        const observedAt = finiteAdmissionClock(now());
+        const randomValue = Number(random());
+        if (!Number.isFinite(randomValue) || randomValue < 0 || randomValue >= 1) {
+          throw new RangeError("GitHub retry admission random hook must return [0, 1).");
+        }
+        const randomizedDelay = Math.floor(randomValue * (jitterMs + 1));
+        const waitMs = Math.max(0, nextAllowedAt - observedAt) + randomizedDelay;
+        if (waitMs > 0) await sleep(waitMs);
+        const admittedAt = finiteAdmissionClock(now());
+        if (admittedAt < observedAt) {
+          throw new Error("GitHub retry admission clock moved backwards.");
+        }
+        if (admittedAt < observedAt + waitMs) {
+          throw new Error("GitHub retry admission sleep completed before its admission boundary.");
+        }
+        nextAllowedAt = admittedAt + minimumSpacingMs;
+        active = true;
+        try {
+          return await operation();
+        } finally {
+          active = false;
+        }
+      });
+      tail = current.then(() => undefined, () => undefined);
+      return current;
+    },
+    snapshot() {
+      return Object.freeze({
+        active,
+        queued,
+        nextAllowedAt
+      });
+    }
+  };
+  return Object.freeze(admission);
+}
+
 export function githubApiFailureReceipt(error) {
   if (error instanceof GitHubApiError) {
     return {
@@ -193,6 +273,14 @@ function safeErrorCode(error) {
 
 function errorMessage(error) {
   return error instanceof Error ? error.message : String(error);
+}
+
+function finiteAdmissionClock(value) {
+  const clock = Number(value);
+  if (!Number.isFinite(clock)) {
+    throw new TypeError("GitHub retry admission clock must be finite.");
+  }
+  return clock;
 }
 
 function delay(ms) {

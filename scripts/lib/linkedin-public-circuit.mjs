@@ -100,6 +100,7 @@ export function createLinkedInPublicCircuit(options = {}) {
       release = resolve;
     });
     let admitted = false;
+    const teardownRegistry = createTransportTeardownRegistry();
 
     try {
       await waitForAdmission(previous, init.signal);
@@ -126,7 +127,8 @@ export function createLinkedInPublicCircuit(options = {}) {
           readText,
           maxBodyBytes: providerConfig[provider].maxBodyBytes,
           setTimer,
-          clearTimer
+          clearTimer,
+          teardownRegistry
         });
         const response = readText ? result.response : result;
 
@@ -178,7 +180,7 @@ export function createLinkedInPublicCircuit(options = {}) {
         });
       }
     } finally {
-      if (admitted) release();
+      if (admitted) void teardownRegistry.drain().then(release, release);
       else void previous.then(release, release);
     }
   }
@@ -326,7 +328,8 @@ async function fetchWithDeadline({
   readText,
   maxBodyBytes,
   setTimer,
-  clearTimer
+  clearTimer,
+  teardownRegistry
 }) {
   let timer;
   let onParentAbort;
@@ -351,14 +354,31 @@ async function fetchWithDeadline({
     : new Promise(() => {});
 
   try {
-    return await Promise.race([
-      Promise.resolve().then(async () => {
-        const response = await fetchImplementation(input, { ...init, signal: controller.signal });
+    const transportPromise = Promise.resolve().then(async () => {
+        const response = await fetchImplementation(input, {
+          ...init,
+          signal: controller.signal,
+          registerTeardown: teardownRegistry.register
+        });
         if (!readText) return response;
-        if (isProviderFailureStatus(response.status)) return { response, text: "" };
-        const text = await boundedResponseText(response, maxBodyBytes);
-        return { response, text };
-      }),
+        if (isProviderFailureStatus(response.status)) {
+          await cancelBody(response.body);
+          return { response, text: "" };
+        }
+        try {
+          const text = await boundedResponseText(response, maxBodyBytes, {
+            signal: controller.signal
+          });
+          return { response, text };
+        } catch (error) {
+          await cancelBody(response.body, error);
+          throw error;
+        }
+      });
+    transportPromise.catch(() => {});
+    teardownRegistry.register(transportPromise);
+    return await Promise.race([
+      transportPromise,
       deadline,
       callerAbort
     ]);
@@ -370,24 +390,47 @@ async function fetchWithDeadline({
   }
 }
 
-async function boundedResponseText(response, maxBodyBytes) {
+function createTransportTeardownRegistry() {
+  const pending = [];
+  const register = (value) => {
+    if (!value || typeof value.then !== "function") return;
+    pending.push(Promise.resolve(value).catch(() => undefined));
+  };
+  return {
+    register,
+    async drain() {
+      let drainedThrough = 0;
+      while (true) {
+        const batch = pending.slice(drainedThrough);
+        drainedThrough = pending.length;
+        if (batch.length > 0) await Promise.all(batch);
+        await Promise.resolve();
+        if (drainedThrough === pending.length) return;
+      }
+    }
+  };
+}
+
+async function boundedResponseText(response, maxBodyBytes, { signal } = {}) {
   const contentLength = Number(response.headers?.get?.("content-length"));
   if (Number.isFinite(contentLength) && contentLength > maxBodyBytes) {
-    await response.body?.cancel?.();
+    await cancelBody(response.body);
     throw new LinkedInPublicBodyLimitError(maxBodyBytes);
   }
   if (!response.body?.getReader) {
-    const text = await response.text();
-    if (new TextEncoder().encode(text).byteLength > maxBodyBytes) {
-      throw new LinkedInPublicBodyLimitError(maxBodyBytes);
-    }
-    return text;
+    await cancelBody(response.body);
+    throw new TypeError("LinkedIn response body does not expose a bounded streaming reader");
   }
 
   const reader = response.body.getReader();
   const decoder = new TextDecoder();
   let totalBytes = 0;
   let text = "";
+  const onAbort = () => {
+    void reader.cancel(abortReason(signal)).catch(() => {});
+  };
+  if (signal?.aborted) onAbort();
+  else signal?.addEventListener("abort", onAbort, { once: true });
   try {
     while (true) {
       const { done, value } = await reader.read();
@@ -401,8 +444,28 @@ async function boundedResponseText(response, maxBodyBytes) {
     }
     text += decoder.decode();
     return text;
+  } catch (error) {
+    await reader.cancel(error).catch(() => {});
+    throw error;
   } finally {
+    signal?.removeEventListener("abort", onAbort);
     reader.releaseLock();
+  }
+}
+
+async function cancelBody(body, reason) {
+  if (!body) return;
+  try {
+    if (typeof body.cancel === "function") {
+      await body.cancel(reason);
+      return;
+    }
+    if (typeof body.destroy === "function") {
+      body.on?.("error", () => {});
+      body.destroy(reason instanceof Error ? reason : undefined);
+    }
+  } catch {
+    // The response is already being abandoned; cancellation is best-effort.
   }
 }
 

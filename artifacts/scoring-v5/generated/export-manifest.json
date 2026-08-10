@@ -1,7 +1,7 @@
 {
   "candidateSearchArtifactHash": "0dc8702fa678ec01d24588282adb647db64956d7514a19ce91f73c27b81575df",
   "codeRevision": "sha256:c6105c5869527f3971a481b0b3490035f93b774d12ea37b9cd9bc1c81a78f6c4",
-  "dependencyLockHash": "6ea533ab88332ce572b800008624924cc795d715258f0e28e51f29915f8a24a2",
+  "dependencyLockHash": "b93be13288b2ed6b29d8402d0a1c2fb8ca8e96f4e2c0f7e65e63b9fd428f4db1",
   "environment": {
     "locale": "en-US",
     "networkRequiredAfterRegistration": false,

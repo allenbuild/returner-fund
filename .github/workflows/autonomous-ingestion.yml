@@ -25,16 +25,32 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     outputs:
-      should_run: ${{ steps.schedule.outputs.should_run }}
-      slot_key: ${{ steps.schedule.outputs.slot_key }}
-      trigger: ${{ steps.schedule.outputs.trigger }}
-      reason: ${{ steps.schedule.outputs.reason }}
-      scheduled_at: ${{ steps.schedule.outputs.scheduled_at }}
+      should_run: ${{ steps.decision.outputs.should_run }}
+      slot_key: ${{ steps.decision.outputs.slot_key }}
+      trigger: ${{ steps.decision.outputs.trigger }}
+      reason: ${{ steps.decision.outputs.reason }}
+      scheduled_at: ${{ steps.decision.outputs.scheduled_at }}
+      source_sha: ${{ steps.source.outputs.source_sha }}
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
-          ref: main
+          ref: ${{ github.sha }}
+          persist-credentials: false
+
+      - name: Record source checkout
+        id: source
+        env:
+          TRIGGER_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          SOURCE_SHA="$(git rev-parse HEAD)"
+          NORMALIZED_TRIGGER_SHA="$(printf '%s' "$TRIGGER_SHA" | tr '[:upper:]' '[:lower:]')"
+          if [[ ! "$TRIGGER_SHA" =~ ^[0-9a-fA-F]{40}$ ]] || [ "$SOURCE_SHA" != "$NORMALIZED_TRIGGER_SHA" ]; then
+            echo "::error title=Source checkout mismatch::Triggered at $TRIGGER_SHA but checked out $SOURCE_SHA."
+            exit 1
+          fi
+          echo "source_sha=$SOURCE_SHA" >> "$GITHUB_OUTPUT"
 
       - name: Resolve Central ingestion slot
         id: schedule
@@ -44,17 +60,92 @@ jobs:
         run: node scripts/lib/ingestion-schedule.mjs
 
       - name: Record candidate decision
+        id: decision
         env:
           SHOULD_RUN: ${{ steps.schedule.outputs.should_run }}
           SLOT_KEY: ${{ steps.schedule.outputs.slot_key }}
+          TRIGGER: ${{ steps.schedule.outputs.trigger }}
           REASON: ${{ steps.schedule.outputs.reason }}
           SCHEDULED_AT: ${{ steps.schedule.outputs.scheduled_at }}
         run: |
-          if [ "$SHOULD_RUN" = "true" ]; then
-            STATUS="accepted_slot"
-          else
-            STATUS="inactive_candidate"
+          set -euo pipefail
+          contains_line_break() {
+            [[ "$1" == *$'\n'* || "$1" == *$'\r'* ]]
+          }
+          is_strict_utc_rfc3339() {
+            node --input-type=module - "$1" <<'NODE'
+          const value = process.argv[2] ?? "";
+          const match = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.\d{1,9})?Z$/.exec(value);
+          if (!match) process.exit(1);
+          const [, year, month, day, hour, minute, second] = match.map(Number);
+          const instant = new Date(0);
+          instant.setUTCFullYear(year, month - 1, day);
+          instant.setUTCHours(hour, minute, second, 0);
+          if (
+            instant.getUTCFullYear() !== year ||
+            instant.getUTCMonth() !== month - 1 ||
+            instant.getUTCDate() !== day ||
+            instant.getUTCHours() !== hour ||
+            instant.getUTCMinutes() !== minute ||
+            instant.getUTCSeconds() !== second
+          ) process.exit(1);
+          NODE
+          }
+          for value in "$SHOULD_RUN" "$SLOT_KEY" "$TRIGGER" "$REASON" "$SCHEDULED_AT"; do
+            if contains_line_break "$value"; then
+              echo "::error title=Malformed ingestion resolver output::Resolver outputs must not contain CR or LF characters."
+              exit 1
+            fi
+          done
+          if [ -n "$SCHEDULED_AT" ] && ! is_strict_utc_rfc3339 "$SCHEDULED_AT"; then
+            echo "::error title=Malformed ingestion resolver output::scheduled_at must be a valid UTC RFC3339 timestamp."
+            exit 1
           fi
+          case "$SHOULD_RUN" in
+            true)
+              if [ -z "$SLOT_KEY" ] || [ -z "$TRIGGER" ] || [ -z "$REASON" ]; then
+                echo "::error title=Malformed ingestion resolver output::Accepted candidates require nonempty slot_key, trigger, and reason outputs."
+                exit 1
+              fi
+              if [[ ! "$SLOT_KEY" =~ ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$ ]]; then
+                echo "::error title=Malformed ingestion resolver output::slot_key is not a valid stable idempotency key."
+                exit 1
+              fi
+              case "$TRIGGER" in
+                schedule)
+                  if [ -z "$SCHEDULED_AT" ]; then
+                    echo "::error title=Malformed ingestion resolver output::Scheduled candidates require scheduled_at."
+                    exit 1
+                  fi
+                  ;;
+                manual-replay)
+                  ;;
+                *)
+                  echo "::error title=Malformed ingestion resolver output::Accepted trigger '$TRIGGER' is not recognized."
+                  exit 1
+                  ;;
+              esac
+              STATUS="accepted_slot"
+              ;;
+            false)
+              if [ -z "$TRIGGER" ] || [ -z "$REASON" ] || [ -n "$SLOT_KEY" ] || [ -n "$SCHEDULED_AT" ]; then
+                echo "::error title=Malformed ingestion resolver output::Inactive candidates require trigger and reason and must not expose slot_key or scheduled_at metadata."
+                exit 1
+              fi
+              STATUS="inactive_candidate"
+              ;;
+            *)
+              echo "::error title=Malformed ingestion resolver output::should_run must be exactly true or false."
+              exit 1
+              ;;
+          esac
+          {
+            echo "should_run=$SHOULD_RUN"
+            echo "slot_key=$SLOT_KEY"
+            echo "trigger=$TRIGGER"
+            echo "reason=$REASON"
+            echo "scheduled_at=$SCHEDULED_AT"
+          } >> "$GITHUB_OUTPUT"
           {
             echo "## Autonomous ingestion candidate"
             echo "- Status: $STATUS"
@@ -75,9 +166,23 @@ jobs:
     concurrency:
       group: repository-publication-main
       cancel-in-progress: false
-      queue: max
     outputs:
-      published_commit: ${{ steps.publication_receipt.outputs.published_commit }}
+      publication_status: ${{ steps.ingestion.outputs.publication_status }}
+      collection_health: ${{ steps.ingestion.outputs.collection_health }}
+      collection_health_reasons: ${{ steps.ingestion.outputs.collection_health_reasons }}
+      new_physical_sources: ${{ steps.ingestion.outputs.new_physical_sources }}
+      daily_new_physical_sources: ${{ steps.ingestion.outputs.daily_new_physical_sources }}
+      daily_source_health: ${{ steps.ingestion.outputs.daily_source_health }}
+      published_commit: ${{ steps.recover_publication.outputs.published_commit }}
+      validation_candidate: ${{ steps.recover_publication.outputs.validation_candidate }}
+      publication_run_id: ${{ steps.recover_publication.outputs.publication_run_id }}
+      publication_run_attempt: ${{ steps.recover_publication.outputs.publication_run_attempt }}
+      publication_source_sha: ${{ steps.recover_publication.outputs.publication_source_sha }}
+      publication_trigger: ${{ steps.recover_publication.outputs.publication_trigger }}
+      publication_scheduled_at: ${{ steps.recover_publication.outputs.publication_scheduled_at }}
+      commit_verified: ${{ steps.recover_publication.outputs.commit_verified }}
+      remote_main_commit: ${{ steps.recover_publication.outputs.remote_main_commit }}
+      recovery_method: ${{ steps.recover_publication.outputs.recovery_method }}
       receipt_status: ${{ steps.publication_receipt.outputs.receipt_status }}
       receipt_conclusion: ${{ steps.publication_receipt.outputs.receipt_conclusion }}
       runner_status: ${{ steps.ingestion.outputs.runner_status }}
@@ -95,17 +200,28 @@ jobs:
       executed_sha: ${{ steps.checkout_state.outputs.executed_sha }}
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
-          ref: main
+          ref: ${{ needs.resolve.outputs.source_sha }}
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Record executed checkout
         id: checkout_state
-        run: echo "executed_sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+        env:
+          SOURCE_SHA: ${{ needs.resolve.outputs.source_sha }}
+        run: |
+          set -euo pipefail
+          EXECUTED_SHA="$(git rev-parse HEAD)"
+          NORMALIZED_SOURCE_SHA="$(printf '%s' "$SOURCE_SHA" | tr '[:upper:]' '[:lower:]')"
+          if [ "$EXECUTED_SHA" != "$NORMALIZED_SOURCE_SHA" ]; then
+            echo "::error title=Execution checkout mismatch::Expected $SOURCE_SHA but checked out $EXECUTED_SHA."
+            exit 1
+          fi
+          echo "executed_sha=$EXECUTED_SHA" >> "$GITHUB_OUTPUT"
 
       - name: Use Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 24.14.0
           cache: npm
@@ -113,6 +229,54 @@ jobs:
       - name: Install dependencies
         timeout-minutes: 10
         run: npm ci
+
+      - name: Require isolated publication credential
+        env:
+          CANDIDATE_TRIGGER: ${{ needs.resolve.outputs.trigger }}
+          CANDIDATE_SLOT_KEY: ${{ needs.resolve.outputs.slot_key }}
+          CANDIDATE_SCHEDULED_AT: ${{ needs.resolve.outputs.scheduled_at }}
+          WORKFLOW_EVENT_NAME: ${{ github.event_name }}
+        run: |
+          set -euo pipefail
+          if git config --local --get-all http.https://github.com/.extraheader | grep -q .; then
+            echo "::error title=Persisted publication credential::The autonomous runner requires process-scoped push authentication and must start without a repository credential."
+            exit 1
+          fi
+          node --input-type=module <<'NODE'
+          import assert from "node:assert/strict";
+
+          const trigger = process.env.CANDIDATE_TRIGGER ?? "";
+          const slotKey = process.env.CANDIDATE_SLOT_KEY ?? "";
+          const scheduledAt = process.env.CANDIDATE_SCHEDULED_AT ?? "";
+          const eventName = process.env.WORKFLOW_EVENT_NAME ?? "";
+          if (trigger === "manual-replay") {
+            assert.equal(eventName, "workflow_dispatch", "manual replay must originate from workflow_dispatch");
+            assert.equal(scheduledAt, "", "manual replay must not claim scheduled_at");
+            process.exit(0);
+          }
+          assert.equal(trigger, "schedule", "queued ingestion trigger must be schedule or manual-replay");
+          assert.equal(eventName, "schedule", "scheduled ingestion must originate from a schedule event");
+          assert.match(slotKey, /^central-\d{4}-\d{2}-\d{2}-(?:0600|1800)$/);
+          const scheduled = new Date(scheduledAt);
+          assert.ok(Number.isFinite(scheduled.getTime()), "scheduled ingestion requires a valid scheduled_at");
+          const ageMs = Date.now() - scheduled.getTime();
+          assert.ok(ageMs >= 0 && ageMs <= 11 * 60 * 60 * 1000, "scheduled ingestion became stale while queued");
+          const parts = Object.fromEntries(new Intl.DateTimeFormat("en-US", {
+            timeZone: "America/Chicago",
+            calendar: "gregory",
+            numberingSystem: "latn",
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+            hour: "2-digit",
+            minute: "2-digit",
+            second: "2-digit",
+            hourCycle: "h23"
+          }).formatToParts(scheduled).filter(({ type }) => type !== "literal").map(({ type, value }) => [type, value]));
+          assert.equal(parts.second, "00");
+          assert.ok(parts.hour === "06" || parts.hour === "18", "scheduled ingestion is not a Central publication slot");
+          assert.equal(slotKey, `central-${parts.year}-${parts.month}-${parts.day}-${parts.hour}${parts.minute}`);
+          NODE
 
       - name: Run autonomous ingestion
         id: ingestion
@@ -124,8 +288,48 @@ jobs:
           X_BEARER_TOKEN: ${{ secrets.X_BEARER_TOKEN }}
           EXA_API_KEY: ${{ secrets.EXA_API_KEY }}
           INGESTION_IDEMPOTENCY_KEY: ${{ needs.resolve.outputs.slot_key }}
+          CANDIDATE_TRIGGER: ${{ needs.resolve.outputs.trigger }}
+          CANDIDATE_SCHEDULED_AT: ${{ needs.resolve.outputs.scheduled_at }}
           INGESTION_PUBLICATION_BRANCH: main
-        run: node scripts/run-autonomous-ingestion.mjs --idempotency-key="$INGESTION_IDEMPOTENCY_KEY"
+        run: >-
+          node scripts/run-autonomous-ingestion.mjs
+          --idempotency-key="$INGESTION_IDEMPOTENCY_KEY"
+          --candidate-trigger="$CANDIDATE_TRIGGER"
+          --scheduled-at="$CANDIDATE_SCHEDULED_AT"
+
+      - name: Verify publication credential isolation
+        if: always()
+        run: |
+          set -euo pipefail
+          if git config --local --get-all http.https://github.com/.extraheader | grep -q .; then
+            echo "::error title=Persisted publication credential::Autonomous execution left a repository credential behind."
+            exit 1
+          fi
+
+      - name: Verify repository-backed publication commit
+        id: verify_publication
+        env:
+          RUNNER_PUBLISHED_COMMIT: ${{ steps.ingestion.outputs.published_commit }}
+        run: |
+          set -euo pipefail
+          if [[ ! "$RUNNER_PUBLISHED_COMMIT" =~ ^[0-9a-fA-F]{40}$ ]]; then
+            echo "::error title=Invalid publication proof::The runner did not return a full 40-hex commit SHA."
+            exit 1
+          fi
+
+          git fetch --no-tags origin +refs/heads/main:refs/remotes/origin/main
+          VERIFIED_COMMIT="$(git rev-parse "${RUNNER_PUBLISHED_COMMIT}^{commit}")"
+          REMOTE_MAIN_COMMIT="$(git rev-parse refs/remotes/origin/main)"
+          if ! git merge-base --is-ancestor "$VERIFIED_COMMIT" refs/remotes/origin/main; then
+            echo "::error title=Unpublished commit::$VERIFIED_COMMIT is not reachable from remote main $REMOTE_MAIN_COMMIT."
+            exit 1
+          fi
+
+          {
+            echo "published_commit=$VERIFIED_COMMIT"
+            echo "remote_main_commit=$REMOTE_MAIN_COMMIT"
+            echo "commit_verified=true"
+          } >> "$GITHUB_OUTPUT"
 
       - name: Validate generated public artifacts
         timeout-minutes: 5
@@ -152,12 +356,282 @@ jobs:
           NEW_PHYSICAL_SOURCES: ${{ steps.ingestion.outputs.new_physical_sources }}
           DAILY_NEW_PHYSICAL_SOURCES: ${{ steps.ingestion.outputs.daily_new_physical_sources }}
           DAILY_SOURCE_HEALTH: ${{ steps.ingestion.outputs.daily_source_health }}
-          PUBLISHED_COMMIT: ${{ steps.ingestion.outputs.published_commit }}
+          PUBLISHED_COMMIT: ${{ steps.verify_publication.outputs.published_commit }}
         run: node scripts/lib/autonomous-ingestion-receipt-policy.mjs
+
+      - name: Recover exact publication commit
+        id: recover_publication
+        if: always()
+        env:
+          VERIFIED_PUBLISHED_COMMIT: ${{ steps.verify_publication.outputs.published_commit }}
+          RUNNER_PUBLISHED_COMMIT: ${{ steps.ingestion.outputs.published_commit }}
+          RUNNER_STATUS: ${{ steps.ingestion.outputs.runner_status }}
+          RUNNER_PUBLICATION_STATUS: ${{ steps.ingestion.outputs.publication_status }}
+          SLOT_KEY: ${{ needs.resolve.outputs.slot_key }}
+          SOURCE_SHA: ${{ needs.resolve.outputs.source_sha }}
+          SCHEDULE_TRIGGER: ${{ needs.resolve.outputs.trigger }}
+          SCHEDULED_AT: ${{ needs.resolve.outputs.scheduled_at }}
+          WORKFLOW_RUN_ID: ${{ github.run_id }}
+          WORKFLOW_RUN_ATTEMPT: ${{ github.run_attempt }}
+        run: |
+          set -euo pipefail
+          RECEIPT_PATH="outputs/ingestion-source-delta-current.json"
+          REPLAY_MODE="false"
+          if [ "${RUNNER_STATUS:-}" = "already_completed" ] || [ "${RUNNER_PUBLICATION_STATUS:-}" = "already_completed" ]; then
+            if [ "${RUNNER_STATUS:-}" != "already_completed" ] || [ "${RUNNER_PUBLICATION_STATUS:-}" != "already_completed" ]; then
+              echo "::error title=Publication recovery failed::An idempotent replay requires consistent already_completed runner and publication statuses."
+              exit 1
+            fi
+            REPLAY_MODE="true"
+          fi
+          VALIDATION_CANDIDATE=""
+          for candidate in "$VERIFIED_PUBLISHED_COMMIT" "$RUNNER_PUBLISHED_COMMIT"; do
+            if [[ "$candidate" =~ ^[0-9a-fA-F]{40}$ ]]; then
+              VALIDATION_CANDIDATE="$(printf '%s' "$candidate" | tr '[:upper:]' '[:lower:]')"
+              break
+            fi
+          done
+          {
+            echo "published_commit="
+            echo "validation_candidate=$VALIDATION_CANDIDATE"
+            echo "remote_main_commit="
+            echo "commit_verified=false"
+            echo "recovery_method=none"
+            echo "publication_source_sha="
+            echo "publication_trigger="
+            echo "publication_scheduled_at="
+          } >> "$GITHUB_OUTPUT"
+          git config --local --unset-all http.https://github.com/.extraheader || true
+          if [[ ! "$SOURCE_SHA" =~ ^[0-9a-fA-F]{40}$ ]] || [ -z "$SLOT_KEY" ]; then
+            echo "::error title=Publication recovery failed::Accepted publication recovery requires exact source SHA and slot key bindings."
+            exit 1
+          fi
+
+          fetch_main_with_retry() {
+            local delay_seconds="${PUBLICATION_FETCH_RETRY_DELAY_SECONDS:-2}"
+            local attempt
+            for attempt in 1 2 3 4; do
+              if git fetch --no-tags origin +refs/heads/main:refs/remotes/origin/main; then return 0; fi
+              if [ "$attempt" -lt 4 ]; then
+                echo "::warning title=Publication recovery retry::Unauthenticated main fetch attempt $attempt failed."
+                sleep "$delay_seconds"
+                delay_seconds=$((delay_seconds * 2))
+              fi
+            done
+            echo "::error title=Publication recovery failed::Unable to refresh origin/main after four bounded attempts."
+            return 1
+          }
+          fetch_main_with_retry
+          REMOTE_MAIN_COMMIT="$(git rev-parse refs/remotes/origin/main)"
+          echo "remote_main_commit=$REMOTE_MAIN_COMMIT" >> "$GITHUB_OUTPUT"
+          if ! git merge-base --is-ancestor "$SOURCE_SHA" refs/remotes/origin/main; then
+            echo "::error title=Publication recovery failed::Source commit $SOURCE_SHA is not reachable from remote main $REMOTE_MAIN_COMMIT."
+            exit 1
+          fi
+
+          verify_candidate() {
+            local value="$1"
+            local commit trailer_block trailer_metadata receipt_metadata receipt_trailer_sha actual_receipt_sha
+            local candidate_source_sha candidate_run_id candidate_run_attempt
+            local candidate_trigger candidate_scheduled_at
+            [[ "$value" =~ ^[0-9a-fA-F]{40}$ ]] || return 1
+            commit="$(git rev-parse "${value}^{commit}" 2>/dev/null)" || return 1
+            if [ "$REPLAY_MODE" = "true" ]; then
+              if ! git merge-base --is-ancestor "$commit" "$SOURCE_SHA" &&
+                ! git merge-base --is-ancestor "$SOURCE_SHA" "$commit"; then
+                return 1
+              fi
+            else
+              git merge-base --is-ancestor "$SOURCE_SHA" "$commit" || return 1
+            fi
+            git merge-base --is-ancestor "$commit" refs/remotes/origin/main || return 1
+            trailer_block="$(git show -s --format=%B "$commit" | git interpret-trailers --parse)"
+            trailer_metadata="$(TRAILER_BLOCK="$trailer_block" \
+              EXPECTED_SLOT_KEY="$SLOT_KEY" \
+              EXPECTED_SOURCE_SHA="$SOURCE_SHA" \
+              EXPECTED_RUN_ID="$WORKFLOW_RUN_ID" \
+              EXPECTED_RUN_ATTEMPT="$WORKFLOW_RUN_ATTEMPT" \
+              REPLAY_MODE="$REPLAY_MODE" \
+              node --input-type=module <<'NODE'
+            import assert from "node:assert/strict";
+            const requiredKeys = [
+              "Returner-Slot-Key",
+              "Returner-Source-SHA",
+              "Returner-Run-ID",
+              "Returner-Run-Attempt",
+              "Returner-Receipt-SHA256"
+            ];
+            const values = new Map();
+            for (const line of (process.env.TRAILER_BLOCK ?? "").split(/\r?\n/).filter(Boolean)) {
+              const match = /^(Returner-(?:Slot-Key|Source-SHA|Run-ID|Run-Attempt|Receipt-SHA256)): (.+)$/.exec(line);
+              if (!match) continue;
+              values.set(match[1], [...(values.get(match[1]) ?? []), match[2]]);
+            }
+            for (const key of requiredKeys) assert.equal(values.get(key)?.length, 1, `${key} must occur exactly once`);
+            assert.equal(values.get("Returner-Slot-Key")[0], process.env.EXPECTED_SLOT_KEY);
+            const candidateSourceSha = values.get("Returner-Source-SHA")[0];
+            const runId = values.get("Returner-Run-ID")[0];
+            const runAttempt = values.get("Returner-Run-Attempt")[0];
+            const receiptHash = values.get("Returner-Receipt-SHA256")[0];
+            assert.match(candidateSourceSha, /^[0-9a-f]{40}$/, "Returner-Source-SHA must be a lowercase full commit SHA");
+            assert.match(runId, /^[1-9][0-9]*$/, "Returner-Run-ID must be a positive decimal integer");
+            assert.match(runAttempt, /^[1-9][0-9]*$/, "Returner-Run-Attempt must be a positive decimal integer");
+            assert.match(receiptHash, /^[0-9a-f]{64}$/, "Returner-Receipt-SHA256 must be lowercase SHA-256");
+            if (process.env.REPLAY_MODE !== "true") {
+              assert.equal(candidateSourceSha, process.env.EXPECTED_SOURCE_SHA);
+              assert.equal(runId, process.env.EXPECTED_RUN_ID);
+              assert.equal(runAttempt, process.env.EXPECTED_RUN_ATTEMPT);
+            }
+            process.stdout.write(`${candidateSourceSha}\t${runId}\t${runAttempt}\t${receiptHash}`);
+          NODE
+            )" || return 1
+            IFS=$'\t' read -r candidate_source_sha candidate_run_id candidate_run_attempt receipt_trailer_sha <<< "$trailer_metadata"
+            [ -n "$candidate_source_sha" ] && [ -n "$candidate_run_id" ] && [ -n "$candidate_run_attempt" ] && [ -n "$receipt_trailer_sha" ] || return 1
+            git merge-base --is-ancestor "$candidate_source_sha" "$commit" || return 1
+            git merge-base --is-ancestor "$candidate_source_sha" "$SOURCE_SHA" || return 1
+            actual_receipt_sha="$(node --input-type=module 3< <(git show "$commit:$RECEIPT_PATH") <<'NODE'
+            import { createHash } from "node:crypto";
+            import { readFileSync } from "node:fs";
+            process.stdout.write(createHash("sha256").update(readFileSync(3)).digest("hex"));
+          NODE
+            )" || return 1
+            [ "$actual_receipt_sha" = "$receipt_trailer_sha" ] || return 1
+            receipt_metadata="$(EXPECTED_SLOT_KEY="$SLOT_KEY" \
+              EXPECTED_TRIGGER="$SCHEDULE_TRIGGER" \
+              EXPECTED_SCHEDULED_AT="$SCHEDULED_AT" \
+              REPLAY_MODE="$REPLAY_MODE" \
+              node --input-type=module 3< <(git show "$commit:$RECEIPT_PATH") <<'NODE'
+            import assert from "node:assert/strict";
+            import { readFileSync } from "node:fs";
+            const receipt = JSON.parse(readFileSync(3, "utf8"));
+            assert.equal(receipt.schemaVersion, 1);
+            assert.equal(receipt.idempotencyKey, process.env.EXPECTED_SLOT_KEY);
+            const strictUtcRfc3339 = (input) => {
+              if (typeof input !== "string") return null;
+              const match = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.\d{1,9})?Z$/.exec(input);
+              if (!match) return null;
+              const [, year, month, day, hour, minute, second] = match.map(Number);
+              const instant = new Date(0);
+              instant.setUTCFullYear(year, month - 1, day);
+              instant.setUTCHours(hour, minute, second, 0);
+              return instant.getUTCFullYear() === year && instant.getUTCMonth() === month - 1 &&
+                instant.getUTCDate() === day && instant.getUTCHours() === hour &&
+                instant.getUTCMinutes() === minute && instant.getUTCSeconds() === second
+                ? new Date(input)
+                : null;
+            };
+            const chicagoParts = (instant) => Object.fromEntries(new Intl.DateTimeFormat("en-US", {
+              timeZone: "America/Chicago", calendar: "gregory", numberingSystem: "latn",
+              year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit",
+              minute: "2-digit", second: "2-digit", hourCycle: "h23"
+            }).formatToParts(instant).filter(({ type }) => type !== "literal").map(({ type, value }) => [type, value]));
+            assert.ok(receipt.trigger === "schedule" || receipt.trigger === "manual-replay");
+            if (receipt.trigger === "schedule") {
+              const scheduled = strictUtcRfc3339(receipt.scheduledAt);
+              assert.ok(scheduled, "scheduled receipt requires strict scheduledAt");
+              const parts = chicagoParts(scheduled);
+              assert.equal(parts.second, "00");
+              assert.ok(parts.hour === "06" || parts.hour === "18");
+              assert.equal(receipt.idempotencyKey, `central-${parts.year}-${parts.month}-${parts.day}-${parts.hour}${parts.minute}`);
+            } else {
+              assert.equal(receipt.scheduledAt, null, "manual replay receipt must not claim scheduledAt");
+            }
+            if (process.env.REPLAY_MODE !== "true") {
+              assert.equal(receipt.trigger, process.env.EXPECTED_TRIGGER);
+              assert.equal(
+                receipt.scheduledAt,
+                process.env.EXPECTED_TRIGGER === "schedule" ? process.env.EXPECTED_SCHEDULED_AT : null
+              );
+            }
+            process.stdout.write(`${receipt.trigger}\t${receipt.scheduledAt ?? ""}`);
+          NODE
+            )" || return 1
+            IFS=$'\t' read -r candidate_trigger candidate_scheduled_at <<< "$receipt_metadata"
+            [ -n "$candidate_trigger" ] || return 1
+            printf '%s\t%s\t%s\t%s\t%s\t%s\n' \
+              "$commit" "$candidate_source_sha" "$candidate_run_id" "$candidate_run_attempt" \
+              "$candidate_trigger" "$candidate_scheduled_at"
+          }
+
+          RECOVERED_COMMIT=""
+          RECOVERED_SOURCE_SHA=""
+          RECOVERED_RUN_ID=""
+          RECOVERED_RUN_ATTEMPT=""
+          RECOVERED_TRIGGER=""
+          RECOVERED_SCHEDULED_AT=""
+          RECOVERY_METHOD="none"
+          if [ "$REPLAY_MODE" = "true" ]; then
+            # A manual replay may be dispatched at an older main SHA while a
+            # valid publication for the same slot lands afterward. Search the
+            # complete remote-main history, then require exact receipt/trailer
+            # provenance and a source SHA related to the dispatch commit.
+            CANDIDATE_REVISION="refs/remotes/origin/main"
+          else
+            CANDIDATE_REVISION="$SOURCE_SHA..refs/remotes/origin/main"
+          fi
+          MATCHES=()
+          while IFS= read -r candidate; do
+            if verified="$(verify_candidate "$candidate" 2>/dev/null)"; then
+              MATCHES+=("$verified")
+            fi
+          done < <(git rev-list "$CANDIDATE_REVISION")
+          if [ "${#MATCHES[@]}" -eq 1 ]; then
+            IFS=$'\t' read -r \
+              RECOVERED_COMMIT RECOVERED_SOURCE_SHA RECOVERED_RUN_ID RECOVERED_RUN_ATTEMPT \
+              RECOVERED_TRIGGER RECOVERED_SCHEDULED_AT <<< "${MATCHES[0]}"
+          elif [ "${#MATCHES[@]}" -gt 1 ]; then
+            echo "::error title=Publication recovery ambiguous::Multiple remote-main commits have valid immutable provenance for this slot."
+            exit 1
+          fi
+
+          if [ -z "$RECOVERED_COMMIT" ] || [ -z "$RECOVERED_SOURCE_SHA" ] || [ -z "$RECOVERED_RUN_ID" ] || [ -z "$RECOVERED_RUN_ATTEMPT" ] || [ -z "$RECOVERED_TRIGGER" ]; then
+            echo "::error title=Publication recovery failed::No exact repository-backed publication commit is recoverable for $SLOT_KEY."
+            exit 1
+          fi
+          if [[ "$VERIFIED_PUBLISHED_COMMIT" =~ ^[0-9a-fA-F]{40}$ ]] &&
+            [ "$(git rev-parse "${VERIFIED_PUBLISHED_COMMIT}^{commit}" 2>/dev/null || true)" = "$RECOVERED_COMMIT" ]; then
+            RECOVERY_METHOD="verified_output"
+          elif [[ "$RUNNER_PUBLISHED_COMMIT" =~ ^[0-9a-fA-F]{40}$ ]] &&
+            [ "$(git rev-parse "${RUNNER_PUBLISHED_COMMIT}^{commit}" 2>/dev/null || true)" = "$RECOVERED_COMMIT" ]; then
+            RECOVERY_METHOD="runner_output"
+          else
+            RECOVERY_METHOD="trailers"
+          fi
+          {
+            echo "published_commit=$RECOVERED_COMMIT"
+            echo "validation_candidate=$RECOVERED_COMMIT"
+            echo "publication_run_id=$RECOVERED_RUN_ID"
+            echo "publication_run_attempt=$RECOVERED_RUN_ATTEMPT"
+            echo "publication_source_sha=$RECOVERED_SOURCE_SHA"
+            echo "publication_trigger=$RECOVERED_TRIGGER"
+            echo "publication_scheduled_at=$RECOVERED_SCHEDULED_AT"
+            echo "remote_main_commit=$REMOTE_MAIN_COMMIT"
+            echo "commit_verified=true"
+            echo "recovery_method=$RECOVERY_METHOD"
+          } >> "$GITHUB_OUTPUT"
+
+  validate_publication:
+    name: Validate published commit ${{ needs.ingest.outputs.published_commit }}
+    needs: [resolve, ingest]
+    if: ${{ always() && needs.resolve.outputs.should_run == 'true' }}
+    permissions:
+      contents: read
+    uses: ./.github/workflows/public-artifacts.yml
+    with:
+      target_sha: ${{ needs.ingest.outputs.validation_candidate || needs.resolve.outputs.source_sha }}
+      policy_source_sha: ${{ needs.resolve.outputs.source_sha }}
+      publication_kind: autonomous-ingestion
+      publication_receipt_path: outputs/ingestion-source-delta-current.json
+      publication_source_sha: ${{ needs.ingest.outputs.publication_source_sha || needs.resolve.outputs.source_sha }}
+      publication_slot_key: ${{ needs.resolve.outputs.slot_key }}
+      publication_run_id: ${{ needs.ingest.outputs.publication_run_id || github.run_id }}
+      publication_run_attempt: ${{ needs.ingest.outputs.publication_run_attempt || github.run_attempt }}
+      publication_trigger: ${{ needs.ingest.outputs.publication_trigger || needs.resolve.outputs.trigger }}
+      publication_scheduled_at: ${{ needs.ingest.outputs.publication_scheduled_at || needs.resolve.outputs.scheduled_at }}
 
   receipt:
     name: Audit refresh outcome
-    needs: [resolve, ingest]
+    needs: [resolve, ingest, validate_publication]
     if: always()
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -169,9 +643,16 @@ jobs:
           SLOT_KEY: ${{ needs.resolve.outputs.slot_key }}
           RESOLVE_RESULT: ${{ needs.resolve.result }}
           INGEST_RESULT: ${{ needs.ingest.result }}
+          VALIDATION_RESULT: ${{ needs.validate_publication.result }}
           RECEIPT_STATUS: ${{ needs.ingest.outputs.receipt_status }}
           RECEIPT_CONCLUSION: ${{ needs.ingest.outputs.receipt_conclusion }}
           PUBLISHED_COMMIT: ${{ needs.ingest.outputs.published_commit }}
+          COMMIT_REPOSITORY_VERIFIED: ${{ needs.ingest.outputs.commit_verified }}
+          RECOVERY_METHOD: ${{ needs.ingest.outputs.recovery_method }}
+          REMOTE_MAIN_COMMIT: ${{ needs.ingest.outputs.remote_main_commit }}
+          TRIGGER_SHA: ${{ github.sha }}
+          SOURCE_SHA: ${{ needs.resolve.outputs.source_sha }}
+          EXECUTED_SHA: ${{ needs.ingest.outputs.executed_sha }}
         run: |
           RECEIPT_RECOGNIZED=false
           case "$RECEIPT_CONCLUSION:$RECEIPT_STATUS" in
@@ -186,9 +667,11 @@ jobs:
 
           if [ "$RESOLVE_RESULT" != "success" ]; then
             STATUS="resolver_failed"
-          elif [ "$SHOULD_RUN" != "true" ]; then
+          elif [ "$SHOULD_RUN" = "false" ]; then
             STATUS="inactive_candidate_no_refresh"
-          elif [ "$INGEST_RESULT" = "success" ] && [ "$RECEIPT_RECOGNIZED" = "true" ] && [ "$COMMIT_PROOF_VALID" = "true" ]; then
+          elif [ "$SHOULD_RUN" != "true" ] || [ -z "$SLOT_KEY" ]; then
+            STATUS="resolver_failed"
+          elif [ "$INGEST_RESULT" = "success" ] && [ "$VALIDATION_RESULT" = "success" ] && [ "$RECEIPT_RECOGNIZED" = "true" ] && [ "$COMMIT_PROOF_VALID" = "true" ] && [ "$COMMIT_REPOSITORY_VERIFIED" = "true" ]; then
             STATUS="$RECEIPT_STATUS"
           else
             STATUS="accepted_slot_failed"
@@ -199,9 +682,15 @@ jobs:
             echo "- Slot: ${SLOT_KEY:-none}"
             echo "- Resolver result: $RESOLVE_RESULT"
             echo "- Ingestion result: $INGEST_RESULT"
+            echo "- Public validation result: $VALIDATION_RESULT"
             echo "- Receipt recognized: $RECEIPT_RECOGNIZED"
             echo "- Receipt conclusion: ${RECEIPT_CONCLUSION:-none}"
             echo "- Commit proof valid: $COMMIT_PROOF_VALID"
+            echo "- Commit repository verified: ${COMMIT_REPOSITORY_VERIFIED:-false}"
+            echo "- Publication recovery method: ${RECOVERY_METHOD:-none}"
+            echo "- Trigger SHA: ${TRIGGER_SHA:-none}"
+            echo "- Source SHA: ${SOURCE_SHA:-none}"
+            echo "- Executed SHA: ${EXECUTED_SHA:-none}"
             echo "- Published commit: ${PUBLISHED_COMMIT:-none}"
           } >> "$GITHUB_STEP_SUMMARY"
           if [ -n "${GITHUB_OUTPUT:-}" ]; then
@@ -220,16 +709,26 @@ jobs:
           fi
           echo "::notice title=Autonomous ingestion outcome::$STATUS for ${SLOT_KEY:-inactive candidate}"
 
-      - name: Materialize failed-run receipt
-        if: ${{ always() && steps.audit_outcome.outcome != 'success' }}
+      - name: Materialize autonomous ingestion receipt
+        if: always()
         env:
           AUDIT_STATUS: ${{ steps.audit_outcome.outputs.status }}
           SHOULD_RUN: ${{ needs.resolve.outputs.should_run }}
           SLOT_KEY: ${{ needs.resolve.outputs.slot_key }}
+          SCHEDULE_TRIGGER: ${{ needs.resolve.outputs.trigger }}
+          SCHEDULE_REASON: ${{ needs.resolve.outputs.reason }}
+          SCHEDULED_AT: ${{ needs.resolve.outputs.scheduled_at }}
           RESOLVE_RESULT: ${{ needs.resolve.result }}
           INGEST_RESULT: ${{ needs.ingest.result }}
+          VALIDATION_RESULT: ${{ needs.validate_publication.result }}
           RUNNER_STATUS: ${{ needs.ingest.outputs.runner_status }}
           RUNNER_FAILURE_MESSAGE: ${{ needs.ingest.outputs.runner_failure_message }}
+          PUBLICATION_STATUS: ${{ needs.ingest.outputs.publication_status }}
+          COLLECTION_HEALTH: ${{ needs.ingest.outputs.collection_health }}
+          COLLECTION_HEALTH_REASONS: ${{ needs.ingest.outputs.collection_health_reasons }}
+          NEW_PHYSICAL_SOURCES: ${{ needs.ingest.outputs.new_physical_sources }}
+          DAILY_NEW_PHYSICAL_SOURCES: ${{ needs.ingest.outputs.daily_new_physical_sources }}
+          DAILY_SOURCE_HEALTH: ${{ needs.ingest.outputs.daily_source_health }}
           PROVIDER_BLOCKED: ${{ needs.ingest.outputs.provider_blocked }}
           PROVIDER_BLOCKED_BY_REASON: ${{ needs.ingest.outputs.provider_blocked_by_reason }}
           MAPPED_PROVIDER_BLOCKED: ${{ needs.ingest.outputs.mapped_provider_blocked }}
@@ -243,17 +742,29 @@ jobs:
           RECEIPT_CONCLUSION: ${{ needs.ingest.outputs.receipt_conclusion }}
           RECEIPT_RECOGNIZED: ${{ steps.audit_outcome.outputs.receipt_recognized }}
           COMMIT_PROOF_VALID: ${{ steps.audit_outcome.outputs.commit_proof_valid }}
+          COMMIT_REPOSITORY_VERIFIED: ${{ needs.ingest.outputs.commit_verified }}
+          RECOVERY_METHOD: ${{ needs.ingest.outputs.recovery_method }}
+          REMOTE_MAIN_COMMIT: ${{ needs.ingest.outputs.remote_main_commit }}
           PUBLISHED_COMMIT: ${{ needs.ingest.outputs.published_commit }}
           RUNNER_PUBLISHED_COMMIT: ${{ needs.ingest.outputs.runner_published_commit }}
           RUN_ID: ${{ github.run_id }}
           RUN_ATTEMPT: ${{ github.run_attempt }}
           TRIGGER_SHA: ${{ github.sha }}
+          SOURCE_SHA: ${{ needs.resolve.outputs.source_sha }}
           EXECUTED_SHA: ${{ needs.ingest.outputs.executed_sha }}
+          EVENT_NAME: ${{ github.event_name }}
+          WORKFLOW_NAME: ${{ github.workflow }}
+          REPOSITORY: ${{ github.repository }}
+          ACTOR: ${{ github.actor }}
+          REF: ${{ github.ref }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
           node --input-type=module <<'NODE'
           import { mkdir, writeFile } from "node:fs/promises";
           import { join } from "node:path";
 
+          const optional = (value) => String(value ?? "").trim() || null;
+          const booleanOrNull = (value) => value === "true" ? true : value === "false" ? false : null;
           const integerOrNull = (value) => /^\d+$/.test(String(value ?? "")) ? Number(value) : null;
           const countMap = (value) => {
             try {
@@ -263,16 +774,31 @@ jobs:
               return {};
             }
           };
-          const directory = join(process.env.RUNNER_TEMP, "autonomous-ingestion-diagnostics");
+          const fallbackStatus = process.env.RESOLVE_RESULT !== "success"
+            ? "resolver_failed"
+            : process.env.SHOULD_RUN === "false"
+              ? "inactive_candidate_no_refresh"
+              : "accepted_slot_failed";
+          const directory = join(process.env.RUNNER_TEMP, "autonomous-ingestion-receipt");
           const receipt = {
             schemaVersion: 1,
-            status: process.env.AUDIT_STATUS || "accepted_slot_failed",
-            slotKey: process.env.SLOT_KEY || null,
-            shouldRun: process.env.SHOULD_RUN === "true",
-            resolveResult: process.env.RESOLVE_RESULT || null,
-            ingestResult: process.env.INGEST_RESULT || null,
-            runnerStatus: process.env.RUNNER_STATUS || null,
-            runnerFailureMessage: process.env.RUNNER_FAILURE_MESSAGE || null,
+            status: optional(process.env.AUDIT_STATUS) ?? fallbackStatus,
+            slotKey: optional(process.env.SLOT_KEY),
+            shouldRun: booleanOrNull(process.env.SHOULD_RUN),
+            trigger: optional(process.env.SCHEDULE_TRIGGER),
+            reason: optional(process.env.SCHEDULE_REASON),
+            scheduledAt: optional(process.env.SCHEDULED_AT),
+            resolveResult: optional(process.env.RESOLVE_RESULT),
+            ingestResult: optional(process.env.INGEST_RESULT),
+            validationResult: optional(process.env.VALIDATION_RESULT),
+            runnerStatus: optional(process.env.RUNNER_STATUS),
+            runnerFailureMessage: optional(process.env.RUNNER_FAILURE_MESSAGE),
+            publicationStatus: optional(process.env.PUBLICATION_STATUS),
+            collectionHealth: optional(process.env.COLLECTION_HEALTH),
+            collectionHealthReasons: optional(process.env.COLLECTION_HEALTH_REASONS),
+            newPhysicalSources: integerOrNull(process.env.NEW_PHYSICAL_SOURCES),
+            dailyNewPhysicalSources: integerOrNull(process.env.DAILY_NEW_PHYSICAL_SOURCES),
+            dailySourceHealth: optional(process.env.DAILY_SOURCE_HEALTH),
             providerBlocked: integerOrNull(process.env.PROVIDER_BLOCKED),
             providerBlockedByReason: countMap(process.env.PROVIDER_BLOCKED_BY_REASON),
             mappedProviderBlocked: integerOrNull(process.env.MAPPED_PROVIDER_BLOCKED),
@@ -286,23 +812,218 @@ jobs:
             receiptConclusion: process.env.RECEIPT_CONCLUSION || null,
             receiptRecognized: process.env.RECEIPT_RECOGNIZED === "true",
             commitProofValid: process.env.COMMIT_PROOF_VALID === "true",
-            publishedCommit: process.env.PUBLISHED_COMMIT || process.env.RUNNER_PUBLISHED_COMMIT || null,
+            commitRepositoryVerified: process.env.COMMIT_REPOSITORY_VERIFIED === "true",
+            recoveryMethod: optional(process.env.RECOVERY_METHOD),
+            remoteMainCommit: optional(process.env.REMOTE_MAIN_COMMIT),
+            publishedCommit: optional(process.env.PUBLISHED_COMMIT),
+            runnerPublishedCommit: optional(process.env.RUNNER_PUBLISHED_COMMIT),
             runId: process.env.RUN_ID,
             runAttempt: process.env.RUN_ATTEMPT,
             headSha: process.env.TRIGGER_SHA,
             triggerSha: process.env.TRIGGER_SHA,
-            executedSha: process.env.EXECUTED_SHA || null,
+            sourceSha: optional(process.env.SOURCE_SHA),
+            executedSha: optional(process.env.EXECUTED_SHA),
+            run: {
+              id: optional(process.env.RUN_ID),
+              attempt: optional(process.env.RUN_ATTEMPT),
+              eventName: optional(process.env.EVENT_NAME),
+              workflow: optional(process.env.WORKFLOW_NAME),
+              repository: optional(process.env.REPOSITORY),
+              actor: optional(process.env.ACTOR),
+              ref: optional(process.env.REF),
+              url: optional(process.env.RUN_URL)
+            },
             generatedAt: new Date().toISOString()
           };
           await mkdir(directory, { recursive: true });
-          await writeFile(join(directory, "failure-receipt.json"), `${JSON.stringify(receipt, null, 2)}\n`);
+          await writeFile(join(directory, "receipt.json"), `${JSON.stringify(receipt, null, 2)}\n`);
           NODE
 
-      - name: Upload failed-run receipt
-        if: ${{ always() && steps.audit_outcome.outcome != 'success' }}
+      - name: Audit machine-readable autonomous ingestion receipt
+        if: always()
+        env:
+          EXPECTED_TRIGGER_SHA: ${{ github.sha }}
+          EXPECTED_RUN_ID: ${{ github.run_id }}
+          EXPECTED_RUN_ATTEMPT: ${{ github.run_attempt }}
+        run: |
+          node --input-type=module <<'NODE'
+          import assert from "node:assert/strict";
+          import { readFile } from "node:fs/promises";
+          import { join } from "node:path";
+
+          const receiptPath = join(process.env.RUNNER_TEMP, "autonomous-ingestion-receipt", "receipt.json");
+          const receipt = JSON.parse(await readFile(receiptPath, "utf8"));
+          const exactSha = (value) => typeof value === "string" && /^[0-9a-f]{40}$/i.test(value);
+          const nullableExactSha = (value) => value === null || exactSha(value);
+          const nullableNonnegativeInteger = (value) => value === null || (Number.isInteger(value) && value >= 0);
+          const validSlotKey = (value) => typeof value === "string" && /^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/.test(value);
+          const strictUtcRfc3339 = (value) => {
+            if (typeof value !== "string") return false;
+            const match = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.\d{1,9})?Z$/.exec(value);
+            if (!match) return false;
+            const [, year, month, day, hour, minute, second] = match.map(Number);
+            const instant = new Date(0);
+            instant.setUTCFullYear(year, month - 1, day);
+            instant.setUTCHours(hour, minute, second, 0);
+            return instant.getUTCFullYear() === year &&
+              instant.getUTCMonth() === month - 1 &&
+              instant.getUTCDate() === day &&
+              instant.getUTCHours() === hour &&
+              instant.getUTCMinutes() === minute &&
+              instant.getUTCSeconds() === second;
+          };
+          const resultValues = new Set(["success", "failure", "cancelled", "skipped"]);
+          const successfulStatuses = new Set(["published", "noop_completed"]);
+          const warningStatuses = new Set([
+            "published_degraded",
+            "published_no_new_sources",
+            "published_stale_day",
+            "no_changes",
+            "no_changes_stale_day",
+            "noop_degraded",
+            "noop_no_new_sources",
+            "noop_stale_day"
+          ]);
+          const statusValues = new Set([
+            ...successfulStatuses,
+            ...warningStatuses,
+            "inactive_candidate_no_refresh",
+            "resolver_failed",
+            "accepted_slot_failed"
+          ]);
+
+          assert.equal(receipt?.schemaVersion, 1, "receipt schemaVersion must be 1");
+          assert.ok(statusValues.has(receipt.status), "receipt status is not recognized");
+          assert.ok(typeof receipt.shouldRun === "boolean" || receipt.shouldRun === null);
+          for (const field of ["resolveResult", "ingestResult", "validationResult"]) {
+            assert.ok(resultValues.has(receipt[field]), `${field} is not a workflow result`);
+          }
+          for (const field of [
+            "triggerSha",
+            "headSha",
+            "sourceSha",
+            "executedSha",
+            "publishedCommit",
+            "runnerPublishedCommit",
+            "remoteMainCommit"
+          ]) assert.ok(nullableExactSha(receipt[field]), `${field} must be null or a full commit SHA`);
+          assert.equal(receipt.triggerSha, process.env.EXPECTED_TRIGGER_SHA);
+          assert.equal(receipt.headSha, receipt.triggerSha);
+          assert.equal(typeof receipt.receiptRecognized, "boolean");
+          assert.equal(typeof receipt.commitProofValid, "boolean");
+          assert.equal(typeof receipt.commitRepositoryVerified, "boolean");
+          assert.ok(receipt.recoveryMethod === null || ["verified_output", "runner_output", "trailers"].includes(receipt.recoveryMethod));
+          for (const field of [
+            "providerBlocked",
+            "mappedProviderBlocked",
+            "mappedScopeUnsupported",
+            "mappedExpected",
+            "mappedFailed",
+            "mappedNonterminal",
+            "terminalFailureBudget",
+            "newPhysicalSources",
+            "dailyNewPhysicalSources"
+          ]) assert.ok(nullableNonnegativeInteger(receipt[field]), `${field} must be null or a nonnegative integer`);
+          for (const field of ["providerBlockedByReason", "mappedProviderBlockedByReason"]) {
+            assert.ok(receipt[field] && typeof receipt[field] === "object" && !Array.isArray(receipt[field]));
+            for (const value of Object.values(receipt[field])) assert.ok(Number.isInteger(value) && value >= 0);
+          }
+          assert.equal(receipt.run?.id, process.env.EXPECTED_RUN_ID);
+          assert.equal(receipt.run?.attempt, process.env.EXPECTED_RUN_ATTEMPT);
+          for (const field of ["eventName", "workflow", "repository", "actor", "ref", "url"]) {
+            assert.equal(typeof receipt.run?.[field], "string", `run.${field} must be present`);
+            assert.ok(receipt.run[field].length > 0, `run.${field} must be nonempty`);
+          }
+          assert.ok(Number.isFinite(Date.parse(receipt.generatedAt)), "generatedAt must be an ISO timestamp");
+
+          if (receipt.resolveResult === "success") {
+            assert.ok(exactSha(receipt.sourceSha), "successful resolver requires sourceSha");
+            assert.equal(receipt.sourceSha, receipt.triggerSha, "sourceSha must bind to triggerSha");
+            assert.equal(typeof receipt.trigger, "string", "successful resolver requires trigger");
+            assert.ok(receipt.trigger.length > 0, "successful resolver trigger must be nonempty");
+          }
+          if (receipt.resolveResult === "success" && receipt.shouldRun === true) {
+            if (receipt.trigger === "manual-replay") {
+              assert.equal(receipt.run.eventName, "workflow_dispatch", "manual replay must bind to workflow_dispatch");
+              assert.equal(receipt.scheduledAt, null, "manual replay must not claim scheduledAt");
+            } else {
+              assert.equal(receipt.trigger, "schedule", "accepted resolver trigger is not recognized");
+              assert.equal(receipt.run.eventName, "schedule", "scheduled receipt must bind to schedule event");
+              assert.ok(strictUtcRfc3339(receipt.scheduledAt), "scheduled receipt requires valid scheduledAt");
+              const scheduled = new Date(receipt.scheduledAt);
+              const parts = Object.fromEntries(new Intl.DateTimeFormat("en-US", {
+                timeZone: "America/Chicago",
+                calendar: "gregory",
+                numberingSystem: "latn",
+                year: "numeric",
+                month: "2-digit",
+                day: "2-digit",
+                hour: "2-digit",
+                minute: "2-digit",
+                second: "2-digit",
+                hourCycle: "h23"
+              }).formatToParts(scheduled).filter(({ type }) => type !== "literal").map(({ type, value }) => [type, value]));
+              assert.equal(parts.second, "00");
+              assert.ok(parts.hour === "06" || parts.hour === "18", "scheduled receipt is not a Central slot");
+              assert.equal(receipt.slotKey, `central-${parts.year}-${parts.month}-${parts.day}-${parts.hour}${parts.minute}`);
+            }
+          }
+          if (receipt.commitRepositoryVerified) {
+            assert.ok(exactSha(receipt.publishedCommit), "verified publication requires publishedCommit");
+            assert.ok(exactSha(receipt.remoteMainCommit), "verified publication requires remoteMainCommit");
+            assert.equal(receipt.commitProofValid, true);
+            assert.ok(receipt.recoveryMethod, "verified publication requires recoveryMethod");
+          }
+
+          if (successfulStatuses.has(receipt.status) || warningStatuses.has(receipt.status)) {
+            assert.equal(receipt.shouldRun, true);
+            assert.equal(receipt.resolveResult, "success");
+            assert.equal(receipt.ingestResult, "success");
+            assert.equal(receipt.validationResult, "success");
+            assert.equal(receipt.receiptStatus, receipt.status);
+            assert.equal(receipt.receiptConclusion, successfulStatuses.has(receipt.status) ? "success" : "warning");
+            assert.equal(receipt.receiptRecognized, true);
+            assert.equal(receipt.commitRepositoryVerified, true);
+            assert.ok(exactSha(receipt.executedSha));
+            assert.equal(receipt.executedSha, receipt.sourceSha);
+          } else if (receipt.status === "inactive_candidate_no_refresh") {
+            assert.equal(receipt.shouldRun, false);
+            assert.equal(receipt.resolveResult, "success");
+            assert.equal(receipt.ingestResult, "skipped");
+            assert.equal(receipt.validationResult, "skipped");
+            assert.equal(receipt.slotKey, null);
+            assert.equal(receipt.scheduledAt, null);
+            assert.equal(receipt.publishedCommit, null);
+            assert.equal(receipt.commitRepositoryVerified, false);
+          } else if (receipt.status === "accepted_slot_failed") {
+            assert.equal(receipt.shouldRun, true);
+            assert.equal(receipt.resolveResult, "success", "accepted failure requires a successful resolver");
+            assert.ok(validSlotKey(receipt.slotKey), "accepted failure requires a valid slotKey");
+            assert.ok(exactSha(receipt.sourceSha), "accepted failure requires sourceSha");
+            assert.equal(receipt.sourceSha, receipt.triggerSha, "accepted failure sourceSha must bind to triggerSha");
+            assert.equal(typeof receipt.reason, "string", "accepted failure requires a resolver reason");
+            assert.ok(receipt.reason.length > 0, "accepted failure resolver reason must be nonempty");
+            if (receipt.trigger === "schedule") {
+              assert.ok(strictUtcRfc3339(receipt.scheduledAt), "scheduled accepted failure requires scheduledAt");
+            } else if (receipt.scheduledAt !== null) {
+              assert.ok(strictUtcRfc3339(receipt.scheduledAt), "accepted failure scheduledAt must be valid when present");
+            }
+            const publicationInvariantFailed = receipt.ingestResult !== "success" ||
+              receipt.validationResult !== "success" ||
+              receipt.receiptRecognized !== true ||
+              receipt.commitProofValid !== true ||
+              receipt.commitRepositoryVerified !== true;
+            assert.equal(publicationInvariantFailed, true, "accepted failure requires a failed or skipped publication invariant");
+          } else if (receipt.status === "resolver_failed") {
+            assert.notEqual(receipt.resolveResult, "success");
+          }
+          NODE
+
+      - name: Upload autonomous ingestion receipt
+        if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: autonomous-ingestion-failure-${{ github.run_id }}-${{ github.run_attempt }}
-          path: ${{ runner.temp }}/autonomous-ingestion-diagnostics/failure-receipt.json
+          name: autonomous-ingestion-receipt-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/autonomous-ingestion-receipt/receipt.json
           if-no-files-found: error
           retention-days: 14

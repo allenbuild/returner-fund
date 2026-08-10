@@ -8,7 +8,14 @@ import {
   selectPublishedAutonomousIngestionReceipt
 } from "../scripts/lib/autonomous-ingestion-receipt-policy.mjs";
 
-const PUBLISHED_COMMIT = "0123456789abcdef0123456789abcdef01234567";
+const repositoryRoot = path.resolve(import.meta.dirname, "..");
+const headResult = spawnSync("git", ["rev-parse", "HEAD"], {
+  cwd: repositoryRoot,
+  encoding: "utf8"
+});
+assert.equal(headResult.status, 0, `${headResult.stdout}\n${headResult.stderr}`);
+const PUBLISHED_COMMIT = headResult.stdout.trim();
+assert.match(PUBLISHED_COMMIT, /^[0-9a-f]{40}$/);
 const healthyPublication = {
   runnerStatus: "refreshed",
   publicationStatus: "published",

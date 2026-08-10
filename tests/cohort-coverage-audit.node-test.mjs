@@ -52,7 +52,7 @@ describe("cohort-wide structural coverage audit", () => {
         .map((mapping) => mapping.canonicalUrl),
       [
         "https://reddit.com/user/createvalue-dontspam",
-        "https://reddit.com/user/Total_Birthday8070"
+        "https://reddit.com/user/total_birthday8070"
       ]
     );
 
@@ -181,7 +181,7 @@ describe("cohort-wide structural coverage audit", () => {
     assert.equal(report.batches[0].structural.unattemptedOwnerMappings.length, 1);
     assert.equal(
       report.batches[0].structural.unattemptedOwnerMappings[0].canonicalUrl,
-      "https://x.com/shared_owner_alias"
+      "https://x.com/shared_alias"
     );
   });
 
@@ -285,7 +285,7 @@ function multiAccountCohort() {
     },
     overrides: {
       shared: {
-        companySocialLinks: { x: "https://x.com/shared_owner_alias" }
+        companySocialLinks: { x: "https://x.com/shared_alias" }
       }
     }
   });

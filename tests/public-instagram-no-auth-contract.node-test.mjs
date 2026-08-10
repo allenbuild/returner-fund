@@ -75,7 +75,7 @@ test("the public collector passes the anonymous request through without credenti
   );
   const fetchCall = section(
     instagramIngest,
-    "response = await fetch(request.url",
+    "fetchPublicBoundedText(request.url",
     "} catch (error) {"
   );
 
@@ -83,9 +83,11 @@ test("the public collector passes the anonymous request through without credenti
     instagramIngest,
     /const request = instagramPublicProfileRequest\(\{ accountUrl \}\);/
   );
-  assert.match(fetchCall, /\.\.\.request\.options/);
-  assert.match(fetchCall, /signal: controller\.signal/);
-  assert.match(fetchCall, /readBoundedResponseText\(response/);
+  assert.match(fetchCall, /headers: request\.options\.headers/);
+  assert.match(fetchCall, /redirect: "error"/);
+  assert.match(fetchCall, /maxResponseBytes: HISTORICAL_BACKFILL_LIMITS\.maxResponseBytes/);
+  assert.match(fetchCall, /maxDecodedBytes: HISTORICAL_BACKFILL_LIMITS\.maxDecodedBytes/);
+  assert.doesNotMatch(fetchCall, /\bfetch\(request\.url/);
   assert.doesNotMatch(
     fetchCall,
     /\b(?:cookie|authorization|proxy-authorization)\b|credentials\s*:/i
@@ -131,11 +133,13 @@ test("the native feed paginator stays anonymous, bounded, and cursor-limited", (
   assert.match(nativeFeedIngest, /instagramNativeFeedRequest\(\{ accountUrl, maxId \}\)/);
   assert.match(nativeFeedIngest, /instagramNativeFeedMaxPages/);
   assert.match(nativeFeedIngest, /instagramNativeFeedMaxItems/);
-  assert.match(nativeFeedIngest, /readBoundedResponseText/);
+  assert.match(nativeFeedIngest, /fetchPublicBoundedText\(request\.url/);
+  assert.match(nativeFeedIngest, /headers: request\.options\.headers/);
+  assert.match(nativeFeedIngest, /redirect: "error"/);
   assert.match(nativeFeedIngest, /seenCursors\.has\(nextMaxId\)/);
   assert.match(nativeFeedIngest, /partialReceipt/);
   assert.match(nativeFeedIngest, /paginationFailureMessage/);
-  assert.match(nativeFeedIngest, /setTimeout\(\(\) => controller\.abort\(\), 20_000\)/);
+  assert.doesNotMatch(nativeFeedIngest, /\bfetch\(request\.url/);
   assert.doesNotMatch(
     nativeFeedIngest,
     /\b(?:cookie|authorization|proxy-authorization)\b|credentials\s*:/i
@@ -189,6 +193,35 @@ test("exact native-feed fallback survives web profile failure and quarantines no
   assert.match(
     receipt.profileFallbackDiagnostic,
     /Instagram public profile endpoint returned HTTP 400/i
+  );
+});
+
+test("an exhausted exact native feed preserves verified-empty terminal proof", async (context) => {
+  const snapshot = await runMockedTashInstagramCollector(context, { items: [] });
+  const attempt = snapshot.attempts[
+    "instagram:company:company-tash:https://instagram.com/tash.cards"
+  ];
+
+  assert.ok(
+    attempt,
+    `Missing Instagram attempt: ${JSON.stringify(Object.keys(snapshot.attempts))}`
+  );
+  assert.equal(snapshot.evidence.length, 0);
+  assert.equal(snapshot.needsReview.length, 0);
+  assert.equal(snapshot.failures.length, 0);
+  assert.equal(attempt.outcomeStatus, "completed");
+  assert.equal(
+    attempt.outcomeReason,
+    "collector_verified_native_account_empty_public_window"
+  );
+  assert.equal(attempt.coverageReceipt.verified, true);
+  assert.equal(attempt.coverageReceipt.verifiedEmpty, true);
+  assert.equal(attempt.coverageReceipt.sourceExhausted, true);
+  assert.equal(attempt.coverageReceipt.uniqueItemCount, 0);
+  assert.equal(attempt.coverageReceipt.pageCount, 1);
+  assert.equal(
+    attempt.coverageReceipt.outcome,
+    "verified_empty_exact_native_feed"
   );
 });
 
@@ -272,7 +305,7 @@ function assertSafeSourceSnapshot(document, label) {
   );
 }
 
-async function runMockedTashInstagramCollector(context) {
+async function runMockedTashInstagramCollector(context, { items = null } = {}) {
   const directory = await mkdtemp(join(tmpdir(), "returner-public-instagram-contract-"));
   context.after(() => rm(directory, { recursive: true, force: true }));
   const output = join(directory, "public-evidence.json");
@@ -280,7 +313,7 @@ async function runMockedTashInstagramCollector(context) {
   const discoveryAttempts = join(directory, "discovery-attempts.json");
   const sourceDiscoveryPaths = join(directory, "source-discovery-paths.json");
   const preload = join(directory, "mock-fetch.mjs");
-  const items = [
+  const nativeItems = items ?? [
     nativeFeedFixture("PRIMARY", "1", "tash.cards", []),
     nativeFeedFixture("COAUTHOR", "2", "other.author", ["tash.cards"]),
     nativeFeedFixture("SURFACE", "3", "surface.author", ["someone.else"])
@@ -296,10 +329,10 @@ async function runMockedTashInstagramCollector(context) {
 const feed = ${JSON.stringify({
   status: "ok",
   user: { username: "tash.cards" },
-  num_results: items.length,
+  num_results: nativeItems.length,
   more_available: false,
   next_max_id: null,
-  items
+  items: nativeItems
 })};
 globalThis.fetch = async (url) => {
   const value = String(url);

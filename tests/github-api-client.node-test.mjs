@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import {
+  createGitHubRetryAdmission,
   fetchGitHubJsonResponse,
   githubApiFailureReceipt,
   githubCollectorFailureOutcomeReason,
@@ -11,6 +12,13 @@ import {
 import {
   autonomousCollectorRetryableFailures
 } from "../scripts/lib/autonomous-ingestion-plan.mjs";
+
+function immediateRetryAdmission() {
+  return createGitHubRetryAdmission({
+    minimumSpacingMs: 0,
+    jitterMs: 0
+  });
+}
 
 test("GitHub rate-limit exhaustion retains structured retry metadata", async () => {
   const resetSeconds = 1_800_000_010;
@@ -36,7 +44,8 @@ test("GitHub rate-limit exhaustion retains structured retry metadata", async () 
         fetchImplementation,
         sleep: async (ms) => sleeps.push(ms),
         now: () => resetSeconds * 1_000 - 6_000,
-        maxAttempts: 3
+        maxAttempts: 3,
+        retryAdmission: immediateRetryAdmission()
       }
     );
   } catch (error) {
@@ -95,7 +104,8 @@ test("GitHub non-rate HTTP failures retain status and retryability", async () =>
         status: 503,
         statusText: "Unavailable"
       }),
-      sleep: async (ms) => sleeps.push(ms)
+      sleep: async (ms) => sleeps.push(ms),
+      retryAdmission: immediateRetryAdmission()
     }),
     (error) => {
       assert.ok(error instanceof GitHubApiError);
@@ -106,6 +116,62 @@ test("GitHub non-rate HTTP failures retain status and retryability", async () =>
     }
   );
   assert.deepEqual(sleeps, [1_000, 2_000]);
+});
+
+test("concurrent GitHub retries share one serialized jittered admission lane", async () => {
+  let clock = 0;
+  let activeRetries = 0;
+  let maximumActiveRetries = 0;
+  const retryStarts = [];
+  const attempts = new Map();
+  const retryAdmission = createGitHubRetryAdmission({
+    minimumSpacingMs: 100,
+    jitterMs: 40,
+    now: () => clock,
+    random: () => 0.5,
+    sleep: async (ms) => {
+      clock += ms;
+    }
+  });
+  const fetchImplementation = async (url) => {
+    const attempt = (attempts.get(url) ?? 0) + 1;
+    attempts.set(url, attempt);
+    if (attempt === 1) {
+      return new Response(null, { status: 503, statusText: "Unavailable" });
+    }
+    activeRetries += 1;
+    maximumActiveRetries = Math.max(maximumActiveRetries, activeRetries);
+    retryStarts.push(clock);
+    await Promise.resolve();
+    activeRetries -= 1;
+    return new Response(JSON.stringify({ ok: true }), {
+      status: 200,
+      headers: { "content-type": "application/json" }
+    });
+  };
+
+  const results = await Promise.all(
+    Array.from({ length: 8 }, (_, index) =>
+      fetchGitHubJsonResponse(`https://api.github.com/users/retry-${index}`, {
+        fetchImplementation,
+        maxAttempts: 2,
+        retryAdmission,
+        sleep: async () => undefined
+      })
+    )
+  );
+
+  assert.equal(results.length, 8);
+  assert.equal(maximumActiveRetries, 1);
+  assert.equal(retryStarts.length, 8);
+  for (let index = 1; index < retryStarts.length; index += 1) {
+    assert.ok(retryStarts[index] - retryStarts[index - 1] >= 100);
+  }
+  assert.deepEqual(retryAdmission.snapshot(), {
+    active: false,
+    queued: 0,
+    nextAllowedAt: retryStarts.at(-1) + 100
+  });
 });
 
 test("GitHub endpoint identifiers discard query and credential material", () => {

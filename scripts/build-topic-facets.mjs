@@ -1,9 +1,9 @@
 import fs from "node:fs";
-import os from "node:os";
 import path from "node:path";
-import { pathToFileURL } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
-import { createServer } from "vite";
+import { prepareGraphRuntimeEvidence } from "./prepare-graph-runtime-evidence.mjs";
+import { validatedRepositoryDataRoot } from "./lib/validated-repository-data-root.mjs";
 
 const BATCHES = [
   { slug: "S2026", file: "s2026" },
@@ -12,61 +12,30 @@ const BATCHES = [
 ];
 const AUDIENCES = ["off", "yc_partners", "insiders"];
 const SNAPSHOT_VERSION = "2026-08-09-full-corpus-topics";
+const PINNED_CODE_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
-export async function buildExpectedTopicFacetSnapshots({ repoRoot = process.cwd() } = {}) {
-  const absoluteRepoRoot = path.resolve(repoRoot);
-  const runtimeRoot = fs.mkdtempSync(path.join(os.tmpdir(), "returner-topic-facets-runtime-"));
+export async function buildExpectedTopicFacetSnapshots({ repoRoot, dataRoot } = {}) {
+  const absoluteDataRoot = validatedRepositoryDataRoot(
+    dataRoot ?? repoRoot ?? process.env.SCORING_DATA_ROOT ?? process.env.SCORING_ROOT,
+    { fallbackRoot: process.cwd(), label: "topic facet data root" }
+  );
   const originalCwd = process.cwd();
-  let vite = null;
 
   try {
-    fs.symlinkSync(
-      path.join(absoluteRepoRoot, "src"),
-      path.join(runtimeRoot, "src"),
-      process.platform === "win32" ? "junction" : "dir"
-    );
-    // The canonical public snapshot references lossless operational and review
-    // ledgers under outputs/. Make those immutable source artifacts visible to
-    // the isolated runtime without copying tens of megabytes or mutating them.
-    fs.symlinkSync(
-      path.join(absoluteRepoRoot, "outputs"),
-      path.join(runtimeRoot, "outputs"),
-      process.platform === "win32" ? "junction" : "dir"
-    );
-    process.chdir(runtimeRoot);
-
-    // Dataset modules read compact generated-runtime projections. Build those
-    // from the canonical snapshots in an isolated temporary root so validation
-    // is source-fresh without mutating the checkout.
-    const prepareUrl = pathToFileURL(
-      path.join(absoluteRepoRoot, "scripts", "prepare-graph-runtime-evidence.mjs")
-    );
-    prepareUrl.searchParams.set("topicFacetsRun", `${process.pid}-${Date.now()}`);
-    await import(prepareUrl.href);
-
-    vite = await createServer({
-      root: absoluteRepoRoot,
-      configFile: false,
-      appType: "custom",
-      logLevel: "error",
-      resolve: {
-        alias: {
-          "@": path.join(absoluteRepoRoot, "src")
-        }
-      },
-      server: {
-        middlewareMode: true
-      }
-    });
+    // Pinned modules perform a few explicit cwd-relative runtime reads. Keep
+    // those reads bound to publication data while every imported TS/JS module
+    // is resolved relative to this immutable source checkout.
+    process.chdir(absoluteDataRoot);
+    await prepareGraphRuntimeEvidence({ rootDir: absoluteDataRoot });
 
     const [
       { buildGraphResponse },
       { canonicalPostKey },
       { normalizePostTopics }
     ] = await Promise.all([
-      vite.ssrLoadModule("/src/lib/graph/graph-builder.ts"),
-      vite.ssrLoadModule("/src/lib/graph/dedupe.ts"),
-      vite.ssrLoadModule("/src/lib/graph/post-topics.ts")
+      importPinnedModule("src/lib/graph/graph-builder.ts"),
+      importPinnedModule("src/lib/graph/dedupe.ts"),
+      importPinnedModule("src/lib/graph/post-topics.ts")
     ]);
 
     return BATCHES.map((batch) => {
@@ -130,7 +99,7 @@ export async function buildExpectedTopicFacetSnapshots({ repoRoot = process.cwd(
       return {
         batchSlug: batch.slug,
         displayPath,
-        outputPath: path.join(absoluteRepoRoot, ...displayPath.split("/")),
+        outputPath: path.join(absoluteDataRoot, ...displayPath.split("/")),
         serialized: JSON.stringify(output),
         summary: {
           batch: batch.slug,
@@ -141,9 +110,34 @@ export async function buildExpectedTopicFacetSnapshots({ repoRoot = process.cwd(
       };
     });
   } finally {
-    if (vite) await vite.close();
     process.chdir(originalCwd);
-    fs.rmSync(runtimeRoot, { recursive: true, force: true });
+  }
+}
+
+async function importPinnedModule(relativePath) {
+  const modulePath = path.resolve(PINNED_CODE_ROOT, relativePath);
+  const pathFromCodeRoot = path.relative(PINNED_CODE_ROOT, modulePath);
+  if (pathFromCodeRoot.startsWith("..") || path.isAbsolute(pathFromCodeRoot)) {
+    throw new Error(`Pinned topic facet module escapes its source checkout: ${relativePath}`);
+  }
+  return import(pathToFileURL(modulePath).href);
+}
+
+export async function runTopicFacetBoundaryProbe({ dataRoot } = {}) {
+  if (process.env.NODE_ENV !== "test") {
+    throw new Error("The topic facet boundary probe is available only under NODE_ENV=test.");
+  }
+  const absoluteDataRoot = validatedRepositoryDataRoot(
+    dataRoot ?? process.env.SCORING_DATA_ROOT ?? process.env.SCORING_ROOT,
+    { fallbackRoot: process.cwd(), label: "topic facet boundary-probe data root" }
+  );
+  const originalCwd = process.cwd();
+  try {
+    process.chdir(absoluteDataRoot);
+    const probe = await importPinnedModule("tests/fixtures/topic-facet-boundary-probe.ts");
+    return probe.topicFacetBoundaryProbe;
+  } finally {
+    process.chdir(originalCwd);
   }
 }
 
@@ -188,12 +182,20 @@ export function writeTopicFacetSnapshotsAtomically(snapshots) {
 
 async function runCli() {
   const args = process.argv.slice(2);
-  const unknownArgs = args.filter((arg) => arg !== "--validate");
+  const rootArgument = args.find((arg) => arg.startsWith("--root="));
+  const unknownArgs = args.filter((arg) =>
+    arg !== "--validate" && arg !== "--boundary-probe" && arg !== rootArgument
+  );
   if (unknownArgs.length) {
     throw new Error(`Unknown topic facet argument(s): ${unknownArgs.join(", ")}`);
   }
   const validateOnly = args.includes("--validate");
-  const snapshots = await buildExpectedTopicFacetSnapshots();
+  const dataRoot = rootArgument?.slice("--root=".length);
+  if (args.includes("--boundary-probe")) {
+    process.stdout.write(`${JSON.stringify(await runTopicFacetBoundaryProbe({ dataRoot }))}\n`);
+    return;
+  }
+  const snapshots = await buildExpectedTopicFacetSnapshots({ dataRoot });
   for (const snapshot of snapshots) console.log(JSON.stringify(snapshot.summary));
 
   if (validateOnly) {

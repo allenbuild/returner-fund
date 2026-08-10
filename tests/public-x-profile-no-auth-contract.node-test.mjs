@@ -141,11 +141,10 @@ test("zero-article X profiles are not terminally accepted as verified empty", as
   assert.ok(snapshot.failures.length > 0);
 });
 
-test("direct X HTTP blockers remain explicit when the public-reader fallback succeeds", async (context) => {
+test("direct X HTTP blockers remain explicit without a remote-reader retry", async (context) => {
   const snapshot = await runMockedCodagCollector(context, {
     xHtml: "rate limited",
-    xStatus: 429,
-    readerText: "Title: Michael Zhou (@michaelzixizhou) / X\nMichael Zhou @michaelzixizhou"
+    xStatus: 429
   });
   const attempt = snapshot.attempts[
     "x:founder:founder-codag-michael-zhou-2706494:https://x.com/michaelzixizhou"
@@ -161,10 +160,7 @@ test("direct X HTTP blockers remain explicit when the public-reader fallback suc
 test("a mapped X account returning 404 is explicitly queued for manual review", async (context) => {
   const snapshot = await runMockedCodagCollector(context, {
     xHtml: "not found",
-    xStatus: 404,
-    readerText: JSON.stringify({
-      message: "Anonymous access to domain x.com blocked until Mon Aug 03 2026 08:22:55 GMT+0000 (Coordinated Universal Time) due to provider cooldown"
-    })
+    xStatus: 404
   });
   const attempt = snapshot.attempts[
     "x:founder:founder-codag-michael-zhou-2706494:https://x.com/michaelzixizhou"
@@ -181,7 +177,6 @@ test("a mapped X account returning 404 is explicitly queued for manual review", 
 async function runMockedCodagCollector(context, {
   xHtml,
   xStatus = 200,
-  readerText = "",
   seedEvidence = []
 }) {
   const directory = await mkdtemp(join(tmpdir(), "returner-public-x-contract-"));
@@ -204,15 +199,20 @@ async function runMockedCodagCollector(context, {
     writeFile(discoveryAttempts, "[]\n"),
     writeFile(sourceDiscoveryPaths, "[]\n"),
     writeFile(preload, `
+import dns from "node:dns";
+dns.lookup = (_hostname, options, callback) => {
+  const addresses = [{ address: "93.184.216.34", family: 4 }];
+  if (options?.all) callback(null, addresses);
+  else callback(null, addresses[0].address, addresses[0].family);
+};
 const xHtml = ${JSON.stringify(xHtml)};
-const readerText = ${JSON.stringify(readerText)};
 globalThis.fetch = async (url) => {
   const value = String(url);
   if (value === "https://x.com/michaelzixizhou") {
     return new Response(xHtml, { status: ${xStatus}, headers: { "content-type": "text/html" } });
   }
   if (value.startsWith("https://r.jina.ai/http://")) {
-    return new Response(readerText, { status: 200, headers: { "content-type": "text/plain" } });
+    throw new Error("remote reader fallback must remain disabled");
   }
   throw new Error("unexpected request: " + value);
 };

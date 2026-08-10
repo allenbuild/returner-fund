@@ -112,6 +112,50 @@ test("account identities reject encoded delimiters and invalid platform characte
   }
 });
 
+test("X and Instagram navigation routes are never accepted as account identities", () => {
+  const reservedRoutes = [
+    ["x", "https://x.com/settings/account"],
+    ["x", "https://twitter.com/login?redirect_after_login=%2Fhome"],
+    ["x", "https://mobile.twitter.com/messages"],
+    ["x", "https://x.com/compose/post"],
+    ["x", "https://x.com/Notifications"],
+    ["x", "https://x.com/i/flow/login"],
+    ["x", "https://x.com/bookmarks"],
+    ["x", "https://x.com/communities/explore"],
+    ["x", "https://x.com/lists"],
+    ["x", "https://x.com/oauth/authorize"],
+    ["x", "https://x.com/account/access"],
+    ["x", "https://x.com/%73ettings/account"],
+    ["instagram", "https://instagram.com/direct/inbox/"],
+    ["instagram", "https://www.instagram.com/challenge/"],
+    ["instagram", "https://instagram.com/accounts/login/"],
+    ["instagram", "https://instagram.com/explore/tags/ai/"],
+    ["instagram", "https://instagram.com/reels/"],
+    ["instagram", "https://instagram.com/navigation/"],
+    ["instagram", "https://instagram.com/settings/"],
+    ["instagram", "https://instagram.com/saved/"],
+    ["instagram", "https://instagram.com/your_activity/"],
+    ["instagram", "https://instagram.com/%64irect/inbox/"],
+    ["instagram", "https://instagram.com/p/not-a-profile/"],
+    ["instagram", "https://instagram.com/reel/not-a-profile/"],
+    ["instagram", "https://instagram.com/stories/not-a-profile/"],
+    ["instagram", "https://instagram.com/web/search/topsearch/"]
+  ];
+
+  for (const [platform, url] of reservedRoutes) {
+    assert.equal(canonicalSocialAccountUrl(platform, url), null, `${platform}: ${url}`);
+  }
+
+  assert.equal(
+    canonicalSocialAccountUrl("x", "https://x.com/hyperparticle/status/123"),
+    "https://x.com/hyperparticle"
+  );
+  assert.equal(
+    canonicalSocialAccountUrl("instagram", "https://instagram.com/tash.cards/reels/"),
+    "https://instagram.com/tash.cards"
+  );
+});
+
 test("canonical account identities are safely encoded while RSS and web semantics remain intact", () => {
   assert.equal(
     canonicalSocialAccountUrl("linkedin", "https://www.linkedin.com/in/PÉTER-Vajda/recent-activity/all/"),
@@ -252,4 +296,43 @@ test("Rekursiv collection plan retains only Dan Kondratyuk's explicit X owner ma
     platform: "x",
     accountUrl: "https://x.com/hyperparticle"
   }]);
+});
+
+test("S26 X and Instagram routes retain unique targets and required audited mappings", () => {
+  const plan = JSON.parse(execFileSync(process.execPath, [
+    "scripts/fetch-public-traction.mjs",
+    "--batch=S26",
+    "--platforms=x,instagram",
+    "--social=all",
+    "--plan"
+  ], { cwd: root, encoding: "utf8", maxBuffer: 16 * 1024 * 1024 }));
+
+  const targetsByPlatform = Object.groupBy(
+    plan.socialTargets,
+    (target) => target.platform
+  );
+  const xTargets = targetsByPlatform.x ?? [];
+  const instagramTargets = targetsByPlatform.instagram ?? [];
+  assert.ok(xTargets.length > 0);
+  assert.ok(instagramTargets.length > 0);
+  assert.equal(plan.socialTargets.length, xTargets.length + instagramTargets.length);
+  assert.equal(
+    new Set(plan.socialTargets.map((target) =>
+      `${target.entityType}:${target.entityId}:${target.platform}:${target.accountUrl}`
+    )).size,
+    plan.socialTargets.length,
+    "route hardening must not duplicate an owner/platform/account target"
+  );
+  const instagramUrls = new Set(instagramTargets.map((target) => target.accountUrl));
+  for (const requiredUrl of [
+    "https://instagram.com/controlseat",
+    "https://instagram.com/egoistmachines",
+    "https://instagram.com/gutgutgoose",
+    "https://instagram.com/lumeria.skin",
+    "https://instagram.com/talentpluto_",
+    "https://instagram.com/tash.cards",
+    "https://instagram.com/trydockai"
+  ]) {
+    assert.ok(instagramUrls.has(requiredUrl), `missing audited Instagram route ${requiredUrl}`);
+  }
 });
