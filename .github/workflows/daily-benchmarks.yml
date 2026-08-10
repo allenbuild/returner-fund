@@ -558,6 +558,8 @@ jobs:
       - name: Rebuild graph-derived artifacts
         if: steps.existing_slot.outputs.publication_status != 'already_completed'
         timeout-minutes: 10
+        env:
+          NODE_OPTIONS: --max-old-space-size=3072
         run: npm run artifacts:derived:build
 
       - name: Refresh artifact manifest
@@ -569,6 +571,8 @@ jobs:
       - name: Validate generated public artifacts
         if: steps.existing_slot.outputs.publication_status != 'already_completed'
         timeout-minutes: 10
+        env:
+          NODE_OPTIONS: --max-old-space-size=3072
         run: |
           npm run artifacts:validate
           npm run artifacts:manifest:validate

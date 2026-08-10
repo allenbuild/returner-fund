@@ -227,7 +227,7 @@ jobs:
           cache: npm
 
       - name: Install dependencies
-        timeout-minutes: 10
+        timeout-minutes: 5
         run: npm ci
 
       - name: Require isolated publication credential
@@ -333,6 +333,8 @@ jobs:
 
       - name: Validate generated public artifacts
         timeout-minutes: 10
+        env:
+          NODE_OPTIONS: --max-old-space-size=3072
         run: |
           npm run artifacts:validate
           npm run artifacts:manifest:validate
@@ -912,7 +914,18 @@ jobs:
           assert.equal(typeof receipt.receiptRecognized, "boolean");
           assert.equal(typeof receipt.commitProofValid, "boolean");
           assert.equal(typeof receipt.commitRepositoryVerified, "boolean");
-          assert.ok(receipt.recoveryMethod === null || ["none", "verified_output", "runner_output", "trailers"].includes(receipt.recoveryMethod));
+          const verifiedRecoveryMethods = new Set(["verified_output", "runner_output", "trailers"]);
+          assert.ok(
+            receipt.recoveryMethod === null ||
+              receipt.recoveryMethod === "none" ||
+              verifiedRecoveryMethods.has(receipt.recoveryMethod),
+            "recoveryMethod must be null, none, or a verified publication method"
+          );
+          if (receipt.recoveryMethod === "none") {
+            assert.equal(receipt.commitRepositoryVerified, false, "recoveryMethod none cannot verify a publication commit");
+            assert.equal(receipt.commitProofValid, false, "recoveryMethod none cannot claim valid commit proof");
+            assert.equal(receipt.publishedCommit, null, "recoveryMethod none cannot claim a published commit");
+          }
           for (const field of [
             "providerBlocked",
             "mappedProviderBlocked",
@@ -972,7 +985,10 @@ jobs:
             assert.ok(exactSha(receipt.publishedCommit), "verified publication requires publishedCommit");
             assert.ok(exactSha(receipt.remoteMainCommit), "verified publication requires remoteMainCommit");
             assert.equal(receipt.commitProofValid, true);
-            assert.ok(receipt.recoveryMethod, "verified publication requires recoveryMethod");
+            assert.ok(
+              verifiedRecoveryMethods.has(receipt.recoveryMethod),
+              "verified publication requires a verified recoveryMethod"
+            );
           }
 
           if (successfulStatuses.has(receipt.status) || warningStatuses.has(receipt.status)) {

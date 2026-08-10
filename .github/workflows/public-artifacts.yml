@@ -504,6 +504,8 @@ jobs:
 
       - name: Run scoring release gate
         timeout-minutes: 55
+        env:
+          NODE_OPTIONS: --max-old-space-size=3072
         run: npm run check:release:scoring
 
   artifacts:
@@ -529,6 +531,8 @@ jobs:
 
       - name: Run artifact release gate
         timeout-minutes: 55
+        env:
+          NODE_OPTIONS: --max-old-space-size=3072
         run: npm run check:release:artifacts
 
   validate:

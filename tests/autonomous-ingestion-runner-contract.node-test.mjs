@@ -968,6 +968,13 @@ describe("autonomous ingestion runner static safety contracts", () => {
     assert.ok(commandBoundary.indexOf('await event("command.started"') < commandBoundary.indexOf("if (preSpawnGuard) {"));
     assert.ok(commandBoundary.indexOf("preSpawnGuard();") < commandBoundary.indexOf("spawn(command, commandArgs"));
     assert.ok(push.includes("error?.preSpawnGuardFailed === true"));
+    assert.ok(commandBoundary.includes("nodeHeapMb = null"));
+    assert.ok(commandBoundary.includes("Number.isInteger(nodeHeapMb)"));
+    assert.ok(commandBoundary.includes("nodeHeapMb <= 0"));
+    assert.ok(commandBoundary.includes("nodeHeapMb must be a positive integer"));
+    assert.ok(commandBoundary.includes("const childEnvironment = buildChildEnvironment(envCategory, env, cwd)"));
+    assert.ok(commandBoundary.includes("--max-old-space-size=${nodeHeapMb}"));
+    assert.ok(commandBoundary.includes("childEnvironment.NODE_OPTIONS = ["));
   });
 
   it("keeps privileged execution on the pinned source checkout and isolates publication mutation", () => {
@@ -2070,9 +2077,10 @@ describe("autonomous ingestion runner static safety contracts", () => {
       1
     );
     assert.equal(
-      (publicationBuild.match(/`--max-old-space-size=\$\{FULL_CORPUS_NODE_HEAP_MB\}`/g) ?? []).length,
+      (publicationBuild.match(/nodeHeapMb: FULL_CORPUS_NODE_HEAP_MB/g) ?? []).length,
       4
     );
+    assert.doesNotMatch(publicationBuild, /`--max-old-space-size=\$\{FULL_CORPUS_NODE_HEAP_MB\}`/);
     assert.doesNotMatch(publicationBuild, /node_modules\/next|production build|npm\s+(?:run|ci)/);
     assert.ok(artifactPaths.includes('"public/graph"'));
     assert.ok(artifactPaths.includes('"public/timelines"'));

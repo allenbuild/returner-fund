@@ -109,6 +109,18 @@ describe("Public Artifact Validation workflow", () => {
       expect(section).toContain("cache: npm");
       expect(section).toContain("run: npm ci");
       expect(section).toContain(`run: ${command}`);
+
+      if (job === "scoring" || job === "artifacts") {
+        const gateName = job === "scoring"
+          ? "Run scoring release gate"
+          : "Run artifact release gate";
+        const gateStep = section.match(
+          new RegExp(`\\n      - name: ${gateName}[\\s\\S]*?(?=\\n      - name:|$)`)
+        )?.[0] ?? "";
+        expect(gateStep).toContain(
+          "env:\n          NODE_OPTIONS: --max-old-space-size=3072"
+        );
+      }
     }
 
     const appTestsJob = workflow.match(

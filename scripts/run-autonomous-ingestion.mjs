@@ -4285,7 +4285,6 @@ async function buildAndValidatePublication(publicationRunId, catalogState) {
     cwd: targetRoot
   });
   await runCommand(process.execPath, [
-    `--max-old-space-size=${FULL_CORPUS_NODE_HEAP_MB}`,
     "--experimental-strip-types",
     "--loader",
     sourcePath("scripts", "lib", "scoring-diagnostics-ts-loader.mjs"),
@@ -4294,6 +4293,7 @@ async function buildAndValidatePublication(publicationRunId, catalogState) {
     "--pinned-source-in-process"
   ], {
     timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.benchmarkPublicationMs,
+    nodeHeapMb: FULL_CORPUS_NODE_HEAP_MB,
     label: "graph and benchmark publication",
     envCategory: "benchmark",
     env: {
@@ -4366,7 +4366,6 @@ async function buildAndValidatePublication(publicationRunId, catalogState) {
     cwd: targetRoot
   });
   await runCommand(process.execPath, [
-    `--max-old-space-size=${FULL_CORPUS_NODE_HEAP_MB}`,
     "--experimental-strip-types",
     "--loader",
     sourcePath("scripts", "lib", "scoring-diagnostics-ts-loader.mjs"),
@@ -4374,13 +4373,13 @@ async function buildAndValidatePublication(publicationRunId, catalogState) {
     `--root=${targetRoot}`
   ], {
     timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.derivedArtifactMs,
+    nodeHeapMb: FULL_CORPUS_NODE_HEAP_MB,
     label: "topic facet regeneration and validation",
     envCategory: "publication_data",
     env: { SCORING_DATA_ROOT: targetRoot },
     cwd: targetRoot
   });
   await runCommand(process.execPath, [
-    `--max-old-space-size=${FULL_CORPUS_NODE_HEAP_MB}`,
     "--experimental-strip-types",
     "--loader",
     sourcePath("scripts", "lib", "scoring-diagnostics-ts-loader.mjs"),
@@ -4388,13 +4387,13 @@ async function buildAndValidatePublication(publicationRunId, catalogState) {
     `--root=${targetRoot}`
   ], {
     timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.derivedArtifactMs,
+    nodeHeapMb: FULL_CORPUS_NODE_HEAP_MB,
     label: "Ranked Posts sidecar regeneration and validation",
     envCategory: "publication_data",
     env: { SCORING_DATA_ROOT: targetRoot },
     cwd: targetRoot
   });
   await runCommand(process.execPath, [
-    `--max-old-space-size=${FULL_CORPUS_NODE_HEAP_MB}`,
     "--experimental-strip-types",
     "--loader",
     sourcePath("scripts", "lib", "scoring-diagnostics-ts-loader.mjs"),
@@ -4403,6 +4402,7 @@ async function buildAndValidatePublication(publicationRunId, catalogState) {
     `--expected-source-sha=${sourceCommit}`
   ], {
     timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.scoringDiagnosticsMs,
+    nodeHeapMb: FULL_CORPUS_NODE_HEAP_MB,
     label: "scoring diagnostics regeneration",
     envCategory: "publication_data",
     env: { SCORING_DATA_ROOT: targetRoot },
@@ -5736,6 +5736,7 @@ function pathIsWithin(parent, candidate) {
 
 async function runCommand(command, commandArgs, {
   timeoutMs,
+  nodeHeapMb = null,
   deadlineAt = null,
   label,
   env = {},
@@ -5751,6 +5752,9 @@ async function runCommand(command, commandArgs, {
   hardSettleWatchdogMs = PROCESS_KILL_WATCHDOG_MS,
   cwd = root
 }) {
+  if (nodeHeapMb !== null && (!Number.isInteger(nodeHeapMb) || nodeHeapMb <= 0)) {
+    throw new Error(`${label} nodeHeapMb must be a positive integer.`);
+  }
   if (preSpawnGuard !== null && typeof preSpawnGuard !== "function") {
     throw new Error(`${label} preSpawnGuard must be a function.`);
   }
@@ -5776,6 +5780,12 @@ async function runCommand(command, commandArgs, {
   }
   const effectiveTimeoutMs = Math.min(timeoutMs, runnerRemainingMs, deadlineRemainingMs);
   const childEnvironment = buildChildEnvironment(envCategory, env, cwd);
+  if (nodeHeapMb !== null) {
+    childEnvironment.NODE_OPTIONS = [
+      childEnvironment.NODE_OPTIONS,
+      `--max-old-space-size=${nodeHeapMb}`
+    ].filter(Boolean).join(" ");
+  }
   assertPublicationCommandCredentialBoundary(command, cwd, childEnvironment);
   const ledgerRunId = randomUUID();
   const ledgerPath = join(

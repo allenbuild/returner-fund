@@ -1818,13 +1818,13 @@ test("workflow step budgets leave setup and scheduling headroom", () => {
   const validationTimeout = Number(workflow.match(/- name: Validate generated public artifacts[\s\S]*?timeout-minutes:\s*(\d+)/)?.[1]);
 
   assert.equal(jobTimeout, 360);
-  assert.equal(installTimeout, 10);
+  assert.equal(installTimeout, 5);
   assert.equal(runnerTimeout, 330);
   assert.equal(validationTimeout, 10);
   assert.ok(runnerTimeout < jobTimeout);
   assert.ok(installTimeout + runnerTimeout + validationTimeout < jobTimeout);
   assert.ok(
-    jobTimeout - installTimeout - runnerTimeout - validationTimeout >= 10,
+    jobTimeout - installTimeout - runnerTimeout - validationTimeout >= 15,
     "checkout, setup-node, receipt, and post steps require explicit job-level headroom"
   );
   assert.ok(maxAutonomousRunnerProcessBudgetMs() < runnerTimeout * 60_000);
@@ -1838,6 +1838,18 @@ test("workflow step budgets leave setup and scheduling headroom", () => {
     (installTimeout + validationTimeout) * 60_000 + maxAutonomousRunnerProcessBudgetMs() <
       jobTimeout * 60_000
   );
+});
+
+test("daily derived-artifact steps use the bounded Node heap", () => {
+  for (const stepName of [
+    "Rebuild graph-derived artifacts",
+    "Validate generated public artifacts"
+  ]) {
+    const step = dailyBenchmarkWorkflow.match(
+      new RegExp(`- name: ${stepName}[\\s\\S]*?(?=\\n\\s{6}- name:|$)`)
+    )?.[0] ?? "";
+    assert.match(step, /env:\s+NODE_OPTIONS: --max-old-space-size=3072/);
+  }
 });
 
 test("workflow never invokes a logged-in collector", () => {
@@ -2118,6 +2130,34 @@ test("autonomous receipt materializes and audits success, warning, inactive, res
     });
     assert.notEqual(audited.status, 0, `${name}: contradictory accepted failure must fail`);
   }
+
+  const acceptedFailureBeforePublicationRoot = path.join(directory, "accepted-failure-before-publication");
+  const acceptedFailureBeforePublicationPath = path.join(
+    acceptedFailureBeforePublicationRoot,
+    "autonomous-ingestion-receipt",
+    "receipt.json"
+  );
+  const contradictoryBeforePublication = JSON.parse(
+    readFileSync(acceptedFailureBeforePublicationPath, "utf8")
+  );
+  contradictoryBeforePublication.commitRepositoryVerified = true;
+  contradictoryBeforePublication.commitProofValid = true;
+  contradictoryBeforePublication.publishedCommit = FULL_COMMIT_SHA;
+  writeFileSync(
+    acceptedFailureBeforePublicationPath,
+    `${JSON.stringify(contradictoryBeforePublication, null, 2)}\n`
+  );
+  const contradictoryBeforePublicationAudit = runScript(audit, repositoryRoot, {
+    RUNNER_TEMP: acceptedFailureBeforePublicationRoot,
+    EXPECTED_TRIGGER_SHA: FULL_COMMIT_SHA,
+    EXPECTED_RUN_ID: runId,
+    EXPECTED_RUN_ATTEMPT: runAttempt
+  });
+  assert.notEqual(
+    contradictoryBeforePublicationAudit.status,
+    0,
+    "accepted failure before publication cannot claim verified publication with recoveryMethod none"
+  );
 
   const successRoot = path.join(directory, "success");
   const successPath = path.join(successRoot, "autonomous-ingestion-receipt", "receipt.json");

@@ -945,6 +945,14 @@ globalThis.fetch = async (input) => {
     }), 2, "Timeline command headroom must be budgeted for both publication attempts");
     assert.equal(maxAutonomousRunnerProcessBudgetMs({
       ...zeroBudgets,
+      timelineBackfillMs: 1
+    }), 4, "timeline backfill runs twice per publication attempt across two attempts");
+    assert.equal(maxAutonomousRunnerProcessBudgetMs({
+      ...zeroBudgets,
+      artifactManifestMs: 1
+    }), 4, "artifact manifest runs twice per publication attempt across two attempts");
+    assert.equal(maxAutonomousRunnerProcessBudgetMs({
+      ...zeroBudgets,
       catalogRefreshMs: 1
     }), 1, "mutable catalog refresh must be part of the runner budget");
     assert.equal(maxAutonomousRunnerProcessBudgetMs({

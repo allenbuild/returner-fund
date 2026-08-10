@@ -142,9 +142,9 @@ export function maxAutonomousRunnerProcessBudgetMs(budgets = AUTONOMOUS_PROCESS_
     budgets.benchmarkPublicationMs +
     budgets.timelineDiscoveryMs +
     budgets.timelineDiscoveryCommandHeadroomMs +
-    budgets.timelineBackfillMs +
+    (2 * budgets.timelineBackfillMs) +
     budgets.scoringDiagnosticsMs +
-    budgets.artifactManifestMs +
+    (2 * budgets.artifactManifestMs) +
     (5 * budgets.artifactValidationMs) +
     (2 * budgets.derivedArtifactMs);
   const initialPublicationWindow =
