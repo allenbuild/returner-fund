@@ -125,3 +125,29 @@ test("writes scheduler decisions as GitHub step outputs", (t) => {
     ].join("\n")
   );
 });
+
+test("does not expose inactive DST candidate schedule metadata to the workflow", (t) => {
+  const directory = mkdtempSync(path.join(tmpdir(), "returner-ingestion-inactive-schedule-"));
+  t.after(() => rmSync(directory, { recursive: true, force: true }));
+  const outputPath = path.join(directory, "github-output");
+  const decision = resolveScheduledIngestion({
+    schedule: "0 12 * * *",
+    now: new Date("2026-07-18T12:10:00.000Z")
+  });
+
+  assert.equal(decision.accepted, false);
+  assert.equal(decision.scheduledAt, "2026-07-18T12:00:00.000Z");
+  writeGithubOutputs(decision, outputPath);
+
+  assert.equal(
+    readFileSync(outputPath, "utf8"),
+    [
+      "should_run=false",
+      "slot_key=",
+      "trigger=schedule",
+      "reason=inactive-dst-candidate",
+      "scheduled_at=",
+      ""
+    ].join("\n")
+  );
+});

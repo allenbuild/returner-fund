@@ -968,7 +968,10 @@ describe("autonomous ingestion runner static safety contracts", () => {
     assert.ok(commandBoundary.indexOf('await event("command.started"') < commandBoundary.indexOf("if (preSpawnGuard) {"));
     assert.ok(commandBoundary.indexOf("preSpawnGuard();") < commandBoundary.indexOf("spawn(command, commandArgs"));
     assert.ok(push.includes("error?.preSpawnGuardFailed === true"));
-    assert.ok(commandBoundary.includes("nodeHeapMb = null"));
+    assert.ok(runner.includes("const DEFAULT_NODE_CHILD_HEAP_MB = 1_536;"));
+    assert.ok(commandBoundary.includes(
+      "nodeHeapMb = isNodeExecutable(command) ? DEFAULT_NODE_CHILD_HEAP_MB : null"
+    ));
     assert.ok(commandBoundary.includes("Number.isInteger(nodeHeapMb)"));
     assert.ok(commandBoundary.includes("nodeHeapMb <= 0"));
     assert.ok(commandBoundary.includes("nodeHeapMb must be a positive integer"));
@@ -1262,6 +1265,40 @@ describe("autonomous ingestion runner static safety contracts", () => {
     assert.ok(verifier.includes('["merge-base", "--is-ancestor", publishedCommit, `origin/${branch}`]'));
   });
 
+  it("classifies each provenance candidate against its exact publication base", () => {
+    const publication = section(
+      "async function publishRepositoryArtifacts",
+      "async function stageRepositoryArtifacts"
+    );
+    const comparator = section(
+      "async function classifyPublicationSemantics",
+      "async function headHasPublicationRunIdentity"
+    );
+
+    assert.ok(runner.includes('"./lib/publication-semantic-diff.mjs"'));
+    assert.ok(comparator.includes("rootDir: publicationRoot"));
+    assert.ok(comparator.includes("baseRef,"));
+    assert.ok(comparator.includes("targetRef,"));
+    assert.ok(comparator.includes("ignoredPaths: PUBLICATION_SEMANTIC_IGNORED_PATHS"));
+    assert.ok(runner.includes('"outputs/ingestion-source-delta-current.json"'));
+    assert.ok(runner.includes('"outputs/ingestion-source-delta-history.json"'));
+    assert.match(
+      publication,
+      /publicationTreeChanged = await classifyPublicationSemantics\(\{[\s\S]*?baseRef: publicationBaseCommit[\s\S]*?targetRef: firstPushCommit/
+    );
+    assert.match(
+      publication,
+      /publicationTreeChanged = await classifyPublicationSemantics\(\{[\s\S]*?baseRef: retryBaseCommit[\s\S]*?targetRef: retryPushCommit/
+    );
+    assert.doesNotMatch(publication, /publicationTreeChanged\s*=\s*publicationTreeChanged\s*\|\|/);
+    assert.doesNotMatch(publication, /git", \["diff", "--cached", "--quiet"\]/);
+    assert.equal(
+      (publication.match(/allowUnchangedTree: true/g) ?? []).length,
+      2,
+      "initial and retry provenance commits must both permit an unchanged semantic tree"
+    );
+  });
+
   it("exports the verified publication commit for workflow receipt wiring", () => {
     const outcomeWriter = section("async function writeRunnerOutcome", "async function readCommitBackedReplayReceipt");
     const publication = section(
@@ -1521,6 +1558,38 @@ describe("autonomous ingestion runner static safety contracts", () => {
     assert.ok(successfulRows.includes("countSuccessfulAutonomousCollectorRows(snapshot, kind)"));
     assert.doesNotMatch(successfulRows, /needsReview/);
     assert.doesNotMatch(collectors, /run:\s*async\s*\(\)\s*=>\s*await runCommand\(/);
+  });
+
+  it("applies a conservative heap cap to every public and GitHub collector launch", () => {
+    const githubCollector = section(
+      "async function runShardedGithubCollector",
+      "function githubShardSearchBudget"
+    );
+    const publicCollector = section(
+      "async function runPublicCollectorWithCheckpointRecovery",
+      "async function runTopVoiceCollector"
+    );
+    const topVoiceCollector = section("async function runTopVoiceCollector", "async function resumeTopVoiceRefresh");
+    const fullCorpusHeap = runner.match(/const FULL_CORPUS_NODE_HEAP_MB = ([\d_]+);/)?.[1];
+    const collectorHeap = runner.match(/const COLLECTOR_NODE_HEAP_MB = ([\d_]+);/)?.[1];
+
+    assert.ok(collectorHeap, "collector heap constant must be declared");
+    assert.ok(fullCorpusHeap, "full-corpus heap constant must be declared");
+    assert.ok(Number(collectorHeap.replaceAll("_", "")) > 0);
+    assert.ok(
+      Number(collectorHeap.replaceAll("_", "")) <= 768,
+      "five overlapping collector processes must leave native-memory headroom on a 7 GB runner"
+    );
+    assert.ok(
+      Number(collectorHeap.replaceAll("_", "")) < Number(fullCorpusHeap.replaceAll("_", ""))
+    );
+    assert.match(githubCollector, /nodeHeapMb: COLLECTOR_NODE_HEAP_MB/);
+    assert.equal(
+      (publicCollector.match(/nodeHeapMb: COLLECTOR_NODE_HEAP_MB/g) ?? []).length,
+      2,
+      "public attempt and checkpoint-flush launches must both be heap bounded"
+    );
+    assert.match(topVoiceCollector, /nodeHeapMb: COLLECTOR_NODE_HEAP_MB/);
   });
 
   it("enforces one wall-clock collection deadline across queued shards, retries, and Top Voice", () => {

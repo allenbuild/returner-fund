@@ -17,12 +17,17 @@ import {
   LINKEDIN_MINIMUM_INTERACTION_DELAY_MS,
   LINKEDIN_MINIMUM_TARGET_DELAY_MS,
   LINKEDIN_MAX_TARGETS_PER_INVOCATION,
+  LINKEDIN_UNPROVEN_SESSION_QUARANTINE_MS,
   createLinkedInInteractionPacer,
+  createSupabaseLinkedInGlobalLeaseProvider,
+  finalizeLinkedInInteractionPacing,
   linkedinAdapterSupportsAccountUrl,
   linkedinCircuitDecision,
   linkedinCircuitStateTransition,
   linkedinCollectionAttemptState,
   linkedinExecutionPolicy,
+  linkedinBrowserSessionCleanupFailed,
+  linkedinPacingStateUnproven,
   linkedinFailureKind,
   linkedinFailureRequiresImmediateAbort,
   limitLinkedInTargetsPerInvocation,
@@ -48,6 +53,9 @@ function permissiveGlobalLeaseProvider() {
       return { leaseToken: `test-lease-${sequence}` };
     },
     async renew() {
+      return true;
+    },
+    async quarantine() {
       return true;
     },
     async release() {
@@ -133,7 +141,14 @@ describe("OpenCLI browser session cleanup", () => {
         return true;
       }
     );
-    assert.match(collectorSource, /error\?\.sessionCleanupFailure instanceof Error/);
+    assert.match(
+      collectorSource,
+      /const detailKeys = \[\s+"primaryError",\s+"cause",\s+"sessionCleanupFailure",[\s\S]*?"globalLeaseCleanupFailure"\s+\];/
+    );
+    assert.match(
+      collectorSource,
+      /for \(const key of detailKeys\) \{[\s\S]*?const nested = current\[key\];[\s\S]*?queue\.push\(nested\);/
+    );
   });
 
   it("preserves a non-extensible primary failure when cleanup also fails", async () => {
@@ -158,7 +173,7 @@ describe("OpenCLI browser session cleanup", () => {
         return true;
       }
     );
-    assert.match(collectorSource, /const primaryError = error\?\.primaryError \?\? error/);
+    assert.match(collectorSource, /const queue = \[error\?\.primaryError \?\? error, error\];/);
   });
 });
 
@@ -640,9 +655,114 @@ describe("logged-in LinkedIn collection", () => {
       }));
       await assert.rejects(
         runLinkedInSerialLane(["still-untouched"], collect, { pacingStatePath }),
-        /prior host-local target attempt did not finish cleanly/
+        /contains a prior host-local target attempt that did not finish cleanly/
       );
       assert.equal(collectCalls, 0);
+    } finally {
+      await rm(directory, { recursive: true, force: true });
+    }
+  });
+
+  it("quarantines the durable lease when a prior target remains in progress", async () => {
+    const directory = await mkdtemp(join(tmpdir(), "returner-linkedin-stale-pacing-lease-test-"));
+    const lockPath = join(directory, "linkedin.lock");
+    const pacingStatePath = join(directory, "pacing.json");
+    let quarantines = 0;
+    let releases = 0;
+    const provider = {
+      async claim() {
+        return { leaseToken: "stale-pacing-lease" };
+      },
+      async renew() {
+        return true;
+      },
+      async quarantine({ safetyReason }) {
+        quarantines += 1;
+        assert.equal(safetyReason, "unproven-host-pacing-state");
+        return true;
+      },
+      async release() {
+        releases += 1;
+        return true;
+      }
+    };
+
+    try {
+      await writeFile(pacingStatePath, `${JSON.stringify({
+        version: 1,
+        phase: "in_progress",
+        attemptToken: "interrupted-attempt",
+        pid: process.pid,
+        lastTargetAttemptAtMs: Date.now()
+      })}\n`);
+      await assert.rejects(
+        withLinkedInAccountLock(
+          () => runLinkedInSerialLane(["untouched"], async () => undefined, { pacingStatePath }),
+          linkedInLockOptions(lockPath, provider)
+        ),
+        (error) => {
+          assert.equal(linkedinPacingStateUnproven(error), true);
+          return /did not finish cleanly/.test(error.message);
+        }
+      );
+      assert.equal(quarantines, 1);
+      assert.equal(releases, 0);
+    } finally {
+      await rm(directory, { recursive: true, force: true });
+    }
+  });
+
+  it("quarantines the durable lease when target pacing completion cannot be persisted", async () => {
+    const directory = await mkdtemp(join(tmpdir(), "returner-linkedin-pacing-write-lease-test-"));
+    const lockPath = join(directory, "linkedin.lock");
+    const pacingStatePath = join(directory, "pacing.json");
+    let clock = 1_000;
+    let pacingClockReads = 0;
+    let quarantines = 0;
+    let releases = 0;
+    const provider = {
+      async claim() {
+        return { leaseToken: "pacing-write-failure-lease" };
+      },
+      async renew() {
+        return true;
+      },
+      async quarantine({ safetyReason }) {
+        quarantines += 1;
+        assert.equal(safetyReason, "unproven-host-pacing-state");
+        return true;
+      },
+      async release() {
+        releases += 1;
+        return true;
+      }
+    };
+    const sleep = async (milliseconds) => {
+      clock += milliseconds;
+    };
+
+    try {
+      await assert.rejects(
+        withLinkedInAccountLock(
+          () => runLinkedInSerialLane(["attempted"], async () => undefined, {
+            pacingStatePath,
+            now: () => (++pacingClockReads === 1 ? clock : Number.NaN),
+            releaseNow: () => clock,
+            sleep
+          }),
+          {
+            ...linkedInLockOptions(lockPath, provider),
+            now: () => clock,
+            sleep
+          }
+        ),
+        (error) => {
+          assert.equal(linkedinPacingStateUnproven(error), true);
+          return /completion could not be persisted/.test(error.message);
+        }
+      );
+      assert.equal(quarantines, 1);
+      assert.equal(releases, 0);
     } finally {
       await rm(directory, { recursive: true, force: true });
     }
@@ -668,7 +788,30 @@ describe("logged-in LinkedIn collection", () => {
     assert.equal(pacer.delayMs, 3_000);
     assert.deepEqual(sleeps, [3_000]);
     assert.match(collectorSource, /createLinkedInInteractionPacer\(\{ sleep: delay \}\)/);
-    assert.match(collectorSource, /finally \{\s+interactionPacer\.afterInteraction\(\)/);
+    assert.match(
+      collectorSource,
+      /finalizeLinkedInInteractionPacing\(interactionPacer,\s*\{\s*operationError,\s*operationMustAbort\s*\}\);/
+    );
+  });
+
+  it("preserves a primary interaction failure when pacing finalization also fails", () => {
+    const primary = new Error("browser safety probe failed");
+    const pacing = new Error("interaction pacing clock failed");
+    const interactionPacer = {
+      afterInteraction() {
+        throw pacing;
+      }
+    };
+
+    finalizeLinkedInInteractionPacing(interactionPacer, {
+      operationError: primary,
+      operationMustAbort: true
+    });
+    assert.equal(primary.interactionPacingFailure, pacing);
+    assert.throws(
+      () => finalizeLinkedInInteractionPacing(interactionPacer),
+      (error) => error === pacing
+    );
   });
 
   it("fails closed when interaction pacing makes no progress, rolls back, or wakes early repeatedly", async () => {
@@ -743,6 +886,104 @@ describe("logged-in LinkedIn collection", () => {
     assert.equal(operationCalls, 0);
   });
 
+  it("uses a non-reclaiming insert for the authenticated LinkedIn durable lease", async () => {
+    const calls = [];
+    let inserted = null;
+    let duplicate = false;
+    const query = {
+      insert(input) {
+        inserted = input;
+        calls.push({ operation: "insert", input });
+        return query;
+      },
+      select(value) {
+        calls.push({ operation: "select", value });
+        return query;
+      },
+      async maybeSingle() {
+        return duplicate
+          ? { data: null, error: { code: "23505", message: "duplicate key" } }
+          : { data: { lease_token: inserted.lease_token }, error: null };
+      }
+    };
+    const provider = createSupabaseLinkedInGlobalLeaseProvider({
+      async rpc() {
+        throw new Error("claim must not use the reclaiming generic RPC");
+      },
+      from(table) {
+        calls.push({ operation: "from", table });
+        return query;
+      }
+    }, { now: () => Date.parse("2026-08-10T00:00:00.000Z") });
+
+    const claimed = await provider.claim({
+      lockKey: "authenticated-linkedin:test",
+      ownerId: "owner",
+      leaseDurationMs: 20 * 60_000,
+      metadata: { collector: "authenticated-linkedin" }
+    });
+    assert.equal(claimed.leaseToken, inserted.lease_token);
+    assert.equal(inserted.heartbeat_at, "2026-08-10T00:00:00.000Z");
+    assert.equal(inserted.lease_expires_at, "2026-08-10T00:20:00.000Z");
+    duplicate = true;
+    assert.equal(await provider.claim({
+      lockKey: "authenticated-linkedin:test",
+      ownerId: "other-owner",
+      leaseDurationMs: 20 * 60_000
+    }), null);
+    assert.equal(calls.some((call) => call.operation === "rpc"), false);
+  });
+
+  it("materializes the fixed one-year cleanup quarantine even after nominal expiry", async () => {
+    const calls = [];
+    const query = {
+      update(input) {
+        calls.push({ operation: "update", input });
+        return query;
+      },
+      eq(column, value) {
+        calls.push({ operation: "eq", column, value });
+        return query;
+      },
+      gt(column, value) {
+        calls.push({ operation: "gt", column, value });
+        return query;
+      },
+      select(value) {
+        calls.push({ operation: "select", value });
+        return query;
+      },
+      async maybeSingle() {
+        return { data: { lock_key: "authenticated-linkedin:test" }, error: null };
+      }
+    };
+    const provider = createSupabaseLinkedInGlobalLeaseProvider({
+      async rpc() {
+        throw new Error("quarantine must not use the one-hour renewal RPC");
+      },
+      from(table) {
+        calls.push({ operation: "from", table });
+        return query;
+      }
+    }, { now: () => Date.parse("2026-08-10T00:00:00.000Z") });
+
+    assert.equal(
+      await provider.quarantine({
+        lockKey: "authenticated-linkedin:test",
+        ownerId: "owner",
+        leaseToken: "lease",
+        leaseDurationMs: LINKEDIN_UNPROVEN_SESSION_QUARANTINE_MS
+      }),
+      true
+    );
+    assert.deepEqual(calls[0], { operation: "from", table: "ingestion_runtime_locks" });
+    const update = calls.find((call) => call.operation === "update")?.input;
+    assert.equal(update.heartbeat_at, "2026-08-10T00:00:00.000Z");
+    assert.equal(update.lease_expires_at, "2027-08-10T00:00:00.000Z");
+    assert.equal(update.metadata_json.manualRecoveryRequired, true);
+    assert.equal(calls.some((call) => call.operation === "gt"), false);
+  });
+
   it("uses a shared durable lease across different host-local lock paths", async () => {
     const directory = await mkdtemp(join(tmpdir(), "returner-linkedin-global-lock-test-"));
     const activeLeases = new Map();
@@ -756,6 +997,10 @@ describe("logged-in LinkedIn collection", () => {
         return { leaseToken };
       },
       async renew({ lockKey, ownerId, leaseToken }) {
+        const lease = activeLeases.get(lockKey);
+        return lease?.ownerId === ownerId && lease?.leaseToken === leaseToken;
+      },
+      async quarantine({ lockKey, ownerId, leaseToken }) {
         const lease = activeLeases.get(lockKey);
         return lease?.ownerId === ownerId && lease?.leaseToken === leaseToken;
       },
@@ -796,16 +1041,320 @@ describe("logged-in LinkedIn collection", () => {
     }
   });
 
+  it("holds the durable lease through the final cooldown after a target failure", async () => {
+    const directory = await mkdtemp(join(tmpdir(), "returner-linkedin-final-cooldown-failure-test-"));
+    const lockPath = join(directory, "host-a.lock");
+    const pacingStatePath = join(directory, "host-a-pacing.json");
+    let clock = 1_000;
+    const sleeps = [];
+    const releases = [];
+    const provider = {
+      async claim() {
+        return { leaseToken: "final-cooldown-failure-lease" };
+      },
+      async renew() {
+        return true;
+      },
+      async quarantine() {
+        return true;
+      },
+      async release() {
+        releases.push(clock);
+        return true;
+      }
+    };
+    const sleep = async (milliseconds) => {
+      sleeps.push(milliseconds);
+      clock += milliseconds;
+    };
+
+    try {
+      await assert.rejects(
+        withLinkedInAccountLock(
+          () => runLinkedInSerialLane(
+            ["failed-target"],
+            async () => {
+              throw new Error("target transport failed");
+            },
+            { pacingStatePath, now: () => clock, releaseNow: () => clock, sleep }
+          ),
+          {
+            ...linkedInLockOptions(lockPath, provider),
+            now: () => clock,
+            sleep
+          }
+        ),
+        /target transport failed/
+      );
+      assert.deepEqual(sleeps, [LINKEDIN_MINIMUM_TARGET_DELAY_MS]);
+      assert.deepEqual(releases, [1_000 + LINKEDIN_MINIMUM_TARGET_DELAY_MS]);
+    } finally {
+      await rm(directory, { recursive: true, force: true });
+    }
+  });
+
+  it("retains the durable lease when authenticated browser cleanup is unproven", async () => {
+    const directory = await mkdtemp(join(tmpdir(), "returner-linkedin-session-cleanup-lease-test-"));
+    const lockPath = join(directory, "host-a.lock");
+    let releases = 0;
+    const renewals = [];
+    const provider = {
+      async claim() {
+        return { leaseToken: "session-cleanup-failure-lease" };
+      },
+      async renew() {
+        return true;
+      },
+      async quarantine(input) {
+        renewals.push(input);
+        return true;
+      },
+      async release() {
+        releases += 1;
+        return true;
+      }
+    };
+    const cleanupFailure = Object.assign(
+      new Error("authenticated browser cleanup failed"),
+      { code: "OPENCLI_BROWSER_SESSION_CLOSE_FAILED" }
+    );
+    const collectionFailure = new Error("collection failed first");
+    Object.defineProperty(collectionFailure, "sessionCleanupFailure", {
+      value: cleanupFailure
+    });
+
+    try {
+      await assert.rejects(
+        withLinkedInAccountLock(
+          async () => {
+            throw collectionFailure;
+          },
+          linkedInLockOptions(lockPath, provider)
+        ),
+        (error) => error === collectionFailure
+      );
+      assert.equal(releases, 0);
+      assert.equal(renewals.length, 1);
+      assert.equal(
+        renewals[0].leaseDurationMs,
+        LINKEDIN_UNPROVEN_SESSION_QUARANTINE_MS
+      );
+      assert.equal(renewals[0].safetyQuarantine, true);
+      assert.equal(renewals[0].safetyReason, "unproven-browser-session-cleanup");
+      assert.equal(linkedinBrowserSessionCleanupFailed(collectionFailure), true);
+    } finally {
+      await rm(directory, { recursive: true, force: true });
+    }
+  });
+
+  it("propagates browser cleanup failure through checkpointing to the account lock", () => {
+    assert.match(
+      collectorSource,
+      /if \(linkedinBrowserSessionCleanupFailed\(error\)\) throw error;/
+    );
+    assert.match(
+      collectorSource,
+      /catch \(checkpointError\)[\s\S]{0,500}throw terminalSafetyError;/
+    );
+    assert.doesNotMatch(
+      collectorSource,
+      /checkpointWriteChain\s*=\s*checkpointWriteChain\.catch/
+    );
+    for (const property of [
+      "interactionPacingFailure",
+      "checkpointFailure",
+      "targetPacingFailure",
+      "globalLeaseHeartbeatFailure",
+      "globalLeaseQuarantineFailure",
+      "globalLeaseCleanupFailure"
+    ]) {
+      assert.match(collectorSource, new RegExp(`"${property}"`));
+    }
+  });
+
+  it("preserves browser cleanup failure when pacing completion also fails", async () => {
+    const directory = await mkdtemp(join(tmpdir(), "returner-linkedin-pacing-cleanup-error-test-"));
+    const pacingStatePath = join(directory, "pacing.json");
+    const cleanupFailure = Object.assign(
+      new Error("authenticated browser cleanup failed"),
+      { code: "OPENCLI_BROWSER_SESSION_CLOSE_FAILED" }
+    );
+    let clockReads = 0;
+
+    try {
+      await assert.rejects(
+        runLinkedInSerialLane(
+          ["target"],
+          async () => {
+            throw cleanupFailure;
+          },
+          {
+            pacingStatePath,
+            now: () => (++clockReads === 1 ? 1_000 : Number.NaN),
+            releaseNow: () => 2_000,
+            sleep: async () => undefined
+          }
+        ),
+        (error) => {
+          assert.equal(error, cleanupFailure);
+          assert.match(
+            error.targetPacingFailure?.cause?.message ?? "",
+            /clock must return a finite number/
+          );
+          assert.equal(linkedinBrowserSessionCleanupFailed(error), true);
+          return true;
+        }
+      );
+    } finally {
+      await rm(directory, { recursive: true, force: true });
+    }
+  });
+
+  it("keeps the final cooldown across distinct host-local paths under one durable lease", async () => {
+    const directory = await mkdtemp(join(tmpdir(), "returner-linkedin-final-cooldown-global-test-"));
+    const firstLockPath = join(directory, "host-a.lock");
+    const secondLockPath = join(directory, "host-b.lock");
+    const firstPacingStatePath = join(directory, "host-a-pacing.json");
+    const secondPacingStatePath = join(directory, "host-b-pacing.json");
+    const activeLeases = new Map();
+    const releases = [];
+    const sleeps = [];
+    let leaseSequence = 0;
+    let clock = 1_000;
+    let firstCooldownStarted;
+    const firstCooldown = new Promise((resolve) => {
+      firstCooldownStarted = resolve;
+    });
+    let releaseFirstCooldown;
+    const firstCooldownGate = new Promise((resolve) => {
+      releaseFirstCooldown = resolve;
+    });
+    const provider = {
+      async claim({ lockKey, ownerId }) {
+        if (activeLeases.has(lockKey)) return null;
+        leaseSequence += 1;
+        const leaseToken = `final-cooldown-global-${leaseSequence}`;
+        activeLeases.set(lockKey, { ownerId, leaseToken });
+        return { leaseToken };
+      },
+      async renew({ lockKey, ownerId, leaseToken }) {
+        const lease = activeLeases.get(lockKey);
+        return lease?.ownerId === ownerId && lease?.leaseToken === leaseToken;
+      },
+      async quarantine({ lockKey, ownerId, leaseToken }) {
+        const lease = activeLeases.get(lockKey);
+        return lease?.ownerId === ownerId && lease?.leaseToken === leaseToken;
+      },
+      async release({ lockKey, ownerId, leaseToken }) {
+        const lease = activeLeases.get(lockKey);
+        if (lease?.ownerId !== ownerId || lease?.leaseToken !== leaseToken) return false;
+        releases.push(clock);
+        activeLeases.delete(lockKey);
+        return true;
+      }
+    };
+    let sleepCount = 0;
+    const sleep = async (milliseconds) => {
+      sleepCount += 1;
+      sleeps.push(milliseconds);
+      if (sleepCount === 1) {
+        firstCooldownStarted();
+        await firstCooldownGate;
+      }
+      clock += milliseconds;
+    };
+    const firstOptions = {
+      ...linkedInLockOptions(firstLockPath, provider),
+      now: () => clock,
+      sleep
+    };
+    const secondOptions = {
+      ...linkedInLockOptions(secondLockPath, provider),
+      now: () => clock,
+      sleep
+    };
+    let first;
+
+    try {
+      first = withLinkedInAccountLock(
+        () => runLinkedInSerialLane(
+          ["first-host-target"],
+          async () => undefined,
+          {
+            pacingStatePath: firstPacingStatePath,
+            now: () => clock,
+            releaseNow: () => clock,
+            sleep
+          }
+        ),
+        firstOptions
+      );
+      await firstCooldown;
+
+      await assert.rejects(
+        withLinkedInAccountLock(
+          () => runLinkedInSerialLane(
+            ["second-host-target"],
+            async () => undefined,
+            {
+              pacingStatePath: secondPacingStatePath,
+              now: () => clock,
+              releaseNow: () => clock,
+              sleep
+            }
+          ),
+          secondOptions
+        ),
+        /another authenticated collector already holds the durable global lease/
+      );
+
+      releaseFirstCooldown();
+      await first;
+      await withLinkedInAccountLock(
+        () => runLinkedInSerialLane(
+          ["second-host-target"],
+          async () => undefined,
+          {
+            pacingStatePath: secondPacingStatePath,
+            now: () => clock,
+            releaseNow: () => clock,
+            sleep
+          }
+        ),
+        secondOptions
+      );
+
+      assert.deepEqual(sleeps, [
+        LINKEDIN_MINIMUM_TARGET_DELAY_MS,
+        LINKEDIN_MINIMUM_TARGET_DELAY_MS
+      ]);
+      assert.deepEqual(releases, [
+        1_000 + LINKEDIN_MINIMUM_TARGET_DELAY_MS,
+        1_000 + LINKEDIN_MINIMUM_TARGET_DELAY_MS * 2
+      ]);
+    } finally {
+      releaseFirstCooldown?.();
+      await first?.catch(() => undefined);
+      await rm(directory, { recursive: true, force: true });
+    }
+  });
+
   it("aborts authenticated work immediately when the durable lease heartbeat is lost", async () => {
     const directory = await mkdtemp(join(tmpdir(), "returner-linkedin-heartbeat-test-"));
     const lockPath = join(directory, "linkedin.lock");
     let releases = 0;
+    let quarantines = 0;
     const provider = {
       async claim() {
         return { leaseToken: "heartbeat-lease" };
       },
       async renew() {
         return false;
+      },
+      async quarantine({ safetyReason }) {
+        quarantines += 1;
+        assert.equal(safetyReason, "durable-lease-heartbeat-failure");
+        return true;
       },
       async release() {
         releases += 1;
@@ -831,7 +1380,8 @@ describe("logged-in LinkedIn collection", () => {
           return true;
         }
       );
-      assert.equal(releases, 1);
+      assert.equal(quarantines, 1);
+      assert.equal(releases, 0);
       await assert.rejects(readFile(lockPath, "utf8"), { code: "ENOENT" });
     } finally {
       await rm(directory, { recursive: true, force: true });

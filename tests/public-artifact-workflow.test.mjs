@@ -110,17 +110,24 @@ describe("Public Artifact Validation workflow", () => {
       expect(section).toContain("run: npm ci");
       expect(section).toContain(`run: ${command}`);
 
-      if (job === "scoring" || job === "artifacts") {
-        const gateName = job === "scoring"
+      const gateName =
+        job === "scoring"
           ? "Run scoring release gate"
-          : "Run artifact release gate";
-        const gateStep = section.match(
-          new RegExp(`\\n      - name: ${gateName}[\\s\\S]*?(?=\\n      - name:|$)`)
-        )?.[0] ?? "";
-        expect(gateStep).toContain(
-          "env:\n          NODE_OPTIONS: --max-old-space-size=3072"
-        );
-      }
+          : job === "artifacts"
+            ? "Run artifact release gate"
+            : job === "build"
+              ? "Build production application"
+              : job === "collectors"
+                ? "Run collector contracts"
+                : "Run logged-social contracts";
+      const gateStep = section.match(
+        new RegExp(`\\n      - name: ${gateName}[\\s\\S]*?(?=\\n      - name:|$)`)
+      )?.[0] ?? "";
+      const expectedHeapMb =
+        job === "build" ? 1536 : ["scoring", "artifacts"].includes(job) ? 3072 : 2304;
+      expect(gateStep).toContain(
+        `env:\n          NODE_OPTIONS: --max-old-space-size=${expectedHeapMb}`
+      );
     }
 
     const appTestsJob = workflow.match(
@@ -138,6 +145,7 @@ describe("Public Artifact Validation workflow", () => {
     expect(appTestsJob).toContain("node-version: 24.14.0");
     expect(appTestsJob).toContain("cache: npm");
     expect(appTestsJob).toContain("run: npm ci");
+    expect(appTestsJob).toContain("NODE_OPTIONS: --max-old-space-size=2304");
     expect(appTestsJob).toContain("VITEST_SHARD_INDEX: ${{ matrix.shard }}");
     expect(appTestsJob).toContain("VITEST_SHARD_COUNT: 4");
     expect(appTestsJob).toContain("run: npm run test");
@@ -154,6 +162,12 @@ describe("Public Artifact Validation workflow", () => {
     expect(qualityJob).toContain("run: npm ci");
     expect(qualityJob).toContain("run: npm run lint");
     expect(qualityJob).toContain("run: npm run typecheck");
+    for (const stepName of ["Lint application", "Type-check application"]) {
+      const step = qualityJob.match(
+        new RegExp(`\\n      - name: ${stepName}[\\s\\S]*?(?=\\n      - name:|$)`)
+      )?.[0] ?? "";
+      expect(step).toContain("NODE_OPTIONS: --max-old-space-size=2304");
+    }
     expect(workflow).not.toMatch(/^\s*run:\s+npm run check\s*$/m);
 
     const validateJob = workflow.match(/\n  validate:[\s\S]*$/)?.[0] ?? "";

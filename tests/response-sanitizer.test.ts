@@ -24,6 +24,11 @@ describe("graph response sanitizer", () => {
     expect(graphWithRaw.evidence.some((item) => item.rawVisibleText)).toBe(true);
     expect(sanitized.evidence.some((item) => "rawVisibleText" in item)).toBe(false);
     expect(sanitized.evidence.length).toBeLessThan(graph.evidence.length);
+    expect(sanitized.evidenceProjection).toMatchObject({
+      sourceEvidenceCount: graph.evidence.length,
+      retainedEvidenceCount: sanitized.evidence.length,
+      omittedEvidenceCount: graph.evidence.length - sanitized.evidence.length
+    });
     expect(sanitized.evidence.every((item) => item.contributionScore > 0)).toBe(true);
     expect(sanitized.evidence[0]?.id).toMatch(/^ev-/);
     expect(sanitized.evidence.every((item) => item.why === "")).toBe(true);

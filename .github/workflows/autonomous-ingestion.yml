@@ -282,6 +282,7 @@ jobs:
         id: ingestion
         timeout-minutes: 330
         env:
+          NODE_OPTIONS: --max-old-space-size=1024
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           GITHUB_TOKEN: ${{ github.token }}
@@ -317,6 +318,14 @@ jobs:
             exit 1
           fi
 
+          GIT_CONFIG_COUNT=2 \
+          GIT_CONFIG_KEY_0="core.hooksPath" \
+          GIT_CONFIG_VALUE_0="/dev/null" \
+          GIT_CONFIG_KEY_1="credential.helper" \
+          GIT_CONFIG_VALUE_1="" \
+          GIT_CONFIG_NOSYSTEM=1 \
+          GIT_CONFIG_GLOBAL=/dev/null \
+          GIT_TERMINAL_PROMPT=0 \
           git fetch --no-tags origin +refs/heads/main:refs/remotes/origin/main
           VERIFIED_COMMIT="$(git rev-parse "${RUNNER_PUBLISHED_COMMIT}^{commit}")"
           REMOTE_MAIN_COMMIT="$(git rev-parse refs/remotes/origin/main)"
@@ -330,16 +339,6 @@ jobs:
             echo "remote_main_commit=$REMOTE_MAIN_COMMIT"
             echo "commit_verified=true"
           } >> "$GITHUB_OUTPUT"
-
-      - name: Validate generated public artifacts
-        timeout-minutes: 10
-        env:
-          NODE_OPTIONS: --max-old-space-size=3072
-        run: |
-          npm run artifacts:validate
-          npm run artifacts:manifest:validate
-          npm run timeline:validate
-          npm run artifacts:derived:validate
 
       - name: Record publication receipt
         id: publication_receipt
@@ -387,12 +386,9 @@ jobs:
             REPLAY_MODE="true"
           fi
           VALIDATION_CANDIDATE=""
-          for candidate in "$VERIFIED_PUBLISHED_COMMIT" "$RUNNER_PUBLISHED_COMMIT"; do
-            if [[ "$candidate" =~ ^[0-9a-fA-F]{40}$ ]]; then
-              VALIDATION_CANDIDATE="$(printf '%s' "$candidate" | tr '[:upper:]' '[:lower:]')"
-              break
-            fi
-          done
+          if [[ "$VERIFIED_PUBLISHED_COMMIT" =~ ^[0-9a-fA-F]{40}$ ]]; then
+            VALIDATION_CANDIDATE="$(printf '%s' "$VERIFIED_PUBLISHED_COMMIT" | tr '[:upper:]' '[:lower:]')"
+          fi
           {
             echo "published_commit="
             echo "validation_candidate=$VALIDATION_CANDIDATE"
@@ -413,7 +409,15 @@ jobs:
             local delay_seconds="${PUBLICATION_FETCH_RETRY_DELAY_SECONDS:-2}"
             local attempt
             for attempt in 1 2 3 4; do
-              if git fetch --no-tags origin +refs/heads/main:refs/remotes/origin/main; then return 0; fi
+              if GIT_CONFIG_COUNT=2 \
+                GIT_CONFIG_KEY_0="core.hooksPath" \
+                GIT_CONFIG_VALUE_0="/dev/null" \
+                GIT_CONFIG_KEY_1="credential.helper" \
+                GIT_CONFIG_VALUE_1="" \
+                GIT_CONFIG_NOSYSTEM=1 \
+                GIT_CONFIG_GLOBAL=/dev/null \
+                GIT_TERMINAL_PROMPT=0 \
+                git fetch --no-tags origin +refs/heads/main:refs/remotes/origin/main; then return 0; fi
               if [ "$attempt" -lt 4 ]; then
                 echo "::warning title=Publication recovery retry::Unauthenticated main fetch attempt $attempt failed."
                 sleep "$delay_seconds"

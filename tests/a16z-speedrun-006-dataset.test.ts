@@ -16,7 +16,7 @@ import {
 } from "@/lib/graph/a16z-speedrun-006-dataset";
 import { calibrateBatchCompanyScores } from "@/lib/scoring/batch-calibration";
 import { buildGraphResponse } from "@/lib/graph/graph-builder";
-import { canonicalPostKey } from "@/lib/graph/dedupe";
+import { canonicalPostKey, nativeEvidenceIdentityFromUrl } from "@/lib/graph/dedupe";
 import { TRACTION_SCORING_CONFIG } from "@/lib/graph/traction-scoring-config";
 import { scoringEligibility } from "@/lib/graph/traction-scoring";
 import { isCrediblyPublishedToday } from "@/lib/graph/native-publication-date";
@@ -75,6 +75,12 @@ const targetedRuntimeProjection = readTestJson<RuntimeEvidenceProjection>("gener
 
 function readTestJson<T = unknown>(relativePath: string): T {
   return JSON.parse(readFileSync(join(process.cwd(), relativePath), "utf8")) as T;
+}
+
+function latestTimestamp(...timestamps: Array<string | null | undefined>): string | undefined {
+  return timestamps
+    .filter((timestamp): timestamp is string => Boolean(timestamp))
+    .sort((left, right) => Date.parse(right) - Date.parse(left))[0];
 }
 
 const A16Z_NATIVE_SOCIAL_TRACTION_PLATFORM_LIST: Platform[] = [
@@ -307,8 +313,12 @@ describe("a16z speedrun 006 dataset", () => {
   });
 
   it("materializes an exact roster-owned YouTube receipt with a canonical company id", () => {
+    const expectedNativePostId = "ahBF2XkA9No";
     const evidence = a16zSpeedrun006GraphDataset.evidence.find(
-      (item) => item.platform === "youtube" && item.platformPostId === "ahBF2XkA9No"
+      (item) =>
+        item.platform === "youtube" &&
+        typeof item.platformPostId === "string" &&
+        a16zNativePostIdsMatch("youtube", item.platformPostId, expectedNativePostId)
     );
 
     expect(evidence).toEqual(
@@ -321,6 +331,8 @@ describe("a16z speedrun 006 dataset", () => {
         review_state: "verified"
       })
     );
+    expect(evidence?.platformPostId).toBe(expectedNativePostId);
+    expect(nativeEvidenceIdentityFromUrl("youtube", evidence?.sourceUrl ?? "")).toBe(expectedNativePostId);
     expect(typeof evidence?.rawVisibleText).toBe("string");
     expect(JSON.parse(evidence?.rawVisibleText ?? "null")).toEqual(
       expect.objectContaining({
@@ -1576,10 +1588,13 @@ describe("a16z speedrun 006 dataset", () => {
         platform: "instagram",
         attachedCompanyName: "Mirror Mirror AI",
         accountUrl: "https://www.instagram.com/yusan.lin",
-        sourceUrl: "https://www.instagram.com/p/DV9vi8vgUkp/",
         platformPostId: "DV9vi8vgUkp"
       })
     );
+    expect(yusanInstagramEvidence?.platformPostId).toBe("DV9vi8vgUkp");
+    expect(nativeEvidenceIdentityFromUrl("instagram", yusanInstagramEvidence?.sourceUrl ?? "")).toBe("DV9vi8vgUkp");
+    expect(new URL(yusanInstagramEvidence?.sourceUrl ?? "https://instagram.com").hostname.replace(/^www\./, ""))
+      .toBe("instagram.com");
     expect(yusanInstagramEvidence?.metrics.likes).toBeGreaterThanOrEqual(1979);
     expect(yusanInstagramEvidence?.metrics.comments).toBeGreaterThanOrEqual(29);
     expect(clairInstagramEvidence?.contributionScore).toBeGreaterThan(0);
@@ -1869,7 +1884,7 @@ describe("a16z speedrun 006 dataset", () => {
         postedAt: repository?.createdAt,
         publishedAtPrecision: "exact",
         observedAt: githubTractionSnapshot.source.fetchedAt,
-        last_updated_at: repository?.updatedAt
+        last_updated_at: latestTimestamp(repository?.updatedAt, repository?.pushedAt)
       })
     );
     expect(JSON.parse(evidence?.rawVisibleText ?? "null")).toEqual(
@@ -1906,7 +1921,7 @@ describe("a16z speedrun 006 dataset", () => {
       postedAt: createdAt,
       publishedAtPrecision: "exact",
       platformObjectId: String(repositoryId),
-      last_updated_at: updatedAt
+      last_updated_at: latestTimestamp(updatedAt, pushedAt)
     }));
     expect(JSON.parse(evidence?.rawVisibleText ?? "null")).toEqual(
       expect.objectContaining({

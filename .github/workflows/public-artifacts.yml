@@ -367,10 +367,14 @@ jobs:
 
       - name: Lint application
         timeout-minutes: 10
+        env:
+          NODE_OPTIONS: --max-old-space-size=2304
         run: npm run lint
 
       - name: Type-check application
         timeout-minutes: 10
+        env:
+          NODE_OPTIONS: --max-old-space-size=2304
         run: npm run typecheck
 
   app_tests:
@@ -402,6 +406,7 @@ jobs:
       - name: Run Vitest application suite
         timeout-minutes: 85
         env:
+          NODE_OPTIONS: --max-old-space-size=2304
           VITEST_SHARD_INDEX: ${{ matrix.shard }}
           VITEST_SHARD_COUNT: 4
         run: npm run test
@@ -429,6 +434,8 @@ jobs:
 
       - name: Run collector contracts
         timeout-minutes: 45
+        env:
+          NODE_OPTIONS: --max-old-space-size=2304
         run: npm run test:collectors
 
   logged_social:
@@ -454,6 +461,8 @@ jobs:
 
       - name: Run logged-social contracts
         timeout-minutes: 15
+        env:
+          NODE_OPTIONS: --max-old-space-size=2304
         run: npm run test:logged-social
 
   build:
@@ -479,6 +488,8 @@ jobs:
 
       - name: Build production application
         timeout-minutes: 20
+        env:
+          NODE_OPTIONS: --max-old-space-size=1536
         run: npm run build
 
   scoring:

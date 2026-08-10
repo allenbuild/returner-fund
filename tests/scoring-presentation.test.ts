@@ -151,8 +151,8 @@ describe("score presentation conservation", () => {
       }
     }
 
-    expect(checkedCompanies).toBe(430);
-    expect(contributingCompanies).toBe(423);
+    expect(checkedCompanies).toBe(450);
+    expect(contributingCompanies).toBe(437);
   });
 
   it("renders the Antihero conversion as 20 -> 37.7 while totaling 87", () => {

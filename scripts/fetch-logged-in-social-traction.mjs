@@ -14,6 +14,8 @@ import {
   linkedinCircuitStateTransition,
   linkedinCollectionAttemptState,
   linkedinExecutionPolicy,
+  linkedinBrowserSessionCleanupFailed,
+  finalizeLinkedInInteractionPacing,
   linkedinFailureKind,
   linkedinFailureRequiresImmediateAbort,
   linkedinSafetySignal,
@@ -72,6 +74,7 @@ import {
   canonicalCheckpointPayloads,
   checkpointCanonicalRows
 } from "./lib/logged-in-checkpoint-union.mjs";
+import { canonicalSocialAccountUrl } from "./lib/social-account-url.mjs";
 
 if (booleanArg("--help") || booleanArg("-h")) {
   await writeStdout(`${usage()}\n`);
@@ -400,6 +403,7 @@ async function collectTarget(target, workerIndex, collectionGuard = null) {
     })
   ) return;
 
+  let terminalSafetyError = null;
   try {
     const result =
       target.platform === "linkedin"
@@ -469,9 +473,30 @@ async function collectTarget(target, workerIndex, collectionGuard = null) {
       );
     }
     console.warn(`${target.platform} ${target.companyName} / ${target.name}: ${message}`);
+    if (target.platform === "linkedin" && linkedinBrowserSessionCleanupFailed(error)) {
+      terminalSafetyError = error;
+    }
   }
 
-  await writeCheckpoint();
+  try {
+    await writeCheckpoint();
+  } catch (checkpointError) {
+    if (!terminalSafetyError) throw checkpointError;
+    if (typeof terminalSafetyError === "object" && terminalSafetyError !== null) {
+      try {
+        Object.defineProperty(terminalSafetyError, "checkpointFailure", {
+          configurable: false,
+          enumerable: false,
+          writable: false,
+          value: checkpointError
+        });
+      } catch {
+        // Preserve the browser cleanup failure as the account-safety signal.
+      }
+    }
+    throw terminalSafetyError;
+  }
+  if (terminalSafetyError) throw terminalSafetyError;
 }
 
 await runWorkerPool(otherTargets, workers, async (target, workerIndex) => {
@@ -536,7 +561,7 @@ const payload = {
       "Instagram profile grids and X profile timelines are treated as opt-in authenticated/read-only sources when explicitly targeted.",
       `X ingestion mode: ${xCollectionMode}. Browser, adapter, and hybrid modes are read-only; hybrid prefers the authenticated adapter and uses the DOM only to fill incomplete results.`,
       `LinkedIn ingestion mode: ${linkedinCollectionMode}. Authenticated browser DOM collection is the only supported mode so interaction pacing remains locally auditable.`,
-      `Logged-in LinkedIn activity scraping is disabled unless both --platforms=linkedin and --allow-linkedin are passed. It uses one account-global locked serial worker, a hard cap of ${linkedinExecution.maximumTargetCap} targets per invocation, and persistent host-local pacing with at least ${linkedinExecution.delayMs}ms between completed target attempts.`,
+      `Logged-in LinkedIn activity scraping is disabled unless both --platforms=linkedin and --allow-linkedin are passed. It uses one account-global locked serial worker, a hard cap of ${linkedinExecution.maximumTargetCap} targets per invocation, persistent host-local pacing with at least ${linkedinExecution.delayMs}ms between completed target attempts, keeps the durable account lease for the same final cooldown before release, and places the durable lease in a one-year manual-recovery quarantine when authenticated browser cleanup cannot be proven.`,
       "LinkedIn challenge, checkpoint, account-warning, authentication, and HTTP 429 signals abort the LinkedIn lane immediately so untouched targets remain retryable.",
       "Instagram login, challenge, and rate-limit failures open a circuit immediately; repeated command or profile failures open it after three consecutive failed targets. Legitimate empty native timelines remain completed empty checks.",
       `Checkpoint owner-collision reconciliation: ${ownerCollisionReconciliationSummary.reattributedCount} stale company rows reattributed, ${ownerCollisionReconciliationSummary.quarantinedCount} quarantined.`,
@@ -711,7 +736,12 @@ function collectTargets(companies) {
     targets.push(...manualTargetsForCompany(company));
   }
 
-  return dedupeTargets(targets.filter((target) => target.url));
+  // Keep the authenticated collector on the same canonical account surface as
+  // the public planner. Malformed catalog placeholders must never become a
+  // browser navigation target (for example a LinkedIn vanity containing `~`).
+  return dedupeTargets(targets.filter(
+    (target) => target.url && canonicalSocialAccountUrl(target.platform, target.url)
+  ));
 }
 
 function verifiedOwnerSocialAccounts(owner = {}, positiveLinks = {}, ownerOverride = {}) {
@@ -1010,6 +1040,7 @@ async function fetchLinkedInPosts(target, workerIndex, collectionGuard = null) {
         completedSourceCount += 1;
       }
     } catch (error) {
+      if (linkedinBrowserSessionCleanupFailed(error)) throw error;
       const message = errorMessage(error);
       const failureKind = linkedinFailureKind(message);
       if (failureKind === "empty") {
@@ -1105,6 +1136,8 @@ async function fetchLinkedInPostsFromBrowser(
       const interact = async (args, options, { optional = false, label } = {}) => {
         collectionGuard?.assertHealthy?.();
         await interactionPacer.beforeInteraction();
+        let operationError = null;
+        let operationMustAbort = false;
         try {
           const raw = await runOpenCli(args, {
             ...options,
@@ -1114,12 +1147,18 @@ async function fetchLinkedInPostsFromBrowser(
           assertLinkedInSafetyClear(raw, label ?? args.slice(2).join(" "));
           return raw;
         } catch (error) {
-          if (linkedinFailureRequiresImmediateAbort(errorMessage(error)) || !optional) {
+          operationError = error;
+          operationMustAbort =
+            linkedinFailureRequiresImmediateAbort(errorMessage(error)) || !optional;
+          if (operationMustAbort) {
             throw error;
           }
           return null;
         } finally {
-          interactionPacer.afterInteraction();
+          finalizeLinkedInInteractionPacing(interactionPacer, {
+            operationError,
+            operationMustAbort
+          });
         }
       };
       const probeSafety = () =>
@@ -2016,7 +2055,7 @@ async function writeCheckpoint() {
     needsReview: sanitizeStoredRows(contentDedupe.needsReview),
     attributionReconciliationLedger: contentDedupe.attributionReconciliationLedger
   };
-  checkpointWriteChain = checkpointWriteChain.catch(() => undefined).then(() => writeJson(checkpointPath, snapshot));
+  checkpointWriteChain = checkpointWriteChain.then(() => writeJson(checkpointPath, snapshot));
   await checkpointWriteChain;
 }
 
@@ -2027,8 +2066,11 @@ function sanitizeStoredRows(rows) {
 async function readJson(path, fallback) {
   try {
     return JSON.parse(await readFile(path, "utf8"));
-  } catch {
-    return fallback;
+  } catch (error) {
+    if (error?.code === "ENOENT") return fallback;
+    throw new Error(`Logged-in social JSON artifact could not be read safely: ${path}`, {
+      cause: error
+    });
   }
 }
 
@@ -2396,14 +2438,40 @@ function resolveBatchConfig(value) {
 }
 
 function errorMessage(error) {
-  const primaryError = error?.primaryError ?? error;
-  const primary = sanitizeOpenCliDiagnostic(
-    primaryError instanceof Error ? primaryError.message : String(primaryError)
-  );
-  const cleanup = error?.sessionCleanupFailure instanceof Error
-    ? sanitizeOpenCliDiagnostic(error.sessionCleanupFailure.message)
-    : null;
-  return cleanup ? `${primary} | ${cleanup}` : primary;
+  const detailKeys = [
+    "primaryError",
+    "cause",
+    "sessionCleanupFailure",
+    "interactionPacingFailure",
+    "suppressedInteractionFailure",
+    "checkpointFailure",
+    "targetPacingFailure",
+    "globalLeaseHeartbeatFailure",
+    "globalLeaseQuarantineFailure",
+    "globalLeaseCleanupFailure"
+  ];
+  const queue = [error?.primaryError ?? error, error];
+  const seen = new Set();
+  const messages = [];
+  while (queue.length && seen.size < 24) {
+    const current = queue.shift();
+    if ((typeof current !== "object" && typeof current !== "function") || current === null) {
+      continue;
+    }
+    if (seen.has(current)) continue;
+    seen.add(current);
+    if (typeof current.message === "string" && current.message.trim()) {
+      const message = sanitizeOpenCliDiagnostic(redactTokenLikeStrings(current.message));
+      if (message && !messages.includes(message)) messages.push(message);
+    }
+    for (const key of detailKeys) {
+      const nested = current[key];
+      if ((typeof nested === "object" || typeof nested === "function") && nested !== null) {
+        queue.push(nested);
+      }
+    }
+  }
+  return messages.join(" | ") || sanitizeOpenCliDiagnostic(String(error));
 }
 
 function instagramBrowserProfileIdentityExtractJs() {

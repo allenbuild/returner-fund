@@ -288,7 +288,15 @@ jobs:
             local delay_seconds="${PUBLICATION_FETCH_RETRY_DELAY_SECONDS:-2}"
             local attempt
             for attempt in 1 2 3 4; do
-              if git fetch --no-tags origin "+refs/heads/$PUBLICATION_BRANCH:refs/remotes/origin/$PUBLICATION_BRANCH"; then return 0; fi
+              if GIT_CONFIG_COUNT=2 \
+                GIT_CONFIG_KEY_0="core.hooksPath" \
+                GIT_CONFIG_VALUE_0="/dev/null" \
+                GIT_CONFIG_KEY_1="credential.helper" \
+                GIT_CONFIG_VALUE_1="" \
+                GIT_CONFIG_NOSYSTEM=1 \
+                GIT_CONFIG_GLOBAL=/dev/null \
+                GIT_TERMINAL_PROMPT=0 \
+                git fetch --no-tags origin "+refs/heads/$PUBLICATION_BRANCH:refs/remotes/origin/$PUBLICATION_BRANCH"; then return 0; fi
               if [ "$attempt" -lt 4 ]; then
                 sleep "$delay_seconds"
                 delay_seconds=$((delay_seconds * 2))
@@ -436,6 +444,8 @@ jobs:
       - name: Test daily benchmark updater
         if: steps.existing_slot.outputs.publication_status != 'already_completed'
         timeout-minutes: 10
+        env:
+          NODE_OPTIONS: --max-old-space-size=2304
         run: npm run test:benchmarks:daily
 
       - name: Record graph generation window
@@ -445,12 +455,15 @@ jobs:
       - name: Build app
         if: steps.existing_slot.outputs.publication_status != 'already_completed'
         timeout-minutes: 15
+        env:
+          NODE_OPTIONS: --max-old-space-size=1536
         run: npm run build
 
       - name: Update daily benchmark snapshots
         if: steps.existing_slot.outputs.publication_status != 'already_completed'
         timeout-minutes: 50
         env:
+          NODE_OPTIONS: --max-old-space-size=3072
           SCHEDULED_UTC_HOUR: ${{ needs.resolve.outputs.scheduled_utc_hour }}
           BENCHMARK_EXPECTED_CENTRAL_DATE: ${{ needs.resolve.outputs.central_date }}
           CANDIDATE_SCHEDULED_UTC_HOUR: ${{ needs.resolve.outputs.scheduled_utc_hour }}
@@ -544,6 +557,7 @@ jobs:
         if: steps.existing_slot.outputs.publication_status != 'already_completed'
         timeout-minutes: 10
         env:
+          NODE_OPTIONS: --max-old-space-size=3072
           TIMELINE_DATABASE_CONFIGURED: ${{ steps.timeline_database.outputs.configured }}
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
@@ -564,6 +578,8 @@ jobs:
 
       - name: Refresh artifact manifest
         if: steps.existing_slot.outputs.publication_status != 'already_completed'
+        env:
+          NODE_OPTIONS: --max-old-space-size=3072
         run: |
           INGESTION_RUN_ID="$(node -p "require('./public/graph/manifest.json').ingestionRunId")"
           node scripts/write-artifact-manifest.mjs --ingestion-run-id="$INGESTION_RUN_ID"
@@ -710,7 +726,15 @@ jobs:
             local attempt
             for attempt in 1 2 3 4; do
               assert_publication_credential_absent
-              if git fetch "${fetch_args[@]}"; then
+              if GIT_CONFIG_COUNT=2 \
+                GIT_CONFIG_KEY_0="core.hooksPath" \
+                GIT_CONFIG_VALUE_0="/dev/null" \
+                GIT_CONFIG_KEY_1="credential.helper" \
+                GIT_CONFIG_VALUE_1="" \
+                GIT_CONFIG_NOSYSTEM=1 \
+                GIT_CONFIG_GLOBAL=/dev/null \
+                GIT_TERMINAL_PROMPT=0 \
+                git fetch "${fetch_args[@]}"; then
                 return 0
               fi
               if [ "$attempt" -lt 4 ]; then
@@ -828,21 +852,28 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -- "${benchmark_files[@]}"
-          if git diff --cached --quiet; then
-            echo "No benchmark snapshot changes to commit."
-            assert_publication_credential_absent
-            fetch_publication_branch --no-tags origin "+refs/heads/$PUBLICATION_BRANCH:refs/remotes/origin/$PUBLICATION_BRANCH"
-            REMOTE_COMMIT="$(git rev-parse "refs/remotes/origin/$PUBLICATION_BRANCH")"
-            echo "publication_status=no_changes" >> "$GITHUB_OUTPUT"
-            echo "publish_candidate=$REMOTE_COMMIT" >> "$GITHUB_OUTPUT"
-            echo "published_commit=$REMOTE_COMMIT" >> "$GITHUB_OUTPUT"
-            echo "remote_main_commit=$REMOTE_COMMIT" >> "$GITHUB_OUTPUT"
-            echo "commit_verified=true" >> "$GITHUB_OUTPUT"
-            exit 0
+          if node scripts/lib/publication-semantic-diff.mjs --root "$PWD" --base HEAD --target index --ignore "$PUBLICATION_RECEIPT_PATH"; then
+            SEMANTIC_DIFF_STATUS=0
+          else
+            SEMANTIC_DIFF_STATUS=$?
           fi
-
-          git -c core.hooksPath=/dev/null -c credential.helper= \
-            commit -m "Update daily score benchmark snapshots" -m "$PUBLICATION_TRAILERS"
+          case "$SEMANTIC_DIFF_STATUS" in
+            0)
+              echo "No semantic benchmark changes; creating an immutable provenance commit."
+              PUBLICATION_STATUS="no_changes"
+              git -c core.hooksPath=/dev/null -c credential.helper= \
+                commit --allow-empty -m "Record daily score benchmark publication" -m "$PUBLICATION_TRAILERS"
+              ;;
+            1)
+              PUBLICATION_STATUS="published"
+              git -c core.hooksPath=/dev/null -c credential.helper= \
+                commit -m "Update daily score benchmark snapshots" -m "$PUBLICATION_TRAILERS"
+              ;;
+            *)
+              echo "::error title=Publication semantic diff failed::The semantic publication diff exited with status $SEMANTIC_DIFF_STATUS."
+              exit "$SEMANTIC_DIFF_STATUS"
+              ;;
+          esac
           FIRST_PUSH_CANDIDATE="$(git rev-parse HEAD)"
           echo "publish_candidate=$FIRST_PUSH_CANDIDATE" >> "$GITHUB_OUTPUT"
           if ! publish_exact_candidate "$FIRST_PUSH_CANDIDATE"; then
@@ -858,7 +889,7 @@ jobs:
             echo "::error title=Benchmark publication verification failed::Published commit $VERIFIED_COMMIT is not reachable from remote main $REMOTE_COMMIT."
             exit 1
           fi
-          echo "publication_status=published" >> "$GITHUB_OUTPUT"
+          echo "publication_status=$PUBLICATION_STATUS" >> "$GITHUB_OUTPUT"
           echo "published_commit=$VERIFIED_COMMIT" >> "$GITHUB_OUTPUT"
           echo "remote_main_commit=$REMOTE_COMMIT" >> "$GITHUB_OUTPUT"
           echo "commit_verified=true" >> "$GITHUB_OUTPUT"
@@ -922,7 +953,7 @@ jobs:
             exit 1
           fi
           VALIDATION_CANDIDATE=""
-          for candidate in "$EXISTING_PUBLISHED_COMMIT" "$VERIFIED_PUBLISHED_COMMIT" "$PUBLISH_CANDIDATE"; do
+          for candidate in "$EXISTING_PUBLISHED_COMMIT" "$VERIFIED_PUBLISHED_COMMIT"; do
             if [[ "$candidate" =~ ^[0-9a-fA-F]{40}$ ]]; then
               VALIDATION_CANDIDATE="$(printf '%s' "$candidate" | tr '[:upper:]' '[:lower:]')"
               break
@@ -954,7 +985,15 @@ jobs:
             local delay_seconds="${PUBLICATION_FETCH_RETRY_DELAY_SECONDS:-2}"
             local attempt
             for attempt in 1 2 3 4; do
-              if git fetch --no-tags origin "+refs/heads/$PUBLICATION_BRANCH:refs/remotes/origin/$PUBLICATION_BRANCH"; then return 0; fi
+              if GIT_CONFIG_COUNT=2 \
+                GIT_CONFIG_KEY_0="core.hooksPath" \
+                GIT_CONFIG_VALUE_0="/dev/null" \
+                GIT_CONFIG_KEY_1="credential.helper" \
+                GIT_CONFIG_VALUE_1="" \
+                GIT_CONFIG_NOSYSTEM=1 \
+                GIT_CONFIG_GLOBAL=/dev/null \
+                GIT_TERMINAL_PROMPT=0 \
+                git fetch --no-tags origin "+refs/heads/$PUBLICATION_BRANCH:refs/remotes/origin/$PUBLICATION_BRANCH"; then return 0; fi
               if [ "$attempt" -lt 4 ]; then
                 echo "::warning title=Benchmark recovery retry::Unauthenticated main fetch attempt $attempt failed."
                 sleep "$delay_seconds"

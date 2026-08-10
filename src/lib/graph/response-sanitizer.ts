@@ -29,7 +29,11 @@ export function sanitizeGraphResponse(
     eligibleEvidence,
     maxEvidence
   );
-  const evidenceProjection = buildEvidenceProjection(eligibleEvidence, rawEvidence, maxEvidence);
+  // Projection metadata describes the full attributable source corpus, not
+  // only the rows eligible for the compact public preview. Zero-point review
+  // rows may be intentionally omitted from `evidence`, but they still count
+  // toward the truthful corpus total shown by stats and pagination surfaces.
+  const evidenceProjection = buildEvidenceProjection(graph.evidence, rawEvidence, maxEvidence);
   const evidenceIdByOriginalId = new Map(
     rawEvidence.map((item, index) => [item.id, compactIds ? `ev-${index.toString(36)}` : item.id])
   );

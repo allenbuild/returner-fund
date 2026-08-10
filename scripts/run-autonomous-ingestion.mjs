@@ -82,6 +82,8 @@ import {
   assertReplaySafePublicationChanges,
   isProtectedSourcePolicyPath
 } from "./lib/autonomous-publication-trust.mjs";
+import { isVerifiedYouTubeNativeMetriclessEvidence } from "./lib/youtube-native-promotion.mjs";
+import { comparePublicationSemantics } from "./lib/publication-semantic-diff.mjs";
 
 let root;
 const pinnedSourceRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
@@ -203,7 +205,16 @@ const PROCESS_DESCENDANT_SAMPLE_MS = 250;
 const PROCESS_NORMAL_EXIT_DRAIN_MS = 500;
 const CHILD_PROCESS_LEDGER_MAX_ENTRIES = 4_096;
 const FULL_CORPUS_NODE_HEAP_MB = 3_072;
+const DEFAULT_NODE_CHILD_HEAP_MB = 1_536;
+// Collector shards can overlap across the public and GitHub lanes. Keep each
+// Node collector bounded independently so the aggregate request fan-out cannot
+// exhaust the runner while preserving the full-corpus budget for serial builds.
+const COLLECTOR_NODE_HEAP_MB = 768;
 const GIT_PUSH_RETRYABLE_EXIT_CODES = new Set([128, 129, 130, 137, 143]);
+const PUBLICATION_SEMANTIC_IGNORED_PATHS = Object.freeze([
+  "outputs/ingestion-source-delta-current.json",
+  "outputs/ingestion-source-delta-history.json"
+]);
 
 const SAFE_CHILD_ENV_KEYS = Object.freeze([
   "PATH",
@@ -2206,7 +2217,8 @@ async function prepareSanitizedPublicSnapshot(
       durableStorageConfigured,
       resolveBatchSlug: resolveLegacyPublicEvidenceBatch,
       resolveNativeAuthor: resolvePublicNativeAuthor,
-      contentIdentityReferenceRows
+      contentIdentityReferenceRows,
+      allowVerifiedMetriclessEvidence: isVerifiedYouTubeNativeMetriclessEvidence
     }
   );
 }
@@ -2859,7 +2871,8 @@ async function runShardedPublicCollector({
   const aggregateAttempt = latestOriginalCollectorAttempt(originalShardAttempts);
   const merged = mergePublicEvidenceSnapshots(snapshots, {
     fetchedAt: latestCollectorFetchedAt(snapshots),
-    durableStorageConfigured
+    durableStorageConfigured,
+    allowVerifiedMetriclessEvidence: isVerifiedYouTubeNativeMetriclessEvidence
   });
   merged.source = {
     ...merged.source,
@@ -3056,6 +3069,7 @@ async function runShardedGithubCollector({
           AUTONOMOUS_PROCESS_BUDGETS.githubCollectorAttemptMs,
           `github ${batchSlug} shard ${shard.shardIndex + 1}/${shardCount}`
         ),
+        nodeHeapMb: COLLECTOR_NODE_HEAP_MB,
         deadlineAt: collectionBudget.deadlineAt,
         label: `github ${batchSlug} shard ${shard.shardIndex + 1}/${shardCount}`,
         envCategory: "github_collector",
@@ -3220,6 +3234,7 @@ async function runPublicCollectorWithCheckpointRecovery({
         AUTONOMOUS_PROCESS_BUDGETS.publicCollectorAttemptMs,
         `public ${batchSlug} shard ${shardIndex + 1}/${shardCount}`
       ),
+      nodeHeapMb: COLLECTOR_NODE_HEAP_MB,
       deadlineAt: collectionBudget.deadlineAt,
       label: `public ${batchSlug} shard ${shardIndex + 1}/${shardCount}`,
       envCategory: "public_collector",
@@ -3238,6 +3253,7 @@ async function runPublicCollectorWithCheckpointRecovery({
         AUTONOMOUS_PROCESS_BUDGETS.collectorCheckpointFlushMs,
         `public ${batchSlug} shard ${shardIndex + 1}/${shardCount} checkpoint flush`
       ),
+      nodeHeapMb: COLLECTOR_NODE_HEAP_MB,
       deadlineAt: collectionDrainBudget.deadlineAt,
       label: `public ${batchSlug} shard ${shardIndex + 1}/${shardCount} checkpoint flush`,
       envCategory: "public_collector",
@@ -3282,6 +3298,7 @@ async function runTopVoiceCollector() {
         AUTONOMOUS_PROCESS_BUDGETS.topVoiceCollectorMs,
         "Top Voice X discovery"
       ),
+      nodeHeapMb: COLLECTOR_NODE_HEAP_MB,
       deadlineAt: collectionBudget.deadlineAt,
       label: "Top Voice X discovery",
       envCategory: "public_collector",
@@ -4831,13 +4848,7 @@ async function publishRepositoryArtifacts(publicationRunId, publicationInputs) {
   await stageRepositoryArtifacts();
   const branch = publicationBranch();
 
-  const diff = await runCommand("git", ["diff", "--cached", "--quiet"], {
-    timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitDiffMs,
-    label: "check staged artifacts",
-    allowedExitCodes: [0, 1],
-    cwd: publicationRoot
-  });
-  let publicationTreeChanged = diff.code !== 0;
+  let publicationTreeChanged = false;
 
   assertLeaseHealthy();
   // Even an unchanged tree receives a new empty provenance commit. The
@@ -4845,10 +4856,15 @@ async function publishRepositoryArtifacts(publicationRunId, publicationInputs) {
   // reusing an older commit would make a truthful no-change run unverifiable.
   const firstCommit = await commitPublicationArtifacts({
     amend: false,
-    allowUnchangedTree: !publicationTreeChanged
+    allowUnchangedTree: true
   });
   const firstPushCommit = firstCommit.publishedCommit;
   publicationReceiptSha256 = firstCommit.receiptSha256;
+  publicationTreeChanged = await classifyPublicationSemantics({
+    baseRef: publicationBaseCommit,
+    targetRef: firstPushCommit,
+    label: "initial publication candidate"
+  });
   let firstPush;
   const firstPushCandidate = {
     publishedCommit: firstPushCommit,
@@ -4977,21 +4993,21 @@ async function publishRepositoryArtifacts(publicationRunId, publicationInputs) {
     await buildAndValidatePublication(publicationRunId, publicationInputs.catalogState);
     if (run) await persistArtifactManifest(run.id);
     await stageRepositoryArtifacts();
-    const rebuiltDiff = await runCommand("git", ["diff", "--cached", "--quiet"], {
-      timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitDiffMs,
-      label: "check rebuilt artifacts",
-      allowedExitCodes: [0, 1],
-      cwd: publicationRoot
-    });
-    publicationTreeChanged = publicationTreeChanged || rebuiltDiff.code !== 0;
     assertLeaseHealthy();
     const amendCurrentRunCommit = await headHasPublicationRunIdentity();
     const retryCommit = await commitPublicationArtifacts({
       amend: amendCurrentRunCommit,
-      allowUnchangedTree: rebuiltDiff.code === 0
+      allowUnchangedTree: true
     });
     const retryPushCommit = retryCommit.publishedCommit;
     publicationReceiptSha256 = retryCommit.receiptSha256;
+    // Recompute from the retry base. The first candidate's classification may
+    // describe a different base and must never stick through a rebuild.
+    publicationTreeChanged = await classifyPublicationSemantics({
+      baseRef: retryBaseCommit,
+      targetRef: retryPushCommit,
+      label: "retry publication candidate"
+    });
     const retryPushCandidate = {
       publishedCommit: retryPushCommit,
       branch,
@@ -5017,7 +5033,7 @@ async function publishRepositoryArtifacts(publicationRunId, publicationInputs) {
     "info",
     publicationTreeChanged
       ? "Refreshed artifacts were committed and pushed."
-      : "No artifact bytes changed; an immutable provenance commit was pushed.",
+      : "No semantic artifact content changed; an immutable provenance commit was pushed.",
     {
     idempotencyKey,
     publicationRunId,
@@ -5112,6 +5128,17 @@ async function commitPublicationArtifacts({ amend, allowUnchangedTree = false })
   })).stdout.trim();
   await verifyPublicationCommitProvenance(publishedCommit, provenance);
   return { publishedCommit, receiptSha256: provenance.receiptSha256 };
+}
+
+async function classifyPublicationSemantics({ baseRef, targetRef, label }) {
+  const comparison = await comparePublicationSemantics({
+    rootDir: publicationRoot,
+    baseRef,
+    targetRef,
+    ignoredPaths: PUBLICATION_SEMANTIC_IGNORED_PATHS
+  });
+  if (typeof comparison?.changed === "boolean") return comparison.changed;
+  throw new Error(`${label} semantic comparison returned an unsupported result.`);
 }
 
 async function headHasPublicationRunIdentity() {
@@ -5736,7 +5763,10 @@ function pathIsWithin(parent, candidate) {
 
 async function runCommand(command, commandArgs, {
   timeoutMs,
-  nodeHeapMb = null,
+  // Child environments deliberately strip inherited NODE_OPTIONS. Give every
+  // Node child a bounded default so a newly added production path cannot become
+  // uncapped by omission; collectors and full-corpus builders override it.
+  nodeHeapMb = isNodeExecutable(command) ? DEFAULT_NODE_CHILD_HEAP_MB : null,
   deadlineAt = null,
   label,
   env = {},

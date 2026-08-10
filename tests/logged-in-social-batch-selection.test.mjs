@@ -1,4 +1,14 @@
-import { execFileSync } from "node:child_process";
+import { execFileSync, spawnSync } from "node:child_process";
+import {
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  statSync,
+  writeFileSync
+} from "node:fs";
+import { tmpdir } from "node:os";
+import path from "node:path";
 import { describe, expect, it } from "vitest";
 import {
   linkedinAccountSlugFromUrl,
@@ -237,6 +247,47 @@ describe("logged-in social batch selection", () => {
     ]));
   });
 
+  it("fails closed without replacing malformed or unreadable checkpoints", () => {
+    const directory = mkdtempSync(path.join(tmpdir(), "returner-logged-social-checkpoint-test-"));
+    try {
+      const malformedPath = path.join(directory, "malformed.json");
+      const malformedBytes = "{not-valid-json\n";
+      writeFileSync(malformedPath, malformedBytes);
+      const malformed = runPlanProcess([
+        "--batch=S26",
+        "--entities=company",
+        "--platforms=x",
+        `--checkpoint-path=${malformedPath}`
+      ]);
+      expect(malformed.status).not.toBe(0);
+      expect(malformed.stderr).toContain("could not be read safely");
+      expect(readFileSync(malformedPath, "utf8")).toBe(malformedBytes);
+
+      const directoryPath = path.join(directory, "checkpoint-directory");
+      mkdirSync(directoryPath);
+      const unreadable = runPlanProcess([
+        "--batch=S26",
+        "--entities=company",
+        "--platforms=x",
+        `--checkpoint-path=${directoryPath}`
+      ]);
+      expect(unreadable.status).not.toBe(0);
+      expect(unreadable.stderr).toContain("could not be read safely");
+      expect(statSync(directoryPath).isDirectory()).toBe(true);
+
+      const missing = runPlanProcess([
+        "--batch=S26",
+        "--company=6thsense",
+        "--entities=company",
+        "--platforms=x",
+        `--checkpoint-path=${path.join(directory, "missing.json")}`
+      ]);
+      expect(missing.status).toBe(0);
+    } finally {
+      rmSync(directory, { recursive: true, force: true });
+    }
+  });
+
   it("retains company DOM targets in browser mode and rejects unpaced adapter mode", () => {
     const plan = runPlan([
       "--batch=S2026",
@@ -349,4 +400,12 @@ function runPublicPlan(args) {
     { cwd: root, encoding: "utf8", maxBuffer: 20 * 1024 * 1024 }
   );
   return JSON.parse(output.slice(output.indexOf("{")));
+}
+
+function runPlanProcess(args) {
+  return spawnSync(
+    process.execPath,
+    ["scripts/fetch-logged-in-social-traction.mjs", "--plan", ...args],
+    { cwd: root, encoding: "utf8", maxBuffer: 20 * 1024 * 1024 }
+  );
 }

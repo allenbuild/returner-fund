@@ -347,7 +347,7 @@ test("accepted resolver jobs fail closed and re-export only validated outputs", 
   }
 });
 
-test("all workflow shell blocks remain fixed at 55 and queued schedules are rechecked", (t) => {
+test("all workflow shell blocks remain fixed at 54 and queued schedules are rechecked", (t) => {
   const shellBlockCount = [workflow, dailyBenchmarkWorkflow, readFileSync(
     path.join(repositoryRoot, ".github", "workflows", "public-artifacts.yml"),
     "utf8"
@@ -355,7 +355,7 @@ test("all workflow shell blocks remain fixed at 55 and queued schedules are rech
     (total, source) => total + (source.match(/^ {8}run:/gm)?.length ?? 0),
     0
   );
-  assert.equal(shellBlockCount, 55);
+  assert.equal(shellBlockCount, 54);
 
   const directory = mkdtempSync(path.join(tmpdir(), "returner-queued-freshness-"));
   t.after(() => rmSync(directory, { recursive: true, force: true }));
@@ -466,8 +466,14 @@ test("daily benchmarks snapshot source, publish one exact candidate, and verify 
   assert.match(dailyBenchmarkWorkflow, /npm run artifacts:validate/);
   assert.match(dailyBenchmarkWorkflow, /is not reachable from remote main/);
   assert.match(dailyBenchmarkWorkflow, /commit_verified=true/);
-  assert.match(dailyBenchmarkWorkflow, /publication_status=published/);
-  assert.match(dailyBenchmarkWorkflow, /publication_status=no_changes/);
+  assert.match(dailyBenchmarkWorkflow, /PUBLICATION_STATUS="published"/);
+  assert.match(dailyBenchmarkWorkflow, /PUBLICATION_STATUS="no_changes"/);
+  assert.match(
+    dailyBenchmarkWorkflow,
+    /node scripts\/lib\/publication-semantic-diff\.mjs --root "\$PWD" --base HEAD --target index --ignore "\$PUBLICATION_RECEIPT_PATH"[\s\S]*?No semantic benchmark changes; creating an immutable provenance commit\.[\s\S]*?commit --allow-empty[\s\S]*?publication_status=\$PUBLICATION_STATUS/
+  );
+  assert.doesNotMatch(dailyBenchmarkWorkflow, /git diff --cached --quiet/);
+  assert.match(dailyBenchmarkWorkflow, /public\/graph\/manifest\.json/);
   assert.match(dailyBenchmarkWorkflow, /STATUS="inactive_candidate_no_update"/);
   assert.match(dailyBenchmarkWorkflow, /STATUS="accepted_candidate_failed"/);
   assert.ok(dailyBenchmarkWorkflow.indexOf("Record executed checkout") < dailyBenchmarkWorkflow.indexOf("npm run build"));
@@ -480,6 +486,23 @@ test("daily benchmarks snapshot source, publish one exact candidate, and verify 
   assert.equal(jobTimeout, 240);
   assert.deepEqual(stepTimeouts, [10, 10, 15, 50, 10, 10, 10, 110]);
   assert.ok(stepTimeouts.reduce((total, timeout) => total + timeout, 0) < jobTimeout);
+});
+
+test("daily publication maps semantic-diff exit codes to exact publication outcomes", () => {
+  const publishStep = workflowStepScript(dailyBenchmarkWorkflow, "Commit and publish benchmark snapshots");
+  const semanticDiffCommand = 'node scripts/lib/publication-semantic-diff.mjs --root "$PWD" --base HEAD --target index --ignore "$PUBLICATION_RECEIPT_PATH"';
+
+  assert.equal((publishStep.match(new RegExp(semanticDiffCommand.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "g")) ?? []).length, 1);
+  assert.match(
+    publishStep,
+    /if node scripts\/lib\/publication-semantic-diff\.mjs --root "\$PWD" --base HEAD --target index --ignore "\$PUBLICATION_RECEIPT_PATH"; then[\s\S]*?SEMANTIC_DIFF_STATUS=0[\s\S]*?else[\s\S]*?SEMANTIC_DIFF_STATUS=\$\?/
+  );
+  assert.match(
+    publishStep,
+    /case "\$SEMANTIC_DIFF_STATUS" in[\s\S]*?0\)[\s\S]*?PUBLICATION_STATUS="no_changes"[\s\S]*?commit --allow-empty[\s\S]*?1\)[\s\S]*?PUBLICATION_STATUS="published"[\s\S]*?commit -m[\s\S]*?\*\)[\s\S]*?exit "\$SEMANTIC_DIFF_STATUS"/
+  );
+  assert.match(publishStep, /benchmark_files=\([\s\S]*public\/graph\/manifest\.json[\s\S]*\)/);
+  assert.doesNotMatch(publishStep, /git diff --cached/);
 });
 
 test("daily benchmark receipts require exact-SHA reusable public validation", () => {
@@ -681,7 +704,11 @@ test("daily publication prepares artifacts before entering the credential-bearin
   );
   assert.doesNotMatch(
     publishStep,
-    /\bnpm\b|node\s+(?:scripts\/|[^\n]*\.mjs\b)|git\s+(?:rebase|merge(?!-base)|pull)/,
+    /\bnpm\b|node scripts\/(?!lib\/publication-semantic-diff\.mjs\b)|git\s+(?:rebase|merge(?!-base)|pull)/,
+  );
+  assert.equal(
+    (publishStep.match(/node scripts\/lib\/publication-semantic-diff\.mjs --root "\$PWD" --base HEAD --target index --ignore "\$PUBLICATION_RECEIPT_PATH"/g) ?? []).length,
+    1,
   );
   assert.match(publishStep, /node --input-type=module/);
   assert.match(publishStep, /publish_exact_candidate\(\)[\s\S]*?for attempt in 1 2/);
@@ -986,6 +1013,7 @@ test("autonomous runner receives optional durability secrets and owns validated 
   assert.ok(runnerStep, "missing autonomous ingestion step");
   assert.match(runnerStep, /id:\s*ingestion/);
   assert.match(runnerStep, /timeout-minutes:\s*330/);
+  assert.match(runnerStep, /NODE_OPTIONS:\s*--max-old-space-size=1024/);
   assert.match(runnerStep, /NEXT_PUBLIC_SUPABASE_URL:\s*\$\{\{ secrets\.NEXT_PUBLIC_SUPABASE_URL \}\}/);
   assert.match(runnerStep, /SUPABASE_SERVICE_ROLE_KEY:\s*\$\{\{ secrets\.SUPABASE_SERVICE_ROLE_KEY \}\}/);
   assert.match(runnerStep, /GITHUB_TOKEN:\s*\$\{\{ github\.token \}\}/);
@@ -1005,16 +1033,11 @@ test("autonomous runner receives optional durability secrets and owns validated 
   assert.doesNotMatch(ingestJob, /git config --local http\.https:\/\/github\.com\/\.extraheader/);
   assert.match(ingestJob, /name:\s*Verify repository-backed publication commit/);
   assert.match(ingestJob, /VERIFIED_COMMIT[\s\S]*?REMOTE_MAIN_COMMIT[\s\S]*?git merge-base --is-ancestor/);
-
-  const validateIndex = workflow.indexOf("npm run artifacts:validate");
-  const runnerIndex = workflow.indexOf("node scripts/run-autonomous-ingestion.mjs");
-  assert.ok(runnerIndex >= 0 && validateIndex > runnerIndex);
-  const validationStep = workflow.match(
-    /- name: Validate generated public artifacts([\s\S]*?)(?=\n\s{6}- name:)/
-  )?.[1] ?? "";
-  assert.match(validationStep, /npm run artifacts:manifest:validate/);
-  assert.match(validationStep, /npm run timeline:validate/);
-  assert.match(validationStep, /npm run artifacts:derived:validate/);
+  assert.doesNotMatch(ingestJob, /name:\s*Validate generated public artifacts/);
+  assert.match(
+    workflow,
+    /validate_publication:[\s\S]*?uses:\s*\.\/\.github\/workflows\/public-artifacts\.yml[\s\S]*?target_sha:\s*\$\{\{ needs\.ingest\.outputs\.validation_candidate \|\| needs\.resolve\.outputs\.source_sha \}\}/
+  );
   const runnerSource = readFileSync(path.join(repositoryRoot, "scripts", "run-autonomous-ingestion.mjs"), "utf8");
   assert.match(runnerSource, /publication_push:\s*\[[\s\S]*?"GIT_CONFIG_VALUE_0"/);
   assert.match(runnerSource, /GIT_CONFIG_KEY_0:\s*"http\.https:\/\/github\.com\/\.extraheader"/);
@@ -1040,6 +1063,24 @@ test("autonomous runner receives optional durability secrets and owns validated 
   assert.ok(pushIndex > -1 && completionIndex > pushIndex);
   assert.match(runnerSource, /process\.env\.INGESTION_PUBLICATION_BRANCH \?\? "main"/);
   assert.doesNotMatch(runnerSource, /process\.env\.GITHUB_REF_NAME/);
+});
+
+test("publication proof fetches cannot use implicit Git credentials", () => {
+  for (const [source, stepName] of [
+    [workflow, "Verify repository-backed publication commit"],
+    [workflow, "Recover exact publication commit"],
+    [dailyBenchmarkWorkflow, "Resolve existing daily benchmark slot"],
+    [dailyBenchmarkWorkflow, "Commit and publish benchmark snapshots"],
+    [dailyBenchmarkWorkflow, "Recover exact benchmark publication commit"]
+  ]) {
+    const script = workflowStepScript(source, stepName);
+    assert.match(script, /GIT_CONFIG_COUNT=2/);
+    assert.match(script, /GIT_CONFIG_KEY_0="core\.hooksPath"[\s\S]*?GIT_CONFIG_VALUE_0="\/dev\/null"/);
+    assert.match(script, /GIT_CONFIG_KEY_1="credential\.helper"[\s\S]*?GIT_CONFIG_VALUE_1=""/);
+    assert.match(script, /GIT_CONFIG_NOSYSTEM=1/);
+    assert.match(script, /GIT_CONFIG_GLOBAL=\/dev\/null/);
+    assert.match(script, /GIT_TERMINAL_PROMPT=0/);
+  }
 });
 
 test("autonomous recovery selects only exact trailer-and-receipt provenance", (t) => {
@@ -1682,6 +1723,33 @@ exec "$REAL_GIT" "$@"
     assert.match(readFileSync(output, "utf8"), new RegExp(`validation_candidate=${sourceSha}`));
   }
 
+  for (const fixture of cases) {
+    const fetchCount = path.join(directory, `${fixture.name}-unverified-fetch-count`);
+    const output = path.join(directory, `${fixture.name}-unverified-output`);
+    const unverifiedEnvironment = fixture.name === "autonomous"
+      ? {
+          ...fixture.env,
+          VERIFIED_PUBLISHED_COMMIT: "",
+          RUNNER_PUBLISHED_COMMIT: sourceSha
+        }
+      : {
+          ...fixture.env,
+          VERIFIED_PUBLISHED_COMMIT: "",
+          PUBLISH_CANDIDATE: sourceSha
+        };
+    const result = runScript(fixture.script, checkout, {
+      ...unverifiedEnvironment,
+      PATH: `${bin}:${process.env.PATH}`,
+      REAL_GIT: commandPath("git"),
+      FETCH_COUNT_PATH: fetchCount,
+      PUBLICATION_FETCH_RETRY_DELAY_SECONDS: "0",
+      GITHUB_OUTPUT: output
+    });
+    assert.notEqual(result.status, 0, `${fixture.name} unverified recovery must fail closed`);
+    assert.equal(readFileSync(fetchCount, "utf8").trim(), "4");
+    assert.match(readFileSync(output, "utf8"), /^validation_candidate=$/m);
+  }
+
   assert.match(
     workflow,
     /validate_publication:[\s\S]*?if:\s*\$\{\{ always\(\) && needs\.resolve\.outputs\.should_run == 'true' \}\}[\s\S]*?target_sha:\s*\$\{\{ needs\.ingest\.outputs\.validation_candidate \|\| needs\.resolve\.outputs\.source_sha \}\}/
@@ -1815,16 +1883,14 @@ test("workflow step budgets leave setup and scheduling headroom", () => {
   const jobTimeout = Number(workflow.match(/\n  ingest:[\s\S]*?timeout-minutes:\s*(\d+)/)?.[1]);
   const installTimeout = Number(workflow.match(/- name: Install dependencies[\s\S]*?timeout-minutes:\s*(\d+)/)?.[1]);
   const runnerTimeout = Number(workflow.match(/- name: Run autonomous ingestion[\s\S]*?timeout-minutes:\s*(\d+)/)?.[1]);
-  const validationTimeout = Number(workflow.match(/- name: Validate generated public artifacts[\s\S]*?timeout-minutes:\s*(\d+)/)?.[1]);
 
   assert.equal(jobTimeout, 360);
   assert.equal(installTimeout, 5);
   assert.equal(runnerTimeout, 330);
-  assert.equal(validationTimeout, 10);
   assert.ok(runnerTimeout < jobTimeout);
-  assert.ok(installTimeout + runnerTimeout + validationTimeout < jobTimeout);
+  assert.ok(installTimeout + runnerTimeout < jobTimeout);
   assert.ok(
-    jobTimeout - installTimeout - runnerTimeout - validationTimeout >= 15,
+    jobTimeout - installTimeout - runnerTimeout >= 25,
     "checkout, setup-node, receipt, and post steps require explicit job-level headroom"
   );
   assert.ok(maxAutonomousRunnerProcessBudgetMs() < runnerTimeout * 60_000);
@@ -1835,14 +1901,17 @@ test("workflow step budgets leave setup and scheduling headroom", () => {
   );
   assert.ok(maxAutonomousRunnerProcessBudgetMs() < AUTONOMOUS_RUNNER_WALL_CLOCK_BUDGET_MS);
   assert.ok(
-    (installTimeout + validationTimeout) * 60_000 + maxAutonomousRunnerProcessBudgetMs() <
+    installTimeout * 60_000 + maxAutonomousRunnerProcessBudgetMs() <
       jobTimeout * 60_000
   );
 });
 
 test("daily derived-artifact steps use the bounded Node heap", () => {
   for (const stepName of [
+    "Update daily benchmark snapshots",
+    "Rebuild timeline artifacts",
     "Rebuild graph-derived artifacts",
+    "Refresh artifact manifest",
     "Validate generated public artifacts"
   ]) {
     const step = dailyBenchmarkWorkflow.match(
@@ -1850,6 +1919,14 @@ test("daily derived-artifact steps use the bounded Node heap", () => {
     )?.[0] ?? "";
     assert.match(step, /env:\s+NODE_OPTIONS: --max-old-space-size=3072/);
   }
+  const buildStep = dailyBenchmarkWorkflow.match(
+    /- name: Build app[\s\S]*?(?=\n\s{6}- name:|$)/
+  )?.[0] ?? "";
+  assert.match(buildStep, /env:\s+NODE_OPTIONS: --max-old-space-size=1536/);
+  const benchmarkTestStep = dailyBenchmarkWorkflow.match(
+    /- name: Test daily benchmark updater[\s\S]*?(?=\n\s{6}- name:|$)/
+  )?.[0] ?? "";
+  assert.match(benchmarkTestStep, /env:\s+NODE_OPTIONS: --max-old-space-size=2304/);
 });
 
 test("workflow never invokes a logged-in collector", () => {

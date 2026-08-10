@@ -94,11 +94,11 @@ export function writeDailyBenchmarkGithubOutputs(
   if (!outputPath) throw new Error("GITHUB_OUTPUT is required when writing workflow outputs.");
   const outputs = {
     should_run: String(decision.accepted),
-    scheduled_utc_hour: decision.scheduledUtcHour ?? "",
+    scheduled_utc_hour: decision.accepted ? decision.scheduledUtcHour ?? "" : "",
     trigger: decision.trigger ?? "",
     reason: decision.reason,
-    scheduled_at: decision.scheduledAt ?? "",
-    central_date: decision.centralDate ?? ""
+    scheduled_at: decision.accepted ? decision.scheduledAt ?? "" : "",
+    central_date: decision.accepted ? decision.centralDate ?? "" : ""
   };
   appendFileSync(
     outputPath,

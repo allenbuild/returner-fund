@@ -13,6 +13,7 @@ export const LINKEDIN_MINIMUM_TARGET_DELAY_MS = 30_000;
 export const LINKEDIN_MINIMUM_INTERACTION_DELAY_MS = 3_000;
 export const LINKEDIN_MAX_TARGETS_PER_INVOCATION = 5;
 export const LINKEDIN_GLOBAL_LEASE_DURATION_MS = 20 * 60_000;
+export const LINKEDIN_UNPROVEN_SESSION_QUARANTINE_MS = 365 * 24 * 60 * 60_000;
 export const LINKEDIN_ACCOUNT_LOCK_PATH = join(
   tmpdir(),
   "returner-fund-linkedin-account-collector.lock"
@@ -21,6 +22,15 @@ export const LINKEDIN_ACCOUNT_PACING_STATE_PATH = join(
   tmpdir(),
   "returner-fund-linkedin-account-pacing.json"
 );
+
+const LINKEDIN_LAST_TARGET_COMPLETION = Symbol("linkedin-last-target-completion");
+const LINKEDIN_PACING_STATE_UNPROVEN_CODE = "LINKEDIN_PACING_STATE_UNPROVEN";
+const LINKEDIN_SAFETY_QUARANTINE_REASONS = new Set([
+  "unproven-browser-session-cleanup",
+  "unproven-host-pacing-state",
+  "unproven-final-cooldown",
+  "durable-lease-heartbeat-failure"
+]);
 
 export function createLinkedInInteractionPacer({
   minimumDelayMs = LINKEDIN_MINIMUM_INTERACTION_DELAY_MS,
@@ -78,6 +88,24 @@ export function createLinkedInInteractionPacer({
   };
 }
 
+export function finalizeLinkedInInteractionPacing(
+  interactionPacer,
+  { operationError = null, operationMustAbort = false } = {}
+) {
+  try {
+    interactionPacer.afterInteraction();
+  } catch (pacingError) {
+    if (operationError && operationMustAbort) {
+      attachLinkedInFailureDetail(operationError, "interactionPacingFailure", pacingError);
+      return;
+    }
+    if (operationError) {
+      attachLinkedInFailureDetail(pacingError, "suppressedInteractionFailure", operationError);
+    }
+    throw pacingError;
+  }
+}
+
 function linkedInInteractionPacingError(reason) {
   return new Error(
     `LinkedIn safety stop (account_safety): interaction pacing ${reason}.`
@@ -91,11 +119,16 @@ export async function withLinkedInAccountLock(
     globalLeaseProvider,
     globalLockNamespace,
     leaseDurationMs = LINKEDIN_GLOBAL_LEASE_DURATION_MS,
-    heartbeatIntervalMs = Math.floor(leaseDurationMs / 3)
+    heartbeatIntervalMs = Math.floor(leaseDurationMs / 3),
+    sleep = defaultSleep,
+    now = monotonicNow
   } = {}
 ) {
   if (typeof operation !== "function") {
     throw new TypeError("LinkedIn account lock requires an operation function.");
+  }
+  if (typeof sleep !== "function" || typeof now !== "function") {
+    throw new TypeError("LinkedIn account release cooldown hooks must be functions.");
   }
   assertLinkedInGlobalLeaseConfiguration(globalLeaseProvider, globalLockNamespace);
   const boundedLeaseDurationMs = linkedInLeaseDuration(leaseDurationMs);
@@ -131,6 +164,10 @@ export async function withLinkedInAccountLock(
   let heartbeat = null;
   let result;
   let primaryError = null;
+  let lastTargetCompletionAtMs = null;
+  let retainDurableLease = false;
+  let browserSessionCleanupFailed = false;
+  let pacingStateUnproven = false;
   try {
     localHandle = await acquireLinkedInAccountLock(lockPath, localToken);
     heartbeat = createLinkedInLeaseHeartbeat({
@@ -145,21 +182,83 @@ export async function withLinkedInAccountLock(
       signal: heartbeat.signal,
       assertHealthy: heartbeat.assertHealthy
     });
+    lastTargetCompletionAtMs = linkedInTargetCompletionAt(result);
     heartbeat.assertHealthy();
   } catch (error) {
+    lastTargetCompletionAtMs =
+      linkedInTargetCompletionAt(result) ?? linkedInTargetCompletionAt(error);
     primaryError = error;
   } finally {
+    browserSessionCleanupFailed = linkedinBrowserSessionCleanupFailed(primaryError);
+    pacingStateUnproven = linkedinPacingStateUnproven(primaryError);
+    let releaseCooldownError = null;
+    try {
+      await waitForLinkedInReleaseCooldown(lastTargetCompletionAtMs, { sleep, now });
+    } catch (error) {
+      releaseCooldownError = linkedInGlobalLeaseFailure(
+        "final target cooldown could not be verified; durable lease was retained",
+        error
+      );
+      primaryError ??= releaseCooldownError;
+    }
+    let heartbeatStopError = null;
     try {
       await heartbeat?.stop();
     } catch (error) {
+      heartbeatStopError = error;
+      if (primaryError && primaryError !== error) {
+        attachLinkedInFailureDetail(primaryError, "globalLeaseHeartbeatFailure", error);
+      }
       primaryError ??= error;
+    }
+    const safetyQuarantineReason = browserSessionCleanupFailed
+      ? "unproven-browser-session-cleanup"
+      : pacingStateUnproven
+        ? "unproven-host-pacing-state"
+        : releaseCooldownError
+          ? "unproven-final-cooldown"
+          : heartbeatStopError
+            ? "durable-lease-heartbeat-failure"
+            : null;
+    if (safetyQuarantineReason) {
+      try {
+        const quarantined = await globalLeaseProvider.quarantine({
+          lockKey,
+          ownerId,
+          leaseToken: lease.leaseToken,
+          leaseDurationMs: LINKEDIN_UNPROVEN_SESSION_QUARANTINE_MS,
+          safetyQuarantine: true,
+          safetyReason: safetyQuarantineReason
+        });
+        if (quarantined !== true) {
+          throw new Error("Durable lock provider did not confirm safety quarantine.");
+        }
+      } catch (error) {
+        const quarantineError = linkedInGlobalLeaseFailure(
+          "authenticated browser cleanup was unproven and safety quarantine renewal failed closed",
+          error
+        );
+        if (primaryError) {
+          attachLinkedInFailureDetail(primaryError, "globalLeaseQuarantineFailure", quarantineError);
+        }
+        primaryError ??= quarantineError;
+      }
     }
     await localHandle?.close().catch(() => undefined);
     const current = await readLinkedInLock(lockPath);
     if (current?.token === localToken) {
       await unlink(lockPath).catch(() => undefined);
     }
+
+    // If the elapsed cooldown could not be proven, or the authenticated browser
+    // session could not be proven closed, fail closed by leaving the durable
+    // lease to expire instead of releasing it early. The local lock is still
+    // cleaned up above so the durable account lease remains the cross-host
+    // admission barrier while an orphaned browser session may still exist.
+    retainDurableLease = safetyQuarantineReason !== null;
   }
+
+  if (retainDurableLease) throw primaryError;
 
   let releaseError = null;
   try {
@@ -194,31 +293,129 @@ export async function withLinkedInAccountLock(
   return result;
 }
 
+function linkedInTargetCompletionAt(value) {
+  const timestamp = value?.[LINKEDIN_LAST_TARGET_COMPLETION];
+  return Number.isFinite(timestamp) ? timestamp : null;
+}
+
+export function linkedinBrowserSessionCleanupFailed(value, seen = new Set()) {
+  if ((typeof value !== "object" && typeof value !== "function") || value === null) {
+    return false;
+  }
+  if (seen.has(value)) return false;
+  seen.add(value);
+  if (
+    value.code === "OPENCLI_BROWSER_SESSION_CLOSE_FAILED" ||
+    value.code === "OPENCLI_BROWSER_OPERATION_AND_CLOSE_FAILED"
+  ) {
+    return true;
+  }
+  return [
+    value.sessionCleanupFailure,
+    value.primaryError,
+    value.targetPacingFailure,
+    value.interactionPacingFailure,
+    value.cause
+  ].some(
+    (nested) => linkedinBrowserSessionCleanupFailed(nested, seen)
+  );
+}
+
+export function linkedinPacingStateUnproven(value, seen = new Set()) {
+  if ((typeof value !== "object" && typeof value !== "function") || value === null) {
+    return false;
+  }
+  if (seen.has(value)) return false;
+  seen.add(value);
+  if (value.code === LINKEDIN_PACING_STATE_UNPROVEN_CODE) return true;
+  return [
+    value.targetPacingFailure,
+    value.interactionPacingFailure,
+    value.primaryError,
+    value.cause
+  ].some((nested) => linkedinPacingStateUnproven(nested, seen));
+}
+
+function attachLinkedInFailureDetail(target, property, value) {
+  if ((typeof target !== "object" && typeof target !== "function") || target === null) return;
+  try {
+    Object.defineProperty(target, property, {
+      configurable: false,
+      enumerable: false,
+      writable: false,
+      value
+    });
+  } catch {
+    // Preserve the original terminal account-safety failure.
+  }
+}
+
+async function waitForLinkedInReleaseCooldown(
+  lastTargetCompletionAtMs,
+  { sleep, now }
+) {
+  if (lastTargetCompletionAtMs === null) return;
+  const releaseAtMs = lastTargetCompletionAtMs + LINKEDIN_MINIMUM_TARGET_DELAY_MS;
+  let currentTime = finiteClockValue(now());
+  if (currentTime < lastTargetCompletionAtMs) {
+    throw new Error(
+      "LinkedIn safety stop (account_safety): final target cooldown clock moved backwards."
+    );
+  }
+  while (currentTime < releaseAtMs) {
+    await sleep(releaseAtMs - currentTime);
+    const observedAt = finiteClockValue(now());
+    if (observedAt <= currentTime) {
+      throw new Error(
+        "LinkedIn safety stop (account_safety): final target cooldown sleep made no progress."
+      );
+    }
+    currentTime = observedAt;
+  }
+}
+
 export function createSupabaseLinkedInGlobalLeaseProvider(client, {
-  operationTimeoutMs = 15_000
+  operationTimeoutMs = 15_000,
+  now = Date.now
 } = {}) {
-  if (!client || typeof client.rpc !== "function") {
+  if (!client || typeof client.rpc !== "function" || typeof client.from !== "function") {
     throw new TypeError("LinkedIn Supabase lease provider requires a Supabase client.");
+  }
+  if (typeof now !== "function") {
+    throw new TypeError("LinkedIn Supabase lease provider clock must be a function.");
   }
   const timeoutMs = finitePositiveInteger(operationTimeoutMs);
 
   return Object.freeze({
     provider: "supabase_ingestion_runtime_locks",
     async claim({ lockKey, ownerId, leaseDurationMs, metadata = {} }) {
+      // Authenticated LinkedIn collection deliberately does not use the generic
+      // runtime-lock claim RPC: that RPC may reclaim expired rows. A retained
+      // LinkedIn row is a manual-recovery barrier, so an existing key blocks a
+      // new authenticated session regardless of its nominal expiry timestamp.
+      const durationMs = linkedInLeaseDuration(leaseDurationMs);
+      const heartbeatAtMs = finiteClockValue(now());
+      const heartbeatAt = new Date(heartbeatAtMs).toISOString();
+      const leaseToken = randomUUID();
       const { data, error } = await runBoundedSupabaseLeaseOperation(
-        () => client.rpc("claim_ingestion_runtime_lock", {
-          p_lock_key: lockKey,
-          p_owner_id: ownerId,
-          p_lease_duration: linkedInLeaseInterval(leaseDurationMs),
-          p_metadata_json: metadata
-        }),
+        () => client
+          .from("ingestion_runtime_locks")
+          .insert({
+            lock_key: lockKey,
+            owner_id: ownerId,
+            lease_token: leaseToken,
+            heartbeat_at: heartbeatAt,
+            lease_expires_at: new Date(heartbeatAtMs + durationMs).toISOString(),
+            updated_at: heartbeatAt,
+            metadata_json: metadata
+          })
+          .select("lease_token")
+          .maybeSingle(),
         timeoutMs
       );
-      if (error) throw new Error("Durable LinkedIn lease claim RPC failed.", { cause: error });
-      const row = Array.isArray(data) ? data[0] ?? null : data;
-      return row && typeof row.lease_token === "string"
-        ? { leaseToken: row.lease_token }
-        : null;
+      if (String(error?.code ?? "") === "23505") return null;
+      if (error) throw new Error("Durable LinkedIn lease claim insert failed.", { cause: error });
+      return data?.lease_token === leaseToken ? { leaseToken } : null;
     },
     async renew({ lockKey, ownerId, leaseToken, leaseDurationMs }) {
       const { data, error } = await runBoundedSupabaseLeaseOperation(
@@ -232,6 +429,44 @@ export function createSupabaseLinkedInGlobalLeaseProvider(client, {
       );
       if (error) throw new Error("Durable LinkedIn lease renewal RPC failed.", { cause: error });
       return data === true;
+    },
+    async quarantine({
+      lockKey,
+      ownerId,
+      leaseToken,
+      leaseDurationMs,
+      metadata = {},
+      safetyReason = "unproven-browser-session-cleanup"
+    }) {
+      const durationMs = linkedInSafetyQuarantineDuration(leaseDurationMs);
+      const quarantineReason = linkedInSafetyQuarantineReason(safetyReason);
+      const heartbeatAtMs = finiteClockValue(now());
+      const heartbeatAt = new Date(heartbeatAtMs).toISOString();
+      const leaseExpiresAt = new Date(heartbeatAtMs + durationMs).toISOString();
+      const { data, error } = await runBoundedSupabaseLeaseOperation(
+        () => client
+          .from("ingestion_runtime_locks")
+          .update({
+            heartbeat_at: heartbeatAt,
+            lease_expires_at: leaseExpiresAt,
+            updated_at: heartbeatAt,
+            metadata_json: {
+              ...metadata,
+              collector: "authenticated-linkedin",
+              safetyQuarantine: quarantineReason,
+              quarantinedAt: heartbeatAt,
+              manualRecoveryRequired: true
+            }
+          })
+          .eq("lock_key", lockKey)
+          .eq("owner_id", ownerId)
+          .eq("lease_token", leaseToken)
+          .select("lock_key")
+          .maybeSingle(),
+        timeoutMs
+      );
+      if (error) throw new Error("Durable LinkedIn safety quarantine update failed.", { cause: error });
+      return data?.lock_key === lockKey;
     },
     async release({ lockKey, ownerId, leaseToken }) {
       const { data, error } = await runBoundedSupabaseLeaseOperation(
@@ -327,6 +562,7 @@ function assertLinkedInGlobalLeaseConfiguration(provider, namespace) {
     !provider ||
     typeof provider.claim !== "function" ||
     typeof provider.renew !== "function" ||
+    typeof provider.quarantine !== "function" ||
     typeof provider.release !== "function"
   ) {
     throw linkedInGlobalLeaseFailure(
@@ -372,6 +608,20 @@ function linkedInHeartbeatInterval(value, leaseDurationMs) {
 
 function linkedInLeaseInterval(value) {
   return `${Math.ceil(linkedInLeaseDuration(value) / 1_000)} seconds`;
+}
+
+function linkedInSafetyQuarantineDuration(value) {
+  if (value !== LINKEDIN_UNPROVEN_SESSION_QUARANTINE_MS) {
+    throw new RangeError("LinkedIn safety quarantine must use the fixed manual-recovery duration.");
+  }
+  return value;
+}
+
+function linkedInSafetyQuarantineReason(value) {
+  if (!LINKEDIN_SAFETY_QUARANTINE_REASONS.has(value)) {
+    throw new RangeError("LinkedIn safety quarantine reason is not recognized.");
+  }
+  return value;
 }
 
 function finitePositiveInteger(value) {
@@ -532,6 +782,7 @@ export async function runLinkedInSerialLane(
     shouldAbort = () => false,
     pacingStatePath = LINKEDIN_ACCOUNT_PACING_STATE_PATH,
     now = Date.now,
+    releaseNow = monotonicNow,
     targetCap = LINKEDIN_MAX_TARGETS_PER_INVOCATION
   } = {}
 ) {
@@ -541,7 +792,8 @@ export async function runLinkedInSerialLane(
   if (
     typeof sleep !== "function" ||
     typeof shouldAbort !== "function" ||
-    typeof now !== "function"
+    typeof now !== "function" ||
+    typeof releaseNow !== "function"
   ) {
     throw new TypeError("LinkedIn serial collection safety hooks must be functions.");
   }
@@ -564,37 +816,98 @@ export async function runLinkedInSerialLane(
   });
   let attemptedCount = 0;
   let aborted = false;
+  let lastTargetCompletionAtMs = null;
 
-  for (let index = 0; index < queue.length; index += 1) {
-    if (shouldAbort()) {
-      aborted = true;
-      break;
-    }
+  try {
+    for (let index = 0; index < queue.length; index += 1) {
+      if (shouldAbort()) {
+        aborted = true;
+        break;
+      }
 
-    // The worker index is deliberately fixed at zero. This lane never starts
-    // a second LinkedIn request until the first request and its checkpoint have
-    // completed.
-    await targetPacer.beforeTarget();
-    try {
-      await collect(queue[index], 0);
-      attemptedCount += 1;
-    } finally {
-      await targetPacer.afterTarget();
-    }
+      // The worker index is deliberately fixed at zero. This lane never starts
+      // a second LinkedIn request until the first request and its checkpoint have
+      // completed.
+      await targetPacer.beforeTarget();
+      let collectionError = null;
+      let pacingCompletionError = null;
+      try {
+        await collect(queue[index], 0);
+        attemptedCount += 1;
+      } catch (error) {
+        collectionError = error;
+      }
+      try {
+        await targetPacer.afterTarget();
+      } catch (error) {
+        pacingCompletionError = error;
+      } finally {
+        // This timestamp is attached even when collection or checkpointing
+        // fails, so the account lease cannot be released immediately after a
+        // partially completed target attempt.
+        lastTargetCompletionAtMs = finiteClockValue(releaseNow());
+      }
+      if (collectionError) {
+        if (pacingCompletionError && typeof collectionError === "object" && collectionError !== null) {
+          try {
+            Object.defineProperty(collectionError, "targetPacingFailure", {
+              configurable: false,
+              enumerable: false,
+              writable: false,
+              value: pacingCompletionError
+            });
+          } catch {
+            // Preserve the collection error, especially a browser-cleanup signal.
+          }
+        }
+        throw collectionError;
+      }
+      if (pacingCompletionError) throw pacingCompletionError;
 
-    if (shouldAbort()) {
-      aborted = true;
-      break;
+      if (shouldAbort()) {
+        aborted = true;
+        break;
+      }
     }
+  } catch (error) {
+    throw attachLinkedInTargetCompletion(error, lastTargetCompletionAtMs);
   }
 
-  return {
+  const summary = {
     attemptedCount,
     untouchedCount: Math.max(0, allItems.length - attemptedCount),
     aborted,
     workers: policy.workers,
     delayMs: policy.delayMs
   };
+  attachLinkedInTargetCompletion(summary, lastTargetCompletionAtMs);
+  return summary;
+}
+
+function attachLinkedInTargetCompletion(value, timestamp) {
+  if (!value || timestamp === null) return value;
+  try {
+    Object.defineProperty(value, LINKEDIN_LAST_TARGET_COMPLETION, {
+      configurable: true,
+      enumerable: false,
+      writable: false,
+      value: timestamp
+    });
+  } catch {
+    const wrapped = new Error(
+      value instanceof Error ? value.message : "LinkedIn collection failed.",
+      value instanceof Error ? { cause: value } : undefined
+    );
+    wrapped.name = value?.name || "Error";
+    Object.defineProperty(wrapped, LINKEDIN_LAST_TARGET_COMPLETION, {
+      configurable: true,
+      enumerable: false,
+      writable: false,
+      value: timestamp
+    });
+    return wrapped;
+  }
+  return value;
 }
 
 function createLinkedInTargetPacer({ delayMs, now, pacingStatePath, sleep }) {
@@ -604,8 +917,8 @@ function createLinkedInTargetPacer({ delayMs, now, pacingStatePath, sleep }) {
     async beforeTarget() {
       const state = await readLinkedInPacingState(pacingStatePath);
       if (state?.phase === "in_progress") {
-        throw new Error(
-          "LinkedIn collection refused: the prior host-local target attempt did not finish cleanly."
+        throw linkedInPacingStateError(
+          "contains a prior host-local target attempt that did not finish cleanly"
         );
       }
 
@@ -637,19 +950,24 @@ function createLinkedInTargetPacer({ delayMs, now, pacingStatePath, sleep }) {
 
     async afterTarget() {
       if (!activeAttemptToken) {
-        throw new Error(
-          "LinkedIn collection refused: target pacing completion had no active attempt."
+        throw linkedInPacingStateError(
+          "completion had no active target attempt"
         );
       }
-      const completedAtMs = finiteClockValue(now());
-      await writeLinkedInPacingState(pacingStatePath, {
-        version: 1,
-        phase: "completed",
-        attemptToken: activeAttemptToken,
-        pid: process.pid,
-        lastTargetAttemptAtMs: completedAtMs,
-        lastTargetAttemptAt: new Date(completedAtMs).toISOString()
-      });
+      try {
+        const completedAtMs = finiteClockValue(now());
+        await writeLinkedInPacingState(pacingStatePath, {
+          version: 1,
+          phase: "completed",
+          attemptToken: activeAttemptToken,
+          pid: process.pid,
+          lastTargetAttemptAtMs: completedAtMs,
+          lastTargetAttemptAt: new Date(completedAtMs).toISOString()
+        });
+      } catch (error) {
+        if (error?.code === LINKEDIN_PACING_STATE_UNPROVEN_CODE) throw error;
+        throw linkedInPacingStateError("completion could not be persisted", error);
+      }
       activeAttemptToken = null;
     }
   };
@@ -705,10 +1023,12 @@ async function writeLinkedInPacingState(statePath, value) {
 }
 
 function linkedInPacingStateError(reason, cause) {
-  return new Error(
+  const error = new Error(
     `LinkedIn collection refused: host-local pacing state ${reason}.`,
     cause ? { cause } : undefined
   );
+  error.code = LINKEDIN_PACING_STATE_UNPROVEN_CODE;
+  return error;
 }
 
 function normalizeLinkedInTargetCap(value) {

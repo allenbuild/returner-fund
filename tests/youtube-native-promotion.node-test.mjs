@@ -2,7 +2,10 @@ import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import test from "node:test";
 
-import { planYouTubeNativePromotion } from "../scripts/lib/youtube-native-promotion.mjs";
+import {
+  isVerifiedYouTubeNativeMetriclessEvidence,
+  planYouTubeNativePromotion
+} from "../scripts/lib/youtube-native-promotion.mjs";
 import {
   YOUTUBE_NATIVE_RECOVERY_SCHEMA_VERSION,
   stableStringify
@@ -165,6 +168,19 @@ test("requires zero-engagement rows to retain contribution score 0", () => {
     () => makePlan(snapshot([], [reviewYouTube(videoId, owner)]), candidate),
     /must keep zero engagement at contribution score 0/
   );
+});
+
+test("accepts only trusted zero-engagement YouTube recovery evidence", () => {
+  const trusted = recoveredYouTube();
+  assert.equal(isVerifiedYouTubeNativeMetriclessEvidence(trusted), true);
+
+  const genericMetricless = structuredClone(trusted);
+  delete genericMetricless._youtubeNativeRecovery;
+  assert.equal(isVerifiedYouTubeNativeMetriclessEvidence(genericMetricless), false);
+
+  const tamperedReceipt = structuredClone(trusted);
+  tamperedReceipt._youtubeNativeRecovery.validation.videoId = "ZyXwVuTsR98";
+  assert.equal(isVerifiedYouTubeNativeMetriclessEvidence(tamperedReceipt), false);
 });
 
 test("requires a pinned SHA, explicit mode, and all expected-count assertions", () => {

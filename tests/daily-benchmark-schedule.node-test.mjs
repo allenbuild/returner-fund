@@ -110,3 +110,30 @@ test("writes complete GitHub outputs for the workflow resolver", (t) => {
     ].join("\n")
   );
 });
+
+test("does not expose inactive DST candidate schedule metadata to the workflow", (t) => {
+  const directory = mkdtempSync(path.join(tmpdir(), "returner-benchmark-inactive-schedule-"));
+  t.after(() => rmSync(directory, { recursive: true, force: true }));
+  const outputPath = path.join(directory, "github-output");
+  const decision = resolveScheduledDailyBenchmark({
+    schedule: "0 6 * * *",
+    now: new Date("2026-07-18T06:10:00.000Z")
+  });
+
+  assert.equal(decision.accepted, false);
+  assert.equal(decision.scheduledAt, "2026-07-18T06:00:00.000Z");
+  writeDailyBenchmarkGithubOutputs(decision, outputPath);
+
+  assert.equal(
+    readFileSync(outputPath, "utf8"),
+    [
+      "should_run=false",
+      "scheduled_utc_hour=",
+      "trigger=schedule",
+      "reason=inactive-dst-candidate",
+      "scheduled_at=",
+      "central_date=",
+      ""
+    ].join("\n")
+  );
+});

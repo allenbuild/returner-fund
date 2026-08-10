@@ -131,10 +131,10 @@ export function writeGithubOutputs(decision, outputPath = process.env.GITHUB_OUT
 
   const outputs = {
     should_run: String(decision.accepted),
-    slot_key: decision.slotKey ?? "",
+    slot_key: decision.accepted ? decision.slotKey ?? "" : "",
     trigger: decision.trigger ?? "",
     reason: decision.reason,
-    scheduled_at: decision.scheduledAt ?? ""
+    scheduled_at: decision.accepted ? decision.scheduledAt ?? "" : ""
   };
   appendFileSync(
     outputPath,

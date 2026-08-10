@@ -190,6 +190,21 @@ export function planYouTubeNativePromotion({
   };
 }
 
+/**
+ * Admit a metricless YouTube row only when it carries the complete, exact
+ * anonymous native-recovery receipt used by the append-only promotion path.
+ * Generic verified rows must continue through the normal positive-metric
+ * requirement.
+ */
+export function isVerifiedYouTubeNativeMetriclessEvidence(row) {
+  try {
+    assertCandidateRow(row);
+    return isZeroEngagement(row) && row?._youtubeNativeRecovery?.zeroEngagement === true;
+  } catch {
+    return false;
+  }
+}
+
 function assertCandidateEnvelope(candidate, evidence) {
   if (candidate?.schemaVersion !== YOUTUBE_NATIVE_RECOVERY_SCHEMA_VERSION) {
     throw new Error(

@@ -193,14 +193,14 @@ describe("YC traction scoring regressions", () => {
     expect(selectedEvidence.every((item) => item.attachedCompanyName === "Conifer")).toBe(true);
   });
 
-  it("scores Conifer's GitHub traction above Shepherd's GitHub traction", () => {
+  it("scores Conifer's GitHub traction above Mireye's GitHub traction", () => {
     const graph = buildGraphResponse({ batchSlug: "S26" }, ycSpring2026GraphDataset);
     const conifer = graph.nodes.find((node) => node.entityType === "company" && node.label === "Conifer");
-    const shepherd = graph.nodes.find((node) => node.entityType === "company" && node.label === "Shepherd");
+    const mireye = graph.nodes.find((node) => node.entityType === "company" && node.label === "Mireye");
 
-    expect(conifer?.platformScores.github).toBeGreaterThan(shepherd?.platformScores.github ?? 0);
+    expect(conifer?.platformScores.github).toBeGreaterThan(mireye?.platformScores.github ?? 0);
     expect(conifer?.score).toBeGreaterThan(0);
-    expect(shepherd?.score).toBeGreaterThan(0);
+    expect(mireye?.score).toBeGreaterThan(0);
   });
 
   it("surfaces newly verified first-party posts from the source snapshot", () => {
