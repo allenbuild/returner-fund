@@ -8,6 +8,7 @@ import {
   loadCanonicalTimelinePublicDiscoveryInventory,
   runCompanyTimelineBackfill,
 } from "@/lib/timeline/backfill";
+import { yc2026GraphDataset } from "@/lib/graph/yc-spring-2026-dataset";
 import type { EvidenceItem, GraphResponse } from "@/lib/graph/types";
 import type { TimelineDatabaseSnapshot } from "@/lib/timeline/database-backfill";
 import { canonicalizeSourceUrl } from "@/lib/timeline/source-document";
@@ -232,7 +233,6 @@ describe("Company Timeline backfill checkpoint integrity", () => {
       join(process.cwd(), "public", "graph", filename),
       "utf8",
     )) as GraphResponse));
-    const { yc2026GraphDataset } = await import("@/lib/graph/yc-spring-2026-dataset");
     const inventory = await loadCanonicalTimelinePublicDiscoveryInventory(process.cwd());
     const fullCorpusArtifacts = inventory.sourceArtifacts.filter((artifact) =>
       (FULL_CORPUS_SOURCE_PATHS as readonly string[]).includes(artifact.path));

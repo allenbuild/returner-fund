@@ -5,6 +5,11 @@ import { join, relative, resolve } from "node:path";
 
 const root = resolve(process.cwd());
 
+export const ALWAYS_ISOLATED_TEST_FILES = Object.freeze([
+  "tests/public-traction-snapshot.test.ts",
+  "tests/timeline-backfill-checkpoint.test.ts",
+]);
+
 export function partitionTestFiles(testFiles, shardIndex, shardCount) {
   return testFiles.filter((_, index) => index % shardCount === shardIndex - 1);
 }
@@ -70,9 +75,9 @@ function main() {
   let completedFiles = 0;
   const startedAt = Date.now();
 
-  // This test intentionally audits the complete 96 MB source snapshot rather
-  // than the compact graph projection, so keep it in its own recyclable worker.
-  const alwaysIsolated = new Set(["tests/public-traction-snapshot.test.ts"]);
+  // These tests either load unusually large source snapshots or have timed out
+  // when imported alongside other files, so give each its own recyclable worker.
+  const alwaysIsolated = new Set(ALWAYS_ISOLATED_TEST_FILES);
   const regularFiles = shardFiles.filter((file) => !alwaysIsolated.has(file));
   const batches = chunk(regularFiles, batchSize);
   for (const file of shardFiles.filter((candidate) => alwaysIsolated.has(candidate))) {

@@ -1,7 +1,11 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { partitionTestFiles, readShardConfig } from "../scripts/run-vitest-isolated.mjs";
+import {
+  ALWAYS_ISOLATED_TEST_FILES,
+  partitionTestFiles,
+  readShardConfig,
+} from "../scripts/run-vitest-isolated.mjs";
 
 test("partitions the sorted discovered file list deterministically without overlap", () => {
   const files = ["tests/a.test.ts", "tests/b.test.ts", "tests/c.test.ts", "tests/d.test.ts", "tests/e.test.ts"];
@@ -16,8 +20,14 @@ test("partitions the sorted discovered file list deterministically without overl
   assert.equal(new Set(shards.flat()).size, files.length);
 });
 
-test("assigns every file and the isolated snapshot to exactly one of four shards", () => {
-  const isolatedSnapshot = "tests/public-traction-snapshot.test.ts";
+test("keeps timeout-prone files explicitly isolated", () => {
+  assert.deepEqual(ALWAYS_ISOLATED_TEST_FILES, [
+    "tests/public-traction-snapshot.test.ts",
+    "tests/timeline-backfill-checkpoint.test.ts",
+  ]);
+});
+
+test("assigns every file to exactly one of four shards", () => {
   const files = [
     "tests/a.test.ts",
     "tests/b.test.ts",
@@ -25,14 +35,16 @@ test("assigns every file and the isolated snapshot to exactly one of four shards
     "tests/d.test.ts",
     "tests/e.test.ts",
     "tests/f.test.ts",
-    isolatedSnapshot,
+    ...ALWAYS_ISOLATED_TEST_FILES,
   ].sort();
   const shards = [1, 2, 3, 4].map((shardIndex) => partitionTestFiles(files, shardIndex, 4));
   const flattened = shards.flat();
 
   assert.deepEqual(flattened.toSorted(), files);
   assert.equal(new Set(flattened).size, files.length);
-  assert.equal(flattened.filter((file) => file === isolatedSnapshot).length, 1);
+  for (const isolatedFile of ALWAYS_ISOLATED_TEST_FILES) {
+    assert.equal(flattened.filter((file) => file === isolatedFile).length, 1);
+  }
   assert.ok(Math.max(...shards.map((shard) => shard.length)) - Math.min(...shards.map((shard) => shard.length)) <= 1);
 });
 
