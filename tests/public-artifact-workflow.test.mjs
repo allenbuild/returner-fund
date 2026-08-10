@@ -91,7 +91,6 @@ describe("Public Artifact Validation workflow", () => {
     expect(packageJson.scripts.check.split(/\s*&&\s*/)).toEqual(applicationCommands);
 
     for (const [job, command, jobTimeout, gateTimeout] of [
-      ["app_tests", "npm run test", 100, 85],
       ["collectors", "npm run test:collectors", 60, 45],
       ["logged_social", "npm run test:logged-social", 30, 15],
       ["build", "npm run build", 35, 20],
@@ -111,6 +110,26 @@ describe("Public Artifact Validation workflow", () => {
       expect(section).toContain("run: npm ci");
       expect(section).toContain(`run: ${command}`);
     }
+
+    const appTestsJob = workflow.match(
+      /\n  app_tests:[\s\S]*?(?=\n  [a-z][a-z_-]*:|$)/
+    )?.[0] ?? "";
+    expect(appTestsJob).toContain("strategy:");
+    expect(appTestsJob).toContain("fail-fast: false");
+    expect(appTestsJob).toContain("max-parallel: 4");
+    expect(appTestsJob).toContain("shard: [1, 2, 3, 4]");
+    expect(appTestsJob).toContain("runs-on: ubuntu-latest");
+    expect(appTestsJob).toContain("timeout-minutes: 100");
+    expect(appTestsJob).toContain("timeout-minutes: 10");
+    expect(appTestsJob).toContain("ref: ${{ needs.resolve_target.outputs.target_sha }}");
+    expect(appTestsJob).toContain("persist-credentials: false");
+    expect(appTestsJob).toContain("node-version: 24.14.0");
+    expect(appTestsJob).toContain("cache: npm");
+    expect(appTestsJob).toContain("run: npm ci");
+    expect(appTestsJob).toContain("VITEST_SHARD_INDEX: ${{ matrix.shard }}");
+    expect(appTestsJob).toContain("VITEST_SHARD_COUNT: 4");
+    expect(appTestsJob).toContain("run: npm run test");
+    expect(appTestsJob).not.toContain("--shard=");
 
     const qualityJob = workflow.match(
       /\n  quality:[\s\S]*?(?=\n  [a-z][a-z_-]*:|$)/

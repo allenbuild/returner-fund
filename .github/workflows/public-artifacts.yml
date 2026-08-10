@@ -375,6 +375,11 @@ jobs:
 
   app_tests:
     needs: resolve_target
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        shard: [1, 2, 3, 4]
     runs-on: ubuntu-latest
     timeout-minutes: 100
     steps:
@@ -396,6 +401,9 @@ jobs:
 
       - name: Run Vitest application suite
         timeout-minutes: 85
+        env:
+          VITEST_SHARD_INDEX: ${{ matrix.shard }}
+          VITEST_SHARD_COUNT: 4
         run: npm run test
 
   collectors:
