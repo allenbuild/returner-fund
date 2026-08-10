@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readFile, rm, symlink, unlink, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
@@ -79,6 +79,36 @@ describe("timeline artifact validator", () => {
       && error.violations.some((violation) => violation.includes(
         "src/lib/social/public-evidence-current.json",
       )));
+  });
+
+  it("does not follow a company artifact symlink outside the repository root", async () => {
+    const fixture = await writeFixture();
+    const outsideRoot = await mkdtemp(path.join(tmpdir(), "returner-timeline-validator-outside-"));
+    temporaryDirectories.push(outsideRoot);
+    const companyPath = path.join(fixture, "public", "timelines", "companies", "acme.json");
+    const outsidePath = path.join(outsideRoot, "acme.json");
+    await writeFile(outsidePath, await readFile(companyPath));
+    await unlink(companyPath);
+    await symlink(outsidePath, companyPath);
+
+    await expect(validateTimelineArtifacts({
+      rootDir: fixture,
+      now: new Date("2026-08-02T12:00:00Z"),
+    })).rejects.toBeInstanceOf(TimelineArtifactValidationError);
+  });
+
+  it("reports a stale direct company artifact as unmanifested", async () => {
+    const fixture = await writeFixture();
+    await writeFile(
+      path.join(fixture, "public", "timelines", "companies", "shepherd.json"),
+      "{}",
+    );
+
+    await expect(validateTimelineArtifacts({
+      rootDir: fixture,
+      now: new Date("2026-08-02T12:00:00Z"),
+    })).rejects.toSatisfy((error) => error instanceof TimelineArtifactValidationError
+      && error.violations.includes("Unmanifested company timeline artifact shepherd.json"));
   });
 });
 

@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { access, mkdir, readFile, readdir, rename, unlink, writeFile } from "node:fs/promises";
+import { access, copyFile, mkdir, mkdtemp, readFile, readdir, rename, rm, writeFile } from "node:fs/promises";
 import { dirname, extname, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import { PLATFORM_VALUES, type EvidenceItem, type GraphNode, type GraphResponse } from "@/lib/graph/types";
@@ -70,6 +70,8 @@ const TIMELINE_BACKFILL_CHECKPOINT_SCHEMA_VERSION = "company-timeline-backfill-c
 const TIMELINE_BACKFILL_BUILD_ENTRY = "src/lib/timeline/backfill.ts";
 const TIMELINE_BACKFILL_SOURCE_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
 const LOCAL_MODULE_EXTENSIONS = [".ts", ".tsx", ".mts", ".cts", ".mjs", ".cjs", ".js", ".jsx", ".json"] as const;
+const MANAGED_DETAIL_FILENAME = /^tle-[a-f0-9]{24}\.json$/;
+const MANAGED_DATABASE_DETAIL_FILENAME = /^tldb-[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\.json$/i;
 const TIMELINE_SOURCE_TYPE_VALUES = new Set([
   "company_page", "company_blog", "press_release", "changelog", "news_article",
   "accelerator_profile", "investor_page", "customer_page", "partner_page",
@@ -237,6 +239,8 @@ export async function runCompanyTimelineBackfill(
   const companies = maxCompanies ? loaded.companies.slice(0, maxCompanies) : loaded.companies;
   const manifestCompanies: TimelineCoverageManifestCompany[] = [];
   const desiredDetailFiles = new Set<string>();
+  const pendingCompanyArtifacts = new Map<string, CompanyTimelineArtifact>();
+  const pendingDetailArtifacts = new Map<string, CompanyTimelineEventDetailArtifact>();
   let processedCompanies = 0;
   let resumedCompanies = 0;
 
@@ -269,29 +273,20 @@ export async function runCompanyTimelineBackfill(
     processedCompanies += 1;
 
     if (!dryRun) {
-      const artifactPath = join(rootDir, built.manifest.artifactPath);
-      await atomicWriteJson(artifactPath, built.artifact);
+      // Keep newly generated files off the published tree until the complete
+      // manifest and every company/detail artifact can be published together.
+      // Hash the exact bytes that will be staged, not a partially published
+      // file in the live tree.
+      built.manifest.artifactSha256 = sha256(serializeJson(built.artifact));
+      pendingCompanyArtifacts.set(built.manifest.artifactPath, built.artifact);
       for (const detail of built.details) {
-        await atomicWriteJson(join(rootDir, "public", "timelines", "events", `${detail.event.id}.json`), detail);
+        pendingDetailArtifacts.set(`public/timelines/events/${detail.event.id}.json`, detail);
       }
-      // Hash after writing exactly the serialized bytes used on disk.
-      built.manifest.artifactSha256 = await sha256File(artifactPath);
-      checkpointDetails[company.id] = await Promise.all(built.details.map(async (detail) => {
+      checkpointDetails[company.id] = built.details.map((detail) => {
         const path = `public/timelines/events/${detail.event.id}.json`;
-        return { path, sha256: await sha256File(join(rootDir, path)) };
-      }));
+        return { path, sha256: sha256(serializeJson(detail)) };
+      });
       completed.add(company.id);
-      await atomicWriteJson(checkpointAbsolutePath, {
-        schemaVersion: TIMELINE_BACKFILL_CHECKPOINT_SCHEMA_VERSION,
-        buildVersion: TIMELINE_BACKFILL_BUILD_VERSION,
-        inventorySha256,
-        sourceArtifacts: loaded.sourceArtifacts,
-        databaseSha256: database.sha256,
-        publicDiscoverySha256: usablePublicDiscovery?.sha256 ?? "not-configured",
-        completedCompanyIds: [...completed].sort(),
-        detailArtifacts: checkpointDetails,
-        updatedAt: generatedAt,
-      } satisfies BackfillCheckpoint);
     }
     log("timeline company processed", {
       companyId: company.id,
@@ -304,40 +299,46 @@ export async function runCompanyTimelineBackfill(
   }
 
   // A real publication always contains the full authoritative inventory.
-  const publishedEvents = manifestCompanies.reduce((sum, item) => sum + item.publishedEventCount, 0);
-  const candidateEvents = manifestCompanies.reduce((sum, item) => sum + item.candidateEventCount, 0);
-  const unresolvedDates = manifestCompanies.reduce((sum, item) => sum + item.unresolvedDateCount, 0);
-  const manifest: TimelineCoverageManifest = {
-    schemaVersion: TIMELINE_COVERAGE_SCHEMA_VERSION,
+  const manifest = buildTimelineCoverageManifest({
     generatedAt,
     inventorySha256,
     sourceArtifacts: loaded.sourceArtifacts,
-    totals: {
-      inventoryRecords: loaded.inventoryRecords,
-      uniqueCompanies: loaded.companies.length,
-      terminalUniqueCompanies: manifestCompanies.length,
-      completeCompanies: manifestCompanies.filter((item) => item.status === "complete").length,
-      partialCompanies: manifestCompanies.filter((item) => item.status === "partial").length,
-      failedCompanies: manifestCompanies.filter((item) => item.status === "failed").length,
-      publishedEvents,
-      candidates: candidateEvents,
-      unresolvedConflicts: manifestCompanies.reduce((sum, item) => sum + item.unresolvedConflictCount, 0),
-      unresolvedDates,
-    },
-    companies: manifestCompanies.sort((left, right) => left.company.id.localeCompare(right.company.id)),
-  };
+    inventoryRecords: loaded.inventoryRecords,
+    uniqueCompanies: loaded.companies.length,
+    manifestCompanies,
+  });
+  const {
+    publishedEvents,
+    candidates: candidateEvents,
+    unresolvedDates,
+  } = manifest.totals;
 
   if (!dryRun) {
-    const timelineRoot = join(rootDir, "public", "timelines");
     const publicIndex: TimelinePublicIndex = {
       schemaVersion: TIMELINE_PUBLIC_INDEX_SCHEMA_VERSION,
       generatedAt,
       companyCount: manifest.totals.uniqueCompanies,
       publishedEventCount: manifest.totals.publishedEvents,
     };
-    await atomicWriteJson(join(rootDir, INTERNAL_COVERAGE_PATH), manifest);
-    await atomicWriteJson(join(rootDir, PUBLIC_INDEX_PATH), publicIndex);
-    await removeStaleManagedDetails(join(timelineRoot, "events"), desiredDetailFiles);
+    await publishTimelineArtifacts({
+      rootDir,
+      manifest,
+      publicIndex,
+      pendingCompanyArtifacts,
+      pendingDetailArtifacts,
+      desiredDetailFiles,
+    });
+    await atomicWriteJson(checkpointAbsolutePath, {
+      schemaVersion: TIMELINE_BACKFILL_CHECKPOINT_SCHEMA_VERSION,
+      buildVersion: TIMELINE_BACKFILL_BUILD_VERSION,
+      inventorySha256,
+      sourceArtifacts: loaded.sourceArtifacts,
+      databaseSha256: database.sha256,
+      publicDiscoverySha256: usablePublicDiscovery?.sha256 ?? "not-configured",
+      completedCompanyIds: [...completed].sort(),
+      detailArtifacts: checkpointDetails,
+      updatedAt: generatedAt,
+    } satisfies BackfillCheckpoint);
   }
 
   return {
@@ -353,6 +354,176 @@ export async function runCompanyTimelineBackfill(
     coveragePath: dryRun ? null : INTERNAL_COVERAGE_PATH,
     inventorySha256,
   };
+}
+
+function buildTimelineCoverageManifest({
+  generatedAt,
+  inventorySha256,
+  sourceArtifacts,
+  inventoryRecords,
+  uniqueCompanies,
+  manifestCompanies,
+}: {
+  generatedAt: string;
+  inventorySha256: string;
+  sourceArtifacts: Array<{ path: string; sha256: string }>;
+  inventoryRecords: number;
+  uniqueCompanies: number;
+  manifestCompanies: TimelineCoverageManifestCompany[];
+}): TimelineCoverageManifest {
+  const publishedEvents = manifestCompanies.reduce((sum, item) => sum + item.publishedEventCount, 0);
+  const candidateEvents = manifestCompanies.reduce((sum, item) => sum + item.candidateEventCount, 0);
+  const unresolvedDates = manifestCompanies.reduce((sum, item) => sum + item.unresolvedDateCount, 0);
+  return {
+    schemaVersion: TIMELINE_COVERAGE_SCHEMA_VERSION,
+    generatedAt,
+    inventorySha256,
+    sourceArtifacts,
+    totals: {
+      inventoryRecords,
+      uniqueCompanies,
+      terminalUniqueCompanies: manifestCompanies.length,
+      completeCompanies: manifestCompanies.filter((item) => item.status === "complete").length,
+      partialCompanies: manifestCompanies.filter((item) => item.status === "partial").length,
+      failedCompanies: manifestCompanies.filter((item) => item.status === "failed").length,
+      publishedEvents,
+      candidates: candidateEvents,
+      unresolvedConflicts: manifestCompanies.reduce((sum, item) => sum + item.unresolvedConflictCount, 0),
+      unresolvedDates,
+    },
+    companies: manifestCompanies.sort((left, right) => left.company.id.localeCompare(right.company.id)),
+  };
+}
+
+async function publishTimelineArtifacts({
+  rootDir,
+  manifest,
+  publicIndex,
+  pendingCompanyArtifacts,
+  pendingDetailArtifacts,
+  desiredDetailFiles,
+}: {
+  rootDir: string;
+  manifest: TimelineCoverageManifest;
+  publicIndex: TimelinePublicIndex;
+  pendingCompanyArtifacts: ReadonlyMap<string, CompanyTimelineArtifact>;
+  pendingDetailArtifacts: ReadonlyMap<string, CompanyTimelineEventDetailArtifact>;
+  desiredDetailFiles: ReadonlySet<string>;
+}): Promise<void> {
+  const timelineRoot = join(rootDir, "public", "timelines");
+  const coveragePath = join(rootDir, INTERNAL_COVERAGE_PATH);
+  await assertTimelineCompanyFilesAreRegular(timelineRoot);
+  await mkdir(join(rootDir, "work"), { recursive: true });
+  const stagingRoot = await mkdtemp(join(rootDir, "work", "timeline-publication-"));
+  const stagedTimelineRoot = join(stagingRoot, "timelines");
+  const stagedCoveragePath = join(stagingRoot, "coverage.json");
+
+  try {
+    const stagedCompaniesRoot = join(stagedTimelineRoot, "companies");
+    const stagedEventsRoot = join(stagedTimelineRoot, "events");
+    await mkdir(stagedCompaniesRoot, { recursive: true });
+    await mkdir(stagedEventsRoot, { recursive: true });
+
+    for (const entry of manifest.companies) {
+      const relativePath = entry.artifactPath.slice("public/timelines/".length);
+      const stagedPath = join(stagedTimelineRoot, relativePath);
+      const generated = pendingCompanyArtifacts.get(entry.artifactPath);
+      if (generated) {
+        await atomicWriteJson(stagedPath, generated);
+      } else {
+        await copyFile(join(rootDir, entry.artifactPath), stagedPath);
+      }
+    }
+    for (const filename of desiredDetailFiles) {
+      if (!MANAGED_DETAIL_FILENAME.test(filename) && !MANAGED_DATABASE_DETAIL_FILENAME.test(filename)) {
+        throw new Error(`Unexpected Company Timeline detail artifact: ${filename}`);
+      }
+      const relativePath = `public/timelines/events/${filename}`;
+      const stagedPath = join(stagedTimelineRoot, "events", filename);
+      const generated = pendingDetailArtifacts.get(relativePath);
+      if (generated) {
+        await atomicWriteJson(stagedPath, generated);
+      } else {
+        await copyFile(join(rootDir, relativePath), stagedPath);
+      }
+    }
+    await atomicWriteJson(join(stagedTimelineRoot, "coverage.json"), publicIndex);
+    await atomicWriteJson(stagedCoveragePath, manifest);
+    await swapTimelinePublication({ timelineRoot, coveragePath, stagedTimelineRoot, stagedCoveragePath, stagingRoot });
+  } finally {
+    await rm(stagingRoot, { recursive: true, force: true });
+  }
+}
+
+async function assertTimelineCompanyFilesAreRegular(timelineRoot: string): Promise<void> {
+  const companyRoot = join(timelineRoot, "companies");
+  let entries;
+  try {
+    entries = await readdir(companyRoot, { withFileTypes: true });
+  } catch (error) {
+    if (error instanceof Error && "code" in error && error.code === "ENOENT") return;
+    throw error;
+  }
+  for (const entry of entries) {
+    if (entry.name.endsWith(".json") && !entry.isFile()) {
+      throw new Error(`Company Timeline artifact path is not a regular file: ${entry.name}`);
+    }
+  }
+}
+
+async function swapTimelinePublication({
+  timelineRoot,
+  coveragePath,
+  stagedTimelineRoot,
+  stagedCoveragePath,
+  stagingRoot,
+}: {
+  timelineRoot: string;
+  coveragePath: string;
+  stagedTimelineRoot: string;
+  stagedCoveragePath: string;
+  stagingRoot: string;
+}): Promise<void> {
+  const previousTimelineRoot = join(stagingRoot, "previous-timelines");
+  const previousCoveragePath = join(stagingRoot, "previous-coverage.json");
+  let previousTimelineMoved = false;
+  let previousCoverageMoved = false;
+  let stagedTimelineMoved = false;
+  let stagedCoverageMoved = false;
+
+  try {
+    if (await pathExists(timelineRoot)) {
+      await rename(timelineRoot, previousTimelineRoot);
+      previousTimelineMoved = true;
+    }
+    if (await pathExists(coveragePath)) {
+      await rename(coveragePath, previousCoveragePath);
+      previousCoverageMoved = true;
+    }
+    await mkdir(dirname(timelineRoot), { recursive: true });
+    await mkdir(dirname(coveragePath), { recursive: true });
+    await rename(stagedTimelineRoot, timelineRoot);
+    stagedTimelineMoved = true;
+    await rename(stagedCoveragePath, coveragePath);
+    stagedCoverageMoved = true;
+    await rm(previousTimelineRoot, { recursive: true, force: true });
+    await rm(previousCoveragePath, { force: true });
+  } catch (error) {
+    if (stagedCoverageMoved) await rename(coveragePath, stagedCoveragePath).catch(() => undefined);
+    if (previousCoverageMoved) await rename(previousCoveragePath, coveragePath).catch(() => undefined);
+    if (stagedTimelineMoved) await rename(timelineRoot, stagedTimelineRoot).catch(() => undefined);
+    if (previousTimelineMoved) await rename(previousTimelineRoot, timelineRoot).catch(() => undefined);
+    throw error;
+  }
+}
+
+async function pathExists(path: string): Promise<boolean> {
+  try {
+    await access(path);
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 /**
@@ -1596,21 +1767,8 @@ async function atomicWriteJson(path: string, value: unknown): Promise<void> {
   await rename(temporaryPath, path);
 }
 
-async function sha256File(path: string): Promise<string> { return sha256(await readFile(path)); }
 async function readJsonIfPresent<T>(path: string): Promise<T | null> {
   try { return JSON.parse(await readFile(path, "utf8")) as T; } catch { return null; }
-}
-
-async function removeStaleManagedDetails(directory: string, desired: ReadonlySet<string>): Promise<void> {
-  await mkdir(directory, { recursive: true });
-  const files = await readdir(directory);
-  for (const filename of files) {
-    const isManagedDetail = /^tle-[a-f0-9]{24}\.json$/.test(filename)
-      || /^tldb-[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\.json$/i.test(filename);
-    if (isManagedDetail && !desired.has(filename)) {
-      await unlink(join(directory, filename));
-    }
-  }
 }
 
 function resolveWithinRoot(rootDir: string, path: string): string {

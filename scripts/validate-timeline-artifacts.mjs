@@ -2,7 +2,7 @@
 
 import { createHash } from "node:crypto";
 import { isIP } from "node:net";
-import { readFile, readdir } from "node:fs/promises";
+import { lstat, readFile, readdir } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -481,6 +481,11 @@ async function validateSourceArtifactHashes(rootDir, coverage, violations) {
 async function readJsonWithHash(absolutePath, violations, label) {
   let bytes;
   try {
+    const metadata = await lstat(absolutePath);
+    if (!metadata.isFile()) {
+      violations.push(`${label}: artifact must be a regular file`);
+      return null;
+    }
     bytes = await readFile(absolutePath);
   } catch (error) {
     violations.push(`${label}: could not read artifact (${error instanceof Error ? error.message : String(error)})`);

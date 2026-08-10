@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { mkdtemp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
+import { mkdtemp, mkdir, readFile, readdir, rename, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
@@ -329,6 +329,98 @@ describe("Company Timeline backfill checkpoint integrity", () => {
       .toBe(changedSourceArtifacts[0]?.sha256);
     expect(changedSourceArtifacts[0]?.sha256).not.toBe(initialSourceArtifacts[0]?.sha256);
   });
+
+  it("adds a newly discovered graph company to the next authoritative manifest", async () => {
+    const root = await multiCompanyFixtureRoot({ includeShepherd: false });
+    await backfill(root);
+
+    await writeGraph(root, "s26.json", [companyNode("company-beta", "Beta")]);
+    const result = await backfill(root);
+    const coverage = await readJson(join(root, "artifacts", "company-timeline", "coverage.json")) as {
+      companies: Array<{ company: { id: string }; artifactPath: string }>;
+      totals: { uniqueCompanies: number; terminalUniqueCompanies: number };
+    };
+
+    expect(result).toMatchObject({ processedCompanies: 2, resumedCompanies: 0 });
+    expect(coverage.totals).toMatchObject({ uniqueCompanies: 2, terminalUniqueCompanies: 2 });
+    expect(coverage.companies.map((entry) => entry.company.id)).toEqual([
+      "company-acme",
+      "company-beta",
+    ]);
+    await expect(readdir(join(root, "public", "timelines", "companies"))).resolves.toEqual([
+      "acme.json",
+      "beta.json",
+    ]);
+  });
+
+  it("keeps a bounded partial selection dry-run-only", async () => {
+    const root = await multiCompanyFixtureRoot({ includeBeta: true });
+
+    await expect(runCompanyTimelineBackfill({
+      rootDir: root,
+      dryRun: true,
+      maxCompanies: 1,
+      databaseSnapshot: emptyDatabaseSnapshot(),
+      env: {} as NodeJS.ProcessEnv,
+      logger: () => {},
+    })).resolves.toMatchObject({
+      dryRun: true,
+      processedCompanies: 1,
+      uniqueCompanies: 2,
+      coveragePath: null,
+    });
+    await expect(readFile(join(root, "artifacts", "company-timeline", "coverage.json"))).rejects.toThrow();
+    await expect(readdir(join(root, "public", "timelines", "companies"))).rejects.toThrow();
+  });
+
+  it("removes a company artifact when the next inventory no longer contains that company", async () => {
+    const root = await multiCompanyFixtureRoot({ includeShepherd: true });
+    await backfill(root);
+    await writeGraph(root, "s26.json", []);
+
+    await backfill(root);
+
+    await expect(readJson(join(root, "artifacts", "company-timeline", "coverage.json"))).resolves.toMatchObject({
+      totals: { uniqueCompanies: 1, terminalUniqueCompanies: 1 },
+      companies: [{ company: { id: "company-acme" } }],
+    });
+    await expect(readdir(join(root, "public", "timelines", "companies"))).resolves.toEqual(["acme.json"]);
+  });
+
+  it("does not expose a mixed old-manifest/new-artifact publication after a write failure", async () => {
+    const root = await multiCompanyFixtureRoot({ includeShepherd: true });
+    await backfill(root);
+    const coveragePath = join(root, "artifacts", "company-timeline", "coverage.json");
+    const acmePath = join(root, "public", "timelines", "companies", "acme.json");
+    const previousCoverage = await readFile(coveragePath);
+    const previousAcme = await readFile(acmePath);
+
+    await writeGraph(root, "s2026.json", [companyNode("company-acme", "Acme")], "2026-08-03T12:00:00.000Z");
+    const shepherdPath = join(root, "public", "timelines", "companies", "shepherd.json");
+    await rename(shepherdPath, `${shepherdPath}.saved`);
+    await mkdir(shepherdPath);
+
+    await expect(backfill(root)).rejects.toThrow();
+    await expect(readFile(coveragePath)).resolves.toEqual(previousCoverage);
+    await expect(readFile(acmePath)).resolves.toEqual(previousAcme);
+  });
+
+  it("produces identical artifacts when graph files are created in different orders", async () => {
+    const firstRoot = await multiCompanyFixtureRoot({ includeBeta: true, graphWriteOrder: ["s2026.json", "s26.json", "a16zsr006.json"] });
+    const secondRoot = await multiCompanyFixtureRoot({ includeBeta: true, graphWriteOrder: ["a16zsr006.json", "s26.json", "s2026.json"] });
+    await backfill(firstRoot);
+    await backfill(secondRoot);
+
+    const paths = [
+      "artifacts/company-timeline/coverage.json",
+      "public/timelines/coverage.json",
+      "public/timelines/companies/acme.json",
+      "public/timelines/companies/beta.json",
+    ];
+    const first = await Promise.all(paths.map((relativePath) => readFile(join(firstRoot, relativePath))));
+    const second = await Promise.all(paths.map((relativePath) => readFile(join(secondRoot, relativePath))));
+    expect(second).toEqual(first);
+  });
 });
 
 async function timelineFixtureRoot(): Promise<string> {
@@ -381,6 +473,70 @@ async function timelineFixtureRoot(): Promise<string> {
     mode: "official_snapshot",
   }));
   return root;
+}
+
+async function multiCompanyFixtureRoot({
+  includeShepherd = false,
+  includeBeta = false,
+  graphWriteOrder = ["s2026.json", "s26.json", "a16zsr006.json"],
+}: {
+  includeShepherd?: boolean;
+  includeBeta?: boolean;
+  graphWriteOrder?: string[];
+} = {}): Promise<string> {
+  const root = await temporaryRoot();
+  const graphs: Record<string, Array<Record<string, unknown>>> = {
+    "s2026.json": [companyNode("company-acme", "Acme")],
+    "s26.json": includeShepherd
+      ? [companyNode("company-shepherd", "Shepherd")]
+      : includeBeta ? [companyNode("company-beta", "Beta")] : [],
+    "a16zsr006.json": [],
+  };
+  await mkdir(join(root, "public", "graph"), { recursive: true });
+  for (const filename of graphWriteOrder) {
+    await writeGraph(root, filename, graphs[filename] ?? []);
+  }
+  return root;
+}
+
+async function writeGraph(
+  root: string,
+  filename: string,
+  nodes: Array<Record<string, unknown>>,
+  generatedAt = "2026-08-02T12:00:00.000Z",
+): Promise<void> {
+  await mkdir(join(root, "public", "graph"), { recursive: true });
+  await writeFile(join(root, "public", "graph", filename), serialized({
+    batch: { slug: "fixture", label: "Fixture", companyCountObserved: nodes.length },
+    batches: [{ slug: "fixture", label: "Fixture", companyCountObserved: nodes.length }],
+    nodes,
+    evidence: [],
+    edges: [],
+    leaderboard: [],
+    fastestGaining: [],
+    needsReview: [],
+    platformStatus: [],
+    topVoiceAudiences: [],
+    selectedTopVoiceAudience: {
+      id: "off", displayName: "Off", description: "", helperText: "",
+      scoreLabel: "Score", scoreDescription: "", active: true, memberCount: 0,
+    },
+    generatedAt,
+    mode: "official_snapshot",
+  }));
+}
+
+function companyNode(entityId: string, label: string): Record<string, unknown> {
+  return {
+    id: `node-${entityId}`,
+    entityType: "company",
+    entityId,
+    label,
+    batchSlug: "fixture",
+    websiteUrl: `https://${label.toLowerCase()}.example`,
+    sourceUrl: `https://${label.toLowerCase()}.example/about`,
+    founders: [],
+  };
 }
 
 async function backfill(rootDir: string) {
