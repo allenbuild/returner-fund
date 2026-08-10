@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { access, copyFile, mkdir, mkdtemp, readFile, readdir, rename, rm, writeFile } from "node:fs/promises";
+import { access, copyFile, lstat, mkdir, mkdtemp, readFile, readdir, rename, rm, writeFile } from "node:fs/promises";
 import { dirname, extname, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import { PLATFORM_VALUES, type EvidenceItem, type GraphNode, type GraphResponse } from "@/lib/graph/types";
@@ -431,7 +431,7 @@ async function publishTimelineArtifacts({
       if (generated) {
         await atomicWriteJson(stagedPath, generated);
       } else {
-        await copyFile(join(rootDir, entry.artifactPath), stagedPath);
+        await copyRegularFile(join(rootDir, entry.artifactPath), stagedPath);
       }
     }
     for (const filename of desiredDetailFiles) {
@@ -444,7 +444,7 @@ async function publishTimelineArtifacts({
       if (generated) {
         await atomicWriteJson(stagedPath, generated);
       } else {
-        await copyFile(join(rootDir, relativePath), stagedPath);
+        await copyRegularFile(join(rootDir, relativePath), stagedPath);
       }
     }
     await atomicWriteJson(join(stagedTimelineRoot, "coverage.json"), publicIndex);
@@ -459,6 +459,10 @@ async function assertTimelineCompanyFilesAreRegular(timelineRoot: string): Promi
   const companyRoot = join(timelineRoot, "companies");
   let entries;
   try {
+    const timelineMetadata = await lstat(timelineRoot);
+    if (!timelineMetadata.isDirectory()) {
+      throw new Error("Company Timeline publication root must be a regular directory.");
+    }
     entries = await readdir(companyRoot, { withFileTypes: true });
   } catch (error) {
     if (error instanceof Error && "code" in error && error.code === "ENOENT") return;
@@ -506,8 +510,6 @@ async function swapTimelinePublication({
     stagedTimelineMoved = true;
     await rename(stagedCoveragePath, coveragePath);
     stagedCoverageMoved = true;
-    await rm(previousTimelineRoot, { recursive: true, force: true });
-    await rm(previousCoveragePath, { force: true });
   } catch (error) {
     if (stagedCoverageMoved) await rename(coveragePath, stagedCoveragePath).catch(() => undefined);
     if (previousCoverageMoved) await rename(previousCoveragePath, coveragePath).catch(() => undefined);
@@ -515,6 +517,14 @@ async function swapTimelinePublication({
     if (previousTimelineMoved) await rename(previousTimelineRoot, timelineRoot).catch(() => undefined);
     throw error;
   }
+}
+
+async function copyRegularFile(sourcePath: string, destinationPath: string): Promise<void> {
+  const metadata = await lstat(sourcePath);
+  if (!metadata.isFile()) {
+    throw new Error(`Company Timeline source artifact must be a regular file: ${sourcePath}`);
+  }
+  await copyFile(sourcePath, destinationPath);
 }
 
 async function pathExists(path: string): Promise<boolean> {
