@@ -164,22 +164,22 @@ describe("OpenCLI browser session cleanup", () => {
 
 describe("OpenCLI subprocess isolation", () => {
   it("records a unique owner marker and revalidates process identity before teardown signals", () => {
+    const runtimeSource = readFileSync(new URL("../scripts/lib/opencli-runtime.mjs", import.meta.url), "utf8");
+    assert.match(runtimeSource, /RETURNER_OPENCLI_PROCESS_OWNER:\s*owner\.marker/);
+    assert.match(runtimeSource, /ownedProcessIdentityStatus\(pid, processState, owner\)/);
     assert.match(
-      readFileSync(new URL("../scripts/lib/opencli-runtime.mjs", import.meta.url), "utf8"),
-      /RETURNER_OPENCLI_PROCESS_OWNER=\$\{owner\.marker\}/
+      runtimeSource,
+      /snapshot\.startIdentity !== processState\.startIdentity/
     );
     assert.match(
-      readFileSync(new URL("../scripts/lib/opencli-runtime.mjs", import.meta.url), "utf8"),
-      /ownedProcessIdentityIsCurrent\(pid, processState, owner\)/
+      runtimeSource,
+      /processOwnerMarker\(pid, marker\)/
     );
-    assert.match(
-      readFileSync(new URL("../scripts/lib/opencli-runtime.mjs", import.meta.url), "utf8"),
-      /expectedStartIdentity: processState\.startIdentity/
-    );
-    assert.match(
-      readFileSync(new URL("../scripts/lib/opencli-runtime.mjs", import.meta.url), "utf8"),
-      /processOwnerMarker\(pid, owner\.marker\)/
-    );
+    assert.match(runtimeSource, /scanLinuxProcessTable\(owner\.marker\)/);
+    assert.match(runtimeSource, /Buffer\.from\(`RETURNER_OPENCLI_PROCESS_OWNER=\$\{marker\}`\)/);
+    assert.match(runtimeSource, /environment\.indexOf\(0, start\)/);
+    assert.match(runtimeSource, /environment\.subarray\(start, fieldEnd\)\.equals\(expected\)/);
+    assert.match(runtimeSource, /readLinuxProcStat\(pid\).*readLinuxProcessEnvironmentMarker\(pid, marker\).*readLinuxProcStat\(pid\)/s);
   });
 
   it("fails closed for same-second PID reuse and Windows PID-only signaling", () => {
@@ -363,6 +363,15 @@ describe("OpenCLI subprocess isolation", () => {
         errorCode = error.code;
       }
       const pid = Number(readFileSync(${JSON.stringify(pidPath)}, "utf8"));
+      function processIsAlive(candidatePid) {
+        try {
+          process.kill(candidatePid, 0);
+          return true;
+        } catch (error) {
+          return error?.code !== "ESRCH";
+        }
+      }
+      const descendantRunning = processIsAlive(pid);
       let processState = "";
       try {
         processState = execFileSync("/bin/ps", ["-p", String(pid), "-o", "stat="], {
@@ -371,7 +380,8 @@ describe("OpenCLI subprocess isolation", () => {
       } catch {}
       process.stdout.write(JSON.stringify({
         errorCode,
-        descendantRunning: Boolean(processState && !processState.startsWith("Z"))
+        descendantRunning,
+        processState
       }));
     `;
 

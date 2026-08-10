@@ -10,6 +10,7 @@ const execFileAsync = promisify(execFile);
 const openCliProcessOwnerContext = new AsyncLocalStorage();
 let cachedRuntime = null;
 const OPENCLI_PROCESS_SCAN_INTERVAL_MS = 10;
+const OPENCLI_PROCESS_FREEZE_GRACE_MS = 250;
 const OPENCLI_PROCESS_TERM_GRACE_MS = 500;
 const OPENCLI_PROCESS_KILL_GRACE_MS = 1_000;
 const OPENCLI_REDACTION_MARKER = "[redacted-secret]";
@@ -89,6 +90,7 @@ export async function runOpenCli(args, options = {}) {
 
 export function createOpenCliProcessOwner({
   scanIntervalMs = OPENCLI_PROCESS_SCAN_INTERVAL_MS,
+  freezeGraceMs = OPENCLI_PROCESS_FREEZE_GRACE_MS,
   termGraceMs = OPENCLI_PROCESS_TERM_GRACE_MS,
   killGraceMs = OPENCLI_PROCESS_KILL_GRACE_MS
 } = {}) {
@@ -98,11 +100,14 @@ export function createOpenCliProcessOwner({
     processes: new Map(),
     groups: new Set(),
     scanIntervalMs: positiveProcessDuration(scanIntervalMs, "scanIntervalMs"),
+    freezeGraceMs: positiveProcessDuration(freezeGraceMs, "freezeGraceMs"),
     termGraceMs: positiveProcessDuration(termGraceMs, "termGraceMs"),
     killGraceMs: positiveProcessDuration(killGraceMs, "killGraceMs"),
     scanTimer: null,
     scanInFlight: null,
     scanFailure: null,
+    authorizationFailures: new Map(),
+    processExitStates: new Map(),
     drainPromise: null
   };
 }
@@ -159,6 +164,14 @@ async function executeOwnedOpenCliProcess(command, args, {
     child.once("error", reject);
     child.once("exit", (code, signal) => resolve({ code, signal }));
   });
+  if (Number.isInteger(child.pid) && child.pid > 0) {
+    const exitState = { settled: false, promise: exit };
+    owner.processExitStates.set(child.pid, exitState);
+    exit.then(
+      () => { exitState.settled = true; },
+      () => { exitState.settled = true; }
+    );
+  }
   const timeout = setTimeout(() => {
     const error = openCliProcessError(
       `OpenCLI command timed out after ${boundedTimeoutMs}ms.`,
@@ -319,6 +332,76 @@ function startOpenCliProcessScanner(owner) {
 
 async function scanOwnedProcesses(owner) {
   if (process.platform === "win32") return;
+  const rows = process.platform === "linux"
+    ? scanLinuxProcessTable(owner.marker)
+    : await scanPortableProcessTable(owner.marker);
+
+  const ownedPids = new Set([...owner.roots, ...owner.processes.keys()]);
+  // `detached: true` children can call setsid(2) and be reparented before a
+  // parent/child walk sees them. The owner marker is injected into the strict
+  // child environment and inherited by every descendant, so the exact marker
+  // is a second ownership edge even after both parent and process group change.
+  for (const row of rows.values()) {
+    if (row.markerPresent) ownedPids.add(row.pid);
+  }
+  let changed = true;
+  while (changed) {
+    changed = false;
+    for (const row of rows.values()) {
+      if (row.pid === process.pid || ownedPids.has(row.pid)) continue;
+      if (!ownedPids.has(row.ppid)) continue;
+      ownedPids.add(row.pid);
+      changed = true;
+    }
+  }
+
+  for (const pid of ownedPids) {
+    const row = rows.get(pid);
+    if (!row) continue;
+    const startIdentity = row.startIdentity ?? processStartIdentity(pid);
+    if (!startIdentity) continue;
+    const previous = owner.processes.get(pid);
+    // A PID that changed identity is no longer ours. Remove it from every
+    // ownership set before any later teardown pass can signal the replacement.
+    if (
+      previous?.startIdentity &&
+      previous.startIdentity !== startIdentity
+    ) {
+      owner.processes.delete(pid);
+      owner.roots.delete(pid);
+      continue;
+    }
+    owner.processes.set(pid, {
+      ppid: row.ppid,
+      pgid: row.pgid,
+      state: row.state,
+      startIdentity: previous?.startIdentity ?? startIdentity
+    });
+    if (row.pgid > 1) owner.groups.add(row.pgid);
+  }
+  for (const pid of owner.processes.keys()) {
+    if (!rows.has(pid)) {
+      if (!processHasExited(owner, pid)) continue;
+      owner.processes.delete(pid);
+      owner.authorizationFailures.delete(pid);
+    }
+  }
+  owner.scanFailure = null;
+}
+
+function scanLinuxProcessTable(marker) {
+  const rows = new Map();
+  const entries = fs.readdirSync("/proc", { withFileTypes: true });
+  for (const entry of entries) {
+    if (!entry.isDirectory() || !/^\d+$/.test(entry.name)) continue;
+    const pid = Number(entry.name);
+    const row = readLinuxProcessRow(pid, marker);
+    if (row) rows.set(pid, row);
+  }
+  return rows;
+}
+
+async function scanPortableProcessTable(marker) {
   const { stdout } = await execFileAsync("/bin/ps", [
     "eww",
     "-axo",
@@ -337,58 +420,78 @@ async function scanOwnedProcesses(owner) {
       ppid: Number(match[2]),
       pgid: Number(match[3]),
       state: match[4],
-      command: match[5] ?? ""
+      command: match[5] ?? "",
+      startIdentity: null,
+      markerPresent: (match[5] ?? "").includes(`RETURNER_OPENCLI_PROCESS_OWNER=${marker}`),
+      markerReadable: true
     });
   }
+  return rows;
+}
 
-  const ownedPids = new Set([...owner.roots, ...owner.processes.keys()]);
-  // `detached: true` children can call setsid(2) and be reparented before a
-  // parent/child walk sees them. The owner marker is injected into the strict
-  // child environment and inherited by every descendant, so ps eww gives us a
-  // second ownership edge even after both parent and process group change.
-  for (const row of rows.values()) {
-    if (row.command.includes(`RETURNER_OPENCLI_PROCESS_OWNER=${owner.marker}`)) {
-      ownedPids.add(row.pid);
-    }
-  }
-  let changed = true;
-  while (changed) {
-    changed = false;
-    for (const row of rows.values()) {
-      if (row.pid === process.pid || ownedPids.has(row.pid)) continue;
-      if (!ownedPids.has(row.ppid)) continue;
-      ownedPids.add(row.pid);
-      changed = true;
-    }
-  }
+function readLinuxProcessRow(pid, marker) {
+  const before = readLinuxProcStat(pid);
+  if (!before) return null;
+  const markerResult = readLinuxProcessEnvironmentMarker(pid, marker);
+  const after = readLinuxProcStat(pid);
+  if (!after || before.startIdentity !== after.startIdentity) return null;
+  return {
+    ...after,
+    markerPresent: markerResult.present,
+    markerReadable: markerResult.readable
+  };
+}
 
-  for (const pid of ownedPids) {
-    const row = rows.get(pid);
-    if (!row) continue;
-    const previous = owner.processes.get(pid);
-    const startIdentity = processStartIdentity(pid);
-    // A PID that changed identity is no longer ours. Remove it from every
-    // ownership set before any later teardown pass can signal the replacement.
+function readLinuxProcStat(pid) {
+  try {
+    const stat = fs.readFileSync(`/proc/${pid}/stat`, "utf8");
+    const commandEnd = stat.lastIndexOf(")");
+    if (commandEnd < 0) return null;
+    const fields = stat.slice(commandEnd + 1).trim().split(/\s+/);
+    const startTicks = fields[19];
+    const ppid = Number(fields[1]);
+    const pgid = Number(fields[2]);
     if (
-      previous?.startIdentity &&
-      startIdentity &&
-      previous.startIdentity !== startIdentity
+      !/^\d+$/.test(startTicks ?? "") ||
+      !Number.isInteger(ppid) || ppid < 0 ||
+      !Number.isInteger(pgid) || pgid < 0 ||
+      typeof fields[0] !== "string" || !fields[0]
     ) {
-      owner.processes.delete(pid);
-      owner.roots.delete(pid);
-      continue;
+      return null;
     }
-    owner.processes.set(pid, {
-      pgid: row.pgid,
-      state: row.state,
-      startIdentity: previous?.startIdentity ?? startIdentity
-    });
-    if (row.pgid > 1) owner.groups.add(row.pgid);
+    return {
+      pid,
+      ppid,
+      pgid,
+      state: fields[0],
+      startIdentity: `linux-proc-start:${startTicks}`
+    };
+  } catch {
+    return null;
   }
-  for (const pid of owner.processes.keys()) {
-    if (!rows.has(pid)) owner.processes.delete(pid);
+}
+
+function readLinuxProcessEnvironmentMarker(pid, marker) {
+  if (!Number.isInteger(pid) || pid <= 0 || typeof marker !== "string" || !marker) {
+    return { present: false, readable: false };
   }
-  owner.scanFailure = null;
+  try {
+    const environment = fs.readFileSync(`/proc/${pid}/environ`);
+    const expected = Buffer.from(`RETURNER_OPENCLI_PROCESS_OWNER=${marker}`);
+    let start = 0;
+    while (start <= environment.length) {
+      const end = environment.indexOf(0, start);
+      const fieldEnd = end < 0 ? environment.length : end;
+      if (environment.subarray(start, fieldEnd).equals(expected)) {
+        return { present: true, readable: true };
+      }
+      if (end < 0) break;
+      start = end + 1;
+    }
+    return { present: false, readable: true };
+  } catch {
+    return { present: false, readable: false };
+  }
 }
 
 async function drainOwnedProcessTree(owner) {
@@ -409,87 +512,282 @@ async function drainOwnedProcessTree(owner) {
     return;
   }
 
-  // Freeze every process group already discovered, then rescan. This closes
-  // the race where a child forks another process while teardown is walking the
-  // tree, and preserves detached descendants that moved to a new process group.
+  // A detached child can become a zombie when its OpenCLI parent is killed.
+  // Keep every root alive until its descendants are gone and reaped; only then
+  // terminate the roots themselves. This is the important Linux distinction
+  // between a process that has exited and a PID that still answers kill(0).
+  const drained = await drainOwnedDescendants(owner);
+  if (drained) {
+    const rootsDrained = await drainOwnedRoots(owner);
+    if (rootsDrained && owner.processes.size === 0 && !owner.scanFailure) {
+      resetOpenCliProcessOwner(owner);
+      return;
+    }
+  }
+
+  throw openCliProcessDrainFailure(owner);
+}
+
+async function drainOwnedDescendants(owner) {
+  for (let attempt = 0; attempt < 4; attempt += 1) {
+    if (!await freezeOwnedProcessTree(owner)) return false;
+
+    if (!hasOwnedProcesses(owner, { roots: false })) return true;
+
+    signalOwnedProcesses(owner, "SIGTERM", { roots: false });
+    signalOwnedProcesses(owner, "SIGCONT", { roots: false });
+
+    let terminated = await waitForOwnedProcessesToTerminate(
+      owner,
+      owner.termGraceMs,
+      { roots: false }
+    );
+    if (!terminated) {
+      // Re-freeze before SIGKILL so a descendant that forked while handling
+      // SIGTERM cannot outrun the final signal pass.
+      if (!await freezeOwnedProcessTree(owner)) return false;
+      signalOwnedProcesses(owner, "SIGKILL", { roots: false });
+      terminated = await waitForOwnedProcessesToTerminate(
+        owner,
+        owner.killGraceMs,
+        { roots: false }
+      );
+    }
+    if (!terminated) return false;
+
+    // Roots were stopped while descendants were terminated. Let them run long
+    // enough to receive SIGCHLD and reap those descendants, then stop them
+    // again before checking for a new fork race.
+    signalOwnedProcesses(owner, "SIGCONT", { roots: true, descendants: false });
+    if (!await waitForOwnedProcessesToExit(owner, owner.killGraceMs, { roots: false })) {
+      return false;
+    }
+    if (!await freezeOwnedProcessTree(owner)) return false;
+    if (!hasOwnedProcesses(owner, { roots: false })) return true;
+  }
+  return false;
+}
+
+async function drainOwnedRoots(owner) {
+  if (!hasOwnedProcesses(owner, { roots: true, descendants: false })) return true;
+
+  signalOwnedProcesses(owner, "SIGTERM", { roots: true, descendants: false });
+  signalOwnedProcesses(owner, "SIGCONT", { roots: true, descendants: false });
+  if (await waitForOwnedRootExitEvents(owner, owner.termGraceMs)) {
+    return true;
+  }
+
+  signalOwnedProcesses(owner, "SIGKILL", { roots: true, descendants: false });
+  return waitForOwnedRootExitEvents(owner, owner.killGraceMs);
+}
+
+async function waitForOwnedRootExitEvents(owner, timeoutMs) {
+  const pending = [...owner.processes.keys()]
+    .filter((pid) => owner.roots.has(pid) && !processHasExited(owner, pid))
+    .map((pid) => owner.processExitStates.get(pid)?.promise?.catch(() => undefined));
+  const exitEvents = pending.filter(Boolean);
+  if (exitEvents.length === 0) {
+    return waitForOwnedProcessesToExit(owner, timeoutMs, {
+      roots: true,
+      descendants: false
+    });
+  }
+  await Promise.race([Promise.all(exitEvents), processDelay(timeoutMs)]);
+  await scanOwnedProcesses(owner).catch((error) => {
+    owner.scanFailure = error;
+  });
+  return !owner.scanFailure && !hasOwnedProcesses(owner, { roots: true, descendants: false });
+}
+
+async function freezeOwnedProcessTree(owner) {
   for (let attempt = 0; attempt < 3; attempt += 1) {
     await scanOwnedProcesses(owner).catch((error) => {
       owner.scanFailure = error;
     });
-    signalOwnedProcesses(owner, "SIGSTOP");
-    await processDelay(owner.scanIntervalMs);
-  }
+    if (owner.scanFailure) continue;
 
-  signalOwnedProcesses(owner, "SIGTERM");
-  signalOwnedProcesses(owner, "SIGCONT");
-  if (await waitForOwnedProcessesToExit(owner, owner.termGraceMs)) {
-    resetOpenCliProcessOwner(owner);
+    // A process-group SIGSTOP closes the fork race between the scan and the
+    // direct-PID pass. Group termination is intentionally never used: a root
+    // must survive long enough to reap its detached descendants.
+    signalOwnedProcesses(owner, "SIGSTOP", { roots: true, descendants: true });
+    if (await waitForOwnedProcessesToStop(owner, owner.freezeGraceMs)) return true;
+  }
+  return false;
+}
+
+async function waitForOwnedProcessesToStop(owner, timeoutMs) {
+  const deadline = Date.now() + timeoutMs;
+  do {
+    await scanOwnedProcesses(owner).catch((error) => {
+      owner.scanFailure = error;
+    });
+    if (!owner.scanFailure) {
+      const running = [...owner.processes.entries()].some(
+        ([pid, processState]) =>
+          !processHasExited(owner, pid) &&
+          !isProcessTerminated(processState.state) &&
+          !isProcessStopped(processState.state)
+      );
+      if (!running) return true;
+    }
+    await processDelay(Math.min(owner.scanIntervalMs, Math.max(1, deadline - Date.now())));
+  } while (Date.now() < deadline);
+  return false;
+}
+
+async function waitForOwnedProcessesToTerminate(owner, timeoutMs, scope) {
+  return waitForOwnedProcesses(owner, timeoutMs, scope, { requireReaped: false });
+}
+
+async function waitForOwnedProcessesToExit(owner, timeoutMs, scope) {
+  return waitForOwnedProcesses(owner, timeoutMs, scope, { requireReaped: true });
+}
+
+async function waitForOwnedProcesses(owner, timeoutMs, {
+  roots = true,
+  descendants = true
+} = {}, { requireReaped }) {
+  const deadline = Date.now() + timeoutMs;
+  do {
+    await scanOwnedProcesses(owner).catch((error) => {
+      owner.scanFailure = error;
+    });
+    if (!owner.scanFailure) {
+      const pending = [...owner.processes.entries()].some(([pid, processState]) => {
+        const isRoot = owner.roots.has(pid);
+        if ((isRoot && !roots) || (!isRoot && !descendants)) return false;
+        if (processHasExited(owner, pid)) return false;
+        return requireReaped || !isProcessTerminated(processState.state);
+      });
+      if (!pending) return true;
+    }
+    await processDelay(Math.min(owner.scanIntervalMs, Math.max(1, deadline - Date.now())));
+  } while (Date.now() < deadline);
+  return false;
+}
+
+function signalOwnedProcesses(owner, signal, {
+  roots = true,
+  descendants = true
+} = {}) {
+  const targets = [...owner.processes.entries()].filter(([pid]) => {
+    const isRoot = owner.roots.has(pid);
+    return (isRoot && roots) || (!isRoot && descendants);
+  });
+  if (signal === "SIGSTOP") signalOwnedProcessGroups(owner, targets, signal);
+
+  for (const [pid, processState] of targets) {
+    if (!Number.isInteger(pid) || pid <= 1 || pid === process.pid) continue;
+    if (isProcessTerminated(processState.state)) continue;
+    if (!processIsRunning(pid)) continue;
+
+    const authorization = ownedProcessIdentityStatus(pid, processState, owner);
+    if (authorization !== "authorized") {
+      recordSignalAuthorizationFailure(owner, pid, processState, authorization);
+      continue;
+    }
+    try {
+      process.kill(pid, signal);
+      owner.authorizationFailures.delete(pid);
+    } catch (error) {
+      if (error?.code !== "ESRCH") owner.scanFailure ??= error;
+    }
+  }
+}
+
+function hasOwnedProcesses(owner, {
+  roots = true,
+  descendants = true
+} = {}) {
+  return [...owner.processes.keys()].some((pid) => {
+    const isRoot = owner.roots.has(pid);
+    return (isRoot && roots) || (!isRoot && descendants);
+  });
+}
+
+function processHasExited(owner, pid) {
+  if (owner.processExitStates.get(pid)?.settled) return true;
+  return !processIsRunning(pid);
+}
+
+function isProcessTerminated(state) {
+  return String(state ?? "").startsWith("Z");
+}
+
+function isProcessStopped(state) {
+  return String(state ?? "").startsWith("T");
+}
+
+function ownedProcessIdentityStatus(pid, processState, owner) {
+  if (isProcessTerminated(processState?.state)) return "terminated";
+  if (!processState?.startIdentity || !owner?.marker) return "unverifiable";
+
+  const snapshot = readProcessSignalSnapshot(pid, owner.marker);
+  if (!snapshot) return "unverifiable";
+  if (snapshot.startIdentity !== processState.startIdentity) {
+    return "replaced";
+  }
+  if (snapshot.pgid !== processState.pgid) return "moved";
+  if (isProcessTerminated(snapshot.state)) return "terminated";
+  return snapshot.markerPresent ? "authorized" : "unverifiable";
+}
+
+function recordSignalAuthorizationFailure(owner, pid, processState, authorization) {
+  if (authorization === "terminated") return;
+  if (authorization === "replaced") {
+    // The original process is gone. Do not signal a replacement PID, and do
+    // not let the stale ownership record make a later drain look successful.
+    owner.processes.delete(pid);
+    owner.roots.delete(pid);
+    owner.authorizationFailures.delete(pid);
     return;
   }
+  owner.authorizationFailures.set(pid, {
+    state: processState?.state ?? "",
+    reason: authorization
+  });
+}
 
-  signalOwnedProcesses(owner, "SIGKILL");
-  if (await waitForOwnedProcessesToExit(owner, owner.killGraceMs)) {
-    resetOpenCliProcessOwner(owner);
-    return;
-  }
-
-  const remaining = [...owner.processes.keys()].filter((pid) => processIsRunning(pid));
-  const detail = owner.scanFailure
-    ? " Process enumeration also failed during teardown."
-    : "";
-  throw openCliProcessError(
+function openCliProcessDrainFailure(owner) {
+  const remaining = [...owner.processes.keys()].filter((pid) => !processHasExited(owner, pid));
+  const detail = [
+    owner.scanFailure ? " Process enumeration also failed during teardown." : "",
+    owner.authorizationFailures.size > 0
+      ? " At least one live process could not be identity-authorized for signaling."
+      : ""
+  ].join("");
+  return openCliProcessError(
     `OpenCLI process teardown could not drain ${remaining.length} descendant process(es) within the bounded SIGTERM/SIGKILL windows.${detail}`,
     "OPENCLI_PROCESS_DRAIN_FAILED",
     { killed: true }
   );
 }
 
-async function waitForOwnedProcessesToExit(owner, timeoutMs) {
-  const deadline = Date.now() + timeoutMs;
-  do {
-    await scanOwnedProcesses(owner).catch((error) => {
-      owner.scanFailure = error;
-    });
-    const running = [...owner.processes.entries()].some(
-      ([pid, processState]) => !String(processState.state).startsWith("Z") && processIsRunning(pid)
-    );
-    if (!running) return true;
-    await processDelay(Math.min(owner.scanIntervalMs, Math.max(1, deadline - Date.now())));
-  } while (Date.now() < deadline);
-  return false;
-}
-
-function signalOwnedProcesses(owner, signal) {
+function signalOwnedProcessGroups(owner, targets, signal) {
   const ownGroup = currentProcessGroupId();
   for (const pgid of owner.groups) {
     if (!Number.isInteger(pgid) || pgid <= 1 || pgid === ownGroup) continue;
-    const groupMembers = [...owner.processes.entries()].filter(
+    const groupMembers = targets.filter(
       ([, processState]) => processState.pgid === pgid
     );
-    // Never signal a stale/reused group. Every known member must still have
-    // the same start identity immediately before the group signal; individual
-    // signaling below handles members that have moved into a new group.
+    // Never signal a stale/reused group. Every known member in the selected
+    // scope must still have the same start identity immediately before the
+    // group stop; direct signaling below handles members in other groups.
     if (
       groupMembers.length === 0 ||
-      groupMembers.some(([pid, processState]) => !ownedProcessIdentityIsCurrent(pid, processState, owner))
+      groupMembers.some(([pid, processState]) => {
+        const authorization = ownedProcessIdentityStatus(pid, processState, owner);
+        if (authorization !== "authorized") {
+          recordSignalAuthorizationFailure(owner, pid, processState, authorization);
+          return true;
+        }
+        return false;
+      })
     ) {
       continue;
     }
     try {
       process.kill(-pgid, signal);
-    } catch (error) {
-      if (error?.code !== "ESRCH") owner.scanFailure ??= error;
-    }
-  }
-  for (const [pid, processState] of owner.processes.entries()) {
-    if (!Number.isInteger(pid) || pid <= 1 || pid === process.pid) continue;
-    if (!ownedProcessIdentityIsCurrent(pid, processState, owner)) {
-      owner.processes.delete(pid);
-      owner.roots.delete(pid);
-      continue;
-    }
-    try {
-      process.kill(pid, signal);
     } catch (error) {
       if (error?.code !== "ESRCH") owner.scanFailure ??= error;
     }
@@ -509,6 +807,8 @@ function resetOpenCliProcessOwner(owner) {
   owner.processes.clear();
   owner.groups.clear();
   owner.scanFailure = null;
+  owner.authorizationFailures.clear();
+  owner.processExitStates.clear();
 }
 
 function currentProcessGroupId() {
@@ -524,23 +824,6 @@ function processIsRunning(pid) {
   } catch (error) {
     return error?.code !== "ESRCH";
   }
-}
-
-function ownedProcessIdentityIsCurrent(pid, processState, owner) {
-  if (!processState?.startIdentity || !owner?.marker) return false;
-  // macOS `ps lstart` has only one-second resolution. The per-invocation
-  // marker is mandatory and is reread immediately before every direct or
-  // process-group signal; a same-second PID replacement cannot inherit this
-  // run's marker.
-  const currentStartIdentity = processStartIdentity(pid);
-  const currentMarker = processOwnerMarker(pid, owner.marker);
-  return openCliProcessSignalAuthorization({
-    platform: process.platform,
-    expectedStartIdentity: processState.startIdentity,
-    currentStartIdentity,
-    expectedMarker: owner.marker,
-    currentMarker
-  });
 }
 
 export function openCliProcessSignalAuthorization({
@@ -571,12 +854,7 @@ function processOwnerMarker(pid, marker) {
   }
   const expected = `RETURNER_OPENCLI_PROCESS_OWNER=${marker}`;
   if (process.platform === "linux") {
-    try {
-      const environment = fs.readFileSync(`/proc/${pid}/environ`, "utf8");
-      return environment.split("\0").includes(expected) ? marker : null;
-    } catch {
-      return null;
-    }
+    return readLinuxProcessEnvironmentMarker(pid, marker).present ? marker : null;
   }
   try {
     const result = execFileSync("/bin/ps", ["eww", "-p", String(pid), "-o", "command="], {
@@ -594,18 +872,7 @@ function processOwnerMarker(pid, marker) {
 function processStartIdentity(pid) {
   if (!Number.isInteger(pid) || pid <= 0) return null;
   if (process.platform === "linux") {
-    try {
-      const stat = fs.readFileSync(`/proc/${pid}/stat`, "utf8");
-      const commandEnd = stat.lastIndexOf(")");
-      if (commandEnd >= 0) {
-        const startTicks = stat.slice(commandEnd + 1).trim().split(/\s+/)[19];
-        if (/^\d+$/.test(startTicks ?? "")) {
-          return `linux-proc-start:${startTicks}`;
-        }
-      }
-    } catch {
-      // Fall through to the portable ps identity where available.
-    }
+    return readLinuxProcStat(pid)?.startIdentity ?? null;
   }
   try {
     const result = execFileSync("/bin/ps", ["-p", String(pid), "-o", "lstart="], {
@@ -616,6 +883,60 @@ function processStartIdentity(pid) {
     });
     const startedAt = result.trim().replace(/\s+/g, " ");
     return startedAt ? `ps-lstart:${startedAt}` : null;
+  } catch {
+    return null;
+  }
+}
+
+function readProcessSignalSnapshot(pid, marker) {
+  if (process.platform === "linux") {
+    const before = readLinuxProcStat(pid);
+    if (!before) return null;
+    const markerResult = readLinuxProcessEnvironmentMarker(pid, marker);
+    const after = readLinuxProcStat(pid);
+    if (!after || before.startIdentity !== after.startIdentity) return null;
+    return {
+      startIdentity: after.startIdentity,
+      state: after.state,
+      pgid: after.pgid,
+      markerPresent: markerResult.present && markerResult.readable
+    };
+  }
+
+  const before = readPortableProcessStatus(pid);
+  if (!before) return null;
+  const markerPresent = processOwnerMarker(pid, marker) === marker;
+  const after = readPortableProcessStatus(pid);
+  if (!after || before.startIdentity !== after.startIdentity) return null;
+  return {
+    startIdentity: after.startIdentity,
+    state: after.state,
+    pgid: after.pgid,
+    markerPresent
+  };
+}
+
+function readPortableProcessStatus(pid) {
+  try {
+    const result = execFileSync("/bin/ps", [
+      "-p",
+      String(pid),
+      "-o",
+      "pid=,pgid=,stat=,lstart="
+    ], {
+      encoding: "utf8",
+      timeout: 500,
+      stdio: ["ignore", "pipe", "ignore"],
+      env: { LC_ALL: "C", LANG: "C", PATH: "/usr/bin:/bin" }
+    }).trim();
+    const match = result.match(/^\s*(\d+)\s+(\d+)\s+(\S+)\s+(.+)$/);
+    if (!match) return null;
+    return {
+      pid: Number(match[1]),
+      pgid: Number(match[2]),
+      state: match[3],
+      startIdentity: `ps-lstart:${match[4].trim().replace(/\s+/g, " ")}`
+    };
   } catch {
     return null;
   }

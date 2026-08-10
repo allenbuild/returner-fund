@@ -119,7 +119,8 @@ test("the sidecar fails closed on a preview-only physical post outside the canon
 });
 
 test("the generated sidecar has exact parity with every full cohort/audience graph", {
-  timeout: 180_000
+  // Ubuntu CI can take just over three minutes for the serial, exact-parity build.
+  timeout: 300_000
 }, async () => {
   const rootDir = process.cwd();
   const expected = await buildRankedPostsSidecarSnapshot({ rootDir });

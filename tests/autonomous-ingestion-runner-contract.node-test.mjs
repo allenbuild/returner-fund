@@ -35,9 +35,10 @@ afterEach(async () => {
 
 describe("autonomous ingestion runner CLI", () => {
   it("prints a complete plan without Supabase credentials or side effects in the repository", async () => {
-    const env = { ...process.env };
-    delete env.NEXT_PUBLIC_SUPABASE_URL;
-    delete env.SUPABASE_SERVICE_ROLE_KEY;
+    const env = {
+      NODE_ENV: "test",
+      PATH: process.env.PATH ?? "/usr/local/bin:/usr/bin:/bin"
+    };
 
     const result = spawnSync(
       process.execPath,
@@ -220,6 +221,7 @@ describe("autonomous ingestion runner CLI", () => {
     runGit(sourceRoot, ["commit", "-m", "source commit"]);
     const sourceSha = runGit(sourceRoot, ["rev-parse", "HEAD"]).stdout.trim();
     runGit(remoteRoot, ["init", "--bare"]);
+    runGit(remoteRoot, ["symbolic-ref", "HEAD", "refs/heads/main"]);
     runGit(sourceRoot, ["remote", "add", "origin", remoteRoot]);
     runGit(sourceRoot, ["push", "-u", "origin", "main"]);
     runGit(publisherRoot, ["clone", remoteRoot, "."]);
