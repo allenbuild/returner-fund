@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "a16z-speedrun-006-snapp-stats",
+    "slug": "snapp-stats",
+    "name": "Snapp Stats"
+  },
+  "event": {
+    "id": "tle-6a25e08de81141c759fff9b2",
+    "eventDate": "2026-08-06",
+    "eventDateType": "announcement_date",
+    "title": "Snapp Stats released iOS app",
+    "summary": "@SnappStats launched our iOS app today.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-58c0ce91b7bf8d5de5e687ac",
+        "title": "@SnappStats launched our iOS app today! Ahead of football season and trying it live @bet_bash in Vegas.",
+        "publisher": "themichelinmin",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-08-06T21:20:59.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/themichelinmin/status/2085476252937498768"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-58c0ce91b7bf8d5de5e687ac",
+        "title": "@SnappStats launched our iOS app today! Ahead of football season and trying it live @bet_bash in Vegas.",
+        "publisher": "themichelinmin",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-08-06T21:20:59.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/themichelinmin/status/2085476252937498768",
+        "publicationDate": "2026-08-06T21:20:59.000Z",
+        "excerpt": "@SnappStats launched our iOS app today! Ahead of football season and trying it live @bet_bash in Vegas. https://t.co/l3r8vPn7J3 https://t.co/U8d2OuGgs6",
+        "sourceEventDate": "2026-08-06",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-5349affa4c6646f79f3a38e9",
+        "platform": "x",
+        "account": "themichelinmin",
+        "postDate": "2026-08-06",
+        "excerpt": "@SnappStats launched our iOS app today! Ahead of football season and trying it live @bet_bash in Vegas. https://t.co/l3r8vPn7J3 https://t.co/U8d2OuGgs6",
+        "url": "https://x.com/themichelinmin/status/2085476252937498768",
+        "metrics": {
+          "likes": 2,
+          "reposts": 0,
+          "replies": 1,
+          "views": 331
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-10T12:17:26.859Z",
+  "lastModifiedAt": "2026-08-10T12:17:26.859Z"
+}

@@ -5,49 +5,14 @@
     "slug": "tarebio",
     "name": "TareBio"
   },
-  "generatedAt": "2026-08-10T05:38:30.818Z",
-  "lastModifiedAt": "2026-08-10T05:38:30.818Z",
-  "events": [
-    {
-      "id": "tle-1770f1d48d026070557d0b87",
-      "eventDate": "2026-08-04",
-      "eventDateType": "announcement_date",
-      "title": "TareBio released TareBioInc ( S26)",
-      "summary": "TareBio just launched @TareBioInc (@ycombinator S26).",
-      "category": "product_launch",
-      "isMajor": false,
-      "hasConflict": false,
-      "conflictSummary": null,
-      "evidenceCount": 1,
-      "sourcePreview": [
-        {
-          "id": "src-3c379204662dcfa1780cc294",
-          "title": "We just launched @TareBioInc (@ycombinator S26)! 🚀 We make personalized or population-level vaccines for any cancer or infection in weeks. We've already cured cancer in mice and will vaccinate our first patient within the year. For over...",
-          "publisher": "eatolia",
-          "domain": "x.com",
-          "sourceType": "founder_post",
-          "publishedAt": "2026-08-04T19:44:08.000Z",
-          "evidenceRole": "primary",
-          "url": "https://x.com/eatolia/status/2084727101719265597"
-        }
-      ]
-    }
-  ],
-  "groups": [
-    {
-      "year": 2026,
-      "months": [
-        {
-          "month": "2026-08",
-          "count": 1
-        }
-      ]
-    }
-  ],
+  "generatedAt": "2026-08-10T12:17:26.859Z",
+  "lastModifiedAt": "2026-08-10T12:17:26.859Z",
+  "events": [],
+  "groups": [],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-08-10T05:38:30.818Z"
+    "publishedEventCount": 0,
+    "lastSuccessfulArtifactAt": "2026-08-10T12:17:26.859Z"
   },
   "nextCursor": null
 }

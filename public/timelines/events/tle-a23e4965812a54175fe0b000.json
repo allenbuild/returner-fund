@@ -7,26 +7,16 @@
   },
   "event": {
     "id": "tle-a23e4965812a54175fe0b000",
-    "eventDate": "2026-03-21",
+    "eventDate": "2026-05-12",
     "eventDateType": "announcement_date",
     "title": "Oddpool was introduced",
     "summary": "Oddpool introduced Oddpool, the institutional data layer for prediction markets, backed by @ycombinator.",
     "category": "product_launch",
-    "isMajor": true,
+    "isMajor": false,
     "hasConflict": false,
     "conflictSummary": null,
-    "evidenceCount": 2,
+    "evidenceCount": 1,
     "sourcePreview": [
-      {
-        "id": "src-472bccd36d2ca04db9711c30",
-        "title": "Introducing the Oddpool Macro Feed. One websocket. every macro event. real-time probability data from Kalshi and Polymarket, normalized into a single stream. Built for institutions. Free to connect.",
-        "publisher": "@oddpool_alerts",
-        "domain": "x.com",
-        "sourceType": "company_post",
-        "publishedAt": "2026-03-21T23:30:00.000Z",
-        "evidenceRole": "primary",
-        "url": "https://x.com/oddpool_alerts/status/2035499195671449717"
-      },
       {
         "id": "src-5c9d3c0ac3879220737bca0b",
         "title": "Introducing Oddpool, the institutional data layer for prediction markets, backed by @ycombinator https://t.co/nLaJjW43jT",
@@ -39,21 +29,6 @@
       }
     ],
     "evidence": [
-      {
-        "id": "src-472bccd36d2ca04db9711c30",
-        "title": "Introducing the Oddpool Macro Feed. One websocket. every macro event. real-time probability data from Kalshi and Polymarket, normalized into a single stream. Built for institutions. Free to connect.",
-        "publisher": "@oddpool_alerts",
-        "domain": "x.com",
-        "sourceType": "company_post",
-        "publishedAt": "2026-03-21T23:30:00.000Z",
-        "evidenceRole": "primary",
-        "url": "https://x.com/oddpool_alerts/status/2035499195671449717",
-        "publicationDate": "2026-03-21T23:30:00.000Z",
-        "excerpt": "Introducing the Oddpool Macro Feed. One websocket. every macro event. real-time probability data from Kalshi and Polymarket, normalized into a single stream. Built for institutions. Free to connect. ]]>",
-        "sourceEventDate": "2026-03-21",
-        "isConflicting": false,
-        "conflictDescription": null
-      },
       {
         "id": "src-5c9d3c0ac3879220737bca0b",
         "title": "Introducing Oddpool, the institutional data layer for prediction markets, backed by @ycombinator https://t.co/nLaJjW43jT",
@@ -72,16 +47,6 @@
     ],
     "posts": [
       {
-        "id": "post-32f0cd641378ad86d98c9d2d",
-        "platform": "x",
-        "account": "@oddpool_alerts",
-        "postDate": "2026-03-21",
-        "excerpt": "Introducing the Oddpool Macro Feed. One websocket. every macro event. real-time probability data from Kalshi and Polymarket, normalized into a single stream. Built for institutions. Free to connect. ]]>",
-        "url": "https://x.com/oddpool_alerts/status/2035499195671449717",
-        "metrics": {},
-        "evidenceRole": "primary"
-      },
-      {
         "id": "post-3f081fdc4c4ab28fdaa42b97",
         "platform": "x",
         "account": "oddpool_alerts",
@@ -91,14 +56,13 @@
         "metrics": {
           "likes": 11,
           "reposts": 1,
-          "quotes": 0,
           "replies": 3,
-          "views": 1403
+          "views": 1468
         },
         "evidenceRole": "primary"
       }
     ]
   },
-  "generatedAt": "2026-08-10T05:38:30.818Z",
-  "lastModifiedAt": "2026-08-10T05:38:30.818Z"
+  "generatedAt": "2026-08-10T12:17:26.859Z",
+  "lastModifiedAt": "2026-08-10T12:17:26.859Z"
 }

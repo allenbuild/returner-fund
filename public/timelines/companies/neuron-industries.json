@@ -5,8 +5,8 @@
     "slug": "neuron-industries",
     "name": "Neuron Industries"
   },
-  "generatedAt": "2026-08-10T05:38:30.818Z",
-  "lastModifiedAt": "2026-08-10T05:38:30.818Z",
+  "generatedAt": "2026-08-10T12:17:26.859Z",
+  "lastModifiedAt": "2026-08-10T12:17:26.859Z",
   "events": [
     {
       "id": "tle-5b1d8be4b9aa7d585fd9636f",
@@ -47,7 +47,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-08-10T05:38:30.818Z"
+    "lastSuccessfulArtifactAt": "2026-08-10T12:17:26.859Z"
   },
   "nextCursor": null
 }

@@ -5,8 +5,8 @@
     "slug": "syncere",
     "name": "Syncere"
   },
-  "generatedAt": "2026-08-10T05:38:30.818Z",
-  "lastModifiedAt": "2026-08-10T05:38:30.818Z",
+  "generatedAt": "2026-08-10T12:17:26.859Z",
+  "lastModifiedAt": "2026-08-10T12:17:26.859Z",
   "events": [
     {
       "id": "tle-1ead686a0735a925012af525",
@@ -21,14 +21,14 @@
       "evidenceCount": 1,
       "sourcePreview": [
         {
-          "id": "src-82f33aa437e1132be22286a8",
+          "id": "src-902aa508af8f00b64ce78723",
           "title": "Introducing Lume. A lamp that does your chores. Order now. Shipping this summer.",
           "publisher": "bysyncere",
           "domain": "instagram.com",
           "sourceType": "company_post",
           "publishedAt": "2026-04-08T18:10:29.000Z",
           "evidenceRole": "primary",
-          "url": "https://www.instagram.com/reel/DW4VYvfidcr"
+          "url": "https://instagram.com/reel/DW4VYvfidcr"
         }
       ]
     }
@@ -47,7 +47,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-08-10T05:38:30.818Z"
+    "lastSuccessfulArtifactAt": "2026-08-10T12:17:26.859Z"
   },
   "nextCursor": null
 }

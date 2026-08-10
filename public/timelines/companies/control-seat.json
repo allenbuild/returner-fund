@@ -5,15 +5,15 @@
     "slug": "control-seat",
     "name": "Control Seat"
   },
-  "generatedAt": "2026-08-10T05:38:30.818Z",
-  "lastModifiedAt": "2026-08-10T05:38:30.818Z",
+  "generatedAt": "2026-08-10T12:17:26.859Z",
+  "lastModifiedAt": "2026-08-10T12:17:26.859Z",
   "events": [
     {
-      "id": "tle-a06007f3f462973f208bcb9e",
+      "id": "tle-b861aefc156d9fd641fc6730",
       "eventDate": "2026-07-07",
       "eventDateType": "announcement_date",
-      "title": "Control Seat was introduced",
-      "summary": "Control Seat introduced Control Seat.",
+      "title": "Control Seat announced its public launch",
+      "summary": "Control Seat introduced Control Seat The company channel and native description introduce Control Seat and its AI-native industrial control platform.",
       "category": "product_launch",
       "isMajor": false,
       "hasConflict": false,
@@ -21,14 +21,14 @@
       "evidenceCount": 1,
       "sourcePreview": [
         {
-          "id": "src-c8a38a0f7d3975d6405a7784",
+          "id": "src-89a692f0a5fa5e5c78e1182e",
           "title": "Introducing Control Seat",
-          "publisher": "Introducing Control Seat",
+          "publisher": "Control-Seat",
           "domain": "youtube.com",
           "sourceType": "video",
-          "publishedAt": "2026-07-07T00:00:01-07:00",
+          "publishedAt": "2026-07-07T07:00:01Z",
           "evidenceRole": "primary",
-          "url": "https://youtube.com/watch?v=DfSQ8L7d0BM"
+          "url": "https://www.youtube.com/watch?v=DfSQ8L7d0BM"
         }
       ]
     }
@@ -47,7 +47,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-08-10T05:38:30.818Z"
+    "lastSuccessfulArtifactAt": "2026-08-10T12:17:26.859Z"
   },
   "nextCursor": null
 }

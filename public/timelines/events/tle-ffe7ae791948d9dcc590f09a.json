@@ -10,13 +10,23 @@
     "eventDate": "2026-07-21",
     "eventDateType": "announcement_date",
     "title": "Prescience, Inc. released Prescience",
-    "summary": "Prescience, Inc. introduced Prescience, healthcare for the age of abundant intelligence.",
+    "summary": "Prescience, Inc. introduced Prescience.",
     "category": "product_launch",
-    "isMajor": false,
+    "isMajor": true,
     "hasConflict": false,
     "conflictSummary": null,
-    "evidenceCount": 1,
+    "evidenceCount": 2,
     "sourcePreview": [
+      {
+        "id": "src-1415801f1f1a8fd91d8ff20c",
+        "title": "Introducing Prescience",
+        "publisher": "RishabJainK",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-07-21T15:36:45.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/RishabJainK/status/2079591417522110884"
+      },
       {
         "id": "src-1c274c82972a0e601048107d",
         "title": "Introducing Prescience, healthcare for the age of abundant intelligence",
@@ -29,6 +39,21 @@
       }
     ],
     "evidence": [
+      {
+        "id": "src-1415801f1f1a8fd91d8ff20c",
+        "title": "Introducing Prescience",
+        "publisher": "RishabJainK",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-07-21T15:36:45.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/RishabJainK/status/2079591417522110884",
+        "publicationDate": "2026-07-21T15:36:45.000Z",
+        "excerpt": "Aditya Jain and I have been building a company that answers what healthcare looks like with AGI. Introducing Prescience.",
+        "sourceEventDate": "2026-07-21",
+        "isConflicting": false,
+        "conflictDescription": null
+      },
       {
         "id": "src-1c274c82972a0e601048107d",
         "title": "Introducing Prescience, healthcare for the age of abundant intelligence",
@@ -47,6 +72,23 @@
     ],
     "posts": [
       {
+        "id": "post-d77d36ee1bbd967d135070ce",
+        "platform": "x",
+        "account": "RishabJainK",
+        "postDate": "2026-07-21",
+        "excerpt": "Aditya Jain and I have been building a company that answers what healthcare looks like with AGI. Introducing Prescience.",
+        "url": "https://x.com/RishabJainK/status/2079591417522110884",
+        "metrics": {
+          "likes": 118,
+          "replies": 41,
+          "reposts": 9,
+          "views": 22659,
+          "quotes": 2,
+          "bookmarks": 51
+        },
+        "evidenceRole": "primary"
+      },
+      {
         "id": "post-dd980b73b58c35f00868ed08",
         "platform": "x",
         "account": "getprescience",
@@ -56,14 +98,13 @@
         "metrics": {
           "likes": 3,
           "reposts": 0,
-          "quotes": 0,
           "replies": 0,
-          "views": 117
+          "views": 124
         },
         "evidenceRole": "primary"
       }
     ]
   },
-  "generatedAt": "2026-08-10T05:38:30.818Z",
-  "lastModifiedAt": "2026-08-10T05:38:30.818Z"
+  "generatedAt": "2026-08-10T12:17:26.859Z",
+  "lastModifiedAt": "2026-08-10T12:17:26.859Z"
 }

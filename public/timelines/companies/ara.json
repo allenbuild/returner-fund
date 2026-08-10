@@ -5,9 +5,33 @@
     "slug": "ara",
     "name": "Ara"
   },
-  "generatedAt": "2026-08-10T05:38:30.818Z",
-  "lastModifiedAt": "2026-08-10T05:38:30.818Z",
+  "generatedAt": "2026-08-10T12:17:26.859Z",
+  "lastModifiedAt": "2026-08-10T12:17:26.859Z",
   "events": [
+    {
+      "id": "tle-c135d5cec7728df4a99ab7b0",
+      "eventDate": "2026-08-09",
+      "eventDateType": "announcement_date",
+      "title": "Ara announced its public launch",
+      "summary": "Ara introduced the Ara discord community.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-16e24f310bd5607a314942c4",
+          "title": "Introducing the Ara discord community! Join top founders and builders sharing and working with cloud agents.",
+          "publisher": "aradotso",
+          "domain": "x.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-08-09T18:27:20.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/aradotso/status/2086519714193547418"
+        }
+      ]
+    },
     {
       "id": "tle-9f5620487a94b41bfddd9f83",
       "eventDate": "2026-07-25",
@@ -278,6 +302,10 @@
       "year": 2026,
       "months": [
         {
+          "month": "2026-08",
+          "count": 1
+        },
+        {
           "month": "2026-07",
           "count": 4
         },
@@ -302,8 +330,8 @@
   ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 11,
-    "lastSuccessfulArtifactAt": "2026-08-10T05:38:30.818Z"
+    "publishedEventCount": 12,
+    "lastSuccessfulArtifactAt": "2026-08-10T12:17:26.859Z"
   },
   "nextCursor": null
 }

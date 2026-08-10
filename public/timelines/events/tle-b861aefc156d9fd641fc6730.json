@@ -1,0 +1,66 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-control-seat",
+    "slug": "control-seat",
+    "name": "Control Seat"
+  },
+  "event": {
+    "id": "tle-b861aefc156d9fd641fc6730",
+    "eventDate": "2026-07-07",
+    "eventDateType": "announcement_date",
+    "title": "Control Seat announced its public launch",
+    "summary": "Control Seat introduced Control Seat The company channel and native description introduce Control Seat and its AI-native industrial control platform.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-89a692f0a5fa5e5c78e1182e",
+        "title": "Introducing Control Seat",
+        "publisher": "Control-Seat",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-07-07T07:00:01Z",
+        "evidenceRole": "primary",
+        "url": "https://www.youtube.com/watch?v=DfSQ8L7d0BM"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-89a692f0a5fa5e5c78e1182e",
+        "title": "Introducing Control Seat",
+        "publisher": "Control-Seat",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-07-07T07:00:01Z",
+        "evidenceRole": "primary",
+        "url": "https://www.youtube.com/watch?v=DfSQ8L7d0BM",
+        "publicationDate": "2026-07-07T07:00:01Z",
+        "excerpt": "Introducing Control Seat The company channel and native description introduce Control Seat and its AI-native industrial control platform. The official Control Seat website links this exact YouTube channel. The native channel name, title, and description all identify Control Seat.",
+        "sourceEventDate": "2026-07-07",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-31ba5f2cbbfb191518fbcbd1",
+        "platform": "youtube",
+        "account": "Control-Seat",
+        "postDate": "2026-07-07",
+        "excerpt": "Introducing Control Seat The company channel and native description introduce Control Seat and its AI-native industrial control platform. The official Control Seat website links this exact YouTube channel. The native channel name, title, and description all identify Control Seat.",
+        "url": "https://www.youtube.com/watch?v=DfSQ8L7d0BM",
+        "metrics": {
+          "views": 154,
+          "likes": 1
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-10T12:17:26.859Z",
+  "lastModifiedAt": "2026-08-10T12:17:26.859Z"
+}

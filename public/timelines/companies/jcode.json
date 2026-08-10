@@ -1,0 +1,53 @@
+{
+  "schemaVersion": "company-timeline.v1",
+  "company": {
+    "id": "company-jcode",
+    "slug": "jcode",
+    "name": "Jcode"
+  },
+  "generatedAt": "2026-08-10T12:17:26.859Z",
+  "lastModifiedAt": "2026-08-10T12:17:26.859Z",
+  "events": [
+    {
+      "id": "tle-6b08950e889fce2edf04331c",
+      "eventDate": "2026-07-21",
+      "eventDateType": "announcement_date",
+      "title": "Jcode was accepted into Y Combinator",
+      "summary": "Jcode reported i got into yc.",
+      "category": "accelerator",
+      "isMajor": true,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-4d3c00187132cfac6b55d7b8",
+          "title": "I got into yc! Gonna try to compete with the labs for frontier intelligence I’ll reply to any questions and product recommendations for the next 48 hours https://t.co/AMXQXX8zYI",
+          "publisher": "1jehuang",
+          "domain": "x.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-07-21T17:11:49.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/1jehuang/status/2079615339860762872"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-07",
+          "count": 1
+        }
+      ]
+    }
+  ],
+  "coverage": {
+    "status": "partial",
+    "publishedEventCount": 1,
+    "lastSuccessfulArtifactAt": "2026-08-10T12:17:26.859Z"
+  },
+  "nextCursor": null
+}

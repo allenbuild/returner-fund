@@ -81,9 +81,8 @@
         "metrics": {
           "likes": 3,
           "reposts": 0,
-          "quotes": 0,
           "replies": 1,
-          "views": 188
+          "views": 191
         },
         "evidenceRole": "primary"
       },
@@ -97,14 +96,13 @@
         "metrics": {
           "likes": 4,
           "reposts": 0,
-          "quotes": 0,
           "replies": 1,
-          "views": 175
+          "views": 177
         },
         "evidenceRole": "primary"
       }
     ]
   },
-  "generatedAt": "2026-08-10T05:38:30.818Z",
-  "lastModifiedAt": "2026-08-10T05:38:30.818Z"
+  "generatedAt": "2026-08-10T12:17:26.859Z",
+  "lastModifiedAt": "2026-08-10T12:17:26.859Z"
 }

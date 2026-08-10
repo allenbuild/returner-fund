@@ -5,8 +5,8 @@
     "slug": "nebula-security",
     "name": "Nebula Security"
   },
-  "generatedAt": "2026-08-10T05:38:30.818Z",
-  "lastModifiedAt": "2026-08-10T05:38:30.818Z",
+  "generatedAt": "2026-08-10T12:17:26.859Z",
+  "lastModifiedAt": "2026-08-10T12:17:26.859Z",
   "events": [
     {
       "id": "tle-cf36fbd14a85345d32e58cec",
@@ -29,30 +29,6 @@
           "publishedAt": "2026-08-03T23:15:48.000Z",
           "evidenceRole": "primary",
           "url": "https://x.com/nebusecurity/status/2084417983938781538"
-        }
-      ]
-    },
-    {
-      "id": "tle-a6ce56d05e140ff14441fea1",
-      "eventDate": "2026-07-30",
-      "eventDateType": "announcement_date",
-      "title": "Nebula Security released an open-source project",
-      "summary": "Nebula Security has open-sourced one-click Docker setups and full exploits for Nginx-{PoolSlip, QuicBurst}, both with remote ASLR bypasses.",
-      "category": "open_source",
-      "isMajor": false,
-      "hasConflict": false,
-      "conflictSummary": null,
-      "evidenceCount": 1,
-      "sourcePreview": [
-        {
-          "id": "src-8c08b8b8ed0789a265f9f1c3",
-          "title": "We’ve open-sourced one-click Docker setups and full exploits for Nginx-{PoolSlip, QuicBurst}, both with remote ASLR bypasses.",
-          "publisher": "nebusecurity",
-          "domain": "x.com",
-          "sourceType": "company_post",
-          "publishedAt": "2026-07-30T23:04:01.000Z",
-          "evidenceRole": "primary",
-          "url": "https://x.com/nebusecurity/status/2082965465408979321"
         }
       ]
     },
@@ -91,15 +67,15 @@
         },
         {
           "month": "2026-07",
-          "count": 2
+          "count": 1
         }
       ]
     }
   ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 3,
-    "lastSuccessfulArtifactAt": "2026-08-10T05:38:30.818Z"
+    "publishedEventCount": 2,
+    "lastSuccessfulArtifactAt": "2026-08-10T12:17:26.859Z"
   },
   "nextCursor": null
 }

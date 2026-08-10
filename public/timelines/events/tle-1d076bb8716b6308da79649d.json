@@ -1,0 +1,66 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-hyperprobe",
+    "slug": "hyperprobe",
+    "name": "HyperProbe"
+  },
+  "event": {
+    "id": "tle-1d076bb8716b6308da79649d",
+    "eventDate": "2026-08-05",
+    "eventDateType": "announcement_date",
+    "title": "HyperProbe launched on Hacker News",
+    "summary": "Launch HN: HyperProbe (YC S26) – Agents that do read-only debugging in prod.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-54bd6081d1995a62580b7dc0",
+        "title": "Launch HN: HyperProbe (YC S26) – Agents that do read-only debugging in prod",
+        "publisher": "Launch HN: HyperProbe (YC S26) – Agents that do read-only debugging in prod",
+        "domain": "news.ycombinator.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-08-05T16:47:15Z",
+        "evidenceRole": "primary",
+        "url": "https://news.ycombinator.com/item?id=49185389"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-54bd6081d1995a62580b7dc0",
+        "title": "Launch HN: HyperProbe (YC S26) – Agents that do read-only debugging in prod",
+        "publisher": "Launch HN: HyperProbe (YC S26) – Agents that do read-only debugging in prod",
+        "domain": "news.ycombinator.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-08-05T16:47:15Z",
+        "evidenceRole": "primary",
+        "url": "https://news.ycombinator.com/item?id=49185389",
+        "publicationDate": "2026-08-05T16:47:15Z",
+        "excerpt": "Launch HN: HyperProbe (YC S26) – Agents that do read-only debugging in prod",
+        "sourceEventDate": "2026-08-05",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-5e9863c357c9c827a9bebe4b",
+        "platform": "hacker_news",
+        "account": null,
+        "postDate": "2026-08-05",
+        "excerpt": "Launch HN: HyperProbe (YC S26) – Agents that do read-only debugging in prod",
+        "url": "https://news.ycombinator.com/item?id=49185389",
+        "metrics": {
+          "upvotes": 68,
+          "comments": 53
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-10T12:17:26.859Z",
+  "lastModifiedAt": "2026-08-10T12:17:26.859Z"
+}

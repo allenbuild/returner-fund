@@ -5,8 +5,8 @@
     "slug": "zerodrift",
     "name": "ZeroDrift"
   },
-  "generatedAt": "2026-08-10T05:38:30.818Z",
-  "lastModifiedAt": "2026-08-10T05:38:30.818Z",
+  "generatedAt": "2026-08-10T12:17:26.859Z",
+  "lastModifiedAt": "2026-08-10T12:17:26.859Z",
   "events": [
     {
       "id": "tle-93fc5100da82f56da1f47f06",
@@ -22,7 +22,7 @@
       "sourcePreview": [
         {
           "id": "src-7db3c7478dc72497cc79d6c2",
-          "title": "ZeroDrift raised an oversubscribed $10,000,000 seed round to enforce compliance on AI communications, just 3 months after launching out of stealth.",
+          "title": "ZeroDrift raised an oversubscribed $10,000,000 seed round to enforce compliance on AI communications, just 3 months after launching out o...",
           "publisher": "kumesh_a",
           "domain": "x.com",
           "sourceType": "founder_post",
@@ -75,7 +75,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 2,
-    "lastSuccessfulArtifactAt": "2026-08-10T05:38:30.818Z"
+    "lastSuccessfulArtifactAt": "2026-08-10T12:17:26.859Z"
   },
   "nextCursor": null
 }

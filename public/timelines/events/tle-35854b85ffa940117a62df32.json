@@ -39,7 +39,7 @@
         "evidenceRole": "primary",
         "url": "https://x.com/usealmanac/status/2033693731552170192",
         "publicationDate": "2026-03-16T23:55:44.000Z",
-        "excerpt": "Monday update: you can now edit articles directly on OpenAlmanac using Quill. https://t.co/HR2Gb6BGzC",
+        "excerpt": "Monday update: you can now edit articles directly on OpenAlmanac using Quill.",
         "sourceEventDate": "2026-03-16",
         "isConflicting": false,
         "conflictDescription": null
@@ -47,23 +47,24 @@
     ],
     "posts": [
       {
-        "id": "post-a1e77f55c8a80252ffdba365",
+        "id": "post-5ba0301a7cb4c976905828fc",
         "platform": "x",
         "account": "usealmanac",
         "postDate": "2026-03-16",
-        "excerpt": "Monday update: you can now edit articles directly on OpenAlmanac using Quill. https://t.co/HR2Gb6BGzC",
+        "excerpt": "Monday update: you can now edit articles directly on OpenAlmanac using Quill.",
         "url": "https://x.com/usealmanac/status/2033693731552170192",
         "metrics": {
+          "views": 1575,
           "likes": 7,
+          "replies": 3,
           "reposts": 1,
           "quotes": 1,
-          "replies": 3,
-          "views": 1586
+          "bookmarks": 1
         },
         "evidenceRole": "primary"
       }
     ]
   },
-  "generatedAt": "2026-08-10T05:38:30.818Z",
-  "lastModifiedAt": "2026-08-10T05:38:30.818Z"
+  "generatedAt": "2026-08-10T12:17:26.859Z",
+  "lastModifiedAt": "2026-08-10T12:17:26.859Z"
 }

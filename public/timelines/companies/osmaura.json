@@ -5,8 +5,8 @@
     "slug": "osmaura",
     "name": "Osmaura"
   },
-  "generatedAt": "2026-08-10T05:38:30.818Z",
-  "lastModifiedAt": "2026-08-10T05:38:30.818Z",
+  "generatedAt": "2026-08-10T12:17:26.859Z",
+  "lastModifiedAt": "2026-08-10T12:17:26.859Z",
   "events": [
     {
       "id": "tle-0a1661590552263a94cf38b2",
@@ -56,7 +56,7 @@
       "sourcePreview": [
         {
           "id": "src-5c2033b510a3e75e47df1fe6",
-          "title": "I’m excited to share that Osmaura has joined Y Combinator’s S26 batch.",
+          "title": "I’m excited to share that Osmaura has joined Y Combinator’s S26 batch. Yeabkal and I left MIT last semester to work on our startup toget...",
           "publisher": "rookunderfire",
           "domain": "x.com",
           "sourceType": "founder_post",
@@ -85,7 +85,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 2,
-    "lastSuccessfulArtifactAt": "2026-08-10T05:38:30.818Z"
+    "lastSuccessfulArtifactAt": "2026-08-10T12:17:26.859Z"
   },
   "nextCursor": null
 }

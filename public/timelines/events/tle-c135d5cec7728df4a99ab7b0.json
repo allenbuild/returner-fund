@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-ara",
+    "slug": "ara",
+    "name": "Ara"
+  },
+  "event": {
+    "id": "tle-c135d5cec7728df4a99ab7b0",
+    "eventDate": "2026-08-09",
+    "eventDateType": "announcement_date",
+    "title": "Ara announced its public launch",
+    "summary": "Ara introduced the Ara discord community.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-16e24f310bd5607a314942c4",
+        "title": "Introducing the Ara discord community! Join top founders and builders sharing and working with cloud agents.",
+        "publisher": "aradotso",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-08-09T18:27:20.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/aradotso/status/2086519714193547418"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-16e24f310bd5607a314942c4",
+        "title": "Introducing the Ara discord community! Join top founders and builders sharing and working with cloud agents.",
+        "publisher": "aradotso",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-08-09T18:27:20.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/aradotso/status/2086519714193547418",
+        "publicationDate": "2026-08-09T18:27:20.000Z",
+        "excerpt": "Introducing the Ara discord community! Join top founders and builders sharing and working with cloud agents. We will answer all questions and work with early users there :) https://t.co/baPNkpA3cv https://t.co/88HL7RzlgL",
+        "sourceEventDate": "2026-08-09",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-957dba8f19c038cd042b722c",
+        "platform": "x",
+        "account": "aradotso",
+        "postDate": "2026-08-09",
+        "excerpt": "Introducing the Ara discord community! Join top founders and builders sharing and working with cloud agents. We will answer all questions and work with early users there :) https://t.co/baPNkpA3cv https://t.co/88HL7RzlgL",
+        "url": "https://x.com/aradotso/status/2086519714193547418",
+        "metrics": {
+          "likes": 8,
+          "reposts": 0,
+          "replies": 2,
+          "views": 569
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-10T12:17:26.859Z",
+  "lastModifiedAt": "2026-08-10T12:17:26.859Z"
+}

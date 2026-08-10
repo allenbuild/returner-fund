@@ -56,14 +56,13 @@
         "metrics": {
           "likes": 3,
           "reposts": 0,
-          "quotes": 0,
           "replies": 0,
-          "views": 411
+          "views": 415
         },
         "evidenceRole": "primary"
       }
     ]
   },
-  "generatedAt": "2026-08-10T05:38:30.818Z",
-  "lastModifiedAt": "2026-08-10T05:38:30.818Z"
+  "generatedAt": "2026-08-10T12:17:26.859Z",
+  "lastModifiedAt": "2026-08-10T12:17:26.859Z"
 }

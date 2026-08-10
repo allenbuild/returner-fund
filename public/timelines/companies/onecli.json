@@ -5,8 +5,8 @@
     "slug": "onecli",
     "name": "OneCLI"
   },
-  "generatedAt": "2026-08-10T05:38:30.818Z",
-  "lastModifiedAt": "2026-08-10T05:38:30.818Z",
+  "generatedAt": "2026-08-10T12:17:26.859Z",
+  "lastModifiedAt": "2026-08-10T12:17:26.859Z",
   "events": [
     {
       "id": "tle-8e5cf189d732fa866dba0386",
@@ -22,7 +22,7 @@
       "sourcePreview": [
         {
           "id": "src-31f516eb636b3ced46cebdec",
-          "title": "Introducing OneCLI, lets AI agents do real work in companies without storing passwords.",
+          "title": "Introducing OneCLI, lets AI agents do real work in companies without storing passwords. Here's how it works 🧵",
           "publisher": "jonathanfishner",
           "domain": "x.com",
           "sourceType": "founder_post",
@@ -71,7 +71,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 2,
-    "lastSuccessfulArtifactAt": "2026-08-10T05:38:30.818Z"
+    "lastSuccessfulArtifactAt": "2026-08-10T12:17:26.859Z"
   },
   "nextCursor": null
 }

@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-contextdev",
+    "slug": "context-dev",
+    "name": "Context.dev"
+  },
+  "event": {
+    "id": "tle-1aa9291d25cf2b80740ebca2",
+    "eventDate": "2026-08-05",
+    "eventDateType": "announcement_date",
+    "title": "Context.dev released We are live",
+    "summary": "Context.dev is live.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-cfe5b494d10d8b386884d37d",
+        "title": "We are live.",
+        "publisher": "getcontextdev",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-08-05T18:12:34.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/getcontextdev/status/2085066446116389011"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-cfe5b494d10d8b386884d37d",
+        "title": "We are live.",
+        "publisher": "getcontextdev",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-08-05T18:12:34.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/getcontextdev/status/2085066446116389011",
+        "publicationDate": "2026-08-05T18:12:34.000Z",
+        "excerpt": "We are live.",
+        "sourceEventDate": "2026-08-05",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-83912457dc9961a81c4e58ff",
+        "platform": "x",
+        "account": "getcontextdev",
+        "postDate": "2026-08-05",
+        "excerpt": "We are live.",
+        "url": "https://x.com/getcontextdev/status/2085066446116389011",
+        "metrics": {
+          "likes": 10,
+          "reposts": 1,
+          "replies": 2,
+          "views": 1367
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-10T12:17:26.859Z",
+  "lastModifiedAt": "2026-08-10T12:17:26.859Z"
+}

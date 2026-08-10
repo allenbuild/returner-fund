@@ -5,9 +5,33 @@
     "slug": "snapp-stats",
     "name": "Snapp Stats"
   },
-  "generatedAt": "2026-08-10T05:38:30.818Z",
-  "lastModifiedAt": "2026-08-10T05:38:30.818Z",
+  "generatedAt": "2026-08-10T12:17:26.859Z",
+  "lastModifiedAt": "2026-08-10T12:17:26.859Z",
   "events": [
+    {
+      "id": "tle-6a25e08de81141c759fff9b2",
+      "eventDate": "2026-08-06",
+      "eventDateType": "announcement_date",
+      "title": "Snapp Stats released iOS app",
+      "summary": "@SnappStats launched our iOS app today.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-58c0ce91b7bf8d5de5e687ac",
+          "title": "@SnappStats launched our iOS app today! Ahead of football season and trying it live @bet_bash in Vegas.",
+          "publisher": "themichelinmin",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-08-06T21:20:59.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/themichelinmin/status/2085476252937498768"
+        }
+      ]
+    },
     {
       "id": "tle-4a1b5aa94401546fe6416ec6",
       "eventDate": "2026-07-17",
@@ -86,6 +110,10 @@
       "year": 2026,
       "months": [
         {
+          "month": "2026-08",
+          "count": 1
+        },
+        {
           "month": "2026-07",
           "count": 1
         },
@@ -102,8 +130,8 @@
   ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 3,
-    "lastSuccessfulArtifactAt": "2026-08-10T05:38:30.818Z"
+    "publishedEventCount": 4,
+    "lastSuccessfulArtifactAt": "2026-08-10T12:17:26.859Z"
   },
   "nextCursor": null
 }

@@ -1,0 +1,81 @@
+{
+  "schemaVersion": "company-timeline.v1",
+  "company": {
+    "id": "company-arbital",
+    "slug": "arbital",
+    "name": "Arbital"
+  },
+  "generatedAt": "2026-08-10T12:17:26.859Z",
+  "lastModifiedAt": "2026-08-10T12:17:26.859Z",
+  "events": [
+    {
+      "id": "tle-3a6c29be252c31da81546895",
+      "eventDate": "2026-07-15",
+      "eventDateType": "announcement_date",
+      "title": "Arbital reached 1,836 users",
+      "summary": "past two weeks at @arbital_xyz have been insane 76 active bots, 1,836 users, $16.5M in 24h volume you guys are genuinely lit 🔥 can we hit 2,000 users and 100 active bots this week.",
+      "category": "user_milestone",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-343dd7fda54aafc47eeab540",
+          "title": "past two weeks at @arbital_xyz have been insane 76 active bots, 1,836 users, $16.5M in 24h volume you guys are genuinely lit 🔥 can we hit 2,000 users and 100 active bots this week? https://t.co/mOczqoZtGt",
+          "publisher": "0xstevezilla",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-07-15T23:10:53.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/0xstevezilla/status/2077531376551940503"
+        }
+      ]
+    },
+    {
+      "id": "tle-968ce865cd7de434f025c019",
+      "eventDate": "2026-06-06",
+      "eventDateType": "announcement_date",
+      "title": "Arbital released very first competition",
+      "summary": "Arbital introduced our very first @arbital_xyz competition with @dango 🍡 the leaderboard is still wide open and the prize pool is far from fully unlocked volume is lower than expected because most people are running commodities for the 100% points boost, commodity pairs have.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-dd6de82f7ca19eeb5dc21727",
+          "title": "introducing our very first @arbital_xyz competition with @dango 🍡 the leaderboard is still wide open and the prize pool is far from fully unlocked volume is lower than expected because most people are running commodities for the 100%…",
+          "publisher": "0xstevezilla",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-06-06T08:50:31.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/0xstevezilla/status/2063181731721855102"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-07",
+          "count": 1
+        },
+        {
+          "month": "2026-06",
+          "count": 1
+        }
+      ]
+    }
+  ],
+  "coverage": {
+    "status": "partial",
+    "publishedEventCount": 2,
+    "lastSuccessfulArtifactAt": "2026-08-10T12:17:26.859Z"
+  },
+  "nextCursor": null
+}

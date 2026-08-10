@@ -5,14 +5,49 @@
     "slug": "stratum-industries",
     "name": "Stratum Industries"
   },
-  "generatedAt": "2026-08-10T05:38:30.818Z",
-  "lastModifiedAt": "2026-08-10T05:38:30.818Z",
-  "events": [],
-  "groups": [],
+  "generatedAt": "2026-08-10T12:17:26.859Z",
+  "lastModifiedAt": "2026-08-10T12:17:26.859Z",
+  "events": [
+    {
+      "id": "tle-c1ff9989f91de2460b1396e6",
+      "eventDate": "2026-07-30",
+      "eventDateType": "announcement_date",
+      "title": "Stratum Industries was acquired by Legora",
+      "summary": "Stratum Industries introduced Stratum Industries Last August I dropped out of Waterloo to work on something that later got acquired by Legora.",
+      "category": "acquisition",
+      "isMajor": true,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-9e35c495e76cc7f5dc4a84c5",
+          "title": "Introducing Stratum Industries Last August I dropped out of Waterloo to work on something that later got acquired by Legora.",
+          "publisher": "vihaanjagiasi",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-07-30T20:16:08.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/vihaanjagiasi/status/2082923218181198259"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-07",
+          "count": 1
+        }
+      ]
+    }
+  ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 0,
-    "lastSuccessfulArtifactAt": "2026-08-10T05:38:30.818Z"
+    "publishedEventCount": 1,
+    "lastSuccessfulArtifactAt": "2026-08-10T12:17:26.859Z"
   },
   "nextCursor": null
 }

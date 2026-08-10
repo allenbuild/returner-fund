@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-agnost-ai",
+    "slug": "agnost-ai",
+    "name": "Agnost AI"
+  },
+  "event": {
+    "id": "tle-0091b168fa04513aa897eb16",
+    "eventDate": "2026-08-06",
+    "eventDateType": "announcement_date",
+    "title": "Agnost AI was accepted into Y Combinator S26",
+    "summary": "Agnost AI just tried out @textdotai and here's the feedback video y'all really need to improve you agents we just joined yc s26 and we would love to help you improve your agents.",
+    "category": "accelerator",
+    "isMajor": true,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-482bc9eacc67e2bd1d9edbef",
+        "title": "we just tried out @textdotai and here's the feedback video y'all really need to improve you agents we just joined yc s26 and we would love to help you improve your agents! https://t.co/FiyL52d3yo",
+        "publisher": "agnostai",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-08-06T19:37:45.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/agnostai/status/2085450274324545997"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-482bc9eacc67e2bd1d9edbef",
+        "title": "we just tried out @textdotai and here's the feedback video y'all really need to improve you agents we just joined yc s26 and we would love to help you improve your agents! https://t.co/FiyL52d3yo",
+        "publisher": "agnostai",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-08-06T19:37:45.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/agnostai/status/2085450274324545997",
+        "publicationDate": "2026-08-06T19:37:45.000Z",
+        "excerpt": "we just tried out @textdotai and here's the feedback video y'all really need to improve you agents we just joined yc s26 and we would love to help you improve your agents! https://t.co/FiyL52d3yo",
+        "sourceEventDate": "2026-08-06",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-5500ff03bb1998de69a0aae2",
+        "platform": "x",
+        "account": "agnostai",
+        "postDate": "2026-08-06",
+        "excerpt": "we just tried out @textdotai and here's the feedback video y'all really need to improve you agents we just joined yc s26 and we would love to help you improve your agents! https://t.co/FiyL52d3yo",
+        "url": "https://x.com/agnostai/status/2085450274324545997",
+        "metrics": {
+          "likes": 6,
+          "reposts": 0,
+          "replies": 0,
+          "views": 1909
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-10T12:17:26.859Z",
+  "lastModifiedAt": "2026-08-10T12:17:26.859Z"
+}

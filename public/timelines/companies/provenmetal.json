@@ -5,21 +5,31 @@
     "slug": "provenmetal",
     "name": "ProvenMetal"
   },
-  "generatedAt": "2026-08-10T05:38:30.818Z",
-  "lastModifiedAt": "2026-08-10T05:38:30.818Z",
+  "generatedAt": "2026-08-10T12:17:26.859Z",
+  "lastModifiedAt": "2026-08-10T12:17:26.859Z",
   "events": [
     {
-      "id": "tle-43ca8d07d730805fc77ef004",
+      "id": "tle-1b7ae7e288a17b8e2ed8d349",
       "eventDate": "2026-07-13",
       "eventDateType": "announcement_date",
-      "title": "ProvenMetal launched on Y Combinator",
-      "summary": "long live the late nights building circuit boards @provenmetal is now live on @ycombinator.",
+      "title": "ProvenMetal launched on Hacker News",
+      "summary": "Launch HN: ProvenMetal (YC S26) delivers circuit boards in days instead of weeks.",
       "category": "product_launch",
       "isMajor": true,
       "hasConflict": false,
       "conflictSummary": null,
-      "evidenceCount": 2,
+      "evidenceCount": 3,
       "sourcePreview": [
+        {
+          "id": "src-2cc68bcde69e742654b46335",
+          "title": "Launch HN: ProvenMetal (YC S26) delivers circuit boards in days instead of weeks",
+          "publisher": "Launch HN: ProvenMetal (YC S26) delivers circuit boards in days instead of weeks",
+          "domain": "news.ycombinator.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-08-06T15:59:15Z",
+          "evidenceRole": "primary",
+          "url": "https://news.ycombinator.com/item?id=49198464"
+        },
         {
           "id": "src-9c2603ea222290f38e35399a",
           "title": "long live the late nights building circuit boards @provenmetal is now live on @ycombinator!",
@@ -57,7 +67,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-08-10T05:38:30.818Z"
+    "lastSuccessfulArtifactAt": "2026-08-10T12:17:26.859Z"
   },
   "nextCursor": null
 }

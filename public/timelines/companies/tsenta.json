@@ -5,9 +5,33 @@
     "slug": "tsenta",
     "name": "Tsenta"
   },
-  "generatedAt": "2026-08-10T05:38:30.818Z",
-  "lastModifiedAt": "2026-08-10T05:38:30.818Z",
+  "generatedAt": "2026-08-10T12:17:26.859Z",
+  "lastModifiedAt": "2026-08-10T12:17:26.859Z",
   "events": [
+    {
+      "id": "tle-5df0145a4e1cd1e92625feba",
+      "eventDate": "2026-08-06",
+      "eventDateType": "announcement_date",
+      "title": "Tsenta was accepted into Y Combinator S26",
+      "summary": "Tsenta got into yc s26 why.",
+      "category": "accelerator",
+      "isMajor": true,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-b6590df9d6ed3639dbcd8332",
+          "title": "we got into yc s26 why? because we’re solving a problem millions of people face.",
+          "publisher": "tsentaai",
+          "domain": "x.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-08-06T20:13:08.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/tsentaai/status/2085459177653272962"
+        }
+      ]
+    },
     {
       "id": "tle-93244eae3b0192de330f5ed8",
       "eventDate": "2026-07-19",
@@ -86,6 +110,10 @@
       "year": 2026,
       "months": [
         {
+          "month": "2026-08",
+          "count": 1
+        },
+        {
           "month": "2026-07",
           "count": 1
         },
@@ -102,8 +130,8 @@
   ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 3,
-    "lastSuccessfulArtifactAt": "2026-08-10T05:38:30.818Z"
+    "publishedEventCount": 4,
+    "lastSuccessfulArtifactAt": "2026-08-10T12:17:26.859Z"
   },
   "nextCursor": null
 }

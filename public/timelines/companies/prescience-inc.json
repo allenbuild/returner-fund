@@ -5,21 +5,31 @@
     "slug": "prescience-inc",
     "name": "Prescience, Inc."
   },
-  "generatedAt": "2026-08-10T05:38:30.818Z",
-  "lastModifiedAt": "2026-08-10T05:38:30.818Z",
+  "generatedAt": "2026-08-10T12:17:26.859Z",
+  "lastModifiedAt": "2026-08-10T12:17:26.859Z",
   "events": [
     {
       "id": "tle-ffe7ae791948d9dcc590f09a",
       "eventDate": "2026-07-21",
       "eventDateType": "announcement_date",
       "title": "Prescience, Inc. released Prescience",
-      "summary": "Prescience, Inc. introduced Prescience, healthcare for the age of abundant intelligence.",
+      "summary": "Prescience, Inc. introduced Prescience.",
       "category": "product_launch",
-      "isMajor": false,
+      "isMajor": true,
       "hasConflict": false,
       "conflictSummary": null,
-      "evidenceCount": 1,
+      "evidenceCount": 2,
       "sourcePreview": [
+        {
+          "id": "src-1415801f1f1a8fd91d8ff20c",
+          "title": "Introducing Prescience",
+          "publisher": "RishabJainK",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-07-21T15:36:45.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/RishabJainK/status/2079591417522110884"
+        },
         {
           "id": "src-1c274c82972a0e601048107d",
           "title": "Introducing Prescience, healthcare for the age of abundant intelligence",
@@ -47,7 +57,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-08-10T05:38:30.818Z"
+    "lastSuccessfulArtifactAt": "2026-08-10T12:17:26.859Z"
   },
   "nextCursor": null
 }

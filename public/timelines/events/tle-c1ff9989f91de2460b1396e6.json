@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-stratum-industries",
+    "slug": "stratum-industries",
+    "name": "Stratum Industries"
+  },
+  "event": {
+    "id": "tle-c1ff9989f91de2460b1396e6",
+    "eventDate": "2026-07-30",
+    "eventDateType": "announcement_date",
+    "title": "Stratum Industries was acquired by Legora",
+    "summary": "Stratum Industries introduced Stratum Industries Last August I dropped out of Waterloo to work on something that later got acquired by Legora.",
+    "category": "acquisition",
+    "isMajor": true,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-9e35c495e76cc7f5dc4a84c5",
+        "title": "Introducing Stratum Industries Last August I dropped out of Waterloo to work on something that later got acquired by Legora.",
+        "publisher": "vihaanjagiasi",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-07-30T20:16:08.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/vihaanjagiasi/status/2082923218181198259"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-9e35c495e76cc7f5dc4a84c5",
+        "title": "Introducing Stratum Industries Last August I dropped out of Waterloo to work on something that later got acquired by Legora.",
+        "publisher": "vihaanjagiasi",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-07-30T20:16:08.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/vihaanjagiasi/status/2082923218181198259",
+        "publicationDate": "2026-07-30T20:16:08.000Z",
+        "excerpt": "Introducing Stratum Industries Last August I dropped out of Waterloo to work on something that later got acquired by Legora. I decided to leave after the acquisition since there was a much bigger mission to go after. My brother",
+        "sourceEventDate": "2026-07-30",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-5bd4e7b3fc48c289e5e5493f",
+        "platform": "x",
+        "account": "vihaanjagiasi",
+        "postDate": "2026-07-30",
+        "excerpt": "Introducing Stratum Industries Last August I dropped out of Waterloo to work on something that later got acquired by Legora. I decided to leave after the acquisition since there was a much bigger mission to go after. My brother",
+        "url": "https://x.com/vihaanjagiasi/status/2082923218181198259",
+        "metrics": {
+          "likes": 16,
+          "reposts": 5,
+          "replies": 3,
+          "views": 11933
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-10T12:17:26.859Z",
+  "lastModifiedAt": "2026-08-10T12:17:26.859Z"
+}

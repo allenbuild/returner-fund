@@ -295,6 +295,23 @@
           "https://www.linkedin.com/in/ali-eren-aytekin-6305a41aa/"
         ]
       }
+    },
+    {
+      "companyId": "31216",
+      "companySlug": "archal",
+      "companyName": "Archal",
+      "founderId": "2561732",
+      "change": "removed",
+      "fromName": "Noah Song",
+      "toName": null,
+      "accounts": {
+        "linkedin": [
+          "https://www.linkedin.com/in/noah-j-song/"
+        ],
+        "x": [
+          "https://x.com/theophorus7"
+        ]
+      }
     }
   ]
 }

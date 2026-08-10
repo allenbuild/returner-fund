@@ -81,9 +81,8 @@
         "metrics": {
           "likes": 17,
           "reposts": 2,
-          "quotes": 1,
           "replies": 6,
-          "views": 3844
+          "views": 3904
         },
         "evidenceRole": "primary"
       },
@@ -95,16 +94,15 @@
         "excerpt": "Introducing Pentagon: a coordination layer for humans and agents. ASI yields two futures: 1. AI replaces us. 2. AI empowers us to do our greatest work. We're building for the latter. Our first product is Pentagon Studio: https://t.co/7Ipulc7zmH An in-depth article below: https://t.co/bkkgIT7Ag0",
         "url": "https://x.com/edgarpavlovsky/status/2056867039860625431",
         "metrics": {
-          "likes": 433,
-          "reposts": 55,
-          "quotes": 43,
+          "likes": 435,
+          "reposts": 56,
           "replies": 89,
-          "views": 93696
+          "views": 94980
         },
         "evidenceRole": "primary"
       }
     ]
   },
-  "generatedAt": "2026-08-10T05:38:30.818Z",
-  "lastModifiedAt": "2026-08-10T05:38:30.818Z"
+  "generatedAt": "2026-08-10T12:17:26.859Z",
+  "lastModifiedAt": "2026-08-10T12:17:26.859Z"
 }

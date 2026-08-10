@@ -19,8 +19,8 @@
     "sourcePreview": [
       {
         "id": "src-85336c71577972e6a9d2b3ef",
-        "title": "KugelAudio is launching today! Excited to share our first frontier voice model with the world: real‐time multilingual TTS.",
-        "publisher": "kugelaudio",
+        "title": "KugelAudio is launching today! Excited to share our first frontier voice model with the world: real‐time multilingual TTS. Super low late...",
+        "publisher": "KugelAudio",
         "domain": "x.com",
         "sourceType": "company_post",
         "publishedAt": "2026-05-28T22:09:55.000Z",
@@ -31,15 +31,15 @@
     "evidence": [
       {
         "id": "src-85336c71577972e6a9d2b3ef",
-        "title": "KugelAudio is launching today! Excited to share our first frontier voice model with the world: real‐time multilingual TTS.",
-        "publisher": "kugelaudio",
+        "title": "KugelAudio is launching today! Excited to share our first frontier voice model with the world: real‐time multilingual TTS. Super low late...",
+        "publisher": "KugelAudio",
         "domain": "x.com",
         "sourceType": "company_post",
         "publishedAt": "2026-05-28T22:09:55.000Z",
         "evidenceRole": "primary",
         "url": "https://x.com/kugelaudio/status/2060121416230699428",
         "publicationDate": "2026-05-28T22:09:55.000Z",
-        "excerpt": "KugelAudio is launching today! Excited to share our first frontier voice model with the world: real‐time multilingual TTS. Super low latency and over 30 languages. And you can even clone your voice. Try it yourself 👇 https://t.co/i3f5TdEgWt",
+        "excerpt": "KugelAudio is launching today! Excited to share our first frontier voice model with the world: real‐time multilingual TTS. Super low latency and over 30 languages. And you can even clone your voice. Try it yourself 👇",
         "sourceEventDate": "2026-05-28",
         "isConflicting": false,
         "conflictDescription": null
@@ -47,23 +47,24 @@
     ],
     "posts": [
       {
-        "id": "post-a3a52de0c88449f899b2b8a0",
+        "id": "post-586b87c8163c16c9fd8c4a28",
         "platform": "x",
-        "account": "kugelaudio",
+        "account": "KugelAudio",
         "postDate": "2026-05-28",
-        "excerpt": "KugelAudio is launching today! Excited to share our first frontier voice model with the world: real‐time multilingual TTS. Super low latency and over 30 languages. And you can even clone your voice. Try it yourself 👇 https://t.co/i3f5TdEgWt",
+        "excerpt": "KugelAudio is launching today! Excited to share our first frontier voice model with the world: real‐time multilingual TTS. Super low latency and over 30 languages. And you can even clone your voice. Try it yourself 👇",
         "url": "https://x.com/kugelaudio/status/2060121416230699428",
         "metrics": {
+          "views": 5980,
           "likes": 79,
+          "replies": 6,
           "reposts": 10,
           "quotes": 1,
-          "replies": 6,
-          "views": 5988
+          "bookmarks": 73
         },
         "evidenceRole": "primary"
       }
     ]
   },
-  "generatedAt": "2026-08-10T05:38:30.818Z",
-  "lastModifiedAt": "2026-08-10T05:38:30.818Z"
+  "generatedAt": "2026-08-10T12:17:26.859Z",
+  "lastModifiedAt": "2026-08-10T12:17:26.859Z"
 }

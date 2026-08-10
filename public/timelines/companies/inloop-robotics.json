@@ -5,49 +5,14 @@
     "slug": "inloop-robotics",
     "name": "InLoop Robotics"
   },
-  "generatedAt": "2026-08-10T05:38:30.818Z",
-  "lastModifiedAt": "2026-08-10T05:38:30.818Z",
-  "events": [
-    {
-      "id": "tle-9d79eb6e6667153543982980",
-      "eventDate": "2026-05-19",
-      "eventDateType": "announcement_date",
-      "title": "InLoop Robotics released InLoop Robotics (YC P26) Launch",
-      "summary": "InLoop Robotics (YC P26) Launch.",
-      "category": "product_launch",
-      "isMajor": false,
-      "hasConflict": false,
-      "conflictSummary": null,
-      "evidenceCount": 1,
-      "sourcePreview": [
-        {
-          "id": "src-bfe826242fd9e8529f7d85b2",
-          "title": "InLoop Robotics (YC P26) Launch",
-          "publisher": "InLoop Robotics (YC P26) Launch",
-          "domain": "youtube.com",
-          "sourceType": "video",
-          "publishedAt": "2026-05-19T02:29:05-07:00",
-          "evidenceRole": "primary",
-          "url": "https://youtube.com/watch?v=25SjZ28WX6Q"
-        }
-      ]
-    }
-  ],
-  "groups": [
-    {
-      "year": 2026,
-      "months": [
-        {
-          "month": "2026-05",
-          "count": 1
-        }
-      ]
-    }
-  ],
+  "generatedAt": "2026-08-10T12:17:26.859Z",
+  "lastModifiedAt": "2026-08-10T12:17:26.859Z",
+  "events": [],
+  "groups": [],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-08-10T05:38:30.818Z"
+    "publishedEventCount": 0,
+    "lastSuccessfulArtifactAt": "2026-08-10T12:17:26.859Z"
   },
   "nextCursor": null
 }

@@ -15,7 +15,7 @@
     "isMajor": true,
     "hasConflict": false,
     "conflictSummary": null,
-    "evidenceCount": 2,
+    "evidenceCount": 3,
     "sourcePreview": [
       {
         "id": "src-4a3b6d88a825a4f85d632a8e",
@@ -36,6 +36,16 @@
         "publishedAt": "2026-07-21T17:32:05.000Z",
         "evidenceRole": "primary",
         "url": "https://x.com/yousefhll/status/2079620440038002750"
+      },
+      {
+        "id": "src-a355c190017197bc6c950f70",
+        "title": "Announcing the Vendo Full Stack Agentic Interface: an embeddable agent that lives right inside your product, with everything you need built-in.",
+        "publisher": "yousefhll",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-08-06T21:52:16.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/yousefhll/status/2085484126786957477"
       }
     ],
     "evidence": [
@@ -68,6 +78,21 @@
         "sourceEventDate": "2026-07-21",
         "isConflicting": false,
         "conflictDescription": null
+      },
+      {
+        "id": "src-a355c190017197bc6c950f70",
+        "title": "Announcing the Vendo Full Stack Agentic Interface: an embeddable agent that lives right inside your product, with everything you need built-in.",
+        "publisher": "yousefhll",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-08-06T21:52:16.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/yousefhll/status/2085484126786957477",
+        "publicationDate": "2026-08-06T21:52:16.000Z",
+        "excerpt": "Announcing the Vendo Full Stack Agentic Interface: an embeddable agent that lives right inside your product, with everything you need built-in. > Takes real action through your own API, as the user, with their permissions > Generates UI and full features your users can keep, https://t.co/XOdO9miuI0",
+        "sourceEventDate": "2026-08-06",
+        "isConflicting": false,
+        "conflictDescription": null
       }
     ],
     "posts": [
@@ -96,16 +121,30 @@
         "excerpt": "Introducing Vendo (YC S26), the customization layer that lets your users build their own features and micro-apps on top of your product For 50 years, software has been shipped one way for everyone. That era is over. With Vendo, every user shapes your product into exactly what https://t.co/hHASxo0MIM",
         "url": "https://x.com/yousefhll/status/2079620440038002750",
         "metrics": {
-          "likes": 1138,
+          "likes": 1143,
           "reposts": 89,
-          "quotes": 76,
           "replies": 183,
-          "views": 376442
+          "views": 378934
+        },
+        "evidenceRole": "primary"
+      },
+      {
+        "id": "post-4001770080dc66fbb682da09",
+        "platform": "x",
+        "account": "yousefhll",
+        "postDate": "2026-08-06",
+        "excerpt": "Announcing the Vendo Full Stack Agentic Interface: an embeddable agent that lives right inside your product, with everything you need built-in. > Takes real action through your own API, as the user, with their permissions > Generates UI and full features your users can keep, https://t.co/XOdO9miuI0",
+        "url": "https://x.com/yousefhll/status/2085484126786957477",
+        "metrics": {
+          "likes": 63,
+          "reposts": 10,
+          "replies": 22,
+          "views": 4833
         },
         "evidenceRole": "primary"
       }
     ]
   },
-  "generatedAt": "2026-08-10T05:38:30.818Z",
-  "lastModifiedAt": "2026-08-10T05:38:30.818Z"
+  "generatedAt": "2026-08-10T12:17:26.859Z",
+  "lastModifiedAt": "2026-08-10T12:17:26.859Z"
 }

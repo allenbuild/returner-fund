@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-arbital",
+    "slug": "arbital",
+    "name": "Arbital"
+  },
+  "event": {
+    "id": "tle-968ce865cd7de434f025c019",
+    "eventDate": "2026-06-06",
+    "eventDateType": "announcement_date",
+    "title": "Arbital released very first competition",
+    "summary": "Arbital introduced our very first @arbital_xyz competition with @dango 🍡 the leaderboard is still wide open and the prize pool is far from fully unlocked volume is lower than expected because most people are running commodities for the 100% points boost, commodity pairs have.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-dd6de82f7ca19eeb5dc21727",
+        "title": "introducing our very first @arbital_xyz competition with @dango 🍡 the leaderboard is still wide open and the prize pool is far from fully unlocked volume is lower than expected because most people are running commodities for the 100%…",
+        "publisher": "0xstevezilla",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-06-06T08:50:31.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/0xstevezilla/status/2063181731721855102"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-dd6de82f7ca19eeb5dc21727",
+        "title": "introducing our very first @arbital_xyz competition with @dango 🍡 the leaderboard is still wide open and the prize pool is far from fully unlocked volume is lower than expected because most people are running commodities for the 100%…",
+        "publisher": "0xstevezilla",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-06-06T08:50:31.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/0xstevezilla/status/2063181731721855102",
+        "publicationDate": "2026-06-06T08:50:31.000Z",
+        "excerpt": "introducing our very first @arbital_xyz competition with @dango 🍡 the leaderboard is still wide open and the prize pool is far from fully unlocked volume is lower than expected because most people are running commodities for the 100% points boost, commodity pairs have slower https://t.co/FqubDZOaBY",
+        "sourceEventDate": "2026-06-06",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-4f542ed7b60276dc343fb7aa",
+        "platform": "x",
+        "account": "0xstevezilla",
+        "postDate": "2026-06-06",
+        "excerpt": "introducing our very first @arbital_xyz competition with @dango 🍡 the leaderboard is still wide open and the prize pool is far from fully unlocked volume is lower than expected because most people are running commodities for the 100% points boost, commodity pairs have slower https://t.co/FqubDZOaBY",
+        "url": "https://x.com/0xstevezilla/status/2063181731721855102",
+        "metrics": {
+          "likes": 9,
+          "reposts": 1,
+          "replies": 1,
+          "views": 1150
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-10T12:17:26.859Z",
+  "lastModifiedAt": "2026-08-10T12:17:26.859Z"
+}

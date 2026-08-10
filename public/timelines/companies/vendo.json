@@ -5,8 +5,8 @@
     "slug": "vendo",
     "name": "Vendo"
   },
-  "generatedAt": "2026-08-10T05:38:30.818Z",
-  "lastModifiedAt": "2026-08-10T05:38:30.818Z",
+  "generatedAt": "2026-08-10T12:17:26.859Z",
+  "lastModifiedAt": "2026-08-10T12:17:26.859Z",
   "events": [
     {
       "id": "tle-06faef83b9d9e92539e3f537",
@@ -42,7 +42,7 @@
       "isMajor": true,
       "hasConflict": false,
       "conflictSummary": null,
-      "evidenceCount": 2,
+      "evidenceCount": 3,
       "sourcePreview": [
         {
           "id": "src-4a3b6d88a825a4f85d632a8e",
@@ -63,6 +63,16 @@
           "publishedAt": "2026-07-21T17:32:05.000Z",
           "evidenceRole": "primary",
           "url": "https://x.com/yousefhll/status/2079620440038002750"
+        },
+        {
+          "id": "src-a355c190017197bc6c950f70",
+          "title": "Announcing the Vendo Full Stack Agentic Interface: an embeddable agent that lives right inside your product, with everything you need built-in.",
+          "publisher": "yousefhll",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-08-06T21:52:16.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/yousefhll/status/2085484126786957477"
         }
       ]
     },
@@ -137,7 +147,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 4,
-    "lastSuccessfulArtifactAt": "2026-08-10T05:38:30.818Z"
+    "lastSuccessfulArtifactAt": "2026-08-10T12:17:26.859Z"
   },
   "nextCursor": null
 }
