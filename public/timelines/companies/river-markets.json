@@ -5,9 +5,33 @@
     "slug": "river-markets",
     "name": "River Markets"
   },
-  "generatedAt": "2026-08-11T14:56:47.396Z",
-  "lastModifiedAt": "2026-08-11T14:56:47.396Z",
+  "generatedAt": "2026-08-11T16:42:00.565Z",
+  "lastModifiedAt": "2026-08-11T16:42:00.565Z",
   "events": [
+    {
+      "id": "tle-e7bc060420b874bf7787deca",
+      "eventDate": "2026-08-11",
+      "eventDateType": "announcement_date",
+      "title": "River Markets announced $8.5M seed round",
+      "summary": "Today, River Markets announced an $8.5M seed round led by @HaunVentures.",
+      "category": "funding",
+      "isMajor": true,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-f01e0e829417c8e39f01ada6",
+          "title": "Today, River Markets announced an $8.5M seed round led by @HaunVentures .",
+          "publisher": "river_markets",
+          "domain": "x.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-08-11T14:08:29.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/river_markets/status/2087179350470963533"
+        }
+      ]
+    },
     {
       "id": "tle-4581e21277023ef717ff7305",
       "eventDate": "2026-05-23",
@@ -38,6 +62,10 @@
       "year": 2026,
       "months": [
         {
+          "month": "2026-08",
+          "count": 1
+        },
+        {
           "month": "2026-05",
           "count": 1
         }
@@ -46,8 +74,8 @@
   ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-08-11T14:56:47.396Z"
+    "publishedEventCount": 2,
+    "lastSuccessfulArtifactAt": "2026-08-11T16:42:00.565Z"
   },
   "nextCursor": null
 }

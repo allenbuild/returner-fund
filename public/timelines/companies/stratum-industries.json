@@ -5,8 +5,8 @@
     "slug": "stratum-industries",
     "name": "Stratum Industries"
   },
-  "generatedAt": "2026-08-11T14:56:47.396Z",
-  "lastModifiedAt": "2026-08-11T14:56:47.396Z",
+  "generatedAt": "2026-08-11T16:42:00.565Z",
+  "lastModifiedAt": "2026-08-11T16:42:00.565Z",
   "events": [
     {
       "id": "tle-c1ff9989f91de2460b1396e6",
@@ -47,7 +47,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-08-11T14:56:47.396Z"
+    "lastSuccessfulArtifactAt": "2026-08-11T16:42:00.565Z"
   },
   "nextCursor": null
 }

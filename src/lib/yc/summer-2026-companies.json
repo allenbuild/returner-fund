@@ -4,7 +4,7 @@
     "directoryUrl": "https://www.ycombinator.com/companies?batch=Summer%202026",
     "algoliaIndex": "YCCompany_production",
     "algoliaFilter": "batch:\"Summer 2026\"",
-    "fetchedAt": "2026-08-11T13:57:16.961Z",
+    "fetchedAt": "2026-08-11T15:42:54.617Z",
     "expectedCompanyCount": 197,
     "observedCompanyCount": 197,
     "minimumCompanyCount": 167,
@@ -4068,10 +4068,10 @@
         "Drug Discovery and Delivery"
       ],
       "tags": [
-        "Artificial Intelligence",
         "Biotech",
         "Genomics",
-        "Oncology"
+        "Oncology",
+        "AI"
       ],
       "location": "San Francisco",
       "teamSize": 2,
