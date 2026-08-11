@@ -5,8 +5,8 @@
     "slug": "lamina-labs",
     "name": "Lamina Labs"
   },
-  "generatedAt": "2026-08-10T13:05:16.686Z",
-  "lastModifiedAt": "2026-08-10T13:05:16.686Z",
+  "generatedAt": "2026-08-11T06:00:14.057Z",
+  "lastModifiedAt": "2026-08-11T06:00:14.057Z",
   "events": [
     {
       "id": "tle-a243a2c0d98de7032bcca241",
@@ -157,7 +157,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 5,
-    "lastSuccessfulArtifactAt": "2026-08-10T13:05:16.686Z"
+    "lastSuccessfulArtifactAt": "2026-08-11T06:00:14.057Z"
   },
   "nextCursor": null
 }

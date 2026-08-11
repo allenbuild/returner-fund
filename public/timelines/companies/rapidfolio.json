@@ -5,8 +5,8 @@
     "slug": "rapidfolio",
     "name": "Rapidfolio"
   },
-  "generatedAt": "2026-08-10T13:05:16.686Z",
-  "lastModifiedAt": "2026-08-10T13:05:16.686Z",
+  "generatedAt": "2026-08-11T06:00:14.057Z",
+  "lastModifiedAt": "2026-08-11T06:00:14.057Z",
   "events": [
     {
       "id": "tle-6fe8dfdf60d9f03d195ff9db",
@@ -47,7 +47,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-08-10T13:05:16.686Z"
+    "lastSuccessfulArtifactAt": "2026-08-11T06:00:14.057Z"
   },
   "nextCursor": null
 }

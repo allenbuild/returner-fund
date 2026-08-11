@@ -5,8 +5,8 @@
     "slug": "nebula-security",
     "name": "Nebula Security"
   },
-  "generatedAt": "2026-08-10T13:05:16.686Z",
-  "lastModifiedAt": "2026-08-10T13:05:16.686Z",
+  "generatedAt": "2026-08-11T06:00:14.057Z",
+  "lastModifiedAt": "2026-08-11T06:00:14.057Z",
   "events": [
     {
       "id": "tle-cf36fbd14a85345d32e58cec",
@@ -75,7 +75,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 2,
-    "lastSuccessfulArtifactAt": "2026-08-10T13:05:16.686Z"
+    "lastSuccessfulArtifactAt": "2026-08-11T06:00:14.057Z"
   },
   "nextCursor": null
 }

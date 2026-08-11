@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "kind": "daily-score-benchmark-publication",
+  "slotKey": "daily-benchmark-2026-08-11",
+  "sourceSha": "7a05e694b4aa40b2edcb6cd1b741ac35cd724ebc",
+  "runId": "31463130004",
+  "runAttempt": "1",
+  "trigger": "schedule",
+  "scheduledUtcHour": "5",
+  "scheduledAt": "2026-08-11T05:00:00.000Z",
+  "centralDate": "2026-08-11"
+}

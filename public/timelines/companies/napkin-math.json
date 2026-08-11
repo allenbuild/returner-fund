@@ -5,8 +5,8 @@
     "slug": "napkin-math",
     "name": "Napkin Math"
   },
-  "generatedAt": "2026-08-10T13:05:16.686Z",
-  "lastModifiedAt": "2026-08-10T13:05:16.686Z",
+  "generatedAt": "2026-08-11T06:00:14.057Z",
+  "lastModifiedAt": "2026-08-11T06:00:14.057Z",
   "events": [
     {
       "id": "tle-f56a61e9da8e50b800b048e8",
@@ -57,7 +57,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-08-10T13:05:16.686Z"
+    "lastSuccessfulArtifactAt": "2026-08-11T06:00:14.057Z"
   },
   "nextCursor": null
 }
