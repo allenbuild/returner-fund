@@ -63,13 +63,28 @@ describe("score presentation conservation", () => {
   it("preserves calibrated line-item identity and conservation across every published company", () => {
     let checkedCompanies = 0;
     let contributingCompanies = 0;
+    let expectedCompanies = 0;
+    let expectedContributingCompanies = 0;
 
     for (const relativePath of BASE_GRAPH_PATHS) {
       const graph = JSON.parse(readFileSync(path.join(process.cwd(), relativePath), "utf8")) as {
+        batch: { companyCountExpected: number; companyCountObserved: number };
         nodes: GraphNode[];
       };
-      for (const node of graph.nodes.filter((candidate) => candidate.entityType === "company")) {
+      const companyNodes = graph.nodes.filter((candidate) => candidate.entityType === "company");
+      expect(companyNodes.length, `${relativePath}:observed company census`).toBe(
+        graph.batch.companyCountObserved
+      );
+      expect(graph.batch.companyCountObserved, `${relativePath}:expected company census`).toBe(
+        graph.batch.companyCountExpected
+      );
+      expectedCompanies += graph.batch.companyCountExpected;
+
+      for (const node of companyNodes) {
         checkedCompanies += 1;
+        if ((node.insiderScoreBreakdown?.baseScore ?? node.score) > 0) {
+          expectedContributingCompanies += 1;
+        }
         const sourceRows = [...(node.scoreBreakdown?.weightedPlatforms ?? [])]
           .filter((row) => Number.isFinite(row?.contribution) && row.contribution > 0)
           .sort(
@@ -151,8 +166,8 @@ describe("score presentation conservation", () => {
       }
     }
 
-    expect(checkedCompanies).toBe(450);
-    expect(contributingCompanies).toBe(437);
+    expect(checkedCompanies).toBe(expectedCompanies);
+    expect(contributingCompanies).toBe(expectedContributingCompanies);
   });
 
   it("renders the Antihero conversion as 20 -> 37.7 while totaling 87", () => {
