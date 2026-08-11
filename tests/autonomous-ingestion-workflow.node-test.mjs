@@ -470,6 +470,10 @@ test("daily benchmarks snapshot source, publish one exact candidate, and verify 
   assert.match(dailyBenchmarkWorkflow, /PUBLICATION_STATUS="no_changes"/);
   assert.match(
     dailyBenchmarkWorkflow,
+    /kind: "daily-score-benchmark-publication"[\s\S]*?generatedAt: new Date\(\)\.toISOString\(\)/
+  );
+  assert.match(
+    dailyBenchmarkWorkflow,
     /node scripts\/lib\/publication-semantic-diff\.mjs --root "\$PWD" --base HEAD --target index --ignore "\$PUBLICATION_RECEIPT_PATH"[\s\S]*?No semantic benchmark changes; creating an immutable provenance commit\.[\s\S]*?commit --allow-empty[\s\S]*?publication_status=\$PUBLICATION_STATUS/
   );
   assert.doesNotMatch(dailyBenchmarkWorkflow, /git diff --cached --quiet/);

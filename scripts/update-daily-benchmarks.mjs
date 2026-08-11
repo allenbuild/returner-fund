@@ -540,11 +540,21 @@ export function appendObservedBenchmarkSnapshot(store, graph, recordedAt) {
     }))
   };
   const dayKey = centralDayKey(recordedAt);
-  const alreadyRecordedDaily = store.daily.some(
+  const recordedDailyIndex = store.daily.findIndex(
     (candidate) =>
       candidate?.scoringModelVersion === scoringModelVersion &&
       isIsoTimestamp(candidate.recordedAt) &&
       centralDayKey(new Date(candidate.recordedAt)) === dayKey
+  );
+  const alreadyRecordedDaily = recordedDailyIndex >= 0;
+  const recordedDaily = alreadyRecordedDaily ? store.daily[recordedDailyIndex] : null;
+  // A run can begin before Central midnight and finish after it. If that
+  // straddled publication wrote today's recordedAt against yesterday's graph,
+  // a same-day retry must repair the daily entry instead of treating the
+  // calendar key alone as an idempotency receipt.
+  const replaceStaleDaily = alreadyRecordedDaily && (
+    !isIsoTimestamp(recordedDaily?.inputGeneratedAt) ||
+    centralDayKey(new Date(recordedDaily.inputGeneratedAt)) !== dayKey
   );
   const matchingWeekly = store.weekly.filter(
     (candidate) =>
@@ -558,14 +568,20 @@ export function appendObservedBenchmarkSnapshot(store, graph, recordedAt) {
   const weeklyDue =
     !latestWeekly || centralDayDistance(new Date(latestWeekly.recordedAt), recordedAt) >= 7;
 
-  if (alreadyRecordedDaily && !weeklyDue) {
+  if (alreadyRecordedDaily && !replaceStaleDaily && !weeklyDue) {
     return store;
   }
+
+  const daily = !alreadyRecordedDaily
+    ? [...store.daily, snapshot]
+    : replaceStaleDaily
+      ? store.daily.map((candidate, index) => index === recordedDailyIndex ? snapshot : candidate)
+      : store.daily;
 
   return {
     ...store,
     updatedAt: recordedAt.toISOString(),
-    daily: alreadyRecordedDaily ? store.daily : [...store.daily, snapshot],
+    daily,
     weekly: weeklyDue ? [...store.weekly, snapshot] : store.weekly
   };
 }

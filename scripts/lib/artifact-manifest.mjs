@@ -6,6 +6,7 @@ export const ARTIFACT_MANIFEST_VERSION = 1;
 export const DEFAULT_ARTIFACT_MANIFEST_PATH = path.join("public", "graph", "manifest.json");
 
 const SHA256_PATTERN = /^[a-f0-9]{64}$/;
+const BENCHMARK_METADATA_FILENAMES = new Set(["daily-publication-receipt.json"]);
 const REFRESH_TIMESTAMP_FIELDS = [
   "lastRefreshedAt",
   "refreshedAt",
@@ -37,7 +38,10 @@ export async function buildArtifactManifest({
         ? path.basename(paths.manifestPath)
         : undefined
     }),
-    readArtifactDirectory(paths.benchmarkDir, { kind: "benchmark" })
+    readArtifactDirectory(paths.benchmarkDir, {
+      kind: "benchmark",
+      excludedFilenames: BENCHMARK_METADATA_FILENAMES
+    })
   ]);
 
   if (graphArtifacts.length === 0 && !allowEmptyGraphArtifacts) {
@@ -187,7 +191,10 @@ function resolveArtifactPaths({ rootDir = process.cwd(), graphDir, benchmarkDir,
   };
 }
 
-async function readArtifactDirectory(directory, { kind, excludedFilename } = {}) {
+async function readArtifactDirectory(
+  directory,
+  { kind, excludedFilename, excludedFilenames = new Set() } = {}
+) {
   let entries;
   try {
     entries = await readdir(directory, { withFileTypes: true });
@@ -202,7 +209,13 @@ async function readArtifactDirectory(directory, { kind, excludedFilename } = {})
   }
 
   const filenames = entries
-    .filter((entry) => entry.isFile() && entry.name.endsWith(".json") && entry.name !== excludedFilename)
+    .filter(
+      (entry) =>
+        entry.isFile() &&
+        entry.name.endsWith(".json") &&
+        entry.name !== excludedFilename &&
+        !excludedFilenames.has(entry.name)
+    )
     .map((entry) => entry.name)
     .sort((left, right) => left.localeCompare(right));
 

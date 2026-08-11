@@ -84,6 +84,7 @@ import {
 } from "./lib/autonomous-publication-trust.mjs";
 import { isVerifiedYouTubeNativeMetriclessEvidence } from "./lib/youtube-native-promotion.mjs";
 import { comparePublicationSemantics } from "./lib/publication-semantic-diff.mjs";
+import { buildVerifiedFirstPartyContextEvidenceValidator } from "./lib/first-party-authored-post-promotion.mjs";
 
 let root;
 const pinnedSourceRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
@@ -2211,6 +2212,20 @@ async function prepareSanitizedPublicSnapshot(
   const previousPublicSnapshot = (
     await readPublicEvidenceArtifact(join(targetRoot, publicEvidencePath), { rootDir: targetRoot })
   ).snapshot;
+  const firstPartyGraphDocuments = await Promise.all(
+    AUTONOMOUS_BATCHES.map((batch) => readRequiredCanonicalJson(
+      join(targetRoot, "public", "graph", batch.graphFile),
+      `Canonical first-party context graph ${batch.slug}`
+    ))
+  );
+  const allowVerifiedContextEvidence = buildVerifiedFirstPartyContextEvidenceValidator({
+    graphDocuments: firstPartyGraphDocuments,
+    currentRosterResolver: resolvePublicNativeAuthor,
+    observedAt: runStartedAt ?? new Date().toISOString()
+  });
+  const trustedCanonicalSnapshots = new Set(
+    [basePublicSnapshot, previousPublicSnapshot].filter(Boolean)
+  );
   return mergePublicEvidenceSnapshots(
     [basePublicSnapshot, previousPublicSnapshot, ...publicSnapshots].filter(Boolean),
     {
@@ -2218,7 +2233,9 @@ async function prepareSanitizedPublicSnapshot(
       resolveBatchSlug: resolveLegacyPublicEvidenceBatch,
       resolveNativeAuthor: resolvePublicNativeAuthor,
       contentIdentityReferenceRows,
-      allowVerifiedMetriclessEvidence: isVerifiedYouTubeNativeMetriclessEvidence
+      allowVerifiedMetriclessEvidence: isVerifiedYouTubeNativeMetriclessEvidence,
+      allowVerifiedContextEvidence: (row, { snapshot }) =>
+        trustedCanonicalSnapshots.has(snapshot) && allowVerifiedContextEvidence(row)
     }
   );
 }

@@ -115,9 +115,9 @@ async function assertTargetJsonIsValid(repositoryRoot, targetRef, filePath) {
   } catch (error) {
     throw new Error(`Ignored provenance path ${filePath} is not valid JSON at target ${targetRef}: ${error.message}`);
   }
-  if (value === null || typeof value !== "object" || Array.isArray(value)) {
+  if (value === null || typeof value !== "object") {
     throw new Error(
-      `Ignored provenance path ${filePath} must contain a JSON object at target ${targetRef}.`
+      `Ignored provenance path ${filePath} must contain a JSON object or array at target ${targetRef}.`
     );
   }
 }

@@ -36,6 +36,25 @@ test("ignores an exact changed provenance path only when target JSON is valid", 
   );
 });
 
+test("accepts an array-backed ignored provenance history", async () => {
+  const repo = await createRepo();
+  await writeJson(path.join(repo, "outputs", "publication-history.json"), [
+    { runId: "run-1" },
+    { runId: "run-2" }
+  ]);
+  await commit(repo, "update provenance history");
+
+  assert.deepEqual(
+    await comparePublicationSemantics({
+      rootDir: repo,
+      baseRef: "HEAD~1",
+      targetRef: "HEAD",
+      ignoredPaths: ["outputs/publication-history.json"]
+    }),
+    { changed: false, changedPaths: [] }
+  );
+});
+
 test("normalizes only top-level manifest publishedAt and ingestionRunId", async () => {
   const repo = await createRepo();
   await writeJson(path.join(repo, "public", "graph", "manifest.json"), {

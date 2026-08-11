@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
+import { createHash } from "node:crypto";
 import { describe, it } from "node:test";
 import { mkdtemp, readFile, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
@@ -3315,6 +3316,227 @@ describe("autonomous public evidence merge", () => {
     assert.ok(reasons.get("metricless").includes("no_visible_positive_scoring_metrics"));
   });
 
+  it("binds a metricless promotion receipt before refreshing native-author metadata", () => {
+    const company = {
+      name: "Example",
+      sourceKey: "company-example",
+      description: "Example builds durable software."
+    };
+    const owner = {
+      batchSlug: "S26",
+      entityType: "company",
+      entityId: "company-example",
+      companyEntityId: "company-example",
+      companySlug: "example",
+      companyName: "Example"
+    };
+    const resolveNativeAuthor = () => ({
+      status: "matched",
+      reason: "fresh_canonical_resolution",
+      owner,
+      company
+    });
+    resolveNativeAuthor.companyForRow = () => ({ ...owner, company });
+    resolveNativeAuthor.companyOwners = [{ ...owner, company }];
+    const row = {
+      id: "metricless-youtube-with-signed-receipt",
+      batchSlug: "S26",
+      entityType: "company",
+      entityId: "company-example",
+      entityName: "Example",
+      companySlug: "example",
+      companyName: "Example",
+      platform: "youtube",
+      platformPostId: "abcDEF123",
+      sourceUrl: "https://www.youtube.com/watch?v=abcDEF123",
+      title: "Example YC S26 product walkthrough",
+      text: "Example YC S26 product walkthrough and launch details.",
+      metrics: { views: 0 },
+      contributionScore: 0,
+      review_state: "verified",
+      linkStatus: "verified",
+      attributionStatus: "verified",
+      attributionVersion: 3,
+      attributionMode: "account_owner",
+      nativeAuthorResolution: {
+        status: "matched",
+        reason: "signed_metricless_receipt",
+        owner
+      }
+    };
+
+    const merged = mergePublicEvidenceSnapshots([{
+      source: { batchSlug: "S26" },
+      evidence: [row],
+      needsReview: [],
+      failures: []
+    }], {
+      resolveNativeAuthor,
+      allowVerifiedMetriclessEvidence: (candidate) =>
+        candidate?.nativeAuthorResolution?.reason === "signed_metricless_receipt"
+    });
+
+    assert.deepEqual(merged.evidence, [row]);
+    assert.deepEqual(merged.needsReview, []);
+  });
+
+  it("preserves already-promoted strict first-party web and RSS context across autonomous merge", () => {
+    const web = strictFirstPartyContextRow({
+      id: "first-party-web-launch",
+      platform: "web",
+      sourceUrl: "https://example.com/blog/launch-post"
+    });
+    const rss = strictFirstPartyContextRow({
+      id: "first-party-rss-launch",
+      platform: "rss",
+      sourceUrl: "https://example.com/feed/launch-post.xml"
+    });
+
+    const merged = mergePublicEvidenceSnapshots([{
+      source: { batchSlug: "S2026" },
+      evidence: [web, rss],
+      needsReview: [],
+      failures: []
+    }], {
+      allowVerifiedContextEvidence: isStrictFirstPartyContext
+    });
+
+    assert.deepEqual(
+      merged.evidence
+        .map((row) => [row.platform, row.sourceUrl, row.platformPostId])
+        .sort(([left], [right]) => left.localeCompare(right)),
+      [
+        ["rss", rss.sourceUrl, rss.sourceUrl],
+        ["web", web.sourceUrl, web.sourceUrl]
+      ]
+    );
+    assert.deepEqual(merged.needsReview, []);
+    assert.ok(merged.evidence.every((row) =>
+      row.attributionSignals.includes("exact_current_official_domain")
+    ));
+
+    const replayed = mergePublicEvidenceSnapshots([merged], {
+      allowVerifiedContextEvidence: isStrictFirstPartyContext
+    });
+    assert.deepEqual(replayed.evidence, merged.evidence);
+    assert.deepEqual(replayed.needsReview, merged.needsReview);
+  });
+
+  it("limits first-party context exceptions to explicitly trusted canonical snapshots", () => {
+    const trustedRow = strictFirstPartyContextRow({
+      id: "trusted-first-party-web",
+      platform: "web",
+      sourceUrl: "https://example.com/blog/trusted"
+    });
+    const collectorForgery = strictFirstPartyContextRow({
+      id: "collector-forgery-web",
+      platform: "web",
+      sourceUrl: "https://example.com/blog/forged"
+    });
+    const trustedSnapshot = {
+      source: { batchSlug: "S2026" },
+      evidence: [trustedRow],
+      needsReview: [],
+      failures: []
+    };
+    const untrustedCollectorSnapshot = {
+      source: { batchSlug: "S2026" },
+      evidence: [collectorForgery],
+      needsReview: [],
+      failures: []
+    };
+    const trustedSnapshots = new Set([trustedSnapshot]);
+
+    const merged = mergePublicEvidenceSnapshots(
+      [trustedSnapshot, untrustedCollectorSnapshot],
+      {
+        allowVerifiedContextEvidence: (row, { snapshot }) =>
+          trustedSnapshots.has(snapshot) && isStrictFirstPartyContext(row)
+      }
+    );
+
+    assert.deepEqual(merged.evidence, [trustedRow]);
+    assert.ok(merged.needsReview.some((row) => row.sourceEvidenceId === collectorForgery.id));
+  });
+
+  it("keeps ordinary web and RSS rows quarantined even when metricless context is allowed", () => {
+    const ordinaryWeb = {
+      ...strictFirstPartyContextRow({
+        id: "ordinary-web",
+        platform: "web",
+        sourceUrl: "https://example.com/about"
+      }),
+      _recoveryProvenance: undefined,
+      attributionSignals: []
+    };
+    const ordinaryRss = {
+      ...strictFirstPartyContextRow({
+        id: "ordinary-rss",
+        platform: "rss",
+        sourceUrl: "https://example.com/feed.xml"
+      }),
+      _recoveryProvenance: undefined,
+      attributionSignals: []
+    };
+
+    const merged = mergePublicEvidenceSnapshots([{
+      source: { batchSlug: "S2026" },
+      evidence: [ordinaryWeb, ordinaryRss],
+      needsReview: [],
+      failures: []
+    }], {
+      allowVerifiedContextEvidence: isStrictFirstPartyContext
+    });
+
+    assert.deepEqual(merged.evidence, []);
+    assert.deepEqual(
+      merged.needsReview.map((row) => row.sourceEvidenceId).sort(),
+      ["ordinary-rss", "ordinary-web"]
+    );
+  });
+
+  it("keeps tampered first-party provenance quarantined", () => {
+    const tampered = strictFirstPartyContextRow({
+      id: "tampered-first-party",
+      platform: "web",
+      sourceUrl: "https://example.com/blog/tampered"
+    });
+    tampered._recoveryProvenance.contentSha256 = "0".repeat(64);
+
+    const merged = mergePublicEvidenceSnapshots([{
+      source: { batchSlug: "S2026" },
+      evidence: [tampered],
+      needsReview: [],
+      failures: []
+    }], {
+      allowVerifiedContextEvidence: isStrictFirstPartyContext
+    });
+
+    assert.deepEqual(merged.evidence, []);
+    const review = merged.needsReview.find((row) => row.sourceEvidenceId === tampered.id);
+    assert.ok(review);
+    assert.equal(review.review_state, "needs_review");
+  });
+
+  it("keeps promoted context platformPostId equal to its canonical source URL", () => {
+    const row = strictFirstPartyContextRow({
+      id: "first-party-context-identity",
+      platform: "web",
+      sourceUrl: "https://example.com/news/identity"
+    });
+    const merged = mergePublicEvidenceSnapshots([{
+      source: { batchSlug: "S2026" },
+      evidence: [row],
+      needsReview: [],
+      failures: []
+    }], {
+      allowVerifiedContextEvidence: isStrictFirstPartyContext
+    });
+
+    assert.equal(merged.evidence[0]?.platformPostId, row.sourceUrl);
+    assert.equal(merged.evidence[0]?.sourceUrl, row.sourceUrl);
+  });
+
   it("marks file-backed publication when durable Supabase import is not configured", () => {
     const merged = mergePublicEvidenceSnapshots(
       [{ source: { batchSlug: "S26" }, evidence: [], needsReview: [], failures: [] }],
@@ -3477,4 +3699,73 @@ function countBy(values, keyForValue) {
       return counts;
     }, new Map())].sort(([left], [right]) => left.localeCompare(right))
   );
+}
+
+function strictFirstPartyContextRow({ id, platform, sourceUrl }) {
+  return {
+    id,
+    batchSlug: "S2026",
+    entityType: "company",
+    entityId: "company-example",
+    entityName: "Example",
+    companySlug: "example",
+    companyName: "Example",
+    platform,
+    sourceUrl,
+    platformPostId: sourceUrl,
+    title: "Example launches a durable new product",
+    rawVisibleText: "Example launches a durable new product.",
+    postedAt: "2026-08-01T00:00:00.000Z",
+    first_seen_at: "2026-08-08T00:00:00.000Z",
+    last_checked_at: "2026-08-08T00:00:00.000Z",
+    last_updated_at: "2026-08-08T00:00:00.000Z",
+    metrics: {},
+    contributionScore: 0,
+    review_state: "verified",
+    linkStatus: "verified",
+    attributionStatus: "verified",
+    attributionVersion: 3,
+    attributionSignals: [
+      "current_cohort_owner",
+      "exact_current_official_domain",
+      "stable_authored_item_url",
+      "title_text_date_provenance"
+    ],
+    _recoveryProvenance: {
+      schemaVersion: 1,
+      sourcePath: "history.json",
+      sourceKind: "repository_history",
+      officialWebsiteUrl: "https://example.com/",
+      officialHost: "example.com",
+      contentSha256: contextContentSha256({ platform, sourceUrl }),
+      zeroEngagementAccepted: true
+    }
+  };
+}
+
+function isStrictFirstPartyContext(row) {
+  const provenance = row?._recoveryProvenance;
+  return ["web", "rss"].includes(row?.platform) &&
+    row?.review_state === "verified" &&
+    row?.linkStatus === "verified" &&
+    row?.attributionStatus === "verified" &&
+    Number(row?.attributionVersion ?? 0) >= 3 &&
+    Number(row?.contributionScore ?? 0) === 0 &&
+    Object.values(row?.metrics ?? {}).every((value) => Number(value ?? 0) === 0) &&
+    row?.platformPostId === row?.sourceUrl &&
+    provenance?.schemaVersion === 1 &&
+    provenance?.zeroEngagementAccepted === true &&
+    provenance?.contentSha256 === contextContentSha256(row) &&
+    [
+      "current_cohort_owner",
+      "exact_current_official_domain",
+      "stable_authored_item_url",
+      "title_text_date_provenance"
+    ].every((signal) => row?.attributionSignals?.includes(signal));
+}
+
+function contextContentSha256(row) {
+  return createHash("sha256")
+    .update(`${row?.platform}|${row?.sourceUrl}|Example launches a durable new product.`)
+    .digest("hex");
 }

@@ -5,14 +5,14 @@
     "slug": "florin",
     "name": "Florin"
   },
-  "generatedAt": "2026-08-11T06:00:14.057Z",
-  "lastModifiedAt": "2026-08-11T06:00:14.057Z",
+  "generatedAt": "2026-08-11T12:29:30.899Z",
+  "lastModifiedAt": "2026-08-11T12:29:30.899Z",
   "events": [],
   "groups": [],
   "coverage": {
     "status": "partial",
     "publishedEventCount": 0,
-    "lastSuccessfulArtifactAt": "2026-08-11T06:00:14.057Z"
+    "lastSuccessfulArtifactAt": "2026-08-11T12:29:30.899Z"
   },
   "nextCursor": null
 }

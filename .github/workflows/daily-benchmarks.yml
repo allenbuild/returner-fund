@@ -806,7 +806,8 @@ jobs:
             trigger: process.env.SCHEDULE_TRIGGER,
             scheduledUtcHour: process.env.SCHEDULED_UTC_HOUR || null,
             scheduledAt: process.env.SCHEDULED_AT,
-            centralDate: process.env.CENTRAL_DATE
+            centralDate: process.env.CENTRAL_DATE,
+            generatedAt: new Date().toISOString()
           };
           await writeFile(process.env.PUBLICATION_RECEIPT_PATH, `${JSON.stringify(receipt, null, 2)}\n`);
           NODE

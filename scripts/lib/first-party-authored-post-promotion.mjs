@@ -8,6 +8,12 @@ import {
 } from "./first-party-authored-post-recovery.mjs";
 
 const CANDIDATE_SCHEMA = "first-party-authored-post-promotion-candidate.v1";
+const TRUSTED_SOURCE_KINDS = new Set([
+  "anonymous_public_refresh",
+  "current_artifact",
+  "current_review_ledger",
+  "repository_history"
+]);
 const PROTECTED_LEDGER_KEYS = Object.freeze([
   "attributionReconciliationLedger",
   "failures",
@@ -15,6 +21,49 @@ const PROTECTED_LEDGER_KEYS = Object.freeze([
   "discoveryAttempts",
   "sourceDiscoveryPaths"
 ]);
+
+export function buildVerifiedFirstPartyContextEvidenceValidator({
+  graphDocuments,
+  currentRosterResolver,
+  observedAt = new Date().toISOString(),
+  now = new Date()
+}) {
+  if (typeof currentRosterResolver?.companyForRow !== "function") {
+    throw new Error("A current roster resolver is required for autonomous context validation.");
+  }
+  const trustedObservedAt = trustedCandidateObservation(observedAt, now);
+  const catalog = buildOfficialDomainCatalog(graphDocuments);
+  const emptyReferenceIndex = { urlKeys: new Set(), contentKeys: new Set() };
+
+  return (row) => {
+    try {
+      const provenance = row?._recoveryProvenance;
+      const evaluation = evaluateFirstPartyAuthoredPost(row, {
+        catalog,
+        referenceIndex: emptyReferenceIndex,
+        sourcePath: provenance?.sourcePath,
+        sourceKind: provenance?.sourceKind,
+        observedAt: trustedObservedAt
+      });
+      if (!evaluation.accepted || !evaluation.owner) return false;
+      const rosterOwner = currentRosterResolver.companyForRow(row);
+      const rosterCompanyId = rosterOwner?.companyEntityId ?? rosterOwner?.entityId;
+      if (
+        !rosterOwner ||
+        String(rosterOwner.batchSlug ?? "") !== String(evaluation.owner.batchSlug ?? "") ||
+        String(rosterCompanyId ?? "") !== String(evaluation.owner.companyId ?? "") ||
+        String(rosterOwner.company?.name ?? "") !== String(evaluation.owner.companyName ?? "") ||
+        normalizeUrl(rosterOwner.company?.websiteUrl) !== normalizeUrl(evaluation.owner.websiteUrl)
+      ) {
+        return false;
+      }
+      assertCandidateTrust(row, evaluation, trustedObservedAt);
+      return true;
+    } catch {
+      return false;
+    }
+  };
+}
 
 export function planFirstPartyAuthoredPostPromotion({
   canonical,
@@ -146,19 +195,30 @@ function assertCandidateTrust(row, evaluation, candidateObservedAt) {
   if (mismatch) throw rowError(row, `current official owner disagrees on ${mismatch[0]}`);
 
   const provenance = row?._recoveryProvenance;
+  const sourceEvidenceId = String(provenance?.sourceEvidenceId ?? "").trim();
+  const sourcePath = String(provenance?.sourcePath ?? "").trim();
+  const sourceKind = String(provenance?.sourceKind ?? "").trim();
   const expectedId = `first-party-${row.platform}-${sha256(
     `${row.batchSlug}|${row.entityId}|${evaluation.sourceUrl}`
   ).slice(0, 24)}`;
   if (
     provenance?.schemaVersion !== 1 ||
+    sourceEvidenceId !== row.id ||
+    !sourceEvidenceId.startsWith(`first-party-${row.platform}-`) ||
+    !sourcePath ||
+    sourcePath.length > 1_024 ||
+    /[\u0000-\u001f\u007f]/.test(sourcePath) ||
+    !TRUSTED_SOURCE_KINDS.has(sourceKind) ||
     provenance?.contentSha256 !== evaluation.contentKey ||
     normalizeUrl(provenance?.officialWebsiteUrl) !== normalizeUrl(owner.websiteUrl) ||
     String(provenance?.officialHost) !== new URL(owner.websiteUrl).hostname.replace(/^www\./i, "") ||
     provenance?.zeroEngagementAccepted !== true ||
+    normalizeUrl(row?.platformPostId) !== evaluation.sourceUrl ||
     row.id !== expectedId
   ) {
     throw rowError(row, "has incomplete or mismatched recovery provenance");
   }
+  assertRecoveryReceipt(row, provenance);
   if (
     row?.review_state !== "verified" ||
     row?.linkStatus !== "verified" ||
@@ -197,6 +257,34 @@ function assertCandidateTrust(row, evaluation, candidateObservedAt) {
   ];
   if (!requiredSignals.every((signal) => row?.attributionSignals?.includes(signal))) {
     throw rowError(row, "is missing first-party attribution signals");
+  }
+}
+
+function assertRecoveryReceipt(row, provenance) {
+  let receipt;
+  try {
+    receipt = JSON.parse(String(row?.rawVisibleText ?? ""));
+  } catch {
+    throw rowError(row, "is missing a machine-verifiable recovery receipt");
+  }
+  if (!receipt || typeof receipt !== "object" || Array.isArray(receipt)) {
+    throw rowError(row, "has an invalid recovery receipt");
+  }
+  const receiptObservedAt = Date.parse(String(receipt.observedAt ?? ""));
+  if (
+    receipt.recovery !== "first_party_authored_post" ||
+    String(receipt.sourceEvidenceId ?? "") !== String(provenance.sourceEvidenceId) ||
+    String(receipt.sourcePath ?? "") !== String(provenance.sourcePath) ||
+    String(receipt.sourceKind ?? "") !== String(provenance.sourceKind) ||
+    normalizeUrl(receipt.officialWebsiteUrl) !== normalizeUrl(provenance.officialWebsiteUrl) ||
+    String(receipt.officialHost ?? "") !== String(provenance.officialHost) ||
+    String(receipt.title ?? "") !== String(row?.title ?? "") ||
+    String(receipt.postedAt ?? "") !== String(row?.postedAt ?? "") ||
+    receipt.zeroEngagementAccepted !== true ||
+    !Number.isFinite(receiptObservedAt) ||
+    receiptObservedAt !== Date.parse(String(row?.first_seen_at ?? ""))
+  ) {
+    throw rowError(row, "has a mismatched recovery receipt");
   }
 }
 

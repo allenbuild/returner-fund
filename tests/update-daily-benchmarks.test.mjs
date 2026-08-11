@@ -416,6 +416,34 @@ describe("daily benchmark updater", () => {
     expect(next.daily[1].scoringModelVersion).toBe("4.2.0");
   });
 
+  it("repairs a same-day entry whose graph input belongs to the previous Central day", () => {
+    const recordedAt = new Date("2026-07-17T05:05:00.000Z");
+    const stale = {
+      recordedAt: recordedAt.toISOString(),
+      scoringModelVersion: "4.2.0",
+      inputGeneratedAt: "2026-07-17T04:59:59.000Z",
+      companies: [{ companyId: "stale", companyName: "Stale", score: 1, rank: 1 }]
+    };
+    const store = {
+      version: 1,
+      batchSlug: "S2026",
+      updatedAt: stale.recordedAt,
+      daily: [stale],
+      weekly: []
+    };
+    const graph = graphFor(BATCH_SNAPSHOTS[0], new Date("2026-07-17T05:04:00.000Z"));
+
+    const next = appendObservedBenchmarkSnapshot(store, graph, recordedAt);
+
+    expect(next.daily).toHaveLength(1);
+    expect(next.daily[0]).toMatchObject({
+      recordedAt: recordedAt.toISOString(),
+      inputGeneratedAt: "2026-07-17T05:04:00.000Z",
+      scoringModelVersion: "4.2.0"
+    });
+    expect(next.daily[0]).not.toEqual(stale);
+  });
+
   it("aborts a graph fetch that exceeds its timeout", async () => {
     const server = http.createServer((_request, response) => {
       setTimeout(() => {

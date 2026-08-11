@@ -5,8 +5,8 @@
     "slug": "applied-electrodynamics-inc",
     "name": "Applied Electrodynamics, Inc."
   },
-  "generatedAt": "2026-08-11T06:00:14.057Z",
-  "lastModifiedAt": "2026-08-11T06:00:14.057Z",
+  "generatedAt": "2026-08-11T12:29:30.899Z",
+  "lastModifiedAt": "2026-08-11T12:29:30.899Z",
   "events": [
     {
       "id": "tle-50f4bc84f8e802ef1df8f138",
@@ -47,7 +47,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-08-11T06:00:14.057Z"
+    "lastSuccessfulArtifactAt": "2026-08-11T12:29:30.899Z"
   },
   "nextCursor": null
 }

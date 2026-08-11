@@ -1,7 +1,10 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { planFirstPartyAuthoredPostPromotion } from "../scripts/lib/first-party-authored-post-promotion.mjs";
+import {
+  buildVerifiedFirstPartyContextEvidenceValidator,
+  planFirstPartyAuthoredPostPromotion
+} from "../scripts/lib/first-party-authored-post-promotion.mjs";
 import { authoredContentFingerprint, sha256 } from "../scripts/lib/first-party-authored-post-recovery.mjs";
 
 test("appends verified first-party posts, keeps them unscored, and resolves exact review URLs", () => {
@@ -60,6 +63,52 @@ test("rejects candidate row timestamps beyond the trusted generation time", () =
   );
 });
 
+test("autonomous context preservation reuses promotion trust and current roster ownership", () => {
+  assert.throws(() => buildVerifiedFirstPartyContextEvidenceValidator({
+    graphDocuments: [graphDocument()],
+    observedAt: "2026-08-09T12:00:00.000Z",
+    now: new Date("2026-08-09T12:00:00.000Z")
+  }), /current roster resolver is required/i);
+
+  const validator = buildVerifiedFirstPartyContextEvidenceValidator({
+    graphDocuments: [graphDocument()],
+    currentRosterResolver: rosterResolver(),
+    observedAt: "2026-08-09T12:00:00.000Z",
+    now: new Date("2026-08-09T12:00:00.000Z")
+  });
+  const trusted = candidateRow();
+
+  assert.equal(validator(trusted), true);
+  assert.equal(validator({
+    ...trusted,
+    platformPostId: "https://example.com/blog/another-post"
+  }), false);
+  assert.equal(validator({
+    ...trusted,
+    _recoveryProvenance: {
+      ...trusted._recoveryProvenance,
+      contentSha256: "0".repeat(64)
+    }
+  }), false);
+  assert.equal(validator({
+    ...trusted,
+    rawVisibleText: JSON.stringify({
+      ...JSON.parse(trusted.rawVisibleText),
+      sourceEvidenceId: "first-party-web-forged"
+    })
+  }), false);
+  assert.equal(validator({
+    ...trusted,
+    platform: "rss"
+  }), false);
+  assert.equal(buildVerifiedFirstPartyContextEvidenceValidator({
+    graphDocuments: [graphDocument()],
+    currentRosterResolver: rosterResolver({ websiteUrl: "https://drift.example/" }),
+    observedAt: "2026-08-09T12:00:00.000Z",
+    now: new Date("2026-08-09T12:00:00.000Z")
+  })(trusted), false);
+});
+
 function makePlan(canonical, evidence, extraReferences = [], candidateOverrides = {}) {
   return planFirstPartyAuthoredPostPromotion({
     canonical,
@@ -106,18 +155,34 @@ function candidateRow(overrides = {}) {
       "exact_current_official_domain",
       "stable_authored_item_url",
       "title_text_date_provenance"
-    ]
+    ],
+    ...overrides
   };
   row._recoveryProvenance = {
     schemaVersion: 1,
     sourcePath: "history.json",
     sourceKind: "repository_history",
+    sourceEvidenceId: row.id,
     officialWebsiteUrl: "https://example.com/",
     officialHost: "example.com",
-    contentSha256: authoredContentFingerprint(row),
-    zeroEngagementAccepted: true
+    zeroEngagementAccepted: true,
+    ...(overrides._recoveryProvenance ?? {})
   };
-  return { ...row, ...overrides };
+  row.rawVisibleText = overrides.rawVisibleText ?? JSON.stringify({
+    observedAt: row.first_seen_at,
+    officialHost: row._recoveryProvenance.officialHost,
+    officialWebsiteUrl: row._recoveryProvenance.officialWebsiteUrl,
+    postedAt: row.postedAt,
+    recovery: "first_party_authored_post",
+    sourceEvidenceId: row._recoveryProvenance.sourceEvidenceId,
+    sourceKind: row._recoveryProvenance.sourceKind,
+    sourcePath: row._recoveryProvenance.sourcePath,
+    title: row.title,
+    zeroEngagementAccepted: true
+  }, null, 2);
+  row._recoveryProvenance.contentSha256 =
+    overrides._recoveryProvenance?.contentSha256 ?? authoredContentFingerprint(row);
+  return row;
 }
 
 function candidateId(sourceUrl) {
@@ -139,6 +204,17 @@ function snapshot(evidence = [], needsReview = []) {
 
 function reviewRow(sourceUrl) {
   return { id: `review-${sourceUrl}`, platform: "web", sourceUrl, review_state: "needs_review" };
+}
+
+function rosterResolver({ websiteUrl = "https://example.com/" } = {}) {
+  return {
+    companyForRow: () => ({
+      batchSlug: "S2026",
+      entityId: "company-example",
+      companyEntityId: "company-example",
+      company: { name: "Example", websiteUrl }
+    })
+  };
 }
 
 function graphDocument() {

@@ -119,6 +119,14 @@ async function fixtureRoot() {
     path.join(rootDir, "outputs", "benchmarks", "s2026-score-benchmarks.json"),
     benchmarkFixture()
   );
+  await writeJson(
+    path.join(rootDir, "outputs", "benchmarks", "daily-publication-receipt.json"),
+    {
+      schemaVersion: 1,
+      kind: "daily-score-benchmark-publication",
+      slotKey: "daily-benchmark-2026-07-18"
+    }
+  );
   return rootDir;
 }
 

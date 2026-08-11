@@ -2395,7 +2395,11 @@ async function buildInputHashManifest() {
         ["package.json", "tsconfig.json"].includes(path.basename(filePath)))
       .map((filePath) => ({ filePath, path: codeRelativePath(filePath), provenance: "pinned_code" })),
     ...sortedUnique(dataFiles)
-      .filter((filePath) => filePath.endsWith(".json"))
+      .filter(
+        (filePath) =>
+          filePath.endsWith(".json") &&
+          filePath !== path.join(DATA_ROOT, "public", "graph", "manifest.json")
+      )
       .map((filePath) => ({ filePath, path: dataRelativePath(filePath), provenance: "publication_data" }))
   ];
   const entries = [];

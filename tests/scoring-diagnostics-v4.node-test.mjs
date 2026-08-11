@@ -158,6 +158,12 @@ test(
         (entry) => entry.path === "scripts/lib/scoring-audit-bounded-artifact.mjs"
       )
     );
+    assert.equal(
+      audit.metadata.input_hashes.files.some(
+        (entry) => entry.path === "public/graph/manifest.json"
+      ),
+      false
+    );
     for (const category of ["identity", "scoring", "calibration", "confidence"]) {
       assert.ok(versionedInputs.parameter_category_hashes[category].parameter_count > 0);
       assert.match(

@@ -1662,7 +1662,8 @@ export function mergePublicEvidenceSnapshots(
     resolveBatchSlug = null,
     resolveNativeAuthor = null,
     contentIdentityReferenceRows = [],
-    allowVerifiedMetriclessEvidence = null
+    allowVerifiedMetriclessEvidence = null,
+    allowVerifiedContextEvidence = null
   } = {}
 ) {
   const acceptedEvidence = [];
@@ -1673,6 +1674,16 @@ export function mergePublicEvidenceSnapshots(
     reconciliationCandidates.push(...(snapshot.attributionReconciliationLedger ?? []));
     for (const sourceRow of snapshot.evidence ?? []) {
       const originalRow = withSnapshotRowBatch(sourceRow, snapshot, resolveBatchSlug);
+      // Promotion receipts bind to the exact persisted row. Resolve their
+      // exceptions before replay refreshes native-author metadata; otherwise
+      // a fresh canonical resolver can overwrite receipt fields and silently
+      // re-quarantine an already accepted metricless row.
+      const verifiedMetriclessEvidence =
+        typeof allowVerifiedMetriclessEvidence === "function" &&
+        allowVerifiedMetriclessEvidence(originalRow, { snapshot });
+      const verifiedContextEvidence =
+        typeof allowVerifiedContextEvidence === "function" &&
+        allowVerifiedContextEvidence(originalRow, { snapshot });
       const freshNativeAuthorResolution = typeof resolveNativeAuthor === "function"
         ? resolveNativeAuthor(originalRow)
         : null;
@@ -1697,21 +1708,35 @@ export function mergePublicEvidenceSnapshots(
         ? applyResolvedNativeAuthor(originalRow, nativeAuthorResolution)
         : nativeResolutionRow;
       const row = companySubjectReassignment?.row ?? nativeResolvedRow;
+      const promotionAttributionStable = samePublicAttribution(
+        publicAttribution(originalRow),
+        publicAttribution(row)
+      );
+      const preserveVerifiedPromotionRow = promotionAttributionStable &&
+        (verifiedMetriclessEvidence || verifiedContextEvidence);
       const validation = validateMergedPublicEvidence(row, {
         resolveNativeAuthor,
         nativeAuthorResolution,
-        allowVerifiedMetriclessEvidence
+        verifiedMetriclessEvidence: promotionAttributionStable && verifiedMetriclessEvidence,
+        verifiedContextEvidence: promotionAttributionStable && verifiedContextEvidence
       });
       if (validation.ok) {
-        acceptedEvidence.push(validation.row);
+        // Signed promotion rows are append-only receipts. Current resolver
+        // checks still run above, but a same-owner replay must not rewrite the
+        // exact URL, native-author receipt, provenance, or trust signals that
+        // the promotion gate cryptographically validated.
+        const acceptedRow = preserveVerifiedPromotionRow
+          ? originalRow
+          : validation.row;
+        acceptedEvidence.push(acceptedRow);
         acceptedOrigins.set(reconciliationPhysicalAttributionIdentity(
-          reconciliationPhysicalIdentity(validation.row),
-          publicAttribution(validation.row)
+          reconciliationPhysicalIdentity(acceptedRow),
+          publicAttribution(acceptedRow)
         ), originalRow);
-        if (!samePublicAttribution(publicAttribution(originalRow), publicAttribution(validation.row))) {
+        if (!samePublicAttribution(publicAttribution(originalRow), publicAttribution(acceptedRow))) {
           reconciliationCandidates.push(reconciliationCandidate(
             originalRow,
-            validation.row,
+            acceptedRow,
             "reattributed",
             companySubjectReassignment?.reason ??
               nativeAuthorResolution?.reason ??
@@ -1866,7 +1891,7 @@ export function mergePublicEvidenceSnapshots(
           ? "Generated export only; this run also imported validated evidence into durable Supabase tables."
           : "Durable Supabase import was skipped because complete optional credentials were not configured; this export is file-backed.",
         "Accepted rows are batch-scoped and deduplicated by entity attribution plus strict platform-native physical post identity before publication.",
-        "Unsupported, non-native, metricless, unverified, invalid-link, and identity-conflicting rows are preserved in needsReview with exact quarantine reasons."
+        "Unsupported, non-native, metricless, unverified, invalid-link, and identity-conflicting rows are preserved in needsReview with exact quarantine reasons; separately verified zero-score first-party context retains its canonical URL identity."
       ]
     },
     evidence,
@@ -2507,7 +2532,9 @@ function evidenceKey(row) {
   const platform = normalizePlatform(row.platform ?? "other");
   const entityId = evidenceEntityAttribution(row);
   const physicalIdentity = mergedPublicEvidenceIdentity(platform, row);
-  return `${rowBatchScope(row)}:${entityId}:${platform}:post:${physicalIdentity.urlId ?? physicalIdentity.explicitId}`;
+  const stableIdentity = physicalIdentity.urlId ?? physicalIdentity.explicitId ??
+    canonicalUrl(row.sourceUrl ?? row.canonicalUrl ?? row.url);
+  return `${rowBatchScope(row)}:${entityId}:${platform}:post:${stableIdentity}`;
 }
 
 function reconcileMergedPublicContentIdentities(rows, referenceRows, resolveBatchSlug) {
@@ -2936,7 +2963,8 @@ function validateMergedPublicEvidence(
   {
     resolveNativeAuthor = null,
     nativeAuthorResolution = null,
-    allowVerifiedMetriclessEvidence = null
+    verifiedMetriclessEvidence = false,
+    verifiedContextEvidence = false
   } = {}
 ) {
   const platform = normalizePlatform(row.platform ?? "");
@@ -2946,11 +2974,16 @@ function validateMergedPublicEvidence(
   const reasons = [];
   let attributionFailure = false;
   let reconciliationEligible = false;
+  const verifiedContextException = verifiedContextEvidence === true;
 
   if (!row?.batchSlug && !row?.batch_slug) reasons.push("missing_or_ambiguous_batch_scope");
-  if (!MERGED_PUBLIC_SCORING_METRICS[platform]) reasons.push(`unsupported_platform:${platform || "missing"}`);
+  if (!MERGED_PUBLIC_SCORING_METRICS[platform] && !verifiedContextException) {
+    reasons.push(`unsupported_platform:${platform || "missing"}`);
+  }
   if (!sourceUrl) reasons.push("invalid_url");
-  if (sourceUrl && !identity.urlId) reasons.push("not_native_activity_url");
+  if (sourceUrl && !identity.urlId && !verifiedContextException) {
+    reasons.push("not_native_activity_url");
+  }
   if (identity.conflict) {
     reasons.push(`native_id_conflict:url=${identity.urlId};explicit=${identity.explicitId}`);
   }
@@ -2964,10 +2997,13 @@ function validateMergedPublicEvidence(
       row.linkedinParentMetricReceipt.reason ?? "linkedin_parent_engagement_not_structurally_verified"
     );
   }
-  const verifiedMetriclessException = !metricValidation.hasPositiveScoringMetric &&
-    typeof allowVerifiedMetriclessEvidence === "function" &&
-    allowVerifiedMetriclessEvidence(row);
-  if (!metricValidation.hasPositiveScoringMetric && !verifiedMetriclessException) {
+  const verifiedMetriclessException =
+    !metricValidation.hasPositiveScoringMetric && verifiedMetriclessEvidence === true;
+  if (
+    !metricValidation.hasPositiveScoringMetric &&
+    !verifiedMetriclessException &&
+    !verifiedContextException
+  ) {
     reasons.push("no_visible_positive_scoring_metrics");
   }
 
@@ -3007,8 +3043,8 @@ function validateMergedPublicEvidence(
       ...row,
       platform,
       sourceUrl,
-      platformPostId: identity.urlId,
-      ...(semanticAttribution
+      platformPostId: verifiedContextException ? sourceUrl : identity.urlId,
+      ...(semanticAttribution && !verifiedContextException
         ? {
             attributionVersion: Math.max(
               PUBLIC_EVIDENCE_ATTRIBUTION_VERSION,
