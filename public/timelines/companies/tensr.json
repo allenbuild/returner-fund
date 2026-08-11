@@ -1,0 +1,18 @@
+{
+  "schemaVersion": "company-timeline.v1",
+  "company": {
+    "id": "company-tensr",
+    "slug": "tensr",
+    "name": "Tensr"
+  },
+  "generatedAt": "2026-08-11T14:56:47.396Z",
+  "lastModifiedAt": "2026-08-11T14:56:47.396Z",
+  "events": [],
+  "groups": [],
+  "coverage": {
+    "status": "partial",
+    "publishedEventCount": 0,
+    "lastSuccessfulArtifactAt": "2026-08-11T14:56:47.396Z"
+  },
+  "nextCursor": null
+}

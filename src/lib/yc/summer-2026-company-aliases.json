@@ -312,6 +312,40 @@
           "https://x.com/theophorus7"
         ]
       }
+    },
+    {
+      "companyId": "32749",
+      "companySlug": "arbital",
+      "companyName": "Arbital",
+      "founderId": "531306",
+      "change": "added",
+      "fromName": null,
+      "toName": "Karon Pangestu",
+      "accounts": {
+        "linkedin": [
+          "https://www.linkedin.com/in/pangestukaron/"
+        ],
+        "x": [
+          "https://x.com/pangestu_karon"
+        ]
+      }
+    },
+    {
+      "companyId": "32913",
+      "companySlug": "pacific",
+      "companyName": "Pacific",
+      "founderId": "3218344",
+      "change": "added",
+      "fromName": null,
+      "toName": "Harper Dammann Smith",
+      "accounts": {
+        "linkedin": [
+          "https://www.linkedin.com/in/harper-dammann-smith/"
+        ],
+        "x": [
+          "https://x.com/harperdammann?s=21"
+        ]
+      }
     }
   ]
 }

@@ -4,9 +4,9 @@
     "directoryUrl": "https://www.ycombinator.com/companies?batch=Summer%202026",
     "algoliaIndex": "YCCompany_production",
     "algoliaFilter": "batch:\"Summer 2026\"",
-    "fetchedAt": "2026-08-10T11:18:11.066Z",
-    "expectedCompanyCount": 194,
-    "observedCompanyCount": 194,
+    "fetchedAt": "2026-08-11T13:57:16.961Z",
+    "expectedCompanyCount": 197,
+    "observedCompanyCount": 197,
     "minimumCompanyCount": 167,
     "notes": [
       "Generated from public, unauthenticated YC pages.",
@@ -687,7 +687,7 @@
           "id": "2352421",
           "name": "Dylan Kelly",
           "title": "Founder",
-          "bio": "CEO @ Amorphic Labs. CS @ Georgia Tech, prev. quant trading intern @ UBS. WSDC 2022 finalist & 8th best speaker, 2x Team China.",
+          "bio": "Founder & CEO @ Amorphic Labs. CS @ Georgia Tech, prev. Quant Trading intern @ UBS. World Schools Debating Championship 2022 finalist & 8th best speaker, 2x National Team Debater, co-author of NeurIPS paper.",
           "ycProfileUrl": "https://www.ycombinator.com/people/dylan-kelly",
           "socialLinks": {
             "linkedin": "https://www.linkedin.com/in/dylankelly04/",
@@ -698,7 +698,7 @@
           "id": "2599670",
           "name": "Frank Li",
           "title": "Founder",
-          "bio": "CTO @ Amorphic Labs. Ex-OpenAI, Two Sigma, NVIDIA, Amazon.",
+          "bio": "Founder & CTO @ Amorphic Labs. Prev. Member of Technical Staff & Project Lead @ OpenAI, Auto-vehicle ML infra @ NVIDIA, Quant Dev @ Two Sigma, and Amazon. First open-source contribution at 15. CS @ UW Seattle.",
           "ycProfileUrl": "https://www.ycombinator.com/people/frank-li",
           "socialLinks": {
             "linkedin": "https://www.linkedin.com/in/anglifrank"
@@ -862,7 +862,7 @@
       "ycProfileUrl": "https://www.ycombinator.com/companies/arbital",
       "websiteUrl": "https://www.arbital.xyz",
       "tagline": "The trading terminal for perps, memes, and stocks.",
-      "description": "Arbital is a trading terminal for perps, memes, and stocks. In our first 7 months, 2,400 traders have traded $1.2B in volume through Arbital, and we're now doing $300M/month.\r\n\r\nWe're building towards a social, mobile-first trading app that brings tokenized equities, crypto, and perps to everyone.",
+      "description": "Arbital lets you trade perps, memes, stocks, and run market-making strategies from one place. In our first 7 months, 2,600 traders have traded $1.3B in volume through Arbital, and we're now doing $377M/month. \r\n\r\nWe're building towards a social, mobile-first trading app that brings tokenized equities, crypto, and perps to everyone.",
       "industry": "Fintech",
       "subindustry": "Fintech -> Consumer Finance",
       "industries": [
@@ -870,9 +870,11 @@
         "Consumer Finance"
       ],
       "tags": [
-        "DeFi",
+        "Fintech",
         "Crypto / Web3",
-        "Trading"
+        "Investing",
+        "Trading",
+        "AI"
       ],
       "location": "Singapore, Singapore",
       "teamSize": 3,
@@ -884,6 +886,17 @@
         "x": "https://x.com/arbital_xyz"
       },
       "founders": [
+        {
+          "id": "531306",
+          "name": "Karon Pangestu",
+          "title": "Founder",
+          "bio": "Co-founder at Arbital. Head of Growth and first non-engineering hire at Aevo, where I led growth, marketing, and product - helping scale the exchange from $1B to ~$100B in cumulative trading volume, and growing DAU from 1K to 30K in five months. Helped take the company public via token launch (token now listed on Binance and Bybit, ~$3.8B ATH valuation). Previously co-founded Launchy, a crypto media platform reaching 20K+ builders and investors. BA in Mathematics & Statistics, LSE.",
+          "ycProfileUrl": "https://www.ycombinator.com/people/karon-pangestu",
+          "socialLinks": {
+            "linkedin": "https://www.linkedin.com/in/pangestukaron/",
+            "x": "https://x.com/pangestu_karon"
+          }
+        },
         {
           "id": "3674258",
           "name": "Steven Mulyawan",
@@ -1326,7 +1339,7 @@
           "id": "3632034",
           "name": "Magnus Vonen",
           "title": "Founder",
-          "bio": "Founder at Audun (YC S26), building AI-native debt collection. Previously at McKinsey & Company, advising on go-to-market strategy and AI. Before that, four years as an operator in Norwegian elite forces, including overseas deployments. Economics at NHH (Norwegian School of Economics)",
+          "bio": "Founder at Audun (YC S26), building AI-native debt collection. Previously at McKinsey & Company, advising on go-to-market strategy and AI. Before that, four years as an operator in Norwegian special forces, including overseas deployments. Economics at NHH (Norwegian School of Economics)",
           "ycProfileUrl": "https://www.ycombinator.com/people/magnus-vonen",
           "socialLinks": {
             "linkedin": "https://www.linkedin.com/in/magnus-nj%C3%B8lstad-vonen-518945208"
@@ -1518,7 +1531,7 @@
       "ycProfileUrl": "https://www.ycombinator.com/companies/belvedir",
       "websiteUrl": "https://belvedir.ai/",
       "tagline": "The easiest way to make private AI models.",
-      "description": "Private AI models are going to win. Belvedir is the infrastructure needed to make billions of them.\r\n\r\nBelvedir makes it cheap and easy for anyone to make private AI. Just connect us to your agent traces through our SDK and we can autonomously train custom models + harnesses + routers, privately host them, and recursively improve them as they are used. Our customers have seen up to 10x reductions in inference costs and 2x increases on benchmark scores.",
+      "description": "Private AI models are going to win. Belvedir is the infrastructure needed to make trillions of them.\r\n\r\nBelvedir makes it cheap and easy for anyone to make private AI. Just connect us to your agent traces through our SDK and we can autonomously train custom models + harnesses + routers, privately host them, and recursively improve them as they are used. Our customers have seen up to 10x reductions in inference costs and 2x increases on benchmark scores.",
       "industry": "B2B",
       "subindustry": "B2B",
       "industries": [
@@ -3644,7 +3657,7 @@
       "ycProfileUrl": "https://www.ycombinator.com/companies/exosat",
       "websiteUrl": "https://www.exosat.com",
       "tagline": "Building a sovereign Starlink",
-      "description": "Exosat is building thousands of low-cost communication satellites to provide a neutral, sovereign alternative to Starlink. By building our satellites with zero ITAR/EAR-controlled content, we can leverage manufacturers anywhere in the world to produce our satellites at under a tenth of the cost and launch them from any nation to bypass launch capacity bottlenecks.\r\n\r\nWe're starting off by selling connectivity to device OEMs and network operators, but will eventually use the distributed compute across our constellation to run low-latency inference for robots and autonomous vehicles in remote and rural areas anywhere on the planet.\r\n\r\nWe've already signed $400M+ in LOIs to work with operators across Central Asia, Southeast Asia, and the Middle East, booked our first satellite launch next year, and hold an 11,000 satellite filing with the ITU to build the largest comms network outside of the U.S. and China.",
+      "description": "Exosat is building thousands of low-cost communication satellites to provide a neutral, sovereign alternative to Starlink. By designing our satellites with zero ITAR/EAR-controlled content, we can leverage manufacturers anywhere in the world to produce our satellites at under a tenth of the cost and launch them from other nations to bypass capacity bottlenecks and access equatorial orbits. \r\n\r\nWe're starting off by selling connectivity to device OEMs and network operators, but will eventually use the distributed compute across our constellation to run low-latency inference for robots and autonomous vehicles in remote and rural areas anywhere on the planet.\r\n\r\nWe've already signed hundreds of millions in LOIs to work with operators across Central Asia, Southeast Asia, and the Middle East, booked our first satellite launch next year, and hold an 11,000 satellite filing with the ITU to build the largest comms network outside of the U.S. and China.",
       "industry": "Industrials",
       "subindustry": "Industrials -> Aviation and Space",
       "industries": [
@@ -3803,6 +3816,54 @@
       "launch": null,
       "sourceUrls": [
         "https://www.ycombinator.com/companies/fabraix",
+        "https://www.ycombinator.com/companies?batch=Summer%202026"
+      ]
+    },
+    {
+      "id": "32816",
+      "objectID": "32816",
+      "slug": "financial-datasets",
+      "name": "Financial Datasets",
+      "batch": "Summer 2026",
+      "ycProfileUrl": "https://www.ycombinator.com/companies/financial-datasets",
+      "websiteUrl": "https://financialdatasets.ai/",
+      "tagline": "Connect your agent to the stock market ",
+      "description": "Financial Datasets is the best way to connect your agent to real-time stock market data: fundamentals, filings, ownership, earnings, KPIs, prices, and more.\r\n\r\nNew data is available within seconds of publication. We are a primary-source provider of financial data. Statements, filings, and disclosures are collected, parsed, and served by us directly.",
+      "industry": "B2B",
+      "subindustry": "B2B",
+      "industries": [
+        "B2B"
+      ],
+      "tags": [
+        "Artificial Intelligence",
+        "Fintech",
+        "Stocks"
+      ],
+      "location": "New York City, NY",
+      "teamSize": 1,
+      "status": "Active",
+      "groupPartner": "Brad Flora",
+      "groupPartnerUrl": "https://www.ycombinator.com/people/brad-flora",
+      "socialLinks": {
+        "linkedin": "https://www.linkedin.com/company/financial-datasets",
+        "x": "https://x.com/findatasets"
+      },
+      "founders": [
+        {
+          "id": "2001420",
+          "name": "Virat Singh",
+          "title": "Founder",
+          "bio": "Founder at Financial Datasets (YC S26). Previously tech lead at Faire, building listing quality recommendations and shipping experience. Earlier software engineer at Airbnb (Payments, Experiences, Search), Acorns, GoPro, and Sony. Started career in buy-side M&A at Gateway Partners. BA Economics, UC San Diego.",
+          "ycProfileUrl": "https://www.ycombinator.com/people/virat-singh",
+          "socialLinks": {
+            "linkedin": "https://www.linkedin.com/in/singhvirat/",
+            "x": "http://twitter.com/virattt"
+          }
+        }
+      ],
+      "launch": null,
+      "sourceUrls": [
+        "https://www.ycombinator.com/companies/financial-datasets",
         "https://www.ycombinator.com/companies?batch=Summer%202026"
       ]
     },
@@ -5093,8 +5154,8 @@
       "batch": "Summer 2026",
       "ycProfileUrl": "https://www.ycombinator.com/companies/inkbox",
       "websiteUrl": "https://inkbox.ai",
-      "tagline": "Give your AI agents email, phone, iMessage and an internet address",
-      "description": "We are building the identity and communication layer for AI agents: giving agents their own email, phone, iMessage, and internet address. Every interaction flows through Inkbox, so agents are enhanced with multi-channel context.",
+      "tagline": "Let your agents communicate via email, phone, iMessage, & Agent2Agent",
+      "description": "For your AI agents to behave like teammates, we give them persistent identities with their own email, phone, and iMessage. We also provide them an agent-to-agent channel, so they can communicate for task delegation.",
       "industry": "B2B",
       "subindustry": "B2B -> Infrastructure",
       "industries": [
@@ -6461,17 +6522,6 @@
       },
       "founders": [
         {
-          "id": "2921049",
-          "name": "Harish Ashok",
-          "title": "Founder",
-          "bio": "Co-Founder at Markov. Previously founded Zenith, a robotics company building AI-assisted hardware workflow tools. ",
-          "ycProfileUrl": "https://www.ycombinator.com/people/harish-ashok",
-          "socialLinks": {
-            "linkedin": "https://www.linkedin.com/in/harish-ashok",
-            "x": "https://x.com/habril27"
-          }
-        },
-        {
           "id": "1783684",
           "name": "Dev Mandal",
           "title": "Founder",
@@ -6480,6 +6530,17 @@
           "socialLinks": {
             "linkedin": "https://www.linkedin.com/in/dev-mandal-iitm/",
             "x": "https://x.com/DevvMandal"
+          }
+        },
+        {
+          "id": "2921049",
+          "name": "Harish Ashok",
+          "title": "Founder",
+          "bio": "Co-Founder at Markov. Previously founded Zenith, a robotics company building AI-assisted hardware workflow tools. ",
+          "ycProfileUrl": "https://www.ycombinator.com/people/harish-ashok",
+          "socialLinks": {
+            "linkedin": "https://www.linkedin.com/in/harish-ashok",
+            "x": "https://x.com/habril27"
           }
         }
       ],
@@ -6724,7 +6785,7 @@
           "id": "3680004",
           "name": "Xiaochuan Yu",
           "title": "Founder",
-          "bio": "Founder at Nebula Security (YC S26). Hacked into iPhone, Chrome, Firefox, Safari, QEMU, and various things in your daily life. DEFCON finalist for 3 consecutive years. $200k+ Bug Bounty in Chrome. Core member of r3kapig, the #1 hacking team in the world in 2025, on CTFTime. M.S. from UC San Diego. Research published at USENIX Security, BlackHat. Ph.D. droped out. ",
+          "bio": "Founder at Nebula Security (YC S26). Hacked into iPhone, Chrome, Firefox, Safari, QEMU, and various things in your daily life. DEFCON finalist for 3 consecutive years. $200k+ Bug Bounty in Chrome. Core member of r3kapig, the #1 hacking team in the world in 2025, on CTFTime. M.S. from UC San Diego. Research published at USENIX Security, BlackHat USA. Ph.D. droped out. ",
           "ycProfileUrl": "https://www.ycombinator.com/people/xiaochuan-yu",
           "socialLinks": {
             "linkedin": "https://www.linkedin.com/in/xiaochuan-yu-3103a5297",
@@ -7663,7 +7724,7 @@
       "batch": "Summer 2026",
       "ycProfileUrl": "https://www.ycombinator.com/companies/pacific",
       "websiteUrl": "https://gopacific.ai/",
-      "tagline": "Micro data centers for the harshest places on Earth and in space.",
+      "tagline": "Mass-producing and deploying micro data centers for Earth and Space",
       "description": "We mass-produce modular data centers that deploy on stalled infrastructure projects losing billions per week.\r\n\r\nDelayed infrastructure projects hemorrhage $1B a week in the US alone - Pacific mass-produces modular data centers that deploy on those sites in days and turn their unused power into revenue.\r\n\r\nData centers are stuck for years waiting for power, while delayed construction sites across the world sit on unused interconnects, losing billions of dollars per week in interest on trillions of dollars of debt. Our pods deploy on those sites and generate revenue for them in days. They use diamond wafers in the cooling system so pods run anywhere on earth, even a desert. \r\n\r\nWe'll use the same mechanisms we're building today to deploy compute across the galaxy.\r\n",
       "industry": "Industrials",
       "subindustry": "Industrials",
@@ -7671,11 +7732,11 @@
         "Industrials"
       ],
       "tags": [
+        "Artificial Intelligence",
         "Fintech",
         "Robotics",
         "Space Exploration",
-        "Manufacturing",
-        "AI"
+        "Manufacturing"
       ],
       "location": "London, United Kingdom",
       "teamSize": 2,
@@ -7685,7 +7746,19 @@
       "socialLinks": {
         "linkedin": "https://www.linkedin.com/company/pacific-compute"
       },
-      "founders": [],
+      "founders": [
+        {
+          "id": "3218344",
+          "name": "Harper Dammann Smith",
+          "title": "Founder",
+          "bio": "Founder and CEO of Pacific - Grew my drone startup to $1M in revenue at 18; left school to shoot expeditions for Red Bull on 7,000m peaks. Studied aerospace engineering; dropped out after selling my first company. Now mass producing modular data centers that deploy in days turning unused power into Ai factories.\n\nI'll go to space one day.\n",
+          "ycProfileUrl": "https://www.ycombinator.com/people/harper-dammann-smith",
+          "socialLinks": {
+            "linkedin": "https://www.linkedin.com/in/harper-dammann-smith/",
+            "x": "https://x.com/harperdammann?s=21"
+          }
+        }
+      ],
       "launch": null,
       "sourceUrls": [
         "https://www.ycombinator.com/companies/pacific",
@@ -10207,6 +10280,78 @@
       ]
     },
     {
+      "id": "30904",
+      "objectID": "30904",
+      "slug": "tensr",
+      "name": "Tensr",
+      "batch": "Summer 2026",
+      "ycProfileUrl": "https://www.ycombinator.com/companies/tensr",
+      "websiteUrl": "https://tensr.com/",
+      "tagline": "Fully autonomous robotic factories",
+      "description": "Robotic factories that build robotics in the US.\r\n\r\nWe’re a group of Berkeley graduate robotics researchers who previously won a full scale autonomous IndyCar competition at 160mph.",
+      "industry": "Industrials",
+      "subindustry": "Industrials -> Manufacturing and Robotics",
+      "industries": [
+        "Industrials",
+        "Manufacturing and Robotics"
+      ],
+      "tags": [
+        "Deep Learning",
+        "Hardware",
+        "Robotics",
+        "Automation",
+        "Industrial"
+      ],
+      "location": "San Francisco",
+      "teamSize": 3,
+      "status": "Active",
+      "groupPartner": "Nicolas Dessaigne",
+      "groupPartnerUrl": "https://www.ycombinator.com/people/nicolas-dessaigne",
+      "socialLinks": {
+        "github": "https://github.com/tensr-labs",
+        "linkedin": "https://www.linkedin.com/company/tensrinc/"
+      },
+      "founders": [
+        {
+          "id": "2763027",
+          "name": "Eric Berndt",
+          "title": "Founder",
+          "bio": "Robotic factories that build robots in the US. Prev Robotics researcher @ UC Berkeley where I raced autonomous Indy500 cars at 160mph",
+          "ycProfileUrl": "https://www.ycombinator.com/people/eric-berndt",
+          "socialLinks": {
+            "linkedin": "https://www.linkedin.com/in/ekberndt/",
+            "x": "https://x.com/ekberndt"
+          }
+        },
+        {
+          "id": "916548",
+          "name": "Adith Sundram",
+          "title": "Founder",
+          "bio": "Robotics, ML and Controls @ UC Berkeley",
+          "ycProfileUrl": "https://www.ycombinator.com/people/adith-sundram",
+          "socialLinks": {
+            "linkedin": "https://www.linkedin.com/in/adithsundram"
+          }
+        },
+        {
+          "id": "2763062",
+          "name": "C.K. Wolfe",
+          "title": "Founder",
+          "bio": "Founder, Tensr. CS PhD (AI, Robotics), UC Berkeley. Former Technical Program Manager, UC Berkeley robotics lab under Berkeley AI Research (BAIR). Secured $17M+ in DARPA and industry sponsorship across Stanford and UC Berkeley via AI Racing Tech (2024). Team Manager during top-ranked U.S. league season. Editor-in-Chief of UC Berkeley BAIR’s official AI research publication (BAIR Blog).",
+          "ycProfileUrl": "https://www.ycombinator.com/people/c-k-wolfe",
+          "socialLinks": {
+            "linkedin": "https://www.linkedin.com/in/ckwolfe/",
+            "x": "https://x.com/ckwolfeofficial"
+          }
+        }
+      ],
+      "launch": null,
+      "sourceUrls": [
+        "https://www.ycombinator.com/companies/tensr",
+        "https://www.ycombinator.com/companies?batch=Summer%202026"
+      ]
+    },
+    {
       "id": "31858",
       "objectID": "31858",
       "slug": "torus",
@@ -10489,16 +10634,16 @@
       "ycProfileUrl": "https://www.ycombinator.com/companies/trope",
       "websiteUrl": "https://trope.ai",
       "tagline": "The AI-native ERP system integrator",
-      "description": "Trope is the AI-native system integrator for ERPs. Today, that means the Microsoft ecosystem: we implement Dynamics 365 Business Central, move companies off retiring systems like Dynamics GP and NAV, and run custom AI agents inside the ERP as a managed service.\r\n\r\nAgents carry the mechanical work: configuration, data migration, test cycles, and documentation. It is like having a consultant, project manager, and developer working 24/7. Principal consultants who have delivered 200+ implementations across 20+ years in ERP systems scope the work and sign every gate, so customers get a fixed price quoted at scoping and a go-live measured in weeks, in an industry that runs six to eighteen months on hourly billing.\r\n\r\nAfter go-live, the agents stay. Reconciliations, exception monitoring, reporting, and collections run as a managed service, reviewed against KPIs agreed at scoping. The delivery engine is built in-house.",
+      "description": "Trope is the AI-native ERP system integrator.\r\n\r\nWe accelerate months of hourly implementation work with agent-driven, fixed-fee delivery. Instead of leaving customers with a static system, we deploy AI agents that continue running and improving core business operations after go-live.\r\n\r\nTrope combines AI trained on ERP systems with principal consultants who have delivered 200+ implementations over 20 years. Together, they turn consulting services into software, shifting systems integration from one-time implementations to continuous AI-driven operations.",
       "industry": "B2B",
       "subindustry": "B2B",
       "industries": [
         "B2B"
       ],
       "tags": [
-        "Artificial Intelligence",
         "SaaS",
-        "B2B"
+        "B2B",
+        "AI"
       ],
       "location": "San Francisco",
       "teamSize": 2,
@@ -10514,7 +10659,7 @@
           "id": "2519723",
           "name": "Matthew Chow",
           "title": "Co-Founder",
-          "bio": "Co-Founder at Trope. Previously at Tesla, Zipline, and Schneider Electric. Studied Computer Engineering at UBC.",
+          "bio": "Co-Founder at Trope. Built a solar race car in high school then launched software for the Tesla Cybertruck. Industrial manufacturing software at Generac, Zipline, Schneider Electric. UBC computer engineering grad.",
           "ycProfileUrl": "https://www.ycombinator.com/people/matthew-chow",
           "socialLinks": {
             "linkedin": "https://www.linkedin.com/in/mdchow/",
@@ -10525,7 +10670,7 @@
           "id": "1405446",
           "name": "Victor Vannara",
           "title": "Co-Founder",
-          "bio": "Co-Founder at Trope. Previously at Amazon and A Thinking Ape (YC W08). Studied CS at UBC.",
+          "bio": "Co-Founder at Trope. Deployed AI agents for operations at Amazon. Built Discord bots used by 400k users at 13 years old. UBC computer science grad.",
           "ycProfileUrl": "https://www.ycombinator.com/people/victor-vannara",
           "socialLinks": {
             "linkedin": "https://www.linkedin.com/in/victor-vannara/",
@@ -10909,6 +11054,74 @@
       "launch": null,
       "sourceUrls": [
         "https://www.ycombinator.com/companies/verdant",
+        "https://www.ycombinator.com/companies?batch=Summer%202026"
+      ]
+    },
+    {
+      "id": "33179",
+      "objectID": "33179",
+      "slug": "verdict-machine",
+      "name": "Verdict Machine",
+      "batch": "Summer 2026",
+      "ycProfileUrl": "https://www.ycombinator.com/companies/verdict-machine",
+      "websiteUrl": "https://verdictmachine.com",
+      "tagline": "AI cybersecurity for financial institutions' digital assets",
+      "description": "Verdict Machine uses AI to understand each financial institution's complete on-chain environment, assess its cyber risk and generate tailored controls. The same live model powers transaction prevention, continuous cyber diligence, security posture and cost-efficient wallet screening. Before execution, Verdict Machine evaluates proposed transactions against the institution's active policies.\n\nIn our first weeks, we started POCs with asset managers and digital-asset infrastructure providers whose systems move billions of dollars every week for financial institutions. We're now in active evaluations with digital-asset teams at some of the world's largest banks.\n\nThe founding team launched and led blockchain security at Check Point (NASDAQ: CHKP).",
+      "industry": "B2B",
+      "subindustry": "B2B -> Security",
+      "industries": [
+        "B2B",
+        "Security"
+      ],
+      "tags": [
+        "Crypto / Web3",
+        "Security",
+        "AI"
+      ],
+      "location": "Tel Aviv-Yafo, Israel",
+      "teamSize": 4,
+      "status": "Active",
+      "groupPartner": "Brad Flora",
+      "groupPartnerUrl": "https://www.ycombinator.com/people/brad-flora",
+      "socialLinks": {
+        "github": "https://github.com/verdictm",
+        "linkedin": "https://www.linkedin.com/company/verdict-machine/"
+      },
+      "founders": [
+        {
+          "id": "85721",
+          "name": "Dan Danay",
+          "title": "Founder",
+          "bio": "Co-founder and CEO at Verdict Machine (YC S26). Previously Head of Blockchain Security at Check Point (NASDAQ:CHKP), launching their digital assets division. Founded keyTango (MPC-powered crypto clearing house) and Airmada (YC W16, automated drone stations). MIT Sloan MBA. Captain in Israeli Navy, commanded missile ship and naval electronics school.",
+          "ycProfileUrl": "https://www.ycombinator.com/people/dan-danay",
+          "socialLinks": {
+            "linkedin": "https://www.linkedin.com/in/dandanay/"
+          }
+        },
+        {
+          "id": "3784711",
+          "name": "Isaac Grossman",
+          "title": "Founder",
+          "bio": "Co-founder and CTO at Verdict Machine (YC S26). Previously VP Engineering at Fhenix, where he led development of an FHE-enabled L2, and at SCRT Labs, where he helped scale Secret Network to a top-100 crypto asset. Co-founded keyTango, an MPC-powered crypto clearing house.",
+          "ycProfileUrl": "https://www.ycombinator.com/people/isaac-grossman",
+          "socialLinks": {
+            "linkedin": "https://www.linkedin.com/in/itzik-grossman"
+          }
+        },
+        {
+          "id": "3784793",
+          "name": "Liran Kogan",
+          "title": "CPO, Founder",
+          "bio": "Co-founder and CPO at Verdict Machine (YC S26). Previously launched and led blockchain-security products at Check Point (NASDAQ: CHKP), and led payments and FX products at Payoneer (NASDAQ: PAYO). NYU + INSEAD.",
+          "ycProfileUrl": "https://www.ycombinator.com/people/liran-kogan",
+          "socialLinks": {
+            "linkedin": "https://www.linkedin.com/in/liran-kogan/"
+          }
+        }
+      ],
+      "launch": null,
+      "sourceUrls": [
+        "https://www.ycombinator.com/companies/verdict-machine",
         "https://www.ycombinator.com/companies?batch=Summer%202026"
       ]
     },

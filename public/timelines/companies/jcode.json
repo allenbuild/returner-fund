@@ -5,9 +5,33 @@
     "slug": "jcode",
     "name": "Jcode"
   },
-  "generatedAt": "2026-08-11T12:29:30.899Z",
-  "lastModifiedAt": "2026-08-11T12:29:30.899Z",
+  "generatedAt": "2026-08-11T14:56:47.396Z",
+  "lastModifiedAt": "2026-08-11T14:56:47.396Z",
   "events": [
+    {
+      "id": "tle-7c613701ec03c131906a6ec5",
+      "eventDate": "2026-08-10",
+      "eventDateType": "announcement_date",
+      "title": "Jcode announced its public launch",
+      "summary": "Jcode reported launching today.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-2e8068dfa544a70b33a8e935",
+          "title": "Launching today! http://JCode.sh The number of coding agents you can run at once is capped by the RAM needed. Jcode cuts it 20x. It's op...",
+          "publisher": "bradflora",
+          "domain": "x.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-08-10T18:48:34.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/bradflora/status/2086887448089661660"
+        }
+      ]
+    },
     {
       "id": "tle-6b08950e889fce2edf04331c",
       "eventDate": "2026-07-21",
@@ -38,6 +62,10 @@
       "year": 2026,
       "months": [
         {
+          "month": "2026-08",
+          "count": 1
+        },
+        {
           "month": "2026-07",
           "count": 1
         }
@@ -46,8 +74,8 @@
   ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-08-11T12:29:30.899Z"
+    "publishedEventCount": 2,
+    "lastSuccessfulArtifactAt": "2026-08-11T14:56:47.396Z"
   },
   "nextCursor": null
 }

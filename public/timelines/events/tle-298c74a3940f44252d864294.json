@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-agnost-ai",
+    "slug": "agnost-ai",
+    "name": "Agnost AI"
+  },
+  "event": {
+    "id": "tle-298c74a3940f44252d864294",
+    "eventDate": "2026-08-11",
+    "eventDateType": "announcement_date",
+    "title": "Agnost AI released official Agnost AI SDK",
+    "summary": "Agnost AI introduced official Agnost AI SDK for Langchain agents.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-9c4b1a2d34881b83e77fdf93",
+        "title": "🚨 Introducing official Agnost AI SDK for Langchain agents.",
+        "publisher": "prrthh132",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-08-11T02:28:18.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/prrthh132/status/2087003143091757542"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-9c4b1a2d34881b83e77fdf93",
+        "title": "🚨 Introducing official Agnost AI SDK for Langchain agents.",
+        "publisher": "prrthh132",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-08-11T02:28:18.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/prrthh132/status/2087003143091757542",
+        "publicationDate": "2026-08-11T02:28:18.000Z",
+        "excerpt": "🚨 Introducing official Agnost AI SDK for Langchain agents. Just one line of change, and you get to see all your agent insights right in Agnost. Docs link is in the comments. https://t.co/6FNZISoljB",
+        "sourceEventDate": "2026-08-11",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-da829611df7ea768ec27070f",
+        "platform": "x",
+        "account": "prrthh132",
+        "postDate": "2026-08-11",
+        "excerpt": "🚨 Introducing official Agnost AI SDK for Langchain agents. Just one line of change, and you get to see all your agent insights right in Agnost. Docs link is in the comments. https://t.co/6FNZISoljB",
+        "url": "https://x.com/prrthh132/status/2087003143091757542",
+        "metrics": {
+          "likes": 26,
+          "reposts": 2,
+          "replies": 5,
+          "views": 2455
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-11T14:56:47.396Z",
+  "lastModifiedAt": "2026-08-11T14:56:47.396Z"
+}

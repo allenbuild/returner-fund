@@ -2,7 +2,7 @@
   "schemaVersion": "cohort-coverage-audit.v1",
   "status": "pass",
   "planProvided": true,
-  "runOutputsProvided": false,
+  "runOutputsProvided": true,
   "structuralFailureCount": 0,
   "structuralFailureKinds": [],
   "batches": [
@@ -12,8 +12,8 @@
         "catalog": "src/lib/social/a16z-speedrun-006-social-accounts.json",
         "profileSource": "src/lib/graph/a16z-speedrun-006-dataset.ts",
         "graph": "public/graph/a16zsr006.json",
-        "publicRun": null,
-        "githubRun": null
+        "publicRun": "/home/runner/work/returner-fund/returner-fund/work/autonomous-ingestion/manual-replay-20260811T135532Z-b1e26c97-2ab6-4fb5-877f-a524e58d41fe-2f871a1f75c8ffcd/public-a16zsr006.json",
+        "githubRun": "/home/runner/work/returner-fund/returner-fund/work/autonomous-ingestion/manual-replay-20260811T135532Z-b1e26c97-2ab6-4fb5-877f-a524e58d41fe-2f871a1f75c8ffcd/github-a16zsr006.json"
       },
       "counts": {
         "companies": 59,
@@ -24,7 +24,7 @@
         "plannedOwnerMappings": 339,
         "multiAccountOwnerMappings": 4,
         "graphEvidence": 5000,
-        "graphNeedsReview": 2358
+        "graphNeedsReview": 2364
       },
       "structural": {
         "status": "pass",
@@ -828,8 +828,8 @@
         "catalog": "src/lib/yc/spring-2026-companies.json",
         "profileSource": null,
         "graph": "public/graph/s2026.json",
-        "publicRun": null,
-        "githubRun": null
+        "publicRun": "/home/runner/work/returner-fund/returner-fund/work/autonomous-ingestion/manual-replay-20260811T135532Z-b1e26c97-2ab6-4fb5-877f-a524e58d41fe-2f871a1f75c8ffcd/public-s2026.json",
+        "githubRun": "/home/runner/work/returner-fund/returner-fund/work/autonomous-ingestion/manual-replay-20260811T135532Z-b1e26c97-2ab6-4fb5-877f-a524e58d41fe-2f871a1f75c8ffcd/github-s2026.json"
       },
       "counts": {
         "companies": 197,
@@ -840,7 +840,7 @@
         "plannedOwnerMappings": 994,
         "multiAccountOwnerMappings": 1,
         "graphEvidence": 5000,
-        "graphNeedsReview": 9847
+        "graphNeedsReview": 9862
       },
       "structural": {
         "status": "pass",
@@ -2308,19 +2308,19 @@
         "catalog": "src/lib/yc/summer-2026-companies.json",
         "profileSource": null,
         "graph": "public/graph/s26.json",
-        "publicRun": null,
-        "githubRun": null
+        "publicRun": "/home/runner/work/returner-fund/returner-fund/work/autonomous-ingestion/manual-replay-20260811T135532Z-b1e26c97-2ab6-4fb5-877f-a524e58d41fe-2f871a1f75c8ffcd/public-s26.json",
+        "githubRun": "/home/runner/work/returner-fund/returner-fund/work/autonomous-ingestion/manual-replay-20260811T135532Z-b1e26c97-2ab6-4fb5-877f-a524e58d41fe-2f871a1f75c8ffcd/github-s26.json"
       },
       "counts": {
-        "companies": 194,
-        "founders": 379,
-        "catalogOwnerMappings": 940,
-        "graphOwnerMappings": 937,
-        "catalogOwnerPlatformGroups": 940,
-        "plannedOwnerMappings": 940,
+        "companies": 197,
+        "founders": 388,
+        "catalogOwnerMappings": 960,
+        "graphOwnerMappings": 957,
+        "catalogOwnerPlatformGroups": 960,
+        "plannedOwnerMappings": 960,
         "multiAccountOwnerMappings": 0,
         "graphEvidence": 5000,
-        "graphNeedsReview": 7596
+        "graphNeedsReview": 7648
       },
       "structural": {
         "status": "pass",
@@ -2398,40 +2398,40 @@
         "multiAccountOwnerMappings": [],
         "mappingCoverage": {
           "github": {
-            "companyMapped": 37,
-            "companyMissing": 157,
+            "companyMapped": 39,
+            "companyMissing": 158,
             "founderMapped": 1,
-            "founderMissing": 378
+            "founderMissing": 387
           },
           "instagram": {
             "companyMapped": 7,
-            "companyMissing": 187,
+            "companyMissing": 190,
             "founderMapped": 0,
-            "founderMissing": 379
+            "founderMissing": 388
           },
           "linkedin": {
-            "companyMapped": 175,
+            "companyMapped": 178,
             "companyMissing": 19,
-            "founderMapped": 375,
+            "founderMapped": 384,
             "founderMissing": 4
           },
           "product_hunt": {
             "companyMapped": 5,
-            "companyMissing": 189,
+            "companyMissing": 192,
             "founderMapped": 0,
-            "founderMissing": 379
+            "founderMissing": 388
           },
           "x": {
-            "companyMapped": 111,
-            "companyMissing": 83,
-            "founderMapped": 217,
-            "founderMissing": 162
+            "companyMapped": 112,
+            "companyMissing": 85,
+            "founderMapped": 222,
+            "founderMissing": 166
           },
           "youtube": {
             "companyMapped": 11,
-            "companyMissing": 183,
+            "companyMissing": 186,
             "founderMapped": 0,
-            "founderMissing": 379
+            "founderMissing": 388
           }
         },
         "noMappedAccounts": [
@@ -2543,28 +2543,18 @@
             "companyName": null
           },
           {
-            "entityId": "company-neuromorphic",
-            "name": "Neuromorphic",
-            "companyName": null
-          },
-          {
-            "entityId": "company-pacific",
-            "name": "Pacific",
-            "companyName": null
-          },
-          {
             "entityId": "company-peer",
             "name": "Peer",
             "companyName": null
           },
           {
-            "entityId": "company-prodigy-research",
-            "name": "Prodigy Research",
+            "entityId": "company-shielded",
+            "name": "Shielded",
             "companyName": null
           },
           {
-            "entityId": "company-shielded",
-            "name": "Shielded",
+            "entityId": "company-verdict-machine",
+            "name": "Verdict Machine",
             "companyName": null
           }
         ],
@@ -2600,28 +2590,18 @@
             "companyName": null
           },
           {
-            "entityId": "company-neuromorphic",
-            "name": "Neuromorphic",
-            "companyName": null
-          },
-          {
-            "entityId": "company-pacific",
-            "name": "Pacific",
-            "companyName": null
-          },
-          {
             "entityId": "company-peer",
             "name": "Peer",
             "companyName": null
           },
           {
-            "entityId": "company-prodigy-research",
-            "name": "Prodigy Research",
+            "entityId": "company-shielded",
+            "name": "Shielded",
             "companyName": null
           },
           {
-            "entityId": "company-shielded",
-            "name": "Shielded",
+            "entityId": "company-verdict-machine",
+            "name": "Verdict Machine",
             "companyName": null
           }
         ],
@@ -2697,11 +2677,6 @@
             "companyName": null
           },
           {
-            "entityId": "company-exosat",
-            "name": "Exosat",
-            "companyName": null
-          },
-          {
             "entityId": "company-floracene",
             "name": "Floracene",
             "companyName": null
@@ -2767,11 +2742,6 @@
             "companyName": null
           },
           {
-            "entityId": "company-neuromorphic",
-            "name": "Neuromorphic",
-            "companyName": null
-          },
-          {
             "entityId": "company-ooak-data",
             "name": "Ooak Data",
             "companyName": null
@@ -2794,11 +2764,6 @@
           {
             "entityId": "company-praxis-ai-2",
             "name": "Praxis AI",
-            "companyName": null
-          },
-          {
-            "entityId": "company-prodigy-research",
-            "name": "Prodigy Research",
             "companyName": null
           },
           {
@@ -2842,6 +2807,11 @@
             "companyName": null
           },
           {
+            "entityId": "company-tensr",
+            "name": "Tensr",
+            "companyName": null
+          },
+          {
             "entityId": "company-torus",
             "name": "Torus",
             "companyName": null
@@ -2854,6 +2824,11 @@
           {
             "entityId": "company-verdant",
             "name": "Verdant",
+            "companyName": null
+          },
+          {
+            "entityId": "company-verdict-machine",
+            "name": "Verdict Machine",
             "companyName": null
           },
           {
@@ -3279,11 +3254,6 @@
             "companyName": "Neuromorphic"
           },
           {
-            "entityId": "founder-neuromorphic-ege-doganay-2794176",
-            "name": "Ege Doganay",
-            "companyName": "Neuromorphic"
-          },
-          {
             "entityId": "founder-neuromorphic-vatan-aksoy-tezer-3607343",
             "name": "Vatan Aksoy Tezer",
             "companyName": "Neuromorphic"
@@ -3387,11 +3357,6 @@
             "entityId": "founder-prized-marinos-eliades-2485896",
             "name": "Marinos Eliades",
             "companyName": "Prized"
-          },
-          {
-            "entityId": "founder-prodigy-research-michael-wang-3174989",
-            "name": "Michael Wang",
-            "companyName": "Prodigy Research"
           },
           {
             "entityId": "founder-prodigy-research-yuhua-wang-3203618",
@@ -3499,6 +3464,11 @@
             "companyName": "tash"
           },
           {
+            "entityId": "founder-tensr-adith-sundram-916548",
+            "name": "Adith Sundram",
+            "companyName": "Tensr"
+          },
+          {
             "entityId": "founder-touchmark-roman-yanushevskyi-3532865",
             "name": "Roman Yanushevskyi",
             "companyName": "Touchmark"
@@ -3537,6 +3507,21 @@
             "entityId": "founder-understudy-labs-aamir-poonawalla-73303",
             "name": "Aamir Poonawalla",
             "companyName": "Understudy Labs"
+          },
+          {
+            "entityId": "founder-verdict-machine-dan-danay-85721",
+            "name": "Dan Danay",
+            "companyName": "Verdict Machine"
+          },
+          {
+            "entityId": "founder-verdict-machine-isaac-grossman-3784711",
+            "name": "Isaac Grossman",
+            "companyName": "Verdict Machine"
+          },
+          {
+            "entityId": "founder-verdict-machine-liran-kogan-3784793",
+            "name": "Liran Kogan",
+            "companyName": "Verdict Machine"
           },
           {
             "entityId": "founder-whitespace-leon-yao-3405544",
@@ -3641,11 +3626,6 @@
             "companyName": null
           },
           {
-            "entityId": "company-exosat",
-            "name": "Exosat",
-            "companyName": null
-          },
-          {
             "entityId": "company-floracene",
             "name": "Floracene",
             "companyName": null
@@ -3711,11 +3691,6 @@
             "companyName": null
           },
           {
-            "entityId": "company-neuromorphic",
-            "name": "Neuromorphic",
-            "companyName": null
-          },
-          {
             "entityId": "company-ooak-data",
             "name": "Ooak Data",
             "companyName": null
@@ -3738,11 +3713,6 @@
           {
             "entityId": "company-praxis-ai-2",
             "name": "Praxis AI",
-            "companyName": null
-          },
-          {
-            "entityId": "company-prodigy-research",
-            "name": "Prodigy Research",
             "companyName": null
           },
           {
@@ -3786,6 +3756,11 @@
             "companyName": null
           },
           {
+            "entityId": "company-tensr",
+            "name": "Tensr",
+            "companyName": null
+          },
+          {
             "entityId": "company-torus",
             "name": "Torus",
             "companyName": null
@@ -3798,6 +3773,11 @@
           {
             "entityId": "company-verdant",
             "name": "Verdant",
+            "companyName": null
+          },
+          {
+            "entityId": "company-verdict-machine",
+            "name": "Verdict Machine",
             "companyName": null
           },
           {
@@ -4153,11 +4133,6 @@
             "companyName": "Molagri"
           },
           {
-            "entityId": "founder-neuromorphic-ege-doganay-2794176",
-            "name": "Ege Doganay",
-            "companyName": "Neuromorphic"
-          },
-          {
             "entityId": "founder-neuron-industries-kenneth-rhee-3732370",
             "name": "Kenneth Rhee",
             "companyName": "Neuron Industries"
@@ -4241,11 +4216,6 @@
             "entityId": "founder-prized-marinos-eliades-2485896",
             "name": "Marinos Eliades",
             "companyName": "Prized"
-          },
-          {
-            "entityId": "founder-prodigy-research-michael-wang-3174989",
-            "name": "Michael Wang",
-            "companyName": "Prodigy Research"
           },
           {
             "entityId": "founder-prodigy-research-yuhua-wang-3203618",
@@ -4356,6 +4326,16 @@
             "entityId": "founder-understudy-labs-aamir-poonawalla-73303",
             "name": "Aamir Poonawalla",
             "companyName": "Understudy Labs"
+          },
+          {
+            "entityId": "founder-verdict-machine-dan-danay-85721",
+            "name": "Dan Danay",
+            "companyName": "Verdict Machine"
+          },
+          {
+            "entityId": "founder-verdict-machine-isaac-grossman-3784711",
+            "name": "Isaac Grossman",
+            "companyName": "Verdict Machine"
           },
           {
             "entityId": "founder-whitespace-leon-yao-3405544",

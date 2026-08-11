@@ -1,0 +1,53 @@
+{
+  "schemaVersion": "company-timeline.v1",
+  "company": {
+    "id": "company-financial-datasets",
+    "slug": "financial-datasets",
+    "name": "Financial Datasets"
+  },
+  "generatedAt": "2026-08-11T14:56:47.396Z",
+  "lastModifiedAt": "2026-08-11T14:56:47.396Z",
+  "events": [
+    {
+      "id": "tle-d7438f40e36b72f9ea1ddc70",
+      "eventDate": "2026-07-27",
+      "eventDateType": "announcement_date",
+      "title": "Financial Datasets released IPO feed",
+      "summary": "Financial Datasets introduced our IPO feed.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-78e1dc701dab20d8e3f09de7",
+          "title": "Introducing our IPO feed.",
+          "publisher": "findatasets",
+          "domain": "x.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-07-27T18:18:03.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/findatasets/status/2081806336153567733"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-07",
+          "count": 1
+        }
+      ]
+    }
+  ],
+  "coverage": {
+    "status": "partial",
+    "publishedEventCount": 1,
+    "lastSuccessfulArtifactAt": "2026-08-11T14:56:47.396Z"
+  },
+  "nextCursor": null
+}

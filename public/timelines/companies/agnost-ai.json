@@ -5,9 +5,33 @@
     "slug": "agnost-ai",
     "name": "Agnost AI"
   },
-  "generatedAt": "2026-08-11T12:29:30.899Z",
-  "lastModifiedAt": "2026-08-11T12:29:30.899Z",
+  "generatedAt": "2026-08-11T14:56:47.396Z",
+  "lastModifiedAt": "2026-08-11T14:56:47.396Z",
   "events": [
+    {
+      "id": "tle-298c74a3940f44252d864294",
+      "eventDate": "2026-08-11",
+      "eventDateType": "announcement_date",
+      "title": "Agnost AI released official Agnost AI SDK",
+      "summary": "Agnost AI introduced official Agnost AI SDK for Langchain agents.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-9c4b1a2d34881b83e77fdf93",
+          "title": "🚨 Introducing official Agnost AI SDK for Langchain agents.",
+          "publisher": "prrthh132",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-08-11T02:28:18.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/prrthh132/status/2087003143091757542"
+        }
+      ]
+    },
     {
       "id": "tle-0091b168fa04513aa897eb16",
       "eventDate": "2026-08-06",
@@ -87,7 +111,7 @@
       "months": [
         {
           "month": "2026-08",
-          "count": 1
+          "count": 2
         },
         {
           "month": "2026-07",
@@ -98,8 +122,8 @@
   ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 3,
-    "lastSuccessfulArtifactAt": "2026-08-11T12:29:30.899Z"
+    "publishedEventCount": 4,
+    "lastSuccessfulArtifactAt": "2026-08-11T14:56:47.396Z"
   },
   "nextCursor": null
 }

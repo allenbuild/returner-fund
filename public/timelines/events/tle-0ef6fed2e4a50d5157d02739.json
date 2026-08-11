@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "a16z-speedrun-006-zerodrift",
+    "slug": "zerodrift",
+    "name": "ZeroDrift"
+  },
+  "event": {
+    "id": "tle-0ef6fed2e4a50d5157d02739",
+    "eventDate": "2026-08-11",
+    "eventDateType": "announcement_date",
+    "title": "ZeroDrift announced its public launch",
+    "summary": "ZeroDrift announced it was launching @zerodrift_ai Command ⚡️ Set company policies, turn on regulation rulepacks, and enforce compliance on every AI communication before it's sent.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-73382261fed999628ccd71ae",
+        "title": "Today we're launching @zerodrift_ai Command ⚡️ Set company policies, turn on regulation rulepacks, and enforce compliance on every AI communication before it's sent.",
+        "publisher": "kumesh_a",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-08-11T13:44:23.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/kumesh_a/status/2087173286580855191"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-73382261fed999628ccd71ae",
+        "title": "Today we're launching @zerodrift_ai Command ⚡️ Set company policies, turn on regulation rulepacks, and enforce compliance on every AI communication before it's sent.",
+        "publisher": "kumesh_a",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-08-11T13:44:23.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/kumesh_a/status/2087173286580855191",
+        "publicationDate": "2026-08-11T13:44:23.000Z",
+        "excerpt": "Today we're launching @zerodrift_ai Command ⚡️ Set company policies, turn on regulation rulepacks, and enforce compliance on every AI communication before it's sent. Blocked and corrected in milliseconds. Plus: Anchor 3.0-Preview, the first compliance enforcement SLM (limited https://t.co/XUxOIlAmvo",
+        "sourceEventDate": "2026-08-11",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-e41b26d690c66b676d7fea6e",
+        "platform": "x",
+        "account": "kumesh_a",
+        "postDate": "2026-08-11",
+        "excerpt": "Today we're launching @zerodrift_ai Command ⚡️ Set company policies, turn on regulation rulepacks, and enforce compliance on every AI communication before it's sent. Blocked and corrected in milliseconds. Plus: Anchor 3.0-Preview, the first compliance enforcement SLM (limited https://t.co/XUxOIlAmvo",
+        "url": "https://x.com/kumesh_a/status/2087173286580855191",
+        "metrics": {
+          "likes": 19,
+          "reposts": 11,
+          "replies": 9,
+          "views": 134
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-11T14:56:47.396Z",
+  "lastModifiedAt": "2026-08-11T14:56:47.396Z"
+}

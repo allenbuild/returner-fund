@@ -1,0 +1,69 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-exosat",
+    "slug": "exosat",
+    "name": "Exosat"
+  },
+  "event": {
+    "id": "tle-918299eff8683ebc2726b915",
+    "eventDate": "2026-08-10",
+    "eventDateType": "announcement_date",
+    "title": "Exosat announced its public launch",
+    "summary": "Exosat introduced @Exosat_ a sovereign Starlink alternative for the millions of people and many companies around the world that want connectivity but don't want to be tied to any one major power's supply chain.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-1369c459e1d00ab51e663060",
+        "title": "Introducing @Exosat_ a sovereign Starlink alternative for the millions of people and many companies around the world that want connectivity...",
+        "publisher": "bradflora",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-08-10T21:24:18.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/bradflora/status/2086926640081445047"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-1369c459e1d00ab51e663060",
+        "title": "Introducing @Exosat_ a sovereign Starlink alternative for the millions of people and many companies around the world that want connectivity...",
+        "publisher": "bradflora",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-08-10T21:24:18.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/bradflora/status/2086926640081445047",
+        "publicationDate": "2026-08-10T21:24:18.000Z",
+        "excerpt": "Introducing @Exosat_ a sovereign Starlink alternative for the millions of people and many companies around the world that want connectivity but don't want to be tied to any one major power's supply chain. This is one of the most ambitious, hilariously aggressive startups I've had the pleasure of working with at YC. @EdwardGe is going big or as he told me: \"My startup basically is going to kick g-d in the face.\"",
+        "sourceEventDate": "2026-08-10",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-d5efa8fe357d4f402e6b71cc",
+        "platform": "x",
+        "account": "bradflora",
+        "postDate": "2026-08-10",
+        "excerpt": "Introducing @Exosat_ a sovereign Starlink alternative for the millions of people and many companies around the world that want connectivity but don't want to be tied to any one major power's supply chain. This is one of the most ambitious, hilariously aggressive startups I've had the pleasure of working with at YC. @EdwardGe is going big or as he told me: \"My startup basically is going to kick g-d in the face.\"",
+        "url": "https://x.com/bradflora/status/2086926640081445047",
+        "metrics": {
+          "views": 6268,
+          "likes": 58,
+          "replies": 3,
+          "reposts": 3,
+          "saves": 6
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-11T14:56:47.396Z",
+  "lastModifiedAt": "2026-08-11T14:56:47.396Z"
+}

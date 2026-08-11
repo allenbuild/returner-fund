@@ -1,0 +1,66 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-stoa",
+    "slug": "stoa",
+    "name": "Stoa"
+  },
+  "event": {
+    "id": "tle-96d52c009df55ee3373660c3",
+    "eventDate": "2026-08-10",
+    "eventDateType": "announcement_date",
+    "title": "Stoa launched on Hacker News",
+    "summary": "Launch HN: Stoa Markets (YC S26) – A Marketplace for GPUs and AI Servers.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-17d0cc3eac8e83653f7aa0f8",
+        "title": "Launch HN: Stoa Markets (YC S26) – A Marketplace for GPUs and AI Servers",
+        "publisher": "Launch HN: Stoa Markets (YC S26) – A Marketplace for GPUs and AI Servers",
+        "domain": "news.ycombinator.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-08-10T16:35:27Z",
+        "evidenceRole": "primary",
+        "url": "https://news.ycombinator.com/item?id=49246057"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-17d0cc3eac8e83653f7aa0f8",
+        "title": "Launch HN: Stoa Markets (YC S26) – A Marketplace for GPUs and AI Servers",
+        "publisher": "Launch HN: Stoa Markets (YC S26) – A Marketplace for GPUs and AI Servers",
+        "domain": "news.ycombinator.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-08-10T16:35:27Z",
+        "evidenceRole": "primary",
+        "url": "https://news.ycombinator.com/item?id=49246057",
+        "publicationDate": "2026-08-10T16:35:27Z",
+        "excerpt": "Launch HN: Stoa Markets (YC S26) – A Marketplace for GPUs and AI Servers",
+        "sourceEventDate": "2026-08-10",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-300e96822816de603db86921",
+        "platform": "hacker_news",
+        "account": null,
+        "postDate": "2026-08-10",
+        "excerpt": "Launch HN: Stoa Markets (YC S26) – A Marketplace for GPUs and AI Servers",
+        "url": "https://news.ycombinator.com/item?id=49246057",
+        "metrics": {
+          "upvotes": 75,
+          "comments": 50
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-11T14:56:47.396Z",
+  "lastModifiedAt": "2026-08-11T14:56:47.396Z"
+}

@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-insforge",
+    "slug": "insforge",
+    "name": "InsForge"
+  },
+  "event": {
+    "id": "tle-9c53ff63734d5516825e0c77",
+    "eventDate": "2026-08-10",
+    "eventDateType": "announcement_date",
+    "title": "InsForge released in just 21 days after we founded",
+    "summary": "InsForge launched in just 21 days after we founded @insforge.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-a573f6e17fdc413d7fc4197e",
+        "title": "We launched in just 21 days after we founded @insforge.",
+        "publisher": "hanghuang_",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-08-10T15:34:21.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/hanghuang_/status/2086838570472333807"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-a573f6e17fdc413d7fc4197e",
+        "title": "We launched in just 21 days after we founded @insforge.",
+        "publisher": "hanghuang_",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-08-10T15:34:21.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/hanghuang_/status/2086838570472333807",
+        "publicationDate": "2026-08-10T15:34:21.000Z",
+        "excerpt": "We launched in just 21 days after we founded @insforge. It was the 1st version of our OSS product. All it had was an MCP and 3 core features: Authentication, Database, Storage But it worked. And provided value (at least to me and @tonychang430, since we were building a https://t.co/gex7cPmD86",
+        "sourceEventDate": "2026-08-10",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-90f734324e963ad2a71e00ee",
+        "platform": "x",
+        "account": "hanghuang_",
+        "postDate": "2026-08-10",
+        "excerpt": "We launched in just 21 days after we founded @insforge. It was the 1st version of our OSS product. All it had was an MCP and 3 core features: Authentication, Database, Storage But it worked. And provided value (at least to me and @tonychang430, since we were building a https://t.co/gex7cPmD86",
+        "url": "https://x.com/hanghuang_/status/2086838570472333807",
+        "metrics": {
+          "likes": 19,
+          "reposts": 0,
+          "replies": 1,
+          "views": 956
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-11T14:56:47.396Z",
+  "lastModifiedAt": "2026-08-11T14:56:47.396Z"
+}

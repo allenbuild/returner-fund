@@ -5,9 +5,33 @@
     "slug": "replicas",
     "name": "Replicas"
   },
-  "generatedAt": "2026-08-11T12:29:30.899Z",
-  "lastModifiedAt": "2026-08-11T12:29:30.899Z",
+  "generatedAt": "2026-08-11T14:56:47.396Z",
+  "lastModifiedAt": "2026-08-11T14:56:47.396Z",
   "events": [
+    {
+      "id": "tle-7d1d678541e2ed5324c84cbe",
+      "eventDate": "2026-08-10",
+      "eventDateType": "announcement_date",
+      "title": "Replicas released Analytics",
+      "summary": "Replicas introduced Analytics for Replicas Coding tools on your X timeline were built for the engineer.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-bcdcedf4dd48a7076f38fcbc",
+          "title": "Introducing Analytics for Replicas Coding tools on your X timeline were built for the engineer.",
+          "publisher": "tryreplicas",
+          "domain": "x.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-08-10T17:00:01.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/tryreplicas/status/2086860129971171789"
+        }
+      ]
+    },
     {
       "id": "tle-1df63c87fd9e78f21b557718",
       "eventDate": "2026-08-04",
@@ -111,7 +135,7 @@
       "months": [
         {
           "month": "2026-08",
-          "count": 1
+          "count": 2
         },
         {
           "month": "2026-07",
@@ -126,8 +150,8 @@
   ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 4,
-    "lastSuccessfulArtifactAt": "2026-08-11T12:29:30.899Z"
+    "publishedEventCount": 5,
+    "lastSuccessfulArtifactAt": "2026-08-11T14:56:47.396Z"
   },
   "nextCursor": null
 }
