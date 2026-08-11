@@ -514,10 +514,21 @@ test("daily benchmark receipts require exact-SHA reusable public validation", ()
     dailyBenchmarkWorkflow,
     /validate_publication:[\s\S]*?uses:\s*\.\/\.github\/workflows\/public-artifacts\.yml[\s\S]*?target_sha:\s*\$\{\{ needs\.update\.outputs\.validation_candidate \|\| needs\.resolve\.outputs\.source_sha \}\}[\s\S]*?policy_source_sha:\s*\$\{\{ needs\.resolve\.outputs\.source_sha \}\}/
   );
-  assert.match(dailyBenchmarkWorkflow, /needs:\s*\[resolve, update, validate_publication\]/);
   assert.match(
     dailyBenchmarkWorkflow,
-    /validate_publication:[\s\S]*?if:\s*\$\{\{ always\(\) && needs\.resolve\.outputs\.should_run == 'true' \}\}/
+    /validate_adopted_release:[\s\S]*?uses:\s*\.\/\.github\/workflows\/public-artifacts\.yml[\s\S]*?target_sha:\s*\$\{\{ needs\.resolve\.outputs\.source_sha \}\}[\s\S]*?policy_source_sha:\s*\$\{\{ needs\.resolve\.outputs\.source_sha \}\}/
+  );
+  assert.match(
+    dailyBenchmarkWorkflow,
+    /needs:\s*\[resolve, update, validate_publication, validate_adopted_release\]/
+  );
+  assert.match(
+    dailyBenchmarkWorkflow,
+    /validate_publication:[\s\S]*?if:\s*\$\{\{ always\(\) && needs\.resolve\.outputs\.should_run == 'true' && needs\.update\.outputs\.publication_status != 'already_completed' \}\}/
+  );
+  assert.match(
+    dailyBenchmarkWorkflow,
+    /validate_adopted_release:[\s\S]*?if:\s*\$\{\{ always\(\) && needs\.resolve\.outputs\.should_run == 'true' && needs\.update\.outputs\.publication_status == 'already_completed' \}\}/
   );
   assert.match(dailyBenchmarkWorkflow, /publication_kind:\s*daily-benchmark/);
   assert.match(dailyBenchmarkWorkflow, /publication_receipt_path:\s*outputs\/benchmarks\/daily-publication-receipt\.json/);
@@ -525,7 +536,10 @@ test("daily benchmark receipts require exact-SHA reusable public validation", ()
   assert.match(dailyBenchmarkWorkflow, /publication_run_id:\s*\$\{\{ needs\.update\.outputs\.publication_run_id \}\}/);
   assert.match(dailyBenchmarkWorkflow, /name:\s*Recover exact benchmark publication commit[\s\S]*?if:\s*always\(\)/);
   assert.match(dailyBenchmarkWorkflow, /published_commit:\s*\$\{\{ steps\.recover_publication\.outputs\.published_commit \}\}/);
-  assert.match(dailyBenchmarkWorkflow, /VALIDATION_RESULT:\s*\$\{\{ needs\.validate_publication\.result \}\}/);
+  assert.match(
+    dailyBenchmarkWorkflow,
+    /VALIDATION_RESULT:\s*\$\{\{ needs\.update\.outputs\.publication_status == 'already_completed' && needs\.validate_adopted_release\.result \|\| needs\.validate_publication\.result \}\}/
+  );
   assert.match(dailyBenchmarkWorkflow, /COMMIT_REPOSITORY_VERIFIED:\s*\$\{\{ needs\.update\.outputs\.commit_verified \}\}/);
   assert.match(dailyBenchmarkWorkflow, /Public validation result:/);
   assert.match(dailyBenchmarkWorkflow, /name:\s*Materialize daily benchmark receipt[\s\S]*?if:\s*always\(\)/);
@@ -1760,7 +1774,11 @@ exec "$REAL_GIT" "$@"
   );
   assert.match(
     dailyBenchmarkWorkflow,
-    /validate_publication:[\s\S]*?if:\s*\$\{\{ always\(\) && needs\.resolve\.outputs\.should_run == 'true' \}\}[\s\S]*?target_sha:\s*\$\{\{ needs\.update\.outputs\.validation_candidate \|\| needs\.resolve\.outputs\.source_sha \}\}/
+    /validate_publication:[\s\S]*?if:\s*\$\{\{ always\(\) && needs\.resolve\.outputs\.should_run == 'true' && needs\.update\.outputs\.publication_status != 'already_completed' \}\}[\s\S]*?target_sha:\s*\$\{\{ needs\.update\.outputs\.validation_candidate \|\| needs\.resolve\.outputs\.source_sha \}\}/
+  );
+  assert.match(
+    dailyBenchmarkWorkflow,
+    /validate_adopted_release:[\s\S]*?if:\s*\$\{\{ always\(\) && needs\.resolve\.outputs\.should_run == 'true' && needs\.update\.outputs\.publication_status == 'already_completed' \}\}[\s\S]*?target_sha:\s*\$\{\{ needs\.resolve\.outputs\.source_sha \}\}/
   );
 });
 
@@ -2359,7 +2377,7 @@ test("daily benchmark audit fails closed for accepted jobs without exact publica
     assert.match(result.stdout, /accepted_candidate_failed/);
   }
 
-  for (const publicationStatus of ["published", "no_changes"]) {
+  for (const publicationStatus of ["published", "no_changes", "already_completed"]) {
     const result = runAuditScript(script, { ...base, PUBLICATION_STATUS: publicationStatus });
     assert.equal(result.status, 0, result.stderr);
     assert.match(result.stdout, new RegExp(`Daily benchmark outcome::${publicationStatus}`));

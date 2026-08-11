@@ -1148,7 +1148,7 @@ jobs:
   validate_publication:
     name: Validate published benchmark commit ${{ needs.update.outputs.published_commit }}
     needs: [resolve, update]
-    if: ${{ always() && needs.resolve.outputs.should_run == 'true' }}
+    if: ${{ always() && needs.resolve.outputs.should_run == 'true' && needs.update.outputs.publication_status != 'already_completed' }}
     permissions:
       contents: read
     uses: ./.github/workflows/public-artifacts.yml
@@ -1166,9 +1166,23 @@ jobs:
       publication_central_date: ${{ needs.update.outputs.publication_central_date }}
       publication_scheduled_utc_hour: ${{ needs.update.outputs.publication_scheduled_utc_hour }}
 
+  validate_adopted_release:
+    name: Validate current release after adopting benchmark ${{ needs.update.outputs.published_commit }}
+    needs: [resolve, update]
+    if: ${{ always() && needs.resolve.outputs.should_run == 'true' && needs.update.outputs.publication_status == 'already_completed' }}
+    permissions:
+      contents: read
+    uses: ./.github/workflows/public-artifacts.yml
+    with:
+      # An adopted slot can predate the current validation policy. Its immutable
+      # receipt and trailers were verified in update; validate the current
+      # release state instead of executing stale validation code from that slot.
+      target_sha: ${{ needs.resolve.outputs.source_sha }}
+      policy_source_sha: ${{ needs.resolve.outputs.source_sha }}
+
   receipt:
     name: Audit benchmark outcome
-    needs: [resolve, update, validate_publication]
+    needs: [resolve, update, validate_publication, validate_adopted_release]
     if: always()
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -1179,7 +1193,7 @@ jobs:
           SHOULD_RUN: ${{ needs.resolve.outputs.should_run }}
           RESOLVE_RESULT: ${{ needs.resolve.result }}
           UPDATE_RESULT: ${{ needs.update.result }}
-          VALIDATION_RESULT: ${{ needs.validate_publication.result }}
+          VALIDATION_RESULT: ${{ needs.update.outputs.publication_status == 'already_completed' && needs.validate_adopted_release.result || needs.validate_publication.result }}
           PUBLICATION_STATUS: ${{ needs.update.outputs.publication_status }}
           PUBLISHED_COMMIT: ${{ needs.update.outputs.published_commit }}
           COMMIT_REPOSITORY_VERIFIED: ${{ needs.update.outputs.commit_verified }}
@@ -1248,7 +1262,7 @@ jobs:
           CENTRAL_DATE: ${{ needs.resolve.outputs.central_date }}
           RESOLVE_RESULT: ${{ needs.resolve.result }}
           UPDATE_RESULT: ${{ needs.update.result }}
-          VALIDATION_RESULT: ${{ needs.validate_publication.result }}
+          VALIDATION_RESULT: ${{ needs.update.outputs.publication_status == 'already_completed' && needs.validate_adopted_release.result || needs.validate_publication.result }}
           PUBLICATION_STATUS: ${{ needs.update.outputs.publication_status }}
           RECEIPT_RECOGNIZED: ${{ steps.audit_outcome.outputs.receipt_recognized }}
           COMMIT_PROOF_VALID: ${{ steps.audit_outcome.outputs.commit_proof_valid }}
