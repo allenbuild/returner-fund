@@ -123,8 +123,8 @@
         "metrics": {
           "likes": 1143,
           "reposts": 89,
-          "replies": 183,
-          "views": 379725
+          "replies": 182,
+          "views": 380168
         },
         "evidenceRole": "primary"
       },
@@ -145,6 +145,6 @@
       }
     ]
   },
-  "generatedAt": "2026-08-11T16:42:00.565Z",
-  "lastModifiedAt": "2026-08-11T16:42:00.565Z"
+  "generatedAt": "2026-08-12T00:42:36.083Z",
+  "lastModifiedAt": "2026-08-12T00:42:36.083Z"
 }

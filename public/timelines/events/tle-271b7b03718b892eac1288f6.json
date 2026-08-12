@@ -54,15 +54,15 @@
         "excerpt": "Today we’re launching Enact: post-training infrastructure that makes robotics models work in the real world. Robotics models fail when execution reaches states their training data never covered. A slip, an off-angle grasp, or an external disturbance can leave the policy without https://t.co/1DSZdq0Aqq",
         "url": "https://x.com/jamesw_stevens/status/2087185150765564246",
         "metrics": {
-          "likes": 30,
-          "reposts": 7,
-          "replies": 13,
-          "views": 4089
+          "likes": 195,
+          "reposts": 21,
+          "replies": 41,
+          "views": 26969
         },
         "evidenceRole": "primary"
       }
     ]
   },
-  "generatedAt": "2026-08-11T16:42:00.565Z",
-  "lastModifiedAt": "2026-08-11T16:42:00.565Z"
+  "generatedAt": "2026-08-12T00:42:36.083Z",
+  "lastModifiedAt": "2026-08-12T00:42:36.083Z"
 }

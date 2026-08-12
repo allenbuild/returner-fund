@@ -5,8 +5,8 @@
     "slug": "instance",
     "name": "Instance"
   },
-  "generatedAt": "2026-08-11T16:42:00.565Z",
-  "lastModifiedAt": "2026-08-11T16:42:00.565Z",
+  "generatedAt": "2026-08-12T00:42:36.083Z",
+  "lastModifiedAt": "2026-08-12T00:42:36.083Z",
   "events": [
     {
       "id": "tle-fe17fb059df75b43afb575f5",
@@ -75,7 +75,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 2,
-    "lastSuccessfulArtifactAt": "2026-08-11T16:42:00.565Z"
+    "lastSuccessfulArtifactAt": "2026-08-12T00:42:36.083Z"
   },
   "nextCursor": null
 }

@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-coasty",
+    "slug": "coasty",
+    "name": "Coasty"
+  },
+  "event": {
+    "id": "tle-77e4bbf2dd51739f1b32e941",
+    "eventDate": "2026-08-11",
+    "eventDateType": "announcement_date",
+    "title": "Coasty released Co-Arena",
+    "summary": "Coasty introduced Co-Arena, a live arena for computer-use agents and the most advanced benchmark for CUA Six days in, 55,000+ steps and increasing every second.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-c9b1cfc9532048de27c97331",
+        "title": "Introducing Co-Arena, a live arena for computer-use agents and the most advanced benchmark for CUA Six days in, 55,000+ steps and increasing every second.",
+        "publisher": "coastyai",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-08-11T20:52:56.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/coastyai/status/2087281133860073806"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-c9b1cfc9532048de27c97331",
+        "title": "Introducing Co-Arena, a live arena for computer-use agents and the most advanced benchmark for CUA Six days in, 55,000+ steps and increasing every second.",
+        "publisher": "coastyai",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-08-11T20:52:56.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/coastyai/status/2087281133860073806",
+        "publicationDate": "2026-08-11T20:52:56.000Z",
+        "excerpt": "Introducing Co-Arena, a live arena for computer-use agents and the most advanced benchmark for CUA Six days in, 55,000+ steps and increasing every second. The leaderboard is live. Watch a battle. Judge one blind. Post your own task. Computer-use benchmarks are saturating. https://t.co/bCzt0BC5nq",
+        "sourceEventDate": "2026-08-11",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-6ed90fe3a6092b236634afe8",
+        "platform": "x",
+        "account": "coastyai",
+        "postDate": "2026-08-11",
+        "excerpt": "Introducing Co-Arena, a live arena for computer-use agents and the most advanced benchmark for CUA Six days in, 55,000+ steps and increasing every second. The leaderboard is live. Watch a battle. Judge one blind. Post your own task. Computer-use benchmarks are saturating. https://t.co/bCzt0BC5nq",
+        "url": "https://x.com/coastyai/status/2087281133860073806",
+        "metrics": {
+          "likes": 33,
+          "reposts": 9,
+          "replies": 5,
+          "views": 15092
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-12T00:42:36.083Z",
+  "lastModifiedAt": "2026-08-12T00:42:36.083Z"
+}

@@ -5,8 +5,8 @@
     "slug": "opentrade",
     "name": "OpenTrade"
   },
-  "generatedAt": "2026-08-11T16:42:00.565Z",
-  "lastModifiedAt": "2026-08-11T16:42:00.565Z",
+  "generatedAt": "2026-08-12T00:42:36.083Z",
+  "lastModifiedAt": "2026-08-12T00:42:36.083Z",
   "events": [
     {
       "id": "tle-54ccae7d1e709f0ae6cc1ee9",
@@ -47,7 +47,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-08-11T16:42:00.565Z"
+    "lastSuccessfulArtifactAt": "2026-08-12T00:42:36.083Z"
   },
   "nextCursor": null
 }

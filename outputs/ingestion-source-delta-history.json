@@ -4148,5 +4148,310 @@
     "trigger": "manual-replay",
     "scheduledAt": null,
     "terminalFailureBudget": 115
+  },
+  {
+    "schemaVersion": 1,
+    "idempotencyKey": "central-2026-08-11-1800",
+    "centralDay": "2026-08-11",
+    "observedAt": "2026-08-12T00:33:14.992Z",
+    "baselinePhysicalSources": 14393,
+    "publishedPhysicalSources": 14526,
+    "newPhysicalSources": 133,
+    "newPhysicalSourcesThisAttempt": 133,
+    "retainedPhysicalSources": 14393,
+    "removedPhysicalSources": 0,
+    "dailyNewPhysicalSources": 133,
+    "dailySourceHealth": "healthy",
+    "collectionHealth": "degraded",
+    "collectionHealthReasons": [
+      "missing_credential:X_BEARER_TOKEN",
+      "missing_credential:EXA_API_KEY",
+      "missing_credential:SUPABASE_SERVICE_ROLE_KEY",
+      "mapped_failures:33",
+      "provider_blocked:3253",
+      "mapped_provider_blocked:1327",
+      "mapped_scope_unsupported:10"
+    ],
+    "mappedExpected": 2310,
+    "mappedSucceeded": 762,
+    "mappedNeedsReview": 338,
+    "mappedBlockedOrEmpty": 1177,
+    "providerBlocked": 3253,
+    "providerBlockedByReason": {
+      "provider_blocked:duckduckgo_html:public_search_circuit_open": 1941,
+      "provider_blocked:linkedin_public_html:linkedin_public_circuit_open": 1312
+    },
+    "mappedProviderBlocked": 1327,
+    "mappedProviderBlockedByReason": {
+      "provider_blocked:duckduckgo_html:public_search_circuit_open": 15,
+      "provider_blocked:linkedin_public_html:linkedin_public_circuit_open": 1312
+    },
+    "mappedScopeUnsupported": 10,
+    "mappedFailures": 33,
+    "mappedNonTerminal": 0,
+    "mappedSuccessRate": 0.3299,
+    "newestNewSourcePostedAt": "2026-08-11T23:44:16.000Z",
+    "insertedByBatchPlatform": {
+      "A16ZSR006:x": 1,
+      "A16ZSR006:youtube": 1,
+      "S2026:x": 40,
+      "S26:x": 89,
+      "S26:youtube": 2
+    },
+    "insertedSourceSamples": [
+      {
+        "batchSlug": "A16ZSR006",
+        "platform": "x",
+        "entityType": "founder",
+        "entityId": "a16z-speedrun-006-snapp-stats-founder-min-park",
+        "sourceUrl": "https://x.com/themichelinmin/status/2087295142269256162",
+        "platformPostId": "2087295142269256162",
+        "platformObjectId": null,
+        "postedAt": "2026-08-11T21:48:36.000Z"
+      },
+      {
+        "batchSlug": "A16ZSR006",
+        "platform": "youtube",
+        "entityType": "company",
+        "entityId": "a16z-speedrun-006-idilio",
+        "sourceUrl": "https://youtube.com/watch?v=95bjMrwAbH8",
+        "platformPostId": "95bjMrwAbH8",
+        "platformObjectId": null,
+        "postedAt": "2026-08-11T20:00:01.000Z"
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "x",
+        "entityType": "company",
+        "entityId": "company-sunflower",
+        "sourceUrl": "https://x.com/sunflowersober/status/1855663743008706704",
+        "platformPostId": "1855663743008706704",
+        "platformObjectId": null,
+        "postedAt": "2024-11-10T17:28:07.000Z"
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "x",
+        "entityType": "company",
+        "entityId": "company-sunflower",
+        "sourceUrl": "https://x.com/sunflowersober/status/2047633858539966761",
+        "platformPostId": "2047633858539966761",
+        "platformObjectId": null,
+        "postedAt": "2026-04-24T11:08:49.000Z"
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "x",
+        "entityType": "company",
+        "entityId": "company-sunflower",
+        "sourceUrl": "https://x.com/sunflowersober/status/2047672910391779712",
+        "platformPostId": "2047672910391779712",
+        "platformObjectId": null,
+        "postedAt": "2026-04-24T13:44:00.000Z"
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "x",
+        "entityType": "company",
+        "entityId": "company-sunflower",
+        "sourceUrl": "https://x.com/sunflowersober/status/2053857853103120496",
+        "platformPostId": "2053857853103120496",
+        "platformObjectId": null,
+        "postedAt": "2026-05-11T15:20:45.000Z"
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "x",
+        "entityType": "company",
+        "entityId": "company-sunflower",
+        "sourceUrl": "https://x.com/sunflowersober/status/2054217384282800559",
+        "platformPostId": "2054217384282800559",
+        "platformObjectId": null,
+        "postedAt": "2026-05-12T15:09:24.000Z"
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "x",
+        "entityType": "founder",
+        "entityId": "founder-moving-atoms-shehryar-saroya-1776350",
+        "sourceUrl": "https://x.com/saroyashehryar/status/2070515679288336891",
+        "platformPostId": "2070515679288336891",
+        "platformObjectId": null,
+        "postedAt": "2026-06-26T14:33:00.000Z"
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "youtube",
+        "entityType": "company",
+        "entityId": "company-coasty",
+        "sourceUrl": "https://youtube.com/watch?v=Mlbg_kVvJBY",
+        "platformPostId": "Mlbg_kVvJBY",
+        "platformObjectId": null,
+        "postedAt": "2026-08-11T18:29:36.000Z"
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "youtube",
+        "entityType": "company",
+        "entityId": "company-coasty",
+        "sourceUrl": "https://youtube.com/watch?v=XPqRjKY2Sqg",
+        "platformPostId": "XPqRjKY2Sqg",
+        "platformObjectId": null,
+        "postedAt": "2026-08-11T16:28:38.000Z"
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "x",
+        "entityType": "founder",
+        "entityId": "founder-moving-atoms-shehryar-saroya-1776350",
+        "sourceUrl": "https://x.com/saroyashehryar/status/2070993851230437801",
+        "platformPostId": "2070993851230437801",
+        "platformObjectId": null,
+        "postedAt": "2026-06-27T22:13:05.000Z"
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "x",
+        "entityType": "founder",
+        "entityId": "founder-moving-atoms-shehryar-saroya-1776350",
+        "sourceUrl": "https://x.com/saroyashehryar/status/2073926918253220218",
+        "platformPostId": "2073926918253220218",
+        "platformObjectId": null,
+        "postedAt": "2026-07-06T00:28:03.000Z"
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "x",
+        "entityType": "founder",
+        "entityId": "founder-moving-atoms-shehryar-saroya-1776350",
+        "sourceUrl": "https://x.com/saroyashehryar/status/2077862906302214163",
+        "platformPostId": "2077862906302214163",
+        "platformObjectId": null,
+        "postedAt": "2026-07-16T21:08:16.000Z"
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "x",
+        "entityType": "founder",
+        "entityId": "founder-sunflower-koby-conrad-132378",
+        "sourceUrl": "https://x.com/kobyjconrad/status/2085191885815988683",
+        "platformPostId": "2085191885815988683",
+        "platformObjectId": null,
+        "postedAt": "2026-08-06T02:31:01.000Z"
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "x",
+        "entityType": "founder",
+        "entityId": "founder-sunflower-koby-conrad-132378",
+        "sourceUrl": "https://x.com/kobyjconrad/status/2085852796486586433",
+        "platformPostId": "2085852796486586433",
+        "platformObjectId": null,
+        "postedAt": "2026-08-07T22:17:14.000Z"
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "x",
+        "entityType": "founder",
+        "entityId": "founder-sunflower-koby-conrad-132378",
+        "sourceUrl": "https://x.com/kobyjconrad/status/2086227006924976267",
+        "platformPostId": "2086227006924976267",
+        "platformObjectId": null,
+        "postedAt": "2026-08-08T23:04:13.000Z"
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "x",
+        "entityType": "founder",
+        "entityId": "founder-sunflower-koby-conrad-132378",
+        "sourceUrl": "https://x.com/kobyjconrad/status/2086478096748728470",
+        "platformPostId": "2086478096748728470",
+        "platformObjectId": null,
+        "postedAt": "2026-08-09T15:41:57.000Z"
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "x",
+        "entityType": "founder",
+        "entityId": "founder-sunflower-koby-conrad-132378",
+        "sourceUrl": "https://x.com/kobyjconrad/status/2086970346708607091",
+        "platformPostId": "2086970346708607091",
+        "platformObjectId": null,
+        "postedAt": "2026-08-11T00:17:59.000Z"
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "x",
+        "entityType": "founder",
+        "entityId": "founder-egoist-machines-david-khachaturov-1963978",
+        "sourceUrl": "https://x.com/davidobot_/status/2087204636596043856",
+        "platformPostId": "2087204636596043856",
+        "platformObjectId": null,
+        "postedAt": "2026-08-11T15:48:58.000Z"
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "x",
+        "entityType": "founder",
+        "entityId": "founder-exosat-edward-ge-689300",
+        "sourceUrl": "https://x.com/edwardge/status/2087205751114903631",
+        "platformPostId": "2087205751114903631",
+        "platformObjectId": null,
+        "postedAt": "2026-08-11T15:53:24.000Z"
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "x",
+        "entityType": "founder",
+        "entityId": "founder-egoist-machines-erin-mcgurk-3328552",
+        "sourceUrl": "https://x.com/erinmerylstudy/status/2087215572610425207",
+        "platformPostId": "2087215572610425207",
+        "platformObjectId": null,
+        "postedAt": "2026-08-11T16:32:25.000Z"
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "x",
+        "entityType": "founder",
+        "entityId": "founder-egoist-machines-erin-mcgurk-3328552",
+        "sourceUrl": "https://x.com/erinmerylstudy/status/2087216015931474340",
+        "platformPostId": "2087216015931474340",
+        "platformObjectId": null,
+        "postedAt": "2026-08-11T16:34:11.000Z"
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "x",
+        "entityType": "founder",
+        "entityId": "founder-egoist-machines-erin-mcgurk-3328552",
+        "sourceUrl": "https://x.com/erinmerylstudy/status/2087216280663380315",
+        "platformPostId": "2087216280663380315",
+        "platformObjectId": null,
+        "postedAt": "2026-08-11T16:35:14.000Z"
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "x",
+        "entityType": "founder",
+        "entityId": "founder-egoist-machines-erin-mcgurk-3328552",
+        "sourceUrl": "https://x.com/erinmerylstudy/status/2087216747086741678",
+        "platformPostId": "2087216747086741678",
+        "platformObjectId": null,
+        "postedAt": "2026-08-11T16:37:05.000Z"
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "x",
+        "entityType": "founder",
+        "entityId": "founder-pacific-harper-dammann-smith-3218344",
+        "sourceUrl": "https://x.com/harperdammann/status/2087228718234427520",
+        "platformPostId": "2087228718234427520",
+        "platformObjectId": null,
+        "postedAt": "2026-08-11T17:24:39.000Z"
+      }
+    ],
+    "trigger": "schedule",
+    "scheduledAt": "2026-08-11T23:00:00.000Z",
+    "terminalFailureBudget": 116
   }
 ]

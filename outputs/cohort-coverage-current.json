@@ -12,8 +12,8 @@
         "catalog": "src/lib/social/a16z-speedrun-006-social-accounts.json",
         "profileSource": "src/lib/graph/a16z-speedrun-006-dataset.ts",
         "graph": "public/graph/a16zsr006.json",
-        "publicRun": "/home/runner/work/returner-fund/returner-fund/work/autonomous-ingestion/manual-replay-20260811T154200Z-a2845f95-final-c07a5f3458bd5ef2/public-a16zsr006.json",
-        "githubRun": "/home/runner/work/returner-fund/returner-fund/work/autonomous-ingestion/manual-replay-20260811T154200Z-a2845f95-final-c07a5f3458bd5ef2/github-a16zsr006.json"
+        "publicRun": "/home/runner/work/returner-fund/returner-fund/work/autonomous-ingestion/central-2026-08-11-1800-b1c2375fddc65afd/public-a16zsr006.json",
+        "githubRun": "/home/runner/work/returner-fund/returner-fund/work/autonomous-ingestion/central-2026-08-11-1800-b1c2375fddc65afd/github-a16zsr006.json"
       },
       "counts": {
         "companies": 59,
@@ -24,7 +24,7 @@
         "plannedOwnerMappings": 339,
         "multiAccountOwnerMappings": 4,
         "graphEvidence": 5000,
-        "graphNeedsReview": 2364
+        "graphNeedsReview": 2367
       },
       "structural": {
         "status": "pass",
@@ -828,8 +828,8 @@
         "catalog": "src/lib/yc/spring-2026-companies.json",
         "profileSource": null,
         "graph": "public/graph/s2026.json",
-        "publicRun": "/home/runner/work/returner-fund/returner-fund/work/autonomous-ingestion/manual-replay-20260811T154200Z-a2845f95-final-c07a5f3458bd5ef2/public-s2026.json",
-        "githubRun": "/home/runner/work/returner-fund/returner-fund/work/autonomous-ingestion/manual-replay-20260811T154200Z-a2845f95-final-c07a5f3458bd5ef2/github-s2026.json"
+        "publicRun": "/home/runner/work/returner-fund/returner-fund/work/autonomous-ingestion/central-2026-08-11-1800-b1c2375fddc65afd/public-s2026.json",
+        "githubRun": "/home/runner/work/returner-fund/returner-fund/work/autonomous-ingestion/central-2026-08-11-1800-b1c2375fddc65afd/github-s2026.json"
       },
       "counts": {
         "companies": 197,
@@ -840,7 +840,7 @@
         "plannedOwnerMappings": 994,
         "multiAccountOwnerMappings": 1,
         "graphEvidence": 5000,
-        "graphNeedsReview": 9875
+        "graphNeedsReview": 9886
       },
       "structural": {
         "status": "pass",
@@ -2308,19 +2308,19 @@
         "catalog": "src/lib/yc/summer-2026-companies.json",
         "profileSource": null,
         "graph": "public/graph/s26.json",
-        "publicRun": "/home/runner/work/returner-fund/returner-fund/work/autonomous-ingestion/manual-replay-20260811T154200Z-a2845f95-final-c07a5f3458bd5ef2/public-s26.json",
-        "githubRun": "/home/runner/work/returner-fund/returner-fund/work/autonomous-ingestion/manual-replay-20260811T154200Z-a2845f95-final-c07a5f3458bd5ef2/github-s26.json"
+        "publicRun": "/home/runner/work/returner-fund/returner-fund/work/autonomous-ingestion/central-2026-08-11-1800-b1c2375fddc65afd/public-s26.json",
+        "githubRun": "/home/runner/work/returner-fund/returner-fund/work/autonomous-ingestion/central-2026-08-11-1800-b1c2375fddc65afd/github-s26.json"
       },
       "counts": {
-        "companies": 197,
-        "founders": 388,
-        "catalogOwnerMappings": 960,
-        "graphOwnerMappings": 957,
-        "catalogOwnerPlatformGroups": 960,
-        "plannedOwnerMappings": 960,
+        "companies": 201,
+        "founders": 394,
+        "catalogOwnerMappings": 977,
+        "graphOwnerMappings": 973,
+        "catalogOwnerPlatformGroups": 977,
+        "plannedOwnerMappings": 977,
         "multiAccountOwnerMappings": 0,
         "graphEvidence": 5000,
-        "graphNeedsReview": 7663
+        "graphNeedsReview": 7707
       },
       "structural": {
         "status": "pass",
@@ -2356,6 +2356,24 @@
               "jcode"
             ],
             "key": "S26|company|company-jcode|linkedin|https://linkedin.com/in/jeremy1huang"
+          },
+          {
+            "batchSlug": "S26",
+            "entityType": "company",
+            "entityId": "company-sunflower",
+            "entityName": "Sunflower",
+            "sourceId": "30914",
+            "companyEntityId": "company-sunflower",
+            "companySlug": "sunflower",
+            "platform": "linkedin",
+            "canonicalUrl": "https://linkedin.com/in/kobyconrad",
+            "originalUrl": "https://www.linkedin.com/in/kobyconrad/",
+            "ownerReferenceCandidates": [
+              "30914",
+              "company-sunflower",
+              "sunflower"
+            ],
+            "key": "S26|company|company-sunflower|linkedin|https://linkedin.com/in/kobyconrad"
           },
           {
             "batchSlug": "S26",
@@ -2399,39 +2417,39 @@
         "mappingCoverage": {
           "github": {
             "companyMapped": 39,
-            "companyMissing": 158,
+            "companyMissing": 162,
             "founderMapped": 1,
-            "founderMissing": 387
+            "founderMissing": 393
           },
           "instagram": {
             "companyMapped": 7,
-            "companyMissing": 190,
+            "companyMissing": 194,
             "founderMapped": 0,
-            "founderMissing": 388
+            "founderMissing": 394
           },
           "linkedin": {
-            "companyMapped": 178,
+            "companyMapped": 182,
             "companyMissing": 19,
-            "founderMapped": 384,
+            "founderMapped": 390,
             "founderMissing": 4
           },
           "product_hunt": {
             "companyMapped": 5,
-            "companyMissing": 192,
+            "companyMissing": 196,
             "founderMapped": 0,
-            "founderMissing": 388
+            "founderMissing": 394
           },
           "x": {
-            "companyMapped": 112,
-            "companyMissing": 85,
-            "founderMapped": 222,
-            "founderMissing": 166
+            "companyMapped": 115,
+            "companyMissing": 86,
+            "founderMapped": 226,
+            "founderMissing": 168
           },
           "youtube": {
             "companyMapped": 11,
-            "companyMissing": 186,
+            "companyMissing": 190,
             "founderMapped": 0,
-            "founderMissing": 388
+            "founderMissing": 394
           }
         },
         "noMappedAccounts": [
@@ -2478,6 +2496,11 @@
           {
             "entityId": "founder-erinys-matthew-pallan-1511726",
             "name": "Matthew Pallan",
+            "companyName": null
+          },
+          {
+            "entityId": "company-moving-atoms",
+            "name": "Moving Atoms",
             "companyName": null
           },
           {
@@ -2742,6 +2765,11 @@
             "companyName": null
           },
           {
+            "entityId": "company-moving-atoms",
+            "name": "Moving Atoms",
+            "companyName": null
+          },
+          {
             "entityId": "company-ooak-data",
             "name": "Ooak Data",
             "companyName": null
@@ -2807,6 +2835,11 @@
             "companyName": null
           },
           {
+            "entityId": "company-tenor",
+            "name": "Tenor",
+            "companyName": null
+          },
+          {
             "entityId": "company-tensr",
             "name": "Tensr",
             "companyName": null
@@ -2819,6 +2852,11 @@
           {
             "entityId": "company-touchmark",
             "name": "Touchmark",
+            "companyName": null
+          },
+          {
+            "entityId": "company-trynearby",
+            "name": "TryNearby",
             "companyName": null
           },
           {
@@ -3239,6 +3277,11 @@
             "companyName": "Molagri"
           },
           {
+            "entityId": "founder-moving-atoms-ahmad-saroya-2375000",
+            "name": "Ahmad Saroya",
+            "companyName": "Moving Atoms"
+          },
+          {
             "entityId": "founder-nebula-security-yuan-tan-3676420",
             "name": "Yuan Tan",
             "companyName": "Nebula Security"
@@ -3457,6 +3500,11 @@
             "entityId": "founder-tash-nicolas-sharma-3063171",
             "name": "Nicolas Sharma",
             "companyName": "tash"
+          },
+          {
+            "entityId": "founder-tenor-amgad-al-zamkan-2719109",
+            "name": "Amgad Al-Zamkan",
+            "companyName": "Tenor"
           },
           {
             "entityId": "founder-tensr-adith-sundram-916548",
@@ -3686,6 +3734,11 @@
             "companyName": null
           },
           {
+            "entityId": "company-moving-atoms",
+            "name": "Moving Atoms",
+            "companyName": null
+          },
+          {
             "entityId": "company-ooak-data",
             "name": "Ooak Data",
             "companyName": null
@@ -3751,6 +3804,11 @@
             "companyName": null
           },
           {
+            "entityId": "company-tenor",
+            "name": "Tenor",
+            "companyName": null
+          },
+          {
             "entityId": "company-tensr",
             "name": "Tensr",
             "companyName": null
@@ -3763,6 +3821,11 @@
           {
             "entityId": "company-touchmark",
             "name": "Touchmark",
+            "companyName": null
+          },
+          {
+            "entityId": "company-trynearby",
+            "name": "TryNearby",
             "companyName": null
           },
           {

@@ -4,9 +4,9 @@
     "directoryUrl": "https://www.ycombinator.com/companies?batch=Summer%202026",
     "algoliaIndex": "YCCompany_production",
     "algoliaFilter": "batch:\"Summer 2026\"",
-    "fetchedAt": "2026-08-11T15:42:54.617Z",
-    "expectedCompanyCount": 197,
-    "observedCompanyCount": 197,
+    "fetchedAt": "2026-08-11T23:41:43.259Z",
+    "expectedCompanyCount": 201,
+    "observedCompanyCount": 201,
     "minimumCompanyCount": 167,
     "notes": [
       "Generated from public, unauthenticated YC pages.",
@@ -2071,8 +2071,8 @@
       "batch": "Summer 2026",
       "ycProfileUrl": "https://www.ycombinator.com/companies/click",
       "websiteUrl": "https://www.useclick.ai",
-      "tagline": "Web search & connectors for agents",
-      "description": "Click builds chat-native work services for ChatGPT and Claude. \r\nWe’re starting with a research service that brings live external context from professional & social platforms, financial markets, maps, travel sources - and a lot more - into the conversation. \r\nIt makes research on people & companies even deeper with specialized, source-backed context beyond built-in web search, while enabling new tasks like comparing live flight fares right inside the chat.",
+      "tagline": "Research services for ChatGPT and Claude",
+      "description": "Click builds useful services that meet users right inside ChatGPT and Claude.\r\nWe're starting with a research service that provides external context that the built-in web search misses - like data from professional & social platforms, marketplaces, financials, and more. \r\nIt makes research on people & companies even deeper with specialized, source-backed context beyond built-in web search, while enabling new tasks like comparing live flight fares right inside the chat.",
       "industry": "B2B",
       "subindustry": "B2B -> Analytics",
       "industries": [
@@ -2081,8 +2081,8 @@
       ],
       "tags": [
         "Artificial Intelligence",
-        "Infrastructure",
-        "AI"
+        "API",
+        "Infrastructure"
       ],
       "location": "San Francisco",
       "teamSize": 1,
@@ -4739,7 +4739,7 @@
       "name": "Hop Aero",
       "batch": "Summer 2026",
       "ycProfileUrl": "https://www.ycombinator.com/companies/hop-aero",
-      "websiteUrl": "https://hop-aero.com",
+      "websiteUrl": "https://hopaero.com",
       "tagline": "Rocket cargo delivery to contested environments",
       "description": "Hop Aero is building rocket cargo vehicles that deliver to contested environments hundreds of miles away in minutes. Our rockets fly point-to-point into the most austere locations at hypersonic speeds. Hop Aero's goal is to provide the U.S. and allies the asymmetric advantage that deters a future major conflict.",
       "industry": "Industrials",
@@ -5932,31 +5932,35 @@
       "batch": "Summer 2026",
       "ycProfileUrl": "https://www.ycombinator.com/companies/libra-robotics",
       "websiteUrl": "https://www.librabots.com/",
-      "tagline": "Autonomous robots for solar farm construction",
-      "description": "",
+      "tagline": "Multi-robot collaboration for harsh environments on Earth.",
+      "description": "We build collaborative robot squads for solar farm construction.\r\n\r\nHigh labor costs, labor shortages, and unpredictable productivity make infrastructure difficult to build in places that are remote, harsh, or empty. We are building robots to unlock places once considered too difficult to develop. Solar is our first proving ground, spanning utility-scale, commercial and industrial, community solar, agrivoltaic, and other projects.\r\n\r\nUnlike solutions that automate only one task, or even part of one, we cover the workflow after PV module pallets arrive on-site: transportation, installation, alignment, and fastening. Each robot has a specific role, and fleets can be configured based on each project’s cost and schedule requirements.\r\n\r\nOur robots operate autonomously with remote supervision. One person can supervise 4+ robots through a screen and an e-stop button, without being physically present or teleoperating them. Our robotic fleet has also been tested at night, paving the way for 24/7 operation.\r\n\r\nWe work directly with EPCs through a Robotics-as-a-Service model, requiring no robot purchase or large upfront capital investment. We also work with racking and PV module manufacturers to certify compatibility and give customers confidence in deployment.\r\n\r\nPurpose-built hardware, multimodal sensing, and physical AI software help our robots handle real-world construction uncertainty.",
       "industry": "Industrials",
-      "subindustry": "Industrials -> Energy",
+      "subindustry": "Industrials -> Manufacturing and Robotics",
       "industries": [
         "Industrials",
-        "Energy"
+        "Manufacturing and Robotics"
       ],
       "tags": [
-        "Robotic Process Automation",
-        "Solar Power",
-        "Sustainability"
+        "Artificial Intelligence",
+        "Robotics",
+        "Construction",
+        "Sustainability",
+        "Energy"
       ],
       "location": "San Francisco",
-      "teamSize": 0,
+      "teamSize": 2,
       "status": "Active",
       "groupPartner": "Tyler Bosmeny",
       "groupPartnerUrl": "https://www.ycombinator.com/people/tyler-bosmeny",
-      "socialLinks": {},
+      "socialLinks": {
+        "linkedin": "https://www.linkedin.com/company/librabots"
+      },
       "founders": [
         {
           "id": "2782328",
           "name": "Yaojing Huang",
           "title": "Founder",
-          "bio": "Bringing robotics from labs to construction sites",
+          "bio": "Stanford CEE+CS | PhD defended in Construction Robotics",
           "ycProfileUrl": "https://www.ycombinator.com/people/yaojing-huang",
           "socialLinks": {
             "linkedin": "https://www.linkedin.com/in/yaojing-h-0b903620b/"
@@ -5966,7 +5970,7 @@
           "id": "3178817",
           "name": "Jermaine Zhao",
           "title": "Founder",
-          "bio": "Go to sleep. Wake up. The solar farm is built.",
+          "bio": "EE & ME @ Stanford\nFull-stack Robotics Engineer\nFounder @ Libra Robotics\nGo to sleep. Wake up. The solar farm is built.",
           "ycProfileUrl": "https://www.ycombinator.com/people/jermaine-zhao",
           "socialLinks": {
             "linkedin": "https://www.linkedin.com/in/jermaine-zhao-9439202a2/"
@@ -6714,6 +6718,62 @@
       "launch": null,
       "sourceUrls": [
         "https://www.ycombinator.com/companies/mosaic-inc",
+        "https://www.ycombinator.com/companies?batch=Summer%202026"
+      ]
+    },
+    {
+      "id": "32752",
+      "objectID": "32752",
+      "slug": "moving-atoms",
+      "name": "Moving Atoms",
+      "batch": "Summer 2026",
+      "ycProfileUrl": "https://www.ycombinator.com/companies/moving-atoms",
+      "websiteUrl": "https://movingatoms.ai/",
+      "tagline": "Virtual Reality for Robots (World Models)",
+      "description": "We use World Models to evaluate  and train robots. This enables you to test your policy checkpoints easily, as well as augmenting your training dataset. Scaling GPUs is much cheaper than scaling robot arms and humans needed to moniter them.",
+      "industry": "Industrials",
+      "subindustry": "Industrials -> Manufacturing and Robotics",
+      "industries": [
+        "Industrials",
+        "Manufacturing and Robotics"
+      ],
+      "tags": [
+        "Artificial Intelligence",
+        "Robotics",
+        "Virtual Reality"
+      ],
+      "location": "San Francisco",
+      "teamSize": 2,
+      "status": "Active",
+      "groupPartner": "Brad Flora",
+      "groupPartnerUrl": "https://www.ycombinator.com/people/brad-flora",
+      "socialLinks": {},
+      "founders": [
+        {
+          "id": "2375000",
+          "name": "Ahmad Saroya",
+          "title": "Founder",
+          "bio": "Founder @ Moving Atoms\nStudied Mathematics @ Oxford",
+          "ycProfileUrl": "https://www.ycombinator.com/people/ahmad-saroya",
+          "socialLinks": {
+            "linkedin": "https://www.linkedin.com/in/ahmad-saroya-a05400237/"
+          }
+        },
+        {
+          "id": "1776350",
+          "name": "Shehryar Saroya",
+          "title": "Founder",
+          "bio": "Founder at Moving Atoms (YC S26). \nPreviously AI @ TikTok (Core Recomendation Algorithm). Maths @ Oxford.",
+          "ycProfileUrl": "https://www.ycombinator.com/people/shehryar-saroya",
+          "socialLinks": {
+            "linkedin": "https://linkedin.com/in/shehryar-saroya",
+            "x": "https://x.com/SaroyaShehryar"
+          }
+        }
+      ],
+      "launch": null,
+      "sourceUrls": [
+        "https://www.ycombinator.com/companies/moving-atoms",
         "https://www.ycombinator.com/companies?batch=Summer%202026"
       ]
     },
@@ -10094,6 +10154,50 @@
       ]
     },
     {
+      "id": "30914",
+      "objectID": "30914",
+      "slug": "sunflower",
+      "name": "Sunflower",
+      "batch": "Summer 2026",
+      "ycProfileUrl": "https://www.ycombinator.com/companies/sunflower",
+      "websiteUrl": "https://sunflowersober.com/",
+      "tagline": "Building the Sobriety Platform for the future of Superintelligence. 🌻",
+      "description": "Sunflower is on a mission to create one trillion days sober. Our product is both a consumer app (think a \"Duolingo for addiction\") but also with a tele-therapy clinic inside. \r\n\r\nConsumer App: \r\n- We built the #1 AI Sponsor for any kind of addiction\r\n- Beautiful visual progression tracking to power the core \"task to be done\" of addiction\r\n- A twitter style social media for addicts \r\n- DIY learn content (think Masterclass for addiction) for all major addiction types \r\n- CBT based journaling exercises \r\n\r\nTele-Therapy: \r\n- Think a \"Early Medical Peter Attia\" quality of clinic, but completely focused on addiction \r\n- Starting with talk therapy in CA & TX we're rolling out to all 50 states + MAT \r\n- Bringing together the worlds best doctors to create the most effective protocol for addiction \r\n\r\nSunflower went from 0 - 100k MAU in less than 6 months, and now we're continuing the traction to create the #1 product for addiction for the 1.2B humans on this planet that struggle with this fundamental human problem. ",
+      "industry": "Consumer",
+      "subindustry": "Consumer",
+      "industries": [
+        "Consumer"
+      ],
+      "tags": [],
+      "location": "San Francisco",
+      "teamSize": 15,
+      "status": "Active",
+      "groupPartner": "Garry Tan",
+      "groupPartnerUrl": "https://www.ycombinator.com/people/garry-tan",
+      "socialLinks": {
+        "linkedin": "https://www.linkedin.com/in/kobyconrad/",
+        "x": "https://x.com/SunflowerSober"
+      },
+      "founders": [
+        {
+          "id": "132378",
+          "name": "Koby Conrad",
+          "title": "CEO & Founder",
+          "bio": "CEO & Founder @SunflowerSober 🌻 we're on a mission to create one billion days sober, one day at a time. YC S19 alumni, angel investor, growth marketer.",
+          "ycProfileUrl": "https://www.ycombinator.com/people/koby-conrad",
+          "socialLinks": {
+            "linkedin": "https://www.linkedin.com/in/kobyconrad/",
+            "x": "https://x.com/kobyjconrad"
+          }
+        }
+      ],
+      "launch": null,
+      "sourceUrls": [
+        "https://www.ycombinator.com/companies/sunflower",
+        "https://www.ycombinator.com/companies?batch=Summer%202026"
+      ]
+    },
+    {
       "id": "32168",
       "objectID": "32168",
       "slug": "synapse-semiconductor",
@@ -10276,6 +10380,64 @@
       "launch": null,
       "sourceUrls": [
         "https://www.ycombinator.com/companies/tash",
+        "https://www.ycombinator.com/companies?batch=Summer%202026"
+      ]
+    },
+    {
+      "id": "32627",
+      "objectID": "32627",
+      "slug": "tenor",
+      "name": "Tenor",
+      "batch": "Summer 2026",
+      "ycProfileUrl": "https://www.ycombinator.com/companies/tenor",
+      "websiteUrl": "https://heytenor.com/",
+      "tagline": "Turn every employee into a manager of AI workers",
+      "description": "Your AI spend becomes accountable labor: every AI worker gets a job, persistent context, a budget, guardrails, and outcomes you can measure.\r\n\r\nCopilots made individuals faster. Agent builders made automations easier to create. Both leave the organization unchanged: same roles, same capacity, same org chart, and leadership still sees AI as a software expense, not labor. \r\n\r\nTenor makes AI enter the company as labor instead: every employee manages a team of AI workers built around the recurring work of their role, each with a defined job, boundaries, a budget, and a record of what it delivered. Employees provide the judgment. AI workers provide the execution. Leadership finally sees what AI spend returns.",
+      "industry": "B2B",
+      "subindustry": "B2B",
+      "industries": [
+        "B2B"
+      ],
+      "tags": [
+        "Artificial Intelligence",
+        "B2B",
+        "Automation"
+      ],
+      "location": "San Francisco",
+      "teamSize": 3,
+      "status": "Active",
+      "groupPartner": "Jon Xu",
+      "groupPartnerUrl": "https://www.ycombinator.com/people/jon-xu",
+      "socialLinks": {
+        "linkedin": "https://www.linkedin.com/company/heytenor/",
+        "x": "https://x.com/agentemployees"
+      },
+      "founders": [
+        {
+          "id": "2719109",
+          "name": "Amgad Al-Zamkan",
+          "title": "Founder",
+          "bio": "Co-founder @ Tenor.\nPreviously at Amazon, studied CS at UC Berkeley and TU Munich. As a grad student, Amgad's research focused on optimization objectives in recommendation algorithms and shaping adaptive decision systems.",
+          "ycProfileUrl": "https://www.ycombinator.com/people/amgad-al-zamkan",
+          "socialLinks": {
+            "linkedin": "https://www.linkedin.com/in/amgad-al-zamkan/"
+          }
+        },
+        {
+          "id": "989310",
+          "name": "Muhtasham Oblokulov",
+          "title": "Co-Founder",
+          "bio": "Co-founder @ Tenor, building the future of AI-native work. Early contributor to DeepSeek and co-author of the highly cited StarCoder series and CodeClash with Stanford University. Previously deployed large-scale AI systems across global reinsurance markets.",
+          "ycProfileUrl": "https://www.ycombinator.com/people/muhtasham-oblokulov",
+          "socialLinks": {
+            "linkedin": "https://www.linkedin.com/in/muhtasham/",
+            "x": "https://x.com/Muhtasham9"
+          }
+        }
+      ],
+      "launch": null,
+      "sourceUrls": [
+        "https://www.ycombinator.com/companies/tenor",
         "https://www.ycombinator.com/companies?batch=Summer%202026"
       ]
     },
@@ -10742,6 +10904,56 @@
       "launch": null,
       "sourceUrls": [
         "https://www.ycombinator.com/companies/trustai",
+        "https://www.ycombinator.com/companies?batch=Summer%202026"
+      ]
+    },
+    {
+      "id": "32815",
+      "objectID": "32815",
+      "slug": "trynearby",
+      "name": "TryNearby",
+      "batch": "Summer 2026",
+      "ycProfileUrl": "https://www.ycombinator.com/companies/trynearby",
+      "websiteUrl": "https://trynearby.com",
+      "tagline": "Local creators for local businesses",
+      "description": "TryNearby connects local businesses with creators who live nearby. Restaurants subscribe monthly and automatically get booked visits from local creators who film, edit, and post a review to the local algorithm. This creates a steady stream of content that compounds into discovery on TikTok, Instagram, and increasingly AI search. Over 100 restaurants and thousands of creators are on the platform across Southern California, with AI agents handling matching, booking, and every creator conversation.",
+      "industry": "B2B",
+      "subindustry": "B2B -> Marketing",
+      "industries": [
+        "B2B",
+        "Marketing"
+      ],
+      "tags": [
+        "Restaurant Tech",
+        "Marketing",
+        "Creator Economy",
+        "SMB"
+      ],
+      "location": "Los Angeles, CA",
+      "teamSize": 5,
+      "status": "Active",
+      "groupPartner": "Brad Flora",
+      "groupPartnerUrl": "https://www.ycombinator.com/people/brad-flora",
+      "socialLinks": {
+        "linkedin": "https://www.linkedin.com/company/trynearby",
+        "x": "https://www.x.com/trynearby_"
+      },
+      "founders": [
+        {
+          "id": "3490413",
+          "name": "Yousef Abdelfattah",
+          "title": "Founder",
+          "bio": "Co-founded FaZe Clan after starting as a 14 year old YouTuber in 2011. Spent the last 15 years in the creator economy turning FaZe into the first internet-native content company to IPO at $1B. Now building for local creators and businesses.",
+          "ycProfileUrl": "https://www.ycombinator.com/people/yousef-abdelfattah",
+          "socialLinks": {
+            "linkedin": "https://www.linkedin.com/in/yousef-abdelfattah-b0906b336/",
+            "x": "https://x.com/fazeapex"
+          }
+        }
+      ],
+      "launch": null,
+      "sourceUrls": [
+        "https://www.ycombinator.com/companies/trynearby",
         "https://www.ycombinator.com/companies?batch=Summer%202026"
       ]
     },

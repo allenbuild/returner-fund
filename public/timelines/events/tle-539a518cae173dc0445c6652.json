@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-inkbox",
+    "slug": "inkbox",
+    "name": "Inkbox"
+  },
+  "event": {
+    "id": "tle-539a518cae173dc0445c6652",
+    "eventDate": "2026-08-11",
+    "eventDateType": "announcement_date",
+    "title": "Inkbox released Agent2Agent on",
+    "summary": "Inkbox announced it was launching Agent2Agent on @inkbox_ai.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-5b98b09ea0bd3c050d9f0b62",
+        "title": "Today we're launching Agent2Agent on @inkbox_ai.",
+        "publisher": "rayruizhiliao",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-08-11T18:12:38.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/rayruizhiliao/status/2087240792192733361"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-5b98b09ea0bd3c050d9f0b62",
+        "title": "Today we're launching Agent2Agent on @inkbox_ai.",
+        "publisher": "rayruizhiliao",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-08-11T18:12:38.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/rayruizhiliao/status/2087240792192733361",
+        "publicationDate": "2026-08-11T18:12:38.000Z",
+        "excerpt": "Today we're launching Agent2Agent on @inkbox_ai. For your agents to behave like teammates, we gave them identities with their own email, phone, and iMessage. We've noticed a growing pattern: as agents become more autonomous, humans relay information between them. It's slow and https://t.co/VSdei89w65",
+        "sourceEventDate": "2026-08-11",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-f97eb471a668ced034dbff2a",
+        "platform": "x",
+        "account": "rayruizhiliao",
+        "postDate": "2026-08-11",
+        "excerpt": "Today we're launching Agent2Agent on @inkbox_ai. For your agents to behave like teammates, we gave them identities with their own email, phone, and iMessage. We've noticed a growing pattern: as agents become more autonomous, humans relay information between them. It's slow and https://t.co/VSdei89w65",
+        "url": "https://x.com/rayruizhiliao/status/2087240792192733361",
+        "metrics": {
+          "likes": 70,
+          "reposts": 13,
+          "replies": 21,
+          "views": 127172
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-12T00:42:36.083Z",
+  "lastModifiedAt": "2026-08-12T00:42:36.083Z"
+}
