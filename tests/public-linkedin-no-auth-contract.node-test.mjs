@@ -46,7 +46,7 @@ test("Summer collection keeps LinkedIn on the public lane", () => {
   assert.doesNotMatch(loggedInInstagram, /--platforms=linkedin|--allow-linkedin/);
 });
 
-test("S26 autonomous collection keeps LinkedIn on the public lane", () => {
+test("S26 public collection keeps its anonymous LinkedIn transport separate", () => {
   assert.ok(AUTONOMOUS_BATCHES.some((batch) => batch.slug === "S26"));
 
   const collectors = section(
@@ -54,19 +54,21 @@ test("S26 autonomous collection keeps LinkedIn on the public lane", () => {
     "async function runCollectors()",
     "async function runTopVoiceCollector"
   );
+  const publicCommands = section(collectors, "const commands = [", "for (const command of commands)");
   assert.match(collectors, /AUTONOMOUS_BATCHES\.map/);
   assert.match(
-    collectors,
+    publicCommands,
     /sourcePath\(\s*"scripts",\s*"fetch-public-traction\.mjs"\s*\)/
   );
-  assert.match(collectors, /`--batch=\$\{batchSlug\}`/);
-  assert.match(collectors, /"--social=all"/);
-  assert.match(collectors, /`--linkedin-workers=\$\{PUBLIC_SOCIAL_LANE_CONCURRENCY\}`/);
+  assert.match(publicCommands, /`--batch=\$\{batchSlug\}`/);
+  assert.match(publicCommands, /"--social=all"/);
+  assert.match(publicCommands, /`--linkedin-workers=\$\{PUBLIC_SOCIAL_LANE_CONCURRENCY\}`/);
   assert.match(autonomousRunner, /const PUBLIC_SOCIAL_LANE_CONCURRENCY = 1/);
   assert.doesNotMatch(
-    collectors,
+    publicCommands,
     /fetch-logged-in-social-traction|ingest:logged-social|--allow-linkedin/
   );
+  assert.match(collectors, /fetch-logged-in-social-traction/);
 });
 
 test("the anonymous LinkedIn transport strips credential-bearing headers", () => {

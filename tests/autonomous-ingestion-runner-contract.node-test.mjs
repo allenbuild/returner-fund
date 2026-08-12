@@ -946,6 +946,7 @@ describe("autonomous ingestion runner static safety contracts", () => {
     assert.ok(commandRunner.includes('HOME: isolatedHome'));
     assert.ok(runner.includes('envCategory: "public_collector"'));
     assert.ok(runner.includes('envCategory: "github_collector"'));
+    assert.ok(runner.includes('authenticated_social: [\n    "HOME"'));
     assert.ok(runner.includes('envCategory: "durable_timeline"'));
     assert.ok(runner.includes('envCategory: "publication_data"'));
     assert.ok(runner.includes('envCategory: "benchmark"'));
@@ -1461,9 +1462,16 @@ describe("autonomous ingestion runner static safety contracts", () => {
     assert.ok(safePath.includes("update(source)"));
   });
 
-  it("never invokes a collector that depends on a logged-in browser session", () => {
+  it("runs authenticated social collection only through the dedicated bounded lane", () => {
     const collectors = section("async function runCollectors()", "async function runTopVoiceCollector");
-    assert.doesNotMatch(collectors, /fetch-logged-in-social-traction|ingest:logged-social|logged[-_ ]?in/i);
+    assert.match(collectors, /fetch-logged-in-social-traction/);
+    assert.match(collectors, /"--platforms=instagram"/);
+    assert.match(collectors, /"--platforms=linkedin"/);
+    assert.match(collectors, /"--allow-linkedin"/);
+    assert.match(collectors, /"--workers=1"/);
+    assert.match(collectors, /"--linkedin-max-targets=5"/);
+    assert.match(collectors, /"--delay-ms=30000"/);
+    assert.ok(collectors.includes('env: { HOME: process.env.HOME }'));
     assert.ok(collectors.includes('"scripts/fetch-public-traction.mjs"'));
     assert.ok(collectors.includes('"scripts/fetch-github-traction.mjs"'));
   });

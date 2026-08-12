@@ -85,6 +85,7 @@ import {
 import { isVerifiedYouTubeNativeMetriclessEvidence } from "./lib/youtube-native-promotion.mjs";
 import { comparePublicationSemantics } from "./lib/publication-semantic-diff.mjs";
 import { buildVerifiedFirstPartyContextEvidenceValidator } from "./lib/first-party-authored-post-promotion.mjs";
+import { finalizeLoggedInEvidenceContent } from "./lib/logged-in-evidence-content-dedupe.mjs";
 
 let root;
 const pinnedSourceRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
@@ -103,6 +104,8 @@ let workRoot;
 let collectorRoot;
 let publicOutputs;
 let githubOutputs;
+let loggedInOutputs;
+let loggedInCheckpointOutputs;
 let discoveryAttemptOutputs;
 let sourceDiscoveryPathOutputs;
 let publishedDiscoveryAttemptsPath;
@@ -232,6 +235,19 @@ const CHILD_ENV_CATEGORY_KEYS = Object.freeze({
   runtime: [],
   public_collector: ["X_BEARER_TOKEN", "EXA_API_KEY", "SCORING_DATA_ROOT"],
   github_collector: ["GITHUB_TOKEN"],
+  authenticated_social: [
+    "HOME",
+    "OPENCLI_BIN",
+    "OPENCLI_HOME",
+    "OPENCLI_PROFILE",
+    "BROWSER_PROFILE_PATH",
+    "CHROME_USER_DATA_DIR",
+    "RETURNER_LINKEDIN_VIEWER_PROFILE",
+    "RETURNER_INSTAGRAM_VIEWER_HANDLE",
+    "LINKEDIN_GLOBAL_LOCK_NAMESPACE",
+    "NEXT_PUBLIC_SUPABASE_URL",
+    "SUPABASE_SERVICE_ROLE_KEY"
+  ],
   durable_timeline: ["NEXT_PUBLIC_SUPABASE_URL", "SUPABASE_SERVICE_ROLE_KEY", "SCORING_DATA_ROOT"],
   publication_data: ["SCORING_DATA_ROOT"],
   benchmark: [
@@ -314,6 +330,12 @@ publicOutputs = new Map(
 );
 githubOutputs = new Map(
   AUTONOMOUS_BATCHES.map((batch) => [batch.slug, join(collectorRoot, `github-${batch.slug.toLowerCase()}.json`)])
+);
+loggedInOutputs = new Map(
+  AUTONOMOUS_BATCHES.map((batch) => [batch.slug, join(collectorRoot, `logged-in-${batch.slug.toLowerCase()}.json`)])
+);
+loggedInCheckpointOutputs = new Map(
+  AUTONOMOUS_BATCHES.map((batch) => [batch.slug, join(collectorRoot, `logged-in-checkpoint-${batch.slug.toLowerCase()}.json`)])
 );
 discoveryAttemptOutputs = new Map(
   AUTONOMOUS_BATCHES.map((batch) => [batch.slug, join(collectorRoot, `discovery-attempts-${batch.slug.toLowerCase()}.json`)])
@@ -566,15 +588,24 @@ await Promise.all([
     if (!args.skipPublish) await synchronizePublicationBase();
     const publicationBaseline = await readPublicationEvidenceBaseline();
     const sourceDeltaHistory = await readJson(publishedSourceDeltaHistoryPath, []);
+    const loggedInEvidenceSnapshots = await readLoggedInEvidenceSnapshots();
     const publicationInputs = {
       publicSnapshots,
       githubSnapshots,
+      loggedInEvidenceSnapshots,
       publicResults: publishableCollectorResults.filter((result) => result.kind === "public"),
       topVoiceRefresh,
       catalogState,
       collectionCoverage,
       credentialGaps: collectionCredentialGaps
     };
+    publicationInputs.loggedInEvidenceSnapshot = await prepareMergedLoggedInEvidenceSnapshot(
+      loggedInEvidenceSnapshots
+    );
+    await writeJsonAtomic(
+      join(publicationArtifactRoot(), "src/lib/social/logged-in-evidence-current.json"),
+      publicationInputs.loggedInEvidenceSnapshot
+    );
     // One sanitized publication plan is computed after synchronizing the base.
     // This exact plan drives both durable persistence and the file publication,
     // so raw collector rows can never reach Supabase ahead of semantic merge.
@@ -606,7 +637,8 @@ await Promise.all([
     );
     const sanitizedEvidenceSnapshots = [
       publicationInputs.sanitizedPublicSnapshot,
-      publicationInputs.sanitizedTargetedSnapshot
+      publicationInputs.sanitizedTargetedSnapshot,
+      publicationInputs.loggedInEvidenceSnapshot
     ].filter(Boolean);
     const durableImport = await importDurableEvidence({
       publicSnapshots: sanitizedEvidenceSnapshots,
@@ -2240,6 +2272,64 @@ async function prepareSanitizedPublicSnapshot(
   );
 }
 
+async function readLoggedInEvidenceSnapshots() {
+  const snapshots = [];
+  for (const outputPath of loggedInOutputs.values()) {
+    const snapshot = await readJson(outputPath, null);
+    if (snapshot) snapshots.push(snapshot);
+  }
+  return snapshots;
+}
+
+async function prepareMergedLoggedInEvidenceSnapshot(
+  incomingSnapshots,
+  { baseRef = null } = {}
+) {
+  const targetRoot = publicationArtifactRoot();
+  const relativePath = "src/lib/social/logged-in-evidence-current.json";
+  const current = await readJson(join(targetRoot, relativePath), {
+    evidence: [],
+    failures: [],
+    needsReview: [],
+    attributionReconciliationLedger: []
+  });
+  const base = baseRef ? await readJsonFromGitRef(baseRef, relativePath, null) : null;
+  const snapshots = [base, current, ...(incomingSnapshots ?? [])].filter(Boolean);
+  const content = finalizeLoggedInEvidenceContent(
+    newestRowsById(snapshots.flatMap((snapshot) => snapshot.evidence ?? [])),
+    {
+      defaultBatchSlug: "S26",
+      resolveBatchSlug: resolveLegacyPublicEvidenceBatch,
+      existingNeedsReview: newestRowsById(
+        snapshots.flatMap((snapshot) => snapshot.needsReview ?? [])
+      ),
+      existingAttributionReconciliationLedger: combineAttributionReconciliationLedgers(
+        ...snapshots.map((snapshot) => snapshot.attributionReconciliationLedger)
+      )
+    }
+  );
+  const source = [...snapshots]
+    .reverse()
+    .find((snapshot) => snapshot?.source && typeof snapshot.source === "object")?.source ?? {};
+  return {
+    source: {
+      ...source,
+      label: "Opt-in logged-in browser social post ingestion",
+      runner: "dedicated-self-hosted-mac",
+      viewer: {
+        linkedinProfile: cleanEnv(process.env.RETURNER_LINKEDIN_VIEWER_PROFILE),
+        instagramHandle: cleanEnv(process.env.RETURNER_INSTAGRAM_VIEWER_HANDLE)
+      },
+      fetchedAt: new Date().toISOString(),
+      batchSlugs: AUTONOMOUS_BATCHES.map((batch) => batch.slug)
+    },
+    evidence: content.evidence,
+    failures: newestRowsById(snapshots.flatMap((snapshot) => snapshot.failures ?? [])),
+    needsReview: content.needsReview,
+    attributionReconciliationLedger: content.attributionReconciliationLedger
+  };
+}
+
 async function readCanonicalContentIdentityReferenceRows(targetedSnapshot, { baseRef = null } = {}) {
   const targetRoot = publicationArtifactRoot();
   const evidencePaths = [
@@ -2430,6 +2520,7 @@ async function mergePublicationInputs(
     githubSnapshots,
     publicResults,
     topVoiceRefresh,
+    loggedInEvidenceSnapshot = null,
     sanitizedPublicSnapshot = null,
     sanitizedTargetedSnapshot = null
   },
@@ -2462,6 +2553,13 @@ async function mergePublicationInputs(
     join(targetRoot, targetedEvidencePath),
     trustedTargetedSnapshot
   );
+
+  if (loggedInEvidenceSnapshot) {
+    await writeJsonAtomic(
+      join(targetRoot, "src/lib/social/logged-in-evidence-current.json"),
+      loggedInEvidenceSnapshot
+    );
+  }
 
   const [baseAttempts, basePaths] = baseRef
     ? await Promise.all([
@@ -2738,6 +2836,7 @@ async function runCollectors() {
     command.promise = runCollectorWithRetries(command);
   }
   const settled = await Promise.allSettled(commands.map((command) => command.promise));
+  const authenticatedSocial = await runAuthenticatedCollectors();
   const results = [];
   for (let index = 0; index < commands.length; index += 1) {
     const command = commands[index];
@@ -2797,8 +2896,119 @@ async function runCollectors() {
       error: result.status === "rejected" ? errorMessage(result.reason) : null
     });
   }
-  await event("collection.finished", "info", "Public collector processes reached terminal states.", { results });
+  await event("collection.finished", "info", "Public, GitHub, and authenticated social collector processes reached terminal states.", {
+    results,
+    authenticatedSocial
+  });
   return results;
+}
+
+async function runAuthenticatedCollectors() {
+  const configured = Boolean(
+    cleanEnv(process.env.OPENCLI_BIN) &&
+    cleanEnv(process.env.OPENCLI_PROFILE) &&
+    cleanEnv(process.env.RETURNER_LINKEDIN_VIEWER_PROFILE) &&
+    cleanEnv(process.env.RETURNER_INSTAGRAM_VIEWER_HANDLE)
+  );
+  if (!configured) {
+    await event(
+      "authenticated_social.skipped",
+      "warning",
+      "Authenticated social collection was skipped because the dedicated runner profile is not fully configured.",
+      { required: ["OPENCLI_BIN", "OPENCLI_PROFILE", "RETURNER_LINKEDIN_VIEWER_PROFILE", "RETURNER_INSTAGRAM_VIEWER_HANDLE"] }
+    );
+    return { status: "skipped", reason: "runner_profile_not_configured", batches: [] };
+  }
+
+  const batches = [];
+  for (const batch of AUTONOMOUS_BATCHES) {
+    const outputPath = loggedInOutputs.get(batch.slug);
+    const checkpointPath = loggedInCheckpointOutputs.get(batch.slug);
+    const commonArgs = [
+      sourcePath("scripts", "fetch-logged-in-social-traction.mjs"),
+      `--batch=${batch.slug}`,
+      "--entities=all",
+      "--workers=1",
+      "--limit=100",
+      "--scrolls=30",
+      "--timeout-ms=90000",
+      `--output-path=${outputPath}`,
+      `--checkpoint-path=${checkpointPath}`
+    ];
+    const instagram = await runAuthenticatedCollectorCommand(
+      batch.slug,
+      "instagram",
+      [
+        ...commonArgs,
+        "--platforms=instagram",
+        "--delay-ms=1800"
+      ]
+    );
+    const linkedinReady = Boolean(
+      cleanEnv(process.env.NEXT_PUBLIC_SUPABASE_URL) &&
+      cleanEnv(process.env.SUPABASE_SERVICE_ROLE_KEY) &&
+      cleanEnv(process.env.LINKEDIN_GLOBAL_LOCK_NAMESPACE)
+    );
+    const linkedin = linkedinReady
+      ? await runAuthenticatedCollectorCommand(
+          batch.slug,
+          "linkedin",
+          [
+            ...commonArgs,
+            "--platforms=linkedin",
+            "--allow-linkedin",
+            "--linkedin-mode=browser",
+            "--linkedin-max-targets=5",
+            "--delay-ms=30000"
+          ]
+        )
+      : {
+          status: "skipped",
+          reason: "durable_linkedin_lock_not_configured"
+        };
+    if (!linkedinReady) {
+      await event(
+        "authenticated_social.linkedin_skipped",
+        "warning",
+        "Authenticated LinkedIn collection was safety-skipped because its durable global account lock is not configured.",
+        { batchSlug: batch.slug, required: ["NEXT_PUBLIC_SUPABASE_URL", "SUPABASE_SERVICE_ROLE_KEY", "LINKEDIN_GLOBAL_LOCK_NAMESPACE"] }
+      );
+    }
+    batches.push({ batchSlug: batch.slug, instagram, linkedin });
+  }
+  return { status: "completed", batches };
+}
+
+async function runAuthenticatedCollectorCommand(batchSlug, platform, args) {
+  try {
+    await runCommand(process.execPath, [
+      ...args,
+      ...collectorLaunchProvenanceArgs(createCollectorAttemptContext({
+        kind: "authenticated_social",
+        batchSlug
+      }, 1))
+    ], {
+      timeoutMs: boundedCollectionTimeoutMs(
+        AUTONOMOUS_PROCESS_BUDGETS.publicCollectorAttemptMs,
+        `authenticated ${platform} ${batchSlug}`
+      ),
+      nodeHeapMb: COLLECTOR_NODE_HEAP_MB,
+      deadlineAt: collectionBudget.deadlineAt,
+      label: `authenticated ${platform} ${batchSlug}`,
+      envCategory: "authenticated_social",
+      env: { HOME: process.env.HOME },
+      cwd: root
+    });
+    return { status: "completed" };
+  } catch (error) {
+    await event(
+      "authenticated_social.failed",
+      "warning",
+      `Authenticated ${platform} collection failed for ${batchSlug}; durable prior evidence remains intact.`,
+      { batchSlug, platform, error: errorMessage(error) }
+    );
+    return { status: "failed", error: errorMessage(error) };
+  }
 }
 
 async function runShardedPublicCollector({
@@ -4951,6 +5161,14 @@ async function publishRepositoryArtifacts(publicationRunId, publicationInputs) {
       publicationInputs.topVoiceRefresh,
       { baseRef: publicationBaseCommit }
     );
+    const rebasedLoggedInEvidenceSnapshot = await prepareMergedLoggedInEvidenceSnapshot(
+      publicationInputs.loggedInEvidenceSnapshots,
+      { baseRef: publicationBaseCommit }
+    );
+    await writeJsonAtomic(
+      join(publicationArtifactRoot(), "src/lib/social/logged-in-evidence-current.json"),
+      rebasedLoggedInEvidenceSnapshot
+    );
     const rebasedContentIdentityReferenceRows = await readCanonicalContentIdentityReferenceRows(
       rebasedSanitizedTargetedSnapshot,
       { baseRef: publicationBaseCommit }
@@ -4968,6 +5186,7 @@ async function publishRepositoryArtifacts(publicationRunId, publicationInputs) {
     );
     const rebasedPublicationInputs = {
       ...publicationInputs,
+      loggedInEvidenceSnapshot: rebasedLoggedInEvidenceSnapshot,
       sanitizedPublicSnapshot: rebasedSanitizedPublicSnapshot,
       sanitizedTargetedSnapshot: rebasedSanitizedTargetedSnapshot
     };
@@ -4978,7 +5197,8 @@ async function publishRepositoryArtifacts(publicationRunId, publicationInputs) {
     const retryDurableImport = await importDurableEvidence({
       publicSnapshots: [
         rebasedSanitizedPublicSnapshot,
-        rebasedSanitizedTargetedSnapshot
+        rebasedSanitizedTargetedSnapshot,
+        rebasedLoggedInEvidenceSnapshot
       ].filter(Boolean),
       githubSnapshots: publicationInputs.githubSnapshots,
       catalogState: publicationInputs.catalogState,

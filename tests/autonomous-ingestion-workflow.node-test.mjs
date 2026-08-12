@@ -1951,8 +1951,13 @@ test("daily derived-artifact steps use the bounded Node heap", () => {
   assert.match(benchmarkTestStep, /env:\s+NODE_OPTIONS: --max-old-space-size=2304/);
 });
 
-test("workflow never invokes a logged-in collector", () => {
-  assert.doesNotMatch(workflow, /logged[-_ ]?in|fetch-logged-in-social-traction|ingest:logged-social/i);
+test("workflow routes authenticated ingestion to the dedicated Mac runner", () => {
+  const ingestJob = workflow.match(/\n  ingest:[\s\S]*?(?=\n  receipt:)/)?.[0] ?? "";
+  assert.match(
+    ingestJob,
+    /runs-on:\s*\[self-hosted,\s*macOS,\s*ARM64,\s*returner-social,\s*returner-auth-browser\]/
+  );
+  assert.match(workflow, /SUPABASE_SERVICE_ROLE_KEY:\s*\$\{\{ secrets\.SUPABASE_SERVICE_ROLE_KEY \}\}/);
 });
 
 test("inactive candidates and accepted publication outcomes have distinct auditable receipts", () => {
