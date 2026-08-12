@@ -5,8 +5,8 @@
     "slug": "kinro",
     "name": "Kinro"
   },
-  "generatedAt": "2026-08-12T00:42:36.083Z",
-  "lastModifiedAt": "2026-08-12T00:42:36.083Z",
+  "generatedAt": "2026-08-12T06:21:52.630Z",
+  "lastModifiedAt": "2026-08-12T06:21:52.630Z",
   "events": [
     {
       "id": "tle-09d7c5477910a881b4eb63eb",
@@ -99,7 +99,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 3,
-    "lastSuccessfulArtifactAt": "2026-08-12T00:42:36.083Z"
+    "lastSuccessfulArtifactAt": "2026-08-12T06:21:52.630Z"
   },
   "nextCursor": null
 }
