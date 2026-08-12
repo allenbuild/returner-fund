@@ -5,8 +5,8 @@
     "slug": "hoplite",
     "name": "Hoplite"
   },
-  "generatedAt": "2026-08-12T06:21:52.630Z",
-  "lastModifiedAt": "2026-08-12T06:21:52.630Z",
+  "generatedAt": "2026-08-12T12:49:50.247Z",
+  "lastModifiedAt": "2026-08-12T12:49:50.247Z",
   "events": [
     {
       "id": "tle-3e527f7b6dfdf7adcbfd4d50",
@@ -75,7 +75,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 2,
-    "lastSuccessfulArtifactAt": "2026-08-12T06:21:52.630Z"
+    "lastSuccessfulArtifactAt": "2026-08-12T12:49:50.247Z"
   },
   "nextCursor": null
 }

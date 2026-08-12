@@ -5,8 +5,8 @@
     "slug": "tracer",
     "name": "Tracer"
   },
-  "generatedAt": "2026-08-12T06:21:52.630Z",
-  "lastModifiedAt": "2026-08-12T06:21:52.630Z",
+  "generatedAt": "2026-08-12T12:49:50.247Z",
+  "lastModifiedAt": "2026-08-12T12:49:50.247Z",
   "events": [
     {
       "id": "tle-b3ad912c47298b9b0c7047bf",
@@ -105,7 +105,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 3,
-    "lastSuccessfulArtifactAt": "2026-08-12T06:21:52.630Z"
+    "lastSuccessfulArtifactAt": "2026-08-12T12:49:50.247Z"
   },
   "nextCursor": null
 }

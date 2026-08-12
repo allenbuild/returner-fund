@@ -346,6 +346,20 @@
           "https://x.com/harperdammann?s=21"
         ]
       }
+    },
+    {
+      "companyId": "32627",
+      "companySlug": "tenor",
+      "companyName": "Tenor",
+      "founderId": "536910",
+      "change": "added",
+      "fromName": null,
+      "toName": "Hamze Al-Zamkan",
+      "accounts": {
+        "linkedin": [
+          "https://www.linkedin.com/in/hamze-al-zamkan/"
+        ]
+      }
     }
   ]
 }

@@ -12,10 +12,10 @@
     "title": "Rise Reforming launched on Hacker News",
     "summary": "Launch HN: Rise Reforming (YC S26) – Turning Waste Gases into Valuable Chemicals.",
     "category": "product_launch",
-    "isMajor": true,
+    "isMajor": false,
     "hasConflict": false,
     "conflictSummary": null,
-    "evidenceCount": 2,
+    "evidenceCount": 1,
     "sourcePreview": [
       {
         "id": "src-5409937894f4bedb2f4e3880",
@@ -26,16 +26,6 @@
         "publishedAt": "2026-07-27T19:58:22Z",
         "evidenceRole": "primary",
         "url": "https://news.ycombinator.com/item?id=49074817"
-      },
-      {
-        "id": "src-4ec8b786c51637770e61ad4a",
-        "title": "Rise Reforming Launch Video",
-        "publisher": "Rise Reforming Launch Video",
-        "domain": "youtube.com",
-        "sourceType": "video",
-        "publishedAt": "2026-07-13T08:21:00-07:00",
-        "evidenceRole": "primary",
-        "url": "https://youtube.com/watch?v=Bx_ASPapxlQ"
       }
     ],
     "evidence": [
@@ -50,21 +40,6 @@
         "url": "https://news.ycombinator.com/item?id=49074817",
         "publicationDate": "2026-07-27T19:58:22Z",
         "excerpt": "Launch HN: Rise Reforming (YC S26) – Turning Waste Gases into Valuable Chemicals",
-        "sourceEventDate": "2026-07-27",
-        "isConflicting": false,
-        "conflictDescription": null
-      },
-      {
-        "id": "src-4ec8b786c51637770e61ad4a",
-        "title": "Rise Reforming Launch Video",
-        "publisher": "Rise Reforming Launch Video",
-        "domain": "youtube.com",
-        "sourceType": "video",
-        "publishedAt": "2026-07-13T08:21:00-07:00",
-        "evidenceRole": "primary",
-        "url": "https://youtube.com/watch?v=Bx_ASPapxlQ",
-        "publicationDate": "2026-07-13T08:21:00-07:00",
-        "excerpt": "Embedded in the official Rise Reforming YC company page.",
         "sourceEventDate": "2026-07-27",
         "isConflicting": false,
         "conflictDescription": null
@@ -83,23 +58,9 @@
           "comments": 38
         },
         "evidenceRole": "primary"
-      },
-      {
-        "id": "post-62d57b490aefc23b4abde39e",
-        "platform": "youtube",
-        "account": "Rise Reforming Launch Video",
-        "postDate": "2026-07-13",
-        "excerpt": "Embedded in the official Rise Reforming YC company page.",
-        "url": "https://youtube.com/watch?v=Bx_ASPapxlQ",
-        "metrics": {
-          "views": 72,
-          "likes": 0,
-          "comments": 0
-        },
-        "evidenceRole": "primary"
       }
     ]
   },
-  "generatedAt": "2026-08-12T06:21:52.630Z",
-  "lastModifiedAt": "2026-08-12T06:21:52.630Z"
+  "generatedAt": "2026-08-12T12:49:50.247Z",
+  "lastModifiedAt": "2026-08-12T12:49:50.247Z"
 }

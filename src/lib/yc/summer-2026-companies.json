@@ -4,9 +4,9 @@
     "directoryUrl": "https://www.ycombinator.com/companies?batch=Summer%202026",
     "algoliaIndex": "YCCompany_production",
     "algoliaFilter": "batch:\"Summer 2026\"",
-    "fetchedAt": "2026-08-11T23:41:43.259Z",
-    "expectedCompanyCount": 201,
-    "observedCompanyCount": 201,
+    "fetchedAt": "2026-08-12T11:51:38.555Z",
+    "expectedCompanyCount": 203,
+    "observedCompanyCount": 203,
     "minimumCompanyCount": 167,
     "notes": [
       "Generated from public, unauthenticated YC pages.",
@@ -3250,6 +3250,50 @@
       "launch": null,
       "sourceUrls": [
         "https://www.ycombinator.com/companies/earendil-robotics",
+        "https://www.ycombinator.com/companies?batch=Summer%202026"
+      ]
+    },
+    {
+      "id": "32484",
+      "objectID": "32484",
+      "slug": "edotenv",
+      "name": "EdotEnv",
+      "batch": "Summer 2026",
+      "ycProfileUrl": "https://www.ycombinator.com/companies/edotenv",
+      "websiteUrl": "https://edotenv.com",
+      "tagline": "A Quant Neolab building toward RSI via quant trading",
+      "description": "EdotEnv is a Quant Neolab building toward RSI. They turn markets into self-improving research environments for AI agents.\r\n\r\nThe path to RSI is a continuous loop: agents conduct research, learn from the results, and autonomously become better at conducting the next round of research. For that loop to continue, each round must present a harder problem than the last.\r\n\r\nMarkets create this dynamic naturally. Every discovered inefficiency attracts competition, and every successful strategy makes future opportunities harder to find. Quant research therefore provides an advancing frontier for self-improving agents.\r\n\r\nEdotEnv captures this process in multi-step environments where agents form hypotheses, design experiments, verify results and iterate. They use these environments to evaluate and post-train agents on increasingly difficult research tasks.\r\n\r\nThey work with frontier AI labs and academic groups building research harnesses, evaluation benchmarks, and post-training environments.\r\n\r\nEdotEnv's team previously worked in quantitative research at G-Research, high frequency options trading at TransMarket Group, and LLM inference research at Etched.",
+      "industry": "B2B",
+      "subindustry": "B2B",
+      "industries": [
+        "B2B"
+      ],
+      "tags": [
+        "Reinforcement Learning",
+        "Time Series"
+      ],
+      "location": "San Francisco",
+      "teamSize": 2,
+      "status": "Active",
+      "groupPartner": "Jared Friedman",
+      "groupPartnerUrl": "https://www.ycombinator.com/people/jared-friedman",
+      "socialLinks": {},
+      "founders": [
+        {
+          "id": "2622651",
+          "name": "Rui Wang",
+          "title": "Founder",
+          "bio": "I am Rui (pronounced \"ray\" like the fish). CEO of EdotEnv, a quant neolab making LLMs better at general research. We build environments, harnesses, and post-train models on quant-trading-inspired tasks. Ex-quant at G-Research. Applied Mathematics at ETH Zürich.",
+          "ycProfileUrl": "https://www.ycombinator.com/people/rui-wang",
+          "socialLinks": {
+            "linkedin": "https://www.linkedin.com/in/rui-wang-456032198/",
+            "x": "https://x.com/RRicefan"
+          }
+        }
+      ],
+      "launch": null,
+      "sourceUrls": [
+        "https://www.ycombinator.com/companies/edotenv",
         "https://www.ycombinator.com/companies?batch=Summer%202026"
       ]
     },
@@ -6729,7 +6773,7 @@
       "batch": "Summer 2026",
       "ycProfileUrl": "https://www.ycombinator.com/companies/moving-atoms",
       "websiteUrl": "https://movingatoms.ai/",
-      "tagline": "Virtual Reality for Robots (World Models)",
+      "tagline": "Virtual Reality for Evaluating Robots (World Models)",
       "description": "We use World Models to evaluate  and train robots. This enables you to test your policy checkpoints easily, as well as augmenting your training dataset. Scaling GPUs is much cheaper than scaling robot arms and humans needed to moniter them.",
       "industry": "Industrials",
       "subindustry": "Industrials -> Manufacturing and Robotics",
@@ -6738,9 +6782,9 @@
         "Manufacturing and Robotics"
       ],
       "tags": [
-        "Artificial Intelligence",
         "Robotics",
-        "Virtual Reality"
+        "Virtual Reality",
+        "AI"
       ],
       "location": "San Francisco",
       "teamSize": 2,
@@ -7433,7 +7477,8 @@
           "bio": "mooning",
           "ycProfileUrl": "https://www.ycombinator.com/people/tario-you",
           "socialLinks": {
-            "linkedin": "https://www.linkedin.com/in/tario-you"
+            "linkedin": "https://www.linkedin.com/in/tario-you",
+            "x": "https://x.com/deftarioo"
           }
         }
       ],
@@ -8457,6 +8502,7 @@
         "Healthcare"
       ],
       "tags": [
+        "B2B",
         "Health Insurance",
         "Insurance"
       ],
@@ -8471,17 +8517,6 @@
       },
       "founders": [
         {
-          "id": "3202469",
-          "name": "Aditya Jain",
-          "title": "Founder",
-          "bio": "Building a prescient healthcare system. MD, Harvard Medical School.",
-          "ycProfileUrl": "https://www.ycombinator.com/people/aditya-jain",
-          "socialLinks": {
-            "linkedin": "https://www.linkedin.com/in/adityajain2000/",
-            "x": "https://x.com/adityajain_42"
-          }
-        },
-        {
           "id": "1330533",
           "name": "Rishab Jain",
           "title": "Founder",
@@ -8490,6 +8525,17 @@
           "socialLinks": {
             "linkedin": "https://linkedin.com/in/rishab-jain-k",
             "x": "https://twitter.com/rishabjaink"
+          }
+        },
+        {
+          "id": "3202469",
+          "name": "Aditya Jain",
+          "title": "Founder",
+          "bio": "Building a prescient healthcare system. MD, Harvard Medical School.",
+          "ycProfileUrl": "https://www.ycombinator.com/people/aditya-jain",
+          "socialLinks": {
+            "linkedin": "https://www.linkedin.com/in/adityajain2000/",
+            "x": "https://x.com/adityajain_42"
           }
         }
       ],
@@ -9381,7 +9427,7 @@
       "batch": "Summer 2026",
       "ycProfileUrl": "https://www.ycombinator.com/companies/risklytics",
       "websiteUrl": "https://www.risklytics.ai/",
-      "tagline": "Commercial Insurance Brokerage for Frontier Tech",
+      "tagline": "Insurance for the Frontier",
       "description": "Risklytics is a commercial insurance brokerage for frontier tech: robotics, autonomy, data centers, and energy infrastructure. Insurers are writing AI exclusions into standard liability forms, so companies whose products act in the physical world end up holding risk they thought they had transferred. We specialize in that gap, and we know which carriers in the admitted and surplus lines markets will still underwrite it. If you're building anything that moves, lifts, drives, or powers something, we'd like to talk.",
       "industry": "Fintech",
       "subindustry": "Fintech -> Insurance",
@@ -9390,11 +9436,11 @@
         "Insurance"
       ],
       "tags": [
+        "Artificial Intelligence",
         "Hardware",
         "Machine Learning",
         "B2B",
-        "Insurance",
-        "AI"
+        "Insurance"
       ],
       "location": "San Francisco",
       "teamSize": 2,
@@ -9700,6 +9746,66 @@
       "launch": null,
       "sourceUrls": [
         "https://www.ycombinator.com/companies/shielded",
+        "https://www.ycombinator.com/companies?batch=Summer%202026"
+      ]
+    },
+    {
+      "id": "33053",
+      "objectID": "33053",
+      "slug": "shiraz-ai",
+      "name": "Shiraz AI",
+      "batch": "Summer 2026",
+      "ycProfileUrl": "https://www.ycombinator.com/companies/shiraz-ai",
+      "websiteUrl": "https://shiraz.ai",
+      "tagline": "Robots that learn on the job",
+      "description": "We deploy robots that learn new tasks from a single human demonstration in the factory. We're starting in contract manufacturing, where lines change every week and both traditional automation and today's VLAs fall over.\r\n\r\nOur founding team has 20+ years of experience in robotics. Navid was part of the core team that productized Spot at Boston Dynamics and led manipulation projects there. Before that, he was at Rethink Robotics. Mojtaba led whole-body control and manipulation efforts at Amazon Robotics and was a Research Assistant Professor at Northwestern University.",
+      "industry": "Industrials",
+      "subindustry": "Industrials -> Manufacturing and Robotics",
+      "industries": [
+        "Industrials",
+        "Manufacturing and Robotics"
+      ],
+      "tags": [
+        "Generative AI",
+        "Robotics",
+        "Manufacturing"
+      ],
+      "location": "San Francisco",
+      "teamSize": 2,
+      "status": "Active",
+      "groupPartner": "Jon Xu",
+      "groupPartnerUrl": "https://www.ycombinator.com/people/jon-xu",
+      "socialLinks": {
+        "linkedin": "https://www.linkedin.com/company/shiraz-ai/",
+        "x": "https://x.com/shiraz_ai"
+      },
+      "founders": [
+        {
+          "id": "585458",
+          "name": "Navid Aghasadeghi",
+          "title": "Founder & CEO",
+          "bio": "Founder at Shiraz AI (YC S26). Previously Senior Staff Robotics Engineer at Boston Dynamics, where he was part of the core team that brought Spot from R&D to commercial deployment and led industrial manipulation. Previously Principal Robotics Engineer at Rethink Robotics, where he developed full-stack controls for Sawyer and led force control development. Also founded GenZArt, an AI consumer app that scaled to 1M users. PhD in ECE from UIUC.",
+          "ycProfileUrl": "https://www.ycombinator.com/people/navid-aghasadeghi",
+          "socialLinks": {
+            "linkedin": "https://linkedin.com/in/navid-aghasadeghi-356b077b",
+            "x": "https://x.com/realnavida"
+          }
+        },
+        {
+          "id": "2722145",
+          "name": "Mojtaba Mozaffar",
+          "title": "Founder",
+          "bio": "Founder at Shiraz AI. Previously Senior Applied Scientist and tech lead at Amazon Robotics, leading high-impact work in perception, policy learning, and manipulation. Before that, Research Assistant Professor at Northwestern directing AI and robotics research. PhD in Mechanical Engineering and Robotics from Northwestern.",
+          "ycProfileUrl": "https://www.ycombinator.com/people/mojtaba-mozaffar",
+          "socialLinks": {
+            "linkedin": "https://www.linkedin.com/in/mojtaba-mozaffar/",
+            "x": "https://x.com/MozaffarMojtaba"
+          }
+        }
+      ],
+      "launch": null,
+      "sourceUrls": [
+        "https://www.ycombinator.com/companies/shiraz-ai",
         "https://www.ycombinator.com/companies?batch=Summer%202026"
       ]
     },
@@ -10391,7 +10497,7 @@
       "batch": "Summer 2026",
       "ycProfileUrl": "https://www.ycombinator.com/companies/tenor",
       "websiteUrl": "https://heytenor.com/",
-      "tagline": "Turn every employee into a manager of AI workers",
+      "tagline": "AI workers that attribute the outcome back to the token spend",
       "description": "Your AI spend becomes accountable labor: every AI worker gets a job, persistent context, a budget, guardrails, and outcomes you can measure.\r\n\r\nCopilots made individuals faster. Agent builders made automations easier to create. Both leave the organization unchanged: same roles, same capacity, same org chart, and leadership still sees AI as a software expense, not labor. \r\n\r\nTenor makes AI enter the company as labor instead: every employee manages a team of AI workers built around the recurring work of their role, each with a defined job, boundaries, a budget, and a record of what it delivered. Employees provide the judgment. AI workers provide the execution. Leadership finally sees what AI spend returns.",
       "industry": "B2B",
       "subindustry": "B2B",
@@ -10399,9 +10505,9 @@
         "B2B"
       ],
       "tags": [
-        "Artificial Intelligence",
         "B2B",
-        "Automation"
+        "Automation",
+        "AI"
       ],
       "location": "San Francisco",
       "teamSize": 3,
@@ -10421,6 +10527,16 @@
           "ycProfileUrl": "https://www.ycombinator.com/people/amgad-al-zamkan",
           "socialLinks": {
             "linkedin": "https://www.linkedin.com/in/amgad-al-zamkan/"
+          }
+        },
+        {
+          "id": "536910",
+          "name": "Hamze Al-Zamkan",
+          "title": "Founder",
+          "bio": "Co-Founder @ Tenor. Giving AI a place in the org chart to scale companies without adding headcount.\nAs President of TUM.ai, he scaled it into Europe's largest student-led AI initiative. Spent his university years at TUM and CDTM working at venture-backed startups to apply those learnings to a company of his own.",
+          "ycProfileUrl": "https://www.ycombinator.com/people/hamze-al-zamkan",
+          "socialLinks": {
+            "linkedin": "https://www.linkedin.com/in/hamze-al-zamkan/"
           }
         },
         {
@@ -11102,7 +11218,7 @@
       "ycProfileUrl": "https://www.ycombinator.com/companies/understudy-labs",
       "websiteUrl": "https://understudylabs.com/",
       "tagline": "Effortlessly move to open weight models",
-      "description": "An open-source toolkit to capture traces, evaluate cheaper models against benchmarks, and ship specialist routes you own.\r\n\r\nCapture traces from LLM production workflows with a single install that deploys within coding agents you already use. Hosted infrastructure is optional.\r\n\r\nEvaluate the captured traces and set a benchmark for success. Every future model switch meets or exceeds it in A/B testing.\r\n\r\nTrain and fine-tune a new model on prompts and weights you always own. Start locally and scale into cloud-hosted processes as you see success.\r\n\r\nDeploy a new model only when the held-out eval is beaten. Serve it wherever you want. Production data feeds back into training and compounds performance over time.\r\n\r\nTest. Learn. Deploy. Repeat.",
+      "description": "Understudy is an inference cloud. We capture your AI work traces, train smaller models, and automatically deploy them (only when they outperform the expensive model you are currently paying for).\r\n\r\nInstead of renting the same frontier model forever, your AI infrastructure gets faster, smarter, and cheaper every time it runs.\r\n\r\nSuppose your product uses Claude for a repetitive legal workflow.\r\n\r\nUnderstudy observes successful production runs, learns the specific tools and judgment required for that workflow, and trains a specialized open-weight model.\r\n\r\nOnce that model matches or beats Claude on a held-out evaluation, Understudy starts routing production traffic to it.\r\n\r\nAs more work is completed, the model keeps improving.\r\n\r\nWe started Understudy because we believe every company using AI should be accumulating intelligence, not accumulating API bills.",
       "industry": "B2B",
       "subindustry": "B2B -> Infrastructure",
       "industries": [
@@ -11122,7 +11238,8 @@
       "groupPartnerUrl": "https://www.ycombinator.com/people/tyler-bosmeny",
       "socialLinks": {
         "github": "https://github.com/understudylabs/understudy-agent-tools",
-        "linkedin": "https://www.linkedin.com/company/understudy-labs"
+        "linkedin": "https://www.linkedin.com/company/understudy-labs",
+        "x": "https://x.com/understudylabs"
       },
       "founders": [
         {

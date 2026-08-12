@@ -5,8 +5,8 @@
     "slug": "kinect",
     "name": "Kinect"
   },
-  "generatedAt": "2026-08-12T06:21:52.630Z",
-  "lastModifiedAt": "2026-08-12T06:21:52.630Z",
+  "generatedAt": "2026-08-12T12:49:50.247Z",
+  "lastModifiedAt": "2026-08-12T12:49:50.247Z",
   "events": [
     {
       "id": "tle-8c1a9e8f19b12926416eae0c",
@@ -23,7 +23,7 @@
         {
           "id": "src-206b61f9d94b56ec95097b0b",
           "title": "Kinect Launch Video",
-          "publisher": "Kinect Launch Video",
+          "publisher": "Kinect",
           "domain": "youtube.com",
           "sourceType": "video",
           "publishedAt": "2026-04-23T15:30:31-07:00",
@@ -47,7 +47,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-08-12T06:21:52.630Z"
+    "lastSuccessfulArtifactAt": "2026-08-12T12:49:50.247Z"
   },
   "nextCursor": null
 }

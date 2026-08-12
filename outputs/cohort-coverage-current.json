@@ -12,8 +12,8 @@
         "catalog": "src/lib/social/a16z-speedrun-006-social-accounts.json",
         "profileSource": "src/lib/graph/a16z-speedrun-006-dataset.ts",
         "graph": "public/graph/a16zsr006.json",
-        "publicRun": "/home/runner/work/returner-fund/returner-fund/work/autonomous-ingestion/central-2026-08-11-1800-b1c2375fddc65afd/public-a16zsr006.json",
-        "githubRun": "/home/runner/work/returner-fund/returner-fund/work/autonomous-ingestion/central-2026-08-11-1800-b1c2375fddc65afd/github-a16zsr006.json"
+        "publicRun": "/home/runner/work/returner-fund/returner-fund/work/autonomous-ingestion/central-2026-08-12-0600-b99150be9c0cdf01/public-a16zsr006.json",
+        "githubRun": "/home/runner/work/returner-fund/returner-fund/work/autonomous-ingestion/central-2026-08-12-0600-b99150be9c0cdf01/github-a16zsr006.json"
       },
       "counts": {
         "companies": 59,
@@ -24,7 +24,7 @@
         "plannedOwnerMappings": 339,
         "multiAccountOwnerMappings": 4,
         "graphEvidence": 5000,
-        "graphNeedsReview": 2367
+        "graphNeedsReview": 2368
       },
       "structural": {
         "status": "pass",
@@ -828,8 +828,8 @@
         "catalog": "src/lib/yc/spring-2026-companies.json",
         "profileSource": null,
         "graph": "public/graph/s2026.json",
-        "publicRun": "/home/runner/work/returner-fund/returner-fund/work/autonomous-ingestion/central-2026-08-11-1800-b1c2375fddc65afd/public-s2026.json",
-        "githubRun": "/home/runner/work/returner-fund/returner-fund/work/autonomous-ingestion/central-2026-08-11-1800-b1c2375fddc65afd/github-s2026.json"
+        "publicRun": "/home/runner/work/returner-fund/returner-fund/work/autonomous-ingestion/central-2026-08-12-0600-b99150be9c0cdf01/public-s2026.json",
+        "githubRun": "/home/runner/work/returner-fund/returner-fund/work/autonomous-ingestion/central-2026-08-12-0600-b99150be9c0cdf01/github-s2026.json"
       },
       "counts": {
         "companies": 197,
@@ -840,7 +840,7 @@
         "plannedOwnerMappings": 994,
         "multiAccountOwnerMappings": 1,
         "graphEvidence": 5000,
-        "graphNeedsReview": 9886
+        "graphNeedsReview": 9903
       },
       "structural": {
         "status": "pass",
@@ -2308,19 +2308,19 @@
         "catalog": "src/lib/yc/summer-2026-companies.json",
         "profileSource": null,
         "graph": "public/graph/s26.json",
-        "publicRun": "/home/runner/work/returner-fund/returner-fund/work/autonomous-ingestion/central-2026-08-11-1800-b1c2375fddc65afd/public-s26.json",
-        "githubRun": "/home/runner/work/returner-fund/returner-fund/work/autonomous-ingestion/central-2026-08-11-1800-b1c2375fddc65afd/github-s26.json"
+        "publicRun": "/home/runner/work/returner-fund/returner-fund/work/autonomous-ingestion/central-2026-08-12-0600-b99150be9c0cdf01/public-s26.json",
+        "githubRun": "/home/runner/work/returner-fund/returner-fund/work/autonomous-ingestion/central-2026-08-12-0600-b99150be9c0cdf01/github-s26.json"
       },
       "counts": {
-        "companies": 201,
-        "founders": 394,
-        "catalogOwnerMappings": 977,
-        "graphOwnerMappings": 973,
-        "catalogOwnerPlatformGroups": 977,
-        "plannedOwnerMappings": 977,
+        "companies": 203,
+        "founders": 398,
+        "catalogOwnerMappings": 988,
+        "graphOwnerMappings": 984,
+        "catalogOwnerPlatformGroups": 988,
+        "plannedOwnerMappings": 988,
         "multiAccountOwnerMappings": 0,
         "graphEvidence": 5000,
-        "graphNeedsReview": 7707
+        "graphNeedsReview": 7733
       },
       "structural": {
         "status": "pass",
@@ -2417,39 +2417,39 @@
         "mappingCoverage": {
           "github": {
             "companyMapped": 39,
-            "companyMissing": 162,
+            "companyMissing": 164,
             "founderMapped": 1,
-            "founderMissing": 393
+            "founderMissing": 397
           },
           "instagram": {
             "companyMapped": 7,
-            "companyMissing": 194,
+            "companyMissing": 196,
             "founderMapped": 0,
-            "founderMissing": 394
+            "founderMissing": 398
           },
           "linkedin": {
-            "companyMapped": 182,
-            "companyMissing": 19,
-            "founderMapped": 390,
+            "companyMapped": 183,
+            "companyMissing": 20,
+            "founderMapped": 394,
             "founderMissing": 4
           },
           "product_hunt": {
             "companyMapped": 5,
-            "companyMissing": 196,
+            "companyMissing": 198,
             "founderMapped": 0,
-            "founderMissing": 394
+            "founderMissing": 398
           },
           "x": {
-            "companyMapped": 115,
+            "companyMapped": 117,
             "companyMissing": 86,
-            "founderMapped": 226,
+            "founderMapped": 230,
             "founderMissing": 168
           },
           "youtube": {
             "companyMapped": 11,
-            "companyMissing": 190,
+            "companyMissing": 192,
             "founderMapped": 0,
-            "founderMissing": 394
+            "founderMissing": 398
           }
         },
         "noMappedAccounts": [
@@ -2471,6 +2471,11 @@
           {
             "entityId": "company-carsignal",
             "name": "CarSignal",
+            "companyName": null
+          },
+          {
+            "entityId": "company-edotenv",
+            "name": "EdotEnv",
             "companyName": null
           },
           {
@@ -2561,11 +2566,6 @@
             "companyName": null
           },
           {
-            "entityId": "company-marengo",
-            "name": "Marengo",
-            "companyName": null
-          },
-          {
             "entityId": "company-peer",
             "name": "Peer",
             "companyName": null
@@ -2605,11 +2605,6 @@
           {
             "entityId": "company-manifold-2",
             "name": "Manifold",
-            "companyName": null
-          },
-          {
-            "entityId": "company-marengo",
-            "name": "Marengo",
             "companyName": null
           },
           {
@@ -2662,11 +2657,6 @@
           {
             "entityId": "company-baud",
             "name": "Baud",
-            "companyName": null
-          },
-          {
-            "entityId": "company-belvedir",
-            "name": "Belvedir",
             "companyName": null
           },
           {
@@ -2725,11 +2715,6 @@
             "companyName": null
           },
           {
-            "entityId": "company-instaplay",
-            "name": "Instaplay",
-            "companyName": null
-          },
-          {
             "entityId": "company-insurf",
             "name": "Insurf",
             "companyName": null
@@ -2752,11 +2737,6 @@
           {
             "entityId": "company-manifold-2",
             "name": "Manifold",
-            "companyName": null
-          },
-          {
-            "entityId": "company-marengo",
-            "name": "Marengo",
             "companyName": null
           },
           {
@@ -2820,6 +2800,11 @@
             "companyName": null
           },
           {
+            "entityId": "company-shiraz-ai",
+            "name": "Shiraz AI",
+            "companyName": null
+          },
+          {
             "entityId": "company-spaceflow-technologies-inc",
             "name": "SpaceFlow Technologies, Inc.",
             "companyName": null
@@ -2832,11 +2817,6 @@
           {
             "entityId": "company-subvysion",
             "name": "SubVysion",
-            "companyName": null
-          },
-          {
-            "entityId": "company-tenor",
-            "name": "Tenor",
             "companyName": null
           },
           {
@@ -3507,6 +3487,11 @@
             "companyName": "Tenor"
           },
           {
+            "entityId": "founder-tenor-hamze-al-zamkan-536910",
+            "name": "Hamze Al-Zamkan",
+            "companyName": "Tenor"
+          },
+          {
             "entityId": "founder-tensr-adith-sundram-916548",
             "name": "Adith Sundram",
             "companyName": "Tensr"
@@ -3634,11 +3619,6 @@
             "companyName": null
           },
           {
-            "entityId": "company-belvedir",
-            "name": "Belvedir",
-            "companyName": null
-          },
-          {
             "entityId": "company-carsignal",
             "name": "CarSignal",
             "companyName": null
@@ -3694,11 +3674,6 @@
             "companyName": null
           },
           {
-            "entityId": "company-instaplay",
-            "name": "Instaplay",
-            "companyName": null
-          },
-          {
             "entityId": "company-insurf",
             "name": "Insurf",
             "companyName": null
@@ -3721,11 +3696,6 @@
           {
             "entityId": "company-manifold-2",
             "name": "Manifold",
-            "companyName": null
-          },
-          {
-            "entityId": "company-marengo",
-            "name": "Marengo",
             "companyName": null
           },
           {
@@ -3789,6 +3759,11 @@
             "companyName": null
           },
           {
+            "entityId": "company-shiraz-ai",
+            "name": "Shiraz AI",
+            "companyName": null
+          },
+          {
             "entityId": "company-spaceflow-technologies-inc",
             "name": "SpaceFlow Technologies, Inc.",
             "companyName": null
@@ -3801,11 +3776,6 @@
           {
             "entityId": "company-subvysion",
             "name": "SubVysion",
-            "companyName": null
-          },
-          {
-            "entityId": "company-tenor",
-            "name": "Tenor",
             "companyName": null
           },
           {

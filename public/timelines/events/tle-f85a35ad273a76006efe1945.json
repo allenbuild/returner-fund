@@ -1,0 +1,66 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-edotenv",
+    "slug": "edotenv",
+    "name": "EdotEnv"
+  },
+  "event": {
+    "id": "tle-f85a35ad273a76006efe1945",
+    "eventDate": "2026-08-04",
+    "eventDateType": "announcement_date",
+    "title": "EdotEnv launched on Hacker News",
+    "summary": "Launch HN: EdotEnv (YC S26) – Quant Trading RL Envs to Teach LLMs Research.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-219f7f540fa9ae2fe977305c",
+        "title": "Launch HN: EdotEnv (YC S26) – Quant Trading RL Envs to Teach LLMs Research",
+        "publisher": "Launch HN: EdotEnv (YC S26) – Quant Trading RL Envs to Teach LLMs Research",
+        "domain": "news.ycombinator.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-08-04T18:36:02Z",
+        "evidenceRole": "primary",
+        "url": "https://news.ycombinator.com/item?id=49172936"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-219f7f540fa9ae2fe977305c",
+        "title": "Launch HN: EdotEnv (YC S26) – Quant Trading RL Envs to Teach LLMs Research",
+        "publisher": "Launch HN: EdotEnv (YC S26) – Quant Trading RL Envs to Teach LLMs Research",
+        "domain": "news.ycombinator.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-08-04T18:36:02Z",
+        "evidenceRole": "primary",
+        "url": "https://news.ycombinator.com/item?id=49172936",
+        "publicationDate": "2026-08-04T18:36:02Z",
+        "excerpt": "Launch HN: EdotEnv (YC S26) – Quant Trading RL Envs to Teach LLMs Research",
+        "sourceEventDate": "2026-08-04",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-555fe2fd306710a105ccb9c7",
+        "platform": "hacker_news",
+        "account": null,
+        "postDate": "2026-08-04",
+        "excerpt": "Launch HN: EdotEnv (YC S26) – Quant Trading RL Envs to Teach LLMs Research",
+        "url": "https://news.ycombinator.com/item?id=49172936",
+        "metrics": {
+          "upvotes": 39,
+          "comments": 34
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-12T12:49:50.247Z",
+  "lastModifiedAt": "2026-08-12T12:49:50.247Z"
+}
