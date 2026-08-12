@@ -1087,16 +1087,20 @@ export function resolveOpenCliRuntime() {
 
   const nodeBinDir = path.dirname(process.execPath);
   const env = buildOpenCliChildEnvironment(process.env, { nodeBinDir });
+  const profileArgs = process.env.OPENCLI_PROFILE?.trim()
+    ? ["--profile", process.env.OPENCLI_PROFILE.trim()]
+    : [];
+  const withProfile = (prefixArgs) => [...prefixArgs, ...profileArgs];
 
   const explicitBin = process.env.OPENCLI_BIN;
   if (explicitBin) {
-    cachedRuntime = { command: explicitBin, prefixArgs: [], env };
+    cachedRuntime = { command: explicitBin, prefixArgs: withProfile([]), env };
     return cachedRuntime;
   }
 
   const explicitMain = process.env.OPENCLI_MAIN;
   if (explicitMain) {
-    cachedRuntime = { command: process.execPath, prefixArgs: [explicitMain], env };
+    cachedRuntime = { command: process.execPath, prefixArgs: withProfile([explicitMain]), env };
     return cachedRuntime;
   }
 
@@ -1108,7 +1112,7 @@ export function resolveOpenCliRuntime() {
   ].filter(Boolean);
   for (const candidate of mainCandidates) {
     if (fs.existsSync(candidate)) {
-      cachedRuntime = { command: process.execPath, prefixArgs: [candidate], env };
+      cachedRuntime = { command: process.execPath, prefixArgs: withProfile([candidate]), env };
       return cachedRuntime;
     }
   }
@@ -1123,14 +1127,18 @@ export function resolveOpenCliRuntime() {
   ].filter(Boolean);
   for (const candidate of binCandidates) {
     if (candidate && fs.existsSync(candidate)) {
-      cachedRuntime = { command: candidate, prefixArgs: [], env };
+      cachedRuntime = { command: candidate, prefixArgs: withProfile([]), env };
       return cachedRuntime;
     }
   }
 
   const pnpmBin = process.env.PNPM_BIN ?? bundledPnpmPath();
   if (pnpmBin && fs.existsSync(pnpmBin)) {
-    cachedRuntime = { command: pnpmBin, prefixArgs: ["dlx", "@jackwener/opencli"], env };
+    cachedRuntime = {
+      command: pnpmBin,
+      prefixArgs: withProfile(["dlx", "@jackwener/opencli"]),
+      env
+    };
     return cachedRuntime;
   }
 
