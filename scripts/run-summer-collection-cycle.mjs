@@ -85,6 +85,8 @@ function collectionPhases() {
       "--scrolls=16",
       "--timeout-ms=90000",
       "--delay-ms=2200",
+      "--skip-instagram-details",
+      "--instagram-site-session=ephemeral",
       "--retry-empty",
       ...(forceLoggedIn ? ["--force"] : [])
     ])

@@ -117,7 +117,12 @@ const priorityEvidencePaths = [
 const now = new Date().toISOString();
 const targetLimit = numberArg("--max-targets") ?? Number.POSITIVE_INFINITY;
 const postLimit = numberArg("--limit") ?? 30;
-const instagramFetchDetails = !booleanArg("--skip-instagram-details");
+// Opening every individual /reel/ URL is substantially more likely to trip
+// an Instagram account/session restriction than reading the already-visible
+// profile grid. Keep the resilient grid/profile path as the default and make
+// detail navigation an explicit, bounded operator opt-in.
+const instagramFetchDetails =
+  booleanArg("--instagram-details") && !booleanArg("--skip-instagram-details");
 const scrollPasses = Math.max(0, Math.min(numberArg("--scrolls") ?? 8, 30));
 const workers = Math.max(1, Math.min(numberArg("--workers") ?? 2, 8));
 const perTargetTimeoutMs = numberArg("--timeout-ms") ?? 75_000;
@@ -128,6 +133,9 @@ const entityFilter = stringArg("--entities") ?? "all"; // all | company | founde
 const companyFilter = stringArg("--company")?.toLowerCase();
 const includeRetweets = booleanArg("--include-retweets");
 const allowXAdapterFallback = booleanArg("--allow-x-adapter-fallback");
+const instagramSiteSession = resolveInstagramSiteSession(
+  stringArg("--instagram-site-session") ?? "ephemeral"
+);
 const xCollectionMode = resolveXCollectionMode(
   stringArg("--x-mode") ?? (allowXAdapterFallback ? "hybrid" : "adapter")
 );
@@ -155,6 +163,7 @@ const freshForHours = Math.max(
 );
 const planOnly = booleanArg("--plan");
 const openCliFormatArgs = ["-f", "json", "--site-session", "persistent"];
+const instagramOpenCliFormatArgs = ["-f", "json", "--site-session", instagramSiteSession];
 const instagramTractionCutoffMs = Date.parse("2025-01-01T00:00:00.000Z");
 let writeSequence = 0;
 let checkpointWriteChain = Promise.resolve();
@@ -479,7 +488,7 @@ const contentDedupe = finalizeLoggedInEvidenceContent(dedupeById(evidence), {
 });
 const payload = {
   source: {
-    label: "Opt-in logged-in browser social post ingestion",
+    label: "Opt-in browser social post ingestion",
     batchSlug: batchConfig.slug,
     fetchedAt: now,
     targetCount: proofTargets.length,
@@ -489,9 +498,9 @@ const payload = {
     fetchedCount: proofTargets.filter((target) => attemptMap.get(attemptKeyFor(target))?.status === "done").length,
     failedCount: proofTargets.filter((target) => attemptMap.get(attemptKeyFor(target))?.status === "failed").length,
     notes: [
-      "Read-only browser automation through the user's authenticated OpenCLI browser session.",
+      "Read-only browser automation through an explicitly selected OpenCLI site session; Instagram defaults to an ephemeral session and persistent authentication is opt-in.",
       "No likes, follows, comments, messages, saves, stars, subscriptions, profile edits, or other mutations are performed.",
-      "Instagram profile grids and X profile timelines are treated as opt-in authenticated/read-only sources when explicitly targeted.",
+      `Instagram profile grids and X profile timelines are treated as opt-in read-only sources when explicitly targeted. Instagram adapter calls use one ${instagramSiteSession} site session by default; they stop on auth/challenge/rate-limit responses rather than rotating sessions.`,
       `X ingestion mode: ${xCollectionMode}. Browser, adapter, and hybrid modes are read-only; hybrid prefers the authenticated adapter and uses the DOM only to fill incomplete results.`,
       `LinkedIn ingestion mode: ${linkedinCollectionMode}. Personal /in/ profiles may use the authenticated adapter; company /company/ pages always retain DOM collection support.`,
       "Logged-in LinkedIn activity scraping is disabled unless both --platforms=linkedin and --allow-linkedin are passed. Auth and rate-limit failures open a circuit so untouched targets remain retryable.",
@@ -1167,7 +1176,7 @@ async function fetchInstagramPosts(target, workerIndex) {
   let browserGridCompleted = false;
   const [profileRaw, postsRaw, gridUrls] = await Promise.all([
     runOpenCli(
-      ["instagram", "profile", handle, ...openCliFormatArgs],
+      ["instagram", "profile", handle, ...instagramOpenCliFormatArgs],
       { timeoutMs: perTargetTimeoutMs }
     )
       .then((raw) => {
@@ -1178,7 +1187,7 @@ async function fetchInstagramPosts(target, workerIndex) {
         adapterFailures.push(failure(target, `Instagram profile adapter failed: ${errorMessage(error)}`));
         return "[]";
       }),
-    runOpenCli(["instagram", "user", handle, "--limit", String(postLimit), ...openCliFormatArgs], {
+    runOpenCli(["instagram", "user", handle, "--limit", String(postLimit), ...instagramOpenCliFormatArgs], {
       timeoutMs: perTargetTimeoutMs
     })
       .then((raw) => {
@@ -1275,7 +1284,8 @@ async function fetchInstagramPosts(target, workerIndex) {
       contributionScore: scoreMetrics("instagram", metrics),
       matchReason:
         target.matchReason ??
-        `Opt-in read-only Instagram profile scrape for @${handle}; metrics came from visible post grid/profile/detail data.`
+        `Opt-in read-only Instagram profile scrape for @${handle}; metrics came from visible post grid/profile` +
+        `${instagramFetchDetails ? "/detail" : ""} data.`
     })];
   });
   const seenPostIds = new Set(adapterEvidence.map((item) => item.platformPostId).filter(Boolean));
@@ -1310,7 +1320,8 @@ async function fetchInstagramPosts(target, workerIndex) {
         contributionScore: scoreMetrics("instagram", metrics),
         matchReason:
           target.matchReason ??
-          `Opt-in read-only Instagram grid/detail scrape for @${handle}; adapter did not return this visible grid item.`
+          `Opt-in read-only Instagram grid${instagramFetchDetails ? "/detail" : ""} scrape for @${handle}; ` +
+          "adapter did not return this visible grid item."
       });
     });
   const scoredCandidates = dedupeById([...adapterEvidence, ...gridEvidence])
@@ -1352,7 +1363,7 @@ async function fetchInstagramPosts(target, workerIndex) {
   if (!evidenceItems.length) {
     const emptyFailure = failure(
       target,
-      "No scored recent Instagram posts found with adapter or browser grid/detail extractor."
+      `No scored recent Instagram posts found with adapter or browser grid${instagramFetchDetails ? "/detail" : ""} extractor.`
     );
     const failuresWithEmpty = [...targetFailures, emptyFailure];
     const attemptState = instagramCollectionAttemptState({
@@ -2352,7 +2363,9 @@ function usage() {
     "  --x-mode=browser|adapter|hybrid",
     "  --allow-x-adapter-fallback",
     "  --include-retweets",
-    "  --skip-instagram-details",
+    "  --instagram-details          Explicitly open individual Instagram post/reel URLs (off by default)",
+    "  --skip-instagram-details     Compatibility override; keep individual post/reel detail opens disabled",
+    "  --instagram-site-session=ephemeral|persistent  Instagram adapter session (default: ephemeral)",
     "  --max-consecutive-x-failures=N",
     "  --max-consecutive-linkedin-failures=N",
     "  --max-consecutive-instagram-failures=N",
@@ -2369,6 +2382,14 @@ function resolveXCollectionMode(value) {
   const mode = String(value ?? "").trim().toLowerCase();
   if (["browser", "adapter", "hybrid"].includes(mode)) return mode;
   throw new Error(`Unsupported --x-mode=${value}. Supported modes: browser, adapter, hybrid.`);
+}
+
+function resolveInstagramSiteSession(value) {
+  const mode = String(value ?? "").trim().toLowerCase();
+  if (["ephemeral", "persistent"].includes(mode)) return mode;
+  throw new Error(
+    `Unsupported --instagram-site-session=${value}. Supported modes: ephemeral, persistent.`
+  );
 }
 
 function resolveLinkedInCollectionMode(value) {
