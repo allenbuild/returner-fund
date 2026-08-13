@@ -4,7 +4,7 @@
     "batchSlug": "S2026",
     "batchLabel": "YC Spring 2026 (P26)",
     "sourcePath": "src/lib/yc/spring-2026-companies.json",
-    "fetchedAt": "2026-08-03T00:15:05.863Z",
+    "fetchedAt": "2026-08-03T02:01:26.568Z",
     "companyCount": 197,
     "totalCompanyCount": 197,
     "companyShardCount": 1,
@@ -8679,7 +8679,9 @@
       "GITHUB_TOKEN is optional and only increases API rate limits.",
       "No GitHub mutations are performed.",
       "Only GitHub URLs explicitly listed on public YC Spring 2026 profiles are scored by default."
-    ]
+    ],
+    "retainedLastGood": 0,
+    "prunedRetired": 0
   },
   "accounts": [
     {

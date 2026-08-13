@@ -29,6 +29,15 @@ import {
   validateMappedAutonomousCoverage
 } from "./lib/autonomous-ingestion-plan.mjs";
 import { readRequiredCanonicalJson } from "./lib/canonical-json.mjs";
+import { validateSupabaseConfiguration } from "./lib/supabase-configuration.mjs";
+import {
+  PUBLIC_EVIDENCE_LEGACY_MAX_BYTES,
+  PUBLIC_EVIDENCE_OPERATIONAL_LEDGER_MAX_BYTES,
+  PUBLIC_EVIDENCE_OPERATIONAL_LEDGER_PATH,
+  hydratePublicEvidenceArtifactWithLoader,
+  readPublicEvidenceArtifact,
+  writePublicEvidenceArtifactPairAtomic
+} from "./lib/public-evidence-artifact.mjs";
 import {
   mergeIngestionSourceDeltaHistory,
   summarizeIngestionSourceDelta
@@ -85,12 +94,12 @@ if (!idempotencyKey) {
 
 const url = cleanEnv(process.env.NEXT_PUBLIC_SUPABASE_URL);
 const serviceKey = cleanEnv(process.env.SUPABASE_SERVICE_ROLE_KEY);
-const durableStorageConfigured = Boolean(url && serviceKey);
+const supabaseConfiguration = validateSupabaseConfiguration(url, serviceKey);
+const durableStorageConfigured = supabaseConfiguration.valid;
 const discoveryCredentialGaps = [
   !cleanEnv(process.env.X_BEARER_TOKEN) ? "X_BEARER_TOKEN" : null,
   !cleanEnv(process.env.EXA_API_KEY) ? "EXA_API_KEY" : null,
-  !url ? "NEXT_PUBLIC_SUPABASE_URL" : null,
-  !serviceKey ? "SUPABASE_SERVICE_ROLE_KEY" : null
+  ...supabaseConfiguration.blockers
 ].filter(Boolean);
 
 await Promise.all([
@@ -147,12 +156,8 @@ try {
     }
     run = await getOrCreateRun();
   } else {
-    const missing = [
-      !url ? "NEXT_PUBLIC_SUPABASE_URL" : null,
-      !serviceKey ? "SUPABASE_SERVICE_ROLE_KEY" : null
-    ].filter(Boolean);
     console.warn(
-      `Durable Supabase import skipped because required production configuration is incomplete (${missing.join(", ")}). ` +
+      `Durable Supabase import skipped because required production configuration is unusable (${supabaseConfiguration.blockers.join(", ")}). ` +
       "File-backed collection and publication will continue, and the workflow receipt will report degraded collection health."
     );
   }
@@ -867,11 +872,12 @@ async function prepareSanitizedPublicSnapshot(
 ) {
   if (publicSnapshots.length === 0) return null;
   const publicEvidencePath = "src/lib/social/public-evidence-current.json";
-  const basePublicSnapshot = baseRef ? await readJsonFromGitRef(baseRef, publicEvidencePath, null) : null;
-  const previousPublicSnapshot = await readRequiredCanonicalJson(
-    join(root, publicEvidencePath),
-    "Canonical public evidence snapshot"
-  );
+  const basePublicSnapshot = baseRef
+    ? await readPublicEvidenceFromGitRef(baseRef, null)
+    : null;
+  const previousPublicSnapshot = (
+    await readPublicEvidenceArtifact(join(root, publicEvidencePath), { rootDir: root })
+  ).snapshot;
   return mergePublicEvidenceSnapshots(
     [basePublicSnapshot, previousPublicSnapshot, ...publicSnapshots].filter(Boolean),
     {
@@ -1078,10 +1084,12 @@ async function mergePublicationInputs(
         ? await prepareSanitizedPublicSnapshot(publicSnapshots, { baseRef })
         : await prepareSanitizedPublicSnapshot(publicSnapshots)
     );
-    await writeJsonAtomic(
-      join(root, publicEvidencePath),
-      trustedPublicSnapshot
-    );
+    await writePublicEvidenceArtifactPairAtomic({
+      rootDir: root,
+      canonicalPath: join(root, publicEvidencePath),
+      snapshot: trustedPublicSnapshot,
+      ledgerRelativePath: PUBLIC_EVIDENCE_OPERATIONAL_LEDGER_PATH
+    });
   }
 
   const targetedEvidencePath = "src/lib/social/targeted-evidence-current.json";
@@ -1130,20 +1138,59 @@ async function mergeCollectorDiscoveryState(publicResults, { baseAttempts = [], 
   };
 }
 
+async function readPublicEvidenceFromGitRef(ref, fallback) {
+  const publicEvidencePath = "src/lib/social/public-evidence-current.json";
+  const source = await readTextFromGitRef(ref, publicEvidencePath, null);
+  if (source === null) return fallback;
+  let canonical;
+  try {
+    canonical = JSON.parse(source);
+  } catch (error) {
+    throw new Error(
+      `Invalid JSON at ${ref}:${publicEvidencePath}: ${errorMessage(error)}`
+    );
+  }
+  return hydratePublicEvidenceArtifactWithLoader(canonical, {
+    loadLedger: async (relativePath) => {
+      const ledger = await readTextFromGitRef(ref, relativePath, null);
+      if (ledger === null) {
+        throw new Error(`Missing operational ledger at ${ref}:${relativePath}.`);
+      }
+      return ledger;
+    }
+  });
+}
+
 async function readJsonFromGitRef(ref, path, fallback) {
+  const source = await readTextFromGitRef(ref, path, null);
+  if (source === null) return fallback;
+  try {
+    return JSON.parse(source);
+  } catch (error) {
+    throw new Error(`Invalid JSON at ${ref}:${path}: ${errorMessage(error)}`);
+  }
+}
+
+async function readTextFromGitRef(ref, path, fallback) {
   const result = await runCommand("git", ["show", `${ref}:${path}`], {
     timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitDiffMs,
     label: `read ${path} from ${ref}`,
     allowedExitCodes: [0, 128],
     quiet: true,
-    captureLimit: 50_000_000
+    captureLimit: gitRefCaptureLimit(path)
   });
   if (result.code !== 0) return fallback;
-  try {
-    return JSON.parse(result.stdout);
-  } catch (error) {
-    throw new Error(`Invalid JSON at ${ref}:${path}: ${errorMessage(error)}`);
+  return result.stdout;
+}
+
+function gitRefCaptureLimit(path) {
+  if (path === "src/lib/social/public-evidence-current.json") {
+    return PUBLIC_EVIDENCE_LEGACY_MAX_BYTES;
   }
+  if (path === PUBLIC_EVIDENCE_OPERATIONAL_LEDGER_PATH) {
+    return PUBLIC_EVIDENCE_OPERATIONAL_LEDGER_MAX_BYTES;
+  }
+  return 50_000_000;
 }
 
 function newestRowsById(rows) {
@@ -1235,6 +1282,7 @@ async function runCollectors() {
           `--linkedin-workers=${PUBLIC_SOCIAL_LANE_CONCURRENCY}`,
           `--instagram-workers=${PUBLIC_SOCIAL_LANE_CONCURRENCY}`,
           "--fresh-for-hours=11",
+          `--recent-coverage-cutoff=${runStartedAt.toISOString()}`,
           `--priority-seed=${idempotencyKey}`
         ]
       })
@@ -1316,7 +1364,8 @@ async function runShardedPublicCollector({
       outputPath: join(collectorRoot, `public-${batchKey}-${suffix}.json`),
       checkpointPath: join(collectorRoot, `checkpoint-public-${batchKey}-${suffix}.json`),
       discoveryAttemptsPath: join(collectorRoot, `discovery-attempts-${batchKey}-${suffix}.json`),
-      sourceDiscoveryPathsPath: join(collectorRoot, `source-discovery-paths-${batchKey}-${suffix}.json`)
+      sourceDiscoveryPathsPath: join(collectorRoot, `source-discovery-paths-${batchKey}-${suffix}.json`),
+      recentProofJournalDir: join(collectorRoot, "recent-window-journals", suffix)
     };
   });
   // The batch-level ledgers were seeded from the canonical publication by
@@ -1347,7 +1396,8 @@ async function runShardedPublicCollector({
         `--output=${shard.outputPath}`,
         `--checkpoint=${shard.checkpointPath}`,
         `--discovery-attempts=${shard.discoveryAttemptsPath}`,
-        `--source-discovery-paths=${shard.sourceDiscoveryPathsPath}`
+        `--source-discovery-paths=${shard.sourceDiscoveryPathsPath}`,
+        `--recent-proof-journal-dir=${shard.recentProofJournalDir}`
       ]
     }))
   ));
@@ -1367,6 +1417,16 @@ async function runShardedPublicCollector({
   if (snapshots.some((snapshot) => !snapshot)) {
     throw new Error(`public ${batchSlug} did not write every shard snapshot.`);
   }
+  const recentCoverageCutoffs = new Set(
+    snapshots.map((snapshot) => snapshot?.source?.recentCoverageCutoff).filter(Boolean)
+  );
+  if (recentCoverageCutoffs.size !== 1 ||
+      snapshots.some((snapshot) => !snapshot?.source?.recentCoverageCutoff)) {
+    throw new Error(
+      `public ${batchSlug} shards did not preserve one immutable recent coverage cutoff.`
+    );
+  }
+  const recentCoverageCutoff = [...recentCoverageCutoffs][0];
   const merged = mergePublicEvidenceSnapshots(snapshots, {
     fetchedAt: new Date().toISOString(),
     durableStorageConfigured
@@ -1381,7 +1441,8 @@ async function runShardedPublicCollector({
     // every collector had failed.
     label: "Public unauthenticated platform/page ingestion",
     batchSlug,
-    shardCount
+    shardCount,
+    recentCoverageCutoff
   };
   await Promise.all([
     writeJsonAtomic(outputPath, merged),
@@ -2797,6 +2858,7 @@ function repositoryArtifactPaths() {
     "outputs/ingestion-source-delta-history.json",
     "outputs/discovery-attempts-current.json",
     "outputs/source-discovery-paths-current.json",
+    "outputs/public-ingestion-operational-ledger-current.json",
     "docs/outputs/scoring-diagnostics-v4-audit.json",
     "docs/outputs/scoring-diagnostics-v4-report.md",
     "src/lib/social/public-evidence-current.json",

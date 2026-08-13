@@ -63,6 +63,7 @@ import {
   subscribeToInsiderAuth
 } from "@/lib/social/user-insiders-client";
 import { PLATFORM_VALUES, type GraphResponse, type Platform, type TopVoiceAudienceId } from "@/lib/graph/types";
+import type { YcPartnersResponse } from "@/lib/yc-partners/favorite-contracts";
 
 type FilterMenuId = "platform" | "topics" | "verticals" | "industry" | "groupPartner" | "topVoices";
 
@@ -96,6 +97,9 @@ const STATIC_GRAPH_SNAPSHOT_VERSION = "2026-07-31-date-invariant-scoring";
 const MIDNIGHT_REFRESH_DELAY_MS = 90_000;
 const STATIC_GRAPH_TIMEOUT_MS = 8_000;
 const API_GRAPH_TIMEOUT_MS = 20_000;
+const YC_PARTNERS_TIMEOUT_MS = 15_000;
+const YC_PARTNERS_INITIAL_LOAD_DELAY_MS = 2_000;
+const YC_PARTNERS_REVALIDATION_INTERVAL_MS = 60_000;
 const REFRESH_TIMEOUT_MS = 45_000;
 const BACKGROUND_REVALIDATION_DELAY_MS = 30_000;
 const SCOPE_TRANSITION_MINIMUM_MS = 650;
@@ -291,6 +295,51 @@ async function fetchWithTimeout<T>(
     window.clearTimeout(timeoutId);
     parentSignal?.removeEventListener("abort", abort);
   }
+}
+
+type YcPartnersApiPayload = YcPartnersResponse | { error?: unknown; message?: unknown };
+
+async function fetchYcPartnersPayload(signal?: AbortSignal): Promise<YcPartnersResponse> {
+  return fetchWithTimeout(
+    "/api/yc-partners",
+    {
+      cache: "no-store",
+      headers: { accept: "application/json" }
+    },
+    YC_PARTNERS_TIMEOUT_MS,
+    async (response) => {
+      const payload = (await response.json().catch(() => null)) as YcPartnersApiPayload | null;
+      if (!response.ok) {
+        throw new Error(ycPartnersErrorDetail(payload) ?? "YC partner favorites are temporarily unavailable.");
+      }
+      if (!isYcPartnersResponsePayload(payload)) {
+        throw new Error("YC partner favorites returned an invalid response.");
+      }
+      return payload;
+    },
+    signal
+  );
+}
+
+function isYcPartnersResponsePayload(value: unknown): value is YcPartnersResponse {
+  if (!value || typeof value !== "object") return false;
+  const payload = value as Partial<YcPartnersResponse>;
+  return Boolean(
+    typeof payload.generatedAt === "string" &&
+      typeof payload.modelVersion === "string" &&
+      typeof payload.modelName === "string" &&
+      typeof payload.batchCount === "number" &&
+      typeof payload.companyCount === "number" &&
+      typeof payload.partnerCount === "number" &&
+      Array.isArray(payload.partners)
+  );
+}
+
+function ycPartnersErrorDetail(payload: YcPartnersApiPayload | null): string | null {
+  if (!payload || typeof payload !== "object") return null;
+  const record = payload as Record<string, unknown>;
+  if (typeof record.error === "string" && record.error.trim()) return record.error.trim();
+  return typeof record.message === "string" && record.message.trim() ? record.message.trim() : null;
 }
 
 interface DashboardProps {
@@ -672,6 +721,9 @@ export function Dashboard({
   const [error, setError] = useState<string | null>(null);
   const [refreshError, setRefreshError] = useState<string | null>(null);
   const [refreshNotice, setRefreshNotice] = useState<string | null>(null);
+  const [ycPartners, setYcPartners] = useState<YcPartnersResponse | null>(null);
+  const [ycPartnersLoading, setYcPartnersLoading] = useState(true);
+  const [ycPartnersError, setYcPartnersError] = useState<string | null>(null);
   const [urlStateHydrated, setUrlStateHydrated] = useState(false);
   const [linkCopied, setLinkCopied] = useState(false);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
@@ -685,6 +737,8 @@ export function Dashboard({
   const graphInFlightRef = useRef<Map<string, InFlightGraphRequest>>(new Map());
   const actionRequestIdRef = useRef(0);
   const activeActionAbortRef = useRef<AbortController | null>(null);
+  const ycPartnersRequestIdRef = useRef(0);
+  const ycPartnersAbortRef = useRef<AbortController | null>(null);
   const selectionRef = useRef({ batchSlug, topVoiceAudience, insiderIds: selectedInsiderIds });
   const insiderConfigurationVersionRef = useRef<number | null>(
     preparedInitialGraph?.insiderConfigurationVersion ?? null
@@ -708,6 +762,53 @@ export function Dashboard({
   useEffect(() => {
     currentFiltersRef.current = currentFilters;
   }, [currentFilters]);
+
+  const loadYcPartners = useCallback(async () => {
+    const requestId = ycPartnersRequestIdRef.current + 1;
+    ycPartnersRequestIdRef.current = requestId;
+    ycPartnersAbortRef.current?.abort();
+    const controller = new AbortController();
+    ycPartnersAbortRef.current = controller;
+    setYcPartnersLoading(true);
+    setYcPartnersError(null);
+
+    try {
+      const payload = await fetchYcPartnersPayload(controller.signal);
+      if (controller.signal.aborted || requestId !== ycPartnersRequestIdRef.current) return;
+      setYcPartners(payload);
+    } catch (caught) {
+      if (controller.signal.aborted || requestId !== ycPartnersRequestIdRef.current) return;
+      setYcPartnersError(
+        caught instanceof Error ? caught.message : "YC partner favorites are temporarily unavailable."
+      );
+    } finally {
+      if (!controller.signal.aborted && requestId === ycPartnersRequestIdRef.current) {
+        setYcPartnersLoading(false);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    let disposed = false;
+    let timeoutId: number | null = null;
+
+    const scheduleRevalidation = () => {
+      if (disposed) return;
+      timeoutId = window.setTimeout(() => {
+        void loadYcPartners().finally(scheduleRevalidation);
+      }, YC_PARTNERS_REVALIDATION_INTERVAL_MS);
+    };
+    const initialLoadTimeoutId = window.setTimeout(() => {
+      void loadYcPartners().finally(scheduleRevalidation);
+    }, YC_PARTNERS_INITIAL_LOAD_DELAY_MS);
+
+    return () => {
+      disposed = true;
+      window.clearTimeout(initialLoadTimeoutId);
+      if (timeoutId !== null) window.clearTimeout(timeoutId);
+      ycPartnersAbortRef.current?.abort();
+    };
+  }, [loadYcPartners, graph?.generatedAt]);
 
   useEffect(() => {
     selectionRef.current = { batchSlug, topVoiceAudience, insiderIds: selectedInsiderIds };
@@ -2278,6 +2379,10 @@ export function Dashboard({
               graph={interactiveGraph}
               statsGraph={scopedFilterMetadataGraph ?? interactiveGraph}
               onSelectNode={selectRankedNode}
+              ycPartners={ycPartners}
+              ycPartnersLoading={ycPartnersLoading}
+              ycPartnersError={ycPartnersError}
+              onRetryYcPartners={() => void loadYcPartners()}
             />
           )}
         </section>

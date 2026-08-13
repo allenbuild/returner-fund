@@ -1,5 +1,5 @@
 import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
-import { dirname, join } from "node:path";
+import { dirname, join, relative, resolve } from "node:path";
 import { runOpenCli as executeOpenCli } from "./lib/opencli-runtime.mjs";
 import {
   linkedinPostIdFromUrl
@@ -10,6 +10,7 @@ import {
   linkedinCollectionAttemptState,
   linkedinFailureKind,
   mergeOwnedLinkedInPosts,
+  linkedinPostExclusionReason,
   prioritizeLinkedInTargets
 } from "./lib/logged-in-linkedin-collection.mjs";
 import { readRequiredCanonicalJson } from "./lib/canonical-json.mjs";
@@ -70,19 +71,43 @@ if (booleanArg("--help") || booleanArg("-h")) {
 const root = process.cwd();
 const batchConfig = resolveBatchConfig(stringArg("--batch") ?? stringArg("--batch-slug") ?? "S26");
 const ycSnapshotPath = batchConfig.snapshotPath;
-const outputPath = join(root, "src", "lib", "social", "logged-in-evidence-current.json");
-const checkpointPath = join(
-  root,
-  "work",
-  batchConfig.slug === "S26"
-    ? "logged-in-social-checkpoint.json"
-    : `logged-in-social-checkpoint-${batchConfig.slug.toLowerCase()}.json`
+const outputOverride = stringArg("--output");
+const checkpointOverride = stringArg("--checkpoint");
+const shardCountArg = numberArg("--shard-count");
+const shardIndexArg = numberArg("--shard-index");
+const isolatedShard = Boolean(
+  outputOverride ||
+  checkpointOverride ||
+  shardCountArg !== null ||
+  shardIndexArg !== null
 );
-const checkpointPaths = [
-  join(root, "work", "logged-in-social-checkpoint.json"),
-  join(root, "work", "logged-in-social-checkpoint-s2026.json"),
-  join(root, "work", "logged-in-social-checkpoint-a16zsr006.json")
-];
+const outputPath = outputOverride
+  ? approvedShardPath(outputOverride, "--output")
+  : join(root, "src", "lib", "social", "logged-in-evidence-current.json");
+const checkpointPath = checkpointOverride
+  ? approvedShardPath(checkpointOverride, "--checkpoint")
+  : join(
+      root,
+      "work",
+      batchConfig.slug === "S26"
+        ? "logged-in-social-checkpoint.json"
+        : `logged-in-social-checkpoint-${batchConfig.slug.toLowerCase()}.json`
+    );
+const checkpointPaths = isolatedShard
+  ? [checkpointPath]
+  : [
+      join(root, "work", "logged-in-social-checkpoint.json"),
+      join(root, "work", "logged-in-social-checkpoint-s2026.json"),
+      join(root, "work", "logged-in-social-checkpoint-a16zsr006.json")
+    ];
+const shardCount = Math.max(1, Math.floor(shardCountArg ?? 1));
+const shardIndex = Math.floor(shardIndexArg ?? 0);
+if (shardIndex < 0 || shardIndex >= shardCount) {
+  throw new Error(`--shard-index must be between 0 and ${shardCount - 1}; received ${shardIndex}.`);
+}
+if (isolatedShard && (!outputOverride || !checkpointOverride)) {
+  throw new Error("Isolated shard mode requires both --output and --checkpoint under /private/tmp/returner-fund-shards/x-linkedin.");
+}
 const verifiedSocialOverridesPath = join(root, "src", "lib", "social", "verified-social-overrides.json");
 const priorityEvidencePaths = [
   join(root, "src", "lib", "social", "public-evidence-current.json"),
@@ -211,6 +236,10 @@ const initialContentDedupe = finalizeLoggedInEvidenceContent(
   }
 );
 const evidence = initialContentDedupe.evidence;
+const exclusions = dedupeById([
+  ...(currentOutput.exclusions ?? []),
+  ...checkpointCanonicalRows(checkpointPayloads, "exclusions")
+]);
 const priorityEvidence = [
   ...evidence,
   ...(await Promise.all(
@@ -256,7 +285,10 @@ const prioritizedTargets = prioritizeInstagramTargets(
     attemptKey: attemptKeyFor
   },
 );
-const runnableTargets = selectRunnableCollectionTargets(prioritizedTargets, {
+const shardedPrioritizedTargets = isolatedShard
+  ? prioritizedTargets.filter((_, index) => index % shardCount === shardIndex)
+  : prioritizedTargets;
+const runnableTargets = selectRunnableCollectionTargets(shardedPrioritizedTargets, {
   attempts: attemptMap,
   attemptKey: attemptKeyFor,
   force,
@@ -267,7 +299,12 @@ const runnableTargets = selectRunnableCollectionTargets(prioritizedTargets, {
 });
 // The plan is a canonical account map and must not shrink as checkpoints
 // complete. Only runtime execution uses the bounded runnable subset.
-const targets = planOnly ? prioritizedTargets : runnableTargets;
+const targets = planOnly
+  ? shardedPrioritizedTargets
+  : runnableTargets;
+const proofTargets = finalizeOnly && isolatedShard
+  ? completeTargetPartition.targets.filter((target) => attemptMap.has(attemptKeyFor(target)))
+  : targets;
 console.log(`Logged-in social targets: ${targets.length} (${workers} workers, up to ${postLimit} posts each, ${scrollPasses} scroll passes).`);
 
 if (planOnly) {
@@ -358,6 +395,7 @@ await runWorkerPool(targets, workers, async (target, workerIndex) => {
     removeTargetFailures(target);
     addItems(result.evidence, evidence);
     addItems(result.failures, failures);
+    addItems(result.exclusions, exclusions);
     addItems(result.needsReview, needsReview);
     const attemptStatus = result.collectionFailed ? "failed" : "done";
     attemptMap.set(
@@ -444,9 +482,12 @@ const payload = {
     label: "Opt-in logged-in browser social post ingestion",
     batchSlug: batchConfig.slug,
     fetchedAt: now,
-    targetCount: targets.length,
-    fetchedCount: targets.filter((target) => attemptMap.get(attemptKeyFor(target))?.status === "done").length,
-    failedCount: targets.filter((target) => attemptMap.get(attemptKeyFor(target))?.status === "failed").length,
+    targetCount: proofTargets.length,
+    isolatedShard,
+    shardIndex,
+    shardCount,
+    fetchedCount: proofTargets.filter((target) => attemptMap.get(attemptKeyFor(target))?.status === "done").length,
+    failedCount: proofTargets.filter((target) => attemptMap.get(attemptKeyFor(target))?.status === "failed").length,
     notes: [
       "Read-only browser automation through the user's authenticated OpenCLI browser session.",
       "No likes, follows, comments, messages, saves, stars, subscriptions, profile edits, or other mutations are performed.",
@@ -460,9 +501,17 @@ const payload = {
     ]
   },
   evidence: sanitizeStoredRows(contentDedupe.evidence).sort((a, b) => b.contributionScore - a.contributionScore),
+  exclusions: sanitizeStoredRows(dedupeById(exclusions)),
   failures: sanitizeStoredRows(payloadFailures),
   needsReview: sanitizeStoredRows(contentDedupe.needsReview),
-  attributionReconciliationLedger: contentDedupe.attributionReconciliationLedger
+  attributionReconciliationLedger: contentDedupe.attributionReconciliationLedger,
+  terminalProof: buildTerminalProof(proofTargets, attemptMap, {
+    xCircuitOpen,
+    xCircuitReason,
+    linkedinCircuitOpen,
+    linkedinCircuitReason
+  }),
+  externalBlockers: buildExternalBlockers(payloadFailures)
 };
 
 await writeJson(outputPath, payload);
@@ -971,6 +1020,20 @@ async function fetchLinkedInPosts(target, workerIndex) {
     }
   }
 
+  const linkedinExclusions = postGroups
+    .flat()
+    .map((post) => {
+      const reason = linkedinPostExclusionReason(post, {
+        accountUrl: target.url,
+        targetName: target.name
+      });
+      return reason
+        ? exclusion(target, reason, post?.url ?? activityUrl, {
+            nativePostId: linkedinPostIdFromUrl(post?.url)
+          })
+        : null;
+    })
+    .filter(Boolean);
   const posts = mergeOwnedLinkedInPosts(
     postGroups,
     {
@@ -988,6 +1051,7 @@ async function fetchLinkedInPosts(target, workerIndex) {
   if (!posts.length) {
     return {
       evidence: [],
+      exclusions: linkedinExclusions,
       failures: sourceFailures.length
         ? sourceFailures
         : [failure(
@@ -1030,6 +1094,7 @@ async function fetchLinkedInPosts(target, workerIndex) {
       })
     ),
     failures: sourceFailures,
+    exclusions: linkedinExclusions,
     needsReview: [],
     collectionFailed: attemptState.collectionFailed
   };
@@ -1388,12 +1453,24 @@ async function fetchXTweets(target, workerIndex) {
     return decision.eligible
       ? []
       : [
-          failure(
-            target,
-            `X native post ${tweet.id} omitted: ${decision.reason}.`,
-            tweet.url
-          )
-        ];
+        failure(
+          target,
+          `X native post ${tweet.id} omitted: ${decision.reason}.`,
+          tweet.url
+        )
+      ];
+  });
+  const xExclusions = mergeOwnedXTweetObservations(
+    [adapterTweets, browserTweets],
+    { handle }
+  ).flatMap((tweet) => {
+    const decision = xTweetIngestionDecision(tweet, {
+      handle,
+      includeRetweets
+    });
+    return decision.eligible
+      ? []
+      : [exclusion(target, decision.reason, tweet.url, { nativePostId: tweet.id })];
   });
   const attemptState = xCollectionAttemptState({
     tweetCount: tweets.length,
@@ -1404,6 +1481,7 @@ async function fetchXTweets(target, workerIndex) {
   if (!tweets.length) {
     return {
       evidence: [],
+      exclusions: xExclusions,
       failures: [
         ...failures,
         ...xEligibilityFailures,
@@ -1451,6 +1529,7 @@ async function fetchXTweets(target, workerIndex) {
       ...failures,
       ...xEligibilityFailures
     ],
+    exclusions: xExclusions,
     needsReview: [],
     collectionFailed: attemptState.collectionFailed
   };
@@ -1903,6 +1982,7 @@ async function writeCheckpoint() {
   const snapshot = {
     attempts: Object.fromEntries(attemptMap),
     evidence: sanitizeStoredRows(contentDedupe.evidence),
+    exclusions: sanitizeStoredRows(dedupeById(exclusions)),
     failures: sanitizeStoredRows(dedupeById(failures)),
     needsReview: sanitizeStoredRows(contentDedupe.needsReview),
     attributionReconciliationLedger: contentDedupe.attributionReconciliationLedger
@@ -1913,6 +1993,93 @@ async function writeCheckpoint() {
 
 function sanitizeStoredRows(rows) {
   return rows;
+}
+
+function exclusion(target, reason, sourceUrl = target.url, details = {}) {
+  return {
+    id: stableId(`exclusion:${target.platform}:${target.entityId}:${sourceUrl}:${reason}`),
+    kind: "native_authorship_exclusion",
+    platform: target.platform,
+    companySlug: target.companySlug,
+    companyName: target.companyName,
+    entityType: target.entityType,
+    entityId: target.entityId,
+    entityName: target.name,
+    batch: target.batch,
+    batchSlug: target.batchSlug,
+    accountUrl: target.url,
+    sourceUrl,
+    reason,
+    ...details
+  };
+}
+
+function buildTerminalProof(targets, attempts, circuit) {
+  const rows = targets.map((target) => {
+    const key = attemptKeyFor(target);
+    const attempt = attempts.get(key);
+    return {
+      checkpointKey: key,
+      platform: target.platform,
+      entityId: target.entityId,
+      status: attempt?.status ?? "untouched",
+      checkedAt: attempt?.checkedAt ?? null,
+      count: Number.isFinite(Number(attempt?.count)) ? Number(attempt.count) : 0
+    };
+  });
+  const untouchedCount = rows.filter((row) => row.status === "untouched").length;
+  return {
+    schemaVersion: "x-linkedin-shard-terminal-proof.v1",
+    status: untouchedCount || circuit.xCircuitOpen || circuit.linkedinCircuitOpen
+      ? "partial_resumable"
+      : "complete",
+    targetCount: rows.length,
+    checkpointedTargetCount: rows.length - untouchedCount,
+    untouchedTargetCount: untouchedCount,
+    terminalTargetCount: rows.filter((row) => row.status === "done" || row.status === "failed").length,
+    circuits: {
+      x: { open: Boolean(circuit.xCircuitOpen), reason: circuit.xCircuitReason ?? null },
+      linkedin: { open: Boolean(circuit.linkedinCircuitOpen), reason: circuit.linkedinCircuitReason ?? null }
+    },
+    targets: rows
+  };
+}
+
+function buildExternalBlockers(rows) {
+  return dedupeById(rows.flatMap((row) => {
+    const message = String(row?.message ?? "");
+    const kind = /\b(?:log in|login|sign in|unauthenticated|not authenticated|authentication|session expired|checkpoint)\b/i.test(message)
+      ? "authentication_or_login_wall"
+      : /\b(?:429|rate limit|too many requests|quota|slow down)\b/i.test(message)
+        ? "rate_limit"
+        : /\b(?:timed? out|timeout|ECONN|ENOTFOUND|transport|socket|connection|browser (?:closed|crashed|disconnected|unavailable))\b/i.test(message)
+          ? "transport_or_browser"
+          : /\badapter failed\b|\bbrowser DOM extractor failed\b|\bcommand failed\b/i.test(message)
+            ? "collector_command_failure"
+          : null;
+    if (!kind) return [];
+    return [{
+      id: stableId(`blocker:${row.id}:${kind}`),
+      kind,
+      platform: row.platform,
+      entityId: row.entityId,
+      entityName: row.entityName,
+      sourceUrl: row.sourceUrl,
+      message,
+      retryable: true,
+      terminal: false
+    }];
+  }));
+}
+
+function approvedShardPath(value, flag) {
+  const approvedRoot = "/private/tmp/returner-fund-shards/x-linkedin";
+  const candidate = resolve(value);
+  const rel = relative(approvedRoot, candidate);
+  if (!rel || rel.startsWith("..") || rel.startsWith("/") || resolve(approvedRoot, rel) !== candidate) {
+    throw new Error(`${flag} must resolve under ${approvedRoot}; received ${value}.`);
+  }
+  return candidate;
 }
 
 async function readJson(path, fallback) {
@@ -2171,6 +2338,10 @@ function usage() {
     "  --entities=all|company|founder",
     "  --company=NAME",
     "  --max-targets=N",
+    "  --shard-count=N             Isolated deterministic target shard count",
+    "  --shard-index=N             Isolated deterministic target shard index",
+    "  --output=PATH               Isolated output; must be under /private/tmp/returner-fund-shards/x-linkedin",
+    "  --checkpoint=PATH           Isolated checkpoint; must be under /private/tmp/returner-fund-shards/x-linkedin",
     "  --workers=N",
     "  --limit=N",
     "  --scrolls=N",
@@ -2598,6 +2769,11 @@ function linkedInExtractJs() {
     const best = candidates.sort((a, b) => b.length - a.length)[0];
     return best || bodyFrom(rawText);
   };
+  const commentaryFromCard = (card) => clean(
+    card.querySelector(
+      ".update-components-update-v2__commentary, [data-test-id='main-feed-activity-card__commentary']"
+    )?.innerText || ""
+  );
   const exactCards = Array.from(document.querySelectorAll(".scaffold-finite-scroll__content > ul > li, ul.display-flex.flex-wrap.list-style-none.justify-center > li"))
     .filter((card) => /Feed post number|Visible to anyone|reactions?|comments?|reposts?/i.test(card.innerText || ""));
   const linkCards = Array.from(document.querySelectorAll("a[href*='/feed/update/urn:li:activity:'], a[href*='/posts/'][href*='activity-']"))
@@ -2627,6 +2803,7 @@ function linkedInExtractJs() {
     return {
       rank: index + 1,
       url: updateUrl,
+      commentary: commentaryFromCard(card),
       authorUrls: [...new Set(
         Array.from(card.querySelectorAll("a[href*='/in/'], a[href*='/company/']"))
           .map((link) => absolute(link.getAttribute("href")))

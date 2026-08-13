@@ -161,7 +161,7 @@ test("workflow step budgets leave setup and scheduling headroom", () => {
   const runnerTimeout = Number(workflow.match(/- name: Run autonomous ingestion[\s\S]*?timeout-minutes:\s*(\d+)/)?.[1]);
   const validationTimeout = Number(workflow.match(/- name: Validate generated public artifacts[\s\S]*?timeout-minutes:\s*(\d+)/)?.[1]);
 
-  assert.equal(jobTimeout, 350);
+  assert.equal(jobTimeout, 360);
   assert.equal(installTimeout, 10);
   assert.equal(runnerTimeout, 330);
   assert.equal(validationTimeout, 5);

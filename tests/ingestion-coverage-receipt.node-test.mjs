@@ -851,6 +851,38 @@ describe("ingestion coverage receipt v1 adversarial contract", () => {
     }
   });
 
+  it("anchors recent coverage to the immutable pre-request cutoff while allowing later completion", () => {
+    const input = baseInput();
+    input.run.recentCoverageCutoff = RUN_STARTED_AT;
+    const scope = input.pairScopes[0].scope;
+    scope.recentBackfillReceipt.coveredFrom = cutoffAt(RUN_STARTED_AT);
+    scope.recentBackfillReceipt.coveredThrough = RUN_STARTED_AT;
+    scope.historicalBackfillReceipt.coveredThrough = cutoffAt(RUN_STARTED_AT);
+
+    const receipt = buildIngestionCoverageReceipt(input);
+    assert.equal(receipt.run.recentCoverageCutoff, RUN_STARTED_AT);
+    assert.equal(receipt.recencyPolicy.cutoffAt, cutoffAt(RUN_STARTED_AT));
+    assert.equal(
+      pair(receipt, "company", "company-acme", "x")
+        .scope.receipts.recentBackfill.coveredThrough,
+      RUN_STARTED_AT
+    );
+
+    const backdated = structuredClone(input);
+    backdated.pairScopes[0].scope.recentBackfillReceipt.coveredThrough = GENERATED_AT;
+    assert.throws(
+      () => buildIngestionCoverageReceipt(backdated),
+      /must end at the immutable recent coverage cutoff/
+    );
+
+    const lateCutoff = structuredClone(input);
+    lateCutoff.run.recentCoverageCutoff = "2026-08-02T18:00:00.001Z";
+    assert.throws(
+      () => buildIngestionCoverageReceipt(lateCutoff),
+      /must be pinned no later than run.startedAt/
+    );
+  });
+
   it("binds validation to an independently expected catalog source hash/version/count manifest", () => {
     const receipt = buildIngestionCoverageReceipt(baseInput());
     assert.throws(
@@ -970,7 +1002,7 @@ describe("ingestion coverage receipt v1 adversarial contract", () => {
     );
   });
 
-  it("canonicalizes platform accounts without dropping HN identity or case-sensitive YouTube IDs", () => {
+  it("canonicalizes case-insensitive LinkedIn slugs without dropping HN or YouTube identity", () => {
     const accounts = [
       {
         platform: "hacker_news",
@@ -991,11 +1023,17 @@ describe("ingestion coverage receipt v1 adversarial contract", () => {
         platform: "youtube",
         url: "https://youtube.com/channel/UCabc123",
         verificationStatus: "verified"
+      },
+      {
+        platform: "linkedin",
+        url: "https://linkedin.com/company/Oasis-HQ",
+        verificationStatus: "verified"
       }
     ];
     const receipt = buildIngestionCoverageReceipt(minimalInput({ accounts }));
     const hn = pair(receipt, "company", "company-acme", "hacker_news");
     const youtube = pair(receipt, "company", "company-acme", "youtube");
+    const linkedin = pair(receipt, "company", "company-acme", "linkedin");
     assert.equal(hn.mapping.accountCount, 2);
     assert.deepEqual(hn.mapping.accounts.map((account) => account.url).sort(), [
       "https://news.ycombinator.com/user?id=CaseUser",
@@ -1006,6 +1044,11 @@ describe("ingestion coverage receipt v1 adversarial contract", () => {
       "https://youtube.com/channel/UCAbC123",
       "https://youtube.com/channel/UCabc123"
     ]);
+    assert.equal(linkedin.mapping.accountCount, 1);
+    assert.equal(
+      linkedin.mapping.accounts[0].url,
+      "https://linkedin.com/company/oasis-hq"
+    );
 
     assert.throws(
       () => buildIngestionCoverageReceipt(minimalInput({ accounts: [{

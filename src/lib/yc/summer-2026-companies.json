@@ -4,9 +4,9 @@
     "directoryUrl": "https://www.ycombinator.com/companies?batch=Summer%202026",
     "algoliaIndex": "YCCompany_production",
     "algoliaFilter": "batch:\"Summer 2026\"",
-    "fetchedAt": "2026-08-02T23:34:48.531Z",
-    "expectedCompanyCount": 171,
-    "observedCompanyCount": 171,
+    "fetchedAt": "2026-08-04T14:23:47.406Z",
+    "expectedCompanyCount": 174,
+    "observedCompanyCount": 174,
     "minimumCompanyCount": 167,
     "notes": [
       "Generated from public, unauthenticated YC pages.",
@@ -1332,17 +1332,15 @@
       "batch": "Summer 2026",
       "ycProfileUrl": "https://www.ycombinator.com/companies/belvedir",
       "websiteUrl": "https://belvedir.ai/",
-      "tagline": "The autonomous private AI platform.",
-      "description": "Private AI models will win. There will be billions of them. \r\n\r\nBelvedir is making it cheap and easy for anyone to make private AI. We autonomously train custom models + harnesses + routers, privately host them, and recursively improve them from production data. ",
+      "tagline": "The easiest way to make private AI models.",
+      "description": "Private AI models will win. Belvedir is the infrastructure needed to make billions of them.\r\n\r\nBelvedir is making it cheap and easy for anyone to make private AI. We autonomously train custom models + harnesses + routers, privately host them, and recursively improve them as they are used. ",
       "industry": "B2B",
       "subindustry": "B2B",
       "industries": [
         "B2B"
       ],
       "tags": [
-        "Machine Learning",
-        "Reinforcement Learning",
-        "Artificial Intelligence"
+        "Machine Learning"
       ],
       "location": "San Francisco",
       "teamSize": 2,
@@ -1652,15 +1650,15 @@
       "ycProfileUrl": "https://www.ycombinator.com/companies/carsignal",
       "websiteUrl": "https://www.trycarsignal.com",
       "tagline": "The Smart Operating System for Auto Shops.",
-      "description": "CarSignal is a shop management platform for independent auto repair shops. We replace the fragmented stack shops juggle today. Booking, intake, quoting, parts ordering, invoicing, payments, and customer communication all within one smart system.\r\nInstead of charging SaaS fees, we monetize through a 1% fee on the payments rail, so shops switch off $500+/month tools like Shopmonkey and Tekmetric without adding a line item. Every invoice paid through CarSignal is revenue; every shop that switches saves money on day one.",
+      "description": "",
       "industry": "B2B",
       "subindustry": "B2B",
       "industries": [
         "B2B"
       ],
       "tags": [
-        "Artificial Intelligence",
         "SaaS",
+        "AI",
         "Automotive"
       ],
       "location": "Los Angeles, CA",
@@ -1685,6 +1683,77 @@
       "launch": null,
       "sourceUrls": [
         "https://www.ycombinator.com/companies/carsignal",
+        "https://www.ycombinator.com/companies?batch=Summer%202026"
+      ]
+    },
+    {
+      "id": "33673",
+      "objectID": "33673",
+      "slug": "caution",
+      "name": "Caution",
+      "batch": "Summer 2026",
+      "ycProfileUrl": "https://www.ycombinator.com/companies/caution",
+      "websiteUrl": "https://caution.co",
+      "tagline": "Hosting platform for software you don't want to get hacked",
+      "description": "Caution is a hosting platform for software you can't afford to get hacked. It simplifies and extends confidential compute, and lets developers deploy workloads to secure enclaves in minutes and give customers, auditors, and counterparties cryptographic proof that production is running the exact reviewed source code, build, configuration, and runtime - not an opaque binary controlled by a cloud operator or internal admin.\r\n\r\nConfidential computing hardware exists, but the tooling is too fragmented and incomplete for most teams to use well. Today, attestation often proves only that a binary has a certain hash; it does not prove what source code produced that binary. Building the missing deployment, reproducibility, and verification layer requires specialized security engineering and often locks teams into one cloud or hardware stack. Caution turns that into a simple git-based workflow that builds reproducible enclave images, provisions infrastructure, and lets anyone independently verify what is running.\r\n\r\nWe built Caution after years securing high-risk systems through Distrust, where we worked with hedge funds, custodians, blockchain teams, cloud platforms, and critical grid operators on systems responsible for more than $600B in assets. Again and again, the same problem showed up: teams running mission-critical infrastructure could not reliably prove what was executing in production.\r\n\r\nAs AI, fintech, healthcare, and regulated data collaboration move into the cloud, \"trust us\" is no longer enough. Caution is a general-purpose platform: if it runs on a server, it can run verifiably on Caution. We're starting where trust failures cost the most, but we believe verifiable compute will become the default way software runs, the same way HTTPS became the default way it's served. Infrastructure you can verify, not trust.",
+      "industry": "B2B",
+      "subindustry": "B2B -> Infrastructure",
+      "industries": [
+        "B2B",
+        "Infrastructure"
+      ],
+      "tags": [
+        "Cybersecurity",
+        "Cloud Computing",
+        "Infrastructure"
+      ],
+      "location": "George Town, Cayman Islands",
+      "teamSize": 5,
+      "status": "Active",
+      "groupPartner": "Brad Flora",
+      "groupPartnerUrl": "https://www.ycombinator.com/people/brad-flora",
+      "socialLinks": {
+        "github": "https://codeberg.org/caution",
+        "linkedin": "https://www.linkedin.com/company/cautionco",
+        "x": "https://x.com/CautionHosting"
+      },
+      "founders": [
+        {
+          "id": "3654857",
+          "name": "Ksenia Lesko",
+          "title": "Co-founder",
+          "bio": "Co-founder at Caution, where we help teams run sensitive workloads in secure enclaves and cryptographically prove what code is running in production. I lead the business and product side; previously ran strategy and ops at Distrust (distrust.co) and led customer education and activation at Ada (ada.cx).",
+          "ycProfileUrl": "https://www.ycombinator.com/people/ksenia-lesko",
+          "socialLinks": {
+            "linkedin": "https://www.linkedin.com/in/ksenialesko/",
+            "x": "https://x.com/xenush"
+          }
+        },
+        {
+          "id": "3655130",
+          "name": "Anton Livaja",
+          "title": "Founder",
+          "bio": "Co-founder/CEO of Caution (YC S26). We give teams a hosting platform to run sensitive workloads in secure enclaves and cryptographically prove what code is running in prod. Previously co-founded Distrust, securing systems for hedge funds, custodians, and critical infra responsible for $600B+ in assets. Deep in confidential computing, supply chain security, and applied cryptography. Mission: improve the freedom, security, and privacy of as many people as possible.",
+          "ycProfileUrl": "https://www.ycombinator.com/people/anton-livaja",
+          "socialLinks": {
+            "linkedin": "https://www.linkedin.com/in/alivaja/",
+            "x": "https://x.com/antonlivaja"
+          }
+        },
+        {
+          "id": "52788",
+          "name": "Lance Vick",
+          "title": "Founder",
+          "bio": "Technology sovereignty maximalist. Lead security architect at Caution. Former security lead at Turnkey, BitGo, Unit 410, Pebble. Founded Stagex Linux distribution, and #! decentralized hackerspace. Experienced in Linux hardening, privacy, software engineering, security auditing, cryptographic key management, tamper evidence, HSMs, and supply chain security. Frequently internet infamous for exposing security negligence. Prolific mechanical puzzle collector, lockpicker, and hardware hacker.",
+          "ycProfileUrl": "https://www.ycombinator.com/people/lance-vick",
+          "socialLinks": {
+            "linkedin": "https://lance.dev/"
+          }
+        }
+      ],
+      "launch": null,
+      "sourceUrls": [
+        "https://www.ycombinator.com/companies/caution",
         "https://www.ycombinator.com/companies?batch=Summer%202026"
       ]
     },
@@ -2326,7 +2395,7 @@
           "bio": "CEO @ Datoric. Prev Quant & SWE Intern. Math/Econ/CS @ UChicago; Bypassed Google OAuth 2.1 and QA testers to automate 15,000+ hours on paid data annotation sites in early 2023. ",
           "ycProfileUrl": "https://www.ycombinator.com/people/nikhil-reddy",
           "socialLinks": {
-            "linkedin": "https://www.linkedin.com/in/nikhil--reddy"
+            "linkedin": "https://www.linkedin.com/in/nikhilrreddy"
           }
         },
         {
@@ -3451,7 +3520,7 @@
       "name": "GitCafe",
       "batch": "Summer 2026",
       "ycProfileUrl": "https://www.ycombinator.com/companies/gitcafe",
-      "websiteUrl": "https://gitcafe.dev/",
+      "websiteUrl": "https://git.cafe",
       "tagline": "GitCafe is a modern replacement for GitHub.",
       "description": "",
       "industry": "B2B",
@@ -3472,7 +3541,16 @@
       "socialLinks": {
         "x": "https://twitter.com/gitcafe"
       },
-      "founders": [],
+      "founders": [
+        {
+          "id": "1920545",
+          "name": "Veronica C.",
+          "title": "Founder",
+          "bio": "Previously a founding engineer at Corgi S24 and returning to my roots in dev tooling.",
+          "ycProfileUrl": "https://www.ycombinator.com/people/veronica-c",
+          "socialLinks": {}
+        }
+      ],
       "launch": null,
       "sourceUrls": [
         "https://www.ycombinator.com/companies/gitcafe",
@@ -4307,8 +4385,8 @@
       "batch": "Summer 2026",
       "ycProfileUrl": "https://www.ycombinator.com/companies/impact-drones",
       "websiteUrl": "https://www.impact-drones.com",
-      "tagline": "Air defense as a Service.",
-      "description": "IMPACT builds autonomous interceptor drones that ship in a sealed box. The box sits at the site it protects (data centers, power grid, airports, bases) with no crew on the pad. When sensors cue a hostile drone, an interceptor pierces its own frangible lid, launches, and rams the target, guided by onboard visual navigation that keeps working when GPS is jammed. Legacy effectors cost $1M+ per shot against $50k threats; our interceptors cost like the threat and launches scale with the swarm. Sites subscribe to protection instead of buying missiles: hardware, reloads, and monitoring included. Air defense as a Service.",
+      "tagline": "Air Defense as a Service for Civilian Infrastructure.",
+      "description": "IMPACT builds autonomous interceptor drones that ship in a sealed box. The box sits at the site it protects (data centers, power grid, airports, bases) with no crew on the pad. When sensors cue a hostile drone, an interceptor pierces its own frangible lid, launches, and rams the target, guided by onboard visual navigation that keeps working when GPS is jammed. Legacy effectors cost $1M+ per shot against $30k threats; our interceptors cost like the threat and launches scale with the swarm. Sites subscribe to protection instead of buying missiles: hardware, reloads, and monitoring included. Air defense as a Service.",
       "industry": "Industrials",
       "subindustry": "Industrials -> Defense",
       "industries": [
@@ -4316,10 +4394,10 @@
         "Defense"
       ],
       "tags": [
+        "Artificial Intelligence",
         "Hardware",
         "Drones",
-        "Swarm Robotics",
-        "AI"
+        "Swarm Robotics"
       ],
       "location": "San Francisco",
       "teamSize": 2,
@@ -6089,10 +6167,11 @@
         "B2B"
       ],
       "tags": [
-        "Artificial Intelligence",
         "Reinforcement Learning",
         "Gaming",
-        "Data Engineering"
+        "Crowdsourcing",
+        "Data Engineering",
+        "AI"
       ],
       "location": "San Francisco",
       "teamSize": 2,
@@ -6108,7 +6187,7 @@
           "id": "3676793",
           "name": "Om Buddhdev",
           "title": "Co-Founder",
-          "bio": "I want to build rly cool simulations\n\nAt 11, I was posting YouTube videos about building PCs and hardware projects\n\nAt 12, I was one of the wealthiest players on Minecraft's largest economy sim server\n\nAt 13 & 14 I was making Roblox games played millions of times\n\nAt 15 & 16 I was competing in Fortnite, peaking at top 100 NA.\n\nAt 17 & 18, I was viral on TikTok with 195k followers.\n\nAt 19 & 20, I was 8x radiant and peaked top 25 in Valorant\n\nAt 21, I was a Staff Engineer at AI Dungeon / Latitude",
+          "bio": "I am building the entire stack for multi-agent environments so we can do better AI evaluations and training.\n\nI'm a tech enthusiast and optimize for following my curiosity. Everything that I do is because I genuinely love it.\n\nIn the past I've done some fun things before Olam Labs ranging from esports, to consumer, to engineering, to research. You can read more here: https://www.sensho.xyz/",
           "ycProfileUrl": "https://www.ycombinator.com/people/om-buddhdev",
           "socialLinks": {
             "linkedin": "https://www.linkedin.com/in/ombud/",
@@ -6130,6 +6209,65 @@
       "launch": null,
       "sourceUrls": [
         "https://www.ycombinator.com/companies/olam-labs",
+        "https://www.ycombinator.com/companies?batch=Summer%202026"
+      ]
+    },
+    {
+      "id": "32623",
+      "objectID": "32623",
+      "slug": "omanta",
+      "name": "Omanta",
+      "batch": "Summer 2026",
+      "ycProfileUrl": "https://www.ycombinator.com/companies/omanta",
+      "websiteUrl": "https://omanta.com/",
+      "tagline": "A research lab for one",
+      "description": "Omanta is a personalized research lab for patients who have exhausted standard options, want to prepare proactively for recurrence, or are living with an unresolved diagnosis.\r\n\r\nWe direct the full operational infrastructure, personnel, expertise, and technology of a large research program toward understanding and addressing the challenges of individual patients across oncology, rare disease, and undiagnosed conditions.\r\n\r\nFor clinicians, we act as a collaborative partner, providing a living roadmap for ongoing patient care built on a rigorous and evolving scientific evidence base.\r\n\r\nWe fully operationalize patient-specific research programs, covering tissue logistics, diagnostic follow-up, data integration, multiomic analysis, therapeutic strategy development, and more.\r\n\r\nOmanta brings context and clarity to complex cases, helping clinicians see more of the scientific picture as they decide how best to care for their patients.",
+      "industry": "Healthcare",
+      "subindustry": "Healthcare",
+      "industries": [
+        "Healthcare"
+      ],
+      "tags": [
+        "Digital Health",
+        "Healthcare",
+        "Health & Wellness",
+        "Oncology",
+        "AI"
+      ],
+      "location": "San Francisco",
+      "teamSize": 4,
+      "status": "Active",
+      "groupPartner": "Diana Hu",
+      "groupPartnerUrl": "https://www.ycombinator.com/people/diana-hu",
+      "socialLinks": {
+        "linkedin": "https://www.linkedin.com/company/omanta/"
+      },
+      "founders": [
+        {
+          "id": "3670159",
+          "name": "Alfredo Gonzalez",
+          "title": "Founder",
+          "bio": "Co-Founder and CEO of Omanta. PhD in Cancer Bioinformatics from UCLA, biomedical researcher at Broad Institute and Harvard.  Spearheaded personalized therapeutic campaigns for patients creating personalized vaccines, immunotherapies, and radioligands. 10+ years in personalized medicine. Fueled by the belief that the future of Health is deeply personalized.\n\n",
+          "ycProfileUrl": "https://www.ycombinator.com/people/alfredo-gonzalez",
+          "socialLinks": {
+            "linkedin": "https://www.linkedin.com/in/alfredo-gonzalez-phd/"
+          }
+        },
+        {
+          "id": "3399110",
+          "name": "Ranad Humeidi",
+          "title": "Founder and Chief Scientific Officer",
+          "bio": "Co-founder & CSO at Omanta, working with patients to turn frontier science into personalized treatment strategies. Harvard Chemical Biology PhD in 3 years; identified a druggable ulcerative colitis mechanism that led to a multimillion-dollar GSK collaboration. Built and directed a multimillion-dollar rare cancer program for one patient, coordinating researchers, physicians, biotechs, and drug developers. Led strategies for 12+ complex patients after standard options were exhausted.\n",
+          "ycProfileUrl": "https://www.ycombinator.com/people/ranad-humeidi",
+          "socialLinks": {
+            "linkedin": "https://www.linkedin.com/in/rhumeidi",
+            "x": "https://x.com/Ranadhumeidi"
+          }
+        }
+      ],
+      "launch": null,
+      "sourceUrls": [
+        "https://www.ycombinator.com/companies/omanta",
         "https://www.ycombinator.com/companies?batch=Summer%202026"
       ]
     },
@@ -7240,7 +7378,7 @@
           "id": "2794157",
           "name": "Rohan Seelamsetty",
           "title": "Founder",
-          "bio": "Rohan is the CEO of Praxis, turning every business into a data vendor for embodied AI. Forged across factory floors, parliament offices, and robotics labs, he combines a hacker's instinct with a deep intuition on the operating reality of emerging markets. A Computation and Cognition student at Penn and Apollo Fellow at Oxford focused on AI and existential risk, he is building the infrastructure to source the most valuable physical-world data. Ex Indian Debate Team (#1 ranked team worldwide)",
+          "bio": " CEO @ Praxis. Forged across factory floors, campaign trails, and niche forums. Ex Computation and Cognition at Penn, Apollo Fellow at Oxford, and Indian Debate Team (#1 ranked team worldwide)",
           "ycProfileUrl": "https://www.ycombinator.com/people/rohan-seelamsetty",
           "socialLinks": {
             "linkedin": "https://www.linkedin.com/in/rohan-s-1186b2214?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=ios_app",
@@ -7263,7 +7401,7 @@
       "ycProfileUrl": "https://www.ycombinator.com/companies/prescience-inc",
       "websiteUrl": "https://www.getprescience.com/",
       "tagline": "Healthcare for the age of abundant intelligence.",
-      "description": "Prescience is the preeminent health benefits platform for the world's most ambitious companies. We save employers 20-50% on healthcare while offering best-in-industry health benefits: www.getprescience.com\r\n\r\nAbout us:\r\nPrescience is building a new healthcare system for America. We train AI systems to: create, operate, insure, and deliver healthcare for employer health plans. Prescience Time Machine – an AlphaGo-like system – steers patients towards “Move 37 health trajectories” that deliver dramatic cost savings for employers. Rishab Jain and Aditya Jain, M.D. are serial entrepreneurs and brothers from Harvard & Harvard Medical School with backgrounds in machine learning and medicine. We believe abundant intelligence will bring an opportunity to fundamentally rebuild the $4.5T healthcare industry around proactive (prescient) health and wellness.",
+      "description": "Prescience is the preeminent health benefits platform for the world's most ambitious companies. We save employers 20-50% on health insurance while offering best-in-industry health benefits: www.getprescience.com\r\n\r\nAbout us:\r\nPrescience is building a new healthcare system for America. We train AI systems to: create, operate, insure, and deliver healthcare for employer health plans. Prescience Time Machine – an AlphaGo-like system – steers patients towards “Move 37 health trajectories” that deliver dramatic cost savings for employers. Rishab Jain and Aditya Jain, M.D. are serial entrepreneurs and brothers from Harvard & Harvard Medical School with backgrounds in machine learning and medicine. We believe abundant intelligence will bring an opportunity to fundamentally rebuild the $4.5T healthcare industry around proactive (prescient) health and wellness.",
       "industry": "Healthcare",
       "subindustry": "Healthcare",
       "industries": [
@@ -7546,6 +7684,64 @@
       ]
     },
     {
+      "id": "32261",
+      "objectID": "32261",
+      "slug": "rasyn",
+      "name": "Rasyn",
+      "batch": "Summer 2026",
+      "ycProfileUrl": "https://www.ycombinator.com/companies/rasyn",
+      "websiteUrl": "https://www.rasyn.ai/",
+      "tagline": "Towards a General Intelligence for Chemistry",
+      "description": "",
+      "industry": "Healthcare",
+      "subindustry": "Healthcare -> Drug Discovery and Delivery",
+      "industries": [
+        "Healthcare",
+        "Drug Discovery and Delivery"
+      ],
+      "tags": [
+        "AI-powered Drug Discovery",
+        "Deep Learning",
+        "Biotech"
+      ],
+      "location": "San Francisco",
+      "teamSize": 0,
+      "status": "Active",
+      "groupPartner": "Ankit Gupta",
+      "groupPartnerUrl": "https://www.ycombinator.com/people/ankit-gupta",
+      "socialLinks": {
+        "linkedin": "https://www.linkedin.com/company/rasyn-ycs26/",
+        "x": "https://x.com/rasyn_lab"
+      },
+      "founders": [
+        {
+          "id": "972683",
+          "name": "Ayush Chauhan",
+          "title": "Founder",
+          "bio": "CTO at Rasyn (S26)",
+          "ycProfileUrl": "https://www.ycombinator.com/people/ayush-chauhan",
+          "socialLinks": {
+            "linkedin": "https://www.linkedin.com/in/ayushchauhan0203/"
+          }
+        },
+        {
+          "id": "3481804",
+          "name": "Daood Hashmi",
+          "title": "Founder",
+          "bio": "Founder at Rasyn. Currently a researcher in the Arnold and Marcus Lab at Caltech, working with a Nobel Laureate to build diffusion models that predict organic reaction mechanisms and propose novel synthetic pathways. Previously ran DFT and molecular dynamics simulations in the Goddard Lab. Chemical Engineering at Caltech.",
+          "ycProfileUrl": "https://www.ycombinator.com/people/daood-hashmi",
+          "socialLinks": {
+            "linkedin": "https://www.linkedin.com/in/daood-hashmi-9588b8420/"
+          }
+        }
+      ],
+      "launch": null,
+      "sourceUrls": [
+        "https://www.ycombinator.com/companies/rasyn",
+        "https://www.ycombinator.com/companies?batch=Summer%202026"
+      ]
+    },
+    {
       "id": "32622",
       "objectID": "32622",
       "slug": "rational",
@@ -7590,7 +7786,7 @@
           "id": "3411828",
           "name": "Christ Xu",
           "title": "Founder",
-          "bio": "CTO at Rational. Previously exited for $400K and youngest Senior SWE at Tencent. Jane Street ML Engineer and OpenAI SWE intern.  2x IOI Camp, IMO Camp, published algorithm researcher.",
+          "bio": "CTO at Rational. Tencent SWE, Jane Street ML Engineer, OpenAI SWE.  2x IOI Camp, IMO Camp, published algo researcher.",
           "ycProfileUrl": "https://www.ycombinator.com/people/christ-xu",
           "socialLinks": {
             "linkedin": "https://www.linkedin.com/in/christ-xu-687868298"
@@ -8317,8 +8513,8 @@
       "batch": "Summer 2026",
       "ycProfileUrl": "https://www.ycombinator.com/companies/textsidekick",
       "websiteUrl": "https://www.textsidekick.com/",
-      "tagline": "AI-powered SMS assistant for deskless workers.",
-      "description": "Sidekick is an AI-powered SMS assistant for frontline workers in manufacturing, auto dealerships, and retail. The idea came from Justin's father, who owns a manufacturing facility and asked him to build a tool to help with worker onboarding, training, and organizing company knowledge. Workers text questions in any language and get instant answers from their company's documents — no app, no login, works on any phone. They can send photos of equipment for instant identification or voice memos when their hands are dirty or they're wearing gloves. Managers upload documents and record video walkthroughs; Sidekick automatically generates step-by-step tutorials and a searchable knowledge base. When Sidekick can't answer, it escalates to the manager via SMS and learns from the response, getting smarter with every interaction.",
+      "tagline": "AI agent that handles frontline operations over text",
+      "description": "Sidekick is an AI assistant for frontline manufacturing workers. Sidekick lets workers text problems, photos, or voice memos in any language; it answers from the company's own documents, creates and routes the work order, and syncs with software the company already runs. Sidekick captures the tribal knowledge in veterans' heads - the know-how that usually walks out the door when they retire - into a searchable knowledge base the company owns. No app, no login, works on any phone.",
       "industry": "B2B",
       "subindustry": "B2B -> Operations",
       "industries": [
@@ -8328,7 +8524,9 @@
       "tags": [
         "SaaS",
         "B2B",
-        "AI Assistant"
+        "Manufacturing",
+        "AI Assistant",
+        "Industrial"
       ],
       "location": "San Francisco",
       "teamSize": 1,
@@ -8343,7 +8541,7 @@
           "id": "3332767",
           "name": "Justin So",
           "title": "Founder",
-          "bio": "Co-founder & CEO at Sidekick (YC S26). UPenn Masters in Computer Science. Previously Finance at Arm.",
+          "bio": "Founder & CEO at Sidekick (YC S26). UPenn Masters in Computer Science. Previously Finance at Arm.",
           "ycProfileUrl": "https://www.ycombinator.com/people/justin-so",
           "socialLinks": {
             "linkedin": "https://www.linkedin.com/in/justinso1/"
@@ -8458,6 +8656,16 @@
           "socialLinks": {
             "linkedin": "https://www.linkedin.com/in/hakan-enes-aksu/"
           }
+        },
+        {
+          "id": "2475947",
+          "name": "Ali Eren Aytekin",
+          "title": "Founder",
+          "bio": "Co-Founder of SpaceFlow Technologies. Previously developed deep learning models for genetic perturbation analysis, earning runner-up at the Microsoft Imagine Cup. Holds a patent for a compressed-air energy storage system. Engineering at Istanbul Technical University, dropout.",
+          "ycProfileUrl": "https://www.ycombinator.com/people/ali-eren-aytekin",
+          "socialLinks": {
+            "linkedin": "https://www.linkedin.com/in/ali-eren-aytekin-6305a41aa/"
+          }
         }
       ],
       "launch": null,
@@ -8483,8 +8691,8 @@
         "Infrastructure"
       ],
       "tags": [
+        "Artificial Intelligence",
         "Developer Tools",
-        "AI",
         "Conversational AI"
       ],
       "location": "San Francisco",
@@ -9154,7 +9362,7 @@
       "batch": "Summer 2026",
       "ycProfileUrl": "https://www.ycombinator.com/companies/trident",
       "websiteUrl": "https://tridentsecurity.io/",
-      "tagline": "Secure your cloud and webapps by finding real attack paths ",
+      "tagline": "Your AI Security Team ",
       "description": "Traditional security tools drown teams in useless alerts and logs. Trident chains vulnerabilities together like a real attacker, mapping verified attack paths across AWS, Azure, GCP, web apps, and APIs to show the exploits that actually cause business impact",
       "industry": "B2B",
       "subindustry": "B2B -> Security",
@@ -9163,9 +9371,9 @@
         "Security"
       ],
       "tags": [
+        "Artificial Intelligence",
         "Security",
-        "Cybersecurity",
-        "AI"
+        "Cybersecurity"
       ],
       "location": "San Francisco",
       "teamSize": 4,

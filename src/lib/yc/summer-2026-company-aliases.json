@@ -271,6 +271,30 @@
           "https://x.com/victorshammas"
         ]
       }
+    },
+    {
+      "companyId": "31592",
+      "companySlug": "gitcafe",
+      "companyName": "GitCafe",
+      "founderId": "1920545",
+      "change": "added",
+      "fromName": null,
+      "toName": "Veronica C.",
+      "accounts": {}
+    },
+    {
+      "companyId": "33311",
+      "companySlug": "spaceflow-technologies-inc",
+      "companyName": "SpaceFlow Technologies, Inc.",
+      "founderId": "2475947",
+      "change": "added",
+      "fromName": null,
+      "toName": "Ali Eren Aytekin",
+      "accounts": {
+        "linkedin": [
+          "https://www.linkedin.com/in/ali-eren-aytekin-6305a41aa/"
+        ]
+      }
     }
   ]
 }

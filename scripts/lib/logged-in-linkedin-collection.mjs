@@ -87,6 +87,20 @@ export function linkedinPostStrictlyBelongsToAccount(post, accountUrl, targetNam
   return linkedinAuthorTextMatchesTarget(post, targetName);
 }
 
+export function linkedinPostExclusionReason(
+  post,
+  { accountUrl, targetName } = {}
+) {
+  if (!linkedinPostIdFromUrl(post?.url)) return "missing_native_post_id";
+  if (linkedinPostIsExplicitRepost(post, targetName)) {
+    return "bare_repost_or_reshare_wrapper";
+  }
+  if (!linkedinPostStrictlyBelongsToAccount(post, accountUrl, targetName)) {
+    return "native_owner_mismatch";
+  }
+  return null;
+}
+
 export function linkedinPostIsExplicitRepost(post, targetName = "") {
   // LinkedIn places repost ownership in the DOM card header. Restrict the
   // generic phrase to that header shape so ordinary native prose such as
@@ -94,6 +108,15 @@ export function linkedinPostIsExplicitRepost(post, targetName = "") {
   const headers = [post?.rawText, post?.raw_text]
     .map((value) => String(value ?? "").slice(0, 700))
     .filter(Boolean);
+
+  // A LinkedIn quote/commentary reshare is native authored activity when the
+  // extractor independently captured the outer author's commentary. Keep it
+  // even though the card header also identifies the embedded post as shared.
+  // Bare wrappers do not carry this field, so they remain excluded below.
+  const commentary = String(
+    post?.commentary ?? post?.commentaryText ?? post?.reshareCommentary ?? ""
+  ).trim();
+  if (commentary.length > 0) return false;
 
   if (
     headers.some((value) =>

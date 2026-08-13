@@ -5,6 +5,10 @@ import os from "node:os";
 import path from "node:path";
 import { afterEach, describe, it } from "node:test";
 import { readRequiredCanonicalJson } from "../scripts/lib/canonical-json.mjs";
+import {
+  isLoopbackHostname,
+  validateSupabaseConfiguration
+} from "../scripts/lib/supabase-configuration.mjs";
 
 const repositoryRoot = process.cwd();
 const runnerPath = path.join(repositoryRoot, "scripts", "run-autonomous-ingestion.mjs");
@@ -71,6 +75,102 @@ describe("autonomous ingestion runner CLI", () => {
     assert.match(result.stderr, /No collector completed successfully/);
     assert.doesNotMatch(result.stdout, /"status": "completed"/);
   });
+
+  it("records an invalid Supabase URL as a blocker and continues in file-backed mode", async () => {
+    const root = await createRunnerRoot("autonomous-ingestion-invalid-supabase-");
+    const env = {
+      ...process.env,
+      NEXT_PUBLIC_SUPABASE_URL: "masked-or-misconfigured-value",
+      SUPABASE_SERVICE_ROLE_KEY: "configured-but-not-used"
+    };
+
+    const result = spawnSync(
+      process.execPath,
+      [runnerPath, "--idempotency-key=invalid-supabase-contract", "--skip-network", "--skip-publish"],
+      { cwd: root, env, encoding: "utf8" }
+    );
+
+    assert.equal(result.status, 1, result.stderr);
+    assert.match(result.stderr, /NEXT_PUBLIC_SUPABASE_URL:invalid_http_url/);
+    assert.match(result.stderr, /File-backed collection and publication will continue/);
+    assert.doesNotMatch(result.stderr, /Invalid supabaseUrl/);
+  });
+});
+
+describe("autonomous ingestion Supabase credential boundary", () => {
+  const serviceKey = "sensitive-service-key-must-never-be-reflected";
+
+  it("requires HTTPS for remote endpoints without a brittle host allowlist", () => {
+    assert.deepEqual(
+      validateSupabaseConfiguration("https://custom.database.example", serviceKey),
+      { valid: true, blockers: [] }
+    );
+    assert.deepEqual(
+      validateSupabaseConfiguration("http://custom.database.example", serviceKey),
+      {
+        valid: false,
+        blockers: ["NEXT_PUBLIC_SUPABASE_URL:insecure_transport"]
+      }
+    );
+  });
+
+  it("allows HTTP only for local loopback outside GitHub Actions", () => {
+    for (const hostname of ["localhost", "api.localhost", "127.0.0.1", "[::1]"]) {
+      const result = validateSupabaseConfiguration(
+        `http://${hostname}:54321`,
+        serviceKey,
+        { githubActions: false }
+      );
+      assert.deepEqual(result, { valid: true, blockers: [] }, hostname);
+      assert.equal(isLoopbackHostname(new URL(`http://${hostname}:54321`).hostname), true);
+    }
+
+    const actionsResult = validateSupabaseConfiguration(
+      "http://127.0.0.1:54321",
+      serviceKey,
+      { githubActions: true }
+    );
+    assert.deepEqual(actionsResult, {
+      valid: false,
+      blockers: ["NEXT_PUBLIC_SUPABASE_URL:insecure_transport"]
+    });
+  });
+
+  it("rejects URL credentials, query strings, and fragments without reflecting secrets", () => {
+    const unsafeUrl =
+      "https://sensitive-user:sensitive-password@database.example/path" +
+      "?token=sensitive-query-value#sensitive-fragment-value";
+    const result = validateSupabaseConfiguration(unsafeUrl, serviceKey);
+
+    assert.deepEqual(result, {
+      valid: false,
+      blockers: [
+        "NEXT_PUBLIC_SUPABASE_URL:embedded_credentials",
+        "NEXT_PUBLIC_SUPABASE_URL:query_not_allowed",
+        "NEXT_PUBLIC_SUPABASE_URL:fragment_not_allowed"
+      ]
+    });
+    const serialized = JSON.stringify(result);
+    for (const secret of [
+      serviceKey,
+      "sensitive-user",
+      "sensitive-password",
+      "sensitive-query-value",
+      "sensitive-fragment-value"
+    ]) {
+      assert.doesNotMatch(serialized, new RegExp(secret));
+    }
+  });
+
+  it("returns only a generic blocker for malformed URLs", () => {
+    const malformed = "sensitive malformed endpoint material";
+    const result = validateSupabaseConfiguration(malformed, serviceKey);
+    assert.deepEqual(result, {
+      valid: false,
+      blockers: ["NEXT_PUBLIC_SUPABASE_URL:invalid_http_url"]
+    });
+    assert.doesNotMatch(JSON.stringify(result), /sensitive malformed endpoint material/);
+  });
 });
 
 describe("autonomous ingestion runner static safety contracts", () => {
@@ -85,7 +185,9 @@ describe("autonomous ingestion runner static safety contracts", () => {
   });
 
   it("allows file-backed recovery without Supabase but explicitly degrades workflow health", () => {
-    assert.ok(runner.includes("const durableStorageConfigured = Boolean(url && serviceKey)"));
+    assert.ok(runner.includes("const supabaseConfiguration = validateSupabaseConfiguration(url, serviceKey)"));
+    assert.ok(runner.includes("const durableStorageConfigured = supabaseConfiguration.valid"));
+    assert.ok(runner.includes('import { validateSupabaseConfiguration } from "./lib/supabase-configuration.mjs"'));
     assert.doesNotMatch(runner, /SUPABASE_SERVICE_ROLE_KEY are required/);
     assert.ok(runner.includes("workflow receipt will report degraded collection health"));
     assert.doesNotMatch(runner, /workflow receipt will fail/);
@@ -265,6 +367,9 @@ describe("autonomous ingestion runner static safety contracts", () => {
     assert.ok(collectors.includes('"--discover-missing-social"'));
     assert.ok(shardedCollector.includes("`--discovery-attempts=${shard.discoveryAttemptsPath}`"));
     assert.ok(shardedCollector.includes("`--source-discovery-paths=${shard.sourceDiscoveryPathsPath}`"));
+    assert.ok(shardedCollector.includes("`--recent-proof-journal-dir=${shard.recentProofJournalDir}`"));
+    assert.ok(runner.includes("`--recent-coverage-cutoff=${runStartedAt.toISOString()}`"));
+    assert.ok(shardedCollector.includes("did not preserve one immutable recent coverage cutoff"));
     assert.ok(shardedCollector.includes('label: "Public unauthenticated platform/page ingestion"'));
     assert.ok(collectors.includes('`--workers=${PUBLIC_COLLECTOR_TASK_CONCURRENCY}`'));
     assert.ok(collectors.includes('`--x-workers=${PUBLIC_SOCIAL_LANE_CONCURRENCY}`'));
@@ -547,17 +652,58 @@ describe("autonomous ingestion runner static safety contracts", () => {
         "tests/autonomous-ingestion-runner-contract.node-test.mjs",
         "tests/github-api-client.node-test.mjs",
         "tests/github-authoritative-reconciliation.node-test.mjs",
+        "tests/github-exhaustive-backfill.node-test.mjs",
+        "tests/github-exhaustive-integration.node-test.mjs",
         "tests/ingestion-coverage-receipt.node-test.mjs",
         "tests/ingestion-coverage-adapter.node-test.mjs",
+        "tests/ingestion-coverage-materializer.node-test.mjs",
+        "tests/ingestion-coverage-report.node-test.mjs",
+        "tests/ingestion-terminal-outcome-audit.node-test.mjs",
+        "tests/ingestion-terminal-outcome-resolution.node-test.mjs",
+        "tests/ingestion-coverage-campaign.node-test.mjs",
+        "tests/prepare-ingestion-coverage-campaign.node-test.mjs",
         "tests/historical-backfill.node-test.mjs",
+        "tests/historical-completion-proof-generator.node-test.mjs",
+        "tests/recent-completion-proof-generator.node-test.mjs",
+        "tests/recent-window-proof-instrumentation.node-test.mjs",
         "tests/historical-coverage-adapter.node-test.mjs",
         "tests/historical-coverage-bridge.node-test.mjs",
+        "tests/historical-depth-backfill.node-test.mjs",
+        "tests/historical-depth-coverage-bridge.node-test.mjs",
+        "tests/historical-publication-staging.node-test.mjs",
+        "tests/stored-unpublished-coverage-bridge.node-test.mjs",
+        "tests/pair-integrity-proof-bridge.node-test.mjs",
+        "tests/production-release-proof-audit.node-test.mjs",
+        "tests/production-graph-sampler.node-test.mjs",
+        "tests/production-release-proof-bundle.node-test.mjs",
+        "tests/linkedin-public-circuit.node-test.mjs",
+        "tests/linkedin-public-circuit-integration.node-test.mjs",
         "tests/public-search-circuit.node-test.mjs",
         "tests/public-search-circuit-integration.node-test.mjs",
         "tests/public-search-outage-integrity.node-test.mjs"
       ].join(" ")
     );
     assert.match(packageJson.scripts["test:collectors"], /npm run test:ingestion-contracts/);
+    assert.equal(
+      packageJson.scripts["ingest:coverage:materialize"],
+      "node scripts/materialize-ingestion-coverage.mjs"
+    );
+    assert.equal(
+      packageJson.scripts["ingest:coverage:report"],
+      "node scripts/report-ingestion-coverage.mjs"
+    );
+    assert.equal(
+      packageJson.scripts["ingest:coverage:audit-outcomes"],
+      "node scripts/audit-ingestion-terminal-outcomes.mjs"
+    );
+    assert.equal(
+      packageJson.scripts["ingest:coverage:sample-production"],
+      "node scripts/sample-production-graph.mjs"
+    );
+    assert.equal(
+      packageJson.scripts["ingest:coverage:capture-production-release"],
+      "node scripts/capture-production-release-proof-bundle.mjs"
+    );
     assert.equal(packageJson.scripts["ingest:historical"], "node scripts/run-historical-backfill.mjs");
     assert.equal(
       packageJson.scripts["ingest:historical:plan"],
@@ -647,6 +793,7 @@ describe("autonomous ingestion runner static safety contracts", () => {
     assert.ok(runner.includes("await mergeCollectorDiscoveryState("));
     assert.ok(artifactPaths.includes('"outputs/discovery-attempts-current.json"'));
     assert.ok(artifactPaths.includes('"outputs/source-discovery-paths-current.json"'));
+    assert.ok(artifactPaths.includes('"outputs/public-ingestion-operational-ledger-current.json"'));
   });
 
   it("re-reads and semantically merges publication state only after the initial rebase", () => {
@@ -656,12 +803,14 @@ describe("autonomous ingestion runner static safety contracts", () => {
     const merge = section("async function mergePublicationInputs", "async function mergeCollectorDiscoveryState");
 
     assert.ok(synchronizeIndex > -1 && mergeIndex > synchronizeIndex);
-    assert.ok(preparation.includes("previousPublicSnapshot = await readRequiredCanonicalJson"));
+    assert.ok(preparation.includes("await readPublicEvidenceArtifact"));
+    assert.ok(preparation.includes("await readPublicEvidenceFromGitRef"));
     assert.ok(preparation.includes("basePublicSnapshot"));
     assert.ok(preparation.includes("mergePublicEvidenceSnapshots"));
     assert.ok(preparation.includes("resolveBatchSlug: resolveLegacyPublicEvidenceBatch"));
     assert.ok(preparation.includes("resolveNativeAuthor: resolvePublicNativeAuthor"));
     assert.ok(merge.includes("publishGithubExports(githubSnapshots, { baseRef })"));
+    assert.ok(merge.includes("writePublicEvidenceArtifactPairAtomic"));
     const resolver = section(
       "export function buildLegacyPublicEvidenceBatchResolver",
       "function normalizedCatalogBatchAlias",

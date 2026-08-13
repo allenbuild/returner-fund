@@ -1,6 +1,7 @@
 import { spawn } from "node:child_process";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { readPublicEvidenceArtifact } from "./lib/public-evidence-artifact.mjs";
 
 const startedAt = new Date();
 const runId = `s26-collection-${startedAt.toISOString().replace(/[:.]/g, "-")}`;
@@ -192,11 +193,15 @@ async function checkpoint(force) {
 }
 
 async function summarizeArtifacts() {
+  const publicEvidence = await readPublicEvidenceArtifact(
+    path.resolve("src/lib/social/public-evidence-current.json"),
+    { rootDir: process.cwd() }
+  );
   const summary = {
     generatedAt: new Date().toISOString(),
     runId,
     elapsedMinutes: elapsedMinutes(),
-    publicEvidence: summarizeEvidence(await readJson("src/lib/social/public-evidence-current.json", null)),
+    publicEvidence: summarizeEvidence(publicEvidence.snapshot),
     loggedInEvidence: summarizeEvidence(await readJson("src/lib/social/logged-in-evidence-current.json", null)),
     instagramDiscovery: summarizeInstagramDiscovery(await readJson("outputs/instagram-discovery-candidates.json", null)),
     benchmarks: await readJson("outputs/benchmarks/s26-score-benchmarks.json", null)

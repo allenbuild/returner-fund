@@ -1005,7 +1005,7 @@ function translateTargetOutcome(target) {
     return {
       status: "completed",
       reason:
-        `Historical target ${target.targetKey} collected ${target.evidence.length} timestamped native rows; ` +
+        `Historical target ${target.targetKey} collected timestamped native rows; ` +
         `exact coverage extent ${receipt.coverageExtent}.`,
       error: null,
       retryable: false

@@ -69,7 +69,7 @@ jobs:
     needs: resolve
     if: needs.resolve.outputs.should_run == 'true'
     runs-on: ubuntu-latest
-    timeout-minutes: 350
+    timeout-minutes: 360
     permissions:
       contents: write
     concurrency:
@@ -109,6 +109,56 @@ jobs:
           INGESTION_IDEMPOTENCY_KEY: ${{ needs.resolve.outputs.slot_key }}
           INGESTION_PUBLICATION_BRANCH: main
         run: node scripts/run-autonomous-ingestion.mjs --idempotency-key="$INGESTION_IDEMPOTENCY_KEY"
+
+      - name: Package public-safe ingestion proof journals
+        id: proof_package
+        if: always() && steps.ingestion.outputs.runner_status == 'refreshed'
+        timeout-minutes: 15
+        env:
+          INGESTION_IDEMPOTENCY_KEY: ${{ needs.resolve.outputs.slot_key }}
+          PROOF_ARTIFACT_NAME: ingestion-proof-journals-${{ github.run_id }}-${{ github.run_attempt }}
+        run: |
+          node scripts/package-public-ingestion-proof-artifact.mjs \
+            --idempotency-key="$INGESTION_IDEMPOTENCY_KEY" \
+            --artifact-name="$PROOF_ARTIFACT_NAME"
+
+      - name: Upload public-safe ingestion proof journals
+        id: proof_upload
+        if: always() && steps.proof_package.outcome == 'success'
+        timeout-minutes: 15
+        uses: actions/upload-artifact@v4
+        with:
+          name: ingestion-proof-journals-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ steps.proof_package.outputs.artifact_path }}
+          if-no-files-found: error
+          retention-days: 90
+          compression-level: 6
+          include-hidden-files: false
+
+      - name: Record public-safe proof journal receipt
+        if: always() && steps.proof_upload.outcome == 'success'
+        env:
+          ARTIFACT_NAME: ingestion-proof-journals-${{ github.run_id }}-${{ github.run_attempt }}
+          ARTIFACT_ID: ${{ steps.proof_upload.outputs.artifact-id }}
+          ARTIFACT_DIGEST: ${{ steps.proof_upload.outputs.artifact-digest }}
+          ARTIFACT_URL: ${{ steps.proof_upload.outputs.artifact-url }}
+          PROOF_MANIFEST_SHA256: ${{ steps.proof_package.outputs.proof_manifest_sha256 }}
+          SOURCE_CONTENT_MANIFEST_SHA256: ${{ steps.proof_package.outputs.source_content_manifest_sha256 }}
+          RECENT_WINDOW_JOURNALS: ${{ steps.proof_package.outputs.recent_window_journals }}
+        run: |
+          {
+            echo "## Public-safe ingestion proof journals"
+            echo "- Name: $ARTIFACT_NAME"
+            echo "- Artifact ID: $ARTIFACT_ID"
+            echo "- Upload SHA-256: $ARTIFACT_DIGEST"
+            echo "- Proof manifest SHA-256: $PROOF_MANIFEST_SHA256"
+            echo "- Source content-manifest SHA-256: $SOURCE_CONTENT_MANIFEST_SHA256"
+            echo "- Exact recent-window journals: $RECENT_WINDOW_JOURNALS"
+            echo "- Retention: 90 days"
+            echo "- Download URL: $ARTIFACT_URL"
+            echo "- Public-safe projection only: no raw collector bodies, raw evidence, stored-unpublished rows, credentials, auth headers, or request/response bodies."
+            echo "- Re-audit after download: node scripts/generate-recent-completion-proofs.mjs --campaign=campaign.json --expected-sha256=$PROOF_MANIFEST_SHA256 --output-dir=work/recent-completion-proofs/<new-run-name>"
+          } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Validate generated public artifacts
         timeout-minutes: 5

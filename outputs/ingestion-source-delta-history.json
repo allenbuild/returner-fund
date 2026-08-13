@@ -2974,5 +2974,294 @@
         "postedAt": "2026-04-17T23:59:23Z"
       }
     ]
+  },
+  {
+    "schemaVersion": 1,
+    "idempotencyKey": "manual-comprehensive-2026-08-02-v1",
+    "centralDay": null,
+    "observedAt": "2026-08-03T02:01:26.847Z",
+    "baselinePhysicalSources": 8359,
+    "publishedPhysicalSources": 8748,
+    "newPhysicalSources": 389,
+    "newPhysicalSourcesThisAttempt": 389,
+    "retainedPhysicalSources": 8359,
+    "removedPhysicalSources": 0,
+    "dailyNewPhysicalSources": 396,
+    "dailySourceHealth": "healthy",
+    "collectionHealth": "degraded",
+    "collectionHealthReasons": [
+      "missing_credential:X_BEARER_TOKEN",
+      "missing_credential:EXA_API_KEY",
+      "missing_credential:NEXT_PUBLIC_SUPABASE_URL",
+      "missing_credential:SUPABASE_SERVICE_ROLE_KEY",
+      "mapped_failures:11"
+    ],
+    "mappedExpected": 2110,
+    "mappedSucceeded": 327,
+    "mappedNeedsReview": 326,
+    "mappedBlockedOrEmpty": 1446,
+    "mappedFailures": 11,
+    "mappedNonTerminal": 0,
+    "mappedSuccessRate": 0.155,
+    "newestNewSourcePostedAt": "2026-08-03T00:14:03.000Z",
+    "insertedByBatchPlatform": {
+      "A16ZSR006:instagram": 1,
+      "A16ZSR006:linkedin": 72,
+      "S2026:linkedin": 237,
+      "S26:linkedin": 78,
+      "S26:x": 1
+    },
+    "insertedSourceSamples": [
+      {
+        "batchSlug": "S26",
+        "platform": "linkedin",
+        "entityType": "founder",
+        "entityId": "founder-avoca-systems-max-shand-2570497",
+        "sourceUrl": "https://linkedin.com/posts/max-shand-700a3ab5_gday-gday-gday-gday-and-welcome-to-avoca-activity-7475671531206111232-yF4Y",
+        "platformPostId": "7475671531206111232",
+        "platformObjectId": null,
+        "postedAt": "2026-06-24T22:09:44.283Z"
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "linkedin",
+        "entityType": "founder",
+        "entityId": "founder-agency-tool-company-davis-foster-253511",
+        "sourceUrl": "https://linkedin.com/posts/davisfoster_robotics-and-physical-ai-are-hot-again-but-activity-7478518509363187712-jw2k",
+        "platformPostId": "7478518509363187712",
+        "platformObjectId": null,
+        "postedAt": "2026-07-02T18:42:36.766Z"
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "linkedin",
+        "entityType": "founder",
+        "entityId": "founder-stoa-berat-celik-1961995",
+        "sourceUrl": "https://linkedin.com/posts/beratcelik1_im-excited-to-share-that-ive-completed-activity-7475423017238564864-DgRg",
+        "platformPostId": "7475423017238564864",
+        "platformObjectId": null,
+        "postedAt": "2026-06-24T05:42:13.935Z"
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "linkedin",
+        "entityType": "company",
+        "entityId": "company-zaplar",
+        "sourceUrl": "https://linkedin.com/posts/zaplar_meet-our-three-new-engineers-axel-ytterstad-activity-7482887832026615808-jcFE",
+        "platformPostId": "7482887832026615808",
+        "platformObjectId": null,
+        "postedAt": "2026-07-14T20:04:44.471Z"
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "linkedin",
+        "entityType": "company",
+        "entityId": "company-stoa",
+        "sourceUrl": "https://linkedin.com/posts/stoaexchange_nobody-can-tell-you-what-an-h100-is-worth-activity-7489043010446532608-uG5D",
+        "platformPostId": "7489043010446532608",
+        "platformObjectId": null,
+        "postedAt": null
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "linkedin",
+        "entityType": "founder",
+        "entityId": "founder-stoa-berat-celik-1961995",
+        "sourceUrl": "https://linkedin.com/posts/beratcelik1_nobody-can-tell-you-what-an-h100-is-worth-activity-7488950235721777152-iaQ2",
+        "platformPostId": "7488950235721777152",
+        "platformObjectId": null,
+        "postedAt": null
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "linkedin",
+        "entityType": "company",
+        "entityId": "company-induction-labs",
+        "sourceUrl": "https://linkedin.com/posts/induction-labs_today-were-introducing-imagination-models-activity-7486088570852769792-_3o6",
+        "platformPostId": "7486088570852769792",
+        "platformObjectId": null,
+        "postedAt": null
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "linkedin",
+        "entityType": "company",
+        "entityId": "company-agency-tool-company",
+        "sourceUrl": "https://linkedin.com/posts/agency-tool-company_introducing-agency-tool-company-and-atc-deploy-activity-7487887017616302081-u0C8",
+        "platformPostId": "7487887017616302081",
+        "platformObjectId": null,
+        "postedAt": null
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "linkedin",
+        "entityType": "founder",
+        "entityId": "founder-agency-tool-company-davis-foster-253511",
+        "sourceUrl": "https://linkedin.com/posts/davisfoster_there-has-never-been-a-better-time-to-build-activity-7487904101310050305-1m5z",
+        "platformPostId": "7487904101310050305",
+        "platformObjectId": null,
+        "postedAt": null
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "linkedin",
+        "entityType": "company",
+        "entityId": "company-olam-labs",
+        "sourceUrl": "https://linkedin.com/posts/olam-labs_today-were-releasing-social-arena-and-our-activity-7485081875904929792-5Hte",
+        "platformPostId": "7485081875904929792",
+        "platformObjectId": null,
+        "postedAt": null
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "linkedin",
+        "entityType": "founder",
+        "entityId": "founder-wondering-cheng-wei-hu-1422401",
+        "sourceUrl": "https://linkedin.com/posts/cwhu_today-we-are-officially-launching-wondering-activity-7488641422846468096--5pT",
+        "platformPostId": "7488641422846468096",
+        "platformObjectId": null,
+        "postedAt": null
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "linkedin",
+        "entityType": "company",
+        "entityId": "company-last-accounting-company",
+        "sourceUrl": "https://linkedin.com/posts/lastaccountingcompany_we-got-a-mention-in-helsingin-sanomats-piece-activity-7478141265465815041-Kw0J",
+        "platformPostId": "7478141265465815041",
+        "platformObjectId": null,
+        "postedAt": "2026-07-01T17:43:34.813Z"
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "linkedin",
+        "entityType": "founder",
+        "entityId": "founder-avoca-systems-max-shand-2570497",
+        "sourceUrl": "https://linkedin.com/posts/max-shand-700a3ab5_if-you-have-a-trusted-partner-like-avoca-activity-7478204243275952129-UTsp",
+        "platformPostId": "7478204243275952129",
+        "platformObjectId": null,
+        "postedAt": null
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "linkedin",
+        "entityType": "founder",
+        "entityId": "founder-wondering-cheng-wei-hu-1422401",
+        "sourceUrl": "https://linkedin.com/posts/cwhu_three-quick-takeaways-from-nvidia-founder-activity-7487661480662704128-Ko_d",
+        "platformPostId": "7487661480662704128",
+        "platformObjectId": null,
+        "postedAt": "2026-07-28T00:13:30.993Z"
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "linkedin",
+        "entityType": "founder",
+        "entityId": "founder-avoca-systems-max-shand-2570497",
+        "sourceUrl": "https://linkedin.com/posts/max-shand-700a3ab5_ahra-rbma-yc-activity-7480764104790470656-yBwV",
+        "platformPostId": "7480764104790470656",
+        "platformObjectId": null,
+        "postedAt": "2026-07-08T23:25:48.437Z"
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "linkedin",
+        "entityType": "founder",
+        "entityId": "founder-wondering-cheng-wei-hu-1422401",
+        "sourceUrl": "https://linkedin.com/posts/cwhu_claude-code-operator-workflows-wondering-activity-7486978270324871168-OtCu",
+        "platformPostId": "7486978270324871168",
+        "platformObjectId": null,
+        "postedAt": "2026-07-26T02:58:40.953Z"
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "linkedin",
+        "entityType": "company",
+        "entityId": "company-trident",
+        "sourceUrl": "https://linkedin.com/posts/tridentsecure_yc-s26-arcade-night-co-hosted-with-cursor-activity-7481081731039760384-QbkF",
+        "platformPostId": "7481081731039760384",
+        "platformObjectId": null,
+        "postedAt": "2026-07-09T20:27:56.436Z"
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "linkedin",
+        "entityType": "company",
+        "entityId": "company-last-accounting-company",
+        "sourceUrl": "https://linkedin.com/posts/lastaccountingcompany_why-join-y-combinator-as-an-accounting-firm-activity-7482299094481240065-cQTH",
+        "platformPostId": "7482299094481240065",
+        "platformObjectId": null,
+        "postedAt": "2026-07-13T05:05:18.494Z"
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "linkedin",
+        "entityType": "founder",
+        "entityId": "founder-avoca-systems-max-shand-2570497",
+        "sourceUrl": "https://linkedin.com/posts/max-shand-700a3ab5_call-it-vanity-or-validation-its-just-wonderful-activity-7488047403477110784-IM4F",
+        "platformPostId": "7488047403477110784",
+        "platformObjectId": null,
+        "postedAt": null
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "linkedin",
+        "entityType": "founder",
+        "entityId": "founder-billow-ai-labs-joanathan-mcintosh-983067",
+        "sourceUrl": "https://linkedin.com/posts/joanathanlim_cfo-fpanda-aiagents-activity-7457881382812299266-wFI3",
+        "platformPostId": "7457881382812299266",
+        "platformObjectId": null,
+        "postedAt": "2026-05-06T19:58:02.374Z"
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "linkedin",
+        "entityType": "founder",
+        "entityId": "founder-wondering-cheng-wei-hu-1422401",
+        "sourceUrl": "https://linkedin.com/posts/cwhu_if-you-enjoy-jeff-dean-talk-yesterday-at-activity-7487249064527351808-y-fz",
+        "platformPostId": "7487249064527351808",
+        "platformObjectId": null,
+        "postedAt": "2026-07-26T20:54:43.321Z"
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "linkedin",
+        "entityType": "company",
+        "entityId": "company-last-accounting-company",
+        "sourceUrl": "https://linkedin.com/posts/lastaccountingcompany_imagine-sending-pdfs-and-excels-to-your-accountant-activity-7480872230873305089-8fUh",
+        "platformPostId": "7480872230873305089",
+        "platformObjectId": null,
+        "postedAt": null
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "linkedin",
+        "entityType": "company",
+        "entityId": "company-last-accounting-company",
+        "sourceUrl": "https://linkedin.com/posts/lastaccountingcompany_were-happy-to-support-those-nordic-startups-activity-7488585659629301761-qPIt",
+        "platformPostId": "7488585659629301761",
+        "platformObjectId": null,
+        "postedAt": "2026-07-30T13:25:52.420Z"
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "linkedin",
+        "entityType": "company",
+        "entityId": "company-wondering",
+        "sourceUrl": "https://linkedin.com/posts/wondering-app_big-news-we-are-officially-launching-on-activity-7488641888087101440-zPlO",
+        "platformPostId": "7488641888087101440",
+        "platformObjectId": null,
+        "postedAt": null
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "linkedin",
+        "entityType": "company",
+        "entityId": "company-lamb-labs",
+        "sourceUrl": "https://linkedin.com/posts/lamb-labs_small-language-models-are-getting-good-enough-activity-7476837731814338560-RgB3",
+        "platformPostId": "7476837731814338560",
+        "platformObjectId": null,
+        "postedAt": "2026-06-28T03:23:48.175Z"
+      }
+    ]
   }
 ]

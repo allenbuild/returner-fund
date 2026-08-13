@@ -4,7 +4,7 @@
     "batchSlug": "A16ZSR006",
     "batchLabel": "a16z Speedrun 006",
     "sourcePath": "src/lib/graph/a16z-speedrun-006-dataset.ts",
-    "fetchedAt": "2026-08-03T00:13:55.814Z",
+    "fetchedAt": "2026-08-03T02:01:26.571Z",
     "companyCount": 59,
     "totalCompanyCount": 59,
     "companyShardCount": 1,
@@ -2520,7 +2520,9 @@
       "No stars, follows, forks, issues, pull requests, comments, or account mutations are performed.",
       "a16z Speedrun 006 profiles in the local graph dataset do not include explicit GitHub social links, so official company websites are scanned by default.",
       "GitHub search discovery is available with --search for conservative same-domain or same-owner matches; use --no-website to disable official website discovery."
-    ]
+    ],
+    "retainedLastGood": 0,
+    "prunedRetired": 0
   },
   "accounts": [
     {

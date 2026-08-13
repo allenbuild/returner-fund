@@ -368,9 +368,25 @@ export function parseHistoricalDocument(text, {
   maxItems = Infinity,
   discoveredAt = new Date().toISOString()
 }) {
+  if (target?.platform && target.platform !== platform) {
+    throw new Error(
+      `Historical parser platform ${platform} does not match target ${target.targetKey ?? target.entityId}:${target.platform}.`
+    );
+  }
   const seen = new Set(seenItemKeys);
   const documentKind = classifyHistoricalDocument(text, contentType, url);
   if (documentKind === "feed") {
+    // A web crawl may reach a feed through a redirect, robots-declared URL, or
+    // an official website configured directly as /feed.xml. Record that page
+    // discovery in the web journal, but leave RSS-native items exclusively to
+    // the independently planned RSS target. Emitting them here would attribute
+    // one physical feed item to both entity-platform pairs and double-count it.
+    if (platform !== "rss") {
+      return {
+        ...emptyParsedDocument("feed"),
+        discoveredUrls: [{ url, kind: "feed" }]
+      };
+    }
     return parseFeed(text, { url, target, seen, maxItems, discoveredAt });
   }
   if (documentKind === "sitemap") {

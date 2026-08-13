@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
 import { gzipSync } from "node:zlib";
 import { appendFile, mkdtemp, readFile, rm } from "node:fs/promises";
 import os from "node:os";
@@ -17,6 +18,9 @@ import {
   robotsAllows,
   runHistoricalBackfill
 } from "../scripts/lib/historical-backfill.mjs";
+import {
+  adaptHistoricalBackfillCoverage
+} from "../scripts/lib/historical-coverage-adapter.mjs";
 
 const temporaryDirectories = [];
 
@@ -131,7 +135,11 @@ describe("bounded document decoding and canonical feed identity", () => {
       url: "https://acme.example/feed.xml",
       contentType: "application/rss+xml",
       platform: "rss",
-      target: fixtureTarget(),
+      target: {
+        ...fixtureTarget(),
+        targetKey: "S2026:company-acme:rss",
+        platform: "rss"
+      },
       seenItemKeys: [],
       maxItems: 100
     });
@@ -139,6 +147,70 @@ describe("bounded document decoding and canonical feed identity", () => {
     assert.equal(parsed.evidence.length, 1);
     assert.equal(parsed.duplicates, 1);
     assert.equal(parsed.evidence[0].publishedAt, "2026-01-01T00:00:00.000Z");
+  });
+
+  it("keeps feed evidence exclusively in the RSS target when a web crawl reaches feed.xml", async () => {
+    const outputDir = await temporaryDirectory("historical-feed-routing-");
+    let tick = 0;
+    const feed = `
+      <rss><channel><item>
+        <guid>https://opentrade.example/blog/one</guid>
+        <link>https://opentrade.example/blog/one</link>
+        <title>OpenTrade update</title>
+        <pubDate>2026-01-01T00:00:00Z</pubDate>
+      </item></channel></rss>
+    `;
+    const summary = await runHistoricalBackfill({
+      outputDir,
+      catalogs: [fixtureCatalog("S26", [
+        fixtureCompany("company-opentrade", "OpenTrade", "https://opentrade.example/feed.xml")
+      ])],
+      platforms: ["rss", "web"],
+      limits: {
+        hostPaceMs: 0,
+        requestAttempts: 1,
+        siteMaxResponses: 3
+      },
+      now: () => new Date(Date.parse("2026-08-02T18:00:00.000Z") + tick++ * 1_000),
+      fetch: async (input) => {
+        const url = new URL(String(input));
+        if (url.pathname === "/robots.txt") return textResponse("User-agent: *", "text/plain");
+        if (url.pathname === "/feed.xml") return textResponse(feed, "application/rss+xml");
+        return new Response("not found", { status: 404 });
+      }
+    });
+
+    assert.equal(summary.status, "completed");
+    assert.equal(summary.totals.accepted, 1, "the physical feed item is accepted exactly once");
+    const events = await ndjson(path.join(outputDir, "pages.ndjson"));
+    const webPages = events.filter((event) =>
+      event.type === "page_checkpoint" && event.targetKey === "S26:company-opentrade:web"
+    );
+    const rssPages = events.filter((event) =>
+      event.type === "page_checkpoint" && event.targetKey === "S26:company-opentrade:rss"
+    );
+    assert.equal(webPages.flatMap((event) => event.evidence).length, 0);
+    assert.equal(webPages.find((event) => event.receipt.pageType === "feed")?.receipt.pageAccepted, 0);
+    assert.equal(rssPages.flatMap((event) => event.evidence).length, 1);
+    assert.equal(rssPages.flatMap((event) => event.evidence)[0].platform, "rss");
+
+    const journal = await readFile(path.join(outputDir, "pages.ndjson"));
+    const lastEvent = events.at(-1);
+    const bridge = await adaptHistoricalBackfillCoverage({
+      journal: [journal],
+      artifact: {
+        path: path.join(outputDir, "pages.ndjson"),
+        sha256: createHash("sha256").update(journal).digest("hex"),
+        observedAt: lastEvent.recordedAt
+      },
+      generatedAt: new Date(Date.parse(lastEvent.recordedAt) + 60_000).toISOString()
+    });
+    assert.equal(bridge.collectorArtifacts[0].snapshot.evidence.length, 1);
+    assert.equal(bridge.collectorArtifacts[0].snapshot.evidence[0].platform, "rss");
+    assert.equal(
+      bridge.targetCoverage.find((row) => row.targetKey === "S26:company-opentrade:web").accepted,
+      0
+    );
   });
 });
 

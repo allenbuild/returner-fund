@@ -149,6 +149,7 @@ const nextConfig = {
   },
   outputFileTracingIncludes: {
     [canonicalGraphTraceKey]: [...benchmarkRuntimeData, ...publishedGraphRuntimeSnapshots],
+    "/api/yc-partners": ["public/graph/*.json"],
     "/api/graph/full": graphRuntimeData,
     "/api/graph/refresh": [...graphRuntimeData, "public/graph/*.json"],
     "/debug/duplicates": graphRuntimeData,

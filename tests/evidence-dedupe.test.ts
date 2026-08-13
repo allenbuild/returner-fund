@@ -68,6 +68,38 @@ describe("evidence dedupe", () => {
     expect(dedupeEvidenceItems([...items].reverse()).map((item) => item.id)).toEqual(["newer-lower"]);
   });
 
+  it("keeps fresh metrics without discarding an older exact native publication date", () => {
+    const dated = {
+      ...evidence("dated", "https://linkedin.com/posts/acme_launch-activity-12345-old", 40),
+      platform: "linkedin" as const,
+      platformPostId: "12345",
+      postedAt: "2026-04-13T17:36:11.987Z",
+      publishedAtPrecision: "exact" as const,
+      metrics: { reactions: 345, comments: 84 },
+      last_checked_at: "2026-07-15T23:15:00Z"
+    };
+    const fresh = {
+      ...dated,
+      id: "fresh",
+      sourceUrl: "https://www.linkedin.com/posts/acme_launch-activity-12345-new",
+      postedAt: "2026-08-03T01:50:36.888Z",
+      publishedAtPrecision: "unknown" as const,
+      metrics: { reactions: 349, comments: 85 },
+      last_checked_at: "2026-08-03T01:50:36.888Z"
+    };
+
+    for (const rows of [[dated, fresh], [fresh, dated]]) {
+      expect(dedupeEvidenceItems(rows)).toEqual([
+        expect.objectContaining({
+          id: "fresh",
+          postedAt: "2026-04-13T17:36:11.987Z",
+          publishedAtPrecision: "exact",
+          metrics: { reactions: 349, comments: 85 }
+        })
+      ]);
+    }
+  });
+
   it("coalesces an explicit post ID with the same URL-derived identity", () => {
     const idOnly = {
       ...evidence("id-only", "https://x.com/allenxtech", 40),

@@ -7,10 +7,10 @@ import type { GraphResponse } from "@/lib/graph/types";
 import { ycSpring2026GraphDataset } from "@/lib/graph/yc-spring-2026-dataset";
 
 describe("insights tabs", () => {
-  it("keeps all four navigation boxes on one shared equal-size layout in every selected view", () => {
+  it("keeps all five navigation boxes on one shared equal-size layout in every selected view", () => {
     render(<InsightsTabs graph={graphResponse()} onSelectNode={vi.fn()} />);
 
-    const tabNames = ["Overview", "Hottest", "Ranked Posts", "Stats"] as const;
+    const tabNames = ["Overview", "Hottest", "Ranked Posts", "Stats", "YC Partners"] as const;
     const navigation = screen.getByRole("tablist", { name: "Dashboard panels" });
     const tabList = navigation.parentElement;
     const actions = tabList?.querySelector(".tab-list-actions");
@@ -68,7 +68,7 @@ describe("insights tabs", () => {
 
     expect(navigationRules.length).toBeGreaterThan(0);
     for (const rule of navigationRules) {
-      expect(rule).toMatch(/grid-template-columns:\s*repeat\(4,\s*minmax\(0,\s*1fr\)\)/);
+      expect(rule).toMatch(/grid-template-columns:\s*repeat\(5,\s*minmax\(0,\s*1fr\)\)/);
       expect(rule).toMatch(/width:\s*100%/);
       expect(rule).toMatch(/min-width:\s*0/);
     }
@@ -164,7 +164,7 @@ describe("insights tabs", () => {
     const statsTab = screen.getByRole("tab", { name: "Stats" });
     const navigation = screen.getByRole("tablist", { name: "Dashboard panels" });
     expect(navigation).toHaveClass("tab-navigation");
-    expect(within(navigation).getAllByRole("tab")).toHaveLength(4);
+    expect(within(navigation).getAllByRole("tab")).toHaveLength(5);
     expect(navigation.parentElement).toHaveClass("tab-list");
     expect(overviewTab).toHaveAttribute("aria-selected", "true");
     expect(overviewTab).toHaveAttribute("aria-controls", "insights-panel-overview");
@@ -535,7 +535,7 @@ describe("insights tabs", () => {
     );
 
     expect(screen.queryByText("Score audience")).not.toBeInTheDocument();
-    expect(screen.queryByText("YC Partners")).not.toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: "YC Partners" })).toBeInTheDocument();
   });
 
   it("sorts overview by rank or company and keeps contribution text compact", () => {

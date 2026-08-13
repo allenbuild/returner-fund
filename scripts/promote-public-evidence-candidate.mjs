@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { readFile, rename, rm, writeFile } from "node:fs/promises";
+import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import {
   buildAutonomousPublicNativeAuthorResolver,
@@ -7,6 +7,11 @@ import {
   loadAutonomousCatalogs,
   mergePublicEvidenceSnapshots
 } from "./lib/autonomous-ingestion-plan.mjs";
+import {
+  PUBLIC_EVIDENCE_OPERATIONAL_KEYS,
+  hydratePublicEvidenceArtifactWithLoader,
+  writePublicEvidenceArtifactPairAtomic
+} from "./lib/public-evidence-artifact.mjs";
 import { linkedinPostIdFromUrl } from "./lib/social-native-identity.mjs";
 
 const root = process.cwd();
@@ -29,7 +34,17 @@ const [candidateBytes, targeted, loggedIn, a16z, catalogs] = await Promise.all([
   readJson(resolve(root, "src/lib/social/a16z-speedrun-006-social-evidence.json")),
   loadAutonomousCatalogs(root)
 ]);
-const canonical = JSON.parse(canonicalBytes.toString("utf8"));
+const canonicalDocument = JSON.parse(canonicalBytes.toString("utf8"));
+let canonicalOperationalLedgerBytes = null;
+const canonical = await hydratePublicEvidenceArtifactWithLoader(
+  canonicalDocument,
+  {
+    loadLedger: async (relativePath) => {
+      canonicalOperationalLedgerBytes = await readFile(resolve(root, relativePath));
+      return canonicalOperationalLedgerBytes;
+    }
+  }
+);
 const candidate = JSON.parse(candidateBytes.toString("utf8"));
 
 const merged = mergePublicEvidenceSnapshots([canonical, candidate], {
@@ -68,11 +83,11 @@ if (
 if (addedReviews.length > 1) {
   throw new Error(`Promotion may add at most one contextual review row; received ${addedReviews.length}.`);
 }
-if ((merged.failures ?? []).length !== (canonical.failures ?? []).length) {
-  throw new Error("Promotion unexpectedly changed the canonical failure ledger.");
-}
-if (Object.keys(merged.attempts ?? {}).length !== Object.keys(canonical.attempts ?? {}).length) {
-  throw new Error("Promotion unexpectedly changed the canonical attempt ledger.");
+for (const key of PUBLIC_EVIDENCE_OPERATIONAL_KEYS) {
+  const fallback = key === "attempts" ? {} : [];
+  if (JSON.stringify(merged[key] ?? fallback) !== JSON.stringify(canonical[key] ?? fallback)) {
+    throw new Error(`Promotion unexpectedly changed the canonical ${key} ledger.`);
+  }
 }
 
 // Use the canonical merge only as the trust/attribution gate, then append its
@@ -90,16 +105,15 @@ if (currentHash !== canonicalHash) {
   throw new Error("Canonical evidence changed during promotion; refusing to overwrite concurrent work.");
 }
 
-const temporaryPath = `${canonicalPath}.promotion-${process.pid}.tmp`;
-try {
-  await writeFile(temporaryPath, `${JSON.stringify(promoted, null, 2)}\n`, { flag: "wx" });
-  if (sha256(await readFile(canonicalPath)) !== canonicalHash) {
-    throw new Error("Canonical evidence changed before atomic publication; promotion aborted.");
-  }
-  await rename(temporaryPath, canonicalPath);
-} finally {
-  await rm(temporaryPath, { force: true });
-}
+const published = await writePublicEvidenceArtifactPairAtomic({
+  rootDir: root,
+  canonicalPath,
+  snapshot: promoted,
+  expectedCanonicalSha256: canonicalHash,
+  expectedLedgerSha256: canonicalOperationalLedgerBytes
+    ? sha256(canonicalOperationalLedgerBytes)
+    : null
+});
 
 console.log(JSON.stringify({
   status: "promoted",
@@ -111,7 +125,11 @@ console.log(JSON.stringify({
   addedReviews: addedReviews.length,
   removedEvidence: removedEvidence.length,
   canonicalHashBefore: canonicalHash,
-  canonicalHashAfter: sha256(await readFile(canonicalPath))
+  canonicalHashAfter: sha256(await readFile(canonicalPath)),
+  operationalLedgerHashBefore: canonicalOperationalLedgerBytes
+    ? sha256(canonicalOperationalLedgerBytes)
+    : null,
+  operationalLedgerHashAfter: published.ledgerSha256
 }, null, 2));
 
 function updateCanonicalSource(canonicalSource = {}, mergedSource = {}) {

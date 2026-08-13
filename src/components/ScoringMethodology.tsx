@@ -41,6 +41,28 @@ export function ScoringMethodology({ currentModel }: ScoringMethodologyProps) {
         </p>
       </div>
 
+      <details className="scoring-baseline-interpreter yc-favorite-methodology">
+        <summary>How YC partner Favorite scores are calculated</summary>
+        <div className="scoring-baseline-content">
+          <p>
+            Favorite score is a separate 1–100 signal about the conviction a YC partner expresses toward a startup in
+            already-ingested public commentary. Explicit superlatives, strong endorsements, and specific reasoning
+            about a team, market, product, or technology carry much more weight than a short tag or congratulations.
+          </p>
+          <p>
+            The strongest attributable statement sets the pair&apos;s foundation. Additional independent posts add a
+            bounded, diminishing-return bonus, and duplicate or cross-posted copies count once. Skeptical language can
+            reduce the result. The score does not measure company quality, investment merit, ordinary traction, or
+            the number of posts by itself.
+          </p>
+          <p>
+            Confidence is separate from Favorite score. It reflects unique supporting posts, independent contexts,
+            platform breadth, attribution quality, date completeness, and verified source links. No commentary is not
+            treated as evidence of dislike; it simply produces no attributable ranking signal.
+          </p>
+        </div>
+      </details>
+
       <details className="scoring-baseline-interpreter">
         <summary>How the currently displayed deterministic baseline is calculated</summary>
         <div className="scoring-baseline-content">

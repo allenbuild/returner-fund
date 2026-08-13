@@ -4,14 +4,22 @@ import {
   ArrowDown,
   ArrowUp,
   ArrowUpDown,
+  AlertTriangle,
+  CheckCircle2,
+  ChevronLeft,
+  ChevronDown,
+  ChevronRight,
   Clock3,
   Database,
   Eye,
+  ExternalLink,
   GitFork,
   Heart,
+  Info,
   ListOrdered,
   MessageCircle,
   Repeat2,
+  RefreshCw,
   Star,
   ThumbsUp,
   TrendingUp,
@@ -19,10 +27,12 @@ import {
   Users
 } from "lucide-react";
 import {
+  useCallback,
   useId,
   useMemo,
   useRef,
   useState,
+  useEffect,
   type KeyboardEvent,
   type PointerEvent as ReactPointerEvent
 } from "react";
@@ -40,8 +50,13 @@ import type {
   MomentumDelta
 } from "@/lib/graph/types";
 import { formatPlatform, PlatformIdentity, PlatformLogo } from "./PlatformLogo";
+import type {
+  YcPartnerFavoriteDetail,
+  YcPartnerFavoriteRanking,
+  YcPartnersResponse
+} from "@/lib/yc-partners/favorite-contracts";
 
-type TabKey = "overview" | "gaining" | "ranked" | "stats";
+type TabKey = "overview" | "gaining" | "ranked" | "stats" | "partners";
 type MomentumPeriod = "dod" | "wow";
 type OverviewSortKey = "rank" | "company";
 type SortDirection = "asc" | "desc";
@@ -51,19 +66,37 @@ interface InsightsTabsProps {
   statsGraph?: GraphResponse;
   onSelectNode: (nodeId: string) => void;
   now?: Date;
+  ycPartners?: YcPartnersResponse | null;
+  ycPartnersLoading?: boolean;
+  ycPartnersError?: string | null;
+  onRetryYcPartners?: () => void;
 }
 
 const tabs: { key: TabKey; label: string; icon: typeof Trophy }[] = [
   { key: "overview", label: "Overview", icon: Trophy },
   { key: "gaining", label: "Hottest", icon: TrendingUp },
   { key: "ranked", label: "Ranked Posts", icon: ListOrdered },
-  { key: "stats", label: "Stats", icon: Database }
+  { key: "stats", label: "Stats", icon: Database },
+  { key: "partners", label: "YC Partners", icon: Users }
 ];
 
-export function InsightsTabs({ graph, statsGraph = graph, onSelectNode, now }: InsightsTabsProps) {
+export function InsightsTabs({
+  graph,
+  statsGraph = graph,
+  onSelectNode,
+  now,
+  ycPartners: ycPartnersProp,
+  ycPartnersLoading: ycPartnersLoadingProp,
+  ycPartnersError: ycPartnersErrorProp,
+  onRetryYcPartners
+}: InsightsTabsProps) {
   const [activeTab, setActiveTab] = useState<TabKey>("overview");
   const [momentumPeriod, setMomentumPeriod] = useState<MomentumPeriod>("dod");
   const [rankedPeriod, setRankedPeriod] = useState<RankedPostsPeriod>("all_time");
+  const [ycPartners, setYcPartners] = useState<YcPartnersResponse | null>(null);
+  const [ycPartnersLoading, setYcPartnersLoading] = useState(true);
+  const [ycPartnersError, setYcPartnersError] = useState<string | null>(null);
+  const [selectedPartnerId, setSelectedPartnerId] = useState<string | null>(null);
   const [overviewSort, setOverviewSort] = useState<{ key: OverviewSortKey; direction: SortDirection }>({
     key: "rank",
     direction: "asc"
@@ -93,6 +126,56 @@ export function InsightsTabs({ graph, statsGraph = graph, onSelectNode, now }: I
     () => selectRankedPosts(graph, { period: rankedPeriod, now }),
     [graph, now, rankedPeriod]
   );
+
+  const loadYcPartners = useCallback(async (signal?: AbortSignal) => {
+    setYcPartnersLoading(true);
+    setYcPartnersError(null);
+
+    try {
+      const response = await fetch("/api/yc-partners", {
+        cache: "no-store",
+        signal
+      });
+      const payload = (await response.json().catch(() => null)) as YcPartnersResponse | { error?: string } | null;
+      if (!response.ok) {
+        throw new Error(
+          payload && "error" in payload && payload.error
+            ? payload.error
+            : "YC partner favorites are temporarily unavailable."
+        );
+      }
+      if (signal?.aborted) return;
+      setYcPartners(payload as YcPartnersResponse);
+    } catch (error: unknown) {
+      if (signal?.aborted) return;
+      setYcPartnersError(
+        error instanceof Error ? error.message : "YC partner favorites are temporarily unavailable."
+      );
+    } finally {
+      if (!signal?.aborted) setYcPartnersLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (ycPartnersProp !== undefined) return undefined;
+    if (activeTab !== "partners") return undefined;
+    const controller = new AbortController();
+    const timeoutId = window.setTimeout(() => {
+      void loadYcPartners(controller.signal);
+    }, 0);
+    const refreshInterval = window.setInterval(() => {
+      void loadYcPartners(controller.signal);
+    }, 60_000);
+    return () => {
+      window.clearTimeout(timeoutId);
+      window.clearInterval(refreshInterval);
+      controller.abort();
+    };
+  }, [activeTab, graph.generatedAt, loadYcPartners, ycPartnersProp]);
+
+  const displayedYcPartners = ycPartnersProp ?? ycPartners;
+  const displayedYcPartnersLoading = ycPartnersLoadingProp ?? ycPartnersLoading;
+  const displayedYcPartnersError = ycPartnersErrorProp ?? ycPartnersError;
   function toggleOverviewSort(key: OverviewSortKey) {
     setOverviewSort((current) => ({
       key,
@@ -506,8 +589,280 @@ export function InsightsTabs({ graph, statsGraph = graph, onSelectNode, now }: I
           </section>
         </div>
       )}
+
+      {activeTab === "partners" && (
+        <YcPartnersTab
+          data={displayedYcPartners}
+          loading={displayedYcPartnersLoading}
+          error={displayedYcPartnersError}
+          selectedPartnerId={selectedPartnerId}
+          onSelectPartner={setSelectedPartnerId}
+          onSelectNode={onSelectNode}
+          onRetry={onRetryYcPartners ?? (() => void loadYcPartners())}
+        />
+      )}
     </section>
   );
+}
+
+function YcPartnersTab({
+  data,
+  loading,
+  error,
+  selectedPartnerId,
+  onSelectPartner,
+  onSelectNode,
+  onRetry
+}: {
+  data: YcPartnersResponse | null;
+  loading: boolean;
+  error: string | null;
+  selectedPartnerId: string | null;
+  onSelectPartner: (partnerId: string | null) => void;
+  onSelectNode: (nodeId: string) => void;
+  onRetry: () => void;
+}) {
+  const selectedPartner = data?.partners.find((partner) => partner.partnerId === selectedPartnerId) ?? null;
+  const stale = data ? isYcPartnerDataStale(data.generatedAt) : false;
+
+  if (loading && !data) {
+    return (
+      <div className="tab-body yc-partners-panel" role="status" aria-live="polite">
+        <div className="yc-partners-state">
+          <div className="yc-partners-state-icon"><RefreshCw size={22} className="spin" aria-hidden="true" /></div>
+          <strong>Loading YC partner favorites…</strong>
+          <span>Comparing attributable partner commentary across all available batches.</span>
+        </div>
+      </div>
+    );
+  }
+  if (error && !data) {
+    return (
+      <div className="tab-body yc-partners-panel" role="alert">
+        <div className="yc-partners-state">
+          <div className="yc-partners-state-icon yc-partners-state-icon-error"><AlertTriangle size={22} aria-hidden="true" /></div>
+          <strong>YC partner favorites could not be loaded.</strong>
+          <span>{error}</span>
+          <button type="button" onClick={onRetry}><RefreshCw size={15} aria-hidden="true" /> Retry</button>
+        </div>
+      </div>
+    );
+  }
+  if (!data || !data.partners.length) {
+    return (
+      <div className="tab-body yc-partners-panel">
+        <div className="yc-partners-state">
+          <div className="yc-partners-state-icon"><Users size={22} aria-hidden="true" /></div>
+          <strong>No YC partner data is available yet.</strong>
+          <span>Favorites will appear after attributable partner commentary is ingested.</span>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="tab-body yc-partners-panel" aria-busy={loading}>
+      <header className="yc-partners-header">
+        <div className="yc-partners-heading">
+          <span className="yc-partners-kicker"><Users size={14} aria-hidden="true" /> Partner conviction signals</span>
+          <h2 id="yc-partners-title">YC Partners</h2>
+          <p>Favorite score prioritizes conviction and substantive praise over raw mention frequency.</p>
+        </div>
+        <div className="yc-partners-header-meta" aria-label="YC Partners data summary">
+          <span><strong>{data.partnerCount}</strong> partners</span>
+          <span><strong>{data.batchCount}</strong> batches</span>
+          <span>Updated {formatRelativeUpdatedAt(data.generatedAt)}</span>
+          {loading && <span className="yc-partners-refreshing"><RefreshCw size={12} className="spin" aria-hidden="true" /> Updating</span>}
+        </div>
+      </header>
+      <div className="yc-partners-methodology" role="note">
+        <Info size={15} aria-hidden="true" />
+        <span>Each citation is attributable evidence; no evidence is not evidence of dislike.</span>
+      </div>
+      {stale && (
+        <div className="yc-partners-stale" role="status">
+          <Clock3 size={15} aria-hidden="true" />
+          <span>Data may be stale. It was last generated {formatRelativeUpdatedAt(data.generatedAt)}.</span>
+          <button type="button" onClick={onRetry}>Refresh</button>
+        </div>
+      )}
+      {error && data && (
+        <div className="yc-partners-inline-error" role="alert">
+          <AlertTriangle size={15} aria-hidden="true" />
+          <span>{error} Showing the last successful result.</span>
+          <button type="button" onClick={onRetry}>Try again</button>
+        </div>
+      )}
+      {selectedPartner ? (
+        <YcPartnerDetail partner={selectedPartner} onClose={() => onSelectPartner(null)} onSelectNode={onSelectNode} />
+      ) : (
+        <section aria-labelledby="yc-partners-overview-title">
+          <div className="yc-partner-overview-heading">
+            <div>
+              <h3 id="yc-partners-overview-title">Top favorite by partner</h3>
+              <p>Open a partner to see their complete ranking and citations.</p>
+            </div>
+            <span>{data.companyCount.toLocaleString()} startups in scope</span>
+          </div>
+          <ul className="yc-partner-overview" aria-label="YC partner favorite leaders">
+            {data.partners.map((partner) => (
+              <li key={partner.partnerId}>
+                <YcPartnerOverviewCard partner={partner} onClick={() => onSelectPartner(partner.partnerId)} />
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+    </div>
+  );
+}
+
+function YcPartnerOverviewCard({ partner, onClick }: { partner: YcPartnerFavoriteDetail; onClick: () => void }) {
+  const favorite = partner.topFavorite && partner.topFavorite.evidenceCount > 0 ? partner.topFavorite : null;
+  const descriptionId = `yc-partner-card-${domSafeId(partner.partnerId)}-description`;
+  return (
+    <button
+      type="button"
+      className="yc-partner-overview-card"
+      onClick={onClick}
+      aria-label={`Open ${partner.partnerName} favorite rankings`}
+      aria-describedby={descriptionId}
+    >
+      <span className="yc-partner-card-heading">
+        <span className="yc-partner-avatar" aria-hidden="true">{partner.partnerName.split(/\s+/).map((part) => part[0]).join("").slice(0, 2)}</span>
+        <span className="yc-partner-card-name"><strong>{partner.partnerName}</strong><small>YC Group Partner</small></span>
+        <ChevronRight size={17} aria-hidden="true" />
+      </span>
+      {favorite ? (
+        <span className="yc-partner-leader">
+          <span className="yc-partner-leader-score" aria-label={`Favorite score ${favorite.score} out of 100`}><strong>{favorite.score}</strong><small>/100</small></span>
+          <span className="yc-partner-leader-copy">
+            <span className="yc-partner-card-label">Top favorite</span>
+            <strong>{favorite.companyName}</strong>
+            <small>{favorite.batchLabel}</small>
+            <span className="yc-partner-primary-reason">{favorite.primaryReason}</span>
+          </span>
+        </span>
+      ) : (
+        <span className="yc-partner-no-evidence"><span>No attributable startup commentary yet.</span></span>
+      )}
+      <span className="yc-partner-card-footer" id={descriptionId}>
+        <span>{favorite ? `${favorite.confidence.level} confidence · ${favorite.confidence.score}/100` : "No confidence score"}</span>
+        <span>{partner.supportingEvidenceCount} supporting {partner.supportingEvidenceCount === 1 ? "post" : "posts"}</span>
+      </span>
+    </button>
+  );
+}
+
+function YcPartnerDetail({ partner, onClose, onSelectNode }: { partner: YcPartnerFavoriteDetail; onClose: () => void; onSelectNode: (nodeId: string) => void }) {
+  const topFavorite = partner.topFavorite && partner.topFavorite.evidenceCount > 0 ? partner.topFavorite : null;
+  return (
+    <section className="yc-partner-detail" aria-labelledby="yc-partner-detail-title" aria-describedby="yc-partner-detail-description">
+      <header className="yc-partner-detail-header">
+        <div className="yc-partner-detail-heading">
+          <button type="button" className="yc-partner-back-button" onClick={onClose}><ChevronLeft size={15} aria-hidden="true" /> All YC Partners</button>
+          <div className="yc-partner-detail-title-row">
+            <span className="yc-partner-avatar" aria-hidden="true">{partner.partnerName.split(/\s+/).map((part) => part[0]).join("").slice(0, 2)}</span>
+            <div>
+              <h2 id="yc-partner-detail-title">{partner.partnerName}&apos;s favorite startups</h2>
+              <p id="yc-partner-detail-description">{partner.supportingEvidenceCount} supporting posts across {partner.rankingCount} startups · updated {formatRelativeUpdatedAt(partner.updatedAt)}</p>
+            </div>
+          </div>
+        </div>
+        <button type="button" className="yc-partner-close-button" onClick={onClose} aria-label="Close partner rankings"><span aria-hidden="true">×</span></button>
+      </header>
+      <div className="yc-partner-detail-summary" aria-label={`${partner.partnerName} ranking summary`}>
+        <div><span>Top favorite</span><strong>{topFavorite?.companyName ?? "No evidence yet"}</strong></div>
+        <div><span>Favorite score</span><strong>{topFavorite ? `${topFavorite.score}/100` : "—"}</strong></div>
+        <div><span>Confidence</span><strong>{topFavorite ? `${topFavorite.confidence.level} · ${topFavorite.confidence.score}/100` : "—"}</strong></div>
+        <div><span>Supporting posts</span><strong>{partner.supportingEvidenceCount.toLocaleString()}</strong></div>
+      </div>
+      {!partner.rankings.length ? (
+        <div className="yc-partners-state yc-partner-detail-empty">
+          <div className="yc-partners-state-icon"><CheckCircle2 size={22} aria-hidden="true" /></div>
+          <strong>No attributable startup commentary yet.</strong>
+          <span>Absence of evidence is not evidence of dislike.</span>
+        </div>
+      ) : (
+        <ol className="yc-partner-ranking-list" aria-label={`${partner.partnerName} favorite startup rankings`}>
+          {partner.rankings.map((ranking) => <YcPartnerRankingRow key={`${ranking.batchSlug}:${ranking.companyId}`} ranking={ranking} onSelectNode={onSelectNode} />)}
+        </ol>
+      )}
+    </section>
+  );
+}
+
+function YcPartnerRankingRow({ ranking, onSelectNode }: { ranking: YcPartnerFavoriteRanking; onSelectNode: (nodeId: string) => void }) {
+  return (
+    <li className="yc-partner-ranking-row" aria-label={`${ranking.companyName}, rank ${ranking.rank}`}>
+      <div className="yc-partner-ranking-rank" aria-label={`Rank ${ranking.rank}`}>#{ranking.rank}</div>
+      <article className="yc-partner-ranking-main">
+        <header className="yc-partner-ranking-title">
+          <div className="yc-partner-ranking-company">
+            <button type="button" className="leaderboard-company-button" onClick={() => onSelectNode(`company:${ranking.companyId}`)} aria-label={`Open ${ranking.companyName} profile`}>{ranking.companyName}</button>
+            <span>{ranking.batchLabel}</span>
+          </div>
+          <div className="yc-partner-ranking-score" aria-label={`Favorite score ${ranking.score} out of 100`}><strong>{ranking.score}</strong><small>/100</small></div>
+        </header>
+        <p className="yc-partner-ranking-reason">{ranking.primaryReason}</p>
+        <div className="yc-partner-ranking-meta">
+          <span>Favorite score <strong>{ranking.score}</strong></span>
+          <span>{ranking.confidence.level} confidence · {ranking.confidence.score}/100</span>
+          <span>{ranking.evidenceCount} {ranking.evidenceCount === 1 ? "citation" : "citations"}</span>
+        </div>
+        {ranking.confidence.reasons.length > 0 && (
+          <details className="yc-partner-confidence-details">
+            <summary><Info size={13} aria-hidden="true" /> Why this confidence <ChevronDown size={14} aria-hidden="true" /></summary>
+            <ul>{ranking.confidence.reasons.map((reason) => <li key={reason}>{reason}</li>)}</ul>
+          </details>
+        )}
+        {ranking.citations.length > 0 ? (
+          <section className="yc-partner-citations" aria-label={`Citations for ${ranking.companyName}`}>
+            <h4>Supporting citations</h4>
+            {ranking.citations.map((citation) => (
+              <details key={citation.evidenceId}>
+                <summary><span>{citation.reason}</span><ChevronDown size={14} aria-hidden="true" /></summary>
+                <blockquote>{citation.excerpt || "No excerpt is available for this citation."}</blockquote>
+                <footer>
+                  <span className="yc-partner-citation-meta"><PlatformIdentity platform={citation.platform} /> <time dateTime={citation.postedAt}>{formatPlatform(citation.platform)} · {formatPostDate(citation.postedAt)}</time></span>
+                  {isSafeExternalUrl(citation.sourceUrl) ? <a href={citation.sourceUrl} target="_blank" rel="noopener noreferrer">Open source <ExternalLink size={12} aria-hidden="true" /></a> : <span>Source unavailable</span>}
+                </footer>
+              </details>
+            ))}
+          </section>
+        ) : (
+          <p className="yc-partner-no-citations"><AlertTriangle size={13} aria-hidden="true" /> No attributable citations are available.</p>
+        )}
+      </article>
+    </li>
+  );
+}
+
+function isYcPartnerDataStale(value: string): boolean {
+  const timestamp = Date.parse(value);
+  return !Number.isFinite(timestamp) || Date.now() - timestamp > 24 * 60 * 60 * 1000;
+}
+
+function isSafeExternalUrl(value: string): boolean {
+  try {
+    const url = new URL(value);
+    return url.protocol === "http:" || url.protocol === "https:";
+  } catch {
+    return false;
+  }
+}
+
+function domSafeId(value: string): string {
+  return value.replace(/[^a-zA-Z0-9_-]/g, "-");
+}
+
+function formatRelativeUpdatedAt(value: string): string {
+  const timestamp = Date.parse(value);
+  if (!Number.isFinite(timestamp)) return "date unavailable";
+  const ageHours = Math.max(0, Math.round((Date.now() - timestamp) / (60 * 60 * 1000)));
+  if (ageHours < 1) return "less than an hour ago";
+  if (ageHours < 24) return `${ageHours}h ago`;
+  return new Date(timestamp).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 }
 
 type DailyGrowthField = "sources" | "companies" | "founders";

@@ -156,10 +156,13 @@ export function buildIngestionCoverageReceipt({
     ),
     campaignKey: requiredText(run?.campaignKey ?? campaignKey, "run.campaignKey"),
     startedAt: run?.startedAt,
-    completedAt: run?.completedAt
+    completedAt: run?.completedAt,
+    ...(run?.recentCoverageCutoff
+      ? { recentCoverageCutoff: run.recentCoverageCutoff }
+      : {})
   }, normalizedGeneratedAt);
   const normalizedRunId = clean(runId) || normalizedRun.idempotencyKey;
-  const recencyPolicy = buildRecencyPolicy(normalizedGeneratedAt);
+  const recencyPolicy = buildRecencyPolicy(normalizedGeneratedAt, normalizedRun);
   const { owners, manifest } = normalizeCatalogs(catalogs);
   const normalizedExpectedManifest = normalizeExpectedCatalogManifest(expectedCatalogManifest);
   validateCatalogManifest(manifest, normalizedExpectedManifest);
@@ -255,7 +258,7 @@ export function validateIngestionCoverageReceipt(
   if (stableJson(receipt.run) !== stableJson(normalizedRun)) {
     throw new Error("receipt.run must use canonical run timing fields.");
   }
-  validateRecencyPolicy(receipt.recencyPolicy, generatedAt);
+  validateRecencyPolicy(receipt.recencyPolicy, generatedAt, normalizedRun);
   const normalizedExpectedManifest = normalizeExpectedCatalogManifest(expectedCatalogManifest);
   validateCatalogManifest(receipt.catalogManifest, normalizedExpectedManifest);
   validateSerializationMetadata(receipt.serialization);
@@ -359,23 +362,24 @@ export async function writeIngestionCoverageReceiptJson(
   return { chunks, characters, strategy: SERIALIZATION_STRATEGY };
 }
 
-function buildRecencyPolicy(generatedAt) {
+function buildRecencyPolicy(generatedAt, run) {
+  const coverageEnd = run?.recentCoverageCutoff ?? generatedAt;
   return {
     version: INGESTION_RECENCY_POLICY_VERSION,
     receiptTime: generatedAt,
     windowDays: INGESTION_RECENCY_WINDOW_DAYS,
     cutoffAt: new Date(
-      Date.parse(generatedAt) - INGESTION_RECENCY_WINDOW_DAYS * 24 * 60 * 60 * 1_000
+      Date.parse(coverageEnd) - INGESTION_RECENCY_WINDOW_DAYS * 24 * 60 * 60 * 1_000
     ).toISOString()
   };
 }
 
-function validateRecencyPolicy(policy, generatedAt) {
+function validateRecencyPolicy(policy, generatedAt, run) {
   if (!isObject(policy)) throw new TypeError("receipt.recencyPolicy must be an object.");
-  const expected = buildRecencyPolicy(generatedAt);
+  const expected = buildRecencyPolicy(generatedAt, run);
   if (stableJson(policy) !== stableJson(expected)) {
     throw new Error(
-      `receipt.recencyPolicy must be derived from receipt time using ${INGESTION_RECENCY_POLICY_VERSION}.`
+      `receipt.recencyPolicy must be derived from the immutable recent coverage boundary using ${INGESTION_RECENCY_POLICY_VERSION}.`
     );
   }
 }
@@ -499,11 +503,18 @@ function normalizeRun(value, generatedAt) {
   ) {
     throw new Error("run.completedAt is stale relative to receipt.generatedAt.");
   }
+  const recentCoverageCutoff = value.recentCoverageCutoff
+    ? requiredIsoTimestamp(value.recentCoverageCutoff, "run.recentCoverageCutoff")
+    : null;
+  if (recentCoverageCutoff && Date.parse(recentCoverageCutoff) > Date.parse(startedAt)) {
+    throw new Error("run.recentCoverageCutoff must be pinned no later than run.startedAt.");
+  }
   return {
     idempotencyKey: requiredText(value.idempotencyKey, "run.idempotencyKey"),
     campaignKey: requiredText(value.campaignKey, "run.campaignKey"),
     startedAt,
-    completedAt
+    completedAt,
+    ...(recentCoverageCutoff ? { recentCoverageCutoff } : {})
   };
 }
 
@@ -1626,7 +1637,10 @@ function summarizePairEvidence(evidenceKeys, context) {
     .map((entry) => entry.evidenceKey)
     .sort();
   return {
-    evidenceRefs: [...evidenceKeys],
+    // The receipt contract validates string arrays with ECMAScript code-unit
+    // ordering. Registry rows use locale ordering for their own top-level
+    // stream, so re-sort per-pair references instead of inheriting that order.
+    evidenceRefs: [...evidenceKeys].sort(),
     recentEvidenceRefs,
     historicalEvidenceRefs,
     postCount: entries.length,
@@ -1760,8 +1774,11 @@ function normalizeCoverageReceipt(
     if (Date.parse(coveredThrough) > Date.parse(generatedAt) + INGESTION_TIMESTAMP_FUTURE_TOLERANCE_MS) {
       throw new Error(`${pairKey} recent backfill coveredThrough is too far in the future.`);
     }
-    if (status === "complete" && Date.parse(coveredThrough) < Date.parse(run.completedAt)) {
-      throw new Error(`${pairKey} complete recent backfill does not reach run completion.`);
+    const requiredCoveredThrough = run.recentCoverageCutoff ?? run.completedAt;
+    if (status === "complete" && coveredThrough !== requiredCoveredThrough) {
+      throw new Error(
+        `${pairKey} complete recent backfill must end at the immutable recent coverage cutoff.`
+      );
     }
     if (status === "complete" && Date.parse(checkedAt) < Date.parse(coveredThrough)) {
       throw new Error(`${pairKey} complete recent backfill receipt predates coveredThrough.`);
@@ -1793,7 +1810,94 @@ function normalizeCoverageReceipt(
   if (status === "complete" && Date.parse(checkedAt) < Date.parse(coveredThrough)) {
     throw new Error(`${pairKey} stored-unpublished receipt predates coveredThrough.`);
   }
-  return { receiptId, status, checkedAt, coveredThrough, reason };
+  const storedProofFields = [
+    "surfacedCounts",
+    "sourceProofSha256",
+    "publicationPolicy",
+    "scoringEligible"
+  ];
+  const hasStoredProof = storedProofFields.some((field) =>
+    Object.hasOwn(value, field)
+  );
+  let storedProof = {};
+  if (hasStoredProof) {
+    for (const field of storedProofFields) {
+      if (!Object.hasOwn(value, field)) {
+        throw new Error(
+          `${pairKey} stored_unpublished.${field} is required when surfaced proof metadata is present.`
+        );
+      }
+    }
+    if (!isObject(value.surfacedCounts)) {
+      throw new TypeError(`${pairKey} stored_unpublished.surfacedCounts must be an object.`);
+    }
+    const counts = Object.fromEntries([
+      "historicalEvidenceRows",
+      "githubEvidenceAttributions",
+      "githubBlockerReviews",
+      "evidenceAttributions",
+      "totalAttributedRows"
+    ].map((field) => {
+      const count = value.surfacedCounts[field];
+      if (!Number.isSafeInteger(count) || count < 0) {
+        throw new TypeError(
+          `${pairKey} stored_unpublished.surfacedCounts.${field} must be a non-negative safe integer.`
+        );
+      }
+      return [field, count];
+    }));
+    if (typeof value.surfacedCounts.explicitZero !== "boolean") {
+      throw new TypeError(
+        `${pairKey} stored_unpublished.surfacedCounts.explicitZero must be boolean.`
+      );
+    }
+    if (
+      !Number.isSafeInteger(
+        counts.historicalEvidenceRows + counts.githubEvidenceAttributions
+      ) ||
+      counts.evidenceAttributions !==
+        counts.historicalEvidenceRows + counts.githubEvidenceAttributions
+    ) {
+      throw new Error(
+        `${pairKey} stored_unpublished evidenceAttributions does not reconcile with its source counts.`
+      );
+    }
+    if (
+      !Number.isSafeInteger(counts.evidenceAttributions + counts.githubBlockerReviews) ||
+      counts.totalAttributedRows !==
+        counts.evidenceAttributions + counts.githubBlockerReviews
+    ) {
+      throw new Error(
+        `${pairKey} stored_unpublished totalAttributedRows does not reconcile with evidence and review counts.`
+      );
+    }
+    if (value.surfacedCounts.explicitZero !== (counts.totalAttributedRows === 0)) {
+      throw new Error(
+        `${pairKey} stored_unpublished explicitZero does not reconcile with totalAttributedRows.`
+      );
+    }
+    if (value.publicationPolicy !== "proof_only_no_publication") {
+      throw new Error(
+        `${pairKey} stored_unpublished.publicationPolicy must be proof_only_no_publication.`
+      );
+    }
+    if (value.scoringEligible !== false) {
+      throw new Error(`${pairKey} stored_unpublished.scoringEligible must be false.`);
+    }
+    storedProof = {
+      surfacedCounts: {
+        ...counts,
+        explicitZero: value.surfacedCounts.explicitZero
+      },
+      sourceProofSha256: requiredSha256(
+        value.sourceProofSha256,
+        `${pairKey} stored_unpublished.sourceProofSha256`
+      ),
+      publicationPolicy: value.publicationPolicy,
+      scoringEligible: false
+    };
+  }
+  return { receiptId, status, checkedAt, coveredThrough, reason, ...storedProof };
 }
 
 function normalizeIntegrityChecks(value, { pairKey, run }) {
@@ -2973,7 +3077,10 @@ function canonicalizePlatformUrl(platform, rawUrl, { kind }) {
     if (parts.length !== 2 || !["company", "in", "school"].includes(parts[0].toLowerCase())) {
       throw new Error("LinkedIn account URL must identify exactly one company, person, or school profile.");
     }
-    url.pathname = `/${parts[0].toLowerCase()}/${encodeURIComponent(parts[1])}`;
+    // LinkedIn profile slugs are case-insensitive. Catalogs and public
+    // collectors can legitimately preserve different display casing for the
+    // same profile, so bind the account identity to the lowercase native slug.
+    url.pathname = `/${parts[0].toLowerCase()}/${encodeURIComponent(parts[1].toLowerCase())}`;
     url.search = "";
     return trimRootSlash(url.toString());
   }

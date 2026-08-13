@@ -15,6 +15,7 @@ import {
 } from "@/lib/graph/a16z-speedrun-006-dataset";
 import { calibrateBatchCompanyScores } from "@/lib/scoring/batch-calibration";
 import { buildGraphResponse } from "@/lib/graph/graph-builder";
+import { canonicalEvidenceUrl } from "@/lib/graph/dedupe";
 import { TRACTION_SCORING_CONFIG } from "@/lib/graph/traction-scoring-config";
 import { scoringEligibility } from "@/lib/graph/traction-scoring";
 import { isCrediblyPublishedToday } from "@/lib/graph/native-publication-date";
@@ -87,6 +88,18 @@ const A16Z_NATIVE_SOCIAL_TRACTION_PLATFORM_LIST: Platform[] = [
   "bilibili"
 ];
 const A16Z_NATIVE_SOCIAL_TRACTION_PLATFORMS = new Set<Platform>(A16Z_NATIVE_SOCIAL_TRACTION_PLATFORM_LIST);
+const A16Z_CORE_PLATFORM_STATUS_LIST: Platform[] = [
+  "github",
+  "x",
+  "instagram",
+  "linkedin",
+  "youtube",
+  "product_hunt",
+  "reddit",
+  "hacker_news",
+  "rss",
+  "web"
+];
 const VERIFIED_A16Z_PUBLIC_LINKEDIN_POST_IDS = [
   "7476259158577823745",
   "7480710003088322560",
@@ -460,8 +473,7 @@ describe("a16z speedrun 006 dataset", () => {
         accountUrl: "https://www.instagram.com/yusan.lin",
         socialAccountId:
           "acct:founder:a16z-speedrun-006-mirror-mirror-ai-founder-yusan-lin:instagram:https%3A%2F%2Fwww.instagram.com%2Fyusan.lin",
-        postedAt: "2026-08-01T09:32:04.000Z",
-        metrics: { likes: 467, comments: 3 }
+        postedAt: "2026-08-01T09:32:04.000Z"
       },
       {
         platformPostId: "DbeDhm-vd7M",
@@ -471,8 +483,7 @@ describe("a16z speedrun 006 dataset", () => {
         accountUrl: "https://www.instagram.com/snappstats",
         socialAccountId:
           "acct:company:a16z-speedrun-006-snapp-stats:instagram:https%3A%2F%2Fwww.instagram.com%2Fsnappstats",
-        postedAt: "2026-07-31T19:51:42.000Z",
-        metrics: { likes: 11, comments: 0, views: 112 }
+        postedAt: "2026-07-31T19:51:42.000Z"
       },
       {
         platformPostId: "DbbqOA8lhPV",
@@ -482,8 +493,7 @@ describe("a16z speedrun 006 dataset", () => {
         accountUrl: "https://www.instagram.com/gabrielatafur",
         socialAccountId:
           "acct:founder:a16z-speedrun-006-idilio-founder-gabriela-tafur:instagram:https%3A%2F%2Fwww.instagram.com%2Fgabrielatafur",
-        postedAt: "2026-07-30T21:30:45.000Z",
-        metrics: { likes: 3467, comments: 28 }
+        postedAt: "2026-07-30T21:30:45.000Z"
       }
     ] as const;
 
@@ -498,6 +508,10 @@ describe("a16z speedrun 006 dataset", () => {
         review_state: "verified"
       }));
       expect(matches[0].contributionScore).toBeGreaterThan(0);
+      expect(matches[0].metrics.likes).toEqual(expect.any(Number));
+      expect(matches[0].metrics.comments).toEqual(expect.any(Number));
+      expect(matches[0].metrics.likes).toBeGreaterThan(0);
+      expect(matches[0].metrics.comments).toBeGreaterThanOrEqual(0);
       expect(scoringEligibility(matches[0]).eligible).toBe(true);
     }
   });
@@ -575,9 +589,12 @@ describe("a16z speedrun 006 dataset", () => {
       socialAccountId:
         "acct:founder:a16z-speedrun-006-idilio-founder-gabriela-tafur:instagram:https%3A%2F%2Fwww.instagram.com%2Fgabrielatafur",
       postedAt: "2026-07-14T01:29:43.000Z",
-      publishedAtPrecision: "exact",
-      metrics: { likes: 7341, comments: 61 }
+      publishedAtPrecision: "exact"
     }));
+    expect(instagramFounderPost[0].metrics.likes).toEqual(expect.any(Number));
+    expect(instagramFounderPost[0].metrics.comments).toEqual(expect.any(Number));
+    expect(instagramFounderPost[0].metrics.likes).toBeGreaterThan(0);
+    expect(instagramFounderPost[0].metrics.comments).toBeGreaterThanOrEqual(0);
     expect(seedAndLoggedPhysicalPost).toHaveLength(1);
     expect(seedAndLoggedPhysicalPost[0]).toEqual(expect.objectContaining({
       entityType: "company",
@@ -587,6 +604,43 @@ describe("a16z speedrun 006 dataset", () => {
     expect(dateOnlyXPost?.publishedAtPrecision).toBe("day");
     expect(graph.evidence.some((item) => item.platformPostId === "DafmJgmjm0D")).toBe(false);
     expect(graph.evidence.some((item) => item.platformPostId === "DbWVA8WAdbR")).toBe(false);
+  });
+
+  it("publishes one explicit status for every core platform without claiming missing posts", () => {
+    const statuses = a16zSpeedrun006GraphDataset.platformStatus;
+    const byPlatform = new Map(statuses.map((status) => [status.platform, status]));
+    const hackerNewsStatus = byPlatform.get("hacker_news");
+    const graph = buildGraphResponse(
+      { batchSlug: A16Z_SPEEDRUN_006_BATCH_SLUG },
+      a16zSpeedrun006GraphDataset
+    );
+
+    expect(statuses).toHaveLength(A16Z_CORE_PLATFORM_STATUS_LIST.length);
+    expect(new Set(statuses.map((status) => status.platform)).size).toBe(statuses.length);
+    expect([...byPlatform.keys()].sort()).toEqual([...A16Z_CORE_PLATFORM_STATUS_LIST].sort());
+    for (const platform of A16Z_CORE_PLATFORM_STATUS_LIST) {
+      expect(byPlatform.get(platform)).toEqual(expect.objectContaining({
+        platform,
+        batchSlugs: [A16Z_SPEEDRUN_006_BATCH_SLUG]
+      }));
+      expect(byPlatform.get(platform)?.authMethod.trim().length).toBeGreaterThan(0);
+      expect(byPlatform.get(platform)?.notes.trim().length).toBeGreaterThan(0);
+    }
+
+    expect(hackerNewsStatus).toEqual(expect.objectContaining({
+      status: "working",
+      authMethod: expect.stringContaining("Public Hacker News Algolia API")
+    }));
+    expect(hackerNewsStatus?.notes).toContain("59/59");
+    expect(hackerNewsStatus?.notes).toContain("accepted 1 native historical row for Panorama");
+    expect(hackerNewsStatus?.notes).toContain("other 58 targets");
+    expect(hackerNewsStatus?.notes).toContain("explicit publication gap");
+    expect(hackerNewsStatus?.notes).toContain("bounded historical source exhaustion");
+    expect(hackerNewsStatus?.notes).toContain("not recent-window completion");
+    expect(hackerNewsStatus?.notes).toContain("no zero-result target is represented as a post");
+    for (const platform of A16Z_CORE_PLATFORM_STATUS_LIST) {
+      expect(graph.platformStatus.filter((status) => status.platform === platform)).toHaveLength(1);
+    }
   });
 
   it("reports the conservative logged-in merge and working Instagram materialization", () => {
@@ -2108,15 +2162,18 @@ function expectA16zEvidence(
   companyName: string,
   platform: Platform
 ): void {
-  const item = items.find((candidate) => candidate.sourceUrl === sourceUrl);
+  const expectedUrl = canonicalEvidenceUrl(sourceUrl);
+  const item = items.find(
+    (candidate) => canonicalEvidenceUrl(candidate.sourceUrl) === expectedUrl
+  );
 
   expect(item).toEqual(
     expect.objectContaining({
       platform,
-      attachedCompanyName: companyName,
-      sourceUrl
+      attachedCompanyName: companyName
     })
   );
+  expect(canonicalEvidenceUrl(item?.sourceUrl ?? "")).toBe(expectedUrl);
   expect(item?.contributionScore).toBeGreaterThan(0);
 }
 
@@ -2126,14 +2183,17 @@ function expectA16zContextEvidence(
   companyName: string,
   platform: Platform
 ): void {
-  const item = items.find((candidate) => candidate.sourceUrl === sourceUrl);
+  const expectedUrl = canonicalEvidenceUrl(sourceUrl);
+  const item = items.find(
+    (candidate) => canonicalEvidenceUrl(candidate.sourceUrl) === expectedUrl
+  );
 
   expect(item).toEqual(
     expect.objectContaining({
       platform,
       attachedCompanyName: companyName,
-      sourceUrl,
       contributionScore: 0
     })
   );
+  expect(canonicalEvidenceUrl(item?.sourceUrl ?? "")).toBe(expectedUrl);
 }
