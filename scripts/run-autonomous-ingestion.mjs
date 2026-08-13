@@ -320,11 +320,16 @@ candidateMetadata = validateCandidateMetadata({
   slotKey: idempotencyKey,
   required: process.env.GITHUB_ACTIONS === "true" && !args.skipPublish
 });
+if (args.authenticatedSocialReplay && candidateMetadata?.trigger !== "manual-replay") {
+  throw new Error("Authenticated social historical replay is available only for an explicit manual replay.");
+}
 assertCandidateFreshForPublication("runner start");
 workRoot = join(root, "work", "autonomous-ingestion", safePathSegment(idempotencyKey));
-collectorRoot = args.campaignKey
-  ? join(root, "work", "autonomous-ingestion-campaigns", safePathSegment(args.campaignKey))
-  : workRoot;
+collectorRoot = args.authenticatedSocialReplay
+  ? authenticatedSocialReplayRoot()
+  : args.campaignKey
+    ? join(root, "work", "autonomous-ingestion-campaigns", safePathSegment(args.campaignKey))
+    : workRoot;
 publicOutputs = new Map(
   AUTONOMOUS_BATCHES.map((batch) => [batch.slug, join(collectorRoot, `public-${batch.slug.toLowerCase()}.json`)])
 );
@@ -447,7 +452,7 @@ await Promise.all([
     if (!args.plan && !args.skipPublish) {
       await ensurePublicationWorktree();
     }
-    if (!args.plan && !args.skipNetwork) {
+    if (!args.plan && !args.skipNetwork && !args.authenticatedSocialReplay) {
       await refreshMutableYcCatalog();
     }
     catalogs = await loadAutonomousCatalogs(publicationArtifactRoot());
@@ -526,15 +531,38 @@ await Promise.all([
         runnerDeadlineAt: runnerBudget.deadlineAt
       });
     }
-    const [collectionResults, topVoiceRefresh] = args.skipNetwork
-      ? [[], null]
-      : await runFailFastBranches([
-          () => runCollectors(),
-          () => resumeTopVoiceRefresh()
-        ]);
+    let collectionResults = [];
+    let topVoiceRefresh = null;
+    if (!args.skipNetwork && args.authenticatedSocialReplay) {
+      await event(
+        "collection.started",
+        "info",
+        "Authenticated social historical replay started with bounded platform-specific parallelism.",
+        {
+          historicalReplay: true,
+          instagramWorkers: 2,
+          linkedinWorkers: 1,
+          linkedinTargetCapPerBatch: 5
+        }
+      );
+      const authenticatedSocial = await runAuthenticatedCollectors({ historicalReplay: true });
+      await event(
+        "collection.finished",
+        "info",
+        "Authenticated social historical replay reached a terminal state.",
+        { results: [], authenticatedSocial, historicalReplay: true }
+      );
+    } else if (!args.skipNetwork) {
+      [collectionResults, topVoiceRefresh] = await runFailFastBranches([
+        () => runCollectors(),
+        () => resumeTopVoiceRefresh()
+      ]);
+    }
     assertLeaseHealthy();
-    if (!args.skipNetwork) validateAutonomousCollectorMatrix(collectionResults);
-    if (args.skipNetwork && run) {
+    if (!args.skipNetwork && !args.authenticatedSocialReplay) {
+      validateAutonomousCollectorMatrix(collectionResults);
+    }
+    if ((args.skipNetwork || args.authenticatedSocialReplay) && run) {
       await terminalizeQueuedTasks(run.id, "skipped", "network_collection_explicitly_skipped");
     } else if (catalogState) {
       await reconcileCollectorTasks(collectionResults, catalogState);
@@ -559,17 +587,19 @@ await Promise.all([
           : [])
       ];
     });
-    const collectionCredentialGaps = [...new Set([
-      ...discoveryCredentialGaps,
-      ...credentialedDiscoveryFailures
-    ])];
+    const collectionCredentialGaps = args.authenticatedSocialReplay
+      ? []
+      : [...new Set([
+          ...discoveryCredentialGaps,
+          ...credentialedDiscoveryFailures
+        ])];
     const githubSnapshots = await readAvailableSnapshots(
       publishableCollectorResults.filter((result) => result.kind === "github")
     );
     const collectionCoverage = await summarizeCollectionCoverage(
       plannedTasks,
       collectionResults,
-      { skipNetwork: args.skipNetwork }
+      { skipNetwork: args.skipNetwork || args.authenticatedSocialReplay }
     );
     const terminalFailureBudget = autonomousMappedTerminalFailureBudget(
       collectionCoverage.mappedExpected
@@ -583,7 +613,9 @@ await Promise.all([
         ? Number.POSITIVE_INFINITY
         : terminalFailureBudget
     });
-    assertSuccessfulTopVoiceRefresh(topVoiceRefresh);
+    if (!args.authenticatedSocialReplay) {
+      assertSuccessfulTopVoiceRefresh(topVoiceRefresh);
+    }
     const publicationRunId = run?.id ?? `file:${idempotencyKey}`;
     if (!args.skipPublish) await synchronizePublicationBase();
     const publicationBaseline = await readPublicationEvidenceBaseline();
@@ -2903,7 +2935,7 @@ async function runCollectors() {
   return results;
 }
 
-async function runAuthenticatedCollectors() {
+async function runAuthenticatedCollectors({ historicalReplay = false } = {}) {
   const configured = Boolean(
     cleanEnv(process.env.OPENCLI_BIN) &&
     cleanEnv(process.env.OPENCLI_PROFILE) &&
@@ -2928,18 +2960,19 @@ async function runAuthenticatedCollectors() {
       sourcePath("scripts", "fetch-logged-in-social-traction.mjs"),
       `--batch=${batch.slug}`,
       "--entities=all",
-      "--workers=1",
       "--limit=100",
       "--scrolls=30",
       "--timeout-ms=90000",
       `--output-path=${outputPath}`,
       `--checkpoint-path=${checkpointPath}`
     ];
+    const instagramWorkers = historicalReplay ? 2 : 1;
     const instagram = await runAuthenticatedCollectorCommand(
       batch.slug,
       "instagram",
       [
         ...commonArgs,
+        `--workers=${instagramWorkers}`,
         "--platforms=instagram",
         "--delay-ms=1800"
       ]
@@ -2955,6 +2988,7 @@ async function runAuthenticatedCollectors() {
           "linkedin",
           [
             ...commonArgs,
+            "--workers=1",
             "--platforms=linkedin",
             "--allow-linkedin",
             "--linkedin-mode=browser",
@@ -2976,7 +3010,7 @@ async function runAuthenticatedCollectors() {
     }
     batches.push({ batchSlug: batch.slug, instagram, linkedin });
   }
-  return { status: "completed", batches };
+  return { status: "completed", historicalReplay, batches };
 }
 
 async function runAuthenticatedCollectorCommand(batchSlug, platform, args) {
@@ -6711,6 +6745,13 @@ function assertCandidateFreshForPublication(label, nowMs = Date.now()) {
 
 function parseArgs(rawArgs) {
   const value = (name) => rawArgs.find((arg) => arg.startsWith(`${name}=`))?.slice(name.length + 1) ?? null;
+  const booleanValue = (name) => {
+    const assigned = value(name);
+    if (assigned === null) return rawArgs.includes(name);
+    if (assigned === "true") return true;
+    if (assigned === "false" || assigned === "") return false;
+    throw new Error(`${name} must be true or false.`);
+  };
   return {
     idempotencyKey: value("--idempotency-key"),
     campaignKey: value("--campaign-key"),
@@ -6719,13 +6760,26 @@ function parseArgs(rawArgs) {
     plan: rawArgs.includes("--plan"),
     resumeSnapshots: rawArgs.includes("--resume-snapshots"),
     skipNetwork: rawArgs.includes("--skip-network"),
-    skipPublish: rawArgs.includes("--skip-publish")
+    skipPublish: rawArgs.includes("--skip-publish"),
+    authenticatedSocialReplay: booleanValue("--authenticated-social-replay")
   };
 }
 
 function cleanEnv(value) {
   const trimmed = value?.trim();
   return trimmed || null;
+}
+
+function authenticatedSocialReplayRoot() {
+  const openCliHome = cleanEnv(process.env.OPENCLI_HOME);
+  if (!openCliHome) {
+    throw new Error("Authenticated social historical replay requires OPENCLI_HOME for durable checkpoints.");
+  }
+  return join(
+    resolve(openCliHome),
+    "returner-fund-autonomous-replay",
+    safePathSegment(args.campaignKey ?? "authenticated-social-history-v1")
+  );
 }
 
 function safePathSegment(value) {

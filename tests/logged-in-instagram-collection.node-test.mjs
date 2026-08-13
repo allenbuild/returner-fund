@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import { describe, it } from "node:test";
 import {
   canonicalInstagramPostUrl,
@@ -19,7 +20,21 @@ import {
   prioritizeInstagramTargets
 } from "../scripts/lib/logged-in-instagram-collection.mjs";
 
+const loggedInCollectorSource = readFileSync(
+  new URL("../scripts/fetch-logged-in-social-traction.mjs", import.meta.url),
+  "utf8"
+);
+
 describe("logged-in Instagram collection", () => {
+  it("passes a numeric collection clock into every strict publication-date check", () => {
+    assert.match(loggedInCollectorSource, /const collectionNowMs = Date\.now\(\)/);
+    assert.equal(
+      [...loggedInCollectorSource.matchAll(/instagramPublicationDate\([^\n]+collectionNowMs\)/g)].length,
+      3
+    );
+    assert.doesNotMatch(loggedInCollectorSource, /instagramPublicationDate\([^\n]+, now\)/);
+  });
+
   it("extracts native post, reel, and TV shortcodes only", () => {
     assert.equal(
       instagramPostIdFromUrl("https://www.instagram.com/p/ABC_123/?utm_source=test"),
@@ -28,6 +43,10 @@ describe("logged-in Instagram collection", () => {
     assert.equal(
       instagramPostIdFromUrl("https://instagram.com/reel/XYZ-9/"),
       "XYZ-9"
+    );
+    assert.equal(
+      canonicalInstagramPostUrl("https://instagram.com/reels/XYZ-9/"),
+      "https://www.instagram.com/reel/XYZ-9/"
     );
     assert.equal(
       instagramPostIdFromUrl("https://instagram.com/tv/TV42/"),

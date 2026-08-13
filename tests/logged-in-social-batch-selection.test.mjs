@@ -21,6 +21,14 @@ import { canonicalSocialAccountUrl } from "../scripts/lib/social-account-url.mjs
 const root = process.cwd();
 
 describe("logged-in social batch selection", () => {
+  it("uses published authenticated evidence to rotate isolated replay targets", () => {
+    const source = readFileSync(
+      path.join(root, "scripts", "fetch-logged-in-social-traction.mjs"),
+      "utf8"
+    );
+    expect(source).toContain('join(root, "src", "lib", "social", "logged-in-evidence-current.json")');
+  });
+
   it("plans the official Eden founder LinkedIn activity targets for Spring/P26", () => {
     const plan = runPlan([
       "--batch=S2026",

@@ -15,6 +15,11 @@ on:
         description: Stable idempotency key for this manual replay
         required: true
         type: string
+      authenticated_backfill:
+        description: Replay authenticated Instagram history and advance the serial LinkedIn lane
+        required: false
+        default: false
+        type: boolean
 
 permissions:
   contents: read
@@ -292,11 +297,13 @@ jobs:
           CANDIDATE_TRIGGER: ${{ needs.resolve.outputs.trigger }}
           CANDIDATE_SCHEDULED_AT: ${{ needs.resolve.outputs.scheduled_at }}
           INGESTION_PUBLICATION_BRANCH: main
+          AUTHENTICATED_SOCIAL_REPLAY: ${{ inputs.authenticated_backfill || false }}
         run: >-
           node scripts/run-autonomous-ingestion.mjs
           --idempotency-key="$INGESTION_IDEMPOTENCY_KEY"
           --candidate-trigger="$CANDIDATE_TRIGGER"
           --scheduled-at="$CANDIDATE_SCHEDULED_AT"
+          --authenticated-social-replay="$AUTHENTICATED_SOCIAL_REPLAY"
 
       - name: Verify publication credential isolation
         if: always()

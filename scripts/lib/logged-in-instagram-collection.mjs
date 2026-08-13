@@ -44,12 +44,13 @@ export function canonicalInstagramPostUrl(value) {
     const parts = parsed.pathname.split("/").filter(Boolean);
     if (
       parts.length < 2 ||
-      !/^(?:p|reel|tv)$/i.test(parts[0]) ||
+      !/^(?:p|reels?|tv)$/i.test(parts[0]) ||
       !INSTAGRAM_SHORTCODE_RE.test(parts[1])
     ) {
       return null;
     }
-    return `https://www.instagram.com/${parts[0].toLowerCase()}/${parts[1]}/`;
+    const surface = parts[0].toLowerCase() === "reels" ? "reel" : parts[0].toLowerCase();
+    return `https://www.instagram.com/${surface}/${parts[1]}/`;
   } catch {
     return null;
   }

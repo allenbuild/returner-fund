@@ -1958,6 +1958,8 @@ test("workflow routes authenticated ingestion to the dedicated Mac runner", () =
     /runs-on:\s*\[self-hosted,\s*macOS,\s*ARM64,\s*returner-social,\s*returner-auth-browser\]/
   );
   assert.match(workflow, /SUPABASE_SERVICE_ROLE_KEY:\s*\$\{\{ secrets\.SUPABASE_SERVICE_ROLE_KEY \}\}/);
+  assert.match(workflow, /authenticated_backfill:[\s\S]*?type:\s*boolean/);
+  assert.match(ingestJob, /--authenticated-social-replay="\$AUTHENTICATED_SOCIAL_REPLAY"/);
 });
 
 test("inactive candidates and accepted publication outcomes have distinct auditable receipts", () => {

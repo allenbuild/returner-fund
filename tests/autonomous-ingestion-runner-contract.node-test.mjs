@@ -1469,11 +1469,22 @@ describe("autonomous ingestion runner static safety contracts", () => {
     assert.match(collectors, /"--platforms=linkedin"/);
     assert.match(collectors, /"--allow-linkedin"/);
     assert.match(collectors, /"--workers=1"/);
+    assert.match(collectors, /historicalReplay \? 2 : 1/);
     assert.match(collectors, /"--linkedin-max-targets=5"/);
     assert.match(collectors, /"--delay-ms=30000"/);
     assert.ok(collectors.includes('env: { HOME: process.env.HOME }'));
     assert.ok(collectors.includes('"scripts/fetch-public-traction.mjs"'));
     assert.ok(collectors.includes('"scripts/fetch-github-traction.mjs"'));
+  });
+
+  it("publishes authenticated historical replays without rerunning public collector lanes", () => {
+    assert.ok(runner.includes('args.authenticatedSocialReplay'));
+    assert.ok(runner.includes('runAuthenticatedCollectors({ historicalReplay: true })'));
+    assert.ok(runner.includes('{ skipNetwork: args.skipNetwork || args.authenticatedSocialReplay }'));
+    assert.ok(runner.includes('candidateMetadata?.trigger !== "manual-replay"'));
+    assert.ok(runner.includes('collectorRoot = args.authenticatedSocialReplay'));
+    assert.ok(runner.includes('resolve(openCliHome)'));
+    assert.ok(runner.includes('if (!args.authenticatedSocialReplay) {\n      assertSuccessfulTopVoiceRefresh(topVoiceRefresh);'));
   });
 
   it("refreshes and publishes the mutable Summer catalog before planning", () => {
@@ -1702,7 +1713,7 @@ describe("autonomous ingestion runner static safety contracts", () => {
 
     assert.ok(runner.includes('campaignKey: value("--campaign-key")'));
     assert.ok(runner.includes('"autonomous-ingestion-campaigns"'));
-    assert.ok(runner.includes("collectorRoot = args.campaignKey"));
+    assert.ok(runner.includes(": args.campaignKey\n    ? join(root, \"work\", \"autonomous-ingestion-campaigns\""));
     assert.ok(runner.includes("join(collectorRoot, `public-${batch.slug.toLowerCase()}.json`)"));
     assert.ok(runner.includes("join(collectorRoot, `github-${batch.slug.toLowerCase()}.json`)"));
     assert.ok(runner.includes('topVoiceOutput = join(collectorRoot, "top-voice-refresh.json")'));

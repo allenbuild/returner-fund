@@ -108,9 +108,15 @@ const verifiedSocialOverridesPath = join(root, "src", "lib", "social", "verified
 const priorityEvidencePaths = [
   join(root, "src", "lib", "social", "public-evidence-current.json"),
   join(root, "src", "lib", "social", "targeted-evidence-current.json"),
-  join(root, "src", "lib", "social", "a16z-speedrun-006-social-evidence.json")
+  join(root, "src", "lib", "social", "a16z-speedrun-006-social-evidence.json"),
+  // Autonomous collectors write to isolated campaign outputs. Include the
+  // published authenticated corpus when prioritizing those isolated runs so
+  // the five-target LinkedIn safety lane advances through untouched accounts
+  // instead of repeatedly selecting the same zero-checkpoint targets.
+  join(root, "src", "lib", "social", "logged-in-evidence-current.json")
 ];
-const now = new Date().toISOString();
+const collectionNowMs = Date.now();
+const now = new Date(collectionNowMs).toISOString();
 const targetLimit = numberArg("--max-targets") ?? Number.POSITIVE_INFINITY;
 const postLimit = numberArg("--limit") ?? 30;
 const instagramFetchDetails = !booleanArg("--skip-instagram-details");
@@ -1345,8 +1351,8 @@ async function fetchInstagramPosts(target, workerIndex) {
       text: caption || `${handle} Instagram ${post.type ?? "post"}`,
       rawVisibleText: JSON.stringify({ profile, post, gridItem, detail }),
       postedAt:
-        instagramPublicationDate(post, now).postedAt ??
-        instagramPublicationDate(detail, now).postedAt,
+        instagramPublicationDate(post, collectionNowMs).postedAt ??
+        instagramPublicationDate(detail, collectionNowMs).postedAt,
       metrics,
       mediaUrls: detail?.mediaUrls ?? gridItem?.mediaUrls ?? [],
       contributionScore: scoreMetrics("instagram", metrics),
@@ -1727,14 +1733,27 @@ async function fetchInstagramPostDetails(handle, gridUrls, workerIndex) {
         .slice(0, postLimit);
 
       for (const url of urls) {
-        await runOpenCli(["browser", session, "open", url], { timeoutMs: perTargetTimeoutMs }).catch(() => null);
-        await runOpenCli(["browser", session, "wait", "time", "2.5"], { timeoutMs: 8_000 }).catch(() => null);
-        const raw = await runOpenCli(["browser", session, "eval", instagramPostDetailExtractJs()], {
-          timeoutMs: perTargetTimeoutMs
-        }).catch(() => "[]");
-        const extracted = parseJsonOutput(raw)[0] ?? parseJsonOutput(raw);
-        const parsed = normalizeInstagramDetailObservation(extracted);
-        const publication = instagramPublicationDate(parsed, now);
+        const opened = await runOpenCli(
+          ["browser", session, "open", url],
+          { timeoutMs: perTargetTimeoutMs }
+        ).then(() => true, () => false);
+        if (!opened) continue;
+
+        let parsed = null;
+        let publication = { postedAt: null, publishedAtPrecision: "unknown" };
+        for (let detailAttempt = 0; detailAttempt < 3; detailAttempt += 1) {
+          await delay(detailAttempt === 0 ? 4_000 : 2_000);
+          const raw = await runOpenCli(
+            ["browser", session, "eval", instagramPostDetailExtractJs()],
+            { timeoutMs: perTargetTimeoutMs }
+          ).catch(() => "[]");
+          const extracted = parseJsonOutput(raw)[0] ?? parseJsonOutput(raw);
+          const candidate = normalizeInstagramDetailObservation(extracted);
+          if (canonicalInstagramPostUrl(candidate?.url) !== url) continue;
+          parsed = candidate;
+          publication = instagramPublicationDate(parsed, collectionNowMs);
+          if (publication.postedAt) break;
+        }
         if (parsed?.url || parsed?.description || parsed?.caption) {
           details.push({
             url,
@@ -2606,7 +2625,12 @@ function instagramPostDetailExtractJs() {
   const shortcode = location.pathname.split("/").filter(Boolean).pop() || "";
   const html = document.documentElement.innerHTML || "";
   const mediaIndex = shortcode ? html.indexOf('"code":"' + shortcode + '"') : -1;
-  const mediaBlob = mediaIndex >= 0 ? html.slice(Math.max(0, mediaIndex - 1000), mediaIndex + 12000) : "";
+  // Native taken_at often precedes the shortcode by several kilobytes in
+  // Instagram's embedded page payload. Keep the search anchored to the exact
+  // shortcode while covering the complete neighboring media object.
+  const mediaBlob = mediaIndex >= 0
+    ? html.slice(Math.max(0, mediaIndex - 30000), mediaIndex + 60000)
+    : "";
   const jsonNumber = (key) => {
     const match = mediaBlob.match(new RegExp('"' + key + '"\\\\s*:\\\\s*(null|[0-9]+)', "i"));
     return match ? parseNumber(match[1]) : null;
@@ -2652,6 +2676,7 @@ function instagramPostDetailExtractJs() {
     description,
     text: text.slice(0, 3000),
     caption,
+    taken_at: takenAt,
     dateLabel: semanticDate || dateLabel || (takenAt ? new Date(takenAt * 1000).toISOString() : null),
     likes,
     comments,
