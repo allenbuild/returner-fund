@@ -1251,6 +1251,7 @@ async function fetchInstagramPosts(target, workerIndex) {
   const detailItems = instagramFetchDetails
     ? await fetchInstagramPostDetails(handle, gridUrls, workerIndex).catch(() => [])
     : [];
+  const detailUnavailable = instagramFetchDetails && detailItems.length < gridUrls.length;
   let rejectedAdapterIdentityCount = 0;
   const adapterEvidence = posts.flatMap((post) => {
     const provenance = instagramEvidenceProvenance({
@@ -1282,8 +1283,8 @@ async function fetchInstagramPosts(target, workerIndex) {
       text: caption || `${handle} Instagram ${post.type ?? "post"}`,
       rawVisibleText: JSON.stringify({ profile, post, gridItem, detail }),
       postedAt:
-        instagramPublicationDate(post, now).postedAt ??
-        instagramPublicationDate(detail, now).postedAt,
+        instagramPublicationDate(post, Date.parse(now)).postedAt ??
+        instagramPublicationDate(detail, Date.parse(now)).postedAt,
       metrics,
       mediaUrls: detail?.mediaUrls ?? gridItem?.mediaUrls ?? [],
       contributionScore: scoreMetrics("instagram", metrics),
@@ -1329,7 +1330,8 @@ async function fetchInstagramPosts(target, workerIndex) {
           "adapter did not return this visible grid item."
       });
     });
-  const scoredCandidates = dedupeById([...adapterEvidence, ...gridEvidence])
+  const allObservedCandidates = dedupeById([...adapterEvidence, ...gridEvidence]);
+  const scoredCandidates = allObservedCandidates
     .filter(hasScoredTraction);
   const recencyFailures = [];
   const evidenceItems = scoredCandidates.filter((item) => {
@@ -1352,6 +1354,22 @@ async function fetchInstagramPosts(target, workerIndex) {
     }
     return false;
   });
+  const retainedUrls = new Set(evidenceItems.map((item) => normalizeComparableUrl(item.sourceUrl)));
+  const assumedUrlEvidence = allObservedCandidates
+    .filter((item) => !retainedUrls.has(normalizeComparableUrl(item.sourceUrl)))
+    .map((item) => ({
+      ...item,
+      contributionScore: 0,
+      tractionStatus: "unscored",
+      linkStatus: "unchecked",
+      linkFailureReason: detailUnavailable
+        ? "Instagram detail request was rate-limited or unavailable; native URL was observed in the authenticated profile grid and is retained as assumed functional."
+        : instagramFetchDetails
+          ? "Instagram native URL was observed in the authenticated profile grid; detail enrichment returned no additional readable fields."
+          : "Instagram native URL was observed in the authenticated profile grid; detail navigation was intentionally skipped.",
+      matchReason:
+        `${item.matchReason} Native URL retained as assumed functional evidence; detail-page enrichment is optional and does not determine existence.`
+    }));
   const nativeIdentityFailures = rejectedAdapterIdentityCount
     ? [
         failure(
@@ -1365,7 +1383,7 @@ async function fetchInstagramPosts(target, workerIndex) {
     ...nativeIdentityFailures,
     ...recencyFailures
   ];
-  if (!evidenceItems.length) {
+  if (!evidenceItems.length && !assumedUrlEvidence.length) {
     const emptyFailure = failure(
       target,
       `No scored recent Instagram posts found with adapter or browser grid${instagramFetchDetails ? "/detail" : ""} extractor.`
@@ -1388,14 +1406,14 @@ async function fetchInstagramPosts(target, workerIndex) {
   }
 
   const attemptState = instagramCollectionAttemptState({
-    evidenceCount: evidenceItems.length,
+    evidenceCount: evidenceItems.length + assumedUrlEvidence.length,
     completedTimelineSourceCount:
       Number(timelineAdapterCompleted) + Number(browserGridCompleted),
     profileIdentityOk,
     failureMessages: targetFailures.map((item) => item.message)
   });
   return {
-    evidence: evidenceItems,
+    evidence: [...evidenceItems, ...assumedUrlEvidence],
     failures: targetFailures,
     needsReview: [],
     collectionFailed: attemptState.collectionFailed,
@@ -1679,34 +1697,83 @@ async function fetchInstagramPostDetails(handle, gridUrls, workerIndex) {
         .filter(Boolean)
         .slice(0, postLimit);
 
+      const profileUrl = `https://www.instagram.com/${handle}/`;
+      await runOpenCli(["browser", session, "open", profileUrl], { timeoutMs: perTargetTimeoutMs });
+      await runOpenCli(["browser", session, "wait", "time", "4"], { timeoutMs: 10_000 }).catch(() => null);
+
       for (const url of urls) {
-        await runOpenCli(["browser", session, "open", url], { timeoutMs: perTargetTimeoutMs }).catch(() => null);
+        const postId = instagramPostIdFromUrl(url);
+        let clicked = false;
+        for (let attempt = 0; attempt <= scrollPasses && !clicked; attempt += 1) {
+          // Use OpenCLI's real browser click primitive on the exact anchor
+          // currently rendered in the profile grid. This keeps navigation in
+          // Instagram's normal profile -> post flow instead of opening a
+          // direct /p/ or /reel/ URL that is more likely to return HTTP 429.
+          await runOpenCli(
+            ["browser", session, "click", instagramGridPostSelector(url)],
+            { timeoutMs: perTargetTimeoutMs }
+          )
+            .then(() => { clicked = true; })
+            .catch(() => undefined);
+          if (clicked) break;
+          await runOpenCli(
+            ["browser", session, "scroll", "down", "--amount", "1100"],
+            { timeoutMs: 10_000 }
+          ).catch(() => null);
+          await runOpenCli(["browser", session, "wait", "time", "1.5"], { timeoutMs: 8_000 }).catch(() => null);
+        }
+
+        if (!clicked) {
+          continue;
+        }
+
         await runOpenCli(["browser", session, "wait", "time", "2.5"], { timeoutMs: 8_000 }).catch(() => null);
         const raw = await runOpenCli(["browser", session, "eval", instagramPostDetailExtractJs()], {
           timeoutMs: perTargetTimeoutMs
         }).catch(() => "[]");
         const extracted = parseJsonOutput(raw)[0] ?? parseJsonOutput(raw);
         const parsed = normalizeInstagramDetailObservation(extracted);
-        const publication = instagramPublicationDate(parsed, now);
+        if (postId && instagramPostIdFromUrl(parsed?.url) !== postId) {
+          await runOpenCli(["browser", session, "back"], { timeoutMs: 10_000 }).catch(() => null);
+          await runOpenCli(["browser", session, "wait", "time", "1.5"], { timeoutMs: 8_000 }).catch(() => null);
+          continue;
+        }
+        // Profile-level meta descriptions can look like post metadata (for
+        // example, `... on Instagram: "..."`). Prefer the date, caption, and
+        // metrics extracted from the clicked post body before applying the
+        // compatibility normalizer's meta fallback.
+        const collectionNowMs = Date.parse(now);
+        const extractedPublication = instagramPublicationDate(extracted, collectionNowMs);
+        const publication = extractedPublication.postedAt
+          ? extractedPublication
+          : instagramPublicationDate(parsed, collectionNowMs);
         if (parsed?.url || parsed?.description || parsed?.caption) {
           details.push({
             url,
-            caption: parsed.caption ?? null,
-            rawText: parsed.text ?? parsed.description ?? "",
+            caption: extracted.caption ?? parsed.caption ?? null,
+            rawText: extracted.text ?? parsed.text ?? parsed.description ?? "",
             description: parsed.description ?? null,
             postedAt: publication.postedAt,
-            likes: numberOrNull(parsed.likes),
-            comments: numberOrNull(parsed.comments),
-            views: numberOrNull(parsed.views),
+            likes: maxMetric(extracted.likes, parsed.likes),
+            comments: maxMetric(extracted.comments, parsed.comments),
+            views: maxMetric(extracted.views, parsed.views),
             mediaUrls: parsed.mediaUrls ?? []
           });
         }
+        await runOpenCli(["browser", session, "back"], { timeoutMs: 10_000 }).catch(() => null);
+        await runOpenCli(["browser", session, "wait", "time", "1.5"], { timeoutMs: 8_000 }).catch(() => null);
         await delay(Math.min(delayMs, 1200));
       }
 
       return details;
     }
   });
+}
+
+function instagramGridPostSelector(url) {
+  const parsed = new URL(url);
+  const path = parsed.pathname.replace(/\/$/, "");
+  return `a[href*="${path}/"]`;
 }
 
 async function fetchXTweetsFromBrowser(handle, workerIndex) {
@@ -1819,6 +1886,10 @@ function socialEvidenceItem(input) {
     metrics,
     mediaUrls: input.mediaUrls ?? [],
     contributionScore: input.contributionScore ?? scoreMetrics(input.target.platform, metrics),
+    tractionStatus: input.tractionStatus,
+    linkStatus: input.linkStatus ?? null,
+    linkCheckedAt: input.linkCheckedAt ?? null,
+    linkFailureReason: input.linkFailureReason ?? null,
     review_state: "verified",
     matchReason: input.matchReason,
     first_seen_at: now,
@@ -2591,17 +2662,51 @@ function instagramPostDetailExtractJs() {
   const description = meta('meta[name="description"]') || meta('meta[property="og:description"]') || "";
   const text = document.body?.innerText || "";
   const semanticDate = document.querySelector('time[datetime]')?.getAttribute("datetime") || null;
-  const metricText = description || text;
-  const likes = parseNumber((metricText.match(/([0-9,.]+\\s*[KMB]?)\\s+likes?/i) || [])[1]) ?? jsonNumber("like_count");
-  const comments = parseNumber((metricText.match(/([0-9,.]+\\s*[KMB]?)\\s+comments?/i) || [])[1]) ?? jsonNumber("comment_count");
-  const views =
-    parseNumber((metricText.match(/([0-9,.]+\\s*[KMB]?)\\s+(?:views?|plays?)/i) || [])[1]) ??
-    jsonNumber("view_count") ??
-    jsonNumber("play_count") ??
-    jsonNumber("video_view_count");
-  const dateLabel = (description.match(/\\bon\\s+([^:]+):\\s*"/i) || [])[1] || null;
+  const metricText = [text, description].filter(Boolean).join(" ");
+  const preferVisibleMetric = (visible, ...fallbacks) => {
+    const candidates = [visible, ...fallbacks];
+    return candidates.find((value) => Number.isFinite(value) && value > 0) ??
+      candidates.find((value) => value !== null && value !== undefined) ??
+      null;
+  };
+  const likes = preferVisibleMetric(
+    parseNumber((metricText.match(/([0-9,.]+\\s*[KMB]?)\\s+likes?/i) || [])[1]),
+    jsonNumber("like_count")
+  );
+  const comments = preferVisibleMetric(
+    parseNumber((metricText.match(/([0-9,.]+\\s*[KMB]?)\\s+comments?/i) || [])[1]),
+    jsonNumber("comment_count")
+  );
+  const views = preferVisibleMetric(
+    parseNumber((metricText.match(/([0-9,.]+\\s*[KMB]?)\\s+(?:views?|plays?)/i) || [])[1]),
+    jsonNumber("view_count"),
+    jsonNumber("play_count"),
+    jsonNumber("video_view_count")
+  );
+  const lines = text.split(/\\n+/).map((line) => line.trim()).filter(Boolean);
+  const metricLineIndex = lines.findIndex((line) =>
+    /(?:likes?|comments?|views?|plays?)|be the first to like/i.test(line)
+  );
+  const namedDateLineIndex = lines.findIndex((line, index) =>
+    index > Math.max(metricLineIndex, 0) &&
+    /^(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:t(?:ember)?)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)\\s+[0-9]{1,2}(?:,\\s*[0-9]{4})?$/i.test(line)
+  );
+  const relativeDateLineIndex = lines.findIndex((line, index) =>
+    index > Math.max(metricLineIndex, 0) &&
+    /^[0-9]+\\s*[wdhmy]$/i.test(line)
+  );
+  const dateLineIndex = namedDateLineIndex >= 0 ? namedDateLineIndex : relativeDateLineIndex;
+  const captionLines = lines
+    .slice(Math.max(metricLineIndex + 1, 0), dateLineIndex > 0 ? dateLineIndex : lines.length)
+    .filter((line) => !/^(?:original audio|follow|post|clip|•|[A-Za-z0-9._-]+)$/i.test(line));
+  const dateFromText = dateLineIndex >= 0 ? lines[dateLineIndex] : null;
+  const namedDate = dateFromText && /[A-Za-z]/.test(dateFromText) && !/,\\s*[0-9]{4}$/.test(dateFromText)
+    ? dateFromText + ", " + new Date().getUTCFullYear()
+    : dateFromText;
+  const dateLabel = semanticDate || namedDate || (description.match(/\\bon\\s+([^:]+):\\s*"/i) || [])[1] || null;
   const takenAt = jsonNumber("taken_at");
   const caption =
+    captionLines.join("\\n") ||
     (description.match(/:\\s*"([\\s\\S]*?)"\\.?\\s*$/) || [])[1] ||
     jsonString("text") ||
     Array.from(document.querySelectorAll('img[alt]')).map((img) => img.alt).find((alt) => alt && !/profile picture|^user avatar$/i.test(alt)) ||

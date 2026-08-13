@@ -252,6 +252,8 @@ interface PublicEvidenceRecord {
   platformObjectId?: string | null;
   metrics: EvidenceMetrics;
   contributionScore: number;
+  tractionStatus?: EvidenceItem["tractionStatus"];
+  tractionLimitations?: string[];
   review_state: "verified" | "needs_review" | "rejected";
   attributionVersion?: number;
   attributionProvenance?: string;
@@ -1146,6 +1148,8 @@ function publicEvidenceItem(item: PublicEvidenceRecord): EvidenceItem {
     linkFailureReason: item.linkFailureReason ?? null,
     metrics: item.metrics ?? {},
     contributionScore,
+    tractionStatus: item.tractionStatus,
+    tractionLimitations: item.tractionLimitations,
     sourceUrl: linkedInActivity.kind === "native_comment" ? linkedInActivity.contextUrl : item.sourceUrl,
     platformPostId:
       linkedInActivity.kind === "native_comment"

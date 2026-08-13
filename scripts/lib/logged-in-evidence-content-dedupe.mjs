@@ -113,6 +113,18 @@ function quarantineIneligibleNativeObservations(rows, options) {
       continue;
     }
 
+    // A native URL observed in an authenticated profile grid is enough to
+    // retain the post as an unscored, assumed-functional observation. Detail
+    // navigation can be rate-limited without invalidating the URL itself.
+    if (
+      row?.tractionStatus === "unscored" &&
+      row?.sourceUrl &&
+      row?.platformPostId
+    ) {
+      evidence.push(row);
+      continue;
+    }
+
     let reason = null;
     if (positiveMetricCount(row) === 0) {
       reason = METRICLESS_NATIVE_POST_REASON;

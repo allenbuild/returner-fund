@@ -106,6 +106,32 @@ describe("logged-in evidence exact-content finalization", () => {
     ]);
   });
 
+  it("retains an assumed-functional native URL when detail metrics are unavailable", () => {
+    const observed = instagramRow({
+      id: "assumed-functional-instagram",
+      entityType: "company",
+      entityId: "company-acme",
+      companySlug: "acme",
+      companyName: "Acme",
+      platformPostId: "REEL_429",
+      accountUrl: "https://www.instagram.com/acme/"
+    });
+    observed.metrics = {};
+    observed.contributionScore = 0;
+    observed.tractionStatus = "unscored";
+    observed.linkStatus = "unchecked";
+    observed.postedAt = null;
+
+    const result = finalizeLoggedInEvidenceContent([observed], {
+      defaultBatchSlug: "S2026"
+    });
+
+    assert.equal(result.evidence.length, 1);
+    assert.equal(result.evidence[0].sourceUrl, observed.sourceUrl);
+    assert.equal(result.evidence[0].tractionStatus, "unscored");
+    assert.equal(result.needsReview.length, 0);
+  });
+
   it("retains dated historical native posts but quarantines unknown-date observations", () => {
     const historical = xRow({
       id: "historical-x",
