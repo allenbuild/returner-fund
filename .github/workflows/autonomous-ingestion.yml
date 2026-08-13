@@ -290,6 +290,7 @@ jobs:
           NODE_OPTIONS: --max-old-space-size=1024
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          LINKEDIN_GLOBAL_LOCK_NAMESPACE: returner-fund-production-linkedin-allen-xu-v1
           GITHUB_TOKEN: ${{ github.token }}
           X_BEARER_TOKEN: ${{ secrets.X_BEARER_TOKEN }}
           EXA_API_KEY: ${{ secrets.EXA_API_KEY }}
