@@ -328,6 +328,9 @@ export function instagramFailureKind(value) {
   if (
     /\b(?:401|403|log in|login(?:_wall)?|sign in|authenticated|authentication|session expired|cookie expired)\b/i.test(
       message
+    ) ||
+    /\b400\b[\s\S]{0,160}\b(?:logged in|log in|sign in|authenticated)\b/i.test(
+      message
     )
   ) {
     return "auth";
@@ -347,6 +350,16 @@ export function instagramFailureKind(value) {
     return "command_or_profile";
   }
   return "other";
+}
+
+export function instagramShouldRetryTransientBrowserFailure(value) {
+  const message = String(value ?? "");
+  if (["auth", "challenge", "rate_limited"].includes(instagramFailureKind(message))) {
+    return false;
+  }
+  return /\b(?:detached while handling command|pre-navigation[\s\S]{0,100}detached|browser extension is running|transport|socket|timed? out|timeout)\b/i.test(
+    message
+  );
 }
 
 export function instagramCollectionAttemptState({

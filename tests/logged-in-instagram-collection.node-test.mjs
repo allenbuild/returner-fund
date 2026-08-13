@@ -14,6 +14,7 @@ import {
   instagramPostIdFromUrl,
   instagramPublicationDate,
   instagramRecencyDecision,
+  instagramShouldRetryTransientBrowserFailure,
   instagramTargetIsVerifiedForIngestion,
   mergeVerifiedSocialAccountCandidates,
   normalizeInstagramDetailObservation,
@@ -33,6 +34,21 @@ describe("logged-in Instagram collection", () => {
       3
     );
     assert.doesNotMatch(loggedInCollectorSource, /instagramPublicationDate\([^\n]+, now\)/);
+  });
+
+  it("serializes each account's adapter and browser reads while retaining the worker pool", () => {
+    const start = loggedInCollectorSource.indexOf(
+      "async function fetchInstagramPosts(target, workerIndex)"
+    );
+    const end = loggedInCollectorSource.indexOf(
+      "  const profile = parseJsonOutput(profileRaw)",
+      start
+    );
+    const targetReader = loggedInCollectorSource.slice(start, end);
+    assert.doesNotMatch(targetReader, /Promise\.all\(/);
+    assert.match(targetReader, /runInstagramAdapterWithRetry/);
+    assert.match(targetReader, /fetchInstagramGridUrls\(handle, workerIndex, postLimit\)/);
+    assert.match(loggedInCollectorSource, /const runners = Array\.from\(\{ length: concurrency \}/);
   });
 
   it("extracts native post, reel, and TV shortcodes only", () => {
@@ -479,6 +495,12 @@ describe("logged-in Instagram collection", () => {
     );
     assert.equal(
       instagramFailureKind(
+        "HTTP 400 - make sure you are logged in to Instagram"
+      ),
+      "auth"
+    );
+    assert.equal(
+      instagramFailureKind(
         "Instagram profile adapter failed: command timed out"
       ),
       "command_or_profile"
@@ -488,6 +510,29 @@ describe("logged-in Instagram collection", () => {
         "No scored recent Instagram posts found with adapter or browser grid/detail extractor."
       ),
       "empty"
+    );
+  });
+
+  it("retries only transient browser detach/transport failures", () => {
+    assert.equal(
+      instagramShouldRetryTransientBrowserFailure(
+        "Pre-navigation to https://www.instagram.com failed: Detached while handling command."
+      ),
+      true
+    );
+    assert.equal(
+      instagramShouldRetryTransientBrowserFailure(
+        "HTTP 400 - make sure you are logged in to Instagram"
+      ),
+      false
+    );
+    assert.equal(
+      instagramShouldRetryTransientBrowserFailure("challenge_page"),
+      false
+    );
+    assert.equal(
+      instagramShouldRetryTransientBrowserFailure("HTTP 429 Too Many Requests"),
+      false
     );
   });
 

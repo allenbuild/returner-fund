@@ -50,6 +50,7 @@ import {
   normalizeInstagramDetailObservation,
   instagramPostIdFromUrl,
   instagramRecencyDecision,
+  instagramShouldRetryTransientBrowserFailure,
   instagramTargetIsVerifiedForIngestion,
   mergeVerifiedSocialAccountCandidates,
   prioritizeInstagramTargets
@@ -1240,40 +1241,51 @@ async function fetchInstagramPosts(target, workerIndex) {
   let profileAdapterCompleted = false;
   let timelineAdapterCompleted = false;
   let browserGridCompleted = false;
-  const [profileRaw, postsRaw, gridUrls] = await Promise.all([
-    runOpenCli(
-      ["instagram", "profile", handle, ...openCliFormatArgs],
-      { timeoutMs: perTargetTimeoutMs }
-    )
-      .then((raw) => {
-        profileAdapterCompleted = true;
-        return raw;
-      })
-      .catch((error) => {
-        adapterFailures.push(failure(target, `Instagram profile adapter failed: ${errorMessage(error)}`));
-        return "[]";
-      }),
-    runOpenCli(["instagram", "user", handle, "--limit", String(postLimit), ...openCliFormatArgs], {
-      timeoutMs: perTargetTimeoutMs
-    })
-      .then((raw) => {
-        timelineAdapterCompleted = true;
-        return raw;
-      })
-      .catch((error) => {
-        adapterFailures.push(failure(target, `Instagram user adapter failed: ${errorMessage(error)}`));
-        return "[]";
-      }),
-    fetchInstagramGridUrls(handle, workerIndex, postLimit)
-      .then((items) => {
-        browserGridCompleted = true;
-        return items;
-      })
-      .catch((error) => {
-        adapterFailures.push(failure(target, `Instagram browser grid extractor failed: ${errorMessage(error)}`));
-        return [];
-      })
-  ]);
+  // OpenCLI's persistent Instagram site session is not safe for overlapping
+  // adapter/browser commands. Keep the existing account worker pool, but
+  // serialize this target's three read paths to avoid self-inflicted detach
+  // failures when profile, timeline, and browser-grid reads start together.
+  let profileRaw = "[]";
+  try {
+    profileRaw = await runInstagramAdapterWithRetry([
+      "instagram",
+      "profile",
+      handle,
+      ...openCliFormatArgs
+    ]);
+    profileAdapterCompleted = true;
+  } catch (error) {
+    adapterFailures.push(
+      failure(target, `Instagram profile adapter failed: ${errorMessage(error)}`)
+    );
+  }
+
+  let postsRaw = "[]";
+  try {
+    postsRaw = await runInstagramAdapterWithRetry([
+      "instagram",
+      "user",
+      handle,
+      "--limit",
+      String(postLimit),
+      ...openCliFormatArgs
+    ]);
+    timelineAdapterCompleted = true;
+  } catch (error) {
+    adapterFailures.push(
+      failure(target, `Instagram user adapter failed: ${errorMessage(error)}`)
+    );
+  }
+
+  let gridUrls = [];
+  try {
+    gridUrls = await fetchInstagramGridUrls(handle, workerIndex, postLimit);
+    browserGridCompleted = true;
+  } catch (error) {
+    adapterFailures.push(
+      failure(target, `Instagram browser grid extractor failed: ${errorMessage(error)}`)
+    );
+  }
 
   const profile = parseJsonOutput(profileRaw)[0] ?? null;
   const posts = parseJsonOutput(postsRaw).slice(0, postLimit);
@@ -1683,11 +1695,9 @@ function updateInstagramCircuitState(result, target) {
 }
 
 async function fetchInstagramGridUrls(handle, workerIndex, desiredCount) {
-  const session = `yc-ig-${workerIndex}-${slugify(handle)}-${Date.now()}`;
-  return withOpenCliBrowserSession({
-    session,
-    runOpenCli,
-    operation: async () => {
+  return withInstagramBrowserSessionRetry(
+    `yc-ig-${workerIndex}-${slugify(handle)}`,
+    async (session) => {
       await runOpenCli(["browser", session, "open", `https://www.instagram.com/${handle}/`], { timeoutMs: perTargetTimeoutMs });
       await runOpenCli(["browser", session, "wait", "time", "4"], { timeoutMs: 10_000 }).catch(() => null);
       const identityRaw = await runOpenCli(
@@ -1717,15 +1727,13 @@ async function fetchInstagramGridUrls(handle, workerIndex, desiredCount) {
       }
       return [...byUrl.values()].slice(0, desiredCount);
     }
-  });
+  );
 }
 
 async function fetchInstagramPostDetails(handle, gridUrls, workerIndex) {
-  const session = `yc-ig-detail-${workerIndex}-${slugify(handle)}-${Date.now()}`;
-  return withOpenCliBrowserSession({
-    session,
-    runOpenCli,
-    operation: async () => {
+  return withInstagramBrowserSessionRetry(
+    `yc-ig-detail-${workerIndex}-${slugify(handle)}`,
+    async (session) => {
       const details = [];
       const urls = gridUrls
         .map((item) => canonicalInstagramPostUrl(item.href))
@@ -1772,7 +1780,50 @@ async function fetchInstagramPostDetails(handle, gridUrls, workerIndex) {
 
       return details;
     }
-  });
+  );
+}
+
+async function runInstagramAdapterWithRetry(args) {
+  let lastError;
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    try {
+      return await runOpenCli(args, { timeoutMs: perTargetTimeoutMs });
+    } catch (error) {
+      lastError = error;
+      if (
+        attempt === 1 ||
+        !instagramShouldRetryTransientBrowserFailure(errorMessage(error))
+      ) {
+        throw error;
+      }
+      await delay(1_500);
+    }
+  }
+  throw lastError;
+}
+
+async function withInstagramBrowserSessionRetry(sessionPrefix, operation) {
+  let lastError;
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    const session = `${sessionPrefix}-${Date.now()}-${attempt}`;
+    try {
+      return await withOpenCliBrowserSession({
+        session,
+        runOpenCli,
+        operation: () => operation(session)
+      });
+    } catch (error) {
+      lastError = error;
+      if (
+        attempt === 1 ||
+        !instagramShouldRetryTransientBrowserFailure(errorMessage(error))
+      ) {
+        throw error;
+      }
+      await delay(1_500);
+    }
+  }
+  throw lastError;
 }
 
 async function fetchXTweetsFromBrowser(handle, workerIndex) {
