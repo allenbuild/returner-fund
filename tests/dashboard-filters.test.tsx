@@ -1627,6 +1627,52 @@ describe("dashboard filters", () => {
     ).toBe(1);
   });
 
+  it("revalidates an already-open graph when the tab resumes, with a cooldown", async () => {
+    vi.useFakeTimers();
+    const initial = graphResponse([
+      makeNode("company:cached", "Cached Graph", "b2b", "#7dd3fc", "Partner A", 40)
+    ]);
+    const refreshed = graphResponse([
+      makeNode("company:published", "Published Graph", "b2b", "#7dd3fc", "Partner A", 90)
+    ]);
+    const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
+      if (String(input) !== "/api/graph?batch=S2026") {
+        return { ok: false, json: async () => ({}) };
+      }
+      return { ok: true, json: async () => refreshed };
+    });
+    vi.stubGlobal("fetch", fetchMock);
+    const apiCallCount = () => fetchMock.mock.calls.filter(
+      ([input]) => String(input) === "/api/graph?batch=S2026"
+    ).length;
+
+    render(<Dashboard initialGraph={initial} />);
+    expect(within(screen.getByTestId("graph-canvas")).getByText("Cached Graph")).toBeInTheDocument();
+    expect(apiCallCount()).toBe(0);
+
+    window.dispatchEvent(new Event("focus"));
+    await act(async () => {
+      await Promise.resolve();
+    });
+    expect(within(screen.getByTestId("graph-canvas")).getByText("Published Graph")).toBeInTheDocument();
+    expect(apiCallCount()).toBe(1);
+
+    window.dispatchEvent(new Event("focus"));
+    await act(async () => {
+      await Promise.resolve();
+    });
+    expect(apiCallCount()).toBe(1);
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(60_001);
+    });
+    window.dispatchEvent(new Event("focus"));
+    await act(async () => {
+      await Promise.resolve();
+    });
+    expect(apiCallCount()).toBe(2);
+  });
+
   it("switches to a cached API-revalidated Top Voices graph without another request", async () => {
     vi.useFakeTimers();
     const fullGraph = graphResponse([

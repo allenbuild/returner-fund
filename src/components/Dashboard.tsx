@@ -105,6 +105,7 @@ const STATIC_GRAPH_TIMEOUT_MS = 8_000;
 const API_GRAPH_TIMEOUT_MS = 20_000;
 const REFRESH_TIMEOUT_MS = 45_000;
 const BACKGROUND_REVALIDATION_DELAY_MS = 30_000;
+const RESUME_REVALIDATION_COOLDOWN_MS = 60_000;
 const SCOPE_TRANSITION_MINIMUM_MS = 650;
 const MAP_BASELINE_RETRY_DELAYS_MS = [1_000, 3_000, 10_000] as const;
 const DEFAULT_TOP_VOICE_AUDIENCE: TopVoiceAudienceId = "off";
@@ -717,6 +718,7 @@ export function Dashboard({
   const graphFetchSequenceRef = useRef(0);
   const latestGraphFetchIdRef = useRef<Map<string, number>>(new Map());
   const graphInFlightRef = useRef<Map<string, InFlightGraphRequest>>(new Map());
+  const lastResumeRevalidationAtRef = useRef<number | null>(null);
   const actionRequestIdRef = useRef(0);
   const activeActionAbortRef = useRef<AbortController | null>(null);
   const selectionRef = useRef({ batchSlug, topVoiceAudience, insiderIds: selectedInsiderIds });
@@ -1398,6 +1400,43 @@ export function Dashboard({
     initialGraphHydratedRef.current = false;
     void fetchGraph({ unfiltered: true });
   }, [batchSlug, currentFilters, fetchGraph, filterMetadataGraph, preparedInitialGraph, selectedInsiderIds, topVoiceAudience]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return undefined;
+    }
+
+    const revalidateOnResume = () => {
+      if (document.visibilityState === "hidden") {
+        return;
+      }
+
+      const now = Date.now();
+      const lastRefreshAt = lastResumeRevalidationAtRef.current;
+      if (lastRefreshAt !== null && now - lastRefreshAt < RESUME_REVALIDATION_COOLDOWN_MS) {
+        return;
+      }
+
+      const activeGraphKey = graphCacheKey(
+        batchSlug,
+        topVoiceAudience,
+        topVoiceAudience === "insiders" ? selectedInsiderIds : []
+      );
+      if (graphInFlightRef.current.has(activeGraphKey)) {
+        return;
+      }
+
+      lastResumeRevalidationAtRef.current = now;
+      void fetchGraph({ background: true, forceApi: true, unfiltered: true });
+    };
+
+    window.addEventListener("focus", revalidateOnResume);
+    document.addEventListener("visibilitychange", revalidateOnResume);
+    return () => {
+      window.removeEventListener("focus", revalidateOnResume);
+      document.removeEventListener("visibilitychange", revalidateOnResume);
+    };
+  }, [batchSlug, fetchGraph, selectedInsiderIds, topVoiceAudience]);
 
   const settledGraph =
     graphMatchesSelection(graph, batchSlug, topVoiceAudience) &&
