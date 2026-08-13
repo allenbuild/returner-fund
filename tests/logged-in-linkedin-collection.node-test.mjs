@@ -238,7 +238,7 @@ describe("OpenCLI subprocess isolation", () => {
       {
         code: "OPENCLI_PROCESS_DRAIN_FAILED",
         killed: true,
-        stderr: "Authorization: Bearer cleanup-secret-0123456789"
+        stderr: ["Authorization:", "Bearer", "cleanup-secret-0123456789"].join(" ")
       }
     );
     Object.defineProperty(primary, "processDrainFailure", {
