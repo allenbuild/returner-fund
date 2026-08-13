@@ -400,7 +400,12 @@ await runWorkerPool(targets, workers, async (target, workerIndex) => {
         : target.platform === "instagram"
           ? await fetchInstagramPosts(target, workerIndex)
           : await fetchXTweets(target, workerIndex);
-    if (force) removeTargetEvidence(target);
+    // A forced refresh must never turn a rate-limit, challenge, timeout, or
+    // legitimate empty read into data loss. Replace the prior target rows
+    // only after a non-empty collection has completed successfully.
+    const replaceTargetEvidence =
+      force && !result.collectionFailed && result.evidence.length > 0;
+    if (replaceTargetEvidence) removeTargetEvidence(target);
     removeTargetFailures(target);
     addItems(result.evidence, evidence);
     addItems(result.failures, failures);
