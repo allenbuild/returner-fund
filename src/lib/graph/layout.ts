@@ -40,8 +40,7 @@ const LABEL_BOX_PADDING_Y = 14;
 const LABEL_WIDTH_FACTOR = 0.82;
 const LABEL_LINE_HEIGHT = 1.22;
 const LABEL_CIRCLE_CLEARANCE = 4;
-const FALLBACK_CIRCLE_COLLISION_WEIGHT = 18;
-const FALLBACK_LABEL_COLLISION_WEIGHT = 2.4;
+const FALLBACK_MARGIN_STEPS = [24, 48, 96, 160, 256, 384, 576, 832, 1_152, 1_536, 2_048];
 
 export function buildClusterPositions(nodes: GraphNode[]): Map<string, GraphLayoutPosition> {
   const positions = new Map<string, GraphLayoutPosition>();
@@ -53,7 +52,10 @@ export function buildClusterPositions(nodes: GraphNode[]): Map<string, GraphLayo
     clusters.set(key, [...(clusters.get(key) ?? []), company]);
   }
 
-  const entries = [...clusters.entries()].sort(([, leftNodes], [, rightNodes]) => rightNodes.length - leftNodes.length);
+  const entries = [...clusters.entries()].sort(
+    ([leftKey, leftNodes], [rightKey, rightNodes]) =>
+      rightNodes.length - leftNodes.length || compareStableText(leftKey, rightKey)
+  );
   const goldenAngle = Math.PI * (3 - Math.sqrt(5));
   const clusterStep = Math.max(270, Math.min(380, 1_080 / Math.sqrt(Math.max(entries.length, 1))));
 
@@ -64,7 +66,9 @@ export function buildClusterPositions(nodes: GraphNode[]): Map<string, GraphLayo
       x: Math.cos(clusterAngle) * clusterRadius * 1.16,
       y: Math.sin(clusterAngle) * clusterRadius * 0.88
     };
-    const sortedNodes = [...clusterNodes].sort((left, right) => right.score - left.score || left.label.localeCompare(right.label));
+    const sortedNodes = [...clusterNodes].sort(
+      (left, right) => right.score - left.score || compareStableText(left.label, right.label)
+    );
     const maxNodeRadius = Math.max(...sortedNodes.map((node) => node.radius), 20);
     const localStep = Math.max(52, Math.min(84, maxNodeRadius * 1.05));
 
@@ -108,7 +112,7 @@ export function buildLabelPlacements(
       if (left.entityType !== right.entityType) {
         return left.entityType === "company" ? -1 : 1;
       }
-      return right.score - left.score || right.radius - left.radius || left.label.localeCompare(right.label);
+      return right.score - left.score || right.radius - left.radius || compareStableText(left.label, right.label);
     });
   const strictCandidates = candidates.filter((node) => node.score >= scoreCutoff || node.id === selectedNodeId);
 
@@ -281,15 +285,51 @@ function addLabelIfPossible(
 
   const options = labelOptionsForNode(node, position);
 
-  const match =
-    options.find((option) => labelBoxFits(option.box, placedBoxes, circles, node.id)) ??
-    (force ? bestFallbackLabelOption(options, placedBoxes, circles, node.id) : null);
+  const match = options.find((option) => labelBoxFits(option.box, placedBoxes, circles, node.id)) ??
+    (force ? findForcedLabelOption(node, position, placedBoxes, circles) : null);
   if (!match) {
     return;
   }
 
   placements.set(node.id, match.placement);
   placedBoxes.push(expandBox(match.box, 12));
+}
+
+function findForcedLabelOption(
+  node: GraphNode,
+  position: GraphLayoutPosition,
+  placedBoxes: LabelBox[],
+  circles: LayoutCircle[]
+): LabelOption | null {
+  for (const margin of FALLBACK_MARGIN_STEPS) {
+    const options = forcedLabelOptions(node, position, margin);
+    const match = options.find((option) => labelBoxFits(option.box, placedBoxes, circles, node.id));
+    if (match) return match;
+  }
+
+  // A fixed number of fallback steps is normally ample, but never trade an
+  // overlapping label for coverage if an unusually large graph needs more
+  // room. The caller will leave this label hidden until a future layout pass.
+  return null;
+}
+
+function forcedLabelOptions(node: GraphNode, position: GraphLayoutPosition, margin: number): LabelOption[] {
+  const placements: LabelPlacement[] = [
+    { halign: "left", valign: "center", marginX: margin, marginY: 0 },
+    { halign: "right", valign: "center", marginX: -margin, marginY: 0 },
+    { halign: "center", valign: "top", marginX: 0, marginY: margin },
+    { halign: "center", valign: "bottom", marginX: 0, marginY: -margin },
+    { halign: "left", valign: "top", marginX: margin, marginY: margin },
+    { halign: "left", valign: "bottom", marginX: margin, marginY: -margin },
+    { halign: "right", valign: "top", marginX: -margin, marginY: margin },
+    { halign: "right", valign: "bottom", marginX: -margin, marginY: -margin }
+  ];
+
+  return placements.map((placement, index) => ({
+    placement,
+    box: estimateLabelBoxForNode(node, position, placement),
+    priority: index
+  }));
 }
 
 function labelOptionsForNode(node: GraphNode, position: GraphLayoutPosition): LabelOption[] {
@@ -358,47 +398,6 @@ function labelFitsInsideNode(node: GraphNode): boolean {
   return width <= node.radius * 2.45 && height <= node.radius * 1.62 && Math.hypot(width / 2, height / 2) <= node.radius * 1.42;
 }
 
-function bestFallbackLabelOption(
-  options: LabelOption[],
-  placedBoxes: LabelBox[],
-  circles: LayoutCircle[],
-  ownerId: string
-): LabelOption {
-  const [bestOption] = [...options].sort(
-    (left, right) =>
-      fallbackLabelOptionScore(left, placedBoxes, circles, ownerId) -
-      fallbackLabelOptionScore(right, placedBoxes, circles, ownerId)
-  );
-  return bestOption ?? options[0]!;
-}
-
-function fallbackLabelOptionScore(
-  option: LabelOption,
-  placedBoxes: LabelBox[],
-  circles: LayoutCircle[],
-  ownerId: string
-): number {
-  return labelCollisionPenalty(option.box, placedBoxes, circles, ownerId) + option.priority * 180;
-}
-
-function labelCollisionPenalty(
-  box: LabelBox,
-  placedBoxes: LabelBox[],
-  circles: LayoutCircle[],
-  ownerId: string
-): number {
-  const expandedBox = expandBox(box, 6);
-  const labelPenalty = placedBoxes.reduce((sum, placedBox) => sum + boxOverlapArea(expandedBox, placedBox), 0);
-  const circlePenalty = circles.reduce((sum, circle) => {
-    if (circle.id === ownerId) {
-      return sum;
-    }
-    return sum + circleBoxOverlapPenalty(expandedBox, circle);
-  }, 0);
-
-  return labelPenalty * FALLBACK_LABEL_COLLISION_WEIGHT + circlePenalty * FALLBACK_CIRCLE_COLLISION_WEIGHT;
-}
-
 function labelBoxFits(box: LabelBox, placedBoxes: LabelBox[], circles: LayoutCircle[], ownerId: string): boolean {
   if (placedBoxes.some((placedBox) => boxesOverlap(expandBox(box, 12), placedBox))) {
     return false;
@@ -420,23 +419,10 @@ function boxesOverlap(left: LabelBox, right: LabelBox): boolean {
   return left.left < right.right && left.right > right.left && left.top < right.bottom && left.bottom > right.top;
 }
 
-function boxOverlapArea(left: LabelBox, right: LabelBox): number {
-  const width = Math.max(0, Math.min(left.right, right.right) - Math.max(left.left, right.left));
-  const height = Math.max(0, Math.min(left.bottom, right.bottom) - Math.max(left.top, right.top));
-  return width * height;
-}
-
 export function labelBoxOverlapsCircle(box: LabelBox, circle: LayoutCircle): boolean {
   const closestX = Math.max(box.left, Math.min(circle.x, box.right));
   const closestY = Math.max(box.top, Math.min(circle.y, box.bottom));
   return Math.hypot(circle.x - closestX, circle.y - closestY) < circle.radius;
-}
-
-function circleBoxOverlapPenalty(box: LabelBox, circle: LayoutCircle): number {
-  const closestX = Math.max(box.left, Math.min(circle.x, box.right));
-  const closestY = Math.max(box.top, Math.min(circle.y, box.bottom));
-  const overlap = circle.radius - Math.hypot(circle.x - closestX, circle.y - closestY);
-  return overlap > 0 ? overlap * overlap : 0;
 }
 
 function percentile(values: number[], fraction: number): number {
@@ -452,4 +438,13 @@ function seededJitter(value: string, range: number): number {
     hash = (hash * 33 + char.charCodeAt(0)) % 1009;
   }
   return (hash / 1009 - 0.5) * range;
+}
+
+// Keep layout output identical on macOS and Linux. `localeCompare` can use
+// different ICU collation tables on the two runners, which changes tie-order
+// placement and can make an otherwise deterministic label layout fail only in
+// CI.
+function compareStableText(left: string, right: string): number {
+  if (left === right) return 0;
+  return left < right ? -1 : 1;
 }
