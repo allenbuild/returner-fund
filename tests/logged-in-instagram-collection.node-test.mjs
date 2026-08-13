@@ -1,21 +1,30 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { describe, it } from "node:test";
+import { JSDOM } from "jsdom";
 import {
+  appendInstagramAttemptEvidence,
   canonicalInstagramPostUrl,
+  compactLoggedInStoredRows,
   instagramAdapterProfileIdentityDecision,
   instagramBrowserProfileIdentityDecision,
   instagramCircuitDecision,
   instagramCollectionAttemptState,
   instagramDetailObservationMatchesMeta,
+  instagramDetailUrlsNeedingEnrichment,
+  instagramDeepScrollPaginationDecision,
+  normalizeInstagramDeepScrollPagination,
   instagramEvidenceProvenance,
   instagramFailureKind,
+  instagramGridOnlyOwnershipDecision,
   instagramMetaDescriptionFields,
   instagramPostIdFromUrl,
   instagramPublicationDate,
   instagramRecencyDecision,
   instagramShouldRetryTransientBrowserFailure,
   instagramTargetIsVerifiedForIngestion,
+  LOGGED_IN_STORED_RAW_TEXT_LIMIT,
+  mergeInstagramGridPassObservations,
   mergeVerifiedSocialAccountCandidates,
   normalizeInstagramDetailObservation,
   prioritizeInstagramTargets
@@ -25,13 +34,37 @@ const loggedInCollectorSource = readFileSync(
   new URL("../scripts/fetch-logged-in-social-traction.mjs", import.meta.url),
   "utf8"
 );
+const instagramCollectionSource = readFileSync(
+  new URL("../scripts/lib/logged-in-instagram-collection.mjs", import.meta.url),
+  "utf8"
+);
+
+function instagramGridExtractorScript() {
+  const start = loggedInCollectorSource.indexOf(
+    "function instagramGridExtractJs()"
+  );
+  const end = loggedInCollectorSource.indexOf(
+    "function instagramProfileScrollJs(",
+    start
+  );
+  assert.ok(start >= 0 && end > start, "Instagram grid extractor must exist");
+  const functionSource = loggedInCollectorSource.slice(start, end).trim();
+  const template = functionSource.match(/return `([\s\S]*)`;\n}$/);
+  assert.ok(template, "Instagram grid extractor must return one template literal");
+  assert.doesNotMatch(template[1], /\$\{/);
+  return Function(`return \`${template[1]}\`;`)();
+}
+
+function executeInstagramGridExtractor(dom) {
+  return dom.window.eval(instagramGridExtractorScript());
+}
 
 describe("logged-in Instagram collection", () => {
   it("passes a numeric collection clock into every strict publication-date check", () => {
     assert.match(loggedInCollectorSource, /const collectionNowMs = Date\.now\(\)/);
     assert.equal(
       [...loggedInCollectorSource.matchAll(/instagramPublicationDate\([^\n]+collectionNowMs\)/g)].length,
-      3
+      6
     );
     assert.doesNotMatch(loggedInCollectorSource, /instagramPublicationDate\([^\n]+, now\)/);
   });
@@ -47,8 +80,270 @@ describe("logged-in Instagram collection", () => {
     const targetReader = loggedInCollectorSource.slice(start, end);
     assert.doesNotMatch(targetReader, /Promise\.all\(/);
     assert.match(targetReader, /runInstagramAdapterWithRetry/);
-    assert.match(targetReader, /fetchInstagramGridUrls\(handle, workerIndex, postLimit\)/);
+    assert.match(targetReader, /fetchInstagramGridUrls\(handle, workerIndex\)/);
+    assert.doesNotMatch(targetReader, /paginationSeed|nextScrollPass/);
     assert.match(loggedInCollectorSource, /const runners = Array\.from\(\{ length: concurrency \}/);
+  });
+
+  it("treats force as rerun selection and never deletes durable Instagram history", () => {
+    assert.doesNotMatch(loggedInCollectorSource, /removeTargetEvidence/);
+    assert.doesNotMatch(
+      loggedInCollectorSource,
+      /if \(force\)[\s\S]{0,120}(?:splice|remove|delete).*evidence/i
+    );
+    assert.match(
+      loggedInCollectorSource,
+      /appendInstagramAttemptEvidence\(evidence, result\.evidence\)/
+    );
+    assert.match(
+      loggedInCollectorSource,
+      /item\.batchSlug === target\.batchSlug[\s\S]{0,160}item\.entityId === target\.entityId/
+    );
+
+    const oldSameBatch = {
+      id: "old-s26",
+      batchSlug: "S26",
+      platform: "instagram",
+      entityId: "company-acme",
+      sourceUrl: "https://www.instagram.com/p/OLD_S26/"
+    };
+    const oldOtherBatch = {
+      id: "old-s2026",
+      batchSlug: "S2026",
+      platform: "instagram",
+      entityId: "company-acme",
+      sourceUrl: "https://www.instagram.com/p/OLD_S2026/"
+    };
+    const rows = [oldSameBatch, oldOtherBatch];
+
+    // A failed forced collection has no replacement rows and must retain both
+    // the target's prior evidence and identically named entities in other batches.
+    assert.equal(appendInstagramAttemptEvidence(rows, []), rows);
+    assert.deepEqual(rows, [oldSameBatch, oldOtherBatch]);
+
+    const refreshed = {
+      id: "new-s26",
+      batchSlug: "S26",
+      platform: "instagram",
+      entityId: "company-acme",
+      sourceUrl: "https://www.instagram.com/p/NEW_S26/"
+    };
+    assert.equal(appendInstagramAttemptEvidence(rows, [refreshed]), rows);
+    assert.deepEqual(
+      rows.map((row) => row.id),
+      ["old-s26", "old-s2026", "new-s26"]
+    );
+  });
+
+  it("keeps the complete bounded grid union and fails closed on scroll/eval errors", () => {
+    const start = loggedInCollectorSource.indexOf(
+      "async function fetchInstagramGridUrls("
+    );
+    const end = loggedInCollectorSource.indexOf(
+      "async function fetchInstagramPostDetails(",
+      start
+    );
+    const gridReader = loggedInCollectorSource.slice(start, end);
+    assert.match(gridReader, /mergeInstagramGridPassObservations/);
+    assert.match(gridReader, /items: \[\.\.\.byUrl\.values\(\)\]/);
+    assert.doesNotMatch(gridReader, /\.slice\(-Math\.max\(1, desiredCount\)\)/);
+    assert.doesNotMatch(
+      gridReader,
+      /nextScrollPass|candidateExhausted|stablePasses/
+    );
+    assert.doesNotMatch(gridReader, /\.catch\(/);
+    assert.match(gridReader, /untrusted_geometry_stall/);
+    assert.match(gridReader, /coverageStatus: "non_exhaustive"/);
+    assert.doesNotMatch(
+      loggedInCollectorSource,
+      /failure\([\s\S]{0,120}Instagram authenticated history remains non-exhaustive/
+    );
+    assert.match(loggedInCollectorSource, /document\.createTreeWalker/);
+    assert.doesNotMatch(
+      loggedInCollectorSource,
+      /Array\.from\(main\.querySelectorAll\(["']a\[href\]["']\)\)/
+    );
+    assert.match(loggedInCollectorSource, /profile_grid_anchor_limit_exceeded/);
+    assert.match(loggedInCollectorSource, /item\?\.gridOverflow === true/);
+    assert.match(loggedInCollectorSource, /profileGridProven: true/);
+    assert.match(loggedInCollectorSource, /profileHandle,/);
+    assert.match(loggedInCollectorSource, /\[role=\\?"dialog\\?"\]/);
+    assert.match(loggedInCollectorSource, /suggested\|recommended\|people you may know/i);
+    assert.match(loggedInCollectorSource, /duplicateIdentity: true/);
+    assert.doesNotMatch(loggedInCollectorSource, /\.slice\(-240\)/);
+  });
+
+  it("excludes a nested suggested section and its sibling grid in the same tab panel", () => {
+    const dom = new JSDOM(`<!doctype html><main>
+      <div id="profile-panel" role="tabpanel"><div style="display:grid">
+        <a href="/p/PROFILE_ONE/"><img src="https://cdn.test/one.jpg" alt="one"></a>
+        <a href="/reel/PROFILE_TWO/"><img src="https://cdn.test/two.jpg" alt="two"></a>
+      </div></div>
+      <div id="suggested-panel" role="tabpanel">
+        <section id="suggested-heading-section">
+          <div>
+            <header><div><h2>Suggested for you</h2></div></header>
+            <a href="/p/FOREIGN_SUGGESTED_ONE/"><img src="https://cdn.test/s1.jpg"></a>
+          </div>
+        </section>
+        <div id="suggested-sibling-grid" style="display:grid">
+          <a href="/p/FOREIGN_SUGGESTED_TWO/"><img src="https://cdn.test/s2.jpg"></a>
+          <a href="/p/FOREIGN_SUGGESTED_THREE/"><img src="https://cdn.test/s3.jpg"></a>
+        </div>
+      </div>
+      <aside><div style="display:grid"><a href="/p/FOREIGN_ASIDE/"></a></div></aside>
+      <div role="dialog"><div style="display:grid"><a href="/p/FOREIGN_DIALOG/"></a></div></div>
+      <article><div style="display:grid"><a href="/p/FOREIGN_ARTICLE/"></a></div></article>
+    </main>`, {
+      url: "https://www.instagram.com/exact.owner/",
+      runScripts: "outside-only"
+    });
+
+    try {
+      const rows = executeInstagramGridExtractor(dom);
+      assert.deepEqual(
+        Array.from(
+          rows.filter((row) => row.profileGridProven === true),
+          (row) => row.platformPostId
+        ),
+        ["PROFILE_ONE", "PROFILE_TWO"]
+      );
+      assert.equal(
+        rows.some((row) => /FOREIGN_/.test(row.platformPostId ?? "")),
+        false
+      );
+    } finally {
+      dom.window.close();
+    }
+  });
+
+  it("stops DOM anchor extraction at limit plus one and emits an overflow sentinel", () => {
+    const anchors = Array.from(
+      { length: 10_025 },
+      (_, index) => `<a href="/p/OVERFLOW_${index}/"></a>`
+    ).join("");
+    const dom = new JSDOM(`<!doctype html><main><div style="display:grid">${anchors}</div></main>`, {
+      url: "https://www.instagram.com/exact.owner/",
+      runScripts: "outside-only"
+    });
+    const originalCreateTreeWalker = dom.window.document.createTreeWalker.bind(
+      dom.window.document
+    );
+    let nextNodeCalls = 0;
+    dom.window.document.createTreeWalker = (...args) => {
+      const walker = originalCreateTreeWalker(...args);
+      if (args[0]?.tagName !== "MAIN") return walker;
+      return new Proxy(walker, {
+        get(target, field) {
+          if (field === "nextNode") {
+            return () => {
+              nextNodeCalls += 1;
+              return target.nextNode();
+            };
+          }
+          const value = Reflect.get(target, field, target);
+          return typeof value === "function" ? value.bind(target) : value;
+        }
+      });
+    };
+
+    try {
+      const rows = executeInstagramGridExtractor(dom);
+      assert.deepEqual(JSON.parse(JSON.stringify(rows)), [{
+        gridOverflow: true,
+        reason: "profile_grid_anchor_limit_exceeded",
+        anchorLimit: 10_000,
+        scannedAnchorCount: 10_001
+      }]);
+      assert.equal(nextNodeCalls, 10_001);
+    } finally {
+      dom.window.close();
+    }
+  });
+
+  it("retains 40k stored rows while deterministically bounding raw diagnostics", () => {
+    assert.match(loggedInCollectorSource, /payload: compactStoredPayload\(/);
+    assert.match(loggedInCollectorSource, /const currentOutput = compactStoredPayload\(/);
+    assert.match(loggedInCollectorSource, /const snapshot = compactStoredPayload\(\{/);
+    assert.match(
+      loggedInCollectorSource,
+      /rawVisibleText: rawVisibleText\.slice\(0, LOGGED_IN_STORED_RAW_TEXT_LIMIT\)/
+    );
+    assert.match(loggedInCollectorSource, /JSON\.stringify\(value, \(_field, nested\) =>/);
+    const oversizedDiagnostic = "diagnostic ".repeat(2_000);
+    const rows = Array.from({ length: 40_000 }, (_, index) => ({
+      id: `post-${index}`,
+      platformPostId: `NATIVE_${index}`,
+      sourceUrl: `https://www.instagram.com/p/NATIVE_${index}/`,
+      postedAt: "2026-08-01T00:00:00.000Z",
+      text: `topic scoring text ${index}`,
+      metrics: { likes: index + 1, comments: index % 10 },
+      rawVisibleText: oversizedDiagnostic
+    }));
+
+    assert.equal(compactLoggedInStoredRows(rows), rows);
+    assert.equal(rows.length, 40_000);
+    assert.equal(rows[0].rawVisibleText.length, LOGGED_IN_STORED_RAW_TEXT_LIMIT);
+    assert.equal(rows.at(-1).platformPostId, "NATIVE_39999");
+    assert.deepEqual(rows.at(-1).metrics, { likes: 40_000, comments: 9 });
+    assert.equal(rows.at(-1).text, "topic scoring text 39999");
+
+    const serialized = JSON.stringify({ evidence: rows });
+    assert.ok(Buffer.byteLength(serialized) < 65_000_000);
+    let serializedRowCount = 0;
+    let searchFrom = 0;
+    while (true) {
+      const foundAt = serialized.indexOf('{"id":"post-', searchFrom);
+      if (foundAt < 0) break;
+      serializedRowCount += 1;
+      searchFrom = foundAt + 12;
+    }
+    assert.equal(serializedRowCount, 40_000);
+  });
+
+  it("exposes the historical replay terminal-platform flag without changing its default", () => {
+    assert.match(
+      loggedInCollectorSource,
+      /platformSetArg\(\s*"--terminal-completed-platforms"\s*\)/
+    );
+    assert.match(
+      loggedInCollectorSource,
+      /--terminal-completed-platforms=linkedin\s+Keep successful done attempts terminal/
+    );
+  });
+
+  it("signals a LinkedIn child safety stop only after payload and checkpoint persistence", () => {
+    assert.match(
+      loggedInCollectorSource,
+      /const childSafetyStop = linkedinChildSafetyStopDecision\(failureKind\)/
+    );
+    assert.doesNotMatch(
+      loggedInCollectorSource,
+      /\["account_safety", "auth", "rate_limited", "transport"\]/
+    );
+    const payloadWrite = loggedInCollectorSource.indexOf(
+      "await writeJson(outputPath, payload);"
+    );
+    const checkpointWrite = loggedInCollectorSource.indexOf(
+      "await writeCheckpoint();",
+      payloadWrite
+    );
+    const childSignal = loggedInCollectorSource.indexOf(
+      "if (linkedinChildSafetyStop)",
+      checkpointWrite
+    );
+    assert.ok(payloadWrite >= 0);
+    assert.ok(checkpointWrite > payloadWrite);
+    assert.ok(childSignal > checkpointWrite);
+    assert.match(loggedInCollectorSource, /LINKEDIN_CHILD_SAFETY_STOP_EXIT_CODE/);
+    assert.match(
+      loggedInCollectorSource,
+      /process\.exitCode = LINKEDIN_CHILD_SAFETY_STOP_EXIT_CODE/
+    );
+    assert.doesNotMatch(
+      loggedInCollectorSource.slice(childSignal, childSignal + 1_200),
+      /process\.exit\(/
+    );
   });
 
   it("extracts native post, reel, and TV shortcodes only", () => {
@@ -129,6 +424,304 @@ describe("logged-in Instagram collection", () => {
       }),
       null
     );
+  });
+
+  it("admits grid-only posts only with exact profile-grid and native detail-author proof", () => {
+    const gridItem = {
+      href: "https://www.instagram.com/p/GRID_ONLY_1/",
+      profileGridProven: true,
+      profileHandle: "acme"
+    };
+    assert.deepEqual(
+      instagramGridOnlyOwnershipDecision({
+        requestedHandle: "acme",
+        gridItem,
+        detail: {
+          authorHandle: "acme",
+          authorUrl: "https://www.instagram.com/acme/",
+          authorProof: "native_post_header_profile_link"
+        }
+      }),
+      { ok: true, reason: "exact_profile_grid_and_native_detail_author" }
+    );
+    assert.deepEqual(
+      instagramGridOnlyOwnershipDecision({
+        requestedHandle: "acme",
+        gridItem,
+        detail: {
+          authorHandle: "other",
+          authorUrl: "https://www.instagram.com/other/",
+          authorProof: "native_post_header_profile_link"
+        }
+      }),
+      { ok: false, reason: "detail_author_identity_mismatch" }
+    );
+    assert.deepEqual(
+      instagramGridOnlyOwnershipDecision({
+        requestedHandle: "acme",
+        gridItem,
+        detail: {}
+      }),
+      { ok: false, reason: "detail_author_identity_missing" }
+    );
+    assert.deepEqual(
+      instagramGridOnlyOwnershipDecision({
+        requestedHandle: "acme",
+        gridItem: { ...gridItem, profileGridProven: false },
+        detail: {
+          authorHandle: "acme",
+          authorUrl: "https://www.instagram.com/acme/",
+          authorProof: "native_post_header_profile_link"
+        }
+      }),
+      { ok: false, reason: "exact_profile_grid_not_proven" }
+    );
+    assert.match(
+      loggedInCollectorSource,
+      /const ownership = instagramGridOnlyOwnershipDecision\(\{[\s\S]{0,180}requestedHandle: handle/
+    );
+    assert.match(
+      loggedInCollectorSource,
+      /Instagram grid-only native post quarantined/
+    );
+    assert.match(loggedInCollectorSource, /authorHandle: nativeAuthor\?\.handle/);
+    assert.match(loggedInCollectorSource, /authorUrl: nativeAuthor\?\.url/);
+    assert.match(
+      loggedInCollectorSource,
+      /native_post_header_profile_link/
+    );
+  });
+
+  it("does not open detail pages for 100 sufficiently represented adapter posts", () => {
+    assert.match(
+      loggedInCollectorSource,
+      /const detailItems = detailUrls\.length\s*\n\s*\? await fetchInstagramPostDetails\(handle, detailUrls/
+    );
+    assert.match(
+      loggedInCollectorSource,
+      /async function fetchInstagramPostDetails\(handle, detailUrls, workerIndex\)\s*\{\s*\n\s*if \(!Array\.isArray\(detailUrls\).*?return \[\];/s
+    );
+    const adapterPosts = Array.from({ length: 100 }, (_, index) => ({
+      url: `https://www.instagram.com/p/ADAPTER_${index}/`,
+      postedAt: "2026-07-01T00:00:00.000Z",
+      likes: index === 99 ? "1.2K" : 10
+    }));
+    const gridItems = adapterPosts.map((post) => ({
+      href: post.url,
+      likes: post.likes
+    }));
+
+    assert.deepEqual(
+      instagramDetailUrlsNeedingEnrichment({
+        adapterPosts,
+        gridItems,
+        now: Date.parse("2026-08-12T00:00:00.000Z"),
+        limit: 100
+      }),
+      []
+    );
+  });
+
+  it("returns no detail URLs when enrichment is explicitly bounded to zero", () => {
+    assert.deepEqual(
+      instagramDetailUrlsNeedingEnrichment({
+        adapterPosts: [{
+          url: "https://www.instagram.com/p/ADAPTER_1/",
+          date: "8/1/2026",
+          likes: 12
+        }],
+        gridItems: [{
+          href: "https://www.instagram.com/p/GRID_1/"
+        }],
+        limit: 0
+      }),
+      []
+    );
+  });
+
+  it("does not re-detail post IDs already admitted to the account checkpoint", () => {
+    assert.deepEqual(
+      instagramDetailUrlsNeedingEnrichment({
+        gridItems: [
+          { href: "https://www.instagram.com/p/KNOWN_1/" },
+          { href: "https://www.instagram.com/p/NEW_1/" }
+        ],
+        existingPostIds: new Set(["KNOWN_1"]),
+        limit: 10
+      }),
+      ["https://www.instagram.com/p/NEW_1/"]
+    );
+  });
+
+  it("rotates bounded detail work without changing positive-limit semantics", () => {
+    const gridItems = ["ONE", "TWO", "THREE", "FOUR"].map((postId) => ({
+      href: `https://www.instagram.com/p/${postId}/`
+    }));
+    assert.deepEqual(
+      instagramDetailUrlsNeedingEnrichment({
+        gridItems,
+        offset: 2,
+        limit: 3
+      }),
+      [
+        "https://www.instagram.com/p/THREE/",
+        "https://www.instagram.com/p/FOUR/",
+        "https://www.instagram.com/p/ONE/"
+      ]
+    );
+    assert.deepEqual(
+      instagramDetailUrlsNeedingEnrichment({ gridItems, limit: 2 }),
+      [
+        "https://www.instagram.com/p/ONE/",
+        "https://www.instagram.com/p/TWO/"
+      ]
+    );
+  });
+
+  it("merges every canonical item from every bounded grid pass", () => {
+    const observedByUrl = new Map();
+    let merged = mergeInstagramGridPassObservations({
+      observedByUrl,
+      items: [
+        { href: "https://www.instagram.com/p/PASS_A/", likes: 1 },
+        { href: "https://www.instagram.com/p/PASS_B/", likes: 2 }
+      ]
+    });
+    merged = mergeInstagramGridPassObservations({
+      observedByUrl,
+      items: [
+        { href: "https://www.instagram.com/p/PASS_B/", comments: 3 },
+        { href: "https://www.instagram.com/reel/PASS_C/", views: 4 },
+        null,
+        { unrelated: true },
+        {
+          duplicateIdentity: true,
+          href: "https://www.instagram.com/p/PASS_C/"
+        },
+        { rawText: "non-native unrelated observation" },
+        { malformedIdentity: true, rawHref: "/p/" }
+      ],
+      malformedItemCount: merged.malformedItemCount
+    });
+
+    assert.deepEqual(
+      merged.items.map((item) => item.platformPostId),
+      ["PASS_A", "PASS_B", "PASS_C"]
+    );
+    assert.equal(merged.items[1].likes, 2);
+    assert.equal(merged.items[1].comments, 3);
+    assert.equal(merged.malformedItemCount, 1);
+  });
+
+  it("migrates legacy scroll state into bounded metadata without trusting exhaustion", () => {
+    const legacyIds = Array.from({ length: 20_050 }, (_, index) => `POST_${index}`);
+    const state = normalizeInstagramDeepScrollPagination({
+      version: 1,
+      mode: "deterministic-browser-deep-scroll-v1",
+      handle: "acme",
+      observedPostIds: legacyIds,
+      nextScrollPass: 99_999,
+      stablePasses: 3,
+      exhausted: true
+    }, { handle: "acme" });
+
+    assert.equal(state.version, 2);
+    assert.equal(state.mode, "bounded-authenticated-window-v2");
+    assert.equal(state.observedPostIds.length, 512);
+    assert.equal(state.observedPostIds.at(-1), "POST_20049");
+    assert.equal(state.exhausted, false);
+    assert.equal(state.status, "non_exhaustive");
+    assert.equal("nextScrollPass" in state, false);
+  });
+
+  it("compares bounded-window newness with durable evidence and exposes malformed identity", () => {
+    const state = normalizeInstagramDeepScrollPagination({
+      version: 2,
+      mode: "bounded-authenticated-window-v2",
+      handle: "acme",
+      observedPostIds: ["RECENT_1"],
+      detailWindowOffset: 2
+    }, { handle: "acme" });
+    const decision = instagramDeepScrollPaginationDecision({
+      identityOk: true,
+      candidateItems: [
+        { href: "https://www.instagram.com/p/RECENT_1/" },
+        { href: "https://www.instagram.com/p/EVIDENCE_1/" },
+        { href: "https://www.instagram.com/p/NEW_1/" }
+      ],
+      persistedObservedPostIds: new Set(["EVIDENCE_1"]),
+      priorState: state,
+      nextDetailWindowOffset: 3
+    });
+    assert.deepEqual(decision.newPostIds, ["NEW_1"]);
+    assert.deepEqual(
+      decision.previouslyObservedPostIds,
+      ["RECENT_1", "EVIDENCE_1"]
+    );
+    assert.equal(decision.status, "non_exhaustive");
+    assert.equal(decision.exhausted, false);
+    assert.equal(decision.detailWindowOffset, 3);
+
+    const malformed = instagramDeepScrollPaginationDecision({
+      identityOk: true,
+      candidateItems: [{ href: "https://www.instagram.com/p/VALID_1/" }],
+      priorState: state,
+      malformedItemCount: 1
+    });
+    assert.equal(malformed.status, "blocked");
+    assert.equal(malformed.reason, "malformed_native_post_identity");
+    assert.equal(malformed.malformedItemCount, 1);
+    assert.equal(malformed.exhausted, false);
+  });
+
+  it("details missing-date and grid-only posts while preserving the complete shortcode union", () => {
+    const adapterPosts = [
+      {
+        url: "https://www.instagram.com/p/COMPLETE/",
+        postedAt: "2026-07-01T00:00:00.000Z",
+        likes: 20,
+        caption: "complete"
+      },
+      { url: "https://www.instagram.com/p/MISSING_DATE/", likes: 20 }
+    ];
+    const gridItems = [
+      { href: "https://www.instagram.com/p/COMPLETE/", likes: 20 },
+      { href: "https://www.instagram.com/p/MISSING_DATE/", likes: 20 },
+      { href: "https://www.instagram.com/reel/GRID_ONLY/", likes: 7 },
+      { href: "https://www.instagram.com/p/GRID_ONLY/", likes: 8 }
+    ];
+
+    assert.deepEqual(
+      instagramDetailUrlsNeedingEnrichment({
+        adapterPosts,
+        gridItems,
+        now: Date.parse("2026-08-12T00:00:00.000Z"),
+        limit: 30
+      }),
+      [
+        "https://www.instagram.com/p/MISSING_DATE/",
+        "https://www.instagram.com/reel/GRID_ONLY/"
+      ]
+    );
+
+    const adapterIds = new Set(adapterPosts.map((post) => instagramPostIdFromUrl(post.url)));
+    const gridIds = new Set(gridItems.map((item) => instagramPostIdFromUrl(item.href)));
+    assert.deepEqual(
+      [...new Set([...adapterIds, ...gridIds])].sort(),
+      ["COMPLETE", "GRID_ONLY", "MISSING_DATE"].sort()
+    );
+    for (const item of gridItems) {
+      const adapter = adapterPosts.find(
+        (post) => instagramPostIdFromUrl(post.url) === instagramPostIdFromUrl(item.href)
+      );
+      assert.ok(
+        instagramEvidenceProvenance({
+          post: adapter ?? { url: item.href, likes: item.likes },
+          gridItems: [item],
+          detailItems: []
+        })
+      );
+    }
   });
 
   it("treats the canonical meta description as authoritative over adjacent modal JSON", () => {
@@ -513,6 +1106,29 @@ describe("logged-in Instagram collection", () => {
     );
   });
 
+  it("treats legacy authenticated non-exhaustion text as neutral progress", () => {
+    const legacyMessage =
+      "Instagram authenticated history remains non-exhaustive: no_new_native_post_identity.";
+    assert.equal(instagramFailureKind(legacyMessage), "progress");
+    assert.deepEqual(
+      instagramCircuitDecision({
+        consecutiveFailures: 99,
+        maxConsecutiveFailures: 3,
+        failureKind: instagramFailureKind(legacyMessage)
+      }),
+      { open: false, reason: null }
+    );
+    assert.equal(
+      instagramCollectionAttemptState({
+        evidenceCount: 1,
+        completedTimelineSourceCount: 1,
+        profileIdentityOk: true,
+        failureMessages: [legacyMessage]
+      }).collectionFailed,
+      false
+    );
+  });
+
   it("retries only transient browser detach/transport failures", () => {
     assert.equal(
       instagramShouldRetryTransientBrowserFailure(
@@ -651,6 +1267,39 @@ describe("logged-in Instagram collection", () => {
       }).map((item) => item.entityId),
       ["failed", "zero", "covered"]
     );
+  });
+
+  it("counts a large Instagram evidence ledger in linear time with one mutable Set per owner", () => {
+    assert.doesNotMatch(
+      instagramCollectionSource,
+      /new Set\(\[\.\.\.\(evidenceIds\.get/
+    );
+    assert.match(instagramCollectionSource, /postIds\.add\(postId\)/);
+    const denseEvidence = Array.from({ length: 30_000 }, (_, index) => ({
+      batchSlug: "S26",
+      platform: "instagram",
+      entityId: "dense",
+      sourceUrl: `https://www.instagram.com/p/LINEAR_${index}/`
+    }));
+    denseEvidence.push({
+      ...denseEvidence[0],
+      sourceUrl: `${denseEvidence[0].sourceUrl}?duplicate=1`
+    });
+    const targets = [
+      target("dense", "https://instagram.com/dense/"),
+      target("empty", "https://instagram.com/empty/")
+    ];
+    const startedAt = performance.now();
+    const prioritized = prioritizeInstagramTargets(targets, {
+      evidence: denseEvidence
+    });
+    const elapsedMs = performance.now() - startedAt;
+
+    assert.deepEqual(
+      prioritized.map((item) => item.entityId),
+      ["empty", "dense"]
+    );
+    assert.ok(elapsedMs < 3_000, `30k-row prioritization took ${elapsedMs}ms`);
   });
 });
 

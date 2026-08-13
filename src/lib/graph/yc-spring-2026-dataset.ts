@@ -427,6 +427,9 @@ const allowedLoggedInEvidence = loggedInSnapshot.evidence.filter((item) =>
 const allowedLoggedInNeedsReview = loggedInSnapshot.needsReview.filter((item) =>
   allowedLoggedInPlatforms.has(item.platform)
 );
+const summerLoggedInEvidenceCounts = countEvidenceByPlatform(
+  allowedLoggedInEvidence.filter((item) => scopedEvidenceToBatch(item, YC_SUMMER_2026_BATCH_SLUG))
+);
 const rawPublicEvidenceItems = [
   ...publicSnapshot.evidence,
   ...allowedLoggedInEvidence,
@@ -509,16 +512,20 @@ const rawYcSummer2026GraphDataset: DemoGraphDataset = {
       platform: "linkedin",
       batchSlugs: [YC_SUMMER_2026_BATCH_SLUG],
       status: summerEvidenceCounts.linkedin ? "working" : "public_only",
-      authMethod: "Public unauthenticated profile and post discovery only",
-      notes: `Found ${officialSocialLinkCounts.linkedin.company} company and ${officialSocialLinkCounts.linkedin.founder} founder LinkedIn URLs on official Summer 2026 YC profiles. ${summerEvidenceCounts.linkedin ?? 0} scored Summer LinkedIn post rows are currently available; no account login, cookies, browser session, or auth headers are used, and prior Spring rows remain excluded.`
+      authMethod: summerLoggedInEvidenceCounts.linkedin
+        ? "Read-only authenticated browser session plus verified public evidence"
+        : "Public unauthenticated profile and post discovery only",
+      notes: `Found ${officialSocialLinkCounts.linkedin.company} company and ${officialSocialLinkCounts.linkedin.founder} founder LinkedIn URLs on official Summer 2026 YC profiles. ${summerEvidenceCounts.linkedin ?? 0} scored Summer LinkedIn post rows are currently available; ${summerLoggedInEvidenceCounts.linkedin ?? 0} came from the opt-in authenticated browser snapshot, and prior Spring rows remain excluded.`
     },
     {
       platform: "instagram",
       batchSlugs: [YC_SUMMER_2026_BATCH_SLUG],
-      status: "public_only",
-      authMethod: "Official YC profile links and verified public evidence only",
+      status: summerEvidenceCounts.instagram ? "working" : "public_only",
+      authMethod: summerLoggedInEvidenceCounts.instagram
+        ? "Read-only authenticated browser session plus verified public evidence"
+        : "Official YC profile links and verified public evidence only",
       notes:
-        `Found ${officialSocialLinkCounts.instagram.company} company and ${officialSocialLinkCounts.instagram.founder} founder Instagram URLs on official Summer 2026 YC profiles, so Instagram needs discovery/verified overrides before posts can be fetched. Spring demo/profile snapshots are filtered out.`
+        `Found ${officialSocialLinkCounts.instagram.company} company and ${officialSocialLinkCounts.instagram.founder} founder Instagram URLs on official Summer 2026 YC profiles. ${summerEvidenceCounts.instagram ?? 0} scored Summer Instagram post rows are currently available; ${summerLoggedInEvidenceCounts.instagram ?? 0} came from the opt-in authenticated browser snapshot. Spring demo/profile snapshots are filtered out.`
     },
     {
       platform: "rss",
@@ -721,6 +728,9 @@ function spring2026PlatformStatus({
 }): DemoGraphDataset["platformStatus"] {
   const officialLinks = countOfficialSocialLinks(companies);
   const evidenceCounts = countEvidenceByPlatform(evidence);
+  const loggedInEvidenceCounts = countEvidenceByPlatform(
+    allowedLoggedInEvidence.filter((item) => scopedEvidenceToBatch(item, YC_SPRING_2026_BATCH_SLUG))
+  );
   const batchSlugs = [YC_SPRING_2026_BATCH_SLUG];
 
   return [
@@ -749,15 +759,19 @@ function spring2026PlatformStatus({
       platform: "linkedin",
       batchSlugs,
       status: evidenceCounts.linkedin ? "working" : "public_only",
-      authMethod: "Public unauthenticated profile and post discovery only",
-      notes: `Found ${officialLinks.linkedin.company} company and ${officialLinks.linkedin.founder} founder LinkedIn URLs on official Spring 2026 YC profiles. ${evidenceCounts.linkedin ?? 0} scored Spring LinkedIn post rows are currently available; no account login, cookies, browser session, or auth headers are used.`
+      authMethod: loggedInEvidenceCounts.linkedin
+        ? "Read-only authenticated browser session plus verified public evidence"
+        : "Public unauthenticated profile and post discovery only",
+      notes: `Found ${officialLinks.linkedin.company} company and ${officialLinks.linkedin.founder} founder LinkedIn URLs on official Spring 2026 YC profiles. ${evidenceCounts.linkedin ?? 0} scored Spring LinkedIn post rows are currently available; ${loggedInEvidenceCounts.linkedin ?? 0} came from the opt-in authenticated browser snapshot.`
     },
     {
       platform: "instagram",
       batchSlugs,
       status: evidenceCounts.instagram ? "working" : "public_only",
-      authMethod: "Official YC profile links and verified public evidence only",
-      notes: `Found ${officialLinks.instagram.company} company and ${officialLinks.instagram.founder} founder Instagram URLs on official Spring 2026 YC profiles. ${evidenceCounts.instagram ?? 0} scored Spring Instagram post rows are currently available.`
+      authMethod: loggedInEvidenceCounts.instagram
+        ? "Read-only authenticated browser session plus verified public evidence"
+        : "Official YC profile links and verified public evidence only",
+      notes: `Found ${officialLinks.instagram.company} company and ${officialLinks.instagram.founder} founder Instagram URLs on official Spring 2026 YC profiles. ${evidenceCounts.instagram ?? 0} scored Spring Instagram post rows are currently available; ${loggedInEvidenceCounts.instagram ?? 0} came from the opt-in authenticated browser snapshot.`
     },
     {
       platform: "rss",
@@ -830,12 +844,19 @@ function countOfficialSocialLinks(companies: RawCompany[]) {
   return result;
 }
 
-function countEvidenceByPlatform(items: EvidenceItem[]): Partial<Record<Platform, number>> {
+function countEvidenceByPlatform(items: Array<{ platform: Platform }>): Partial<Record<Platform, number>> {
   const result: Partial<Record<Platform, number>> = {};
   for (const item of items) {
     result[item.platform] = (result[item.platform] ?? 0) + 1;
   }
   return result;
+}
+
+function scopedEvidenceToBatch(
+  item: { batchSlug?: string; batch_slug?: string },
+  batchSlug: string
+): boolean {
+  return String(item.batchSlug ?? item.batch_slug ?? "").trim().toUpperCase() === batchSlug.toUpperCase();
 }
 
 function springPublicEvidenceAccepted(item: PublicEvidenceRecord): boolean {

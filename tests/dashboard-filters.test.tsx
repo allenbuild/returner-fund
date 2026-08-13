@@ -1,8 +1,17 @@
 import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { Dashboard } from "@/components/Dashboard";
+import {
+  Dashboard,
+  recordResumeRevalidationAt,
+  RESUME_REVALIDATION_SCOPE_MAX_ENTRIES
+} from "@/components/Dashboard";
 import { COMPANY_VERTICALS } from "@/lib/graph/company-verticals";
+import {
+  clearRankedPostsSidecarLoaderCache,
+  rankedPostsSidecarLoaderInFlightCount
+} from "@/lib/graph/ranked-posts-sidecar-loader";
 import { validateStaticGraphSnapshotContract } from "@/lib/graph/static-graph-snapshot-contract.mjs";
+import { TOPIC_FACET_SNAPSHOT_VERSION } from "@/lib/graph/topic-facets";
 import { TRACTION_SCORING_CONFIG } from "@/lib/scoring/traction-config";
 import type { InsiderConfigurationResponse } from "@/lib/social/user-insiders";
 import { defaultInsiderMembers } from "@/lib/social/top-voices";
@@ -105,6 +114,7 @@ vi.mock("@/components/InsightsTabs", () => ({
     return (
       <div data-testid="insights-tabs">
         {leader && <output data-testid="leaderboard-score">{leader.score}</output>}
+        <output data-testid="topic-facet-post-keys">{(graph.topicFacetRows ?? []).map((row) => row.postKey).join("|")}</output>
         {leader && (
           <button type="button" onClick={() => onSelectNode(`company:${leader.companyId}`)}>
             Open leaderboard {leader.companyName}
@@ -124,7 +134,23 @@ vi.mock("@/components/NodePanel", () => ({
 }));
 
 describe("dashboard filters", () => {
+  it("bounds resume-revalidation scopes with least-recently-used eviction", () => {
+    const cache = new Map<string, number>();
+    for (let index = 0; index < RESUME_REVALIDATION_SCOPE_MAX_ENTRIES; index += 1) {
+      recordResumeRevalidationAt(cache, `scope-${index}`, index);
+    }
+
+    recordResumeRevalidationAt(cache, "scope-0", 0);
+    recordResumeRevalidationAt(cache, "overflow-scope", 99);
+
+    expect(cache).toHaveLength(RESUME_REVALIDATION_SCOPE_MAX_ENTRIES);
+    expect(cache.has("scope-0")).toBe(true);
+    expect(cache.has("scope-1")).toBe(false);
+    expect(cache.get("overflow-scope")).toBe(99);
+  });
+
   afterEach(() => {
+    clearRankedPostsSidecarLoaderCache();
     vi.restoreAllMocks();
     vi.unstubAllGlobals();
     vi.useRealTimers();
@@ -133,6 +159,63 @@ describe("dashboard filters", () => {
     insiderAuthHarness.listeners.clear();
     window.history.replaceState(null, "", "/");
     document.title = "YC Network Map";
+  });
+
+  it("aborts ranked sidecar requests on graph scope changes and unmount", async () => {
+    const initial = graphResponse([
+      makeNode("company:initial-sidecar", "Initial Sidecar", "b2b", "#7dd3fc", "Partner A", 40)
+    ]);
+    initial.generatedAt = "2031-04-15T12:00:00.000Z";
+    initial.scoringContext = {
+      ...initial.scoringContext!,
+      responseBuiltAt: initial.generatedAt
+    };
+
+    const speedrunGraph = staticGraphFixture(graphResponse(
+      [makeNode("company:speedrun-sidecar", "Speedrun Sidecar", "consumer", "#88CCF6", "Partner A", 80)],
+      { slug: "A16ZSR006", label: "a16z speedrun 006", companyCountExpected: 59, companyCountObserved: 59 }
+    ));
+    speedrunGraph.generatedAt = "2031-04-15T13:00:00.000Z";
+    speedrunGraph.scoringContext = {
+      ...speedrunGraph.scoringContext!,
+      responseBuiltAt: speedrunGraph.generatedAt
+    };
+
+    const sidecarSignals: AbortSignal[] = [];
+    const fetchMock = vi.fn<typeof fetch>(async (input, init) => {
+      const url = String(input);
+      if (url.startsWith("/api/ranked-posts-sidecar")) {
+        const signal = init?.signal;
+        if (!signal) throw new Error("Expected the ranked sidecar request to carry an abort signal.");
+        sidecarSignals.push(signal);
+        return await new Promise<Response>((_resolve, reject) => {
+          const rejectAbort = () => reject(new DOMException("Aborted", "AbortError"));
+          if (signal.aborted) rejectAbort();
+          else signal.addEventListener("abort", rejectAbort, { once: true });
+        });
+      }
+      if (url.includes("/graph/a16zsr006") || url === "/api/graph?batch=A16ZSR006") {
+        return new Response(JSON.stringify(speedrunGraph), { status: 200 });
+      }
+      return new Response(JSON.stringify({}), { status: 503 });
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const { unmount } = render(<Dashboard initialGraph={initial} />);
+    await waitFor(() => expect(sidecarSignals).toHaveLength(1));
+
+    fireEvent.change(screen.getByRole("combobox", { name: /batch/i }), {
+      target: { value: "A16ZSR006" }
+    });
+    await waitFor(() => {
+      expect(sidecarSignals[0]?.aborted).toBe(true);
+      expect(sidecarSignals).toHaveLength(2);
+    });
+    expect(rankedPostsSidecarLoaderInFlightCount()).toBe(1);
+
+    unmount();
+    expect(sidecarSignals[1]?.aborted).toBe(true);
+    expect(rankedPostsSidecarLoaderInFlightCount()).toBe(0);
   });
 
   it("renders filters in the requested order without Topic subtext", () => {
@@ -692,7 +775,14 @@ describe("dashboard filters", () => {
     await act(async () => {
       await Promise.resolve();
     });
-    expect(fetchMock).not.toHaveBeenCalled();
+    const initialRequestUrls = fetchMock.mock.calls.map(([input]) => String(input));
+    expect(initialRequestUrls.filter((url) => url.startsWith("/graph/") || url.startsWith("/api/graph?")))
+      .toHaveLength(0);
+    expect(initialRequestUrls).toEqual([
+      expect.stringMatching(
+        /^\/api\/ranked-posts-sidecar\?v=ranked-posts-full-corpus-v1&refresh=[a-z0-9]+$/u
+      )
+    ]);
 
     fireEvent.click(within(topVoicesGroup).getByRole("menuitemradio", { name: /YC Partners/i }));
 
@@ -781,7 +871,11 @@ describe("dashboard filters", () => {
       "yc_partners"
     );
     let failedCalls = 0;
-    const fetchMock = vi.fn(async () => {
+    const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
+      const url = String(input);
+      if (url.startsWith("/api/ranked-posts-sidecar") || url.startsWith("/api/topic-facets/")) {
+        return { ok: false, json: async () => ({}) };
+      }
       if (failedCalls < 5) {
         failedCalls += 1;
         throw new Error("Temporary baseline failure");
@@ -795,13 +889,18 @@ describe("dashboard filters", () => {
     await act(async () => {
       await vi.advanceTimersByTimeAsync(880);
     });
-    expect(fetchMock).toHaveBeenCalledTimes(5);
-    expect(within(screen.getByTestId("graph-canvas")).queryByText("Baseline A")).not.toBeInTheDocument();
+    expect(fetchMock.mock.calls.filter(([input]) => {
+      const url = String(input);
+      return url.includes("/graph/") || url.includes("/api/graph");
+    }).length).toBe(5);
 
     await act(async () => {
-      await vi.advanceTimersByTimeAsync(1_000);
+      await vi.advanceTimersByTimeAsync(2_000);
     });
-    expect(fetchMock.mock.calls.length).toBeGreaterThan(5);
+    expect(fetchMock.mock.calls.filter(([input]) => {
+      const url = String(input);
+      return url.includes("/graph/") || url.includes("/api/graph");
+    }).length).toBeGreaterThan(5);
     expect(within(screen.getByTestId("graph-canvas")).getByText("Baseline A")).toBeInTheDocument();
     expect(screen.getByTestId("graph-canvas")).toHaveAttribute("data-focused-company-ids", "company:baseline-b");
   });
@@ -1673,6 +1772,151 @@ describe("dashboard filters", () => {
     expect(apiCallCount()).toBe(2);
   });
 
+  it("hydrates resumed graphs from the dynamic topic facet endpoint and replaces stale rows", async () => {
+    const initial = graphResponse([
+      makeNode("company:cached", "Cached Graph", "b2b", "#7dd3fc", "Partner A", 40)
+    ]);
+    initial.topicFacetRows = [{
+      topic: "product-launch",
+      postKey: "stale-static-row",
+      platform: "x",
+      companyId: "company-cached",
+      contributionScore: 12,
+      audienceId: "off"
+    }];
+    const refreshed = graphResponse([
+      makeNode("company:published", "Published Graph", "b2b", "#7dd3fc", "Partner A", 90)
+    ]);
+    const currentFacetSnapshot = {
+      version: TOPIC_FACET_SNAPSHOT_VERSION,
+      batchSlug: "S2026",
+      rowCount: 1,
+      rows: [{
+        topic: "traction-growth",
+        postKey: "fresh-dynamic-row",
+        platform: "x",
+        companyId: "company-published",
+        contributionScore: 24,
+        audienceId: "off"
+      }]
+    };
+    const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
+      const url = String(input);
+      if (url === "/api/graph?batch=S2026") return { ok: true, json: async () => refreshed };
+      if (url.startsWith("/api/topic-facets/S2026?")) return new Response(JSON.stringify(currentFacetSnapshot));
+      if (url.startsWith("/topic-facets/")) return new Response(JSON.stringify({ rows: [] }), { status: 503 });
+      return new Response(JSON.stringify({}), { status: 503 });
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<Dashboard initialGraph={initial} />);
+    expect(screen.getByTestId("topic-facet-post-keys")).toHaveTextContent("stale-static-row");
+
+    window.dispatchEvent(new Event("focus"));
+    await waitFor(() => {
+      expect(screen.getByTestId("topic-facet-post-keys")).toHaveTextContent("fresh-dynamic-row");
+    });
+    expect(screen.getByTestId("topic-facet-post-keys")).not.toHaveTextContent("stale-static-row");
+    expect(fetchMock.mock.calls.some(([input]) => String(input).startsWith("/api/topic-facets/S2026?"))).toBe(true);
+    expect(fetchMock.mock.calls.some(([input]) => String(input).startsWith("/topic-facets/"))).toBe(false);
+  });
+
+  it("keys resume cooldown by graph scope", async () => {
+    vi.useFakeTimers();
+    const initial = graphResponse([
+      makeNode("company:cached", "Cached Graph", "b2b", "#7dd3fc", "Partner A", 40)
+    ]);
+    const refreshed = graphResponse([
+      makeNode("company:published", "Published Graph", "b2b", "#7dd3fc", "Partner A", 90)
+    ]);
+    const speedrunGraph = withBenchmarkDates(
+      staticGraphFixture(graphResponse(
+        [makeNode("company:speedrun", "Speedrun Graph", "consumer", "#88CCF6", "Partner A", 80)],
+        { slug: "A16ZSR006", label: "a16z speedrun 006", companyCountExpected: 59, companyCountObserved: 59 }
+      )),
+      localDateIso(-1),
+      localDateIso(-7)
+    );
+    const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
+      const url = String(input);
+      if (url.includes("a16zsr006")) return { ok: true, json: async () => speedrunGraph };
+      if (url === "/api/graph?batch=S2026") return { ok: true, json: async () => refreshed };
+      return { ok: false, json: async () => ({}) };
+    });
+    vi.stubGlobal("fetch", fetchMock);
+    const apiCallCount = (url: string) => fetchMock.mock.calls.filter(([input]) => String(input) === url).length;
+
+    render(<Dashboard initialGraph={initial} />);
+    window.dispatchEvent(new Event("focus"));
+    await act(async () => {
+      await Promise.resolve();
+    });
+    expect(apiCallCount("/api/graph?batch=S2026")).toBe(1);
+
+    fireEvent.change(screen.getByRole("combobox", { name: /batch/i }), { target: { value: "A16ZSR006" } });
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(0);
+    });
+    expect(within(screen.getByTestId("graph-canvas")).getByText("Speedrun Graph")).toBeInTheDocument();
+
+    window.dispatchEvent(new Event("focus"));
+    await act(async () => {
+      await Promise.resolve();
+    });
+    expect(apiCallCount("/api/graph?batch=A16ZSR006")).toBe(1);
+  });
+
+  it("ignores hidden visibility changes, refreshes when visible, and removes resume listeners", async () => {
+    const initial = graphResponse([
+      makeNode("company:cached", "Cached Graph", "b2b", "#7dd3fc", "Partner A", 40)
+    ]);
+    const refreshed = graphResponse([
+      makeNode("company:published", "Published Graph", "b2b", "#7dd3fc", "Partner A", 90)
+    ]);
+    const fetchMock = vi.fn(async (input: RequestInfo | URL) =>
+      String(input) === "/api/graph?batch=S2026"
+        ? { ok: true, json: async () => refreshed }
+        : { ok: false, json: async () => ({}) }
+    );
+    vi.stubGlobal("fetch", fetchMock);
+    const visibility = vi.spyOn(document, "visibilityState", "get");
+    visibility.mockReturnValue("hidden");
+    const addWindowListener = vi.spyOn(window, "addEventListener");
+    const removeWindowListener = vi.spyOn(window, "removeEventListener");
+    const addDocumentListener = vi.spyOn(document, "addEventListener");
+    const removeDocumentListener = vi.spyOn(document, "removeEventListener");
+
+    const { unmount } = render(<Dashboard initialGraph={initial} />);
+    document.dispatchEvent(new Event("visibilitychange"));
+    await act(async () => {
+      await Promise.resolve();
+    });
+    const hiddenRequestUrls = fetchMock.mock.calls.map(([input]) => String(input));
+    expect(hiddenRequestUrls.filter((url) => url.startsWith("/graph/") || url.startsWith("/api/graph?")))
+      .toHaveLength(0);
+    expect(hiddenRequestUrls).toEqual([
+      expect.stringMatching(
+        /^\/api\/ranked-posts-sidecar\?v=ranked-posts-full-corpus-v1&refresh=[a-z0-9]+$/u
+      )
+    ]);
+
+    visibility.mockReturnValue("visible");
+    document.dispatchEvent(new Event("visibilitychange"));
+    await act(async () => {
+      await Promise.resolve();
+    });
+    expect(fetchMock.mock.calls.filter(([input]) => String(input) === "/api/graph?batch=S2026")).toHaveLength(1);
+
+    const focusRegistration = addWindowListener.mock.calls.find(([type]) => type === "focus");
+    const visibilityRegistration = addDocumentListener.mock.calls.find(([type]) => type === "visibilitychange");
+    expect(focusRegistration).toBeDefined();
+    expect(visibilityRegistration).toBeDefined();
+    unmount();
+
+    expect(removeWindowListener).toHaveBeenCalledWith("focus", focusRegistration?.[1]);
+    expect(removeDocumentListener).toHaveBeenCalledWith("visibilitychange", visibilityRegistration?.[1]);
+  });
+
   it("switches to a cached API-revalidated Top Voices graph without another request", async () => {
     vi.useFakeTimers();
     const fullGraph = graphResponse([
@@ -1705,7 +1949,7 @@ describe("dashboard filters", () => {
     });
     expect(within(screen.getByTestId("graph-canvas")).getByText("Default Graph")).toBeInTheDocument();
     expect(screen.getByTestId("graph-canvas")).toHaveAttribute("data-focused-company-ids", "company:cached-partner");
-    const requestsAfterFirstLoad = fetchMock.mock.calls.length;
+    const requestsAfterFirstLoad = fetchMock.mock.calls.filter(([input]) => String(input).includes("/graph/")).length;
 
     fireEvent.click(within(topVoicesGroup).getByRole("button", { name: /YC Partners/i }));
     fireEvent.click(within(topVoicesGroup).getByRole("menuitemradio", { name: /all voices/i }));
@@ -1715,7 +1959,7 @@ describe("dashboard filters", () => {
     fireEvent.click(within(topVoicesGroup).getByRole("menuitemradio", { name: /YC Partners/i }));
     expect(within(screen.getByTestId("graph-canvas")).getByText("Default Graph")).toBeInTheDocument();
     expect(screen.getByTestId("graph-canvas")).toHaveAttribute("data-focused-company-ids", "company:cached-partner");
-    expect(fetchMock).toHaveBeenCalledTimes(requestsAfterFirstLoad);
+    expect(fetchMock.mock.calls.filter(([input]) => String(input).includes("/graph/")).length).toBe(requestsAfterFirstLoad);
 
     await act(async () => {
       await vi.advanceTimersByTimeAsync(30_000);

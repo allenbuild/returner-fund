@@ -139,14 +139,25 @@ async function createFixture() {
   const benchmarkDir = join(root, "outputs", "benchmarks");
   await Promise.all([
     mkdir(graphDir, { recursive: true }),
-    mkdir(benchmarkDir, { recursive: true })
+    mkdir(benchmarkDir, { recursive: true }),
+    mkdir(join(root, "public", "topic-facets"), { recursive: true }),
+    mkdir(join(root, "public", "timelines", "companies"), { recursive: true }),
+    mkdir(join(root, "src", "lib", "social"), { recursive: true }),
+    mkdir(join(root, "src", "lib", "graph"), { recursive: true }),
+    mkdir(join(root, "docs", "outputs"), { recursive: true })
   ]);
-  await Promise.all(PRODUCTION_GRAPH_BATCHES.map((batchSlug) =>
-    writeFile(
+  await Promise.all([
+    ...PRODUCTION_GRAPH_BATCHES.map((batchSlug) => writeFile(
       join(graphDir, `${batchSlug.toLowerCase()}.json`),
       `${JSON.stringify(graphFixture(batchSlug))}\n`
-    )
-  ));
+    )),
+    writeFile(join(root, "src", "lib", "social", "logged-in-evidence-current.json"), "{}\n"),
+    writeFile(join(root, "public", "topic-facets", "s2026.json"), "{}\n"),
+    writeFile(join(root, "src", "lib", "graph", "ranked-posts-sidecar.generated.json"), "{}\n"),
+    writeFile(join(root, "public", "timelines", "companies", "fixture.json"), "{}\n"),
+    writeFile(join(root, "docs", "outputs", "scoring-diagnostics-v4-audit.json"), "{}\n"),
+    writeFile(join(root, "docs", "outputs", "scoring-diagnostics-v4-report.md"), "fixture\n")
+  ]);
   const { manifest, manifestPath } = await writeArtifactManifest({
     rootDir: root,
     ingestionRunId: "release-proof-fixture",

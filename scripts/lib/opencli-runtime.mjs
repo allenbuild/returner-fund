@@ -8,11 +8,18 @@ import { promisify } from "node:util";
 
 const execFileAsync = promisify(execFile);
 const openCliProcessOwnerContext = new AsyncLocalStorage();
+const activeOpenCliProcessOwners = new Map();
+const openCliExternalSignalHandlers = new Map();
 let cachedRuntime = null;
+let cachedProcessTeardownCapability = null;
+let openCliExternalSignalShutdown = null;
 const OPENCLI_PROCESS_SCAN_INTERVAL_MS = 10;
 const OPENCLI_PROCESS_FREEZE_GRACE_MS = 250;
 const OPENCLI_PROCESS_TERM_GRACE_MS = 500;
 const OPENCLI_PROCESS_KILL_GRACE_MS = 1_000;
+const OPENCLI_EXTERNAL_SIGNAL_DRAIN_DEADLINE_MS = 12_000;
+const OPENCLI_EXTERNAL_SIGNALS = Object.freeze(["SIGTERM", "SIGINT"]);
+const OPENCLI_SIGNAL_EXIT_CODES = Object.freeze({ SIGINT: 130, SIGTERM: 143 });
 const OPENCLI_REDACTION_MARKER = "[redacted-secret]";
 const OPENCLI_SENSITIVE_ASSIGNMENT_KEY =
   /(?:x-linkedin-auth-token|x-li-at|x-csrf-token|csrf-token|proxy-authorization|authorization|set-cookie|cookie|li_at|jsessionid|bcookie|bscookie|lidc|access[_-]?key|api[_-]?key|credential|password|passwd|secret|token|[a-z0-9_-]*session[a-z0-9_-]*)/gi;
@@ -32,6 +39,7 @@ const OPENCLI_CHILD_ENV_ALLOWLIST = Object.freeze([
   "LOGNAME",
   "NODE_EXTRA_CA_CERTS",
   "NO_COLOR",
+  "OPENCLI_CONFIG_DIR",
   "OPENCLI_HOME",
   "SSL_CERT_DIR",
   "SSL_CERT_FILE",
@@ -60,32 +68,75 @@ export async function runOpenCli(args, options = {}) {
     );
   }
   const runtime = resolveOpenCliRuntime();
+  if (!openCliProcessTeardownAvailable()) {
+    throw openCliProcessError(
+      "OpenCLI execution is disabled because identity-bound process enumeration is unavailable; refusing to start a child that cannot be safely drained.",
+      "OPENCLI_PROCESS_TEARDOWN_UNAVAILABLE",
+      { killed: false }
+    );
+  }
   const contextualOwner = openCliProcessOwnerContext.getStore();
   const owner = options.processOwner ?? contextualOwner ?? createOpenCliProcessOwner();
   const ephemeralOwner = !options.processOwner && !contextualOwner;
   const commandArgs = [...runtime.prefixArgs, ...args];
+  const unregisterOwner = registerActiveOpenCliProcessOwner(owner);
 
   try {
-    const stdout = await executeOwnedOpenCliProcess(runtime.command, commandArgs, {
-      cwd: options.cwd ?? process.cwd(),
-      timeoutMs: options.timeoutMs ?? 45_000,
-      maxBuffer: options.maxBuffer ?? 20 * 1024 * 1024,
-      env: runtime.env,
-      owner,
-      signal: options.signal
-    });
-    if (ephemeralOwner) await drainOpenCliProcessOwner(owner);
-    return stdout;
-  } catch (error) {
-    await drainOpenCliProcessOwner(owner).catch((drainError) => {
-      Object.defineProperty(error, "processDrainFailure", {
-        configurable: true,
-        enumerable: false,
-        value: drainError
+    try {
+      const stdout = await executeOwnedOpenCliProcess(runtime.command, commandArgs, {
+        cwd: options.cwd ?? process.cwd(),
+        timeoutMs: options.timeoutMs ?? 45_000,
+        maxBuffer: options.maxBuffer ?? 20 * 1024 * 1024,
+        env: runtime.env,
+        executableIdentity: runtime.executableIdentity,
+        owner,
+        signal: options.signal
       });
-    });
-    throw sanitizedOpenCliExecutionError(error);
+      if (ephemeralOwner) await drainOpenCliProcessOwner(owner);
+      return stdout;
+    } catch (error) {
+      await drainOpenCliProcessOwner(owner).catch((drainError) => {
+        attachOpenCliProcessDrainFailure(error, drainError);
+      });
+      if (openCliExternalSignalShutdown) {
+        await openCliExternalSignalShutdown.exitBarrier;
+      }
+      throw sanitizedOpenCliExecutionError(error);
+    }
+  } finally {
+    unregisterOwner();
   }
+}
+
+export function openCliProcessTeardownAvailable() {
+  if (cachedProcessTeardownCapability !== null) {
+    return cachedProcessTeardownCapability;
+  }
+  if (process.platform === "win32") {
+    cachedProcessTeardownCapability = false;
+    return cachedProcessTeardownCapability;
+  }
+  try {
+    if (process.platform === "linux") {
+      fs.accessSync("/proc", fs.constants.R_OK);
+    } else {
+      execFileSync("/bin/ps", [
+        "eww",
+        "-axo",
+        "pid=,ppid=,pgid=,stat=,command="
+      ], {
+        encoding: "utf8",
+        timeout: 2_000,
+        maxBuffer: 16 * 1024 * 1024,
+        stdio: ["ignore", "pipe", "ignore"],
+        env: { LC_ALL: "C", LANG: "C", PATH: "/usr/bin:/bin" }
+      });
+    }
+    cachedProcessTeardownCapability = true;
+  } catch {
+    cachedProcessTeardownCapability = false;
+  }
+  return cachedProcessTeardownCapability;
 }
 
 export function createOpenCliProcessOwner({
@@ -117,7 +168,19 @@ export function withOpenCliProcessOwner(owner, operation) {
   if (typeof operation !== "function") {
     throw new TypeError("OpenCLI process ownership requires an operation function.");
   }
-  return openCliProcessOwnerContext.run(owner, operation);
+  const unregisterOwner = registerActiveOpenCliProcessOwner(owner);
+  let result;
+  try {
+    result = openCliProcessOwnerContext.run(owner, operation);
+  } catch (error) {
+    unregisterOwner();
+    throw error;
+  }
+  if (result && typeof result.then === "function") {
+    return Promise.resolve(result).finally(unregisterOwner);
+  }
+  unregisterOwner();
+  return result;
 }
 
 export async function drainOpenCliProcessOwner(owner) {
@@ -130,17 +193,140 @@ export async function drainOpenCliProcessOwner(owner) {
   return owner.drainPromise;
 }
 
+function registerActiveOpenCliProcessOwner(owner) {
+  assertOpenCliProcessOwner(owner);
+  if (openCliExternalSignalShutdown) {
+    throw openCliProcessError(
+      `OpenCLI execution is stopping after ${openCliExternalSignalShutdown.signal}; refusing to start or extend authenticated child work.`,
+      "OPENCLI_EXTERNAL_SIGNAL_SHUTDOWN",
+      { killed: false, signal: openCliExternalSignalShutdown.signal }
+    );
+  }
+  const registration = activeOpenCliProcessOwners.get(owner);
+  if (registration) registration.count += 1;
+  else activeOpenCliProcessOwners.set(owner, { count: 1 });
+  installOpenCliExternalSignalHandlers();
+
+  let released = false;
+  return () => {
+    if (released) return;
+    released = true;
+    const current = activeOpenCliProcessOwners.get(owner);
+    if (!current) return;
+    current.count -= 1;
+    if (current.count <= 0) activeOpenCliProcessOwners.delete(owner);
+    if (activeOpenCliProcessOwners.size === 0 && !openCliExternalSignalShutdown) {
+      removeOpenCliExternalSignalHandlers();
+    }
+  };
+}
+
+function installOpenCliExternalSignalHandlers() {
+  if (openCliExternalSignalHandlers.size > 0) return;
+  for (const signal of OPENCLI_EXTERNAL_SIGNALS) {
+    const handler = () => beginOpenCliExternalSignalShutdown(signal);
+    openCliExternalSignalHandlers.set(signal, handler);
+    process.on(signal, handler);
+  }
+}
+
+function removeOpenCliExternalSignalHandlers() {
+  for (const [signal, handler] of openCliExternalSignalHandlers) {
+    process.removeListener(signal, handler);
+  }
+  openCliExternalSignalHandlers.clear();
+}
+
+function beginOpenCliExternalSignalShutdown(signal) {
+  if (openCliExternalSignalShutdown) {
+    finalizeOpenCliExternalSignalShutdown(openCliExternalSignalShutdown, {
+      deadlineExceeded: false,
+      forceKill: true,
+      terminationSignal: signal,
+      failureReason: "received a second external signal"
+    });
+    return;
+  }
+  const state = {
+    signal,
+    owners: [...activeOpenCliProcessOwners.keys()],
+    drainFailures: [],
+    finalized: false,
+    deadlineTimer: null,
+    exitBarrier: new Promise(() => {})
+  };
+  openCliExternalSignalShutdown = state;
+  state.deadlineTimer = setTimeout(() => {
+    finalizeOpenCliExternalSignalShutdown(state, {
+      deadlineExceeded: true,
+      forceKill: false,
+      terminationSignal: state.signal
+    });
+  }, OPENCLI_EXTERNAL_SIGNAL_DRAIN_DEADLINE_MS);
+
+  void Promise.allSettled(
+    state.owners.map(async (owner) => {
+      try {
+        await drainOpenCliProcessOwner(owner);
+      } catch (error) {
+        state.drainFailures.push(error);
+      }
+    })
+  ).then(() => {
+    finalizeOpenCliExternalSignalShutdown(state, {
+      deadlineExceeded: false,
+      forceKill: false,
+      terminationSignal: state.signal
+    });
+  });
+}
+
+function finalizeOpenCliExternalSignalShutdown(state, {
+  deadlineExceeded,
+  forceKill,
+  terminationSignal,
+  failureReason = null
+}) {
+  if (state.finalized) return;
+  state.finalized = true;
+  clearTimeout(state.deadlineTimer);
+
+  if (forceKill || deadlineExceeded || state.drainFailures.length > 0) {
+    for (const owner of state.owners) {
+      signalOwnedProcesses(owner, "SIGKILL", { roots: true, descendants: true });
+    }
+    const reason = failureReason ?? (deadlineExceeded
+      ? "exceeded the hard cleanup deadline"
+      : "reported a cleanup failure");
+    process.stderr.write(
+      `OpenCLI external-signal teardown ${reason}; exiting fail closed after exact identity-bound SIGKILL.\n`
+    );
+  }
+
+  removeOpenCliExternalSignalHandlers();
+  const exitCode = OPENCLI_SIGNAL_EXIT_CODES[terminationSignal] ?? 1;
+  const fallback = setTimeout(() => process.exit(exitCode), 25);
+  try {
+    process.kill(process.pid, terminationSignal);
+  } catch {
+    clearTimeout(fallback);
+    process.exit(exitCode);
+  }
+}
+
 async function executeOwnedOpenCliProcess(command, args, {
   cwd,
   timeoutMs,
   maxBuffer,
   env,
+  executableIdentity,
   owner,
   signal
 }) {
   assertOpenCliProcessOwner(owner);
   const boundedTimeoutMs = positiveProcessDuration(timeoutMs, "timeoutMs");
   const boundedMaxBuffer = positiveProcessDuration(maxBuffer, "maxBuffer");
+  assertOpenCliExecutableIdentity(command, executableIdentity);
   const child = spawn(command, args, {
     cwd,
     detached: process.platform !== "win32",
@@ -216,9 +402,15 @@ async function executeOwnedOpenCliProcess(command, args, {
   } catch (error) {
     clearTimeout(timeout);
     signal?.removeEventListener("abort", onAbort);
-    await drainOpenCliProcessOwner(owner);
+    let drainFailure = null;
+    try {
+      await drainOpenCliProcessOwner(owner);
+    } catch (cleanupError) {
+      drainFailure = cleanupError;
+    }
     await settleOpenCliOutput([stdout, stderr]);
     attachOpenCliOutput(error, stdout.text(), stderr.text());
+    attachOpenCliProcessDrainFailure(error, drainFailure);
     throw error;
   }
   clearTimeout(timeout);
@@ -232,14 +424,32 @@ async function executeOwnedOpenCliProcess(command, args, {
       outcome.code ?? "OPENCLI_EXECUTION_FAILED",
       { signal: outcome.signal }
     );
-    await drainOpenCliProcessOwner(owner);
+    let drainFailure = null;
+    try {
+      await drainOpenCliProcessOwner(owner);
+    } catch (cleanupError) {
+      drainFailure = cleanupError;
+    }
     await settleOpenCliOutput([stdout, stderr]);
     attachOpenCliOutput(error, stdout.text(), stderr.text());
+    attachOpenCliProcessDrainFailure(error, drainFailure);
     throw error;
   }
 
   await settleOpenCliOutput([stdout, stderr]);
   return stdout.text();
+}
+
+function attachOpenCliProcessDrainFailure(error, drainFailure) {
+  if (!drainFailure || (typeof error !== "object" && typeof error !== "function") || error === null) {
+    return;
+  }
+  Object.defineProperty(error, "processDrainFailure", {
+    configurable: true,
+    enumerable: false,
+    writable: false,
+    value: drainFailure
+  });
 }
 
 function createBoundedOutputCollector(stream, maxBuffer, label) {
@@ -606,9 +816,9 @@ async function freezeOwnedProcessTree(owner) {
     });
     if (owner.scanFailure) continue;
 
-    // A process-group SIGSTOP closes the fork race between the scan and the
-    // direct-PID pass. Group termination is intentionally never used: a root
-    // must survive long enough to reap its detached descendants.
+    // Freeze only identity-authorized PIDs. Process groups can contain an
+    // unrelated or reused member that was absent from the ownership scan, so
+    // broad group signaling is never safe here.
     signalOwnedProcesses(owner, "SIGSTOP", { roots: true, descendants: true });
     if (await waitForOwnedProcessesToStop(owner, owner.freezeGraceMs)) return true;
   }
@@ -674,7 +884,6 @@ function signalOwnedProcesses(owner, signal, {
     const isRoot = owner.roots.has(pid);
     return (isRoot && roots) || (!isRoot && descendants);
   });
-  if (signal === "SIGSTOP") signalOwnedProcessGroups(owner, targets, signal);
 
   for (const [pid, processState] of targets) {
     if (!Number.isInteger(pid) || pid <= 1 || pid === process.pid) continue;
@@ -763,37 +972,6 @@ function openCliProcessDrainFailure(owner) {
   );
 }
 
-function signalOwnedProcessGroups(owner, targets, signal) {
-  const ownGroup = currentProcessGroupId();
-  for (const pgid of owner.groups) {
-    if (!Number.isInteger(pgid) || pgid <= 1 || pgid === ownGroup) continue;
-    const groupMembers = targets.filter(
-      ([, processState]) => processState.pgid === pgid
-    );
-    // Never signal a stale/reused group. Every known member in the selected
-    // scope must still have the same start identity immediately before the
-    // group stop; direct signaling below handles members in other groups.
-    if (
-      groupMembers.length === 0 ||
-      groupMembers.some(([pid, processState]) => {
-        const authorization = ownedProcessIdentityStatus(pid, processState, owner);
-        if (authorization !== "authorized") {
-          recordSignalAuthorizationFailure(owner, pid, processState, authorization);
-          return true;
-        }
-        return false;
-      })
-    ) {
-      continue;
-    }
-    try {
-      process.kill(-pgid, signal);
-    } catch (error) {
-      if (error?.code !== "ESRCH") owner.scanFailure ??= error;
-    }
-  }
-}
-
 async function drainWindowsProcessTree() {
   throw openCliProcessError(
     "OpenCLI process teardown is disabled on Windows because PID-only descendant signaling cannot be identity-bound safely.",
@@ -809,12 +987,6 @@ function resetOpenCliProcessOwner(owner) {
   owner.scanFailure = null;
   owner.authorizationFailures.clear();
   owner.processExitStates.clear();
-}
-
-function currentProcessGroupId() {
-  // getpgrp is not exposed by Node. `ps` discovery is intentionally avoided in
-  // the signal loop; a detached OpenCLI root always has a distinct root PGID.
-  return null;
 }
 
 function processIsRunning(pid) {
@@ -1094,7 +1266,13 @@ export function resolveOpenCliRuntime() {
 
   const explicitBin = process.env.OPENCLI_BIN;
   if (explicitBin) {
-    cachedRuntime = { command: explicitBin, prefixArgs: withProfile([]), env };
+    const executableIdentity = captureOpenCliExecutableIdentity(explicitBin, env.PATH);
+    cachedRuntime = {
+      command: executableIdentity.realPath,
+      executableIdentity,
+      prefixArgs: withProfile([]),
+      env
+    };
     return cachedRuntime;
   }
 
@@ -1145,21 +1323,109 @@ export function resolveOpenCliRuntime() {
   throw new Error("OpenCLI not found. Set OPENCLI_BIN or OPENCLI_MAIN, or install @jackwener/opencli.");
 }
 
-function sanitizedOpenCliExecutionError(error) {
+export function assertOpenCliRuntimeExecutableIdentity(
+  runtime = resolveOpenCliRuntime()
+) {
+  assertOpenCliExecutableIdentity(runtime.command, runtime.executableIdentity);
+  return true;
+}
+
+function captureOpenCliExecutableIdentity(value, searchPath) {
+  const requested = String(value ?? "").trim();
+  if (!requested || /[\0\r\n]/.test(requested)) {
+    throw openCliProcessError(
+      "OPENCLI_BIN must identify one existing executable file.",
+      "OPENCLI_EXECUTABLE_INVALID",
+      { killed: false }
+    );
+  }
+  try {
+    const candidate = path.isAbsolute(requested) || requested.includes(path.sep)
+      ? requested
+      : findOnPath(requested, searchPath);
+    if (!candidate) throw new Error("not found on PATH");
+    const realPath = fs.realpathSync.native(candidate);
+    const lstat = fs.lstatSync(realPath, { bigint: true });
+    const stat = fs.statSync(realPath, { bigint: true });
+    fs.accessSync(realPath, fs.constants.R_OK | fs.constants.X_OK);
+    if (!lstat.isFile() || !stat.isFile()) throw new Error("not a regular file");
+    return Object.freeze({ realPath, device: stat.dev, inode: stat.ino });
+  } catch {
+    throw openCliProcessError(
+      "OPENCLI_BIN could not be resolved to one existing executable file.",
+      "OPENCLI_EXECUTABLE_INVALID",
+      { killed: false }
+    );
+  }
+}
+
+function assertOpenCliExecutableIdentity(command, identity) {
+  if (!identity) return;
+  try {
+    const realPath = fs.realpathSync.native(command);
+    const lstat = fs.lstatSync(command, { bigint: true });
+    const stat = fs.statSync(command, { bigint: true });
+    fs.accessSync(command, fs.constants.R_OK | fs.constants.X_OK);
+    if (
+      realPath !== identity.realPath ||
+      command !== identity.realPath ||
+      !lstat.isFile() ||
+      !stat.isFile() ||
+      stat.dev !== identity.device ||
+      stat.ino !== identity.inode
+    ) {
+      throw new Error("identity changed");
+    }
+  } catch {
+    throw openCliProcessError(
+      "OpenCLI executable identity changed after runtime resolution; refusing to spawn.",
+      "OPENCLI_EXECUTABLE_IDENTITY_CHANGED",
+      { killed: false }
+    );
+  }
+}
+
+export function sanitizedOpenCliExecutionError(error) {
   const drainFailure = error?.processDrainFailure;
   const message = sanitizeOpenCliDiagnostic(
-    `${error instanceof Error ? error.message : String(error)}` +
-      `${drainFailure ? ` Process teardown failed: ${drainFailure.message}` : ""}`
+    error instanceof Error ? error.message : String(error)
   );
   const sanitized = new Error(message || "OpenCLI command failed.");
   sanitized.name = error?.name === "Error" || typeof error?.name !== "string"
     ? "OpenCliExecutionError"
     : error.name;
-  sanitized.code = drainFailure?.code ?? error?.code ?? "OPENCLI_EXECUTION_FAILED";
-  sanitized.killed = Boolean(error?.killed || drainFailure?.killed);
+  sanitized.code = error?.code ?? "OPENCLI_EXECUTION_FAILED";
+  sanitized.killed = Boolean(error?.killed);
   sanitized.signal = typeof error?.signal === "string" ? error.signal : null;
   sanitized.stdout = sanitizeOpenCliDiagnostic(error?.stdout);
   sanitized.stderr = sanitizeOpenCliDiagnostic(error?.stderr);
+  if ("cause" in Object(error)) {
+    Object.defineProperty(sanitized, "cause", {
+      configurable: true,
+      enumerable: false,
+      writable: false,
+      value: error.cause
+    });
+  }
+  if (drainFailure) {
+    const sanitizedDrainFailure = new Error(
+      sanitizeOpenCliDiagnostic(drainFailure.message || String(drainFailure))
+    );
+    sanitizedDrainFailure.name =
+      typeof drainFailure.name === "string" ? drainFailure.name : "Error";
+    sanitizedDrainFailure.code = drainFailure.code ?? "OPENCLI_PROCESS_DRAIN_FAILED";
+    sanitizedDrainFailure.killed = Boolean(drainFailure.killed);
+    sanitizedDrainFailure.signal =
+      typeof drainFailure.signal === "string" ? drainFailure.signal : null;
+    sanitizedDrainFailure.stdout = sanitizeOpenCliDiagnostic(drainFailure.stdout);
+    sanitizedDrainFailure.stderr = sanitizeOpenCliDiagnostic(drainFailure.stderr);
+    Object.defineProperty(sanitized, "processDrainFailure", {
+      configurable: true,
+      enumerable: false,
+      writable: false,
+      value: sanitizedDrainFailure
+    });
+  }
   return sanitized;
 }
 

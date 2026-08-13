@@ -235,6 +235,13 @@ jobs:
         timeout-minutes: 5
         run: npm ci
 
+      - name: Preflight authenticated social runner
+        if: needs.resolve.outputs.trigger == 'manual-replay' && inputs.authenticated_backfill == true
+        timeout-minutes: 3
+        env:
+          AUTHENTICATED_SOCIAL_REPLAY: ${{ inputs.authenticated_backfill || false }}
+        run: node scripts/verify-authenticated-social-runner.mjs
+
       - name: Require isolated publication credential
         env:
           CANDIDATE_TRIGGER: ${{ needs.resolve.outputs.trigger }}

@@ -56,4 +56,24 @@ describe("topic facet snapshots", () => {
     expect(attached.topicFacetRows).toBe(rows);
     expect(graph.topicFacetRows).toBeUndefined();
   });
+
+  it("replaces stale rows even when the selected audience has no current rows", () => {
+    const graph = {
+      selectedTopVoiceAudience: { id: "off" },
+      topicFacetRows: [{
+        topic: "product-launch",
+        postKey: "stale",
+        platform: "x",
+        companyId: "company-acme",
+        contributionScore: 12,
+        audienceId: "off"
+      }]
+    } as GraphResponse;
+
+    const replaced = withTopicFacetRows(graph, []);
+
+    expect(replaced).not.toBe(graph);
+    expect(replaced.topicFacetRows).toEqual([]);
+    expect(graph.topicFacetRows).toHaveLength(1);
+  });
 });

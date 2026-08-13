@@ -1,9 +1,36 @@
 import { createHash, randomUUID } from "node:crypto";
-import { mkdir, open, readFile, readdir, rename, rm } from "node:fs/promises";
+import { createReadStream } from "node:fs";
+import { lstat, mkdir, open, readFile, readdir, rename, rm } from "node:fs/promises";
 import path from "node:path";
 
-export const ARTIFACT_MANIFEST_VERSION = 1;
+export const ARTIFACT_MANIFEST_VERSION = 2;
 export const DEFAULT_ARTIFACT_MANIFEST_PATH = path.join("public", "graph", "manifest.json");
+
+export const SUPPORTING_ARTIFACT_DESCRIPTORS = Object.freeze([
+  Object.freeze({
+    key: "authenticatedEvidenceLedger",
+    paths: Object.freeze(["src/lib/social/logged-in-evidence-current.json"])
+  }),
+  Object.freeze({
+    key: "topicFacets",
+    paths: Object.freeze(["public/topic-facets"])
+  }),
+  Object.freeze({
+    key: "rankedPostsSidecar",
+    paths: Object.freeze(["src/lib/graph/ranked-posts-sidecar.generated.json"])
+  }),
+  Object.freeze({
+    key: "timelines",
+    paths: Object.freeze(["public/timelines"])
+  }),
+  Object.freeze({
+    key: "scoringDiagnostics",
+    paths: Object.freeze([
+      "docs/outputs/scoring-diagnostics-v4-audit.json",
+      "docs/outputs/scoring-diagnostics-v4-report.md"
+    ])
+  })
+]);
 
 const SHA256_PATTERN = /^[a-f0-9]{64}$/;
 const BENCHMARK_METADATA_FILENAMES = new Set(["daily-publication-receipt.json"]);
@@ -31,7 +58,7 @@ export async function buildArtifactManifest({
   const paths = resolveArtifactPaths({ rootDir, graphDir, benchmarkDir, manifestPath });
   const normalizedRunId = requiredString(ingestionRunId, "ingestionRunId");
   const normalizedPublishedAt = isoTimestamp(publishedAt, "publishedAt");
-  const [graphArtifacts, benchmarkArtifacts] = await Promise.all([
+  const [graphArtifacts, benchmarkArtifacts, supportingArtifacts] = await Promise.all([
     readArtifactDirectory(paths.graphDir, {
       kind: "graph",
       excludedFilename: path.dirname(paths.manifestPath) === paths.graphDir
@@ -41,7 +68,8 @@ export async function buildArtifactManifest({
     readArtifactDirectory(paths.benchmarkDir, {
       kind: "benchmark",
       excludedFilenames: BENCHMARK_METADATA_FILENAMES
-    })
+    }),
+    buildSupportingArtifactManifest({ rootDir: paths.rootDir })
   ]);
 
   if (graphArtifacts.length === 0 && !allowEmptyGraphArtifacts) {
@@ -60,7 +88,7 @@ export async function buildArtifactManifest({
   const derivedOldestPlatformRefreshAt = deriveOldestPlatformRefreshAt(graphArtifacts);
   const graphEntries = graphArtifacts.map(publicArtifactEntry);
   const benchmarkEntries = benchmarkArtifacts.map(publicArtifactEntry);
-  const contentHash = artifactContentHash(graphEntries, benchmarkEntries);
+  const contentHash = artifactContentHash(graphEntries, benchmarkEntries, supportingArtifacts);
 
   return compactObject({
     schemaVersion: ARTIFACT_MANIFEST_VERSION,
@@ -78,8 +106,39 @@ export async function buildArtifactManifest({
     models,
     graphArtifacts: graphEntries,
     benchmarkArtifacts: benchmarkEntries,
+    supportingArtifacts,
     contentHash
   });
+}
+
+export async function buildSupportingArtifactManifest({ rootDir = process.cwd() } = {}) {
+  const resolvedRoot = path.resolve(rootDir);
+  return Promise.all(SUPPORTING_ARTIFACT_DESCRIPTORS.map(async (descriptor) => {
+    const files = [];
+    for (const relativePath of descriptor.paths) {
+      files.push(...await collectSupportingFiles(resolvedRoot, relativePath));
+    }
+    files.sort(compareText);
+    if (files.length === 0) {
+      throw new Error(`Supporting artifact ${descriptor.key} contains no files.`);
+    }
+
+    const entries = [];
+    let totalByteSize = 0;
+    for (const relativePath of files) {
+      const file = await hashFile(path.join(resolvedRoot, ...relativePath.split("/")));
+      totalByteSize += file.byteSize;
+      entries.push({ relativePath, ...file });
+    }
+
+    return {
+      key: descriptor.key,
+      paths: [...descriptor.paths],
+      fileCount: entries.length,
+      totalByteSize,
+      contentHash: sha256(JSON.stringify(entries))
+    };
+  }));
 }
 
 export const generateArtifactManifest = buildArtifactManifest;
@@ -135,6 +194,7 @@ export async function validateArtifactManifest(manifestOrOptions, maybeOptions =
 
   compareArtifactSets("graph", manifest.graphArtifacts, current.graphArtifacts, errors);
   compareArtifactSets("benchmark", manifest.benchmarkArtifacts, current.benchmarkArtifacts, errors);
+  compareSupportingArtifactSets(manifest.supportingArtifacts, current.supportingArtifacts, errors);
 
   if (manifest.contentHash !== current.contentHash) {
     errors.push(
@@ -243,6 +303,42 @@ async function readArtifact(filePath, filename, kind) {
   };
 }
 
+async function collectSupportingFiles(rootDir, relativePath) {
+  const absolutePath = path.resolve(rootDir, ...relativePath.split("/"));
+  const info = await lstat(absolutePath);
+  if (info.isFile()) {
+    return [relativePath];
+  }
+  if (!info.isDirectory()) {
+    throw new Error(`Supporting artifact path is not a regular file or directory: ${relativePath}.`);
+  }
+
+  const entries = (await readdir(absolutePath, { withFileTypes: true }))
+    .sort((left, right) => compareText(left.name, right.name));
+  const files = [];
+  for (const entry of entries) {
+    const childPath = `${relativePath}/${entry.name}`;
+    if (entry.isDirectory()) {
+      files.push(...await collectSupportingFiles(rootDir, childPath));
+    } else if (entry.isFile()) {
+      files.push(childPath);
+    } else {
+      throw new Error(`Supporting artifact path is not a regular file: ${childPath}.`);
+    }
+  }
+  return files;
+}
+
+async function hashFile(filePath) {
+  const digest = createHash("sha256");
+  let byteSize = 0;
+  for await (const chunk of createReadStream(filePath)) {
+    digest.update(chunk);
+    byteSize += chunk.byteLength;
+  }
+  return { sha256: digest.digest("hex"), byteSize };
+}
+
 function publicArtifactEntry(artifact) {
   return compactObject({
     filename: artifact.filename,
@@ -319,8 +415,8 @@ function setNewestTimestamp(map, key, value) {
   }
 }
 
-function artifactContentHash(graphArtifacts, benchmarkArtifacts) {
-  return sha256(JSON.stringify({ graphArtifacts, benchmarkArtifacts }));
+function artifactContentHash(graphArtifacts, benchmarkArtifacts, supportingArtifacts) {
+  return sha256(JSON.stringify({ graphArtifacts, benchmarkArtifacts, supportingArtifacts }));
 }
 
 function validateManifestShape(manifest, options) {
@@ -350,10 +446,51 @@ function validateManifestShape(manifest, options) {
   }
   validateArtifactEntries(manifest.graphArtifacts, "graph", errors);
   validateArtifactEntries(manifest.benchmarkArtifacts, "benchmark", errors);
+  validateSupportingArtifactEntries(manifest.supportingArtifacts, errors);
   if (!SHA256_PATTERN.test(manifest.contentHash ?? "")) {
     errors.push("Manifest contentHash must be a lowercase SHA-256 digest.");
   }
   return errors;
+}
+
+function validateSupportingArtifactEntries(entries, errors) {
+  if (!Array.isArray(entries)) {
+    errors.push("Manifest supportingArtifacts must be an array.");
+    return;
+  }
+  if (entries.length !== SUPPORTING_ARTIFACT_DESCRIPTORS.length) {
+    errors.push(
+      `Manifest supportingArtifacts must contain exactly ${SUPPORTING_ARTIFACT_DESCRIPTORS.length} entries.`
+    );
+  }
+
+  const seen = new Set();
+  for (const entry of entries) {
+    if (!entry || typeof entry !== "object" || Array.isArray(entry)) {
+      errors.push("Manifest contains an invalid supporting artifact entry.");
+      continue;
+    }
+    if (typeof entry.key !== "string" || !entry.key.trim()) {
+      errors.push("Manifest supporting artifact key must be a non-empty string.");
+    } else if (seen.has(entry.key)) {
+      errors.push(`Manifest contains a duplicate supporting artifact reference: ${entry.key}.`);
+    }
+    seen.add(entry.key);
+    if (!Array.isArray(entry.paths) || entry.paths.some((value) =>
+      typeof value !== "string" || !value || path.isAbsolute(value) || value.split("/").includes("..")
+    )) {
+      errors.push(`Manifest supporting artifact ${entry.key} has unsafe paths.`);
+    }
+    if (!Number.isSafeInteger(entry.fileCount) || entry.fileCount < 1) {
+      errors.push(`Manifest supporting artifact ${entry.key} has an invalid fileCount.`);
+    }
+    if (!Number.isSafeInteger(entry.totalByteSize) || entry.totalByteSize < 0) {
+      errors.push(`Manifest supporting artifact ${entry.key} has an invalid totalByteSize.`);
+    }
+    if (!SHA256_PATTERN.test(entry.contentHash ?? "")) {
+      errors.push(`Manifest supporting artifact ${entry.key} has an invalid contentHash.`);
+    }
+  }
 }
 
 function validateArtifactEntries(entries, kind, errors) {
@@ -413,6 +550,35 @@ function compareArtifactSets(kind, recorded, current, errors) {
   for (const filename of currentByFilename.keys()) {
     if (!recordedByFilename.has(filename)) {
       errors.push(`Unreferenced ${kind} file is missing from the manifest: ${filename}.`);
+    }
+  }
+}
+
+function compareSupportingArtifactSets(recorded, current, errors) {
+  const recordedByKey = new Map(recorded.map((entry) => [entry.key, entry]));
+  const currentByKey = new Map(current.map((entry) => [entry.key, entry]));
+
+  for (const [key, expected] of recordedByKey) {
+    const actual = currentByKey.get(key);
+    if (!actual) {
+      errors.push(`Manifest references unknown supporting artifact: ${key}.`);
+      continue;
+    }
+    if (JSON.stringify(expected.paths) !== JSON.stringify(actual.paths)) {
+      errors.push(`Supporting artifact paths changed for ${key}.`);
+    }
+    if (
+      expected.fileCount !== actual.fileCount ||
+      expected.totalByteSize !== actual.totalByteSize ||
+      expected.contentHash !== actual.contentHash
+    ) {
+      errors.push(`Supporting artifact ${key} is stale.`);
+    }
+  }
+
+  for (const key of currentByKey.keys()) {
+    if (!recordedByKey.has(key)) {
+      errors.push(`Manifest is missing supporting artifact: ${key}.`);
     }
   }
 }
@@ -503,6 +669,10 @@ function sha256(value) {
 
 function sameJson(left, right) {
   return JSON.stringify(left) === JSON.stringify(right);
+}
+
+function compareText(left, right) {
+  return left < right ? -1 : left > right ? 1 : 0;
 }
 
 function looksLikeManifest(value) {

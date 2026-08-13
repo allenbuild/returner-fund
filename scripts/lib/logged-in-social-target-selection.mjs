@@ -1,4 +1,25 @@
 export const DEFAULT_LOGGED_IN_SOCIAL_FRESH_FOR_HOURS = 12;
+export const LINKEDIN_CHILD_SAFETY_STOP_EXIT_CODE = 86;
+
+export function linkedinChildSafetyStopDecision(failureKind) {
+  const normalized = String(failureKind ?? "").trim().toLowerCase();
+  const terminal = ["account_safety", "auth", "rate_limited"].includes(
+    normalized
+  );
+  return terminal
+    ? {
+        terminal: true,
+        signal: "LINKEDIN_CHILD_SAFETY_STOP",
+        exitCode: LINKEDIN_CHILD_SAFETY_STOP_EXIT_CODE,
+        failureKind: normalized
+      }
+    : {
+        terminal: false,
+        signal: null,
+        exitCode: 0,
+        failureKind: normalized || "system"
+      };
+}
 
 export function collectionTargetShouldRun(
   target,
@@ -7,15 +28,30 @@ export function collectionTargetShouldRun(
     attemptKey = defaultAttemptKey,
     force = false,
     retryEmpty = false,
+    terminalCompletedPlatforms = [],
     freshForHours = DEFAULT_LOGGED_IN_SOCIAL_FRESH_FOR_HOURS,
     now = Date.now()
   } = {}
 ) {
-  if (force) return true;
   const attemptMap =
     attempts instanceof Map ? attempts : new Map(Object.entries(attempts ?? {}));
   const attempt = attemptMap.get(attemptKey(target));
-  if (!attempt || attempt.status !== "done") return true;
+  const platform = normalizePlatform(target?.platform);
+  const terminalPlatforms = normalizedPlatformSet(terminalCompletedPlatforms);
+  if (attempt?.status === "done" && terminalPlatforms.has(platform)) {
+    return false;
+  }
+  if (force) return true;
+  const instagramTarget =
+    platform === "instagram";
+  const completedBoundedAttempt =
+    attempt?.status === "done" ||
+    (instagramTarget && attempt?.status === "partial");
+  if (!attempt || !completedBoundedAttempt) return true;
+  // Instagram coverage remains explicitly non-exhaustive because neither the
+  // adapter nor the browser provides a trustworthy resume cursor. A completed
+  // bounded window still observes the normal freshness SLA so it does not
+  // monopolize target throughput or delay the serial LinkedIn lane.
   if (retryEmpty && Number(attempt.count ?? 0) === 0) return true;
   return !completedAttemptIsFresh(attempt, { freshForHours, now });
 }
@@ -27,6 +63,7 @@ export function selectRunnableCollectionTargets(
     attemptKey = defaultAttemptKey,
     force = false,
     retryEmpty = false,
+    terminalCompletedPlatforms = [],
     freshForHours = DEFAULT_LOGGED_IN_SOCIAL_FRESH_FOR_HOURS,
     now = Date.now(),
     limit = Number.POSITIVE_INFINITY
@@ -35,6 +72,9 @@ export function selectRunnableCollectionTargets(
   const normalizedLimit = Number.isFinite(Number(limit))
     ? Math.max(0, Math.floor(Number(limit)))
     : Number.POSITIVE_INFINITY;
+  const normalizedTerminalCompletedPlatforms = normalizedPlatformSet(
+    terminalCompletedPlatforms
+  );
   return (targets ?? [])
     .filter((target) =>
       collectionTargetShouldRun(target, {
@@ -42,6 +82,7 @@ export function selectRunnableCollectionTargets(
         attemptKey,
         force,
         retryEmpty,
+        terminalCompletedPlatforms: normalizedTerminalCompletedPlatforms,
         freshForHours,
         now
       })
@@ -191,6 +232,25 @@ function defaultAttemptKey(target) {
 function normalizePlatform(value) {
   const platform = String(value ?? "").trim().toLowerCase();
   return platform === "twitter" ? "x" : platform;
+}
+
+function normalizedPlatformSet(values) {
+  if (
+    values instanceof Set &&
+    [...values].every((value) => normalizePlatform(value) === value)
+  ) {
+    return values;
+  }
+  const source = values instanceof Set
+    ? values
+    : Array.isArray(values)
+      ? values
+      : String(values ?? "").split(",");
+  return new Set(
+    [...source]
+      .map(normalizePlatform)
+      .filter(Boolean)
+  );
 }
 
 function normalizeXHandle(value) {

@@ -347,7 +347,7 @@ test("accepted resolver jobs fail closed and re-export only validated outputs", 
   }
 });
 
-test("all workflow shell blocks remain fixed at 54 and queued schedules are rechecked", (t) => {
+test("all workflow shell blocks remain fixed at 55 and queued schedules are rechecked", (t) => {
   const shellBlockCount = [workflow, dailyBenchmarkWorkflow, readFileSync(
     path.join(repositoryRoot, ".github", "workflows", "public-artifacts.yml"),
     "utf8"
@@ -355,7 +355,7 @@ test("all workflow shell blocks remain fixed at 54 and queued schedules are rech
     (total, source) => total + (source.match(/^ {8}run:/gm)?.length ?? 0),
     0
   );
-  assert.equal(shellBlockCount, 54);
+  assert.equal(shellBlockCount, 55);
 
   const directory = mkdtempSync(path.join(tmpdir(), "returner-queued-freshness-"));
   t.after(() => rmSync(directory, { recursive: true, force: true }));
@@ -720,6 +720,17 @@ test("daily publication prepares artifacts before entering the credential-bearin
     updateJob,
     /benchmark_files=\([\s\S]*public\/graph[\s\S]*public\/timelines[\s\S]*public\/topic-facets[\s\S]*src\/lib\/graph\/ranked-posts-sidecar\.generated\.json/
   );
+  const stagedArtifacts = publishStep.match(/benchmark_files=\([\s\S]*?\n\s*\)/)?.[0] ?? "";
+  for (const supportingPath of [
+    "public/timelines",
+    "public/topic-facets",
+    "src/lib/graph/ranked-posts-sidecar.generated.json",
+    "src/lib/social/logged-in-evidence-current.json",
+    "docs/outputs/scoring-diagnostics-v4-audit.json",
+    "docs/outputs/scoring-diagnostics-v4-report.md"
+  ]) {
+    assert.match(stagedArtifacts, new RegExp(supportingPath.replaceAll(".", "\\.")));
+  }
   assert.doesNotMatch(
     publishStep,
     /\bnpm\b|node scripts\/(?!lib\/publication-semantic-diff\.mjs\b)|git\s+(?:rebase|merge(?!-base)|pull)/,
@@ -1964,6 +1975,18 @@ test("workflow routes authenticated ingestion to the dedicated Mac runner", () =
   );
   assert.match(workflow, /authenticated_backfill:[\s\S]*?type:\s*boolean/);
   assert.match(ingestJob, /--authenticated-social-replay="\$AUTHENTICATED_SOCIAL_REPLAY"/);
+  const preflightIndex = ingestJob.indexOf("Preflight authenticated social runner");
+  const ingestionIndex = ingestJob.indexOf("Run autonomous ingestion");
+  assert.ok(preflightIndex >= 0, "authenticated runner preflight is required");
+  assert.ok(preflightIndex < ingestionIndex, "preflight must run before collection");
+  assert.match(
+    ingestJob,
+    /name: Preflight authenticated social runner[\s\S]*?if: needs\.resolve\.outputs\.trigger == 'manual-replay' && inputs\.authenticated_backfill == true[\s\S]*?timeout-minutes:\s*3[\s\S]*?node scripts\/verify-authenticated-social-runner\.mjs/
+  );
+  assert.doesNotMatch(
+    ingestJob.match(/name: Preflight authenticated social runner[\s\S]*?(?=\n\s{6}- name:|$)/)?.[0] ?? "",
+    /SUPABASE|X_BEARER|EXA_API|GITHUB_TOKEN/
+  );
 });
 
 test("inactive candidates and accepted publication outcomes have distinct auditable receipts", () => {

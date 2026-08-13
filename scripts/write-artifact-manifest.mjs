@@ -40,7 +40,8 @@ export async function main(rawArgs = process.argv.slice(2), env = process.env) {
       manifestPath,
       contentHash: result.manifest.contentHash,
       graphArtifacts: result.manifest.graphArtifacts.length,
-      benchmarkArtifacts: result.manifest.benchmarkArtifacts.length
+      benchmarkArtifacts: result.manifest.benchmarkArtifacts.length,
+      supportingArtifacts: result.manifest.supportingArtifacts.length
     };
     console.log(JSON.stringify(payload, null, 2));
     return payload;
@@ -67,7 +68,8 @@ export async function main(rawArgs = process.argv.slice(2), env = process.env) {
     manifestPath,
     contentHash: manifest.contentHash,
     graphArtifacts: manifest.graphArtifacts.length,
-    benchmarkArtifacts: manifest.benchmarkArtifacts.length
+    benchmarkArtifacts: manifest.benchmarkArtifacts.length,
+    supportingArtifacts: manifest.supportingArtifacts.length
   };
   console.log(JSON.stringify(payload, null, 2));
   return payload;

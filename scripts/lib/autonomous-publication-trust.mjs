@@ -42,8 +42,25 @@ const SAFE_GENERATED_PATH_PATTERNS = Object.freeze([
   /^public\/topic-facets\/(?:a16zsr006|s2026|s26)\.json$/
 ]);
 
+// A concurrent main advance may contain ordinary application source changes.
+// Those files are permitted only as inert publication-base content: the
+// privileged runner never executes them and all child scripts are resolved
+// from the pinned source checkout. Policy/config/dependency files remain
+// prohibited even when they live under src/.
+const SAFE_INERT_SOURCE_PATH_PATTERNS = Object.freeze([
+  /^src\/.+\.(?:c|m)?(?:js|jsx|ts|tsx|css|scss|sass|mdx)$/i,
+  // Test-only TypeScript is inert in the publication runner, but keep this
+  // explicit so tests cannot become a general-purpose executable allowlist.
+  /^tests\/.+\.(?:ts|tsx)$/i
+]);
+
 const POLICY_OR_CONFIG_JSON_PATH =
   /(?:^|\/)(?:package(?:-lock)?|npm-shrinkwrap|tsconfig(?:\.[^/]+)?|jsconfig|deno|bunfig|[^/]*(?:config|policy|settings))\.json$/i;
+
+const INERT_SOURCE_FORBIDDEN_PATH_SEGMENT =
+  /(?:^|\/)(?:scripts|\.github|supabase|node_modules|package(?:-lock)?(?:\.[^/]*)?|npm-shrinkwrap(?:\.[^/]*)?|(?:pnpm|yarn)\.lock|(?:configs?|polic(?:y|ies)|settings?|dependenc(?:y|ies))(?:\.[^/]*)?)(?:\/|$)/i;
+
+const INERT_SOURCE_FORBIDDEN_SUFFIX = /\.(?:config|policy|settings)(?:\.[^/]*)*$/i;
 
 export function normalizeTrackedRepositoryPath(value) {
   const normalized = String(value ?? "").replaceAll("\\", "/").replace(/^\.\//, "");
@@ -66,6 +83,27 @@ export function isReplaySafePublicationDataPath(value) {
   if (POLICY_OR_CONFIG_JSON_PATH.test(filePath)) return false;
   if (SAFE_EXACT_PATHS.has(filePath)) return true;
   return SAFE_GENERATED_PATH_PATTERNS.some((pattern) => pattern.test(filePath));
+}
+
+export function isSafeInertPublicationBasePath(value) {
+  const filePath = normalizeTrackedRepositoryPath(value);
+  if (isReplaySafePublicationDataPath(filePath)) return true;
+  if (POLICY_OR_CONFIG_JSON_PATH.test(filePath)) return false;
+  if (INERT_SOURCE_FORBIDDEN_PATH_SEGMENT.test(filePath)) return false;
+  if (INERT_SOURCE_FORBIDDEN_SUFFIX.test(filePath)) return false;
+  return SAFE_INERT_SOURCE_PATH_PATTERNS.some((pattern) => pattern.test(filePath));
+}
+
+export function assertSafeInertPublicationBaseChanges(changedPaths, { label = "publication base" } = {}) {
+  const unsafe = [...new Set(changedPaths.map(normalizeTrackedRepositoryPath))]
+    .filter((filePath) => !isSafeInertPublicationBasePath(filePath))
+    .sort();
+  if (unsafe.length > 0) {
+    throw new Error(
+      `${label} contains executable, policy, dependency, or non-allowlisted drift: ${unsafe.join(", ")}`
+    );
+  }
+  return true;
 }
 
 export function assertReplaySafePublicationChanges(changedPaths, { label = "publication base" } = {}) {

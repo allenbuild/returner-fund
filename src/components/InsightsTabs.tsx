@@ -36,6 +36,7 @@ import {
 } from "@/lib/graph/database-stats";
 import { evidenceDisplayText, isGenericEvidenceLabel } from "@/lib/graph/evidence-display";
 import { selectRankedPosts, type RankedPostsPeriod } from "@/lib/graph/ranked-posts";
+import type { RankedPostsSidecarScope } from "@/lib/graph/ranked-posts-sidecar";
 import type {
   EvidenceItem,
   FastestGainingRow,
@@ -55,6 +56,8 @@ interface InsightsTabsProps {
   statsGraph?: GraphResponse;
   onSelectNode: (nodeId: string) => void;
   now?: Date;
+  /** null means the current graph is waiting for a matching full-corpus sidecar. */
+  rankedPostsSidecarScope?: RankedPostsSidecarScope | null;
 }
 
 const tabs: { key: TabKey; label: string; icon: typeof Trophy }[] = [
@@ -64,7 +67,13 @@ const tabs: { key: TabKey; label: string; icon: typeof Trophy }[] = [
   { key: "stats", label: "Stats", icon: Database }
 ];
 
-export function InsightsTabs({ graph, statsGraph = graph, onSelectNode, now }: InsightsTabsProps) {
+export function InsightsTabs({
+  graph,
+  statsGraph = graph,
+  onSelectNode,
+  now,
+  rankedPostsSidecarScope
+}: InsightsTabsProps) {
   const [activeTab, setActiveTab] = useState<TabKey>("overview");
   const [momentumPeriod, setMomentumPeriod] = useState<MomentumPeriod>("dod");
   const [rankedPeriod, setRankedPeriod] = useState<RankedPostsPeriod>("all_time");
@@ -94,8 +103,10 @@ export function InsightsTabs({ graph, statsGraph = graph, onSelectNode, now }: I
   );
   const databaseStats = useMemo(() => buildDatabaseStats(statsGraph), [statsGraph]);
   const rankedPosts = useMemo(
-    () => selectRankedPosts(graph, { period: rankedPeriod, now }),
-    [graph, now, rankedPeriod]
+    () => rankedPostsSidecarScope === null
+      ? []
+      : selectRankedPosts(graph, { period: rankedPeriod, now, sidecarScope: rankedPostsSidecarScope }),
+    [graph, now, rankedPeriod, rankedPostsSidecarScope]
   );
   function toggleOverviewSort(key: OverviewSortKey) {
     setOverviewSort((current) => ({
@@ -406,14 +417,18 @@ export function InsightsTabs({ graph, statsGraph = graph, onSelectNode, now }: I
             <div className="ranked-posts-empty" role="status">
               <Clock3 size={22} aria-hidden="true" />
               <strong>
-                {rankedPeriod === "today"
+                {rankedPostsSidecarScope === null
+                  ? "Refreshing ranked posts…"
+                  : rankedPeriod === "today"
                   ? "No reliably dated posts were published today."
                   : rankedPeriod === "month"
                     ? "No reliably dated posts were published in the last 30 days."
                     : "No eligible scored posts match these filters."}
               </strong>
               <span>
-                {rankedPeriod === "today"
+                {rankedPostsSidecarScope === null
+                  ? "The full-corpus post index is being synchronized with this graph."
+                  : rankedPeriod === "today"
                   ? "Posts with unknown or imprecise publication timestamps are excluded from Today."
                   : rankedPeriod === "month"
                     ? "Posts with unknown or imprecise publication timestamps are excluded from Month."

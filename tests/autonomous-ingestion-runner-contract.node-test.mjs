@@ -8,7 +8,8 @@ import { afterEach, describe, it } from "node:test";
 import { readRequiredCanonicalJson } from "../scripts/lib/canonical-json.mjs";
 import {
   isProtectedSourcePolicyPath,
-  isReplaySafePublicationDataPath
+  isReplaySafePublicationDataPath,
+  isSafeInertPublicationBasePath
 } from "../scripts/lib/autonomous-publication-trust.mjs";
 
 const repositoryRoot = process.cwd();
@@ -764,6 +765,84 @@ if (mode === "fail") {
     );
   });
 
+  it("proves candidate parent identity and dynamically transplants a deletion record", async () => {
+    const publicationParent = await mkdtemp(path.join(os.tmpdir(), "returner-publication-proof-"));
+    const publicationRoot = path.join(publicationParent, "checkout");
+    temporaryRoots.push(publicationParent);
+    const sourceCommit = runGit(repositoryRoot, ["rev-parse", "HEAD^{commit}"]).stdout.trim();
+    const artifactPath = "outputs/ingestion-source-delta-current.json";
+    const baseCommit = await createDetachedFixtureCommit({
+      parent: sourceCommit,
+      filePath: artifactPath,
+      content: '{"fixture":"candidate-base"}\n'
+    });
+    const candidateCommit = await createDetachedFixtureDeletionCommit({
+      parent: baseCommit,
+      filePath: artifactPath
+    });
+    runGit(repositoryRoot, ["worktree", "add", "--detach", publicationRoot, baseCommit]);
+    try {
+      const result = lifecycleFixturePayload(runLifecycleFixture("publication-candidate-proof", {
+        LIFECYCLE_FIXTURE_PUBLICATION_ROOT: publicationRoot,
+        LIFECYCLE_FIXTURE_PUBLICATION_PARENT: publicationParent,
+        LIFECYCLE_FIXTURE_BASE_COMMIT: baseCommit,
+        LIFECYCLE_FIXTURE_CANDIDATE_COMMIT: candidateCommit
+      }));
+      assert.equal(result.proof.candidateCommit, candidateCommit);
+      assert.equal(result.proof.publicationBaseCommit, baseCommit);
+      assert.equal(result.proof.parentCommit, baseCommit);
+      assert.deepEqual(result.proof.changedPaths, [artifactPath]);
+      assert.deepEqual(result.candidateDelta, [{ status: "D", path: artifactPath }]);
+      assert.deepEqual(result.stagedDelta, [{ status: "D", path: artifactPath }]);
+      assert.equal(result.deletedFromIndex, true);
+      assert.equal(result.deletedFromWorktree, true);
+    } finally {
+      runGit(repositoryRoot, ["worktree", "remove", "--force", publicationRoot]);
+      runGit(repositoryRoot, ["worktree", "prune"]);
+    }
+  });
+
+  it("rebuilds exact direct-child candidates across a second concurrent main advance", async () => {
+    const fixture = await runPublicationRaceFixture({
+      mode: "second-concurrent",
+      concurrentAdvanceCount: 2
+    });
+
+    assert.equal(fixture.payload.attempts, 3);
+    assert.equal(fixture.payload.pushCalls, 3);
+    assert.equal(fixture.payload.fetchCalls, 2);
+    assert.equal(fixture.payload.rebuildCalls, 2);
+    assert.equal(fixture.payload.concurrentMainRetries, 2);
+    assert.equal(fixture.payload.adoptedAfterAmbiguousPush, false);
+    assert.deepEqual(
+      fixture.payload.candidateParents,
+      [fixture.baseCommit, ...fixture.concurrentCommits]
+    );
+    assert.equal(fixture.payload.finalBase, fixture.concurrentCommits[1]);
+    assert.equal(fixture.payload.finalCandidate, fixture.payload.remoteTipCommit);
+    assert.equal(new Set(fixture.payload.candidateCommits).size, 3);
+    assert.match(fixture.payload.receiptSha256, /^[0-9a-f]{64}$/);
+  });
+
+  it("adopts an already-landed initial candidate after reconciliation response loss", async () => {
+    const fixture = await runPublicationRaceFixture({
+      mode: "landed-reconciliation-lost",
+      concurrentAdvanceCount: 0
+    });
+
+    assert.equal(fixture.payload.attempts, 1);
+    assert.equal(fixture.payload.pushCalls, 1);
+    assert.equal(fixture.payload.fetchCalls, 0);
+    assert.equal(fixture.payload.rebuildCalls, 0);
+    assert.equal(fixture.payload.concurrentMainRetries, 0);
+    assert.equal(fixture.payload.adoptedAfterAmbiguousPush, true);
+    assert.deepEqual(fixture.payload.candidateParents, [fixture.baseCommit]);
+    assert.equal(fixture.payload.finalBase, fixture.baseCommit);
+    assert.equal(fixture.payload.finalCandidate, fixture.payload.remoteTipCommit);
+    assert.equal(fixture.payload.candidateCommits.length, 1);
+    assert.match(fixture.payload.receiptSha256, /^[0-9a-f]{64}$/);
+  });
+
   it("creates a provenance-bound empty commit for a truthful no-change publication", async () => {
     const sourceRoot = await mkdtemp(path.join(os.tmpdir(), "autonomous-ingestion-no-change-source-"));
     const publicationParent = await mkdtemp(path.join(os.tmpdir(), "returner-publication-no-change-"));
@@ -946,7 +1025,9 @@ describe("autonomous ingestion runner static safety contracts", () => {
     assert.ok(commandRunner.includes('HOME: isolatedHome'));
     assert.ok(runner.includes('envCategory: "public_collector"'));
     assert.ok(runner.includes('envCategory: "github_collector"'));
-    assert.ok(runner.includes('authenticated_social: [\n    "HOME"'));
+    assert.ok(runner.includes(
+      'authenticated_social: [\n    "HOME",\n    "OPENCLI_BIN",\n    "OPENCLI_CONFIG_DIR",\n    "OPENCLI_HOME"'
+    ));
     assert.ok(runner.includes('envCategory: "durable_timeline"'));
     assert.ok(runner.includes('envCategory: "publication_data"'));
     assert.ok(runner.includes('envCategory: "benchmark"'));
@@ -1229,7 +1310,7 @@ describe("autonomous ingestion runner static safety contracts", () => {
     assert.ok(receiptReader.includes("publishedCommit"));
   });
 
-  it("verifies publication outcomes remotely and resolves replay from the exact historical publication commit", () => {
+  it("verifies publication outcomes remotely and resolves replay from the exact historical publication commit", async () => {
     const publication = section(
       "async function publishRepositoryArtifacts",
       "async function stageRepositoryArtifacts"
@@ -1244,16 +1325,17 @@ describe("autonomous ingestion runner static safety contracts", () => {
     );
     const verifier = section(
       "async function verifyPublicationCommitOnRemote",
-      "async function assertNoPublicationConflicts"
+      "async function reconcilePublicationPushCandidate"
     );
 
     assert.match(
       publication,
       /const publicationStatus = publicationTreeChanged \? "published" : "no_changes";[\s\S]*status:\s*publicationStatus,[\s\S]*publishedCommit/
     );
-    assert.equal(publication.match(/verifyPublicationCommitOnRemote/g)?.length, 1);
-    assert.ok(publication.includes("runPublicationPush(firstPushCandidate"));
-    assert.ok(publication.includes("runPublicationPush(retryPushCandidate"));
+    assert.equal(publication.match(/verifyPublicationCommitOnRemote/g)?.length, 2);
+    assert.ok(publication.includes("pushPublicationCandidateWithConcurrentMainRecovery"));
+    assert.ok(publication.includes("runPublicationPush(pushCandidate"));
+    assert.ok(publication.includes("adoptReachablePublicationCandidate"));
     assert.ok(replay.includes('["fetch", "--no-tags", "origin", `+refs/heads/${branch}:refs/remotes/origin/${branch}`]'));
     assert.ok(replay.includes('["rev-parse", `refs/remotes/origin/${branch}^{commit}`]'));
     assert.ok(replay.includes('["merge-base", "--is-ancestor", immutableSourceCommit, remoteCommit]'));
@@ -1264,6 +1346,59 @@ describe("autonomous ingestion runner static safety contracts", () => {
     assert.match(verifier, /\^\[0-9a-f\]\{40\}\$/i);
     assert.ok(verifier.includes('["fetch", "--prune", "origin", branch]'));
     assert.ok(verifier.includes('["merge-base", "--is-ancestor", publishedCommit, `origin/${branch}`]'));
+    assert.equal(
+      (verifier.match(/deadlineAt: remoteVerificationDeadlineAt/g) ?? []).length,
+      2,
+      "fetch and ancestry must consume one absolute remote-verification deadline"
+    );
+
+    const fixtureRoot = await mkdtemp(path.join(os.tmpdir(), "returner-remote-budget-"));
+    temporaryRoots.push(fixtureRoot);
+    const markerPath = path.join(fixtureRoot, "git-calls.jsonl");
+    await writeFile(markerPath, "", "utf8");
+    const bin = await createTimedFakeGit({
+      root: fixtureRoot,
+      markerPath,
+      fetchDelayMs: 180,
+      ancestryDelayMs: 450
+    });
+    const bounded = lifecycleFixturePayload(runLifecycleFixture(
+      "remote-verification-budget",
+      {
+        PATH: `${bin}${path.delimiter}${process.env.PATH}`,
+        LIFECYCLE_FIXTURE_REMOTE_TIMEOUT_MS: "500"
+      },
+      repositoryRoot,
+      3_000
+    ));
+    const calls = (await readFile(markerPath, "utf8")).trim().split("\n").filter(Boolean);
+    assert.ok(
+      calls.length === 1 || calls.length === 2,
+      `remote verifier did not execute the bounded fake Git path: ${JSON.stringify(bounded)}`
+    );
+    if (calls.length === 2) {
+      assert.equal(bounded.failure.timedOut, true);
+      assert.ok(
+        bounded.failure.commandTimeoutMs > 0 && bounded.failure.commandTimeoutMs < 400,
+        `ancestry received stale timeout ${bounded.failure.commandTimeoutMs}`
+      );
+    } else {
+      assert.ok(
+        /did not start before its phase deadline/i.test(bounded.failure.message) ||
+        (
+          bounded.failure.timedOut === true &&
+          bounded.failure.commandTimeoutMs > 0 &&
+          bounded.failure.commandTimeoutMs <= bounded.timeoutMs
+        ),
+        `single-command exhaustion did not preserve the shared bound: ${bounded.failure.message}`
+      );
+    }
+    assert.ok(
+      // Child process-group drain is intentionally outside the operation
+      // timer, but the second command must not receive another full budget.
+      bounded.elapsedMs <= bounded.timeoutMs + 750,
+      `remote verification exceeded its shared bound: ${bounded.elapsedMs}ms`
+    );
   });
 
   it("classifies each provenance candidate against its exact publication base", () => {
@@ -1273,7 +1408,11 @@ describe("autonomous ingestion runner static safety contracts", () => {
     );
     const comparator = section(
       "async function classifyPublicationSemantics",
-      "async function headHasPublicationRunIdentity"
+      "async function publicationCommitProvenance"
+    );
+    const candidateClassifier = section(
+      "async function verifyAndClassifyPublicationCandidate",
+      "async function verifyPublicationCandidateIdentity"
     );
 
     assert.ok(runner.includes('"./lib/publication-semantic-diff.mjs"'));
@@ -1283,14 +1422,9 @@ describe("autonomous ingestion runner static safety contracts", () => {
     assert.ok(comparator.includes("ignoredPaths: PUBLICATION_SEMANTIC_IGNORED_PATHS"));
     assert.ok(runner.includes('"outputs/ingestion-source-delta-current.json"'));
     assert.ok(runner.includes('"outputs/ingestion-source-delta-history.json"'));
-    assert.match(
-      publication,
-      /publicationTreeChanged = await classifyPublicationSemantics\(\{[\s\S]*?baseRef: publicationBaseCommit[\s\S]*?targetRef: firstPushCommit/
-    );
-    assert.match(
-      publication,
-      /publicationTreeChanged = await classifyPublicationSemantics\(\{[\s\S]*?baseRef: retryBaseCommit[\s\S]*?targetRef: retryPushCommit/
-    );
+    assert.match(candidateClassifier, /baseRef: candidate\.publicationBaseCommit/);
+    assert.match(candidateClassifier, /targetRef: candidate\.publishedCommit/);
+    assert.match(publication, /publicationTreeChanged = await verifyAndClassifyPublicationCandidate\(candidate\)/);
     assert.doesNotMatch(publication, /publicationTreeChanged\s*=\s*publicationTreeChanged\s*\|\|/);
     assert.doesNotMatch(publication, /git", \["diff", "--cached", "--quiet"\]/);
     assert.equal(
@@ -1311,38 +1445,74 @@ describe("autonomous ingestion runner static safety contracts", () => {
     assert.match(runner, /latestPublishedCommit = publicationReceipt\.publishedCommit/);
     assert.match(runner, /terminalFailureBudget:\s*latestTerminalFailureBudget,[\s\S]*publishedCommit:\s*latestPublishedCommit/);
 
-    const firstPush = publication.indexOf('commandLabel: "push refreshed artifacts"');
-    const firstCapture = publication.indexOf("runPublicationPush(firstPushCandidate");
-    const retryPush = publication.indexOf('commandLabel: "retry refreshed artifact push"');
-    const retryCapture = publication.indexOf("runPublicationPush(retryPushCandidate");
+    const recovery = publication.indexOf("await pushPublicationCandidateWithConcurrentMainRecovery");
     const verification = publication.indexOf("await verifyPublicationCommitOnRemote(publishedCommit");
     const completionEvent = publication.indexOf(
       'publicationTreeChanged ? "publication.completed" : "publication.no_changes"'
     );
-    assert.ok(firstCapture > -1 && firstPush > firstCapture);
-    assert.ok(retryCapture > firstPush && retryPush > retryCapture);
-    assert.ok(verification > retryPush && completionEvent > verification);
+    assert.ok(recovery > -1 && verification > recovery && completionEvent > verification);
+    const pushAttempt = section(
+      "async function pushPublicationCandidateAttempt",
+      "async function fetchExactPublicationRetryBase"
+    );
+    assert.ok(pushAttempt.includes('"push refreshed artifacts"'));
+    assert.ok(pushAttempt.includes("`retry refreshed artifact push ${attempt}`"));
+    assert.ok(pushAttempt.includes("runPublicationPush(pushCandidate"));
     const pushRunner = section("async function runPublicationPush", "async function resolveAmbiguousPublicationAfterCancellation");
     assert.ok(pushRunner.includes("latestPublishedCommit = candidate.publishedCommit"));
     assert.ok(pushRunner.includes("reconcilePublicationPushCandidate(candidate"));
   });
 
-  it("verifies an ambiguous interrupted push before writing its cancellation receipt", () => {
+  it("verifies an ambiguous interrupted push before writing its cancellation receipt", async () => {
     const publication = section(
       "async function publishRepositoryArtifacts",
       "async function stageRepositoryArtifacts"
     );
     const cleanup = section("} finally {", "function installTerminationSignalHandlers");
 
-    assert.equal((publication.match(/const (?:first|retry)PushCandidate = \{/g) ?? []).length, 2);
-    assert.ok(publication.includes('label: "first publication push"'));
-    assert.ok(publication.includes('label: "retry publication push"'));
+    assert.equal((publication.match(/const pushCandidate = \{/g) ?? []).length, 1);
+    assert.ok(publication.includes('"first publication push"'));
+    assert.ok(publication.includes("`publication retry push ${attempt}`"));
     assert.ok(runner.includes("reconcilePublicationPushCandidate(candidate"));
     assert.ok(runner.includes('"failure or response loss"'));
     assert.ok(runner.includes("allowDuringCancellation: true"));
     assert.ok(runner.includes("CANCELLATION_REMOTE_VERIFY_TIMEOUT_MS"));
     assert.ok(cleanup.indexOf("await resolveAmbiguousPublicationAfterCancellation()") <
       cleanup.indexOf("pendingRunnerOutcome = canceledRunnerOutcome(terminationSignal)"));
+    const reconciliation = section(
+      "async function reconcilePublicationPushCandidate",
+      "async function runPublicationPush"
+    );
+    const marker = section(
+      "function markPublicationCandidatePublished",
+      "function isConcurrentMainPushRejection"
+    );
+    assert.doesNotMatch(reconciliation, /publicationPushCandidate\s*=\s*null/);
+    assert.doesNotMatch(marker, /publicationPushCandidate\s*=\s*null/);
+    assert.ok(runner.includes("void beginPublicationCancellationResolution()"));
+    assert.ok(runner.includes("await finalizePublicationSignalAdoptionWindow()"));
+
+    const fixtureRoot = await mkdtemp(path.join(os.tmpdir(), "returner-cancellation-recheck-"));
+    temporaryRoots.push(fixtureRoot);
+    const markerPath = path.join(fixtureRoot, "git-calls.jsonl");
+    await writeFile(markerPath, "", "utf8");
+    const bin = await createTimedFakeGit({ root: fixtureRoot, markerPath });
+    const result = lifecycleFixturePayload(runLifecycleFixture(
+      "publication-cancellation-recheck",
+      {
+        PATH: `${bin}${path.delimiter}${process.env.PATH}`,
+        LIFECYCLE_FIXTURE_MARKER: markerPath
+      },
+      repositoryRoot,
+      3_000
+    ));
+    assert.equal(result.reconciledBeforeSignal, true);
+    assert.equal(result.retainedBeforeSignal, true);
+    assert.equal(result.retainedAfterCancellationRecheck, true);
+    assert.equal(result.fetchCalls, 2, "cancellation must perform one fresh exact fetch");
+    assert.equal(result.ancestryCalls, 2, "cancellation must perform one fresh exact ancestry check");
+    assert.equal(result.latestPublishedCommit, "b".repeat(40));
+    assert.equal(result.candidateClearedAfterFinalization, true);
   });
 
   it("captures bootstrap failures inside the diagnostic outcome boundary", () => {
@@ -1463,18 +1633,351 @@ describe("autonomous ingestion runner static safety contracts", () => {
   });
 
   it("runs authenticated social collection only through the dedicated bounded lane", () => {
-    const collectors = section("async function runCollectors()", "async function runTopVoiceCollector");
+    const collectors = section("async function runAuthenticatedCollectors", "async function runAuthenticatedCollectorCommand");
     assert.match(collectors, /fetch-logged-in-social-traction/);
     assert.match(collectors, /"--platforms=instagram"/);
     assert.match(collectors, /"--platforms=linkedin"/);
     assert.match(collectors, /"--allow-linkedin"/);
     assert.match(collectors, /"--workers=1"/);
     assert.match(collectors, /historicalReplay \? 2 : 1/);
-    assert.match(collectors, /"--linkedin-max-targets=5"/);
+    assert.match(collectors, /linkedin-max-targets/);
     assert.match(collectors, /"--delay-ms=30000"/);
-    assert.ok(collectors.includes('env: { HOME: process.env.HOME }'));
-    assert.ok(collectors.includes('"scripts/fetch-public-traction.mjs"'));
-    assert.ok(collectors.includes('"scripts/fetch-github-traction.mjs"'));
+    assert.ok(runner.includes('env: { HOME: process.env.HOME }'));
+  });
+
+  it("drives LinkedIn historical replay through a sequential seven-chunk state machine", () => {
+    const replay = linkedInReplayRuntime();
+
+    let state = replay.createLinkedInReplayState(["S26"]);
+    const remainingPlan = [35, 30, 25, 20, 15, 10, 5];
+    for (const [index, runnableTargetCount] of remainingPlan.entries()) {
+      state = replay.reduceLinkedInReplayState(state, {
+        type: "plan",
+        batchSlug: "S26",
+        runnableTargetCount
+      });
+      const admission = replay.decideLinkedInReplayAdmission({
+        runnableTargetCount,
+        admittedChunks: state.chunksAdmitted,
+        remainingMs: 25 * 60_000,
+        reserveMs: 15 * 60_000,
+        drainHeadroomMs: 5 * 60_000,
+        maxChunks: 7
+      });
+      assert.equal(admission.action, "admit-chunk");
+      assert.equal(admission.targetCap, 5);
+      assert.equal(admission.chunkNumber, index + 1);
+      state = replay.reduceLinkedInReplayState(state, {
+        type: "chunk_admitted",
+        batchSlug: "S26"
+      });
+      state = replay.reduceLinkedInReplayState(state, {
+        type: "chunk_completed",
+        batchSlug: "S26"
+      });
+    }
+    assert.equal(state.chunksAdmitted, 7);
+    assert.equal(state.chunksAttempted, 7);
+    assert.equal(state.chunksCompleted, 7);
+    assert.equal(state.targetCapacityAdmitted, 35);
+    assert.equal(
+      replay.decideLinkedInReplayAdmission({
+        runnableTargetCount: 5,
+        admittedChunks: 7,
+        remainingMs: 25 * 60_000,
+        reserveMs: 15 * 60_000,
+        drainHeadroomMs: 5 * 60_000,
+        maxChunks: 7
+      }).action,
+      "chunk-budget-exhausted"
+    );
+    assert.equal(
+      replay.decideLinkedInReplayAdmission({
+        runnableTargetCount: 5,
+        admittedChunks: 0,
+        remainingMs: 20 * 60_000 - 1,
+        reserveMs: 15 * 60_000,
+        drainHeadroomMs: 5 * 60_000,
+        maxChunks: 7
+      }).action,
+      "deadline-exhausted"
+    );
+    assert.equal(
+      replay.decideLinkedInReplayAdmission({
+        runnableTargetCount: 0,
+        admittedChunks: 0,
+        remainingMs: 0,
+        reserveMs: 15 * 60_000,
+        drainHeadroomMs: 5 * 60_000,
+        maxChunks: 7
+      }).action,
+      "advance-batch"
+    );
+    const result = replay.createLinkedInReplayResult(state);
+    assert.equal(result.maxChunks, 7);
+    assert.equal(result.targetCapPerChunk, 5);
+    assert.equal(result.remainingTargetCount, null);
+    assert.equal(result.remainingTargetCountKnown, false);
+    assert.deepEqual(result.unknownRemainingBatches, ["S26"]);
+  });
+
+  it("propagates LinkedIn safety and infrastructure stops with unknown later-batch counts", () => {
+    const replay = linkedInReplayRuntime();
+    for (const type of ["safety_stop", "infrastructure_failure"]) {
+      let state = replay.reduceLinkedInReplayState(
+        replay.createLinkedInReplayState(["S2026", "S26", "A16ZSR006"]),
+        { type: "plan", batchSlug: "S2026", runnableTargetCount: 9 }
+      );
+      state = replay.reduceLinkedInReplayState(state, {
+        type: "chunk_admitted",
+        batchSlug: "S2026"
+      });
+      state = replay.reduceLinkedInReplayState(
+        state,
+        { type, batchSlug: "S26", error: type }
+      );
+      assert.equal(state.halted, true);
+      assert.equal(state.chunksAdmitted, 1);
+      assert.equal(state.chunksAttempted, 1);
+      assert.equal(state.chunksCompleted, 0);
+      assert.equal(state.safetyStopped, type === "safety_stop");
+      assert.equal(state.infrastructureStopped, type === "infrastructure_failure");
+      const result = replay.createLinkedInReplayResult(state);
+      assert.equal(result.remainingTargetCount, null);
+      assert.equal(result.remainingTargetCountKnown, false);
+      assert.deepEqual(
+        result.unknownRemainingBatches,
+        ["S2026", "S26", "A16ZSR006"]
+      );
+    }
+
+    const collectors = section("async function runAuthenticatedCollectors", "async function runAuthenticatedCollectorCommand");
+    assert.match(collectors, /LINKEDIN_CHILD_SAFETY_STOP|safety_stopped/);
+    assert.match(collectors, /if \(replayState\.halted\)/);
+    assert.doesNotMatch(collectors, /if \(replayState\.halted\) break;/);
+  });
+
+  it("binds every admitted LinkedIn chunk to the pre-reserve absolute deadline at runtime", async () => {
+    const nowMs = 1_800_000_000_000;
+    const collectionDeadlineAt = nowMs + 60 * 60_000;
+    const expectedChildDeadlineAt = collectionDeadlineAt - 20 * 60_000;
+    const planDeadlines = [];
+    const chunkDeadlines = [];
+    const plans = [5, 0];
+    const replay = linkedInReplayRuntime({
+      nowMs,
+      collectionDeadlineAt,
+      plan: async (_batchSlug, _args, options) => {
+        planDeadlines.push(options.deadlineAt);
+        return { status: "completed", runnableTargetCount: plans.shift(), plan: {} };
+      },
+      collect: async (_batchSlug, _platform, _args, options) => {
+        chunkDeadlines.push(options.deadlineAt);
+        return { status: "completed", exitCode: 0 };
+      }
+    });
+
+    const result = await replay.runAuthenticatedLinkedInReplayBatch({
+      batch: { slug: "S26" },
+      commonArgs: ["collector", "--checkpoint-path=/durable/checkpoint.json"],
+      replayState: replay.createLinkedInReplayState(["S26"])
+    });
+
+    assert.deepEqual(planDeadlines, [expectedChildDeadlineAt, expectedChildDeadlineAt]);
+    assert.deepEqual(chunkDeadlines, [expectedChildDeadlineAt]);
+    assert.equal(result.replayState.chunksAdmitted, 1);
+    assert.equal(result.replayState.chunksAttempted, 1);
+    assert.equal(result.replayState.chunksCompleted, 1);
+    assert.equal(result.replayState.remainingByBatch.S26, 0);
+  });
+
+  it("counts safety and infrastructure failures as admitted attempts before spawn", async () => {
+    for (const childResult of [
+      { status: "safety_stopped", exitCode: 86, error: "account safety" },
+      { status: "failed", exitCode: 1, error: "infrastructure" }
+    ]) {
+      const plans = [5, 4];
+      const replay = linkedInReplayRuntime({
+        plan: async () => ({
+          status: "completed",
+          runnableTargetCount: plans.shift(),
+          plan: {}
+        }),
+        collect: async () => childResult
+      });
+      const result = await replay.runAuthenticatedLinkedInReplayBatch({
+        batch: { slug: "S2026" },
+        commonArgs: ["collector", "--checkpoint-path=/durable/checkpoint.json"],
+        replayState: replay.createLinkedInReplayState(["S2026", "S26"])
+      });
+      assert.equal(result.replayState.chunksAdmitted, 1);
+      assert.equal(result.replayState.chunksAttempted, 1);
+      assert.equal(result.replayState.chunksCompleted, 0);
+      assert.equal(result.replayState.targetCapacityAdmitted, 5);
+      assert.equal(result.replayState.remainingByBatch.S2026, 4);
+      assert.equal(result.replayState.remainingByBatch.S26, null);
+      assert.equal(result.replayState.safetyStopped, childResult.exitCode === 86);
+      assert.equal(result.replayState.infrastructureStopped, childResult.exitCode !== 86);
+    }
+  });
+
+  it("continues every later Instagram batch after LinkedIn safety stop and keeps unscanned counts unknown", async () => {
+    const replay = linkedInReplayRuntime();
+    const instagramBatches = [];
+    const replayBatches = [];
+    const runAuthenticatedCollectors = authenticatedCollectorsRuntime({
+      replay,
+      collect: async (batchSlug, platform) => {
+        assert.equal(platform, "instagram");
+        instagramBatches.push(batchSlug);
+        return { status: "completed", exitCode: 0 };
+      },
+      replayBatch: async ({ batch, replayState }) => {
+        replayBatches.push(batch.slug);
+        let next = replay.reduceLinkedInReplayState(replayState, {
+          type: "plan",
+          batchSlug: batch.slug,
+          runnableTargetCount: 5
+        });
+        next = replay.reduceLinkedInReplayState(next, {
+          type: "chunk_admitted",
+          batchSlug: batch.slug
+        });
+        next = replay.reduceLinkedInReplayState(next, {
+          type: "safety_stop",
+          batchSlug: batch.slug,
+          error: "LINKEDIN_CHILD_SAFETY_STOP"
+        });
+        next = replay.reduceLinkedInReplayState(next, {
+          type: "plan",
+          batchSlug: batch.slug,
+          runnableTargetCount: 4
+        });
+        return {
+          status: "safety_stopped",
+          chunks: [{ chunkNumber: 1, status: "safety_stopped", exitCode: 86 }],
+          finalPlan: {},
+          replayState: next
+        };
+      }
+    });
+
+    const result = await runAuthenticatedCollectors({ historicalReplay: true });
+
+    assert.deepEqual(instagramBatches, ["S2026", "S26", "A16ZSR006"]);
+    assert.deepEqual(replayBatches, ["S2026"]);
+    assert.equal(result.batches.length, 3);
+    assert.deepEqual(
+      result.batches.map(({ batchSlug, instagram, linkedin }) => ({
+        batchSlug,
+        instagram: instagram.status,
+        linkedin: linkedin.status
+      })),
+      [
+        { batchSlug: "S2026", instagram: "completed", linkedin: "safety_stopped" },
+        { batchSlug: "S26", instagram: "completed", linkedin: "skipped" },
+        { batchSlug: "A16ZSR006", instagram: "completed", linkedin: "skipped" }
+      ]
+    );
+    assert.equal(result.status, "partial");
+    assert.equal(result.linkedinReplay.status, "stopped");
+    assert.deepEqual(result.linkedinReplay.remainingByBatch, {
+      S2026: 4,
+      S26: null,
+      A16ZSR006: null
+    });
+    assert.equal(result.linkedinReplay.remainingTargetCount, null);
+    assert.equal(result.linkedinReplay.remainingTargetCountKnown, false);
+    assert.deepEqual(result.linkedinReplay.unknownRemainingBatches, ["S26", "A16ZSR006"]);
+  });
+
+  it("reports missing durable LinkedIn lock as an incomplete unknown replay that cannot claim publication completion", async () => {
+    const replay = linkedInReplayRuntime();
+    const instagramBatches = [];
+    const runAuthenticatedCollectors = authenticatedCollectorsRuntime({
+      replay,
+      env: authenticatedCollectorEnvironment({ durableLock: false }),
+      collect: async (batchSlug, platform) => {
+        assert.equal(platform, "instagram");
+        instagramBatches.push(batchSlug);
+        return { status: "completed", exitCode: 0 };
+      },
+      replayBatch: async () => {
+        throw new Error("LinkedIn replay must not run without its durable lock configuration.");
+      }
+    });
+
+    const result = await runAuthenticatedCollectors({ historicalReplay: true });
+
+    assert.deepEqual(instagramBatches, ["S2026", "S26", "A16ZSR006"]);
+    assert.equal(result.status, "partial");
+    assert.equal(result.linkedinReplay.status, "skipped");
+    assert.equal(result.linkedinReplay.configurationSkipped, true);
+    assert.equal(result.linkedinReplay.durableLockConfigured, false);
+    assert.deepEqual(result.linkedinReplay.remainingByBatch, {
+      S2026: null,
+      S26: null,
+      A16ZSR006: null
+    });
+    assert.equal(result.linkedinReplay.remainingTargetCount, null);
+    assert.equal(result.linkedinReplay.remainingTargetCountKnown, false);
+    assert.deepEqual(
+      result.linkedinReplay.unknownRemainingBatches,
+      ["S2026", "S26", "A16ZSR006"]
+    );
+
+    const assertCanPublish = authenticatedReplayPublicationValidator();
+    assert.doesNotThrow(() => assertCanPublish(result));
+    const forgedCompletion = {
+      ...result,
+      status: "completed",
+      linkedinReplay: {
+        ...result.linkedinReplay,
+        status: "completed",
+        configurationSkipped: false
+      }
+    };
+    assert.throws(
+      () => assertCanPublish(forgedCompletion),
+      /cannot claim completion without a durable lock and exact zero remaining targets/
+    );
+  });
+
+  it("keeps Instagram outside the LinkedIn chunk loop and publishes once after replay", () => {
+    const replayBatch = section(
+      "async function runAuthenticatedLinkedInReplayBatch",
+      "async function runAuthenticatedLinkedInPlan"
+    );
+    const authenticatedLoop = section(
+      "async function runAuthenticatedCollectors",
+      "async function runAuthenticatedLinkedInReplayBatch"
+    );
+    assert.doesNotMatch(replayBatch, /platforms=instagram|runAuthenticatedCollectorCommand\(\s*batch\.slug,\s*"instagram"/);
+    assert.match(replayBatch, /--terminal-completed-platforms=linkedin/);
+    assert.match(authenticatedLoop, /checkpointPath/);
+    assert.match(replayBatch, /--linkedin-mode=browser/);
+    assert.match(replayBatch, /--workers=1/);
+    assert.match(replayBatch, /--linkedin-max-targets=\$\{LINKEDIN_REPLAY_TARGET_CAP\}/);
+    assert.match(replayBatch, /--delay-ms=30000/);
+    assert.match(replayBatch, /--terminal-completed-platforms=linkedin/);
+    const linkedInPlan = section(
+      "async function runAuthenticatedLinkedInPlan",
+      "async function runAuthenticatedCollectorCommand"
+    );
+    assert.match(linkedInPlan, /linkedinExecution\?\.remainingTargetCount/);
+    assert.doesNotMatch(linkedInPlan, /linkedinExecution\?\.runnableTargetCount/);
+
+    const authenticatedBranch = section(
+      "if (!args.skipNetwork && args.authenticatedSocialReplay)",
+      "} else if (!args.skipNetwork)"
+    );
+    assert.match(authenticatedBranch, /runAuthenticatedCollectors\(\{ historicalReplay: true \}\)/);
+    assert.equal((runner.match(/publicationReceipt = await publishRepositoryArtifacts\(publicationRunId, publicationInputs\)/g) ?? []).length, 1);
+    assert.match(runner, /linkedin_remaining_target_count/);
+    assert.match(runner, /linkedin_chunk_budget_exhausted/);
+    assert.match(runner, /linkedin_deadline_exhausted/);
+    assert.match(runner, /linkedin_safety_stopped/);
+    assert.match(runner, /linkedin_infrastructure_stopped/);
   });
 
   it("publishes authenticated historical replays without rerunning public collector lanes", () => {
@@ -1521,7 +2024,7 @@ describe("autonomous ingestion runner static safety contracts", () => {
   });
 
   it("bounds public and GitHub shard processes with separate request lanes", () => {
-    const collectors = section("async function runCollectors()", "async function runTopVoiceCollector");
+    const collectors = section("async function runCollectors()", "async function runAuthenticatedCollectors");
     const shardedCollector = section(
       "async function runShardedPublicCollector",
       "async function runPublicCollectorWithCheckpointRecovery"
@@ -1653,7 +2156,7 @@ describe("autonomous ingestion runner static safety contracts", () => {
     assert.ok(commandRunner.includes("effectiveTimeoutMs"));
   });
 
-  it("enforces one runner deadline across every publication and git subprocess path", () => {
+  it("enforces one runner deadline across every publication and git subprocess path", async () => {
     assert.ok(runner.includes("createAutonomousRunnerBudget"));
     assert.ok(runner.includes("AUTONOMOUS_RUNNER_WALL_CLOCK_BUDGET_MS"));
     assert.ok(runner.includes("startedAt: runStartedAt.getTime()"));
@@ -1662,17 +2165,24 @@ describe("autonomous ingestion runner static safety contracts", () => {
     assert.equal(
       (commandRunner.match(/runnerBudget\.timeoutMs\(timeoutMs, label\)/g) ?? []).length,
       2,
-      "commands must check the absolute runner deadline before and after event I/O"
+      "commands must check the absolute runner deadline initially and immediately before spawn"
     );
     assert.ok(commandRunner.includes("Math.min(timeoutMs, runnerRemainingMs, deadlineRemainingMs)"));
+    const ledgerWrite = commandRunner.indexOf('await writeFile(ledgerPath, ""');
+    const preSpawnGuard = commandRunner.indexOf("preSpawnGuard();", ledgerWrite);
+    const freshBudget = commandRunner.indexOf("runnerBudget.timeoutMs(timeoutMs, label)", preSpawnGuard);
+    const spawnIndex = commandRunner.indexOf("spawn(command, commandArgs", freshBudget);
+    assert.ok(
+      ledgerWrite > -1 && preSpawnGuard > ledgerWrite && freshBudget > preSpawnGuard && spawnIndex > freshBudget,
+      "the actual timeout must be derived after ledger/guard setup and directly before spawn"
+    );
 
     for (const [start, end] of [
       ["async function readTextFromGitRef", "function gitRefCaptureLimit"],
       ["async function buildAndValidatePublication", "async function synchronizePublicationBase"],
       ["async function synchronizePublicationBase", "async function publishGithubExports"],
       ["async function publishRepositoryArtifacts", "async function stageRepositoryArtifacts"],
-      ["async function assertNoPublicationConflicts", "async function abortPublicationRebase"],
-      ["async function abortPublicationRebase", "async function completeRun"]
+      ["async function transplantPublicationArtifactsOntoRetryBase", "function repositoryArtifactPaths"]
     ]) {
       const boundedPath = section(start, end);
       assert.ok(boundedPath.includes("runCommand("), `${start} must use the globally bounded command runner`);
@@ -1686,6 +2196,19 @@ describe("autonomous ingestion runner static safety contracts", () => {
     assert.ok(mutableCatalogRefresh.includes("runnerBudget.timeoutMs("));
     assert.ok(mutableCatalogRefresh.includes("await runCommand(process.execPath"));
     assert.doesNotMatch(mutableCatalogRefresh, /\bspawn\(/);
+
+    const fixtureRoot = await mkdtemp(path.join(os.tmpdir(), "returner-pre-spawn-deadline-"));
+    temporaryRoots.push(fixtureRoot);
+    const markerPath = path.join(fixtureRoot, "spawned.txt");
+    const deadlineResult = lifecycleFixturePayload(runLifecycleFixture(
+      "command-pre-spawn-deadline",
+      { LIFECYCLE_FIXTURE_MARKER: markerPath },
+      repositoryRoot,
+      2_000
+    ));
+    assert.equal(deadlineResult.spawned, false);
+    assert.match(deadlineResult.failureMessage, /runner deadline exhausted|phase deadline/i);
+    assert.ok(deadlineResult.elapsedMs < 500, `pre-spawn refusal took ${deadlineResult.elapsedMs}ms`);
   });
 
   it("retries exact failure ledgers and accepts exhaustion only after explicit terminal coverage", () => {
@@ -1977,19 +2500,33 @@ describe("autonomous ingestion runner static safety contracts", () => {
     assert.ok(checkpointRecovery.includes("shard ${shardIndex + 1}/${shardCount}"));
   });
 
-  it("writes, validates, and durably records the artifact manifest before completion", () => {
+  it("persists only the exact remotely verified published manifest before completion", () => {
     const publicationBuild = section("async function buildAndValidatePublication", "async function synchronizePublicationBase");
     const scoringDiagnosticsIndex = publicationBuild.indexOf('"scripts/run-scoring-diagnostics-v4.mjs"');
     const writeIndex = publicationBuild.indexOf('"scripts/write-artifact-manifest.mjs"');
     const validateIndex = publicationBuild.indexOf('["scripts/validate-public-artifacts.mjs"]');
     const strictManifestIndex = publicationBuild.indexOf('"scripts/write-artifact-manifest.mjs", "--validate"');
     const buildCallIndex = runner.indexOf("await buildAndValidatePublication(publicationRunId, catalogState)");
-    const persistIndex = runner.indexOf("await persistArtifactManifest(run.id)", buildCallIndex);
     const publishIndex = runner.indexOf(
       "await publishRepositoryArtifacts(publicationRunId, publicationInputs)"
     );
+    const captureIndex = runner.indexOf(
+      "latestPublishedCommit = publicationReceipt.publishedCommit ?? null",
+      publishIndex
+    );
+    const persistIndex = runner.indexOf(
+      "await persistArtifactManifest(run.id, publicationReceipt)",
+      captureIndex
+    );
     const completionIndex = runner.indexOf('await completeRun("completed"');
-    const manifestPersistence = section("async function persistArtifactManifest", "async function buildAndValidatePublication");
+    const manifestPersistence = section(
+      "async function persistArtifactManifest",
+      "async function claimTimelineArtifactInvalidationsForBuild"
+    );
+    const publication = section(
+      "async function publishRepositoryArtifacts",
+      "async function stageRepositoryArtifacts"
+    );
 
     assert.ok(scoringDiagnosticsIndex > -1);
     assert.ok(writeIndex > -1);
@@ -1999,12 +2536,23 @@ describe("autonomous ingestion runner static safety contracts", () => {
       strictManifestIndex > validateIndex
     );
     assert.ok(persistIndex > buildCallIndex);
-    assert.ok(publishIndex > persistIndex);
+    assert.ok(buildCallIndex < publishIndex && publishIndex < captureIndex && captureIndex < persistIndex);
     assert.ok(completionIndex > persistIndex);
-    assert.ok(manifestPersistence.includes('join(publicationArtifactRoot(), "public", "graph", "manifest.json")'));
+    assert.equal((runner.match(/persistArtifactManifest\(/g) ?? []).length, 2);
+    assert.doesNotMatch(publication, /persistArtifactManifest/);
+    assert.match(
+      manifestPersistence,
+      /verifyPublicationCommitOnRemote\(claimedCommit,[\s\S]*?label: "artifact manifest persistence"/
+    );
+    assert.ok(manifestPersistence.includes('readTextFromGitRef(publishedCommit, manifestPath, null)'));
     assert.ok(manifestPersistence.includes('from("ingestion_artifact_manifests").upsert'));
     assert.ok(manifestPersistence.includes('artifact_key: "public-graph-manifest"'));
-    assert.ok(manifestPersistence.includes("sha256"));
+    assert.ok(manifestPersistence.includes('storage_uri: `repo://${publishedCommit}/${manifestPath}`'));
+    assert.ok(manifestPersistence.includes("publicationBinding"));
+    assert.ok(manifestPersistence.includes("publishedCommit,"));
+    assert.ok(manifestPersistence.includes("publicationStatus,"));
+    assert.ok(manifestPersistence.includes("receiptSha256,"));
+    assert.ok(manifestPersistence.includes("manifestSha256: sha256"));
   });
 
   it("persists exact mapped policy inputs and the computed terminal budget in every source receipt", () => {
@@ -2212,42 +2760,85 @@ describe("autonomous ingestion runner static safety contracts", () => {
     assert.doesNotMatch(publicationBuild, /node_modules\/next|production build/);
   });
 
-  it("rebases, rebuilds, validates, and retries a non-fast-forward publication once", () => {
+  it("transplants generated artifacts onto a concurrent main base, then rebuilds with pinned code", () => {
     const publication = section("async function publishRepositoryArtifacts", "async function stageRepositoryArtifacts");
     const pushRunner = section("async function runPublicationPush", "async function resolveAmbiguousPublicationAfterCancellation");
+    const recovery = section(
+      "async function pushPublicationCandidateWithConcurrentMainRecovery",
+      "async function pushPublicationCandidateAttempt"
+    );
+    const pushAttempt = section(
+      "async function pushPublicationCandidateAttempt",
+      "async function fetchExactPublicationRetryBase"
+    );
+    const fetchRetryBase = section(
+      "async function fetchExactPublicationRetryBase",
+      "async function rebuildPublicationCandidateOnConcurrentBase"
+    );
+    const rebuild = section(
+      "async function rebuildPublicationCandidateOnConcurrentBase",
+      "async function verifyAndClassifyPublicationCandidate"
+    );
+    const identity = section(
+      "async function verifyPublicationCandidateIdentity",
+      "async function adoptReachablePublicationCandidate"
+    );
     assert.ok(pushRunner.includes('`${candidate.publishedCommit}:${candidate.branch}`'));
-    assert.ok(publication.includes("allowedExitCodes: [0, 1]"));
+    assert.ok(pushAttempt.includes("allowedExitCodes: [0, 1]"));
+    assert.ok(pushAttempt.includes("retryTransportFailures: true"));
     assert.ok(publication.includes('"publication.push_retry"'));
-    assert.ok(publication.includes('["-c", "core.hooksPath=/dev/null", "rebase", retryBaseCommit]'));
-    assert.ok(publication.includes("rebasedSanitizedPublicSnapshot"));
-    assert.ok(publication.includes("const retryDurableImport = await importDurableEvidence"));
-    assert.ok(publication.includes("assertDurableAttributionCompleteness(retryDurableImport)"));
-    assert.ok(publication.includes(
+    assert.ok(runner.includes("const MAX_PUBLICATION_PUSH_ATTEMPTS = 3"));
+    assert.ok(recovery.includes("while (attempts < MAX_PUBLICATION_PUSH_ATTEMPTS)"));
+    assert.ok(recovery.includes("isConcurrentMainPushRejection(pushResult)"));
+    assert.ok(recovery.includes("retryableTransportFailure"));
+    assert.ok(recovery.includes("await adoptCandidate(candidate"));
+    assert.ok(recovery.includes("remoteTipCommit: retryBaseCommit"));
+    assert.ok(recovery.includes("retryBaseCommit === candidate.publishedCommit"));
+    assert.ok(recovery.includes("retryBaseCommit === candidate.publicationBaseCommit"));
+    assert.ok(recovery.indexOf("remoteTipCommit: retryBaseCommit") < recovery.indexOf("await rebuildCandidate({"));
+    assert.ok(fetchRetryBase.includes("assertTrustedPublicationBaseCommit(retryBaseCommit"));
+    assert.ok(fetchRetryBase.includes("allowInertCodeDrift: true"));
+    assert.ok(rebuild.includes("transplantPublicationArtifactsOntoRetryBase"));
+    assert.ok(rebuild.includes("candidateCommit: candidate.publishedCommit"));
+    assert.ok(rebuild.includes("candidateBaseCommit: candidate.publicationBaseCommit"));
+    assert.ok(rebuild.includes("rebasedSanitizedPublicSnapshot"));
+    assert.ok(rebuild.includes("const retryDurableImport = await importDurableEvidence"));
+    assert.ok(rebuild.includes("assertDurableAttributionCompleteness(retryDurableImport)"));
+    assert.ok(rebuild.includes(
       "await mergePublicationInputs(rebasedPublicationInputs, { baseRef: publicationBaseCommit })"
     ));
-    assert.ok(publication.includes("assertTrustedPublicationBaseCommit(retryBaseCommit"));
-    assert.ok(publication.includes("assertNoTrackedSymlinksAtCommit(rebasedHeadCommit"));
-    const rebaseIndex = publication.indexOf('["-c", "core.hooksPath=/dev/null", "rebase", retryBaseCommit]');
-    const prepareIndex = publication.indexOf("const rebasedSanitizedPublicSnapshot");
-    const retryImportIndex = publication.indexOf("const retryDurableImport = await importDurableEvidence");
-    const guardIndex = publication.indexOf("assertDurableAttributionCompleteness(retryDurableImport)");
-    const samePlanMergeIndex = publication.indexOf("await mergePublicationInputs(rebasedPublicationInputs");
-    const rebuildIndex = publication.indexOf(
+    assert.ok(identity.includes("assertPublicationCandidateProof("));
+    assert.ok(identity.includes("verifyPublicationCommitProvenance(candidate.publishedCommit"));
+    assert.doesNotMatch(rebuild, /amend:\s*true|headHasPublicationRunIdentity/);
+    assert.match(rebuild, /amend: false/);
+    assert.doesNotMatch(publication, /\brebase\b/);
+    const transplant = section(
+      "async function transplantPublicationArtifactsOntoRetryBase",
+      "function parseGitNameStatusNul"
+    );
+    assert.match(transplant, /allowedExitCodes: \[0\]/);
+    assert.doesNotMatch(transplant, /allowedExitCodes: \[0, 128\]/);
+    const transplantIndex = rebuild.indexOf("transplantPublicationArtifactsOntoRetryBase");
+    const prepareIndex = rebuild.indexOf("const rebasedSanitizedPublicSnapshot");
+    const retryImportIndex = rebuild.indexOf("const retryDurableImport = await importDurableEvidence");
+    const guardIndex = rebuild.indexOf("assertDurableAttributionCompleteness(retryDurableImport)");
+    const samePlanMergeIndex = rebuild.indexOf("await mergePublicationInputs(rebasedPublicationInputs");
+    const rebuildIndex = rebuild.indexOf(
       "await buildAndValidatePublication(publicationRunId, publicationInputs.catalogState)",
       samePlanMergeIndex,
     );
     assert.ok(
-      rebaseIndex < prepareIndex &&
+      transplantIndex < prepareIndex &&
       prepareIndex < retryImportIndex &&
       retryImportIndex < guardIndex &&
       guardIndex < samePlanMergeIndex &&
       samePlanMergeIndex < rebuildIndex
     );
-    assert.ok(publication.includes(
+    assert.ok(rebuild.includes(
       "await buildAndValidatePublication(publicationRunId, publicationInputs.catalogState)",
     ));
-    assert.ok(publication.includes("await stageRepositoryArtifacts()"));
-    assert.ok(publication.includes('commandLabel: "retry refreshed artifact push"'));
+    assert.ok(rebuild.includes("await stageRepositoryArtifacts()"));
+    assert.ok(pushAttempt.includes("`retry refreshed artifact push ${attempt}`"));
   });
 
   it("publishes learned discovery state from isolated batch collector files", () => {
@@ -2259,7 +2850,7 @@ describe("autonomous ingestion runner static safety contracts", () => {
     assert.ok(artifactPaths.includes('"outputs/source-discovery-paths-current.json"'));
   });
 
-  it("re-reads and semantically merges publication state only after the initial rebase", () => {
+  it("re-reads and semantically merges publication state only after initial base synchronization", () => {
     const synchronizeIndex = runner.indexOf("await synchronizePublicationBase()");
     const mergeIndex = runner.indexOf("await mergePublicationInputs(publicationInputs)");
     const preparation = section("async function prepareSanitizedPublicSnapshot", "async function mergePublicationInputs");
@@ -2311,7 +2902,7 @@ describe("autonomous ingestion runner static safety contracts", () => {
 });
 
 describe("pinned source and publication-base trust boundaries", () => {
-  it("accepts only data-only descendants and rejects executable drift and tracked symlinks", async () => {
+  it("accepts data-only bases and explicitly inert source drift, while rejecting executable/policy drift", async () => {
     const sourceCommit = runGit(repositoryRoot, ["rev-parse", "HEAD^{commit}"]).stdout.trim();
     const dataCommit = await createDetachedFixtureCommit({
       parent: sourceCommit,
@@ -2322,6 +2913,16 @@ describe("pinned source and publication-base trust boundaries", () => {
       parent: sourceCommit,
       filePath: "scripts/queued-run-malicious.mjs",
       content: 'throw new Error("target code executed");\n'
+    });
+    const inertCodeCommit = await createDetachedFixtureCommit({
+      parent: sourceCommit,
+      filePath: "src/lib/graph/layout.ts",
+      content: "export const inertLayoutFixture = true;\n"
+    });
+    const inertTestCodeCommit = await createDetachedFixtureCommit({
+      parent: sourceCommit,
+      filePath: "tests/fixture-layout.tsx",
+      content: "export const inertTestLayoutFixture = true;\n"
     });
     const symlinkCommit = await createDetachedFixtureCommit({
       parent: sourceCommit,
@@ -2336,6 +2937,18 @@ describe("pinned source and publication-base trust boundaries", () => {
     });
 
     assert.equal(isReplaySafePublicationDataPath("src/lib/social/package.json"), false);
+    assert.equal(isSafeInertPublicationBasePath("src/lib/graph/layout.ts"), true);
+    assert.equal(isSafeInertPublicationBasePath("tests/fixture-layout.tsx"), true);
+    assert.equal(isSafeInertPublicationBasePath("tests/fixture-layout.js"), false);
+    assert.equal(isSafeInertPublicationBasePath("src/config.ts"), false);
+    assert.equal(isSafeInertPublicationBasePath("tests/dependencies/fixture.ts"), false);
+    for (const suffix of ["config", "policy", "settings"]) {
+      assert.equal(isSafeInertPublicationBasePath(`src/lib/runtime.${suffix}.ts`), false);
+      assert.equal(isSafeInertPublicationBasePath(`tests/runtime.${suffix}.tsx`), false);
+    }
+    assert.equal(isSafeInertPublicationBasePath("scripts/queued-run-malicious.mjs"), false);
+    assert.equal(isSafeInertPublicationBasePath(".github/workflows/fixture.ts"), false);
+    assert.equal(isSafeInertPublicationBasePath("supabase/functions/fixture.ts"), false);
     assert.equal(isProtectedSourcePolicyPath("src/lib/social/package.json"), true);
     assert.equal(
       isReplaySafePublicationDataPath("src/lib/social/logged-in-evidence-current.json"),
@@ -2350,6 +2963,22 @@ describe("pinned source and publication-base trust boundaries", () => {
       LIFECYCLE_FIXTURE_BASE_LABEL: "initial publication base"
     }));
     assert.equal(accepted.accepted, true);
+
+    const acceptedInertCode = lifecycleFixturePayload(runLifecycleFixture("publication-base-trust", {
+      LIFECYCLE_FIXTURE_SOURCE_COMMIT: sourceCommit,
+      LIFECYCLE_FIXTURE_BASE_COMMIT: inertCodeCommit,
+      LIFECYCLE_FIXTURE_BASE_LABEL: "publication retry base",
+      LIFECYCLE_FIXTURE_ALLOW_INERT_CODE_DRIFT: "true"
+    }));
+    assert.equal(acceptedInertCode.accepted, true);
+
+    const acceptedInertTestCode = lifecycleFixturePayload(runLifecycleFixture("publication-base-trust", {
+      LIFECYCLE_FIXTURE_SOURCE_COMMIT: sourceCommit,
+      LIFECYCLE_FIXTURE_BASE_COMMIT: inertTestCodeCommit,
+      LIFECYCLE_FIXTURE_BASE_LABEL: "publication retry base",
+      LIFECYCLE_FIXTURE_ALLOW_INERT_CODE_DRIFT: "true"
+    }));
+    assert.equal(acceptedInertTestCode.accepted, true);
 
     for (const [candidateCommit, expected] of [
       [codeCommit, /executable, policy, dependency, or non-allowlisted drift.*scripts\/queued-run-malicious\.mjs/],
@@ -2366,10 +2995,20 @@ describe("pinned source and publication-base trust boundaries", () => {
     }
 
     const ensureBoundary = section("async function ensurePublicationWorktree", "async function resolveSourceExecutionCommit");
-    const retryBoundary = section("if (firstPush.code !== 0)", "const rebasedSanitizedTargetedSnapshot");
+    const retryFetchBoundary = section(
+      "async function fetchExactPublicationRetryBase",
+      "async function rebuildPublicationCandidateOnConcurrentBase"
+    );
+    const retryRebuildBoundary = section(
+      "async function rebuildPublicationCandidateOnConcurrentBase",
+      "async function verifyAndClassifyPublicationCandidate"
+    );
     assert.match(ensureBoundary, /assertTrustedPublicationBaseCommit\(baseCommit/);
-    assert.match(retryBoundary, /assertTrustedPublicationBaseCommit\(retryBaseCommit/);
-    assert.match(retryBoundary, /rebase", retryBaseCommit/);
+    assert.match(ensureBoundary, /allowInertCodeDrift: true/);
+    assert.match(runner, /resolveVerifiedCurrentPublicationCommit\(\{\n\s*labelPrefix: "initial publication base",\n\s*allowInertCodeDrift: true/);
+    assert.match(retryFetchBoundary, /assertTrustedPublicationBaseCommit\(retryBaseCommit/);
+    assert.match(retryFetchBoundary, /allowInertCodeDrift: true/);
+    assert.match(retryRebuildBoundary, /transplantPublicationArtifactsOntoRetryBase/);
   });
 
   it("rejects source-root mismatch and dirty executable code before privileged work", async () => {
@@ -2449,6 +3088,125 @@ function section(start, end, source = runner) {
   return source.slice(startIndex, endIndex);
 }
 
+function linkedInReplayRuntime({
+  nowMs = 1_800_000_000_000,
+  collectionDeadlineAt = nowMs + 60 * 60_000,
+  plan = async () => ({ status: "completed", runnableTargetCount: 0, plan: {} }),
+  collect = async () => ({ status: "completed", exitCode: 0 })
+} = {}) {
+  const replaySource = section(
+    "function createLinkedInReplayState",
+    "async function runAuthenticatedLinkedInPlan"
+  );
+  const runtime = new Function(
+    "LINKEDIN_REPLAY_MAX_CHUNKS",
+    "LINKEDIN_REPLAY_TARGET_CAP",
+    "LINKEDIN_REPLAY_RESERVE_MS",
+    "AUTONOMOUS_PROCESS_BUDGETS",
+    "collectionBudget",
+    "runAuthenticatedLinkedInPlan",
+    "runAuthenticatedCollectorCommand",
+    "event",
+    "Date",
+    `${replaySource}\nreturn {\n` +
+      "  createLinkedInReplayState,\n" +
+      "  reduceLinkedInReplayState,\n" +
+      "  linkedInReplayIsComplete,\n" +
+      "  decideLinkedInReplayAdmission,\n" +
+      "  createLinkedInReplayResult,\n" +
+      "  linkedInReplayChildDeadlineAt,\n" +
+      "  runAuthenticatedLinkedInReplayBatch\n" +
+      "};"
+  );
+  return runtime(
+    7,
+    5,
+    15 * 60_000,
+    { collectionDeadlineDrainHeadroomMs: 5 * 60_000 },
+    {
+      deadlineAt: collectionDeadlineAt,
+      remainingMs: () => Math.max(0, collectionDeadlineAt - nowMs)
+    },
+    plan,
+    collect,
+    async () => {},
+    { now: () => nowMs }
+  );
+}
+
+function authenticatedCollectorEnvironment({ durableLock = true } = {}) {
+  return {
+    OPENCLI_BIN: "/opt/opencli/bin/opencli",
+    OPENCLI_PROFILE: "/runner/profile",
+    RETURNER_LINKEDIN_VIEWER_PROFILE: "linkedin-viewer",
+    RETURNER_INSTAGRAM_VIEWER_HANDLE: "instagram-viewer",
+    ...(durableLock
+      ? {
+          NEXT_PUBLIC_SUPABASE_URL: "https://example.supabase.co",
+          SUPABASE_SERVICE_ROLE_KEY: "service-role-key",
+          LINKEDIN_GLOBAL_LOCK_NAMESPACE: "linkedin-global"
+        }
+      : {})
+  };
+}
+
+function authenticatedCollectorsRuntime({
+  replay,
+  env = authenticatedCollectorEnvironment(),
+  collect,
+  replayBatch,
+  batchSlugs = ["S2026", "S26", "A16ZSR006"]
+}) {
+  const collectorsSource = section(
+    "async function runAuthenticatedCollectors",
+    "function createLinkedInReplayState"
+  );
+  const batches = batchSlugs.map((slug) => ({ slug }));
+  const runtime = new Function(
+    "process",
+    "cleanEnv",
+    "event",
+    "AUTONOMOUS_BATCHES",
+    "loggedInOutputs",
+    "loggedInCheckpointOutputs",
+    "runAuthenticatedCollectorCommand",
+    "runAuthenticatedLinkedInReplayBatch",
+    "createLinkedInReplayState",
+    "reduceLinkedInReplayState",
+    "createLinkedInReplayResult",
+    "linkedInReplayIsComplete",
+    "LINKEDIN_REPLAY_TARGET_CAP",
+    `${collectorsSource}\nreturn runAuthenticatedCollectors;`
+  );
+  return runtime(
+    { env },
+    (value) => typeof value === "string" && value.trim() ? value.trim() : null,
+    async () => {},
+    batches,
+    new Map(batchSlugs.map((slug) => [slug, `/outputs/${slug}.json`])),
+    new Map(batchSlugs.map((slug) => [slug, `/checkpoints/${slug}.json`])),
+    collect,
+    replayBatch,
+    replay.createLinkedInReplayState,
+    replay.reduceLinkedInReplayState,
+    replay.createLinkedInReplayResult,
+    replay.linkedInReplayIsComplete,
+    5
+  );
+}
+
+function authenticatedReplayPublicationValidator() {
+  const validatorSource = section(
+    "function assertAuthenticatedReplayCanPublish",
+    "function assertSuccessfulTopVoiceRefresh"
+  );
+  return new Function(
+    "LINKEDIN_REPLAY_MAX_CHUNKS",
+    "LINKEDIN_REPLAY_TARGET_CAP",
+    `${validatorSource}\nreturn assertAuthenticatedReplayCanPublish;`
+  )(7, 5);
+}
+
 function normalizePinnedSourcePaths(source) {
   return source.replace(/sourcePath\((?:\s*"[^"]+"\s*,?)+\)/g, (call) => {
     const segments = [...call.matchAll(/"([^"]+)"/g)].map((match) => match[1]);
@@ -2476,6 +3234,25 @@ async function writeExecutable(filePath, source) {
   await writeFile(filePath, source, { encoding: "utf8", mode: 0o755 });
 }
 
+async function createTimedFakeGit({
+  root,
+  markerPath,
+  fetchDelayMs = 0,
+  ancestryDelayMs = 0
+}) {
+  const bin = path.join(root, "bin");
+  await mkdir(bin, { recursive: true });
+  await writeExecutable(path.join(bin, "git"), `#!/usr/bin/env node
+const { appendFileSync } = require("node:fs");
+const args = process.argv.slice(2);
+appendFileSync(${JSON.stringify(markerPath)}, JSON.stringify(args) + "\\n");
+const delay = args[0] === "fetch" ? ${fetchDelayMs} :
+  args[0] === "merge-base" ? ${ancestryDelayMs} : 0;
+setTimeout(() => process.exit(0), delay);
+`);
+  return bin;
+}
+
 function processExists(pid) {
   try {
     process.kill(pid, 0);
@@ -2498,7 +3275,7 @@ async function waitForProcessExit(pid, timeoutMs) {
   }
 }
 
-function runLifecycleFixture(fixture, extraEnv = {}, cwd = repositoryRoot) {
+function runLifecycleFixture(fixture, extraEnv = {}, cwd = repositoryRoot, timeoutMs = 5_000) {
   return spawnSync(
     process.execPath,
     [runnerPath, `--idempotency-key=${fixture}-contract`],
@@ -2511,7 +3288,7 @@ function runLifecycleFixture(fixture, extraEnv = {}, cwd = repositoryRoot) {
         ...extraEnv
       },
       encoding: "utf8",
-      timeout: 5_000
+      timeout: timeoutMs
     }
   );
 }
@@ -2551,6 +3328,79 @@ async function createDetachedFixtureCommit({ parent, filePath, content, mode = "
     ["commit-tree", tree, "-p", parent, "-m", `fixture ${filePath}`],
     { env: fixtureEnv }
   ).stdout.trim();
+}
+
+async function createDetachedFixtureDeletionCommit({ parent, filePath }) {
+  const indexRoot = await mkdtemp(path.join(os.tmpdir(), "returner-publication-delete-"));
+  temporaryRoots.push(indexRoot);
+  const gitIndex = path.join(indexRoot, "index");
+  const fixtureEnv = {
+    ...process.env,
+    GIT_INDEX_FILE: gitIndex,
+    GIT_AUTHOR_NAME: "Publication Trust Fixture",
+    GIT_AUTHOR_EMAIL: "publication-trust@example.com",
+    GIT_COMMITTER_NAME: "Publication Trust Fixture",
+    GIT_COMMITTER_EMAIL: "publication-trust@example.com"
+  };
+  runGitWithOptions(repositoryRoot, ["read-tree", parent], { env: fixtureEnv });
+  runGitWithOptions(repositoryRoot, ["update-index", "--force-remove", "--", filePath], { env: fixtureEnv });
+  const tree = runGitWithOptions(repositoryRoot, ["write-tree"], { env: fixtureEnv }).stdout.trim();
+  return runGitWithOptions(
+    repositoryRoot,
+    ["commit-tree", tree, "-p", parent, "-m", `fixture delete ${filePath}`],
+    { env: fixtureEnv }
+  ).stdout.trim();
+}
+
+async function runPublicationRaceFixture({ mode, concurrentAdvanceCount }) {
+  const publicationParent = await mkdtemp(path.join(os.tmpdir(), "returner-publication-race-"));
+  const publicationRoot = path.join(publicationParent, "checkout");
+  temporaryRoots.push(publicationParent);
+  const sourceCommit = runGit(repositoryRoot, ["rev-parse", "HEAD^{commit}"]).stdout.trim();
+  const receipt = `${JSON.stringify({
+    schemaVersion: 1,
+    idempotencyKey: "publication-race-loop-contract",
+    trigger: "manual-replay",
+    scheduledAt: null,
+    fixture: mode
+  }, null, 2)}\n`;
+  const baseCommit = await createDetachedFixtureCommit({
+    parent: sourceCommit,
+    filePath: "outputs/ingestion-source-delta-current.json",
+    content: receipt
+  });
+  const concurrentCommits = [];
+  let concurrentParent = baseCommit;
+  for (let index = 0; index < concurrentAdvanceCount; index += 1) {
+    const concurrentCommit = await createDetachedFixtureCommit({
+      parent: concurrentParent,
+      filePath: `src/lib/graph/publication-race-${index + 1}.ts`,
+      content: `export const publicationRace${index + 1} = true;\n`
+    });
+    concurrentCommits.push(concurrentCommit);
+    concurrentParent = concurrentCommit;
+  }
+
+  runGit(repositoryRoot, ["worktree", "add", "--detach", publicationRoot, baseCommit]);
+  try {
+    const result = runLifecycleFixture("publication-race-loop", {
+      GITHUB_RUN_ID: "publication-race-fixture",
+      GITHUB_RUN_ATTEMPT: "1",
+      LIFECYCLE_FIXTURE_PUBLICATION_ROOT: publicationRoot,
+      LIFECYCLE_FIXTURE_PUBLICATION_PARENT: publicationParent,
+      LIFECYCLE_FIXTURE_BASE_COMMIT: baseCommit,
+      LIFECYCLE_FIXTURE_PUBLICATION_RACE_MODE: mode,
+      LIFECYCLE_FIXTURE_CONCURRENT_COMMITS: concurrentCommits.join(",")
+    }, repositoryRoot, 15_000);
+    return {
+      payload: lifecycleFixturePayload(result),
+      baseCommit,
+      concurrentCommits
+    };
+  } finally {
+    runGit(repositoryRoot, ["worktree", "remove", "--force", publicationRoot]);
+    runGit(repositoryRoot, ["worktree", "prune"]);
+  }
 }
 
 function delayForTest(milliseconds) {

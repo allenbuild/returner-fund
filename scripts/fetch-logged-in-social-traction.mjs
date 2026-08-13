@@ -39,20 +39,28 @@ import {
   xTweetPublicationDate
 } from "./lib/logged-in-x-collection.mjs";
 import {
+  appendInstagramAttemptEvidence,
   canonicalInstagramPostUrl,
+  compactLoggedInStoredRows,
+  LOGGED_IN_STORED_RAW_TEXT_LIMIT,
   instagramAdapterProfileIdentityDecision,
   instagramBrowserProfileIdentityDecision,
   instagramCircuitDecision,
   instagramCollectionAttemptState,
+  instagramDetailUrlsNeedingEnrichment,
+  instagramDeepScrollPaginationDecision,
   instagramEvidenceProvenance,
   instagramFailureKind,
+  instagramGridOnlyOwnershipDecision,
   instagramPublicationDate,
   normalizeInstagramDetailObservation,
   instagramPostIdFromUrl,
   instagramRecencyDecision,
   instagramShouldRetryTransientBrowserFailure,
   instagramTargetIsVerifiedForIngestion,
+  mergeInstagramGridPassObservations,
   mergeVerifiedSocialAccountCandidates,
+  normalizeInstagramDeepScrollPagination,
   prioritizeInstagramTargets
 } from "./lib/logged-in-instagram-collection.mjs";
 import {
@@ -64,7 +72,9 @@ import {
 } from "./lib/logged-in-owner-collision-reconciliation.mjs";
 import {
   DEFAULT_LOGGED_IN_SOCIAL_FRESH_FOR_HOURS,
+  LINKEDIN_CHILD_SAFETY_STOP_EXIT_CODE,
   collectionTargetShouldRun,
+  linkedinChildSafetyStopDecision,
   partitionCollectionTargetsByOwnerAmbiguity,
   selectRunnableCollectionTargets
 } from "./lib/logged-in-social-target-selection.mjs";
@@ -127,6 +137,9 @@ const perTargetTimeoutMs = numberArg("--timeout-ms") ?? 75_000;
 const delayMs = numberArg("--delay-ms") ?? 1_500;
 const force = booleanArg("--force");
 const platformFilter = new Set((stringArg("--platforms") ?? "instagram,x").split(",").map((item) => item.trim()).filter(Boolean));
+const terminalCompletedPlatforms = platformSetArg(
+  "--terminal-completed-platforms"
+);
 const entityFilter = stringArg("--entities") ?? "all"; // all | company | founder
 const companyFilter = stringArg("--company")?.toLowerCase();
 const includeRetweets = booleanArg("--include-retweets");
@@ -173,6 +186,7 @@ let xCircuitReason = null;
 let consecutiveLinkedInCollectionFailures = 0;
 let linkedinCircuitOpen = false;
 let linkedinCircuitReason = null;
+let linkedinChildSafetyStop = null;
 let consecutiveInstagramCollectionFailures = 0;
 let instagramCircuitOpen = false;
 let instagramCircuitReason = null;
@@ -198,15 +212,18 @@ const targetCompanies = ycSnapshot.companies.filter(
 const completeTargetPartition = partitionCollectionTargetsByOwnerAmbiguity(
   collectTargets(targetCompanies)
 );
-const checkpointEntries = await Promise.all(
-  checkpointPaths.map(async (path) => ({
+const checkpointEntries = [];
+for (const path of checkpointPaths) {
+  checkpointEntries.push({
     path,
-    payload: await readJson(
-      path,
-      { attempts: {}, evidence: [], failures: [], needsReview: [] }
+    payload: compactStoredPayload(
+      await readJson(
+        path,
+        { attempts: {}, evidence: [], failures: [], needsReview: [] }
+      )
     )
-  }))
-);
+  });
+}
 const rawCheckpoint =
   checkpointEntries.find((entry) => entry.path === checkpointPath)?.payload ??
   { attempts: {}, evidence: [], failures: [], needsReview: [] };
@@ -222,7 +239,9 @@ const checkpointPayloads = canonicalCheckpointPayloads(checkpointEntries, {
   activePath: checkpointPath,
   activeCheckpoint: checkpoint
 });
-const currentOutput = await readJson(outputPath, { evidence: [], failures: [], needsReview: [] });
+const currentOutput = compactStoredPayload(
+  await readJson(outputPath, { evidence: [], failures: [], needsReview: [] })
+);
 const attemptMap = new Map(Object.entries(checkpoint.attempts ?? {}));
 const initialContentDedupe = finalizeLoggedInEvidenceContent(
   dedupeById([
@@ -246,14 +265,13 @@ const initialContentDedupe = finalizeLoggedInEvidenceContent(
   }
 );
 const evidence = initialContentDedupe.evidence;
-const priorityEvidence = [
-  ...evidence,
-  ...(await Promise.all(
-    priorityEvidencePaths.map((path) =>
-      readJson(path, { evidence: [] })
-    )
-  )).flatMap((payload) => payload.evidence ?? [])
-];
+const priorityEvidence = [...evidence];
+for (const path of priorityEvidencePaths) {
+  const priorityPayload = compactStoredPayload(
+    await readJson(path, { evidence: [] })
+  );
+  for (const row of priorityPayload.evidence ?? []) priorityEvidence.push(row);
+}
 const failures = dedupeById([
   ...(currentOutput.failures ?? []),
   ...checkpointCanonicalRows(checkpointPayloads, "failures")
@@ -291,19 +309,32 @@ const prioritizedTargets = prioritizeInstagramTargets(
     attemptKey: attemptKeyFor
   },
 );
-const globallyBoundedRunnableTargets = selectRunnableCollectionTargets(prioritizedTargets, {
+const eligibleRunnableTargets = selectRunnableCollectionTargets(prioritizedTargets, {
   attempts: attemptMap,
   attemptKey: attemptKeyFor,
   force,
   retryEmpty,
+  terminalCompletedPlatforms,
   freshForHours,
   now,
-  limit: targetLimit
+  limit: Number.POSITIVE_INFINITY
 });
+const globallyBoundedRunnableTargets = Number.isFinite(Number(targetLimit))
+  ? eligibleRunnableTargets.slice(
+      0,
+      Math.max(0, Math.floor(Number(targetLimit)))
+    )
+  : eligibleRunnableTargets;
 const runnableTargets = limitLinkedInTargetsPerInvocation(
   globallyBoundedRunnableTargets,
   linkedinExecution.targetCap
 );
+const remainingLinkedInTargetCount = eligibleRunnableTargets.filter(
+  (target) => target.platform === "linkedin"
+).length;
+const selectedLinkedInTargetCount = runnableTargets.filter(
+  (target) => target.platform === "linkedin"
+).length;
 // The plan is a canonical account map and must not shrink as checkpoints
 // complete. Only runtime execution uses the bounded runnable subset.
 const targets = planOnly ? prioritizedTargets : runnableTargets;
@@ -338,9 +369,9 @@ if (planOnly) {
       requestedTargetCap: linkedinExecution.requestedTargetCap,
       targetCap: linkedinExecution.targetCap,
       maximumTargetCap: linkedinExecution.maximumTargetCap,
-      runnableTargetCount: runnableTargets.filter(
-        (target) => target.platform === "linkedin"
-      ).length,
+      remainingTargetCount: remainingLinkedInTargetCount,
+      selectedForThisInvocationCount: selectedLinkedInTargetCount,
+      runnableTargetCount: selectedLinkedInTargetCount,
       serial: true,
       persistentHostPacing: true
     },
@@ -362,6 +393,8 @@ if (planOnly) {
         checkpointKey: attemptKeyFor(target)
       }))
     })),
+    remainingTargetCount: eligibleRunnableTargets.length,
+    selectedForThisInvocationCount: runnableTargets.length,
     runnableTargetCount: runnableTargets.length,
     runnableTargets: runnableTargets.map((target) => ({
       batchSlug: target.batchSlug,
@@ -419,12 +452,22 @@ async function collectTarget(target, workerIndex, collectionGuard = null) {
           ? await fetchInstagramPosts(target, workerIndex)
           : await fetchXTweets(target, workerIndex);
     collectionGuard?.assertHealthy?.();
-    if (force) removeTargetEvidence(target);
     removeTargetFailures(target);
-    addItems(result.evidence, evidence);
+    if (target.platform === "instagram") {
+      appendInstagramAttemptEvidence(evidence, result.evidence);
+    } else {
+      addItems(result.evidence, evidence);
+    }
     addItems(result.failures, failures);
     addItems(result.needsReview, needsReview);
-    const attemptStatus = result.collectionFailed ? "failed" : "done";
+    const instagramPaginationIncomplete =
+      target.platform === "instagram" &&
+      result.instagramPagination?.exhausted !== true;
+    const attemptStatus = result.collectionFailed
+      ? "failed"
+      : instagramPaginationIncomplete
+        ? "partial"
+        : "done";
     attemptMap.set(
       attemptKey,
       attemptStatus === "failed"
@@ -432,9 +475,19 @@ async function collectTarget(target, workerIndex, collectionGuard = null) {
             status: "failed",
             checkedAt: now,
             count: 0,
-            error: result.failures.map((item) => item.message).join(" | ")
+            error: result.failures.map((item) => item.message).join(" | "),
+            ...(result.instagramPagination
+              ? { instagramPagination: result.instagramPagination }
+              : {})
           }
-        : { status: "done", checkedAt: now, count: result.evidence.length }
+        : {
+            status: attemptStatus,
+            checkedAt: now,
+            count: result.evidence.length,
+            ...(result.instagramPagination
+              ? { instagramPagination: result.instagramPagination }
+              : {})
+          }
     );
     if (target.platform === "x") {
       updateXCircuitState(result, target);
@@ -554,6 +607,18 @@ const contentDedupe = finalizeLoggedInEvidenceContent(dedupeById(evidence), {
   existingNeedsReview: needsReview,
   existingAttributionReconciliationLedger: attributionReconciliationLedger
 });
+const instagramCoverageTargets = completeTargetPartition.targets.filter(
+  (target) => target.platform === "instagram"
+);
+const instagramCoverage = {
+  status: "non_exhaustive",
+  mechanism: "opencli-first-page-plus-complete-bounded-authenticated-browser-window",
+  adapterPagination: "unavailable",
+  reason:
+    "OpenCLI instagram/user discards max_id/page_info metadata and browser scroll state has no trustworthy resume cursor or end-of-profile proof; each fresh invocation processes its complete bounded adapter plus DOM window while coverage remains explicitly non-exhaustive.",
+  accountCount: instagramCoverageTargets.length,
+  exhaustedAccountCount: 0
+};
 const payload = {
   source: {
     label: "Opt-in logged-in browser social post ingestion",
@@ -568,12 +633,16 @@ const payload = {
       "Instagram profile grids and X profile timelines are treated as opt-in authenticated/read-only sources when explicitly targeted.",
       `X ingestion mode: ${xCollectionMode}. Browser, adapter, and hybrid modes are read-only; hybrid prefers the authenticated adapter and uses the DOM only to fill incomplete results.`,
       `LinkedIn ingestion mode: ${linkedinCollectionMode}. Authenticated browser DOM collection is the only supported mode so interaction pacing remains locally auditable.`,
+      `Instagram authenticated history coverage status: ${instagramCoverage.status}. OpenCLI exposes no reliable cursor and generic browser stalls are not an exhaustion proof; each fresh run processes one complete bounded adapter plus DOM window, persists every admitted native post, and records only bounded recent-ID/detail-fairness metadata.`,
       `Logged-in LinkedIn activity scraping is disabled unless both --platforms=linkedin and --allow-linkedin are passed. It uses one account-global locked serial worker, a hard cap of ${linkedinExecution.maximumTargetCap} targets per invocation, persistent host-local pacing with at least ${linkedinExecution.delayMs}ms between completed target attempts, keeps the durable account lease for the same final cooldown before release, and places the durable lease in a one-year manual-recovery quarantine when authenticated browser cleanup cannot be proven.`,
       "LinkedIn challenge, checkpoint, account-warning, authentication, and HTTP 429 signals abort the LinkedIn lane immediately so untouched targets remain retryable.",
       "Instagram login, challenge, and rate-limit failures open a circuit immediately; repeated command or profile failures open it after three consecutive failed targets. Legitimate empty native timelines remain completed empty checks.",
       `Checkpoint owner-collision reconciliation: ${ownerCollisionReconciliationSummary.reattributedCount} stale company rows reattributed, ${ownerCollisionReconciliationSummary.quarantinedCount} quarantined.`,
       "Each target is checkpointed independently; blocked or timed-out profiles are logged and do not stop the batch."
-    ]
+    ],
+    coverage: {
+      instagram: instagramCoverage
+    }
   },
   evidence: sanitizeStoredRows(contentDedupe.evidence).sort((a, b) => b.contributionScore - a.contributionScore),
   failures: sanitizeStoredRows(payloadFailures),
@@ -584,6 +653,19 @@ const payload = {
 await writeJson(outputPath, payload);
 await writeCheckpoint();
 console.log(`Wrote ${payload.evidence.length} logged-in post evidence items, ${payload.failures.length} failures.`);
+if (linkedinChildSafetyStop) {
+  const safetyDiagnostic = redactTokenLikeStrings(
+    linkedinChildSafetyStop.diagnostic
+  ).slice(0, 2_048);
+  console.error(
+    `LINKEDIN_CHILD_SAFETY_STOP exit=${LINKEDIN_CHILD_SAFETY_STOP_EXIT_CODE} ` +
+    `kind=${linkedinChildSafetyStop.failureKind} ` +
+    `target=${linkedinChildSafetyStop.targetName}: ${safetyDiagnostic}`
+  );
+  // Set an exit code instead of exiting abruptly so all proven browser,
+  // durable-lease, stdout/stderr, and atomic-file cleanup can finish normally.
+  process.exitCode = LINKEDIN_CHILD_SAFETY_STOP_EXIT_CODE;
+}
 
 function normalizeCollectorSnapshot(snapshot, config) {
   if (Array.isArray(snapshot?.companies)) return snapshot;
@@ -1237,6 +1319,23 @@ async function fetchInstagramPosts(target, workerIndex) {
     return { evidence: [], failures: [failure(target, "Could not parse Instagram username.")], needsReview: [] };
   }
 
+  const priorInstagramPagination = normalizeInstagramDeepScrollPagination(
+    attemptMap.get(attemptKeyFor(target))?.instagramPagination,
+    { handle }
+  );
+  const existingInstagramPostIds = new Set();
+  for (const row of evidence) {
+    if (
+      row?.platform !== "instagram" ||
+      row?.batchSlug !== target.batchSlug ||
+      row?.entityId !== target.entityId
+    ) {
+      continue;
+    }
+    const postId = instagramPostIdFromUrl(row?.sourceUrl);
+    if (postId) existingInstagramPostIds.add(postId);
+  }
+
   const adapterFailures = [];
   let profileAdapterCompleted = false;
   let timelineAdapterCompleted = false;
@@ -1278,8 +1377,11 @@ async function fetchInstagramPosts(target, workerIndex) {
   }
 
   let gridUrls = [];
+  let gridCollection = null;
   try {
-    gridUrls = await fetchInstagramGridUrls(handle, workerIndex, postLimit);
+    const gridResult = await fetchInstagramGridUrls(handle, workerIndex);
+    gridUrls = gridResult.items;
+    gridCollection = gridResult;
     browserGridCompleted = true;
   } catch (error) {
     adapterFailures.push(
@@ -1298,8 +1400,10 @@ async function fetchInstagramPosts(target, workerIndex) {
   // gate inside fetchInstagramGridUrls. Do not turn that independently proven,
   // legitimately empty profile into a retryable failure just because the
   // redundant profile adapter was unavailable.
+  const adapterProfileIdentityOk =
+    profileAdapterCompleted && profileIdentity.ok;
   const profileIdentityOk =
-    (profileAdapterCompleted && profileIdentity.ok) || browserGridCompleted;
+    adapterProfileIdentityOk || browserGridCompleted;
   if (!profileIdentityOk) {
     const identityFailure = failure(
       target,
@@ -1317,12 +1421,37 @@ async function fetchInstagramPosts(target, workerIndex) {
       evidence: [],
       failures: targetFailures,
       needsReview: [],
+      instagramPagination: priorInstagramPagination,
       collectionFailed: attemptState.collectionFailed,
       failureKind: attemptState.failureKind
     };
   }
-  const detailItems = instagramFetchDetails
-    ? await fetchInstagramPostDetails(handle, gridUrls, workerIndex).catch((error) => {
+  const detailCandidateUrls = instagramFetchDetails
+    ? instagramDetailUrlsNeedingEnrichment({
+        adapterPosts: posts,
+        gridItems: gridUrls,
+        now: collectionNowMs,
+        limit: Number.POSITIVE_INFINITY,
+        existingPostIds: existingInstagramPostIds
+      })
+    : [];
+  const detailWindowOffset = detailCandidateUrls.length > 0
+    ? priorInstagramPagination.detailWindowOffset % detailCandidateUrls.length
+    : 0;
+  const detailCount = Math.min(
+    Math.max(0, Math.floor(postLimit)),
+    detailCandidateUrls.length
+  );
+  const detailUrls = Array.from(
+    { length: detailCount },
+    (_, index) =>
+      detailCandidateUrls[(detailWindowOffset + index) % detailCandidateUrls.length]
+  );
+  const nextDetailWindowOffset = detailCandidateUrls.length > 0
+    ? (detailWindowOffset + detailUrls.length) % detailCandidateUrls.length
+    : 0;
+  const detailItems = detailUrls.length
+    ? await fetchInstagramPostDetails(handle, detailUrls, workerIndex).catch((error) => {
         adapterFailures.push(
           failure(
             target,
@@ -1333,6 +1462,7 @@ async function fetchInstagramPosts(target, workerIndex) {
       })
     : [];
   let rejectedAdapterIdentityCount = 0;
+  let rejectedAdapterOwnershipCount = 0;
   const adapterEvidence = posts.flatMap((post) => {
     const provenance = instagramEvidenceProvenance({
       post,
@@ -1349,6 +1479,16 @@ async function fetchInstagramPosts(target, workerIndex) {
       gridItem,
       detail
     } = provenance;
+    // Adapter rows are owned only by the exact adapter profile response. A
+    // browser grid observation cannot substitute for native adapter ownership.
+    if (!adapterProfileIdentityOk) {
+      rejectedAdapterOwnershipCount += 1;
+      return [];
+    }
+    const publication =
+      instagramPublicationDate(post, collectionNowMs).postedAt ??
+      instagramPublicationDate(gridItem, collectionNowMs).postedAt ??
+      instagramPublicationDate(detail, collectionNowMs).postedAt;
     const metrics = {
       likes: maxMetric(post.likes, detail?.likes, gridItem?.likes),
       comments: maxMetric(post.comments, detail?.comments, gridItem?.comments),
@@ -1362,9 +1502,7 @@ async function fetchInstagramPosts(target, workerIndex) {
       title: caption || `${handle} Instagram ${post.type ?? "post"}`,
       text: caption || `${handle} Instagram ${post.type ?? "post"}`,
       rawVisibleText: JSON.stringify({ profile, post, gridItem, detail }),
-      postedAt:
-        instagramPublicationDate(post, collectionNowMs).postedAt ??
-        instagramPublicationDate(detail, collectionNowMs).postedAt,
+      postedAt: publication,
       metrics,
       mediaUrls: detail?.mediaUrls ?? gridItem?.mediaUrls ?? [],
       contributionScore: scoreMetrics("instagram", metrics),
@@ -1374,39 +1512,64 @@ async function fetchInstagramPosts(target, workerIndex) {
     })];
   });
   const seenPostIds = new Set(adapterEvidence.map((item) => item.platformPostId).filter(Boolean));
-  const gridEvidence = gridUrls
-    .filter((gridUrl) => {
+  const gridOwnershipFailures = [];
+  const gridOwnershipNeedsReview = [];
+  const gridEvidence = gridUrls.flatMap((gridUrl) => {
       const sourceUrl = canonicalInstagramPostUrl(gridUrl.href);
       const postId = instagramPostIdFromUrl(sourceUrl);
-      return sourceUrl && postId && !seenPostIds.has(postId);
-    })
-    .map((gridUrl) => {
-      const sourceUrl = canonicalInstagramPostUrl(gridUrl.href);
-      const postId = instagramPostIdFromUrl(sourceUrl);
+      if (!sourceUrl || !postId || seenPostIds.has(postId)) return [];
       const detail = detailItems.find(
         (item) => instagramPostIdFromUrl(item?.url) === postId
       );
+      const ownership = instagramGridOnlyOwnershipDecision({
+        requestedHandle: handle,
+        gridItem: gridUrl,
+        detail
+      });
+      if (!ownership.ok) {
+        gridOwnershipFailures.push(
+          failure(
+            target,
+            `Instagram grid-only native post quarantined: ${ownership.reason}.`,
+            sourceUrl
+          )
+        );
+        gridOwnershipNeedsReview.push(
+          instagramGridOwnershipReviewItem({
+            target,
+            sourceUrl,
+            postId,
+            gridItem: gridUrl,
+            detail,
+            reason: ownership.reason
+          })
+        );
+        return [];
+      }
+      seenPostIds.add(postId);
       const metrics = {
         likes: maxMetric(detail?.likes, gridUrl.likes),
         comments: maxMetric(detail?.comments, gridUrl.comments),
         views: maxMetric(detail?.views, gridUrl.views)
       };
       const caption = bestInstagramCaption(gridUrl.caption, detail?.caption);
-      return socialEvidenceItem({
+      return [socialEvidenceItem({
         target,
         sourceUrl,
         platformPostId: postId,
         title: caption || `${handle} Instagram post`,
         text: caption || `${handle} Instagram post`,
         rawVisibleText: JSON.stringify({ profile, gridUrl, detail }),
-        postedAt: detail?.postedAt ?? null,
+        postedAt:
+          instagramPublicationDate(detail, collectionNowMs).postedAt ??
+          instagramPublicationDate(gridUrl, collectionNowMs).postedAt,
         metrics,
         mediaUrls: detail?.mediaUrls ?? gridUrl.mediaUrls ?? [],
         contributionScore: scoreMetrics("instagram", metrics),
         matchReason:
           target.matchReason ??
           `Opt-in read-only Instagram grid/detail scrape for @${handle}; adapter did not return this visible grid item.`
-      });
+      })];
     });
   const scoredCandidates = dedupeById([...adapterEvidence, ...gridEvidence])
     .filter(hasScoredTraction);
@@ -1431,17 +1594,69 @@ async function fetchInstagramPosts(target, workerIndex) {
     }
     return false;
   });
-  const nativeIdentityFailures = rejectedAdapterIdentityCount
+  const malformedGridIdentityCount = Math.max(
+    0,
+    Number(gridCollection?.malformedItemCount ?? 0)
+  );
+  const malformedNativeIdentityCount =
+    rejectedAdapterIdentityCount + malformedGridIdentityCount;
+  const nativeIdentityFailures = malformedNativeIdentityCount
     ? [
         failure(
           target,
-          `Rejected ${rejectedAdapterIdentityCount} Instagram adapter row(s) without an independently proven native post/reel/tv shortcode.`
+          `Rejected ${malformedNativeIdentityCount} Instagram native row(s) with missing, malformed, or contradictory post/reel/tv identity (${rejectedAdapterIdentityCount} adapter, ${malformedGridIdentityCount} grid).`
         )
       ]
     : [];
+  const adapterOwnershipFailures = rejectedAdapterOwnershipCount
+    ? [
+        failure(
+          target,
+          `Rejected ${rejectedAdapterOwnershipCount} Instagram adapter row(s) because the adapter profile did not prove the exact requested handle.`
+        )
+      ]
+    : [];
+  const paginationDecision = gridCollection
+    ? instagramDeepScrollPaginationDecision({
+        identityOk: profileIdentityOk,
+        candidateItems: gridUrls,
+        persistedObservedPostIds: existingInstagramPostIds,
+        priorState: priorInstagramPagination,
+        malformedItemCount: malformedNativeIdentityCount,
+        nextDetailWindowOffset
+      })
+    : {
+        ...priorInstagramPagination,
+        advance: false,
+        exhausted: false,
+        status: "non_exhaustive",
+        reason: "browser_grid_not_completed",
+        newPostIds: [],
+        previouslyObservedPostIds: []
+      };
+  const instagramPagination = {
+    version: priorInstagramPagination.version,
+    mode: priorInstagramPagination.mode,
+    handle,
+    observedPostIds: paginationDecision.observedPostIds,
+    recentObservedPostIds:
+      paginationDecision.recentObservedPostIds ?? paginationDecision.observedPostIds,
+    detailWindowOffset: paginationDecision.detailWindowOffset,
+    exhausted: false,
+    status: "non_exhaustive",
+    decisionStatus: paginationDecision.status,
+    reason: paginationDecision.reason,
+    windowItemCount: gridUrls.length,
+    completedPassCount: gridCollection?.completedPassCount ?? 0,
+    stallReason: gridCollection?.stallReason ?? "browser_grid_not_completed",
+    newPostCount: paginationDecision.newPostIds.length,
+    malformedItemCount: malformedNativeIdentityCount
+  };
   const targetFailures = [
     ...adapterFailures,
     ...nativeIdentityFailures,
+    ...adapterOwnershipFailures,
+    ...gridOwnershipFailures,
     ...recencyFailures
   ];
   if (!evidenceItems.length) {
@@ -1460,7 +1675,8 @@ async function fetchInstagramPosts(target, workerIndex) {
     return {
       evidence: [],
       failures: failuresWithEmpty,
-      needsReview: [],
+      needsReview: gridOwnershipNeedsReview,
+      instagramPagination,
       collectionFailed: attemptState.collectionFailed,
       failureKind: attemptState.failureKind
     };
@@ -1476,7 +1692,8 @@ async function fetchInstagramPosts(target, workerIndex) {
   return {
     evidence: evidenceItems,
     failures: targetFailures,
-    needsReview: [],
+    needsReview: gridOwnershipNeedsReview,
+    instagramPagination,
     collectionFailed: attemptState.collectionFailed,
     failureKind: attemptState.failureKind
   };
@@ -1660,6 +1877,15 @@ function updateLinkedInCircuitState(result, target) {
   consecutiveLinkedInCollectionFailures = decision.consecutiveFailures;
   if (!decision.open) return;
 
+  const childSafetyStop = linkedinChildSafetyStopDecision(failureKind);
+  if (childSafetyStop.terminal) {
+    linkedinChildSafetyStop ??= {
+      ...childSafetyStop,
+      targetName: target.name,
+      diagnostic: messages || "LinkedIn authenticated account-safety signal"
+    };
+  }
+
   linkedinCircuitOpen = true;
   linkedinCircuitReason =
     `${decision.reason ?? failureKind} after ${target.name}: ${messages || "unknown LinkedIn read failure"}`;
@@ -1671,12 +1897,13 @@ function updateInstagramCircuitState(result, target) {
     return;
   }
 
-  consecutiveInstagramCollectionFailures += 1;
   const messages = (result.failures ?? [])
     .map((item) => item?.message)
     .filter(Boolean)
     .join(" | ");
   const classifiedFailure = result.failureKind ?? instagramFailureKind(messages);
+  if (classifiedFailure === "progress") return;
+  consecutiveInstagramCollectionFailures += 1;
   const failureKind =
     classifiedFailure === "other" || classifiedFailure === "empty"
       ? "command_or_profile"
@@ -1694,12 +1921,15 @@ function updateInstagramCircuitState(result, target) {
     `${messages || "unknown Instagram authenticated-read failure"}`;
 }
 
-async function fetchInstagramGridUrls(handle, workerIndex, desiredCount) {
+async function fetchInstagramGridUrls(
+  handle,
+  workerIndex
+) {
   return withInstagramBrowserSessionRetry(
     `yc-ig-${workerIndex}-${slugify(handle)}`,
     async (session) => {
       await runOpenCli(["browser", session, "open", `https://www.instagram.com/${handle}/`], { timeoutMs: perTargetTimeoutMs });
-      await runOpenCli(["browser", session, "wait", "time", "4"], { timeoutMs: 10_000 }).catch(() => null);
+      await runOpenCli(["browser", session, "wait", "time", "4"], { timeoutMs: 10_000 });
       const identityRaw = await runOpenCli(
         ["browser", session, "eval", instagramBrowserProfileIdentityExtractJs()],
         { timeoutMs: perTargetTimeoutMs }
@@ -1715,37 +1945,117 @@ async function fetchInstagramGridUrls(handle, workerIndex, desiredCount) {
         );
       }
       const byUrl = new Map();
-      for (let index = 0; index <= scrollPasses && byUrl.size < desiredCount; index += 1) {
-        const raw = await runOpenCli(["browser", session, "eval", instagramGridExtractJs()], { timeoutMs: perTargetTimeoutMs });
-        for (const item of parseJsonOutput(raw)) {
-          if (item?.href) byUrl.set(item.href, item);
+      const maximumBoundedWindowItems = 10_000;
+      let malformedItemCount = 0;
+      let completedPassCount = 0;
+      let previousScrollGeometry = null;
+      let stallReason = "scroll_budget_reached";
+
+      for (let index = 0; index <= scrollPasses; index += 1) {
+        const raw = await runOpenCli(
+          ["browser", session, "eval", instagramGridExtractJs()],
+          { timeoutMs: perTargetTimeoutMs }
+        );
+        const extractedItems = parseJsonOutput(raw);
+        const overflow = extractedItems.find(
+          (item) => item?.gridOverflow === true
+        );
+        if (overflow) {
+          throw new Error(
+            `Instagram profile grid exceeded the fail-closed ${overflow.anchorLimit}-anchor extraction limit at anchor ${overflow.scannedAnchorCount}.`
+          );
         }
-        if (byUrl.size >= desiredCount || index === scrollPasses) break;
-        await runOpenCli(["browser", session, "scroll", "down", "--amount", "1100"], { timeoutMs: 10_000 }).catch(() => null);
-        await runOpenCli(["browser", session, "eval", instagramProfileScrollJs(index)], { timeoutMs: 10_000 }).catch(() => null);
-        await runOpenCli(["browser", session, "wait", "time", "1.5"], { timeoutMs: 8_000 }).catch(() => null);
+        const merged = mergeInstagramGridPassObservations({
+          observedByUrl: byUrl,
+          items: extractedItems,
+          malformedItemCount
+        });
+        malformedItemCount = merged.malformedItemCount;
+        completedPassCount += 1;
+        if (byUrl.size > maximumBoundedWindowItems) {
+          throw new Error(
+            `Instagram bounded grid window exceeded its fail-closed ${maximumBoundedWindowItems}-item limit.`
+          );
+        }
+        if (index === scrollPasses) break;
+        const scrollRaw = await runOpenCli(
+          ["browser", session, "eval", instagramProfileScrollJs(index)],
+          { timeoutMs: 10_000 }
+        );
+        const scroll = parseJsonOutput(scrollRaw)[0] ?? null;
+        if (!instagramScrollGeometryIsValid(scroll)) {
+          throw new Error(
+            "Instagram browser scroll returned invalid geometry; bounded window was not checkpointed."
+          );
+        }
+        const progressed = instagramScrollGeometryProgressed(
+          scroll,
+          previousScrollGeometry
+        );
+        if (!progressed) {
+          // A lazy-load or geometry stall is not an end-of-profile proof.
+          stallReason = "untrusted_geometry_stall";
+          break;
+        }
+        previousScrollGeometry = scroll;
+        await runOpenCli(
+          ["browser", session, "wait", "time", "1.5"],
+          { timeoutMs: 8_000 }
+        );
       }
-      return [...byUrl.values()].slice(0, desiredCount);
+      return {
+        // Every canonical item observed in every successful pass is returned.
+        // No scroll cursor is persisted because OpenCLI exposes none that can
+        // be resumed safely across invocations.
+        items: [...byUrl.values()],
+        malformedItemCount,
+        completedPassCount,
+        coverageStatus: "non_exhaustive",
+        stallReason
+      };
     }
   );
 }
 
-async function fetchInstagramPostDetails(handle, gridUrls, workerIndex) {
+function instagramScrollGeometryIsValid(value) {
+  return Boolean(
+    value &&
+    [value.beforeY, value.y, value.body, value.doc].every((field) =>
+      Number.isFinite(Number(field))
+    ) &&
+    Number(value.y) >= 0 &&
+    Number(value.body) >= 0 &&
+    Number(value.doc) >= 0
+  );
+}
+
+function instagramScrollGeometryProgressed(value, previous = null) {
+  if (!instagramScrollGeometryIsValid(value)) return false;
+  if (Number(value.y) > Number(value.beforeY)) return true;
+  if (!instagramScrollGeometryIsValid(previous)) return false;
+  return Boolean(
+    Number(value.y) > Number(previous.y) ||
+    Number(value.body) > Number(previous.body) ||
+    Number(value.doc) > Number(previous.doc)
+  );
+}
+
+async function fetchInstagramPostDetails(handle, detailUrls, workerIndex) {
+  if (!Array.isArray(detailUrls) || detailUrls.length === 0) return [];
   return withInstagramBrowserSessionRetry(
     `yc-ig-detail-${workerIndex}-${slugify(handle)}`,
     async (session) => {
       const details = [];
-      const urls = gridUrls
-        .map((item) => canonicalInstagramPostUrl(item.href))
+      const urls = detailUrls
+        .map((item) => canonicalInstagramPostUrl(item))
         .filter(Boolean)
         .slice(0, postLimit);
 
       for (const url of urls) {
-        const opened = await runOpenCli(
+        await runOpenCli(
           ["browser", session, "open", url],
           { timeoutMs: perTargetTimeoutMs }
-        ).then(() => true, () => false);
-        if (!opened) continue;
+        );
 
         let parsed = null;
         let publication = { postedAt: null, publishedAtPrecision: "unknown" };
@@ -1754,7 +2064,7 @@ async function fetchInstagramPostDetails(handle, gridUrls, workerIndex) {
           const raw = await runOpenCli(
             ["browser", session, "eval", instagramPostDetailExtractJs()],
             { timeoutMs: perTargetTimeoutMs }
-          ).catch(() => "[]");
+          );
           const extracted = parseJsonOutput(raw)[0] ?? parseJsonOutput(raw);
           const candidate = normalizeInstagramDetailObservation(extracted);
           if (canonicalInstagramPostUrl(candidate?.url) !== url) continue;
@@ -1768,6 +2078,9 @@ async function fetchInstagramPostDetails(handle, gridUrls, workerIndex) {
             caption: parsed.caption ?? null,
             rawText: parsed.text ?? parsed.description ?? "",
             description: parsed.description ?? null,
+            authorHandle: parsed.authorHandle ?? null,
+            authorUrl: parsed.authorUrl ?? null,
+            authorProof: parsed.authorProof ?? null,
             postedAt: publication.postedAt,
             likes: numberOrNull(parsed.likes),
             comments: numberOrNull(parsed.comments),
@@ -1925,19 +2238,21 @@ function socialEvidenceItem(input) {
     companySlug: input.target.companySlug,
     companyName: input.target.companyName,
     platform: input.target.platform,
-    title: sanitizePublicText(input.title),
+    title: sanitizePublicText(input.title).slice(0, 512),
     sourceUrl: input.sourceUrl,
     platformPostId: input.platformPostId ?? null,
     accountUrl: input.accountUrl ?? input.target.url,
     text: sanitizePublicText(textValue).slice(0, 900),
-    rawVisibleText: rawVisibleText.slice(0, 8000),
+    rawVisibleText: rawVisibleText.slice(0, LOGGED_IN_STORED_RAW_TEXT_LIMIT),
     postedAt: input.postedAt ?? null,
     publishedAtPrecision: input.publishedAtPrecision ?? (input.postedAt ? "exact" : "unknown"),
     metrics,
     mediaUrls: input.mediaUrls ?? [],
     contributionScore: input.contributionScore ?? scoreMetrics(input.target.platform, metrics),
     review_state: "verified",
-    matchReason: input.matchReason,
+    matchReason: input.matchReason
+      ? sanitizePublicText(input.matchReason).slice(0, 1_024)
+      : null,
     first_seen_at: now,
     last_checked_at: now,
     last_updated_at: input.postedAt ?? now
@@ -1976,6 +2291,44 @@ function failure(target, message, sourceUrl = target.url) {
     accountUrl: target.url,
     sourceUrl,
     message,
+    checkedAt: now
+  };
+}
+
+function instagramGridOwnershipReviewItem({
+  target,
+  sourceUrl,
+  postId,
+  gridItem,
+  detail,
+  reason
+}) {
+  return {
+    id: stableId(
+      `instagram-grid-ownership:${target.batchSlug}:${target.entityId}:${postId}`
+    ),
+    platform: "instagram",
+    batch: target.batch,
+    batchSlug: target.batchSlug,
+    companySlug: target.companySlug,
+    companyName: target.companyName,
+    entityType: target.entityType,
+    entityId: target.entityId,
+    entityName: target.name,
+    accountUrl: target.url,
+    sourceUrl,
+    platformPostId: postId,
+    review_state: "needs_review",
+    quarantineReasons: [reason],
+    matchReason:
+      "Grid-only Instagram evidence was not attributed because exact native detail-author ownership was not proven.",
+    ownershipProbe: {
+      profileGridProven: gridItem?.profileGridProven === true,
+      profileHandle: gridItem?.profileHandle ?? null,
+      detailAuthorHandle: detail?.authorHandle ?? null,
+      detailAuthorUrl: detail?.authorUrl ?? null,
+      detailAuthorProof: detail?.authorProof ?? null
+    },
     checkedAt: now
   };
 }
@@ -2118,19 +2471,36 @@ async function writeCheckpoint() {
     existingNeedsReview: needsReview,
     existingAttributionReconciliationLedger: attributionReconciliationLedger
   });
-  const snapshot = {
+  const snapshot = compactStoredPayload({
     attempts: Object.fromEntries(attemptMap),
     evidence: sanitizeStoredRows(contentDedupe.evidence),
     failures: sanitizeStoredRows(dedupeById(failures)),
     needsReview: sanitizeStoredRows(contentDedupe.needsReview),
     attributionReconciliationLedger: contentDedupe.attributionReconciliationLedger
-  };
+  });
   checkpointWriteChain = checkpointWriteChain.then(() => writeJson(checkpointPath, snapshot));
   await checkpointWriteChain;
 }
 
 function sanitizeStoredRows(rows) {
-  return rows;
+  return compactLoggedInStoredRows(rows);
+}
+
+function compactStoredPayload(payload) {
+  if (!payload || typeof payload !== "object") return payload;
+  for (const field of [
+    "evidence",
+    "failures",
+    "needsReview",
+    "attributionReconciliationLedger"
+  ]) {
+    if (Array.isArray(payload[field])) sanitizeStoredRows(payload[field]);
+  }
+  if (payload.attempts && typeof payload.attempts === "object") {
+    // Reuse the same in-place compactor for nested attempt error diagnostics.
+    compactLoggedInStoredRows([payload.attempts]);
+  }
+  return payload;
 }
 
 async function readJson(path, fallback) {
@@ -2158,7 +2528,11 @@ function writeStdout(value) {
 }
 
 function serializeJson(value) {
-  return redactTokenLikeStrings(JSON.stringify(value, null, 2));
+  // Redact per string while JSON is produced so a 40k-row payload does not
+  // require both an unredacted and redacted full-document string in memory.
+  return JSON.stringify(value, (_field, nested) =>
+    typeof nested === "string" ? redactTokenLikeStrings(nested) : nested
+  );
 }
 
 function redactTokenLikeStrings(value) {
@@ -2267,19 +2641,15 @@ function addItems(items = [], target) {
   for (const item of items) target.push(item);
 }
 
-function removeTargetEvidence(target) {
-  for (let index = evidence.length - 1; index >= 0; index -= 1) {
-    const item = evidence[index];
-    if (item.platform === target.platform && item.entityId === target.entityId) {
-      evidence.splice(index, 1);
-    }
-  }
-}
-
 function removeTargetFailures(target) {
   for (let index = failures.length - 1; index >= 0; index -= 1) {
     const item = failures[index];
-    if (item.platform === target.platform && item.entityType === target.entityType && item.entityName === target.name) {
+    if (
+      item.batchSlug === target.batchSlug &&
+      item.platform === target.platform &&
+      item.entityType === target.entityType &&
+      item.entityId === target.entityId
+    ) {
       failures.splice(index, 1);
     }
   }
@@ -2374,6 +2744,23 @@ function nonnegativeIntegerArg(name) {
   return parsed;
 }
 
+function platformSetArg(name) {
+  const raw = stringArg(name);
+  if (!raw) return new Set();
+  const platforms = raw
+    .split(",")
+    .map((value) => value.trim().toLowerCase())
+    .filter(Boolean)
+    .map((value) => value === "twitter" ? "x" : value);
+  const invalid = platforms.filter(
+    (value) => !["instagram", "linkedin", "x"].includes(value)
+  );
+  if (invalid.length > 0) {
+    throw new Error(`${name} contains unsupported platform(s): ${invalid.join(", ")}.`);
+  }
+  return new Set(platforms);
+}
+
 function stringArg(name) {
   return process.argv.find((arg) => arg.startsWith(`${name}=`))?.split("=").slice(1).join("=");
 }
@@ -2411,6 +2798,7 @@ function usage() {
     "  --max-consecutive-linkedin-failures=N",
     "  --max-consecutive-instagram-failures=N",
     `  --fresh-for-hours=N        Re-run completed targets after N hours (default: ${DEFAULT_LOGGED_IN_SOCIAL_FRESH_FOR_HOURS})`,
+    "  --terminal-completed-platforms=linkedin  Keep successful done attempts terminal for listed platforms",
     "  --retry-empty",
     "  --force",
     "  --plan                     Print the read-only target plan and exit",
@@ -2614,52 +3002,232 @@ function instagramGridExtractJs() {
       comments: explicitComments
     };
   };
-  const links = Array.from(document.querySelectorAll("a"))
-    .filter((anchor) => /\\/(?:[^/]+\\/)?(?:reel|p|tv)\\//i.test(anchor.href || ""));
+  const main = document.querySelector("main");
+  const profileParts = location.pathname.split("/").filter(Boolean);
+  const profileHandle =
+    profileParts.length === 1 && /^[A-Za-z0-9._]{1,30}$/.test(profileParts[0])
+      ? profileParts[0].toLowerCase()
+      : null;
+  if (!main || !profileHandle) {
+    return [{
+      malformedIdentity: true,
+      nativeAnchor: true,
+      reason: "exact_profile_main_missing"
+    }];
+  }
+  const nativePath = (value) => {
+    try {
+      const url = new URL(value, location.origin);
+      const parts = url.pathname.split("/").filter(Boolean);
+      return (
+        /^(?:www\\.)?instagram\\.com$/i.test(url.hostname) &&
+        parts.length === 2 &&
+        /^(?:reel|p|tv)$/i.test(parts[0]) &&
+        /^[A-Za-z0-9_-]+$/.test(parts[1])
+      );
+    } catch {
+      return false;
+    }
+  };
+  const anchorWalker = (root) =>
+    document.createTreeWalker(root, NodeFilter.SHOW_ELEMENT, {
+      acceptNode(node) {
+        return node.tagName === "A" && node.hasAttribute("href")
+          ? NodeFilter.FILTER_ACCEPT
+          : NodeFilter.FILTER_SKIP;
+      }
+    });
+  const anchorLimit = 10000;
+  const links = [];
+  const mountedAnchorWalker = anchorWalker(main);
+  let scannedAnchorCount = 0;
+  for (
+    let anchor = mountedAnchorWalker.nextNode();
+    anchor;
+    anchor = mountedAnchorWalker.nextNode()
+  ) {
+    scannedAnchorCount += 1;
+    if (scannedAnchorCount > anchorLimit) {
+      return [{
+        gridOverflow: true,
+        reason: "profile_grid_anchor_limit_exceeded",
+        anchorLimit,
+        scannedAnchorCount
+      }];
+    }
+    if (/\\/(?:reel|p|tv)\\//i.test(anchor.href || "")) links.push(anchor);
+  }
+  // Cache a native-post descendant count (capped at two) for each ancestor.
+  // This proves grid/suggested-region structure without rescanning the mounted
+  // DOM after the single globally bounded anchor walk above.
+  const nativeAnchorDescendantCounts = new WeakMap();
+  for (const anchor of links) {
+    if (!nativePath(anchor.href)) continue;
+    for (let node = anchor.parentElement; node && node !== main; node = node.parentElement) {
+      const prior = nativeAnchorDescendantCounts.get(node) || 0;
+      if (prior < 2) nativeAnchorDescendantCounts.set(node, prior + 1);
+    }
+  }
+  const regionContainsNativeAnchor = (root) =>
+    (nativeAnchorDescendantCounts.get(root) || 0) > 0;
+  const regionHasMultipleNativeAnchors = (root) =>
+    (nativeAnchorDescendantCounts.get(root) || 0) >= 2;
+  const suggestedRegionRoots = new Set();
+  for (const heading of main.querySelectorAll(
+    'h1, h2, h3, h4, h5, h6, [role="heading"]'
+  )) {
+    if (!/suggested|recommended|people you may know/i.test(heading.textContent || "")) {
+      continue;
+    }
+    // Keep walking beyond the first anchor-owning section: Instagram can put
+    // the heading and one tile in a nested section, then render the remaining
+    // suggested tiles as a sibling grid in the same tab panel. Prefer that tab
+    // panel as the exclusion boundary; without one, retain the outermost
+    // anchor-owning semantic region reached before main.
+    let tabPanelRegion = null;
+    let semanticRegion = null;
+    let nearestNativeRegion = null;
+    let nearestMultiTileRegion = null;
+    for (
+      let region = heading.parentElement;
+      region && region !== main;
+      region = region.parentElement
+    ) {
+      if (!regionContainsNativeAnchor(region)) continue;
+      nearestNativeRegion ??= region;
+      if (!nearestMultiTileRegion && regionHasMultipleNativeAnchors(region)) {
+        nearestMultiTileRegion = region;
+      }
+      const role = (region.getAttribute?.("role") || "").toLowerCase();
+      if (role === "tabpanel") {
+        tabPanelRegion = region;
+        break;
+      }
+      if (
+        region.tagName === "SECTION" ||
+        role === "region" ||
+        role === "list"
+      ) {
+        semanticRegion = region;
+      }
+    }
+    const suggestedRegion =
+      tabPanelRegion ??
+      semanticRegion ??
+      nearestMultiTileRegion ??
+      nearestNativeRegion;
+    if (suggestedRegion) suggestedRegionRoots.add(suggestedRegion);
+  }
+  const regionIsExcluded = (anchor) => {
+    if (anchor.closest('aside, [role="dialog"], article')) return true;
+    for (const region of suggestedRegionRoots) {
+      if (region.contains(anchor)) return true;
+    }
+    for (let node = anchor.parentElement; node && node !== main; node = node.parentElement) {
+      const label = node.getAttribute?.("aria-label") || "";
+      if (/suggested|recommended|people you may know/i.test(label)) {
+        return true;
+      }
+    }
+    return false;
+  };
+  const containerCache = new WeakMap();
+  const provenGridContainer = (anchor) => {
+    if (regionIsExcluded(anchor)) return null;
+    for (let node = anchor.parentElement; node && node !== main; node = node.parentElement) {
+      if (containerCache.has(node)) {
+        const cached = containerCache.get(node);
+        if (cached) return cached;
+        continue;
+      }
+      const role = node.getAttribute?.("role") || "";
+      const display = getComputedStyle(node).display;
+      if (
+        role === "tabpanel" ||
+        display === "grid" ||
+        regionHasMultipleNativeAnchors(node)
+      ) {
+        containerCache.set(node, node);
+        return node;
+      }
+      containerCache.set(node, null);
+    }
+    return null;
+  };
   const seen = new Set();
   return links
     .map((anchor) => {
+      const gridContainer = provenGridContainer(anchor);
+      if (!gridContainer) return { unrelated: true };
       try {
         const href = anchor.href;
         const url = new URL(href, location.origin);
         const parts = url.pathname.split("/").filter(Boolean);
-        const postIndex = parts.findIndex((part) => /^(reel|p|tv)$/i.test(part));
-        if (postIndex < 0 || !parts[postIndex + 1]) return null;
-        const canonical = "https://www.instagram.com/" + parts[postIndex].toLowerCase() + "/" + parts[postIndex + 1] + "/";
-        if (seen.has(canonical)) return null;
+        if (
+          !/^(?:www\\.)?instagram\\.com$/i.test(url.hostname) ||
+          parts.length !== 2 ||
+          !/^(?:reel|p|tv)$/i.test(parts[0]) ||
+          !/^[A-Za-z0-9_-]+$/.test(parts[1] || "")
+        ) {
+          return {
+            malformedIdentity: true,
+            nativeAnchor: true,
+            rawHref: href
+          };
+        }
+        const canonical = "https://www.instagram.com/" + parts[0].toLowerCase() + "/" + parts[1] + "/";
+        if (seen.has(canonical)) {
+          return { duplicateIdentity: true, href: canonical };
+        }
         seen.add(canonical);
         const images = Array.from(anchor.querySelectorAll("img[src]"));
         const captions = images.map((img) => img.alt).filter(Boolean);
         const labels = Array.from(anchor.querySelectorAll("[aria-label]")).map((node) => node.getAttribute("aria-label")).filter(Boolean);
+        const timeNode =
+          anchor.querySelector("time[datetime]") ??
+          anchor.closest("li")?.querySelector("time[datetime]") ??
+          null;
         const metrics = overlayMetric(anchor, labels, canonical);
         return {
           href: canonical,
           rawHref: href,
-          platformPostId: parts[postIndex + 1],
+          platformPostId: parts[1],
+          profileGridProven: true,
+          profileHandle,
+          gridContainerProof:
+            gridContainer.getAttribute?.("role") === "tabpanel"
+              ? "profile_tabpanel"
+              : getComputedStyle(gridContainer).display === "grid"
+                ? "profile_css_grid"
+                : "profile_multi_tile_container",
           caption: captions[0] || "",
           mediaUrls: images.map((img) => img.src).filter(Boolean).slice(0, 2),
           labels,
           rawText: metrics.rawText,
+          postedAt: timeNode?.getAttribute("datetime") ?? null,
           views: metrics.views,
           likes: metrics.likes,
           comments: metrics.comments
         };
       } catch {
-        return null;
+        return {
+          malformedIdentity: true,
+          nativeAnchor: true,
+          rawHref: String(anchor.getAttribute("href") || "").slice(0, 500)
+        };
       }
-    })
-    .filter(Boolean)
-    .slice(0, 60);
+    });
 })()`;
 }
 
 function instagramProfileScrollJs(index) {
   const amount = 1600 + index * 600;
   return `(() => {
+  const beforeY = window.scrollY;
   window.scrollBy(0, ${amount});
   document.documentElement.scrollTop = Math.max(document.documentElement.scrollTop, window.scrollY);
   document.body.scrollTop = Math.max(document.body.scrollTop || 0, window.scrollY);
-  return { y: window.scrollY, body: document.body.scrollHeight, doc: document.documentElement.scrollHeight };
+  return { beforeY, y: window.scrollY, body: document.body.scrollHeight, doc: document.documentElement.scrollHeight };
 })()`;
 }
 
@@ -2699,6 +3267,32 @@ function instagramPostDetailExtractJs() {
     if(/\\/t51\\.[0-9-]+-19\\//i.test(src) || /profile_images|profile-displayphoto|_normal\\./i.test(src)) return null;
     return src;
   };
+  const nativeAuthor = (() => {
+    const postSurface = document.querySelector("main article");
+    if (!postSurface) return null;
+    const header = postSurface.querySelector("header");
+    if (!header) return null;
+    for (const anchor of header.querySelectorAll("a[href]")) {
+      try {
+        const url = new URL(anchor.href, location.origin);
+        const parts = url.pathname.split("/").filter(Boolean);
+        if (
+          /^(?:www\\.)?instagram\\.com$/i.test(url.hostname) &&
+          parts.length === 1 &&
+          /^[A-Za-z0-9._]{1,30}$/.test(parts[0])
+        ) {
+          return {
+            handle: parts[0].toLowerCase(),
+            url: "https://www.instagram.com/" + parts[0].toLowerCase() + "/",
+            proof: "native_post_header_profile_link"
+          };
+        }
+      } catch {
+        // Keep probing other header links; absence fails closed in the caller.
+      }
+    }
+    return null;
+  })();
   const description = meta('meta[name="description"]') || meta('meta[property="og:description"]') || "";
   const text = document.body?.innerText || "";
   const semanticDate = document.querySelector('time[datetime]')?.getAttribute("datetime") || null;
@@ -2727,6 +3321,9 @@ function instagramPostDetailExtractJs() {
     description,
     text: text.slice(0, 3000),
     caption,
+    authorHandle: nativeAuthor?.handle ?? null,
+    authorUrl: nativeAuthor?.url ?? null,
+    authorProof: nativeAuthor?.proof ?? null,
     taken_at: takenAt,
     dateLabel: semanticDate || dateLabel || (takenAt ? new Date(takenAt * 1000).toISOString() : null),
     likes,

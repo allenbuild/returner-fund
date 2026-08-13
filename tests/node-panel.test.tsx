@@ -332,6 +332,9 @@ describe("NodePanel", () => {
     const displayedBaseTenths = [...platformSection!.querySelectorAll(".score-platform-contributions li strong")]
       .reduce((sum, row) => sum + Math.round(Number.parseFloat(row.textContent ?? "0") * 10), 0);
     expect(displayedBaseTenths).toBe(1_000);
+    expect(
+      displayedBaseTenths + Math.round(insiderScoreBreakdown.insiderScoreAdjustment * 10)
+    ).toBe(Math.round(76 * 10));
   });
 
   it("counts and renders only evidence that contributes to the score", () => {

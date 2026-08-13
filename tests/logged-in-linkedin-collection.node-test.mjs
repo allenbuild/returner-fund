@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { execFileSync, spawnSync } from "node:child_process";
+import { execFileSync, spawn, spawnSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
@@ -10,8 +10,12 @@ import {
 } from "../scripts/lib/opencli-browser-session.mjs";
 import {
   buildOpenCliChildEnvironment,
+  createOpenCliProcessOwner,
+  openCliProcessTeardownAvailable,
   openCliProcessSignalAuthorization,
-  sanitizeOpenCliDiagnostic
+  sanitizeOpenCliDiagnostic,
+  sanitizedOpenCliExecutionError,
+  withOpenCliProcessOwner
 } from "../scripts/lib/opencli-runtime.mjs";
 import {
   LINKEDIN_MINIMUM_INTERACTION_DELAY_MS,
@@ -39,6 +43,9 @@ import {
   runLinkedInSerialLane,
   withLinkedInAccountLock
 } from "../scripts/lib/logged-in-linkedin-collection.mjs";
+import {
+  selectRunnableCollectionTargets
+} from "../scripts/lib/logged-in-social-target-selection.mjs";
 
 const collectorSource = readFileSync(
   new URL("../scripts/fetch-logged-in-social-traction.mjs", import.meta.url),
@@ -197,6 +204,70 @@ describe("OpenCLI subprocess isolation", () => {
     assert.match(runtimeSource, /readLinuxProcStat\(pid\).*readLinuxProcessEnvironmentMarker\(pid, marker\).*readLinuxProcStat\(pid\)/s);
   });
 
+  it("uses only identity-authorized PID signals and escalates a repeated external signal", () => {
+    const runtimeSource = readFileSync(
+      new URL("../scripts/lib/opencli-runtime.mjs", import.meta.url),
+      "utf8"
+    );
+    assert.doesNotMatch(runtimeSource, /process\.kill\(\s*-\s*pgid/);
+    assert.doesNotMatch(runtimeSource, /signalOwnedProcessGroups|currentProcessGroupId/);
+    assert.match(
+      runtimeSource,
+      /const authorization = ownedProcessIdentityStatus\(pid, processState, owner\);[\s\S]*?if \(authorization !== "authorized"\) \{[\s\S]*?continue;[\s\S]*?process\.kill\(pid, signal\);/
+    );
+    assert.match(
+      runtimeSource,
+      /if \(openCliExternalSignalShutdown\) \{[\s\S]*?forceKill: true,[\s\S]*?terminationSignal: signal,[\s\S]*?return;/
+    );
+    assert.match(
+      runtimeSource,
+      /if \(forceKill \|\| deadlineExceeded \|\| state\.drainFailures\.length > 0\) \{[\s\S]*?signalOwnedProcesses\(owner, "SIGKILL", \{ roots: true, descendants: true \}\);/
+    );
+  });
+
+  it("preserves the primary failure and attaches sanitized cleanup diagnostics secondarily", () => {
+    const primaryCause = new Error("upstream socket closed");
+    const primary = Object.assign(new Error("primary command failed"), {
+      code: "PRIMARY_COMMAND_FAILED",
+      cause: primaryCause,
+      killed: false,
+      stdout: "primary stdout"
+    });
+    const cleanup = Object.assign(
+      new Error("cleanup failed with li_at=cleanup-secret-0123456789"),
+      {
+        code: "OPENCLI_PROCESS_DRAIN_FAILED",
+        killed: true,
+        stderr: "Authorization: Bearer cleanup-secret-0123456789"
+      }
+    );
+    Object.defineProperty(primary, "processDrainFailure", {
+      configurable: true,
+      enumerable: false,
+      value: cleanup
+    });
+
+    const sanitized = sanitizedOpenCliExecutionError(primary);
+    assert.equal(sanitized.message, primary.message);
+    assert.equal(sanitized.code, primary.code);
+    assert.equal(sanitized.cause, primaryCause);
+    assert.equal(sanitized.killed, false);
+    assert.equal(sanitized.stdout, primary.stdout);
+    assert.equal(
+      Object.getOwnPropertyDescriptor(sanitized, "processDrainFailure")?.enumerable,
+      false
+    );
+    assert.equal(
+      sanitized.processDrainFailure?.code,
+      "OPENCLI_PROCESS_DRAIN_FAILED"
+    );
+    assert.doesNotMatch(
+      `${sanitized.processDrainFailure?.message} ${sanitized.processDrainFailure?.stderr}`,
+      /cleanup-secret-0123456789/
+    );
+    assert.equal(Object.keys(sanitized).includes("processDrainFailure"), false);
+  });
+
   it("fails closed for same-second PID reuse and Windows PID-only signaling", () => {
     const sameSecond = "ps-lstart:Sun Aug 09 12:00:00 2026";
     assert.equal(openCliProcessSignalAuthorization({
@@ -247,7 +318,78 @@ describe("OpenCLI subprocess isolation", () => {
     assert.equal(JSON.stringify(childEnv).includes("must-not-be-forwarded"), false);
   });
 
-  it("redacts secret sentinels from child stdout, stderr, and thrown diagnostics", () => {
+  it("uses one shared external-signal listener pair across nested and concurrent owners", async () => {
+    const baselineSigterm = process.listenerCount("SIGTERM");
+    const baselineSigint = process.listenerCount("SIGINT");
+    const ownerA = createOpenCliProcessOwner();
+    const ownerB = createOpenCliProcessOwner();
+    let releaseA;
+    let releaseB;
+    const gateA = new Promise((resolve) => { releaseA = resolve; });
+    const gateB = new Promise((resolve) => { releaseB = resolve; });
+
+    const operationA = withOpenCliProcessOwner(ownerA, async () => {
+      await withOpenCliProcessOwner(ownerA, async () => {
+        assert.equal(process.listenerCount("SIGTERM"), baselineSigterm + 1);
+        assert.equal(process.listenerCount("SIGINT"), baselineSigint + 1);
+      });
+      await gateA;
+    });
+    const operationB = withOpenCliProcessOwner(ownerB, async () => gateB);
+
+    assert.equal(process.listenerCount("SIGTERM"), baselineSigterm + 1);
+    assert.equal(process.listenerCount("SIGINT"), baselineSigint + 1);
+    releaseA();
+    await operationA;
+    assert.equal(process.listenerCount("SIGTERM"), baselineSigterm + 1);
+    assert.equal(process.listenerCount("SIGINT"), baselineSigint + 1);
+    releaseB();
+    await operationB;
+    assert.equal(process.listenerCount("SIGTERM"), baselineSigterm);
+    assert.equal(process.listenerCount("SIGINT"), baselineSigint);
+  });
+
+  it("test cleanup refuses PID reuse or owner-token mismatch before signaling", {
+    skip: process.platform === "win32" || !openCliProcessTeardownAvailable()
+  }, async () => {
+    const fixtureToken = `cleanup-${Date.now()}-${process.pid}`;
+    const child = spawn(process.execPath, ["-e", "setInterval(() => {}, 1000)"], {
+      env: {
+        HOME: process.env.HOME,
+        LANG: process.env.LANG,
+        PATH: process.env.PATH,
+        TMPDIR: process.env.TMPDIR,
+        RETURNER_OPENCLI_TEST_OWNER: fixtureToken
+      },
+      stdio: "ignore"
+    });
+    const identity = await waitForIdentityVerifiedTestProcess({
+      pid: child.pid,
+      markerName: "RETURNER_OPENCLI_TEST_OWNER",
+      marker: fixtureToken
+    }, 2_000);
+
+    try {
+      await terminateIdentityVerifiedTestProcess({
+        ...identity,
+        marker: `${fixtureToken}-wrong`
+      });
+      assert.equal(identityVerifiedTestProcessExists(identity), true);
+      await terminateIdentityVerifiedTestProcess({
+        ...identity,
+        startIdentity: `${identity.startIdentity}-reused`
+      });
+      assert.equal(identityVerifiedTestProcessExists(identity), true);
+    } finally {
+      const exit = waitForChildExit(child, 3_000);
+      await terminateIdentityVerifiedTestProcess(identity);
+      await exit;
+    }
+  });
+
+  it("redacts secret sentinels from child stdout, stderr, and thrown diagnostics", {
+    skip: !openCliProcessTeardownAvailable()
+  }, () => {
     const secretValue = "abcdefghijklmnopqrstuvwxyz0123456789";
     const cookieSecret = `li_at=${secretValue}`;
     const bearerSecret = "Bearer abcdefghijklmnopqrstuvwxyz012345";
@@ -341,10 +483,11 @@ describe("OpenCLI subprocess isolation", () => {
   });
 
   it("drains a detached descendant before a timed-out OpenCLI command returns", {
-    skip: process.platform === "win32"
+    skip: process.platform === "win32" || !openCliProcessTeardownAvailable()
   }, async () => {
     const directory = await mkdtemp(join(tmpdir(), "returner-opencli-drain-test-"));
     const pidPath = join(directory, "detached.pid");
+    const identityPath = join(directory, "owned-processes.json");
     const survivedPath = join(directory, "detached-survived");
     const runtimeUrl = new URL(
       "../scripts/lib/opencli-runtime.mjs",
@@ -356,12 +499,26 @@ describe("OpenCLI subprocess isolation", () => {
     ].join("");
     const rootProgram = `
       const { spawn } = require("node:child_process");
+      const { execFileSync } = require("node:child_process");
       const { writeFileSync } = require("node:fs");
+      const marker = process.env.RETURNER_OPENCLI_PROCESS_OWNER;
+      const startIdentity = (pid) => "ps-lstart:" + execFileSync(
+        "/bin/ps",
+        ["-p", String(pid), "-o", "lstart="],
+        { encoding: "utf8" }
+      ).trim().replace(/\\s+/g, " ");
+      const state = {
+        marker,
+        processes: [{ pid: process.pid, startIdentity: startIdentity(process.pid) }]
+      };
+      writeFileSync(${JSON.stringify(identityPath)}, JSON.stringify(state));
       const child = spawn(process.execPath, ["-e", ${JSON.stringify(detachedProgram)}], {
         detached: true,
         stdio: "ignore"
       });
       writeFileSync(${JSON.stringify(pidPath)}, String(child.pid));
+      state.processes.push({ pid: child.pid, startIdentity: startIdentity(child.pid) });
+      writeFileSync(${JSON.stringify(identityPath)}, JSON.stringify(state));
       child.unref();
       setInterval(() => {}, 1000);
     `;
@@ -422,10 +579,367 @@ describe("OpenCLI subprocess isolation", () => {
       await new Promise((resolve) => setTimeout(resolve, 850));
       await assert.rejects(readFile(survivedPath, "utf8"), { code: "ENOENT" });
     } finally {
+      await terminateIdentityVerifiedTestProcesses(identityPath);
       await rm(directory, { recursive: true, force: true });
     }
   });
+
+  for (const externalSignal of ["SIGTERM", "SIGINT"]) {
+    it(`drains exact detached descendants before ${externalSignal} collector exit`, {
+      skip: process.platform === "win32" || !openCliProcessTeardownAvailable(),
+      timeout: 20_000
+    }, async () => {
+    const directory = await mkdtemp(join(tmpdir(), "returner-opencli-signal-test-"));
+    const identityPaths = ["a", "b"].map((suffix) =>
+      join(directory, `owned-processes-${suffix}.json`)
+    );
+    const survivedPaths = ["a", "b"].map((suffix) =>
+      join(directory, `detached-survived-${suffix}`)
+    );
+    const fixtureToken = `fixture-${directory.split("/").pop()}`;
+    const runtimeUrl = new URL(
+      "../scripts/lib/opencli-runtime.mjs",
+      import.meta.url
+    ).href;
+    const rootPrograms = identityPaths.map((identityPath, index) => `
+      const { execFileSync, spawn } = require("node:child_process");
+      const { writeFileSync } = require("node:fs");
+      const marker = process.env.RETURNER_OPENCLI_PROCESS_OWNER;
+      const startIdentity = (pid) => "ps-lstart:" + execFileSync(
+        "/bin/ps",
+        ["-p", String(pid), "-o", "lstart="],
+        { encoding: "utf8" }
+      ).trim().replace(/\\s+/g, " ");
+      const state = {
+        marker,
+        processes: [{ pid: process.pid, startIdentity: startIdentity(process.pid) }]
+      };
+      writeFileSync(${JSON.stringify(identityPath)}, JSON.stringify(state));
+      const child = spawn(process.execPath, ["-e", ${JSON.stringify([
+        `setTimeout(() => require("node:fs").writeFileSync(${JSON.stringify(survivedPaths[index])}, "survived"), 8000);`,
+        "setInterval(() => {}, 1000);"
+      ].join(""))}], {
+        detached: true,
+        stdio: "ignore"
+      });
+      state.processes.push({ pid: child.pid, startIdentity: startIdentity(child.pid) });
+      writeFileSync(${JSON.stringify(identityPath)}, JSON.stringify(state));
+      child.unref();
+      setInterval(() => {}, 1000);
+    `);
+    const collectorProgram = `
+      import { runOpenCli } from ${JSON.stringify(runtimeUrl)};
+      await Promise.all(${JSON.stringify(rootPrograms)}.map((rootProgram) =>
+        runOpenCli(["--input-type=commonjs", "-e", rootProgram], {
+          timeoutMs: 60_000
+        })
+      ));
+      process.exitCode = 91;
+    `;
+    const collector = spawn(
+      process.execPath,
+      ["--input-type=module", "-e", collectorProgram],
+      {
+        env: {
+          HOME: process.env.HOME,
+          LANG: process.env.LANG,
+          PATH: process.env.PATH,
+          TMPDIR: process.env.TMPDIR,
+          OPENCLI_BIN: process.execPath,
+          RETURNER_OPENCLI_TEST_OWNER: fixtureToken
+        },
+        stdio: "ignore"
+      }
+    );
+    const collectorIdentity = await waitForIdentityVerifiedTestProcess({
+      pid: collector.pid,
+      markerName: "RETURNER_OPENCLI_TEST_OWNER",
+      marker: fixtureToken
+    }, 2_000);
+
+    try {
+      const ownedStates = await Promise.all(
+        identityPaths.map((identityPath) =>
+          waitForOwnedTestProcessState(identityPath, 5_000)
+        )
+      );
+      assert.deepEqual(ownedStates.map((state) => state.processes.length), [2, 2]);
+      assert.equal(collector.kill(externalSignal), true);
+      const exit = await waitForChildExit(collector, 15_000);
+      const expectedExitCode = externalSignal === "SIGINT" ? 130 : 143;
+      assert.ok(
+        exit.signal === externalSignal || exit.code === expectedExitCode,
+        `expected ${externalSignal} semantics, received ${JSON.stringify(exit)}`
+      );
+      for (const ownedState of ownedStates) {
+        for (const identity of ownedState.processes) {
+          await waitForIdentityVerifiedTestProcessExit({
+            ...identity,
+            markerName: "RETURNER_OPENCLI_PROCESS_OWNER",
+            marker: ownedState.marker
+          }, 3_000);
+        }
+      }
+      await new Promise((resolve) => setTimeout(resolve, 250));
+      for (const survivedPath of survivedPaths) {
+        await assert.rejects(readFile(survivedPath, "utf8"), { code: "ENOENT" });
+      }
+    } finally {
+      for (const identityPath of identityPaths) {
+        await terminateIdentityVerifiedTestProcesses(identityPath);
+      }
+      await terminateIdentityVerifiedTestProcess(collectorIdentity);
+      await rm(directory, { recursive: true, force: true });
+    }
+    });
+  }
+
+  for (const secondSignal of ["SIGTERM", "SIGINT"]) {
+    it(`fail-closes immediately when ${secondSignal} interrupts external-signal draining`, {
+      skip: process.platform === "win32" || !openCliProcessTeardownAvailable(),
+      timeout: 15_000
+    }, async () => {
+      const directory = await mkdtemp(
+        join(tmpdir(), "returner-opencli-second-signal-test-")
+      );
+      const identityPath = join(directory, "owned-processes.json");
+      const survivedPath = join(directory, "detached-survived");
+      const fixtureToken = `fixture-${directory.split("/").pop()}`;
+      const runtimeUrl = new URL(
+        "../scripts/lib/opencli-runtime.mjs",
+        import.meta.url
+      ).href;
+      const detachedProgram = [
+        "process.on('SIGTERM', () => {});",
+        "process.on('SIGINT', () => {});",
+        `setTimeout(() => require("node:fs").writeFileSync(${JSON.stringify(survivedPath)}, "survived"), 5000);`,
+        "setInterval(() => {}, 1000);"
+      ].join("");
+      const rootProgram = `
+        const { execFileSync, spawn } = require("node:child_process");
+        const { writeFileSync } = require("node:fs");
+        process.on("SIGTERM", () => {});
+        process.on("SIGINT", () => {});
+        const marker = process.env.RETURNER_OPENCLI_PROCESS_OWNER;
+        const startIdentity = (pid) => "ps-lstart:" + execFileSync(
+          "/bin/ps",
+          ["-p", String(pid), "-o", "lstart="],
+          { encoding: "utf8" }
+        ).trim().replace(/\\s+/g, " ");
+        const state = {
+          marker,
+          processes: [{ pid: process.pid, startIdentity: startIdentity(process.pid) }]
+        };
+        writeFileSync(${JSON.stringify(identityPath)}, JSON.stringify(state));
+        const child = spawn(
+          process.execPath,
+          ["-e", ${JSON.stringify(detachedProgram)}],
+          { detached: true, stdio: "ignore" }
+        );
+        state.processes.push({
+          pid: child.pid,
+          startIdentity: startIdentity(child.pid)
+        });
+        writeFileSync(${JSON.stringify(identityPath)}, JSON.stringify(state));
+        child.unref();
+        setInterval(() => {}, 1000);
+      `;
+      const collectorProgram = `
+        import { runOpenCli } from ${JSON.stringify(runtimeUrl)};
+        await runOpenCli(
+          ["--input-type=commonjs", "-e", ${JSON.stringify(rootProgram)}],
+          { timeoutMs: 60_000 }
+        );
+        process.exitCode = 91;
+      `;
+      const collector = spawn(
+        process.execPath,
+        ["--input-type=module", "-e", collectorProgram],
+        {
+          env: {
+            HOME: process.env.HOME,
+            LANG: process.env.LANG,
+            PATH: process.env.PATH,
+            TMPDIR: process.env.TMPDIR,
+            OPENCLI_BIN: process.execPath,
+            RETURNER_OPENCLI_TEST_OWNER: fixtureToken
+          },
+          stdio: "ignore"
+        }
+      );
+      const collectorIdentity = await waitForIdentityVerifiedTestProcess({
+        pid: collector.pid,
+        markerName: "RETURNER_OPENCLI_TEST_OWNER",
+        marker: fixtureToken
+      }, 2_000);
+
+      try {
+        const ownedState = await waitForOwnedTestProcessState(identityPath, 5_000);
+        await new Promise((resolve) => setTimeout(resolve, 100));
+        const firstSignal = secondSignal === "SIGTERM" ? "SIGINT" : "SIGTERM";
+        assert.equal(collector.kill(firstSignal), true);
+        await new Promise((resolve) => setTimeout(resolve, 50));
+        assert.equal(collector.kill(secondSignal), true);
+        const exit = await waitForChildExit(collector, 5_000);
+        const expectedExitCode = secondSignal === "SIGINT" ? 130 : 143;
+        assert.ok(
+          exit.signal === secondSignal || exit.code === expectedExitCode,
+          `expected second-signal ${secondSignal} semantics, received ${JSON.stringify(exit)}`
+        );
+        for (const identity of ownedState.processes) {
+          await waitForIdentityVerifiedTestProcessExit({
+            ...identity,
+            markerName: "RETURNER_OPENCLI_PROCESS_OWNER",
+            marker: ownedState.marker
+          }, 3_000);
+        }
+        await assert.rejects(readFile(survivedPath, "utf8"), { code: "ENOENT" });
+      } finally {
+        await terminateIdentityVerifiedTestProcesses(identityPath);
+        await terminateIdentityVerifiedTestProcess(collectorIdentity);
+        await rm(directory, { recursive: true, force: true });
+      }
+    });
+  }
 });
+
+async function waitForOwnedTestProcessState(identityPath, timeoutMs) {
+  const deadline = Date.now() + timeoutMs;
+  do {
+    try {
+      const state = JSON.parse(await readFile(identityPath, "utf8"));
+      if (state?.marker && state?.processes?.length >= 2) return state;
+    } catch {}
+    await new Promise((resolve) => setTimeout(resolve, 20));
+  } while (Date.now() < deadline);
+  throw new Error("Timed out waiting for the OpenCLI process fixture state.");
+}
+
+function testProcessStartIdentity(pid) {
+  try {
+    const startedAt = execFileSync(
+      "/bin/ps",
+      ["-p", String(pid), "-o", "lstart="],
+      { encoding: "utf8", timeout: 500 }
+    ).trim().replace(/\s+/g, " ");
+    return startedAt ? `ps-lstart:${startedAt}` : null;
+  } catch {
+    return null;
+  }
+}
+
+function testProcessHasExactMarker(pid, markerName, marker) {
+  const expected = `${markerName}=${marker}`;
+  try {
+    if (process.platform === "linux") {
+      return readFileSync(`/proc/${pid}/environ`)
+        .toString("utf8")
+        .split("\0")
+        .includes(expected);
+    }
+    const command = execFileSync(
+      "/bin/ps",
+      ["eww", "-p", String(pid), "-o", "command="],
+      { encoding: "utf8", timeout: 500 }
+    );
+    return command.split(/\s+/).includes(expected);
+  } catch {
+    return false;
+  }
+}
+
+async function captureIdentityVerifiedTestProcess({ pid, markerName, marker }) {
+  if (!Number.isInteger(pid) || pid <= 1 || pid === process.pid) return null;
+  const before = testProcessStartIdentity(pid);
+  const markerMatches = testProcessHasExactMarker(pid, markerName, marker);
+  const after = testProcessStartIdentity(pid);
+  if (!before || before !== after || !markerMatches) return null;
+  return { pid, startIdentity: after, markerName, marker };
+}
+
+async function waitForIdentityVerifiedTestProcess(options, timeoutMs) {
+  const deadline = Date.now() + timeoutMs;
+  do {
+    const identity = await captureIdentityVerifiedTestProcess(options);
+    if (identity) return identity;
+    await new Promise((resolve) => setTimeout(resolve, 20));
+  } while (Date.now() < deadline);
+  throw new Error("Timed out waiting for an identity-verified test process.");
+}
+
+function identityVerifiedTestProcessExists(identity) {
+  if (!identity) return false;
+  const before = testProcessStartIdentity(identity.pid);
+  const markerMatches = testProcessHasExactMarker(
+    identity.pid,
+    identity.markerName,
+    identity.marker
+  );
+  const after = testProcessStartIdentity(identity.pid);
+  return Boolean(
+    before &&
+    before === identity.startIdentity &&
+    after === identity.startIdentity &&
+    markerMatches
+  );
+}
+
+async function waitForIdentityVerifiedTestProcessExit(identity, timeoutMs) {
+  const deadline = Date.now() + timeoutMs;
+  while (identityVerifiedTestProcessExists(identity) && Date.now() < deadline) {
+    await new Promise((resolve) => setTimeout(resolve, 20));
+  }
+  assert.equal(identityVerifiedTestProcessExists(identity), false);
+}
+
+async function terminateIdentityVerifiedTestProcess(identity) {
+  if (!identityVerifiedTestProcessExists(identity)) return;
+  try {
+    process.kill(identity.pid, "SIGKILL");
+  } catch (error) {
+    if (error?.code !== "ESRCH") throw error;
+  }
+}
+
+async function terminateIdentityVerifiedTestProcesses(identityPath) {
+  let state;
+  try {
+    state = JSON.parse(await readFile(identityPath, "utf8"));
+  } catch {
+    return;
+  }
+  for (const processIdentity of state.processes ?? []) {
+    await terminateIdentityVerifiedTestProcess({
+      ...processIdentity,
+      markerName: "RETURNER_OPENCLI_PROCESS_OWNER",
+      marker: state.marker
+    });
+  }
+}
+
+function waitForChildExit(child, timeoutMs) {
+  return new Promise((resolve, reject) => {
+    let settled = false;
+    const timer = setTimeout(() => {
+      if (settled) return;
+      settled = true;
+      reject(new Error(`Timed out waiting ${timeoutMs}ms for fixture exit.`));
+    }, timeoutMs);
+    child.once("exit", (code, signal) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      resolve({ code, signal });
+    });
+    child.once("error", (error) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      reject(error);
+    });
+  }
+  );
+}
 
 describe("logged-in LinkedIn collection", () => {
   it("forces one serial worker and a conservative delay without throttling other platform workers", () => {
@@ -507,6 +1021,47 @@ describe("logged-in LinkedIn collection", () => {
     assert.match(collectorSource, /requiredLinkedInGlobalLockConfiguration\(\)/);
     assert.match(collectorSource, /LINKEDIN_GLOBAL_LOCK_NAMESPACE/);
     assert.match(collectorSource, /createSupabaseLinkedInGlobalLeaseProvider\(client\)/);
+  });
+
+  it("reports all 40 eligible LinkedIn targets while selecting at most five", () => {
+    const fortyEligibleTargets = Array.from({ length: 40 }, (_, index) => ({
+      platform: "linkedin",
+      entityId: `founder-${index}`,
+      url: `https://www.linkedin.com/in/founder-${index}`
+    }));
+    const eligibleRunnableTargets = selectRunnableCollectionTargets(
+      fortyEligibleTargets,
+      { limit: Number.POSITIVE_INFINITY }
+    );
+    const selectedForThisInvocation = limitLinkedInTargetsPerInvocation(
+      eligibleRunnableTargets,
+      5
+    );
+
+    assert.equal(
+      eligibleRunnableTargets.filter((target) => target.platform === "linkedin").length,
+      40
+    );
+    assert.equal(
+      selectedForThisInvocation.filter((target) => target.platform === "linkedin").length,
+      5
+    );
+    assert.match(
+      collectorSource,
+      /const eligibleRunnableTargets = selectRunnableCollectionTargets\([\s\S]*?limit: Number\.POSITIVE_INFINITY/
+    );
+    assert.match(
+      collectorSource,
+      /const globallyBoundedRunnableTargets = Number\.isFinite\(Number\(targetLimit\)\)[\s\S]*?eligibleRunnableTargets\.slice/
+    );
+    assert.match(
+      collectorSource,
+      /remainingTargetCount: remainingLinkedInTargetCount/
+    );
+    assert.match(
+      collectorSource,
+      /selectedForThisInvocationCount: selectedLinkedInTargetCount/
+    );
   });
 
   it("executes LinkedIn targets serially, always as worker zero, with the delay floor", async () => {

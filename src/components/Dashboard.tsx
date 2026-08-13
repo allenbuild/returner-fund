@@ -43,12 +43,13 @@ import {
   enrichGraphTaxonomies
 } from "@/lib/graph/graph-taxonomies";
 import {
-  isTopicFacetSnapshot,
   topicFacetRowsForAudience,
-  topicFacetSnapshotUrl,
-  withTopicFacetRows,
-  type TopicFacetSnapshot
+  withTopicFacetRows
 } from "@/lib/graph/topic-facets";
+import {
+  isTopicFacetBatchSlug,
+  loadCurrentTopicFacetSnapshot
+} from "@/lib/graph/topic-facet-snapshot-loader";
 import { networkMapTitle } from "@/lib/graph/network-map-branding";
 import {
   normalizePostTopics,
@@ -57,6 +58,11 @@ import {
   type PostTopicGroup
 } from "@/lib/graph/post-topics";
 import { TOP_POSTS_LIMIT } from "@/lib/graph/presentation-limits";
+import {
+  loadRankedPostsSidecarForGraph,
+  rankedPostsSidecarScopeForGraph,
+  type RankedPostsGraphTarget
+} from "@/lib/graph/ranked-posts-sidecar-loader";
 import { searchGraphNodes, type GraphSearchResult } from "@/lib/graph/search";
 import { validateStaticGraphSnapshotContract } from "@/lib/graph/static-graph-snapshot-contract.mjs";
 import {
@@ -106,6 +112,7 @@ const API_GRAPH_TIMEOUT_MS = 20_000;
 const REFRESH_TIMEOUT_MS = 45_000;
 const BACKGROUND_REVALIDATION_DELAY_MS = 30_000;
 const RESUME_REVALIDATION_COOLDOWN_MS = 60_000;
+export const RESUME_REVALIDATION_SCOPE_MAX_ENTRIES = 24;
 const SCOPE_TRANSITION_MINIMUM_MS = 650;
 const MAP_BASELINE_RETRY_DELAYS_MS = [1_000, 3_000, 10_000] as const;
 const DEFAULT_TOP_VOICE_AUDIENCE: TopVoiceAudienceId = "off";
@@ -117,6 +124,20 @@ const TOPIC_FILTER_GROUP_ORDER = [
   "Ecosystem",
   "Other"
 ] as const satisfies readonly PostTopicGroup[];
+
+export function recordResumeRevalidationAt(
+  cache: Map<string, number>,
+  graphKey: string,
+  refreshedAt: number
+): void {
+  cache.delete(graphKey);
+  cache.set(graphKey, refreshedAt);
+  while (cache.size > RESUME_REVALIDATION_SCOPE_MAX_ENTRIES) {
+    const oldestKey = cache.keys().next().value;
+    if (oldestKey === undefined) break;
+    cache.delete(oldestKey);
+  }
+}
 const TOPIC_FILTER_GROUPS: readonly DropdownOptionGroup<PostTopic>[] = TOPIC_FILTER_GROUP_ORDER.map((label) => ({
   id: label.toLowerCase().replaceAll(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""),
   label,
@@ -273,20 +294,9 @@ async function hydrateGraphTopicFacets(
   audienceId: TopVoiceAudienceId,
   signal?: AbortSignal
 ): Promise<GraphResponse> {
-  const url = topicFacetSnapshotUrl(batchSlug);
-  if (!url || graph.topicFacetRows?.length) return graph;
+  if (!isTopicFacetBatchSlug(batchSlug)) return graph;
   try {
-    const snapshot = await fetchWithTimeout(
-      url,
-      { cache: "no-store" },
-      STATIC_GRAPH_TIMEOUT_MS,
-      async (response) => {
-        if (!response.ok) throw new Error(`Topic facet snapshot unavailable (${response.status})`);
-        return (await response.json()) as TopicFacetSnapshot;
-      },
-      signal
-    );
-    if (!isTopicFacetSnapshot(snapshot) || snapshot.batchSlug !== batchSlug) return graph;
+    const snapshot = await loadCurrentTopicFacetSnapshot(batchSlug, { signal });
     return withTopicFacetRows(graph, topicFacetRowsForAudience(snapshot, audienceId));
   } catch (caught) {
     if (isAbortError(caught) || signal?.aborted) throw caught;
@@ -666,6 +676,12 @@ export function Dashboard({
   );
   const [graph, setGraph] = useState<GraphResponse | null>(preparedInitialGraph ?? null);
   const [filterMetadataGraph, setFilterMetadataGraph] = useState<GraphResponse | null>(preparedInitialGraph ?? null);
+  const [rankedPostsSidecarState, setRankedPostsSidecarState] = useState<{
+    batchSlug: string;
+    audienceId: TopVoiceAudienceId;
+    generatedAt: string;
+    scope: NonNullable<ReturnType<typeof rankedPostsSidecarScopeForGraph>>;
+  } | null>(null);
   const [mapMetadataGraph, setMapMetadataGraph] = useState<GraphResponse | null>(() =>
     (preparedInitialGraph?.selectedTopVoiceAudience?.id ?? DEFAULT_TOP_VOICE_AUDIENCE) === DEFAULT_TOP_VOICE_AUDIENCE
       ? preparedInitialGraph ?? null
@@ -718,7 +734,7 @@ export function Dashboard({
   const graphFetchSequenceRef = useRef(0);
   const latestGraphFetchIdRef = useRef<Map<string, number>>(new Map());
   const graphInFlightRef = useRef<Map<string, InFlightGraphRequest>>(new Map());
-  const lastResumeRevalidationAtRef = useRef<number | null>(null);
+  const lastResumeRevalidationAtRef = useRef<Map<string, number>>(new Map());
   const actionRequestIdRef = useRef(0);
   const activeActionAbortRef = useRef<AbortController | null>(null);
   const selectionRef = useRef({ batchSlug, topVoiceAudience, insiderIds: selectedInsiderIds });
@@ -1069,7 +1085,7 @@ export function Dashboard({
         setFilterMetadataGraph(payload);
       }
       setGraph(options.unfiltered ? applyClientGraphFilters(payload, currentFiltersRef.current) : payload);
-      if (options.unfiltered && !payload.topicFacetRows?.length) {
+      if (options.unfiltered) {
         void hydrateGraphTopicFacets(
           payload,
           selected.batchSlug,
@@ -1411,22 +1427,22 @@ export function Dashboard({
         return;
       }
 
-      const now = Date.now();
-      const lastRefreshAt = lastResumeRevalidationAtRef.current;
-      if (lastRefreshAt !== null && now - lastRefreshAt < RESUME_REVALIDATION_COOLDOWN_MS) {
-        return;
-      }
-
       const activeGraphKey = graphCacheKey(
         batchSlug,
         topVoiceAudience,
         topVoiceAudience === "insiders" ? selectedInsiderIds : []
       );
+      const now = Date.now();
+      const lastRefreshAt = lastResumeRevalidationAtRef.current.get(activeGraphKey);
+      if (lastRefreshAt !== undefined && now - lastRefreshAt < RESUME_REVALIDATION_COOLDOWN_MS) {
+        recordResumeRevalidationAt(lastResumeRevalidationAtRef.current, activeGraphKey, lastRefreshAt);
+        return;
+      }
       if (graphInFlightRef.current.has(activeGraphKey)) {
         return;
       }
 
-      lastResumeRevalidationAtRef.current = now;
+      recordResumeRevalidationAt(lastResumeRevalidationAtRef.current, activeGraphKey, now);
       void fetchGraph({ background: true, forceApi: true, unfiltered: true });
     };
 
@@ -1479,6 +1495,62 @@ export function Dashboard({
   const fallbackGraphActive = graphScopeMismatch && !graphBusy && Boolean(mapGraph);
   const interactiveGraph = settledGraph ?? (fallbackGraphActive ? mapGraph : null);
   const scopeSpecificFiltersDisabled = !settledGraph || !scopedFilterMetadataGraph;
+  const rankedPostsTargetBatchSlug = settledGraph?.batch.slug ?? null;
+  const rankedPostsTargetGeneratedAt = settledGraph?.generatedAt ?? null;
+  const rankedPostsTargetAudienceId = settledGraph?.selectedTopVoiceAudience?.id ?? DEFAULT_TOP_VOICE_AUDIENCE;
+  const rankedPostsSidecarTarget = useMemo<RankedPostsGraphTarget | null>(() => {
+    if (!rankedPostsTargetBatchSlug || !rankedPostsTargetGeneratedAt) return null;
+    return {
+      batch: { slug: rankedPostsTargetBatchSlug },
+      generatedAt: rankedPostsTargetGeneratedAt,
+      selectedTopVoiceAudience: {
+        id: rankedPostsTargetAudienceId
+      }
+    };
+  }, [
+    rankedPostsTargetAudienceId,
+    rankedPostsTargetBatchSlug,
+    rankedPostsTargetGeneratedAt
+  ]);
+  const bundledRankedPostsSidecarScope = useMemo(
+    () => rankedPostsSidecarTarget
+      ? rankedPostsSidecarScopeForGraph(rankedPostsSidecarTarget)
+      : null,
+    [rankedPostsSidecarTarget]
+  );
+
+  useEffect(() => {
+    if (!rankedPostsSidecarTarget || bundledRankedPostsSidecarScope) return undefined;
+
+    let cancelled = false;
+    const controller = new AbortController();
+    void loadRankedPostsSidecarForGraph(rankedPostsSidecarTarget, { signal: controller.signal })
+      .then((scope) => {
+        if (cancelled) return;
+        setRankedPostsSidecarState({
+          batchSlug: rankedPostsSidecarTarget.batch.slug,
+          audienceId: rankedPostsSidecarTarget.selectedTopVoiceAudience?.id ?? DEFAULT_TOP_VOICE_AUDIENCE,
+          generatedAt: rankedPostsSidecarTarget.generatedAt,
+          scope
+        });
+      })
+      .catch(() => {
+        if (!cancelled) setRankedPostsSidecarState(null);
+      });
+
+    return () => {
+      cancelled = true;
+      controller.abort();
+    };
+  }, [bundledRankedPostsSidecarScope, rankedPostsSidecarTarget]);
+
+  const activeRankedPostsSidecarScope =
+    bundledRankedPostsSidecarScope ?? (rankedPostsSidecarState && rankedPostsSidecarTarget &&
+    rankedPostsSidecarState.batchSlug === rankedPostsSidecarTarget.batch.slug &&
+    rankedPostsSidecarState.audienceId === (rankedPostsSidecarTarget.selectedTopVoiceAudience?.id ?? DEFAULT_TOP_VOICE_AUDIENCE) &&
+    rankedPostsSidecarState.generatedAt === rankedPostsSidecarTarget.generatedAt
+      ? rankedPostsSidecarState.scope
+      : null);
 
   const mapFocus = useMemo(() => {
     const active = Boolean(
@@ -2375,6 +2447,7 @@ export function Dashboard({
               graph={interactiveGraph}
               statsGraph={scopedFilterMetadataGraph ?? interactiveGraph}
               onSelectNode={selectRankedNode}
+              rankedPostsSidecarScope={activeRankedPostsSidecarScope}
             />
           )}
         </section>

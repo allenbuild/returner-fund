@@ -42,7 +42,7 @@ export function withTopicFacetRows(
   graph: GraphResponse,
   rows: TopicFacetRow[]
 ): GraphResponse {
-  return rows.length ? { ...graph, topicFacetRows: rows } : graph;
+  return { ...graph, topicFacetRows: rows };
 }
 
 function isTopicFacetRow(value: unknown): value is TopicFacetRow {

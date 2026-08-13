@@ -15,7 +15,7 @@ describe("public data debug instrumentation", () => {
     expect(tasks.every((task) => task.checkpointKey.includes(task.companyId))).toBe(true);
   });
 
-  it("marks LinkedIn working while keeping collection public and unauthenticated", () => {
+  it("marks LinkedIn working while reporting its public-only S26 source", () => {
     const graph = buildGraphResponse({ batchSlug: "S26" }, ycSpring2026GraphDataset);
     const linkedin = graph.platformStatus.find((item) => item.platform === "linkedin");
     const x = graph.platformStatus.find((item) => item.platform === "x");
@@ -23,7 +23,7 @@ describe("public data debug instrumentation", () => {
     expect(linkedin?.status).toBe("working");
     expect(linkedin?.authMethod.toLowerCase()).toContain("public unauthenticated");
     expect(linkedin?.authMethod.toLowerCase()).not.toContain("authenticated browser session");
-    expect(linkedin?.notes.toLowerCase()).toContain("no account login, cookies, browser session, or auth headers");
+    expect(linkedin?.notes.toLowerCase()).toContain("0 came from the opt-in authenticated browser snapshot");
     expect(x?.status).toBe("public_only");
     expect(x?.authMethod.toLowerCase()).toContain("official yc profile links");
   });

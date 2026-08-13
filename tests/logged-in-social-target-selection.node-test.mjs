@@ -3,6 +3,7 @@ import { describe, it } from "node:test";
 import {
   collectionTargetAccountIdentity,
   collectionTargetShouldRun,
+  linkedinChildSafetyStopDecision,
   partitionCollectionTargetsByOwnerAmbiguity,
   selectRunnableCollectionTargets
 } from "../scripts/lib/logged-in-social-target-selection.mjs";
@@ -12,6 +13,25 @@ const now = "2026-08-02T12:00:00.000Z";
 const freshCheckedAt = "2026-08-02T06:00:00.001Z";
 
 describe("logged-in social runnable target selection", () => {
+  it("emits a distinct child stop only for LinkedIn account-safety classes", () => {
+    for (const failureKind of ["account_safety", "auth", "rate_limited"]) {
+      assert.deepEqual(linkedinChildSafetyStopDecision(failureKind), {
+        terminal: true,
+        signal: "LINKEDIN_CHILD_SAFETY_STOP",
+        exitCode: 86,
+        failureKind
+      });
+    }
+    for (const failureKind of ["transport", "system", "target_specific"] ) {
+      assert.deepEqual(linkedinChildSafetyStopDecision(failureKind), {
+        terminal: false,
+        signal: null,
+        exitCode: 0,
+        failureKind
+      });
+    }
+  });
+
   it("applies the limit after completed targets are removed", () => {
     const targets = [
       { id: "done-positive" },
@@ -118,6 +138,84 @@ describe("logged-in social runnable target selection", () => {
       }),
       true
     );
+  });
+
+  it("applies freshness to bounded Instagram attempts without trusting legacy exhaustion", () => {
+    const target = { id: "instagram-legacy", platform: "instagram" };
+    const attempts = new Map([
+      [target.id, { status: "done", count: 12, checkedAt: freshCheckedAt }]
+    ]);
+    assert.equal(
+      collectionTargetShouldRun(target, { attempts, attemptKey, now }),
+      false
+    );
+    attempts.set(target.id, {
+      status: "done",
+      count: 12,
+      checkedAt: freshCheckedAt,
+      instagramPagination: { exhausted: true }
+    });
+    assert.equal(
+      collectionTargetShouldRun(target, { attempts, attemptKey, now }),
+      false
+    );
+    attempts.set(target.id, {
+      status: "partial",
+      count: 12,
+      checkedAt: freshCheckedAt,
+      instagramPagination: {
+        exhausted: false,
+        status: "non_exhaustive"
+      }
+    });
+    assert.equal(
+      collectionTargetShouldRun(target, { attempts, attemptKey, now }),
+      false
+    );
+    attempts.set(target.id, {
+      status: "partial",
+      count: 12,
+      checkedAt: "2026-08-01T00:00:00.000Z"
+    });
+    assert.equal(
+      collectionTargetShouldRun(target, { attempts, attemptKey, now }),
+      true
+    );
+  });
+
+  it("keeps completed LinkedIn attempts terminal only when explicitly configured", () => {
+    const done = { id: "linkedin-done", platform: "linkedin" };
+    const failed = { id: "linkedin-failed", platform: "linkedin" };
+    const untouched = { id: "linkedin-untouched", platform: "linkedin" };
+    const attempts = new Map([
+      [done.id, {
+        status: "done",
+        count: 5,
+        checkedAt: "2025-01-01T00:00:00.000Z"
+      }],
+      [failed.id, {
+        status: "failed",
+        count: 0,
+        checkedAt: freshCheckedAt
+      }]
+    ]);
+
+    assert.equal(
+      collectionTargetShouldRun(done, { attempts, attemptKey, now }),
+      true
+    );
+    for (const target of [done, failed, untouched]) {
+      assert.equal(
+        collectionTargetShouldRun(target, {
+          attempts,
+          attemptKey,
+          now,
+          force: true,
+          terminalCompletedPlatforms: new Set(["linkedin"])
+        }),
+        target !== done
+      );
+    }
   });
 
   it("force mode includes every target before applying the work limit", () => {

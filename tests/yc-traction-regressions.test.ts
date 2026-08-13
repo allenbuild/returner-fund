@@ -176,6 +176,17 @@ describe("YC traction scoring regressions", () => {
     expect(springLinkedIn?.notes).not.toContain("Summer 2026");
     expect(summerLinkedIn?.notes).toContain("Summer 2026");
     expect(summerLinkedIn?.notes).not.toContain("Spring rows are currently available");
+    expect(springLinkedIn?.authMethod).toContain("authenticated browser session");
+    expect(summerLinkedIn?.authMethod.toLowerCase()).toContain("public unauthenticated");
+    expect(summerLinkedIn?.authMethod.toLowerCase()).not.toContain("authenticated browser session");
+
+    const springInstagram = springGraph.platformStatus.find((status) => status.platform === "instagram");
+    const summerInstagram = summerGraph.platformStatus.find((status) => status.platform === "instagram");
+    expect(springInstagram?.status).toBe("working");
+    expect(summerInstagram?.status).toBe("working");
+    expect(springInstagram?.authMethod).toContain("authenticated browser session");
+    expect(summerInstagram?.authMethod.toLowerCase()).toContain("official yc profile links");
+    expect(summerInstagram?.authMethod.toLowerCase()).not.toContain("authenticated browser session");
   });
 
   it("does not carry old Spring evidence into Conifer's selected company feed", () => {

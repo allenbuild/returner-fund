@@ -80,6 +80,7 @@ import { sanitizeRunnerFailureMessage } from "./lib/runner-failure-sanitizer.mjs
 import { importEvidenceSnapshots } from "./lib/durable-evidence-import.mjs";
 import {
   assertReplaySafePublicationChanges,
+  assertSafeInertPublicationBaseChanges,
   isProtectedSourcePolicyPath
 } from "./lib/autonomous-publication-trust.mjs";
 import { isVerifiedYouTubeNativeMetriclessEvidence } from "./lib/youtube-native-promotion.mjs";
@@ -131,6 +132,10 @@ const PUBLIC_COLLECTOR_SHARDS = Object.freeze({
 const PUBLIC_SHARD_PROCESS_CONCURRENCY = 2;
 const PUBLIC_COLLECTOR_TASK_CONCURRENCY = 8;
 const PUBLIC_SOCIAL_LANE_CONCURRENCY = 1;
+const LINKEDIN_REPLAY_MAX_CHUNKS = 7;
+const LINKEDIN_REPLAY_TARGET_CAP = 5;
+const LINKEDIN_REPLAY_RESERVE_MS = 15 * 60_000;
+const LINKEDIN_REPLAY_PLAN_TIMEOUT_MS = 2 * 60_000;
 const runWithPublicShardProcessSlot = createConcurrencyGuard(PUBLIC_SHARD_PROCESS_CONCURRENCY);
 // GitHub has a separate two-process lane. Each process uses four ordinary
 // collector workers, so the initial request fan-out is capped at eight while
@@ -173,6 +178,7 @@ let canceledRunRecordPromise = null;
 let runnerOutcomeWritePromise = null;
 let publicationPushCandidate = null;
 let publicationCancellationResolutionPromise = null;
+let publicationSignalAdoptionClosed = false;
 let publicationWorktreeCleanupPromise = null;
 let runFinalizationPromise = null;
 let finalizedRunStatus = null;
@@ -181,6 +187,7 @@ let completedOutcomeVerifiedByThisExecution = false;
 let lifecycleOperationTimeoutOverrideMs = null;
 let executionCompletionNonce = null;
 let candidateMetadata = null;
+let authenticatedSocial = null;
 const activeChildProcesses = new Set();
 const HEARTBEAT_DRAIN_TIMEOUT_MS = 10_000;
 const CANCELLATION_CLEANUP_TIMEOUT_MS = 15_000;
@@ -215,6 +222,10 @@ const DEFAULT_NODE_CHILD_HEAP_MB = 1_536;
 // exhaust the runner while preserving the full-corpus budget for serial builds.
 const COLLECTOR_NODE_HEAP_MB = 768;
 const GIT_PUSH_RETRYABLE_EXIT_CODES = new Set([128, 129, 130, 137, 143]);
+// One initial publication plus two exact-base rebuilds tolerates a second
+// concurrent main advance without allowing an unbounded push race. Every
+// command remains additionally constrained by the runner's existing deadline.
+const MAX_PUBLICATION_PUSH_ATTEMPTS = 3;
 const PUBLICATION_SEMANTIC_IGNORED_PATHS = Object.freeze([
   "outputs/ingestion-source-delta-current.json",
   "outputs/ingestion-source-delta-history.json"
@@ -238,6 +249,7 @@ const CHILD_ENV_CATEGORY_KEYS = Object.freeze({
   authenticated_social: [
     "HOME",
     "OPENCLI_BIN",
+    "OPENCLI_CONFIG_DIR",
     "OPENCLI_HOME",
     "OPENCLI_PROFILE",
     "BROWSER_PROFILE_PATH",
@@ -398,7 +410,8 @@ if (commitBackedReplay) {
 }
 if (!args.plan && !args.skipPublish) {
   preverifiedPublicationBaseCommit = await resolveVerifiedCurrentPublicationCommit({
-    labelPrefix: "initial publication base"
+    labelPrefix: "initial publication base",
+    allowInertCodeDrift: true
   });
 }
 
@@ -542,10 +555,13 @@ await Promise.all([
           historicalReplay: true,
           instagramWorkers: 2,
           linkedinWorkers: 1,
-          linkedinTargetCapPerBatch: 5
+          linkedinTargetCapPerChunk: LINKEDIN_REPLAY_TARGET_CAP,
+          linkedinMaxChunks: LINKEDIN_REPLAY_MAX_CHUNKS,
+          linkedinReserveMs: LINKEDIN_REPLAY_RESERVE_MS,
+          linkedinDrainHeadroomMs: AUTONOMOUS_PROCESS_BUDGETS.collectionDeadlineDrainHeadroomMs
         }
       );
-      const authenticatedSocial = await runAuthenticatedCollectors({ historicalReplay: true });
+      authenticatedSocial = await runAuthenticatedCollectors({ historicalReplay: true });
       await event(
         "collection.finished",
         "info",
@@ -606,7 +622,11 @@ await Promise.all([
     );
     latestCollectionCoverage = collectionCoverage;
     latestTerminalFailureBudget = terminalFailureBudget;
-    assertSuccessfulCollection(collectionResults, collectionCoverage);
+    if (args.authenticatedSocialReplay) {
+      assertAuthenticatedReplayCanPublish(authenticatedSocial);
+    } else {
+      assertSuccessfulCollection(collectionResults, collectionCoverage);
+    }
     await recordCollectionCoverage(collectionCoverage, terminalFailureBudget);
     validateMappedAutonomousCoverage(collectionCoverage, {
       maxTerminalFailures: args.skipPublish
@@ -709,7 +729,7 @@ await Promise.all([
     });
 
     assertLeaseHealthy();
-    // Publication state must be read only after the rebase. Reading it before
+    // Publication state must be read only after base synchronization. Reading it before
     // synchronizePublicationBase() can overwrite evidence or discovery rows
     // that another completed ingestion pushed while these collectors ran.
     await mergePublicationInputs(publicationInputs);
@@ -724,6 +744,9 @@ await Promise.all([
         credentialGaps: collectionCredentialGaps
       }),
       ...publicationCandidateReceiptFields(),
+      ...(args.authenticatedSocialReplay
+        ? { authenticatedSocialReplay: authenticatedSocial?.linkedinReplay ?? null }
+        : {}),
       mappedExpected: collectionCoverage.mappedExpected,
       mappedNonTerminal: collectionCoverage.mappedNonTerminal,
       terminalFailureBudget: terminalFailureBudget
@@ -737,18 +760,22 @@ await Promise.all([
       // instead of being incorrectly consumed by the publication below.
       const timelineInvalidationClaim = await claimTimelineArtifactInvalidationsForBuild();
       await buildAndValidatePublication(publicationRunId, catalogState);
+      publicationReceipt = await publishRepositoryArtifacts(publicationRunId, publicationInputs);
+      latestPublishedCommit = publicationReceipt.publishedCommit ?? null;
       if (run) {
-        await persistArtifactManifest(run.id);
+        await persistArtifactManifest(run.id, publicationReceipt);
       } else {
         await event(
           "artifact_manifest.persistence_skipped",
           "warning",
-          "Artifact manifest passed file validation but durable manifest persistence was skipped.",
-          { reason: "supabase_not_configured", publicationRunId }
+          "Published artifact manifest passed file validation but durable manifest persistence was skipped.",
+          {
+            reason: "supabase_not_configured",
+            publicationRunId,
+            publishedCommit: publicationReceipt.publishedCommit
+          }
         );
       }
-      publicationReceipt = await publishRepositoryArtifacts(publicationRunId, publicationInputs);
-      latestPublishedCommit = publicationReceipt.publishedCommit ?? null;
       await completePublishedTimelineInvalidations(publicationReceipt, timelineInvalidationClaim);
     }
 
@@ -785,6 +812,9 @@ await Promise.all([
       newPhysicalSources: publicationInputs.sourceDelta.newPhysicalSources,
       dailyNewPhysicalSources: publicationInputs.sourceDelta.dailyNewPhysicalSources,
       dailySourceHealth: publicationInputs.sourceDelta.dailySourceHealth,
+      ...(args.authenticatedSocialReplay
+        ? { authenticatedSocialReplay: publicationInputs.sourceDelta.authenticatedSocialReplay }
+        : {}),
       publishedCommit: publicationReceipt.publishedCommit,
       publicationReceiptSha256: publicationReceipt.receiptSha256
     };
@@ -827,6 +857,7 @@ await Promise.all([
       coverage: finalCoverage,
       durableImport,
       sourceDelta: publicationInputs.sourceDelta,
+      authenticatedSocial,
       publicationReceipt,
       topVoiceRefresh
     }, null, 2));
@@ -912,6 +943,7 @@ await Promise.all([
       process.exitCode = 1;
     }
   });
+  await finalizePublicationSignalAdoptionWindow();
   if (pendingRunnerOutcome) {
     await writeRunnerOutcomeOnce(pendingRunnerOutcome).catch((error) => {
       const failure = sanitizedRunnerFailure(error);
@@ -936,6 +968,7 @@ function installTerminationSignalHandlers() {
       process.exitCode = signalExitCode(signal);
       stopHeartbeatScheduling();
       signalActiveChildProcesses("SIGTERM");
+      void beginPublicationCancellationResolution();
       scheduleCancellationDeadline();
     });
   }
@@ -2949,10 +2982,37 @@ async function runAuthenticatedCollectors({ historicalReplay = false } = {}) {
       "Authenticated social collection was skipped because the dedicated runner profile is not fully configured.",
       { required: ["OPENCLI_BIN", "OPENCLI_PROFILE", "RETURNER_LINKEDIN_VIEWER_PROFILE", "RETURNER_INSTAGRAM_VIEWER_HANDLE"] }
     );
-    return { status: "skipped", reason: "runner_profile_not_configured", batches: [] };
+    const skippedReplayState = reduceLinkedInReplayState(
+      createLinkedInReplayState(
+        AUTONOMOUS_BATCHES.map((batch) => batch.slug),
+        { durableLockConfigured: false }
+      ),
+      { type: "configuration_skipped", reason: "runner_profile_not_configured" }
+    );
+    return {
+      status: "skipped",
+      reason: "runner_profile_not_configured",
+      batches: [],
+      linkedinReplay: createLinkedInReplayResult({ ...skippedReplayState, status: "skipped" })
+    };
   }
 
   const batches = [];
+  const linkedinReady = Boolean(
+    cleanEnv(process.env.NEXT_PUBLIC_SUPABASE_URL) &&
+    cleanEnv(process.env.SUPABASE_SERVICE_ROLE_KEY) &&
+    cleanEnv(process.env.LINKEDIN_GLOBAL_LOCK_NAMESPACE)
+  );
+  let replayState = createLinkedInReplayState(
+    AUTONOMOUS_BATCHES.map((batch) => batch.slug),
+    { durableLockConfigured: linkedinReady }
+  );
+  if (!linkedinReady) {
+    replayState = reduceLinkedInReplayState(replayState, {
+      type: "configuration_skipped",
+      reason: "durable_linkedin_lock_not_configured"
+    });
+  }
   for (const batch of AUTONOMOUS_BATCHES) {
     const outputPath = loggedInOutputs.get(batch.slug);
     const checkpointPath = loggedInCheckpointOutputs.get(batch.slug);
@@ -2977,29 +3037,43 @@ async function runAuthenticatedCollectors({ historicalReplay = false } = {}) {
         "--delay-ms=1800"
       ]
     );
-    const linkedinReady = Boolean(
-      cleanEnv(process.env.NEXT_PUBLIC_SUPABASE_URL) &&
-      cleanEnv(process.env.SUPABASE_SERVICE_ROLE_KEY) &&
-      cleanEnv(process.env.LINKEDIN_GLOBAL_LOCK_NAMESPACE)
-    );
-    const linkedin = linkedinReady
-      ? await runAuthenticatedCollectorCommand(
-          batch.slug,
-          "linkedin",
-          [
-            ...commonArgs,
-            "--workers=1",
-            "--platforms=linkedin",
-            "--allow-linkedin",
-            "--linkedin-mode=browser",
-            "--linkedin-max-targets=5",
-            "--delay-ms=30000"
-          ]
-        )
-      : {
-          status: "skipped",
-          reason: "durable_linkedin_lock_not_configured"
-        };
+
+    let linkedin;
+    if (!linkedinReady) {
+      linkedin = { status: "skipped", reason: "durable_linkedin_lock_not_configured" };
+    } else if (replayState.halted) {
+      linkedin = {
+        status: "skipped",
+        reason: replayState.safetyStopped
+          ? "linkedin_safety_stop_propagated"
+          : replayState.infrastructureStopped
+            ? "linkedin_infrastructure_stop_propagated"
+            : "linkedin_replay_stopped",
+        replayHalted: true
+      };
+    } else if (!historicalReplay) {
+      linkedin = await runAuthenticatedCollectorCommand(
+        batch.slug,
+        "linkedin",
+        [
+          ...commonArgs,
+          "--workers=1",
+          "--platforms=linkedin",
+          "--allow-linkedin",
+          "--linkedin-mode=browser",
+          `--linkedin-max-targets=${LINKEDIN_REPLAY_TARGET_CAP}`,
+          "--delay-ms=30000"
+        ]
+      );
+    } else {
+      linkedin = await runAuthenticatedLinkedInReplayBatch({
+        batch,
+        commonArgs,
+        replayState
+      });
+      replayState = linkedin.replayState;
+      delete linkedin.replayState;
+    }
     if (!linkedinReady) {
       await event(
         "authenticated_social.linkedin_skipped",
@@ -3010,12 +3084,406 @@ async function runAuthenticatedCollectors({ historicalReplay = false } = {}) {
     }
     batches.push({ batchSlug: batch.slug, instagram, linkedin });
   }
-  return { status: "completed", historicalReplay, batches };
+  const linkedinReplay = createLinkedInReplayResult({
+    ...replayState,
+    status: !historicalReplay
+      ? "not_applicable"
+      : replayState.configurationSkipped
+        ? "skipped"
+        : replayState.safetyStopped || replayState.infrastructureStopped
+          ? "stopped"
+          : replayState.chunkBudgetExhausted || replayState.deadlineExhausted
+            ? "incomplete"
+            : linkedInReplayIsComplete(replayState)
+              ? "completed"
+              : "incomplete",
+    batches
+  });
+  await event(
+    "authenticated_social.linkedin_replay.finished",
+    linkedinReplay.safetyStopped || linkedinReplay.infrastructureStopped ? "warning" : "info",
+    "Authenticated LinkedIn historical replay finished with bounded sequential chunks.",
+    linkedinReplay
+  );
+  return {
+    status: historicalReplay && linkedinReplay.status !== "completed" ? "partial" : "completed",
+    historicalReplay,
+    batches,
+    linkedinReplay
+  };
 }
 
-async function runAuthenticatedCollectorCommand(batchSlug, platform, args) {
+function createLinkedInReplayState(batchSlugs = [], { durableLockConfigured = true } = {}) {
+  return {
+    halted: false,
+    chunksAdmitted: 0,
+    chunksAttempted: 0,
+    chunksCompleted: 0,
+    targetCapacityAdmitted: 0,
+    remainingByBatch: Object.fromEntries(batchSlugs.map((batchSlug) => [batchSlug, null])),
+    durableLockConfigured,
+    configurationSkipped: false,
+    chunkBudgetExhausted: false,
+    deadlineExhausted: false,
+    safetyStopped: false,
+    infrastructureStopped: false,
+    stopBatchSlug: null,
+    stopError: null
+  };
+}
+
+function reduceLinkedInReplayState(state, eventValue) {
+  const next = {
+    ...state,
+    remainingByBatch: { ...(state.remainingByBatch ?? {}) }
+  };
+  if (eventValue.type === "plan") {
+    next.remainingByBatch[eventValue.batchSlug] = eventValue.runnableTargetCount;
+    return next;
+  }
+  if (eventValue.type === "chunk_admitted") {
+    next.chunksAdmitted += 1;
+    next.chunksAttempted += 1;
+    next.targetCapacityAdmitted += LINKEDIN_REPLAY_TARGET_CAP;
+    // The plan count was exact immediately before admission, but the child may
+    // persist any subset before returning. It is unknown until the next plan.
+    next.remainingByBatch[eventValue.batchSlug] = null;
+    return next;
+  }
+  if (eventValue.type === "chunk_completed") {
+    next.chunksCompleted += 1;
+    return next;
+  }
+  if (eventValue.type === "configuration_skipped") {
+    next.halted = true;
+    next.configurationSkipped = true;
+    next.durableLockConfigured = false;
+    next.stopError = eventValue.reason ?? "durable_linkedin_lock_not_configured";
+    return next;
+  }
+  if (eventValue.type === "chunk_budget_exhausted") {
+    next.halted = true;
+    next.chunkBudgetExhausted = true;
+    next.stopBatchSlug = eventValue.batchSlug;
+    return next;
+  }
+  if (eventValue.type === "deadline_exhausted") {
+    next.halted = true;
+    next.deadlineExhausted = true;
+    next.stopBatchSlug = eventValue.batchSlug;
+    return next;
+  }
+  if (eventValue.type === "safety_stop") {
+    next.halted = true;
+    next.safetyStopped = true;
+    next.stopBatchSlug = eventValue.batchSlug;
+    next.stopError = eventValue.error ?? null;
+    return next;
+  }
+  if (eventValue.type === "infrastructure_failure") {
+    next.halted = true;
+    next.infrastructureStopped = true;
+    next.stopBatchSlug = eventValue.batchSlug;
+    next.stopError = eventValue.error ?? null;
+    return next;
+  }
+  throw new Error(`Unknown LinkedIn replay state event: ${eventValue.type}`);
+}
+
+function linkedInReplayIsComplete(state) {
+  const remaining = Object.values(state.remainingByBatch ?? {});
+  return state.durableLockConfigured === true &&
+    state.configurationSkipped !== true &&
+    state.halted !== true &&
+    remaining.length > 0 &&
+    remaining.every((count) => count === 0);
+}
+
+function decideLinkedInReplayAdmission({
+  runnableTargetCount,
+  admittedChunks,
+  remainingMs,
+  reserveMs = LINKEDIN_REPLAY_RESERVE_MS,
+  drainHeadroomMs = AUTONOMOUS_PROCESS_BUDGETS.collectionDeadlineDrainHeadroomMs,
+  maxChunks = LINKEDIN_REPLAY_MAX_CHUNKS
+}) {
+  const runnable = Number(runnableTargetCount);
+  const chunksAdmitted = Number(admittedChunks);
+  const remaining = Number(remainingMs);
+  if (!Number.isSafeInteger(runnable) || runnable < 0) {
+    throw new RangeError("LinkedIn replay runnableTargetCount must be a nonnegative safe integer.");
+  }
+  if (!Number.isSafeInteger(chunksAdmitted) || chunksAdmitted < 0) {
+    throw new RangeError("LinkedIn replay admittedChunks must be a nonnegative safe integer.");
+  }
+  if (!Number.isFinite(remaining) || remaining < 0) {
+    throw new RangeError("LinkedIn replay remainingMs must be a nonnegative finite number.");
+  }
+  if (runnable === 0) return { action: "advance-batch", runnableTargetCount: 0 };
+  if (chunksAdmitted >= maxChunks) {
+    return { action: "chunk-budget-exhausted", runnableTargetCount: runnable };
+  }
+  const requiredReserveMs = Number(reserveMs) + Number(drainHeadroomMs);
+  if (!Number.isFinite(requiredReserveMs) || requiredReserveMs < 0) {
+    throw new RangeError("LinkedIn replay reserve must be a nonnegative finite number.");
+  }
+  if (remaining < requiredReserveMs) {
+    return {
+      action: "deadline-exhausted",
+      runnableTargetCount: runnable,
+      remainingMs: remaining,
+      requiredReserveMs
+    };
+  }
+  return {
+    action: "admit-chunk",
+    runnableTargetCount: runnable,
+    chunkNumber: chunksAdmitted + 1,
+    maxChunks,
+    targetCap: LINKEDIN_REPLAY_TARGET_CAP,
+    requiredReserveMs
+  };
+}
+
+function createLinkedInReplayResult({ status = "completed", batches = [], ...state }) {
+  const remainingByBatch = { ...(state.remainingByBatch ?? {}) };
+  const unknownRemainingBatches = Object.entries(remainingByBatch)
+    .filter(([, count]) => !Number.isSafeInteger(count) || count < 0)
+    .map(([batchSlug]) => batchSlug);
+  const knownRemainingTargetCount = Object.values(remainingByBatch)
+    .filter((count) => Number.isSafeInteger(count) && count >= 0)
+    .reduce((total, count) => total + count, 0);
+  const remainingTargetCountKnown = unknownRemainingBatches.length === 0;
+  return {
+    status,
+    maxChunks: LINKEDIN_REPLAY_MAX_CHUNKS,
+    targetCapPerChunk: LINKEDIN_REPLAY_TARGET_CAP,
+    chunksAdmitted: state.chunksAdmitted ?? 0,
+    chunksAttempted: state.chunksAttempted ?? 0,
+    chunksCompleted: state.chunksCompleted ?? 0,
+    targetCapacityAdmitted: state.targetCapacityAdmitted ?? 0,
+    remainingTargetCount: remainingTargetCountKnown ? knownRemainingTargetCount : null,
+    remainingTargetCountKnown,
+    knownRemainingTargetCount,
+    unknownRemainingBatches,
+    remainingByBatch,
+    durableLockConfigured: state.durableLockConfigured === true,
+    configurationSkipped: state.configurationSkipped === true,
+    chunkBudgetExhausted: state.chunkBudgetExhausted === true,
+    deadlineExhausted: state.deadlineExhausted === true,
+    safetyStopped: state.safetyStopped === true,
+    infrastructureStopped: state.infrastructureStopped === true,
+    stopBatchSlug: state.stopBatchSlug ?? null,
+    stopError: state.stopError ?? null,
+    batches
+  };
+}
+
+function parseJsonFromChildStdout(stdout) {
+  const source = String(stdout ?? "");
+  const objectStart = source.indexOf("{");
+  if (objectStart < 0) throw new Error("child stdout did not contain a JSON object");
+  return JSON.parse(source.slice(objectStart).trim());
+}
+
+function linkedInReplayChildDeadlineAt({
+  collectionDeadlineAt,
+  reserveMs = LINKEDIN_REPLAY_RESERVE_MS,
+  drainHeadroomMs = AUTONOMOUS_PROCESS_BUDGETS.collectionDeadlineDrainHeadroomMs
+}) {
+  const deadlineAt = Number(collectionDeadlineAt);
+  const reserve = Number(reserveMs);
+  const drain = Number(drainHeadroomMs);
+  if (!Number.isFinite(deadlineAt)) {
+    throw new RangeError("LinkedIn replay collection deadline must be finite.");
+  }
+  if (!Number.isFinite(reserve) || reserve < 0 || !Number.isFinite(drain) || drain < 0) {
+    throw new RangeError("LinkedIn replay reserve and drain headroom must be nonnegative finite values.");
+  }
+  const childDeadlineAt = deadlineAt - reserve - drain;
+  if (!Number.isFinite(childDeadlineAt)) {
+    throw new RangeError("LinkedIn replay child deadline must be finite.");
+  }
+  return childDeadlineAt;
+}
+
+async function runAuthenticatedLinkedInReplayBatch({ batch, commonArgs, replayState }) {
+  const batchResult = {
+    status: "completed",
+    chunks: [],
+    finalPlan: null
+  };
+  let state = replayState;
+  const linkedinArgs = [
+    ...commonArgs,
+    "--workers=1",
+    "--platforms=linkedin",
+    "--allow-linkedin",
+    "--linkedin-mode=browser",
+    `--linkedin-max-targets=${LINKEDIN_REPLAY_TARGET_CAP}`,
+    "--delay-ms=30000",
+    "--terminal-completed-platforms=linkedin"
+  ];
+  const childDeadlineAt = linkedInReplayChildDeadlineAt({
+    collectionDeadlineAt: collectionBudget.deadlineAt,
+    reserveMs: LINKEDIN_REPLAY_RESERVE_MS,
+    drainHeadroomMs: AUTONOMOUS_PROCESS_BUDGETS.collectionDeadlineDrainHeadroomMs
+  });
+
+  while (!state.halted) {
+    if (Date.now() >= childDeadlineAt) {
+      state = reduceLinkedInReplayState(state, {
+        type: "deadline_exhausted",
+        batchSlug: batch.slug
+      });
+      batchResult.status = "deadline_exhausted";
+      break;
+    }
+    const plan = await runAuthenticatedLinkedInPlan(
+      batch.slug,
+      linkedinArgs,
+      { deadlineAt: childDeadlineAt }
+    );
+    if (plan.status !== "completed") {
+      state = reduceLinkedInReplayState(state, {
+        type: plan.status === "safety_stopped" ? "safety_stop" : "infrastructure_failure",
+        batchSlug: batch.slug,
+        error: plan.error ?? plan.reason
+      });
+      batchResult.status = plan.status;
+      batchResult.finalPlan = plan.plan ?? null;
+      break;
+    }
+    state = reduceLinkedInReplayState(state, {
+      type: "plan",
+      batchSlug: batch.slug,
+      runnableTargetCount: plan.runnableTargetCount
+    });
+    batchResult.finalPlan = plan.plan;
+    const admission = decideLinkedInReplayAdmission({
+      runnableTargetCount: plan.runnableTargetCount,
+      admittedChunks: state.chunksAdmitted,
+      remainingMs: collectionBudget.remainingMs(),
+      reserveMs: LINKEDIN_REPLAY_RESERVE_MS,
+      drainHeadroomMs: AUTONOMOUS_PROCESS_BUDGETS.collectionDeadlineDrainHeadroomMs,
+      maxChunks: LINKEDIN_REPLAY_MAX_CHUNKS
+    });
+    if (admission.action === "advance-batch") break;
+    if (admission.action === "chunk-budget-exhausted") {
+      state = reduceLinkedInReplayState(state, {
+        type: "chunk_budget_exhausted",
+        batchSlug: batch.slug
+      });
+      batchResult.status = "chunk_budget_exhausted";
+      break;
+    }
+    if (admission.action === "deadline-exhausted") {
+      state = reduceLinkedInReplayState(state, {
+        type: "deadline_exhausted",
+        batchSlug: batch.slug
+      });
+      batchResult.status = "deadline_exhausted";
+      break;
+    }
+
+    state = reduceLinkedInReplayState(state, {
+      type: "chunk_admitted",
+      batchSlug: batch.slug
+    });
+    const chunkNumber = state.chunksAdmitted;
+    const chunk = await runAuthenticatedCollectorCommand(
+      batch.slug,
+      "linkedin",
+      linkedinArgs,
+      { deadlineAt: childDeadlineAt }
+    );
+    await event(
+      "authenticated_social.linkedin_chunk",
+      chunk.status === "completed" ? "info" : "warning",
+      `Authenticated LinkedIn replay chunk ${chunkNumber} finished for ${batch.slug}.`,
+      {
+        batchSlug: batch.slug,
+        chunkNumber,
+        status: chunk.status,
+        exitCode: chunk.exitCode ?? null,
+        targetCap: LINKEDIN_REPLAY_TARGET_CAP,
+        maxChunks: LINKEDIN_REPLAY_MAX_CHUNKS,
+        safetyStopped: chunk.status === "safety_stopped",
+        infrastructureStopped: chunk.status === "failed"
+      }
+    );
+    batchResult.chunks.push({
+      chunkNumber,
+      status: chunk.status,
+      exitCode: chunk.exitCode ?? 0,
+      targetCap: LINKEDIN_REPLAY_TARGET_CAP
+    });
+    state = reduceLinkedInReplayState(state, {
+      type: chunk.status === "safety_stopped"
+        ? "safety_stop"
+        : chunk.status === "failed"
+          ? "infrastructure_failure"
+          : "chunk_completed",
+      batchSlug: batch.slug,
+      error: chunk.error,
+      exitCode: chunk.exitCode
+    });
+    if (chunk.status !== "completed") {
+      batchResult.status = chunk.status;
+      // The plan-only scan is read-only and gives the receipt an exact
+      // remaining count after a child has flushed its durable checkpoint.
+      const finalPlan = Date.now() < childDeadlineAt
+        ? await runAuthenticatedLinkedInPlan(
+            batch.slug,
+            linkedinArgs,
+            { deadlineAt: childDeadlineAt }
+          )
+        : { status: "deadline_exhausted" };
+      if (finalPlan.status === "completed") {
+        state = reduceLinkedInReplayState(state, {
+          type: "plan",
+          batchSlug: batch.slug,
+          runnableTargetCount: finalPlan.runnableTargetCount
+        });
+        batchResult.finalPlan = finalPlan.plan;
+      }
+      break;
+    }
+  }
+  return { ...batchResult, replayState: state };
+}
+
+async function runAuthenticatedLinkedInPlan(batchSlug, linkedinArgs, { deadlineAt } = {}) {
+  const result = await runAuthenticatedCollectorCommand(
+    batchSlug,
+    "linkedin",
+    [...linkedinArgs, "--plan"],
+    { planOnly: true, deadlineAt }
+  );
+  if (result.status !== "completed") return result;
   try {
-    await runCommand(process.execPath, [
+    const plan = parseJsonFromChildStdout(result.stdout);
+    const runnableTargetCount = Number(plan?.linkedinExecution?.remainingTargetCount);
+    if (!Number.isSafeInteger(runnableTargetCount) || runnableTargetCount < 0) {
+      throw new Error("LinkedIn plan-only child returned an invalid runnable target count.");
+    }
+    return { ...result, plan, runnableTargetCount };
+  } catch (error) {
+    return {
+      status: "failed",
+      error: `LinkedIn plan-only result was invalid: ${errorMessage(error)}`
+    };
+  }
+}
+
+async function runAuthenticatedCollectorCommand(
+  batchSlug,
+  platform,
+  args,
+  { planOnly = false, deadlineAt = collectionBudget.deadlineAt } = {}
+) {
+  try {
+    const result = await runCommand(process.execPath, [
       ...args,
       ...collectorLaunchProvenanceArgs(createCollectorAttemptContext({
         kind: "authenticated_social",
@@ -3023,25 +3491,40 @@ async function runAuthenticatedCollectorCommand(batchSlug, platform, args) {
       }, 1))
     ], {
       timeoutMs: boundedCollectionTimeoutMs(
-        AUTONOMOUS_PROCESS_BUDGETS.publicCollectorAttemptMs,
+        planOnly
+          ? LINKEDIN_REPLAY_PLAN_TIMEOUT_MS
+          : AUTONOMOUS_PROCESS_BUDGETS.publicCollectorAttemptMs,
         `authenticated ${platform} ${batchSlug}`
       ),
       nodeHeapMb: COLLECTOR_NODE_HEAP_MB,
-      deadlineAt: collectionBudget.deadlineAt,
+      deadlineAt,
       label: `authenticated ${platform} ${batchSlug}`,
       envCategory: "authenticated_social",
       env: { HOME: process.env.HOME },
+      quiet: planOnly,
       cwd: root
     });
-    return { status: "completed" };
+    return { status: "completed", exitCode: result.code, stdout: result.stdout };
   } catch (error) {
-    await event(
-      "authenticated_social.failed",
-      "warning",
-      `Authenticated ${platform} collection failed for ${batchSlug}; durable prior evidence remains intact.`,
-      { batchSlug, platform, error: errorMessage(error) }
+    const commandResult = error?.commandResult ?? {};
+    const diagnostic = `${commandResult.stderr ?? ""}\n${commandResult.stdout ?? ""}\n${errorMessage(error)}`;
+    const safetyStopped = platform === "linkedin" && (
+      commandResult.code === 86 || /LINKEDIN_CHILD_SAFETY_STOP/.test(diagnostic)
     );
-    return { status: "failed", error: errorMessage(error) };
+    const result = {
+      status: safetyStopped ? "safety_stopped" : "failed",
+      exitCode: Number.isInteger(commandResult.code) ? commandResult.code : null,
+      error: errorMessage(error)
+    };
+    await event(
+      safetyStopped ? "authenticated_social.linkedin_safety_stop" : "authenticated_social.failed",
+      "warning",
+      safetyStopped
+        ? `Authenticated LinkedIn safety stop halted replay after ${batchSlug}; durable checkpoint output was retained.`
+        : `Authenticated ${platform} collection failed for ${batchSlug}; durable prior evidence remains intact.`,
+      { batchSlug, platform, ...result }
+    );
+    return result;
   }
 }
 
@@ -4189,6 +4672,42 @@ function assertSuccessfulCollection(collectionResults, coverage) {
   }
 }
 
+function assertAuthenticatedReplayCanPublish(replay) {
+  if (!replay?.linkedinReplay || typeof replay.linkedinReplay !== "object") {
+    throw new Error("Authenticated replay did not return its bounded LinkedIn replay receipt.");
+  }
+  const linkedinReplay = replay.linkedinReplay;
+  if (
+    linkedinReplay.chunksAdmitted > LINKEDIN_REPLAY_MAX_CHUNKS ||
+    linkedinReplay.chunksAttempted !== linkedinReplay.chunksAdmitted ||
+    linkedinReplay.chunksCompleted > linkedinReplay.chunksAttempted ||
+    linkedinReplay.targetCapacityAdmitted !== linkedinReplay.chunksAdmitted * LINKEDIN_REPLAY_TARGET_CAP ||
+    linkedinReplay.targetCapacityAdmitted > LINKEDIN_REPLAY_MAX_CHUNKS * LINKEDIN_REPLAY_TARGET_CAP
+  ) {
+    throw new Error("Authenticated replay exceeded the bounded LinkedIn chunk or target capacity.");
+  }
+  if (linkedinReplay.configurationSkipped) {
+    if (linkedinReplay.status !== "skipped" || linkedinReplay.durableLockConfigured) {
+      throw new Error("LinkedIn replay configuration skip was reported as a completed or configured campaign.");
+    }
+    if (linkedinReplay.remainingTargetCountKnown || linkedinReplay.remainingTargetCount !== null) {
+      throw new Error("LinkedIn replay configuration skip must preserve unknown remaining-target state.");
+    }
+  }
+  if (linkedinReplay.status === "completed") {
+    if (
+      !linkedinReplay.durableLockConfigured ||
+      !linkedinReplay.remainingTargetCountKnown ||
+      linkedinReplay.remainingTargetCount !== 0
+    ) {
+      throw new Error("LinkedIn replay cannot claim completion without a durable lock and exact zero remaining targets.");
+    }
+  }
+  if (replay.historicalReplay && replay.status === "completed" && linkedinReplay.status !== "completed") {
+    throw new Error("Authenticated historical replay cannot claim completion while LinkedIn is incomplete or skipped.");
+  }
+}
+
 function assertSuccessfulTopVoiceRefresh(receipt) {
   if (!receipt || receipt.status !== "completed") {
     throw new Error("Top Voice discovery did not complete every requested audience.");
@@ -4278,11 +4797,41 @@ async function persistCoverage(catalogState, stageCounters) {
   return report;
 }
 
-async function persistArtifactManifest(runId) {
-  const path = join(publicationArtifactRoot(), "public", "graph", "manifest.json");
-  const content = await readFile(path);
-  const details = await stat(path);
+async function persistArtifactManifest(runId, publicationReceipt) {
+  const publicationStatus = publicationReceipt?.status;
+  const claimedCommit = String(publicationReceipt?.publishedCommit ?? "").trim().toLowerCase();
+  if (!["published", "no_changes"].includes(publicationStatus)) {
+    throw new Error(
+      `Artifact manifest persistence requires a verified repository publication, received ${publicationStatus ?? "missing"}.`
+    );
+  }
+  if (!/^[0-9a-f]{40}$/.test(claimedCommit)) {
+    throw new Error("Artifact manifest persistence requires an exact full 40-hex publication SHA.");
+  }
+
+  const branch = publicationBranch();
+  const publishedCommit = await verifyPublicationCommitOnRemote(claimedCommit, {
+    branch,
+    label: "artifact manifest persistence"
+  });
+  const manifestPath = "public/graph/manifest.json";
+  const content = await readTextFromGitRef(publishedCommit, manifestPath, null);
+  if (content === null) {
+    throw new Error(`Published commit ${publishedCommit} does not contain ${manifestPath}.`);
+  }
+  let manifest;
+  try {
+    manifest = JSON.parse(content);
+  } catch (error) {
+    throw new Error(
+      `Published commit ${publishedCommit} contains an invalid artifact manifest: ${errorMessage(error)}`
+    );
+  }
   const sha256 = createHash("sha256").update(content).digest("hex");
+  const receiptSha256 = String(publicationReceipt.receiptSha256 ?? "").trim().toLowerCase();
+  if (!/^[0-9a-f]{64}$/.test(receiptSha256)) {
+    throw new Error("Artifact manifest persistence requires the exact publication receipt SHA-256.");
+  }
   const { error } = await runSupabaseOperation(
     "persist artifact manifest",
     () => supabase.from("ingestion_artifact_manifests").upsert(
@@ -4290,11 +4839,23 @@ async function persistArtifactManifest(runId) {
         ingestion_run_id: runId,
         artifact_key: "public-graph-manifest",
         artifact_type: "graph_manifest",
-        storage_uri: "repo://public/graph/manifest.json",
+        storage_uri: `repo://${publishedCommit}/${manifestPath}`,
         content_type: "application/json",
-        byte_size: details.size,
+        byte_size: Buffer.byteLength(content, "utf8"),
         sha256,
-        metadata_json: JSON.parse(content.toString("utf8"))
+        metadata_json: {
+          ...manifest,
+          publicationBinding: {
+            schemaVersion: 1,
+            repository: cleanEnv(process.env.GITHUB_REPOSITORY),
+            branch,
+            publishedCommit,
+            publicationStatus,
+            receiptSha256,
+            manifestPath,
+            manifestSha256: sha256
+          }
+        }
       },
       { onConflict: "ingestion_run_id,artifact_key" }
     )
@@ -4730,11 +5291,13 @@ async function ensurePublicationWorktree() {
   sourceCommit = await resolveSourceExecutionCommit();
   const baseCommit = process.env.GITHUB_ACTIONS === "true"
     ? preverifiedPublicationBaseCommit ?? await resolveVerifiedCurrentPublicationCommit({
-        labelPrefix: "isolated publication base"
+        labelPrefix: "isolated publication base",
+        allowInertCodeDrift: true
       })
     : sourceCommit;
   await assertTrustedPublicationBaseCommit(baseCommit, {
-    label: "isolated publication base"
+    label: "isolated publication base",
+    allowInertCodeDrift: true
   });
 
   const temporaryBase = resolve(cleanEnv(process.env.RUNNER_TEMP) ?? tmpdir());
@@ -4861,7 +5424,7 @@ async function verifyPinnedSourceExecutionBoundary({
   return immutableSourceCommit;
 }
 
-async function assertTrustedPublicationBaseCommit(commit, { label }) {
+async function assertTrustedPublicationBaseCommit(commit, { label, allowInertCodeDrift = false }) {
   if (!/^[0-9a-f]{40}$/i.test(String(commit))) {
     throw new Error(`${label} is not a full 40-hex commit SHA.`);
   }
@@ -4893,7 +5456,12 @@ async function assertTrustedPublicationBaseCommit(commit, { label }) {
       cwd: pinnedSourceRoot
     }
   );
-  assertReplaySafePublicationChanges(parseNulPaths(changed.stdout), { label });
+  const changedPaths = parseNulPaths(changed.stdout);
+  if (allowInertCodeDrift) {
+    assertSafeInertPublicationBaseChanges(changedPaths, { label });
+  } else {
+    assertReplaySafePublicationChanges(changedPaths, { label });
+  }
   await assertNoTrackedSymlinksAtCommit(commit, { label });
   return commit.toLowerCase();
 }
@@ -5109,8 +5677,6 @@ async function publishRepositoryArtifacts(publicationRunId, publicationInputs) {
   await stageRepositoryArtifacts();
   const branch = publicationBranch();
 
-  let publicationTreeChanged = false;
-
   assertLeaseHealthy();
   // Even an unchanged tree receives a new empty provenance commit. The
   // workflow validates this execution's exact slot/source/run/attempt tuple;
@@ -5119,178 +5685,29 @@ async function publishRepositoryArtifacts(publicationRunId, publicationInputs) {
     amend: false,
     allowUnchangedTree: true
   });
-  const firstPushCommit = firstCommit.publishedCommit;
-  publicationReceiptSha256 = firstCommit.receiptSha256;
-  publicationTreeChanged = await classifyPublicationSemantics({
-    baseRef: publicationBaseCommit,
-    targetRef: firstPushCommit,
-    label: "initial publication candidate"
-  });
-  let firstPush;
-  const firstPushCandidate = {
-    publishedCommit: firstPushCommit,
+  const publicationOutcome = await pushPublicationCandidateWithConcurrentMainRecovery({
+    initialCandidate: {
+      ...firstCommit,
+      publicationBaseCommit,
+      proofLabel: "initial publication candidate"
+    },
     branch,
-    label: "first publication push"
-  };
-  assertLeaseHealthy();
-  firstPush = await runPublicationPush(firstPushCandidate, {
-    commandLabel: "push refreshed artifacts",
-    allowedExitCodes: [0, 1],
-    retryTransportFailures: true
+    rebuildCandidate: ({ retryBaseCommit, candidate, attempt }) =>
+      rebuildPublicationCandidateOnConcurrentBase({
+        retryBaseCommit,
+        candidate,
+        attempt,
+        publicationRunId,
+        publicationInputs
+      })
   });
-  if (firstPush.code !== 0) {
-    await event(
-      "publication.push_retry",
-      "warning",
-      "Publication push was rejected; rebasing, rebuilding, and validating once before retry.",
-      { branch, stderr: firstPush.stderr }
-    );
-    try {
-      await runCommand("git", [
-        "-C",
-        publicationRoot,
-        "fetch",
-        "--no-tags",
-        "origin",
-        `+refs/heads/${branch}:refs/remotes/origin/${branch}`
-      ], {
-        timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitPushMs,
-        label: "fetch publication retry base",
-        envCategory: "publication_push",
-        env: publicationPushAuthEnvironment(),
-        cwd: root
-      });
-      const retryBaseCommit = (await runCommand(
-        "git",
-        ["rev-parse", `refs/remotes/origin/${branch}^{commit}`],
-        {
-          timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitDiffMs,
-          label: "resolve publication retry base",
-          cwd: root
-        }
-      )).stdout.trim();
-      await assertTrustedPublicationBaseCommit(retryBaseCommit, {
-        label: "publication retry base"
-      });
-      await runCommand("git", ["-c", "core.hooksPath=/dev/null", "rebase", retryBaseCommit], {
-        timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitPushMs,
-        label: "rebase publication commit",
-        cwd: publicationRoot
-      });
-      const rebasedHeadCommit = (await runCommand("git", ["rev-parse", "HEAD^{commit}"], {
-        timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitDiffMs,
-        label: "resolve rebased publication tree",
-        cwd: publicationRoot
-      })).stdout.trim();
-      await assertNoTrackedSymlinksAtCommit(rebasedHeadCommit, {
-        label: "rebased publication tree"
-      });
-      publicationBaseCommit = retryBaseCommit;
-    } catch (error) {
-      await abortPublicationRebase();
-      throw error;
-    }
-    await assertNoPublicationConflicts();
-    const rebasedSanitizedTargetedSnapshot = await prepareSanitizedTargetedSnapshot(
-      publicationInputs.topVoiceRefresh,
-      { baseRef: publicationBaseCommit }
-    );
-    const rebasedLoggedInEvidenceSnapshot = await prepareMergedLoggedInEvidenceSnapshot(
-      publicationInputs.loggedInEvidenceSnapshots,
-      { baseRef: publicationBaseCommit }
-    );
-    await writeJsonAtomic(
-      join(publicationArtifactRoot(), "src/lib/social/logged-in-evidence-current.json"),
-      rebasedLoggedInEvidenceSnapshot
-    );
-    const rebasedContentIdentityReferenceRows = await readCanonicalContentIdentityReferenceRows(
-      rebasedSanitizedTargetedSnapshot,
-      { baseRef: publicationBaseCommit }
-    );
-    const rebasedLoggedInAttributionReconciliationLedger =
-      await readCanonicalLoggedInAttributionReconciliationLedger({ baseRef: publicationBaseCommit });
-    const rebasedSeededAttributionReconciliationLedger =
-      await readCanonicalSeededAttributionReconciliationLedger({ baseRef: publicationBaseCommit });
-    const rebasedSanitizedPublicSnapshot = await prepareSanitizedPublicSnapshot(
-      publicationInputs.publicSnapshots,
-      {
-        baseRef: publicationBaseCommit,
-        contentIdentityReferenceRows: rebasedContentIdentityReferenceRows
-      }
-    );
-    const rebasedPublicationInputs = {
-      ...publicationInputs,
-      loggedInEvidenceSnapshot: rebasedLoggedInEvidenceSnapshot,
-      sanitizedPublicSnapshot: rebasedSanitizedPublicSnapshot,
-      sanitizedTargetedSnapshot: rebasedSanitizedTargetedSnapshot
-    };
-    const [rebasedBaseline, rebasedSourceDeltaHistory] = await Promise.all([
-      readPublicationEvidenceBaseline({ baseRef: publicationBaseCommit }),
-      readSourceDeltaHistory({ baseRef: publicationBaseCommit })
-    ]);
-    const retryDurableImport = await importDurableEvidence({
-      publicSnapshots: [
-        rebasedSanitizedPublicSnapshot,
-        rebasedSanitizedTargetedSnapshot,
-        rebasedLoggedInEvidenceSnapshot
-      ].filter(Boolean),
-      githubSnapshots: publicationInputs.githubSnapshots,
-      catalogState: publicationInputs.catalogState,
-      attributionReconciliationLedger: combineAttributionReconciliationLedgers(
-        rebasedSanitizedPublicSnapshot?.attributionReconciliationLedger,
-        rebasedSanitizedTargetedSnapshot?.attributionReconciliationLedger,
-        rebasedLoggedInAttributionReconciliationLedger,
-        rebasedSeededAttributionReconciliationLedger
-      )
-    });
-    assertDurableAttributionCompleteness(retryDurableImport);
-    await mergePublicationInputs(rebasedPublicationInputs, { baseRef: publicationBaseCommit });
-    rebasedPublicationInputs.sourceDelta = {
-      ...summarizeIngestionSourceDelta({
-        idempotencyKey,
-        beforeSnapshots: rebasedBaseline,
-        afterSnapshots: await readPublicationEvidenceBaseline(),
-        previousHistory: rebasedSourceDeltaHistory,
-        mappedFailures: publicationInputs.sourceDelta?.mappedFailures ?? 0,
-        collectionCoverage: publicationInputs.collectionCoverage,
-        credentialGaps: publicationInputs.credentialGaps
-      }),
-      ...publicationCandidateReceiptFields(),
-      mappedExpected: publicationInputs.collectionCoverage.mappedExpected,
-      mappedNonTerminal: publicationInputs.collectionCoverage.mappedNonTerminal,
-      terminalFailureBudget: publicationInputs.sourceDelta.terminalFailureBudget
-    };
-    await writeSourceDeltaReceipt(rebasedPublicationInputs.sourceDelta, rebasedSourceDeltaHistory);
-    await buildAndValidatePublication(publicationRunId, publicationInputs.catalogState);
-    if (run) await persistArtifactManifest(run.id);
-    await stageRepositoryArtifacts();
-    assertLeaseHealthy();
-    const amendCurrentRunCommit = await headHasPublicationRunIdentity();
-    const retryCommit = await commitPublicationArtifacts({
-      amend: amendCurrentRunCommit,
-      allowUnchangedTree: true
-    });
-    const retryPushCommit = retryCommit.publishedCommit;
-    publicationReceiptSha256 = retryCommit.receiptSha256;
-    // Recompute from the retry base. The first candidate's classification may
-    // describe a different base and must never stick through a rebuild.
-    publicationTreeChanged = await classifyPublicationSemantics({
-      baseRef: retryBaseCommit,
-      targetRef: retryPushCommit,
-      label: "retry publication candidate"
-    });
-    const retryPushCandidate = {
-      publishedCommit: retryPushCommit,
-      branch,
-      label: "retry publication push"
-    };
-    assertLeaseHealthy();
-    await runPublicationPush(retryPushCandidate, {
-      commandLabel: "retry refreshed artifact push"
-    });
-    publicationInputs.sourceDelta = rebasedPublicationInputs.sourceDelta;
-  }
-  const publishedCommit = latestPublishedCommit;
+  const {
+    candidate: publishedCandidate,
+    publicationTreeChanged,
+    attempts: publicationAttempts,
+    concurrentMainRetries
+  } = publicationOutcome;
+  const publishedCommit = publishedCandidate.publishedCommit;
   if (!publishedCommit) {
     throw new Error("Publication push completed without capturing its exact commit SHA.");
   }
@@ -5309,7 +5726,9 @@ async function publishRepositoryArtifacts(publicationRunId, publicationInputs) {
     idempotencyKey,
     publicationRunId,
     branch,
-    retriedAfterNonFastForward: firstPush.code !== 0,
+    retriedAfterNonFastForward: concurrentMainRetries > 0,
+    publicationAttempts,
+    concurrentMainRetries,
     publishedPaths: repositoryArtifactPaths()
     }
   );
@@ -5318,6 +5737,400 @@ async function publishRepositoryArtifacts(publicationRunId, publicationInputs) {
     publishedCommit,
     receiptSha256: publicationReceiptSha256
   };
+}
+
+async function pushPublicationCandidateWithConcurrentMainRecovery({
+  initialCandidate,
+  branch,
+  rebuildCandidate,
+  pushCandidate = pushPublicationCandidateAttempt,
+  fetchRetryBase = fetchExactPublicationRetryBase,
+  adoptCandidate = adoptReachablePublicationCandidate,
+  onRetry = recordPublicationPushRetry
+}) {
+  let candidate = initialCandidate;
+  let attempts = 0;
+  let concurrentMainRetries = 0;
+  let publicationTreeChanged = false;
+
+  while (attempts < MAX_PUBLICATION_PUSH_ATTEMPTS) {
+    attempts += 1;
+    assertLeaseHealthy();
+    publicationTreeChanged = await verifyAndClassifyPublicationCandidate(candidate);
+    publicationReceiptSha256 = candidate.receiptSha256;
+    retainPublicationPushCandidate(candidate);
+
+    const pushResult = await pushCandidate(candidate, { attempt: attempts, branch });
+    if (pushResult.code === 0) {
+      markPublicationCandidatePublished(candidate);
+      return {
+        candidate,
+        publicationTreeChanged,
+        attempts,
+        concurrentMainRetries,
+        adoptedAfterAmbiguousPush: pushResult.reconciledAfterAmbiguousFailure === true
+      };
+    }
+
+    if (await adoptCandidate(candidate, {
+      branch,
+      label: `${candidate.proofLabel} post-push reconciliation`
+    })) {
+      markPublicationCandidatePublished(candidate);
+      return {
+        candidate,
+        publicationTreeChanged,
+        attempts,
+        concurrentMainRetries,
+        adoptedAfterAmbiguousPush: true
+      };
+    }
+
+    const concurrentMain = isConcurrentMainPushRejection(pushResult);
+    const retryableTransportFailure = pushResult.retryableTransportFailure === true;
+    if (!concurrentMain && !retryableTransportFailure) {
+      throw publicationPushResultError(
+        `${candidate.proofLabel} was rejected for a non-concurrent reason; refusing publication retry.`,
+        pushResult
+      );
+    }
+    if (attempts >= MAX_PUBLICATION_PUSH_ATTEMPTS) {
+      throw publicationPushResultError(
+        `Publication did not converge after ${MAX_PUBLICATION_PUSH_ATTEMPTS} bounded push attempts.`,
+        pushResult
+      );
+    }
+
+    await onRetry({
+      attempt: attempts,
+      nextAttempt: attempts + 1,
+      branch,
+      candidate,
+      pushResult,
+      concurrentMain,
+      retryableTransportFailure
+    });
+    assertLeaseHealthy();
+    const retryBaseCommit = await fetchRetryBase({
+      branch,
+      attempt: attempts + 1
+    });
+
+    // A failed or lost push response can race a transient reconciliation
+    // failure. The exact fetched branch tip is authoritative: adopt the
+    // already-proven candidate if it is now reachable before mutating HEAD.
+    if (await adoptCandidate(candidate, {
+      branch,
+      remoteTipCommit: retryBaseCommit,
+      label: `${candidate.proofLabel} fetched-tip reconciliation`
+    })) {
+      markPublicationCandidatePublished(candidate);
+      return {
+        candidate,
+        publicationTreeChanged,
+        attempts,
+        concurrentMainRetries,
+        adoptedAfterAmbiguousPush: true
+      };
+    }
+    if (retryBaseCommit === candidate.publishedCommit) {
+      throw new Error(
+        `Fetched ${branch} tip equals ${candidate.publishedCommit}, but exact candidate identity verification failed.`
+      );
+    }
+
+    if (retryBaseCommit === candidate.publicationBaseCommit) {
+      if (concurrentMain) {
+        throw new Error(
+          `Publication reported concurrent ${branch} drift, but the exact fetched tip remained ` +
+          `${retryBaseCommit}; refusing an ambiguous rebuild.`
+        );
+      }
+      // A retryable transport failure with an unchanged remote base can safely
+      // retry the same already-proven direct-child candidate.
+      continue;
+    }
+
+    const supersededCandidate = candidate;
+    const rebuiltCandidate = await rebuildCandidate({
+      retryBaseCommit,
+      candidate: supersededCandidate,
+      attempt: attempts + 1
+    });
+    if (rebuiltCandidate.publicationBaseCommit !== retryBaseCommit) {
+      throw new Error(
+        `Publication retry candidate parent binding ${rebuiltCandidate.publicationBaseCommit ?? "missing"} ` +
+        `does not match exact retry base ${retryBaseCommit}.`
+      );
+    }
+    supersedePublicationPushCandidate(supersededCandidate, rebuiltCandidate, {
+      provenUnreachableAtRemoteTip: retryBaseCommit
+    });
+    candidate = rebuiltCandidate;
+    concurrentMainRetries += 1;
+  }
+
+  throw new Error("Publication retry loop exhausted without a verified candidate.");
+}
+
+async function pushPublicationCandidateAttempt(candidate, { attempt, branch }) {
+  const firstAttempt = attempt === 1;
+  const pushCandidate = {
+    ...candidate,
+    branch,
+    label: firstAttempt ? "first publication push" : `publication retry push ${attempt}`
+  };
+  return runPublicationPush(pushCandidate, {
+    commandLabel: firstAttempt
+      ? "push refreshed artifacts"
+      : `retry refreshed artifact push ${attempt}`,
+    allowedExitCodes: [0, 1],
+    retryTransportFailures: true
+  });
+}
+
+async function fetchExactPublicationRetryBase({ branch, attempt }) {
+  await runCommand("git", [
+    "-C",
+    publicationRoot,
+    "fetch",
+    "--no-tags",
+    "origin",
+    `+refs/heads/${branch}:refs/remotes/origin/${branch}`
+  ], {
+    timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitPushMs,
+    label: `fetch publication retry base for attempt ${attempt}`,
+    envCategory: "publication_push",
+    env: publicationPushAuthEnvironment(),
+    cwd: root
+  });
+  const retryBaseCommit = (await runCommand(
+    "git",
+    ["rev-parse", `refs/remotes/origin/${branch}^{commit}`],
+    {
+      timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitDiffMs,
+      label: `resolve publication retry base for attempt ${attempt}`,
+      cwd: root
+    }
+  )).stdout.trim().toLowerCase();
+  await assertTrustedPublicationBaseCommit(retryBaseCommit, {
+    label: `publication retry base for attempt ${attempt}`,
+    allowInertCodeDrift: true
+  });
+  return retryBaseCommit;
+}
+
+async function rebuildPublicationCandidateOnConcurrentBase({
+  retryBaseCommit,
+  candidate,
+  attempt,
+  publicationRunId,
+  publicationInputs
+}) {
+  await transplantPublicationArtifactsOntoRetryBase({
+    retryBaseCommit,
+    candidateCommit: candidate.publishedCommit,
+    candidateBaseCommit: candidate.publicationBaseCommit
+  });
+  publicationBaseCommit = retryBaseCommit;
+
+  const rebasedSanitizedTargetedSnapshot = await prepareSanitizedTargetedSnapshot(
+    publicationInputs.topVoiceRefresh,
+    { baseRef: publicationBaseCommit }
+  );
+  const rebasedLoggedInEvidenceSnapshot = await prepareMergedLoggedInEvidenceSnapshot(
+    publicationInputs.loggedInEvidenceSnapshots,
+    { baseRef: publicationBaseCommit }
+  );
+  await writeJsonAtomic(
+    join(publicationArtifactRoot(), "src/lib/social/logged-in-evidence-current.json"),
+    rebasedLoggedInEvidenceSnapshot
+  );
+  const rebasedContentIdentityReferenceRows = await readCanonicalContentIdentityReferenceRows(
+    rebasedSanitizedTargetedSnapshot,
+    { baseRef: publicationBaseCommit }
+  );
+  const rebasedLoggedInAttributionReconciliationLedger =
+    await readCanonicalLoggedInAttributionReconciliationLedger({ baseRef: publicationBaseCommit });
+  const rebasedSeededAttributionReconciliationLedger =
+    await readCanonicalSeededAttributionReconciliationLedger({ baseRef: publicationBaseCommit });
+  const rebasedSanitizedPublicSnapshot = await prepareSanitizedPublicSnapshot(
+    publicationInputs.publicSnapshots,
+    {
+      baseRef: publicationBaseCommit,
+      contentIdentityReferenceRows: rebasedContentIdentityReferenceRows
+    }
+  );
+  const rebasedPublicationInputs = {
+    ...publicationInputs,
+    loggedInEvidenceSnapshot: rebasedLoggedInEvidenceSnapshot,
+    sanitizedPublicSnapshot: rebasedSanitizedPublicSnapshot,
+    sanitizedTargetedSnapshot: rebasedSanitizedTargetedSnapshot
+  };
+  const [rebasedBaseline, rebasedSourceDeltaHistory] = await Promise.all([
+    readPublicationEvidenceBaseline({ baseRef: publicationBaseCommit }),
+    readSourceDeltaHistory({ baseRef: publicationBaseCommit })
+  ]);
+  const retryDurableImport = await importDurableEvidence({
+    publicSnapshots: [
+      rebasedSanitizedPublicSnapshot,
+      rebasedSanitizedTargetedSnapshot,
+      rebasedLoggedInEvidenceSnapshot
+    ].filter(Boolean),
+    githubSnapshots: publicationInputs.githubSnapshots,
+    catalogState: publicationInputs.catalogState,
+    attributionReconciliationLedger: combineAttributionReconciliationLedgers(
+      rebasedSanitizedPublicSnapshot?.attributionReconciliationLedger,
+      rebasedSanitizedTargetedSnapshot?.attributionReconciliationLedger,
+      rebasedLoggedInAttributionReconciliationLedger,
+      rebasedSeededAttributionReconciliationLedger
+    )
+  });
+  assertDurableAttributionCompleteness(retryDurableImport);
+  await mergePublicationInputs(rebasedPublicationInputs, { baseRef: publicationBaseCommit });
+  rebasedPublicationInputs.sourceDelta = {
+    ...summarizeIngestionSourceDelta({
+      idempotencyKey,
+      beforeSnapshots: rebasedBaseline,
+      afterSnapshots: await readPublicationEvidenceBaseline(),
+      previousHistory: rebasedSourceDeltaHistory,
+      mappedFailures: publicationInputs.sourceDelta?.mappedFailures ?? 0,
+      collectionCoverage: publicationInputs.collectionCoverage,
+      credentialGaps: publicationInputs.credentialGaps
+    }),
+    ...publicationCandidateReceiptFields(),
+    mappedExpected: publicationInputs.collectionCoverage.mappedExpected,
+    mappedNonTerminal: publicationInputs.collectionCoverage.mappedNonTerminal,
+    terminalFailureBudget: publicationInputs.sourceDelta.terminalFailureBudget
+  };
+  await writeSourceDeltaReceipt(rebasedPublicationInputs.sourceDelta, rebasedSourceDeltaHistory);
+  await buildAndValidatePublication(publicationRunId, publicationInputs.catalogState);
+  await stageRepositoryArtifacts();
+  assertLeaseHealthy();
+  const retryCommit = await commitPublicationArtifacts({
+    amend: false,
+    allowUnchangedTree: true
+  });
+  publicationInputs.sourceDelta = rebasedPublicationInputs.sourceDelta;
+  return {
+    ...retryCommit,
+    publicationBaseCommit: retryBaseCommit,
+    proofLabel: `publication retry candidate ${attempt}`
+  };
+}
+
+async function verifyAndClassifyPublicationCandidate(candidate) {
+  await verifyPublicationCandidateIdentity(candidate);
+  return classifyPublicationSemantics({
+    baseRef: candidate.publicationBaseCommit,
+    targetRef: candidate.publishedCommit,
+    label: candidate.proofLabel
+  });
+}
+
+async function verifyPublicationCandidateIdentity(candidate) {
+  if (!candidate?.provenance || candidate.receiptSha256 !== candidate.provenance.receiptSha256) {
+    throw new Error(`${candidate?.proofLabel ?? "Publication candidate"} has inconsistent receipt provenance.`);
+  }
+  await assertPublicationCandidateProof(
+    candidate.publishedCommit,
+    candidate.publicationBaseCommit,
+    { label: candidate.proofLabel }
+  );
+  await verifyPublicationCommitProvenance(candidate.publishedCommit, candidate.provenance);
+}
+
+async function adoptReachablePublicationCandidate(candidate, {
+  branch,
+  remoteTipCommit = null,
+  label
+}) {
+  let reachable = false;
+  if (remoteTipCommit !== null) {
+    const tip = String(remoteTipCommit).trim().toLowerCase();
+    if (!/^[0-9a-f]{40}$/.test(tip)) {
+      throw new Error(`${label} remote tip is not an exact full 40-hex commit SHA.`);
+    }
+    const result = await runCommand(
+      "git",
+      ["merge-base", "--is-ancestor", candidate.publishedCommit, tip],
+      {
+        timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitDiffMs,
+        label: `verify ${label} reachability`,
+        allowedExitCodes: [0, 1],
+        quiet: true,
+        recordEvents: false,
+        cwd: root
+      }
+    );
+    reachable = result.code === 0;
+  } else {
+    try {
+      await verifyPublicationCommitOnRemote(candidate.publishedCommit, {
+        branch,
+        label
+      });
+      reachable = true;
+    } catch (error) {
+      console.warn(
+        `Could not adopt ${candidate.proofLabel} after an ambiguous push: ` +
+        sanitizeRunnerDiagnosticText(errorMessage(error))
+      );
+      return false;
+    }
+  }
+  if (!reachable) return false;
+  await verifyPublicationCandidateIdentity(candidate);
+  markPublicationCandidatePublished(candidate);
+  return true;
+}
+
+function markPublicationCandidatePublished(candidate) {
+  retainPublicationPushCandidate(candidate);
+  latestPublishedCommit = candidate.publishedCommit;
+  publicationReceiptSha256 = candidate.receiptSha256;
+}
+
+function isConcurrentMainPushRejection(result) {
+  const diagnostics = `${result?.stderr ?? ""}\n${result?.stdout ?? ""}`;
+  return /non-fast-forward/i.test(diagnostics) ||
+    /\[rejected\][^\n]*(?:fetch first|stale info)/i.test(diagnostics) ||
+    /updates were rejected because the remote contains work/i.test(diagnostics) ||
+    /tip of your current branch is behind/i.test(diagnostics);
+}
+
+function publicationPushResultError(message, result) {
+  return commandExecutionError(message, {
+    code: Number.isInteger(result?.code) ? result.code : null,
+    signal: result?.signal ?? null,
+    timedOut: result?.timedOut === true,
+    stdout: result?.stdout ?? "",
+    stderr: result?.stderr ?? ""
+  });
+}
+
+async function recordPublicationPushRetry({
+  attempt,
+  nextAttempt,
+  branch,
+  pushResult,
+  concurrentMain,
+  retryableTransportFailure
+}) {
+  await event(
+    "publication.push_retry",
+    "warning",
+    "Publication was not confirmed; fetching exact main and preserving the allowlisted artifact delta before a bounded retry.",
+    {
+      branch,
+      attempt,
+      nextAttempt,
+      maximumAttempts: MAX_PUBLICATION_PUSH_ATTEMPTS,
+      concurrentMain,
+      retryableTransportFailure,
+      stderr: sanitizeRunnerDiagnosticText(pushResult?.stderr ?? "")
+    }
+  );
 }
 
 async function stageRepositoryArtifacts() {
@@ -5330,6 +6143,123 @@ async function stageRepositoryArtifacts() {
     label: "stage refreshed artifacts",
     cwd: publicationRoot
   });
+}
+
+async function transplantPublicationArtifactsOntoRetryBase({
+  retryBaseCommit,
+  candidateCommit,
+  candidateBaseCommit
+}) {
+  // The remote tip is a Git base only. It is never used as the executable
+  // source of any privileged child process. Resetting first gives us its
+  // concurrent code/data tree; restoring the exact first-candidate artifact
+  // delta preserves generated additions, replacements, and deletions before
+  // the pinned-source semantic merge and rebuild run again.
+  await assertNoTrackedSymlinksAtCommit(retryBaseCommit, {
+    label: "publication retry base"
+  });
+  await assertNoTrackedSymlinksAtCommit(candidateCommit, {
+    label: "initial publication candidate"
+  });
+  const changed = await runCommand(
+    "git",
+    [
+      "diff",
+      "--name-status",
+      "--no-renames",
+      "-z",
+      candidateBaseCommit,
+      candidateCommit,
+      "--",
+      ...repositoryArtifactPaths()
+    ],
+    {
+      timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitDiffMs,
+      label: "inspect generated artifact delta for publication retry",
+      captureLimit: 5_000_000,
+      quiet: true,
+      recordEvents: false,
+      cwd: root
+    }
+  );
+  const changes = parseGitNameStatusNul(changed.stdout);
+  assertReplaySafePublicationChanges(changes.map(({ path }) => path), {
+    label: "initial publication candidate"
+  });
+  await runCommand("git", ["-c", "core.hooksPath=/dev/null", "reset", "--hard", retryBaseCommit], {
+    timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitPushMs,
+    label: "reset publication worktree to concurrent main",
+    cwd: publicationRoot
+  });
+  const deleted = changes.filter(({ status }) => status === "D").map(({ path }) => path);
+  if (deleted.length > 0) {
+    await runCommand("git", ["-c", "core.hooksPath=/dev/null", "rm", "-f", "--ignore-unmatch", "--", ...deleted], {
+      timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitStageMs,
+      label: "restore generated artifact deletions for publication retry",
+      allowedExitCodes: [0],
+      cwd: publicationRoot
+    });
+    await assertPublicationArtifactsDeletedFromRetryWorktree(deleted);
+  }
+  const restored = changes
+    .filter(({ status }) => status !== "D")
+    .map(({ path }) => path);
+  if (restored.length > 0) {
+    await runCommand(
+      "git",
+      ["-c", "core.hooksPath=/dev/null", "checkout", candidateCommit, "--", ...restored],
+      {
+        timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitStageMs,
+        label: "restore generated artifacts for publication retry",
+        cwd: publicationRoot
+      }
+    );
+  }
+}
+
+async function assertPublicationArtifactsDeletedFromRetryWorktree(paths) {
+  const undeleted = [];
+  for (const filePath of paths) {
+    const indexed = await runCommand(
+      "git",
+      ["ls-files", "--stage", "--", filePath],
+      {
+        timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitDiffMs,
+        label: `verify deleted artifact index state for ${filePath}`,
+        captureLimit: 100_000,
+        quiet: true,
+        recordEvents: false,
+        cwd: publicationRoot
+      }
+    );
+    let existsInWorktree = false;
+    try {
+      await stat(join(publicationRoot, filePath));
+      existsInWorktree = true;
+    } catch (error) {
+      if (error?.code !== "ENOENT") throw error;
+    }
+    if (indexed.stdout.trim() || existsInWorktree) undeleted.push(filePath);
+  }
+  if (undeleted.length > 0) {
+    throw new Error(
+      `Publication retry failed to delete generated artifacts from the index and worktree: ${undeleted.join(", ")}`
+    );
+  }
+}
+
+function parseGitNameStatusNul(value) {
+  const tokens = String(value ?? "").split("\0").filter(Boolean);
+  const changes = [];
+  for (let index = 0; index < tokens.length;) {
+    const status = tokens[index++];
+    const path = tokens[index++];
+    if (!path || !/^[AMD]$/.test(status)) {
+      throw new Error("Git publication artifact delta had an unsupported name-status record.");
+    }
+    changes.push({ status, path });
+  }
+  return changes;
 }
 
 function repositoryArtifactPaths() {
@@ -5399,7 +6329,58 @@ async function commitPublicationArtifacts({ amend, allowUnchangedTree = false })
     cwd: publicationRoot
   })).stdout.trim();
   await verifyPublicationCommitProvenance(publishedCommit, provenance);
-  return { publishedCommit, receiptSha256: provenance.receiptSha256 };
+  return { publishedCommit, receiptSha256: provenance.receiptSha256, provenance };
+}
+
+async function assertPublicationCandidateProof(
+  candidateCommit,
+  publicationBaseCommit,
+  { label = "publication candidate" } = {}
+) {
+  if (!/^[0-9a-f]{40}$/i.test(String(candidateCommit))) {
+    throw new Error(`${label} is not a full 40-hex commit SHA.`);
+  }
+  if (!/^[0-9a-f]{40}$/i.test(String(publicationBaseCommit))) {
+    throw new Error(`${label} publication base is not a full 40-hex commit SHA.`);
+  }
+  const candidate = String(candidateCommit).toLowerCase();
+  const expectedParent = String(publicationBaseCommit).toLowerCase();
+  const parents = (await runCommand("git", ["show", "-s", "--format=%P", candidate], {
+    timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitDiffMs,
+    label: `prove parent identity for ${label}`,
+    quiet: true,
+    recordEvents: false,
+    cwd: publicationRoot
+  })).stdout.trim().split(/\s+/).filter(Boolean).map((parent) => parent.toLowerCase());
+  if (parents.length !== 1 || parents[0] !== expectedParent) {
+    throw new Error(
+      `${label} must be a single-parent direct child of ${expectedParent}; observed parents ${parents.join(", ") || "none"}.`
+    );
+  }
+  const changed = await runCommand(
+    "git",
+    ["diff", "--name-only", "--no-renames", "-z", `${expectedParent}^{commit}`, candidate, "--"],
+    {
+      timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitDiffMs,
+      label: `prove replay-safe artifact delta for ${label}`,
+      captureLimit: 5_000_000,
+      quiet: true,
+      recordEvents: false,
+      cwd: publicationRoot
+    }
+  );
+  const changedPaths = parseNulPaths(changed.stdout);
+  assertReplaySafePublicationChanges(changedPaths, { label: `${label} parent-to-candidate delta` });
+  await assertNoTrackedSymlinksAtCommit(candidate, {
+    label: `${label} candidate tree`,
+    repositoryRoot: publicationRoot
+  });
+  return {
+    candidateCommit: candidate,
+    publicationBaseCommit: expectedParent,
+    parentCommit: parents[0],
+    changedPaths
+  };
 }
 
 async function classifyPublicationSemantics({ baseRef, targetRef, label }) {
@@ -5411,20 +6392,6 @@ async function classifyPublicationSemantics({ baseRef, targetRef, label }) {
   });
   if (typeof comparison?.changed === "boolean") return comparison.changed;
   throw new Error(`${label} semantic comparison returned an unsupported result.`);
-}
-
-async function headHasPublicationRunIdentity() {
-  const provenance = await publicationCommitProvenance();
-  const message = (await runCommand("git", ["show", "-s", "--format=%B", "HEAD"], {
-    timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitDiffMs,
-    label: "inspect rebased publication provenance",
-    quiet: true,
-    cwd: publicationRoot
-  })).stdout;
-  return publicationCommitTrailers(provenance)
-    .split("\n")
-    .slice(0, 4)
-    .every((trailer) => message.split("\n").filter((line) => line === trailer).length === 1);
 }
 
 async function publicationCommitProvenance() {
@@ -5554,8 +6521,16 @@ async function verifyPublicationCommitOnRemote(
       `Publication verification failed: ${label} requires an exact full 40-hex commit SHA.`
     );
   }
+  if (!Number.isFinite(timeoutMs) || timeoutMs <= 0) {
+    throw new Error(`Publication verification failed: ${label} requires a positive timeout.`);
+  }
+  // Fetch and ancestry are one remote-verification operation. Both commands
+  // consume the same absolute budget so a slow fetch cannot leave ancestry a
+  // fresh full timeout (especially during cancellation cleanup).
+  const remoteVerificationDeadlineAt = Date.now() + Math.floor(timeoutMs);
   await runCommand("git", ["fetch", "--prune", "origin", branch], {
     timeoutMs,
+    deadlineAt: remoteVerificationDeadlineAt,
     label: `fetch ${label} remote commit`,
     cancellationCleanup: allowDuringCancellation
   });
@@ -5564,6 +6539,7 @@ async function verifyPublicationCommitOnRemote(
     ["merge-base", "--is-ancestor", publishedCommit, `origin/${branch}`],
     {
       timeoutMs: Math.min(timeoutMs, AUTONOMOUS_PROCESS_BUDGETS.gitDiffMs),
+      deadlineAt: remoteVerificationDeadlineAt,
       label: `verify ${label} commit ancestry`,
       allowedExitCodes: [0, 1],
       cancellationCleanup: allowDuringCancellation
@@ -5589,7 +6565,6 @@ async function reconcilePublicationPushCandidate(candidate, context) {
       allowDuringCancellation: true,
       timeoutMs: CANCELLATION_REMOTE_VERIFY_TIMEOUT_MS
     });
-    publicationPushCandidate = null;
     console.warn(
       `Remote reconciliation confirmed ${candidate.label} at ${latestPublishedCommit} after ${context}.`
     );
@@ -5599,7 +6574,6 @@ async function reconcilePublicationPushCandidate(candidate, context) {
     console.warn(
       `Remote reconciliation could not confirm ${candidate.label} after ${context}: ${failure.message}`
     );
-    if (!terminationSignal) publicationPushCandidate = null;
     return false;
   }
 }
@@ -5610,7 +6584,7 @@ async function runPublicationPush(candidate, {
   retryTransportFailures = false
 }) {
   assertIsolatedPublicationWorktree();
-  publicationPushCandidate = candidate;
+  retainPublicationPushCandidate(candidate);
   try {
     const result = await runCommand(
       "git",
@@ -5643,7 +6617,6 @@ async function runPublicationPush(candidate, {
     );
     if (result.code === 0) {
       latestPublishedCommit = candidate.publishedCommit;
-      publicationPushCandidate = null;
       return result;
     }
     if (await reconcilePublicationPushCandidate(candidate, `exit ${result.code}`)) {
@@ -5652,7 +6625,7 @@ async function runPublicationPush(candidate, {
     return result;
   } catch (error) {
     if (error?.preSpawnGuardFailed === true) {
-      publicationPushCandidate = null;
+      discardUnspawnedPublicationCandidate(candidate);
       throw error;
     }
     if (await reconcilePublicationPushCandidate(candidate, "failure or response loss")) {
@@ -5667,7 +6640,6 @@ async function runPublicationPush(candidate, {
     }
     if (retryTransportFailures && isRetryableGitTransportFailure(error)) {
       const commandResult = error?.commandResult ?? {};
-      publicationPushCandidate = null;
       return {
         code: Number.isInteger(commandResult.code) ? commandResult.code : 128,
         signal: commandResult.signal ?? null,
@@ -5702,7 +6674,7 @@ function publicationPushAuthEnvironment() {
   }
   return {
     // Inject authentication into this git push process only. No credential is
-    // persisted in .git/config while a rebase or rebuilt repository code runs.
+    // persisted in .git/config while publication tree operations or rebuilt repository code runs.
     GIT_CONFIG_COUNT: "3",
     GIT_CONFIG_KEY_0: "http.https://github.com/.extraheader",
     GIT_CONFIG_VALUE_0: authorizationHeader,
@@ -5726,6 +6698,90 @@ function githubPublicationAuthorizationHeader() {
     : null;
 }
 
+function retainPublicationPushCandidate(candidate) {
+  const publishedCommit = String(candidate?.publishedCommit ?? "").trim().toLowerCase();
+  if (!/^[0-9a-f]{40}$/.test(publishedCommit)) {
+    throw new Error("Cannot retain a publication push candidate without an exact full commit SHA.");
+  }
+  if (
+    publicationPushCandidate &&
+    publicationPushCandidate.publishedCommit !== publishedCommit
+  ) {
+    throw new Error(
+      `Refusing to replace possibly-landed publication candidate ` +
+      `${publicationPushCandidate.publishedCommit} with ${publishedCommit} without an exact supersession proof.`
+    );
+  }
+  publicationPushCandidate = {
+    ...publicationPushCandidate,
+    ...candidate,
+    publishedCommit,
+    branch: candidate.branch ?? publicationPushCandidate?.branch ?? publicationBranch(),
+    label: candidate.label ?? candidate.proofLabel ?? publicationPushCandidate?.label ?? "publication candidate"
+  };
+  publicationSignalAdoptionClosed = false;
+  return publicationPushCandidate;
+}
+
+function supersedePublicationPushCandidate(previousCandidate, nextCandidate, {
+  provenUnreachableAtRemoteTip
+}) {
+  const previousCommit = String(previousCandidate?.publishedCommit ?? "").trim().toLowerCase();
+  const nextCommit = String(nextCandidate?.publishedCommit ?? "").trim().toLowerCase();
+  const remoteTip = String(provenUnreachableAtRemoteTip ?? "").trim().toLowerCase();
+  if (
+    !publicationPushCandidate ||
+    publicationPushCandidate.publishedCommit !== previousCommit ||
+    !/^[0-9a-f]{40}$/.test(nextCommit) ||
+    !/^[0-9a-f]{40}$/.test(remoteTip) ||
+    String(nextCandidate?.publicationBaseCommit ?? "").trim().toLowerCase() !== remoteTip
+  ) {
+    throw new Error("Publication candidate supersession is missing its exact unreachable-tip/base proof.");
+  }
+  publicationPushCandidate = {
+    ...nextCandidate,
+    publishedCommit: nextCommit,
+    branch: publicationPushCandidate.branch,
+    label: nextCandidate.label ?? nextCandidate.proofLabel ?? "publication retry candidate"
+  };
+  return publicationPushCandidate;
+}
+
+function discardUnspawnedPublicationCandidate(candidate) {
+  const candidateCommit = String(candidate?.publishedCommit ?? "").trim().toLowerCase();
+  if (publicationPushCandidate?.publishedCommit === candidateCommit) {
+    publicationPushCandidate = null;
+  }
+}
+
+function beginPublicationCancellationResolution() {
+  if (
+    !terminationSignal ||
+    publicationSignalAdoptionClosed ||
+    !publicationPushCandidate
+  ) {
+    return Promise.resolve(latestPublishedCommit);
+  }
+  return resolveAmbiguousPublicationAfterCancellation().catch((error) => {
+    console.warn(
+      `Publication cancellation reconciliation failed unexpectedly: ` +
+      sanitizeRunnerDiagnosticText(errorMessage(error))
+    );
+    return latestPublishedCommit;
+  });
+}
+
+async function finalizePublicationSignalAdoptionWindow() {
+  // No signal callback can interleave between the final condition check and
+  // the synchronous close below. If a signal already arrived, await its one
+  // memoized exact remote re-check before retiring the retained candidate.
+  if (terminationSignal && publicationPushCandidate) {
+    await beginPublicationCancellationResolution();
+  }
+  publicationSignalAdoptionClosed = true;
+  publicationPushCandidate = null;
+}
+
 async function resolveAmbiguousPublicationAfterCancellation() {
   if (publicationCancellationResolutionPromise) {
     return publicationCancellationResolutionPromise;
@@ -5740,24 +6796,6 @@ async function resolveAmbiguousPublicationAfterCancellation() {
     return latestPublishedCommit;
   })();
   return publicationCancellationResolutionPromise;
-}
-
-async function assertNoPublicationConflicts() {
-  const conflicts = await runCommand("git", ["diff", "--name-only", "--diff-filter=U"], {
-    timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitDiffMs,
-    label: "check publication conflicts"
-  });
-  if (conflicts.stdout.trim()) {
-    throw new Error(`Publication rebase left unresolved conflicts: ${conflicts.stdout.trim()}`);
-  }
-}
-
-async function abortPublicationRebase() {
-  await runCommand("git", ["rebase", "--abort"], {
-    timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitDiffMs,
-    label: "abort failed publication rebase",
-    allowedExitCodes: [0, 128]
-  }).catch(() => {});
 }
 
 function bindCompletionProvenance(stats, {
@@ -6071,16 +7109,6 @@ async function runCommand(command, commandArgs, {
     }
     assertLeaseHealthy();
   }
-  const runnerRemainingMs = cancellationCleanup
-    ? timeoutMs
-    : runnerBudget.timeoutMs(timeoutMs, label);
-  const deadlineRemainingMs = deadlineAt === null
-    ? runnerRemainingMs
-    : Math.floor(deadlineAt - Date.now());
-  if (deadlineRemainingMs <= 0) {
-    throw new Error(`${label} did not start before its phase deadline.`);
-  }
-  const effectiveTimeoutMs = Math.min(timeoutMs, runnerRemainingMs, deadlineRemainingMs);
   const childEnvironment = buildChildEnvironment(envCategory, env, cwd);
   if (nodeHeapMb !== null) {
     childEnvironment.NODE_OPTIONS = [
@@ -6103,6 +7131,7 @@ async function runCommand(command, commandArgs, {
       `--require=${JSON.stringify(sourcePath("scripts", "lib", "child-process-ledger-hook.cjs"))}`
     ].filter(Boolean).join(" ");
   }
+  let effectiveTimeoutMs = null;
   return new Promise((resolve, reject) => {
     let child;
     let preSpawnGuardCompleted = preSpawnGuard === null;
@@ -6110,6 +7139,23 @@ async function runCommand(command, commandArgs, {
       if (preSpawnGuard) {
         preSpawnGuard();
         preSpawnGuardCompleted = true;
+      }
+      // This is deliberately the final operation before spawn. Event writes,
+      // environment construction, the asynchronous child-ledger write, and
+      // the synchronous pre-spawn proof may all consume budget. Never give a
+      // child the stale timeout calculated before those setup steps.
+      const runnerRemainingMs = cancellationCleanup
+        ? timeoutMs
+        : runnerBudget.timeoutMs(timeoutMs, label);
+      const deadlineRemainingMs = deadlineAt === null
+        ? runnerRemainingMs
+        : Math.floor(deadlineAt - Date.now());
+      if (deadlineRemainingMs <= 0) {
+        throw new Error(`${label} did not start before its phase deadline.`);
+      }
+      effectiveTimeoutMs = Math.min(timeoutMs, runnerRemainingMs, deadlineRemainingMs);
+      if (!Number.isFinite(effectiveTimeoutMs) || effectiveTimeoutMs <= 0) {
+        throw new Error(`${label} did not retain a positive timeout immediately before spawn.`);
       }
       child = trackChildProcess(spawn(command, commandArgs, {
         cwd,
@@ -6379,6 +7425,20 @@ async function writeRunnerOutcome(outcome) {
     new_physical_sources: normalized.newPhysicalSources ?? "",
     daily_new_physical_sources: normalized.dailyNewPhysicalSources ?? "",
     daily_source_health: normalized.dailySourceHealth ?? "",
+    authenticated_social_replay: JSON.stringify(normalized.authenticatedSocialReplay ?? null),
+    linkedin_remaining_target_count: normalized.authenticatedSocialReplay?.remainingTargetCount ?? "",
+    linkedin_remaining_target_count_known: normalized.authenticatedSocialReplay?.remainingTargetCountKnown ?? "",
+    linkedin_known_remaining_target_count: normalized.authenticatedSocialReplay?.knownRemainingTargetCount ?? "",
+    linkedin_unknown_remaining_batches: (normalized.authenticatedSocialReplay?.unknownRemainingBatches ?? []).join(","),
+    linkedin_chunks_admitted: normalized.authenticatedSocialReplay?.chunksAdmitted ?? "",
+    linkedin_chunks_attempted: normalized.authenticatedSocialReplay?.chunksAttempted ?? "",
+    linkedin_chunks_completed: normalized.authenticatedSocialReplay?.chunksCompleted ?? "",
+    linkedin_durable_lock_configured: normalized.authenticatedSocialReplay?.durableLockConfigured ?? "",
+    linkedin_configuration_skipped: normalized.authenticatedSocialReplay?.configurationSkipped ?? "",
+    linkedin_chunk_budget_exhausted: normalized.authenticatedSocialReplay?.chunkBudgetExhausted ?? "",
+    linkedin_deadline_exhausted: normalized.authenticatedSocialReplay?.deadlineExhausted ?? "",
+    linkedin_safety_stopped: normalized.authenticatedSocialReplay?.safetyStopped ?? "",
+    linkedin_infrastructure_stopped: normalized.authenticatedSocialReplay?.infrastructureStopped ?? "",
     published_commit: normalized.publishedCommit ?? "",
     publication_receipt_sha256: normalized.publicationReceiptSha256 ?? ""
   };
@@ -6589,9 +7649,15 @@ async function resolvePublicationRemoteTip({ labelPrefix = "current replay publi
   return remoteCommit;
 }
 
-async function resolveVerifiedCurrentPublicationCommit({ labelPrefix = "current replay publication" } = {}) {
+async function resolveVerifiedCurrentPublicationCommit({
+  labelPrefix = "current replay publication",
+  allowInertCodeDrift = false
+} = {}) {
   const remoteCommit = await resolvePublicationRemoteTip({ labelPrefix });
-  return assertTrustedPublicationBaseCommit(remoteCommit, { label: labelPrefix });
+  return assertTrustedPublicationBaseCommit(remoteCommit, {
+    label: labelPrefix,
+    allowInertCodeDrift
+  });
 }
 
 async function readJson(path, fallback) {
@@ -6960,6 +8026,7 @@ function failedRunnerOutcome(failureMessage) {
   return {
     status: "failed",
     failureMessage,
+    authenticatedSocialReplay: authenticatedSocial?.linkedinReplay ?? null,
     providerBlocked: latestCollectionCoverage?.providerBlocked,
     providerBlockedByReason: latestCollectionCoverage?.providerBlockedByReason,
     mappedProviderBlocked: latestCollectionCoverage?.mappedProviderBlocked,
@@ -7031,7 +8098,8 @@ async function runLifecycleContractFixture(fixture) {
     sourceCommit = fixtureSourceCommit.toLowerCase();
     try {
       await assertTrustedPublicationBaseCommit(candidateCommit, {
-        label: cleanEnv(process.env.LIFECYCLE_FIXTURE_BASE_LABEL) ?? "fixture publication base"
+        label: cleanEnv(process.env.LIFECYCLE_FIXTURE_BASE_LABEL) ?? "fixture publication base",
+        allowInertCodeDrift: cleanEnv(process.env.LIFECYCLE_FIXTURE_ALLOW_INERT_CODE_DRIFT) === "true"
       });
       return emit({ fixture, accepted: true, sourceCommit, candidateCommit });
     } catch (error) {
@@ -7039,6 +8107,365 @@ async function runLifecycleContractFixture(fixture) {
     } finally {
       sourceCommit = previousSourceCommit;
     }
+  }
+
+  if (fixture === "publication-candidate-proof") {
+    const fixturePublicationRoot = cleanEnv(process.env.LIFECYCLE_FIXTURE_PUBLICATION_ROOT);
+    const fixturePublicationParent = cleanEnv(process.env.LIFECYCLE_FIXTURE_PUBLICATION_PARENT);
+    const fixtureBaseCommit = cleanEnv(process.env.LIFECYCLE_FIXTURE_BASE_COMMIT);
+    const fixtureCandidateCommit = cleanEnv(process.env.LIFECYCLE_FIXTURE_CANDIDATE_COMMIT);
+    if (
+      !fixturePublicationRoot ||
+      !fixturePublicationParent ||
+      !fixtureBaseCommit ||
+      !fixtureCandidateCommit
+    ) {
+      throw new Error("Publication-candidate proof fixture requires worktree, base, and candidate values.");
+    }
+    publicationRoot = resolve(fixturePublicationRoot);
+    publicationWorktreeParent = resolve(fixturePublicationParent);
+    configurePublicationArtifactPaths(publicationRoot);
+    const proof = await assertPublicationCandidateProof(
+      fixtureCandidateCommit,
+      fixtureBaseCommit,
+      { label: "fixture publication candidate" }
+    );
+    await transplantPublicationArtifactsOntoRetryBase({
+      retryBaseCommit: fixtureBaseCommit,
+      candidateCommit: fixtureCandidateCommit,
+      candidateBaseCommit: fixtureBaseCommit
+    });
+    const candidateDelta = await runCommand(
+      "git",
+      [
+        "diff",
+        "--name-status",
+        "--no-renames",
+        "-z",
+        fixtureBaseCommit,
+        fixtureCandidateCommit,
+        "--",
+        ...repositoryArtifactPaths()
+      ],
+      {
+        timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitDiffMs,
+        label: "inspect fixture candidate deletion",
+        captureLimit: 1_000_000,
+        quiet: true,
+        recordEvents: false,
+        cwd: root
+      }
+    );
+    const stagedDelta = await runCommand(
+      "git",
+      ["diff", "--cached", "--name-status", "--no-renames", "-z", "--"],
+      {
+        timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitDiffMs,
+        label: "inspect fixture transplant deletion",
+        captureLimit: 1_000_000,
+        quiet: true,
+        recordEvents: false,
+        cwd: publicationRoot
+      }
+    );
+    const deletedPath = "outputs/ingestion-source-delta-current.json";
+    const deletedIndexEntry = await runCommand(
+      "git",
+      ["ls-files", "--stage", "--", deletedPath],
+      {
+        timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitDiffMs,
+        label: "inspect fixture deleted artifact index",
+        captureLimit: 100_000,
+        quiet: true,
+        recordEvents: false,
+        cwd: publicationRoot
+      }
+    );
+    let deletedFromWorktree = false;
+    try {
+      await stat(join(publicationRoot, deletedPath));
+    } catch (error) {
+      if (error?.code === "ENOENT") deletedFromWorktree = true;
+      else throw error;
+    }
+    return emit({
+      fixture,
+      proof,
+      candidateDelta: parseGitNameStatusNul(candidateDelta.stdout),
+      stagedDelta: parseGitNameStatusNul(stagedDelta.stdout),
+      deletedFromIndex: deletedIndexEntry.stdout.trim() === "",
+      deletedFromWorktree
+    });
+  }
+
+  if (fixture === "publication-race-loop") {
+    const fixturePublicationRoot = cleanEnv(process.env.LIFECYCLE_FIXTURE_PUBLICATION_ROOT);
+    const fixturePublicationParent = cleanEnv(process.env.LIFECYCLE_FIXTURE_PUBLICATION_PARENT);
+    const fixtureBaseCommit = cleanEnv(process.env.LIFECYCLE_FIXTURE_BASE_COMMIT)?.toLowerCase();
+    const mode = cleanEnv(process.env.LIFECYCLE_FIXTURE_PUBLICATION_RACE_MODE);
+    const concurrentCommits = String(process.env.LIFECYCLE_FIXTURE_CONCURRENT_COMMITS ?? "")
+      .split(",")
+      .map((value) => value.trim().toLowerCase())
+      .filter(Boolean);
+    if (!fixturePublicationRoot || !fixturePublicationParent || !fixtureBaseCommit || !mode) {
+      throw new Error("Publication race fixture requires worktree, base, and mode values.");
+    }
+    if (mode === "second-concurrent" && concurrentCommits.length !== 2) {
+      throw new Error("Second-concurrent publication race fixture requires exactly two concurrent commits.");
+    }
+    if (!new Set(["second-concurrent", "landed-reconciliation-lost"]).has(mode)) {
+      throw new Error(`Unsupported publication race fixture mode: ${mode}.`);
+    }
+
+    publicationRoot = resolve(fixturePublicationRoot);
+    publicationWorktreeParent = resolve(fixturePublicationParent);
+    publicationBaseCommit = fixtureBaseCommit;
+    configurePublicationArtifactPaths(publicationRoot);
+    const previousCandidateMetadata = candidateMetadata;
+    const previousLatestPublishedCommit = latestPublishedCommit;
+    const previousReceiptSha256 = publicationReceiptSha256;
+    candidateMetadata = validateCandidateMetadata({
+      trigger: "manual-replay",
+      scheduledAt: null,
+      slotKey: idempotencyKey,
+      required: true
+    });
+    latestPublishedCommit = null;
+    publicationReceiptSha256 = null;
+
+    try {
+      await writeJsonAtomic(
+        join(publicationRoot, "outputs", "source-discovery-paths-current.json"),
+        [{ id: "publication-race-fixture", mode, retained: true }]
+      );
+      await stageRepositoryArtifacts();
+      const firstCommit = await commitPublicationArtifacts({
+        amend: false,
+        allowUnchangedTree: true
+      });
+      const candidateCommits = [firstCommit.publishedCommit];
+      let remoteTipCommit = fixtureBaseCommit;
+      let pushCalls = 0;
+      let fetchCalls = 0;
+      let rebuildCalls = 0;
+
+      const outcome = await pushPublicationCandidateWithConcurrentMainRecovery({
+        initialCandidate: {
+          ...firstCommit,
+          publicationBaseCommit: fixtureBaseCommit,
+          proofLabel: "fixture initial publication candidate"
+        },
+        branch: "main",
+        pushCandidate: async (candidate) => {
+          pushCalls += 1;
+          if (mode === "landed-reconciliation-lost") {
+            remoteTipCommit = candidate.publishedCommit;
+            return {
+              code: 128,
+              signal: null,
+              timedOut: true,
+              stdout: "",
+              stderr: "simulated lost response after remote accepted candidate",
+              retryableTransportFailure: true
+            };
+          }
+          if (pushCalls <= concurrentCommits.length) {
+            remoteTipCommit = concurrentCommits[pushCalls - 1];
+            return {
+              code: 1,
+              signal: null,
+              timedOut: false,
+              stdout: "",
+              stderr: "! [rejected] candidate -> main (non-fast-forward)"
+            };
+          }
+          remoteTipCommit = candidate.publishedCommit;
+          return { code: 0, signal: null, timedOut: false, stdout: "", stderr: "" };
+        },
+        fetchRetryBase: async () => {
+          fetchCalls += 1;
+          await assertTrustedPublicationBaseCommit(remoteTipCommit, {
+            label: `fixture publication retry base ${fetchCalls}`,
+            allowInertCodeDrift: true
+          });
+          return remoteTipCommit;
+        },
+        adoptCandidate: (candidate, options) => adoptReachablePublicationCandidate(candidate, {
+          ...options,
+          remoteTipCommit: options.remoteTipCommit ?? remoteTipCommit
+        }),
+        rebuildCandidate: async ({ retryBaseCommit, candidate, attempt }) => {
+          rebuildCalls += 1;
+          await transplantPublicationArtifactsOntoRetryBase({
+            retryBaseCommit,
+            candidateCommit: candidate.publishedCommit,
+            candidateBaseCommit: candidate.publicationBaseCommit
+          });
+          publicationBaseCommit = retryBaseCommit;
+          await stageRepositoryArtifacts();
+          const rebuilt = await commitPublicationArtifacts({
+            amend: false,
+            allowUnchangedTree: true
+          });
+          candidateCommits.push(rebuilt.publishedCommit);
+          return {
+            ...rebuilt,
+            publicationBaseCommit: retryBaseCommit,
+            proofLabel: `fixture publication retry candidate ${attempt}`
+          };
+        },
+        onRetry: async () => {}
+      });
+
+      const candidateParents = [];
+      for (const commit of candidateCommits) {
+        candidateParents.push((await runCommand(
+          "git",
+          ["show", "-s", "--format=%P", commit],
+          {
+            timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitDiffMs,
+            label: `inspect fixture candidate parent ${commit}`,
+            quiet: true,
+            recordEvents: false,
+            cwd: publicationRoot
+          }
+        )).stdout.trim());
+      }
+      return emit({
+        fixture,
+        mode,
+        attempts: outcome.attempts,
+        concurrentMainRetries: outcome.concurrentMainRetries,
+        adoptedAfterAmbiguousPush: outcome.adoptedAfterAmbiguousPush,
+        pushCalls,
+        fetchCalls,
+        rebuildCalls,
+        candidateCommits,
+        candidateParents,
+        finalCandidate: outcome.candidate.publishedCommit,
+        finalBase: outcome.candidate.publicationBaseCommit,
+        remoteTipCommit,
+        receiptSha256: outcome.candidate.receiptSha256
+      });
+    } finally {
+      candidateMetadata = previousCandidateMetadata;
+      latestPublishedCommit = previousLatestPublishedCommit;
+      publicationReceiptSha256 = previousReceiptSha256;
+    }
+  }
+
+  if (fixture === "command-pre-spawn-deadline") {
+    const markerPath = cleanEnv(process.env.LIFECYCLE_FIXTURE_MARKER);
+    if (!markerPath) throw new Error("Pre-spawn deadline fixture requires a marker path.");
+    runnerBudget = createAutonomousRunnerBudget({ phaseMs: 40, startedAt: Date.now() });
+    let failureMessage = null;
+    const startedAt = Date.now();
+    try {
+      await runCommand(
+        process.execPath,
+        ["-e", "require('node:fs').writeFileSync(process.env.LIFECYCLE_FIXTURE_MARKER, 'spawned')"],
+        {
+          timeoutMs: 500,
+          nodeHeapMb: 128,
+          label: "fixture fresh pre-spawn deadline",
+          envCategory: "test_fixture",
+          recordEvents: false,
+          preSpawnGuard: () => {
+            const guardDeadline = Date.now() + 75;
+            while (Date.now() < guardDeadline) {
+              // Consume the budget after asynchronous ledger setup but before spawn.
+            }
+          }
+        }
+      );
+    } catch (error) {
+      failureMessage = errorMessage(error);
+    }
+    let spawned = true;
+    try {
+      await stat(markerPath);
+    } catch (error) {
+      if (error?.code === "ENOENT") spawned = false;
+      else throw error;
+    }
+    if (!failureMessage || spawned) {
+      throw new Error("Fresh pre-spawn deadline did not refuse an exhausted command.");
+    }
+    return emit({
+      fixture,
+      spawned,
+      elapsedMs: Date.now() - startedAt,
+      failureMessage
+    });
+  }
+
+  if (fixture === "remote-verification-budget") {
+    const timeoutMs = Number(process.env.LIFECYCLE_FIXTURE_REMOTE_TIMEOUT_MS ?? 500);
+    const startedAt = Date.now();
+    let failure = null;
+    try {
+      await verifyPublicationCommitOnRemote("a".repeat(40), {
+        branch: "main",
+        label: "fixture shared remote budget",
+        allowDuringCancellation: true,
+        timeoutMs
+      });
+    } catch (error) {
+      failure = {
+        message: errorMessage(error),
+        timedOut: error?.commandResult?.timedOut === true,
+        commandTimeoutMs: error?.commandResult?.timeoutMs ?? null
+      };
+    }
+    if (!failure) {
+      throw new Error("Shared remote verification budget fixture unexpectedly completed.");
+    }
+    return emit({
+      fixture,
+      timeoutMs,
+      elapsedMs: Date.now() - startedAt,
+      failure
+    });
+  }
+
+  if (fixture === "publication-cancellation-recheck") {
+    const markerPath = cleanEnv(process.env.LIFECYCLE_FIXTURE_MARKER);
+    if (!markerPath) throw new Error("Publication cancellation fixture requires a git-call marker.");
+    terminationSignal = null;
+    publicationCancellationResolutionPromise = null;
+    publicationSignalAdoptionClosed = false;
+    latestPublishedCommit = null;
+    const candidate = {
+      publishedCommit: "b".repeat(40),
+      branch: "main",
+      label: "fixture possibly-landed publication candidate"
+    };
+    retainPublicationPushCandidate(candidate);
+    const reconciledBeforeSignal = await reconcilePublicationPushCandidate(
+      candidate,
+      "fixture pre-signal reconciliation"
+    );
+    const retainedBeforeSignal = publicationPushCandidate?.publishedCommit === candidate.publishedCommit;
+    terminationSignal = "SIGTERM";
+    await beginPublicationCancellationResolution();
+    const calls = (await readFile(markerPath, "utf8"))
+      .trim()
+      .split("\n")
+      .filter(Boolean)
+      .map((line) => JSON.parse(line));
+    const retainedAfterCancellationRecheck =
+      publicationPushCandidate?.publishedCommit === candidate.publishedCommit;
+    await finalizePublicationSignalAdoptionWindow();
+    return emit({
+      fixture,
+      reconciledBeforeSignal,
+      retainedBeforeSignal,
+      retainedAfterCancellationRecheck,
+      candidateClearedAfterFinalization: publicationPushCandidate === null,
+      fetchCalls: calls.filter((args) => args[0] === "fetch").length,
+      ancestryCalls: calls.filter((args) => args[0] === "merge-base").length,
+      latestPublishedCommit
+    });
   }
 
   if (fixture === "pid-reuse-ledger") {

@@ -847,6 +847,9 @@ jobs:
             public/timelines
             public/topic-facets
             src/lib/graph/ranked-posts-sidecar.generated.json
+            src/lib/social/logged-in-evidence-current.json
+            docs/outputs/scoring-diagnostics-v4-audit.json
+            docs/outputs/scoring-diagnostics-v4-report.md
             artifacts/company-timeline/coverage.json
           )
 
