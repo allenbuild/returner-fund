@@ -2043,6 +2043,11 @@ describe("autonomous ingestion runner static safety contracts", () => {
     assert.ok(artifactPaths.includes('"src/lib/social/targeted-evidence-current.json"'));
   });
 
+  it("publishes the merged authenticated evidence ledger with the generated graphs", () => {
+    const artifactPaths = section("function repositoryArtifactPaths", "function publicationBranch");
+    assert.ok(artifactPaths.includes('"src/lib/social/logged-in-evidence-current.json"'));
+  });
+
   it("publishes the GitHub authoritative quarantine ledger with every scheduled release", () => {
     const artifactPaths = section("function repositoryArtifactPaths", "function publicationBranch");
     assert.ok(artifactPaths.includes('"src/lib/social/github-traction-quarantine.json"'));
@@ -2332,6 +2337,10 @@ describe("pinned source and publication-base trust boundaries", () => {
 
     assert.equal(isReplaySafePublicationDataPath("src/lib/social/package.json"), false);
     assert.equal(isProtectedSourcePolicyPath("src/lib/social/package.json"), true);
+    assert.equal(
+      isReplaySafePublicationDataPath("src/lib/social/logged-in-evidence-current.json"),
+      true
+    );
     assert.equal(isReplaySafePublicationDataPath("public/timelines/companies/config.json"), false);
     assert.equal(isReplaySafePublicationDataPath("public/timelines/companies/acme-labs.json"), true);
 

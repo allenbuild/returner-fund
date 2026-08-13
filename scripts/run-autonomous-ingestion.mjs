@@ -5354,6 +5354,7 @@ function repositoryArtifactPaths() {
     "docs/outputs/scoring-diagnostics-v4-report.md",
     "src/lib/social/public-evidence-current.json",
     "src/lib/social/targeted-evidence-current.json",
+    "src/lib/social/logged-in-evidence-current.json",
     "src/lib/social/github-traction.json",
     "src/lib/social/github-traction-summer-2026.json",
     "src/lib/social/github-traction-a16z-speedrun-006.json",
