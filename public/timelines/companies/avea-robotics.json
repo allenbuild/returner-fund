@@ -5,8 +5,8 @@
     "slug": "avea-robotics",
     "name": "Avea Robotics"
   },
-  "generatedAt": "2026-08-13T05:14:17.569Z",
-  "lastModifiedAt": "2026-08-13T05:14:17.569Z",
+  "generatedAt": "2026-08-13T06:23:55.800Z",
+  "lastModifiedAt": "2026-08-13T06:23:55.800Z",
   "events": [
     {
       "id": "tle-7212ec7837843ff86cd96a48",
@@ -71,7 +71,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 2,
-    "lastSuccessfulArtifactAt": "2026-08-13T05:14:17.569Z"
+    "lastSuccessfulArtifactAt": "2026-08-13T06:23:55.800Z"
   },
   "nextCursor": null
 }

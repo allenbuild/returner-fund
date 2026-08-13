@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "publishedAt": "2026-08-13T05:22:02.491Z",
+  "publishedAt": "2026-08-13T06:35:39.977Z",
   "ingestionRunId": "file:central-2026-08-12-0600",
   "evidenceCollectedAt": "2026-08-12T12:43:09.104Z",
   "oldestPlatformRefreshAt": "2026-07-29T07:11:00.000Z",
@@ -37,65 +37,65 @@
   "graphArtifacts": [
     {
       "filename": "a16zsr006-insiders.json",
-      "sha256": "7884eb956a2437eac858d1f0547e6c0791af358251e26174fd8b9c5f1d2d5df7",
+      "sha256": "a4593ca58a9fe493868a5199436aa3131329b11b5e62229b9d4593df03d87acf",
       "byteSize": 178625,
-      "generatedAt": "2026-08-13T05:14:22.641Z",
+      "generatedAt": "2026-08-13T06:24:03.820Z",
       "modelVersion": "4.2.0"
     },
     {
       "filename": "a16zsr006-yc-partners.json",
-      "sha256": "2f00702f48f7c71fe24b6d0c21971e4920907e4ab0a7a471c63dfffaca2b77dd",
+      "sha256": "e7fa24239882cfb8ea9d45fb7c5e7ac1f7bfcba14e8e4d2acd9903a2e7075288",
       "byteSize": 4009,
-      "generatedAt": "2026-08-13T05:14:19.244Z",
+      "generatedAt": "2026-08-13T06:23:58.451Z",
       "modelVersion": "4.2.0"
     },
     {
       "filename": "a16zsr006.json",
-      "sha256": "457b3fd34ad56128db832248e137a034e9b69035c1a07e0b9af5363a20a04e04",
+      "sha256": "608e3200e8248999794452f2cabc35266ed4588bc2dffb0587ed4cabb8c16a5e",
       "byteSize": 19823183,
-      "generatedAt": "2026-08-13T05:14:17.569Z",
+      "generatedAt": "2026-08-13T06:23:55.800Z",
       "modelVersion": "4.2.0"
     },
     {
       "filename": "s2026-insiders.json",
-      "sha256": "19e36f8b7f7a63ef641997fc9282a9ff47960ea3590fb13ea6435340a5ba0d4a",
+      "sha256": "4b85da716802eed026f6252313bfdae5a757222f9a9487cbe05939baf7f1c2d4",
       "byteSize": 1153314,
-      "generatedAt": "2026-08-13T05:13:56.514Z",
+      "generatedAt": "2026-08-13T06:23:21.802Z",
       "modelVersion": "4.2.0"
     },
     {
       "filename": "s2026-yc-partners.json",
-      "sha256": "449d6e3c11cc7e18e29ee2cada27769151210162f14beebbaf65de2c01196924",
+      "sha256": "90c8be3b094f355356a3f23ac9a2f241e39252572b55c8aebbc6f80e2b9dfc41",
       "byteSize": 1878959,
-      "generatedAt": "2026-08-13T05:13:48.852Z",
+      "generatedAt": "2026-08-13T06:23:09.329Z",
       "modelVersion": "4.2.0"
     },
     {
       "filename": "s2026.json",
-      "sha256": "98880df7316df872e2591b7d52971b448825123e4338c5e62b6dc3e8917f9ffe",
+      "sha256": "cb295ed846b23cf8cda149bc8c743167604403045a22fa0d39061c8f0a1b2648",
       "byteSize": 18699295,
-      "generatedAt": "2026-08-13T05:13:44.118Z",
+      "generatedAt": "2026-08-13T06:23:01.405Z",
       "modelVersion": "4.2.0"
     },
     {
       "filename": "s26-insiders.json",
-      "sha256": "cab6428de631f0bfa63f026455b86ace7f9b3b3c61e5612c739a55d418bfc446",
+      "sha256": "b4907e9b9ddb5aec8ad8d900fa3a55e541bf7f5c663c7fda84d080ff0fd01da3",
       "byteSize": 7178,
-      "generatedAt": "2026-08-13T05:14:12.377Z",
+      "generatedAt": "2026-08-13T06:23:47.485Z",
       "modelVersion": "4.2.0"
     },
     {
       "filename": "s26-yc-partners.json",
-      "sha256": "6032734b072892854b9565b125def65efd39494d8acb5397163a9be4878949ed",
+      "sha256": "78764eaa0f05accbf59092cedb5d3d5b034bfa8e1310af1f6158f813919a9198",
       "byteSize": 732843,
-      "generatedAt": "2026-08-13T05:14:07.216Z",
+      "generatedAt": "2026-08-13T06:23:39.009Z",
       "modelVersion": "4.2.0"
     },
     {
       "filename": "s26.json",
-      "sha256": "abbb7281922b79cd842972e80349db09cbdf2e24405479f78db941fbdec65c2a",
+      "sha256": "0962d1074a7076d4a3b8c6addddf2a05fdf307438d27d1367bd69cf8a0c94300",
       "byteSize": 15592353,
-      "generatedAt": "2026-08-13T05:14:04.273Z",
+      "generatedAt": "2026-08-13T06:23:34.226Z",
       "modelVersion": "4.2.0"
     }
   ],
@@ -157,7 +157,7 @@
       ],
       "fileCount": 1,
       "totalByteSize": 903099,
-      "contentHash": "cee768a88eba9401da20955359e9f8d25f1a4176e182abd68eb7df67d8d14339"
+      "contentHash": "59b6472eb1ebe1989ff298d01af2bcba9dee41e0825176a4b3e00ffa16135e6a"
     },
     {
       "key": "timelines",
@@ -166,7 +166,7 @@
       ],
       "fileCount": 854,
       "totalByteSize": 1814835,
-      "contentHash": "0d4dc27479d5d82f41151ca6760fbaa2356519af52196495bf228e9f83f12e03"
+      "contentHash": "87cb3d946979d6e707b4aa888a253aeef843c1e5c612ad4c83600735884b1cc0"
     },
     {
       "key": "scoringDiagnostics",
@@ -179,5 +179,5 @@
       "contentHash": "7a6651a0a8b3399e1a750f22047a3775c22acb227e73ea15401b0c2910b29186"
     }
   ],
-  "contentHash": "9fb3ec085cc3a683846fa4a78b43794aeed8de32a29fbb0afd114961eb64e24a"
+  "contentHash": "0db7ed50db35f5c4a6f3c5469408c6f677449b4c8c87b8648f716d211e93c39b"
 }

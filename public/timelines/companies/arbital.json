@@ -5,8 +5,8 @@
     "slug": "arbital",
     "name": "Arbital"
   },
-  "generatedAt": "2026-08-13T05:14:17.569Z",
-  "lastModifiedAt": "2026-08-13T05:14:17.569Z",
+  "generatedAt": "2026-08-13T06:23:55.800Z",
+  "lastModifiedAt": "2026-08-13T06:23:55.800Z",
   "events": [
     {
       "id": "tle-3a6c29be252c31da81546895",
@@ -75,7 +75,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 2,
-    "lastSuccessfulArtifactAt": "2026-08-13T05:14:17.569Z"
+    "lastSuccessfulArtifactAt": "2026-08-13T06:23:55.800Z"
   },
   "nextCursor": null
 }
