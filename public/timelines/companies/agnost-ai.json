@@ -5,8 +5,8 @@
     "slug": "agnost-ai",
     "name": "Agnost AI"
   },
-  "generatedAt": "2026-08-13T06:23:55.800Z",
-  "lastModifiedAt": "2026-08-13T06:23:55.800Z",
+  "generatedAt": "2026-08-13T13:58:02.849Z",
+  "lastModifiedAt": "2026-08-13T13:58:02.849Z",
   "events": [
     {
       "id": "tle-298c74a3940f44252d864294",
@@ -15,10 +15,10 @@
       "title": "Agnost AI released official Agnost AI SDK",
       "summary": "Agnost AI introduced official Agnost AI SDK for Langchain agents.",
       "category": "product_launch",
-      "isMajor": false,
+      "isMajor": true,
       "hasConflict": false,
       "conflictSummary": null,
-      "evidenceCount": 1,
+      "evidenceCount": 2,
       "sourcePreview": [
         {
           "id": "src-9c4b1a2d34881b83e77fdf93",
@@ -29,6 +29,16 @@
           "publishedAt": "2026-08-11T02:28:18.000Z",
           "evidenceRole": "primary",
           "url": "https://x.com/prrthh132/status/2087003143091757542"
+        },
+        {
+          "id": "src-ecfada9aef1b34c382f9d579",
+          "title": "🚨 Introducing official Agnost AI SDK for Vercel AI SDK agents.",
+          "publisher": "prrthh132",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-08-13T03:18:10.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/prrthh132/status/2087740469061337338"
         }
       ]
     },
@@ -123,7 +133,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 4,
-    "lastSuccessfulArtifactAt": "2026-08-13T06:23:55.800Z"
+    "lastSuccessfulArtifactAt": "2026-08-13T13:58:02.849Z"
   },
   "nextCursor": null
 }

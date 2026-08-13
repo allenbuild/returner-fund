@@ -1,0 +1,67 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-osseus",
+    "slug": "osseus",
+    "name": "Osseus"
+  },
+  "event": {
+    "id": "tle-963ba7a80352fad5703e2a2c",
+    "eventDate": "2026-08-11",
+    "eventDateType": "announcement_date",
+    "title": "Osseus announced its public launch",
+    "summary": "Osseus announced its public launch in a dated company video.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-a15a92f5ff1ca27aa5fa58ac",
+        "title": "Osseus (YC S26) Launch Video",
+        "publisher": "Osseus (YC S26) Launch Video",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-08-11T07:37:06-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=tEpkmA42fSA"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-a15a92f5ff1ca27aa5fa58ac",
+        "title": "Osseus (YC S26) Launch Video",
+        "publisher": "Osseus (YC S26) Launch Video",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-08-11T07:37:06-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=tEpkmA42fSA",
+        "publicationDate": "2026-08-11T07:37:06-07:00",
+        "excerpt": "Check out: https://www.ycombinator.com/launches/Sbn-osseus-the-intelligent-development-platform-for-robotics https://osseus.ai Osseus is the intelligent development platform for robotics. It plugs into the tools a team already uses - CAD, ECAD, GitHub, Jira, docs, messaging, and test runs - creating a live dependency graph of their entire robot stack. It automatically builds and maintains the relationships between every part, board, requirement, test, and decision. When a hardware change is…",
+        "sourceEventDate": "2026-08-11",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-5e77afd1b2214aa00dac5544",
+        "platform": "youtube",
+        "account": "Osseus (YC S26) Launch Video",
+        "postDate": "2026-08-11",
+        "excerpt": "Check out: https://www.ycombinator.com/launches/Sbn-osseus-the-intelligent-development-platform-for-robotics https://osseus.ai Osseus is the intelligent development platform for robotics. It plugs into the tools a team already uses - CAD, ECAD, GitHub, Jira, docs, messaging, and test runs - creating a live dependency graph of their entire robot stack. It automatically builds and maintains the relationships between every part, board, requirement, test, and decision. When a hardware change is…",
+        "url": "https://youtube.com/watch?v=tEpkmA42fSA",
+        "metrics": {
+          "views": 86,
+          "likes": 4,
+          "comments": 0
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-13T13:58:02.849Z",
+  "lastModifiedAt": "2026-08-13T13:58:02.849Z"
+}

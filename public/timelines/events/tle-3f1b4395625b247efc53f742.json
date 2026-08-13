@@ -1,0 +1,67 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-greypoint-industries",
+    "slug": "greypoint-industries",
+    "name": "Greypoint Industries"
+  },
+  "event": {
+    "id": "tle-3f1b4395625b247efc53f742",
+    "eventDate": "2026-07-30",
+    "eventDateType": "announcement_date",
+    "title": "Greypoint Industries released Greypoint Industries (YC S26) Official Launch",
+    "summary": "Greypoint Industries (YC S26) Official Launch.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-ba8e80987543027503e700e6",
+        "title": "Greypoint Industries (YC S26) Official Launch",
+        "publisher": "Greypoint Industries (YC S26) Official Launch",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-07-30T14:29:47-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=y9jC4A7Fg04"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-ba8e80987543027503e700e6",
+        "title": "Greypoint Industries (YC S26) Official Launch",
+        "publisher": "Greypoint Industries (YC S26) Official Launch",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-07-30T14:29:47-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=y9jC4A7Fg04",
+        "publicationDate": "2026-07-30T14:29:47-07:00",
+        "excerpt": "Greypoint Industries (YC S26) builds drone swarms that find enemy drone operators on the battlefield. Greypoint Industries built LEGION, a drone swarm that identifies, geolocates, and tracks every emitter on the battlefield using the enemy’s own radio signals. LEGION enables our warfighters to precisely track previously obscured targets like jammers, command posts, and drone operators so they can proactively respond to threats instead of reacting to them.",
+        "sourceEventDate": "2026-07-30",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-e69e7b11c9d53a26746468f0",
+        "platform": "youtube",
+        "account": "Greypoint Industries (YC S26) Official Launch",
+        "postDate": "2026-07-30",
+        "excerpt": "Greypoint Industries (YC S26) builds drone swarms that find enemy drone operators on the battlefield. Greypoint Industries built LEGION, a drone swarm that identifies, geolocates, and tracks every emitter on the battlefield using the enemy’s own radio signals. LEGION enables our warfighters to precisely track previously obscured targets like jammers, command posts, and drone operators so they can proactively respond to threats instead of reacting to them.",
+        "url": "https://youtube.com/watch?v=y9jC4A7Fg04",
+        "metrics": {
+          "views": 246,
+          "likes": 7,
+          "comments": 0
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-13T13:58:02.849Z",
+  "lastModifiedAt": "2026-08-13T13:58:02.849Z"
+}

@@ -5,8 +5,8 @@
     "slug": "memory-store",
     "name": "Memory Store"
   },
-  "generatedAt": "2026-08-13T06:23:55.800Z",
-  "lastModifiedAt": "2026-08-13T06:23:55.800Z",
+  "generatedAt": "2026-08-13T13:58:02.849Z",
+  "lastModifiedAt": "2026-08-13T13:58:02.849Z",
   "events": [
     {
       "id": "tle-dda8ebe8c800d1a78242aae7",
@@ -23,7 +23,7 @@
         {
           "id": "src-a139d1a2e388f0e7ac804585",
           "title": "Memory Store YC P26 Launch Video",
-          "publisher": "Memory Store",
+          "publisher": "Memory Store YC P26 Launch Video",
           "domain": "youtube.com",
           "sourceType": "video",
           "publishedAt": "2026-05-19T03:54:35-07:00",
@@ -47,7 +47,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-08-13T06:23:55.800Z"
+    "lastSuccessfulArtifactAt": "2026-08-13T13:58:02.849Z"
   },
   "nextCursor": null
 }

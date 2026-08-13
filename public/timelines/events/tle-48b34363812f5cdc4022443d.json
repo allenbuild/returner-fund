@@ -1,0 +1,104 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-mount",
+    "slug": "mount",
+    "name": "Mount"
+  },
+  "event": {
+    "id": "tle-48b34363812f5cdc4022443d",
+    "eventDate": "2026-05-15",
+    "eventDateType": "announcement_date",
+    "title": "Mount released Mount Launch - AI Liability Insurance",
+    "summary": "Mount Launch - AI Liability Insurance.",
+    "category": "product_launch",
+    "isMajor": true,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 2,
+    "sourcePreview": [
+      {
+        "id": "src-1c19441f3deea3e35d819881",
+        "title": "Mount Launch - AI Liability Insurance",
+        "publisher": "Mount Launch - AI Liability Insurance",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-05-22T13:25:25-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=xo3zVH_pAsc"
+      },
+      {
+        "id": "src-4510ba78a2e867ae03c1a375",
+        "title": "Mount P26 Launch",
+        "publisher": "Mount P26 Launch",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-05-15T19:14:36.000Z",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=Z8UejyanYPc"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-1c19441f3deea3e35d819881",
+        "title": "Mount Launch - AI Liability Insurance",
+        "publisher": "Mount Launch - AI Liability Insurance",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-05-22T13:25:25-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=xo3zVH_pAsc",
+        "publicationDate": "2026-05-22T13:25:25-07:00",
+        "excerpt": "Embedded in the official Mount YC company page.",
+        "sourceEventDate": "2026-05-22",
+        "isConflicting": false,
+        "conflictDescription": null
+      },
+      {
+        "id": "src-4510ba78a2e867ae03c1a375",
+        "title": "Mount P26 Launch",
+        "publisher": "Mount P26 Launch",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-05-15T19:14:36.000Z",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=Z8UejyanYPc",
+        "publicationDate": "2026-05-15T19:14:36.000Z",
+        "excerpt": "Mount is building the Insurer for the Agent Economy. mount.insure",
+        "sourceEventDate": "2026-05-15",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-f26040cb9c5f1003268a46c0",
+        "platform": "youtube",
+        "account": "Mount Launch - AI Liability Insurance",
+        "postDate": "2026-05-22",
+        "excerpt": "Embedded in the official Mount YC company page.",
+        "url": "https://youtube.com/watch?v=xo3zVH_pAsc",
+        "metrics": {
+          "views": 404,
+          "likes": 4,
+          "comments": 0
+        },
+        "evidenceRole": "primary"
+      },
+      {
+        "id": "post-5b8a7c106ae6bdc47c8498dd",
+        "platform": "youtube",
+        "account": "Mount P26 Launch",
+        "postDate": "2026-05-15",
+        "excerpt": "Mount is building the Insurer for the Agent Economy. mount.insure",
+        "url": "https://youtube.com/watch?v=Z8UejyanYPc",
+        "metrics": {
+          "views": 7
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-13T13:58:02.849Z",
+  "lastModifiedAt": "2026-08-13T13:58:02.849Z"
+}

@@ -1,0 +1,18 @@
+{
+  "schemaVersion": "company-timeline.v1",
+  "company": {
+    "id": "company-mentlio",
+    "slug": "mentlio",
+    "name": "Mentlio"
+  },
+  "generatedAt": "2026-08-13T13:58:02.849Z",
+  "lastModifiedAt": "2026-08-13T13:58:02.849Z",
+  "events": [],
+  "groups": [],
+  "coverage": {
+    "status": "partial",
+    "publishedEventCount": 0,
+    "lastSuccessfulArtifactAt": "2026-08-13T13:58:02.849Z"
+  },
+  "nextCursor": null
+}

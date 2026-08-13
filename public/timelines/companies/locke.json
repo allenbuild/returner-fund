@@ -5,14 +5,49 @@
     "slug": "locke",
     "name": "Locke"
   },
-  "generatedAt": "2026-08-13T06:23:55.800Z",
-  "lastModifiedAt": "2026-08-13T06:23:55.800Z",
-  "events": [],
-  "groups": [],
+  "generatedAt": "2026-08-13T13:58:02.849Z",
+  "lastModifiedAt": "2026-08-13T13:58:02.849Z",
+  "events": [
+    {
+      "id": "tle-a94b3bd5758378779564ab22",
+      "eventDate": "2026-08-05",
+      "eventDateType": "announcement_date",
+      "title": "Locke was introduced",
+      "summary": "Locke introduced Locke.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-1c1043c873520c9b9216db2c",
+          "title": "Introducing Locke",
+          "publisher": "Introducing Locke",
+          "domain": "youtube.com",
+          "sourceType": "video",
+          "publishedAt": "2026-08-05T10:30:08-07:00",
+          "evidenceRole": "primary",
+          "url": "https://youtube.com/watch?v=AbNIwYUdFBc"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-08",
+          "count": 1
+        }
+      ]
+    }
+  ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 0,
-    "lastSuccessfulArtifactAt": "2026-08-13T06:23:55.800Z"
+    "publishedEventCount": 1,
+    "lastSuccessfulArtifactAt": "2026-08-13T13:58:02.849Z"
   },
   "nextCursor": null
 }

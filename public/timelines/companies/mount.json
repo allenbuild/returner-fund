@@ -5,21 +5,31 @@
     "slug": "mount",
     "name": "Mount"
   },
-  "generatedAt": "2026-08-13T06:23:55.800Z",
-  "lastModifiedAt": "2026-08-13T06:23:55.800Z",
+  "generatedAt": "2026-08-13T13:58:02.849Z",
+  "lastModifiedAt": "2026-08-13T13:58:02.849Z",
   "events": [
     {
-      "id": "tle-7836ddb4042c266ef784ff77",
+      "id": "tle-48b34363812f5cdc4022443d",
       "eventDate": "2026-05-15",
       "eventDateType": "announcement_date",
-      "title": "Mount released Mount P26 Launch",
-      "summary": "Mount P26 Launch.",
+      "title": "Mount released Mount Launch - AI Liability Insurance",
+      "summary": "Mount Launch - AI Liability Insurance.",
       "category": "product_launch",
-      "isMajor": false,
+      "isMajor": true,
       "hasConflict": false,
       "conflictSummary": null,
-      "evidenceCount": 1,
+      "evidenceCount": 2,
       "sourcePreview": [
+        {
+          "id": "src-1c19441f3deea3e35d819881",
+          "title": "Mount Launch - AI Liability Insurance",
+          "publisher": "Mount Launch - AI Liability Insurance",
+          "domain": "youtube.com",
+          "sourceType": "video",
+          "publishedAt": "2026-05-22T13:25:25-07:00",
+          "evidenceRole": "primary",
+          "url": "https://youtube.com/watch?v=xo3zVH_pAsc"
+        },
         {
           "id": "src-4510ba78a2e867ae03c1a375",
           "title": "Mount P26 Launch",
@@ -47,7 +57,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-08-13T06:23:55.800Z"
+    "lastSuccessfulArtifactAt": "2026-08-13T13:58:02.849Z"
   },
   "nextCursor": null
 }

@@ -5,14 +5,49 @@
     "slug": "realpact",
     "name": "RealPact"
   },
-  "generatedAt": "2026-08-13T06:23:55.800Z",
-  "lastModifiedAt": "2026-08-13T06:23:55.800Z",
-  "events": [],
-  "groups": [],
+  "generatedAt": "2026-08-13T13:58:02.849Z",
+  "lastModifiedAt": "2026-08-13T13:58:02.849Z",
+  "events": [
+    {
+      "id": "tle-344ae14672db4cbc78086918",
+      "eventDate": "2026-08-06",
+      "eventDateType": "announcement_date",
+      "title": "RealPact released RealPact Commercial Launch | Real Estate Tech",
+      "summary": "RealPact Commercial Launch | Real Estate Tech.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-76ea95b54d8b521ca8db0fba",
+          "title": "RealPact Commercial Launch | Real Estate Tech",
+          "publisher": "RealPact Commercial Launch | Real Estate Tech",
+          "domain": "youtube.com",
+          "sourceType": "video",
+          "publishedAt": "2026-08-06T13:53:05-07:00",
+          "evidenceRole": "primary",
+          "url": "https://youtube.com/watch?v=cT0B-YNwN34"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-08",
+          "count": 1
+        }
+      ]
+    }
+  ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 0,
-    "lastSuccessfulArtifactAt": "2026-08-13T06:23:55.800Z"
+    "publishedEventCount": 1,
+    "lastSuccessfulArtifactAt": "2026-08-13T13:58:02.849Z"
   },
   "nextCursor": null
 }

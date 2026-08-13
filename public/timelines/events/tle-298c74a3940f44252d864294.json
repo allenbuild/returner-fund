@@ -12,10 +12,10 @@
     "title": "Agnost AI released official Agnost AI SDK",
     "summary": "Agnost AI introduced official Agnost AI SDK for Langchain agents.",
     "category": "product_launch",
-    "isMajor": false,
+    "isMajor": true,
     "hasConflict": false,
     "conflictSummary": null,
-    "evidenceCount": 1,
+    "evidenceCount": 2,
     "sourcePreview": [
       {
         "id": "src-9c4b1a2d34881b83e77fdf93",
@@ -26,6 +26,16 @@
         "publishedAt": "2026-08-11T02:28:18.000Z",
         "evidenceRole": "primary",
         "url": "https://x.com/prrthh132/status/2087003143091757542"
+      },
+      {
+        "id": "src-ecfada9aef1b34c382f9d579",
+        "title": "🚨 Introducing official Agnost AI SDK for Vercel AI SDK agents.",
+        "publisher": "prrthh132",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-08-13T03:18:10.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/prrthh132/status/2087740469061337338"
       }
     ],
     "evidence": [
@@ -43,6 +53,21 @@
         "sourceEventDate": "2026-08-11",
         "isConflicting": false,
         "conflictDescription": null
+      },
+      {
+        "id": "src-ecfada9aef1b34c382f9d579",
+        "title": "🚨 Introducing official Agnost AI SDK for Vercel AI SDK agents.",
+        "publisher": "prrthh132",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-08-13T03:18:10.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/prrthh132/status/2087740469061337338",
+        "publicationDate": "2026-08-13T03:18:10.000Z",
+        "excerpt": "🚨 Introducing official Agnost AI SDK for Vercel AI SDK agents. Just one line of change, and you get to see all your agent insights right in Agnost. Docs link is in the comments. https://t.co/THZiKLVhDp",
+        "sourceEventDate": "2026-08-11",
+        "isConflicting": false,
+        "conflictDescription": null
       }
     ],
     "posts": [
@@ -57,12 +82,27 @@
           "likes": 29,
           "reposts": 2,
           "replies": 5,
-          "views": 2987
+          "views": 3141
+        },
+        "evidenceRole": "primary"
+      },
+      {
+        "id": "post-3dd8f449055cc134b4883c3a",
+        "platform": "x",
+        "account": "prrthh132",
+        "postDate": "2026-08-13",
+        "excerpt": "🚨 Introducing official Agnost AI SDK for Vercel AI SDK agents. Just one line of change, and you get to see all your agent insights right in Agnost. Docs link is in the comments. https://t.co/THZiKLVhDp",
+        "url": "https://x.com/prrthh132/status/2087740469061337338",
+        "metrics": {
+          "likes": 21,
+          "reposts": 0,
+          "replies": 1,
+          "views": 436
         },
         "evidenceRole": "primary"
       }
     ]
   },
-  "generatedAt": "2026-08-13T06:23:55.800Z",
-  "lastModifiedAt": "2026-08-13T06:23:55.800Z"
+  "generatedAt": "2026-08-13T13:58:02.849Z",
+  "lastModifiedAt": "2026-08-13T13:58:02.849Z"
 }

@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-tasklet-2",
+    "slug": "tasklet",
+    "name": "Tasklet"
+  },
+  "event": {
+    "id": "tle-b3c3037d617b465ad3eda48f",
+    "eventDate": "2026-08-12",
+    "eventDateType": "announcement_date",
+    "title": "Tasklet released cross-thread memory in Tasklet",
+    "summary": "Tasklet introduced cross-thread memory in Tasklet.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-482b04544867c1c9f1a53e40",
+        "title": "Introducing cross-thread memory in Tasklet.",
+        "publisher": "startupandrew",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-08-12T17:07:43.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/startupandrew/status/2087586842959073311"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-482b04544867c1c9f1a53e40",
+        "title": "Introducing cross-thread memory in Tasklet.",
+        "publisher": "startupandrew",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-08-12T17:07:43.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/startupandrew/status/2087586842959073311",
+        "publicationDate": "2026-08-12T17:07:43.000Z",
+        "excerpt": "Introducing cross-thread memory in Tasklet. Your agents now learn & improve over time with use. This release includes x-thread history, file, and automation access, as well as support for dreaming. And it builds on our redesign work last week & ongoing work on connection tools",
+        "sourceEventDate": "2026-08-12",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-f1e5c6531d4fafc8b41042e3",
+        "platform": "x",
+        "account": "startupandrew",
+        "postDate": "2026-08-12",
+        "excerpt": "Introducing cross-thread memory in Tasklet. Your agents now learn & improve over time with use. This release includes x-thread history, file, and automation access, as well as support for dreaming. And it builds on our redesign work last week & ongoing work on connection tools",
+        "url": "https://x.com/startupandrew/status/2087586842959073311",
+        "metrics": {
+          "likes": 11,
+          "reposts": 2,
+          "replies": 1,
+          "views": 718
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-13T13:58:02.849Z",
+  "lastModifiedAt": "2026-08-13T13:58:02.849Z"
+}

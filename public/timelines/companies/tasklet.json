@@ -5,9 +5,33 @@
     "slug": "tasklet",
     "name": "Tasklet"
   },
-  "generatedAt": "2026-08-13T06:23:55.800Z",
-  "lastModifiedAt": "2026-08-13T06:23:55.800Z",
+  "generatedAt": "2026-08-13T13:58:02.849Z",
+  "lastModifiedAt": "2026-08-13T13:58:02.849Z",
   "events": [
+    {
+      "id": "tle-b3c3037d617b465ad3eda48f",
+      "eventDate": "2026-08-12",
+      "eventDateType": "announcement_date",
+      "title": "Tasklet released cross-thread memory in Tasklet",
+      "summary": "Tasklet introduced cross-thread memory in Tasklet.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-482b04544867c1c9f1a53e40",
+          "title": "Introducing cross-thread memory in Tasklet.",
+          "publisher": "startupandrew",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-08-12T17:07:43.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/startupandrew/status/2087586842959073311"
+        }
+      ]
+    },
     {
       "id": "tle-2a2b18563749c7aadbe2b4d2",
       "eventDate": "2026-05-22",
@@ -298,6 +322,10 @@
       "year": 2026,
       "months": [
         {
+          "month": "2026-08",
+          "count": 1
+        },
+        {
           "month": "2026-05",
           "count": 2
         },
@@ -331,8 +359,8 @@
   ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 11,
-    "lastSuccessfulArtifactAt": "2026-08-13T06:23:55.800Z"
+    "publishedEventCount": 12,
+    "lastSuccessfulArtifactAt": "2026-08-13T13:58:02.849Z"
   },
   "nextCursor": null
 }

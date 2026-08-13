@@ -5,14 +5,49 @@
     "slug": "lemonlime",
     "name": "LemonLime"
   },
-  "generatedAt": "2026-08-13T06:23:55.800Z",
-  "lastModifiedAt": "2026-08-13T06:23:55.800Z",
-  "events": [],
-  "groups": [],
+  "generatedAt": "2026-08-13T13:58:02.849Z",
+  "lastModifiedAt": "2026-08-13T13:58:02.849Z",
+  "events": [
+    {
+      "id": "tle-4e3e041240fa0c8e0e7f5b2b",
+      "eventDate": "2026-07-07",
+      "eventDateType": "announcement_date",
+      "title": "LemonLime released LemonLime YC Launch | We Love Small",
+      "summary": "LemonLime YC Launch | We Love Small.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-a6c6ef4b6054c3b9d8fbcf9d",
+          "title": "LemonLime YC Launch | We Love Small",
+          "publisher": "LemonLime YC Launch | We Love Small",
+          "domain": "youtube.com",
+          "sourceType": "video",
+          "publishedAt": "2026-07-06T17:07:43-07:00",
+          "evidenceRole": "primary",
+          "url": "https://youtube.com/watch?v=aFcB1fJhPmY"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-07",
+          "count": 1
+        }
+      ]
+    }
+  ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 0,
-    "lastSuccessfulArtifactAt": "2026-08-13T06:23:55.800Z"
+    "publishedEventCount": 1,
+    "lastSuccessfulArtifactAt": "2026-08-13T13:58:02.849Z"
   },
   "nextCursor": null
 }

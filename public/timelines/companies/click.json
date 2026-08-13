@@ -5,14 +5,49 @@
     "slug": "click",
     "name": "Click"
   },
-  "generatedAt": "2026-08-13T06:23:55.800Z",
-  "lastModifiedAt": "2026-08-13T06:23:55.800Z",
-  "events": [],
-  "groups": [],
+  "generatedAt": "2026-08-13T13:58:02.849Z",
+  "lastModifiedAt": "2026-08-13T13:58:02.849Z",
+  "events": [
+    {
+      "id": "tle-61c9b59ad6471c8b065c1101",
+      "eventDate": "2026-08-12",
+      "eventDateType": "announcement_date",
+      "title": "Click released Click (YC S26) - a research service for ChatGPT & Claude",
+      "summary": "Launching Click (YC S26) - a research service for ChatGPT & Claude.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-7696ee0b71d7ccd1cb1d02b3",
+          "title": "Launching Click (YC S26) - a research service for ChatGPT & Claude.",
+          "publisher": "adiasg",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-08-12T19:38:52.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/adiasg/status/2087624881299148959"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-08",
+          "count": 1
+        }
+      ]
+    }
+  ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 0,
-    "lastSuccessfulArtifactAt": "2026-08-13T06:23:55.800Z"
+    "publishedEventCount": 1,
+    "lastSuccessfulArtifactAt": "2026-08-13T13:58:02.849Z"
   },
   "nextCursor": null
 }

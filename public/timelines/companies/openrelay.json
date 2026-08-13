@@ -5,8 +5,8 @@
     "slug": "openrelay",
     "name": "OpenRelay"
   },
-  "generatedAt": "2026-08-13T06:23:55.800Z",
-  "lastModifiedAt": "2026-08-13T06:23:55.800Z",
+  "generatedAt": "2026-08-13T13:58:02.849Z",
+  "lastModifiedAt": "2026-08-13T13:58:02.849Z",
   "events": [
     {
       "id": "tle-80d5cd8c6cdb8eae7dfe8ff4",
@@ -31,6 +31,30 @@
           "url": "https://x.com/openrelayinc/status/2085827799366173094"
         }
       ]
+    },
+    {
+      "id": "tle-d31d383ed101548e19ecec58",
+      "eventDate": "2026-08-06",
+      "eventDateType": "announcement_date",
+      "title": "OpenRelay released OpenRelay Launch",
+      "summary": "OpenRelay Launch.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-fb6e064aaa7eba9fd4aa5233",
+          "title": "OpenRelay Launch",
+          "publisher": "OpenRelay Launch",
+          "domain": "youtube.com",
+          "sourceType": "video",
+          "publishedAt": "2026-08-05T17:39:41-07:00",
+          "evidenceRole": "primary",
+          "url": "https://youtube.com/watch?v=7uNhqcjBXJg"
+        }
+      ]
     }
   ],
   "groups": [
@@ -39,15 +63,15 @@
       "months": [
         {
           "month": "2026-08",
-          "count": 1
+          "count": 2
         }
       ]
     }
   ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-08-13T06:23:55.800Z"
+    "publishedEventCount": 2,
+    "lastSuccessfulArtifactAt": "2026-08-13T13:58:02.849Z"
   },
   "nextCursor": null
 }

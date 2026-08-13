@@ -1,0 +1,67 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-vestris",
+    "slug": "vestris",
+    "name": "Vestris"
+  },
+  "event": {
+    "id": "tle-e8ff01208612cddcdee97686",
+    "eventDate": "2026-08-05",
+    "eventDateType": "announcement_date",
+    "title": "Vestris announced its public launch",
+    "summary": "Vestris announced its public launch in a dated company video.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-0e8cb6a65202d3d247b1ecf3",
+        "title": "Vestris Launch Video",
+        "publisher": "Vestris Launch Video",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-08-05T12:49:49-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=u2do97AOvQY"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-0e8cb6a65202d3d247b1ecf3",
+        "title": "Vestris Launch Video",
+        "publisher": "Vestris Launch Video",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-08-05T12:49:49-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=u2do97AOvQY",
+        "publicationDate": "2026-08-05T12:49:49-07:00",
+        "excerpt": "Embedded in the official Vestris YC company page.",
+        "sourceEventDate": "2026-08-05",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-fc179feb9b38d2bbdb1ebf90",
+        "platform": "youtube",
+        "account": "Vestris Launch Video",
+        "postDate": "2026-08-05",
+        "excerpt": "Embedded in the official Vestris YC company page.",
+        "url": "https://youtube.com/watch?v=u2do97AOvQY",
+        "metrics": {
+          "views": 73,
+          "likes": 2,
+          "comments": 0
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-13T13:58:02.849Z",
+  "lastModifiedAt": "2026-08-13T13:58:02.849Z"
+}

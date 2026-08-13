@@ -104,7 +104,7 @@
         "excerpt": "Launch HN: ProvenMetal (YC S26) delivers circuit boards in days instead of weeks",
         "url": "https://news.ycombinator.com/item?id=49198464",
         "metrics": {
-          "upvotes": 236,
+          "upvotes": 237,
           "comments": 156
         },
         "evidenceRole": "primary"
@@ -133,7 +133,7 @@
         "excerpt": "Embedded in the official ProvenMetal YC company page.",
         "url": "https://youtube.com/watch?v=TH0XImuvNbc",
         "metrics": {
-          "views": 257,
+          "views": 305,
           "likes": 0,
           "comments": 0
         },
@@ -141,6 +141,6 @@
       }
     ]
   },
-  "generatedAt": "2026-08-13T06:23:55.800Z",
-  "lastModifiedAt": "2026-08-13T06:23:55.800Z"
+  "generatedAt": "2026-08-13T13:58:02.849Z",
+  "lastModifiedAt": "2026-08-13T13:58:02.849Z"
 }

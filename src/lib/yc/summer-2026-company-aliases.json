@@ -360,6 +360,48 @@
           "https://www.linkedin.com/in/hamze-al-zamkan/"
         ]
       }
+    },
+    {
+      "companyId": "33046",
+      "companySlug": "carsignal",
+      "companyName": "CarSignal",
+      "founderId": "3485129",
+      "change": "added",
+      "fromName": null,
+      "toName": "Junaid Popalzai",
+      "accounts": {
+        "linkedin": [
+          "https://www.linkedin.com/in/junaid-popalzai-8b3753273"
+        ]
+      }
+    },
+    {
+      "companyId": "32815",
+      "companySlug": "trynearby",
+      "companyName": "TryNearby",
+      "founderId": "426164",
+      "change": "added",
+      "fromName": null,
+      "toName": "Obaida Albaroudi",
+      "accounts": {
+        "linkedin": [
+          "https://www.linkedin.com/in/obaida-a-b7b366279"
+        ]
+      }
+    },
+    {
+      "companyId": "32815",
+      "companySlug": "trynearby",
+      "companyName": "TryNearby",
+      "founderId": "2518184",
+      "change": "added",
+      "fromName": null,
+      "toName": "Ahmad Ibrahim",
+      "accounts": {
+        "linkedin": [
+          "https://www.linkedin.com/in/ahmibrahim97/"
+        ]
+      }
     }
   ]
 }

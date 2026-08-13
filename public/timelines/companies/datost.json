@@ -5,8 +5,8 @@
     "slug": "datost",
     "name": "Datost"
   },
-  "generatedAt": "2026-08-13T06:23:55.800Z",
-  "lastModifiedAt": "2026-08-13T06:23:55.800Z",
+  "generatedAt": "2026-08-13T13:58:02.849Z",
+  "lastModifiedAt": "2026-08-13T13:58:02.849Z",
   "events": [
     {
       "id": "tle-f54d557607fd3e0af9adee2e",
@@ -23,7 +23,7 @@
         {
           "id": "src-6397145759fa5cfe7493e745",
           "title": "Datost - Y-combinator - Launch Video",
-          "publisher": "Datost",
+          "publisher": "Datost - Y-combinator - Launch Video",
           "domain": "youtube.com",
           "sourceType": "video",
           "publishedAt": "2026-04-15T12:37:28-07:00",
@@ -47,7 +47,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-08-13T06:23:55.800Z"
+    "lastSuccessfulArtifactAt": "2026-08-13T13:58:02.849Z"
   },
   "nextCursor": null
 }

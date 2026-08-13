@@ -79,7 +79,7 @@
         "excerpt": "ZeroDrift Command is live. It's a control center for enterprise developers to connect their AI communication systems and enforce compliance in real time, every email, chat, and reply checked against your policies and regulations before it goes out. Corey Hobbs (Founding Principal PM) walks through the product: create a workspace, pick a managed rulebook like SEC or FINRA or upload your own policy document, and connect your traffic. Policy Studio turns your policies into enforceable rules, and…",
         "url": "https://youtube.com/watch?v=7NjUZp_IW-k",
         "metrics": {
-          "views": 44
+          "views": 50
         },
         "evidenceRole": "primary"
       },
@@ -97,6 +97,6 @@
       }
     ]
   },
-  "generatedAt": "2026-08-13T06:23:55.800Z",
-  "lastModifiedAt": "2026-08-13T06:23:55.800Z"
+  "generatedAt": "2026-08-13T13:58:02.849Z",
+  "lastModifiedAt": "2026-08-13T13:58:02.849Z"
 }

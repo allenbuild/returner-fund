@@ -12,8 +12,8 @@
         "catalog": "src/lib/social/a16z-speedrun-006-social-accounts.json",
         "profileSource": "src/lib/graph/a16z-speedrun-006-dataset.ts",
         "graph": "public/graph/a16zsr006.json",
-        "publicRun": "/home/runner/work/returner-fund/returner-fund/work/autonomous-ingestion/central-2026-08-12-0600-b99150be9c0cdf01/public-a16zsr006.json",
-        "githubRun": "/home/runner/work/returner-fund/returner-fund/work/autonomous-ingestion/central-2026-08-12-0600-b99150be9c0cdf01/github-a16zsr006.json"
+        "publicRun": "/Users/allenxu/returner-fund-actions-runner/_work/returner-fund/returner-fund/work/autonomous-ingestion/central-2026-08-13-0600-4216ca599faaee70/public-a16zsr006.json",
+        "githubRun": "/Users/allenxu/returner-fund-actions-runner/_work/returner-fund/returner-fund/work/autonomous-ingestion/central-2026-08-13-0600-4216ca599faaee70/github-a16zsr006.json"
       },
       "counts": {
         "companies": 59,
@@ -24,7 +24,7 @@
         "plannedOwnerMappings": 339,
         "multiAccountOwnerMappings": 4,
         "graphEvidence": 5000,
-        "graphNeedsReview": 2368
+        "graphNeedsReview": 2378
       },
       "structural": {
         "status": "pass",
@@ -828,8 +828,8 @@
         "catalog": "src/lib/yc/spring-2026-companies.json",
         "profileSource": null,
         "graph": "public/graph/s2026.json",
-        "publicRun": "/home/runner/work/returner-fund/returner-fund/work/autonomous-ingestion/central-2026-08-12-0600-b99150be9c0cdf01/public-s2026.json",
-        "githubRun": "/home/runner/work/returner-fund/returner-fund/work/autonomous-ingestion/central-2026-08-12-0600-b99150be9c0cdf01/github-s2026.json"
+        "publicRun": "/Users/allenxu/returner-fund-actions-runner/_work/returner-fund/returner-fund/work/autonomous-ingestion/central-2026-08-13-0600-4216ca599faaee70/public-s2026.json",
+        "githubRun": "/Users/allenxu/returner-fund-actions-runner/_work/returner-fund/returner-fund/work/autonomous-ingestion/central-2026-08-13-0600-4216ca599faaee70/github-s2026.json"
       },
       "counts": {
         "companies": 197,
@@ -840,7 +840,7 @@
         "plannedOwnerMappings": 994,
         "multiAccountOwnerMappings": 1,
         "graphEvidence": 5000,
-        "graphNeedsReview": 9903
+        "graphNeedsReview": 9914
       },
       "structural": {
         "status": "pass",
@@ -1306,11 +1306,6 @@
           {
             "entityId": "company-savant",
             "name": "Savant",
-            "companyName": null
-          },
-          {
-            "entityId": "company-textsidekick",
-            "name": "Sidekick",
             "companyName": null
           },
           {
@@ -1833,11 +1828,6 @@
             "companyName": null
           },
           {
-            "entityId": "company-textsidekick",
-            "name": "Sidekick",
-            "companyName": null
-          },
-          {
             "entityId": "company-standard-signal",
             "name": "Standard Signal",
             "companyName": null
@@ -2308,19 +2298,19 @@
         "catalog": "src/lib/yc/summer-2026-companies.json",
         "profileSource": null,
         "graph": "public/graph/s26.json",
-        "publicRun": "/home/runner/work/returner-fund/returner-fund/work/autonomous-ingestion/central-2026-08-12-0600-b99150be9c0cdf01/public-s26.json",
-        "githubRun": "/home/runner/work/returner-fund/returner-fund/work/autonomous-ingestion/central-2026-08-12-0600-b99150be9c0cdf01/github-s26.json"
+        "publicRun": "/Users/allenxu/returner-fund-actions-runner/_work/returner-fund/returner-fund/work/autonomous-ingestion/central-2026-08-13-0600-4216ca599faaee70/public-s26.json",
+        "githubRun": "/Users/allenxu/returner-fund-actions-runner/_work/returner-fund/returner-fund/work/autonomous-ingestion/central-2026-08-13-0600-4216ca599faaee70/github-s26.json"
       },
       "counts": {
-        "companies": 203,
-        "founders": 398,
-        "catalogOwnerMappings": 988,
-        "graphOwnerMappings": 984,
-        "catalogOwnerPlatformGroups": 988,
-        "plannedOwnerMappings": 988,
+        "companies": 213,
+        "founders": 416,
+        "catalogOwnerMappings": 1028,
+        "graphOwnerMappings": 1024,
+        "catalogOwnerPlatformGroups": 1028,
+        "plannedOwnerMappings": 1028,
         "multiAccountOwnerMappings": 0,
         "graphEvidence": 5000,
-        "graphNeedsReview": 7733
+        "graphNeedsReview": 7800
       },
       "structural": {
         "status": "pass",
@@ -2416,40 +2406,40 @@
         "multiAccountOwnerMappings": [],
         "mappingCoverage": {
           "github": {
-            "companyMapped": 39,
-            "companyMissing": 164,
+            "companyMapped": 40,
+            "companyMissing": 173,
             "founderMapped": 1,
-            "founderMissing": 397
+            "founderMissing": 415
           },
           "instagram": {
             "companyMapped": 7,
-            "companyMissing": 196,
+            "companyMissing": 206,
             "founderMapped": 0,
-            "founderMissing": 398
+            "founderMissing": 416
           },
           "linkedin": {
-            "companyMapped": 183,
-            "companyMissing": 20,
-            "founderMapped": 394,
+            "companyMapped": 191,
+            "companyMissing": 22,
+            "founderMapped": 412,
             "founderMissing": 4
           },
           "product_hunt": {
             "companyMapped": 5,
-            "companyMissing": 198,
+            "companyMissing": 208,
             "founderMapped": 0,
-            "founderMissing": 398
+            "founderMissing": 416
           },
           "x": {
-            "companyMapped": 117,
-            "companyMissing": 86,
-            "founderMapped": 230,
-            "founderMissing": 168
+            "companyMapped": 120,
+            "companyMissing": 93,
+            "founderMapped": 240,
+            "founderMissing": 176
           },
           "youtube": {
             "companyMapped": 11,
-            "companyMissing": 192,
+            "companyMissing": 202,
             "founderMapped": 0,
-            "founderMissing": 398
+            "founderMissing": 416
           }
         },
         "noMappedAccounts": [
@@ -2471,6 +2461,11 @@
           {
             "entityId": "company-carsignal",
             "name": "CarSignal",
+            "companyName": null
+          },
+          {
+            "entityId": "company-dipole-labs",
+            "name": "Dipole Labs",
             "companyName": null
           },
           {
@@ -2514,6 +2509,11 @@
             "companyName": null
           },
           {
+            "entityId": "company-princeps",
+            "name": "PRINCEPS",
+            "companyName": null
+          },
+          {
             "entityId": "company-riften",
             "name": "Riften",
             "companyName": null
@@ -2546,8 +2546,13 @@
             "companyName": null
           },
           {
-            "entityId": "company-derya",
-            "name": "Derya",
+            "entityId": "company-dipole-labs",
+            "name": "Dipole Labs",
+            "companyName": null
+          },
+          {
+            "entityId": "company-familiar",
+            "name": "Familiar",
             "companyName": null
           },
           {
@@ -2571,8 +2576,8 @@
             "companyName": null
           },
           {
-            "entityId": "company-shielded",
-            "name": "Shielded",
+            "entityId": "company-tovenai",
+            "name": "TovenAI",
             "companyName": null
           },
           {
@@ -2588,8 +2593,13 @@
             "companyName": null
           },
           {
-            "entityId": "company-derya",
-            "name": "Derya",
+            "entityId": "company-dipole-labs",
+            "name": "Dipole Labs",
+            "companyName": null
+          },
+          {
+            "entityId": "company-familiar",
+            "name": "Familiar",
             "companyName": null
           },
           {
@@ -2613,8 +2623,8 @@
             "companyName": null
           },
           {
-            "entityId": "company-shielded",
-            "name": "Shielded",
+            "entityId": "company-tovenai",
+            "name": "TovenAI",
             "companyName": null
           },
           {
@@ -2624,11 +2634,6 @@
           }
         ],
         "zeroOwnNativeEvidenceCompanies": [
-          {
-            "entityId": "company-agent-fm",
-            "name": "Agent FM",
-            "companyName": null
-          },
           {
             "entityId": "company-aktoria-robotics",
             "name": "Aktoria Robotics",
@@ -2650,11 +2655,6 @@
             "companyName": null
           },
           {
-            "entityId": "company-axelrod",
-            "name": "Axelrod",
-            "companyName": null
-          },
-          {
             "entityId": "company-baud",
             "name": "Baud",
             "companyName": null
@@ -2670,13 +2670,13 @@
             "companyName": null
           },
           {
-            "entityId": "company-decawork",
-            "name": "Decawork",
+            "entityId": "company-deepreach-inc",
+            "name": "DeepReach Inc.",
             "companyName": null
           },
           {
-            "entityId": "company-derya",
-            "name": "Derya",
+            "entityId": "company-dipole-labs",
+            "name": "Dipole Labs",
             "companyName": null
           },
           {
@@ -2685,23 +2685,13 @@
             "companyName": null
           },
           {
-            "entityId": "company-enact",
-            "name": "Enact",
+            "entityId": "company-familiar",
+            "name": "Familiar",
             "companyName": null
           },
           {
             "entityId": "company-floracene",
             "name": "Floracene",
-            "companyName": null
-          },
-          {
-            "entityId": "company-florin",
-            "name": "Florin",
-            "companyName": null
-          },
-          {
-            "entityId": "company-gamgee",
-            "name": "Gamgee",
             "companyName": null
           },
           {
@@ -2725,13 +2715,8 @@
             "companyName": null
           },
           {
-            "entityId": "company-locke",
-            "name": "Locke",
-            "companyName": null
-          },
-          {
-            "entityId": "company-maingen",
-            "name": "Maingen",
+            "entityId": "company-magma",
+            "name": "Magma",
             "companyName": null
           },
           {
@@ -2740,8 +2725,18 @@
             "companyName": null
           },
           {
-            "entityId": "company-molagri",
-            "name": "Molagri",
+            "entityId": "company-mentlio",
+            "name": "Mentlio",
+            "companyName": null
+          },
+          {
+            "entityId": "company-meteoric",
+            "name": "Meteoric",
+            "companyName": null
+          },
+          {
+            "entityId": "company-mochitv",
+            "name": "MOCHI.TV",
             "companyName": null
           },
           {
@@ -2760,18 +2755,18 @@
             "companyName": null
           },
           {
-            "entityId": "company-pacific",
-            "name": "Pacific",
-            "companyName": null
-          },
-          {
             "entityId": "company-peer",
             "name": "Peer",
             "companyName": null
           },
           {
-            "entityId": "company-praxis-ai-2",
-            "name": "Praxis AI",
+            "entityId": "company-pennant",
+            "name": "Pennant",
+            "companyName": null
+          },
+          {
+            "entityId": "company-princeps",
+            "name": "PRINCEPS",
             "companyName": null
           },
           {
@@ -2792,16 +2787,6 @@
           {
             "entityId": "company-ronanrx-inc",
             "name": "RonanRx Inc.",
-            "companyName": null
-          },
-          {
-            "entityId": "company-shielded",
-            "name": "Shielded",
-            "companyName": null
-          },
-          {
-            "entityId": "company-shiraz-ai",
-            "name": "Shiraz AI",
             "companyName": null
           },
           {
@@ -2835,6 +2820,11 @@
             "companyName": null
           },
           {
+            "entityId": "company-tovenai",
+            "name": "TovenAI",
+            "companyName": null
+          },
+          {
             "entityId": "company-trynearby",
             "name": "TryNearby",
             "companyName": null
@@ -2847,11 +2837,6 @@
           {
             "entityId": "company-verdict-machine",
             "name": "Verdict Machine",
-            "companyName": null
-          },
-          {
-            "entityId": "company-vestris",
-            "name": "Vestris",
             "companyName": null
           },
           {
@@ -2972,6 +2957,11 @@
             "companyName": "Bizmark"
           },
           {
+            "entityId": "founder-carsignal-junaid-popalzai-3485129",
+            "name": "Junaid Popalzai",
+            "companyName": "CarSignal"
+          },
+          {
             "entityId": "founder-caution-lance-vick-52788",
             "name": "Lance Vick",
             "companyName": "Caution"
@@ -3032,6 +3022,16 @@
             "companyName": "Dialogus"
           },
           {
+            "entityId": "founder-dipole-labs-deepankur-thureja-3178902",
+            "name": "Deepankur Thureja",
+            "companyName": "Dipole Labs"
+          },
+          {
+            "entityId": "founder-dipole-labs-gabriele-pasquale-3179632",
+            "name": "Gabriele Pasquale",
+            "companyName": "Dipole Labs"
+          },
+          {
             "entityId": "founder-donkey-benjamin-martindale-3038319",
             "name": "Benjamin Martindale",
             "companyName": "Donkey"
@@ -3075,6 +3075,11 @@
             "entityId": "founder-fabraix-ibrahim-abdu-2769430",
             "name": "ibrahim abdu",
             "companyName": "Fabraix"
+          },
+          {
+            "entityId": "founder-familiar-mingi-kwon-3891491",
+            "name": "Mingi Kwon",
+            "companyName": "Familiar"
           },
           {
             "entityId": "founder-floracene-asaph-kupferman-3605405",
@@ -3242,14 +3247,19 @@
             "companyName": "Manifold"
           },
           {
-            "entityId": "founder-marengo-emil-ares-3204597",
-            "name": "Emil Ares",
-            "companyName": "Marengo"
-          },
-          {
             "entityId": "founder-marengo-gad-marconi-3410964",
             "name": "Gad Marconi",
             "companyName": "Marengo"
+          },
+          {
+            "entityId": "founder-mentlio-ahmet-demirbas-2587306",
+            "name": "Ahmet Demirbas",
+            "companyName": "Mentlio"
+          },
+          {
+            "entityId": "founder-meteoric-eric-nilsson-2007524",
+            "name": "Eric Nilsson",
+            "companyName": "Meteoric"
           },
           {
             "entityId": "founder-molagri-min-jin-3659967",
@@ -3330,6 +3340,11 @@
             "entityId": "founder-peer-felix-peng-2597858",
             "name": "Felix Peng",
             "companyName": "Peer"
+          },
+          {
+            "entityId": "founder-pennant-ryan-nowicki-stewart-3388610",
+            "name": "Ryan Nowicki Stewart",
+            "companyName": "Pennant"
           },
           {
             "entityId": "founder-perceptron-ml-michael-marcotte-3087509",
@@ -3502,6 +3517,16 @@
             "companyName": "Touchmark"
           },
           {
+            "entityId": "founder-tovenai-batu-balci-695373",
+            "name": "Batu Balci",
+            "companyName": "TovenAI"
+          },
+          {
+            "entityId": "founder-tovenai-sam-turchetta-2817439",
+            "name": "Sam Turchetta",
+            "companyName": "TovenAI"
+          },
+          {
             "entityId": "founder-traceforce-varun-wadhwa-3675843",
             "name": "Varun Wadhwa",
             "companyName": "Traceforce"
@@ -3515,6 +3540,16 @@
             "entityId": "founder-trident-junaid-mahmood-2758911",
             "name": "Junaid Mahmood",
             "companyName": "Trident"
+          },
+          {
+            "entityId": "founder-trynearby-ahmad-ibrahim-2518184",
+            "name": "Ahmad Ibrahim",
+            "companyName": "TryNearby"
+          },
+          {
+            "entityId": "founder-trynearby-obaida-albaroudi-426164",
+            "name": "Obaida Albaroudi",
+            "companyName": "TryNearby"
           },
           {
             "entityId": "founder-ultrasonium-chris-carter-1892793",
@@ -3584,11 +3619,6 @@
         ],
         "reviewOnlyCompanies": [
           {
-            "entityId": "company-agent-fm",
-            "name": "Agent FM",
-            "companyName": null
-          },
-          {
             "entityId": "company-aktoria-robotics",
             "name": "Aktoria Robotics",
             "companyName": null
@@ -3609,11 +3639,6 @@
             "companyName": null
           },
           {
-            "entityId": "company-axelrod",
-            "name": "Axelrod",
-            "companyName": null
-          },
-          {
             "entityId": "company-baud",
             "name": "Baud",
             "companyName": null
@@ -3629,13 +3654,13 @@
             "companyName": null
           },
           {
-            "entityId": "company-decawork",
-            "name": "Decawork",
+            "entityId": "company-deepreach-inc",
+            "name": "DeepReach Inc.",
             "companyName": null
           },
           {
-            "entityId": "company-derya",
-            "name": "Derya",
+            "entityId": "company-dipole-labs",
+            "name": "Dipole Labs",
             "companyName": null
           },
           {
@@ -3644,23 +3669,13 @@
             "companyName": null
           },
           {
-            "entityId": "company-enact",
-            "name": "Enact",
+            "entityId": "company-familiar",
+            "name": "Familiar",
             "companyName": null
           },
           {
             "entityId": "company-floracene",
             "name": "Floracene",
-            "companyName": null
-          },
-          {
-            "entityId": "company-florin",
-            "name": "Florin",
-            "companyName": null
-          },
-          {
-            "entityId": "company-gamgee",
-            "name": "Gamgee",
             "companyName": null
           },
           {
@@ -3684,13 +3699,8 @@
             "companyName": null
           },
           {
-            "entityId": "company-locke",
-            "name": "Locke",
-            "companyName": null
-          },
-          {
-            "entityId": "company-maingen",
-            "name": "Maingen",
+            "entityId": "company-magma",
+            "name": "Magma",
             "companyName": null
           },
           {
@@ -3699,8 +3709,18 @@
             "companyName": null
           },
           {
-            "entityId": "company-molagri",
-            "name": "Molagri",
+            "entityId": "company-mentlio",
+            "name": "Mentlio",
+            "companyName": null
+          },
+          {
+            "entityId": "company-meteoric",
+            "name": "Meteoric",
+            "companyName": null
+          },
+          {
+            "entityId": "company-mochitv",
+            "name": "MOCHI.TV",
             "companyName": null
           },
           {
@@ -3719,18 +3739,18 @@
             "companyName": null
           },
           {
-            "entityId": "company-pacific",
-            "name": "Pacific",
-            "companyName": null
-          },
-          {
             "entityId": "company-peer",
             "name": "Peer",
             "companyName": null
           },
           {
-            "entityId": "company-praxis-ai-2",
-            "name": "Praxis AI",
+            "entityId": "company-pennant",
+            "name": "Pennant",
+            "companyName": null
+          },
+          {
+            "entityId": "company-princeps",
+            "name": "PRINCEPS",
             "companyName": null
           },
           {
@@ -3751,16 +3771,6 @@
           {
             "entityId": "company-ronanrx-inc",
             "name": "RonanRx Inc.",
-            "companyName": null
-          },
-          {
-            "entityId": "company-shielded",
-            "name": "Shielded",
-            "companyName": null
-          },
-          {
-            "entityId": "company-shiraz-ai",
-            "name": "Shiraz AI",
             "companyName": null
           },
           {
@@ -3794,6 +3804,11 @@
             "companyName": null
           },
           {
+            "entityId": "company-tovenai",
+            "name": "TovenAI",
+            "companyName": null
+          },
+          {
             "entityId": "company-trynearby",
             "name": "TryNearby",
             "companyName": null
@@ -3806,11 +3821,6 @@
           {
             "entityId": "company-verdict-machine",
             "name": "Verdict Machine",
-            "companyName": null
-          },
-          {
-            "entityId": "company-vestris",
-            "name": "Vestris",
             "companyName": null
           },
           {
@@ -4151,6 +4161,16 @@
             "companyName": "Manifold"
           },
           {
+            "entityId": "founder-marengo-gad-marconi-3410964",
+            "name": "Gad Marconi",
+            "companyName": "Marengo"
+          },
+          {
+            "entityId": "founder-meteoric-eric-nilsson-2007524",
+            "name": "Eric Nilsson",
+            "companyName": "Meteoric"
+          },
+          {
             "entityId": "founder-molagri-min-jin-3659967",
             "name": "Min Jin",
             "companyName": "Molagri"
@@ -4329,6 +4349,16 @@
             "entityId": "founder-touchmark-roman-yanushevskyi-3532865",
             "name": "Roman Yanushevskyi",
             "companyName": "Touchmark"
+          },
+          {
+            "entityId": "founder-tovenai-batu-balci-695373",
+            "name": "Batu Balci",
+            "companyName": "TovenAI"
+          },
+          {
+            "entityId": "founder-tovenai-sam-turchetta-2817439",
+            "name": "Sam Turchetta",
+            "companyName": "TovenAI"
           },
           {
             "entityId": "founder-traceforce-varun-wadhwa-3675843",

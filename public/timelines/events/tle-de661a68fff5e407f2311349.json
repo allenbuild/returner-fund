@@ -1,0 +1,67 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-pacific",
+    "slug": "pacific",
+    "name": "Pacific"
+  },
+  "event": {
+    "id": "tle-de661a68fff5e407f2311349",
+    "eventDate": "2026-08-12",
+    "eventDateType": "announcement_date",
+    "title": "Pacific launched on Y Combinator",
+    "summary": "Pacific - Y Combinator Launch.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-dc1db8923787d86026d70e26",
+        "title": "Pacific - Y Combinator Launch",
+        "publisher": "Pacific - Y Combinator Launch",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-08-11T18:35:53-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=rf8cCV6qFow"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-dc1db8923787d86026d70e26",
+        "title": "Pacific - Y Combinator Launch",
+        "publisher": "Pacific - Y Combinator Launch",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-08-11T18:35:53-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=rf8cCV6qFow",
+        "publicationDate": "2026-08-11T18:35:53-07:00",
+        "excerpt": "Pacific (YC S26) mass-produces and deploys micro data centers for Earth and space, faster than anyone else. New data centers wait years for grid connections, meanwhile, delayed construction projects across America sit on live, unused interconnects, losing $1B a week in interest on debt. The power is built and paid for but unused; so we turn it into an AI factory. Our first two sites go live this month with a factory to follow and $105M in future delivery contracts. Pacific's pods land on those…",
+        "sourceEventDate": "2026-08-12",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-371c702c60b5af58f0548baa",
+        "platform": "youtube",
+        "account": "Pacific - Y Combinator Launch",
+        "postDate": "2026-08-12",
+        "excerpt": "Pacific (YC S26) mass-produces and deploys micro data centers for Earth and space, faster than anyone else. New data centers wait years for grid connections, meanwhile, delayed construction projects across America sit on live, unused interconnects, losing $1B a week in interest on debt. The power is built and paid for but unused; so we turn it into an AI factory. Our first two sites go live this month with a factory to follow and $105M in future delivery contracts. Pacific's pods land on those…",
+        "url": "https://youtube.com/watch?v=rf8cCV6qFow",
+        "metrics": {
+          "views": 29,
+          "likes": 0,
+          "comments": 0
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-13T13:58:02.849Z",
+  "lastModifiedAt": "2026-08-13T13:58:02.849Z"
+}
