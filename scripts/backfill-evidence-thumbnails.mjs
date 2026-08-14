@@ -85,7 +85,7 @@ for (const relativePath of selectedEvidenceFiles) {
       pending.splice(0, pending.length).map(async (item) => ({ item, resolved: await resolveThumbnailForItem(item, args) }))
     );
     for (const { item, resolved } of resolvedRows) {
-      const patched = applyResolvedPatch(item, resolved);
+      const patched = applyResolvedPatch(item, resolved, snapshot.source?.fetchedAt);
       if (!resolved.thumbnailUrl && !patched) {
         continue;
       }
@@ -341,19 +341,31 @@ async function resolveThumbnailForItem(item, args) {
   };
 }
 
-function applyResolvedPatch(item, resolved) {
+function applyResolvedPatch(item, resolved, sourceObservedAt) {
   if (!resolved.patch) {
     return false;
   }
 
   let changed = false;
   for (const [key, value] of Object.entries(resolved.patch)) {
-    if (item[key] !== value) {
-      item[key] = value;
+    const safeValue = key === "linkCheckedAt"
+      ? clampTimestampToSource(value, sourceObservedAt)
+      : value;
+    if (item[key] !== safeValue) {
+      item[key] = safeValue;
       changed = true;
     }
   }
   return changed;
+}
+
+function clampTimestampToSource(value, sourceObservedAt) {
+  const valueMs = Date.parse(String(value || ""));
+  const sourceMs = Date.parse(String(sourceObservedAt || ""));
+  if (!Number.isFinite(valueMs) || !Number.isFinite(sourceMs) || valueMs <= sourceMs) {
+    return value;
+  }
+  return sourceObservedAt;
 }
 
 function resolveThumbnail(item) {

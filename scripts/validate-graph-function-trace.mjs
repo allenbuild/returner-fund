@@ -6,17 +6,17 @@ const MEBIBYTE = 1024 * 1024;
 // catalog and its reconciled evidence projection. Keep headroom above the
 // measured graph trace without permitting repository-wide data leakage.
 const MAX_TRACE_BYTES = 75 * MEBIBYTE;
-// The current volume projection is 62.4 MiB and the full diagnostics route
-// traces 144.3 MiB locally. Keep a bounded route-specific ceiling with
+// The complete volume projection is now 72.3 MiB and the full diagnostics
+// route traces 158.8 MiB locally. Keep a bounded route-specific ceiling with
 // measurable headroom rather than failing the production build on the old
 // 140 MiB threshold.
-const MAX_FULL_GRAPH_TRACE_BYTES = 150 * MEBIBYTE;
+const MAX_FULL_GRAPH_TRACE_BYTES = 170 * MEBIBYTE;
 // Vercel traces both the glibc and musl Sharp binary families for these
 // server-rendered debug pages, while local macOS builds trace one native
-// family. The complete verified volume projection adds roughly 65 MiB to the
+// family. The complete verified volume projection adds roughly 75 MiB to the
 // graph runtime, so keep a route-specific ceiling below the platform limit
 // while leaving room for the platform-native Sharp delta.
-const MAX_DEBUG_TRACE_BYTES = 170 * MEBIBYTE;
+const MAX_DEBUG_TRACE_BYTES = 190 * MEBIBYTE;
 // The refresh route intentionally carries the nine static graph fallbacks and
 // the complete volume projection. Keep a separate ceiling below the platform
 // function budget for those release-time refresh inputs.
