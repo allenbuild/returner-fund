@@ -5,8 +5,8 @@
     "slug": "trope",
     "name": "Trope"
   },
-  "generatedAt": "2026-08-13T13:58:02.849Z",
-  "lastModifiedAt": "2026-08-13T13:58:02.849Z",
+  "generatedAt": "2026-08-14T01:51:39.229Z",
+  "lastModifiedAt": "2026-08-14T01:51:39.229Z",
   "events": [
     {
       "id": "tle-fd7548f0c9c74dd6ecad769f",
@@ -21,14 +21,14 @@
       "evidenceCount": 1,
       "sourcePreview": [
         {
-          "id": "src-58fcdf2c9bbfc0d681aa76e9",
+          "id": "src-17b18714a06c621b4d196aca",
           "title": "Trope (YC S26) Launch Video",
-          "publisher": "Trope (YC S26) Launch Video",
+          "publisher": "Trope",
           "domain": "youtube.com",
           "sourceType": "video",
           "publishedAt": "2026-07-08T02:18:40-07:00",
           "evidenceRole": "primary",
-          "url": "https://youtube.com/watch?v=mhDiw0nKB34"
+          "url": "https://www.youtube.com/watch?v=mhDiw0nKB34"
         }
       ]
     }
@@ -47,7 +47,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-08-13T13:58:02.849Z"
+    "lastSuccessfulArtifactAt": "2026-08-14T01:51:39.229Z"
   },
   "nextCursor": null
 }

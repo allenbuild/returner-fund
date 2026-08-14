@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-financial-datasets",
+    "slug": "financial-datasets",
+    "name": "Financial Datasets"
+  },
+  "event": {
+    "id": "tle-aca64ac86a6523542b6e60f4",
+    "eventDate": "2026-08-13",
+    "eventDateType": "announcement_date",
+    "title": "Financial Datasets released Industry and Sector classifier",
+    "summary": "Financial Datasets introduced our Industry and Sector classifier.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-7ffb4810a81a0426e0d90345",
+        "title": "Introducing our Industry and Sector classifier.",
+        "publisher": "findatasets",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-08-13T19:15:15.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/findatasets/status/2087981326439780513"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-7ffb4810a81a0426e0d90345",
+        "title": "Introducing our Industry and Sector classifier.",
+        "publisher": "findatasets",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-08-13T19:15:15.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/findatasets/status/2087981326439780513",
+        "publicationDate": "2026-08-13T19:15:15.000Z",
+        "excerpt": "Introducing our Industry and Sector classifier. Your agent can now pull every ticker in an industry without a third-party mapping. 10,000+ tickers. 10+ sectors. 70+ industries.",
+        "sourceEventDate": "2026-08-13",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-0cf5e38f540df4ae0dc84a13",
+        "platform": "x",
+        "account": "findatasets",
+        "postDate": "2026-08-13",
+        "excerpt": "Introducing our Industry and Sector classifier. Your agent can now pull every ticker in an industry without a third-party mapping. 10,000+ tickers. 10+ sectors. 70+ industries.",
+        "url": "https://x.com/findatasets/status/2087981326439780513",
+        "metrics": {
+          "likes": 68,
+          "reposts": 0,
+          "replies": 1,
+          "views": 33208
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-14T01:51:39.229Z",
+  "lastModifiedAt": "2026-08-14T01:51:39.229Z"
+}

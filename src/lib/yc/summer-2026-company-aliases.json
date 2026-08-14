@@ -402,6 +402,37 @@
           "https://www.linkedin.com/in/ahmibrahim97/"
         ]
       }
+    },
+    {
+      "companyId": "32987",
+      "companySlug": "familiar",
+      "companyName": "Familiar",
+      "founderId": "3406561",
+      "change": "added",
+      "fromName": null,
+      "toName": "An Zhu Liu",
+      "accounts": {
+        "linkedin": [
+          "https://www.linkedin.com/in/an-zhu"
+        ],
+        "x": [
+          "https://x.com/an_zhu_liu"
+        ]
+      }
+    },
+    {
+      "companyId": "33278",
+      "companySlug": "princeps",
+      "companyName": "PRINCEPS",
+      "founderId": "3685149",
+      "change": "added",
+      "fromName": null,
+      "toName": "Conrad Frøyland Moe",
+      "accounts": {
+        "linkedin": [
+          "https://www.linkedin.com/in/conrad-fr%C3%B8yland-moe-7950b1229/"
+        ]
+      }
     }
   ]
 }

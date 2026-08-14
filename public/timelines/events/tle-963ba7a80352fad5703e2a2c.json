@@ -54,7 +54,7 @@
         "excerpt": "Check out: https://www.ycombinator.com/launches/Sbn-osseus-the-intelligent-development-platform-for-robotics https://osseus.ai Osseus is the intelligent development platform for robotics. It plugs into the tools a team already uses - CAD, ECAD, GitHub, Jira, docs, messaging, and test runs - creating a live dependency graph of their entire robot stack. It automatically builds and maintains the relationships between every part, board, requirement, test, and decision. When a hardware change is…",
         "url": "https://youtube.com/watch?v=tEpkmA42fSA",
         "metrics": {
-          "views": 86,
+          "views": 91,
           "likes": 4,
           "comments": 0
         },
@@ -62,6 +62,6 @@
       }
     ]
   },
-  "generatedAt": "2026-08-13T13:58:02.849Z",
-  "lastModifiedAt": "2026-08-13T13:58:02.849Z"
+  "generatedAt": "2026-08-14T01:51:39.229Z",
+  "lastModifiedAt": "2026-08-14T01:51:39.229Z"
 }

@@ -1,0 +1,69 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-deepreach-inc",
+    "slug": "deepreach-inc",
+    "name": "DeepReach Inc."
+  },
+  "event": {
+    "id": "tle-473698795b0f014ae6f21437",
+    "eventDate": "2026-08-13",
+    "eventDateType": "announcement_date",
+    "title": "DeepReach Inc. announced its public launch",
+    "summary": "DeepReach Inc. reported launching today: @DeepReach_AI.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-8e125cd617db95b3fa01dbee",
+        "title": "Launching today: @DeepReach_AI. What if it was incredibly easy for anyone to launch a real-world data biz in their local community? DeepRea...",
+        "publisher": "bradflora",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-08-13T19:32:12.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/bradflora/status/2087985590868574508"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-8e125cd617db95b3fa01dbee",
+        "title": "Launching today: @DeepReach_AI. What if it was incredibly easy for anyone to launch a real-world data biz in their local community? DeepRea...",
+        "publisher": "bradflora",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-08-13T19:32:12.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/bradflora/status/2087985590868574508",
+        "publicationDate": "2026-08-13T19:32:12.000Z",
+        "excerpt": "Launching today: @DeepReach_AI. What if it was incredibly easy for anyone to launch a real-world data biz in their local community? DeepReach has already helped 150+ entrepreneurs join the AI economy and aims to help thousands more.",
+        "sourceEventDate": "2026-08-13",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-bc5a6c3b27f74eefaf255e7a",
+        "platform": "x",
+        "account": "bradflora",
+        "postDate": "2026-08-13",
+        "excerpt": "Launching today: @DeepReach_AI. What if it was incredibly easy for anyone to launch a real-world data biz in their local community? DeepReach has already helped 150+ entrepreneurs join the AI economy and aims to help thousands more.",
+        "url": "https://x.com/bradflora/status/2087985590868574508",
+        "metrics": {
+          "views": 4636,
+          "likes": 19,
+          "replies": 1,
+          "reposts": 4,
+          "saves": 2
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-14T01:51:39.229Z",
+  "lastModifiedAt": "2026-08-14T01:51:39.229Z"
+}

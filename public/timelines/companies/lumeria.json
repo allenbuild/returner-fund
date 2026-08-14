@@ -5,9 +5,33 @@
     "slug": "lumeria",
     "name": "Lumeria"
   },
-  "generatedAt": "2026-08-13T13:58:02.849Z",
-  "lastModifiedAt": "2026-08-13T13:58:02.849Z",
+  "generatedAt": "2026-08-14T01:51:39.229Z",
+  "lastModifiedAt": "2026-08-14T01:51:39.229Z",
   "events": [
+    {
+      "id": "tle-f8d35465ca28230c12eb213f",
+      "eventDate": "2026-08-13",
+      "eventDateType": "announcement_date",
+      "title": "Lumeria released We just launched! ☀️🧡",
+      "summary": "Lumeria just launched.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-6c78372c9691127312304202",
+          "title": "We just launched! ☀️🧡",
+          "publisher": "lumeriaskin",
+          "domain": "x.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-08-13T20:55:18.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/lumeriaskin/status/2088006502296732122"
+        }
+      ]
+    },
     {
       "id": "tle-2ab389a971f4b1d0faa68928",
       "eventDate": "2026-08-12",
@@ -39,15 +63,15 @@
       "months": [
         {
           "month": "2026-08",
-          "count": 1
+          "count": 2
         }
       ]
     }
   ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-08-13T13:58:02.849Z"
+    "publishedEventCount": 2,
+    "lastSuccessfulArtifactAt": "2026-08-14T01:51:39.229Z"
   },
   "nextCursor": null
 }

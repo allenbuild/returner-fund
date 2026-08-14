@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-almanac",
+    "slug": "almanac",
+    "name": "Almanac"
+  },
+  "event": {
+    "id": "tle-7fd14765421430083586dac0",
+    "eventDate": "2026-08-13",
+    "eventDateType": "announcement_date",
+    "title": "Almanac released Almanac, the agent with a company brain",
+    "summary": "Almanac introduced Almanac, the agent with a company brain.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-6cb18fa586c3bdde0eabb2a5",
+        "title": "Introducing Almanac, the agent with a company brain.",
+        "publisher": "kushagrchitkar",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-08-13T16:33:14.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/kushagrchitkar/status/2087940553715618114"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-6cb18fa586c3bdde0eabb2a5",
+        "title": "Introducing Almanac, the agent with a company brain.",
+        "publisher": "kushagrchitkar",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-08-13T16:33:14.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/kushagrchitkar/status/2087940553715618114",
+        "publicationDate": "2026-08-13T16:33:14.000Z",
+        "excerpt": "Introducing Almanac, the agent with a company brain. It runs on its own computer, connected to your tools, with a living wiki of everything your company knows. Send it a task. It texts you when it’s done. We’re live today. https://t.co/ZRJgkB8N7e",
+        "sourceEventDate": "2026-08-13",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-5c604f8b5caed8a99dc74263",
+        "platform": "x",
+        "account": "kushagrchitkar",
+        "postDate": "2026-08-13",
+        "excerpt": "Introducing Almanac, the agent with a company brain. It runs on its own computer, connected to your tools, with a living wiki of everything your company knows. Send it a task. It texts you when it’s done. We’re live today. https://t.co/ZRJgkB8N7e",
+        "url": "https://x.com/kushagrchitkar/status/2087940553715618114",
+        "metrics": {
+          "likes": 238,
+          "reposts": 28,
+          "replies": 37,
+          "views": 26486
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-14T01:51:39.229Z",
+  "lastModifiedAt": "2026-08-14T01:51:39.229Z"
+}

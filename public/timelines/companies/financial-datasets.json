@@ -5,9 +5,33 @@
     "slug": "financial-datasets",
     "name": "Financial Datasets"
   },
-  "generatedAt": "2026-08-13T13:58:02.849Z",
-  "lastModifiedAt": "2026-08-13T13:58:02.849Z",
+  "generatedAt": "2026-08-14T01:51:39.229Z",
+  "lastModifiedAt": "2026-08-14T01:51:39.229Z",
   "events": [
+    {
+      "id": "tle-aca64ac86a6523542b6e60f4",
+      "eventDate": "2026-08-13",
+      "eventDateType": "announcement_date",
+      "title": "Financial Datasets released Industry and Sector classifier",
+      "summary": "Financial Datasets introduced our Industry and Sector classifier.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-7ffb4810a81a0426e0d90345",
+          "title": "Introducing our Industry and Sector classifier.",
+          "publisher": "findatasets",
+          "domain": "x.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-08-13T19:15:15.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/findatasets/status/2087981326439780513"
+        }
+      ]
+    },
     {
       "id": "tle-d7438f40e36b72f9ea1ddc70",
       "eventDate": "2026-07-27",
@@ -38,6 +62,10 @@
       "year": 2026,
       "months": [
         {
+          "month": "2026-08",
+          "count": 1
+        },
+        {
           "month": "2026-07",
           "count": 1
         }
@@ -46,8 +74,8 @@
   ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-08-13T13:58:02.849Z"
+    "publishedEventCount": 2,
+    "lastSuccessfulArtifactAt": "2026-08-14T01:51:39.229Z"
   },
   "nextCursor": null
 }
