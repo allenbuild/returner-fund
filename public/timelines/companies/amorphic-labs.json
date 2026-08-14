@@ -5,8 +5,8 @@
     "slug": "amorphic-labs",
     "name": "Amorphic Labs"
   },
-  "generatedAt": "2026-08-14T03:02:33.302Z",
-  "lastModifiedAt": "2026-08-14T03:02:33.302Z",
+  "generatedAt": "2026-08-14T12:40:37.528Z",
+  "lastModifiedAt": "2026-08-14T12:40:37.528Z",
   "events": [
     {
       "id": "tle-e69f7dd91f8dd8c80689c1cb",
@@ -47,7 +47,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-08-14T03:02:33.302Z"
+    "lastSuccessfulArtifactAt": "2026-08-14T12:40:37.528Z"
   },
   "nextCursor": null
 }

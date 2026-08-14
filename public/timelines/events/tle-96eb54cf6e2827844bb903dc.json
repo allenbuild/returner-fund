@@ -39,7 +39,7 @@
         "evidenceRole": "primary",
         "url": "https://x.com/agupta/status/2077424054966088137",
         "publicationDate": "2026-07-15T16:04:26Z",
-        "excerpt": "Ankit Gupta's native X article introduces Prized, links prized.dev, and names founders Marinos Eliades and Hudson Griffith as his YC batch founders.",
+        "excerpt": "This week Prized is launching publicly. Watch the launch video — it's a good one — or just go try the product. Prized lets anyone at a company build and ship internal tools with AI. Not just engineers. The ops person, the support lead, the finance analyst — the people who actually understand the workflow. They describe the tool they need, and Prized builds it on top of the right company data, deploys it behind the company's sign-in, and keeps every data access scoped and audited. I'm…",
         "sourceEventDate": "2026-07-15",
         "isConflicting": false,
         "conflictDescription": null
@@ -51,7 +51,7 @@
         "platform": "x",
         "account": "agupta",
         "postDate": "2026-07-15",
-        "excerpt": "Ankit Gupta's native X article introduces Prized, links prized.dev, and names founders Marinos Eliades and Hudson Griffith as his YC batch founders.",
+        "excerpt": "This week Prized is launching publicly. Watch the launch video — it's a good one — or just go try the product. Prized lets anyone at a company build and ship internal tools with AI. Not just engineers. The ops person, the support lead, the finance analyst — the people who actually understand the workflow. They describe the tool they need, and Prized builds it on top of the right company data, deploys it behind the company's sign-in, and keeps every data access scoped and audited. I'm…",
         "url": "https://x.com/agupta/status/2077424054966088137",
         "metrics": {
           "views": 4129,
@@ -68,6 +68,6 @@
       }
     ]
   },
-  "generatedAt": "2026-08-14T03:02:33.302Z",
-  "lastModifiedAt": "2026-08-14T03:02:33.302Z"
+  "generatedAt": "2026-08-14T12:40:37.528Z",
+  "lastModifiedAt": "2026-08-14T12:40:37.528Z"
 }

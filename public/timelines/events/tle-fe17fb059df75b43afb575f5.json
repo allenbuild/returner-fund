@@ -39,7 +39,7 @@
         "evidenceRole": "primary",
         "url": "https://x.com/agupta/status/2077125864006062268",
         "publicationDate": "2026-07-14T20:19:31Z",
-        "excerpt": "Ankit Gupta's native X article launches Instance, names the robot-policy evaluation product, demo.instancelabs.ai, and founders Claire Mao and Lucy Cai.",
+        "excerpt": "Today Instance is launching and showcasing their success detector for robot policies — the first piece of what will eventually be fully automated robot evaluation. You can try it now at demo.instancelabs.ai. Describe a task, upload a video (or record one on your phone), and it judges whether the robot actually did the thing. Instance is @clairemao78 and @lucyjcai. They're MIT-trained computer scientists who've been friends since middle school. Lucy did humanoid robotics research in MIT's…",
         "sourceEventDate": "2026-07-14",
         "isConflicting": false,
         "conflictDescription": null
@@ -51,7 +51,7 @@
         "platform": "x",
         "account": "agupta",
         "postDate": "2026-07-14",
-        "excerpt": "Ankit Gupta's native X article launches Instance, names the robot-policy evaluation product, demo.instancelabs.ai, and founders Claire Mao and Lucy Cai.",
+        "excerpt": "Today Instance is launching and showcasing their success detector for robot policies — the first piece of what will eventually be fully automated robot evaluation. You can try it now at demo.instancelabs.ai. Describe a task, upload a video (or record one on your phone), and it judges whether the robot actually did the thing. Instance is @clairemao78 and @lucyjcai. They're MIT-trained computer scientists who've been friends since middle school. Lucy did humanoid robotics research in MIT's…",
         "url": "https://x.com/agupta/status/2077125864006062268",
         "metrics": {
           "views": 18016,
@@ -68,6 +68,6 @@
       }
     ]
   },
-  "generatedAt": "2026-08-14T03:02:33.302Z",
-  "lastModifiedAt": "2026-08-14T03:02:33.302Z"
+  "generatedAt": "2026-08-14T12:40:37.528Z",
+  "lastModifiedAt": "2026-08-14T12:40:37.528Z"
 }
