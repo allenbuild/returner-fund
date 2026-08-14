@@ -126,7 +126,7 @@ jobs:
           const tree = spawnSync(
             "git",
             ["ls-tree", "-r", "-z", "--full-tree", process.env.EXECUTED_SHA],
-            { encoding: "utf8" }
+            { encoding: "utf8", maxBuffer: 256 * 1024 * 1024 }
           );
           assert.equal(tree.status, 0, tree.stderr || "unable to inspect validation target modes");
           const unsafe = tree.stdout.split("\0").filter(Boolean).flatMap((entry) => {
