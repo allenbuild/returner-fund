@@ -273,14 +273,49 @@ function dedupeEvidenceByAliases<T extends EvidenceItem>(
     const existing = groups.get(root);
     if (!existing) {
       groups.set(root, { firstIndex: index, preferred: item });
-    } else if (shouldReplaceEvidence(existing.preferred, item)) {
-      existing.preferred = item;
+    } else {
+      const previous = existing.preferred;
+      const next = shouldReplaceEvidence(previous, item) ? item : previous;
+      const alternate = next === item ? previous : item;
+      existing.preferred = preserveCrediblePublicationDate(next, alternate);
     }
   });
 
   return [...groups.values()]
     .sort((left, right) => left.firstIndex - right.firstIndex)
     .map((group) => group.preferred);
+}
+
+/**
+ * Metric refreshes often omit a native creation timestamp even when an older,
+ * independently verified observation has one. Keep the preferred row's fresh
+ * metrics and attribution, but do not throw away the stronger date proof for
+ * the same physical post. Only explicit exact/day precision can be inherited;
+ * an observed/fetched timestamp marked unknown never becomes a publication
+ * date through deduplication.
+ */
+function preserveCrediblePublicationDate<T extends EvidenceItem>(
+  preferred: T,
+  alternate: T,
+): T {
+  if (publicationPrecisionRank(alternate.publishedAtPrecision) <=
+      publicationPrecisionRank(preferred.publishedAtPrecision)) {
+    return preferred;
+  }
+  if (!Number.isFinite(Date.parse(alternate.postedAt))) return preferred;
+  return {
+    ...preferred,
+    postedAt: alternate.postedAt,
+    publishedAtPrecision: alternate.publishedAtPrecision,
+  };
+}
+
+function publicationPrecisionRank(
+  precision: EvidenceItem["publishedAtPrecision"],
+): number {
+  if (precision === "exact") return 2;
+  if (precision === "day") return 1;
+  return 0;
 }
 
 function immutableGithubRepositoryObjectId(item: EvidenceItem): string | null {

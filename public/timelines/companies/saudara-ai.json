@@ -5,8 +5,8 @@
     "slug": "saudara-ai",
     "name": "Saudara AI"
   },
-  "generatedAt": "2026-08-14T01:51:39.229Z",
-  "lastModifiedAt": "2026-08-14T01:51:39.229Z",
+  "generatedAt": "2026-08-14T03:02:33.302Z",
+  "lastModifiedAt": "2026-08-14T03:02:33.302Z",
   "events": [
     {
       "id": "tle-b43f853f488b581da13cb2dd",
@@ -26,7 +26,7 @@
           "publisher": "saudara.ai",
           "domain": "instagram.com",
           "sourceType": "company_post",
-          "publishedAt": "2026-04-30T05:30:34.000Z",
+          "publishedAt": "2026-04-30T06:07:59.000Z",
           "evidenceRole": "primary",
           "url": "https://www.instagram.com/reel/DXvlr5dOecC"
         }
@@ -47,7 +47,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-08-14T01:51:39.229Z"
+    "lastSuccessfulArtifactAt": "2026-08-14T03:02:33.302Z"
   },
   "nextCursor": null
 }

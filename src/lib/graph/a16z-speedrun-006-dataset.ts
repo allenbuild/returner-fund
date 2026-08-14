@@ -1328,6 +1328,9 @@ function compareStableText(left: string, right: string): number {
 function speedrunPlatformStatus(
   evidence: EvidenceItem[]
 ): DemoGraphDataset["platformStatus"] {
+  const evidenceCounts = countSpeedrunRowsByPlatform(evidence);
+  const mappedAccountCounts = countSpeedrunMappedAccountsByPlatform();
+  const reviewCounts = countSpeedrunRowsByPlatform(speedrunNeedsReviewItems);
   const scoredInstagramRows = evidence.filter(
     (item) =>
       item.platform === "instagram" &&
@@ -1338,16 +1341,128 @@ function speedrunPlatformStatus(
 
   return [
     {
+      platform: "web",
+      batchSlugs: [A16Z_SPEEDRUN_006_BATCH_SLUG],
+      status: "disabled",
+      authMethod: "Official a16z company metadata only; not counted",
+      notes:
+        "Official company websites seed names and verified links but contribute 0 traction score. " +
+        "Historical website-fetch completion is tracked separately from this graph scoring status."
+    },
+    {
+      platform: "github",
+      batchSlugs: [A16Z_SPEEDRUN_006_BATCH_SLUG],
+      status: (evidenceCounts.github ?? 0) > 0 ? "working" : "needs_config",
+      authMethod: "Read-only public GitHub API against verified mapped accounts",
+      notes:
+        `Materialized ${evidenceCounts.github ?? 0} A16Z Speedrun 006 GitHub repository rows ` +
+        `against ${mappedAccountCounts.github ?? 0} verified mapped accounts. ` +
+        "This reports the deployed graph state, not a claim that repository history is exhaustive."
+    },
+    {
+      platform: "x",
+      batchSlugs: [A16Z_SPEEDRUN_006_BATCH_SLUG],
+      status: (evidenceCounts.x ?? 0) > 0 ? "working" : "public_only",
+      authMethod: "Verified mapped accounts and public or configured read-only sources",
+      notes:
+        `Materialized ${evidenceCounts.x ?? 0} verified A16Z Speedrun 006 X post rows ` +
+        `against ${mappedAccountCounts.x ?? 0} verified mapped accounts; ` +
+        `${reviewCounts.x ?? 0} candidates remain in explicit review. ` +
+        "Collection does not use a person's interactive browser session."
+    },
+    {
       platform: "instagram",
       batchSlugs: [A16Z_SPEEDRUN_006_BATCH_SLUG],
       status: scoredInstagramRows > 0 ? "working" : "public_only",
       authMethod: "Verified mapped native accounts; anonymous public and opt-in read-only snapshots",
       notes:
         `Materialized ${scoredInstagramRows} verified positive A16Z Speedrun 006 Instagram posts. ` +
+        `${mappedAccountCounts.instagram ?? 0} verified Instagram accounts are mapped and ` +
+        `${reviewCounts.instagram ?? 0} candidates remain in explicit review. ` +
         `The logged-in merge accepted ${loggedInEvidenceMerge.acceptedCount} exact roster/account/native-author rows ` +
         `and rejected ${loggedInEvidenceMerge.rejectedCount}; physical post identities are deduplicated before scoring.`
+    },
+    {
+      platform: "linkedin",
+      batchSlugs: [A16Z_SPEEDRUN_006_BATCH_SLUG],
+      status: (evidenceCounts.linkedin ?? 0) > 0 ? "working" : "public_only",
+      authMethod: "Verified mapped accounts; public unauthenticated and opt-in read-only evidence",
+      notes:
+        `Materialized ${evidenceCounts.linkedin ?? 0} verified A16Z Speedrun 006 LinkedIn post rows ` +
+        `against ${mappedAccountCounts.linkedin ?? 0} verified mapped accounts; ` +
+        `${reviewCounts.linkedin ?? 0} candidates remain in explicit review. ` +
+        "No personal LinkedIn login, cookies, browser session, or interactive account activity is used."
+    },
+    {
+      platform: "youtube",
+      batchSlugs: [A16Z_SPEEDRUN_006_BATCH_SLUG],
+      status: (evidenceCounts.youtube ?? 0) > 0 ? "working" : "public_only",
+      authMethod: "Public YouTube pages and metadata against verified mapped channels",
+      notes:
+        `Materialized ${evidenceCounts.youtube ?? 0} verified A16Z Speedrun 006 YouTube rows ` +
+        `against ${mappedAccountCounts.youtube ?? 0} verified mapped channels; ` +
+        `${reviewCounts.youtube ?? 0} candidates remain in explicit review.`
+    },
+    {
+      platform: "product_hunt",
+      batchSlugs: [A16Z_SPEEDRUN_006_BATCH_SLUG],
+      status: "public_only",
+      authMethod: "Public Product Hunt product and launch pages",
+      notes:
+        `Materialized ${evidenceCounts.product_hunt ?? 0} verified Product Hunt rows ` +
+        `against ${mappedAccountCounts.product_hunt ?? 0} verified mapped products; ` +
+        `${reviewCounts.product_hunt ?? 0} candidates remain in explicit review. ` +
+        "Public-page availability is not treated as proof of exhaustive launch history."
+    },
+    {
+      platform: "reddit",
+      batchSlugs: [A16Z_SPEEDRUN_006_BATCH_SLUG],
+      status: "public_only",
+      authMethod: "Unauthenticated public Reddit pages or JSON where accessible",
+      notes:
+        `Materialized ${evidenceCounts.reddit ?? 0} verified A16Z Speedrun 006 Reddit rows; ` +
+        `${reviewCounts.reddit ?? 0} candidates remain in explicit review. ` +
+        "Network or access blocks remain target-level blockers rather than fabricated no-post results."
+    },
+    {
+      platform: "hacker_news",
+      batchSlugs: [A16Z_SPEEDRUN_006_BATCH_SLUG],
+      status: "working",
+      authMethod: "Public Hacker News Algolia API with conservative identity matching",
+      notes:
+        "The 2026-08-03 hash-chained historical run exhausted configured public pagination for " +
+        "59/59 A16Z Speedrun 006 companies before the 2026-05-05 recency cutoff. " +
+        "It accepted 1 native historical row for Panorama and verified zero historical native rows for the other 58 targets. " +
+        `The graph currently materializes ${evidenceCounts.hacker_news ?? 0} verified native HN rows, so any difference remains an explicit publication gap. ` +
+        "This proves bounded historical source exhaustion, not recent-window completion, and no zero-result target is represented as a post."
+    },
+    {
+      platform: "rss",
+      batchSlugs: [A16Z_SPEEDRUN_006_BATCH_SLUG],
+      status: "working",
+      authMethod: "Read-only public RSS/Atom discovery from verified official websites",
+      notes:
+        `Materialized ${evidenceCounts.rss ?? 0} verified A16Z Speedrun 006 feed rows. ` +
+        "The 2026-08-03 historical proof completed 45/59 company-feed targets; " +
+        "the other 14 retain explicit access, truncation, or source-exhaustion blockers."
     }
   ];
+}
+
+function countSpeedrunRowsByPlatform(
+  rows: ReadonlyArray<{ platform: Platform }>
+): Partial<Record<Platform, number>> {
+  const counts: Partial<Record<Platform, number>> = {};
+  for (const row of rows) {
+    counts[row.platform] = (counts[row.platform] ?? 0) + 1;
+  }
+  return counts;
+}
+
+function countSpeedrunMappedAccountsByPlatform(): Partial<Record<Platform, number>> {
+  return countSpeedrunRowsByPlatform(
+    [...speedrunSocialAccountsByEntityId.values()].flatMap((accounts) => accounts)
+  );
 }
 
 function sanitizedSeededSocialEvidence(): SeededSocialEvidenceRecord[] {

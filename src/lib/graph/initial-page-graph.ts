@@ -20,9 +20,13 @@ export function buildInitialPageGraph(filters: GraphFilters = {}): GraphResponse
   });
   if (cachedInitialPageGraph?.cacheKey !== cacheKey) {
     const graph = sanitizeGraphResponse(buildGraphResponse({ ...filters, batchSlug }, yc2026GraphDataset));
-    const benchmarkGraph = hasScopedGraphFilters(filters)
-      ? sanitizeGraphResponse(buildGraphResponse({ batchSlug }, yc2026GraphDataset))
-      : graph;
+    // The default first-paint request is already the canonical batch graph.
+    // Reuse it instead of performing the full evidence attribution/scoring pass
+    // a second time. Filtered requests still need the unfiltered canonical graph
+    // so their momentum rows retain whole-batch ranks.
+    const benchmarkGraph = hasOnlyBatchFilter(filters)
+      ? graph
+      : sanitizeGraphResponse(buildGraphResponse({ batchSlug }, yc2026GraphDataset));
     const benchmarkRows =
       (filters.topVoices ?? "off") === "off"
         ? ensureBenchmarkMomentum(benchmarkGraph, { now }).graph.fastestGaining
@@ -35,17 +39,8 @@ export function buildInitialPageGraph(filters: GraphFilters = {}): GraphResponse
   return cachedInitialPageGraph.graph;
 }
 
-function hasScopedGraphFilters(filters: GraphFilters): boolean {
-  return Boolean(
-    filters.platforms?.length ||
-    filters.industries?.length ||
-    filters.groupPartners?.length ||
-    filters.businessModels?.length ||
-    filters.edgeTypes?.length ||
-    filters.query?.trim() ||
-    filters.minScore !== undefined ||
-    filters.similarityThreshold !== undefined
-  );
+function hasOnlyBatchFilter(filters: GraphFilters): boolean {
+  return Object.keys(filters).every((key) => key === "batchSlug");
 }
 
 function localDayKey(date: Date): string {

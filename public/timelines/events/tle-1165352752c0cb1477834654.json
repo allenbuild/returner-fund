@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-superset",
+    "slug": "superset",
+    "name": "Superset"
+  },
+  "event": {
+    "id": "tle-1165352752c0cb1477834654",
+    "eventDate": "2026-07-20",
+    "eventDateType": "announcement_date",
+    "title": "Superset became publicly available",
+    "summary": "If you're one of the lucky ones, @Kimi_Moonshot support is now live in @superset_sh 😎.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-fa3f04cf3fdb58ecf2048aec",
+        "title": "If you're one of the lucky ones, @Kimi_Moonshot support is now live in @superset_sh 😎",
+        "publisher": "FlyaKiet",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-07-20T22:13:22.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/FlyaKiet/status/2079328840376283205"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-fa3f04cf3fdb58ecf2048aec",
+        "title": "If you're one of the lucky ones, @Kimi_Moonshot support is now live in @superset_sh 😎",
+        "publisher": "FlyaKiet",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-07-20T22:13:22.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/FlyaKiet/status/2079328840376283205",
+        "publicationDate": "2026-07-20T22:13:22.000Z",
+        "excerpt": "If you're one of the lucky ones, @Kimi_Moonshot support is now live in @superset_sh 😎",
+        "sourceEventDate": "2026-07-20",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-16d77d928872c90525be72d3",
+        "platform": "x",
+        "account": "FlyaKiet",
+        "postDate": "2026-07-20",
+        "excerpt": "If you're one of the lucky ones, @Kimi_Moonshot support is now live in @superset_sh 😎",
+        "url": "https://x.com/FlyaKiet/status/2079328840376283205",
+        "metrics": {
+          "views": 2696,
+          "likes": 24,
+          "replies": 2,
+          "reposts": 1,
+          "quotes": 0,
+          "bookmarks": 2
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-14T03:02:33.302Z",
+  "lastModifiedAt": "2026-08-14T03:02:33.302Z"
+}

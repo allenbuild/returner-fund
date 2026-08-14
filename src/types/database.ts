@@ -86,6 +86,15 @@ export type CoverageStatus =
 export type DiscoveryStatus = CoverageStatus | "needs_review";
 export type IngestionEventSeverity = "debug" | "info" | "warning" | "error";
 export type DeadLetterStatus = "open" | "requeued" | "resolved" | "dismissed";
+export type YcPartnerFavoriteConfidenceLevel = "low" | "medium" | "high";
+export type YcPartnerFavoriteSignalType =
+  | "explicit_superlative"
+  | "strong_conviction"
+  | "substantive_praise"
+  | "positive_commentary"
+  | "neutral_mention"
+  | "negative_commentary"
+  | "unclear";
 
 type TableDefinition<Row, Insert, Update> = {
   Row: Row;
@@ -1264,6 +1273,166 @@ export interface Database {
           created_at?: Timestamp;
         }
       >;
+      yc_partner_favorite_scores: TableDefinition<
+        {
+          id: string;
+          partner_id: string;
+          partner_display_name: string;
+          partner_category: string;
+          company_id: string;
+          scoring_model_version_id: string;
+          rank: number;
+          score: number;
+          confidence_level: YcPartnerFavoriteConfidenceLevel;
+          confidence_score: number;
+          evidence_count: number;
+          unique_platform_count: number;
+          unique_context_count: number;
+          dated_evidence_count: number;
+          verified_link_count: number;
+          primary_reason: string;
+          confidence_reasons: string[];
+          strongest_evidence_score: number;
+          secondary_evidence_bonus: number;
+          independent_context_bonus: number;
+          negative_penalty: number;
+          conviction_strength: number;
+          praise_strength: number;
+          specificity: number;
+          context_quality: number;
+          signal_types: YcPartnerFavoriteSignalType[];
+          input_observed_through: Timestamp;
+          input_fingerprint: string;
+          materialized_at: Timestamp;
+          created_at: Timestamp;
+          updated_at: Timestamp;
+        },
+        {
+          id?: string;
+          partner_id: string;
+          partner_display_name: string;
+          partner_category?: string;
+          company_id: string;
+          scoring_model_version_id: string;
+          rank: number;
+          score: number;
+          confidence_level: YcPartnerFavoriteConfidenceLevel;
+          confidence_score: number;
+          evidence_count?: number;
+          unique_platform_count?: number;
+          unique_context_count?: number;
+          dated_evidence_count?: number;
+          verified_link_count?: number;
+          primary_reason: string;
+          confidence_reasons?: string[];
+          strongest_evidence_score?: number;
+          secondary_evidence_bonus?: number;
+          independent_context_bonus?: number;
+          negative_penalty?: number;
+          conviction_strength?: number;
+          praise_strength?: number;
+          specificity?: number;
+          context_quality?: number;
+          signal_types?: YcPartnerFavoriteSignalType[];
+          input_observed_through: Timestamp;
+          input_fingerprint: string;
+          materialized_at?: Timestamp;
+          created_at?: Timestamp;
+          updated_at?: Timestamp;
+        },
+        {
+          id?: string;
+          partner_id?: string;
+          partner_display_name?: string;
+          partner_category?: string;
+          company_id?: string;
+          scoring_model_version_id?: string;
+          rank?: number;
+          score?: number;
+          confidence_level?: YcPartnerFavoriteConfidenceLevel;
+          confidence_score?: number;
+          evidence_count?: number;
+          unique_platform_count?: number;
+          unique_context_count?: number;
+          dated_evidence_count?: number;
+          verified_link_count?: number;
+          primary_reason?: string;
+          confidence_reasons?: string[];
+          strongest_evidence_score?: number;
+          secondary_evidence_bonus?: number;
+          independent_context_bonus?: number;
+          negative_penalty?: number;
+          conviction_strength?: number;
+          praise_strength?: number;
+          specificity?: number;
+          context_quality?: number;
+          signal_types?: YcPartnerFavoriteSignalType[];
+          input_observed_through?: Timestamp;
+          input_fingerprint?: string;
+          materialized_at?: Timestamp;
+          created_at?: Timestamp;
+          updated_at?: Timestamp;
+        }
+      >;
+      yc_partner_favorite_citations: TableDefinition<
+        {
+          id: string;
+          favorite_score_id: string;
+          evidence_id: string;
+          citation_rank: number;
+          source_url: string;
+          excerpt: string;
+          reason: string;
+          signal_type: YcPartnerFavoriteSignalType;
+          score_contribution: number;
+          physical_post_key: string;
+          conviction_strength: number;
+          praise_strength: number;
+          specificity: number;
+          context_quality: number;
+          negative_penalty: number;
+          created_at: Timestamp;
+          updated_at: Timestamp;
+        },
+        {
+          id?: string;
+          favorite_score_id: string;
+          evidence_id: string;
+          citation_rank: number;
+          source_url: string;
+          excerpt: string;
+          reason: string;
+          signal_type: YcPartnerFavoriteSignalType;
+          score_contribution: number;
+          physical_post_key: string;
+          conviction_strength?: number;
+          praise_strength?: number;
+          specificity?: number;
+          context_quality?: number;
+          negative_penalty?: number;
+          created_at?: Timestamp;
+          updated_at?: Timestamp;
+        },
+        {
+          id?: string;
+          favorite_score_id?: string;
+          evidence_id?: string;
+          citation_rank?: number;
+          source_url?: string;
+          excerpt?: string;
+          reason?: string;
+          signal_type?: YcPartnerFavoriteSignalType;
+          score_contribution?: number;
+          physical_post_key?: string;
+          conviction_strength?: number;
+          praise_strength?: number;
+          specificity?: number;
+          context_quality?: number;
+          negative_penalty?: number;
+          created_at?: Timestamp;
+          updated_at?: Timestamp;
+        }
+      >;
       scoring_runs: TableDefinition<
         {
           id: string;
@@ -1651,6 +1820,8 @@ export type IngestionDeadLetterRow = TableRow<"ingestion_dead_letters">;
 export type IngestionCoverageReportRow = TableRow<"ingestion_coverage_reports">;
 export type IngestionArtifactManifestRow = TableRow<"ingestion_artifact_manifests">;
 export type ScoringModelVersionRow = TableRow<"scoring_model_versions">;
+export type YcPartnerFavoriteScoreRow = TableRow<"yc_partner_favorite_scores">;
+export type YcPartnerFavoriteCitationRow = TableRow<"yc_partner_favorite_citations">;
 export type ScoringRunRow = TableRow<"scoring_runs">;
 export type PostScoreRow = TableRow<"post_scores">;
 export type TractionSnapshotRow = TableRow<"traction_snapshots">;
@@ -1677,6 +1848,8 @@ export type IngestionDeadLetterInsert = TableInsert<"ingestion_dead_letters">;
 export type IngestionCoverageReportInsert = TableInsert<"ingestion_coverage_reports">;
 export type IngestionArtifactManifestInsert = TableInsert<"ingestion_artifact_manifests">;
 export type ScoringModelVersionInsert = TableInsert<"scoring_model_versions">;
+export type YcPartnerFavoriteScoreInsert = TableInsert<"yc_partner_favorite_scores">;
+export type YcPartnerFavoriteCitationInsert = TableInsert<"yc_partner_favorite_citations">;
 export type ScoringRunInsert = TableInsert<"scoring_runs">;
 export type TractionSnapshotInsert = TableInsert<"traction_snapshots">;
 export type FounderTractionSnapshotInsert = TableInsert<"founder_traction_snapshots">;

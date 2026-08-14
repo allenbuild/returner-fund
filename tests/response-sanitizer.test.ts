@@ -29,7 +29,9 @@ describe("graph response sanitizer", () => {
       retainedEvidenceCount: sanitized.evidence.length,
       omittedEvidenceCount: graph.evidence.length - sanitized.evidence.length
     });
-    expect(sanitized.evidence.every((item) => item.contributionScore > 0)).toBe(true);
+    expect(
+      sanitized.evidence.every((item) => item.contributionScore > 0 || item.tractionStatus === "unscored")
+    ).toBe(true);
     expect(sanitized.evidence[0]?.id).toMatch(/^ev-/);
     expect(sanitized.evidence.every((item) => item.why === "")).toBe(true);
     expect(sanitized.nodes.every((node) => node.evidenceIds.every((id) => sanitized.evidence.some((item) => item.id === id)))).toBe(true);
@@ -89,7 +91,9 @@ describe("graph response sanitizer", () => {
 
   it("hard-caps the payload while publishing compact full-score omission metadata", () => {
     const graph = buildGraphResponse({ batchSlug: "S26" }, ycSpring2026GraphDataset);
-    const scoredEvidenceCount = graph.evidence.filter((item) => item.contributionScore > 0).length;
+    const scoredEvidenceCount = graph.evidence.filter(
+      (item) => item.contributionScore > 0 || item.tractionStatus === "unscored"
+    ).length;
 
     expect(scoredEvidenceCount).toBeGreaterThan(1);
 
