@@ -2,24 +2,26 @@
   position: relative;
   display: grid;
   min-height: 100svh;
-  place-items: center;
+  align-items: start;
+  justify-items: center;
   overflow: hidden;
-  padding: 24px;
+  padding: clamp(80px, 18vh, 180px) 24px 24px;
   background:
-    radial-gradient(ellipse 34% 64% at 49% 48%, rgba(207, 67, 28, 0.88) 0%, rgba(222, 103, 39, 0.66) 31%, rgba(239, 185, 78, 0.16) 62%, transparent 78%),
-    linear-gradient(115deg, #f5f2d5 0%, #f6e38d 48%, #f3d96d 100%);
+    radial-gradient(ellipse 95% 118% at 2% 45%, rgba(255, 248, 211, 0.88) 0%, rgba(255, 229, 126, 0.58) 49%, transparent 80%),
+    radial-gradient(ellipse 88% 116% at 99% 34%, rgba(209, 69, 19, 0.76) 0%, rgba(234, 130, 30, 0.48) 52%, transparent 82%),
+    linear-gradient(111deg, #f5efcb 0%, #f5da78 36%, #ed9e31 64%, #f0c54c 100%);
   color: #1f1a15;
 }
 
 .grain {
   position: absolute;
-  inset: -25%;
+  inset: -30%;
   z-index: 0;
-  opacity: 0.2;
+  opacity: 0.44;
   background-image:
-    repeating-radial-gradient(circle, rgba(66, 40, 22, 0.42) 0 0.5px, transparent 0.7px 3px),
-    repeating-radial-gradient(circle, rgba(255, 255, 255, 0.58) 0 0.5px, transparent 0.7px 2.6px);
-  background-size: 5px 5px, 4px 4px;
+    repeating-radial-gradient(circle at 16% 24%, rgba(74, 34, 12, 0.52) 0 0.55px, transparent 0.75px 2.8px),
+    repeating-radial-gradient(circle at 72% 64%, rgba(255, 251, 218, 0.7) 0 0.45px, transparent 0.7px 2.4px);
+  background-size: 4px 4px, 3px 3px;
   mix-blend-mode: soft-light;
   pointer-events: none;
 }
@@ -27,101 +29,115 @@
 .card {
   position: relative;
   z-index: 1;
-  width: min(100%, 360px);
-}
-
-.brand {
-  margin: 0;
-  color: rgba(49, 32, 20, 0.76);
-  font-size: 0.84rem;
-  font-weight: 700;
-  letter-spacing: -0.01em;
-}
-
-.lockMark {
-  display: grid;
-  width: 42px;
-  height: 42px;
-  margin-top: 42px;
-  place-items: center;
-  border-radius: 50%;
-  color: #a83f13;
-  background: rgba(255, 247, 218, 0.58);
+  width: min(100%, 454px);
 }
 
 .card h1 {
-  margin: 18px 0 0;
-  color: #201813;
-  font-size: clamp(2rem, 7vw, 2.45rem);
-  font-weight: 750;
-  letter-spacing: -0.06em;
-  line-height: 1.05;
-}
-
-.intro {
-  margin: 9px 0 0;
-  color: rgba(52, 36, 24, 0.7);
-  font-size: 0.92rem;
-  font-weight: 500;
-  line-height: 1.55;
+  margin: 0 0 17px;
+  color: rgba(72, 57, 45, 0.76);
+  font-size: 1.02rem;
+  font-weight: 600;
+  letter-spacing: 0.075em;
+  line-height: 1.25;
+  text-transform: uppercase;
 }
 
 .form {
+  margin: 0;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.inputShell {
   display: grid;
-  gap: 9px;
-  margin-top: 28px;
-}
-
-.form label {
-  color: rgba(50, 33, 21, 0.84);
-  font-size: 0.75rem;
-  font-weight: 700;
-}
-
-.form input {
-  width: 100%;
-  min-height: 48px;
-  padding: 0 14px;
-  border: 1px solid rgba(91, 56, 31, 0.3);
-  border-radius: 10px;
-  outline: none;
-  background: rgba(255, 252, 234, 0.72);
-  color: #1f1712;
+  grid-template-columns: minmax(0, 1fr) 54px 66px;
+  align-items: center;
+  min-height: 84px;
+  padding: 8px 8px 8px 27px;
+  border: 2px solid rgba(74, 60, 48, 0.28);
+  border-radius: 15px;
+  background: rgba(255, 253, 246, 0.67);
   transition: border-color 160ms ease, box-shadow 160ms ease;
 }
 
-.form input:focus {
-  border-color: #d3571a;
-  box-shadow: 0 0 0 3px rgba(211, 87, 26, 0.16);
+.inputShell:focus-within {
+  border-color: rgba(126, 69, 31, 0.7);
+  box-shadow: 0 0 0 3px rgba(255, 249, 225, 0.32);
 }
 
-.form button {
+.inputShell input:not([type="hidden"]) {
+  width: 100%;
+  min-width: 0;
+  min-height: 56px;
+  padding: 0;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: #34261c;
+  font-size: 1.42rem;
+  font-weight: 500;
+  letter-spacing: -0.035em;
+}
+
+.inputShell input::placeholder {
+  color: rgba(71, 61, 53, 0.45);
+  opacity: 1;
+}
+
+.revealButton,
+.submitButton {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 48px;
-  margin-top: 5px;
   border: 0;
-  border-radius: 10px;
-  color: #fff8ee;
-  background: #cb5117;
   cursor: pointer;
-  font-weight: 700;
-  transition: background 160ms ease;
+  transition: background 160ms ease, color 160ms ease;
 }
 
-.form button:hover {
-  background: #b94510;
+.revealButton {
+  width: 54px;
+  height: 64px;
+  padding: 0;
+  color: rgba(73, 66, 60, 0.34);
+  background: transparent;
 }
 
-.form button:focus-visible {
-  outline: 3px solid rgba(255, 255, 255, 0.95);
-  outline-offset: 3px;
+.revealButton:hover {
+  color: rgba(73, 66, 60, 0.62);
+}
+
+.submitButton {
+  width: 66px;
+  height: 64px;
+  border-radius: 11px;
+  color: rgba(77, 68, 60, 0.56);
+  background: rgba(70, 63, 58, 0.14);
+}
+
+.submitButton:hover {
+  color: rgba(61, 45, 33, 0.84);
+  background: rgba(70, 63, 58, 0.23);
+}
+
+.revealButton:focus-visible,
+.submitButton:focus-visible {
+  outline: 2px solid rgba(99, 55, 26, 0.75);
+  outline-offset: -3px;
 }
 
 .error,
 .status {
-  margin: 22px 0 0;
+  margin: 12px 0 0;
   padding: 0;
   font-size: 0.82rem;
   font-weight: 600;
@@ -138,11 +154,35 @@
 
 @media (max-width: 520px) {
   .screen {
-    padding: 22px;
+    padding: 74px 18px 18px;
   }
 
-  .lockMark {
-    margin-top: 34px;
+  .card h1 {
+    margin-bottom: 14px;
+    font-size: 0.9rem;
+  }
+
+  .inputShell {
+    grid-template-columns: minmax(0, 1fr) 42px 55px;
+    min-height: 72px;
+    padding: 7px 7px 7px 19px;
+    border-radius: 13px;
+  }
+
+  .inputShell input:not([type="hidden"]) {
+    min-height: 50px;
+    font-size: 1.15rem;
+  }
+
+  .revealButton {
+    width: 42px;
+    height: 54px;
+  }
+
+  .submitButton {
+    width: 55px;
+    height: 54px;
+    border-radius: 9px;
   }
 }
 

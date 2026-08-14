@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import { LockKeyhole } from "lucide-react";
 import { isSiteAccessConfigured } from "@/lib/site-access";
+import { UnlockForm } from "./unlock-form";
 import styles from "./unlock.module.css";
 
 export const dynamic = "force-dynamic";
@@ -26,36 +26,14 @@ export default async function UnlockPage({ searchParams }: UnlockPageProps) {
       <div className={styles.grain} aria-hidden="true" />
 
       <section className={styles.card} aria-labelledby="access-title">
-        <p className={styles.brand}>returner.fund</p>
-
-        <div className={styles.lockMark} aria-hidden="true">
-          <LockKeyhole size={20} strokeWidth={2.1} />
-        </div>
-
-        <h1 id="access-title">Enter password</h1>
-        <p className={styles.intro}>Private workspace.</p>
+        <h1 id="access-title">Password required</h1>
 
         {configurationPending ? (
           <p className={styles.status} role="status">
             Private access is being configured. Please check back shortly.
           </p>
         ) : (
-          <form action="/api/access/unlock" method="post" className={styles.form}>
-            <input type="hidden" name="returnTo" value={returnTo} />
-            <label htmlFor="site-password">Password</label>
-            <input
-              autoComplete="current-password"
-              autoFocus
-              id="site-password"
-              name="password"
-              required
-              type="password"
-            />
-            {invalidPassword ? (
-              <p className={styles.error} role="alert">That password didn’t match. Please try again.</p>
-            ) : null}
-            <button type="submit">Continue</button>
-          </form>
+          <UnlockForm invalidPassword={invalidPassword} returnTo={returnTo} />
         )}
       </section>
     </main>
