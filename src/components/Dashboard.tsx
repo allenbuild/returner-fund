@@ -344,9 +344,9 @@ async function fetchWithTimeout<T>(
 
 type YcPartnersApiPayload = YcPartnersResponse | { error?: unknown; message?: unknown };
 
-async function fetchYcPartnersPayload(signal?: AbortSignal): Promise<YcPartnersResponse> {
+async function fetchYcPartnersPayload(batchSlug: string, signal?: AbortSignal): Promise<YcPartnersResponse> {
   return fetchWithTimeout(
-    "/api/yc-partners",
+    `/api/yc-partners?batch=${encodeURIComponent(batchSlug)}`,
     {
       cache: "no-store",
       headers: { accept: "application/json" }
@@ -825,7 +825,7 @@ export function Dashboard({
     setYcPartnersError(null);
 
     try {
-      const payload = await fetchYcPartnersPayload(controller.signal);
+      const payload = await fetchYcPartnersPayload(batchSlug, controller.signal);
       if (controller.signal.aborted || requestId !== ycPartnersRequestIdRef.current) return;
       setYcPartners(payload);
     } catch (caught) {
@@ -838,7 +838,7 @@ export function Dashboard({
         setYcPartnersLoading(false);
       }
     }
-  }, []);
+  }, [batchSlug]);
 
   useEffect(() => {
     let disposed = false;
@@ -860,7 +860,7 @@ export function Dashboard({
       if (timeoutId !== null) window.clearTimeout(timeoutId);
       ycPartnersAbortRef.current?.abort();
     };
-  }, [loadYcPartners, graph?.generatedAt]);
+  }, [batchSlug, loadYcPartners, graph?.generatedAt]);
 
   useEffect(() => {
     selectionRef.current = { batchSlug, topVoiceAudience, insiderIds: selectedInsiderIds };

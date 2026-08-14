@@ -134,6 +134,39 @@ vi.mock("@/components/NodePanel", () => ({
 }));
 
 describe("dashboard filters", () => {
+  it("loads YC partner rankings for the active batch only", async () => {
+    vi.useFakeTimers();
+    const summerGraph = graphResponse(
+      [makeNode("company:summer", "Summer Company", "b2b", "#7dd3fc", "Partner A")],
+      { slug: "S26", label: "YC Summer 2026 (S26)", companyCountExpected: 218, companyCountObserved: 218 }
+    );
+    const ycPartnersResponse = {
+      generatedAt: "2026-08-14T00:00:00.000Z",
+      modelVersion: "conviction-v1",
+      modelName: "YC partner favorite conviction",
+      batchCount: 1,
+      companyCount: 1,
+      partnerCount: 0,
+      partners: []
+    };
+    const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
+      if (String(input).startsWith("/api/yc-partners")) {
+        return { ok: true, json: async () => ycPartnersResponse } as Response;
+      }
+      return { ok: true, json: async () => summerGraph } as Response;
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<Dashboard initialGraph={summerGraph} />);
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(2_000);
+    });
+
+    expect(fetchMock.mock.calls.some(([input]) => String(input) === "/api/yc-partners?batch=S26")).toBe(true);
+    expect(fetchMock.mock.calls.some(([input]) => String(input) === "/api/yc-partners")).toBe(false);
+  });
+
   it("bounds resume-revalidation scopes with least-recently-used eviction", () => {
     const cache = new Map<string, number>();
     for (let index = 0; index < RESUME_REVALIDATION_SCOPE_MAX_ENTRIES; index += 1) {
