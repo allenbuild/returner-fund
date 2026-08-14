@@ -154,7 +154,8 @@ async function loadAndBuild(
         id: node.entityId,
         name: node.label,
         batchSlug: node.batchSlug,
-        batchLabel: base.batch.label
+        batchLabel: base.batch.label,
+        groupPartner: node.groupPartner
       });
     }
 
@@ -180,6 +181,7 @@ async function loadAndBuild(
 
       const company = allCompanies.get(companyKey(partner.batch.slug, companyId));
       if (!company) continue;
+      if (company.groupPartner === null || !partnerNameMatches(member, company.groupPartner)) continue;
 
       const key = `${member.personId}:${companyKey(company.batchSlug, company.id)}`;
       const bucket = evidenceByPartnerAndCompany.get(key);
@@ -193,6 +195,17 @@ async function loadAndBuild(
         });
       }
     }
+  }
+
+  // A partner's ranking is scoped to the companies assigned to that partner
+  // in YC metadata. Commentary alone cannot establish ownership: a partner
+  // may publicly praise another partner's company.
+  const assignedCompaniesByPartner = new Map<string, CompanyContext[]>();
+  for (const member of activeMembers) {
+    const assignedCompanies = [...allCompanies.values()].filter((company) =>
+      company.groupPartner !== null && partnerNameMatches(member, company.groupPartner)
+    );
+    assignedCompaniesByPartner.set(member.personId, assignedCompanies);
   }
 
   const rankingsByPartner = new Map<string, YcPartnerFavoriteRanking[]>();
@@ -217,12 +230,16 @@ async function loadAndBuild(
   }
 
   const updatedAt = maxIsoTimestamp(generatedAtValues) ?? new Date().toISOString();
+  const scopedCompanies = new Set<string>();
+  for (const companies of assignedCompaniesByPartner.values()) {
+    for (const company of companies) scopedCompanies.add(companyKey(company.batchSlug, company.id));
+  }
   const details = activeMembers
     .map((member) => {
       let rankings = [...(rankingsByPartner.get(member.personId) ?? [])];
       if (query.includeNoEvidence) {
         const seen = new Set(rankings.map((ranking) => companyKey(ranking.batchSlug, ranking.companyId)));
-        for (const company of allCompanies.values()) {
+        for (const company of assignedCompaniesByPartner.get(member.personId) ?? []) {
           const key = companyKey(company.batchSlug, company.id);
           if (!seen.has(key)) rankings.push(emptyRanking(company));
         }
@@ -253,7 +270,7 @@ async function loadAndBuild(
     modelVersion: YC_PARTNER_FAVORITE_MODEL_VERSION,
     modelName: YC_PARTNER_FAVORITE_MODEL_NAME,
     batchCount: loaded.length,
-    companyCount: allCompanies.size,
+    companyCount: scopedCompanies.size,
     partnerCount: details.length,
     partners: details
   } satisfies YcPartnersResponse;
@@ -264,12 +281,28 @@ interface CompanyContext {
   name: string;
   batchSlug: string;
   batchLabel: string;
+  groupPartner: string | null;
 }
 
 interface EvidenceBucket {
   member: TopVoiceMember;
   company: CompanyContext;
   evidence: EvidenceItem[];
+}
+
+function partnerNameMatches(member: TopVoiceMember, companyPartner: string): boolean {
+  const normalizedCompanyPartner = normalizePartnerName(companyPartner);
+  return [member.displayName, ...member.aliases]
+    .some((name) => normalizePartnerName(name) === normalizedCompanyPartner);
+}
+
+function normalizePartnerName(value: string): string {
+  return value
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "")
+    .trim();
 }
 
 function normalizePartnerId(value: string | undefined): string | undefined {
@@ -295,8 +328,8 @@ function companyKey(batchSlug: string, companyId: string): string {
 }
 
 function compareRankings(left: YcPartnerFavoriteRanking, right: YcPartnerFavoriteRanking): number {
-  return right.score - left.score ||
-    right.confidence.score - left.confidence.score ||
+  return right.confidence.score - left.confidence.score ||
+    right.score - left.score ||
     right.evidenceCount - left.evidenceCount ||
     left.companyName.localeCompare(right.companyName) ||
     left.batchSlug.localeCompare(right.batchSlug) ||
