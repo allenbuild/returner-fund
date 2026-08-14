@@ -7,7 +7,6 @@ import {
   AlertTriangle,
   CheckCircle2,
   ChevronLeft,
-  ChevronDown,
   ChevronRight,
   Clock3,
   Database,
@@ -610,6 +609,7 @@ export function InsightsTabs({
           selectedPartnerId={selectedPartnerId}
           onSelectPartner={setSelectedPartnerId}
           onSelectNode={onSelectNode}
+          graph={graph}
           onRetry={onRetryYcPartners ?? (() => void loadYcPartners())}
         />
       )}
@@ -624,6 +624,7 @@ function YcPartnersTab({
   selectedPartnerId,
   onSelectPartner,
   onSelectNode,
+  graph,
   onRetry
 }: {
   data: YcPartnersResponse | null;
@@ -632,6 +633,7 @@ function YcPartnersTab({
   selectedPartnerId: string | null;
   onSelectPartner: (partnerId: string | null) => void;
   onSelectNode: (nodeId: string) => void;
+  graph: GraphResponse;
   onRetry: () => void;
 }) {
   const selectedPartner = data?.partners.find((partner) => partner.partnerId === selectedPartnerId) ?? null;
@@ -689,7 +691,7 @@ function YcPartnersTab({
         </div>
       )}
       {selectedPartner ? (
-        <YcPartnerDetail partner={selectedPartner} onClose={() => onSelectPartner(null)} onSelectNode={onSelectNode} />
+        <YcPartnerDetail partner={selectedPartner} graph={graph} onClose={() => onSelectPartner(null)} onSelectNode={onSelectNode} />
       ) : (
         <section aria-label="YC partner favorite leaders">
           <ul className="yc-partner-overview" aria-label="YC partner favorite leaders">
@@ -736,20 +738,12 @@ function YcPartnerOverviewCard({ partner, onClick }: { partner: YcPartnerFavorit
   );
 }
 
-function YcPartnerDetail({ partner, onClose, onSelectNode }: { partner: YcPartnerFavoriteDetail; onClose: () => void; onSelectNode: (nodeId: string) => void }) {
+function YcPartnerDetail({ partner, graph, onClose, onSelectNode }: { partner: YcPartnerFavoriteDetail; graph: GraphResponse; onClose: () => void; onSelectNode: (nodeId: string) => void }) {
   return (
     <section className="yc-partner-detail" aria-labelledby="yc-partner-detail-title">
       <header className="yc-partner-detail-header">
-        <div className="yc-partner-detail-heading">
-          <button type="button" className="yc-partner-back-button" onClick={onClose}><ChevronLeft size={15} aria-hidden="true" /> All YC Partners</button>
-          <div className="yc-partner-detail-title-row">
-            <span className="yc-partner-avatar" aria-hidden="true">{partner.partnerName.split(/\s+/).map((part) => part[0]).join("").slice(0, 2)}</span>
-            <div>
-              <h2 id="yc-partner-detail-title">{partner.partnerName}&apos;s favorite startups</h2>
-            </div>
-          </div>
-        </div>
-        <button type="button" className="yc-partner-close-button" onClick={onClose} aria-label="Close partner rankings"><span aria-hidden="true">×</span></button>
+        <h2 id="yc-partner-detail-title">{partner.partnerName}</h2>
+        <button type="button" className="yc-partner-back-button" onClick={onClose} aria-label="Back to all YC Partners"><ChevronLeft size={18} aria-hidden="true" /></button>
       </header>
       {!partner.rankings.length ? (
         <div className="yc-partners-state yc-partner-detail-empty">
@@ -759,44 +753,121 @@ function YcPartnerDetail({ partner, onClose, onSelectNode }: { partner: YcPartne
         </div>
       ) : (
         <ol className="yc-partner-ranking-list" aria-label={`${partner.partnerName} favorite startup rankings`}>
-          {partner.rankings.map((ranking) => <YcPartnerRankingRow key={`${ranking.batchSlug}:${ranking.companyId}`} ranking={ranking} onSelectNode={onSelectNode} />)}
+          {partner.rankings.map((ranking) => <YcPartnerRankingRow key={`${ranking.batchSlug}:${ranking.companyId}`} ranking={ranking} graph={graph} onSelectNode={onSelectNode} />)}
         </ol>
       )}
     </section>
   );
 }
 
-function YcPartnerRankingRow({ ranking, onSelectNode }: { ranking: YcPartnerFavoriteRanking; onSelectNode: (nodeId: string) => void }) {
+function YcPartnerRankingRow({ ranking, graph, onSelectNode }: { ranking: YcPartnerFavoriteRanking; graph: GraphResponse; onSelectNode: (nodeId: string) => void }) {
   const hasScore = ranking.confidence.score > 0;
-  const citationSentences = ranking.citations
-    .map((citation) => citation.excerpt.trim())
-    .filter(Boolean);
 
   return (
     <li className={`yc-partner-ranking-row${hasScore ? " yc-partner-ranking-row-scored" : ""}`} aria-label={`${hasScore ? ranking.companyName : "Unscored startup"}, rank ${ranking.rank}`}>
-      <div className="yc-partner-ranking-rank" aria-label={`Rank ${ranking.rank}`}>#{ranking.rank}</div>
+      <div className="yc-partner-ranking-rank" aria-label={`Rank ${ranking.rank}`}><RankDisplay rank={ranking.rank} /></div>
       <article className="yc-partner-ranking-main">
         <header className="yc-partner-ranking-title">
           <div className="yc-partner-ranking-company">
             {hasScore ? (
-              <button type="button" className="leaderboard-company-button" onClick={() => onSelectNode(`company:${ranking.companyId}`)} aria-label={`Open ${ranking.companyName} profile`}>{ranking.companyName}</button>
+              <button type="button" className="yc-partner-ranking-company-button" onClick={() => onSelectNode(`company:${ranking.companyId}`)} aria-label={`Open ${ranking.companyName} profile`}>{ranking.companyName}</button>
             ) : (
               <span className="yc-partner-ranking-company-empty" aria-label="No company shown because confidence score is zero">—</span>
             )}
           </div>
           <div className="yc-partner-ranking-score" aria-label={`Confidence score ${ranking.confidence.score} out of 100`}><strong>{ranking.confidence.score}</strong><small>/100</small></div>
         </header>
-        {hasScore && citationSentences.length > 0 && (
-          <details className="yc-partner-ranking-evidence">
-            <summary>Contributing sentences <ChevronDown size={14} aria-hidden="true" /></summary>
-            <div className="yc-partner-ranking-evidence-list">
-              {citationSentences.map((sentence, index) => <blockquote key={`${ranking.companyId}-sentence-${index}`}>{sentence}</blockquote>)}
-            </div>
-          </details>
+        {hasScore && ranking.citations.length > 0 && (
+          <div className="yc-partner-ranking-posts" aria-label={`Original posts supporting ${ranking.companyName}`}>
+            {ranking.citations.map((citation, index) => (
+              <YcPartnerCitationPost
+                key={`${ranking.companyId}:${citation.evidenceId}:${index}`}
+                ranking={ranking}
+                citation={citation}
+                graph={graph}
+              />
+            ))}
+          </div>
         )}
       </article>
     </li>
   );
+}
+
+function YcPartnerCitationPost({
+  ranking,
+  citation,
+  graph
+}: {
+  ranking: YcPartnerFavoriteRanking;
+  citation: YcPartnerFavoriteRanking["citations"][number];
+  graph: GraphResponse;
+}) {
+  const evidence = graph.evidence.find((item) => item.id === citation.evidenceId || item.sourceUrl === citation.sourceUrl) ?? partnerCitationEvidence(ranking, citation);
+  const contribution = formatContribution(evidence);
+  const author = contribution.author ? formatAuthor(contribution.author, evidence.authorHandle) : "";
+
+  return (
+    <div className="yc-partner-citation-post">
+      <a
+        className="ranked-post-row-link yc-partner-post-row-link"
+        href={citation.sourceUrl}
+        target="_blank"
+        rel="noreferrer"
+        aria-label={`Open original ${formatPlatform(citation.platform)} post for ${ranking.companyName}`}
+      >
+        <article className="ranked-post-card yc-partner-post-card">
+          <div className="ranked-post-preview"><ContributionThumbnail item={evidence} /></div>
+          <div className="ranked-post-content">
+            <div className="ranked-post-primary-row">
+              <span className="ranked-post-company">{ranking.companyName}</span>
+              <div className="ranked-post-meta">
+                <span className={`ranking-platform-chip ranking-platform-${citation.platform}`}><PlatformIdentity platform={citation.platform} /></span>
+                <time dateTime={citation.postedAt}>{formatPostDate(citation.postedAt)}</time>
+              </div>
+            </div>
+            <div className="ranked-post-title-row">
+              <p className="ranked-post-title">{contribution.title}</p>
+            </div>
+            {author && (
+              <div className="ranked-post-details">
+                <span className="ranked-post-author">{author}</span>
+              </div>
+            )}
+          </div>
+        </article>
+      </a>
+      {citation.excerpt.trim() && (
+        <div className="yc-partner-contributing-sentence">
+          <span>Contributing sentence</span>
+          <blockquote>{citation.excerpt.trim()}</blockquote>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function partnerCitationEvidence(
+  ranking: YcPartnerFavoriteRanking,
+  citation: YcPartnerFavoriteRanking["citations"][number]
+): EvidenceItem {
+  return {
+    id: citation.evidenceId,
+    batchSlug: ranking.batchSlug,
+    entityType: "company",
+    entityId: ranking.companyId,
+    platform: citation.platform,
+    authorName: "",
+    authorHandle: null,
+    postedAt: citation.postedAt,
+    title: citation.excerpt,
+    text: citation.excerpt,
+    mediaType: "text",
+    metrics: {},
+    contributionScore: 0,
+    sourceUrl: citation.sourceUrl,
+    why: citation.reason
+  };
 }
 
 function isYcPartnerDataStale(value: string): boolean {
