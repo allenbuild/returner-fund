@@ -44,6 +44,7 @@ import { evidenceDisplayText, isGenericEvidenceLabel } from "@/lib/graph/evidenc
 import { resolveEvidenceThumbnail } from "@/lib/graph/evidence-thumbnails";
 import { selectRankedPosts, type RankedPostsPeriod } from "@/lib/graph/ranked-posts";
 import type { RankedPostsSidecarScope } from "@/lib/graph/ranked-posts-sidecar";
+import { splitVerbatimSentences } from "@/lib/graph/verbatim-evidence-text";
 import type {
   EvidenceItem,
   FastestGainingRow,
@@ -806,10 +807,10 @@ function YcPartnerCitationPost({
   const evidence = graph.evidence.find((item) => item.id === citation.evidenceId || item.sourceUrl === citation.sourceUrl) ?? partnerCitationEvidence(ranking, citation);
   const contribution = formatContribution(evidence);
   const author = contribution.author ? formatAuthor(contribution.author, evidence.authorHandle) : "";
-  const contributingSentences = (citation.contributingSentences?.length
-    ? citation.contributingSentences
-    : [citation.excerpt]
-  ).map((sentence) => sentence.trim()).filter(Boolean);
+  const verbatimSourceBody = partnerPostSourceBody(evidence);
+  const contributingSentences = (citation.contributingSentences ?? [])
+    .map((sentence) => sentence.trim())
+    .filter(Boolean);
 
   return (
     <div className="yc-partner-citation-post">
@@ -831,7 +832,11 @@ function YcPartnerCitationPost({
               </div>
             </div>
             <div className="ranked-post-title-row">
-              <p className="ranked-post-title">{contribution.title}</p>
+              <p className={`ranked-post-title${verbatimSourceBody ? "" : " yc-partner-post-title-unavailable"}`}>
+                {verbatimSourceBody
+                  ? splitVerbatimSentences(verbatimSourceBody)[0] ?? verbatimSourceBody
+                  : "Verbatim source text unavailable."}
+              </p>
             </div>
             {author && (
               <div className="ranked-post-details">
@@ -841,11 +846,13 @@ function YcPartnerCitationPost({
           </div>
         </article>
       </a>
-      {contributingSentences.length > 0 && (
-        <div className="yc-partner-contributing-sentence">
-          {contributingSentences.map((sentence, index) => <p key={`${citation.evidenceId}-sentence-${index}`}>{sentence}</p>)}
-        </div>
-      )}
+      <div className="yc-partner-contributing-sentence" aria-label="Verbatim contributing sentences">
+        {contributingSentences.length > 0 ? (
+          contributingSentences.map((sentence, index) => <p key={`${citation.evidenceId}-sentence-${index}`}>{sentence}</p>)
+        ) : (
+          <p className="yc-partner-contributing-sentence-unavailable">Verbatim contributing sentence(s) unavailable.</p>
+        )}
+      </div>
     </div>
   );
 }
@@ -863,14 +870,18 @@ function partnerCitationEvidence(
     authorName: "",
     authorHandle: null,
     postedAt: citation.postedAt,
-    title: citation.excerpt,
-    text: citation.excerpt,
+    text: "",
     mediaType: "text",
     metrics: {},
     contributionScore: 0,
     sourceUrl: citation.sourceUrl,
     why: citation.reason
   };
+}
+
+function partnerPostSourceBody(item: EvidenceItem): string | null {
+  const sourceBody = item.text.trim();
+  return sourceBody || null;
 }
 
 function isYcPartnerDataStale(value: string): boolean {

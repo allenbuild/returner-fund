@@ -5,6 +5,7 @@ import { InsightsTabs } from "@/components/InsightsTabs";
 import { buildGraphResponse } from "@/lib/graph/graph-builder";
 import type { GraphResponse } from "@/lib/graph/types";
 import { ycSpring2026GraphDataset } from "@/lib/graph/yc-spring-2026-dataset";
+import type { YcPartnersResponse } from "@/lib/yc-partners/favorite-contracts";
 
 describe("insights tabs", () => {
   it("keeps all five navigation boxes on one shared equal-size layout in every selected view", () => {
@@ -1123,7 +1124,174 @@ describe("insights tabs", () => {
       "https://www.linkedin.com/posts/simmi-sen_we-are-hiring-ten-paid-growth-interns-for-activity-7403840813530570752-U_Nm"
     );
   });
+
+  it("renders verbatim YC partner contributing sentences and keeps the original post link", () => {
+    const exactSentenceOne = "Kara has arguably the strongest founder-market fit in the batch.";
+    const exactSentenceTwo = "It is hard to think of a better team building this scientific hardware platform.";
+    const summary = "Generated summary that must not appear as a contributing sentence.";
+    const reason = "Generated reason that must not appear as a contributing sentence.";
+    const graph = graphResponse();
+    graph.evidence = [ycPartnerEvidence({
+      title: "quoted post",
+      text: `${exactSentenceOne} ${exactSentenceTwo}`
+    })];
+
+    render(
+      <InsightsTabs
+        graph={graph}
+        ycPartners={ycPartnerResponse({
+          excerpt: summary,
+          reason,
+          contributingSentences: [exactSentenceOne, exactSentenceTwo]
+        })}
+        ycPartnersLoading={false}
+        onSelectNode={vi.fn()}
+      />
+    );
+
+    fireEvent.click(screen.getByRole("tab", { name: "YC Partners" }));
+    fireEvent.click(screen.getByRole("button", { name: "Open Brad Flora favorite rankings" }));
+
+    const sentenceRegion = screen.getByLabelText("Verbatim contributing sentences");
+    expect(sentenceRegion).toHaveTextContent(exactSentenceOne);
+    expect(sentenceRegion).toHaveTextContent(exactSentenceTwo);
+    expect(sentenceRegion).not.toHaveTextContent(summary);
+    expect(sentenceRegion).not.toHaveTextContent(reason);
+    expect(sentenceRegion.querySelectorAll("p")).toHaveLength(2);
+
+    const originalPostLink = screen.getByRole("link", { name: "Open original LinkedIn post for Kara" });
+    expect(originalPostLink).toHaveAttribute("href", "https://example.com/kara-post");
+    const originalPostCard = originalPostLink.querySelector("article.yc-partner-post-card");
+    expect(originalPostCard).toBeInTheDocument();
+    expect(originalPostCard).toHaveTextContent(exactSentenceOne);
+    expect(originalPostCard).not.toHaveTextContent("quoted post");
+  });
+
+  it("shows an unavailable state instead of substituting the citation excerpt", () => {
+    const summary = "Generated summary that must not appear as a contributing sentence.";
+    const graph = graphResponse();
+    graph.evidence = [ycPartnerEvidence({ title: "native LinkedIn post", text: "" })];
+
+    render(
+      <InsightsTabs
+        graph={graph}
+        ycPartners={ycPartnerResponse({ excerpt: summary, reason: "Generated reason" })}
+        ycPartnersLoading={false}
+        onSelectNode={vi.fn()}
+      />
+    );
+
+    fireEvent.click(screen.getByRole("tab", { name: "YC Partners" }));
+    fireEvent.click(screen.getByRole("button", { name: "Open Brad Flora favorite rankings" }));
+
+    const sentenceRegion = screen.getByLabelText("Verbatim contributing sentences");
+    expect(sentenceRegion).toHaveTextContent("Verbatim contributing sentence(s) unavailable.");
+    expect(sentenceRegion).not.toHaveTextContent(summary);
+    expect(sentenceRegion.querySelectorAll("p")).toHaveLength(1);
+    const originalPostCard = screen.getByRole("link", { name: "Open original LinkedIn post for Kara" }).querySelector("article.yc-partner-post-card");
+    expect(originalPostCard).toHaveTextContent("Verbatim source text unavailable.");
+    expect(originalPostCard).not.toHaveTextContent(summary);
+    expect(originalPostCard).not.toHaveTextContent("native LinkedIn post");
+  });
 });
+
+function ycPartnerResponse({
+  excerpt,
+  reason,
+  contributingSentences
+}: {
+  excerpt: string;
+  reason: string;
+  contributingSentences?: string[];
+}): YcPartnersResponse {
+  const confidence = {
+    level: "high" as const,
+    score: 86,
+    reasons: [reason],
+    uniqueEvidenceCount: 1,
+    uniquePlatformCount: 1,
+    uniqueContextCount: 1,
+    datedEvidenceCount: 1,
+    verifiedLinkCount: 1
+  };
+  const citation = {
+    evidenceId: "post-1",
+    sourceUrl: "https://example.com/kara-post",
+    platform: "linkedin" as const,
+    postedAt: "2026-08-12T12:00:00.000Z",
+    excerpt,
+    ...(contributingSentences ? { contributingSentences } : {}),
+    reason,
+    signalType: "explicit_superlative" as const,
+    scoreContribution: 78
+  };
+  const ranking = {
+    rank: 1,
+    companyId: "kara",
+    companyName: "Kara",
+    batchSlug: "S26",
+    batchLabel: "YC Summer 2026 (S26)",
+    score: 86,
+    confidence,
+    evidenceCount: 1,
+    primaryReason: reason,
+    citations: [citation],
+    breakdown: {
+      strongestEvidenceScore: 78,
+      secondaryEvidenceBonus: 0,
+      independentContextBonus: 0,
+      negativePenalty: 0,
+      convictionStrength: 100,
+      praiseStrength: 100,
+      specificity: 84,
+      contextQuality: 100,
+      uniqueEvidenceCount: 1,
+      uniquePlatformCount: 1,
+      uniqueContextCount: 1,
+      signalTypes: ["explicit_superlative" as const]
+    }
+  };
+
+  return {
+    generatedAt: "2026-08-14T12:00:00.000Z",
+    modelVersion: "conviction-v1",
+    modelName: "YC partner conviction score",
+    batchCount: 1,
+    companyCount: 1,
+    partnerCount: 1,
+    partners: [{
+      partnerId: "brad-flora",
+      partnerName: "Brad Flora",
+      category: "yc_partner",
+      topFavorite: ranking,
+      rankingCount: 1,
+      supportingEvidenceCount: 1,
+      confidence,
+      updatedAt: "2026-08-14T12:00:00.000Z",
+      rankings: [ranking]
+    }]
+  };
+}
+
+function ycPartnerEvidence({ title, text }: { title?: string; text: string }): GraphResponse["evidence"][number] {
+  return {
+    id: "post-1",
+    batchSlug: "S26",
+    entityType: "company",
+    entityId: "kara",
+    platform: "linkedin",
+    authorName: "Brad Flora",
+    authorHandle: "bradflora",
+    postedAt: "2026-08-12T12:00:00.000Z",
+    ...(title ? { title } : {}),
+    text,
+    mediaType: "text",
+    metrics: { likes: 12 },
+    contributionScore: 78,
+    sourceUrl: "https://example.com/kara-post",
+    why: "Test evidence"
+  };
+}
 
 function decodeDataImage(value: string | null | undefined): string {
   const payload = value?.split(",")[1] ?? "";

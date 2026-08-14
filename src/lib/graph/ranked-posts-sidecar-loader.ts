@@ -346,7 +346,7 @@ function isEvidenceItem(value: unknown): value is EvidenceItem {
   for (const key of [
     "title", "mediaUrl", "thumbnailUrl", "thumbnailSource", "linkFailureReason", "platformPostId",
     "platformObjectId", "rawVisibleText", "first_seen_at", "last_checked_at", "last_updated_at",
-    "attachedCompanyId", "attachedCompanyName", "socialAccountId", "canonicalAccountId", "accountUrl",
+    "originalText", "attributionProvenance", "attachedCompanyId", "attachedCompanyName", "socialAccountId", "canonicalAccountId", "accountUrl",
     "matchReason"
   ] as const) {
     if (value[key] !== undefined && value[key] !== null && !isBoundedString(value[key], RANKED_POSTS_SIDECAR_MAX_STRING_LENGTH)) {
@@ -357,6 +357,12 @@ function isEvidenceItem(value: unknown): value is EvidenceItem {
     return false;
   }
   if (value.tractionLimitations !== undefined && !isBoundedStringArray(value.tractionLimitations, 64, 2_000)) {
+    return false;
+  }
+  if (
+    value.verbatimContributingSentences !== undefined &&
+    !isBoundedStringArray(value.verbatimContributingSentences, 64, RANKED_POSTS_SIDECAR_MAX_STRING_LENGTH)
+  ) {
     return false;
   }
   if (

@@ -97,6 +97,11 @@ export interface EvidenceItem {
   metricsCheckedAt?: string | null;
   title?: string;
   text: string;
+  /** Full partner-authored source body, kept separate from display text. */
+  originalText?: string;
+  attributionProvenance?: string;
+  /** Exact sentence spans selected by the partner-conviction scorer. */
+  verbatimContributingSentences?: string[];
   mediaType: "text" | "image" | "video" | "link" | "repo" | "launch" | "unknown";
   mediaUrl?: string | null;
   mediaUrls?: string[];

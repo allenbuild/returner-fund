@@ -1,4 +1,5 @@
 import { canonicalPostKey, dedupeEvidenceForScoring } from "@/lib/graph/dedupe";
+import { originalEvidenceText, splitVerbatimSentences } from "@/lib/graph/verbatim-evidence-text";
 import type { EvidenceItem, Platform, TopVoiceMember } from "@/lib/graph/types";
 
 export const YC_PARTNER_FAVORITE_MODEL_VERSION = "conviction-v1";
@@ -27,6 +28,8 @@ export interface FavoriteEvidenceAnalysis {
   negativePenalty: number;
   reason: string;
   excerpt: string;
+  verbatimContributingSentences: string[];
+  /** Backwards-compatible alias for existing consumers. */
   contributingSentences: string[];
   platform: Platform;
   postedAt: string;
@@ -65,6 +68,7 @@ export interface FavoriteCitation {
   platform: Platform;
   postedAt: string;
   excerpt: string;
+  verbatimContributingSentences?: string[];
   contributingSentences?: string[];
   reason: string;
   signalType: FavoriteSignalType;
@@ -100,7 +104,11 @@ const STRONG_CONVICTION_PATTERNS = [
   /\b(?:i(?:'m| am)\s+)?(?:very\s+)?excited\s+(?:about|for|to)\b/i,
   /\b(?:this|they|it)\s+(?:is|are|will be|going to be)\s+(?:big|huge|important|a winner)\b/i,
   /\b(?:love|loved|really like|strongly believe|highly recommend)\b/i,
-  /\b(?:can't|cannot)\s+wait\b/i
+  /\b(?:can't|cannot)\s+wait\b/i,
+  /\b(?:a|the)?\s*(?:real|genuine)?\s*pleasure\s+working\s+with\b/i,
+  /\b(?:unusual|exceptional|excellent|great|strong)\s+(?:product\s+)?taste\b/i,
+  /\b(?:i|we)\s+think\s+(?:it(?:'s| is)|they(?:'re| are))\b/i,
+  /\b(?:every|any)\s+team\s+should\s+use\b/i
 ];
 
 const SPECIFICITY_TERMS = [
@@ -157,7 +165,8 @@ export function scoreFavoritePair(
   partner: TopVoiceMember,
   evidence: EvidenceItem[]
 ): FavoritePairScore {
-  const uniqueEvidence = dedupeFavoriteEvidence(evidence);
+  const uniqueEvidence = dedupeFavoriteEvidence(evidence)
+    .filter((item) => Boolean(originalEvidenceText(item)));
   const analyses = uniqueEvidence
     .map(analyzeFavoriteEvidence)
     .sort(compareAnalyses);
@@ -205,6 +214,7 @@ export function scoreFavoritePair(
       platform: analysis.platform,
       postedAt: safeCitationDate(analysis.postedAt),
       excerpt: analysis.excerpt,
+      verbatimContributingSentences: analysis.verbatimContributingSentences,
       contributingSentences: analysis.contributingSentences,
       reason: analysis.reason,
       signalType: analysis.signalType,
@@ -216,8 +226,8 @@ export function scoreFavoritePair(
 }
 
 export function analyzeFavoriteEvidence(item: EvidenceItem): FavoriteEvidenceAnalysis {
-  const originalText = item.text || item.title || item.sourceUrl;
-  const text = normalizedEvidenceText(item);
+  const originalText = originalEvidenceText(item);
+  const text = normalizedEvidenceText(originalText);
   const wordCount = text.split(/\s+/).filter(Boolean).length;
   const superlative = SUPERLATIVE_PATTERNS.some((pattern) => pattern.test(text));
   const strongConviction = STRONG_CONVICTION_PATTERNS.some((pattern) => pattern.test(text));
@@ -244,7 +254,7 @@ export function analyzeFavoriteEvidence(item: EvidenceItem): FavoriteEvidenceAna
   else if (positive) signalType = "positive_commentary";
   else if (neutral) signalType = "neutral_mention";
   else signalType = "unclear";
-  const contributingSentences = selectContributingSentences(originalText, signalType, specificity);
+  const verbatimContributingSentences = selectContributingSentences(originalText, signalType, specificity);
 
   const baseScore: Record<FavoriteSignalType, number> = {
     explicit_superlative: 78,
@@ -294,8 +304,9 @@ export function analyzeFavoriteEvidence(item: EvidenceItem): FavoriteEvidenceAna
     contextQuality,
     negativePenalty,
     reason: reasonFor(signalType, specificity),
-    excerpt: excerptFor(item.text || item.title || item.sourceUrl),
-    contributingSentences,
+    excerpt: excerptFor(originalText),
+    verbatimContributingSentences,
+    contributingSentences: verbatimContributingSentences,
     platform: item.platform,
     postedAt: item.postedAt,
     sourceUrl: item.sourceUrl
@@ -323,7 +334,7 @@ function dedupeFavoriteEvidence(items: EvidenceItem[]): EvidenceItem[] {
 }
 
 function crossPostKey(item: EvidenceItem): string | null {
-  const text = normalizedEvidenceText(item)
+  const text = normalizedEvidenceText(originalEvidenceText(item))
     .toLocaleLowerCase()
     .replace(/[^\p{L}\p{N}]+/gu, " ")
     .trim();
@@ -365,6 +376,18 @@ function confidenceFor(
   analyses: FavoriteEvidenceAnalysis[],
   breakdown: FavoriteScoreBreakdown
 ): FavoriteConfidence {
+  if (evidence.length === 0 || analyses.length === 0) {
+    return {
+      level: "low",
+      score: 0,
+      reasons: ["Verbatim partner-authored source text is unavailable."],
+      uniqueEvidenceCount: 0,
+      uniquePlatformCount: 0,
+      uniqueContextCount: 0,
+      datedEvidenceCount: 0,
+      verifiedLinkCount: 0
+    };
+  }
   const uniquePlatforms = new Set(evidence.map((item) => item.platform));
   const uniqueContexts = new Set(analyses.map((analysis) => analysis.physicalPostKey));
   const datedEvidenceCount = evidence.filter((item) => Number.isFinite(Date.parse(item.postedAt))).length;
@@ -432,8 +455,8 @@ function comparableTimestamp(value: string): number {
   return Number.isFinite(timestamp) ? timestamp : Number.MIN_SAFE_INTEGER;
 }
 
-function normalizedEvidenceText(item: EvidenceItem): string {
-  return [item.text, item.title]
+function normalizedEvidenceText(sourceText: string): string {
+  return [sourceText]
     .filter(Boolean)
     .join(" ")
     .replace(/https?:\/\/\S+/g, "")
@@ -452,29 +475,53 @@ function selectContributingSentences(
   signalType: FavoriteSignalType,
   specificity: number
 ): string[] {
-  const sentences = value
-    .match(/[^.!?]+(?:[.!?]+|$)/g)
-    ?.map((sentence) => sentence.trim())
-    .filter(Boolean) ?? [];
+  const sentences = splitVerbatimSentences(value);
   if (sentences.length <= 1) return sentences;
 
-  const signalPatterns = signalType === "explicit_superlative"
-    ? SUPERLATIVE_PATTERNS
-    : signalType === "strong_conviction"
-      ? STRONG_CONVICTION_PATTERNS
-      : signalType === "substantive_praise" || signalType === "positive_commentary"
-        ? POSITIVE_PATTERNS
-        : signalType === "negative_commentary"
-          ? NEGATIVE_PATTERNS
-          : signalType === "neutral_mention"
-            ? NEUTRAL_PATTERNS
-            : [];
-  const matchingSentences = sentences.filter((sentence) =>
-    signalPatterns.some((pattern) => pattern.test(sentence)) ||
-    (specificity >= 36 && SPECIFICITY_TERMS.some((term) => new RegExp(`\\b${term}\\b`, "i").test(sentence)))
+  const signalPatterns = signalPatternsFor(signalType);
+  const ranked = sentences.map((sentence, index) => {
+    const signalMatches = signalPatterns.filter((pattern) => pattern.test(sentence)).length;
+    const specificityMatches = SPECIFICITY_TERMS.filter((term) =>
+      new RegExp(`\\b${term}\\b`, "i").test(sentence)
+    ).length;
+    return {
+      sentence,
+      index,
+      signalMatches,
+      weight: signalMatches * 5 + (specificity >= 36 ? specificityMatches : 0)
+    };
+  });
+
+  const hasDirectSignal = ranked.some((candidate) => candidate.signalMatches > 0);
+  const matchingSentences = ranked.filter((candidate) =>
+    hasDirectSignal ? candidate.signalMatches > 0 : candidate.weight > 0
   );
 
-  return matchingSentences.length > 0 ? matchingSentences : sentences;
+  if (matchingSentences.length === 0) return sentences;
+
+  // Keep the evidence concise while allowing a long post to contribute more
+  // than one exact sentence. Original order is restored after selecting the
+  // strongest spans so the UI reads naturally and remains word-for-word.
+  const selected = matchingSentences
+    .sort((left, right) => right.weight - left.weight || left.index - right.index)
+    .slice(0, 3)
+    .sort((left, right) => left.index - right.index);
+  return selected.map((candidate) => candidate.sentence);
+}
+
+function signalPatternsFor(signalType: FavoriteSignalType): RegExp[] {
+  if (signalType === "explicit_superlative") {
+    return [...SUPERLATIVE_PATTERNS, ...STRONG_CONVICTION_PATTERNS];
+  }
+  if (signalType === "strong_conviction") {
+    return STRONG_CONVICTION_PATTERNS;
+  }
+  if (signalType === "substantive_praise" || signalType === "positive_commentary") {
+    return [...STRONG_CONVICTION_PATTERNS, ...POSITIVE_PATTERNS];
+  }
+  if (signalType === "negative_commentary") return NEGATIVE_PATTERNS;
+  if (signalType === "neutral_mention") return NEUTRAL_PATTERNS;
+  return [];
 }
 
 function clamp(value: number, minimum: number, maximum: number): number {

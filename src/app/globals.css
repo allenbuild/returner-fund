@@ -3442,6 +3442,11 @@ progress::-webkit-progress-value {
   height: 54px;
 }
 
+.yc-partner-post-title-unavailable {
+  color: var(--neutral-500) !important;
+  font-style: italic;
+}
+
 .yc-partner-contributing-sentence {
   display: grid;
   gap: 4px;
@@ -3455,6 +3460,11 @@ progress::-webkit-progress-value {
   margin: 0;
   color: var(--neutral-700);
   line-height: 1.45;
+}
+
+.yc-partner-contributing-sentence-unavailable {
+  color: var(--neutral-500) !important;
+  font-style: italic;
 }
 
 .stats-tab-body {

@@ -4374,6 +4374,10 @@ function evidenceItem(input) {
       : {}),
     platformPostId: input.platformPostId ?? platformPostIdFromUrl(input.platform, input.sourceUrl),
     text: truncatePublicText(input.text, 600),
+    // Keep the complete native body for downstream conviction scoring. The
+    // display `text` field remains bounded, while originalText never falls
+    // back to title, matchReason, or any attribution summary.
+    ...(preserveOriginalBodyText(input.text) ? { originalText: preserveOriginalBodyText(input.text) } : {}),
     rawVisibleText: truncatePublicText(input.rawVisibleText, 6000),
     ...(Array.isArray(input.mediaUrls) && input.mediaUrls.length
       ? { mediaUrls: input.mediaUrls.slice(0, 4) }
@@ -6172,6 +6176,14 @@ function truncatePublicText(value, maxCodeUnits) {
     end -= 1;
   }
   return replaceUnpairedUtf16Surrogates(text.slice(0, end));
+}
+
+function preserveOriginalBodyText(value) {
+  const text = String(value ?? "")
+    .replace(/\r\n?/g, "\n")
+    .replace(/\u0000/g, "")
+    .trim();
+  return replaceUnpairedUtf16Surrogates(text).slice(0, 25_000);
 }
 
 function replaceUnpairedUtf16Surrogates(value) {
