@@ -3123,17 +3123,15 @@ progress::-webkit-progress-value {
 }
 
 .yc-partner-overview-card {
-  position: relative;
   display: flex;
   width: 100%;
   min-width: 0;
   min-height: 148px;
   flex-direction: column;
   gap: 18px;
-  overflow: hidden;
-  border: 1px solid #eee5dd;
+  border: 1px solid var(--accent-outline);
   border-radius: 17px;
-  background: linear-gradient(145deg, #ffffff 0%, #fffaf6 100%);
+  background: #ffffff;
   padding: 16px;
   color: var(--neutral-800);
   cursor: pointer;
@@ -3143,21 +3141,10 @@ progress::-webkit-progress-value {
   transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
 }
 
-.yc-partner-overview-card::before {
-  position: absolute;
-  top: 0;
-  right: 18px;
-  left: 18px;
-  height: 3px;
-  border-radius: 0 0 999px 999px;
-  background: linear-gradient(90deg, var(--accent-strong), #f9bc85 68%, transparent);
-  content: "";
-  opacity: 0.9;
-}
-
 .yc-partner-overview-card:hover,
 .yc-partner-overview-card:focus-visible {
-  border-color: var(--accent-border-medium);
+  border-color: var(--accent);
+  background: var(--accent-hover);
   box-shadow: 0 12px 28px rgba(112, 61, 20, 0.11);
   outline: none;
   transform: translateY(-2px);
@@ -3227,7 +3214,7 @@ progress::-webkit-progress-value {
   flex-direction: column;
   gap: 2px;
   flex: 0 0 auto;
-  color: var(--accent-strong);
+  color: var(--accent);
 }
 
 .yc-partner-confidence-score small {
@@ -3437,7 +3424,7 @@ progress::-webkit-progress-value {
 }
 
 .yc-partner-ranking-score {
-  color: var(--accent-strong);
+  color: var(--accent);
   font-size: 1.5rem;
   font-weight: 800;
   line-height: 1;
@@ -3449,6 +3436,59 @@ progress::-webkit-progress-value {
 .yc-partner-ranking-score small {
   color: var(--neutral-400);
   font-size: 0.62rem;
+}
+
+.yc-partner-ranking-company-empty {
+  color: var(--neutral-300);
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.yc-partner-ranking-evidence {
+  margin-top: 8px;
+  border: 1px solid var(--accent-border-soft);
+  border-radius: 9px;
+  background: #fffaf6;
+  color: var(--neutral-600);
+  font-size: 0.72rem;
+}
+
+.yc-partner-ranking-evidence summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 10px;
+  color: var(--accent);
+  cursor: pointer;
+  font-weight: 750;
+  list-style: none;
+}
+
+.yc-partner-ranking-evidence summary::-webkit-details-marker {
+  display: none;
+}
+
+.yc-partner-ranking-evidence summary svg {
+  transition: transform 140ms ease;
+}
+
+.yc-partner-ranking-evidence[open] summary svg {
+  transform: rotate(180deg);
+}
+
+.yc-partner-ranking-evidence-list {
+  display: grid;
+  gap: 6px;
+  padding: 0 10px 9px;
+}
+
+.yc-partner-ranking-evidence blockquote {
+  margin: 0;
+  border-left: 2px solid var(--accent);
+  padding-left: 9px;
+  color: var(--neutral-700);
+  line-height: 1.45;
 }
 
 .yc-partner-confidence-details {

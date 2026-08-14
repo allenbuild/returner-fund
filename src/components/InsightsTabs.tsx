@@ -7,6 +7,7 @@ import {
   AlertTriangle,
   CheckCircle2,
   ChevronLeft,
+  ChevronDown,
   ChevronRight,
   Clock3,
   Database,
@@ -690,13 +691,7 @@ function YcPartnersTab({
       {selectedPartner ? (
         <YcPartnerDetail partner={selectedPartner} onClose={() => onSelectPartner(null)} onSelectNode={onSelectNode} />
       ) : (
-        <section aria-labelledby="yc-partners-overview-title">
-          <div className="yc-partner-overview-heading">
-            <div>
-              <h3 id="yc-partners-overview-title">Top confidence by partner</h3>
-            </div>
-            <span>{data.companyCount.toLocaleString()} startups in scope</span>
-          </div>
+        <section aria-label="YC partner favorite leaders">
           <ul className="yc-partner-overview" aria-label="YC partner favorite leaders">
             {data.partners.map((partner) => (
               <li key={partner.partnerId}>
@@ -711,7 +706,7 @@ function YcPartnersTab({
 }
 
 function YcPartnerOverviewCard({ partner, onClick }: { partner: YcPartnerFavoriteDetail; onClick: () => void }) {
-  const favorite = partner.topFavorite && partner.topFavorite.evidenceCount > 0 ? partner.topFavorite : null;
+  const favorite = partner.topFavorite && partner.topFavorite.confidence.score > 0 ? partner.topFavorite : null;
   return (
     <button
       type="button"
@@ -772,16 +767,33 @@ function YcPartnerDetail({ partner, onClose, onSelectNode }: { partner: YcPartne
 }
 
 function YcPartnerRankingRow({ ranking, onSelectNode }: { ranking: YcPartnerFavoriteRanking; onSelectNode: (nodeId: string) => void }) {
+  const hasScore = ranking.confidence.score > 0;
+  const citationSentences = ranking.citations
+    .map((citation) => citation.excerpt.trim())
+    .filter(Boolean);
+
   return (
-    <li className="yc-partner-ranking-row" aria-label={`${ranking.companyName}, rank ${ranking.rank}`}>
+    <li className={`yc-partner-ranking-row${hasScore ? " yc-partner-ranking-row-scored" : ""}`} aria-label={`${hasScore ? ranking.companyName : "Unscored startup"}, rank ${ranking.rank}`}>
       <div className="yc-partner-ranking-rank" aria-label={`Rank ${ranking.rank}`}>#{ranking.rank}</div>
       <article className="yc-partner-ranking-main">
         <header className="yc-partner-ranking-title">
           <div className="yc-partner-ranking-company">
-            <button type="button" className="leaderboard-company-button" onClick={() => onSelectNode(`company:${ranking.companyId}`)} aria-label={`Open ${ranking.companyName} profile`}>{ranking.companyName}</button>
+            {hasScore ? (
+              <button type="button" className="leaderboard-company-button" onClick={() => onSelectNode(`company:${ranking.companyId}`)} aria-label={`Open ${ranking.companyName} profile`}>{ranking.companyName}</button>
+            ) : (
+              <span className="yc-partner-ranking-company-empty" aria-label="No company shown because confidence score is zero">—</span>
+            )}
           </div>
           <div className="yc-partner-ranking-score" aria-label={`Confidence score ${ranking.confidence.score} out of 100`}><strong>{ranking.confidence.score}</strong><small>/100</small></div>
         </header>
+        {hasScore && citationSentences.length > 0 && (
+          <details className="yc-partner-ranking-evidence">
+            <summary>Contributing sentences <ChevronDown size={14} aria-hidden="true" /></summary>
+            <div className="yc-partner-ranking-evidence-list">
+              {citationSentences.map((sentence, index) => <blockquote key={`${ranking.companyId}-sentence-${index}`}>{sentence}</blockquote>)}
+            </div>
+          </details>
+        )}
       </article>
     </li>
   );
