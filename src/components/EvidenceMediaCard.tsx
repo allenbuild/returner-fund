@@ -6,6 +6,7 @@ import {
   generatedEvidenceThumbnailUrl
 } from "@/lib/graph/generated-evidence-thumbnail";
 import { evidenceDisplayText } from "@/lib/graph/evidence-display";
+import { resolveEvidenceThumbnail } from "@/lib/graph/evidence-thumbnails";
 import { normalizeMetricsForScoring } from "@/lib/graph/traction-scoring-config";
 import type { EvidenceItem } from "@/lib/graph/types";
 import { formatPlatform, PlatformLogo } from "./PlatformLogo";
@@ -84,9 +85,10 @@ function EvidenceMediaCardContent({ item, compact = false }: EvidenceMediaCardPr
 }
 
 function thumbnailUrlCandidates(item: EvidenceItem): string[] {
+  const resolved = resolveEvidenceThumbnail(item).thumbnailUrl;
   const generatedDataUri = generatedEvidenceThumbnailDataUri(item);
   const generatedUrl = generatedEvidenceThumbnailUrl(item);
-  return uniqueStrings([item.thumbnailUrl, generatedDataUri, generatedUrl]);
+  return uniqueStrings([resolved, item.thumbnailUrl, generatedDataUri, generatedUrl]);
 }
 
 function uniqueStrings(values: Array<string | null | undefined>): string[] {

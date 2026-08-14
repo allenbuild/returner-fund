@@ -95,7 +95,7 @@ export function enrichEvidenceThumbnail<T extends ThumbnailInput>(item: T): T & 
 
 export function resolveEvidenceThumbnail(item: ThumbnailInput): EvidenceThumbnailResolution {
   const explicitThumbnail = sanitizeUrl(item.thumbnailUrl);
-  if (explicitThumbnail) {
+  if (explicitThumbnail && !isGeneratedFallbackThumbnail(explicitThumbnail)) {
     return {
       thumbnailUrl: explicitThumbnail,
       thumbnailSource: item.thumbnailSource ?? "stored",
@@ -122,13 +122,30 @@ export function resolveEvidenceThumbnail(item: ThumbnailInput): EvidenceThumbnai
     ...cleanUrls(item.mediaUrls ?? []),
     ...thumbnailCandidatesFromRaw(item.rawVisibleText)
   ];
-  const selected = choosePlatformThumbnail(item.platform, candidates, item.sourceUrl);
+  const selected = choosePlatformThumbnail(
+    item.platform,
+    item.platform === "x" ? [...candidates, ...xVideoPosterUrls(candidates)] : candidates,
+    item.sourceUrl
+  );
 
   return {
     thumbnailUrl: selected?.url ?? null,
     thumbnailSource: selected?.source ?? null,
     mediaUrl: sanitizeUrl(item.mediaUrl) ?? selected?.url ?? null
   };
+}
+
+export function xVideoPosterUrls(candidates: string[]): string[] {
+  return cleanUrls(
+    candidates.flatMap((candidate) => {
+      const match = candidate.match(
+        /https?:\/\/video\.twimg\.com\/(?:amplify_video|tweet_video|ext_tw_video)\/(\d+)\//i
+      );
+      if (!match) return [];
+      const kind = /amplify_video/i.test(candidate) ? "amplify_video_thumb" : "tweet_video_thumb";
+      return [`https://pbs.twimg.com/${kind}/${match[1]}.jpg`];
+    })
+  );
 }
 
 export function thumbnailCandidatesFromRaw(rawVisibleText?: string): string[] {

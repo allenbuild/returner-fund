@@ -46,6 +46,37 @@ describe("evidence thumbnail resolution", () => {
     expect(resolved.thumbnailSource).toBe("x-media");
   });
 
+  it("derives a native X poster from a stored video URL", () => {
+    const resolved = resolveEvidenceThumbnail({
+      id: "x-video-evidence",
+      platform: "x",
+      sourceUrl: "https://x.com/nori/status/2072025943397564912",
+      mediaUrl: "https://video.twimg.com/amplify_video/2072025858383237120/vid/avc1/1280x720/video.mp4"
+    });
+
+    expect(resolved.thumbnailUrl).toBe(
+      "https://pbs.twimg.com/amplify_video_thumb/2072025858383237120.jpg"
+    );
+    expect(resolved.thumbnailSource).toBe("x-media");
+  });
+
+  it("prefers media URLs over a generated thumbnail stored in the evidence row", () => {
+    const enriched = enrichEvidenceThumbnail({
+      id: "instagram-generated-stale",
+      platform: "instagram",
+      sourceUrl: "https://www.instagram.com/reel/ABC/",
+      thumbnailUrl: "/api/evidence-thumbnail?platform=instagram&id=instagram-generated-stale",
+      thumbnailSource: "generated-post-thumbnail",
+      mediaUrls: ["https://scontent.cdninstagram.com/v/t51.71878-15/post_cover.jpg?format=jpg"],
+      authorName: "Acme",
+      text: "Launch update",
+      contributionScore: 50
+    });
+
+    expect(enriched.thumbnailUrl).toContain("t51.71878-15");
+    expect(enriched.thumbnailSource).toBe("instagram-media");
+  });
+
   it("extracts Instagram post media but rejects profile pictures", () => {
     const resolved = resolveEvidenceThumbnail({
       id: "ig-evidence",

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
-  "publishedAt": "2026-08-14T03:36:50.448Z",
-  "ingestionRunId": "file:central-2026-08-13-1800",
+  "publishedAt": "2026-08-14T08:31:14.184Z",
+  "ingestionRunId": "file:thumbnail-backfill-2026-08-14-0328",
   "evidenceCollectedAt": "2026-08-14T01:47:36.682Z",
   "oldestPlatformRefreshAt": "2026-07-29T07:11:00.000Z",
   "modelVersions": [
@@ -37,65 +37,65 @@
   "graphArtifacts": [
     {
       "filename": "a16zsr006-insiders.json",
-      "sha256": "617e9e3d1780cdbe9310d20ff9f33e237faeccb9eedc05f972c7dbe1b6c74373",
+      "sha256": "6fcfe06a665414b7237f74593e005145dadffde0ae49cef9d385743b3404d021",
       "byteSize": 182208,
-      "generatedAt": "2026-08-14T03:02:37.016Z",
+      "generatedAt": "2026-08-14T08:24:38.489Z",
       "modelVersion": "4.2.0"
     },
     {
       "filename": "a16zsr006-yc-partners.json",
-      "sha256": "26e2a4402960a094afa8c7f575deb9df9a93b648daffa23a7d0608d35adb200b",
+      "sha256": "7a49f2404100e0e7aa688111b9fb95fd636dc5844a8a57ed3971bcfe77df5125",
       "byteSize": 7592,
-      "generatedAt": "2026-08-14T03:02:34.533Z",
+      "generatedAt": "2026-08-14T08:24:36.023Z",
       "modelVersion": "4.2.0"
     },
     {
       "filename": "a16zsr006.json",
-      "sha256": "e6b6256f23fbb7c91f5c8067e845907a6a91fd2e8165bd075aefec7f5597efa0",
+      "sha256": "a9f551b78886c4c64f8eabc2aa5e85306f5d705e70c8bfc87612f892c22c97b9",
       "byteSize": 19755254,
-      "generatedAt": "2026-08-14T03:02:33.302Z",
+      "generatedAt": "2026-08-14T08:24:34.883Z",
       "modelVersion": "4.2.0"
     },
     {
       "filename": "s2026-insiders.json",
-      "sha256": "99c295aafbcb834a1636bcf31a5f2d419c3db0c992862f5f58c270aa6b48bf80",
-      "byteSize": 1153348,
-      "generatedAt": "2026-08-14T03:02:16.443Z",
+      "sha256": "b30f47e6ebc31052d3f7fc7b386944116e7e94ad83c1cc74a5e291c3b620a8c5",
+      "byteSize": 1153344,
+      "generatedAt": "2026-08-14T08:24:18.695Z",
       "modelVersion": "4.2.0"
     },
     {
       "filename": "s2026-yc-partners.json",
-      "sha256": "2f5d7dcbfed559ed53c2b3f7b901cad87c77b3e44483a6177a9a310ddcd4fcf9",
-      "byteSize": 1879463,
-      "generatedAt": "2026-08-14T03:02:10.474Z",
+      "sha256": "2c23e8e812ce2ddb21ff2ccb35f939009da14ba2b60242aba9c5d284c21bf861",
+      "byteSize": 1879458,
+      "generatedAt": "2026-08-14T08:24:12.955Z",
       "modelVersion": "4.2.0"
     },
     {
       "filename": "s2026.json",
-      "sha256": "a800f7720dca542bc2c9fe6a5649a714c52bfc3ce37c950cd8b26e76bf76feef",
-      "byteSize": 18832507,
-      "generatedAt": "2026-08-14T03:02:06.725Z",
+      "sha256": "320e907b33f8cbad09ee0b7cc27e61ff9801355efac4d7954a450ad004d54531",
+      "byteSize": 18831307,
+      "generatedAt": "2026-08-14T08:24:09.469Z",
       "modelVersion": "4.2.0"
     },
     {
       "filename": "s26-insiders.json",
-      "sha256": "08601eef3b664109780f418c17f72444cf4a3a969753adf03a255f3266230077",
+      "sha256": "088c7ddc4eb701e0887df5b9513ccfd3e87db4cd4670a9831707d82559da154a",
       "byteSize": 7267,
-      "generatedAt": "2026-08-14T03:02:29.152Z",
+      "generatedAt": "2026-08-14T08:24:30.864Z",
       "modelVersion": "4.2.0"
     },
     {
       "filename": "s26-yc-partners.json",
-      "sha256": "951acec825df2d01a1b93dffc81a3fe7015bc4db1699a075b639195bbc792d67",
-      "byteSize": 813515,
-      "generatedAt": "2026-08-14T03:02:24.917Z",
+      "sha256": "0ce95ba49e7e0402fc8e8eb631a92932fd52bb37fbde25c05c6fca6940003cca",
+      "byteSize": 816209,
+      "generatedAt": "2026-08-14T08:24:26.841Z",
       "modelVersion": "4.2.0"
     },
     {
       "filename": "s26.json",
-      "sha256": "68e84f4eb8e266ba8e7d47d6da9df5b08886decdee04ee521162a7f102e55e18",
-      "byteSize": 16040269,
-      "generatedAt": "2026-08-14T03:02:22.434Z",
+      "sha256": "242515d09b13798be0014d640f990fdf655dfe2cdfed3315e136abd8ade1b392",
+      "byteSize": 16042645,
+      "generatedAt": "2026-08-14T08:24:24.535Z",
       "modelVersion": "4.2.0"
     }
   ],
@@ -138,8 +138,8 @@
         "src/lib/social/logged-in-evidence-current.json"
       ],
       "fileCount": 1,
-      "totalByteSize": 21125896,
-      "contentHash": "8fa38920cf3e4bf94393ce85d5cca255e3e251add79efdb6d8c2ee8723c9e9e0"
+      "totalByteSize": 21707090,
+      "contentHash": "ebd86776bcb288c648834d0fb4121add579501493b43d622ba1f589073638dbd"
     },
     {
       "key": "topicFacets",
@@ -157,7 +157,7 @@
       ],
       "fileCount": 1,
       "totalByteSize": 1203319,
-      "contentHash": "6378e685e594c57628646f0400680de50a022c7931a470e784a13aea9021dcba"
+      "contentHash": "bc211b80704086bef7545444b4ae544a3dd088782eff067dc57949c2452df2be"
     },
     {
       "key": "timelines",
@@ -179,5 +179,5 @@
       "contentHash": "e22bfc5d82e2e4b1940ef7b38223f7cc8886d157b3e455c96a9f22742007bfa7"
     }
   ],
-  "contentHash": "048e77dd1e8e34f64c4234d1812c325da75ca48e09152e339b58f1ef835d1fcc"
+  "contentHash": "75745d65775b3101479d1f432cf96b733de2ffaccbcb6d229bea085ba2c65c95"
 }

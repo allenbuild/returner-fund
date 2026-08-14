@@ -41,6 +41,7 @@ import {
   type DailyDatabaseGrowthPoint
 } from "@/lib/graph/database-stats";
 import { evidenceDisplayText, isGenericEvidenceLabel } from "@/lib/graph/evidence-display";
+import { resolveEvidenceThumbnail } from "@/lib/graph/evidence-thumbnails";
 import { selectRankedPosts, type RankedPostsPeriod } from "@/lib/graph/ranked-posts";
 import type { RankedPostsSidecarScope } from "@/lib/graph/ranked-posts-sidecar";
 import type {
@@ -1185,9 +1186,10 @@ function ContributionThumbnailContent({ item }: { item: EvidenceItem | null }) {
 }
 
 function thumbnailUrlCandidates(item: EvidenceItem): string[] {
+  const resolved = resolveEvidenceThumbnail(item).thumbnailUrl;
   const generatedDataUri = generatedEvidenceThumbnailDataUri(item);
   const generatedUrl = generatedEvidenceThumbnailUrl(item);
-  return uniqueStrings([item.thumbnailUrl, generatedDataUri, generatedUrl]);
+  return uniqueStrings([resolved, item.thumbnailUrl, generatedDataUri, generatedUrl]);
 }
 
 function uniqueStrings(values: Array<string | null | undefined>): string[] {
