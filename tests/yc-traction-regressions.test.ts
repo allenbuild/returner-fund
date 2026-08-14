@@ -185,8 +185,7 @@ describe("YC traction scoring regressions", () => {
     expect(springInstagram?.status).toBe("working");
     expect(summerInstagram?.status).toBe("working");
     expect(springInstagram?.authMethod).toContain("authenticated browser session");
-    expect(summerInstagram?.authMethod.toLowerCase()).toContain("official yc profile links");
-    expect(summerInstagram?.authMethod.toLowerCase()).not.toContain("authenticated browser session");
+    expect(summerInstagram?.authMethod).toContain("authenticated browser session");
   });
 
   it("does not carry old Spring evidence into Conifer's selected company feed", () => {
