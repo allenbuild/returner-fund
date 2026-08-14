@@ -2,7 +2,7 @@
   "source": {
     "label": "Opt-in logged-in browser social post ingestion",
     "batchSlug": "S2026",
-    "fetchedAt": "2026-08-13T13:52:15.490Z",
+    "fetchedAt": "2026-08-14T01:47:26.652Z",
     "targetCount": 16,
     "fetchedCount": 0,
     "failedCount": 1,
@@ -116018,7 +116018,7 @@
       "accountUrl": "https://www.instagram.com/chert_hq/",
       "sourceUrl": "https://www.instagram.com/chert_hq/",
       "message": "Instagram browser grid extractor failed: ✖ Browser profile \"4dwub6zw\" is not connected ✖ Hint: Open the matching Chrome profile and make sure the OpenCLI extension is enabled, or choose another profile with opencli profile use <name>. OpenCLI command failed with exit code 1. | OpenCLI browser operation failed and authenticated session cleanup also failed. | OpenCLI browser session cleanup failed; the authenticated session lease may still be active and the collection outcome is failed.",
-      "checkedAt": "2026-08-13T12:44:33.277Z"
+      "checkedAt": "2026-08-14T00:45:40.875Z"
     },
     {
       "id": "failure-instagram-company-chert-www-instagram-com-chert-hq-instagram-profile-adapter-failed-ok-false-error-code-browser-connect-message-browser-profile-4dwub6zw-is-not-connected-he",
@@ -116033,7 +116033,7 @@
       "accountUrl": "https://www.instagram.com/chert_hq/",
       "sourceUrl": "https://www.instagram.com/chert_hq/",
       "message": "Instagram profile adapter failed: ok: false error: code: BROWSER_CONNECT message: Browser profile \"4dwub6zw\" is not connected help: >- Open the matching Chrome profile and make sure the OpenCLI extension is enabled, or choose another profile with opencli profile use <name>. exitCode: 69 OpenCLI command failed with exit code 69.",
-      "checkedAt": "2026-08-13T12:44:33.277Z"
+      "checkedAt": "2026-08-14T00:45:40.875Z"
     },
     {
       "id": "failure-instagram-company-chert-www-instagram-com-chert-hq-instagram-profile-adapter-failed-ok-false-error-code-command-exec-message-pre-navigation-to-www-instagram-com-failed-deta",
@@ -116063,7 +116063,7 @@
       "accountUrl": "https://www.instagram.com/chert_hq/",
       "sourceUrl": "https://www.instagram.com/chert_hq/",
       "message": "Instagram profile identity was not proven for @chert_hq: profile_identity_missing.",
-      "checkedAt": "2026-08-13T12:44:33.277Z"
+      "checkedAt": "2026-08-14T00:45:40.875Z"
     },
     {
       "id": "failure-instagram-company-chert-www-instagram-com-chert-hq-instagram-user-adapter-failed-ok-false-error-code-browser-connect-message-browser-profile-4dwub6zw-is-not-connected-help-",
@@ -116078,7 +116078,7 @@
       "accountUrl": "https://www.instagram.com/chert_hq/",
       "sourceUrl": "https://www.instagram.com/chert_hq/",
       "message": "Instagram user adapter failed: ok: false error: code: BROWSER_CONNECT message: Browser profile \"4dwub6zw\" is not connected help: >- Open the matching Chrome profile and make sure the OpenCLI extension is enabled, or choose another profile with opencli profile use <name>. exitCode: 69 OpenCLI command failed with exit code 69.",
-      "checkedAt": "2026-08-13T12:44:33.277Z"
+      "checkedAt": "2026-08-14T00:45:40.875Z"
     },
     {
       "id": "failure-instagram-company-chert-www-instagram-com-chert-hq-instagram-user-adapter-failed-ok-false-error-code-unknown-message-detached-while-handling-command-exitcode-1-autofix-re-r",

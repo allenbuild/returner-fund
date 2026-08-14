@@ -5,9 +5,33 @@
     "slug": "insforge",
     "name": "InsForge"
   },
-  "generatedAt": "2026-08-13T13:58:02.849Z",
-  "lastModifiedAt": "2026-08-13T13:58:02.849Z",
+  "generatedAt": "2026-08-14T01:51:39.229Z",
+  "lastModifiedAt": "2026-08-14T01:51:39.229Z",
   "events": [
+    {
+      "id": "tle-dbc36236a97f23c739f4e5b4",
+      "eventDate": "2026-08-13",
+      "eventDateType": "announcement_date",
+      "title": "InsForge was accepted into Y Combinator",
+      "summary": "InsForge got into YC just 17 days before the P26 batch started.",
+      "category": "accelerator",
+      "isMajor": true,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-bc3b1ba543deba3a9fcc08a6",
+          "title": "We got into YC just 17 days before the P26 batch started.",
+          "publisher": "hanghuang_",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-08-13T19:11:39.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/hanghuang_/status/2087980421736812792"
+        }
+      ]
+    },
     {
       "id": "tle-9c53ff63734d5516825e0c77",
       "eventDate": "2026-08-10",
@@ -299,7 +323,7 @@
       "months": [
         {
           "month": "2026-08",
-          "count": 1
+          "count": 2
         },
         {
           "month": "2026-07",
@@ -322,8 +346,8 @@
   ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 11,
-    "lastSuccessfulArtifactAt": "2026-08-13T13:58:02.849Z"
+    "publishedEventCount": 12,
+    "lastSuccessfulArtifactAt": "2026-08-14T01:51:39.229Z"
   },
   "nextCursor": null
 }

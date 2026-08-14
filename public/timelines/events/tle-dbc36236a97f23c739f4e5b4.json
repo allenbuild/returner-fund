@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-insforge",
+    "slug": "insforge",
+    "name": "InsForge"
+  },
+  "event": {
+    "id": "tle-dbc36236a97f23c739f4e5b4",
+    "eventDate": "2026-08-13",
+    "eventDateType": "announcement_date",
+    "title": "InsForge was accepted into Y Combinator",
+    "summary": "InsForge got into YC just 17 days before the P26 batch started.",
+    "category": "accelerator",
+    "isMajor": true,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-bc3b1ba543deba3a9fcc08a6",
+        "title": "We got into YC just 17 days before the P26 batch started.",
+        "publisher": "hanghuang_",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-08-13T19:11:39.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/hanghuang_/status/2087980421736812792"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-bc3b1ba543deba3a9fcc08a6",
+        "title": "We got into YC just 17 days before the P26 batch started.",
+        "publisher": "hanghuang_",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-08-13T19:11:39.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/hanghuang_/status/2087980421736812792",
+        "publicationDate": "2026-08-13T19:11:39.000Z",
+        "excerpt": "We got into YC just 17 days before the P26 batch started. In 2 days, we had moved our entire team to SF. We had just finished @InsForge Launch Week 1. Then, YC General Partner @amiklas sent us an email: “Congrats on the Product Hunt launch. Got a moment to catch up later https://t.co/CPhLHKYGBj",
+        "sourceEventDate": "2026-08-13",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-e3287b362d73e1698543ab67",
+        "platform": "x",
+        "account": "hanghuang_",
+        "postDate": "2026-08-13",
+        "excerpt": "We got into YC just 17 days before the P26 batch started. In 2 days, we had moved our entire team to SF. We had just finished @InsForge Launch Week 1. Then, YC General Partner @amiklas sent us an email: “Congrats on the Product Hunt launch. Got a moment to catch up later https://t.co/CPhLHKYGBj",
+        "url": "https://x.com/hanghuang_/status/2087980421736812792",
+        "metrics": {
+          "likes": 31,
+          "reposts": 0,
+          "replies": 7,
+          "views": 1211
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-14T01:51:39.229Z",
+  "lastModifiedAt": "2026-08-14T01:51:39.229Z"
+}

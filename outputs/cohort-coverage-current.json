@@ -12,8 +12,8 @@
         "catalog": "src/lib/social/a16z-speedrun-006-social-accounts.json",
         "profileSource": "src/lib/graph/a16z-speedrun-006-dataset.ts",
         "graph": "public/graph/a16zsr006.json",
-        "publicRun": "/Users/allenxu/returner-fund-actions-runner/_work/returner-fund/returner-fund/work/autonomous-ingestion/central-2026-08-13-0600-4216ca599faaee70/public-a16zsr006.json",
-        "githubRun": "/Users/allenxu/returner-fund-actions-runner/_work/returner-fund/returner-fund/work/autonomous-ingestion/central-2026-08-13-0600-4216ca599faaee70/github-a16zsr006.json"
+        "publicRun": "/Users/allenxu/returner-fund-actions-runner/_work/returner-fund/returner-fund/work/autonomous-ingestion/central-2026-08-13-1800-8a852f5eebe862d2/public-a16zsr006.json",
+        "githubRun": "/Users/allenxu/returner-fund-actions-runner/_work/returner-fund/returner-fund/work/autonomous-ingestion/central-2026-08-13-1800-8a852f5eebe862d2/github-a16zsr006.json"
       },
       "counts": {
         "companies": 59,
@@ -24,7 +24,7 @@
         "plannedOwnerMappings": 339,
         "multiAccountOwnerMappings": 4,
         "graphEvidence": 5000,
-        "graphNeedsReview": 2378
+        "graphNeedsReview": 2384
       },
       "structural": {
         "status": "pass",
@@ -828,8 +828,8 @@
         "catalog": "src/lib/yc/spring-2026-companies.json",
         "profileSource": null,
         "graph": "public/graph/s2026.json",
-        "publicRun": "/Users/allenxu/returner-fund-actions-runner/_work/returner-fund/returner-fund/work/autonomous-ingestion/central-2026-08-13-0600-4216ca599faaee70/public-s2026.json",
-        "githubRun": "/Users/allenxu/returner-fund-actions-runner/_work/returner-fund/returner-fund/work/autonomous-ingestion/central-2026-08-13-0600-4216ca599faaee70/github-s2026.json"
+        "publicRun": "/Users/allenxu/returner-fund-actions-runner/_work/returner-fund/returner-fund/work/autonomous-ingestion/central-2026-08-13-1800-8a852f5eebe862d2/public-s2026.json",
+        "githubRun": "/Users/allenxu/returner-fund-actions-runner/_work/returner-fund/returner-fund/work/autonomous-ingestion/central-2026-08-13-1800-8a852f5eebe862d2/github-s2026.json"
       },
       "counts": {
         "companies": 197,
@@ -840,7 +840,7 @@
         "plannedOwnerMappings": 994,
         "multiAccountOwnerMappings": 1,
         "graphEvidence": 5000,
-        "graphNeedsReview": 9914
+        "graphNeedsReview": 9939
       },
       "structural": {
         "status": "pass",
@@ -1316,6 +1316,11 @@
           {
             "entityId": "company-the-company-company",
             "name": "The Company Company",
+            "companyName": null
+          },
+          {
+            "entityId": "company-thomas",
+            "name": "Thomas",
             "companyName": null
           },
           {
@@ -1838,6 +1843,11 @@
             "companyName": null
           },
           {
+            "entityId": "company-thomas",
+            "name": "Thomas",
+            "companyName": null
+          },
+          {
             "entityId": "company-valctrl",
             "name": "ValCtrl",
             "companyName": null
@@ -2298,19 +2308,19 @@
         "catalog": "src/lib/yc/summer-2026-companies.json",
         "profileSource": null,
         "graph": "public/graph/s26.json",
-        "publicRun": "/Users/allenxu/returner-fund-actions-runner/_work/returner-fund/returner-fund/work/autonomous-ingestion/central-2026-08-13-0600-4216ca599faaee70/public-s26.json",
-        "githubRun": "/Users/allenxu/returner-fund-actions-runner/_work/returner-fund/returner-fund/work/autonomous-ingestion/central-2026-08-13-0600-4216ca599faaee70/github-s26.json"
+        "publicRun": "/Users/allenxu/returner-fund-actions-runner/_work/returner-fund/returner-fund/work/autonomous-ingestion/central-2026-08-13-1800-8a852f5eebe862d2/public-s26.json",
+        "githubRun": "/Users/allenxu/returner-fund-actions-runner/_work/returner-fund/returner-fund/work/autonomous-ingestion/central-2026-08-13-1800-8a852f5eebe862d2/github-s26.json"
       },
       "counts": {
-        "companies": 213,
-        "founders": 416,
-        "catalogOwnerMappings": 1028,
-        "graphOwnerMappings": 1024,
-        "catalogOwnerPlatformGroups": 1028,
-        "plannedOwnerMappings": 1028,
+        "companies": 218,
+        "founders": 426,
+        "catalogOwnerMappings": 1050,
+        "graphOwnerMappings": 1045,
+        "catalogOwnerPlatformGroups": 1050,
+        "plannedOwnerMappings": 1050,
         "multiAccountOwnerMappings": 0,
         "graphEvidence": 5000,
-        "graphNeedsReview": 7800
+        "graphNeedsReview": 7854
       },
       "structural": {
         "status": "pass",
@@ -2400,6 +2410,24 @@
               "founder-audun-magnus-vonen-3632034"
             ],
             "key": "S26|founder|founder-audun-magnus-vonen-3632034|linkedin|https://linkedin.com/in/magnus-nj%C3%B8lstad-vonen-518945208"
+          },
+          {
+            "batchSlug": "S26",
+            "entityType": "founder",
+            "entityId": "founder-princeps-conrad-fr-yland-moe-3685149",
+            "entityName": "Conrad Frøyland Moe",
+            "sourceId": "3685149",
+            "companyEntityId": "company-princeps",
+            "companySlug": "princeps",
+            "platform": "linkedin",
+            "canonicalUrl": "https://linkedin.com/in/conrad-fr%C3%B8yland-moe-7950b1229",
+            "originalUrl": "https://www.linkedin.com/in/conrad-fr%C3%B8yland-moe-7950b1229/",
+            "ownerReferenceCandidates": [
+              "3685149",
+              "founder-princeps-conrad-fr-yland-moe-3685149",
+              "princeps-conrad-fr-yland-moe-3685149"
+            ],
+            "key": "S26|founder|founder-princeps-conrad-fr-yland-moe-3685149|linkedin|https://linkedin.com/in/conrad-fr%C3%B8yland-moe-7950b1229"
           }
         ],
         "unexpectedGraphOwnerMappings": [],
@@ -2407,39 +2435,39 @@
         "mappingCoverage": {
           "github": {
             "companyMapped": 40,
-            "companyMissing": 173,
+            "companyMissing": 178,
             "founderMapped": 1,
-            "founderMissing": 415
+            "founderMissing": 425
           },
           "instagram": {
             "companyMapped": 7,
-            "companyMissing": 206,
+            "companyMissing": 211,
             "founderMapped": 0,
-            "founderMissing": 416
+            "founderMissing": 426
           },
           "linkedin": {
-            "companyMapped": 191,
+            "companyMapped": 196,
             "companyMissing": 22,
-            "founderMapped": 412,
+            "founderMapped": 422,
             "founderMissing": 4
           },
           "product_hunt": {
             "companyMapped": 5,
-            "companyMissing": 208,
+            "companyMissing": 213,
             "founderMapped": 0,
-            "founderMissing": 416
+            "founderMissing": 426
           },
           "x": {
-            "companyMapped": 120,
-            "companyMissing": 93,
-            "founderMapped": 240,
-            "founderMissing": 176
+            "companyMapped": 121,
+            "companyMissing": 97,
+            "founderMapped": 246,
+            "founderMissing": 180
           },
           "youtube": {
             "companyMapped": 11,
-            "companyMissing": 202,
+            "companyMissing": 207,
             "founderMapped": 0,
-            "founderMissing": 416
+            "founderMissing": 426
           }
         },
         "noMappedAccounts": [
@@ -2571,6 +2599,11 @@
             "companyName": null
           },
           {
+            "entityId": "company-palisade",
+            "name": "Palisade",
+            "companyName": null
+          },
+          {
             "entityId": "company-peer",
             "name": "Peer",
             "companyName": null
@@ -2615,6 +2648,11 @@
           {
             "entityId": "company-manifold-2",
             "name": "Manifold",
+            "companyName": null
+          },
+          {
+            "entityId": "company-palisade",
+            "name": "Palisade",
             "companyName": null
           },
           {
@@ -2670,18 +2708,23 @@
             "companyName": null
           },
           {
-            "entityId": "company-deepreach-inc",
-            "name": "DeepReach Inc.",
-            "companyName": null
-          },
-          {
             "entityId": "company-dipole-labs",
             "name": "Dipole Labs",
             "companyName": null
           },
           {
+            "entityId": "company-dream",
+            "name": "Dream",
+            "companyName": null
+          },
+          {
             "entityId": "company-edviro",
             "name": "Edviro",
+            "companyName": null
+          },
+          {
+            "entityId": "company-evergrove",
+            "name": "Evergrove",
             "companyName": null
           },
           {
@@ -2752,6 +2795,11 @@
           {
             "entityId": "company-os3",
             "name": "OS3",
+            "companyName": null
+          },
+          {
+            "entityId": "company-palisade",
+            "name": "Palisade",
             "companyName": null
           },
           {
@@ -2830,6 +2878,11 @@
             "companyName": null
           },
           {
+            "entityId": "company-veltha",
+            "name": "Veltha",
+            "companyName": null
+          },
+          {
             "entityId": "company-verdant",
             "name": "Verdant",
             "companyName": null
@@ -2842,6 +2895,11 @@
           {
             "entityId": "company-waddle-labs",
             "name": "Waddle Labs",
+            "companyName": null
+          },
+          {
+            "entityId": "company-wondertx",
+            "name": "WonderTx",
             "companyName": null
           }
         ],
@@ -3042,6 +3100,11 @@
             "companyName": "Donkey"
           },
           {
+            "entityId": "founder-dream-alexander-halpern-1456894",
+            "name": "Alexander Halpern",
+            "companyName": "Dream"
+          },
+          {
             "entityId": "founder-earendil-robotics-dan-komorny-3723983",
             "name": "Dan Komorny",
             "companyName": "Earendil Robotics"
@@ -3072,9 +3135,19 @@
             "companyName": "Erinys"
           },
           {
+            "entityId": "founder-evergrove-jacob-chia-1161116",
+            "name": "Jacob Chia",
+            "companyName": "Evergrove"
+          },
+          {
             "entityId": "founder-fabraix-ibrahim-abdu-2769430",
             "name": "ibrahim abdu",
             "companyName": "Fabraix"
+          },
+          {
+            "entityId": "founder-familiar-an-zhu-liu-3406561",
+            "name": "An Zhu Liu",
+            "companyName": "Familiar"
           },
           {
             "entityId": "founder-familiar-mingi-kwon-3891491",
@@ -3332,6 +3405,11 @@
             "companyName": "Palette"
           },
           {
+            "entityId": "founder-palisade-jonathan-salama-1155886",
+            "name": "Jonathan Salama",
+            "companyName": "Palisade"
+          },
+          {
             "entityId": "founder-peer-aaron-zhang-2454208",
             "name": "Aaron Zhang",
             "companyName": "Peer"
@@ -3385,6 +3463,11 @@
             "entityId": "founder-praxis-ai-2-tommy-li-3748464",
             "name": "Tommy Li",
             "companyName": "Praxis AI"
+          },
+          {
+            "entityId": "founder-princeps-conrad-fr-yland-moe-3685149",
+            "name": "Conrad Frøyland Moe",
+            "companyName": "PRINCEPS"
           },
           {
             "entityId": "founder-prized-marinos-eliades-2485896",
@@ -3450,11 +3533,6 @@
             "entityId": "founder-rise-reforming-lucas-zubillaga-3620299",
             "name": "Lucas Zubillaga",
             "companyName": "Rise Reforming"
-          },
-          {
-            "entityId": "founder-risklytics-samuel-gold-2973325",
-            "name": "Samuel Gold",
-            "companyName": "Risklytics"
           },
           {
             "entityId": "founder-robocurve-aris-zhu-1676798",
@@ -3572,6 +3650,11 @@
             "companyName": "Understudy Labs"
           },
           {
+            "entityId": "founder-veltha-edin-citaku-2366971",
+            "name": "Edin Citaku",
+            "companyName": "Veltha"
+          },
+          {
             "entityId": "founder-verdict-machine-dan-danay-85721",
             "name": "Dan Danay",
             "companyName": "Verdict Machine"
@@ -3654,18 +3737,23 @@
             "companyName": null
           },
           {
-            "entityId": "company-deepreach-inc",
-            "name": "DeepReach Inc.",
-            "companyName": null
-          },
-          {
             "entityId": "company-dipole-labs",
             "name": "Dipole Labs",
             "companyName": null
           },
           {
+            "entityId": "company-dream",
+            "name": "Dream",
+            "companyName": null
+          },
+          {
             "entityId": "company-edviro",
             "name": "Edviro",
+            "companyName": null
+          },
+          {
+            "entityId": "company-evergrove",
+            "name": "Evergrove",
             "companyName": null
           },
           {
@@ -3736,6 +3824,11 @@
           {
             "entityId": "company-os3",
             "name": "OS3",
+            "companyName": null
+          },
+          {
+            "entityId": "company-palisade",
+            "name": "Palisade",
             "companyName": null
           },
           {
@@ -3814,6 +3907,11 @@
             "companyName": null
           },
           {
+            "entityId": "company-veltha",
+            "name": "Veltha",
+            "companyName": null
+          },
+          {
             "entityId": "company-verdant",
             "name": "Verdant",
             "companyName": null
@@ -3826,6 +3924,11 @@
           {
             "entityId": "company-waddle-labs",
             "name": "Waddle Labs",
+            "companyName": null
+          },
+          {
+            "entityId": "company-wondertx",
+            "name": "WonderTx",
             "companyName": null
           }
         ],
@@ -3999,6 +4102,11 @@
             "entityId": "founder-fabraix-ibrahim-abdu-2769430",
             "name": "ibrahim abdu",
             "companyName": "Fabraix"
+          },
+          {
+            "entityId": "founder-familiar-an-zhu-liu-3406561",
+            "name": "An Zhu Liu",
+            "companyName": "Familiar"
           },
           {
             "entityId": "founder-floracene-asaph-kupferman-3605405",
@@ -4216,6 +4324,11 @@
             "companyName": "Palette"
           },
           {
+            "entityId": "founder-palisade-jonathan-salama-1155886",
+            "name": "Jonathan Salama",
+            "companyName": "Palisade"
+          },
+          {
             "entityId": "founder-perceptron-ml-michael-marcotte-3087509",
             "name": "Michael Marcotte",
             "companyName": "Perceptron ML"
@@ -4254,6 +4367,11 @@
             "entityId": "founder-praxis-ai-2-tommy-li-3748464",
             "name": "Tommy Li",
             "companyName": "Praxis AI"
+          },
+          {
+            "entityId": "founder-princeps-conrad-fr-yland-moe-3685149",
+            "name": "Conrad Frøyland Moe",
+            "companyName": "PRINCEPS"
           },
           {
             "entityId": "founder-prized-marinos-eliades-2485896",
@@ -4304,11 +4422,6 @@
             "entityId": "founder-rise-reforming-lucas-zubillaga-3620299",
             "name": "Lucas Zubillaga",
             "companyName": "Rise Reforming"
-          },
-          {
-            "entityId": "founder-risklytics-samuel-gold-2973325",
-            "name": "Samuel Gold",
-            "companyName": "Risklytics"
           },
           {
             "entityId": "founder-robocurve-aris-zhu-1676798",

@@ -4,9 +4,9 @@
     "directoryUrl": "https://www.ycombinator.com/companies?batch=Summer%202026",
     "algoliaIndex": "YCCompany_production",
     "algoliaFilter": "batch:\"Summer 2026\"",
-    "fetchedAt": "2026-08-13T11:52:10.706Z",
-    "expectedCompanyCount": 213,
-    "observedCompanyCount": 213,
+    "fetchedAt": "2026-08-13T23:47:23.488Z",
+    "expectedCompanyCount": 218,
+    "observedCompanyCount": 218,
     "minimumCompanyCount": 167,
     "notes": [
       "Generated from public, unauthenticated YC pages.",
@@ -417,7 +417,7 @@
         "Enterprise Software"
       ],
       "location": "San Francisco",
-      "teamSize": 2,
+      "teamSize": 6,
       "status": "Active",
       "groupPartner": "Diana Hu",
       "groupPartnerUrl": "https://www.ycombinator.com/people/diana-hu",
@@ -1871,7 +1871,7 @@
           "id": "3650329",
           "name": "Michael Muzzin",
           "title": "Founder",
-          "bio": "Co-founder and CEO of CarSignal (YC S26). Previously electrical engineering at NVIDIA, he authored the Factory Failure Disposition Guide governing re-qualification of $300M in HGX and DGX hardware. BSEE, UCLA.",
+          "bio": "Founder at CarSignal (YC S26). Previously electrical engineering at NVIDIA, he authored the Factory Failure Disposition Guide governing re-qualification of $300M in HGX and DGX hardware. BSEE, UCLA.",
           "ycProfileUrl": "https://www.ycombinator.com/people/michael-muzzin",
           "socialLinks": {
             "linkedin": "https://www.linkedin.com/in/mmuzzin/",
@@ -3311,6 +3311,65 @@
       ]
     },
     {
+      "id": "31258",
+      "objectID": "31258",
+      "slug": "dream",
+      "name": "Dream",
+      "batch": "Summer 2026",
+      "ycProfileUrl": "https://www.ycombinator.com/companies/dream",
+      "websiteUrl": "https://www.pingdream.com/",
+      "tagline": "Pocket-sized AI cameras that catch asset damage.",
+      "description": "Dream makes pocket-sized, battery-powered AI cameras that catch damage teams miss. Car dealerships, equipment rental companies, fleets, and more move expensive assets in and out all day, and undocumented damage is a costly leak.\r\n\r\nDream cameras are simple to set up and work automatically. Each vehicle or machine that passes is photographed from every angle, identified, and reconstructed into a 3D condition record. On return or intake, Dream instantly flags new dents, scrapes, and changes your team might miss, giving one source of truth for every asset's condition over time.\r\n\r\nRyland worked at X/xAI and built aerial damage-detection vision at Vexcel Imaging. Alexander worked at AWS and trained edge-camera models deployed in the wild across Africa and India to detect poachers.",
+      "industry": "B2B",
+      "subindustry": "B2B",
+      "industries": [
+        "B2B"
+      ],
+      "tags": [
+        "Artificial Intelligence",
+        "Hardware",
+        "Machine Learning",
+        "Computer Vision",
+        "B2B"
+      ],
+      "location": "San Francisco",
+      "teamSize": 2,
+      "status": "Active",
+      "groupPartner": "Jared Friedman",
+      "groupPartnerUrl": "https://www.ycombinator.com/people/jared-friedman",
+      "socialLinks": {
+        "linkedin": "https://www.linkedin.com/company/pingdream"
+      },
+      "founders": [
+        {
+          "id": "1393934",
+          "name": "Ryland Birchmeier",
+          "title": "Founder",
+          "bio": "Ryland Birchmeier is Co-founder of Dream (YC S26), building pocket-sized, battery-powered AI cameras that automatically capture assets and catch damage teams miss at car dealerships, equipment rental companies, and more.\n\nPreviously, Ryland worked at X/xAI and built aerial computer vision at Vexcel Imaging. He studied computer science at the University of Virginia.",
+          "ycProfileUrl": "https://www.ycombinator.com/people/ryland-birchmeier",
+          "socialLinks": {
+            "linkedin": "https://linkedin.com/in/rylandbirchmeier",
+            "x": "https://x.com/rylandbirch"
+          }
+        },
+        {
+          "id": "1456894",
+          "name": "Alexander Halpern",
+          "title": "Founder",
+          "bio": "Alexander Halpern is Co-founder of Dream (YC S26), building pocket-sized, battery-powered AI cameras that automatically capture assets and catch damage teams miss at car dealerships, equipment rental companies, and more.\n\nPreviously, Alexander built agents for AWS Marketplace and trained models for edge computing cameras deployed across Africa and India to detect poachers hunting endangered wild cats at Panthera. He studied computer science at the University of Virginia.",
+          "ycProfileUrl": "https://www.ycombinator.com/people/alexander-halpern",
+          "socialLinks": {
+            "linkedin": "https://www.linkedin.com/in/alexanderhalpern"
+          }
+        }
+      ],
+      "launch": null,
+      "sourceUrls": [
+        "https://www.ycombinator.com/companies/dream",
+        "https://www.ycombinator.com/companies?batch=Summer%202026"
+      ]
+    },
+    {
       "id": "33281",
       "objectID": "33281",
       "slug": "earendil-robotics",
@@ -3758,6 +3817,62 @@
       ]
     },
     {
+      "id": "30735",
+      "objectID": "30735",
+      "slug": "evergrove",
+      "name": "Evergrove",
+      "batch": "Summer 2026",
+      "ycProfileUrl": "https://www.ycombinator.com/companies/evergrove",
+      "websiteUrl": "https://www.evergrovelabs.com/",
+      "tagline": "Voice agents that accelerate care coordination in workers' comp",
+      "description": "We've built voice agents for the largest work comp managed care orgs and specialist PT networks in the country, making >500K calls annually and accelerating the speed at which they coordinate care. On average, our customers see a 40% increase in workflow completion, 10x decrease in cycle times, and >60% reduction in cost.\r\n\r\nWe think voice agents are the starting point for solving slow and fragmented care coordination in this market. Companies that manage an injured worker's care rely on short-staffed contact centres and archaic methods of info exchange: phone, fax, and email. Every delay along the path of care leads to slower rehab of the injured worker, lower throughput for providers, and higher expense for the insurer/employer.",
+      "industry": "Healthcare",
+      "subindustry": "Healthcare",
+      "industries": [
+        "Healthcare"
+      ],
+      "tags": [
+        "Artificial Intelligence",
+        "Healthcare"
+      ],
+      "location": "New York City, NY",
+      "teamSize": 2,
+      "status": "Active",
+      "groupPartner": "Harj Taggar",
+      "groupPartnerUrl": "https://www.ycombinator.com/people/harj-taggar",
+      "socialLinks": {
+        "linkedin": "https://www.linkedin.com/company/evergrovelabs"
+      },
+      "founders": [
+        {
+          "id": "1161116",
+          "name": "Jacob Chia",
+          "title": "Co-Founder",
+          "bio": "Co-founder and CTO. We build agents for healthcare enterprises. Prev AI engineer at Newfront (Acq for $1.3B). Was on the platform team, wrote code for millions of authentication and authorization interactions at Newfront; Refactored file management for millions of mission critical insurance files.\n\nCofounder and I built fully autonomous insurance placements in 2025 - negotiating insurance coverage over email for policies between 300k to 1 million USD, achieving 15-20% cost reduction.",
+          "ycProfileUrl": "https://www.ycombinator.com/people/jacob-chia",
+          "socialLinks": {
+            "linkedin": "https://www.linkedin.com/in/jacob-chia-78a1b2135"
+          }
+        },
+        {
+          "id": "1081614",
+          "name": "Sid Unnithan",
+          "title": "Founder",
+          "bio": "Co-founder and CEO. We're building interoperability in healthcare and commercial insurance. Voice agents are our bread & butter. Prev AI PM lead at Newfront (Acq for $1.3B), Azure ML & VS Code at MSFT, Waterloo Eng Alum (2018), and co-founder of appinkflow.com (bootstrapped).\n\nCo-founder and I built AI-native placement service within Newfront. Small team of expert humans and agent swarms negotiated policies between $300K and $1M USD, achieving 40% faster renewal times, and 15-20% cost reduction.",
+          "ycProfileUrl": "https://www.ycombinator.com/people/sid-unnithan",
+          "socialLinks": {
+            "linkedin": "https://www.linkedin.com/in/siddhanthunnithan",
+            "x": "https://x.com/SidUnnithan"
+          }
+        }
+      ],
+      "launch": null,
+      "sourceUrls": [
+        "https://www.ycombinator.com/companies/evergrove",
+        "https://www.ycombinator.com/companies?batch=Summer%202026"
+      ]
+    },
+    {
       "id": "32947",
       "objectID": "32947",
       "slug": "executor",
@@ -3986,20 +4101,20 @@
       "ycProfileUrl": "https://www.ycombinator.com/companies/familiar",
       "websiteUrl": "https://thefamiliarlab.com",
       "tagline": "World Models for Accurate Humans.",
-      "description": "Dubbing is finally good. And real-time. Lipsync + voice translation. For ads and catalogs, networks and platforms, even broadcasts and live shopping.\r\n\r\nWe exist to break every barrier to understanding. Familiar is a team from Stanford, Yonsei's Visual Intelligence Lab, and HKUST: PhDs, professors, and researchers who started the field of joint audio-visual human models and co-authored the current state-of-the-art in real-time human animation. We build world models for accurate humans -- editing, predicting, understanding -- and teaching machines to do the same",
+      "description": "Familiar is breaking down every language barrier.\r\n\r\nSales and Demos, Education, Telehealth, Advertising, Live Shopping, Entertainment.\r\n\r\nFounders An Zhu Liu, Mingi Kwon, and Xu Zheng lead a team of PhDs, professors, and researchers from the world's top universities who started the field of joint audio-visual human models and co-authored the current state of the art in real-time human animation.\r\n\r\nThey're building world models for accurate humans: understanding, editing, and predicting.\r\n\r\nThey started with video language translation, and they've already built one of the most accurate translators available today, the only one that works in real time. It outperforms industry leaders (ElevenLabs, YouTube, HeyGen, Meta), as shown in Familiar's published benchmarks: https://thefamiliarlab.com/benchmark\r\n\r\n🦋 Content, now in every language. Exactly the same as the original.",
       "industry": "B2B",
       "subindustry": "B2B",
       "industries": [
         "B2B"
       ],
       "tags": [
-        "Generative AI",
+        "B2B",
         "Media",
         "Advertising",
         "AI"
       ],
       "location": "San Francisco",
-      "teamSize": 6,
+      "teamSize": 7,
       "status": "Active",
       "groupPartner": "Harshita Arora",
       "groupPartnerUrl": "https://www.ycombinator.com/people/harshita-arora",
@@ -4015,6 +4130,17 @@
           "ycProfileUrl": "https://www.ycombinator.com/people/mingi-kwon",
           "socialLinks": {
             "linkedin": "https://www.linkedin.com/in/kwonmingi"
+          }
+        },
+        {
+          "id": "3406561",
+          "name": "An Zhu Liu",
+          "title": "Founder",
+          "bio": "Stanford dropout. Tinkerer & researcher. Built the most realistic real-time human avatars with unmatched cloning accuracy early 2026. Trained personally on multiple nodes of B200s.",
+          "ycProfileUrl": "https://www.ycombinator.com/people/an-zhu-liu",
+          "socialLinks": {
+            "linkedin": "https://www.linkedin.com/in/an-zhu",
+            "x": "https://x.com/an_zhu_liu"
           }
         }
       ],
@@ -6713,7 +6839,7 @@
         "Architecture"
       ],
       "location": "San Francisco",
-      "teamSize": 3,
+      "teamSize": 10,
       "status": "Active",
       "groupPartner": "Diana Hu",
       "groupPartnerUrl": "https://www.ycombinator.com/people/diana-hu",
@@ -7477,7 +7603,7 @@
       "batch": "Summer 2026",
       "ycProfileUrl": "https://www.ycombinator.com/companies/noril1",
       "websiteUrl": "http://norirobotics.com",
-      "tagline": "sub-2000$ humanoid robot you can teach to do anything",
+      "tagline": "sub-$2000 humanoid robot you can teach to do anything",
       "description": "Nori is a sub-$2000 bimanual mobile manipulator that can clean rooms, restock shelves, and fold clothes. Nori can handle basic tasks out of the box, and its software lets anyone teach Nori to automate work specific to their home or business. \r\n\r\nNori aims to solve the robotics data bottleneck. By deploying affordable robots to customers around the world, we can gather the diverse data required to train the next generation of generalist robotic policies. Every user of Nori makes Nori smarter.\r\n\r\nSince launching 6 weeks ago we have already deployed our first robot and have 100k in sales.\r\n\r\nWe can bring general-purpose robotics to homes and businesses that could never afford it before. There are 132.7 million households and 8.4 million employer business locations in the U.S. At $1,688 per robot, selling just one Nori to 0.5% of them represents a $1.2B market opportunity in the U.S. alone. ",
       "industry": "Industrials",
       "subindustry": "Industrials -> Manufacturing and Robotics",
@@ -8342,6 +8468,55 @@
       ]
     },
     {
+      "id": "32136",
+      "objectID": "32136",
+      "slug": "palisade",
+      "name": "Palisade",
+      "batch": "Summer 2026",
+      "ycProfileUrl": "https://www.ycombinator.com/companies/palisade",
+      "websiteUrl": "https://palisade.run",
+      "tagline": "AI sales agents that run your marketplace",
+      "description": "Palisade spins up a personal sales agent for every single visitor to your website. Marketplaces like trading card platforms, vintage stores, and short-term rental operators sell more when each customer works with a personal agent that remembers them.",
+      "industry": "B2B",
+      "subindustry": "B2B -> Engineering, Product and Design",
+      "industries": [
+        "B2B",
+        "Engineering, Product and Design"
+      ],
+      "tags": [
+        "Marketplace",
+        "Sales",
+        "E-commerce",
+        "AI"
+      ],
+      "location": "San Francisco",
+      "teamSize": 1,
+      "status": "Active",
+      "groupPartner": "Brad Flora",
+      "groupPartnerUrl": "https://www.ycombinator.com/people/brad-flora",
+      "socialLinks": {
+        "linkedin": "https://www.linkedin.com/company/palisader/"
+      },
+      "founders": [
+        {
+          "id": "1155886",
+          "name": "Jonathan Salama",
+          "title": "Founder",
+          "bio": "CEO & Founder of Palisade. Previously SWE @ Amazon Traffic & Marketing, Founding Eng @ Sage AI Labs, and co-creator of Lulus TV, a YouTube channel with 1M subscribers. CS @ Princeton.",
+          "ycProfileUrl": "https://www.ycombinator.com/people/jonathan-salama",
+          "socialLinks": {
+            "linkedin": "https://www.linkedin.com/in/jonathan-salama/",
+            "x": "https://x.com/jonnysalama"
+          }
+        }
+      ],
+      "launch": null,
+      "sourceUrls": [
+        "https://www.ycombinator.com/companies/palisade",
+        "https://www.ycombinator.com/companies?batch=Summer%202026"
+      ]
+    },
+    {
       "id": "31989",
       "objectID": "31989",
       "slug": "pango",
@@ -9009,6 +9184,16 @@
       "groupPartnerUrl": "https://www.ycombinator.com/people",
       "socialLinks": {},
       "founders": [
+        {
+          "id": "3685149",
+          "name": "Conrad Frøyland Moe",
+          "title": "Founder",
+          "bio": "Co-Founder of PRINCEPS. Previously Treasurer of the Oxford Union (£3M+ institution). Experience from national Norwegian politics. Co-Founded an events company at whilst at Oxford University: scaled to 650+ tickets per event at £15K+ revenue. \nB.A Oxford (History & Politics)",
+          "ycProfileUrl": "https://www.ycombinator.com/people/conrad-fr-yland-moe",
+          "socialLinks": {
+            "linkedin": "https://www.linkedin.com/in/conrad-fr%C3%B8yland-moe-7950b1229/"
+          }
+        },
         {
           "id": "3671622",
           "name": "Anya Trofimova",
@@ -9731,8 +9916,8 @@
       "batch": "Summer 2026",
       "ycProfileUrl": "https://www.ycombinator.com/companies/riften",
       "websiteUrl": "https://riften.ai",
-      "tagline": "Earned Intelligence for every company. ",
-      "description": "Riften builds earned intelligence: models that come out of a company’s own work instead of out of a lab.\r\n\r\nOne environment variable points an existing application at Riften instead of OpenAI or Anthropic. Riften routes each request to the least expensive model likely to handle it, using open-weight models we host whenever they are sufficient. Customers lower inference costs before any training begins.\r\n\r\nBecause Riften sits in the request path, real tasks and their outcomes create training evidence the company controls. Riften uses that evidence to improve routing and train private models on open weights around recurring work. Those models earn production traffic by meeting the same bar as the APIs they replace.\r\n\r\nOver time, frontier APIs handle only the tasks that still require them. The rest runs on models the company owns, on infrastructure it controls, inside the applications where the work happens.",
+      "tagline": "Cut LLM spend, then post-train owned models from production traffic.",
+      "description": "Riften is a drop-in replacement for OpenAI and Anthropic APIs. Change one env var. We route each request to the cheapest model that can handle it, including open-weight models we host. Customers cut inference cost before any training begins.\r\n\r\nBecause Riften sits in the request path, real tasks and their outcomes become training data the company controls. We use that to post-train private models on open weights around recurring work. Those models earn production traffic by matching the APIs they replace.\r\n\r\nOver time, frontier APIs handle only the tasks that still require them. The rest runs on models the company owns, on infrastructure it controls.",
       "industry": "B2B",
       "subindustry": "B2B -> Infrastructure",
       "industries": [
@@ -9740,11 +9925,11 @@
         "Infrastructure"
       ],
       "tags": [
-        "Artificial Intelligence",
         "Developer Tools",
         "Reinforcement Learning",
         "Open Source",
-        "Infrastructure"
+        "Infrastructure",
+        "AI"
       ],
       "location": "San Francisco",
       "teamSize": 0,
@@ -9757,7 +9942,7 @@
           "id": "2941426",
           "name": "Carl Stauffer",
           "title": "Founder",
-          "bio": "Founder and CEO of Riften. Palantir’s first Neurodivergent Fellow through Alex Karp’s program: Forward Deployed Engineer embedded with a nine-figure manufacturing account and building systems across purchasing and production. a16z Scout. Former nuclear researcher at Jefferson Lab. CS and AMS at Johns Hopkins.\n",
+          "bio": "Founder and CEO of Riften. Former Palantir Forward Deployed Engineer. Former nuclear researcher at Jefferson Lab. CS and AMS at Johns Hopkins.",
           "ycProfileUrl": "https://www.ycombinator.com/people/carl-stauffer",
           "socialLinks": {
             "linkedin": "https://www.linkedin.com/in/carl-stauffer-314335262/",
@@ -11830,6 +12015,63 @@
       ]
     },
     {
+      "id": "32352",
+      "objectID": "32352",
+      "slug": "veltha",
+      "name": "Veltha",
+      "batch": "Summer 2026",
+      "ycProfileUrl": "https://www.ycombinator.com/companies/veltha",
+      "websiteUrl": "https://veltha.ai/",
+      "tagline": "AI claims adjuster for regulated insurance",
+      "description": "Veltha is an AI claims adjuster. It helps the human decide on a claim faster, so insurance companies save time and reduce their litigation rate.\r\n\r\nLearn more at https://veltha.ai",
+      "industry": "Fintech",
+      "subindustry": "Fintech -> Insurance",
+      "industries": [
+        "Fintech",
+        "Insurance"
+      ],
+      "tags": [
+        "Fintech",
+        "Insurance"
+      ],
+      "location": "San Francisco",
+      "teamSize": 2,
+      "status": "Active",
+      "groupPartner": "Gustaf Alstromer",
+      "groupPartnerUrl": "https://www.ycombinator.com/people/gustaf-alstromer",
+      "socialLinks": {
+        "linkedin": "https://www.linkedin.com/company/130564928"
+      },
+      "founders": [
+        {
+          "id": "2366971",
+          "name": "Edin Citaku",
+          "title": "Founder",
+          "bio": "Edin is CEO and co-founder of Veltha, building the AI adjuster for regulated insurance. Prior to Veltha he led Palantir's AI deployment at the german FBI. \nHe graduated with BSc and MSc in computer science at the TU Munich",
+          "ycProfileUrl": "https://www.ycombinator.com/people/edin-citaku",
+          "socialLinks": {
+            "linkedin": "https://www.linkedin.com/in/edin-citaku-564000127"
+          }
+        },
+        {
+          "id": "976541",
+          "name": "Roland Jaloszynski",
+          "title": "Founder",
+          "bio": "Roland is a co-founder of Veltha, an AI claims adjuster for federally regulated insurance. He was previously a technical lead on mortgage underwriting automation at Palantir for a $642B servicer, compiling agency guidebooks into executable rules. He earned his computing degree from Poznan University of Technology while working as a software engineer at Amazon, LocalBini and DAC.digital.",
+          "ycProfileUrl": "https://www.ycombinator.com/people/roland-jaloszynski",
+          "socialLinks": {
+            "linkedin": "https://www.linkedin.com/in/roland-jal",
+            "x": "https://x.com/RJaloszynski"
+          }
+        }
+      ],
+      "launch": null,
+      "sourceUrls": [
+        "https://www.ycombinator.com/companies/veltha",
+        "https://www.ycombinator.com/companies?batch=Summer%202026"
+      ]
+    },
+    {
       "id": "32620",
       "objectID": "32620",
       "slug": "vendo",
@@ -12226,6 +12468,55 @@
       "launch": null,
       "sourceUrls": [
         "https://www.ycombinator.com/companies/wondering",
+        "https://www.ycombinator.com/companies?batch=Summer%202026"
+      ]
+    },
+    {
+      "id": "31425",
+      "objectID": "31425",
+      "slug": "wondertx",
+      "name": "WonderTx",
+      "batch": "Summer 2026",
+      "ycProfileUrl": "https://www.ycombinator.com/companies/wondertx",
+      "websiteUrl": "https://wondertx.ai/",
+      "tagline": "Extrapolative AI to unlock First-in-Class drugs",
+      "description": "We’re an AI-native biotech, working on replacing needles with pills. Many drugs, like insulin or Ozempic, are wonderful except you have to inject them. We discover new molecules that you can take as a pill instead. Because the pills operate on biology which has been shown to be effective in people, rather than merely in animal models of disease, we avoid what has historically been the single biggest risk in drug discovery.  This should dramatically increase our probability of success.\r\n\r\nThere’s $200B of treatable diseases and validated human biology without a pill because discovery programs lack a tractable chemical starting point. This is a zero-shot inference problem, because these targets have no training data, so LLMs and other historical interpolative AI approaches are insufficient. Instead, we are building our own extrapolative frontier models that reason beyond their training data. Most critically, we have repeatedly validated our platform on both our own and partner programs. On 4 biologically- and structurally-diverse targets where we had zero training data, we successfully picked binders that were validated experimentally, with confirmation ranging from primary screen hits to crystallographic structures.",
+      "industry": "Healthcare",
+      "subindustry": "Healthcare -> Therapeutics",
+      "industries": [
+        "Healthcare",
+        "Therapeutics"
+      ],
+      "tags": [
+        "AI-powered Drug Discovery",
+        "Generative AI",
+        "Biotech"
+      ],
+      "location": "San Francisco",
+      "teamSize": 3,
+      "status": "Active",
+      "groupPartner": "Pete Koomen",
+      "groupPartnerUrl": "https://www.ycombinator.com/people/pete-koomen",
+      "socialLinks": {
+        "linkedin": "https://www.linkedin.com/company/wondertx/",
+        "x": "https://x.com/WonderTxAi"
+      },
+      "founders": [
+        {
+          "id": "7359",
+          "name": "Abraham Heifets",
+          "title": "Founder",
+          "bio": "Founder and CEO of A Company in Stealth Mode. Previously, cofounded Atomwise, the first company to deploy deep learning for structure-based drug design ($220+ million in funding; 100 hires; signed $5B in total partnership value with Sanofi, Bayer, Eli Lilly, etc; ran largest AI-driven drug discovery experiment w/ 600+ researchers in 30 countries).  Even more previous: PhD @ U of Toronto; inventor on 15 patents + applications; IBM Research; AI for Cornell’s world champion robotic soccer team.",
+          "ycProfileUrl": "https://www.ycombinator.com/people/abraham-heifets",
+          "socialLinks": {
+            "linkedin": "https://www.linkedin.com/in/abrahamheifets/",
+            "x": "https://twitter.com/AbeHeifets"
+          }
+        }
+      ],
+      "launch": null,
+      "sourceUrls": [
+        "https://www.ycombinator.com/companies/wondertx",
         "https://www.ycombinator.com/companies?batch=Summer%202026"
       ]
     },

@@ -5,14 +5,49 @@
     "slug": "deepreach-inc",
     "name": "DeepReach Inc."
   },
-  "generatedAt": "2026-08-13T13:58:02.849Z",
-  "lastModifiedAt": "2026-08-13T13:58:02.849Z",
-  "events": [],
-  "groups": [],
+  "generatedAt": "2026-08-14T01:51:39.229Z",
+  "lastModifiedAt": "2026-08-14T01:51:39.229Z",
+  "events": [
+    {
+      "id": "tle-473698795b0f014ae6f21437",
+      "eventDate": "2026-08-13",
+      "eventDateType": "announcement_date",
+      "title": "DeepReach Inc. announced its public launch",
+      "summary": "DeepReach Inc. reported launching today: @DeepReach_AI.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-8e125cd617db95b3fa01dbee",
+          "title": "Launching today: @DeepReach_AI. What if it was incredibly easy for anyone to launch a real-world data biz in their local community? DeepRea...",
+          "publisher": "bradflora",
+          "domain": "x.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-08-13T19:32:12.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/bradflora/status/2087985590868574508"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-08",
+          "count": 1
+        }
+      ]
+    }
+  ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 0,
-    "lastSuccessfulArtifactAt": "2026-08-13T13:58:02.849Z"
+    "publishedEventCount": 1,
+    "lastSuccessfulArtifactAt": "2026-08-14T01:51:39.229Z"
   },
   "nextCursor": null
 }

@@ -5,9 +5,33 @@
     "slug": "edotenv",
     "name": "EdotEnv"
   },
-  "generatedAt": "2026-08-13T13:58:02.849Z",
-  "lastModifiedAt": "2026-08-13T13:58:02.849Z",
+  "generatedAt": "2026-08-14T01:51:39.229Z",
+  "lastModifiedAt": "2026-08-14T01:51:39.229Z",
   "events": [
+    {
+      "id": "tle-a560e0c591cb576d4a226d78",
+      "eventDate": "2026-08-13",
+      "eventDateType": "announcement_date",
+      "title": "EdotEnv released Today we are launching EdotEnv, a Quant Neolab building toward RSI",
+      "summary": "EdotEnv announced it was launching EdotEnv, a Quant Neolab building toward RSI.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-f2dbd3adb9695f02168b96ba",
+          "title": "Today we are launching EdotEnv, a Quant Neolab building toward RSI.",
+          "publisher": "rricefan",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-08-13T22:15:09.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/rricefan/status/2088026599375741398"
+        }
+      ]
+    },
     {
       "id": "tle-f85a35ad273a76006efe1945",
       "eventDate": "2026-08-04",
@@ -39,15 +63,15 @@
       "months": [
         {
           "month": "2026-08",
-          "count": 1
+          "count": 2
         }
       ]
     }
   ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-08-13T13:58:02.849Z"
+    "publishedEventCount": 2,
+    "lastSuccessfulArtifactAt": "2026-08-14T01:51:39.229Z"
   },
   "nextCursor": null
 }
