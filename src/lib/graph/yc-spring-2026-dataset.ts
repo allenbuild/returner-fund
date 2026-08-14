@@ -3,6 +3,7 @@ import ycSpring2026Snapshot from "@/lib/yc/spring-2026-companies.json";
 import githubTractionSnapshot from "@/lib/social/github-traction-summer-2026.json";
 import springGithubTractionSnapshot from "@/lib/social/github-traction.json";
 import verifiedSocialOverridesJson from "@/lib/social/verified-social-overrides.json";
+import ycPartnerVerbatimText from "@/lib/social/yc-partner-verbatim-text.json";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { calibrateBatchCompanyScores } from "@/lib/scoring/batch-calibration";
@@ -1181,6 +1182,7 @@ function publicEvidenceItem(item: PublicEvidenceRecord): EvidenceItem {
     ...(item.media_urls ?? [])
   ].filter(Boolean);
   const displayTitle = evidenceDisplayText(item, item.companyName);
+  const verbatimText = ycPartnerVerbatimText[item.sourceUrl as keyof typeof ycPartnerVerbatimText];
   const observedAt = item.first_seen_at ?? item.last_checked_at ?? publicSnapshot.source.fetchedAt;
   const githubRepository = resolveGithubRepository(item);
   const githubTimestamps = githubRepository
@@ -1217,7 +1219,7 @@ function publicEvidenceItem(item: PublicEvidenceRecord): EvidenceItem {
     observedAt,
     metricsCheckedAt: item.last_checked_at ?? item.last_updated_at ?? publicSnapshot.source.fetchedAt,
     title: displayTitle,
-    text: item.text || displayTitle,
+    text: verbatimText || item.text || displayTitle,
     mediaType: mediaTypeForPlatform(item.platform),
     mediaUrl: item.mediaUrl ?? null,
     mediaUrls,

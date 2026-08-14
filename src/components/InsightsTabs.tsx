@@ -5,7 +5,6 @@ import {
   ArrowUp,
   ArrowUpDown,
   AlertTriangle,
-  CheckCircle2,
   ChevronLeft,
   ChevronRight,
   Clock3,
@@ -750,11 +749,7 @@ function YcPartnerDetail({ partner, graph, onClose, onSelectNode }: { partner: Y
         <button type="button" className="yc-partner-back-button" onClick={onClose} aria-label="Back to all YC Partners"><ChevronLeft size={18} aria-hidden="true" /></button>
       </header>
       {!scoredRankings.length ? (
-        <div className="yc-partners-state yc-partner-detail-empty">
-          <div className="yc-partners-state-icon"><CheckCircle2 size={22} aria-hidden="true" /></div>
-          <strong>No attributable startup commentary yet.</strong>
-          <span>Absence of evidence is not evidence of dislike.</span>
-        </div>
+        <p className="yc-partner-detail-empty">No attributable startup commentary yet.</p>
       ) : (
         <ol className="yc-partner-ranking-list" aria-label={`${partner.partnerName} favorite startup rankings`}>
           {scoredRankings.map((ranking) => <YcPartnerRankingRow key={`${ranking.batchSlug}:${ranking.companyId}`} ranking={ranking} graph={graph} onSelectNode={onSelectNode} />)}

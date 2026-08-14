@@ -3300,6 +3300,14 @@ progress::-webkit-progress-value {
   font-size: 1.2rem;
 }
 
+.yc-partner-detail-empty {
+  margin: 20px 4px;
+  color: var(--neutral-700);
+  font-size: 0.9rem;
+  font-weight: 400;
+  line-height: 1.4;
+}
+
 .yc-partner-back-button {
   margin-left: auto;
   padding: 5px;

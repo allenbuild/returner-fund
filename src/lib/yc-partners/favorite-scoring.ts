@@ -139,7 +139,9 @@ const POSITIVE_PATTERNS = [
 const NEGATIVE_PATTERNS = [
   /\b(?:concerned|skeptical|skepticism|worried|worry|doubt|doubts)\b/i,
   /\b(?:not sure|isn't clear|is not clear|question whether|unlikely)\b/i,
-  /\b(?:bad|weak|poor|disappointing|fails?|failure|problem|risk|risky)\b/i,
+  /\b(?:bad|weak|poor|disappointing|risky)\b/i,
+  /\b(?:fails?|failure)\s+(?:to|at|against|on|with)\b/i,
+  /\b(?:problem|risk)\s+(?:with|for|is)\b/i,
   /\b(?:wouldn't|would not|won't|will not)\s+(?:bet|back|recommend)\b/i,
   /\b(?:least|worst)\s+(?:favorite|favourite)\b/i,
   /\bnot\s+(?:the\s+)?best\b/i
