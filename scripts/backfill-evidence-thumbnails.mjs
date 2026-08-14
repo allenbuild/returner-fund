@@ -17,7 +17,8 @@ const repoRoot = path.resolve(__dirname, "..");
 const evidenceFiles = [
   "src/lib/social/public-evidence-current.json",
   "src/lib/social/logged-in-evidence-current.json",
-  "src/lib/social/targeted-evidence-current.json"
+  "src/lib/social/targeted-evidence-current.json",
+  "src/lib/social/volume-evidence-current.json"
 ];
 
 const args = parseArgs(process.argv.slice(2));
@@ -299,12 +300,16 @@ function resolveThumbnail(item) {
   }
 
   const mediaUrls = [
+    ...(item.mediaUrl ? [item.mediaUrl] : []),
     ...(Array.isArray(item.mediaUrls) ? item.mediaUrls : []),
     ...(Array.isArray(item.media_posters) ? item.media_posters : []),
     ...(Array.isArray(item.media_urls) ? item.media_urls : []),
     ...thumbnailCandidatesFromRaw(item.rawVisibleText)
   ];
-  const selected = choosePlatformThumbnail(item.platform, mediaUrls);
+  const selected = choosePlatformThumbnail(
+    item.platform,
+    item.platform === "x" ? [...mediaUrls, ...xVideoPosterUrls(mediaUrls)] : mediaUrls
+  );
   return {
     thumbnailUrl: selected,
     thumbnailSource: selected ? `${item.platform}-media` : null,
@@ -1892,6 +1897,19 @@ function choosePlatformThumbnail(platform, candidates) {
     );
   }
   return clean[0] ?? null;
+}
+
+function xVideoPosterUrls(candidates) {
+  return cleanUrls(
+    candidates.flatMap((candidate) => {
+      const match = String(candidate).match(
+        /https?:\/\/video\.twimg\.com\/(?:amplify_video|tweet_video|ext_tw_video)\/(\d+)\//i
+      );
+      if (!match) return [];
+      const kind = /amplify_video/i.test(candidate) ? "amplify_video_thumb" : "tweet_video_thumb";
+      return [`https://pbs.twimg.com/${kind}/${match[1]}.jpg`];
+    })
+  );
 }
 
 function isUsefulThumbnail(platform, url) {
