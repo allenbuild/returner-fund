@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "publishedAt": "2026-08-14T13:07:35.299Z",
+  "publishedAt": "2026-08-14T13:40:32.619Z",
   "ingestionRunId": "file:thumbnail-backfill-2026-08-14-0328",
   "evidenceCollectedAt": "2026-08-14T01:47:36.682Z",
   "oldestPlatformRefreshAt": "2026-07-29T07:11:00.000Z",
@@ -156,8 +156,8 @@
         "src/lib/graph/ranked-posts-sidecar.generated.json"
       ],
       "fileCount": 1,
-      "totalByteSize": 1293545,
-      "contentHash": "0afe468bd28776dd8d81d8d7f6cf0ef9b8e28d5fe864f37b6534a09ac4e269c2"
+      "totalByteSize": 1293527,
+      "contentHash": "231af76bd400f2a402d8d898e88d3265655eaa19772196c27f88727e699d44f2"
     },
     {
       "key": "timelines",
@@ -179,5 +179,5 @@
       "contentHash": "e22bfc5d82e2e4b1940ef7b38223f7cc8886d157b3e455c96a9f22742007bfa7"
     }
   ],
-  "contentHash": "0cc54d1a153b6ab32d6b395a7c0494ad5d306abf7e3a72a2b06e4299d35e8d31"
+  "contentHash": "587ca12af7ff2fc6721f2fc63b91da22df60e3f888e4049a27cff02ac596bdef"
 }

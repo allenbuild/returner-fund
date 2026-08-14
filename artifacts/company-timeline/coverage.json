@@ -25,11 +25,11 @@
     },
     {
       "path": "src/lib/social/targeted-evidence-current.json",
-      "sha256": "202e5499d1a234a1ef7cd277fa65c6be1430d29f131583a45c6dc9be637e2211"
+      "sha256": "efdb7351336ce0894d646e1fee6e90e1275ba0ee7a65e4fb62a2129cc72d69c8"
     },
     {
       "path": "src/lib/social/volume-evidence-current.json",
-      "sha256": "50975767e1fd9633dfc7b338e76eb0875cde000f9e68af3b9974953e91d0832c"
+      "sha256": "bebb9b43ebf1928fc514aec252be5cdcfc46971d1d559fd1d8bb629a46827e2f"
     }
   ],
   "totals": {

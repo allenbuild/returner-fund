@@ -306,11 +306,12 @@ async function resolveThumbnailForItem(item, args) {
   }
 
   const resolved = resolveThumbnail(item);
-  if (resolved.thumbnailUrl || !shouldFetchLinkPreview(item, args)) {
+  const hasGeneratedFallback = isGeneratedFallbackThumbnail(item.thumbnailUrl);
+  if ((resolved.thumbnailUrl && !hasGeneratedFallback) || !shouldFetchLinkPreview(item, args)) {
     return resolved;
   }
 
-  if (args.allowTextFallback && item.linkStatus === "verified" && !item.thumbnailErrorCode) {
+  if (!hasGeneratedFallback && args.allowTextFallback && item.linkStatus === "verified" && !item.thumbnailErrorCode) {
     const fallback = await cacheGenericTextPreview(item);
     if (fallback) {
       linkPreviewTextFallbackRows += 1;
@@ -370,7 +371,7 @@ function clampTimestampToSource(value, sourceObservedAt) {
 
 function resolveThumbnail(item) {
   const explicit = sanitizeUrl(item.thumbnailUrl);
-  if (explicit) {
+  if (explicit && !isGeneratedFallbackThumbnail(explicit)) {
     return { thumbnailUrl: explicit, thumbnailSource: item.thumbnailSource ?? "stored", mediaUrl: explicit };
   }
 
@@ -400,6 +401,18 @@ function resolveThumbnail(item) {
     thumbnailSource: selected ? `${item.platform}-media` : null,
     mediaUrl: selected
   };
+}
+
+function isGeneratedFallbackThumbnail(value) {
+  if (!value) {
+    return false;
+  }
+
+  return (
+    value.startsWith("/api/evidence-thumbnail") ||
+    /^\/evidence-thumbnails\/.+\.svg(?:$|[?#])/.test(value) ||
+    /generated-(?:post-thumbnail|preview|fallback)|\/api\/evidence-thumbnail/i.test(value)
+  );
 }
 
 async function resolveOrCacheInstagramThumbnail(item, args) {
