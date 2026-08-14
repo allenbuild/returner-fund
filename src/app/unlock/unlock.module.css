@@ -1,0 +1,243 @@
+.screen {
+  position: relative;
+  display: grid;
+  min-height: 100svh;
+  place-items: center;
+  overflow: hidden;
+  padding: 28px;
+  background:
+    radial-gradient(ellipse 42% 67% at 48% 50%, rgba(207, 66, 27, 0.92) 0%, rgba(220, 95, 36, 0.78) 26%, rgba(234, 139, 55, 0.4) 48%, rgba(239, 197, 87, 0) 75%),
+    radial-gradient(ellipse 52% 88% at 74% 45%, rgba(255, 230, 106, 0.94) 0%, rgba(246, 206, 81, 0.52) 48%, rgba(246, 206, 81, 0) 76%),
+    radial-gradient(ellipse 50% 75% at 16% 50%, rgba(252, 249, 218, 0.94) 0%, rgba(246, 231, 148, 0.54) 55%, rgba(246, 231, 148, 0) 82%),
+    linear-gradient(115deg, #f5f0cf 0%, #f6df82 47%, #efcd55 100%);
+  color: #1f1a15;
+}
+
+.grain {
+  position: absolute;
+  inset: -40%;
+  z-index: 0;
+  opacity: 0.34;
+  background-image:
+    repeating-radial-gradient(circle at 17% 24%, rgba(60, 39, 21, 0.52) 0 0.6px, transparent 0.7px 3px),
+    repeating-radial-gradient(circle at 62% 77%, rgba(255, 255, 255, 0.66) 0 0.5px, transparent 0.7px 2.6px);
+  background-size: 5px 5px, 4px 4px;
+  mix-blend-mode: soft-light;
+  pointer-events: none;
+  transform: rotate(-2deg);
+}
+
+.orbOne,
+.orbTwo {
+  position: absolute;
+  z-index: 0;
+  width: min(48vw, 690px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  filter: blur(40px);
+  opacity: 0.26;
+  pointer-events: none;
+}
+
+.orbOne {
+  top: -22%;
+  left: -13%;
+  background: #fffbd4;
+}
+
+.orbTwo {
+  right: -14%;
+  bottom: -25%;
+  background: #e65a22;
+}
+
+.card {
+  position: relative;
+  z-index: 1;
+  width: min(100%, 466px);
+  padding: 34px;
+  border: 1px solid rgba(85, 48, 22, 0.2);
+  border-radius: 28px;
+  background: rgba(255, 250, 228, 0.64);
+  box-shadow:
+    0 28px 76px rgba(105, 54, 16, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(18px) saturate(1.08);
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: rgba(57, 34, 18, 0.78);
+  font-size: 0.83rem;
+  font-weight: 800;
+  letter-spacing: 0.015em;
+}
+
+.brandMark {
+  display: grid;
+  width: 25px;
+  height: 25px;
+  place-items: center;
+  border: 1px solid rgba(97, 55, 21, 0.23);
+  border-radius: 8px;
+  color: #bd4a16;
+  background: rgba(255, 255, 255, 0.42);
+}
+
+.lockMark {
+  display: grid;
+  width: 58px;
+  height: 58px;
+  margin-top: 38px;
+  place-items: center;
+  border: 1px solid rgba(157, 70, 21, 0.22);
+  border-radius: 18px;
+  color: #b94612;
+  background: rgba(255, 244, 218, 0.76);
+  box-shadow: 0 12px 26px rgba(151, 66, 22, 0.12);
+}
+
+.eyebrow {
+  margin: 28px 0 8px;
+  color: #b94612;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+}
+
+.card h1 {
+  margin: 0;
+  color: #201813;
+  font-size: clamp(2rem, 6vw, 2.65rem);
+  font-weight: 800;
+  letter-spacing: -0.055em;
+  line-height: 1;
+}
+
+.intro {
+  margin: 13px 0 0;
+  color: rgba(52, 36, 24, 0.7);
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.55;
+}
+
+.form {
+  display: grid;
+  gap: 10px;
+  margin-top: 30px;
+}
+
+.form label {
+  color: rgba(50, 33, 21, 0.84);
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.form input {
+  width: 100%;
+  min-height: 50px;
+  padding: 0 14px;
+  border: 1px solid rgba(102, 64, 35, 0.28);
+  border-radius: 13px;
+  outline: none;
+  background: rgba(255, 253, 244, 0.86);
+  color: #1f1712;
+  box-shadow: inset 0 1px 1px rgba(82, 45, 18, 0.04);
+  transition: border-color 160ms ease, box-shadow 160ms ease, background 160ms ease;
+}
+
+.form input:focus {
+  border-color: #d3571a;
+  background: #fffef8;
+  box-shadow: 0 0 0 4px rgba(211, 87, 26, 0.14);
+}
+
+.form button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 50px;
+  margin-top: 7px;
+  border: 1px solid #b94411;
+  border-radius: 13px;
+  color: #fff8ee;
+  background: #cb5117;
+  box-shadow: 0 12px 24px rgba(173, 62, 15, 0.22);
+  cursor: pointer;
+  font-weight: 800;
+  transition: background 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+}
+
+.form button:hover {
+  background: #b94510;
+  box-shadow: 0 15px 30px rgba(173, 62, 15, 0.28);
+  transform: translateY(-1px);
+}
+
+.form button:focus-visible {
+  outline: 3px solid rgba(255, 255, 255, 0.95);
+  outline-offset: 3px;
+}
+
+.form button span {
+  font-size: 1.12rem;
+  line-height: 0;
+}
+
+.error,
+.status {
+  margin: 23px 0 0;
+  padding: 12px 14px;
+  border-radius: 12px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.error {
+  border: 1px solid rgba(185, 55, 23, 0.28);
+  color: #8f3212;
+  background: rgba(255, 235, 223, 0.72);
+}
+
+.status {
+  border: 1px solid rgba(104, 73, 35, 0.2);
+  color: rgba(61, 43, 27, 0.82);
+  background: rgba(255, 252, 237, 0.52);
+}
+
+.footer {
+  margin: 30px 0 0;
+  color: rgba(56, 37, 21, 0.5);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+@media (max-width: 520px) {
+  .screen {
+    padding: 18px;
+  }
+
+  .card {
+    padding: 27px 23px;
+    border-radius: 23px;
+  }
+
+  .lockMark {
+    margin-top: 30px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .form input,
+  .form button {
+    transition: none;
+  }
+}
