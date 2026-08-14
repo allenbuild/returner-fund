@@ -166,9 +166,9 @@ export function InsightsTabs({
   useEffect(() => {
     if (ycPartnersProp !== undefined) return undefined;
     if (activeTab !== "partners") return undefined;
-    setYcPartners(null);
     const controller = new AbortController();
     const timeoutId = window.setTimeout(() => {
+      setYcPartners(null);
       void loadYcPartners(controller.signal);
     }, 0);
     const refreshInterval = window.setInterval(() => {
