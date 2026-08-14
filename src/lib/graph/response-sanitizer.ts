@@ -1,5 +1,4 @@
 import type { EvidenceItem, GraphResponse } from "./types";
-import { scoringEligibility } from "./traction-scoring";
 
 interface SanitizeGraphOptions {
   includeRaw?: boolean;
@@ -33,7 +32,12 @@ export function sanitizeGraphResponse(
   // only the rows eligible for the compact public preview. Zero-point review
   // rows may be intentionally omitted from `evidence`, but they still count
   // toward the truthful corpus total shown by stats and pagination surfaces.
-  const evidenceProjection = buildEvidenceProjection(graph.evidence, rawEvidence, maxEvidence);
+  const evidenceProjection = buildEvidenceProjection(
+    graph.evidence,
+    rawEvidence,
+    maxEvidence,
+    graph.evidenceStats
+  );
   const evidenceIdByOriginalId = new Map(
     rawEvidence.map((item, index) => [item.id, compactIds ? `ev-${index.toString(36)}` : item.id])
   );
@@ -94,11 +98,13 @@ function publicEvidenceLimit(requestedLimit: number | undefined): number {
 function buildEvidenceProjection(
   sourceEvidence: EvidenceItem[],
   retainedEvidence: EvidenceItem[],
-  maxEvidence: number
+  maxEvidence: number,
+  evidenceStats: GraphResponse["evidenceStats"]
 ): GraphResponse["evidenceProjection"] {
   if (retainedEvidence.length === sourceEvidence.length) return undefined;
 
-  const sourcePositiveEvidenceCount = sourceEvidence.filter(isPositiveScoringEvidence).length;
+  const sourcePositiveEvidenceCount = evidenceStats?.scoringEligibleCount ??
+    sourceEvidence.filter(isPositiveScoringEvidence).length;
   const retainedPositiveEvidenceCount = retainedEvidence.filter(isPositiveScoringEvidence).length;
   return {
     maxEvidence: Math.floor(maxEvidence),
@@ -112,7 +118,7 @@ function buildEvidenceProjection(
 }
 
 function isPositiveScoringEvidence(item: EvidenceItem): boolean {
-  return item.contributionScore > 0 && scoringEligibility(item).eligible;
+  return item.contributionScore > 0 || item.tractionStatus === "unscored";
 }
 
 function compactTopVoiceConnectionEvidenceIds<
@@ -146,6 +152,7 @@ function sanitizeEvidenceItem(
     why,
     ...safeItem
   } = item;
+  delete (safeItem as EvidenceItem & { nativeAuthorResolution?: unknown }).nativeAuthorResolution;
   const publicationProvenance = item.platform === "github"
     ? githubPublicationProvenance(_rawVisibleText)
     : undefined;

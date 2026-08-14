@@ -2,6 +2,7 @@ import { momentumSort } from "./benchmarks";
 import { enrichEvidenceThumbnail } from "./evidence-thumbnails";
 import { getNodeRadius } from "./score-radius";
 import { canonicalEvidenceUrl, canonicalPostKey, dedupeEvidenceForScoring } from "./dedupe";
+import { buildEvidenceStats } from "./evidence-stats";
 import { aggregateBalancedTractionScore, normalizeEvidenceScores } from "./traction-scoring";
 import { TRACTION_SCORING_CONFIG } from "./traction-scoring-config";
 import type {
@@ -594,10 +595,15 @@ function rebuildGraphScoreSurfaces(
   });
   const generatedAt = overlayGeneratedAt(graph.generatedAt, liveEvidence);
   const fastestGaining = rebuildFastestGaining(graph.fastestGaining, leaderboard);
+  const companyIds = new Set(
+    graph.nodes.filter((node) => node.entityType === "company").map((node) => node.entityId)
+  );
+  const founderIds = new Set(graph.nodes.flatMap((node) => node.founders.map((founder) => founder.id)));
 
   return {
     ...graph,
     evidence,
+    evidenceStats: buildEvidenceStats(evidence, { companyIds, founderIds }),
     nodes,
     leaderboard,
     fastestGaining,

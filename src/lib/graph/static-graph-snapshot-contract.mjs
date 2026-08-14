@@ -1719,7 +1719,8 @@ function validatePositiveInteger(value, path, addIssue) {
 }
 
 function hasEligiblePositiveScore(item) {
-  return hasPositiveEvidenceScore(item) && !isEvidenceNoneligible(item);
+  return item.tractionStatus === "unscored" ||
+    (hasPositiveEvidenceScore(item) && !isEvidenceNoneligible(item));
 }
 
 function hasPositiveEvidenceScore(item) {
