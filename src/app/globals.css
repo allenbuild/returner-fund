@@ -3284,10 +3284,10 @@ progress::-webkit-progress-value {
 }
 
 .yc-partner-detail {
-  border: 1px solid #ebe4dd;
-  border-radius: 13px;
+  border: 0;
+  border-radius: 0;
   background: #ffffff;
-  padding: 4px 12px 12px;
+  padding: 4px 0 12px;
 }
 
 .yc-partner-detail-header {
@@ -3424,7 +3424,7 @@ progress::-webkit-progress-value {
   border-color: var(--accent-outline);
 }
 
-.yc-partner-post-card {
+.yc-partner-post-card[class~="ranked-post-card"] {
   grid-template-columns: 86px minmax(0, 1fr);
   padding: 7px 10px 7px 7px;
 }
@@ -3435,26 +3435,16 @@ progress::-webkit-progress-value {
 }
 
 .yc-partner-contributing-sentence {
+  display: grid;
+  gap: 4px;
   margin: 7px 8px 0 97px;
   color: var(--neutral-700);
   font-size: 0.77rem;
   line-height: 1.45;
 }
 
-.yc-partner-contributing-sentence > span {
-  display: block;
-  margin-bottom: 3px;
-  color: var(--accent);
-  font-size: 0.64rem;
-  font-weight: 800;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-}
-
-.yc-partner-contributing-sentence blockquote {
+.yc-partner-contributing-sentence p {
   margin: 0;
-  border-left: 2px solid var(--accent);
-  padding-left: 9px;
   color: var(--neutral-700);
   line-height: 1.45;
 }
@@ -4992,7 +4982,7 @@ td button {
     font-size: 1.15rem;
   }
 
-  .yc-partner-post-card {
+  .yc-partner-post-card[class~="ranked-post-card"] {
     grid-template-columns: 72px minmax(0, 1fr);
     padding-right: 7px;
   }
