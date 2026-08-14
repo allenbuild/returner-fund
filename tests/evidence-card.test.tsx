@@ -164,7 +164,7 @@ describe("EvidenceMediaCard", () => {
     expect(screen.getByText(item.sourceUrl)).toBeInTheDocument();
   });
 
-  it("generates a post thumbnail when no native thumbnail exists", () => {
+  it("uses the GitHub social preview when no stored thumbnail exists", () => {
     const item: EvidenceItem = {
       id: "ev-fallback",
       entityType: "company",
@@ -184,8 +184,9 @@ describe("EvidenceMediaCard", () => {
     const { container } = render(<EvidenceMediaCard item={item} />);
 
     const img = container.querySelector("img");
-    expect(img?.getAttribute("src")).toMatch(/^data:image\/svg\+xml/);
-    expect(decodeDataImage(img?.getAttribute("src"))).toContain("GitHub");
+    expect(img?.getAttribute("src")).toBe(
+      "https://opengraph.githubassets.com/ev-fallback/acme/widgets"
+    );
     expect(screen.queryByRole("img", { name: "GitHub logo" })).not.toBeInTheDocument();
     expect(screen.getAllByText(/1,200 stars/).length).toBeGreaterThan(0);
     expect(screen.getAllByText("acme/widgets: GitHub repository.").length).toBeGreaterThan(0);

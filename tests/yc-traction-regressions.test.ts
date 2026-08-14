@@ -607,7 +607,8 @@ describe("YC traction scoring regressions", () => {
       summerGraph.evidence,
       "https://www.producthunt.com/products/codag",
       "Codag",
-      "product_hunt"
+      "product_hunt",
+      "invalid_link"
     );
     expectGraphEvidence(summerGraph.evidence, "https://github.com/codag-megalith/codag-visualizer", "Codag", "github");
     expectGraphEvidence(
