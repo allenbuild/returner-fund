@@ -18,20 +18,27 @@ const evidenceFiles = [
   "src/lib/social/public-evidence-current.json",
   "src/lib/social/logged-in-evidence-current.json",
   "src/lib/social/targeted-evidence-current.json",
-  "src/lib/social/volume-evidence-current.json"
+  "src/lib/social/volume-evidence-current.json",
+  "src/lib/social/a16z-speedrun-006-social-evidence.json"
 ];
 
 const args = parseArgs(process.argv.slice(2));
+const selectedEvidenceFiles = args.evidenceFiles?.length
+  ? evidenceFiles.filter((relativePath) => args.evidenceFiles.includes(relativePath))
+  : evidenceFiles;
 const write = !args.dryRun;
 let cachedInstagramRows = 0;
 let cachedXRows = 0;
 let xOembedPreviewRows = 0;
 let xEmbedScreenshotRows = 0;
+let xFxTwitterRows = 0;
+let xFxTwitterMediaRows = 0;
 let xValidatedRows = 0;
 let xInvalidRows = 0;
 let linkPreviewRows = 0;
 let linkPreviewFaviconRows = 0;
 let linkPreviewCheckedRows = 0;
+let linkPreviewTextFallbackRows = 0;
 let xEmbedBrowser = null;
 let xEmbedPage = null;
 const cacheFailures = [];
@@ -44,7 +51,7 @@ let patchedOnlyRows = 0;
 let reachedMaxRows = false;
 const summaries = [];
 
-for (const relativePath of evidenceFiles) {
+for (const relativePath of selectedEvidenceFiles) {
   const absolutePath = path.join(repoRoot, relativePath);
   if (!fs.existsSync(absolutePath)) {
     continue;
@@ -68,6 +75,44 @@ for (const relativePath of evidenceFiles) {
   const evidence = Array.isArray(snapshot.evidence) ? snapshot.evidence : [];
   let fileUpdates = 0;
   let fileUpdatesSinceWrite = 0;
+  const pending = [];
+
+  const flushPending = async () => {
+    if (pending.length === 0) {
+      return;
+    }
+    const resolvedRows = await Promise.all(
+      pending.splice(0, pending.length).map(async (item) => ({ item, resolved: await resolveThumbnailForItem(item, args) }))
+    );
+    for (const { item, resolved } of resolvedRows) {
+      const patched = applyResolvedPatch(item, resolved);
+      if (!resolved.thumbnailUrl && !patched) {
+        continue;
+      }
+
+      if (resolved.thumbnailUrl && !args.force && item.thumbnailUrl === resolved.thumbnailUrl && !patched) {
+        continue;
+      }
+
+      if (resolved.thumbnailUrl) {
+        item.thumbnailUrl = resolved.thumbnailUrl;
+        item.thumbnailSource = resolved.thumbnailSource ?? item.thumbnailSource;
+        if (!item.mediaUrl && resolved.mediaUrl) {
+          item.mediaUrl = resolved.mediaUrl;
+        }
+        resolvedThumbnailRows += 1;
+      } else if (patched) {
+        patchedOnlyRows += 1;
+      }
+      fileUpdates += 1;
+      fileUpdatesSinceWrite += 1;
+      updatedRows += 1;
+      if (write && fileUpdatesSinceWrite >= args.checkpointRows) {
+        await writeJsonWithRetries(absolutePath, snapshot, publicEvidenceWriteState);
+        fileUpdatesSinceWrite = 0;
+      }
+    }
+  };
 
   for (const item of evidence) {
     if (Number.isFinite(args.maxRows) && totalRows >= args.maxRows) {
@@ -92,38 +137,16 @@ for (const relativePath of evidenceFiles) {
     }
 
     totalRows += 1;
-
-    const resolved = await resolveThumbnailForItem(item, args);
-    const patched = applyResolvedPatch(item, resolved);
-    if (!resolved.thumbnailUrl && !patched) {
-      continue;
-    }
-
-    if (resolved.thumbnailUrl && !args.force && item.thumbnailUrl === resolved.thumbnailUrl && !patched) {
-      continue;
-    }
-
-    if (resolved.thumbnailUrl) {
-      item.thumbnailUrl = resolved.thumbnailUrl;
-      item.thumbnailSource = resolved.thumbnailSource ?? item.thumbnailSource;
-      if (!item.mediaUrl && resolved.mediaUrl) {
-        item.mediaUrl = resolved.mediaUrl;
+    pending.push(item);
+    if (pending.length >= args.concurrency) {
+      await flushPending();
+      if (args.delayMs > 0) {
+        await delay(args.delayMs);
       }
-      resolvedThumbnailRows += 1;
-    } else if (patched) {
-      patchedOnlyRows += 1;
-    }
-    fileUpdates += 1;
-    fileUpdatesSinceWrite += 1;
-    updatedRows += 1;
-    if (write && fileUpdatesSinceWrite >= args.checkpointRows) {
-      await writeJsonWithRetries(absolutePath, snapshot, publicEvidenceWriteState);
-      fileUpdatesSinceWrite = 0;
-    }
-    if (args.delayMs > 0) {
-      await delay(args.delayMs);
     }
   }
+
+  await flushPending();
 
   summaries.push({ file: relativePath, scanned: evidence.length, updated: fileUpdates });
   if (fileUpdatesSinceWrite > 0 && write) {
@@ -146,8 +169,10 @@ console.log(
         platform: args.platform ?? null,
         thumbnailSource: args.thumbnailSource ?? null,
         missingOnly: args.missingOnly,
-        maxRows: Number.isFinite(args.maxRows) ? args.maxRows : null,
+    maxRows: Number.isFinite(args.maxRows) ? args.maxRows : null,
+        evidenceFiles: selectedEvidenceFiles,
         checkpointRows: args.checkpointRows,
+        concurrency: args.concurrency,
         force: args.force
       },
       totalRows,
@@ -158,11 +183,14 @@ console.log(
       cachedXRows,
       xOembedPreviewRows,
       xEmbedScreenshotRows,
+      xFxTwitterRows,
+      xFxTwitterMediaRows,
       xValidatedRows,
       xInvalidRows,
       linkPreviewRows,
       linkPreviewFaviconRows,
       linkPreviewCheckedRows,
+      linkPreviewTextFallbackRows,
       cacheFailures: cacheFailures.slice(0, 20),
       linkPreviewFailures: linkPreviewFailures.slice(0, 20),
       files: summaries
@@ -179,13 +207,18 @@ function parseArgs(argv) {
     cacheInstagram: false,
     cacheX: false,
     allowXSvgFallback: false,
+    fxTwitter: false,
+    externalMedia: false,
+    xEmbedOnly: false,
     validateX: false,
     fetchLinkPreview: false,
     retryFailedPreviews: false,
+    allowTextFallback: false,
     allowFavicon: true,
     missingOnly: false,
     maxRows: Number.POSITIVE_INFINITY,
     checkpointRows: 25,
+    concurrency: 1,
     limit: Number.POSITIVE_INFINITY,
     delayMs: 0,
     timeoutMs: 90_000
@@ -196,9 +229,13 @@ function parseArgs(argv) {
     if (arg === "--cache-instagram") parsed.cacheInstagram = true;
     if (arg === "--cache-x") parsed.cacheX = true;
     if (arg === "--allow-x-svg-fallback") parsed.allowXSvgFallback = true;
+    if (arg === "--fx-twitter") parsed.fxTwitter = true;
+    if (arg === "--external-media") parsed.externalMedia = true;
+    if (arg === "--x-embed-only") parsed.xEmbedOnly = true;
     if (arg === "--validate-x") parsed.validateX = true;
     if (arg === "--fetch-link-preview" || arg === "--fetch-og") parsed.fetchLinkPreview = true;
     if (arg === "--retry-failed-previews") parsed.retryFailedPreviews = true;
+    if (arg === "--allow-text-fallback") parsed.allowTextFallback = true;
     if (arg === "--no-favicon") parsed.allowFavicon = false;
     if (arg === "--missing-only") parsed.missingOnly = true;
     if (arg.startsWith("--company=")) parsed.company = arg.slice("--company=".length).toLowerCase();
@@ -218,9 +255,17 @@ function parseArgs(argv) {
     if (arg.startsWith("--limit=")) parsed.limit = Number(arg.slice("--limit=".length)) || parsed.limit;
     if (arg.startsWith("--max-rows=")) parsed.maxRows = Number(arg.slice("--max-rows=".length)) || parsed.maxRows;
     if (arg.startsWith("--checkpoint-rows=")) parsed.checkpointRows = Number(arg.slice("--checkpoint-rows=".length)) || parsed.checkpointRows;
+    if (arg.startsWith("--concurrency=")) parsed.concurrency = Math.max(1, Number(arg.slice("--concurrency=".length)) || parsed.concurrency);
     if (arg.startsWith("--timeout-ms=")) parsed.timeoutMs = Number(arg.slice("--timeout-ms=".length)) || parsed.timeoutMs;
     if (arg.startsWith("--delay-ms=")) parsed.delayMs = Number(arg.slice("--delay-ms=".length)) || parsed.delayMs;
     if (arg.startsWith("--session=")) parsed.session = arg.slice("--session=".length);
+    if (arg.startsWith("--evidence-files=")) {
+      parsed.evidenceFiles = arg
+        .slice("--evidence-files=".length)
+        .split(",")
+        .map((value) => value.trim())
+        .filter(Boolean);
+    }
   }
   return parsed;
 }
@@ -256,7 +301,7 @@ async function resolveThumbnailForItem(item, args) {
     return resolveOrCacheInstagramThumbnail(item, args);
   }
 
-  if ((args.cacheX || args.validateX) && item.platform === "x") {
+  if ((args.cacheX || args.validateX || args.xEmbedOnly) && item.platform === "x") {
     return resolveOrCacheXThumbnail(item, args);
   }
 
@@ -265,7 +310,35 @@ async function resolveThumbnailForItem(item, args) {
     return resolved;
   }
 
-  return resolveLinkPreviewThumbnail(item, args);
+  if (args.allowTextFallback && item.linkStatus === "verified" && !item.thumbnailErrorCode) {
+    const fallback = await cacheGenericTextPreview(item);
+    if (fallback) {
+      linkPreviewTextFallbackRows += 1;
+      return {
+        thumbnailUrl: fallback.publicUrl,
+        thumbnailSource: "text-preview-fallback",
+        mediaUrl: fallback.publicUrl,
+        patch: null
+      };
+    }
+  }
+
+  const linkPreview = await resolveLinkPreviewThumbnail(item, args);
+  if (linkPreview.thumbnailUrl || !args.allowTextFallback) {
+    return linkPreview;
+  }
+
+  const fallback = await cacheGenericTextPreview(item);
+  if (!fallback) {
+    return linkPreview;
+  }
+  linkPreviewTextFallbackRows += 1;
+  return {
+    thumbnailUrl: fallback.publicUrl,
+    thumbnailSource: "text-preview-fallback",
+    mediaUrl: fallback.publicUrl,
+    patch: linkPreview.patch ?? null
+  };
 }
 
 function applyResolvedPatch(item, resolved) {
@@ -373,7 +446,35 @@ async function resolveOrCacheXThumbnail(item, args) {
     return { ...resolved, patch: validation?.patch ?? null };
   }
 
-  const embedScreenshot = await cacheXEmbedScreenshot(item, validation, args);
+  if (args.fxTwitter) {
+    const syndicated = await cacheFxTwitterMediaThumbnail(item, args);
+    if (syndicated) {
+      xFxTwitterMediaRows += 1;
+      return {
+        thumbnailUrl: syndicated.publicUrl,
+        thumbnailSource: syndicated.thumbnailSource,
+        mediaUrl: syndicated.publicUrl,
+        patch: validation?.patch ?? null
+      };
+    }
+
+    if (args.xEmbedOnly && args.allowXSvgFallback) {
+      const fallback = await cacheXTextPreview(item);
+      if (fallback) {
+        xOembedPreviewRows += 1;
+        return {
+          thumbnailUrl: fallback.publicUrl,
+          thumbnailSource: "x-text-preview-fallback",
+          mediaUrl: fallback.publicUrl,
+          patch: validation?.patch ?? null
+        };
+      }
+    }
+  }
+
+  const embedScreenshot = xEmbedScreenshotRows < args.limit
+    ? await cacheXEmbedScreenshot(item, validation, args)
+    : null;
   if (embedScreenshot) {
     xEmbedScreenshotRows += 1;
     return {
@@ -382,6 +483,10 @@ async function resolveOrCacheXThumbnail(item, args) {
       mediaUrl: embedScreenshot.publicUrl,
       patch: validation?.patch ?? null
     };
+  }
+
+  if (args.xEmbedOnly) {
+    return { ...resolved, patch: validation?.patch ?? null };
   }
 
   if (args.cacheX && cachedXRows < args.limit && isXPostUrl(item.sourceUrl)) {
@@ -1172,6 +1277,162 @@ async function cacheXEmbedScreenshot(item, validation, args) {
   }
 }
 
+async function cacheXTextPreview(item) {
+  const text = item.text || item.title || item.rawVisibleText;
+  if (!text) {
+    return null;
+  }
+  const output = localThumbnailPaths(item, "svg");
+  if (!write) {
+    return output;
+  }
+  fs.mkdirSync(path.dirname(output.absolutePath), { recursive: true });
+  fs.writeFileSync(output.absolutePath, renderXPreviewSvg(item, {}), "utf8");
+  return fs.existsSync(output.absolutePath) ? output : null;
+}
+
+async function cacheGenericTextPreview(item) {
+  const title = String(item.title || item.text || item.name || sourceHostname(item.sourceUrl) || "Source preview").trim();
+  if (!title) {
+    return null;
+  }
+  const output = localThumbnailPaths(item, "svg");
+  if (!write) {
+    return output;
+  }
+  const platform = genericPlatformLabel(item.platform);
+  const author = String(item.authorName || item.authorHandle || sourceHostname(item.sourceUrl) || platform).trim();
+  const lines = wrapText(title, 54, 6);
+  const tspans = lines.map((line, index) => `<tspan x="74" y="${220 + index * 42}">${escapeXml(line)}</tspan>`).join("");
+  fs.mkdirSync(path.dirname(output.absolutePath), { recursive: true });
+  fs.writeFileSync(
+    output.absolutePath,
+    `<svg xmlns="http://www.w3.org/2000/svg" width="960" height="540" viewBox="0 0 960 540" role="img" aria-label="${escapeXml(platform)} preview">
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stop-color="#fffaf6"/><stop offset="1" stop-color="#eef5fb"/></linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="130%"><feDropShadow dx="0" dy="16" stdDeviation="16" flood-color="#7c2d12" flood-opacity=".14"/></filter>
+    <style>.label{font-family:Inter,Arial,sans-serif}.platform{font:800 22px Inter,Arial,sans-serif;fill:#c2410c}.title{font:800 34px Inter,Arial,sans-serif;fill:#111827}.author{font:600 22px Inter,Arial,sans-serif;fill:#536471}.domain{font:700 20px Inter,Arial,sans-serif;fill:#9a3412}</style>
+  </defs>
+  <rect width="960" height="540" fill="url(#bg)"/><rect x="34" y="34" width="892" height="472" rx="28" fill="#fff" filter="url(#shadow)"/>
+  <rect x="70" y="70" width="190" height="42" rx="21" fill="#fff0e7"/><text x="94" y="98" class="platform">${escapeXml(platform)}</text>
+  <text x="74" y="166" class="author">${escapeXml(author.slice(0, 54))}</text><text class="title">${tspans}</text>
+  <text x="74" y="468" class="domain">${escapeXml(sourceHostname(item.sourceUrl) || "source")}</text>
+</svg>`,
+    "utf8"
+  );
+  return fs.existsSync(output.absolutePath) ? output : null;
+}
+
+function genericPlatformLabel(platform) {
+  const value = String(platform || "source").toLowerCase();
+  return ({
+    hacker_news: "Hacker News",
+    product_hunt: "Product Hunt",
+    linkedin: "LinkedIn",
+    instagram: "Instagram",
+    youtube: "YouTube",
+    reddit: "Reddit",
+    github: "GitHub",
+    rss: "RSS",
+    web: "Web"
+  })[value] || value.replace(/[_-]+/g, " ");
+}
+
+function sourceHostname(rawUrl) {
+  try {
+    return new URL(String(rawUrl)).hostname.replace(/^www\./i, "");
+  } catch {
+    return "";
+  }
+}
+
+async function cacheFxTwitterMediaThumbnail(item, args) {
+  const statusId = item.platformPostId || xStatusIdFromUrl(item.sourceUrl);
+  if (!statusId) {
+    return null;
+  }
+
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), Math.min(args.timeoutMs, 15_000));
+  try {
+    const response = await fetch(`https://api.fxtwitter.com/status/${encodeURIComponent(statusId)}`, {
+      headers: {
+        accept: "application/json",
+        "user-agent": "YCNetworkMap/1.0 thumbnail-backfill"
+      },
+      signal: controller.signal
+    });
+    if (!response.ok) {
+      return null;
+    }
+
+    const payload = await response.json();
+    xFxTwitterRows += 1;
+    const media = Array.isArray(payload?.tweet?.media?.all)
+      ? payload.tweet.media.all.find((candidate) => candidate?.thumbnail_url || (candidate?.type === "photo" && candidate?.url))
+      : null;
+    const imageUrl = media?.thumbnail_url || (media?.type === "photo" ? media.url : null);
+    if (imageUrl && /^https:\/\/(?:pbs\.twimg\.com|video\.twimg\.com)\//i.test(imageUrl)) {
+      if (args.externalMedia) {
+        return { publicUrl: imageUrl, thumbnailSource: "fxtwitter-direct-media" };
+      }
+      if (!write) {
+        return localThumbnailPaths(item, "jpg");
+      }
+
+      const imageResponse = await fetch(imageUrl, {
+        headers: {
+          accept: "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8",
+          "user-agent": "YCNetworkMap/1.0 thumbnail-backfill"
+        },
+        signal: controller.signal
+      });
+      if (imageResponse.ok) {
+        const contentType = imageResponse.headers.get("content-type") || "";
+        if (contentType.toLowerCase().startsWith("image/")) {
+          const bytes = Buffer.from(await imageResponse.arrayBuffer());
+          if (bytes.length >= 1000) {
+            const extension = contentType.toLowerCase().includes("png") ? "png" : "jpg";
+            const output = localThumbnailPaths(item, extension);
+            fs.mkdirSync(path.dirname(output.absolutePath), { recursive: true });
+            fs.writeFileSync(output.absolutePath, bytes);
+            return { ...output, thumbnailSource: "fxtwitter-media-thumbnail" };
+          }
+        }
+      }
+    }
+
+    const tweet = payload?.tweet;
+    if (tweet?.text && args.allowXSvgFallback) {
+      if (!write) {
+        return { ...localThumbnailPaths(item, "svg"), thumbnailSource: "fxtwitter-text-preview" };
+      }
+      const output = localThumbnailPaths(item, "svg");
+      const metadata = {
+        authorName: tweet.author?.name,
+        authorHandle: tweet.author?.screen_name,
+        text: tweet.text,
+        dateLabel: tweet.created_at,
+        metrics: {
+          likes: tweet.likes,
+          replies: tweet.replies,
+          retweets: tweet.retweets,
+          views: tweet.views
+        }
+      };
+      fs.mkdirSync(path.dirname(output.absolutePath), { recursive: true });
+      fs.writeFileSync(output.absolutePath, renderXPreviewSvg(item, metadata), "utf8");
+      return { ...output, thumbnailSource: "fxtwitter-text-preview" };
+    }
+    return null;
+  } catch (error) {
+    cacheFailures.push({ id: item.id, reason: `FxTwitter media lookup failed: ${String(error.message || error).slice(0, 180)}` });
+    return null;
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
 async function firstVisibleScreenshotTarget(page) {
   const selectors = ["iframe[id^='twitter-widget-']", ".tweet-shell", "body"];
   for (const selector of selectors) {
@@ -1363,10 +1624,10 @@ function htmlDecode(value) {
 
 function renderXPreviewSvg(item, metadata = {}) {
   metadata = metadata ?? {};
-  const authorName = metadata.authorName || item.authorName || item.title || "X post";
-  const handle = metadata.authorHandle || item.authorHandle || authorHandleFromRaw(item.rawVisibleText) || "x";
-  const text = metadata.text || item.text || item.title || "X post";
-  const date = metadata.dateLabel || xDateFromRaw(item.rawVisibleText) || "";
+  const authorName = String(metadata.authorName || item.authorName || item.title || "X post");
+  const handle = String(metadata.authorHandle || item.authorHandle || authorHandleFromRaw(item.rawVisibleText) || "x");
+  const text = String(metadata.text || item.text || item.title || "X post");
+  const date = String(metadata.dateLabel || xDateFromRaw(item.rawVisibleText) || "");
   const metrics = compactMetricText(item.metrics || {});
   const textLines = wrapText(text, 70, 7);
   const titleLines = wrapText(authorName, 42, 1);

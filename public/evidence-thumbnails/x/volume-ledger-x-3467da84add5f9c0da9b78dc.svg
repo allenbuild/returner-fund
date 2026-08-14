@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="540" viewBox="0 0 960 540" role="img" aria-label="X post preview">
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#fffaf6"/>
+      <stop offset="1" stop-color="#eef5fb"/>
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="130%">
+      <feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="#7c2d12" flood-opacity=".16"/>
+    </filter>
+    <style>
+      .label { font-family: Inter, Arial, sans-serif; fill:#111827; }
+      .author { font: 800 34px Inter, Arial, sans-serif; fill:#111827; }
+      .handle { font: 700 24px Inter, Arial, sans-serif; fill:#536471; }
+      .date { font: 700 22px Inter, Arial, sans-serif; fill:#536471; }
+      .body { font: 700 29px Inter, Arial, sans-serif; fill:#111827; }
+      .metrics { font: 800 24px Inter, Arial, sans-serif; fill:#ff6600; }
+    </style>
+  </defs>
+  <rect width="960" height="540" fill="url(#bg)"/>
+  <rect x="42" y="42" width="876" height="456" rx="28" fill="#ffffff" filter="url(#shadow)"/>
+  <rect x="72" y="72" width="54" height="54" rx="14" fill="#111827"/>
+  <text x="99" y="110" text-anchor="middle" font-family="Arial, sans-serif" font-size="31" font-weight="900" fill="#ffffff">X</text>
+  <text x="146" y="94" class="author">Pierre-Alex</text>
+  <text x="146" y="128" class="handle">@pierrealexai</text>
+  <text x="92" y="113" class="date">Wed Apr 22 15:31:49 +0000 2026</text>
+  <text class="body"><tspan x="92" y="178">𝗪𝗵𝗮𝘁 𝘄𝗲 𝗹𝗼𝗼𝗸 𝗳𝗼𝗿? At @kinroai, we’re building AI agents</tspan><tspan x="92" y="216">that sell insurance in an agent-to-agent world. That means getting</tspan><tspan x="92" y="254">safety, compliance, customer experience, and sales exactly right.</tspan><tspan x="92" y="292">Fully auditable. The last mile is the whole game. Most people aren’t</tspan><tspan x="92" y="330">willing to do the hard, unsexy work required to get there. We are</tspan><tspan x="92" y="368">looking for owners who obsess over that last mile. Founding GTM,</tspan><tspan x="92" y="406">engineers and researchers. High agency, relentless about quality,...</tspan></text>
+  <text x="92" y="476" class="metrics">643 views / 3 likes / 3 replies</text>
+  <text x="826" y="476" text-anchor="end" font-family="Arial, sans-serif" font-size="25" font-weight="900" fill="#111827">X</text>
+</svg>

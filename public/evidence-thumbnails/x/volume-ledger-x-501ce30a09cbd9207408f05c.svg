@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="540" viewBox="0 0 960 540" role="img" aria-label="X post preview">
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#fffaf6"/>
+      <stop offset="1" stop-color="#eef5fb"/>
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="130%">
+      <feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="#7c2d12" flood-opacity=".16"/>
+    </filter>
+    <style>
+      .label { font-family: Inter, Arial, sans-serif; fill:#111827; }
+      .author { font: 800 34px Inter, Arial, sans-serif; fill:#111827; }
+      .handle { font: 700 24px Inter, Arial, sans-serif; fill:#536471; }
+      .date { font: 700 22px Inter, Arial, sans-serif; fill:#536471; }
+      .body { font: 700 29px Inter, Arial, sans-serif; fill:#111827; }
+      .metrics { font: 800 24px Inter, Arial, sans-serif; fill:#ff6600; }
+    </style>
+  </defs>
+  <rect width="960" height="540" fill="url(#bg)"/>
+  <rect x="42" y="42" width="876" height="456" rx="28" fill="#ffffff" filter="url(#shadow)"/>
+  <rect x="72" y="72" width="54" height="54" rx="14" fill="#111827"/>
+  <text x="99" y="110" text-anchor="middle" font-family="Arial, sans-serif" font-size="31" font-weight="900" fill="#ffffff">X</text>
+  <text x="146" y="94" class="author">Farza 🇵🇰🇺🇸</text>
+  <text x="146" y="128" class="handle">@FarzaTV</text>
+  <text x="92" y="113" class="date">Thu Apr 02 22:46:47 +0000 2026</text>
+  <text class="body"><tspan x="92" y="178">I decided to join Y Combinator, again. This would be my second time!</tspan><tspan x="92" y="216">Not fully sure what I'm working on yet. But, I'm sure I'll find</tspan><tspan x="92" y="254">something in time as I wander and ship. I'm a little scared to do the</tspan><tspan x="92" y="292">whole build a company thing again ngl, but mostly excited. There's</tspan><tspan x="92" y="330">never been a better time to work on the ideas in my head. The batch</tspan><tspan x="92" y="368">started this week. Starting a company at 23 vs now starting a company</tspan><tspan x="92" y="406">at 30 feels so different. At 23 (when I did YC in 2020), naivety wa...</tspan></text>
+  <text x="92" y="476" class="metrics">111.2K views / 1.3K likes / 22 reposts / 11 quotes</text>
+  <text x="826" y="476" text-anchor="end" font-family="Arial, sans-serif" font-size="25" font-weight="900" fill="#111827">X</text>
+</svg>

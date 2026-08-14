@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="540" viewBox="0 0 960 540" role="img" aria-label="Hacker News preview">
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stop-color="#fffaf6"/><stop offset="1" stop-color="#eef5fb"/></linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="130%"><feDropShadow dx="0" dy="16" stdDeviation="16" flood-color="#7c2d12" flood-opacity=".14"/></filter>
+    <style>.label{font-family:Inter,Arial,sans-serif}.platform{font:800 22px Inter,Arial,sans-serif;fill:#c2410c}.title{font:800 34px Inter,Arial,sans-serif;fill:#111827}.author{font:600 22px Inter,Arial,sans-serif;fill:#536471}.domain{font:700 20px Inter,Arial,sans-serif;fill:#9a3412}</style>
+  </defs>
+  <rect width="960" height="540" fill="url(#bg)"/><rect x="34" y="34" width="892" height="472" rx="28" fill="#fff" filter="url(#shadow)"/>
+  <rect x="70" y="70" width="190" height="42" rx="21" fill="#fff0e7"/><text x="94" y="98" class="platform">Hacker News</text>
+  <text x="74" y="166" class="author">binsquare</text><text class="title"><tspan x="74" y="220">Incredulous claims and unreviewed paper.&lt;p&gt;Attention</tspan><tspan x="74" y="262">really is all you need.</tspan></text>
+  <text x="74" y="468" class="domain">news.ycombinator.com</text>
+</svg>

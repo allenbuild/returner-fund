@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="540" viewBox="0 0 960 540" role="img" aria-label="X post preview">
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#fffaf6"/>
+      <stop offset="1" stop-color="#eef5fb"/>
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="130%">
+      <feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="#7c2d12" flood-opacity=".16"/>
+    </filter>
+    <style>
+      .label { font-family: Inter, Arial, sans-serif; fill:#111827; }
+      .author { font: 800 34px Inter, Arial, sans-serif; fill:#111827; }
+      .handle { font: 700 24px Inter, Arial, sans-serif; fill:#536471; }
+      .date { font: 700 22px Inter, Arial, sans-serif; fill:#536471; }
+      .body { font: 700 29px Inter, Arial, sans-serif; fill:#111827; }
+      .metrics { font: 800 24px Inter, Arial, sans-serif; fill:#ff6600; }
+    </style>
+  </defs>
+  <rect width="960" height="540" fill="url(#bg)"/>
+  <rect x="42" y="42" width="876" height="456" rx="28" fill="#ffffff" filter="url(#shadow)"/>
+  <rect x="72" y="72" width="54" height="54" rx="14" fill="#111827"/>
+  <text x="99" y="110" text-anchor="middle" font-family="Arial, sans-serif" font-size="31" font-weight="900" fill="#ffffff">X</text>
+  <text x="146" y="94" class="author">Kinro</text>
+  <text x="146" y="128" class="handle">@kinroai</text>
+  <text x="92" y="113" class="date">Wed Dec 10 00:27:17 +0000 2025</text>
+  <text class="body"><tspan x="92" y="178">Example prompt: &quot;𝘞𝘩𝘢𝘵'𝘴 𝘵𝘩𝘦 𝘣𝘦𝘴𝘵 𝘸𝘰𝘳𝘬𝘦𝘳'𝘴</tspan><tspan x="92" y="216">𝘤𝘰𝘮𝘱𝘦𝘯𝘴𝘢𝘵𝘪𝘰𝘯 𝘪𝘯𝘴𝘶𝘳𝘢𝘯𝘤𝘦 𝘧𝘰𝘳 𝘮𝘺</tspan><tspan x="92" y="254">𝘮𝘢𝘯𝘶𝘧𝘢𝘤𝘵𝘶𝘳𝘪𝘯𝘨 𝘤𝘰𝘮𝘱𝘢𝘯𝘺? 𝘛𝘩𝘦 𝘤𝘰𝘮𝘱𝘢𝘯𝘺 𝘪𝘴</tspan><tspan x="92" y="292">𝘭𝘰𝘤𝘢𝘵𝘦𝘥 𝘪𝘯 𝘛𝘦𝘹𝘢𝘴 &amp; 𝘦𝘮𝘱𝘭𝘰𝘺 500 𝘢𝘴𝘴𝘦𝘮𝘣𝘭𝘺</tspan><tspan x="92" y="330">𝘭𝘪𝘯𝘦 𝘸𝘰𝘳𝘬𝘦𝘳𝘴&quot;</tspan></text>
+  <text x="92" y="476" class="metrics">117 views / 1 replies</text>
+  <text x="826" y="476" text-anchor="end" font-family="Arial, sans-serif" font-size="25" font-weight="900" fill="#111827">X</text>
+</svg>

@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="540" viewBox="0 0 960 540" role="img" aria-label="X post preview">
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#fffaf6"/>
+      <stop offset="1" stop-color="#eef5fb"/>
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="130%">
+      <feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="#7c2d12" flood-opacity=".16"/>
+    </filter>
+    <style>
+      .label { font-family: Inter, Arial, sans-serif; fill:#111827; }
+      .author { font: 800 34px Inter, Arial, sans-serif; fill:#111827; }
+      .handle { font: 700 24px Inter, Arial, sans-serif; fill:#536471; }
+      .date { font: 700 22px Inter, Arial, sans-serif; fill:#536471; }
+      .body { font: 700 29px Inter, Arial, sans-serif; fill:#111827; }
+      .metrics { font: 800 24px Inter, Arial, sans-serif; fill:#ff6600; }
+    </style>
+  </defs>
+  <rect width="960" height="540" fill="url(#bg)"/>
+  <rect x="42" y="42" width="876" height="456" rx="28" fill="#ffffff" filter="url(#shadow)"/>
+  <rect x="72" y="72" width="54" height="54" rx="14" fill="#111827"/>
+  <text x="99" y="110" text-anchor="middle" font-family="Arial, sans-serif" font-size="31" font-weight="900" fill="#ffffff">X</text>
+  <text x="146" y="94" class="author">louis030195 | screenpipe (YC S26)</text>
+  <text x="146" y="128" class="handle">@louis030195</text>
+  <text x="92" y="113" class="date">Wed Jun 24 13:43:54 +0000 2026</text>
+  <text class="body"><tspan x="92" y="178">I'm working on @screenpipe. AI today has amnesia, it always forget</tspan><tspan x="92" y="216">what you're discussing, and always have to be reminded what you're</tspan><tspan x="92" y="254">working on. The entire industry is shifting in this direction: replace</tspan><tspan x="92" y="292">humans by AI. That's why screenpipe records your screen and microphone</tspan><tspan x="92" y="330">24/7, securely on your computer, and turn you and your employees work</tspan><tspan x="92" y="368">into AI agents, so you can make more money and save time. We're</tspan><tspan x="92" y="406">growing exponentially, download if you want to automate yourself or...</tspan></text>
+  <text x="92" y="476" class="metrics">515 views / 10 likes / 2 replies</text>
+  <text x="826" y="476" text-anchor="end" font-family="Arial, sans-serif" font-size="25" font-weight="900" fill="#111827">X</text>
+</svg>
