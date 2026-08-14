@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { LockKeyhole, Sparkles } from "lucide-react";
+import { LockKeyhole } from "lucide-react";
 import { isSiteAccessConfigured } from "@/lib/site-access";
 import styles from "./unlock.module.css";
 
@@ -24,24 +24,16 @@ export default async function UnlockPage({ searchParams }: UnlockPageProps) {
   return (
     <main className={styles.screen}>
       <div className={styles.grain} aria-hidden="true" />
-      <div className={styles.orbOne} aria-hidden="true" />
-      <div className={styles.orbTwo} aria-hidden="true" />
 
       <section className={styles.card} aria-labelledby="access-title">
-        <div className={styles.brand}>
-          <span className={styles.brandMark}><Sparkles size={15} strokeWidth={2.4} aria-hidden="true" /></span>
-          returner.fund
-        </div>
+        <p className={styles.brand}>returner.fund</p>
 
         <div className={styles.lockMark} aria-hidden="true">
-          <LockKeyhole size={27} strokeWidth={2.3} />
+          <LockKeyhole size={20} strokeWidth={2.1} />
         </div>
 
-        <p className={styles.eyebrow}>Private intelligence</p>
         <h1 id="access-title">Enter password</h1>
-        <p className={styles.intro}>
-          This workspace is password protected.
-        </p>
+        <p className={styles.intro}>Private workspace.</p>
 
         {configurationPending ? (
           <p className={styles.status} role="status">
@@ -62,11 +54,9 @@ export default async function UnlockPage({ searchParams }: UnlockPageProps) {
             {invalidPassword ? (
               <p className={styles.error} role="alert">That password didn’t match. Please try again.</p>
             ) : null}
-            <button type="submit">Continue <span aria-hidden="true">→</span></button>
+            <button type="submit">Continue</button>
           </form>
         )}
-
-        <p className={styles.footer}>Returner Fund</p>
       </section>
     </main>
   );
