@@ -133,13 +133,14 @@ export function InsightsTabs({
       : selectRankedPosts(graph, { period: rankedPeriod, now, sidecarScope: rankedPostsSidecarScope }),
     [graph, now, rankedPeriod, rankedPostsSidecarScope]
   );
+  const currentBatchSlug = graph.batch.slug;
 
   const loadYcPartners = useCallback(async (signal?: AbortSignal) => {
     setYcPartnersLoading(true);
     setYcPartnersError(null);
 
     try {
-      const response = await fetch("/api/yc-partners", {
+      const response = await fetch(`/api/yc-partners?batch=${encodeURIComponent(currentBatchSlug)}`, {
         cache: "no-store",
         signal
       });
@@ -161,11 +162,12 @@ export function InsightsTabs({
     } finally {
       if (!signal?.aborted) setYcPartnersLoading(false);
     }
-  }, []);
+  }, [currentBatchSlug]);
 
   useEffect(() => {
     if (ycPartnersProp !== undefined) return undefined;
     if (activeTab !== "partners") return undefined;
+    setYcPartners(null);
     const controller = new AbortController();
     const timeoutId = window.setTimeout(() => {
       void loadYcPartners(controller.signal);
@@ -178,7 +180,7 @@ export function InsightsTabs({
       window.clearInterval(refreshInterval);
       controller.abort();
     };
-  }, [activeTab, graph.generatedAt, loadYcPartners, ycPartnersProp]);
+  }, [activeTab, currentBatchSlug, graph.generatedAt, loadYcPartners, ycPartnersProp]);
 
   const displayedYcPartners = ycPartnersProp ?? ycPartners;
   const displayedYcPartnersLoading = ycPartnersLoadingProp ?? ycPartnersLoading;
@@ -739,13 +741,15 @@ function YcPartnerOverviewCard({ partner, onClick }: { partner: YcPartnerFavorit
 }
 
 function YcPartnerDetail({ partner, graph, onClose, onSelectNode }: { partner: YcPartnerFavoriteDetail; graph: GraphResponse; onClose: () => void; onSelectNode: (nodeId: string) => void }) {
+  const scoredRankings = partner.rankings.filter((ranking) => ranking.confidence.score > 0);
+
   return (
     <section className="yc-partner-detail" aria-labelledby="yc-partner-detail-title">
       <header className="yc-partner-detail-header">
         <h2 id="yc-partner-detail-title">{partner.partnerName}</h2>
         <button type="button" className="yc-partner-back-button" onClick={onClose} aria-label="Back to all YC Partners"><ChevronLeft size={18} aria-hidden="true" /></button>
       </header>
-      {!partner.rankings.length ? (
+      {!scoredRankings.length ? (
         <div className="yc-partners-state yc-partner-detail-empty">
           <div className="yc-partners-state-icon"><CheckCircle2 size={22} aria-hidden="true" /></div>
           <strong>No attributable startup commentary yet.</strong>
@@ -753,7 +757,7 @@ function YcPartnerDetail({ partner, graph, onClose, onSelectNode }: { partner: Y
         </div>
       ) : (
         <ol className="yc-partner-ranking-list" aria-label={`${partner.partnerName} favorite startup rankings`}>
-          {partner.rankings.map((ranking) => <YcPartnerRankingRow key={`${ranking.batchSlug}:${ranking.companyId}`} ranking={ranking} graph={graph} onSelectNode={onSelectNode} />)}
+          {scoredRankings.map((ranking) => <YcPartnerRankingRow key={`${ranking.batchSlug}:${ranking.companyId}`} ranking={ranking} graph={graph} onSelectNode={onSelectNode} />)}
         </ol>
       )}
     </section>
@@ -806,6 +810,10 @@ function YcPartnerCitationPost({
   const evidence = graph.evidence.find((item) => item.id === citation.evidenceId || item.sourceUrl === citation.sourceUrl) ?? partnerCitationEvidence(ranking, citation);
   const contribution = formatContribution(evidence);
   const author = contribution.author ? formatAuthor(contribution.author, evidence.authorHandle) : "";
+  const contributingSentences = (citation.contributingSentences?.length
+    ? citation.contributingSentences
+    : [citation.excerpt]
+  ).map((sentence) => sentence.trim()).filter(Boolean);
 
   return (
     <div className="yc-partner-citation-post">
@@ -837,10 +845,9 @@ function YcPartnerCitationPost({
           </div>
         </article>
       </a>
-      {citation.excerpt.trim() && (
+      {contributingSentences.length > 0 && (
         <div className="yc-partner-contributing-sentence">
-          <span>Contributing sentence</span>
-          <blockquote>{citation.excerpt.trim()}</blockquote>
+          {contributingSentences.map((sentence, index) => <p key={`${citation.evidenceId}-sentence-${index}`}>{sentence}</p>)}
         </div>
       )}
     </div>

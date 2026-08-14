@@ -82,6 +82,15 @@ describe("YC partner favorite scoring", () => {
     );
   });
 
+  it("keeps the exact sentences that contain the scoring signal", () => {
+    const result = scoreFavoritePair(partner, [evidence("1003", strongEndorsement)]);
+
+    expect(result.citations[0]?.contributingSentences).toEqual([
+      "Kara has arguably the strongest founder-market fit in the batch.",
+      "It is hard to think of a better team building this scientific hardware platform."
+    ]);
+  });
+
   it("keeps a neutral mention at a low favorite score", () => {
     const result = scoreFavoritePair(partner, [evidence("2001", "Kara")]);
 

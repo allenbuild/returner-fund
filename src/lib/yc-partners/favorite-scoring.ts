@@ -27,6 +27,7 @@ export interface FavoriteEvidenceAnalysis {
   negativePenalty: number;
   reason: string;
   excerpt: string;
+  contributingSentences: string[];
   platform: Platform;
   postedAt: string;
   sourceUrl: string;
@@ -64,6 +65,7 @@ export interface FavoriteCitation {
   platform: Platform;
   postedAt: string;
   excerpt: string;
+  contributingSentences?: string[];
   reason: string;
   signalType: FavoriteSignalType;
   scoreContribution: number;
@@ -201,6 +203,7 @@ export function scoreFavoritePair(
       platform: analysis.platform,
       postedAt: safeCitationDate(analysis.postedAt),
       excerpt: analysis.excerpt,
+      contributingSentences: analysis.contributingSentences,
       reason: analysis.reason,
       signalType: analysis.signalType,
       scoreContribution: analysis.score
@@ -211,6 +214,7 @@ export function scoreFavoritePair(
 }
 
 export function analyzeFavoriteEvidence(item: EvidenceItem): FavoriteEvidenceAnalysis {
+  const originalText = item.text || item.title || item.sourceUrl;
   const text = normalizedEvidenceText(item);
   const wordCount = text.split(/\s+/).filter(Boolean).length;
   const superlative = SUPERLATIVE_PATTERNS.some((pattern) => pattern.test(text));
@@ -238,6 +242,7 @@ export function analyzeFavoriteEvidence(item: EvidenceItem): FavoriteEvidenceAna
   else if (positive) signalType = "positive_commentary";
   else if (neutral) signalType = "neutral_mention";
   else signalType = "unclear";
+  const contributingSentences = selectContributingSentences(originalText, signalType, specificity);
 
   const baseScore: Record<FavoriteSignalType, number> = {
     explicit_superlative: 78,
@@ -288,6 +293,7 @@ export function analyzeFavoriteEvidence(item: EvidenceItem): FavoriteEvidenceAna
     negativePenalty,
     reason: reasonFor(signalType, specificity),
     excerpt: excerptFor(item.text || item.title || item.sourceUrl),
+    contributingSentences,
     platform: item.platform,
     postedAt: item.postedAt,
     sourceUrl: item.sourceUrl
@@ -437,6 +443,36 @@ function excerptFor(value: string): string {
   const compact = value.replace(/\s+/g, " ").trim();
   if (compact.length <= 280) return compact;
   return `${compact.slice(0, 277).trim()}...`;
+}
+
+function selectContributingSentences(
+  value: string,
+  signalType: FavoriteSignalType,
+  specificity: number
+): string[] {
+  const sentences = value
+    .match(/[^.!?]+(?:[.!?]+|$)/g)
+    ?.map((sentence) => sentence.trim())
+    .filter(Boolean) ?? [];
+  if (sentences.length <= 1) return sentences;
+
+  const signalPatterns = signalType === "explicit_superlative"
+    ? SUPERLATIVE_PATTERNS
+    : signalType === "strong_conviction"
+      ? STRONG_CONVICTION_PATTERNS
+      : signalType === "substantive_praise" || signalType === "positive_commentary"
+        ? POSITIVE_PATTERNS
+        : signalType === "negative_commentary"
+          ? NEGATIVE_PATTERNS
+          : signalType === "neutral_mention"
+            ? NEUTRAL_PATTERNS
+            : [];
+  const matchingSentences = sentences.filter((sentence) =>
+    signalPatterns.some((pattern) => pattern.test(sentence)) ||
+    (specificity >= 36 && SPECIFICITY_TERMS.some((term) => new RegExp(`\\b${term}\\b`, "i").test(sentence)))
+  );
+
+  return matchingSentences.length > 0 ? matchingSentences : sentences;
 }
 
 function clamp(value: number, minimum: number, maximum: number): number {
