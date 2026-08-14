@@ -36,6 +36,7 @@ import {
 } from "./dedupe";
 import { evidenceDisplayText } from "./evidence-display";
 import { enrichEvidenceThumbnail } from "./evidence-thumbnails";
+import { originalEvidenceText } from "./verbatim-evidence-text";
 import { reconcilePublishedCompanyScores } from "./published-score-reconciliation";
 import {
   applyAttributionGuard,
@@ -247,6 +248,7 @@ interface PublicEvidenceRecord {
   authorName?: string | null;
   authorHandle?: string | null;
   text: string;
+  originalText?: string | null;
   thumbnailUrl?: string | null;
   thumbnailSource?: string | null;
   mediaUrl?: string | null;
@@ -1183,6 +1185,14 @@ function publicEvidenceItem(item: PublicEvidenceRecord): EvidenceItem {
   ].filter(Boolean);
   const displayTitle = evidenceDisplayText(item, item.companyName);
   const verbatimText = ycPartnerVerbatimText[item.sourceUrl as keyof typeof ycPartnerVerbatimText];
+  const originalText = verbatimText || originalEvidenceText({
+    platform: item.platform,
+    title: displayTitle,
+    text: item.text,
+    originalText: item.originalText,
+    rawVisibleText: item.rawVisibleText,
+    attributionProvenance: item.attributionProvenance
+  });
   const observedAt = item.first_seen_at ?? item.last_checked_at ?? publicSnapshot.source.fetchedAt;
   const githubRepository = resolveGithubRepository(item);
   const githubTimestamps = githubRepository
@@ -1220,6 +1230,8 @@ function publicEvidenceItem(item: PublicEvidenceRecord): EvidenceItem {
     metricsCheckedAt: item.last_checked_at ?? item.last_updated_at ?? publicSnapshot.source.fetchedAt,
     title: displayTitle,
     text: verbatimText || item.text || displayTitle,
+    ...(originalText ? { originalText } : {}),
+    ...(item.attributionProvenance ? { attributionProvenance: item.attributionProvenance } : {}),
     mediaType: mediaTypeForPlatform(item.platform),
     mediaUrl: item.mediaUrl ?? null,
     mediaUrls,

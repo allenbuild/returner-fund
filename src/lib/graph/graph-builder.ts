@@ -9,6 +9,7 @@ import {
 import { withForwardCompatiblePlatformStatus } from "./platform-status";
 import { getNodeRadius } from "./score-radius";
 import { TRACTION_SCORING_CONFIG } from "./traction-scoring-config";
+import { analyzeFavoriteEvidence } from "@/lib/yc-partners/favorite-scoring";
 import {
   matchEvidenceToTopVoice,
   resolveTopVoiceAudience,
@@ -748,10 +749,17 @@ function annotateTopVoiceEvidence(
     originalContributionScore: item.contributionScore
   };
 
+  const verbatimContributingSentences = input.audienceId === "yc_partners"
+    ? analyzeFavoriteEvidence(item).verbatimContributingSentences
+    : item.verbatimContributingSentences;
+
   return {
     ...item,
     why: `${item.why} Top Voices matched ${input.member.displayName} by ${input.matchedBy}.`,
-    topVoice
+    topVoice,
+    ...(verbatimContributingSentences
+      ? { verbatimContributingSentences }
+      : {})
   };
 }
 

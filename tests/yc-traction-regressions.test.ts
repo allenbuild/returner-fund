@@ -202,11 +202,13 @@ describe("YC traction scoring regressions", () => {
     );
 
     const analysis = analyzeFavoriteEvidence(article!);
-    expect(analysis.signalType).toBe("substantive_praise");
+    // Full-body scoring now sees the partner's later conviction language that
+    // was previously beyond the bounded display-text field.
+    expect(analysis.signalType).toBe("strong_conviction");
     expect(analysis.contributingSentences).toEqual(
       expect.arrayContaining([
-        "Today Instance is launching and showcasing their success detector for robot policies — the first piece of what will eventually be fully automated robot evaluation.",
-        "I met them at the end of last year, and it’s been a pleasure working with them as they iterated through their ideas and landed on this product."
+        "I met them at the end of last year, and it’s been a pleasure working with them as they iterated through their ideas and landed on this product.",
+        "I think it's these two."
       ])
     );
   });

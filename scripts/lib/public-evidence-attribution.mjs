@@ -484,7 +484,10 @@ function cleanLinkedInPrimaryPostMarkdown(value) {
     )
     .replace(/https?:\/\/\S+/g, " ")
     .replace(/(?:^|\s)[*•](?=\s|$)/g, " ")
-    .replace(/\s+/g, " ")
+    // Preserve authored line breaks so downstream sentence spans remain
+    // source-verbatim. Only horizontal layout whitespace is collapsed.
+    .replace(/[\t ]+/g, " ")
+    .replace(/\n{3,}/g, "\n\n")
     .trim();
 }
 

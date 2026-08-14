@@ -2317,6 +2317,9 @@ function socialEvidenceItem(input) {
     platformPostId: input.platformPostId ?? null,
     accountUrl: input.accountUrl ?? input.target.url,
     text: sanitizePublicText(textValue).slice(0, 900),
+    // Keep the complete cleaned native body separate from the bounded display
+    // text. This is the only source used by partner-conviction scoring.
+    ...(preserveOriginalBodyText(textValue) ? { originalText: preserveOriginalBodyText(textValue) } : {}),
     rawVisibleText: rawVisibleText.slice(0, LOGGED_IN_STORED_RAW_TEXT_LIMIT),
     postedAt: input.postedAt ?? null,
     publishedAtPrecision: input.publishedAtPrecision ?? (input.postedAt ? "exact" : "unknown"),
@@ -2338,11 +2341,14 @@ function socialEvidenceItem(input) {
 }
 
 function cleanLinkedInPostText(text, authorName) {
-  let value = cleanText(text)
+  let value = String(text ?? "")
+    .replace(/\r\n?/g, "\n")
+    .replace(/[\t ]+/g, " ")
     .replace(/^Feed post number\s+\d+\s+/i, "")
     .replace(/\bVisible to anyone on or off LinkedIn\b/gi, "")
     .replace(/\bOpen reactions menu\b/gi, "")
     .replace(/\b(Like|Comment|Repost|Send)\b\s*$/gi, "")
+    .replace(/\n{3,}/g, "\n\n")
     .trim();
   const relativeTime = value.match(/\b(?:\d+\s+(?:week|month|year|day|hour)s?\s+ago|\d+[wdhmy]|1yr|2yr|3yr)\s*•?\s*/i);
   if (relativeTime && relativeTime.index !== undefined && relativeTime.index < 360) {
@@ -2630,6 +2636,14 @@ function descriptiveXTitle(text, fallbackName) {
 
 function sanitizePublicText(value) {
   return redactTokenLikeStrings(cleanText(value));
+}
+
+function preserveOriginalBodyText(value) {
+  return String(value ?? "")
+    .replace(/\r\n?/g, "\n")
+    .replace(/\u0000/g, "")
+    .trim()
+    .slice(0, 25_000);
 }
 
 function removeNullish(value) {

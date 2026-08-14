@@ -85,6 +85,10 @@ describe("YC partner favorite scoring", () => {
   it("keeps the exact sentences that contain the scoring signal", () => {
     const result = scoreFavoritePair(partner, [evidence("1003", strongEndorsement)]);
 
+    expect(result.citations[0]?.verbatimContributingSentences).toEqual([
+      "Kara has arguably the strongest founder-market fit in the batch.",
+      "It is hard to think of a better team building this scientific hardware platform."
+    ]);
     expect(result.citations[0]?.contributingSentences).toEqual([
       "Kara has arguably the strongest founder-market fit in the batch.",
       "It is hard to think of a better team building this scientific hardware platform."
@@ -200,5 +204,32 @@ describe("YC partner favorite scoring", () => {
       "7001",
       "7002"
     ]);
+  });
+
+  it("scores the preserved full body and ignores attribution-summary titles", () => {
+    const result = scoreFavoritePair(partner, [evidence("1004", "Kara", {
+      title: "Partner's strongest endorsement of Kara",
+      originalText: "Kara has arguably the strongest founder-market fit in the batch."
+    })]);
+
+    expect(result.citations[0]?.verbatimContributingSentences).toEqual([
+      "Kara has arguably the strongest founder-market fit in the batch."
+    ]);
+
+    const summaryOnly = scoreFavoritePair(partner, [evidence("1005", "Kara", {
+      title: "Partner used strongest endorsement for Kara"
+    })]);
+    expect(summaryOnly.citations[0]?.verbatimContributingSentences).toEqual(["Kara"]);
+    expect(summaryOnly.citations[0]?.signalType).toBe("neutral_mention");
+  });
+
+  it("does not score provenance summaries as partner-authored evidence", () => {
+    const result = scoreFavoritePair(partner, [evidence("1006", "Garry Tan replied to Kara", {
+      title: "Garry Tan replied to Kara"
+    })]);
+
+    expect(result.score).toBe(0);
+    expect(result.confidence.score).toBe(0);
+    expect(result.citations).toHaveLength(0);
   });
 });
