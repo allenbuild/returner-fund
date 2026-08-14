@@ -1,0 +1,63 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-sazabi",
+    "slug": "sazabi",
+    "name": "Sazabi"
+  },
+  "event": {
+    "id": "tle-eac0cbce9d309f1d0e310583",
+    "eventDate": "2026-06-25",
+    "eventDateType": "announcement_date",
+    "title": "Sazabi released $8M Seed Round and Open Beta",
+    "summary": "Sazabi reported announcing Our $8M Seed Round and Open Beta.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-450771a3da64687923a00ef3",
+        "title": "Announcing Our $8M Seed Round and Open Beta",
+        "publisher": "Sazabi",
+        "domain": "sazabi.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-06-25T00:00:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://sazabi.com/blog/seed-round"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-450771a3da64687923a00ef3",
+        "title": "Announcing Our $8M Seed Round and Open Beta",
+        "publisher": "Sazabi",
+        "domain": "sazabi.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-06-25T00:00:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://sazabi.com/blog/seed-round",
+        "publicationDate": "2026-06-25T00:00:00.000Z",
+        "excerpt": "Sazabi raised an $8M seed round led by J2 Ventures, Village Global, and Y Combinator — and we're opening the beta. No more waitlist.",
+        "sourceEventDate": "2026-06-25",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-e61ebf03af8f643ca7d302c8",
+        "platform": "web",
+        "account": "Sazabi",
+        "postDate": "2026-06-25",
+        "excerpt": "Sazabi raised an $8M seed round led by J2 Ventures, Village Global, and Y Combinator — and we're opening the beta. No more waitlist.",
+        "url": "https://sazabi.com/blog/seed-round",
+        "metrics": {},
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-14T03:02:33.302Z",
+  "lastModifiedAt": "2026-08-14T03:02:33.302Z"
+}

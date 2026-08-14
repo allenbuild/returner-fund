@@ -7,15 +7,15 @@
   },
   "event": {
     "id": "tle-c135d5cec7728df4a99ab7b0",
-    "eventDate": "2026-08-09",
+    "eventDate": "2026-07-15",
     "eventDateType": "announcement_date",
     "title": "Ara announced its public launch",
     "summary": "Ara introduced the Ara discord community.",
     "category": "product_launch",
-    "isMajor": false,
+    "isMajor": true,
     "hasConflict": false,
     "conflictSummary": null,
-    "evidenceCount": 1,
+    "evidenceCount": 2,
     "sourcePreview": [
       {
         "id": "src-16e24f310bd5607a314942c4",
@@ -26,6 +26,16 @@
         "publishedAt": "2026-08-09T18:27:20.000Z",
         "evidenceRole": "primary",
         "url": "https://x.com/aradotso/status/2086519714193547418"
+      },
+      {
+        "id": "src-4615b4fad24276a6b34030fb",
+        "title": "Ara (YC P26) Launch Video",
+        "publisher": "Ara (YC P26) Launch Video",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-07-15T21:14:16.000Z",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=6ASb9QW2QEw"
       }
     ],
     "evidence": [
@@ -41,6 +51,21 @@
         "publicationDate": "2026-08-09T18:27:20.000Z",
         "excerpt": "Introducing the Ara discord community! Join top founders and builders sharing and working with cloud agents. We will answer all questions and work with early users there :) https://t.co/baPNkpA3cv https://t.co/88HL7RzlgL",
         "sourceEventDate": "2026-08-09",
+        "isConflicting": false,
+        "conflictDescription": null
+      },
+      {
+        "id": "src-4615b4fad24276a6b34030fb",
+        "title": "Ara (YC P26) Launch Video",
+        "publisher": "Ara (YC P26) Launch Video",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-07-15T21:14:16.000Z",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=6ASb9QW2QEw",
+        "publicationDate": "2026-07-15T21:14:16.000Z",
+        "excerpt": "Ara (YC P26) Launch Video",
+        "sourceEventDate": "2026-07-15",
         "isConflicting": false,
         "conflictDescription": null
       }
@@ -60,9 +85,21 @@
           "views": 2858
         },
         "evidenceRole": "primary"
+      },
+      {
+        "id": "post-0797ac402c7f9a5149401f28",
+        "platform": "youtube",
+        "account": "Ara (YC P26) Launch Video",
+        "postDate": "2026-07-15",
+        "excerpt": "Ara (YC P26) Launch Video",
+        "url": "https://youtube.com/watch?v=6ASb9QW2QEw",
+        "metrics": {
+          "views": 1454
+        },
+        "evidenceRole": "primary"
       }
     ]
   },
-  "generatedAt": "2026-08-14T01:51:39.229Z",
-  "lastModifiedAt": "2026-08-14T01:51:39.229Z"
+  "generatedAt": "2026-08-14T03:02:33.302Z",
+  "lastModifiedAt": "2026-08-14T03:02:33.302Z"
 }

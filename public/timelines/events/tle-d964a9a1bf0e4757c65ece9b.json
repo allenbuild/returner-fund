@@ -7,7 +7,7 @@
   },
   "event": {
     "id": "tle-d964a9a1bf0e4757c65ece9b",
-    "eventDate": "2026-04-07",
+    "eventDate": "2026-02-27",
     "eventDateType": "announcement_date",
     "title": "Superset launched on Hacker News",
     "summary": "Launch HN: Superset (YC P26) - IDE for the agents era.",
@@ -38,14 +38,14 @@
         "url": "https://x.com/superset_sh/status/2041549058012058043"
       },
       {
-        "id": "src-fa3f04cf3fdb58ecf2048aec",
-        "title": "If you're one of the lucky ones, @Kimi_Moonshot support is now live in @superset_sh 😎",
-        "publisher": "FlyaKiet",
-        "domain": "x.com",
-        "sourceType": "founder_post",
-        "publishedAt": "2026-07-20T22:13:22.000Z",
+        "id": "src-3d2a48f3c2323efbc73ff661",
+        "title": "Introducing Superset",
+        "publisher": "Introducing Superset",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-02-26T22:26:40-08:00",
         "evidenceRole": "primary",
-        "url": "https://x.com/FlyaKiet/status/2079328840376283205"
+        "url": "https://youtube.com/watch?v=mk02bSQmEKY"
       }
     ],
     "evidence": [
@@ -80,17 +80,17 @@
         "conflictDescription": null
       },
       {
-        "id": "src-fa3f04cf3fdb58ecf2048aec",
-        "title": "If you're one of the lucky ones, @Kimi_Moonshot support is now live in @superset_sh 😎",
-        "publisher": "FlyaKiet",
-        "domain": "x.com",
-        "sourceType": "founder_post",
-        "publishedAt": "2026-07-20T22:13:22.000Z",
+        "id": "src-3d2a48f3c2323efbc73ff661",
+        "title": "Introducing Superset",
+        "publisher": "Introducing Superset",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-02-26T22:26:40-08:00",
         "evidenceRole": "primary",
-        "url": "https://x.com/FlyaKiet/status/2079328840376283205",
-        "publicationDate": "2026-07-20T22:13:22.000Z",
-        "excerpt": "If you're one of the lucky ones, @Kimi_Moonshot support is now live in @superset_sh 😎",
-        "sourceEventDate": "2026-07-20",
+        "url": "https://youtube.com/watch?v=mk02bSQmEKY",
+        "publicationDate": "2026-02-26T22:26:40-08:00",
+        "excerpt": "Introducing Superset",
+        "sourceEventDate": "2026-02-27",
         "isConflicting": false,
         "conflictDescription": null
       }
@@ -129,24 +129,19 @@
         "evidenceRole": "primary"
       },
       {
-        "id": "post-16d77d928872c90525be72d3",
-        "platform": "x",
-        "account": "FlyaKiet",
-        "postDate": "2026-07-20",
-        "excerpt": "If you're one of the lucky ones, @Kimi_Moonshot support is now live in @superset_sh 😎",
-        "url": "https://x.com/FlyaKiet/status/2079328840376283205",
+        "id": "post-0f4cd0dbef53abcb3ee6a1cb",
+        "platform": "youtube",
+        "account": "Introducing Superset",
+        "postDate": "2026-02-27",
+        "excerpt": "Introducing Superset",
+        "url": "https://youtube.com/watch?v=mk02bSQmEKY",
         "metrics": {
-          "views": 2696,
-          "likes": 24,
-          "replies": 2,
-          "reposts": 1,
-          "quotes": 0,
-          "bookmarks": 2
+          "views": 8985
         },
         "evidenceRole": "primary"
       }
     ]
   },
-  "generatedAt": "2026-08-14T01:51:39.229Z",
-  "lastModifiedAt": "2026-08-14T01:51:39.229Z"
+  "generatedAt": "2026-08-14T03:02:33.302Z",
+  "lastModifiedAt": "2026-08-14T03:02:33.302Z"
 }

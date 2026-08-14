@@ -5,8 +5,8 @@
     "slug": "drip",
     "name": "Drip"
   },
-  "generatedAt": "2026-08-14T01:51:39.229Z",
-  "lastModifiedAt": "2026-08-14T01:51:39.229Z",
+  "generatedAt": "2026-08-14T03:02:33.302Z",
+  "lastModifiedAt": "2026-08-14T03:02:33.302Z",
   "events": [
     {
       "id": "tle-e4b1e8a10458d2ef39d464ce",
@@ -47,7 +47,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-08-14T01:51:39.229Z"
+    "lastSuccessfulArtifactAt": "2026-08-14T03:02:33.302Z"
   },
   "nextCursor": null
 }
