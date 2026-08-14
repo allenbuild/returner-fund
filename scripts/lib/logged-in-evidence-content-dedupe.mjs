@@ -113,6 +113,15 @@ function quarantineIneligibleNativeObservations(rows, options) {
       continue;
     }
 
+    if (
+      row?.tractionStatus === "unscored" &&
+      row?.sourceUrl &&
+      row?.platformPostId
+    ) {
+      evidence.push(row);
+      continue;
+    }
+
     let reason = null;
     if (positiveMetricCount(row) === 0) {
       reason = METRICLESS_NATIVE_POST_REASON;

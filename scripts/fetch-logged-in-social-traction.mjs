@@ -1461,6 +1461,7 @@ async function fetchInstagramPosts(target, workerIndex) {
         return [];
       })
     : [];
+  const detailUnavailable = instagramFetchDetails && detailItems.length < detailUrls.length;
   let rejectedAdapterIdentityCount = 0;
   let rejectedAdapterOwnershipCount = 0;
   const adapterEvidence = posts.flatMap((post) => {
@@ -1526,6 +1527,38 @@ async function fetchInstagramPosts(target, workerIndex) {
         gridItem: gridUrl,
         detail
       });
+      if (!ownership.ok && !detail && gridUrl.profileGridProven === true) {
+        // The authenticated profile grid is a native, exact post/reel URL
+        // observation. Detail navigation may be rate-limited or intentionally
+        // skipped; that does not invalidate the URL itself.
+        seenPostIds.add(postId);
+        const metrics = {
+          likes: maxMetric(gridUrl.likes),
+          comments: maxMetric(gridUrl.comments),
+          views: maxMetric(gridUrl.views)
+        };
+        const caption = bestInstagramCaption(gridUrl.caption);
+        return [socialEvidenceItem({
+          target,
+          sourceUrl,
+          platformPostId: postId,
+          title: caption || `${handle} Instagram post`,
+          text: caption || `${handle} Instagram post`,
+          rawVisibleText: JSON.stringify({ profile, gridUrl, detail: null }),
+          postedAt: null,
+          metrics,
+          mediaUrls: gridUrl.mediaUrls ?? [],
+          contributionScore: 0,
+          tractionStatus: "unscored",
+          linkStatus: "unchecked",
+          linkFailureReason: detailUnavailable
+            ? "Instagram detail navigation was rate-limited or unavailable; native URL observed in authenticated profile grid and retained as assumed functional."
+            : "Instagram native URL observed in authenticated profile grid; detail navigation was skipped or returned no readable fields.",
+          matchReason:
+            target.matchReason ??
+            `Authenticated Instagram profile-grid URL retained as assumed functional evidence for @${handle}; detail enrichment is optional.`
+        })];
+      }
       if (!ownership.ok) {
         gridOwnershipFailures.push(
           failure(
@@ -1571,8 +1604,8 @@ async function fetchInstagramPosts(target, workerIndex) {
           `Opt-in read-only Instagram grid/detail scrape for @${handle}; adapter did not return this visible grid item.`
       })];
     });
-  const scoredCandidates = dedupeById([...adapterEvidence, ...gridEvidence])
-    .filter(hasScoredTraction);
+  const allObservedCandidates = dedupeById([...adapterEvidence, ...gridEvidence]);
+  const scoredCandidates = allObservedCandidates.filter(hasScoredTraction);
   const recencyFailures = [];
   const evidenceItems = scoredCandidates.filter((item) => {
     const decision = instagramRecencyDecision(
@@ -1594,6 +1627,18 @@ async function fetchInstagramPosts(target, workerIndex) {
     }
     return false;
   });
+  const retainedUrls = new Set(evidenceItems.map((item) => normalizeComparableUrl(item.sourceUrl)));
+  const assumedUrlEvidence = allObservedCandidates
+    .filter((item) => !retainedUrls.has(normalizeComparableUrl(item.sourceUrl)))
+    .map((item) => ({
+      ...item,
+      contributionScore: 0,
+      tractionStatus: "unscored",
+      linkStatus: "unchecked",
+      linkFailureReason: item.linkFailureReason ??
+        "Native Instagram URL was observed in an authenticated profile or adapter response; detail enrichment did not produce scored traction.",
+      matchReason: `${item.matchReason ?? ""} Native URL retained as assumed functional evidence; detail-page enrichment is optional and does not determine existence.`.trim()
+    }));
   const malformedGridIdentityCount = Math.max(
     0,
     Number(gridCollection?.malformedItemCount ?? 0)
@@ -1659,7 +1704,7 @@ async function fetchInstagramPosts(target, workerIndex) {
     ...gridOwnershipFailures,
     ...recencyFailures
   ];
-  if (!evidenceItems.length) {
+  if (!evidenceItems.length && !assumedUrlEvidence.length) {
     const emptyFailure = failure(
       target,
       "No scored recent Instagram posts found with adapter or browser grid/detail extractor."
@@ -1683,14 +1728,14 @@ async function fetchInstagramPosts(target, workerIndex) {
   }
 
   const attemptState = instagramCollectionAttemptState({
-    evidenceCount: evidenceItems.length,
+    evidenceCount: evidenceItems.length + assumedUrlEvidence.length,
     completedTimelineSourceCount:
       Number(timelineAdapterCompleted) + Number(browserGridCompleted),
     profileIdentityOk,
     failureMessages: targetFailures.map((item) => item.message)
   });
   return {
-    evidence: evidenceItems,
+    evidence: [...evidenceItems, ...assumedUrlEvidence],
     failures: targetFailures,
     needsReview: gridOwnershipNeedsReview,
     instagramPagination,
@@ -2051,11 +2096,28 @@ async function fetchInstagramPostDetails(handle, detailUrls, workerIndex) {
         .filter(Boolean)
         .slice(0, postLimit);
 
+      const profileUrl = `https://www.instagram.com/${handle}/`;
+      await runOpenCli(["browser", session, "open", profileUrl], { timeoutMs: perTargetTimeoutMs });
+      await runOpenCli(["browser", session, "wait", "time", "4"], { timeoutMs: 10_000 }).catch(() => null);
+
       for (const url of urls) {
-        await runOpenCli(
-          ["browser", session, "open", url],
-          { timeoutMs: perTargetTimeoutMs }
-        );
+        const postId = instagramPostIdFromUrl(url);
+        let clicked = false;
+        for (let attempt = 0; attempt <= scrollPasses && !clicked; attempt += 1) {
+          await runOpenCli(
+            ["browser", session, "click", instagramGridPostSelector(url)],
+            { timeoutMs: perTargetTimeoutMs }
+          )
+            .then(() => { clicked = true; })
+            .catch(() => undefined);
+          if (clicked) break;
+          await runOpenCli(
+            ["browser", session, "scroll", "down", "--amount", "1100"],
+            { timeoutMs: 10_000 }
+          ).catch(() => null);
+          await runOpenCli(["browser", session, "wait", "time", "1.5"], { timeoutMs: 8_000 }).catch(() => null);
+        }
+        if (!clicked) continue;
 
         let parsed = null;
         let publication = { postedAt: null, publishedAtPrecision: "unknown" };
@@ -2067,7 +2129,7 @@ async function fetchInstagramPostDetails(handle, detailUrls, workerIndex) {
           );
           const extracted = parseJsonOutput(raw)[0] ?? parseJsonOutput(raw);
           const candidate = normalizeInstagramDetailObservation(extracted);
-          if (canonicalInstagramPostUrl(candidate?.url) !== url) continue;
+          if (postId && instagramPostIdFromUrl(candidate?.url) !== postId) continue;
           parsed = candidate;
           publication = instagramPublicationDate(parsed, collectionNowMs);
           if (publication.postedAt) break;
@@ -2088,12 +2150,24 @@ async function fetchInstagramPostDetails(handle, detailUrls, workerIndex) {
             mediaUrls: parsed.mediaUrls ?? []
           });
         }
+        await runOpenCli(["browser", session, "back"], { timeoutMs: 10_000 }).catch(() => null);
+        await runOpenCli(["browser", session, "wait", "time", "1.5"], { timeoutMs: 8_000 }).catch(() => null);
         await delay(Math.min(delayMs, 1200));
       }
 
       return details;
     }
   );
+}
+
+function instagramGridPostSelector(url) {
+  try {
+    const parsed = new URL(url);
+    const path = parsed.pathname.replace(/\/$/, "");
+    return `a[href*="${path}/"]`;
+  } catch {
+    return "a[href*=\"/p/\"]";
+  }
 }
 
 async function runInstagramAdapterWithRetry(args) {
@@ -2249,6 +2323,10 @@ function socialEvidenceItem(input) {
     metrics,
     mediaUrls: input.mediaUrls ?? [],
     contributionScore: input.contributionScore ?? scoreMetrics(input.target.platform, metrics),
+    tractionStatus: input.tractionStatus,
+    linkStatus: input.linkStatus ?? null,
+    linkCheckedAt: input.linkCheckedAt ?? null,
+    linkFailureReason: input.linkFailureReason ?? null,
     review_state: "verified",
     matchReason: input.matchReason
       ? sanitizePublicText(input.matchReason).slice(0, 1_024)
@@ -3296,14 +3374,27 @@ function instagramPostDetailExtractJs() {
   const description = meta('meta[name="description"]') || meta('meta[property="og:description"]') || "";
   const text = document.body?.innerText || "";
   const semanticDate = document.querySelector('time[datetime]')?.getAttribute("datetime") || null;
-  const metricText = description || text;
-  const likes = parseNumber((metricText.match(/([0-9,.]+\\s*[KMB]?)\\s+likes?/i) || [])[1]) ?? jsonNumber("like_count");
-  const comments = parseNumber((metricText.match(/([0-9,.]+\\s*[KMB]?)\\s+comments?/i) || [])[1]) ?? jsonNumber("comment_count");
-  const views =
-    parseNumber((metricText.match(/([0-9,.]+\\s*[KMB]?)\\s+(?:views?|plays?)/i) || [])[1]) ??
-    jsonNumber("view_count") ??
-    jsonNumber("play_count") ??
-    jsonNumber("video_view_count");
+  const metricText = [text, description].filter(Boolean).join(" ");
+  const preferVisibleMetric = (visible, ...fallbacks) => {
+    const candidates = [visible, ...fallbacks];
+    return candidates.find((value) => Number.isFinite(value) && value > 0) ??
+      candidates.find((value) => value !== null && value !== undefined) ??
+      null;
+  };
+  const likes = preferVisibleMetric(
+    parseNumber((metricText.match(/([0-9,.]+\\s*[KMB]?)\\s+likes?/i) || [])[1]),
+    jsonNumber("like_count")
+  );
+  const comments = preferVisibleMetric(
+    parseNumber((metricText.match(/([0-9,.]+\\s*[KMB]?)\\s+comments?/i) || [])[1]),
+    jsonNumber("comment_count")
+  );
+  const views = preferVisibleMetric(
+    parseNumber((metricText.match(/([0-9,.]+\\s*[KMB]?)\\s+(?:views?|plays?)/i) || [])[1]),
+    jsonNumber("view_count"),
+    jsonNumber("play_count"),
+    jsonNumber("video_view_count")
+  );
   const dateLabel = (description.match(/\\bon\\s+([^:]+):\\s*"/i) || [])[1] || null;
   const takenAt = jsonNumber("taken_at");
   const caption =
