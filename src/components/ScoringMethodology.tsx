@@ -45,9 +45,10 @@ export function ScoringMethodology({ currentModel }: ScoringMethodologyProps) {
         <summary>How YC partner Favorite scores are calculated</summary>
         <div className="scoring-baseline-content">
           <p>
-            Favorite score is a separate 1–100 signal about the conviction a YC partner expresses toward a startup in
-            already-ingested public commentary. Explicit superlatives, strong endorsements, and specific reasoning
-            about a team, market, product, or technology carry much more weight than a short tag or congratulations.
+            Favorite score is a separate 1–100 signal about the conviction a YC partner expresses toward any startup
+            in the selected batch. It uses already-ingested public commentary. Explicit superlatives, strong
+            endorsements, and specific reasoning about a team, market, product, or technology carry much more weight
+            than a short tag or congratulations.
           </p>
           <p>
             The strongest attributable statement sets the pair&apos;s foundation. Additional independent posts add a

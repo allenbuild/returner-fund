@@ -1254,7 +1254,7 @@ function ycPartnerResponse({
 
   return {
     generatedAt: "2026-08-14T12:00:00.000Z",
-    modelVersion: "conviction-v1",
+    modelVersion: "conviction-v2",
     modelName: "YC partner conviction score",
     batchCount: 1,
     companyCount: 1,

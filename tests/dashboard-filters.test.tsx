@@ -142,7 +142,7 @@ describe("dashboard filters", () => {
     );
     const ycPartnersResponse = {
       generatedAt: "2026-08-14T00:00:00.000Z",
-      modelVersion: "conviction-v1",
+      modelVersion: "conviction-v2",
       modelName: "YC partner favorite conviction",
       batchCount: 1,
       companyCount: 1,

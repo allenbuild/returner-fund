@@ -2,7 +2,7 @@ import { canonicalPostKey, dedupeEvidenceForScoring } from "@/lib/graph/dedupe";
 import { originalEvidenceText, splitVerbatimSentences } from "@/lib/graph/verbatim-evidence-text";
 import type { EvidenceItem, Platform, TopVoiceMember } from "@/lib/graph/types";
 
-export const YC_PARTNER_FAVORITE_MODEL_VERSION = "conviction-v1";
+export const YC_PARTNER_FAVORITE_MODEL_VERSION = "conviction-v2";
 export const YC_PARTNER_FAVORITE_MODEL_NAME = "YC partner conviction score";
 
 export type FavoriteSignalType =

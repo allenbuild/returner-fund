@@ -9,7 +9,7 @@ vi.mock("@/lib/yc-partners/server", () => ({
 
 const responseFixture: YcPartnersResponse = {
   generatedAt: "2026-08-13T12:00:00.000Z",
-  modelVersion: "conviction-v1",
+  modelVersion: "conviction-v2",
   modelName: "YC partner conviction score",
   batchCount: 2,
   companyCount: 3,
@@ -103,7 +103,7 @@ describe("/api/yc-partners", () => {
       includeNoEvidence: true
     });
     expect(response.headers.get("cache-control")).toContain("s-maxage=60");
-    expect(response.headers.get("x-yc-partner-favorite-model")).toBe("conviction-v1");
+    expect(response.headers.get("x-yc-partner-favorite-model")).toBe("conviction-v2");
     expect(body).toEqual(responseFixture);
     expect(body.partners[0].topFavorite.citations[0]).toMatchObject({
       sourceUrl: "https://example.com/post-1",

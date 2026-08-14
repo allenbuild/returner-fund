@@ -35,6 +35,11 @@ let cacheGeneration = 0;
 export interface YcPartnerFavoritesQuery {
   partnerId?: string;
   batchSlug?: string;
+  /**
+   * Retained for backwards-compatible API parsing. Partner rankings are now
+   * always evidence-driven, so unmentioned assigned companies are never
+   * materialized as zero-score rows.
+   */
   includeNoEvidence?: boolean;
 }
 
@@ -77,8 +82,8 @@ export function normalizeYcPartnerFavoritesQuery(
       ? members.find((member) => member.personId.toLowerCase() === partnerId)?.personId
       : undefined,
     batchSlug,
-    // The product contract is a complete partner-by-startup ranking. Callers
-    // may explicitly opt out when they only need attributable evidence rows.
+    // Retain the legacy query field in cache keys, even though the product
+    // contract is now evidence-only for both values.
     includeNoEvidence: query.includeNoEvidence !== false
   };
 }
@@ -154,8 +159,7 @@ async function loadAndBuild(
         id: node.entityId,
         name: node.label,
         batchSlug: node.batchSlug,
-        batchLabel: base.batch.label,
-        groupPartner: node.groupPartner
+        batchLabel: base.batch.label
       });
     }
 
@@ -181,7 +185,6 @@ async function loadAndBuild(
 
       const company = allCompanies.get(companyKey(partner.batch.slug, companyId));
       if (!company) continue;
-      if (company.groupPartner === null || !partnerNameMatches(member, company.groupPartner)) continue;
 
       const key = `${member.personId}:${companyKey(company.batchSlug, company.id)}`;
       const bucket = evidenceByPartnerAndCompany.get(key);
@@ -195,17 +198,6 @@ async function loadAndBuild(
         });
       }
     }
-  }
-
-  // A partner's ranking is scoped to the companies assigned to that partner
-  // in YC metadata. Commentary alone cannot establish ownership: a partner
-  // may publicly praise another partner's company.
-  const assignedCompaniesByPartner = new Map<string, CompanyContext[]>();
-  for (const member of activeMembers) {
-    const assignedCompanies = [...allCompanies.values()].filter((company) =>
-      company.groupPartner !== null && partnerNameMatches(member, company.groupPartner)
-    );
-    assignedCompaniesByPartner.set(member.personId, assignedCompanies);
   }
 
   const rankingsByPartner = new Map<string, YcPartnerFavoriteRanking[]>();
@@ -230,20 +222,15 @@ async function loadAndBuild(
   }
 
   const updatedAt = maxIsoTimestamp(generatedAtValues) ?? new Date().toISOString();
-  const scopedCompanies = new Set<string>();
-  for (const companies of assignedCompaniesByPartner.values()) {
-    for (const company of companies) scopedCompanies.add(companyKey(company.batchSlug, company.id));
+  const commentedCompanyKeys = new Set<string>();
+  for (const rankings of rankingsByPartner.values()) {
+    for (const ranking of rankings) {
+      commentedCompanyKeys.add(companyKey(ranking.batchSlug, ranking.companyId));
+    }
   }
   const details = activeMembers
     .map((member) => {
       let rankings = [...(rankingsByPartner.get(member.personId) ?? [])];
-      if (query.includeNoEvidence) {
-        const seen = new Set(rankings.map((ranking) => companyKey(ranking.batchSlug, ranking.companyId)));
-        for (const company of assignedCompaniesByPartner.get(member.personId) ?? []) {
-          const key = companyKey(company.batchSlug, company.id);
-          if (!seen.has(key)) rankings.push(emptyRanking(company));
-        }
-      }
 
       rankings.sort(compareRankings);
       rankings = rankings.map((ranking, index) => ({ ...ranking, rank: index + 1 }));
@@ -270,7 +257,7 @@ async function loadAndBuild(
     modelVersion: YC_PARTNER_FAVORITE_MODEL_VERSION,
     modelName: YC_PARTNER_FAVORITE_MODEL_NAME,
     batchCount: loaded.length,
-    companyCount: scopedCompanies.size,
+    companyCount: commentedCompanyKeys.size,
     partnerCount: details.length,
     partners: details
   } satisfies YcPartnersResponse;
@@ -281,28 +268,12 @@ interface CompanyContext {
   name: string;
   batchSlug: string;
   batchLabel: string;
-  groupPartner: string | null;
 }
 
 interface EvidenceBucket {
   member: TopVoiceMember;
   company: CompanyContext;
   evidence: EvidenceItem[];
-}
-
-function partnerNameMatches(member: TopVoiceMember, companyPartner: string): boolean {
-  const normalizedCompanyPartner = normalizePartnerName(companyPartner);
-  return [member.displayName, ...member.aliases]
-    .some((name) => normalizePartnerName(name) === normalizedCompanyPartner);
-}
-
-function normalizePartnerName(value: string): string {
-  return value
-    .normalize("NFKD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "")
-    .trim();
 }
 
 function normalizePartnerId(value: string | undefined): string | undefined {
@@ -334,44 +305,6 @@ function compareRankings(left: YcPartnerFavoriteRanking, right: YcPartnerFavorit
     left.companyName.localeCompare(right.companyName) ||
     left.batchSlug.localeCompare(right.batchSlug) ||
     left.companyId.localeCompare(right.companyId);
-}
-
-function emptyRanking(company: CompanyContext): YcPartnerFavoriteRanking {
-  return {
-    rank: 0,
-    companyId: company.id,
-    companyName: company.name,
-    batchSlug: company.batchSlug,
-    batchLabel: company.batchLabel,
-    score: 0,
-    confidence: {
-      level: "low",
-      score: 0,
-      reasons: ["No attributable partner commentary was found."],
-      uniqueEvidenceCount: 0,
-      uniquePlatformCount: 0,
-      uniqueContextCount: 0,
-      datedEvidenceCount: 0,
-      verifiedLinkCount: 0
-    },
-    evidenceCount: 0,
-    primaryReason: "No attributable partner commentary was found.",
-    citations: [],
-    breakdown: {
-      strongestEvidenceScore: 0,
-      secondaryEvidenceBonus: 0,
-      independentContextBonus: 0,
-      negativePenalty: 0,
-      convictionStrength: 0,
-      praiseStrength: 0,
-      specificity: 0,
-      contextQuality: 0,
-      uniqueEvidenceCount: 0,
-      uniquePlatformCount: 0,
-      uniqueContextCount: 0,
-      signalTypes: []
-    }
-  };
 }
 
 function maxIsoTimestamp(values: string[]): string | null {

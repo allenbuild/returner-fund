@@ -648,7 +648,7 @@ function YcPartnersTab({
         <div className="yc-partners-state">
           <div className="yc-partners-state-icon"><RefreshCw size={22} className="spin" aria-hidden="true" /></div>
           <strong>Loading YC partner favorites…</strong>
-          <span>Comparing attributable partner commentary across all available batches.</span>
+          <span>Finding attributable partner commentary in this batch.</span>
         </div>
       </div>
     );
