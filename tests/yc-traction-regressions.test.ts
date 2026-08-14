@@ -15,6 +15,7 @@ import {
   isVerifiedOfficialYcCompanyPageYouTubeEmbed,
   ycSpring2026GraphDataset
 } from "@/lib/graph/yc-spring-2026-dataset";
+import { analyzeFavoriteEvidence } from "@/lib/yc-partners/favorite-scoring";
 
 const targetedEvidenceSnapshot = JSON.parse(
   readFileSync(join(process.cwd(), "src/lib/social/targeted-evidence-current.json"), "utf8")
@@ -186,6 +187,28 @@ describe("YC traction scoring regressions", () => {
     expect(summerInstagram?.status).toBe("working");
     expect(springInstagram?.authMethod).toContain("authenticated browser session");
     expect(summerInstagram?.authMethod).toContain("authenticated browser session");
+  });
+
+  it("preserves Ankit Gupta's verbatim Instance commentary for favorite citations", () => {
+    const article = ycSpring2026GraphDataset.evidence.find(
+      (item) => item.platformPostId === "2077125864006062268" && item.entityId === "company-instance"
+    );
+
+    expect(article?.text).toContain(
+      "Today Instance is launching and showcasing their success detector for robot policies"
+    );
+    expect(article?.text).toContain(
+      "I met them at the end of last year, and it’s been a pleasure working with them as they iterated through their ideas and landed on this product."
+    );
+
+    const analysis = analyzeFavoriteEvidence(article!);
+    expect(analysis.signalType).toBe("substantive_praise");
+    expect(analysis.contributingSentences).toEqual(
+      expect.arrayContaining([
+        "Today Instance is launching and showcasing their success detector for robot policies — the first piece of what will eventually be fully automated robot evaluation.",
+        "I met them at the end of last year, and it’s been a pleasure working with them as they iterated through their ideas and landed on this product."
+      ])
+    );
   });
 
   it("does not carry old Spring evidence into Conifer's selected company feed", () => {
