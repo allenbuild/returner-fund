@@ -25,7 +25,10 @@ export const BATCH_SNAPSHOTS = [
 ];
 
 const DEFAULT_PORT = 3100;
-const SERVER_READY_TIMEOUT_MS = 120_000;
+// Cold starts load the complete evidence corpus and can exceed two minutes on
+// hosted runners. Keep the publisher alive long enough to record the exact
+// Central-day snapshot instead of creating an irreversible history gap.
+const SERVER_READY_TIMEOUT_MS = 8 * 60_000;
 const SERVER_READY_FETCH_TIMEOUT_MS = 10_000;
 const SERVER_READY_POLL_MS = 1_000;
 // The first full graph request loads and scores the complete runtime evidence
