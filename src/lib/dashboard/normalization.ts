@@ -143,10 +143,39 @@ export function compactSentence(value: string | null | undefined, maxLength = 30
     .replace(/([.!?]){2,}/g, "$1")
     .replace(/\s+([,.;:!?])/g, "$1");
   if (!normalized) return null;
-  const sentence = normalized.match(/^(.+?[.!?])(?:\s|$)/)?.[1] ?? normalized;
+  const sentence = firstCompleteSentence(normalized) ?? normalized;
   const trimmed = sentence.slice(0, maxLength).replace(/[\s,;:]+$/, "");
   if (!trimmed) return null;
   return /[.!?]$/.test(trimmed) ? trimmed : `${trimmed}.`;
+}
+
+const NON_TERMINAL_ABBREVIATIONS = new Set([
+  "dr", "fig", "inc", "jr", "ltd", "mr", "mrs", "ms", "no", "prof", "sr", "st", "vs"
+]);
+
+/**
+ * Finds the first real sentence boundary without mistaking publisher
+ * abbreviations (for example "U.S." and "A.I.") for a complete sentence.
+ */
+function firstCompleteSentence(value: string): string | null {
+  for (let index = 0; index < value.length; index += 1) {
+    const punctuation = value[index];
+    if (punctuation !== "." && punctuation !== "!" && punctuation !== "?") continue;
+    const next = value[index + 1];
+    if (next !== undefined && !/\s/.test(next)) continue;
+    if (punctuation === "." && isNonTerminalAbbreviation(value, index)) continue;
+    return value.slice(0, index + 1);
+  }
+  return null;
+}
+
+function isNonTerminalAbbreviation(value: string, punctuationIndex: number): boolean {
+  const prefix = value.slice(0, punctuationIndex + 1);
+  // Initialisms including U.S., A.I., and Ph.D. end in a period but commonly
+  // continue a headline or sentence.
+  if (/(?:\b[A-Za-z]\.){2,}$/.test(prefix)) return true;
+  const word = prefix.match(/\b([A-Za-z]{1,10})\.$/)?.[1]?.toLowerCase();
+  return Boolean(word && NON_TERMINAL_ABBREVIATIONS.has(word));
 }
 
 export function stableHash(value: string): string {

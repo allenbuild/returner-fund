@@ -16,7 +16,7 @@ describe("TopStoriesDashboard", () => {
     vi.unstubAllGlobals();
   });
 
-  it("renders one unified story ranking, applies filters without recalculating ranks, and lazily fetches sources on expansion", async () => {
+  it("renders one consolidated Top 100 card grid and lazily fetches sources on expansion", async () => {
     const fetchSources = vi.fn().mockResolvedValue({
       ok: true,
       json: async () => ({
@@ -33,18 +33,19 @@ describe("TopStoriesDashboard", () => {
 
     render(<TopStoriesDashboard snapshot={snapshotFixture()} />);
 
-    expect(screen.getByRole("heading", { name: "Top 100 Today", level: 1 })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Top 10 Today" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Top 100 in Tech", level: 1 })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Recent direct-source technology coverage" })).toBeInTheDocument();
+    expect(screen.getByRole("list", { name: "Top 100 technology stories" })).toBeInTheDocument();
     expect(screen.getByText("Atlas launches an agent runtime")).toBeInTheDocument();
-    expect(screen.getByText("Atlas released an orchestration runtime that is drawing independent discussion across X, Hacker News, and YouTube.")).toBeInTheDocument();
     expect(screen.getByText("Industry research paper rises")).toBeInTheDocument();
+    expect(screen.queryByText("Breaking security release accelerates")).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Hottest" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Breaking" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Emerging" })).not.toBeInTheDocument();
+    expect(screen.queryByText("Universe")).not.toBeInTheDocument();
+    expect(screen.getByLabelText("Item 4")).toBeInTheDocument();
     expect(screen.getByLabelText("Atlas launches an agent runtime thumbnail")).toBeInTheDocument();
     expect(fetchSources).not.toHaveBeenCalled();
-
-    fireEvent.click(screen.getByRole("button", { name: "Returner" }));
-    expect(screen.getByText("Atlas launches an agent runtime")).toBeInTheDocument();
-    expect(screen.queryByText("Industry research paper rises")).not.toBeInTheDocument();
-    expect(screen.getByLabelText("Rank 4")).toBeInTheDocument();
 
     const details = screen.getByText("View 2 underlying sources").closest("details") as HTMLDetailsElement;
     expect(details.open).toBe(false);
@@ -60,11 +61,94 @@ describe("TopStoriesDashboard", () => {
     );
   });
 
-  it("renders a safe empty state while a precomputed snapshot is unavailable", () => {
-    render(<TopStoriesDashboard snapshot={{ ...snapshotFixture(), stories: [] }} />);
+  it("recovers a stale empty server render with one current public feed request", async () => {
+    const emptySnapshot = unavailableSnapshotFixture();
+    const fetchDashboard = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => currentSnapshotFixture()
+    });
+    vi.stubGlobal("fetch", fetchDashboard);
 
-    expect(screen.getByText("The dashboard is being prepared.")).toBeInTheDocument();
-    expect(screen.queryByRole("heading", { name: "Top 10 Today" })).not.toBeInTheDocument();
+    render(<TopStoriesDashboard snapshot={emptySnapshot} />);
+
+    expect(screen.getByText("The Top 100 is being prepared.")).toBeInTheDocument();
+    expect(await screen.findByText("Atlas launches an agent runtime")).toBeInTheDocument();
+    expect(fetchDashboard).toHaveBeenCalledTimes(1);
+    expect(fetchDashboard).toHaveBeenCalledWith(
+      "/api/dashboard",
+      expect.objectContaining({
+        cache: "no-store",
+        headers: { Accept: "application/json" }
+      })
+    );
+    expect(screen.queryByText("The Top 100 is being prepared.")).not.toBeInTheDocument();
+  });
+
+  it("rejects a stale nonempty recovery response", async () => {
+    const emptySnapshot = unavailableSnapshotFixture();
+    const staleSnapshot = currentSnapshotFixture(new Date(Date.now() - 3 * 60 * 60 * 1_000));
+    const fetchDashboard = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => staleSnapshot
+    });
+    vi.stubGlobal("fetch", fetchDashboard);
+
+    render(<TopStoriesDashboard snapshot={emptySnapshot} />);
+
+    await waitFor(() => expect(fetchDashboard).toHaveBeenCalledTimes(1));
+    expect(screen.getByText("The Top 100 is being prepared.")).toBeInTheDocument();
+    expect(screen.queryByText("Atlas launches an agent runtime")).not.toBeInTheDocument();
+  });
+
+  it("rejects an unavailable nonempty recovery response", async () => {
+    const unavailableSnapshot = currentSnapshotFixture();
+    unavailableSnapshot.status = {
+      ...unavailableSnapshot.status,
+      partialPlatformFailures: ["snapshot_unavailable"]
+    };
+    const fetchDashboard = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => unavailableSnapshot
+    });
+    vi.stubGlobal("fetch", fetchDashboard);
+
+    render(<TopStoriesDashboard snapshot={unavailableSnapshotFixture()} />);
+
+    await waitFor(() => expect(fetchDashboard).toHaveBeenCalledTimes(1));
+    expect(screen.getByText("The Top 100 is being prepared.")).toBeInTheDocument();
+    expect(screen.queryByText("Atlas launches an agent runtime")).not.toBeInTheDocument();
+  });
+
+  it("rejects a malformed recovery response", async () => {
+    const malformedSnapshot = {
+      ...currentSnapshotFixture(),
+      sourceSnapshotFingerprint: ""
+    };
+    const fetchDashboard = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => malformedSnapshot
+    });
+    vi.stubGlobal("fetch", fetchDashboard);
+
+    render(<TopStoriesDashboard snapshot={unavailableSnapshotFixture()} />);
+
+    await waitFor(() => expect(fetchDashboard).toHaveBeenCalledTimes(1));
+    expect(screen.getByText("The Top 100 is being prepared.")).toBeInTheDocument();
+    expect(screen.queryByText("Atlas launches an agent runtime")).not.toBeInTheDocument();
+  });
+
+  it("keeps the safe empty state when the recovery feed has no published stories", async () => {
+    const emptySnapshot = unavailableSnapshotFixture();
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => emptySnapshot
+    }));
+
+    render(<TopStoriesDashboard snapshot={emptySnapshot} />);
+
+    expect(screen.getByText("The Top 100 is being prepared.")).toBeInTheDocument();
+    await waitFor(() => expect(fetch).toHaveBeenCalledTimes(1));
+    expect(screen.queryByText("Atlas launches an agent runtime")).not.toBeInTheDocument();
   });
 
   it("uses the published snapshot generatedAt timestamp for freshness", () => {
@@ -81,25 +165,6 @@ describe("TopStoriesDashboard", () => {
     expect(screen.queryByText("Updated just now")).not.toBeInTheDocument();
   });
 
-  it("does not present empty safe snapshots as newly updated", () => {
-    vi.useFakeTimers();
-    vi.setSystemTime(new Date("2026-08-15T12:00:00.000Z"));
-    const snapshot = snapshotFixture();
-    snapshot.stories = [];
-    snapshot.status = {
-      ...snapshot.status,
-      storyCount: 0,
-      viewStoryCounts: { hottest: 0, breaking: 0, emerging: 0 },
-      partialPlatformFailures: ["snapshot_unavailable"]
-    };
-
-    render(<TopStoriesDashboard snapshot={snapshot} />);
-
-    const freshness = screen.getByText("Latest ranking unavailable");
-    expect(freshness).not.toHaveAttribute("dateTime");
-    expect(screen.queryByText("Updated just now")).not.toBeInTheDocument();
-  });
-
   it("labels a stale safe snapshot without rendering it as fresh", () => {
     const snapshot = snapshotFixture();
     snapshot.stories = [];
@@ -109,39 +174,25 @@ describe("TopStoriesDashboard", () => {
       viewStoryCounts: { hottest: 0, breaking: 0, emerging: 0 },
       partialPlatformFailures: ["snapshot_stale"]
     };
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue({
+      ok: false,
+      json: async () => null
+    }));
 
     render(<TopStoriesDashboard snapshot={snapshot} />);
 
-    expect(screen.getByText("Latest ranking is stale")).toBeInTheDocument();
+    expect(screen.getByText("Latest index is stale")).toBeInTheDocument();
     expect(screen.queryByText("Updated just now")).not.toBeInTheDocument();
   });
 
-  it("uses each selected view's Top 100 membership and ranks", () => {
+  it("uses canonical hottest ranks as the sole Top 100 ordering", () => {
     render(<TopStoriesDashboard snapshot={snapshotFixture()} />);
 
-    fireEvent.click(screen.getByRole("button", { name: "Breaking" }));
-
-    expect(screen.getByText("Breaking security release accelerates")).toBeInTheDocument();
-    expect(screen.getByLabelText("Rank 1")).toBeInTheDocument();
-    expect(screen.queryByText("Atlas launches an agent runtime")).not.toBeInTheDocument();
-    expect(screen.getByText("Rising Fast")).toBeInTheDocument();
-  });
-
-  it("combines universe, topic, and platform filters without changing story ranks", () => {
-    render(<TopStoriesDashboard snapshot={snapshotFixture()} />);
-
-    expect(screen.getByText("YC S26")).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "Industry" }));
-    expect(screen.queryByText("Atlas launches an agent runtime")).not.toBeInTheDocument();
+    expect(screen.getByText("Atlas launches an agent runtime")).toBeInTheDocument();
     expect(screen.getByText("Industry research paper rises")).toBeInTheDocument();
-
-    fireEvent.click(within(screen.getByRole("group", { name: "Topic filter" })).getByRole("button", { name: "Research" }));
     expect(screen.queryByText("Breaking security release accelerates")).not.toBeInTheDocument();
-    expect(screen.getByLabelText("Rank 12")).toBeInTheDocument();
-
-    fireEvent.click(within(screen.getByRole("group", { name: "Platform filter" })).getByRole("button", { name: "News" }));
-    expect(screen.getByText("Industry research paper rises")).toBeInTheDocument();
-    expect(screen.getByLabelText("Rank 12")).toBeInTheDocument();
+    expect(screen.getByLabelText("Item 4")).toBeInTheDocument();
+    expect(screen.getByLabelText("Item 12")).toBeInTheDocument();
   });
 });
 
@@ -207,13 +258,35 @@ function snapshotFixture(): DashboardPublicFeedSnapshot {
   };
 }
 
+function unavailableSnapshotFixture(): DashboardPublicFeedSnapshot {
+  const snapshot = snapshotFixture();
+  snapshot.stories = [];
+  snapshot.status = {
+    ...snapshot.status,
+    storyCount: 0,
+    viewStoryCounts: { hottest: 0, breaking: 0, emerging: 0 },
+    partialPlatformFailures: ["snapshot_unavailable"]
+  };
+  return snapshot;
+}
+
+function currentSnapshotFixture(now = new Date()): DashboardPublicFeedSnapshot {
+  const snapshot = snapshotFixture();
+  const windowEnd = now.toISOString();
+  snapshot.generatedAt = windowEnd;
+  snapshot.updatedAt = windowEnd;
+  snapshot.windowEnd = windowEnd;
+  snapshot.windowStart = new Date(now.getTime() - 24 * 60 * 60 * 1_000).toISOString();
+  return snapshot;
+}
+
 function story(overrides: Pick<DashboardStoryCard, "id" | "rank" | "universe" | "title" | "summary" | "topics" | "platforms" | "sourceCount" | "primarySource"> & {
   labels?: string[];
   viewRankings?: DashboardStoryCard["viewRankings"];
 }): DashboardStoryCard {
   return {
     id: overrides.id,
-    stableKey: `story-${overrides.id}`,
+    stableKey: "story-" + overrides.id,
     rank: overrides.rank,
     previousRank: null,
     rankDelta: null,
@@ -266,7 +339,7 @@ function source(
 ): DashboardStorySource {
   return {
     id,
-    canonicalKey: `${platform}:${id}`,
+    canonicalKey: platform + ":" + id,
     platform,
     nativePlatform: platform === "research" || platform === "news" ? platform : platform,
     sourceKind: platform === "research" ? "paper" : "post",

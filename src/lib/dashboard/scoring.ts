@@ -10,11 +10,19 @@ import {
 
 const HOUR_MS = 60 * 60 * 1_000;
 const FRESHNESS_HALF_LIFE_HOURS = 9;
+// Absence of an observed metric is not evidence of attention. Keep this at
+// zero so a source cannot receive trend credit from a placeholder baseline.
+const UNOBSERVED_ABSOLUTE_SIGNIFICANCE = 0;
+// A single positive reading has no same-platform distribution that can show
+// whether it is exceptional. Treat it as the lowest observed tier rather than
+// granting a made-up 100th percentile.
+const SINGLETON_OBSERVED_ABSOLUTE_SIGNIFICANCE = 15;
 
 /**
  * Relative performance is measured against the source's own historical
- * baseline when available. Missing baselines are deliberately neutral rather
- * than guessed from a giant-account multiplier.
+ * baseline when available. Without a source-specific baseline or audience
+ * denominator, no relative-performance claim can be made, even when a raw
+ * metric was observed.
  */
 export function relativeViralityScore(candidate: Pick<DashboardCandidate, "metrics" | "accountBaseline" | "followerCount">): number {
   const observed = engagementMass(candidate.metrics);
@@ -33,7 +41,10 @@ export function relativeViralityScore(candidate: Pick<DashboardCandidate, "metri
     return round(clamp(50 + 18 * Math.log2(Math.max(engagementRate, 0.00001) / 0.01), 0, 100));
   }
 
-  return 50;
+  // Raw engagement alone belongs in absolute platform-normalized scoring.
+  // Without a source-specific baseline/audience denominator, it cannot also
+  // manufacture a relative-virality signal.
+  return 0;
 }
 
 /** Only real append-only observations contribute velocity; a single scrape never fabricates it. */
@@ -72,8 +83,10 @@ export function freshnessScore(publishedAt: string, now = new Date()): number {
 }
 
 /**
- * Normalizes raw attention within each native platform population. This avoids
- * equating an HN point, a YouTube view, and a LinkedIn reaction.
+ * Normalizes observed raw attention within each native platform population.
+ * This avoids equating an HN point, a YouTube view, and a LinkedIn reaction.
+ * Sources without any observed metric stay at zero: their ID/order must
+ * never manufacture a percentile rank or a placeholder attention signal.
  */
 export function platformNormalizedSignificance(
   candidates: readonly Pick<DashboardCandidate, "id" | "platform" | "sourceKind" | "metrics">[]
@@ -88,30 +101,78 @@ export function platformNormalizedSignificance(
 
   const scores = new Map<string, number>();
   for (const group of grouped.values()) {
-    const ordered = [...group].sort((left, right) => left.mass - right.mass || left.id.localeCompare(right.id));
-    const denominator = Math.max(1, ordered.length - 1);
+    const observed = group.filter((item) => item.mass > 0);
+    for (const item of group) {
+      if (item.mass === 0) scores.set(item.id, UNOBSERVED_ABSOLUTE_SIGNIFICANCE);
+    }
+    if (!observed.length) continue;
+
+    const ordered = [...observed].sort((left, right) => left.mass - right.mass || left.id.localeCompare(right.id));
+    // One observed source is not a platform baseline. In particular, a small
+    // HN discussion must not become a 100th-percentile story merely because
+    // it is the only sampled HN item this hour.
+    if (ordered.length === 1) {
+      scores.set(ordered[0]!.id, SINGLETON_OBSERVED_ABSOLUTE_SIGNIFICANCE);
+      continue;
+    }
+    const denominator = ordered.length - 1;
     ordered.forEach((item, index) => scores.set(item.id, round(15 + 85 * (index / denominator))));
   }
   return scores;
 }
 
-export function sourceQualityScore(candidate: Pick<DashboardCandidate, "sourceQuality" | "sourceKind">): number {
-  if (typeof candidate.sourceQuality === "number" && Number.isFinite(candidate.sourceQuality)) {
-    return round(clamp(candidate.sourceQuality));
-  }
+/**
+ * Editorial reporting and primary research are stronger story anchors than a
+ * discussion thread. HN remains useful corroboration, but an HN submission is
+ * not itself equivalent to independently reported news or a paper.
+ */
+export function isIndependentEditorialOrResearchSource(
+  candidate: Pick<DashboardCandidate, "platform" | "sourceKind" | "independentlyReported">
+): boolean {
+  if (candidate.independentlyReported !== true) return false;
+  return candidate.sourceKind === "paper" ||
+    candidate.sourceKind === "article" ||
+    candidate.platform === "web" ||
+    candidate.platform === "rss";
+}
+
+export function sourceQualityScore(
+  candidate: Pick<DashboardCandidate, "platform" | "sourceQuality" | "sourceKind" | "independentlyReported">
+): number {
   const defaults: Record<DashboardCandidate["sourceKind"], number> = {
-    paper: 78,
+    paper: 82,
     repository: 70,
     release: 72,
     launch: 66,
-    article: 62,
+    article: 72,
     video: 60,
-    discussion: 58,
+    discussion: 52,
     thread: 56,
     post: 54,
     other: 45
   };
-  return defaults[candidate.sourceKind];
+  const explicitQuality = typeof candidate.sourceQuality === "number" && Number.isFinite(candidate.sourceQuality)
+    ? clamp(candidate.sourceQuality)
+    : null;
+  let quality = explicitQuality ?? defaults[candidate.sourceKind];
+
+  // Independent articles, web reporting, RSS reporting, and papers are the
+  // primary sources this product is intended to surface. This is deliberately
+  // a quality floor rather than an engagement multiplier: raw attention still
+  // needs to be observed and normalized elsewhere in the score.
+  if (isIndependentEditorialOrResearchSource(candidate)) {
+    const editorialFloor = candidate.sourceKind === "paper" ? 90 : 82;
+    quality = Math.max(quality, editorialFloor);
+  }
+
+  // Community discussions can corroborate a story, but should not be treated
+  // as a publication-quality primary source simply because a caller happened
+  // to attach a generous quality hint.
+  if (candidate.platform === "hacker_news" && candidate.sourceKind === "discussion") {
+    quality = Math.min(quality, 38);
+  }
+
+  return round(clamp(quality));
 }
 
 /**
@@ -138,7 +199,7 @@ export function scoreDashboardStory(
   const freshness = weightedCandidateAverage(candidates, (candidate) => freshnessScore(candidate.publishedAt, options.now));
   const absoluteSignificance = weightedCandidateAverage(
     candidates,
-    (candidate) => options.absoluteSignificance.get(candidate.id) ?? 15
+    (candidate) => options.absoluteSignificance.get(candidate.id) ?? UNOBSERVED_ABSOLUTE_SIGNIFICANCE
   );
   const sourceQuality = weightedCandidateAverage(candidates, sourceQualityScore);
   const crossPlatformConfirmation = crossPlatformConfirmationScore(candidates);

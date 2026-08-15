@@ -27,7 +27,11 @@ import {
   safeDate,
   stableHash
 } from "./normalization";
-import { platformNormalizedSignificance, scoreDashboardStory } from "./scoring";
+import {
+  isIndependentEditorialOrResearchSource,
+  platformNormalizedSignificance,
+  scoreDashboardStory
+} from "./scoring";
 
 type UnrankedDashboardStory = Omit<DashboardStory, "rank" | "previousRank" | "rankDelta" | "trendStatus" | "viewRankings">;
 
@@ -242,29 +246,45 @@ function withViewRank(
   };
 }
 
+const HACKER_NEWS_ONLY_MAX_SHARE = 0.01;
+
 /**
- * Each tab is a genuine Top 100, not a client-side resort of the Hottest
- * slice. The compact snapshot stores their union (at most 300 stories), with
- * per-view ranks so filtering never has to rediscover or rescore anything.
+ * The public artifact is one canonical Top 100, ordered by the overall trend
+ * score. Historic per-view positions are retained only as metadata on those
+ * same canonical stories; they never expand the visitor-facing list into a
+ * separate union of Hottest, Breaking, and Emerging results.
+ *
+ * Hacker News is valuable corroboration when it accompanies a primary source,
+ * but a stream of HN-only submissions is not a representative internet-wide
+ * news feed. Limit HN-only stories to one percent of the canonical capacity,
+ * before any view is ranked, so the cap applies to the entire persisted feed.
  */
 function rankStoriesForViews(
   stories: readonly UnrankedDashboardStory[],
   limit: number,
   priorRanks: ReadonlyMap<string, DashboardRankSnapshot>
 ): DashboardStory[] {
+  const orderedByHottest = [...stories]
+    .sort((left, right) => compareUnrankedStoriesForView(left, right, "hottest"));
+  const rankableStories = applyHackerNewsOnlyCap(orderedByHottest, limit);
+  const canonicalStories = rankableStories.slice(0, limit);
+  const canonicalKeys = new Set(canonicalStories.map((story) => story.stableKey));
   const rankingsByStory = new Map<string, Partial<Record<DashboardView, DashboardViewRanking>>>();
-  const storiesByKey = new Map(stories.map((story) => [story.stableKey, story]));
+  const storiesByKey = new Map(canonicalStories.map((story) => [story.stableKey, story]));
   const canonicalHottestRanks = new Map(
-    [...stories]
-      .sort((left, right) => compareUnrankedStoriesForView(left, right, "hottest"))
+    canonicalStories
       .map((story, index) => [story.stableKey, index + 1])
   );
 
   for (const view of DASHBOARD_VIEWS) {
-    const ranking = [...stories]
+    const ranking = [...rankableStories]
       .sort((left, right) => compareUnrankedStoriesForView(left, right, view))
       .slice(0, limit);
     for (const [index, story] of ranking.entries()) {
+      // Only the consolidated Top 100 is published. Retain a compatible
+      // per-view rank when this canonical story also qualifies for that view,
+      // but never pull a Breaking/Emerging-only story into the public list.
+      if (!canonicalKeys.has(story.stableKey)) continue;
       const current = rankingsByStory.get(story.stableKey) ?? {};
       current[view] = withViewRank(story, index + 1, priorRanks.get(rankSnapshotKey(story.stableKey, view)));
       rankingsByStory.set(story.stableKey, current);
@@ -301,6 +321,24 @@ function rankStoriesForViews(
     .sort((left, right) => left.rank - right.rank || left.stableKey.localeCompare(right.stableKey));
 }
 
+function applyHackerNewsOnlyCap(
+  stories: readonly UnrankedDashboardStory[],
+  limit: number
+): UnrankedDashboardStory[] {
+  const maxHackerNewsOnlyStories = Math.floor(limit * HACKER_NEWS_ONLY_MAX_SHARE);
+  let includedHackerNewsOnlyStories = 0;
+  return stories.filter((story) => {
+    if (!isHackerNewsOnlyStory(story)) return true;
+    if (includedHackerNewsOnlyStories >= maxHackerNewsOnlyStories) return false;
+    includedHackerNewsOnlyStories += 1;
+    return true;
+  });
+}
+
+function isHackerNewsOnlyStory(story: Pick<UnrankedDashboardStory, "sources">): boolean {
+  return story.sources.length > 0 && story.sources.every((source) => source.platform === "hacker_news");
+}
+
 function trendStatus(
   rankDelta: number | null,
   previousRank: number | null,
@@ -325,14 +363,32 @@ function storyTitle(primary: DashboardCandidate | undefined, candidates: readonl
     primary?.trackedEntity?.name
   ];
   for (const option of options) {
-    const sentence = compactSentence(option, 160);
-    if (!sentence) continue;
-    // Headlines conventionally omit terminal punctuation; this preserves the
-    // exact source wording without looking like a raw social caption.
-    const title = sentence.replace(/[.!?]+$/, "");
+    const title = compactHeadline(option, 160);
     if (title.length >= 3) return title;
   }
   return "Technology development";
+}
+
+/**
+ * Headlines are not prose sentences: abbreviations such as "U.S." and
+ * product versions such as "v2.0" must not make us discard the rest of the
+ * publisher's title. Summaries still use `compactSentence`; this helper only
+ * preserves a bounded display headline.
+ */
+function compactHeadline(value: string | null | undefined, maxLength: number): string {
+  const normalized = compactWhitespace(value)
+    .replace(/([!?]){2,}/g, "$1")
+    .replace(/\s+([,.;:!?])/g, "$1");
+  if (!normalized) return "";
+  if (normalized.length <= maxLength) return normalized.replace(/[.!?]+$/, "");
+  const limit = Math.max(1, maxLength - 1);
+  const visible = normalized.slice(0, limit);
+  const lastWordBoundary = visible.lastIndexOf(" ");
+  const truncated = (lastWordBoundary > Math.floor(limit * 0.55)
+    ? visible.slice(0, lastWordBoundary)
+    : visible
+  ).replace(/[\s,;:.!?]+$/, "");
+  return `${truncated}…`;
 }
 
 function groundedStorySummary(candidates: readonly DashboardCandidate[], title: string): string {
@@ -378,7 +434,9 @@ function toStorySource(candidate: DashboardCandidate, score: ReturnType<typeof s
     url: candidate.url,
     destinationUrl: canonicalDashboardUrl(candidate.destinationUrl),
     title: compactWhitespace(candidate.title) || null,
-    summary: compactSentence(candidate.summary ?? candidate.text, 300),
+    // `compactSentence` may append terminal punctuation after truncation, so
+    // reserve one character for the strict 300-character artifact contract.
+    summary: compactSentence(candidate.summary ?? candidate.text, 299),
     authorName: compactWhitespace(candidate.authorName) || null,
     publisher: compactWhitespace(candidate.publisher) || null,
     publishedAt: candidate.publishedAt,
@@ -471,9 +529,21 @@ function compareCandidatesForStory(
   right: DashboardCandidate,
   platformSignificance: ReadonlyMap<string, number>
 ): number {
-  return (platformSignificance.get(right.id) ?? 0) - (platformSignificance.get(left.id) ?? 0) ||
+  return primarySourcePriority(right) - primarySourcePriority(left) ||
+    (platformSignificance.get(right.id) ?? 0) - (platformSignificance.get(left.id) ?? 0) ||
     new Date(right.publishedAt).getTime() - new Date(left.publishedAt).getTime() ||
     left.id.localeCompare(right.id);
+}
+
+function primarySourcePriority(candidate: DashboardCandidate): number {
+  // Papers and independent reporting provide the clearest story anchor. An
+  // HN submission still stays in the clustered source list and contributes
+  // real multi-platform corroboration, but cannot displace that primary.
+  if (candidate.sourceKind === "paper") return 5;
+  if (isIndependentEditorialOrResearchSource(candidate)) return 4;
+  if (candidate.sourceKind === "article" && (candidate.platform === "web" || candidate.platform === "rss")) return 3;
+  if (candidate.platform === "hacker_news") return 0;
+  return candidate.independentlyReported === true ? 2 : 1;
 }
 
 function groundedTodayInTech(stories: readonly DashboardStory[]): string[] {

@@ -5,11 +5,65 @@ import { canonicalDashboardUrl, compactSentence, compactWhitespace, safeDate, st
 import { isDashboardCandidateEligible } from "./pipeline";
 
 const MAX_RESPONSE_BYTES = 1_500_000;
-const MAX_HN_ITEMS = 200;
+// HN is useful as lightweight corroboration, but it is intentionally a small
+// input lane. The publication layer owns the final story-level share cap;
+// retaining this bounded cohort here lets matching editorial coverage cluster
+// with the correct discussion instead of manufacturing a singleton baseline.
+const MAX_HN_ITEMS = 12;
+const MIN_HN_UPVOTES = 20;
+const MIN_HN_COMMENTS = 5;
 const MAX_GITHUB_ITEMS = 40;
+const MIN_GITHUB_STARS = 100;
 const MAX_GITHUB_EVENT_ITEMS = 100;
 const MAX_RSS_ITEMS_PER_FEED = 40;
+// Primary research is a direct, high-quality lane rather than a broad
+// consumer feed. Keep its discovery window modestly wider so the Top 100 can
+// remain substantive without re-admitting reviews, deals, or lifestyle cards.
+const MAX_RESEARCH_ITEMS_PER_FEED = 60;
 const MAX_REDDIT_ITEMS_PER_SUBREDDIT = 40;
+const MAX_ENTRY_IMAGE_HTML_CHARS = 32_000;
+const MIN_RSS_SUMMARY_WORDS = 8;
+
+// Direct publisher feeds are intentionally broad enough to catch important
+// technology coverage, which means some also carry entertainment, shopping,
+// and lifestyle sections. A source name is not a relevance guarantee: accept
+// an article only when its own headline/description has a clear technology,
+// science, engineering, or business-tech signal, and reject non-editorial
+// formats before they can consume a Top 100 slot.
+const TECHNOLOGY_EDITORIAL_SIGNAL = new RegExp([
+  "\\btechnology\\b", "\\bai\\b", "a\\.i\\.", "artificial intelligence", "machine learning", "generative", "large language model", "\\bllm\\b", "agentic", "chatbot", "algorithm", "model training",
+  "\\bsoftware\\b", "open[ -]?source", "developer", "development", "program(?:ming|mer)", "coding", "codebase", "compiler", "\\bapi\\b", "\\bapp(?:lication)?\\b", "app store", "operating system", "\\b(?:ios|macos|linux|android|windows)\\b",
+  "\\bcloud\\b", "\\bserver\\b", "\\bdatabase\\b", "data centers?", "data storage", "data set", "\\bcompute\\b", "computing", "supercomputer", "semiconductor", "\\bchips?\\b", "\\bgpu\\b", "processor", "hardware", "firmware", "electronics?", "signal processing", "\\bantenna\\b", "\\busb(?:4|[- ]?c)?\\b",
+  "\\binternet\\b", "\\bweb\\b", "browser", "digital platform", "network(?:ing)?", "telecom", "wireless", "broadband", "\\b(?:5g|6g|wi-?fi)\\b", "\\bnpm\\b", "supply chain", "\\bplugins?\\b",
+  "cyber(?:security)?", "\\bsecurity\\b", "privacy", "encryption", "ransomware", "malware", "spyware", "phishing", "hack(?:er|ed|ing)?", "vulnerabilit(?:y|ies)", "prompt injection",
+  "\\bstartup\\b", "fund(?:ing|raise)", "venture capital", "\\bvc\\b", "fintech", "payment(?:s)?", "\\bipo\\b", "cloud storage",
+  "robot(?:ics)?", "autonomous", "self-driving", "\\bdrone\\b", "electric vehicle", "\\bev\\b", "\\bbattery\\b", "\\bsolar\\b", "wind power", "\\bnuclear\\b", "\\bfusion\\b", "energy grid", "electric aircraft", "\\baircraft\\b", "aviation", "aerospace",
+  "biotech", "bio(?:tech|engineering)", "genom(?:e|ics)", "medical device", "engineering", "engineer(?:s|ing)?", "research(?:er|ers)?", "scientist(?:s)?", "\\bphysics\\b", "\\bquantum\\b",
+  "spacecraft", "spaceflight", "satellite", "\\brocket\\b", "orbit(?:al)?", "telescope", "astronom(?:y|ical)", "black hole", "climate tech", "carbon capture", "facial recognition", "watermark(?:ing)?", "\\b(?:iphone|smartphone|mobile)\\b"
+].join("|"), "i");
+
+const COMMERCE_PROMOTION_FORMAT = new RegExp([
+  "\\bdeals?\\b", "\\bsale\\b", "\\bdiscount\\b", "\\bpromo(?:tion| code)?\\b", "\\bcoupon\\b", "\\bgiveaway\\b", "giving away", "for free", "\\bshopping\\b", "shop now", "buy now", "available to buy", "\\bsponsored\\b", "save\\s+\\$", "under\\s+\\$", "%\\s*off", "lifetime access", "\\bupgrade deal\\b", "upgrade your (?:pc|computer|laptop|phone|device)", "pay\\s+\\$\\d", "plan for\\s+\\$\\d", "for just\\s+\\$\\d"
+].join("|"), "i");
+
+const LOWER_VALUE_EDITORIAL_FORMAT = new RegExp([
+  "\\bbest\\b", "\\breviews?\\b", "\\bvs\\.?\\b", "\\bversus\\b", "\\bcomparison\\b", "hands-on", "\\bunboxing\\b", "\\b(?:i|we)\\s+(?:tested|reviewed)\\b",
+  "\\bhow to\\b", "what(?:'s| is| are| happens)", "\\bexplained\\b", "\\bguides?\\b", "\\bapple loop\\b", "\\b(?:iphone|smartphone|laptop|macbook).{0,32}\\bprice\\b"
+].join("|"), "i");
+
+const OPINION_OR_VAGUE_FORMAT = new RegExp([
+  "\\bopinion\\b", "\\bcolumn\\b", "\\bessay\\b", "\\bmanifesto(?:s)?\\b", "\\bexplainer\\b", "\\bthe case for\\b", "\\bai\\s+vs\\b", "\\bsatir(?:e|ical)\\b", "\\bparody\\b", "\\bjoke\\b", "can['’]?t go viral", "\\bgo viral\\b", "moved the goalposts", "\\bapod\\b", "astronomy picture of the day", "\\bexpo\\b", "\\bairshow\\b", "this week in science", "will redefine",
+  "prompt(?:s)?\\s+(?:injections?|injected).*\\b(?:legal|court|filing)s?\\b", "\\b(?:legal|court|filing)s?.*(?:prompt(?:s)?\\s+(?:injections?|injected)|injected\\s+prompts?)"
+].join("|"), "i");
+
+const ENTERTAINMENT_OR_LIFESTYLE_SIGNAL = new RegExp([
+  "\\bmovies?\\b", "\\bfilms?\\b", "\\btelevision\\b", "\\btv\\b", "\\bseries\\b", "\\bseason\\b", "\\bepisode\\b", "\\btrailer\\b", "\\bcast\\b", "\\bactors?\\b", "\\bactress(?:es)?\\b", "\\bconcert\\b", "\\bmusic\\b", "\\bsongs?\\b", "\\balbum\\b", "\\bpodcast\\b", "\\bcelebrity\\b", "\\bhollywood\\b",
+  "\\banime\\b", "\\bgames?\\b", "\\bgamer\\b", "\\bgaming\\b", "vibe coded", "video games?", "\\bplaystation\\b", "\\bxbox\\b", "\\bnintendo\\b", "\\bdisney\\b", "\\bmarvel\\b", "star wars", "\\bnetflix\\b", "\\bhbo\\b", "\\bhulu\\b", "\\btheat(?:er|re)\\b",
+  "\\bnecklace\\b", "\\bjewelry\\b", "\\bfashion\\b", "\\bbeauty\\b", "\\bgarden\\b", "ice cream", "\\bfood\\b", "\\brecipe\\b", "\\bbooks?\\b", "secondhand", "\\bmushrooms?\\b", "\\bdating\\b", "\\brelationship\\b", "\\bparents?\\b", "\\bkids?\\b", "screen time", "\\bporn\\b", "\\bsexual\\b", "\\bmasturbation\\b", "\\binfluencers?\\b", "\\bfitness\\b", "bodybuild(?:er|ing)", "looksmaxx", "\\bsemaglutide\\b", "\\bglp[- ]?1s?\\b", "\\bdementia\\b", "mental health advice", "weight loss", "\\bdiet\\b",
+  "\\bheadphones?\\b", "\\bearbuds?\\b", "watch bands?", "phone grip", "\\bturntable\\b", "bookshelf speakers?", "\\bspeakers?\\b", "\\bprinters?\\b", "\\bvacuum\\b", "\\bfan\\b", "sports betting"
+].join("|"), "i");
+
+const LOW_SIGNAL_OR_PROMOTIONAL_REPOSITORY = /\b(?:crypto(?:currency)?|nft|token|airdrop|coin|memecoin|web3|gambling|casino|betting|preset|gitbash|fake[ -]?balance|vibe[ -]?coding)\b/i;
 
 // Environment configuration may select a feed path only on these public
 // publication hosts. Keeping this list literal (rather than accepting an
@@ -17,19 +71,111 @@ const MAX_REDDIT_ITEMS_PER_SUBREDDIT = 40;
 // outbound-fetch proxy through DASHBOARD_RSS_FEEDS.
 const CONFIGURED_RSS_HOST_ALLOWLIST = new Set([
   "www.technologyreview.com",
-  "feeds.arstechnica.com"
+  "feeds.arstechnica.com",
+  "techcrunch.com",
+  "www.theverge.com",
+  "www.wired.com",
+  "spectrum.ieee.org",
+  "venturebeat.com",
+  "www.engadget.com",
+  "www.theguardian.com",
+  "rss.nytimes.com",
+  "feeds.bbci.co.uk",
+  "api.theregister.com",
+  "news.mit.edu",
+  "research.google",
+  "huggingface.co",
+  "www.cnet.com",
+  "gizmodo.com",
+  "www.zdnet.com",
+  "www.pcmag.com",
+  "mashable.com",
+  "www.ft.com",
+  "the-decoder.com",
+  "thenewstack.io",
+  "feed.infoq.com",
+  "www.bleepingcomputer.com",
+  "www.techspot.com",
+  "www.tomshardware.com",
+  "9to5google.com",
+  "www.bloomberg.com",
+  "www.geekwire.com",
+  "therecord.media",
+  "spacenews.com",
+  "www.nasa.gov",
+  "www.darkreading.com",
+  "www.hpcwire.com",
+  "phys.org",
+  "www.space.com",
+  "www.datacenterdynamics.com",
+  "www.sciencealert.com",
+  "www.forbes.com"
 ]);
 
-/** Public, read-only sources; no browser automation, cookies, or account actions. */
+/**
+ * Public, read-only editorial feeds. These are intentionally direct publisher
+ * feeds rather than a search-engine feed or a generic scrape: that keeps the
+ * worker bounded, makes the source shown to visitors unambiguous, and gives
+ * reporting and research a much larger discovery surface than discussions.
+ */
 export const DEFAULT_DASHBOARD_RSS_FEEDS = [
-  { name: "MIT Technology Review", url: "https://www.technologyreview.com/feed/", quality: 78 },
-  { name: "Ars Technica", url: "https://feeds.arstechnica.com/arstechnica/index", quality: 72 }
+  { name: "MIT Technology Review", url: "https://www.technologyreview.com/feed/", quality: 84 },
+  { name: "Ars Technica", url: "https://feeds.arstechnica.com/arstechnica/index", quality: 80 },
+  { name: "IEEE Spectrum", url: "https://spectrum.ieee.org/feeds/feed.rss", quality: 84 },
+  { name: "MIT News AI", url: "https://news.mit.edu/rss/topic/artificial-intelligence2", quality: 84 },
+  { name: "The New York Times Technology", url: "https://rss.nytimes.com/services/xml/rss/nyt/Technology.xml", quality: 84 },
+  { name: "BBC News Technology", url: "https://feeds.bbci.co.uk/news/technology/rss.xml", quality: 82 },
+  { name: "The Guardian Technology", url: "https://www.theguardian.com/uk/technology/rss", quality: 80 },
+  { name: "WIRED", url: "https://www.wired.com/feed/rss", quality: 78 },
+  { name: "The Verge", url: "https://www.theverge.com/rss/index.xml", quality: 76 },
+  { name: "TechCrunch", url: "https://techcrunch.com/feed/", quality: 74 },
+  { name: "VentureBeat", url: "https://venturebeat.com/feed/", quality: 72 },
+  { name: "Engadget", url: "https://www.engadget.com/rss.xml", quality: 70 },
+  { name: "The Register", url: "https://api.theregister.com/api/v1/article?orderBy=published&site_id=2&remapper=rss", quality: 72 },
+  { name: "Google Research", url: "https://research.google/blog/rss/", quality: 82 },
+  { name: "Hugging Face", url: "https://huggingface.co/blog/feed.xml", quality: 76 },
+  { name: "CNET", url: "https://www.cnet.com/rss/news/", quality: 74 },
+  { name: "Gizmodo", url: "https://gizmodo.com/feed", quality: 70 },
+  { name: "ZDNET", url: "https://www.zdnet.com/news/rss.xml", quality: 74 },
+  { name: "PCMag", url: "https://www.pcmag.com/feeds/rss/latest", quality: 74 },
+  { name: "Mashable Tech", url: "https://mashable.com/feeds/rss/tech", quality: 70 },
+  { name: "Financial Times Technology", url: "https://www.ft.com/technology?format=rss", quality: 84 },
+  { name: "The Decoder", url: "https://the-decoder.com/feed/", quality: 80 },
+  { name: "The New Stack", url: "https://thenewstack.io/feed/", quality: 80 },
+  { name: "InfoQ", url: "https://feed.infoq.com/", quality: 80 },
+  { name: "BleepingComputer", url: "https://www.bleepingcomputer.com/feed/", quality: 80 },
+  { name: "TechSpot", url: "https://www.techspot.com/backend.xml", quality: 74 },
+  { name: "Tom's Hardware", url: "https://www.tomshardware.com/feeds/all", quality: 74 },
+  { name: "9to5Google", url: "https://9to5google.com/feed/", quality: 72, maxItems: 2 },
+  { name: "Bloomberg Technology", url: "https://www.bloomberg.com/feeds/technology/news.rss", quality: 86 },
+  { name: "GeekWire", url: "https://www.geekwire.com/feed/", quality: 80 },
+  { name: "The Record", url: "https://therecord.media/feed", quality: 82 },
+  { name: "SpaceNews", url: "https://spacenews.com/feed/", quality: 82 },
+  { name: "NASA News", url: "https://www.nasa.gov/news-release/feed/", quality: 86, independentlyReported: false },
+  { name: "Dark Reading", url: "https://www.darkreading.com/rss.xml", quality: 82 },
+  { name: "HPCwire", url: "https://www.hpcwire.com/feed/", quality: 82 },
+  { name: "Phys.org Technology", url: "https://phys.org/rss-feed/technology-news/", quality: 78 },
+  { name: "Phys.org Physics", url: "https://phys.org/rss-feed/physics-news/", quality: 78 },
+  { name: "Phys.org Space", url: "https://phys.org/rss-feed/space-news/", quality: 78 },
+  { name: "Space.com", url: "https://www.space.com/feeds/all", quality: 78 },
+  { name: "Data Center Dynamics", url: "https://www.datacenterdynamics.com/en/rss/", quality: 82 },
+  { name: "ScienceAlert", url: "https://www.sciencealert.com/feed", quality: 76 },
+  { name: "Forbes Innovation", url: "https://www.forbes.com/innovation/feed2/", quality: 78 }
 ] as const;
 
-/** Papers are candidates only when another observed signal corroborates them. */
+/**
+ * Papers are candidates only when another observed signal corroborates them.
+ * The category feeds keep the worker broad across AI, ML, language, vision,
+ * robotics, and security without issuing an unbounded research search.
+ */
 export const DEFAULT_DASHBOARD_RESEARCH_FEEDS = [
-  { name: "arXiv cs.AI", url: "https://rss.arxiv.org/rss/cs.AI", quality: 78, platform: "research", sourceKind: "paper", independentlyReported: false },
-  { name: "arXiv cs.RO", url: "https://rss.arxiv.org/rss/cs.RO", quality: 78, platform: "research", sourceKind: "paper", independentlyReported: false }
+  { name: "arXiv cs.AI", url: "https://rss.arxiv.org/rss/cs.AI", quality: 84, platform: "research", sourceKind: "paper", independentlyReported: false },
+  { name: "arXiv cs.LG", url: "https://rss.arxiv.org/rss/cs.LG", quality: 84, platform: "research", sourceKind: "paper", independentlyReported: false },
+  { name: "arXiv stat.ML", url: "https://rss.arxiv.org/rss/stat.ML", quality: 84, platform: "research", sourceKind: "paper", independentlyReported: false },
+  { name: "arXiv cs.CL", url: "https://rss.arxiv.org/rss/cs.CL", quality: 82, platform: "research", sourceKind: "paper", independentlyReported: false },
+  { name: "arXiv cs.CV", url: "https://rss.arxiv.org/rss/cs.CV", quality: 82, platform: "research", sourceKind: "paper", independentlyReported: false },
+  { name: "arXiv cs.RO", url: "https://rss.arxiv.org/rss/cs.RO", quality: 82, platform: "research", sourceKind: "paper", independentlyReported: false },
+  { name: "arXiv cs.CR", url: "https://rss.arxiv.org/rss/cs.CR", quality: 80, platform: "research", sourceKind: "paper", independentlyReported: false }
 ] as const satisfies readonly DashboardRssFeed[];
 
 /** Fixed public communities avoid an unbounded Reddit search surface. */
@@ -39,6 +185,7 @@ interface DashboardRssFeed {
   name: string;
   url: string;
   quality?: number;
+  maxItems?: number;
   platform?: "rss" | "research";
   sourceKind?: "article" | "paper";
   independentlyReported?: boolean;
@@ -95,7 +242,11 @@ export async function discoverExternalDashboardCandidates(
       failures.push(discoveryFailureLabel(result.reason));
     }
   }
-  return { candidates, failures: [...new Set(failures)].sort(), sources: [...new Set(sources)].sort() };
+  return {
+    candidates,
+    failures: [...new Set(failures)].sort(),
+    sources: [...new Set(sources)].sort()
+  };
 }
 
 export async function fetchHackerNewsCandidates(fetchImpl: typeof fetch, now = new Date()): Promise<{ source: string; candidates: DashboardCandidate[] }> {
@@ -179,7 +330,11 @@ export async function fetchRssCandidates(
   if (!response.ok) throw new Error(`rss_${sourceSlug(feed.name)}_http_${response.status}`);
   const xml = await readBoundedText(response, `rss_${sourceSlug(feed.name)}`);
   const $ = load(xml, { xmlMode: true });
-  const entries = $("item, entry").toArray().slice(0, MAX_RSS_ITEMS_PER_FEED);
+  const sourceItemLimit = feed.sourceKind === "paper" ? MAX_RESEARCH_ITEMS_PER_FEED : MAX_RSS_ITEMS_PER_FEED;
+  const maxItems = Number.isFinite(feed.maxItems)
+    ? Math.max(1, Math.min(sourceItemLimit, Math.trunc(feed.maxItems ?? sourceItemLimit)))
+    : sourceItemLimit;
+  const entries = $("item, entry").toArray().slice(0, maxItems);
   const candidates = entries
     .flatMap((entry, index) => rssCandidate($, entry, index, feed))
     .filter((candidate) => isDashboardCandidateEligible(candidate, now));
@@ -210,9 +365,18 @@ export async function fetchRedditCandidates(
 
 function hackerNewsCandidate(hit: AlgoliaHit, observedAt: Date): DashboardCandidate[] {
   const title = compactWhitespace(hit.title ?? hit.story_title);
+  const storyText = compactSentence(hit.story_text, 300);
   const publishedAt = validTimestamp(hit.created_at);
   const id = compactWhitespace(hit.objectID);
-  if (!title || !publishedAt || !id) return [];
+  const upvotes = finiteNonnegative(hit.points);
+  const comments = finiteNonnegative(hit.num_comments);
+  if (
+    !title ||
+    !publishedAt ||
+    !id ||
+    !isTechnologyEditorialArticle(title, storyText) ||
+    (upvotes ?? 0) < MIN_HN_UPVOTES && (comments ?? 0) < MIN_HN_COMMENTS
+  ) return [];
   const nativeUrl = `https://news.ycombinator.com/item?id=${encodeURIComponent(id)}`;
   const destinationUrl = canonicalDashboardUrl(hit.url ?? hit.story_url);
   return [{
@@ -224,12 +388,13 @@ function hackerNewsCandidate(hit: AlgoliaHit, observedAt: Date): DashboardCandid
     destinationUrl,
     linkedUrls: destinationUrl ? [destinationUrl] : [],
     title,
-    summary: null,
+    summary: storyText,
+    text: storyText,
     authorName: compactWhitespace(hit.author) || null,
     publisher: "Hacker News",
     publishedAt,
     observedAt: observedAt.toISOString(),
-    metrics: { upvotes: finiteNonnegative(hit.points), comments: finiteNonnegative(hit.num_comments) },
+    metrics: { upvotes, comments },
     entityKeys: destinationUrl ? [`destination:${destinationUrl}`] : [],
     topics: [],
     independentlyReported: true,
@@ -245,6 +410,8 @@ function githubCandidate(repository: GithubRepository, observedAt: Date): Dashbo
   const name = compactWhitespace(repository.full_name || repository.name);
   if (!url || !publishedAt || !id || !name) return [];
   const description = compactWhitespace(repository.description);
+  const stars = finiteNonnegative(repository.stargazers_count);
+  if (!isTechnologyRepositoryCandidate(name, description, stars)) return [];
   return [{
     id: `github:${id}`,
     canonicalKey: `github:repository-object:${id}`,
@@ -261,7 +428,7 @@ function githubCandidate(repository: GithubRepository, observedAt: Date): Dashbo
     publishedAt,
     observedAt: observedAt.toISOString(),
     metrics: {
-      stars: finiteNonnegative(repository.stargazers_count),
+      stars,
       forks: finiteNonnegative(repository.forks_count),
       watchers: finiteNonnegative(repository.watchers_count)
     },
@@ -274,6 +441,17 @@ function githubCandidate(repository: GithubRepository, observedAt: Date): Dashbo
     sourceQuality: 72,
     contentFingerprint: `${id}:${repository.updated_at ?? ""}:${description}`
   }];
+}
+
+function isTechnologyRepositoryCandidate(name: string, description: string, stars: number | null): boolean {
+  // A freshly-created repository with no meaningful description is usually
+  // not enough evidence for a public technology-news card. Require an
+  // explicit technical purpose, and exclude speculative-token spam entirely.
+  const text = compactWhitespace(`${name} ${description}`);
+  return description.length >= 16 &&
+    (stars ?? 0) >= MIN_GITHUB_STARS &&
+    TECHNOLOGY_EDITORIAL_SIGNAL.test(text) &&
+    !LOW_SIGNAL_OR_PROMOTIONAL_REPOSITORY.test(text);
 }
 
 function githubReleaseCandidate(event: GithubEvent, observedAt: Date): DashboardCandidate[] {
@@ -294,6 +472,7 @@ function githubReleaseCandidate(event: GithubEvent, observedAt: Date): Dashboard
     ? `${repositoryName} releases ${releaseName}`
     : `${repositoryName} publishes a release`;
   const description = compactSentence(release.body, 300);
+  if (LOW_SIGNAL_OR_PROMOTIONAL_REPOSITORY.test(`${repositoryName} ${releaseName} ${description ?? ""}`)) return [];
   const downloads = Array.isArray(release.assets)
     ? release.assets.reduce((total, asset) => total + (finiteNonnegative(asset.download_count) ?? 0), 0)
     : 0;
@@ -359,11 +538,11 @@ function rssCandidate(
     node.find("published, pubDate, updated, dc\\:date").first().text()
   );
   if (!title || !url || !publishedAt) return [];
-  const description = compactSentence(node.find("description, summary, content").first().text(), 300);
-  const media = node.find("media\\:content, media\\:thumbnail, enclosure[type^='image']").first();
-  const thumbnailUrl = canonicalDashboardUrl(media.attr("url") ?? null);
-  const articleKey = compactWhitespace(node.find("guid, id").first().text()) || url;
+  const description = rssEntrySummary(node.find("description, summary, content, content\\:encoded").first().text());
   const sourceKind = feed.sourceKind ?? "article";
+  if (sourceKind === "article" && !isTechnologyEditorialArticle(title, description)) return [];
+  const thumbnailUrl = rssThumbnailUrl($, entry);
+  const articleKey = compactWhitespace(node.find("guid, id").first().text()) || url;
   return [{
     id: `rss:${sourceSlug(feed.name)}:${stableHash(articleKey)}`,
     canonicalKey: `rss:url:${url}`,
@@ -387,6 +566,102 @@ function rssCandidate(
     sourceQuality: feed.quality ?? 62,
     contentFingerprint: `${articleKey}:${title}:${index}`
   }];
+}
+
+/** RSS descriptions frequently arrive as CDATA-wrapped HTML. Keep markup out
+ * of relevance scoring and the public summary while leaving the raw fragment
+ * available to the separate thumbnail extractor below. */
+function rssEntryPlainText(value: string | null | undefined): string | null {
+  const raw = compactWhitespace(value);
+  if (!raw) return null;
+  if (!/<[a-z][^>]*>/i.test(raw)) return raw;
+  return compactWhitespace(load(raw).text()) || null;
+}
+
+function rssEntrySummary(value: string | null | undefined): string | null {
+  const summary = compactSentence(rssEntryPlainText(value), 300);
+  if (!summary) return null;
+  const wordCount = summary.match(/[\p{L}\p{N}]+/gu)?.length ?? 0;
+  // A fragment such as "Flamingo missiles were used." contains no useful
+  // story context. Let the pipeline use the factual title instead of
+  // publishing a clipped, context-free RSS excerpt.
+  if (wordCount < MIN_RSS_SUMMARY_WORDS) return null;
+  return summary;
+}
+
+function isTechnologyEditorialArticle(
+  title: string,
+  description: string | null
+): boolean {
+  const text = compactWhitespace([title, description].filter(Boolean).join(" "));
+  return Boolean(text) &&
+    TECHNOLOGY_EDITORIAL_SIGNAL.test(text) &&
+    !COMMERCE_PROMOTION_FORMAT.test(text) &&
+    !LOWER_VALUE_EDITORIAL_FORMAT.test(text) &&
+    !OPINION_OR_VAGUE_FORMAT.test(text) &&
+    !ENTERTAINMENT_OR_LIFESTYLE_SIGNAL.test(text);
+}
+
+/**
+ * Publisher feeds commonly put their card image in `media:*`, but WordPress,
+ * Atom, and newspaper feeds also frequently encode it inside a bounded entry
+ * HTML fragment. We only extract an absolute public HTTPS URL; no image is
+ * fetched here, and the dashboard's separate thumbnail policy still decides
+ * whether the renderer may request the host.
+ */
+function rssThumbnailUrl(
+  $: ReturnType<typeof load>,
+  entry: Parameters<ReturnType<typeof load>>[0]
+): string | null {
+  const node = $(entry);
+  const directMedia = node
+    .find("media\\:thumbnail, media\\:content[type^='image'], media\\:content[medium='image'], enclosure[type^='image'], media\\:content")
+    .toArray();
+  for (const media of directMedia) {
+    const thumbnail = absolutePublicHttpsUrl($(media).attr("url"));
+    if (thumbnail) return thumbnail;
+  }
+
+  const htmlFragments = node
+    .find("description, summary, content, content\\:encoded")
+    .toArray()
+    .map((content) => $(content).text().slice(0, MAX_ENTRY_IMAGE_HTML_CHARS));
+  for (const html of htmlFragments) {
+    const thumbnail = firstHtmlImageUrl(html);
+    if (thumbnail) return thumbnail;
+  }
+  return null;
+}
+
+function firstHtmlImageUrl(html: string): string | null {
+  if (!html.trim()) return null;
+  const fragment = load(html);
+  for (const image of fragment("img").toArray()) {
+    const node = fragment(image);
+    for (const attribute of ["src", "data-src", "data-original", "data-lazy-src"]) {
+      const thumbnail = absolutePublicHttpsUrl(node.attr(attribute));
+      if (thumbnail) return thumbnail;
+    }
+  }
+  return null;
+}
+
+function absolutePublicHttpsUrl(value: string | null | undefined): string | null {
+  const raw = compactWhitespace(value);
+  if (!raw) return null;
+  try {
+    const parsed = new URL(raw);
+    if (
+      parsed.protocol !== "https:" ||
+      Boolean(parsed.port || parsed.username || parsed.password) ||
+      !isPublicRssHost(parsed.hostname)
+    ) {
+      return null;
+    }
+    return canonicalDashboardUrl(parsed.toString());
+  } catch {
+    return null;
+  }
 }
 
 function redditCandidate(post: RedditPost | undefined, subreddit: string, observedAt: Date): DashboardCandidate[] {
@@ -579,6 +854,7 @@ interface AlgoliaHit {
   objectID?: string;
   title?: string | null;
   story_title?: string | null;
+  story_text?: string | null;
   url?: string | null;
   story_url?: string | null;
   author?: string | null;

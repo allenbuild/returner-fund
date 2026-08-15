@@ -1,30 +1,31 @@
 "use client";
 
 import {
-  ArrowDown,
-  ArrowUp,
   ChevronDown,
   Clock3,
   ExternalLink,
-  Minus,
   Sparkles
 } from "lucide-react";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import Link from "next/link";
+import { useEffect, useRef, useState } from "react";
 import { PlatformLogo, formatPlatform } from "@/components/PlatformLogo";
 import {
+  DASHBOARD_PLATFORMS,
+  DASHBOARD_SCHEMA_VERSION,
   DASHBOARD_SOURCE_DETAIL_LIMIT,
   DASHBOARD_TOP_LIMIT,
+  DASHBOARD_TOPICS,
+  DASHBOARD_TREND_STATUSES,
+  DASHBOARD_VIEWS,
+  DASHBOARD_WINDOW_MS,
   type DashboardPublicFeedSnapshot,
   type DashboardStoryCard,
-  type DashboardView,
   type DashboardViewRanking
 } from "@/lib/dashboard/contracts";
 import { PLATFORM_VALUES, type Platform } from "@/lib/graph/types";
 import { safeDashboardThumbnailUrl } from "@/lib/dashboard/thumbnail-policy";
 import styles from "./TopStoriesDashboard.module.css";
-
-type UniverseFilter = "everything" | "returner" | "industry";
 
 type RankedDashboardStory = {
   story: DashboardStoryCard;
@@ -32,10 +33,6 @@ type RankedDashboardStory = {
 };
 
 type DashboardSnapshotExtras = {
-  overview?: unknown;
-  todayInTech?: unknown;
-  availableFilters?: Partial<Record<"topics" | "platforms", unknown>>;
-  updatedAt?: string | null;
   generatedAt?: string | null;
   status?: unknown;
 };
@@ -45,24 +42,18 @@ interface TopStoriesDashboardProps {
 }
 
 const knownPlatforms = new Set<string>(PLATFORM_VALUES);
-
-const viewOptions: Array<{ value: DashboardView; label: string; description: string }> = [
-  { value: "hottest", label: "Hottest", description: "Best overall Trend Score" },
-  { value: "breaking", label: "Breaking", description: "Strongest short-term velocity" },
-  { value: "emerging", label: "Emerging", description: "Unusually fast relative acceleration" }
-];
+const DASHBOARD_RECOVERY_MAX_AGE_MS = 2 * 60 * 60 * 1_000;
+const DASHBOARD_RECOVERY_MAX_FUTURE_SKEW_MS = 5 * 60 * 1_000;
 
 /**
- * Public, precomputed technology discovery feed. All filtering happens over
- * one immutable snapshot: it never fetches, enriches, or recalculates scores
- * in the browser.
+ * A deliberately single-purpose public index. The worker owns discovery and
+ * scoring; this client only lays out the published Top 100 snapshot and never
+ * implies audience metrics when a publisher has not supplied them.
  */
 export function TopStoriesDashboard({ snapshot }: TopStoriesDashboardProps) {
-  const [universe, setUniverse] = useState<UniverseFilter>("everything");
-  const [topic, setTopic] = useState<string>("all");
-  const [platform, setPlatform] = useState<string>("all");
-  const [view, setView] = useState<DashboardView>("hottest");
   const [now, setNow] = useState<number | null>(null);
+  const [recoveredSnapshot, setRecoveredSnapshot] = useState<DashboardPublicFeedSnapshot | null>(null);
+  const recoveryAttempted = useRef(false);
 
   useEffect(() => {
     const refreshNow = () => setNow(Date.now());
@@ -71,145 +62,88 @@ export function TopStoriesDashboard({ snapshot }: TopStoriesDashboardProps) {
     return () => window.clearInterval(interval);
   }, []);
 
-  const stories = safeStories(snapshot);
-  const snapshotExtras = snapshot as DashboardSnapshotExtras | null | undefined;
-  const overview = stringValues(snapshotExtras?.todayInTech ?? snapshotExtras?.overview);
-  const topics = filterValues(snapshotExtras?.availableFilters?.topics, stories, "topics");
-  const platforms = filterValues(snapshotExtras?.availableFilters?.platforms, stories, "platforms");
-  const freshness = dashboardFreshness(snapshot, snapshotExtras, now);
+  useEffect(() => {
+    if (!needsSnapshotRecovery(snapshot) || recoveryAttempted.current) return;
+    recoveryAttempted.current = true;
 
-  const filteredStories = storiesForView(stories, view)
-    .filter(({ story }) => {
-      if (universe !== "everything" && story.universe !== universe) return false;
-      if (topic !== "all" && !stringValues(story.topics).includes(topic)) return false;
-      if (platform !== "all" && !stringValues(story.platforms).includes(platform)) return false;
-      return true;
-    });
+    let active = true;
+    const controller = new AbortController();
 
-  const topTen = filteredStories.filter(({ ranking }) => ranking.rank <= 10);
-  const remainingStories = filteredStories.filter(({ ranking }) => ranking.rank > 10);
-  const hasActiveFilters = universe !== "everything" || topic !== "all" || platform !== "all";
+    void fetch("/api/dashboard", {
+      cache: "no-store",
+      headers: { Accept: "application/json" },
+      signal: controller.signal
+    })
+      .then(async (response) => {
+        if (!response.ok) return null;
+        return response.json() as Promise<unknown>;
+      })
+      .then((payload) => {
+        if (active && isCurrentPublishedFeedSnapshot(payload)) setRecoveredSnapshot(payload);
+      })
+      .catch(() => {
+        // The SSR empty state remains visible if the one client recovery
+        // request cannot reach the already-published public feed.
+      });
+
+    return () => {
+      active = false;
+      controller.abort();
+    };
+  }, [snapshot]);
+
+  const displayedSnapshot = needsSnapshotRecovery(snapshot) ? recoveredSnapshot ?? snapshot : snapshot;
+  const stories = consolidatedStories(safeStories(displayedSnapshot));
+  const snapshotExtras = displayedSnapshot as DashboardSnapshotExtras | null | undefined;
+  const freshness = dashboardFreshness(displayedSnapshot, snapshotExtras, now);
 
   return (
     <main className={styles.dashboard}>
       <div className={styles.shell}>
         <header className={styles.header}>
           <div className={styles.brandRow}>
-            <a className={styles.brand} href="/dashboard" aria-label="Returner Dashboard">
+            <Link className={styles.brand} href="/" aria-label="Returner home">
               <span aria-hidden="true">R</span>
               Returner
-            </a>
+            </Link>
             <span className={styles.brandDivider} aria-hidden="true" />
-            <span className={styles.sectionName}>Dashboard</span>
+            <span className={styles.sectionName}>Top 100</span>
           </div>
           <div className={styles.headerCopy}>
             <div>
               <p className={styles.eyebrow}>Technology discovery</p>
-              <h1>Top 100 Today</h1>
-              <p>The 100 most important things happening in tech right now.</p>
+              <h1>Top 100 in Tech</h1>
+              <p>A single 24-hour index of direct-source technology reporting, research, and releases.</p>
             </div>
             <time className={styles.freshness} dateTime={freshness.dateTime ?? undefined} aria-live="polite">
-              <Clock3 size={15} aria-hidden="true" />
+              <Clock3 size={16} aria-hidden="true" />
               {freshness.label}
             </time>
           </div>
         </header>
 
-        {overview.length > 0 && (
-          <section className={styles.overview} aria-labelledby="today-in-tech">
-            <div className={styles.overviewHeading}>
-              <Sparkles size={16} aria-hidden="true" />
-              <h2 id="today-in-tech">Today in Tech</h2>
+        <section className={styles.ranking} aria-labelledby="dashboard-top-100">
+          <div className={styles.rankingHeader}>
+            <div>
+              <p className={styles.listEyebrow}>Rolling 24-hour feed</p>
+              <h2 id="dashboard-top-100">Recent direct-source technology coverage</h2>
             </div>
-            <ul>
-              {overview.slice(0, 10).map((item) => <li key={item}>{item}</li>)}
-            </ul>
-          </section>
-        )}
-
-        <section className={styles.controls} aria-label="Dashboard filters">
-          <div className={styles.viewControls} role="group" aria-label="Trend view">
-            {viewOptions.map((option) => (
-              <button
-                aria-pressed={view === option.value}
-                className={view === option.value ? styles.activeView : undefined}
-                key={option.value}
-                onClick={() => setView(option.value)}
-                title={option.description}
-                type="button"
-              >
-                {option.label}
-              </button>
-            ))}
+            {stories.length > 0 && (
+              <p className={styles.storyCount}>{stories.length} {stories.length === 1 ? "story" : "stories"}</p>
+            )}
           </div>
 
-          <FilterGroup label="Universe">
-            <FilterButton active={universe === "everything"} onClick={() => setUniverse("everything")}>Everything</FilterButton>
-            <FilterButton active={universe === "returner"} onClick={() => setUniverse("returner")}>Returner</FilterButton>
-            <FilterButton active={universe === "industry"} onClick={() => setUniverse("industry")}>Industry</FilterButton>
-          </FilterGroup>
-
-          {topics.length > 0 && (
-            <FilterGroup label="Topic" scrollable>
-              <FilterButton active={topic === "all"} onClick={() => setTopic("all")}>All</FilterButton>
-              {topics.map((value) => (
-                <FilterButton active={topic === value} key={value} onClick={() => setTopic(value)}>
-                  {displayTopic(value)}
-                </FilterButton>
+          {stories.length > 0 ? (
+            <ol className={styles.storyGrid} aria-label="Top 100 technology stories">
+              {stories.map(({ story, ranking }) => (
+                <StoryCard key={story.id} now={now} ranking={ranking} story={story} />
               ))}
-            </FilterGroup>
-          )}
-
-          {platforms.length > 0 && (
-            <FilterGroup label="Platform" scrollable>
-              <FilterButton active={platform === "all"} onClick={() => setPlatform("all")}>All</FilterButton>
-              {platforms.map((value) => (
-                <FilterButton active={platform === value} key={value} onClick={() => setPlatform(value)}>
-                  {displayPlatform(value)}
-                </FilterButton>
-              ))}
-            </FilterGroup>
-          )}
-        </section>
-
-        <section className={styles.ranking} aria-label="Top technology stories">
-          {topTen.length > 0 && (
-            <StorySection
-              heading="Top 10 Today"
-              now={now}
-              stories={topTen}
-              topTen
-            />
-          )}
-
-          {remainingStories.length > 0 && (
-            <StorySection
-              heading={topTen.length > 0 ? "Top 100 Today" : "Top stories today"}
-              now={now}
-              stories={remainingStories}
-            />
-          )}
-
-          {!filteredStories.length && (
+            </ol>
+          ) : (
             <div className={styles.emptyState} role="status">
-              <strong>{stories.length ? "No stories match these filters." : "The dashboard is being prepared."}</strong>
-              <span>
-                {stories.length
-                  ? "Try broadening a filter to return to the unified ranking."
-                  : dashboardStatusMessage(snapshotExtras?.status)}
-              </span>
-              {hasActiveFilters && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setUniverse("everything");
-                    setTopic("all");
-                    setPlatform("all");
-                  }}
-                >
-                  Clear filters
-                </button>
-              )}
+              <Sparkles size={24} aria-hidden="true" />
+              <strong>The Top 100 is being prepared.</strong>
+              <span>{dashboardStatusMessage(snapshotExtras?.status)}</span>
             </div>
           )}
         </section>
@@ -218,131 +152,82 @@ export function TopStoriesDashboard({ snapshot }: TopStoriesDashboardProps) {
   );
 }
 
-function FilterGroup({
-  children,
-  label,
-  scrollable = false
-}: {
-  children: React.ReactNode;
-  label: string;
-  scrollable?: boolean;
-}) {
-  return (
-    <div className={`${styles.filterGroup}${scrollable ? ` ${styles.scrollableFilterGroup}` : ""}`}>
-      <span>{label}</span>
-      <div role="group" aria-label={`${label} filter`}>
-        {children}
-      </div>
-    </div>
-  );
-}
-
-function FilterButton({
-  active,
-  children,
-  onClick
-}: {
-  active: boolean;
-  children: React.ReactNode;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      aria-pressed={active}
-      className={active ? styles.activeFilter : undefined}
-      onClick={onClick}
-      type="button"
-    >
-      {children}
-    </button>
-  );
-}
-
-function StorySection({
-  heading,
+function StoryCard({
   now,
-  stories,
-  topTen = false
-}: {
-  heading: string;
-  now: number | null;
-  stories: RankedDashboardStory[];
-  topTen?: boolean;
-}) {
-  return (
-    <section className={topTen ? styles.topTenSection : styles.storySection} aria-labelledby={sectionId(heading)}>
-      <header>
-        <h2 id={sectionId(heading)}>{heading}</h2>
-        <span>{stories.length} {stories.length === 1 ? "story" : "stories"}</span>
-      </header>
-      <ol className={styles.storyList} start={stories[0]?.ranking.rank}>
-        {stories.map(({ story, ranking }) => (
-          <StoryRow key={story.id} story={story} ranking={ranking} emphasized={topTen} now={now} />
-        ))}
-      </ol>
-    </section>
-  );
-}
-
-function StoryRow({
-  story,
   ranking,
-  emphasized,
-  now
+  story
 }: {
-  story: DashboardStoryCard;
-  ranking: DashboardViewRanking;
-  emphasized: boolean;
   now: number | null;
+  ranking: DashboardViewRanking;
+  story: DashboardStoryCard;
 }) {
   const primarySource = sourcePresentation(story.primarySource);
-  const status = ranking.trendStatus;
-  const rankDelta = ranking.rankDelta;
+  const primaryPlatform = primarySource.platform ?? story.platforms.find(Boolean) ?? null;
+  const sourceLabel = primarySource.publisher ?? (primaryPlatform ? displayPlatform(primaryPlatform) : "Technology");
   const engagementSummary = compactEngagement(story.engagement);
 
   return (
-    <li value={ranking.rank}>
-      <article className={`${styles.story}${emphasized ? ` ${styles.emphasizedStory}` : ""}`}>
-        <div className={styles.rank} aria-label={`Rank ${ranking.rank}`}>#{ranking.rank}</div>
-        <StoryThumbnail key={`${story.id}:${story.thumbnailUrl ?? ""}`} story={story} />
+    <li>
+      <article className={styles.storyCard}>
+        <div className={styles.media}>
+          <span className={styles.rank} aria-label={"Item " + ranking.rank}>#{ranking.rank}</span>
+          <StoryThumbnail sourceUrl={primarySource.url} story={story} />
+        </div>
         <div className={styles.storyBody}>
-          <div className={styles.storyTitleRow}>
-            <h3>
-              {primarySource.url ? (
-                <a href={primarySource.url} target="_blank" rel="noreferrer">
-                  {story.title}
-                  <ExternalLink size={14} aria-label="Open primary source" />
-                </a>
-              ) : story.title}
-            </h3>
-            {status && <span className={`${styles.status} ${statusClass(status)}`}>{displayStatus(status)}</span>}
+          <div className={styles.sourceLine}>
+            {primaryPlatform && isKnownPlatform(primaryPlatform) && (
+              <PlatformLogo decorative platform={primaryPlatform} />
+            )}
+            <span>{sourceLabel}</span>
+            {story.universe === "returner" && story.labels.slice(0, 1).map((label) => (
+              <span className={styles.returnerLabel} key={label}>{label}</span>
+            ))}
           </div>
+
+          <h3 className={styles.storyTitle}>
+            {primarySource.url ? (
+              <a href={primarySource.url} target="_blank" rel="noreferrer">
+                {story.title}
+                <ExternalLink size={14} aria-hidden="true" />
+              </a>
+            ) : story.title}
+          </h3>
           <p className={styles.summary}>{story.summary}</p>
+
           <div className={styles.metadata}>
-            {story.platforms.length > 0 && <PlatformList platforms={story.platforms} />}
-            {primarySource.publisher && <span>{primarySource.publisher}</span>}
-            {story.universe === "returner" && story.labels.slice(0, 2).map((label) => <span className={styles.returnerLabel} key={label}>{label}</span>)}
             {story.publishedAt && <time dateTime={story.publishedAt}>{displayRelativeDate(story.publishedAt, now)}</time>}
             {engagementSummary && <span>{engagementSummary}</span>}
             <span>{story.sourceCount} {story.sourceCount === 1 ? "source" : "sources"}</span>
-            <strong>Trend {displayTrendScore(story.trendScore)}</strong>
-            <RankMovement delta={rankDelta} />
           </div>
-          {story.sourceCount > 0 && <StorySources now={now} stableKey={story.stableKey} sourceCount={story.sourceCount} />}
+
+          {story.sourceCount > 0 && (
+            <StorySources now={now} sourceCount={story.sourceCount} stableKey={story.stableKey} />
+          )}
         </div>
       </article>
     </li>
   );
 }
 
-function StoryThumbnail({ story }: { story: DashboardStoryCard }) {
+function StoryThumbnail({
+  sourceUrl,
+  story
+}: {
+  sourceUrl: string | null;
+  story: DashboardStoryCard;
+}) {
   const thumbnailUrl = safeDashboardThumbnailUrl(story.thumbnailUrl);
-  const thumbnailAlt = stringValue(story.thumbnailAlt) ?? `${story.title} thumbnail`;
+  const thumbnailAlt = stringValue(story.thumbnailAlt) ?? story.title + " thumbnail";
   const [imageFailed, setImageFailed] = useState(false);
-
   const fallbackPlatform = story.platforms.find(isKnownPlatform);
-  return (
-    <div className={styles.thumbnail}>
+  const fallbackLabel = fallbackPlatform
+    ? displayPlatform(fallbackPlatform)
+    : story.platforms[0]
+      ? displayPlatform(story.platforms[0])
+      : "Technology";
+
+  const media = (
+    <span className={styles.thumbnail}>
       {thumbnailUrl && !imageFailed ? (
         <Image
           alt={thumbnailAlt}
@@ -351,52 +236,39 @@ function StoryThumbnail({ story }: { story: DashboardStoryCard }) {
           loading="lazy"
           onError={() => setImageFailed(true)}
           quality={75}
-          sizes="(max-width: 760px) 112px, 178px"
+          sizes="(max-width: 600px) 100vw, (max-width: 960px) 50vw, (max-width: 1280px) 33vw, 25vw"
           src={thumbnailUrl}
         />
       ) : (
         <span className={styles.thumbnailFallback} aria-label={thumbnailAlt}>
-          {fallbackPlatform ? <PlatformLogo platform={fallbackPlatform} decorative /> : <Sparkles size={25} aria-hidden="true" />}
-          <span>{fallbackPlatform ? displayPlatform(fallbackPlatform) : "Technology"}</span>
+          {fallbackPlatform ? <PlatformLogo decorative platform={fallbackPlatform} /> : <Sparkles size={28} aria-hidden="true" />}
+          <span>{fallbackLabel}</span>
         </span>
       )}
-    </div>
-  );
-}
-
-function PlatformList({ platforms }: { platforms: readonly string[] }) {
-  const visiblePlatforms = platforms.slice(0, 3);
-  return (
-    <span className={styles.platforms} aria-label={`Sources: ${platforms.map(displayPlatform).join(", ")}`}>
-      {visiblePlatforms.map((platform) => (
-        isKnownPlatform(platform)
-          ? <PlatformLogo key={platform} platform={platform} />
-          : <span className={styles.platformText} key={platform}>{displayPlatform(platform)}</span>
-      ))}
-      {platforms.length > visiblePlatforms.length && <span>+{platforms.length - visiblePlatforms.length}</span>}
     </span>
   );
-}
 
-function RankMovement({ delta }: { delta: number | null }) {
-  if (delta === null) return null;
-  if (delta > 0) {
-    return <span className={styles.rising} aria-label={`Up ${delta} ranks`}><ArrowUp size={13} aria-hidden="true" />{delta}</span>;
-  }
-  if (delta < 0) {
-    return <span className={styles.falling} aria-label={`Down ${Math.abs(delta)} ranks`}><ArrowDown size={13} aria-hidden="true" />{Math.abs(delta)}</span>;
-  }
-  return <span className={styles.stable} aria-label="Rank unchanged"><Minus size={13} aria-hidden="true" />Stable</span>;
+  return sourceUrl ? (
+    <a
+      aria-label={"Open " + story.title}
+      className={styles.thumbnailLink}
+      href={sourceUrl}
+      rel="noreferrer"
+      target="_blank"
+    >
+      {media}
+    </a>
+  ) : media;
 }
 
 function StorySources({
   now,
-  stableKey,
-  sourceCount
+  sourceCount,
+  stableKey
 }: {
   now: number | null;
-  stableKey: string;
   sourceCount: number;
+  stableKey: string;
 }) {
   const [state, setState] = useState<"idle" | "loading" | "loaded" | "error">("idle");
   const [sources, setSources] = useState<unknown[]>([]);
@@ -405,9 +277,10 @@ function StorySources({
   const loadSources = async () => {
     setState("loading");
     try {
-      const response = await fetch(`/api/dashboard/stories/${encodeURIComponent(stableKey)}/sources`, {
-        headers: { Accept: "application/json" }
-      });
+      const response = await fetch(
+        "/api/dashboard/stories/" + encodeURIComponent(stableKey) + "/sources",
+        { headers: { Accept: "application/json" } }
+      );
       if (!response.ok) throw new Error("source_detail_request_failed");
       const payload: unknown = await response.json();
       const detail = sourceDetailPayload(payload, stableKey);
@@ -429,7 +302,7 @@ function StorySources({
     >
       <summary>
         <span>View {sourceCount} underlying {sourceCount === 1 ? "source" : "sources"}</span>
-        <ChevronDown size={15} aria-hidden="true" />
+        <ChevronDown size={14} aria-hidden="true" />
       </summary>
       {state === "loading" && <p role="status">Loading sources…</p>}
       {state === "error" && <p role="status">Source details are temporarily unavailable.</p>}
@@ -438,12 +311,16 @@ function StorySources({
           <ol>
             {sources.map((source, index) => {
               const presentation = sourcePresentation(source);
-              const label = presentation.title || presentation.publisher || `Source ${index + 1}`;
-              const detail = [presentation.platform && displayPlatform(presentation.platform), presentation.publisher, presentation.publishedAt && displayRelativeDate(presentation.publishedAt, now)]
+              const label = presentation.title || presentation.publisher || "Source " + (index + 1);
+              const detail = [
+                presentation.platform && displayPlatform(presentation.platform),
+                presentation.publisher,
+                presentation.publishedAt && displayRelativeDate(presentation.publishedAt, now)
+              ]
                 .filter((part): part is string => Boolean(part))
                 .join(" · ");
               return (
-                <li key={presentation.id ?? `${label}:${index}`}>
+                <li key={presentation.id ?? label + ":" + index}>
                   {presentation.url ? (
                     <a href={presentation.url} target="_blank" rel="noreferrer">
                       <span>{label}</span>
@@ -455,7 +332,7 @@ function StorySources({
               );
             })}
           </ol>
-          {truncated && <p>Showing the first {DASHBOARD_SOURCE_DETAIL_LIMIT} of {sourceCount} sources.</p>}
+          {truncated && <p className={styles.sourceFootnote}>Showing the first {DASHBOARD_SOURCE_DETAIL_LIMIT} of {sourceCount} sources.</p>}
         </>
       )}
     </details>
@@ -466,20 +343,205 @@ function safeStories(snapshot: DashboardPublicFeedSnapshot | null | undefined): 
   return snapshot && Array.isArray(snapshot.stories) ? snapshot.stories : [];
 }
 
-function filterValues(
-  configured: unknown,
-  stories: readonly DashboardStoryCard[],
-  field: "topics" | "platforms"
-): string[] {
-  const values = stringValues(configured);
-  const fallback = stories.flatMap((story) => stringValues(story[field]));
-  return [...new Set((values.length ? values : fallback).filter(Boolean))].sort((left, right) => displayFilterValue(left).localeCompare(displayFilterValue(right)));
+function hasPublishedStories(snapshot: DashboardPublicFeedSnapshot | null | undefined): snapshot is DashboardPublicFeedSnapshot {
+  return safeStories(snapshot).length > 0;
 }
 
-function storiesForView(stories: readonly DashboardStoryCard[], view: DashboardView): RankedDashboardStory[] {
+function needsSnapshotRecovery(snapshot: DashboardPublicFeedSnapshot | null | undefined): boolean {
+  if (!hasPublishedStories(snapshot)) return true;
+  return snapshotAvailability((snapshot as DashboardSnapshotExtras).status) === "unavailable";
+}
+
+/**
+ * The server store is deliberately server-only, so recovery validates the
+ * compact public contract locally before it replaces the SSR snapshot. This
+ * mirrors the public feed structural and freshness invariants instead of
+ * trusting an arbitrary nonempty JSON response.
+ */
+function isCurrentPublishedFeedSnapshot(value: unknown): value is DashboardPublicFeedSnapshot {
+  if (!isDashboardPublicFeedSnapshot(value)) return false;
+  const snapshot = value as DashboardPublicFeedSnapshot;
+  if (snapshot.status.partialPlatformFailures.includes("snapshot_stale") || snapshot.status.partialPlatformFailures.includes("snapshot_unavailable")) {
+    return false;
+  }
+
+  const now = Date.now();
+  const generatedAt = new Date(snapshot.generatedAt).getTime();
+  const windowEnd = new Date(snapshot.windowEnd).getTime();
+  if (!Number.isFinite(now) || generatedAt !== windowEnd) return false;
+
+  const age = now - windowEnd;
+  return age >= -DASHBOARD_RECOVERY_MAX_FUTURE_SKEW_MS && age <= DASHBOARD_RECOVERY_MAX_AGE_MS;
+}
+
+function isDashboardPublicFeedSnapshot(value: unknown): value is DashboardPublicFeedSnapshot {
+  if (!isRecord(value) || value.schemaVersion !== DASHBOARD_SCHEMA_VERSION) return false;
+  if (!boundedString(value.sourceSnapshotFingerprint, 128)) return false;
+  if (!validTimestamp(value.generatedAt) || !validTimestamp(value.updatedAt) || !validTimestamp(value.windowStart) || !validTimestamp(value.windowEnd)) {
+    return false;
+  }
+  const windowStart = value.windowStart as string;
+  const windowEnd = value.windowEnd as string;
+  if (new Date(windowEnd).getTime() - new Date(windowStart).getTime() !== DASHBOARD_WINDOW_MS) return false;
+  if (!isMaxLengthStringArray(value.todayInTech, 600)) return false;
+  if (
+    !Array.isArray(value.stories) ||
+    value.stories.length === 0 ||
+    value.stories.length > DASHBOARD_VIEWS.length * DASHBOARD_TOP_LIMIT ||
+    !value.stories.every(isDashboardStoryCard)
+  ) return false;
+  if (
+    !isRecord(value.availableFilters) ||
+    !isAllowedStringArray(value.availableFilters.topics, DASHBOARD_TOPICS) ||
+    !isAllowedStringArray(value.availableFilters.platforms, DASHBOARD_PLATFORMS)
+  ) return false;
+  if (!isRecord(value.status) || !isDashboardStatus(value.status)) return false;
+
+  const stories = value.stories as DashboardStoryCard[];
+  const status = value.status as DashboardPublicFeedSnapshot["status"];
+  if (status.storyCount !== stories.length) return false;
+
+  return DASHBOARD_VIEWS.every((view) => {
+    const ranks = stories.flatMap((story) => story.viewRankings[view] ? [story.viewRankings[view]!.rank] : []);
+    return status.viewStoryCounts[view] === ranks.length && new Set(ranks).size === ranks.length;
+  });
+}
+
+function isDashboardStoryCard(value: unknown): value is DashboardStoryCard {
+  if (
+    !isRecord(value) ||
+    Object.hasOwn(value, "sources") ||
+    Object.hasOwn(value, "summaryFingerprint") ||
+    Object.hasOwn(value, "score") ||
+    Object.hasOwn(value, "breakingScore") ||
+    Object.hasOwn(value, "emergingScore")
+  ) return false;
+
+  return boundedString(value.id, 320) &&
+    boundedString(value.stableKey, 320) &&
+    positiveInteger(value.rank) &&
+    boundedString(value.title, 240) &&
+    boundedString(value.summary, 1_000) &&
+    (value.universe === "returner" || value.universe === "industry") &&
+    isBoundedStringArray(value.labels, 48, 120) &&
+    isAllowedStringArray(value.topics, DASHBOARD_TOPICS) &&
+    isAllowedStringArray(value.platforms, DASHBOARD_PLATFORMS) &&
+    validTimestamp(value.publishedAt) &&
+    validTimestamp(value.updatedAt) &&
+    finiteScore(value.trendScore) &&
+    isViewRankings(value.viewRankings) &&
+    nonNegativeInteger(value.sourceCount) &&
+    nonNegativeInteger(value.independentSourceCount) &&
+    value.independentSourceCount <= value.sourceCount &&
+    isMetrics(value.engagement) &&
+    (value.thumbnailUrl === null || isHttpUrl(value.thumbnailUrl)) &&
+    nullableBoundedString(value.thumbnailAlt, 240) &&
+    (value.primarySource === null || isDashboardStoryPrimarySource(value.primarySource));
+}
+
+function isDashboardStoryPrimarySource(value: unknown): boolean {
+  if (!isRecord(value)) return false;
+  return boundedString(value.id, 320) &&
+    isHttpUrl(value.url) &&
+    nullableBoundedString(value.title, 500) &&
+    nullableBoundedString(value.publisher, 300) &&
+    typeof value.platform === "string" &&
+    (DASHBOARD_PLATFORMS as readonly string[]).includes(value.platform) &&
+    validTimestamp(value.publishedAt);
+}
+
+function isDashboardStatus(value: Record<string, unknown>): boolean {
+  if (
+    !nonNegativeInteger(value.candidateCount) ||
+    !nonNegativeInteger(value.eligibleCandidateCount) ||
+    !nonNegativeInteger(value.storyCount) ||
+    !isViewStoryCounts(value.viewStoryCounts) ||
+    !Array.isArray(value.partialPlatformFailures) ||
+    !value.partialPlatformFailures.every((failure) => boundedString(failure, 160))
+  ) return false;
+  return true;
+}
+
+function isViewStoryCounts(value: unknown): boolean {
+  return isRecord(value) && DASHBOARD_VIEWS.every((view) => nonNegativeInteger(value[view]));
+}
+
+function isViewRankings(value: unknown): boolean {
+  if (!isRecord(value) || Object.keys(value).length === 0) return false;
+  return Object.entries(value).every(([view, ranking]) =>
+    (DASHBOARD_VIEWS as readonly string[]).includes(view) &&
+    isRecord(ranking) &&
+    positiveInteger(ranking.rank) &&
+    ranking.rank <= DASHBOARD_TOP_LIMIT &&
+    (ranking.previousRank === null || (positiveInteger(ranking.previousRank) && ranking.previousRank <= DASHBOARD_TOP_LIMIT)) &&
+    (ranking.rankDelta === null || Number.isInteger(ranking.rankDelta)) &&
+    typeof ranking.trendStatus === "string" &&
+    (DASHBOARD_TREND_STATUSES as readonly string[]).includes(ranking.trendStatus)
+  );
+}
+
+function isMetrics(value: unknown): boolean {
+  return isRecord(value) && Object.values(value).every((metric) =>
+    metric === null || (typeof metric === "number" && Number.isFinite(metric) && metric >= 0)
+  );
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function validTimestamp(value: unknown): boolean {
+  return typeof value === "string" && Number.isFinite(new Date(value).getTime());
+}
+
+function finiteScore(value: unknown): boolean {
+  return typeof value === "number" && Number.isFinite(value) && value >= 0 && value <= 100;
+}
+
+function nonNegativeInteger(value: unknown): value is number {
+  return typeof value === "number" && Number.isInteger(value) && value >= 0;
+}
+
+function positiveInteger(value: unknown): value is number {
+  return typeof value === "number" && Number.isInteger(value) && value > 0;
+}
+
+function boundedString(value: unknown, maxLength: number): value is string {
+  return typeof value === "string" && value.length > 0 && value.length <= maxLength;
+}
+
+function nullableBoundedString(value: unknown, maxLength: number): boolean {
+  return value === null || boundedString(value, maxLength);
+}
+
+function isBoundedStringArray(value: unknown, maximumItems: number, maximumLength: number): boolean {
+  return Array.isArray(value) && value.length <= maximumItems && value.every((item) => boundedString(item, maximumLength));
+}
+
+function isMaxLengthStringArray(value: unknown, maximumLength: number): boolean {
+  return Array.isArray(value) && value.every((item) => typeof item === "string" && item.length <= maximumLength);
+}
+
+function isAllowedStringArray(value: unknown, allowed: readonly string[]): boolean {
+  return Array.isArray(value) && value.length <= allowed.length && value.every((item) =>
+    typeof item === "string" && allowed.includes(item)
+  );
+}
+
+function isHttpUrl(value: unknown): boolean {
+  if (!boundedString(value, 2_000)) return false;
+  try {
+    const url = new URL(value);
+    return url.protocol === "https:" || url.protocol === "http:";
+  } catch {
+    return false;
+  }
+}
+
+function consolidatedStories(stories: readonly DashboardStoryCard[]): RankedDashboardStory[] {
   return stories
     .flatMap((story) => {
-      const ranking = story.viewRankings[view];
+      const ranking = story.viewRankings.hottest;
       return ranking ? [{ story, ranking }] : [];
     })
     .sort((left, right) => left.ranking.rank - right.ranking.rank || left.story.id.localeCompare(right.story.id))
@@ -521,11 +583,6 @@ function sourceDetailPayload(
   return { sources: record.sources, truncated: record.truncated };
 }
 
-function stringValues(value: unknown): string[] {
-  if (!Array.isArray(value)) return [];
-  return value.flatMap((item) => typeof item === "string" && item.trim() ? [item.trim()] : []);
-}
-
 function stringValue(value: unknown): string | null {
   return typeof value === "string" && value.trim() ? value.trim() : null;
 }
@@ -555,56 +612,18 @@ function isKnownPlatform(platform: string): platform is Platform {
 }
 
 function displayPlatform(platform: string): string {
-  if (platform === "web") return "News";
+  if (platform === "web" || platform === "news") return "News";
+  if (platform === "research") return "Research";
   if (platform === "hacker_news") return "Hacker News";
   if (platform === "product_hunt") return "Product Hunt";
   if (isKnownPlatform(platform)) return formatPlatform(platform);
   return displayFilterValue(platform);
 }
 
-function displayTopic(topic: string): string {
-  const labels: Record<string, string> = {
-    ai: "AI",
-    open_source: "Open Source",
-    "open-source": "Open Source",
-    startups: "Startups",
-    robotics: "Robotics",
-    research: "Research",
-    funding: "Funding",
-    launches: "Launches",
-    biotech: "Biotech"
-  };
-  return labels[topic] ?? displayFilterValue(topic);
-}
-
 function displayFilterValue(value: string): string {
   return value
     .replace(/[_-]+/g, " ")
     .replace(/\b\w/g, (letter) => letter.toUpperCase());
-}
-
-function displayStatus(status: string): string {
-  const labels: Record<string, string> = {
-    new: "New",
-    rising_fast: "Rising Fast",
-    "rising-fast": "Rising Fast",
-    rising: "Rising",
-    stable: "Stable",
-    cooling: "Cooling"
-  };
-  return labels[status] ?? displayFilterValue(status);
-}
-
-function statusClass(status: string): string {
-  const normalized = status.replace(/_/g, "-").toLowerCase();
-  if (normalized === "rising-fast" || normalized === "rising") return styles.risingStatus;
-  if (normalized === "cooling") return styles.coolingStatus;
-  if (normalized === "new") return styles.newStatus;
-  return styles.stableStatus;
-}
-
-function displayTrendScore(value: number): string {
-  return Number.isFinite(value) ? String(Math.max(0, Math.min(100, Math.round(value)))) : "—";
 }
 
 function displayRelativeDate(value: string, now: number | null): string {
@@ -615,9 +634,9 @@ function displayRelativeDate(value: string, now: number | null): string {
   }
   const minutes = Math.max(0, Math.round((now - timestamp) / 60_000));
   if (minutes < 1) return "just now";
-  if (minutes < 60) return `${minutes}m ago`;
+  if (minutes < 60) return minutes + "m ago";
   const hours = Math.round(minutes / 60);
-  if (hours < 24) return `${hours}h ago`;
+  if (hours < 24) return hours + "h ago";
   return new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", timeZone: "America/Chicago" }).format(new Date(timestamp));
 }
 
@@ -629,13 +648,10 @@ function dashboardFreshness(
   const generatedAt = validDateString(extras?.generatedAt);
   const availability = snapshotAvailability(extras?.status);
 
-  // `updatedAt` belongs to the most recently changed source, whereas this
-  // label describes the published ranking. A request-time safe empty state
-  // has a fresh synthetic timestamp, so it must never appear as a fresh run.
   if (!snapshot || !generatedAt || safeStories(snapshot).length === 0 || availability) {
     return {
       dateTime: null,
-      label: availability === "stale" ? "Latest ranking is stale" : "Latest ranking unavailable"
+      label: availability === "stale" ? "Latest index is stale" : "Latest index unavailable"
     };
   }
 
@@ -650,15 +666,20 @@ function snapshotAvailability(status: unknown): "stale" | "unavailable" | null {
   return null;
 }
 
+function stringValues(value: unknown): string[] {
+  if (!Array.isArray(value)) return [];
+  return value.flatMap((item) => typeof item === "string" && item.trim() ? [item.trim()] : []);
+}
+
 function freshnessLabel(value: string, now: number | null): string {
   if (!value || now === null) return "Updated recently";
   const timestamp = new Date(value).getTime();
   if (!Number.isFinite(timestamp)) return "Updated recently";
   const minutes = Math.max(0, Math.floor((now - timestamp) / 60_000));
   if (minutes < 1) return "Updated just now";
-  if (minutes < 60) return `Updated ${minutes} min ago`;
+  if (minutes < 60) return "Updated " + minutes + " min ago";
   const hours = Math.floor(minutes / 60);
-  return `Updated ${hours}h ago`;
+  return "Updated " + hours + "h ago";
 }
 
 function compactEngagement(metrics: Record<string, number | null | undefined>): string | null {
@@ -672,17 +693,13 @@ function compactEngagement(metrics: Record<string, number | null | undefined>): 
   const metric = candidates.find(([key]) => finiteNumber(metrics[key]) !== null && finiteNumber(metrics[key])! > 0);
   if (!metric) return null;
   const value = finiteNumber(metrics[metric[0]])!;
-  return `${new Intl.NumberFormat("en-US", { notation: "compact", maximumFractionDigits: 1 }).format(value)} ${metric[1]}`;
+  return new Intl.NumberFormat("en-US", { notation: "compact", maximumFractionDigits: 1 }).format(value) + " " + metric[1];
 }
 
 function dashboardStatusMessage(status: unknown): string {
   const record = status && typeof status === "object" ? status as Record<string, unknown> : null;
   const failures = stringValues(record?.partialPlatformFailures);
-  if (failures.length) return "The latest ranking is available with partial source coverage while a platform refresh recovers.";
+  if (failures.length) return "The latest index is available with partial source coverage while a refresh recovers.";
   if (finiteNumber(record?.eligibleCandidateCount) === 0) return "No eligible stories were available in the latest rolling 24-hour window.";
-  return "A precomputed rolling 24-hour ranking will appear after the next successful refresh.";
-}
-
-function sectionId(heading: string): string {
-  return `dashboard-${heading.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")}`;
+  return "A precomputed 24-hour technology index will appear after the next successful refresh.";
 }

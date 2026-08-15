@@ -26,7 +26,44 @@ const EXACT_DASHBOARD_THUMBNAIL_HOSTS = new Set([
   "cdn.bsky.app",
   "www.technologyreview.com",
   "wp.technologyreview.com",
-  "cdn.arstechnica.net"
+  "cdn.arstechnica.net",
+  // Direct editorial image hosts emitted by the reviewed, fixed RSS feeds in
+  // external-discovery.ts. Keep these literal: dashboard artifacts must not
+  // turn the Next image optimizer into an arbitrary remote-image proxy.
+  "spectrum.ieee.org",
+  "news.mit.edu",
+  "static01.nyt.com",
+  "ichef.bbci.co.uk",
+  "i.guim.co.uk",
+  "www.engadget.com",
+  "media.wired.com",
+  "platform.theverge.com",
+  "image.theregister.com",
+  "images.ctfassets.net",
+  "assets.rbl.ms",
+  "gizmodo.com",
+  "helios-i.mashable.com",
+  "www.cnet.com",
+  "cdn.ex.co",
+  // Exact media/CDN hosts emitted by the expanded, fixed editorial roster.
+  // These remain literal rather than wildcarded because RSS card images are
+  // presentation data and must not turn this into a general image proxy.
+  "9to5google.com",
+  "assets.science.nasa.gov",
+  "cdn.geekwire.com",
+  "cdn.mos.cms.futurecdn.net",
+  "cdn.thenewstack.io",
+  "eu-images.contentstack.com",
+  "imageio.forbes.com",
+  "media.datacenterdynamics.com",
+  "res.infoq.com",
+  "scx1.b-cdn.net",
+  "the-decoder.com",
+  "www.hpcwire.com",
+  "www.infoq.com",
+  "www.nasa.gov",
+  "www.sciencealert.com",
+  "www.techspot.com"
 ]);
 
 const DASHBOARD_THUMBNAIL_HOST_SUFFIXES = [
