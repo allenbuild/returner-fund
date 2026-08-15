@@ -634,6 +634,38 @@ describe("insights tabs", () => {
     expect(within(table).getByText("+7")).toBeInTheDocument();
   });
 
+  it("numbers Hot rank in the selected week-over-week order", () => {
+    const graph = graphResponse();
+    const first = graph.fastestGaining[0]!;
+    graph.fastestGaining = [
+      {
+        ...first,
+        rank: 44,
+        companyName: "Daily leader",
+        dod: { ...first.dod, scoreDelta: 15 },
+        wow: { ...first.wow, scoreDelta: 1 }
+      },
+      {
+        ...first,
+        rank: 1,
+        companyId: "company-b",
+        companyName: "Weekly leader",
+        dod: { ...first.dod, scoreDelta: 10 },
+        wow: { ...first.wow, scoreDelta: 20 }
+      }
+    ];
+
+    render(<InsightsTabs graph={graph} onSelectNode={vi.fn()} />);
+    fireEvent.click(screen.getByRole("tab", { name: "Hottest" }));
+    fireEvent.click(screen.getByRole("button", { name: "Week over week" }));
+
+    const rows = within(screen.getByRole("table")).getAllByRole("row").slice(1);
+    expect(rows[0]).toHaveTextContent("Weekly leader");
+    expect(rows[0]?.querySelector(".rank-medal")).toHaveAttribute("aria-label", "Rank 1");
+    expect(rows[1]).toHaveTextContent("Daily leader");
+    expect(rows[1]?.querySelector(".rank-medal")).toHaveAttribute("aria-label", "Rank 2");
+  });
+
   it("labels a company absent from an otherwise valid prior snapshot without implying a pending job", () => {
     const graph = graphResponse();
     const dodBenchmarkAt = new Date(2026, 6, 12).toISOString();

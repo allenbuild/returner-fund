@@ -1344,7 +1344,12 @@ function momentumRowsForDisplay(
         dod: currentOnlyMomentum(row.score, row.rank),
         wow: currentOnlyMomentum(row.score, row.rank)
       }));
-  return [...rows].sort(momentumRowSort(period));
+  // `fastestGaining.rank` is the canonical day-over-day rank. Re-rank the
+  // display list after sorting so the Hot rank column always matches the
+  // selected comparison period (including week-over-week).
+  return [...rows]
+    .sort(momentumRowSort(period))
+    .map((row, index) => ({ ...row, rank: index + 1 }));
 }
 
 function currentOnlyMomentum(currentScore: number, currentRank: number): MomentumDelta {
