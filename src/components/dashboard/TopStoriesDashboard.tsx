@@ -7,6 +7,7 @@ import {
   Sparkles
 } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { PlatformLogo, formatPlatform } from "@/components/PlatformLogo";
 import {
@@ -101,10 +102,10 @@ export function TopStoriesDashboard({ snapshot }: TopStoriesDashboardProps) {
       <div className={styles.shell}>
         <header className={styles.header}>
           <div className={styles.brandRow}>
-            <a className={styles.brand} href="/" aria-label="Returner home">
+            <Link className={styles.brand} href="/" aria-label="Returner home">
               <span aria-hidden="true">R</span>
               Returner
-            </a>
+            </Link>
             <span className={styles.brandDivider} aria-hidden="true" />
             <span className={styles.sectionName}>Top 100</span>
           </div>
