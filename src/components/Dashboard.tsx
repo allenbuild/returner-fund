@@ -2249,6 +2249,10 @@ export function Dashboard({
                 value={batchSlug}
                 onChange={(event) => {
                   const nextBatchSlug = event.target.value;
+                  if (nextBatchSlug === "__dashboard") {
+                    window.location.assign("/dashboard");
+                    return;
+                  }
                   const changeBatch = () => {
                     if (nextBatchSlug !== batchSlug) {
                       trackFilterChange("batch", "set", 1);
@@ -2259,6 +2263,7 @@ export function Dashboard({
                   else changeBatch();
                 }}
               >
+                <option value="__dashboard">Dashboard</option>
                 {batches.map((batch) => (
                   <option key={batch.slug} value={batch.slug}>
                     {batch.label}

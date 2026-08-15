@@ -1,4 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { NextRequest } from "next/server";
 import {
   createSiteAccessToken,
@@ -55,6 +57,40 @@ describe("site access", () => {
     );
   });
 
+  it("keeps the public discovery dashboard available without a site-access cookie", async () => {
+    vi.stubEnv("SITE_PASSWORD", "correct horse battery staple");
+    vi.stubEnv("SITE_ACCESS_SECRET", "signing-secret");
+
+    const response = await proxy(new NextRequest("https://returner.fund/dashboard"));
+    expect(response.headers.get("x-middleware-next")).toBe("1");
+
+    const apiResponse = await proxy(new NextRequest("https://returner.fund/api/dashboard"));
+    expect(apiResponse.headers.get("x-middleware-next")).toBe("1");
+
+    const sourceDetailResponse = await proxy(new NextRequest(
+      "https://returner.fund/api/dashboard/stories/story-atlas/sources"
+    ));
+    expect(sourceDetailResponse.headers.get("x-middleware-next")).toBe("1");
+
+    const nearMissResponse = await proxy(new NextRequest(
+      "https://returner.fund/api/dashboard/stories/story-atlas/other"
+    ));
+    expect(nearMissResponse.status).toBe(401);
+
+    const malformedKeyResponse = await proxy(new NextRequest(
+      "https://returner.fund/api/dashboard/stories/not-a-story-key/sources"
+    ));
+    expect(malformedKeyResponse.status).toBe(401);
+
+    const canonicalRedirectVariant = await proxy(new NextRequest("https://returner.fund/dashboard/"));
+    expect(canonicalRedirectVariant.headers.get("x-middleware-next")).toBe("1");
+
+    vi.stubEnv("SITE_PASSWORD", "");
+    vi.stubEnv("SITE_ACCESS_SECRET", "");
+    const unconfiguredResponse = await proxy(new NextRequest("https://returner.fund/dashboard"));
+    expect(unconfiguredResponse.headers.get("x-middleware-next")).toBe("1");
+  });
+
   it("allows a request carrying a valid signed access cookie", async () => {
     vi.stubEnv("SITE_PASSWORD", "correct horse battery staple");
     vi.stubEnv("SITE_ACCESS_SECRET", "signing-secret");
@@ -96,6 +132,18 @@ describe("site access", () => {
 
     const apiResponse = await proxy(new NextRequest("https://returner.fund/api/graph"));
     expect(apiResponse.status).toBe(503);
+  });
+});
+
+describe("public dashboard deployment contract", () => {
+  it("traces the precomputed artifact for both public server routes", () => {
+    const config = readFileSync(join(process.cwd(), "next.config.mjs"), "utf8");
+    expect(config).toContain('"artifacts/dashboard/current.json"');
+    expect(config).toContain('"public/dashboard/feed.json"');
+    expect(config).not.toContain('"public/dashboard/current.json"');
+    expect(config).toContain('"/dashboard": dashboardRuntimeData');
+    expect(config).toContain('"/api/dashboard": dashboardRuntimeData');
+    expect(config).toContain('"/api/dashboard/stories/[stableKey]/sources": dashboardRuntimeData');
   });
 });
 

@@ -21,7 +21,11 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      "@": new URL("./src", import.meta.url).pathname
+      "@": new URL("./src", import.meta.url).pathname,
+      // `server-only` is a Next build marker. It is not installed as a
+      // standalone package in this test runtime, so preserve the marker's
+      // no-op behavior with a test-only virtual implementation.
+      "server-only": new URL("./tests/mocks/server-only.ts", import.meta.url).pathname
     }
   }
 });

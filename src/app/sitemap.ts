@@ -10,6 +10,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   const entries: MetadataRoute.Sitemap = [
     entry("/", "daily", 1, lastModified),
+    entry("/dashboard", "hourly", 1, lastModified),
     entry("/cohorts", "weekly", 0.9, lastModified),
     entry("/companies", "weekly", 0.9, lastModified),
     entry("/founders", "weekly", 0.8, lastModified),
