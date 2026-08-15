@@ -2,14 +2,13 @@
   position: relative;
   display: grid;
   min-height: 100svh;
-  align-items: start;
-  justify-items: center;
+  place-items: center;
   overflow: hidden;
-  padding: clamp(80px, 18vh, 180px) 24px 24px;
+  padding: 24px;
   background:
-    radial-gradient(ellipse 95% 118% at 2% 45%, rgba(255, 248, 211, 0.88) 0%, rgba(255, 229, 126, 0.58) 49%, transparent 80%),
-    radial-gradient(ellipse 88% 116% at 99% 34%, rgba(209, 69, 19, 0.76) 0%, rgba(234, 130, 30, 0.48) 52%, transparent 82%),
-    linear-gradient(111deg, #f5efcb 0%, #f5da78 36%, #ed9e31 64%, #f0c54c 100%);
+    radial-gradient(ellipse 92% 90% at 5% 3%, rgba(255, 190, 69, 0.62) 0%, transparent 70%),
+    radial-gradient(ellipse 90% 105% at 97% 100%, rgba(159, 43, 11, 0.58) 0%, transparent 74%),
+    linear-gradient(124deg, #ef9a2e 0%, #e57720 38%, #c84b16 67%, #e07720 100%);
   color: #1f1a15;
 }
 
@@ -17,11 +16,11 @@
   position: absolute;
   inset: -30%;
   z-index: 0;
-  opacity: 0.44;
+  opacity: 0.58;
   background-image:
-    repeating-radial-gradient(circle at 16% 24%, rgba(74, 34, 12, 0.52) 0 0.55px, transparent 0.75px 2.8px),
-    repeating-radial-gradient(circle at 72% 64%, rgba(255, 251, 218, 0.7) 0 0.45px, transparent 0.7px 2.4px);
-  background-size: 4px 4px, 3px 3px;
+    repeating-radial-gradient(circle at 16% 24%, rgba(71, 26, 8, 0.58) 0 0.6px, transparent 0.8px 2.5px),
+    repeating-radial-gradient(circle at 72% 64%, rgba(255, 239, 180, 0.58) 0 0.48px, transparent 0.72px 2.1px);
+  background-size: 3px 3px, 2.5px 2.5px;
   mix-blend-mode: soft-light;
   pointer-events: none;
 }
@@ -29,13 +28,13 @@
 .card {
   position: relative;
   z-index: 1;
-  width: min(100%, 454px);
+  width: min(100%, 360px);
 }
 
 .card h1 {
-  margin: 0 0 17px;
+  margin: 0 0 13px;
   color: rgba(72, 57, 45, 0.76);
-  font-size: 1.02rem;
+  font-size: 0.84rem;
   font-weight: 600;
   letter-spacing: 0.075em;
   line-height: 1.25;
@@ -60,12 +59,12 @@
 
 .inputShell {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 54px 66px;
+  grid-template-columns: minmax(0, 1fr) 43px 54px;
   align-items: center;
-  min-height: 84px;
-  padding: 8px 8px 8px 27px;
+  min-height: 68px;
+  padding: 6px 6px 6px 19px;
   border: 2px solid rgba(74, 60, 48, 0.28);
-  border-radius: 15px;
+  border-radius: 13px;
   background: rgba(255, 253, 246, 0.67);
   transition: border-color 160ms ease, box-shadow 160ms ease;
 }
@@ -78,13 +77,13 @@
 .inputShell input:not([type="hidden"]) {
   width: 100%;
   min-width: 0;
-  min-height: 56px;
+  min-height: 48px;
   padding: 0;
   border: 0;
   outline: none;
   background: transparent;
   color: #34261c;
-  font-size: 1.42rem;
+  font-size: 1.12rem;
   font-weight: 500;
   letter-spacing: -0.035em;
 }
@@ -105,8 +104,8 @@
 }
 
 .revealButton {
-  width: 54px;
-  height: 64px;
+  width: 43px;
+  height: 52px;
   padding: 0;
   color: rgba(73, 66, 60, 0.34);
   background: transparent;
@@ -117,9 +116,9 @@
 }
 
 .submitButton {
-  width: 66px;
-  height: 64px;
-  border-radius: 11px;
+  width: 54px;
+  height: 52px;
+  border-radius: 9px;
   color: rgba(77, 68, 60, 0.56);
   background: rgba(70, 63, 58, 0.14);
 }
@@ -154,7 +153,7 @@
 
 @media (max-width: 520px) {
   .screen {
-    padding: 74px 18px 18px;
+    padding: 18px;
   }
 
   .card h1 {
@@ -163,26 +162,26 @@
   }
 
   .inputShell {
-    grid-template-columns: minmax(0, 1fr) 42px 55px;
-    min-height: 72px;
-    padding: 7px 7px 7px 19px;
-    border-radius: 13px;
+    grid-template-columns: minmax(0, 1fr) 39px 49px;
+    min-height: 62px;
+    padding: 5px 5px 5px 16px;
+    border-radius: 11px;
   }
 
   .inputShell input:not([type="hidden"]) {
-    min-height: 50px;
-    font-size: 1.15rem;
+    min-height: 44px;
+    font-size: 1rem;
   }
 
   .revealButton {
-    width: 42px;
-    height: 54px;
+    width: 39px;
+    height: 48px;
   }
 
   .submitButton {
-    width: 55px;
-    height: 54px;
-    border-radius: 9px;
+    width: 49px;
+    height: 48px;
+    border-radius: 8px;
   }
 }
 
