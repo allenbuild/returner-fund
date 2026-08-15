@@ -632,6 +632,9 @@ describe("insights tabs", () => {
     const table = screen.getByRole("table");
     expect(within(table).getByText("+9 pts (+18%)")).toBeInTheDocument();
     expect(within(table).getByText("+7")).toBeInTheDocument();
+    const cells = table.querySelectorAll("tbody tr td");
+    expect(cells[4]).toHaveTextContent("#11 / 55 points");
+    expect(cells[5]).toHaveTextContent("#18 / 46 points on");
   });
 
   it("numbers Hot rank in the selected week-over-week order", () => {
@@ -776,7 +779,7 @@ describe("insights tabs", () => {
     const cells = zetaRow?.querySelectorAll("td");
     expect(cells?.[2]).toHaveTextContent("Score —");
     expect(cells?.[3]).toHaveTextContent("Rank —");
-    expect(cells?.[4]).toHaveTextContent("91 pts / #1");
+    expect(cells?.[4]).toHaveTextContent("#1 / 91 points");
     expect(cells?.[5]).toHaveTextContent("Not benchmarked");
     expect(zetaRow).not.toHaveTextContent("Awaiting snapshot");
   });

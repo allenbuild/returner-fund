@@ -461,10 +461,10 @@ export function InsightsTabs({
                       {" "}
                       <strong>
                         <span className="momentum-value-full">
-                          {delta.currentScore} pts / #{delta.currentRank}
+                          {formatCurrentStanding(delta)}
                         </span>
                         <span className="momentum-value-compact">
-                          {delta.currentScore} / #{delta.currentRank}
+                          {formatCurrentStanding(delta)}
                         </span>
                       </strong>
                     </td>
@@ -1292,12 +1292,16 @@ function formatRankDelta(delta: MomentumDelta): string {
   return `${rankDelta > 0 ? "+" : ""}${rankDelta}`;
 }
 
+function formatCurrentStanding(delta: MomentumDelta): string {
+  return `#${delta.currentRank} / ${delta.currentScore} points`;
+}
+
 function formatBenchmark(delta: MomentumDelta): string {
   const benchmarkDate = formatBenchmarkDate(delta.benchmarkedAt);
   if (delta.baselineScore === null || delta.baselineRank === null) {
     return benchmarkDate ? `Not in ${benchmarkDate} snapshot` : "Not benchmarked";
   }
-  return `${delta.baselineScore} pts / #${delta.baselineRank} on ${benchmarkDate ?? "prior snapshot"}`;
+  return `#${delta.baselineRank} / ${delta.baselineScore} points on ${benchmarkDate ?? "prior snapshot"}`;
 }
 
 function formatBenchmarkCompact(delta: MomentumDelta): string {
@@ -1305,7 +1309,7 @@ function formatBenchmarkCompact(delta: MomentumDelta): string {
   if (delta.baselineScore === null || delta.baselineRank === null) {
     return benchmarkDate ? `Not in ${benchmarkDate}` : "Not benchmarked";
   }
-  return `${delta.baselineScore} / #${delta.baselineRank} · ${benchmarkDate ?? "prior"}`;
+  return `#${delta.baselineRank} / ${delta.baselineScore} points · ${benchmarkDate ?? "prior"}`;
 }
 
 function formatBenchmarkDate(
