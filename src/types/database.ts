@@ -1693,9 +1693,87 @@ export interface Database {
           updated_at?: Timestamp;
         }
       >;
+      /** Service-role-only publication projection added by migration 022. */
+      dashboard_publications: TableDefinition<
+        {
+          id: string;
+          dashboard_run_id: string;
+          publication_key: string;
+          status: "draft" | "published" | "superseded" | "retracted";
+          is_current: boolean;
+          generated_at: Timestamp;
+          freshness_checked_at: Timestamp;
+          data_fresh_through: Timestamp | null;
+          freshness_status: "fresh" | "partial" | "stale" | "degraded";
+          schema_version: string;
+          payload_json: Json;
+          payload_sha256: string;
+          artifact_path: string;
+          artifact_sha256: string;
+          published_at: Timestamp | null;
+          superseded_at: Timestamp | null;
+          metadata_json: Json;
+          created_at: Timestamp;
+          updated_at: Timestamp;
+        },
+        {
+          id?: string;
+          dashboard_run_id: string;
+          publication_key: string;
+          status?: "draft" | "published" | "superseded" | "retracted";
+          is_current?: boolean;
+          generated_at?: Timestamp;
+          freshness_checked_at?: Timestamp;
+          data_fresh_through?: Timestamp | null;
+          freshness_status?: "fresh" | "partial" | "stale" | "degraded";
+          schema_version: string;
+          payload_json?: Json;
+          payload_sha256: string;
+          artifact_path: string;
+          artifact_sha256: string;
+          published_at?: Timestamp | null;
+          superseded_at?: Timestamp | null;
+          metadata_json?: Json;
+          created_at?: Timestamp;
+          updated_at?: Timestamp;
+        },
+        {
+          status?: "draft" | "published" | "superseded" | "retracted";
+          is_current?: boolean;
+          freshness_checked_at?: Timestamp;
+          data_fresh_through?: Timestamp | null;
+          freshness_status?: "fresh" | "partial" | "stale" | "degraded";
+          superseded_at?: Timestamp | null;
+          updated_at?: Timestamp;
+        }
+      >;
     };
     Views: Record<string, never>;
     Functions: {
+      finalize_dashboard_publication: {
+        Args: {
+          p_dashboard_run_id: string;
+          p_publication_id: string;
+          p_input_fingerprint: string;
+          p_source_snapshot_hash: string;
+          p_input_observed_through: Timestamp;
+          p_stats_json: Json;
+        };
+        Returns: string;
+      };
+      fail_dashboard_run: {
+        Args: {
+          p_dashboard_run_id: string;
+          p_error_json: Json;
+        };
+        Returns: undefined;
+      };
+      reconcile_dashboard_story_source_primaries: {
+        Args: {
+          p_primary_links: Json;
+        };
+        Returns: undefined;
+      };
       apply_timeline_admin_action: {
         Args: {
           p_scope: string;

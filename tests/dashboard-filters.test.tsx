@@ -736,7 +736,7 @@ describe("dashboard filters", () => {
     );
   });
 
-  it("keeps the batch selector visible with Spring, Summer, and Speedrun available", () => {
+  it("places the public Dashboard above Spring, Summer, and Speedrun in the batch selector", () => {
     const fullGraph = graphResponse([
       makeNode("company:heyclicky", "HeyClicky", "b2b", "#7dd3fc", "Partner A")
     ]);
@@ -752,13 +752,15 @@ describe("dashboard filters", () => {
     const options = within(batchSelector).getAllByRole("option");
 
     expect(batchSelector).toHaveValue("S2026");
-    expect(options).toHaveLength(3);
-    expect(options[0]).toHaveTextContent("YC Spring 2026 (P26)");
-    expect(options[0]).toHaveValue("S2026");
-    expect(options[1]).toHaveTextContent("YC Summer 2026 (S26)");
-    expect(options[1]).toHaveValue("S26");
-    expect(options[2]).toHaveTextContent("a16z speedrun 006");
-    expect(options[2]).toHaveValue("A16ZSR006");
+    expect(options).toHaveLength(4);
+    expect(options[0]).toHaveTextContent("Dashboard");
+    expect(options[0]).toHaveValue("__dashboard");
+    expect(options[1]).toHaveTextContent("YC Spring 2026 (P26)");
+    expect(options[1]).toHaveValue("S2026");
+    expect(options[2]).toHaveTextContent("YC Summer 2026 (S26)");
+    expect(options[2]).toHaveValue("S26");
+    expect(options[3]).toHaveTextContent("a16z speedrun 006");
+    expect(options[3]).toHaveValue("A16ZSR006");
   });
 
   it("uses exact a16z speedrun branding in the page and browser tab", () => {

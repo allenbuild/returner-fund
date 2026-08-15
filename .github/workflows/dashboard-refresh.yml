@@ -1,0 +1,120 @@
+name: Technology Dashboard Refresh
+run-name: Technology dashboard refresh ${{ github.event.schedule || 'manual' }}
+
+on:
+  schedule:
+    # A separate hourly job keeps the existing twice-daily authenticated social
+    # workflow and all of its serialization/cooldown safeguards unchanged.
+    - cron: "17 * * * *"
+  # The established ingestion workflow remains the source of truth for its
+  # authenticated lanes. Refresh immediately after it finishes as well as on
+  # the hourly public-discovery cadence.
+  workflow_run:
+    workflows: ["Autonomous Ingestion"]
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      skip_external_discovery:
+        description: Skip public HN/GitHub/RSS discovery for this replay
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: write
+
+concurrency:
+  group: technology-dashboard-publication
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    name: Build and publish the precomputed snapshot
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - name: Check out current main
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          # Serialized jobs can begin after another artifact job has landed.
+          # Always build from the current publication branch rather than an
+          # old schedule/workflow-run SHA that could rebase-conflict later.
+          ref: main
+          fetch-depth: 0
+
+      - name: Use Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 24.14.0
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Validate dashboard code and deterministic build
+        # This is deliberately offline: it verifies the rolling-window,
+        # clustering, snapshot, and public-access contracts without making an
+        # external source outage a prerequisite for publication.
+        run: |
+          npm run typecheck
+          npx vitest run \
+            tests/dashboard-pipeline.test.ts \
+            tests/dashboard-external-discovery.test.ts \
+            tests/dashboard-refresh.test.ts \
+            tests/dashboard-returner-candidates.test.ts \
+            tests/dashboard-persistence.test.ts \
+            tests/dashboard-store.test.ts \
+            tests/api/dashboard-route.test.ts \
+            tests/dashboard-thumbnail-policy.test.ts \
+            tests/dashboard-thumbnail-rendering.test.tsx \
+            tests/top-stories-dashboard.test.tsx \
+            tests/site-access.test.ts
+          npm run dashboard:validate
+
+      - name: Refresh published dashboard data
+        env:
+          # Optional API access only raises the public GitHub API quota. The
+          # discovery implementation never writes, acts as a user, or sends
+          # cookies/session data to a third party.
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # The same service-role credentials used by the established
+          # ingestion workflow make the dashboard's durable provenance and
+          # rank-history projection available. The artifact is still the
+          # safe fallback during a staged database rollout.
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          set -euo pipefail
+          if [ "${{ inputs.skip_external_discovery }}" = "true" ]; then
+            npm run dashboard:refresh -- --no-external
+          else
+            npm run dashboard:refresh
+          fi
+
+      - name: Commit a materially changed snapshot
+        run: |
+          set -euo pipefail
+          # `git diff` does not report a first, untracked artifact. Porcelain
+          # status covers both that initial publication and later updates.
+          if [ -z "$(git status --porcelain -- artifacts/dashboard/current.json public/dashboard/feed.json)" ]; then
+            echo "Dashboard materialization is unchanged."
+            exit 0
+          fi
+          git config user.name "returner-dashboard-bot"
+          git config user.email "returner-dashboard-bot@users.noreply.github.com"
+          git add artifacts/dashboard/current.json public/dashboard/feed.json
+          git commit -m "chore: refresh technology dashboard"
+          # The workflow starts from current main, but another artifact job
+          # can still land during discovery. This commit changes only the two
+          # regenerated Dashboard artifacts, so prefer this current worker's
+          # deterministic projection if that same pair conflicts on rebase.
+          for attempt in 1 2 3; do
+            git fetch origin main
+            git rebase -X theirs origin/main
+            if git push origin "HEAD:main"; then
+              exit 0
+            fi
+          done
+          echo "::error title=Dashboard publication failed::Could not push the validated dashboard artifact after three bounded rebases."
+          exit 1

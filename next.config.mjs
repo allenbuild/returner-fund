@@ -13,6 +13,10 @@ const timelineRuntimeData = [
 const timelineInternalRuntimeData = [
   "artifacts/company-timeline/coverage.json",
 ];
+const dashboardRuntimeData = [
+  "artifacts/dashboard/current.json",
+  "public/dashboard/feed.json",
+];
 const graphRuntimeData = [
   ...benchmarkRuntimeData,
   ...graphEvidenceRuntimeData,
@@ -136,6 +140,42 @@ const canonicalGraphTraceKey = "/api/graph!(/**)";
 const nextConfig = {
   typedRoutes: true,
   allowedDevOrigins: ["127.0.0.1", "localhost"],
+  // Dashboard thumbnail URLs are accepted only from the reviewed media/CDN
+  // hosts in src/lib/dashboard/thumbnail-policy.ts. The image optimizer keeps
+  // full-sized third-party originals out of the browser and caps the response
+  // size; it is not configured as a general-purpose image proxy.
+  images: {
+    remotePatterns: [
+      { protocol: "https", hostname: "avatars.githubusercontent.com", pathname: "/**" },
+      { protocol: "https", hostname: "opengraph.githubassets.com", pathname: "/**" },
+      { protocol: "https", hostname: "github.githubassets.com", pathname: "/**" },
+      { protocol: "https", hostname: "pbs.twimg.com", pathname: "/**" },
+      { protocol: "https", hostname: "media.licdn.com", pathname: "/**" },
+      { protocol: "https", hostname: "static.licdn.com", pathname: "/**" },
+      { protocol: "https", hostname: "static.cdninstagram.com", pathname: "/**" },
+      { protocol: "https", hostname: "**.cdninstagram.com", pathname: "/**" },
+      { protocol: "https", hostname: "i.ytimg.com", pathname: "/**" },
+      { protocol: "https", hostname: "yt3.ggpht.com", pathname: "/**" },
+      { protocol: "https", hostname: "ph-files.imgix.net", pathname: "/**" },
+      { protocol: "https", hostname: "ph-avatars.imgix.net", pathname: "/**" },
+      { protocol: "https", hostname: "i.redd.it", pathname: "/**" },
+      { protocol: "https", hostname: "preview.redd.it", pathname: "/**" },
+      { protocol: "https", hostname: "external-preview.redd.it", pathname: "/**" },
+      { protocol: "https", hostname: "cdn.bsky.app", pathname: "/**" },
+      { protocol: "https", hostname: "www.technologyreview.com", pathname: "/**" },
+      { protocol: "https", hostname: "wp.technologyreview.com", pathname: "/**" },
+      { protocol: "https", hostname: "cdn.arstechnica.net", pathname: "/**" },
+      { protocol: "https", hostname: "**.tiktokcdn.com", pathname: "/**" },
+      { protocol: "https", hostname: "**.tiktokcdn-us.com", pathname: "/**" },
+      { protocol: "https", hostname: "**.hdslb.com", pathname: "/**" }
+    ],
+    qualities: [75],
+    maximumRedirects: 0,
+    maximumResponseBody: 5_000_000,
+    dangerouslyAllowLocalIP: false,
+    dangerouslyAllowSVG: false,
+    contentDispositionType: "attachment"
+  },
   // Graph routes import the complete multi-batch evidence snapshot. Limiting
   // static-generation workers prevents each worker from materializing the
   // large catalog concurrently and exhausting local or Vercel build memory.
@@ -181,7 +221,10 @@ const nextConfig = {
     "/api/insiders/recompute": [...insiderRuntimeSnapshots, ...benchmarkRuntimeData],
     "/api/companies/[slug]/timeline": [...timelineRuntimeData, ...timelineInternalRuntimeData],
     "/api/timeline/events/[eventId]": [...timelineRuntimeData, ...timelineInternalRuntimeData],
-    "/api/admin/timeline/**/*": [...timelineRuntimeData, ...timelineInternalRuntimeData]
+    "/api/admin/timeline/**/*": [...timelineRuntimeData, ...timelineInternalRuntimeData],
+    "/dashboard": dashboardRuntimeData,
+    "/api/dashboard": dashboardRuntimeData,
+    "/api/dashboard/stories/[stableKey]/sources": dashboardRuntimeData
   },
   outputFileTracingExcludes: {
     [canonicalGraphTraceKey]: graphTraceExcludes,
