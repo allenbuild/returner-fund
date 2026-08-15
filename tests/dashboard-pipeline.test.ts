@@ -7,8 +7,10 @@ import {
   freshnessScore,
   platformNormalizedSignificance,
   relativeViralityScore,
+  sourceQualityScore,
   velocityScore
 } from "@/lib/dashboard/scoring";
+import { compactSentence } from "@/lib/dashboard/normalization";
 
 const NOW = new Date("2026-08-15T12:00:00.000Z");
 
@@ -174,6 +176,8 @@ describe("technology dashboard pipeline", () => {
       relativeViralityScore(largeAccountAverage)
     );
     expect(relativeViralityScore(largeAccountAverage)).toBe(50);
+    expect(relativeViralityScore(dashboardCandidate({ id: "unobserved-relative", metrics: {} }))).toBe(0);
+    expect(relativeViralityScore(dashboardCandidate({ id: "unbaselined-relative", metrics: { likes: 2 } }))).toBe(0);
   });
 
   it("normalizes absolute attention within each platform instead of comparing raw counts globally", () => {
@@ -189,6 +193,63 @@ describe("technology dashboard pipeline", () => {
     expect(scores.get("reddit-high")).toBe(100);
     expect(scores.get("x-low")).toBe(15);
     expect(scores.get("reddit-low")).toBe(15);
+  });
+
+  it("does not invent platform significance for metricless sources from their ID order", () => {
+    const candidates = [
+      dashboardCandidate({ id: "rss-no-metrics-z", platform: "rss", sourceKind: "article", metrics: {} }),
+      dashboardCandidate({ id: "rss-no-metrics-a", platform: "rss", sourceKind: "article", metrics: {} }),
+      dashboardCandidate({ id: "rss-observed-low", platform: "rss", sourceKind: "article", metrics: { views: 10_000 } }),
+      dashboardCandidate({ id: "rss-observed-high", platform: "rss", sourceKind: "article", metrics: { views: 1_000_000 } })
+    ];
+    const scores = platformNormalizedSignificance(candidates);
+    const allMetricless = platformNormalizedSignificance([
+      dashboardCandidate({ id: "metricless-z", platform: "web", sourceKind: "article", metrics: {} }),
+      dashboardCandidate({ id: "metricless-a", platform: "web", sourceKind: "article", metrics: {} })
+    ]);
+    const singletonHackerNews = platformNormalizedSignificance([
+      dashboardCandidate({
+        id: "hn-singleton-low-signal",
+        platform: "hacker_news",
+        sourceKind: "discussion",
+        metrics: { upvotes: 2, comments: 1 }
+      })
+    ]);
+
+    expect(scores.get("rss-no-metrics-z")).toBe(0);
+    expect(scores.get("rss-no-metrics-a")).toBe(0);
+    expect(scores.get("rss-observed-low")).toBe(15);
+    expect(scores.get("rss-observed-high")).toBe(100);
+    expect(allMetricless.get("metricless-z")).toBe(0);
+    expect(allMetricless.get("metricless-a")).toBe(0);
+    expect(singletonHackerNews.get("hn-singleton-low-signal")).toBe(15);
+
+    const singletonHackerNewsStory = dashboardCandidate({
+      id: "hn-singleton-story",
+      canonicalKey: "hacker_news:hn-singleton-story",
+      platform: "hacker_news",
+      sourceKind: "discussion",
+      url: "https://news.ycombinator.com/item?id=1234567",
+      destinationUrl: "https://example.com/hn-singleton-story",
+      title: "HN discussion with two upvotes",
+      metrics: { upvotes: 2, comments: 1 },
+      independentlyReported: true
+    });
+    const unmeasuredIndependentArticle = dashboardCandidate({
+      id: "unmeasured-independent-article",
+      canonicalKey: "rss:unmeasured-independent-article",
+      platform: "rss",
+      sourceKind: "article",
+      url: "https://publisher.example.com/unmeasured-independent-article",
+      destinationUrl: "https://publisher.example.com/unmeasured-independent-article",
+      title: "Independent technology reporting without a public view counter",
+      metrics: {},
+      independentlyReported: true
+    });
+    const singletonResult = buildDashboardSnapshot([singletonHackerNewsStory, unmeasuredIndependentArticle], { now: NOW });
+
+    expect(storyContaining(singletonResult.snapshot.stories, unmeasuredIndependentArticle.id).rank).toBe(1);
+    expect(storyContaining(singletonResult.snapshot.stories, singletonHackerNewsStory.id).rank).toBe(2);
   });
 
   it("uses observed velocity and decaying freshness without inventing a single-scrape trend", () => {
@@ -308,7 +369,7 @@ describe("technology dashboard pipeline", () => {
     expect(returnerStory.trendScore).toBe(industryStory.trendScore);
   });
 
-  it("stores the union of independently ranked Top 100 views with view-keyed history", () => {
+  it("publishes one canonical Top 100 instead of a union of view-specific lists", () => {
     const hottestCandidates = Array.from({ length: 100 }, (_, index) => dashboardCandidate({
       id: `hottest-${String(index).padStart(3, "0")}`,
       canonicalKey: `x:hottest-${index}`,
@@ -319,8 +380,9 @@ describe("technology dashboard pipeline", () => {
       publishedAt: NOW.toISOString()
     }));
     // This story has real, extreme short-window acceleration but a deliberately
-    // low relative-performance and freshness score. It must not disappear just
-    // because it falls outside Hottest's 100-story slice.
+    // low overall score. It remains discoverable to internal view-ranking
+    // calculations but must not expand the public artifact past its canonical
+    // Top 100.
     const breakingOnly = dashboardCandidate({
       id: "breaking-only",
       canonicalKey: "x:breaking-only",
@@ -337,55 +399,88 @@ describe("technology dashboard pipeline", () => {
     const candidates = [...hottestCandidates, breakingOnly];
     const initial = buildDashboardSnapshot(candidates, { now: NOW });
     const rerun = buildDashboardSnapshot([...candidates].reverse(), { now: NOW });
-    const breakingStory = storyContaining(initial.snapshot.stories, "breaking-only");
 
-    expect(initial.snapshot.status.viewStoryCounts).toEqual({
-      hottest: 100,
-      breaking: 100,
-      emerging: 100
-    });
-    expect(initial.snapshot.stories).toHaveLength(101);
-    expect(breakingStory.viewRankings.hottest).toBeUndefined();
-    expect(breakingStory.viewRankings.emerging).toBeUndefined();
-    expect(breakingStory.viewRankings.breaking).toMatchObject({
-      rank: 1,
-      previousRank: null,
-      rankDelta: null,
-      trendStatus: "new"
-    });
-    expect(initial.rankSnapshots.filter((snapshot) => snapshot.stableKey === breakingStory.stableKey))
-      .toEqual([expect.objectContaining({ view: "breaking", rank: 1 })]);
+    expect(initial.snapshot.status.viewStoryCounts.hottest).toBe(100);
+    expect(initial.snapshot.stories).toHaveLength(100);
+    expect(initial.snapshot.stories.some((story) => story.sources.some((source) => source.id === "breaking-only"))).toBe(false);
+    expect(initial.snapshot.stories.every((story) => story.viewRankings.hottest?.rank === story.rank)).toBe(true);
+    expect(initial.rankSnapshots.every((snapshot) =>
+      initial.snapshot.stories.some((story) => story.stableKey === snapshot.stableKey))).toBe(true);
     expect(rerun.snapshot).toEqual(initial.snapshot);
     expect(rerun.rankSnapshots).toEqual(initial.rankSnapshots);
+  });
 
-    const next = buildDashboardSnapshot(candidates.map((candidate) =>
-      candidate.id === "hottest-000"
-        ? {
-          ...candidate,
-          metrics: { likes: 10_000 },
-          metricHistory: [
-            { observedAt: "2026-08-15T11:00:00.000Z", metrics: { likes: 1 } },
-            { observedAt: NOW.toISOString(), metrics: { likes: 10_000 } }
-          ]
-        }
-        : candidate
-    ), {
-      now: new Date("2026-08-15T13:00:00.000Z"),
-      priorRankSnapshots: initial.rankSnapshots
-    });
-    const movedBreakingStory = storyContaining(next.snapshot.stories, "breaking-only");
-
-    expect(movedBreakingStory.viewRankings.hottest).toBeUndefined();
-    expect(movedBreakingStory.viewRankings.breaking).toMatchObject({
-      rank: 2,
-      previousRank: 1,
-      rankDelta: -1
-    });
-    expect(next.rankSnapshots).toContainEqual(expect.objectContaining({
-      stableKey: breakingStory.stableKey,
-      view: "breaking",
-      rank: 2
+  it("caps Hacker News-only stories at one percent of the canonical Top 100", () => {
+    const independentArticles = Array.from({ length: 99 }, (_, index) => dashboardCandidate({
+      id: `independent-article-${String(index).padStart(3, "0")}`,
+      canonicalKey: `web:independent-article-${index}`,
+      platform: "web",
+      sourceKind: "article",
+      url: `https://publisher.example.com/report-${index}`,
+      destinationUrl: `https://publisher.example.com/report-${index}`,
+      title: `Independent technology report articleunique${index}`,
+      metrics: { views: 2_000_000 + index },
+      independentlyReported: true
     }));
+    const hackerNewsOnly = Array.from({ length: 150 }, (_, index) => dashboardCandidate({
+      id: `hn-only-${String(index).padStart(3, "0")}`,
+      canonicalKey: `hacker_news:hn-only-${index}`,
+      platform: "hacker_news",
+      sourceKind: "discussion",
+      url: `https://news.ycombinator.com/item?id=${100_000 + index}`,
+      destinationUrl: `https://example.com/hn-only-${index}`,
+      title: `Hacker News discussion hnunique${index}`,
+      metrics: { upvotes: 1_000 + index, comments: 100 + index },
+      metricHistory: [
+        { observedAt: "2026-08-15T11:00:00.000Z", metrics: { upvotes: 1 } },
+        { observedAt: NOW.toISOString(), metrics: { upvotes: 1_000 + index, comments: 100 + index } }
+      ],
+      independentlyReported: true
+    }));
+
+    const result = buildDashboardSnapshot([...independentArticles, ...hackerNewsOnly], { now: NOW });
+    const hnOnlyStories = result.snapshot.stories.filter((story) =>
+      story.sources.length > 0 && story.sources.every((source) => source.platform === "hacker_news")
+    );
+
+    expect(result.snapshot.stories).toHaveLength(100);
+    expect(hnOnlyStories).toHaveLength(1);
+    expect(hnOnlyStories[0]?.viewRankings.hottest).toBeDefined();
+    expect(result.snapshot.status.viewStoryCounts.hottest).toBe(100);
+  });
+
+  it("uses independent reporting as the primary source while retaining HN as corroboration", () => {
+    const article = dashboardCandidate({
+      id: "independent-news-report",
+      canonicalKey: "web:independent-news-report",
+      platform: "web",
+      sourceKind: "article",
+      url: "https://publisher.example.com/independent-report",
+      destinationUrl: "https://company.example.com/new-research",
+      title: "Independent reporting on a new research release",
+      metrics: { views: 3_000_000 },
+      independentlyReported: true
+    });
+    const hackerNewsDiscussion = dashboardCandidate({
+      id: "hn-corroboration",
+      canonicalKey: "hacker_news:hn-corroboration",
+      platform: "hacker_news",
+      sourceKind: "discussion",
+      url: "https://news.ycombinator.com/item?id=123456",
+      destinationUrl: "https://company.example.com/new-research",
+      title: "HN discussion of the new research release",
+      metrics: { upvotes: 10_000, comments: 2_000 },
+      independentlyReported: true
+    });
+
+    const result = buildDashboardSnapshot([hackerNewsDiscussion, article], { now: NOW });
+    const story = result.snapshot.stories[0];
+
+    expect(sourceQualityScore(article)).toBeGreaterThan(sourceQualityScore(hackerNewsDiscussion));
+    expect(story?.title).toBe(article.title);
+    expect(story?.sources.map((source) => source.id)).toEqual([article.id, hackerNewsDiscussion.id]);
+    expect(story?.platforms).toEqual(["hacker_news", "news"]);
+    expect(story?.sourceCount).toBe(2);
   });
 
   it("is stable across identical reruns and carries rank movement forward from prior snapshots", () => {
@@ -456,6 +551,47 @@ describe("technology dashboard pipeline", () => {
 
     expect(result.snapshot.stories[0]?.summary).toBe("A source reports: Foo.");
     expect(result.snapshot.stories[0]?.summary.length).toBeGreaterThanOrEqual(8);
+  });
+
+  it("preserves abbreviated publisher headlines instead of treating the abbreviation as a full sentence", () => {
+    const result = buildDashboardSnapshot([dashboardCandidate({
+      id: "us-space-force",
+      canonicalKey: "web:us-space-force",
+      platform: "web",
+      sourceKind: "article",
+      title: "U.S. Space Force adds second surveillance sensor to Japanese constellation",
+      summary: "Independent reporting on a new space surveillance sensor.",
+      independentlyReported: true
+    })], { now: NOW });
+
+    expect(result.snapshot.stories[0]?.title)
+      .toBe("U.S. Space Force adds second surveillance sensor to Japanese constellation");
+  });
+
+  it("does not cut source summaries at U.S. or A.I. abbreviations", () => {
+    expect(compactSentence(
+      "President Trump signed an order establishing the first U.S. Space Force reserve unit. A later sentence is omitted."
+    )).toBe("President Trump signed an order establishing the first U.S. Space Force reserve unit.");
+    expect(compactSentence(
+      "Google turns on Gemini A.I. features for enterprise customers. A later sentence is omitted."
+    )).toBe("Google turns on Gemini A.I. features for enterprise customers.");
+  });
+
+  it("keeps a truncated source excerpt within the persisted 300-character contract", () => {
+    const result = buildDashboardSnapshot([dashboardCandidate({
+      id: "long-source-summary",
+      canonicalKey: "web:long-source-summary",
+      platform: "web",
+      sourceKind: "article",
+      title: "Long source summary fixture",
+      summary: "a".repeat(700),
+      independentlyReported: true
+    })], { now: NOW });
+
+    const sourceSummary = result.snapshot.stories[0]?.sources[0]?.summary;
+    expect(sourceSummary).not.toBeNull();
+    expect(sourceSummary?.length).toBeLessThanOrEqual(300);
+    expect(sourceSummary?.endsWith(".")).toBe(true);
   });
 });
 
