@@ -149,8 +149,9 @@ test("daily benchmark updater binds publication to the accepted resolver Central
   );
   assert.match(
     updateStep,
-    /node\s+\\\s*\n\s*--experimental-strip-types\s+\\\s*\n\s*--loader\s+\.\/scripts\/lib\/scoring-diagnostics-ts-loader\.mjs[\s\S]*?scripts\/update-daily-benchmarks\.mjs[\s\S]*?--pinned-source-in-process/
+    /export NODE_OPTIONS="\$\{NODE_OPTIONS:-\} --experimental-strip-types --loader \.\/scripts\/lib\/scoring-diagnostics-ts-loader\.mjs"/
   );
+  assert.match(updateStep, /npm run benchmarks:daily[\s\S]*?--pinned-source-in-process/);
   assert.match(updateStep, /if \[ -n \"\$SCHEDULED_UTC_HOUR\" \]/);
 });
 

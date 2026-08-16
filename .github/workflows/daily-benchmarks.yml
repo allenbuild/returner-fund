@@ -473,19 +473,13 @@ jobs:
           WORKFLOW_EVENT_NAME: ${{ github.event_name }}
         run: |
           set -euo pipefail
+          export NODE_OPTIONS="${NODE_OPTIONS:-} --experimental-strip-types --loader ./scripts/lib/scoring-diagnostics-ts-loader.mjs"
           if [ -n "$SCHEDULED_UTC_HOUR" ]; then
-            node \
-              --experimental-strip-types \
-              --loader ./scripts/lib/scoring-diagnostics-ts-loader.mjs \
-              scripts/update-daily-benchmarks.mjs \
+            npm run benchmarks:daily -- \
               --pinned-source-in-process \
               "--scheduled-utc-hour=$SCHEDULED_UTC_HOUR"
           else
-            node \
-              --experimental-strip-types \
-              --loader ./scripts/lib/scoring-diagnostics-ts-loader.mjs \
-              scripts/update-daily-benchmarks.mjs \
-              --pinned-source-in-process
+            npm run benchmarks:daily -- --pinned-source-in-process
           fi
           node --input-type=module <<'NODE'
           import assert from "node:assert/strict";
