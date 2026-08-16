@@ -6,12 +6,18 @@ export function DirectoryLink({
   href,
   className,
   children,
-  ariaLabel
+  ariaLabel,
+  ariaCurrent
 }: {
   href: string;
   className?: string;
   children: ReactNode;
   ariaLabel?: string;
+  ariaCurrent?: "page";
 }) {
-  return <Link href={href as Route} className={className} aria-label={ariaLabel}>{children}</Link>;
+  return (
+    <Link href={href as Route} className={className} aria-current={ariaCurrent} aria-label={ariaLabel}>
+      {children}
+    </Link>
+  );
 }

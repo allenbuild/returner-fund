@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { TopStoriesDashboard } from "@/components/dashboard/TopStoriesDashboard";
+import { PublicSiteChrome } from "@/components/seo/DirectoryShell";
 import type { DashboardPublicFeedSnapshot } from "@/lib/dashboard/contracts";
 import { loadPublicDashboardFeedSnapshot } from "@/lib/dashboard/store";
 import { publicMetadata } from "@/lib/seo/site";
@@ -26,5 +27,11 @@ export default async function PublicDashboardPage() {
     // renders an explicit empty state instead of performing live discovery.
   }
 
-  return <TopStoriesDashboard snapshot={snapshot} />;
+  return (
+    <PublicSiteChrome activeNavigation="top-100">
+      <main>
+        <TopStoriesDashboard snapshot={snapshot} />
+      </main>
+    </PublicSiteChrome>
+  );
 }

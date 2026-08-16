@@ -7,6 +7,8 @@ import {
 import { buildDashboardSnapshot } from "@/lib/dashboard/pipeline";
 import {
   DASHBOARD_MAX_SNAPSHOT_AGE_MS,
+  DASHBOARD_STALE_FALLBACK_MAX_AGE_MS,
+  isDashboardSnapshotWithinRetention,
   isCurrentDashboardSnapshot,
   isDashboardPublicFeedSnapshot,
   isDashboardPublicSnapshot,
@@ -59,6 +61,10 @@ describe("dashboard public snapshot validation", () => {
     const stale = dashboardSnapshotAt(new Date(now.getTime() - DASHBOARD_MAX_SNAPSHOT_AGE_MS - 1));
     expect(isDashboardPublicSnapshot(stale)).toBe(true);
     expect(isCurrentDashboardSnapshot(stale, now)).toBe(false);
+    expect(isDashboardSnapshotWithinRetention(stale, now)).toBe(true);
+
+    const expiredFallback = dashboardSnapshotAt(new Date(now.getTime() - DASHBOARD_STALE_FALLBACK_MAX_AGE_MS - 1));
+    expect(isDashboardSnapshotWithinRetention(expiredFallback, now)).toBe(false);
 
     const future = dashboardSnapshotAt(new Date(now.getTime() + 6 * 60 * 1_000));
     expect(isCurrentDashboardSnapshot(future, now)).toBe(false);
