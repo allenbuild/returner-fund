@@ -307,7 +307,14 @@ async function resolveThumbnailForItem(item, args) {
 
   const resolved = resolveThumbnail(item);
   const hasGeneratedFallback = isGeneratedFallbackThumbnail(item.thumbnailUrl);
-  if ((resolved.thumbnailUrl && !hasGeneratedFallback) || !shouldFetchLinkPreview(item, args)) {
+  // `--force --fetch-link-preview` is an explicit link-integrity
+  // revalidation request. Do not let a previously cached thumbnail prevent
+  // it from checking the source URL again.
+  const forceLinkRevalidation = args.fetchLinkPreview && args.force;
+  if (
+    (resolved.thumbnailUrl && !hasGeneratedFallback && !forceLinkRevalidation) ||
+    !shouldFetchLinkPreview(item, args)
+  ) {
     return resolved;
   }
 

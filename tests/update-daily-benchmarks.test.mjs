@@ -156,6 +156,53 @@ describe("daily benchmark updater", () => {
     }
   });
 
+  it("uses the in-process provider without starting a local Next server", async () => {
+    const rootDir = fs.mkdtempSync(path.join(os.tmpdir(), "daily-benchmark-in-process-"));
+    const generatedAt = new Date("2026-07-16T05:01:00.000Z");
+    const graphs = new Map(graphSnapshots(generatedAt).map(({ descriptor, graph }) => [
+      `${descriptor.slug}:${descriptor.topVoices ?? "off"}`,
+      graph
+    ]));
+    const calls = [];
+    let finished = false;
+
+    try {
+      await expect(
+        main(
+          [
+            "--pinned-source-in-process",
+            "--now=2026-07-16T05:02:00.000Z",
+            "--window-start=2026-07-16T05:00:00.000Z"
+          ],
+          {
+            rootDir,
+            graphServerOptions: {
+              spawnImpl: () => {
+                throw new Error("The in-process provider must not start a Next server.");
+              }
+            },
+            graphSnapshotProvider: {
+              async fetchGraph(batchSlug, topVoices) {
+                calls.push({ batchSlug, topVoices: topVoices ?? "off" });
+                return graphs.get(`${batchSlug}:${topVoices ?? "off"}`);
+              },
+              async finish() {
+                finished = true;
+              }
+            }
+          }
+        )
+      ).resolves.toMatchObject({ status: "updated", baseUrl: "pinned-source-in-process" });
+      expect(calls).toEqual(BATCH_SNAPSHOTS.map((descriptor) => ({
+        batchSlug: descriptor.slug,
+        topVoices: descriptor.topVoices ?? "off"
+      })));
+      expect(finished).toBe(true);
+    } finally {
+      fs.rmSync(rootDir, { recursive: true, force: true });
+    }
+  });
+
   it("validates the exact v4 scoring model and coherent generated/input timestamps", () => {
     const generatedAt = new Date("2026-07-16T05:00:10.000Z");
     const snapshots = graphSnapshots(generatedAt);

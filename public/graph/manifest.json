@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "publishedAt": "2026-08-15T11:10:10.030Z",
+  "publishedAt": "2026-08-16T09:51:43.253Z",
   "ingestionRunId": "file:thumbnail-backfill-2026-08-14-0328",
   "evidenceCollectedAt": "2026-08-14T01:47:36.682Z",
   "oldestPlatformRefreshAt": "2026-07-29T07:11:00.000Z",
@@ -147,8 +147,8 @@
         "public/topic-facets"
       ],
       "fileCount": 3,
-      "totalByteSize": 8035603,
-      "contentHash": "d099d9b25d11a3652b28f73a80f6f56c03450811ce3205e78b95b7cecb68d321"
+      "totalByteSize": 8035971,
+      "contentHash": "150d8f2619427e354e3e784b4b68cf93b39b9d297672e8ade76dc42d913d28a9"
     },
     {
       "key": "rankedPostsSidecar",
@@ -157,7 +157,7 @@
       ],
       "fileCount": 1,
       "totalByteSize": 1293527,
-      "contentHash": "231af76bd400f2a402d8d898e88d3265655eaa19772196c27f88727e699d44f2"
+      "contentHash": "16b698e8e16808dd22f9a40f7b0296f66f8e0e6611a6b14c85e8aaf28d95c346"
     },
     {
       "key": "timelines",
@@ -179,5 +179,5 @@
       "contentHash": "e22bfc5d82e2e4b1940ef7b38223f7cc8886d157b3e455c96a9f22742007bfa7"
     }
   ],
-  "contentHash": "587527b0a2df90e4cfe16d52c59d82d087d22bfbe1a282a0c0c1dc39d7c447f0"
+  "contentHash": "67be46e43e90b9c246f3f6f5c3a9cd27b34f7486d2008f9609626692fbb405c9"
 }

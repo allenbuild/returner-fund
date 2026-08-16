@@ -121,14 +121,14 @@ describe("dashboard public snapshot validation", () => {
     });
     expect(detail?.sources).toHaveLength(DASHBOARD_SOURCE_DETAIL_LIMIT);
     expect(detail?.sources[0]).not.toHaveProperty("canonicalKey");
-    expect(detail?.sources[0]).not.toHaveProperty("metrics");
     expect(detail?.sources[0]).toEqual({
       id: `${source.id}-0`,
       url: source.url,
       title: source.title,
       publisher: source.publisher,
       platform: source.platform,
-      publishedAt: source.publishedAt
+      publishedAt: source.publishedAt,
+      metrics: source.metrics
     });
     expect(selectDashboardStorySourceDetail(sourceRichSnapshot, "not-a-story-key")).toBeNull();
   });

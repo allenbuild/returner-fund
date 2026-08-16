@@ -5,6 +5,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { refreshTechnologyDashboard } from "../src/lib/dashboard/refresh.ts";
 import { persistDashboardSnapshot } from "../src/lib/dashboard/persistence.ts";
+import { DASHBOARD_TOP_LIMIT } from "../src/lib/dashboard/contracts.ts";
 import { isDashboardPublicSnapshot, writePublicDashboardArtifact } from "../src/lib/dashboard/store.ts";
 import { dashboardSnapshotMaterialDescriptor } from "../src/lib/dashboard/pipeline.ts";
 
@@ -27,28 +28,45 @@ async function main() {
     includeExternal: !noExternal,
     priorSnapshot
   });
-  if (result.snapshot.stories.length === 0) {
-    // A rolling 24-hour feed may legitimately be empty (for example during a
-    // temporary upstream outage or before the first fresh source arrives).
-    // Never overwrite a last-good artifact with an empty projection, and do
-    // not turn that safe preservation into a noisy failed hourly job.
-    const noPriorPublication = !priorSnapshot;
-    const message = noPriorPublication
-      ? "Dashboard refresh found no eligible stories and no prior artifact exists; refusing an empty first publication.\n"
-      : "Dashboard refresh found no eligible stories; preserving the last published snapshot.\n";
+  if (result.snapshot.stories.length < DASHBOARD_TOP_LIMIT) {
+    const retainedSnapshot = reissuePriorFullSnapshot(priorSnapshot, result.snapshot);
+    if (retainedSnapshot) {
+      if (!dryRun) await writePublicDashboardArtifact(retainedSnapshot);
+      process.stdout.write(`${JSON.stringify({
+        status: dryRun ? "validated_retained" : "reissued_prior_full",
+        generatedAt: retainedSnapshot.generatedAt,
+        windowStart: retainedSnapshot.windowStart,
+        storyCount: retainedSnapshot.stories.length,
+        candidateCount: result.snapshot.status.candidateCount,
+        eligibleCandidateCount: result.snapshot.status.eligibleCandidateCount,
+        sourceCounts: result.sourceCounts,
+        platformFailures: result.sourceFailures,
+        artifactPath: "artifacts/dashboard/current.json"
+      })}\n`);
+      // Do not persist a current database rank receipt from retained source
+      // rows: their native timestamps/metrics are real, but this run did not
+      // independently reconstruct a complete Top 100.
+      return;
+    }
+    // Never replace a live Top 100 with partial cards. The next successful
+    // source refresh can construct the initial full index normally.
+    const hasPriorPublication = Boolean(priorSnapshot);
+    const message = hasPriorPublication
+      ? `Dashboard refresh found ${result.snapshot.stories.length} stories; preserving the existing partial artifact until a full Top ${DASHBOARD_TOP_LIMIT} is available.\n`
+      : `Dashboard refresh found ${result.snapshot.stories.length} stories and no prior full artifact exists; refusing a partial first publication.\n`;
     process.stderr.write(message);
     process.stdout.write(`${JSON.stringify({
-      status: noPriorPublication && !dryRun ? "initial_empty" : "preserved_empty",
+      status: hasPriorPublication ? "preserved_underfilled" : "initial_underfilled",
       generatedAt: result.snapshot.generatedAt,
       windowStart: result.snapshot.windowStart,
-      storyCount: 0,
+      storyCount: result.snapshot.stories.length,
       candidateCount: result.snapshot.status.candidateCount,
       eligibleCandidateCount: result.snapshot.status.eligibleCandidateCount,
       sourceCounts: result.sourceCounts,
       platformFailures: result.sourceFailures,
       artifactPath: "artifacts/dashboard/current.json"
     })}\n`);
-    if (noPriorPublication && !dryRun) process.exitCode = 1;
+    if (!hasPriorPublication && !dryRun) process.exitCode = 1;
     return;
   }
   // A stable ranking still needs a fresh publication receipt each hour. The
@@ -100,6 +118,27 @@ async function loadExistingSnapshot() {
   } catch {
     return null;
   }
+}
+
+function reissuePriorFullSnapshot(priorSnapshot, nextSnapshot) {
+  if (!priorSnapshot || priorSnapshot.stories.length < DASHBOARD_TOP_LIMIT) return null;
+  return {
+    ...priorSnapshot,
+    generatedAt: nextSnapshot.generatedAt,
+    windowStart: nextSnapshot.windowStart,
+    windowEnd: nextSnapshot.windowEnd,
+    status: {
+      ...priorSnapshot.status,
+      candidateCount: nextSnapshot.status.candidateCount,
+      eligibleCandidateCount: nextSnapshot.status.eligibleCandidateCount,
+      storyCount: priorSnapshot.stories.length,
+      viewStoryCounts: priorSnapshot.status.viewStoryCounts,
+      partialPlatformFailures: [...new Set([
+        ...nextSnapshot.status.partialPlatformFailures,
+        "source_retained"
+      ])].sort()
+    }
+  };
 }
 
 function argumentValue(name) {

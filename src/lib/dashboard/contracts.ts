@@ -8,6 +8,12 @@ import type { Platform } from "@/lib/graph/types";
  */
 export const DASHBOARD_SCHEMA_VERSION = "technology-dashboard-v1" as const;
 export const DASHBOARD_WINDOW_MS = 24 * 60 * 60 * 1_000;
+/**
+ * The index refreshes on a rolling day, while verified batch social posts
+ * with native engagement can remain eligible for a bounded historical lane.
+ * Their original source timestamps always remain visible on the card.
+ */
+export const DASHBOARD_SOCIAL_RETENTION_MS = 30 * 24 * 60 * 60 * 1_000;
 export const DASHBOARD_TOP_LIMIT = 100;
 /**
  * Source expansion is deliberately bounded: a ranking card never needs to
@@ -150,6 +156,12 @@ export interface DashboardCandidate {
   independentlyReported?: boolean;
   /** Input fingerprint from canonical source content; drives summary caching. */
   contentFingerprint?: string | null;
+  /**
+   * Worker-only provenance gate for the historical social lane. It is set
+   * only for verified, scored, company-authored evidence and is never copied
+   * into a public story source.
+   */
+  socialBackfillEligible?: boolean;
 }
 
 export interface DashboardStorySource {
@@ -232,6 +244,8 @@ export interface DashboardStoryPrimarySource {
   publisher: string | null;
   platform: DashboardPlatform;
   publishedAt: string;
+  /** Native counters from this displayed source, never an aggregate story total. */
+  metrics: DashboardMetrics;
 }
 
 /**

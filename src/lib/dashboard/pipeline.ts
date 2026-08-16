@@ -1,5 +1,6 @@
 import {
   DASHBOARD_SCHEMA_VERSION,
+  DASHBOARD_SOCIAL_RETENTION_MS,
   DASHBOARD_TOP_LIMIT,
   DASHBOARD_VIEWS,
   DASHBOARD_WINDOW_MS,
@@ -47,7 +48,9 @@ export function buildDashboardSnapshot(
   const now = options.now ?? new Date();
   const windowStart = new Date(now.getTime() - DASHBOARD_WINDOW_MS);
   const uniqueCandidates = dedupePhysicalSources(candidates);
-  const eligibleCandidates = uniqueCandidates.filter((candidate) => isDashboardCandidateEligible(candidate, now));
+  const eligibleCandidates = uniqueCandidates.filter((candidate) =>
+    isDashboardCandidateEligible(candidate, now) || isDashboardSocialBackfillCandidate(candidate, now)
+  );
   const platformSignificance = platformNormalizedSignificance(eligibleCandidates);
   const priorRanks = new Map((options.priorRankSnapshots ?? []).map((snapshot) => [rankSnapshotKey(snapshot.stableKey, snapshot.view), snapshot]));
   const priorStories = new Map((options.priorStories ?? []).map((story) => [story.stableKey, story]));
@@ -102,6 +105,54 @@ export function isDashboardCandidateEligible(candidate: Pick<DashboardCandidate,
   if (!publishedAt) return false;
   const timestamp = publishedAt.getTime();
   return timestamp >= now.getTime() - DASHBOARD_WINDOW_MS && timestamp <= now.getTime();
+}
+
+const PREFERRED_SOCIAL_PLATFORMS = new Set<DashboardCandidate["platform"]>([
+  "x", "instagram", "linkedin", "youtube"
+]);
+const HIGH_CONFIDENCE_SOCIAL_TOPICS = new Set<DashboardTopic>([
+  "launches", "research", "funding", "open_source", "ai", "robotics", "biotech"
+]);
+// This intentionally avoids lifestyle/general-business language. A verified
+// company post still needs a concrete technology cue unless its normalized
+// topic is already a high-confidence product, research, funding, or launch.
+const TECHNOLOGY_SOCIAL_SIGNAL = /\b(?:ai|artificial intelligence|machine learning|llm|model|agent|software|api|database|developer|code|coding|open[ -]?source|cloud|computer|robot(?:ics)?|automation|compute|inference|gpu|chip|hardware|voice|speech|screen|browser|security|biotech|healthtech|medical|healthcare|infrastructure|infra|saas|fintech|payments?|operating system|engineering|terminal|vision|simulat(?:ion|e)|autonom(?:ous|y)|drone|energy|nuclear|manufactur(?:ing)?|scientific|research|benchmark|dictation|language model|machine vision|digital twin|mri)\b/i;
+const NON_TECH_SOCIAL_SIGNAL = /\b(?:novelas?|telenovelas?|romance|amor|mafia|futbol(?:ista)?|football|super bowl|nfl|nba|mlb|nhl|soccer|golf|pickleball|world cup|sports?(?: betting)?|fantasy(?: football)?|episode|episodio|trailer|celebrity|gossip|fashion|outfit|birthday|wedding|altar|plants?|dogs?|pets?)\b/i;
+
+/**
+ * A bounded, trusted retention lane prevents an otherwise healthy hourly
+ * refresh from dropping every measured batch post just because collection
+ * happened before the current 24-hour clock. It does not admit arbitrary
+ * founder/personal social material or metricless rows.
+ */
+export function isDashboardSocialBackfillCandidate(
+  candidate: Pick<
+    DashboardCandidate,
+    "platform" | "publishedAt" | "metrics" | "trackedEntity" | "topics" | "title" | "summary" | "text" | "socialBackfillEligible"
+  >,
+  now = new Date()
+): boolean {
+  if (!isMeasuredVerifiedTechnologySocialCandidate(candidate)) return false;
+  const publishedAt = safeDate(candidate.publishedAt);
+  if (!publishedAt) return false;
+  const timestamp = publishedAt.getTime();
+  if (timestamp > now.getTime() || timestamp < now.getTime() - DASHBOARD_SOCIAL_RETENTION_MS) return false;
+  return true;
+}
+
+function isMeasuredVerifiedTechnologySocialCandidate(
+  candidate: Pick<
+    DashboardCandidate,
+    "platform" | "metrics" | "trackedEntity" | "topics" | "title" | "summary" | "text" | "socialBackfillEligible"
+  >
+): boolean {
+  return Boolean(
+    candidate.socialBackfillEligible &&
+    candidate.trackedEntity &&
+    PREFERRED_SOCIAL_PLATFORMS.has(candidate.platform) &&
+    engagementMass(candidate.metrics) > 0 &&
+    hasTechnologySocialContent(candidate, candidate.topics)
+  );
 }
 
 /** A stable content key lets a worker avoid regenerating summaries for unchanged stories. */
@@ -494,10 +545,40 @@ function compareUnrankedStoriesForView(
   right: UnrankedDashboardStory,
   view: DashboardView
 ): number {
+  if (view === "hottest") {
+    const socialPreference = Number(hasPreferredMeasuredSocialStory(right)) - Number(hasPreferredMeasuredSocialStory(left));
+    if (socialPreference) return socialPreference;
+  }
   return scoreForView(right, view) - scoreForView(left, view) ||
     right.trendScore - left.trendScore ||
     right.updatedAt.localeCompare(left.updatedAt) ||
     left.stableKey.localeCompare(right.stableKey);
+}
+
+function hasPreferredMeasuredSocialStory(story: Pick<UnrankedDashboardStory, "sources" | "topics">): boolean {
+  return story.sources.some((source) =>
+    source.trackedEntity !== null &&
+    PREFERRED_SOCIAL_PLATFORMS.has(source.nativePlatform) &&
+    engagementMass(source.metrics) > 0 &&
+    hasTechnologySocialContent(source, story.topics)
+  );
+}
+
+function hasHighConfidenceSocialTopic(topics: readonly DashboardTopic[] | null | undefined): boolean {
+  return (topics ?? []).some((topic) => HIGH_CONFIDENCE_SOCIAL_TOPICS.has(topic));
+}
+
+function hasTechnologySocialContent(
+  candidate: Pick<DashboardCandidate, "title" | "summary" | "text"> | Pick<DashboardStorySource, "title" | "summary">,
+  topics: readonly DashboardTopic[] | null | undefined
+): boolean {
+  const content = [
+    candidate.title ?? "",
+    candidate.summary ?? "",
+    "text" in candidate ? candidate.text ?? "" : ""
+  ].join(" ");
+  return !NON_TECH_SOCIAL_SIGNAL.test(content) &&
+    (hasHighConfidenceSocialTopic(topics) || TECHNOLOGY_SOCIAL_SIGNAL.test(content));
 }
 
 function scoreForView(story: UnrankedDashboardStory, view: DashboardView): number {
@@ -536,9 +617,15 @@ function compareCandidatesForStory(
 }
 
 function primarySourcePriority(candidate: DashboardCandidate): number {
-  // Papers and independent reporting provide the clearest story anchor. An
-  // HN submission still stays in the clustered source list and contributes
-  // real multi-platform corroboration, but cannot displace that primary.
+  // When the story came from the retained social lane, preserve the actual
+  // native post as the card anchor so the visible engagement counters and
+  // outbound link describe the same source. Editorial corroboration remains
+  // in the source list and can still shape the story summary.
+  if (isMeasuredVerifiedTechnologySocialCandidate(candidate)) return 6;
+  // Papers and independent reporting provide the clearest story anchor for
+  // every other story. An HN submission still stays in the clustered source
+  // list and contributes real multi-platform corroboration, but cannot
+  // displace that primary.
   if (candidate.sourceKind === "paper") return 5;
   if (isIndependentEditorialOrResearchSource(candidate)) return 4;
   if (candidate.sourceKind === "article" && (candidate.platform === "web" || candidate.platform === "rss")) return 3;

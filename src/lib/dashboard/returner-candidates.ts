@@ -4,6 +4,8 @@ import type { EvidenceItem, GraphNode, GraphResponse } from "@/lib/graph/types";
 import type { DashboardCandidate, DashboardMetrics, DashboardSourceKind, DashboardTopic } from "./contracts";
 import { canonicalDashboardUrl, compactWhitespace } from "./normalization";
 
+const VERIFIED_SOCIAL_PLATFORMS = new Set<string>(["x", "instagram", "linkedin", "youtube"]);
+
 /**
  * Adapts existing published Returner evidence into the global candidate shape.
  * It preserves graph evidence as the source of truth and does not create a
@@ -69,8 +71,24 @@ function dashboardCandidateFromEvidence(
     thumbnailAlt: title,
     mediaUrl: evidence.mediaUrl ?? null,
     independentlyReported: independent,
-    contentFingerprint: evidence.platformObjectId ?? evidence.platformPostId ?? evidence.id
+    contentFingerprint: evidence.platformObjectId ?? evidence.platformPostId ?? evidence.id,
+    socialBackfillEligible: isVerifiedCompanySocialEvidence(evidence)
   };
+}
+
+/**
+ * The graph contains company and founder material for many purposes. Only a
+ * narrowly proven company-authored social record can enter the dashboard's
+ * historical lane; the pipeline applies an additional technology-content
+ * gate before it can rank publicly.
+ */
+function isVerifiedCompanySocialEvidence(evidence: EvidenceItem): boolean {
+  if (evidence.entityType !== "company") return false;
+  if (!VERIFIED_SOCIAL_PLATFORMS.has(evidence.platform)) return false;
+  if (evidence.review_state !== "verified" || evidence.tractionStatus !== "scored" || evidence.contributionScore <= 0) {
+    return false;
+  }
+  return Object.values(evidence.metrics).some((value) => typeof value === "number" && Number.isFinite(value) && value > 0);
 }
 
 function withHistoricalAccountBaselines(candidates: readonly DashboardCandidate[]): DashboardCandidate[] {

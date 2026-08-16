@@ -21,6 +21,33 @@ describe("Returner dashboard candidates", () => {
       accountBaseline: { likes: 10, views: 100 }
     });
   });
+
+  it("marks only verified, scored company social evidence for historical dashboard retention", () => {
+    const companyPost = {
+      ...evidence("company", "2026-08-12T09:00:00.000Z", 240),
+      entityType: "company" as const,
+      entityId: "company-1",
+      review_state: "verified" as const,
+      tractionStatus: "scored" as const,
+      contributionScore: 25,
+      title: "Company launches an AI developer platform",
+      text: "Company launches an AI developer platform."
+    };
+    const founderPost = {
+      ...companyPost,
+      id: "founder",
+      entityType: "founder" as const,
+      text: "A founder's personal weekend post."
+    };
+    const candidates = dashboardCandidatesFromGraph({
+      batch: { slug: "S26", label: "YC S26" },
+      nodes: [],
+      evidence: [companyPost, founderPost]
+    } as unknown as GraphResponse);
+
+    expect(candidates.find((candidate) => candidate.id.endsWith(":company"))?.socialBackfillEligible).toBe(true);
+    expect(candidates.find((candidate) => candidate.id.endsWith(":founder"))?.socialBackfillEligible).toBe(false);
+  });
 });
 
 function evidence(id: string, postedAt: string, likes: number): EvidenceItem {

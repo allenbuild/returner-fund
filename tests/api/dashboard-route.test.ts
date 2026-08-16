@@ -49,7 +49,8 @@ describe("dashboard public API routes", () => {
         title: "Route source",
         publisher: "Example",
         platform: "news",
-        publishedAt: "2026-08-15T11:00:00.000Z"
+        publishedAt: "2026-08-15T11:00:00.000Z",
+        metrics: { views: 10 }
       }]
     };
     dashboardStore.loadPublicDashboardStorySourceDetail.mockResolvedValue(detail);
@@ -64,7 +65,7 @@ describe("dashboard public API routes", () => {
     expect(response.status).toBe(200);
     expect(response.headers.get("x-dashboard-source-detail-limited")).toBe("1");
     expect(payload.sources[0]).toEqual(detail.sources[0]);
-    expect(payload.sources[0]).not.toHaveProperty("metrics");
+    expect(payload.sources[0]).toHaveProperty("metrics", { views: 10 });
 
     const invalidResponse = await getDashboardStorySources(
       new Request("https://returner.fund/api/dashboard/stories/not-a-story/sources"),
@@ -114,7 +115,8 @@ function compactFeed(): DashboardPublicFeedSnapshot {
         title: "Route source",
         publisher: "Example",
         platform: "news",
-        publishedAt: "2026-08-15T11:00:00.000Z"
+        publishedAt: "2026-08-15T11:00:00.000Z",
+        metrics: { views: 10 }
       }
     }],
     availableFilters: { topics: ["other"], platforms: ["news"] },
