@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { clusterDashboardCandidates } from "@/lib/dashboard/clustering";
 import type { DashboardCandidate } from "@/lib/dashboard/contracts";
-import { buildDashboardSnapshot } from "@/lib/dashboard/pipeline";
+import { buildDashboardSnapshot, isDashboardSocialBackfillCandidate } from "@/lib/dashboard/pipeline";
 import {
   crossPlatformConfirmationScore,
   freshnessScore,
@@ -48,6 +48,81 @@ describe("technology dashboard pipeline", () => {
       storyCount: 1,
       partialPlatformFailures: ["reddit:rate_limited", "youtube:timeout"]
     });
+  });
+
+  it("backfills a full Top 100 from verified, measured batch social posts without changing their source dates", () => {
+    const socialPosts = Array.from({ length: 120 }, (_, index) => dashboardCandidate({
+      id: `retained-social-${String(index).padStart(3, "0")}`,
+      canonicalKey: `x:retained-social-${index}`,
+      title: `Company ${index} launches an AI agent platform`,
+      text: `Company ${index} launches an AI agent platform for software teams.`,
+      publishedAt: "2026-08-13T12:00:00.000Z",
+      metrics: { views: 1_000_000 - index, likes: 4_000 - index, reposts: 400 - index },
+      socialBackfillEligible: true,
+      trackedEntity: {
+        companyId: `company-${index}`,
+        name: `Company ${index}`,
+        cohortLabel: "YC S26",
+        batchSlug: "S26"
+      },
+      topics: ["launches", "ai"]
+    }));
+    const freshMetriclessNews = Array.from({ length: 30 }, (_, index) => dashboardCandidate({
+      id: `fresh-news-${index}`,
+      canonicalKey: `web:fresh-news-${index}`,
+      platform: "web",
+      sourceKind: "article",
+      url: `https://news.example.com/fresh-${index}`,
+      title: `Independent technology report ${index}`,
+      metrics: {},
+      independentlyReported: true
+    }));
+
+    const result = buildDashboardSnapshot([...freshMetriclessNews, ...socialPosts], { now: NOW });
+
+    expect(result.snapshot.stories).toHaveLength(100);
+    expect(result.snapshot.status.storyCount).toBe(100);
+    expect(result.snapshot.status.viewStoryCounts.hottest).toBe(100);
+    expect(result.snapshot.stories.every((story) => story.platforms.includes("x"))).toBe(true);
+    expect(result.snapshot.stories.every((story) => story.publishedAt === "2026-08-13T12:00:00.000Z")).toBe(true);
+    expect(result.snapshot.stories[0]?.sources[0]?.metrics).toEqual({ views: 1_000_000, likes: 4_000, reposts: 400 });
+  });
+
+  it("keeps untrusted or non-technical historical social material out of the retention lane", () => {
+    const personal = dashboardCandidate({
+      id: "personal-founder-post",
+      canonicalKey: "x:personal-founder-post",
+      title: "Our founder's plants are thriving",
+      text: "A weekend outside with friends and plants.",
+      publishedAt: "2026-08-13T12:00:00.000Z",
+      metrics: { views: 2_000_000, likes: 80_000 },
+      socialBackfillEligible: true,
+      trackedEntity: {
+        companyId: "company-personal",
+        name: "Personal Company",
+        cohortLabel: "YC S26",
+        batchSlug: "S26"
+      }
+    });
+    const unverified = dashboardCandidate({
+      id: "unverified-company-post",
+      canonicalKey: "x:unverified-company-post",
+      title: "We launched an AI agent platform",
+      publishedAt: "2026-08-13T12:00:00.000Z",
+      metrics: { views: 2_000_000, likes: 80_000 },
+      socialBackfillEligible: false,
+      trackedEntity: {
+        companyId: "company-unverified",
+        name: "Unverified Company",
+        cohortLabel: "YC S26",
+        batchSlug: "S26"
+      },
+      topics: ["launches", "ai"]
+    });
+
+    expect(isDashboardSocialBackfillCandidate(personal, NOW)).toBe(false);
+    expect(isDashboardSocialBackfillCandidate(unverified, NOW)).toBe(false);
+    expect(buildDashboardSnapshot([personal, unverified], { now: NOW }).snapshot.stories).toEqual([]);
   });
 
   it("clusters six independent destinations into one stable cross-platform story", () => {

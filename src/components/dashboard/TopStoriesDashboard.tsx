@@ -17,6 +17,7 @@ import {
   DASHBOARD_TREND_STATUSES,
   DASHBOARD_VIEWS,
   DASHBOARD_WINDOW_MS,
+  type DashboardMetrics,
   type DashboardPublicFeedSnapshot,
   type DashboardStoryCard,
   type DashboardViewRanking
@@ -194,7 +195,7 @@ function StoryCard({
   const primarySource = sourcePresentation(story.primarySource);
   const primaryPlatform = primarySource.platform ?? story.platforms.find(Boolean) ?? null;
   const sourceLabel = primarySource.publisher ?? (primaryPlatform ? displayPlatform(primaryPlatform) : "Technology");
-  const engagementSummary = compactEngagement(story.engagement);
+  const metrics = visibleEngagementMetrics(primarySource.metrics, 3);
   const selectable = Boolean(onSelect);
 
   return (
@@ -209,7 +210,7 @@ function StoryCard({
             type="button"
           >
             <StoryCardContent
-              engagementSummary={engagementSummary}
+              metrics={metrics}
               now={now}
               primaryPlatform={primaryPlatform}
               ranking={ranking}
@@ -219,7 +220,7 @@ function StoryCard({
           </button>
         ) : (
           <StoryCardContent
-            engagementSummary={engagementSummary}
+            metrics={metrics}
             now={now}
             primaryPlatform={primaryPlatform}
             primarySourceUrl={primarySource.url}
@@ -234,7 +235,7 @@ function StoryCard({
 }
 
 function StoryCardContent({
-  engagementSummary,
+  metrics,
   now,
   primaryPlatform,
   primarySourceUrl,
@@ -242,7 +243,7 @@ function StoryCardContent({
   sourceLabel,
   story
 }: {
-  engagementSummary: string | null;
+  metrics: VisibleEngagementMetric[];
   now: number | null;
   primaryPlatform: string | null;
   primarySourceUrl?: string | null;
@@ -278,7 +279,7 @@ function StoryCardContent({
 
         <div className={styles.metadata}>
           {story.publishedAt && <time dateTime={story.publishedAt}>{displayRelativeDate(story.publishedAt, now)}</time>}
-          {engagementSummary && <span>{engagementSummary}</span>}
+          <EngagementMetrics metrics={metrics} />
         </div>
       </div>
     </>
@@ -304,7 +305,7 @@ function TopStoryDetailPanel({
   const primarySource = sourcePresentation(story.primarySource);
   const primaryPlatform = primarySource.platform ?? story.platforms.find(Boolean) ?? null;
   const sourceLabel = primarySource.publisher ?? (primaryPlatform ? displayPlatform(primaryPlatform) : "Technology");
-  const engagementSummary = compactEngagement(story.engagement);
+  const metrics = visibleEngagementMetrics(primarySource.metrics);
 
   return (
     <aside aria-label="Article details" className={`node-panel ${styles.storyDetailPanel}`}>
@@ -322,9 +323,9 @@ function TopStoryDetailPanel({
       <p className={styles.detailSummary}>{story.summary}</p>
       <div className={styles.detailMetadata}>
         {story.publishedAt && <time dateTime={story.publishedAt}>{displayRelativeDate(story.publishedAt, now)}</time>}
-        {engagementSummary && <span>{engagementSummary}</span>}
         <span>{story.sourceCount} {story.sourceCount === 1 ? "source" : "sources"}</span>
       </div>
+      <EngagementMetrics detail metrics={metrics} />
       {primarySource.url && (
         <a className={styles.articleLink} href={primarySource.url} rel="noreferrer" target="_blank">
           Open article <ExternalLink size={14} aria-hidden="true" />
@@ -577,7 +578,8 @@ function isDashboardStoryPrimarySource(value: unknown): boolean {
     nullableBoundedString(value.publisher, 300) &&
     typeof value.platform === "string" &&
     (DASHBOARD_PLATFORMS as readonly string[]).includes(value.platform) &&
-    validTimestamp(value.publishedAt);
+    validTimestamp(value.publishedAt) &&
+    isMetrics(value.metrics);
 }
 
 function isDashboardStatus(value: Record<string, unknown>): boolean {
@@ -685,6 +687,7 @@ function sourcePresentation(source: unknown): {
   publisher: string | null;
   platform: string | null;
   publishedAt: string | null;
+  metrics: DashboardMetrics;
 } {
   const record = source && typeof source === "object" ? source as Record<string, unknown> : {};
   return {
@@ -693,7 +696,8 @@ function sourcePresentation(source: unknown): {
     url: validUrl(record.url) ?? validUrl(record.sourceUrl),
     publisher: stringValue(record.publisher) ?? stringValue(record.author) ?? stringValue(record.authorName),
     platform: stringValue(record.platform),
-    publishedAt: validDateString(record.publishedAt) ?? validDateString(record.postedAt)
+    publishedAt: validDateString(record.publishedAt) ?? validDateString(record.postedAt),
+    metrics: safeMetrics(record.metrics)
   };
 }
 
@@ -719,6 +723,13 @@ function stringValue(value: unknown): string | null {
 
 function finiteNumber(value: unknown): number | null {
   return typeof value === "number" && Number.isFinite(value) ? value : null;
+}
+
+function safeMetrics(value: unknown): DashboardMetrics {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return {};
+  return Object.fromEntries(Object.entries(value).flatMap(([key, metric]) =>
+    typeof metric === "number" && Number.isFinite(metric) && metric > 0 ? [[key, metric]] : []
+  ));
 }
 
 function validDateString(value: unknown): string | null {
@@ -783,18 +794,50 @@ function stringValues(value: unknown): string[] {
   return value.flatMap((item) => typeof item === "string" && item.trim() ? [item.trim()] : []);
 }
 
-function compactEngagement(metrics: Record<string, number | null | undefined>): string | null {
-  const candidates: Array<[string, string]> = [
-    ["views", "views"],
-    ["likes", "likes"],
-    ["reactions", "reactions"],
-    ["upvotes", "upvotes"],
-    ["stars", "stars"]
+type VisibleEngagementMetric = {
+  key: string;
+  label: string;
+  value: number;
+};
+
+function visibleEngagementMetrics(metrics: DashboardMetrics, limit?: number): VisibleEngagementMetric[] {
+  const groups: Array<Array<{ key: string; label: string }>> = [
+    [{ key: "views", label: "views" }],
+    [{ key: "likes", label: "likes" }],
+    [{ key: "reactions", label: "reactions" }],
+    [{ key: "reposts", label: "reposts" }, { key: "shares", label: "shares" }],
+    [{ key: "comments", label: "comments" }, { key: "replies", label: "replies" }],
+    [{ key: "quotes", label: "quotes" }],
+    [{ key: "saves", label: "saves" }, { key: "bookmarks", label: "bookmarks" }],
+    [{ key: "upvotes", label: "upvotes" }],
+    [{ key: "stars", label: "stars" }],
+    [{ key: "forks", label: "forks" }],
+    [{ key: "downloads", label: "downloads" }]
   ];
-  const metric = candidates.find(([key]) => finiteNumber(metrics[key]) !== null && finiteNumber(metrics[key])! > 0);
-  if (!metric) return null;
-  const value = finiteNumber(metrics[metric[0]])!;
-  return new Intl.NumberFormat("en-US", { notation: "compact", maximumFractionDigits: 1 }).format(value) + " " + metric[1];
+  const visible = groups.flatMap((group) => {
+    const metric = group.find(({ key }) => finiteNumber(metrics[key]) !== null && finiteNumber(metrics[key])! > 0);
+    if (!metric) return [];
+    const value = finiteNumber(metrics[metric.key]);
+    return value === null ? [] : [{ ...metric, value }];
+  });
+  return typeof limit === "number" ? visible.slice(0, limit) : visible;
+}
+
+function EngagementMetrics({ detail = false, metrics }: { detail?: boolean; metrics: VisibleEngagementMetric[] }) {
+  if (!metrics.length) return null;
+  return (
+    <span className={detail ? styles.detailMetrics : styles.metricRail} aria-label="Observed source engagement">
+      {metrics.map((metric) => (
+        <span className={styles.metricChip} key={metric.key}>
+          {formatMetric(metric.value)} {metric.label}
+        </span>
+      ))}
+    </span>
+  );
+}
+
+function formatMetric(value: number): string {
+  return new Intl.NumberFormat("en-US", { notation: "compact", maximumFractionDigits: 1 }).format(value);
 }
 
 function dashboardStatusMessage(status: unknown): string {

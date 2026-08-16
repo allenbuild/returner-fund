@@ -45,6 +45,10 @@ describe("TopStoriesDashboard", () => {
     expect(screen.queryByText("Universe")).not.toBeInTheDocument();
     expect(screen.getByLabelText("Item 4")).toBeInTheDocument();
     expect(screen.getByLabelText("Atlas launches an agent runtime thumbnail")).toBeInTheDocument();
+    expect(screen.getAllByText("1.6M views").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("12.4K likes").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("544 comments").length).toBeGreaterThan(0);
+    expect(screen.queryByText("125K views")).not.toBeInTheDocument();
     expect(fetchSources).not.toHaveBeenCalled();
   });
 
@@ -350,7 +354,8 @@ function primarySource(sourceValue: DashboardStorySource): DashboardStoryPrimary
     title: sourceValue.title,
     publisher: sourceValue.publisher,
     platform: sourceValue.platform,
-    publishedAt: sourceValue.publishedAt
+    publishedAt: sourceValue.publishedAt,
+    metrics: sourceValue.metrics
   };
 }
 
@@ -373,7 +378,7 @@ function source(
     authorName: null,
     publisher: null,
     publishedAt: "2026-08-15T10:00:00.000Z",
-    metrics: { views: 20_000 },
+    metrics: { views: 1_600_000, likes: 12_400, comments: 544 },
     thumbnailUrl: null,
     thumbnailAlt: null,
     trackedEntity: null,

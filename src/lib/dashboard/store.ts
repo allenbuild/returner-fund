@@ -193,7 +193,9 @@ export async function writePublicDashboardArtifact(snapshot: DashboardPublicSnap
   if (!isCurrentDashboardSnapshot(snapshot)) {
     throw new Error("Refusing to publish a stale or future dashboard snapshot.");
   }
-  if (snapshot.stories.length === 0) throw new Error("Refusing to replace a dashboard artifact with an empty snapshot.");
+  if (snapshot.stories.length < DASHBOARD_TOP_LIMIT) {
+    throw new Error(`Refusing to replace a dashboard artifact with fewer than ${DASHBOARD_TOP_LIMIT} stories.`);
+  }
   const serialized = JSON.stringify(snapshot);
   const feedSnapshot = toDashboardPublicFeedSnapshot(snapshot);
   if (!isDashboardPublicFeedSnapshot(feedSnapshot)) {
@@ -510,7 +512,8 @@ function toDashboardStoryPrimarySource(
     title: source.title,
     publisher: source.publisher,
     platform: source.platform,
-    publishedAt: source.publishedAt
+    publishedAt: source.publishedAt,
+    metrics: source.metrics
   };
 }
 
@@ -577,7 +580,8 @@ function isDashboardStoryPrimarySource(value: unknown): value is DashboardStoryP
     nullableBoundedString(value.title, 500) &&
     nullableBoundedString(value.publisher, 300) &&
     typeof value.platform === "string" && (DASHBOARD_PLATFORMS as readonly string[]).includes(value.platform) &&
-    validTimestamp(value.publishedAt);
+    validTimestamp(value.publishedAt) &&
+    isMetrics(value.metrics);
 }
 
 function isViewRankings(value: unknown): boolean {
