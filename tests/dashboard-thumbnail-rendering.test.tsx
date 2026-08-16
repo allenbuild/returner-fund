@@ -27,7 +27,7 @@ describe("dashboard thumbnail rendering", () => {
 });
 
 function snapshotWithThumbnail(thumbnailUrl: string, thumbnailAlt: string): DashboardPublicFeedSnapshot {
-  const { snapshot } = buildDashboardSnapshot(developmentDashboardFixtures(), { now: NOW });
+  const { snapshot } = buildDashboardSnapshot(developmentDashboardFixtures(NOW), { now: NOW });
   const next = structuredClone(snapshot);
   const story = next.stories[0];
   if (!story) throw new Error("Expected dashboard fixtures to produce a story.");
