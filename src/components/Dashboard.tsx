@@ -28,7 +28,9 @@ import { InsightsTabs } from "./InsightsTabs";
 import { InsidersPanel, type InsidersPanelHandle } from "./InsidersPanel";
 import { NodePanel } from "./NodePanel";
 import { formatPlatform, PlatformLogo } from "./PlatformLogo";
+import { TopStoriesDashboard } from "./dashboard/TopStoriesDashboard";
 import { trackAnalyticsEvent, type AnalyticsEventPayloads } from "@/lib/analytics";
+import type { DashboardPublicFeedSnapshot } from "@/lib/dashboard/contracts";
 import { applyClientGraphFilters, type ClientGraphFilters } from "@/lib/graph/client-filters";
 import {
   COMPANY_VERTICALS,
@@ -79,6 +81,7 @@ import { PLATFORM_VALUES, type GraphResponse, type Platform, type TopVoiceAudien
 import type { YcPartnersResponse } from "@/lib/yc-partners/favorite-contracts";
 
 type FilterMenuId = "platform" | "topics" | "verticals" | "industry" | "groupPartner" | "topVoices";
+export type DashboardSurface = "map" | "top100";
 
 interface DropdownOption<T extends string> {
   value: T;
@@ -388,10 +391,12 @@ function ycPartnersErrorDetail(payload: YcPartnersApiPayload | null): string | n
 }
 
 interface DashboardProps {
+  initialDashboardSnapshot?: DashboardPublicFeedSnapshot | null;
   initialGraph?: GraphResponse;
   initialBatchSlug?: string;
   initialTopVoiceAudience?: TopVoiceAudienceId;
   initialFilters?: Partial<ClientGraphFilters>;
+  initialSurface?: DashboardSurface;
   manualRefreshEnabled?: boolean;
 }
 
@@ -709,16 +714,19 @@ function titleCase(value: string): string {
 }
 
 export function Dashboard({
+  initialDashboardSnapshot = null,
   initialGraph,
   initialBatchSlug: initialBatchSlugProp,
   initialTopVoiceAudience: initialTopVoiceAudienceProp,
   initialFilters,
+  initialSurface = "map",
   manualRefreshEnabled = true
 }: DashboardProps = {}) {
   const preparedInitialGraph = useMemo(
     () => initialGraph ? enrichGraphTaxonomies(initialGraph) : undefined,
     [initialGraph]
   );
+  const [surface, setSurface] = useState<DashboardSurface>(initialSurface);
   const [batchSlug, setBatchSlug] = useState(() => initialBatchSlug(preparedInitialGraph, initialBatchSlugProp));
   const [topVoiceAudience, setTopVoiceAudience] = useState<TopVoiceAudienceId>(() =>
     initialTopVoiceAudience(preparedInitialGraph, initialTopVoiceAudienceProp)
@@ -841,6 +849,7 @@ export function Dashboard({
   }, [batchSlug]);
 
   useEffect(() => {
+    if (surface !== "map") return undefined;
     let disposed = false;
     let timeoutId: number | null = null;
 
@@ -860,7 +869,7 @@ export function Dashboard({
       if (timeoutId !== null) window.clearTimeout(timeoutId);
       ycPartnersAbortRef.current?.abort();
     };
-  }, [batchSlug, loadYcPartners, graph?.generatedAt]);
+  }, [batchSlug, loadYcPartners, graph?.generatedAt, surface]);
 
   useEffect(() => {
     selectionRef.current = { batchSlug, topVoiceAudience, insiderIds: selectedInsiderIds };
@@ -871,6 +880,9 @@ export function Dashboard({
   /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
+    if (params.has("mode")) {
+      setSurface(params.get("mode") === "top100" ? "top100" : "map");
+    }
     if (params.has("topics")) {
       setSelectedTopics(queryTopics(params));
     }
@@ -1404,6 +1416,7 @@ export function Dashboard({
   }, { emitInitial: true }), [fetchGraph, invalidateGraphRequests]);
 
   useEffect(() => {
+    if (surface !== "map") return undefined;
     if (topVoiceAudience !== "insiders") return undefined;
     let cancelled = false;
     void insiderAccessToken().then((accessToken) => {
@@ -1414,9 +1427,10 @@ export function Dashboard({
     return () => {
       cancelled = true;
     };
-  }, [refreshPersonalizedInsiders, topVoiceAudience]);
+  }, [refreshPersonalizedInsiders, surface, topVoiceAudience]);
 
   useEffect(() => {
+    if (surface !== "map") return undefined;
     if (graphMatchesSelection(mapMetadataGraph, batchSlug, DEFAULT_TOP_VOICE_AUDIENCE)) {
       return undefined;
     }
@@ -1429,7 +1443,7 @@ export function Dashboard({
       void fetchMapBaseline(batchSlug);
     }, retryDelay);
     return () => window.clearTimeout(timeoutId);
-  }, [batchSlug, fetchMapBaseline, mapBaselineRetry, mapMetadataGraph]);
+  }, [batchSlug, fetchMapBaseline, mapBaselineRetry, mapMetadataGraph, surface]);
 
   useEffect(() => {
     return () => {
@@ -1444,7 +1458,7 @@ export function Dashboard({
   }, [invalidateGraphRequests]);
 
   useEffect(() => {
-    if (typeof window === "undefined") {
+    if (surface !== "map" || typeof window === "undefined") {
       return undefined;
     }
 
@@ -1467,9 +1481,10 @@ export function Dashboard({
         window.clearTimeout(timeoutId);
       }
     };
-  }, [fetchGraph, invalidateGraphRequests]);
+  }, [fetchGraph, invalidateGraphRequests, surface]);
 
   useEffect(() => {
+    if (surface !== "map") return undefined;
     const activeGraphKey = graphCacheKey(
       batchSlug,
       topVoiceAudience,
@@ -1516,10 +1531,10 @@ export function Dashboard({
 
     initialGraphHydratedRef.current = false;
     void fetchGraph({ unfiltered: true });
-  }, [batchSlug, currentFilters, fetchGraph, filterMetadataGraph, preparedInitialGraph, selectedInsiderIds, topVoiceAudience]);
+  }, [batchSlug, currentFilters, fetchGraph, filterMetadataGraph, preparedInitialGraph, selectedInsiderIds, surface, topVoiceAudience]);
 
   useEffect(() => {
-    if (typeof window === "undefined") {
+    if (surface !== "map" || typeof window === "undefined") {
       return undefined;
     }
 
@@ -1553,7 +1568,7 @@ export function Dashboard({
       window.removeEventListener("focus", revalidateOnResume);
       document.removeEventListener("visibilitychange", revalidateOnResume);
     };
-  }, [batchSlug, fetchGraph, selectedInsiderIds, topVoiceAudience]);
+  }, [batchSlug, fetchGraph, selectedInsiderIds, surface, topVoiceAudience]);
 
   const settledGraph =
     graphMatchesSelection(graph, batchSlug, topVoiceAudience) &&
@@ -1621,7 +1636,7 @@ export function Dashboard({
   );
 
   useEffect(() => {
-    if (!rankedPostsSidecarTarget || bundledRankedPostsSidecarScope) return undefined;
+    if (surface !== "map" || !rankedPostsSidecarTarget || bundledRankedPostsSidecarScope) return undefined;
 
     let cancelled = false;
     const controller = new AbortController();
@@ -1643,7 +1658,7 @@ export function Dashboard({
       cancelled = true;
       controller.abort();
     };
-  }, [bundledRankedPostsSidecarScope, rankedPostsSidecarTarget]);
+  }, [bundledRankedPostsSidecarScope, rankedPostsSidecarTarget, surface]);
 
   const activeRankedPostsSidecarScope =
     bundledRankedPostsSidecarScope ?? (rankedPostsSidecarState && rankedPostsSidecarTarget &&
@@ -1693,6 +1708,7 @@ export function Dashboard({
       return;
     }
     const url = new URL(window.location.href);
+    setUrlParameter(url, "mode", surface === "top100" ? "top100" : null);
     setUrlParameter(url, "batch", batchSlug === DEFAULT_BATCH_SLUG ? null : batchSlug);
     setUrlParameter(url, "topVoices", topVoiceAudience === DEFAULT_TOP_VOICE_AUDIENCE ? null : topVoiceAudience);
     setUrlParameter(url, "platforms", selectedPlatforms.length ? selectedPlatforms.join(",") : null);
@@ -1725,6 +1741,7 @@ export function Dashboard({
     selectedPlatforms,
     selectedTopics,
     selectedVerticals,
+    surface,
     topVoiceAudience,
     urlStateHydrated
   ]);
@@ -2178,7 +2195,7 @@ export function Dashboard({
   }, [brandTitle]);
 
   return (
-    <main className={`dashboard${isA16zSpeedrunBatch ? " dashboard-a16z" : ""}`}>
+    <main className={`dashboard${isA16zSpeedrunBatch ? " dashboard-a16z" : ""}${surface === "top100" ? " dashboard-top100" : ""}`}>
       <header className="topbar">
         <div className="brand-block">
           {isA16zSpeedrunBatch ? (
@@ -2199,7 +2216,7 @@ export function Dashboard({
           </div>
         </div>
 
-        <div className="focus-search">
+        {surface === "map" && <div className="focus-search">
           <Search size={17} aria-hidden="true" />
           <input
             ref={searchInputRef}
@@ -2239,21 +2256,24 @@ export function Dashboard({
               {!searchResults.length && <div className="focus-search-empty">No matching company or founder</div>}
             </div>
           )}
-        </div>
+        </div>}
 
         <div className="control-strip">
           <div className="control-cluster control-cluster-selectors">
             <label className="batch-control">
               <span className="sr-only">Batch</span>
               <select
-                value={batchSlug}
+                value={surface === "top100" ? "__dashboard" : batchSlug}
                 onChange={(event) => {
                   const nextBatchSlug = event.target.value;
                   if (nextBatchSlug === "__dashboard") {
-                    window.location.assign("/dashboard");
+                    setSurface("top100");
+                    setOpenFilterMenu(null);
+                    setSearchOpen(false);
                     return;
                   }
                   const changeBatch = () => {
+                    setSurface("map");
                     if (nextBatchSlug !== batchSlug) {
                       trackFilterChange("batch", "set", 1);
                     }
@@ -2263,7 +2283,7 @@ export function Dashboard({
                   else changeBatch();
                 }}
               >
-                <option value="__dashboard">Dashboard</option>
+                <option value="__dashboard">Top 100</option>
                 {batches.map((batch) => (
                   <option key={batch.slug} value={batch.slug}>
                     {batch.label}
@@ -2287,7 +2307,7 @@ export function Dashboard({
             </button>
           </div>
 
-          {manualRefreshEnabled && (
+          {surface === "map" && manualRefreshEnabled && (
             <div className="control-cluster control-cluster-actions">
               <button
                 type="button"
@@ -2304,7 +2324,7 @@ export function Dashboard({
         </div>
       </header>
 
-      <section className="filter-band" ref={filterBandRef}>
+      {surface === "map" && <section className="filter-band" ref={filterBandRef}>
         <FilterDropdown
           id="platform"
           icon={<Filter size={15} />}
@@ -2455,9 +2475,9 @@ export function Dashboard({
             </button>
           </div>
         </div>
-      </section>
+      </section>}
 
-      {((error && graph) || refreshError || refreshNotice) && (
+      {surface === "map" && ((error && graph) || refreshError || refreshNotice) && (
         <section className="status-line" aria-live="polite">
           {error && graph && <span className="error-text">{error}</span>}
           {error && fallbackGraphActive && (
@@ -2476,17 +2496,24 @@ export function Dashboard({
         </section>
       )}
 
-      {graphScopeMismatch && graphBusy && (
+      {surface === "map" && graphScopeMismatch && graphBusy && (
         <div className="sr-only" role="status">
           Loading the selected graph. The previous graph remains visible, but its controls are unavailable.
         </div>
       )}
-      <div role="region" aria-label="Network map results" aria-busy={graphBusy}>
+      <div
+        role="region"
+        aria-busy={surface === "map" ? graphBusy : undefined}
+        aria-label={surface === "top100" ? "Top 100 technology stories" : "Network map results"}
+      >
         <section
           className="dashboard-grid"
           ref={dashboardGridRef}
-          inert={graphScopeMismatch && graphBusy}
+          inert={surface === "map" && graphScopeMismatch && graphBusy}
         >
+          {surface === "top100" ? (
+            <TopStoriesDashboard snapshot={initialDashboardSnapshot} variant="network-map" />
+          ) : <>
           <div className="graph-column">
             {graphIsEmpty ? (
               <div className="graph-empty-state">
@@ -2560,6 +2587,7 @@ export function Dashboard({
               onRetryYcPartners={() => void loadYcPartners()}
             />
           )}
+          </>}
         </section>
       </div>
     </main>

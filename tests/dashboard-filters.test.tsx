@@ -133,6 +133,15 @@ vi.mock("@/components/NodePanel", () => ({
   )
 }));
 
+vi.mock("@/components/dashboard/TopStoriesDashboard", () => ({
+  TopStoriesDashboard: () => (
+    <>
+      <div className="graph-column" data-testid="top100-canvas" />
+      <aside className="node-panel" data-testid="top100-detail-panel" />
+    </>
+  )
+}));
+
 describe("dashboard filters", () => {
   it("loads YC partner rankings for the active batch only", async () => {
     vi.useFakeTimers();
@@ -736,7 +745,7 @@ describe("dashboard filters", () => {
     );
   });
 
-  it("places the public Dashboard above Spring, Summer, and Speedrun in the batch selector", () => {
+  it("places the in-place Top 100 mode above Spring, Summer, and Speedrun in the batch selector", () => {
     const fullGraph = graphResponse([
       makeNode("company:heyclicky", "HeyClicky", "b2b", "#7dd3fc", "Partner A")
     ]);
@@ -753,7 +762,7 @@ describe("dashboard filters", () => {
 
     expect(batchSelector).toHaveValue("S2026");
     expect(options).toHaveLength(4);
-    expect(options[0]).toHaveTextContent("Dashboard");
+    expect(options[0]).toHaveTextContent("Top 100");
     expect(options[0]).toHaveValue("__dashboard");
     expect(options[1]).toHaveTextContent("YC Spring 2026 (P26)");
     expect(options[1]).toHaveValue("S2026");
@@ -761,6 +770,32 @@ describe("dashboard filters", () => {
     expect(options[2]).toHaveValue("S26");
     expect(options[3]).toHaveTextContent("a16z speedrun 006");
     expect(options[3]).toHaveValue("A16ZSR006");
+  });
+
+  it("switches Top 100 into the map shell without navigating away", async () => {
+    const fullGraph = graphResponse([
+      makeNode("company:heyclicky", "HeyClicky", "b2b", "#7dd3fc", "Partner A")
+    ]);
+    vi.stubGlobal("fetch", vi.fn(() => new Promise(() => undefined)));
+
+    render(<Dashboard initialGraph={fullGraph} />);
+
+    const batchSelector = screen.getByRole("combobox", { name: /batch/i }) as HTMLSelectElement;
+    fireEvent.change(batchSelector, { target: { value: "__dashboard" } });
+
+    expect(batchSelector).toHaveValue("__dashboard");
+    expect(screen.getByTestId("top100-canvas")).toBeInTheDocument();
+    expect(screen.getByTestId("top100-detail-panel")).toBeInTheDocument();
+    expect(screen.queryByTestId("graph-canvas")).not.toBeInTheDocument();
+    expect(screen.queryByText("Platform")).not.toBeInTheDocument();
+    await waitFor(() => expect(new URLSearchParams(window.location.search).get("mode")).toBe("top100"));
+    expect(window.location.pathname).toBe("/");
+
+    fireEvent.change(batchSelector, { target: { value: "S2026" } });
+
+    expect(batchSelector).toHaveValue("S2026");
+    expect(screen.getByTestId("graph-canvas")).toBeInTheDocument();
+    await waitFor(() => expect(new URLSearchParams(window.location.search).has("mode")).toBe(false));
   });
 
   it("uses exact a16z speedrun branding in the page and browser tab", () => {

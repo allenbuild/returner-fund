@@ -2,7 +2,6 @@
 
 import {
   ChevronDown,
-  Clock3,
   ExternalLink,
   Sparkles
 } from "lucide-react";
@@ -32,16 +31,16 @@ type RankedDashboardStory = {
 };
 
 type DashboardSnapshotExtras = {
-  generatedAt?: string | null;
   status?: unknown;
 };
 
 interface TopStoriesDashboardProps {
   snapshot: DashboardPublicFeedSnapshot | null | undefined;
+  /** Renders inside the existing YC Network Map canvas and detail-panel shell. */
+  variant?: "standalone" | "network-map";
 }
 
 const knownPlatforms = new Set<string>(PLATFORM_VALUES);
-const DASHBOARD_CURRENT_MAX_AGE_MS = 2 * 60 * 60 * 1_000;
 const DASHBOARD_RECOVERY_MAX_AGE_MS = 48 * 60 * 60 * 1_000;
 const DASHBOARD_RECOVERY_MAX_FUTURE_SKEW_MS = 5 * 60 * 1_000;
 
@@ -50,9 +49,10 @@ const DASHBOARD_RECOVERY_MAX_FUTURE_SKEW_MS = 5 * 60 * 1_000;
  * scoring; this client only lays out the published Top 100 snapshot and never
  * implies audience metrics when a publisher has not supplied them.
  */
-export function TopStoriesDashboard({ snapshot }: TopStoriesDashboardProps) {
+export function TopStoriesDashboard({ snapshot, variant = "standalone" }: TopStoriesDashboardProps) {
   const [now, setNow] = useState<number | null>(null);
   const [recoveredSnapshot, setRecoveredSnapshot] = useState<DashboardPublicFeedSnapshot | null>(null);
+  const [selectedStableKey, setSelectedStableKey] = useState<string | null>(null);
   const recoveryAttempted = useRef(false);
 
   useEffect(() => {
@@ -95,34 +95,24 @@ export function TopStoriesDashboard({ snapshot }: TopStoriesDashboardProps) {
   const displayedSnapshot = needsSnapshotRecovery(snapshot) ? recoveredSnapshot ?? snapshot : snapshot;
   const stories = consolidatedStories(safeStories(displayedSnapshot));
   const snapshotExtras = displayedSnapshot as DashboardSnapshotExtras | null | undefined;
-  const freshness = dashboardFreshness(displayedSnapshot, snapshotExtras, now);
+  const selectedStory = stories.find(({ story }) => story.stableKey === selectedStableKey) ?? stories[0] ?? null;
+
+  if (variant === "network-map") {
+    return (
+      <NetworkMapTopStories
+        now={now}
+        selectedStory={selectedStory}
+        setSelectedStableKey={setSelectedStableKey}
+        snapshotExtras={snapshotExtras}
+        stories={stories}
+      />
+    );
+  }
 
   return (
     <section className={styles.dashboard}>
       <div className={styles.shell}>
-        <header className={styles.header}>
-          <div className={styles.headerCopy}>
-            <div>
-              <p className={styles.eyebrow}>Technology discovery</p>
-              <h1>Top 100 in Tech</h1>
-              <p>A single 24-hour index of direct-source technology reporting, research, and releases.</p>
-            </div>
-            <time className={styles.freshness} dateTime={freshness.dateTime ?? undefined} aria-live="polite">
-              <Clock3 size={16} aria-hidden="true" />
-              {freshness.label}
-            </time>
-          </div>
-        </header>
-
         <section className={styles.ranking} aria-label="Top 100 technology stories">
-          <div className={styles.rankingHeader}>
-            {stories.length > 0 && (
-              <p className={styles.storyCount} id="dashboard-top-100">
-                {stories.length} {stories.length === 1 ? "story" : "stories"}
-              </p>
-            )}
-          </div>
-
           {stories.length > 0 ? (
             <ol className={styles.storyGrid} aria-label="Top 100 technology stories">
               {stories.map(({ story, ranking }) => (
@@ -130,11 +120,7 @@ export function TopStoriesDashboard({ snapshot }: TopStoriesDashboardProps) {
               ))}
             </ol>
           ) : (
-            <div className={styles.emptyState} role="status">
-              <Sparkles size={24} aria-hidden="true" />
-              <strong>The Top 100 is being prepared.</strong>
-              <span>{dashboardStatusMessage(snapshotExtras?.status)}</span>
-            </div>
+            <TopStoriesEmptyState status={snapshotExtras?.status} />
           )}
         </section>
       </div>
@@ -142,67 +128,221 @@ export function TopStoriesDashboard({ snapshot }: TopStoriesDashboardProps) {
   );
 }
 
+function NetworkMapTopStories({
+  now,
+  selectedStory,
+  setSelectedStableKey,
+  snapshotExtras,
+  stories
+}: {
+  now: number | null;
+  selectedStory: RankedDashboardStory | null;
+  setSelectedStableKey: (stableKey: string) => void;
+  snapshotExtras: DashboardSnapshotExtras | null | undefined;
+  stories: RankedDashboardStory[];
+}) {
+  return (
+    <>
+      <div className="graph-column">
+        <section className={styles.mapCanvas} aria-label="Top 100 technology stories">
+          {stories.length > 0 ? (
+            <ol className={styles.mapStoryGrid} aria-label="Top 100 technology stories">
+              {stories.map(({ story, ranking }) => (
+                <StoryCard
+                  key={story.id}
+                  now={now}
+                  onSelect={() => setSelectedStableKey(story.stableKey)}
+                  ranking={ranking}
+                  selected={selectedStory?.story.stableKey === story.stableKey}
+                  story={story}
+                />
+              ))}
+            </ol>
+          ) : (
+            <TopStoriesEmptyState status={snapshotExtras?.status} />
+          )}
+        </section>
+      </div>
+      <TopStoryDetailPanel now={now} selectedStory={selectedStory} />
+    </>
+  );
+}
+
+function TopStoriesEmptyState({ status }: { status: unknown }) {
+  return (
+    <div className={styles.emptyState} role="status">
+      <Sparkles size={24} aria-hidden="true" />
+      <strong>Loading articles…</strong>
+      <span>{dashboardStatusMessage(status)}</span>
+    </div>
+  );
+}
+
 function StoryCard({
   now,
+  onSelect,
   ranking,
+  selected = false,
   story
 }: {
   now: number | null;
+  onSelect?: () => void;
   ranking: DashboardViewRanking;
+  selected?: boolean;
   story: DashboardStoryCard;
 }) {
   const primarySource = sourcePresentation(story.primarySource);
   const primaryPlatform = primarySource.platform ?? story.platforms.find(Boolean) ?? null;
   const sourceLabel = primarySource.publisher ?? (primaryPlatform ? displayPlatform(primaryPlatform) : "Technology");
   const engagementSummary = compactEngagement(story.engagement);
+  const selectable = Boolean(onSelect);
 
   return (
     <li>
       <article className={styles.storyCard}>
-        <div className={styles.media}>
-          <span className={styles.rank} aria-label={"Item " + ranking.rank}>#{ranking.rank}</span>
-          <StoryThumbnail sourceUrl={primarySource.url} story={story} />
-        </div>
-        <div className={styles.storyBody}>
-          <div className={styles.sourceLine}>
-            {primaryPlatform && isKnownPlatform(primaryPlatform) && (
-              <PlatformLogo decorative platform={primaryPlatform} />
-            )}
-            <span>{sourceLabel}</span>
-            {story.universe === "returner" && story.labels.slice(0, 1).map((label) => (
-              <span className={styles.returnerLabel} key={label}>{label}</span>
-            ))}
-          </div>
-
-          <h3 className={styles.storyTitle}>
-            {primarySource.url ? (
-              <a href={primarySource.url} target="_blank" rel="noreferrer">
-                {story.title}
-                <ExternalLink size={14} aria-hidden="true" />
-              </a>
-            ) : story.title}
-          </h3>
-          <p className={styles.summary}>{story.summary}</p>
-
-          <div className={styles.metadata}>
-            {story.publishedAt && <time dateTime={story.publishedAt}>{displayRelativeDate(story.publishedAt, now)}</time>}
-            {engagementSummary && <span>{engagementSummary}</span>}
-            <span>{story.sourceCount} {story.sourceCount === 1 ? "source" : "sources"}</span>
-          </div>
-
-          {story.sourceCount > 0 && (
-            <StorySources now={now} sourceCount={story.sourceCount} stableKey={story.stableKey} />
-          )}
-        </div>
+        {selectable ? (
+          <button
+            aria-label={`Show ${story.title}`}
+            aria-pressed={selected}
+            className={styles.storyCardButton}
+            onClick={onSelect}
+            type="button"
+          >
+            <StoryCardContent
+              engagementSummary={engagementSummary}
+              now={now}
+              primaryPlatform={primaryPlatform}
+              ranking={ranking}
+              sourceLabel={sourceLabel}
+              story={story}
+            />
+          </button>
+        ) : (
+          <StoryCardContent
+            engagementSummary={engagementSummary}
+            now={now}
+            primaryPlatform={primaryPlatform}
+            primarySourceUrl={primarySource.url}
+            ranking={ranking}
+            sourceLabel={sourceLabel}
+            story={story}
+          />
+        )}
       </article>
     </li>
   );
 }
 
+function StoryCardContent({
+  engagementSummary,
+  now,
+  primaryPlatform,
+  primarySourceUrl,
+  ranking,
+  sourceLabel,
+  story
+}: {
+  engagementSummary: string | null;
+  now: number | null;
+  primaryPlatform: string | null;
+  primarySourceUrl?: string | null;
+  ranking: DashboardViewRanking;
+  sourceLabel: string;
+  story: DashboardStoryCard;
+}) {
+  return (
+    <>
+      <div className={styles.media}>
+        <span className={styles.rank} aria-label={`Item ${ranking.rank}`}>#{ranking.rank}</span>
+        <StoryThumbnail linkToSource={Boolean(primarySourceUrl)} sourceUrl={primarySourceUrl ?? null} story={story} />
+      </div>
+      <div className={styles.storyBody}>
+        <div className={styles.sourceLine}>
+          {primaryPlatform && isKnownPlatform(primaryPlatform) && (
+            <PlatformLogo decorative platform={primaryPlatform as Platform} />
+          )}
+          <span>{sourceLabel}</span>
+          {story.universe === "returner" && story.labels.slice(0, 1).map((label) => (
+            <span className={styles.returnerLabel} key={label}>{label}</span>
+          ))}
+        </div>
+
+        <h3 className={styles.storyTitle}>
+          {primarySourceUrl ? (
+            <a href={primarySourceUrl} target="_blank" rel="noreferrer">
+              {story.title}
+              <ExternalLink size={14} aria-hidden="true" />
+            </a>
+          ) : story.title}
+        </h3>
+
+        <div className={styles.metadata}>
+          {story.publishedAt && <time dateTime={story.publishedAt}>{displayRelativeDate(story.publishedAt, now)}</time>}
+          {engagementSummary && <span>{engagementSummary}</span>}
+        </div>
+      </div>
+    </>
+  );
+}
+
+function TopStoryDetailPanel({
+  now,
+  selectedStory
+}: {
+  now: number | null;
+  selectedStory: RankedDashboardStory | null;
+}) {
+  if (!selectedStory) {
+    return (
+      <aside aria-label="Article details" className={`node-panel ${styles.storyDetailPanel}`}>
+        <TopStoriesEmptyState status={null} />
+      </aside>
+    );
+  }
+
+  const { ranking, story } = selectedStory;
+  const primarySource = sourcePresentation(story.primarySource);
+  const primaryPlatform = primarySource.platform ?? story.platforms.find(Boolean) ?? null;
+  const sourceLabel = primarySource.publisher ?? (primaryPlatform ? displayPlatform(primaryPlatform) : "Technology");
+  const engagementSummary = compactEngagement(story.engagement);
+
+  return (
+    <aside aria-label="Article details" className={`node-panel ${styles.storyDetailPanel}`}>
+      <header className={styles.detailHeader}>
+        <div className={styles.sourceLine}>
+          {primaryPlatform && isKnownPlatform(primaryPlatform) && (
+            <PlatformLogo decorative platform={primaryPlatform as Platform} />
+          )}
+          <span>{sourceLabel}</span>
+        </div>
+        <span className={styles.detailRank} aria-label={`Item ${ranking.rank}`}>#{ranking.rank}</span>
+      </header>
+      <h2>{story.title}</h2>
+      <StoryThumbnail linkToSource sourceUrl={primarySource.url} story={story} />
+      <p className={styles.detailSummary}>{story.summary}</p>
+      <div className={styles.detailMetadata}>
+        {story.publishedAt && <time dateTime={story.publishedAt}>{displayRelativeDate(story.publishedAt, now)}</time>}
+        {engagementSummary && <span>{engagementSummary}</span>}
+        <span>{story.sourceCount} {story.sourceCount === 1 ? "source" : "sources"}</span>
+      </div>
+      {primarySource.url && (
+        <a className={styles.articleLink} href={primarySource.url} rel="noreferrer" target="_blank">
+          Open article <ExternalLink size={14} aria-hidden="true" />
+        </a>
+      )}
+      {story.sourceCount > 0 && (
+        <StorySources now={now} sourceCount={story.sourceCount} stableKey={story.stableKey} />
+      )}
+    </aside>
+  );
+}
+
 function StoryThumbnail({
+  linkToSource = true,
   sourceUrl,
   story
 }: {
+  linkToSource?: boolean;
   sourceUrl: string | null;
   story: DashboardStoryCard;
 }) {
@@ -238,7 +378,7 @@ function StoryThumbnail({
     </span>
   );
 
-  return sourceUrl ? (
+  return sourceUrl && linkToSource ? (
     <a
       aria-label={"Open " + story.title}
       className={styles.thumbnailLink}
@@ -630,32 +770,6 @@ function displayRelativeDate(value: string, now: number | null): string {
   return new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", timeZone: "America/Chicago" }).format(new Date(timestamp));
 }
 
-function dashboardFreshness(
-  snapshot: DashboardPublicFeedSnapshot | null | undefined,
-  extras: DashboardSnapshotExtras | null | undefined,
-  now: number | null
-): { dateTime: string | null; label: string } {
-  const generatedAt = validDateString(extras?.generatedAt);
-  const availability = snapshotAvailability(extras?.status);
-
-  if (!snapshot || !generatedAt || safeStories(snapshot).length === 0 || availability === "unavailable") {
-    return {
-      dateTime: null,
-      label: availability === "stale" ? "Latest index is stale" : "Latest index unavailable"
-    };
-  }
-
-  const age = now === null ? null : now - new Date(generatedAt).getTime();
-  if (availability === "stale" || (age !== null && Number.isFinite(age) && age > DASHBOARD_CURRENT_MAX_AGE_MS)) {
-    return {
-      dateTime: generatedAt,
-      label: now === null ? "Showing last published index" : "Showing last published index · " + freshnessLabel(generatedAt, now)
-    };
-  }
-
-  return { dateTime: generatedAt, label: freshnessLabel(generatedAt, now) };
-}
-
 function snapshotAvailability(status: unknown): "stale" | "unavailable" | null {
   const record = status && typeof status === "object" ? status as Record<string, unknown> : null;
   const failures = stringValues(record?.partialPlatformFailures);
@@ -667,17 +781,6 @@ function snapshotAvailability(status: unknown): "stale" | "unavailable" | null {
 function stringValues(value: unknown): string[] {
   if (!Array.isArray(value)) return [];
   return value.flatMap((item) => typeof item === "string" && item.trim() ? [item.trim()] : []);
-}
-
-function freshnessLabel(value: string, now: number | null): string {
-  if (!value || now === null) return "Updated recently";
-  const timestamp = new Date(value).getTime();
-  if (!Number.isFinite(timestamp)) return "Updated recently";
-  const minutes = Math.max(0, Math.floor((now - timestamp) / 60_000));
-  if (minutes < 1) return "Updated just now";
-  if (minutes < 60) return "Updated " + minutes + " min ago";
-  const hours = Math.floor(minutes / 60);
-  return "Updated " + hours + "h ago";
 }
 
 function compactEngagement(metrics: Record<string, number | null | undefined>): string | null {
@@ -697,7 +800,7 @@ function compactEngagement(metrics: Record<string, number | null | undefined>): 
 function dashboardStatusMessage(status: unknown): string {
   const record = status && typeof status === "object" ? status as Record<string, unknown> : null;
   const failures = stringValues(record?.partialPlatformFailures);
-  if (failures.length) return "The latest index is available with partial source coverage while a refresh recovers.";
-  if (finiteNumber(record?.eligibleCandidateCount) === 0) return "No eligible stories were available in the latest rolling 24-hour window.";
-  return "A precomputed 24-hour technology index will appear after the next successful refresh.";
+  if (failures.length) return "Waiting for the next published update.";
+  if (finiteNumber(record?.eligibleCandidateCount) === 0) return "No articles are available yet.";
+  return "No articles are available yet.";
 }

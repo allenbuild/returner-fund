@@ -219,6 +219,21 @@ a {
   pointer-events: none;
 }
 
+/* Top 100 is a surface of the map application, not a second page shell. */
+.dashboard-top100 .topbar {
+  grid-template-columns: minmax(190px, 1fr) auto;
+  border-bottom: 1px solid var(--chrome-border);
+  border-radius: 16px;
+}
+
+.dashboard-top100 .topbar::before {
+  border-radius: 16px 16px 0 0;
+}
+
+.dashboard-top100 .control-strip {
+  justify-self: end;
+}
+
 .dashboard-a16z .topbar,
 .dashboard-a16z .filter-band {
   background: var(--chrome-surface);
@@ -4561,6 +4576,14 @@ td button {
     border-radius: 16px 16px 0 0;
     background: var(--chrome-surface);
     box-shadow: none;
+  }
+
+  .dashboard-top100 .topbar {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .dashboard-top100 .control-strip {
+    justify-self: stretch;
   }
 
   .brand-block {
