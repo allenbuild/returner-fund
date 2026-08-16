@@ -99,6 +99,12 @@ describe("dashboard public snapshot validation", () => {
     expect(feed.stories[0]).not.toHaveProperty("emergingScore");
     expect(JSON.stringify(feed)).not.toContain('"sources"');
 
+    const unsafeThumbnailFeed = toDashboardPublicFeedSnapshot({
+      ...snapshot,
+      stories: [{ ...story, thumbnailUrl: "https://unapproved-images.example.test/card.jpg" }]
+    });
+    expect(unsafeThumbnailFeed.stories[0]?.thumbnailUrl).toBeNull();
+
     const leakedArray = clone(feed) as { stories: Array<Record<string, unknown>> };
     leakedArray.stories[0]!.sources = [];
     expect(isDashboardPublicFeedSnapshot(leakedArray)).toBe(false);

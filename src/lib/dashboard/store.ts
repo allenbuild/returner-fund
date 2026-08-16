@@ -21,6 +21,7 @@ import {
   type DashboardStorySourceDetail
 } from "./contracts";
 import { stableHash } from "./normalization";
+import { safeDashboardThumbnailUrl } from "./thumbnail-policy";
 
 // Full source evidence is an internal server artifact. Only `feed.json` is
 // public; detailed sources are exposed through the bounded API route below.
@@ -490,9 +491,13 @@ function withoutSources(story: DashboardStory): Omit<
   DashboardStory,
   "sources" | "summaryFingerprint" | "score" | "breakingScore" | "emergingScore"
 > {
-  return Object.fromEntries(
+  const card = Object.fromEntries(
     Object.entries(story).filter(([field]) => !DASHBOARD_CARD_OMITTED_FIELDS.has(field))
   ) as Omit<DashboardStory, "sources" | "summaryFingerprint" | "score" | "breakingScore" | "emergingScore">;
+  // The compact feed is public presentation data. Keep an unreviewed source
+  // image from turning the browser's Next image optimizer into a remote-image
+  // proxy; the card renderer has a local fallback when this becomes null.
+  return { ...card, thumbnailUrl: safeDashboardThumbnailUrl(card.thumbnailUrl) };
 }
 
 function toDashboardStoryPrimarySource(
