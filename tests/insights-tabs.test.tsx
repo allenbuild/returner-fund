@@ -898,7 +898,7 @@ describe("insights tabs", () => {
     expect(rows[2]).toHaveTextContent("+1 pts (+1.3%)");
   });
 
-  it("keeps tied canonical ranks when a Top Voices subset is sorted by momentum", () => {
+  it("numbers a Top Voices subset by its sorted momentum order", () => {
     const graph = graphResponse();
     graph.selectedTopVoiceAudience = {
       id: "yc_partners",
@@ -933,8 +933,8 @@ describe("insights tabs", () => {
 
     const rows = screen.getAllByRole("row").slice(1);
     expect(rows).toHaveLength(2);
-    expect(rows[0]?.querySelector("td")).toHaveTextContent("4");
-    expect(rows[1]?.querySelector("td")).toHaveTextContent("4");
+    expect(rows[0]?.querySelector("td")).toHaveTextContent("1");
+    expect(rows[1]?.querySelector("td")).toHaveTextContent("2");
   });
 
   it("shows an empty state in Overview and Hottest when a Top Voices audience has no qualifying companies", () => {
