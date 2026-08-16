@@ -1,4 +1,6 @@
 import { Dashboard } from "@/components/Dashboard";
+import type { DashboardPublicFeedSnapshot } from "@/lib/dashboard/contracts";
+import { loadPublicDashboardFeedSnapshot } from "@/lib/dashboard/store";
 import type { Metadata } from "next";
 import { HomeStructuredData } from "@/components/seo/HomeDiscovery";
 import { findCohort, getCatalog, type PublicCohort } from "@/lib/seo/catalog";
@@ -67,6 +69,10 @@ export async function generateMetadata({ searchParams }: PageProps): Promise<Met
 export default async function Home({ searchParams }: PageProps) {
   const params = (await searchParams) ?? {};
   const cohort = selectedCohort(singleQueryValue(params.batch));
+  const initialSurface = singleQueryValue(params.mode) === "top100" ? "top100" : "map";
+  const dashboardSnapshot = initialSurface === "top100"
+    ? await loadDashboardSnapshot()
+    : null;
   const platforms = parsePlatformList(singleQueryValue(params.platforms));
   const topics = parseTopicList(singleQueryValue(params.topics));
   const verticals = parseVerticalList(singleQueryValue(params.verticals));
@@ -74,6 +80,8 @@ export default async function Home({ searchParams }: PageProps) {
 
   return (
     <HomeContent
+      initialDashboardSnapshot={dashboardSnapshot}
+      initialSurface={initialSurface}
       selectedBatchSlug={cohort.batchSlug}
       platforms={platforms}
       topics={topics}
@@ -85,6 +93,8 @@ export default async function Home({ searchParams }: PageProps) {
 }
 
 function HomeContent({
+  initialDashboardSnapshot,
+  initialSurface,
   selectedBatchSlug,
   platforms,
   topics,
@@ -92,6 +102,8 @@ function HomeContent({
   topVoices,
   manualRefreshEnabled
 }: {
+  initialDashboardSnapshot: DashboardPublicFeedSnapshot | null;
+  initialSurface: "map" | "top100";
   selectedBatchSlug: string;
   platforms: Platform[];
   topics: PostTopic[];
@@ -103,13 +115,25 @@ function HomeContent({
     <>
       <Dashboard
         initialBatchSlug={selectedBatchSlug}
+        initialDashboardSnapshot={initialDashboardSnapshot}
         initialTopVoiceAudience={topVoices}
         initialFilters={{ platforms, topics, verticals }}
+        initialSurface={initialSurface}
         manualRefreshEnabled={manualRefreshEnabled}
       />
       <HomeStructuredData />
     </>
   );
+}
+
+async function loadDashboardSnapshot(): Promise<DashboardPublicFeedSnapshot | null> {
+  try {
+    return await loadPublicDashboardFeedSnapshot();
+  } catch {
+    // The client Top 100 surface retries the already-published API artifact
+    // without initiating live collection in a visitor request.
+    return null;
+  }
 }
 
 function selectedCohort(batchSlug: string | undefined): PublicCohort {

@@ -26,7 +26,7 @@ const PUBLIC_NAVIGATION: readonly PublicNavigationItem[] = [
   { href: "/industries", label: "Industries", id: "industries" },
   { href: "/platforms", label: "Platforms", id: "platforms" },
   { href: "/rankings", label: "Rankings", id: "rankings" },
-  { href: "/dashboard", label: "Top 100", id: "top-100" },
+  { href: "/?mode=top100", label: "Top 100", id: "top-100" },
   { href: "/search", label: "Search", id: "search" }
 ];
 

@@ -16,7 +16,7 @@ describe("TopStoriesDashboard", () => {
     vi.unstubAllGlobals();
   });
 
-  it("renders one consolidated Top 100 card grid and lazily fetches sources on expansion", async () => {
+  it("renders one consolidated Top 100 card grid without a separate dashboard hero", () => {
     const fetchSources = vi.fn().mockResolvedValue({
       ok: true,
       json: async () => ({
@@ -33,11 +33,11 @@ describe("TopStoriesDashboard", () => {
 
     render(<TopStoriesDashboard snapshot={snapshotFixture()} />);
 
-    expect(screen.getByRole("heading", { name: "Top 100 in Tech", level: 1 })).toBeInTheDocument();
-    expect(screen.getByText("2 stories")).toBeInTheDocument();
     expect(screen.getByRole("list", { name: "Top 100 technology stories" })).toBeInTheDocument();
     expect(screen.getByText("Atlas launches an agent runtime")).toBeInTheDocument();
     expect(screen.getByText("Industry research paper rises")).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "Top 100 in Tech" })).not.toBeInTheDocument();
+    expect(screen.queryByText(/single 24-hour index/i)).not.toBeInTheDocument();
     expect(screen.queryByText("Breaking security release accelerates")).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Hottest" })).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Breaking" })).not.toBeInTheDocument();
@@ -46,7 +46,33 @@ describe("TopStoriesDashboard", () => {
     expect(screen.getByLabelText("Item 4")).toBeInTheDocument();
     expect(screen.getByLabelText("Atlas launches an agent runtime thumbnail")).toBeInTheDocument();
     expect(fetchSources).not.toHaveBeenCalled();
+  });
 
+  it("uses the map canvas and detail panel for article selection and sources", async () => {
+    const fetchSources = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        stableKey: "story-atlas",
+        sourceCount: 2,
+        truncated: false,
+        sources: [
+          primarySource(source("atlas-x", "x", "Atlas Runtime launch", "https://example.com/atlas-launch")),
+          primarySource(source("atlas-hn", "hacker_news", "Show HN: Atlas Runtime", "https://news.ycombinator.com/item?id=atlas"))
+        ]
+      })
+    });
+    vi.stubGlobal("fetch", fetchSources);
+
+    render(<TopStoriesDashboard snapshot={snapshotFixture()} variant="network-map" />);
+
+    const detail = screen.getByLabelText("Article details");
+    expect(detail).toHaveClass("node-panel");
+    expect(within(detail).getByRole("heading", { name: "Atlas launches an agent runtime" })).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Show Industry research paper rises" }));
+    expect(within(detail).getByRole("heading", { name: "Industry research paper rises" })).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Show Atlas launches an agent runtime" }));
     const details = screen.getByText("View 2 underlying sources").closest("details") as HTMLDetailsElement;
     expect(details.open).toBe(false);
     fireEvent.click(within(details).getByText("View 2 underlying sources"));
@@ -71,7 +97,7 @@ describe("TopStoriesDashboard", () => {
 
     render(<TopStoriesDashboard snapshot={emptySnapshot} />);
 
-    expect(screen.getByText("The Top 100 is being prepared.")).toBeInTheDocument();
+    expect(screen.getByText("Loading articles…")).toBeInTheDocument();
     expect(await screen.findByText("Atlas launches an agent runtime")).toBeInTheDocument();
     expect(fetchDashboard).toHaveBeenCalledTimes(1);
     expect(fetchDashboard).toHaveBeenCalledWith(
@@ -81,7 +107,7 @@ describe("TopStoriesDashboard", () => {
         headers: { Accept: "application/json" }
       })
     );
-    expect(screen.queryByText("The Top 100 is being prepared.")).not.toBeInTheDocument();
+    expect(screen.queryByText("Loading articles…")).not.toBeInTheDocument();
   });
 
   it("rejects a recovery response beyond the retained last-publication window", async () => {
@@ -96,7 +122,7 @@ describe("TopStoriesDashboard", () => {
     render(<TopStoriesDashboard snapshot={emptySnapshot} />);
 
     await waitFor(() => expect(fetchDashboard).toHaveBeenCalledTimes(1));
-    expect(screen.getByText("The Top 100 is being prepared.")).toBeInTheDocument();
+    expect(screen.getByText("Loading articles…")).toBeInTheDocument();
     expect(screen.queryByText("Atlas launches an agent runtime")).not.toBeInTheDocument();
   });
 
@@ -115,7 +141,7 @@ describe("TopStoriesDashboard", () => {
     render(<TopStoriesDashboard snapshot={unavailableSnapshotFixture()} />);
 
     await waitFor(() => expect(fetchDashboard).toHaveBeenCalledTimes(1));
-    expect(screen.getByText("The Top 100 is being prepared.")).toBeInTheDocument();
+    expect(screen.getByText("Loading articles…")).toBeInTheDocument();
     expect(screen.queryByText("Atlas launches an agent runtime")).not.toBeInTheDocument();
   });
 
@@ -133,7 +159,7 @@ describe("TopStoriesDashboard", () => {
     render(<TopStoriesDashboard snapshot={unavailableSnapshotFixture()} />);
 
     await waitFor(() => expect(fetchDashboard).toHaveBeenCalledTimes(1));
-    expect(screen.getByText("The Top 100 is being prepared.")).toBeInTheDocument();
+    expect(screen.getByText("Loading articles…")).toBeInTheDocument();
     expect(screen.queryByText("Atlas launches an agent runtime")).not.toBeInTheDocument();
   });
 
@@ -146,26 +172,12 @@ describe("TopStoriesDashboard", () => {
 
     render(<TopStoriesDashboard snapshot={emptySnapshot} />);
 
-    expect(screen.getByText("The Top 100 is being prepared.")).toBeInTheDocument();
+    expect(screen.getByText("Loading articles…")).toBeInTheDocument();
     await waitFor(() => expect(fetch).toHaveBeenCalledTimes(1));
     expect(screen.queryByText("Atlas launches an agent runtime")).not.toBeInTheDocument();
   });
 
-  it("uses the published snapshot generatedAt timestamp for freshness", () => {
-    vi.useFakeTimers();
-    vi.setSystemTime(new Date("2026-08-15T12:30:00.000Z"));
-    const snapshot = snapshotFixture();
-    snapshot.generatedAt = "2026-08-15T12:00:00.000Z";
-    snapshot.updatedAt = "2026-08-15T12:30:00.000Z";
-
-    render(<TopStoriesDashboard snapshot={snapshot} />);
-
-    const freshness = screen.getByText("Updated 30 min ago");
-    expect(freshness).toHaveAttribute("dateTime", snapshot.generatedAt);
-    expect(screen.queryByText("Updated just now")).not.toBeInTheDocument();
-  });
-
-  it("labels a stale safe snapshot without rendering it as fresh", () => {
+  it("keeps the compact loading state when a stale empty snapshot cannot recover", () => {
     const snapshot = snapshotFixture();
     snapshot.stories = [];
     snapshot.status = {
@@ -181,13 +193,10 @@ describe("TopStoriesDashboard", () => {
 
     render(<TopStoriesDashboard snapshot={snapshot} />);
 
-    expect(screen.getByText("Latest index is stale")).toBeInTheDocument();
-    expect(screen.queryByText("Updated just now")).not.toBeInTheDocument();
+    expect(screen.getByText("Loading articles…")).toBeInTheDocument();
   });
 
-  it("keeps a nonempty last publication visible with an explicit stale label", () => {
-    vi.useFakeTimers();
-    vi.setSystemTime(new Date("2026-08-15T15:00:00.000Z"));
+  it("keeps a nonempty last publication visible", () => {
     const snapshot = snapshotFixture();
     snapshot.status = {
       ...snapshot.status,
@@ -197,7 +206,6 @@ describe("TopStoriesDashboard", () => {
     render(<TopStoriesDashboard snapshot={snapshot} />);
 
     expect(screen.getByText("Atlas launches an agent runtime")).toBeInTheDocument();
-    expect(screen.getByText("Showing last published index · Updated 3h ago")).toBeInTheDocument();
   });
 
   it("uses canonical hottest ranks as the sole Top 100 ordering", () => {

@@ -6,7 +6,7 @@
 .shell {
   width: min(1320px, calc(100% - 48px));
   margin: 0 auto;
-  padding: 56px 0 72px;
+  padding: 24px 0 72px;
 }
 
 .header {
@@ -71,7 +71,7 @@
 }
 
 .ranking {
-  padding-top: 24px;
+  padding-top: 0;
 }
 
 .rankingHeader {
@@ -107,6 +107,29 @@
   height: 100%;
   min-width: 0;
   flex-direction: column;
+}
+
+.storyCardButton {
+  width: 100%;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+}
+
+.storyCardButton[aria-pressed="true"] .media {
+  border-color: #ff6600;
+  box-shadow: 0 0 0 2px rgba(255, 102, 0, 0.16);
+}
+
+.storyCardButton:focus-visible {
+  border-radius: 9px;
+  outline: 2px solid rgba(255, 102, 0, 0.44);
+  outline-offset: 3px;
 }
 
 .media {
@@ -252,6 +275,127 @@
   display: inline-block;
   margin: 0 0 0 5px;
   vertical-align: -0.12em;
+}
+
+.mapCanvas {
+  container-type: inline-size;
+  height: var(--map-panel-height);
+  min-height: 0;
+  padding: 18px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  border: 1px solid rgba(231, 227, 220, 0.82);
+  border-radius: 16px;
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.95)),
+    repeating-linear-gradient(0deg, transparent 0 47px, rgba(16, 24, 40, 0.025) 47px 48px),
+    repeating-linear-gradient(90deg, transparent 0 47px, rgba(16, 24, 40, 0.025) 47px 48px);
+  box-shadow: 0 22px 56px rgba(16, 24, 40, 0.07);
+}
+
+.mapStoryGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 22px 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.mapStoryGrid > li {
+  min-width: 0;
+}
+
+.mapStoryGrid .storyBody {
+  padding-top: 10px;
+}
+
+.mapStoryGrid .storyTitle {
+  font-size: 0.96rem;
+}
+
+.storyDetailPanel {
+  gap: 14px;
+}
+
+.detailHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.detailRank {
+  flex: 0 0 auto;
+  padding: 5px 7px;
+  border-radius: 7px;
+  background: #ff6600;
+  color: #ffffff;
+  font-size: 0.76rem;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.storyDetailPanel h2 {
+  margin: -3px 0 0;
+  color: #20201e;
+  font-size: 1.35rem;
+  font-weight: 900;
+  letter-spacing: -0.025em;
+  line-height: 1.15;
+}
+
+.storyDetailPanel > .thumbnail,
+.storyDetailPanel > .thumbnailLink {
+  flex: 0 0 auto;
+  border: 1px solid #deded9;
+  border-radius: 10px;
+}
+
+.storyDetailPanel > .thumbnailLink {
+  overflow: hidden;
+}
+
+.detailSummary {
+  margin: 0;
+  color: #565650;
+  font-size: 0.88rem;
+  font-weight: 600;
+  line-height: 1.55;
+}
+
+.detailMetadata {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px 8px;
+  color: #777770;
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+
+.detailMetadata > * + *::before {
+  width: 2px;
+  height: 2px;
+  margin-right: 8px;
+  border-radius: 50%;
+  background: #c3c3bd;
+  content: "";
+}
+
+.articleLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  width: fit-content;
+  color: #b83f00;
+  font-size: 0.8rem;
+  font-weight: 900;
+  text-decoration: none;
+}
+
+.articleLink:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 
 .summary {
@@ -459,6 +603,14 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 26px 14px;
   }
+
+  .mapCanvas {
+    padding: 14px;
+  }
+
+  .mapStoryGrid {
+    gap: 20px 12px;
+  }
 }
 
 @media (max-width: 560px) {
@@ -479,6 +631,10 @@
   .storyGrid {
     grid-template-columns: 1fr;
     gap: 24px;
+  }
+
+  .mapStoryGrid {
+    grid-template-columns: 1fr;
   }
 
   .storyTitle {

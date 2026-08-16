@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
-import { TopStoriesDashboard } from "@/components/dashboard/TopStoriesDashboard";
-import { PublicSiteChrome } from "@/components/seo/DirectoryShell";
+import { Dashboard } from "@/components/Dashboard";
 import type { DashboardPublicFeedSnapshot } from "@/lib/dashboard/contracts";
 import { loadPublicDashboardFeedSnapshot } from "@/lib/dashboard/store";
 import { publicMetadata } from "@/lib/seo/site";
@@ -8,8 +7,8 @@ import { publicMetadata } from "@/lib/seo/site";
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
-const title = "Top 100 Today";
-const description = "The 100 most important technology developments from the rolling last 24 hours, ranked by attention and momentum.";
+const title = "Top 100";
+const description = "A consolidated technology article index inside the Returner network map.";
 
 export const metadata: Metadata = publicMetadata({
   title,
@@ -23,15 +22,9 @@ export default async function PublicDashboardPage() {
   try {
     snapshot = await loadPublicDashboardFeedSnapshot();
   } catch {
-    // The public route remains useful during a failed publication. The client
-    // renders an explicit empty state instead of performing live discovery.
+    // The client surface retries the compact published API artifact if this
+    // first server read is unavailable.
   }
 
-  return (
-    <PublicSiteChrome activeNavigation="top-100">
-      <main>
-        <TopStoriesDashboard snapshot={snapshot} />
-      </main>
-    </PublicSiteChrome>
-  );
+  return <Dashboard initialDashboardSnapshot={snapshot} initialSurface="top100" manualRefreshEnabled={false} />;
 }
