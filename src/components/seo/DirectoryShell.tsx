@@ -13,6 +13,81 @@ interface DirectoryShellProps {
   children: ReactNode;
 }
 
+type PublicNavigationItem = {
+  href: string;
+  label: string;
+  id: "yc-map" | "a16z-map" | "cohorts" | "industries" | "platforms" | "rankings" | "top-100" | "search";
+};
+
+const PUBLIC_NAVIGATION: readonly PublicNavigationItem[] = [
+  { href: "/", label: "YC map", id: "yc-map" },
+  { href: "/?batch=A16ZSR006", label: "a16z map", id: "a16z-map" },
+  { href: "/cohorts", label: "Cohorts", id: "cohorts" },
+  { href: "/industries", label: "Industries", id: "industries" },
+  { href: "/platforms", label: "Platforms", id: "platforms" },
+  { href: "/rankings", label: "Rankings", id: "rankings" },
+  { href: "/dashboard", label: "Top 100", id: "top-100" },
+  { href: "/search", label: "Search", id: "search" }
+];
+
+type PublicSiteChromeProps = {
+  children: ReactNode;
+  activeNavigation?: PublicNavigationItem["id"];
+};
+
+/** Shared public-site frame for directory pages and the editorial Top 100. */
+export function PublicSiteChrome({ children, activeNavigation }: PublicSiteChromeProps) {
+  return (
+    <div className="rf-directory-page">
+      <PublicSiteHeader activeNavigation={activeNavigation} />
+      {children}
+      <PublicSiteFooter />
+      <style>{DIRECTORY_STYLES}</style>
+    </div>
+  );
+}
+
+function PublicSiteHeader({ activeNavigation }: Pick<PublicSiteChromeProps, "activeNavigation">) {
+  return (
+    <header className="rf-directory-header">
+      <DirectoryLink className="rf-directory-brand" href="/" ariaLabel="Returner home">
+        <span aria-hidden="true">R</span>
+        Returner
+      </DirectoryLink>
+      <nav className="rf-directory-nav" aria-label="Public directory">
+        {PUBLIC_NAVIGATION.map((item) => (
+          <DirectoryLink
+            ariaCurrent={activeNavigation === item.id ? "page" : undefined}
+            className={activeNavigation === item.id ? "rf-directory-nav-active" : undefined}
+            href={item.href}
+            key={item.id}
+          >
+            {item.label}
+          </DirectoryLink>
+        ))}
+      </nav>
+    </header>
+  );
+}
+
+function PublicSiteFooter() {
+  return (
+    <footer className="rf-directory-footer">
+      <div>
+        <strong>Returner</strong>
+        <span>Public startup traction intelligence</span>
+      </div>
+      <nav aria-label="Trust and information">
+        <DirectoryLink href="/about">About</DirectoryLink>
+        <DirectoryLink href="/methodology">Methodology</DirectoryLink>
+        <DirectoryLink href="/data-sources">Data sources</DirectoryLink>
+        <DirectoryLink href="/faq">FAQ</DirectoryLink>
+        <DirectoryLink href="/corrections">Corrections</DirectoryLink>
+      </nav>
+    </footer>
+  );
+}
+
 export function DirectoryShell({
   eyebrow,
   title,
@@ -22,23 +97,7 @@ export function DirectoryShell({
   children
 }: DirectoryShellProps) {
   return (
-    <div className="rf-directory-page">
-      <header className="rf-directory-header">
-        <DirectoryLink className="rf-directory-brand" href="/" ariaLabel="Returner home">
-          <span aria-hidden="true">R</span>
-          Returner
-        </DirectoryLink>
-        <nav className="rf-directory-nav" aria-label="Public directory">
-          <DirectoryLink href="/">YC map</DirectoryLink>
-          <DirectoryLink href="/?batch=A16ZSR006">a16z map</DirectoryLink>
-          <DirectoryLink href="/cohorts">Cohorts</DirectoryLink>
-          <DirectoryLink href="/industries">Industries</DirectoryLink>
-          <DirectoryLink href="/platforms">Platforms</DirectoryLink>
-          <DirectoryLink href="/rankings">Rankings</DirectoryLink>
-          <DirectoryLink href="/search">Search</DirectoryLink>
-        </nav>
-      </header>
-
+    <PublicSiteChrome>
       <main className="rf-directory-main">
         <DirectoryBreadcrumbs items={breadcrumbs} />
         <section className="rf-directory-hero">
@@ -58,22 +117,7 @@ export function DirectoryShell({
         </section>
         {children}
       </main>
-
-      <footer className="rf-directory-footer">
-        <div>
-          <strong>Returner</strong>
-          <span>Public startup traction intelligence</span>
-        </div>
-        <nav aria-label="Trust and information">
-          <DirectoryLink href="/about">About</DirectoryLink>
-          <DirectoryLink href="/methodology">Methodology</DirectoryLink>
-          <DirectoryLink href="/data-sources">Data sources</DirectoryLink>
-          <DirectoryLink href="/faq">FAQ</DirectoryLink>
-          <DirectoryLink href="/corrections">Corrections</DirectoryLink>
-        </nav>
-      </footer>
-      <style>{DIRECTORY_STYLES}</style>
-    </div>
+    </PublicSiteChrome>
   );
 }
 
@@ -128,6 +172,9 @@ const DIRECTORY_STYLES = `
     font-size: 0.82rem;
     font-weight: 700;
     text-decoration: none;
+  }
+  .rf-directory-nav a[aria-current="page"] {
+    color: #b83f00;
   }
   .rf-directory-nav a:hover,
   .rf-directory-footer a:hover,

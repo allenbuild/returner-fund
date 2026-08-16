@@ -7,7 +7,6 @@ import {
   Sparkles
 } from "lucide-react";
 import Image from "next/image";
-import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { PlatformLogo, formatPlatform } from "@/components/PlatformLogo";
 import {
@@ -42,7 +41,8 @@ interface TopStoriesDashboardProps {
 }
 
 const knownPlatforms = new Set<string>(PLATFORM_VALUES);
-const DASHBOARD_RECOVERY_MAX_AGE_MS = 2 * 60 * 60 * 1_000;
+const DASHBOARD_CURRENT_MAX_AGE_MS = 2 * 60 * 60 * 1_000;
+const DASHBOARD_RECOVERY_MAX_AGE_MS = 48 * 60 * 60 * 1_000;
 const DASHBOARD_RECOVERY_MAX_FUTURE_SKEW_MS = 5 * 60 * 1_000;
 
 /**
@@ -98,17 +98,9 @@ export function TopStoriesDashboard({ snapshot }: TopStoriesDashboardProps) {
   const freshness = dashboardFreshness(displayedSnapshot, snapshotExtras, now);
 
   return (
-    <main className={styles.dashboard}>
+    <section className={styles.dashboard}>
       <div className={styles.shell}>
         <header className={styles.header}>
-          <div className={styles.brandRow}>
-            <Link className={styles.brand} href="/" aria-label="Returner home">
-              <span aria-hidden="true">R</span>
-              Returner
-            </Link>
-            <span className={styles.brandDivider} aria-hidden="true" />
-            <span className={styles.sectionName}>Top 100</span>
-          </div>
           <div className={styles.headerCopy}>
             <div>
               <p className={styles.eyebrow}>Technology discovery</p>
@@ -122,14 +114,12 @@ export function TopStoriesDashboard({ snapshot }: TopStoriesDashboardProps) {
           </div>
         </header>
 
-        <section className={styles.ranking} aria-labelledby="dashboard-top-100">
+        <section className={styles.ranking} aria-label="Top 100 technology stories">
           <div className={styles.rankingHeader}>
-            <div>
-              <p className={styles.listEyebrow}>Rolling 24-hour feed</p>
-              <h2 id="dashboard-top-100">Recent direct-source technology coverage</h2>
-            </div>
             {stories.length > 0 && (
-              <p className={styles.storyCount}>{stories.length} {stories.length === 1 ? "story" : "stories"}</p>
+              <p className={styles.storyCount} id="dashboard-top-100">
+                {stories.length} {stories.length === 1 ? "story" : "stories"}
+              </p>
             )}
           </div>
 
@@ -148,7 +138,7 @@ export function TopStoriesDashboard({ snapshot }: TopStoriesDashboardProps) {
           )}
         </section>
       </div>
-    </main>
+    </section>
   );
 }
 
@@ -361,7 +351,7 @@ function needsSnapshotRecovery(snapshot: DashboardPublicFeedSnapshot | null | un
 function isCurrentPublishedFeedSnapshot(value: unknown): value is DashboardPublicFeedSnapshot {
   if (!isDashboardPublicFeedSnapshot(value)) return false;
   const snapshot = value as DashboardPublicFeedSnapshot;
-  if (snapshot.status.partialPlatformFailures.includes("snapshot_stale") || snapshot.status.partialPlatformFailures.includes("snapshot_unavailable")) {
+  if (snapshot.status.partialPlatformFailures.includes("snapshot_unavailable")) {
     return false;
   }
 
@@ -648,10 +638,18 @@ function dashboardFreshness(
   const generatedAt = validDateString(extras?.generatedAt);
   const availability = snapshotAvailability(extras?.status);
 
-  if (!snapshot || !generatedAt || safeStories(snapshot).length === 0 || availability) {
+  if (!snapshot || !generatedAt || safeStories(snapshot).length === 0 || availability === "unavailable") {
     return {
       dateTime: null,
       label: availability === "stale" ? "Latest index is stale" : "Latest index unavailable"
+    };
+  }
+
+  const age = now === null ? null : now - new Date(generatedAt).getTime();
+  if (availability === "stale" || (age !== null && Number.isFinite(age) && age > DASHBOARD_CURRENT_MAX_AGE_MS)) {
+    return {
+      dateTime: generatedAt,
+      label: now === null ? "Showing last published index" : "Showing last published index · " + freshnessLabel(generatedAt, now)
     };
   }
 

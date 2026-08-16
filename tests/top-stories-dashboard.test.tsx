@@ -34,7 +34,7 @@ describe("TopStoriesDashboard", () => {
     render(<TopStoriesDashboard snapshot={snapshotFixture()} />);
 
     expect(screen.getByRole("heading", { name: "Top 100 in Tech", level: 1 })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Recent direct-source technology coverage" })).toBeInTheDocument();
+    expect(screen.getByText("2 stories")).toBeInTheDocument();
     expect(screen.getByRole("list", { name: "Top 100 technology stories" })).toBeInTheDocument();
     expect(screen.getByText("Atlas launches an agent runtime")).toBeInTheDocument();
     expect(screen.getByText("Industry research paper rises")).toBeInTheDocument();
@@ -84,9 +84,9 @@ describe("TopStoriesDashboard", () => {
     expect(screen.queryByText("The Top 100 is being prepared.")).not.toBeInTheDocument();
   });
 
-  it("rejects a stale nonempty recovery response", async () => {
+  it("rejects a recovery response beyond the retained last-publication window", async () => {
     const emptySnapshot = unavailableSnapshotFixture();
-    const staleSnapshot = currentSnapshotFixture(new Date(Date.now() - 3 * 60 * 60 * 1_000));
+    const staleSnapshot = currentSnapshotFixture(new Date(Date.now() - 49 * 60 * 60 * 1_000));
     const fetchDashboard = vi.fn().mockResolvedValue({
       ok: true,
       json: async () => staleSnapshot
@@ -183,6 +183,21 @@ describe("TopStoriesDashboard", () => {
 
     expect(screen.getByText("Latest index is stale")).toBeInTheDocument();
     expect(screen.queryByText("Updated just now")).not.toBeInTheDocument();
+  });
+
+  it("keeps a nonempty last publication visible with an explicit stale label", () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-08-15T15:00:00.000Z"));
+    const snapshot = snapshotFixture();
+    snapshot.status = {
+      ...snapshot.status,
+      partialPlatformFailures: ["snapshot_stale"]
+    };
+
+    render(<TopStoriesDashboard snapshot={snapshot} />);
+
+    expect(screen.getByText("Atlas launches an agent runtime")).toBeInTheDocument();
+    expect(screen.getByText("Showing last published index · Updated 3h ago")).toBeInTheDocument();
   });
 
   it("uses canonical hottest ranks as the sole Top 100 ordering", () => {

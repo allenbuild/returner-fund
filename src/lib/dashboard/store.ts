@@ -37,11 +37,14 @@ const DASHBOARD_CARD_OMITTED_FIELDS = new Set([
   "emergingScore"
 ]);
 const HOUR_MS = 60 * 60 * 1_000;
-/**
- * The worker runs hourly. Two hours permits one delayed run, but never lets a
- * previous day's "Top 100 Today" masquerade as the rolling current window.
- */
+/** The worker runs hourly; two hours permits one delayed current publication. */
 export const DASHBOARD_MAX_SNAPSHOT_AGE_MS = 2 * HOUR_MS;
+/**
+ * Preserve a verified last publication during a bounded worker outage. The
+ * public UI marks this state stale, rather than replacing useful reporting
+ * with an empty page or presenting it as a current rolling window.
+ */
+export const DASHBOARD_STALE_FALLBACK_MAX_AGE_MS = 48 * HOUR_MS;
 const DASHBOARD_MAX_FUTURE_SKEW_MS = 5 * 60 * 1_000;
 
 export type DashboardSnapshotAvailability = "current" | "stale" | "unavailable";
@@ -59,7 +62,7 @@ let cachedFeedSnapshot: { value: DashboardPublicFeedSnapshot; expiresAt: number 
  * discovery, clustering, scoring, summarization, or a source connector.
  */
 export async function loadPublicDashboardSnapshot(): Promise<DashboardPublicSnapshot> {
-  if (cachedSnapshot && cachedSnapshot.expiresAt > Date.now() && isCurrentDashboardSnapshot(cachedSnapshot.value)) {
+  if (cachedSnapshot && cachedSnapshot.expiresAt > Date.now() && isDashboardSnapshotWithinRetention(cachedSnapshot.value)) {
     return cachedSnapshot.value;
   }
   cachedSnapshot = null;
@@ -85,6 +88,12 @@ export async function loadPublicDashboardSnapshot(): Promise<DashboardPublicSnap
   );
   if (resolution.snapshot) return remember(resolution.snapshot);
 
+  const fallback = resolveRetainedDashboardSnapshot(
+    [artifactSnapshot, databasePublication.snapshot],
+    now
+  );
+  if (fallback) return remember(markDashboardSnapshotStale(fallback));
+
   const safeState = databasePublication.markedStale || resolution.availability === "stale"
     ? "snapshot_stale"
     : "snapshot_unavailable";
@@ -100,7 +109,7 @@ export async function loadPublicDashboardFeedSnapshot(): Promise<DashboardPublic
   if (
     cachedFeedSnapshot &&
     cachedFeedSnapshot.expiresAt > Date.now() &&
-    isCurrentDashboardFeedSnapshot(cachedFeedSnapshot.value)
+    isDashboardFeedSnapshotWithinRetention(cachedFeedSnapshot.value)
   ) {
     return cachedFeedSnapshot.value;
   }
@@ -299,6 +308,38 @@ export function isCurrentDashboardFeedSnapshot(
 }
 
 /**
+ * A bounded stale fallback is still a verified publication, but callers must
+ * surface its age rather than treat it as a current rolling-hour snapshot.
+ */
+export function isDashboardSnapshotWithinRetention(
+  snapshot: DashboardPublicSnapshot,
+  now = new Date()
+): boolean {
+  if (!isDashboardPublicSnapshot(snapshot) || !Number.isFinite(now.getTime())) return false;
+
+  const generatedAt = new Date(snapshot.generatedAt).getTime();
+  const windowEnd = new Date(snapshot.windowEnd).getTime();
+  if (generatedAt !== windowEnd) return false;
+
+  const age = now.getTime() - windowEnd;
+  return age >= -DASHBOARD_MAX_FUTURE_SKEW_MS && age <= DASHBOARD_STALE_FALLBACK_MAX_AGE_MS;
+}
+
+function isDashboardFeedSnapshotWithinRetention(
+  snapshot: DashboardPublicFeedSnapshot,
+  now = new Date()
+): boolean {
+  if (!isDashboardPublicFeedSnapshot(snapshot) || !Number.isFinite(now.getTime())) return false;
+
+  const generatedAt = new Date(snapshot.generatedAt).getTime();
+  const windowEnd = new Date(snapshot.windowEnd).getTime();
+  if (generatedAt !== windowEnd) return false;
+
+  const age = now.getTime() - windowEnd;
+  return age >= -DASHBOARD_MAX_FUTURE_SKEW_MS && age <= DASHBOARD_STALE_FALLBACK_MAX_AGE_MS;
+}
+
+/**
  * Selects the newest usable projection rather than giving a database row
  * blanket precedence over the independently published static artifact.
  */
@@ -316,6 +357,27 @@ export function resolveCurrentDashboardSnapshot(
   return {
     snapshot,
     availability: snapshot ? "current" : structurallyValid.length ? "stale" : "unavailable"
+  };
+}
+
+function resolveRetainedDashboardSnapshot(
+  snapshots: readonly (DashboardPublicSnapshot | null | undefined)[],
+  now: Date
+): DashboardPublicSnapshot | null {
+  return snapshots
+    .filter((snapshot): snapshot is DashboardPublicSnapshot =>
+      snapshot !== null && snapshot !== undefined && isDashboardSnapshotWithinRetention(snapshot, now)
+    )
+    .sort((left, right) => new Date(right.windowEnd).getTime() - new Date(left.windowEnd).getTime())[0] ?? null;
+}
+
+function markDashboardSnapshotStale(snapshot: DashboardPublicSnapshot): DashboardPublicSnapshot {
+  const partialPlatformFailures = snapshot.status.partialPlatformFailures.includes("snapshot_stale")
+    ? snapshot.status.partialPlatformFailures
+    : [...snapshot.status.partialPlatformFailures, "snapshot_stale"];
+  return {
+    ...snapshot,
+    status: { ...snapshot.status, partialPlatformFailures }
   };
 }
 
