@@ -252,8 +252,12 @@ function buildStory(
     title,
     summary,
     summaryFingerprint,
-    thumbnailUrl: thumbnail?.thumbnailUrl ?? null,
-    thumbnailAlt: thumbnail?.thumbnailAlt ?? title,
+    // The source corpus can contain local recovery assets and arbitrarily
+    // long social captions. Keep only a valid remote image reference in this
+    // snapshot; the compact public feed applies its stricter reviewed-host
+    // policy and falls back to the platform treatment when needed.
+    thumbnailUrl: canonicalDashboardUrl(thumbnail?.thumbnailUrl),
+    thumbnailAlt: boundedDashboardText(thumbnail?.thumbnailAlt, 240) ?? title,
     universe: tracked.length ? "returner" : "industry",
     labels,
     topics,
@@ -484,25 +488,37 @@ function toStorySource(candidate: DashboardCandidate, score: ReturnType<typeof s
     sourceKind: candidate.sourceKind,
     url: candidate.url,
     destinationUrl: canonicalDashboardUrl(candidate.destinationUrl),
-    title: compactWhitespace(candidate.title) || null,
+    title: boundedDashboardText(candidate.title, 500),
     // `compactSentence` may append terminal punctuation after truncation, so
     // reserve one character for the strict 300-character artifact contract.
     summary: compactSentence(candidate.summary ?? candidate.text, 299),
-    authorName: compactWhitespace(candidate.authorName) || null,
-    publisher: compactWhitespace(candidate.publisher) || null,
+    authorName: boundedDashboardText(candidate.authorName, 300),
+    publisher: boundedDashboardText(candidate.publisher, 300),
     publishedAt: candidate.publishedAt,
     metrics: aggregateMetrics([candidate.metrics ?? {}]),
-    thumbnailUrl: candidate.thumbnailUrl ?? null,
-    thumbnailAlt: candidate.thumbnailAlt ?? candidate.title ?? null,
+    thumbnailUrl: canonicalDashboardUrl(candidate.thumbnailUrl),
+    thumbnailAlt: boundedDashboardText(candidate.thumbnailAlt ?? candidate.title, 240),
     trackedEntity: candidate.trackedEntity ?? null,
     signals
   };
 }
 
 function selectThumbnail(candidates: readonly DashboardCandidate[]): DashboardCandidate | null {
-  const candidatesWithImages = candidates.filter((candidate) => Boolean(candidate.thumbnailUrl));
+  const candidatesWithImages = candidates.filter((candidate) =>
+    Boolean(canonicalDashboardUrl(candidate.thumbnailUrl))
+  );
   if (!candidatesWithImages.length) return null;
   return [...candidatesWithImages].sort((left, right) => thumbnailPriority(right) - thumbnailPriority(left) || left.id.localeCompare(right.id))[0];
+}
+
+/**
+ * Captions from social evidence are source text, not UI copy. Bound them at
+ * the projection boundary so a valid high-engagement post cannot make the
+ * complete snapshot fail its public persistence contract.
+ */
+function boundedDashboardText(value: string | null | undefined, maximumLength: number): string | null {
+  const normalized = compactWhitespace(value);
+  return normalized ? normalized.slice(0, maximumLength) : null;
 }
 
 function thumbnailPriority(candidate: DashboardCandidate): number {

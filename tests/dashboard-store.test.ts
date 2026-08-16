@@ -52,6 +52,28 @@ describe("dashboard public snapshot validation", () => {
     expect(isDashboardPublicSnapshot(malformedStoryShape)).toBe(false);
   });
 
+  it("bounds raw social display fields and drops local recovery thumbnails before persistence", () => {
+    const now = new Date("2026-08-15T12:00:00.000Z");
+    const snapshot = buildDashboardSnapshot([{
+      ...dashboardCandidate(new Date(now.getTime() - 60 * 60 * 1_000).toISOString()),
+      title: "t".repeat(700),
+      authorName: "a".repeat(400),
+      thumbnailAlt: "d".repeat(400),
+      thumbnailUrl: "/evidence-thumbnails/x/local-recovery.svg"
+    }], { now }).snapshot;
+    const story = snapshot.stories[0];
+    const source = story?.sources[0];
+    if (!story || !source) throw new Error("Expected a sanitized dashboard story source.");
+
+    expect(isDashboardPublicSnapshot(snapshot)).toBe(true);
+    expect(story.thumbnailUrl).toBeNull();
+    expect(story.thumbnailAlt?.length).toBeLessThanOrEqual(240);
+    expect(source.thumbnailUrl).toBeNull();
+    expect(source.thumbnailAlt?.length).toBeLessThanOrEqual(240);
+    expect(source.title?.length).toBeLessThanOrEqual(500);
+    expect(source.authorName?.length).toBeLessThanOrEqual(300);
+  });
+
   it("requires a current exact rolling window before a valid snapshot is public", () => {
     const now = new Date("2026-08-15T12:00:00.000Z");
     const current = dashboardSnapshotAt(now);
