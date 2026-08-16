@@ -474,9 +474,18 @@ jobs:
         run: |
           set -euo pipefail
           if [ -n "$SCHEDULED_UTC_HOUR" ]; then
-            npm run benchmarks:daily -- "--scheduled-utc-hour=$SCHEDULED_UTC_HOUR"
+            node \
+              --experimental-strip-types \
+              --loader ./scripts/lib/scoring-diagnostics-ts-loader.mjs \
+              scripts/update-daily-benchmarks.mjs \
+              --pinned-source-in-process \
+              "--scheduled-utc-hour=$SCHEDULED_UTC_HOUR"
           else
-            npm run benchmarks:daily
+            node \
+              --experimental-strip-types \
+              --loader ./scripts/lib/scoring-diagnostics-ts-loader.mjs \
+              scripts/update-daily-benchmarks.mjs \
+              --pinned-source-in-process
           fi
           node --input-type=module <<'NODE'
           import assert from "node:assert/strict";

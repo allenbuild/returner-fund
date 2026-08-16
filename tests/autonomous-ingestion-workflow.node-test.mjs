@@ -147,7 +147,10 @@ test("daily benchmark updater binds publication to the accepted resolver Central
     dailyBenchmarkWorkflow,
     /update:[\s\S]*?if:\s*needs\.resolve\.outputs\.should_run == 'true'[\s\S]*?BENCHMARK_EXPECTED_CENTRAL_DATE:\s*\$\{\{\s*needs\.resolve\.outputs\.central_date\s*\}\}/
   );
-  assert.match(updateStep, /npm run benchmarks:daily/);
+  assert.match(
+    updateStep,
+    /node\s+\\\s*\n\s*--experimental-strip-types\s+\\\s*\n\s*--loader\s+\.\/scripts\/lib\/scoring-diagnostics-ts-loader\.mjs[\s\S]*?scripts\/update-daily-benchmarks\.mjs[\s\S]*?--pinned-source-in-process/
+  );
   assert.match(updateStep, /if \[ -n \"\$SCHEDULED_UTC_HOUR\" \]/);
 });
 
