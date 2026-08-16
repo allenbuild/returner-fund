@@ -19,19 +19,36 @@ describe("dashboard thumbnail rendering", () => {
   });
 
   it("uses the local platform fallback instead of loading an unapproved thumbnail URL", () => {
-    render(<TopStoriesDashboard snapshot={snapshotWithThumbnail("https://images.example.test/cover.jpg", "Unapproved dashboard thumbnail")} />);
+    render(
+      <TopStoriesDashboard
+        snapshot={snapshotWithThumbnail(
+          "https://images.example.test/cover.jpg",
+          "Unapproved dashboard thumbnail",
+          { injectIntoPublicFixture: true }
+        )}
+      />
+    );
 
     expect(screen.queryByRole("img", { name: "Unapproved dashboard thumbnail" })).not.toBeInTheDocument();
     expect(screen.getByLabelText("Unapproved dashboard thumbnail").tagName).toBe("SPAN");
   });
 });
 
-function snapshotWithThumbnail(thumbnailUrl: string, thumbnailAlt: string): DashboardPublicFeedSnapshot {
+function snapshotWithThumbnail(
+  thumbnailUrl: string,
+  thumbnailAlt: string,
+  options?: { injectIntoPublicFixture?: boolean }
+): DashboardPublicFeedSnapshot {
   const { snapshot } = buildDashboardSnapshot(developmentDashboardFixtures(NOW), { now: NOW });
   const next = structuredClone(snapshot);
   const story = next.stories[0];
   if (!story) throw new Error("Expected dashboard fixtures to produce a story.");
   story.thumbnailUrl = thumbnailUrl;
   story.thumbnailAlt = thumbnailAlt;
-  return toDashboardPublicFeedSnapshot(next);
+  const feed = toDashboardPublicFeedSnapshot(next);
+  // The store removes unapproved URLs before publishing. Inject one into the
+  // compact fixture here so the renderer's independent safety fallback stays
+  // covered for stale or tampered public artifacts.
+  if (options?.injectIntoPublicFixture) feed.stories[0]!.thumbnailUrl = thumbnailUrl;
+  return feed;
 }
