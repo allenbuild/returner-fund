@@ -26,7 +26,16 @@ describe("public dashboard discovery", () => {
       "Dark Reading",
       "HPCwire",
       "Phys.org Technology",
-      "Data Center Dynamics"
+      "Data Center Dynamics",
+      "The Markup",
+      "Rest of World",
+      "Krebs on Security",
+      "SecurityWeek",
+      "LWN.net",
+      "Google Online Security",
+      "Google DeepMind",
+      "Microsoft Security",
+      "Cloudflare Blog"
     ]));
     expect(DEFAULT_DASHBOARD_RSS_FEEDS.map((feed) => feed.name)).not.toEqual(expect.arrayContaining([
       "NASA News",
@@ -44,7 +53,8 @@ describe("public dashboard discovery", () => {
       "arXiv cs.CL",
       "arXiv cs.CV",
       "arXiv cs.RO",
-      "arXiv cs.CR"
+      "arXiv cs.CR",
+      "Apple Machine Learning Research"
     ]));
   });
 

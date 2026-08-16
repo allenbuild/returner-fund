@@ -117,7 +117,17 @@ const CONFIGURED_RSS_HOST_ALLOWLIST = new Set([
   "www.darkreading.com",
   "www.hpcwire.com",
   "phys.org",
-  "www.datacenterdynamics.com"
+  "www.datacenterdynamics.com",
+  "themarkup.org",
+  "restofworld.org",
+  "krebsonsecurity.com",
+  "www.securityweek.com",
+  "lwn.net",
+  "machinelearning.apple.com",
+  "security.googleblog.com",
+  "deepmind.google",
+  "www.microsoft.com",
+  "blog.cloudflare.com"
 ]);
 
 /**
@@ -162,7 +172,16 @@ export const DEFAULT_DASHBOARD_RSS_FEEDS = [
   { name: "Dark Reading", url: "https://www.darkreading.com/rss.xml", quality: 82 },
   { name: "HPCwire", url: "https://www.hpcwire.com/feed/", quality: 82 },
   { name: "Phys.org Technology", url: "https://phys.org/rss-feed/technology-news/", quality: 78 },
-  { name: "Data Center Dynamics", url: "https://www.datacenterdynamics.com/en/rss/", quality: 82 }
+  { name: "Data Center Dynamics", url: "https://www.datacenterdynamics.com/en/rss/", quality: 82 },
+  { name: "The Markup", url: "https://themarkup.org/feeds/rss.xml", quality: 84 },
+  { name: "Rest of World", url: "https://restofworld.org/feed/latest/", quality: 82 },
+  { name: "Krebs on Security", url: "https://krebsonsecurity.com/feed/", quality: 86 },
+  { name: "SecurityWeek", url: "https://www.securityweek.com/feed/", quality: 80 },
+  { name: "LWN.net", url: "https://lwn.net/headlines/rss", quality: 84 },
+  { name: "Google Online Security", url: "https://security.googleblog.com/feeds/posts/default?alt=rss", quality: 82, maxItems: 3 },
+  { name: "Google DeepMind", url: "https://deepmind.google/blog/rss.xml", quality: 82, maxItems: 3 },
+  { name: "Microsoft Security", url: "https://www.microsoft.com/en-us/security/blog/feed/", quality: 78, maxItems: 2 },
+  { name: "Cloudflare Blog", url: "https://blog.cloudflare.com/rss/", quality: 78, maxItems: 2 }
 ] as const;
 
 /**
@@ -177,7 +196,8 @@ export const DEFAULT_DASHBOARD_RESEARCH_FEEDS = [
   { name: "arXiv cs.CL", url: "https://rss.arxiv.org/rss/cs.CL", quality: 82, platform: "research", sourceKind: "paper", independentlyReported: false },
   { name: "arXiv cs.CV", url: "https://rss.arxiv.org/rss/cs.CV", quality: 82, platform: "research", sourceKind: "paper", independentlyReported: false },
   { name: "arXiv cs.RO", url: "https://rss.arxiv.org/rss/cs.RO", quality: 82, platform: "research", sourceKind: "paper", independentlyReported: false },
-  { name: "arXiv cs.CR", url: "https://rss.arxiv.org/rss/cs.CR", quality: 80, platform: "research", sourceKind: "paper", independentlyReported: false }
+  { name: "arXiv cs.CR", url: "https://rss.arxiv.org/rss/cs.CR", quality: 80, platform: "research", sourceKind: "paper", independentlyReported: false },
+  { name: "Apple Machine Learning Research", url: "https://machinelearning.apple.com/rss.xml", quality: 86, platform: "research", sourceKind: "paper", independentlyReported: false }
 ] as const satisfies readonly DashboardRssFeed[];
 
 /** Fixed public communities avoid an unbounded Reddit search surface. */
