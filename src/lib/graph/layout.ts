@@ -40,7 +40,10 @@ const LABEL_BOX_PADDING_Y = 14;
 const LABEL_WIDTH_FACTOR = 0.82;
 const LABEL_LINE_HEIGHT = 1.22;
 const LABEL_CIRCLE_CLEARANCE = 4;
-const FALLBACK_MARGIN_STEPS = [24, 48, 96, 160, 256, 384, 576, 832, 1_152, 1_536, 2_048];
+// Keep forced labels close to their node. A distant label is worse than a
+// compact label on the node: it is easy to miss and can look like it belongs
+// to a different circle after Cytoscape fits the graph to the viewport.
+const FALLBACK_MARGIN_STEPS = [24, 48, 72, 96];
 
 export function buildClusterPositions(nodes: GraphNode[]): Map<string, GraphLayoutPosition> {
   const positions = new Map<string, GraphLayoutPosition>();
@@ -307,10 +310,20 @@ function findForcedLabelOption(
     if (match) return match;
   }
 
-  // A fixed number of fallback steps is normally ample, but never trade an
-  // overlapping label for coverage if an unusually large graph needs more
-  // room. The caller will leave this label hidden until a future layout pass.
-  return null;
+  // Preserve coverage when a dense cluster has no collision-free external
+  // slot. This keeps the name anchored to its own circle instead of sending
+  // it thousands of units away or dropping it entirely.
+  const centeredPlacement: LabelPlacement = {
+    halign: "center",
+    valign: "center",
+    marginX: 0,
+    marginY: 0
+  };
+  return {
+    placement: centeredPlacement,
+    box: estimateLabelBoxForNode(node, position, centeredPlacement),
+    priority: -100
+  };
 }
 
 function forcedLabelOptions(node: GraphNode, position: GraphLayoutPosition, margin: number): LabelOption[] {

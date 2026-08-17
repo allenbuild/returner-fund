@@ -585,7 +585,9 @@ export function InsightsTabs({
                 <h2 id="database-stats-title">Database growth</h2>
                 <p>{statsGraph.batch.label}</p>
               </div>
-              <span>Updated {formatStatsTimestamp(statsGraph.generatedAt)}</span>
+              <span title="Last successfully published database snapshot">
+                Published {formatStatsTimestamp(statsGraph.generatedAt)}
+              </span>
             </header>
 
             <div className="stats-primary-grid">
