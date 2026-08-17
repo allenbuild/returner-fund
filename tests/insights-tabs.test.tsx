@@ -227,6 +227,7 @@ describe("insights tabs", () => {
     fireEvent.click(screen.getByRole("tab", { name: "Stats" }));
 
     expect(screen.getByRole("heading", { name: "Database growth" })).toBeInTheDocument();
+    expect(screen.getByText(/Published/)).toBeInTheDocument();
     expect(screen.getByText(graph.batch.label)).toBeInTheDocument();
     expect(screen.getByText("Sources").closest(".stats-metric")).toHaveTextContent(
       graph.evidenceStats!.totalCount.toLocaleString()

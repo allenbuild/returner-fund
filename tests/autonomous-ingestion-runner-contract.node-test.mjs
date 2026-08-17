@@ -2954,6 +2954,8 @@ describe("pinned source and publication-base trust boundaries", () => {
       isReplaySafePublicationDataPath("src/lib/social/logged-in-evidence-current.json"),
       true
     );
+    assert.equal(isReplaySafePublicationDataPath("artifacts/dashboard/current.json"), true);
+    assert.equal(isReplaySafePublicationDataPath("public/dashboard/feed.json"), true);
     assert.equal(isReplaySafePublicationDataPath("public/timelines/companies/config.json"), false);
     assert.equal(isReplaySafePublicationDataPath("public/timelines/companies/acme-labs.json"), true);
 

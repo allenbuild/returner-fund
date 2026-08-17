@@ -3,6 +3,7 @@ import path from "node:path";
 const SAFE_EXACT_PATHS = new Set([
   "artifacts/company-timeline/coverage.json",
   "artifacts/company-timeline/public-discovery-current.json",
+  "artifacts/dashboard/current.json",
   "artifacts/scoring-v5/generated/candidate-search.json",
   "artifacts/scoring-v5/generated/canonical-dataset.json",
   "artifacts/scoring-v5/generated/evaluation.json",
@@ -20,6 +21,7 @@ const SAFE_EXACT_PATHS = new Set([
   "outputs/public-ingestion-operational-ledger-current.json",
   "outputs/public-ingestion-review-ledger-current.json",
   "outputs/source-discovery-paths-current.json",
+  "public/dashboard/feed.json",
   "public/graph/manifest.json",
   "public/timelines/coverage.json",
   "src/lib/graph/ranked-posts-sidecar.generated.json",

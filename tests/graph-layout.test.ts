@@ -156,6 +156,17 @@ describe("graph layout", () => {
     }
   }, 20_000);
 
+  it("keeps forced labels attached to their own circle", () => {
+    const graph = buildGraphResponse({ batchSlug: "S2026" }, ycSpring2026GraphDataset);
+    const selected = graph.nodes.find((node) => node.label === "HeyClicky") ?? graph.nodes[0];
+    const positions = buildClusterPositions(graph.nodes);
+    const labels = buildLabelPlacements(graph.nodes, positions, selected.id, graph.nodes.length, true);
+
+    for (const placement of labels.values()) {
+      expect(Math.max(Math.abs(placement.marginX), Math.abs(placement.marginY))).toBeLessThanOrEqual(96);
+    }
+  }, 20_000);
+
   it("keeps same group-partner companies visibly clustered", () => {
     const graph = buildGraphResponse({ batchSlug: "S26" }, ycSpring2026GraphDataset);
     const positions = buildClusterPositions(graph.nodes);
