@@ -2924,6 +2924,16 @@ describe("pinned source and publication-base trust boundaries", () => {
       filePath: "tests/fixture-layout.tsx",
       content: "export const inertTestLayoutFixture = true;\n"
     });
+    const dashboardArtifactCommit = await createDetachedFixtureCommit({
+      parent: sourceCommit,
+      filePath: "artifacts/dashboard/current.json",
+      content: '{"fixture":"dashboard-artifact-base"}\n'
+    });
+    const dashboardSnapshotCommit = await createDetachedFixtureCommit({
+      parent: dashboardArtifactCommit,
+      filePath: "public/dashboard/feed.json",
+      content: '{"fixture":"dashboard-feed-base"}\n'
+    });
     const symlinkCommit = await createDetachedFixtureCommit({
       parent: sourceCommit,
       filePath: "outputs/ingestion-source-delta-current.json",
@@ -2937,6 +2947,10 @@ describe("pinned source and publication-base trust boundaries", () => {
     });
 
     assert.equal(isReplaySafePublicationDataPath("src/lib/social/package.json"), false);
+    assert.equal(isReplaySafePublicationDataPath("artifacts/dashboard/current.json"), false);
+    assert.equal(isReplaySafePublicationDataPath("public/dashboard/feed.json"), false);
+    assert.equal(isSafeInertPublicationBasePath("artifacts/dashboard/current.json"), true);
+    assert.equal(isSafeInertPublicationBasePath("public/dashboard/feed.json"), true);
     assert.equal(isSafeInertPublicationBasePath("src/lib/graph/layout.ts"), true);
     assert.equal(isSafeInertPublicationBasePath("tests/fixture-layout.tsx"), true);
     assert.equal(isSafeInertPublicationBasePath("tests/fixture-layout.js"), false);
@@ -2963,6 +2977,25 @@ describe("pinned source and publication-base trust boundaries", () => {
       LIFECYCLE_FIXTURE_BASE_LABEL: "initial publication base"
     }));
     assert.equal(accepted.accepted, true);
+
+    const acceptedDashboardSnapshot = lifecycleFixturePayload(runLifecycleFixture("publication-base-trust", {
+      LIFECYCLE_FIXTURE_SOURCE_COMMIT: sourceCommit,
+      LIFECYCLE_FIXTURE_BASE_COMMIT: dashboardSnapshotCommit,
+      LIFECYCLE_FIXTURE_BASE_LABEL: "initial publication base",
+      LIFECYCLE_FIXTURE_ALLOW_INERT_CODE_DRIFT: "true"
+    }));
+    assert.equal(acceptedDashboardSnapshot.accepted, true);
+
+    const rejectedDashboardSnapshotReplay = lifecycleFixturePayload(runLifecycleFixture("publication-base-trust", {
+      LIFECYCLE_FIXTURE_SOURCE_COMMIT: sourceCommit,
+      LIFECYCLE_FIXTURE_BASE_COMMIT: dashboardSnapshotCommit,
+      LIFECYCLE_FIXTURE_BASE_LABEL: "commit-backed replay publication"
+    }));
+    assert.equal(rejectedDashboardSnapshotReplay.accepted, false);
+    assert.match(
+      rejectedDashboardSnapshotReplay.error,
+      /executable, policy, dependency, or non-allowlisted drift.*artifacts\/dashboard\/current\.json/
+    );
 
     const acceptedInertCode = lifecycleFixturePayload(runLifecycleFixture("publication-base-trust", {
       LIFECYCLE_FIXTURE_SOURCE_COMMIT: sourceCommit,

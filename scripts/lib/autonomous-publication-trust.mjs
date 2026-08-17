@@ -34,6 +34,16 @@ const SAFE_EXACT_PATHS = new Set([
   "src/lib/yc/summer-2026-company-aliases.json"
 ]);
 
+// Dashboard refreshes can advance main while an older, pinned ingestion
+// runner is preparing its publication. These are static presentation
+// snapshots, so they are safe only as concurrent publication-base drift.
+// Keep them out of SAFE_EXACT_PATHS: autonomous ingestion must never publish
+// either dashboard snapshot as part of its own candidate delta.
+const SAFE_INERT_PUBLICATION_BASE_EXACT_PATHS = new Set([
+  "artifacts/dashboard/current.json",
+  "public/dashboard/feed.json"
+]);
+
 const SAFE_GENERATED_PATH_PATTERNS = Object.freeze([
   /^outputs\/benchmarks\/(?:a16zsr006|s2025|s2026|s26|w2026)-score-benchmarks\.json$/,
   /^public\/graph\/(?:a16zsr006|s2026|s26)(?:-(?:insiders|yc-partners))?\.json$/,
@@ -88,6 +98,7 @@ export function isReplaySafePublicationDataPath(value) {
 export function isSafeInertPublicationBasePath(value) {
   const filePath = normalizeTrackedRepositoryPath(value);
   if (isReplaySafePublicationDataPath(filePath)) return true;
+  if (SAFE_INERT_PUBLICATION_BASE_EXACT_PATHS.has(filePath)) return true;
   if (POLICY_OR_CONFIG_JSON_PATH.test(filePath)) return false;
   if (INERT_SOURCE_FORBIDDEN_PATH_SEGMENT.test(filePath)) return false;
   if (INERT_SOURCE_FORBIDDEN_SUFFIX.test(filePath)) return false;
