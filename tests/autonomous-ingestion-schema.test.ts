@@ -27,6 +27,13 @@ const runtimeTables = [
 const newRuntimeTables = runtimeTables.slice(3);
 
 describe("autonomous ingestion runtime migration", () => {
+  it("uses conflict-inferable source-key indexes for durable upserts", () => {
+    expect(normalizedSql).toContain("create unique index if not exists companies_batch_source_key");
+    expect(normalizedSql).toContain("on public.companies (batch_id, source_key);");
+    expect(normalizedSql).toContain("on public.founders (source_key);");
+    expect(normalizedSql).toContain("on public.social_accounts (source_key);");
+  });
+
   it("adds idempotent, observable, leased run coordination", () => {
     for (const column of [
       "idempotency_key text",

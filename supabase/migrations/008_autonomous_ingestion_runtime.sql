@@ -7,14 +7,11 @@ alter table public.founders add column if not exists source_key text;
 alter table public.social_accounts add column if not exists source_key text;
 
 create unique index if not exists companies_batch_source_key
-  on public.companies (batch_id, source_key)
-  where source_key is not null;
+  on public.companies (batch_id, source_key);
 create unique index if not exists founders_source_key
-  on public.founders (source_key)
-  where source_key is not null;
+  on public.founders (source_key);
 create unique index if not exists social_accounts_source_key
-  on public.social_accounts (source_key)
-  where source_key is not null;
+  on public.social_accounts (source_key);
 create unique index if not exists social_accounts_entity_platform_native_key
   on public.social_accounts (
     entity_type,
