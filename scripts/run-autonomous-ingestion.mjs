@@ -2118,6 +2118,7 @@ async function syncCatalogs(allCatalogs) {
       account_source_key: owner.account.sourceKey,
       platform: owner.account.platform,
       review_state: normalizeReviewState(owner.account.reviewState),
+      first_seen_at: now,
       last_seen_at: now,
       last_seen_run_id: run.id,
       retired_at: null,
