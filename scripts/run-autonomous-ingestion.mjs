@@ -124,6 +124,7 @@ let resolveLegacyPublicEvidenceBatch;
 let plannedTasks;
 let plannedTaskByCheckpointKey;
 let plannedCoverage;
+const HISTORICAL_ATTRIBUTION_READ_ATTEMPTS = 3;
 const PUBLIC_COLLECTOR_SHARDS = Object.freeze({
   S2026: 4,
   S26: 2,
@@ -4536,19 +4537,25 @@ async function readHistoricalAttributionCatalogMaps(catalogState) {
   return { companyByBatchEntityId, founderByBatchEntityId, founderBatchSlugsById };
 }
 
-const HISTORICAL_ATTRIBUTION_READ_ATTEMPTS = 3;
+function runHistoricalAttributionRead(label, createOperation) {
+  return runHistoricalAttributionReadWithAttempts(
+    label,
+    createOperation,
+    HISTORICAL_ATTRIBUTION_READ_ATTEMPTS
+  );
+}
 
-async function runHistoricalAttributionRead(label, createOperation) {
+async function runHistoricalAttributionReadWithAttempts(label, createOperation, attempts) {
   let lastError;
-  for (let attempt = 1; attempt <= HISTORICAL_ATTRIBUTION_READ_ATTEMPTS; attempt += 1) {
+  for (let attempt = 1; attempt <= attempts; attempt += 1) {
     try {
       return await runSupabaseOperation(label, createOperation);
     } catch (error) {
       lastError = error;
-      if (attempt === HISTORICAL_ATTRIBUTION_READ_ATTEMPTS) throw error;
+      if (attempt === attempts) throw error;
       const retryDelayMs = 1000 * attempt;
       console.warn(
-        `${label} failed on attempt ${attempt}/${HISTORICAL_ATTRIBUTION_READ_ATTEMPTS}; ` +
+        `${label} failed on attempt ${attempt}/${attempts}; ` +
         `retrying in ${retryDelayMs}ms: ${sanitizedRunnerFailure(error).message}`
       );
       await new Promise((resolve) => setTimeout(resolve, retryDelayMs));
