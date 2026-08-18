@@ -144,7 +144,7 @@ describe("autonomous ingestion runtime migration", () => {
     expect(normalizeSql(claimFunction)).toContain("for update of task skip locked");
     expect(normalizeSql(claimFunction)).toContain("task.attempts < task.max_attempts");
     expect(normalizeSql(claimFunction)).toContain("set status = 'running'");
-    expect(normalizeSql(claimFunction)).toContain("lease_token = public.gen_random_uuid()");
+    expect(normalizeSql(claimFunction)).toContain("lease_token = pg_catalog.gen_random_uuid()");
     expect(normalizeSql(claimFunction)).toContain("lease_expires_at = clock_timestamp()");
 
     expect(normalizeSql(renewFunction)).toContain("and lease_token = p_lease_token");

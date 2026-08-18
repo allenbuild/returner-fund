@@ -611,14 +611,14 @@ begin
   ) values (
     trim(p_lock_key),
     trim(p_owner_id),
-    public.gen_random_uuid(),
+    pg_catalog.gen_random_uuid(),
     clock_timestamp(),
     clock_timestamp() + p_lease_duration,
     p_metadata_json
   )
   on conflict (lock_key) do update
   set owner_id = excluded.owner_id,
-      lease_token = public.gen_random_uuid(),
+      lease_token = pg_catalog.gen_random_uuid(),
       heartbeat_at = clock_timestamp(),
       lease_expires_at = clock_timestamp() + p_lease_duration,
       metadata_json = excluded.metadata_json,
@@ -796,7 +796,7 @@ begin
       last_attempt_at = clock_timestamp(),
       locked_by = trim(p_worker_id),
       locked_at = clock_timestamp(),
-      lease_token = public.gen_random_uuid(),
+      lease_token = pg_catalog.gen_random_uuid(),
       lease_expires_at = clock_timestamp() + p_lease_duration,
       terminal_at = null,
       terminal_reason = null,
