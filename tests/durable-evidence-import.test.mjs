@@ -729,6 +729,53 @@ describe("durable evidence import", () => {
     })).rejects.toThrow(/did not resolve entity founder-shepherd-3-ishan-ramrakhiani-2605131 in batch S26/);
   });
 
+  it("skips a missing stale rename target when its verified replacement is present", async () => {
+    const client = new FakeSupabaseClient();
+    const result = await importDurableEvidence({
+      client,
+      ingestionRunId: RUN_ID,
+      catalogMaps: reconciliationCatalog(),
+      publicSnapshot: publicSnapshot("S2026", [publicPost({
+        entityType: "company",
+        entityId: "company-acme"
+      })]),
+      attributionReconciliationLedger: [reconciliationEntry({
+        staleAttribution: {
+          batchSlug: "S26",
+          entityType: "company",
+          entityId: "company-renamed-away"
+        },
+        replacementAttribution: {
+          batchSlug: "S2026",
+          entityType: "company",
+          entityId: "company-acme"
+        }
+      })]
+    });
+
+    expect(result.attributionReconciliation).toMatchObject({
+      received: 1,
+      unique: 0,
+      evidenceResolved: 0,
+      evidenceMissing: 0,
+      retired: 0,
+      skippedUnresolved: [{
+        ordinal: 1,
+        disposition: "reattributed",
+        reason: "stale_entity_not_in_current_catalog",
+        entityId: "company-renamed-away",
+        batchSlug: "S26"
+      }]
+    });
+    expect(client.table("evidence_items")).toHaveLength(1);
+    expect(client.table("evidence_attributions")).toHaveLength(1);
+    expect(client.table("evidence_attributions")[0]).toMatchObject({
+      company_id: COMPANY_ID,
+      batch_id: SPRING_BATCH_ID
+    });
+    expect(client.table("metric_observations")).toHaveLength(1);
+  });
+
   it("retires an exact batch target without changing another cohort attribution for the same physical row", async () => {
     const client = new FakeSupabaseClient();
     const catalogMaps = reconciliationCatalog();
