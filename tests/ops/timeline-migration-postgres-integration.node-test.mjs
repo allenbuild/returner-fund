@@ -24,7 +24,7 @@ const IDS = Object.freeze({
   post: "50000000-0000-4000-8000-000000000001",
 });
 
-test("PostgreSQL executes migrations 001-026 (including Dashboard storage) and enforces Timeline 020 behavior", { timeout: 30_000 }, async () => {
+test("PostgreSQL executes all contiguous migrations (including Dashboard storage) and enforces Timeline 020 behavior", { timeout: 30_000 }, async () => {
   // PGlite is PostgreSQL compiled to WASM. It is in-process, deterministic,
   // network-free, and closed in finally so this release gate stays bounded.
   const db = new PGlite({
@@ -38,7 +38,7 @@ test("PostgreSQL executes migrations 001-026 (including Dashboard storage) and e
       .sort((left, right) => left.localeCompare(right));
     assert.deepEqual(
       migrationNames.map((name) => name.slice(0, 3)),
-      Array.from({ length: 26 }, (_, index) => String(index + 1).padStart(3, "0")),
+      Array.from({ length: migrationNames.length }, (_, index) => String(index + 1).padStart(3, "0")),
     );
 
     for (const migrationName of migrationNames) {
