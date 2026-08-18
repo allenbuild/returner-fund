@@ -51,8 +51,9 @@ const ATTRIBUTION_READ_COLUMNS = [
  * `attributionReconciliationLedger`, when present, is an explicit fail-closed list of stale
  * batch/entity targets to retire. Reattribution entries must name a replacement that is also
  * present in the sanitized snapshots; omission alone never retires durable attribution. A
- * quarantined target that no longer exists in the current batch catalog is retained in the
- * source ledger but skipped here because there is no safe durable row to target.
+ * stale target that no longer exists in the current batch catalog is retained in the source
+ * ledger but skipped here when a verified replacement is present, because there is no safe
+ * durable row to target. Incomplete reattributions still fail closed.
  */
 export async function importDurableEvidence(options) {
   if (!options || typeof options !== "object") throw new TypeError("Import options are required.");
@@ -74,7 +75,8 @@ export async function importDurableEvidence(options) {
   const normalized = candidates.map(normalizeCandidate);
   const reconciliationLedger = normalizeAttributionReconciliationLedger(
     options.attributionReconciliationLedger,
-    catalogMaps
+    catalogMaps,
+    normalized
   );
   assertReconciliationCandidates(reconciliationLedger.entries, normalized, catalogMaps);
   const counters = {
@@ -500,13 +502,13 @@ function evidenceMetadata(candidate, canonical, reasons, tractionEligible, detai
   });
 }
 
-function normalizeAttributionReconciliationLedger(value, catalogMaps) {
+function normalizeAttributionReconciliationLedger(value, catalogMaps, normalizedCandidates = []) {
   if (value == null) return { received: 0, entries: [], skipped: [] };
   if (!Array.isArray(value)) {
     throw new TypeError("attributionReconciliationLedger must be an array.");
   }
   const normalized = value.map((entry, index) =>
-    normalizeAttributionReconciliationEntry(entry, index, catalogMaps)
+    normalizeAttributionReconciliationEntry(entry, index, catalogMaps, normalizedCandidates)
   );
   const skipped = normalized.filter((entry) => entry?.skip).map((entry) => entry.skip);
   const entries = normalized.filter((entry) => !entry?.skip);
@@ -523,7 +525,7 @@ function normalizeAttributionReconciliationLedger(value, catalogMaps) {
   return { received: value.length, entries, skipped };
 }
 
-function normalizeAttributionReconciliationEntry(entry, index, catalogMaps) {
+function normalizeAttributionReconciliationEntry(entry, index, catalogMaps, normalizedCandidates = []) {
   const ordinal = index + 1;
   if (!entry || typeof entry !== "object" || Array.isArray(entry)) {
     throw new TypeError(`attributionReconciliationLedger entry ${ordinal} must be an object.`);
@@ -562,24 +564,6 @@ function normalizeAttributionReconciliationEntry(entry, index, catalogMaps) {
   }
   const reason = nonBlank(entry.reason);
   if (!reason) throw new Error(`attributionReconciliationLedger entry ${ordinal} requires a reason.`);
-  const staleAttribution = normalizeReconciliationTarget(
-    entry.staleAttribution,
-    `entry ${ordinal} staleAttribution`,
-    catalogMaps,
-    { allowMissingEntity: disposition === "quarantined" }
-  );
-  if (!staleAttribution) {
-    return {
-      skip: {
-        ordinal,
-        disposition,
-        reason: "stale_entity_not_in_current_catalog",
-        entityType: normalizedEntityType(entry.staleAttribution?.entityType ?? entry.staleAttribution?.entity_type),
-        entityId: nonBlank(entry.staleAttribution?.entityId ?? entry.staleAttribution?.entity_id),
-        batchSlug: nonBlank(entry.staleAttribution?.batchSlug ?? entry.staleAttribution?.batch_slug)
-      }
-    };
-  }
   const replacementAttribution = entry.replacementAttribution == null
     ? null
     : normalizeReconciliationTarget(
@@ -596,6 +580,39 @@ function normalizeAttributionReconciliationEntry(entry, index, catalogMaps) {
     throw new Error(
       `attributionReconciliationLedger entry ${ordinal} quarantined disposition cannot have replacementAttribution.`
     );
+  }
+  const staleAttribution = normalizeReconciliationTarget(
+    entry.staleAttribution,
+    `entry ${ordinal} staleAttribution`,
+    catalogMaps,
+    { allowMissingEntity: true }
+  );
+  if (!staleAttribution) {
+    if (
+      disposition === "reattributed" &&
+      !hasReconciliationCandidateAttribution(
+        normalizedCandidates,
+        `${platform}\u0000${canonicalKeyValue}`,
+        replacementAttribution,
+        catalogMaps
+      )
+    ) {
+      throw new Error(
+        `attributionReconciliationLedger entry ${ordinal} staleAttribution did not resolve entity ` +
+        `${nonBlank(entry.staleAttribution?.entityId ?? entry.staleAttribution?.entity_id)} in batch ` +
+        `${nonBlank(entry.staleAttribution?.batchSlug ?? entry.staleAttribution?.batch_slug)}.`
+      );
+    }
+    return {
+      skip: {
+        ordinal,
+        disposition,
+        reason: "stale_entity_not_in_current_catalog",
+        entityType: normalizedEntityType(entry.staleAttribution?.entityType ?? entry.staleAttribution?.entity_type),
+        entityId: nonBlank(entry.staleAttribution?.entityId ?? entry.staleAttribution?.entity_id),
+        batchSlug: nonBlank(entry.staleAttribution?.batchSlug ?? entry.staleAttribution?.batch_slug)
+      }
+    };
   }
   if (replacementAttribution && sameReconciliationTarget(staleAttribution, replacementAttribution)) {
     throw new Error(
@@ -616,6 +633,15 @@ function normalizeAttributionReconciliationEntry(entry, index, catalogMaps) {
     evidenceId: null,
     replacementAttributionId: null
   };
+}
+
+function hasReconciliationCandidateAttribution(normalizedCandidates, key, target, catalogMaps) {
+  if (!target) return false;
+  return normalizedCandidates.some((item) => {
+    if (!item?.verified || item.key !== key) return false;
+    const candidateTarget = resolvedAttributionTarget(item, catalogMaps);
+    return candidateTarget && sameReconciliationTarget(candidateTarget, target);
+  });
 }
 
 function normalizeReconciliationTarget(value, label, catalogMaps, { allowMissingEntity = false } = {}) {
