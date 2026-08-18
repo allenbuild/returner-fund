@@ -1636,6 +1636,8 @@ describe("autonomous ingestion runner static safety contracts", () => {
     assert.ok(historicalCatalog.includes('from("founders")'));
     assert.ok(historicalCatalog.includes("companyByBatchEntityId"));
     assert.ok(historicalCatalog.includes("founderByBatchEntityId"));
+    assert.ok(historicalCatalog.includes("runHistoricalAttributionRead"));
+    assert.ok(historicalCatalog.includes("retrying in"));
     const durableImport = section(
       "async function importDurableEvidence",
       "async function readHistoricalAttributionCatalogMaps"
