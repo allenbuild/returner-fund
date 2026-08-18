@@ -4432,6 +4432,20 @@ async function importDurableEvidence({
       }
     }
   }
+  if (attributionReconciliationLedger.length > 0) {
+    const historicalAttributionCatalog = await readHistoricalAttributionCatalogMaps(catalogState);
+    for (const [key, companyId] of historicalAttributionCatalog.companyByBatchEntityId) {
+      if (!companyAliasesByBatch.has(key)) companyAliasesByBatch.set(key, companyId);
+    }
+    for (const [key, founderId] of historicalAttributionCatalog.founderByBatchEntityId) {
+      if (!founderAliasesByBatch.has(key)) founderAliasesByBatch.set(key, founderId);
+    }
+    for (const [founderId, historicalBatches] of historicalAttributionCatalog.founderBatchSlugsById) {
+      const batchesForFounder = founderBatchSlugsById.get(founderId) ?? new Set();
+      for (const batchSlug of historicalBatches) batchesForFounder.add(batchSlug);
+      founderBatchSlugsById.set(founderId, batchesForFounder);
+    }
+  }
   const result = await runSupabaseOperation(
     "import durable evidence snapshots",
     (signal) => importEvidenceSnapshots({
@@ -4454,6 +4468,72 @@ async function importDurableEvidence({
     { timeoutMs: SUPABASE_BULK_OPERATION_TIMEOUT_MS }
   );
   return { status: "completed", configured: true, ...result };
+}
+
+async function readHistoricalAttributionCatalogMaps(catalogState) {
+  const batchIdsBySlug = new Map(catalogState.batchBySlug);
+  const batchIds = [...new Set(batchIdsBySlug.values())].filter(Boolean);
+  const empty = {
+    companyByBatchEntityId: new Map(),
+    founderByBatchEntityId: new Map(),
+    founderBatchSlugsById: new Map()
+  };
+  if (batchIds.length === 0) return empty;
+
+  const { data: companyRows, error: companyError } = await runSupabaseOperation(
+    "read historical company identities for attribution reconciliation",
+    () => supabase
+      .from("companies")
+      .select("id,batch_id,source_key")
+      .in("batch_id", batchIds)
+  );
+  check(companyError, "read historical company identities for attribution reconciliation");
+  const companiesById = new Map((companyRows ?? []).map((row) => [row.id, row]));
+  const companyByBatchEntityId = new Map();
+  const batchSlugById = new Map([...batchIdsBySlug].map(([slug, id]) => [id, slug]));
+  for (const company of companyRows ?? []) {
+    const batchSlug = batchSlugById.get(company.batch_id);
+    if (batchSlug && company.source_key) {
+      companyByBatchEntityId.set(`${batchSlug}\u0000${company.source_key}`, company.id);
+    }
+  }
+  if (companiesById.size === 0) return { ...empty, companyByBatchEntityId };
+
+  const { data: relationshipRows, error: relationshipError } = await runSupabaseOperation(
+    "read historical founder relationships for attribution reconciliation",
+    () => supabase
+      .from("company_founders")
+      .select("company_id,founder_id")
+      .in("company_id", [...companiesById.keys()])
+  );
+  check(relationshipError, "read historical founder relationships for attribution reconciliation");
+  const founderIds = [...new Set((relationshipRows ?? []).map((row) => row.founder_id).filter(Boolean))];
+  if (founderIds.length === 0) {
+    return { ...empty, companyByBatchEntityId };
+  }
+
+  const { data: founderRows, error: founderError } = await runSupabaseOperation(
+    "read historical founder identities for attribution reconciliation",
+    () => supabase
+      .from("founders")
+      .select("id,source_key")
+      .in("id", founderIds)
+  );
+  check(founderError, "read historical founder identities for attribution reconciliation");
+  const foundersById = new Map((founderRows ?? []).map((row) => [row.id, row]));
+  const founderByBatchEntityId = new Map();
+  const founderBatchSlugsById = new Map();
+  for (const relationship of relationshipRows ?? []) {
+    const company = companiesById.get(relationship.company_id);
+    const founder = foundersById.get(relationship.founder_id);
+    const batchSlug = batchSlugById.get(company?.batch_id);
+    if (!batchSlug || !founder?.source_key) continue;
+    founderByBatchEntityId.set(`${batchSlug}\u0000${founder.source_key}`, founder.id);
+    const batchesForFounder = founderBatchSlugsById.get(founder.id) ?? new Set();
+    batchesForFounder.add(batchSlug);
+    founderBatchSlugsById.set(founder.id, batchesForFounder);
+  }
+  return { companyByBatchEntityId, founderByBatchEntityId, founderBatchSlugsById };
 }
 
 function assertDurableAttributionCompleteness(importResult) {

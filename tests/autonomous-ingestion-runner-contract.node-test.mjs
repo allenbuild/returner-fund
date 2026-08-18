@@ -1626,6 +1626,24 @@ describe("autonomous ingestion runner static safety contracts", () => {
     );
   });
 
+  it("hydrates historical durable catalog identities before attribution reconciliation", () => {
+    const historicalCatalog = section(
+      "async function readHistoricalAttributionCatalogMaps",
+      "function assertDurableAttributionCompleteness"
+    );
+    assert.ok(historicalCatalog.includes('from("companies")'));
+    assert.ok(historicalCatalog.includes('from("company_founders")'));
+    assert.ok(historicalCatalog.includes('from("founders")'));
+    assert.ok(historicalCatalog.includes("companyByBatchEntityId"));
+    assert.ok(historicalCatalog.includes("founderByBatchEntityId"));
+    const durableImport = section(
+      "async function importDurableEvidence",
+      "async function readHistoricalAttributionCatalogMaps"
+    );
+    assert.ok(durableImport.includes("readHistoricalAttributionCatalogMaps(catalogState)"));
+    assert.ok(durableImport.includes("attributionReconciliationLedger.length > 0"));
+  });
+
   it("isolates work directories with a hash of the exact idempotency key", () => {
     const safePath = section("function safePathSegment", "function chunks");
     assert.ok(safePath.includes('createHash("sha256")'));
