@@ -6,6 +6,10 @@ alter table public.companies add column if not exists source_key text;
 alter table public.founders add column if not exists source_key text;
 alter table public.social_accounts add column if not exists source_key text;
 
+drop index if exists public.companies_batch_name_key;
+create index if not exists companies_batch_name_idx
+  on public.companies (batch_id, lower(name));
+
 create unique index if not exists companies_batch_source_key
   on public.companies (batch_id, source_key);
 create unique index if not exists founders_source_key
