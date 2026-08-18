@@ -1637,7 +1637,11 @@ describe("autonomous ingestion runner static safety contracts", () => {
     assert.ok(historicalCatalog.includes("companyByBatchEntityId"));
     assert.ok(historicalCatalog.includes("founderByBatchEntityId"));
     assert.ok(historicalCatalog.includes("runHistoricalAttributionRead"));
+    assert.ok(historicalCatalog.includes("function runHistoricalAttributionRead(label, createOperation)"));
     assert.ok(historicalCatalog.includes("retrying in"));
+    const retryConstant = runner.indexOf("const HISTORICAL_ATTRIBUTION_READ_ATTEMPTS = 3");
+    const durableImportStart = runner.indexOf("async function importDurableEvidence");
+    assert.ok(retryConstant > -1 && retryConstant < durableImportStart);
     const durableImport = section(
       "async function importDurableEvidence",
       "async function readHistoricalAttributionCatalogMaps"
