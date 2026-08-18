@@ -669,6 +669,66 @@ describe("durable evidence import", () => {
     expect(client.table("metric_observations")).toHaveLength(0);
   });
 
+  it("skips a quarantined target that no longer exists in the current batch catalog", async () => {
+    const client = new FakeSupabaseClient();
+    const result = await importDurableEvidence({
+      client,
+      ingestionRunId: RUN_ID,
+      catalogMaps: reconciliationCatalog(),
+      publicSnapshot: publicSnapshot("S26", []),
+      attributionReconciliationLedger: [reconciliationEntry({
+        disposition: "quarantined",
+        sourceUrl: "https://x.com/ishan/status/999",
+        platformPostId: "999",
+        staleAttribution: {
+          batchSlug: "S26",
+          entityType: "founder",
+          entityId: "founder-shepherd-3-ishan-ramrakhiani-2605131"
+        },
+        reason: "Historical attribution points at an entity removed from the current roster."
+      })]
+    });
+
+    expect(result.attributionReconciliation).toMatchObject({
+      received: 1,
+      unique: 0,
+      evidenceResolved: 0,
+      evidenceMissing: 0,
+      retired: 0,
+      skippedUnresolved: [{
+        ordinal: 1,
+        disposition: "quarantined",
+        reason: "stale_entity_not_in_current_catalog",
+        entityId: "founder-shepherd-3-ishan-ramrakhiani-2605131",
+        batchSlug: "S26"
+      }]
+    });
+    expect(client.calls).toHaveLength(0);
+  });
+
+  it("still fails closed when a reattributed stale target is absent from the current catalog", async () => {
+    await expect(importDurableEvidence({
+      client: new FakeSupabaseClient(),
+      ingestionRunId: RUN_ID,
+      catalogMaps: reconciliationCatalog(),
+      publicSnapshot: publicSnapshot("S26", []),
+      attributionReconciliationLedger: [reconciliationEntry({
+        sourceUrl: "https://x.com/ishan/status/999",
+        platformPostId: "999",
+        staleAttribution: {
+          batchSlug: "S26",
+          entityType: "founder",
+          entityId: "founder-shepherd-3-ishan-ramrakhiani-2605131"
+        },
+        replacementAttribution: {
+          batchSlug: "S2026",
+          entityType: "founder",
+          entityId: "founder-acme-alice"
+        }
+      })]
+    })).rejects.toThrow(/did not resolve entity founder-shepherd-3-ishan-ramrakhiani-2605131 in batch S26/);
+  });
+
   it("retires an exact batch target without changing another cohort attribution for the same physical row", async () => {
     const client = new FakeSupabaseClient();
     const catalogMaps = reconciliationCatalog();

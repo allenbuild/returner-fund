@@ -50,7 +50,9 @@ const ATTRIBUTION_READ_COLUMNS = [
  * Rejected context rows are retained in evidence_items, but never produce metric observations.
  * `attributionReconciliationLedger`, when present, is an explicit fail-closed list of stale
  * batch/entity targets to retire. Reattribution entries must name a replacement that is also
- * present in the sanitized snapshots; omission alone never retires durable attribution.
+ * present in the sanitized snapshots; omission alone never retires durable attribution. A
+ * quarantined target that no longer exists in the current batch catalog is retained in the
+ * source ledger but skipped here because there is no safe durable row to target.
  */
 export async function importDurableEvidence(options) {
   if (!options || typeof options !== "object") throw new TypeError("Import options are required.");
@@ -192,6 +194,9 @@ export async function importDurableEvidence(options) {
     checkedResponse(response, "append metric_observations");
   }
 
+  const attributionReconciliation = reconciliationLedger.skipped.length > 0
+    ? { ...reconciliation, skippedUnresolved: reconciliationLedger.skipped }
+    : reconciliation;
   return {
     ...counters,
     attributions: {
@@ -203,7 +208,7 @@ export async function importDurableEvidence(options) {
       stored: uniqueObservations.rows.length,
       duplicates: uniqueObservations.duplicates
     },
-    attributionReconciliation: reconciliation,
+    attributionReconciliation,
     rejections: [...unstorableRejections, ...attributionRejections]
   };
 }
@@ -496,13 +501,15 @@ function evidenceMetadata(candidate, canonical, reasons, tractionEligible, detai
 }
 
 function normalizeAttributionReconciliationLedger(value, catalogMaps) {
-  if (value == null) return { received: 0, entries: [] };
+  if (value == null) return { received: 0, entries: [], skipped: [] };
   if (!Array.isArray(value)) {
     throw new TypeError("attributionReconciliationLedger must be an array.");
   }
-  const entries = value.map((entry, index) =>
+  const normalized = value.map((entry, index) =>
     normalizeAttributionReconciliationEntry(entry, index, catalogMaps)
   );
+  const skipped = normalized.filter((entry) => entry?.skip).map((entry) => entry.skip);
+  const entries = normalized.filter((entry) => !entry?.skip);
   const seen = new Set();
   for (const entry of entries) {
     const key = `${entry.key}:${reconciliationTargetKey(entry.staleAttribution)}`;
@@ -513,7 +520,7 @@ function normalizeAttributionReconciliationLedger(value, catalogMaps) {
     }
     seen.add(key);
   }
-  return { received: value.length, entries };
+  return { received: value.length, entries, skipped };
 }
 
 function normalizeAttributionReconciliationEntry(entry, index, catalogMaps) {
@@ -558,8 +565,21 @@ function normalizeAttributionReconciliationEntry(entry, index, catalogMaps) {
   const staleAttribution = normalizeReconciliationTarget(
     entry.staleAttribution,
     `entry ${ordinal} staleAttribution`,
-    catalogMaps
+    catalogMaps,
+    { allowMissingEntity: disposition === "quarantined" }
   );
+  if (!staleAttribution) {
+    return {
+      skip: {
+        ordinal,
+        disposition,
+        reason: "stale_entity_not_in_current_catalog",
+        entityType: normalizedEntityType(entry.staleAttribution?.entityType ?? entry.staleAttribution?.entity_type),
+        entityId: nonBlank(entry.staleAttribution?.entityId ?? entry.staleAttribution?.entity_id),
+        batchSlug: nonBlank(entry.staleAttribution?.batchSlug ?? entry.staleAttribution?.batch_slug)
+      }
+    };
+  }
   const replacementAttribution = entry.replacementAttribution == null
     ? null
     : normalizeReconciliationTarget(
@@ -598,7 +618,7 @@ function normalizeAttributionReconciliationEntry(entry, index, catalogMaps) {
   };
 }
 
-function normalizeReconciliationTarget(value, label, catalogMaps) {
+function normalizeReconciliationTarget(value, label, catalogMaps, { allowMissingEntity = false } = {}) {
   if (!value || typeof value !== "object" || Array.isArray(value)) {
     throw new TypeError(`attributionReconciliationLedger ${label} must be an object.`);
   }
@@ -614,6 +634,7 @@ function normalizeReconciliationTarget(value, label, catalogMaps) {
   }
   const targetId = resolveCatalogId(catalogMaps, entityType, [entityId], batchSlug);
   if (!targetId) {
+    if (allowMissingEntity) return null;
     throw new Error(
       `attributionReconciliationLedger ${label} did not resolve entity ${entityId} in batch ${batchSlug}.`
     );
