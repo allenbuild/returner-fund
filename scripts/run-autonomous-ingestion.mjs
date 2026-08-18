@@ -4480,7 +4480,7 @@ async function readHistoricalAttributionCatalogMaps(catalogState) {
   };
   if (batchIds.length === 0) return empty;
 
-  const { data: companyRows, error: companyError } = await runSupabaseOperation(
+  const { data: companyRows, error: companyError } = await runHistoricalAttributionRead(
     "read historical company identities for attribution reconciliation",
     () => supabase
       .from("companies")
@@ -4499,7 +4499,7 @@ async function readHistoricalAttributionCatalogMaps(catalogState) {
   }
   if (companiesById.size === 0) return { ...empty, companyByBatchEntityId };
 
-  const { data: relationshipRows, error: relationshipError } = await runSupabaseOperation(
+  const { data: relationshipRows, error: relationshipError } = await runHistoricalAttributionRead(
     "read historical founder relationships for attribution reconciliation",
     () => supabase
       .from("company_founders")
@@ -4512,7 +4512,7 @@ async function readHistoricalAttributionCatalogMaps(catalogState) {
     return { ...empty, companyByBatchEntityId };
   }
 
-  const { data: founderRows, error: founderError } = await runSupabaseOperation(
+  const { data: founderRows, error: founderError } = await runHistoricalAttributionRead(
     "read historical founder identities for attribution reconciliation",
     () => supabase
       .from("founders")
@@ -4534,6 +4534,27 @@ async function readHistoricalAttributionCatalogMaps(catalogState) {
     founderBatchSlugsById.set(founder.id, batchesForFounder);
   }
   return { companyByBatchEntityId, founderByBatchEntityId, founderBatchSlugsById };
+}
+
+const HISTORICAL_ATTRIBUTION_READ_ATTEMPTS = 3;
+
+async function runHistoricalAttributionRead(label, createOperation) {
+  let lastError;
+  for (let attempt = 1; attempt <= HISTORICAL_ATTRIBUTION_READ_ATTEMPTS; attempt += 1) {
+    try {
+      return await runSupabaseOperation(label, createOperation);
+    } catch (error) {
+      lastError = error;
+      if (attempt === HISTORICAL_ATTRIBUTION_READ_ATTEMPTS) throw error;
+      const retryDelayMs = 1000 * attempt;
+      console.warn(
+        `${label} failed on attempt ${attempt}/${HISTORICAL_ATTRIBUTION_READ_ATTEMPTS}; ` +
+        `retrying in ${retryDelayMs}ms: ${sanitizedRunnerFailure(error).message}`
+      );
+      await new Promise((resolve) => setTimeout(resolve, retryDelayMs));
+    }
+  }
+  throw lastError;
 }
 
 function assertDurableAttributionCompleteness(importResult) {
