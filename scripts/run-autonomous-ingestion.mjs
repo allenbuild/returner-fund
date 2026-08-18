@@ -125,6 +125,7 @@ let plannedTasks;
 let plannedTaskByCheckpointKey;
 let plannedCoverage;
 const HISTORICAL_ATTRIBUTION_READ_ATTEMPTS = 3;
+const HISTORICAL_ATTRIBUTION_READ_BATCH_SIZE = 100;
 const PUBLIC_COLLECTOR_SHARDS = Object.freeze({
   S2026: 4,
   S26: 2,
@@ -4481,14 +4482,14 @@ async function readHistoricalAttributionCatalogMaps(catalogState) {
   };
   if (batchIds.length === 0) return empty;
 
-  const { data: companyRows, error: companyError } = await runHistoricalAttributionRead(
+  const companyRows = await readHistoricalAttributionRows(
     "read historical company identities for attribution reconciliation",
-    () => supabase
+    batchIds,
+    (ids) => supabase
       .from("companies")
       .select("id,batch_id,source_key")
-      .in("batch_id", batchIds)
+      .in("batch_id", ids)
   );
-  check(companyError, "read historical company identities for attribution reconciliation");
   const companiesById = new Map((companyRows ?? []).map((row) => [row.id, row]));
   const companyByBatchEntityId = new Map();
   const batchSlugById = new Map([...batchIdsBySlug].map(([slug, id]) => [id, slug]));
@@ -4500,27 +4501,27 @@ async function readHistoricalAttributionCatalogMaps(catalogState) {
   }
   if (companiesById.size === 0) return { ...empty, companyByBatchEntityId };
 
-  const { data: relationshipRows, error: relationshipError } = await runHistoricalAttributionRead(
+  const relationshipRows = await readHistoricalAttributionRows(
     "read historical founder relationships for attribution reconciliation",
-    () => supabase
+    [...companiesById.keys()],
+    (companyIds) => supabase
       .from("company_founders")
       .select("company_id,founder_id")
-      .in("company_id", [...companiesById.keys()])
+      .in("company_id", companyIds)
   );
-  check(relationshipError, "read historical founder relationships for attribution reconciliation");
   const founderIds = [...new Set((relationshipRows ?? []).map((row) => row.founder_id).filter(Boolean))];
   if (founderIds.length === 0) {
     return { ...empty, companyByBatchEntityId };
   }
 
-  const { data: founderRows, error: founderError } = await runHistoricalAttributionRead(
+  const founderRows = await readHistoricalAttributionRows(
     "read historical founder identities for attribution reconciliation",
-    () => supabase
+    founderIds,
+    (ids) => supabase
       .from("founders")
       .select("id,source_key")
-      .in("id", founderIds)
+      .in("id", ids)
   );
-  check(founderError, "read historical founder identities for attribution reconciliation");
   const foundersById = new Map((founderRows ?? []).map((row) => [row.id, row]));
   const founderByBatchEntityId = new Map();
   const founderBatchSlugsById = new Map();
@@ -4543,6 +4544,19 @@ function runHistoricalAttributionRead(label, createOperation) {
     createOperation,
     HISTORICAL_ATTRIBUTION_READ_ATTEMPTS
   );
+}
+
+async function readHistoricalAttributionRows(label, values, createOperation) {
+  const rows = [];
+  const valueChunks = chunks(values, HISTORICAL_ATTRIBUTION_READ_BATCH_SIZE);
+  for (const [index, valueChunk] of valueChunks.entries()) {
+    const result = await runHistoricalAttributionRead(
+      `${label} chunk ${index + 1}/${valueChunks.length}`,
+      () => createOperation(valueChunk)
+    );
+    rows.push(...(result?.data ?? []));
+  }
+  return rows;
 }
 
 function isRetryableHistoricalAttributionReadError(error) {

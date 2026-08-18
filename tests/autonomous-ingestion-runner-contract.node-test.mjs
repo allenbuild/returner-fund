@@ -1637,6 +1637,9 @@ describe("autonomous ingestion runner static safety contracts", () => {
     assert.ok(historicalCatalog.includes("companyByBatchEntityId"));
     assert.ok(historicalCatalog.includes("founderByBatchEntityId"));
     assert.ok(historicalCatalog.includes("runHistoricalAttributionRead"));
+    assert.ok(historicalCatalog.includes("readHistoricalAttributionRows"));
+    assert.ok(historicalCatalog.includes("HISTORICAL_ATTRIBUTION_READ_BATCH_SIZE"));
+    assert.ok(historicalCatalog.includes("chunk ${index + 1}/${valueChunks.length}"));
     assert.ok(historicalCatalog.includes("function runHistoricalAttributionRead(label, createOperation)"));
     assert.ok(historicalCatalog.includes("result?.error"));
     assert.ok(historicalCatalog.includes("fetch failed"));
