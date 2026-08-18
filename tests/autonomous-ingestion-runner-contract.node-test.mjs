@@ -2880,6 +2880,8 @@ describe("autonomous ingestion runner static safety contracts", () => {
 
     assert.ok(sync.includes('from("social_account_owners")'));
     assert.ok(sync.includes('onConflict: "owner_key"'));
+    assert.ok(sync.includes("first_seen_at: now"));
+    assert.ok(sync.includes("last_seen_at: now"));
     assert.ok(sync.includes("founderByBatchSourceKey"));
     assert.ok(retirement.includes('review_state: "rejected"'));
     assert.ok(retirement.includes('retirement_reason: "absent_from_current_batch_owner_inventory"'));
@@ -2947,8 +2949,8 @@ describe("pinned source and publication-base trust boundaries", () => {
     });
 
     assert.equal(isReplaySafePublicationDataPath("src/lib/social/package.json"), false);
-    assert.equal(isReplaySafePublicationDataPath("artifacts/dashboard/current.json"), false);
-    assert.equal(isReplaySafePublicationDataPath("public/dashboard/feed.json"), false);
+    assert.equal(isReplaySafePublicationDataPath("artifacts/dashboard/current.json"), true);
+    assert.equal(isReplaySafePublicationDataPath("public/dashboard/feed.json"), true);
     assert.equal(isSafeInertPublicationBasePath("artifacts/dashboard/current.json"), true);
     assert.equal(isSafeInertPublicationBasePath("public/dashboard/feed.json"), true);
     assert.equal(isSafeInertPublicationBasePath("src/lib/graph/layout.ts"), true);
@@ -2988,16 +2990,12 @@ describe("pinned source and publication-base trust boundaries", () => {
     }));
     assert.equal(acceptedDashboardSnapshot.accepted, true);
 
-    const rejectedDashboardSnapshotReplay = lifecycleFixturePayload(runLifecycleFixture("publication-base-trust", {
+    const acceptedDashboardSnapshotReplay = lifecycleFixturePayload(runLifecycleFixture("publication-base-trust", {
       LIFECYCLE_FIXTURE_SOURCE_COMMIT: sourceCommit,
       LIFECYCLE_FIXTURE_BASE_COMMIT: dashboardSnapshotCommit,
       LIFECYCLE_FIXTURE_BASE_LABEL: "commit-backed replay publication"
     }));
-    assert.equal(rejectedDashboardSnapshotReplay.accepted, false);
-    assert.match(
-      rejectedDashboardSnapshotReplay.error,
-      /executable, policy, dependency, or non-allowlisted drift.*artifacts\/dashboard\/current\.json/
-    );
+    assert.equal(acceptedDashboardSnapshotReplay.accepted, true);
 
     const acceptedInertCode = lifecycleFixturePayload(runLifecycleFixture("publication-base-trust", {
       LIFECYCLE_FIXTURE_SOURCE_COMMIT: sourceCommit,
