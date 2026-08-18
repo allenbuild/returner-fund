@@ -4545,21 +4545,39 @@ function runHistoricalAttributionRead(label, createOperation) {
   );
 }
 
+function isRetryableHistoricalAttributionReadError(error) {
+  const message = String(error?.message ?? error).toLowerCase();
+  return (
+    message.includes("fetch failed") ||
+    /network|timed out|timeout|econnreset|econnrefused|enotfound|socket/.test(message)
+  );
+}
+
 async function runHistoricalAttributionReadWithAttempts(label, createOperation, attempts) {
   let lastError;
   for (let attempt = 1; attempt <= attempts; attempt += 1) {
     try {
-      return await runSupabaseOperation(label, createOperation);
+      const result = await runSupabaseOperation(label, createOperation);
+      if (!result?.error) return result;
+      if (
+        !isRetryableHistoricalAttributionReadError(result.error) ||
+        attempt === attempts
+      ) {
+        return result;
+      }
+      lastError = result.error;
     } catch (error) {
+      if (!isRetryableHistoricalAttributionReadError(error) || attempt === attempts) {
+        throw error;
+      }
       lastError = error;
-      if (attempt === attempts) throw error;
-      const retryDelayMs = 1000 * attempt;
-      console.warn(
-        `${label} failed on attempt ${attempt}/${attempts}; ` +
-        `retrying in ${retryDelayMs}ms: ${sanitizedRunnerFailure(error).message}`
-      );
-      await new Promise((resolve) => setTimeout(resolve, retryDelayMs));
     }
+    const retryDelayMs = 1000 * attempt;
+    console.warn(
+      `${label} failed on attempt ${attempt}/${attempts}; ` +
+      `retrying in ${retryDelayMs}ms: ${sanitizedRunnerFailure(lastError).message}`
+    );
+    await new Promise((resolve) => setTimeout(resolve, retryDelayMs));
   }
   throw lastError;
 }
