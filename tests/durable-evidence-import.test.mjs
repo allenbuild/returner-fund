@@ -1143,6 +1143,53 @@ describe("durable evidence import", () => {
     expect(client.table("evidence_items")).toHaveLength(0);
   });
 
+  it("treats an absent historical reattribution as a no-op without retiring by omission", async () => {
+    const client = new FakeSupabaseClient();
+    const catalogMaps = reconciliationCatalog();
+    await importDurableEvidence({
+      client,
+      ingestionRunId: RUN_ID,
+      catalogMaps,
+      publicSnapshot: publicSnapshot("S2026", [publicPost({
+        entityType: "company",
+        entityId: "company-acme"
+      })])
+    });
+
+    const result = await importDurableEvidence({
+      client,
+      ingestionRunId: RUN_ID,
+      catalogMaps,
+      publicSnapshot: publicSnapshot("S2026", []),
+      attributionReconciliationLedger: [reconciliationEntry({
+        staleAttribution: {
+          batchSlug: "S2026",
+          entityType: "company",
+          entityId: "company-acme"
+        },
+        replacementAttribution: {
+          batchSlug: "S2026",
+          entityType: "founder",
+          entityId: "founder-acme-alice"
+        }
+      })]
+    });
+
+    expect(result.attributionReconciliation).toMatchObject({
+      received: 1,
+      unique: 0,
+      retired: 0,
+      skippedUnresolved: [{
+        reason: "historical_reattribution_not_present_in_current_snapshot"
+      }]
+    });
+    expect(client.table("evidence_attributions")[0]).toMatchObject({
+      company_id: COMPANY_ID,
+      score_eligible: true,
+      review_state: "verified"
+    });
+  });
+
   it("fails closed on retirement and reconciliation read-back errors before appending new metrics", async () => {
     const catalogMaps = reconciliationCatalog();
     const corrected = publicSnapshot("S2026", [publicPost({
