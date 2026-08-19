@@ -614,6 +614,26 @@ function normalizeAttributionReconciliationEntry(entry, index, catalogMaps, norm
       }
     };
   }
+  // A catalog rename can preserve the same durable company/founder row while
+  // changing its source key. In that case the historical stale key and the
+  // replacement key intentionally resolve to one database target: there is no
+  // distinct stale attribution that can be retired, and treating the verified
+  // replacement row as stale would block the whole refresh.
+  if (
+    replacementAttribution &&
+    sameDurableReconciliationTarget(staleAttribution, replacementAttribution)
+  ) {
+    return {
+      skip: {
+        ordinal,
+        disposition,
+        reason: "stale_target_resolves_to_replacement",
+        entityType: staleAttribution.entityType,
+        entityId: staleAttribution.entityId,
+        batchSlug: staleAttribution.batchSlug
+      }
+    };
+  }
   if (replacementAttribution && sameReconciliationTarget(staleAttribution, replacementAttribution)) {
     throw new Error(
       `attributionReconciliationLedger entry ${ordinal} replacementAttribution equals staleAttribution.`
@@ -688,6 +708,7 @@ function reconciliationTargetKey(target) {
   return [
     target.batchId,
     target.entityType,
+    target.entityId,
     target.targetId,
     target.attributionType
   ].join(":");
@@ -695,6 +716,16 @@ function reconciliationTargetKey(target) {
 
 function sameReconciliationTarget(left, right) {
   return reconciliationTargetKey(left) === reconciliationTargetKey(right);
+}
+
+function sameDurableReconciliationTarget(left, right) {
+  return Boolean(
+    left && right &&
+    left.batchId === right.batchId &&
+    left.entityType === right.entityType &&
+    left.targetId === right.targetId &&
+    left.attributionType === right.attributionType
+  );
 }
 
 function assertReconciliationCandidates(entries, normalized, catalogMaps) {

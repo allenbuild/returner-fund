@@ -776,6 +776,62 @@ describe("durable evidence import", () => {
     expect(client.table("metric_observations")).toHaveLength(1);
   });
 
+  it("treats a historical rename that resolves to the replacement durable row as an idempotent no-op", async () => {
+    const client = new FakeSupabaseClient();
+    const catalogMaps = reconciliationCatalog();
+    catalogMaps.companyByBatchEntityId.set("S26\u0000company-blueprints", COMPANY_ID);
+    catalogMaps.companyByBatchEntityId.set("S26\u0000company-hoplite", COMPANY_ID);
+    const result = await importDurableEvidence({
+      client,
+      ingestionRunId: RUN_ID,
+      catalogMaps,
+      publicSnapshot: publicSnapshot("S26", [publicPost({
+        entityType: "company",
+        entityId: "company-hoplite",
+        companySlug: "hoplite",
+        platform: "github",
+        sourceUrl: "https://github.com/CarbonCopyInc/carboncopy-mcp",
+        platformPostId: "CarbonCopyInc/carboncopy-mcp",
+        metrics: { stars: 5 }
+      })]),
+      attributionReconciliationLedger: [reconciliationEntry({
+        platform: "github",
+        sourceUrl: "https://github.com/CarbonCopyInc/carboncopy-mcp",
+        platformPostId: "CarbonCopyInc/carboncopy-mcp",
+        staleAttribution: {
+          batchSlug: "S26",
+          entityType: "company",
+          entityId: "company-blueprints"
+        },
+        replacementAttribution: {
+          batchSlug: "S26",
+          entityType: "company",
+          entityId: "company-hoplite"
+        },
+        reason: "Historical company rename preserves one durable catalog row."
+      })]
+    });
+
+    expect(result.attributionReconciliation).toMatchObject({
+      received: 1,
+      unique: 0,
+      retired: 0,
+      skippedUnresolved: [{
+        ordinal: 1,
+        disposition: "reattributed",
+        reason: "stale_target_resolves_to_replacement",
+        entityId: "company-blueprints",
+        batchSlug: "S26"
+      }]
+    });
+    expect(client.table("evidence_attributions")).toHaveLength(1);
+    expect(client.table("evidence_attributions")[0]).toMatchObject({
+      company_id: COMPANY_ID,
+      batch_id: SUMMER_BATCH_ID,
+      review_state: "verified"
+    });
+  });
+
   it("retires an exact batch target without changing another cohort attribution for the same physical row", async () => {
     const client = new FakeSupabaseClient();
     const catalogMaps = reconciliationCatalog();
