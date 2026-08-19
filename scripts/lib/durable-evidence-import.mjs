@@ -736,12 +736,20 @@ function sameDurableReconciliationTarget(left, right) {
 function removeStaleReconciliationCandidates(normalized, entries, catalogMaps) {
   const staleCandidates = new Set();
   for (const entry of entries) {
-    if (!entry.replacementAttribution) continue;
     const physicalTargets = normalized
       .filter((item) => item.key === entry.key && item.verified)
       .map((item) => ({ item, target: resolvedAttributionTarget(item, catalogMaps) }))
       .filter(({ target }) => target);
-    if (!physicalTargets.some(({ target }) => sameReconciliationTarget(target, entry.replacementAttribution))) {
+    const hasReplacement = entry.replacementAttribution && physicalTargets.some(({ target }) =>
+      sameReconciliationTarget(target, entry.replacementAttribution)
+    );
+    // An explicit quarantine is itself the durable instruction to retire the
+    // stale attribution. If a previously published snapshot still carries the
+    // quarantined verified row, drop that row before the fail-closed assertion;
+    // otherwise the stale row would make every refresh impossible even though
+    // the ledger already records its terminal disposition. Reattributions
+    // still require an in-snapshot replacement before the stale row is removed.
+    if (entry.disposition !== "quarantined" && !hasReplacement) {
       continue;
     }
     for (const { item, target } of physicalTargets) {

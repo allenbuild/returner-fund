@@ -1107,6 +1107,42 @@ describe("durable evidence import", () => {
     expect(client.calls).toHaveLength(0);
   });
 
+  it("drops a stale verified row explicitly quarantined by the reconciliation ledger", async () => {
+    const client = new FakeSupabaseClient();
+    const catalogMaps = reconciliationCatalog();
+    const stale = publicPost({
+      entityType: "company",
+      entityId: "company-acme"
+    });
+    const result = await importDurableEvidence({
+      client,
+      ingestionRunId: RUN_ID,
+      catalogMaps,
+      publicSnapshot: publicSnapshot("S2026", [stale]),
+      attributionReconciliationLedger: [reconciliationEntry({
+        disposition: "quarantined",
+        staleAttribution: {
+          batchSlug: "S2026",
+          entityType: "company",
+          entityId: "company-acme"
+        },
+        reason: "Duplicate physical post was quarantined."
+      })]
+    });
+
+    expect(result).toMatchObject({
+      received: 1,
+      stored: 0,
+      attributions: { stored: 0, unresolved: 0 },
+      attributionReconciliation: {
+        received: 1,
+        unique: 1,
+        replacementsExpected: 0
+      }
+    });
+    expect(client.table("evidence_items")).toHaveLength(0);
+  });
+
   it("fails closed on retirement and reconciliation read-back errors before appending new metrics", async () => {
     const catalogMaps = reconciliationCatalog();
     const corrected = publicSnapshot("S2026", [publicPost({
