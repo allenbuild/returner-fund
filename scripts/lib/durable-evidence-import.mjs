@@ -73,11 +73,24 @@ export async function importDurableEvidence(options) {
     candidatesFromSnapshot(snapshot, snapshotIndex, now)
   );
   const normalized = candidates.map(normalizeCandidate);
-  const reconciliationLedger = normalizeAttributionReconciliationLedger(
+  const normalizedReconciliationLedger = normalizeAttributionReconciliationLedger(
     options.attributionReconciliationLedger,
     catalogMaps,
     normalized
   );
+  const historicalNoopReconciliation = dropAbsentHistoricalReattributions(
+    normalized,
+    normalizedReconciliationLedger.entries,
+    catalogMaps
+  );
+  const reconciliationLedger = {
+    ...normalizedReconciliationLedger,
+    entries: historicalNoopReconciliation.entries,
+    skipped: [
+      ...normalizedReconciliationLedger.skipped,
+      ...historicalNoopReconciliation.skipped
+    ]
+  };
   const reconciledNormalized = removeStaleReconciliationCandidates(
     normalized,
     reconciliationLedger.entries,
@@ -757,6 +770,30 @@ function removeStaleReconciliationCandidates(normalized, entries, catalogMaps) {
     }
   }
   return normalized.filter((item) => !staleCandidates.has(item));
+}
+
+function dropAbsentHistoricalReattributions(normalized, entries, catalogMaps) {
+  const skipped = [];
+  const active = entries.filter((entry) => {
+    if (entry.disposition !== "reattributed" || !entry.replacementAttribution) return true;
+    const physicalTargets = normalized
+      .filter((item) => item.key === entry.key && item.verified)
+      .map((item) => resolvedAttributionTarget(item, catalogMaps))
+      .filter(Boolean);
+    // Any current verified item for this physical key keeps the directive
+    // fail-closed: it may be the stale target, the replacement, or an
+    // unexpected competing attribution that must not be silently accepted.
+    if (physicalTargets.length > 0) return true;
+    skipped.push({
+      ordinal: entry.ordinal,
+      disposition: entry.disposition,
+      reason: "historical_reattribution_not_present_in_current_snapshot",
+      platform: entry.platform,
+      nativeId: entry.nativeId
+    });
+    return false;
+  });
+  return { entries: active, skipped };
 }
 
 function assertReconciliationCandidates(entries, normalized, catalogMaps) {
