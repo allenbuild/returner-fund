@@ -832,6 +832,55 @@ describe("durable evidence import", () => {
     });
   });
 
+  it("drops a stale duplicate physical item when an exact distinct replacement is present", async () => {
+    const client = new FakeSupabaseClient();
+    const catalogMaps = reconciliationCatalog();
+    const sourceUrl = "https://github.com/acme/acme-sdk";
+    const stale = publicPost({
+      entityType: "company",
+      entityId: "company-acme",
+      platform: "github",
+      sourceUrl,
+      platformPostId: "acme/acme-sdk"
+    });
+    const replacement = publicPost({
+      entityType: "company",
+      entityId: "company-other",
+      platform: "github",
+      sourceUrl,
+      platformPostId: "acme/acme-sdk"
+    });
+    const result = await importDurableEvidence({
+      client,
+      ingestionRunId: RUN_ID,
+      catalogMaps,
+      publicSnapshot: publicSnapshot("S2026", [stale, replacement]),
+      attributionReconciliationLedger: [reconciliationEntry({
+        platform: "github",
+        sourceUrl,
+        platformPostId: "acme/acme-sdk",
+        staleAttribution: {
+          batchSlug: "S2026",
+          entityType: "company",
+          entityId: "company-acme"
+        },
+        replacementAttribution: {
+          batchSlug: "S2026",
+          entityType: "company",
+          entityId: "company-other"
+        }
+      })]
+    });
+
+    expect(result.attributions.stored).toBe(1);
+    expect(client.table("evidence_attributions")).toHaveLength(1);
+    expect(client.table("evidence_attributions")[0]).toMatchObject({
+      company_id: SECOND_COMPANY_ID,
+      batch_id: SPRING_BATCH_ID,
+      review_state: "verified"
+    });
+  });
+
   it("retires an exact batch target without changing another cohort attribution for the same physical row", async () => {
     const client = new FakeSupabaseClient();
     const catalogMaps = reconciliationCatalog();

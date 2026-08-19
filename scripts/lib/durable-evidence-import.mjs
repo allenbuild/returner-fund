@@ -78,10 +78,15 @@ export async function importDurableEvidence(options) {
     catalogMaps,
     normalized
   );
-  assertReconciliationCandidates(reconciliationLedger.entries, normalized, catalogMaps);
+  const reconciledNormalized = removeStaleReconciliationCandidates(
+    normalized,
+    reconciliationLedger.entries,
+    catalogMaps
+  );
+  assertReconciliationCandidates(reconciliationLedger.entries, reconciledNormalized, catalogMaps);
   const counters = {
     received: normalized.length,
-    rejected: normalized.filter((item) => !item.tractionEligible).length,
+    rejected: reconciledNormalized.filter((item) => !item.tractionEligible).length,
     duplicates: 0,
     stored: 0,
     readBack: 0
@@ -89,7 +94,7 @@ export async function importDurableEvidence(options) {
 
   const groups = new Map();
   const unstorableRejections = [];
-  for (const item of normalized) {
+  for (const item of reconciledNormalized) {
     if (!item.evidenceRow) {
       unstorableRejections.push(rejectionSummary(item));
       continue;
@@ -726,6 +731,24 @@ function sameDurableReconciliationTarget(left, right) {
     left.targetId === right.targetId &&
     left.attributionType === right.attributionType
   );
+}
+
+function removeStaleReconciliationCandidates(normalized, entries, catalogMaps) {
+  const staleCandidates = new Set();
+  for (const entry of entries) {
+    if (!entry.replacementAttribution) continue;
+    const physicalTargets = normalized
+      .filter((item) => item.key === entry.key && item.verified)
+      .map((item) => ({ item, target: resolvedAttributionTarget(item, catalogMaps) }))
+      .filter(({ target }) => target);
+    if (!physicalTargets.some(({ target }) => sameReconciliationTarget(target, entry.replacementAttribution))) {
+      continue;
+    }
+    for (const { item, target } of physicalTargets) {
+      if (sameReconciliationTarget(target, entry.staleAttribution)) staleCandidates.add(item);
+    }
+  }
+  return normalized.filter((item) => !staleCandidates.has(item));
 }
 
 function assertReconciliationCandidates(entries, normalized, catalogMaps) {
