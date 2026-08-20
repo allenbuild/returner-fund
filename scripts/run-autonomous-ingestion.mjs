@@ -2378,7 +2378,7 @@ async function prepareMergedLoggedInEvidenceSnapshot(
   const content = finalizeLoggedInEvidenceContent(
     newestRowsById(evidenceRows),
     {
-      defaultBatchSlug: "S26",
+      defaultBatchSlug: null,
       resolveBatchSlug: resolveLegacyPublicEvidenceBatch,
       existingNeedsReview: newestRowsById(
         snapshots.flatMap((snapshot) => snapshot.needsReview ?? [])
@@ -2391,9 +2391,12 @@ async function prepareMergedLoggedInEvidenceSnapshot(
   const source = [...snapshots]
     .reverse()
     .find((snapshot) => snapshot?.source && typeof snapshot.source === "object")?.source ?? {};
+  const multiCohortSource = { ...source };
+  delete multiCohortSource.batchSlug;
+  delete multiCohortSource.batch_slug;
   return {
     source: {
-      ...source,
+      ...multiCohortSource,
       label: "Opt-in logged-in browser social post ingestion",
       runner: "dedicated-self-hosted-mac",
       viewer: {
@@ -4472,7 +4475,8 @@ async function importDurableEvidence({
         plannedCompanySlug(company),
         company.name,
         company.sourceKey.replace(/^company[:-]/, ""),
-        company.sourceKey.replace(/^a16z-speedrun-006[:-]/, "")
+        company.sourceKey.replace(/^a16z-speedrun-006[:-]/, ""),
+        ...(company.legacyEntityAliases ?? [])
       ]) {
         if (alias) companyAliasesByBatch.set(batchCompanyKey(catalog.slug, alias), companyId);
       }
@@ -4483,25 +4487,31 @@ async function importDurableEvidence({
         const founderBatches = founderBatchSlugsById.get(founderId) ?? new Set();
         founderBatches.add(catalog.slug);
         founderBatchSlugsById.set(founderId, founderBatches);
-        for (const alias of [founder.sourceKey, founder.name]) {
+        for (const alias of [
+          founder.sourceKey,
+          founder.name,
+          ...(founder.legacyEntityAliases ?? [])
+        ]) {
           if (alias) founderAliasesByBatch.set(batchCompanyKey(catalog.slug, alias), founderId);
         }
       }
     }
   }
-  if (attributionReconciliationLedger.length > 0) {
-    const historicalAttributionCatalog = await readHistoricalAttributionCatalogMaps(catalogState);
-    for (const [key, companyId] of historicalAttributionCatalog.companyByBatchEntityId) {
-      if (!companyAliasesByBatch.has(key)) companyAliasesByBatch.set(key, companyId);
-    }
-    for (const [key, founderId] of historicalAttributionCatalog.founderByBatchEntityId) {
-      if (!founderAliasesByBatch.has(key)) founderAliasesByBatch.set(key, founderId);
-    }
-    for (const [founderId, historicalBatches] of historicalAttributionCatalog.founderBatchSlugsById) {
-      const batchesForFounder = founderBatchSlugsById.get(founderId) ?? new Set();
-      for (const batchSlug of historicalBatches) batchesForFounder.add(batchSlug);
-      founderBatchSlugsById.set(founderId, batchesForFounder);
-    }
+  // Mutable rosters can remove a founder while canonical evidence still
+  // truthfully refers to that historical member. Always hydrate exact durable
+  // batch/entity identities; this must not depend on an unrelated active
+  // reconciliation directive being present in the current artifact.
+  const historicalAttributionCatalog = await readHistoricalAttributionCatalogMaps(catalogState);
+  for (const [key, companyId] of historicalAttributionCatalog.companyByBatchEntityId) {
+    if (!companyAliasesByBatch.has(key)) companyAliasesByBatch.set(key, companyId);
+  }
+  for (const [key, founderId] of historicalAttributionCatalog.founderByBatchEntityId) {
+    if (!founderAliasesByBatch.has(key)) founderAliasesByBatch.set(key, founderId);
+  }
+  for (const [founderId, historicalBatches] of historicalAttributionCatalog.founderBatchSlugsById) {
+    const batchesForFounder = founderBatchSlugsById.get(founderId) ?? new Set();
+    for (const batchSlug of historicalBatches) batchesForFounder.add(batchSlug);
+    founderBatchSlugsById.set(founderId, batchesForFounder);
   }
   const result = await runSupabaseOperation(
     "import durable evidence snapshots",

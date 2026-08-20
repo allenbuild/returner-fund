@@ -37,6 +37,100 @@ describe("logged-in evidence exact-content finalization", () => {
     assert.equal(rows[1].batchSlug, "S2026");
   });
 
+  it("materializes only uniquely resolved legacy cohorts for durable attribution", () => {
+    const spring = xRow({
+      id: "legacy-spring",
+      entityId: "company-spring",
+      companySlug: "spring",
+      platformPostId: "1001",
+      accountUrl: "https://x.com/spring"
+    });
+    const summer = xRow({
+      id: "legacy-summer",
+      entityId: "company-summer",
+      companySlug: "summer",
+      platformPostId: "1002",
+      accountUrl: "https://x.com/summer"
+    });
+    const ambiguous = xRow({
+      id: "legacy-ambiguous",
+      entityId: "company-shared",
+      companySlug: "shared",
+      platformPostId: "1003",
+      accountUrl: "https://x.com/shared"
+    });
+    for (const row of [spring, summer, ambiguous]) delete row.batchSlug;
+
+    const result = finalizeLoggedInEvidenceContent([spring, summer, ambiguous], {
+      defaultBatchSlug: null,
+      resolveBatchSlug: (row) => ({
+        "company-spring": "S2026",
+        "company-summer": "S26"
+      })[row.entityId] ?? null
+    });
+
+    assert.deepEqual(
+      result.evidence.map((row) => [row.id, row.batchSlug ?? null]),
+      [
+        ["legacy-ambiguous", null],
+        ["legacy-spring", "S2026"],
+        ["legacy-summer", "S26"]
+      ]
+    );
+  });
+
+  it("preserves incoming A16Z and explicit row cohorts ahead of a conflicting resolver", () => {
+    const incomingA16z = xRow({
+      id: "incoming-a16z",
+      entityId: "company-a16z",
+      companySlug: "a16z",
+      platformPostId: "2001",
+      accountUrl: "https://x.com/a16z"
+    });
+    const explicitSummer = xRow({
+      id: "explicit-summer",
+      entityId: "company-summer",
+      companySlug: "summer",
+      platformPostId: "2002",
+      accountUrl: "https://x.com/summer"
+    });
+    delete incomingA16z.batchSlug;
+    delete explicitSummer.batchSlug;
+    explicitSummer.batch_slug = "S26";
+
+    const rows = mergeLoggedInEvidenceRows([], [{
+      source: { batchSlug: "A16ZSR006" },
+      evidence: [incomingA16z, explicitSummer]
+    }]);
+    const result = finalizeLoggedInEvidenceContent(rows, {
+      defaultBatchSlug: null,
+      resolveBatchSlug: () => "S2026"
+    });
+    const byId = new Map(result.evidence.map((row) => [row.id, row]));
+
+    assert.equal(byId.get("incoming-a16z").batchSlug, "A16ZSR006");
+    assert.equal(byId.get("explicit-summer").batchSlug, "S26");
+    assert.equal(byId.get("explicit-summer").batch_slug, undefined);
+  });
+
+  it("keeps explicitly unverified positive-metric rows in the review lane", () => {
+    const row = xRow({
+      id: "instagram-identity-review",
+      entityId: "company-review",
+      companySlug: "review",
+      platformPostId: "2003",
+      accountUrl: "https://x.com/review"
+    });
+    row.review_state = "needs_review";
+
+    const result = finalizeLoggedInEvidenceContent([row], {
+      defaultBatchSlug: "S26"
+    });
+
+    assert.equal(result.evidence.length, 0);
+    assert.deepEqual(result.needsReview.map((candidate) => candidate.id), [row.id]);
+  });
+
   it("repairs legacy owner-collision reviews from their canonical company target", () => {
     const legacyReview = {
       id: "native-account-owner-collision-s2026-x-shared",

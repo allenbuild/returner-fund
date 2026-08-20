@@ -668,6 +668,35 @@ describe("autonomous ingestion semantic attribution contracts", () => {
     }
   });
 
+  it("keeps historical Summer rename aliases batch-scoped through mutable catalog refreshes", async () => {
+    const catalogs = await loadAutonomousCatalogs(root);
+    const resolveBatchSlug = buildLegacyPublicEvidenceBatchResolver(catalogs);
+
+    assert.equal(resolveBatchSlug({
+      entityType: "founder",
+      entityId: "founder-blueprints-bence-redmond-2614746",
+      companySlug: "blueprints",
+      companyName: "Blueprints"
+    }), "S26");
+    assert.equal(resolveBatchSlug({
+      entityType: "company",
+      entityId: "company-bylaw",
+      companySlug: "bylaw",
+      companyName: "Bylaw"
+    }), "S26");
+
+    const summer = catalogs.find((catalog) => catalog.slug === "S26");
+    const hoplite = summer.companies.find((company) => company.sourceKey === "company-hoplite");
+    const definite = summer.companies.find((company) => company.sourceKey === "company-definite");
+    assert.ok(hoplite.legacyEntityAliases.includes("company-blueprints"));
+    assert.ok(definite.legacyEntityAliases.includes("company-bylaw"));
+    assert.ok(
+      hoplite.founders.some((founder) =>
+        founder.legacyEntityAliases.includes("founder-blueprints-bence-redmond-2614746")
+      )
+    );
+  });
+
   it("replaces a content-dropped reattribution with one quarantine for the original stale target", async () => {
     const catalogs = await loadAutonomousCatalogs(root);
     const resolveBatchSlug = buildLegacyPublicEvidenceBatchResolver(catalogs);
