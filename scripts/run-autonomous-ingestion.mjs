@@ -86,7 +86,10 @@ import {
 import { isVerifiedYouTubeNativeMetriclessEvidence } from "./lib/youtube-native-promotion.mjs";
 import { comparePublicationSemantics } from "./lib/publication-semantic-diff.mjs";
 import { buildVerifiedFirstPartyContextEvidenceValidator } from "./lib/first-party-authored-post-promotion.mjs";
-import { finalizeLoggedInEvidenceContent } from "./lib/logged-in-evidence-content-dedupe.mjs";
+import {
+  finalizeLoggedInEvidenceContent,
+  mergeLoggedInEvidenceRows
+} from "./lib/logged-in-evidence-content-dedupe.mjs";
 
 let root;
 const pinnedSourceRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
@@ -2363,17 +2366,11 @@ async function prepareMergedLoggedInEvidenceSnapshot(
   });
   const base = baseRef ? await readJsonFromGitRef(baseRef, relativePath, null) : null;
   const snapshots = [base, current, ...(incomingSnapshots ?? [])].filter(Boolean);
-  // Logged-in collection runs are emitted once per cohort, but the merged
-  // artifact has one top-level source object. Preserve each row's cohort
-  // before deduping so the final source metadata from the last cohort cannot
-  // accidentally reattribute every historical row to that cohort.
-  const evidenceRows = snapshots.flatMap((snapshot) =>
-    (snapshot.evidence ?? []).map((row) => {
-      if (row?.batchSlug || row?.batch_slug) return row;
-      const batchSlug = snapshot.source?.batchSlug ?? snapshot.source?.batch_slug;
-      return batchSlug ? { ...row, batchSlug } : row;
-    })
-  );
+  // Only per-cohort collector outputs carry a singular snapshot batch. The
+  // canonical base/current artifacts are multi-cohort, so their legacy rows
+  // must continue through the catalog resolver rather than inherit one
+  // top-level batchSlug.
+  const evidenceRows = mergeLoggedInEvidenceRows([base, current], incomingSnapshots ?? []);
   const content = finalizeLoggedInEvidenceContent(
     newestRowsById(evidenceRows),
     {

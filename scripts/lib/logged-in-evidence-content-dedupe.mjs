@@ -16,6 +16,21 @@ const AMBIGUOUS_NATIVE_OWNER_REASON = "ambiguous_native_account_owner_mapping";
 const METRICLESS_NATIVE_POST_REASON = "metricless_native_post";
 const INVALID_NATIVE_POST_DATE_REASON = "invalid_native_post_date";
 
+export function mergeLoggedInEvidenceRows(
+  existingSnapshots = [],
+  incomingSnapshots = []
+) {
+  const existingRows = existingSnapshots.flatMap((snapshot) => snapshot?.evidence ?? []);
+  const incomingRows = incomingSnapshots.flatMap((snapshot) => {
+    const batchSlug = snapshot?.source?.batchSlug ?? snapshot?.source?.batch_slug;
+    return (snapshot?.evidence ?? []).map((row) => {
+      if (row?.batchSlug || row?.batch_slug || !batchSlug) return row;
+      return { ...row, batchSlug };
+    });
+  });
+  return [...existingRows, ...incomingRows];
+}
+
 export function finalizeLoggedInEvidenceContent(
   rows,
   {

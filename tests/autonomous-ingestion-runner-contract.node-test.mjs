@@ -2052,6 +2052,15 @@ describe("autonomous ingestion runner static safety contracts", () => {
     );
   });
 
+  it("preserves legacy merged rows while stamping only fresh logged-in cohort snapshots", () => {
+    const merge = section(
+      "async function prepareMergedLoggedInEvidenceSnapshot",
+      "async function readCanonicalContentIdentityReferenceRows"
+    );
+    assert.ok(merge.includes("mergeLoggedInEvidenceRows([base, current], incomingSnapshots ?? [])"));
+    assert.doesNotMatch(merge, /snapshots\.flatMap\([\s\S]*snapshot\.source\?\.batchSlug/);
+  });
+
   it("bounds public and GitHub shard processes with separate request lanes", () => {
     const collectors = section("async function runCollectors()", "async function runAuthenticatedCollectors");
     const shardedCollector = section(

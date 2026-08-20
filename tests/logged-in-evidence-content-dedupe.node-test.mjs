@@ -1,8 +1,42 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { finalizeLoggedInEvidenceContent } from "../scripts/lib/logged-in-evidence-content-dedupe.mjs";
+import {
+  finalizeLoggedInEvidenceContent,
+  mergeLoggedInEvidenceRows
+} from "../scripts/lib/logged-in-evidence-content-dedupe.mjs";
 
 describe("logged-in evidence exact-content finalization", () => {
+  it("stamps only incoming cohort rows without changing legacy merged evidence", () => {
+    const legacySummerRow = {
+      id: "legacy-summer-row",
+      entityType: "company",
+      entityId: "company-summer",
+      companySlug: "summer-company"
+    };
+    const incomingSpringRow = {
+      id: "incoming-spring-row",
+      entityType: "company",
+      entityId: "company-spring",
+      companySlug: "spring-company"
+    };
+
+    const rows = mergeLoggedInEvidenceRows(
+      [{
+        source: { batchSlug: "S2026", batchSlugs: ["S2026", "S26", "A16ZSR006"] },
+        evidence: [legacySummerRow]
+      }],
+      [{
+        source: { batchSlug: "S2026" },
+        evidence: [incomingSpringRow]
+      }]
+    );
+
+    assert.equal(rows[0], legacySummerRow);
+    assert.equal(rows[0].batchSlug, undefined);
+    assert.equal(incomingSpringRow.batchSlug, undefined);
+    assert.equal(rows[1].batchSlug, "S2026");
+  });
+
   it("repairs legacy owner-collision reviews from their canonical company target", () => {
     const legacyReview = {
       id: "native-account-owner-collision-s2026-x-shared",
