@@ -678,7 +678,7 @@ function hasReconciliationCandidateAttribution(normalizedCandidates, key, target
   return normalizedCandidates.some((item) => {
     if (!item?.verified || item.key !== key) return false;
     const candidateTarget = resolvedAttributionTarget(item, catalogMaps);
-    return candidateTarget && sameReconciliationTarget(candidateTarget, target);
+    return candidateTarget && sameDurableReconciliationTarget(candidateTarget, target);
   });
 }
 
@@ -754,7 +754,7 @@ function removeStaleReconciliationCandidates(normalized, entries, catalogMaps) {
       .map((item) => ({ item, target: resolvedAttributionTarget(item, catalogMaps) }))
       .filter(({ target }) => target);
     const hasReplacement = entry.replacementAttribution && physicalTargets.some(({ target }) =>
-      sameReconciliationTarget(target, entry.replacementAttribution)
+      sameDurableReconciliationTarget(target, entry.replacementAttribution)
     );
     // An explicit quarantine is itself the durable instruction to retire the
     // stale attribution. If a previously published snapshot still carries the
@@ -766,7 +766,7 @@ function removeStaleReconciliationCandidates(normalized, entries, catalogMaps) {
       continue;
     }
     for (const { item, target } of physicalTargets) {
-      if (sameReconciliationTarget(target, entry.staleAttribution)) staleCandidates.add(item);
+      if (sameDurableReconciliationTarget(target, entry.staleAttribution)) staleCandidates.add(item);
     }
   }
   return normalized.filter((item) => !staleCandidates.has(item));
@@ -805,20 +805,36 @@ function assertReconciliationCandidates(entries, normalized, catalogMaps) {
   });
   for (const entry of entries) {
     const physicalTargets = generatedTargets.filter(({ item }) => item.key === entry.key);
-    if (physicalTargets.some(({ target }) => sameReconciliationTarget(target, entry.staleAttribution))) {
+    if (physicalTargets.some(({ target }) =>
+      sameDurableReconciliationTarget(target, entry.staleAttribution)
+    )) {
       throw new Error(
-        `attributionReconciliationLedger entry ${entry.ordinal} stale attribution is still present in sanitized snapshots.`
+        `attributionReconciliationLedger entry ${entry.ordinal} stale attribution is still present in sanitized snapshots ` +
+        `for ${entry.platform}:${entry.nativeId} (${reconciliationTargetDiagnostic(entry.staleAttribution)}).`
       );
     }
     if (
       entry.replacementAttribution &&
-      !physicalTargets.some(({ target }) => sameReconciliationTarget(target, entry.replacementAttribution))
+      !physicalTargets.some(({ target }) =>
+        sameDurableReconciliationTarget(target, entry.replacementAttribution)
+      )
     ) {
       throw new Error(
-        `attributionReconciliationLedger entry ${entry.ordinal} replacement attribution is absent from sanitized snapshots.`
+        `attributionReconciliationLedger entry ${entry.ordinal} replacement attribution is absent from sanitized snapshots ` +
+        `for ${entry.platform}:${entry.nativeId} (${reconciliationTargetDiagnostic(entry.replacementAttribution)}).`
       );
     }
   }
+}
+
+function reconciliationTargetDiagnostic(target) {
+  return [
+    target?.batchSlug,
+    target?.entityType,
+    target?.entityId,
+    target?.targetId,
+    target?.attributionType
+  ].map((value) => value ?? "missing").join(":");
 }
 
 async function resolveReconciliationEvidenceIds({ client, entries, evidenceIds }) {

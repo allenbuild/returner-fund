@@ -1107,6 +1107,85 @@ describe("durable evidence import", () => {
     expect(client.calls).toHaveLength(0);
   });
 
+  it("matches reconciliation candidates by durable identity across historical source-key aliases", async () => {
+    const client = new FakeSupabaseClient();
+    const catalogMaps = reconciliationCatalog();
+    catalogMaps.founderByBatchEntityId.set(
+      "S2026\u0000founder-acme-alice-historical",
+      FOUNDER_ID
+    );
+    catalogMaps.founderByBatchEntityId.set(
+      "S2026\u0000founder-acme-alice-current",
+      FOUNDER_ID
+    );
+    const result = await importDurableEvidence({
+      client,
+      ingestionRunId: RUN_ID,
+      catalogMaps,
+      publicSnapshot: publicSnapshot("S2026", [publicPost({
+        entityType: "founder",
+        entityId: "founder-acme-alice-current"
+      })]),
+      attributionReconciliationLedger: [reconciliationEntry({
+        staleAttribution: {
+          batchSlug: "S2026",
+          entityType: "company",
+          entityId: "company-acme"
+        },
+        replacementAttribution: {
+          batchSlug: "S2026",
+          entityType: "founder",
+          entityId: "founder-acme-alice-historical"
+        }
+      })]
+    });
+
+    expect(result.attributionReconciliation).toMatchObject({
+      received: 1,
+      unique: 1,
+      replacementsExpected: 1
+    });
+    expect(client.table("evidence_attributions")).toContainEqual(
+      expect.objectContaining({ founder_id: FOUNDER_ID, review_state: "verified" })
+    );
+  });
+
+  it("still detects a stale durable target when its current source key differs", async () => {
+    const client = new FakeSupabaseClient();
+    const catalogMaps = reconciliationCatalog();
+    catalogMaps.companyByBatchEntityId.set(
+      "S2026\u0000company-acme-historical",
+      COMPANY_ID
+    );
+    catalogMaps.companyByBatchEntityId.set(
+      "S2026\u0000company-acme-current",
+      COMPANY_ID
+    );
+
+    await expect(importDurableEvidence({
+      client,
+      ingestionRunId: RUN_ID,
+      catalogMaps,
+      publicSnapshot: publicSnapshot("S2026", [publicPost({
+        entityType: "company",
+        entityId: "company-acme-current"
+      })]),
+      attributionReconciliationLedger: [reconciliationEntry({
+        staleAttribution: {
+          batchSlug: "S2026",
+          entityType: "company",
+          entityId: "company-acme-historical"
+        },
+        replacementAttribution: {
+          batchSlug: "S2026",
+          entityType: "founder",
+          entityId: "founder-acme-alice"
+        }
+      })]
+    })).rejects.toThrow(/stale attribution is still present in sanitized snapshots/i);
+    expect(client.calls).toHaveLength(0);
+  });
+
   it("drops a stale verified row explicitly quarantined by the reconciliation ledger", async () => {
     const client = new FakeSupabaseClient();
     const catalogMaps = reconciliationCatalog();

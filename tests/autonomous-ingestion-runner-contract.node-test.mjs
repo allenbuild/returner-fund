@@ -2249,6 +2249,48 @@ describe("autonomous ingestion runner static safety contracts", () => {
     assert.ok(deadlineResult.elapsedMs < 500, `pre-spawn refusal took ${deadlineResult.elapsedMs}ms`);
   });
 
+  it("preserves UTF-8 command output and refuses truncated structured Git records", () => {
+    const utf8 = lifecycleFixturePayload(runLifecycleFixture(
+      "utf8-command-capture",
+      {},
+      repositoryRoot,
+      2_000
+    ));
+    assert.equal(utf8.stdout, utf8.expected);
+    assert.equal(utf8.stdoutBytes, utf8.expectedBytes);
+
+    const overflow = lifecycleFixturePayload(runLifecycleFixture(
+      "complete-output-overflow",
+      {},
+      repositoryRoot,
+      2_000
+    ));
+    assert.equal(overflow.accepted, false);
+    assert.equal(overflow.stdoutTruncated, true);
+    assert.match(overflow.error, /refusing to consume truncated structured output/i);
+
+    const commandRunner = section("async function runCommand", "function batchCompanyKey");
+    assert.ok(commandRunner.includes('child.stdout.setEncoding("utf8")'));
+    assert.ok(commandRunner.includes('child.stderr.setEncoding("utf8")'));
+    assert.ok(commandRunner.includes("requireCompleteOutput"));
+    assert.ok(commandRunner.includes("stdoutTruncated"));
+
+    for (const [start, end] of [
+      ["async function readTextFromGitRef", "function gitRefCaptureLimit"],
+      ["async function verifyPinnedSourceExecutionBoundary", "async function assertTrustedPublicationBaseCommit"],
+      ["async function assertTrustedPublicationBaseCommit", "async function assertNoTrackedSymlinksAtCommit"],
+      ["async function assertNoTrackedSymlinksAtCommit", "function assertNoTrackedSymlinksAtCommitSync"],
+      ["async function transplantPublicationArtifactsOntoRetryBase", "function parseGitNameStatusNul"],
+      ["async function assertPublicationCandidateProof", "async function classifyPublicationSemantics"]
+    ]) {
+      const structuredReader = section(start, end);
+      assert.ok(
+        structuredReader.includes("requireCompleteOutput: true"),
+        `${start} must reject incomplete structured output`
+      );
+    }
+  });
+
   it("retries exact failure ledgers and accepts exhaustion only after explicit terminal coverage", () => {
     const retry = section("async function runCollectorWithRetries", "function retryableFailuresFromSnapshot");
     const failures = section("function retryableFailuresFromSnapshot", "function successfulCollectorRowCount");
