@@ -2363,8 +2363,19 @@ async function prepareMergedLoggedInEvidenceSnapshot(
   });
   const base = baseRef ? await readJsonFromGitRef(baseRef, relativePath, null) : null;
   const snapshots = [base, current, ...(incomingSnapshots ?? [])].filter(Boolean);
+  // Logged-in collection runs are emitted once per cohort, but the merged
+  // artifact has one top-level source object. Preserve each row's cohort
+  // before deduping so the final source metadata from the last cohort cannot
+  // accidentally reattribute every historical row to that cohort.
+  const evidenceRows = snapshots.flatMap((snapshot) =>
+    (snapshot.evidence ?? []).map((row) => {
+      if (row?.batchSlug || row?.batch_slug) return row;
+      const batchSlug = snapshot.source?.batchSlug ?? snapshot.source?.batch_slug;
+      return batchSlug ? { ...row, batchSlug } : row;
+    })
+  );
   const content = finalizeLoggedInEvidenceContent(
-    newestRowsById(snapshots.flatMap((snapshot) => snapshot.evidence ?? [])),
+    newestRowsById(evidenceRows),
     {
       defaultBatchSlug: "S26",
       resolveBatchSlug: resolveLegacyPublicEvidenceBatch,
