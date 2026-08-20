@@ -22,6 +22,7 @@ import {
   maxAutonomousRunnerProcessBudgetMs,
   mergeGithubTractionSnapshots,
   mergePublicEvidenceSnapshots,
+  mergeVerifiedOverridesIntoCatalog,
   normalizeVerifiedSocialOverrideLinks,
   normalizeAutonomousFailureEntityId,
   prioritizeAutonomousCompaniesByCoverage,
@@ -252,6 +253,43 @@ describe("autonomous ingestion planning against the collector catalogs", () => {
     assert.equal(sharedHyperparticle.length, 1);
     assert.equal(sharedHyperparticle[0].entity.entityType, "founder");
     assert.equal(sharedHyperparticle[0].entity.sourceKey, "founder-rekursivai-dan-kondratyuk-3527564");
+  });
+
+  it("preserves a verified founder source key as an alias when the mutable YC roster publishes that founder", () => {
+    const [vestris] = mergeVerifiedOverridesIntoCatalog([{
+      entityType: "company",
+      sourceKey: "company-vestris",
+      name: "Vestris",
+      batchSlug: "S26",
+      accounts: [],
+      founders: [{
+        entityType: "founder",
+        sourceKey: "founder-vestris-aahil-valliani-3411947",
+        name: "Aahil Valliani",
+        batchSlug: "S26",
+        companySourceKey: "company-vestris",
+        profileUrl: "https://www.ycombinator.com/companies/vestris",
+        accounts: []
+      }]
+    }], {
+      vestris: {
+        founders: [{
+          id: "verified-aahil-valliani",
+          name: "Aahil Valliani",
+          sourceUrl: "https://www.linkedin.com/posts/aahil-valliani_activity-7467251847137939459",
+          socialLinks: { linkedin: "https://www.linkedin.com/in/aahil-valliani" }
+        }]
+      }
+    }, { slug: "S26" });
+
+    assert.equal(vestris.founders.length, 1);
+    assert.equal(vestris.founders[0].sourceKey, "founder-vestris-aahil-valliani-3411947");
+    assert.deepEqual(vestris.founders[0].legacyEntityAliases, [
+      "founder-vestris-aahil-valliani-verified-aahil-valliani"
+    ]);
+    assert.ok(vestris.founders[0].accounts.some((account) =>
+      account.platform === "linkedin" && /linkedin\.com\/in\/aahil-valliani/.test(account.url)
+    ));
   });
 
   it("loads every staged Product Hunt and Reddit mapping, including multiple same-platform owner accounts", async () => {
