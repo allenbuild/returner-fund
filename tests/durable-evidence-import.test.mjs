@@ -1,5 +1,14 @@
+import { readFile } from "node:fs/promises";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import { importDurableEvidence } from "../scripts/lib/durable-evidence-import.mjs";
+import {
+  buildLegacyPublicEvidenceBatchResolver,
+  loadAutonomousCatalogs
+} from "../scripts/lib/autonomous-ingestion-plan.mjs";
+
+const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 
 const RUN_ID = "00000000-0000-0000-0000-000000000001";
 const COMPANY_ID = "00000000-0000-0000-0000-000000000002";
@@ -1423,6 +1432,61 @@ describe("durable evidence import", () => {
         .map((call) => call.values.length);
       expect(writeSizes).toEqual([250, 250, 1]);
     }
+  });
+
+  it("retains exact batch attribution for removed founders still present in canonical evidence", async () => {
+    const catalogs = await loadAutonomousCatalogs(ROOT);
+    const summer = catalogs.find((catalog) => catalog.slug === "S26");
+    const resolveBatchSlug = buildLegacyPublicEvidenceBatchResolver(catalogs);
+    const founderByBatchEntityId = new Map();
+    const historicalFounderKeys = new Set([
+      "founder-mireye-shashwat-kapoor-678147",
+      "founder-archal-noah-song-2561732"
+    ]);
+    let founderId = 100;
+    for (const company of summer.companies) {
+      for (const founder of [...company.founders, ...(company.historicalFounders ?? [])]) {
+        if (!historicalFounderKeys.has(founder.sourceKey)) continue;
+        const durableId = fakeUuid(founderId++);
+        for (const alias of [founder.sourceKey, founder.name, ...(founder.legacyEntityAliases ?? [])]) {
+          founderByBatchEntityId.set(`S26\u0000${alias}`, durableId);
+        }
+      }
+    }
+
+    const snapshots = [];
+    for (const relativePath of [
+      "src/lib/social/targeted-evidence-current.json",
+      "src/lib/social/logged-in-evidence-current.json"
+    ]) {
+      const snapshot = JSON.parse(await readFile(join(ROOT, relativePath), "utf8"));
+      snapshots.push({
+        ...snapshot,
+        evidence: (snapshot.evidence ?? [])
+          .filter((row) => historicalFounderKeys.has(row.entityId))
+          .map((row) => ({ ...row, batchSlug: row.batchSlug ?? resolveBatchSlug(row) }))
+      });
+    }
+    expect(snapshots.map((snapshot) => snapshot.evidence.length)).toEqual([4, 9]);
+
+    const client = new FakeSupabaseClient();
+    const result = await importDurableEvidence({
+      client,
+      ingestionRunId: RUN_ID,
+      requireCompleteAttribution: true,
+      publicSnapshots: snapshots,
+      catalogMaps: {
+        batchBySlug: new Map([["S26", SUMMER_BATCH_ID]]),
+        founderByBatchEntityId
+      }
+    });
+
+    expect(result).toMatchObject({
+      received: 13,
+      attributions: { stored: 13, unresolved: 0 },
+      metricObservations: { stored: 59 }
+    });
+    expect(client.table("evidence_attributions")).toHaveLength(13);
   });
 });
 

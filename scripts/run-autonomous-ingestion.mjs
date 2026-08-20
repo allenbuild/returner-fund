@@ -1966,6 +1966,7 @@ async function syncCatalogs(allCatalogs) {
   const companyByBatchSourceKey = new Map();
   const founderBySourceKey = new Map();
   const founderByBatchSourceKey = new Map();
+  const historicalFounderByBatchSourceKey = new Map();
   const accountBySourceKey = new Map();
   const accountInventory = [];
   const ownerInventory = [];
@@ -2012,8 +2013,14 @@ async function syncCatalogs(allCatalogs) {
       }
     }
 
+    const activeFounderSourceKeys = new Set(catalog.companies.flatMap((company) =>
+      company.founders.map((founder) => founder.sourceKey)
+    ));
+    const historicalFounderSourceKeys = new Set(catalog.companies.flatMap((company) =>
+      (company.historicalFounders ?? []).map((founder) => founder.sourceKey)
+    ));
     const founderRows = [...new Map(catalog.companies.flatMap((company) =>
-      company.founders.map((founder) => [founder.sourceKey, {
+      [...company.founders, ...(company.historicalFounders ?? [])].map((founder) => [founder.sourceKey, {
         source_key: founder.sourceKey,
         name: founder.name,
         yc_profile_url: founder.profileUrl,
@@ -2032,7 +2039,15 @@ async function syncCatalogs(allCatalogs) {
       check(founderError, `upsert founders for ${catalog.slug}`);
       for (const founder of founders ?? []) {
         founderBySourceKey.set(founder.source_key, founder.id);
-        founderByBatchSourceKey.set(batchCompanyKey(catalog.slug, founder.source_key), founder.id);
+        if (activeFounderSourceKeys.has(founder.source_key)) {
+          founderByBatchSourceKey.set(batchCompanyKey(catalog.slug, founder.source_key), founder.id);
+        }
+        if (historicalFounderSourceKeys.has(founder.source_key)) {
+          historicalFounderByBatchSourceKey.set(
+            batchCompanyKey(catalog.slug, founder.source_key),
+            founder.id
+          );
+        }
       }
     }
 
@@ -2156,6 +2171,7 @@ async function syncCatalogs(allCatalogs) {
     companyByBatchSourceKey,
     founderBySourceKey,
     founderByBatchSourceKey,
+    historicalFounderByBatchSourceKey,
     accountBySourceKey,
     ownerAccountCount: ownerRowsByKey.size,
     retiredOwnerAccounts
@@ -4480,10 +4496,18 @@ async function importDurableEvidence({
       ]) {
         if (alias) companyAliasesByBatch.set(batchCompanyKey(catalog.slug, alias), companyId);
       }
-      for (const founder of company.founders) {
-        const founderId = catalogState.founderByBatchSourceKey.get(
-          batchCompanyKey(catalog.slug, founder.sourceKey)
-        );
+      for (const founder of [
+        ...company.founders,
+        ...(company.historicalFounders ?? [])
+      ]) {
+        const founderKey = batchCompanyKey(catalog.slug, founder.sourceKey);
+        const founderId = catalogState.founderByBatchSourceKey.get(founderKey) ??
+          catalogState.historicalFounderByBatchSourceKey?.get(founderKey);
+        if (!founderId) {
+          throw new Error(
+            `No durable founder identity was returned for ${catalog.slug}/${founder.sourceKey}.`
+          );
+        }
         const founderBatches = founderBatchSlugsById.get(founderId) ?? new Set();
         founderBatches.add(catalog.slug);
         founderBatchSlugsById.set(founderId, founderBatches);
