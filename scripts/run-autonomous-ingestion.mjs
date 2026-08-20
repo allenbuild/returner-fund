@@ -129,6 +129,7 @@ let plannedTaskByCheckpointKey;
 let plannedCoverage;
 const HISTORICAL_ATTRIBUTION_READ_ATTEMPTS = 3;
 const HISTORICAL_ATTRIBUTION_READ_BATCH_SIZE = 100;
+const INGESTION_TASK_READ_PAGE_SIZE = 1_000;
 // Structured Git output is parsed as a complete NUL-delimited record stream.
 // Never silently tail-truncate it: a partial first path can be misclassified
 // as an unsafe absolute path during publication recovery.
@@ -4398,18 +4399,33 @@ async function reconcileCollectorTasks(results, catalogState) {
 }
 
 async function tasksFor(batchSlug, platform, catalogState) {
-  const { data, error } = await runSupabaseOperation(
+  return readAllIngestionTaskRows(
     `read ${batchSlug}/${platform} tasks`,
-    () => supabase
-      .from("ingestion_tasks")
-      .select("id,company_name,entity_type,status,checkpoint_key")
+    "id,company_name,entity_type,status,checkpoint_key",
+    (query) => query
       .eq("ingestion_run_id", run.id)
       .eq("batch_id", catalogState.batchBySlug.get(batchSlug))
       .eq("platform", platform)
       .eq("status", "queued")
   );
-  check(error, `read ${batchSlug}/${platform} tasks`);
-  return data ?? [];
+}
+
+async function readAllIngestionTaskRows(label, columns, configureQuery) {
+  const rows = [];
+  for (let offset = 0; ; offset += INGESTION_TASK_READ_PAGE_SIZE) {
+    const { data, error } = await runSupabaseOperation(
+      `${label} page ${Math.floor(offset / INGESTION_TASK_READ_PAGE_SIZE) + 1}`,
+      () => configureQuery(
+        supabase.from("ingestion_tasks").select(columns)
+      )
+        .order("id", { ascending: true })
+        .range(offset, offset + INGESTION_TASK_READ_PAGE_SIZE - 1)
+    );
+    check(error, label);
+    rows.push(...(data ?? []));
+    if ((data?.length ?? 0) < INGESTION_TASK_READ_PAGE_SIZE) break;
+  }
+  return rows;
 }
 
 async function finishTasks(ids, status, reason, attempts = 1) {
@@ -4968,14 +4984,12 @@ function assertSuccessfulTopVoiceRefresh(receipt) {
 }
 
 async function persistCoverage(catalogState, stageCounters) {
-  const { data: tasks, error } = await runSupabaseOperation(
+  const tasks = await readAllIngestionTaskRows(
     "read terminal coverage",
-    () => supabase
-      .from("ingestion_tasks")
-      .select("status,platform,batch_id,terminal_reason,checkpoint_key")
+    "id,status,platform,batch_id,terminal_reason,checkpoint_key",
+    (query) => query
       .eq("ingestion_run_id", run.id)
   );
-  check(error, "read terminal coverage");
   const terminalStatuses = new Set(["completed", "needs_review", "blocked_or_empty", "skipped", "failed", "canceled", "dead_lettered"]);
   const needsReview = (tasks ?? []).filter((task) => task.status === "needs_review").length;
   const blockedOrEmpty = (tasks ?? []).filter((task) => task.status === "blocked_or_empty").length;
