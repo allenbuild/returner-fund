@@ -2127,7 +2127,7 @@ function uniqueCatalogAliases(values) {
   return [...new Set(values.map((value) => String(value ?? "").trim()).filter(Boolean))];
 }
 
-function mergeVerifiedOverridesIntoCatalog(companies, overrides, batch) {
+export function mergeVerifiedOverridesIntoCatalog(companies, overrides, batch) {
   return companies.map((company) => {
     const companySlug = autonomousCompanySlug(company);
     const override = overrides?.[companySlug];
@@ -2143,9 +2143,18 @@ function mergeVerifiedOverridesIntoCatalog(companies, overrides, batch) {
       );
       if (overrideIndex < 0) return founder;
       const [founderOverride] = unmatchedFounderOverrides.splice(overrideIndex, 1);
+      const verifiedOverrideSourceKey = verifiedFounderOverrideSourceKey(
+        companySlug,
+        founderOverride,
+        batch
+      );
       return {
         ...founder,
         profileUrl: founderOverride.ycProfileUrl ?? founder.profileUrl,
+        legacyEntityAliases: uniqueCatalogAliases([
+          ...(founder.legacyEntityAliases ?? []),
+          verifiedOverrideSourceKey
+        ]).filter((alias) => alias !== founder.sourceKey),
         accounts: mergeOwnerAccounts(founder, founderOverride.socialLinks ?? {}, {
           discoveredFromUrl: founderOverride.sourceUrl ?? founderOverride.ycProfileUrl ?? founder.profileUrl,
           matchReason: founderOverride.matchReason ?? override.matchReason
@@ -2155,9 +2164,7 @@ function mergeVerifiedOverridesIntoCatalog(companies, overrides, batch) {
 
     for (const founderOverride of unmatchedFounderOverrides) {
       if (!founderOverride?.id || !founderOverride?.name) continue;
-      const sourceKey = batch.slug === "A16ZSR006" && /^a16z-speedrun-006-.+-founder-/i.test(founderOverride.id)
-        ? founderOverride.id
-        : `founder-${companySlug}-${slugify(founderOverride.name)}-${founderOverride.id}`;
+      const sourceKey = verifiedFounderOverrideSourceKey(companySlug, founderOverride, batch);
       const founder = {
         entityType: "founder",
         sourceKey,
@@ -2187,6 +2194,13 @@ function mergeVerifiedOverridesIntoCatalog(companies, overrides, batch) {
       founders
     };
   });
+}
+
+function verifiedFounderOverrideSourceKey(companySlug, founderOverride, batch) {
+  if (!founderOverride?.id || !founderOverride?.name) return null;
+  return batch.slug === "A16ZSR006" && /^a16z-speedrun-006-.+-founder-/i.test(founderOverride.id)
+    ? founderOverride.id
+    : `founder-${companySlug}-${slugify(founderOverride.name)}-${founderOverride.id}`;
 }
 
 function mergeOwnerAccounts(entity, overrideLinks, { discoveredFromUrl, matchReason }, retiredAccounts = []) {

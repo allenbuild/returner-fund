@@ -1181,6 +1181,54 @@ describe("durable evidence import", () => {
     );
   });
 
+  it("accepts the exact Vestris replacement when the verified founder key aliases the new YC founder key", async () => {
+    const client = new FakeSupabaseClient();
+    const catalogMaps = reconciliationCatalog();
+    const historicalKey = "founder-vestris-aahil-valliani-verified-aahil-valliani";
+    const currentKey = "founder-vestris-aahil-valliani-3411947";
+    catalogMaps.companyByBatchEntityId.set("S26\u0000company-vestris", COMPANY_ID);
+    catalogMaps.founderByBatchEntityId.set(`S26\u0000${historicalKey}`, FOUNDER_ID);
+    catalogMaps.founderByBatchEntityId.set(`S26\u0000${currentKey}`, FOUNDER_ID);
+
+    const result = await importDurableEvidence({
+      client,
+      ingestionRunId: RUN_ID,
+      catalogMaps,
+      publicSnapshot: publicSnapshot("S26", [publicPost({
+        entityType: "founder",
+        entityId: currentKey,
+        companySlug: "vestris",
+        platform: "linkedin",
+        sourceUrl: "https://www.linkedin.com/posts/aahil-valliani_activity-7467251847137939459",
+        platformPostId: "7467251847137939459",
+        metrics: { reactions: 213, comments: 73 }
+      })]),
+      attributionReconciliationLedger: [reconciliationEntry({
+        platform: "linkedin",
+        sourceUrl: "https://www.linkedin.com/posts/aahil-valliani_activity-7467251847137939459",
+        platformPostId: "7467251847137939459",
+        staleAttribution: {
+          batchSlug: "S26",
+          entityType: "company",
+          entityId: "company-vestris"
+        },
+        replacementAttribution: {
+          batchSlug: "S26",
+          entityType: "founder",
+          entityId: historicalKey
+        }
+      })]
+    });
+
+    expect(result).toMatchObject({
+      attributions: { stored: 1, unresolved: 0 },
+      attributionReconciliation: { received: 1, replacementsExpected: 1 }
+    });
+    expect(client.table("evidence_attributions")).toContainEqual(
+      expect.objectContaining({ founder_id: FOUNDER_ID, batch_id: SUMMER_BATCH_ID })
+    );
+  });
+
   it("still detects a stale durable target when its current source key differs", async () => {
     const client = new FakeSupabaseClient();
     const catalogMaps = reconciliationCatalog();
