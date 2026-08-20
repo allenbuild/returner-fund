@@ -2573,25 +2573,67 @@ async function prepareSanitizedTargetedSnapshot(topVoiceRefresh, { baseRef = nul
   );
 }
 
+function attributionReconciliationTargetKey(entry, attribution) {
+  const physicalPostId = entry?.platformPostId ?? entry?.sourceUrl;
+  if (
+    !entry?.platform ||
+    !physicalPostId ||
+    !attribution?.batchSlug ||
+    !attribution?.entityId
+  ) {
+    return null;
+  }
+  return JSON.stringify([
+    entry.platform,
+    physicalPostId,
+    attribution.batchSlug,
+    attribution.entityType ?? "company",
+    attribution.entityId,
+    attribution.attributionType ?? "subject"
+  ]);
+}
+
 function combineAttributionReconciliationLedgers(...ledgers) {
   const byPhysicalTarget = new Map();
   for (const entry of ledgers.flatMap((ledger) => ledger ?? [])) {
-    const stale = entry?.staleAttribution;
-    if (!entry?.platform || !stale?.batchSlug || !stale?.entityId) continue;
-    const key = [
-      entry.platform,
-      entry.platformPostId ?? entry.sourceUrl,
-      stale.batchSlug,
-      stale.entityType ?? "company",
-      stale.entityId,
-      stale.attributionType ?? "subject"
-    ].join(":");
-    const previous = byPhysicalTarget.get(key);
+    const staleKey = attributionReconciliationTargetKey(entry, entry?.staleAttribution);
+    if (!staleKey) continue;
+    const previous = byPhysicalTarget.get(staleKey);
+    if (
+      previous?.disposition === "reattributed" &&
+      entry.disposition === "reattributed"
+    ) {
+      const previousReplacementKey = attributionReconciliationTargetKey(
+        previous,
+        previous.replacementAttribution
+      );
+      const replacementKey = attributionReconciliationTargetKey(
+        entry,
+        entry.replacementAttribution
+      );
+      if (previousReplacementKey !== replacementKey) {
+        throw new Error(
+          `Conflicting attribution reattributions target ${staleKey}: ` +
+          `${previousReplacementKey ?? "missing replacement"} versus ${replacementKey ?? "missing replacement"}.`
+        );
+      }
+    }
     if (!previous || (previous.disposition === "quarantined" && entry.disposition === "reattributed")) {
-      byPhysicalTarget.set(key, entry);
+      byPhysicalTarget.set(staleKey, entry);
     }
   }
-  return [...byPhysicalTarget.values()];
+
+  const requiredReplacementTargets = new Set(
+    [...byPhysicalTarget.values()]
+      .filter((entry) => entry.disposition === "reattributed")
+      .map((entry) => attributionReconciliationTargetKey(entry, entry.replacementAttribution))
+      .filter(Boolean)
+  );
+  return [...byPhysicalTarget.entries()]
+    .filter(([staleKey, entry]) => (
+      entry.disposition !== "quarantined" || !requiredReplacementTargets.has(staleKey)
+    ))
+    .map(([, entry]) => entry);
 }
 
 async function mergePublicationInputs(
@@ -5652,7 +5694,7 @@ function assertNoTrackedSymlinksAtCommitSync(
     {
       encoding: "utf8",
       timeout: AUTONOMOUS_PROCESS_BUDGETS.gitDiffMs,
-      maxBuffer: 5_000_000,
+      maxBuffer: STRUCTURED_GIT_OUTPUT_CAPTURE_LIMIT,
       stdio: ["ignore", "pipe", "pipe"],
       env: {
         PATH: cleanEnv(process.env.PATH) ?? "/usr/local/bin:/usr/bin:/bin",
@@ -6614,6 +6656,8 @@ async function verifyPublicationCommitProvenance(commit, expected) {
   const message = (await runCommand("git", ["show", "-s", "--format=%B", commit], {
     timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitDiffMs,
     label: "verify publication commit trailers",
+    captureLimit: STRUCTURED_GIT_OUTPUT_CAPTURE_LIMIT,
+    requireCompleteOutput: true,
     quiet: true,
     cwd: publicationRoot
   })).stdout;
@@ -7666,7 +7710,8 @@ async function readCommitBackedReplayReceipt() {
     {
       timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitDiffMs,
       label: "locate commit-backed replay publication",
-      captureLimit: 5_000_000,
+      captureLimit: STRUCTURED_GIT_OUTPUT_CAPTURE_LIMIT,
+      requireCompleteOutput: true,
       quiet: true,
       cwd: root
     }
@@ -8238,7 +8283,11 @@ async function runLifecycleContractFixture(fixture) {
     const childScript = [
       `const bytes = Buffer.from(${JSON.stringify(expected)}, "utf8");`,
       `process.stdout.write(bytes.subarray(0, ${splitInsideEmoji}));`,
-      `setTimeout(() => process.stdout.write(bytes.subarray(${splitInsideEmoji})), 20);`
+      `process.stderr.write(bytes.subarray(0, ${splitInsideEmoji}));`,
+      `setTimeout(() => {`,
+      `  process.stdout.write(bytes.subarray(${splitInsideEmoji}));`,
+      `  process.stderr.write(bytes.subarray(${splitInsideEmoji}));`,
+      `}, 20);`
     ].join("\n");
     const result = await runCommand(process.execPath, ["-e", childScript], {
       timeoutMs: 5_000,
@@ -8252,8 +8301,10 @@ async function runLifecycleContractFixture(fixture) {
       fixture,
       expected,
       stdout: result.stdout,
+      stderr: result.stderr,
       expectedBytes: Buffer.byteLength(expected, "utf8"),
-      stdoutBytes: Buffer.byteLength(result.stdout, "utf8")
+      stdoutBytes: Buffer.byteLength(result.stdout, "utf8"),
+      stderrBytes: Buffer.byteLength(result.stderr, "utf8")
     });
   }
   if (fixture === "complete-output-overflow") {
@@ -8273,6 +8324,26 @@ async function runLifecycleContractFixture(fixture) {
         accepted: false,
         error: errorMessage(error),
         stdoutTruncated: error?.commandResult?.stdoutTruncated === true
+      });
+    }
+  }
+  if (fixture === "complete-stderr-overflow") {
+    try {
+      await runCommand(process.execPath, ["-e", 'process.stderr.write("x".repeat(64))'], {
+        timeoutMs: 5_000,
+        label: "complete stderr overflow fixture",
+        quiet: true,
+        recordEvents: false,
+        captureLimit: 16,
+        requireCompleteOutput: true
+      });
+      return emit({ fixture, accepted: true });
+    } catch (error) {
+      return emit({
+        fixture,
+        accepted: false,
+        error: errorMessage(error),
+        stderrTruncated: error?.commandResult?.stderrTruncated === true
       });
     }
   }

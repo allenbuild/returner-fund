@@ -2257,7 +2257,9 @@ describe("autonomous ingestion runner static safety contracts", () => {
       2_000
     ));
     assert.equal(utf8.stdout, utf8.expected);
+    assert.equal(utf8.stderr, utf8.expected);
     assert.equal(utf8.stdoutBytes, utf8.expectedBytes);
+    assert.equal(utf8.stderrBytes, utf8.expectedBytes);
 
     const overflow = lifecycleFixturePayload(runLifecycleFixture(
       "complete-output-overflow",
@@ -2268,6 +2270,16 @@ describe("autonomous ingestion runner static safety contracts", () => {
     assert.equal(overflow.accepted, false);
     assert.equal(overflow.stdoutTruncated, true);
     assert.match(overflow.error, /refusing to consume truncated structured output/i);
+
+    const stderrOverflow = lifecycleFixturePayload(runLifecycleFixture(
+      "complete-stderr-overflow",
+      {},
+      repositoryRoot,
+      2_000
+    ));
+    assert.equal(stderrOverflow.accepted, false);
+    assert.equal(stderrOverflow.stderrTruncated, true);
+    assert.match(stderrOverflow.error, /refusing to consume truncated structured output/i);
 
     const commandRunner = section("async function runCommand", "function batchCompanyKey");
     assert.ok(commandRunner.includes('child.stdout.setEncoding("utf8")'));
@@ -2288,6 +2300,20 @@ describe("autonomous ingestion runner static safety contracts", () => {
         structuredReader.includes("requireCompleteOutput: true"),
         `${start} must reject incomplete structured output`
       );
+    }
+
+    const synchronousTreeReader = section(
+      "function assertNoTrackedSymlinksAtCommitSync",
+      "function unsafeTrackedTreeEntries"
+    );
+    assert.ok(synchronousTreeReader.includes("maxBuffer: STRUCTURED_GIT_OUTPUT_CAPTURE_LIMIT"));
+    for (const [start, end] of [
+      ["async function verifyPublicationCommitProvenance", "async function refreshMutableYcCatalog"],
+      ["async function readCommitBackedReplayReceipt", "async function resolveVerifiedCurrentPublicationCommit"]
+    ]) {
+      const structuredReader = section(start, end);
+      assert.ok(structuredReader.includes("captureLimit: STRUCTURED_GIT_OUTPUT_CAPTURE_LIMIT"));
+      assert.ok(structuredReader.includes("requireCompleteOutput: true"));
     }
   });
 
