@@ -93,6 +93,7 @@ import {
   completeAutonomousCollectorProvenance,
   readAutonomousCollectorLaunchProvenance
 } from "./lib/autonomous-collector-provenance.mjs";
+import { redactTokenLikeStrings } from "./lib/public-token-redaction.mjs";
 import { validatedRepositoryDataRoot } from "./lib/validated-repository-data-root.mjs";
 
 const root = validatedRepositoryDataRoot(
@@ -7515,20 +7516,6 @@ function withWellFormedJsonStrings(value) {
       withWellFormedJsonStrings(item)
     ])
   );
-}
-
-function redactTokenLikeStrings(value) {
-  return String(value)
-    .replace(/gh[pousr]_[A-Za-z0-9_]{12,}/g, "[redacted-public-token]")
-    .replace(/github_pat_[A-Za-z0-9_]{12,}/g, "[redacted-public-token]")
-    .replace(/sk-[A-Za-z0-9_-]{12,}/g, "[redacted-public-token]")
-    .replace(/xox[baprs]-[A-Za-z0-9-]{12,}/g, "[redacted-public-token]")
-    .replace(/AKIA[0-9A-Z]{16}/g, "[redacted-public-token]")
-    .replace(/\bBearer\s+[A-Za-z0-9._-]{12,}/gi, "Bearer [redacted-public-token]")
-    .replace(/\b[A-Za-z0-9_-]{3,}=[A-Za-z0-9%._/-]{16,}/g, (match) => {
-      const key = match.split("=")[0];
-      return `${key}=[redacted-public-param]`;
-    });
 }
 
 function delay(ms) {

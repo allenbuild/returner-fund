@@ -14,9 +14,30 @@ import {
   assertPublicEvidenceArtifactSize,
   serializeCompactPublicEvidenceArtifact
 } from "../scripts/lib/public-evidence-artifact.mjs";
+import { redactTokenLikeStrings } from "../scripts/lib/public-token-redaction.mjs";
 import { canonicalSocialAccountUrl } from "../scripts/lib/social-account-url.mjs";
 
 const root = process.cwd();
+
+test("public output redaction preserves collector provenance containing task while removing real sk tokens", () => {
+  const campaignKey = "manual-replay-20260820T173210Z-full-public-ingestion-task-pagination-fix";
+  const secret = `sk-${"a".repeat(24)}`;
+  const serialized = redactTokenLikeStrings(JSON.stringify({
+    source: {
+      autonomousAttempt: {
+        campaignKey,
+        idempotencyKey: campaignKey
+      }
+    },
+    diagnostic: `credential=${secret}`
+  }));
+  const parsed = JSON.parse(serialized);
+
+  assert.equal(parsed.source.autonomousAttempt.campaignKey, campaignKey);
+  assert.equal(parsed.source.autonomousAttempt.idempotencyKey, campaignKey);
+  assert.equal(parsed.diagnostic, "credential=[redacted-public-token]");
+  assert.doesNotMatch(serialized, new RegExp(secret));
+});
 
 function withMockPublicDns(source) {
   return `
