@@ -129,6 +129,10 @@ let plannedTaskByCheckpointKey;
 let plannedCoverage;
 const HISTORICAL_ATTRIBUTION_READ_ATTEMPTS = 3;
 const HISTORICAL_ATTRIBUTION_READ_BATCH_SIZE = 100;
+// Structured Git output is parsed as a complete NUL-delimited record stream.
+// Never silently tail-truncate it: a partial first path can be misclassified
+// as an unsafe absolute path during publication recovery.
+const STRUCTURED_GIT_OUTPUT_CAPTURE_LIMIT = 64 * 1024 * 1024;
 const PUBLIC_COLLECTOR_SHARDS = Object.freeze({
   S2026: 4,
   S26: 2,
@@ -2711,7 +2715,8 @@ async function readTextFromGitRef(ref, path, fallback) {
     label: `read ${path} from ${ref}`,
     allowedExitCodes: [0, 128],
     quiet: true,
-    captureLimit: gitRefCaptureLimit(path)
+    captureLimit: gitRefCaptureLimit(path),
+    requireCompleteOutput: true
   });
   if (result.code !== 0) return fallback;
   return result.stdout;
@@ -5542,7 +5547,8 @@ async function verifyPinnedSourceExecutionBoundary({
       runCommand("git", ["diff", "--name-only", "--no-renames", "-z", immutableSourceCommit, "--"], {
         timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitDiffMs,
         label: "verify pinned tracked source policy cleanliness",
-        captureLimit: 2_000_000,
+        captureLimit: STRUCTURED_GIT_OUTPUT_CAPTURE_LIMIT,
+        requireCompleteOutput: true,
         quiet: true,
         recordEvents: false,
         cwd: codeRoot
@@ -5550,7 +5556,8 @@ async function verifyPinnedSourceExecutionBoundary({
       runCommand("git", ["ls-files", "--others", "--exclude-standard", "-z"], {
         timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitDiffMs,
         label: "verify pinned untracked source policy cleanliness",
-        captureLimit: 2_000_000,
+        captureLimit: STRUCTURED_GIT_OUTPUT_CAPTURE_LIMIT,
+        requireCompleteOutput: true,
         quiet: true,
         recordEvents: false,
         cwd: codeRoot
@@ -5599,7 +5606,8 @@ async function assertTrustedPublicationBaseCommit(commit, { label, allowInertCod
     {
       timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitDiffMs,
       label: `inspect data-only drift for ${label}`,
-      captureLimit: 2_000_000,
+      captureLimit: STRUCTURED_GIT_OUTPUT_CAPTURE_LIMIT,
+      requireCompleteOutput: true,
       quiet: true,
       recordEvents: false,
       cwd: pinnedSourceRoot
@@ -5622,7 +5630,8 @@ async function assertNoTrackedSymlinksAtCommit(
   const tree = await runCommand("git", ["ls-tree", "-r", "-z", "--full-tree", commit], {
     timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitDiffMs,
     label: `inspect tracked file modes for ${label}`,
-    captureLimit: 5_000_000,
+    captureLimit: STRUCTURED_GIT_OUTPUT_CAPTURE_LIMIT,
+    requireCompleteOutput: true,
     quiet: true,
     recordEvents: false,
     cwd: repositoryRoot
@@ -6325,7 +6334,8 @@ async function transplantPublicationArtifactsOntoRetryBase({
     {
       timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitDiffMs,
       label: "inspect generated artifact delta for publication retry",
-      captureLimit: 5_000_000,
+      captureLimit: STRUCTURED_GIT_OUTPUT_CAPTURE_LIMIT,
+      requireCompleteOutput: true,
       quiet: true,
       recordEvents: false,
       cwd: root
@@ -6514,7 +6524,8 @@ async function assertPublicationCandidateProof(
     {
       timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitDiffMs,
       label: `prove replay-safe artifact delta for ${label}`,
-      captureLimit: 5_000_000,
+      captureLimit: STRUCTURED_GIT_OUTPUT_CAPTURE_LIMIT,
+      requireCompleteOutput: true,
       quiet: true,
       recordEvents: false,
       cwd: publicationRoot
@@ -7238,6 +7249,7 @@ async function runCommand(command, commandArgs, {
   recordEvents = true,
   preSpawnGuard = null,
   captureLimit = 40_000,
+  requireCompleteOutput = false,
   cancellationCleanup = false,
   terminationGraceMs = AUTONOMOUS_PROCESS_BUDGETS.processKillGraceMs,
   hardSettleWatchdogMs = PROCESS_KILL_WATCHDOG_MS,
@@ -7248,6 +7260,9 @@ async function runCommand(command, commandArgs, {
   }
   if (preSpawnGuard !== null && typeof preSpawnGuard !== "function") {
     throw new Error(`${label} preSpawnGuard must be a function.`);
+  }
+  if (typeof requireCompleteOutput !== "boolean") {
+    throw new Error(`${label} requireCompleteOutput must be a boolean.`);
   }
   assertPublicationExecutableBoundary(command, commandArgs, cwd);
   if (!cancellationCleanup) {
@@ -7330,6 +7345,8 @@ async function runCommand(command, commandArgs, {
     }
     let stdout = "";
     let stderr = "";
+    let stdoutTruncated = false;
+    let stderrTruncated = false;
     let timedOut = false;
     let killTimer = null;
     let hardSettleTimer = null;
@@ -7345,7 +7362,9 @@ async function runCommand(command, commandArgs, {
       timedOut,
       timeoutMs: effectiveTimeoutMs,
       stdout,
-      stderr
+      stderr,
+      stdoutTruncated,
+      stderrTruncated
     });
     const emitCapturedOutput = () => {
       if (quiet) return;
@@ -7399,10 +7418,17 @@ async function runCommand(command, commandArgs, {
         }, hardSettleWatchdogMs);
       }, terminationGraceMs);
     }, effectiveTimeoutMs);
+    // StringDecoder-backed stream decoding preserves multibyte UTF-8
+    // characters that straddle OS pipe chunks. Converting each Buffer chunk
+    // independently corrupts large JSON and invalidates byte/hash proofs.
+    child.stdout.setEncoding("utf8");
+    child.stderr.setEncoding("utf8");
     child.stdout.on("data", (chunk) => {
+      if (stdout.length + chunk.length > captureLimit) stdoutTruncated = true;
       stdout = tail(`${stdout}${chunk}`, captureLimit);
     });
     child.stderr.on("data", (chunk) => {
+      if (stderr.length + chunk.length > captureLimit) stderrTruncated = true;
       stderr = tail(`${stderr}${chunk}`, captureLimit);
     });
     child.once("error", (error) => {
@@ -7457,6 +7483,14 @@ async function runCommand(command, commandArgs, {
         }
         disposeTrackedChildProcess(child);
         emitCapturedOutput();
+        if (requireCompleteOutput && (stdoutTruncated || stderrTruncated)) {
+          reject(commandExecutionError(
+            `${label} exceeded its complete output capture limit of ${captureLimit} characters; ` +
+            "refusing to consume truncated structured output.",
+            payload
+          ));
+          return;
+        }
         if (timedOut) {
           recordCommandEventBestEffort(
             "command.failed",
@@ -8102,7 +8136,9 @@ function commandExecutionError(status, payload = {}, cause = null) {
     timedOut: payload.timedOut === true,
     timeoutMs: payload.timeoutMs ?? null,
     stdout: payload.stdout ?? "",
-    stderr: payload.stderr ?? ""
+    stderr: payload.stderr ?? "",
+    stdoutTruncated: payload.stdoutTruncated === true,
+    stderrTruncated: payload.stderrTruncated === true
   };
   return error;
 }
@@ -8196,6 +8232,50 @@ async function runLifecycleContractFixture(fixture) {
     console.log(`LIFECYCLE_FIXTURE_RESULT=${JSON.stringify(value)}`);
     return 0;
   };
+  if (fixture === "utf8-command-capture") {
+    const expected = "prefix🙂suffix";
+    const splitInsideEmoji = Buffer.byteLength("prefix", "utf8") + 1;
+    const childScript = [
+      `const bytes = Buffer.from(${JSON.stringify(expected)}, "utf8");`,
+      `process.stdout.write(bytes.subarray(0, ${splitInsideEmoji}));`,
+      `setTimeout(() => process.stdout.write(bytes.subarray(${splitInsideEmoji})), 20);`
+    ].join("\n");
+    const result = await runCommand(process.execPath, ["-e", childScript], {
+      timeoutMs: 5_000,
+      label: "UTF-8 command capture fixture",
+      quiet: true,
+      recordEvents: false,
+      captureLimit: 1_000,
+      requireCompleteOutput: true
+    });
+    return emit({
+      fixture,
+      expected,
+      stdout: result.stdout,
+      expectedBytes: Buffer.byteLength(expected, "utf8"),
+      stdoutBytes: Buffer.byteLength(result.stdout, "utf8")
+    });
+  }
+  if (fixture === "complete-output-overflow") {
+    try {
+      await runCommand(process.execPath, ["-e", 'process.stdout.write("x".repeat(64))'], {
+        timeoutMs: 5_000,
+        label: "complete output overflow fixture",
+        quiet: true,
+        recordEvents: false,
+        captureLimit: 16,
+        requireCompleteOutput: true
+      });
+      return emit({ fixture, accepted: true });
+    } catch (error) {
+      return emit({
+        fixture,
+        accepted: false,
+        error: errorMessage(error),
+        stdoutTruncated: error?.commandResult?.stdoutTruncated === true
+      });
+    }
+  }
   if (fixture === "candidate-metadata") {
     const previousCandidateMetadata = candidateMetadata;
     try {
