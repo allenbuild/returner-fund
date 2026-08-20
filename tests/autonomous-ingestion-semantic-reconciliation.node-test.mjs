@@ -668,7 +668,7 @@ describe("autonomous ingestion semantic attribution contracts", () => {
     }
   });
 
-  it("keeps historical Summer rename aliases batch-scoped through mutable catalog refreshes", async () => {
+  it("keeps historical Summer company and removed-founder aliases batch-scoped", async () => {
     const catalogs = await loadAutonomousCatalogs(root);
     const resolveBatchSlug = buildLegacyPublicEvidenceBatchResolver(catalogs);
 
@@ -688,6 +688,8 @@ describe("autonomous ingestion semantic attribution contracts", () => {
     const summer = catalogs.find((catalog) => catalog.slug === "S26");
     const hoplite = summer.companies.find((company) => company.sourceKey === "company-hoplite");
     const definite = summer.companies.find((company) => company.sourceKey === "company-definite");
+    const mireye = summer.companies.find((company) => company.sourceKey === "company-mireye");
+    const archal = summer.companies.find((company) => company.sourceKey === "company-archal");
     assert.ok(hoplite.legacyEntityAliases.includes("company-blueprints"));
     assert.ok(definite.legacyEntityAliases.includes("company-bylaw"));
     assert.ok(
@@ -695,6 +697,31 @@ describe("autonomous ingestion semantic attribution contracts", () => {
         founder.legacyEntityAliases.includes("founder-blueprints-bence-redmond-2614746")
       )
     );
+    assert.equal(
+      summer.companies.reduce((count, company) => count + company.founders.length, 0),
+      summer.expectedFounderCount,
+      "historical founders must not inflate the active roster"
+    );
+    assert.deepEqual(
+      mireye.historicalFounders.map((founder) => founder.sourceKey),
+      ["founder-mireye-shashwat-kapoor-678147"]
+    );
+    assert.deepEqual(
+      archal.historicalFounders.map((founder) => founder.sourceKey),
+      ["founder-archal-noah-song-2561732"]
+    );
+    assert.equal(resolveBatchSlug({
+      entityType: "founder",
+      entityId: "founder-mireye-shashwat-kapoor-678147",
+      companySlug: "mireye",
+      companyName: "Mireye"
+    }), "S26");
+    assert.equal(resolveBatchSlug({
+      entityType: "founder",
+      entityId: "founder-archal-noah-song-2561732",
+      companySlug: "archal",
+      companyName: "Archal"
+    }), "S26");
   });
 
   it("replaces a content-dropped reattribution with one quarantine for the original stale target", async () => {

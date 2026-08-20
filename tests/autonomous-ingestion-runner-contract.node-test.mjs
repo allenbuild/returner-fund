@@ -2067,13 +2067,18 @@ describe("autonomous ingestion runner static safety contracts", () => {
     assert.doesNotMatch(merge, /snapshots\.flatMap\([\s\S]*snapshot\.source\?\.batchSlug/);
   });
 
-  it("wires mutable-catalog rename aliases into durable batch-scoped attribution", () => {
+  it("wires mutable-catalog rename and removed-founder aliases into durable attribution", () => {
     const durableImport = section(
       "async function importDurableEvidence",
       "async function readHistoricalAttributionCatalogMaps"
     );
+    const sync = section("async function syncCatalogs", "function accountRow");
     assert.ok(durableImport.includes("...(company.legacyEntityAliases ?? [])"));
     assert.ok(durableImport.includes("...(founder.legacyEntityAliases ?? [])"));
+    assert.ok(durableImport.includes("...(company.historicalFounders ?? [])"));
+    assert.ok(durableImport.includes("historicalFounderByBatchSourceKey"));
+    assert.ok(sync.includes("...(company.historicalFounders ?? [])"));
+    assert.ok(sync.includes("historicalFounderByBatchSourceKey"));
   });
 
   it("bounds public and GitHub shard processes with separate request lanes", () => {

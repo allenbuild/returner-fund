@@ -659,7 +659,10 @@ export function buildLegacyPublicEvidenceBatchResolver(catalogs) {
       ]) {
         addAlias(companyBatchesByAlias, alias, catalog.slug);
       }
-      for (const founder of company.founders) {
+      for (const founder of [
+        ...company.founders,
+        ...(company.historicalFounders ?? [])
+      ]) {
         for (const alias of [
           founder.sourceKey,
           founder.name,
@@ -2010,6 +2013,7 @@ function normalizeYcCompany(company, batch, aliasLedger = null) {
     entry?.fromName,
     entry?.fromSlug ? `company-${entry.fromSlug}` : null
   ]));
+  const historicalFounders = normalizeRemovedYcFounders(company, batch, aliasLedger);
   return {
     entityType: "company",
     sourceKey,
@@ -2022,6 +2026,7 @@ function normalizeYcCompany(company, batch, aliasLedger = null) {
     groupPartner: company.groupPartner ?? null,
     reviewState: "verified",
     legacyEntityAliases,
+    historicalFounders,
     accounts: normalizeYcAccounts(company.socialLinks, {
       entityType: "company",
       entitySourceKey: sourceKey,
@@ -2031,6 +2036,57 @@ function normalizeYcCompany(company, batch, aliasLedger = null) {
       normalizeYcFounder(founder, company, batch, companyAliasEntries)
     )
   };
+}
+
+function normalizeRemovedYcFounders(company, batch, aliasLedger = null) {
+  const currentFounderIds = new Set(
+    (company.founders ?? []).map((founder) => String(founder?.id ?? "")).filter(Boolean)
+  );
+  const transitionsByFounderId = new Map();
+  for (const transition of aliasLedger?.founderTransitions ?? []) {
+    if (String(transition?.companyId ?? "") !== String(company?.id ?? "")) continue;
+    const founderId = String(transition?.founderId ?? "").trim();
+    if (!founderId) continue;
+    const transitions = transitionsByFounderId.get(founderId) ?? [];
+    transitions.push(transition);
+    transitionsByFounderId.set(founderId, transitions);
+  }
+
+  const historicalFounders = [];
+  for (const [founderId, transitions] of transitionsByFounderId) {
+    if (currentFounderIds.has(founderId)) continue;
+    const removal = [...transitions].reverse().find((transition) =>
+      transition?.change === "removed" && transition?.fromName
+    );
+    if (!removal) continue;
+    const name = String(removal.fromName).trim();
+    const historicalSlug = String(removal.companySlug ?? company.slug).trim() || company.slug;
+    const sourceKey = `founder-${historicalSlug}-${slugify(name)}-${founderId}`;
+    const legacyEntityAliases = uniqueCatalogAliases(transitions.flatMap((transition) =>
+      [transition?.fromName, transition?.toName].flatMap((transitionName) => {
+        const normalizedName = String(transitionName ?? "").trim();
+        if (!normalizedName) return [];
+        const transitionSlug = String(transition?.companySlug ?? historicalSlug).trim() || historicalSlug;
+        return [
+          normalizedName,
+          `founder-${transitionSlug}-${slugify(normalizedName)}-${founderId}`
+        ];
+      })
+    )).filter((alias) => alias !== sourceKey);
+    historicalFounders.push({
+      entityType: "founder",
+      sourceKey,
+      name,
+      batchSlug: batch.slug,
+      companySourceKey: `company-${company.slug}`,
+      profileUrl: company.ycProfileUrl ?? null,
+      websiteUrl: null,
+      reviewState: "verified",
+      legacyEntityAliases,
+      accounts: []
+    });
+  }
+  return historicalFounders.sort((left, right) => left.sourceKey.localeCompare(right.sourceKey));
 }
 
 function normalizeYcFounder(founder, company, batch, companyAliasEntries = []) {
