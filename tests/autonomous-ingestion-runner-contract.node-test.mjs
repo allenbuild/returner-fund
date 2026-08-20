@@ -2491,6 +2491,19 @@ describe("autonomous ingestion runner static safety contracts", () => {
     assert.doesNotMatch(reconcile, /await finishTask\(/);
   });
 
+  it("paginates reconciliation and terminal coverage across the complete task plan", () => {
+    const taskRead = section("async function tasksFor", "async function finishTasks");
+    const coverage = section("async function persistCoverage", "async function persistArtifactManifest");
+
+    assert.ok(taskRead.includes("readAllIngestionTaskRows("));
+    assert.ok(taskRead.includes("for (let offset = 0; ; offset += INGESTION_TASK_READ_PAGE_SIZE)"));
+    assert.ok(taskRead.includes('.order("id", { ascending: true })'));
+    assert.ok(taskRead.includes(".range(offset, offset + INGESTION_TASK_READ_PAGE_SIZE - 1)"));
+    assert.ok(taskRead.includes("if ((data?.length ?? 0) < INGESTION_TASK_READ_PAGE_SIZE) break"));
+    assert.ok(coverage.includes("await readAllIngestionTaskRows("));
+    assert.doesNotMatch(coverage, /runSupabaseOperation\(\s*"read terminal coverage"/);
+  });
+
   it("guards publication on terminal state coverage across all run tasks", () => {
     const coverage = section("async function persistCoverage", "async function persistArtifactManifest");
     const guardIndex = runner.indexOf("validateAutonomousTerminalCoverage(prePublishCoverage");
