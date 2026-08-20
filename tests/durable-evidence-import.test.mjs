@@ -198,6 +198,28 @@ describe("durable evidence import", () => {
     expect(client.table("metric_observations")).toHaveLength(2);
   });
 
+  it("orders inverted source seen timestamps before the durable evidence upsert", async () => {
+    const client = new FakeSupabaseClient();
+    const row = publicPost({
+      entityType: "company",
+      entityId: "company-acme"
+    });
+    row.first_seen_at = "2026-07-23T03:36:54Z";
+    row.last_checked_at = "2026-07-23T03:15:00Z";
+
+    await importDurableEvidence({
+      client,
+      ingestionRunId: RUN_ID,
+      catalogMaps: { companies: { "company-acme": COMPANY_ID } },
+      publicSnapshot: publicSnapshot("S2026", [row])
+    });
+
+    expect(client.table("evidence_items")[0]).toMatchObject({
+      first_seen_at: "2026-07-23T03:15:00.000Z",
+      last_seen_at: "2026-07-23T03:36:54.000Z"
+    });
+  });
+
   it("imports GitHub accounts as context and repositories as native metric evidence", async () => {
     const client = new FakeSupabaseClient();
     const snapshot = {

@@ -341,6 +341,10 @@ function normalizePublicEvidence(candidate) {
     match_reason: nonBlank(row.matchReason),
     review_state: normalizedReviewState(row.review_state)
   });
+  const [firstSeenAt, lastSeenAt] = orderedSeenAtRange(
+    validTimestamp(row.first_seen_at ?? row.firstSeenAt) ?? candidate.observedAt,
+    candidate.observedAt
+  );
   const item = baseNormalized(candidate, row, platform, canonical, reasons, tractionEligible, metrics.values);
   item.key = key ? `${platform}\u0000${key}` : null;
   item.verified = normalizedReviewState(row.review_state) === "verified";
@@ -357,8 +361,8 @@ function normalizePublicEvidence(candidate) {
     canonical_url: canonical.canonicalUrl,
     published_at: validTimestamp(row.postedAt ?? row.publishedAt),
     content_fingerprint: contentFingerprint(row),
-    first_seen_at: validTimestamp(row.first_seen_at ?? row.firstSeenAt) ?? candidate.observedAt,
-    last_seen_at: candidate.observedAt,
+    first_seen_at: firstSeenAt,
+    last_seen_at: lastSeenAt,
     metadata_json: metadata
   } : null;
   return item;
@@ -1587,6 +1591,14 @@ function validTimestamp(value) {
   if (!text) return null;
   const time = Date.parse(text);
   return Number.isFinite(time) ? new Date(time).toISOString() : null;
+}
+
+function orderedSeenAtRange(firstSeenAt, lastSeenAt) {
+  const first = validTimestamp(firstSeenAt);
+  const last = validTimestamp(lastSeenAt);
+  if (!first) return [last, last];
+  if (!last) return [first, first];
+  return Date.parse(first) <= Date.parse(last) ? [first, last] : [last, first];
 }
 
 function laterTimestamp(first, second) {
