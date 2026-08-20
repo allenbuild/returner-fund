@@ -39,6 +39,7 @@ const TRACTION_PLATFORMS = new Set([
 const DERIVED_METRICS = new Set(["score", "profile_score", "contribution_score", "max_repo_score"]);
 const ATTRIBUTION_TYPES = new Set(["subject", "author", "mention", "account_owner", "founder_rollup", "other"]);
 const RECONCILIATION_DISPOSITIONS = new Set(["reattributed", "quarantined"]);
+const DURABLE_WRITE_BATCH_SIZE = 250;
 const ATTRIBUTION_READ_COLUMNS = [
   "id", "evidence_id", "entity_type", "company_id", "founder_id", "batch_id",
   "attribution_type", "is_primary", "score_eligible", "review_state", "risk_level",
@@ -124,14 +125,16 @@ export async function importDurableEvidence(options) {
 
   const evidenceRows = [...groups.values()].map((group) => group.evidenceRow);
   let evidenceReadBack = [];
-  if (evidenceRows.length > 0) {
+  for (const batch of rowBatches(evidenceRows)) {
     const response = await client
       .from("evidence_items")
-      .upsert(evidenceRows, { onConflict: "platform,canonical_key" })
+      .upsert(batch, { onConflict: "platform,canonical_key" })
       .select("id,platform,canonical_key");
-    evidenceReadBack = checkedRows(response, "upsert and read back evidence_items");
-    assertCompleteReadBack(evidenceRows, evidenceReadBack);
+    const batchReadBack = checkedRows(response, "upsert and read back evidence_items");
+    assertCompleteReadBack(batch, batchReadBack);
+    evidenceReadBack.push(...batchReadBack);
   }
+  assertCompleteReadBack(evidenceRows, evidenceReadBack);
   counters.stored = evidenceRows.length;
   counters.readBack = evidenceReadBack.length;
 
@@ -190,10 +193,10 @@ export async function importDurableEvidence(options) {
     evidenceResolution: reconciliationEvidence,
     received: reconciliationLedger.received
   });
-  if (uniqueAttributions.rows.length > 0) {
+  for (const batch of rowBatches(uniqueAttributions.rows)) {
     const response = await client
       .from("evidence_attributions")
-      .upsert(uniqueAttributions.rows, { onConflict: "id" });
+      .upsert(batch, { onConflict: "id" });
     checkedResponse(response, "upsert evidence_attributions");
   }
 
@@ -206,8 +209,8 @@ export async function importDurableEvidence(options) {
   const uniqueObservations = uniqueRows(observationRows, (row) =>
     `${row.evidence_id}:${row.metric_name}:${row.source_name}:${row.observed_at}`
   );
-  if (uniqueObservations.rows.length > 0) {
-    const response = await client.from("metric_observations").upsert(uniqueObservations.rows, {
+  for (const batch of rowBatches(uniqueObservations.rows)) {
+    const response = await client.from("metric_observations").upsert(batch, {
       onConflict: "evidence_id,metric_name,source_name,observed_at",
       ignoreDuplicates: true
     });
@@ -1505,6 +1508,14 @@ function uniqueRows(rows, keyFor) {
     values.set(key, row);
   }
   return { rows: [...values.values()], duplicates };
+}
+
+function rowBatches(rows, size = DURABLE_WRITE_BATCH_SIZE) {
+  const batches = [];
+  for (let offset = 0; offset < rows.length; offset += size) {
+    batches.push(rows.slice(offset, offset + size));
+  }
+  return batches;
 }
 
 function checkedRows(response, operation) {

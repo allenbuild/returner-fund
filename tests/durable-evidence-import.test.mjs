@@ -1369,6 +1369,39 @@ describe("durable evidence import", () => {
       await expect(promise).rejects.toThrow(`${failedTable} denied (42501)`);
     }
   );
+
+  it("bounds every durable write so a full replay cannot become one oversized statement", async () => {
+    const client = new FakeSupabaseClient();
+    const evidence = Array.from({ length: 501 }, (_, index) => {
+      const platformPostId = String(10_000 + index);
+      return publicPost({
+        entityType: "company",
+        entityId: "company-acme",
+        sourceUrl: `https://x.com/acme/status/${platformPostId}`,
+        platformPostId
+      });
+    });
+
+    const result = await importDurableEvidence({
+      client,
+      ingestionRunId: RUN_ID,
+      catalogMaps: { companies: { "company-acme": COMPANY_ID } },
+      publicSnapshot: publicSnapshot("S2026", evidence)
+    });
+
+    expect(result).toMatchObject({
+      stored: 501,
+      readBack: 501,
+      attributions: { stored: 501 },
+      metricObservations: { stored: 501 }
+    });
+    for (const table of ["evidence_items", "evidence_attributions", "metric_observations"]) {
+      const writeSizes = client.calls
+        .filter((call) => call.table === table && call.operation === "upsert")
+        .map((call) => call.values.length);
+      expect(writeSizes).toEqual([250, 250, 1]);
+    }
+  });
 });
 
 class FakeSupabaseClient {
