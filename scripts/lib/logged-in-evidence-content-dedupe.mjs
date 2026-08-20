@@ -41,7 +41,14 @@ export function finalizeLoggedInEvidenceContent(
   } = {}
 ) {
   const batchOptions = { defaultBatchSlug, resolveBatchSlug };
-  const nativeOnly = quarantineNonNativeLinkedInReposts(rows, batchOptions);
+  // Canonical evidence is the scoreable lane. Rows that were already marked
+  // for review must stay in the review ledger instead of reaching the strict
+  // durable-attribution gate as positive-metric evidence.
+  const explicitlyUnverified = quarantineExplicitlyUnverifiedRows(rows);
+  const nativeOnly = quarantineNonNativeLinkedInReposts(
+    explicitlyUnverified.evidence,
+    batchOptions
+  );
   const eligibleNative = quarantineIneligibleNativeObservations(
     nativeOnly.evidence,
     batchOptions
@@ -101,6 +108,7 @@ export function finalizeLoggedInEvidenceContent(
 
   const needsReview = dedupeRowsById([
     ...existingNeedsReview.map(normalizePersistedOwnerCollisionReview),
+    ...explicitlyUnverified.needsReview,
     ...nativeOnly.needsReview,
     ...eligibleNative.needsReview,
     ...instagramOwnerResolved.needsReview,
@@ -113,7 +121,27 @@ export function finalizeLoggedInEvidenceContent(
     ownerResolved.attributionReconciliationLedger,
     needsReview.map((row) => row?.attributionReconciliationDirective)
   );
-  return { evidence, needsReview, attributionReconciliationLedger };
+  // Durable attribution is batch-scoped. Materialize every uniquely resolved
+  // legacy cohort onto the canonical row instead of using the resolver only as
+  // an internal dedupe scope and then dropping that provenance at the handoff.
+  const batchScopedEvidence = evidence.map((row) =>
+    withMaterializedBatchSlug(row, resolvedBatchSlug(row, batchOptions))
+  );
+  return { evidence: batchScopedEvidence, needsReview, attributionReconciliationLedger };
+}
+
+function quarantineExplicitlyUnverifiedRows(rows) {
+  const evidence = [];
+  const needsReview = [];
+  for (const row of rows ?? []) {
+    const reviewState = String(row?.review_state ?? row?.reviewState ?? "").toLowerCase();
+    if (reviewState === "needs_review" || reviewState === "rejected") {
+      needsReview.push(row);
+    } else {
+      evidence.push(row);
+    }
+  }
+  return { evidence, needsReview };
 }
 
 function quarantineIneligibleNativeObservations(rows, options) {
@@ -968,6 +996,15 @@ function resolvedBatchSlug(row, { defaultBatchSlug = null, resolveBatchSlug = nu
   return row?.batchSlug ?? row?.batch_slug ??
     (typeof resolveBatchSlug === "function" ? resolveBatchSlug(row) : null) ??
     defaultBatchSlug;
+}
+
+function withMaterializedBatchSlug(row, batchSlug) {
+  if (!batchSlug) return row;
+  if (row?.batchSlug === batchSlug && row?.batch_slug == null) return row;
+  const normalized = { ...(row ?? {}) };
+  delete normalized.batchSlug;
+  delete normalized.batch_slug;
+  return { ...normalized, batchSlug };
 }
 
 function nonBlank(value) {

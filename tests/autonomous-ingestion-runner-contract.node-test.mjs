@@ -1652,7 +1652,7 @@ describe("autonomous ingestion runner static safety contracts", () => {
       "async function readHistoricalAttributionCatalogMaps"
     );
     assert.ok(durableImport.includes("readHistoricalAttributionCatalogMaps(catalogState)"));
-    assert.ok(durableImport.includes("attributionReconciliationLedger.length > 0"));
+    assert.doesNotMatch(durableImport, /attributionReconciliationLedger\.length\s*>\s*0/);
   });
 
   it("isolates work directories with a hash of the exact idempotency key", () => {
@@ -2052,13 +2052,28 @@ describe("autonomous ingestion runner static safety contracts", () => {
     );
   });
 
-  it("preserves legacy merged rows while stamping only fresh logged-in cohort snapshots", () => {
+  it("materializes legacy logged-in cohorts without inheriting a singular source batch", () => {
     const merge = section(
       "async function prepareMergedLoggedInEvidenceSnapshot",
       "async function readCanonicalContentIdentityReferenceRows"
     );
     assert.ok(merge.includes("mergeLoggedInEvidenceRows([base, current], incomingSnapshots ?? [])"));
+    assert.ok(merge.includes("defaultBatchSlug: null"));
+    assert.ok(merge.includes("delete multiCohortSource.batchSlug"));
+    assert.ok(merge.includes("delete multiCohortSource.batch_slug"));
+    assert.ok(merge.includes("...multiCohortSource"));
+    assert.ok(merge.includes("batchSlugs: AUTONOMOUS_BATCHES.map"));
+    assert.doesNotMatch(merge, /source:\s*\{\s*\.\.\.source/);
     assert.doesNotMatch(merge, /snapshots\.flatMap\([\s\S]*snapshot\.source\?\.batchSlug/);
+  });
+
+  it("wires mutable-catalog rename aliases into durable batch-scoped attribution", () => {
+    const durableImport = section(
+      "async function importDurableEvidence",
+      "async function readHistoricalAttributionCatalogMaps"
+    );
+    assert.ok(durableImport.includes("...(company.legacyEntityAliases ?? [])"));
+    assert.ok(durableImport.includes("...(founder.legacyEntityAliases ?? [])"));
   });
 
   it("bounds public and GitHub shard processes with separate request lanes", () => {

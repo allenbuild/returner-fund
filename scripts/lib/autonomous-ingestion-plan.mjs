@@ -46,6 +46,7 @@ export const AUTONOMOUS_BATCHES = Object.freeze([
     label: "YC Summer 2026 (S26)",
     graphFile: "s26.json",
     catalogFile: "src/lib/yc/summer-2026-companies.json",
+    aliasLedgerFile: "src/lib/yc/summer-2026-company-aliases.json",
     catalogFormat: "yc_snapshot",
     minimumCompanyCount: 167,
     minimumFounderCount: 325,
@@ -249,6 +250,12 @@ export async function loadAutonomousCatalogs(root) {
         : join(root, "public", "graph", batch.graphFile);
       const source = JSON.parse(await readFile(path, "utf8"));
       if (batch.catalogFormat === "yc_snapshot") {
+        const aliasLedger = batch.aliasLedgerFile
+          ? await readRequiredCanonicalJson(
+              join(root, batch.aliasLedgerFile),
+              `${batch.label} company alias ledger`
+            )
+          : null;
         if (!Array.isArray(source.companies)) {
           throw new Error(`${batch.catalogFile} does not contain a company array.`);
         }
@@ -259,7 +266,9 @@ export async function loadAutonomousCatalogs(root) {
             `${batch.catalogFile} contains ${source.companies.length} companies; expected ${batch.expectedCompanyCount}.`
           );
         }
-        const companies = source.companies.map((company) => normalizeYcCompany(company, batch));
+        const companies = source.companies.map((company) =>
+          normalizeYcCompany(company, batch, aliasLedger)
+        );
         return {
           ...batch,
           expectedCompanyCount: batch.dynamicCatalogCounts
@@ -642,11 +651,20 @@ export function buildLegacyPublicEvidenceBatchResolver(catalogs) {
   };
   for (const catalog of catalogs) {
     for (const company of catalog.companies) {
-      for (const alias of [company.sourceKey, autonomousCompanySlug(company), company.name]) {
+      for (const alias of [
+        company.sourceKey,
+        autonomousCompanySlug(company),
+        company.name,
+        ...(company.legacyEntityAliases ?? [])
+      ]) {
         addAlias(companyBatchesByAlias, alias, catalog.slug);
       }
       for (const founder of company.founders) {
-        for (const alias of [founder.sourceKey, founder.name]) {
+        for (const alias of [
+          founder.sourceKey,
+          founder.name,
+          ...(founder.legacyEntityAliases ?? [])
+        ]) {
           addAlias(founderBatchesByAlias, alias, catalog.slug);
         }
       }
@@ -1978,12 +1996,20 @@ function normalizeCompanyNode(node, batch) {
   };
 }
 
-function normalizeYcCompany(company, batch) {
+function normalizeYcCompany(company, batch, aliasLedger = null) {
   if (!company?.slug || !company?.name) {
     throw new Error(`${batch.catalogFile} contains a company without a slug and name.`);
   }
   const sourceKey = `company-${company.slug}`;
   const profileUrl = company.ycProfileUrl ?? null;
+  const companyAliasEntries = (aliasLedger?.aliases ?? []).filter((entry) =>
+    String(entry?.companyId ?? "") === String(company?.id ?? "")
+  );
+  const legacyEntityAliases = uniqueCatalogAliases(companyAliasEntries.flatMap((entry) => [
+    entry?.fromSlug,
+    entry?.fromName,
+    entry?.fromSlug ? `company-${entry.fromSlug}` : null
+  ]));
   return {
     entityType: "company",
     sourceKey,
@@ -1995,21 +2021,34 @@ function normalizeYcCompany(company, batch) {
     description: company.description ?? null,
     groupPartner: company.groupPartner ?? null,
     reviewState: "verified",
+    legacyEntityAliases,
     accounts: normalizeYcAccounts(company.socialLinks, {
       entityType: "company",
       entitySourceKey: sourceKey,
       discoveredFromUrl: profileUrl
     }),
-    founders: (company.founders ?? []).map((founder) => normalizeYcFounder(founder, company, batch))
+    founders: (company.founders ?? []).map((founder) =>
+      normalizeYcFounder(founder, company, batch, companyAliasEntries)
+    )
   };
 }
 
-function normalizeYcFounder(founder, company, batch) {
+function normalizeYcFounder(founder, company, batch, companyAliasEntries = []) {
   if (!founder?.id || !founder?.name) {
     throw new Error(`${batch.catalogFile} contains a founder without an id and name for ${company.slug}.`);
   }
   const sourceKey = `founder-${company.slug}-${slugify(founder.name)}-${founder.id}`;
   const profileUrl = founder.ycProfileUrl ?? company.ycProfileUrl ?? null;
+  const legacyEntityAliases = uniqueCatalogAliases(companyAliasEntries.flatMap((entry) =>
+    (entry?.founders ?? [])
+      .filter((candidate) => String(candidate?.founderId ?? "") === String(founder.id))
+      .flatMap((candidate) => [
+        candidate?.name,
+        entry?.fromSlug && candidate?.name
+          ? `founder-${entry.fromSlug}-${slugify(candidate.name)}-${founder.id}`
+          : null
+      ])
+  ));
   return {
     entityType: "founder",
     sourceKey,
@@ -2019,12 +2058,17 @@ function normalizeYcFounder(founder, company, batch) {
     profileUrl: founder.ycProfileUrl ?? null,
     websiteUrl: founder.websiteUrl ?? null,
     reviewState: "verified",
+    legacyEntityAliases,
     accounts: normalizeYcAccounts(founder.socialLinks, {
       entityType: "founder",
       entitySourceKey: sourceKey,
       discoveredFromUrl: profileUrl
     })
   };
+}
+
+function uniqueCatalogAliases(values) {
+  return [...new Set(values.map((value) => String(value ?? "").trim()).filter(Boolean))];
 }
 
 function mergeVerifiedOverridesIntoCatalog(companies, overrides, batch) {
