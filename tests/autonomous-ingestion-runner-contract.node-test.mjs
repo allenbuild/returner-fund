@@ -3088,8 +3088,8 @@ describe("pinned source and publication-base trust boundaries", () => {
     });
 
     assert.equal(isReplaySafePublicationDataPath("src/lib/social/package.json"), false);
-    assert.equal(isReplaySafePublicationDataPath("artifacts/dashboard/current.json"), true);
-    assert.equal(isReplaySafePublicationDataPath("public/dashboard/feed.json"), true);
+    assert.equal(isReplaySafePublicationDataPath("artifacts/dashboard/current.json"), false);
+    assert.equal(isReplaySafePublicationDataPath("public/dashboard/feed.json"), false);
     assert.equal(isSafeInertPublicationBasePath("artifacts/dashboard/current.json"), true);
     assert.equal(isSafeInertPublicationBasePath("public/dashboard/feed.json"), true);
     assert.equal(isSafeInertPublicationBasePath("src/lib/graph/layout.ts"), true);
@@ -3109,10 +3109,13 @@ describe("pinned source and publication-base trust boundaries", () => {
       isReplaySafePublicationDataPath("src/lib/social/logged-in-evidence-current.json"),
       true
     );
-    assert.equal(isReplaySafePublicationDataPath("artifacts/dashboard/current.json"), true);
-    assert.equal(isReplaySafePublicationDataPath("public/dashboard/feed.json"), true);
+    assert.equal(isReplaySafePublicationDataPath("artifacts/dashboard/current.json"), false);
+    assert.equal(isReplaySafePublicationDataPath("public/dashboard/feed.json"), false);
     assert.equal(isReplaySafePublicationDataPath("public/timelines/companies/config.json"), false);
     assert.equal(isReplaySafePublicationDataPath("public/timelines/companies/acme-labs.json"), true);
+    const artifactPaths = section("function repositoryArtifactPaths", "function publicationBranch");
+    assert.doesNotMatch(artifactPaths, /"artifacts\/dashboard\/current\.json"/);
+    assert.doesNotMatch(artifactPaths, /"public\/dashboard\/feed\.json"/);
 
     const accepted = lifecycleFixturePayload(runLifecycleFixture("publication-base-trust", {
       LIFECYCLE_FIXTURE_SOURCE_COMMIT: sourceCommit,
@@ -3129,12 +3132,16 @@ describe("pinned source and publication-base trust boundaries", () => {
     }));
     assert.equal(acceptedDashboardSnapshot.accepted, true);
 
-    const acceptedDashboardSnapshotReplay = lifecycleFixturePayload(runLifecycleFixture("publication-base-trust", {
+    const rejectedDashboardSnapshotReplay = lifecycleFixturePayload(runLifecycleFixture("publication-base-trust", {
       LIFECYCLE_FIXTURE_SOURCE_COMMIT: sourceCommit,
       LIFECYCLE_FIXTURE_BASE_COMMIT: dashboardSnapshotCommit,
       LIFECYCLE_FIXTURE_BASE_LABEL: "commit-backed replay publication"
     }));
-    assert.equal(acceptedDashboardSnapshotReplay.accepted, true);
+    assert.equal(rejectedDashboardSnapshotReplay.accepted, false);
+    assert.match(
+      rejectedDashboardSnapshotReplay.error,
+      /non-allowlisted drift.*(?:artifacts\/dashboard\/current\.json|public\/dashboard\/feed\.json)/
+    );
 
     const acceptedInertCode = lifecycleFixturePayload(runLifecycleFixture("publication-base-trust", {
       LIFECYCLE_FIXTURE_SOURCE_COMMIT: sourceCommit,
