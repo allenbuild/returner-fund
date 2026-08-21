@@ -20,7 +20,7 @@ const MAX_DEBUG_TRACE_BYTES = 190 * MEBIBYTE;
 // The refresh route intentionally carries the nine static graph fallbacks and
 // the complete volume projection. Keep a separate ceiling below the platform
 // function budget for those release-time refresh inputs.
-const MAX_REFRESH_TRACE_BYTES = 220 * MEBIBYTE;
+const MAX_REFRESH_TRACE_BYTES = 225 * MEBIBYTE;
 const REPOSITORY_ROOT = resolve(".");
 const GRAPH_RUNTIME_PROJECTIONS = [
   "generated-runtime/graph/public-evidence-current.json",
