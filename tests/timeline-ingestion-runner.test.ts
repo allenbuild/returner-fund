@@ -223,6 +223,61 @@ describe("bounded durable Timeline ingestion", () => {
     }));
   });
 
+  it("returns an explicit skip receipt when the optional admin claim migration is unavailable", async () => {
+    const store = new MemoryTaskStore();
+    const rpc = vi.fn(async () => ({
+      data: null,
+      error: {
+        code: "PGRST202",
+        message: "Could not find the function public.claim_timeline_admin_tasks(p_lease_duration, p_limit, p_source_class, p_worker_id) in the schema cache",
+      },
+    }));
+
+    const receipt = await runTimelineAdminTaskDrain({
+      client: { rpc } as never,
+      workerId: "timeline-admin-worker",
+      companies: [company()],
+      now: () => new Date(NOW),
+      store,
+      persistence: new MemoryPersistence(),
+      discover: async () => ({ status: "completed", reason: "done", sources: [] }),
+    });
+
+    expect(receipt).toEqual({
+      status: "migration_unavailable",
+      reason: "claim_timeline_admin_tasks_unavailable",
+      claimedTasks: 0,
+      terminalTasks: 0,
+      retryScheduledTasks: 0,
+      deadLetteredTasks: 0,
+      unknownCompanyTasks: 0,
+      sourceDocuments: 0,
+      candidates: 0,
+      publishedEvents: 0,
+      unresolvedDates: 0,
+      durationMs: 0,
+    });
+    expect(store.requeueExpiredCalls).toBe(1);
+    expect(rpc).toHaveBeenCalledWith("claim_timeline_admin_tasks", expect.any(Object));
+  });
+
+  it("still fails closed for unrelated admin claim errors", async () => {
+    const rpc = vi.fn(async () => ({
+      data: null,
+      error: { code: "42501", message: "permission denied for function claim_timeline_admin_tasks" },
+    }));
+
+    await expect(runTimelineAdminTaskDrain({
+      client: { rpc } as never,
+      workerId: "timeline-admin-worker",
+      companies: [company()],
+      now: () => new Date(NOW),
+      store: new MemoryTaskStore(),
+      persistence: new MemoryPersistence(),
+      discover: async () => ({ status: "completed", reason: "done", sources: [] }),
+    })).rejects.toThrow(/permission denied/i);
+  });
+
   it("uses immediate bounded retries and dead-letters an exhausted handler", async () => {
     const store = new MemoryTaskStore();
     const persistence = new MemoryPersistence();

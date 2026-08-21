@@ -180,13 +180,21 @@ export interface TimelineDiscoveryRunReceipt extends TimelinePersistenceReceipt 
 }
 
 export interface TimelineAdminTaskDrainReceipt extends TimelinePersistenceReceipt {
-  status: "completed" | "budget_exhausted";
+  status: "completed" | "budget_exhausted" | "migration_unavailable";
+  reason?: "claim_timeline_admin_tasks_unavailable";
   claimedTasks: number;
   terminalTasks: number;
   retryScheduledTasks: number;
   deadLetteredTasks: number;
   unknownCompanyTasks: number;
   durationMs: number;
+}
+
+class TimelineAdminMigrationUnavailableError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "TimelineAdminMigrationUnavailableError";
+  }
 }
 
 class RetryableTimelineDiscoveryError extends Error {
@@ -402,15 +410,34 @@ export async function runTimelineAdminTaskDrain(input: Omit<RunTimelineDiscovery
   let rotation = 0;
 
   while (now().getTime() < deadline) {
-    const claimed = await claimTimelineAdminTasks(input.client, {
-      workerId: input.workerId,
-      limit: concurrency,
-      // There is no per-request heartbeat in this bounded worker, so cover the
-      // whole drain budget plus a cleanup margin. SQL still caps leases at one
-      // hour independently.
-      leaseDurationSeconds: Math.max(120, Math.ceil(budgetMs / 1_000) + 60),
-      rotation: rotation++,
-    });
+    let claimed: IngestionTaskRow[];
+    try {
+      claimed = await claimTimelineAdminTasks(input.client, {
+        workerId: input.workerId,
+        limit: concurrency,
+        // There is no per-request heartbeat in this bounded worker, so cover the
+        // whole drain budget plus a cleanup margin. SQL still caps leases at one
+        // hour independently.
+        leaseDurationSeconds: Math.max(120, Math.ceil(budgetMs / 1_000) + 60),
+        rotation: rotation++,
+      });
+    } catch (error) {
+      if (!(error instanceof TimelineAdminMigrationUnavailableError)) throw error;
+      return {
+        status: "migration_unavailable",
+        reason: "claim_timeline_admin_tasks_unavailable",
+        claimedTasks,
+        terminalTasks,
+        retryScheduledTasks,
+        deadLetteredTasks,
+        unknownCompanyTasks,
+        sourceDocuments,
+        candidates,
+        publishedEvents,
+        unresolvedDates,
+        durationMs: Math.max(0, now().getTime() - startedAt.getTime()),
+      };
+    }
     if (!claimed.length) break;
     claimedTasks += claimed.length;
     const receipts = await Promise.all(claimed.map(async (task) => {
@@ -475,10 +502,24 @@ async function claimTimelineAdminTasks(
       p_lease_duration: `${input.leaseDurationSeconds} seconds`,
       p_source_class: sourceClass,
     });
-    if (response.error) throw new Error(`claim Timeline admin tasks: ${response.error.message}`);
+    if (response.error) {
+      if (isTimelineAdminClaimMigrationUnavailable(response.error)) {
+        throw new TimelineAdminMigrationUnavailableError(
+          `claim Timeline admin tasks: ${response.error.message}`,
+        );
+      }
+      throw new Error(`claim Timeline admin tasks: ${response.error.message}`);
+    }
     claimed.push(...(response.data ?? []));
   }
   return claimed.slice(0, input.limit);
+}
+
+function isTimelineAdminClaimMigrationUnavailable(error: { code?: string | null; message?: string | null }): boolean {
+  const code = String(error.code ?? "");
+  const message = String(error.message ?? "");
+  return /claim_timeline_admin_tasks/i.test(message)
+    && (code === "PGRST202" || /schema cache/i.test(message));
 }
 
 async function claimTimelineTasks(

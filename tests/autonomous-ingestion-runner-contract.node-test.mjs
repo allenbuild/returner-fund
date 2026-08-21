@@ -14,10 +14,11 @@ import {
 
 const repositoryRoot = process.cwd();
 const runnerPath = path.join(repositoryRoot, "scripts", "run-autonomous-ingestion.mjs");
-const [runnerSource, autonomousPlan, childProcessLedgerHook] = await Promise.all([
+const [runnerSource, autonomousPlan, childProcessLedgerHook, timelineCommand] = await Promise.all([
   readFile(runnerPath, "utf8"),
   readFile(path.join(repositoryRoot, "scripts", "lib", "autonomous-ingestion-plan.mjs"), "utf8"),
-  readFile(path.join(repositoryRoot, "scripts", "lib", "child-process-ledger-hook.cjs"), "utf8")
+  readFile(path.join(repositoryRoot, "scripts", "lib", "child-process-ledger-hook.cjs"), "utf8"),
+  readFile(path.join(repositoryRoot, "scripts", "run-company-timeline-ingestion.mjs"), "utf8")
 ]);
 // Keep structural assertions readable while the runner deliberately resolves
 // executable scripts from its pinned source checkout instead of the mutable
@@ -1227,6 +1228,34 @@ describe("autonomous ingestion runner static safety contracts", () => {
     assert.ok(timelineBackfill.includes('"scripts/backfill-company-timelines.mjs"'));
     assert.ok(timelineBackfill.includes("--database-snapshot="));
     assert.ok(timelineBackfill.includes("env: timelineBackfillEnv"));
+  });
+
+  it("preserves last-good Timeline artifacts when the optional admin migration is unavailable", () => {
+    const discovery = section(
+      "async function runTimelineDiscoveryBeforeBackfill",
+      "async function buildCanonicalTimelineIngestionInventory"
+    );
+    const publicationBuild = section(
+      "async function buildAndValidatePublication",
+      "async function synchronizePublicationBase"
+    );
+
+    assert.match(timelineCommand, /adminTaskDrain\.status === "migration_unavailable"/);
+    assert.match(timelineCommand, /status: "migration_unavailable"/);
+    assert.match(discovery, /receipt\.status === "migration_unavailable"/);
+    assert.match(discovery, /timeline\.discovery\.skipped/);
+    assert.match(
+      publicationBuild,
+      /const preserveLastGoodTimeline = timelineDiscoveryReceipt\?\.status === "migration_unavailable"/
+    );
+    assert.match(publicationBuild, /if \(durableStorageConfigured && !preserveLastGoodTimeline\)/);
+    assert.match(
+      publicationBuild,
+      /if \(!preserveLastGoodTimeline\)[\s\S]*?label: "company timeline backfill"/
+    );
+    const preserveIndex = publicationBuild.indexOf("const preserveLastGoodTimeline");
+    const validationIndex = publicationBuild.indexOf('"scripts/validate-timeline-artifacts.mjs"');
+    assert.ok(preserveIndex >= 0 && validationIndex > preserveIndex);
   });
 
   it("carries provider health, credential gaps, and mapped efficacy into the published health receipt", () => {
