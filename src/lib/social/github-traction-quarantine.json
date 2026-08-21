@@ -1,7 +1,7 @@
 {
   "source": {
     "schemaVersion": 1,
-    "generatedFromFetchedAt": "2026-08-14T01:47:36.682Z",
+    "generatedFromFetchedAt": "2026-08-21T02:30:42.814Z",
     "publicationPolicy": "stored_but_unpublished",
     "scoringEligible": false,
     "reason": "Rows absent from a fully authoritative whole-cohort GitHub receipt are retained only for audit and manual attribution review; they are not scoring inputs.",
@@ -9130,23 +9130,9 @@
             "kind": "repository",
             "canonicalUrl": "https://github.com/insforge/insforge-flutter",
             "repositoryId": "1264251418",
-            "status": "represented_in_current_canonical_receipt",
-            "matchedBy": [
-              "repository_id",
-              "canonical_url"
-            ],
-            "canonicalMatches": [
-              {
-                "entityType": "company",
-                "entityId": "company-insforge",
-                "entityName": "InsForge",
-                "accountKey": "company:company-insforge:insforge:",
-                "location": "repository",
-                "accountUrl": "https://github.com/insforge",
-                "repositoryId": "1264251418",
-                "repositoryUrl": "https://github.com/insforge/insforge-flutter"
-              }
-            ]
+            "status": "not_represented_in_current_canonical_receipt",
+            "matchedBy": [],
+            "canonicalMatches": []
           },
           {
             "kind": "repository",
@@ -9967,23 +9953,9 @@
             "kind": "repository",
             "canonicalUrl": "https://github.com/insforge/insforge-flutter",
             "repositoryId": "1264251418",
-            "status": "represented_in_current_canonical_receipt",
-            "matchedBy": [
-              "repository_id",
-              "canonical_url"
-            ],
-            "canonicalMatches": [
-              {
-                "entityType": "company",
-                "entityId": "company-insforge",
-                "entityName": "InsForge",
-                "accountKey": "company:company-insforge:insforge:",
-                "location": "repository",
-                "accountUrl": "https://github.com/insforge",
-                "repositoryId": "1264251418",
-                "repositoryUrl": "https://github.com/insforge/insforge-flutter"
-              }
-            ]
+            "status": "not_represented_in_current_canonical_receipt",
+            "matchedBy": [],
+            "canonicalMatches": []
           },
           {
             "kind": "repository",
@@ -21828,7 +21800,7 @@
             "location": "repository",
             "accountUrl": "https://github.com/experientiallabs",
             "repositoryId": "1279659344",
-            "repositoryUrl": "https://github.com/experientiallabs/world-model-optimizer"
+            "repositoryUrl": "https://github.com/experientiallabs/experiential"
           }
         ],
         "repositories": [
@@ -21838,8 +21810,7 @@
             "repositoryId": "1279659344",
             "status": "represented_in_current_canonical_receipt",
             "matchedBy": [
-              "repository_id",
-              "canonical_url"
+              "repository_id"
             ],
             "canonicalMatches": [
               {
@@ -21850,7 +21821,7 @@
                 "location": "repository",
                 "accountUrl": "https://github.com/experientiallabs",
                 "repositoryId": "1279659344",
-                "repositoryUrl": "https://github.com/experientiallabs/world-model-optimizer"
+                "repositoryUrl": "https://github.com/experientiallabs/experiential"
               }
             ]
           }
@@ -21943,7 +21914,7 @@
             "location": "repository",
             "accountUrl": "https://github.com/experientiallabs",
             "repositoryId": "1279659344",
-            "repositoryUrl": "https://github.com/experientiallabs/world-model-optimizer"
+            "repositoryUrl": "https://github.com/experientiallabs/experiential"
           }
         ],
         "repositories": [
@@ -21953,8 +21924,7 @@
             "repositoryId": "1279659344",
             "status": "represented_in_current_canonical_receipt",
             "matchedBy": [
-              "repository_id",
-              "canonical_url"
+              "repository_id"
             ],
             "canonicalMatches": [
               {
@@ -21965,7 +21935,7 @@
                 "location": "repository",
                 "accountUrl": "https://github.com/experientiallabs",
                 "repositoryId": "1279659344",
-                "repositoryUrl": "https://github.com/experientiallabs/world-model-optimizer"
+                "repositoryUrl": "https://github.com/experientiallabs/experiential"
               }
             ]
           }
@@ -24795,23 +24765,9 @@
             "kind": "repository",
             "canonicalUrl": "https://github.com/nex-crm/wuphf",
             "repositoryId": "1191671352",
-            "status": "represented_in_current_canonical_receipt",
-            "matchedBy": [
-              "repository_id",
-              "canonical_url"
-            ],
-            "canonicalMatches": [
-              {
-                "entityType": "company",
-                "entityId": "company-nex",
-                "entityName": "Nex",
-                "accountKey": "company:company-nex:nex-crm:",
-                "location": "repository",
-                "accountUrl": "https://github.com/nex-crm",
-                "repositoryId": "1191671352",
-                "repositoryUrl": "https://github.com/nex-crm/wuphf"
-              }
-            ]
+            "status": "not_represented_in_current_canonical_receipt",
+            "matchedBy": [],
+            "canonicalMatches": []
           }
         ]
       },
@@ -25024,23 +24980,9 @@
             "kind": "repository",
             "canonicalUrl": "https://github.com/nex-crm/wuphf",
             "repositoryId": "1191671352",
-            "status": "represented_in_current_canonical_receipt",
-            "matchedBy": [
-              "repository_id",
-              "canonical_url"
-            ],
-            "canonicalMatches": [
-              {
-                "entityType": "company",
-                "entityId": "company-nex",
-                "entityName": "Nex",
-                "accountKey": "company:company-nex:nex-crm:",
-                "location": "repository",
-                "accountUrl": "https://github.com/nex-crm",
-                "repositoryId": "1191671352",
-                "repositoryUrl": "https://github.com/nex-crm/wuphf"
-              }
-            ]
+            "status": "not_represented_in_current_canonical_receipt",
+            "matchedBy": [],
+            "canonicalMatches": []
           }
         ]
       },
@@ -26173,7 +26115,6 @@
             "repositoryId": "1312368790",
             "status": "represented_in_current_canonical_receipt",
             "matchedBy": [
-              "repository_id",
               "canonical_url"
             ],
             "canonicalMatches": [
@@ -26184,7 +26125,7 @@
                 "accountKey": "company:company-rindler:rindler-ai:",
                 "location": "repository",
                 "accountUrl": "https://github.com/rindler-ai",
-                "repositoryId": "1312368790",
+                "repositoryId": "1340065564",
                 "repositoryUrl": "https://github.com/rindler-ai/cli-releases"
               }
             ]
@@ -26326,7 +26267,6 @@
             "repositoryId": "1312368790",
             "status": "represented_in_current_canonical_receipt",
             "matchedBy": [
-              "repository_id",
               "canonical_url"
             ],
             "canonicalMatches": [
@@ -26337,7 +26277,7 @@
                 "accountKey": "company:company-rindler:rindler-ai:",
                 "location": "repository",
                 "accountUrl": "https://github.com/rindler-ai",
-                "repositoryId": "1312368790",
+                "repositoryId": "1340065564",
                 "repositoryUrl": "https://github.com/rindler-ai/cli-releases"
               }
             ]
@@ -28219,45 +28159,17 @@
             "kind": "repository",
             "canonicalUrl": "https://github.com/spekoai/typescript-adapter-vapi",
             "repositoryId": "1208175222",
-            "status": "represented_in_current_canonical_receipt",
-            "matchedBy": [
-              "repository_id",
-              "canonical_url"
-            ],
-            "canonicalMatches": [
-              {
-                "entityType": "company",
-                "entityId": "company-speko",
-                "entityName": "Speko",
-                "accountKey": "company:company-speko:spekoai:",
-                "location": "repository",
-                "accountUrl": "https://github.com/spekoai",
-                "repositoryId": "1208175222",
-                "repositoryUrl": "https://github.com/spekoai/typescript-adapter-vapi"
-              }
-            ]
+            "status": "not_represented_in_current_canonical_receipt",
+            "matchedBy": [],
+            "canonicalMatches": []
           },
           {
             "kind": "repository",
             "canonicalUrl": "https://github.com/spekoai/typescript-adapter-retell",
             "repositoryId": "1208175228",
-            "status": "represented_in_current_canonical_receipt",
-            "matchedBy": [
-              "repository_id",
-              "canonical_url"
-            ],
-            "canonicalMatches": [
-              {
-                "entityType": "company",
-                "entityId": "company-speko",
-                "entityName": "Speko",
-                "accountKey": "company:company-speko:spekoai:",
-                "location": "repository",
-                "accountUrl": "https://github.com/spekoai",
-                "repositoryId": "1208175228",
-                "repositoryUrl": "https://github.com/spekoai/typescript-adapter-retell"
-              }
-            ]
+            "status": "not_represented_in_current_canonical_receipt",
+            "matchedBy": [],
+            "canonicalMatches": []
           },
           {
             "kind": "repository",

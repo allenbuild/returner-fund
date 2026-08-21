@@ -190,6 +190,50 @@
           }
         }
       ]
+    },
+    {
+      "companyId": "33022",
+      "fromSlug": "praxis-ai-2",
+      "fromName": "Praxis AI",
+      "toSlug": "praxis-robotics",
+      "toName": "Praxis Robotics",
+      "companyAccounts": {
+        "linkedin": [
+          "https://www.linkedin.com/company/130274179/admin/dashboard/"
+        ]
+      },
+      "founders": [
+        {
+          "founderId": "3752185",
+          "name": "Dev Karpe",
+          "accounts": {
+            "linkedin": [
+              "https://www.linkedin.com/in/dev-karpe"
+            ]
+          }
+        },
+        {
+          "founderId": "3748464",
+          "name": "Tommy Li",
+          "accounts": {
+            "linkedin": [
+              "https://www.linkedin.com/in/tommyli-penn/"
+            ]
+          }
+        },
+        {
+          "founderId": "2794157",
+          "name": "Rohan Seelamsetty",
+          "accounts": {
+            "linkedin": [
+              "https://www.linkedin.com/in/rohan-s-1186b2214?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=ios_app"
+            ],
+            "x": [
+              "https://x.com/ro_seelamsetty"
+            ]
+          }
+        }
+      ]
     }
   ],
   "founderTransitions": [
@@ -431,6 +475,172 @@
       "accounts": {
         "linkedin": [
           "https://www.linkedin.com/in/conrad-fr%C3%B8yland-moe-7950b1229/"
+        ]
+      }
+    },
+    {
+      "companyId": "33936",
+      "companySlug": "conifer",
+      "companyName": "Conifer",
+      "founderId": "3606209",
+      "change": "added",
+      "fromName": null,
+      "toName": "Yavuz Inan",
+      "accounts": {
+        "linkedin": [
+          "https://www.linkedin.com/in/yavuz-selim-inan/"
+        ]
+      }
+    },
+    {
+      "companyId": "32484",
+      "companySlug": "edotenv",
+      "companyName": "EdotEnv",
+      "founderId": "2995240",
+      "change": "added",
+      "fromName": null,
+      "toName": "Michael Zhang",
+      "accounts": {
+        "linkedin": [
+          "https://www.linkedin.com/in/michael-zhang-845204232/"
+        ],
+        "x": [
+          "https://x.com/Michaelz1914"
+        ]
+      }
+    },
+    {
+      "companyId": "32987",
+      "companySlug": "familiar",
+      "companyName": "Familiar",
+      "founderId": "3987056",
+      "change": "added",
+      "fromName": null,
+      "toName": "Xu Zheng",
+      "accounts": {
+        "linkedin": [
+          "https://www.linkedin.com/in/xu-zheng-3185642a6/"
+        ]
+      }
+    },
+    {
+      "companyId": "33144",
+      "companySlug": "grip",
+      "companyName": "Grip",
+      "founderId": "3678142",
+      "change": "added",
+      "fromName": null,
+      "toName": "Stanislaw Piasecki",
+      "accounts": {
+        "linkedin": [
+          "https://www.linkedin.com/in/stanislaw-piasecki/"
+        ]
+      }
+    },
+    {
+      "companyId": "32190",
+      "companySlug": "instaplay",
+      "companyName": "Instaplay",
+      "founderId": "957153",
+      "change": "added",
+      "fromName": null,
+      "toName": "Akhil Aggarwal",
+      "accounts": {
+        "linkedin": [
+          "https://linkedin.com/in/akhil--aggarwal"
+        ]
+      }
+    },
+    {
+      "companyId": "32913",
+      "companySlug": "pacific",
+      "companyName": "Pacific",
+      "founderId": "3218344",
+      "change": "removed",
+      "fromName": "Harper Dammann Smith",
+      "toName": null,
+      "accounts": {
+        "linkedin": [
+          "https://www.linkedin.com/in/harper-dammann-smith/"
+        ],
+        "x": [
+          "https://x.com/harperdammann?s=21"
+        ]
+      }
+    },
+    {
+      "companyId": "33059",
+      "companySlug": "palisade-2",
+      "companyName": "Palisade",
+      "founderId": "2688178",
+      "change": "added",
+      "fromName": null,
+      "toName": "Fnu Prince",
+      "accounts": {
+        "linkedin": [
+          "https://www.linkedin.com/in/fnu-prince-a98405276/"
+        ]
+      }
+    },
+    {
+      "companyId": "32625",
+      "companySlug": "qlo",
+      "companyName": "Qlo",
+      "founderId": "3743083",
+      "change": "added",
+      "fromName": null,
+      "toName": "Liv Huang",
+      "accounts": {
+        "linkedin": [
+          "https://www.linkedin.com/in/livhg"
+        ]
+      }
+    },
+    {
+      "companyId": "33349",
+      "companySlug": "robocurve",
+      "companyName": "Robocurve",
+      "founderId": "1676798",
+      "change": "removed",
+      "fromName": "Aris Zhu",
+      "toName": null,
+      "accounts": {
+        "linkedin": [
+          "https://www.linkedin.com/in/aris-zhu/"
+        ]
+      }
+    },
+    {
+      "companyId": "32751",
+      "companySlug": "vestris",
+      "companyName": "Vestris",
+      "founderId": "3411757",
+      "change": "added",
+      "fromName": null,
+      "toName": "Joshua Tang",
+      "accounts": {
+        "linkedin": [
+          "https://www.linkedin.com/in/joshua-tang-449717279/"
+        ],
+        "x": [
+          "https://x.com/joshtang07"
+        ]
+      }
+    },
+    {
+      "companyId": "32751",
+      "companySlug": "vestris",
+      "companyName": "Vestris",
+      "founderId": "3411947",
+      "change": "added",
+      "fromName": null,
+      "toName": "Aahil Valliani",
+      "accounts": {
+        "linkedin": [
+          "https://www.linkedin.com/in/aahil-valliani"
+        ],
+        "x": [
+          "https://x.com/aahil__val"
         ]
       }
     }
