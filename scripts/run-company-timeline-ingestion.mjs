@@ -32,16 +32,27 @@ const adminTaskDrain = await runTimelineAdminTaskDrain({
   concurrency: 8,
   perFetchTimeoutMs: 8_000,
 });
-const receipt = await runTimelineDiscoveryIngestion({
-  client,
-  runId: args.runId,
-  workerId: args.workerId,
-  companies: inventory,
-  env: process.env,
-  budgetMs: discoveryBudgetMs,
-  concurrency: 8,
-  perFetchTimeoutMs: 8_000,
-});
+const receipt = adminTaskDrain.status === "migration_unavailable"
+  ? {
+      status: "migration_unavailable",
+      reason: adminTaskDrain.reason,
+      companyCount: inventory.length,
+      sourceDocuments: 0,
+      candidates: 0,
+      publishedEvents: 0,
+      unresolvedDates: 0,
+      deadLetteredTasks: 0,
+    }
+  : await runTimelineDiscoveryIngestion({
+      client,
+      runId: args.runId,
+      workerId: args.workerId,
+      companies: inventory,
+      env: process.env,
+      budgetMs: discoveryBudgetMs,
+      concurrency: 8,
+      perFetchTimeoutMs: 8_000,
+    });
 process.stdout.write(`${JSON.stringify({ ...receipt, adminTaskDrain })}\n`);
 
 function parseArgs(values) {

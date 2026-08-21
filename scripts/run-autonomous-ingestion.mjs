@@ -5261,6 +5261,15 @@ async function runTimelineDiscoveryBeforeBackfill(catalogState) {
     cwd: root
   });
   const receipt = JSON.parse(result.stdout.trim());
+  if (receipt.status === "migration_unavailable") {
+    await event(
+      "timeline.discovery.skipped",
+      "warning",
+      "Company Timeline admin migration is unavailable; durable discovery and artifact regeneration were skipped while last-good Timeline artifacts remain in place.",
+      receipt
+    );
+    return receipt;
+  }
   await event(
     "timeline.discovery.persisted",
     receipt.deadLetteredTasks ? "warning" : "info",
@@ -5389,11 +5398,13 @@ async function buildAndValidatePublication(publicationRunId, catalogState) {
   });
   // Durable discovery runs against the just-refreshed canonical inventory and
   // must reach terminal source coverage before the artifact backfill reads
-  // published database events. A failure aborts publication, preserving the
-  // repository's last-good timeline artifacts.
-  await runTimelineDiscoveryBeforeBackfill(catalogState);
+  // published database events. Ordinary failures abort publication. If only
+  // the optional admin RPC migration is unavailable, the unchanged last-good
+  // Timeline artifacts remain validated and publish alongside the fresh graph.
+  const timelineDiscoveryReceipt = await runTimelineDiscoveryBeforeBackfill(catalogState);
   const timelineDatabaseSnapshotPath = join(workRoot, "timeline-database-snapshot.json");
-  if (durableStorageConfigured) {
+  const preserveLastGoodTimeline = timelineDiscoveryReceipt?.status === "migration_unavailable";
+  if (durableStorageConfigured && !preserveLastGoodTimeline) {
     await runCommand(process.execPath, [
       "--experimental-strip-types",
       "--loader",
@@ -5409,32 +5420,34 @@ async function buildAndValidatePublication(publicationRunId, catalogState) {
       cwd: root
     });
   }
-  const timelineBackfillEnv = durableStorageConfigured
-    ? {
-        TIMELINE_REQUIRE_DATABASE: "true",
-        SCORING_DATA_ROOT: targetRoot
-      }
-    : {
-        TIMELINE_REQUIRE_DATABASE: "false",
-        SCORING_DATA_ROOT: targetRoot
-      };
-  await runCommand(process.execPath, [
-    "--experimental-strip-types",
-    "--loader",
-    sourcePath("scripts", "lib", "scoring-diagnostics-ts-loader.mjs"),
-    sourcePath("scripts", "backfill-company-timelines.mjs"),
-    `--root=${targetRoot}`,
-    "--resume",
-    ...(durableStorageConfigured
-      ? [`--database-snapshot=${timelineDatabaseSnapshotPath}`]
-      : [])
-  ], {
-    timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.timelineBackfillMs,
-    label: "company timeline backfill",
-    envCategory: "timeline_backfill",
-    env: timelineBackfillEnv,
-    cwd: targetRoot
-  });
+  if (!preserveLastGoodTimeline) {
+    const timelineBackfillEnv = durableStorageConfigured
+      ? {
+          TIMELINE_REQUIRE_DATABASE: "true",
+          SCORING_DATA_ROOT: targetRoot
+        }
+      : {
+          TIMELINE_REQUIRE_DATABASE: "false",
+          SCORING_DATA_ROOT: targetRoot
+        };
+    await runCommand(process.execPath, [
+      "--experimental-strip-types",
+      "--loader",
+      sourcePath("scripts", "lib", "scoring-diagnostics-ts-loader.mjs"),
+      sourcePath("scripts", "backfill-company-timelines.mjs"),
+      `--root=${targetRoot}`,
+      "--resume",
+      ...(durableStorageConfigured
+        ? [`--database-snapshot=${timelineDatabaseSnapshotPath}`]
+        : [])
+    ], {
+      timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.timelineBackfillMs,
+      label: "company timeline backfill",
+      envCategory: "timeline_backfill",
+      env: timelineBackfillEnv,
+      cwd: targetRoot
+    });
+  }
   await runCommand(process.execPath, [sourcePath("scripts", "validate-timeline-artifacts.mjs")], {
     timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.artifactValidationMs,
     label: "company timeline artifact validation",
