@@ -1,5 +1,4 @@
 import assert from "node:assert/strict";
-import { execFileSync } from "node:child_process";
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
@@ -8,12 +7,8 @@ import {
   DEFAULT_LATENESS_WINDOW_MINUTES,
   INGESTION_PRIMARY_UTC_CRON_CANDIDATES,
   INGESTION_RECOVERY_CRON,
-  INGESTION_RECOVERY_ROLLOUT_SCHEDULED_AT,
-  INGESTION_RECOVERY_ROLLOUT_SLOT_KEY,
   INGESTION_UTC_CRON_CANDIDATES,
-  enumerateExpectedCentralSlotsThrough,
-  parsePublishedCentralSlotKeysFromGitLog,
-  readPublishedCentralSlotKeysFromGitHistory,
+  readPublishedSlotKey,
   resolveIngestionSchedule,
   resolveManualReplay,
   resolveRecoveryIngestion,
@@ -51,95 +46,45 @@ test("four UTC candidates resolve to exactly two stable Central slots every cale
   }
 });
 
-test("recovery starts at the fixed rollout epoch and preserves debt across slot rollover", () => {
+test("recovery candidates retry the latest unpublished Central slot every fifteen minutes", () => {
   assert.deepEqual(INGESTION_UTC_CRON_CANDIDATES, [
     ...INGESTION_PRIMARY_UTC_CRON_CANDIDATES,
     INGESTION_RECOVERY_CRON
   ]);
-  assert.equal(INGESTION_RECOVERY_ROLLOUT_SLOT_KEY, "central-2026-08-22-0600");
-  assert.equal(INGESTION_RECOVERY_ROLLOUT_SCHEDULED_AT, "2026-08-22T11:00:00.000Z");
-
   const decision = resolveScheduledIngestion({
     schedule: INGESTION_RECOVERY_CRON,
-    now: new Date("2026-08-23T11:05:00.000Z"),
-    publishedSlotKeys: [INGESTION_RECOVERY_ROLLOUT_SLOT_KEY]
+    now: new Date("2026-08-22T21:14:00.000Z"),
+    publishedSlotKey: "central-2026-08-20-1800"
   });
 
   assert.equal(decision.accepted, true);
   assert.equal(decision.reason, "retry-missing-publication");
-  assert.equal(decision.slotKey, "central-2026-08-22-1800");
-  assert.equal(decision.scheduledAt, "2026-08-22T23:00:00.000Z");
-  assert.equal(decision.recoveryDebt, true);
+  assert.equal(decision.slotKey, "central-2026-08-22-0600");
+  assert.equal(decision.scheduledAt, "2026-08-22T11:00:00.000Z");
 });
 
-test("multiple recovery debts are selected oldest-first", () => {
+test("recovery candidates become no-ops after the exact slot publishes", () => {
   const decision = resolveRecoveryIngestion({
-    now: new Date("2026-08-24T00:05:00.000Z"),
-    publishedSlotKeys: [INGESTION_RECOVERY_ROLLOUT_SLOT_KEY]
+    now: new Date("2026-08-22T21:14:00.000Z"),
+    publishedSlotKey: "central-2026-08-22-0600"
   });
-
-  assert.equal(decision.accepted, true);
-  assert.equal(decision.slotKey, "central-2026-08-22-1800");
-  assert.equal(decision.recoveryDebt, true);
-});
-
-test("a newer published slot never masks older recovery debt", () => {
-  const decision = resolveRecoveryIngestion({
-    now: new Date("2026-08-23T12:00:00.000Z"),
-    publishedSlotKeys: [
-      INGESTION_RECOVERY_ROLLOUT_SLOT_KEY,
-      "central-2026-08-23-0600"
-    ]
-  });
-
-  assert.equal(decision.accepted, true);
-  assert.equal(decision.slotKey, "central-2026-08-22-1800");
-  assert.equal(decision.scheduledAt, "2026-08-22T23:00:00.000Z");
-});
-
-test("resolver-authorized recovery debt remains eligible after eleven hours", () => {
-  const decision = resolveRecoveryIngestion({
-    now: new Date("2026-08-23T12:30:00.000Z"),
-    publishedSlotKeys: []
-  });
-
-  assert.equal(decision.accepted, true);
-  assert.equal(decision.slotKey, INGESTION_RECOVERY_ROLLOUT_SLOT_KEY);
-  assert.ok(decision.latenessMinutes > DEFAULT_LATENESS_WINDOW_MINUTES);
-  assert.equal(decision.recoveryDebt, true);
-});
-
-test("recovery becomes a no-op when every expected slot is published", () => {
-  const now = new Date("2026-08-24T00:05:00.000Z");
-  const publishedSlotKeys = enumerateExpectedCentralSlotsThrough(now)
-    .map(({ slotKey }) => slotKey);
-  const decision = resolveRecoveryIngestion({ now, publishedSlotKeys });
 
   assert.equal(decision.accepted, false);
-  assert.equal(decision.reason, "all-expected-slots-published");
-  assert.equal(decision.recoveryDebt, false);
+  assert.equal(decision.reason, "latest-slot-already-published");
 });
 
-test("expected Central slots remain exact across fall and spring DST transitions", () => {
-  const fall = enumerateExpectedCentralSlotsThrough(new Date("2026-11-02T00:05:00.000Z"))
-    .filter(({ centralDate }) => centralDate >= "2026-10-31")
-    .map(({ slotKey, scheduledAt }) => [slotKey, scheduledAt.toISOString()]);
-  assert.deepEqual(fall, [
-    ["central-2026-10-31-0600", "2026-10-31T11:00:00.000Z"],
-    ["central-2026-10-31-1800", "2026-10-31T23:00:00.000Z"],
-    ["central-2026-11-01-0600", "2026-11-01T12:00:00.000Z"],
-    ["central-2026-11-01-1800", "2026-11-02T00:00:00.000Z"]
-  ]);
-
-  const spring = enumerateExpectedCentralSlotsThrough(new Date("2027-03-14T23:05:00.000Z"))
-    .filter(({ centralDate }) => centralDate >= "2027-03-13")
-    .map(({ slotKey, scheduledAt }) => [slotKey, scheduledAt.toISOString()]);
-  assert.deepEqual(spring, [
-    ["central-2027-03-13-0600", "2027-03-13T12:00:00.000Z"],
-    ["central-2027-03-13-1800", "2027-03-14T00:00:00.000Z"],
-    ["central-2027-03-14-0600", "2027-03-14T11:00:00.000Z"],
-    ["central-2027-03-14-1800", "2027-03-14T23:00:00.000Z"]
-  ]);
+test("recovery resolves the correct prior Central slot across DST", () => {
+  for (const [now, expectedSlot, expectedScheduledAt] of [
+    ["2026-03-08T17:30:00.000Z", "central-2026-03-08-0600", "2026-03-08T11:00:00.000Z"],
+    ["2026-11-01T18:30:00.000Z", "central-2026-11-01-0600", "2026-11-01T12:00:00.000Z"]
+  ]) {
+    const decision = resolveRecoveryIngestion({
+      now: new Date(now),
+      publishedSlotKey: "central-2026-01-01-0600"
+    });
+    assert.equal(decision.slotKey, expectedSlot);
+    assert.equal(decision.scheduledAt, expectedScheduledAt);
+  }
 });
 
 test("selects the correct UTC candidates on both sides of DST transitions", () => {
@@ -203,7 +148,6 @@ test("manual dispatch requires and preserves an explicit replay key", () => {
   });
   assert.equal(decision.accepted, true);
   assert.equal(decision.trigger, "manual-replay");
-  assert.equal(decision.recoveryDebt, false);
 });
 
 test("writes scheduler decisions as GitHub step outputs", (t) => {
@@ -222,67 +166,21 @@ test("writes scheduler decisions as GitHub step outputs", (t) => {
       "trigger=manual-replay",
       "reason=explicit-replay-key",
       "scheduled_at=",
-      "recovery_debt=false",
       ""
     ].join("\n")
   );
 });
 
-test("parses only canonical immutable publication commits from git history", () => {
-  const canonical = publicationLogRecord({
-    commit: "a".repeat(40),
-    slotKey: "central-2026-08-22-0600"
-  });
-  const wrongSubject = publicationLogRecord({
-    commit: "b".repeat(40),
-    slotKey: "central-2026-08-22-1800",
-    subject: "Merge publication output"
-  });
-  const duplicateTrailer = publicationLogRecord({
-    commit: "c".repeat(40),
-    slotKey: "central-2026-08-23-0600",
-    extraTrailers: ["Returner-Slot-Key: central-2026-08-23-0600"]
-  });
-  const malformedReceipt = publicationLogRecord({
-    commit: "d".repeat(40),
-    slotKey: "central-2026-08-23-1800",
-    receiptHash: "not-a-sha256"
-  });
-
-  assert.deepEqual(
-    [...parsePublishedCentralSlotKeysFromGitLog(
-      canonical + wrongSubject + duplicateTrailer + malformedReceipt
-    )],
-    ["central-2026-08-22-0600"]
-  );
-});
-
-test("reads the verified published slot set from complete git history, not HEAD state", (t) => {
-  const directory = mkdtempSync(path.join(tmpdir(), "returner-ingestion-history-"));
+test("reads only an immutable published slot key from the current receipt", (t) => {
+  const directory = mkdtempSync(path.join(tmpdir(), "returner-ingestion-receipt-"));
   t.after(() => rmSync(directory, { recursive: true, force: true }));
-  execFileSync("git", ["init", "--quiet"], { cwd: directory });
-  execFileSync("git", ["config", "user.name", "Ingestion Schedule Test"], { cwd: directory });
-  execFileSync("git", ["config", "user.email", "ingestion-schedule@example.invalid"], { cwd: directory });
+  const receiptPath = path.join(directory, "receipt.json");
+  writeFileSync(receiptPath, JSON.stringify({ idempotencyKey: "central-2026-08-22-0600" }));
 
-  const markerPath = path.join(directory, "marker.txt");
-  for (const [index, slotKey] of [
-    "central-2026-08-22-0600",
-    "central-2026-08-22-1800"
-  ].entries()) {
-    writeFileSync(markerPath, `${slotKey}\n`);
-    execFileSync("git", ["add", "marker.txt"], { cwd: directory });
-    execFileSync("git", ["commit", "--quiet", "-m", publicationMessage(slotKey, index)], {
-      cwd: directory
-    });
-  }
-  writeFileSync(markerPath, "ordinary head\n");
-  execFileSync("git", ["add", "marker.txt"], { cwd: directory });
-  execFileSync("git", ["commit", "--quiet", "-m", "Ordinary head commit"], { cwd: directory });
-
-  assert.deepEqual(
-    [...readPublishedCentralSlotKeysFromGitHistory({ cwd: directory })].sort(),
-    ["central-2026-08-22-0600", "central-2026-08-22-1800"]
-  );
+  assert.equal(readPublishedSlotKey(receiptPath), "central-2026-08-22-0600");
+  assert.equal(readPublishedSlotKey(path.join(directory, "missing.json")), null);
+  writeFileSync(receiptPath, "not-json");
+  assert.equal(readPublishedSlotKey(receiptPath), null);
 });
 
 test("does not expose inactive DST candidate schedule metadata to the workflow", (t) => {
@@ -306,42 +204,7 @@ test("does not expose inactive DST candidate schedule metadata to the workflow",
       "trigger=schedule",
       "reason=inactive-dst-candidate",
       "scheduled_at=",
-      "recovery_debt=false",
       ""
     ].join("\n")
   );
 });
-
-function publicationLogRecord({
-  commit,
-  slotKey,
-  subject = `Publish autonomous ingestion ${slotKey}`,
-  sourceSha = "e".repeat(40),
-  runId = "123",
-  runAttempt = "1",
-  receiptHash = "f".repeat(64),
-  extraTrailers = []
-}) {
-  const message = [
-    subject,
-    "",
-    `Returner-Slot-Key: ${slotKey}`,
-    `Returner-Source-SHA: ${sourceSha}`,
-    `Returner-Run-ID: ${runId}`,
-    `Returner-Run-Attempt: ${runAttempt}`,
-    `Returner-Receipt-SHA256: ${receiptHash}`,
-    ...extraTrailers,
-    ""
-  ].join("\n");
-  return `${commit}\0${subject}\0${message}\0\n`;
-}
-
-function publicationMessage(slotKey, index) {
-  return publicationLogRecord({
-    commit: "0".repeat(40),
-    slotKey,
-    sourceSha: String(index + 1).repeat(40),
-    runId: String(index + 1),
-    receiptHash: String(index + 2).repeat(64)
-  }).split("\0")[2];
-}

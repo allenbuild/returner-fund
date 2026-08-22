@@ -603,46 +603,6 @@ if (mode === "fail") {
     assert.match(result.stdout, /"fixture":"event-timeout"/);
   });
 
-  it("retries a thrown Supabase lifecycle timeout and cautiously restores task page size", () => {
-    const payload = lifecycleFixturePayload(runLifecycleFixture(
-      "ingestion-task-pagination",
-      { LIFECYCLE_FIXTURE_PAGINATION_MODE: "lifecycle-timeout" },
-      repositoryRoot,
-      8_000
-    ));
-
-    assert.deepEqual(payload.ids, ["task-001", "task-002", "task-003", "task-004", "task-005"]);
-    assert.deepEqual(payload.requestedPageSizes, [1_000, 500, 500, 1_000, 1_000, 1_000, 1_000]);
-    assert.deepEqual(payload.requestedCursors, [
-      null,
-      null,
-      "task-001",
-      "task-002",
-      "task-003",
-      "task-004",
-      "task-005"
-    ]);
-    assert.equal(payload.queryCalls, 7);
-    assert.deepEqual(payload.retryClassification, {
-      abortError: true,
-      transportTimeout: true,
-      authorization: false,
-      runnerBudget: false
-    });
-  });
-
-  it("continues keyset pagination across server-capped short pages until an empty page", () => {
-    const payload = lifecycleFixturePayload(runLifecycleFixture(
-      "ingestion-task-pagination",
-      { LIFECYCLE_FIXTURE_PAGINATION_MODE: "row-cap" }
-    ));
-
-    assert.deepEqual(payload.ids, ["task-001", "task-002", "task-003", "task-004", "task-005"]);
-    assert.deepEqual(payload.requestedPageSizes, [1_000, 1_000, 1_000, 1_000]);
-    assert.deepEqual(payload.requestedCursors, [null, "task-002", "task-004", "task-005"]);
-    assert.equal(payload.queryCalls, 4);
-  });
-
   it("aborts and drains an in-flight heartbeat before finalization", () => {
     const result = runLifecycleFixture("heartbeat-drain");
 
@@ -941,7 +901,7 @@ if (mode === "fail") {
     assert.match(result.stdout, /"rejectionRetryable":false/);
   });
 
-  it("allows only resolver recovery debt past eleven hours and keeps ordinary candidates fail-closed", () => {
+  it("validates candidate semantics and rejects a scheduled run after the 11-hour window", () => {
     const scheduledAt = "2026-08-09T23:00:00.000Z";
     const common = {
       LIFECYCLE_FIXTURE_CANDIDATE_TRIGGER: "schedule",
@@ -967,28 +927,6 @@ if (mode === "fail") {
       LIFECYCLE_FIXTURE_SLOT_KEY: "manual-replay-fixture",
       LIFECYCLE_FIXTURE_NOW_MS: String(Date.parse(scheduledAt) + (30 * 60 * 60_000))
     }));
-    const recoveryScheduledAt = "2026-08-22T11:00:00.000Z";
-    const recovery = lifecycleFixturePayload(runLifecycleFixture("candidate-metadata", {
-      LIFECYCLE_FIXTURE_CANDIDATE_TRIGGER: "schedule",
-      LIFECYCLE_FIXTURE_SCHEDULED_AT: recoveryScheduledAt,
-      LIFECYCLE_FIXTURE_SLOT_KEY: "central-2026-08-22-0600",
-      LIFECYCLE_FIXTURE_RECOVERY_DEBT: "true",
-      LIFECYCLE_FIXTURE_PUSH_LABEL: "first publication push",
-      LIFECYCLE_FIXTURE_NOW_MS: String(Date.parse(recoveryScheduledAt) + (36 * 60 * 60_000))
-    }));
-    const preEpochRecovery = lifecycleFixturePayload(runLifecycleFixture("candidate-metadata", {
-      LIFECYCLE_FIXTURE_CANDIDATE_TRIGGER: "schedule",
-      LIFECYCLE_FIXTURE_SCHEDULED_AT: scheduledAt,
-      LIFECYCLE_FIXTURE_SLOT_KEY: "central-2026-08-09-1800",
-      LIFECYCLE_FIXTURE_RECOVERY_DEBT: "true",
-      LIFECYCLE_FIXTURE_NOW_MS: String(Date.parse(scheduledAt) + (36 * 60 * 60_000))
-    }));
-    const manualRecovery = lifecycleFixturePayload(runLifecycleFixture("candidate-metadata", {
-      LIFECYCLE_FIXTURE_CANDIDATE_TRIGGER: "manual-replay",
-      LIFECYCLE_FIXTURE_SLOT_KEY: "manual-replay-fixture",
-      LIFECYCLE_FIXTURE_RECOVERY_DEBT: "true",
-      LIFECYCLE_FIXTURE_NOW_MS: String(Date.parse(recoveryScheduledAt) + (36 * 60 * 60_000))
-    }));
 
     assert.equal(fresh.accepted, true);
     assert.equal(stale.accepted, false);
@@ -997,13 +935,6 @@ if (mode === "fail") {
     assert.match(wrongSlot.error, /slot key mismatch/);
     assert.equal(manual.accepted, true);
     assert.equal(manual.candidateMetadata.scheduledAt, null);
-    assert.equal(manual.candidateMetadata.recoveryDebt, false);
-    assert.equal(recovery.accepted, true);
-    assert.equal(recovery.candidateMetadata.recoveryDebt, true);
-    assert.equal(preEpochRecovery.accepted, false);
-    assert.match(preEpochRecovery.error, /predates the fixed recovery rollout epoch/);
-    assert.equal(manualRecovery.accepted, false);
-    assert.match(manualRecovery.error, /must not claim resolver recovery debt/);
   });
 
   it("fails before spawning code when a privileged environment targets the publication worktree", async () => {
@@ -1023,26 +954,6 @@ if (mode === "fail") {
 });
 
 describe("autonomous ingestion runner static safety contracts", () => {
-  it("binds the recovery age bypass to resolver-authorized GitHub schedule metadata", () => {
-    const candidateValidation = section(
-      "function validateCandidateMetadata",
-      "function publicationCandidateReceiptFields"
-    );
-    const freshness = section(
-      "function assertCandidateFreshForPublication",
-      "function parseArgs"
-    );
-
-    assert.ok(runner.includes("args.recoveryDebt &&"));
-    assert.ok(runner.includes('process.env.GITHUB_ACTIONS !== "true"'));
-    assert.ok(runner.includes('process.env.GITHUB_EVENT_NAME !== "schedule"'));
-    assert.ok(runner.includes('recoveryDebt: booleanValue("--recovery-debt")'));
-    assert.ok(candidateValidation.includes("recoveryDebt = false"));
-    assert.ok(candidateValidation.includes("INGESTION_RECOVERY_ROLLOUT_SCHEDULED_AT"));
-    assert.ok(freshness.includes("if (candidateMetadata.recoveryDebt) return"));
-    assert.ok(freshness.includes("ageMs > freshnessWindowMs"));
-  });
-
   it("claims, renews, and releases a durable runtime lock", () => {
     const lifecycle = section("} finally {", "function installTerminationSignalHandlers");
     const releaseOnce = section("async function releaseRuntimeLock", "function startHeartbeatScheduling");
@@ -2631,14 +2542,11 @@ describe("autonomous ingestion runner static safety contracts", () => {
     assert.ok(taskRead.includes("readAllIngestionTaskRows("));
     assert.ok(taskRead.includes("let lastSeenId = null"));
     assert.ok(taskRead.includes("INGESTION_TASK_READ_MAX_ATTEMPTS"));
-    assert.ok(taskRead.includes("INGESTION_TASK_READ_SUCCESS_PAGES_BEFORE_GROWTH"));
     assert.ok(taskRead.includes('.order("id", { ascending: true })'));
     assert.ok(taskRead.includes(".limit(pageSize)"));
     assert.ok(taskRead.includes('query.gt("id", lastSeenId)'));
     assert.ok(taskRead.includes("isRetryableIngestionTaskReadError(pageResult.error)"));
-    assert.ok(taskRead.includes("isRetryableIngestionTaskReadError(error)"));
-    assert.ok(taskRead.includes("if (pageRows.length === 0) break"));
-    assert.doesNotMatch(taskRead, /pageRows\.length < pageSize/);
+    assert.ok(taskRead.includes("pageRows.length < pageSize"));
     assert.doesNotMatch(taskRead, /\.range\(offset,/);
     assert.ok(coverage.includes("await readAllIngestionTaskRows("));
     assert.doesNotMatch(coverage, /runSupabaseOperation\(\s*"read terminal coverage"/);

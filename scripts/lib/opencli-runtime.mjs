@@ -590,20 +590,10 @@ async function scanOwnedProcesses(owner) {
     if (row.pgid > 1) owner.groups.add(row.pgid);
   }
   for (const pid of owner.processes.keys()) {
-    const row = rows.get(pid);
-    // Linux keeps a terminated process visible as a zombie until its parent
-    // reaps it. A zombie cannot be signaled, and kill(0) still succeeds for
-    // it, so treat an exact owned zombie/settled child as drained and forget
-    // the ownership record. Never remove a live row: its identity remains
-    // required for every later signal authorization.
-    if (
-      processHasExited(owner, pid) &&
-      (!row || isProcessTerminated(row.state) || owner.processExitStates.get(pid)?.settled)
-    ) {
+    if (!rows.has(pid)) {
+      if (!processHasExited(owner, pid)) continue;
       owner.processes.delete(pid);
-      owner.roots.delete(pid);
       owner.authorizationFailures.delete(pid);
-      owner.processExitStates.delete(pid);
     }
   }
   owner.scanFailure = null;
@@ -926,7 +916,6 @@ function hasOwnedProcesses(owner, {
 
 function processHasExited(owner, pid) {
   if (owner.processExitStates.get(pid)?.settled) return true;
-  if (isProcessTerminated(owner.processes.get(pid)?.state)) return true;
   return !processIsRunning(pid);
 }
 
