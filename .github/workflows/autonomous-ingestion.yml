@@ -9,8 +9,8 @@ on:
     - cron: "0 11 * * *"
     - cron: "0 12 * * *"
     - cron: "0 23 * * *"
-    # Retry the latest intended Central slot until its immutable publication
-    # receipt lands. The resolver turns these into no-ops after publication.
+    # Retry the oldest unpublished Central slot from the fixed recovery epoch.
+    # Verified publication commits in full main history discharge each debt.
     - cron: "7,22,37,52 * * * *"
   workflow_dispatch:
     inputs:
@@ -38,12 +38,14 @@ jobs:
       trigger: ${{ steps.decision.outputs.trigger }}
       reason: ${{ steps.decision.outputs.reason }}
       scheduled_at: ${{ steps.decision.outputs.scheduled_at }}
+      recovery_debt: ${{ steps.decision.outputs.recovery_debt }}
       source_sha: ${{ steps.source.outputs.source_sha }}
     steps:
       - name: Check out repository
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           ref: ${{ github.sha }}
+          fetch-depth: 0
           persist-credentials: false
 
       - name: Record source checkout
@@ -75,6 +77,7 @@ jobs:
           TRIGGER: ${{ steps.schedule.outputs.trigger }}
           REASON: ${{ steps.schedule.outputs.reason }}
           SCHEDULED_AT: ${{ steps.schedule.outputs.scheduled_at }}
+          RECOVERY_DEBT: ${{ steps.schedule.outputs.recovery_debt }}
         run: |
           set -euo pipefail
           contains_line_break() {
@@ -99,7 +102,7 @@ jobs:
           ) process.exit(1);
           NODE
           }
-          for value in "$SHOULD_RUN" "$SLOT_KEY" "$TRIGGER" "$REASON" "$SCHEDULED_AT"; do
+          for value in "$SHOULD_RUN" "$SLOT_KEY" "$TRIGGER" "$REASON" "$SCHEDULED_AT" "$RECOVERY_DEBT"; do
             if contains_line_break "$value"; then
               echo "::error title=Malformed ingestion resolver output::Resolver outputs must not contain CR or LF characters."
               exit 1
@@ -107,6 +110,10 @@ jobs:
           done
           if [ -n "$SCHEDULED_AT" ] && ! is_strict_utc_rfc3339 "$SCHEDULED_AT"; then
             echo "::error title=Malformed ingestion resolver output::scheduled_at must be a valid UTC RFC3339 timestamp."
+            exit 1
+          fi
+          if [ "$RECOVERY_DEBT" != "true" ] && [ "$RECOVERY_DEBT" != "false" ]; then
+            echo "::error title=Malformed ingestion resolver output::recovery_debt must be exactly true or false."
             exit 1
           fi
           case "$SHOULD_RUN" in
@@ -125,8 +132,20 @@ jobs:
                     echo "::error title=Malformed ingestion resolver output::Scheduled candidates require scheduled_at."
                     exit 1
                   fi
+                  if [ "$RECOVERY_DEBT" = "true" ] && [ "$REASON" != "retry-missing-publication" ]; then
+                    echo "::error title=Malformed ingestion resolver output::Recovery debt requires retry-missing-publication authorization."
+                    exit 1
+                  fi
+                  if [ "$RECOVERY_DEBT" = "false" ] && [ "$REASON" != "intended-central-slot" ]; then
+                    echo "::error title=Malformed ingestion resolver output::Ordinary scheduled candidates require intended-central-slot authorization."
+                    exit 1
+                  fi
                   ;;
                 manual-replay)
+                  if [ "$RECOVERY_DEBT" != "false" ] || [ -n "$SCHEDULED_AT" ]; then
+                    echo "::error title=Malformed ingestion resolver output::Manual replay cannot claim recovery debt or scheduled_at metadata."
+                    exit 1
+                  fi
                   ;;
                 *)
                   echo "::error title=Malformed ingestion resolver output::Accepted trigger '$TRIGGER' is not recognized."
@@ -136,7 +155,7 @@ jobs:
               STATUS="accepted_slot"
               ;;
             false)
-              if [ -z "$TRIGGER" ] || [ -z "$REASON" ] || [ -n "$SLOT_KEY" ] || [ -n "$SCHEDULED_AT" ]; then
+              if [ -z "$TRIGGER" ] || [ -z "$REASON" ] || [ -n "$SLOT_KEY" ] || [ -n "$SCHEDULED_AT" ] || [ "$RECOVERY_DEBT" != "false" ]; then
                 echo "::error title=Malformed ingestion resolver output::Inactive candidates require trigger and reason and must not expose slot_key or scheduled_at metadata."
                 exit 1
               fi
@@ -153,6 +172,7 @@ jobs:
             echo "trigger=$TRIGGER"
             echo "reason=$REASON"
             echo "scheduled_at=$SCHEDULED_AT"
+            echo "recovery_debt=$RECOVERY_DEBT"
           } >> "$GITHUB_OUTPUT"
           {
             echo "## Autonomous ingestion candidate"
@@ -160,6 +180,7 @@ jobs:
             echo "- Slot: ${SLOT_KEY:-none}"
             echo "- Reason: $REASON"
             echo "- Scheduled at: ${SCHEDULED_AT:-n/a}"
+            echo "- Recovery debt: $RECOVERY_DEBT"
             echo "- This resolver job is not a successful data refresh receipt."
           } >> "$GITHUB_STEP_SUMMARY"
 
@@ -249,6 +270,8 @@ jobs:
           CANDIDATE_TRIGGER: ${{ needs.resolve.outputs.trigger }}
           CANDIDATE_SLOT_KEY: ${{ needs.resolve.outputs.slot_key }}
           CANDIDATE_SCHEDULED_AT: ${{ needs.resolve.outputs.scheduled_at }}
+          CANDIDATE_REASON: ${{ needs.resolve.outputs.reason }}
+          CANDIDATE_RECOVERY_DEBT: ${{ needs.resolve.outputs.recovery_debt }}
           WORKFLOW_EVENT_NAME: ${{ github.event_name }}
         run: |
           set -euo pipefail
@@ -258,23 +281,42 @@ jobs:
           fi
           node --input-type=module <<'NODE'
           import assert from "node:assert/strict";
+          import { INGESTION_RECOVERY_ROLLOUT_SCHEDULED_AT } from "./scripts/lib/ingestion-schedule.mjs";
 
           const trigger = process.env.CANDIDATE_TRIGGER ?? "";
           const slotKey = process.env.CANDIDATE_SLOT_KEY ?? "";
           const scheduledAt = process.env.CANDIDATE_SCHEDULED_AT ?? "";
+          const reason = process.env.CANDIDATE_REASON ?? "";
+          const recoveryDebtValue = process.env.CANDIDATE_RECOVERY_DEBT ?? "";
           const eventName = process.env.WORKFLOW_EVENT_NAME ?? "";
+          assert.match(recoveryDebtValue, /^(?:true|false)$/, "candidate recovery debt must be a strict boolean");
+          const recoveryDebt = recoveryDebtValue === "true";
           if (trigger === "manual-replay") {
             assert.equal(eventName, "workflow_dispatch", "manual replay must originate from workflow_dispatch");
             assert.equal(scheduledAt, "", "manual replay must not claim scheduled_at");
+            assert.equal(recoveryDebt, false, "manual replay must not claim resolver recovery debt");
             process.exit(0);
           }
           assert.equal(trigger, "schedule", "queued ingestion trigger must be schedule or manual-replay");
           assert.equal(eventName, "schedule", "scheduled ingestion must originate from a schedule event");
+          assert.equal(
+            reason,
+            recoveryDebt ? "retry-missing-publication" : "intended-central-slot",
+            "scheduled ingestion reason does not authorize its recovery-debt state"
+          );
           assert.match(slotKey, /^central-\d{4}-\d{2}-\d{2}-(?:0600|1800)$/);
           const scheduled = new Date(scheduledAt);
           assert.ok(Number.isFinite(scheduled.getTime()), "scheduled ingestion requires a valid scheduled_at");
           const ageMs = Date.now() - scheduled.getTime();
-          assert.ok(ageMs >= 0 && ageMs <= 11 * 60 * 60 * 1000, "scheduled ingestion became stale while queued");
+          assert.ok(ageMs >= 0, "scheduled ingestion cannot be in the future");
+          if (recoveryDebt) {
+            assert.ok(
+              scheduled.getTime() >= Date.parse(INGESTION_RECOVERY_ROLLOUT_SCHEDULED_AT),
+              "recovery debt predates the fixed rollout epoch"
+            );
+          } else {
+            assert.ok(ageMs <= 11 * 60 * 60 * 1000, "scheduled ingestion became stale while queued");
+          }
           const parts = Object.fromEntries(new Intl.DateTimeFormat("en-US", {
             timeZone: "America/Chicago",
             calendar: "gregory",
@@ -306,6 +348,7 @@ jobs:
           INGESTION_IDEMPOTENCY_KEY: ${{ needs.resolve.outputs.slot_key }}
           CANDIDATE_TRIGGER: ${{ needs.resolve.outputs.trigger }}
           CANDIDATE_SCHEDULED_AT: ${{ needs.resolve.outputs.scheduled_at }}
+          CANDIDATE_RECOVERY_DEBT: ${{ needs.resolve.outputs.recovery_debt }}
           INGESTION_PUBLICATION_BRANCH: main
           AUTHENTICATED_SOCIAL_REPLAY: ${{ inputs.authenticated_backfill || false }}
         run: |
@@ -320,6 +363,7 @@ jobs:
             --idempotency-key="$INGESTION_IDEMPOTENCY_KEY" \
             --candidate-trigger="$CANDIDATE_TRIGGER" \
             --scheduled-at="$CANDIDATE_SCHEDULED_AT" \
+            --recovery-debt="$CANDIDATE_RECOVERY_DEBT" \
             --authenticated-social-replay="$AUTHENTICATED_SOCIAL_REPLAY"
 
       - name: Verify publication credential isolation

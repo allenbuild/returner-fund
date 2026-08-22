@@ -110,8 +110,9 @@ test("accepted runs share the repository publication lane without delaying inact
   assert.match(workflow, /permissions:\s*\n\s*contents:\s*read/);
   assert.match(workflow, /ingest:[\s\S]*?permissions:\s*\n\s*contents:\s*write/);
   const resolverJob = workflow.match(/\n  resolve:[\s\S]*?(?=\n  ingest:)/)?.[0] ?? "";
-  assert.match(resolverJob, /uses:\s*actions\/checkout@[0-9a-f]{40}\s+# v4[\s\S]*?ref:\s*\$\{\{ github\.sha \}\}[\s\S]*?persist-credentials:\s*false/);
+  assert.match(resolverJob, /uses:\s*actions\/checkout@[0-9a-f]{40}\s+# v4[\s\S]*?ref:\s*\$\{\{ github\.sha \}\}[\s\S]*?fetch-depth:\s*0[\s\S]*?persist-credentials:\s*false/);
   assert.match(resolverJob, /source_sha:\s*\$\{\{ steps\.source\.outputs\.source_sha \}\}/);
+  assert.match(resolverJob, /recovery_debt:\s*\$\{\{ steps\.decision\.outputs\.recovery_debt \}\}/);
 });
 
 test("daily benchmarks resolve DST before entering the shared publication lane", () => {
@@ -169,12 +170,28 @@ test("accepted resolver jobs fail closed and re-export only validated outputs", 
     TRIGGER: "schedule",
     REASON: "intended-central-slot",
     SCHEDULED_AT: "2026-08-09T23:00:00.000Z",
+    RECOVERY_DEBT: "false",
     GITHUB_OUTPUT: ingestionOutput,
     GITHUB_STEP_SUMMARY: "/dev/null"
   });
   assert.equal(validIngestion.status, 0, `${validIngestion.stdout}\n${validIngestion.stderr}`);
   assert.match(readFileSync(ingestionOutput, "utf8"), /should_run=true/);
   assert.match(readFileSync(ingestionOutput, "utf8"), /slot_key=central-2026-08-09-1800/);
+  assert.match(readFileSync(ingestionOutput, "utf8"), /recovery_debt=false/);
+
+  const recoveryOutput = path.join(directory, "ingestion-recovery-output");
+  const validRecovery = runScript(ingestionScript, repositoryRoot, {
+    SHOULD_RUN: "true",
+    SLOT_KEY: "central-2026-08-22-0600",
+    TRIGGER: "schedule",
+    REASON: "retry-missing-publication",
+    SCHEDULED_AT: "2026-08-22T11:00:00.000Z",
+    RECOVERY_DEBT: "true",
+    GITHUB_OUTPUT: recoveryOutput,
+    GITHUB_STEP_SUMMARY: "/dev/null"
+  });
+  assert.equal(validRecovery.status, 0, `${validRecovery.stdout}\n${validRecovery.stderr}`);
+  assert.match(readFileSync(recoveryOutput, "utf8"), /recovery_debt=true/);
 
   for (const overrides of [
     { SHOULD_RUN: "" },
@@ -184,6 +201,10 @@ test("accepted resolver jobs fail closed and re-export only validated outputs", 
     { TRIGGER: "schedule", SCHEDULED_AT: "not-a-timestamp" },
     { TRIGGER: "schedule", SCHEDULED_AT: "2026-02-30T23:00:00Z" },
     { TRIGGER: "schedule", SCHEDULED_AT: "2026-08-09T23:00:00+00:00" },
+    { RECOVERY_DEBT: "" },
+    { RECOVERY_DEBT: "TRUE" },
+    { RECOVERY_DEBT: "true", REASON: "intended-central-slot" },
+    { RECOVERY_DEBT: "false", REASON: "retry-missing-publication" },
     { SLOT_KEY: "central-2026-08-09-1800\nforged=true" },
     { REASON: "intended-central-slot\rforged=true" },
     { TRIGGER: "unknown" },
@@ -200,6 +221,7 @@ test("accepted resolver jobs fail closed and re-export only validated outputs", 
       TRIGGER: "schedule",
       REASON: "intended-central-slot",
       SCHEDULED_AT: "2026-08-09T23:00:00.000Z",
+      RECOVERY_DEBT: "false",
       GITHUB_OUTPUT: path.join(directory, `invalid-ingestion-${Math.random()}`),
       GITHUB_STEP_SUMMARY: "/dev/null",
       ...overrides
@@ -256,6 +278,7 @@ test("accepted resolver jobs fail closed and re-export only validated outputs", 
     TRIGGER: "schedule",
     REASON: "not-the-intended-central-slot",
     SCHEDULED_AT: "",
+    RECOVERY_DEBT: "false",
     GITHUB_OUTPUT: path.join(directory, "inactive-ingestion-output"),
     GITHUB_STEP_SUMMARY: "/dev/null"
   });
@@ -377,6 +400,8 @@ test("all workflow shell blocks remain fixed at 55 and queued schedules are rech
     CANDIDATE_TRIGGER: "schedule",
     CANDIDATE_SLOT_KEY: "central-2026-08-08-1800",
     CANDIDATE_SCHEDULED_AT: "2026-08-08T23:00:00.000Z",
+    CANDIDATE_REASON: "intended-central-slot",
+    CANDIDATE_RECOVERY_DEBT: "false",
     WORKFLOW_EVENT_NAME: "schedule"
   });
   assert.equal(freshIngestion.status, 0, `${freshIngestion.stdout}\n${freshIngestion.stderr}`);
@@ -386,6 +411,8 @@ test("all workflow shell blocks remain fixed at 55 and queued schedules are rech
     CANDIDATE_TRIGGER: "schedule",
     CANDIDATE_SLOT_KEY: "central-2026-08-08-0600",
     CANDIDATE_SCHEDULED_AT: "2026-08-08T11:00:00.000Z",
+    CANDIDATE_REASON: "intended-central-slot",
+    CANDIDATE_RECOVERY_DEBT: "false",
     WORKFLOW_EVENT_NAME: "schedule"
   });
   assert.notEqual(staleIngestion.status, 0);
@@ -396,9 +423,52 @@ test("all workflow shell blocks remain fixed at 55 and queued schedules are rech
     CANDIDATE_TRIGGER: "manual-replay",
     CANDIDATE_SLOT_KEY: "manual-replay-fixture",
     CANDIDATE_SCHEDULED_AT: "",
+    CANDIDATE_REASON: "explicit-replay-key",
+    CANDIDATE_RECOVERY_DEBT: "false",
     WORKFLOW_EVENT_NAME: "workflow_dispatch"
   });
   assert.equal(manualIngestion.status, 0, `${manualIngestion.stdout}\n${manualIngestion.stderr}`);
+
+  const recoveryClock = path.join(directory, "freeze-recovery-clock.cjs");
+  writeFileSync(recoveryClock, 'Date.now = () => Date.parse("2026-08-24T00:00:00.000Z");\n');
+  const authorizedRecovery = runScript(ingestionFreshness, repositoryRoot, {
+    NODE_OPTIONS: `--require=${recoveryClock}`,
+    CANDIDATE_TRIGGER: "schedule",
+    CANDIDATE_SLOT_KEY: "central-2026-08-22-0600",
+    CANDIDATE_SCHEDULED_AT: "2026-08-22T11:00:00.000Z",
+    CANDIDATE_REASON: "retry-missing-publication",
+    CANDIDATE_RECOVERY_DEBT: "true",
+    WORKFLOW_EVENT_NAME: "schedule"
+  });
+  assert.equal(
+    authorizedRecovery.status,
+    0,
+    `${authorizedRecovery.stdout}\n${authorizedRecovery.stderr}`
+  );
+
+  const falseRecoveryClaim = runScript(ingestionFreshness, repositoryRoot, {
+    NODE_OPTIONS: `--require=${recoveryClock}`,
+    CANDIDATE_TRIGGER: "schedule",
+    CANDIDATE_SLOT_KEY: "central-2026-08-22-0600",
+    CANDIDATE_SCHEDULED_AT: "2026-08-22T11:00:00.000Z",
+    CANDIDATE_REASON: "intended-central-slot",
+    CANDIDATE_RECOVERY_DEBT: "true",
+    WORKFLOW_EVENT_NAME: "schedule"
+  });
+  assert.notEqual(falseRecoveryClaim.status, 0);
+  assert.match(falseRecoveryClaim.stderr, /reason does not authorize its recovery-debt state/);
+
+  const preEpochRecovery = runScript(ingestionFreshness, repositoryRoot, {
+    NODE_OPTIONS: `--require=${recoveryClock}`,
+    CANDIDATE_TRIGGER: "schedule",
+    CANDIDATE_SLOT_KEY: "central-2026-08-21-1800",
+    CANDIDATE_SCHEDULED_AT: "2026-08-21T23:00:00.000Z",
+    CANDIDATE_REASON: "retry-missing-publication",
+    CANDIDATE_RECOVERY_DEBT: "true",
+    WORKFLOW_EVENT_NAME: "schedule"
+  });
+  assert.notEqual(preEpochRecovery.status, 0);
+  assert.match(preEpochRecovery.stderr, /predates the fixed rollout epoch/);
 
   const benchmarkFreshness = workflowStepScript(dailyBenchmarkWorkflow, "Update daily benchmark snapshots");
   const sharedBenchmarkEnv = {
@@ -1036,8 +1106,10 @@ test("workflow gates work through the schedule helper and stable key", () => {
   assert.match(workflow, /--idempotency-key="\$INGESTION_IDEMPOTENCY_KEY"/);
   assert.match(workflow, /CANDIDATE_TRIGGER:\s*\$\{\{ needs\.resolve\.outputs\.trigger \}\}/);
   assert.match(workflow, /CANDIDATE_SCHEDULED_AT:\s*\$\{\{ needs\.resolve\.outputs\.scheduled_at \}\}/);
+  assert.match(workflow, /CANDIDATE_RECOVERY_DEBT:\s*\$\{\{ needs\.resolve\.outputs\.recovery_debt \}\}/);
   assert.match(workflow, /--candidate-trigger="\$CANDIDATE_TRIGGER"/);
   assert.match(workflow, /--scheduled-at="\$CANDIDATE_SCHEDULED_AT"/);
+  assert.match(workflow, /--recovery-debt="\$CANDIDATE_RECOVERY_DEBT"/);
 });
 
 test("autonomous runner receives optional durability secrets and owns validated publication", () => {
@@ -1063,6 +1135,7 @@ test("autonomous runner receives optional durability secrets and owns validated 
   assert.match(runnerStep, /INGESTION_PUBLICATION_BRANCH:\s*main/);
   assert.match(runnerStep, /CANDIDATE_TRIGGER:\s*\$\{\{ needs\.resolve\.outputs\.trigger \}\}/);
   assert.match(runnerStep, /CANDIDATE_SCHEDULED_AT:\s*\$\{\{ needs\.resolve\.outputs\.scheduled_at \}\}/);
+  assert.match(runnerStep, /CANDIDATE_RECOVERY_DEBT:\s*\$\{\{ needs\.resolve\.outputs\.recovery_debt \}\}/);
   const ingestJob = workflow.match(/\n  ingest:[\s\S]*?(?=\n  receipt:)/)?.[0] ?? "";
   assert.match(ingestJob, /uses:\s*actions\/checkout@[0-9a-f]{40}\s+# v4[\s\S]*?ref:\s*\$\{\{ needs\.resolve\.outputs\.source_sha \}\}[\s\S]*?fetch-depth:\s*0[\s\S]*?persist-credentials:\s*false/);
   assert.match(ingestJob, /name:\s*Require isolated publication credential/);
