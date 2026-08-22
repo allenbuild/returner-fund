@@ -71,6 +71,7 @@ import {
   CENTRAL_TIME_ZONE,
   DEFAULT_LATENESS_WINDOW_MINUTES,
   INGESTION_CENTRAL_SLOTS,
+  INGESTION_RECOVERY_ROLLOUT_SCHEDULED_AT,
   centralDateTimeParts
 } from "./lib/ingestion-schedule.mjs";
 import { mergeTargetedEvidenceSnapshots } from "./lib/targeted-evidence-merge.mjs";
@@ -132,6 +133,7 @@ const HISTORICAL_ATTRIBUTION_READ_BATCH_SIZE = 100;
 const INGESTION_TASK_READ_PAGE_SIZE = 1_000;
 const INGESTION_TASK_READ_MIN_PAGE_SIZE = 125;
 const INGESTION_TASK_READ_MAX_ATTEMPTS = 4;
+const INGESTION_TASK_READ_SUCCESS_PAGES_BEFORE_GROWTH = 2;
 // Structured Git output is parsed as a complete NUL-delimited record stream.
 // Never silently tail-truncate it: a partial first path can be misclassified
 // as an unsafe absolute path during publication recovery.
@@ -337,11 +339,18 @@ if (lifecycleContractFixture) {
   const fixtureExitCode = await runLifecycleContractFixture(lifecycleContractFixture);
   process.exit(fixtureExitCode);
 }
+if (
+  args.recoveryDebt &&
+  (process.env.GITHUB_ACTIONS !== "true" || process.env.GITHUB_EVENT_NAME !== "schedule")
+) {
+  throw new Error("Recovery debt bypass requires a resolver-authorized GitHub schedule event.");
+}
 await verifyPinnedSourceExecutionBoundary({ verifyPolicyCleanliness: !args.plan });
 candidateMetadata = validateCandidateMetadata({
   trigger: args.candidateTrigger,
   scheduledAt: args.scheduledAt,
   slotKey: idempotencyKey,
+  recoveryDebt: args.recoveryDebt,
   required: process.env.GITHUB_ACTIONS === "true" && !args.skipPublish
 });
 if (args.authenticatedSocialReplay && candidateMetadata?.trigger !== "manual-replay") {
@@ -1568,8 +1577,12 @@ async function withLifecycleDeadline(label, operation, {
   operationPromise.catch(() => {});
   const timeoutPromise = new Promise((_, reject) => {
     timer = setTimeout(() => {
-      const timeoutError = new Error(
-        `${label} timed out after ${effectiveTimeoutMs}ms.`
+      const timeoutError = Object.assign(
+        new Error(`${label} timed out after ${effectiveTimeoutMs}ms.`),
+        {
+          name: "LifecycleOperationTimeoutError",
+          code: "LIFECYCLE_OPERATION_TIMEOUT"
+        }
       );
       controller.abort(timeoutError);
       reject(timeoutError);
@@ -4417,27 +4430,36 @@ async function readAllIngestionTaskRows(label, columns, configureQuery) {
   const rows = [];
   let lastSeenId = null;
   let pageSize = INGESTION_TASK_READ_PAGE_SIZE;
+  let successfulPagesAtCurrentSize = 0;
   for (let pageNumber = 1; ; pageNumber += 1) {
     let pageResult = null;
     for (let attempt = 1; attempt <= INGESTION_TASK_READ_MAX_ATTEMPTS; attempt += 1) {
-      pageResult = await runSupabaseOperation(
-        `${label} page ${pageNumber} attempt ${attempt}`,
-        () => {
-          let query = configureQuery(
-            supabase.from("ingestion_tasks").select(columns)
-          )
-            .order("id", { ascending: true })
-            .limit(pageSize);
-          if (lastSeenId) query = query.gt("id", lastSeenId);
-          return query;
+      try {
+        pageResult = await runSupabaseOperation(
+          `${label} page ${pageNumber} attempt ${attempt}`,
+          () => {
+            let query = configureQuery(
+              supabase.from("ingestion_tasks").select(columns)
+            )
+              .order("id", { ascending: true })
+              .limit(pageSize);
+            if (lastSeenId) query = query.gt("id", lastSeenId);
+            return query;
+          }
+        );
+      } catch (error) {
+        if (!isRetryableIngestionTaskReadError(error) || attempt === INGESTION_TASK_READ_MAX_ATTEMPTS) {
+          throw error;
         }
-      );
+        pageSize = reducedIngestionTaskReadPageSize(pageSize);
+        successfulPagesAtCurrentSize = 0;
+        await delay(250 * attempt);
+        continue;
+      }
       if (!pageResult.error || !isRetryableIngestionTaskReadError(pageResult.error)) break;
       if (attempt === INGESTION_TASK_READ_MAX_ATTEMPTS) break;
-      pageSize = Math.max(
-        INGESTION_TASK_READ_MIN_PAGE_SIZE,
-        Math.floor(pageSize / 2)
-      );
+      pageSize = reducedIngestionTaskReadPageSize(pageSize);
+      successfulPagesAtCurrentSize = 0;
       await delay(250 * attempt);
     }
     check(pageResult?.error, label);
@@ -4449,16 +4471,53 @@ async function readAllIngestionTaskRows(label, columns, configureQuery) {
     }
     rows.push(...pageRows);
     lastSeenId = nextLastSeenId;
-    if (pageRows.length < pageSize) break;
+    successfulPagesAtCurrentSize += 1;
+    if (
+      pageSize < INGESTION_TASK_READ_PAGE_SIZE &&
+      successfulPagesAtCurrentSize >= INGESTION_TASK_READ_SUCCESS_PAGES_BEFORE_GROWTH
+    ) {
+      pageSize = Math.min(INGESTION_TASK_READ_PAGE_SIZE, pageSize * 2);
+      successfulPagesAtCurrentSize = 0;
+    }
   }
   return rows;
 }
 
+function reducedIngestionTaskReadPageSize(pageSize) {
+  return Math.max(
+    INGESTION_TASK_READ_MIN_PAGE_SIZE,
+    Math.floor(pageSize / 2)
+  );
+}
+
 function isRetryableIngestionTaskReadError(error) {
-  const code = String(error?.code ?? "");
-  const message = String(error?.message ?? error ?? "");
-  return code === "57014"
-    || /canceling statement due to statement timeout|statement timeout/i.test(message);
+  const codes = [error?.code, error?.cause?.code]
+    .map((value) => String(value ?? ""))
+    .filter(Boolean);
+  if (terminationSignal || codes.includes("AUTONOMOUS_RUNNER_BUDGET_EXCEEDED")) return false;
+  const names = [error?.name, error?.cause?.name]
+    .map((value) => String(value ?? ""))
+    .filter(Boolean);
+  const message = [error?.message, error?.cause?.message]
+    .map((value) => String(value ?? ""))
+    .filter(Boolean)
+    .join(" ");
+  const retryableCodes = new Set([
+    "57014",
+    "LIFECYCLE_OPERATION_TIMEOUT",
+    "ETIMEDOUT",
+    "ESOCKETTIMEDOUT",
+    "ECONNRESET",
+    "EPIPE",
+    "UND_ERR_CONNECT_TIMEOUT",
+    "UND_ERR_HEADERS_TIMEOUT",
+    "UND_ERR_BODY_TIMEOUT"
+  ]);
+  return codes.some((code) => retryableCodes.has(code))
+    || names.some((name) => name === "AbortError" || name === "TimeoutError")
+    || /canceling statement due to statement timeout|statement timeout/i.test(message)
+    || /\b(?:connection|connect|request|network|socket|upstream|gateway) timed? out\b/i.test(message)
+    || /\b(?:socket hang up|connection reset by peer)\b/i.test(message);
 }
 
 async function finishTasks(ids, status, reason, attempts = 1) {
@@ -8028,12 +8087,21 @@ function catalogSummary(allCatalogs) {
   }));
 }
 
-function validateCandidateMetadata({ trigger, scheduledAt, slotKey, required = false }) {
+function validateCandidateMetadata({
+  trigger,
+  scheduledAt,
+  slotKey,
+  recoveryDebt = false,
+  required = false
+}) {
   const normalizedTrigger = cleanEnv(trigger);
   const normalizedScheduledAt = cleanEnv(scheduledAt);
+  if (typeof recoveryDebt !== "boolean") {
+    throw new Error("Candidate recovery debt metadata must be boolean.");
+  }
   if (!normalizedTrigger) {
-    if (normalizedScheduledAt) {
-      throw new Error("Candidate scheduled_at requires a candidate trigger.");
+    if (normalizedScheduledAt || recoveryDebt) {
+      throw new Error("Candidate scheduled_at or recovery debt requires a candidate trigger.");
     }
     if (required) {
       throw new Error("Accepted GitHub Actions publication requires --candidate-trigger metadata.");
@@ -8047,11 +8115,15 @@ function validateCandidateMetadata({ trigger, scheduledAt, slotKey, required = f
     if (normalizedScheduledAt) {
       throw new Error("Manual replay candidate must not claim scheduled_at metadata.");
     }
+    if (recoveryDebt) {
+      throw new Error("Manual replay candidate must not claim resolver recovery debt.");
+    }
     return Object.freeze({
       trigger: normalizedTrigger,
       slotKey: String(slotKey),
       scheduledAt: null,
-      scheduledAtMs: null
+      scheduledAtMs: null,
+      recoveryDebt: false
     });
   }
   if (normalizedTrigger !== "schedule") {
@@ -8075,11 +8147,18 @@ function validateCandidateMetadata({ trigger, scheduledAt, slotKey, required = f
       `Scheduled candidate slot key mismatch (expected ${expectedSlotKey}, observed ${slotKey}).`
     );
   }
+  if (
+    recoveryDebt &&
+    scheduled.getTime() < Date.parse(INGESTION_RECOVERY_ROLLOUT_SCHEDULED_AT)
+  ) {
+    throw new Error("Scheduled recovery debt predates the fixed recovery rollout epoch.");
+  }
   return Object.freeze({
     trigger: normalizedTrigger,
     slotKey: String(slotKey),
     scheduledAt: normalizedScheduledAt,
-    scheduledAtMs: scheduled.getTime()
+    scheduledAtMs: scheduled.getTime(),
+    recoveryDebt
   });
 }
 
@@ -8127,6 +8206,7 @@ function assertCandidateFreshForPublication(label, nowMs = Date.now()) {
   if (ageMs < 0) {
     throw new Error(`Scheduled candidate is in the future before ${label}.`);
   }
+  if (candidateMetadata.recoveryDebt) return;
   if (ageMs > freshnessWindowMs) {
     throw new Error(
       `Scheduled candidate exceeded the 11-hour freshness window before ${label}; publication is prohibited.`
@@ -8148,6 +8228,7 @@ function parseArgs(rawArgs) {
     campaignKey: value("--campaign-key"),
     candidateTrigger: value("--candidate-trigger"),
     scheduledAt: value("--scheduled-at"),
+    recoveryDebt: booleanValue("--recovery-debt"),
     plan: rawArgs.includes("--plan"),
     resumeSnapshots: rawArgs.includes("--resume-snapshots"),
     skipNetwork: rawArgs.includes("--skip-network"),
@@ -8448,6 +8529,7 @@ async function runLifecycleContractFixture(fixture) {
         trigger: cleanEnv(process.env.LIFECYCLE_FIXTURE_CANDIDATE_TRIGGER),
         scheduledAt: cleanEnv(process.env.LIFECYCLE_FIXTURE_SCHEDULED_AT),
         slotKey: cleanEnv(process.env.LIFECYCLE_FIXTURE_SLOT_KEY),
+        recoveryDebt: process.env.LIFECYCLE_FIXTURE_RECOVERY_DEBT === "true",
         required: true
       });
       const nowMs = Number(process.env.LIFECYCLE_FIXTURE_NOW_MS ?? Date.now());
@@ -9056,6 +9138,106 @@ async function runLifecycleContractFixture(fixture) {
     run = null;
     lifecycleOperationTimeoutOverrideMs = null;
     return emit({ fixture, elapsedMs });
+  }
+
+  if (fixture === "ingestion-task-pagination") {
+    const mode = cleanEnv(process.env.LIFECYCLE_FIXTURE_PAGINATION_MODE);
+    if (!new Set(["lifecycle-timeout", "row-cap"]).has(mode)) {
+      throw new Error("Ingestion-task pagination fixture requires a supported mode.");
+    }
+    const previousSupabase = supabase;
+    const previousTimeoutOverride = lifecycleOperationTimeoutOverrideMs;
+    const fixtureRows = Array.from({ length: 5 }, (_, index) => ({
+      id: `task-${String(index + 1).padStart(3, "0")}`,
+      status: "completed"
+    }));
+    const requestedPageSizes = [];
+    const requestedCursors = [];
+    let queryCalls = 0;
+    try {
+      if (mode === "lifecycle-timeout") lifecycleOperationTimeoutOverrideMs = 20;
+      supabase = {
+        from: (table) => {
+          if (table !== "ingestion_tasks") throw new Error(`Unexpected fixture table: ${table}`);
+          return {
+            select: () => {
+              const request = { cursor: null, pageSize: null };
+              const query = {
+                order: () => query,
+                limit: (pageSize) => {
+                  request.pageSize = pageSize;
+                  return query;
+                },
+                gt: (column, cursor) => {
+                  if (column !== "id") throw new Error(`Unexpected fixture cursor column: ${column}`);
+                  request.cursor = cursor;
+                  return query;
+                },
+                abortSignal: (signal) => {
+                  queryCalls += 1;
+                  requestedPageSizes.push(request.pageSize);
+                  requestedCursors.push(request.cursor);
+                  if (mode === "lifecycle-timeout" && queryCalls === 1) {
+                    return new Promise((_, reject) => {
+                      signal.addEventListener("abort", () => {
+                        reject(signal.reason ?? Object.assign(new Error("fixture query aborted"), {
+                          name: "AbortError"
+                        }));
+                      }, { once: true });
+                    });
+                  }
+                  const cursorIndex = request.cursor === null
+                    ? -1
+                    : fixtureRows.findIndex((row) => row.id === request.cursor);
+                  if (request.cursor !== null && cursorIndex < 0) {
+                    throw new Error(`Unknown fixture cursor: ${request.cursor}`);
+                  }
+                  const serverCap = mode === "row-cap" ? 2 : 1;
+                  return Promise.resolve({
+                    data: fixtureRows.slice(
+                      cursorIndex + 1,
+                      cursorIndex + 1 + Math.min(request.pageSize, serverCap)
+                    ),
+                    error: null
+                  });
+                }
+              };
+              return query;
+            }
+          };
+        }
+      };
+      const rows = await readAllIngestionTaskRows(
+        `fixture ${mode} ingestion task read`,
+        "id,status",
+        (query) => query
+      );
+      return emit({
+        fixture,
+        mode,
+        ids: rows.map((row) => row.id),
+        queryCalls,
+        requestedPageSizes,
+        requestedCursors,
+        retryClassification: {
+          abortError: isRetryableIngestionTaskReadError(Object.assign(new Error("aborted"), {
+            name: "AbortError"
+          })),
+          transportTimeout: isRetryableIngestionTaskReadError(Object.assign(
+            new TypeError("fetch failed"),
+            { cause: { code: "UND_ERR_CONNECT_TIMEOUT", message: "connect timed out" } }
+          )),
+          authorization: isRetryableIngestionTaskReadError({ code: "42501", message: "permission denied" }),
+          runnerBudget: isRetryableIngestionTaskReadError({
+            code: "AUTONOMOUS_RUNNER_BUDGET_EXCEEDED",
+            message: "runner budget exhausted"
+          })
+        }
+      });
+    } finally {
+      supabase = previousSupabase;
+      lifecycleOperationTimeoutOverrideMs = previousTimeoutOverride;
+    }
   }
 
   if (fixture === "heartbeat-drain") {

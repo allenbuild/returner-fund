@@ -527,12 +527,14 @@ describe("OpenCLI subprocess isolation", () => {
       import { readFileSync } from "node:fs";
       import { runOpenCli } from ${JSON.stringify(runtimeUrl)};
       let errorCode = null;
+      let processDrainFailureCode = null;
       try {
         await runOpenCli(["--input-type=commonjs", "-e", ${JSON.stringify(rootProgram)}], {
           timeoutMs: 150
         });
       } catch (error) {
         errorCode = error.code;
+        processDrainFailureCode = error.processDrainFailure?.code ?? null;
       }
       const pid = Number(readFileSync(${JSON.stringify(pidPath)}, "utf8"));
       function processIsAlive(candidatePid) {
@@ -552,6 +554,7 @@ describe("OpenCLI subprocess isolation", () => {
       } catch {}
       process.stdout.write(JSON.stringify({
         errorCode,
+        processDrainFailureCode,
         descendantRunning,
         processState
       }));
@@ -575,11 +578,127 @@ describe("OpenCLI subprocess isolation", () => {
       );
       const result = JSON.parse(raw);
       assert.equal(result.errorCode, "ETIMEDOUT");
+      assert.equal(result.processDrainFailureCode, null);
       assert.equal(result.descendantRunning, false);
       await new Promise((resolve) => setTimeout(resolve, 850));
       await assert.rejects(readFile(survivedPath, "utf8"), { code: "ENOENT" });
     } finally {
       await terminateIdentityVerifiedTestProcesses(identityPath);
+      await rm(directory, { recursive: true, force: true });
+    }
+  });
+
+  it("resumes and drains an exact owned root that was SIGSTOPped before timeout", {
+    skip: process.platform === "win32" || !openCliProcessTeardownAvailable()
+  }, async () => {
+    const directory = await mkdtemp(join(tmpdir(), "returner-opencli-stopped-root-test-"));
+    const pidPath = join(directory, "stopped-root.pid");
+    const identityPath = join(directory, "owned-processes.json");
+    const unrelatedIdentityPath = join(directory, "unrelated-processes.json");
+    const unrelatedOwnerMarker = `unrelated-${directory.split("/").pop()}`;
+    const runtimeUrl = new URL(
+      "../scripts/lib/opencli-runtime.mjs",
+      import.meta.url
+    ).href;
+    const rootProgram = `
+      const { execFileSync } = require("node:child_process");
+      const { writeFileSync } = require("node:fs");
+      const marker = process.env.RETURNER_OPENCLI_PROCESS_OWNER;
+      const startIdentity = (pid) => "ps-lstart:" + execFileSync(
+        "/bin/ps",
+        ["-p", String(pid), "-o", "lstart="],
+        { encoding: "utf8" }
+      ).trim().replace(/\\s+/g, " ");
+      writeFileSync(${JSON.stringify(identityPath)}, JSON.stringify({
+        marker,
+        processes: [{ pid: process.pid, startIdentity: startIdentity(process.pid) }]
+      }));
+      writeFileSync(${JSON.stringify(pidPath)}, String(process.pid));
+      process.kill(process.pid, "SIGSTOP");
+      setInterval(() => {}, 1000);
+    `;
+    const probeProgram = `
+      import { execFileSync, spawn } from "node:child_process";
+      import { readFileSync, writeFileSync } from "node:fs";
+      import { runOpenCli } from ${JSON.stringify(runtimeUrl)};
+      const startIdentity = (pid) => "ps-lstart:" + execFileSync(
+        "/bin/ps",
+        ["-p", String(pid), "-o", "lstart="],
+        { encoding: "utf8" }
+      ).trim().replace(/\\s+/g, " ");
+      const unrelated = spawn("/bin/sleep", ["30"], {
+        stdio: "ignore",
+        env: {
+          LANG: process.env.LANG ?? "C",
+          PATH: process.env.PATH ?? "/usr/bin:/bin",
+          RETURNER_OPENCLI_PROCESS_OWNER: ${JSON.stringify(unrelatedOwnerMarker)}
+        }
+      });
+      writeFileSync(${JSON.stringify(unrelatedIdentityPath)}, JSON.stringify({
+        marker: ${JSON.stringify(unrelatedOwnerMarker)},
+        processes: [{ pid: unrelated.pid, startIdentity: startIdentity(unrelated.pid) }]
+      }));
+      let errorCode = null;
+      let processDrainFailureCode = null;
+      try {
+        await runOpenCli(["--input-type=commonjs", "-e", ${JSON.stringify(rootProgram)}], {
+          timeoutMs: 150
+        });
+      } catch (error) {
+        errorCode = error.code;
+        processDrainFailureCode = error.processDrainFailure?.code ?? null;
+      }
+      const pid = Number(readFileSync(${JSON.stringify(pidPath)}, "utf8"));
+      const processIsAlive = (candidatePid) => {
+        try {
+          process.kill(candidatePid, 0);
+          return true;
+        } catch (error) {
+          return error?.code !== "ESRCH";
+        }
+      };
+      const alive = processIsAlive(pid);
+      const unrelatedAlive = processIsAlive(unrelated.pid);
+      try { process.kill(unrelated.pid, "SIGTERM"); } catch {}
+      let processState = "";
+      try {
+        processState = execFileSync("/bin/ps", ["-p", String(pid), "-o", "stat="], {
+          encoding: "utf8"
+        }).trim();
+      } catch {}
+      process.stdout.write(JSON.stringify({
+        errorCode,
+        processDrainFailureCode,
+        alive,
+        unrelatedAlive,
+        processState
+      }));
+    `;
+    try {
+      const raw = execFileSync(
+        process.execPath,
+        ["--input-type=module", "-e", probeProgram],
+        {
+          encoding: "utf8",
+          timeout: 5_000,
+          env: {
+            HOME: process.env.HOME,
+            LANG: process.env.LANG,
+            PATH: process.env.PATH,
+            TMPDIR: process.env.TMPDIR,
+            OPENCLI_BIN: process.execPath
+          }
+        }
+      );
+      const result = JSON.parse(raw);
+      assert.equal(result.errorCode, "ETIMEDOUT");
+      assert.equal(result.processDrainFailureCode, null);
+      assert.equal(result.alive, false);
+      assert.doesNotMatch(result.processState, /^T/);
+      assert.equal(result.unrelatedAlive, true);
+    } finally {
+      await terminateIdentityVerifiedTestProcesses(identityPath);
+      await terminateIdentityVerifiedTestProcesses(unrelatedIdentityPath);
       await rm(directory, { recursive: true, force: true });
     }
   });
