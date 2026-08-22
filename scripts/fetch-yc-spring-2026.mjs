@@ -1,5 +1,6 @@
 import * as cheerio from "cheerio";
 import { resolve } from "node:path";
+import { fetchTextWithRetry } from "./lib/retrying-http-text.mjs";
 import {
   publishCatalogAndAliasLedger,
   readJson,
@@ -15,6 +16,8 @@ const DEFAULT_OUT_PATH = "src/lib/yc/summer-2026-companies.json";
 const DEFAULT_ALIAS_LEDGER_PATH = "src/lib/yc/summer-2026-company-aliases.json";
 const CONCURRENCY = 6;
 const REQUEST_TIMEOUT_MS = 30_000;
+const REQUEST_TOTAL_TIMEOUT_MS = 95_000;
+const REQUEST_MAX_ATTEMPTS = 3;
 const REFRESH_TIMEOUT_MS = 5 * 60_000;
 
 async function main() {
@@ -47,18 +50,26 @@ async function main() {
   }
   validateListing(listing, config);
 
-  const companies = await mapLimit(listing.hits, CONCURRENCY, async (hit, index) => {
-    const detail = await fetchCompanyDetail(hit.slug, config.signal);
-    const hitId = String(hit.id ?? hit.objectID ?? "").trim();
-    const detailId = String(detail.id ?? "").trim();
-    if (hitId !== detailId || (detail.slug && detail.slug !== hit.slug)) {
-      throw new Error(
-        `YC detail identity mismatch for ${hit.slug}: ` +
-        `listing=${hitId}/${hit.slug}, detail=${detailId}/${detail.slug ?? "missing"}.`
-      );
-    }
-    return sanitizeCompany(hit, detail, index, config);
-  });
+  const detailController = new AbortController();
+  const detailSignal = AbortSignal.any([config.signal, detailController.signal]);
+  let companies;
+  try {
+    companies = await mapLimit(listing.hits, CONCURRENCY, async (hit, index) => {
+      const detail = await fetchCompanyDetail(hit.slug, detailSignal);
+      const hitId = String(hit.id ?? hit.objectID ?? "").trim();
+      const detailId = String(detail.id ?? "").trim();
+      if (hitId !== detailId || (detail.slug && detail.slug !== hit.slug)) {
+        throw new Error(
+          `YC detail identity mismatch for ${hit.slug}: ` +
+          `listing=${hitId}/${hit.slug}, detail=${detailId}/${detail.slug ?? "missing"}.`
+        );
+      }
+      return sanitizeCompany(hit, detail, index, config);
+    });
+  } catch (error) {
+    detailController.abort(error);
+    throw error;
+  }
 
   companies.sort((left, right) => left.name.localeCompare(right.name));
   validateCompanies(companies, listing, config);
@@ -166,16 +177,14 @@ function parseArgs(args) {
 }
 
 async function fetchText(url, signal) {
-  const response = await fetch(url, {
-    headers: {
-      "user-agent": "yc-network-intelligence-readonly"
-    },
-    signal: requestSignal(signal)
+  const { response, text } = await requestText(url, {
+    signal,
+    headers: { "user-agent": "yc-network-intelligence-readonly" }
   });
   if (!response.ok) {
     throw new Error(`GET ${url} failed with HTTP ${response.status}`);
   }
-  return response.text();
+  return text;
 }
 
 function extractAlgoliaOptions(html) {
@@ -230,20 +239,20 @@ async function fetchCompanyListingPage(algolia, config, page, hitsPerPage) {
       }
     ]
   };
-  const response = await fetch(ALGOLIA_QUERIES_URL, {
+  const { response, text } = await requestText(ALGOLIA_QUERIES_URL, {
+    signal: config.signal,
     method: "POST",
     headers: {
       "content-type": "application/json",
       "x-algolia-application-id": algolia.app,
       "x-algolia-api-key": algolia.key
     },
-    body: JSON.stringify(body),
-    signal: requestSignal(config.signal)
+    body: JSON.stringify(body)
   });
   if (!response.ok) {
     throw new Error(`Algolia query failed with HTTP ${response.status}`);
   }
-  const json = await response.json();
+  const json = JSON.parse(text);
   return json.results[0];
 }
 
@@ -298,8 +307,37 @@ async function fetchCompanyDetail(slug, signal) {
   return page.props.company;
 }
 
-function requestSignal(overallSignal) {
-  return AbortSignal.any([overallSignal, AbortSignal.timeout(REQUEST_TIMEOUT_MS)]);
+function publicRequestTarget(value) {
+  try {
+    const url = new URL(value);
+    return `${url.hostname}${url.pathname}`;
+  } catch {
+    return "public endpoint";
+  }
+}
+
+function requestText(url, { signal, ...init }) {
+  return fetchTextWithRetry(url, {
+    init,
+    signal,
+    timeoutMs: REQUEST_TIMEOUT_MS,
+    totalTimeoutMs: REQUEST_TOTAL_TIMEOUT_MS,
+    maxAttempts: REQUEST_MAX_ATTEMPTS,
+    retry: {
+      baseDelayMs: 250,
+      maxDelayMs: 2_000
+    },
+    onRetry(event) {
+      const target = publicRequestTarget(event.input);
+      const reason = Number.isInteger(event.status)
+        ? `HTTP ${event.status}`
+        : event.errorName ?? "transport failure";
+      console.warn(
+        `[yc-catalog] retrying ${target} after ${reason} ` +
+          `(attempt ${event.attempt}/${event.maxAttempts}, delay ${event.delayMs}ms)`
+      );
+    }
+  });
 }
 
 function sanitizeCompany(hit, detail, index, config) {

@@ -14,11 +14,12 @@ import {
 
 const repositoryRoot = process.cwd();
 const runnerPath = path.join(repositoryRoot, "scripts", "run-autonomous-ingestion.mjs");
-const [runnerSource, autonomousPlan, childProcessLedgerHook, timelineCommand] = await Promise.all([
+const [runnerSource, autonomousPlan, childProcessLedgerHook, timelineCommand, ycCatalogRefresh] = await Promise.all([
   readFile(runnerPath, "utf8"),
   readFile(path.join(repositoryRoot, "scripts", "lib", "autonomous-ingestion-plan.mjs"), "utf8"),
   readFile(path.join(repositoryRoot, "scripts", "lib", "child-process-ledger-hook.cjs"), "utf8"),
-  readFile(path.join(repositoryRoot, "scripts", "run-company-timeline-ingestion.mjs"), "utf8")
+  readFile(path.join(repositoryRoot, "scripts", "run-company-timeline-ingestion.mjs"), "utf8"),
+  readFile(path.join(repositoryRoot, "scripts", "fetch-yc-spring-2026.mjs"), "utf8")
 ]);
 // Keep structural assertions readable while the runner deliberately resolves
 // executable scripts from its pinned source checkout instead of the mutable
@@ -995,6 +996,7 @@ describe("autonomous ingestion runner static safety contracts", () => {
 
   it("bounds every runner-owned Supabase await and aborts bulk importer queries", () => {
     const deadlineWrapper = section("async function withLifecycleDeadline", "async function claimRuntimeLock");
+    const enqueue = section("async function enqueueTasks", "async function prepareBatchDiscoveryState");
     assert.doesNotMatch(runner, /await\s+supabase(?:\.|\s)/);
     assert.doesNotMatch(runner, /await\s+runLifecycleSupabaseOperation/);
     assert.ok(deadlineWrapper.includes("runnerBudget.timeoutMs(requestedTimeoutMs, label)"));
@@ -1015,6 +1017,7 @@ describe("autonomous ingestion runner static safety contracts", () => {
     ]) {
       assert.ok(runner.includes(operation), `missing bounded Supabase operation: ${operation}`);
     }
+    assert.ok(enqueue.includes("{ timeoutMs: SUPABASE_BULK_OPERATION_TIMEOUT_MS }"));
   });
 
   it("constructs category-specific child environments without inheriting parent secrets", () => {
@@ -2063,6 +2066,18 @@ describe("autonomous ingestion runner static safety contracts", () => {
     assert.ok(refresh.includes("await runCommand(process.execPath"));
     assert.doesNotMatch(refresh, /\bspawn\(/);
     assert.doesNotMatch(refresh, /stdio:\s*\[[^\]]*inherit/);
+  });
+
+  it("retries transient mutable-catalog requests inside bounded request and refresh deadlines", () => {
+    assert.match(ycCatalogRefresh, /fetchTextWithRetry/);
+    assert.match(ycCatalogRefresh, /const REQUEST_MAX_ATTEMPTS = 3/);
+    assert.match(ycCatalogRefresh, /const REQUEST_TOTAL_TIMEOUT_MS = 95_000/);
+    assert.match(ycCatalogRefresh, /const REFRESH_TIMEOUT_MS = 5 \* 60_000/);
+    assert.match(ycCatalogRefresh, /totalTimeoutMs: REQUEST_TOTAL_TIMEOUT_MS/);
+    assert.match(ycCatalogRefresh, /maxAttempts: REQUEST_MAX_ATTEMPTS/);
+    assert.ok((ycCatalogRefresh.match(/requestText\(/g) ?? []).length >= 3);
+    assert.match(ycCatalogRefresh, /detailController\.abort\(error\)/);
+    assert.doesNotMatch(ycCatalogRefresh, /requestSignal/);
   });
 
   it("carries the batch-resolved logged-in quarantine ledger into initial and rebased durable imports", () => {

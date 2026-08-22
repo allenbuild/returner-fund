@@ -2288,7 +2288,8 @@ async function enqueueTasks(tasks, catalogState) {
       "enqueue account/platform tasks",
       () => supabase
         .from("ingestion_tasks")
-        .upsert(taskRows, { onConflict: "checkpoint_key" })
+        .upsert(taskRows, { onConflict: "checkpoint_key" }),
+      { timeoutMs: SUPABASE_BULK_OPERATION_TIMEOUT_MS }
     );
     check(error, "enqueue account/platform tasks");
   });
