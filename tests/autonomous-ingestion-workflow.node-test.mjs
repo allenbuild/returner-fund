@@ -87,13 +87,14 @@ function assertExactExternalActionPins(source) {
   }
 }
 
-test("workflow declares exactly the four DST-safe UTC candidates", () => {
+test("workflow declares DST-safe primary candidates plus persistent recovery", () => {
   const cronCandidates = Array.from(
     workflow.matchAll(/^\s*- cron:\s*["']([^"']+)["']\s*$/gm),
     (match) => match[1]
   );
 
   assert.deepEqual(cronCandidates, INGESTION_UTC_CRON_CANDIDATES);
+  assert.match(workflow, /cron:\s*["']7,22,37,52 \* \* \* \*["']/);
   assert.match(workflow, /workflow_dispatch:\s*\n\s*inputs:\s*\n\s*replay_key:/);
   assert.match(workflow, /replay_key:[\s\S]*?required:\s*true/);
 });
@@ -1056,6 +1057,9 @@ test("autonomous runner receives optional durability secrets and owns validated 
   assert.doesNotMatch(runnerStep, /NEXT_PUBLIC_SUPABASE_URL:\?/);
   assert.doesNotMatch(runnerStep, /SUPABASE_SERVICE_ROLE_KEY:\?/);
   assert.match(runnerStep, /node scripts\/run-autonomous-ingestion\.mjs/);
+  assert.match(runnerStep, /IOPMUserTriggeredFullWake/);
+  assert.match(runnerStep, /\/usr\/bin\/caffeinate -dimsu -w \$\$/);
+  assert.match(runnerStep, /exec node scripts\/run-autonomous-ingestion\.mjs/);
   assert.match(runnerStep, /INGESTION_PUBLICATION_BRANCH:\s*main/);
   assert.match(runnerStep, /CANDIDATE_TRIGGER:\s*\$\{\{ needs\.resolve\.outputs\.trigger \}\}/);
   assert.match(runnerStep, /CANDIDATE_SCHEDULED_AT:\s*\$\{\{ needs\.resolve\.outputs\.scheduled_at \}\}/);

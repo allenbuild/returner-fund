@@ -9,6 +9,9 @@ on:
     - cron: "0 11 * * *"
     - cron: "0 12 * * *"
     - cron: "0 23 * * *"
+    # Retry the latest intended Central slot until its immutable publication
+    # receipt lands. The resolver turns these into no-ops after publication.
+    - cron: "7,22,37,52 * * * *"
   workflow_dispatch:
     inputs:
       replay_key:
@@ -305,12 +308,19 @@ jobs:
           CANDIDATE_SCHEDULED_AT: ${{ needs.resolve.outputs.scheduled_at }}
           INGESTION_PUBLICATION_BRANCH: main
           AUTHENTICATED_SOCIAL_REPLAY: ${{ inputs.authenticated_backfill || false }}
-        run: >-
-          node scripts/run-autonomous-ingestion.mjs
-          --idempotency-key="$INGESTION_IDEMPOTENCY_KEY"
-          --candidate-trigger="$CANDIDATE_TRIGGER"
-          --scheduled-at="$CANDIDATE_SCHEDULED_AT"
-          --authenticated-social-replay="$AUTHENTICATED_SOCIAL_REPLAY"
+        run: |
+          set -euo pipefail
+          POWER_STATE="$(ioreg -r -k IOPMUserTriggeredFullWake -d 4)"
+          if ! grep -q '"IOPMUserTriggeredFullWake" = Yes' <<< "$POWER_STATE"; then
+            echo "::error title=Runner is asleep::The self-hosted Mac is only in a maintenance dark wake; the same Central slot will retry automatically."
+            exit 1
+          fi
+          /usr/bin/caffeinate -dimsu -w $$ &
+          exec node scripts/run-autonomous-ingestion.mjs \
+            --idempotency-key="$INGESTION_IDEMPOTENCY_KEY" \
+            --candidate-trigger="$CANDIDATE_TRIGGER" \
+            --scheduled-at="$CANDIDATE_SCHEDULED_AT" \
+            --authenticated-social-replay="$AUTHENTICATED_SOCIAL_REPLAY"
 
       - name: Verify publication credential isolation
         if: always()

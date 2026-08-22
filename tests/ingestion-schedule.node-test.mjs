@@ -1,13 +1,17 @@
 import assert from "node:assert/strict";
-import { mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import test from "node:test";
 import {
   DEFAULT_LATENESS_WINDOW_MINUTES,
+  INGESTION_PRIMARY_UTC_CRON_CANDIDATES,
+  INGESTION_RECOVERY_CRON,
   INGESTION_UTC_CRON_CANDIDATES,
+  readPublishedSlotKey,
   resolveIngestionSchedule,
   resolveManualReplay,
+  resolveRecoveryIngestion,
   resolveScheduledIngestion,
   writeGithubOutputs
 } from "../scripts/lib/ingestion-schedule.mjs";
@@ -16,7 +20,7 @@ test("four UTC candidates resolve to exactly two stable Central slots every cale
   const acceptedByCentralDay = new Map();
 
   for (let utcDay = new Date("2025-12-31T00:00:00.000Z"); utcDay <= new Date("2027-01-02T00:00:00.000Z"); utcDay.setUTCDate(utcDay.getUTCDate() + 1)) {
-    for (const cron of INGESTION_UTC_CRON_CANDIDATES) {
+    for (const cron of INGESTION_PRIMARY_UTC_CRON_CANDIDATES) {
       const utcHour = Number(cron.split(" ")[1]);
       const now = new Date(Date.UTC(
         utcDay.getUTCFullYear(),
@@ -39,6 +43,47 @@ test("four UTC candidates resolve to exactly two stable Central slots every cale
     const decisions = acceptedByCentralDay.get(dayKey) ?? [];
     assert.deepEqual(decisions.map((decision) => decision.centralTime).sort(), ["06:00", "18:00"]);
     assert.equal(new Set(decisions.map((decision) => decision.slotKey)).size, 2);
+  }
+});
+
+test("recovery candidates retry the latest unpublished Central slot every fifteen minutes", () => {
+  assert.deepEqual(INGESTION_UTC_CRON_CANDIDATES, [
+    ...INGESTION_PRIMARY_UTC_CRON_CANDIDATES,
+    INGESTION_RECOVERY_CRON
+  ]);
+  const decision = resolveScheduledIngestion({
+    schedule: INGESTION_RECOVERY_CRON,
+    now: new Date("2026-08-22T21:14:00.000Z"),
+    publishedSlotKey: "central-2026-08-20-1800"
+  });
+
+  assert.equal(decision.accepted, true);
+  assert.equal(decision.reason, "retry-missing-publication");
+  assert.equal(decision.slotKey, "central-2026-08-22-0600");
+  assert.equal(decision.scheduledAt, "2026-08-22T11:00:00.000Z");
+});
+
+test("recovery candidates become no-ops after the exact slot publishes", () => {
+  const decision = resolveRecoveryIngestion({
+    now: new Date("2026-08-22T21:14:00.000Z"),
+    publishedSlotKey: "central-2026-08-22-0600"
+  });
+
+  assert.equal(decision.accepted, false);
+  assert.equal(decision.reason, "latest-slot-already-published");
+});
+
+test("recovery resolves the correct prior Central slot across DST", () => {
+  for (const [now, expectedSlot, expectedScheduledAt] of [
+    ["2026-03-08T17:30:00.000Z", "central-2026-03-08-0600", "2026-03-08T11:00:00.000Z"],
+    ["2026-11-01T18:30:00.000Z", "central-2026-11-01-0600", "2026-11-01T12:00:00.000Z"]
+  ]) {
+    const decision = resolveRecoveryIngestion({
+      now: new Date(now),
+      publishedSlotKey: "central-2026-01-01-0600"
+    });
+    assert.equal(decision.slotKey, expectedSlot);
+    assert.equal(decision.scheduledAt, expectedScheduledAt);
   }
 });
 
@@ -124,6 +169,18 @@ test("writes scheduler decisions as GitHub step outputs", (t) => {
       ""
     ].join("\n")
   );
+});
+
+test("reads only an immutable published slot key from the current receipt", (t) => {
+  const directory = mkdtempSync(path.join(tmpdir(), "returner-ingestion-receipt-"));
+  t.after(() => rmSync(directory, { recursive: true, force: true }));
+  const receiptPath = path.join(directory, "receipt.json");
+  writeFileSync(receiptPath, JSON.stringify({ idempotencyKey: "central-2026-08-22-0600" }));
+
+  assert.equal(readPublishedSlotKey(receiptPath), "central-2026-08-22-0600");
+  assert.equal(readPublishedSlotKey(path.join(directory, "missing.json")), null);
+  writeFileSync(receiptPath, "not-json");
+  assert.equal(readPublishedSlotKey(receiptPath), null);
 });
 
 test("does not expose inactive DST candidate schedule metadata to the workflow", (t) => {
