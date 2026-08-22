@@ -130,6 +130,8 @@ let plannedCoverage;
 const HISTORICAL_ATTRIBUTION_READ_ATTEMPTS = 3;
 const HISTORICAL_ATTRIBUTION_READ_BATCH_SIZE = 100;
 const INGESTION_TASK_READ_PAGE_SIZE = 1_000;
+const INGESTION_TASK_READ_MIN_PAGE_SIZE = 125;
+const INGESTION_TASK_READ_MAX_ATTEMPTS = 4;
 // Structured Git output is parsed as a complete NUL-delimited record stream.
 // Never silently tail-truncate it: a partial first path can be misclassified
 // as an unsafe absolute path during publication recovery.
@@ -4413,20 +4415,50 @@ async function tasksFor(batchSlug, platform, catalogState) {
 
 async function readAllIngestionTaskRows(label, columns, configureQuery) {
   const rows = [];
-  for (let offset = 0; ; offset += INGESTION_TASK_READ_PAGE_SIZE) {
-    const { data, error } = await runSupabaseOperation(
-      `${label} page ${Math.floor(offset / INGESTION_TASK_READ_PAGE_SIZE) + 1}`,
-      () => configureQuery(
-        supabase.from("ingestion_tasks").select(columns)
-      )
-        .order("id", { ascending: true })
-        .range(offset, offset + INGESTION_TASK_READ_PAGE_SIZE - 1)
-    );
-    check(error, label);
-    rows.push(...(data ?? []));
-    if ((data?.length ?? 0) < INGESTION_TASK_READ_PAGE_SIZE) break;
+  let lastSeenId = null;
+  let pageSize = INGESTION_TASK_READ_PAGE_SIZE;
+  for (let pageNumber = 1; ; pageNumber += 1) {
+    let pageResult = null;
+    for (let attempt = 1; attempt <= INGESTION_TASK_READ_MAX_ATTEMPTS; attempt += 1) {
+      pageResult = await runSupabaseOperation(
+        `${label} page ${pageNumber} attempt ${attempt}`,
+        () => {
+          let query = configureQuery(
+            supabase.from("ingestion_tasks").select(columns)
+          )
+            .order("id", { ascending: true })
+            .limit(pageSize);
+          if (lastSeenId) query = query.gt("id", lastSeenId);
+          return query;
+        }
+      );
+      if (!pageResult.error || !isRetryableIngestionTaskReadError(pageResult.error)) break;
+      if (attempt === INGESTION_TASK_READ_MAX_ATTEMPTS) break;
+      pageSize = Math.max(
+        INGESTION_TASK_READ_MIN_PAGE_SIZE,
+        Math.floor(pageSize / 2)
+      );
+      await delay(250 * attempt);
+    }
+    check(pageResult?.error, label);
+    const pageRows = pageResult?.data ?? [];
+    if (pageRows.length === 0) break;
+    const nextLastSeenId = pageRows.at(-1)?.id;
+    if (typeof nextLastSeenId !== "string" || !nextLastSeenId || nextLastSeenId === lastSeenId) {
+      throw new Error(`Failed to ${label}: ingestion task cursor did not advance.`);
+    }
+    rows.push(...pageRows);
+    lastSeenId = nextLastSeenId;
+    if (pageRows.length < pageSize) break;
   }
   return rows;
+}
+
+function isRetryableIngestionTaskReadError(error) {
+  const code = String(error?.code ?? "");
+  const message = String(error?.message ?? error ?? "");
+  return code === "57014"
+    || /canceling statement due to statement timeout|statement timeout/i.test(message);
 }
 
 async function finishTasks(ids, status, reason, attempts = 1) {

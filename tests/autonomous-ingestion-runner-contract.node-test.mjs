@@ -2540,12 +2540,28 @@ describe("autonomous ingestion runner static safety contracts", () => {
     const coverage = section("async function persistCoverage", "async function persistArtifactManifest");
 
     assert.ok(taskRead.includes("readAllIngestionTaskRows("));
-    assert.ok(taskRead.includes("for (let offset = 0; ; offset += INGESTION_TASK_READ_PAGE_SIZE)"));
+    assert.ok(taskRead.includes("let lastSeenId = null"));
+    assert.ok(taskRead.includes("INGESTION_TASK_READ_MAX_ATTEMPTS"));
     assert.ok(taskRead.includes('.order("id", { ascending: true })'));
-    assert.ok(taskRead.includes(".range(offset, offset + INGESTION_TASK_READ_PAGE_SIZE - 1)"));
-    assert.ok(taskRead.includes("if ((data?.length ?? 0) < INGESTION_TASK_READ_PAGE_SIZE) break"));
+    assert.ok(taskRead.includes(".limit(pageSize)"));
+    assert.ok(taskRead.includes('query.gt("id", lastSeenId)'));
+    assert.ok(taskRead.includes("isRetryableIngestionTaskReadError(pageResult.error)"));
+    assert.ok(taskRead.includes("pageRows.length < pageSize"));
+    assert.doesNotMatch(taskRead, /\.range\(offset,/);
     assert.ok(coverage.includes("await readAllIngestionTaskRows("));
     assert.doesNotMatch(coverage, /runSupabaseOperation\(\s*"read terminal coverage"/);
+  });
+
+  it("indexes the durable run cursor used by terminal coverage", async () => {
+    const migration = await readFile(
+      path.join(repositoryRoot, "supabase", "migrations", "028_ingestion_tasks_run_cursor_index.sql"),
+      "utf8"
+    );
+
+    assert.match(
+      migration,
+      /on public\.ingestion_tasks \(ingestion_run_id, id\)/
+    );
   });
 
   it("guards publication on terminal state coverage across all run tasks", () => {
