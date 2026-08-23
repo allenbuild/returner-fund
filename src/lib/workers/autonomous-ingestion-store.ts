@@ -15,6 +15,14 @@ export interface SupabaseResponse<T> {
   count?: number | null;
 }
 
+// PostgREST encodes `.in()` values into the request URL. Timeline checkpoints
+// are intentionally descriptive, so reading hundreds of them in one filter can
+// exceed an intermediary's request-target limit even though the preceding
+// upsert succeeded. Bound both key count and encoded filter size so enqueue is
+// atomic from the caller's perspective across every inventory size.
+const MAX_ENQUEUE_READ_CHECKPOINTS = 20;
+const MAX_ENQUEUE_READ_FILTER_BYTES = 4_000;
+
 export interface SupabaseQuery<T = unknown> extends PromiseLike<SupabaseResponse<T>> {
   insert(values: unknown): SupabaseQuery<T>;
   upsert(values: unknown, options?: { onConflict?: string; ignoreDuplicates?: boolean }): SupabaseQuery<T>;
@@ -479,13 +487,17 @@ export class AutonomousIngestionStore {
         .upsert(rows, { onConflict: "checkpoint_key", ignoreDuplicates: true }),
       "Enqueue ingestion tasks"
     );
-    return this.many<IngestionTaskRow>(
-      this.client
-        .from<IngestionTaskRow[]>("ingestion_tasks")
-        .select("*")
-        .in("checkpoint_key", inputs.map((input) => input.checkpointKey)),
-      "Read enqueued ingestion tasks"
-    );
+    const enqueued: IngestionTaskRow[] = [];
+    for (const checkpointKeys of chunkEnqueuedTaskReads(inputs.map((input) => input.checkpointKey))) {
+      enqueued.push(...await this.many<IngestionTaskRow>(
+        this.client
+          .from<IngestionTaskRow[]>("ingestion_tasks")
+          .select("*")
+          .in("checkpoint_key", checkpointKeys),
+        "Read enqueued ingestion tasks"
+      ));
+    }
+    return enqueued;
   }
 
   async claimTasks(input: ClaimTasksInput): Promise<IngestionTaskRow[]> {
@@ -775,6 +787,31 @@ export class AutonomousIngestionStore {
   ): Promise<T[]> {
     return requireData((await this.response(request, operation)).data, operation);
   }
+}
+
+function chunkEnqueuedTaskReads(checkpointKeys: readonly string[]): string[][] {
+  const chunks: string[][] = [];
+  let current: string[] = [];
+  let currentEncodedBytes = 0;
+
+  for (const checkpointKey of checkpointKeys) {
+    // Account for PostgREST list punctuation in addition to the encoded key.
+    const encodedBytes = encodeURIComponent(checkpointKey).length + 3;
+    if (
+      current.length > 0 &&
+      (current.length >= MAX_ENQUEUE_READ_CHECKPOINTS ||
+        currentEncodedBytes + encodedBytes > MAX_ENQUEUE_READ_FILTER_BYTES)
+    ) {
+      chunks.push(current);
+      current = [];
+      currentEncodedBytes = 0;
+    }
+    current.push(checkpointKey);
+    currentEncodedBytes += encodedBytes;
+  }
+
+  if (current.length > 0) chunks.push(current);
+  return chunks;
 }
 
 function checkpointValues(

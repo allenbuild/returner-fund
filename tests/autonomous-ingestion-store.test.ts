@@ -255,6 +255,36 @@ describe("AutonomousIngestionStore", () => {
     ]);
   });
 
+  it("bounds checkpoint-key reads so large Timeline enqueues cannot exceed PostgREST URL limits", async () => {
+    const inputs = Array.from({ length: 45 }, (_, index) => ({
+      runId: "run-1",
+      entityType: "company" as const,
+      companyName: `Company ${index}`,
+      platform: "timeline_historical_archive",
+      checkpointKey: `timeline:timeline-coordinator-2026-08-02.v1:run-1:company-${index}:timeline_historical_archive`
+    }));
+    const rows = inputs.map((input, index) => taskRow({
+      id: `task-${index}`,
+      checkpoint_key: input.checkpointKey,
+      company_name: input.companyName,
+      platform: input.platform
+    }));
+    const client = new ScriptedSupabaseClient(
+      ok(null),
+      ok(rows.slice(0, 20)),
+      ok(rows.slice(20, 40)),
+      ok(rows.slice(40))
+    );
+
+    const result = await createStore(client).enqueueTasks(inputs);
+
+    expect(result).toEqual(rows);
+    const filters = queryCalls(client, "in").map((call) => call.args?.[1] as string[]);
+    expect(filters.map((values) => values.length)).toEqual([20, 20, 5]);
+    expect(filters.flat()).toEqual(inputs.map((input) => input.checkpointKey));
+    client.assertExhausted();
+  });
+
   it("uses the migration RPC names and parameter names for atomic claims and leases", async () => {
     const task = taskRow();
     const client = new ScriptedSupabaseClient(ok([task]), ok(true), ok([task]));
