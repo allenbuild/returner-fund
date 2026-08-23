@@ -3,14 +3,13 @@ run-name: Autonomous ingestion candidate ${{ github.event.schedule || inputs.rep
 
 on:
   schedule:
-    # Chicago alternates between UTC-6 and UTC-5. The resolver admits only the
-    # candidate that is actually 06:00 or 18:00 Central on that calendar day.
+    # Every cron is only a wakeup. The resolver always evaluates the newest
+    # eligible 06:00 or 18:00 America/Chicago publication slot.
     - cron: "0 0 * * *"
     - cron: "0 11 * * *"
     - cron: "0 12 * * *"
     - cron: "0 23 * * *"
-    # Retry the oldest unpublished Central slot from the fixed recovery epoch.
-    # Verified publication commits in full main history discharge each debt.
+    # Frequent wakeups retry the newest slot while its graph watermark is stale.
     - cron: "7,22,37,52 * * * *"
   workflow_dispatch:
     inputs:
@@ -39,6 +38,9 @@ jobs:
       reason: ${{ steps.decision.outputs.reason }}
       scheduled_at: ${{ steps.decision.outputs.scheduled_at }}
       recovery_debt: ${{ steps.decision.outputs.recovery_debt }}
+      publication_watermark: ${{ steps.decision.outputs.publication_watermark }}
+      watermark_status: ${{ steps.decision.outputs.watermark_status }}
+      latest_slot_key: ${{ steps.decision.outputs.latest_slot_key }}
       source_sha: ${{ steps.source.outputs.source_sha }}
     steps:
       - name: Check out repository
@@ -78,6 +80,9 @@ jobs:
           REASON: ${{ steps.schedule.outputs.reason }}
           SCHEDULED_AT: ${{ steps.schedule.outputs.scheduled_at }}
           RECOVERY_DEBT: ${{ steps.schedule.outputs.recovery_debt }}
+          PUBLICATION_WATERMARK: ${{ steps.schedule.outputs.publication_watermark }}
+          WATERMARK_STATUS: ${{ steps.schedule.outputs.watermark_status }}
+          LATEST_SLOT_KEY: ${{ steps.schedule.outputs.latest_slot_key }}
         run: |
           set -euo pipefail
           contains_line_break() {
@@ -102,7 +107,7 @@ jobs:
           ) process.exit(1);
           NODE
           }
-          for value in "$SHOULD_RUN" "$SLOT_KEY" "$TRIGGER" "$REASON" "$SCHEDULED_AT" "$RECOVERY_DEBT"; do
+          for value in "$SHOULD_RUN" "$SLOT_KEY" "$TRIGGER" "$REASON" "$SCHEDULED_AT" "$RECOVERY_DEBT" "$PUBLICATION_WATERMARK" "$WATERMARK_STATUS" "$LATEST_SLOT_KEY"; do
             if contains_line_break "$value"; then
               echo "::error title=Malformed ingestion resolver output::Resolver outputs must not contain CR or LF characters."
               exit 1
@@ -110,6 +115,10 @@ jobs:
           done
           if [ -n "$SCHEDULED_AT" ] && ! is_strict_utc_rfc3339 "$SCHEDULED_AT"; then
             echo "::error title=Malformed ingestion resolver output::scheduled_at must be a valid UTC RFC3339 timestamp."
+            exit 1
+          fi
+          if [ -n "$PUBLICATION_WATERMARK" ] && ! is_strict_utc_rfc3339 "$PUBLICATION_WATERMARK"; then
+            echo "::error title=Malformed ingestion resolver output::publication_watermark must be a valid UTC RFC3339 timestamp when present."
             exit 1
           fi
           if [ "$RECOVERY_DEBT" != "true" ] && [ "$RECOVERY_DEBT" != "false" ]; then
@@ -128,22 +137,29 @@ jobs:
               fi
               case "$TRIGGER" in
                 schedule)
-                  if [ -z "$SCHEDULED_AT" ]; then
-                    echo "::error title=Malformed ingestion resolver output::Scheduled candidates require scheduled_at."
+                  if [ -z "$SCHEDULED_AT" ] || [ "$RECOVERY_DEBT" != "true" ] || [ "$REASON" != "retry-publication-watermark" ]; then
+                    echo "::error title=Malformed ingestion resolver output::Scheduled candidates require publication-watermark retry authorization and scheduled_at."
                     exit 1
                   fi
-                  if [ "$RECOVERY_DEBT" = "true" ] && [ "$REASON" != "retry-missing-publication" ]; then
-                    echo "::error title=Malformed ingestion resolver output::Recovery debt requires retry-missing-publication authorization."
+                  if [[ ! "$LATEST_SLOT_KEY" =~ ^central-[0-9]{4}-[0-9]{2}-[0-9]{2}-(0600|1800)$ ]] || [ "$LATEST_SLOT_KEY" != "$SLOT_KEY" ]; then
+                    echo "::error title=Malformed ingestion resolver output::Scheduled candidate must be the resolver's newest eligible Central slot."
                     exit 1
                   fi
-                  if [ "$RECOVERY_DEBT" = "false" ] && [ "$REASON" != "intended-central-slot" ]; then
-                    echo "::error title=Malformed ingestion resolver output::Ordinary scheduled candidates require intended-central-slot authorization."
+                  case "$WATERMARK_STATUS" in
+                    behind|divergent|missing|invalid) ;;
+                    *)
+                      echo "::error title=Malformed ingestion resolver output::Accepted scheduled watermark status is not retryable."
+                      exit 1
+                      ;;
+                  esac
+                  if { [ "$WATERMARK_STATUS" = "behind" ] || [ "$WATERMARK_STATUS" = "divergent" ]; } && [ -z "$PUBLICATION_WATERMARK" ]; then
+                    echo "::error title=Malformed ingestion resolver output::A valid stale watermark status requires publication_watermark."
                     exit 1
                   fi
                   ;;
                 manual-replay)
-                  if [ "$RECOVERY_DEBT" != "false" ] || [ -n "$SCHEDULED_AT" ]; then
-                    echo "::error title=Malformed ingestion resolver output::Manual replay cannot claim recovery debt or scheduled_at metadata."
+                  if [ "$RECOVERY_DEBT" != "false" ] || [ -n "$SCHEDULED_AT" ] || [ "$WATERMARK_STATUS" != "manual" ] || [ -n "$LATEST_SLOT_KEY" ] || [ -n "$PUBLICATION_WATERMARK" ]; then
+                    echo "::error title=Malformed ingestion resolver output::Manual replay cannot claim schedule or publication-watermark metadata."
                     exit 1
                   fi
                   ;;
@@ -157,6 +173,10 @@ jobs:
             false)
               if [ -z "$TRIGGER" ] || [ -z "$REASON" ] || [ -n "$SLOT_KEY" ] || [ -n "$SCHEDULED_AT" ] || [ "$RECOVERY_DEBT" != "false" ]; then
                 echo "::error title=Malformed ingestion resolver output::Inactive candidates require trigger and reason and must not expose slot_key or scheduled_at metadata."
+                exit 1
+              fi
+              if [ "$TRIGGER" = "schedule" ] && { [ "$REASON" != "publication-watermark-current" ] || [ "$WATERMARK_STATUS" != "current" ] || [ -z "$PUBLICATION_WATERMARK" ] || [[ ! "$LATEST_SLOT_KEY" =~ ^central-[0-9]{4}-[0-9]{2}-[0-9]{2}-(0600|1800)$ ]]; }; then
+                echo "::error title=Malformed ingestion resolver output::Scheduled no-op requires a current publication watermark and newest slot identity."
                 exit 1
               fi
               STATUS="inactive_candidate"
@@ -173,6 +193,9 @@ jobs:
             echo "reason=$REASON"
             echo "scheduled_at=$SCHEDULED_AT"
             echo "recovery_debt=$RECOVERY_DEBT"
+            echo "publication_watermark=$PUBLICATION_WATERMARK"
+            echo "watermark_status=$WATERMARK_STATUS"
+            echo "latest_slot_key=$LATEST_SLOT_KEY"
           } >> "$GITHUB_OUTPUT"
           {
             echo "## Autonomous ingestion candidate"
@@ -181,6 +204,9 @@ jobs:
             echo "- Reason: $REASON"
             echo "- Scheduled at: ${SCHEDULED_AT:-n/a}"
             echo "- Recovery debt: $RECOVERY_DEBT"
+            echo "- Publication watermark: ${PUBLICATION_WATERMARK:-unavailable}"
+            echo "- Watermark status: ${WATERMARK_STATUS:-unknown}"
+            echo "- Latest eligible slot: ${LATEST_SLOT_KEY:-n/a}"
             echo "- This resolver job is not a successful data refresh receipt."
           } >> "$GITHUB_STEP_SUMMARY"
 
@@ -210,7 +236,7 @@ jobs:
       publication_trigger: ${{ steps.recover_publication.outputs.publication_trigger }}
       publication_scheduled_at: ${{ steps.recover_publication.outputs.publication_scheduled_at }}
       commit_verified: ${{ steps.recover_publication.outputs.commit_verified }}
-      remote_main_commit: ${{ steps.recover_publication.outputs.remote_main_commit }}
+      remote_main_commit: ${{ steps.recover_publication.outputs.remote_main_commit || steps.revalidate.outputs.remote_main_commit }}
       recovery_method: ${{ steps.recover_publication.outputs.recovery_method }}
       receipt_status: ${{ steps.publication_receipt.outputs.receipt_status }}
       receipt_conclusion: ${{ steps.publication_receipt.outputs.receipt_conclusion }}
@@ -227,6 +253,12 @@ jobs:
       terminal_failure_budget: ${{ steps.ingestion.outputs.terminal_failure_budget }}
       runner_published_commit: ${{ steps.ingestion.outputs.published_commit }}
       executed_sha: ${{ steps.checkout_state.outputs.executed_sha }}
+      revalidation_should_run: ${{ steps.revalidate.outputs.should_run }}
+      revalidation_reason: ${{ steps.revalidate.outputs.reason }}
+      revalidation_publication_watermark: ${{ steps.revalidate.outputs.publication_watermark }}
+      revalidation_watermark_status: ${{ steps.revalidate.outputs.watermark_status }}
+      revalidation_latest_slot_key: ${{ steps.revalidate.outputs.latest_slot_key }}
+      revalidated_main_commit: ${{ steps.revalidate.outputs.remote_main_commit }}
     steps:
       - name: Check out repository
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
@@ -254,17 +286,6 @@ jobs:
         with:
           node-version: 24.14.0
 
-      - name: Install dependencies
-        timeout-minutes: 5
-        run: npm ci
-
-      - name: Preflight authenticated social runner
-        if: needs.resolve.outputs.trigger == 'manual-replay' && inputs.authenticated_backfill == true
-        timeout-minutes: 3
-        env:
-          AUTHENTICATED_SOCIAL_REPLAY: ${{ inputs.authenticated_backfill || false }}
-        run: node scripts/verify-authenticated-social-runner.mjs
-
       - name: Require isolated publication credential
         env:
           CANDIDATE_TRIGGER: ${{ needs.resolve.outputs.trigger }}
@@ -281,8 +302,6 @@ jobs:
           fi
           node --input-type=module <<'NODE'
           import assert from "node:assert/strict";
-          import { INGESTION_RECOVERY_ROLLOUT_SCHEDULED_AT } from "./scripts/lib/ingestion-schedule.mjs";
-
           const trigger = process.env.CANDIDATE_TRIGGER ?? "";
           const slotKey = process.env.CANDIDATE_SLOT_KEY ?? "";
           const scheduledAt = process.env.CANDIDATE_SCHEDULED_AT ?? "";
@@ -299,24 +318,13 @@ jobs:
           }
           assert.equal(trigger, "schedule", "queued ingestion trigger must be schedule or manual-replay");
           assert.equal(eventName, "schedule", "scheduled ingestion must originate from a schedule event");
-          assert.equal(
-            reason,
-            recoveryDebt ? "retry-missing-publication" : "intended-central-slot",
-            "scheduled ingestion reason does not authorize its recovery-debt state"
-          );
+          assert.equal(recoveryDebt, true, "scheduled ingestion requires publication-watermark retry authorization");
+          assert.equal(reason, "retry-publication-watermark", "scheduled ingestion reason is not publication-watermark authorized");
           assert.match(slotKey, /^central-\d{4}-\d{2}-\d{2}-(?:0600|1800)$/);
           const scheduled = new Date(scheduledAt);
           assert.ok(Number.isFinite(scheduled.getTime()), "scheduled ingestion requires a valid scheduled_at");
           const ageMs = Date.now() - scheduled.getTime();
           assert.ok(ageMs >= 0, "scheduled ingestion cannot be in the future");
-          if (recoveryDebt) {
-            assert.ok(
-              scheduled.getTime() >= Date.parse(INGESTION_RECOVERY_ROLLOUT_SCHEDULED_AT),
-              "recovery debt predates the fixed rollout epoch"
-            );
-          } else {
-            assert.ok(ageMs <= 11 * 60 * 60 * 1000, "scheduled ingestion became stale while queued");
-          }
           const parts = Object.fromEntries(new Intl.DateTimeFormat("en-US", {
             timeZone: "America/Chicago",
             calendar: "gregory",
@@ -334,8 +342,66 @@ jobs:
           assert.equal(slotKey, `central-${parts.year}-${parts.month}-${parts.day}-${parts.hour}${parts.minute}`);
           NODE
 
+      - name: Revalidate serialized publication candidate
+        id: revalidate
+        env:
+          CANDIDATE_TRIGGER: ${{ needs.resolve.outputs.trigger }}
+          CANDIDATE_SLOT_KEY: ${{ needs.resolve.outputs.slot_key }}
+          CANDIDATE_SCHEDULED_AT: ${{ needs.resolve.outputs.scheduled_at }}
+          CANDIDATE_REASON: ${{ needs.resolve.outputs.reason }}
+          CANDIDATE_RECOVERY_DEBT: ${{ needs.resolve.outputs.recovery_debt }}
+          GITHUB_EVENT_SCHEDULE: ${{ github.event.schedule }}
+          INGESTION_REVALIDATE_CANDIDATE: "true"
+          INGESTION_PUBLICATION_REF: refs/remotes/origin/main
+          SOURCE_SHA: ${{ needs.resolve.outputs.source_sha }}
+        run: |
+          set -euo pipefail
+          fetch_main_with_retry() {
+            local delay_seconds=2
+            local attempt
+            for attempt in 1 2 3 4; do
+              if GIT_CONFIG_COUNT=2 \
+                GIT_CONFIG_KEY_0="core.hooksPath" \
+                GIT_CONFIG_VALUE_0="/dev/null" \
+                GIT_CONFIG_KEY_1="credential.helper" \
+                GIT_CONFIG_VALUE_1="" \
+                GIT_CONFIG_NOSYSTEM=1 \
+                GIT_CONFIG_GLOBAL=/dev/null \
+                GIT_TERMINAL_PROMPT=0 \
+                git fetch --no-tags origin +refs/heads/main:refs/remotes/origin/main; then return 0; fi
+              if [ "$attempt" -lt 4 ]; then
+                echo "::warning title=Candidate revalidation retry::Unauthenticated main fetch attempt $attempt failed."
+                sleep "$delay_seconds"
+                delay_seconds=$((delay_seconds * 2))
+              fi
+            done
+            echo "::error title=Candidate revalidation failed::Unable to refresh origin/main after four bounded attempts."
+            return 1
+          }
+          fetch_main_with_retry
+          REMOTE_MAIN_COMMIT="$(git rev-parse refs/remotes/origin/main)"
+          if ! git merge-base --is-ancestor "$SOURCE_SHA" refs/remotes/origin/main; then
+            echo "::error title=Candidate source no longer trusted::Source commit $SOURCE_SHA is not reachable from current main $REMOTE_MAIN_COMMIT."
+            exit 1
+          fi
+          echo "remote_main_commit=$REMOTE_MAIN_COMMIT" >> "$GITHUB_OUTPUT"
+          node scripts/lib/ingestion-schedule.mjs
+
+      - name: Install dependencies
+        if: steps.revalidate.outputs.should_run == 'true'
+        timeout-minutes: 5
+        run: npm ci
+
+      - name: Preflight authenticated social runner
+        if: steps.revalidate.outputs.should_run == 'true' && needs.resolve.outputs.trigger == 'manual-replay' && inputs.authenticated_backfill == true
+        timeout-minutes: 3
+        env:
+          AUTHENTICATED_SOCIAL_REPLAY: ${{ inputs.authenticated_backfill || false }}
+        run: node scripts/verify-authenticated-social-runner.mjs
+
       - name: Run autonomous ingestion
         id: ingestion
+        if: steps.revalidate.outputs.should_run == 'true'
         timeout-minutes: 330
         env:
           NODE_OPTIONS: --max-old-space-size=1024
@@ -377,6 +443,7 @@ jobs:
 
       - name: Verify repository-backed publication commit
         id: verify_publication
+        if: steps.revalidate.outputs.should_run == 'true'
         env:
           RUNNER_PUBLISHED_COMMIT: ${{ steps.ingestion.outputs.published_commit }}
         run: |
@@ -410,6 +477,7 @@ jobs:
 
       - name: Record publication receipt
         id: publication_receipt
+        if: steps.revalidate.outputs.should_run == 'true'
         env:
           SLOT_KEY: ${{ needs.resolve.outputs.slot_key }}
           RUNNER_STATUS: ${{ steps.ingestion.outputs.runner_status }}
@@ -430,7 +498,7 @@ jobs:
 
       - name: Recover exact publication commit
         id: recover_publication
-        if: always()
+        if: ${{ always() && steps.revalidate.outputs.should_run == 'true' }}
         env:
           VERIFIED_PUBLISHED_COMMIT: ${{ steps.verify_publication.outputs.published_commit }}
           RUNNER_PUBLISHED_COMMIT: ${{ steps.ingestion.outputs.published_commit }}
@@ -687,7 +755,7 @@ jobs:
   validate_publication:
     name: Validate published commit ${{ needs.ingest.outputs.published_commit }}
     needs: [resolve, ingest]
-    if: ${{ always() && needs.resolve.outputs.should_run == 'true' }}
+    if: ${{ always() && needs.resolve.outputs.should_run == 'true' && needs.ingest.outputs.revalidation_should_run == 'true' }}
     permissions:
       contents: read
     uses: ./.github/workflows/public-artifacts.yml
@@ -727,6 +795,11 @@ jobs:
           TRIGGER_SHA: ${{ github.sha }}
           SOURCE_SHA: ${{ needs.resolve.outputs.source_sha }}
           EXECUTED_SHA: ${{ needs.ingest.outputs.executed_sha }}
+          REVALIDATION_SHOULD_RUN: ${{ needs.ingest.outputs.revalidation_should_run }}
+          REVALIDATION_REASON: ${{ needs.ingest.outputs.revalidation_reason }}
+          REVALIDATION_WATERMARK_STATUS: ${{ needs.ingest.outputs.revalidation_watermark_status }}
+          REVALIDATION_PUBLICATION_WATERMARK: ${{ needs.ingest.outputs.revalidation_publication_watermark }}
+          REVALIDATION_LATEST_SLOT_KEY: ${{ needs.ingest.outputs.revalidation_latest_slot_key }}
         run: |
           RECEIPT_RECOGNIZED=false
           case "$RECEIPT_CONCLUSION:$RECEIPT_STATUS" in
@@ -745,6 +818,8 @@ jobs:
             STATUS="inactive_candidate_no_refresh"
           elif [ "$SHOULD_RUN" != "true" ] || [ -z "$SLOT_KEY" ]; then
             STATUS="resolver_failed"
+          elif [ "$REVALIDATION_SHOULD_RUN" = "false" ] && [ "$INGEST_RESULT" = "success" ] && [ "$VALIDATION_RESULT" = "skipped" ]; then
+            STATUS="queued_candidate_noop"
           elif [ "$INGEST_RESULT" = "success" ] && [ "$VALIDATION_RESULT" = "success" ] && [ "$RECEIPT_RECOGNIZED" = "true" ] && [ "$COMMIT_PROOF_VALID" = "true" ] && [ "$COMMIT_REPOSITORY_VERIFIED" = "true" ]; then
             STATUS="$RECEIPT_STATUS"
           else
@@ -765,6 +840,11 @@ jobs:
             echo "- Trigger SHA: ${TRIGGER_SHA:-none}"
             echo "- Source SHA: ${SOURCE_SHA:-none}"
             echo "- Executed SHA: ${EXECUTED_SHA:-none}"
+            echo "- Revalidation should run: ${REVALIDATION_SHOULD_RUN:-n/a}"
+            echo "- Revalidation reason: ${REVALIDATION_REASON:-n/a}"
+            echo "- Revalidation watermark status: ${REVALIDATION_WATERMARK_STATUS:-n/a}"
+            echo "- Revalidation publication watermark: ${REVALIDATION_PUBLICATION_WATERMARK:-n/a}"
+            echo "- Revalidation latest slot: ${REVALIDATION_LATEST_SLOT_KEY:-n/a}"
             echo "- Published commit: ${PUBLISHED_COMMIT:-none}"
           } >> "$GITHUB_STEP_SUMMARY"
           if [ -n "${GITHUB_OUTPUT:-}" ]; then
@@ -826,6 +906,11 @@ jobs:
           TRIGGER_SHA: ${{ github.sha }}
           SOURCE_SHA: ${{ needs.resolve.outputs.source_sha }}
           EXECUTED_SHA: ${{ needs.ingest.outputs.executed_sha }}
+          REVALIDATION_SHOULD_RUN: ${{ needs.ingest.outputs.revalidation_should_run }}
+          REVALIDATION_REASON: ${{ needs.ingest.outputs.revalidation_reason }}
+          REVALIDATION_WATERMARK_STATUS: ${{ needs.ingest.outputs.revalidation_watermark_status }}
+          REVALIDATION_PUBLICATION_WATERMARK: ${{ needs.ingest.outputs.revalidation_publication_watermark }}
+          REVALIDATION_LATEST_SLOT_KEY: ${{ needs.ingest.outputs.revalidation_latest_slot_key }}
           EVENT_NAME: ${{ github.event_name }}
           WORKFLOW_NAME: ${{ github.workflow }}
           REPOSITORY: ${{ github.repository }}
@@ -852,7 +937,9 @@ jobs:
             ? "resolver_failed"
             : process.env.SHOULD_RUN === "false"
               ? "inactive_candidate_no_refresh"
-              : "accepted_slot_failed";
+              : process.env.REVALIDATION_SHOULD_RUN === "false"
+                ? "queued_candidate_noop"
+                : "accepted_slot_failed";
           const directory = join(process.env.RUNNER_TEMP, "autonomous-ingestion-receipt");
           const receipt = {
             schemaVersion: 1,
@@ -897,6 +984,11 @@ jobs:
             triggerSha: process.env.TRIGGER_SHA,
             sourceSha: optional(process.env.SOURCE_SHA),
             executedSha: optional(process.env.EXECUTED_SHA),
+            revalidationShouldRun: booleanOrNull(process.env.REVALIDATION_SHOULD_RUN),
+            revalidationReason: optional(process.env.REVALIDATION_REASON),
+            revalidationWatermarkStatus: optional(process.env.REVALIDATION_WATERMARK_STATUS),
+            revalidationPublicationWatermark: optional(process.env.REVALIDATION_PUBLICATION_WATERMARK),
+            revalidationLatestSlotKey: optional(process.env.REVALIDATION_LATEST_SLOT_KEY),
             run: {
               id: optional(process.env.RUN_ID),
               attempt: optional(process.env.RUN_ATTEMPT),
@@ -962,6 +1054,7 @@ jobs:
             ...successfulStatuses,
             ...warningStatuses,
             "inactive_candidate_no_refresh",
+            "queued_candidate_noop",
             "resolver_failed",
             "accepted_slot_failed"
           ]);
@@ -986,6 +1079,7 @@ jobs:
           assert.equal(typeof receipt.receiptRecognized, "boolean");
           assert.equal(typeof receipt.commitProofValid, "boolean");
           assert.equal(typeof receipt.commitRepositoryVerified, "boolean");
+          assert.ok(typeof receipt.revalidationShouldRun === "boolean" || receipt.revalidationShouldRun === null);
           const verifiedRecoveryMethods = new Set(["verified_output", "runner_output", "trailers"]);
           assert.ok(
             receipt.recoveryMethod === null ||
@@ -1068,6 +1162,7 @@ jobs:
             assert.equal(receipt.resolveResult, "success");
             assert.equal(receipt.ingestResult, "success");
             assert.equal(receipt.validationResult, "success");
+            assert.equal(receipt.revalidationShouldRun, true);
             assert.equal(receipt.receiptStatus, receipt.status);
             assert.equal(receipt.receiptConclusion, successfulStatuses.has(receipt.status) ? "success" : "warning");
             assert.equal(receipt.receiptRecognized, true);
@@ -1082,6 +1177,25 @@ jobs:
             assert.equal(receipt.slotKey, null);
             assert.equal(receipt.scheduledAt, null);
             assert.equal(receipt.publishedCommit, null);
+            assert.equal(receipt.commitRepositoryVerified, false);
+            assert.equal(receipt.revalidationShouldRun, null);
+          } else if (receipt.status === "queued_candidate_noop") {
+            assert.equal(receipt.shouldRun, true);
+            assert.equal(receipt.resolveResult, "success");
+            assert.equal(receipt.ingestResult, "success");
+            assert.equal(receipt.validationResult, "skipped");
+            assert.equal(receipt.revalidationShouldRun, false);
+            assert.ok(
+              receipt.revalidationReason === "queued-publication-watermark-current" ||
+                receipt.revalidationReason === "queued-candidate-superseded",
+              "queued no-op requires a recognized revalidation reason"
+            );
+            assert.ok(validSlotKey(receipt.slotKey));
+            assert.ok(exactSha(receipt.executedSha));
+            assert.equal(receipt.executedSha, receipt.sourceSha);
+            assert.ok(exactSha(receipt.remoteMainCommit));
+            assert.equal(receipt.publishedCommit, null);
+            assert.equal(receipt.commitProofValid, false);
             assert.equal(receipt.commitRepositoryVerified, false);
           } else if (receipt.status === "accepted_slot_failed") {
             assert.equal(receipt.shouldRun, true);

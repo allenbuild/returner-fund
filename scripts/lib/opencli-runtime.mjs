@@ -159,6 +159,7 @@ export function createOpenCliProcessOwner({
     scanFailure: null,
     authorizationFailures: new Map(),
     processExitStates: new Map(),
+    processSignalStates: new Map(),
     drainPromise: null
   };
 }
@@ -350,8 +351,14 @@ async function executeOwnedOpenCliProcess(command, args, {
     child.once("error", reject);
     child.once("exit", (code, signal) => resolve({ code, signal }));
   });
+  let childStartIdentity = null;
   if (Number.isInteger(child.pid) && child.pid > 0) {
-    const exitState = { settled: false, promise: exit };
+    childStartIdentity = processStartIdentity(child.pid);
+    const exitState = {
+      startIdentity: childStartIdentity,
+      settled: false,
+      promise: exit
+    };
     owner.processExitStates.set(child.pid, exitState);
     exit.then(
       () => { exitState.settled = true; },
@@ -389,7 +396,7 @@ async function executeOwnedOpenCliProcess(command, args, {
     owner.processes.set(child.pid, {
       pgid: process.platform === "win32" ? child.pid : child.pid,
       state: "running",
-      startIdentity: processStartIdentity(child.pid)
+      startIdentity: childStartIdentity
     });
     owner.groups.add(child.pid);
     startOpenCliProcessScanner(owner);
@@ -571,40 +578,37 @@ async function scanOwnedProcesses(owner) {
     const startIdentity = row.startIdentity ?? processStartIdentity(pid);
     if (!startIdentity) continue;
     const previous = owner.processes.get(pid);
+    let retainedStartIdentity = previous?.startIdentity ?? null;
     // A PID that changed identity is no longer ours. Remove it from every
     // ownership set before any later teardown pass can signal the replacement.
     if (
       previous?.startIdentity &&
       previous.startIdentity !== startIdentity
     ) {
-      owner.processes.delete(pid);
-      owner.roots.delete(pid);
-      continue;
+      forgetOwnedProcessIdentity(owner, pid);
+      // A current process with the exact owner marker is a new owned identity,
+      // even when it reused a stale PID. Rebind it as a descendant so stale
+      // exit/signal records cannot make the new identity look drained.
+      if (!row.markerPresent) continue;
+      retainedStartIdentity = null;
     }
+    clearStaleOwnedProcessIdentityState(owner, pid, startIdentity);
     owner.processes.set(pid, {
       ppid: row.ppid,
       pgid: row.pgid,
       state: row.state,
-      startIdentity: previous?.startIdentity ?? startIdentity
+      startIdentity: retainedStartIdentity ?? startIdentity
     });
     if (row.pgid > 1) owner.groups.add(row.pgid);
   }
   for (const pid of owner.processes.keys()) {
     const row = rows.get(pid);
-    // Linux keeps a terminated process visible as a zombie until its parent
-    // reaps it. A zombie cannot be signaled, and kill(0) still succeeds for
-    // it, so treat an exact owned zombie/settled child as drained and forget
-    // the ownership record. Never remove a live row: its identity remains
-    // required for every later signal authorization.
-    if (
-      processHasExited(owner, pid) &&
-      (!row || isProcessTerminated(row.state) || owner.processExitStates.get(pid)?.settled)
-    ) {
-      owner.processes.delete(pid);
-      owner.roots.delete(pid);
-      owner.authorizationFailures.delete(pid);
-      owner.processExitStates.delete(pid);
-    }
+    // A zombie cannot be signaled, but kill(0) still succeeds until its parent
+    // reaps it. Remove only an absent or observed-zombie identity; a settled
+    // exit promise is never enough to discard a live process-table row.
+    if (row && !isProcessTerminated(row.state)) continue;
+    if (!processHasExited(owner, pid)) continue;
+    forgetOwnedProcessIdentity(owner, pid);
   }
   owner.scanFailure = null;
 }
@@ -642,11 +646,17 @@ async function scanPortableProcessTable(marker) {
       state: match[4],
       command: match[5] ?? "",
       startIdentity: null,
-      markerPresent: (match[5] ?? "").includes(`RETURNER_OPENCLI_PROCESS_OWNER=${marker}`),
+      markerPresent: portableCommandHasExactOwnerMarker(match[5], marker),
       markerReadable: true
     });
   }
   return rows;
+}
+
+function portableCommandHasExactOwnerMarker(command, marker) {
+  if (typeof marker !== "string" || !marker) return false;
+  const expected = `RETURNER_OPENCLI_PROCESS_OWNER=${marker}`;
+  return String(command ?? "").split(/\s+/).includes(expected);
 }
 
 function readLinuxProcessRow(pid, marker) {
@@ -804,7 +814,7 @@ async function drainOwnedRoots(owner) {
 async function waitForOwnedRootExitEvents(owner, timeoutMs) {
   const pending = [...owner.processes.keys()]
     .filter((pid) => owner.roots.has(pid) && !processHasExited(owner, pid))
-    .map((pid) => owner.processExitStates.get(pid)?.promise?.catch(() => undefined));
+    .map((pid) => ownedProcessExitState(owner, pid)?.promise?.catch(() => undefined));
   const exitEvents = pending.filter(Boolean);
   if (exitEvents.length === 0) {
     return waitForOwnedProcessesToExit(owner, timeoutMs, {
@@ -844,6 +854,7 @@ async function waitForOwnedProcessesToStop(owner, timeoutMs) {
     if (!owner.scanFailure) {
       const running = [...owner.processes.entries()].some(
         ([pid, processState]) =>
+          !ownedProcessSignalWasSent(owner, pid, processState, "SIGCONT") &&
           !processHasExited(owner, pid) &&
           !isProcessTerminated(processState.state) &&
           !isProcessStopped(processState.state)
@@ -898,6 +909,7 @@ function signalOwnedProcesses(owner, signal, {
   for (const [pid, processState] of targets) {
     if (!Number.isInteger(pid) || pid <= 1 || pid === process.pid) continue;
     if (isProcessTerminated(processState.state)) continue;
+    if (ownedProcessSignalWasSent(owner, pid, processState, signal)) continue;
     if (!processIsRunning(pid)) continue;
 
     const authorization = ownedProcessIdentityStatus(pid, processState, owner);
@@ -907,6 +919,7 @@ function signalOwnedProcesses(owner, signal, {
     }
     try {
       process.kill(pid, signal);
+      recordOwnedProcessSignal(owner, pid, processState, signal);
       owner.authorizationFailures.delete(pid);
     } catch (error) {
       if (error?.code !== "ESRCH") owner.scanFailure ??= error;
@@ -925,7 +938,6 @@ function hasOwnedProcesses(owner, {
 }
 
 function processHasExited(owner, pid) {
-  if (owner.processExitStates.get(pid)?.settled) return true;
   if (isProcessTerminated(owner.processes.get(pid)?.state)) return true;
   return !processIsRunning(pid);
 }
@@ -957,15 +969,69 @@ function recordSignalAuthorizationFailure(owner, pid, processState, authorizatio
   if (authorization === "replaced") {
     // The original process is gone. Do not signal a replacement PID, and do
     // not let the stale ownership record make a later drain look successful.
-    owner.processes.delete(pid);
-    owner.roots.delete(pid);
-    owner.authorizationFailures.delete(pid);
+    forgetOwnedProcessIdentity(owner, pid);
     return;
   }
   owner.authorizationFailures.set(pid, {
     state: processState?.state ?? "",
     reason: authorization
   });
+}
+
+function ownedProcessExitState(owner, pid, processState = owner.processes.get(pid)) {
+  const exitState = owner.processExitStates.get(pid);
+  if (
+    !exitState?.startIdentity ||
+    !processState?.startIdentity ||
+    exitState.startIdentity !== processState.startIdentity
+  ) {
+    return null;
+  }
+  return exitState;
+}
+
+function ownedProcessSignalState(owner, pid, processState, { create = false } = {}) {
+  if (!processState?.startIdentity) return null;
+  const previous = owner.processSignalStates.get(pid);
+  if (previous && previous.startIdentity !== processState.startIdentity) {
+    owner.processSignalStates.delete(pid);
+  }
+  const current = owner.processSignalStates.get(pid);
+  if (current || !create) return current ?? null;
+  const created = {
+    startIdentity: processState.startIdentity,
+    signals: new Set()
+  };
+  owner.processSignalStates.set(pid, created);
+  return created;
+}
+
+function ownedProcessSignalWasSent(owner, pid, processState, signal) {
+  return ownedProcessSignalState(owner, pid, processState)?.signals.has(signal) ?? false;
+}
+
+function recordOwnedProcessSignal(owner, pid, processState, signal) {
+  ownedProcessSignalState(owner, pid, processState, { create: true })?.signals.add(signal);
+}
+
+function clearStaleOwnedProcessIdentityState(owner, pid, startIdentity) {
+  const exitState = owner.processExitStates.get(pid);
+  if (exitState && exitState.startIdentity !== startIdentity) {
+    owner.processExitStates.delete(pid);
+  }
+  const signalState = owner.processSignalStates.get(pid);
+  if (signalState && signalState.startIdentity !== startIdentity) {
+    owner.processSignalStates.delete(pid);
+  }
+  owner.authorizationFailures.delete(pid);
+}
+
+function forgetOwnedProcessIdentity(owner, pid) {
+  owner.processes.delete(pid);
+  owner.roots.delete(pid);
+  owner.authorizationFailures.delete(pid);
+  owner.processExitStates.delete(pid);
+  owner.processSignalStates.delete(pid);
 }
 
 function openCliProcessDrainFailure(owner) {
@@ -998,6 +1064,7 @@ function resetOpenCliProcessOwner(owner) {
   owner.scanFailure = null;
   owner.authorizationFailures.clear();
   owner.processExitStates.clear();
+  owner.processSignalStates.clear();
 }
 
 function processIsRunning(pid) {
@@ -1035,7 +1102,6 @@ function processOwnerMarker(pid, marker) {
   if (!Number.isInteger(pid) || pid <= 0 || typeof marker !== "string" || !marker) {
     return null;
   }
-  const expected = `RETURNER_OPENCLI_PROCESS_OWNER=${marker}`;
   if (process.platform === "linux") {
     return readLinuxProcessEnvironmentMarker(pid, marker).present ? marker : null;
   }
@@ -1046,7 +1112,7 @@ function processOwnerMarker(pid, marker) {
       stdio: ["ignore", "pipe", "ignore"],
       env: { LC_ALL: "C", LANG: "C", PATH: "/usr/bin:/bin" }
     });
-    return String(result).includes(expected) ? marker : null;
+    return portableCommandHasExactOwnerMarker(result, marker) ? marker : null;
   } catch {
     return null;
   }

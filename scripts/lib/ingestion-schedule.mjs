@@ -1,5 +1,6 @@
-import { execFileSync } from "node:child_process";
+import { spawn } from "node:child_process";
 import { appendFileSync } from "node:fs";
+import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 
@@ -16,9 +17,15 @@ export const INGESTION_UTC_CRON_CANDIDATES = Object.freeze([
   INGESTION_RECOVERY_CRON
 ]);
 export const INGESTION_CENTRAL_SLOTS = Object.freeze(["06:00", "18:00"]);
-export const DEFAULT_LATENESS_WINDOW_MINUTES = 11 * 60;
-export const INGESTION_RECOVERY_ROLLOUT_SLOT_KEY = "central-2026-08-22-0600";
-export const INGESTION_RECOVERY_ROLLOUT_SCHEDULED_AT = "2026-08-22T11:00:00.000Z";
+export const PUBLICATION_WATERMARK_GRAPHS = Object.freeze([
+  Object.freeze({ path: "public/graph/s26.json", batchSlug: "S26" }),
+  Object.freeze({ path: "public/graph/s2026.json", batchSlug: "S2026" })
+]);
+
+const REPLAY_KEY_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/;
+const CENTRAL_SLOT_KEY_PATTERN = /^central-\d{4}-\d{2}-\d{2}-(?:0600|1800)$/;
+const SCHEDULE_RETRY_REASON = "retry-publication-watermark";
+const STRICT_UTC_RFC3339 = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.\d{1,9})?Z$/;
 
 const CENTRAL_FORMATTER = new Intl.DateTimeFormat("en-US", {
   timeZone: CENTRAL_TIME_ZONE,
@@ -33,33 +40,15 @@ const CENTRAL_FORMATTER = new Intl.DateTimeFormat("en-US", {
   hourCycle: "h23"
 });
 
-const CRON_TIME = new Map(
-  INGESTION_PRIMARY_UTC_CRON_CANDIDATES.map((cron) => {
-    const [minute, hour] = cron.split(" ").map(Number);
-    return [cron, { hour, minute }];
-  })
-);
-const REPLAY_KEY_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/;
-const CENTRAL_SLOT_KEY_PATTERN = /^central-\d{4}-\d{2}-\d{2}-(?:0600|1800)$/;
-const PUBLICATION_SUBJECT_PREFIX = "Publish autonomous ingestion ";
-const PUBLICATION_GIT_LOG_FORMAT = "%H%x00%s%x00%B%x00";
-const FULL_HISTORY_CAPTURE_LIMIT = 64 * 1024 * 1024;
-
 export function resolveIngestionSchedule({
   eventName,
   schedule,
   replayKey,
-  publishedSlotKeys,
-  now = new Date(),
-  latenessWindowMinutes = DEFAULT_LATENESS_WINDOW_MINUTES
+  publicationState,
+  now = new Date()
 } = {}) {
   if (eventName === "schedule") {
-    return resolveScheduledIngestion({
-      schedule,
-      publishedSlotKeys,
-      now,
-      latenessWindowMinutes
-    });
+    return resolveScheduledIngestion({ schedule, publicationState, now });
   }
 
   if (eventName === "workflow_dispatch") {
@@ -71,86 +60,161 @@ export function resolveIngestionSchedule({
 
 export function resolveScheduledIngestion({
   schedule,
-  publishedSlotKeys,
-  now = new Date(),
-  latenessWindowMinutes = DEFAULT_LATENESS_WINDOW_MINUTES
+  publicationState,
+  now = new Date()
 } = {}) {
   assertValidDate(now);
-  assertValidLatenessWindow(latenessWindowMinutes);
-
-  if (schedule === INGESTION_RECOVERY_CRON) {
-    return resolveRecoveryIngestion({
-      now,
-      publishedSlotKeys
-    });
-  }
-
-  const utcTime = CRON_TIME.get(schedule);
-  if (utcTime === undefined) {
+  if (!INGESTION_UTC_CRON_CANDIDATES.includes(schedule)) {
     return rejectedDecision("unrecognized-cron");
   }
 
-  const scheduledAt = nearestPriorCronOccurrence(now, utcTime);
-  const latenessMinutes = (now.getTime() - scheduledAt.getTime()) / 60_000;
-  if (latenessMinutes > latenessWindowMinutes) {
-    return rejectedDecision("outside-lateness-window", {
-      scheduledAt: scheduledAt.toISOString(),
-      latenessMinutes
+  const latest = latestEligibleCentralSlot(now);
+  const state = normalizePublicationState(publicationState, now);
+  const watermarkMs = state.watermark?.getTime() ?? null;
+  const newestGraphMs = state.newestGeneratedAt?.getTime() ?? watermarkMs;
+  let watermarkStatus = state.status;
+
+  if (state.status === "valid") {
+    if (watermarkMs >= latest.scheduledAt.getTime()) {
+      watermarkStatus = "current";
+    } else if (newestGraphMs >= latest.scheduledAt.getTime()) {
+      watermarkStatus = "divergent";
+    } else {
+      watermarkStatus = "behind";
+    }
+  }
+
+  const decisionDetails = {
+    publicationWatermark: state.watermark?.toISOString() ?? null,
+    watermarkStatus,
+    latestEligibleSlotKey: latest.slotKey,
+    graphGeneratedAt: state.graphGeneratedAt
+  };
+  if (watermarkStatus === "current") {
+    return rejectedDecision("publication-watermark-current", {
+      trigger: "schedule",
+      ...decisionDetails
     });
   }
 
-  const central = centralDateTimeParts(scheduledAt);
-  const centralTime = `${central.hour}:${central.minute}`;
-  if (!INGESTION_CENTRAL_SLOTS.includes(centralTime) || central.second !== "00") {
-    return rejectedDecision("inactive-dst-candidate", {
-      scheduledAt: scheduledAt.toISOString(),
-      latenessMinutes
-    });
-  }
-
-  const centralDate = `${central.year}-${central.month}-${central.day}`;
   return {
     accepted: true,
     trigger: "schedule",
-    reason: "intended-central-slot",
-    slotKey: `central-${centralDate}-${central.hour}${central.minute}`,
-    centralDate,
-    centralTime,
-    scheduledAt: scheduledAt.toISOString(),
-    latenessMinutes,
-    recoveryDebt: false
+    reason: SCHEDULE_RETRY_REASON,
+    slotKey: latest.slotKey,
+    centralDate: latest.centralDate,
+    centralTime: latest.centralTime,
+    scheduledAt: latest.scheduledAt.toISOString(),
+    latenessMinutes: (now.getTime() - latest.scheduledAt.getTime()) / 60_000,
+    recoveryDebt: true,
+    ...decisionDetails
   };
 }
 
-export function resolveRecoveryIngestion({
-  now = new Date(),
-  publishedSlotKeys = []
+export function revalidateIngestionCandidate({
+  candidate,
+  eventName,
+  schedule,
+  publicationState,
+  now = new Date()
 } = {}) {
-  assertValidDate(now);
-  const published = normalizePublishedSlotKeys(publishedSlotKeys);
-  const expectedSlots = enumerateExpectedCentralSlotsThrough(now);
-  if (expectedSlots.length === 0) return rejectedDecision("before-recovery-rollout-epoch");
-  const missing = expectedSlots.find(({ slotKey }) => !published.has(slotKey));
-  if (!missing) {
-    const latest = expectedSlots.at(-1);
-    return rejectedDecision("all-expected-slots-published", {
-      latestExpectedSlotKey: latest.slotKey
-    });
+  const validated = validateCandidateForRevalidation(candidate, { eventName });
+  if (validated.trigger === "manual-replay") {
+    return {
+      accepted: true,
+      trigger: "manual-replay",
+      reason: "revalidated-manual-replay",
+      slotKey: validated.slotKey,
+      centralDate: null,
+      centralTime: null,
+      scheduledAt: null,
+      latenessMinutes: null,
+      recoveryDebt: false,
+      publicationWatermark: null,
+      watermarkStatus: "manual",
+      latestEligibleSlotKey: null,
+      graphGeneratedAt: {}
+    };
   }
 
-  const latenessMinutes = (now.getTime() - missing.scheduledAt.getTime()) / 60_000;
+  const current = resolveScheduledIngestion({ schedule, publicationState, now });
+  if (!current.accepted) {
+    if (current.reason !== "publication-watermark-current") {
+      throw new Error(`Scheduled candidate revalidation failed closed: ${current.reason}.`);
+    }
+    return rejectedDecision("queued-publication-watermark-current", {
+      trigger: validated.trigger,
+      candidateSlotKey: validated.slotKey,
+      publicationWatermark: current.publicationWatermark,
+      watermarkStatus: current.watermarkStatus,
+      latestEligibleSlotKey: current.latestEligibleSlotKey,
+      graphGeneratedAt: current.graphGeneratedAt
+    });
+  }
+  if (current.slotKey !== validated.slotKey) {
+    return rejectedDecision("queued-candidate-superseded", {
+      trigger: validated.trigger,
+      candidateSlotKey: validated.slotKey,
+      publicationWatermark: current.publicationWatermark,
+      watermarkStatus: current.watermarkStatus,
+      latestEligibleSlotKey: current.slotKey,
+      graphGeneratedAt: current.graphGeneratedAt
+    });
+  }
+  if (current.scheduledAt !== validated.scheduledAt) {
+    throw new Error("Queued scheduled candidate changed slot identity during revalidation.");
+  }
 
   return {
-    accepted: true,
-    trigger: "schedule",
-    reason: "retry-missing-publication",
-    slotKey: missing.slotKey,
-    centralDate: missing.centralDate,
-    centralTime: missing.centralTime,
-    scheduledAt: missing.scheduledAt.toISOString(),
-    latenessMinutes,
-    recoveryDebt: true
+    ...current,
+    reason: "revalidated-publication-watermark"
   };
+}
+
+export function validateCandidateForRevalidation(candidate, { eventName } = {}) {
+  const trigger = cleanString(candidate?.trigger);
+  const slotKey = cleanString(candidate?.slotKey);
+  const scheduledAt = cleanString(candidate?.scheduledAt);
+  const reason = cleanString(candidate?.reason);
+  if (typeof candidate?.recoveryDebt !== "boolean") {
+    throw new Error("Queued candidate recovery debt must be boolean.");
+  }
+  if (!REPLAY_KEY_PATTERN.test(slotKey ?? "")) {
+    throw new Error("Queued candidate slot key is not a valid stable idempotency key.");
+  }
+
+  if (trigger === "manual-replay") {
+    if (eventName !== "workflow_dispatch") {
+      throw new Error("Manual replay candidate must originate from workflow_dispatch.");
+    }
+    if (scheduledAt || reason !== "explicit-replay-key" || candidate.recoveryDebt) {
+      throw new Error("Manual replay candidate has contradictory schedule or recovery metadata.");
+    }
+    return Object.freeze({ trigger, slotKey, scheduledAt: null, recoveryDebt: false });
+  }
+
+  if (trigger !== "schedule" || eventName !== "schedule") {
+    throw new Error("Scheduled candidate must originate from a schedule event.");
+  }
+  if (reason !== SCHEDULE_RETRY_REASON || candidate.recoveryDebt !== true) {
+    throw new Error("Scheduled candidate is not authorized by the publication-watermark resolver.");
+  }
+  if (!CENTRAL_SLOT_KEY_PATTERN.test(slotKey)) {
+    throw new Error("Scheduled candidate slot key is not a Central publication slot.");
+  }
+  const scheduled = parseStrictUtcRfc3339(scheduledAt, "Queued candidate scheduled_at");
+  const expected = centralSlotFromScheduledAt(scheduled);
+  if (slotKey !== expected.slotKey) {
+    throw new Error(
+      `Queued scheduled candidate slot key mismatch (expected ${expected.slotKey}, observed ${slotKey}).`
+    );
+  }
+  return Object.freeze({
+    trigger,
+    slotKey,
+    scheduledAt: scheduled.toISOString(),
+    recoveryDebt: true
+  });
 }
 
 export function resolveManualReplay(replayKey) {
@@ -170,7 +234,11 @@ export function resolveManualReplay(replayKey) {
     centralTime: null,
     scheduledAt: null,
     latenessMinutes: null,
-    recoveryDebt: false
+    recoveryDebt: false,
+    publicationWatermark: null,
+    watermarkStatus: "manual",
+    latestEligibleSlotKey: null,
+    graphGeneratedAt: {}
   };
 }
 
@@ -181,6 +249,81 @@ export function centralDateTimeParts(date) {
       .filter((part) => part.type !== "literal")
       .map((part) => [part.type, part.value])
   );
+}
+
+export function latestEligibleCentralSlot(now = new Date()) {
+  assertValidDate(now);
+  const candidate = new Date(now);
+  candidate.setUTCSeconds(0, 0);
+  for (let offsetMinutes = 0; offsetMinutes <= 26 * 60; offsetMinutes += 1) {
+    const central = centralDateTimeParts(candidate);
+    if (
+      central.minute === "00" &&
+      central.second === "00" &&
+      INGESTION_CENTRAL_SLOTS.includes(`${central.hour}:${central.minute}`)
+    ) {
+      return centralSlotFromScheduledAt(candidate);
+    }
+    candidate.setUTCMinutes(candidate.getUTCMinutes() - 1);
+  }
+  throw new Error("Unable to resolve a prior Central ingestion slot within 26 hours.");
+}
+
+export async function readPublicationWatermark({
+  cwd = process.cwd(),
+  ref = null,
+  now = new Date(),
+  readText = null
+} = {}) {
+  assertValidDate(now);
+  const reader = readText ?? (ref
+    ? (relativePath) => readGitBlobText({ cwd, ref, relativePath })
+    : (relativePath) => readFile(path.join(cwd, relativePath), "utf8"));
+  const graphGeneratedAt = {};
+  const genuineInstants = [];
+  let missing = false;
+  let invalid = false;
+
+  await Promise.all(PUBLICATION_WATERMARK_GRAPHS.map(async ({ path: relativePath, batchSlug }) => {
+    let source;
+    try {
+      source = await reader(relativePath);
+    } catch {
+      graphGeneratedAt[relativePath] = null;
+      missing = true;
+      return;
+    }
+
+    try {
+      const graph = JSON.parse(source);
+      if (!graph || typeof graph !== "object" || Array.isArray(graph)) {
+        throw new Error("graph root is not an object");
+      }
+      if (graph.batch?.slug !== batchSlug) {
+        throw new Error(`graph batch is not ${batchSlug}`);
+      }
+      const generatedAt = parseStrictUtcRfc3339(
+        graph.generatedAt,
+        `${relativePath} generatedAt`
+      );
+      if (generatedAt.getTime() > now.getTime()) {
+        throw new Error(`${relativePath} generatedAt is in the future`);
+      }
+      graphGeneratedAt[relativePath] = generatedAt.toISOString();
+      genuineInstants.push(generatedAt);
+    } catch {
+      graphGeneratedAt[relativePath] = null;
+      invalid = true;
+    }
+  }));
+
+  genuineInstants.sort((left, right) => left.getTime() - right.getTime());
+  return Object.freeze({
+    status: missing ? "missing" : invalid ? "invalid" : "valid",
+    watermark: genuineInstants[0] ?? null,
+    newestGeneratedAt: genuineInstants.at(-1) ?? null,
+    graphGeneratedAt: Object.freeze({ ...graphGeneratedAt })
+  });
 }
 
 export function writeGithubOutputs(decision, outputPath = process.env.GITHUB_OUTPUT) {
@@ -194,7 +337,10 @@ export function writeGithubOutputs(decision, outputPath = process.env.GITHUB_OUT
     trigger: decision.trigger ?? "",
     reason: decision.reason,
     scheduled_at: decision.accepted ? decision.scheduledAt ?? "" : "",
-    recovery_debt: String(decision.accepted && decision.recoveryDebt === true)
+    recovery_debt: String(decision.accepted && decision.recoveryDebt === true),
+    publication_watermark: decision.publicationWatermark ?? "",
+    watermark_status: decision.watermarkStatus ?? "",
+    latest_slot_key: decision.latestEligibleSlotKey ?? ""
   };
   appendFileSync(
     outputPath,
@@ -204,141 +350,178 @@ export function writeGithubOutputs(decision, outputPath = process.env.GITHUB_OUT
   return outputs;
 }
 
-export function main(env = process.env) {
-  const publishedSlotKeys = readPublishedCentralSlotKeysFromGitHistory();
-  const decision = resolveIngestionSchedule({
-    eventName: env.GITHUB_EVENT_NAME,
-    schedule: env.GITHUB_EVENT_SCHEDULE,
-    replayKey: env.INGESTION_REPLAY_KEY,
-    publishedSlotKeys
-  });
+export async function main(env = process.env, { cwd = process.cwd(), now = new Date() } = {}) {
+  const revalidation = env.INGESTION_REVALIDATE_CANDIDATE === "true";
+  const eventName = env.GITHUB_EVENT_NAME;
+  let publicationState = null;
+  if (eventName === "schedule") {
+    publicationState = await readPublicationWatermark({
+      cwd,
+      ref: cleanString(env.INGESTION_PUBLICATION_REF),
+      now
+    });
+  }
+
+  const decision = revalidation
+    ? revalidateIngestionCandidate({
+        candidate: {
+          trigger: env.CANDIDATE_TRIGGER,
+          slotKey: env.CANDIDATE_SLOT_KEY,
+          scheduledAt: env.CANDIDATE_SCHEDULED_AT,
+          reason: env.CANDIDATE_REASON,
+          recoveryDebt: parseStrictBoolean(env.CANDIDATE_RECOVERY_DEBT, "candidate recovery debt")
+        },
+        eventName,
+        schedule: env.GITHUB_EVENT_SCHEDULE,
+        publicationState,
+        now
+      })
+    : resolveIngestionSchedule({
+        eventName,
+        schedule: env.GITHUB_EVENT_SCHEDULE,
+        replayKey: env.INGESTION_REPLAY_KEY,
+        publicationState,
+        now
+      });
+
   writeGithubOutputs(decision, env.GITHUB_OUTPUT);
   console.log(
     decision.accepted
-      ? `Accepted ${decision.trigger} ingestion key ${decision.slotKey}.`
+      ? `Accepted ${decision.trigger} ingestion key ${decision.slotKey} (${decision.reason}).`
       : `Skipping ingestion candidate: ${decision.reason}.`
   );
-  if (!decision.accepted && decision.reason === "outside-lateness-window") {
-    throw new Error(
-      `The intended ingestion slot was ${Math.round(decision.latenessMinutes ?? 0)} minutes late and requires replay.`
-    );
-  }
   return decision;
 }
 
-export function readPublishedCentralSlotKeysFromGitHistory({
-  cwd = process.cwd(),
-  ref = "HEAD"
-} = {}) {
-  const shallow = execFileSync("git", ["rev-parse", "--is-shallow-repository"], {
-    cwd,
-    encoding: "utf8"
-  }).trim();
-  if (shallow !== "false") {
-    throw new Error("Autonomous ingestion recovery requires a complete, non-shallow git history.");
+function normalizePublicationState(value, now) {
+  if (!value || !["valid", "missing", "invalid"].includes(value.status)) {
+    return {
+      status: "invalid",
+      watermark: null,
+      newestGeneratedAt: null,
+      graphGeneratedAt: {}
+    };
   }
-  const output = execFileSync(
-    "git",
-    ["log", "--full-history", `--format=${PUBLICATION_GIT_LOG_FORMAT}`, ref, "--"],
-    { cwd, encoding: "utf8", maxBuffer: FULL_HISTORY_CAPTURE_LIMIT }
-  );
-  return parsePublishedCentralSlotKeysFromGitLog(output);
-}
-
-export function parsePublishedCentralSlotKeysFromGitLog(output) {
-  const fields = String(output ?? "").split("\0");
-  const published = new Set();
-  for (let index = 0; index + 2 < fields.length; index += 3) {
-    const commit = fields[index].trim();
-    const subject = fields[index + 1];
-    const message = fields[index + 2];
-    if (!/^[0-9a-f]{40}$/i.test(commit)) continue;
-    const slotKey = exactPublicationTrailer(message, "Returner-Slot-Key");
-    if (!CENTRAL_SLOT_KEY_PATTERN.test(slotKey ?? "")) continue;
-    if (subject !== `${PUBLICATION_SUBJECT_PREFIX}${slotKey}`) continue;
-    if (!/^[0-9a-f]{40}$/.test(exactPublicationTrailer(message, "Returner-Source-SHA") ?? "")) continue;
-    if (!/^[1-9][0-9]*$/.test(exactPublicationTrailer(message, "Returner-Run-ID") ?? "")) continue;
-    if (!/^[1-9][0-9]*$/.test(exactPublicationTrailer(message, "Returner-Run-Attempt") ?? "")) continue;
-    if (!/^[0-9a-f]{64}$/.test(exactPublicationTrailer(message, "Returner-Receipt-SHA256") ?? "")) continue;
-    published.add(slotKey);
+  if (value.status !== "valid") {
+    return {
+      status: value.status,
+      watermark: null,
+      newestGeneratedAt: null,
+      graphGeneratedAt: value.graphGeneratedAt ?? {}
+    };
   }
-  return published;
-}
-
-export function enumerateExpectedCentralSlotsThrough(now = new Date()) {
-  assertValidDate(now);
-  const latest = latestPriorCentralSlot(now);
-  const rollout = new Date(INGESTION_RECOVERY_ROLLOUT_SCHEDULED_AT);
-  if (latest.getTime() < rollout.getTime()) return [];
-  const expected = [];
-  for (
-    let instantMs = rollout.getTime();
-    instantMs <= latest.getTime();
-    instantMs += 60 * 60_000
+  const watermark = normalizeOptionalDate(value.watermark);
+  const newestGeneratedAt = normalizeOptionalDate(value.newestGeneratedAt);
+  if (
+    value.status === "valid" &&
+    (
+      !watermark ||
+      !newestGeneratedAt ||
+      watermark.getTime() > newestGeneratedAt.getTime() ||
+      newestGeneratedAt.getTime() > now.getTime()
+    )
   ) {
-    const scheduledAt = new Date(instantMs);
-    const central = centralDateTimeParts(scheduledAt);
-    const centralTime = `${central.hour}:${central.minute}`;
-    if (central.second !== "00" || !INGESTION_CENTRAL_SLOTS.includes(centralTime)) continue;
-    const centralDate = `${central.year}-${central.month}-${central.day}`;
-    expected.push({
-      slotKey: `central-${centralDate}-${central.hour}${central.minute}`,
-      centralDate,
-      centralTime,
-      scheduledAt
+    return {
+      status: "invalid",
+      watermark: null,
+      newestGeneratedAt: null,
+      graphGeneratedAt: value.graphGeneratedAt ?? {}
+    };
+  }
+  return {
+    status: value.status,
+    watermark,
+    newestGeneratedAt,
+    graphGeneratedAt: value.graphGeneratedAt ?? {}
+  };
+}
+
+function normalizeOptionalDate(value) {
+  if (value instanceof Date && Number.isFinite(value.getTime())) return new Date(value);
+  if (typeof value !== "string") return null;
+  try {
+    return parseStrictUtcRfc3339(value, "publication watermark");
+  } catch {
+    return null;
+  }
+}
+
+function centralSlotFromScheduledAt(scheduledAt) {
+  const central = centralDateTimeParts(scheduledAt);
+  const centralTime = `${central.hour}:${central.minute}`;
+  if (central.second !== "00" || !INGESTION_CENTRAL_SLOTS.includes(centralTime)) {
+    throw new Error(`Scheduled instant is not a 06:00 or 18:00 ${CENTRAL_TIME_ZONE} slot.`);
+  }
+  const centralDate = `${central.year}-${central.month}-${central.day}`;
+  return {
+    slotKey: `central-${centralDate}-${central.hour}${central.minute}`,
+    centralDate,
+    centralTime,
+    scheduledAt: new Date(scheduledAt)
+  };
+}
+
+function parseStrictUtcRfc3339(value, label) {
+  if (typeof value !== "string") throw new Error(`${label} must be a UTC RFC3339 timestamp.`);
+  const match = STRICT_UTC_RFC3339.exec(value);
+  if (!match) throw new Error(`${label} must be a UTC RFC3339 timestamp.`);
+  const [, year, month, day, hour, minute, second] = match.map(Number);
+  const calendarProbe = new Date(0);
+  calendarProbe.setUTCFullYear(year, month - 1, day);
+  calendarProbe.setUTCHours(hour, minute, second, 0);
+  if (
+    calendarProbe.getUTCFullYear() !== year ||
+    calendarProbe.getUTCMonth() !== month - 1 ||
+    calendarProbe.getUTCDate() !== day ||
+    calendarProbe.getUTCHours() !== hour ||
+    calendarProbe.getUTCMinutes() !== minute ||
+    calendarProbe.getUTCSeconds() !== second
+  ) {
+    throw new Error(`${label} is not a real UTC calendar instant.`);
+  }
+  const instant = new Date(value);
+  if (!Number.isFinite(instant.getTime())) throw new Error(`${label} is not a valid UTC instant.`);
+  return instant;
+}
+
+function readGitBlobText({ cwd, ref, relativePath }) {
+  const normalizedRef = cleanString(ref);
+  if (!normalizedRef || normalizedRef.startsWith("-") || /[:\r\n\0]/.test(normalizedRef)) {
+    return Promise.reject(new Error("Publication watermark git ref is not safe."));
+  }
+  const objectName = `${normalizedRef}:${relativePath}`;
+  return new Promise((resolve, reject) => {
+    const child = spawn("git", ["cat-file", "blob", objectName], {
+      cwd,
+      stdio: ["ignore", "pipe", "pipe"]
     });
-  }
-  if (expected[0]?.slotKey !== INGESTION_RECOVERY_ROLLOUT_SLOT_KEY) {
-    throw new Error("Configured ingestion recovery rollout instant does not match its Central slot key.");
-  }
-  return expected;
+    const stdout = [];
+    const stderr = [];
+    child.stdout.on("data", (chunk) => stdout.push(chunk));
+    child.stderr.on("data", (chunk) => stderr.push(chunk));
+    child.on("error", reject);
+    child.on("close", (code) => {
+      if (code === 0) {
+        resolve(Buffer.concat(stdout).toString("utf8"));
+        return;
+      }
+      reject(new Error(
+        `Unable to read ${relativePath} from ${normalizedRef}: ` +
+        Buffer.concat(stderr).toString("utf8").trim()
+      ));
+    });
+  });
 }
 
-export function latestPriorCentralSlot(now) {
-  const candidate = new Date(now);
-  candidate.setUTCSeconds(0, 0);
-  for (let offsetMinutes = 0; offsetMinutes <= 26 * 60; offsetMinutes += 1) {
-    const central = centralDateTimeParts(candidate);
-    if (
-      central.minute === "00" &&
-      central.second === "00" &&
-      INGESTION_CENTRAL_SLOTS.includes(`${central.hour}:${central.minute}`)
-    ) {
-      return new Date(candidate);
-    }
-    candidate.setUTCMinutes(candidate.getUTCMinutes() - 1);
-  }
-  throw new Error("Unable to resolve a prior Central ingestion slot within 26 hours.");
+function parseStrictBoolean(value, label) {
+  if (value === "true") return true;
+  if (value === "false") return false;
+  throw new Error(`${label} must be exactly true or false.`);
 }
 
-function exactPublicationTrailer(message, key) {
-  const values = String(message ?? "")
-    .split(/\r?\n/)
-    .filter((line) => line.startsWith(`${key}: `))
-    .map((line) => line.slice(key.length + 2));
-  if (values.length !== 1 || !values[0] || /[\r\n\0]/.test(values[0])) return null;
-  return values[0];
-}
-
-function normalizePublishedSlotKeys(values) {
-  if (values == null || typeof values[Symbol.iterator] !== "function") {
-    throw new TypeError("Published Central slot keys must be an iterable.");
-  }
-  return new Set([...values].filter((value) => typeof value === "string"));
-}
-
-function nearestPriorCronOccurrence(now, { hour, minute }) {
-  const candidate = new Date(Date.UTC(
-    now.getUTCFullYear(),
-    now.getUTCMonth(),
-    now.getUTCDate(),
-    hour,
-    minute
-  ));
-  if (candidate.getTime() > now.getTime()) {
-    candidate.setUTCDate(candidate.getUTCDate() - 1);
-  }
-  return candidate;
+function cleanString(value) {
+  const trimmed = typeof value === "string" ? value.trim() : "";
+  return trimmed || null;
 }
 
 function rejectedDecision(reason, details = {}) {
@@ -352,6 +535,10 @@ function rejectedDecision(reason, details = {}) {
     scheduledAt: null,
     latenessMinutes: null,
     recoveryDebt: false,
+    publicationWatermark: null,
+    watermarkStatus: null,
+    latestEligibleSlotKey: null,
+    graphGeneratedAt: {},
     ...details
   };
 }
@@ -362,18 +549,10 @@ function assertValidDate(date) {
   }
 }
 
-function assertValidLatenessWindow(value) {
-  if (!Number.isFinite(value) || value < 0 || value >= 12 * 60) {
-    throw new RangeError("Lateness window must be at least zero and less than 12 hours.");
-  }
-}
-
 const invokedPath = process.argv[1] ? pathToFileURL(path.resolve(process.argv[1])).href : null;
 if (invokedPath === import.meta.url) {
-  try {
-    main();
-  } catch (error) {
+  main().catch((error) => {
     console.error(error instanceof Error ? error.message : error);
     process.exitCode = 1;
-  }
+  });
 }

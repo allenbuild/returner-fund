@@ -69,10 +69,9 @@ import {
 import { selectPublishedAutonomousIngestionReceipt } from "./lib/autonomous-ingestion-receipt-policy.mjs";
 import {
   CENTRAL_TIME_ZONE,
-  DEFAULT_LATENESS_WINDOW_MINUTES,
   INGESTION_CENTRAL_SLOTS,
-  INGESTION_RECOVERY_ROLLOUT_SCHEDULED_AT,
-  centralDateTimeParts
+  centralDateTimeParts,
+  latestEligibleCentralSlot
 } from "./lib/ingestion-schedule.mjs";
 import { mergeTargetedEvidenceSnapshots } from "./lib/targeted-evidence-merge.mjs";
 import { archiveAcceptedPublicSnapshot } from "./lib/archive-public-ingestion.mjs";
@@ -5353,14 +5352,13 @@ async function runTimelineDiscoveryBeforeBackfill(catalogState) {
     cwd: root
   });
   const receipt = JSON.parse(result.stdout.trim());
-  if (receipt.status === "migration_unavailable") {
+  if (receipt.adminTaskDrain?.status === "migration_unavailable") {
     await event(
       "timeline.discovery.skipped",
       "warning",
-      "Company Timeline admin migration is unavailable; durable discovery and artifact regeneration were skipped while last-good Timeline artifacts remain in place.",
-      receipt
+      "Company Timeline admin migration is unavailable; the optional admin drain was skipped while scheduled discovery and artifact regeneration continued.",
+      receipt.adminTaskDrain
     );
-    return receipt;
   }
   await event(
     "timeline.discovery.persisted",
@@ -5488,15 +5486,14 @@ async function buildAndValidatePublication(publicationRunId, catalogState) {
     },
     cwd: targetRoot
   });
-  // Durable discovery runs against the just-refreshed canonical inventory and
-  // must reach terminal source coverage before the artifact backfill reads
-  // published database events. Ordinary failures abort publication. If only
-  // the optional admin RPC migration is unavailable, the unchanged last-good
-  // Timeline artifacts remain validated and publish alongside the fresh graph.
-  const timelineDiscoveryReceipt = await runTimelineDiscoveryBeforeBackfill(catalogState);
+  // Durable scheduled discovery runs against the just-refreshed canonical
+  // inventory and must reach terminal source coverage before artifact backfill
+  // reads published database events. The run-less admin queue is optional: a
+  // missing admin claim RPC is recorded by the child receipt but cannot suppress
+  // scheduled discovery or leave Timeline manifests stale against fresh graphs.
+  await runTimelineDiscoveryBeforeBackfill(catalogState);
   const timelineDatabaseSnapshotPath = join(workRoot, "timeline-database-snapshot.json");
-  const preserveLastGoodTimeline = timelineDiscoveryReceipt?.status === "migration_unavailable";
-  if (durableStorageConfigured && !preserveLastGoodTimeline) {
+  if (durableStorageConfigured) {
     await runCommand(process.execPath, [
       "--experimental-strip-types",
       "--loader",
@@ -5512,34 +5509,32 @@ async function buildAndValidatePublication(publicationRunId, catalogState) {
       cwd: root
     });
   }
-  if (!preserveLastGoodTimeline) {
-    const timelineBackfillEnv = durableStorageConfigured
-      ? {
-          TIMELINE_REQUIRE_DATABASE: "true",
-          SCORING_DATA_ROOT: targetRoot
-        }
-      : {
-          TIMELINE_REQUIRE_DATABASE: "false",
-          SCORING_DATA_ROOT: targetRoot
-        };
-    await runCommand(process.execPath, [
-      "--experimental-strip-types",
-      "--loader",
-      sourcePath("scripts", "lib", "scoring-diagnostics-ts-loader.mjs"),
-      sourcePath("scripts", "backfill-company-timelines.mjs"),
-      `--root=${targetRoot}`,
-      "--resume",
-      ...(durableStorageConfigured
-        ? [`--database-snapshot=${timelineDatabaseSnapshotPath}`]
-        : [])
-    ], {
-      timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.timelineBackfillMs,
-      label: "company timeline backfill",
-      envCategory: "timeline_backfill",
-      env: timelineBackfillEnv,
-      cwd: targetRoot
-    });
-  }
+  const timelineBackfillEnv = durableStorageConfigured
+    ? {
+        TIMELINE_REQUIRE_DATABASE: "true",
+        SCORING_DATA_ROOT: targetRoot
+      }
+    : {
+        TIMELINE_REQUIRE_DATABASE: "false",
+        SCORING_DATA_ROOT: targetRoot
+      };
+  await runCommand(process.execPath, [
+    "--experimental-strip-types",
+    "--loader",
+    sourcePath("scripts", "lib", "scoring-diagnostics-ts-loader.mjs"),
+    sourcePath("scripts", "backfill-company-timelines.mjs"),
+    `--root=${targetRoot}`,
+    "--resume",
+    ...(durableStorageConfigured
+      ? [`--database-snapshot=${timelineDatabaseSnapshotPath}`]
+      : [])
+  ], {
+    timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.timelineBackfillMs,
+    label: "company timeline backfill",
+    envCategory: "timeline_backfill",
+    env: timelineBackfillEnv,
+    cwd: targetRoot
+  });
   await runCommand(process.execPath, [sourcePath("scripts", "validate-timeline-artifacts.mjs")], {
     timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.artifactValidationMs,
     label: "company timeline artifact validation",
@@ -8147,11 +8142,10 @@ function validateCandidateMetadata({
       `Scheduled candidate slot key mismatch (expected ${expectedSlotKey}, observed ${slotKey}).`
     );
   }
-  if (
-    recoveryDebt &&
-    scheduled.getTime() < Date.parse(INGESTION_RECOVERY_ROLLOUT_SCHEDULED_AT)
-  ) {
-    throw new Error("Scheduled recovery debt predates the fixed recovery rollout epoch.");
+  if (!recoveryDebt) {
+    throw new Error(
+      "Scheduled publication requires resolver-authorized publication-watermark retry metadata."
+    );
   }
   return Object.freeze({
     trigger: normalizedTrigger,
@@ -8201,15 +8195,17 @@ function parseStrictUtcRfc3339(value) {
 
 function assertCandidateFreshForPublication(label, nowMs = Date.now()) {
   if (!candidateMetadata || candidateMetadata.trigger === "manual-replay") return;
-  const ageMs = nowMs - candidateMetadata.scheduledAtMs;
-  const freshnessWindowMs = DEFAULT_LATENESS_WINDOW_MINUTES * 60_000;
-  if (ageMs < 0) {
+  if (nowMs < candidateMetadata.scheduledAtMs) {
     throw new Error(`Scheduled candidate is in the future before ${label}.`);
   }
-  if (candidateMetadata.recoveryDebt) return;
-  if (ageMs > freshnessWindowMs) {
+  const latest = latestEligibleCentralSlot(new Date(nowMs));
+  if (
+    candidateMetadata.slotKey !== latest.slotKey ||
+    candidateMetadata.scheduledAt !== latest.scheduledAt.toISOString()
+  ) {
     throw new Error(
-      `Scheduled candidate exceeded the 11-hour freshness window before ${label}; publication is prohibited.`
+      `Scheduled candidate ${candidateMetadata.slotKey} was superseded by newest eligible ` +
+      `Central slot ${latest.slotKey} before ${label}; publication is prohibited.`
     );
   }
 }

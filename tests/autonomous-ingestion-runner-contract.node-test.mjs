@@ -941,21 +941,22 @@ if (mode === "fail") {
     assert.match(result.stdout, /"rejectionRetryable":false/);
   });
 
-  it("allows only resolver recovery debt past eleven hours and keeps ordinary candidates fail-closed", () => {
+  it("allows only the newest resolver-authorized scheduled slot and keeps manual replay separate", () => {
     const scheduledAt = "2026-08-09T23:00:00.000Z";
     const common = {
       LIFECYCLE_FIXTURE_CANDIDATE_TRIGGER: "schedule",
       LIFECYCLE_FIXTURE_SCHEDULED_AT: scheduledAt,
       LIFECYCLE_FIXTURE_SLOT_KEY: "central-2026-08-09-1800",
+      LIFECYCLE_FIXTURE_RECOVERY_DEBT: "true",
       LIFECYCLE_FIXTURE_PUSH_LABEL: "first publication push"
     };
-    const fresh = lifecycleFixturePayload(runLifecycleFixture("candidate-metadata", {
+    const latest = lifecycleFixturePayload(runLifecycleFixture("candidate-metadata", {
       ...common,
-      LIFECYCLE_FIXTURE_NOW_MS: String(Date.parse(scheduledAt) + (11 * 60 * 60_000))
+      LIFECYCLE_FIXTURE_NOW_MS: String(Date.parse("2026-08-10T10:59:59.000Z"))
     }));
-    const stale = lifecycleFixturePayload(runLifecycleFixture("candidate-metadata", {
+    const superseded = lifecycleFixturePayload(runLifecycleFixture("candidate-metadata", {
       ...common,
-      LIFECYCLE_FIXTURE_NOW_MS: String(Date.parse(scheduledAt) + (11 * 60 * 60_000) + 1)
+      LIFECYCLE_FIXTURE_NOW_MS: String(Date.parse("2026-08-10T11:00:00.000Z"))
     }));
     const wrongSlot = lifecycleFixturePayload(runLifecycleFixture("candidate-metadata", {
       ...common,
@@ -967,41 +968,30 @@ if (mode === "fail") {
       LIFECYCLE_FIXTURE_SLOT_KEY: "manual-replay-fixture",
       LIFECYCLE_FIXTURE_NOW_MS: String(Date.parse(scheduledAt) + (30 * 60 * 60_000))
     }));
-    const recoveryScheduledAt = "2026-08-22T11:00:00.000Z";
-    const recovery = lifecycleFixturePayload(runLifecycleFixture("candidate-metadata", {
-      LIFECYCLE_FIXTURE_CANDIDATE_TRIGGER: "schedule",
-      LIFECYCLE_FIXTURE_SCHEDULED_AT: recoveryScheduledAt,
-      LIFECYCLE_FIXTURE_SLOT_KEY: "central-2026-08-22-0600",
-      LIFECYCLE_FIXTURE_RECOVERY_DEBT: "true",
-      LIFECYCLE_FIXTURE_PUSH_LABEL: "first publication push",
-      LIFECYCLE_FIXTURE_NOW_MS: String(Date.parse(recoveryScheduledAt) + (36 * 60 * 60_000))
-    }));
-    const preEpochRecovery = lifecycleFixturePayload(runLifecycleFixture("candidate-metadata", {
+    const missingAuthorization = lifecycleFixturePayload(runLifecycleFixture("candidate-metadata", {
       LIFECYCLE_FIXTURE_CANDIDATE_TRIGGER: "schedule",
       LIFECYCLE_FIXTURE_SCHEDULED_AT: scheduledAt,
       LIFECYCLE_FIXTURE_SLOT_KEY: "central-2026-08-09-1800",
-      LIFECYCLE_FIXTURE_RECOVERY_DEBT: "true",
-      LIFECYCLE_FIXTURE_NOW_MS: String(Date.parse(scheduledAt) + (36 * 60 * 60_000))
+      LIFECYCLE_FIXTURE_RECOVERY_DEBT: "false",
+      LIFECYCLE_FIXTURE_NOW_MS: String(Date.parse(scheduledAt))
     }));
     const manualRecovery = lifecycleFixturePayload(runLifecycleFixture("candidate-metadata", {
       LIFECYCLE_FIXTURE_CANDIDATE_TRIGGER: "manual-replay",
       LIFECYCLE_FIXTURE_SLOT_KEY: "manual-replay-fixture",
       LIFECYCLE_FIXTURE_RECOVERY_DEBT: "true",
-      LIFECYCLE_FIXTURE_NOW_MS: String(Date.parse(recoveryScheduledAt) + (36 * 60 * 60_000))
+      LIFECYCLE_FIXTURE_NOW_MS: String(Date.parse(scheduledAt) + (36 * 60 * 60_000))
     }));
 
-    assert.equal(fresh.accepted, true);
-    assert.equal(stale.accepted, false);
-    assert.match(stale.error, /exceeded the 11-hour freshness window before first publication push/);
+    assert.equal(latest.accepted, true);
+    assert.equal(superseded.accepted, false);
+    assert.match(superseded.error, /was superseded by newest eligible Central slot/);
     assert.equal(wrongSlot.accepted, false);
     assert.match(wrongSlot.error, /slot key mismatch/);
     assert.equal(manual.accepted, true);
     assert.equal(manual.candidateMetadata.scheduledAt, null);
     assert.equal(manual.candidateMetadata.recoveryDebt, false);
-    assert.equal(recovery.accepted, true);
-    assert.equal(recovery.candidateMetadata.recoveryDebt, true);
-    assert.equal(preEpochRecovery.accepted, false);
-    assert.match(preEpochRecovery.error, /predates the fixed recovery rollout epoch/);
+    assert.equal(missingAuthorization.accepted, false);
+    assert.match(missingAuthorization.error, /publication-watermark retry metadata/);
     assert.equal(manualRecovery.accepted, false);
     assert.match(manualRecovery.error, /must not claim resolver recovery debt/);
   });
@@ -1023,7 +1013,7 @@ if (mode === "fail") {
 });
 
 describe("autonomous ingestion runner static safety contracts", () => {
-  it("binds the recovery age bypass to resolver-authorized GitHub schedule metadata", () => {
+  it("binds scheduled publication to resolver authorization and newest-slot freshness", () => {
     const candidateValidation = section(
       "function validateCandidateMetadata",
       "function publicationCandidateReceiptFields"
@@ -1038,9 +1028,10 @@ describe("autonomous ingestion runner static safety contracts", () => {
     assert.ok(runner.includes('process.env.GITHUB_EVENT_NAME !== "schedule"'));
     assert.ok(runner.includes('recoveryDebt: booleanValue("--recovery-debt")'));
     assert.ok(candidateValidation.includes("recoveryDebt = false"));
-    assert.ok(candidateValidation.includes("INGESTION_RECOVERY_ROLLOUT_SCHEDULED_AT"));
-    assert.ok(freshness.includes("if (candidateMetadata.recoveryDebt) return"));
-    assert.ok(freshness.includes("ageMs > freshnessWindowMs"));
+    assert.ok(candidateValidation.includes("publication-watermark retry metadata"));
+    assert.ok(freshness.includes("latestEligibleCentralSlot"));
+    assert.ok(freshness.includes("was superseded by newest eligible"));
+    assert.ok(!freshness.includes("freshnessWindowMs"));
   });
 
   it("claims, renews, and releases a durable runtime lock", () => {
@@ -1322,7 +1313,7 @@ describe("autonomous ingestion runner static safety contracts", () => {
     assert.ok(timelineBackfill.includes("env: timelineBackfillEnv"));
   });
 
-  it("preserves last-good Timeline artifacts when the optional admin migration is unavailable", () => {
+  it("keeps scheduled Timeline discovery and backfill independent of an unavailable optional admin RPC", () => {
     const discovery = section(
       "async function runTimelineDiscoveryBeforeBackfill",
       "async function buildCanonicalTimelineIngestionInventory"
@@ -1332,22 +1323,17 @@ describe("autonomous ingestion runner static safety contracts", () => {
       "async function synchronizePublicationBase"
     );
 
-    assert.match(timelineCommand, /adminTaskDrain\.status === "migration_unavailable"/);
-    assert.match(timelineCommand, /status: "migration_unavailable"/);
-    assert.match(discovery, /receipt\.status === "migration_unavailable"/);
+    assert.doesNotMatch(timelineCommand, /adminTaskDrain\.status === "migration_unavailable"\s*\?/);
+    assert.match(timelineCommand, /const receipt = await runTimelineDiscoveryIngestion/);
+    assert.match(discovery, /receipt\.adminTaskDrain\?\.status === "migration_unavailable"/);
     assert.match(discovery, /timeline\.discovery\.skipped/);
-    assert.match(
-      publicationBuild,
-      /const preserveLastGoodTimeline = timelineDiscoveryReceipt\?\.status === "migration_unavailable"/
-    );
-    assert.match(publicationBuild, /if \(durableStorageConfigured && !preserveLastGoodTimeline\)/);
-    assert.match(
-      publicationBuild,
-      /if \(!preserveLastGoodTimeline\)[\s\S]*?label: "company timeline backfill"/
-    );
-    const preserveIndex = publicationBuild.indexOf("const preserveLastGoodTimeline");
+    assert.doesNotMatch(publicationBuild, /preserveLastGoodTimeline/);
+    assert.match(publicationBuild, /if \(durableStorageConfigured\)[\s\S]*?export durable Company Timeline database snapshot/);
+    assert.match(publicationBuild, /label: "company timeline backfill"/);
+    const discoveryIndex = publicationBuild.indexOf("await runTimelineDiscoveryBeforeBackfill");
+    const backfillIndex = publicationBuild.indexOf('label: "company timeline backfill"');
     const validationIndex = publicationBuild.indexOf('"scripts/validate-timeline-artifacts.mjs"');
-    assert.ok(preserveIndex >= 0 && validationIndex > preserveIndex);
+    assert.ok(discoveryIndex >= 0 && backfillIndex > discoveryIndex && validationIndex > backfillIndex);
   });
 
   it("carries provider health, credential gaps, and mapped efficacy into the published health receipt", () => {
