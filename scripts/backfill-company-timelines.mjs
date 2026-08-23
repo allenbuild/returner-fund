@@ -3,7 +3,11 @@
 import { readFile, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { runCompanyTimelineBackfill } from "../src/lib/timeline/backfill.ts";
-import { loadPublishedTimelineDatabaseSnapshot } from "../src/lib/timeline/database-backfill.ts";
+import {
+  loadPublishedTimelineDatabaseSnapshot,
+  parseTimelineDatabaseSnapshotFile,
+  serializeTimelineDatabaseSnapshotFile,
+} from "../src/lib/timeline/database-backfill.ts";
 
 const options = parseArguments(process.argv.slice(2));
 
@@ -15,14 +19,14 @@ try {
     }
     await writeFile(
       resolve(options.exportDatabaseSnapshotPath),
-      `${JSON.stringify(snapshot, null, 2)}\n`,
+      serializeTimelineDatabaseSnapshotFile(snapshot),
       { encoding: "utf8", mode: 0o600 }
     );
     process.stdout.write(`${JSON.stringify({ status: "exported", path: resolve(options.exportDatabaseSnapshotPath) })}\n`);
     process.exit(0);
   }
   if (options.databaseSnapshotPath) {
-    options.databaseSnapshot = JSON.parse(
+    options.databaseSnapshot = parseTimelineDatabaseSnapshotFile(
       await readFile(resolve(options.databaseSnapshotPath), "utf8")
     );
   }

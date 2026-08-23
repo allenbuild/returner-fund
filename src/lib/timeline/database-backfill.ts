@@ -48,6 +48,86 @@ export interface TimelineDatabaseSnapshot {
   limitations: string | null;
 }
 
+const TIMELINE_DATABASE_SNAPSHOT_FILE_FORMAT = "returner.timeline-database-snapshot.v1";
+
+/**
+ * Serialize the durable Timeline snapshot without losing its Map-backed
+ * company index. Native JSON.stringify(Map) silently emits `{}`, which makes
+ * the exported snapshot unusable by the later isolated backfill process.
+ */
+export function serializeTimelineDatabaseSnapshotFile(snapshot: TimelineDatabaseSnapshot): string {
+  const byCompanySourceKey = [...snapshot.byCompanySourceKey.entries()]
+    .sort(([left], [right]) => left.localeCompare(right));
+  return `${JSON.stringify({
+    format: TIMELINE_DATABASE_SNAPSHOT_FILE_FORMAT,
+    status: snapshot.status,
+    byCompanySourceKey,
+    sha256: snapshot.sha256,
+    generatedAt: snapshot.generatedAt,
+    publishedEvents: snapshot.publishedEvents,
+    limitations: snapshot.limitations,
+  }, null, 2)}\n`;
+}
+
+/** Parse and fail closed on a lossy, legacy, or malformed snapshot file. */
+export function parseTimelineDatabaseSnapshotFile(serialized: string): TimelineDatabaseSnapshot {
+  let value: unknown;
+  try {
+    value = JSON.parse(serialized) as unknown;
+  } catch (error) {
+    throw new Error(`Company Timeline database snapshot is not valid JSON: ${error instanceof Error ? error.message : String(error)}`);
+  }
+  if (!isRecord(value) || value.format !== TIMELINE_DATABASE_SNAPSHOT_FILE_FORMAT) {
+    throw new Error(`Company Timeline database snapshot must use ${TIMELINE_DATABASE_SNAPSHOT_FILE_FORMAT}.`);
+  }
+  const status = value.status;
+  if (status !== "loaded" && status !== "not_configured" && status !== "migration_unavailable") {
+    throw new Error("Company Timeline database snapshot has an invalid status.");
+  }
+  if (!Array.isArray(value.byCompanySourceKey)) {
+    throw new Error("Company Timeline database snapshot company index must be encoded as entries.");
+  }
+  const byCompanySourceKey = new Map<string, TimelineDatabaseCompanySnapshot>();
+  for (const entry of value.byCompanySourceKey) {
+    if (!Array.isArray(entry) || entry.length !== 2 || typeof entry[0] !== "string" || !entry[0].trim()) {
+      throw new Error("Company Timeline database snapshot contains an invalid company index entry.");
+    }
+    if (byCompanySourceKey.has(entry[0])) {
+      throw new Error(`Company Timeline database snapshot contains duplicate company key ${entry[0]}.`);
+    }
+    if (!isTimelineDatabaseCompanySnapshot(entry[1])) {
+      throw new Error(`Company Timeline database snapshot contains invalid data for ${entry[0]}.`);
+    }
+    byCompanySourceKey.set(entry[0], entry[1]);
+  }
+  if (typeof value.sha256 !== "string" || !/^[a-f0-9]{64}$/.test(value.sha256)) {
+    throw new Error("Company Timeline database snapshot has an invalid sha256 digest.");
+  }
+  if (value.generatedAt !== null && typeof value.generatedAt !== "string") {
+    throw new Error("Company Timeline database snapshot has an invalid generatedAt value.");
+  }
+  if (!Number.isSafeInteger(value.publishedEvents) || Number(value.publishedEvents) < 0) {
+    throw new Error("Company Timeline database snapshot has an invalid published event count.");
+  }
+  if (value.limitations !== null && typeof value.limitations !== "string") {
+    throw new Error("Company Timeline database snapshot has invalid limitations.");
+  }
+  return {
+    status,
+    byCompanySourceKey,
+    sha256: value.sha256,
+    generatedAt: value.generatedAt,
+    publishedEvents: Number(value.publishedEvents),
+    limitations: value.limitations,
+  };
+}
+
+function isTimelineDatabaseCompanySnapshot(value: unknown): value is TimelineDatabaseCompanySnapshot {
+  if (!isRecord(value) || !Array.isArray(value.events) || !isRecord(value.sourceCoverage)) return false;
+  return Number.isSafeInteger(value.candidateEventCount) && Number(value.candidateEventCount) >= 0
+    && Number.isSafeInteger(value.unresolvedDateCount) && Number(value.unresolvedDateCount) >= 0;
+}
+
 export async function loadPublishedTimelineDatabaseSnapshot(
   env: NodeJS.ProcessEnv = process.env,
 ): Promise<TimelineDatabaseSnapshot> {
