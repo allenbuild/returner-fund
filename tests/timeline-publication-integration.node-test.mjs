@@ -49,6 +49,22 @@ test("autonomous publication rebuilds timelines after graph publication and stag
   assert.match(plan, /timelineBackfillMs:\s*4 \* MINUTE_MS/);
 });
 
+test("an exact missing Timeline coverage migration preserves validated last-good Timeline artifacts without blocking graphs", () => {
+  const publication = runner.slice(
+    runner.indexOf("async function buildAndValidatePublication"),
+    runner.indexOf("async function synchronizePublicationBase"),
+  );
+  const benchmarks = publication.indexOf('sourcePath("scripts", "update-daily-benchmarks.mjs")');
+  const preserve = publication.indexOf("preserveLastGoodTimelineArtifacts()");
+  const validation = publication.indexOf('sourcePath("scripts", "validate-timeline-artifacts.mjs")');
+  const manifest = publication.indexOf('sourcePath("scripts", "write-artifact-manifest.mjs")');
+
+  assert.ok(benchmarks >= 0 && preserve > benchmarks && validation > preserve && manifest > validation);
+  assert.match(publication, /timeline_source_coverage_unavailable/);
+  assert.match(publication, /if \(!preserveLastGoodTimeline\)/);
+  assert.match(publication, /timeline\.artifacts\.preserved/);
+});
+
 test("autonomous publication has a bounded database-free public discovery lane", () => {
   assert.match(runner, /sourcePath\("scripts", "discover-company-timeline-public-sources\.mjs"\)/);
   assert.match(runner, /--concurrency=2/);

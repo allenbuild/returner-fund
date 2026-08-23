@@ -90,6 +90,7 @@ import {
   finalizeLoggedInEvidenceContent,
   mergeLoggedInEvidenceRows
 } from "./lib/logged-in-evidence-content-dedupe.mjs";
+import { isTimelineCoverageMigrationUnavailable } from "./lib/timeline-migration-availability.mjs";
 
 let root;
 const pinnedSourceRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
@@ -181,6 +182,7 @@ let collectionDrainBudget = null;
 let latestCollectionCoverage = null;
 let latestTerminalFailureBudget = null;
 let latestPublishedCommit = null;
+let latestTimelineBuildReceipt = null;
 let pendingRunnerOutcome = null;
 let terminationSignal = null;
 let cancellationDeadlineTimer = null;
@@ -796,7 +798,11 @@ await Promise.all([
           }
         );
       }
-      await completePublishedTimelineInvalidations(publicationReceipt, timelineInvalidationClaim);
+      await completePublishedTimelineInvalidations(
+        publicationReceipt,
+        timelineInvalidationClaim,
+        latestTimelineBuildReceipt
+      );
     }
 
     if (!args.skipPublish && publicationInputs.sourceDelta.dailySourceHealth === "stale_day") {
@@ -5221,12 +5227,30 @@ async function claimTimelineArtifactInvalidationsForBuild() {
   return { ids, claimedAt };
 }
 
-async function completePublishedTimelineInvalidations(publicationReceipt, invalidationClaim) {
+async function completePublishedTimelineInvalidations(
+  publicationReceipt,
+  invalidationClaim,
+  timelineBuildReceipt
+) {
   if (
     !supabase
     || !["published", "no_changes"].includes(publicationReceipt.status)
     || !invalidationClaim?.ids?.length
   ) return;
+  if (timelineBuildReceipt?.status !== "rebuilt") {
+    await event(
+      "timeline.invalidations.deferred",
+      "warning",
+      "Timeline artifact invalidations remain open because this publication preserved last-good Timeline artifacts.",
+      {
+        count: invalidationClaim.ids.length,
+        claimedAt: invalidationClaim.claimedAt,
+        timelineBuildStatus: timelineBuildReceipt?.status ?? "unknown",
+        publishedCommit: publicationReceipt.publishedCommit
+      }
+    );
+    return;
+  }
   const processedAt = new Date().toISOString();
   const { data, error } = await runSupabaseOperation(
     "complete published Timeline artifact invalidations",
@@ -5316,18 +5340,24 @@ async function runTimelineDiscoveryBeforeBackfill(catalogState) {
     "preflight Company Timeline migration",
     () => supabase
       .from("timeline_source_coverage")
-      .select("company_id", { count: "exact", head: true })
+      .select("company_id")
+      .limit(1)
   );
-  if (migrationError && isTimelineMigrationUnavailable(migrationError)) {
+  if (migrationError && isTimelineCoverageMigrationUnavailable(migrationError)) {
+    const receipt = {
+      status: "migration_unavailable",
+      reason: "timeline_source_coverage_unavailable",
+      code: migrationError.code ?? null,
+      enqueuedTasks: 0,
+      claimedTasks: 0
+    };
     await event(
       "timeline.discovery.skipped",
       "warning",
-      "Company Timeline migration is not applied; durable discovery was skipped and last-good graph artifacts were preserved.",
-      { reason: "timeline_migration_unavailable", code: migrationError.code ?? null }
+      "Company Timeline coverage migration is not applied; durable Timeline discovery was skipped before task enqueue.",
+      receipt
     );
-    throw new Error(
-      "Company Timeline migration is unavailable; refusing to rebuild or publish graph-only timeline artifacts over the last-good durable timeline."
-    );
+    return receipt;
   }
   check(migrationError, "preflight Company Timeline migration");
 
@@ -5352,6 +5382,18 @@ async function runTimelineDiscoveryBeforeBackfill(catalogState) {
     cwd: root
   });
   const receipt = JSON.parse(result.stdout.trim());
+  if (
+    receipt.status === "migration_unavailable"
+    && receipt.reason === "timeline_source_coverage_unavailable"
+  ) {
+    await event(
+      "timeline.discovery.skipped",
+      "warning",
+      "Company Timeline coverage migration is not applied; the child preflight skipped discovery before task enqueue.",
+      receipt
+    );
+    return receipt;
+  }
   if (receipt.adminTaskDrain?.status === "migration_unavailable") {
     await event(
       "timeline.discovery.skipped",
@@ -5452,7 +5494,106 @@ function isTimelineMigrationUnavailable(error) {
     || /timeline_source_coverage.*(?:not found|does not exist|schema cache)/i.test(String(error?.message ?? ""));
 }
 
+async function preserveLastGoodTimelineArtifacts() {
+  const targetRoot = publicationArtifactRoot();
+  const status = await runCommand(
+    "git",
+    [
+      "status",
+      "--short",
+      "--untracked-files=all",
+      "--",
+      "public/timelines",
+      "artifacts/company-timeline"
+    ],
+    {
+      timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitDiffMs,
+      label: "verify preserved last-good Company Timeline artifacts",
+      quiet: true,
+      cwd: targetRoot
+    }
+  );
+  const changedPaths = status.stdout.trim();
+  if (changedPaths) {
+    throw new Error(
+      "Company Timeline migration is unavailable, but Timeline artifact paths changed before preservation: " +
+      changedPaths.split("\n").slice(0, 20).join(", ")
+    );
+  }
+
+  const anchorResult = await runCommand(
+    "git",
+    [
+      "log",
+      "-1",
+      "--format=%H",
+      "--",
+      "public/timelines",
+      "artifacts/company-timeline"
+    ],
+    {
+      timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitDiffMs,
+      label: "resolve last-good Company Timeline source commit",
+      quiet: true,
+      cwd: targetRoot
+    }
+  );
+  const sourceCommit = anchorResult.stdout.trim().toLowerCase();
+  if (!/^[0-9a-f]{40}$/.test(sourceCommit)) {
+    throw new Error("Could not resolve an immutable source commit for the preserved Company Timeline artifacts.");
+  }
+
+  const temporaryBase = resolve(cleanEnv(process.env.RUNNER_TEMP) ?? tmpdir());
+  await mkdir(temporaryBase, { recursive: true });
+  const validationParent = await mkdtemp(join(temporaryBase, "returner-timeline-validation-"));
+  const validationRoot = join(validationParent, "checkout");
+  let validationWorktreeAdded = false;
+  try {
+    await runCommand(
+      "git",
+      ["-c", "core.hooksPath=/dev/null", "worktree", "add", "--detach", validationRoot, sourceCommit],
+      {
+        timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitDiffMs,
+        label: "materialize last-good Company Timeline validation source",
+        quiet: true,
+        cwd: targetRoot
+      }
+    );
+    validationWorktreeAdded = true;
+    await runCommand(process.execPath, [
+      sourcePath("scripts", "validate-timeline-artifacts.mjs"),
+      `--root-dir=${validationRoot}`
+    ], {
+      timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.artifactValidationMs,
+      label: "validate preserved Company Timeline at its immutable source commit",
+      cwd: targetRoot
+    });
+  } finally {
+    if (validationWorktreeAdded) {
+      await runCommand(
+        "git",
+        ["worktree", "remove", "--force", validationRoot],
+        {
+          timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitDiffMs,
+          label: "remove last-good Company Timeline validation worktree",
+          quiet: true,
+          recordEvents: false,
+          cancellationCleanup: true,
+          cwd: targetRoot
+        }
+      );
+    }
+    await rm(validationParent, { recursive: true, force: true });
+  }
+  return {
+    status: "preserved",
+    reason: "timeline_source_coverage_unavailable",
+    sourceCommit
+  };
+}
+
 async function buildAndValidatePublication(publicationRunId, catalogState) {
+  latestTimelineBuildReceipt = null;
   const targetRoot = publicationArtifactRoot();
   // All code executed in this secret-bearing process is pinned to sourceCommit.
   // Mutable publication-root files are data only. The exact pushed SHA receives
@@ -5491,9 +5632,15 @@ async function buildAndValidatePublication(publicationRunId, catalogState) {
   // reads published database events. The run-less admin queue is optional: a
   // missing admin claim RPC is recorded by the child receipt but cannot suppress
   // scheduled discovery or leave Timeline manifests stale against fresh graphs.
-  await runTimelineDiscoveryBeforeBackfill(catalogState);
+  const timelineDiscoveryReceipt = await runTimelineDiscoveryBeforeBackfill(catalogState);
+  const preserveLastGoodTimeline =
+    timelineDiscoveryReceipt?.status === "migration_unavailable"
+    && timelineDiscoveryReceipt?.reason === "timeline_source_coverage_unavailable";
   const timelineDatabaseSnapshotPath = join(workRoot, "timeline-database-snapshot.json");
-  if (durableStorageConfigured) {
+  let preservedTimelineReceipt = null;
+  if (preserveLastGoodTimeline) {
+    preservedTimelineReceipt = await preserveLastGoodTimelineArtifacts();
+  } else if (durableStorageConfigured) {
     await runCommand(process.execPath, [
       "--experimental-strip-types",
       "--loader",
@@ -5509,37 +5656,55 @@ async function buildAndValidatePublication(publicationRunId, catalogState) {
       cwd: root
     });
   }
-  const timelineBackfillEnv = durableStorageConfigured
-    ? {
-        TIMELINE_REQUIRE_DATABASE: "true",
-        SCORING_DATA_ROOT: targetRoot
-      }
+  if (!preserveLastGoodTimeline) {
+    const timelineBackfillEnv = durableStorageConfigured
+      ? {
+          TIMELINE_REQUIRE_DATABASE: "true",
+          SCORING_DATA_ROOT: targetRoot
+        }
+      : {
+          TIMELINE_REQUIRE_DATABASE: "false",
+          SCORING_DATA_ROOT: targetRoot
+        };
+    await runCommand(process.execPath, [
+      "--experimental-strip-types",
+      "--loader",
+      sourcePath("scripts", "lib", "scoring-diagnostics-ts-loader.mjs"),
+      sourcePath("scripts", "backfill-company-timelines.mjs"),
+      `--root=${targetRoot}`,
+      "--resume",
+      ...(durableStorageConfigured
+        ? [`--database-snapshot=${timelineDatabaseSnapshotPath}`]
+        : [])
+    ], {
+      timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.timelineBackfillMs,
+      label: "company timeline backfill",
+      envCategory: "timeline_backfill",
+      env: timelineBackfillEnv,
+      cwd: targetRoot
+    });
+  }
+  if (!preserveLastGoodTimeline) {
+    await runCommand(process.execPath, [sourcePath("scripts", "validate-timeline-artifacts.mjs")], {
+      timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.artifactValidationMs,
+      label: "company timeline artifact validation",
+      cwd: targetRoot
+    });
+  }
+  latestTimelineBuildReceipt = preserveLastGoodTimeline
+    ? preservedTimelineReceipt
     : {
-        TIMELINE_REQUIRE_DATABASE: "false",
-        SCORING_DATA_ROOT: targetRoot
+        status: "rebuilt",
+        reason: "timeline_discovery_and_backfill_completed"
       };
-  await runCommand(process.execPath, [
-    "--experimental-strip-types",
-    "--loader",
-    sourcePath("scripts", "lib", "scoring-diagnostics-ts-loader.mjs"),
-    sourcePath("scripts", "backfill-company-timelines.mjs"),
-    `--root=${targetRoot}`,
-    "--resume",
-    ...(durableStorageConfigured
-      ? [`--database-snapshot=${timelineDatabaseSnapshotPath}`]
-      : [])
-  ], {
-    timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.timelineBackfillMs,
-    label: "company timeline backfill",
-    envCategory: "timeline_backfill",
-    env: timelineBackfillEnv,
-    cwd: targetRoot
-  });
-  await runCommand(process.execPath, [sourcePath("scripts", "validate-timeline-artifacts.mjs")], {
-    timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.artifactValidationMs,
-    label: "company timeline artifact validation",
-    cwd: targetRoot
-  });
+  if (preserveLastGoodTimeline) {
+    await event(
+      "timeline.artifacts.preserved",
+      "warning",
+      "Validated last-good Timeline artifacts were preserved while fresh graph and benchmark artifacts continued through publication.",
+      latestTimelineBuildReceipt
+    );
+  }
   await runCommand(process.execPath, [
     sourcePath("scripts", "prepare-graph-runtime-evidence.mjs"),
     `--root=${targetRoot}`

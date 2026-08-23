@@ -11,6 +11,7 @@ import {
   isReplaySafePublicationDataPath,
   isSafeInertPublicationBasePath
 } from "../scripts/lib/autonomous-publication-trust.mjs";
+import { isTimelineCoverageMigrationUnavailable } from "../scripts/lib/timeline-migration-availability.mjs";
 
 const repositoryRoot = process.cwd();
 const runnerPath = path.join(repositoryRoot, "scripts", "run-autonomous-ingestion.mjs");
@@ -37,6 +38,28 @@ afterEach(async () => {
 });
 
 describe("autonomous ingestion runner CLI", () => {
+  it("fails open only for the exact absent Timeline coverage table", () => {
+    assert.equal(isTimelineCoverageMigrationUnavailable({
+      code: "PGRST205",
+      message: "Could not find the table 'public.timeline_source_coverage' in the schema cache"
+    }), true);
+    assert.equal(isTimelineCoverageMigrationUnavailable({
+      code: "42P01",
+      message: 'relation "public.timeline_source_coverage" does not exist'
+    }), true);
+
+    for (const error of [
+      { code: "42501", message: "permission denied for table timeline_source_coverage" },
+      { code: "PGRST301", message: "JWT expired while reading timeline_source_coverage" },
+      { code: "LIFECYCLE_OPERATION_TIMEOUT", message: "timeline_source_coverage timed out" },
+      { code: "ETIMEDOUT", message: "timeline_source_coverage request timed out" },
+      { code: "PGRST205", message: "Could not find the table 'public.other_optional_table' in the schema cache" },
+      { code: "PGRST204", message: "Could not find the 'terminal_at' column of 'timeline_source_coverage'" }
+    ]) {
+      assert.equal(isTimelineCoverageMigrationUnavailable(error), false, JSON.stringify(error));
+    }
+  });
+
   it("prints a complete plan without Supabase credentials or side effects in the repository", async () => {
     const env = {
       NODE_ENV: "test",
@@ -1313,7 +1336,7 @@ describe("autonomous ingestion runner static safety contracts", () => {
     assert.ok(timelineBackfill.includes("env: timelineBackfillEnv"));
   });
 
-  it("keeps scheduled Timeline discovery and backfill independent of an unavailable optional admin RPC", () => {
+  it("keeps the optional admin lane independent and preserves Timeline only when its exact coverage table is absent", () => {
     const discovery = section(
       "async function runTimelineDiscoveryBeforeBackfill",
       "async function buildCanonicalTimelineIngestionInventory"
@@ -1322,12 +1345,30 @@ describe("autonomous ingestion runner static safety contracts", () => {
       "async function buildAndValidatePublication",
       "async function synchronizePublicationBase"
     );
+    const preservation = section(
+      "async function preserveLastGoodTimelineArtifacts",
+      "async function buildAndValidatePublication"
+    );
 
     assert.doesNotMatch(timelineCommand, /adminTaskDrain\.status === "migration_unavailable"\s*\?/);
     assert.match(timelineCommand, /const receipt = await runTimelineDiscoveryIngestion/);
+    const coveragePreflight = timelineCommand.indexOf("const coveragePreflight");
+    const adminDrain = timelineCommand.indexOf("const adminTaskDrain", coveragePreflight);
+    assert.ok(coveragePreflight >= 0 && adminDrain > coveragePreflight);
+    assert.match(timelineCommand, /timeline_source_coverage_unavailable/);
+    assert.match(timelineCommand, /enqueuedTasks:\s*0/);
+    assert.match(timelineCommand, /claimedTasks:\s*0/);
     assert.match(discovery, /receipt\.adminTaskDrain\?\.status === "migration_unavailable"/);
     assert.match(discovery, /timeline\.discovery\.skipped/);
-    assert.doesNotMatch(publicationBuild, /preserveLastGoodTimeline/);
+    assert.match(discovery, /isTimelineCoverageMigrationUnavailable\(migrationError\)/);
+    assert.match(discovery, /\.select\("company_id"\)\s*\.limit\(1\)/);
+    assert.match(publicationBuild, /const preserveLastGoodTimeline/);
+    assert.match(publicationBuild, /await preserveLastGoodTimelineArtifacts\(\)/);
+    assert.match(publicationBuild, /if \(!preserveLastGoodTimeline\)/);
+    assert.match(preservation, /status:\s*"preserved"/);
+    assert.match(preservation, /validate preserved Company Timeline at its immutable source commit/);
+    assert.match(preservation, /git[\s\S]*?log[\s\S]*?public\/timelines/);
+    assert.match(publicationBuild, /status:\s*"rebuilt"/);
     assert.match(publicationBuild, /if \(durableStorageConfigured\)[\s\S]*?export durable Company Timeline database snapshot/);
     assert.match(publicationBuild, /label: "company timeline backfill"/);
     const discoveryIndex = publicationBuild.indexOf("await runTimelineDiscoveryBeforeBackfill");
