@@ -532,9 +532,13 @@ describe("YC traction scoring regressions", () => {
       "screenpipe",
       "linkedin"
     );
-    expectGraphEvidence(summerGraph.evidence, "https://news.ycombinator.com/item?id=48922706", "Coasty", "hacker_news");
+    expect(
+      summerGraph.evidence.some(
+        (item) => item.platform === "hacker_news" && item.platformPostId === "48922706"
+      )
+    ).toBe(false);
     expectGraphEvidence(summerGraph.evidence, "https://github.com/inkbox-ai/opencode-plugin", "Inkbox", "github");
-    expectGraphEvidence(summerGraph.evidence, "https://github.com/coasty-ai/open-cowork", "Coasty", "github");
+    expectGraphEvidence(summerGraph.evidence, "https://github.com/coasty-ai/open-cowork", "CoArena", "github");
     expectGraphEvidence(summerGraph.evidence, "https://x.com/alexsouthmayd/status/2072350508526735698", "Bloomy", "x");
     expectGraphContextEvidence(
       summerGraph.evidence,
@@ -880,14 +884,22 @@ describe("YC traction scoring regressions", () => {
     }
   });
 
-  it("marks synthesized GitHub profile publication dates as unknown", () => {
-    const profile = ycSpring2026GraphDataset.evidence.find(
-      (item) => item.id === "evidence-github-profile-company-conifer"
+  it("uses the repository creation time as Conifer's GitHub publication date", () => {
+    const repository = ycSpring2026GraphDataset.evidence.find(
+      (item) =>
+        item.entityId === "company-conifer" &&
+        item.platform === "github" &&
+        canonicalSourceIdentity(item.sourceUrl) === canonicalSourceIdentity("https://github.com/ConiferKit/sage")
     );
 
-    expect(profile).toEqual(
+    expect(repository).toEqual(
       expect.objectContaining({
-        publishedAtPrecision: "unknown",
+        entityId: "company-conifer",
+        platform: "github",
+        sourceUrl: "https://github.com/ConiferKit/sage",
+        platformPostId: "ConiferKit/sage",
+        postedAt: "2026-06-01T23:51:01Z",
+        publishedAtPrecision: "exact",
         observedAt: expect.any(String),
         metricsCheckedAt: expect.any(String)
       })
