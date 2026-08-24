@@ -76,9 +76,15 @@ function assertSupportedConcurrencySchema(source) {
   }
   assert.ok(blocks.length > 0, "workflow must declare concurrency");
   for (const keys of blocks) {
-    assert.deepEqual(keys.sort(), ["cancel-in-progress", "group"], "concurrency has an unsupported key");
+    assert.deepEqual(
+      keys.sort(),
+      ["cancel-in-progress", "group", "queue"],
+      "concurrency has an unsupported key"
+    );
   }
-  assert.doesNotMatch(source, /^\s*queue:/m);
+  for (const match of source.matchAll(/^\s*queue:\s*(.*?)\s*$/gm)) {
+    assert.equal(match[1], "max", "concurrency queue must preserve every pending writer");
+  }
 }
 
 function assertExactExternalActionPins(source) {
@@ -106,7 +112,7 @@ test("workflow declares DST-safe primary candidates plus persistent recovery", (
 test("accepted runs share the repository publication lane without delaying inactive resolvers", () => {
   assert.match(
     workflow,
-    /ingest:[\s\S]*?concurrency:\s*\n\s*group:\s*repository-publication-main\s*\n\s*cancel-in-progress:\s*false/
+    /ingest:[\s\S]*?concurrency:\s*\n\s*group:\s*repository-publication-main\s*\n\s*queue:\s*max\s*\n\s*cancel-in-progress:\s*false/
   );
   assertSupportedConcurrencySchema(workflow);
   assertExactExternalActionPins(workflow);
@@ -119,13 +125,14 @@ test("accepted runs share the repository publication lane without delaying inact
   assert.match(resolverJob, /recovery_debt:\s*\$\{\{ steps\.decision\.outputs\.recovery_debt \}\}/);
 });
 
-test("dashboard refresh shares the repository publication lane with ingestion", () => {
+test("only runnable dashboard refresh jobs share the repository publication lane", () => {
   assert.match(
     dashboardRefreshWorkflow,
-    /concurrency:\s*\n(?:\s*#[^\n]*\n)*\s*group:\s*repository-publication-main\s*\n\s*cancel-in-progress:\s*false/
+    /refresh:[\s\S]*?if:\s*\$\{\{ github\.event_name != 'workflow_run' \|\| github\.event\.workflow_run\.conclusion == 'success' \}\}[\s\S]*?concurrency:\s*\n(?:\s*#[^\n]*\n)*\s*group:\s*repository-publication-main\s*\n\s*queue:\s*max\s*\n\s*cancel-in-progress:\s*false/
   );
   assertSupportedConcurrencySchema(dashboardRefreshWorkflow);
   assertExactExternalActionPins(dashboardRefreshWorkflow);
+  assert.doesNotMatch(dashboardRefreshWorkflow.split("jobs:")[0], /concurrency:/);
 });
 
 test("daily benchmarks resolve DST before entering the shared publication lane", () => {
@@ -141,7 +148,7 @@ test("daily benchmarks resolve DST before entering the shared publication lane",
   assert.match(dailyBenchmarkWorkflow, /if:\s*needs\.resolve\.outputs\.should_run == 'true'/);
   assert.match(
     dailyBenchmarkWorkflow,
-    /update:[\s\S]*?concurrency:\s*\n\s*group:\s*repository-publication-main\s*\n\s*cancel-in-progress:\s*false/
+    /update:[\s\S]*?concurrency:\s*\n\s*group:\s*repository-publication-main\s*\n\s*queue:\s*max\s*\n\s*cancel-in-progress:\s*false/
   );
   assertSupportedConcurrencySchema(dailyBenchmarkWorkflow);
   assertExactExternalActionPins(dailyBenchmarkWorkflow);

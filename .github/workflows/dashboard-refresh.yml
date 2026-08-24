@@ -23,19 +23,21 @@ on:
 permissions:
   contents: write
 
-concurrency:
-  # All jobs that write main share one lane. In particular, an hourly
-  # Dashboard commit must not race a long-running ingestion after its real
-  # collection and validation work has completed.
-  group: repository-publication-main
-  cancel-in-progress: false
-
 jobs:
   refresh:
     name: Build and publish the precomputed snapshot
     if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     timeout-minutes: 18
+    concurrency:
+      # Only a Dashboard job that passed the workflow_run success gate may
+      # enter the shared writer lane. Putting concurrency at workflow scope
+      # lets skipped follow-ups from failed/cancelled ingestion runs evict an
+      # already-accepted pending ingestion publication before this `if` is
+      # evaluated.
+      group: repository-publication-main
+      queue: max
+      cancel-in-progress: false
     steps:
       - name: Check out current main
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
