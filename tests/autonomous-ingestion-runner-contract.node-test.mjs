@@ -2051,6 +2051,70 @@ describe("autonomous ingestion runner static safety contracts", () => {
     }
   });
 
+  it("preserves authenticated collector failures when optional diagnostic persistence is unavailable", async () => {
+    for (const fixture of [
+      {
+        platform: "instagram",
+        commandError: Object.assign(new Error("collector network failed"), {
+          commandResult: { code: 1, stderr: "collector stderr", stdout: "" }
+        }),
+        expectedEventType: "authenticated_social.failed",
+        expectedResult: {
+          status: "failed",
+          exitCode: 1,
+          error: "collector network failed"
+        }
+      },
+      {
+        platform: "linkedin",
+        commandError: Object.assign(new Error("collector safety stop"), {
+          commandResult: {
+            code: 86,
+            stderr: "LINKEDIN_CHILD_SAFETY_STOP",
+            stdout: ""
+          }
+        }),
+        expectedEventType: "authenticated_social.linkedin_safety_stop",
+        expectedResult: {
+          status: "safety_stopped",
+          exitCode: 86,
+          error: "collector safety stop"
+        }
+      }
+    ]) {
+      const eventCalls = [];
+      const warnings = [];
+      const runAuthenticatedCollectorCommand = authenticatedCollectorCommandRuntime({
+        runCommand: async () => {
+          throw fixture.commandError;
+        },
+        event: async (...args) => {
+          eventCalls.push(args);
+          throw new TypeError("fetch failed");
+        },
+        warn: (message) => warnings.push(message)
+      });
+
+      const result = await runAuthenticatedCollectorCommand(
+        "S26",
+        fixture.platform,
+        ["collector.mjs"]
+      );
+
+      assert.deepEqual(result, fixture.expectedResult);
+      assert.equal(eventCalls.length, 1);
+      assert.equal(eventCalls[0][0], fixture.expectedEventType);
+      assert.deepEqual(eventCalls[0][3], {
+        batchSlug: "S26",
+        platform: fixture.platform,
+        ...fixture.expectedResult
+      });
+      assert.equal(warnings.length, 1);
+      assert.match(warnings[0], new RegExp(fixture.expectedEventType.replaceAll(".", "\\.")));
+      assert.match(warnings[0], /fetch failed/);
+    }
+  });
+
   it("continues every later Instagram batch after LinkedIn safety stop and keeps unscanned counts unknown", async () => {
     const replay = linkedInReplayRuntime();
     const instagramBatches = [];
@@ -3621,6 +3685,46 @@ function authenticatedCollectorEnvironment({ durableLock = true } = {}) {
         }
       : {})
   };
+}
+
+function authenticatedCollectorCommandRuntime({ runCommand, event, warn }) {
+  const commandSource = section(
+    "async function runAuthenticatedCollectorCommand",
+    "async function runShardedPublicCollector"
+  );
+  const runtime = new Function(
+    "process",
+    "runCommand",
+    "collectorLaunchProvenanceArgs",
+    "createCollectorAttemptContext",
+    "boundedCollectionTimeoutMs",
+    "LINKEDIN_REPLAY_PLAN_TIMEOUT_MS",
+    "AUTONOMOUS_PROCESS_BUDGETS",
+    "collectionBudget",
+    "COLLECTOR_NODE_HEAP_MB",
+    "root",
+    "errorMessage",
+    "event",
+    "sanitizeRunnerDiagnosticText",
+    "console",
+    `${commandSource}\nreturn runAuthenticatedCollectorCommand;`
+  );
+  return runtime(
+    { execPath: "/usr/bin/node", env: { HOME: "/runner/home" } },
+    runCommand,
+    () => [],
+    () => ({ attempt: 1 }),
+    (timeoutMs) => timeoutMs,
+    5_000,
+    { publicCollectorAttemptMs: 10_000 },
+    { deadlineAt: 100_000 },
+    512,
+    "/repo",
+    (error) => error instanceof Error ? error.message : String(error),
+    event,
+    (value) => String(value),
+    { warn }
+  );
 }
 
 function authenticatedCollectorsRuntime({

@@ -3751,14 +3751,24 @@ async function runAuthenticatedCollectorCommand(
       exitCode: Number.isInteger(commandResult.code) ? commandResult.code : null,
       error: errorMessage(error)
     };
-    await event(
-      safetyStopped ? "authenticated_social.linkedin_safety_stop" : "authenticated_social.failed",
-      "warning",
-      safetyStopped
-        ? `Authenticated LinkedIn safety stop halted replay after ${batchSlug}; durable checkpoint output was retained.`
-        : `Authenticated ${platform} collection failed for ${batchSlug}; durable prior evidence remains intact.`,
-      { batchSlug, platform, ...result }
-    );
+    const diagnosticEventType = safetyStopped
+      ? "authenticated_social.linkedin_safety_stop"
+      : "authenticated_social.failed";
+    try {
+      await event(
+        diagnosticEventType,
+        "warning",
+        safetyStopped
+          ? `Authenticated LinkedIn safety stop halted replay after ${batchSlug}; durable checkpoint output was retained.`
+          : `Authenticated ${platform} collection failed for ${batchSlug}; durable prior evidence remains intact.`,
+        { batchSlug, platform, ...result }
+      );
+    } catch (eventError) {
+      console.warn(
+        `Could not record optional ${diagnosticEventType} diagnostic: ` +
+        sanitizeRunnerDiagnosticText(errorMessage(eventError))
+      );
+    }
     return result;
   }
 }
