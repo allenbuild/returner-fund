@@ -5,6 +5,7 @@ import {
   isSiteAccessConfigured,
   SITE_ACCESS_COOKIE
 } from "@/lib/site-access";
+import { isReturnerFundApiRequest } from "@/lib/integrations/returner-api-auth";
 
 // The discovery dashboard is intentionally public. Keep this list narrow: the
 // rest of the app, its graph snapshots, and every existing API remain behind
@@ -19,6 +20,13 @@ export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   if (PUBLIC_PATHS.has(pathname) || PUBLIC_DASHBOARD_SOURCE_DETAIL_PATH.test(pathname)) {
+    return NextResponse.next();
+  }
+
+  // This exact read-only integration route owns its optional API-key check.
+  // Let it run independently of the browser password gate so Midas can call it
+  // server-to-server. Mutating methods and every other API remain protected.
+  if (isReturnerFundApiRequest({ method: request.method, pathname })) {
     return NextResponse.next();
   }
 

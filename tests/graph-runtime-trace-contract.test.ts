@@ -22,6 +22,11 @@ const publishedGraphSnapshots = [
   "public/graph/a16zsr006-yc-partners.json",
   "public/graph/a16zsr006-insiders.json"
 ];
+const returnerFundApiSnapshots = [
+  "public/graph/s2026.json",
+  "public/graph/s26.json",
+  "public/graph/a16zsr006.json"
+];
 
 describe("graph runtime trace contract", () => {
   it("accepts full and refresh traces containing every compact evidence projection", () => {
@@ -109,6 +114,11 @@ function runValidator(options: {
     }
 
     writeManifest(root, ".next/server/app/api/graph/route.js.nft.json", publishedGraphSnapshots);
+    writeManifest(
+      root,
+      ".next/server/app/api/v1/companies/[slug]/returner-fund/route.js.nft.json",
+      returnerFundApiSnapshots
+    );
     const fullTraceFiles = graphRuntimeProjections.filter((file) => file !== options.missingFromFull);
     const allowedPackageScript = "node_modules/trace-fixture/scripts/allowed.js";
     writeFixtureFile(root, allowedPackageScript);
