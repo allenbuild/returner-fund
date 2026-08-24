@@ -81,7 +81,8 @@ import { importEvidenceSnapshots } from "./lib/durable-evidence-import.mjs";
 import {
   assertReplaySafePublicationChanges,
   assertSafeInertPublicationBaseChanges,
-  isProtectedSourcePolicyPath
+  isProtectedSourcePolicyPath,
+  isValidatedPublicationRetryReuseSafePath
 } from "./lib/autonomous-publication-trust.mjs";
 import { isVerifiedYouTubeNativeMetriclessEvidence } from "./lib/youtube-native-promotion.mjs";
 import { comparePublicationSemantics } from "./lib/publication-semantic-diff.mjs";
@@ -6440,12 +6441,49 @@ async function rebuildPublicationCandidateOnConcurrentBase({
   publicationRunId,
   publicationInputs
 }) {
+  const validatedCandidateReuse = await inspectValidatedPublicationCandidateReuse({
+    retryBaseCommit,
+    candidateCommit: candidate.publishedCommit,
+    candidateBaseCommit: candidate.publicationBaseCommit
+  });
   await transplantPublicationArtifactsOntoRetryBase({
     retryBaseCommit,
     candidateCommit: candidate.publishedCommit,
     candidateBaseCommit: candidate.publicationBaseCommit
   });
   publicationBaseCommit = retryBaseCommit;
+
+  if (validatedCandidateReuse) {
+    // The prior candidate passed the complete artifact/manifest validation
+    // suite. Dashboard-only concurrent drift is disjoint from that candidate
+    // and is not an ingestion input, so retain the newer dashboard bytes and
+    // create a fresh direct child without loading the evidence corpus again.
+    await stageRepositoryArtifacts();
+    assertLeaseHealthy();
+    const retryCommit = await commitPublicationArtifacts({
+      amend: false,
+      allowUnchangedTree: true
+    });
+    await assertPublicationCandidateProof(retryCommit.publishedCommit, retryBaseCommit, {
+      label: `reused validated publication candidate ${attempt}`
+    });
+    const retriedDelta = await readGitRawDelta(retryBaseCommit, retryCommit.publishedCommit, {
+      label: "verify reused validated publication artifact delta"
+    });
+    if (JSON.stringify(retriedDelta) !== JSON.stringify(validatedCandidateReuse.candidateDelta)) {
+      throw new Error(
+        "Reused publication candidate does not exactly preserve the validated path/status/mode/blob delta."
+      );
+    }
+    if (JSON.stringify(retryCommit.provenance) !== JSON.stringify(candidate.provenance)) {
+      throw new Error("Reused publication candidate changed immutable receipt provenance.");
+    }
+    return {
+      ...retryCommit,
+      publicationBaseCommit: retryBaseCommit,
+      proofLabel: `publication retry candidate ${attempt}`
+    };
+  }
 
   const rebasedSanitizedTargetedSnapshot = await prepareSanitizedTargetedSnapshot(
     publicationInputs.topVoiceRefresh,
@@ -6530,6 +6568,70 @@ async function rebuildPublicationCandidateOnConcurrentBase({
     publicationBaseCommit: retryBaseCommit,
     proofLabel: `publication retry candidate ${attempt}`
   };
+}
+
+async function inspectValidatedPublicationCandidateReuse({
+  retryBaseCommit,
+  candidateCommit,
+  candidateBaseCommit
+}) {
+  const descendsFromCandidateBase = await runCommand(
+    "git",
+    ["merge-base", "--is-ancestor", candidateBaseCommit, retryBaseCommit],
+    {
+      timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitDiffMs,
+      label: "verify publication retry base descends from candidate base",
+      allowedExitCodes: [0, 1],
+      quiet: true,
+      recordEvents: false,
+      cwd: publicationRoot
+    }
+  );
+  if (descendsFromCandidateBase.code !== 0) return false;
+
+  const [concurrentDelta, candidateDelta] = await Promise.all([
+    readGitRawDelta(candidateBaseCommit, retryBaseCommit, {
+      label: "inspect concurrent publication retry drift"
+    }),
+    readGitRawDelta(candidateBaseCommit, candidateCommit, {
+      label: "inspect validated publication candidate drift"
+    })
+  ]);
+  const expectedDashboardPaths = new Set([
+    "artifacts/dashboard/current.json",
+    "public/dashboard/feed.json"
+  ]);
+  if (
+    concurrentDelta.length !== expectedDashboardPaths.size ||
+    concurrentDelta.some(({ path, status, oldMode, newMode }) =>
+      !expectedDashboardPaths.has(path) ||
+      !isValidatedPublicationRetryReuseSafePath(path) ||
+      status !== "M" ||
+      oldMode !== "100644" ||
+      newMode !== "100644"
+    ) ||
+    candidateDelta.some(({ path }) => isValidatedPublicationRetryReuseSafePath(path))
+  ) {
+    return null;
+  }
+  return { candidateDelta };
+}
+
+async function readGitRawDelta(baseCommit, targetCommit, { label }) {
+  const changed = await runCommand(
+    "git",
+    ["diff", "--raw", "-z", "--no-abbrev", "--no-renames", baseCommit, targetCommit, "--"],
+    {
+      timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitDiffMs,
+      label,
+      captureLimit: STRUCTURED_GIT_OUTPUT_CAPTURE_LIMIT,
+      requireCompleteOutput: true,
+      quiet: true,
+      recordEvents: false,
+      cwd: publicationRoot
+    }
+  );
+  return parseGitRawDeltaNul(changed.stdout);
 }
 
 async function verifyAndClassifyPublicationCandidate(candidate) {
@@ -6774,6 +6876,33 @@ function parseGitNameStatusNul(value) {
     changes.push({ status, path });
   }
   return changes;
+}
+
+function parseGitRawDeltaNul(value) {
+  const tokens = String(value ?? "").split("\0").filter(Boolean);
+  if (tokens.length % 2 !== 0) {
+    throw new Error("Git raw publication delta had an incomplete record.");
+  }
+  const changes = [];
+  for (let index = 0; index < tokens.length; index += 2) {
+    const header = tokens[index];
+    const path = tokens[index + 1];
+    const match = header.match(
+      /^:(\d{6}) (\d{6}) ([0-9a-f]{40}) ([0-9a-f]{40}) ([A-Z])$/
+    );
+    if (!match || !path) {
+      throw new Error("Git raw publication delta had an unsupported record.");
+    }
+    changes.push({
+      path,
+      status: match[5],
+      oldMode: match[1],
+      newMode: match[2],
+      oldObject: match[3],
+      newObject: match[4]
+    });
+  }
+  return changes.sort((left, right) => left.path.localeCompare(right.path));
 }
 
 function repositoryArtifactPaths() {
@@ -8835,6 +8964,81 @@ async function runLifecycleContractFixture(fixture) {
       deletedFromIndex: deletedIndexEntry.stdout.trim() === "",
       deletedFromWorktree
     });
+  }
+
+  if (fixture === "publication-retry-reuse") {
+    const fixturePublicationRoot = cleanEnv(process.env.LIFECYCLE_FIXTURE_PUBLICATION_ROOT);
+    const fixturePublicationParent = cleanEnv(process.env.LIFECYCLE_FIXTURE_PUBLICATION_PARENT);
+    const fixtureBaseCommit = cleanEnv(process.env.LIFECYCLE_FIXTURE_BASE_COMMIT)?.toLowerCase();
+    const fixtureRetryBaseCommit = cleanEnv(process.env.LIFECYCLE_FIXTURE_RETRY_BASE_COMMIT)?.toLowerCase();
+    if (
+      !fixturePublicationRoot ||
+      !fixturePublicationParent ||
+      !fixtureBaseCommit ||
+      !fixtureRetryBaseCommit
+    ) {
+      throw new Error("Publication retry-reuse fixture requires worktree, base, and retry-base values.");
+    }
+    publicationRoot = resolve(fixturePublicationRoot);
+    publicationWorktreeParent = resolve(fixturePublicationParent);
+    publicationBaseCommit = fixtureBaseCommit;
+    configurePublicationArtifactPaths(publicationRoot);
+    const previousCandidateMetadata = candidateMetadata;
+    const previousLatestPublishedCommit = latestPublishedCommit;
+    const previousReceiptSha256 = publicationReceiptSha256;
+    candidateMetadata = validateCandidateMetadata({
+      trigger: "manual-replay",
+      scheduledAt: null,
+      slotKey: idempotencyKey,
+      required: true
+    });
+    latestPublishedCommit = null;
+    publicationReceiptSha256 = null;
+
+    try {
+      const retainedCandidateRows = [{ id: "publication-retry-reuse", retained: true }];
+      await writeJsonAtomic(
+        join(publicationRoot, "outputs", "source-discovery-paths-current.json"),
+        retainedCandidateRows
+      );
+      await stageRepositoryArtifacts();
+      const firstCommit = await commitPublicationArtifacts({
+        amend: false,
+        allowUnchangedTree: true
+      });
+      const candidate = {
+        ...firstCommit,
+        publicationBaseCommit: fixtureBaseCommit,
+        proofLabel: "fixture initial publication candidate"
+      };
+      const rebuilt = await rebuildPublicationCandidateOnConcurrentBase({
+        retryBaseCommit: fixtureRetryBaseCommit,
+        candidate,
+        attempt: 2,
+        publicationRunId: "publication-retry-reuse-fixture",
+        // The dashboard-only fast path must return before dereferencing this.
+        publicationInputs: null
+      });
+      const proof = await assertPublicationCandidateProof(
+        rebuilt.publishedCommit,
+        fixtureRetryBaseCommit,
+        { label: "fixture reused publication candidate" }
+      );
+      return emit({
+        fixture,
+        reusedValidatedCandidate: true,
+        proof,
+        dashboardBytes: await readFile(join(publicationRoot, "public", "dashboard", "feed.json"), "utf8"),
+        retainedCandidateRows: await readJson(
+          join(publicationRoot, "outputs", "source-discovery-paths-current.json"),
+          null
+        )
+      });
+    } finally {
+      candidateMetadata = previousCandidateMetadata;
+      latestPublishedCommit = previousLatestPublishedCommit;
+      publicationReceiptSha256 = previousReceiptSha256;
+    }
   }
 
   if (fixture === "publication-race-loop") {

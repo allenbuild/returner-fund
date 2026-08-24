@@ -32,6 +32,10 @@ const dailyBenchmarkWorkflow = readFileSync(
   path.join(repositoryRoot, ".github", "workflows", "daily-benchmarks.yml"),
   "utf8"
 );
+const dashboardRefreshWorkflow = readFileSync(
+  path.join(repositoryRoot, ".github", "workflows", "dashboard-refresh.yml"),
+  "utf8"
+);
 const receiptPolicy = readFileSync(
   path.join(repositoryRoot, "scripts", "lib", "autonomous-ingestion-receipt-policy.mjs"),
   "utf8"
@@ -113,6 +117,15 @@ test("accepted runs share the repository publication lane without delaying inact
   assert.match(resolverJob, /uses:\s*actions\/checkout@[0-9a-f]{40}\s+# v4[\s\S]*?ref:\s*\$\{\{ github\.sha \}\}[\s\S]*?fetch-depth:\s*0[\s\S]*?persist-credentials:\s*false/);
   assert.match(resolverJob, /source_sha:\s*\$\{\{ steps\.source\.outputs\.source_sha \}\}/);
   assert.match(resolverJob, /recovery_debt:\s*\$\{\{ steps\.decision\.outputs\.recovery_debt \}\}/);
+});
+
+test("dashboard refresh shares the repository publication lane with ingestion", () => {
+  assert.match(
+    dashboardRefreshWorkflow,
+    /concurrency:\s*\n(?:\s*#[^\n]*\n)*\s*group:\s*repository-publication-main\s*\n\s*cancel-in-progress:\s*false/
+  );
+  assertSupportedConcurrencySchema(dashboardRefreshWorkflow);
+  assertExactExternalActionPins(dashboardRefreshWorkflow);
 });
 
 test("daily benchmarks resolve DST before entering the shared publication lane", () => {
@@ -1146,7 +1159,7 @@ test("autonomous runner receives optional durability secrets and owns validated 
   assert.ok(runnerStep, "missing autonomous ingestion step");
   assert.match(runnerStep, /id:\s*ingestion/);
   assert.match(runnerStep, /timeout-minutes:\s*330/);
-  assert.match(runnerStep, /NODE_OPTIONS:\s*--max-old-space-size=1024/);
+  assert.match(runnerStep, /NODE_OPTIONS:\s*--max-old-space-size=3072/);
   assert.match(runnerStep, /NEXT_PUBLIC_SUPABASE_URL:\s*\$\{\{ secrets\.NEXT_PUBLIC_SUPABASE_URL \}\}/);
   assert.match(runnerStep, /SUPABASE_SERVICE_ROLE_KEY:\s*\$\{\{ secrets\.SUPABASE_SERVICE_ROLE_KEY \}\}/);
   assert.match(runnerStep, /GITHUB_TOKEN:\s*\$\{\{ github\.token \}\}/);

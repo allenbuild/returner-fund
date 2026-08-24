@@ -9,7 +9,8 @@ import { readRequiredCanonicalJson } from "../scripts/lib/canonical-json.mjs";
 import {
   isProtectedSourcePolicyPath,
   isReplaySafePublicationDataPath,
-  isSafeInertPublicationBasePath
+  isSafeInertPublicationBasePath,
+  isValidatedPublicationRetryReuseSafePath
 } from "../scripts/lib/autonomous-publication-trust.mjs";
 import { isTimelineCoverageMigrationUnavailable } from "../scripts/lib/timeline-migration-availability.mjs";
 
@@ -1577,8 +1578,8 @@ describe("autonomous ingestion runner static safety contracts", () => {
     assert.doesNotMatch(publication, /git", \["diff", "--cached", "--quiet"\]/);
     assert.equal(
       (publication.match(/allowUnchangedTree: true/g) ?? []).length,
-      2,
-      "initial and retry provenance commits must both permit an unchanged semantic tree"
+      3,
+      "initial, validated-reuse, and full-rebuild provenance commits must permit an unchanged semantic tree"
     );
   });
 
@@ -3117,6 +3118,10 @@ describe("autonomous ingestion runner static safety contracts", () => {
     assert.ok(fetchRetryBase.includes("assertTrustedPublicationBaseCommit(retryBaseCommit"));
     assert.ok(fetchRetryBase.includes("allowInertCodeDrift: true"));
     assert.ok(rebuild.includes("transplantPublicationArtifactsOntoRetryBase"));
+    assert.ok(rebuild.includes("inspectValidatedPublicationCandidateReuse"));
+    assert.ok(rebuild.includes("if (validatedCandidateReuse)"));
+    assert.ok(rebuild.includes("readGitRawDelta(retryBaseCommit, retryCommit.publishedCommit"));
+    assert.ok(rebuild.includes("retryCommit.provenance"));
     assert.ok(rebuild.includes("candidateCommit: candidate.publishedCommit"));
     assert.ok(rebuild.includes("candidateBaseCommit: candidate.publicationBaseCommit"));
     assert.ok(rebuild.includes("rebasedSanitizedPublicSnapshot"));
@@ -3157,6 +3162,61 @@ describe("autonomous ingestion runner static safety contracts", () => {
     ));
     assert.ok(rebuild.includes("await stageRepositoryArtifacts()"));
     assert.ok(pushAttempt.includes("`retry refreshed artifact push ${attempt}`"));
+  });
+
+  it("reuses a validated candidate across dashboard-only drift without entering the heavyweight rebuild", async () => {
+    const publicationParent = await mkdtemp(path.join(os.tmpdir(), "returner-dashboard-race-"));
+    const publicationRoot = path.join(publicationParent, "checkout");
+    temporaryRoots.push(publicationParent);
+    const sourceCommit = runGit(repositoryRoot, ["rev-parse", "HEAD^{commit}"]).stdout.trim();
+    const receipt = `${JSON.stringify({
+      schemaVersion: 1,
+      idempotencyKey: "publication-retry-reuse-contract",
+      trigger: "manual-replay",
+      scheduledAt: null,
+      fixture: "dashboard-only-concurrent-drift"
+    }, null, 2)}\n`;
+    const baseCommit = await createDetachedFixtureCommit({
+      parent: sourceCommit,
+      filePath: "outputs/ingestion-source-delta-current.json",
+      content: receipt
+    });
+    const dashboardArtifactCommit = await createDetachedFixtureCommit({
+      parent: baseCommit,
+      filePath: "artifacts/dashboard/current.json",
+      content: '{"fixture":"newer-dashboard-artifact"}\n'
+    });
+    const dashboardBytes = '{"fixture":"newer-dashboard-must-survive"}\n';
+    const retryBaseCommit = await createDetachedFixtureCommit({
+      parent: dashboardArtifactCommit,
+      filePath: "public/dashboard/feed.json",
+      content: dashboardBytes
+    });
+
+    runGit(repositoryRoot, ["worktree", "add", "--detach", publicationRoot, baseCommit]);
+    try {
+      const result = runLifecycleFixture("publication-retry-reuse", {
+        GITHUB_RUN_ID: "publication-retry-reuse-fixture",
+        GITHUB_RUN_ATTEMPT: "1",
+        LIFECYCLE_FIXTURE_PUBLICATION_ROOT: publicationRoot,
+        LIFECYCLE_FIXTURE_PUBLICATION_PARENT: publicationParent,
+        LIFECYCLE_FIXTURE_BASE_COMMIT: baseCommit,
+        LIFECYCLE_FIXTURE_RETRY_BASE_COMMIT: retryBaseCommit
+      }, repositoryRoot, 15_000);
+      const payload = lifecycleFixturePayload(result);
+      assert.equal(payload.reusedValidatedCandidate, true);
+      assert.equal(payload.proof.parentCommit, retryBaseCommit);
+      assert.equal(payload.dashboardBytes, dashboardBytes);
+      assert.deepEqual(payload.retainedCandidateRows, [{
+        id: "publication-retry-reuse",
+        retained: true
+      }]);
+      assert.ok(payload.proof.changedPaths.includes("outputs/source-discovery-paths-current.json"));
+      assert.ok(!payload.proof.changedPaths.includes("public/dashboard/feed.json"));
+    } finally {
+      runGit(repositoryRoot, ["worktree", "remove", "--force", publicationRoot]);
+      runGit(repositoryRoot, ["worktree", "prune"]);
+    }
   });
 
   it("publishes learned discovery state from isolated batch collector files", () => {
@@ -3283,6 +3343,10 @@ describe("pinned source and publication-base trust boundaries", () => {
     assert.equal(isSafeInertPublicationBasePath("scripts/queued-run-malicious.mjs"), false);
     assert.equal(isSafeInertPublicationBasePath(".github/workflows/fixture.ts"), false);
     assert.equal(isSafeInertPublicationBasePath("supabase/functions/fixture.ts"), false);
+    assert.equal(isValidatedPublicationRetryReuseSafePath("artifacts/dashboard/current.json"), true);
+    assert.equal(isValidatedPublicationRetryReuseSafePath("public/dashboard/feed.json"), true);
+    assert.equal(isValidatedPublicationRetryReuseSafePath("public/graph/s26.json"), false);
+    assert.equal(isValidatedPublicationRetryReuseSafePath("src/lib/graph/layout.ts"), false);
     assert.equal(isProtectedSourcePolicyPath("src/lib/social/package.json"), true);
     assert.equal(
       isReplaySafePublicationDataPath("src/lib/social/logged-in-evidence-current.json"),

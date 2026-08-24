@@ -107,6 +107,17 @@ export function isSafeInertPublicationBasePath(value) {
   return SAFE_INERT_SOURCE_PATH_PATTERNS.some((pattern) => pattern.test(filePath));
 }
 
+// These snapshots are produced by the independent Dashboard publisher and
+// are not inputs to autonomous-ingestion graph/benchmark generation. When
+// they are the only concurrent main drift, an already validated ingestion
+// candidate can be transplanted onto that newer base without reparsing the
+// full evidence corpus. Keep this allowlist deliberately narrower than the
+// general inert-publication-base policy.
+export function isValidatedPublicationRetryReuseSafePath(value) {
+  const filePath = normalizeTrackedRepositoryPath(value);
+  return SAFE_INERT_PUBLICATION_BASE_EXACT_PATHS.has(filePath);
+}
+
 export function assertSafeInertPublicationBaseChanges(changedPaths, { label = "publication base" } = {}) {
   const unsafe = [...new Set(changedPaths.map(normalizeTrackedRepositoryPath))]
     .filter((filePath) => !isSafeInertPublicationBasePath(filePath))
