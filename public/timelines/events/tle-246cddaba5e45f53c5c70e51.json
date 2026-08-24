@@ -1,0 +1,67 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-arlo-industries",
+    "slug": "arlo-industries",
+    "name": "Arlo Industries"
+  },
+  "event": {
+    "id": "tle-246cddaba5e45f53c5c70e51",
+    "eventDate": "2026-05-26",
+    "eventDateType": "announcement_date",
+    "title": "Arlo Industries released Arlo Industries (YC P26) Launch",
+    "summary": "Arlo Industries (YC P26) Launch.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-8a186f18ed66ac30d880da21",
+        "title": "Arlo Industries (YC P26) Launch",
+        "publisher": "Arlo Industries (YC P26) Launch",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-05-26T01:19:59-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=2F0cugbrq3A"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-8a186f18ed66ac30d880da21",
+        "title": "Arlo Industries (YC P26) Launch",
+        "publisher": "Arlo Industries (YC P26) Launch",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-05-26T01:19:59-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=2F0cugbrq3A",
+        "publicationDate": "2026-05-26T01:19:59-07:00",
+        "excerpt": "Arlo Industries develops technologies to better counteract drone and aerial threats. https://arlo1.com/careers",
+        "sourceEventDate": "2026-05-26",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-d15f10bcbcc77af787c22796",
+        "platform": "youtube",
+        "account": "Arlo Industries (YC P26) Launch",
+        "postDate": "2026-05-26",
+        "excerpt": "Arlo Industries develops technologies to better counteract drone and aerial threats. https://arlo1.com/careers",
+        "url": "https://youtube.com/watch?v=2F0cugbrq3A",
+        "metrics": {
+          "views": 1372,
+          "likes": 13,
+          "comments": 0
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-24T14:39:14.351Z",
+  "lastModifiedAt": "2026-08-24T14:39:14.351Z"
+}

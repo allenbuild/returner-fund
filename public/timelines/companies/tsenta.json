@@ -5,8 +5,8 @@
     "slug": "tsenta",
     "name": "Tsenta"
   },
-  "generatedAt": "2026-08-14T12:40:37.528Z",
-  "lastModifiedAt": "2026-08-14T12:40:37.528Z",
+  "generatedAt": "2026-08-24T14:39:14.351Z",
+  "lastModifiedAt": "2026-08-24T14:39:14.351Z",
   "events": [
     {
       "id": "tle-5df0145a4e1cd1e92625feba",
@@ -46,7 +46,7 @@
       "sourcePreview": [
         {
           "id": "src-4bc8c01e336e111bfd49cc10",
-          "title": "Introducing Tsenta. Built for Careermaxxing. https://t.co/eaOosMuywY",
+          "title": "Introducing Tsenta. Built for Careermaxxing.",
           "publisher": "agnaysrivastava",
           "domain": "x.com",
           "sourceType": "founder_post",
@@ -131,7 +131,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 4,
-    "lastSuccessfulArtifactAt": "2026-08-14T12:40:37.528Z"
+    "lastSuccessfulArtifactAt": "2026-08-24T14:39:14.351Z"
   },
   "nextCursor": null
 }

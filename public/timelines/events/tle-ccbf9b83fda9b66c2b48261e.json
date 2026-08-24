@@ -39,7 +39,7 @@
         "evidenceRole": "primary",
         "url": "https://x.com/stagereviewapp/status/2047736351702086017",
         "publicationDate": "2026-04-24T17:56:06.000Z",
-        "excerpt": "Introducing Stage, a modern code review platform that you’ll actually want to use. We got tired of using GitHub to review AI generated code so we rebuilt the review process around the way you already naturally think, letting you ship faster and with more confidence. Try it out https://t.co/RFQSIYkkyk",
+        "excerpt": "Introducing Stage, a modern code review platform that you’ll actually want to use. We got tired of using GitHub to review AI generated code so we rebuilt the review process around the way you already naturally think, letting you ship faster and with more confidence. Try it out",
         "sourceEventDate": "2026-04-24",
         "isConflicting": false,
         "conflictDescription": null
@@ -51,18 +51,18 @@
         "platform": "x",
         "account": "stagereviewapp",
         "postDate": "2026-04-24",
-        "excerpt": "Introducing Stage, a modern code review platform that you’ll actually want to use. We got tired of using GitHub to review AI generated code so we rebuilt the review process around the way you already naturally think, letting you ship faster and with more confidence. Try it out https://t.co/RFQSIYkkyk",
+        "excerpt": "Introducing Stage, a modern code review platform that you’ll actually want to use. We got tired of using GitHub to review AI generated code so we rebuilt the review process around the way you already naturally think, letting you ship faster and with more confidence. Try it out",
         "url": "https://x.com/stagereviewapp/status/2047736351702086017",
         "metrics": {
           "likes": 89,
           "reposts": 13,
           "replies": 25,
-          "views": 10624
+          "views": 10701
         },
         "evidenceRole": "primary"
       }
     ]
   },
-  "generatedAt": "2026-08-14T12:40:37.528Z",
-  "lastModifiedAt": "2026-08-14T12:40:37.528Z"
+  "generatedAt": "2026-08-24T14:39:14.351Z",
+  "lastModifiedAt": "2026-08-24T14:39:14.351Z"
 }

@@ -39,7 +39,7 @@
         "evidenceRole": "primary",
         "url": "https://x.com/clawvisor/status/2052452770775699505",
         "publicationDate": "2026-05-07T18:17:27.000Z",
-        "excerpt": "Introducing Clawvisor, the authorization layer for AI agents. Before today, giving access to your agents was all-or-nothing. Now, you can give your agents access that is scoped to your specific task. If your agent drifts or is compromised, it's blocked. Try it today for free. https://t.co/vkVfTG2tMY",
+        "excerpt": "Introducing Clawvisor, the authorization layer for AI agents. Before today, giving access to your agents was all-or-nothing. Now, you can give your agents access that is scoped to your specific task. If your agent drifts or is compromised, it's blocked. Try it today for free.",
         "sourceEventDate": "2026-05-07",
         "isConflicting": false,
         "conflictDescription": null
@@ -51,18 +51,18 @@
         "platform": "x",
         "account": "clawvisor",
         "postDate": "2026-05-07",
-        "excerpt": "Introducing Clawvisor, the authorization layer for AI agents. Before today, giving access to your agents was all-or-nothing. Now, you can give your agents access that is scoped to your specific task. If your agent drifts or is compromised, it's blocked. Try it today for free. https://t.co/vkVfTG2tMY",
+        "excerpt": "Introducing Clawvisor, the authorization layer for AI agents. Before today, giving access to your agents was all-or-nothing. Now, you can give your agents access that is scoped to your specific task. If your agent drifts or is compromised, it's blocked. Try it today for free.",
         "url": "https://x.com/clawvisor/status/2052452770775699505",
         "metrics": {
           "likes": 30,
           "reposts": 5,
           "replies": 6,
-          "views": 2981
+          "views": 2991
         },
         "evidenceRole": "primary"
       }
     ]
   },
-  "generatedAt": "2026-08-14T12:40:37.528Z",
-  "lastModifiedAt": "2026-08-14T12:40:37.528Z"
+  "generatedAt": "2026-08-24T14:39:14.351Z",
+  "lastModifiedAt": "2026-08-24T14:39:14.351Z"
 }

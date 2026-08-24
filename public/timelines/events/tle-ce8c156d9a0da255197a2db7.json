@@ -1,16 +1,16 @@
 {
   "schemaVersion": "company-timeline-event.v1",
   "company": {
-    "id": "company-coasty",
-    "slug": "coasty",
-    "name": "Coasty"
+    "id": "company-coarena",
+    "slug": "coarena",
+    "name": "CoArena"
   },
   "event": {
-    "id": "tle-50d784c9034d364930d8f014",
+    "id": "tle-ce8c156d9a0da255197a2db7",
     "eventDate": "2026-02-19",
     "eventDateType": "announcement_date",
-    "title": "Coasty was introduced",
-    "summary": "Coasty introduced Coasty, A State-Of-The-Art Computer Using Agent.",
+    "title": "CoArena released Coasty",
+    "summary": "CoArena introduced Coasty, A State-Of-The-Art Computer Using Agent.",
     "category": "product_launch",
     "isMajor": false,
     "hasConflict": false,
@@ -63,6 +63,6 @@
       }
     ]
   },
-  "generatedAt": "2026-08-14T12:40:37.528Z",
-  "lastModifiedAt": "2026-08-14T12:40:37.528Z"
+  "generatedAt": "2026-08-24T14:39:14.351Z",
+  "lastModifiedAt": "2026-08-24T14:39:14.351Z"
 }

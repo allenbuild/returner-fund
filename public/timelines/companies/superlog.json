@@ -5,9 +5,33 @@
     "slug": "superlog",
     "name": "Superlog"
   },
-  "generatedAt": "2026-08-14T12:40:37.528Z",
-  "lastModifiedAt": "2026-08-14T12:40:37.528Z",
+  "generatedAt": "2026-08-24T14:39:14.351Z",
+  "lastModifiedAt": "2026-08-24T14:39:14.351Z",
   "events": [
+    {
+      "id": "tle-d2e3255f53e993b1e9e921cb",
+      "eventDate": "2026-08-18",
+      "eventDateType": "announcement_date",
+      "title": "Superlog released integration",
+      "summary": "Superlog introduced an integration with @vercel Now you can give your agents read-only access to your Vercel deployments, functions, observability and more.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-308c25b834e0a8b3839b9bef",
+          "title": "Introducing an integration with @vercel Now you can give your agents read-only access to your Vercel deployments, functions, observability and more.",
+          "publisher": "superlogyc",
+          "domain": "x.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-08-18T15:21:20.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/superlogyc/status/2089734398622958048"
+        }
+      ]
+    },
     {
       "id": "tle-01197a4ccb8f5928ae8a172b",
       "eventDate": "2026-07-22",
@@ -206,6 +230,10 @@
       "year": 2026,
       "months": [
         {
+          "month": "2026-08",
+          "count": 1
+        },
+        {
           "month": "2026-07",
           "count": 4
         },
@@ -222,8 +250,8 @@
   ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 8,
-    "lastSuccessfulArtifactAt": "2026-08-14T12:40:37.528Z"
+    "publishedEventCount": 9,
+    "lastSuccessfulArtifactAt": "2026-08-24T14:39:14.351Z"
   },
   "nextCursor": null
 }

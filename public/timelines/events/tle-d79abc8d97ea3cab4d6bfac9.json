@@ -1,0 +1,67 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-egoist-machines",
+    "slug": "egoist-machines",
+    "name": "Egoist Machines"
+  },
+  "event": {
+    "id": "tle-d79abc8d97ea3cab4d6bfac9",
+    "eventDate": "2026-08-17",
+    "eventDateType": "announcement_date",
+    "title": "Egoist Machines released Egoist Machines Founder Launch",
+    "summary": "Egoist Machines Founder Launch.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-a241817eec1cef66e306d0ee",
+        "title": "Egoist Machines Founder Launch",
+        "publisher": "Egoist Machines Founder Launch",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-08-16T21:59:14-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=nLnZNjyHV0s"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-a241817eec1cef66e306d0ee",
+        "title": "Egoist Machines Founder Launch",
+        "publisher": "Egoist Machines Founder Launch",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-08-16T21:59:14-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=nLnZNjyHV0s",
+        "publicationDate": "2026-08-16T21:59:14-07:00",
+        "excerpt": "Every AI app is trying to learn who you are. We think you should own the answer. Egoist Machines is building AI Passport, the user-owned context and memory layer for consumer AI. The way things work right now, ChatGPT, Claude, health apps, wearables, shopping platforms, travel accounts, and financial tools each hold a different, incomplete model of the same person. Users repeatedly explain themselves while their personal data remains trapped across disconnected platforms. AI Passport gives…",
+        "sourceEventDate": "2026-08-17",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-a99b8efb0026fdd6765272ae",
+        "platform": "youtube",
+        "account": "Egoist Machines Founder Launch",
+        "postDate": "2026-08-17",
+        "excerpt": "Every AI app is trying to learn who you are. We think you should own the answer. Egoist Machines is building AI Passport, the user-owned context and memory layer for consumer AI. The way things work right now, ChatGPT, Claude, health apps, wearables, shopping platforms, travel accounts, and financial tools each hold a different, incomplete model of the same person. Users repeatedly explain themselves while their personal data remains trapped across disconnected platforms. AI Passport gives…",
+        "url": "https://youtube.com/watch?v=nLnZNjyHV0s",
+        "metrics": {
+          "views": 408,
+          "likes": 5,
+          "comments": 0
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-24T14:39:14.351Z",
+  "lastModifiedAt": "2026-08-24T14:39:14.351Z"
+}

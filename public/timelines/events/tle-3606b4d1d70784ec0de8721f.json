@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-touchy",
+    "slug": "touchy",
+    "name": "Touchy"
+  },
+  "event": {
+    "id": "tle-3606b4d1d70784ec0de8721f",
+    "eventDate": "2026-08-11",
+    "eventDateType": "announcement_date",
+    "title": "Touchy released Touchy (YC S26)",
+    "summary": "Touchy introduced Touchy (YC S26).",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-fb7d75c14c4b971eaf42aa25",
+        "title": "Introducing Touchy (YC S26).",
+        "publisher": "rohit_writes",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-08-11T17:00:38.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/rohit_writes/status/2087222674577850709"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-fb7d75c14c4b971eaf42aa25",
+        "title": "Introducing Touchy (YC S26).",
+        "publisher": "rohit_writes",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-08-11T17:00:38.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/rohit_writes/status/2087222674577850709",
+        "publicationDate": "2026-08-11T17:00:38.000Z",
+        "excerpt": "Introducing Touchy (YC S26). With the touch of a button, you can have an assistant help you out day-to-day! Touchy is free for a small group of beta testers for a few days here: https://t.co/qhCoo39GaW. Download now before it's too late!",
+        "sourceEventDate": "2026-08-11",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-0345460cc93a512bcf0446de",
+        "platform": "x",
+        "account": "rohit_writes",
+        "postDate": "2026-08-11",
+        "excerpt": "Introducing Touchy (YC S26). With the touch of a button, you can have an assistant help you out day-to-day! Touchy is free for a small group of beta testers for a few days here: https://t.co/qhCoo39GaW. Download now before it's too late!",
+        "url": "https://x.com/rohit_writes/status/2087222674577850709",
+        "metrics": {
+          "likes": 22,
+          "reposts": 3,
+          "replies": 5,
+          "views": 1114
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-24T14:39:14.351Z",
+  "lastModifiedAt": "2026-08-24T14:39:14.351Z"
+}

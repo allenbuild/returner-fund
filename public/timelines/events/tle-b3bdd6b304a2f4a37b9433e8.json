@@ -6,17 +6,27 @@
     "name": "machine0"
   },
   "event": {
-    "id": "tle-36916e4d5689431dae77870b",
+    "id": "tle-b3bdd6b304a2f4a37b9433e8",
     "eventDate": "2026-08-01",
     "eventDateType": "announcement_date",
-    "title": "machine0 announced its public launch",
-    "summary": "machine0 reported launching today, @machine__0 the compute layer agents WANT to run on.",
+    "title": "machine0 launched on Hacker News",
+    "summary": "Launch HN: machine0 (YC S26) – Persistent CPU and GPU VMs from the CLI.",
     "category": "product_launch",
-    "isMajor": false,
+    "isMajor": true,
     "hasConflict": false,
     "conflictSummary": null,
-    "evidenceCount": 1,
+    "evidenceCount": 2,
     "sourcePreview": [
+      {
+        "id": "src-4688b71b756a06361476f2fb",
+        "title": "Launch HN: machine0 (YC S26) – Persistent CPU and GPU VMs from the CLI",
+        "publisher": "Launch HN: machine0 (YC S26) – Persistent CPU and GPU VMs from the CLI",
+        "domain": "news.ycombinator.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-08-18T16:26:42Z",
+        "evidenceRole": "primary",
+        "url": "https://news.ycombinator.com/item?id=49348136"
+      },
       {
         "id": "src-1712949e1497d5cb44c7229e",
         "title": "Launching today, @machine__0 the compute layer agents WANT to run on. Barnaby spent years running engineering at Upflow and decided to bui...",
@@ -29,6 +39,21 @@
       }
     ],
     "evidence": [
+      {
+        "id": "src-4688b71b756a06361476f2fb",
+        "title": "Launch HN: machine0 (YC S26) – Persistent CPU and GPU VMs from the CLI",
+        "publisher": "Launch HN: machine0 (YC S26) – Persistent CPU and GPU VMs from the CLI",
+        "domain": "news.ycombinator.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-08-18T16:26:42Z",
+        "evidenceRole": "primary",
+        "url": "https://news.ycombinator.com/item?id=49348136",
+        "publicationDate": "2026-08-18T16:26:42Z",
+        "excerpt": "Launch HN: machine0 (YC S26) – Persistent CPU and GPU VMs from the CLI",
+        "sourceEventDate": "2026-08-18",
+        "isConflicting": false,
+        "conflictDescription": null
+      },
       {
         "id": "src-1712949e1497d5cb44c7229e",
         "title": "Launching today, @machine__0 the compute layer agents WANT to run on. Barnaby spent years running engineering at Upflow and decided to bui...",
@@ -47,6 +72,19 @@
     ],
     "posts": [
       {
+        "id": "post-e13b25beb8ccfe53e51a3540",
+        "platform": "hacker_news",
+        "account": null,
+        "postDate": "2026-08-18",
+        "excerpt": "Launch HN: machine0 (YC S26) – Persistent CPU and GPU VMs from the CLI",
+        "url": "https://news.ycombinator.com/item?id=49348136",
+        "metrics": {
+          "upvotes": 82,
+          "comments": 44
+        },
+        "evidenceRole": "primary"
+      },
+      {
         "id": "post-c68acc1172022730e3ff11bc",
         "platform": "x",
         "account": "bradflora",
@@ -64,6 +102,6 @@
       }
     ]
   },
-  "generatedAt": "2026-08-14T12:40:37.528Z",
-  "lastModifiedAt": "2026-08-14T12:40:37.528Z"
+  "generatedAt": "2026-08-24T14:39:14.351Z",
+  "lastModifiedAt": "2026-08-24T14:39:14.351Z"
 }

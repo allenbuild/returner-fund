@@ -5,14 +5,49 @@
     "slug": "speko",
     "name": "Speko"
   },
-  "generatedAt": "2026-08-14T12:40:37.528Z",
-  "lastModifiedAt": "2026-08-14T12:40:37.528Z",
-  "events": [],
-  "groups": [],
+  "generatedAt": "2026-08-24T14:39:14.351Z",
+  "lastModifiedAt": "2026-08-24T14:39:14.351Z",
+  "events": [
+    {
+      "id": "tle-1004e8895eade35c9ef995d4",
+      "eventDate": "2026-08-17",
+      "eventDateType": "announcement_date",
+      "title": "Speko launched on Hacker News",
+      "summary": "Launch HN: Speko (YC S26) – OpenRouter for Voice AI.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-3d4e4fd79cddb69878f413c1",
+          "title": "Launch HN: Speko (YC S26) – OpenRouter for Voice AI",
+          "publisher": "Launch HN: Speko (YC S26) – OpenRouter for Voice AI",
+          "domain": "news.ycombinator.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-08-17T15:36:18Z",
+          "evidenceRole": "primary",
+          "url": "https://news.ycombinator.com/item?id=49332751"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-08",
+          "count": 1
+        }
+      ]
+    }
+  ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 0,
-    "lastSuccessfulArtifactAt": "2026-08-14T12:40:37.528Z"
+    "publishedEventCount": 1,
+    "lastSuccessfulArtifactAt": "2026-08-24T14:39:14.351Z"
   },
   "nextCursor": null
 }

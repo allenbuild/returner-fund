@@ -5,14 +5,49 @@
     "slug": "impact-drones",
     "name": "IMPACT Drones"
   },
-  "generatedAt": "2026-08-14T12:40:37.528Z",
-  "lastModifiedAt": "2026-08-14T12:40:37.528Z",
-  "events": [],
-  "groups": [],
+  "generatedAt": "2026-08-24T14:39:14.351Z",
+  "lastModifiedAt": "2026-08-24T14:39:14.351Z",
+  "events": [
+    {
+      "id": "tle-32e0026d1d7889a274c06937",
+      "eventDate": "2026-08-04",
+      "eventDateType": "announcement_date",
+      "title": "IMPACT Drones released today: air defense as a service",
+      "summary": "IMPACT Drones reported launching today: air defense as a service.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-da44c0760472a2e898ebd29c",
+          "title": "Launching today: air defense as a service.",
+          "publisher": "impactdrones",
+          "domain": "x.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-08-04T18:12:23.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/impactdrones/status/2084704015531602186"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-08",
+          "count": 1
+        }
+      ]
+    }
+  ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 0,
-    "lastSuccessfulArtifactAt": "2026-08-14T12:40:37.528Z"
+    "publishedEventCount": 1,
+    "lastSuccessfulArtifactAt": "2026-08-24T14:39:14.351Z"
   },
   "nextCursor": null
 }

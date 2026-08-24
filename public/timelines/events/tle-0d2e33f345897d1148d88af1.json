@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-financial-datasets",
+    "slug": "financial-datasets",
+    "name": "Financial Datasets"
+  },
+  "event": {
+    "id": "tle-0d2e33f345897d1148d88af1",
+    "eventDate": "2026-08-20",
+    "eventDateType": "announcement_date",
+    "title": "Financial Datasets announced its public launch",
+    "summary": "Financial Datasets introduced Financial Datasets YC S26.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-24967ad940941e6352770b55",
+        "title": "Introducing Financial Datasets YC S26! Got an AI Agent that needs to connect to the stock market? Financial Datasets is building the #1 ver...",
+        "publisher": "bradflora",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-08-20T21:47:25.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/bradflora/status/2090556335016620387"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-24967ad940941e6352770b55",
+        "title": "Introducing Financial Datasets YC S26! Got an AI Agent that needs to connect to the stock market? Financial Datasets is building the #1 ver...",
+        "publisher": "bradflora",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-08-20T21:47:25.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/bradflora/status/2090556335016620387",
+        "publicationDate": "2026-08-20T21:47:25.000Z",
+        "excerpt": "Introducing Financial Datasets YC S26! Got an AI Agent that needs to connect to the stock market? Financial Datasets is building the #1 very best way to do this. When I first met Virat I assumed his product was basically just for trading bots but it turns out there are many, many other types of agents that need market and corporate data.",
+        "sourceEventDate": "2026-08-20",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-089fa97780a078b7d692c2e0",
+        "platform": "x",
+        "account": "bradflora",
+        "postDate": "2026-08-20",
+        "excerpt": "Introducing Financial Datasets YC S26! Got an AI Agent that needs to connect to the stock market? Financial Datasets is building the #1 very best way to do this. When I first met Virat I assumed his product was basically just for trading bots but it turns out there are many, many other types of agents that need market and corporate data.",
+        "url": "https://x.com/bradflora/status/2090556335016620387",
+        "metrics": {
+          "views": 2856,
+          "likes": 8,
+          "reposts": 1,
+          "saves": 4
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-24T14:39:14.351Z",
+  "lastModifiedAt": "2026-08-24T14:39:14.351Z"
+}

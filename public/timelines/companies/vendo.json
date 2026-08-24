@@ -5,8 +5,8 @@
     "slug": "vendo",
     "name": "Vendo"
   },
-  "generatedAt": "2026-08-14T12:40:37.528Z",
-  "lastModifiedAt": "2026-08-14T12:40:37.528Z",
+  "generatedAt": "2026-08-24T14:39:14.351Z",
+  "lastModifiedAt": "2026-08-24T14:39:14.351Z",
   "events": [
     {
       "id": "tle-06faef83b9d9e92539e3f537",
@@ -33,17 +33,27 @@
       ]
     },
     {
-      "id": "tle-e0a173657d6b910875789eb0",
+      "id": "tle-15441836ee4077a5acc7a684",
       "eventDate": "2026-07-06",
       "eventDateType": "announcement_date",
-      "title": "Vendo was introduced",
-      "summary": "Vendo introduced Vendo.",
+      "title": "Vendo launched on Hacker News",
+      "summary": "Launch HN: Vendo (YC S26) – Let users build features on top of your product.",
       "category": "product_launch",
       "isMajor": true,
       "hasConflict": false,
       "conflictSummary": null,
-      "evidenceCount": 3,
+      "evidenceCount": 4,
       "sourcePreview": [
+        {
+          "id": "src-1e322718b449dbf37613b836",
+          "title": "Launch HN: Vendo (YC S26) – Let users build features on top of your product",
+          "publisher": "Launch HN: Vendo (YC S26) – Let users build features on top of your product",
+          "domain": "news.ycombinator.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-08-20T15:29:52Z",
+          "evidenceRole": "primary",
+          "url": "https://news.ycombinator.com/item?id=49376038"
+        },
         {
           "id": "src-4a3b6d88a825a4f85d632a8e",
           "title": "Introducing Vendo. Now every user gets their own personalized agentic experience of your product. Try it now 👇",
@@ -63,16 +73,6 @@
           "publishedAt": "2026-07-21T17:32:05.000Z",
           "evidenceRole": "primary",
           "url": "https://x.com/yousefhll/status/2079620440038002750"
-        },
-        {
-          "id": "src-a355c190017197bc6c950f70",
-          "title": "Announcing the Vendo Full Stack Agentic Interface: an embeddable agent that lives right inside your product, with everything you need built-in.",
-          "publisher": "yousefhll",
-          "domain": "x.com",
-          "sourceType": "founder_post",
-          "publishedAt": "2026-08-06T21:52:16.000Z",
-          "evidenceRole": "primary",
-          "url": "https://x.com/yousefhll/status/2085484126786957477"
         }
       ]
     },
@@ -147,7 +147,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 4,
-    "lastSuccessfulArtifactAt": "2026-08-14T12:40:37.528Z"
+    "lastSuccessfulArtifactAt": "2026-08-24T14:39:14.351Z"
   },
   "nextCursor": null
 }

@@ -1,0 +1,145 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-prodigy-research",
+    "slug": "prodigy-research",
+    "name": "Prodigy Research"
+  },
+  "event": {
+    "id": "tle-de70f461686de1efb669882d",
+    "eventDate": "2026-08-18",
+    "eventDateType": "announcement_date",
+    "title": "Prodigy Research announced its public launch",
+    "summary": "Prodigy Research announced its public launch in a dated company video.",
+    "category": "product_launch",
+    "isMajor": true,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 3,
+    "sourcePreview": [
+      {
+        "id": "src-67f96a317dccc034b9930ec7",
+        "title": "Prodigy Research (YC S26) Launch Video",
+        "publisher": "Prodigy Research (YC S26) Launch Video",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-08-17T21:03:54-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=AIuyNd5hKZ4"
+      },
+      {
+        "id": "src-cc78474b8133a9f16dd6fdf6",
+        "title": "Prodigy Research (YC S26) Launch Video",
+        "publisher": "Prodigy Research (YC S26) Launch Video",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-08-09T16:38:48-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=FYJFUXyLu90"
+      },
+      {
+        "id": "src-48d2d50fd1478206c86d08a2",
+        "title": "Prodigy Research (YC S26) Launch Video",
+        "publisher": "Prodigy Research (YC S26) Launch Video",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-08-22T16:59:44-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=wkT96INB3RA"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-67f96a317dccc034b9930ec7",
+        "title": "Prodigy Research (YC S26) Launch Video",
+        "publisher": "Prodigy Research (YC S26) Launch Video",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-08-17T21:03:54-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=AIuyNd5hKZ4",
+        "publicationDate": "2026-08-17T21:03:54-07:00",
+        "excerpt": "Prodigy Research is an AI lab that has trained the world's best foundation model for quantitative finance. We’ve already achieved over 100% returns in live trading over the course of our YC batch, while major indices like the S&P 500 and the Nasdaq were flat.",
+        "sourceEventDate": "2026-08-18",
+        "isConflicting": false,
+        "conflictDescription": null
+      },
+      {
+        "id": "src-cc78474b8133a9f16dd6fdf6",
+        "title": "Prodigy Research (YC S26) Launch Video",
+        "publisher": "Prodigy Research (YC S26) Launch Video",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-08-09T16:38:48-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=FYJFUXyLu90",
+        "publicationDate": "2026-08-09T16:38:48-07:00",
+        "excerpt": "Prodigy is an AI lab that has trained the world's best foundation model for quantitative finance.",
+        "sourceEventDate": "2026-08-18",
+        "isConflicting": false,
+        "conflictDescription": null
+      },
+      {
+        "id": "src-48d2d50fd1478206c86d08a2",
+        "title": "Prodigy Research (YC S26) Launch Video",
+        "publisher": "Prodigy Research (YC S26) Launch Video",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-08-22T16:59:44-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=wkT96INB3RA",
+        "publicationDate": "2026-08-22T16:59:44-07:00",
+        "excerpt": "Prodigy Research is an AI lab that has trained the world's best foundation model for quantitative finance. We’ve already achieved 140% returns in live trading over the course of our YC batch, while major indices like the S&P 500 and the Nasdaq were flat. Learn more at prodigy.markets",
+        "sourceEventDate": "2026-08-18",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-36c41cabb66a9ebcbd438176",
+        "platform": "youtube",
+        "account": "Prodigy Research (YC S26) Launch Video",
+        "postDate": "2026-08-18",
+        "excerpt": "Prodigy Research is an AI lab that has trained the world's best foundation model for quantitative finance. We’ve already achieved over 100% returns in live trading over the course of our YC batch, while major indices like the S&P 500 and the Nasdaq were flat.",
+        "url": "https://youtube.com/watch?v=AIuyNd5hKZ4",
+        "metrics": {
+          "views": 120,
+          "likes": 0,
+          "comments": 0
+        },
+        "evidenceRole": "primary"
+      },
+      {
+        "id": "post-ce8d56fcd674a9f6c2c634aa",
+        "platform": "youtube",
+        "account": "Prodigy Research (YC S26) Launch Video",
+        "postDate": "2026-08-09",
+        "excerpt": "Prodigy is an AI lab that has trained the world's best foundation model for quantitative finance.",
+        "url": "https://youtube.com/watch?v=FYJFUXyLu90",
+        "metrics": {
+          "views": 307,
+          "likes": 3,
+          "comments": 0
+        },
+        "evidenceRole": "primary"
+      },
+      {
+        "id": "post-9c5a86b735b3f3706a60a152",
+        "platform": "youtube",
+        "account": "Prodigy Research (YC S26) Launch Video",
+        "postDate": "2026-08-22",
+        "excerpt": "Prodigy Research is an AI lab that has trained the world's best foundation model for quantitative finance. We’ve already achieved 140% returns in live trading over the course of our YC batch, while major indices like the S&P 500 and the Nasdaq were flat. Learn more at prodigy.markets",
+        "url": "https://youtube.com/watch?v=wkT96INB3RA",
+        "metrics": {
+          "views": 19,
+          "likes": 0,
+          "comments": 0
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-24T14:39:14.351Z",
+  "lastModifiedAt": "2026-08-24T14:39:14.351Z"
+}

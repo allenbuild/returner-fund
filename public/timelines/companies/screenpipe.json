@@ -5,9 +5,57 @@
     "slug": "screenpipe",
     "name": "screenpipe"
   },
-  "generatedAt": "2026-08-14T12:40:37.528Z",
-  "lastModifiedAt": "2026-08-14T12:40:37.528Z",
+  "generatedAt": "2026-08-24T14:39:14.351Z",
+  "lastModifiedAt": "2026-08-24T14:39:14.351Z",
   "events": [
+    {
+      "id": "tle-a23ec3bf308f64ad46e21ec8",
+      "eventDate": "2026-08-20",
+      "eventDateType": "announcement_date",
+      "title": "screenpipe released Cursor Computer History",
+      "summary": "screenpipe introduced Cursor Computer History.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-1451be8e6756761ed3d5cad7",
+          "title": "Introducing Cursor Computer History.",
+          "publisher": "screenpipe",
+          "domain": "x.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-08-20T15:45:11.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/screenpipe/status/2090465176206111175"
+        }
+      ]
+    },
+    {
+      "id": "tle-7669989c0f7c9944127b628f",
+      "eventDate": "2026-08-19",
+      "eventDateType": "announcement_date",
+      "title": "screenpipe announced a product update",
+      "summary": "Screenpipe now supports @cursor_ai, codex, claude code, github copilot, pi as harness Power your agents by your agents by your computer history, any model, portable to all your devices and your company.",
+      "category": "product_update",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-556aa0b4079d6199a5f3abe0",
+          "title": "Screenpipe now supports @cursor_ai, codex, claude code, github copilot, pi as harness Power your agents by your agents by your computer history, any model, portable to all your devices and your company",
+          "publisher": "screenpipe",
+          "domain": "x.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-08-19T15:56:42.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/screenpipe/status/2090105685845717384"
+        }
+      ]
+    },
     {
       "id": "tle-c84108263473e3090262e79b",
       "eventDate": "2026-07-29",
@@ -202,6 +250,10 @@
       "year": 2026,
       "months": [
         {
+          "month": "2026-08",
+          "count": 2
+        },
+        {
           "month": "2026-07",
           "count": 2
         },
@@ -218,8 +270,8 @@
   ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 7,
-    "lastSuccessfulArtifactAt": "2026-08-14T12:40:37.528Z"
+    "publishedEventCount": 9,
+    "lastSuccessfulArtifactAt": "2026-08-24T14:39:14.351Z"
   },
   "nextCursor": null
 }

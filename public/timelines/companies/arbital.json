@@ -5,8 +5,8 @@
     "slug": "arbital",
     "name": "Arbital"
   },
-  "generatedAt": "2026-08-14T12:40:37.528Z",
-  "lastModifiedAt": "2026-08-14T12:40:37.528Z",
+  "generatedAt": "2026-08-24T14:39:14.351Z",
+  "lastModifiedAt": "2026-08-24T14:39:14.351Z",
   "events": [
     {
       "id": "tle-3a6c29be252c31da81546895",
@@ -22,7 +22,7 @@
       "sourcePreview": [
         {
           "id": "src-343dd7fda54aafc47eeab540",
-          "title": "past two weeks at @arbital_xyz have been insane 76 active bots, 1,836 users, $16.5M in 24h volume you guys are genuinely lit 🔥 can we hit 2,000 users and 100 active bots this week? https://t.co/mOczqoZtGt",
+          "title": "past two weeks at @arbital_xyz have been insane 76 active bots, 1,836 users, $16.5M in 24h volume you guys are genuinely lit 🔥 can we hit 2,000 users and 100 active bots this week?",
           "publisher": "0xstevezilla",
           "domain": "x.com",
           "sourceType": "founder_post",
@@ -75,7 +75,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 2,
-    "lastSuccessfulArtifactAt": "2026-08-14T12:40:37.528Z"
+    "lastSuccessfulArtifactAt": "2026-08-24T14:39:14.351Z"
   },
   "nextCursor": null
 }

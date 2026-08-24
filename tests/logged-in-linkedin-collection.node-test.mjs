@@ -652,6 +652,15 @@ describe("OpenCLI subprocess isolation", () => {
       import { execFileSync, spawn } from "node:child_process";
       import { readFileSync, writeFileSync } from "node:fs";
       import { runOpenCli } from ${JSON.stringify(runtimeUrl)};
+      const originalKill = process.kill.bind(process);
+      const signalCalls = [];
+      let recordSignalCalls = true;
+      process.kill = (pid, signal) => {
+        if (recordSignalCalls && pid !== process.pid && typeof signal === "string") {
+          signalCalls.push({ pid, signal });
+        }
+        return originalKill(pid, signal);
+      };
       const startIdentity = (pid) => "ps-lstart:" + execFileSync(
         "/bin/ps",
         ["-p", String(pid), "-o", "lstart="],
@@ -679,6 +688,7 @@ describe("OpenCLI subprocess isolation", () => {
         errorCode = error.code;
         processDrainFailureCode = error.processDrainFailure?.code ?? null;
       }
+      recordSignalCalls = false;
       const pid = Number(readFileSync(${JSON.stringify(pidPath)}, "utf8"));
       const processIsAlive = (candidatePid) => {
         try {
@@ -702,7 +712,8 @@ describe("OpenCLI subprocess isolation", () => {
         processDrainFailureCode,
         alive,
         unrelatedAlive,
-        processState
+        processState,
+        unrelatedSignalCalls: signalCalls.filter((entry) => entry.pid === unrelated.pid)
       }));
     `;
     try {
@@ -727,6 +738,7 @@ describe("OpenCLI subprocess isolation", () => {
       assert.equal(result.alive, false);
       assert.doesNotMatch(result.processState, /^T/);
       assert.equal(result.unrelatedAlive, true);
+      assert.deepEqual(result.unrelatedSignalCalls, []);
     } finally {
       await terminateIdentityVerifiedTestProcesses(identityPath);
       await terminateIdentityVerifiedTestProcesses(unrelatedIdentityPath);

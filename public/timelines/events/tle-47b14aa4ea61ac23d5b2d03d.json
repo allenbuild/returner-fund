@@ -19,7 +19,7 @@
     "sourcePreview": [
       {
         "id": "src-b05e7852806dd8ff4aa4a0c5",
-        "title": "introducing pal! checkout our studio at https://t.co/jHp3zCKFu6 and keep an eye out for updates coming next week 👀 https://t.co/Fsf9lHENM3",
+        "title": "introducing pal! checkout our studio at https://t.co/jHp3zCKFu6 and keep an eye out for updates coming next week 👀",
         "publisher": "trypalette_ai",
         "domain": "x.com",
         "sourceType": "company_post",
@@ -31,7 +31,7 @@
     "evidence": [
       {
         "id": "src-b05e7852806dd8ff4aa4a0c5",
-        "title": "introducing pal! checkout our studio at https://t.co/jHp3zCKFu6 and keep an eye out for updates coming next week 👀 https://t.co/Fsf9lHENM3",
+        "title": "introducing pal! checkout our studio at https://t.co/jHp3zCKFu6 and keep an eye out for updates coming next week 👀",
         "publisher": "trypalette_ai",
         "domain": "x.com",
         "sourceType": "company_post",
@@ -39,7 +39,7 @@
         "evidenceRole": "primary",
         "url": "https://x.com/trypalette_ai/status/2078697335631347784",
         "publicationDate": "2026-07-19T04:23:59.000Z",
-        "excerpt": "introducing pal! checkout our studio at https://t.co/jHp3zCKFu6 and keep an eye out for updates coming next week 👀 https://t.co/Fsf9lHENM3",
+        "excerpt": "introducing pal! checkout our studio at https://t.co/jHp3zCKFu6 and keep an eye out for updates coming next week 👀",
         "sourceEventDate": "2026-07-19",
         "isConflicting": false,
         "conflictDescription": null
@@ -47,22 +47,22 @@
     ],
     "posts": [
       {
-        "id": "post-a9475411002e25cbe7cb29d8",
+        "id": "post-d86e6d5c4758db9d5f5c4101",
         "platform": "x",
         "account": "trypalette_ai",
         "postDate": "2026-07-19",
-        "excerpt": "introducing pal! checkout our studio at https://t.co/jHp3zCKFu6 and keep an eye out for updates coming next week 👀 https://t.co/Fsf9lHENM3",
+        "excerpt": "introducing pal! checkout our studio at https://t.co/jHp3zCKFu6 and keep an eye out for updates coming next week 👀",
         "url": "https://x.com/trypalette_ai/status/2078697335631347784",
         "metrics": {
           "likes": 3,
           "reposts": 0,
           "replies": 1,
-          "views": 223
+          "views": 229
         },
         "evidenceRole": "primary"
       }
     ]
   },
-  "generatedAt": "2026-08-14T12:40:37.528Z",
-  "lastModifiedAt": "2026-08-14T12:40:37.528Z"
+  "generatedAt": "2026-08-24T14:39:14.351Z",
+  "lastModifiedAt": "2026-08-24T14:39:14.351Z"
 }

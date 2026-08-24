@@ -5,21 +5,31 @@
     "slug": "vestris",
     "name": "Vestris"
   },
-  "generatedAt": "2026-08-14T12:40:37.528Z",
-  "lastModifiedAt": "2026-08-14T12:40:37.528Z",
+  "generatedAt": "2026-08-24T14:39:14.351Z",
+  "lastModifiedAt": "2026-08-24T14:39:14.351Z",
   "events": [
     {
-      "id": "tle-e8ff01208612cddcdee97686",
-      "eventDate": "2026-08-05",
+      "id": "tle-7d9bacb5d2d33f58bcfc2eb8",
+      "eventDate": "2026-08-06",
       "eventDateType": "announcement_date",
       "title": "Vestris announced its public launch",
-      "summary": "Vestris announced its public launch in a dated company video.",
+      "summary": "Vestris introduced Vestris (YC S26) -- an AI native title processing service Every US home sale runs through a title company: a weeks-long, lawyer-driven paper process on decades-old software.",
       "category": "product_launch",
-      "isMajor": false,
+      "isMajor": true,
       "hasConflict": false,
       "conflictSummary": null,
-      "evidenceCount": 1,
+      "evidenceCount": 2,
       "sourcePreview": [
+        {
+          "id": "src-f5f52fa6757a482539c2f620",
+          "title": "Introducing Vestris (YC S26) -- an AI native title processing service Every US home sale runs through a title company: a weeks-long, lawyer-driven paper process on decades-old software.",
+          "publisher": "aahil__val",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-08-06T19:13:38.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/aahil__val/status/2085444205594226728"
+        },
         {
           "id": "src-0e8cb6a65202d3d247b1ecf3",
           "title": "Vestris Launch Video",
@@ -47,7 +57,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-08-14T12:40:37.528Z"
+    "lastSuccessfulArtifactAt": "2026-08-24T14:39:14.351Z"
   },
   "nextCursor": null
 }

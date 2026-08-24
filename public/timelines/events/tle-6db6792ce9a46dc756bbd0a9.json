@@ -18,28 +18,28 @@
     "evidenceCount": 1,
     "sourcePreview": [
       {
-        "id": "src-16bb4ae15cb591bd92305d01",
-        "title": "Launching Notyfi (YC S26), track anything you want happening in the world. Start for free. We watch the internet and feed the context to you or your agents, by email or webhook,...",
-        "publisher": "PerceptronML",
+        "id": "src-d800ceb9d18bfdfc24458431",
+        "title": "Launching Notyfi (YC S26), track anything you want happening in the world.",
+        "publisher": "perceptronml",
         "domain": "x.com",
         "sourceType": "company_post",
         "publishedAt": "2026-07-13T21:41:51.000Z",
         "evidenceRole": "primary",
-        "url": "https://x.com/PerceptronML/status/2076784195847008510"
+        "url": "https://x.com/perceptronml/status/2076784195847008510"
       }
     ],
     "evidence": [
       {
-        "id": "src-16bb4ae15cb591bd92305d01",
-        "title": "Launching Notyfi (YC S26), track anything you want happening in the world. Start for free. We watch the internet and feed the context to you or your agents, by email or webhook,...",
-        "publisher": "PerceptronML",
+        "id": "src-d800ceb9d18bfdfc24458431",
+        "title": "Launching Notyfi (YC S26), track anything you want happening in the world.",
+        "publisher": "perceptronml",
         "domain": "x.com",
         "sourceType": "company_post",
         "publishedAt": "2026-07-13T21:41:51.000Z",
         "evidenceRole": "primary",
-        "url": "https://x.com/PerceptronML/status/2076784195847008510",
+        "url": "https://x.com/perceptronml/status/2076784195847008510",
         "publicationDate": "2026-07-13T21:41:51.000Z",
-        "excerpt": "Launching Notyfi (YC S26), track anything you want happening in the world. Start for free. We watch the internet and feed the context to you or your agents, by email or webhook,...",
+        "excerpt": "Launching Notyfi (YC S26), track anything you want happening in the world. Start for free. We watch the internet and feed the context to you or your agents, by email or webhook, queryable via API or MCP. Instantly, hourly, daily, or weekly. Start free: https://t.co/7anJjetpTR",
         "sourceEventDate": "2026-07-13",
         "isConflicting": false,
         "conflictDescription": null
@@ -47,22 +47,22 @@
     ],
     "posts": [
       {
-        "id": "post-526e6328bd4573f993226321",
+        "id": "post-12274d3a01744277495a5813",
         "platform": "x",
-        "account": "PerceptronML",
+        "account": "perceptronml",
         "postDate": "2026-07-13",
-        "excerpt": "Launching Notyfi (YC S26), track anything you want happening in the world. Start for free. We watch the internet and feed the context to you or your agents, by email or webhook,...",
-        "url": "https://x.com/PerceptronML/status/2076784195847008510",
+        "excerpt": "Launching Notyfi (YC S26), track anything you want happening in the world. Start for free. We watch the internet and feed the context to you or your agents, by email or webhook, queryable via API or MCP. Instantly, hourly, daily, or weekly. Start free: https://t.co/7anJjetpTR",
+        "url": "https://x.com/perceptronml/status/2076784195847008510",
         "metrics": {
-          "views": 48734,
-          "likes": 4,
-          "reposts": 1,
-          "bookmarks": 3
+          "likes": 5,
+          "reposts": 0,
+          "replies": 1,
+          "views": 48809
         },
         "evidenceRole": "primary"
       }
     ]
   },
-  "generatedAt": "2026-08-14T12:40:37.528Z",
-  "lastModifiedAt": "2026-08-14T12:40:37.528Z"
+  "generatedAt": "2026-08-24T14:39:14.351Z",
+  "lastModifiedAt": "2026-08-24T14:39:14.351Z"
 }

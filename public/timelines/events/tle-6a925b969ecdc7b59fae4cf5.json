@@ -1,0 +1,67 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-earendil-robotics",
+    "slug": "earendil-robotics",
+    "name": "Earendil Robotics"
+  },
+  "event": {
+    "id": "tle-6a925b969ecdc7b59fae4cf5",
+    "eventDate": "2026-08-14",
+    "eventDateType": "announcement_date",
+    "title": "Earendil Robotics released Earendil YC Launch",
+    "summary": "Earendil Robotics reported earendil YC Launch.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-4be46ff18308e62f39d993a6",
+        "title": "Earendil YC Launch",
+        "publisher": "Earendil YC Launch",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-08-14T12:20:31-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=kZmj9NTDALo"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-4be46ff18308e62f39d993a6",
+        "title": "Earendil YC Launch",
+        "publisher": "Earendil YC Launch",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-08-14T12:20:31-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=kZmj9NTDALo",
+        "publicationDate": "2026-08-14T12:20:31-07:00",
+        "excerpt": "Embedded in the official Earendil Robotics YC company page.",
+        "sourceEventDate": "2026-08-14",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-396b4e76ab15413a56ead7f8",
+        "platform": "youtube",
+        "account": "Earendil YC Launch",
+        "postDate": "2026-08-14",
+        "excerpt": "Embedded in the official Earendil Robotics YC company page.",
+        "url": "https://youtube.com/watch?v=kZmj9NTDALo",
+        "metrics": {
+          "views": 142,
+          "likes": 2,
+          "comments": 0
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-24T14:39:14.351Z",
+  "lastModifiedAt": "2026-08-24T14:39:14.351Z"
+}

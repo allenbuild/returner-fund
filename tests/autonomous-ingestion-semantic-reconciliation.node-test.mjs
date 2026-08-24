@@ -1065,6 +1065,53 @@ describe("autonomous ingestion semantic attribution contracts", () => {
         .sort(),
       expectedRejected
     );
+    const renamedCompanyPost = merged.evidence.find((row) => row.platformPostId === "48922706");
+    assert.deepEqual(
+      {
+        entityId: renamedCompanyPost?.entityId,
+        companySlug: renamedCompanyPost?.companySlug,
+        companyName: renamedCompanyPost?.companyName,
+        previousAttribution: renamedCompanyPost?.previousAttribution,
+        attributionReconciliationReason: renamedCompanyPost?.attributionReconciliationReason
+      },
+      {
+        entityId: "company-coarena",
+        companySlug: "coarena",
+        companyName: "CoArena",
+        previousAttribution: {
+          batchSlug: "S26",
+          entityType: "company",
+          entityId: "company-coasty",
+          companySlug: "coasty",
+          companyName: "Coasty"
+        },
+        attributionReconciliationReason: "canonical_company_legacy_alias_reassignment"
+      }
+    );
+    assert.deepEqual(
+      merged.attributionReconciliationLedger.find((entry) => entry.platformPostId === "48922706"),
+      {
+        platform: "hacker_news",
+        sourceUrl: "https://news.ycombinator.com/item?id=48922706",
+        platformPostId: "48922706",
+        disposition: "reattributed",
+        reason: "canonical_company_legacy_alias_reassignment",
+        staleAttribution: {
+          batchSlug: "S26",
+          entityType: "company",
+          entityId: "company-coasty",
+          companySlug: "coasty",
+          companyName: "Coasty"
+        },
+        replacementAttribution: {
+          batchSlug: "S26",
+          entityType: "company",
+          entityId: "company-coarena",
+          companySlug: "coarena",
+          companyName: "CoArena"
+        }
+      }
+    );
   });
 
   it("resolves every native-author audit record to its exact canonical owner", async () => {

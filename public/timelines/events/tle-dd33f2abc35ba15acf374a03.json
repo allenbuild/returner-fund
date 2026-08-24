@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-cerenovus",
+    "slug": "cerenovus",
+    "name": "Cerenovus"
+  },
+  "event": {
+    "id": "tle-dd33f2abc35ba15acf374a03",
+    "eventDate": "2026-08-11",
+    "eventDateType": "announcement_date",
+    "title": "Cerenovus launched on Y Combinator",
+    "summary": "Cerenovus just launched on @ycombinator's Launch YC.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-a877f4de40ccae8986ec32c8",
+        "title": "Cerenovus just launched on @ycombinator's Launch YC! Cerenovus - The Layer between Data and Decisions.",
+        "publisher": "jwaldorf",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-08-11T23:08:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/jwaldorf/status/2087315121508933670"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-a877f4de40ccae8986ec32c8",
+        "title": "Cerenovus just launched on @ycombinator's Launch YC! Cerenovus - The Layer between Data and Decisions.",
+        "publisher": "jwaldorf",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-08-11T23:08:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/jwaldorf/status/2087315121508933670",
+        "publicationDate": "2026-08-11T23:08:00.000Z",
+        "excerpt": "Cerenovus just launched on @ycombinator's Launch YC! Cerenovus - The Layer between Data and Decisions. Check them out: https://t.co/hgkPy2xAeX",
+        "sourceEventDate": "2026-08-11",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-62c56f6c7cc053412eeea847",
+        "platform": "x",
+        "account": "jwaldorf",
+        "postDate": "2026-08-11",
+        "excerpt": "Cerenovus just launched on @ycombinator's Launch YC! Cerenovus - The Layer between Data and Decisions. Check them out: https://t.co/hgkPy2xAeX",
+        "url": "https://x.com/jwaldorf/status/2087315121508933670",
+        "metrics": {
+          "likes": 0,
+          "reposts": 0,
+          "replies": 0,
+          "views": 106
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-24T14:39:14.351Z",
+  "lastModifiedAt": "2026-08-24T14:39:14.351Z"
+}

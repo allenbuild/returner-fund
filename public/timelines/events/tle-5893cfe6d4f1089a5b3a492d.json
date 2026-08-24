@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-interfaze",
+    "slug": "interfaze",
+    "name": "Interfaze"
+  },
+  "event": {
+    "id": "tle-5893cfe6d4f1089a5b3a492d",
+    "eventDate": "2026-08-17",
+    "eventDateType": "announcement_date",
+    "title": "Interfaze released OpenWebSearch",
+    "summary": "Interfaze introduced OpenWebSearch: One router for web search like Exa, Parallel, Brave, Perplexity and more - Normalized output structure - Centralized billing - Built-in fallbacks priorities and more.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-97037069e936e9109ef7edc6",
+        "title": "Introducing OpenWebSearch: One router for web search like Exa, Parallel, Brave, Perplexity and more - Normalized output structure - Centralized billing - Built-in fallbacks priorities and more",
+        "publisher": "interfaze_ai",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-08-17T16:09:37.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/interfaze_ai/status/2089384159525670980"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-97037069e936e9109ef7edc6",
+        "title": "Introducing OpenWebSearch: One router for web search like Exa, Parallel, Brave, Perplexity and more - Normalized output structure - Centralized billing - Built-in fallbacks priorities and more",
+        "publisher": "interfaze_ai",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-08-17T16:09:37.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/interfaze_ai/status/2089384159525670980",
+        "publicationDate": "2026-08-17T16:09:37.000Z",
+        "excerpt": "Introducing OpenWebSearch: One router for web search like Exa, Parallel, Brave, Perplexity and more - Normalized output structure - Centralized billing - Built-in fallbacks priorities and more",
+        "sourceEventDate": "2026-08-17",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-ea8d0086bf15717e685b1a29",
+        "platform": "x",
+        "account": "interfaze_ai",
+        "postDate": "2026-08-17",
+        "excerpt": "Introducing OpenWebSearch: One router for web search like Exa, Parallel, Brave, Perplexity and more - Normalized output structure - Centralized billing - Built-in fallbacks priorities and more",
+        "url": "https://x.com/interfaze_ai/status/2089384159525670980",
+        "metrics": {
+          "likes": 285,
+          "reposts": 22,
+          "replies": 23,
+          "views": 38347
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-24T14:39:14.351Z",
+  "lastModifiedAt": "2026-08-24T14:39:14.351Z"
+}

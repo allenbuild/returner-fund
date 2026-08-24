@@ -394,6 +394,7 @@ export function buildAutonomousPublicNativeAuthorResolver(catalogs) {
 export function buildCanonicalTargetedAttributionResolver(catalogs) {
   const nativeAuthorResolver = buildPublicNativeAuthorResolver(catalogs);
   const exactTargets = new Map();
+  const legacyExactTargets = new Map();
   const companiesByBatchName = new Map();
   const companiesByBatchStructuredIdentity = new Map();
   for (const catalog of catalogs ?? []) {
@@ -403,12 +404,23 @@ export function buildCanonicalTargetedAttributionResolver(catalogs) {
         targetedCatalogEntityKey(catalog.slug, "company", company.sourceKey),
         companyTarget
       );
-      const nameKey = `${catalog.slug}:${normalizedCatalogBatchAlias(company.name)}`;
-      companiesByBatchName.set(nameKey, [
-        ...(companiesByBatchName.get(nameKey) ?? []),
-        companyTarget
-      ]);
-      for (const identity of [company.name, autonomousCompanySlug(company)]) {
+      for (const alias of company.legacyEntityAliases ?? []) {
+        indexTargetedLegacyEntityAlias(
+          legacyExactTargets,
+          catalog.slug,
+          "company",
+          alias,
+          companyTarget
+        );
+      }
+      for (const name of [company.name, ...(company.legacyEntityAliases ?? [])]) {
+        indexTargetedCompanyName(companiesByBatchName, catalog.slug, name, companyTarget);
+      }
+      for (const identity of [
+        company.name,
+        autonomousCompanySlug(company),
+        ...(company.legacyEntityAliases ?? [])
+      ]) {
         indexTargetedCompanyIdentity(
           companiesByBatchStructuredIdentity,
           catalog.slug,
@@ -417,10 +429,20 @@ export function buildCanonicalTargetedAttributionResolver(catalogs) {
         );
       }
       for (const founder of company.founders ?? []) {
+        const founderTarget = { catalog, company, founder };
         exactTargets.set(
           targetedCatalogEntityKey(catalog.slug, "founder", founder.sourceKey),
-          { catalog, company, founder }
+          founderTarget
         );
+        for (const alias of founder.legacyEntityAliases ?? []) {
+          indexTargetedLegacyEntityAlias(
+            legacyExactTargets,
+            catalog.slug,
+            "founder",
+            alias,
+            founderTarget
+          );
+        }
       }
     }
   }
@@ -439,12 +461,15 @@ export function buildCanonicalTargetedAttributionResolver(catalogs) {
         };
       }
     }
-    const exact = exactTargets.get(targetedCatalogEntityKey(batchSlug, entityType, entityId));
-    if (exact) {
+    const exactKey = targetedCatalogEntityKey(batchSlug, entityType, entityId);
+    const exact = exactTargets.get(exactKey);
+    const legacyExact = exact ? null : legacyExactTargets.get(exactKey);
+    const exactTarget = exact ?? legacyExact;
+    if (exactTarget) {
       const companyConflict = targetedStructuredCompanyConflict(
         row,
         batchSlug,
-        exact.company.sourceKey,
+        exactTarget.company.sourceKey,
         companiesByBatchStructuredIdentity
       );
       if (companyConflict) {
@@ -454,7 +479,13 @@ export function buildCanonicalTargetedAttributionResolver(catalogs) {
           companyConflict
         };
       }
-      return canonicalTargetedAttributionResolution(row, exact, "canonical_targeted_exact_entity_id");
+      return canonicalTargetedAttributionResolution(
+        row,
+        exactTarget,
+        exact
+          ? "canonical_targeted_exact_entity_id"
+          : "canonical_targeted_legacy_entity_alias"
+      );
     }
 
     if (entityType === "founder") {
@@ -491,6 +522,31 @@ export function buildCanonicalTargetedAttributionResolver(catalogs) {
     }
     return null;
   };
+}
+
+function indexTargetedLegacyEntityAlias(index, batchSlug, entityType, alias, target) {
+  const normalizedAlias = String(alias ?? "").trim();
+  if (!normalizedAlias) return;
+  const key = targetedCatalogEntityKey(batchSlug, entityType, normalizedAlias);
+  const previous = index.get(key);
+  const previousEntityId = previous?.founder?.sourceKey ?? previous?.company?.sourceKey;
+  const targetEntityId = target?.founder?.sourceKey ?? target?.company?.sourceKey;
+  if (previous && previousEntityId !== targetEntityId) {
+    throw new Error(
+      `Canonical targeted attribution alias ${batchSlug}/${entityType}/${normalizedAlias} maps to multiple entities.`
+    );
+  }
+  index.set(key, target);
+}
+
+function indexTargetedCompanyName(index, batchSlug, identity, target) {
+  const normalized = normalizedCatalogBatchAlias(identity);
+  if (!normalized) return;
+  const key = `${batchSlug}:${normalized}`;
+  const targets = index.get(key) ?? [];
+  if (!targets.some((candidate) => candidate.company.sourceKey === target.company.sourceKey)) {
+    index.set(key, [...targets, target]);
+  }
 }
 
 function indexTargetedCompanyIdentity(index, batchSlug, identity, target) {
@@ -1755,6 +1811,10 @@ export function mergePublicEvidenceSnapshots(
     reconciliationCandidates.push(...(snapshot.attributionReconciliationLedger ?? []));
     for (const sourceRow of snapshot.evidence ?? []) {
       const originalRow = withSnapshotRowBatch(sourceRow, snapshot, resolveBatchSlug);
+      const canonicalCompanyReassignment = typeof resolveNativeAuthor === "function"
+        ? canonicalMergedCompanyAttribution(originalRow, resolveNativeAuthor)
+        : null;
+      const canonicalRosterRow = canonicalCompanyReassignment?.row ?? originalRow;
       // Promotion receipts bind to the exact persisted row. Resolve their
       // exceptions before replay refreshes native-author metadata; otherwise
       // a fresh canonical resolver can overwrite receipt fields and silently
@@ -1766,15 +1826,15 @@ export function mergePublicEvidenceSnapshots(
         typeof allowVerifiedContextEvidence === "function" &&
         allowVerifiedContextEvidence(originalRow, { snapshot });
       const freshNativeAuthorResolution = typeof resolveNativeAuthor === "function"
-        ? resolveNativeAuthor(originalRow)
+        ? resolveNativeAuthor(canonicalRosterRow)
         : null;
       const nativeAuthorResolution = replayStableNativeAuthorResolution(
-        originalRow,
+        canonicalRosterRow,
         freshNativeAuthorResolution
       );
       const nativeResolutionRow = nativeAuthorResolution
-        ? { ...originalRow, nativeAuthorResolution }
-        : originalRow;
+        ? { ...canonicalRosterRow, nativeAuthorResolution }
+        : canonicalRosterRow;
       const companySubjectReassignment = typeof resolveNativeAuthor === "function"
         ? mergedFounderToCompanySubjectReassignment(
             nativeResolutionRow,
@@ -1784,9 +1844,9 @@ export function mergePublicEvidenceSnapshots(
         : null;
       const shouldReassign = !companySubjectReassignment &&
         nativeAuthorResolution?.status === "matched" &&
-        shouldReassignMergedPublicRow(originalRow, resolveNativeAuthor, nativeAuthorResolution);
+        shouldReassignMergedPublicRow(canonicalRosterRow, resolveNativeAuthor, nativeAuthorResolution);
       const nativeResolvedRow = shouldReassign
-        ? applyResolvedNativeAuthor(originalRow, nativeAuthorResolution)
+        ? applyResolvedNativeAuthor(canonicalRosterRow, nativeAuthorResolution)
         : nativeResolutionRow;
       const row = companySubjectReassignment?.row ?? nativeResolvedRow;
       const promotionAttributionStable = samePublicAttribution(
@@ -1820,6 +1880,7 @@ export function mergePublicEvidenceSnapshots(
             acceptedRow,
             "reattributed",
             companySubjectReassignment?.reason ??
+              canonicalCompanyReassignment?.reason ??
               nativeAuthorResolution?.reason ??
               "canonical_native_author_reassignment"
           ));
@@ -3246,6 +3307,42 @@ const MERGED_ATTRIBUTION_DESCRIPTOR_STOP_WORDS = new Set([
   "that", "the", "their", "they", "this", "through", "using", "with", "your"
 ]);
 
+function canonicalMergedCompanyAttribution(row, resolveNativeAuthor) {
+  if ((row?.entityType ?? row?.entity_type ?? "company") !== "company") return null;
+  const owner = resolveNativeAuthor.companyForRow?.(row);
+  if (!owner?.company || !owner.entityId || !owner.companySlug) return null;
+  const canonicalAttribution = {
+    batchSlug: owner.batchSlug,
+    entityType: "company",
+    entityId: owner.entityId,
+    companySlug: owner.companySlug,
+    companyName: owner.companyName
+  };
+  const staleAttribution = publicAttribution(row);
+  const identityChanged = !samePublicAttribution(staleAttribution, canonicalAttribution);
+  const displayChanged =
+    String(row?.entityName ?? "") !== String(owner.entityName ?? "") ||
+    String(row?.companySlug ?? row?.company_slug ?? "") !== String(owner.companySlug ?? "") ||
+    String(row?.companyName ?? row?.company_name ?? "") !== String(owner.companyName ?? "");
+  if (!identityChanged && !displayChanged) return null;
+  const reason = identityChanged
+    ? "canonical_company_legacy_alias_reassignment"
+    : "canonical_company_display_refresh";
+  return {
+    reason,
+    row: {
+      ...row,
+      ...canonicalAttribution,
+      entityName: owner.entityName,
+      ...(row?.attachedCompanyId ? { attachedCompanyId: owner.companyEntityId } : {}),
+      ...(identityChanged && !row?.previousAttribution
+        ? { previousAttribution: staleAttribution }
+        : {}),
+      attributionReconciliationReason: reason
+    }
+  };
+}
+
 function mergedSemanticAttribution(row, resolveNativeAuthor, nativeAuthorResolution) {
   const companyOwner = resolveNativeAuthor.companyForRow?.(row);
   const company = companyOwner?.company;
@@ -3258,6 +3355,8 @@ function mergedSemanticAttribution(row, resolveNativeAuthor, nativeAuthorResolut
     };
   }
   const text = publicEvidenceAttributionText(row);
+  const companyNames = mergedCompanyAttributionNames(company);
+  const companyNameMentioned = companyNames.some((name) => containsExactTokenSequence(text, name));
   const signals = [];
   if (
     nativeAuthorResolution?.status === "matched" &&
@@ -3269,7 +3368,7 @@ function mergedSemanticAttribution(row, resolveNativeAuthor, nativeAuthorResolut
   if (
     nativeAuthorResolution?.status === "matched" &&
     nativeAuthorResolution.owner?.companySlug === (row.companySlug ?? row.company_slug) &&
-    containsExactTokenSequence(text, company.name)
+    companyNameMentioned
   ) {
     signals.push("same_company_native_author_subject");
   }
@@ -3295,10 +3394,12 @@ function mergedSemanticAttribution(row, resolveNativeAuthor, nativeAuthorResolut
   }
   if (mergedMappedAccountMatches(company, row)) signals.push("mapped_official_account");
   const channelName = String(row?.youtubeChannelName ?? "");
+  const channelBrandNames = channelName
+    ? companyNames.filter((name) => mergedCompanyBrandMatchesChannel(name, channelName))
+    : [];
   if (
-    channelName &&
-    mergedCompanyBrandMatchesChannel(company.name, channelName) &&
-    (!isCollisionProneCompanyName(company.name) ||
+    channelBrandNames.length > 0 &&
+    (channelBrandNames.some((name) => !isCollisionProneCompanyName(name)) ||
       organizationQualifiedBatchMarker(row.batchSlug ?? row.batch_slug, `${text}\n${channelName}`))
   ) {
     signals.push("native_channel_brand");
@@ -3329,13 +3430,30 @@ function mergedSemanticAttribution(row, resolveNativeAuthor, nativeAuthorResolut
       }
     }
   }
-  return assessPublicEvidenceAttribution({
+  const assessments = companyNames.map((companyName) => assessPublicEvidenceAttribution({
     batchSlug: row.batchSlug ?? row.batch_slug,
-    companyName: company.name,
+    companyName,
     text,
     signals,
     descriptorMatches: mergedCompanyDescriptorMatches(company, text)
-  });
+  }));
+  return assessments.find((assessment) => assessment.verified) ??
+    assessments.find((assessment) => assessment.companySubjectNameMatch) ??
+    assessments[0];
+}
+
+function mergedCompanyAttributionNames(company) {
+  const names = [];
+  const seen = new Set();
+  for (const value of [company?.name, ...(company?.legacyEntityAliases ?? [])]) {
+    const name = String(value ?? "").normalize("NFKC").trim();
+    if (!name || /^company-/i.test(name)) continue;
+    const key = name.toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    names.push(name);
+  }
+  return names;
 }
 
 function mergedPublicAttributionMode(row) {

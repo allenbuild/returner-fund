@@ -5,14 +5,49 @@
     "slug": "mentlio",
     "name": "Mentlio"
   },
-  "generatedAt": "2026-08-14T12:40:37.528Z",
-  "lastModifiedAt": "2026-08-14T12:40:37.528Z",
-  "events": [],
-  "groups": [],
+  "generatedAt": "2026-08-24T14:39:14.351Z",
+  "lastModifiedAt": "2026-08-24T14:39:14.351Z",
+  "events": [
+    {
+      "id": "tle-6f858ed7953b2272f6a26cac",
+      "eventDate": "2026-08-17",
+      "eventDateType": "announcement_date",
+      "title": "Mentlio announced its public launch",
+      "summary": "Mentlio announced its public launch in a dated company video.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-709e08ffd533e211cf57c53b",
+          "title": "Mentlio Launch Video",
+          "publisher": "Mentlio Launch Video",
+          "domain": "youtube.com",
+          "sourceType": "video",
+          "publishedAt": "2026-08-17T00:04:02-07:00",
+          "evidenceRole": "primary",
+          "url": "https://youtube.com/watch?v=-28j9HvTYV0"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-08",
+          "count": 1
+        }
+      ]
+    }
+  ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 0,
-    "lastSuccessfulArtifactAt": "2026-08-14T12:40:37.528Z"
+    "publishedEventCount": 1,
+    "lastSuccessfulArtifactAt": "2026-08-24T14:39:14.351Z"
   },
   "nextCursor": null
 }

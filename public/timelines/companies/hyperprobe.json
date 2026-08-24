@@ -5,8 +5,8 @@
     "slug": "hyperprobe",
     "name": "HyperProbe"
   },
-  "generatedAt": "2026-08-14T12:40:37.528Z",
-  "lastModifiedAt": "2026-08-14T12:40:37.528Z",
+  "generatedAt": "2026-08-24T14:39:14.351Z",
+  "lastModifiedAt": "2026-08-24T14:39:14.351Z",
   "events": [
     {
       "id": "tle-1d076bb8716b6308da79649d",
@@ -39,10 +39,10 @@
       "title": "HyperProbe released HyperProbe Demo | YC BF Launch",
       "summary": "HyperProbe Demo | YC BF Launch.",
       "category": "product_launch",
-      "isMajor": false,
+      "isMajor": true,
       "hasConflict": false,
       "conflictSummary": null,
-      "evidenceCount": 1,
+      "evidenceCount": 2,
       "sourcePreview": [
         {
           "id": "src-8e0c0bebaf531b79bcab9cac",
@@ -53,6 +53,16 @@
           "publishedAt": "2026-07-02T15:31:10-07:00",
           "evidenceRole": "primary",
           "url": "https://youtube.com/watch?v=ivV7I--ta5c"
+        },
+        {
+          "id": "src-76efb1a027c21dab5d1b2708",
+          "title": "Hyperprobe launch",
+          "publisher": "Hyperprobe launch",
+          "domain": "youtube.com",
+          "sourceType": "video",
+          "publishedAt": "2026-08-12T20:06:40-07:00",
+          "evidenceRole": "primary",
+          "url": "https://youtube.com/watch?v=QtaZrQ8_Uk8"
         }
       ]
     },
@@ -103,7 +113,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 3,
-    "lastSuccessfulArtifactAt": "2026-08-14T12:40:37.528Z"
+    "lastSuccessfulArtifactAt": "2026-08-24T14:39:14.351Z"
   },
   "nextCursor": null
 }

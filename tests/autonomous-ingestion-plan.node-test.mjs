@@ -405,6 +405,7 @@ describe("autonomous ingestion planning against the collector catalogs", () => {
     const a16z = catalogs.find((catalog) => catalog.slug === "A16ZSR006");
     const openRelay = summer.companies.find((company) => company.sourceKey === "company-openrelay");
     const coasty = summer.companies.find((company) => company.sourceKey === "company-coasty");
+    const coArena = summer.companies.find((company) => company.sourceKey === "company-coarena");
     const stage = spring.companies.find((company) => company.sourceKey === "company-stage");
     const interfaze = spring.companies.find((company) => company.sourceKey === "company-interfaze");
     const playabl = spring.companies.find((company) => company.sourceKey === "company-playablai");
@@ -415,8 +416,13 @@ describe("autonomous ingestion planning against the collector catalogs", () => {
       openRelay.accounts.filter((account) => account.platform === "github").map((account) => account.url),
       ["https://github.com/OpenRelayInc"]
     );
+    assert.equal(coasty, undefined);
     assert.deepEqual(
-      coasty.accounts.filter((account) => account.platform === "github").map((account) => account.url),
+      coArena.legacyEntityAliases,
+      ["coasty", "Coasty", "company-coasty"]
+    );
+    assert.deepEqual(
+      coArena.accounts.filter((account) => account.platform === "github").map((account) => account.url),
       ["https://github.com/coasty-ai/open-cowork"]
     );
     assert.deepEqual(
@@ -494,11 +500,12 @@ describe("autonomous ingestion planning against the collector catalogs", () => {
         target.entityId === "company-openrelay" &&
         target.githubUrl === "https://github.com/OpenRelayInc"
     ));
-    assert.ok(summer.targets.some(
-      (target) =>
-        target.entityId === "company-coasty" &&
-        target.githubUrl === "https://github.com/coasty-ai/open-cowork"
-    ));
+    assert.deepEqual(
+      summer.targets
+        .filter((target) => ["company-coasty", "company-coarena"].includes(target.entityId))
+        .map((target) => `${target.entityId}:${target.githubUrl}`),
+      ["company-coarena:https://github.com/coasty-ai/open-cowork"]
+    );
     assert.equal(
       summer.targets.some((target) => /github\.com\/(?:vectorlay|anthropics\/open-computer-use)/i.test(target.githubUrl)),
       false

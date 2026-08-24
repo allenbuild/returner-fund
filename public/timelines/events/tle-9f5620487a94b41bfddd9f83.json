@@ -39,7 +39,7 @@
         "evidenceRole": "primary",
         "url": "https://x.com/aradotso/status/2081022588323520782",
         "publicationDate": "2026-07-25T14:23:43.000Z",
-        "excerpt": "Introducing Ara Review and our latest PR Review agent. Whether your other agents @coderabbitai @cursor_ai @greptile review a PR or not, Ara will make sure to take a final pass on top of them and prepare it for merging. Turn it on today in Automations, with 50$ of trial credits. https://t.co/JhYpSVQejF",
+        "excerpt": "Introducing Ara Review and our latest PR Review agent. Whether your other agents @coderabbitai @cursor_ai @greptile review a PR or not, Ara will make sure to take a final pass on top of them and prepare it for merging. Turn it on today in Automations, with 50$ of trial credits.",
         "sourceEventDate": "2026-07-25",
         "isConflicting": false,
         "conflictDescription": null
@@ -51,18 +51,18 @@
         "platform": "x",
         "account": "aradotso",
         "postDate": "2026-07-25",
-        "excerpt": "Introducing Ara Review and our latest PR Review agent. Whether your other agents @coderabbitai @cursor_ai @greptile review a PR or not, Ara will make sure to take a final pass on top of them and prepare it for merging. Turn it on today in Automations, with 50$ of trial credits. https://t.co/JhYpSVQejF",
+        "excerpt": "Introducing Ara Review and our latest PR Review agent. Whether your other agents @coderabbitai @cursor_ai @greptile review a PR or not, Ara will make sure to take a final pass on top of them and prepare it for merging. Turn it on today in Automations, with 50$ of trial credits.",
         "url": "https://x.com/aradotso/status/2081022588323520782",
         "metrics": {
-          "likes": 55,
+          "likes": 58,
           "reposts": 5,
           "replies": 7,
-          "views": 32114
+          "views": 32614
         },
         "evidenceRole": "primary"
       }
     ]
   },
-  "generatedAt": "2026-08-14T12:40:37.528Z",
-  "lastModifiedAt": "2026-08-14T12:40:37.528Z"
+  "generatedAt": "2026-08-24T14:39:14.351Z",
+  "lastModifiedAt": "2026-08-24T14:39:14.351Z"
 }

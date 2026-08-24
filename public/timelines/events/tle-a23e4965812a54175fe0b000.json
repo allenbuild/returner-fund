@@ -19,7 +19,7 @@
     "sourcePreview": [
       {
         "id": "src-5c9d3c0ac3879220737bca0b",
-        "title": "Introducing Oddpool, the institutional data layer for prediction markets, backed by @ycombinator https://t.co/nLaJjW43jT",
+        "title": "Introducing Oddpool, the institutional data layer for prediction markets, backed by @ycombinator",
         "publisher": "oddpool_alerts",
         "domain": "x.com",
         "sourceType": "company_post",
@@ -31,7 +31,7 @@
     "evidence": [
       {
         "id": "src-5c9d3c0ac3879220737bca0b",
-        "title": "Introducing Oddpool, the institutional data layer for prediction markets, backed by @ycombinator https://t.co/nLaJjW43jT",
+        "title": "Introducing Oddpool, the institutional data layer for prediction markets, backed by @ycombinator",
         "publisher": "oddpool_alerts",
         "domain": "x.com",
         "sourceType": "company_post",
@@ -39,7 +39,7 @@
         "evidenceRole": "primary",
         "url": "https://x.com/oddpool_alerts/status/2054301528450843081",
         "publicationDate": "2026-05-12T20:43:46.000Z",
-        "excerpt": "Introducing Oddpool, the institutional data layer for prediction markets, backed by @ycombinator https://t.co/nLaJjW43jT",
+        "excerpt": "Introducing Oddpool, the institutional data layer for prediction markets, backed by @ycombinator",
         "sourceEventDate": "2026-05-12",
         "isConflicting": false,
         "conflictDescription": null
@@ -47,22 +47,22 @@
     ],
     "posts": [
       {
-        "id": "post-3f081fdc4c4ab28fdaa42b97",
+        "id": "post-b60c2e96f23a30d77ec5da8d",
         "platform": "x",
         "account": "oddpool_alerts",
         "postDate": "2026-05-12",
-        "excerpt": "Introducing Oddpool, the institutional data layer for prediction markets, backed by @ycombinator https://t.co/nLaJjW43jT",
+        "excerpt": "Introducing Oddpool, the institutional data layer for prediction markets, backed by @ycombinator",
         "url": "https://x.com/oddpool_alerts/status/2054301528450843081",
         "metrics": {
           "likes": 11,
           "reposts": 1,
           "replies": 3,
-          "views": 1487
+          "views": 1561
         },
         "evidenceRole": "primary"
       }
     ]
   },
-  "generatedAt": "2026-08-14T12:40:37.528Z",
-  "lastModifiedAt": "2026-08-14T12:40:37.528Z"
+  "generatedAt": "2026-08-24T14:39:14.351Z",
+  "lastModifiedAt": "2026-08-24T14:39:14.351Z"
 }

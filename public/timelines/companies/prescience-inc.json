@@ -5,8 +5,8 @@
     "slug": "prescience-inc",
     "name": "Prescience, Inc."
   },
-  "generatedAt": "2026-08-14T12:40:37.528Z",
-  "lastModifiedAt": "2026-08-14T12:40:37.528Z",
+  "generatedAt": "2026-08-24T14:39:14.351Z",
+  "lastModifiedAt": "2026-08-24T14:39:14.351Z",
   "events": [
     {
       "id": "tle-ffe7ae791948d9dcc590f09a",
@@ -41,6 +41,30 @@
           "url": "https://x.com/getprescience/status/2079594896437166552"
         }
       ]
+    },
+    {
+      "id": "tle-70c7bd14660cdbcfe9af7232",
+      "eventDate": "2026-07-21",
+      "eventDateType": "announcement_date",
+      "title": "Prescience, Inc. launched on Y Combinator",
+      "summary": "Prescience, Inc. reported prescience - Launch YC - Modern Health Insurance.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-5f69179b7798b0ffb5fd34ac",
+          "title": "Prescience - Launch YC - Modern Health Insurance",
+          "publisher": "Prescience - Launch YC - Modern Health Insurance",
+          "domain": "youtube.com",
+          "sourceType": "video",
+          "publishedAt": "2026-07-21T08:31:58-07:00",
+          "evidenceRole": "primary",
+          "url": "https://youtube.com/watch?v=PBqyj9zP4BY"
+        }
+      ]
     }
   ],
   "groups": [
@@ -49,15 +73,15 @@
       "months": [
         {
           "month": "2026-07",
-          "count": 1
+          "count": 2
         }
       ]
     }
   ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-08-14T12:40:37.528Z"
+    "publishedEventCount": 2,
+    "lastSuccessfulArtifactAt": "2026-08-24T14:39:14.351Z"
   },
   "nextCursor": null
 }

@@ -1,0 +1,67 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-codag",
+    "slug": "codag",
+    "name": "Codag"
+  },
+  "event": {
+    "id": "tle-17e69596ec703862c57fa7d6",
+    "eventDate": "2026-08-15",
+    "eventDateType": "announcement_date",
+    "title": "Codag released YC Launch: Codag (S26)",
+    "summary": "YC Launch: Codag (S26).",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-1d888b2233c7f04d870c4c2c",
+        "title": "YC Launch: Codag (S26)",
+        "publisher": "YC Launch: Codag (S26)",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-08-14T22:11:13-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=eJbK3SezeXA"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-1d888b2233c7f04d870c4c2c",
+        "title": "YC Launch: Codag (S26)",
+        "publisher": "YC Launch: Codag (S26)",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-08-14T22:11:13-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=eJbK3SezeXA",
+        "publicationDate": "2026-08-14T22:11:13-07:00",
+        "excerpt": "Embedded in the official Codag YC company page.",
+        "sourceEventDate": "2026-08-15",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-9de276fa3e9d7f15e570bcd1",
+        "platform": "youtube",
+        "account": "YC Launch: Codag (S26)",
+        "postDate": "2026-08-15",
+        "excerpt": "Embedded in the official Codag YC company page.",
+        "url": "https://youtube.com/watch?v=eJbK3SezeXA",
+        "metrics": {
+          "views": 37,
+          "likes": 2,
+          "comments": 0
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-24T14:39:14.351Z",
+  "lastModifiedAt": "2026-08-24T14:39:14.351Z"
+}

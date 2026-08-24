@@ -1,0 +1,67 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-computable",
+    "slug": "computable",
+    "name": "Computable"
+  },
+  "event": {
+    "id": "tle-4337eb2f0a17a94725b49f30",
+    "eventDate": "2026-08-14",
+    "eventDateType": "announcement_date",
+    "title": "Computable launched on Y Combinator",
+    "summary": "Launch YC: Computable.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-68ca03cb1a560f44e10fe589",
+        "title": "Launch YC: Computable",
+        "publisher": "Launch YC: Computable",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-08-13T20:02:27-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=6HTjUUO__MU"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-68ca03cb1a560f44e10fe589",
+        "title": "Launch YC: Computable",
+        "publisher": "Launch YC: Computable",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-08-13T20:02:27-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=6HTjUUO__MU",
+        "publicationDate": "2026-08-13T20:02:27-07:00",
+        "excerpt": "Embedded in the official Computable YC company page.",
+        "sourceEventDate": "2026-08-14",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-df21b3559af91e7913fbac5a",
+        "platform": "youtube",
+        "account": "Launch YC: Computable",
+        "postDate": "2026-08-14",
+        "excerpt": "Embedded in the official Computable YC company page.",
+        "url": "https://youtube.com/watch?v=6HTjUUO__MU",
+        "metrics": {
+          "views": 100,
+          "likes": 1,
+          "comments": 0
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-24T14:39:14.351Z",
+  "lastModifiedAt": "2026-08-24T14:39:14.351Z"
+}

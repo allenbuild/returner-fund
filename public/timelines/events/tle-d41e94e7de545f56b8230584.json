@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-alchemize",
+    "slug": "alchemize",
+    "name": "Alchemize"
+  },
+  "event": {
+    "id": "tle-d41e94e7de545f56b8230584",
+    "eventDate": "2026-08-21",
+    "eventDateType": "announcement_date",
+    "title": "Alchemize released Agent Prompt Tracking in",
+    "summary": "Alchemize introduced Agent Prompt Tracking in @TryAlchemize.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-1eebb89eed8c2d85185c4128",
+        "title": "Introducing Agent Prompt Tracking in @TryAlchemize.",
+        "publisher": "samuelsfu",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-08-21T01:27:07.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/samuelsfu/status/2090611624927515034"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-1eebb89eed8c2d85185c4128",
+        "title": "Introducing Agent Prompt Tracking in @TryAlchemize.",
+        "publisher": "samuelsfu",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-08-21T01:27:07.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/samuelsfu/status/2090611624927515034",
+        "publicationDate": "2026-08-21T01:27:07.000Z",
+        "excerpt": "Introducing Agent Prompt Tracking in @TryAlchemize. Code reviewers can now see the exact prompts behind each line of change, making it easier to distinguish author intent from agent assumptions.",
+        "sourceEventDate": "2026-08-21",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-e68b5f8639c07e413e24ae24",
+        "platform": "x",
+        "account": "samuelsfu",
+        "postDate": "2026-08-21",
+        "excerpt": "Introducing Agent Prompt Tracking in @TryAlchemize. Code reviewers can now see the exact prompts behind each line of change, making it easier to distinguish author intent from agent assumptions.",
+        "url": "https://x.com/samuelsfu/status/2090611624927515034",
+        "metrics": {
+          "likes": 6,
+          "reposts": 0,
+          "replies": 2,
+          "views": 625
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-24T14:39:14.351Z",
+  "lastModifiedAt": "2026-08-24T14:39:14.351Z"
+}

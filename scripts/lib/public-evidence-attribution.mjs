@@ -517,9 +517,14 @@ export function buildPublicNativeAuthorResolver(catalogs) {
       };
       companyOwners.push(companyOwner);
       indexOwnerAccounts(ownersByNativeAccount, companyOwner, company.accounts);
-      companiesByBatchEntity.set(ownerLookupKey(catalog.slug, company.sourceKey), companyOwner);
-      companiesByBatchEntity.set(ownerLookupKey(catalog.slug, companySlug), companyOwner);
-      companiesByBatchEntity.set(ownerLookupKey(catalog.slug, company.name), companyOwner);
+      for (const identity of [
+        company.sourceKey,
+        companySlug,
+        company.name,
+        ...(company.legacyEntityAliases ?? [])
+      ]) {
+        indexCompanyLookupIdentity(companiesByBatchEntity, catalog.slug, identity, companyOwner);
+      }
 
       for (const founder of company.founders ?? []) {
         const founderOwner = {
@@ -530,8 +535,13 @@ export function buildPublicNativeAuthorResolver(catalogs) {
           founder
         };
         indexOwnerAccounts(ownersByNativeAccount, founderOwner, founder.accounts);
-        companiesByBatchEntity.set(ownerLookupKey(catalog.slug, founder.sourceKey), companyOwner);
-        companiesByBatchEntity.set(ownerLookupKey(catalog.slug, founder.name), companyOwner);
+        for (const identity of [
+          founder.sourceKey,
+          founder.name,
+          ...(founder.legacyEntityAliases ?? [])
+        ]) {
+          indexCompanyLookupIdentity(companiesByBatchEntity, catalog.slug, identity, companyOwner);
+        }
       }
     }
   }
@@ -572,7 +582,13 @@ export function buildPublicNativeAuthorResolver(catalogs) {
       row?.companyName
     ].filter(Boolean);
     for (const identity of identities) {
-      const companyOwner = companiesByBatchEntity.get(ownerLookupKey(batchSlug, identity));
+      const key = ownerLookupKey(batchSlug, identity);
+      if (!companiesByBatchEntity.has(key)) continue;
+      const companyOwner = companiesByBatchEntity.get(key);
+      // A shared display alias is not enough to choose one canonical owner.
+      // Stop at the conflicting strongest supplied identity instead of letting
+      // a weaker field silently pick whichever company was indexed last.
+      if (!companyOwner) return null;
       if (companyOwner) return companyOwner;
     }
     return null;
@@ -755,6 +771,22 @@ function publicOwner(owner) {
 
 function ownerLookupKey(batchSlug, identity) {
   return `${String(batchSlug ?? "").trim().toUpperCase()}:${String(identity ?? "").trim().toLowerCase()}`;
+}
+
+function indexCompanyLookupIdentity(index, batchSlug, identity, companyOwner) {
+  const normalizedIdentity = String(identity ?? "").trim();
+  if (!normalizedIdentity) return;
+  const key = ownerLookupKey(batchSlug, normalizedIdentity);
+  if (!index.has(key)) {
+    index.set(key, companyOwner);
+    return;
+  }
+  const existing = index.get(key);
+  if (
+    existing?.batchSlug === companyOwner.batchSlug &&
+    existing?.companyEntityId === companyOwner.companyEntityId
+  ) return;
+  index.set(key, null);
 }
 
 function escapeRegExp(value) {

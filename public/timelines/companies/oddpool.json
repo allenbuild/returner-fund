@@ -5,8 +5,8 @@
     "slug": "oddpool",
     "name": "Oddpool"
   },
-  "generatedAt": "2026-08-14T12:40:37.528Z",
-  "lastModifiedAt": "2026-08-14T12:40:37.528Z",
+  "generatedAt": "2026-08-24T14:39:14.351Z",
+  "lastModifiedAt": "2026-08-24T14:39:14.351Z",
   "events": [
     {
       "id": "tle-a23e4965812a54175fe0b000",
@@ -22,7 +22,7 @@
       "sourcePreview": [
         {
           "id": "src-5c9d3c0ac3879220737bca0b",
-          "title": "Introducing Oddpool, the institutional data layer for prediction markets, backed by @ycombinator https://t.co/nLaJjW43jT",
+          "title": "Introducing Oddpool, the institutional data layer for prediction markets, backed by @ycombinator",
           "publisher": "oddpool_alerts",
           "domain": "x.com",
           "sourceType": "company_post",
@@ -47,7 +47,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-08-14T12:40:37.528Z"
+    "lastSuccessfulArtifactAt": "2026-08-24T14:39:14.351Z"
   },
   "nextCursor": null
 }

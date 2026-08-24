@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-zomma",
+    "slug": "zomma",
+    "name": "Zomma"
+  },
+  "event": {
+    "id": "tle-dd5a4d5ccea0e7300de1ae1c",
+    "eventDate": "2026-08-18",
+    "eventDateType": "announcement_date",
+    "title": "Zomma released ZommaLabs What started as a 2am library project to build a computer...",
+    "summary": "Zomma announced it was launching @ZommaLabs What started as a 2am library project to build a computer use agent -> 100s conversations with hedge funds, payments, fintechs -> getting into @ycombinator -> starting with a billion dollar compliance problem that computer use is.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-9fc82cbd03113846a4a4671f",
+        "title": "Today we are launching @ZommaLabs What started as a 2am library project to build a computer use agent -> 100s conversations with hedge funds, payments, fintechs -> getting into @ycombinator -> starting with a billion dollar compliance…",
+        "publisher": "jihprobs",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-08-18T16:51:57.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/jihprobs/status/2089757203444154593"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-9fc82cbd03113846a4a4671f",
+        "title": "Today we are launching @ZommaLabs What started as a 2am library project to build a computer use agent -> 100s conversations with hedge funds, payments, fintechs -> getting into @ycombinator -> starting with a billion dollar compliance…",
+        "publisher": "jihprobs",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-08-18T16:51:57.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/jihprobs/status/2089757203444154593",
+        "publicationDate": "2026-08-18T16:51:57.000Z",
+        "excerpt": "Today we are launching @ZommaLabs What started as a 2am library project to build a computer use agent -> 100s conversations with hedge funds, payments, fintechs -> getting into @ycombinator -> starting with a billion dollar compliance problem that computer use is uniquely good",
+        "sourceEventDate": "2026-08-18",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-1d6eab342619b53b60879d94",
+        "platform": "x",
+        "account": "jihprobs",
+        "postDate": "2026-08-18",
+        "excerpt": "Today we are launching @ZommaLabs What started as a 2am library project to build a computer use agent -> 100s conversations with hedge funds, payments, fintechs -> getting into @ycombinator -> starting with a billion dollar compliance problem that computer use is uniquely good",
+        "url": "https://x.com/jihprobs/status/2089757203444154593",
+        "metrics": {
+          "likes": 33,
+          "reposts": 3,
+          "replies": 11,
+          "views": 6562
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-24T14:39:14.351Z",
+  "lastModifiedAt": "2026-08-24T14:39:14.351Z"
+}

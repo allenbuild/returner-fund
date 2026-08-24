@@ -5,9 +5,33 @@
     "slug": "testerarmy",
     "name": "TesterArmy"
   },
-  "generatedAt": "2026-08-14T12:40:37.528Z",
-  "lastModifiedAt": "2026-08-14T12:40:37.528Z",
+  "generatedAt": "2026-08-24T14:39:14.351Z",
+  "lastModifiedAt": "2026-08-24T14:39:14.351Z",
   "events": [
+    {
+      "id": "tle-3d2176e270c5a9e2781c3f7b",
+      "eventDate": "2026-08-20",
+      "eventDateType": "announcement_date",
+      "title": "TesterArmy released Issues tab in ✨ → quick glance at everything the agent reported",
+      "summary": "TesterArmy introduced Issues tab in @TesterArmy ✨ → quick glance at everything the agent reported with evidence → copy a prompt to fix the issue → one-click integration with @linear ✨ try it for free at.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-9a92df442732f32ef1173a58",
+          "title": "Introducing Issues tab in @TesterArmy ✨ → quick glance at everything the agent reported with evidence → copy a prompt to fix the issue → one-click integration with @linear ✨ try it for free at https://t.co/po6SPZhqbp",
+          "publisher": "o_kwasniewski",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-08-20T15:51:34.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/o_kwasniewski/status/2090466781991145911"
+        }
+      ]
+    },
     {
       "id": "tle-41d46060945ea1a9cf1af2be",
       "eventDate": "2026-07-22",
@@ -158,6 +182,10 @@
       "year": 2026,
       "months": [
         {
+          "month": "2026-08",
+          "count": 1
+        },
+        {
           "month": "2026-07",
           "count": 3
         },
@@ -170,8 +198,8 @@
   ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 6,
-    "lastSuccessfulArtifactAt": "2026-08-14T12:40:37.528Z"
+    "publishedEventCount": 7,
+    "lastSuccessfulArtifactAt": "2026-08-24T14:39:14.351Z"
   },
   "nextCursor": null
 }

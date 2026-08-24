@@ -39,7 +39,7 @@
         "evidenceRole": "primary",
         "url": "https://x.com/ae_dynamics/status/2082850868383318193",
         "publicationDate": "2026-07-30T15:28:39.000Z",
-        "excerpt": "Introducing Applied Electrodynamics. See through walls: https://t.co/WRD01f2qIY https://t.co/Kz5yrOaxaT",
+        "excerpt": "Introducing Applied Electrodynamics. See through walls: https://t.co/WRD01f2qIY",
         "sourceEventDate": "2026-07-30",
         "isConflicting": false,
         "conflictDescription": null
@@ -51,18 +51,18 @@
         "platform": "x",
         "account": "ae_dynamics",
         "postDate": "2026-07-30",
-        "excerpt": "Introducing Applied Electrodynamics. See through walls: https://t.co/WRD01f2qIY https://t.co/Kz5yrOaxaT",
+        "excerpt": "Introducing Applied Electrodynamics. See through walls: https://t.co/WRD01f2qIY",
         "url": "https://x.com/ae_dynamics/status/2082850868383318193",
         "metrics": {
-          "likes": 200,
+          "likes": 201,
           "reposts": 21,
           "replies": 19,
-          "views": 29065
+          "views": 29378
         },
         "evidenceRole": "primary"
       }
     ]
   },
-  "generatedAt": "2026-08-14T12:40:37.528Z",
-  "lastModifiedAt": "2026-08-14T12:40:37.528Z"
+  "generatedAt": "2026-08-24T14:39:14.351Z",
+  "lastModifiedAt": "2026-08-24T14:39:14.351Z"
 }
