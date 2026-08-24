@@ -63,9 +63,31 @@ describe("cohort-wide structural coverage audit", () => {
       audit.batches.reduce((count, batch) => count + batch.counts.plannedOwnerMappings, 0),
       summary.reduce((count, batch) => count + batch.mappings, 0)
     );
-    assert.equal(
-      audit.batches.reduce((count, batch) => count + batch.debt.multiAccountOwnerMappings.length, 0),
-      5
+    const multiAccountOwnerMappings = audit.batches.flatMap((batch) =>
+      batch.debt.multiAccountOwnerMappings.map((mapping) => ({
+        batchSlug: batch.batchSlug,
+        entityId: mapping.entityId,
+        platform: mapping.platform,
+        canonicalUrl: mapping.canonicalUrl
+      }))
+    );
+    assert.equal(multiAccountOwnerMappings.length, 7);
+    assert.deepEqual(
+      multiAccountOwnerMappings.filter((mapping) => mapping.batchSlug === "S26"),
+      [
+        {
+          batchSlug: "S26",
+          entityId: "company-lato",
+          platform: "linkedin",
+          canonicalUrl: "https://linkedin.com/company/latoio"
+        },
+        {
+          batchSlug: "S26",
+          entityId: "founder-vestris-joshua-tang-3411757",
+          platform: "linkedin",
+          canonicalUrl: "https://linkedin.com/in/tangjoshua"
+        }
+      ]
     );
   });
 
