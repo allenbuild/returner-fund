@@ -1,4 +1,5 @@
 import { spawn } from "node:child_process";
+import { createHash } from "node:crypto";
 import { appendFileSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
@@ -379,23 +380,36 @@ async function inspectPublicationManifest({ reader, now, graphGeneratedAt, genui
     const graphEntries = artifactEntryMap(manifest.graphArtifacts, "graph");
     const benchmarkEntries = artifactEntryMap(manifest.benchmarkArtifacts, "benchmark");
     const artifactInstants = [];
+    let missingArtifact = false;
     for (const filename of descriptor.graphFilenames) {
-      artifactInstants.push(readManifestArtifactInstant({
+      const result = await readManifestArtifactInstant({
+        reader,
         entry: graphEntries.get(filename),
         filename,
+        kind: "graph",
         relativePath: `public/graph/${filename}`,
         now,
         graphGeneratedAt
-      }));
+      });
+      missingArtifact ||= result.status === "missing";
+      if (result.instant) artifactInstants.push(result.instant);
     }
     for (const filename of descriptor.benchmarkFilenames) {
-      artifactInstants.push(readManifestArtifactInstant({
+      const result = await readManifestArtifactInstant({
+        reader,
         entry: benchmarkEntries.get(filename),
         filename,
+        kind: "benchmark",
         relativePath: `outputs/benchmarks/${filename}`,
         now,
         graphGeneratedAt
-      }));
+      });
+      missingArtifact ||= result.status === "missing";
+      if (result.instant) artifactInstants.push(result.instant);
+    }
+    if (missingArtifact) {
+      graphGeneratedAt[descriptor.path] = null;
+      return { status: "missing" };
     }
     if (artifactInstants.some((instant) => instant.getTime() > publishedAt.getTime())) {
       throw new Error("manifest publication timestamp predates a required artifact");
@@ -423,13 +437,55 @@ function artifactEntryMap(value, label) {
   return entries;
 }
 
-function readManifestArtifactInstant({ entry, filename, relativePath, now, graphGeneratedAt }) {
+async function readManifestArtifactInstant({
+  reader,
+  entry,
+  filename,
+  kind,
+  relativePath,
+  now,
+  graphGeneratedAt
+}) {
   if (!entry || !/^[a-f0-9]{64}$/.test(entry.sha256 ?? "") || !Number.isSafeInteger(entry.byteSize) || entry.byteSize <= 0) {
     throw new Error(`manifest artifact ${filename} is missing trusted identity metadata`);
   }
-  const instant = publicationInstant(entry.generatedAt, `${relativePath} generatedAt`, now);
+
+  let source;
+  try {
+    source = await reader(relativePath);
+  } catch {
+    graphGeneratedAt[relativePath] = null;
+    return { status: "missing", instant: null };
+  }
+
+  const bytes = Buffer.from(source, "utf8");
+  const sha256 = createHash("sha256").update(bytes).digest("hex");
+  if (bytes.byteLength !== entry.byteSize || sha256 !== entry.sha256) {
+    throw new Error(`manifest artifact ${filename} does not match its trusted identity metadata`);
+  }
+
+  const artifact = JSON.parse(source);
+  if (!artifact || typeof artifact !== "object" || Array.isArray(artifact)) {
+    throw new Error(`manifest artifact ${filename} root is not an object`);
+  }
+  const actualGeneratedAt = kind === "graph"
+    ? artifact.generatedAt
+    : artifact.generatedAt ?? artifact.updatedAt;
+  const instant = publicationInstant(actualGeneratedAt, `${relativePath} generatedAt`, now);
+  const manifestInstant = publicationInstant(
+    entry.generatedAt,
+    `${descriptorLabel(kind)} manifest generatedAt`,
+    now
+  );
+  if (instant.getTime() !== manifestInstant.getTime()) {
+    throw new Error(`manifest artifact ${filename} generatedAt does not match its contents`);
+  }
   graphGeneratedAt[relativePath] = instant.toISOString();
-  return instant;
+  return { status: "valid", instant };
+}
+
+function descriptorLabel(kind) {
+  return kind === "graph" ? "graph artifact" : "benchmark artifact";
 }
 
 function publicationInstant(value, label, now) {

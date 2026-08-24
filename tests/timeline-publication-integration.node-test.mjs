@@ -17,7 +17,8 @@ test("release and scheduled publication gates validate Company Timeline artifact
   assert.match(packageJson.scripts["check:release"], /check:release:artifacts/);
   assert.match(packageJson.scripts["check:release:artifacts"], /timeline:validate/);
   assert.match(packageJson.scripts["check:release:artifacts"], /timeline:audit/);
-  assert.match(autonomousWorkflow, /npm run timeline:validate/);
+  assert.match(autonomousWorkflow, /scripts\/run-autonomous-ingestion\.mjs/);
+  assert.match(runner, /sourcePath\("scripts", "validate-timeline-artifacts\.mjs"\)/);
   assert.match(dailyWorkflow, /npm run timeline:backfill/);
   assert.match(dailyWorkflow, /npm run timeline:validate/);
 });
@@ -45,8 +46,8 @@ test("autonomous publication rebuilds timelines after graph publication and stag
   assert.match(runner, /AUTONOMOUS_PROCESS_BUDGETS\.timelineDiscoveryMs/);
   assert.match(publication, /AUTONOMOUS_PROCESS_BUDGETS\.timelineBackfillMs/);
   assert.match(runner, /"public\/timelines"/);
-  assert.match(plan, /timelineDiscoveryMs:\s*4 \* MINUTE_MS/);
-  assert.match(plan, /timelineBackfillMs:\s*4 \* MINUTE_MS/);
+  assert.match(plan, /timelineDiscoveryMs:\s*6 \* MINUTE_MS/);
+  assert.match(plan, /timelineBackfillMs:\s*6 \* MINUTE_MS/);
 });
 
 test("an exact missing Timeline coverage migration triggers a canonical file-backed rebuild", () => {

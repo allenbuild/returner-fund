@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
+import { createHash } from "node:crypto";
 import {
+  existsSync,
   mkdirSync,
   mkdtempSync,
   readFileSync,
@@ -200,6 +202,27 @@ test("complete publication manifest keeps recovery open when a non-base artifact
   }).accepted, true);
 });
 
+test("publication manifest fails closed when a required artifact is missing or corrupted", async (t) => {
+  const directory = temporaryDirectory(t, "returner-watermark-integrity-");
+  const now = new Date("2026-08-22T12:10:00.000Z");
+  writeGraphs(directory, {
+    s26: "2026-08-22T11:02:00.000Z",
+    s2026: "2026-08-22T11:01:00.000Z"
+  });
+
+  const missingPath = path.join(directory, "public/graph/a16zsr006-insiders.json");
+  rmSync(missingPath);
+  assert.equal((await readPublicationWatermark({ cwd: directory, now })).status, "missing");
+
+  writeGraphs(directory, {
+    s26: "2026-08-22T11:02:00.000Z",
+    s2026: "2026-08-22T11:01:00.000Z"
+  });
+  const corruptPath = path.join(directory, "outputs/benchmarks/s26-score-benchmarks.json");
+  writeFileSync(corruptPath, `${JSON.stringify({ updatedAt: "2026-08-22T11:01:00.000Z", changed: true })}\n`);
+  assert.equal((await readPublicationWatermark({ cwd: directory, now })).status, "invalid");
+});
+
 test("a reverted pair of graph artifacts reopens only the newest slot", async (t) => {
   const directory = temporaryDirectory(t, "returner-watermark-revert-");
   const now = new Date("2026-08-22T12:10:00.000Z");
@@ -234,7 +257,7 @@ test("git-ref watermark reads committed HEAD rather than mutable worktree files"
     s26: "2026-08-20T22:00:00.000Z",
     s2026: "2026-08-20T22:00:30.000Z"
   });
-  execFileSync("git", ["add", "public/graph/s26.json", "public/graph/s2026.json", "public/graph/manifest.json"], { cwd: directory });
+  execFileSync("git", ["add", "public/graph", "outputs/benchmarks"], { cwd: directory });
   execFileSync("git", ["commit", "--quiet", "-m", "Fixture graph watermark"], { cwd: directory });
 
   writeGraphs(directory, {
@@ -276,7 +299,7 @@ test("serialized controller revalidation reads the fetched git ref and emits a q
     s26: "2026-08-22T11:01:00.000Z",
     s2026: "2026-08-22T11:02:00.000Z"
   });
-  execFileSync("git", ["add", "public/graph/s26.json", "public/graph/s2026.json", "public/graph/manifest.json"], { cwd: directory });
+  execFileSync("git", ["add", "public/graph", "outputs/benchmarks"], { cwd: directory });
   execFileSync("git", ["commit", "--quiet", "-m", "Current graph watermark"], { cwd: directory });
   const outputPath = path.join(directory, "github-output");
   const candidate = scheduledCandidate();
@@ -490,22 +513,43 @@ function writePublicationManifest(root, { s26, s2026, overrides = {} }) {
     "a16zsr006-score-benchmarks.json"
   ];
   const fallback = [s26, s2026].sort()[0];
-  const entry = (filename) => ({
-    filename,
-    sha256: "a".repeat(64),
-    byteSize: 1,
-    generatedAt: overrides[filename] ?? fallback
-  });
   const graphDirectory = path.join(root, "public/graph");
+  const benchmarkDirectory = path.join(root, "outputs/benchmarks");
   mkdirSync(graphDirectory, { recursive: true });
+  mkdirSync(benchmarkDirectory, { recursive: true });
+  const graphArtifacts = graphFilenames.map((filename) => {
+    const generatedAt = overrides[filename] ?? (filename.startsWith("s2026") ? s2026 : filename.startsWith("s26") ? s26 : fallback);
+    const filePath = path.join(graphDirectory, filename);
+    if (!existsSync(filePath) || !["s26.json", "s2026.json"].includes(filename)) {
+      const batchSlug = filename.startsWith("s2026") ? "S2026" : filename.startsWith("s26") ? "S26" : "A16ZSR006";
+      writeFileSync(filePath, `${JSON.stringify({ batch: { slug: batchSlug }, generatedAt })}\n`);
+    }
+    return fixtureArtifactEntry(filePath, filename, generatedAt);
+  });
+  const benchmarkArtifacts = benchmarkFilenames.map((filename) => {
+    const generatedAt = overrides[filename] ?? fallback;
+    const filePath = path.join(benchmarkDirectory, filename);
+    writeFileSync(filePath, `${JSON.stringify({ updatedAt: generatedAt, daily: [] })}\n`);
+    return fixtureArtifactEntry(filePath, filename, generatedAt);
+  });
   writeFileSync(path.join(graphDirectory, "manifest.json"), `${JSON.stringify({
     schemaVersion: 2,
     publishedAt: [s26, s2026].sort().at(-1),
     ingestionRunId: "fixture-run",
-    graphArtifacts: graphFilenames.map(entry),
-    benchmarkArtifacts: benchmarkFilenames.map(entry),
+    graphArtifacts,
+    benchmarkArtifacts,
     contentHash: "b".repeat(64)
   })}\n`);
+}
+
+function fixtureArtifactEntry(filePath, filename, generatedAt) {
+  const source = readFileSync(filePath);
+  return {
+    filename,
+    sha256: createHash("sha256").update(source).digest("hex"),
+    byteSize: source.byteLength,
+    generatedAt
+  };
 }
 
 function writeGraph(root, fileSlug, batchSlug, generatedAt) {
