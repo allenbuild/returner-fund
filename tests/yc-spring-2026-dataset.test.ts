@@ -35,6 +35,19 @@ const targetedEvidenceSnapshot = JSON.parse(
     contributionScore?: number;
     rawVisibleText: string;
   }>;
+  needsReview: Array<{
+    sourceEvidenceId: string;
+    candidateUrl: string;
+    review_state: string;
+    attributionReconciliationDirective?: {
+      disposition?: string;
+      reason?: string;
+      staleAttribution?: {
+        batchSlug?: string;
+        entityId?: string;
+      };
+    };
+  }>;
 };
 
 const githubQuarantineSnapshot = JSON.parse(
@@ -224,12 +237,7 @@ describe("YC Summer 2026 official snapshot", () => {
       expect(evidence?.postedAt).not.toBe("2026-07-15T22:30:00.000Z");
     }
 
-    const embeddedCreationCases = [
-      "https://github.com/coasty-ai/coasty-osworld",
-      "https://github.com/coasty-ai/llmhub-api",
-      "https://github.com/coasty-ai/.github",
-      "https://github.com/onecli/onecli-plugin"
-    ];
+    const embeddedCreationCases = ["https://github.com/onecli/onecli-plugin"];
     for (const sourceUrl of embeddedCreationCases) {
       const source = targetedEvidenceSnapshot.evidence.find(
         (item) => item.sourceUrl.toLowerCase() === sourceUrl.toLowerCase()
@@ -241,6 +249,7 @@ describe("YC Summer 2026 official snapshot", () => {
         (item) => item.sourceUrl.toLowerCase() === sourceUrl.toLowerCase()
       );
 
+      expect(source).toBeDefined();
       expect(raw.repository?.createdAt).toBeTruthy();
       expect(raw.repository?.createdAt).not.toBe(raw.repository?.pushedAt);
       expect(evidence).toEqual(
@@ -261,6 +270,37 @@ describe("YC Summer 2026 official snapshot", () => {
         })
       );
       expect(evidence?.postedAt).not.toBe(source?.postedAt);
+    }
+
+    const quarantinedCoastyCases = new Map([
+      ["https://github.com/coasty-ai/coasty-osworld", "source-hunt-452be2563adcd2c631e7"],
+      ["https://github.com/coasty-ai/llmhub-api", "source-hunt-730012ae25aac6572af2"],
+      ["https://github.com/coasty-ai/.github", "source-hunt-b9a9f5da6aef55a798be"]
+    ]);
+    for (const [sourceUrl, sourceEvidenceId] of quarantinedCoastyCases) {
+      const quarantined = targetedEvidenceSnapshot.needsReview.find(
+        (item) => item.candidateUrl.toLowerCase() === sourceUrl.toLowerCase()
+      );
+
+      expect(quarantined).toEqual(
+        expect.objectContaining({
+          sourceEvidenceId,
+          review_state: "needs_review",
+          attributionReconciliationDirective: expect.objectContaining({
+            disposition: "quarantined",
+            reason: "entity_not_in_canonical_batch_catalog",
+            staleAttribution: expect.objectContaining({
+              batchSlug: "S26",
+              entityId: "company-coasty"
+            })
+          })
+        })
+      );
+      expect(
+        ycSpring2026GraphDataset.evidence.some(
+          (item) => item.sourceUrl.toLowerCase() === sourceUrl.toLowerCase()
+        )
+      ).toBe(false);
     }
   });
 
@@ -413,8 +453,8 @@ describe("YC Summer 2026 official snapshot", () => {
       (node) => node.entityType === "company" && node.entityId === "company-vestris"
     );
     const expectedFounderIds = [
-      "founder-vestris-aahil-valliani-verified-aahil-valliani",
-      "founder-vestris-joshua-tang-verified-joshua-tang"
+      "founder-vestris-aahil-valliani-3411947",
+      "founder-vestris-joshua-tang-3411757"
     ];
     const expectedPostIds = ["7467251847137939459", "7467271346683801600"];
     const evidence = graph.evidence.filter((item) => expectedPostIds.includes(item.platformPostId ?? ""));
@@ -992,7 +1032,7 @@ describe("YC Summer 2026 official snapshot", () => {
       ["https://www.linkedin.com/company/111953568/admin/dashboard/", "111953568"],
       ["https://www.linkedin.com/company/coniferbuild", "coniferbuild"],
       ["https://www.linkedin.com/company/131464079", "131464079"],
-      ["https://www.linkedin.com/company/130274179", "130274179"]
+      ["https://www.linkedin.com/company/130274179/admin/dashboard/", "130274179"]
     ]);
     const socialAccounts = [
       ...ycSpring2026GraphDataset.companies.flatMap((company) => company.socialAccounts),
@@ -1004,6 +1044,19 @@ describe("YC Summer 2026 official snapshot", () => {
         expect.objectContaining({ handle: expectedHandle, review_state: "verified" })
       );
     }
+    expect(
+      socialAccounts.find(
+        (account) =>
+          account.id ===
+          "acct:company:company-praxis-robotics:linkedin:https%3A%2F%2Flinkedin.com%2Fcompany%2F130274179"
+      )
+    ).toEqual(
+      expect.objectContaining({
+        url: "https://www.linkedin.com/company/130274179/admin/dashboard/",
+        handle: "130274179",
+        review_state: "verified"
+      })
+    );
     expect(
       socialAccounts
         .filter((account) => account.review_state === "verified")
