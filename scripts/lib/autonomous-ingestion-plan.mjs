@@ -928,10 +928,51 @@ export function validateMappedAutonomousCoverage(
   return coverage;
 }
 
+export function partitionAutonomousTaskInventory(tasks, plannedTasks) {
+  if (!Array.isArray(tasks) || !Array.isArray(plannedTasks)) {
+    throw new TypeError("Durable tasks and planned tasks must both be arrays.");
+  }
+  const plannedCheckpointKeys = new Set();
+  for (const task of plannedTasks) {
+    const checkpointKey = String(task?.checkpointKey ?? "").trim();
+    if (!checkpointKey) throw new Error("Every planned ingestion task requires a checkpoint key.");
+    if (plannedCheckpointKeys.has(checkpointKey)) {
+      throw new Error(`The current ingestion plan contains duplicate checkpoint key ${checkpointKey}.`);
+    }
+    plannedCheckpointKeys.add(checkpointKey);
+  }
+
+  const currentTasks = [];
+  const supersededTasks = [];
+  const observedCurrentCheckpointKeys = new Set();
+  for (const task of tasks) {
+    const checkpointKey = String(task?.checkpoint_key ?? "").trim();
+    if (!checkpointKey) throw new Error("Every durable ingestion task requires a checkpoint key.");
+    if (plannedCheckpointKeys.has(checkpointKey)) {
+      currentTasks.push(task);
+      observedCurrentCheckpointKeys.add(checkpointKey);
+    } else {
+      supersededTasks.push(task);
+    }
+  }
+
+  return {
+    currentTasks,
+    supersededTasks,
+    missingCheckpointKeys: [...plannedCheckpointKeys]
+      .filter((checkpointKey) => !observedCurrentCheckpointKeys.has(checkpointKey))
+  };
+}
+
 export function validateAutonomousTerminalCoverage(coverage, { expectedTaskCount }) {
   if ((coverage?.expected ?? 0) !== expectedTaskCount) {
     throw new Error(
       `Task reconciliation covered ${coverage?.expected ?? 0}/${expectedTaskCount} planned tasks.`
+    );
+  }
+  if ((coverage?.supersededNonTerminal ?? 0) > 0) {
+    throw new Error(
+      `${coverage.supersededNonTerminal} superseded same-slot ingestion tasks remain nonterminal.`
     );
   }
   if ((coverage?.nonTerminal ?? 0) > 0) {

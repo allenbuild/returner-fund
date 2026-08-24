@@ -25,6 +25,7 @@ import {
   mergeVerifiedOverridesIntoCatalog,
   normalizeVerifiedSocialOverrideLinks,
   normalizeAutonomousFailureEntityId,
+  partitionAutonomousTaskInventory,
   prioritizeAutonomousCompaniesByCoverage,
   summarizeAutonomousCollectorTerminalTaskCoverage,
   summarizeTaskCoverage,
@@ -1112,6 +1113,41 @@ describe("autonomous collector and publication gates", () => {
     assert.throws(
       () => validateAutonomousTerminalCoverage({ expected: 14_616, nonTerminal: 1 }, { expectedTaskCount: 14_616 }),
       /did not reach a terminal state/
+    );
+    assert.throws(
+      () => validateAutonomousTerminalCoverage(
+        { expected: 14_616, nonTerminal: 0, supersededNonTerminal: 1 },
+        { expectedTaskCount: 14_616 }
+      ),
+      /superseded same-slot ingestion tasks remain nonterminal/
+    );
+  });
+
+  it("excludes superseded same-slot tasks from the current mutable-catalog plan", () => {
+    const plannedTasks = [
+      { checkpointKey: "central-slot:current-a" },
+      { checkpointKey: "central-slot:current-b" }
+    ];
+    const durableTasks = [
+      { id: "current-a", checkpoint_key: "central-slot:current-a", status: "completed" },
+      { id: "current-b", checkpoint_key: "central-slot:current-b", status: "blocked_or_empty" },
+      ...Array.from({ length: 39 }, (_, index) => ({
+        id: `superseded-${index}`,
+        checkpoint_key: `central-slot:removed-roster-task-${index}`,
+        status: "completed"
+      }))
+    ];
+
+    const inventory = partitionAutonomousTaskInventory(durableTasks, plannedTasks);
+    assert.deepEqual(inventory.currentTasks.map((task) => task.id), ["current-a", "current-b"]);
+    assert.equal(inventory.supersededTasks.length, 39);
+    assert.deepEqual(inventory.missingCheckpointKeys, []);
+    assert.equal(
+      validateAutonomousTerminalCoverage(
+        { expected: inventory.currentTasks.length, nonTerminal: 0 },
+        { expectedTaskCount: plannedTasks.length }
+      ).expected,
+      2
     );
   });
 });

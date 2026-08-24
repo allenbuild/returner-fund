@@ -2669,6 +2669,7 @@ describe("autonomous ingestion runner static safety contracts", () => {
     assert.doesNotMatch(taskRead, /pageRows\.length < pageSize/);
     assert.doesNotMatch(taskRead, /\.range\(offset,/);
     assert.ok(coverage.includes("await readAllIngestionTaskRows("));
+    assert.ok(coverage.includes("partitionAutonomousTaskInventory(tasks, plannedTasks)"));
     assert.doesNotMatch(coverage, /runSupabaseOperation\(\s*"read terminal coverage"/);
   });
 
@@ -2684,8 +2685,9 @@ describe("autonomous ingestion runner static safety contracts", () => {
     );
   });
 
-  it("guards publication on terminal state coverage across all run tasks", () => {
+  it("guards publication on the current plan and cancels superseded same-slot work", () => {
     const coverage = section("async function persistCoverage", "async function persistArtifactManifest");
+    const taskInventory = section("async function cancelSupersededRunTasks", "async function prepareBatchDiscoveryState");
     const guardIndex = runner.indexOf("validateAutonomousTerminalCoverage(prePublishCoverage");
     const publications = [
       ["semantic publication merge", runner.indexOf("await mergePublicationInputs(publicationInputs)")],
@@ -2698,6 +2700,9 @@ describe("autonomous ingestion runner static safety contracts", () => {
       'new Set(["completed", "needs_review", "blocked_or_empty", "skipped", "failed", "canceled", "dead_lettered"])'
     ));
     assert.ok(coverage.includes("!terminalStatuses.has(task.status)"));
+    assert.ok(taskInventory.includes('terminal_reason: "superseded_by_current_catalog_plan"'));
+    assert.ok(taskInventory.includes('.in("status", nonTerminalStatuses)'));
+    assert.ok(runner.indexOf("await cancelSupersededRunTasks()") < runner.indexOf("() => runCollectors()"));
     assert.ok(guardIndex > runner.indexOf("const prePublishCoverage = catalogState"));
     for (const [label, publicationIndex] of publications) {
       assert.ok(publicationIndex > guardIndex, `${label} must occur after the all-task terminal guard`);
