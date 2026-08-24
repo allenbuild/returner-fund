@@ -208,6 +208,24 @@ let candidateMetadata = null;
 let authenticatedSocial = null;
 const activeChildProcesses = new Set();
 const HEARTBEAT_DRAIN_TIMEOUT_MS = 10_000;
+const HEARTBEAT_MAX_ATTEMPTS = 4;
+const HEARTBEAT_RETRY_DELAYS_MS = Object.freeze([1_000, 3_000, 7_000]);
+const HEARTBEAT_RETRYABLE_TRANSPORT_CODES = new Set([
+  "EAI_AGAIN",
+  "ECONNREFUSED",
+  "ECONNRESET",
+  "ENETDOWN",
+  "ENETUNREACH",
+  "ENOTFOUND",
+  "EPIPE",
+  "ESOCKETTIMEDOUT",
+  "ETIMEDOUT",
+  "LIFECYCLE_OPERATION_TIMEOUT",
+  "UND_ERR_BODY_TIMEOUT",
+  "UND_ERR_CONNECT_TIMEOUT",
+  "UND_ERR_HEADERS_TIMEOUT",
+  "UND_ERR_SOCKET"
+]);
 const CANCELLATION_CLEANUP_TIMEOUT_MS = 15_000;
 const COMMAND_FAILURE_TAIL_MAX_LENGTH = 4_096;
 const LIFECYCLE_OPERATION_TIMEOUT_MS = 15_000;
@@ -1845,14 +1863,38 @@ async function stopHeartbeatAndDrain() {
   return heartbeatDrainPromise;
 }
 
-async function heartbeat(signal = null) {
+async function heartbeat(signal = null, { retryDelay = waitForHeartbeatRetry } = {}) {
   const runSnapshot = run?.id && run?.lease_token
-    ? { id: run.id, leaseToken: run.lease_token }
+    ? Object.freeze({ id: run.id, leaseToken: run.lease_token })
     : null;
   const lockSnapshot = runtimeLock?.lock_key && runtimeLock?.lease_token
-    ? { lockKey: runtimeLock.lock_key, leaseToken: runtimeLock.lease_token }
+    ? Object.freeze({ lockKey: runtimeLock.lock_key, leaseToken: runtimeLock.lease_token })
     : null;
   if (!runSnapshot || !lockSnapshot) return;
+
+  for (let attempt = 1; attempt <= HEARTBEAT_MAX_ATTEMPTS; attempt += 1) {
+    try {
+      await renewHeartbeatLease(runSnapshot, lockSnapshot, signal);
+      return;
+    } catch (error) {
+      if (
+        attempt === HEARTBEAT_MAX_ATTEMPTS ||
+        !isRetryableHeartbeatTransportError(error, signal)
+      ) {
+        throw error;
+      }
+      const delayMs = HEARTBEAT_RETRY_DELAYS_MS[attempt - 1];
+      console.warn(
+        `Heartbeat transport failure; retrying the same lease tokens ` +
+        `(attempt ${attempt + 1}/${HEARTBEAT_MAX_ATTEMPTS}) in ${delayMs}ms: ` +
+        sanitizeRunnerDiagnosticText(errorMessage(error))
+      );
+      await retryDelay(delayMs, signal);
+    }
+  }
+}
+
+async function renewHeartbeatLease(runSnapshot, lockSnapshot, signal) {
   const now = new Date().toISOString();
   const { error: runError } = await runSupabaseOperation(
     "heartbeat ingestion run",
@@ -1863,7 +1905,7 @@ async function heartbeat(signal = null) {
       .eq("lease_token", runSnapshot.leaseToken),
     { signal }
   );
-  check(runError, "heartbeat ingestion run");
+  checkHeartbeatResponse(runError, "heartbeat ingestion run");
   const { data, error } = await runSupabaseOperation(
     "heartbeat ingestion runtime lock",
     () => supabase.rpc("renew_ingestion_runtime_lock", {
@@ -1874,8 +1916,53 @@ async function heartbeat(signal = null) {
     }),
     { signal }
   );
-  check(error, "heartbeat runtime lock");
+  checkHeartbeatResponse(error, "heartbeat runtime lock");
   if (data !== true) throw new Error("The ingestion runtime lock expired or was taken by another worker.");
+}
+
+function checkHeartbeatResponse(error, operation) {
+  if (error) {
+    throw new Error(`Failed to ${operation}: ${error.message ?? String(error)}`, { cause: error });
+  }
+}
+
+function isRetryableHeartbeatTransportError(error, signal = null) {
+  if (terminationSignal || signal?.aborted) return false;
+  const candidates = [error, error?.cause].filter(Boolean);
+  const names = candidates.map((candidate) => String(candidate?.name ?? ""));
+  if (names.includes("AbortError")) return false;
+  const codes = candidates.map((candidate) => String(candidate?.code ?? ""));
+  if (codes.includes("AUTONOMOUS_RUNNER_BUDGET_EXCEEDED")) return false;
+  if (codes.some((code) => HEARTBEAT_RETRYABLE_TRANSPORT_CODES.has(code))) return true;
+  if (names.includes("TimeoutError")) return true;
+  const message = candidates
+    .map((candidate) => String(candidate?.message ?? ""))
+    .filter(Boolean)
+    .join(" ");
+  return names.includes("TypeError") &&
+    /\b(?:fetch failed|failed to fetch|network request failed|load failed)\b/i.test(message);
+}
+
+function waitForHeartbeatRetry(milliseconds, signal = null) {
+  if (signal?.aborted) return Promise.reject(heartbeatAbortReason(signal));
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(finish, milliseconds);
+    const onAbort = () => finish(heartbeatAbortReason(signal));
+    signal?.addEventListener("abort", onAbort, { once: true });
+
+    function finish(error = null) {
+      clearTimeout(timer);
+      signal?.removeEventListener("abort", onAbort);
+      if (error) reject(error);
+      else resolve();
+    }
+  });
+}
+
+function heartbeatAbortReason(signal) {
+  return signal?.reason instanceof Error
+    ? signal.reason
+    : new DOMException("The heartbeat retry was aborted.", "AbortError");
 }
 
 function failHeartbeat(error) {
@@ -3664,14 +3751,24 @@ async function runAuthenticatedCollectorCommand(
       exitCode: Number.isInteger(commandResult.code) ? commandResult.code : null,
       error: errorMessage(error)
     };
-    await event(
-      safetyStopped ? "authenticated_social.linkedin_safety_stop" : "authenticated_social.failed",
-      "warning",
-      safetyStopped
-        ? `Authenticated LinkedIn safety stop halted replay after ${batchSlug}; durable checkpoint output was retained.`
-        : `Authenticated ${platform} collection failed for ${batchSlug}; durable prior evidence remains intact.`,
-      { batchSlug, platform, ...result }
-    );
+    const diagnosticEventType = safetyStopped
+      ? "authenticated_social.linkedin_safety_stop"
+      : "authenticated_social.failed";
+    try {
+      await event(
+        diagnosticEventType,
+        "warning",
+        safetyStopped
+          ? `Authenticated LinkedIn safety stop halted replay after ${batchSlug}; durable checkpoint output was retained.`
+          : `Authenticated ${platform} collection failed for ${batchSlug}; durable prior evidence remains intact.`,
+        { batchSlug, platform, ...result }
+      );
+    } catch (eventError) {
+      console.warn(
+        `Could not record optional ${diagnosticEventType} diagnostic: ` +
+        sanitizeRunnerDiagnosticText(errorMessage(eventError))
+      );
+    }
     return result;
   }
 }
@@ -9664,6 +9761,118 @@ async function runLifecycleContractFixture(fixture) {
       supabase = previousSupabase;
       lifecycleOperationTimeoutOverrideMs = previousTimeoutOverride;
     }
+  }
+
+  if ([
+    "heartbeat-transient-recovery",
+    "heartbeat-transient-exhaustion",
+    "heartbeat-lock-loss",
+    "heartbeat-semantic-error"
+  ].includes(fixture)) {
+    const runLeaseToken = "22222222-2222-4222-8222-222222222222";
+    const lockLeaseToken = "33333333-3333-4333-8333-333333333333";
+    const runHeartbeats = [];
+    const lockHeartbeats = [];
+    const retryDelays = [];
+    heartbeatFailure = null;
+    terminationSignal = null;
+    workerId = "heartbeat-retry-fixture-worker";
+    run = {
+      id: "heartbeat-retry-fixture",
+      lease_token: runLeaseToken
+    };
+    runtimeLock = {
+      lock_key: "autonomous-ingestion",
+      lease_token: lockLeaseToken
+    };
+    const transportFailure = () => {
+      const error = new TypeError("fetch failed");
+      error.cause = Object.assign(new Error("getaddrinfo ENOTFOUND fixture.invalid"), {
+        code: "ENOTFOUND"
+      });
+      return error;
+    };
+    supabase = {
+      from: (table) => {
+        if (table !== "ingestion_runs") {
+          throw new Error(`Unexpected heartbeat fixture table: ${table}`);
+        }
+        let updatePayload = null;
+        const filters = {};
+        const query = {
+          update: (payload) => {
+            updatePayload = payload;
+            return query;
+          },
+          eq: (column, value) => {
+            filters[column] = value;
+            return query;
+          },
+          abortSignal: () => {
+            runHeartbeats.push({
+              id: filters.id ?? null,
+              leaseToken: filters.lease_token ?? null,
+              heartbeatAt: updatePayload?.heartbeat_at ?? null,
+              leaseExpiresAt: updatePayload?.lease_expires_at ?? null
+            });
+            if (fixture === "heartbeat-transient-exhaustion") {
+              return Promise.reject(transportFailure());
+            }
+            return Promise.resolve({
+              data: null,
+              error: fixture === "heartbeat-semantic-error"
+                ? { code: "42501", message: "permission denied for ingestion_runs" }
+                : null
+            });
+          }
+        };
+        return query;
+      },
+      rpc: (name, parameters) => {
+        lockHeartbeats.push({
+          name,
+          lockKey: parameters.p_lock_key,
+          ownerId: parameters.p_owner_id,
+          leaseToken: parameters.p_lease_token,
+          leaseDuration: parameters.p_lease_duration
+        });
+        if (fixture === "heartbeat-transient-recovery" && lockHeartbeats.length === 1) {
+          return Promise.reject(transportFailure());
+        }
+        return Promise.resolve({
+          data: fixture === "heartbeat-lock-loss" ? false : true,
+          error: null
+        });
+      }
+    };
+    let operationError = null;
+    try {
+      await heartbeat(null, {
+        retryDelay: async (milliseconds) => {
+          retryDelays.push(milliseconds);
+        }
+      });
+    } catch (error) {
+      operationError = errorMessage(error);
+      failHeartbeat(error);
+    }
+    let leaseFailure = null;
+    try {
+      assertLeaseHealthy();
+    } catch (error) {
+      leaseFailure = errorMessage(error);
+    }
+    supabase = null;
+    return emit({
+      fixture,
+      runLeaseToken,
+      lockLeaseToken,
+      runHeartbeats,
+      lockHeartbeats,
+      retryDelays,
+      operationError,
+      leaseFailure
+    });
   }
 
   if (fixture === "heartbeat-drain") {

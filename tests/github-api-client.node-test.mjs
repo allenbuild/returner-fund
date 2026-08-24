@@ -118,6 +118,92 @@ test("GitHub non-rate HTTP failures retain status and retryability", async () =>
   assert.deepEqual(sleeps, [1_000, 2_000]);
 });
 
+test("transient GitHub transport failures use bounded retry and can recover", async () => {
+  const sleeps = [];
+  let calls = 0;
+  const result = await fetchGitHubJsonResponse("https://api.github.com/users/recovered", {
+    fetchImplementation: async () => {
+      calls += 1;
+      if (calls === 1) {
+        throw new TypeError("fetch failed", {
+          cause: Object.assign(new Error("getaddrinfo ENOTFOUND api.github.com"), {
+            code: "ENOTFOUND"
+          })
+        });
+      }
+      return new Response(JSON.stringify({ login: "recovered" }), {
+        status: 200,
+        headers: { "content-type": "application/json" }
+      });
+    },
+    sleep: async (ms) => sleeps.push(ms),
+    retryAdmission: immediateRetryAdmission()
+  });
+
+  assert.deepEqual(result.data, { login: "recovered" });
+  assert.equal(calls, 2);
+  assert.deepEqual(sleeps, [1_000]);
+});
+
+test("persistent GitHub transport failures exhaust the existing attempt budget", async () => {
+  const sleeps = [];
+  let calls = 0;
+
+  await assert.rejects(
+    fetchGitHubJsonResponse("https://api.github.com/users/unreachable", {
+      fetchImplementation: async () => {
+        calls += 1;
+        throw new TypeError("fetch failed", {
+          cause: Object.assign(new Error("getaddrinfo ENOTFOUND api.github.com"), {
+            code: "ENOTFOUND"
+          })
+        });
+      },
+      sleep: async (ms) => sleeps.push(ms),
+      retryAdmission: immediateRetryAdmission()
+    }),
+    (error) => {
+      assert.ok(error instanceof GitHubApiError);
+      assert.equal(error.failureReason, "github_transport_error");
+      assert.equal(error.endpoint, "/users/unreachable");
+      assert.equal(error.attempts, 3);
+      assert.equal(error.retryable, true);
+      assert.equal(error.causeCode, "ENOTFOUND");
+      return true;
+    }
+  );
+
+  assert.equal(calls, 3);
+  assert.deepEqual(sleeps, [1_000, 2_000]);
+});
+
+test("permanent GitHub transport setup failures remain immediate", async () => {
+  const sleeps = [];
+  let calls = 0;
+
+  await assert.rejects(
+    fetchGitHubJsonResponse("https://api.github.com/users/example", {
+      fetchImplementation: async () => {
+        calls += 1;
+        throw Object.assign(new TypeError("Invalid URL"), { code: "ERR_INVALID_URL" });
+      },
+      sleep: async (ms) => sleeps.push(ms),
+      retryAdmission: immediateRetryAdmission()
+    }),
+    (error) => {
+      assert.ok(error instanceof GitHubApiError);
+      assert.equal(error.failureReason, "github_transport_error");
+      assert.equal(error.attempts, 1);
+      assert.equal(error.retryable, false);
+      assert.equal(error.causeCode, "ERR_INVALID_URL");
+      return true;
+    }
+  );
+
+  assert.equal(calls, 1);
+  assert.deepEqual(sleeps, []);
+});
+
 test("concurrent GitHub retries share one serialized jittered admission lane", async () => {
   let clock = 0;
   let activeRetries = 0;

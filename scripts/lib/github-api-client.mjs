@@ -1,5 +1,20 @@
 const DEFAULT_MAX_ATTEMPTS = 3;
 const DEFAULT_MAX_RATE_LIMIT_WAIT_MS = 65_000;
+const RETRYABLE_TRANSPORT_CODES = new Set([
+  "EAI_AGAIN",
+  "ECONNREFUSED",
+  "ECONNRESET",
+  "ENETDOWN",
+  "ENETUNREACH",
+  "ENOTFOUND",
+  "EPIPE",
+  "ESOCKETTIMEDOUT",
+  "ETIMEDOUT",
+  "UND_ERR_BODY_TIMEOUT",
+  "UND_ERR_CONNECT_TIMEOUT",
+  "UND_ERR_HEADERS_TIMEOUT",
+  "UND_ERR_SOCKET"
+]);
 const defaultGitHubRetryAdmission = createGitHubRetryAdmission();
 
 export class GitHubApiError extends Error {
@@ -57,17 +72,21 @@ export async function fetchGitHubJsonResponse(url, {
     } catch (error) {
       const causeCode = safeErrorCode(error);
       const detail = causeCode ? ` (${causeCode})` : "";
-      throw new GitHubApiError(
+      const retryable = isRetryableTransportError(error, causeCode);
+      const transportError = new GitHubApiError(
         `GitHub API transport failed for ${endpoint}${detail}: ${errorMessage(error)}`,
         {
           failureReason: "github_transport_error",
           endpoint,
           attempts: attempt,
-          retryable: true,
+          retryable,
           causeCode,
           cause: error
         }
       );
+      if (!retryable || attempt === maxAttempts) throw transportError;
+      await sleep(1_000 * attempt);
+      continue;
     }
 
     if (response.ok) {
@@ -269,6 +288,15 @@ function numericHeader(headers, name) {
 function safeErrorCode(error) {
   const code = error?.cause?.code ?? error?.code;
   return /^[A-Z0-9_-]{1,40}$/.test(String(code ?? "")) ? String(code) : null;
+}
+
+function isRetryableTransportError(error, causeCode = safeErrorCode(error)) {
+  if (causeCode && RETRYABLE_TRANSPORT_CODES.has(causeCode)) return true;
+  const message = [error?.message, error?.cause?.message]
+    .map((value) => String(value ?? ""))
+    .filter(Boolean)
+    .join(" ");
+  return /\bfetch failed\b/i.test(message);
 }
 
 function errorMessage(error) {

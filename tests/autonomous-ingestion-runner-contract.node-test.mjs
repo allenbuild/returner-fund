@@ -675,6 +675,58 @@ if (mode === "fail") {
     assert.match(result.stdout, /"drained":true/);
   });
 
+  it("retries a transient heartbeat transport failure with the exact same lease tokens", () => {
+    const payload = lifecycleFixturePayload(runLifecycleFixture("heartbeat-transient-recovery"));
+
+    assert.equal(payload.operationError, null);
+    assert.equal(payload.leaseFailure, null);
+    assert.deepEqual(payload.retryDelays, [1_000]);
+    assert.equal(payload.runHeartbeats.length, 2);
+    assert.equal(payload.lockHeartbeats.length, 2);
+    for (const attempt of payload.runHeartbeats) {
+      assert.equal(attempt.id, "heartbeat-retry-fixture");
+      assert.equal(attempt.leaseToken, payload.runLeaseToken);
+      assert.ok(Date.parse(attempt.heartbeatAt) > 0);
+      assert.ok(Date.parse(attempt.leaseExpiresAt) > Date.parse(attempt.heartbeatAt));
+    }
+    for (const attempt of payload.lockHeartbeats) {
+      assert.equal(attempt.name, "renew_ingestion_runtime_lock");
+      assert.equal(attempt.lockKey, "autonomous-ingestion");
+      assert.equal(attempt.ownerId, "heartbeat-retry-fixture-worker");
+      assert.equal(attempt.leaseToken, payload.lockLeaseToken);
+      assert.equal(attempt.leaseDuration, "20 minutes");
+    }
+  });
+
+  it("bounds exhausted transient heartbeat retries and then fails closed", () => {
+    const payload = lifecycleFixturePayload(runLifecycleFixture("heartbeat-transient-exhaustion"));
+
+    assert.deepEqual(payload.retryDelays, [1_000, 3_000, 7_000]);
+    assert.equal(payload.runHeartbeats.length, 4);
+    assert.equal(payload.lockHeartbeats.length, 0);
+    assert.match(payload.operationError, /fetch failed/);
+    assert.match(payload.leaseFailure, /Ingestion lease heartbeat failed; publication aborted: fetch failed/);
+    for (const attempt of payload.runHeartbeats) {
+      assert.equal(attempt.leaseToken, payload.runLeaseToken);
+    }
+  });
+
+  it("fails closed immediately on lock loss and semantic heartbeat errors", () => {
+    const lockLoss = lifecycleFixturePayload(runLifecycleFixture("heartbeat-lock-loss"));
+    assert.deepEqual(lockLoss.retryDelays, []);
+    assert.equal(lockLoss.runHeartbeats.length, 1);
+    assert.equal(lockLoss.lockHeartbeats.length, 1);
+    assert.match(lockLoss.operationError, /runtime lock expired or was taken/);
+    assert.match(lockLoss.leaseFailure, /Ingestion lease heartbeat failed; publication aborted/);
+
+    const semanticError = lifecycleFixturePayload(runLifecycleFixture("heartbeat-semantic-error"));
+    assert.deepEqual(semanticError.retryDelays, []);
+    assert.equal(semanticError.runHeartbeats.length, 1);
+    assert.equal(semanticError.lockHeartbeats.length, 0);
+    assert.match(semanticError.operationError, /permission denied for ingestion_runs/);
+    assert.match(semanticError.leaseFailure, /Ingestion lease heartbeat failed; publication aborted/);
+  });
+
   it("rejects an unverified pre-existing completion and reconciles response loss", () => {
     const result = runLifecycleFixture("ambiguous-completion");
 
@@ -1996,6 +2048,70 @@ describe("autonomous ingestion runner static safety contracts", () => {
       assert.equal(result.replayState.remainingByBatch.S26, null);
       assert.equal(result.replayState.safetyStopped, childResult.exitCode === 86);
       assert.equal(result.replayState.infrastructureStopped, childResult.exitCode !== 86);
+    }
+  });
+
+  it("preserves authenticated collector failures when optional diagnostic persistence is unavailable", async () => {
+    for (const fixture of [
+      {
+        platform: "instagram",
+        commandError: Object.assign(new Error("collector network failed"), {
+          commandResult: { code: 1, stderr: "collector stderr", stdout: "" }
+        }),
+        expectedEventType: "authenticated_social.failed",
+        expectedResult: {
+          status: "failed",
+          exitCode: 1,
+          error: "collector network failed"
+        }
+      },
+      {
+        platform: "linkedin",
+        commandError: Object.assign(new Error("collector safety stop"), {
+          commandResult: {
+            code: 86,
+            stderr: "LINKEDIN_CHILD_SAFETY_STOP",
+            stdout: ""
+          }
+        }),
+        expectedEventType: "authenticated_social.linkedin_safety_stop",
+        expectedResult: {
+          status: "safety_stopped",
+          exitCode: 86,
+          error: "collector safety stop"
+        }
+      }
+    ]) {
+      const eventCalls = [];
+      const warnings = [];
+      const runAuthenticatedCollectorCommand = authenticatedCollectorCommandRuntime({
+        runCommand: async () => {
+          throw fixture.commandError;
+        },
+        event: async (...args) => {
+          eventCalls.push(args);
+          throw new TypeError("fetch failed");
+        },
+        warn: (message) => warnings.push(message)
+      });
+
+      const result = await runAuthenticatedCollectorCommand(
+        "S26",
+        fixture.platform,
+        ["collector.mjs"]
+      );
+
+      assert.deepEqual(result, fixture.expectedResult);
+      assert.equal(eventCalls.length, 1);
+      assert.equal(eventCalls[0][0], fixture.expectedEventType);
+      assert.deepEqual(eventCalls[0][3], {
+        batchSlug: "S26",
+        platform: fixture.platform,
+        ...fixture.expectedResult
+      });
+      assert.equal(warnings.length, 1);
+      assert.match(warnings[0], new RegExp(fixture.expectedEventType.replaceAll(".", "\\.")));
+      assert.match(warnings[0], /fetch failed/);
     }
   });
 
@@ -3569,6 +3685,46 @@ function authenticatedCollectorEnvironment({ durableLock = true } = {}) {
         }
       : {})
   };
+}
+
+function authenticatedCollectorCommandRuntime({ runCommand, event, warn }) {
+  const commandSource = section(
+    "async function runAuthenticatedCollectorCommand",
+    "async function runShardedPublicCollector"
+  );
+  const runtime = new Function(
+    "process",
+    "runCommand",
+    "collectorLaunchProvenanceArgs",
+    "createCollectorAttemptContext",
+    "boundedCollectionTimeoutMs",
+    "LINKEDIN_REPLAY_PLAN_TIMEOUT_MS",
+    "AUTONOMOUS_PROCESS_BUDGETS",
+    "collectionBudget",
+    "COLLECTOR_NODE_HEAP_MB",
+    "root",
+    "errorMessage",
+    "event",
+    "sanitizeRunnerDiagnosticText",
+    "console",
+    `${commandSource}\nreturn runAuthenticatedCollectorCommand;`
+  );
+  return runtime(
+    { execPath: "/usr/bin/node", env: { HOME: "/runner/home" } },
+    runCommand,
+    () => [],
+    () => ({ attempt: 1 }),
+    (timeoutMs) => timeoutMs,
+    5_000,
+    { publicCollectorAttemptMs: 10_000 },
+    { deadlineAt: 100_000 },
+    512,
+    "/repo",
+    (error) => error instanceof Error ? error.message : String(error),
+    event,
+    (value) => String(value),
+    { warn }
+  );
 }
 
 function authenticatedCollectorsRuntime({
