@@ -404,7 +404,11 @@ jobs:
         if: steps.revalidate.outputs.should_run == 'true'
         timeout-minutes: 330
         env:
-          NODE_OPTIONS: --max-old-space-size=1024
+          # The coordinator retains the sealed collection inputs while a
+          # bounded concurrent-main recovery may need to inspect them again.
+          # Match the established full-corpus child ceiling instead of
+          # crashing at the old 1 GiB parent heap limit after collection.
+          NODE_OPTIONS: --max-old-space-size=3072
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           LINKEDIN_GLOBAL_LOCK_NAMESPACE: returner-fund-production-linkedin-allen-xu-v1

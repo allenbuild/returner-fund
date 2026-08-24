@@ -24,7 +24,10 @@ permissions:
   contents: write
 
 concurrency:
-  group: technology-dashboard-publication
+  # All jobs that write main share one lane. In particular, an hourly
+  # Dashboard commit must not race a long-running ingestion after its real
+  # collection and validation work has completed.
+  group: repository-publication-main
   cancel-in-progress: false
 
 jobs:
