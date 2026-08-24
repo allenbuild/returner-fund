@@ -241,8 +241,23 @@ describe("autonomous ingestion planning against the collector catalogs", () => {
     assert.deepEqual(
       vestris.founders.map((founder) => founder.sourceKey).sort(),
       [
-        "founder-vestris-aahil-valliani-verified-aahil-valliani",
-        "founder-vestris-joshua-tang-verified-joshua-tang"
+        "founder-vestris-aahil-valliani-3411947",
+        "founder-vestris-joshua-tang-3411757"
+      ]
+    );
+    assert.deepEqual(
+      vestris.founders
+        .map((founder) => [founder.sourceKey, founder.legacyEntityAliases])
+        .sort(([left], [right]) => left.localeCompare(right)),
+      [
+        [
+          "founder-vestris-aahil-valliani-3411947",
+          ["founder-vestris-aahil-valliani-verified-aahil-valliani"]
+        ],
+        [
+          "founder-vestris-joshua-tang-3411757",
+          ["founder-vestris-joshua-tang-verified-joshua-tang"]
+        ]
       ]
     );
     assert.ok(vestris.founders.every((founder) =>
@@ -807,7 +822,10 @@ globalThis.fetch = async (input) => {
     );
     assert.ok(canonicalAccountCount > 0);
     assert.equal(first.filter((task) => task.account).length, canonicalAccountCount);
-    assert.equal(first.length, expectedEntityCount * AUTONOMOUS_PLATFORMS.length + 5);
+    const canonicalAccountOverflow = Object.values(
+      countCanonicalAccountOverflowByPlatform(catalogs)
+    ).reduce((total, count) => total + count, 0);
+    assert.equal(first.length, expectedEntityCount * AUTONOMOUS_PLATFORMS.length + canonicalAccountOverflow);
     assert.equal(new Set(first.map((task) => task.checkpointKey)).size, first.length);
     assert.deepEqual(first.map((task) => task.checkpointKey),
       [...first.map((task) => task.checkpointKey)].sort((left, right) => left.localeCompare(right))
@@ -893,7 +911,8 @@ globalThis.fetch = async (input) => {
   });
 
   it("makes every unavailable task explicitly terminal and reports exact coverage", async () => {
-    const tasks = buildAutonomousTaskPlan(await loadAutonomousCatalogs(repositoryRoot), {
+    const catalogs = await loadAutonomousCatalogs(repositoryRoot);
+    const tasks = buildAutonomousTaskPlan(catalogs, {
       runKey: "terminal-contract"
     });
     const reasonCounts = countBy(tasks, (task) => task.terminalReason ?? "queued");
@@ -932,7 +951,7 @@ globalThis.fetch = async (input) => {
       Object.fromEntries(AUTONOMOUS_PLATFORMS.map((platform) => [platform, coverage.byPlatform[platform].expected])),
       Object.fromEntries(AUTONOMOUS_PLATFORMS.map((platform) => [
         platform,
-        expectedEntityCount + ({ x: 1, linkedin: 2, instagram: 1, reddit: 1 }[platform] ?? 0)
+        expectedEntityCount + (countCanonicalAccountOverflowByPlatform(catalogs)[platform] ?? 0)
       ]))
     );
   });
@@ -3784,6 +3803,21 @@ function countBy(values, keyForValue) {
       return counts;
     }, new Map())].sort(([left], [right]) => left.localeCompare(right))
   );
+}
+
+function countCanonicalAccountOverflowByPlatform(catalogs) {
+  const overflowByPlatform = {};
+  for (const catalog of catalogs) {
+    for (const company of catalog.companies) {
+      for (const entity of [company, ...company.founders]) {
+        const accountCounts = countBy(entity.accounts, (account) => account.platform);
+        for (const [platform, count] of Object.entries(accountCounts)) {
+          overflowByPlatform[platform] = (overflowByPlatform[platform] ?? 0) + Math.max(0, count - 1);
+        }
+      }
+    }
+  }
+  return overflowByPlatform;
 }
 
 function strictFirstPartyContextRow({ id, platform, sourceUrl }) {
