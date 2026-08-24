@@ -34,6 +34,7 @@ import {
   loadAutonomousCatalogs,
   mergeGithubTractionSnapshots,
   mergePublicEvidenceSnapshots,
+  partitionAutonomousTaskInventory,
   reconcileGithubTractionSnapshots,
   summarizeAutonomousCollectorTerminalTaskCoverage,
   summarizeTaskCoverage,
@@ -540,13 +541,15 @@ await Promise.all([
     const catalogState = durableStorageConfigured ? await syncCatalogs(catalogs) : null;
     if (catalogState) {
       await enqueueTasks(plannedTasks, catalogState);
+      const taskInventoryReconciliation = await cancelSupersededRunTasks();
       await event("inventory.completed", "info", "Canonical entity/account inventory and task plan persisted.", {
         companies: catalogState.companyByBatchSourceKey.size,
         founders: catalogState.founderByBatchSourceKey.size,
         accounts: catalogState.accountBySourceKey.size,
         ownerAccounts: catalogState.ownerAccountCount,
         retiredOwnerAccounts: catalogState.retiredOwnerAccounts,
-        tasks: plannedTasks.length
+        tasks: plannedTasks.length,
+        ...taskInventoryReconciliation
       });
     } else {
       await event(
@@ -2314,6 +2317,48 @@ async function enqueueTasks(tasks, catalogState) {
     );
     check(error, "enqueue account/platform tasks");
   });
+}
+
+async function cancelSupersededRunTasks() {
+  const tasks = await readAllIngestionTaskRows(
+    "read task inventory for current-plan reconciliation",
+    "id,status,checkpoint_key",
+    (query) => query.eq("ingestion_run_id", run.id)
+  );
+  const { supersededTasks } = partitionAutonomousTaskInventory(tasks, plannedTasks);
+  const nonTerminalStatuses = ["queued", "running", "retry_scheduled"];
+  const supersededNonTerminalTasks = supersededTasks.filter((task) =>
+    nonTerminalStatuses.includes(task.status)
+  );
+  const terminalAt = new Date().toISOString();
+  await mapWithConcurrency(chunks(supersededNonTerminalTasks, 250), 4, async (taskRows) => {
+    if (taskRows.length === 0) return;
+    const { error } = await runSupabaseOperation(
+      "cancel superseded same-slot ingestion tasks",
+      () => supabase
+        .from("ingestion_tasks")
+        .update({
+          status: "canceled",
+          terminal_at: terminalAt,
+          terminal_reason: "superseded_by_current_catalog_plan",
+          locked_by: null,
+          locked_at: null,
+          lease_token: null,
+          lease_expires_at: null,
+          next_attempt_at: null,
+          last_failure_kind: null,
+          last_error: null,
+          last_error_json: {}
+        })
+        .in("id", taskRows.map((task) => task.id))
+        .in("status", nonTerminalStatuses)
+    );
+    check(error, "cancel superseded same-slot ingestion tasks");
+  });
+  return {
+    supersededTaskCount: supersededTasks.length,
+    supersededNonTerminalCanceled: supersededNonTerminalTasks.length
+  };
 }
 
 async function prepareBatchDiscoveryState() {
@@ -4421,7 +4466,7 @@ async function reconcileCollectorTasks(results, catalogState) {
 }
 
 async function tasksFor(batchSlug, platform, catalogState) {
-  return readAllIngestionTaskRows(
+  const tasks = await readAllIngestionTaskRows(
     `read ${batchSlug}/${platform} tasks`,
     "id,company_name,entity_type,status,checkpoint_key",
     (query) => query
@@ -4430,6 +4475,7 @@ async function tasksFor(batchSlug, platform, catalogState) {
       .eq("platform", platform)
       .eq("status", "queued")
   );
+  return tasks.filter((task) => plannedTaskByCheckpointKey.has(task.checkpoint_key));
 }
 
 async function readAllIngestionTaskRows(label, columns, configureQuery) {
@@ -5088,33 +5134,41 @@ async function persistCoverage(catalogState, stageCounters) {
     (query) => query
       .eq("ingestion_run_id", run.id)
   );
+  const {
+    currentTasks,
+    supersededTasks,
+    missingCheckpointKeys
+  } = partitionAutonomousTaskInventory(tasks, plannedTasks);
   const terminalStatuses = new Set(["completed", "needs_review", "blocked_or_empty", "skipped", "failed", "canceled", "dead_lettered"]);
-  const needsReview = (tasks ?? []).filter((task) => task.status === "needs_review").length;
-  const blockedOrEmpty = (tasks ?? []).filter((task) => task.status === "blocked_or_empty").length;
-  const skipped = (tasks ?? []).filter((task) => task.status === "skipped").length;
+  const needsReview = currentTasks.filter((task) => task.status === "needs_review").length;
+  const blockedOrEmpty = currentTasks.filter((task) => task.status === "blocked_or_empty").length;
+  const skipped = currentTasks.filter((task) => task.status === "skipped").length;
   const mappedCheckpointKeys = new Set(
     plannedTasks
       .filter((task) => task.status === "queued" && Boolean(task.account))
       .map((task) => task.checkpointKey)
   );
-  const mappedTasks = (tasks ?? []).filter((task) => mappedCheckpointKeys.has(task.checkpoint_key));
+  const mappedTasks = currentTasks.filter((task) => mappedCheckpointKeys.has(task.checkpoint_key));
   const report = {
-    expected: tasks?.length ?? 0,
-    attempted: (tasks ?? []).filter((task) => task.status !== "queued").length,
-    succeeded: (tasks ?? []).filter((task) => task.status === "completed").length,
+    expected: currentTasks.length,
+    attempted: currentTasks.filter((task) => task.status !== "queued").length,
+    succeeded: currentTasks.filter((task) => task.status === "completed").length,
     needsReview,
     blockedOrEmpty,
-    failed: (tasks ?? []).filter((task) => ["failed", "dead_lettered"].includes(task.status)).length,
+    failed: currentTasks.filter((task) => ["failed", "dead_lettered"].includes(task.status)).length,
     skipped,
-    nonTerminal: (tasks ?? []).filter((task) => !terminalStatuses.has(task.status)).length,
+    nonTerminal: currentTasks.filter((task) => !terminalStatuses.has(task.status)).length,
+    superseded: supersededTasks.length,
+    supersededNonTerminal: supersededTasks.filter((task) => !terminalStatuses.has(task.status)).length,
+    missingCheckpointKeys,
     mappedExpected: mappedCheckpointKeys.size,
     mappedSucceeded: mappedTasks.filter((task) => task.status === "completed").length,
     mappedNeedsReview: mappedTasks.filter((task) => task.status === "needs_review").length,
     mappedBlockedOrEmpty: mappedTasks.filter((task) => task.status === "blocked_or_empty").length,
     mappedFailed: mappedTasks.filter((task) => ["failed", "dead_lettered"].includes(task.status)).length,
     mappedNonTerminal: mappedTasks.filter((task) => !terminalStatuses.has(task.status)).length,
-    coveragePercentage: tasks?.length
-      ? Number((((tasks.length - (tasks ?? []).filter((task) => !terminalStatuses.has(task.status)).length) / tasks.length) * 100).toFixed(2))
+    coveragePercentage: currentTasks.length
+      ? Number((((currentTasks.length - currentTasks.filter((task) => !terminalStatuses.has(task.status)).length) / currentTasks.length) * 100).toFixed(2))
       : 100,
     stageCounters,
     generatedAt: new Date().toISOString()
