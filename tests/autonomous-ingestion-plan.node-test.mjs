@@ -18,6 +18,7 @@ import {
   classifyAutonomousCollectorTaskOutcome,
   countSuccessfulAutonomousCollectorRows,
   indexAutonomousCollectorTaskOutcomes,
+  isAutonomousCollectorTaskForRun,
   loadAutonomousCatalogs,
   maxAutonomousRunnerProcessBudgetMs,
   mergeGithubTractionSnapshots,
@@ -1129,18 +1130,28 @@ describe("autonomous collector and publication gates", () => {
       { checkpointKey: "central-slot:current-b" }
     ];
     const durableTasks = [
-      { id: "current-a", checkpoint_key: "central-slot:current-a", status: "completed" },
-      { id: "current-b", checkpoint_key: "central-slot:current-b", status: "blocked_or_empty" },
+      { id: "current-a", checkpoint_key: "central-slot:current-a", platform: "web", status: "completed" },
+      { id: "current-b", checkpoint_key: "central-slot:current-b", platform: "linkedin", status: "blocked_or_empty" },
       ...Array.from({ length: 39 }, (_, index) => ({
         id: `superseded-${index}`,
         checkpoint_key: `central-slot:removed-roster-task-${index}`,
+        platform: "linkedin",
         status: "completed"
-      }))
+      })),
+      {
+        id: "timeline-running",
+        checkpoint_key: "timeline:timeline-coordinator-2026-08-02.v1:run-id:company-id:timeline_public_web",
+        platform: "timeline_public_web",
+        status: "running"
+      }
     ];
 
-    const inventory = partitionAutonomousTaskInventory(durableTasks, plannedTasks);
+    const inventory = partitionAutonomousTaskInventory(durableTasks, plannedTasks, {
+      isSupersededTask: (task) => isAutonomousCollectorTaskForRun(task, { runKey: "central-slot" })
+    });
     assert.deepEqual(inventory.currentTasks.map((task) => task.id), ["current-a", "current-b"]);
     assert.equal(inventory.supersededTasks.length, 39);
+    assert.deepEqual(inventory.unrelatedTasks.map((task) => task.id), ["timeline-running"]);
     assert.deepEqual(inventory.missingCheckpointKeys, []);
     assert.equal(
       validateAutonomousTerminalCoverage(

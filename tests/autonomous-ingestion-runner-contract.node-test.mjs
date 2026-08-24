@@ -2669,7 +2669,7 @@ describe("autonomous ingestion runner static safety contracts", () => {
     assert.doesNotMatch(taskRead, /pageRows\.length < pageSize/);
     assert.doesNotMatch(taskRead, /\.range\(offset,/);
     assert.ok(coverage.includes("await readAllIngestionTaskRows("));
-    assert.ok(coverage.includes("partitionAutonomousTaskInventory(tasks, plannedTasks)"));
+    assert.ok(coverage.includes("partitionAutonomousTaskInventory(tasks, plannedTasks,"));
     assert.doesNotMatch(coverage, /runSupabaseOperation\(\s*"read terminal coverage"/);
   });
 
@@ -2701,6 +2701,7 @@ describe("autonomous ingestion runner static safety contracts", () => {
     ));
     assert.ok(coverage.includes("!terminalStatuses.has(task.status)"));
     assert.ok(taskInventory.includes('terminal_reason: "superseded_by_current_catalog_plan"'));
+    assert.ok(taskInventory.includes('isAutonomousCollectorTaskForRun(task, { runKey: idempotencyKey })'));
     assert.ok(taskInventory.includes('.in("status", nonTerminalStatuses)'));
     assert.ok(runner.indexOf("await cancelSupersededRunTasks()") < runner.indexOf("() => runCollectors()"));
     assert.ok(guardIndex > runner.indexOf("const prePublishCoverage = catalogState"));

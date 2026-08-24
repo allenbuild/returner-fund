@@ -928,9 +928,24 @@ export function validateMappedAutonomousCoverage(
   return coverage;
 }
 
-export function partitionAutonomousTaskInventory(tasks, plannedTasks) {
+export function isAutonomousCollectorTaskForRun(task, { runKey }) {
+  const normalizedRunKey = String(runKey ?? "").trim();
+  if (!normalizedRunKey) throw new Error("Collector task classification requires a run key.");
+  const checkpointKey = String(task?.checkpoint_key ?? "").trim();
+  const platform = String(task?.platform ?? "").trim();
+  return checkpointKey.startsWith(`${normalizedRunKey}:`) && AUTONOMOUS_PLATFORMS.includes(platform);
+}
+
+export function partitionAutonomousTaskInventory(
+  tasks,
+  plannedTasks,
+  { isSupersededTask = () => true } = {}
+) {
   if (!Array.isArray(tasks) || !Array.isArray(plannedTasks)) {
     throw new TypeError("Durable tasks and planned tasks must both be arrays.");
+  }
+  if (typeof isSupersededTask !== "function") {
+    throw new TypeError("Task inventory supersession classification must be a function.");
   }
   const plannedCheckpointKeys = new Set();
   for (const task of plannedTasks) {
@@ -944,6 +959,7 @@ export function partitionAutonomousTaskInventory(tasks, plannedTasks) {
 
   const currentTasks = [];
   const supersededTasks = [];
+  const unrelatedTasks = [];
   const observedCurrentCheckpointKeys = new Set();
   for (const task of tasks) {
     const checkpointKey = String(task?.checkpoint_key ?? "").trim();
@@ -951,14 +967,17 @@ export function partitionAutonomousTaskInventory(tasks, plannedTasks) {
     if (plannedCheckpointKeys.has(checkpointKey)) {
       currentTasks.push(task);
       observedCurrentCheckpointKeys.add(checkpointKey);
-    } else {
+    } else if (isSupersededTask(task)) {
       supersededTasks.push(task);
+    } else {
+      unrelatedTasks.push(task);
     }
   }
 
   return {
     currentTasks,
     supersededTasks,
+    unrelatedTasks,
     missingCheckpointKeys: [...plannedCheckpointKeys]
       .filter((checkpointKey) => !observedCurrentCheckpointKeys.has(checkpointKey))
   };
