@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-onecli",
+    "slug": "onecli",
+    "name": "OneCLI"
+  },
+  "event": {
+    "id": "tle-aecd7b77f38f9f555c532c52",
+    "eventDate": "2026-08-20",
+    "eventDateType": "announcement_date",
+    "title": "OneCLI released OneCLI (YC26), An open-source pro assistant for teams",
+    "summary": "OneCLI introduced OneCLI (YC26), An open-source pro assistant for teams.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-ed69222c64aa74308cfc792c",
+        "title": "Introducing OneCLI (YC26), An open-source pro assistant for teams.",
+        "publisher": "jonathanfishner",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-08-20T14:56:59.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/jonathanfishner/status/2090453046698647596"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-ed69222c64aa74308cfc792c",
+        "title": "Introducing OneCLI (YC26), An open-source pro assistant for teams.",
+        "publisher": "jonathanfishner",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-08-20T14:56:59.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/jonathanfishner/status/2090453046698647596",
+        "publicationDate": "2026-08-20T14:56:59.000Z",
+        "excerpt": "Introducing OneCLI (YC26), An open-source pro assistant for teams. Built for companies, integrated with your identity provider. Secured, sandboxed personal agent with human in the loop approvals. It runs with your access, and never holds your keys. https://t.co/hpECqEANRq",
+        "sourceEventDate": "2026-08-20",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-f6e41e224243c4c017e7cc3c",
+        "platform": "x",
+        "account": "jonathanfishner",
+        "postDate": "2026-08-20",
+        "excerpt": "Introducing OneCLI (YC26), An open-source pro assistant for teams. Built for companies, integrated with your identity provider. Secured, sandboxed personal agent with human in the loop approvals. It runs with your access, and never holds your keys. https://t.co/hpECqEANRq",
+        "url": "https://x.com/jonathanfishner/status/2090453046698647596",
+        "metrics": {
+          "likes": 227,
+          "reposts": 10,
+          "replies": 42,
+          "views": 39970
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-24T14:39:14.351Z",
+  "lastModifiedAt": "2026-08-24T14:39:14.351Z"
+}

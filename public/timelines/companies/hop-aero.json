@@ -5,14 +5,49 @@
     "slug": "hop-aero",
     "name": "Hop Aero"
   },
-  "generatedAt": "2026-08-14T12:40:37.528Z",
-  "lastModifiedAt": "2026-08-14T12:40:37.528Z",
-  "events": [],
-  "groups": [],
+  "generatedAt": "2026-08-24T14:39:14.351Z",
+  "lastModifiedAt": "2026-08-24T14:39:14.351Z",
+  "events": [
+    {
+      "id": "tle-c7c2e659c85d7a46481f5ece",
+      "eventDate": "2026-07-28",
+      "eventDateType": "announcement_date",
+      "title": "Hop Aero released Rook by (YC S26)",
+      "summary": "Hop Aero introduced Rook by @Hop_Aero (YC S26): an autonomous hypersonic cargo rocket that delivers 550 lbs up to 450 miles in ~15 minutes.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-b5df6822574a38add52503f5",
+          "title": "Introducing Rook by @Hop_Aero (YC S26): an autonomous hypersonic cargo rocket that delivers 550 lbs up to 450 miles in ~15 minutes.",
+          "publisher": "mat_milenovic",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-07-28T17:26:38.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/mat_milenovic/status/2082155786994962489"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-07",
+          "count": 1
+        }
+      ]
+    }
+  ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 0,
-    "lastSuccessfulArtifactAt": "2026-08-14T12:40:37.528Z"
+    "publishedEventCount": 1,
+    "lastSuccessfulArtifactAt": "2026-08-24T14:39:14.351Z"
   },
   "nextCursor": null
 }

@@ -1371,14 +1371,14 @@ describe("autonomous ingestion runner static safety contracts", () => {
   it("runs timeline backfill in strict database mode only with validated durable storage", () => {
     const publicationBuild = section("async function buildAndValidatePublication", "async function synchronizePublicationBase");
     const timelineBackfill = section(
-      "const timelineBackfillEnv = durableStorageConfigured",
-      'await runCommand(process.execPath, ["scripts/validate-timeline-artifacts.mjs"]',
+      "const timelineBackfillEnv = timelineUsesDatabase",
+      "latestTimelineBuildReceipt = {",
       publicationBuild
     );
 
     assert.match(
       timelineBackfill,
-      /durableStorageConfigured\s*\?\s*{\s*TIMELINE_REQUIRE_DATABASE:\s*"true",[\s\S]*?SCORING_DATA_ROOT:\s*targetRoot/
+      /timelineUsesDatabase\s*\?\s*{\s*TIMELINE_REQUIRE_DATABASE:\s*"true",[\s\S]*?SCORING_DATA_ROOT:\s*targetRoot/
     );
     assert.match(
       timelineBackfill,
@@ -1389,7 +1389,7 @@ describe("autonomous ingestion runner static safety contracts", () => {
     assert.ok(timelineBackfill.includes("env: timelineBackfillEnv"));
   });
 
-  it("keeps the optional admin lane independent and preserves Timeline only when its exact coverage table is absent", () => {
+  it("keeps the optional admin lane independent and file-backfills when its exact coverage table is absent", () => {
     const discovery = section(
       "async function runTimelineDiscoveryBeforeBackfill",
       "async function buildCanonicalTimelineIngestionInventory"
@@ -1397,10 +1397,6 @@ describe("autonomous ingestion runner static safety contracts", () => {
     const publicationBuild = section(
       "async function buildAndValidatePublication",
       "async function synchronizePublicationBase"
-    );
-    const preservation = section(
-      "async function preserveLastGoodTimelineArtifacts",
-      "async function buildAndValidatePublication"
     );
 
     assert.doesNotMatch(timelineCommand, /adminTaskDrain\.status === "migration_unavailable"\s*\?/);
@@ -1415,14 +1411,14 @@ describe("autonomous ingestion runner static safety contracts", () => {
     assert.match(discovery, /timeline\.discovery\.skipped/);
     assert.match(discovery, /isTimelineCoverageMigrationUnavailable\(migrationError\)/);
     assert.match(discovery, /\.select\("company_id"\)\s*\.limit\(1\)/);
-    assert.match(publicationBuild, /const preserveLastGoodTimeline/);
-    assert.match(publicationBuild, /await preserveLastGoodTimelineArtifacts\(\)/);
-    assert.match(publicationBuild, /if \(!preserveLastGoodTimeline\)/);
-    assert.match(preservation, /status:\s*"preserved"/);
-    assert.match(preservation, /validate preserved Company Timeline at its immutable source commit/);
-    assert.match(preservation, /git[\s\S]*?log[\s\S]*?public\/timelines/);
+    assert.match(publicationBuild, /const coverageMigrationUnavailable/);
+    assert.match(publicationBuild, /const timelineUsesDatabase = durableStorageConfigured && !coverageMigrationUnavailable/);
+    assert.match(publicationBuild, /timeline\.artifacts\.file_backed_fallback/);
+    assert.match(publicationBuild, /TIMELINE_REQUIRE_DATABASE:\s*"false"/);
+    assert.doesNotMatch(runner, /preserveLastGoodTimelineArtifacts|timeline\.artifacts\.preserved/);
     assert.match(publicationBuild, /status:\s*"rebuilt"/);
-    assert.match(publicationBuild, /if \(durableStorageConfigured\)[\s\S]*?export durable Company Timeline database snapshot/);
+    assert.match(publicationBuild, /if \(timelineUsesDatabase\)[\s\S]*?export durable Company Timeline database snapshot/);
+    assert.match(publicationBuild, /mode:\s*timelineUsesDatabase \? "database_backed" : "file_backed"/);
     assert.match(publicationBuild, /label: "company timeline backfill"/);
     const discoveryIndex = publicationBuild.indexOf("await runTimelineDiscoveryBeforeBackfill");
     const backfillIndex = publicationBuild.indexOf('label: "company timeline backfill"');

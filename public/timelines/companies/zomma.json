@@ -5,14 +5,73 @@
     "slug": "zomma",
     "name": "Zomma"
   },
-  "generatedAt": "2026-08-14T12:40:37.528Z",
-  "lastModifiedAt": "2026-08-14T12:40:37.528Z",
-  "events": [],
-  "groups": [],
+  "generatedAt": "2026-08-24T14:39:14.351Z",
+  "lastModifiedAt": "2026-08-24T14:39:14.351Z",
+  "events": [
+    {
+      "id": "tle-ea32199a3f17d38542f2e1f0",
+      "eventDate": "2026-08-18",
+      "eventDateType": "announcement_date",
+      "title": "Zomma released Zomma Launch",
+      "summary": "Zomma Launch.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-de001668c0b6df30bae2bfff",
+          "title": "Zomma Launch",
+          "publisher": "Zomma Launch",
+          "domain": "youtube.com",
+          "sourceType": "video",
+          "publishedAt": "2026-08-18T02:09:00-07:00",
+          "evidenceRole": "primary",
+          "url": "https://youtube.com/watch?v=oDXDKH_tYhg"
+        }
+      ]
+    },
+    {
+      "id": "tle-dd5a4d5ccea0e7300de1ae1c",
+      "eventDate": "2026-08-18",
+      "eventDateType": "announcement_date",
+      "title": "Zomma released ZommaLabs What started as a 2am library project to build a computer...",
+      "summary": "Zomma announced it was launching @ZommaLabs What started as a 2am library project to build a computer use agent -> 100s conversations with hedge funds, payments, fintechs -> getting into @ycombinator -> starting with a billion dollar compliance problem that computer use is.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-9fc82cbd03113846a4a4671f",
+          "title": "Today we are launching @ZommaLabs What started as a 2am library project to build a computer use agent -> 100s conversations with hedge funds, payments, fintechs -> getting into @ycombinator -> starting with a billion dollar compliance…",
+          "publisher": "jihprobs",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-08-18T16:51:57.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/jihprobs/status/2089757203444154593"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-08",
+          "count": 2
+        }
+      ]
+    }
+  ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 0,
-    "lastSuccessfulArtifactAt": "2026-08-14T12:40:37.528Z"
+    "publishedEventCount": 2,
+    "lastSuccessfulArtifactAt": "2026-08-24T14:39:14.351Z"
   },
   "nextCursor": null
 }

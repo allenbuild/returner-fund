@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-palette-2",
+    "slug": "palette",
+    "name": "Palette"
+  },
+  "event": {
+    "id": "tle-6e6b73d38340638d88b27dc1",
+    "eventDate": "2026-08-14",
+    "eventDateType": "announcement_date",
+    "title": "Palette released Palette Originals — short films, anime, and dramas made to doomscroll",
+    "summary": "Palette introduced Palette Originals — short films, anime, and dramas made to doomscroll.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-01521dbc99ba4610a84b1b36",
+        "title": "Introducing Palette Originals — short films, anime, and dramas made to doomscroll.",
+        "publisher": "trypalette_ai",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-08-14T21:41:10.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/trypalette_ai/status/2088380434522763266"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-01521dbc99ba4610a84b1b36",
+        "title": "Introducing Palette Originals — short films, anime, and dramas made to doomscroll.",
+        "publisher": "trypalette_ai",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-08-14T21:41:10.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/trypalette_ai/status/2088380434522763266",
+        "publicationDate": "2026-08-14T21:41:10.000Z",
+        "excerpt": "Introducing Palette Originals — short films, anime, and dramas made to doomscroll. Start watching in the Explore tab ↓ https://t.co/RwtRhwKshI",
+        "sourceEventDate": "2026-08-14",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-ba5ff405f838a1cacd53a3b1",
+        "platform": "x",
+        "account": "trypalette_ai",
+        "postDate": "2026-08-14",
+        "excerpt": "Introducing Palette Originals — short films, anime, and dramas made to doomscroll. Start watching in the Explore tab ↓ https://t.co/RwtRhwKshI",
+        "url": "https://x.com/trypalette_ai/status/2088380434522763266",
+        "metrics": {
+          "likes": 7,
+          "reposts": 0,
+          "replies": 2,
+          "views": 568
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-24T14:39:14.351Z",
+  "lastModifiedAt": "2026-08-24T14:39:14.351Z"
+}

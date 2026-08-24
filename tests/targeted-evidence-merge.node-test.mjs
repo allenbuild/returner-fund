@@ -524,6 +524,75 @@ describe("targeted Top Voice evidence publication merge", () => {
     assert.deepEqual(replayed.attributionReconciliationLedger, merged.attributionReconciliationLedger);
   });
 
+  it("reattributes a verified mutable-roster company alias without post-specific hard-coding", async () => {
+    const catalogs = await loadAutonomousCatalogs(process.cwd());
+    const resolveBatchSlug = buildLegacyPublicEvidenceBatchResolver(catalogs);
+    const resolveEntityAttribution = buildCanonicalTargetedAttributionResolver(catalogs);
+    const legacyCoastyPost = {
+      id: "hacker_news-launch_hn_story-s26-company-coasty-48922706",
+      batchSlug: "S26",
+      entityType: "company",
+      entityId: "company-coasty",
+      entityName: "Coasty",
+      companySlug: "coasty",
+      companyName: "Coasty",
+      platform: "hacker_news",
+      platformPostId: "48922706",
+      sourceUrl: "https://news.ycombinator.com/item?id=48922706",
+      title: "Launch HN: Coasty (YC S26) – An API for computer-use agents",
+      text: "Launch HN: Coasty (YC S26) – An API for computer-use agents",
+      postedAt: "2026-08-22T12:00:00.000Z",
+      metrics: { upvotes: 1 },
+      contributionScore: 1,
+      review_state: "verified",
+      linkStatus: "verified",
+      first_seen_at: CHECKED_AT,
+      last_checked_at: CHECKED_AT,
+      last_updated_at: CHECKED_AT
+    };
+    const merged = mergeTargetedEvidenceSnapshots(
+      [snapshot([legacyCoastyPost])],
+      snapshot([]),
+      {
+        mergedAt: CHECKED_AT,
+        resolveBatchSlug,
+        resolveEntityAttribution,
+        validateEntityAttribution: canonicalTargetedValidator(catalogs)
+      }
+    );
+
+    assert.equal(merged.needsReview.length, 0);
+    assert.deepEqual(
+      {
+        entityId: merged.evidence[0]?.entityId,
+        entityName: merged.evidence[0]?.entityName,
+        companySlug: merged.evidence[0]?.companySlug,
+        companyName: merged.evidence[0]?.companyName,
+        previousAttribution: merged.evidence[0]?.previousAttribution,
+        attributionReconciliationReason: merged.evidence[0]?.attributionReconciliationReason
+      },
+      {
+        entityId: "company-coarena",
+        entityName: "CoArena",
+        companySlug: "coarena",
+        companyName: "CoArena",
+        previousAttribution: {
+          batchSlug: "S26",
+          entityType: "company",
+          entityId: "company-coasty",
+          companySlug: "coasty",
+          companyName: "Coasty"
+        },
+        attributionReconciliationReason: "canonical_targeted_legacy_entity_alias"
+      }
+    );
+    assert.equal(merged.attributionReconciliationLedger.length, 1);
+    assert.equal(
+      merged.attributionReconciliationLedger[0].reason,
+      "canonical_targeted_legacy_entity_alias"
+    );
+  });
+
   it("rejects a known cross-company identity conflict and disagreeing strong founder author signals", async () => {
     const catalogs = await loadAutonomousCatalogs(process.cwd());
     const resolveBatchSlug = buildLegacyPublicEvidenceBatchResolver(catalogs);

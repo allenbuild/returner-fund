@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "a16z-speedrun-006-oasis",
+    "slug": "oasis",
+    "name": "Oasis"
+  },
+  "event": {
+    "id": "tle-b834160b220cc1a1132e171e",
+    "eventDate": "2026-08-21",
+    "eventDateType": "announcement_date",
+    "title": "Oasis announced its public launch",
+    "summary": "Oasis announced it was shipping Oasis Desktop, a Mac app that lets you share local coding agents with your teammates.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-8cad3eabefbe4d30aa87ae56",
+        "title": "Today we're shipping Oasis Desktop, a Mac app that lets you share local coding agents with your teammates.",
+        "publisher": "oasishq",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-08-21T16:26:23.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/oasishq/status/2090837930931601799"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-8cad3eabefbe4d30aa87ae56",
+        "title": "Today we're shipping Oasis Desktop, a Mac app that lets you share local coding agents with your teammates.",
+        "publisher": "oasishq",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-08-21T16:26:23.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/oasishq/status/2090837930931601799",
+        "publicationDate": "2026-08-21T16:26:23.000Z",
+        "excerpt": "Today we're shipping Oasis Desktop, a Mac app that lets you share local coding agents with your teammates. Oasis Desktop can spin up and share Claude Code, Codex, Pi, OpenCode, Kilo Code, Hermes Agent, and Devin CLI sessions as long as they're installed. Start a session with",
+        "sourceEventDate": "2026-08-21",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-00c03ef1069d15e738e68baf",
+        "platform": "x",
+        "account": "oasishq",
+        "postDate": "2026-08-21",
+        "excerpt": "Today we're shipping Oasis Desktop, a Mac app that lets you share local coding agents with your teammates. Oasis Desktop can spin up and share Claude Code, Codex, Pi, OpenCode, Kilo Code, Hermes Agent, and Devin CLI sessions as long as they're installed. Start a session with",
+        "url": "https://x.com/oasishq/status/2090837930931601799",
+        "metrics": {
+          "likes": 64,
+          "reposts": 7,
+          "replies": 16,
+          "views": 213762
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-24T14:39:14.351Z",
+  "lastModifiedAt": "2026-08-24T14:39:14.351Z"
+}

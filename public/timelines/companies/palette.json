@@ -5,9 +5,33 @@
     "slug": "palette",
     "name": "Palette"
   },
-  "generatedAt": "2026-08-14T12:40:37.528Z",
-  "lastModifiedAt": "2026-08-14T12:40:37.528Z",
+  "generatedAt": "2026-08-24T14:39:14.351Z",
+  "lastModifiedAt": "2026-08-24T14:39:14.351Z",
   "events": [
+    {
+      "id": "tle-6e6b73d38340638d88b27dc1",
+      "eventDate": "2026-08-14",
+      "eventDateType": "announcement_date",
+      "title": "Palette released Palette Originals — short films, anime, and dramas made to doomscroll",
+      "summary": "Palette introduced Palette Originals — short films, anime, and dramas made to doomscroll.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-01521dbc99ba4610a84b1b36",
+          "title": "Introducing Palette Originals — short films, anime, and dramas made to doomscroll.",
+          "publisher": "trypalette_ai",
+          "domain": "x.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-08-14T21:41:10.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/trypalette_ai/status/2088380434522763266"
+        }
+      ]
+    },
     {
       "id": "tle-7fe93b7009de7a175cbf8879",
       "eventDate": "2026-07-31",
@@ -46,7 +70,7 @@
       "sourcePreview": [
         {
           "id": "src-b05e7852806dd8ff4aa4a0c5",
-          "title": "introducing pal! checkout our studio at https://t.co/jHp3zCKFu6 and keep an eye out for updates coming next week 👀 https://t.co/Fsf9lHENM3",
+          "title": "introducing pal! checkout our studio at https://t.co/jHp3zCKFu6 and keep an eye out for updates coming next week 👀",
           "publisher": "trypalette_ai",
           "domain": "x.com",
           "sourceType": "company_post",
@@ -62,6 +86,10 @@
       "year": 2026,
       "months": [
         {
+          "month": "2026-08",
+          "count": 1
+        },
+        {
           "month": "2026-07",
           "count": 2
         }
@@ -70,8 +98,8 @@
   ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 2,
-    "lastSuccessfulArtifactAt": "2026-08-14T12:40:37.528Z"
+    "publishedEventCount": 3,
+    "lastSuccessfulArtifactAt": "2026-08-24T14:39:14.351Z"
   },
   "nextCursor": null
 }

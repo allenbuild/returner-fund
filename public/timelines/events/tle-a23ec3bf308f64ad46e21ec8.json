@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-screenpipe",
+    "slug": "screenpipe",
+    "name": "screenpipe"
+  },
+  "event": {
+    "id": "tle-a23ec3bf308f64ad46e21ec8",
+    "eventDate": "2026-08-20",
+    "eventDateType": "announcement_date",
+    "title": "screenpipe released Cursor Computer History",
+    "summary": "screenpipe introduced Cursor Computer History.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-1451be8e6756761ed3d5cad7",
+        "title": "Introducing Cursor Computer History.",
+        "publisher": "screenpipe",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-08-20T15:45:11.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/screenpipe/status/2090465176206111175"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-1451be8e6756761ed3d5cad7",
+        "title": "Introducing Cursor Computer History.",
+        "publisher": "screenpipe",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-08-20T15:45:11.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/screenpipe/status/2090465176206111175",
+        "publicationDate": "2026-08-20T15:45:11.000Z",
+        "excerpt": "Introducing Cursor Computer History. Grok 4.6 remembers what you did, picks up where you left off, spots work patterns, and turns repeated workflows into skills. @elonmusk @mntruell Download 👇 https://t.co/xuPTdudvEm",
+        "sourceEventDate": "2026-08-20",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-7d427679f68f19e07b53453b",
+        "platform": "x",
+        "account": "screenpipe",
+        "postDate": "2026-08-20",
+        "excerpt": "Introducing Cursor Computer History. Grok 4.6 remembers what you did, picks up where you left off, spots work patterns, and turns repeated workflows into skills. @elonmusk @mntruell Download 👇 https://t.co/xuPTdudvEm",
+        "url": "https://x.com/screenpipe/status/2090465176206111175",
+        "metrics": {
+          "likes": 10,
+          "reposts": 2,
+          "replies": 0,
+          "views": 438
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-24T14:39:14.351Z",
+  "lastModifiedAt": "2026-08-24T14:39:14.351Z"
+}

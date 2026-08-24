@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-impact-drones",
+    "slug": "impact-drones",
+    "name": "IMPACT Drones"
+  },
+  "event": {
+    "id": "tle-32e0026d1d7889a274c06937",
+    "eventDate": "2026-08-04",
+    "eventDateType": "announcement_date",
+    "title": "IMPACT Drones released today: air defense as a service",
+    "summary": "IMPACT Drones reported launching today: air defense as a service.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-da44c0760472a2e898ebd29c",
+        "title": "Launching today: air defense as a service.",
+        "publisher": "impactdrones",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-08-04T18:12:23.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/impactdrones/status/2084704015531602186"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-da44c0760472a2e898ebd29c",
+        "title": "Launching today: air defense as a service.",
+        "publisher": "impactdrones",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-08-04T18:12:23.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/impactdrones/status/2084704015531602186",
+        "publicationDate": "2026-08-04T18:12:23.000Z",
+        "excerpt": "Launching today: air defense as a service. Interceptors that cost less than the drones they shoot down.",
+        "sourceEventDate": "2026-08-04",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-17c84fff68be0784f353f437",
+        "platform": "x",
+        "account": "impactdrones",
+        "postDate": "2026-08-04",
+        "excerpt": "Launching today: air defense as a service. Interceptors that cost less than the drones they shoot down.",
+        "url": "https://x.com/impactdrones/status/2084704015531602186",
+        "metrics": {
+          "likes": 27,
+          "reposts": 2,
+          "replies": 0,
+          "views": 8290
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-24T14:39:14.351Z",
+  "lastModifiedAt": "2026-08-24T14:39:14.351Z"
+}

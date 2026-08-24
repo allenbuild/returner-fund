@@ -5,14 +5,49 @@
     "slug": "alchemize",
     "name": "Alchemize"
   },
-  "generatedAt": "2026-08-14T12:40:37.528Z",
-  "lastModifiedAt": "2026-08-14T12:40:37.528Z",
-  "events": [],
-  "groups": [],
+  "generatedAt": "2026-08-24T14:39:14.351Z",
+  "lastModifiedAt": "2026-08-24T14:39:14.351Z",
+  "events": [
+    {
+      "id": "tle-d41e94e7de545f56b8230584",
+      "eventDate": "2026-08-21",
+      "eventDateType": "announcement_date",
+      "title": "Alchemize released Agent Prompt Tracking in",
+      "summary": "Alchemize introduced Agent Prompt Tracking in @TryAlchemize.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-1eebb89eed8c2d85185c4128",
+          "title": "Introducing Agent Prompt Tracking in @TryAlchemize.",
+          "publisher": "samuelsfu",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-08-21T01:27:07.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/samuelsfu/status/2090611624927515034"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-08",
+          "count": 1
+        }
+      ]
+    }
+  ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 0,
-    "lastSuccessfulArtifactAt": "2026-08-14T12:40:37.528Z"
+    "publishedEventCount": 1,
+    "lastSuccessfulArtifactAt": "2026-08-24T14:39:14.351Z"
   },
   "nextCursor": null
 }

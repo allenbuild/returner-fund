@@ -5,14 +5,14 @@
     "slug": "tenet-industries",
     "name": "Tenet Industries"
   },
-  "generatedAt": "2026-08-14T12:40:37.528Z",
-  "lastModifiedAt": "2026-08-14T12:40:37.528Z",
+  "generatedAt": "2026-08-24T14:39:14.351Z",
+  "lastModifiedAt": "2026-08-24T14:39:14.351Z",
   "events": [],
   "groups": [],
   "coverage": {
     "status": "partial",
     "publishedEventCount": 0,
-    "lastSuccessfulArtifactAt": "2026-08-14T12:40:37.528Z"
+    "lastSuccessfulArtifactAt": "2026-08-24T14:39:14.351Z"
   },
   "nextCursor": null
 }

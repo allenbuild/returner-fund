@@ -1,0 +1,18 @@
+{
+  "schemaVersion": "company-timeline.v1",
+  "company": {
+    "id": "company-callbook-ai",
+    "slug": "callbook-ai",
+    "name": "Callbook AI"
+  },
+  "generatedAt": "2026-08-24T14:39:14.351Z",
+  "lastModifiedAt": "2026-08-24T14:39:14.351Z",
+  "events": [],
+  "groups": [],
+  "coverage": {
+    "status": "partial",
+    "publishedEventCount": 0,
+    "lastSuccessfulArtifactAt": "2026-08-24T14:39:14.351Z"
+  },
+  "nextCursor": null
+}

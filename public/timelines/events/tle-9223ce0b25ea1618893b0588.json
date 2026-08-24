@@ -19,7 +19,7 @@
     "sourcePreview": [
       {
         "id": "src-ae133c5ede36019f81b4845a",
-        "title": "Today we are launching @mireyehq with @ycombinator The easiest way to build agentic applications for the physical world. AI agents are starting to act in the real world, but they can't reliably understand it. Mireye is one API and MCP t...",
+        "title": "Today we are launching @mireyehq with @ycombinator The easiest way to build agentic applications for the physical world.",
         "publisher": "ansh_chokshi",
         "domain": "x.com",
         "sourceType": "founder_post",
@@ -31,7 +31,7 @@
     "evidence": [
       {
         "id": "src-ae133c5ede36019f81b4845a",
-        "title": "Today we are launching @mireyehq with @ycombinator The easiest way to build agentic applications for the physical world. AI agents are starting to act in the real world, but they can't reliably understand it. Mireye is one API and MCP t...",
+        "title": "Today we are launching @mireyehq with @ycombinator The easiest way to build agentic applications for the physical world.",
         "publisher": "ansh_chokshi",
         "domain": "x.com",
         "sourceType": "founder_post",
@@ -39,7 +39,7 @@
         "evidenceRole": "primary",
         "url": "https://x.com/ansh_chokshi/status/2083188175259029891",
         "publicationDate": "2026-07-31T13:48:59.000Z",
-        "excerpt": "Today we are launching @mireyehq with @ycombinator The easiest way to build agentic applications for the physical world. AI agents are starting to act in the real world, but they can't reliably understand it. Mireye is one API and MCP that connects agents to the physical world: data, enrichment, tools, and signals that power them to make decisions. One line of code to make your agents street smart. http://mireye.com",
+        "excerpt": "Today we are launching @mireyehq with @ycombinator The easiest way to build agentic applications for the physical world. AI agents are starting to act in the real world, but they can't reliably understand it. Mireye is one API and MCP that connects agents to the physical",
         "sourceEventDate": "2026-07-31",
         "isConflicting": false,
         "conflictDescription": null
@@ -47,24 +47,22 @@
     ],
     "posts": [
       {
-        "id": "post-1b2d3232a0b2cda7524a14d3",
+        "id": "post-5903c6fbcb377d32bf72962a",
         "platform": "x",
         "account": "ansh_chokshi",
         "postDate": "2026-07-31",
-        "excerpt": "Today we are launching @mireyehq with @ycombinator The easiest way to build agentic applications for the physical world. AI agents are starting to act in the real world, but they can't reliably understand it. Mireye is one API and MCP that connects agents to the physical world: data, enrichment, tools, and signals that power them to make decisions. One line of code to make your agents street smart. http://mireye.com",
+        "excerpt": "Today we are launching @mireyehq with @ycombinator The easiest way to build agentic applications for the physical world. AI agents are starting to act in the real world, but they can't reliably understand it. Mireye is one API and MCP that connects agents to the physical",
         "url": "https://x.com/ansh_chokshi/status/2083188175259029891",
         "metrics": {
-          "views": 26311,
-          "likes": 182,
-          "replies": 58,
+          "likes": 189,
           "reposts": 24,
-          "quotes": 12,
-          "bookmarks": 54
+          "replies": 60,
+          "views": 30347
         },
         "evidenceRole": "primary"
       }
     ]
   },
-  "generatedAt": "2026-08-14T12:40:37.528Z",
-  "lastModifiedAt": "2026-08-14T12:40:37.528Z"
+  "generatedAt": "2026-08-24T14:39:14.351Z",
+  "lastModifiedAt": "2026-08-24T14:39:14.351Z"
 }

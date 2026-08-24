@@ -5,21 +5,31 @@
     "slug": "machine0",
     "name": "machine0"
   },
-  "generatedAt": "2026-08-14T12:40:37.528Z",
-  "lastModifiedAt": "2026-08-14T12:40:37.528Z",
+  "generatedAt": "2026-08-24T14:39:14.351Z",
+  "lastModifiedAt": "2026-08-24T14:39:14.351Z",
   "events": [
     {
-      "id": "tle-36916e4d5689431dae77870b",
+      "id": "tle-b3bdd6b304a2f4a37b9433e8",
       "eventDate": "2026-08-01",
       "eventDateType": "announcement_date",
-      "title": "machine0 announced its public launch",
-      "summary": "machine0 reported launching today, @machine__0 the compute layer agents WANT to run on.",
+      "title": "machine0 launched on Hacker News",
+      "summary": "Launch HN: machine0 (YC S26) – Persistent CPU and GPU VMs from the CLI.",
       "category": "product_launch",
-      "isMajor": false,
+      "isMajor": true,
       "hasConflict": false,
       "conflictSummary": null,
-      "evidenceCount": 1,
+      "evidenceCount": 2,
       "sourcePreview": [
+        {
+          "id": "src-4688b71b756a06361476f2fb",
+          "title": "Launch HN: machine0 (YC S26) – Persistent CPU and GPU VMs from the CLI",
+          "publisher": "Launch HN: machine0 (YC S26) – Persistent CPU and GPU VMs from the CLI",
+          "domain": "news.ycombinator.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-08-18T16:26:42Z",
+          "evidenceRole": "primary",
+          "url": "https://news.ycombinator.com/item?id=49348136"
+        },
         {
           "id": "src-1712949e1497d5cb44c7229e",
           "title": "Launching today, @machine__0 the compute layer agents WANT to run on. Barnaby spent years running engineering at Upflow and decided to bui...",
@@ -151,7 +161,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 5,
-    "lastSuccessfulArtifactAt": "2026-08-14T12:40:37.528Z"
+    "lastSuccessfulArtifactAt": "2026-08-24T14:39:14.351Z"
   },
   "nextCursor": null
 }

@@ -6,17 +6,27 @@
     "name": "Vendo"
   },
   "event": {
-    "id": "tle-e0a173657d6b910875789eb0",
+    "id": "tle-15441836ee4077a5acc7a684",
     "eventDate": "2026-07-06",
     "eventDateType": "announcement_date",
-    "title": "Vendo was introduced",
-    "summary": "Vendo introduced Vendo.",
+    "title": "Vendo launched on Hacker News",
+    "summary": "Launch HN: Vendo (YC S26) – Let users build features on top of your product.",
     "category": "product_launch",
     "isMajor": true,
     "hasConflict": false,
     "conflictSummary": null,
-    "evidenceCount": 3,
+    "evidenceCount": 4,
     "sourcePreview": [
+      {
+        "id": "src-1e322718b449dbf37613b836",
+        "title": "Launch HN: Vendo (YC S26) – Let users build features on top of your product",
+        "publisher": "Launch HN: Vendo (YC S26) – Let users build features on top of your product",
+        "domain": "news.ycombinator.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-08-20T15:29:52Z",
+        "evidenceRole": "primary",
+        "url": "https://news.ycombinator.com/item?id=49376038"
+      },
       {
         "id": "src-4a3b6d88a825a4f85d632a8e",
         "title": "Introducing Vendo. Now every user gets their own personalized agentic experience of your product. Try it now 👇",
@@ -36,19 +46,24 @@
         "publishedAt": "2026-07-21T17:32:05.000Z",
         "evidenceRole": "primary",
         "url": "https://x.com/yousefhll/status/2079620440038002750"
-      },
-      {
-        "id": "src-a355c190017197bc6c950f70",
-        "title": "Announcing the Vendo Full Stack Agentic Interface: an embeddable agent that lives right inside your product, with everything you need built-in.",
-        "publisher": "yousefhll",
-        "domain": "x.com",
-        "sourceType": "founder_post",
-        "publishedAt": "2026-08-06T21:52:16.000Z",
-        "evidenceRole": "primary",
-        "url": "https://x.com/yousefhll/status/2085484126786957477"
       }
     ],
     "evidence": [
+      {
+        "id": "src-1e322718b449dbf37613b836",
+        "title": "Launch HN: Vendo (YC S26) – Let users build features on top of your product",
+        "publisher": "Launch HN: Vendo (YC S26) – Let users build features on top of your product",
+        "domain": "news.ycombinator.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-08-20T15:29:52Z",
+        "evidenceRole": "primary",
+        "url": "https://news.ycombinator.com/item?id=49376038",
+        "publicationDate": "2026-08-20T15:29:52Z",
+        "excerpt": "Launch HN: Vendo (YC S26) – Let users build features on top of your product",
+        "sourceEventDate": "2026-08-20",
+        "isConflicting": false,
+        "conflictDescription": null
+      },
       {
         "id": "src-4a3b6d88a825a4f85d632a8e",
         "title": "Introducing Vendo. Now every user gets their own personalized agentic experience of your product. Try it now 👇",
@@ -74,7 +89,7 @@
         "evidenceRole": "primary",
         "url": "https://x.com/yousefhll/status/2079620440038002750",
         "publicationDate": "2026-07-21T17:32:05.000Z",
-        "excerpt": "Introducing Vendo (YC S26), the customization layer that lets your users build their own features and micro-apps on top of your product For 50 years, software has been shipped one way for everyone. That era is over. With Vendo, every user shapes your product into exactly what https://t.co/hHASxo0MIM",
+        "excerpt": "Introducing Vendo (YC S26), the customization layer that lets your users build their own features and micro-apps on top of your product For 50 years, software has been shipped one way for everyone. That era is over. With Vendo, every user shapes your product into exactly what",
         "sourceEventDate": "2026-07-21",
         "isConflicting": false,
         "conflictDescription": null
@@ -90,12 +105,25 @@
         "url": "https://x.com/yousefhll/status/2085484126786957477",
         "publicationDate": "2026-08-06T21:52:16.000Z",
         "excerpt": "Announcing the Vendo Full Stack Agentic Interface: an embeddable agent that lives right inside your product, with everything you need built-in. > Takes real action through your own API, as the user, with their permissions > Generates UI and full features your users can keep, https://t.co/XOdO9miuI0",
-        "sourceEventDate": "2026-08-06",
+        "sourceEventDate": "2026-08-20",
         "isConflicting": false,
         "conflictDescription": null
       }
     ],
     "posts": [
+      {
+        "id": "post-93fa0dd967ba0c8f94a6b54e",
+        "platform": "hacker_news",
+        "account": null,
+        "postDate": "2026-08-20",
+        "excerpt": "Launch HN: Vendo (YC S26) – Let users build features on top of your product",
+        "url": "https://news.ycombinator.com/item?id=49376038",
+        "metrics": {
+          "upvotes": 61,
+          "comments": 22
+        },
+        "evidenceRole": "primary"
+      },
       {
         "id": "post-247ae1be5f8301739de022df",
         "platform": "x",
@@ -118,13 +146,13 @@
         "platform": "x",
         "account": "yousefhll",
         "postDate": "2026-07-21",
-        "excerpt": "Introducing Vendo (YC S26), the customization layer that lets your users build their own features and micro-apps on top of your product For 50 years, software has been shipped one way for everyone. That era is over. With Vendo, every user shapes your product into exactly what https://t.co/hHASxo0MIM",
+        "excerpt": "Introducing Vendo (YC S26), the customization layer that lets your users build their own features and micro-apps on top of your product For 50 years, software has been shipped one way for everyone. That era is over. With Vendo, every user shapes your product into exactly what",
         "url": "https://x.com/yousefhll/status/2079620440038002750",
         "metrics": {
-          "likes": 1146,
-          "reposts": 89,
+          "likes": 1148,
+          "reposts": 91,
           "replies": 182,
-          "views": 381054
+          "views": 383512
         },
         "evidenceRole": "primary"
       },
@@ -145,6 +173,6 @@
       }
     ]
   },
-  "generatedAt": "2026-08-14T12:40:37.528Z",
-  "lastModifiedAt": "2026-08-14T12:40:37.528Z"
+  "generatedAt": "2026-08-24T14:39:14.351Z",
+  "lastModifiedAt": "2026-08-24T14:39:14.351Z"
 }

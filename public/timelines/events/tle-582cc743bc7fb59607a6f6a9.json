@@ -82,7 +82,7 @@
           "likes": 11,
           "reposts": 1,
           "replies": 2,
-          "views": 1057
+          "views": 1067
         },
         "evidenceRole": "primary"
       },
@@ -94,7 +94,7 @@
         "excerpt": "Embedded in the official BentoLabs AI YC company page.",
         "url": "https://youtube.com/watch?v=nu6Oir3OGSM",
         "metrics": {
-          "views": 194,
+          "views": 199,
           "likes": 5,
           "comments": 0
         },
@@ -102,6 +102,6 @@
       }
     ]
   },
-  "generatedAt": "2026-08-14T12:40:37.528Z",
-  "lastModifiedAt": "2026-08-14T12:40:37.528Z"
+  "generatedAt": "2026-08-24T14:39:14.351Z",
+  "lastModifiedAt": "2026-08-24T14:39:14.351Z"
 }

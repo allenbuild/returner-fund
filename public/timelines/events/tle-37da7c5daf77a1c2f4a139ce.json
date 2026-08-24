@@ -1,0 +1,67 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-touchy",
+    "slug": "touchy",
+    "name": "Touchy"
+  },
+  "event": {
+    "id": "tle-37da7c5daf77a1c2f4a139ce",
+    "eventDate": "2026-08-20",
+    "eventDateType": "announcement_date",
+    "title": "Touchy released Touchy YC Launch",
+    "summary": "Touchy YC Launch.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-8aa673ffed70b2dc23858e0a",
+        "title": "Touchy YC Launch",
+        "publisher": "Touchy YC Launch",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-08-20T09:59:04-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=IJNucvAZ_-k"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-8aa673ffed70b2dc23858e0a",
+        "title": "Touchy YC Launch",
+        "publisher": "Touchy YC Launch",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-08-20T09:59:04-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=IJNucvAZ_-k",
+        "publicationDate": "2026-08-20T09:59:04-07:00",
+        "excerpt": "Use Touchy (YC S26) to use all your apps, without getting distracted! #aivoice #car #chatgpt https://touchyapp.com",
+        "sourceEventDate": "2026-08-20",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-8ddc1eb217c94dd1c553dfd3",
+        "platform": "youtube",
+        "account": "Touchy YC Launch",
+        "postDate": "2026-08-20",
+        "excerpt": "Use Touchy (YC S26) to use all your apps, without getting distracted! #aivoice #car #chatgpt https://touchyapp.com",
+        "url": "https://youtube.com/watch?v=IJNucvAZ_-k",
+        "metrics": {
+          "views": 222,
+          "likes": 1,
+          "comments": 0
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-24T14:39:14.351Z",
+  "lastModifiedAt": "2026-08-24T14:39:14.351Z"
+}

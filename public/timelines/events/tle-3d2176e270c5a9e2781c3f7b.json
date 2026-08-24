@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-testerarmy",
+    "slug": "testerarmy",
+    "name": "TesterArmy"
+  },
+  "event": {
+    "id": "tle-3d2176e270c5a9e2781c3f7b",
+    "eventDate": "2026-08-20",
+    "eventDateType": "announcement_date",
+    "title": "TesterArmy released Issues tab in ✨ → quick glance at everything the agent reported",
+    "summary": "TesterArmy introduced Issues tab in @TesterArmy ✨ → quick glance at everything the agent reported with evidence → copy a prompt to fix the issue → one-click integration with @linear ✨ try it for free at.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-9a92df442732f32ef1173a58",
+        "title": "Introducing Issues tab in @TesterArmy ✨ → quick glance at everything the agent reported with evidence → copy a prompt to fix the issue → one-click integration with @linear ✨ try it for free at https://t.co/po6SPZhqbp",
+        "publisher": "o_kwasniewski",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-08-20T15:51:34.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/o_kwasniewski/status/2090466781991145911"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-9a92df442732f32ef1173a58",
+        "title": "Introducing Issues tab in @TesterArmy ✨ → quick glance at everything the agent reported with evidence → copy a prompt to fix the issue → one-click integration with @linear ✨ try it for free at https://t.co/po6SPZhqbp",
+        "publisher": "o_kwasniewski",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-08-20T15:51:34.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/o_kwasniewski/status/2090466781991145911",
+        "publicationDate": "2026-08-20T15:51:34.000Z",
+        "excerpt": "Introducing Issues tab in @TesterArmy ✨ → quick glance at everything the agent reported with evidence → copy a prompt to fix the issue → one-click integration with @linear ✨ try it for free at https://t.co/po6SPZhqbp",
+        "sourceEventDate": "2026-08-20",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-32bf4f2be1059dd0e755d570",
+        "platform": "x",
+        "account": "o_kwasniewski",
+        "postDate": "2026-08-20",
+        "excerpt": "Introducing Issues tab in @TesterArmy ✨ → quick glance at everything the agent reported with evidence → copy a prompt to fix the issue → one-click integration with @linear ✨ try it for free at https://t.co/po6SPZhqbp",
+        "url": "https://x.com/o_kwasniewski/status/2090466781991145911",
+        "metrics": {
+          "likes": 21,
+          "reposts": 2,
+          "replies": 1,
+          "views": 1204
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-24T14:39:14.351Z",
+  "lastModifiedAt": "2026-08-24T14:39:14.351Z"
+}

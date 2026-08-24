@@ -5,21 +5,31 @@
     "slug": "prodigy-research",
     "name": "Prodigy Research"
   },
-  "generatedAt": "2026-08-14T12:40:37.528Z",
-  "lastModifiedAt": "2026-08-14T12:40:37.528Z",
+  "generatedAt": "2026-08-24T14:39:14.351Z",
+  "lastModifiedAt": "2026-08-24T14:39:14.351Z",
   "events": [
     {
-      "id": "tle-3c2c984a6680e57446edc9f8",
-      "eventDate": "2026-08-09",
+      "id": "tle-de70f461686de1efb669882d",
+      "eventDate": "2026-08-18",
       "eventDateType": "announcement_date",
       "title": "Prodigy Research announced its public launch",
       "summary": "Prodigy Research announced its public launch in a dated company video.",
       "category": "product_launch",
-      "isMajor": false,
+      "isMajor": true,
       "hasConflict": false,
       "conflictSummary": null,
-      "evidenceCount": 1,
+      "evidenceCount": 3,
       "sourcePreview": [
+        {
+          "id": "src-67f96a317dccc034b9930ec7",
+          "title": "Prodigy Research (YC S26) Launch Video",
+          "publisher": "Prodigy Research (YC S26) Launch Video",
+          "domain": "youtube.com",
+          "sourceType": "video",
+          "publishedAt": "2026-08-17T21:03:54-07:00",
+          "evidenceRole": "primary",
+          "url": "https://youtube.com/watch?v=AIuyNd5hKZ4"
+        },
         {
           "id": "src-cc78474b8133a9f16dd6fdf6",
           "title": "Prodigy Research (YC S26) Launch Video",
@@ -29,6 +39,16 @@
           "publishedAt": "2026-08-09T16:38:48-07:00",
           "evidenceRole": "primary",
           "url": "https://youtube.com/watch?v=FYJFUXyLu90"
+        },
+        {
+          "id": "src-48d2d50fd1478206c86d08a2",
+          "title": "Prodigy Research (YC S26) Launch Video",
+          "publisher": "Prodigy Research (YC S26) Launch Video",
+          "domain": "youtube.com",
+          "sourceType": "video",
+          "publishedAt": "2026-08-22T16:59:44-07:00",
+          "evidenceRole": "primary",
+          "url": "https://youtube.com/watch?v=wkT96INB3RA"
         }
       ]
     }
@@ -47,7 +67,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-08-14T12:40:37.528Z"
+    "lastSuccessfulArtifactAt": "2026-08-24T14:39:14.351Z"
   },
   "nextCursor": null
 }

@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-touchy",
+    "slug": "touchy",
+    "name": "Touchy"
+  },
+  "event": {
+    "id": "tle-7bfd57770e65350f2ad8603a",
+    "eventDate": "2026-08-11",
+    "eventDateType": "announcement_date",
+    "title": "Touchy announced its public launch",
+    "summary": "Touchy introduced Touchy 🙌.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-2c50ff75e87595a76a5081b5",
+        "title": "Introducing Touchy 🙌! I built Touchy for me more than anything, but I hope you like it too :) Touchy isn't just another voice assistant, it's a preview of what we think personal AI will look like in the future - smart, unobtrusive, and…",
+        "publisher": "kevzwang",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-08-11T17:11:32.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/kevzwang/status/2087225415408779491"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-2c50ff75e87595a76a5081b5",
+        "title": "Introducing Touchy 🙌! I built Touchy for me more than anything, but I hope you like it too :) Touchy isn't just another voice assistant, it's a preview of what we think personal AI will look like in the future - smart, unobtrusive, and…",
+        "publisher": "kevzwang",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-08-11T17:11:32.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/kevzwang/status/2087225415408779491",
+        "publicationDate": "2026-08-11T17:11:32.000Z",
+        "excerpt": "Introducing Touchy 🙌! I built Touchy for me more than anything, but I hope you like it too :) Touchy isn't just another voice assistant, it's a preview of what we think personal AI will look like in the future - smart, unobtrusive, and interacts with the world around you.",
+        "sourceEventDate": "2026-08-11",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-8f5b35d479bf6203317c8e11",
+        "platform": "x",
+        "account": "kevzwang",
+        "postDate": "2026-08-11",
+        "excerpt": "Introducing Touchy 🙌! I built Touchy for me more than anything, but I hope you like it too :) Touchy isn't just another voice assistant, it's a preview of what we think personal AI will look like in the future - smart, unobtrusive, and interacts with the world around you.",
+        "url": "https://x.com/kevzwang/status/2087225415408779491",
+        "metrics": {
+          "likes": 3,
+          "reposts": 0,
+          "replies": 0,
+          "views": 130
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-24T14:39:14.351Z",
+  "lastModifiedAt": "2026-08-24T14:39:14.351Z"
+}

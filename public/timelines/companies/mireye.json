@@ -5,8 +5,8 @@
     "slug": "mireye",
     "name": "Mireye"
   },
-  "generatedAt": "2026-08-14T12:40:37.528Z",
-  "lastModifiedAt": "2026-08-14T12:40:37.528Z",
+  "generatedAt": "2026-08-24T14:39:14.351Z",
+  "lastModifiedAt": "2026-08-24T14:39:14.351Z",
   "events": [
     {
       "id": "tle-a9f13d6818d2ed165a6de13d",
@@ -46,7 +46,7 @@
       "sourcePreview": [
         {
           "id": "src-ae133c5ede36019f81b4845a",
-          "title": "Today we are launching @mireyehq with @ycombinator The easiest way to build agentic applications for the physical world. AI agents are starting to act in the real world, but they can't reliably understand it. Mireye is one API and MCP t...",
+          "title": "Today we are launching @mireyehq with @ycombinator The easiest way to build agentic applications for the physical world.",
           "publisher": "ansh_chokshi",
           "domain": "x.com",
           "sourceType": "founder_post",
@@ -71,7 +71,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 2,
-    "lastSuccessfulArtifactAt": "2026-08-14T12:40:37.528Z"
+    "lastSuccessfulArtifactAt": "2026-08-24T14:39:14.351Z"
   },
   "nextCursor": null
 }

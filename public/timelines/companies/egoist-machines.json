@@ -5,9 +5,57 @@
     "slug": "egoist-machines",
     "name": "Egoist Machines"
   },
-  "generatedAt": "2026-08-14T12:40:37.528Z",
-  "lastModifiedAt": "2026-08-14T12:40:37.528Z",
+  "generatedAt": "2026-08-24T14:39:14.351Z",
+  "lastModifiedAt": "2026-08-24T14:39:14.351Z",
   "events": [
+    {
+      "id": "tle-2e43761086e2c8612b603229",
+      "eventDate": "2026-08-18",
+      "eventDateType": "announcement_date",
+      "title": "Egoist Machines released AI Passport ( S26) - web 4",
+      "summary": "Egoist Machines announced it was launching AI Passport (@ycombinator S26) - web 4.0 is private, hyper-personalized, and runs on us.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-1e550b5ddcc017bbc9a5d623",
+          "title": "today we're launching AI Passport (@ycombinator S26) - web 4.0 is private, hyper-personalized, and runs on us.",
+          "publisher": "egoistmachines",
+          "domain": "x.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-08-18T15:46:02.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/egoistmachines/status/2089740614514733145"
+        }
+      ]
+    },
+    {
+      "id": "tle-d79abc8d97ea3cab4d6bfac9",
+      "eventDate": "2026-08-17",
+      "eventDateType": "announcement_date",
+      "title": "Egoist Machines released Egoist Machines Founder Launch",
+      "summary": "Egoist Machines Founder Launch.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-a241817eec1cef66e306d0ee",
+          "title": "Egoist Machines Founder Launch",
+          "publisher": "Egoist Machines Founder Launch",
+          "domain": "youtube.com",
+          "sourceType": "video",
+          "publishedAt": "2026-08-16T21:59:14-07:00",
+          "evidenceRole": "primary",
+          "url": "https://youtube.com/watch?v=nLnZNjyHV0s"
+        }
+      ]
+    },
     {
       "id": "tle-10c6e4463ffbef0f2d204004",
       "eventDate": "2026-07-09",
@@ -32,7 +80,7 @@
         },
         {
           "id": "src-1c020ecc4375634042e53fee",
-          "title": "we're launching the waitlist for EGOIST AI passport control what AI apps know about you let your apps talk to each other, yes even Claude and ChatGPT private by default; free for life https://t.co/5JRrHHaTF4 https://t.co/D2QsVEZ1r0",
+          "title": "we're launching the waitlist for EGOIST AI passport control what AI apps know about you let your apps talk to each other, yes even Claude and ChatGPT private by default; free for life https://t.co/5JRrHHaTF4",
           "publisher": "egoistmachines",
           "domain": "x.com",
           "sourceType": "company_post",
@@ -72,6 +120,10 @@
       "year": 2026,
       "months": [
         {
+          "month": "2026-08",
+          "count": 2
+        },
+        {
           "month": "2026-07",
           "count": 1
         },
@@ -84,8 +136,8 @@
   ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 2,
-    "lastSuccessfulArtifactAt": "2026-08-14T12:40:37.528Z"
+    "publishedEventCount": 4,
+    "lastSuccessfulArtifactAt": "2026-08-24T14:39:14.351Z"
   },
   "nextCursor": null
 }

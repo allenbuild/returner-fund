@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-screenpipe",
+    "slug": "screenpipe",
+    "name": "screenpipe"
+  },
+  "event": {
+    "id": "tle-7669989c0f7c9944127b628f",
+    "eventDate": "2026-08-19",
+    "eventDateType": "announcement_date",
+    "title": "screenpipe announced a product update",
+    "summary": "Screenpipe now supports @cursor_ai, codex, claude code, github copilot, pi as harness Power your agents by your agents by your computer history, any model, portable to all your devices and your company.",
+    "category": "product_update",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-556aa0b4079d6199a5f3abe0",
+        "title": "Screenpipe now supports @cursor_ai, codex, claude code, github copilot, pi as harness Power your agents by your agents by your computer history, any model, portable to all your devices and your company",
+        "publisher": "screenpipe",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-08-19T15:56:42.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/screenpipe/status/2090105685845717384"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-556aa0b4079d6199a5f3abe0",
+        "title": "Screenpipe now supports @cursor_ai, codex, claude code, github copilot, pi as harness Power your agents by your agents by your computer history, any model, portable to all your devices and your company",
+        "publisher": "screenpipe",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-08-19T15:56:42.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/screenpipe/status/2090105685845717384",
+        "publicationDate": "2026-08-19T15:56:42.000Z",
+        "excerpt": "Screenpipe now supports @cursor_ai, codex, claude code, github copilot, pi as harness Power your agents by your agents by your computer history, any model, portable to all your devices and your company",
+        "sourceEventDate": "2026-08-19",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-0c7d5325fd7b333f07341214",
+        "platform": "x",
+        "account": "screenpipe",
+        "postDate": "2026-08-19",
+        "excerpt": "Screenpipe now supports @cursor_ai, codex, claude code, github copilot, pi as harness Power your agents by your agents by your computer history, any model, portable to all your devices and your company",
+        "url": "https://x.com/screenpipe/status/2090105685845717384",
+        "metrics": {
+          "likes": 13,
+          "reposts": 1,
+          "replies": 0,
+          "views": 481
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-24T14:39:14.351Z",
+  "lastModifiedAt": "2026-08-24T14:39:14.351Z"
+}

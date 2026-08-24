@@ -49,7 +49,7 @@
         "evidenceRole": "primary",
         "url": "https://x.com/river_markets/status/2087179350470963533",
         "publicationDate": "2026-08-11T14:08:29.000Z",
-        "excerpt": "Today, River Markets announced an $8.5M seed round led by @HaunVentures . We’re building the prime broker for prediction markets, giving professional trading firms unified execution and risk across venues. Blog post : https://t.co/EvjqAYk2oM https://t.co/2muPOkYyqO",
+        "excerpt": "Today, River Markets announced an $8.5M seed round led by @HaunVentures . We’re building the prime broker for prediction markets, giving professional trading firms unified execution and risk across venues. Blog post : https://t.co/EvjqAYk2oM",
         "sourceEventDate": "2026-08-11",
         "isConflicting": false,
         "conflictDescription": null
@@ -76,13 +76,13 @@
         "platform": "x",
         "account": "river_markets",
         "postDate": "2026-08-11",
-        "excerpt": "Today, River Markets announced an $8.5M seed round led by @HaunVentures . We’re building the prime broker for prediction markets, giving professional trading firms unified execution and risk across venues. Blog post : https://t.co/EvjqAYk2oM https://t.co/2muPOkYyqO",
+        "excerpt": "Today, River Markets announced an $8.5M seed round led by @HaunVentures . We’re building the prime broker for prediction markets, giving professional trading firms unified execution and risk across venues. Blog post : https://t.co/EvjqAYk2oM",
         "url": "https://x.com/river_markets/status/2087179350470963533",
         "metrics": {
-          "likes": 258,
-          "reposts": 25,
+          "likes": 268,
+          "reposts": 26,
           "replies": 46,
-          "views": 75389
+          "views": 81116
         },
         "evidenceRole": "primary"
       },
@@ -94,15 +94,15 @@
         "excerpt": "Today, River Markets announced an $8.5M seed round led by @HaunVentures We’re building the prime broker for prediction markets, giving professional trading firms unified execution and risk across venues. Thanks to @FortuneMagazine and @c_grigera for covering what we're",
         "url": "https://x.com/river_markets/status/2087233874678202697",
         "metrics": {
-          "likes": 108,
+          "likes": 122,
           "reposts": 8,
-          "replies": 29,
-          "views": 16156
+          "replies": 34,
+          "views": 17857
         },
         "evidenceRole": "primary"
       }
     ]
   },
-  "generatedAt": "2026-08-14T12:40:37.528Z",
-  "lastModifiedAt": "2026-08-14T12:40:37.528Z"
+  "generatedAt": "2026-08-24T14:39:14.351Z",
+  "lastModifiedAt": "2026-08-24T14:39:14.351Z"
 }

@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-agnost-ai",
+    "slug": "agnost-ai",
+    "name": "Agnost AI"
+  },
+  "event": {
+    "id": "tle-1595112c2624390236423f6d",
+    "eventDate": "2026-08-14",
+    "eventDateType": "announcement_date",
+    "title": "Agnost AI released Agnost AI! ft",
+    "summary": "Agnost AI introduced Agnost AI.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-17cc2902277b58920a558411",
+        "title": "Introducing Agnost AI! ft.",
+        "publisher": "agnostai",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-08-14T19:46:11.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/agnostai/status/2088351496505266400"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-17cc2902277b58920a558411",
+        "title": "Introducing Agnost AI! ft.",
+        "publisher": "agnostai",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-08-14T19:46:11.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/agnostai/status/2088351496505266400",
+        "publicationDate": "2026-08-14T19:46:11.000Z",
+        "excerpt": "Introducing Agnost AI! ft. suits",
+        "sourceEventDate": "2026-08-14",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-a97ddeab4e0d166d3a553f6f",
+        "platform": "x",
+        "account": "agnostai",
+        "postDate": "2026-08-14",
+        "excerpt": "Introducing Agnost AI! ft. suits",
+        "url": "https://x.com/agnostai/status/2088351496505266400",
+        "metrics": {
+          "likes": 3,
+          "reposts": 0,
+          "replies": 0,
+          "views": 356
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-24T14:39:14.351Z",
+  "lastModifiedAt": "2026-08-24T14:39:14.351Z"
+}

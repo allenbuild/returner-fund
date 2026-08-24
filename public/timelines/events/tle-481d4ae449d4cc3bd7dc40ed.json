@@ -1,16 +1,16 @@
 {
   "schemaVersion": "company-timeline-event.v1",
   "company": {
-    "id": "company-coasty",
-    "slug": "coasty",
-    "name": "Coasty"
+    "id": "company-coarena",
+    "slug": "coarena",
+    "name": "CoArena"
   },
   "event": {
-    "id": "tle-6c0a1f7eab7cd5702b4fadcc",
-    "eventDate": "2026-07-15",
+    "id": "tle-481d4ae449d4cc3bd7dc40ed",
+    "eventDate": "2026-08-22",
     "eventDateType": "announcement_date",
-    "title": "Coasty launched on Hacker News",
-    "summary": "Launch HN: Coasty (YC S26) - An API for computer-use agents.",
+    "title": "CoArena announced its public launch",
+    "summary": "CoArena announced it was launching Coarena - The biggest crowdsourced benchmark for Computer-Use Computer-use benchmarks are saturating.",
     "category": "product_launch",
     "isMajor": true,
     "hasConflict": false,
@@ -18,14 +18,14 @@
     "evidenceCount": 2,
     "sourcePreview": [
       {
-        "id": "src-d31b1cd459e0939b0320101f",
-        "title": "Launch HN: Coasty (YC S26) - An API for computer-use agents",
-        "publisher": "nkov47",
-        "domain": "news.ycombinator.com",
+        "id": "src-b015aaa33a2c4cd3639b3866",
+        "title": "Today we are launching Coarena - The biggest crowdsourced benchmark for Computer-Use Computer-use benchmarks are saturating.",
+        "publisher": "coastyai",
+        "domain": "x.com",
         "sourceType": "company_post",
-        "publishedAt": "2026-07-15T15:51:20.000Z",
+        "publishedAt": "2026-08-22T20:06:53.000Z",
         "evidenceRole": "primary",
-        "url": "https://news.ycombinator.com/item?id=48922706"
+        "url": "https://x.com/coastyai/status/2091255809896497382"
       },
       {
         "id": "src-4ef8020baf90a8868541046b",
@@ -40,17 +40,17 @@
     ],
     "evidence": [
       {
-        "id": "src-d31b1cd459e0939b0320101f",
-        "title": "Launch HN: Coasty (YC S26) - An API for computer-use agents",
-        "publisher": "nkov47",
-        "domain": "news.ycombinator.com",
+        "id": "src-b015aaa33a2c4cd3639b3866",
+        "title": "Today we are launching Coarena - The biggest crowdsourced benchmark for Computer-Use Computer-use benchmarks are saturating.",
+        "publisher": "coastyai",
+        "domain": "x.com",
         "sourceType": "company_post",
-        "publishedAt": "2026-07-15T15:51:20.000Z",
+        "publishedAt": "2026-08-22T20:06:53.000Z",
         "evidenceRole": "primary",
-        "url": "https://news.ycombinator.com/item?id=48922706",
-        "publicationDate": "2026-07-15T15:51:20.000Z",
-        "excerpt": "Launch HN: Coasty (YC S26) - An API for computer-use agents",
-        "sourceEventDate": "2026-07-15",
+        "url": "https://x.com/coastyai/status/2091255809896497382",
+        "publicationDate": "2026-08-22T20:06:53.000Z",
+        "excerpt": "Today we are launching Coarena - The biggest crowdsourced benchmark for Computer-Use Computer-use benchmarks are saturating. Static suites get published once, leak into training data, and scores climb while capability doesn't. An arena can't saturate. On CoArena, every",
+        "sourceEventDate": "2026-08-22",
         "isConflicting": false,
         "conflictDescription": null
       },
@@ -65,23 +65,24 @@
         "url": "https://x.com/coastyai/status/2087797595456622860",
         "publicationDate": "2026-08-13T07:05:10.000Z",
         "excerpt": "Coarena is live on ProductHunt!! We want this to blow up so that we can give everyone the chance to use frontier models on computer use tasks for free!! Coarena by Coasty: The arena where agents battle on real-world work https://t.co/IhcTQoE3Ax",
-        "sourceEventDate": "2026-08-13",
+        "sourceEventDate": "2026-08-22",
         "isConflicting": false,
         "conflictDescription": null
       }
     ],
     "posts": [
       {
-        "id": "post-621588bc417dfe9bc5f864a7",
-        "platform": "hacker_news",
-        "account": "nkov47",
-        "postDate": "2026-07-15",
-        "excerpt": "Launch HN: Coasty (YC S26) - An API for computer-use agents",
-        "url": "https://news.ycombinator.com/item?id=48922706",
+        "id": "post-e7cf8add31fbec66a1b1da60",
+        "platform": "x",
+        "account": "coastyai",
+        "postDate": "2026-08-22",
+        "excerpt": "Today we are launching Coarena - The biggest crowdsourced benchmark for Computer-Use Computer-use benchmarks are saturating. Static suites get published once, leak into training data, and scores climb while capability doesn't. An arena can't saturate. On CoArena, every",
+        "url": "https://x.com/coastyai/status/2091255809896497382",
         "metrics": {
-          "points": 25,
-          "comments": 3,
-          "upvotes": 25
+          "likes": 73,
+          "reposts": 9,
+          "replies": 22,
+          "views": 8839
         },
         "evidenceRole": "primary"
       },
@@ -102,6 +103,6 @@
       }
     ]
   },
-  "generatedAt": "2026-08-14T12:40:37.528Z",
-  "lastModifiedAt": "2026-08-14T12:40:37.528Z"
+  "generatedAt": "2026-08-24T14:39:14.351Z",
+  "lastModifiedAt": "2026-08-24T14:39:14.351Z"
 }

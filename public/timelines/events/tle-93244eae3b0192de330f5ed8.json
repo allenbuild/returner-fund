@@ -19,7 +19,7 @@
     "sourcePreview": [
       {
         "id": "src-4bc8c01e336e111bfd49cc10",
-        "title": "Introducing Tsenta. Built for Careermaxxing. https://t.co/eaOosMuywY",
+        "title": "Introducing Tsenta. Built for Careermaxxing.",
         "publisher": "agnaysrivastava",
         "domain": "x.com",
         "sourceType": "founder_post",
@@ -31,7 +31,7 @@
     "evidence": [
       {
         "id": "src-4bc8c01e336e111bfd49cc10",
-        "title": "Introducing Tsenta. Built for Careermaxxing. https://t.co/eaOosMuywY",
+        "title": "Introducing Tsenta. Built for Careermaxxing.",
         "publisher": "agnaysrivastava",
         "domain": "x.com",
         "sourceType": "founder_post",
@@ -39,7 +39,7 @@
         "evidenceRole": "primary",
         "url": "https://x.com/agnaysrivastava/status/2078680968366628924",
         "publicationDate": "2026-07-19T03:18:57.000Z",
-        "excerpt": "Introducing Tsenta. Built for Careermaxxing. https://t.co/eaOosMuywY",
+        "excerpt": "Introducing Tsenta. Built for Careermaxxing.",
         "sourceEventDate": "2026-07-19",
         "isConflicting": false,
         "conflictDescription": null
@@ -47,22 +47,22 @@
     ],
     "posts": [
       {
-        "id": "post-7ebedc8e445a65f632a6fd63",
+        "id": "post-2c6c4eb2e8ec70ea5aa50c1d",
         "platform": "x",
         "account": "agnaysrivastava",
         "postDate": "2026-07-19",
-        "excerpt": "Introducing Tsenta. Built for Careermaxxing. https://t.co/eaOosMuywY",
+        "excerpt": "Introducing Tsenta. Built for Careermaxxing.",
         "url": "https://x.com/agnaysrivastava/status/2078680968366628924",
         "metrics": {
-          "likes": 35,
+          "likes": 37,
           "reposts": 5,
           "replies": 7,
-          "views": 2661
+          "views": 2721
         },
         "evidenceRole": "primary"
       }
     ]
   },
-  "generatedAt": "2026-08-14T12:40:37.528Z",
-  "lastModifiedAt": "2026-08-14T12:40:37.528Z"
+  "generatedAt": "2026-08-24T14:39:14.351Z",
+  "lastModifiedAt": "2026-08-24T14:39:14.351Z"
 }

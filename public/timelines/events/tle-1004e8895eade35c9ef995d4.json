@@ -1,0 +1,66 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-speko",
+    "slug": "speko",
+    "name": "Speko"
+  },
+  "event": {
+    "id": "tle-1004e8895eade35c9ef995d4",
+    "eventDate": "2026-08-17",
+    "eventDateType": "announcement_date",
+    "title": "Speko launched on Hacker News",
+    "summary": "Launch HN: Speko (YC S26) – OpenRouter for Voice AI.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-3d4e4fd79cddb69878f413c1",
+        "title": "Launch HN: Speko (YC S26) – OpenRouter for Voice AI",
+        "publisher": "Launch HN: Speko (YC S26) – OpenRouter for Voice AI",
+        "domain": "news.ycombinator.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-08-17T15:36:18Z",
+        "evidenceRole": "primary",
+        "url": "https://news.ycombinator.com/item?id=49332751"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-3d4e4fd79cddb69878f413c1",
+        "title": "Launch HN: Speko (YC S26) – OpenRouter for Voice AI",
+        "publisher": "Launch HN: Speko (YC S26) – OpenRouter for Voice AI",
+        "domain": "news.ycombinator.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-08-17T15:36:18Z",
+        "evidenceRole": "primary",
+        "url": "https://news.ycombinator.com/item?id=49332751",
+        "publicationDate": "2026-08-17T15:36:18Z",
+        "excerpt": "Launch HN: Speko (YC S26) – OpenRouter for Voice AI",
+        "sourceEventDate": "2026-08-17",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-f46ab05984a49323e3b8d2d3",
+        "platform": "hacker_news",
+        "account": "Launch HN: Speko (YC S26) – OpenRouter for Voice AI",
+        "postDate": "2026-08-17",
+        "excerpt": "Launch HN: Speko (YC S26) – OpenRouter for Voice AI",
+        "url": "https://news.ycombinator.com/item?id=49332751",
+        "metrics": {
+          "upvotes": 118,
+          "comments": 69
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-24T14:39:14.351Z",
+  "lastModifiedAt": "2026-08-24T14:39:14.351Z"
+}

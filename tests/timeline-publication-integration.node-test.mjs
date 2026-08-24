@@ -49,20 +49,27 @@ test("autonomous publication rebuilds timelines after graph publication and stag
   assert.match(plan, /timelineBackfillMs:\s*4 \* MINUTE_MS/);
 });
 
-test("an exact missing Timeline coverage migration preserves validated last-good Timeline artifacts without blocking graphs", () => {
+test("an exact missing Timeline coverage migration triggers a canonical file-backed rebuild", () => {
   const publication = runner.slice(
     runner.indexOf("async function buildAndValidatePublication"),
     runner.indexOf("async function synchronizePublicationBase"),
   );
   const benchmarks = publication.indexOf('sourcePath("scripts", "update-daily-benchmarks.mjs")');
-  const preserve = publication.indexOf("preserveLastGoodTimelineArtifacts()");
+  const fallback = publication.indexOf("const coverageMigrationUnavailable");
+  const backfill = publication.indexOf('label: "company timeline backfill"');
   const validation = publication.indexOf('sourcePath("scripts", "validate-timeline-artifacts.mjs")');
   const manifest = publication.indexOf('sourcePath("scripts", "write-artifact-manifest.mjs")');
 
-  assert.ok(benchmarks >= 0 && preserve > benchmarks && validation > preserve && manifest > validation);
+  assert.ok(
+    benchmarks >= 0 && fallback > benchmarks && backfill > fallback
+    && validation > backfill && manifest > validation
+  );
   assert.match(publication, /timeline_source_coverage_unavailable/);
-  assert.match(publication, /if \(!preserveLastGoodTimeline\)/);
-  assert.match(publication, /timeline\.artifacts\.preserved/);
+  assert.match(publication, /const timelineUsesDatabase = durableStorageConfigured && !coverageMigrationUnavailable/);
+  assert.match(publication, /timeline\.artifacts\.file_backed_fallback/);
+  assert.match(publication, /TIMELINE_REQUIRE_DATABASE:\s*"false"/);
+  assert.match(publication, /mode: timelineUsesDatabase \? "database_backed" : "file_backed"/);
+  assert.doesNotMatch(runner, /preserveLastGoodTimelineArtifacts|timeline\.artifacts\.preserved/);
 });
 
 test("autonomous publication has a bounded database-free public discovery lane", () => {
@@ -85,7 +92,7 @@ test("autonomous publication consumes only Timeline invalidations claimed before
   const claimIndex = publicationFlow.indexOf("claimTimelineArtifactInvalidationsForBuild()");
   const buildIndex = publicationFlow.indexOf("buildAndValidatePublication(publicationRunId, catalogState)");
   const publishIndex = publicationFlow.indexOf("publishRepositoryArtifacts(publicationRunId, publicationInputs)");
-  const completeIndex = publicationFlow.indexOf("completePublishedTimelineInvalidations(publicationReceipt, timelineInvalidationClaim)");
+  const completeIndex = publicationFlow.indexOf("completePublishedTimelineInvalidations(");
   assert.ok(claimIndex >= 0 && buildIndex > claimIndex && publishIndex > buildIndex && completeIndex > publishIndex);
 
   const claim = runner.slice(
@@ -103,6 +110,7 @@ test("autonomous publication consumes only Timeline invalidations claimed before
   assert.match(complete, /\.eq\("status", "processing"\)/);
   assert.match(complete, /\.in\("id", invalidationClaim\.ids\)/);
   assert.doesNotMatch(complete, /\.in\("status"/);
+  assert.match(complete, /timelineBuildReceipt\?\.mode !== "database_backed"/);
 });
 
 test("durable Timeline publication is bounded, source-complete, and database-aware", () => {
