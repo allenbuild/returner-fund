@@ -136,8 +136,12 @@ describe("logged-in social batch selection", () => {
       expect(logged.companyCount).toBeGreaterThanOrEqual(167);
       expect(logged.companyCount).toBe(publicPlan.companyCount);
       expect(logged.founderCount).toBe(publicPlan.founderCount);
-      expect(logged.coverage).toHaveLength((logged.companyCount + logged.founderCount) * 3);
-      expect(publicPlan.socialCoverage).toHaveLength(
+      expect(new Set(logged.coverage.map((row) =>
+        `${row.entityId}:${row.platform}`
+      )).size).toBe((logged.companyCount + logged.founderCount) * 3);
+      expect(new Set(publicPlan.socialCoverage.map((row) =>
+        `${row.entityId}:${row.platform}`
+      )).size).toBe(
         (publicPlan.companyCount + publicPlan.founderCount) * 9
       );
       targetCount = publicPlan.socialTargets.length;
