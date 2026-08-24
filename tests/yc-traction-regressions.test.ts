@@ -703,16 +703,21 @@ describe("YC traction scoring regressions", () => {
     expectGraphEvidence(graph.evidence, "https://github.com/SpekoAI/typescript-sdk", "Speko", "github");
   });
 
-  it("does not score GitHub profile aggregates when repo-level evidence exists", () => {
+  it("does not synthesize GitHub profile aggregates when repo-level evidence exists", () => {
     const graph = buildGraphResponse({ batchSlug: "S26" }, ycSpring2026GraphDataset);
     const conifer = graph.nodes.find((node) => node.entityType === "company" && node.label === "Conifer");
     const selectedEvidence = selectedNodeEvidence(graph, conifer!);
-    const profileAggregate = selectedEvidence.find((item) => item.id === "evidence-github-profile-company-conifer");
+    const profileAggregates = selectedEvidence.filter(
+      (item) =>
+        item.platform === "github" &&
+        canonicalSourceIdentity(item.sourceUrl) ===
+          canonicalSourceIdentity("https://github.com/ConiferKit")
+    );
     const repoEvidence = selectedEvidence.filter(
       (item) => item.platform === "github" && item.sourceUrl === "https://github.com/ConiferKit/sage"
     );
 
-    expect(profileAggregate?.contributionScore ?? 0).toBe(0);
+    expect(profileAggregates).toEqual([]);
     expect(repoEvidence.some((item) => item.contributionScore > 0)).toBe(true);
   });
 
