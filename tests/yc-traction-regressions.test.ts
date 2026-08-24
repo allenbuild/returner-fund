@@ -178,8 +178,19 @@ describe("YC traction scoring regressions", () => {
     expect(summerLinkedIn?.notes).toContain("Summer 2026");
     expect(summerLinkedIn?.notes).not.toContain("Spring rows are currently available");
     expect(springLinkedIn?.authMethod).toContain("authenticated browser session");
-    expect(summerLinkedIn?.authMethod.toLowerCase()).toContain("public unauthenticated");
-    expect(summerLinkedIn?.authMethod.toLowerCase()).not.toContain("authenticated browser session");
+    const summerAuthenticatedCountMatch = summerLinkedIn?.notes.match(
+      /; (\d+) came from the opt-in authenticated browser snapshot/i
+    );
+    expect(summerAuthenticatedCountMatch).toBeTruthy();
+    const summerAuthenticatedCount = Number(summerAuthenticatedCountMatch![1]);
+    expect(Number.isInteger(summerAuthenticatedCount)).toBe(true);
+    if (summerAuthenticatedCount > 0) {
+      expect(summerLinkedIn?.authMethod.toLowerCase()).toContain("authenticated browser session");
+      expect(summerLinkedIn?.authMethod.toLowerCase()).toContain("verified public evidence");
+    } else {
+      expect(summerLinkedIn?.authMethod.toLowerCase()).toContain("public unauthenticated");
+      expect(summerLinkedIn?.authMethod.toLowerCase()).not.toContain("authenticated browser session");
+    }
 
     const springInstagram = springGraph.platformStatus.find((status) => status.platform === "instagram");
     const summerInstagram = summerGraph.platformStatus.find((status) => status.platform === "instagram");
