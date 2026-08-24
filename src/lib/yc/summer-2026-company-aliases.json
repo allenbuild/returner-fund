@@ -234,6 +234,85 @@
           }
         }
       ]
+    },
+    {
+      "companyId": "33738",
+      "fromSlug": "coasty",
+      "fromName": "Coasty",
+      "toSlug": "coarena",
+      "toName": "CoArena",
+      "companyAccounts": {
+        "github": [
+          "https://github.com/coasty-ai/open-cowork"
+        ],
+        "linkedin": [
+          "https://www.linkedin.com/company/coastyai"
+        ],
+        "x": [
+          "https://x.com/coastyai"
+        ]
+      },
+      "founders": [
+        {
+          "founderId": "1194042",
+          "name": "Prateek Jannu",
+          "accounts": {
+            "linkedin": [
+              "https://linkedin.com/in/prateekjannu"
+            ],
+            "x": [
+              "https://x.com/prateekjannu"
+            ]
+          }
+        },
+        {
+          "founderId": "2457255",
+          "name": "Nitish Kovuru",
+          "accounts": {
+            "linkedin": [
+              "https://www.linkedin.com/in/nitish-kovuru-2423351b4"
+            ],
+            "x": [
+              "https://x.com/llmhubdev"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "companyId": "33969",
+      "fromSlug": "gini",
+      "fromName": "Gini",
+      "toSlug": "opentag",
+      "toName": "OpenTag",
+      "companyAccounts": {
+        "linkedin": [
+          "https://www.linkedin.com/company/gini-agent/"
+        ]
+      },
+      "founders": [
+        {
+          "founderId": "802295",
+          "name": "Tony Kam",
+          "accounts": {
+            "linkedin": [
+              "https://linkedin.com/in/tonyshekkam"
+            ],
+            "x": [
+              "https://twitter.com/kamikariat"
+            ]
+          }
+        },
+        {
+          "founderId": "1378729",
+          "name": "Shelden Shi",
+          "accounts": {
+            "linkedin": [
+              "https://linkedin.com/in/sheldenshi"
+            ]
+          }
+        }
+      ]
     }
   ],
   "founderTransitions": [
@@ -641,6 +720,78 @@
         ],
         "x": [
           "https://x.com/aahil__val"
+        ]
+      }
+    },
+    {
+      "companyId": "33936",
+      "companySlug": "conifer",
+      "companyName": "Conifer",
+      "founderId": "3606209",
+      "change": "removed",
+      "fromName": "Yavuz Inan",
+      "toName": null,
+      "accounts": {
+        "linkedin": [
+          "https://www.linkedin.com/in/yavuz-selim-inan/"
+        ]
+      }
+    },
+    {
+      "companyId": "32190",
+      "companySlug": "instaplay",
+      "companyName": "Instaplay",
+      "founderId": "2530050",
+      "change": "added",
+      "fromName": null,
+      "toName": "Frank Liu",
+      "accounts": {
+        "linkedin": [
+          "https://www.linkedin.com/in/frvnk/"
+        ]
+      }
+    },
+    {
+      "companyId": "32137",
+      "companySlug": "kara",
+      "companyName": "Kara",
+      "founderId": "2359113",
+      "change": "removed",
+      "fromName": "Arjun Lakhanpal",
+      "toName": null,
+      "accounts": {
+        "linkedin": [
+          "https://www.linkedin.com/in/arjun-lak/"
+        ],
+        "x": [
+          "https://x.com/lakhanpal_57923"
+        ]
+      }
+    },
+    {
+      "companyId": "32261",
+      "companySlug": "rasyn",
+      "companyName": "Rasyn",
+      "founderId": "3475945",
+      "change": "added",
+      "fromName": null,
+      "toName": "Ansh Tiwari",
+      "accounts": {}
+    },
+    {
+      "companyId": "33319",
+      "companySlug": "vernius-systems-inc",
+      "companyName": "Vernius Systems, Inc.",
+      "founderId": "366617",
+      "change": "added",
+      "fromName": null,
+      "toName": "Arthur Nguyen-cao",
+      "accounts": {
+        "linkedin": [
+          "https://www.linkedin.com/in/arthur-nguyen-cao-690847146/"
+        ],
+        "x": [
+          "https://x.com/Arthur_NC_"
         ]
       }
     }

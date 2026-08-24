@@ -1,7 +1,7 @@
 {
   "source": {
     "schemaVersion": 1,
-    "generatedFromFetchedAt": "2026-08-21T02:30:42.814Z",
+    "generatedFromFetchedAt": "2026-08-24T14:36:55.379Z",
     "publicationPolicy": "stored_but_unpublished",
     "scoringEligible": false,
     "reason": "Rows absent from a fully authoritative whole-cohort GitHub receipt are retained only for audit and manual attribution review; they are not scoring inputs.",
@@ -2816,28 +2816,56 @@
       "batchSlug": "S2026",
       "category": "legacy_repository_projection_absent_from_authoritative_targets",
       "reason": "The prior repository-specific projection is absent from the complete authenticated target receipt. Preserve it for audit only until its entity attribution is manually re-verified.",
-      "currentCanonicality": "absent_from_current_canonical_receipt",
+      "currentCanonicality": "physical_object_present_but_legacy_account_row_not_canonical",
       "physicalRepresentation": {
         "kind": "repository",
         "canonicalUrl": "https://github.com/smol-machines/smol",
         "repositoryId": "1283959364",
-        "status": "not_represented_in_current_canonical_receipt",
-        "matchedBy": [],
-        "canonicalMatches": [],
+        "status": "represented_in_current_canonical_receipt",
+        "matchedBy": [
+          "repository_id",
+          "canonical_url"
+        ],
+        "canonicalMatches": [
+          {
+            "entityType": "company",
+            "entityId": "company-smol-machines",
+            "entityName": "smol machines",
+            "accountKey": "company:company-smol-machines:smol-machines:",
+            "location": "repository",
+            "accountUrl": "https://github.com/smol-machines",
+            "repositoryId": "1283959364",
+            "repositoryUrl": "https://github.com/smol-machines/smol"
+          }
+        ],
         "repositories": [
           {
             "kind": "repository",
             "canonicalUrl": "https://github.com/smol-machines/smol",
             "repositoryId": "1283959364",
-            "status": "not_represented_in_current_canonical_receipt",
-            "matchedBy": [],
-            "canonicalMatches": []
+            "status": "represented_in_current_canonical_receipt",
+            "matchedBy": [
+              "repository_id",
+              "canonical_url"
+            ],
+            "canonicalMatches": [
+              {
+                "entityType": "company",
+                "entityId": "company-smol-machines",
+                "entityName": "smol machines",
+                "accountKey": "company:company-smol-machines:smol-machines:",
+                "location": "repository",
+                "accountUrl": "https://github.com/smol-machines",
+                "repositoryId": "1283959364",
+                "repositoryUrl": "https://github.com/smol-machines/smol"
+              }
+            ]
           }
         ]
       },
       "ownerAttributionReview": {
-        "status": "queued_missing_physical_representation",
-        "reason": "The physical GitHub object is absent from the authoritative receipt and requires manual verification before any future publication.",
+        "status": "required",
+        "reason": "The physical GitHub object remains represented, but this legacy owner mapping is not canonical and must not be restored without review.",
         "legacyOwner": {
           "entityType": "company",
           "entityId": "company-smol-machines",
@@ -4299,23 +4327,9 @@
             "kind": "repository",
             "canonicalUrl": "https://github.com/aradotso/ara.engineer",
             "repositoryId": "1213152730",
-            "status": "represented_in_current_canonical_receipt",
-            "matchedBy": [
-              "repository_id",
-              "canonical_url"
-            ],
-            "canonicalMatches": [
-              {
-                "entityType": "company",
-                "entityId": "company-ara",
-                "entityName": "Ara",
-                "accountKey": "company:company-ara:aradotso:",
-                "location": "repository",
-                "accountUrl": "https://github.com/aradotso",
-                "repositoryId": "1213152730",
-                "repositoryUrl": "https://github.com/aradotso/ara.engineer"
-              }
-            ]
+            "status": "not_represented_in_current_canonical_receipt",
+            "matchedBy": [],
+            "canonicalMatches": []
           },
           {
             "kind": "repository",
@@ -5098,23 +5112,9 @@
             "kind": "repository",
             "canonicalUrl": "https://github.com/aradotso/ara.engineer",
             "repositoryId": "1213152730",
-            "status": "represented_in_current_canonical_receipt",
-            "matchedBy": [
-              "repository_id",
-              "canonical_url"
-            ],
-            "canonicalMatches": [
-              {
-                "entityType": "company",
-                "entityId": "company-ara",
-                "entityName": "Ara",
-                "accountKey": "company:company-ara:aradotso:",
-                "location": "repository",
-                "accountUrl": "https://github.com/aradotso",
-                "repositoryId": "1213152730",
-                "repositoryUrl": "https://github.com/aradotso/ara.engineer"
-              }
-            ]
+            "status": "not_represented_in_current_canonical_receipt",
+            "matchedBy": [],
+            "canonicalMatches": []
           },
           {
             "kind": "repository",
@@ -16059,9 +16059,9 @@
             "entityType": "company",
             "entityId": "company-smol-machines",
             "entityName": "smol machines",
-            "accountKey": "company:company-smol-machines:smol-machines:smolvm",
+            "accountKey": "company:company-smol-machines:smol-machines:",
             "location": "repository",
-            "accountUrl": "https://github.com/smol-machines/smolvm",
+            "accountUrl": "https://github.com/smol-machines",
             "repositoryId": "1119210021",
             "repositoryUrl": "https://github.com/smol-machines/smolvm"
           }
@@ -16091,9 +16091,9 @@
                 "entityType": "company",
                 "entityId": "company-smol-machines",
                 "entityName": "smol machines",
-                "accountKey": "company:company-smol-machines:smol-machines:smolvm",
+                "accountKey": "company:company-smol-machines:smol-machines:",
                 "location": "repository",
-                "accountUrl": "https://github.com/smol-machines/smolvm",
+                "accountUrl": "https://github.com/smol-machines",
                 "repositoryId": "1119210021",
                 "repositoryUrl": "https://github.com/smol-machines/smolvm"
               }
