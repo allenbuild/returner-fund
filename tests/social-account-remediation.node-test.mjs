@@ -250,25 +250,24 @@ test("S26 collection plan uses every verified LinkedIn remediation exactly once"
   ], { cwd: root, encoding: "utf8", maxBuffer: 16 * 1024 * 1024 }));
 
   const expectedCompanyTargets = new Map([
-    ["conifer", "https://linkedin.com/company/coniferbuild"],
-    ["egoist-machines", "https://linkedin.com/company/egoistmachines"],
-    ["inkbox", "https://linkedin.com/company/inkbox-ai"],
-    ["lato", "https://linkedin.com/company/latoio"],
-    ["lumeria", "https://linkedin.com/company/lumeriaskin"],
-    ["manufacturingintelligence", "https://linkedin.com/company/heraengineer"],
-    ["openrelay", "https://linkedin.com/company/131464079"],
-    ["openvector", "https://linkedin.com/company/openvectorlabs"],
-    ["palette-2", "https://linkedin.com/company/palette-technology"],
-    ["praxis-ai-2", "https://linkedin.com/company/130274179"],
-    ["stoa", "https://linkedin.com/company/stoaexchange"],
-    ["vestris", "https://linkedin.com/company/vestrisai"]
+    ["conifer", ["https://linkedin.com/company/coniferbuild"]],
+    ["egoist-machines", ["https://linkedin.com/company/egoistmachines"]],
+    ["inkbox", ["https://linkedin.com/company/inkbox-ai"]],
+    ["lato", ["https://linkedin.com/company/lato", "https://linkedin.com/company/latoio"]],
+    ["lumeria", ["https://linkedin.com/company/lumeriaskin"]],
+    ["manufacturingintelligence", ["https://linkedin.com/company/heraengineer"]],
+    ["openrelay", ["https://linkedin.com/company/131464079"]],
+    ["openvector", ["https://linkedin.com/company/openvectorlabs"]],
+    ["palette-2", ["https://linkedin.com/company/palette-technology"]],
+    ["stoa", ["https://linkedin.com/company/stoaexchange"]],
+    ["vestris", ["https://linkedin.com/company/vestrisai"]]
   ]);
 
-  for (const [companySlug, accountUrl] of expectedCompanyTargets) {
+  for (const [companySlug, accountUrls] of expectedCompanyTargets) {
     const targets = plan.socialTargets.filter((target) =>
       target.companySlug === companySlug && target.entityType === "company" && target.platform === "linkedin"
     );
-    assert.deepEqual(targets.map((target) => target.accountUrl), [accountUrl], companySlug);
+    assert.deepEqual(targets.map((target) => target.accountUrl).sort(), accountUrls, companySlug);
   }
 
   assert.equal(plan.socialTargets.some((target) =>
