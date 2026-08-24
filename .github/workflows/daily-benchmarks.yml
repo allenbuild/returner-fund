@@ -202,6 +202,7 @@ jobs:
       contents: write
     concurrency:
       group: repository-publication-main
+      queue: max
       cancel-in-progress: false
     outputs:
       publication_status: ${{ steps.recover_publication.outputs.publication_status }}
