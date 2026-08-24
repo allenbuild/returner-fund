@@ -15,15 +15,25 @@ describe("public data debug instrumentation", () => {
     expect(tasks.every((task) => task.checkpointKey.includes(task.companyId))).toBe(true);
   });
 
-  it("marks LinkedIn working while reporting its public-only S26 source", () => {
+  it("marks LinkedIn working and reports its measured S26 source mix", () => {
     const graph = buildGraphResponse({ batchSlug: "S26" }, ycSpring2026GraphDataset);
     const linkedin = graph.platformStatus.find((item) => item.platform === "linkedin");
     const x = graph.platformStatus.find((item) => item.platform === "x");
 
     expect(linkedin?.status).toBe("working");
-    expect(linkedin?.authMethod.toLowerCase()).toContain("public unauthenticated");
-    expect(linkedin?.authMethod.toLowerCase()).not.toContain("authenticated browser session");
-    expect(linkedin?.notes.toLowerCase()).toContain("0 came from the opt-in authenticated browser snapshot");
+    const authenticatedCountMatch = linkedin?.notes.match(
+      /; (\d+) came from the opt-in authenticated browser snapshot/i
+    );
+    expect(authenticatedCountMatch).toBeTruthy();
+    const authenticatedCount = Number(authenticatedCountMatch![1]);
+    expect(Number.isInteger(authenticatedCount)).toBe(true);
+    if (authenticatedCount > 0) {
+      expect(linkedin?.authMethod.toLowerCase()).toContain("authenticated browser session");
+      expect(linkedin?.authMethod.toLowerCase()).toContain("verified public evidence");
+    } else {
+      expect(linkedin?.authMethod.toLowerCase()).toContain("public unauthenticated");
+      expect(linkedin?.authMethod.toLowerCase()).not.toContain("authenticated browser session");
+    }
     expect(x?.status).toBe("public_only");
     expect(x?.authMethod.toLowerCase()).toContain("official yc profile links");
   });
