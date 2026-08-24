@@ -2724,23 +2724,40 @@ function escapeRegExp(value) {
 }
 
 async function ingestNewsWeb(company) {
-  const url = `https://duckduckgo.com/html/?q=${encodeURIComponent(`${company.name} ${currentBatchContext.label}`)}`;
+  const query = `"${company.name}" ${currentBatchContext.organization} (news OR launch OR funding OR review)`;
+  const url = `https://duckduckgo.com/html/?df=w&q=${encodeURIComponent(query)}`;
   const { text: html } = await fetchPublicSearchText(url);
   const $ = cheerio.load(html);
-  const results = $(".result")
+  const duckDuckGoResults = $(".result")
     .toArray()
     .map((node) => {
       const item = $(node);
       return {
         title: cleanText(item.find(".result__title").text()),
         sourceUrl: item.find(".result__a").attr("href") ?? "",
-        snippet: cleanText(item.find(".result__snippet").text())
+        snippet: cleanText(item.find(".result__snippet").text()),
+        publishedDate: null,
+        discoveryProvider: "duckduckgo"
       };
     })
+    .map((item) => ({ ...item, sourceUrl: normalizeSearchUrl(item.sourceUrl) }));
+  const exaResults = await searchExaSourceCandidates({
+    query,
+    platform: "web",
+    apiKey: exaApiKey,
+    numResults: 8
+  }).catch(() => []);
+  const candidates = dedupeNewsCandidates([
+    ...exaResults.map((item) => ({ ...item, sourceUrl: normalizeSearchUrl(String(item.url ?? "")) })),
+    ...duckDuckGoResults
+  ])
     .filter((item) => item.sourceUrl && isCompanyMatch(company, `${item.title} ${item.snippet}`))
-    .map((item) => ({ ...item, sourceUrl: normalizeSearchUrl(item.sourceUrl) }))
     .filter((item) => isThirdPartyMention(company, item.sourceUrl))
-    .slice(0, 3);
+    .slice(0, 8);
+  const enriched = await Promise.all(candidates.map((item, index) =>
+    index < 3 ? enrichNewsCandidate(item) : Promise.resolve(newsCandidateWithSearchMetadata(item))
+  ));
+  const results = enriched.filter(Boolean);
 
   if (!results.length) {
     return { failures: [failure("web", company, url, "No verified public web/news mention found.")] };
@@ -2754,16 +2771,158 @@ async function ingestNewsWeb(company) {
         entityId: companyId(company),
         platform: "web",
         sourceUrl: item.sourceUrl,
+        platformPostId: item.sourceUrl,
         title: item.title,
         text: item.snippet || item.title,
         rawVisibleText: `${item.title}\n${item.snippet}`,
+        authorName: item.authorName,
+        postedAt: item.publication.postedAt,
+        publishedAtPrecision: item.publication.publishedAtPrecision,
+        mediaType: "link",
+        thumbnailUrl: item.thumbnailUrl,
+        linkStatus: item.linkStatus,
         metrics: {},
         contributionScore: 0,
         review_state: "verified",
-        matchReason: "Public web/news result with exact company-name match. Stored as context only because no public engagement metrics were available."
+        matchReason: `Public web/news result with exact company-name match from ${item.discoveryProvider}. ` +
+          `${item.publication.publishedAtPrecision === "unknown" ? "No auditable publication date was exposed; excluded from the 72-hour brief." : "The publisher exposed an auditable publication date."} ` +
+          "Stored as context only because no public engagement metrics were available."
       })
     )
   };
+}
+
+function dedupeNewsCandidates(items) {
+  const byUrl = new Map();
+  for (const item of items) {
+    if (!item.sourceUrl) continue;
+    const key = normalizeSearchUrl(item.sourceUrl);
+    if (!key || byUrl.has(key)) continue;
+    byUrl.set(key, { ...item, sourceUrl: key });
+  }
+  return [...byUrl.values()];
+}
+
+async function enrichNewsCandidate(item) {
+  const searchOnly = newsCandidateWithSearchMetadata(item);
+  try {
+    const page = await fetchReadable(item.sourceUrl);
+    const metadata = newsPageMetadata(page.html);
+    return {
+      ...searchOnly,
+      title: metadata.title || item.title,
+      snippet: metadata.description || item.snippet,
+      authorName: metadata.authorName,
+      thumbnailUrl: metadata.thumbnailUrl,
+      publication: metadata.publication.publishedAtPrecision === "unknown"
+        ? searchOnly.publication
+        : metadata.publication,
+      linkStatus: "verified"
+    };
+  } catch {
+    return searchOnly;
+  }
+}
+
+function newsCandidateWithSearchMetadata(item) {
+  return {
+    ...item,
+    authorName: null,
+    thumbnailUrl: null,
+    publication: normalizeNewsPublicationDate(item.publishedDate),
+    linkStatus: "unchecked"
+  };
+}
+
+function newsPageMetadata(html) {
+  const $ = cheerio.load(html);
+  const jsonLd = $("script[type='application/ld+json']")
+    .toArray()
+    .flatMap((element) => parsedJsonLdNodes($(element).text()));
+  const firstJsonLdValue = (key) => jsonLd.map((node) => node?.[key]).find(Boolean) ?? null;
+  const rawPublication = firstNonEmpty([
+    $("meta[property='article:published_time']").attr("content"),
+    $("meta[name='date']").attr("content"),
+    $("meta[name='pubdate']").attr("content"),
+    $("time[datetime]").first().attr("datetime"),
+    firstJsonLdValue("datePublished")
+  ]);
+  const jsonLdAuthor = firstJsonLdValue("author");
+  const jsonLdImage = firstJsonLdValue("image");
+  return {
+    title: cleanText(firstNonEmpty([
+      $("meta[property='og:title']").attr("content"),
+      firstJsonLdValue("headline"),
+      $("title").first().text(),
+      $("h1").first().text()
+    ])),
+    description: cleanText(firstNonEmpty([
+      $("meta[property='og:description']").attr("content"),
+      $("meta[name='description']").attr("content"),
+      firstJsonLdValue("description")
+    ])),
+    authorName: cleanText(
+      typeof jsonLdAuthor === "string"
+        ? jsonLdAuthor
+        : Array.isArray(jsonLdAuthor)
+          ? jsonLdAuthor.map((author) => author?.name).filter(Boolean).join(", ")
+          : jsonLdAuthor?.name ?? $("meta[name='author']").attr("content") ?? ""
+    ) || null,
+    thumbnailUrl: firstImageUrl(
+      $("meta[property='og:image']").attr("content") ?? jsonLdImage
+    ),
+    publication: normalizeNewsPublicationDate(rawPublication)
+  };
+}
+
+function parsedJsonLdNodes(value) {
+  try {
+    const parsed = JSON.parse(value);
+    const roots = Array.isArray(parsed) ? parsed : [parsed];
+    return roots.flatMap((root) => Array.isArray(root?.["@graph"]) ? root["@graph"] : [root]);
+  } catch {
+    return [];
+  }
+}
+
+function normalizeNewsPublicationDate(value) {
+  const raw = String(value ?? "").trim();
+  if (!raw) return { postedAt: null, publishedAtPrecision: "unknown" };
+  if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) {
+    const timestamp = Date.parse(`${raw}T12:00:00.000Z`);
+    return Number.isFinite(timestamp)
+      ? { postedAt: raw, publishedAtPrecision: "day" }
+      : { postedAt: null, publishedAtPrecision: "unknown" };
+  }
+  if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$/i.test(raw)) {
+    const timestamp = Date.parse(raw);
+    return Number.isFinite(timestamp)
+      ? { postedAt: new Date(timestamp).toISOString(), publishedAtPrecision: "exact" }
+      : { postedAt: null, publishedAtPrecision: "unknown" };
+  }
+  const timestamp = Date.parse(raw);
+  if (!Number.isFinite(timestamp) || /\d{1,2}:\d{2}/.test(raw)) {
+    return { postedAt: null, publishedAtPrecision: "unknown" };
+  }
+  return { postedAt: new Date(timestamp).toISOString().slice(0, 10), publishedAtPrecision: "day" };
+}
+
+function firstNonEmpty(values) {
+  return values.map((value) => String(value ?? "").trim()).find(Boolean) ?? "";
+}
+
+function firstImageUrl(value) {
+  const candidate = Array.isArray(value)
+    ? value[0]
+    : typeof value === "object" && value
+      ? value.url ?? value.contentUrl
+      : value;
+  try {
+    const url = new URL(String(candidate ?? ""));
+    return url.protocol === "https:" || url.protocol === "http:" ? url.toString() : null;
+  } catch {
+    return null;
+  }
 }
 
 async function ingestReddit(company) {
@@ -4357,6 +4516,10 @@ function evidenceItem(input) {
     platform: input.platform,
     title: sanitizePublicText(input.title),
     sourceUrl: input.sourceUrl,
+    ...(input.authorName ? { authorName: sanitizePublicText(input.authorName) } : {}),
+    ...(input.mediaType ? { mediaType: input.mediaType } : {}),
+    ...(input.thumbnailUrl ? { thumbnailUrl: input.thumbnailUrl } : {}),
+    ...(input.linkStatus ? { linkStatus: input.linkStatus } : {}),
     ...(input.submittedUrl ? { submittedUrl: input.submittedUrl } : {}),
     ...(input.authorHandle ? { authorHandle: input.authorHandle } : {}),
     ...(input.youtubeChannelId ? { youtubeChannelId: input.youtubeChannelId } : {}),
@@ -4384,6 +4547,7 @@ function evidenceItem(input) {
       ? { mediaUrls: input.mediaUrls.slice(0, 4) }
       : {}),
     postedAt: input.postedAt ?? null,
+    publishedAtPrecision: input.publishedAtPrecision ?? "unknown",
     metrics: removeNullish(input.metrics ?? {}),
     contributionScore: input.contributionScore ?? 0,
     review_state: input.review_state,

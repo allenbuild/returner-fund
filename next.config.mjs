@@ -120,6 +120,11 @@ const insiderRuntimeSnapshots = [
   "public/graph/a16zsr006.json",
   "public/graph/a16zsr006-insiders.json"
 ];
+const returnerFundApiSnapshots = [
+  "public/graph/s2026.json",
+  "public/graph/s26.json",
+  "public/graph/a16zsr006.json"
+];
 const publishedGraphRuntimeSnapshots = [
   "public/graph/s2026.json",
   "public/graph/s2026-yc-partners.json",
@@ -251,6 +256,7 @@ const nextConfig = {
     "/debug/workers": graphRuntimeData,
     "/api/insiders/recompute": [...insiderRuntimeSnapshots, ...benchmarkRuntimeData],
     "/api/companies/[slug]/timeline": [...timelineRuntimeData, ...timelineInternalRuntimeData],
+    "/api/v1/companies/[slug]/returner-fund": returnerFundApiSnapshots,
     "/api/timeline/events/[eventId]": [...timelineRuntimeData, ...timelineInternalRuntimeData],
     "/api/admin/timeline/**/*": [...timelineRuntimeData, ...timelineInternalRuntimeData],
     "/dashboard": dashboardRuntimeData,

@@ -2757,6 +2757,7 @@ describe("autonomous ingestion runner static safety contracts", () => {
     const concurrency = section("async function mapWithConcurrency", "function delay");
 
     assert.ok(enqueue.includes("mapWithConcurrency(chunks(rows, 250), 4"));
+    assert.ok(enqueue.includes("{ timeoutMs: SUPABASE_BULK_OPERATION_TIMEOUT_MS }"));
     assert.ok(reconcile.includes("mapWithConcurrency(updates, 4"));
     assert.ok(reconcile.includes("indexAutonomousCollectorTaskOutcomes"));
     assert.ok(reconcile.includes("classifyAutonomousCollectorTaskOutcome"));

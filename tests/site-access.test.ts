@@ -121,6 +121,26 @@ describe("site access", () => {
     expect(unrelatedApiResponse.status).toBe(401);
   });
 
+  it("lets only read requests to the exact Returner Fund integration route reach its own auth check", async () => {
+    vi.stubEnv("SITE_PASSWORD", "correct horse battery staple");
+    vi.stubEnv("SITE_ACCESS_SECRET", "signing-secret");
+    const url = "https://returner.fund/api/v1/companies/atlia/returner-fund?batch=S26";
+
+    const getResponse = await proxy(new NextRequest(url));
+    expect(getResponse.headers.get("x-middleware-next")).toBe("1");
+
+    const headResponse = await proxy(new NextRequest(url, { method: "HEAD" }));
+    expect(headResponse.headers.get("x-middleware-next")).toBe("1");
+
+    const postResponse = await proxy(new NextRequest(url, { method: "POST" }));
+    expect(postResponse.status).toBe(401);
+
+    const neighboringResponse = await proxy(new NextRequest(
+      "https://returner.fund/api/v1/companies/atlia/returner-fund/export"
+    ));
+    expect(neighboringResponse.status).toBe(401);
+  });
+
   it("fails closed when site access credentials are not configured", async () => {
     vi.stubEnv("SITE_PASSWORD", "");
     vi.stubEnv("SITE_ACCESS_SECRET", "");

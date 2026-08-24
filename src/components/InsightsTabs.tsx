@@ -42,7 +42,12 @@ import {
 } from "@/lib/graph/database-stats";
 import { evidenceDisplayText, isGenericEvidenceLabel } from "@/lib/graph/evidence-display";
 import { resolveEvidenceThumbnail } from "@/lib/graph/evidence-thumbnails";
-import { selectRankedPosts, type RankedPostsPeriod } from "@/lib/graph/ranked-posts";
+import {
+  RANKED_POSTS_LIMIT,
+  RANKED_POSTS_MIN_VIEWS,
+  rankedPostDestinationUrl,
+  selectRankedPosts
+} from "@/lib/graph/ranked-posts";
 import type { RankedPostsSidecarScope } from "@/lib/graph/ranked-posts-sidecar";
 import { splitVerbatimSentences } from "@/lib/graph/verbatim-evidence-text";
 import type {
@@ -98,7 +103,6 @@ export function InsightsTabs({
 }: InsightsTabsProps) {
   const [activeTab, setActiveTab] = useState<TabKey>("overview");
   const [momentumPeriod, setMomentumPeriod] = useState<MomentumPeriod>("dod");
-  const [rankedPeriod, setRankedPeriod] = useState<RankedPostsPeriod>("all_time");
   const [ycPartners, setYcPartners] = useState<YcPartnersResponse | null>(null);
   const [ycPartnersLoading, setYcPartnersLoading] = useState(true);
   const [ycPartnersError, setYcPartnersError] = useState<string | null>(null);
@@ -128,11 +132,16 @@ export function InsightsTabs({
     [graph.leaderboard, overviewSort]
   );
   const databaseStats = useMemo(() => buildDatabaseStats(statsGraph), [statsGraph]);
+  const rankedPostsReferenceTime = useMemo(() => now ?? new Date(), [now]);
   const rankedPosts = useMemo(
     () => rankedPostsSidecarScope === null
       ? []
-      : selectRankedPosts(graph, { period: rankedPeriod, now, sidecarScope: rankedPostsSidecarScope }),
-    [graph, now, rankedPeriod, rankedPostsSidecarScope]
+      : selectRankedPosts(graph, {
+          period: "three_days",
+          now: rankedPostsReferenceTime,
+          sidecarScope: rankedPostsSidecarScope
+        }),
+    [graph, rankedPostsReferenceTime, rankedPostsSidecarScope]
   );
   const currentBatchSlug = graph.batch.slug;
 
@@ -273,10 +282,9 @@ export function InsightsTabs({
             </div>
           )}
           {activeTab === "ranked" && (
-            <div className="segmented-toggle ranked-posts-period-toggle" role="group" aria-label="Ranked posts period">
-              <button type="button" className={rankedPeriod === "all_time" ? "active" : ""} aria-pressed={rankedPeriod === "all_time"} onClick={() => setRankedPeriod("all_time")}>All time</button>
-              <button type="button" className={rankedPeriod === "today" ? "active" : ""} aria-pressed={rankedPeriod === "today"} onClick={() => setRankedPeriod("today")}>Today</button>
-              <button type="button" className={rankedPeriod === "month" ? "active" : ""} aria-pressed={rankedPeriod === "month"} onClick={() => setRankedPeriod("month")}>Month</button>
+            <div className="ranked-feed-status" aria-label="Ranked post eligibility">
+              <span><Clock3 size={14} aria-hidden="true" /> Rolling 72 hours</span>
+              <span><Eye size={14} aria-hidden="true" /> {formatCompactMetric(RANKED_POSTS_MIN_VIEWS)}+ views</span>
             </div>
           )}
         </div>
@@ -491,26 +499,58 @@ export function InsightsTabs({
           role="tabpanel"
           aria-labelledby="insights-tab-ranked"
         >
+          <header className="ranked-posts-brief-header">
+            <div>
+              <span className="ranked-posts-kicker">Live internet brief</span>
+              <h2>Top {RANKED_POSTS_LIMIT} from the last 72 hours</h2>
+              <p>
+                Only verified, precisely dated social posts and videos with at least one million native views qualify.
+                News articles use a separate coverage score because publisher views are rarely public.
+              </p>
+            </div>
+            <div className="ranked-posts-result-count" aria-label={`${rankedPosts.length} qualifying results`}>
+              <strong>{rankedPosts.length}</strong>
+              <span>qualified</span>
+            </div>
+          </header>
+
+          <details className="ranked-posts-methodology">
+            <summary>Exactly how posts are surfaced</summary>
+            <div className="ranked-posts-methodology-grid">
+              <section>
+                <strong>1. Hard gates</strong>
+                <p>Published in the rolling 72-hour window, verified attribution, a source not known to be invalid or blocked, and a deduplicated physical item. Social/video also requires 1,000,000+ native views.</p>
+              </section>
+              <section>
+                <strong>2. Viral score · 100 points</strong>
+                <p>Reach: 25 points at 1M views, log-scaled to 50 at 100M+. Velocity: 0 at 1K views/hour or less, log-scaled to 25 at 1M/hour. Engagement: linear to 15 at 10%+. Freshness: linear from 10 to 0 over 72 hours.</p>
+              </section>
+              <section>
+                <strong>3. News score · 100 points</strong>
+                <p>Visible discussion: log-scaled from 0 to 45 at 100K actions. Distinct-source coverage: 0 with one source, linear to 25 at five+. Freshness: 20 to 0 over 72 hours. Completeness: 2.5 each for title, byline, image, and direct URL. Publisher traffic is never invented.</p>
+              </section>
+              <section>
+                <strong>4. Breadth rules</strong>
+                <p>The first pass reserves 30 news slots and 70 viral slots, capped at three per news publisher and 30 social posts per platform. Unused capacity backfills with the next highest qualified item.</p>
+              </section>
+            </div>
+            <p className="ranked-posts-coverage-note">
+              Coverage spans collected public social, video, community, RSS, and open-web sources. Private, paywalled, login-only, blocked, or unindexed pages are not claimed as covered.
+            </p>
+          </details>
+
           {!rankedPosts.length ? (
             <div className="ranked-posts-empty" role="status">
               <Clock3 size={22} aria-hidden="true" />
               <strong>
                 {rankedPostsSidecarScope === null
                   ? "Refreshing ranked posts…"
-                  : rankedPeriod === "today"
-                  ? "No reliably dated posts were published today."
-                  : rankedPeriod === "month"
-                    ? "No reliably dated posts were published in the last 30 days."
-                    : "No eligible scored posts match these filters."}
+                  : "No items clear the strict 72-hour surfacing gates yet."}
               </strong>
               <span>
                 {rankedPostsSidecarScope === null
                   ? "The full-corpus post index is being synchronized with this graph."
-                  : rankedPeriod === "today"
-                  ? "Posts with unknown or imprecise publication timestamps are excluded from Today."
-                  : rankedPeriod === "month"
-                    ? "Posts with unknown or imprecise publication timestamps are excluded from Month."
-                    : "Try broadening one or more visibility filters."}
+                  : "Older or lower-reach posts are deliberately not used as filler. The next collection pass will add newly qualified social posts, videos, and articles."}
               </span>
             </div>
           ) : (
@@ -518,48 +558,54 @@ export function InsightsTabs({
               {rankedPosts.map((post) => {
                 const item = post.evidence;
                 const contribution = formatContribution(item);
-                const score = rankedEvidenceScore(item);
+                const destinationUrl = rankedPostDestinationUrl(item);
                 const card = (
-                  <article className="ranked-post-card">
-                    <div className="ranked-post-rank"><RankDisplay rank={post.rank} /></div>
-                    <div className="ranked-post-preview">
+                  <article className="viral-post-card">
+                    <div className="viral-post-media">
                       <ContributionThumbnail item={item} />
+                      <span className="viral-post-rank"><RankDisplay rank={post.rank} /></span>
+                      <span className="viral-post-score" aria-label={`Surfacing score ${post.score.total} out of 100`}>
+                        {post.score.total}<small>/100</small>
+                      </span>
                     </div>
-                    <div className="ranked-post-content">
-                      <div className="ranked-post-primary-row">
-                        <span className="ranked-post-company">{post.companyName}</span>
-                        <div className="ranked-post-meta">
-                          <span className={`ranking-platform-chip ranking-platform-${item.platform}`}><PlatformIdentity platform={item.platform} /></span>
-                          <span className={`ranked-source-badge ranked-source-${post.sourceKind}`}>{formatSourceKind(post.sourceKind)}</span>
-                          <time dateTime={item.postedAt}>{formatPostDate(item.postedAt)}</time>
-                        </div>
+                    <div className="viral-post-body">
+                      <div className="viral-post-meta">
+                        <span className={`ranking-platform-chip ranking-platform-${item.platform}`}><PlatformIdentity platform={item.platform} /></span>
+                        <span className={`viral-content-badge viral-content-${post.contentKind}`}>
+                          {post.contentKind === "news_article" ? "News" : "1M+ viral"}
+                        </span>
                       </div>
-                      <div className="ranked-post-title-row">
-                        <p className="ranked-post-title">{contribution.title}</p>
+                      <div className="viral-post-attribution">
+                        <strong>{post.companyName}</strong>
+                        <span>{formatSourceKind(post.sourceKind)}</span>
                       </div>
-                      <div className="ranked-post-details">
-                        {contribution.author && <span className="ranked-post-author">{formatAuthor(contribution.author, item.authorHandle)}</span>}
+                      <h3>{contribution.title}</h3>
+                      <div className="viral-post-details">
                         {contribution.metricPills.length > 0 && (
-                          <span className="overview-metric-pills ranked-metric-pills">
+                          <span className="overview-metric-pills viral-metric-pills">
                             {contribution.metricPills.map((metric) => <span className={`overview-metric-pill overview-metric-${metric.key}`} key={metric.key}><MetricIcon metric={metric.key} /><span>{metric.value}</span></span>)}
                           </span>
                         )}
+                        <time dateTime={item.postedAt} title={formatPostDate(item.postedAt)}>{formatRelativePostAge(item.postedAt, rankedPostsReferenceTime)}</time>
                       </div>
-                    </div>
-                    <div className="ranked-post-score" aria-label={`Post score ${score}`}>
-                      <strong>{score}</strong>
+                      <p className="viral-post-score-breakdown">
+                        {post.contentKind === "news_article"
+                          ? `Discussion ${post.score.newsAttention}/45 · Coverage ${post.score.sourceCoverage}/25 · Freshness ${post.score.freshness}/20 · Complete ${post.score.completeness}/10`
+                          : `Reach ${post.score.reach}/50 · Velocity ${post.score.velocity}/25 · Engagement ${post.score.engagement}/15 · Freshness ${post.score.freshness}/10`}
+                      </p>
+                      <p className="viral-post-why"><strong>Why:</strong> {post.score.reasons.join(" · ")}</p>
                     </div>
                   </article>
                 );
                 return (
                   <li key={post.canonicalPostKey}>
-                    {contribution.url ? (
+                    {destinationUrl ? (
                       <a
                         className="ranked-post-row-link"
-                        href={contribution.url}
+                        href={destinationUrl}
                         target="_blank"
                         rel="noreferrer"
-                        aria-label={`Open ${post.companyName} post on ${formatPlatform(item.platform)}`}
+                        aria-label={`Open rank ${post.rank}: ${post.companyName} on ${formatPlatform(item.platform)}`}
                       >
                         {card}
                       </a>
@@ -1478,14 +1524,26 @@ function formatPostDate(value: string): string {
   });
 }
 
+function formatRelativePostAge(value: string, referenceTime = new Date()): string {
+  const timestamp = new Date(value).getTime();
+  if (!Number.isFinite(timestamp)) return "Date unavailable";
+  const ageMinutes = Math.max(0, Math.floor((referenceTime.getTime() - timestamp) / (60 * 1_000)));
+  if (ageMinutes < 60) return `${Math.max(1, ageMinutes)}m ago`;
+  const ageHours = Math.floor(ageMinutes / 60);
+  if (ageHours < 72) return `${ageHours}h ago`;
+  return formatPostDate(value);
+}
+
+function formatCompactMetric(value: number): string {
+  return new Intl.NumberFormat("en-US", {
+    notation: "compact",
+    maximumFractionDigits: 1
+  }).format(value);
+}
+
 function formatAuthor(author: string, handle: string | null): string {
   if (!handle || author.toLowerCase().includes(handle.toLowerCase())) return author;
   return `${author} · @${handle.replace(/^@/, "")}`;
-}
-
-function rankedEvidenceScore(item: EvidenceItem): number {
-  const value = Number.isFinite(item.normalizedScore) ? item.normalizedScore : item.contributionScore;
-  return Math.max(0, Math.min(100, Math.round(value ?? 0)));
 }
 
 function xHandleFromEvidenceUrl(value: string | null | undefined): string {

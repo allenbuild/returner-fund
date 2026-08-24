@@ -182,7 +182,8 @@ export async function searchExaSourceCandidates({
 }) {
   if (!apiKey || !query) return [];
   const includeDomains = exaDomainsForPlatform(platform);
-  if (!includeDomains.length) return [];
+  const searchesOpenWeb = platform === "web";
+  if (!includeDomains.length && !searchesOpenWeb) return [];
   const response = await fetchImpl(EXA_SEARCH_ENDPOINT, {
     method: "POST",
     headers: {
@@ -192,7 +193,7 @@ export async function searchExaSourceCandidates({
     },
     body: JSON.stringify({
       query,
-      includeDomains,
+      ...(includeDomains.length ? { includeDomains } : {}),
       numResults: Math.max(1, Math.min(20, numResults)),
       type: "fast",
       contents: { highlights: true }

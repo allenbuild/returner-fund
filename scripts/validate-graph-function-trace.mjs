@@ -134,6 +134,21 @@ const routeTraces = [
     ]
   },
   {
+    label: "Returner Fund company API",
+    manifest: ".next/server/app/api/v1/companies/[slug]/returner-fund/route.js.nft.json",
+    maxBytes: 65 * MEBIBYTE,
+    required: [
+      "public/graph/s2026.json",
+      "public/graph/s26.json",
+      "public/graph/a16zsr006.json"
+    ],
+    forbidden: [
+      ...WHOLE_REPOSITORY_TRACE_FRAGMENTS,
+      ...RAW_EVIDENCE_FRAGMENTS,
+      `${normalize("/generated-runtime/")}`
+    ]
+  },
+  {
     label: "admin ingestion diagnostics",
     manifest: ".next/server/app/api/admin/ingestion/route.js.nft.json",
     maxBytes: 12 * MEBIBYTE,

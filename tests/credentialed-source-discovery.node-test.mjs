@@ -158,3 +158,24 @@ test("uses the documented Exa search contract and preserves evidence snippets", 
   assert.equal(body.contents.highlights, true);
   assert.match(candidates[0].snippet, /42 reactions and 3 comments/);
 });
+
+test("searches the open web without imposing a social-domain allowlist", async () => {
+  let request;
+  await searchExaSourceCandidates({
+    query: '"Zibra Labs" startup news',
+    platform: "web",
+    apiKey: "exa-test",
+    fetchImpl: async (url, options) => {
+      request = { url, options };
+      return new Response(JSON.stringify({ results: [] }), {
+        status: 200,
+        headers: { "content-type": "application/json" }
+      });
+    }
+  });
+
+  const body = JSON.parse(request.options.body);
+  assert.equal(request.url, "https://api.exa.ai/search");
+  assert.equal("includeDomains" in body, false);
+  assert.equal(body.numResults, 8);
+});
