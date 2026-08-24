@@ -145,6 +145,13 @@ test("reader validates both expected graph identities and timestamps using temp 
   assert.equal(valid.watermark.toISOString(), "2026-08-22T11:00:05.000Z");
   assert.equal(valid.newestGeneratedAt.toISOString(), "2026-08-22T11:00:41.000Z");
 
+  rmSync(path.join(directory, "public/graph/manifest.json"));
+  assert.equal((await readPublicationWatermark({ cwd: directory, now })).status, "missing");
+  writePublicationManifest(directory, {
+    s26: "2026-08-22T11:00:05.000Z",
+    s2026: "2026-08-22T11:00:41.000Z"
+  });
+
   rmSync(path.join(directory, "public/graph/s2026.json"));
   assert.equal((await readPublicationWatermark({ cwd: directory, now })).status, "missing");
 
@@ -156,6 +163,41 @@ test("reader validates both expected graph identities and timestamps using temp 
 
   writeGraph(directory, "s2026", "S2026", "2026-08-22T12:10:01.000Z");
   assert.equal((await readPublicationWatermark({ cwd: directory, now })).status, "invalid");
+});
+
+test("complete publication manifest keeps recovery open when a non-base artifact is stale", async (t) => {
+  const directory = temporaryDirectory(t, "returner-watermark-completeness-");
+  const now = new Date("2026-08-22T12:10:00.000Z");
+  writeGraphs(directory, {
+    s26: "2026-08-22T11:02:00.000Z",
+    s2026: "2026-08-22T11:01:00.000Z",
+    overrides: { "a16zsr006.json": "2026-08-20T23:00:00.000Z" }
+  });
+
+  const state = await readPublicationWatermark({ cwd: directory, now });
+  const decision = resolveScheduledIngestion({
+    schedule: INGESTION_UTC_CRON_CANDIDATES.at(-1),
+    publicationState: state,
+    now
+  });
+  assert.equal(state.status, "valid");
+  assert.equal(state.watermark.toISOString(), "2026-08-20T23:00:00.000Z");
+  assert.equal(decision.accepted, true);
+  assert.equal(decision.watermarkStatus, "divergent");
+  assert.equal(decision.slotKey, "central-2026-08-22-0600");
+
+  writeGraphs(directory, {
+    s26: "2026-08-22T11:02:00.000Z",
+    s2026: "2026-08-22T11:01:00.000Z",
+    overrides: { "s26-score-benchmarks.json": "2026-08-20T23:30:00.000Z" }
+  });
+  const benchmarkState = await readPublicationWatermark({ cwd: directory, now });
+  assert.equal(benchmarkState.watermark.toISOString(), "2026-08-20T23:30:00.000Z");
+  assert.equal(resolveScheduledIngestion({
+    schedule: INGESTION_UTC_CRON_CANDIDATES.at(-1),
+    publicationState: benchmarkState,
+    now
+  }).accepted, true);
 });
 
 test("a reverted pair of graph artifacts reopens only the newest slot", async (t) => {
@@ -192,7 +234,7 @@ test("git-ref watermark reads committed HEAD rather than mutable worktree files"
     s26: "2026-08-20T22:00:00.000Z",
     s2026: "2026-08-20T22:00:30.000Z"
   });
-  execFileSync("git", ["add", "public/graph/s26.json", "public/graph/s2026.json"], { cwd: directory });
+  execFileSync("git", ["add", "public/graph/s26.json", "public/graph/s2026.json", "public/graph/manifest.json"], { cwd: directory });
   execFileSync("git", ["commit", "--quiet", "-m", "Fixture graph watermark"], { cwd: directory });
 
   writeGraphs(directory, {
@@ -234,7 +276,7 @@ test("serialized controller revalidation reads the fetched git ref and emits a q
     s26: "2026-08-22T11:01:00.000Z",
     s2026: "2026-08-22T11:02:00.000Z"
   });
-  execFileSync("git", ["add", "public/graph/s26.json", "public/graph/s2026.json"], { cwd: directory });
+  execFileSync("git", ["add", "public/graph/s26.json", "public/graph/s2026.json", "public/graph/manifest.json"], { cwd: directory });
   execFileSync("git", ["commit", "--quiet", "-m", "Current graph watermark"], { cwd: directory });
   const outputPath = path.join(directory, "github-output");
   const candidate = scheduledCandidate();
@@ -431,9 +473,39 @@ function temporaryDirectory(t, prefix) {
   return directory;
 }
 
-function writeGraphs(root, { s26, s2026 }) {
+function writeGraphs(root, { s26, s2026, overrides = {} }) {
   writeGraph(root, "s26", "S26", s26);
   writeGraph(root, "s2026", "S2026", s2026);
+  writePublicationManifest(root, { s26, s2026, overrides });
+}
+
+function writePublicationManifest(root, { s26, s2026, overrides = {} }) {
+  const graphFilenames = [
+    "s2026.json", "s2026-yc-partners.json", "s2026-insiders.json",
+    "s26.json", "s26-yc-partners.json", "s26-insiders.json",
+    "a16zsr006.json", "a16zsr006-yc-partners.json", "a16zsr006-insiders.json"
+  ];
+  const benchmarkFilenames = [
+    "s2026-score-benchmarks.json", "s26-score-benchmarks.json",
+    "a16zsr006-score-benchmarks.json"
+  ];
+  const fallback = [s26, s2026].sort()[0];
+  const entry = (filename) => ({
+    filename,
+    sha256: "a".repeat(64),
+    byteSize: 1,
+    generatedAt: overrides[filename] ?? fallback
+  });
+  const graphDirectory = path.join(root, "public/graph");
+  mkdirSync(graphDirectory, { recursive: true });
+  writeFileSync(path.join(graphDirectory, "manifest.json"), `${JSON.stringify({
+    schemaVersion: 2,
+    publishedAt: [s26, s2026].sort().at(-1),
+    ingestionRunId: "fixture-run",
+    graphArtifacts: graphFilenames.map(entry),
+    benchmarkArtifacts: benchmarkFilenames.map(entry),
+    contentHash: "b".repeat(64)
+  })}\n`);
 }
 
 function writeGraph(root, fileSlug, batchSlug, generatedAt) {

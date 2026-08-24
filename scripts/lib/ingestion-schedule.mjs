@@ -21,6 +21,26 @@ export const PUBLICATION_WATERMARK_GRAPHS = Object.freeze([
   Object.freeze({ path: "public/graph/s26.json", batchSlug: "S26" }),
   Object.freeze({ path: "public/graph/s2026.json", batchSlug: "S2026" })
 ]);
+export const PUBLICATION_WATERMARK_MANIFEST = Object.freeze({
+  path: "public/graph/manifest.json",
+  schemaVersion: 2,
+  graphFilenames: Object.freeze([
+    "s2026.json",
+    "s2026-yc-partners.json",
+    "s2026-insiders.json",
+    "s26.json",
+    "s26-yc-partners.json",
+    "s26-insiders.json",
+    "a16zsr006.json",
+    "a16zsr006-yc-partners.json",
+    "a16zsr006-insiders.json"
+  ]),
+  benchmarkFilenames: Object.freeze([
+    "s2026-score-benchmarks.json",
+    "s26-score-benchmarks.json",
+    "a16zsr006-score-benchmarks.json"
+  ])
+});
 
 const REPLAY_KEY_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/;
 const CENTRAL_SLOT_KEY_PATTERN = /^central-\d{4}-\d{2}-\d{2}-(?:0600|1800)$/;
@@ -284,7 +304,7 @@ export async function readPublicationWatermark({
   let missing = false;
   let invalid = false;
 
-  await Promise.all(PUBLICATION_WATERMARK_GRAPHS.map(async ({ path: relativePath, batchSlug }) => {
+  await Promise.all([...PUBLICATION_WATERMARK_GRAPHS.map(async ({ path: relativePath, batchSlug }) => {
     let source;
     try {
       source = await reader(relativePath);
@@ -315,7 +335,11 @@ export async function readPublicationWatermark({
       graphGeneratedAt[relativePath] = null;
       invalid = true;
     }
-  }));
+  }), inspectPublicationManifest({ reader, now, graphGeneratedAt, genuineInstants })
+    .then(({ status }) => {
+      if (status === "missing") missing = true;
+      if (status === "invalid") invalid = true;
+    })]);
 
   genuineInstants.sort((left, right) => left.getTime() - right.getTime());
   return Object.freeze({
@@ -324,6 +348,94 @@ export async function readPublicationWatermark({
     newestGeneratedAt: genuineInstants.at(-1) ?? null,
     graphGeneratedAt: Object.freeze({ ...graphGeneratedAt })
   });
+}
+
+async function inspectPublicationManifest({ reader, now, graphGeneratedAt, genuineInstants }) {
+  const descriptor = PUBLICATION_WATERMARK_MANIFEST;
+  let source;
+  try {
+    source = await reader(descriptor.path);
+  } catch {
+    graphGeneratedAt[descriptor.path] = null;
+    return { status: "missing" };
+  }
+
+  try {
+    const manifest = JSON.parse(source);
+    if (!manifest || typeof manifest !== "object" || Array.isArray(manifest)) {
+      throw new Error("manifest root is not an object");
+    }
+    if (manifest.schemaVersion !== descriptor.schemaVersion) {
+      throw new Error("manifest schema version is not recognized");
+    }
+    if (typeof manifest.ingestionRunId !== "string" || !manifest.ingestionRunId.trim()) {
+      throw new Error("manifest ingestion run id is missing");
+    }
+    if (!/^[a-f0-9]{64}$/.test(manifest.contentHash ?? "")) {
+      throw new Error("manifest content hash is invalid");
+    }
+
+    const publishedAt = publicationInstant(manifest.publishedAt, `${descriptor.path} publishedAt`, now);
+    const graphEntries = artifactEntryMap(manifest.graphArtifacts, "graph");
+    const benchmarkEntries = artifactEntryMap(manifest.benchmarkArtifacts, "benchmark");
+    const artifactInstants = [];
+    for (const filename of descriptor.graphFilenames) {
+      artifactInstants.push(readManifestArtifactInstant({
+        entry: graphEntries.get(filename),
+        filename,
+        relativePath: `public/graph/${filename}`,
+        now,
+        graphGeneratedAt
+      }));
+    }
+    for (const filename of descriptor.benchmarkFilenames) {
+      artifactInstants.push(readManifestArtifactInstant({
+        entry: benchmarkEntries.get(filename),
+        filename,
+        relativePath: `outputs/benchmarks/${filename}`,
+        now,
+        graphGeneratedAt
+      }));
+    }
+    if (artifactInstants.some((instant) => instant.getTime() > publishedAt.getTime())) {
+      throw new Error("manifest publication timestamp predates a required artifact");
+    }
+
+    graphGeneratedAt[descriptor.path] = publishedAt.toISOString();
+    genuineInstants.push(publishedAt, ...artifactInstants);
+    return { status: "valid" };
+  } catch {
+    graphGeneratedAt[descriptor.path] = null;
+    return { status: "invalid" };
+  }
+}
+
+function artifactEntryMap(value, label) {
+  if (!Array.isArray(value)) throw new Error(`manifest ${label} artifacts must be an array`);
+  const entries = new Map();
+  for (const entry of value) {
+    const filename = cleanString(entry?.filename);
+    if (!filename || entries.has(filename)) {
+      throw new Error(`manifest ${label} artifact filename is missing or duplicated`);
+    }
+    entries.set(filename, entry);
+  }
+  return entries;
+}
+
+function readManifestArtifactInstant({ entry, filename, relativePath, now, graphGeneratedAt }) {
+  if (!entry || !/^[a-f0-9]{64}$/.test(entry.sha256 ?? "") || !Number.isSafeInteger(entry.byteSize) || entry.byteSize <= 0) {
+    throw new Error(`manifest artifact ${filename} is missing trusted identity metadata`);
+  }
+  const instant = publicationInstant(entry.generatedAt, `${relativePath} generatedAt`, now);
+  graphGeneratedAt[relativePath] = instant.toISOString();
+  return instant;
+}
+
+function publicationInstant(value, label, now) {
+  const instant = parseStrictUtcRfc3339(value, label);
+  if (instant.getTime() > now.getTime()) throw new Error(`${label} is in the future`);
+  return instant;
 }
 
 export function writeGithubOutputs(decision, outputPath = process.env.GITHUB_OUTPUT) {
