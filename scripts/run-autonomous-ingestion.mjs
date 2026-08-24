@@ -31,6 +31,7 @@ import {
   classifyAutonomousCollectorTaskOutcome,
   countSuccessfulAutonomousCollectorRows,
   indexAutonomousCollectorTaskOutcomes,
+  isAutonomousCollectorTaskForRun,
   loadAutonomousCatalogs,
   mergeGithubTractionSnapshots,
   mergePublicEvidenceSnapshots,
@@ -2322,10 +2323,12 @@ async function enqueueTasks(tasks, catalogState) {
 async function cancelSupersededRunTasks() {
   const tasks = await readAllIngestionTaskRows(
     "read task inventory for current-plan reconciliation",
-    "id,status,checkpoint_key",
+    "id,status,platform,checkpoint_key",
     (query) => query.eq("ingestion_run_id", run.id)
   );
-  const { supersededTasks } = partitionAutonomousTaskInventory(tasks, plannedTasks);
+  const { supersededTasks } = partitionAutonomousTaskInventory(tasks, plannedTasks, {
+    isSupersededTask: (task) => isAutonomousCollectorTaskForRun(task, { runKey: idempotencyKey })
+  });
   const nonTerminalStatuses = ["queued", "running", "retry_scheduled"];
   const supersededNonTerminalTasks = supersededTasks.filter((task) =>
     nonTerminalStatuses.includes(task.status)
@@ -5137,8 +5140,11 @@ async function persistCoverage(catalogState, stageCounters) {
   const {
     currentTasks,
     supersededTasks,
+    unrelatedTasks,
     missingCheckpointKeys
-  } = partitionAutonomousTaskInventory(tasks, plannedTasks);
+  } = partitionAutonomousTaskInventory(tasks, plannedTasks, {
+    isSupersededTask: (task) => isAutonomousCollectorTaskForRun(task, { runKey: idempotencyKey })
+  });
   const terminalStatuses = new Set(["completed", "needs_review", "blocked_or_empty", "skipped", "failed", "canceled", "dead_lettered"]);
   const needsReview = currentTasks.filter((task) => task.status === "needs_review").length;
   const blockedOrEmpty = currentTasks.filter((task) => task.status === "blocked_or_empty").length;
@@ -5160,6 +5166,7 @@ async function persistCoverage(catalogState, stageCounters) {
     nonTerminal: currentTasks.filter((task) => !terminalStatuses.has(task.status)).length,
     superseded: supersededTasks.length,
     supersededNonTerminal: supersededTasks.filter((task) => !terminalStatuses.has(task.status)).length,
+    unrelatedRunTasks: unrelatedTasks.length,
     missingCheckpointKeys,
     mappedExpected: mappedCheckpointKeys.size,
     mappedSucceeded: mappedTasks.filter((task) => task.status === "completed").length,
