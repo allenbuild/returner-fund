@@ -1258,7 +1258,11 @@ describe("autonomous ingestion runner static safety contracts", () => {
     assert.match(publicationBuild, /envCategory: "timeline_backfill",[\s\S]*cwd: targetRoot/);
     assert.ok(publicationBuild.includes("`--database-snapshot=${timelineDatabaseSnapshotPath}`"));
     assert.doesNotMatch(
-      section("const timelineBackfillEnv = durableStorageConfigured", "await runCommand(process.execPath, [\"scripts/validate-timeline-artifacts.mjs\"]", publicationBuild),
+      section(
+        "const timelineBackfillEnv = timelineUsesDatabase",
+        "await runCommand(process.execPath, [\"scripts/validate-timeline-artifacts.mjs\"]",
+        publicationBuild
+      ),
       /SUPABASE_SERVICE_ROLE_KEY|NEXT_PUBLIC_SUPABASE_URL/
     );
     assert.match(push, /"-C",\s*publicationRoot,\s*"push"/);
