@@ -39,7 +39,16 @@ function snapshotWithThumbnail(
   thumbnailAlt: string,
   options?: { injectIntoPublicFixture?: boolean }
 ): DashboardPublicFeedSnapshot {
-  const { snapshot } = buildDashboardSnapshot(developmentDashboardFixtures(NOW), { now: NOW });
+  const candidates = developmentDashboardFixtures(NOW);
+  const qualifiedFixture = candidates[0];
+  if (!qualifiedFixture) throw new Error("Expected dashboard candidate fixtures.");
+  qualifiedFixture.sourceVerified = true;
+  qualifiedFixture.sourceLinkStatus = "verified";
+  qualifiedFixture.publicationPrecision = "exact";
+  qualifiedFixture.socialBackfillEligible = true;
+  qualifiedFixture.metrics = { ...qualifiedFixture.metrics, views: 1_000_000 };
+
+  const { snapshot } = buildDashboardSnapshot(candidates, { now: NOW });
   const next = structuredClone(snapshot);
   const story = next.stories[0];
   if (!story) throw new Error("Expected dashboard fixtures to produce a story.");
