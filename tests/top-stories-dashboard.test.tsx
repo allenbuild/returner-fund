@@ -33,6 +33,14 @@ describe("TopStoriesDashboard", () => {
 
     render(<TopStoriesDashboard snapshot={snapshotFixture()} />);
 
+    expect(screen.getByRole("heading", { name: "Top 100 from the last 72 hours" })).toBeInTheDocument();
+    expect(screen.getByLabelText("Top 100 eligibility")).toHaveTextContent("Rolling 72 hours");
+    expect(screen.getByLabelText("Top 100 eligibility")).toHaveTextContent("1M+ views");
+    expect(screen.getByLabelText("2 qualifying results")).toBeInTheDocument();
+    expect(screen.getByText("Exactly how stories are surfaced")).toBeInTheDocument();
+    expect(screen.getByText("1M+ viral")).toBeInTheDocument();
+    expect(screen.getByText("News")).toBeInTheDocument();
+    expect(screen.getAllByLabelText("Surfacing score 88 out of 100")).toHaveLength(2);
     expect(screen.getByRole("list", { name: "Top 100 technology stories" })).toBeInTheDocument();
     expect(screen.getByText("Atlas launches an agent runtime")).toBeInTheDocument();
     expect(screen.getByText("Industry research paper rises")).toBeInTheDocument();
@@ -186,6 +194,7 @@ describe("TopStoriesDashboard", () => {
     snapshot.stories = [];
     snapshot.status = {
       ...snapshot.status,
+      eligibleCandidateCount: 0,
       storyCount: 0,
       viewStoryCounts: { hottest: 0, breaking: 0, emerging: 0 },
       partialPlatformFailures: ["snapshot_stale"]
@@ -198,6 +207,24 @@ describe("TopStoriesDashboard", () => {
     render(<TopStoriesDashboard snapshot={snapshot} />);
 
     expect(screen.getByText("Loading articles…")).toBeInTheDocument();
+  });
+
+  it("explains a truthful empty strict-gate result without adding stale filler", () => {
+    const snapshot = snapshotFixture();
+    snapshot.stories = [];
+    snapshot.status = {
+      ...snapshot.status,
+      eligibleCandidateCount: 0,
+      storyCount: 0,
+      viewStoryCounts: { hottest: 0, breaking: 0, emerging: 0 },
+      partialPlatformFailures: []
+    };
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: false }));
+
+    render(<TopStoriesDashboard snapshot={snapshot} />);
+
+    expect(screen.getByText("No items clear the strict 72-hour surfacing gates yet.")).toBeInTheDocument();
+    expect(screen.getByText(/Older or lower-reach items are deliberately not used as filler/i)).toBeInTheDocument();
   });
 
   it("keeps a nonempty last publication visible", () => {
@@ -221,6 +248,29 @@ describe("TopStoriesDashboard", () => {
     expect(screen.getByLabelText("Item 4")).toBeInTheDocument();
     expect(screen.getByLabelText("Item 12")).toBeInTheDocument();
   });
+
+  it("uses source kind, not platform alone, for the Top 100 content label", () => {
+    const snapshot = snapshotFixture();
+    const articleStory = snapshot.stories[0]!;
+    articleStory.primarySource = {
+      ...articleStory.primarySource!,
+      sourceKind: "article",
+      metrics: {}
+    };
+    snapshot.stories = [articleStory];
+    snapshot.status = {
+      ...snapshot.status,
+      storyCount: 1,
+      viewStoryCounts: { hottest: 1, breaking: 0, emerging: 0 }
+    };
+
+    render(<TopStoriesDashboard snapshot={snapshot} />);
+
+    const card = screen.getByText("Atlas launches an agent runtime").closest("article");
+    expect(card).not.toBeNull();
+    expect(within(card!).getByText("News")).toBeInTheDocument();
+    expect(within(card!).queryByText("1M+ viral")).not.toBeInTheDocument();
+  });
 });
 
 function snapshotFixture(): DashboardPublicFeedSnapshot {
@@ -229,7 +279,7 @@ function snapshotFixture(): DashboardPublicFeedSnapshot {
     sourceSnapshotFingerprint: "dsh-test-snapshot",
     generatedAt: "2026-08-15T12:00:00.000Z",
     updatedAt: "2026-08-15T12:00:00.000Z",
-    windowStart: "2026-08-14T12:00:00.000Z",
+    windowStart: "2026-08-12T12:00:00.000Z",
     windowEnd: "2026-08-15T12:00:00.000Z",
     todayInTech: ["A new agent runtime is attracting developer discussion."],
     stories: [
@@ -263,12 +313,12 @@ function snapshotFixture(): DashboardPublicFeedSnapshot {
         title: "Breaking security release accelerates",
         summary: "A security release is receiving rapid discussion after independent developers flagged its newly published remediation guidance.",
         topics: ["open_source"],
-        platforms: ["github", "hacker_news"],
+        platforms: ["news", "hacker_news"],
         sourceCount: 1,
         viewRankings: {
           breaking: viewRanking(1, { rankDelta: 9, trendStatus: "rising_fast" })
         },
-        primarySource: primarySource(source("breaking-release-source", "github", "Security release", "https://example.com/security-release"))
+        primarySource: primarySource(source("breaking-release-source", "news", "Security release", "https://example.com/security-release"))
       })
     ],
     availableFilters: {
@@ -303,7 +353,7 @@ function currentSnapshotFixture(now = new Date()): DashboardPublicFeedSnapshot {
   snapshot.generatedAt = windowEnd;
   snapshot.updatedAt = windowEnd;
   snapshot.windowEnd = windowEnd;
-  snapshot.windowStart = new Date(now.getTime() - 24 * 60 * 60 * 1_000).toISOString();
+  snapshot.windowStart = new Date(now.getTime() - 72 * 60 * 60 * 1_000).toISOString();
   return snapshot;
 }
 
@@ -354,6 +404,7 @@ function primarySource(sourceValue: DashboardStorySource): DashboardStoryPrimary
     title: sourceValue.title,
     publisher: sourceValue.publisher,
     platform: sourceValue.platform,
+    sourceKind: sourceValue.sourceKind,
     publishedAt: sourceValue.publishedAt,
     metrics: sourceValue.metrics
   };
@@ -370,7 +421,8 @@ function source(
     canonicalKey: platform + ":" + id,
     platform,
     nativePlatform: platform === "research" || platform === "news" ? platform : platform,
-    sourceKind: platform === "research" ? "paper" : "post",
+    sourceKind: platform === "research" ? "paper" : ["news", "web", "rss"].includes(platform) ? "article" : "post",
+    verificationState: "verified",
     url,
     destinationUrl: null,
     title,

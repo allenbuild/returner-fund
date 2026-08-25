@@ -8,7 +8,13 @@ import {
   type DashboardPublicSnapshot,
   type DashboardRankSnapshot
 } from "./contracts";
-import { discoverExternalDashboardCandidates, type ExternalDiscoveryOptions } from "./external-discovery";
+import {
+  DEFAULT_DASHBOARD_REDDIT_SUBREDDITS,
+  DEFAULT_DASHBOARD_RESEARCH_FEEDS,
+  DEFAULT_DASHBOARD_RSS_FEEDS,
+  discoverExternalDashboardCandidates,
+  type ExternalDiscoveryOptions
+} from "./external-discovery";
 import { safeDate } from "./normalization";
 import { buildDashboardSnapshot } from "./pipeline";
 import { dashboardCandidatesFromGraph } from "./returner-candidates";
@@ -29,6 +35,22 @@ export interface DashboardRefreshOptions {
 export interface DashboardRefreshResult extends DashboardPipelineResult {
   sourceFailures: string[];
   sourceCounts: Record<string, number>;
+  sourceHealth: DashboardRefreshSourceHealth;
+}
+
+export interface DashboardRefreshSourceHealth {
+  attemptedSourceCount: number;
+  successfulSourceCount: number;
+  failedSourceCount: number;
+  successRatio: number;
+  broadSourceFailure: boolean;
+}
+
+export interface DashboardRefreshSourceHealthInput {
+  returnerAttempted: number;
+  returnerSucceeded: number;
+  externalAttempted: number;
+  externalSucceeded: number;
 }
 
 /**
@@ -50,8 +72,10 @@ export async function refreshTechnologyDashboard(
       graph: await loadPublishedGraphSnapshot({ batchSlug, audienceId: "off" })
     }))
   );
+  let returnerSucceeded = 0;
   for (const result of graphs) {
     if (result.status === "fulfilled") {
+      returnerSucceeded += 1;
       const rows = dashboardCandidatesFromGraph(result.value.graph);
       candidates.push(...rows);
       sourceCounts[`returner:${result.value.batchSlug}`] = rows.length;
@@ -60,13 +84,17 @@ export async function refreshTechnologyDashboard(
     }
   }
 
+  let externalAttempted = 0;
+  let externalSucceeded = 0;
   if (options.includeExternal !== false) {
+    externalAttempted = dashboardExternalAttemptCount(options.external);
     const external = await discoverExternalDashboardCandidates({
       ...options.external,
       now,
       githubToken: options.external?.githubToken ?? process.env.GITHUB_TOKEN ?? null
     });
     candidates.push(...external.candidates);
+    externalSucceeded = external.sources.length;
     sourceCounts.industry = external.candidates.length;
     failures.push(...external.failures);
   }
@@ -103,8 +131,101 @@ export async function refreshTechnologyDashboard(
   return {
     ...pipeline,
     sourceFailures: [...new Set(failures)].sort(),
-    sourceCounts
+    sourceCounts,
+    sourceHealth: dashboardRefreshSourceHealth({
+      returnerAttempted: RETURNER_BATCHES.length,
+      returnerSucceeded,
+      externalAttempted,
+      externalSucceeded
+    })
   };
+}
+
+/**
+ * Provider success is measured independently of qualification. A healthy
+ * source is allowed to return zero Top-100 candidates; only a broad inability
+ * to read the configured source roster is treated as an outage.
+ */
+export function dashboardRefreshSourceHealth(
+  input: DashboardRefreshSourceHealthInput
+): DashboardRefreshSourceHealth {
+  const returnerAttempted = nonNegativeInteger(input.returnerAttempted);
+  const externalAttempted = nonNegativeInteger(input.externalAttempted);
+  const attemptedSourceCount = returnerAttempted + externalAttempted;
+  const successfulSourceCount = Math.min(
+    attemptedSourceCount,
+    Math.min(returnerAttempted, nonNegativeInteger(input.returnerSucceeded)) +
+      Math.min(externalAttempted, nonNegativeInteger(input.externalSucceeded))
+  );
+  const failedSourceCount = attemptedSourceCount - successfulSourceCount;
+  const successRatio = attemptedSourceCount > 0
+    ? successfulSourceCount / attemptedSourceCount
+    : 0;
+  return {
+    attemptedSourceCount,
+    successfulSourceCount,
+    failedSourceCount,
+    successRatio,
+    // Less than one quarter of independent adapters answering is a broad
+    // collection outage, not evidence that the rolling window is empty.
+    broadSourceFailure: attemptedSourceCount === 0 || successRatio < 0.25
+  };
+}
+
+/**
+ * Keep the last truthful projection when a broad source outage would shrink
+ * it. The publication clocks and story window deliberately remain unchanged:
+ * consumers can mark it stale instead of mistaking retained rows for a new
+ * rolling-window observation.
+ */
+export function retainPriorDashboardSnapshotOnBroadSourceFailure(
+  priorSnapshot: DashboardPublicSnapshot | null | undefined,
+  nextSnapshot: DashboardPublicSnapshot,
+  sourceHealth: DashboardRefreshSourceHealth,
+  failureLabels: readonly string[] = []
+): DashboardPublicSnapshot | null {
+  if (
+    !priorSnapshot ||
+    priorSnapshot.stories.length === 0 ||
+    !sourceHealth.broadSourceFailure ||
+    nextSnapshot.stories.length >= priorSnapshot.stories.length
+  ) {
+    return null;
+  }
+  return {
+    ...priorSnapshot,
+    status: {
+      ...priorSnapshot.status,
+      partialPlatformFailures: [...new Set([
+        ...priorSnapshot.status.partialPlatformFailures,
+        ...failureLabels,
+        "source_health_collapse",
+        "source_retained"
+      ])].sort()
+    }
+  };
+}
+
+function dashboardExternalAttemptCount(options: ExternalDiscoveryOptions | undefined): number {
+  // HN, GitHub repository search, and GitHub release events are always the
+  // first three bounded external jobs.
+  const fixedJobs = 3;
+  const rssJobs = options?.rssFeeds?.length ?? configuredRssFeedAttemptCount();
+  const researchJobs = options?.researchFeeds?.length ?? DEFAULT_DASHBOARD_RESEARCH_FEEDS.length;
+  const redditJobs = options?.redditSubreddits
+    ? new Set(options.redditSubreddits.map((value) => value.trim().toLowerCase()).filter(Boolean)).size
+    : DEFAULT_DASHBOARD_REDDIT_SUBREDDITS.length;
+  return fixedJobs + rssJobs + researchJobs + redditJobs;
+}
+
+function configuredRssFeedAttemptCount(): number {
+  const configured = process.env.DASHBOARD_RSS_FEEDS?.trim();
+  if (!configured) return DEFAULT_DASHBOARD_RSS_FEEDS.length;
+  return Math.min(8, configured.split(",").map((value) => value.trim()).filter(Boolean).length);
+}
+
+function nonNegativeInteger(value: number): number {
+  return Number.isFinite(value) ? Math.max(0, Math.trunc(value)) : 0;
 }
 
 /**

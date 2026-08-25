@@ -5,13 +5,16 @@ import { join } from "node:path";
 import { createServerSupabaseClient } from "@/lib/db/client";
 import {
   DASHBOARD_SCHEMA_VERSION,
+  DASHBOARD_MIN_SOCIAL_VIEWS,
   DASHBOARD_PLATFORMS,
+  DASHBOARD_SOURCE_KINDS,
   DASHBOARD_SOURCE_DETAIL_LIMIT,
   DASHBOARD_TOP_LIMIT,
   DASHBOARD_TOPICS,
   DASHBOARD_TREND_STATUSES,
   DASHBOARD_WINDOW_MS,
   DASHBOARD_VIEWS,
+  dashboardTop100ContentKind,
   isDashboardStoryStableKey,
   type DashboardPublicFeedSnapshot,
   type DashboardPublicSnapshot,
@@ -187,14 +190,11 @@ export function selectDashboardStorySourceDetail(
   };
 }
 
-/** Hourly workers use this atomic write after a successful, non-empty build. */
+/** Hourly workers atomically publish the truthful qualified set, even under 100. */
 export async function writePublicDashboardArtifact(snapshot: DashboardPublicSnapshot): Promise<void> {
   if (!isDashboardPublicSnapshot(snapshot)) throw new Error("Refusing to write an invalid dashboard snapshot.");
   if (!isCurrentDashboardSnapshot(snapshot)) {
     throw new Error("Refusing to publish a stale or future dashboard snapshot.");
-  }
-  if (snapshot.stories.length < DASHBOARD_TOP_LIMIT) {
-    throw new Error(`Refusing to replace a dashboard artifact with fewer than ${DASHBOARD_TOP_LIMIT} stories.`);
   }
   const serialized = JSON.stringify(snapshot);
   const feedSnapshot = toDashboardPublicFeedSnapshot(snapshot);
@@ -512,6 +512,7 @@ function toDashboardStoryPrimarySource(
     title: source.title,
     publisher: source.publisher,
     platform: source.platform,
+    sourceKind: source.sourceKind,
     publishedAt: source.publishedAt,
     metrics: source.metrics
   };
@@ -541,7 +542,9 @@ function isDashboardStory(value: unknown): value is DashboardStory {
     isMetrics(value.engagement) &&
     (value.thumbnailUrl === null || isHttpUrl(value.thumbnailUrl)) &&
     nullableBoundedString(value.thumbnailAlt, 240) &&
-    Array.isArray(value.sources) && value.sources.length === value.sourceCount && value.sources.every(isDashboardStorySource);
+    Array.isArray(value.sources) &&
+    value.sources.length === value.sourceCount &&
+    value.sources.every((source) => isDashboardStorySource(source) && isQualifiedTop100Source(source));
 }
 
 function isDashboardStoryCard(value: unknown): value is DashboardStoryCard {
@@ -570,7 +573,27 @@ function isDashboardStoryCard(value: unknown): value is DashboardStoryCard {
     isMetrics(value.engagement) &&
     (value.thumbnailUrl === null || isHttpUrl(value.thumbnailUrl)) &&
     nullableBoundedString(value.thumbnailAlt, 240) &&
-    (value.primarySource === null || isDashboardStoryPrimarySource(value.primarySource));
+    value.primarySource !== null && isDashboardStoryPrimarySource(value.primarySource) &&
+    isQualifiedTop100Source(value.primarySource);
+}
+
+function isQualifiedTop100Source(value: unknown): boolean {
+  if (
+    !isRecord(value) ||
+    typeof value.platform !== "string" ||
+    typeof value.sourceKind !== "string" ||
+    !(DASHBOARD_PLATFORMS as readonly string[]).includes(value.platform) ||
+    !(DASHBOARD_SOURCE_KINDS as readonly string[]).includes(value.sourceKind)
+  ) return false;
+  const contentKind = dashboardTop100ContentKind({
+    platform: value.platform as (typeof DASHBOARD_PLATFORMS)[number],
+    sourceKind: value.sourceKind as (typeof DASHBOARD_SOURCE_KINDS)[number]
+  });
+  if (contentKind === "news_article") return true;
+  if (contentKind !== "viral_post") return false;
+  if (!isRecord(value.metrics)) return false;
+  const views = value.metrics.views;
+  return typeof views === "number" && Number.isFinite(views) && views >= DASHBOARD_MIN_SOCIAL_VIEWS;
 }
 
 function isDashboardStoryPrimarySource(value: unknown): value is DashboardStoryPrimarySource {
@@ -580,6 +603,7 @@ function isDashboardStoryPrimarySource(value: unknown): value is DashboardStoryP
     nullableBoundedString(value.title, 500) &&
     nullableBoundedString(value.publisher, 300) &&
     typeof value.platform === "string" && (DASHBOARD_PLATFORMS as readonly string[]).includes(value.platform) &&
+    typeof value.sourceKind === "string" && (DASHBOARD_SOURCE_KINDS as readonly string[]).includes(value.sourceKind) &&
     validTimestamp(value.publishedAt) &&
     isMetrics(value.metrics);
 }
@@ -602,7 +626,8 @@ function isDashboardStorySource(value: unknown): boolean {
     boundedString(value.canonicalKey, 1_000) &&
     boundedString(value.platform, 80) &&
     boundedString(value.nativePlatform, 80) &&
-    boundedString(value.sourceKind, 80) &&
+    typeof value.sourceKind === "string" && (DASHBOARD_SOURCE_KINDS as readonly string[]).includes(value.sourceKind) &&
+    value.verificationState === "verified" &&
     isHttpUrl(value.url) &&
     (value.destinationUrl === null || isHttpUrl(value.destinationUrl)) &&
     nullableBoundedString(value.title, 500) &&

@@ -20,6 +20,16 @@ import {
   AUTONOMOUS_RUNNER_WALL_CLOCK_BUDGET_MS,
   AUTONOMOUS_RUNNER_WORKFLOW_HEADROOM_MS
 } from "../scripts/lib/autonomous-ingestion-budget.mjs";
+import {
+  AUTONOMOUS_WORKFLOW_ATTEMPT_ALLOWANCE_MS,
+  AUTONOMOUS_WORKFLOW_CHILD_TERMINATION_GRACE_MS,
+  AUTONOMOUS_WORKFLOW_MINIMUM_ATTEMPT_WINDOW_MS,
+  classifyAutonomousWorkflowAttempt,
+  executeAutonomousWorkflowAttempt,
+  parseAutonomousWorkflowAttemptOutput,
+  parseAutonomousWorkflowRetryConfig,
+  runAutonomousWorkflowRetries
+} from "../scripts/lib/autonomous-ingestion-workflow-retry.mjs";
 import { DAILY_BENCHMARK_UTC_CRON_CANDIDATES } from "../scripts/lib/daily-benchmark-schedule.mjs";
 import { INGESTION_UTC_CRON_CANDIDATES } from "../scripts/lib/ingestion-schedule.mjs";
 
@@ -1159,13 +1169,235 @@ test("workflow gates work through the schedule helper and stable key", () => {
   assert.match(workflow, /--recovery-debt="\$CANDIDATE_RECOVERY_DEBT"/);
 });
 
+test("workflow retry policy retries transport failures but fails closed on semantic ambiguity", () => {
+  const outcome = ({
+    runnerStatus = "failed",
+    publicationStatus = "",
+    failureMessage = "",
+    publishedCommit = ""
+  } = {}) => [
+    `runner_status=${runnerStatus}`,
+    `publication_status=${publicationStatus}`,
+    `failure_message=${failureMessage}`,
+    `published_commit=${publishedCommit}`
+  ].join("\n");
+
+  for (const failureMessage of [
+    "Ingestion lease heartbeat failed; publication aborted: TypeError: fetch failed",
+    "import durable evidence snapshots timed out after 300000ms.",
+    "GitHub request failed with HTTP status 503",
+    "collector failed with ECONNRESET"
+  ]) {
+    const decision = classifyAutonomousWorkflowAttempt({
+      exitCode: 1,
+      output: outcome({ failureMessage })
+    });
+    assert.equal(decision.retryable, true, failureMessage);
+    assert.equal(decision.reason, "transient-infrastructure-failure");
+  }
+
+  for (const failureMessage of [
+    "Another ingestion coordinator owns the non-expired autonomous-ingestion lease.",
+    "The ingestion runtime lock expired or was taken by another worker.",
+    "Queued candidate is superseded by a newer Central slot.",
+    "Unrecognized evidence schema."
+  ]) {
+    const decision = classifyAutonomousWorkflowAttempt({
+      exitCode: 1,
+      output: outcome({ failureMessage })
+    });
+    assert.equal(decision.retryable, false, failureMessage);
+  }
+
+  const publishedFailure = classifyAutonomousWorkflowAttempt({
+    exitCode: 1,
+    output: outcome({
+      failureMessage: "fetch failed after publication",
+      publishedCommit: "a".repeat(40)
+    })
+  });
+  assert.equal(publishedFailure.reason, "publication-may-have-completed");
+  assert.equal(publishedFailure.retryable, false);
+
+  const completed = classifyAutonomousWorkflowAttempt({
+    exitCode: 0,
+    output: outcome({
+      runnerStatus: "refreshed",
+      publicationStatus: "published",
+      publishedCommit: "b".repeat(40)
+    })
+  });
+  assert.equal(completed.completed, true);
+
+  const canceled = classifyAutonomousWorkflowAttempt({
+    exitCode: 143,
+    signal: "SIGTERM",
+    output: outcome({ failureMessage: "fetch failed" })
+  });
+  assert.equal(canceled.reason, "runner-terminated");
+  assert.equal(canceled.retryable, false);
+});
+
+test("workflow retry policy isolates attempt outputs and enforces a bounded job budget", () => {
+  assert.equal(
+    parseAutonomousWorkflowAttemptOutput("runner_status=failed\nrunner_status=refreshed\n").valid,
+    false
+  );
+  assert.deepEqual(
+    parseAutonomousWorkflowRetryConfig({
+      AUTONOMOUS_WORKFLOW_RETRY_MAX_ATTEMPTS: "6",
+      AUTONOMOUS_WORKFLOW_RETRY_MAX_ELAPSED_SECONDS: "20700",
+      AUTONOMOUS_WORKFLOW_RETRY_MIN_REMAINING_SECONDS: "19860",
+      AUTONOMOUS_WORKFLOW_RETRY_DELAYS_SECONDS: "30,120,300,600,900"
+    }),
+    {
+      maxAttempts: 6,
+      maxElapsedSeconds: 20_700,
+      minRemainingSeconds: 19_860,
+      retryDelaysSeconds: [30, 120, 300, 600, 900]
+    }
+  );
+  assert.throws(
+    () => parseAutonomousWorkflowRetryConfig({ AUTONOMOUS_WORKFLOW_RETRY_MAX_ATTEMPTS: "forever" }),
+    /must be an integer/
+  );
+  assert.throws(
+    () => parseAutonomousWorkflowRetryConfig({
+      AUTONOMOUS_WORKFLOW_RETRY_MAX_ELAPSED_SECONDS: "19200",
+      AUTONOMOUS_WORKFLOW_RETRY_MIN_REMAINING_SECONDS: "900"
+    }),
+    /must be an integer between 19860 and 21000/
+  );
+  assert.equal(
+    AUTONOMOUS_WORKFLOW_ATTEMPT_ALLOWANCE_MS,
+    AUTONOMOUS_RUNNER_WALL_CLOCK_BUDGET_MS + AUTONOMOUS_RUNNER_WORKFLOW_HEADROOM_MS
+  );
+  assert.equal(
+    AUTONOMOUS_WORKFLOW_MINIMUM_ATTEMPT_WINDOW_MS,
+    AUTONOMOUS_WORKFLOW_ATTEMPT_ALLOWANCE_MS + 60_000
+  );
+  assert.equal(
+    AUTONOMOUS_WORKFLOW_CHILD_TERMINATION_GRACE_MS,
+    AUTONOMOUS_RUNNER_WORKFLOW_HEADROOM_MS
+  );
+});
+
+test("workflow attempt deadline allows the child to finish cancellation cleanup before hard kill", async (t) => {
+  const directory = mkdtempSync(path.join(tmpdir(), "returner-workflow-deadline-"));
+  t.after(() => rmSync(directory, { recursive: true, force: true }));
+  const fixture = path.join(directory, "cleanup-runner.mjs");
+  const cleanupMarker = path.join(directory, "cleanup-marker");
+  const attemptOutputPath = path.join(directory, "attempt-output");
+  writeFileSync(
+    fixture,
+    [
+      'import { writeFileSync } from "node:fs";',
+      'process.on("SIGTERM", () => {',
+      '  writeFileSync(process.env.CLEANUP_MARKER, "sigterm\\n", { flag: "a" });',
+      '  setTimeout(() => {',
+      '    writeFileSync(process.env.CLEANUP_MARKER, "cleanup-complete\\n", { flag: "a" });',
+      '    process.exit(143);',
+      '  }, 100);',
+      '});',
+      'setInterval(() => {}, 1_000);'
+    ].join("\n")
+  );
+
+  const execution = await executeAutonomousWorkflowAttempt({
+    runnerPath: fixture,
+    runnerArguments: [],
+    attemptOutputPath,
+    environment: { ...process.env, CLEANUP_MARKER: cleanupMarker },
+    deadlineAt: Date.now() + 1_000,
+    now: Date.now,
+    onChild: () => {},
+    terminationGraceMs: 2_000
+  });
+
+  assert.equal(execution.deadlineExpired, true);
+  assert.equal(execution.exitCode, 143);
+  assert.equal(execution.signal, null);
+  assert.equal(readFileSync(cleanupMarker, "utf8"), "sigterm\ncleanup-complete\n");
+});
+
+test("workflow retry controller never starts a child with a truncated runner-cleanup window", async (t) => {
+  const directory = mkdtempSync(path.join(tmpdir(), "returner-workflow-window-"));
+  t.after(() => rmSync(directory, { recursive: true, force: true }));
+  const fixture = path.join(directory, "must-not-start.mjs");
+  const startedMarker = path.join(directory, "started-marker");
+  const githubOutput = path.join(directory, "github-output");
+  writeFileSync(
+    fixture,
+    'import { writeFileSync } from "node:fs";\n' +
+      'writeFileSync(process.env.STARTED_MARKER, "started\\n");\n'
+  );
+  let clockRead = 0;
+  const exitCode = await runAutonomousWorkflowRetries({
+    runnerArguments: [],
+    runnerPath: fixture,
+    environment: {
+      ...process.env,
+      GITHUB_OUTPUT: githubOutput,
+      RUNNER_TEMP: directory,
+      STARTED_MARKER: startedMarker,
+      AUTONOMOUS_WORKFLOW_RETRY_MAX_ATTEMPTS: "1"
+    },
+    // The controller starts at zero, but by the first admission check only
+    // 330 minutes remain—enough for the old arithmetic, but not the complete
+    // 331-minute runner, cleanup, and startup contract.
+    now: () => clockRead++ === 0 ? 0 : 15 * 60_000
+  });
+
+  assert.equal(exitCode, 1);
+  assert.equal(existsSync(startedMarker), false);
+  const output = readFileSync(githubOutput, "utf8");
+  assert.match(output, /^workflow_retry_attempts=0$/m);
+  assert.match(output, /^workflow_retry_disposition=attempt-not-started$/m);
+});
+
+test("workflow retry controller forwards only the final isolated attempt outcome", async (t) => {
+  const directory = mkdtempSync(path.join(tmpdir(), "returner-workflow-retry-"));
+  t.after(() => rmSync(directory, { recursive: true, force: true }));
+  const fixture = path.join(directory, "successful-runner.mjs");
+  const githubOutput = path.join(directory, "github-output");
+  writeFileSync(
+    fixture,
+    [
+      'import { appendFileSync } from "node:fs";',
+      'appendFileSync(process.env.GITHUB_OUTPUT, [',
+      '  "runner_status=refreshed",',
+      '  "publication_status=published",',
+      '  "failure_message=",',
+      `  "published_commit=${"c".repeat(40)}"`,
+      '].join("\\n") + "\\n");'
+    ].join("\n")
+  );
+
+  const exitCode = await runAutonomousWorkflowRetries({
+    runnerArguments: [],
+    runnerPath: fixture,
+    environment: {
+      ...process.env,
+      GITHUB_OUTPUT: githubOutput,
+      RUNNER_TEMP: directory,
+      AUTONOMOUS_WORKFLOW_RETRY_MAX_ATTEMPTS: "1"
+    }
+  });
+  assert.equal(exitCode, 0);
+  const output = readFileSync(githubOutput, "utf8");
+  assert.equal((output.match(/^runner_status=/gm) ?? []).length, 1);
+  assert.match(output, /^runner_status=refreshed$/m);
+  assert.match(output, /^workflow_retry_attempts=1$/m);
+  assert.match(output, /^workflow_retry_disposition=completed$/m);
+});
+
 test("autonomous runner receives optional durability secrets and owns validated publication", () => {
   const runnerStep = workflow.match(
     /- name: Run autonomous ingestion([\s\S]*?)(?=\n\s{6}- name:)/
   )?.[1];
   assert.ok(runnerStep, "missing autonomous ingestion step");
   assert.match(runnerStep, /id:\s*ingestion/);
-  assert.match(runnerStep, /timeout-minutes:\s*330/);
+  assert.match(runnerStep, /timeout-minutes:\s*355/);
   assert.match(runnerStep, /NODE_OPTIONS:\s*--max-old-space-size=3072/);
   assert.match(runnerStep, /NEXT_PUBLIC_SUPABASE_URL:\s*\$\{\{ secrets\.NEXT_PUBLIC_SUPABASE_URL \}\}/);
   assert.match(runnerStep, /SUPABASE_SERVICE_ROLE_KEY:\s*\$\{\{ secrets\.SUPABASE_SERVICE_ROLE_KEY \}\}/);
@@ -1175,10 +1407,20 @@ test("autonomous runner receives optional durability secrets and owns validated 
   assert.doesNotMatch(runnerStep, /REDDIT_(?:CLIENT_ID|CLIENT_SECRET|USER_AGENT)/);
   assert.doesNotMatch(runnerStep, /NEXT_PUBLIC_SUPABASE_URL:\?/);
   assert.doesNotMatch(runnerStep, /SUPABASE_SERVICE_ROLE_KEY:\?/);
-  assert.match(runnerStep, /node scripts\/run-autonomous-ingestion\.mjs/);
+  assert.match(runnerStep, /node scripts\/lib\/autonomous-ingestion-workflow-retry\.mjs --/);
   assert.match(runnerStep, /IOPMUserTriggeredFullWake/);
+  assert.match(runnerStep, /pmset -g batt/);
   assert.match(runnerStep, /\/usr\/bin\/caffeinate -dimsu -w \$\$/);
-  assert.match(runnerStep, /exec node scripts\/run-autonomous-ingestion\.mjs/);
+  assert.match(runnerStep, /\/usr\/bin\/caffeinate -u -t 30/);
+  assert.doesNotMatch(runnerStep, /exec node scripts\/run-autonomous-ingestion\.mjs/);
+  assert.match(runnerStep, /AUTONOMOUS_WORKFLOW_RETRY_MAX_ATTEMPTS:\s*"6"/);
+  assert.match(runnerStep, /AUTONOMOUS_WORKFLOW_RETRY_MAX_ELAPSED_SECONDS:\s*"20700"/);
+  assert.match(runnerStep, /AUTONOMOUS_WORKFLOW_RETRY_MIN_REMAINING_SECONDS:\s*"19860"/);
+  assert.match(runnerStep, /AUTONOMOUS_WORKFLOW_RETRY_DELAYS_SECONDS:\s*"30,120,300,600,900"/);
+  assert.ok(
+    runnerStep.indexOf("/usr/bin/caffeinate -dimsu -w $$") < runnerStep.indexOf("pmset -g batt"),
+    "wake assertion must be installed before the runner power preflight"
+  );
   assert.match(runnerStep, /INGESTION_PUBLICATION_BRANCH:\s*main/);
   assert.match(runnerStep, /CANDIDATE_TRIGGER:\s*\$\{\{ needs\.resolve\.outputs\.trigger \}\}/);
   assert.match(runnerStep, /CANDIDATE_SCHEDULED_AT:\s*\$\{\{ needs\.resolve\.outputs\.scheduled_at \}\}/);
@@ -2045,9 +2287,9 @@ test("workflow step budgets leave setup and scheduling headroom", () => {
   const installTimeout = Number(workflow.match(/- name: Install dependencies[\s\S]*?timeout-minutes:\s*(\d+)/)?.[1]);
   const runnerTimeout = Number(workflow.match(/- name: Run autonomous ingestion[\s\S]*?timeout-minutes:\s*(\d+)/)?.[1]);
 
-  assert.equal(jobTimeout, 360);
+  assert.equal(jobTimeout, 390);
   assert.equal(installTimeout, 5);
-  assert.equal(runnerTimeout, 330);
+  assert.equal(runnerTimeout, 355);
   assert.ok(runnerTimeout < jobTimeout);
   assert.ok(installTimeout + runnerTimeout < jobTimeout);
   assert.ok(
@@ -2057,8 +2299,12 @@ test("workflow step budgets leave setup and scheduling headroom", () => {
   assert.ok(maxAutonomousRunnerProcessBudgetMs() < runnerTimeout * 60_000);
   assert.equal(
     AUTONOMOUS_RUNNER_WALL_CLOCK_BUDGET_MS + AUTONOMOUS_RUNNER_WORKFLOW_HEADROOM_MS,
-    runnerTimeout * 60_000,
-    "the enforced runner deadline must leave explicit cleanup headroom inside the workflow step"
+    AUTONOMOUS_WORKFLOW_ATTEMPT_ALLOWANCE_MS,
+    "every child attempt must retain its complete runner and cleanup allowance"
+  );
+  assert.ok(
+    20_700_000 + AUTONOMOUS_WORKFLOW_CHILD_TERMINATION_GRACE_MS < runnerTimeout * 60_000,
+    "the controller deadline and safe child signal grace must leave step-finalization headroom"
   );
   assert.ok(maxAutonomousRunnerProcessBudgetMs() < AUTONOMOUS_RUNNER_WALL_CLOCK_BUDGET_MS);
   assert.ok(

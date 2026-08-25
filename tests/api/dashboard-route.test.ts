@@ -1,7 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type {
-  DashboardPublicFeedSnapshot,
-  DashboardStorySourceDetail
+import {
+  DASHBOARD_SCHEMA_VERSION,
+  type DashboardPublicFeedSnapshot,
+  type DashboardStorySourceDetail
 } from "@/lib/dashboard/contracts";
 
 const dashboardStore = vi.hoisted(() => ({
@@ -49,6 +50,7 @@ describe("dashboard public API routes", () => {
         title: "Route source",
         publisher: "Example",
         platform: "news",
+        sourceKind: "article",
         publishedAt: "2026-08-15T11:00:00.000Z",
         metrics: { views: 10 }
       }]
@@ -78,11 +80,11 @@ describe("dashboard public API routes", () => {
 
 function compactFeed(): DashboardPublicFeedSnapshot {
   return {
-    schemaVersion: "technology-dashboard-v1",
+    schemaVersion: DASHBOARD_SCHEMA_VERSION,
     sourceSnapshotFingerprint: "dsh-route-test",
     generatedAt: "2026-08-15T12:00:00.000Z",
     updatedAt: "2026-08-15T12:00:00.000Z",
-    windowStart: "2026-08-14T12:00:00.000Z",
+    windowStart: "2026-08-12T12:00:00.000Z",
     windowEnd: "2026-08-15T12:00:00.000Z",
     todayInTech: [],
     stories: [{
@@ -115,6 +117,7 @@ function compactFeed(): DashboardPublicFeedSnapshot {
         title: "Route source",
         publisher: "Example",
         platform: "news",
+        sourceKind: "article",
         publishedAt: "2026-08-15T11:00:00.000Z",
         metrics: { views: 10 }
       }

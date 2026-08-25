@@ -22,12 +22,14 @@ describe("Returner dashboard candidates", () => {
     });
   });
 
-  it("marks only verified, scored company social evidence for historical dashboard retention", () => {
+  it("carries source qualification for verified company and founder social evidence", () => {
     const companyPost = {
       ...evidence("company", "2026-08-12T09:00:00.000Z", 240),
       entityType: "company" as const,
       entityId: "company-1",
       review_state: "verified" as const,
+      linkStatus: "verified" as const,
+      publishedAtPrecision: "exact" as const,
       tractionStatus: "scored" as const,
       contributionScore: 25,
       title: "Company launches an AI developer platform",
@@ -45,8 +47,13 @@ describe("Returner dashboard candidates", () => {
       evidence: [companyPost, founderPost]
     } as unknown as GraphResponse);
 
-    expect(candidates.find((candidate) => candidate.id.endsWith(":company"))?.socialBackfillEligible).toBe(true);
-    expect(candidates.find((candidate) => candidate.id.endsWith(":founder"))?.socialBackfillEligible).toBe(false);
+    expect(candidates.find((candidate) => candidate.id.endsWith(":company"))).toMatchObject({
+      socialBackfillEligible: true,
+      sourceVerified: true,
+      sourceLinkStatus: "verified",
+      publicationPrecision: "exact"
+    });
+    expect(candidates.find((candidate) => candidate.id.endsWith(":founder"))?.socialBackfillEligible).toBe(true);
   });
 });
 

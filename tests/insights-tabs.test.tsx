@@ -198,10 +198,16 @@ describe("insights tabs", () => {
     expect(rankedTab).toHaveFocus();
     expect(rankedTab).toHaveAttribute("aria-selected", "true");
     expect(screen.getByRole("tabpanel")).toHaveAttribute("aria-labelledby", "insights-tab-ranked");
-    expect(screen.getByLabelText("Ranked post eligibility")).toHaveTextContent("Rolling 72 hours");
-    expect(screen.getByLabelText("Ranked post eligibility")).toHaveTextContent("1M+ views");
-    expect(screen.queryByRole("button", { name: "All time" })).not.toBeInTheDocument();
-    expect(screen.getByText("Exactly how posts are surfaced")).toBeInTheDocument();
+    const rankedPeriodGroup = screen.getByRole("group", { name: "Ranked posts period" });
+    expect(rankedPeriodGroup).toHaveClass("ranked-posts-period-toggle");
+    expect(within(rankedPeriodGroup).getAllByRole("button").map((button) => button.textContent)).toEqual([
+      "All time",
+      "Today",
+      "Month"
+    ]);
+    expect(screen.getByRole("button", { name: "All time" })).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByRole("button", { name: "Today" })).toHaveAttribute("aria-pressed", "false");
+    expect(screen.getByRole("button", { name: "Month" })).toHaveAttribute("aria-pressed", "false");
 
     fireEvent.keyDown(rankedTab, { key: "ArrowRight" });
 
@@ -293,101 +299,122 @@ describe("insights tabs", () => {
     expect(screen.getByText("Founders").closest(".stats-metric")).toHaveTextContent("75% have sources");
   });
 
-  it("renders the fixed 72-hour, million-view brief with explicit scoring and no stale filler", () => {
+  it("renders at most 100 physically deduplicated ranked posts and a reliable Today empty state", () => {
     const graph = buildGraphResponse({ batchSlug: "S2026" }, ycSpring2026GraphDataset);
-    const company = graph.nodes.find((node) => node.entityType === "company")!;
-    const post = (
-      id: string,
-      title: string,
-      postedAt: string,
-      views: number
-    ): GraphResponse["evidence"][number] => ({
-      id,
-      batchSlug: "S2026",
-      entityType: "company",
-      entityId: company.entityId,
-      attachedCompanyId: company.entityId,
-      attachedCompanyName: company.label,
-      platform: "x",
-      authorName: "Viral test",
-      authorHandle: "viraltest",
-      postedAt,
-      publishedAtPrecision: "exact",
-      title,
-      text: title,
-      mediaType: "video",
-      metrics: { views, likes: 40_000, replies: 2_000, reposts: 8_000 },
-      contributionScore: 90,
-      normalizedScore: 90,
-      rawEngagement: views,
-      tractionStatus: "scored",
-      sourceUrl: `https://x.com/viraltest/status/${id}`,
-      platformPostId: id,
-      why: "Strict viral brief test",
-      review_state: "verified",
-      linkStatus: "verified"
-    });
-    graph.evidence = [
-      post("2100000000000001001", "Qualified viral post", "2026-08-21T12:00:00.000Z", 2_500_000),
-      post("2100000000000001002", "Below the reach gate", "2026-08-21T13:00:00.000Z", 999_999),
-      post("2100000000000001003", "Older than 72 hours", "2026-08-18T00:00:00.000Z", 12_000_000),
-      {
-        ...post("2100000000000001004", "Qualified news article", "2026-08-22", 0),
-        platform: "web",
-        mediaType: "link",
-        metrics: {},
-        contributionScore: 0,
-        normalizedScore: 0,
-        rawEngagement: 0,
-        tractionStatus: "unscored",
-        sourceUrl: "https://news.example/rss.xml",
-        platformPostId: "https://news.example/qualified-article",
-        publishedAtPrecision: "day"
-      }
-    ];
     render(
       <InsightsTabs
         graph={graph}
-        now={new Date("2026-08-22T18:00:00.000Z")}
+        now={new Date("2099-01-01T18:00:00.000Z")}
         onSelectNode={vi.fn()}
       />
     );
 
     fireEvent.click(screen.getByRole("tab", { name: "Ranked Posts" }));
-    expect(screen.getByRole("heading", { name: "Top 100 from the last 72 hours" })).toBeInTheDocument();
-    expect(screen.getByText(/Reach: 25 points at 1M views, log-scaled to 50 at 100M\+/)).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "Top performing posts" })).not.toBeInTheDocument();
+    expect(screen.queryByText(/Scores use graph evidence available as of/i)).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Today" }));
+    expect(screen.getByText("No reliably dated posts were published today.")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Month" }));
+    expect(screen.getByText("No reliably dated posts were published in the last 30 days.")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "All time" }));
     const list = screen.getByRole("list", { name: "Ranked posts" });
     const posts = within(list).getAllByRole("listitem");
-    expect(posts).toHaveLength(2);
-    expect(within(list).getByText("Qualified viral post")).toBeInTheDocument();
-    expect(within(list).getByText("Qualified news article")).toBeInTheDocument();
-    expect(within(list).queryByText("Below the reach gate")).not.toBeInTheDocument();
-    expect(within(list).queryByText("Older than 72 hours")).not.toBeInTheDocument();
+    expect(posts.length).toBeGreaterThan(0);
+    expect(posts.length).toBeLessThanOrEqual(100);
     const firstPost = posts[0];
-    expect(firstPost.querySelector("article.viral-post-card")).toBeInTheDocument();
-    expect(firstPost.querySelector(".viral-post-details time")).toHaveAttribute("datetime");
-    expect(firstPost.querySelector(".viral-post-why")).toHaveTextContent(/Why:/);
-    const score = firstPost.querySelector<HTMLElement>(".viral-post-score");
-    expect(score).toHaveAttribute("aria-label", expect.stringMatching(/^Surfacing score .* out of 100$/));
-    expect(firstPost.querySelector(".viral-post-rank .rank-medal, .viral-post-rank .rank-number")).toBeInTheDocument();
-    const rowLink = within(firstPost).getByRole("link", { name: /Open rank \d+:/i });
+    expect(firstPost.querySelector("article.ranked-post-card")).toBeInTheDocument();
+    expect(firstPost.querySelector(".ranked-post-primary-row")).toContainElement(
+      firstPost.querySelector(".ranked-post-company")
+    );
+    expect(firstPost.querySelector(".ranked-post-primary-row")).toContainElement(
+      firstPost.querySelector(".ranked-post-meta")
+    );
+    expect(firstPost.querySelector(".ranked-post-meta time")).toHaveAttribute("datetime");
+    expect(firstPost.querySelector(".ranked-post-title")).not.toBeEmptyDOMElement();
+    expect(firstPost.querySelector(".ranked-post-title-row")).toContainElement(
+      firstPost.querySelector(".ranked-post-title")
+    );
+    expect(firstPost.querySelector(".ranked-post-details")).toBeInTheDocument();
+    const score = firstPost.querySelector<HTMLElement>(".ranked-post-score");
+    expect(firstPost.querySelector(".ranked-post-title-row")).not.toContainElement(score);
+    expect(firstPost.querySelector("article.ranked-post-card")).toContainElement(score);
+    expect(score?.parentElement).toBe(firstPost.querySelector("article.ranked-post-card"));
+    expect(score).toHaveTextContent(/^\d+$/);
+    expect(score).toHaveAttribute("aria-label", expect.stringMatching(/^Post score \d+$/));
+    expect(score?.querySelector("span, small")).not.toBeInTheDocument();
+    expect(firstPost.querySelector(".ranked-post-rank .rank-medal, .ranked-post-rank .rank-number")).toBeInTheDocument();
+    const rowLink = within(firstPost).getByRole("link", { name: /Open .* post on /i });
     expect(rowLink).toHaveAttribute("href");
     expect(rowLink).toHaveAttribute("target", "_blank");
-    expect(rowLink).toContainElement(firstPost.querySelector("article.viral-post-card"));
+    expect(rowLink).toContainElement(firstPost.querySelector("article.ranked-post-card"));
+    expect(firstPost.querySelector(".ranked-post-taxonomies")).not.toBeInTheDocument();
   });
 
-  it("keeps the 72-hour window mandatory instead of exposing stale period controls", () => {
-    render(<InsightsTabs graph={graphResponse()} now={new Date("2026-08-22T18:00:00.000Z")} onSelectNode={vi.fn()} />);
+  it("shows only reliably dated posts inside the rolling Month window", () => {
+    const now = new Date("2026-07-29T18:00:00.000Z");
+    const graph = buildGraphResponse({ batchSlug: "S2026" }, ycSpring2026GraphDataset);
+    const company = graph.nodes.find((node) => node.entityType === "company");
+    expect(company).toBeDefined();
+
+    const monthEvidence = (
+      id: string,
+      title: string,
+      postedAt: string,
+      publishedAtPrecision: "exact" | "unknown" = "exact"
+    ): GraphResponse["evidence"][number] => ({
+      id,
+      batchSlug: "S2026",
+      entityType: "company",
+      entityId: company!.entityId,
+      attachedCompanyId: company!.entityId,
+      attachedCompanyName: company!.label,
+      platform: "x",
+      authorName: "Month test",
+      authorHandle: "monthtest",
+      postedAt,
+      publishedAtPrecision,
+      title,
+      text: title,
+      mediaType: "text",
+      metrics: { views: 1_000, likes: 25 },
+      contributionScore: 70,
+      normalizedScore: 70,
+      tractionStatus: "scored",
+      sourceUrl: `https://x.com/monthtest/status/${id}`,
+      platformPostId: id,
+      why: "Month visibility test",
+      review_state: "verified",
+      linkStatus: "verified"
+    });
+
+    graph.evidence = [
+      monthEvidence("2100000000000000001", "Inside the rolling month", "2026-07-15T12:00:00.000Z"),
+      monthEvidence("2100000000000000002", "Older than the rolling month", "2026-06-20T12:00:00.000Z"),
+      monthEvidence("2100000000000000003", "Future publication", "2026-07-30T12:00:00.000Z"),
+      monthEvidence(
+        "2100000000000000004",
+        "Unknown publication precision",
+        "2026-07-20T12:00:00.000Z",
+        "unknown"
+      )
+    ];
+
+    render(<InsightsTabs graph={graph} now={now} onSelectNode={vi.fn()} />);
     fireEvent.click(screen.getByRole("tab", { name: "Ranked Posts" }));
+    fireEvent.click(screen.getByRole("button", { name: "Month" }));
 
-    expect(screen.getByLabelText("Ranked post eligibility")).toHaveTextContent("Rolling 72 hours");
-    expect(screen.queryByRole("button", { name: "Today" })).not.toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: "Month" })).not.toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: "All time" })).not.toBeInTheDocument();
-    expect(screen.getByText("No items clear the strict 72-hour surfacing gates yet.")).toBeInTheDocument();
+    const list = screen.getByRole("list", { name: "Ranked posts" });
+    expect(within(list).getAllByRole("listitem")).toHaveLength(1);
+    expect(within(list).getByText("Inside the rolling month")).toBeInTheDocument();
+    expect(within(list).queryByText("Older than the rolling month")).not.toBeInTheDocument();
+    expect(within(list).queryByText("Future publication")).not.toBeInTheDocument();
+    expect(within(list).queryByText("Unknown publication precision")).not.toBeInTheDocument();
   });
 
-  it("uses native publication time for the 72-hour feed across platforms and ignores refresh timestamps", () => {
+  it("uses native publication time for Today across platforms and ignores refresh timestamps", () => {
     const now = new Date("2026-07-31T18:00:00.000Z");
     const graph = buildGraphResponse({ batchSlug: "S2026" }, ycSpring2026GraphDataset);
     const company = graph.nodes.find((node) => node.entityType === "company");
@@ -400,7 +427,7 @@ describe("insights tabs", () => {
         platformPostId: "native-date-test/repository",
         todaySourceUrl: "https://github.com/native-date-test/repository-new",
         todayPostId: "native-date-test/repository-new",
-        metrics: { stars: 250, views: 2_000_000 },
+        metrics: { stars: 250 },
         mediaType: "repo" as const
       },
       {
@@ -409,7 +436,7 @@ describe("insights tabs", () => {
         platformPostId: "2100000000000000101",
         todaySourceUrl: "https://x.com/nativedatetest/status/2100000000000000201",
         todayPostId: "2100000000000000201",
-        metrics: { views: 2_500_000, likes: 80 },
+        metrics: { views: 2_500, likes: 80 },
         mediaType: "text" as const
       },
       {
@@ -418,7 +445,7 @@ describe("insights tabs", () => {
         platformPostId: "2100000000000000102",
         todaySourceUrl: "https://www.linkedin.com/feed/update/urn:li:activity:2100000000000000202",
         todayPostId: "2100000000000000202",
-        metrics: { reactions: 90, views: 2_000_000 },
+        metrics: { reactions: 90 },
         mediaType: "text" as const
       },
       {
@@ -427,7 +454,7 @@ describe("insights tabs", () => {
         platformPostId: "NativeDateTest",
         todaySourceUrl: "https://www.instagram.com/p/NativeDateToday/",
         todayPostId: "NativeDateToday",
-        metrics: { views: 3_000_000, likes: 120 },
+        metrics: { views: 3_000, likes: 120 },
         mediaType: "image" as const
       }
     ];
@@ -483,6 +510,7 @@ describe("insights tabs", () => {
 
     render(<InsightsTabs graph={graph} now={now} onSelectNode={vi.fn()} />);
     fireEvent.click(screen.getByRole("tab", { name: "Ranked Posts" }));
+    fireEvent.click(screen.getByRole("button", { name: "Today" }));
 
     const list = screen.getByRole("list", { name: "Ranked posts" });
     for (const { platform } of platforms) {
@@ -492,14 +520,23 @@ describe("insights tabs", () => {
     expect(within(list).getAllByRole("listitem")).toHaveLength(platforms.length);
   });
 
-  it("lays the Top 100 out as five cards per desktop row with 20-row capacity", () => {
+  it("keeps every ranked-post label readable instead of clipping it into an ellipsis", () => {
     const css = readFileSync("src/app/globals.css", "utf8");
-    const rankedListRule = css.match(/\.ranked-posts-list\s*\{([^}]*)\}/)?.[1];
-    const cardRule = css.match(/\.viral-post-card\s*\{([^}]*)\}/)?.[1];
+    const rankedPostRules = css.slice(
+      css.indexOf(".ranked-post-card"),
+      css.indexOf(".ranked-posts-empty")
+    );
 
-    expect(rankedListRule).toMatch(/grid-template-columns:\s*repeat\(5,\s*minmax\(0,\s*1fr\)\)/);
-    expect(cardRule).toMatch(/height:\s*100%/);
-    expect(cardRule).toMatch(/flex-direction:\s*column/);
+    expect(rankedPostRules).toMatch(
+      /grid-template-columns:\s*32px\s+86px\s+minmax\(0,\s*1fr\)\s+52px/
+    );
+    expect(rankedPostRules).not.toMatch(/grid-template-columns:[^;]*minmax\(0,\s*560px\)/);
+    expect(rankedPostRules).not.toMatch(/text-overflow:\s*ellipsis/);
+    expect(rankedPostRules).not.toMatch(/white-space:\s*nowrap/);
+    expect(rankedPostRules).not.toMatch(/overflow:\s*hidden/);
+    expect(rankedPostRules).toMatch(/overflow-wrap:\s*anywhere/);
+    expect(rankedPostRules).toMatch(/white-space:\s*normal/);
+    expect(rankedPostRules).toMatch(/flex-wrap:\s*wrap/);
   });
 
   it("does not show a separate score scope or Top Voices audience strip", () => {

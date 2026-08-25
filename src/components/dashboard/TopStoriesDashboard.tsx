@@ -2,6 +2,8 @@
 
 import {
   ChevronDown,
+  Clock3,
+  Eye,
   ExternalLink,
   Sparkles
 } from "lucide-react";
@@ -11,15 +13,19 @@ import { PlatformLogo, formatPlatform } from "@/components/PlatformLogo";
 import {
   DASHBOARD_PLATFORMS,
   DASHBOARD_SCHEMA_VERSION,
+  DASHBOARD_MIN_SOCIAL_VIEWS,
+  DASHBOARD_SOURCE_KINDS,
   DASHBOARD_SOURCE_DETAIL_LIMIT,
   DASHBOARD_TOP_LIMIT,
   DASHBOARD_TOPICS,
   DASHBOARD_TREND_STATUSES,
   DASHBOARD_VIEWS,
   DASHBOARD_WINDOW_MS,
+  dashboardTop100ContentKind,
   type DashboardMetrics,
   type DashboardPublicFeedSnapshot,
   type DashboardStoryCard,
+  type DashboardTop100ContentKind,
   type DashboardViewRanking
 } from "@/lib/dashboard/contracts";
 import { PLATFORM_VALUES, type Platform } from "@/lib/graph/types";
@@ -114,6 +120,7 @@ export function TopStoriesDashboard({ snapshot, variant = "standalone" }: TopSto
     <section className={styles.dashboard}>
       <div className={styles.shell}>
         <section className={styles.ranking} aria-label="Top 100 technology stories">
+          <Top100Brief storyCount={stories.length} />
           {stories.length > 0 ? (
             <ol className={styles.storyGrid} aria-label="Top 100 technology stories">
               {stories.map(({ story, ranking }) => (
@@ -146,6 +153,7 @@ function NetworkMapTopStories({
     <>
       <div className="graph-column">
         <section className={styles.mapCanvas} aria-label="Top 100 technology stories">
+          <Top100Brief compact storyCount={stories.length} />
           {stories.length > 0 ? (
             <ol className={styles.mapStoryGrid} aria-label="Top 100 technology stories">
               {stories.map(({ story, ranking }) => (
@@ -169,11 +177,59 @@ function NetworkMapTopStories({
   );
 }
 
+function Top100Brief({ compact = false, storyCount }: { compact?: boolean; storyCount: number }) {
+  return (
+    <div className={`${styles.brief}${compact ? ` ${styles.briefCompact}` : ""}`}>
+      <header className={styles.briefHeader}>
+        <div>
+          <span className={styles.briefKicker}>Live internet brief</span>
+          <h1>Top 100 from the last 72 hours</h1>
+          <p>
+            Only verified, precisely dated social posts and videos with at least one million native views qualify.
+            News and research use a separate coverage score because publisher views are rarely public.
+          </p>
+        </div>
+        <div className={styles.briefResultCount} aria-label={`${storyCount} qualifying results`}>
+          <strong>{storyCount}</strong>
+          <span>qualified</span>
+        </div>
+      </header>
+      <div className={styles.briefBadges} aria-label="Top 100 eligibility">
+        <span><Clock3 size={14} aria-hidden="true" /> Rolling 72 hours</span>
+        <span><Eye size={14} aria-hidden="true" /> {formatMetric(DASHBOARD_MIN_SOCIAL_VIEWS)}+ views</span>
+      </div>
+      <details className={styles.methodology}>
+        <summary>Exactly how stories are surfaced</summary>
+        <div className={styles.methodologyGrid}>
+          <section>
+            <strong>1. Hard gates</strong>
+            <p>Published in the rolling 72-hour window, verified attribution, a valid public source, and a deduplicated physical item. Social and video also require 1,000,000+ native views.</p>
+          </section>
+          <section>
+            <strong>2. Viral score · 100 points</strong>
+            <p>Reach: 25 points at 1M views, log-scaled to 50 at 100M+. Velocity: 0 at 1K views/hour or less, log-scaled to 25 at 1M/hour. Engagement: linear to 15 at 10%+. Freshness: linear from 10 to 0 over 72 hours.</p>
+          </section>
+          <section>
+            <strong>3. News score · 100 points</strong>
+            <p>Visible discussion: log-scaled from 0 to 45 at 100K actions. Distinct-source coverage: 0 with one source, linear to 25 at five+. Freshness: 20 to 0 over 72 hours. Completeness: 2.5 each for title, byline, image, and direct URL. Publisher traffic is never invented.</p>
+          </section>
+          <section>
+            <strong>4. Breadth rules</strong>
+            <p>The first pass reserves 30 news slots and 70 viral slots, capped at three per news publisher and 30 social posts per platform. Unused capacity backfills with the next highest qualified item.</p>
+          </section>
+        </div>
+        <p className={styles.coverageNote}>Coverage spans collected public social, video, RSS, research, and open-web sources. Private, paywalled, login-only, blocked, or unindexed pages are not claimed as covered.</p>
+      </details>
+    </div>
+  );
+}
+
 function TopStoriesEmptyState({ status }: { status: unknown }) {
+  const unavailable = snapshotAvailability(status) !== null;
   return (
     <div className={styles.emptyState} role="status">
       <Sparkles size={24} aria-hidden="true" />
-      <strong>Loading articles…</strong>
+      <strong>{unavailable ? "Loading articles…" : "No items clear the strict 72-hour surfacing gates yet."}</strong>
       <span>{dashboardStatusMessage(status)}</span>
     </div>
   );
@@ -196,6 +252,7 @@ function StoryCard({
   const primaryPlatform = primarySource.platform ?? story.platforms.find(Boolean) ?? null;
   const sourceLabel = primarySource.publisher ?? (primaryPlatform ? displayPlatform(primaryPlatform) : "Technology");
   const metrics = visibleEngagementMetrics(primarySource.metrics, 3);
+  const contentKind = story.primarySource ? dashboardTop100ContentKind(story.primarySource) : null;
   const selectable = Boolean(onSelect);
 
   return (
@@ -210,6 +267,7 @@ function StoryCard({
             type="button"
           >
             <StoryCardContent
+              contentKind={contentKind}
               metrics={metrics}
               now={now}
               primaryPlatform={primaryPlatform}
@@ -220,6 +278,7 @@ function StoryCard({
           </button>
         ) : (
           <StoryCardContent
+            contentKind={contentKind}
             metrics={metrics}
             now={now}
             primaryPlatform={primaryPlatform}
@@ -235,6 +294,7 @@ function StoryCard({
 }
 
 function StoryCardContent({
+  contentKind,
   metrics,
   now,
   primaryPlatform,
@@ -243,6 +303,7 @@ function StoryCardContent({
   sourceLabel,
   story
 }: {
+  contentKind: DashboardTop100ContentKind | null;
   metrics: VisibleEngagementMetric[];
   now: number | null;
   primaryPlatform: string | null;
@@ -255,6 +316,7 @@ function StoryCardContent({
     <>
       <div className={styles.media}>
         <span className={styles.rank} aria-label={`Item ${ranking.rank}`}>#{ranking.rank}</span>
+        <span className={styles.score} aria-label={`Surfacing score ${story.trendScore} out of 100`}>{story.trendScore}<small>/100</small></span>
         <StoryThumbnail linkToSource={Boolean(primarySourceUrl)} sourceUrl={primarySourceUrl ?? null} story={story} />
       </div>
       <div className={styles.storyBody}>
@@ -263,6 +325,11 @@ function StoryCardContent({
             <PlatformLogo decorative platform={primaryPlatform as Platform} />
           )}
           <span>{sourceLabel}</span>
+          {contentKind && (
+            <span className={`${styles.contentBadge} ${contentKind === "news_article" ? styles.contentNews : styles.contentViral}`}>
+              {contentKind === "news_article" ? "News" : "1M+ viral"}
+            </span>
+          )}
           {story.universe === "returner" && story.labels.slice(0, 1).map((label) => (
             <span className={styles.returnerLabel} key={label}>{label}</span>
           ))}
@@ -567,7 +634,9 @@ function isDashboardStoryCard(value: unknown): value is DashboardStoryCard {
     isMetrics(value.engagement) &&
     (value.thumbnailUrl === null || isHttpUrl(value.thumbnailUrl)) &&
     nullableBoundedString(value.thumbnailAlt, 240) &&
-    (value.primarySource === null || isDashboardStoryPrimarySource(value.primarySource));
+    value.primarySource !== null &&
+    isDashboardStoryPrimarySource(value.primarySource) &&
+    isQualifiedTop100PrimarySource(value.primarySource);
 }
 
 function isDashboardStoryPrimarySource(value: unknown): boolean {
@@ -578,8 +647,22 @@ function isDashboardStoryPrimarySource(value: unknown): boolean {
     nullableBoundedString(value.publisher, 300) &&
     typeof value.platform === "string" &&
     (DASHBOARD_PLATFORMS as readonly string[]).includes(value.platform) &&
+    typeof value.sourceKind === "string" &&
+    (DASHBOARD_SOURCE_KINDS as readonly string[]).includes(value.sourceKind) &&
     validTimestamp(value.publishedAt) &&
     isMetrics(value.metrics);
+}
+
+function isQualifiedTop100PrimarySource(value: unknown): boolean {
+  if (!isRecord(value) || typeof value.platform !== "string" || typeof value.sourceKind !== "string") return false;
+  const contentKind = dashboardTop100ContentKind({
+    platform: value.platform as (typeof DASHBOARD_PLATFORMS)[number],
+    sourceKind: value.sourceKind as (typeof DASHBOARD_SOURCE_KINDS)[number]
+  });
+  if (contentKind === "news_article") return true;
+  if (contentKind !== "viral_post" || !isRecord(value.metrics)) return false;
+  const views = value.metrics.views;
+  return typeof views === "number" && Number.isFinite(views) && views >= DASHBOARD_MIN_SOCIAL_VIEWS;
 }
 
 function isDashboardStatus(value: Record<string, unknown>): boolean {
@@ -844,6 +927,8 @@ function dashboardStatusMessage(status: unknown): string {
   const record = status && typeof status === "object" ? status as Record<string, unknown> : null;
   const failures = stringValues(record?.partialPlatformFailures);
   if (failures.length) return "Waiting for the next published update.";
-  if (finiteNumber(record?.eligibleCandidateCount) === 0) return "No articles are available yet.";
-  return "No articles are available yet.";
+  if (finiteNumber(record?.eligibleCandidateCount) === 0) {
+    return "Older or lower-reach items are deliberately not used as filler. The next collection pass will add newly qualified social posts, videos, and articles.";
+  }
+  return "No qualified stories are available yet.";
 }

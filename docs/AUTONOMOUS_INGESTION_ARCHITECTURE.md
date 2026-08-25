@@ -62,6 +62,8 @@ Accepted scheduled runs receive keys such as `central-2026-07-18-0617`. Manual `
 
 GitHub Actions also has a single non-canceling concurrency group named `autonomous-ingestion`. Database locking remains necessary because local invocations and other actors are outside that GitHub concurrency group.
 
+The accepted-slot step wraps the coordinator with a same-key retry controller for explicit transient transport and timeout failures. A child is started only when at least 331 minutes remain: the coordinator's 324-minute work budget, its full six-minute cleanup allowance, and one minute for process startup. The controller never shortens that child window. Its 345-minute deadline and six-minute graceful-signal interval remain inside the 355-minute step timeout; the 390-minute job timeout leaves setup and post-step headroom. Later scheduled watermark wakeups continue retrying a stale slot when a same-job retry cannot safely receive that complete window.
+
 ## Coordinator lifecycle
 
 `scripts/run-autonomous-ingestion.mjs` is the current coordinator.
@@ -82,9 +84,9 @@ GitHub Actions also has a single non-canceling concurrency group named `autonomo
 14. Unless `--skip-publish` is set, build the application, publish graph and benchmark JSON, write and validate the artifact manifest, and record that manifest in Supabase.
 15. Publish the exact validated artifact set from inside the coordinator, then atomically finalize the leased run and release the runtime lock. In GitHub Actions, publication includes the commit and push; a push failure prevents durable completion.
 
-If a completed run already exists for the key, the invocation is a no-op. An incomplete run with the same key reacquires its run lease before resuming.
+If a completed run already exists for the key, the invocation is a no-op. An incomplete run with the same key reacquires its run lease before resuming. Snapshot recovery is enabled by default. In GitHub Actions, collector state is kept outside the checkout-cleaned repository under `RETURNER_INGESTION_STATE_ROOT`, `OPENCLI_HOME`, or `RUNNER_WORKSPACE` (in that order), so a replacement invocation can reuse exact slot-bound checkpoints and validated snapshots.
 
-The coordinator preserves last-good public and GitHub rows when a refresh fails or returns no validated replacement. The current process-level retry path performs up to three attempts for transient failures. It still reconciles subprocess snapshots after collection rather than claiming each account task through the database worker RPC, so the durable fine-grained queue remains a substrate for the next worker rollout rather than the active coordinator execution model.
+The coordinator preserves last-good public and GitHub rows when a refresh fails or returns no validated replacement. Collector and Top Voice process retries have no small attempt ceiling: transient outcomes use capped exponential backoff until success or the enforced collection deadline. A deadline stop retains public checkpoints and any validated slot-bound snapshots for the next idempotent invocation. It still reconciles subprocess snapshots after collection rather than claiming each account task through the database worker RPC, so the durable fine-grained queue remains a substrate for the next worker rollout rather than the active coordinator execution model.
 
 ## Inventory and task plan
 
@@ -149,7 +151,7 @@ The current coordinator normally uses `queued`, pre-terminal `needs_review`/`ski
 
 ### Runtime and task leases
 
-Migration 008 defines a singleton-style runtime lock table with token-protected claim, renewal, and release functions. A lock can be replaced only after expiry or by the same owner. The coordinator uses a 20-minute lease and a 60-second heartbeat.
+Migration 008 defines a singleton-style runtime lock table with token-protected claim, renewal, and release functions. A lock can be replaced only after expiry or by the same owner. The coordinator uses a 20-minute lease and a 60-second heartbeat. Transient heartbeat transport failures retry with capped exponential backoff and the exact same fencing tokens for as long as the lease has a safe renewal window. Semantic errors and confirmed lock loss fail immediately; an outage that consumes the safe renewal window fails closed so a later invocation can recover after lease expiry without overlapping the old owner.
 
 Task workers can atomically claim up to 100 due tasks with `FOR UPDATE SKIP LOCKED`. Claims increment `attempts`, set a worker and random lease token, and default to a five-minute lease. Transitions in `AutonomousIngestionStore` require the current worker, token, `running` status, and an unexpired lease.
 
@@ -163,7 +165,7 @@ min(3600 seconds, retry_base_delay_seconds * 2^(attempts - 1))
 
 The exponent is capped at 10. A task at `max_attempts` becomes `dead_lettered` with reason `lease_expired_after_max_attempts`, and an `open` row is upserted in `ingestion_dead_letters`. Otherwise it becomes `retry_scheduled`.
 
-The coordinator sets `max_attempts` to 3 on its planned tasks, but because it does not use task claims or the requeue function, this retry/DLQ path does not currently govern its child collector processes. Collector process timeouts are 55 minutes for broad-public runs and 45 minutes for GitHub runs. A process-level collector failure is recorded directly as terminal `failed` on matching tasks.
+The coordinator sets `max_attempts` to PostgreSQL's integer ceiling for its planned tasks, preventing the generic expired-lease requeue path from dead-lettering transient coordinator work after an arbitrary small count. The active coordinator still governs child collectors with its phase deadline rather than the task-claim RPC. Each public shard may run for up to 70 minutes per attempt, each GitHub shard for up to 20 minutes, and retries use capped exponential backoff until the shared 120-minute collection deadline. Semantic terminal outcomes are reconciled directly to matching tasks.
 
 ### HTTP policy substrate
 

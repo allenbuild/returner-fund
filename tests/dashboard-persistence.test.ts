@@ -19,7 +19,7 @@ describe("dashboard durable publication", () => {
     expect(result).toMatchObject({ status: "persisted", runKey: expect.stringMatching(/^dashboard:/) });
     expect(client.valuesFor("dashboard_runs", "insert")[0]).toMatchObject({
       status: "running",
-      window_start: "2026-08-14T12:00:00.000Z",
+      window_start: "2026-08-12T12:00:00.000Z",
       window_end: NOW.toISOString()
     });
     expect(client.rpcValuesFor("finalize_dashboard_publication")[0]).toMatchObject({
@@ -35,6 +35,11 @@ describe("dashboard durable publication", () => {
       expect.objectContaining({ first_seen_at: NOW.toISOString(), last_seen_at: NOW.toISOString() })
     ]);
     expect(client.valuesFor("dashboard_external_sources", "upsert")[0]).toHaveLength(1);
+    expect(client.valuesFor("dashboard_external_sources", "upsert")[0]).toEqual([
+      expect.objectContaining({ verification_state: "verified" })
+    ]);
+    expect(client.operations.find((operation) => operation.table === "scoring_model_versions")?.filters)
+      .toEqual(expect.arrayContaining([["version", "2.0.0"]]));
     expect(client.valuesFor("dashboard_story_entities", "upsert")[0]).toEqual([
       expect.objectContaining({
         company_id: "90000000-0000-4000-8000-000000000101",
@@ -88,11 +93,11 @@ describe("dashboard durable publication", () => {
 function candidate(): DashboardCandidate {
   return {
     id: "persistence-source",
-    canonicalKey: "github:repository-object:42",
-    platform: "github",
-    sourceKind: "repository",
-    url: "https://github.com/acme/project",
-    destinationUrl: "https://github.com/acme/project",
+    canonicalKey: "web:acme-project-report",
+    platform: "web",
+    sourceKind: "article",
+    url: "https://publisher.example.com/acme-project-report",
+    destinationUrl: "https://acme.example.com/project",
     title: "Acme Project releases a technology update",
     summary: "Acme published a verified release with developer-facing improvements.",
     publishedAt: "2026-08-15T11:00:00.000Z",
@@ -105,7 +110,10 @@ function candidate(): DashboardCandidate {
       name: "Acme",
       cohortLabel: "YC S26",
       batchSlug: "s26"
-    }
+    },
+    sourceVerified: true,
+    sourceLinkStatus: "verified",
+    publicationPrecision: "exact"
   };
 }
 

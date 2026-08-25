@@ -18,12 +18,14 @@ import {
 } from "@/lib/dashboard/store";
 
 describe("dashboard public snapshot validation", () => {
-  it("accepts a generated snapshot and rejects malformed per-view ranking metadata", () => {
+  it("accepts a truthful under-100 snapshot and rejects malformed ranking or reach metadata", () => {
     const snapshot = buildDashboardSnapshot([dashboardCandidate()], {
       now: new Date("2026-08-15T12:00:00.000Z")
     }).snapshot;
 
+    expect(snapshot.stories).toHaveLength(1);
     expect(isDashboardPublicSnapshot(snapshot)).toBe(true);
+    expect(toDashboardPublicFeedSnapshot(snapshot).stories).toHaveLength(1);
 
     const zeroRank = clone(snapshot) as {
       stories: Array<{ viewRankings: Record<string, { rank: number }> }>;
@@ -50,6 +52,35 @@ describe("dashboard public snapshot validation", () => {
     malformedStoryShape.stories[0]!.engagement = null;
     malformedStoryShape.stories[0]!.platforms = ["not-a-dashboard-platform"];
     expect(isDashboardPublicSnapshot(malformedStoryShape)).toBe(false);
+
+    const belowReach = clone(snapshot) as {
+      stories: Array<{ sources: Array<{ metrics: { views?: number } }> }>;
+    };
+    belowReach.stories[0]!.sources[0]!.metrics.views = 999_999;
+    expect(isDashboardPublicSnapshot(belowReach)).toBe(false);
+
+    const unverifiedProjection = clone(snapshot) as {
+      stories: Array<{ sources: Array<{ verificationState: string }> }>;
+    };
+    unverifiedProjection.stories[0]!.sources[0]!.verificationState = "unchecked";
+    expect(isDashboardPublicSnapshot(unverifiedProjection)).toBe(false);
+
+    const lowReachSupportingSource = clone(snapshot);
+    const story = lowReachSupportingSource.stories[0]!;
+    story.sources.push({
+      ...story.sources[0]!,
+      id: "low-reach-supporting",
+      canonicalKey: "x:low-reach-supporting",
+      metrics: { views: 10 }
+    });
+    story.sourceCount = story.sources.length;
+    expect(isDashboardPublicSnapshot(lowReachSupportingSource)).toBe(false);
+
+    const xArticle = clone(snapshot);
+    xArticle.stories[0]!.sources[0]!.sourceKind = "article";
+    delete xArticle.stories[0]!.sources[0]!.metrics.views;
+    expect(isDashboardPublicSnapshot(xArticle)).toBe(true);
+    expect(isDashboardPublicFeedSnapshot(toDashboardPublicFeedSnapshot(xArticle))).toBe(true);
   });
 
   it("bounds raw social display fields and drops local recovery thumbnails before persistence", () => {
@@ -149,6 +180,7 @@ describe("dashboard public snapshot validation", () => {
       title: source.title,
       publisher: source.publisher,
       platform: source.platform,
+      sourceKind: source.sourceKind,
       publishedAt: source.publishedAt,
       metrics: source.metrics
     });
@@ -183,8 +215,13 @@ function dashboardCandidate(publishedAt = "2026-08-15T11:00:00.000Z"): Dashboard
     url: "https://x.example.com/store-validation",
     title: "Store validation fixture",
     publishedAt,
-    metrics: { likes: 100 },
-    accountBaseline: { likes: 10 }
+    metrics: { views: 1_500_000, likes: 100 },
+    accountBaseline: { likes: 10 },
+    topics: ["ai"],
+    socialBackfillEligible: true,
+    sourceVerified: true,
+    sourceLinkStatus: "verified",
+    publicationPrecision: "exact"
   };
 }
 

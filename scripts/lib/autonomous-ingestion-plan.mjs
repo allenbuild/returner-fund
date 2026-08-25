@@ -72,13 +72,16 @@ const MINUTE_MS = 60_000;
 export const AUTONOMOUS_PROCESS_BUDGETS = Object.freeze({
   catalogRefreshMs: 6 * MINUTE_MS,
   // Every public shard, GitHub cohort, retry backoff, and Top Voice refresh
-  // shares this enforced wall-clock phase. Per-process attempt limits alone
-  // cannot bound the runner, so public and GitHub shards remain under their
-  // distinct process guards while cohorts may start concurrently.
+  // shares this enforced wall-clock phase. Retry counts are intentionally not
+  // the bound; public and GitHub shards remain under their distinct process
+  // guards while the phase deadline reserves deterministic cleanup time.
   collectionPhaseMs: 120 * MINUTE_MS,
   collectionDeadlineDrainHeadroomMs: 5 * MINUTE_MS,
-  collectorAttempts: 2,
-  collectorRetryDelayMaxMs: 5_000,
+  // Attempts continue until success or the phase deadline. Durable task rows
+  // use the PostgreSQL integer ceiling; this legacy field remains only for
+  // compatibility with historical receipts and is not a retry stop condition.
+  collectorAttempts: 2_147_483_647,
+  collectorRetryDelayMaxMs: 5 * MINUTE_MS,
   collectorRateLimitRetryDelayMs: 65_000,
   publicCollectorAttemptMs: 70 * MINUTE_MS,
   collectorCheckpointFlushMs: 2 * MINUTE_MS,

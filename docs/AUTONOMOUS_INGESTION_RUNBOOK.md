@@ -189,7 +189,7 @@ gh workflow run autonomous-ingestion.yml \
 gh run list --workflow autonomous-ingestion.yml --limit 5
 ```
 
-Use the GitHub Actions UI if `gh` is unavailable. The workflow has a 90-minute job timeout. It starts all six collector processes in parallel. The coordinator validates and pushes the artifact commit before it finalizes the durable run.
+Use the GitHub Actions UI if `gh` is unavailable. The workflow has a 390-minute job timeout. The accepted-slot controller retries only explicit transient failures and starts another child only when the child can retain its complete runner and cleanup allowance. The coordinator starts the collector cohorts concurrently, validates and pushes the artifact commit, and then finalizes the durable run.
 
 A local database-writing smoke mode exists:
 
@@ -408,16 +408,19 @@ If the lock is expired and no process is active, a new claim can replace it. Pre
 
 ### Heartbeat or release failure
 
-The coordinator renews every 60 seconds against a 20-minute lease. A heartbeat callback logs failure and sets a nonzero exit code but does not immediately abort all in-flight child processes. Inspect for concurrent work and do not start a replacement until the database lease is expired or the old process is confirmed stopped.
+The coordinator renews every 60 seconds against a 20-minute lease. Transient transport failures retry with capped exponential backoff beyond the former four-attempt ceiling while retaining the exact run and runtime-lock fencing tokens. It reserves enough of the current lease for both renewal calls; confirmed lock loss, a semantic database error, or exhaustion of that safe window fails closed. The next idempotent invocation may recover after the old lease expires, but do not manually start an overlapping replacement while the lock is nonexpired.
 
 ### Collector timeout or failure
 
-- Broad-public child timeout: 90 minutes per attempt, up to two attempts.
-- GitHub child timeout: 20 minutes per attempt, up to two attempts.
-- Overall ingestion step timeout: 300 minutes; overall job timeout: 320 minutes.
+- Broad-public shard timeout: 70 minutes per attempt.
+- GitHub shard timeout: 20 minutes per attempt.
+- Collector and Top Voice attempts retry with capped exponential backoff until success or the shared 120-minute collection deadline; there is no small attempt-count cutoff.
+- Coordinator work budget: 324 minutes plus six minutes reserved for its complete cleanup path.
+- Retry-controller deadline: 345 minutes. It starts a child only with at least 331 minutes remaining, then allows six minutes after `SIGTERM` before a hard kill.
+- Overall ingestion step timeout: 355 minutes; overall job timeout: 390 minutes. This retains controller-finalization and job setup/post-step headroom.
 - Public cohort collectors run in parallel. GitHub cohort collectors share a serialized queue to respect public API limits.
 
-A failed child marks matching queued tasks `failed`. Up to five explicit terminal mapped failures can publish a clearly labeled degraded refresh so a tiny tail does not discard hours of valid work. More than five, any nonterminal task, an incomplete collector matrix, or zero successful collection rows blocks publication. Review the exact failed checkpoint keys in the workflow summary.
+A deadline-stopped child can leave a validated snapshot or public checkpoint. Snapshot recovery is on by default, and GitHub Actions keeps collector state outside the checkout-cleaned repository when `RETURNER_INGESTION_STATE_ROOT`, `OPENCLI_HOME`, or `RUNNER_WORKSPACE` is available. The next run for the same idempotency key reuses only snapshots that pass the exact campaign, attempt, shard, source, and freshness bindings. Up to the computed terminal mapped-failure budget can publish a clearly labeled degraded refresh; any nonterminal task, an incomplete collector matrix, or zero successful collection rows blocks publication.
 
 If every collector fails before writing a readable snapshot, the durable importer rejects the run because it requires at least one snapshot. Partial available snapshots can still import.
 
