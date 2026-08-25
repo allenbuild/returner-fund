@@ -125,7 +125,14 @@ describe("public dashboard discovery", () => {
     expect(result.sources).toEqual(["github_events", "hacker_news", "reddit:machinelearning", "rss:arxiv-test"]);
     expect(result.candidates).toEqual(expect.arrayContaining([
       expect.objectContaining({ platform: "reddit", independentlyReported: false }),
-      expect.objectContaining({ platform: "research", sourceKind: "paper", independentlyReported: false })
+      expect.objectContaining({
+        platform: "research",
+        sourceKind: "paper",
+        independentlyReported: false,
+        sourceVerified: true,
+        sourceLinkStatus: "verified",
+        publicationPrecision: "exact"
+      })
     ]));
     expect(result.candidates).toEqual(expect.arrayContaining([
       expect.objectContaining({

@@ -72,22 +72,23 @@ function dashboardCandidateFromEvidence(
     mediaUrl: evidence.mediaUrl ?? null,
     independentlyReported: independent,
     contentFingerprint: evidence.platformObjectId ?? evidence.platformPostId ?? evidence.id,
-    socialBackfillEligible: isVerifiedCompanySocialEvidence(evidence)
+    socialBackfillEligible: isVerifiedSocialEvidence(evidence),
+    sourceVerified: evidence.review_state === "verified",
+    sourceLinkStatus: evidence.linkStatus,
+    publicationPrecision: evidence.publishedAtPrecision
   };
 }
 
 /**
- * The graph contains company and founder material for many purposes. Only a
- * narrowly proven company-authored social record can enter the dashboard's
- * historical lane; the pipeline applies an additional technology-content
- * gate before it can rank publicly.
+ * A social row reaches the public Top 100 gate only when the canonical graph
+ * has verified its native identity, score eligibility, and visible metrics.
  */
-function isVerifiedCompanySocialEvidence(evidence: EvidenceItem): boolean {
-  if (evidence.entityType !== "company") return false;
+function isVerifiedSocialEvidence(evidence: EvidenceItem): boolean {
   if (!VERIFIED_SOCIAL_PLATFORMS.has(evidence.platform)) return false;
   if (evidence.review_state !== "verified" || evidence.tractionStatus !== "scored" || evidence.contributionScore <= 0) {
     return false;
   }
+  if (evidence.linkStatus === "invalid" || evidence.linkStatus === "blocked") return false;
   return Object.values(evidence.metrics).some((value) => typeof value === "number" && Number.isFinite(value) && value > 0);
 }
 

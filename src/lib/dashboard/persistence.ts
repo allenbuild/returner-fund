@@ -4,6 +4,7 @@ import { createHash } from "node:crypto";
 import { createServerSupabaseClient } from "@/lib/db/client";
 import {
   DASHBOARD_SCHEMA_VERSION,
+  DASHBOARD_WINDOW_MS,
   DASHBOARD_VIEWS,
   type DashboardPublicSnapshot,
   type DashboardStory,
@@ -13,7 +14,7 @@ import {
 import { dashboardSnapshotMaterialDescriptor } from "./pipeline";
 
 const DASHBOARD_MODEL_KEY = "technology_dashboard";
-const DASHBOARD_MODEL_VERSION = "1.0.0";
+const DASHBOARD_MODEL_VERSION = "2.0.0";
 // The complete projection is server-only. Public cards use the compact feed,
 // and source rows are returned through a bounded expansion route on demand.
 const DASHBOARD_ARTIFACT_PATH = "artifacts/dashboard/current.json";
@@ -77,8 +78,8 @@ export async function persistDashboardSnapshot(
   const generatedAt = exactHour(snapshot.generatedAt, "generatedAt");
   const windowEnd = exactHour(snapshot.windowEnd, "windowEnd");
   const windowStart = new Date(snapshot.windowStart);
-  if (!Number.isFinite(windowStart.getTime()) || windowEnd.getTime() - windowStart.getTime() !== 24 * 60 * 60 * 1_000) {
-    throw new Error("Dashboard persistence requires an exact rolling 24-hour snapshot.");
+  if (!Number.isFinite(windowStart.getTime()) || windowEnd.getTime() - windowStart.getTime() !== DASHBOARD_WINDOW_MS) {
+    throw new Error("Dashboard persistence requires an exact rolling 72-hour snapshot.");
   }
 
   const materialHash = sha256(dashboardSnapshotMaterialDescriptor(snapshot));
@@ -275,7 +276,7 @@ async function upsertSources(
         source_title: nullableBounded(source.title, 500),
         published_at: source.publishedAt,
         observed_at: generatedAt.toISOString(),
-        verification_state: "verified",
+        verification_state: source.verificationState,
         source_quality_tier: 2,
         independence_key: source.canonicalKey,
         content_fingerprint: sha256(JSON.stringify({
@@ -322,7 +323,7 @@ async function upsertStorySources(
         external_source_id: requiredId(sourceIds, source.canonicalKey, "source"),
         source_key: `dashboard-source:${sha256(source.canonicalKey)}`,
         source_role: "supporting",
-        verification_state: "verified",
+        verification_state: source.verificationState,
         source_quality_tier: 2,
         platform: source.platform,
         canonical_url: requiredHttpUrl(source.url, `source ${source.canonicalKey}`),

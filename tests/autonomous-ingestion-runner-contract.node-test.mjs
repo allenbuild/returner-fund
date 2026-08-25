@@ -698,14 +698,45 @@ if (mode === "fail") {
     }
   });
 
-  it("bounds exhausted transient heartbeat retries and then fails closed", () => {
+  it("retries a resolved Supabase heartbeat error wrapping TypeError: fetch failed", () => {
+    const payload = lifecycleFixturePayload(
+      runLifecycleFixture("heartbeat-resolved-transport-recovery")
+    );
+
+    assert.equal(payload.operationError, null);
+    assert.equal(payload.leaseFailure, null);
+    assert.deepEqual(payload.retryDelays, [1_000]);
+    assert.equal(payload.runHeartbeats.length, 2);
+    assert.equal(payload.lockHeartbeats.length, 1);
+    for (const attempt of payload.runHeartbeats) {
+      assert.equal(attempt.id, "heartbeat-retry-fixture");
+      assert.equal(attempt.leaseToken, payload.runLeaseToken);
+    }
+    assert.equal(payload.lockHeartbeats[0].leaseToken, payload.lockLeaseToken);
+  });
+
+  it("keeps retrying heartbeat transport failures beyond the former four-attempt ceiling", () => {
+    const payload = lifecycleFixturePayload(runLifecycleFixture("heartbeat-long-transient-recovery"));
+
+    assert.deepEqual(payload.retryDelays, [1_000, 2_000, 4_000, 8_000, 16_000, 30_000, 30_000, 30_000]);
+    assert.equal(payload.runHeartbeats.length, 9);
+    assert.equal(payload.lockHeartbeats.length, 1);
+    assert.equal(payload.operationError, null);
+    assert.equal(payload.leaseFailure, null);
+    assert.equal(payload.finalRunLeaseExpiresAt, payload.finalLockLeaseExpiresAt);
+    for (const attempt of payload.runHeartbeats) {
+      assert.equal(attempt.leaseToken, payload.runLeaseToken);
+    }
+  });
+
+  it("fails closed only when transient retries consume the safe lease-renewal window", () => {
     const payload = lifecycleFixturePayload(runLifecycleFixture("heartbeat-transient-exhaustion"));
 
-    assert.deepEqual(payload.retryDelays, [1_000, 3_000, 7_000]);
-    assert.equal(payload.runHeartbeats.length, 4);
+    assert.deepEqual(payload.retryDelays, [1_000, 2_000, 4_000, 3_000]);
+    assert.equal(payload.runHeartbeats.length, 5);
     assert.equal(payload.lockHeartbeats.length, 0);
-    assert.match(payload.operationError, /fetch failed/);
-    assert.match(payload.leaseFailure, /Ingestion lease heartbeat failed; publication aborted: fetch failed/);
+    assert.match(payload.operationError, /safe lease-renewal window/);
+    assert.match(payload.leaseFailure, /Ingestion lease heartbeat failed; publication aborted: Transient heartbeat/);
     for (const attempt of payload.runHeartbeats) {
       assert.equal(attempt.leaseToken, payload.runLeaseToken);
     }
@@ -2279,7 +2310,8 @@ describe("autonomous ingestion runner static safety contracts", () => {
     assert.ok(runner.includes('runAuthenticatedCollectors({ historicalReplay: true })'));
     assert.ok(runner.includes('{ skipNetwork: args.skipNetwork || args.authenticatedSocialReplay }'));
     assert.ok(runner.includes('candidateMetadata?.trigger !== "manual-replay"'));
-    assert.ok(runner.includes('collectorRoot = args.authenticatedSocialReplay'));
+    assert.ok(runner.includes('collectorRoot = autonomousCollectorStateRoot()'));
+    assert.ok(runner.includes('if (args.authenticatedSocialReplay) return authenticatedSocialReplayRoot()'));
     assert.ok(runner.includes('resolve(openCliHome)'));
     assert.ok(runner.includes('if (!args.authenticatedSocialReplay) {\n      assertSuccessfulTopVoiceRefresh(topVoiceRefresh);'));
   });
@@ -2614,22 +2646,23 @@ describe("autonomous ingestion runner static safety contracts", () => {
     }
   });
 
-  it("retries exact failure ledgers and accepts exhaustion only after explicit terminal coverage", () => {
+  it("retries exact failure ledgers until success or the collection deadline", () => {
     const retry = section("async function runCollectorWithRetries", "function retryableFailuresFromSnapshot");
     const failures = section("function retryableFailuresFromSnapshot", "function successfulCollectorRowCount");
 
     assert.ok(failures.includes("autonomousCollectorRetryableFailures(snapshot)"));
     assert.ok(retry.includes("summarizeAutonomousCollectorTerminalTaskCoverage"));
     assert.ok(retry.includes("terminalCoverage.nonTerminal"));
-    assert.ok(retry.includes("exhaustedRetryableFailures"));
-    assert.ok(retry.includes("every planned task reached an explicit terminal outcome"));
+    assert.ok(retry.includes('retryPolicy: "until_success_within_collection_deadline"'));
+    assert.ok(retry.includes("for (let attempt = 1; ; attempt += 1)"));
     assert.ok(retry.includes("AUTONOMOUS_PROCESS_BUDGETS.collectorRateLimitRetryDelayMs"));
-    assert.ok(retry.includes("exhausted retries with"));
+    assert.ok(retry.includes("cappedExponentialBackoffMs"));
+    assert.doesNotMatch(retry, /attempt === maxAttempts/);
     assert.doesNotMatch(retry, /retryableFailures\.length === 0 \|\| attempt === maxAttempts/);
     assert.ok(retry.includes("args.resumeSnapshots"));
     assert.ok(retry.includes("collector.snapshot_resumed"));
     assert.ok(retry.includes("terminalCoverage.nonTerminal === 0 && retryableFailures.length === 0"));
-    assert.ok(runner.includes('resumeSnapshots: rawArgs.includes("--resume-snapshots")'));
+    assert.ok(runner.includes('resumeSnapshots: !rawArgs.includes("--no-resume-snapshots")'));
   });
 
   it("reuses a campaign collector ledger across distinct durable sweep runs", () => {
@@ -2639,7 +2672,12 @@ describe("autonomous ingestion runner static safety contracts", () => {
 
     assert.ok(runner.includes('campaignKey: value("--campaign-key")'));
     assert.ok(runner.includes('"autonomous-ingestion-campaigns"'));
-    assert.ok(runner.includes(": args.campaignKey\n    ? join(root, \"work\", \"autonomous-ingestion-campaigns\""));
+    assert.ok(runner.includes("function autonomousCollectorStateRoot()"));
+    assert.ok(runner.includes("RETURNER_INGESTION_STATE_ROOT"));
+    assert.ok(runner.includes("RUNNER_WORKSPACE"));
+    assert.ok(runner.includes('"returner-fund-autonomous-ingestion-state", "v1"'));
+    assert.ok(runner.includes('join(durableBase, "campaigns", safePathSegment(args.campaignKey))'));
+    assert.ok(runner.includes('join(durableBase, "slots", safePathSegment(idempotencyKey))'));
     assert.ok(runner.includes("join(collectorRoot, `public-${batch.slug.toLowerCase()}.json`)"));
     assert.ok(runner.includes("join(collectorRoot, `github-${batch.slug.toLowerCase()}.json`)"));
     assert.ok(runner.includes('topVoiceOutput = join(collectorRoot, "top-voice-refresh.json")'));

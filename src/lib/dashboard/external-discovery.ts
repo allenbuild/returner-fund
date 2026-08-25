@@ -1,6 +1,6 @@
 import { load } from "cheerio";
 import { isIP } from "node:net";
-import type { DashboardCandidate } from "./contracts";
+import { DASHBOARD_WINDOW_MS, type DashboardCandidate } from "./contracts";
 import { canonicalDashboardUrl, compactSentence, compactWhitespace, safeDate, stableHash } from "./normalization";
 import { isDashboardCandidateEligible } from "./pipeline";
 
@@ -272,7 +272,7 @@ export async function discoverExternalDashboardCandidates(
 }
 
 export async function fetchHackerNewsCandidates(fetchImpl: typeof fetch, now = new Date()): Promise<{ source: string; candidates: DashboardCandidate[] }> {
-  const after = Math.floor((now.getTime() - 24 * 60 * 60 * 1_000) / 1_000);
+  const after = Math.floor((now.getTime() - DASHBOARD_WINDOW_MS) / 1_000);
   const url = new URL("https://hn.algolia.com/api/v1/search_by_date");
   url.searchParams.set("tags", "story");
   url.searchParams.set("numericFilters", `created_at_i>${after}`);
@@ -294,7 +294,7 @@ export async function fetchGithubCandidates(
   now = new Date(),
   githubToken: string | null = null
 ): Promise<{ source: string; candidates: DashboardCandidate[] }> {
-  const after = new Date(now.getTime() - 24 * 60 * 60 * 1_000).toISOString().slice(0, 10);
+  const after = new Date(now.getTime() - DASHBOARD_WINDOW_MS).toISOString().slice(0, 10);
   const url = new URL("https://api.github.com/search/repositories");
   url.searchParams.set("q", `created:>=${after}`);
   url.searchParams.set("sort", "stars");
@@ -560,9 +560,10 @@ function rssCandidate(
     node.find("link").first().attr("href") ||
     node.find("link").first().text()
   );
-  const publishedAt = validTimestamp(
+  const publishedAtRaw = compactWhitespace(
     node.find("published, pubDate, updated, dc\\:date").first().text()
   );
+  const publishedAt = validTimestamp(publishedAtRaw);
   if (!title || !url || !publishedAt) return [];
   const description = rssEntrySummary(node.find("description, summary, content, content\\:encoded").first().text());
   const sourceKind = feed.sourceKind ?? "article";
@@ -590,8 +591,24 @@ function rssCandidate(
     thumbnailAlt: title,
     independentlyReported: feed.independentlyReported ?? true,
     sourceQuality: feed.quality ?? 62,
-    contentFingerprint: `${articleKey}:${title}:${index}`
+    contentFingerprint: `${articleKey}:${title}:${index}`,
+    // This row came directly from a fetched, allowlisted publisher/research
+    // feed with a canonical public link. Timestamp precision is asserted only
+    // when the source supplied both a clock and an explicit timezone.
+    sourceVerified: true,
+    sourceLinkStatus: "verified",
+    publicationPrecision: rssPublicationPrecision(publishedAtRaw)
   }];
+}
+
+function rssPublicationPrecision(value: string): "exact" | "day" | "unknown" {
+  if (!value) return "unknown";
+  const hasClock = /(?:T|\s)\d{1,2}:\d{2}(?::\d{2}(?:\.\d+)?)?/i.test(value);
+  const hasTimezone = /(?:Z|GMT|UTC|UT|[+-]\d{2}:?\d{2})\s*$/i.test(value);
+  if (hasClock && hasTimezone) return "exact";
+  return /\b\d{4}[-/]\d{1,2}[-/]\d{1,2}\b|\b\d{1,2}\s+[A-Za-z]{3,9}\s+\d{4}\b/.test(value)
+    ? "day"
+    : "unknown";
 }
 
 /** RSS descriptions frequently arrive as CDATA-wrapped HTML. Keep markup out

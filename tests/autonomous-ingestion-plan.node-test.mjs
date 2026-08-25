@@ -972,7 +972,8 @@ globalThis.fetch = async (input) => {
       AUTONOMOUS_PROCESS_BUDGETS.collectionDeadlineDrainHeadroomMs,
       5 * 60_000
     );
-    assert.equal(AUTONOMOUS_PROCESS_BUDGETS.collectorAttempts, 2);
+    assert.equal(AUTONOMOUS_PROCESS_BUDGETS.collectorAttempts, 2_147_483_647);
+    assert.equal(AUTONOMOUS_PROCESS_BUDGETS.collectorRetryDelayMaxMs, 5 * 60_000);
     assert.equal(AUTONOMOUS_PROCESS_BUDGETS.collectorRateLimitRetryDelayMs, 65_000);
     assert.equal(AUTONOMOUS_PROCESS_BUDGETS.publicCollectorAttemptMs, 70 * 60_000);
     assert.equal(AUTONOMOUS_PROCESS_BUDGETS.collectorCheckpointFlushMs, 2 * 60_000);

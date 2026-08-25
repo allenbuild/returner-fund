@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 import type { DashboardCandidate, DashboardMetrics, DashboardPublicSnapshot } from "@/lib/dashboard/contracts";
-import { enrichDashboardCandidatesWithPriorSnapshotMetrics } from "@/lib/dashboard/refresh";
+import {
+  dashboardRefreshSourceHealth,
+  enrichDashboardCandidatesWithPriorSnapshotMetrics,
+  retainPriorDashboardSnapshotOnBroadSourceFailure
+} from "@/lib/dashboard/refresh";
+import { buildDashboardSnapshot } from "@/lib/dashboard/pipeline";
 import { velocityScore } from "@/lib/dashboard/scoring";
 
 const PRIOR_GENERATED_AT = "2026-08-15T11:00:00.000Z";
@@ -59,7 +64,94 @@ describe("dashboard worker metric-history enrichment", () => {
     expect(enriched).toBe(candidate);
     expect(enriched.metricHistory).toBeUndefined();
   });
+
+  it("distinguishes a broad adapter outage from a healthy under-100 collection", () => {
+    expect(dashboardRefreshSourceHealth({
+      returnerAttempted: 3,
+      returnerSucceeded: 3,
+      externalAttempted: 57,
+      externalSucceeded: 52
+    })).toMatchObject({
+      attemptedSourceCount: 60,
+      successfulSourceCount: 55,
+      failedSourceCount: 5,
+      broadSourceFailure: false
+    });
+
+    expect(dashboardRefreshSourceHealth({
+      returnerAttempted: 3,
+      returnerSucceeded: 3,
+      externalAttempted: 57,
+      externalSucceeded: 0
+    })).toMatchObject({
+      attemptedSourceCount: 60,
+      successfulSourceCount: 3,
+      failedSourceCount: 57,
+      broadSourceFailure: true
+    });
+  });
+
+  it("retains and marks the prior truthful window only when broad source failure shrinks it", () => {
+    const prior = buildDashboardSnapshot([
+      qualifyingSocialCandidate("prior-one"),
+      qualifyingSocialCandidate("prior-two")
+    ], { now: NOW }).snapshot;
+    const later = new Date(NOW.getTime() + 60 * 60 * 1_000);
+    const underfilled = buildDashboardSnapshot([
+      qualifyingSocialCandidate("prior-one", "2026-08-15T11:30:00.000Z")
+    ], { now: later }).snapshot;
+    const broadFailure = dashboardRefreshSourceHealth({
+      returnerAttempted: 3,
+      returnerSucceeded: 0,
+      externalAttempted: 57,
+      externalSucceeded: 0
+    });
+
+    const retained = retainPriorDashboardSnapshotOnBroadSourceFailure(
+      prior,
+      underfilled,
+      broadFailure,
+      ["fetch_failed"]
+    );
+
+    expect(retained?.stories).toEqual(prior.stories);
+    expect(retained?.generatedAt).toBe(prior.generatedAt);
+    expect(retained?.windowStart).toBe(prior.windowStart);
+    expect(retained?.status.partialPlatformFailures).toEqual([
+      "fetch_failed",
+      "source_health_collapse",
+      "source_retained"
+    ]);
+
+    const healthy = dashboardRefreshSourceHealth({
+      returnerAttempted: 3,
+      returnerSucceeded: 3,
+      externalAttempted: 57,
+      externalSucceeded: 52
+    });
+    expect(retainPriorDashboardSnapshotOnBroadSourceFailure(prior, underfilled, healthy)).toBeNull();
+  });
 });
+
+function qualifyingSocialCandidate(id: string, publishedAt = "2026-08-15T11:00:00.000Z"): DashboardCandidate {
+  return {
+    id,
+    canonicalKey: `x:${id}`,
+    platform: "x",
+    sourceKind: "post",
+    url: `https://x.com/example/status/${id}`,
+    title: `${id} launches an AI software platform`,
+    text: `${id} launches an AI software platform for developer teams.`,
+    publishedAt,
+    observedAt: NOW.toISOString(),
+    metrics: { views: 2_000_000, likes: 20_000 },
+    topics: ["ai", "launches"],
+    socialBackfillEligible: true,
+    sourceVerified: true,
+    sourceLinkStatus: "verified",
+    publicationPrecision: "exact"
+  };
+}
 
 function dashboardCandidate(overrides: Partial<DashboardCandidate> = {}): DashboardCandidate {
   const id = overrides.id ?? "candidate";

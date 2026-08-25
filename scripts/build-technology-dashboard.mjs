@@ -3,10 +3,16 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { refreshTechnologyDashboard } from "../src/lib/dashboard/refresh.ts";
+import {
+  refreshTechnologyDashboard,
+  retainPriorDashboardSnapshotOnBroadSourceFailure
+} from "../src/lib/dashboard/refresh.ts";
 import { persistDashboardSnapshot } from "../src/lib/dashboard/persistence.ts";
-import { DASHBOARD_TOP_LIMIT } from "../src/lib/dashboard/contracts.ts";
-import { isDashboardPublicSnapshot, writePublicDashboardArtifact } from "../src/lib/dashboard/store.ts";
+import {
+  isCurrentDashboardSnapshot,
+  isDashboardPublicSnapshot,
+  writePublicDashboardArtifact
+} from "../src/lib/dashboard/store.ts";
 import { dashboardSnapshotMaterialDescriptor } from "../src/lib/dashboard/pipeline.ts";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -28,45 +34,41 @@ async function main() {
     includeExternal: !noExternal,
     priorSnapshot
   });
-  if (result.snapshot.stories.length < DASHBOARD_TOP_LIMIT) {
-    const retainedSnapshot = reissuePriorFullSnapshot(priorSnapshot, result.snapshot);
-    if (retainedSnapshot) {
-      if (!dryRun) await writePublicDashboardArtifact(retainedSnapshot);
-      process.stdout.write(`${JSON.stringify({
-        status: dryRun ? "validated_retained" : "reissued_prior_full",
-        generatedAt: retainedSnapshot.generatedAt,
-        windowStart: retainedSnapshot.windowStart,
-        storyCount: retainedSnapshot.stories.length,
-        candidateCount: result.snapshot.status.candidateCount,
-        eligibleCandidateCount: result.snapshot.status.eligibleCandidateCount,
-        sourceCounts: result.sourceCounts,
-        platformFailures: result.sourceFailures,
-        artifactPath: "artifacts/dashboard/current.json"
-      })}\n`);
-      // Do not persist a current database rank receipt from retained source
-      // rows: their native timestamps/metrics are real, but this run did not
-      // independently reconstruct a complete Top 100.
-      return;
+  if (!isDashboardPublicSnapshot(result.snapshot)) {
+    throw new Error("Dashboard refresh produced an invalid public snapshot.");
+  }
+  const retainedSnapshot = retainPriorDashboardSnapshotOnBroadSourceFailure(
+    priorSnapshot,
+    result.snapshot,
+    result.sourceHealth,
+    result.sourceFailures
+  );
+  if (retainedSnapshot) {
+    // Keep the original clocks and rolling window: retained evidence is not a
+    // new observation. If it is still in the current grace period, atomically
+    // add the outage marker to both artifacts; otherwise leave the prior bytes
+    // intact and let the read path expose its explicit stale state.
+    const canMarkCurrentArtifact = isCurrentDashboardSnapshot(retainedSnapshot);
+    if (!dryRun && canMarkCurrentArtifact) {
+      await writePublicDashboardArtifact(retainedSnapshot);
     }
-    // Never replace a live Top 100 with partial cards. The next successful
-    // source refresh can construct the initial full index normally.
-    const hasPriorPublication = Boolean(priorSnapshot);
-    const message = hasPriorPublication
-      ? `Dashboard refresh found ${result.snapshot.stories.length} stories; preserving the existing partial artifact until a full Top ${DASHBOARD_TOP_LIMIT} is available.\n`
-      : `Dashboard refresh found ${result.snapshot.stories.length} stories and no prior full artifact exists; refusing a partial first publication.\n`;
-    process.stderr.write(message);
     process.stdout.write(`${JSON.stringify({
-      status: hasPriorPublication ? "preserved_underfilled" : "initial_underfilled",
-      generatedAt: result.snapshot.generatedAt,
-      windowStart: result.snapshot.windowStart,
-      storyCount: result.snapshot.stories.length,
+      status: dryRun
+        ? "validated_retained_source_outage"
+        : canMarkCurrentArtifact
+          ? "retained_source_outage_marked"
+          : "retained_source_outage",
+      generatedAt: retainedSnapshot.generatedAt,
+      windowStart: retainedSnapshot.windowStart,
+      storyCount: retainedSnapshot.stories.length,
       candidateCount: result.snapshot.status.candidateCount,
       eligibleCandidateCount: result.snapshot.status.eligibleCandidateCount,
       sourceCounts: result.sourceCounts,
+      sourceHealth: result.sourceHealth,
       platformFailures: result.sourceFailures,
       artifactPath: "artifacts/dashboard/current.json"
     })}\n`);
-    if (!hasPriorPublication && !dryRun) process.exitCode = 1;
+    // Never emit a fresh database rank receipt for retained source rows.
     return;
   }
   // A stable ranking still needs a fresh publication receipt each hour. The
@@ -90,6 +92,7 @@ async function main() {
     candidateCount: result.snapshot.status.candidateCount,
     eligibleCandidateCount: result.snapshot.status.eligibleCandidateCount,
     sourceCounts: result.sourceCounts,
+    sourceHealth: result.sourceHealth,
     platformFailures: result.sourceFailures,
     persistence,
     artifactPath: "artifacts/dashboard/current.json"
@@ -118,27 +121,6 @@ async function loadExistingSnapshot() {
   } catch {
     return null;
   }
-}
-
-function reissuePriorFullSnapshot(priorSnapshot, nextSnapshot) {
-  if (!priorSnapshot || priorSnapshot.stories.length < DASHBOARD_TOP_LIMIT) return null;
-  return {
-    ...priorSnapshot,
-    generatedAt: nextSnapshot.generatedAt,
-    windowStart: nextSnapshot.windowStart,
-    windowEnd: nextSnapshot.windowEnd,
-    status: {
-      ...priorSnapshot.status,
-      candidateCount: nextSnapshot.status.candidateCount,
-      eligibleCandidateCount: nextSnapshot.status.eligibleCandidateCount,
-      storyCount: priorSnapshot.stories.length,
-      viewStoryCounts: priorSnapshot.status.viewStoryCounts,
-      partialPlatformFailures: [...new Set([
-        ...nextSnapshot.status.partialPlatformFailures,
-        "source_retained"
-      ])].sort()
-    }
-  };
 }
 
 function argumentValue(name) {

@@ -45,9 +45,10 @@ export class AutonomousRunnerBudgetExceededError extends Error {
 
 const MINUTE_MS = 60_000;
 
-// GitHub Actions grants the runner step 330 minutes. Stop starting or running
-// subprocess work after 324 minutes so child termination, error receipts, and
-// lease cleanup retain six minutes inside that outer step timeout.
+// Each retry-controller child receives at least 330 minutes. Stop starting or
+// running subprocess work after 324 minutes so child termination, error
+// receipts, lease cleanup, and worktree cleanup retain the final six minutes.
+// The workflow step separately reserves controller retry/finalization time.
 export const AUTONOMOUS_RUNNER_WALL_CLOCK_BUDGET_MS = 324 * MINUTE_MS;
 export const AUTONOMOUS_RUNNER_WORKFLOW_HEADROOM_MS = 6 * MINUTE_MS;
 

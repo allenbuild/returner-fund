@@ -1,10 +1,5 @@
 import { describe, expect, it } from "vitest";
-import {
-  RANKED_POSTS_MIN_VIEWS,
-  rankedPostEligibility,
-  rankedPostSurfacingScore,
-  selectRankedPosts
-} from "@/lib/graph/ranked-posts";
+import { selectRankedPosts } from "@/lib/graph/ranked-posts";
 import type { RankedPostsSidecarScope } from "@/lib/graph/ranked-posts-sidecar";
 import type { EvidenceItem, GraphNode, GraphResponse } from "@/lib/graph/types";
 
@@ -247,112 +242,6 @@ describe("ranked posts", () => {
     ]), { period: "month", now });
 
     expect(ranked.map((item) => item.evidence.id)).toEqual(["at-now", "window-start"]);
-  });
-
-  it("hard-gates the product feed to 72 hours and one million social views while admitting labeled news", () => {
-    const now = new Date("2026-07-20T12:00:00.000Z");
-    const qualified = evidence({
-      id: "qualified-viral",
-      postedAt: "2026-07-19T12:00:00.000Z",
-      metrics: { views: RANKED_POSTS_MIN_VIEWS, likes: 20_000 },
-      sourceUrl: "https://x.com/c/status/960",
-      platformPostId: "960"
-    });
-    const belowReach = evidence({
-      id: "below-reach",
-      postedAt: "2026-07-19T13:00:00.000Z",
-      metrics: { views: RANKED_POSTS_MIN_VIEWS - 1, likes: 100_000 },
-      sourceUrl: "https://x.com/c/status/961",
-      platformPostId: "961"
-    });
-    const old = evidence({
-      id: "old-high-reach",
-      postedAt: "2026-07-17T11:59:59.999Z",
-      metrics: { views: 100_000_000, likes: 1_000_000 },
-      sourceUrl: "https://x.com/c/status/962",
-      platformPostId: "962"
-    });
-    const article = evidence({
-      id: "recent-news",
-      platform: "web",
-      postedAt: "2026-07-20",
-      publishedAtPrecision: "day",
-      title: "Independent coverage of Example Company",
-      text: "Independent coverage of Example Company",
-      mediaType: "link",
-      metrics: {},
-      contributionScore: 0,
-      normalizedScore: 0,
-      rawEngagement: 0,
-      tractionStatus: "unscored",
-      sourceUrl: "https://publisher.example/feed.xml",
-      platformPostId: "https://publisher.example/example-company-news"
-    });
-
-    expect(rankedPostEligibility(qualified, now)).toEqual({ eligible: true, reason: "eligible" });
-    expect(rankedPostEligibility(belowReach, now).reason).toBe("below_one_million_views");
-    expect(rankedPostEligibility(old, now).reason).toBe("outside_72_hour_window");
-
-    const ranked = selectRankedPosts(graph([old, belowReach, article, qualified]), {
-      period: "three_days",
-      now
-    });
-    expect(ranked.map((item) => item.evidence.id).sort()).toEqual(["qualified-viral", "recent-news"]);
-    expect(ranked.find((item) => item.evidence.id === "qualified-viral")?.contentKind).toBe("viral_post");
-    expect(ranked.find((item) => item.evidence.id === "recent-news")?.contentKind).toBe("news_article");
-  });
-
-  it("publishes an auditable 100-point surfacing breakdown", () => {
-    const item = evidence({
-      postedAt: "2026-07-20T06:00:00.000Z",
-      metrics: { views: 4_000_000, likes: 120_000, replies: 5_000, reposts: 20_000 }
-    });
-    const score = rankedPostSurfacingScore(item, new Date("2026-07-20T12:00:00.000Z"));
-
-    expect(score.formula).toBe("viral-reach-v1");
-    expect(score.total).toBeCloseTo(score.reach + score.velocity + score.engagement + score.freshness, 5);
-    expect(score.total).toBeLessThanOrEqual(100);
-    expect(score.reasons).toEqual(expect.arrayContaining([
-      expect.stringContaining("verified native views"),
-      expect.stringContaining("views/hour"),
-      expect.stringContaining("engagement rate")
-    ]));
-  });
-
-  it("reserves 30 percent of a full brief for qualified news coverage", () => {
-    const now = new Date("2026-07-20T12:00:00.000Z");
-    const viral = Array.from({ length: 70 }, (_, index) => evidence({
-      id: `viral-${index}`,
-      postedAt: "2026-07-20T06:00:00.000Z",
-      metrics: { views: 2_000_000 + index, likes: 20_000 },
-      sourceUrl: `https://x.com/c/status/${10_000 + index}`,
-      platformPostId: String(10_000 + index)
-    }));
-    const news = Array.from({ length: 40 }, (_, index) => evidence({
-      id: `news-${index}`,
-      platform: "web",
-      postedAt: "2026-07-20",
-      publishedAtPrecision: "day",
-      title: `Independent article ${index}`,
-      text: `Independent article ${index}`,
-      mediaType: "link",
-      metrics: {},
-      contributionScore: 0,
-      normalizedScore: 0,
-      rawEngagement: 0,
-      tractionStatus: "unscored",
-      sourceUrl: `https://publisher-${index}.example/article`,
-      platformPostId: `https://publisher-${index}.example/article`
-    }));
-
-    const ranked = selectRankedPosts(graph([...viral, ...news]), {
-      period: "three_days",
-      now
-    });
-
-    expect(ranked).toHaveLength(100);
-    expect(ranked.filter((item) => item.contentKind === "news_article")).toHaveLength(30);
-    expect(ranked.filter((item) => item.contentKind === "viral_post")).toHaveLength(70);
   });
 
   it("merges rankable full-corpus overflow beyond the published graph preview", () => {

@@ -6,14 +6,14 @@ import type { Platform } from "@/lib/graph/types";
  * the company-graph `EvidenceItem` contract: Industry sources have no
  * Returner entity and must not be represented as a fake company/founder post.
  */
-export const DASHBOARD_SCHEMA_VERSION = "technology-dashboard-v1" as const;
-export const DASHBOARD_WINDOW_MS = 24 * 60 * 60 * 1_000;
-/**
- * The index refreshes on a rolling day, while verified batch social posts
- * with native engagement can remain eligible for a bounded historical lane.
- * Their original source timestamps always remain visible on the card.
- */
-export const DASHBOARD_SOCIAL_RETENTION_MS = 30 * 24 * 60 * 60 * 1_000;
+export const DASHBOARD_SCHEMA_VERSION = "technology-dashboard-v2" as const;
+/** The public Top 100 is always computed over one exact rolling 72-hour window. */
+export const DASHBOARD_WINDOW_MS = 72 * 60 * 60 * 1_000;
+/** Social and video candidates need a real native reach reading at this gate. */
+export const DASHBOARD_MIN_SOCIAL_VIEWS = 1_000_000;
+export const DASHBOARD_NEWS_TARGET_SHARE = 0.3;
+export const DASHBOARD_MAX_NEWS_PER_PUBLISHER = 3;
+export const DASHBOARD_MAX_SOCIAL_PER_PLATFORM = 30;
 export const DASHBOARD_TOP_LIMIT = 100;
 /**
  * Source expansion is deliberately bounded: a ranking card never needs to
@@ -75,6 +75,36 @@ export const DASHBOARD_SOURCE_KINDS = [
   "other"
 ] as const;
 export type DashboardSourceKind = (typeof DASHBOARD_SOURCE_KINDS)[number];
+
+export const DASHBOARD_TOP100_CONTENT_KINDS = ["viral_post", "news_article"] as const;
+export type DashboardTop100ContentKind = (typeof DASHBOARD_TOP100_CONTENT_KINDS)[number];
+
+const DASHBOARD_TOP100_SOCIAL_PLATFORMS = new Set<DashboardNativePlatform>([
+  "x", "instagram", "linkedin", "youtube", "tiktok", "bluesky"
+]);
+
+/**
+ * One shared classifier keeps worker scoring, artifact validation, and UI
+ * labels from disagreeing about whether the million-view gate applies.
+ */
+export function dashboardTop100ContentKind(source: {
+  platform: DashboardPlatform | DashboardNativePlatform;
+  sourceKind: DashboardSourceKind;
+}): DashboardTop100ContentKind | null {
+  if (
+    source.sourceKind === "article" ||
+    source.sourceKind === "paper" ||
+    source.platform === "web" ||
+    source.platform === "rss" ||
+    source.platform === "news" ||
+    source.platform === "research"
+  ) return "news_article";
+  if (
+    DASHBOARD_TOP100_SOCIAL_PLATFORMS.has(source.platform as DashboardNativePlatform) &&
+    (source.sourceKind === "post" || source.sourceKind === "thread" || source.sourceKind === "video")
+  ) return "viral_post";
+  return null;
+}
 
 export const DASHBOARD_TREND_STATUSES = ["rising_fast", "rising", "new", "stable", "cooling"] as const;
 export type DashboardTrendStatus = (typeof DASHBOARD_TREND_STATUSES)[number];
@@ -157,11 +187,14 @@ export interface DashboardCandidate {
   /** Input fingerprint from canonical source content; drives summary caching. */
   contentFingerprint?: string | null;
   /**
-   * Worker-only provenance gate for the historical social lane. It is set
-   * only for verified, scored, company-authored evidence and is never copied
-   * into a public story source.
+   * Worker-only proof that a social/video row is verified, scored native
+   * evidence. It is never copied into a public story source.
    */
   socialBackfillEligible?: boolean;
+  /** Worker-only source qualification copied from canonical evidence. */
+  sourceVerified?: boolean;
+  sourceLinkStatus?: "verified" | "invalid" | "unchecked" | "blocked" | null;
+  publicationPrecision?: "exact" | "day" | "unknown";
 }
 
 export interface DashboardStorySource {
@@ -170,6 +203,8 @@ export interface DashboardStorySource {
   platform: DashboardPlatform;
   nativePlatform: DashboardNativePlatform;
   sourceKind: DashboardSourceKind;
+  /** Carried from the candidate; the public artifact accepts only `verified`. */
+  verificationState: "verified" | "unverified";
   url: string;
   destinationUrl: string | null;
   title: string | null;
@@ -243,6 +278,7 @@ export interface DashboardStoryPrimarySource {
   title: string | null;
   publisher: string | null;
   platform: DashboardPlatform;
+  sourceKind: DashboardSourceKind;
   publishedAt: string;
   /** Native counters from this displayed source, never an aggregate story total. */
   metrics: DashboardMetrics;

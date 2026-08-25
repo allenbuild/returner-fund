@@ -68,6 +68,11 @@ import {
   createAutonomousCollectionDrainBudget,
   createAutonomousRunnerBudget
 } from "./lib/autonomous-ingestion-budget.mjs";
+import {
+  INGESTION_RETRY_ATTEMPT_CEILING,
+  cappedExponentialBackoffMs,
+  retryDelayBeforeDeadlineMs
+} from "./lib/ingestion-retry-policy.mjs";
 import { selectPublishedAutonomousIngestionReceipt } from "./lib/autonomous-ingestion-receipt-policy.mjs";
 import {
   CENTRAL_TIME_ZONE,
@@ -208,8 +213,10 @@ let candidateMetadata = null;
 let authenticatedSocial = null;
 const activeChildProcesses = new Set();
 const HEARTBEAT_DRAIN_TIMEOUT_MS = 10_000;
-const HEARTBEAT_MAX_ATTEMPTS = 4;
-const HEARTBEAT_RETRY_DELAYS_MS = Object.freeze([1_000, 3_000, 7_000]);
+const INGESTION_LEASE_DURATION_MS = 20 * 60_000;
+const INGESTION_LEASE_DURATION_SQL = "20 minutes";
+const HEARTBEAT_RETRY_BASE_DELAY_MS = 1_000;
+const HEARTBEAT_RETRY_MAX_DELAY_MS = 30_000;
 const HEARTBEAT_RETRYABLE_TRANSPORT_CODES = new Set([
   "EAI_AGAIN",
   "ECONNREFUSED",
@@ -229,6 +236,9 @@ const HEARTBEAT_RETRYABLE_TRANSPORT_CODES = new Set([
 const CANCELLATION_CLEANUP_TIMEOUT_MS = 15_000;
 const COMMAND_FAILURE_TAIL_MAX_LENGTH = 4_096;
 const LIFECYCLE_OPERATION_TIMEOUT_MS = 15_000;
+// One heartbeat can spend a lifecycle timeout updating the run and another
+// renewing the global lock. Never sleep into that final renewal window.
+const HEARTBEAT_RENEWAL_RESERVE_MS = (2 * LIFECYCLE_OPERATION_TIMEOUT_MS) + 5_000;
 const SUPABASE_BULK_OPERATION_TIMEOUT_MS = 5 * 60_000;
 const COMMAND_EVENT_TIMEOUT_MS = 2_000;
 const PROCESS_KILL_WATCHDOG_MS = 1_000;
@@ -380,11 +390,7 @@ if (args.authenticatedSocialReplay && candidateMetadata?.trigger !== "manual-rep
 }
 assertCandidateFreshForPublication("runner start");
 workRoot = join(root, "work", "autonomous-ingestion", safePathSegment(idempotencyKey));
-collectorRoot = args.authenticatedSocialReplay
-  ? authenticatedSocialReplayRoot()
-  : args.campaignKey
-    ? join(root, "work", "autonomous-ingestion-campaigns", safePathSegment(args.campaignKey))
-    : workRoot;
+collectorRoot = autonomousCollectorStateRoot();
 publicOutputs = new Map(
   AUTONOMOUS_BATCHES.map((batch) => [batch.slug, join(collectorRoot, `public-${batch.slug.toLowerCase()}.json`)])
 );
@@ -629,7 +635,7 @@ await Promise.all([
       await reconcileCollectorTasks(collectionResults, catalogState);
     }
 
-    // A collector that exhausted retries may still have a fully validated
+    // A collector that reached the phase deadline may still have a fully validated
     // snapshot containing thousands of exact task outcomes and evidence rows.
     // Publish that recovered snapshot; result.ok only describes the process
     // conclusion and must not discard durable collection output.
@@ -1669,7 +1675,7 @@ async function claimRuntimeLock() {
       () => supabase.rpc("claim_ingestion_runtime_lock", {
         p_lock_key: "autonomous-ingestion",
         p_owner_id: workerId,
-        p_lease_duration: "20 minutes",
+        p_lease_duration: INGESTION_LEASE_DURATION_SQL,
         p_metadata_json: {
           idempotencyKey,
           startedAt: runStartedAt.toISOString(),
@@ -1863,30 +1869,60 @@ async function stopHeartbeatAndDrain() {
   return heartbeatDrainPromise;
 }
 
-async function heartbeat(signal = null, { retryDelay = waitForHeartbeatRetry } = {}) {
+async function heartbeat(
+  signal = null,
+  {
+    retryDelay = waitForHeartbeatRetry,
+    now = Date.now,
+    random = Math.random
+  } = {}
+) {
   const runSnapshot = run?.id && run?.lease_token
-    ? Object.freeze({ id: run.id, leaseToken: run.lease_token })
+    ? Object.freeze({
+        id: run.id,
+        leaseToken: run.lease_token,
+        leaseExpiresAt: run.lease_expires_at ?? null
+      })
     : null;
   const lockSnapshot = runtimeLock?.lock_key && runtimeLock?.lease_token
-    ? Object.freeze({ lockKey: runtimeLock.lock_key, leaseToken: runtimeLock.lease_token })
+    ? Object.freeze({
+        lockKey: runtimeLock.lock_key,
+        leaseToken: runtimeLock.lease_token,
+        leaseExpiresAt: runtimeLock.lease_expires_at ?? null
+      })
     : null;
   if (!runSnapshot || !lockSnapshot) return;
 
-  for (let attempt = 1; attempt <= HEARTBEAT_MAX_ATTEMPTS; attempt += 1) {
+  let attempt = 0;
+  while (true) {
+    attempt += 1;
     try {
-      await renewHeartbeatLease(runSnapshot, lockSnapshot, signal);
+      const renewal = await renewHeartbeatLease(runSnapshot, lockSnapshot, signal, now);
+      adoptHeartbeatRenewal(runSnapshot, lockSnapshot, renewal);
       return;
     } catch (error) {
-      if (
-        attempt === HEARTBEAT_MAX_ATTEMPTS ||
-        !isRetryableHeartbeatTransportError(error, signal)
-      ) {
-        throw error;
+      if (!isRetryableHeartbeatTransportError(error, signal)) throw error;
+      const leaseDeadlineAt = heartbeatLeaseDeadlineAt(runSnapshot, lockSnapshot);
+      const delayMs = retryDelayBeforeDeadlineMs({
+        failureCount: attempt,
+        deadlineAt: leaseDeadlineAt,
+        nowMs: now(),
+        reserveMs: HEARTBEAT_RENEWAL_RESERVE_MS,
+        baseDelayMs: HEARTBEAT_RETRY_BASE_DELAY_MS,
+        maxDelayMs: HEARTBEAT_RETRY_MAX_DELAY_MS,
+        jitterRatio: 0.2,
+        random
+      });
+      if (delayMs === null) {
+        throw new Error(
+          `Transient heartbeat transport failures continued through the safe lease-renewal window ` +
+          `(lease deadline ${new Date(leaseDeadlineAt).toISOString()}); restart recovery is required.`,
+          { cause: error }
+        );
       }
-      const delayMs = HEARTBEAT_RETRY_DELAYS_MS[attempt - 1];
       console.warn(
         `Heartbeat transport failure; retrying the same lease tokens ` +
-        `(attempt ${attempt + 1}/${HEARTBEAT_MAX_ATTEMPTS}) in ${delayMs}ms: ` +
+        `(attempt ${attempt + 1}, retries remain unbounded while the lease is safe) in ${delayMs}ms: ` +
         sanitizeRunnerDiagnosticText(errorMessage(error))
       );
       await retryDelay(delayMs, signal);
@@ -1894,13 +1930,15 @@ async function heartbeat(signal = null, { retryDelay = waitForHeartbeatRetry } =
   }
 }
 
-async function renewHeartbeatLease(runSnapshot, lockSnapshot, signal) {
-  const now = new Date().toISOString();
+async function renewHeartbeatLease(runSnapshot, lockSnapshot, signal, now = Date.now) {
+  const renewedAtMs = now();
+  const renewedAt = new Date(renewedAtMs).toISOString();
+  const leaseExpiresAt = new Date(renewedAtMs + INGESTION_LEASE_DURATION_MS).toISOString();
   const { error: runError } = await runSupabaseOperation(
     "heartbeat ingestion run",
     () => supabase
       .from("ingestion_runs")
-      .update({ heartbeat_at: now, lease_expires_at: new Date(Date.now() + 20 * 60_000).toISOString() })
+      .update({ heartbeat_at: renewedAt, lease_expires_at: leaseExpiresAt })
       .eq("id", runSnapshot.id)
       .eq("lease_token", runSnapshot.leaseToken),
     { signal }
@@ -1912,12 +1950,43 @@ async function renewHeartbeatLease(runSnapshot, lockSnapshot, signal) {
       p_lock_key: lockSnapshot.lockKey,
       p_owner_id: workerId,
       p_lease_token: lockSnapshot.leaseToken,
-      p_lease_duration: "20 minutes"
+      p_lease_duration: INGESTION_LEASE_DURATION_SQL
     }),
     { signal }
   );
   checkHeartbeatResponse(error, "heartbeat runtime lock");
   if (data !== true) throw new Error("The ingestion runtime lock expired or was taken by another worker.");
+  return { renewedAt, leaseExpiresAt };
+}
+
+function heartbeatLeaseDeadlineAt(runSnapshot, lockSnapshot) {
+  const expirations = [runSnapshot.leaseExpiresAt, lockSnapshot.leaseExpiresAt]
+    .map((value) => Date.parse(value ?? ""))
+    .filter(Number.isFinite);
+  if (expirations.length !== 2) {
+    throw new Error("Cannot retry an ingestion heartbeat without both exact lease expiration timestamps.");
+  }
+  return Math.min(...expirations);
+}
+
+function adoptHeartbeatRenewal(runSnapshot, lockSnapshot, renewal) {
+  if (run?.id === runSnapshot.id && run?.lease_token === runSnapshot.leaseToken) {
+    run = {
+      ...run,
+      heartbeat_at: renewal.renewedAt,
+      lease_expires_at: renewal.leaseExpiresAt
+    };
+  }
+  if (
+    runtimeLock?.lock_key === lockSnapshot.lockKey &&
+    runtimeLock?.lease_token === lockSnapshot.leaseToken
+  ) {
+    runtimeLock = {
+      ...runtimeLock,
+      heartbeat_at: renewal.renewedAt,
+      lease_expires_at: renewal.leaseExpiresAt
+    };
+  }
 }
 
 function checkHeartbeatResponse(error, operation) {
@@ -1939,8 +2008,12 @@ function isRetryableHeartbeatTransportError(error, signal = null) {
     .map((candidate) => String(candidate?.message ?? ""))
     .filter(Boolean)
     .join(" ");
-  return names.includes("TypeError") &&
+  const transportFailureMessage =
     /\b(?:fetch failed|failed to fetch|network request failed|load failed)\b/i.test(message);
+  const wrappedTypeErrorTransportFailure =
+    /\bTypeError:\s*(?:fetch failed|failed to fetch|network request failed|load failed)\b/i.test(message);
+  return transportFailureMessage &&
+    (names.includes("TypeError") || wrappedTypeErrorTransportFailure);
 }
 
 function waitForHeartbeatRetry(milliseconds, signal = null) {
@@ -2001,7 +2074,7 @@ async function getOrCreateRun() {
           heartbeat_at: runStartedAt.toISOString(),
           lease_owner: workerId,
           lease_token: leaseToken,
-          lease_expires_at: new Date(Date.now() + 20 * 60_000).toISOString()
+          lease_expires_at: new Date(Date.now() + INGESTION_LEASE_DURATION_MS).toISOString()
         })
         .eq("id", existing.id)
         .select("*")
@@ -2018,7 +2091,7 @@ async function getOrCreateRun() {
     heartbeat_at: runStartedAt.toISOString(),
     lease_owner: workerId,
     lease_token: leaseToken,
-    lease_expires_at: new Date(Date.now() + 20 * 60_000).toISOString(),
+    lease_expires_at: new Date(Date.now() + INGESTION_LEASE_DURATION_MS).toISOString(),
     stats_json: { phase: "initializing" },
     logs: [`Started autonomous ingestion ${idempotencyKey}.`],
     errors_json: []
@@ -2388,7 +2461,10 @@ async function enqueueTasks(tasks, catalogState) {
     platform: task.platform,
     status: task.status,
     checkpoint_key: task.checkpointKey,
-    max_attempts: AUTONOMOUS_PROCESS_BUDGETS.collectorAttempts,
+    // Transient work is never dead-lettered merely because a small retry
+    // counter was exhausted. The PostgreSQL integer ceiling is operationally
+    // unbounded; semantic terminal failures are still classified explicitly.
+    max_attempts: INGESTION_RETRY_ATTEMPT_CEILING,
     priority: platformPriority(task.platform),
     terminal_at: task.status === "queued" ? null : now,
     terminal_reason: task.terminalReason,
@@ -3180,7 +3256,7 @@ async function runCollectors() {
       snapshotAvailable: result.status === "fulfilled" || Boolean(recoveredSnapshot),
       attempts: result.status === "fulfilled"
         ? result.value.attempts
-        : AUTONOMOUS_PROCESS_BUDGETS.collectorAttempts,
+        : command.attempts ?? 0,
       successfulRows: result.status === "fulfilled"
         ? result.value.successfulRows
         : recoveredSnapshot
@@ -4251,11 +4327,11 @@ async function runPublicCollectorWithCheckpointRecovery({
   }
 }
 
-async function runTopVoiceCollector() {
+async function runTopVoiceCollector(attempt = 1) {
   const batchSlug = AUTONOMOUS_BATCHES.map((batch) => batch.slug).join(",");
   const attemptContext = createCollectorAttemptContext(
     { kind: "top_voice", batchSlug },
-    1
+    attempt
   );
   await removeCollectorAttemptOutput(topVoiceOutput);
   await event(
@@ -4306,6 +4382,33 @@ async function runTopVoiceCollector() {
   return receipt;
 }
 
+async function runTopVoiceCollectorUntilSuccess() {
+  for (let attempt = 1; ; attempt += 1) {
+    try {
+      return await runTopVoiceCollector(attempt);
+    } catch (error) {
+      if (isCollectionOrRunnerBudgetError(error)) throw error;
+      const retryDelayMs = cappedExponentialBackoffMs(attempt, {
+        baseDelayMs: 1_000,
+        maxDelayMs: AUTONOMOUS_PROCESS_BUDGETS.collectorRetryDelayMaxMs,
+        jitterRatio: 0.2
+      });
+      await event(
+        "top_voice_collection.retry_scheduled",
+        "warning",
+        "Top Voice discovery failed transiently and will retry from its isolated snapshot boundary.",
+        {
+          attempt,
+          retryDelayMs,
+          retryPolicy: "until_success_within_collection_deadline",
+          error: errorMessage(error)
+        }
+      ).catch((eventError) => warnOptionalRetryTelemetry("Top Voice", eventError));
+      await delay(boundedCollectionDelayMs(retryDelayMs, "Top Voice retry backoff"));
+    }
+  }
+}
+
 async function resumeTopVoiceRefresh() {
   const result = await resumeValidatedSnapshotOrRun({
     resume: args.resumeSnapshots,
@@ -4322,7 +4425,7 @@ async function resumeTopVoiceRefresh() {
         throw new Error("Top Voice discovery snapshot has stale, future, or foreign collector provenance.");
       }
     },
-    runFresh: runTopVoiceCollector
+    runFresh: runTopVoiceCollectorUntilSuccess
   });
   if (result.resumed) {
     await event(
@@ -4366,7 +4469,7 @@ function assertExactTopVoiceAttemptBinding(binding, attemptContext, batchSlug) {
   }
 }
 
-async function runCollectorWithRetries(command, maxAttempts = AUTONOMOUS_PROCESS_BUDGETS.collectorAttempts) {
+async function runCollectorWithRetries(command) {
   if (args.resumeSnapshots) {
     let snapshot = null;
     try {
@@ -4414,8 +4517,8 @@ async function runCollectorWithRetries(command, maxAttempts = AUTONOMOUS_PROCESS
       }
     }
   }
-  let lastError = null;
-  for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+  for (let attempt = 1; ; attempt += 1) {
+    command.attempts = attempt;
     let retryReasons = [];
     try {
       const attemptContext = createCollectorAttemptContext(command, attempt);
@@ -4455,64 +4558,72 @@ async function runCollectorWithRetries(command, maxAttempts = AUTONOMOUS_PROCESS
           ? [`${terminalCoverage.nonTerminal}/${terminalCoverage.expected} planned task(s) lack explicit terminal outcomes.`]
           : [])
       ];
-      if (attempt === maxAttempts) {
-        if (terminalCoverage.nonTerminal > 0) {
-          await event(
-            "collector.retry_exhausted",
-            "error",
-            `${command.kind} ${command.batchSlug} exhausted retries before explicit task coverage was complete.`,
-            { attempt, maxAttempts, retryableFailures, terminalCoverage }
-          );
-          throw new Error(
-            `${command.kind} ${command.batchSlug} exhausted retries with ` +
-            `${terminalCoverage.nonTerminal}/${terminalCoverage.expected} planned task(s) lacking explicit terminal outcomes.`
-          );
-        }
-        await event(
-          "collector.retry_exhausted",
-          "warning",
-          `${command.kind} ${command.batchSlug} exhausted retryable failures after every planned task reached an explicit terminal outcome.`,
-          { attempt, maxAttempts, exhaustedRetryableFailures: retryableFailures, terminalCoverage }
-        );
-        return {
-          attempts: attempt,
-          retryableFailures: retryableFailures.length,
-          exhaustedRetryableFailures: retryableFailures.length,
-          successfulRows: successfulCollectorRowCount(snapshot, command.kind),
+      await event(
+        "collector.retry_scheduled",
+        "warning",
+        `${command.kind} ${command.batchSlug} requires another attempt.`,
+        {
+          attempt,
+          retryPolicy: "until_success_within_collection_deadline",
+          retryableFailures,
           terminalCoverage
-        };
-      }
-      await event("collector.retry_scheduled", "warning", `${command.kind} ${command.batchSlug} requires another attempt.`, {
-        attempt,
-        maxAttempts,
-        retryableFailures,
-        terminalCoverage
-      });
+        }
+      ).catch((eventError) => warnOptionalRetryTelemetry(
+        `${command.kind} ${command.batchSlug}`,
+        eventError
+      ));
     } catch (error) {
-      lastError = error;
       retryReasons = retryReasons.length ? retryReasons : [errorMessage(error)];
-      if (attempt === maxAttempts) throw error;
-      await event("collector.retry_scheduled", "warning", `${command.kind} ${command.batchSlug} process failed.`, {
-        attempt,
-        maxAttempts,
-        error: errorMessage(error)
-      });
+      if (isCollectionOrRunnerBudgetError(error)) throw error;
+      await event(
+        "collector.retry_scheduled",
+        "warning",
+        `${command.kind} ${command.batchSlug} process failed.`,
+        {
+          attempt,
+          retryPolicy: "until_success_within_collection_deadline",
+          error: errorMessage(error)
+        }
+      ).catch((eventError) => warnOptionalRetryTelemetry(
+        `${command.kind} ${command.batchSlug}`,
+        eventError
+      ));
     }
     const rateLimited = retryReasons.some((reason) =>
       /(?:rate.?limit|secondary.?limit|\b403\b|forbidden|\b429\b)/i.test(String(reason))
     );
-    const retryDelayMs = rateLimited
-      ? AUTONOMOUS_PROCESS_BUDGETS.collectorRateLimitRetryDelayMs
-      : Math.min(
-          AUTONOMOUS_PROCESS_BUDGETS.collectorRetryDelayMaxMs,
-          1_000 * (2 ** (attempt - 1)) + Math.floor(Math.random() * 1_000)
-        );
+    const retryDelayMs = cappedExponentialBackoffMs(attempt, {
+      baseDelayMs: rateLimited
+        ? AUTONOMOUS_PROCESS_BUDGETS.collectorRateLimitRetryDelayMs
+        : 1_000,
+      maxDelayMs: rateLimited
+        ? Math.max(
+            AUTONOMOUS_PROCESS_BUDGETS.collectorRetryDelayMaxMs,
+            AUTONOMOUS_PROCESS_BUDGETS.collectorRateLimitRetryDelayMs
+          )
+        : AUTONOMOUS_PROCESS_BUDGETS.collectorRetryDelayMaxMs,
+      jitterRatio: 0.2
+    });
     await delay(boundedCollectionDelayMs(
       retryDelayMs,
       `${command.kind} ${command.batchSlug} retry backoff`
     ));
   }
-  throw lastError ?? new Error(`${command.kind} ${command.batchSlug} exhausted retries.`);
+}
+
+function isCollectionOrRunnerBudgetError(error) {
+  return [error?.code, error?.cause?.code].some((code) => [
+    "AUTONOMOUS_COLLECTION_BUDGET_EXCEEDED",
+    "AUTONOMOUS_COLLECTION_DRAIN_BUDGET_EXCEEDED",
+    "AUTONOMOUS_RUNNER_BUDGET_EXCEEDED"
+  ].includes(code));
+}
+
+function warnOptionalRetryTelemetry(label, error) {
+  console.warn(
+    `Could not persist optional ${label} retry telemetry: ` +
+    sanitizeRunnerDiagnosticText(errorMessage(error))
+  );
 }
 
 function retryableFailuresFromSnapshot(snapshot) {
@@ -8575,6 +8686,9 @@ function parseArgs(rawArgs) {
     if (assigned === "false" || assigned === "") return false;
     throw new Error(`${name} must be true or false.`);
   };
+  if (rawArgs.includes("--resume-snapshots") && rawArgs.includes("--no-resume-snapshots")) {
+    throw new Error("--resume-snapshots and --no-resume-snapshots cannot be combined.");
+  }
   return {
     idempotencyKey: value("--idempotency-key"),
     campaignKey: value("--campaign-key"),
@@ -8582,7 +8696,10 @@ function parseArgs(rawArgs) {
     scheduledAt: value("--scheduled-at"),
     recoveryDebt: booleanValue("--recovery-debt"),
     plan: rawArgs.includes("--plan"),
-    resumeSnapshots: rawArgs.includes("--resume-snapshots"),
+    // Resume is safe because every snapshot is bound to the exact campaign,
+    // collector attempt, shard, timestamp window, and (where required) source
+    // path before reuse. Make recovery the default instead of an opt-in flag.
+    resumeSnapshots: !rawArgs.includes("--no-resume-snapshots"),
     skipNetwork: rawArgs.includes("--skip-network"),
     skipPublish: rawArgs.includes("--skip-publish"),
     authenticatedSocialReplay: booleanValue("--authenticated-social-replay")
@@ -8592,6 +8709,36 @@ function parseArgs(rawArgs) {
 function cleanEnv(value) {
   const trimmed = value?.trim();
   return trimmed || null;
+}
+
+function autonomousCollectorStateRoot() {
+  if (args.authenticatedSocialReplay) return authenticatedSocialReplayRoot();
+
+  const configuredRoot = cleanEnv(process.env.RETURNER_INGESTION_STATE_ROOT);
+  const openCliHome = process.env.GITHUB_ACTIONS === "true"
+    ? cleanEnv(process.env.OPENCLI_HOME)
+    : null;
+  const runnerWorkspace = process.env.GITHUB_ACTIONS === "true"
+    ? cleanEnv(process.env.RUNNER_WORKSPACE)
+    : null;
+  const durableBase = configuredRoot
+    ? resolve(configuredRoot)
+    : openCliHome
+      ? join(resolve(openCliHome), "returner-fund-autonomous-ingestion-state", "v1")
+      : runnerWorkspace
+        // Keep recovery state beside, not inside, actions/checkout's cleaned
+        // repository directory. This survives a failed job on self-hosted
+        // runners without exposing it to publication staging.
+        ? join(resolve(runnerWorkspace), ".returner-fund-autonomous-ingestion-state", "v1")
+        : null;
+  if (!durableBase) {
+    return args.campaignKey
+      ? join(root, "work", "autonomous-ingestion-campaigns", safePathSegment(args.campaignKey))
+      : workRoot;
+  }
+  return args.campaignKey
+    ? join(durableBase, "campaigns", safePathSegment(args.campaignKey))
+    : join(durableBase, "slots", safePathSegment(idempotencyKey));
 }
 
 function authenticatedSocialReplayRoot() {
@@ -9669,6 +9816,8 @@ async function runLifecycleContractFixture(fixture) {
 
   if ([
     "heartbeat-transient-recovery",
+    "heartbeat-resolved-transport-recovery",
+    "heartbeat-long-transient-recovery",
     "heartbeat-transient-exhaustion",
     "heartbeat-lock-loss",
     "heartbeat-semantic-error"
@@ -9678,16 +9827,25 @@ async function runLifecycleContractFixture(fixture) {
     const runHeartbeats = [];
     const lockHeartbeats = [];
     const retryDelays = [];
+    let heartbeatNowMs = Date.parse("2026-08-25T15:00:00.000Z");
+    const fixtureLeaseDurationMs = fixture === "heartbeat-transient-exhaustion"
+      ? 45_000
+      : INGESTION_LEASE_DURATION_MS;
+    const fixtureLeaseExpiresAt = new Date(
+      heartbeatNowMs + fixtureLeaseDurationMs
+    ).toISOString();
     heartbeatFailure = null;
     terminationSignal = null;
     workerId = "heartbeat-retry-fixture-worker";
     run = {
       id: "heartbeat-retry-fixture",
-      lease_token: runLeaseToken
+      lease_token: runLeaseToken,
+      lease_expires_at: fixtureLeaseExpiresAt
     };
     runtimeLock = {
       lock_key: "autonomous-ingestion",
-      lease_token: lockLeaseToken
+      lease_token: lockLeaseToken,
+      lease_expires_at: fixtureLeaseExpiresAt
     };
     const transportFailure = () => {
       const error = new TypeError("fetch failed");
@@ -9719,8 +9877,20 @@ async function runLifecycleContractFixture(fixture) {
               heartbeatAt: updatePayload?.heartbeat_at ?? null,
               leaseExpiresAt: updatePayload?.lease_expires_at ?? null
             });
-            if (fixture === "heartbeat-transient-exhaustion") {
+            if (
+              fixture === "heartbeat-transient-exhaustion" ||
+              (fixture === "heartbeat-long-transient-recovery" && runHeartbeats.length <= 8)
+            ) {
               return Promise.reject(transportFailure());
+            }
+            if (
+              fixture === "heartbeat-resolved-transport-recovery" &&
+              runHeartbeats.length === 1
+            ) {
+              return Promise.resolve({
+                data: null,
+                error: { message: "TypeError: fetch failed" }
+              });
             }
             return Promise.resolve({
               data: null,
@@ -9754,7 +9924,10 @@ async function runLifecycleContractFixture(fixture) {
       await heartbeat(null, {
         retryDelay: async (milliseconds) => {
           retryDelays.push(milliseconds);
-        }
+          heartbeatNowMs += milliseconds;
+        },
+        now: () => heartbeatNowMs,
+        random: () => 0.5
       });
     } catch (error) {
       operationError = errorMessage(error);
@@ -9774,6 +9947,8 @@ async function runLifecycleContractFixture(fixture) {
       runHeartbeats,
       lockHeartbeats,
       retryDelays,
+      finalRunLeaseExpiresAt: run?.lease_expires_at ?? null,
+      finalLockLeaseExpiresAt: runtimeLock?.lease_expires_at ?? null,
       operationError,
       leaseFailure
     });

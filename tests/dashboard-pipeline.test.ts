@@ -1,7 +1,14 @@
 import { describe, expect, it } from "vitest";
 import { clusterDashboardCandidates } from "@/lib/dashboard/clustering";
-import type { DashboardCandidate } from "@/lib/dashboard/contracts";
-import { buildDashboardSnapshot, isDashboardSocialBackfillCandidate } from "@/lib/dashboard/pipeline";
+import {
+  DASHBOARD_MIN_SOCIAL_VIEWS,
+  type DashboardCandidate
+} from "@/lib/dashboard/contracts";
+import {
+  buildDashboardSnapshot,
+  dashboardTop100Eligibility,
+  dashboardTop100SurfacingScore
+} from "@/lib/dashboard/pipeline";
 import {
   crossPlatformConfirmationScore,
   freshnessScore,
@@ -15,15 +22,15 @@ import { compactSentence } from "@/lib/dashboard/normalization";
 const NOW = new Date("2026-08-15T12:00:00.000Z");
 
 describe("technology dashboard pipeline", () => {
-  it("uses an exact rolling 24-hour window and excludes stale, future, and invalid candidates", () => {
+  it("uses an exact rolling 72-hour window and excludes stale, future, and invalid candidates", () => {
     const result = buildDashboardSnapshot([
       dashboardCandidate({
         id: "at-window-start",
-        publishedAt: "2026-08-14T12:00:00.000Z"
+        publishedAt: "2026-08-12T12:00:00.000Z"
       }),
       dashboardCandidate({
         id: "one-millisecond-stale",
-        publishedAt: "2026-08-14T11:59:59.999Z"
+        publishedAt: "2026-08-12T11:59:59.999Z"
       }),
       dashboardCandidate({
         id: "future",
@@ -38,7 +45,7 @@ describe("technology dashboard pipeline", () => {
       platformFailures: ["youtube:timeout", "reddit:rate_limited", "youtube:timeout"]
     });
 
-    expect(result.snapshot.windowStart).toBe("2026-08-14T12:00:00.000Z");
+    expect(result.snapshot.windowStart).toBe("2026-08-12T12:00:00.000Z");
     expect(result.snapshot.windowEnd).toBe(NOW.toISOString());
     expect(result.snapshot.stories).toHaveLength(1);
     expect(result.snapshot.stories[0]?.sources.map((source) => source.id)).toEqual(["at-window-start"]);
@@ -50,15 +57,14 @@ describe("technology dashboard pipeline", () => {
     });
   });
 
-  it("backfills a full Top 100 from verified, measured batch social posts without changing their source dates", () => {
-    const socialPosts = Array.from({ length: 120 }, (_, index) => dashboardCandidate({
-      id: `retained-social-${String(index).padStart(3, "0")}`,
-      canonicalKey: `x:retained-social-${index}`,
+  it("builds the Top 100 from 70 qualifying viral posts and 30 metricless news reports", () => {
+    const socialPosts = Array.from({ length: 70 }, (_, index) => dashboardCandidate({
+      id: `viral-social-${String(index).padStart(3, "0")}`,
+      canonicalKey: `x:viral-social-${index}`,
       title: `Company ${index} launches an AI agent platform`,
       text: `Company ${index} launches an AI agent platform for software teams.`,
       publishedAt: "2026-08-13T12:00:00.000Z",
-      metrics: { views: 1_000_000 - index, likes: 4_000 - index, reposts: 400 - index },
-      socialBackfillEligible: true,
+      metrics: { views: 2_000_000 - index, likes: 4_000 - index, reposts: 400 - index },
       trackedEntity: {
         companyId: `company-${index}`,
         name: `Company ${index}`,
@@ -72,7 +78,7 @@ describe("technology dashboard pipeline", () => {
       canonicalKey: `web:fresh-news-${index}`,
       platform: "web",
       sourceKind: "article",
-      url: `https://news.example.com/fresh-${index}`,
+      url: `https://publisher-${index}.example.com/fresh-${index}`,
       title: `Independent technology report ${index}`,
       metrics: {},
       independentlyReported: true
@@ -83,12 +89,12 @@ describe("technology dashboard pipeline", () => {
     expect(result.snapshot.stories).toHaveLength(100);
     expect(result.snapshot.status.storyCount).toBe(100);
     expect(result.snapshot.status.viewStoryCounts.hottest).toBe(100);
-    expect(result.snapshot.stories.every((story) => story.platforms.includes("x"))).toBe(true);
-    expect(result.snapshot.stories.every((story) => story.publishedAt === "2026-08-13T12:00:00.000Z")).toBe(true);
-    expect(result.snapshot.stories[0]?.sources[0]?.metrics).toEqual({ views: 1_000_000, likes: 4_000, reposts: 400 });
+    expect(result.snapshot.stories.filter((story) => story.sources[0]?.nativePlatform === "x")).toHaveLength(70);
+    expect(result.snapshot.stories.filter((story) => story.sources[0]?.sourceKind === "article")).toHaveLength(30);
+    expect(result.snapshot.stories.some((story) => story.sources[0]?.metrics.views === undefined)).toBe(true);
   });
 
-  it("keeps untrusted or non-technical historical social material out of the retention lane", () => {
+  it("hard-gates stale, low-reach, unverified, imprecise, and non-technical social posts", () => {
     const personal = dashboardCandidate({
       id: "personal-founder-post",
       canonicalKey: "x:personal-founder-post",
@@ -110,7 +116,7 @@ describe("technology dashboard pipeline", () => {
       title: "We launched an AI agent platform",
       publishedAt: "2026-08-13T12:00:00.000Z",
       metrics: { views: 2_000_000, likes: 80_000 },
-      socialBackfillEligible: false,
+      sourceVerified: false,
       trackedEntity: {
         companyId: "company-unverified",
         name: "Unverified Company",
@@ -119,10 +125,191 @@ describe("technology dashboard pipeline", () => {
       },
       topics: ["launches", "ai"]
     });
+    const belowReach = dashboardCandidate({
+      id: "below-reach",
+      metrics: { views: DASHBOARD_MIN_SOCIAL_VIEWS - 1, likes: 80_000 }
+    });
+    const imprecise = dashboardCandidate({
+      id: "imprecise",
+      publicationPrecision: "unknown"
+    });
+    const stale = dashboardCandidate({
+      id: "stale",
+      publishedAt: "2026-08-12T11:59:59.999Z"
+    });
+    const missingVerificationProof = dashboardCandidate({
+      id: "missing-verification-proof",
+      sourceVerified: undefined
+    });
+    const uncheckedLink = dashboardCandidate({
+      id: "unchecked-link",
+      sourceLinkStatus: "unchecked"
+    });
+    const missingPrecisionProof = dashboardCandidate({
+      id: "missing-precision-proof",
+      publicationPrecision: undefined
+    });
 
-    expect(isDashboardSocialBackfillCandidate(personal, NOW)).toBe(false);
-    expect(isDashboardSocialBackfillCandidate(unverified, NOW)).toBe(false);
-    expect(buildDashboardSnapshot([personal, unverified], { now: NOW }).snapshot.stories).toEqual([]);
+    expect(dashboardTop100Eligibility(personal, NOW)).toMatchObject({ eligible: false, reason: "unverified_source" });
+    expect(dashboardTop100Eligibility(unverified, NOW)).toMatchObject({ eligible: false, reason: "unverified_source" });
+    expect(dashboardTop100Eligibility(belowReach, NOW)).toMatchObject({ eligible: false, reason: "below_one_million_views" });
+    expect(dashboardTop100Eligibility(imprecise, NOW)).toMatchObject({ eligible: false, reason: "missing_precise_publication_date" });
+    expect(dashboardTop100Eligibility(stale, NOW)).toMatchObject({ eligible: false, reason: "outside_72_hour_window" });
+    expect(dashboardTop100Eligibility(missingVerificationProof, NOW)).toMatchObject({ eligible: false, reason: "unverified_source" });
+    expect(dashboardTop100Eligibility(uncheckedLink, NOW)).toMatchObject({ eligible: false, reason: "invalid_link" });
+    expect(dashboardTop100Eligibility(missingPrecisionProof, NOW)).toMatchObject({ eligible: false, reason: "missing_precise_publication_date" });
+    expect(buildDashboardSnapshot([
+      personal,
+      unverified,
+      belowReach,
+      imprecise,
+      stale,
+      missingVerificationProof,
+      uncheckedLink,
+      missingPrecisionProof
+    ], { now: NOW }).snapshot.stories).toEqual([]);
+  });
+
+  it("uses broad candidates for clustering but excludes them from published sources and scoring", () => {
+    const qualifiedNews = dashboardCandidate({
+      id: "qualified-news",
+      canonicalKey: "web:qualified-news",
+      platform: "web",
+      sourceKind: "article",
+      url: "https://publisher.example.com/shared-launch",
+      destinationUrl: "https://product.example.com/shared-launch",
+      title: "Publisher reports a shared AI launch",
+      metrics: { comments: 25 },
+      independentlyReported: true
+    });
+    const unqualifiedBridge = dashboardCandidate({
+      id: "unqualified-bridge",
+      canonicalKey: "x:unqualified-bridge",
+      url: "https://x.example.com/unqualified-bridge",
+      destinationUrl: "https://product.example.com/shared-launch",
+      title: "Shared AI launch reaches a huge audience",
+      metrics: { views: 100_000_000, likes: 5_000_000 },
+      sourceVerified: undefined
+    });
+
+    const result = buildDashboardSnapshot([qualifiedNews, unqualifiedBridge], { now: NOW }).snapshot;
+
+    expect(result.stories).toHaveLength(1);
+    expect(result.stories[0]?.sources.map((source) => source.id)).toEqual(["qualified-news"]);
+    expect(result.stories[0]?.sourceCount).toBe(1);
+    expect(result.stories[0]?.engagement).toEqual({ comments: 25 });
+    expect(result.stories[0]?.trendScore).toBe(dashboardTop100SurfacingScore([qualifiedNews], NOW).total);
+  });
+
+  it("uses auditable reach and coverage formulas for viral posts and news", () => {
+    const viral = dashboardCandidate({
+      id: "viral-score",
+      publishedAt: "2026-08-15T00:00:00.000Z",
+      metrics: { views: 4_000_000, likes: 80_000, comments: 20_000 }
+    });
+    const viralScore = dashboardTop100SurfacingScore([viral], NOW);
+
+    expect(viralScore).toMatchObject({
+      formula: "viral-reach-v1",
+      reach: 32.5,
+      velocity: 21,
+      engagement: 3.8,
+      freshness: 8.3
+    });
+    expect(viralScore.total).toBe(65.6);
+    expect(viralScore.reasons).toEqual(expect.arrayContaining([
+      "4,000,000 verified native views",
+      "333,333 views/hour since publication"
+    ]));
+
+    const news = Array.from({ length: 5 }, (_, index) => dashboardCandidate({
+      id: `news-score-${index}`,
+      canonicalKey: `web:news-score-${index}`,
+      platform: "web",
+      sourceKind: "article",
+      url: `https://news-score-${index}.example.com/report`,
+      title: `Publisher ${index} reports a distinct robotics benchmark`,
+      publisher: `Publisher ${index}`,
+      metrics: { comments: 100 },
+      independentlyReported: true
+    }));
+    const newsScore = dashboardTop100SurfacingScore(news, NOW);
+
+    expect(newsScore.formula).toBe("news-coverage-v1");
+    expect(newsScore.sourceCoverage).toBe(25);
+    expect(newsScore.completeness).toBe(7.5);
+    expect(newsScore.total).toBeCloseTo(
+      newsScore.newsAttention + newsScore.sourceCoverage + newsScore.freshness + newsScore.completeness,
+      5
+    );
+    expect(newsScore.reasons).toContain("5 distinct public sources cover this story");
+  });
+
+  it("enforces first-pass publisher and platform caps, then backfills unused capacity", () => {
+    const cappedPublisher = Array.from({ length: 4 }, (_, index) => dashboardCandidate({
+      id: `same-publisher-${index}`,
+      canonicalKey: `web:same-publisher-${index}`,
+      platform: "web",
+      sourceKind: "article",
+      url: `https://dominant.example.com/report-${index}`,
+      title: `Dominant publisher report distinctsignal${index}`,
+      metrics: { comments: 1_000_000 - index },
+      independentlyReported: true
+    }));
+    const diverseNews = Array.from({ length: 27 }, (_, index) => dashboardCandidate({
+      id: `diverse-news-${index}`,
+      canonicalKey: `web:diverse-news-${index}`,
+      platform: "web",
+      sourceKind: "article",
+      url: `https://diverse-${index}.example.com/report`,
+      title: `Diverse publisher report uniquenews${index}`,
+      metrics: {},
+      independentlyReported: true
+    }));
+    const xPosts = Array.from({ length: 31 }, (_, index) => dashboardCandidate({
+      id: `x-cap-${index}`,
+      canonicalKey: `x:x-cap-${index}`,
+      title: `X launch uniqueviralx${index} AI software`,
+      metrics: { views: 50_000_000 - index, likes: 50_000 }
+    }));
+    const youtubePosts = Array.from({ length: 30 }, (_, index) => dashboardCandidate({
+      id: `youtube-cap-${index}`,
+      canonicalKey: `youtube:youtube-cap-${index}`,
+      platform: "youtube",
+      sourceKind: "video",
+      url: `https://youtube.com/watch?v=cap-${index}`,
+      title: `Video launch uniqueviraly${index} AI software`,
+      metrics: { views: 2_000_000 - index, likes: 5_000 }
+    }));
+    const instagramPosts = Array.from({ length: 10 }, (_, index) => dashboardCandidate({
+      id: `instagram-cap-${index}`,
+      canonicalKey: `instagram:instagram-cap-${index}`,
+      platform: "instagram",
+      sourceKind: "video",
+      url: `https://instagram.com/reel/cap-${index}`,
+      title: `Reel launch uniqueviralinstagram${index} AI software`,
+      metrics: { views: 1_500_000 - index, likes: 4_000 }
+    }));
+
+    const capped = buildDashboardSnapshot(
+      [...cappedPublisher, ...diverseNews, ...xPosts, ...youtubePosts, ...instagramPosts],
+      { now: NOW }
+    ).snapshot;
+    expect(capped.stories).toHaveLength(100);
+    expect(capped.stories.filter((story) => story.sources[0]?.nativePlatform === "x")).toHaveLength(30);
+    expect(capped.stories.filter((story) => story.sources[0]?.nativePlatform === "youtube")).toHaveLength(30);
+    expect(capped.stories.filter((story) => story.sources[0]?.nativePlatform === "instagram")).toHaveLength(10);
+    expect(capped.stories.filter((story) => story.sources[0]?.url.includes("dominant.example.com"))).toHaveLength(3);
+
+    const underfilledViral = xPosts.slice(0, 2);
+    const newsForBackfill = [...cappedPublisher, ...diverseNews];
+    const backfilled = buildDashboardSnapshot([...newsForBackfill, ...underfilledViral], {
+      now: NOW,
+      limit: 10
+    }).snapshot;
+    expect(backfilled.stories).toHaveLength(10);
+    expect(backfilled.stories.filter((story) => story.sources[0]?.nativePlatform === "x")).toHaveLength(2);
+    expect(backfilled.stories.filter((story) => story.sources[0]?.sourceKind === "article")).toHaveLength(8);
   });
 
   it("clusters six independent destinations into one stable cross-platform story", () => {
@@ -148,21 +335,21 @@ describe("technology dashboard pipeline", () => {
     expect(reversed).toEqual(forward);
     expect(result.snapshot.stories).toHaveLength(1);
     expect(result.snapshot.stories[0]).toMatchObject({
-      sourceCount: 6,
-      independentSourceCount: 5
+      sourceCount: 5,
+      independentSourceCount: 4
     });
     expect(result.snapshot.stories[0]?.sources.map((source) => source.id).sort()).toEqual(
-      sixSourceLaunch.map((source) => source.id).sort()
+      sixSourceLaunch.filter((source) => source.platform !== "github").map((source) => source.id).sort()
     );
   });
 
   it("keeps a story identity when later corroborating coverage adds a different adapter key or URL", () => {
     const primary = dashboardCandidate({
       id: "orbit-release",
-      canonicalKey: "github:acme-orbit-release",
-      platform: "github",
-      sourceKind: "release",
-      url: "https://github.example.com/acme/orbit/releases/v1",
+      canonicalKey: "x:acme-orbit-release",
+      platform: "x",
+      sourceKind: "post",
+      url: "https://x.example.com/acme/status/orbit-v1",
       destinationUrl: "https://acme.example.com/orbit/v1",
       title: "Acme launches Orbit distributed training platform",
       text: "Orbit is a distributed training platform for production AI teams.",
@@ -324,7 +511,9 @@ describe("technology dashboard pipeline", () => {
     const singletonResult = buildDashboardSnapshot([singletonHackerNewsStory, unmeasuredIndependentArticle], { now: NOW });
 
     expect(storyContaining(singletonResult.snapshot.stories, unmeasuredIndependentArticle.id).rank).toBe(1);
-    expect(storyContaining(singletonResult.snapshot.stories, singletonHackerNewsStory.id).rank).toBe(2);
+    expect(singletonResult.snapshot.stories.some((story) =>
+      story.sources.some((source) => source.id === singletonHackerNewsStory.id)
+    )).toBe(false);
   });
 
   it("uses observed velocity and decaying freshness without inventing a single-scrape trend", () => {
@@ -402,9 +591,10 @@ describe("technology dashboard pipeline", () => {
 
     expect(result.snapshot.stories).toHaveLength(1);
     expect(result.snapshot.stories[0]).toMatchObject({
-      sourceCount: 2,
+      sourceCount: 1,
       topics: expect.arrayContaining(["research", "robotics"])
     });
+    expect(result.snapshot.stories[0]?.sources.map((source) => source.id)).toEqual([paper.id]);
   });
 
   it("does not grant an otherwise-equal story a Returner boost", () => {
@@ -415,7 +605,7 @@ describe("technology dashboard pipeline", () => {
       url: "https://x.example.com/returner-control",
       destinationUrl: "https://returner.example.com/control",
       title: "Cohort company control release",
-      metrics: { likes: 200 },
+      metrics: { views: 1_500_000, likes: 200 },
       accountBaseline: { likes: 100 },
       trackedEntity: {
         companyId: "returner-control",
@@ -426,12 +616,13 @@ describe("technology dashboard pipeline", () => {
     });
     const industryCandidate = dashboardCandidate({
       id: "industry-control",
-      canonicalKey: "reddit:industry-control",
-      platform: "reddit",
-      url: "https://reddit.example.com/industry-control",
+      canonicalKey: "youtube:industry-control",
+      platform: "youtube",
+      sourceKind: "video",
+      url: "https://youtube.com/watch?v=industry-control",
       destinationUrl: "https://industry.example.com/control",
       title: "Industry control release",
-      metrics: { likes: 200 },
+      metrics: { views: 1_500_000, likes: 200 },
       accountBaseline: { likes: 100 }
     });
 
@@ -449,7 +640,7 @@ describe("technology dashboard pipeline", () => {
       id: `hottest-${String(index).padStart(3, "0")}`,
       canonicalKey: `x:hottest-${index}`,
       title: `Hottest subject${String(index).padStart(3, "0")} release`,
-      metrics: { likes: 100 },
+      metrics: { views: 2_000_000 + index, likes: 100 },
       accountBaseline: { likes: 0.01 },
       sourceQuality: 100,
       publishedAt: NOW.toISOString()
@@ -462,7 +653,7 @@ describe("technology dashboard pipeline", () => {
       id: "breaking-only",
       canonicalKey: "x:breaking-only",
       title: "Breaking-only velocity event",
-      metrics: { likes: 1_000 },
+      metrics: { views: 1_500_000, likes: 1_000 },
       accountBaseline: { likes: 1_000_000 },
       sourceQuality: 0,
       publishedAt: "2026-08-14T18:00:00.000Z",
@@ -485,7 +676,7 @@ describe("technology dashboard pipeline", () => {
     expect(rerun.rankSnapshots).toEqual(initial.rankSnapshots);
   });
 
-  it("caps Hacker News-only stories at one percent of the canonical Top 100", () => {
+  it("keeps Hacker News-only discussions as corroboration instead of standalone filler", () => {
     const independentArticles = Array.from({ length: 99 }, (_, index) => dashboardCandidate({
       id: `independent-article-${String(index).padStart(3, "0")}`,
       canonicalKey: `web:independent-article-${index}`,
@@ -518,13 +709,12 @@ describe("technology dashboard pipeline", () => {
       story.sources.length > 0 && story.sources.every((source) => source.platform === "hacker_news")
     );
 
-    expect(result.snapshot.stories).toHaveLength(100);
-    expect(hnOnlyStories).toHaveLength(1);
-    expect(hnOnlyStories[0]?.viewRankings.hottest).toBeDefined();
-    expect(result.snapshot.status.viewStoryCounts.hottest).toBe(100);
+    expect(result.snapshot.stories).toHaveLength(99);
+    expect(hnOnlyStories).toHaveLength(0);
+    expect(result.snapshot.status.viewStoryCounts.hottest).toBe(99);
   });
 
-  it("uses independent reporting as the primary source while retaining HN as corroboration", () => {
+  it("uses broad HN corroboration for clustering without publishing it as a qualified source", () => {
     const article = dashboardCandidate({
       id: "independent-news-report",
       canonicalKey: "web:independent-news-report",
@@ -553,9 +743,9 @@ describe("technology dashboard pipeline", () => {
 
     expect(sourceQualityScore(article)).toBeGreaterThan(sourceQualityScore(hackerNewsDiscussion));
     expect(story?.title).toBe(article.title);
-    expect(story?.sources.map((source) => source.id)).toEqual([article.id, hackerNewsDiscussion.id]);
-    expect(story?.platforms).toEqual(["hacker_news", "news"]);
-    expect(story?.sourceCount).toBe(2);
+    expect(story?.sources.map((source) => source.id)).toEqual([article.id]);
+    expect(story?.platforms).toEqual(["news"]);
+    expect(story?.sourceCount).toBe(1);
   });
 
   it("is stable across identical reruns and carries rank movement forward from prior snapshots", () => {
@@ -564,14 +754,14 @@ describe("technology dashboard pipeline", () => {
         id: "alpha",
         canonicalKey: "x:alpha",
         title: "Alpha database update",
-        metrics: { likes: 1_000 },
+        metrics: { views: 1_500_000, likes: 1_000 },
         accountBaseline: { likes: 100 }
       }),
       dashboardCandidate({
         id: "beta",
         canonicalKey: "x:beta",
         title: "Beta robotics update",
-        metrics: { likes: 100 },
+        metrics: { views: 1_500_000, likes: 100 },
         accountBaseline: { likes: 100 }
       })
     ];
@@ -584,11 +774,11 @@ describe("technology dashboard pipeline", () => {
     const next = buildDashboardSnapshot([
       dashboardCandidate({
         ...initialCandidates[0],
-        metrics: { likes: 100 }
+        metrics: { views: 1_500_000, likes: 100 }
       }),
       dashboardCandidate({
         ...initialCandidates[1],
-        metrics: { likes: 1_000 }
+        metrics: { views: 1_500_000, likes: 1_000 }
       })
     ], {
       now: new Date("2026-08-15T13:00:00.000Z"),
@@ -616,9 +806,10 @@ describe("technology dashboard pipeline", () => {
   it("produces a persistable factual summary when a source only supplies a terse title", () => {
     const result = buildDashboardSnapshot([dashboardCandidate({
       id: "terse-summary",
-      canonicalKey: "github:terse-summary",
-      platform: "github",
-      sourceKind: "repository",
+      canonicalKey: "web:terse-summary",
+      platform: "web",
+      sourceKind: "article",
+      url: "https://publisher.example.com/terse-summary",
       title: "Foo",
       summary: null,
       text: null
@@ -679,8 +870,13 @@ function dashboardCandidate(overrides: Partial<DashboardCandidate> = {}): Dashbo
     sourceKind: "post",
     url: `https://x.example.com/${id}`,
     publishedAt: "2026-08-15T11:00:00.000Z",
-    title: `${id} announcement`,
-    metrics: { likes: 100 },
+    title: `${id} AI software announcement`,
+    metrics: { views: 1_500_000, likes: 100 },
+    topics: ["ai"],
+    socialBackfillEligible: true,
+    sourceVerified: true,
+    sourceLinkStatus: "verified",
+    publicationPrecision: "exact",
     ...overrides
   };
 }
