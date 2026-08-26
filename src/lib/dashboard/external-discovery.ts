@@ -1,5 +1,10 @@
 import { load } from "cheerio";
 import { isIP } from "node:net";
+import {
+  instagramNativeFeedRequest,
+  parseInstagramNativeFeedResponse,
+  type InstagramNativeFeedPost
+} from "../../../scripts/lib/instagram-public-profile.mjs";
 import { DASHBOARD_WINDOW_MS, type DashboardCandidate } from "./contracts";
 import { canonicalDashboardUrl, compactSentence, compactWhitespace, safeDate, stableHash } from "./normalization";
 import { isDashboardCandidateEligible } from "./pipeline";
@@ -25,12 +30,15 @@ const MAX_YOUTUBE_SEARCH_RESULTS_PER_QUERY = 6;
 const MAX_YOUTUBE_SEARCH_DETAIL_CANDIDATES = 24;
 const MAX_CONCURRENT_YOUTUBE_SEARCH_PAGES = 2;
 const MAX_CONCURRENT_YOUTUBE_SEARCH_DETAILS = 4;
+const MAX_INSTAGRAM_RESPONSE_BYTES = 4_000_000;
+const MAX_CONCURRENT_INSTAGRAM_ACCOUNTS = 3;
 const YOUTUBE_SEARCH_FILTER = "CAMSAggDEAE";
 // This is a public Innertube protocol identifier, not a credential. YouTube's
 // no-key WEB browse/player endpoints accept older client versions, which lets
 // the worker avoid extracting and retaining a page-embedded API key.
 const YOUTUBE_WEB_CLIENT_VERSION = "2.20240101.00.00";
 export const MAX_DASHBOARD_YOUTUBE_CHANNELS = 48;
+export const MAX_DASHBOARD_INSTAGRAM_ACCOUNTS = 20;
 const MAX_RSS_ITEMS_PER_FEED = 40;
 // Primary research is a direct, high-quality lane rather than a broad
 // consumer feed. Keep its discovery window modestly wider so the Top 100 can
@@ -249,6 +257,37 @@ export interface DashboardYoutubeChannel {
   channelId?: string;
 }
 
+export interface DashboardInstagramAccount {
+  name: string;
+  username: string;
+}
+
+/**
+ * Fixed, manually audited technology accounts on Instagram's anonymous
+ * native profile feed. Account identity alone never satisfies the Top 100:
+ * every item still needs an exact primary author, exact timestamp, native
+ * play counter, content-level technology signal, and one million views.
+ */
+export const DEFAULT_DASHBOARD_INSTAGRAM_ACCOUNTS: readonly DashboardInstagramAccount[] = [
+  { name: "Apple", username: "apple" },
+  { name: "MKBHD", username: "mkbhd" },
+  { name: "Tech Burner", username: "techburner" },
+  { name: "Mrwhosetheboss", username: "mrwhosetheboss" },
+  { name: "Unbox Therapy", username: "unboxtherapy" },
+  { name: "Linus Tech Tips", username: "linustech" },
+  { name: "JerryRigEverything", username: "jerryrigeverything" },
+  { name: "Samsung Mobile", username: "samsungmobile" },
+  { name: "NVIDIA", username: "nvidia" },
+  { name: "Google", username: "google" },
+  { name: "Microsoft", username: "microsoft" },
+  { name: "OpenAI", username: "openai" },
+  { name: "Meta", username: "meta" },
+  { name: "Nothing", username: "nothing" },
+  { name: "DJI", username: "djiglobal" },
+  { name: "Technical Guruji", username: "technicalguruji" },
+  { name: "Trakin Tech", username: "trakintech" }
+];
+
 /** Bounded, high-reach technology roster; every qualifying metric/date is
  * re-read from the video's official player metadata. */
 export const DEFAULT_DASHBOARD_YOUTUBE_CHANNELS: readonly DashboardYoutubeChannel[] = [
@@ -324,6 +363,7 @@ export interface ExternalDiscoveryOptions {
   githubToken?: string | null;
   xBearerToken?: string | null;
   youtubeChannels?: ReadonlyArray<DashboardYoutubeChannel>;
+  instagramAccounts?: ReadonlyArray<DashboardInstagramAccount>;
   includeYoutubeSearch?: boolean;
   rssFeeds?: ReadonlyArray<DashboardRssFeed>;
   researchFeeds?: ReadonlyArray<DashboardRssFeed>;
@@ -350,6 +390,8 @@ export async function discoverExternalDashboardCandidates(
   // can nominate at most two official player reads below.
   const youtubeChannels = (options.youtubeChannels ?? []).slice(0, MAX_DASHBOARD_YOUTUBE_CHANNELS);
   const youtubeJobs = boundedYoutubeDiscoveryJobs(fetchImpl, now, youtubeChannels);
+  const instagramAccounts = (options.instagramAccounts ?? []).slice(0, MAX_DASHBOARD_INSTAGRAM_ACCOUNTS);
+  const instagramJobs = boundedInstagramDiscoveryJobs(fetchImpl, now, instagramAccounts);
   const youtubeSearchJobs = options.includeYoutubeSearch === true
     ? [fetchYoutubeSearchCandidates(fetchImpl, now)]
     : [];
@@ -360,6 +402,7 @@ export async function discoverExternalDashboardCandidates(
     ...(xBearerToken ? [fetchXRecentSearchCandidates(fetchImpl, now, xBearerToken)] : []),
     ...youtubeJobs,
     ...youtubeSearchJobs,
+    ...instagramJobs,
     ...feeds.map((feed) => fetchRssCandidates(fetchImpl, feed, now)),
     ...researchFeeds.map((feed) => fetchRssCandidates(fetchImpl, feed, now)),
     ...subreddits.map((subreddit) => fetchRedditCandidates(fetchImpl, subreddit, now))
@@ -385,6 +428,18 @@ export async function discoverExternalDashboardCandidates(
   };
 }
 
+function boundedInstagramDiscoveryJobs(
+  fetchImpl: typeof fetch,
+  now: Date,
+  accounts: readonly DashboardInstagramAccount[]
+): Array<Promise<{ source: string; candidates: DashboardCandidate[] }>> {
+  return boundedAsyncJobs(
+    accounts,
+    MAX_CONCURRENT_INSTAGRAM_ACCOUNTS,
+    (account) => fetchInstagramAccountCandidates(fetchImpl, now, account)
+  );
+}
+
 function boundedYoutubeDiscoveryJobs(
   fetchImpl: typeof fetch,
   now: Date,
@@ -397,6 +452,121 @@ function boundedYoutubeDiscoveryJobs(
     jobs.push(ready.then(() => fetchYoutubeChannelCandidates(fetchImpl, now, channel)));
   }
   return jobs;
+}
+
+/**
+ * Read one bounded page from Instagram's anonymous native profile feed. The
+ * shared parser rejects a mismatched envelope or any malformed item, and this
+ * adapter additionally accepts only posts whose primary native author exactly
+ * matches the fixed roster account. No cookies or authorization are sent.
+ */
+export async function fetchInstagramAccountCandidates(
+  fetchImpl: typeof fetch,
+  now: Date,
+  account: DashboardInstagramAccount
+): Promise<{ source: string; candidates: DashboardCandidate[] }> {
+  const username = compactWhitespace(account.username).replace(/^@/, "").toLowerCase();
+  const name = compactWhitespace(account.name);
+  if (!/^[a-z0-9._]{1,30}$/.test(username) || !name) {
+    throw new Error("instagram_invalid_account");
+  }
+  const source = `instagram:${sourceSlug(username)}`;
+  const sourceLabel = source.replace(":", "_");
+  const request = instagramNativeFeedRequest({ username });
+  let response: Response;
+  try {
+    response = await fetchImpl(request.url, {
+      ...request.options,
+      signal: AbortSignal.timeout(12_000)
+    });
+  } catch {
+    throw new Error(`${sourceLabel}_fetch_failed`);
+  }
+  if (!response.ok) throw new Error(`${sourceLabel}_http_${response.status}`);
+  const payload = await readBoundedText(response, sourceLabel, MAX_INSTAGRAM_RESPONSE_BYTES);
+  const receipt = parseInstagramNativeFeedResponse({
+    payload,
+    requestedUsername: username,
+    fetchedAt: now.toISOString()
+  });
+  if (!receipt.verified) throw new Error(receipt.reason || `${sourceLabel}_unverified`);
+
+  const candidates = receipt.posts
+    .flatMap((post) => instagramNativeFeedCandidate(post, { name, username }, now))
+    .filter((candidate) => isDashboardCandidateEligible(candidate, now));
+  return { source, candidates };
+}
+
+function instagramNativeFeedCandidate(
+  post: InstagramNativeFeedPost,
+  account: { name: string; username: string },
+  observedAt: Date
+): DashboardCandidate[] {
+  if (post.profileRole !== "primary" || post.authorUsername !== account.username) return [];
+  const shortcode = compactWhitespace(post.shortcode);
+  const nativeMediaId = compactWhitespace(post.nativeMediaId);
+  const publishedAt = validTimestamp(post.postedAt);
+  const url = canonicalDashboardUrl(post.url);
+  const expectedUrl = canonicalDashboardUrl(
+    `https://www.instagram.com/${post.mediaType === "reel" ? "reel" : "p"}/${shortcode}/`
+  );
+  const text = compactWhitespace(post.caption);
+  const views = finiteInstagramMetric(post.metrics.plays) ?? finiteInstagramMetric(post.metrics.videoViews);
+  if (
+    !/^[A-Za-z0-9_-]{5,64}$/.test(shortcode) || !nativeMediaId || !publishedAt ||
+    !url || url !== expectedUrl || views === null
+  ) {
+    return [];
+  }
+  const title = instagramCaptionExcerpt(text, 160);
+  return [{
+    id: `instagram:${shortcode}`,
+    canonicalKey: `instagram:post:${shortcode}`,
+    platform: "instagram",
+    sourceKind: post.mediaType === "reel" ? "video" : "post",
+    url,
+    title,
+    summary: instagramCaptionExcerpt(text, 300),
+    text,
+    authorName: account.name,
+    authorHandle: account.username,
+    publisher: "Instagram",
+    publishedAt,
+    observedAt: observedAt.toISOString(),
+    metrics: {
+      views,
+      likes: finiteInstagramMetric(post.metrics.likes),
+      comments: finiteInstagramMetric(post.metrics.comments)
+    },
+    entityKeys: [`instagram:author:${account.username}`],
+    topics: xTechnologyTopics(text),
+    thumbnailUrl: null,
+    thumbnailAlt: title,
+    independentlyReported: false,
+    sourceQuality: 78,
+    contentFingerprint: `${nativeMediaId}:${publishedAt}:${views}:${post.metrics.likes ?? ""}:${post.metrics.comments ?? ""}:${text}`,
+    socialBackfillEligible: true,
+    sourceVerified: true,
+    sourceLinkStatus: "verified",
+    publicationPrecision: "exact"
+  }];
+}
+
+function finiteInstagramMetric(value: number | null): number | null {
+  return typeof value === "number" && Number.isFinite(value) && value >= 0 ? value : null;
+}
+
+function instagramCaptionExcerpt(value: string, maxLength: number): string | null {
+  const normalized = compactWhitespace(value);
+  if (!normalized) return null;
+  if (normalized.length <= maxLength) return normalized;
+  const visible = normalized.slice(0, Math.max(1, maxLength - 1));
+  const wordBoundary = visible.lastIndexOf(" ");
+  const clipped = (wordBoundary > Math.floor(maxLength * 0.55)
+    ? visible.slice(0, wordBoundary)
+    : visible
+  ).replace(/[\s,;:.!?]+$/, "");
+  return `${clipped}…`;
 }
 
 export async function fetchXRecentSearchCandidates(
