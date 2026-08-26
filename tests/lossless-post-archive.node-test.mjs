@@ -86,6 +86,101 @@ test("appends lossless raw and normalized rows, preserving relationships and med
   });
 });
 
+test("ignores only snapshot-wrapper drift and rejects all other raw or metric observation drift", async () => {
+  await withArchive(async (rootDir) => {
+    let archive = await openLosslessPostArchive(rootDir);
+    const appendObservation = ({
+      fetchedAt,
+      evidenceCount = 1,
+      rawText = "source payload",
+      likes = 4,
+      rawSourceUrl = "https://linkedin.example/posts/activity-1",
+      metricSourceUrl = rawSourceUrl,
+      rawSourceExtra = {},
+      metricSourceExtra = {}
+    }) => {
+      const snapshot = { fetchedAt, evidenceCount };
+      return archive.appendPost({
+        platform: "linkedin",
+        nativeId: "activity-1",
+        observedAt: "2026-08-04T00:00:00.000Z",
+        rawEnvelope: { text: rawText },
+        normalizedPost: { text: "normalized post" },
+        metricSnapshots: [{
+          snapshotAt: "2026-08-04T00:00:00.000Z",
+          metrics: { likes },
+          source: {
+            snapshot,
+            evidence: { sourceUrl: metricSourceUrl },
+            ...metricSourceExtra
+          }
+        }],
+        source: {
+          snapshot,
+          evidence: { sourceUrl: rawSourceUrl },
+          ...rawSourceExtra
+        }
+      });
+    };
+
+    const first = await appendObservation({ fetchedAt: "2026-08-04T01:00:00.000Z" });
+    archive = await openLosslessPostArchive(rootDir);
+    const replay = await appendObservation({
+      fetchedAt: "2026-08-04T02:00:00.000Z",
+      evidenceCount: 2
+    });
+
+    assert.equal(replay.raw.status, "duplicate");
+    assert.equal(replay.raw.contentHash, first.raw.contentHash);
+    assert.equal(replay.metrics[0].status, "duplicate");
+    assert.equal(replay.metrics[0].contentHash, first.metrics[0].contentHash);
+    assert.equal(archive.listRawEnvelopes({ platform: "linkedin", nativeId: "activity-1" }).length, 1);
+    assert.equal(archive.listMetricSnapshots({ platform: "linkedin", nativeId: "activity-1" }).length, 1);
+    assert.equal(
+      archive.listRawEnvelopes({ platform: "linkedin", nativeId: "activity-1" })[0]
+        .content.source.snapshot.fetchedAt,
+      "2026-08-04T01:00:00.000Z"
+    );
+
+    await assert.rejects(
+      appendObservation({ fetchedAt: "2026-08-04T03:00:00.000Z", rawText: "changed source payload" }),
+      (error) => error.code === "LOSSLESS_ARCHIVE_CONFLICT" && error.recordType === "raw_envelope"
+    );
+    await assert.rejects(
+      appendObservation({ fetchedAt: "2026-08-04T03:00:00.000Z", likes: 5 }),
+      (error) => error.code === "LOSSLESS_ARCHIVE_CONFLICT" && error.recordType === "metric_snapshot"
+    );
+    await assert.rejects(
+      appendObservation({
+        fetchedAt: "2026-08-04T03:00:00.000Z",
+        rawSourceUrl: "https://linkedin.example/posts/changed"
+      }),
+      (error) => error.code === "LOSSLESS_ARCHIVE_CONFLICT" && error.recordType === "raw_envelope"
+    );
+    await assert.rejects(
+      appendObservation({
+        fetchedAt: "2026-08-04T03:00:00.000Z",
+        metricSourceUrl: "https://linkedin.example/posts/changed"
+      }),
+      (error) => error.code === "LOSSLESS_ARCHIVE_CONFLICT" && error.recordType === "metric_snapshot"
+    );
+    await assert.rejects(
+      appendObservation({
+        fetchedAt: "2026-08-04T03:00:00.000Z",
+        rawSourceExtra: { futureField: true }
+      }),
+      (error) => error.code === "LOSSLESS_ARCHIVE_CONFLICT" && error.recordType === "raw_envelope"
+    );
+    await assert.rejects(
+      appendObservation({
+        fetchedAt: "2026-08-04T03:00:00.000Z",
+        metricSourceExtra: { futureField: true }
+      }),
+      (error) => error.code === "LOSSLESS_ARCHIVE_CONFLICT" && error.recordType === "metric_snapshot"
+    );
+  });
+});
+
 test("appends edited observations as immutable revisions and keeps sparse media and relationships", async () => {
   await withArchive(async (rootDir) => {
     const archive = await openLosslessPostArchive(rootDir);
