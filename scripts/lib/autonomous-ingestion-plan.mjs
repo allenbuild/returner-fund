@@ -1299,6 +1299,10 @@ const TERMINAL_COLLECTOR_OUTCOME_STATUSES = new Set([
   "blocked_or_empty",
   "failed"
 ]);
+const TERMINAL_NEGATIVE_COLLECTOR_OUTCOME_STATUSES = new Set([
+  "needs_review",
+  "blocked_or_empty"
+]);
 const SUCCESSFUL_SOURCE_CHECK_STATUSES = new Set(["checked_empty", "found_candidates"]);
 const MISSING_COLLECTOR_OUTCOME_REASONS = new Set([
   "collector_returned_no_account_attempt",
@@ -1364,12 +1368,12 @@ export function autonomousCollectorRetryableFailures(snapshot) {
 
   const explicitAttemptFailures = attempts
     .filter((attempt) => attempt.retryable === true)
-    // Older checkpoints could mark an intentional Instagram attribution
-    // review retryable because the templated message said that a bounded
-    // native-feed pass recovered `500` posts. A bare cardinality is not an
-    // HTTP 500, and replaying the same bounded pass cannot change the native
-    // primary-author proof. Correct that persisted flag at the retry boundary
-    // without overriding genuine transport/service failures.
+    // A task-level terminal negative receipt is authoritative even when an
+    // older collector persisted retryable=true from transport-shaped
+    // diagnostic text. Replaying an explicit blocked/review outcome cannot
+    // improve terminal coverage. Completed partial interruptions and failed
+    // attempts retain their existing retry behavior.
+    .filter((attempt) => !isExplicitTerminalNegativeCollectorAttempt(attempt))
     .filter((attempt) => !isIntentionalInstagramReviewAttempt(attempt))
     .map((attempt) =>
       attempt.error ??
@@ -1407,10 +1411,11 @@ export function autonomousCollectorRetryableFailures(snapshot) {
 }
 
 function collectorFailureRetryDecision(row, attemptsByKey, attemptsByOwner) {
-  if (typeof row?.retryable === "boolean") return row.retryable;
   const attemptKey = String(row?.attemptKey ?? row?.attempt_key ?? "").trim();
   const exactAttempt = attemptKey ? attemptsByKey.get(attemptKey) : null;
+  if (isExplicitTerminalNegativeCollectorAttempt(exactAttempt)) return false;
   if (isIntentionalInstagramReviewAttempt(exactAttempt)) return false;
+  if (typeof row?.retryable === "boolean") return row.retryable;
   if (typeof exactAttempt?.retryable === "boolean") return exactAttempt.retryable;
 
   const ownerAttempts = attemptsByOwner.get(collectorOwnerKey(row)) ?? [];
@@ -1420,11 +1425,19 @@ function collectorFailureRetryDecision(row, attemptsByKey, attemptsByOwner) {
         canonicalCollectorFailureAccountUrl(attempt) === accountUrl
       )
     : ownerAttempts;
-  const explicit = matchingAttempts.filter((attempt) => typeof attempt.retryable === "boolean");
+  const explicit = matchingAttempts
+    .filter((attempt) => !isExplicitTerminalNegativeCollectorAttempt(attempt))
+    .filter((attempt) => typeof attempt.retryable === "boolean");
   if (!explicit.length) return null;
   return explicit.some((attempt) =>
     attempt.retryable === true && !isIntentionalInstagramReviewAttempt(attempt)
   );
+}
+
+function isExplicitTerminalNegativeCollectorAttempt(attempt) {
+  if (!TERMINAL_NEGATIVE_COLLECTOR_OUTCOME_STATUSES.has(attempt?.outcomeStatus)) return false;
+  const reason = nonEmptyCollectorReason(attempt?.error ?? attempt?.outcomeReason);
+  return Boolean(reason) && !MISSING_COLLECTOR_OUTCOME_REASONS.has(reason);
 }
 
 function isIntentionalInstagramReviewAttempt(attempt) {
