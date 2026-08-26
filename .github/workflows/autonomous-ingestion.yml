@@ -441,10 +441,12 @@ jobs:
         run: |
           set -euo pipefail
 
-          # Hold every available user-level assertion before checking wake
-          # state. macOS can execute a queued runner job during a maintenance
-          # dark wake; user activity may promote it to a full wake.
-          /usr/bin/caffeinate -dimsu -w $$ &
+          # Keep the system, disks, and AC-powered machine awake without
+          # forcing the display on for a multi-hour job. The separate bounded
+          # user-activity assertion below still promotes a maintenance dark
+          # wake when needed, while battery-backed runs can let the screen
+          # sleep and preserve substantially more reserve.
+          /usr/bin/caffeinate -ims -w $$ &
           POWER_STATUS="$(pmset -g batt)"
           BATTERY_PERCENT="$(sed -nE 's/.*[[:space:]]([0-9]{1,3})%;.*/\1/p' <<< "$POWER_STATUS" | head -n 1)"
           if [[ "${POWER_STATUS%%$'\n'*}" != *"'AC Power'"* ]]; then
