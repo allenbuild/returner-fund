@@ -29,6 +29,10 @@ const IDS = Object.freeze({
   primaryReconciliationStory: "90000000-0000-4000-8000-000000000017",
   firstPrimaryExternalSource: "90000000-0000-4000-8000-000000000018",
   secondPrimaryExternalSource: "90000000-0000-4000-8000-000000000019",
+  legacyWindowRun: "90000000-0000-4000-8000-000000000020",
+  currentWindowRun: "90000000-0000-4000-8000-000000000021",
+  rejectedLegacyWindowRun: "90000000-0000-4000-8000-000000000022",
+  rejectedUnalignedWindowRun: "90000000-0000-4000-8000-000000000023",
 });
 
 const HASHES = Object.freeze({
@@ -45,14 +49,14 @@ const FINALIZATION_OBSERVED_THROUGH = Object.freeze({
   [IDS.delayedRun]: "2026-08-15 09:00:00+00",
 });
 
-test("Dashboard migration supports a three-view Top 100 union and Breaking-only stories", { timeout: 30_000 }, async () => {
+test("Dashboard migrations preserve legacy windows, enforce 72 hours, and support the three-view Top 100", { timeout: 30_000 }, async () => {
   const db = new PGlite({
     extensions: { pgcrypto },
     initialMemory: 128 * 1024 * 1024,
   });
   try {
     await bootstrapSupabaseSurfaces(db);
-    await applyAllMigrations(db);
+    await applyDashboard72HourWindowMigrationFixture(db);
     assert.equal(
       await scalar(db, `
         select config_hash
@@ -60,6 +64,14 @@ test("Dashboard migration supports a three-view Top 100 union and Breaking-only 
         where model_key = 'technology_dashboard' and version = '1.0.0'
       `),
       "00e9e9ceff685a0401db95ea801227606aaa549b306a437371eea99ec46b138a",
+    );
+    assert.equal(
+      await scalar(db, `
+        select config_hash
+        from public.scoring_model_versions
+        where model_key = 'technology_dashboard' and version = '2.0.0'
+      `),
+      "e7e8527efdc21584ab98e8d74d12bf4cd8efae6a875e4d496afe868cb6f3c0bf",
     );
     await insertDashboardFixture(db);
 
@@ -295,7 +307,93 @@ async function bootstrapSupabaseSurfaces(db) {
   `);
 }
 
+async function applyDashboard72HourWindowMigrationFixture(db) {
+  await applyMigrationsThrough(db, "029_register_dashboard_scoring_v2.sql");
+  await db.exec(`
+    insert into public.dashboard_runs (
+      id, run_key, scoring_model_version_id, window_start, window_end, as_of_at, status
+    ) values (
+      '${IDS.legacyWindowRun}',
+      'dashboard-legacy-window-2026-08-15t12',
+      (select id from public.scoring_model_versions where model_key = 'technology_dashboard' and version = '1.0.0'),
+      timestamptz '2026-08-14 12:00:00+00',
+      timestamptz '2026-08-15 12:00:00+00',
+      timestamptz '2026-08-15 12:00:00+00',
+      'running'
+    )
+  `);
+
+  await applyMigration(db, "030_dashboard_runs_rolling_72_hour_window.sql");
+
+  assert.equal(
+    await scalar(db, `
+      select (extract(epoch from (window_end - window_start)) / 3600)::integer
+      from public.dashboard_runs
+      where id = '${IDS.legacyWindowRun}'
+    `),
+    24,
+  );
+  const windowConstraint = (await db.query(`
+    select convalidated, pg_get_constraintdef(oid) as definition
+    from pg_constraint
+    where conrelid = 'public.dashboard_runs'::regclass
+      and conname = 'dashboard_runs_window_check'
+  `)).rows;
+  assert.equal(windowConstraint.length, 1);
+  assert.equal(windowConstraint[0].convalidated, false);
+  assert.match(windowConstraint[0].definition, /72(?::00:00| hours)/i);
+
+  await db.exec(`
+    insert into public.dashboard_runs (
+      id, run_key, scoring_model_version_id, window_start, window_end, as_of_at, status
+    ) values (
+      '${IDS.currentWindowRun}',
+      'dashboard-current-window-2026-08-15t12',
+      (select id from public.scoring_model_versions where model_key = 'technology_dashboard' and version = '2.0.0'),
+      timestamptz '2026-08-12 12:00:00+00',
+      timestamptz '2026-08-15 12:00:00+00',
+      timestamptz '2026-08-15 12:00:00+00',
+      'running'
+    )
+  `);
+
+  await assert.rejects(
+    db.exec(`
+      insert into public.dashboard_runs (
+        id, run_key, window_start, window_end, as_of_at, status
+      ) values (
+        '${IDS.rejectedLegacyWindowRun}',
+        'dashboard-rejected-legacy-window-2026-08-15t12',
+        timestamptz '2026-08-14 12:00:00+00',
+        timestamptz '2026-08-15 12:00:00+00',
+        timestamptz '2026-08-15 12:00:00+00',
+        'running'
+      )
+    `),
+    /dashboard_runs_window_check|violates check constraint/i,
+  );
+  await assert.rejects(
+    db.exec(`
+      insert into public.dashboard_runs (
+        id, run_key, window_start, window_end, as_of_at, status
+      ) values (
+        '${IDS.rejectedUnalignedWindowRun}',
+        'dashboard-rejected-unaligned-window-2026-08-15t1230',
+        timestamptz '2026-08-12 12:30:00+00',
+        timestamptz '2026-08-15 12:30:00+00',
+        timestamptz '2026-08-15 12:30:00+00',
+        'running'
+      )
+    `),
+    /dashboard_runs_window_check|violates check constraint/i,
+  );
+}
+
 async function applyAllMigrations(db) {
+  return applyMigrationsThrough(db);
+}
+
+async function applyMigrationsThrough(db, finalMigrationName = null) {
   const migrationNames = (await readdir(MIGRATIONS_DIRECTORY))
     .filter((name) => /^\d{3}_.+\.sql$/.test(name))
     .sort((left, right) => left.localeCompare(right));
@@ -304,14 +402,24 @@ async function applyAllMigrations(db) {
   assert.ok(migrationNames.includes("024_dashboard_story_source_primaries.sql"));
   assert.ok(migrationNames.includes("025_dashboard_story_first_seen.sql"));
   assert.ok(migrationNames.includes("026_dashboard_internal_artifact_path.sql"));
+  assert.ok(migrationNames.includes("029_register_dashboard_scoring_v2.sql"));
+  assert.ok(migrationNames.includes("030_dashboard_runs_rolling_72_hour_window.sql"));
 
   for (const migrationName of migrationNames) {
-    await db.exec(await readFile(path.join(MIGRATIONS_DIRECTORY, migrationName), "utf8"));
-    await db.query(
-      "insert into supabase_migrations.schema_migrations (version) values ($1)",
-      [migrationName.slice(0, 3)],
-    );
+    await applyMigration(db, migrationName);
+    if (migrationName === finalMigrationName) return;
   }
+  if (finalMigrationName !== null) {
+    assert.fail(`Migration ${finalMigrationName} was not found.`);
+  }
+}
+
+async function applyMigration(db, migrationName) {
+  await db.exec(await readFile(path.join(MIGRATIONS_DIRECTORY, migrationName), "utf8"));
+  await db.query(
+    "insert into supabase_migrations.schema_migrations (version) values ($1)",
+    [migrationName.slice(0, 3)],
+  );
 }
 
 async function insertDashboardFixture(db) {
@@ -321,7 +429,7 @@ async function insertDashboardFixture(db) {
     ) values (
       '${IDS.run}',
       'dashboard-three-view-integration-2026-08-15t12',
-      timestamptz '2026-08-14 12:00:00+00',
+      timestamptz '2026-08-12 12:00:00+00',
       timestamptz '2026-08-15 12:00:00+00',
       timestamptz '2026-08-15 12:00:00+00',
       'running'
@@ -398,20 +506,20 @@ async function insertDashboardFinalizationFixture(db) {
     ) values
       (
         '${IDS.firstRun}', 'dashboard-finalization-first-2026-08-15t10',
-        (select id from public.scoring_model_versions where model_key = 'technology_dashboard' and version = '1.0.0'),
-        timestamptz '2026-08-14 10:00:00+00', timestamptz '2026-08-15 10:00:00+00',
+        (select id from public.scoring_model_versions where model_key = 'technology_dashboard' and version = '2.0.0'),
+        timestamptz '2026-08-12 10:00:00+00', timestamptz '2026-08-15 10:00:00+00',
         timestamptz '2026-08-15 10:00:00+00', 'running'
       ),
       (
         '${IDS.newerRun}', 'dashboard-finalization-newer-2026-08-15t11',
-        (select id from public.scoring_model_versions where model_key = 'technology_dashboard' and version = '1.0.0'),
-        timestamptz '2026-08-14 11:00:00+00', timestamptz '2026-08-15 11:00:00+00',
+        (select id from public.scoring_model_versions where model_key = 'technology_dashboard' and version = '2.0.0'),
+        timestamptz '2026-08-12 11:00:00+00', timestamptz '2026-08-15 11:00:00+00',
         timestamptz '2026-08-15 11:00:00+00', 'running'
       ),
       (
         '${IDS.delayedRun}', 'dashboard-finalization-delayed-2026-08-15t09',
-        (select id from public.scoring_model_versions where model_key = 'technology_dashboard' and version = '1.0.0'),
-        timestamptz '2026-08-14 09:00:00+00', timestamptz '2026-08-15 09:00:00+00',
+        (select id from public.scoring_model_versions where model_key = 'technology_dashboard' and version = '2.0.0'),
+        timestamptz '2026-08-12 09:00:00+00', timestamptz '2026-08-15 09:00:00+00',
         timestamptz '2026-08-15 09:00:00+00', 'running'
       );
 
@@ -441,19 +549,19 @@ async function insertDashboardFinalizationFixture(db) {
       (
         '${IDS.firstPublication}', '${IDS.firstRun}', 'dashboard-finalization-first', 'draft', false,
         timestamptz '2026-08-15 10:00:00+00', timestamptz '2026-08-15 10:00:00+00',
-        timestamptz '2026-08-15 10:00:00+00', 'fresh', 'technology-dashboard-v1',
+        timestamptz '2026-08-15 10:00:00+00', 'fresh', 'technology-dashboard-v2',
         '{"stories":[]}'::jsonb, '${HASHES.payload}', 'artifacts/dashboard/finalization-first.json', '${HASHES.artifact}'
       ),
       (
         '${IDS.newerPublication}', '${IDS.newerRun}', 'dashboard-finalization-newer', 'draft', false,
         timestamptz '2026-08-15 11:00:00+00', timestamptz '2026-08-15 11:00:00+00',
-        timestamptz '2026-08-15 11:00:00+00', 'fresh', 'technology-dashboard-v1',
+        timestamptz '2026-08-15 11:00:00+00', 'fresh', 'technology-dashboard-v2',
         '{"stories":[]}'::jsonb, '${HASHES.payload}', 'artifacts/dashboard/finalization-newer.json', '${HASHES.artifact}'
       ),
       (
         '${IDS.delayedPublication}', '${IDS.delayedRun}', 'dashboard-finalization-delayed', 'draft', false,
         timestamptz '2026-08-15 09:00:00+00', timestamptz '2026-08-15 09:00:00+00',
-        timestamptz '2026-08-15 09:00:00+00', 'fresh', 'technology-dashboard-v1',
+        timestamptz '2026-08-15 09:00:00+00', 'fresh', 'technology-dashboard-v2',
         '{"stories":[]}'::jsonb, '${HASHES.payload}', 'artifacts/dashboard/finalization-delayed.json', '${HASHES.artifact}'
       );
   `);
