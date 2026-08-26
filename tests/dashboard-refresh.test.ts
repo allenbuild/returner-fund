@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import type { DashboardCandidate, DashboardMetrics, DashboardPublicSnapshot } from "@/lib/dashboard/contracts";
 import {
   assertConfiguredYoutubeDiscoverySucceeded,
+  dashboardExternalCandidateCounts,
   dashboardExternalAttemptCount,
   dashboardRefreshSourceHealth,
   enrichDashboardCandidatesWithPriorSnapshotMetrics,
@@ -50,6 +51,33 @@ describe("dashboard worker metric-history enrichment", () => {
       ["hacker_news", "youtube:mkbhd"]
     )).not.toThrow();
     expect(() => assertConfiguredYoutubeDiscoverySucceeded([], ["hacker_news"])).not.toThrow();
+  });
+
+  it("reports sanitized per-platform eligibility and rejection counts, including zero YouTube candidates", () => {
+    const eligible = {
+      ...qualifyingSocialCandidate("eligible-youtube"),
+      canonicalKey: "youtube:video:eligibleyt",
+      platform: "youtube" as const,
+      sourceKind: "video" as const,
+      url: "https://www.youtube.com/watch?v=eligibleyt"
+    };
+    const belowReach = {
+      ...eligible,
+      id: "below-reach-youtube",
+      canonicalKey: "youtube:video:belowreach",
+      url: "https://www.youtube.com/watch?v=belowreach",
+      metrics: { views: 999_999, likes: 20_000 }
+    };
+
+    expect(dashboardExternalCandidateCounts([eligible, belowReach], NOW, ["youtube"])).toEqual({
+      "industry:youtube:candidates": 2,
+      "industry:youtube:eligible": 1,
+      "industry:youtube:rejected:below_one_million_views": 1
+    });
+    expect(dashboardExternalCandidateCounts([], NOW, ["youtube"])).toEqual({
+      "industry:youtube:candidates": 0,
+      "industry:youtube:eligible": 0
+    });
   });
 
   it("uses a prior published source reading plus the current worker reading for the exact canonical source", () => {

@@ -43,6 +43,7 @@ describe("public dashboard discovery", () => {
           title: "The new Mac mini with M6",
           description: "The M6 chip adds faster graphics, neural accelerators, and AI performance.",
           publishedAt: "2026-08-15T01:33:48-07:00",
+          publishDate: "2026-08-15",
           views: 2_547_274,
           likes: 21_798
         }));
@@ -68,6 +69,10 @@ describe("public dashboard discovery", () => {
     });
 
     expect(requested).toHaveLength(3);
+    expect(requested.every((value) => {
+      const url = new URL(value);
+      return url.searchParams.get("hl") === "en" && url.searchParams.get("gl") === "US";
+    })).toBe(true);
     expect(requested.some((url) => url.includes("lowviews001"))).toBe(true);
     expect(requested.some((url) => url.includes("thirdvid001"))).toBe(false);
     expect(result.source).toBe("youtube:apple");
@@ -169,6 +174,44 @@ describe("public dashboard discovery", () => {
       handle: "mkbhd"
     })).rejects.toThrow("youtube_mkbhd_no_video_preview_ids");
     expect(fetchImpl).toHaveBeenCalledTimes(1);
+  });
+
+  it("reports detail-unavailable when every selected watch page has invalid metadata", async () => {
+    const channelId = "UC1234567890123456789012";
+    const fetchImpl = vi.fn(async (input: RequestInfo | URL): Promise<Response> => {
+      const url = new URL(String(input));
+      if (url.pathname === "/@Apple/videos") return new Response(youtubeChannelPage(channelId, [{
+        videoId: "3WpzNmY35S4",
+        title: "The new Mac mini with M6",
+        views: "2.5M views",
+        relativeTime: "14 hours ago"
+      }, {
+        videoId: "lowviews001",
+        title: "A smaller Mac update",
+        views: "900K views",
+        relativeTime: "2 hours ago"
+      }]));
+      const videoId = url.searchParams.get("v");
+      if (url.pathname === "/watch" && videoId) {
+        return new Response(youtubeWatchPage({
+          videoId,
+          channelId: "UCwrongchannel123456789012",
+          author: "Wrong channel",
+          title: "Mismatched video",
+          description: "Software and AI.",
+          publishedAt: "2026-08-15T03:00:00-07:00",
+          views: 2_000_000,
+          likes: 10_000
+        }));
+      }
+      throw new Error(`Unexpected request ${url}`);
+    });
+
+    await expect(fetchYoutubeChannelCandidates(fetchImpl as typeof fetch, NOW, {
+      name: "Apple",
+      handle: "Apple"
+    })).rejects.toThrow("youtube_apple_detail_unavailable");
+    expect(fetchImpl).toHaveBeenCalledTimes(3);
   });
 
   it("ships a small verified tech roster under the hard channel bound", () => {
@@ -1033,7 +1076,29 @@ function youtubeChannelPage(
 function youtubeChannelPageFromContents(channelId: string, contents: unknown[]): string {
   return `<script>var ytInitialData = ${JSON.stringify({
     metadata: { channelMetadataRenderer: { externalId: channelId } },
-    contents
+    // A renderer outside the selected tab must never consume one of the two
+    // bounded detail slots.
+    header: { videoRenderer: { videoId: "outside0001" } },
+    contents: {
+      twoColumnBrowseResultsRenderer: {
+        tabs: [{
+          tabRenderer: {
+            title: "Home",
+            selected: false,
+            content: { richGridRenderer: { contents: [] } }
+          }
+        }, {
+          tabRenderer: {
+            title: "Videos",
+            selected: true,
+            endpoint: {
+              commandMetadata: { webCommandMetadata: { url: "/@channel/videos" } }
+            },
+            content: { richGridRenderer: { contents } }
+          }
+        }]
+      }
+    }
   })};</script>`;
 }
 
@@ -1044,6 +1109,8 @@ function youtubeWatchPage(input: {
   title: string;
   description: string;
   publishedAt: string;
+  publishDate?: string;
+  uploadDate?: string;
   views: number;
   likes: number;
 }): string {
@@ -1058,8 +1125,8 @@ function youtubeWatchPage(input: {
     },
     microformat: {
       playerMicroformatRenderer: {
-        publishDate: input.publishedAt,
-        uploadDate: input.publishedAt
+        publishDate: input.publishDate ?? input.publishedAt,
+        uploadDate: input.uploadDate ?? input.publishedAt
       }
     },
     likeCount: String(input.likes)

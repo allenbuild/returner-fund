@@ -4,6 +4,7 @@ import {
   type DashboardCandidate,
   type DashboardMetricObservation,
   type DashboardMetrics,
+  type DashboardPlatform,
   type DashboardPipelineResult,
   type DashboardPublicSnapshot,
   type DashboardRankSnapshot
@@ -17,8 +18,8 @@ import {
   discoverExternalDashboardCandidates,
   type ExternalDiscoveryOptions
 } from "./external-discovery";
-import { safeDate } from "./normalization";
-import { buildDashboardSnapshot } from "./pipeline";
+import { dashboardPlatformForCandidate, safeDate } from "./normalization";
+import { buildDashboardSnapshot, dashboardTop100Eligibility } from "./pipeline";
 import { dashboardCandidatesFromGraph } from "./returner-candidates";
 
 const RETURNER_BATCHES: readonly PublishedGraphBatchSlug[] = ["S2026", "S26", "A16ZSR006"];
@@ -102,6 +103,11 @@ export async function refreshTechnologyDashboard(
     candidates.push(...external.candidates);
     externalSucceeded = external.sources.length;
     sourceCounts.industry = external.candidates.length;
+    Object.assign(sourceCounts, dashboardExternalCandidateCounts(
+      external.candidates,
+      now,
+      externalOptions.youtubeChannels?.length ? ["youtube"] : []
+    ));
     failures.push(...external.failures);
   }
 
@@ -224,6 +230,37 @@ export function dashboardExternalAttemptCount(options: ExternalDiscoveryOptions 
   const xJobs = options?.xBearerToken?.trim() ? 1 : 0;
   const youtubeJobs = Math.min(options?.youtubeChannels?.length ?? 0, MAX_DASHBOARD_YOUTUBE_CHANNELS);
   return fixedJobs + rssJobs + researchJobs + redditJobs + xJobs + youtubeJobs;
+}
+
+/**
+ * Sanitized worker diagnostics: counts only, with no provider bodies, URLs,
+ * titles, handles, or tokens. Required platforms remain visible at zero so a
+ * successful adapter receipt cannot conceal an empty candidate projection.
+ */
+export function dashboardExternalCandidateCounts(
+  candidates: readonly DashboardCandidate[],
+  now: Date,
+  requiredPlatforms: readonly DashboardPlatform[] = []
+): Record<string, number> {
+  const platforms = new Set(requiredPlatforms);
+  for (const candidate of candidates) platforms.add(dashboardPlatformForCandidate(candidate));
+  const counts: Record<string, number> = {};
+  for (const platform of [...platforms].sort()) {
+    counts[`industry:${platform}:candidates`] = 0;
+    counts[`industry:${platform}:eligible`] = 0;
+  }
+  for (const candidate of candidates) {
+    const platform = dashboardPlatformForCandidate(candidate);
+    counts[`industry:${platform}:candidates`] = (counts[`industry:${platform}:candidates`] ?? 0) + 1;
+    const eligibility = dashboardTop100Eligibility(candidate, now);
+    if (eligibility.eligible) {
+      counts[`industry:${platform}:eligible`] = (counts[`industry:${platform}:eligible`] ?? 0) + 1;
+      continue;
+    }
+    const rejectionKey = `industry:${platform}:rejected:${eligibility.reason}`;
+    counts[rejectionKey] = (counts[rejectionKey] ?? 0) + 1;
+  }
+  return counts;
 }
 
 /**
