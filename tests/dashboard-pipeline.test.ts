@@ -170,6 +170,80 @@ describe("technology dashboard pipeline", () => {
     ], { now: NOW }).snapshot.stories).toEqual([]);
   });
 
+  it("recognizes an exact laptop signal without relaxing the reach, recency, or topic gates", () => {
+    const exactUnboxLaptop = dashboardCandidate({
+      id: "youtube:ip0W9lCXpio",
+      canonicalKey: "youtube:video:ip0W9lCXpio",
+      platform: "youtube",
+      sourceKind: "video",
+      url: "https://www.youtube.com/watch?v=ip0W9lCXpio",
+      title: "The Snapdragon Multi-Day Battery Laptop",
+      summary: "Sponsored by Snapdragon.",
+      text: "The Snapdragon Multi-Day Battery Laptop Sponsored by Snapdragon.",
+      topics: [],
+      metrics: { views: DASHBOARD_MIN_SOCIAL_VIEWS }
+    });
+
+    expect(dashboardTop100Eligibility(exactUnboxLaptop, NOW)).toMatchObject({
+      eligible: true,
+      reason: "eligible"
+    });
+
+    const belowReach = dashboardCandidate({
+      id: "snapdragon-below-reach",
+      title: "The Snapdragon multi-day battery laptop",
+      text: "Sponsored by Snapdragon.",
+      topics: [],
+      metrics: { views: DASHBOARD_MIN_SOCIAL_VIEWS - 1 }
+    });
+    const stale = dashboardCandidate({
+      id: "snapdragon-stale",
+      title: "The Snapdragon multi-day battery laptop",
+      text: "Sponsored by Snapdragon.",
+      topics: [],
+      publishedAt: "2026-08-12T11:59:59.999Z",
+      metrics: { views: 2_000_000 }
+    });
+    const ambiguousNonTechPosts = [
+      dashboardCandidate({
+        id: "food-processor",
+        title: "My favorite food processor",
+        text: "Preparing dinner for friends tonight.",
+        topics: [],
+        metrics: { views: 2_000_000 }
+      }),
+      dashboardCandidate({
+        id: "ssd-disability",
+        title: "Living with SSD disability",
+        text: "A personal accessibility story.",
+        topics: [],
+        metrics: { views: 2_000_000 }
+      }),
+      dashboardCandidate({
+        id: "snapdragon-flowers",
+        title: "Snapdragon flowers are blooming",
+        text: "A colorful spring garden update.",
+        topics: [],
+        metrics: { views: 2_000_000 }
+      })
+    ];
+
+    expect(dashboardTop100Eligibility(belowReach, NOW)).toMatchObject({
+      eligible: false,
+      reason: "below_one_million_views"
+    });
+    expect(dashboardTop100Eligibility(stale, NOW)).toMatchObject({
+      eligible: false,
+      reason: "outside_72_hour_window"
+    });
+    for (const candidate of ambiguousNonTechPosts) {
+      expect(dashboardTop100Eligibility(candidate, NOW)).toMatchObject({
+        eligible: false,
+        reason: "unverified_source"
+      });
+    }
+  });
+
   it("counts every terminal eligibility reason after physical-source deduplication", () => {
     const eligible = dashboardCandidate({ id: "eligible" });
     const result = buildDashboardSnapshot([
