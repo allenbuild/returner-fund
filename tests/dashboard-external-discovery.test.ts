@@ -325,11 +325,44 @@ describe("public dashboard discovery", () => {
       { name: "SpaceX", handle: "SpaceX", channelId: "UCtI0Hodo5o5dUb67FeUjDeA" },
       { name: "Boston Dynamics", handle: "BostonDynamics", channelId: "UC7vVhkEfw4nOGp8TyDk7RcQ" },
       { name: "DJI", handle: "DJI", channelId: "UCsNGtpqGsyw0U6qEG-WHadA" },
-      { name: "Nothing", handle: "NothingTechnology", channelId: "UCuVQmkiETvqmLviDcBtQw4A" }
+      { name: "Nothing", handle: "NothingTechnology", channelId: "UCuVQmkiETvqmLviDcBtQw4A" },
+      { name: "Google DeepMind", handle: "GoogleDeepMind", channelId: "UCP7jMXSY2xbc3KCAE0MHQ-A" },
+      { name: "Made by Google", handle: "MadeByGoogle", channelId: "UCIG1k8umaCIIrujZPzZPIMA" },
+      { name: "Meta", handle: "Meta", channelId: "UC04FyDIvYXNecpbG8gyOw4A" },
+      { name: "AMD", handle: "AMD", channelId: "UCHQDjDDW8w2RieO-IuqYlyg" },
+      { name: "Intel", handle: "Intel", channelId: "UCk7SjrXVXAj8m8BLgzh6dGA" },
+      { name: "WIRED", handle: "WIRED", channelId: "UCftwRNsjfRo08xYE31tkiyw" },
+      { name: "CNET", handle: "CNET", channelId: "UCOmcA3f_RrH6b9NmcNa4tdg" },
+      { name: "Austin Evans", handle: "AustinEvans", channelId: "UCXGgrKt94gR6lmN4aN3mYTg" },
+      { name: "iJustine", handle: "iJustine", channelId: "UCey_c7U86mJGz1VJWH5CYPA" },
+      { name: "Techquickie", handle: "techquickie", channelId: "UC0vBXGSyV14uvJ4hECDOl0Q" },
+      { name: "ShortCircuit", handle: "ShortCircuit", channelId: "UCdBK94H6oZT2Q7l0-b0xmMg" },
+      { name: "NetworkChuck", handle: "NetworkChuck", channelId: "UC9x0AN7BWHpCDHSm9NiJFJQ" },
+      { name: "Cleo Abram", handle: "CleoAbram", channelId: "UC415bOPUcGSamy543abLmRA" },
+      { name: "Mark Rober", handle: "MarkRober", channelId: "UCY1kMZp36IQSyNx_9h4mpCg" },
+      { name: "Hacksmith Industries", handle: "Hacksmith", channelId: "UCjgpFI5dU-D1-kh9H1muoxQ" },
+      { name: "Beebom", handle: "BeebomCo", channelId: "UCvpfclapgcuJo0M_x65pfRw" },
+      { name: "Two Minute Papers", handle: "TwoMinutePapers", channelId: "UCbfYPyITQ-7l4upoX8nvctg" },
+      { name: "Jeff Geerling", handle: "JeffGeerling", channelId: "UCR-DXc1voovS8nhAvccRZhg" },
+      { name: "ColdFusion", handle: "ColdFusion", channelId: "UC4QZ_LsYcvcq7qOsOhpAX4A" },
+      { name: "Veritasium", handle: "veritasium", channelId: "UCHnyfMqiRRG1u-2MsSQLbXA" },
+      { name: "SmarterEveryDay", handle: "smartereveryday", channelId: "UC6107grRI4m0o2-emgoDnAA" },
+      { name: "Stuff Made Here", handle: "StuffMadeHere", channelId: "UCj1VqrHhDte54oLgPG4xpuQ" },
+      { name: "Practical Engineering", handle: "PracticalEngineeringChannel", channelId: "UCMOqf8ab-42UUQIdVoKwjlQ" },
+      { name: "Real Engineering", handle: "RealEngineering", channelId: "UCR1IuLEqb6UEA_zQ81kwXfg" },
+      { name: "Engineering Explained", handle: "EngineeringExplained", channelId: "UClqhvGmHcvWL9w3R48t9QXQ" },
+      { name: "Tech Burner", handle: "TechBurner", channelId: "UCXUJJNoP1QupwsYIWFXmsZg" },
+      { name: "Technical Guruji", handle: "TechnicalGuruji", channelId: "UCOhHO2ICt0ti9KAh-QHvttQ" },
+      { name: "Trakin Tech", handle: "TrakinTech", channelId: "UCEPL07qzVsOcHd3sMUws65g" }
     ]);
     expect(DEFAULT_DASHBOARD_YOUTUBE_CHANNELS.length).toBeLessThanOrEqual(MAX_DASHBOARD_YOUTUBE_CHANNELS);
-    expect(DEFAULT_DASHBOARD_YOUTUBE_CHANNELS).toHaveLength(20);
-    expect(MAX_DASHBOARD_YOUTUBE_CHANNELS).toBe(20);
+    expect(DEFAULT_DASHBOARD_YOUTUBE_CHANNELS).toHaveLength(48);
+    expect(MAX_DASHBOARD_YOUTUBE_CHANNELS).toBe(48);
+    const channelIds = DEFAULT_DASHBOARD_YOUTUBE_CHANNELS.map(({ channelId }) => channelId);
+    const handles = DEFAULT_DASHBOARD_YOUTUBE_CHANNELS.map(({ handle }) => handle.toLowerCase());
+    expect(channelIds.every((channelId) => /^UC[A-Za-z0-9_-]{22}$/.test(channelId ?? ""))).toBe(true);
+    expect(new Set(channelIds).size).toBe(DEFAULT_DASHBOARD_YOUTUBE_CHANNELS.length);
+    expect(new Set(handles).size).toBe(DEFAULT_DASHBOARD_YOUTUBE_CHANNELS.length);
   });
 
   it("caps an explicit YouTube roster before issuing channel or detail requests", async () => {
