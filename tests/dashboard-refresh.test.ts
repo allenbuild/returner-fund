@@ -6,6 +6,7 @@ import {
   enrichDashboardCandidatesWithPriorSnapshotMetrics,
   retainPriorDashboardSnapshotOnBroadSourceFailure
 } from "@/lib/dashboard/refresh";
+import { MAX_DASHBOARD_YOUTUBE_CHANNELS } from "@/lib/dashboard/external-discovery";
 import { buildDashboardSnapshot } from "@/lib/dashboard/pipeline";
 import { velocityScore } from "@/lib/dashboard/scoring";
 
@@ -22,6 +23,13 @@ describe("dashboard worker metric-history enrichment", () => {
       ...boundedSources,
       youtubeChannels: [{ name: "Apple", handle: "Apple" }, { name: "MKBHD", handle: "mkbhd" }]
     })).toBe(5);
+    expect(dashboardExternalAttemptCount({
+      ...boundedSources,
+      youtubeChannels: Array.from({ length: MAX_DASHBOARD_YOUTUBE_CHANNELS + 5 }, (_, index) => ({
+        name: `Channel ${index}`,
+        handle: `channel${index}`
+      }))
+    })).toBe(3 + MAX_DASHBOARD_YOUTUBE_CHANNELS);
   });
 
   it("uses a prior published source reading plus the current worker reading for the exact canonical source", () => {

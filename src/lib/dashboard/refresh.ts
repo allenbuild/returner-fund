@@ -13,6 +13,7 @@ import {
   DEFAULT_DASHBOARD_RESEARCH_FEEDS,
   DEFAULT_DASHBOARD_RSS_FEEDS,
   DEFAULT_DASHBOARD_YOUTUBE_CHANNELS,
+  MAX_DASHBOARD_YOUTUBE_CHANNELS,
   discoverExternalDashboardCandidates,
   type ExternalDiscoveryOptions
 } from "./external-discovery";
@@ -220,7 +221,7 @@ export function dashboardExternalAttemptCount(options: ExternalDiscoveryOptions 
     ? new Set(options.redditSubreddits.map((value) => value.trim().toLowerCase()).filter(Boolean)).size
     : DEFAULT_DASHBOARD_REDDIT_SUBREDDITS.length;
   const xJobs = options?.xBearerToken?.trim() ? 1 : 0;
-  const youtubeJobs = options?.youtubeChannels?.length ?? 0;
+  const youtubeJobs = Math.min(options?.youtubeChannels?.length ?? 0, MAX_DASHBOARD_YOUTUBE_CHANNELS);
   return fixedJobs + rssJobs + researchJobs + redditJobs + xJobs + youtubeJobs;
 }
 

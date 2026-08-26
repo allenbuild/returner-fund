@@ -19,6 +19,7 @@ const X_RECENT_SEARCH_ENDPOINT = "https://api.x.com/2/tweets/search/recent";
 const MAX_X_RECENT_SEARCH_ITEMS = 100;
 const MAX_YOUTUBE_RESPONSE_BYTES = 1_750_000;
 const MAX_YOUTUBE_DETAIL_CANDIDATES_PER_CHANNEL = 2;
+export const MAX_DASHBOARD_YOUTUBE_CHANNELS = 10;
 const MAX_RSS_ITEMS_PER_FEED = 40;
 // Primary research is a direct, high-quality lane rather than a broad
 // consumer feed. Keep its discovery window modestly wider so the Top 100 can
@@ -227,7 +228,14 @@ export interface DashboardYoutubeChannel {
  * re-read from the video's official watch-page metadata. */
 export const DEFAULT_DASHBOARD_YOUTUBE_CHANNELS: readonly DashboardYoutubeChannel[] = [
   { name: "Apple", handle: "Apple" },
-  { name: "MKBHD", handle: "mkbhd" }
+  { name: "MKBHD", handle: "mkbhd" },
+  { name: "OpenAI", handle: "OpenAI" },
+  { name: "Google", handle: "Google" },
+  { name: "NVIDIA", handle: "NVIDIA" },
+  { name: "Tesla", handle: "Tesla" },
+  { name: "Linus Tech Tips", handle: "LinusTechTips" },
+  { name: "Mrwhosetheboss", handle: "Mrwhosetheboss" },
+  { name: "Fireship", handle: "Fireship" }
 ];
 
 interface DashboardRssFeed {
@@ -272,7 +280,10 @@ export async function discoverExternalDashboardCandidates(
   const subreddits = normalizeSubreddits(options.redditSubreddits ?? DEFAULT_DASHBOARD_REDDIT_SUBREDDITS);
   const githubToken = options.githubToken ?? null;
   const xBearerToken = options.xBearerToken?.trim() || null;
-  const youtubeChannels = options.youtubeChannels ?? [];
+  // The worker may be called with an explicit roster, but it must never turn
+  // that input into an unbounded channel/watch-page crawl. Each retained
+  // channel can nominate at most two official watch pages below.
+  const youtubeChannels = (options.youtubeChannels ?? []).slice(0, MAX_DASHBOARD_YOUTUBE_CHANNELS);
   const jobs: Array<Promise<{ source: string; candidates: DashboardCandidate[] }>> = [
     fetchHackerNewsCandidates(fetchImpl, now),
     fetchGithubCandidates(fetchImpl, now, githubToken),
@@ -355,13 +366,17 @@ export async function fetchYoutubeChannelCandidates(
   if (!channelPage) throw new Error(`${source.replace(":", "_")}_invalid_initial_data`);
   const channelId = youtubeChannelId(channelPage);
   if (!channelId) throw new Error(`${source.replace(":", "_")}_missing_channel_id`);
-  const previews = youtubeMillionViewPreviews(channelPage)
-    .filter((preview) => youtubeRecentDetailHint(preview.relativeTime))
+  // The channel-page counter and relative date are rounded presentation text
+  // and differ across YouTube renderer variants. Use the newest renderer IDs
+  // only as a bounded detail-page queue; the official watch page supplies the
+  // exact identity, publication timestamp, and view count used downstream.
+  const videoIds = youtubeVideoPreviewIds(channelPage)
     .slice(0, MAX_YOUTUBE_DETAIL_CANDIDATES_PER_CHANNEL);
-  const settled = await Promise.allSettled(previews.map((preview) =>
-    fetchYoutubeWatchCandidate(fetchImpl, preview.videoId, channelId, channel.name, now)
+  if (videoIds.length === 0) throw new Error(`${source.replace(":", "_")}_no_video_preview_ids`);
+  const settled = await Promise.allSettled(videoIds.map((videoId) =>
+    fetchYoutubeWatchCandidate(fetchImpl, videoId, channelId, channel.name, now)
   ));
-  if (previews.length > 0 && settled.every((result) => result.status === "rejected")) {
+  if (settled.every((result) => result.status === "rejected")) {
     throw new Error(`${source.replace(":", "_")}_detail_unavailable`);
   }
   return {
@@ -1000,37 +1015,52 @@ function xTechnologyTopics(text: string): DashboardCandidate["topics"] {
   return [...topics];
 }
 
-interface YoutubeVideoPreview {
-  videoId: string;
-  relativeTime: string;
-}
-
-function youtubeMillionViewPreviews(root: unknown): YoutubeVideoPreview[] {
-  const result: YoutubeVideoPreview[] = [];
+function youtubeVideoPreviewIds(root: unknown): string[] {
+  const result: string[] = [];
   const seen = new Set<string>();
   for (const value of objectGraph(root)) {
-    const lockup = value as YoutubeLockupViewModel;
-    if (lockup.contentType !== "LOCKUP_CONTENT_TYPE_VIDEO" || !/^[A-Za-z0-9_-]{11}$/.test(lockup.contentId ?? "")) continue;
-    const parts = lockup.metadata?.lockupMetadataViewModel?.metadata?.contentMetadataViewModel?.metadataRows
-      ?.flatMap((row) => row.metadataParts ?? [])
-      .map((part) => compactWhitespace(part.text?.content ?? part.text?.accessibilityLabel))
-      .filter(Boolean) ?? [];
-    const viewText = parts.find((part) => /\bviews?\b/i.test(part)) ?? "";
-    const relativeTime = parts.find((part) => /\b(?:ago|streamed|premiered)\b/i.test(part)) ?? "";
-    const videoId = lockup.contentId!;
-    if ((compactMetricNumber(viewText) ?? 0) < 1_000_000 || seen.has(videoId)) continue;
-    seen.add(videoId);
-    result.push({ videoId, relativeTime });
+    for (const videoId of youtubeVideoIdsFromRendererRecord(value)) {
+      if (seen.has(videoId)) continue;
+      seen.add(videoId);
+      result.push(videoId);
+    }
   }
   return result;
 }
 
-function youtubeRecentDetailHint(value: string): boolean {
-  // This only bounds which official detail pages are fetched. The exact
-  // watch-page timestamp remains the sole publication eligibility proof.
-  if (/\b(?:minute|hour)s? ago\b|\b(?:streamed|premiered)\b/i.test(value)) return true;
-  const days = value.match(/\b(\d+)\s+days? ago\b/i)?.[1];
-  return days ? Number(days) <= 3 : false;
+function youtubeVideoIdsFromRendererRecord(value: Record<string, unknown>): string[] {
+  const ids: string[] = [];
+  const lockup = objectValue(value.lockupViewModel);
+  if (lockup?.contentType === "LOCKUP_CONTENT_TYPE_VIDEO") {
+    ids.push(youtubeVideoId(lockup.contentId));
+  }
+  ids.push(
+    youtubeVideoId(objectValue(value.videoRenderer)?.videoId),
+    youtubeVideoId(objectValue(value.gridVideoRenderer)?.videoId)
+  );
+
+  // Some rich-grid payloads keep the renderer under `richItemRenderer.content`
+  // instead of exposing it as a sibling visited by older traversal code.
+  const richContent = objectValue(objectValue(value.richItemRenderer)?.content);
+  const richLockup = objectValue(richContent?.lockupViewModel);
+  if (richLockup?.contentType === "LOCKUP_CONTENT_TYPE_VIDEO") {
+    ids.push(youtubeVideoId(richLockup.contentId));
+  }
+  ids.push(
+    youtubeVideoId(objectValue(richContent?.videoRenderer)?.videoId),
+    youtubeVideoId(objectValue(richContent?.gridVideoRenderer)?.videoId)
+  );
+  return ids.filter(Boolean);
+}
+
+function youtubeVideoId(value: unknown): string {
+  return typeof value === "string" && /^[A-Za-z0-9_-]{11}$/.test(value) ? value : "";
+}
+
+function objectValue(value: unknown): Record<string, unknown> | null {
+  return value && typeof value === "object" && !Array.isArray(value)
+    ? value as Record<string, unknown>
+    : null;
 }
 
 function youtubeChannelId(root: unknown): string | null {
@@ -1052,12 +1082,15 @@ function objectGraph(root: unknown): Array<Record<string, unknown>> {
     const value = stack.pop();
     if (!value || typeof value !== "object") continue;
     if (Array.isArray(value)) {
-      stack.push(...value);
+      // Push in reverse so the LIFO traversal observes channel renderers in
+      // their displayed newest-first order.
+      for (let index = value.length - 1; index >= 0; index -= 1) stack.push(value[index]);
       continue;
     }
     const record = value as Record<string, unknown>;
     result.push(record);
-    stack.push(...Object.values(record));
+    const children = Object.values(record);
+    for (let index = children.length - 1; index >= 0; index -= 1) stack.push(children[index]);
   }
   return result;
 }
@@ -1109,31 +1142,6 @@ function jsonNumberField(value: string, field: string): string | null {
 
 function isExactYoutubePublicationValue(value: string | null): boolean {
   return Boolean(value && /T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:?\d{2})$/i.test(value));
-}
-
-function compactMetricNumber(value: string): number | null {
-  const match = value.replace(/,/g, "").match(/(\d+(?:\.\d+)?)\s*([KMB])?/i);
-  if (!match) return null;
-  const number = Number(match[1]);
-  const suffix = match[2]?.toUpperCase();
-  const multiplier = suffix === "K" ? 1_000 : suffix === "M" ? 1_000_000 : suffix === "B" ? 1_000_000_000 : 1;
-  return Number.isFinite(number) ? Math.round(number * multiplier) : null;
-}
-
-interface YoutubeLockupViewModel {
-  contentId?: string;
-  contentType?: string;
-  metadata?: {
-    lockupMetadataViewModel?: {
-      metadata?: {
-        contentMetadataViewModel?: {
-          metadataRows?: Array<{
-            metadataParts?: Array<{ text?: { content?: string; accessibilityLabel?: string } }>;
-          }>;
-        };
-      };
-    };
-  };
 }
 
 function configuredRssFeeds(): ReadonlyArray<DashboardRssFeed> {
