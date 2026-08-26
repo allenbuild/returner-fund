@@ -242,6 +242,85 @@ test("appends edited observations as immutable revisions and keeps sparse media 
   });
 });
 
+test("versions only catalog-derived attribution descriptor drift for one source observation", async () => {
+  await withArchive(async (rootDir) => {
+    const archive = await openLosslessPostArchive(rootDir);
+    const observedAt = "2026-08-26T03:53:04.852Z";
+    const nativeId = "2078180525601419281";
+    const rawEnvelope = { source: "x-public-profile", nativeId, text: "unchanged source post" };
+    const normalizedPost = {
+      platformPostId: nativeId,
+      text: "unchanged source post",
+      sourceUrl: `https://x.com/rationaldotto/status/${nativeId}`,
+      attributionDescriptorMatches: ["rational", "firms"],
+      media: [],
+      relationships: { parent: null, thread: null, quote: null }
+    };
+    const first = await archive.appendPost({
+      platform: "x",
+      nativeId,
+      observedAt,
+      rawEnvelope,
+      normalizedPost
+    });
+    const descriptorRevisionInput = {
+      platform: "x",
+      nativeId,
+      observedAt,
+      rawEnvelope,
+      normalizedPost: {
+        ...normalizedPost,
+        attributionDescriptorMatches: ["rational"]
+      }
+    };
+    const revised = await archive.appendPost(descriptorRevisionInput);
+    const repeatedRevision = await archive.appendPost(descriptorRevisionInput);
+
+    assert.equal(revised.raw.status, "duplicate");
+    assert.equal(revised.normalized.status, "appended");
+    assert.notEqual(revised.normalized.contentHash, first.normalized.contentHash);
+    assert.equal(repeatedRevision.normalized.status, "duplicate");
+    assert.equal(repeatedRevision.normalized.contentHash, revised.normalized.contentHash);
+    assert.deepEqual(
+      archive.listPostRevisions({ platform: "x", nativeId })
+        .map((record) => record.content.post.attributionDescriptorMatches),
+      [["rational", "firms"], ["rational"]]
+    );
+
+    await assert.rejects(
+      archive.appendPost({
+        ...descriptorRevisionInput,
+        normalizedPost: { ...descriptorRevisionInput.normalizedPost, text: "semantic mutation" }
+      }),
+      (error) => error instanceof LosslessArchiveConflictError &&
+        error.code === "LOSSLESS_ARCHIVE_CONFLICT" && error.recordType === "normalized_post"
+    );
+    await assert.rejects(
+      archive.appendPost({
+        ...descriptorRevisionInput,
+        normalizedPost: { ...descriptorRevisionInput.normalizedPost, platformPostId: "different-native-id" }
+      }),
+      (error) => error instanceof LosslessArchiveConflictError &&
+        error.code === "LOSSLESS_ARCHIVE_CONFLICT" && error.recordType === "normalized_post"
+    );
+
+    const reopened = await openLosslessPostArchive(rootDir);
+    assert.equal(reopened.listPostRevisions({ platform: "x", nativeId }).length, 2);
+    assert.deepEqual(reopened.getPost("x", nativeId).attributionDescriptorMatches, ["rational"]);
+
+    const replayedFirst = await reopened.appendPost({
+      platform: "x",
+      nativeId,
+      observedAt,
+      rawEnvelope,
+      normalizedPost
+    });
+    assert.equal(replayedFirst.normalized.status, "duplicate");
+    assert.equal(replayedFirst.normalized.contentHash, first.normalized.contentHash);
+    assert.deepEqual(reopened.getPost("x", nativeId).attributionDescriptorMatches, ["rational"]);
+  });
+});
+
 test("fails closed on conflicting observation slots and destructive sparse rewrites", async () => {
   await withArchive(async (rootDir) => {
     const archive = await openLosslessPostArchive(rootDir);
