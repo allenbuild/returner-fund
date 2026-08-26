@@ -45,6 +45,7 @@ const ACTIVE_RUN_STATUSES = new Set([
   "requested",
   "waiting"
 ]);
+const NON_SILENCING_RUN_CONCLUSIONS = new Set(["cancelled", "skipped"]);
 const TERMINAL_EVENT_DISPOSITIONS = new Set([
   "baseline",
   "newer_attempt",
@@ -423,6 +424,12 @@ export async function evaluateScheduleRecovery({
   }
 
   const latestRun = runs
+    // A cancelled or skipped wake performed no trustworthy publication. It must
+    // not postpone recovery when the committed watermark is still behind.
+    .filter(
+      (run) =>
+        !NON_SILENCING_RUN_CONCLUSIONS.has(String(run?.conclusion ?? "").toLowerCase())
+    )
     .map((run) => ({ run, createdAtMs: Date.parse(run?.created_at ?? "") }))
     .filter(({ createdAtMs }) => Number.isFinite(createdAtMs))
     .sort((left, right) => right.createdAtMs - left.createdAtMs)[0] ?? null;

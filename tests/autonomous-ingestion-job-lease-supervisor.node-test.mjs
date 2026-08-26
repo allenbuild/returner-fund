@@ -318,6 +318,67 @@ test("a dropped wake after an ordinary battery failure dispatches the canonical 
   assert.deepEqual(dispatchedHeads, [CURRENT_SHA]);
 });
 
+test("cancelled and skipped wakeups never postpone a behind-watermark recovery", async () => {
+  for (const conclusion of ["cancelled", "skipped"]) {
+    const dispatchedHeads = [];
+    const decision = await evaluateScheduleRecovery({
+      config: config({ scheduleRecoveryEnabled: true }),
+      github: github({
+        getWorkflowRuns: async () => [
+          {
+            id: 882,
+            event: "schedule",
+            status: "completed",
+            conclusion,
+            created_at: "2026-08-26T04:58:00.000Z"
+          },
+          {
+            id: 881,
+            event: "schedule",
+            status: "completed",
+            conclusion: "failure",
+            created_at: "2026-08-26T04:30:00.000Z"
+          }
+        ],
+        dispatchRecovery: async (headSha) => dispatchedHeads.push(headSha)
+      }),
+      state: { recoveryDispatch: null },
+      readPowerStatus: async () => "Now drawing from 'AC Power'\n 72%; charging",
+      now: new Date("2026-08-26T05:05:00.000Z")
+    });
+
+    assert.equal(decision.action, "dispatch", conclusion);
+    assert.deepEqual(dispatchedHeads, [CURRENT_SHA], conclusion);
+  }
+});
+
+test("a recent completed failure still enforces the recovery silence window", async () => {
+  let dispatches = 0;
+  const decision = await evaluateScheduleRecovery({
+    config: config({ scheduleRecoveryEnabled: true }),
+    github: github({
+      getWorkflowRuns: async () => [{
+        id: 883,
+        event: "schedule",
+        status: "completed",
+        conclusion: "failure",
+        created_at: "2026-08-26T04:58:00.000Z"
+      }],
+      dispatchRecovery: async () => {
+        dispatches += 1;
+      }
+    }),
+    state: { recoveryDispatch: null },
+    readPowerStatus: async () => "Now drawing from 'AC Power'\n 72%; charging",
+    now: new Date("2026-08-26T05:05:00.000Z")
+  });
+
+  assert.equal(decision.action, "defer");
+  assert.equal(decision.reason, "recent_workflow_wakeup");
+  assert.equal(decision.latestRunId, "883");
+  assert.equal(dispatches, 0);
+});
+
 test("an active or pending autonomous run suppresses duplicate recovery", async () => {
   let downstreamCalls = 0;
   const decision = await evaluateScheduleRecovery({
