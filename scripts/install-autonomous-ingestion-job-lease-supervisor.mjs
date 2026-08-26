@@ -168,7 +168,7 @@ export async function installAutonomousIngestionHost({
   const paths = autonomousIngestionHostPaths({ userHome, repositoryRoot });
   const authBrowser = stableAuthChromeExecutableDecision({ userHome });
   if (!authBrowser.ok) {
-    throw new Error(`Dedicated auth Chrome is unavailable: ${authBrowser.reason}`);
+    throw new Error(`Dedicated auth browser is unavailable: ${authBrowser.reason}`);
   }
   const nodeBin = path.resolve(environment.RETURNER_NODE_BIN ?? "/opt/homebrew/bin/node");
   const ghBin = path.resolve(environment.RETURNER_GH_BIN ?? "/opt/homebrew/bin/gh");
@@ -197,7 +197,7 @@ export async function installAutonomousIngestionHost({
     run
   });
   if (!chromeSignature.ok) {
-    throw new Error(`Dedicated auth Chrome validation failed: ${chromeSignature.reason}`);
+    throw new Error(`Dedicated auth browser validation failed: ${chromeSignature.reason}`);
   }
   await mkdir(paths.stateDir, { recursive: true, mode: 0o700 });
   await mkdir(paths.installedLibraryDir, { recursive: true, mode: 0o700 });
@@ -290,7 +290,8 @@ export async function installAutonomousIngestionHost({
     run
   });
   if (!authBrowserService.ok) {
-    throw new Error(`Dedicated auth Chrome service failed to start: ${authBrowserService.reason}`);
+    await bootoutIfLoaded({ domain, label: AUTH_BROWSER_LABEL, run });
+    throw new Error(`Dedicated auth browser service failed to start: ${authBrowserService.reason}`);
   }
   // Leave the pre-existing power and recovery services loaded until the new
   // auth browser has proved ready, so an auth-only install failure cannot

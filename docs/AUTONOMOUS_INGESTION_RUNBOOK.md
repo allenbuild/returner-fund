@@ -417,16 +417,17 @@ The coordinator renews every 60 seconds against a 20-minute lease. Transient tra
 
 The optional macOS host services handle power continuity, authenticated-browser
 continuity, and recovery. The awake service continuously holds an AC-only
-system-sleep assertion. The auth-browser service keeps a stable local Chrome
-running against the dedicated signed-in data directory. The lease
-supervisor handles the infrastructure case where GitHub invalidates a
-self-hosted job lease and the recovery gap where GitHub delays or drops
-scheduled workflow events. None replaces the in-job retry controller.
+system-sleep assertion. The auth-browser service keeps a separately identified
+local Chrome Canary running against the dedicated signed-in data directory. The
+lease supervisor handles the infrastructure case where GitHub invalidates a
+self-hosted job lease and the recovery gap where GitHub delays or drops scheduled
+workflow events. None replaces the in-job retry controller.
 
-Before install, place the vendor-signed Chrome application exactly at
-`~/Applications/Google Chrome.app`. The installer rejects symlinked executables,
-`/Volumes` and App Translocation paths, signature/team mismatches, and any
-alternative executable path. Install or idempotently refresh all three user
+Before install, place the vendor-signed Google Chrome Canary application exactly
+at `~/Applications/Google Chrome Canary.app`. The installer rejects symlinked
+executables, `/Volumes` and App Translocation paths, recursive quarantine,
+signature/team/bundle-identifier mismatches, and any alternative executable
+path. Install or idempotently refresh all three user
 LaunchAgents from a reviewed checkout. Do this only while no ingestion is active
 because refresh briefly unloads the existing services before loading their
 reviewed replacements:
@@ -450,14 +451,17 @@ authenticated historical replay.
 
 `com.returner-fund.auth-chrome-runner` uses `KeepAlive` and the Aqua session to
 run exactly
-`~/Applications/Google Chrome.app/Contents/MacOS/Google Chrome` with
+`~/Applications/Google Chrome Canary.app/Contents/MacOS/Google Chrome Canary` with
 `--user-data-dir=~/Library/Application Support/Returner Fund Auth Chrome Runner`
 and the `Default` profile. It exposes no remote-debugging port. The runtime
 preflight rechecks the vendor signature, exact launchd program and data
-directory, and running state before asking OpenCLI to prove each platform.
+directory, launchd PID, in-bundle framework child, PID-bound profile singleton,
+and the exact OpenCLI profile connection before asking OpenCLI to prove each
+platform. A launchd entry with only a dormant outer launcher is not ready.
 Transient cold-start, bridge, extension, and `profile_disconnected` failures
-receive bounded retries; login walls, challenges, checkpoints, and rate limits
-do not.
+receive bounded retries; a still-disconnected profile fails closed before either
+platform probe. Login walls, challenges, checkpoints, and rate limits do not
+retry.
 
 The one-shot agent runs at load and every 300 seconds. It scans `Worker_*.log` diagnostics and fails closed unless the GitHub API confirms the exact repository, workflow, failed run attempt, self-hosted runner, and cancelled ingestion step. It never stores a GitHub token; `/opt/homebrew/bin/gh` uses the logged-in user's keychain session.
 
