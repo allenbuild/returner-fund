@@ -402,6 +402,41 @@ jobs:
           echo "remote_main_commit=$REMOTE_MAIN_COMMIT" >> "$GITHUB_OUTPUT"
           node scripts/lib/ingestion-schedule.mjs
 
+      - name: Preflight autonomous ingestion host
+        if: steps.revalidate.outputs.should_run == 'true'
+        timeout-minutes: 1
+        env:
+          AUTHENTICATED_SOCIAL_REPLAY: ${{ inputs.authenticated_backfill || false }}
+        run: |
+          set -euo pipefail
+
+          POWER_STATUS="$(/usr/bin/pmset -g batt)"
+          BATTERY_PERCENT="$(sed -nE 's/.*[[:space:]]([0-9]{1,3})%;.*/\1/p' <<< "$POWER_STATUS" | head -n 1)"
+          if [[ "${POWER_STATUS%%$'\n'*}" != *"'AC Power'"* ]]; then
+            echo "::error title=Runner requires AC power::Autonomous ingestion is deferred while the Mac is on battery. The stale Central slot remains durable and will retry automatically after AC is connected."
+            exit 1
+          fi
+          if [[ "$BATTERY_PERCENT" =~ ^[0-9]+$ ]] && [ "$BATTERY_PERCENT" -lt 20 ]; then
+            echo "::warning title=Runner battery reserve is low::The Mac is connected to AC but reports ${BATTERY_PERCENT}% battery. Keep power connected for this ingestion."
+          fi
+
+          POWER_ASSERTIONS="$(/usr/bin/pmset -g assertions 2>/dev/null || true)"
+          if ! grep -Eq '^[[:space:]]*PreventSystemSleep[[:space:]]+1([[:space:]]|$)' <<< "$POWER_ASSERTIONS"; then
+            echo "::error title=Runner sleep assertion is missing::The AC-powered Mac has no effective PreventSystemSleep assertion. Install or refresh the com.returner-fund.ingestion-awake LaunchAgent before retrying."
+            exit 1
+          fi
+
+          # Public collectors are safe in an AC maintenance wake. Authenticated
+          # browser replay remains interactive-only and never tries to
+          # manufacture user presence with a synthetic activity assertion.
+          if [ "$AUTHENTICATED_SOCIAL_REPLAY" = "true" ]; then
+            USER_WAKE_STATE="$(/usr/sbin/ioreg -r -k IOPMUserTriggeredFullWake -d 4 2>/dev/null || true)"
+            if ! grep -q '"IOPMUserTriggeredFullWake" = Yes' <<< "$USER_WAKE_STATE"; then
+              echo "::error title=Authenticated replay requires a user wake::The Mac was not explicitly woken by a user. Public ingestion may run autonomously, but signed-in browser replay is deferred."
+              exit 1
+            fi
+          fi
+
       - name: Install dependencies
         if: steps.revalidate.outputs.should_run == 'true'
         timeout-minutes: 5
@@ -451,10 +486,6 @@ jobs:
           AUTONOMOUS_WORKFLOW_RETRY_MAX_ELAPSED_SECONDS: "20700"
           AUTONOMOUS_WORKFLOW_RETRY_MIN_REMAINING_SECONDS: "19860"
           AUTONOMOUS_WORKFLOW_RETRY_DELAYS_SECONDS: "30,120,300,600,900"
-          # A healthy battery is a valid fallback power source. Deferring only
-          # near the reserve prevents an unplugged-but-charged Mac from
-          # permanently blocking a stale publication slot.
-          AUTONOMOUS_MIN_BATTERY_PERCENT: "60"
           # An unplugged machine may cross the reserve during the multi-hour
           # collection. Poll independently of the start gate and enter the
           # retry controller's normal SIGTERM drain before power becomes
@@ -464,48 +495,32 @@ jobs:
         run: |
           set -euo pipefail
 
-          # Keep the system, disks, and AC-powered machine awake without
-          # forcing the display on for a multi-hour job. The separate bounded
-          # user-activity assertion below still promotes a maintenance dark
-          # wake when needed, while battery-backed runs can let the screen
-          # sleep and preserve substantially more reserve.
+          # Keep the system and disks awake without forcing the display on.
+          # The host preflight already proved an AC-only durable assertion;
+          # this job-scoped assertion independently covers the ingestion shell.
           /usr/bin/caffeinate -ims -w $$ &
-          POWER_STATUS="$(pmset -g batt)"
+          CAFFEINATE_PID=$!
+          POWER_STATUS="$(/usr/bin/pmset -g batt)"
           BATTERY_PERCENT="$(sed -nE 's/.*[[:space:]]([0-9]{1,3})%;.*/\1/p' <<< "$POWER_STATUS" | head -n 1)"
           if [[ "${POWER_STATUS%%$'\n'*}" != *"'AC Power'"* ]]; then
-            if [[ ! "$BATTERY_PERCENT" =~ ^[0-9]+$ ]]; then
-              echo "::error title=Runner power state is unknown::The Mac is not on AC and its battery reserve could not be verified. The stale Central slot remains durable and will retry automatically."
-              exit 1
-            fi
-            if [ "$BATTERY_PERCENT" -lt "$AUTONOMOUS_MIN_BATTERY_PERCENT" ]; then
-              echo "::error title=Runner battery reserve is low::The Mac is on battery at ${BATTERY_PERCENT}%. The stale Central slot remains durable and will retry automatically after charge reaches ${AUTONOMOUS_MIN_BATTERY_PERCENT}% or AC is connected."
-              exit 1
-            fi
-            echo "::warning title=Runner using battery reserve::The Mac is on battery at ${BATTERY_PERCENT}%; autonomous ingestion will proceed under caffeinate."
+            echo "::error title=Runner requires AC power::The Mac disconnected from AC after host preflight. The stale Central slot remains durable and will retry automatically."
+            exit 1
           elif [[ "$BATTERY_PERCENT" =~ ^[0-9]+$ ]] && [ "$BATTERY_PERCENT" -lt 20 ]; then
             echo "::warning title=Runner battery reserve is low::The Mac is connected to AC but reports ${BATTERY_PERCENT}% battery. Keep power connected for this ingestion."
           fi
 
-          is_full_wake() {
-            local state
-            state="$(ioreg -r -k IOPMUserTriggeredFullWake -d 4 2>/dev/null || true)"
-            grep -q '"IOPMUserTriggeredFullWake" = Yes' <<< "$state"
-          }
-          if ! is_full_wake; then
-            echo "::warning title=Promoting runner wake::The Mac entered this job in a maintenance dark wake; requesting a full user wake before browser or network work."
-            /usr/bin/caffeinate -u -t 30 >/dev/null 2>&1 &
-            FULL_WAKE=false
-            for attempt in 1 2 3 4 5 6; do
-              sleep 5
-              if is_full_wake; then
-                FULL_WAKE=true
-                break
-              fi
-            done
-            if [ "$FULL_WAKE" != "true" ]; then
-              echo "::error title=Runner is asleep::The self-hosted Mac remained in a maintenance dark wake after promotion. The stale Central slot remains durable and will retry automatically."
-              exit 1
+          JOB_ASSERTION_READY=false
+          for attempt in 1 2 3 4 5; do
+            POWER_ASSERTIONS="$(/usr/bin/pmset -g assertions 2>/dev/null || true)"
+            if grep -Eq "pid[[:space:]]+${CAFFEINATE_PID}\\(caffeinate\\):.*PreventSystemSleep" <<< "$POWER_ASSERTIONS"; then
+              JOB_ASSERTION_READY=true
+              break
             fi
+            sleep 1
+          done
+          if [ "$JOB_ASSERTION_READY" != "true" ]; then
+            echo "::error title=Runner sleep assertion failed::The job-scoped caffeinate process did not acquire PreventSystemSleep on AC. The stale Central slot remains durable and will retry automatically."
+            exit 1
           fi
 
           node scripts/lib/autonomous-ingestion-workflow-retry.mjs -- \
