@@ -98,6 +98,7 @@ export async function refreshTechnologyDashboard(
     };
     externalAttempted = dashboardExternalAttemptCount(externalOptions);
     const external = await discoverExternalDashboardCandidates(externalOptions);
+    assertConfiguredYoutubeDiscoverySucceeded(externalOptions.youtubeChannels, external.sources);
     candidates.push(...external.candidates);
     externalSucceeded = external.sources.length;
     sourceCounts.industry = external.candidates.length;
@@ -223,6 +224,20 @@ export function dashboardExternalAttemptCount(options: ExternalDiscoveryOptions 
   const xJobs = options?.xBearerToken?.trim() ? 1 : 0;
   const youtubeJobs = Math.min(options?.youtubeChannels?.length ?? 0, MAX_DASHBOARD_YOUTUBE_CHANNELS);
   return fixedJobs + rssJobs + researchJobs + redditJobs + xJobs + youtubeJobs;
+}
+
+/**
+ * A configured YouTube roster is a publication coverage invariant. A fulfilled
+ * adapter may legitimately return zero candidates, so this checks only the
+ * discovery source receipts and never requires a million-view video.
+ */
+export function assertConfiguredYoutubeDiscoverySucceeded(
+  youtubeChannels: ExternalDiscoveryOptions["youtubeChannels"],
+  succeededSources: readonly string[]
+): void {
+  if (!youtubeChannels?.length) return;
+  if (succeededSources.some((source) => source.startsWith("youtube:"))) return;
+  throw new Error("dashboard_youtube_discovery_unavailable");
 }
 
 function configuredRssFeedAttemptCount(): number {
