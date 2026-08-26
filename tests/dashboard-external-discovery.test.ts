@@ -10,9 +10,11 @@ import {
 import { buildDashboardSnapshot } from "@/lib/dashboard/pipeline";
 
 const NOW = new Date("2026-08-15T12:00:00.000Z");
+const YOUTUBE_INNERTUBE_API_KEY = "AIzaUnitTestPublicKey_123456789012345";
+const YOUTUBE_INNERTUBE_CLIENT_VERSION = "2.20260815.00.00";
 
 describe("public dashboard discovery", () => {
-  it("qualifies a million-view YouTube video only from exact official watch metadata", async () => {
+  it("uses exact official player JSON when the watch HTML exposes only date-level metadata", async () => {
     const channelId = "UC1234567890123456789012";
     const channelPage = youtubeChannelPage(channelId, [{
       videoId: "3WpzNmY35S4",
@@ -29,35 +31,51 @@ describe("public dashboard discovery", () => {
       title: "A third recent upload",
       views: "9M views",
       relativeTime: "20 minutes ago"
-    }]);
-    const requested: string[] = [];
-    const fetchImpl = vi.fn(async (input: RequestInfo | URL): Promise<Response> => {
+    }], true);
+    const playerRequests: Array<{ url: URL; method: string; headers: Headers; body: Record<string, unknown> }> = [];
+    const watchRequests: string[] = [];
+    const fetchImpl = vi.fn(async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
       const url = new URL(String(input));
-      requested.push(url.toString());
-      if (url.pathname === "/@Apple/videos") return new Response(channelPage);
-      if (url.pathname === "/watch" && url.searchParams.get("v") === "3WpzNmY35S4") {
-        return new Response(youtubeWatchPage({
-          videoId: "3WpzNmY35S4",
+      if (url.pathname === "/@Apple/videos") {
+        expect(url.searchParams.get("hl")).toBe("en");
+        expect(url.searchParams.get("gl")).toBe("US");
+        return new Response(channelPage);
+      }
+      if (url.pathname === "/youtubei/v1/player") {
+        const body = JSON.parse(String(init?.body)) as Record<string, unknown>;
+        playerRequests.push({ url, method: init?.method ?? "GET", headers: new Headers(init?.headers), body });
+        const videoId = String(body.videoId);
+        if (!new Set(["3WpzNmY35S4", "lowviews001"]).has(videoId)) {
+          throw new Error(`Unexpected player video ${videoId}`);
+        }
+        return json(youtubePlayerResponse({
+          videoId,
           channelId,
           author: "Apple",
-          title: "The new Mac mini with M6",
-          description: "The M6 chip adds faster graphics, neural accelerators, and AI performance.",
-          publishedAt: "2026-08-15T01:33:48-07:00",
-          publishDate: "2026-08-15",
-          views: 2_547_274,
-          likes: 21_798
+          title: videoId === "3WpzNmY35S4" ? "The new Mac mini with M6" : "A smaller Mac update",
+          description: videoId === "3WpzNmY35S4"
+            ? "The M6 chip adds faster graphics, neural accelerators, and AI performance."
+            : "A software and AI update for Mac developers.",
+          publishedAt: videoId === "3WpzNmY35S4"
+            ? "2026-08-15T01:33:48-07:00"
+            : "2026-08-15T03:00:00-07:00",
+          views: videoId === "3WpzNmY35S4" ? 2_547_274 : 999_999
         }));
       }
-      if (url.pathname === "/watch" && url.searchParams.get("v") === "lowviews001") {
+      if (url.pathname === "/watch") {
+        watchRequests.push(url.toString());
+        const videoId = url.searchParams.get("v") ?? "";
         return new Response(youtubeWatchPage({
-          videoId: "lowviews001",
+          videoId,
           channelId,
           author: "Apple",
-          title: "A smaller Mac update",
-          description: "A software and AI update for Mac developers.",
-          publishedAt: "2026-08-15T03:00:00-07:00",
-          views: 999_999,
-          likes: 4_000
+          title: "Date-only watch metadata must not attest this upload",
+          description: "Software and AI.",
+          publishedAt: "2026-08-15",
+          publishDate: "2026-08-15",
+          uploadDate: "2026-08-15",
+          views: 2_547_274,
+          likes: 21_798
         }));
       }
       throw new Error(`Unexpected request ${url}`);
@@ -68,13 +86,23 @@ describe("public dashboard discovery", () => {
       handle: "Apple"
     });
 
-    expect(requested).toHaveLength(3);
-    expect(requested.every((value) => {
-      const url = new URL(value);
-      return url.searchParams.get("hl") === "en" && url.searchParams.get("gl") === "US";
-    })).toBe(true);
-    expect(requested.some((url) => url.includes("lowviews001"))).toBe(true);
-    expect(requested.some((url) => url.includes("thirdvid001"))).toBe(false);
+    expect(fetchImpl).toHaveBeenCalledTimes(3);
+    expect(watchRequests).toEqual([]);
+    expect(playerRequests.map(({ body }) => body.videoId)).toEqual(["3WpzNmY35S4", "lowviews001"]);
+    for (const request of playerRequests) {
+      expect(request.method).toBe("POST");
+      expect(request.url.searchParams.get("key")).toBe(YOUTUBE_INNERTUBE_API_KEY);
+      expect(request.url.searchParams.get("prettyPrint")).toBe("false");
+      expect(request.headers.get("content-type")).toBe("application/json");
+      expect(request.headers.get("x-youtube-client-name")).toBe("1");
+      expect(request.headers.get("x-youtube-client-version")).toBe(YOUTUBE_INNERTUBE_CLIENT_VERSION);
+      expect(request.body).toMatchObject({
+        context: { client: { clientName: "WEB", clientVersion: YOUTUBE_INNERTUBE_CLIENT_VERSION, hl: "en", gl: "US" } },
+        contentCheckOk: true,
+        racyCheckOk: true
+      });
+      expect(JSON.stringify(request.body)).not.toContain(YOUTUBE_INNERTUBE_API_KEY);
+    }
     expect(result.source).toBe("youtube:apple");
     expect(result.candidates).toEqual([
       expect.objectContaining({
@@ -84,7 +112,7 @@ describe("public dashboard discovery", () => {
         sourceKind: "video",
         authorName: "Apple",
         publishedAt: "2026-08-15T08:33:48.000Z",
-        metrics: { views: 2_547_274, likes: 21_798 },
+        metrics: { views: 2_547_274, likes: null },
         socialBackfillEligible: true,
         sourceVerified: true,
         sourceLinkStatus: "verified",
@@ -92,7 +120,7 @@ describe("public dashboard discovery", () => {
       }),
       expect.objectContaining({
         canonicalKey: "youtube:video:lowviews001",
-        metrics: { views: 999_999, likes: 4_000 }
+        metrics: { views: 999_999, likes: null }
       })
     ]);
     expect(buildDashboardSnapshot(result.candidates, { now: NOW }).snapshot.stories).toHaveLength(1);
@@ -176,9 +204,9 @@ describe("public dashboard discovery", () => {
     expect(fetchImpl).toHaveBeenCalledTimes(1);
   });
 
-  it("reports detail-unavailable when every selected watch page has invalid metadata", async () => {
+  it("reports detail-unavailable when player identity is wrong and fallback timestamps are date-only", async () => {
     const channelId = "UC1234567890123456789012";
-    const fetchImpl = vi.fn(async (input: RequestInfo | URL): Promise<Response> => {
+    const fetchImpl = vi.fn(async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
       const url = new URL(String(input));
       if (url.pathname === "/@Apple/videos") return new Response(youtubeChannelPage(channelId, [{
         videoId: "3WpzNmY35S4",
@@ -190,16 +218,28 @@ describe("public dashboard discovery", () => {
         title: "A smaller Mac update",
         views: "900K views",
         relativeTime: "2 hours ago"
-      }]));
-      const videoId = url.searchParams.get("v");
-      if (url.pathname === "/watch" && videoId) {
-        return new Response(youtubeWatchPage({
-          videoId,
+      }], true));
+      if (url.pathname === "/youtubei/v1/player") {
+        const body = JSON.parse(String(init?.body)) as { videoId?: string };
+        return json(youtubePlayerResponse({
+          videoId: body.videoId ?? "",
           channelId: "UCwrongchannel123456789012",
           author: "Wrong channel",
           title: "Mismatched video",
           description: "Software and AI.",
           publishedAt: "2026-08-15T03:00:00-07:00",
+          views: 2_000_000
+        }));
+      }
+      const videoId = url.searchParams.get("v");
+      if (url.pathname === "/watch" && videoId) {
+        return new Response(youtubeWatchPage({
+          videoId,
+          channelId,
+          author: "Apple",
+          title: "Date-only fallback",
+          description: "Software and AI.",
+          publishedAt: "2026-08-15",
           views: 2_000_000,
           likes: 10_000
         }));
@@ -211,10 +251,10 @@ describe("public dashboard discovery", () => {
       name: "Apple",
       handle: "Apple"
     })).rejects.toThrow("youtube_apple_detail_unavailable");
-    expect(fetchImpl).toHaveBeenCalledTimes(3);
+    expect(fetchImpl).toHaveBeenCalledTimes(5);
   });
 
-  it("ships a small verified tech roster under the hard channel bound", () => {
+  it("ships an expanded verified tech roster under the hard channel bound", () => {
     expect(DEFAULT_DASHBOARD_YOUTUBE_CHANNELS).toEqual([
       { name: "Apple", handle: "Apple" },
       { name: "MKBHD", handle: "mkbhd" },
@@ -224,13 +264,21 @@ describe("public dashboard discovery", () => {
       { name: "Tesla", handle: "Tesla" },
       { name: "Linus Tech Tips", handle: "LinusTechTips" },
       { name: "Mrwhosetheboss", handle: "Mrwhosetheboss" },
-      { name: "Fireship", handle: "Fireship" }
+      { name: "Fireship", handle: "Fireship" },
+      { name: "Samsung", handle: "Samsung" },
+      { name: "Microsoft", handle: "Microsoft" },
+      { name: "Android", handle: "Android" },
+      { name: "Unbox Therapy", handle: "unboxtherapy" },
+      { name: "JerryRigEverything", handle: "JerryRigEverything" },
+      { name: "Dave2D", handle: "Dave2D" },
+      { name: "The Verge", handle: "TheVerge" }
     ]);
     expect(DEFAULT_DASHBOARD_YOUTUBE_CHANNELS.length).toBeLessThanOrEqual(MAX_DASHBOARD_YOUTUBE_CHANNELS);
-    expect(MAX_DASHBOARD_YOUTUBE_CHANNELS).toBe(10);
+    expect(DEFAULT_DASHBOARD_YOUTUBE_CHANNELS).toHaveLength(16);
+    expect(MAX_DASHBOARD_YOUTUBE_CHANNELS).toBe(20);
   });
 
-  it("caps an explicit YouTube roster before issuing channel or watch requests", async () => {
+  it("caps an explicit YouTube roster before issuing channel or detail requests", async () => {
     const channelId = "UC1234567890123456789012";
     const configured = Array.from({ length: MAX_DASHBOARD_YOUTUBE_CHANNELS + 1 }, (_, index) => ({
       name: `Channel ${index}`,
@@ -1048,7 +1096,8 @@ function json(value: unknown): Response {
 
 function youtubeChannelPage(
   channelId: string,
-  videos: Array<{ videoId: string; title: string; views: string; relativeTime: string }>
+  videos: Array<{ videoId: string; title: string; views: string; relativeTime: string }>,
+  includeInnertubeConfig = false
 ): string {
   return youtubeChannelPageFromContents(channelId, videos.map((video) => ({
       lockupViewModel: {
@@ -1070,11 +1119,21 @@ function youtubeChannelPage(
           }
         }
       }
-    })));
+    })), includeInnertubeConfig);
 }
 
-function youtubeChannelPageFromContents(channelId: string, contents: unknown[]): string {
-  return `<script>var ytInitialData = ${JSON.stringify({
+function youtubeChannelPageFromContents(
+  channelId: string,
+  contents: unknown[],
+  includeInnertubeConfig = false
+): string {
+  const innertubeConfig = includeInnertubeConfig
+    ? `<script>ytcfg.set(${JSON.stringify({
+      INNERTUBE_API_KEY: YOUTUBE_INNERTUBE_API_KEY,
+      INNERTUBE_CLIENT_VERSION: YOUTUBE_INNERTUBE_CLIENT_VERSION
+    })});</script>`
+    : "";
+  return `${innertubeConfig}<script>var ytInitialData = ${JSON.stringify({
     metadata: { channelMetadataRenderer: { externalId: channelId } },
     // A renderer outside the selected tab must never consume one of the two
     // bounded detail slots.
@@ -1100,6 +1159,35 @@ function youtubeChannelPageFromContents(channelId: string, contents: unknown[]):
       }
     }
   })};</script>`;
+}
+
+function youtubePlayerResponse(input: {
+  videoId: string;
+  channelId: string;
+  author: string;
+  title: string;
+  description: string;
+  publishedAt: string;
+  publishDate?: string;
+  uploadDate?: string;
+  views: number;
+}): unknown {
+  return {
+    videoDetails: {
+      videoId: input.videoId,
+      channelId: input.channelId,
+      author: input.author,
+      title: input.title,
+      shortDescription: input.description,
+      viewCount: String(input.views)
+    },
+    microformat: {
+      playerMicroformatRenderer: {
+        publishDate: input.publishDate ?? input.publishedAt,
+        uploadDate: input.uploadDate ?? input.publishedAt
+      }
+    }
+  };
 }
 
 function youtubeWatchPage(input: {
