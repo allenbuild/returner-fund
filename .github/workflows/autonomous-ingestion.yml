@@ -444,7 +444,9 @@ jobs:
 
       - name: Preflight authenticated social runner
         if: steps.revalidate.outputs.should_run == 'true' && needs.resolve.outputs.trigger == 'manual-replay' && inputs.authenticated_backfill == true
-        timeout-minutes: 3
+        # Covers three bounded 60-second cold-bridge attempts per platform,
+        # including session cleanup, without making the retry loop unbounded.
+        timeout-minutes: 20
         env:
           AUTHENTICATED_SOCIAL_REPLAY: ${{ inputs.authenticated_backfill || false }}
         run: node scripts/verify-authenticated-social-runner.mjs

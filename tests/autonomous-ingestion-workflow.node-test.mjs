@@ -612,6 +612,8 @@ test("workflow and receipt contracts are required by the ingestion check gate", 
   const contracts = packageJson.scripts["test:workflow-contracts"];
   assert.match(contracts, /tests\/autonomous-ingestion-workflow\.node-test\.mjs/);
   assert.match(contracts, /tests\/autonomous-ingestion-job-lease-supervisor\.node-test\.mjs/);
+  assert.match(contracts, /tests\/auth-browser-service\.node-test\.mjs/);
+  assert.match(contracts, /tests\/authenticated-social-runner-preflight\.node-test\.mjs/);
   assert.match(contracts, /tests\/ingestion-schedule\.node-test\.mjs/);
   assert.match(contracts, /tests\/autonomous-ingestion-receipt-policy\.node-test\.mjs/);
   assert.match(packageJson.scripts["test:collectors"], /npm run test:workflow-contracts/);
@@ -2636,7 +2638,7 @@ test("workflow routes authenticated ingestion to the dedicated Mac runner", () =
   assert.ok(preflightIndex < ingestionIndex, "preflight must run before collection");
   assert.match(
     ingestJob,
-    /name: Preflight authenticated social runner[\s\S]*?if: steps\.revalidate\.outputs\.should_run == 'true' && needs\.resolve\.outputs\.trigger == 'manual-replay' && inputs\.authenticated_backfill == true[\s\S]*?timeout-minutes:\s*3[\s\S]*?node scripts\/verify-authenticated-social-runner\.mjs/
+    /name: Preflight authenticated social runner[\s\S]*?if: steps\.revalidate\.outputs\.should_run == 'true' && needs\.resolve\.outputs\.trigger == 'manual-replay' && inputs\.authenticated_backfill == true[\s\S]*?timeout-minutes:\s*20[\s\S]*?node scripts\/verify-authenticated-social-runner\.mjs/
   );
   assert.doesNotMatch(
     ingestJob.match(/name: Preflight authenticated social runner[\s\S]*?(?=\n\s{6}- name:|$)/)?.[0] ?? "",

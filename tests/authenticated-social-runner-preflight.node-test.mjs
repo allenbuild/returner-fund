@@ -22,6 +22,8 @@ import {
   normalizeInstagramViewerHandle,
   normalizeLinkedInViewerSlug,
   readableRunnerConfiguration,
+  retryAuthenticatedPreflight,
+  runAuthenticatedSocialRunnerPreflight,
   resolveOpenCliProfileConfiguration
 } from "../scripts/verify-authenticated-social-runner.mjs";
 
@@ -283,6 +285,128 @@ test("OPENCLI_CONFIG_DIR is preserved for OpenCLI child profile resolution", () 
   assert.equal(child.OPENCLI_HOME, "/runner/opencli-home");
 });
 
+test("cold preflight retries a disconnected profile and proves the exact Instagram adapter last", async (t) => {
+  const fixture = createRunnerFixture(t);
+  const env = authenticatedPreflightEnvironment(fixture);
+  const calls = [];
+  const sleeps = [];
+  let instagramAdapterAttempts = 0;
+  const runCommand = async (args) => {
+    calls.push(args);
+    if (args[0] === "instagram") {
+      instagramAdapterAttempts += 1;
+      assert.deepEqual(args, [
+        "instagram",
+        "profile",
+        "allenxtech",
+        "-f",
+        "json",
+        "--site-session",
+        "persistent"
+      ]);
+      if (instagramAdapterAttempts === 1) {
+        throw new Error('Browser profile "4dwub6zw" is not connected');
+      }
+      return JSON.stringify({ username: "allenxtech" });
+    }
+    if (args[0] === "browser" && args[2] === "eval") {
+      return args[1].startsWith("preflight-li-")
+        ? JSON.stringify([linkedInReadySignal()])
+        : JSON.stringify([instagramReadySignal()]);
+    }
+    return "";
+  };
+
+  const result = await runAuthenticatedSocialRunnerPreflight({
+    env,
+    runCommand,
+    runtimeResolver: () => ({ command: fixture.binaryA }),
+    verifyBrowserService: async () => ({
+      ok: true,
+      reason: "auth_browser_service_running"
+    }),
+    sleep: async (milliseconds) => sleeps.push(milliseconds)
+  });
+
+  assert.equal(result.ok, true);
+  assert.equal(result.service.attempts, 1);
+  assert.equal(result.linkedin.attempts, 1);
+  assert.equal(result.instagram.attempts, 2);
+  assert.deepEqual(sleeps, [2_000]);
+  const linkedinEvalIndex = calls.findIndex((args) =>
+    args[0] === "browser" && args[1].startsWith("preflight-li-") && args[2] === "eval"
+  );
+  const firstInstagramAdapterIndex = calls.findIndex((args) => args[0] === "instagram");
+  const instagramEvalIndex = calls.findIndex((args) =>
+    args[0] === "browser" && args[1].startsWith("preflight-ig-") && args[2] === "eval"
+  );
+  assert.ok(linkedinEvalIndex > -1 && linkedinEvalIndex < firstInstagramAdapterIndex);
+  assert.ok(instagramEvalIndex > firstInstagramAdapterIndex);
+  assert.equal(calls.at(-1)[0], "browser");
+  assert.equal(calls.at(-1)[2], "close");
+  assert.match(calls.at(-1)[1], /^preflight-ig-/);
+});
+
+test("scheduled preflight skips absent configuration and preserves per-platform debt", async (t) => {
+  let calls = 0;
+  const skipped = await runAuthenticatedSocialRunnerPreflight({
+    env: {},
+    runCommand: async () => {
+      calls += 1;
+    },
+    verifyBrowserService: async () => {
+      calls += 1;
+    }
+  });
+  assert.equal(skipped.ok, false);
+  assert.equal(skipped.skipped, true);
+  assert.equal(skipped.instagram.attempts, 0);
+  assert.equal(skipped.linkedin.attempts, 0);
+  assert.equal(calls, 0);
+
+  const fixture = createRunnerFixture(t);
+  const env = authenticatedPreflightEnvironment(fixture);
+  const partial = await runAuthenticatedSocialRunnerPreflight({
+    env,
+    runtimeResolver: () => ({ command: fixture.binaryA }),
+    verifyBrowserService: async () => ({ ok: true, reason: "auth_browser_service_running" }),
+    runCommand: async (args) => {
+      if (args[0] === "instagram") return JSON.stringify({ username: "allenxtech" });
+      if (args[0] === "browser" && args[2] === "eval") {
+        return args[1].startsWith("preflight-li-")
+          ? JSON.stringify([{ ...linkedInReadySignal(), loginWall: true }])
+          : JSON.stringify([instagramReadySignal()]);
+      }
+      return "";
+    },
+    sleep: async () => {}
+  });
+  assert.equal(partial.ok, false);
+  assert.equal(partial.instagram.ok, true);
+  assert.equal(partial.linkedin.ok, false);
+  assert.equal(partial.linkedin.reason, "linkedin_login_wall");
+  assert.equal(partial.linkedin.attempts, 1);
+});
+
+test("preflight retry stops immediately for non-transient account safety states", async () => {
+  const sleeps = [];
+  let attempts = 0;
+  const result = await retryAuthenticatedPreflight(
+    async () => {
+      attempts += 1;
+      return { ok: false, reason: "instagram_challenge_page", retryable: false };
+    },
+    {
+      attempts: 3,
+      retryDelaysMs: [2_000, 5_000],
+      sleep: async (milliseconds) => sleeps.push(milliseconds)
+    }
+  );
+  assert.equal(result.attempts, 1);
+  assert.equal(attempts, 1);
+  assert.deepEqual(sleeps, []);
+});
+
 function createRunnerFixture(t, {
   profileConfig = { version: 1, aliases: { authenticated: "context-authenticated" } }
 } = {}) {
@@ -300,4 +424,42 @@ function createRunnerFixture(t, {
   chmodSync(binaryA, 0o755);
   chmodSync(binaryB, 0o755);
   return { root, openCliHome, configDir, binaryA, binaryB };
+}
+
+function authenticatedPreflightEnvironment(fixture) {
+  return {
+    HOME: fixture.root,
+    OPENCLI_BIN: fixture.binaryA,
+    OPENCLI_HOME: fixture.openCliHome,
+    OPENCLI_PROFILE: "authenticated",
+    OPENCLI_CONFIG_DIR: fixture.configDir,
+    RETURNER_LINKEDIN_VIEWER_PROFILE: "allen-xu-474108336",
+    RETURNER_INSTAGRAM_VIEWER_HANDLE: "allenxtech"
+  };
+}
+
+function instagramReadySignal() {
+  return {
+    currentUrl: "https://www.instagram.com/accounts/edit/",
+    selfHandle: "allenxtech",
+    settingsSurface: true,
+    safetyStateKnown: true,
+    loginWall: false,
+    challenge: false,
+    rateLimited: false
+  };
+}
+
+function linkedInReadySignal() {
+  return {
+    currentUrl: "https://www.linkedin.com/in/allen-xu-474108336/",
+    canonicalUrl: "https://www.linkedin.com/in/allen-xu-474108336/",
+    safetyStateKnown: true,
+    loginWall: false,
+    challenge: false,
+    checkpoint: false,
+    rateLimited: false,
+    ownerEditControl: true,
+    authenticatedNavControl: true
+  };
 }

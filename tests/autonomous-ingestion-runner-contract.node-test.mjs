@@ -1999,7 +1999,12 @@ describe("autonomous ingestion runner static safety contracts", () => {
 
   it("runs authenticated social collection only through the dedicated bounded lane", () => {
     const collectors = section("async function runAuthenticatedCollectors", "async function runAuthenticatedCollectorCommand");
+    const publicCollectors = section("async function runCollectors()", "async function runAuthenticatedCollectors");
     assert.match(collectors, /fetch-logged-in-social-traction/);
+    assert.match(collectors, /runAuthenticatedSocialRunnerPreflight\(\{ env: process\.env \}\)/);
+    assert.match(collectors, /"OPENCLI_HOME"/);
+    assert.match(collectors, /authenticated_social\.\$\{platform\}_preflight_debt/);
+    assert.match(collectors, /failed closed for manual replay/);
     assert.match(collectors, /"--platforms=instagram"/);
     assert.match(collectors, /"--platforms=linkedin"/);
     assert.match(collectors, /"--allow-linkedin"/);
@@ -2007,6 +2012,8 @@ describe("autonomous ingestion runner static safety contracts", () => {
     assert.match(collectors, /historicalReplay \? 2 : 1/);
     assert.match(collectors, /linkedin-max-targets/);
     assert.match(collectors, /"--delay-ms=30000"/);
+    assert.match(publicCollectors, /authenticatedSocial = await runAuthenticatedCollectors\(\)/);
+    assert.doesNotMatch(publicCollectors, /const authenticatedSocial = await runAuthenticatedCollectors/);
     assert.ok(runner.includes('env: { HOME: process.env.HOME }'));
   });
 
@@ -2370,6 +2377,101 @@ describe("autonomous ingestion runner static safety contracts", () => {
       () => assertCanPublish(forgedCompletion),
       /cannot claim completion without a durable lock and exact zero remaining targets/
     );
+  });
+
+  it("records scheduled per-platform preflight debt without blocking a ready authenticated lane", async () => {
+    const replay = linkedInReplayRuntime();
+    const collected = [];
+    const events = [];
+    const runAuthenticatedCollectors = authenticatedCollectorsRuntime({
+      replay,
+      events,
+      preflight: async () => ({
+        ok: false,
+        configured: true,
+        skipped: false,
+        reason: "authenticated_social_platform_preflight_failed",
+        service: { ok: true, reason: "auth_browser_service_running", attempts: 1 },
+        instagram: {
+          ok: false,
+          reason: "instagram_adapter_preflight_command_failed",
+          attempts: 3
+        },
+        linkedin: { ok: true, reason: "linkedin_self_profile_verified", attempts: 1 }
+      }),
+      collect: async (batchSlug, platform) => {
+        collected.push([batchSlug, platform]);
+        return { status: "completed", exitCode: 0 };
+      },
+      replayBatch: async () => {
+        throw new Error("historical replay must not run during a scheduled collection");
+      }
+    });
+
+    const result = await runAuthenticatedCollectors();
+    assert.equal(result.status, "partial");
+    assert.deepEqual(collected, [
+      ["S2026", "linkedin"],
+      ["S26", "linkedin"],
+      ["A16ZSR006", "linkedin"]
+    ]);
+    assert.deepEqual(
+      result.batches.map(({ instagram, linkedin }) => [instagram.status, linkedin.status]),
+      [
+        ["skipped", "completed"],
+        ["skipped", "completed"],
+        ["skipped", "completed"]
+      ]
+    );
+    assert.equal(
+      events.filter(([type]) => type === "authenticated_social.instagram_preflight_debt").length,
+      1
+    );
+  });
+
+  it("contains unexpected scheduled preflight failures but fails manual authenticated replay closed", async () => {
+    const replay = linkedInReplayRuntime();
+    let collections = 0;
+    const scheduled = authenticatedCollectorsRuntime({
+      replay,
+      preflight: async () => {
+        throw new Error("transient verifier failure");
+      },
+      collect: async () => {
+        collections += 1;
+      },
+      replayBatch: async () => {
+        collections += 1;
+      }
+    });
+    const scheduledResult = await scheduled();
+    assert.equal(scheduledResult.status, "partial");
+    assert.equal(scheduledResult.readiness.reason, "authenticated_social_preflight_exception");
+    assert.equal(collections, 0);
+
+    const manual = authenticatedCollectorsRuntime({
+      replay,
+      preflight: async () => ({
+        ok: false,
+        configured: true,
+        skipped: false,
+        reason: "authenticated_social_platform_preflight_failed",
+        service: { ok: true, reason: "auth_browser_service_running", attempts: 1 },
+        instagram: { ok: true, reason: "instagram_self_account_verified", attempts: 1 },
+        linkedin: { ok: false, reason: "linkedin_login_wall", attempts: 1 }
+      }),
+      collect: async () => {
+        collections += 1;
+      },
+      replayBatch: async () => {
+        collections += 1;
+      }
+    });
+    await assert.rejects(
+      manual({ historicalReplay: true }),
+      /Authenticated social preflight failed closed for manual replay/
+    );
+    assert.equal(collections, 0);
   });
 
   it("keeps Instagram outside the LinkedIn chunk loop and publishes once after replay", () => {
@@ -3221,6 +3323,8 @@ describe("autonomous ingestion runner static safety contracts", () => {
     assert.match(workflowContractScript, /^node --test --test-concurrency=1\s+/);
     for (const requiredWorkflowContract of [
       "tests/autonomous-ingestion-workflow.node-test.mjs",
+      "tests/auth-browser-service.node-test.mjs",
+      "tests/authenticated-social-runner-preflight.node-test.mjs",
       "tests/autonomous-ingestion-receipt-policy.node-test.mjs",
       "tests/final-verification-memory.node-test.mjs"
     ]) {
@@ -3825,6 +3929,7 @@ function linkedInReplayRuntime({
 function authenticatedCollectorEnvironment({ durableLock = true } = {}) {
   return {
     OPENCLI_BIN: "/opt/opencli/bin/opencli",
+    OPENCLI_HOME: "/runner/opencli-home",
     OPENCLI_PROFILE: "/runner/profile",
     RETURNER_LINKEDIN_VIEWER_PROFILE: "linkedin-viewer",
     RETURNER_INSTAGRAM_VIEWER_HANDLE: "instagram-viewer",
@@ -3883,6 +3988,16 @@ function authenticatedCollectorsRuntime({
   env = authenticatedCollectorEnvironment(),
   collect,
   replayBatch,
+  preflight = async () => ({
+    ok: true,
+    configured: true,
+    skipped: false,
+    reason: "authenticated_social_runner_verified",
+    service: { ok: true, reason: "auth_browser_service_running", attempts: 1 },
+    instagram: { ok: true, reason: "instagram_self_account_verified", attempts: 1 },
+    linkedin: { ok: true, reason: "linkedin_self_profile_verified", attempts: 1 }
+  }),
+  events = [],
   batchSlugs = ["S2026", "S26", "A16ZSR006"]
 }) {
   const collectorsSource = section(
@@ -3893,6 +4008,7 @@ function authenticatedCollectorsRuntime({
   const runtime = new Function(
     "process",
     "cleanEnv",
+    "runAuthenticatedSocialRunnerPreflight",
     "event",
     "AUTONOMOUS_BATCHES",
     "loggedInOutputs",
@@ -3909,7 +4025,8 @@ function authenticatedCollectorsRuntime({
   return runtime(
     { env },
     (value) => typeof value === "string" && value.trim() ? value.trim() : null,
-    async () => {},
+    preflight,
+    async (...args) => events.push(args),
     batches,
     new Map(batchSlugs.map((slug) => [slug, `/outputs/${slug}.json`])),
     new Map(batchSlugs.map((slug) => [slug, `/checkpoints/${slug}.json`])),

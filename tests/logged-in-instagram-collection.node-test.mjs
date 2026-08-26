@@ -1138,6 +1138,16 @@ describe("logged-in Instagram collection", () => {
     );
     assert.equal(
       instagramShouldRetryTransientBrowserFailure(
+        'Browser profile "4dwub6zw" is not connected'
+      ),
+      true
+    );
+    assert.equal(
+      instagramShouldRetryTransientBrowserFailure("profile_disconnected"),
+      true
+    );
+    assert.equal(
+      instagramShouldRetryTransientBrowserFailure(
         "HTTP 400 - make sure you are logged in to Instagram"
       ),
       false

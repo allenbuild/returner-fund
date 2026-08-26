@@ -1,10 +1,11 @@
 import assert from "node:assert/strict";
-import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { chmod, mkdir, mkdtemp, readFile, rm, stat, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 import {
+  assertAuthBrowserLaunchAgentPlist,
   assertAwakeLaunchAgentPlist,
   AWAKE_LABEL,
   autonomousIngestionHostPaths,
@@ -14,6 +15,7 @@ import {
   SUPERVISOR_LABEL,
   uninstallAutonomousIngestionHost
 } from "../scripts/install-autonomous-ingestion-job-lease-supervisor.mjs";
+import { AUTH_BROWSER_LABEL } from "../scripts/lib/auth-browser-service.mjs";
 import {
   acquireSupervisorLock,
   createGitHubClient,
@@ -667,6 +669,44 @@ test("awake LaunchAgent is AC-only and never simulates user activity", async () 
   }
 });
 
+test("auth browser LaunchAgent pins the dedicated local Chrome and persistent data directory", async () => {
+  const template = await readFile(
+    new URL(
+      "../ops/launchd/com.returner-fund.auth-chrome-runner.plist.template",
+      import.meta.url
+    ),
+    "utf8"
+  );
+  const chromeExecutable = "/Users/tester/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
+  const dataDir = "/Users/tester/Library/Application Support/Returner Fund Auth Chrome Runner";
+  const plist = renderLaunchAgentTemplate(template, {
+    __AUTH_CHROME_BIN__: chromeExecutable,
+    __AUTH_CHROME_DATA_DIR__: dataDir,
+    __STDOUT_LOG__: "/Users/tester/Library/Logs/auth-browser.log",
+    __STDERR_LOG__: "/Users/tester/Library/Logs/auth-browser.error.log"
+  });
+
+  assert.doesNotThrow(() => assertAuthBrowserLaunchAgentPlist(plist, {
+    chromeExecutable,
+    dataDir
+  }));
+  assert.match(plist, /<key>KeepAlive<\/key>\s*<true\/>/);
+  assert.match(plist, /<key>LimitLoadToSessionType<\/key>\s*<string>Aqua<\/string>/);
+  assert.doesNotMatch(plist, /remote-debugging|\/Volumes|AppTranslocation/);
+
+  for (const mutation of [
+    plist.replace(chromeExecutable, "/Volumes/Google Chrome/Google Chrome"),
+    plist.replace(`--user-data-dir=${dataDir}`, "--user-data-dir=/tmp/chrome"),
+    plist.replace("<key>KeepAlive</key>\n  <true/>", "<key>KeepAlive</key>\n  <false/>"),
+    plist.replace("--no-first-run", "--remote-debugging-port=9222")
+  ]) {
+    assert.throws(
+      () => assertAuthBrowserLaunchAgentPlist(mutation, { chromeExecutable, dataDir }),
+      /Auth browser LaunchAgent/
+    );
+  }
+});
+
 test("host installer requires one explicit reversible operation", () => {
   assert.equal(resolveInstallerOperation(["--install"]), "install");
   assert.equal(resolveInstallerOperation(["--uninstall"]), "uninstall");
@@ -683,6 +723,9 @@ test("host LaunchAgent install and uninstall are idempotent without deleting aud
   await mkdir(userHome, { recursive: true });
   await mkdir(runnerDiagDir, { recursive: true });
   const paths = autonomousIngestionHostPaths({ userHome, repositoryRoot });
+  await mkdir(path.dirname(paths.authBrowserChromeExecutable), { recursive: true });
+  await writeFile(paths.authBrowserChromeExecutable, "#!/bin/sh\nexit 0\n");
+  await chmod(paths.authBrowserChromeExecutable, 0o755);
   const calls = [];
   const run = async (command, args) => {
     calls.push([command, ...args]);
@@ -691,6 +734,22 @@ test("host LaunchAgent install and uninstall are idempotent without deleting aud
       error.code = 3;
       error.stderr = "Boot-out failed: 3: No such process";
       throw error;
+    }
+    if (command === "/bin/launchctl" && args[0] === "print") {
+      return {
+        stdout: [
+          "state = running",
+          `program = ${paths.authBrowserChromeExecutable}`,
+          `--user-data-dir=${paths.authBrowserDataDir}`
+        ].join("\n"),
+        stderr: ""
+      };
+    }
+    if (command === "/usr/bin/codesign" && args[0] === "-dv") {
+      return {
+        stdout: "",
+        stderr: "Identifier=com.google.Chrome\nTeamIdentifier=EQHXZ8M8AV\n"
+      };
     }
     return { stdout: "", stderr: "" };
   };
@@ -716,23 +775,33 @@ test("host LaunchAgent install and uninstall are idempotent without deleting aud
   assert.equal(second.installed, true);
   assert.deepEqual(
     first.launchAgents.map(({ label }) => label),
-    [AWAKE_LABEL, SUPERVISOR_LABEL]
+    [AUTH_BROWSER_LABEL, AWAKE_LABEL, SUPERVISOR_LABEL]
   );
   assert.doesNotThrow(() => assertAwakeLaunchAgentPlist(firstAwakePlist));
+  const firstAuthBrowserPlist = await readFile(paths.authBrowserPlistPath, "utf8");
+  assert.doesNotThrow(() => assertAuthBrowserLaunchAgentPlist(firstAuthBrowserPlist, {
+    chromeExecutable: paths.authBrowserChromeExecutable,
+    dataDir: paths.authBrowserDataDir
+  }));
+  assert.equal((await stat(paths.authBrowserDataDir)).mode & 0o777, 0o700);
   await readFile(paths.supervisorPlistPath, "utf8");
 
   const bootstrapTargets = calls
     .filter(([command, operation]) => command === "/bin/launchctl" && operation === "bootstrap")
     .map((call) => call[3]);
   assert.deepEqual(bootstrapTargets, [
+    paths.authBrowserPlistPath,
     paths.awakePlistPath,
     paths.supervisorPlistPath,
+    paths.authBrowserPlistPath,
     paths.awakePlistPath,
     paths.supervisorPlistPath
   ]);
 
   const stateMarker = path.join(paths.stateDir, "preserved-state.json");
+  const authBrowserMarker = path.join(paths.authBrowserDataDir, "preserved-profile.json");
   await writeFile(stateMarker, "{}\n", { mode: 0o600 });
+  await writeFile(authBrowserMarker, "{}\n", { mode: 0o600 });
   const removed = await uninstallAutonomousIngestionHost({
     platform: "darwin",
     userHome,
@@ -749,5 +818,7 @@ test("host LaunchAgent install and uninstall are idempotent without deleting aud
   assert.equal(removedAgain.installed, false);
   await assert.rejects(readFile(paths.awakePlistPath, "utf8"), { code: "ENOENT" });
   await assert.rejects(readFile(paths.supervisorPlistPath, "utf8"), { code: "ENOENT" });
+  await assert.rejects(readFile(paths.authBrowserPlistPath, "utf8"), { code: "ENOENT" });
   assert.equal(await readFile(stateMarker, "utf8"), "{}\n");
+  assert.equal(await readFile(authBrowserMarker, "utf8"), "{}\n");
 });
