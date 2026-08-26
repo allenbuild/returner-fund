@@ -1417,6 +1417,13 @@ test("autonomous runner receives optional durability secrets and owns validated 
   assert.match(runnerStep, /AUTONOMOUS_WORKFLOW_RETRY_MAX_ELAPSED_SECONDS:\s*"20700"/);
   assert.match(runnerStep, /AUTONOMOUS_WORKFLOW_RETRY_MIN_REMAINING_SECONDS:\s*"19860"/);
   assert.match(runnerStep, /AUTONOMOUS_WORKFLOW_RETRY_DELAYS_SECONDS:\s*"30,120,300,600,900"/);
+  assert.match(runnerStep, /AUTONOMOUS_MIN_BATTERY_PERCENT:\s*"60"/);
+  assert.match(
+    runnerStep,
+    /if \[ "\$BATTERY_PERCENT" -lt "\$AUTONOMOUS_MIN_BATTERY_PERCENT" \]; then[\s\S]*?Runner battery reserve is low/
+  );
+  assert.match(runnerStep, /Runner using battery reserve/);
+  assert.doesNotMatch(runnerStep, /Runner requires AC power/);
   assert.ok(
     runnerStep.indexOf("/usr/bin/caffeinate -dimsu -w $$") < runnerStep.indexOf("pmset -g batt"),
     "wake assertion must be installed before the runner power preflight"

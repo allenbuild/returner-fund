@@ -434,6 +434,10 @@ jobs:
           AUTONOMOUS_WORKFLOW_RETRY_MAX_ELAPSED_SECONDS: "20700"
           AUTONOMOUS_WORKFLOW_RETRY_MIN_REMAINING_SECONDS: "19860"
           AUTONOMOUS_WORKFLOW_RETRY_DELAYS_SECONDS: "30,120,300,600,900"
+          # A healthy battery is a valid fallback power source. Deferring only
+          # near the reserve prevents an unplugged-but-charged Mac from
+          # permanently blocking a stale publication slot.
+          AUTONOMOUS_MIN_BATTERY_PERCENT: "60"
         run: |
           set -euo pipefail
 
@@ -442,13 +446,18 @@ jobs:
           # dark wake; user activity may promote it to a full wake.
           /usr/bin/caffeinate -dimsu -w $$ &
           POWER_STATUS="$(pmset -g batt)"
-          if [[ "${POWER_STATUS%%$'\n'*}" != *"'AC Power'"* ]]; then
-            echo "::error title=Runner requires AC power::The ingestion Mac is on battery. The stale Central slot remains durable and will retry on a future scheduled wakeup after AC power is restored."
-            exit 1
-          fi
-
           BATTERY_PERCENT="$(sed -nE 's/.*[[:space:]]([0-9]{1,3})%;.*/\1/p' <<< "$POWER_STATUS" | head -n 1)"
-          if [[ "$BATTERY_PERCENT" =~ ^[0-9]+$ ]] && [ "$BATTERY_PERCENT" -lt 20 ]; then
+          if [[ "${POWER_STATUS%%$'\n'*}" != *"'AC Power'"* ]]; then
+            if [[ ! "$BATTERY_PERCENT" =~ ^[0-9]+$ ]]; then
+              echo "::error title=Runner power state is unknown::The Mac is not on AC and its battery reserve could not be verified. The stale Central slot remains durable and will retry automatically."
+              exit 1
+            fi
+            if [ "$BATTERY_PERCENT" -lt "$AUTONOMOUS_MIN_BATTERY_PERCENT" ]; then
+              echo "::error title=Runner battery reserve is low::The Mac is on battery at ${BATTERY_PERCENT}%. The stale Central slot remains durable and will retry automatically after charge reaches ${AUTONOMOUS_MIN_BATTERY_PERCENT}% or AC is connected."
+              exit 1
+            fi
+            echo "::warning title=Runner using battery reserve::The Mac is on battery at ${BATTERY_PERCENT}%; autonomous ingestion will proceed under caffeinate."
+          elif [[ "$BATTERY_PERCENT" =~ ^[0-9]+$ ]] && [ "$BATTERY_PERCENT" -lt 20 ]; then
             echo "::warning title=Runner battery reserve is low::The Mac is connected to AC but reports ${BATTERY_PERCENT}% battery. Keep power connected for this ingestion."
           fi
 
