@@ -14,7 +14,12 @@ const DEFAULT_MAX_ATTEMPTS = 6;
 const DEFAULT_MAX_ELAPSED_SECONDS = 345 * 60;
 const DEFAULT_RETRY_DELAYS_SECONDS = Object.freeze([30, 120, 300, 600, 900]);
 const MAX_ATTEMPTS_LIMIT = 20;
-const MAX_ELAPSED_SECONDS_LIMIT = 350 * 60;
+// The production controller keeps enough pre-attempt slack to outwait a full
+// 20-minute coordinator lease and still admit the sixth configured attempt
+// after 32.5 minutes of cumulative backoff. Keep a small bounded cushion for
+// the failed claim processes themselves without relaxing the complete child
+// work-and-cleanup window below.
+const MAX_ELAPSED_SECONDS_LIMIT = 375 * 60;
 export const AUTONOMOUS_WORKFLOW_ATTEMPT_ALLOWANCE_MS =
   AUTONOMOUS_RUNNER_WALL_CLOCK_BUDGET_MS + AUTONOMOUS_RUNNER_WORKFLOW_HEADROOM_MS;
 // The controller starts the child process before the runner establishes its

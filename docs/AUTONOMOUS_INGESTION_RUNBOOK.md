@@ -409,7 +409,7 @@ If the lock is expired and no process is active, a new claim can replace it. Pre
 
 ### Heartbeat or release failure
 
-The coordinator renews every 60 seconds against a 20-minute lease. Transient transport failures retry with capped exponential backoff beyond the former four-attempt ceiling while retaining the exact run and runtime-lock fencing tokens. It reserves enough of the current lease for both renewal calls; confirmed lock loss, a semantic database error, or exhaustion of that safe window fails closed. The next idempotent invocation may recover after the old lease expires, but do not manually start an overlapping replacement while the lock is nonexpired.
+The coordinator renews every 60 seconds against a 20-minute lease. Transient transport failures retry with capped exponential backoff beyond the former four-attempt ceiling while retaining the exact run and runtime-lock fencing tokens. Initial claim contention is retried with the same idempotency key through a sixth bounded attempt after 32.5 minutes of cumulative backoff; that final attempt still retains the complete runner and cleanup allowance. It reserves enough of the current lease for both renewal calls; confirmed lock loss after work starts, a semantic database error, or exhaustion of that safe window fails closed. The next idempotent invocation may recover after the old lease expires, but do not manually start an overlapping replacement while the lock is nonexpired.
 
 ### Self-hosted Actions job lease loss
 

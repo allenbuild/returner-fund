@@ -223,7 +223,7 @@ jobs:
     needs: resolve
     if: needs.resolve.outputs.should_run == 'true'
     runs-on: [self-hosted, macOS, ARM64, returner-social, returner-auth-browser]
-    timeout-minutes: 390
+    timeout-minutes: 415
     permissions:
       contents: write
     concurrency:
@@ -452,7 +452,7 @@ jobs:
       - name: Run autonomous ingestion
         id: ingestion
         if: steps.revalidate.outputs.should_run == 'true'
-        timeout-minutes: 355
+        timeout-minutes: 380
         env:
           # The coordinator retains the sealed collection inputs while a
           # bounded concurrent-main recovery may need to inspect them again.
@@ -478,12 +478,14 @@ jobs:
           # failures. The persistent cron wakeups keep retrying a stale slot
           # across jobs until its repository watermark advances.
           AUTONOMOUS_WORKFLOW_RETRY_MAX_ATTEMPTS: "6"
-          # The 345-minute controller window starts a retry only while at
-          # least 331 minutes remain: 324 minutes of runner work, six minutes
-          # of runner cleanup, and one minute of process-start headroom. Its
-          # six-minute SIGTERM grace plus four minutes of controller
-          # finalization remain inside this step's 355-minute timeout.
-          AUTONOMOUS_WORKFLOW_RETRY_MAX_ELAPSED_SECONDS: "20700"
+          # The 370-minute controller window can admit all six bounded lock-
+          # contention attempts through the 32.5-minute cumulative backoff,
+          # while every admitted child still has at least 331 minutes: 324
+          # minutes of runner work, six minutes of runner cleanup, and one
+          # minute of process-start headroom. Its six-minute SIGTERM grace plus
+          # four minutes of controller finalization remain inside this step's
+          # 380-minute timeout.
+          AUTONOMOUS_WORKFLOW_RETRY_MAX_ELAPSED_SECONDS: "22200"
           AUTONOMOUS_WORKFLOW_RETRY_MIN_REMAINING_SECONDS: "19860"
           AUTONOMOUS_WORKFLOW_RETRY_DELAYS_SECONDS: "30,120,300,600,900"
           # An unplugged machine may cross the reserve during the multi-hour
