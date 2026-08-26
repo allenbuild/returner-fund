@@ -1710,8 +1710,67 @@ globalThis.fetch = async (url) => {
       failure.message === "Reddit public access blocked: HTTP 403."
   );
   assert.ok(blockedFailure);
+  assert.equal(blockedFailure.accountUrl, null);
+  assert.equal(blockedFailure.sourceUrl.startsWith("https://www.reddit.com/search.json"), true);
   assert.equal(blockedFailure.retryable, false);
   assert.deepEqual(blockedFailure.blocker, receipt.blocker);
+  assert.deepEqual(autonomousCollectorRetryableFailures(snapshot), []);
+});
+
+test("Reddit provider blocks open one process-wide circuit instead of fanning out requests", async () => {
+  const directory = await mkdtemp(join(tmpdir(), "returner-public-reddit-circuit-"));
+  const output = join(directory, "public-evidence.json");
+  const checkpoint = join(directory, "checkpoint.json");
+  const discoveryAttempts = join(directory, "discovery-attempts.json");
+  const sourceDiscoveryPaths = join(directory, "source-discovery-paths.json");
+  const preload = join(directory, "mock-fetch.mjs");
+  await Promise.all([
+    writeFile(discoveryAttempts, "[]\n"),
+    writeFile(sourceDiscoveryPaths, "[]\n"),
+    writeFile(preload, withMockPublicDns(`
+let redditRequests = 0;
+globalThis.fetch = async (url) => {
+  if (String(url).startsWith("https://www.reddit.com/search.json")) {
+    redditRequests += 1;
+    if (redditRequests > 2) throw new Error("Reddit circuit allowed excess provider fanout");
+    return Response.json({ message: "Too Many Requests" }, { status: 429 });
+  }
+  throw new Error("unexpected request");
+};
+`))
+  ]);
+
+  execFileSync(process.execPath, [
+    "scripts/fetch-public-traction.mjs",
+    "--batch=S2026",
+    "--max-companies=3",
+    "--platforms=reddit",
+    "--social=none",
+    "--workers=2",
+    "--delay-ms=0",
+    "--force",
+    `--output=${output}`,
+    `--checkpoint=${checkpoint}`,
+    `--discovery-attempts=${discoveryAttempts}`,
+    `--source-discovery-paths=${sourceDiscoveryPaths}`
+  ], {
+    cwd: root,
+    env: { ...process.env, NODE_OPTIONS: `--import=${preload}` },
+    stdio: "pipe"
+  });
+
+  const snapshot = JSON.parse(await readFile(output, "utf8"));
+  const redditAttempts = Object.values(snapshot.attempts).filter(
+    (attempt) => attempt.platform === "reddit"
+  );
+  assert.equal(redditAttempts.length, 3);
+  assert.ok(redditAttempts.every(
+    (attempt) =>
+      attempt.outcomeReason === "collector_provider_blocked" &&
+      attempt.retryable === false &&
+      attempt.blocker?.provider === "reddit_public_json" &&
+      attempt.blocker?.httpStatus === 429
+  ));
   assert.deepEqual(autonomousCollectorRetryableFailures(snapshot), []);
 });
 

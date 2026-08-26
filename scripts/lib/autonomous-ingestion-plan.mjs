@@ -2627,6 +2627,9 @@ export function isAutonomousProviderBlocker(blocker, { platform = null } = {}) {
     return false;
   }
   if (AUTONOMOUS_PROVIDER_BLOCKER_CODES.get(provider)?.has(code) !== true) return false;
+  if (provider === "reddit_public_json" && (
+    ![401, 403, 429].includes(blocker.httpStatus) || blocker.retryAt === null
+  )) return false;
   const normalizedPlatform = normalizePlatform(platform);
   if (normalizedPlatform) {
     if (provider === "duckduckgo_html" && !["x", "linkedin", "instagram", "product_hunt", "web"].includes(normalizedPlatform)) {

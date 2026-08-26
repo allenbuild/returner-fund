@@ -62,6 +62,7 @@ import {
   xUsernameFromUrl
 } from "./lib/credentialed-source-discovery.mjs";
 import {
+  AUTONOMOUS_PROCESS_BUDGETS,
   isAutonomousProviderBlocker,
   isAutonomousCollectorFailureRetryable,
   prioritizeAutonomousCompaniesByCoverage
@@ -113,7 +114,6 @@ const recentProofJournalDir = stringArg("--recent-proof-journal-dir")
   ? resolvePathArg(stringArg("--recent-proof-journal-dir"))
   : null;
 const now = new Date().toISOString();
-const REDDIT_PROVIDER_BLOCK_COOLDOWN_MS = 15 * 60_000;
 const recentCoverageCutoff = optionalCanonicalTimestampArg(
   stringArg("--recent-coverage-cutoff"),
   "--recent-coverage-cutoff"
@@ -328,6 +328,7 @@ let exaFailureCount = 0;
 let checkpointWriteChain = Promise.resolve();
 let checkpointCompletionsSinceWrite = 0;
 const platformCooldowns = new Map();
+let redditPublicRunBlocker = null;
 // Every lane retains its own conservative platform cap, while this shared
 // process-wide guard prevents those lane pools from multiplying into an
 // unbounded number of simultaneous collector tasks.
@@ -2928,6 +2929,9 @@ function firstImageUrl(value) {
 
 async function ingestReddit(company) {
   const url = `https://www.reddit.com/search.json?q=${encodeURIComponent(`${company.name} ${currentBatchContext.organization}`)}&limit=5&raw_json=1`;
+  if (redditPublicRunBlocker) {
+    return redditProviderBlockedResult(company, url, redditPublicRunBlocker);
+  }
   try {
     const { response, text } = await fetchPublicBoundedText(url, { accept: "application/json" });
     if (!response.ok) {
@@ -2936,13 +2940,8 @@ async function ingestReddit(company) {
         : "Reddit public search JSON failed";
       if ([401, 403, 429].includes(response.status)) {
         const message = `${accessMessage}: HTTP ${response.status}.`;
-        return {
-          failures: [{
-            ...failure("reddit", company, url, message),
-            retryable: false,
-            blocker: redditPublicBlocker(response.status, message)
-          }]
-        };
+        redditPublicRunBlocker ??= redditPublicBlocker(response.status, message);
+        return redditProviderBlockedResult(company, url, redditPublicRunBlocker);
       }
       throw new Error(`${accessMessage}: HTTP ${response.status}.`);
     }
@@ -7850,10 +7849,21 @@ function redditPublicBlocker(httpStatus, message) {
   return Object.freeze({
     provider: "reddit_public_json",
     code: "reddit_public_access_blocked",
-    retryAt: new Date(Date.parse(now) + REDDIT_PROVIDER_BLOCK_COOLDOWN_MS).toISOString(),
+    retryAt: new Date(Date.parse(now) + AUTONOMOUS_PROCESS_BUDGETS.collectionPhaseMs).toISOString(),
     httpStatus,
     message
   });
+}
+
+function redditProviderBlockedResult(company, url, blocker) {
+  return {
+    failures: [{
+      ...failure("reddit", company, url, blocker.message),
+      accountUrl: null,
+      retryable: false,
+      blocker
+    }]
+  };
 }
 
 function cleanEnv(value) {

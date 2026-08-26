@@ -2442,6 +2442,8 @@ describe("autonomous collector task accounting", () => {
     };
     assert.equal(isAutonomousProviderBlocker(redditBlocker, { platform: "reddit" }), true);
     assert.equal(isAutonomousProviderBlocker(redditBlocker, { platform: "linkedin" }), false);
+    assert.equal(isAutonomousProviderBlocker({ ...redditBlocker, httpStatus: 500 }, { platform: "reddit" }), false);
+    assert.equal(isAutonomousProviderBlocker({ ...redditBlocker, retryAt: null }, { platform: "reddit" }), false);
   });
 
   it("normalizes legacy blocker failures and preserves provider health beside valid evidence", () => {
