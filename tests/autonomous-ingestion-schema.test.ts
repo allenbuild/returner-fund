@@ -69,8 +69,9 @@ describe("autonomous ingestion runtime migration", () => {
     expect(normalizeSql(claimFunction)).toContain("on conflict (lock_key) do update");
     expect(normalizeSql(claimFunction)).toContain("returns setof public.ingestion_runtime_locks");
     expect(normalizeSql(claimFunction)).toContain("if v_lock.lock_key is not null then return next v_lock");
-    expect(normalizeSql(claimFunction)).toContain("runtime_lock.lease_expires_at <= clock_timestamp()");
-    expect(normalizeSql(claimFunction)).toContain("runtime_lock.owner_id = excluded.owner_id");
+    expect(normalizeSql(claimFunction)).toContain(
+      "where runtime_lock.lease_expires_at <= clock_timestamp() or runtime_lock.owner_id = excluded.owner_id"
+    );
     expect(normalizeSql(renewFunction)).toContain("and lease_token = p_lease_token");
     expect(normalizeSql(renewFunction)).toContain("and lease_expires_at > clock_timestamp()");
     expect(normalizeSql(releaseFunction)).toContain("and lease_token = p_lease_token");

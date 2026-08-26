@@ -37,9 +37,14 @@ const PUBLICATION_MAY_HAVE_COMPLETED = new Set([
   "no_changes",
   "already_completed"
 ]);
+// Initial claim contention happens before mutable collection or publication.
+// The database lease remains exclusive, so a bounded retry can only proceed
+// after the active owner releases the lock or its lease expires. Losing a lock
+// after work starts remains terminal through SEMANTIC_TERMINAL_FAILURE below.
+const RETRYABLE_LOCK_CONTENTION =
+  /another ingestion coordinator owns the non-expired autonomous-ingestion lease/i;
 const SEMANTIC_TERMINAL_FAILURE = new RegExp(
   [
-    "another ingestion coordinator owns",
     "runtime lock (?:expired|was taken)",
     "lease (?:token|ownership) mismatch",
     "lost (?:the )?(?:runtime )?(?:lock|lease)",
@@ -169,6 +174,14 @@ export function classifyAutonomousWorkflowAttempt({
   }
   if (exitCode === 0 || SUCCESS_RUNNER_STATUSES.has(runnerStatus)) {
     return terminalDecision("runner-exit-status-mismatch", { parsed });
+  }
+  if (runnerStatus === "failed" && RETRYABLE_LOCK_CONTENTION.test(failureMessage)) {
+    return Object.freeze({
+      completed: false,
+      retryable: true,
+      reason: "runtime-lock-contention",
+      parsed
+    });
   }
   if (SEMANTIC_TERMINAL_FAILURE.test(diagnostic)) {
     return terminalDecision("semantic-lock-or-candidate-failure", { parsed });
