@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-gojiberry-ai",
+    "slug": "gojiberry-ai",
+    "name": "Gojiberry AI"
+  },
+  "event": {
+    "id": "tle-b9363c4875c6bc999fef89d6",
+    "eventDate": "2026-08-20",
+    "eventDateType": "announcement_date",
+    "title": "Gojiberry AI announced its public launch",
+    "summary": "Gojiberry AI just shipped one of our best feature so far.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-cce4111ea67fad55571bf0cc",
+        "title": "We just shipped one of our best feature so far.",
+        "publisher": "romanbuildsaas",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-08-20T14:22:43.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/romanbuildsaas/status/2090444420793368803"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-cce4111ea67fad55571bf0cc",
+        "title": "We just shipped one of our best feature so far.",
+        "publisher": "romanbuildsaas",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-08-20T14:22:43.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/romanbuildsaas/status/2090444420793368803",
+        "publicationDate": "2026-08-20T14:22:43.000Z",
+        "excerpt": "We just shipped one of our best feature so far. We can now personalize every AI message in each campaign step with extreme precision, to get the exact output we’d want if we were doing the outreach manually.I’ve been testing this for over 15 days, and the results are insane.",
+        "sourceEventDate": "2026-08-20",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-63357f0e4a9cbfad3f03a6e5",
+        "platform": "x",
+        "account": "romanbuildsaas",
+        "postDate": "2026-08-20",
+        "excerpt": "We just shipped one of our best feature so far. We can now personalize every AI message in each campaign step with extreme precision, to get the exact output we’d want if we were doing the outreach manually.I’ve been testing this for over 15 days, and the results are insane.",
+        "url": "https://x.com/romanbuildsaas/status/2090444420793368803",
+        "metrics": {
+          "likes": 32,
+          "reposts": 1,
+          "replies": 5,
+          "views": 4589
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-26T10:02:14.680Z",
+  "lastModifiedAt": "2026-08-26T10:02:14.680Z"
+}

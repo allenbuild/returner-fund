@@ -12,10 +12,10 @@
     "title": "Decawork was introduced",
     "summary": "Decawork introduced Decawork: The AI agent builder your IT team will actually love.",
     "category": "product_launch",
-    "isMajor": true,
+    "isMajor": false,
     "hasConflict": false,
     "conflictSummary": null,
-    "evidenceCount": 2,
+    "evidenceCount": 1,
     "sourcePreview": [
       {
         "id": "src-49455406dac9af2e34ff7990",
@@ -26,16 +26,6 @@
         "publishedAt": "2026-08-12T21:24:24.000Z",
         "evidenceRole": "primary",
         "url": "https://x.com/bradflora/status/2087651438189310133"
-      },
-      {
-        "id": "src-9690631afc925bf302103b78",
-        "title": "Today we’re launching @decawork backed by @ycombinator : one place for IT to deploy, govern, and maintain the internal AI agents running across a company.",
-        "publisher": "_sarthak4",
-        "domain": "x.com",
-        "sourceType": "founder_post",
-        "publishedAt": "2026-08-12T16:35:06.000Z",
-        "evidenceRole": "primary",
-        "url": "https://x.com/_sarthak4/status/2087578635670802806"
       }
     ],
     "evidence": [
@@ -50,21 +40,6 @@
         "url": "https://x.com/bradflora/status/2087651438189310133",
         "publicationDate": "2026-08-12T21:24:24.000Z",
         "excerpt": "Introducing Decawork: The AI agent builder your IT team will actually love. If you want to get out ahead of all the agent shenanigans happening across your company, you need @decawork. Much love to IT",
-        "sourceEventDate": "2026-08-12",
-        "isConflicting": false,
-        "conflictDescription": null
-      },
-      {
-        "id": "src-9690631afc925bf302103b78",
-        "title": "Today we’re launching @decawork backed by @ycombinator : one place for IT to deploy, govern, and maintain the internal AI agents running across a company.",
-        "publisher": "_sarthak4",
-        "domain": "x.com",
-        "sourceType": "founder_post",
-        "publishedAt": "2026-08-12T16:35:06.000Z",
-        "evidenceRole": "primary",
-        "url": "https://x.com/_sarthak4/status/2087578635670802806",
-        "publicationDate": "2026-08-12T16:35:06.000Z",
-        "excerpt": "Today we’re launching @decawork backed by @ycombinator : one place for IT to deploy, govern, and maintain the internal AI agents running across a company. Every team is building AI tools/agents now. They go live with real access, no standard way to ship, nobody watching. With",
         "sourceEventDate": "2026-08-12",
         "isConflicting": false,
         "conflictDescription": null
@@ -86,24 +61,9 @@
           "saves": 11
         },
         "evidenceRole": "primary"
-      },
-      {
-        "id": "post-00a31ed40d48f5b4d4d6a9fb",
-        "platform": "x",
-        "account": "_sarthak4",
-        "postDate": "2026-08-12",
-        "excerpt": "Today we’re launching @decawork backed by @ycombinator : one place for IT to deploy, govern, and maintain the internal AI agents running across a company. Every team is building AI tools/agents now. They go live with real access, no standard way to ship, nobody watching. With",
-        "url": "https://x.com/_sarthak4/status/2087578635670802806",
-        "metrics": {
-          "likes": 304,
-          "reposts": 50,
-          "replies": 95,
-          "views": 95909
-        },
-        "evidenceRole": "primary"
       }
     ]
   },
-  "generatedAt": "2026-08-24T14:39:14.351Z",
-  "lastModifiedAt": "2026-08-24T14:39:14.351Z"
+  "generatedAt": "2026-08-26T10:02:14.680Z",
+  "lastModifiedAt": "2026-08-26T10:02:14.680Z"
 }

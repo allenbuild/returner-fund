@@ -23,7 +23,7 @@
         "publisher": "lightsprintai",
         "domain": "x.com",
         "sourceType": "company_post",
-        "publishedAt": "2026-05-21T23:42:15.000Z",
+        "publishedAt": "2026-05-21T00:00:00.000Z",
         "evidenceRole": "primary",
         "url": "https://x.com/lightsprintai/status/2057607939456971248"
       }
@@ -35,10 +35,10 @@
         "publisher": "lightsprintai",
         "domain": "x.com",
         "sourceType": "company_post",
-        "publishedAt": "2026-05-21T23:42:15.000Z",
+        "publishedAt": "2026-05-21T00:00:00.000Z",
         "evidenceRole": "primary",
         "url": "https://x.com/lightsprintai/status/2057607939456971248",
-        "publicationDate": "2026-05-21T23:42:15.000Z",
+        "publicationDate": "2026-05-21T00:00:00.000Z",
         "excerpt": "We’re launching the missing team layer for AI-powered development 🚀 The SDLC was built around coding. Coding has changed, and the SDLC must be updated. Lightsprint makes agentic development collaborative with visual plan mode, parallel cloud agents and PR preview",
         "sourceEventDate": "2026-05-21",
         "isConflicting": false,
@@ -57,12 +57,12 @@
           "likes": 102,
           "reposts": 10,
           "replies": 24,
-          "views": 46085
+          "views": 46101
         },
         "evidenceRole": "primary"
       }
     ]
   },
-  "generatedAt": "2026-08-24T14:39:14.351Z",
-  "lastModifiedAt": "2026-08-24T14:39:14.351Z"
+  "generatedAt": "2026-08-26T10:02:14.680Z",
+  "lastModifiedAt": "2026-08-26T10:02:14.680Z"
 }

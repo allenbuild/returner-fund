@@ -5,57 +5,9 @@
     "slug": "touchy",
     "name": "Touchy"
   },
-  "generatedAt": "2026-08-24T14:39:14.351Z",
-  "lastModifiedAt": "2026-08-24T14:39:14.351Z",
+  "generatedAt": "2026-08-26T10:02:14.680Z",
+  "lastModifiedAt": "2026-08-26T10:02:14.680Z",
   "events": [
-    {
-      "id": "tle-37da7c5daf77a1c2f4a139ce",
-      "eventDate": "2026-08-20",
-      "eventDateType": "announcement_date",
-      "title": "Touchy released Touchy YC Launch",
-      "summary": "Touchy YC Launch.",
-      "category": "product_launch",
-      "isMajor": false,
-      "hasConflict": false,
-      "conflictSummary": null,
-      "evidenceCount": 1,
-      "sourcePreview": [
-        {
-          "id": "src-8aa673ffed70b2dc23858e0a",
-          "title": "Touchy YC Launch",
-          "publisher": "Touchy YC Launch",
-          "domain": "youtube.com",
-          "sourceType": "video",
-          "publishedAt": "2026-08-20T09:59:04-07:00",
-          "evidenceRole": "primary",
-          "url": "https://youtube.com/watch?v=IJNucvAZ_-k"
-        }
-      ]
-    },
-    {
-      "id": "tle-2fde6cf8f226df7319efe9bf",
-      "eventDate": "2026-08-20",
-      "eventDateType": "announcement_date",
-      "title": "Touchy released on yc",
-      "summary": "Touchy reported i launched on yc.",
-      "category": "product_launch",
-      "isMajor": false,
-      "hasConflict": false,
-      "conflictSummary": null,
-      "evidenceCount": 1,
-      "sourcePreview": [
-        {
-          "id": "src-6a1f7a77588972e381a4f6ab",
-          "title": "i launched on yc!",
-          "publisher": "touchyapp",
-          "domain": "x.com",
-          "sourceType": "company_post",
-          "publishedAt": "2026-08-20T21:34:43.000Z",
-          "evidenceRole": "primary",
-          "url": "https://x.com/touchyapp/status/2090553138520699194"
-        }
-      ]
-    },
     {
       "id": "tle-7bfd57770e65350f2ad8603a",
       "eventDate": "2026-08-11",
@@ -103,6 +55,30 @@
           "url": "https://x.com/rohit_writes/status/2087222674577850709"
         }
       ]
+    },
+    {
+      "id": "tle-6a6bf4800dd98370e6f226c3",
+      "eventDate": "2026-07-29",
+      "eventDateType": "announcement_date",
+      "title": "Touchy released new and better version of our router",
+      "summary": "Touchy just launched a new and better version of our router, hitting sota on tau^3-bench banking and there's more on the way go take a look.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-73232d0aaf685fdb4d1209fe",
+          "title": "We just launched a new and better version of our router, hitting sota on tau^3-bench banking and there's more on the way go take a look: https://t.co/WC4dbZOQof",
+          "publisher": "landrew7363",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-07-29T17:24:35.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/landrew7363/status/2082517658642305353"
+        }
+      ]
     }
   ],
   "groups": [
@@ -111,15 +87,19 @@
       "months": [
         {
           "month": "2026-08",
-          "count": 4
+          "count": 2
+        },
+        {
+          "month": "2026-07",
+          "count": 1
         }
       ]
     }
   ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 4,
-    "lastSuccessfulArtifactAt": "2026-08-24T14:39:14.351Z"
+    "publishedEventCount": 3,
+    "lastSuccessfulArtifactAt": "2026-08-26T10:02:14.680Z"
   },
   "nextCursor": null
 }

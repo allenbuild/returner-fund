@@ -5,49 +5,14 @@
     "slug": "qlo",
     "name": "Qlo"
   },
-  "generatedAt": "2026-08-24T14:39:14.351Z",
-  "lastModifiedAt": "2026-08-24T14:39:14.351Z",
-  "events": [
-    {
-      "id": "tle-43e81bd1d48bea330e96c2c0",
-      "eventDate": "2026-08-20",
-      "eventDateType": "announcement_date",
-      "title": "Qlo released We just launched Qlo's Inbox Agent",
-      "summary": "Qlo just launched Qlo's Inbox Agent.",
-      "category": "product_launch",
-      "isMajor": false,
-      "hasConflict": false,
-      "conflictSummary": null,
-      "evidenceCount": 1,
-      "sourcePreview": [
-        {
-          "id": "src-45956943961b6a00b828d4e7",
-          "title": "We just launched Qlo’s Inbox Agent.",
-          "publisher": "hcsfox",
-          "domain": "x.com",
-          "sourceType": "founder_post",
-          "publishedAt": "2026-08-20T17:40:25.000Z",
-          "evidenceRole": "primary",
-          "url": "https://x.com/hcsfox/status/2090494174391046281"
-        }
-      ]
-    }
-  ],
-  "groups": [
-    {
-      "year": 2026,
-      "months": [
-        {
-          "month": "2026-08",
-          "count": 1
-        }
-      ]
-    }
-  ],
+  "generatedAt": "2026-08-26T10:02:14.680Z",
+  "lastModifiedAt": "2026-08-26T10:02:14.680Z",
+  "events": [],
+  "groups": [],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-08-24T14:39:14.351Z"
+    "publishedEventCount": 0,
+    "lastSuccessfulArtifactAt": "2026-08-26T10:02:14.680Z"
   },
   "nextCursor": null
 }

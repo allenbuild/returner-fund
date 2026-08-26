@@ -5,9 +5,33 @@
     "slug": "inth",
     "name": "Inth"
   },
-  "generatedAt": "2026-08-24T14:39:14.351Z",
-  "lastModifiedAt": "2026-08-24T14:39:14.351Z",
+  "generatedAt": "2026-08-26T10:02:14.680Z",
+  "lastModifiedAt": "2026-08-26T10:02:14.680Z",
   "events": [
+    {
+      "id": "tle-df01176bf5d39d62e67ea548",
+      "eventDate": "2026-08-06",
+      "eventDateType": "announcement_date",
+      "title": "Inth released c15tdev v2",
+      "summary": "Inth just released @c15tdev v2.2.0 c15t is growing faster than ever at 69.7% MoM growth.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-a4ff032301ebe04d691b79b5",
+          "title": "We just released @c15tdev v2.2.0 c15t is growing faster than ever at 69.7% MoM growth.",
+          "publisher": "burnedchris",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-08-06T15:10:58.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/burnedchris/status/2085383135999738273"
+        }
+      ]
+    },
     {
       "id": "tle-189b49c2ca200ec2a17c6c57",
       "eventDate": "2026-04-13",
@@ -48,6 +72,10 @@
       "year": 2026,
       "months": [
         {
+          "month": "2026-08",
+          "count": 1
+        },
+        {
           "month": "2026-04",
           "count": 1
         }
@@ -56,8 +84,8 @@
   ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-08-24T14:39:14.351Z"
+    "publishedEventCount": 2,
+    "lastSuccessfulArtifactAt": "2026-08-26T10:02:14.680Z"
   },
   "nextCursor": null
 }

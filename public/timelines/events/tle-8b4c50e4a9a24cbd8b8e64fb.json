@@ -23,7 +23,7 @@
         "publisher": "machine__0",
         "domain": "x.com",
         "sourceType": "company_post",
-        "publishedAt": "2026-06-15T14:33:51.000Z",
+        "publishedAt": "2026-06-15T00:00:00.000Z",
         "evidenceRole": "primary",
         "url": "https://x.com/machine__0/status/2066529624872399032"
       }
@@ -35,10 +35,10 @@
         "publisher": "machine__0",
         "domain": "x.com",
         "sourceType": "company_post",
-        "publishedAt": "2026-06-15T14:33:51.000Z",
+        "publishedAt": "2026-06-15T00:00:00.000Z",
         "evidenceRole": "primary",
         "url": "https://x.com/machine__0/status/2066529624872399032",
-        "publicationDate": "2026-06-15T14:33:51.000Z",
+        "publicationDate": "2026-06-15T00:00:00.000Z",
         "excerpt": "Introducing machine0: Persistent, powerful NixOS and Ubuntu VMS from your CLI.",
         "sourceEventDate": "2026-06-15",
         "isConflicting": false,
@@ -57,12 +57,12 @@
           "likes": 5,
           "reposts": 0,
           "replies": 1,
-          "views": 252
+          "views": 256
         },
         "evidenceRole": "primary"
       }
     ]
   },
-  "generatedAt": "2026-08-24T14:39:14.351Z",
-  "lastModifiedAt": "2026-08-24T14:39:14.351Z"
+  "generatedAt": "2026-08-26T10:02:14.680Z",
+  "lastModifiedAt": "2026-08-26T10:02:14.680Z"
 }

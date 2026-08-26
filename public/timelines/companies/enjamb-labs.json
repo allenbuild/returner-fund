@@ -5,14 +5,49 @@
     "slug": "enjamb-labs",
     "name": "Enjamb Labs"
   },
-  "generatedAt": "2026-08-24T14:39:14.351Z",
-  "lastModifiedAt": "2026-08-24T14:39:14.351Z",
-  "events": [],
-  "groups": [],
+  "generatedAt": "2026-08-26T10:02:14.680Z",
+  "lastModifiedAt": "2026-08-26T10:02:14.680Z",
+  "events": [
+    {
+      "id": "tle-ed5cd7b1291c0dcc9307e207",
+      "eventDate": "2026-05-28",
+      "eventDateType": "announcement_date",
+      "title": "Enjamb Labs released Enjamb Labs (YC P26): AI Agents for Research",
+      "summary": "Enjamb Labs introduced Enjamb Labs (YC P26): AI Agents for Research.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-c02ef0616dd9bb05b5666b5e",
+          "title": "Introducing Enjamb Labs (YC P26): AI Agents for Research",
+          "publisher": "Introducing Enjamb Labs (YC P26): AI Agents for Research",
+          "domain": "youtube.com",
+          "sourceType": "video",
+          "publishedAt": "2026-05-28T11:44:10-07:00",
+          "evidenceRole": "primary",
+          "url": "https://youtube.com/watch?v=5DwdtiLvViM"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-05",
+          "count": 1
+        }
+      ]
+    }
+  ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 0,
-    "lastSuccessfulArtifactAt": "2026-08-24T14:39:14.351Z"
+    "publishedEventCount": 1,
+    "lastSuccessfulArtifactAt": "2026-08-26T10:02:14.680Z"
   },
   "nextCursor": null
 }

@@ -5,33 +5,9 @@
     "slug": "almanac",
     "name": "Almanac"
   },
-  "generatedAt": "2026-08-24T14:39:14.351Z",
-  "lastModifiedAt": "2026-08-24T14:39:14.351Z",
+  "generatedAt": "2026-08-26T10:02:14.680Z",
+  "lastModifiedAt": "2026-08-26T10:02:14.680Z",
   "events": [
-    {
-      "id": "tle-7fd14765421430083586dac0",
-      "eventDate": "2026-08-13",
-      "eventDateType": "announcement_date",
-      "title": "Almanac released Almanac, the agent with a company brain",
-      "summary": "Almanac introduced Almanac, the agent with a company brain.",
-      "category": "product_launch",
-      "isMajor": false,
-      "hasConflict": false,
-      "conflictSummary": null,
-      "evidenceCount": 1,
-      "sourcePreview": [
-        {
-          "id": "src-6cb18fa586c3bdde0eabb2a5",
-          "title": "Introducing Almanac, the agent with a company brain.",
-          "publisher": "kushagrchitkar",
-          "domain": "x.com",
-          "sourceType": "founder_post",
-          "publishedAt": "2026-08-13T16:33:14.000Z",
-          "evidenceRole": "primary",
-          "url": "https://x.com/kushagrchitkar/status/2087940553715618114"
-        }
-      ]
-    },
     {
       "id": "tle-35854b85ffa940117a62df32",
       "eventDate": "2026-03-16",
@@ -106,10 +82,6 @@
       "year": 2026,
       "months": [
         {
-          "month": "2026-08",
-          "count": 1
-        },
-        {
           "month": "2026-03",
           "count": 1
         }
@@ -127,8 +99,8 @@
   ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 3,
-    "lastSuccessfulArtifactAt": "2026-08-24T14:39:14.351Z"
+    "publishedEventCount": 2,
+    "lastSuccessfulArtifactAt": "2026-08-26T10:02:14.680Z"
   },
   "nextCursor": null
 }

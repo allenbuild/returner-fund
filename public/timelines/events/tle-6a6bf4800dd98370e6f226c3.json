@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-touchy",
+    "slug": "touchy",
+    "name": "Touchy"
+  },
+  "event": {
+    "id": "tle-6a6bf4800dd98370e6f226c3",
+    "eventDate": "2026-07-29",
+    "eventDateType": "announcement_date",
+    "title": "Touchy released new and better version of our router",
+    "summary": "Touchy just launched a new and better version of our router, hitting sota on tau^3-bench banking and there's more on the way go take a look.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-73232d0aaf685fdb4d1209fe",
+        "title": "We just launched a new and better version of our router, hitting sota on tau^3-bench banking and there's more on the way go take a look: https://t.co/WC4dbZOQof",
+        "publisher": "landrew7363",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-07-29T17:24:35.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/landrew7363/status/2082517658642305353"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-73232d0aaf685fdb4d1209fe",
+        "title": "We just launched a new and better version of our router, hitting sota on tau^3-bench banking and there's more on the way go take a look: https://t.co/WC4dbZOQof",
+        "publisher": "landrew7363",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-07-29T17:24:35.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/landrew7363/status/2082517658642305353",
+        "publicationDate": "2026-07-29T17:24:35.000Z",
+        "excerpt": "We just launched a new and better version of our router, hitting sota on tau^3-bench banking and there's more on the way go take a look: https://t.co/WC4dbZOQof",
+        "sourceEventDate": "2026-07-29",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-c59b7a64763bc90f8e61dc26",
+        "platform": "x",
+        "account": "landrew7363",
+        "postDate": "2026-07-29",
+        "excerpt": "We just launched a new and better version of our router, hitting sota on tau^3-bench banking and there's more on the way go take a look: https://t.co/WC4dbZOQof",
+        "url": "https://x.com/landrew7363/status/2082517658642305353",
+        "metrics": {
+          "likes": 3,
+          "reposts": 0,
+          "replies": 0,
+          "views": 39
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-26T10:02:14.680Z",
+  "lastModifiedAt": "2026-08-26T10:02:14.680Z"
+}

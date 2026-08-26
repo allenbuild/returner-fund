@@ -5,49 +5,14 @@
     "slug": "carsignal",
     "name": "CarSignal"
   },
-  "generatedAt": "2026-08-24T14:39:14.351Z",
-  "lastModifiedAt": "2026-08-24T14:39:14.351Z",
-  "events": [
-    {
-      "id": "tle-4ff4ea3abe10e85c3bc9f47a",
-      "eventDate": "2026-08-17",
-      "eventDateType": "announcement_date",
-      "title": "CarSignal released CarSignal is live!! We're the AI operating system for auto shops",
-      "summary": "CarSignal is live.",
-      "category": "product_launch",
-      "isMajor": false,
-      "hasConflict": false,
-      "conflictSummary": null,
-      "evidenceCount": 1,
-      "sourcePreview": [
-        {
-          "id": "src-3a94b959264e2be4fb31c0c3",
-          "title": "CarSignal is live!! We're the AI operating system for auto shops.",
-          "publisher": "muzzin_michael",
-          "domain": "x.com",
-          "sourceType": "founder_post",
-          "publishedAt": "2026-08-17T17:18:16.000Z",
-          "evidenceRole": "primary",
-          "url": "https://x.com/muzzin_michael/status/2089401435616350328"
-        }
-      ]
-    }
-  ],
-  "groups": [
-    {
-      "year": 2026,
-      "months": [
-        {
-          "month": "2026-08",
-          "count": 1
-        }
-      ]
-    }
-  ],
+  "generatedAt": "2026-08-26T10:02:14.680Z",
+  "lastModifiedAt": "2026-08-26T10:02:14.680Z",
+  "events": [],
+  "groups": [],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-08-24T14:39:14.351Z"
+    "publishedEventCount": 0,
+    "lastSuccessfulArtifactAt": "2026-08-26T10:02:14.680Z"
   },
   "nextCursor": null
 }

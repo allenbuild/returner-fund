@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-wondering",
+    "slug": "wondering",
+    "name": "Wondering"
+  },
+  "event": {
+    "id": "tle-d537031451c44c24ddeddb94",
+    "eventDate": "2026-08-20",
+    "eventDateType": "announcement_date",
+    "title": "Wondering released Community Courses on",
+    "summary": "Wondering announced it was launching Community Courses on @WonderingApp Now, you can share a course you made with your team, your class, your friends, and to everyone.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-777409c25dab40c8a2e3bc98",
+        "title": "Today we are launching Community Courses on @WonderingApp Now, you can share a course you made with your team, your class, your friends, and to everyone! You can also explore courses made by others.",
+        "publisher": "hcwxd",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-08-20T02:25:22.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/hcwxd/status/2090263896217293132"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-777409c25dab40c8a2e3bc98",
+        "title": "Today we are launching Community Courses on @WonderingApp Now, you can share a course you made with your team, your class, your friends, and to everyone! You can also explore courses made by others.",
+        "publisher": "hcwxd",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-08-20T02:25:22.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/hcwxd/status/2090263896217293132",
+        "publicationDate": "2026-08-20T02:25:22.000Z",
+        "excerpt": "Today we are launching Community Courses on @WonderingApp Now, you can share a course you made with your team, your class, your friends, and to everyone! You can also explore courses made by others. The best part, you can further personalize the shared course as 3-mins",
+        "sourceEventDate": "2026-08-20",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-3c363fd8222d350e629bb18e",
+        "platform": "x",
+        "account": "hcwxd",
+        "postDate": "2026-08-20",
+        "excerpt": "Today we are launching Community Courses on @WonderingApp Now, you can share a course you made with your team, your class, your friends, and to everyone! You can also explore courses made by others. The best part, you can further personalize the shared course as 3-mins",
+        "url": "https://x.com/hcwxd/status/2090263896217293132",
+        "metrics": {
+          "likes": 21,
+          "reposts": 4,
+          "replies": 5,
+          "views": 1034
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-26T10:02:14.680Z",
+  "lastModifiedAt": "2026-08-26T10:02:14.680Z"
+}

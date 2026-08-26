@@ -5,8 +5,8 @@
     "slug": "sun",
     "name": "SUN"
   },
-  "generatedAt": "2026-08-24T14:39:14.351Z",
-  "lastModifiedAt": "2026-08-24T14:39:14.351Z",
+  "generatedAt": "2026-08-26T10:02:14.680Z",
+  "lastModifiedAt": "2026-08-26T10:02:14.680Z",
   "events": [
     {
       "id": "tle-fe554ffcc6de9d022e53b5fb",
@@ -120,18 +120,8 @@
       "isMajor": true,
       "hasConflict": false,
       "conflictSummary": null,
-      "evidenceCount": 3,
+      "evidenceCount": 2,
       "sourcePreview": [
-        {
-          "id": "src-e0431fa8e5347d7172f4db8b",
-          "title": "We launched SUN on Product Hunt. Link in Bio. Audio hasn’t really evolved. Search. Pick. Consume. With SUN, you don’t search. You create. You’re not the consumer. You’re the reason content exists. And it exists to help you become your…",
-          "publisher": "artinbogdanov",
-          "domain": "instagram.com",
-          "sourceType": "founder_post",
-          "publishedAt": "2026-03-29T09:52:10.000Z",
-          "evidenceRole": "primary",
-          "url": "https://instagram.com/reel/DWdqaGqCeNg"
-        },
         {
           "id": "src-501f2ce1268343fb7df02845",
           "title": "SUN Product Hunt launch",
@@ -161,21 +151,11 @@
       "title": "SUN released on Product Hunt on March 29",
       "summary": "SUN is launching on Product Hunt on March 29.",
       "category": "product_launch",
-      "isMajor": true,
+      "isMajor": false,
       "hasConflict": false,
       "conflictSummary": null,
-      "evidenceCount": 2,
+      "evidenceCount": 1,
       "sourcePreview": [
-        {
-          "id": "src-25a6b8c64788343fcbc5b939",
-          "title": "We’re launching on Product Hunt on March 29. Audio hasn’t really evolved. Search. Pick. Consume. With SUN, you don’t search. You create. You’re not the consumer. You’re the reason content exists. And it exists to help you become your best…",
-          "publisher": "artinbogdanov",
-          "domain": "instagram.com",
-          "sourceType": "founder_post",
-          "publishedAt": "2026-03-27T20:33:55.000Z",
-          "evidenceRole": "primary",
-          "url": "https://instagram.com/reel/DWZo_JxCYCw"
-        },
         {
           "id": "src-b9321d4ca44a8076aed398eb",
           "title": "We’re launching on Product Hunt on March 29. Audio hasn’t really evolved. Search. Pick. Consume. With SUN, you don’t search. You create. You’re not the consumer. You’re the reason content exists. And it exists to help you become your be...",
@@ -207,7 +187,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 5,
-    "lastSuccessfulArtifactAt": "2026-08-24T14:39:14.351Z"
+    "lastSuccessfulArtifactAt": "2026-08-26T10:02:14.680Z"
   },
   "nextCursor": null
 }

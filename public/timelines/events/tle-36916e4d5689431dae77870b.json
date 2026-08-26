@@ -1,0 +1,69 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-machine0",
+    "slug": "machine0",
+    "name": "machine0"
+  },
+  "event": {
+    "id": "tle-36916e4d5689431dae77870b",
+    "eventDate": "2026-08-01",
+    "eventDateType": "announcement_date",
+    "title": "machine0 announced its public launch",
+    "summary": "machine0 reported launching today, @machine__0 the compute layer agents WANT to run on.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-1712949e1497d5cb44c7229e",
+        "title": "Launching today, @machine__0 the compute layer agents WANT to run on. Barnaby spent years running engineering at Upflow and decided to bui...",
+        "publisher": "bradflora",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-08-01T00:55:53.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/bradflora/status/2083356005455548601"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-1712949e1497d5cb44c7229e",
+        "title": "Launching today, @machine__0 the compute layer agents WANT to run on. Barnaby spent years running engineering at Upflow and decided to bui...",
+        "publisher": "bradflora",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-08-01T00:55:53.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/bradflora/status/2083356005455548601",
+        "publicationDate": "2026-08-01T00:55:53.000Z",
+        "excerpt": "Launching today, @machine__0 the compute layer agents WANT to run on. Barnaby spent years running engineering at Upflow and decided to build the instant computers he wished he had for his agents.",
+        "sourceEventDate": "2026-08-01",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-c68acc1172022730e3ff11bc",
+        "platform": "x",
+        "account": "bradflora",
+        "postDate": "2026-08-01",
+        "excerpt": "Launching today, @machine__0 the compute layer agents WANT to run on. Barnaby spent years running engineering at Upflow and decided to build the instant computers he wished he had for his agents.",
+        "url": "https://x.com/bradflora/status/2083356005455548601",
+        "metrics": {
+          "views": 10667,
+          "likes": 26,
+          "replies": 4,
+          "reposts": 2,
+          "saves": 7
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-26T10:02:14.680Z",
+  "lastModifiedAt": "2026-08-26T10:02:14.680Z"
+}

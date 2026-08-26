@@ -23,7 +23,7 @@
         "publisher": "Lab0 (YC P26) Launch Video",
         "domain": "youtube.com",
         "sourceType": "video",
-        "publishedAt": "2026-05-18T06:28:05-07:00",
+        "publishedAt": "2026-05-18T13:28:05.000Z",
         "evidenceRole": "primary",
         "url": "https://youtube.com/watch?v=UDrqfnYWlLI"
       }
@@ -35,10 +35,10 @@
         "publisher": "Lab0 (YC P26) Launch Video",
         "domain": "youtube.com",
         "sourceType": "video",
-        "publishedAt": "2026-05-18T06:28:05-07:00",
+        "publishedAt": "2026-05-18T13:28:05.000Z",
         "evidenceRole": "primary",
         "url": "https://youtube.com/watch?v=UDrqfnYWlLI",
-        "publicationDate": "2026-05-18T06:28:05-07:00",
+        "publicationDate": "2026-05-18T13:28:05.000Z",
         "excerpt": "Lab0 builds AI agents that turn enterprise software from a consulting-heavy deployment into a self-serve product. Every rollout, whether it's a traditional ERP or a new AI system, requires months of manual integration, configuration, and tuning done by armies of system integrators and forward-deployed engineers. Lab0 builds agentic systems that automate this layer, compressing months-long implementations into weeks.",
         "sourceEventDate": "2026-05-18",
         "isConflicting": false,
@@ -54,7 +54,7 @@
         "excerpt": "Lab0 builds AI agents that turn enterprise software from a consulting-heavy deployment into a self-serve product. Every rollout, whether it's a traditional ERP or a new AI system, requires months of manual integration, configuration, and tuning done by armies of system integrators and forward-deployed engineers. Lab0 builds agentic systems that automate this layer, compressing months-long implementations into weeks.",
         "url": "https://youtube.com/watch?v=UDrqfnYWlLI",
         "metrics": {
-          "views": 334,
+          "views": 341,
           "likes": 2,
           "comments": 0
         },
@@ -62,6 +62,6 @@
       }
     ]
   },
-  "generatedAt": "2026-08-24T14:39:14.351Z",
-  "lastModifiedAt": "2026-08-24T14:39:14.351Z"
+  "generatedAt": "2026-08-26T10:02:14.680Z",
+  "lastModifiedAt": "2026-08-26T10:02:14.680Z"
 }

@@ -5,8 +5,8 @@
     "slug": "fabraix",
     "name": "Fabraix"
   },
-  "generatedAt": "2026-08-24T14:39:14.351Z",
-  "lastModifiedAt": "2026-08-24T14:39:14.351Z",
+  "generatedAt": "2026-08-26T10:02:14.680Z",
+  "lastModifiedAt": "2026-08-26T10:02:14.680Z",
   "events": [
     {
       "id": "tle-2861049254722e979ec5b6ad",
@@ -26,7 +26,7 @@
           "publisher": "fabraixhq",
           "domain": "x.com",
           "sourceType": "company_post",
-          "publishedAt": "2026-07-20T15:31:33.000Z",
+          "publishedAt": "2026-07-20T00:00:00.000Z",
           "evidenceRole": "primary",
           "url": "https://x.com/fabraixhq/status/2079227721905999970"
         },
@@ -133,7 +133,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 4,
-    "lastSuccessfulArtifactAt": "2026-08-24T14:39:14.351Z"
+    "lastSuccessfulArtifactAt": "2026-08-26T10:02:14.680Z"
   },
   "nextCursor": null
 }

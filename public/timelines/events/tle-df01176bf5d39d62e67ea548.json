@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-inth",
+    "slug": "inth",
+    "name": "Inth"
+  },
+  "event": {
+    "id": "tle-df01176bf5d39d62e67ea548",
+    "eventDate": "2026-08-06",
+    "eventDateType": "announcement_date",
+    "title": "Inth released c15tdev v2",
+    "summary": "Inth just released @c15tdev v2.2.0 c15t is growing faster than ever at 69.7% MoM growth.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-a4ff032301ebe04d691b79b5",
+        "title": "We just released @c15tdev v2.2.0 c15t is growing faster than ever at 69.7% MoM growth.",
+        "publisher": "burnedchris",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-08-06T15:10:58.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/burnedchris/status/2085383135999738273"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-a4ff032301ebe04d691b79b5",
+        "title": "We just released @c15tdev v2.2.0 c15t is growing faster than ever at 69.7% MoM growth.",
+        "publisher": "burnedchris",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-08-06T15:10:58.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/burnedchris/status/2085383135999738273",
+        "publicationDate": "2026-08-06T15:10:58.000Z",
+        "excerpt": "We just released @c15tdev v2.2.0 c15t is growing faster than ever at 69.7% MoM growth. We've almost hit 5m npm downloads in total, and in the last 30 days hit 1.5m downloads alone. 2.2 adds more of the consent-aware primitives teams need in real apps, and it had the most",
+        "sourceEventDate": "2026-08-06",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-6a066cd95b9473e2639c332c",
+        "platform": "x",
+        "account": "burnedchris",
+        "postDate": "2026-08-06",
+        "excerpt": "We just released @c15tdev v2.2.0 c15t is growing faster than ever at 69.7% MoM growth. We've almost hit 5m npm downloads in total, and in the last 30 days hit 1.5m downloads alone. 2.2 adds more of the consent-aware primitives teams need in real apps, and it had the most",
+        "url": "https://x.com/burnedchris/status/2085383135999738273",
+        "metrics": {
+          "likes": 12,
+          "reposts": 3,
+          "replies": 1,
+          "views": 320
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-26T10:02:14.680Z",
+  "lastModifiedAt": "2026-08-26T10:02:14.680Z"
+}

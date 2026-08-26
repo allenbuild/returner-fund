@@ -5,33 +5,9 @@
     "slug": "superlog",
     "name": "Superlog"
   },
-  "generatedAt": "2026-08-24T14:39:14.351Z",
-  "lastModifiedAt": "2026-08-24T14:39:14.351Z",
+  "generatedAt": "2026-08-26T10:02:14.680Z",
+  "lastModifiedAt": "2026-08-26T10:02:14.680Z",
   "events": [
-    {
-      "id": "tle-d2e3255f53e993b1e9e921cb",
-      "eventDate": "2026-08-18",
-      "eventDateType": "announcement_date",
-      "title": "Superlog released integration",
-      "summary": "Superlog introduced an integration with @vercel Now you can give your agents read-only access to your Vercel deployments, functions, observability and more.",
-      "category": "product_launch",
-      "isMajor": false,
-      "hasConflict": false,
-      "conflictSummary": null,
-      "evidenceCount": 1,
-      "sourcePreview": [
-        {
-          "id": "src-308c25b834e0a8b3839b9bef",
-          "title": "Introducing an integration with @vercel Now you can give your agents read-only access to your Vercel deployments, functions, observability and more.",
-          "publisher": "superlogyc",
-          "domain": "x.com",
-          "sourceType": "company_post",
-          "publishedAt": "2026-08-18T15:21:20.000Z",
-          "evidenceRole": "primary",
-          "url": "https://x.com/superlogyc/status/2089734398622958048"
-        }
-      ]
-    },
     {
       "id": "tle-01197a4ccb8f5928ae8a172b",
       "eventDate": "2026-07-22",
@@ -177,6 +153,30 @@
       ]
     },
     {
+      "id": "tle-a04d0840b9d566ffabaab693",
+      "eventDate": "2026-06-08",
+      "eventDateType": "announcement_date",
+      "title": "Superlog released big part of what we're doing (skills as open source",
+      "summary": "Superlog announced it was open sourcing A big part of what we're doing (skills, SDKs) is already open-source.",
+      "category": "open_source",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-6523f362fab92bf3544fa288",
+          "title": "Today we're open sourcing https://t.co/stiMjUF3Rw.",
+          "publisher": "arseniycodes",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-06-08T17:00:52.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/arseniycodes/status/2064029906359742675"
+        }
+      ]
+    },
+    {
       "id": "tle-aca423a22adbb3ae852ad62b",
       "eventDate": "2026-06-03",
       "eventDateType": "announcement_date",
@@ -230,16 +230,12 @@
       "year": 2026,
       "months": [
         {
-          "month": "2026-08",
-          "count": 1
-        },
-        {
           "month": "2026-07",
           "count": 4
         },
         {
           "month": "2026-06",
-          "count": 3
+          "count": 4
         },
         {
           "month": "2026-05",
@@ -251,7 +247,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 9,
-    "lastSuccessfulArtifactAt": "2026-08-24T14:39:14.351Z"
+    "lastSuccessfulArtifactAt": "2026-08-26T10:02:14.680Z"
   },
   "nextCursor": null
 }

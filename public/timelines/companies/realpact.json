@@ -5,15 +5,15 @@
     "slug": "realpact",
     "name": "RealPact"
   },
-  "generatedAt": "2026-08-24T14:39:14.351Z",
-  "lastModifiedAt": "2026-08-24T14:39:14.351Z",
+  "generatedAt": "2026-08-26T10:02:14.680Z",
+  "lastModifiedAt": "2026-08-26T10:02:14.680Z",
   "events": [
     {
-      "id": "tle-344ae14672db4cbc78086918",
+      "id": "tle-05db8a692518145351275be9",
       "eventDate": "2026-08-06",
       "eventDateType": "announcement_date",
-      "title": "RealPact released RealPact Commercial Launch | Real Estate Tech",
-      "summary": "RealPact Commercial Launch | Real Estate Tech.",
+      "title": "RealPact released on tomorrow at 1 PM PT",
+      "summary": "RealPact is launching on @ycombinator tomorrow at 1 PM PT.",
       "category": "product_launch",
       "isMajor": false,
       "hasConflict": false,
@@ -21,14 +21,14 @@
       "evidenceCount": 1,
       "sourcePreview": [
         {
-          "id": "src-76ea95b54d8b521ca8db0fba",
-          "title": "RealPact Commercial Launch | Real Estate Tech",
-          "publisher": "RealPact Commercial Launch | Real Estate Tech",
-          "domain": "youtube.com",
-          "sourceType": "video",
-          "publishedAt": "2026-08-06T13:53:05-07:00",
+          "id": "src-4fdf0c73a6bbf65fb089bef4",
+          "title": "We’re launching on @ycombinator tomorrow at 1 PM PT! It would mean the world to me if you could check it out, leave an upvote, and comment if you enjoy it.",
+          "publisher": "ranvirdeshmukh_",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-08-06T00:38:41.000Z",
           "evidenceRole": "primary",
-          "url": "https://youtube.com/watch?v=cT0B-YNwN34"
+          "url": "https://x.com/ranvirdeshmukh_/status/2085163616664232442"
         }
       ]
     }
@@ -47,7 +47,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-08-24T14:39:14.351Z"
+    "lastSuccessfulArtifactAt": "2026-08-26T10:02:14.680Z"
   },
   "nextCursor": null
 }

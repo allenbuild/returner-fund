@@ -5,33 +5,9 @@
     "slug": "ara",
     "name": "Ara"
   },
-  "generatedAt": "2026-08-24T14:39:14.351Z",
-  "lastModifiedAt": "2026-08-24T14:39:14.351Z",
+  "generatedAt": "2026-08-26T10:02:14.680Z",
+  "lastModifiedAt": "2026-08-26T10:02:14.680Z",
   "events": [
-    {
-      "id": "tle-9f5620487a94b41bfddd9f83",
-      "eventDate": "2026-07-25",
-      "eventDateType": "announcement_date",
-      "title": "Ara released Ara Review and our latest PR Review agent",
-      "summary": "Ara introduced Ara Review and our latest PR Review agent.",
-      "category": "product_launch",
-      "isMajor": false,
-      "hasConflict": false,
-      "conflictSummary": null,
-      "evidenceCount": 1,
-      "sourcePreview": [
-        {
-          "id": "src-5c6c509a795b7ceaae41b971",
-          "title": "Introducing Ara Review and our latest PR Review agent.",
-          "publisher": "aradotso",
-          "domain": "x.com",
-          "sourceType": "company_post",
-          "publishedAt": "2026-07-25T14:23:43.000Z",
-          "evidenceRole": "primary",
-          "url": "https://x.com/aradotso/status/2081022588323520782"
-        }
-      ]
-    },
     {
       "id": "tle-506573f769677aa9537729fc",
       "eventDate": "2026-07-23",
@@ -81,27 +57,17 @@
       ]
     },
     {
-      "id": "tle-c135d5cec7728df4a99ab7b0",
+      "id": "tle-a9c6664dd306b120dd877284",
       "eventDate": "2026-07-15",
       "eventDateType": "announcement_date",
       "title": "Ara announced its public launch",
-      "summary": "Ara introduced the Ara discord community.",
+      "summary": "Ara announced its public launch in a dated company video.",
       "category": "product_launch",
-      "isMajor": true,
+      "isMajor": false,
       "hasConflict": false,
       "conflictSummary": null,
-      "evidenceCount": 2,
+      "evidenceCount": 1,
       "sourcePreview": [
-        {
-          "id": "src-16e24f310bd5607a314942c4",
-          "title": "Introducing the Ara discord community! Join top founders and builders sharing and working with cloud agents.",
-          "publisher": "aradotso",
-          "domain": "x.com",
-          "sourceType": "company_post",
-          "publishedAt": "2026-08-09T18:27:20.000Z",
-          "evidenceRole": "primary",
-          "url": "https://x.com/aradotso/status/2086519714193547418"
-        },
         {
           "id": "src-4615b4fad24276a6b34030fb",
           "title": "Ara (YC P26) Launch Video",
@@ -313,7 +279,7 @@
       "months": [
         {
           "month": "2026-07",
-          "count": 5
+          "count": 4
         },
         {
           "month": "2026-06",
@@ -336,8 +302,8 @@
   ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 12,
-    "lastSuccessfulArtifactAt": "2026-08-24T14:39:14.351Z"
+    "publishedEventCount": 11,
+    "lastSuccessfulArtifactAt": "2026-08-26T10:02:14.680Z"
   },
   "nextCursor": null
 }

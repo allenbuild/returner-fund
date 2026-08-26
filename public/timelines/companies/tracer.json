@@ -5,8 +5,8 @@
     "slug": "tracer",
     "name": "Tracer"
   },
-  "generatedAt": "2026-08-24T14:39:14.351Z",
-  "lastModifiedAt": "2026-08-24T14:39:14.351Z",
+  "generatedAt": "2026-08-26T10:02:14.680Z",
+  "lastModifiedAt": "2026-08-26T10:02:14.680Z",
   "events": [
     {
       "id": "tle-b3ad912c47298b9b0c7047bf",
@@ -33,40 +33,16 @@
       ]
     },
     {
-      "id": "tle-9137898702f58085c7b05426",
-      "eventDate": "2026-07-30",
-      "eventDateType": "announcement_date",
-      "title": "Tracer released Echo by Tracer",
-      "summary": "Tracer introduced Echo by Tracer.",
-      "category": "product_launch",
-      "isMajor": false,
-      "hasConflict": false,
-      "conflictSummary": null,
-      "evidenceCount": 1,
-      "sourcePreview": [
-        {
-          "id": "src-b8c7cb4b19c553607a390ed4",
-          "title": "Introducing Echo by Tracer",
-          "publisher": "Introducing Echo by Tracer",
-          "domain": "youtube.com",
-          "sourceType": "video",
-          "publishedAt": "2026-07-29T18:06:49-07:00",
-          "evidenceRole": "primary",
-          "url": "https://youtube.com/watch?v=hM0NypILdgw"
-        }
-      ]
-    },
-    {
       "id": "tle-42894bd8ed0eb07448ba7320",
       "eventDate": "2026-07-22",
       "eventDateType": "announcement_date",
       "title": "Tracer released Echo",
       "summary": "Tracer is releasing Echo now to learn from real workloads and keep pushing the approach forward.",
       "category": "product_launch",
-      "isMajor": true,
+      "isMajor": false,
       "hasConflict": false,
       "conflictSummary": null,
-      "evidenceCount": 2,
+      "evidenceCount": 1,
       "sourcePreview": [
         {
           "id": "src-9de6150ad6869bf7bb8bd415",
@@ -77,16 +53,6 @@
           "publishedAt": "2026-07-22T19:07:20.000Z",
           "evidenceRole": "primary",
           "url": "https://x.com/TracerML/status/2080006801924522291"
-        },
-        {
-          "id": "src-7f92f64f9d29430801cd0bf1",
-          "title": "Today we’re launching Echo: Fable-level quality at ~1/3 the inference cost using open-weight models.",
-          "publisher": "tracerml",
-          "domain": "x.com",
-          "sourceType": "company_post",
-          "publishedAt": "2026-07-31T21:02:46.000Z",
-          "evidenceRole": "primary",
-          "url": "https://x.com/tracerml/status/2083297340207886775"
         }
       ]
     }
@@ -97,15 +63,15 @@
       "months": [
         {
           "month": "2026-07",
-          "count": 3
+          "count": 2
         }
       ]
     }
   ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 3,
-    "lastSuccessfulArtifactAt": "2026-08-24T14:39:14.351Z"
+    "publishedEventCount": 2,
+    "lastSuccessfulArtifactAt": "2026-08-26T10:02:14.680Z"
   },
   "nextCursor": null
 }

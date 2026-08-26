@@ -5,31 +5,21 @@
     "slug": "machine0",
     "name": "machine0"
   },
-  "generatedAt": "2026-08-24T14:39:14.351Z",
-  "lastModifiedAt": "2026-08-24T14:39:14.351Z",
+  "generatedAt": "2026-08-26T10:02:14.680Z",
+  "lastModifiedAt": "2026-08-26T10:02:14.680Z",
   "events": [
     {
-      "id": "tle-b3bdd6b304a2f4a37b9433e8",
+      "id": "tle-36916e4d5689431dae77870b",
       "eventDate": "2026-08-01",
       "eventDateType": "announcement_date",
-      "title": "machine0 launched on Hacker News",
-      "summary": "Launch HN: machine0 (YC S26) – Persistent CPU and GPU VMs from the CLI.",
+      "title": "machine0 announced its public launch",
+      "summary": "machine0 reported launching today, @machine__0 the compute layer agents WANT to run on.",
       "category": "product_launch",
-      "isMajor": true,
+      "isMajor": false,
       "hasConflict": false,
       "conflictSummary": null,
-      "evidenceCount": 2,
+      "evidenceCount": 1,
       "sourcePreview": [
-        {
-          "id": "src-4688b71b756a06361476f2fb",
-          "title": "Launch HN: machine0 (YC S26) – Persistent CPU and GPU VMs from the CLI",
-          "publisher": "Launch HN: machine0 (YC S26) – Persistent CPU and GPU VMs from the CLI",
-          "domain": "news.ycombinator.com",
-          "sourceType": "company_post",
-          "publishedAt": "2026-08-18T16:26:42Z",
-          "evidenceRole": "primary",
-          "url": "https://news.ycombinator.com/item?id=49348136"
-        },
         {
           "id": "src-1712949e1497d5cb44c7229e",
           "title": "Launching today, @machine__0 the compute layer agents WANT to run on. Barnaby spent years running engineering at Upflow and decided to bui...",
@@ -84,7 +74,7 @@
           "publisher": "machine__0",
           "domain": "x.com",
           "sourceType": "company_post",
-          "publishedAt": "2026-07-01T15:39:24.000Z",
+          "publishedAt": "2026-07-01T00:00:00.000Z",
           "evidenceRole": "primary",
           "url": "https://x.com/machine__0/status/2072344325686755678"
         }
@@ -108,7 +98,7 @@
           "publisher": "machine__0",
           "domain": "x.com",
           "sourceType": "company_post",
-          "publishedAt": "2026-06-15T14:33:51.000Z",
+          "publishedAt": "2026-06-15T00:00:00.000Z",
           "evidenceRole": "primary",
           "url": "https://x.com/machine__0/status/2066529624872399032"
         }
@@ -161,7 +151,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 5,
-    "lastSuccessfulArtifactAt": "2026-08-24T14:39:14.351Z"
+    "lastSuccessfulArtifactAt": "2026-08-26T10:02:14.680Z"
   },
   "nextCursor": null
 }

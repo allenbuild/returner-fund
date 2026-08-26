@@ -313,6 +313,88 @@
           }
         }
       ]
+    },
+    {
+      "companyId": "31341",
+      "fromSlug": "instance",
+      "fromName": "Instance",
+      "toSlug": "most-robotic",
+      "toName": "Most Robotic",
+      "companyAccounts": {
+        "linkedin": [
+          "https://www.linkedin.com/company/instancelabs/"
+        ],
+        "x": [
+          "https://twitter.com/tryinstance"
+        ]
+      },
+      "founders": [
+        {
+          "founderId": "3107325",
+          "name": "Claire Mao",
+          "accounts": {
+            "linkedin": [
+              "https://www.linkedin.com/in/clairemao-/"
+            ],
+            "x": [
+              "https://x.com/clairemao78"
+            ]
+          }
+        },
+        {
+          "founderId": "2386225",
+          "name": "Lucy Cai",
+          "accounts": {
+            "linkedin": [
+              "https://www.linkedin.com/in/lucy-cai/"
+            ],
+            "x": [
+              "https://x.com/LucyCai9"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "companyId": "31074",
+      "fromSlug": "trustai",
+      "fromName": "TrustAI",
+      "toSlug": "onetriangle",
+      "toName": "OneTriangle",
+      "companyAccounts": {
+        "linkedin": [
+          "https://www.linkedin.com/company/autotrytrustai/"
+        ],
+        "x": [
+          "https://x.com/TryTrustAI"
+        ]
+      },
+      "founders": [
+        {
+          "founderId": "2573695",
+          "name": "Hannah Chung",
+          "accounts": {
+            "linkedin": [
+              "https://www.linkedin.com/in/hannahchung1/"
+            ],
+            "x": [
+              "https://x.com/hannah_chuu"
+            ]
+          }
+        },
+        {
+          "founderId": "2043461",
+          "name": "Medha Venkatapathy",
+          "accounts": {
+            "linkedin": [
+              "https://www.linkedin.com/in/medhav/"
+            ],
+            "x": [
+              "https://x.com/medha_rv"
+            ]
+          }
+        }
+      ]
     }
   ],
   "founderTransitions": [
@@ -792,6 +874,23 @@
         ],
         "x": [
           "https://x.com/Arthur_NC_"
+        ]
+      }
+    },
+    {
+      "companyId": "33055",
+      "companySlug": "chromie",
+      "companyName": "Chromie",
+      "founderId": "2672336",
+      "change": "removed",
+      "fromName": "Akshay Mistry",
+      "toName": null,
+      "accounts": {
+        "linkedin": [
+          "https://www.linkedin.com/in/akshaymistry-"
+        ],
+        "x": [
+          "https://x.com/akshaymistry8"
         ]
       }
     }

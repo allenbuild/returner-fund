@@ -23,7 +23,7 @@
         "publisher": "revnu_app",
         "domain": "x.com",
         "sourceType": "company_post",
-        "publishedAt": "2026-05-21T22:44:54.000Z",
+        "publishedAt": "2026-05-21T00:00:00.000Z",
         "evidenceRole": "primary",
         "url": "https://x.com/revnu_app/status/2057593506567512169"
       },
@@ -45,10 +45,10 @@
         "publisher": "revnu_app",
         "domain": "x.com",
         "sourceType": "company_post",
-        "publishedAt": "2026-05-21T22:44:54.000Z",
+        "publishedAt": "2026-05-21T00:00:00.000Z",
         "evidenceRole": "primary",
         "url": "https://x.com/revnu_app/status/2057593506567512169",
-        "publicationDate": "2026-05-21T22:44:54.000Z",
+        "publicationDate": "2026-05-21T00:00:00.000Z",
         "excerpt": "Revnu is now live on @ycombinator The future means anyone can run a business never having to worry about growth again Check us out at https://t.co/ipHUKwOziO",
         "sourceEventDate": "2026-05-21",
         "isConflicting": false,
@@ -82,7 +82,7 @@
           "likes": 49,
           "reposts": 4,
           "replies": 6,
-          "views": 11724
+          "views": 11731
         },
         "evidenceRole": "primary"
       },
@@ -94,7 +94,7 @@
         "excerpt": "Revnu Launch Video (YC P26) https://revnu.com",
         "url": "https://youtube.com/watch?v=cL_dwhuRvGM",
         "metrics": {
-          "views": 397,
+          "views": 400,
           "likes": 0,
           "comments": 0
         },
@@ -102,6 +102,6 @@
       }
     ]
   },
-  "generatedAt": "2026-08-24T14:39:14.351Z",
-  "lastModifiedAt": "2026-08-24T14:39:14.351Z"
+  "generatedAt": "2026-08-26T10:02:14.680Z",
+  "lastModifiedAt": "2026-08-26T10:02:14.680Z"
 }

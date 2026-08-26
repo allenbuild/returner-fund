@@ -5,49 +5,14 @@
     "slug": "codag",
     "name": "Codag"
   },
-  "generatedAt": "2026-08-24T14:39:14.351Z",
-  "lastModifiedAt": "2026-08-24T14:39:14.351Z",
-  "events": [
-    {
-      "id": "tle-17e69596ec703862c57fa7d6",
-      "eventDate": "2026-08-15",
-      "eventDateType": "announcement_date",
-      "title": "Codag released YC Launch: Codag (S26)",
-      "summary": "YC Launch: Codag (S26).",
-      "category": "product_launch",
-      "isMajor": false,
-      "hasConflict": false,
-      "conflictSummary": null,
-      "evidenceCount": 1,
-      "sourcePreview": [
-        {
-          "id": "src-1d888b2233c7f04d870c4c2c",
-          "title": "YC Launch: Codag (S26)",
-          "publisher": "YC Launch: Codag (S26)",
-          "domain": "youtube.com",
-          "sourceType": "video",
-          "publishedAt": "2026-08-14T22:11:13-07:00",
-          "evidenceRole": "primary",
-          "url": "https://youtube.com/watch?v=eJbK3SezeXA"
-        }
-      ]
-    }
-  ],
-  "groups": [
-    {
-      "year": 2026,
-      "months": [
-        {
-          "month": "2026-08",
-          "count": 1
-        }
-      ]
-    }
-  ],
+  "generatedAt": "2026-08-26T10:02:14.680Z",
+  "lastModifiedAt": "2026-08-26T10:02:14.680Z",
+  "events": [],
+  "groups": [],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-08-24T14:39:14.351Z"
+    "publishedEventCount": 0,
+    "lastSuccessfulArtifactAt": "2026-08-26T10:02:14.680Z"
   },
   "nextCursor": null
 }

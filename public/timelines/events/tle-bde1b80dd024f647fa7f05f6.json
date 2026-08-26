@@ -1,0 +1,69 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-agentcard",
+    "slug": "agentcard",
+    "name": "Agentcard"
+  },
+  "event": {
+    "id": "tle-bde1b80dd024f647fa7f05f6",
+    "eventDate": "2026-07-31",
+    "eventDateType": "announcement_date",
+    "title": "Agentcard partnered with @NangoHQ to be in their integrations marketplace",
+    "summary": "Agentcard has partnered with @NangoHQ to be in their integrations marketplace.",
+    "category": "partnership",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-800769154416afbe7e8c15bd",
+        "title": "we've partnered with @NangoHQ to be in their integrations marketplace! if you're using their amazing product, now its super easy to allow your agents to pay for stuff :) https://t.co/yvAJcHCMW2",
+        "publisher": "pipeabellos",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-07-31T18:11:24.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/pipeabellos/status/2083254216907247961"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-800769154416afbe7e8c15bd",
+        "title": "we've partnered with @NangoHQ to be in their integrations marketplace! if you're using their amazing product, now its super easy to allow your agents to pay for stuff :) https://t.co/yvAJcHCMW2",
+        "publisher": "pipeabellos",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-07-31T18:11:24.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/pipeabellos/status/2083254216907247961",
+        "publicationDate": "2026-07-31T18:11:24.000Z",
+        "excerpt": "we've partnered with @NangoHQ to be in their integrations marketplace! if you're using their amazing product, now its super easy to allow your agents to pay for stuff :) https://t.co/yvAJcHCMW2",
+        "sourceEventDate": "2026-07-31",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-8aeb55b0ff8f630296d7a9b1",
+        "platform": "x",
+        "account": "pipeabellos",
+        "postDate": "2026-07-31",
+        "excerpt": "we've partnered with @NangoHQ to be in their integrations marketplace! if you're using their amazing product, now its super easy to allow your agents to pay for stuff :) https://t.co/yvAJcHCMW2",
+        "url": "https://x.com/pipeabellos/status/2083254216907247961",
+        "metrics": {
+          "likes": 6,
+          "reposts": 0,
+          "quotes": 1,
+          "replies": 0,
+          "views": 2668
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-26T10:02:14.680Z",
+  "lastModifiedAt": "2026-08-26T10:02:14.680Z"
+}

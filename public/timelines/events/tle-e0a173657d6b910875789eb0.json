@@ -1,0 +1,110 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-vendo",
+    "slug": "vendo",
+    "name": "Vendo"
+  },
+  "event": {
+    "id": "tle-e0a173657d6b910875789eb0",
+    "eventDate": "2026-07-06",
+    "eventDateType": "announcement_date",
+    "title": "Vendo was introduced",
+    "summary": "Vendo introduced Vendo.",
+    "category": "product_launch",
+    "isMajor": true,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 2,
+    "sourcePreview": [
+      {
+        "id": "src-4a3b6d88a825a4f85d632a8e",
+        "title": "Introducing Vendo. Now every user gets their own personalized agentic experience of your product. Try it now 👇",
+        "publisher": "nourzahzah",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-07-06T16:49:44.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/nourzahzah/status/2074173966571511892"
+      },
+      {
+        "id": "src-a355c190017197bc6c950f70",
+        "title": "Announcing the Vendo Full Stack Agentic Interface: an embeddable agent that lives right inside your product, with everything you need built-in.",
+        "publisher": "yousefhll",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-08-06T21:52:16.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/yousefhll/status/2085484126786957477"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-4a3b6d88a825a4f85d632a8e",
+        "title": "Introducing Vendo. Now every user gets their own personalized agentic experience of your product. Try it now 👇",
+        "publisher": "nourzahzah",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-07-06T16:49:44.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/nourzahzah/status/2074173966571511892",
+        "publicationDate": "2026-07-06T16:49:44.000Z",
+        "excerpt": "Introducing Vendo. Now every user gets their own personalized agentic experience of your product. Try it now 👇",
+        "sourceEventDate": "2026-07-06",
+        "isConflicting": false,
+        "conflictDescription": null
+      },
+      {
+        "id": "src-a355c190017197bc6c950f70",
+        "title": "Announcing the Vendo Full Stack Agentic Interface: an embeddable agent that lives right inside your product, with everything you need built-in.",
+        "publisher": "yousefhll",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-08-06T21:52:16.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/yousefhll/status/2085484126786957477",
+        "publicationDate": "2026-08-06T21:52:16.000Z",
+        "excerpt": "Announcing the Vendo Full Stack Agentic Interface: an embeddable agent that lives right inside your product, with everything you need built-in. > Takes real action through your own API, as the user, with their permissions > Generates UI and full features your users can keep, https://t.co/XOdO9miuI0",
+        "sourceEventDate": "2026-08-06",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-247ae1be5f8301739de022df",
+        "platform": "x",
+        "account": "nourzahzah",
+        "postDate": "2026-07-06",
+        "excerpt": "Introducing Vendo. Now every user gets their own personalized agentic experience of your product. Try it now 👇",
+        "url": "https://x.com/nourzahzah/status/2074173966571511892",
+        "metrics": {
+          "views": 1708,
+          "likes": 18,
+          "replies": 1,
+          "reposts": 0,
+          "quotes": 0,
+          "bookmarks": 5
+        },
+        "evidenceRole": "primary"
+      },
+      {
+        "id": "post-4001770080dc66fbb682da09",
+        "platform": "x",
+        "account": "yousefhll",
+        "postDate": "2026-08-06",
+        "excerpt": "Announcing the Vendo Full Stack Agentic Interface: an embeddable agent that lives right inside your product, with everything you need built-in. > Takes real action through your own API, as the user, with their permissions > Generates UI and full features your users can keep, https://t.co/XOdO9miuI0",
+        "url": "https://x.com/yousefhll/status/2085484126786957477",
+        "metrics": {
+          "likes": 63,
+          "reposts": 10,
+          "replies": 22,
+          "views": 5039
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-26T10:02:14.680Z",
+  "lastModifiedAt": "2026-08-26T10:02:14.680Z"
+}

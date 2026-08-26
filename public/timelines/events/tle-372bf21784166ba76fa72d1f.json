@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-coarena",
+    "slug": "coarena",
+    "name": "CoArena"
+  },
+  "event": {
+    "id": "tle-372bf21784166ba76fa72d1f",
+    "eventDate": "2026-08-13",
+    "eventDateType": "announcement_date",
+    "title": "CoArena announced its public launch",
+    "summary": "Coarena is live on ProductHunt.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-4ef8020baf90a8868541046b",
+        "title": "Coarena is live on ProductHunt!! We want this to blow up so that we can give everyone the chance to use frontier models on computer use tasks for free!! Coarena by Coasty: The arena where agents battle on real-world work…",
+        "publisher": "coastyai",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-08-13T07:05:10.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/coastyai/status/2087797595456622860"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-4ef8020baf90a8868541046b",
+        "title": "Coarena is live on ProductHunt!! We want this to blow up so that we can give everyone the chance to use frontier models on computer use tasks for free!! Coarena by Coasty: The arena where agents battle on real-world work…",
+        "publisher": "coastyai",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-08-13T07:05:10.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/coastyai/status/2087797595456622860",
+        "publicationDate": "2026-08-13T07:05:10.000Z",
+        "excerpt": "Coarena is live on ProductHunt!! We want this to blow up so that we can give everyone the chance to use frontier models on computer use tasks for free!! Coarena by Coasty: The arena where agents battle on real-world work https://t.co/IhcTQoE3Ax",
+        "sourceEventDate": "2026-08-13",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-4042fef05d591ca82fbeb704",
+        "platform": "x",
+        "account": "coastyai",
+        "postDate": "2026-08-13",
+        "excerpt": "Coarena is live on ProductHunt!! We want this to blow up so that we can give everyone the chance to use frontier models on computer use tasks for free!! Coarena by Coasty: The arena where agents battle on real-world work https://t.co/IhcTQoE3Ax",
+        "url": "https://x.com/coastyai/status/2087797595456622860",
+        "metrics": {
+          "likes": 10,
+          "reposts": 2,
+          "replies": 2,
+          "views": 3901
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-26T10:02:14.680Z",
+  "lastModifiedAt": "2026-08-26T10:02:14.680Z"
+}

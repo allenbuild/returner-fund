@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-graphify-labs",
+    "slug": "graphify-labs",
+    "name": "Graphify Labs"
+  },
+  "event": {
+    "id": "tle-9cf4ebaaf09f179f43459a23",
+    "eventDate": "2026-08-19",
+    "eventDateType": "announcement_date",
+    "title": "Graphify Labs released on YC and over-took supabase on all time GitHub stars Here's the...",
+    "summary": "Graphify Labs just launched on YC and over-took supabase on all time GitHub stars Here's the launch link→.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-84c1a2e402e89a290768cdd6",
+        "title": "We just launched on YC and over-took supabase on all time GitHub stars Here’s the launch link→ https://t.co/SjgEK5qVUS",
+        "publisher": "safishamsii",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-08-19T15:20:56.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/safishamsii/status/2090096686840345078"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-84c1a2e402e89a290768cdd6",
+        "title": "We just launched on YC and over-took supabase on all time GitHub stars Here’s the launch link→ https://t.co/SjgEK5qVUS",
+        "publisher": "safishamsii",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-08-19T15:20:56.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/safishamsii/status/2090096686840345078",
+        "publicationDate": "2026-08-19T15:20:56.000Z",
+        "excerpt": "We just launched on YC and over-took supabase on all time GitHub stars Here’s the launch link→ https://t.co/SjgEK5qVUS",
+        "sourceEventDate": "2026-08-19",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-694a5b518f7efa0ec1e70394",
+        "platform": "x",
+        "account": "safishamsii",
+        "postDate": "2026-08-19",
+        "excerpt": "We just launched on YC and over-took supabase on all time GitHub stars Here’s the launch link→ https://t.co/SjgEK5qVUS",
+        "url": "https://x.com/safishamsii/status/2090096686840345078",
+        "metrics": {
+          "likes": 48,
+          "reposts": 4,
+          "replies": 3,
+          "views": 3184
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-26T10:02:14.680Z",
+  "lastModifiedAt": "2026-08-26T10:02:14.680Z"
+}

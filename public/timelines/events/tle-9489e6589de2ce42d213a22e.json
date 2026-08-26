@@ -1,0 +1,66 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "a16z-speedrun-006-mirror-mirror-ai",
+    "slug": "mirror-mirror-ai",
+    "name": "Mirror Mirror AI"
+  },
+  "event": {
+    "id": "tle-9489e6589de2ce42d213a22e",
+    "eventDate": "2026-03-22",
+    "eventDateType": "announcement_date",
+    "title": "Mirror Mirror AI announced its public launch",
+    "summary": "Mirror Mirror AI announced its public launch in a dated company video.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-7068fb04546d01a80e5f7b65",
+        "title": "Mirror Mirror AI Launch Video",
+        "publisher": "Mirror Mirror AI",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-03-22T07:36:33.000Z",
+        "evidenceRole": "primary",
+        "url": "https://www.youtube.com/watch?v=SnIE-Rqr2bw"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-7068fb04546d01a80e5f7b65",
+        "title": "Mirror Mirror AI Launch Video",
+        "publisher": "Mirror Mirror AI",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-03-22T07:36:33.000Z",
+        "evidenceRole": "primary",
+        "url": "https://www.youtube.com/watch?v=SnIE-Rqr2bw",
+        "publicationDate": "2026-03-22T07:36:33.000Z",
+        "excerpt": "The official Mirror Mirror AI YouTube channel published a native launch video.",
+        "sourceEventDate": "2026-03-22",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-fc2bf12635968d36b821b30d",
+        "platform": "youtube",
+        "account": "Mirror Mirror AI",
+        "postDate": "2026-03-22",
+        "excerpt": "The official Mirror Mirror AI YouTube channel published a native launch video.",
+        "url": "https://www.youtube.com/watch?v=SnIE-Rqr2bw",
+        "metrics": {
+          "views": 386,
+          "likes": 5
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-26T10:02:14.680Z",
+  "lastModifiedAt": "2026-08-26T10:02:14.680Z"
+}

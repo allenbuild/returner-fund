@@ -5,8 +5,8 @@
     "slug": "kinro",
     "name": "Kinro"
   },
-  "generatedAt": "2026-08-24T14:39:14.351Z",
-  "lastModifiedAt": "2026-08-24T14:39:14.351Z",
+  "generatedAt": "2026-08-26T10:02:14.680Z",
+  "lastModifiedAt": "2026-08-26T10:02:14.680Z",
   "events": [
     {
       "id": "tle-09d7c5477910a881b4eb63eb",
@@ -50,33 +50,9 @@
           "publisher": "kinroai",
           "domain": "x.com",
           "sourceType": "company_post",
-          "publishedAt": "2026-03-31T15:05:54.000Z",
+          "publishedAt": "2026-03-31T00:00:00.000Z",
           "evidenceRole": "primary",
           "url": "https://x.com/kinroai/status/2038996213257888218"
-        }
-      ]
-    },
-    {
-      "id": "tle-5ec19bd787a76ed37fe03681",
-      "eventDate": "2026-03-19",
-      "eventDateType": "announcement_date",
-      "title": "Kinro released We're building the future of compliant and high-performance AI...",
-      "summary": "Kinro introduced We're building the future of compliant and high-performance AI distribution in financial services, starting with insurance.",
-      "category": "product_launch",
-      "isMajor": false,
-      "hasConflict": false,
-      "conflictSummary": null,
-      "evidenceCount": 1,
-      "sourcePreview": [
-        {
-          "id": "src-ea6b6aa9e02007a94bee57c7",
-          "title": "Introducing https://t.co/2dTi0TU0Kf We're building the future of compliant and high-performance AI distribution in financial services, starting with insurance.",
-          "publisher": "kinroai",
-          "domain": "x.com",
-          "sourceType": "company_post",
-          "publishedAt": "2026-03-19T14:55:17.000Z",
-          "evidenceRole": "primary",
-          "url": "https://x.com/kinroai/status/2034644885421105153"
         }
       ]
     }
@@ -91,15 +67,15 @@
         },
         {
           "month": "2026-03",
-          "count": 2
+          "count": 1
         }
       ]
     }
   ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 3,
-    "lastSuccessfulArtifactAt": "2026-08-24T14:39:14.351Z"
+    "publishedEventCount": 2,
+    "lastSuccessfulArtifactAt": "2026-08-26T10:02:14.680Z"
   },
   "nextCursor": null
 }

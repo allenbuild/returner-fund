@@ -5,8 +5,8 @@
     "slug": "screenpipe",
     "name": "screenpipe"
   },
-  "generatedAt": "2026-08-24T14:39:14.351Z",
-  "lastModifiedAt": "2026-08-24T14:39:14.351Z",
+  "generatedAt": "2026-08-26T10:02:14.680Z",
+  "lastModifiedAt": "2026-08-26T10:02:14.680Z",
   "events": [
     {
       "id": "tle-a23ec3bf308f64ad46e21ec8",
@@ -98,7 +98,7 @@
           "publisher": "Launch HN: Screenpipe (YC S26) – Record how you work and turn that into agents",
           "domain": "news.ycombinator.com",
           "sourceType": "company_post",
-          "publishedAt": "2026-07-23T16:48:38Z",
+          "publishedAt": "2026-07-23T16:48:38.000Z",
           "evidenceRole": "primary",
           "url": "https://news.ycombinator.com/item?id=49024620"
         },
@@ -271,7 +271,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 9,
-    "lastSuccessfulArtifactAt": "2026-08-24T14:39:14.351Z"
+    "lastSuccessfulArtifactAt": "2026-08-26T10:02:14.680Z"
   },
   "nextCursor": null
 }

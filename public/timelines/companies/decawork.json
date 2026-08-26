@@ -5,8 +5,8 @@
     "slug": "decawork",
     "name": "Decawork"
   },
-  "generatedAt": "2026-08-24T14:39:14.351Z",
-  "lastModifiedAt": "2026-08-24T14:39:14.351Z",
+  "generatedAt": "2026-08-26T10:02:14.680Z",
+  "lastModifiedAt": "2026-08-26T10:02:14.680Z",
   "events": [
     {
       "id": "tle-744e69b16e44262ba405cde3",
@@ -15,10 +15,10 @@
       "title": "Decawork was introduced",
       "summary": "Decawork introduced Decawork: The AI agent builder your IT team will actually love.",
       "category": "product_launch",
-      "isMajor": true,
+      "isMajor": false,
       "hasConflict": false,
       "conflictSummary": null,
-      "evidenceCount": 2,
+      "evidenceCount": 1,
       "sourcePreview": [
         {
           "id": "src-49455406dac9af2e34ff7990",
@@ -29,16 +29,6 @@
           "publishedAt": "2026-08-12T21:24:24.000Z",
           "evidenceRole": "primary",
           "url": "https://x.com/bradflora/status/2087651438189310133"
-        },
-        {
-          "id": "src-9690631afc925bf302103b78",
-          "title": "Today we’re launching @decawork backed by @ycombinator : one place for IT to deploy, govern, and maintain the internal AI agents running across a company.",
-          "publisher": "_sarthak4",
-          "domain": "x.com",
-          "sourceType": "founder_post",
-          "publishedAt": "2026-08-12T16:35:06.000Z",
-          "evidenceRole": "primary",
-          "url": "https://x.com/_sarthak4/status/2087578635670802806"
         }
       ]
     }
@@ -57,7 +47,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-08-24T14:39:14.351Z"
+    "lastSuccessfulArtifactAt": "2026-08-26T10:02:14.680Z"
   },
   "nextCursor": null
 }

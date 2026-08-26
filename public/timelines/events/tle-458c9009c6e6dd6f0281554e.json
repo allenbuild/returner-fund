@@ -12,10 +12,10 @@
     "title": "HyperProbe released HyperProbe Demo | YC BF Launch",
     "summary": "HyperProbe Demo | YC BF Launch.",
     "category": "product_launch",
-    "isMajor": true,
+    "isMajor": false,
     "hasConflict": false,
     "conflictSummary": null,
-    "evidenceCount": 2,
+    "evidenceCount": 1,
     "sourcePreview": [
       {
         "id": "src-8e0c0bebaf531b79bcab9cac",
@@ -26,16 +26,6 @@
         "publishedAt": "2026-07-02T15:31:10-07:00",
         "evidenceRole": "primary",
         "url": "https://youtube.com/watch?v=ivV7I--ta5c"
-      },
-      {
-        "id": "src-76efb1a027c21dab5d1b2708",
-        "title": "Hyperprobe launch",
-        "publisher": "Hyperprobe launch",
-        "domain": "youtube.com",
-        "sourceType": "video",
-        "publishedAt": "2026-08-12T20:06:40-07:00",
-        "evidenceRole": "primary",
-        "url": "https://youtube.com/watch?v=QtaZrQ8_Uk8"
       }
     ],
     "evidence": [
@@ -53,21 +43,6 @@
         "sourceEventDate": "2026-07-02",
         "isConflicting": false,
         "conflictDescription": null
-      },
-      {
-        "id": "src-76efb1a027c21dab5d1b2708",
-        "title": "Hyperprobe launch",
-        "publisher": "Hyperprobe launch",
-        "domain": "youtube.com",
-        "sourceType": "video",
-        "publishedAt": "2026-08-12T20:06:40-07:00",
-        "evidenceRole": "primary",
-        "url": "https://youtube.com/watch?v=QtaZrQ8_Uk8",
-        "publicationDate": "2026-08-12T20:06:40-07:00",
-        "excerpt": "HyperProbe lets your coding agent debug production by reading the actual variable values on the failing line, without adding a log or redeploying. When code breaks in prod and the value you need was never logged, your agent is stuck guessing from logs. HyperProbe lets it drop a read-only probe on the exact line in your running service, capture the real state when live traffic hits it, and diagnose from evidence instead of inference. Try it: hyperprobe.co What it does: Your agent places a probe…",
-        "sourceEventDate": "2026-08-05",
-        "isConflicting": false,
-        "conflictDescription": null
       }
     ],
     "posts": [
@@ -82,23 +57,9 @@
           "views": 91
         },
         "evidenceRole": "primary"
-      },
-      {
-        "id": "post-c884e82d81a2a0d2af398b9f",
-        "platform": "youtube",
-        "account": "Hyperprobe launch",
-        "postDate": "2026-08-13",
-        "excerpt": "HyperProbe lets your coding agent debug production by reading the actual variable values on the failing line, without adding a log or redeploying. When code breaks in prod and the value you need was never logged, your agent is stuck guessing from logs. HyperProbe lets it drop a read-only probe on the exact line in your running service, capture the real state when live traffic hits it, and diagnose from evidence instead of inference. Try it: hyperprobe.co What it does: Your agent places a probe…",
-        "url": "https://youtube.com/watch?v=QtaZrQ8_Uk8",
-        "metrics": {
-          "views": 49,
-          "likes": 1,
-          "comments": 0
-        },
-        "evidenceRole": "primary"
       }
     ]
   },
-  "generatedAt": "2026-08-24T14:39:14.351Z",
-  "lastModifiedAt": "2026-08-24T14:39:14.351Z"
+  "generatedAt": "2026-08-26T10:02:14.680Z",
+  "lastModifiedAt": "2026-08-26T10:02:14.680Z"
 }

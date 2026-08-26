@@ -5,8 +5,8 @@
     "slug": "walter",
     "name": "Walter"
   },
-  "generatedAt": "2026-08-24T14:39:14.351Z",
-  "lastModifiedAt": "2026-08-24T14:39:14.351Z",
+  "generatedAt": "2026-08-26T10:02:14.680Z",
+  "lastModifiedAt": "2026-08-26T10:02:14.680Z",
   "events": [
     {
       "id": "tle-666eb058cae520072df90c53",
@@ -26,7 +26,7 @@
           "publisher": "walterindustry",
           "domain": "x.com",
           "sourceType": "company_post",
-          "publishedAt": "2026-06-02T18:46:33.000Z",
+          "publishedAt": "2026-06-02T00:00:00.000Z",
           "evidenceRole": "primary",
           "url": "https://x.com/walterindustry/status/2061882176145387562"
         }
@@ -47,7 +47,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-08-24T14:39:14.351Z"
+    "lastSuccessfulArtifactAt": "2026-08-26T10:02:14.680Z"
   },
   "nextCursor": null
 }

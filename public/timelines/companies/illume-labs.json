@@ -5,49 +5,14 @@
     "slug": "illume-labs",
     "name": "Illume Labs"
   },
-  "generatedAt": "2026-08-24T14:39:14.351Z",
-  "lastModifiedAt": "2026-08-24T14:39:14.351Z",
-  "events": [
-    {
-      "id": "tle-bd996ee5b2f31b83ee8b7337",
-      "eventDate": "2026-07-20",
-      "eventDateType": "announcement_date",
-      "title": "Illume Labs released Illume",
-      "summary": "Illume Labs introduced Illume, your personalized health companion you can text anytime, anywhere.",
-      "category": "product_launch",
-      "isMajor": false,
-      "hasConflict": false,
-      "conflictSummary": null,
-      "evidenceCount": 1,
-      "sourcePreview": [
-        {
-          "id": "src-79d39e79d4d274e14e566900",
-          "title": "Introducing Illume, your personalized health companion you can text anytime, anywhere.",
-          "publisher": "parilatawa",
-          "domain": "x.com",
-          "sourceType": "founder_post",
-          "publishedAt": "2026-07-20T17:18:06.000Z",
-          "evidenceRole": "primary",
-          "url": "https://x.com/parilatawa/status/2079254533381947735"
-        }
-      ]
-    }
-  ],
-  "groups": [
-    {
-      "year": 2026,
-      "months": [
-        {
-          "month": "2026-07",
-          "count": 1
-        }
-      ]
-    }
-  ],
+  "generatedAt": "2026-08-26T10:02:14.680Z",
+  "lastModifiedAt": "2026-08-26T10:02:14.680Z",
+  "events": [],
+  "groups": [],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-08-24T14:39:14.351Z"
+    "publishedEventCount": 0,
+    "lastSuccessfulArtifactAt": "2026-08-26T10:02:14.680Z"
   },
   "nextCursor": null
 }

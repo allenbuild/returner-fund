@@ -5,8 +5,8 @@
     "slug": "revnu",
     "name": "Revnu"
   },
-  "generatedAt": "2026-08-24T14:39:14.351Z",
-  "lastModifiedAt": "2026-08-24T14:39:14.351Z",
+  "generatedAt": "2026-08-26T10:02:14.680Z",
+  "lastModifiedAt": "2026-08-26T10:02:14.680Z",
   "events": [
     {
       "id": "tle-d3c26a50957979a58883c6eb",
@@ -26,7 +26,7 @@
           "publisher": "revnu_app",
           "domain": "x.com",
           "sourceType": "company_post",
-          "publishedAt": "2026-05-21T22:44:54.000Z",
+          "publishedAt": "2026-05-21T00:00:00.000Z",
           "evidenceRole": "primary",
           "url": "https://x.com/revnu_app/status/2057593506567512169"
         },
@@ -109,7 +109,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 3,
-    "lastSuccessfulArtifactAt": "2026-08-24T14:39:14.351Z"
+    "lastSuccessfulArtifactAt": "2026-08-26T10:02:14.680Z"
   },
   "nextCursor": null
 }

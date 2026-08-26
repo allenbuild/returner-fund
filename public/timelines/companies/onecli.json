@@ -5,33 +5,9 @@
     "slug": "onecli",
     "name": "OneCLI"
   },
-  "generatedAt": "2026-08-24T14:39:14.351Z",
-  "lastModifiedAt": "2026-08-24T14:39:14.351Z",
+  "generatedAt": "2026-08-26T10:02:14.680Z",
+  "lastModifiedAt": "2026-08-26T10:02:14.680Z",
   "events": [
-    {
-      "id": "tle-aecd7b77f38f9f555c532c52",
-      "eventDate": "2026-08-20",
-      "eventDateType": "announcement_date",
-      "title": "OneCLI released OneCLI (YC26), An open-source pro assistant for teams",
-      "summary": "OneCLI introduced OneCLI (YC26), An open-source pro assistant for teams.",
-      "category": "product_launch",
-      "isMajor": false,
-      "hasConflict": false,
-      "conflictSummary": null,
-      "evidenceCount": 1,
-      "sourcePreview": [
-        {
-          "id": "src-ed69222c64aa74308cfc792c",
-          "title": "Introducing OneCLI (YC26), An open-source pro assistant for teams.",
-          "publisher": "jonathanfishner",
-          "domain": "x.com",
-          "sourceType": "founder_post",
-          "publishedAt": "2026-08-20T14:56:59.000Z",
-          "evidenceRole": "primary",
-          "url": "https://x.com/jonathanfishner/status/2090453046698647596"
-        }
-      ]
-    },
     {
       "id": "tle-8e5cf189d732fa866dba0386",
       "eventDate": "2026-07-23",
@@ -55,30 +31,6 @@
           "url": "https://x.com/jonathanfishner/status/2080304874282258697"
         }
       ]
-    },
-    {
-      "id": "tle-629602ffbfcc5eb3b50991fe",
-      "eventDate": "2026-07-21",
-      "eventDateType": "announcement_date",
-      "title": "OneCLI released OneCLI Is Live on the 1Password Marketplace",
-      "summary": "OneCLI Is Live on the 1Password Marketplace.",
-      "category": "product_launch",
-      "isMajor": false,
-      "hasConflict": false,
-      "conflictSummary": null,
-      "evidenceCount": 1,
-      "sourcePreview": [
-        {
-          "id": "src-6f3289fbc4958b52028abf3b",
-          "title": "OneCLI Is Live on the 1Password Marketplace",
-          "publisher": "OneCLI Is Live on the 1Password Marketplace",
-          "domain": "news.ycombinator.com",
-          "sourceType": "company_post",
-          "publishedAt": "2026-07-21T01:01:29Z",
-          "evidenceRole": "primary",
-          "url": "https://news.ycombinator.com/item?id=48986877"
-        }
-      ]
     }
   ],
   "groups": [
@@ -86,20 +38,16 @@
       "year": 2026,
       "months": [
         {
-          "month": "2026-08",
-          "count": 1
-        },
-        {
           "month": "2026-07",
-          "count": 2
+          "count": 1
         }
       ]
     }
   ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 3,
-    "lastSuccessfulArtifactAt": "2026-08-24T14:39:14.351Z"
+    "publishedEventCount": 1,
+    "lastSuccessfulArtifactAt": "2026-08-26T10:02:14.680Z"
   },
   "nextCursor": null
 }

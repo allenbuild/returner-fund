@@ -5,8 +5,8 @@
     "slug": "bentolabs-ai",
     "name": "BentoLabs AI"
   },
-  "generatedAt": "2026-08-24T14:39:14.351Z",
-  "lastModifiedAt": "2026-08-24T14:39:14.351Z",
+  "generatedAt": "2026-08-26T10:02:14.680Z",
+  "lastModifiedAt": "2026-08-26T10:02:14.680Z",
   "events": [
     {
       "id": "tle-8dee8e7a8d308e4a9b88f5ea",
@@ -26,7 +26,7 @@
           "publisher": "bentolabsai",
           "domain": "x.com",
           "sourceType": "company_post",
-          "publishedAt": "2026-06-15T11:28:13.000Z",
+          "publishedAt": "2026-06-15T00:00:00.000Z",
           "evidenceRole": "primary",
           "url": "https://x.com/bentolabsai/status/2066482910241390800"
         }
@@ -50,7 +50,7 @@
           "publisher": "bentolabsai",
           "domain": "x.com",
           "sourceType": "company_post",
-          "publishedAt": "2026-06-01T12:14:57.000Z",
+          "publishedAt": "2026-06-01T00:00:00.000Z",
           "evidenceRole": "primary",
           "url": "https://x.com/bentolabsai/status/2061421239378591870"
         },
@@ -109,7 +109,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 3,
-    "lastSuccessfulArtifactAt": "2026-08-24T14:39:14.351Z"
+    "lastSuccessfulArtifactAt": "2026-08-26T10:02:14.680Z"
   },
   "nextCursor": null
 }

@@ -12,8 +12,8 @@
         "catalog": "src/lib/social/a16z-speedrun-006-social-accounts.json",
         "profileSource": "src/lib/graph/a16z-speedrun-006-dataset.ts",
         "graph": "public/graph/a16zsr006.json",
-        "publicRun": "/Users/allenxu/returner-fund-actions-runner/_work/returner-fund/returner-fund/work/autonomous-ingestion/central-2026-08-24-0600-9e26cc77413eed5e/public-a16zsr006.json",
-        "githubRun": "/Users/allenxu/returner-fund-actions-runner/_work/returner-fund/returner-fund/work/autonomous-ingestion/central-2026-08-24-0600-9e26cc77413eed5e/github-a16zsr006.json"
+        "publicRun": "/Users/allenxu/Library/Application Support/Returner Fund OpenCLI/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-08-25-1800-1b2a4702ef377452/public-a16zsr006.json",
+        "githubRun": "/Users/allenxu/Library/Application Support/Returner Fund OpenCLI/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-08-25-1800-1b2a4702ef377452/github-a16zsr006.json"
       },
       "counts": {
         "companies": 59,
@@ -24,7 +24,7 @@
         "plannedOwnerMappings": 339,
         "multiAccountOwnerMappings": 4,
         "graphEvidence": 5000,
-        "graphNeedsReview": 2406
+        "graphNeedsReview": 2414
       },
       "structural": {
         "status": "pass",
@@ -828,8 +828,8 @@
         "catalog": "src/lib/yc/spring-2026-companies.json",
         "profileSource": null,
         "graph": "public/graph/s2026.json",
-        "publicRun": "/Users/allenxu/returner-fund-actions-runner/_work/returner-fund/returner-fund/work/autonomous-ingestion/central-2026-08-24-0600-9e26cc77413eed5e/public-s2026.json",
-        "githubRun": "/Users/allenxu/returner-fund-actions-runner/_work/returner-fund/returner-fund/work/autonomous-ingestion/central-2026-08-24-0600-9e26cc77413eed5e/github-s2026.json"
+        "publicRun": "/Users/allenxu/Library/Application Support/Returner Fund OpenCLI/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-08-25-1800-1b2a4702ef377452/public-s2026.json",
+        "githubRun": "/Users/allenxu/Library/Application Support/Returner Fund OpenCLI/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-08-25-1800-1b2a4702ef377452/github-s2026.json"
       },
       "counts": {
         "companies": 197,
@@ -840,7 +840,7 @@
         "plannedOwnerMappings": 994,
         "multiAccountOwnerMappings": 1,
         "graphEvidence": 5000,
-        "graphNeedsReview": 10036
+        "graphNeedsReview": 10063
       },
       "structural": {
         "status": "pass",
@@ -1294,6 +1294,11 @@
             "companyName": null
           },
           {
+            "entityId": "company-hexa",
+            "name": "Hexa",
+            "companyName": null
+          },
+          {
             "entityId": "company-incandor",
             "name": "Incandor",
             "companyName": null
@@ -1304,6 +1309,11 @@
             "companyName": null
           },
           {
+            "entityId": "company-salesgraph",
+            "name": "Salesgraph",
+            "companyName": null
+          },
+          {
             "entityId": "company-savant",
             "name": "Savant",
             "companyName": null
@@ -1311,6 +1321,11 @@
           {
             "entityId": "company-standard-signal",
             "name": "Standard Signal",
+            "companyName": null
+          },
+          {
+            "entityId": "company-takecareos",
+            "name": "TakeCareOS",
             "companyName": null
           },
           {
@@ -1823,6 +1838,11 @@
             "companyName": null
           },
           {
+            "entityId": "company-hexa",
+            "name": "Hexa",
+            "companyName": null
+          },
+          {
             "entityId": "company-incandor",
             "name": "Incandor",
             "companyName": null
@@ -1833,6 +1853,11 @@
             "companyName": null
           },
           {
+            "entityId": "company-salesgraph",
+            "name": "Salesgraph",
+            "companyName": null
+          },
+          {
             "entityId": "company-savant",
             "name": "Savant",
             "companyName": null
@@ -1840,6 +1865,11 @@
           {
             "entityId": "company-standard-signal",
             "name": "Standard Signal",
+            "companyName": null
+          },
+          {
+            "entityId": "company-takecareos",
+            "name": "TakeCareOS",
             "companyName": null
           },
           {
@@ -2318,19 +2348,19 @@
         "catalog": "src/lib/yc/summer-2026-companies.json",
         "profileSource": null,
         "graph": "public/graph/s26.json",
-        "publicRun": "/Users/allenxu/returner-fund-actions-runner/_work/returner-fund/returner-fund/work/autonomous-ingestion/central-2026-08-24-0600-9e26cc77413eed5e/public-s26.json",
-        "githubRun": "/Users/allenxu/returner-fund-actions-runner/_work/returner-fund/returner-fund/work/autonomous-ingestion/central-2026-08-24-0600-9e26cc77413eed5e/github-s26.json"
+        "publicRun": "/Users/allenxu/Library/Application Support/Returner Fund OpenCLI/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-08-25-1800-1b2a4702ef377452/public-s26.json",
+        "githubRun": "/Users/allenxu/Library/Application Support/Returner Fund OpenCLI/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-08-25-1800-1b2a4702ef377452/github-s26.json"
       },
       "counts": {
-        "companies": 237,
-        "founders": 472,
-        "catalogOwnerMappings": 1149,
-        "graphOwnerMappings": 1140,
-        "catalogOwnerPlatformGroups": 1147,
-        "plannedOwnerMappings": 1149,
+        "companies": 236,
+        "founders": 470,
+        "catalogOwnerMappings": 1141,
+        "graphOwnerMappings": 1132,
+        "catalogOwnerPlatformGroups": 1139,
+        "plannedOwnerMappings": 1141,
         "multiAccountOwnerMappings": 2,
         "graphEvidence": 5000,
-        "graphNeedsReview": 6963
+        "graphNeedsReview": 6938
       },
       "structural": {
         "status": "pass",
@@ -2553,40 +2583,40 @@
         ],
         "mappingCoverage": {
           "github": {
-            "companyMapped": 35,
-            "companyMissing": 202,
+            "companyMapped": 30,
+            "companyMissing": 206,
             "founderMapped": 1,
-            "founderMissing": 471
+            "founderMissing": 469
           },
           "instagram": {
             "companyMapped": 7,
-            "companyMissing": 230,
+            "companyMissing": 229,
             "founderMapped": 0,
-            "founderMissing": 472
+            "founderMissing": 470
           },
           "linkedin": {
-            "companyMapped": 210,
+            "companyMapped": 209,
             "companyMissing": 27,
-            "founderMapped": 467,
+            "founderMapped": 465,
             "founderMissing": 5
           },
           "product_hunt": {
             "companyMapped": 5,
-            "companyMissing": 232,
+            "companyMissing": 231,
             "founderMapped": 0,
-            "founderMissing": 472
+            "founderMissing": 470
           },
           "x": {
             "companyMapped": 135,
-            "companyMissing": 102,
+            "companyMissing": 101,
             "founderMapped": 276,
-            "founderMissing": 196
+            "founderMissing": 194
           },
           "youtube": {
             "companyMapped": 10,
-            "companyMissing": 227,
+            "companyMissing": 226,
             "founderMapped": 0,
-            "founderMissing": 472
+            "founderMissing": 470
           }
         },
         "noMappedAccounts": [
@@ -2748,11 +2778,6 @@
             "companyName": null
           },
           {
-            "entityId": "company-manifold-2",
-            "name": "Manifold",
-            "companyName": null
-          },
-          {
             "entityId": "company-mass-magnetics",
             "name": "Mass Magnetics",
             "companyName": null
@@ -2797,11 +2822,6 @@
           {
             "entityId": "company-lyon",
             "name": "Lyon",
-            "companyName": null
-          },
-          {
-            "entityId": "company-manifold-2",
-            "name": "Manifold",
             "companyName": null
           },
           {
@@ -2857,11 +2877,6 @@
             "companyName": null
           },
           {
-            "entityId": "company-edgerun",
-            "name": "Edgerun",
-            "companyName": null
-          },
-          {
             "entityId": "company-edviro",
             "name": "Edviro",
             "companyName": null
@@ -2907,11 +2922,6 @@
             "companyName": null
           },
           {
-            "entityId": "company-manifold-2",
-            "name": "Manifold",
-            "companyName": null
-          },
-          {
             "entityId": "company-mass-magnetics",
             "name": "Mass Magnetics",
             "companyName": null
@@ -2919,11 +2929,6 @@
           {
             "entityId": "company-moving-atoms",
             "name": "Moving Atoms",
-            "companyName": null
-          },
-          {
-            "entityId": "company-opentag",
-            "name": "OpenTag",
             "companyName": null
           },
           {
@@ -3004,11 +3009,6 @@
           {
             "entityId": "company-waddle-labs",
             "name": "Waddle Labs",
-            "companyName": null
-          },
-          {
-            "entityId": "company-wondertx",
-            "name": "WonderTx",
             "companyName": null
           }
         ],
@@ -3394,11 +3394,6 @@
             "companyName": "Induction Labs"
           },
           {
-            "entityId": "founder-instance-lucy-cai-2386225",
-            "name": "Lucy Cai",
-            "companyName": "Instance"
-          },
-          {
             "entityId": "founder-instaplay-akhil-aggarwal-957153",
             "name": "Akhil Aggarwal",
             "companyName": "Instaplay"
@@ -3527,6 +3522,11 @@
             "entityId": "founder-molagri-min-jin-3659967",
             "name": "Min Jin",
             "companyName": "Molagri"
+          },
+          {
+            "entityId": "founder-most-robotic-lucy-cai-2386225",
+            "name": "Lucy Cai",
+            "companyName": "Most Robotic"
           },
           {
             "entityId": "founder-moving-atoms-ahmad-saroya-2375000",
@@ -3879,11 +3879,6 @@
             "companyName": "Vernius Systems, Inc."
           },
           {
-            "entityId": "founder-vernius-systems-inc-joe-gonzalez-409168",
-            "name": "Joe Gonzalez",
-            "companyName": "Vernius Systems, Inc."
-          },
-          {
             "entityId": "founder-waybill-rishi-laddha-1071184",
             "name": "Rishi Laddha",
             "companyName": "Waybill"
@@ -3956,11 +3951,6 @@
             "companyName": null
           },
           {
-            "entityId": "company-edgerun",
-            "name": "Edgerun",
-            "companyName": null
-          },
-          {
             "entityId": "company-edviro",
             "name": "Edviro",
             "companyName": null
@@ -4006,11 +3996,6 @@
             "companyName": null
           },
           {
-            "entityId": "company-manifold-2",
-            "name": "Manifold",
-            "companyName": null
-          },
-          {
             "entityId": "company-mass-magnetics",
             "name": "Mass Magnetics",
             "companyName": null
@@ -4018,11 +4003,6 @@
           {
             "entityId": "company-moving-atoms",
             "name": "Moving Atoms",
-            "companyName": null
-          },
-          {
-            "entityId": "company-opentag",
-            "name": "OpenTag",
             "companyName": null
           },
           {
@@ -4103,11 +4083,6 @@
           {
             "entityId": "company-waddle-labs",
             "name": "Waddle Labs",
-            "companyName": null
-          },
-          {
-            "entityId": "company-wondertx",
-            "name": "WonderTx",
             "companyName": null
           }
         ],
@@ -4353,11 +4328,6 @@
             "companyName": "Induction Labs"
           },
           {
-            "entityId": "founder-instance-lucy-cai-2386225",
-            "name": "Lucy Cai",
-            "companyName": "Instance"
-          },
-          {
             "entityId": "founder-insurf-chang-lu-3378885",
             "name": "Chang Lu",
             "companyName": "Insurf"
@@ -4461,6 +4431,11 @@
             "entityId": "founder-molagri-min-jin-3659967",
             "name": "Min Jin",
             "companyName": "Molagri"
+          },
+          {
+            "entityId": "founder-most-robotic-lucy-cai-2386225",
+            "name": "Lucy Cai",
+            "companyName": "Most Robotic"
           },
           {
             "entityId": "founder-neuron-industries-kenneth-rhee-3732370",

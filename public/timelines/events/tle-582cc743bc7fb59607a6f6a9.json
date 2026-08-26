@@ -23,7 +23,7 @@
         "publisher": "bentolabsai",
         "domain": "x.com",
         "sourceType": "company_post",
-        "publishedAt": "2026-06-01T12:14:57.000Z",
+        "publishedAt": "2026-06-01T00:00:00.000Z",
         "evidenceRole": "primary",
         "url": "https://x.com/bentolabsai/status/2061421239378591870"
       },
@@ -45,10 +45,10 @@
         "publisher": "bentolabsai",
         "domain": "x.com",
         "sourceType": "company_post",
-        "publishedAt": "2026-06-01T12:14:57.000Z",
+        "publishedAt": "2026-06-01T00:00:00.000Z",
         "evidenceRole": "primary",
         "url": "https://x.com/bentolabsai/status/2061421239378591870",
-        "publicationDate": "2026-06-01T12:14:57.000Z",
+        "publicationDate": "2026-06-01T00:00:00.000Z",
         "excerpt": "We are live on @ycombinator ! Building the monitoring and learning layer for long-running agents.",
         "sourceEventDate": "2026-06-01",
         "isConflicting": false,
@@ -82,7 +82,7 @@
           "likes": 11,
           "reposts": 1,
           "replies": 2,
-          "views": 1067
+          "views": 1070
         },
         "evidenceRole": "primary"
       },
@@ -94,7 +94,7 @@
         "excerpt": "Embedded in the official BentoLabs AI YC company page.",
         "url": "https://youtube.com/watch?v=nu6Oir3OGSM",
         "metrics": {
-          "views": 199,
+          "views": 200,
           "likes": 5,
           "comments": 0
         },
@@ -102,6 +102,6 @@
       }
     ]
   },
-  "generatedAt": "2026-08-24T14:39:14.351Z",
-  "lastModifiedAt": "2026-08-24T14:39:14.351Z"
+  "generatedAt": "2026-08-26T10:02:14.680Z",
+  "lastModifiedAt": "2026-08-26T10:02:14.680Z"
 }

@@ -5,33 +5,9 @@
     "slug": "interfaze",
     "name": "Interfaze"
   },
-  "generatedAt": "2026-08-24T14:39:14.351Z",
-  "lastModifiedAt": "2026-08-24T14:39:14.351Z",
+  "generatedAt": "2026-08-26T10:02:14.680Z",
+  "lastModifiedAt": "2026-08-26T10:02:14.680Z",
   "events": [
-    {
-      "id": "tle-5893cfe6d4f1089a5b3a492d",
-      "eventDate": "2026-08-17",
-      "eventDateType": "announcement_date",
-      "title": "Interfaze released OpenWebSearch",
-      "summary": "Interfaze introduced OpenWebSearch: One router for web search like Exa, Parallel, Brave, Perplexity and more - Normalized output structure - Centralized billing - Built-in fallbacks priorities and more.",
-      "category": "product_launch",
-      "isMajor": false,
-      "hasConflict": false,
-      "conflictSummary": null,
-      "evidenceCount": 1,
-      "sourcePreview": [
-        {
-          "id": "src-97037069e936e9109ef7edc6",
-          "title": "Introducing OpenWebSearch: One router for web search like Exa, Parallel, Brave, Perplexity and more - Normalized output structure - Centralized billing - Built-in fallbacks priorities and more",
-          "publisher": "interfaze_ai",
-          "domain": "x.com",
-          "sourceType": "company_post",
-          "publishedAt": "2026-08-17T16:09:37.000Z",
-          "evidenceRole": "primary",
-          "url": "https://x.com/interfaze_ai/status/2089384159525670980"
-        }
-      ]
-    },
     {
       "id": "tle-9cbdc927692f194955b3e1ae",
       "eventDate": "2026-08-01",
@@ -159,7 +135,7 @@
       "months": [
         {
           "month": "2026-08",
-          "count": 2
+          "count": 1
         },
         {
           "month": "2026-07",
@@ -178,8 +154,8 @@
   ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 6,
-    "lastSuccessfulArtifactAt": "2026-08-24T14:39:14.351Z"
+    "publishedEventCount": 5,
+    "lastSuccessfulArtifactAt": "2026-08-26T10:02:14.680Z"
   },
   "nextCursor": null
 }

@@ -5,8 +5,8 @@
     "slug": "omanta",
     "name": "Omanta"
   },
-  "generatedAt": "2026-08-24T14:39:14.351Z",
-  "lastModifiedAt": "2026-08-24T14:39:14.351Z",
+  "generatedAt": "2026-08-26T10:02:14.680Z",
+  "lastModifiedAt": "2026-08-26T10:02:14.680Z",
   "events": [
     {
       "id": "tle-02853050c54edb9872fac754",
@@ -15,10 +15,10 @@
       "title": "Omanta released Omanta: A Personal Research Lab for Every Patient",
       "summary": "Omanta introduced Omanta: A Personal Research Lab for Every Patient.",
       "category": "product_launch",
-      "isMajor": true,
+      "isMajor": false,
       "hasConflict": false,
       "conflictSummary": null,
-      "evidenceCount": 2,
+      "evidenceCount": 1,
       "sourcePreview": [
         {
           "id": "src-9e4e32539ce65851d143d6a4",
@@ -29,16 +29,6 @@
           "publishedAt": "2026-08-03T16:03:05-07:00",
           "evidenceRole": "primary",
           "url": "https://youtube.com/watch?v=AwMthrNP7Bs"
-        },
-        {
-          "id": "src-cea441fbbcf41e29c916583e",
-          "title": "Introducing Omanta: A Personal Research Lab for Every Patient",
-          "publisher": "Introducing Omanta: A Personal Research Lab for Every Patient",
-          "domain": "youtube.com",
-          "sourceType": "video",
-          "publishedAt": "2026-08-10T00:01:08-07:00",
-          "evidenceRole": "primary",
-          "url": "https://youtube.com/watch?v=EkZaq_fENqI"
         }
       ]
     }
@@ -57,7 +47,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-08-24T14:39:14.351Z"
+    "lastSuccessfulArtifactAt": "2026-08-26T10:02:14.680Z"
   },
   "nextCursor": null
 }

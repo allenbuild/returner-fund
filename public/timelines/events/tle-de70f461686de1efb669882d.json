@@ -15,7 +15,7 @@
     "isMajor": true,
     "hasConflict": false,
     "conflictSummary": null,
-    "evidenceCount": 3,
+    "evidenceCount": 2,
     "sourcePreview": [
       {
         "id": "src-67f96a317dccc034b9930ec7",
@@ -36,16 +36,6 @@
         "publishedAt": "2026-08-09T16:38:48-07:00",
         "evidenceRole": "primary",
         "url": "https://youtube.com/watch?v=FYJFUXyLu90"
-      },
-      {
-        "id": "src-48d2d50fd1478206c86d08a2",
-        "title": "Prodigy Research (YC S26) Launch Video",
-        "publisher": "Prodigy Research (YC S26) Launch Video",
-        "domain": "youtube.com",
-        "sourceType": "video",
-        "publishedAt": "2026-08-22T16:59:44-07:00",
-        "evidenceRole": "primary",
-        "url": "https://youtube.com/watch?v=wkT96INB3RA"
       }
     ],
     "evidence": [
@@ -75,21 +65,6 @@
         "url": "https://youtube.com/watch?v=FYJFUXyLu90",
         "publicationDate": "2026-08-09T16:38:48-07:00",
         "excerpt": "Prodigy is an AI lab that has trained the world's best foundation model for quantitative finance.",
-        "sourceEventDate": "2026-08-18",
-        "isConflicting": false,
-        "conflictDescription": null
-      },
-      {
-        "id": "src-48d2d50fd1478206c86d08a2",
-        "title": "Prodigy Research (YC S26) Launch Video",
-        "publisher": "Prodigy Research (YC S26) Launch Video",
-        "domain": "youtube.com",
-        "sourceType": "video",
-        "publishedAt": "2026-08-22T16:59:44-07:00",
-        "evidenceRole": "primary",
-        "url": "https://youtube.com/watch?v=wkT96INB3RA",
-        "publicationDate": "2026-08-22T16:59:44-07:00",
-        "excerpt": "Prodigy Research is an AI lab that has trained the world's best foundation model for quantitative finance. We’ve already achieved 140% returns in live trading over the course of our YC batch, while major indices like the S&P 500 and the Nasdaq were flat. Learn more at prodigy.markets",
         "sourceEventDate": "2026-08-18",
         "isConflicting": false,
         "conflictDescription": null
@@ -123,23 +98,9 @@
           "comments": 0
         },
         "evidenceRole": "primary"
-      },
-      {
-        "id": "post-9c5a86b735b3f3706a60a152",
-        "platform": "youtube",
-        "account": "Prodigy Research (YC S26) Launch Video",
-        "postDate": "2026-08-22",
-        "excerpt": "Prodigy Research is an AI lab that has trained the world's best foundation model for quantitative finance. We’ve already achieved 140% returns in live trading over the course of our YC batch, while major indices like the S&P 500 and the Nasdaq were flat. Learn more at prodigy.markets",
-        "url": "https://youtube.com/watch?v=wkT96INB3RA",
-        "metrics": {
-          "views": 19,
-          "likes": 0,
-          "comments": 0
-        },
-        "evidenceRole": "primary"
       }
     ]
   },
-  "generatedAt": "2026-08-24T14:39:14.351Z",
-  "lastModifiedAt": "2026-08-24T14:39:14.351Z"
+  "generatedAt": "2026-08-26T10:02:14.680Z",
+  "lastModifiedAt": "2026-08-26T10:02:14.680Z"
 }

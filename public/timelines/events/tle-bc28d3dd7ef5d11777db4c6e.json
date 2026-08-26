@@ -12,10 +12,10 @@
     "title": "TovenAI announced its public launch",
     "summary": "TovenAI introduced TovenAI YC S26: Building agents that handle the most complicated compliance workflows at the largest, most sophisticated trading firms in the world.",
     "category": "product_launch",
-    "isMajor": true,
+    "isMajor": false,
     "hasConflict": false,
     "conflictSummary": null,
-    "evidenceCount": 2,
+    "evidenceCount": 1,
     "sourcePreview": [
       {
         "id": "src-7774ca6fb2dda7582af678a1",
@@ -26,16 +26,6 @@
         "publishedAt": "2026-08-20T17:12:00.000Z",
         "evidenceRole": "primary",
         "url": "https://x.com/bradflora/status/2090487022737572313"
-      },
-      {
-        "id": "src-289645aa64600ee0924088a3",
-        "title": "TovenAI Launch Video",
-        "publisher": "TovenAI Launch Video",
-        "domain": "youtube.com",
-        "sourceType": "video",
-        "publishedAt": "2026-08-19T10:11:55-07:00",
-        "evidenceRole": "primary",
-        "url": "https://youtube.com/watch?v=02IMKFk38IU"
       }
     ],
     "evidence": [
@@ -50,21 +40,6 @@
         "url": "https://x.com/bradflora/status/2090487022737572313",
         "publicationDate": "2026-08-20T17:12:00.000Z",
         "excerpt": "Introducing TovenAI YC S26: Building agents that handle the most complicated compliance workflows at the largest, most sophisticated trading firms in the world. There are many \"AI compliance\" startups. The Toven guys have actually gone to the biggest firms and gotten live in production automating their most horrific workflows. It's the AI compliance equivalent of scaling Everest.",
-        "sourceEventDate": "2026-08-20",
-        "isConflicting": false,
-        "conflictDescription": null
-      },
-      {
-        "id": "src-289645aa64600ee0924088a3",
-        "title": "TovenAI Launch Video",
-        "publisher": "TovenAI Launch Video",
-        "domain": "youtube.com",
-        "sourceType": "video",
-        "publishedAt": "2026-08-19T10:11:55-07:00",
-        "evidenceRole": "primary",
-        "url": "https://youtube.com/watch?v=02IMKFk38IU",
-        "publicationDate": "2026-08-19T10:11:55-07:00",
-        "excerpt": "Today, we’re launching TovenAI: an AI-powered intelligence platform for compliance at institutional trading firms. Our platform is built for the scale and complexity of compliance at these firms, with agents already live across multiple workflows at a top-10 U.S. institutional trading firm.",
         "sourceEventDate": "2026-08-20",
         "isConflicting": false,
         "conflictDescription": null
@@ -86,23 +61,9 @@
           "quotes": 1
         },
         "evidenceRole": "primary"
-      },
-      {
-        "id": "post-ea1462b14993ddb6b3e17692",
-        "platform": "youtube",
-        "account": "TovenAI Launch Video",
-        "postDate": "2026-08-19",
-        "excerpt": "Today, we’re launching TovenAI: an AI-powered intelligence platform for compliance at institutional trading firms. Our platform is built for the scale and complexity of compliance at these firms, with agents already live across multiple workflows at a top-10 U.S. institutional trading firm.",
-        "url": "https://youtube.com/watch?v=02IMKFk38IU",
-        "metrics": {
-          "views": 47,
-          "likes": 1,
-          "comments": 0
-        },
-        "evidenceRole": "primary"
       }
     ]
   },
-  "generatedAt": "2026-08-24T14:39:14.351Z",
-  "lastModifiedAt": "2026-08-24T14:39:14.351Z"
+  "generatedAt": "2026-08-26T10:02:14.680Z",
+  "lastModifiedAt": "2026-08-26T10:02:14.680Z"
 }

@@ -5,49 +5,14 @@
     "slug": "greypoint-industries",
     "name": "Greypoint Industries"
   },
-  "generatedAt": "2026-08-24T14:39:14.351Z",
-  "lastModifiedAt": "2026-08-24T14:39:14.351Z",
-  "events": [
-    {
-      "id": "tle-3f1b4395625b247efc53f742",
-      "eventDate": "2026-07-30",
-      "eventDateType": "announcement_date",
-      "title": "Greypoint Industries released Greypoint Industries (YC S26) Official Launch",
-      "summary": "Greypoint Industries (YC S26) Official Launch.",
-      "category": "product_launch",
-      "isMajor": false,
-      "hasConflict": false,
-      "conflictSummary": null,
-      "evidenceCount": 1,
-      "sourcePreview": [
-        {
-          "id": "src-ba8e80987543027503e700e6",
-          "title": "Greypoint Industries (YC S26) Official Launch",
-          "publisher": "Greypoint Industries (YC S26) Official Launch",
-          "domain": "youtube.com",
-          "sourceType": "video",
-          "publishedAt": "2026-07-30T14:29:47-07:00",
-          "evidenceRole": "primary",
-          "url": "https://youtube.com/watch?v=y9jC4A7Fg04"
-        }
-      ]
-    }
-  ],
-  "groups": [
-    {
-      "year": 2026,
-      "months": [
-        {
-          "month": "2026-07",
-          "count": 1
-        }
-      ]
-    }
-  ],
+  "generatedAt": "2026-08-26T10:02:14.680Z",
+  "lastModifiedAt": "2026-08-26T10:02:14.680Z",
+  "events": [],
+  "groups": [],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-08-24T14:39:14.351Z"
+    "publishedEventCount": 0,
+    "lastSuccessfulArtifactAt": "2026-08-26T10:02:14.680Z"
   },
   "nextCursor": null
 }

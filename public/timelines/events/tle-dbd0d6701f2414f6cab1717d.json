@@ -1,0 +1,69 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-prized",
+    "slug": "prized",
+    "name": "Prized"
+  },
+  "event": {
+    "id": "tle-dbd0d6701f2414f6cab1717d",
+    "eventDate": "2026-07-29",
+    "eventDateType": "announcement_date",
+    "title": "Prized announced its public launch",
+    "summary": "Prized announced it was launching Prized Sandboxes Someone on your team asks to point Claude Code at the customer database.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-4545b629cc7be112dbfdb134",
+        "title": "Today we're launching Prized Sandboxes Someone on your team asks to point Claude Code at the customer database.",
+        "publisher": "hudson_gri",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-07-29T16:05:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/hudson_gri/status/2082497628953338023"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-4545b629cc7be112dbfdb134",
+        "title": "Today we're launching Prized Sandboxes Someone on your team asks to point Claude Code at the customer database.",
+        "publisher": "hudson_gri",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-07-29T16:05:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/hudson_gri/status/2082497628953338023",
+        "publicationDate": "2026-07-29T16:05:00.000Z",
+        "excerpt": "Today we're launching Prized Sandboxes Someone on your team asks to point Claude Code at the customer database. You want to say yes. You just have no way to know it's being done safely. Now you do: isolated workspaces, data already connected, the AI never touches a real https://t.co/2ot9A5ZrSE",
+        "sourceEventDate": "2026-07-29",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-0a0f10398c75c641d89f53bd",
+        "platform": "x",
+        "account": "hudson_gri",
+        "postDate": "2026-07-29",
+        "excerpt": "Today we're launching Prized Sandboxes Someone on your team asks to point Claude Code at the customer database. You want to say yes. You just have no way to know it's being done safely. Now you do: isolated workspaces, data already connected, the AI never touches a real https://t.co/2ot9A5ZrSE",
+        "url": "https://x.com/hudson_gri/status/2082497628953338023",
+        "metrics": {
+          "likes": 43,
+          "reposts": 5,
+          "quotes": 0,
+          "replies": 22,
+          "views": 5278
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-26T10:02:14.680Z",
+  "lastModifiedAt": "2026-08-26T10:02:14.680Z"
+}

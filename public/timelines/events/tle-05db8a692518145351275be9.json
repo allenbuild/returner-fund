@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-realpact",
+    "slug": "realpact",
+    "name": "RealPact"
+  },
+  "event": {
+    "id": "tle-05db8a692518145351275be9",
+    "eventDate": "2026-08-06",
+    "eventDateType": "announcement_date",
+    "title": "RealPact released on tomorrow at 1 PM PT",
+    "summary": "RealPact is launching on @ycombinator tomorrow at 1 PM PT.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-4fdf0c73a6bbf65fb089bef4",
+        "title": "We’re launching on @ycombinator tomorrow at 1 PM PT! It would mean the world to me if you could check it out, leave an upvote, and comment if you enjoy it.",
+        "publisher": "ranvirdeshmukh_",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-08-06T00:38:41.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/ranvirdeshmukh_/status/2085163616664232442"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-4fdf0c73a6bbf65fb089bef4",
+        "title": "We’re launching on @ycombinator tomorrow at 1 PM PT! It would mean the world to me if you could check it out, leave an upvote, and comment if you enjoy it.",
+        "publisher": "ranvirdeshmukh_",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-08-06T00:38:41.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/ranvirdeshmukh_/status/2085163616664232442",
+        "publicationDate": "2026-08-06T00:38:41.000Z",
+        "excerpt": "We’re launching on @ycombinator tomorrow at 1 PM PT! It would mean the world to me if you could check it out, leave an upvote, and comment if you enjoy it. https://t.co/CinWAsPclM",
+        "sourceEventDate": "2026-08-06",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-4a89dc5f5543fbb59ec35d34",
+        "platform": "x",
+        "account": "ranvirdeshmukh_",
+        "postDate": "2026-08-06",
+        "excerpt": "We’re launching on @ycombinator tomorrow at 1 PM PT! It would mean the world to me if you could check it out, leave an upvote, and comment if you enjoy it. https://t.co/CinWAsPclM",
+        "url": "https://x.com/ranvirdeshmukh_/status/2085163616664232442",
+        "metrics": {
+          "likes": 13,
+          "reposts": 0,
+          "replies": 4,
+          "views": 568
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-26T10:02:14.680Z",
+  "lastModifiedAt": "2026-08-26T10:02:14.680Z"
+}

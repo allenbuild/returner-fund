@@ -5,8 +5,8 @@
     "slug": "snag",
     "name": "snag"
   },
-  "generatedAt": "2026-08-24T14:39:14.351Z",
-  "lastModifiedAt": "2026-08-24T14:39:14.351Z",
+  "generatedAt": "2026-08-26T10:02:14.680Z",
+  "lastModifiedAt": "2026-08-26T10:02:14.680Z",
   "events": [
     {
       "id": "tle-c6c482e135835468314821de",
@@ -26,7 +26,7 @@
           "publisher": "subletgirl",
           "domain": "instagram.com",
           "sourceType": "founder_post",
-          "publishedAt": "2025-04-17T22:40:17.000Z",
+          "publishedAt": "2025-04-17T22:40:17Z",
           "evidenceRole": "primary",
           "url": "https://instagram.com/reel/DIkJC8Vp-Gl"
         }
@@ -47,7 +47,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-08-24T14:39:14.351Z"
+    "lastSuccessfulArtifactAt": "2026-08-26T10:02:14.680Z"
   },
   "nextCursor": null
 }

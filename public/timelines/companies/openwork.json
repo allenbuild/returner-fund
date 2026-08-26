@@ -5,8 +5,8 @@
     "slug": "openwork",
     "name": "OpenWork"
   },
-  "generatedAt": "2026-08-24T14:39:14.351Z",
-  "lastModifiedAt": "2026-08-24T14:39:14.351Z",
+  "generatedAt": "2026-08-26T10:02:14.680Z",
+  "lastModifiedAt": "2026-08-26T10:02:14.680Z",
   "events": [
     {
       "id": "tle-b1b8a22b8c3555944daa0fa7",
@@ -29,30 +29,6 @@
           "publishedAt": "2026-08-02T16:14:24.000Z",
           "evidenceRole": "primary",
           "url": "https://x.com/benjaminshafii/status/2083949544820060597"
-        }
-      ]
-    },
-    {
-      "id": "tle-2998725ce851dace786ad0ce",
-      "eventDate": "2026-07-26",
-      "eventDateType": "announcement_date",
-      "title": "OpenWork released OpenWork Web OpenWork web brings your setup to the cloud",
-      "summary": "OpenWork introduced OpenWork Web OpenWork web brings your setup to the cloud.",
-      "category": "product_launch",
-      "isMajor": false,
-      "hasConflict": false,
-      "conflictSummary": null,
-      "evidenceCount": 1,
-      "sourcePreview": [
-        {
-          "id": "src-85c7d208c6c10a4885c4f235",
-          "title": "Introducing OpenWork Web OpenWork web brings your setup to the cloud.",
-          "publisher": "getopenwork",
-          "domain": "x.com",
-          "sourceType": "company_post",
-          "publishedAt": "2026-07-26T11:19:43.000Z",
-          "evidenceRole": "primary",
-          "url": "https://x.com/getopenwork/status/2081338670527717862"
         }
       ]
     },
@@ -173,7 +149,7 @@
         },
         {
           "month": "2026-07",
-          "count": 2
+          "count": 1
         },
         {
           "month": "2026-03",
@@ -184,8 +160,8 @@
   ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 6,
-    "lastSuccessfulArtifactAt": "2026-08-24T14:39:14.351Z"
+    "publishedEventCount": 5,
+    "lastSuccessfulArtifactAt": "2026-08-26T10:02:14.680Z"
   },
   "nextCursor": null
 }

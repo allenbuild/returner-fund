@@ -5,59 +5,14 @@
     "slug": "vestris",
     "name": "Vestris"
   },
-  "generatedAt": "2026-08-24T14:39:14.351Z",
-  "lastModifiedAt": "2026-08-24T14:39:14.351Z",
-  "events": [
-    {
-      "id": "tle-7d9bacb5d2d33f58bcfc2eb8",
-      "eventDate": "2026-08-06",
-      "eventDateType": "announcement_date",
-      "title": "Vestris announced its public launch",
-      "summary": "Vestris introduced Vestris (YC S26) -- an AI native title processing service Every US home sale runs through a title company: a weeks-long, lawyer-driven paper process on decades-old software.",
-      "category": "product_launch",
-      "isMajor": true,
-      "hasConflict": false,
-      "conflictSummary": null,
-      "evidenceCount": 2,
-      "sourcePreview": [
-        {
-          "id": "src-f5f52fa6757a482539c2f620",
-          "title": "Introducing Vestris (YC S26) -- an AI native title processing service Every US home sale runs through a title company: a weeks-long, lawyer-driven paper process on decades-old software.",
-          "publisher": "aahil__val",
-          "domain": "x.com",
-          "sourceType": "founder_post",
-          "publishedAt": "2026-08-06T19:13:38.000Z",
-          "evidenceRole": "primary",
-          "url": "https://x.com/aahil__val/status/2085444205594226728"
-        },
-        {
-          "id": "src-0e8cb6a65202d3d247b1ecf3",
-          "title": "Vestris Launch Video",
-          "publisher": "Vestris Launch Video",
-          "domain": "youtube.com",
-          "sourceType": "video",
-          "publishedAt": "2026-08-05T12:49:49-07:00",
-          "evidenceRole": "primary",
-          "url": "https://youtube.com/watch?v=u2do97AOvQY"
-        }
-      ]
-    }
-  ],
-  "groups": [
-    {
-      "year": 2026,
-      "months": [
-        {
-          "month": "2026-08",
-          "count": 1
-        }
-      ]
-    }
-  ],
+  "generatedAt": "2026-08-26T10:02:14.680Z",
+  "lastModifiedAt": "2026-08-26T10:02:14.680Z",
+  "events": [],
+  "groups": [],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-08-24T14:39:14.351Z"
+    "publishedEventCount": 0,
+    "lastSuccessfulArtifactAt": "2026-08-26T10:02:14.680Z"
   },
   "nextCursor": null
 }

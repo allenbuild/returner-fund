@@ -23,7 +23,7 @@
         "publisher": "machine__0",
         "domain": "x.com",
         "sourceType": "company_post",
-        "publishedAt": "2026-07-01T15:39:24.000Z",
+        "publishedAt": "2026-07-01T00:00:00.000Z",
         "evidenceRole": "primary",
         "url": "https://x.com/machine__0/status/2072344325686755678"
       }
@@ -35,10 +35,10 @@
         "publisher": "machine__0",
         "domain": "x.com",
         "sourceType": "company_post",
-        "publishedAt": "2026-07-01T15:39:24.000Z",
+        "publishedAt": "2026-07-01T00:00:00.000Z",
         "evidenceRole": "primary",
         "url": "https://x.com/machine__0/status/2072344325686755678",
-        "publicationDate": "2026-07-01T15:39:24.000Z",
+        "publicationDate": "2026-07-01T00:00:00.000Z",
         "excerpt": "We just launched Environments, which allows you to inject variables into VMs at creation time. https://t.co/RKKR580gJu",
         "sourceEventDate": "2026-07-01",
         "isConflicting": false,
@@ -57,12 +57,12 @@
           "likes": 4,
           "reposts": 1,
           "replies": 2,
-          "views": 459
+          "views": 464
         },
         "evidenceRole": "primary"
       }
     ]
   },
-  "generatedAt": "2026-08-24T14:39:14.351Z",
-  "lastModifiedAt": "2026-08-24T14:39:14.351Z"
+  "generatedAt": "2026-08-26T10:02:14.680Z",
+  "lastModifiedAt": "2026-08-26T10:02:14.680Z"
 }

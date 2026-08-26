@@ -5,73 +5,14 @@
     "slug": "edotenv",
     "name": "EdotEnv"
   },
-  "generatedAt": "2026-08-24T14:39:14.351Z",
-  "lastModifiedAt": "2026-08-24T14:39:14.351Z",
-  "events": [
-    {
-      "id": "tle-a560e0c591cb576d4a226d78",
-      "eventDate": "2026-08-13",
-      "eventDateType": "announcement_date",
-      "title": "EdotEnv released Today we are launching EdotEnv, a Quant Neolab building toward RSI",
-      "summary": "EdotEnv announced it was launching EdotEnv, a Quant Neolab building toward RSI.",
-      "category": "product_launch",
-      "isMajor": false,
-      "hasConflict": false,
-      "conflictSummary": null,
-      "evidenceCount": 1,
-      "sourcePreview": [
-        {
-          "id": "src-f2dbd3adb9695f02168b96ba",
-          "title": "Today we are launching EdotEnv, a Quant Neolab building toward RSI.",
-          "publisher": "rricefan",
-          "domain": "x.com",
-          "sourceType": "founder_post",
-          "publishedAt": "2026-08-13T22:15:09.000Z",
-          "evidenceRole": "primary",
-          "url": "https://x.com/rricefan/status/2088026599375741398"
-        }
-      ]
-    },
-    {
-      "id": "tle-f85a35ad273a76006efe1945",
-      "eventDate": "2026-08-04",
-      "eventDateType": "announcement_date",
-      "title": "EdotEnv launched on Hacker News",
-      "summary": "Launch HN: EdotEnv (YC S26) – Quant Trading RL Envs to Teach LLMs Research.",
-      "category": "product_launch",
-      "isMajor": false,
-      "hasConflict": false,
-      "conflictSummary": null,
-      "evidenceCount": 1,
-      "sourcePreview": [
-        {
-          "id": "src-219f7f540fa9ae2fe977305c",
-          "title": "Launch HN: EdotEnv (YC S26) – Quant Trading RL Envs to Teach LLMs Research",
-          "publisher": "Launch HN: EdotEnv (YC S26) – Quant Trading RL Envs to Teach LLMs Research",
-          "domain": "news.ycombinator.com",
-          "sourceType": "company_post",
-          "publishedAt": "2026-08-04T18:36:02Z",
-          "evidenceRole": "primary",
-          "url": "https://news.ycombinator.com/item?id=49172936"
-        }
-      ]
-    }
-  ],
-  "groups": [
-    {
-      "year": 2026,
-      "months": [
-        {
-          "month": "2026-08",
-          "count": 2
-        }
-      ]
-    }
-  ],
+  "generatedAt": "2026-08-26T10:02:14.680Z",
+  "lastModifiedAt": "2026-08-26T10:02:14.680Z",
+  "events": [],
+  "groups": [],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 2,
-    "lastSuccessfulArtifactAt": "2026-08-24T14:39:14.351Z"
+    "publishedEventCount": 0,
+    "lastSuccessfulArtifactAt": "2026-08-26T10:02:14.680Z"
   },
   "nextCursor": null
 }

@@ -1,0 +1,69 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-provenmetal",
+    "slug": "provenmetal",
+    "name": "ProvenMetal"
+  },
+  "event": {
+    "id": "tle-43ca8d07d730805fc77ef004",
+    "eventDate": "2026-07-13",
+    "eventDateType": "announcement_date",
+    "title": "ProvenMetal launched on Y Combinator",
+    "summary": "long live the late nights building circuit boards @provenmetal is now live on @ycombinator.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-9c2603ea222290f38e35399a",
+        "title": "long live the late nights building circuit boards @provenmetal is now live on @ycombinator!",
+        "publisher": "CarknerWill",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-07-13T17:37:43.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/CarknerWill/status/2076722758155964636"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-9c2603ea222290f38e35399a",
+        "title": "long live the late nights building circuit boards @provenmetal is now live on @ycombinator!",
+        "publisher": "CarknerWill",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-07-13T17:37:43.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/CarknerWill/status/2076722758155964636",
+        "publicationDate": "2026-07-13T17:37:43.000Z",
+        "excerpt": "long live the late nights building circuit boards @provenmetal is now live on @ycombinator!",
+        "sourceEventDate": "2026-07-13",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-4a732495ffe3197d2a568870",
+        "platform": "x",
+        "account": "CarknerWill",
+        "postDate": "2026-07-13",
+        "excerpt": "long live the late nights building circuit boards @provenmetal is now live on @ycombinator!",
+        "url": "https://x.com/CarknerWill/status/2076722758155964636",
+        "metrics": {
+          "views": 11037,
+          "likes": 80,
+          "replies": 16,
+          "reposts": 8,
+          "bookmarks": 6
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-26T10:02:14.680Z",
+  "lastModifiedAt": "2026-08-26T10:02:14.680Z"
+}

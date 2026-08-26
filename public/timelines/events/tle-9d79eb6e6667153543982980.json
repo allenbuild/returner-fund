@@ -23,7 +23,7 @@
         "publisher": "InLoop Robotics (YC P26) Launch",
         "domain": "youtube.com",
         "sourceType": "video",
-        "publishedAt": "2026-05-19T02:29:05-07:00",
+        "publishedAt": "2026-05-19T09:29:05.000Z",
         "evidenceRole": "primary",
         "url": "https://youtube.com/watch?v=25SjZ28WX6Q"
       }
@@ -35,10 +35,10 @@
         "publisher": "InLoop Robotics (YC P26) Launch",
         "domain": "youtube.com",
         "sourceType": "video",
-        "publishedAt": "2026-05-19T02:29:05-07:00",
+        "publishedAt": "2026-05-19T09:29:05.000Z",
         "evidenceRole": "primary",
         "url": "https://youtube.com/watch?v=25SjZ28WX6Q",
-        "publicationDate": "2026-05-19T02:29:05-07:00",
+        "publicationDate": "2026-05-19T09:29:05.000Z",
         "excerpt": "InLoop deploys robot employees you can hire by the month. Our intelligent robotic arms pack, kit, and fulfill in warehouses, fulfillment centers, and factories. We handle everything else. Paid pilots live in customer warehouses today: 300+ picks/hour, generalizing across hundreds of SKUs, replacing $100k+ integration projects per station. Ask: If you run ops at a warehouse, fulfillment center, or factory - what's the one repetitive task you wish a robot could just do tomorrow? Tell us. We'll…",
         "sourceEventDate": "2026-05-19",
         "isConflicting": false,
@@ -62,6 +62,6 @@
       }
     ]
   },
-  "generatedAt": "2026-08-24T14:39:14.351Z",
-  "lastModifiedAt": "2026-08-24T14:39:14.351Z"
+  "generatedAt": "2026-08-26T10:02:14.680Z",
+  "lastModifiedAt": "2026-08-26T10:02:14.680Z"
 }

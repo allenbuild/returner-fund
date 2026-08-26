@@ -5,49 +5,14 @@
     "slug": "subvysion",
     "name": "SubVysion"
   },
-  "generatedAt": "2026-08-24T14:39:14.351Z",
-  "lastModifiedAt": "2026-08-24T14:39:14.351Z",
-  "events": [
-    {
-      "id": "tle-cbda6ea521ee6b7df4f5eabe",
-      "eventDate": "2026-08-19",
-      "eventDateType": "announcement_date",
-      "title": "SubVysion released SubVysion YC S26 Launch",
-      "summary": "SubVysion YC S26 Launch.",
-      "category": "product_launch",
-      "isMajor": false,
-      "hasConflict": false,
-      "conflictSummary": null,
-      "evidenceCount": 1,
-      "sourcePreview": [
-        {
-          "id": "src-786a941a8be43257280f3382",
-          "title": "SubVysion YC S26 Launch",
-          "publisher": "SubVysion YC S26 Launch",
-          "domain": "youtube.com",
-          "sourceType": "video",
-          "publishedAt": "2026-08-19T12:17:25-07:00",
-          "evidenceRole": "primary",
-          "url": "https://youtube.com/watch?v=5IY3vHEJ7J4"
-        }
-      ]
-    }
-  ],
-  "groups": [
-    {
-      "year": 2026,
-      "months": [
-        {
-          "month": "2026-08",
-          "count": 1
-        }
-      ]
-    }
-  ],
+  "generatedAt": "2026-08-26T10:02:14.680Z",
+  "lastModifiedAt": "2026-08-26T10:02:14.680Z",
+  "events": [],
+  "groups": [],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-08-24T14:39:14.351Z"
+    "publishedEventCount": 0,
+    "lastSuccessfulArtifactAt": "2026-08-26T10:02:14.680Z"
   },
   "nextCursor": null
 }

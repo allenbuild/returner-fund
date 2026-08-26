@@ -5,14 +5,49 @@
     "slug": "agentcard",
     "name": "Agentcard"
   },
-  "generatedAt": "2026-08-24T14:39:14.351Z",
-  "lastModifiedAt": "2026-08-24T14:39:14.351Z",
-  "events": [],
-  "groups": [],
+  "generatedAt": "2026-08-26T10:02:14.680Z",
+  "lastModifiedAt": "2026-08-26T10:02:14.680Z",
+  "events": [
+    {
+      "id": "tle-bde1b80dd024f647fa7f05f6",
+      "eventDate": "2026-07-31",
+      "eventDateType": "announcement_date",
+      "title": "Agentcard partnered with @NangoHQ to be in their integrations marketplace",
+      "summary": "Agentcard has partnered with @NangoHQ to be in their integrations marketplace.",
+      "category": "partnership",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-800769154416afbe7e8c15bd",
+          "title": "we've partnered with @NangoHQ to be in their integrations marketplace! if you're using their amazing product, now its super easy to allow your agents to pay for stuff :) https://t.co/yvAJcHCMW2",
+          "publisher": "pipeabellos",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-07-31T18:11:24.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/pipeabellos/status/2083254216907247961"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-07",
+          "count": 1
+        }
+      ]
+    }
+  ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 0,
-    "lastSuccessfulArtifactAt": "2026-08-24T14:39:14.351Z"
+    "publishedEventCount": 1,
+    "lastSuccessfulArtifactAt": "2026-08-26T10:02:14.680Z"
   },
   "nextCursor": null
 }

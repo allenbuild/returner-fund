@@ -5,77 +5,14 @@
     "slug": "smart-bricks",
     "name": "Smart Bricks"
   },
-  "generatedAt": "2026-08-24T14:39:14.351Z",
-  "lastModifiedAt": "2026-08-24T14:39:14.351Z",
-  "events": [
-    {
-      "id": "tle-3074344412b7a564ef8e021a",
-      "eventDate": "2026-04-09",
-      "eventDateType": "announcement_date",
-      "title": "Smart Bricks announced its public launch",
-      "summary": "Smart Bricks introduced the Smart Bricks Portfolio a smarter way to manage, track, and understand your properties all in one place.",
-      "category": "product_launch",
-      "isMajor": false,
-      "hasConflict": false,
-      "conflictSummary": null,
-      "evidenceCount": 1,
-      "sourcePreview": [
-        {
-          "id": "src-036a1932a348b48016023c41",
-          "title": "Introducing the Smart Bricks Portfolio a smarter way to manage, track, and understand your properties all in one place. Add your properties, and we’ll show you exactly how your portfolio is performing, what it’s worth, and where it’s…",
-          "publisher": "smartbricks_invest",
-          "domain": "instagram.com",
-          "sourceType": "company_post",
-          "publishedAt": "2026-04-09T14:46:42.000Z",
-          "evidenceRole": "primary",
-          "url": "https://instagram.com/p/DW6i8q0jSc9"
-        }
-      ]
-    },
-    {
-      "id": "tle-b60318a6014ecb3cc3d907ff",
-      "eventDate": "2026-02-10",
-      "eventDateType": "announcement_date",
-      "title": "Smart Bricks announced pre-seed round",
-      "summary": "️ Tomorrow morning, our Founder & CEO Mohamed Mohamed joins heybrandyscott on Dubai Eye 103.8's Business Breakfast to unpack the story behind SmartBricks from our newly announced pre-seed round led by a16z to what we're building and why it matters.",
-      "category": "funding",
-      "isMajor": true,
-      "hasConflict": false,
-      "conflictSummary": null,
-      "evidenceCount": 1,
-      "sourcePreview": [
-        {
-          "id": "src-9c2442c5d9afed734c73a620",
-          "title": "🎙️ Tomorrow morning, our Founder & CEO Mohamed Mohamed joins heybrandyscott on Dubai Eye 103.8’s Business Breakfast to unpack the story behind SmartBricks from our newly announced pre-seed round led by a16z to what we’re building and why…",
-          "publisher": "smartbricks_invest",
-          "domain": "instagram.com",
-          "sourceType": "company_post",
-          "publishedAt": "2026-02-10T16:43:16.000Z",
-          "evidenceRole": "primary",
-          "url": "https://instagram.com/p/DUlZL1ljZoy"
-        }
-      ]
-    }
-  ],
-  "groups": [
-    {
-      "year": 2026,
-      "months": [
-        {
-          "month": "2026-04",
-          "count": 1
-        },
-        {
-          "month": "2026-02",
-          "count": 1
-        }
-      ]
-    }
-  ],
+  "generatedAt": "2026-08-26T10:02:14.680Z",
+  "lastModifiedAt": "2026-08-26T10:02:14.680Z",
+  "events": [],
+  "groups": [],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 2,
-    "lastSuccessfulArtifactAt": "2026-08-24T14:39:14.351Z"
+    "publishedEventCount": 0,
+    "lastSuccessfulArtifactAt": "2026-08-26T10:02:14.680Z"
   },
   "nextCursor": null
 }

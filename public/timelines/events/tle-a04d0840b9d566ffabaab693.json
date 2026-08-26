@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-superlog",
+    "slug": "superlog",
+    "name": "Superlog"
+  },
+  "event": {
+    "id": "tle-a04d0840b9d566ffabaab693",
+    "eventDate": "2026-06-08",
+    "eventDateType": "announcement_date",
+    "title": "Superlog released big part of what we're doing (skills as open source",
+    "summary": "Superlog announced it was open sourcing A big part of what we're doing (skills, SDKs) is already open-source.",
+    "category": "open_source",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-6523f362fab92bf3544fa288",
+        "title": "Today we're open sourcing https://t.co/stiMjUF3Rw.",
+        "publisher": "arseniycodes",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-06-08T17:00:52.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/arseniycodes/status/2064029906359742675"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-6523f362fab92bf3544fa288",
+        "title": "Today we're open sourcing https://t.co/stiMjUF3Rw.",
+        "publisher": "arseniycodes",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-06-08T17:00:52.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/arseniycodes/status/2064029906359742675",
+        "publicationDate": "2026-06-08T17:00:52.000Z",
+        "excerpt": "Today we're open sourcing https://t.co/stiMjUF3Rw. A big part of what we're doing (skills, SDKs) is already open-source. We build for developers. We want to share our work with the developer community and make it a common journey. Join us! https://t.co/iXtMjXHujw",
+        "sourceEventDate": "2026-06-08",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-ac14bff89aab7f86e5353555",
+        "platform": "x",
+        "account": "arseniycodes",
+        "postDate": "2026-06-08",
+        "excerpt": "Today we're open sourcing https://t.co/stiMjUF3Rw. A big part of what we're doing (skills, SDKs) is already open-source. We build for developers. We want to share our work with the developer community and make it a common journey. Join us! https://t.co/iXtMjXHujw",
+        "url": "https://x.com/arseniycodes/status/2064029906359742675",
+        "metrics": {
+          "likes": 1065,
+          "reposts": 50,
+          "replies": 44,
+          "views": 185542
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-26T10:02:14.680Z",
+  "lastModifiedAt": "2026-08-26T10:02:14.680Z"
+}

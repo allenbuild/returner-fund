@@ -5,9 +5,33 @@
     "slug": "caution",
     "name": "Caution"
   },
-  "generatedAt": "2026-08-24T14:39:14.351Z",
-  "lastModifiedAt": "2026-08-24T14:39:14.351Z",
+  "generatedAt": "2026-08-26T10:02:14.680Z",
+  "lastModifiedAt": "2026-08-26T10:02:14.680Z",
   "events": [
+    {
+      "id": "tle-8daba8427c937e27594f09d1",
+      "eventDate": "2026-08-12",
+      "eventDateType": "announcement_date",
+      "title": "Caution partnered with @OpenRelayInc as a compute partner to provide private AI inference hmu",
+      "summary": "Caution has partnered with @OpenRelayInc as a compute partner to provide private AI inference hmu if you need provably end-to-end encrypted tokens register for capacity here.",
+      "category": "partnership",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-5e9b037828d36054144b7b5c",
+          "title": "we've partnered with @OpenRelayInc as a compute partner to provide private AI inference hmu if you need provably end-to-end encrypted tokens register for capacity here: https://t.co/Ixotrgs5OU",
+          "publisher": "antonlivaja",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-08-12T23:36:34.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/antonlivaja/status/2087684701234602292"
+        }
+      ]
+    },
     {
       "id": "tle-5623d0c9306fe4df4e5546d1",
       "eventDate": "2026-08-04",
@@ -39,15 +63,15 @@
       "months": [
         {
           "month": "2026-08",
-          "count": 1
+          "count": 2
         }
       ]
     }
   ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-08-24T14:39:14.351Z"
+    "publishedEventCount": 2,
+    "lastSuccessfulArtifactAt": "2026-08-26T10:02:14.680Z"
   },
   "nextCursor": null
 }

@@ -5,8 +5,8 @@
     "slug": "tovenai",
     "name": "TovenAI"
   },
-  "generatedAt": "2026-08-24T14:39:14.351Z",
-  "lastModifiedAt": "2026-08-24T14:39:14.351Z",
+  "generatedAt": "2026-08-26T10:02:14.680Z",
+  "lastModifiedAt": "2026-08-26T10:02:14.680Z",
   "events": [
     {
       "id": "tle-bc28d3dd7ef5d11777db4c6e",
@@ -15,10 +15,10 @@
       "title": "TovenAI announced its public launch",
       "summary": "TovenAI introduced TovenAI YC S26: Building agents that handle the most complicated compliance workflows at the largest, most sophisticated trading firms in the world.",
       "category": "product_launch",
-      "isMajor": true,
+      "isMajor": false,
       "hasConflict": false,
       "conflictSummary": null,
-      "evidenceCount": 2,
+      "evidenceCount": 1,
       "sourcePreview": [
         {
           "id": "src-7774ca6fb2dda7582af678a1",
@@ -29,16 +29,6 @@
           "publishedAt": "2026-08-20T17:12:00.000Z",
           "evidenceRole": "primary",
           "url": "https://x.com/bradflora/status/2090487022737572313"
-        },
-        {
-          "id": "src-289645aa64600ee0924088a3",
-          "title": "TovenAI Launch Video",
-          "publisher": "TovenAI Launch Video",
-          "domain": "youtube.com",
-          "sourceType": "video",
-          "publishedAt": "2026-08-19T10:11:55-07:00",
-          "evidenceRole": "primary",
-          "url": "https://youtube.com/watch?v=02IMKFk38IU"
         }
       ]
     }
@@ -57,7 +47,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-08-24T14:39:14.351Z"
+    "lastSuccessfulArtifactAt": "2026-08-26T10:02:14.680Z"
   },
   "nextCursor": null
 }

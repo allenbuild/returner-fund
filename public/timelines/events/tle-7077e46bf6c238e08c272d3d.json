@@ -23,7 +23,7 @@
         "publisher": "InstaAgent Launch YC",
         "domain": "youtube.com",
         "sourceType": "video",
-        "publishedAt": "2026-05-11T06:39:58-07:00",
+        "publishedAt": "2026-05-11T13:39:58.000Z",
         "evidenceRole": "primary",
         "url": "https://youtube.com/watch?v=NM3l6c2cm0w"
       }
@@ -35,10 +35,10 @@
         "publisher": "InstaAgent Launch YC",
         "domain": "youtube.com",
         "sourceType": "video",
-        "publishedAt": "2026-05-11T06:39:58-07:00",
+        "publishedAt": "2026-05-11T13:39:58.000Z",
         "evidenceRole": "primary",
         "url": "https://youtube.com/watch?v=NM3l6c2cm0w",
-        "publicationDate": "2026-05-11T06:39:58-07:00",
+        "publicationDate": "2026-05-11T13:39:58.000Z",
         "excerpt": "InstaAgent helps B2C companies scale a single marketing campaign across hundreds of specific audiences on Meta and TikTok, each with its own content, voice, and targeting.",
         "sourceEventDate": "2026-05-11",
         "isConflicting": false,
@@ -54,7 +54,7 @@
         "excerpt": "InstaAgent helps B2C companies scale a single marketing campaign across hundreds of specific audiences on Meta and TikTok, each with its own content, voice, and targeting.",
         "url": "https://youtube.com/watch?v=NM3l6c2cm0w",
         "metrics": {
-          "views": 1490,
+          "views": 1526,
           "likes": 6,
           "comments": 0
         },
@@ -62,6 +62,6 @@
       }
     ]
   },
-  "generatedAt": "2026-08-24T14:39:14.351Z",
-  "lastModifiedAt": "2026-08-24T14:39:14.351Z"
+  "generatedAt": "2026-08-26T10:02:14.680Z",
+  "lastModifiedAt": "2026-08-26T10:02:14.680Z"
 }

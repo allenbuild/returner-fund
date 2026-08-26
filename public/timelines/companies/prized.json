@@ -5,31 +5,45 @@
     "slug": "prized",
     "name": "Prized"
   },
-  "generatedAt": "2026-08-24T14:39:14.351Z",
-  "lastModifiedAt": "2026-08-24T14:39:14.351Z",
+  "generatedAt": "2026-08-26T10:02:14.680Z",
+  "lastModifiedAt": "2026-08-26T10:02:14.680Z",
   "events": [
     {
-      "id": "tle-051e39616b340a50a0cec4fb",
-      "eventDate": "2026-07-30",
+      "id": "tle-aa87eebd2f200c83ea454ba4",
+      "eventDate": "2026-08-20",
       "eventDateType": "announcement_date",
-      "title": "Prized launched on Hacker News",
-      "summary": "Launch HN: Prized (YC S26) – Let non-engineer staff build secure internal tools.",
+      "title": "Prized released on product hunt",
+      "summary": "Prized just launched on product hunt, check it out.",
       "category": "product_launch",
-      "isMajor": true,
+      "isMajor": false,
       "hasConflict": false,
       "conflictSummary": null,
-      "evidenceCount": 2,
+      "evidenceCount": 1,
       "sourcePreview": [
         {
-          "id": "src-21cfdb86eb27c6c5ec573915",
-          "title": "Launch HN: Prized (YC S26) – Let non-engineer staff build secure internal tools",
-          "publisher": "Launch HN: Prized (YC S26) – Let non-engineer staff build secure internal tools",
-          "domain": "news.ycombinator.com",
-          "sourceType": "company_post",
-          "publishedAt": "2026-07-30T13:29:03Z",
+          "id": "src-d0c90425a83fd7f7b764624c",
+          "title": "we just launched on product hunt, check it out! https://t.co/xZnqzSLDho",
+          "publisher": "hudson_gri",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-08-20T15:20:00.000Z",
           "evidenceRole": "primary",
-          "url": "https://news.ycombinator.com/item?id=49109721"
-        },
+          "url": "https://x.com/hudson_gri/status/2090458836989874327"
+        }
+      ]
+    },
+    {
+      "id": "tle-dbd0d6701f2414f6cab1717d",
+      "eventDate": "2026-07-29",
+      "eventDateType": "announcement_date",
+      "title": "Prized announced its public launch",
+      "summary": "Prized announced it was launching Prized Sandboxes Someone on your team asks to point Claude Code at the customer database.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
         {
           "id": "src-4545b629cc7be112dbfdb134",
           "title": "Today we're launching Prized Sandboxes Someone on your team asks to point Claude Code at the customer database.",
@@ -96,6 +110,10 @@
       "year": 2026,
       "months": [
         {
+          "month": "2026-08",
+          "count": 1
+        },
+        {
           "month": "2026-07",
           "count": 2
         }
@@ -113,8 +131,8 @@
   ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 3,
-    "lastSuccessfulArtifactAt": "2026-08-24T14:39:14.351Z"
+    "publishedEventCount": 4,
+    "lastSuccessfulArtifactAt": "2026-08-26T10:02:14.680Z"
   },
   "nextCursor": null
 }

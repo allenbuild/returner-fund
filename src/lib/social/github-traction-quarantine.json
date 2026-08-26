@@ -1,7 +1,7 @@
 {
   "source": {
     "schemaVersion": 1,
-    "generatedFromFetchedAt": "2026-08-24T14:36:55.379Z",
+    "generatedFromFetchedAt": "2026-08-26T09:59:45.985Z",
     "publicationPolicy": "stored_but_unpublished",
     "scoringEligible": false,
     "reason": "Rows absent from a fully authoritative whole-cohort GitHub receipt are retained only for audit and manual attribution review; they are not scoring inputs.",
@@ -11,7 +11,7 @@
       "S2026": 90,
       "S26": 47
     },
-    "sharedPhysicalEvidenceReviewCount": 38
+    "sharedPhysicalEvidenceReviewCount": 58
   },
   "rows": [
     {
@@ -28197,23 +28197,9 @@
             "kind": "repository",
             "canonicalUrl": "https://github.com/spekoai/docs",
             "repositoryId": "1211737106",
-            "status": "represented_in_current_canonical_receipt",
-            "matchedBy": [
-              "repository_id",
-              "canonical_url"
-            ],
-            "canonicalMatches": [
-              {
-                "entityType": "company",
-                "entityId": "company-speko",
-                "entityName": "Speko",
-                "accountKey": "company:company-speko:spekoai:",
-                "location": "repository",
-                "accountUrl": "https://github.com/spekoai",
-                "repositoryId": "1211737106",
-                "repositoryUrl": "https://github.com/spekoai/docs"
-              }
-            ]
+            "status": "not_represented_in_current_canonical_receipt",
+            "matchedBy": [],
+            "canonicalMatches": []
           },
           {
             "kind": "repository",
@@ -28263,23 +28249,9 @@
             "kind": "repository",
             "canonicalUrl": "https://github.com/spekoai/tts-arena",
             "repositoryId": "1270155465",
-            "status": "represented_in_current_canonical_receipt",
-            "matchedBy": [
-              "repository_id",
-              "canonical_url"
-            ],
-            "canonicalMatches": [
-              {
-                "entityType": "company",
-                "entityId": "company-speko",
-                "entityName": "Speko",
-                "accountKey": "company:company-speko:spekoai:",
-                "location": "repository",
-                "accountUrl": "https://github.com/spekoai",
-                "repositoryId": "1270155465",
-                "repositoryUrl": "https://github.com/spekoai/tts-arena"
-              }
-            ]
+            "status": "not_represented_in_current_canonical_receipt",
+            "matchedBy": [],
+            "canonicalMatches": []
           },
           {
             "kind": "repository",
@@ -28956,6 +28928,50 @@
   ],
   "physicalEvidenceOwnerReview": [
     {
+      "reviewId": "github-owner-review-0e40358783c4deaf865a4217",
+      "batchSlug": "A16ZSR006",
+      "category": "shared_physical_repository_owner_attribution",
+      "reason": "One physical GitHub repository is exposed by multiple canonical entity-account mappings. Score the repository once by native repository ID/canonical URL and retain every owner candidate for review.",
+      "physicalIdentity": {
+        "repositoryId": "570628236",
+        "canonicalUrl": "https://github.com/gauthamv6002/g4-website"
+      },
+      "ownerCandidates": [
+        {
+          "entityType": "company",
+          "entityId": "a16z-speedrun-006-kaaro",
+          "entityName": "Kaaro",
+          "accountKey": "company:a16z-speedrun-006-kaaro:gauthamv6002:",
+          "location": "repository",
+          "accountUrl": "https://github.com/gauthamv6002",
+          "repositoryId": "570628236",
+          "repositoryUrl": "https://github.com/gauthamv6002/g4-website"
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-kaaro-founder-gautham-venkateshwaran",
+          "entityName": "Gautham Venkateshwaran",
+          "accountKey": "founder:a16z-speedrun-006-kaaro-founder-gautham-venkateshwaran:gauthamv6002:",
+          "location": "repository",
+          "accountUrl": "https://github.com/gauthamv6002",
+          "repositoryId": "570628236",
+          "repositoryUrl": "https://github.com/gauthamv6002/g4-website"
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-kaaro-founder-sai-surisetti",
+          "entityName": "Sai Surisetti",
+          "accountKey": "founder:a16z-speedrun-006-kaaro-founder-sai-surisetti:gauthamv6002:",
+          "location": "repository",
+          "accountUrl": "https://github.com/gauthamv6002",
+          "repositoryId": "570628236",
+          "repositoryUrl": "https://github.com/gauthamv6002/g4-website"
+        }
+      ],
+      "scoringPolicy": "deduplicate_physical_evidence",
+      "reviewState": "needs_review"
+    },
+    {
       "reviewId": "github-owner-review-109f5aa5bace55038a75767e",
       "batchSlug": "A16ZSR006",
       "category": "shared_physical_repository_owner_attribution",
@@ -29298,6 +29314,94 @@
       "reviewState": "needs_review"
     },
     {
+      "reviewId": "github-owner-review-3bdf2006903ce34b2057064f",
+      "batchSlug": "A16ZSR006",
+      "category": "shared_physical_repository_owner_attribution",
+      "reason": "One physical GitHub repository is exposed by multiple canonical entity-account mappings. Score the repository once by native repository ID/canonical URL and retain every owner candidate for review.",
+      "physicalIdentity": {
+        "repositoryId": "562013470",
+        "canonicalUrl": "https://github.com/gauthamv6002/java-machine-learning-engine"
+      },
+      "ownerCandidates": [
+        {
+          "entityType": "company",
+          "entityId": "a16z-speedrun-006-kaaro",
+          "entityName": "Kaaro",
+          "accountKey": "company:a16z-speedrun-006-kaaro:gauthamv6002:",
+          "location": "repository",
+          "accountUrl": "https://github.com/gauthamv6002",
+          "repositoryId": "562013470",
+          "repositoryUrl": "https://github.com/gauthamv6002/java-machine-learning-engine"
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-kaaro-founder-gautham-venkateshwaran",
+          "entityName": "Gautham Venkateshwaran",
+          "accountKey": "founder:a16z-speedrun-006-kaaro-founder-gautham-venkateshwaran:gauthamv6002:",
+          "location": "repository",
+          "accountUrl": "https://github.com/gauthamv6002",
+          "repositoryId": "562013470",
+          "repositoryUrl": "https://github.com/gauthamv6002/java-machine-learning-engine"
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-kaaro-founder-sai-surisetti",
+          "entityName": "Sai Surisetti",
+          "accountKey": "founder:a16z-speedrun-006-kaaro-founder-sai-surisetti:gauthamv6002:",
+          "location": "repository",
+          "accountUrl": "https://github.com/gauthamv6002",
+          "repositoryId": "562013470",
+          "repositoryUrl": "https://github.com/gauthamv6002/java-machine-learning-engine"
+        }
+      ],
+      "scoringPolicy": "deduplicate_physical_evidence",
+      "reviewState": "needs_review"
+    },
+    {
+      "reviewId": "github-owner-review-3ea33d5e480cbf0c68920fc4",
+      "batchSlug": "A16ZSR006",
+      "category": "shared_physical_repository_owner_attribution",
+      "reason": "One physical GitHub repository is exposed by multiple canonical entity-account mappings. Score the repository once by native repository ID/canonical URL and retain every owner candidate for review.",
+      "physicalIdentity": {
+        "repositoryId": "962828141",
+        "canonicalUrl": "https://github.com/gauthamv6002/intro"
+      },
+      "ownerCandidates": [
+        {
+          "entityType": "company",
+          "entityId": "a16z-speedrun-006-kaaro",
+          "entityName": "Kaaro",
+          "accountKey": "company:a16z-speedrun-006-kaaro:gauthamv6002:",
+          "location": "repository",
+          "accountUrl": "https://github.com/gauthamv6002",
+          "repositoryId": "962828141",
+          "repositoryUrl": "https://github.com/gauthamv6002/intro"
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-kaaro-founder-gautham-venkateshwaran",
+          "entityName": "Gautham Venkateshwaran",
+          "accountKey": "founder:a16z-speedrun-006-kaaro-founder-gautham-venkateshwaran:gauthamv6002:",
+          "location": "repository",
+          "accountUrl": "https://github.com/gauthamv6002",
+          "repositoryId": "962828141",
+          "repositoryUrl": "https://github.com/gauthamv6002/intro"
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-kaaro-founder-sai-surisetti",
+          "entityName": "Sai Surisetti",
+          "accountKey": "founder:a16z-speedrun-006-kaaro-founder-sai-surisetti:gauthamv6002:",
+          "location": "repository",
+          "accountUrl": "https://github.com/gauthamv6002",
+          "repositoryId": "962828141",
+          "repositoryUrl": "https://github.com/gauthamv6002/intro"
+        }
+      ],
+      "scoringPolicy": "deduplicate_physical_evidence",
+      "reviewState": "needs_review"
+    },
+    {
       "reviewId": "github-owner-review-3f134c380d52de29c13aecbc",
       "batchSlug": "A16ZSR006",
       "category": "shared_physical_repository_owner_attribution",
@@ -29394,6 +29498,50 @@
           "accountUrl": "https://github.com/modaic-ai",
           "repositoryId": "1097529578",
           "repositoryUrl": "https://github.com/modaic-ai/dspy-intellisense"
+        }
+      ],
+      "scoringPolicy": "deduplicate_physical_evidence",
+      "reviewState": "needs_review"
+    },
+    {
+      "reviewId": "github-owner-review-5274525ec98f10d4f7ea5bf7",
+      "batchSlug": "A16ZSR006",
+      "category": "shared_physical_repository_owner_attribution",
+      "reason": "One physical GitHub repository is exposed by multiple canonical entity-account mappings. Score the repository once by native repository ID/canonical URL and retain every owner candidate for review.",
+      "physicalIdentity": {
+        "repositoryId": "669369936",
+        "canonicalUrl": "https://github.com/gauthamv6002/stemisthacks2"
+      },
+      "ownerCandidates": [
+        {
+          "entityType": "company",
+          "entityId": "a16z-speedrun-006-kaaro",
+          "entityName": "Kaaro",
+          "accountKey": "company:a16z-speedrun-006-kaaro:gauthamv6002:",
+          "location": "repository",
+          "accountUrl": "https://github.com/gauthamv6002",
+          "repositoryId": "669369936",
+          "repositoryUrl": "https://github.com/gauthamv6002/stemisthacks2"
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-kaaro-founder-gautham-venkateshwaran",
+          "entityName": "Gautham Venkateshwaran",
+          "accountKey": "founder:a16z-speedrun-006-kaaro-founder-gautham-venkateshwaran:gauthamv6002:",
+          "location": "repository",
+          "accountUrl": "https://github.com/gauthamv6002",
+          "repositoryId": "669369936",
+          "repositoryUrl": "https://github.com/gauthamv6002/stemisthacks2"
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-kaaro-founder-sai-surisetti",
+          "entityName": "Sai Surisetti",
+          "accountKey": "founder:a16z-speedrun-006-kaaro-founder-sai-surisetti:gauthamv6002:",
+          "location": "repository",
+          "accountUrl": "https://github.com/gauthamv6002",
+          "repositoryId": "669369936",
+          "repositoryUrl": "https://github.com/gauthamv6002/stemisthacks2"
         }
       ],
       "scoringPolicy": "deduplicate_physical_evidence",
@@ -29596,6 +29744,50 @@
       "reviewState": "needs_review"
     },
     {
+      "reviewId": "github-owner-review-6a4739e6d28ee86fbd0d7e1f",
+      "batchSlug": "A16ZSR006",
+      "category": "shared_physical_repository_owner_attribution",
+      "reason": "One physical GitHub repository is exposed by multiple canonical entity-account mappings. Score the repository once by native repository ID/canonical URL and retain every owner candidate for review.",
+      "physicalIdentity": {
+        "repositoryId": "535143135",
+        "canonicalUrl": "https://github.com/gauthamv6002/coding-club-examples"
+      },
+      "ownerCandidates": [
+        {
+          "entityType": "company",
+          "entityId": "a16z-speedrun-006-kaaro",
+          "entityName": "Kaaro",
+          "accountKey": "company:a16z-speedrun-006-kaaro:gauthamv6002:",
+          "location": "repository",
+          "accountUrl": "https://github.com/gauthamv6002",
+          "repositoryId": "535143135",
+          "repositoryUrl": "https://github.com/gauthamv6002/coding-club-examples"
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-kaaro-founder-gautham-venkateshwaran",
+          "entityName": "Gautham Venkateshwaran",
+          "accountKey": "founder:a16z-speedrun-006-kaaro-founder-gautham-venkateshwaran:gauthamv6002:",
+          "location": "repository",
+          "accountUrl": "https://github.com/gauthamv6002",
+          "repositoryId": "535143135",
+          "repositoryUrl": "https://github.com/gauthamv6002/coding-club-examples"
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-kaaro-founder-sai-surisetti",
+          "entityName": "Sai Surisetti",
+          "accountKey": "founder:a16z-speedrun-006-kaaro-founder-sai-surisetti:gauthamv6002:",
+          "location": "repository",
+          "accountUrl": "https://github.com/gauthamv6002",
+          "repositoryId": "535143135",
+          "repositoryUrl": "https://github.com/gauthamv6002/coding-club-examples"
+        }
+      ],
+      "scoringPolicy": "deduplicate_physical_evidence",
+      "reviewState": "needs_review"
+    },
+    {
       "reviewId": "github-owner-review-6dc3a34310568b2b79e4d7e4",
       "batchSlug": "A16ZSR006",
       "category": "shared_physical_repository_owner_attribution",
@@ -29624,6 +29816,94 @@
           "accountUrl": "https://github.com/modaic-ai",
           "repositoryId": "1148293103",
           "repositoryUrl": "https://github.com/modaic-ai/skill-issue"
+        }
+      ],
+      "scoringPolicy": "deduplicate_physical_evidence",
+      "reviewState": "needs_review"
+    },
+    {
+      "reviewId": "github-owner-review-6eebfaab485aed2469bd7fcc",
+      "batchSlug": "A16ZSR006",
+      "category": "shared_physical_repository_owner_attribution",
+      "reason": "One physical GitHub repository is exposed by multiple canonical entity-account mappings. Score the repository once by native repository ID/canonical URL and retain every owner candidate for review.",
+      "physicalIdentity": {
+        "repositoryId": "509909654",
+        "canonicalUrl": "https://github.com/gauthamv6002/2024-ib-bot"
+      },
+      "ownerCandidates": [
+        {
+          "entityType": "company",
+          "entityId": "a16z-speedrun-006-kaaro",
+          "entityName": "Kaaro",
+          "accountKey": "company:a16z-speedrun-006-kaaro:gauthamv6002:",
+          "location": "repository",
+          "accountUrl": "https://github.com/gauthamv6002",
+          "repositoryId": "509909654",
+          "repositoryUrl": "https://github.com/gauthamv6002/2024-ib-bot"
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-kaaro-founder-gautham-venkateshwaran",
+          "entityName": "Gautham Venkateshwaran",
+          "accountKey": "founder:a16z-speedrun-006-kaaro-founder-gautham-venkateshwaran:gauthamv6002:",
+          "location": "repository",
+          "accountUrl": "https://github.com/gauthamv6002",
+          "repositoryId": "509909654",
+          "repositoryUrl": "https://github.com/gauthamv6002/2024-ib-bot"
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-kaaro-founder-sai-surisetti",
+          "entityName": "Sai Surisetti",
+          "accountKey": "founder:a16z-speedrun-006-kaaro-founder-sai-surisetti:gauthamv6002:",
+          "location": "repository",
+          "accountUrl": "https://github.com/gauthamv6002",
+          "repositoryId": "509909654",
+          "repositoryUrl": "https://github.com/gauthamv6002/2024-ib-bot"
+        }
+      ],
+      "scoringPolicy": "deduplicate_physical_evidence",
+      "reviewState": "needs_review"
+    },
+    {
+      "reviewId": "github-owner-review-70e66c678431b9c09a2fcf96",
+      "batchSlug": "A16ZSR006",
+      "category": "shared_physical_repository_owner_attribution",
+      "reason": "One physical GitHub repository is exposed by multiple canonical entity-account mappings. Score the repository once by native repository ID/canonical URL and retain every owner candidate for review.",
+      "physicalIdentity": {
+        "repositoryId": "822421528",
+        "canonicalUrl": "https://github.com/gauthamv6002/gauthamv6002.github.io"
+      },
+      "ownerCandidates": [
+        {
+          "entityType": "company",
+          "entityId": "a16z-speedrun-006-kaaro",
+          "entityName": "Kaaro",
+          "accountKey": "company:a16z-speedrun-006-kaaro:gauthamv6002:",
+          "location": "repository",
+          "accountUrl": "https://github.com/gauthamv6002",
+          "repositoryId": "822421528",
+          "repositoryUrl": "https://github.com/gauthamv6002/gauthamv6002.github.io"
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-kaaro-founder-gautham-venkateshwaran",
+          "entityName": "Gautham Venkateshwaran",
+          "accountKey": "founder:a16z-speedrun-006-kaaro-founder-gautham-venkateshwaran:gauthamv6002:",
+          "location": "repository",
+          "accountUrl": "https://github.com/gauthamv6002",
+          "repositoryId": "822421528",
+          "repositoryUrl": "https://github.com/gauthamv6002/gauthamv6002.github.io"
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-kaaro-founder-sai-surisetti",
+          "entityName": "Sai Surisetti",
+          "accountKey": "founder:a16z-speedrun-006-kaaro-founder-sai-surisetti:gauthamv6002:",
+          "location": "repository",
+          "accountUrl": "https://github.com/gauthamv6002",
+          "repositoryId": "822421528",
+          "repositoryUrl": "https://github.com/gauthamv6002/gauthamv6002.github.io"
         }
       ],
       "scoringPolicy": "deduplicate_physical_evidence",
@@ -29738,6 +30018,50 @@
       "reviewState": "needs_review"
     },
     {
+      "reviewId": "github-owner-review-84620f013acef8fc41fa26b4",
+      "batchSlug": "A16ZSR006",
+      "category": "shared_physical_repository_owner_attribution",
+      "reason": "One physical GitHub repository is exposed by multiple canonical entity-account mappings. Score the repository once by native repository ID/canonical URL and retain every owner candidate for review.",
+      "physicalIdentity": {
+        "repositoryId": "572538738",
+        "canonicalUrl": "https://github.com/gauthamv6002/swc-hacks-website"
+      },
+      "ownerCandidates": [
+        {
+          "entityType": "company",
+          "entityId": "a16z-speedrun-006-kaaro",
+          "entityName": "Kaaro",
+          "accountKey": "company:a16z-speedrun-006-kaaro:gauthamv6002:",
+          "location": "repository",
+          "accountUrl": "https://github.com/gauthamv6002",
+          "repositoryId": "572538738",
+          "repositoryUrl": "https://github.com/gauthamv6002/swc-hacks-website"
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-kaaro-founder-gautham-venkateshwaran",
+          "entityName": "Gautham Venkateshwaran",
+          "accountKey": "founder:a16z-speedrun-006-kaaro-founder-gautham-venkateshwaran:gauthamv6002:",
+          "location": "repository",
+          "accountUrl": "https://github.com/gauthamv6002",
+          "repositoryId": "572538738",
+          "repositoryUrl": "https://github.com/gauthamv6002/swc-hacks-website"
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-kaaro-founder-sai-surisetti",
+          "entityName": "Sai Surisetti",
+          "accountKey": "founder:a16z-speedrun-006-kaaro-founder-sai-surisetti:gauthamv6002:",
+          "location": "repository",
+          "accountUrl": "https://github.com/gauthamv6002",
+          "repositoryId": "572538738",
+          "repositoryUrl": "https://github.com/gauthamv6002/swc-hacks-website"
+        }
+      ],
+      "scoringPolicy": "deduplicate_physical_evidence",
+      "reviewState": "needs_review"
+    },
+    {
       "reviewId": "github-owner-review-85109be226bd7e7e3f70aedb",
       "batchSlug": "A16ZSR006",
       "category": "shared_physical_repository_owner_attribution",
@@ -29800,6 +30124,94 @@
           "accountUrl": "https://github.com/modaic-ai",
           "repositoryId": "1114011117",
           "repositoryUrl": "https://github.com/modaic-ai/modaic-docs"
+        }
+      ],
+      "scoringPolicy": "deduplicate_physical_evidence",
+      "reviewState": "needs_review"
+    },
+    {
+      "reviewId": "github-owner-review-8c5a3db718a5833332da650c",
+      "batchSlug": "A16ZSR006",
+      "category": "shared_physical_repository_owner_attribution",
+      "reason": "One physical GitHub repository is exposed by multiple canonical entity-account mappings. Score the repository once by native repository ID/canonical URL and retain every owner candidate for review.",
+      "physicalIdentity": {
+        "repositoryId": "435246154",
+        "canonicalUrl": "https://github.com/gauthamv6002/personal-website"
+      },
+      "ownerCandidates": [
+        {
+          "entityType": "company",
+          "entityId": "a16z-speedrun-006-kaaro",
+          "entityName": "Kaaro",
+          "accountKey": "company:a16z-speedrun-006-kaaro:gauthamv6002:",
+          "location": "repository",
+          "accountUrl": "https://github.com/gauthamv6002",
+          "repositoryId": "435246154",
+          "repositoryUrl": "https://github.com/gauthamv6002/personal-website"
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-kaaro-founder-gautham-venkateshwaran",
+          "entityName": "Gautham Venkateshwaran",
+          "accountKey": "founder:a16z-speedrun-006-kaaro-founder-gautham-venkateshwaran:gauthamv6002:",
+          "location": "repository",
+          "accountUrl": "https://github.com/gauthamv6002",
+          "repositoryId": "435246154",
+          "repositoryUrl": "https://github.com/gauthamv6002/personal-website"
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-kaaro-founder-sai-surisetti",
+          "entityName": "Sai Surisetti",
+          "accountKey": "founder:a16z-speedrun-006-kaaro-founder-sai-surisetti:gauthamv6002:",
+          "location": "repository",
+          "accountUrl": "https://github.com/gauthamv6002",
+          "repositoryId": "435246154",
+          "repositoryUrl": "https://github.com/gauthamv6002/personal-website"
+        }
+      ],
+      "scoringPolicy": "deduplicate_physical_evidence",
+      "reviewState": "needs_review"
+    },
+    {
+      "reviewId": "github-owner-review-91029ed886d638fade56754a",
+      "batchSlug": "A16ZSR006",
+      "category": "shared_physical_repository_owner_attribution",
+      "reason": "One physical GitHub repository is exposed by multiple canonical entity-account mappings. Score the repository once by native repository ID/canonical URL and retain every owner candidate for review.",
+      "physicalIdentity": {
+        "repositoryId": "913224518",
+        "canonicalUrl": "https://github.com/gauthamv6002/news-pace"
+      },
+      "ownerCandidates": [
+        {
+          "entityType": "company",
+          "entityId": "a16z-speedrun-006-kaaro",
+          "entityName": "Kaaro",
+          "accountKey": "company:a16z-speedrun-006-kaaro:gauthamv6002:",
+          "location": "repository",
+          "accountUrl": "https://github.com/gauthamv6002",
+          "repositoryId": "913224518",
+          "repositoryUrl": "https://github.com/gauthamv6002/news-pace"
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-kaaro-founder-gautham-venkateshwaran",
+          "entityName": "Gautham Venkateshwaran",
+          "accountKey": "founder:a16z-speedrun-006-kaaro-founder-gautham-venkateshwaran:gauthamv6002:",
+          "location": "repository",
+          "accountUrl": "https://github.com/gauthamv6002",
+          "repositoryId": "913224518",
+          "repositoryUrl": "https://github.com/gauthamv6002/news-pace"
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-kaaro-founder-sai-surisetti",
+          "entityName": "Sai Surisetti",
+          "accountKey": "founder:a16z-speedrun-006-kaaro-founder-sai-surisetti:gauthamv6002:",
+          "location": "repository",
+          "accountUrl": "https://github.com/gauthamv6002",
+          "repositoryId": "913224518",
+          "repositoryUrl": "https://github.com/gauthamv6002/news-pace"
         }
       ],
       "scoringPolicy": "deduplicate_physical_evidence",
@@ -29888,6 +30300,50 @@
           "accountUrl": "https://github.com/firetix",
           "repositoryId": "19416913",
           "repositoryUrl": "https://github.com/firetix/sentimentanalysis"
+        }
+      ],
+      "scoringPolicy": "deduplicate_physical_evidence",
+      "reviewState": "needs_review"
+    },
+    {
+      "reviewId": "github-owner-review-9c2aba318fd2eebed68f79f5",
+      "batchSlug": "A16ZSR006",
+      "category": "shared_physical_repository_owner_attribution",
+      "reason": "One physical GitHub repository is exposed by multiple canonical entity-account mappings. Score the repository once by native repository ID/canonical URL and retain every owner candidate for review.",
+      "physicalIdentity": {
+        "repositoryId": "525258239",
+        "canonicalUrl": "https://github.com/gauthamv6002/personal-website-v2"
+      },
+      "ownerCandidates": [
+        {
+          "entityType": "company",
+          "entityId": "a16z-speedrun-006-kaaro",
+          "entityName": "Kaaro",
+          "accountKey": "company:a16z-speedrun-006-kaaro:gauthamv6002:",
+          "location": "repository",
+          "accountUrl": "https://github.com/gauthamv6002",
+          "repositoryId": "525258239",
+          "repositoryUrl": "https://github.com/gauthamv6002/personal-website-v2"
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-kaaro-founder-gautham-venkateshwaran",
+          "entityName": "Gautham Venkateshwaran",
+          "accountKey": "founder:a16z-speedrun-006-kaaro-founder-gautham-venkateshwaran:gauthamv6002:",
+          "location": "repository",
+          "accountUrl": "https://github.com/gauthamv6002",
+          "repositoryId": "525258239",
+          "repositoryUrl": "https://github.com/gauthamv6002/personal-website-v2"
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-kaaro-founder-sai-surisetti",
+          "entityName": "Sai Surisetti",
+          "accountKey": "founder:a16z-speedrun-006-kaaro-founder-sai-surisetti:gauthamv6002:",
+          "location": "repository",
+          "accountUrl": "https://github.com/gauthamv6002",
+          "repositoryId": "525258239",
+          "repositoryUrl": "https://github.com/gauthamv6002/personal-website-v2"
         }
       ],
       "scoringPolicy": "deduplicate_physical_evidence",
@@ -29996,6 +30452,226 @@
           "accountUrl": "https://github.com/firetix",
           "repositoryId": "314400940",
           "repositoryUrl": "https://github.com/firetix/workshopspark"
+        }
+      ],
+      "scoringPolicy": "deduplicate_physical_evidence",
+      "reviewState": "needs_review"
+    },
+    {
+      "reviewId": "github-owner-review-a09c0fddee2cd61d19d311e9",
+      "batchSlug": "A16ZSR006",
+      "category": "shared_physical_repository_owner_attribution",
+      "reason": "One physical GitHub repository is exposed by multiple canonical entity-account mappings. Score the repository once by native repository ID/canonical URL and retain every owner candidate for review.",
+      "physicalIdentity": {
+        "repositoryId": "494196745",
+        "canonicalUrl": "https://github.com/gauthamv6002/physics-bot"
+      },
+      "ownerCandidates": [
+        {
+          "entityType": "company",
+          "entityId": "a16z-speedrun-006-kaaro",
+          "entityName": "Kaaro",
+          "accountKey": "company:a16z-speedrun-006-kaaro:gauthamv6002:",
+          "location": "repository",
+          "accountUrl": "https://github.com/gauthamv6002",
+          "repositoryId": "494196745",
+          "repositoryUrl": "https://github.com/gauthamv6002/physics-bot"
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-kaaro-founder-gautham-venkateshwaran",
+          "entityName": "Gautham Venkateshwaran",
+          "accountKey": "founder:a16z-speedrun-006-kaaro-founder-gautham-venkateshwaran:gauthamv6002:",
+          "location": "repository",
+          "accountUrl": "https://github.com/gauthamv6002",
+          "repositoryId": "494196745",
+          "repositoryUrl": "https://github.com/gauthamv6002/physics-bot"
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-kaaro-founder-sai-surisetti",
+          "entityName": "Sai Surisetti",
+          "accountKey": "founder:a16z-speedrun-006-kaaro-founder-sai-surisetti:gauthamv6002:",
+          "location": "repository",
+          "accountUrl": "https://github.com/gauthamv6002",
+          "repositoryId": "494196745",
+          "repositoryUrl": "https://github.com/gauthamv6002/physics-bot"
+        }
+      ],
+      "scoringPolicy": "deduplicate_physical_evidence",
+      "reviewState": "needs_review"
+    },
+    {
+      "reviewId": "github-owner-review-a56df21bcd1ea0ab955f9f77",
+      "batchSlug": "A16ZSR006",
+      "category": "shared_physical_repository_owner_attribution",
+      "reason": "One physical GitHub repository is exposed by multiple canonical entity-account mappings. Score the repository once by native repository ID/canonical URL and retain every owner candidate for review.",
+      "physicalIdentity": {
+        "repositoryId": "704836347",
+        "canonicalUrl": "https://github.com/gauthamv6002/auton-planner"
+      },
+      "ownerCandidates": [
+        {
+          "entityType": "company",
+          "entityId": "a16z-speedrun-006-kaaro",
+          "entityName": "Kaaro",
+          "accountKey": "company:a16z-speedrun-006-kaaro:gauthamv6002:",
+          "location": "repository",
+          "accountUrl": "https://github.com/gauthamv6002",
+          "repositoryId": "704836347",
+          "repositoryUrl": "https://github.com/gauthamv6002/auton-planner"
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-kaaro-founder-gautham-venkateshwaran",
+          "entityName": "Gautham Venkateshwaran",
+          "accountKey": "founder:a16z-speedrun-006-kaaro-founder-gautham-venkateshwaran:gauthamv6002:",
+          "location": "repository",
+          "accountUrl": "https://github.com/gauthamv6002",
+          "repositoryId": "704836347",
+          "repositoryUrl": "https://github.com/gauthamv6002/auton-planner"
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-kaaro-founder-sai-surisetti",
+          "entityName": "Sai Surisetti",
+          "accountKey": "founder:a16z-speedrun-006-kaaro-founder-sai-surisetti:gauthamv6002:",
+          "location": "repository",
+          "accountUrl": "https://github.com/gauthamv6002",
+          "repositoryId": "704836347",
+          "repositoryUrl": "https://github.com/gauthamv6002/auton-planner"
+        }
+      ],
+      "scoringPolicy": "deduplicate_physical_evidence",
+      "reviewState": "needs_review"
+    },
+    {
+      "reviewId": "github-owner-review-a811792eaafa2ff0010bc28c",
+      "batchSlug": "A16ZSR006",
+      "category": "shared_physical_repository_owner_attribution",
+      "reason": "One physical GitHub repository is exposed by multiple canonical entity-account mappings. Score the repository once by native repository ID/canonical URL and retain every owner candidate for review.",
+      "physicalIdentity": {
+        "repositoryId": "705184278",
+        "canonicalUrl": "https://github.com/gauthamv6002/thunderbird"
+      },
+      "ownerCandidates": [
+        {
+          "entityType": "company",
+          "entityId": "a16z-speedrun-006-kaaro",
+          "entityName": "Kaaro",
+          "accountKey": "company:a16z-speedrun-006-kaaro:gauthamv6002:",
+          "location": "repository",
+          "accountUrl": "https://github.com/gauthamv6002",
+          "repositoryId": "705184278",
+          "repositoryUrl": "https://github.com/gauthamv6002/thunderbird"
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-kaaro-founder-gautham-venkateshwaran",
+          "entityName": "Gautham Venkateshwaran",
+          "accountKey": "founder:a16z-speedrun-006-kaaro-founder-gautham-venkateshwaran:gauthamv6002:",
+          "location": "repository",
+          "accountUrl": "https://github.com/gauthamv6002",
+          "repositoryId": "705184278",
+          "repositoryUrl": "https://github.com/gauthamv6002/thunderbird"
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-kaaro-founder-sai-surisetti",
+          "entityName": "Sai Surisetti",
+          "accountKey": "founder:a16z-speedrun-006-kaaro-founder-sai-surisetti:gauthamv6002:",
+          "location": "repository",
+          "accountUrl": "https://github.com/gauthamv6002",
+          "repositoryId": "705184278",
+          "repositoryUrl": "https://github.com/gauthamv6002/thunderbird"
+        }
+      ],
+      "scoringPolicy": "deduplicate_physical_evidence",
+      "reviewState": "needs_review"
+    },
+    {
+      "reviewId": "github-owner-review-ab3b7b9748d24b90e5619ec0",
+      "batchSlug": "A16ZSR006",
+      "category": "shared_physical_repository_owner_attribution",
+      "reason": "One physical GitHub repository is exposed by multiple canonical entity-account mappings. Score the repository once by native repository ID/canonical URL and retain every owner candidate for review.",
+      "physicalIdentity": {
+        "repositoryId": "906866455",
+        "canonicalUrl": "https://github.com/gauthamv6002/ai-interview-companion-frontend"
+      },
+      "ownerCandidates": [
+        {
+          "entityType": "company",
+          "entityId": "a16z-speedrun-006-kaaro",
+          "entityName": "Kaaro",
+          "accountKey": "company:a16z-speedrun-006-kaaro:gauthamv6002:",
+          "location": "repository",
+          "accountUrl": "https://github.com/gauthamv6002",
+          "repositoryId": "906866455",
+          "repositoryUrl": "https://github.com/gauthamv6002/ai-interview-companion-frontend"
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-kaaro-founder-gautham-venkateshwaran",
+          "entityName": "Gautham Venkateshwaran",
+          "accountKey": "founder:a16z-speedrun-006-kaaro-founder-gautham-venkateshwaran:gauthamv6002:",
+          "location": "repository",
+          "accountUrl": "https://github.com/gauthamv6002",
+          "repositoryId": "906866455",
+          "repositoryUrl": "https://github.com/gauthamv6002/ai-interview-companion-frontend"
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-kaaro-founder-sai-surisetti",
+          "entityName": "Sai Surisetti",
+          "accountKey": "founder:a16z-speedrun-006-kaaro-founder-sai-surisetti:gauthamv6002:",
+          "location": "repository",
+          "accountUrl": "https://github.com/gauthamv6002",
+          "repositoryId": "906866455",
+          "repositoryUrl": "https://github.com/gauthamv6002/ai-interview-companion-frontend"
+        }
+      ],
+      "scoringPolicy": "deduplicate_physical_evidence",
+      "reviewState": "needs_review"
+    },
+    {
+      "reviewId": "github-owner-review-bdb24b30d179145a08d309ce",
+      "batchSlug": "A16ZSR006",
+      "category": "shared_physical_repository_owner_attribution",
+      "reason": "One physical GitHub repository is exposed by multiple canonical entity-account mappings. Score the repository once by native repository ID/canonical URL and retain every owner candidate for review.",
+      "physicalIdentity": {
+        "repositoryId": "670358083",
+        "canonicalUrl": "https://github.com/gauthamv6002/ytdistractless"
+      },
+      "ownerCandidates": [
+        {
+          "entityType": "company",
+          "entityId": "a16z-speedrun-006-kaaro",
+          "entityName": "Kaaro",
+          "accountKey": "company:a16z-speedrun-006-kaaro:gauthamv6002:",
+          "location": "repository",
+          "accountUrl": "https://github.com/gauthamv6002",
+          "repositoryId": "670358083",
+          "repositoryUrl": "https://github.com/gauthamv6002/ytdistractless"
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-kaaro-founder-gautham-venkateshwaran",
+          "entityName": "Gautham Venkateshwaran",
+          "accountKey": "founder:a16z-speedrun-006-kaaro-founder-gautham-venkateshwaran:gauthamv6002:",
+          "location": "repository",
+          "accountUrl": "https://github.com/gauthamv6002",
+          "repositoryId": "670358083",
+          "repositoryUrl": "https://github.com/gauthamv6002/ytdistractless"
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-kaaro-founder-sai-surisetti",
+          "entityName": "Sai Surisetti",
+          "accountKey": "founder:a16z-speedrun-006-kaaro-founder-sai-surisetti:gauthamv6002:",
+          "location": "repository",
+          "accountUrl": "https://github.com/gauthamv6002",
+          "repositoryId": "670358083",
+          "repositoryUrl": "https://github.com/gauthamv6002/ytdistractless"
         }
       ],
       "scoringPolicy": "deduplicate_physical_evidence",
@@ -30320,6 +30996,50 @@
       "reviewState": "needs_review"
     },
     {
+      "reviewId": "github-owner-review-d40e55b162a14909e8668653",
+      "batchSlug": "A16ZSR006",
+      "category": "shared_physical_repository_owner_attribution",
+      "reason": "One physical GitHub repository is exposed by multiple canonical entity-account mappings. Score the repository once by native repository ID/canonical URL and retain every owner candidate for review.",
+      "physicalIdentity": {
+        "repositoryId": "474482535",
+        "canonicalUrl": "https://github.com/gauthamv6002/nutrivision-hoohacks-2022"
+      },
+      "ownerCandidates": [
+        {
+          "entityType": "company",
+          "entityId": "a16z-speedrun-006-kaaro",
+          "entityName": "Kaaro",
+          "accountKey": "company:a16z-speedrun-006-kaaro:gauthamv6002:",
+          "location": "repository",
+          "accountUrl": "https://github.com/gauthamv6002",
+          "repositoryId": "474482535",
+          "repositoryUrl": "https://github.com/gauthamv6002/nutrivision-hoohacks-2022"
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-kaaro-founder-gautham-venkateshwaran",
+          "entityName": "Gautham Venkateshwaran",
+          "accountKey": "founder:a16z-speedrun-006-kaaro-founder-gautham-venkateshwaran:gauthamv6002:",
+          "location": "repository",
+          "accountUrl": "https://github.com/gauthamv6002",
+          "repositoryId": "474482535",
+          "repositoryUrl": "https://github.com/gauthamv6002/nutrivision-hoohacks-2022"
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-kaaro-founder-sai-surisetti",
+          "entityName": "Sai Surisetti",
+          "accountKey": "founder:a16z-speedrun-006-kaaro-founder-sai-surisetti:gauthamv6002:",
+          "location": "repository",
+          "accountUrl": "https://github.com/gauthamv6002",
+          "repositoryId": "474482535",
+          "repositoryUrl": "https://github.com/gauthamv6002/nutrivision-hoohacks-2022"
+        }
+      ],
+      "scoringPolicy": "deduplicate_physical_evidence",
+      "reviewState": "needs_review"
+    },
+    {
       "reviewId": "github-owner-review-e38b48199261ea0294fd78ba",
       "batchSlug": "A16ZSR006",
       "category": "shared_physical_repository_owner_attribution",
@@ -30422,6 +31142,50 @@
           "accountUrl": "https://github.com/firetix",
           "repositoryId": "16718805",
           "repositoryUrl": "https://github.com/firetix/gulp-image-optimization"
+        }
+      ],
+      "scoringPolicy": "deduplicate_physical_evidence",
+      "reviewState": "needs_review"
+    },
+    {
+      "reviewId": "github-owner-review-ec1a398be6bfe8be636f1588",
+      "batchSlug": "A16ZSR006",
+      "category": "shared_physical_repository_owner_attribution",
+      "reason": "One physical GitHub repository is exposed by multiple canonical entity-account mappings. Score the repository once by native repository ID/canonical URL and retain every owner candidate for review.",
+      "physicalIdentity": {
+        "repositoryId": "503705593",
+        "canonicalUrl": "https://github.com/gauthamv6002/quickerdebug"
+      },
+      "ownerCandidates": [
+        {
+          "entityType": "company",
+          "entityId": "a16z-speedrun-006-kaaro",
+          "entityName": "Kaaro",
+          "accountKey": "company:a16z-speedrun-006-kaaro:gauthamv6002:",
+          "location": "repository",
+          "accountUrl": "https://github.com/gauthamv6002",
+          "repositoryId": "503705593",
+          "repositoryUrl": "https://github.com/gauthamv6002/quickerdebug"
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-kaaro-founder-gautham-venkateshwaran",
+          "entityName": "Gautham Venkateshwaran",
+          "accountKey": "founder:a16z-speedrun-006-kaaro-founder-gautham-venkateshwaran:gauthamv6002:",
+          "location": "repository",
+          "accountUrl": "https://github.com/gauthamv6002",
+          "repositoryId": "503705593",
+          "repositoryUrl": "https://github.com/gauthamv6002/quickerdebug"
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-kaaro-founder-sai-surisetti",
+          "entityName": "Sai Surisetti",
+          "accountKey": "founder:a16z-speedrun-006-kaaro-founder-sai-surisetti:gauthamv6002:",
+          "location": "repository",
+          "accountUrl": "https://github.com/gauthamv6002",
+          "repositoryId": "503705593",
+          "repositoryUrl": "https://github.com/gauthamv6002/quickerdebug"
         }
       ],
       "scoringPolicy": "deduplicate_physical_evidence",
@@ -30624,6 +31388,50 @@
       "reviewState": "needs_review"
     },
     {
+      "reviewId": "github-owner-review-f398667486a4cb7e805f3dd2",
+      "batchSlug": "A16ZSR006",
+      "category": "shared_physical_repository_owner_attribution",
+      "reason": "One physical GitHub repository is exposed by multiple canonical entity-account mappings. Score the repository once by native repository ID/canonical URL and retain every owner candidate for review.",
+      "physicalIdentity": {
+        "repositoryId": "745274937",
+        "canonicalUrl": "https://github.com/gauthamv6002/dreadnought"
+      },
+      "ownerCandidates": [
+        {
+          "entityType": "company",
+          "entityId": "a16z-speedrun-006-kaaro",
+          "entityName": "Kaaro",
+          "accountKey": "company:a16z-speedrun-006-kaaro:gauthamv6002:",
+          "location": "repository",
+          "accountUrl": "https://github.com/gauthamv6002",
+          "repositoryId": "745274937",
+          "repositoryUrl": "https://github.com/gauthamv6002/dreadnought"
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-kaaro-founder-gautham-venkateshwaran",
+          "entityName": "Gautham Venkateshwaran",
+          "accountKey": "founder:a16z-speedrun-006-kaaro-founder-gautham-venkateshwaran:gauthamv6002:",
+          "location": "repository",
+          "accountUrl": "https://github.com/gauthamv6002",
+          "repositoryId": "745274937",
+          "repositoryUrl": "https://github.com/gauthamv6002/dreadnought"
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-kaaro-founder-sai-surisetti",
+          "entityName": "Sai Surisetti",
+          "accountKey": "founder:a16z-speedrun-006-kaaro-founder-sai-surisetti:gauthamv6002:",
+          "location": "repository",
+          "accountUrl": "https://github.com/gauthamv6002",
+          "repositoryId": "745274937",
+          "repositoryUrl": "https://github.com/gauthamv6002/dreadnought"
+        }
+      ],
+      "scoringPolicy": "deduplicate_physical_evidence",
+      "reviewState": "needs_review"
+    },
+    {
       "reviewId": "github-owner-review-f58947d325079e36fdeee426",
       "batchSlug": "A16ZSR006",
       "category": "shared_physical_repository_owner_attribution",
@@ -30652,6 +31460,50 @@
           "accountUrl": "https://github.com/modaic-ai",
           "repositoryId": "1285640220",
           "repositoryUrl": "https://github.com/modaic-ai/trajectory-compress"
+        }
+      ],
+      "scoringPolicy": "deduplicate_physical_evidence",
+      "reviewState": "needs_review"
+    },
+    {
+      "reviewId": "github-owner-review-f93a03ea1ff03a608a71b9dd",
+      "batchSlug": "A16ZSR006",
+      "category": "shared_physical_repository_owner_attribution",
+      "reason": "One physical GitHub repository is exposed by multiple canonical entity-account mappings. Score the repository once by native repository ID/canonical URL and retain every owner candidate for review.",
+      "physicalIdentity": {
+        "repositoryId": "915768489",
+        "canonicalUrl": "https://github.com/gauthamv6002/gauthamv6002"
+      },
+      "ownerCandidates": [
+        {
+          "entityType": "company",
+          "entityId": "a16z-speedrun-006-kaaro",
+          "entityName": "Kaaro",
+          "accountKey": "company:a16z-speedrun-006-kaaro:gauthamv6002:",
+          "location": "repository",
+          "accountUrl": "https://github.com/gauthamv6002",
+          "repositoryId": "915768489",
+          "repositoryUrl": "https://github.com/gauthamv6002/gauthamv6002"
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-kaaro-founder-gautham-venkateshwaran",
+          "entityName": "Gautham Venkateshwaran",
+          "accountKey": "founder:a16z-speedrun-006-kaaro-founder-gautham-venkateshwaran:gauthamv6002:",
+          "location": "repository",
+          "accountUrl": "https://github.com/gauthamv6002",
+          "repositoryId": "915768489",
+          "repositoryUrl": "https://github.com/gauthamv6002/gauthamv6002"
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-kaaro-founder-sai-surisetti",
+          "entityName": "Sai Surisetti",
+          "accountKey": "founder:a16z-speedrun-006-kaaro-founder-sai-surisetti:gauthamv6002:",
+          "location": "repository",
+          "accountUrl": "https://github.com/gauthamv6002",
+          "repositoryId": "915768489",
+          "repositoryUrl": "https://github.com/gauthamv6002/gauthamv6002"
         }
       ],
       "scoringPolicy": "deduplicate_physical_evidence",

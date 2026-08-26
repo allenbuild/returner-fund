@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-caution",
+    "slug": "caution",
+    "name": "Caution"
+  },
+  "event": {
+    "id": "tle-8daba8427c937e27594f09d1",
+    "eventDate": "2026-08-12",
+    "eventDateType": "announcement_date",
+    "title": "Caution partnered with @OpenRelayInc as a compute partner to provide private AI inference hmu",
+    "summary": "Caution has partnered with @OpenRelayInc as a compute partner to provide private AI inference hmu if you need provably end-to-end encrypted tokens register for capacity here.",
+    "category": "partnership",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-5e9b037828d36054144b7b5c",
+        "title": "we've partnered with @OpenRelayInc as a compute partner to provide private AI inference hmu if you need provably end-to-end encrypted tokens register for capacity here: https://t.co/Ixotrgs5OU",
+        "publisher": "antonlivaja",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-08-12T23:36:34.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/antonlivaja/status/2087684701234602292"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-5e9b037828d36054144b7b5c",
+        "title": "we've partnered with @OpenRelayInc as a compute partner to provide private AI inference hmu if you need provably end-to-end encrypted tokens register for capacity here: https://t.co/Ixotrgs5OU",
+        "publisher": "antonlivaja",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-08-12T23:36:34.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/antonlivaja/status/2087684701234602292",
+        "publicationDate": "2026-08-12T23:36:34.000Z",
+        "excerpt": "we've partnered with @OpenRelayInc as a compute partner to provide private AI inference hmu if you need provably end-to-end encrypted tokens register for capacity here: https://t.co/Ixotrgs5OU",
+        "sourceEventDate": "2026-08-12",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-3f6fbd3e0ae93d799bf351af",
+        "platform": "x",
+        "account": "antonlivaja",
+        "postDate": "2026-08-12",
+        "excerpt": "we've partnered with @OpenRelayInc as a compute partner to provide private AI inference hmu if you need provably end-to-end encrypted tokens register for capacity here: https://t.co/Ixotrgs5OU",
+        "url": "https://x.com/antonlivaja/status/2087684701234602292",
+        "metrics": {
+          "likes": 15,
+          "reposts": 1,
+          "replies": 1,
+          "views": 8174
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-26T10:02:14.680Z",
+  "lastModifiedAt": "2026-08-26T10:02:14.680Z"
+}

@@ -23,7 +23,7 @@
         "publisher": "runpentagon",
         "domain": "x.com",
         "sourceType": "company_post",
-        "publishedAt": "2026-05-20T23:33:10.000Z",
+        "publishedAt": "2026-05-20T00:00:00.000Z",
         "evidenceRole": "primary",
         "url": "https://x.com/runpentagon/status/2057243262214410382"
       },
@@ -33,7 +33,7 @@
         "publisher": "edgarpavlovsky",
         "domain": "x.com",
         "sourceType": "founder_post",
-        "publishedAt": "2026-05-19T22:38:11.000Z",
+        "publishedAt": "2026-05-19T00:00:00.000Z",
         "evidenceRole": "primary",
         "url": "https://x.com/edgarpavlovsky/status/2056867039860625431"
       }
@@ -45,10 +45,10 @@
         "publisher": "runpentagon",
         "domain": "x.com",
         "sourceType": "company_post",
-        "publishedAt": "2026-05-20T23:33:10.000Z",
+        "publishedAt": "2026-05-20T00:00:00.000Z",
         "evidenceRole": "primary",
         "url": "https://x.com/runpentagon/status/2057243262214410382",
-        "publicationDate": "2026-05-20T23:33:10.000Z",
+        "publicationDate": "2026-05-20T00:00:00.000Z",
         "excerpt": "Yesterday, I became. Introducing Pentagon: a coordination layer for humans and agents. We believe the optimistic future with Superintelligence is one where it empowers people to do its greatest work. See us in action and learn more: https://t.co/NfcTWzJEPE",
         "sourceEventDate": "2026-05-20",
         "isConflicting": false,
@@ -60,10 +60,10 @@
         "publisher": "edgarpavlovsky",
         "domain": "x.com",
         "sourceType": "founder_post",
-        "publishedAt": "2026-05-19T22:38:11.000Z",
+        "publishedAt": "2026-05-19T00:00:00.000Z",
         "evidenceRole": "primary",
         "url": "https://x.com/edgarpavlovsky/status/2056867039860625431",
-        "publicationDate": "2026-05-19T22:38:11.000Z",
+        "publicationDate": "2026-05-19T00:00:00.000Z",
         "excerpt": "Introducing Pentagon: a coordination layer for humans and agents. ASI yields two futures: 1. AI replaces us. 2. AI empowers us to do our greatest work. We're building for the latter. Our first product is Pentagon Studio: https://t.co/7Ipulc7zmH An in-depth article below:",
         "sourceEventDate": "2026-05-20",
         "isConflicting": false,
@@ -82,7 +82,7 @@
           "likes": 17,
           "reposts": 2,
           "replies": 6,
-          "views": 3969
+          "views": 3979
         },
         "evidenceRole": "primary"
       },
@@ -94,15 +94,15 @@
         "excerpt": "Introducing Pentagon: a coordination layer for humans and agents. ASI yields two futures: 1. AI replaces us. 2. AI empowers us to do our greatest work. We're building for the latter. Our first product is Pentagon Studio: https://t.co/7Ipulc7zmH An in-depth article below:",
         "url": "https://x.com/edgarpavlovsky/status/2056867039860625431",
         "metrics": {
-          "likes": 438,
+          "likes": 440,
           "reposts": 56,
           "replies": 90,
-          "views": 96194
+          "views": 96411
         },
         "evidenceRole": "primary"
       }
     ]
   },
-  "generatedAt": "2026-08-24T14:39:14.351Z",
-  "lastModifiedAt": "2026-08-24T14:39:14.351Z"
+  "generatedAt": "2026-08-26T10:02:14.680Z",
+  "lastModifiedAt": "2026-08-26T10:02:14.680Z"
 }

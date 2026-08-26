@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-prized",
+    "slug": "prized",
+    "name": "Prized"
+  },
+  "event": {
+    "id": "tle-aa87eebd2f200c83ea454ba4",
+    "eventDate": "2026-08-20",
+    "eventDateType": "announcement_date",
+    "title": "Prized released on product hunt",
+    "summary": "Prized just launched on product hunt, check it out.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-d0c90425a83fd7f7b764624c",
+        "title": "we just launched on product hunt, check it out! https://t.co/xZnqzSLDho",
+        "publisher": "hudson_gri",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-08-20T15:20:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/hudson_gri/status/2090458836989874327"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-d0c90425a83fd7f7b764624c",
+        "title": "we just launched on product hunt, check it out! https://t.co/xZnqzSLDho",
+        "publisher": "hudson_gri",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-08-20T15:20:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/hudson_gri/status/2090458836989874327",
+        "publicationDate": "2026-08-20T15:20:00.000Z",
+        "excerpt": "we just launched on product hunt, check it out! https://t.co/xZnqzSLDho",
+        "sourceEventDate": "2026-08-20",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-962dd87da0c55a38f575973b",
+        "platform": "x",
+        "account": "hudson_gri",
+        "postDate": "2026-08-20",
+        "excerpt": "we just launched on product hunt, check it out! https://t.co/xZnqzSLDho",
+        "url": "https://x.com/hudson_gri/status/2090458836989874327",
+        "metrics": {
+          "likes": 12,
+          "reposts": 0,
+          "replies": 3,
+          "views": 376
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-26T10:02:14.680Z",
+  "lastModifiedAt": "2026-08-26T10:02:14.680Z"
+}

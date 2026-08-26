@@ -23,7 +23,7 @@
         "publisher": "mirrormirror.ai",
         "domain": "instagram.com",
         "sourceType": "company_post",
-        "publishedAt": "2026-06-10T13:31:09.000Z",
+        "publishedAt": "2026-06-10T13:31:09Z",
         "evidenceRole": "primary",
         "url": "https://instagram.com/reel/DZaUqGAB-5G"
       },
@@ -45,10 +45,10 @@
         "publisher": "mirrormirror.ai",
         "domain": "instagram.com",
         "sourceType": "company_post",
-        "publishedAt": "2026-06-10T13:31:09.000Z",
+        "publishedAt": "2026-06-10T13:31:09Z",
         "evidenceRole": "primary",
         "url": "https://instagram.com/reel/DZaUqGAB-5G",
-        "publicationDate": "2026-06-10T13:31:09.000Z",
+        "publicationDate": "2026-06-10T13:31:09Z",
         "excerpt": "Introducing Digital Twin Studio! Finally the solution to give you full control of how you’re represented. Link in bio to access our beta version!",
         "sourceEventDate": "2026-06-10",
         "isConflicting": false,
@@ -81,7 +81,7 @@
         "metrics": {
           "likes": 409,
           "comments": 16,
-          "views": 50942
+          "views": 50993
         },
         "evidenceRole": "primary"
       },
@@ -104,6 +104,6 @@
       }
     ]
   },
-  "generatedAt": "2026-08-24T14:39:14.351Z",
-  "lastModifiedAt": "2026-08-24T14:39:14.351Z"
+  "generatedAt": "2026-08-26T10:02:14.680Z",
+  "lastModifiedAt": "2026-08-26T10:02:14.680Z"
 }

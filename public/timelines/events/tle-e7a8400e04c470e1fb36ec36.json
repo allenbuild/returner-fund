@@ -130,12 +130,12 @@
         "publisher": "InsForge YC Launch Video",
         "domain": "youtube.com",
         "sourceType": "video",
-        "publishedAt": "2026-05-18T00:05:55-07:00",
+        "publishedAt": "2026-07-15T22:30:00.000Z",
         "evidenceRole": "primary",
         "url": "https://youtube.com/watch?v=7Bax5qz0IfM",
-        "publicationDate": "2026-05-18T00:05:55-07:00",
+        "publicationDate": "2026-07-15T22:30:00.000Z",
         "excerpt": "What exactly is InsForge + demo showcase",
-        "sourceEventDate": "2026-06-01",
+        "sourceEventDate": "2026-07-15",
         "isConflicting": false,
         "conflictDescription": null
       }
@@ -226,11 +226,11 @@
         "id": "post-8ce2083df63e03174d24a76f",
         "platform": "youtube",
         "account": "InsForge YC Launch Video",
-        "postDate": "2026-05-18",
+        "postDate": "2026-07-15",
         "excerpt": "What exactly is InsForge + demo showcase",
         "url": "https://youtube.com/watch?v=7Bax5qz0IfM",
         "metrics": {
-          "views": 1289,
+          "views": 1292,
           "likes": 13,
           "comments": 0
         },
@@ -238,6 +238,6 @@
       }
     ]
   },
-  "generatedAt": "2026-08-24T14:39:14.351Z",
-  "lastModifiedAt": "2026-08-24T14:39:14.351Z"
+  "generatedAt": "2026-08-26T10:02:14.680Z",
+  "lastModifiedAt": "2026-08-26T10:02:14.680Z"
 }

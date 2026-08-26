@@ -5,73 +5,14 @@
     "slug": "lumeria",
     "name": "Lumeria"
   },
-  "generatedAt": "2026-08-24T14:39:14.351Z",
-  "lastModifiedAt": "2026-08-24T14:39:14.351Z",
-  "events": [
-    {
-      "id": "tle-f8d35465ca28230c12eb213f",
-      "eventDate": "2026-08-13",
-      "eventDateType": "announcement_date",
-      "title": "Lumeria released We just launched! ☀️🧡",
-      "summary": "Lumeria just launched.",
-      "category": "product_launch",
-      "isMajor": false,
-      "hasConflict": false,
-      "conflictSummary": null,
-      "evidenceCount": 1,
-      "sourcePreview": [
-        {
-          "id": "src-6c78372c9691127312304202",
-          "title": "We just launched! ☀️🧡",
-          "publisher": "lumeriaskin",
-          "domain": "x.com",
-          "sourceType": "company_post",
-          "publishedAt": "2026-08-13T20:55:18.000Z",
-          "evidenceRole": "primary",
-          "url": "https://x.com/lumeriaskin/status/2088006502296732122"
-        }
-      ]
-    },
-    {
-      "id": "tle-2ab389a971f4b1d0faa68928",
-      "eventDate": "2026-08-12",
-      "eventDateType": "announcement_date",
-      "title": "Lumeria released Lumeria: Your Skin, Finally Understood",
-      "summary": "Lumeria introduced Lumeria: Your Skin, Finally Understood.",
-      "category": "product_launch",
-      "isMajor": false,
-      "hasConflict": false,
-      "conflictSummary": null,
-      "evidenceCount": 1,
-      "sourcePreview": [
-        {
-          "id": "src-f34f0394b6291d25afc4b55b",
-          "title": "Introducing Lumeria: Your Skin, Finally Understood",
-          "publisher": "Introducing Lumeria: Your Skin, Finally Understood",
-          "domain": "youtube.com",
-          "sourceType": "video",
-          "publishedAt": "2026-08-12T07:38:49-07:00",
-          "evidenceRole": "primary",
-          "url": "https://youtube.com/watch?v=W-tz9FIQiOg"
-        }
-      ]
-    }
-  ],
-  "groups": [
-    {
-      "year": 2026,
-      "months": [
-        {
-          "month": "2026-08",
-          "count": 2
-        }
-      ]
-    }
-  ],
+  "generatedAt": "2026-08-26T10:02:14.680Z",
+  "lastModifiedAt": "2026-08-26T10:02:14.680Z",
+  "events": [],
+  "groups": [],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 2,
-    "lastSuccessfulArtifactAt": "2026-08-24T14:39:14.351Z"
+    "publishedEventCount": 0,
+    "lastSuccessfulArtifactAt": "2026-08-26T10:02:14.680Z"
   },
   "nextCursor": null
 }

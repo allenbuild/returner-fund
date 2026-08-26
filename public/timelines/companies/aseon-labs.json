@@ -5,8 +5,8 @@
     "slug": "aseon-labs",
     "name": "Aseon Labs"
   },
-  "generatedAt": "2026-08-24T14:39:14.351Z",
-  "lastModifiedAt": "2026-08-24T14:39:14.351Z",
+  "generatedAt": "2026-08-26T10:02:14.680Z",
+  "lastModifiedAt": "2026-08-26T10:02:14.680Z",
   "events": [
     {
       "id": "tle-43a512c77f8265e54f3b50ea",
@@ -26,7 +26,7 @@
           "publisher": "aseonlabs",
           "domain": "x.com",
           "sourceType": "company_post",
-          "publishedAt": "2026-06-26T16:20:10.000Z",
+          "publishedAt": "2026-06-26T00:00:00.000Z",
           "evidenceRole": "primary",
           "url": "https://x.com/aseonlabs/status/2070542648151101759"
         },
@@ -57,7 +57,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-08-24T14:39:14.351Z"
+    "lastSuccessfulArtifactAt": "2026-08-26T10:02:14.680Z"
   },
   "nextCursor": null
 }
