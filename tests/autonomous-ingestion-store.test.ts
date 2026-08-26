@@ -179,11 +179,21 @@ describe("AutonomousIngestionStore", () => {
 
   it("optimistically claims an expired idempotent run", async () => {
     const expiredRun = runRow({
+      finished_at: "2026-07-18T11:30:00.000Z",
+      logs: ["durable task and checkpoint history remains attached to run-1"],
+      errors_json: [{ message: "stale cancellation" }],
+      stats_json: { phase: "canceled", canceled: true },
       lease_owner: "worker-old",
       lease_token: "lease-old",
       lease_expires_at: "2026-07-18T11:59:00.000Z"
     });
-    const claimedRun = runRow({ lease_owner: "worker-new", lease_token: "lease-new" });
+    const claimedRun = runRow({
+      logs: expiredRun.logs,
+      errors_json: [],
+      stats_json: { phase: "initializing" },
+      lease_owner: "worker-new",
+      lease_token: "lease-new"
+    });
     const client = new ScriptedSupabaseClient(
       failure("duplicate key", "23505"),
       ok(expiredRun),
@@ -193,16 +203,73 @@ describe("AutonomousIngestionStore", () => {
     const result = await createStore(client).claimOrCreateRun({
       orchestrationKey: "scheduled:2026-07-18",
       workerId: "worker-new",
-      leaseToken: "lease-new"
+      leaseToken: "lease-new",
+      stats: { phase: "initializing" }
     });
 
     expect(result.claimed).toBe(true);
+    expect(result.run.id).toBe(expiredRun.id);
+    expect(result.run.started_at).toBe(expiredRun.started_at);
+    expect(result.run.logs).toEqual(expiredRun.logs);
+    expect(queryCall(client, "update").args?.[0]).toMatchObject({
+      status: "running",
+      finished_at: null,
+      lease_owner: "worker-new",
+      lease_token: "lease-new",
+      stats_json: { phase: "initializing" },
+      errors_json: []
+    });
+    expect(queryCall(client, "update").args?.[0]).not.toHaveProperty("id");
+    expect(queryCall(client, "update").args?.[0]).not.toHaveProperty("started_at");
+    expect(queryCall(client, "update").args?.[0]).not.toHaveProperty("logs");
+    expect(queryCalls(client, "eq")).toContainEqual(
+      expect.objectContaining({ args: ["status", "running"] })
+    );
+    expect(queryCalls(client, "eq")).toContainEqual(
+      expect.objectContaining({ args: ["finished_at", "2026-07-18T11:30:00.000Z"] })
+    );
+    expect(queryCalls(client, "eq")).toContainEqual(
+      expect.objectContaining({ args: ["heartbeat_at", NOW.toISOString()] })
+    );
+    expect(queryCalls(client, "eq")).toContainEqual(
+      expect.objectContaining({ args: ["lease_owner", "worker-old"] })
+    );
     expect(queryCalls(client, "eq")).toContainEqual(
       expect.objectContaining({ args: ["lease_token", "lease-old"] })
     );
     expect(queryCalls(client, "eq")).toContainEqual(
       expect.objectContaining({ args: ["lease_expires_at", "2026-07-18T11:59:00.000Z"] })
     );
+  });
+
+  it("never rewrites a completed idempotent run while attempting recovery", async () => {
+    const completedRun = runRow({
+      status: "completed",
+      finished_at: "2026-07-18T11:30:00.000Z",
+      lease_owner: null,
+      lease_token: null,
+      lease_expires_at: null,
+      stats_json: { phase: "completed", durable: true }
+    });
+    const client = new ScriptedSupabaseClient(
+      failure("duplicate key", "23505"),
+      ok(completedRun)
+    );
+
+    const result = await createStore(client).claimOrCreateRun({
+      orchestrationKey: "scheduled:2026-07-18",
+      workerId: "worker-new",
+      leaseToken: "lease-new",
+      stats: { phase: "initializing" }
+    });
+
+    expect(result).toEqual({
+      run: completedRun,
+      claimed: false,
+      created: false,
+      leaseToken: null
+    });
+    expect(client.calls.filter((call) => call.method === "update")).toHaveLength(0);
   });
 
   it("only inserts immutable events and surfaces Supabase errors", async () => {
