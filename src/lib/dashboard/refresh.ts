@@ -12,6 +12,7 @@ import {
   DEFAULT_DASHBOARD_REDDIT_SUBREDDITS,
   DEFAULT_DASHBOARD_RESEARCH_FEEDS,
   DEFAULT_DASHBOARD_RSS_FEEDS,
+  DEFAULT_DASHBOARD_YOUTUBE_CHANNELS,
   discoverExternalDashboardCandidates,
   type ExternalDiscoveryOptions
 } from "./external-discovery";
@@ -87,12 +88,15 @@ export async function refreshTechnologyDashboard(
   let externalAttempted = 0;
   let externalSucceeded = 0;
   if (options.includeExternal !== false) {
-    externalAttempted = dashboardExternalAttemptCount(options.external);
-    const external = await discoverExternalDashboardCandidates({
+    const externalOptions: ExternalDiscoveryOptions = {
       ...options.external,
       now,
-      githubToken: options.external?.githubToken ?? process.env.GITHUB_TOKEN ?? null
-    });
+      githubToken: options.external?.githubToken ?? process.env.GITHUB_TOKEN ?? null,
+      xBearerToken: options.external?.xBearerToken ?? process.env.X_BEARER_TOKEN ?? null,
+      youtubeChannels: options.external?.youtubeChannels ?? DEFAULT_DASHBOARD_YOUTUBE_CHANNELS
+    };
+    externalAttempted = dashboardExternalAttemptCount(externalOptions);
+    const external = await discoverExternalDashboardCandidates(externalOptions);
     candidates.push(...external.candidates);
     externalSucceeded = external.sources.length;
     sourceCounts.industry = external.candidates.length;
@@ -206,7 +210,7 @@ export function retainPriorDashboardSnapshotOnBroadSourceFailure(
   };
 }
 
-function dashboardExternalAttemptCount(options: ExternalDiscoveryOptions | undefined): number {
+export function dashboardExternalAttemptCount(options: ExternalDiscoveryOptions | undefined): number {
   // HN, GitHub repository search, and GitHub release events are always the
   // first three bounded external jobs.
   const fixedJobs = 3;
@@ -215,7 +219,9 @@ function dashboardExternalAttemptCount(options: ExternalDiscoveryOptions | undef
   const redditJobs = options?.redditSubreddits
     ? new Set(options.redditSubreddits.map((value) => value.trim().toLowerCase()).filter(Boolean)).size
     : DEFAULT_DASHBOARD_REDDIT_SUBREDDITS.length;
-  return fixedJobs + rssJobs + researchJobs + redditJobs;
+  const xJobs = options?.xBearerToken?.trim() ? 1 : 0;
+  const youtubeJobs = options?.youtubeChannels?.length ?? 0;
+  return fixedJobs + rssJobs + researchJobs + redditJobs + xJobs + youtubeJobs;
 }
 
 function configuredRssFeedAttemptCount(): number {

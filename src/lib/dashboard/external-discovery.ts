@@ -15,6 +15,10 @@ const MIN_HN_COMMENTS = 5;
 const MAX_GITHUB_ITEMS = 40;
 const MIN_GITHUB_STARS = 100;
 const MAX_GITHUB_EVENT_ITEMS = 100;
+const X_RECENT_SEARCH_ENDPOINT = "https://api.x.com/2/tweets/search/recent";
+const MAX_X_RECENT_SEARCH_ITEMS = 100;
+const MAX_YOUTUBE_RESPONSE_BYTES = 1_750_000;
+const MAX_YOUTUBE_DETAIL_CANDIDATES_PER_CHANNEL = 2;
 const MAX_RSS_ITEMS_PER_FEED = 40;
 // Primary research is a direct, high-quality lane rather than a broad
 // consumer feed. Keep its discovery window modestly wider so the Top 100 can
@@ -203,6 +207,29 @@ export const DEFAULT_DASHBOARD_RESEARCH_FEEDS = [
 /** Fixed public communities avoid an unbounded Reddit search surface. */
 export const DEFAULT_DASHBOARD_REDDIT_SUBREDDITS = ["MachineLearning", "technology", "programming", "startups"] as const;
 
+/**
+ * One relevance-sorted official-API request gives the strict Top 100 a broad
+ * social discovery lane without turning the hourly worker into an unbounded
+ * crawler. Eligibility still requires a native million-view reading below.
+ */
+export const DEFAULT_DASHBOARD_X_QUERY = [
+  "(\"artificial intelligence\" OR ChatGPT OR Claude OR Gemini OR \"machine learning\" OR robotics",
+  "OR \"open source\" OR cybersecurity OR biotech OR quantum OR GPU)",
+  "lang:en -is:retweet -is:reply"
+].join(" ");
+
+export interface DashboardYoutubeChannel {
+  name: string;
+  handle: string;
+}
+
+/** Small, high-reach technology roster; every qualifying metric/date is then
+ * re-read from the video's official watch-page metadata. */
+export const DEFAULT_DASHBOARD_YOUTUBE_CHANNELS: readonly DashboardYoutubeChannel[] = [
+  { name: "Apple", handle: "Apple" },
+  { name: "MKBHD", handle: "mkbhd" }
+];
+
 interface DashboardRssFeed {
   name: string;
   url: string;
@@ -223,15 +250,17 @@ export interface ExternalDiscoveryOptions {
   now?: Date;
   fetchImpl?: typeof fetch;
   githubToken?: string | null;
+  xBearerToken?: string | null;
+  youtubeChannels?: ReadonlyArray<DashboardYoutubeChannel>;
   rssFeeds?: ReadonlyArray<DashboardRssFeed>;
   researchFeeds?: ReadonlyArray<DashboardRssFeed>;
   redditSubreddits?: readonly string[];
 }
 
 /**
- * Bounded, public-only Industry discovery. Authenticated/X/LinkedIn/Instagram
- * lanes are deliberately absent: their existing safety gates remain entirely
- * owned by the established ingestion system.
+ * Bounded, public-only Industry discovery. The optional X lane uses only the
+ * official recent-search API and native public metrics; no browser sessions,
+ * cookies, or authenticated user actions enter this worker.
  */
 export async function discoverExternalDashboardCandidates(
   options: ExternalDiscoveryOptions = {}
@@ -242,10 +271,14 @@ export async function discoverExternalDashboardCandidates(
   const researchFeeds = options.researchFeeds ?? DEFAULT_DASHBOARD_RESEARCH_FEEDS;
   const subreddits = normalizeSubreddits(options.redditSubreddits ?? DEFAULT_DASHBOARD_REDDIT_SUBREDDITS);
   const githubToken = options.githubToken ?? null;
+  const xBearerToken = options.xBearerToken?.trim() || null;
+  const youtubeChannels = options.youtubeChannels ?? [];
   const jobs: Array<Promise<{ source: string; candidates: DashboardCandidate[] }>> = [
     fetchHackerNewsCandidates(fetchImpl, now),
     fetchGithubCandidates(fetchImpl, now, githubToken),
     fetchGithubReleaseCandidates(fetchImpl, now, githubToken),
+    ...(xBearerToken ? [fetchXRecentSearchCandidates(fetchImpl, now, xBearerToken)] : []),
+    ...youtubeChannels.map((channel) => fetchYoutubeChannelCandidates(fetchImpl, now, channel)),
     ...feeds.map((feed) => fetchRssCandidates(fetchImpl, feed, now)),
     ...researchFeeds.map((feed) => fetchRssCandidates(fetchImpl, feed, now)),
     ...subreddits.map((subreddit) => fetchRedditCandidates(fetchImpl, subreddit, now))
@@ -268,6 +301,143 @@ export async function discoverExternalDashboardCandidates(
     candidates,
     failures: [...new Set(failures)].sort(),
     sources: [...new Set(sources)].sort()
+  };
+}
+
+export async function fetchXRecentSearchCandidates(
+  fetchImpl: typeof fetch,
+  now: Date,
+  bearerToken: string
+): Promise<{ source: string; candidates: DashboardCandidate[] }> {
+  const url = new URL(X_RECENT_SEARCH_ENDPOINT);
+  url.searchParams.set("query", DEFAULT_DASHBOARD_X_QUERY);
+  url.searchParams.set("start_time", new Date(now.getTime() - DASHBOARD_WINDOW_MS).toISOString());
+  url.searchParams.set("max_results", String(MAX_X_RECENT_SEARCH_ITEMS));
+  url.searchParams.set("sort_order", "relevancy");
+  url.searchParams.set("tweet.fields", "author_id,created_at,public_metrics,attachments,lang");
+  url.searchParams.set("expansions", "author_id,attachments.media_keys");
+  url.searchParams.set("user.fields", "name,username");
+  url.searchParams.set("media.fields", "type,url,preview_image_url");
+  const response = await fetchImpl(url, {
+    headers: {
+      Accept: "application/json",
+      Authorization: `Bearer ${bearerToken}`,
+      "User-Agent": "ReturnerDashboard/1.0 official-x-read-only"
+    },
+    signal: AbortSignal.timeout(12_000)
+  });
+  if (!response.ok) throw new Error(`x_recent_search_http_${response.status}`);
+  const payload = await readBoundedJson<XRecentSearchResponse>(response, "x_recent_search");
+  const usersById = new Map((payload.includes?.users ?? []).map((user) => [stableIdentifier(user.id), user]));
+  const mediaByKey = new Map((payload.includes?.media ?? []).map((media) => [compactWhitespace(media.media_key), media]));
+  const candidates = (payload.data ?? [])
+    .slice(0, MAX_X_RECENT_SEARCH_ITEMS)
+    .flatMap((post) => xRecentSearchCandidate(post, usersById, mediaByKey, now))
+    .filter((candidate) => isDashboardCandidateEligible(candidate, now));
+  return { source: "x:recent-search", candidates };
+}
+
+export async function fetchYoutubeChannelCandidates(
+  fetchImpl: typeof fetch,
+  now: Date,
+  channel: DashboardYoutubeChannel
+): Promise<{ source: string; candidates: DashboardCandidate[] }> {
+  const handle = compactWhitespace(channel.handle).replace(/^@/, "");
+  if (!/^[A-Za-z0-9._-]{1,100}$/.test(handle)) throw new Error("youtube_invalid_channel_handle");
+  const source = `youtube:${sourceSlug(handle)}`;
+  const channelResponse = await fetchImpl(`https://www.youtube.com/@${encodeURIComponent(handle)}/videos`, {
+    headers: youtubePublicHeaders(),
+    signal: AbortSignal.timeout(12_000)
+  });
+  if (!channelResponse.ok) throw new Error(`${source.replace(":", "_")}_http_${channelResponse.status}`);
+  const channelHtml = await readBoundedText(channelResponse, source.replace(":", "_"), MAX_YOUTUBE_RESPONSE_BYTES);
+  const channelPage = parseAssignedJson(channelHtml, "ytInitialData");
+  if (!channelPage) throw new Error(`${source.replace(":", "_")}_invalid_initial_data`);
+  const channelId = youtubeChannelId(channelPage);
+  if (!channelId) throw new Error(`${source.replace(":", "_")}_missing_channel_id`);
+  const previews = youtubeMillionViewPreviews(channelPage)
+    .filter((preview) => youtubeRecentDetailHint(preview.relativeTime))
+    .slice(0, MAX_YOUTUBE_DETAIL_CANDIDATES_PER_CHANNEL);
+  const settled = await Promise.allSettled(previews.map((preview) =>
+    fetchYoutubeWatchCandidate(fetchImpl, preview.videoId, channelId, channel.name, now)
+  ));
+  if (previews.length > 0 && settled.every((result) => result.status === "rejected")) {
+    throw new Error(`${source.replace(":", "_")}_detail_unavailable`);
+  }
+  return {
+    source,
+    candidates: settled.flatMap((result) =>
+      result.status === "fulfilled" && result.value && isDashboardCandidateEligible(result.value, now)
+        ? [result.value]
+        : []
+    )
+  };
+}
+
+async function fetchYoutubeWatchCandidate(
+  fetchImpl: typeof fetch,
+  videoId: string,
+  expectedChannelId: string,
+  rosterName: string,
+  observedAt: Date
+): Promise<DashboardCandidate | null> {
+  const response = await fetchImpl(`https://www.youtube.com/watch?v=${encodeURIComponent(videoId)}`, {
+    headers: youtubePublicHeaders(),
+    signal: AbortSignal.timeout(12_000)
+  });
+  if (!response.ok) throw new Error(`youtube_watch_http_${response.status}`);
+  const html = await readBoundedText(response, `youtube_watch_${videoId}`, MAX_YOUTUBE_RESPONSE_BYTES);
+  const detailsStart = html.indexOf('"videoDetails":{');
+  const details = detailsStart >= 0 ? html.slice(detailsStart, detailsStart + 160_000) : html;
+  const nativeVideoId = jsonStringField(details, "videoId");
+  const channelId = jsonStringField(details, "channelId");
+  const publicationValue = jsonStringField(html, "publishDate") ?? jsonStringField(html, "uploadDate");
+  const publishedAt = validTimestamp(publicationValue);
+  const title = compactWhitespace(jsonStringField(details, "title"));
+  const description = compactWhitespace(jsonStringField(details, "shortDescription")).slice(0, 4_000);
+  const views = finiteNonnegative(jsonStringField(details, "viewCount") ?? jsonNumberField(details, "viewCount"));
+  if (
+    nativeVideoId !== videoId || channelId !== expectedChannelId || !title || !publishedAt ||
+    !isExactYoutubePublicationValue(publicationValue) || views === null
+  ) return null;
+  const authorName = compactWhitespace(jsonStringField(details, "author")) || rosterName;
+  const likes = finiteNonnegative(jsonStringField(html, "likeCount") ?? jsonNumberField(html, "likeCount"));
+  const text = compactWhitespace(`${title} ${description}`);
+  const url = `https://www.youtube.com/watch?v=${videoId}`;
+  return {
+    id: `youtube:${videoId}`,
+    canonicalKey: `youtube:video:${videoId}`,
+    platform: "youtube",
+    sourceKind: "video",
+    url,
+    title,
+    summary: compactSentence(description || title, 300),
+    text,
+    authorName,
+    authorHandle: null,
+    publisher: "YouTube",
+    publishedAt,
+    observedAt: observedAt.toISOString(),
+    metrics: { views, likes },
+    entityKeys: [`youtube:channel:${channelId}`],
+    topics: xTechnologyTopics(text),
+    thumbnailUrl: `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`,
+    thumbnailAlt: title,
+    independentlyReported: false,
+    sourceQuality: 80,
+    contentFingerprint: `${videoId}:${publishedAt}:${views}:${likes ?? ""}:${title}`,
+    socialBackfillEligible: true,
+    sourceVerified: true,
+    sourceLinkStatus: "verified",
+    publicationPrecision: "exact"
+  };
+}
+
+function youtubePublicHeaders(): HeadersInit {
+  return {
+    Accept: "text/html,application/xhtml+xml",
+    "Accept-Language": "en-US,en;q=0.9",
+    "User-Agent": "Mozilla/5.0 (compatible; ReturnerDashboard/1.0; +https://github.com/allenbuild/returner-fund)"
   };
 }
 
@@ -757,6 +927,215 @@ function redditCandidate(post: RedditPost | undefined, subreddit: string, observ
   }];
 }
 
+function xRecentSearchCandidate(
+  post: XRecentPost,
+  usersById: ReadonlyMap<string, XRecentUser>,
+  mediaByKey: ReadonlyMap<string, XRecentMedia>,
+  observedAt: Date
+): DashboardCandidate[] {
+  const id = stableIdentifier(post.id);
+  const author = usersById.get(stableIdentifier(post.author_id));
+  const authorHandle = compactWhitespace(author?.username).replace(/^@/, "");
+  const publishedAt = validTimestamp(post.created_at);
+  const text = compactWhitespace(post.text);
+  if (!id || !/^\d+$/.test(id) || !/^[A-Za-z0-9_]{1,15}$/.test(authorHandle) || !publishedAt || !text) return [];
+
+  const url = canonicalDashboardUrl(`https://x.com/${authorHandle}/status/${id}`);
+  if (!url) return [];
+  const metrics = {
+    views: finiteNonnegative(post.public_metrics?.impression_count),
+    likes: finiteNonnegative(post.public_metrics?.like_count),
+    replies: finiteNonnegative(post.public_metrics?.reply_count),
+    reposts: finiteNonnegative(post.public_metrics?.retweet_count),
+    quotes: finiteNonnegative(post.public_metrics?.quote_count)
+  };
+  const media = (post.attachments?.media_keys ?? [])
+    .map((key) => mediaByKey.get(compactWhitespace(key)))
+    .find(Boolean);
+  const thumbnailUrl = canonicalDashboardUrl(media?.preview_image_url ?? media?.url);
+  const title = compactSentence(text, 160) ?? text.slice(0, 160);
+
+  return [{
+    id: `x:${id}`,
+    canonicalKey: `x:post:${id}`,
+    platform: "x",
+    sourceKind: media?.type === "video" || media?.type === "animated_gif" ? "video" : "post",
+    url,
+    title,
+    summary: compactSentence(text, 300),
+    text,
+    authorName: compactWhitespace(author?.name) || authorHandle,
+    authorHandle,
+    publisher: "X",
+    publishedAt,
+    observedAt: observedAt.toISOString(),
+    metrics,
+    entityKeys: [`x:author:${authorHandle.toLowerCase()}`],
+    topics: xTechnologyTopics(text),
+    thumbnailUrl,
+    thumbnailAlt: thumbnailUrl ? `${authorHandle} post media` : null,
+    independentlyReported: false,
+    sourceQuality: 76,
+    contentFingerprint: `${id}:${publishedAt}:${metrics.views ?? ""}:${metrics.likes ?? ""}:${text}`,
+    // These proofs come from one official X response: the expanded author
+    // establishes the canonical link, `created_at` is exact, and
+    // `impression_count` is the native view counter used by the hard gate.
+    socialBackfillEligible: true,
+    sourceVerified: true,
+    sourceLinkStatus: "verified",
+    publicationPrecision: "exact"
+  }];
+}
+
+function xTechnologyTopics(text: string): DashboardCandidate["topics"] {
+  const topics = new Set<NonNullable<DashboardCandidate["topics"]>[number]>();
+  if (/\b(?:ai|a\.i\.|artificial intelligence|machine learning|llm|chatgpt|claude|gemini|nvidia|gpu)\b/i.test(text)) topics.add("ai");
+  if (/\brobot(?:ics)?\b/i.test(text)) topics.add("robotics");
+  if (/\b(?:biotech|bioengineering|genomics?|medical device|healthtech)\b/i.test(text)) topics.add("biotech");
+  if (/\bopen[ -]?source\b/i.test(text)) topics.add("open_source");
+  if (/\b(?:research|paper|study|benchmark)\b/i.test(text)) topics.add("research");
+  if (/\b(?:launch|release|ship|introduc(?:e|ing)|announce)\b/i.test(text)) topics.add("launches");
+  if (/\b(?:funding|raise[ds]?|series [a-z]|seed round)\b/i.test(text)) topics.add("funding");
+  if (/\bstartup\b/i.test(text)) topics.add("startups");
+  return [...topics];
+}
+
+interface YoutubeVideoPreview {
+  videoId: string;
+  relativeTime: string;
+}
+
+function youtubeMillionViewPreviews(root: unknown): YoutubeVideoPreview[] {
+  const result: YoutubeVideoPreview[] = [];
+  const seen = new Set<string>();
+  for (const value of objectGraph(root)) {
+    const lockup = value as YoutubeLockupViewModel;
+    if (lockup.contentType !== "LOCKUP_CONTENT_TYPE_VIDEO" || !/^[A-Za-z0-9_-]{11}$/.test(lockup.contentId ?? "")) continue;
+    const parts = lockup.metadata?.lockupMetadataViewModel?.metadata?.contentMetadataViewModel?.metadataRows
+      ?.flatMap((row) => row.metadataParts ?? [])
+      .map((part) => compactWhitespace(part.text?.content ?? part.text?.accessibilityLabel))
+      .filter(Boolean) ?? [];
+    const viewText = parts.find((part) => /\bviews?\b/i.test(part)) ?? "";
+    const relativeTime = parts.find((part) => /\b(?:ago|streamed|premiered)\b/i.test(part)) ?? "";
+    const videoId = lockup.contentId!;
+    if ((compactMetricNumber(viewText) ?? 0) < 1_000_000 || seen.has(videoId)) continue;
+    seen.add(videoId);
+    result.push({ videoId, relativeTime });
+  }
+  return result;
+}
+
+function youtubeRecentDetailHint(value: string): boolean {
+  // This only bounds which official detail pages are fetched. The exact
+  // watch-page timestamp remains the sole publication eligibility proof.
+  if (/\b(?:minute|hour)s? ago\b|\b(?:streamed|premiered)\b/i.test(value)) return true;
+  const days = value.match(/\b(\d+)\s+days? ago\b/i)?.[1];
+  return days ? Number(days) <= 3 : false;
+}
+
+function youtubeChannelId(root: unknown): string | null {
+  for (const value of objectGraph(root)) {
+    const metadata = value.channelMetadataRenderer;
+    const rawExternalId = metadata && typeof metadata === "object"
+      ? (metadata as { externalId?: unknown }).externalId
+      : null;
+    const externalId = typeof rawExternalId === "string" ? compactWhitespace(rawExternalId) : "";
+    if (/^UC[A-Za-z0-9_-]{20,}$/.test(externalId)) return externalId;
+  }
+  return null;
+}
+
+function objectGraph(root: unknown): Array<Record<string, unknown>> {
+  const result: Array<Record<string, unknown>> = [];
+  const stack: unknown[] = [root];
+  while (stack.length > 0 && result.length < 100_000) {
+    const value = stack.pop();
+    if (!value || typeof value !== "object") continue;
+    if (Array.isArray(value)) {
+      stack.push(...value);
+      continue;
+    }
+    const record = value as Record<string, unknown>;
+    result.push(record);
+    stack.push(...Object.values(record));
+  }
+  return result;
+}
+
+function parseAssignedJson(html: string, variableName: string): unknown | null {
+  for (const marker of [`var ${variableName} = `, `${variableName} = `]) {
+    const markerIndex = html.indexOf(marker);
+    if (markerIndex < 0) continue;
+    const start = html.indexOf("{", markerIndex + marker.length);
+    if (start < 0) continue;
+    let depth = 0;
+    let quoted = false;
+    let escaped = false;
+    for (let index = start; index < html.length; index += 1) {
+      const character = html[index];
+      if (quoted) {
+        if (escaped) escaped = false;
+        else if (character === "\\") escaped = true;
+        else if (character === '"') quoted = false;
+        continue;
+      }
+      if (character === '"') quoted = true;
+      else if (character === "{") depth += 1;
+      else if (character === "}" && --depth === 0) {
+        try {
+          return JSON.parse(html.slice(start, index + 1));
+        } catch {
+          break;
+        }
+      }
+    }
+  }
+  return null;
+}
+
+function jsonStringField(value: string, field: string): string | null {
+  const match = value.match(new RegExp(`"${field}":"((?:\\\\.|[^"\\\\])*)"`));
+  if (!match) return null;
+  try {
+    return JSON.parse(`"${match[1]}"`) as string;
+  } catch {
+    return null;
+  }
+}
+
+function jsonNumberField(value: string, field: string): string | null {
+  return value.match(new RegExp(`"${field}":(\\d+)`))?.[1] ?? null;
+}
+
+function isExactYoutubePublicationValue(value: string | null): boolean {
+  return Boolean(value && /T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:?\d{2})$/i.test(value));
+}
+
+function compactMetricNumber(value: string): number | null {
+  const match = value.replace(/,/g, "").match(/(\d+(?:\.\d+)?)\s*([KMB])?/i);
+  if (!match) return null;
+  const number = Number(match[1]);
+  const suffix = match[2]?.toUpperCase();
+  const multiplier = suffix === "K" ? 1_000 : suffix === "M" ? 1_000_000 : suffix === "B" ? 1_000_000_000 : 1;
+  return Number.isFinite(number) ? Math.round(number * multiplier) : null;
+}
+
+interface YoutubeLockupViewModel {
+  contentId?: string;
+  contentType?: string;
+  metadata?: {
+    lockupMetadataViewModel?: {
+      metadata?: {
+        contentMetadataViewModel?: {
+          metadataRows?: Array<{
+            metadataParts?: Array<{ text?: { content?: string; accessibilityLabel?: string } }>;
+          }>;
+        };
+      };
+    };
+  };
+}
+
 function configuredRssFeeds(): ReadonlyArray<DashboardRssFeed> {
   const configured = process.env.DASHBOARD_RSS_FEEDS?.trim();
   if (!configured) return DEFAULT_DASHBOARD_RSS_FEEDS;
@@ -847,9 +1226,9 @@ async function readBoundedJson<T>(response: Response, source: string): Promise<T
   }
 }
 
-async function readBoundedText(response: Response, source: string): Promise<string> {
+async function readBoundedText(response: Response, source: string, maxResponseBytes = MAX_RESPONSE_BYTES): Promise<string> {
   const contentLength = Number(response.headers.get("content-length") ?? "0");
-  if (Number.isFinite(contentLength) && contentLength > MAX_RESPONSE_BYTES) {
+  if (Number.isFinite(contentLength) && contentLength > maxResponseBytes) {
     throw new Error(`${source}_response_too_large`);
   }
   if (!response.body) return "";
@@ -861,7 +1240,7 @@ async function readBoundedText(response: Response, source: string): Promise<stri
       const { done, value } = await reader.read();
       if (done) break;
       size += value.byteLength;
-      if (size > MAX_RESPONSE_BYTES) {
+      if (size > maxResponseBytes) {
         await reader.cancel();
         throw new Error(`${source}_response_too_large`);
       }
@@ -966,4 +1345,34 @@ interface RedditPost {
   created_utc?: number | null;
   score?: number | null;
   num_comments?: number | null;
+}
+interface XRecentSearchResponse {
+  data?: XRecentPost[];
+  includes?: { users?: XRecentUser[]; media?: XRecentMedia[] };
+}
+interface XRecentPost {
+  id?: string | number | null;
+  author_id?: string | number | null;
+  text?: string | null;
+  created_at?: string | null;
+  lang?: string | null;
+  public_metrics?: {
+    impression_count?: number | null;
+    like_count?: number | null;
+    reply_count?: number | null;
+    retweet_count?: number | null;
+    quote_count?: number | null;
+  } | null;
+  attachments?: { media_keys?: string[] | null } | null;
+}
+interface XRecentUser {
+  id?: string | number | null;
+  name?: string | null;
+  username?: string | null;
+}
+interface XRecentMedia {
+  media_key?: string | null;
+  type?: string | null;
+  url?: string | null;
+  preview_image_url?: string | null;
 }

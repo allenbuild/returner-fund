@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { DashboardCandidate, DashboardMetrics, DashboardPublicSnapshot } from "@/lib/dashboard/contracts";
 import {
+  dashboardExternalAttemptCount,
   dashboardRefreshSourceHealth,
   enrichDashboardCandidatesWithPriorSnapshotMetrics,
   retainPriorDashboardSnapshotOnBroadSourceFailure
@@ -12,6 +13,17 @@ const PRIOR_GENERATED_AT = "2026-08-15T11:00:00.000Z";
 const NOW = new Date("2026-08-15T12:00:00.000Z");
 
 describe("dashboard worker metric-history enrichment", () => {
+  it("counts the optional official X request only when its credential is configured", () => {
+    const boundedSources = { rssFeeds: [], researchFeeds: [], redditSubreddits: [] };
+    expect(dashboardExternalAttemptCount(boundedSources)).toBe(3);
+    expect(dashboardExternalAttemptCount({ ...boundedSources, xBearerToken: "x-token" })).toBe(4);
+    expect(dashboardExternalAttemptCount({ ...boundedSources, xBearerToken: "   " })).toBe(3);
+    expect(dashboardExternalAttemptCount({
+      ...boundedSources,
+      youtubeChannels: [{ name: "Apple", handle: "Apple" }, { name: "MKBHD", handle: "mkbhd" }]
+    })).toBe(5);
+  });
+
   it("uses a prior published source reading plus the current worker reading for the exact canonical source", () => {
     const candidate = dashboardCandidate({
       canonicalKey: "reddit:post:abc123",

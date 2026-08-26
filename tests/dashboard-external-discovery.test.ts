@@ -2,12 +2,227 @@ import { describe, expect, it, vi } from "vitest";
 import {
   DEFAULT_DASHBOARD_RESEARCH_FEEDS,
   DEFAULT_DASHBOARD_RSS_FEEDS,
-  discoverExternalDashboardCandidates
+  discoverExternalDashboardCandidates,
+  fetchYoutubeChannelCandidates
 } from "@/lib/dashboard/external-discovery";
+import { buildDashboardSnapshot } from "@/lib/dashboard/pipeline";
 
 const NOW = new Date("2026-08-15T12:00:00.000Z");
 
 describe("public dashboard discovery", () => {
+  it("qualifies a million-view YouTube video only from exact official watch metadata", async () => {
+    const channelId = "UC1234567890123456789012";
+    const channelPage = youtubeChannelPage(channelId, [{
+      videoId: "3WpzNmY35S4",
+      title: "The new Mac mini with M6",
+      views: "2.5M views",
+      relativeTime: "14 hours ago"
+    }, {
+      videoId: "below00001",
+      title: "A smaller Mac update",
+      views: "999K views",
+      relativeTime: "2 hours ago"
+    }]);
+    const requested: string[] = [];
+    const fetchImpl = vi.fn(async (input: RequestInfo | URL): Promise<Response> => {
+      const url = new URL(String(input));
+      requested.push(url.toString());
+      if (url.pathname === "/@Apple/videos") return new Response(channelPage);
+      if (url.pathname === "/watch" && url.searchParams.get("v") === "3WpzNmY35S4") {
+        return new Response(youtubeWatchPage({
+          videoId: "3WpzNmY35S4",
+          channelId,
+          author: "Apple",
+          title: "The new Mac mini with M6",
+          description: "The M6 chip adds faster graphics, neural accelerators, and AI performance.",
+          publishedAt: "2026-08-15T01:33:48-07:00",
+          views: 2_547_274,
+          likes: 21_798
+        }));
+      }
+      throw new Error(`Unexpected request ${url}`);
+    });
+
+    const result = await fetchYoutubeChannelCandidates(fetchImpl as typeof fetch, NOW, {
+      name: "Apple",
+      handle: "Apple"
+    });
+
+    expect(requested).toHaveLength(2);
+    expect(requested.some((url) => url.includes("below00001"))).toBe(false);
+    expect(result.source).toBe("youtube:apple");
+    expect(result.candidates).toEqual([expect.objectContaining({
+      canonicalKey: "youtube:video:3WpzNmY35S4",
+      url: "https://www.youtube.com/watch?v=3WpzNmY35S4",
+      platform: "youtube",
+      sourceKind: "video",
+      authorName: "Apple",
+      publishedAt: "2026-08-15T08:33:48.000Z",
+      metrics: { views: 2_547_274, likes: 21_798 },
+      socialBackfillEligible: true,
+      sourceVerified: true,
+      sourceLinkStatus: "verified",
+      publicationPrecision: "exact"
+    })]);
+    expect(buildDashboardSnapshot(result.candidates, { now: NOW }).snapshot.stories).toHaveLength(1);
+  });
+
+  it("isolates one YouTube channel failure from another channel's verified candidates", async () => {
+    const channelId = "UC1234567890123456789012";
+    const fetchImpl = vi.fn(async (input: RequestInfo | URL): Promise<Response> => {
+      const url = new URL(String(input));
+      if (url.hostname === "hn.algolia.com") return json({ hits: [] });
+      if (url.hostname === "api.github.com" && url.pathname === "/search/repositories") return json({ items: [] });
+      if (url.hostname === "api.github.com" && url.pathname === "/events") return json([]);
+      if (url.pathname === "/@Apple/videos") return new Response("blocked", { status: 503 });
+      if (url.pathname === "/@mkbhd/videos") return new Response(youtubeChannelPage(channelId, []));
+      throw new Error(`Unexpected request ${url}`);
+    });
+
+    const result = await discoverExternalDashboardCandidates({
+      now: NOW,
+      fetchImpl: fetchImpl as typeof fetch,
+      youtubeChannels: [{ name: "Apple", handle: "Apple" }, { name: "MKBHD", handle: "mkbhd" }],
+      rssFeeds: [],
+      researchFeeds: [],
+      redditSubreddits: []
+    });
+
+    expect(result.failures).toEqual(["youtube_apple_http_503"]);
+    expect(result.sources).toEqual(["github", "github_events", "hacker_news", "youtube:mkbhd"]);
+  });
+
+  it("maps exact official X fields and lets the strict million-view gate reject lower-reach posts", async () => {
+    const requests: Array<{ url: URL; authorization: string | null }> = [];
+    const fetchImpl = vi.fn(async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
+      const url = new URL(String(input));
+      if (url.hostname === "api.x.com") {
+        const headers = new Headers(init?.headers);
+        requests.push({ url, authorization: headers.get("authorization") });
+        return json({
+          data: [
+            {
+              id: "2100000000000000001",
+              author_id: "author-1",
+              text: "We launched an open-source AI robotics model for developers today.",
+              created_at: "2026-08-15T11:15:00.000Z",
+              public_metrics: {
+                impression_count: 1_500_000,
+                like_count: 42_000,
+                reply_count: 800,
+                retweet_count: 6_000,
+                quote_count: 350
+              },
+              attachments: { media_keys: ["media-1"] }
+            },
+            {
+              id: "2100000000000000002",
+              author_id: "author-2",
+              text: "A quantum software research release for developer teams.",
+              created_at: "2026-08-15T11:30:00.000Z",
+              public_metrics: {
+                impression_count: 999_999,
+                like_count: 12_000,
+                reply_count: 200,
+                retweet_count: 1_000,
+                quote_count: 50
+              }
+            }
+          ],
+          includes: {
+            users: [
+              { id: "author-1", username: "VerifiedBuilder", name: "Verified Builder" },
+              { id: "author-2", username: "QuantumLab", name: "Quantum Lab" }
+            ],
+            media: [{ media_key: "media-1", type: "video", preview_image_url: "https://pbs.twimg.com/media/preview.jpg" }]
+          }
+        });
+      }
+      if (url.hostname === "hn.algolia.com") return json({ hits: [] });
+      if (url.hostname === "api.github.com" && url.pathname === "/search/repositories") return json({ items: [] });
+      if (url.hostname === "api.github.com" && url.pathname === "/events") return json([]);
+      throw new Error(`Unexpected request ${url}`);
+    });
+
+    const result = await discoverExternalDashboardCandidates({
+      now: NOW,
+      fetchImpl: fetchImpl as typeof fetch,
+      xBearerToken: "official-x-token",
+      rssFeeds: [],
+      researchFeeds: [],
+      redditSubreddits: []
+    });
+
+    expect(requests).toHaveLength(1);
+    expect(requests[0]?.authorization).toBe("Bearer official-x-token");
+    expect(requests[0]?.url.searchParams.get("max_results")).toBe("100");
+    expect(requests[0]?.url.searchParams.get("sort_order")).toBe("relevancy");
+    expect(requests[0]?.url.searchParams.has("next_token")).toBe(false);
+    expect(result.sources).toEqual(["github", "github_events", "hacker_news", "x:recent-search"]);
+    expect(result.candidates).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        canonicalKey: "x:post:2100000000000000001",
+        url: "https://x.com/VerifiedBuilder/status/2100000000000000001",
+        authorName: "Verified Builder",
+        authorHandle: "VerifiedBuilder",
+        sourceKind: "video",
+        publishedAt: "2026-08-15T11:15:00.000Z",
+        metrics: {
+          views: 1_500_000,
+          likes: 42_000,
+          replies: 800,
+          reposts: 6_000,
+          quotes: 350
+        },
+        socialBackfillEligible: true,
+        sourceVerified: true,
+        sourceLinkStatus: "verified",
+        publicationPrecision: "exact"
+      }),
+      expect.objectContaining({
+        canonicalKey: "x:post:2100000000000000002",
+        metrics: expect.objectContaining({ views: 999_999 })
+      })
+    ]));
+
+    const snapshot = buildDashboardSnapshot(result.candidates, { now: NOW }).snapshot;
+    expect(snapshot.stories).toHaveLength(1);
+    expect(snapshot.stories[0]?.sources[0]).toMatchObject({
+      canonicalKey: "x:post:2100000000000000001",
+      metrics: { views: 1_500_000 }
+    });
+  });
+
+  it("isolates an official X outage and skips the lane entirely without a bearer token", async () => {
+    const requestedHosts: string[] = [];
+    const fetchImpl = vi.fn(async (input: RequestInfo | URL): Promise<Response> => {
+      const url = new URL(String(input));
+      requestedHosts.push(url.hostname);
+      if (url.hostname === "api.x.com") return new Response("unavailable", { status: 503 });
+      if (url.hostname === "hn.algolia.com") return json({ hits: [] });
+      if (url.hostname === "api.github.com" && url.pathname === "/search/repositories") return json({ items: [] });
+      if (url.hostname === "api.github.com" && url.pathname === "/events") return json([]);
+      throw new Error(`Unexpected request ${url}`);
+    });
+    const options = {
+      now: NOW,
+      fetchImpl: fetchImpl as typeof fetch,
+      rssFeeds: [],
+      researchFeeds: [],
+      redditSubreddits: []
+    };
+
+    const failed = await discoverExternalDashboardCandidates({ ...options, xBearerToken: "official-x-token" });
+    expect(failed.failures).toEqual(["x_recent_search_http_503"]);
+    expect(failed.sources).toEqual(["github", "github_events", "hacker_news"]);
+
+    requestedHosts.length = 0;
+    const absent = await discoverExternalDashboardCandidates(options);
+    expect(absent.failures).toEqual([]);
+    expect(absent.sources).toEqual(["github", "github_events", "hacker_news"]);
+    expect(requestedHosts).not.toContain("api.x.com");
+  });
+
   it("ships a diversified roster of direct editorial and research feeds", () => {
     expect(DEFAULT_DASHBOARD_RSS_FEEDS.map((feed) => feed.name)).toEqual(expect.arrayContaining([
       "MIT Technology Review",
@@ -613,6 +828,65 @@ function json(value: unknown): Response {
   return new Response(JSON.stringify(value), {
     headers: { "content-type": "application/json" }
   });
+}
+
+function youtubeChannelPage(
+  channelId: string,
+  videos: Array<{ videoId: string; title: string; views: string; relativeTime: string }>
+): string {
+  return `<script>var ytInitialData = ${JSON.stringify({
+    metadata: { channelMetadataRenderer: { externalId: channelId } },
+    contents: videos.map((video) => ({
+      lockupViewModel: {
+        contentId: video.videoId,
+        contentType: "LOCKUP_CONTENT_TYPE_VIDEO",
+        metadata: {
+          lockupMetadataViewModel: {
+            title: { content: video.title },
+            metadata: {
+              contentMetadataViewModel: {
+                metadataRows: [{
+                  metadataParts: [
+                    { text: { content: video.views } },
+                    { text: { content: video.relativeTime } }
+                  ]
+                }]
+              }
+            }
+          }
+        }
+      }
+    }))
+  })};</script>`;
+}
+
+function youtubeWatchPage(input: {
+  videoId: string;
+  channelId: string;
+  author: string;
+  title: string;
+  description: string;
+  publishedAt: string;
+  views: number;
+  likes: number;
+}): string {
+  return `<script>var ytInitialPlayerResponse = ${JSON.stringify({
+    videoDetails: {
+      videoId: input.videoId,
+      channelId: input.channelId,
+      author: input.author,
+      title: input.title,
+      shortDescription: input.description,
+      viewCount: String(input.views)
+    },
+    microformat: {
+      playerMicroformatRenderer: {
+        publishDate: input.publishedAt,
+        uploadDate: input.publishedAt
+      }
+    },
+    likeCount: String(input.likes)
+  })};</script>`;
 }
 
 function rssItems(source: string, count: number): string {
