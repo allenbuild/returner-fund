@@ -12,7 +12,10 @@ import {
   nativeEvidenceIdentityFromUrl
 } from "./dedupe";
 import { enrichEvidenceThumbnail } from "./evidence-thumbnails";
-import { nativeLinkStatusFromVerifiedReceipt } from "./native-link-attestation";
+import {
+  exactNativePublicationDateFromVerifiedReceipt,
+  nativeLinkStatusFromVerifiedReceipt
+} from "./native-link-attestation";
 import { aggregateBalancedTractionScore, normalizeEvidenceScores } from "./traction-scoring";
 import {
   assertRawEvidenceTemporalPreflight,
@@ -1993,6 +1996,17 @@ function publicEvidenceItemFromSource(
   const nativeGithubTimestamps = githubTimestamps?.publishedAtPrecision === "unknown"
     ? null
     : githubTimestamps;
+  const nativeReceiptInput = {
+    ...source,
+    entityType,
+    entityId,
+    accountUrl,
+    authorHandle: handle
+  };
+  const nativePublication = exactNativePublicationDateFromVerifiedReceipt(nativeReceiptInput);
+  const nativeLinkStatus = nativeLinkStatusFromVerifiedReceipt(
+    nativePublication ? { ...nativeReceiptInput, ...nativePublication } : nativeReceiptInput
+  );
 
   return [
     {
@@ -2005,13 +2019,19 @@ function publicEvidenceItemFromSource(
       ),
       entityType,
       entityId,
-      postedAt: nativeGithubTimestamps?.postedAt ?? source.postedAt ?? publicSnapshot.source.fetchedAt,
+      postedAt:
+        nativeGithubTimestamps?.postedAt ??
+        nativePublication?.postedAt ??
+        source.postedAt ??
+        publicSnapshot.source.fetchedAt,
       publishedAtPrecision: source.platform === "github"
         ? nativeGithubTimestamps?.publishedAtPrecision ?? "unknown"
-        : source.postedAt
-          ? source.publishedAtPrecision ?? publicationTimestampPrecision(source.postedAt)
-          : "unknown",
-      linkStatus: nativeLinkStatusFromVerifiedReceipt(source),
+        : nativePublication
+          ? nativePublication.publishedAtPrecision
+          : source.postedAt
+            ? source.publishedAtPrecision ?? publicationTimestampPrecision(source.postedAt)
+            : "unknown",
+      linkStatus: nativeLinkStatus,
       observedAt,
       metricsCheckedAt: source.metricsCheckedAt ?? source.last_checked_at ?? snapshotFetchedAt,
       authorHandle: handle,

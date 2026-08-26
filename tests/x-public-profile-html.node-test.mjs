@@ -140,6 +140,13 @@ describe("anonymous server-rendered X profile ingestion", () => {
           postedAt: "not-a-date",
           text: "post with an invalid publication timestamp",
           metrics: { views: 1 }
+        }),
+        postHtml({
+          id: "2083976371722993814",
+          handle: "requested",
+          postedAt: "2026-08-02",
+          text: "post with only a publication calendar day",
+          metrics: { views: 1 }
         })
       ]),
       requestedHandle: "requested"
@@ -148,6 +155,7 @@ describe("anonymous server-rendered X profile ingestion", () => {
     assert.equal(invalidRows.reason, "no_exact_owner_social_media_postings");
     assert.equal(invalidRows.rejectedPosts[0].reason, "native_status_url_mismatch");
     assert.equal(invalidRows.rejectedPosts[1].reason, "invalid_native_publication_timestamp");
+    assert.equal(invalidRows.rejectedPosts[2].reason, "invalid_native_publication_timestamp");
   });
 
   it("does not interpret an exact ProfilePage with no native articles as verified empty", () => {

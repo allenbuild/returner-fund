@@ -181,6 +181,8 @@ test("exact native-feed fallback survives web profile failure and quarantines no
   assert.deepEqual(accepted.map((row) => row.platformPostId), ["PRIMARY"]);
   assert.equal(accepted[0].batchSlug, "S26");
   assert.equal(accepted[0].authorHandle, "tash.cards");
+  assert.equal(accepted[0].postedAt, "2024-08-01T00:00:01.000Z");
+  assert.equal(accepted[0].publishedAtPrecision, "exact");
   assert.deepEqual(
     review.map((row) => row.platformPostId).sort(),
     ["COAUTHOR", "SURFACE"]

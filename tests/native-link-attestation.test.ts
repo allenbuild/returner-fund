@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  exactNativePublicationDateFromVerifiedReceipt,
   hasVerifiedNativeLinkReceipt,
   nativeLinkStatusFromVerifiedReceipt,
   type NativeLinkAttestationInput
@@ -136,6 +137,9 @@ function verifiedInstagramInput(
         username: "snagsubletsnyc",
         accountUrl: "https://www.instagram.com/snagsubletsnyc/",
         fetchedAt,
+        totalCount: 500,
+        receivedEdgeCount: 12,
+        processedEdgeCount: 12,
         nativeFeed: {
           source: "instagram_anonymous_native_feed_v1",
           fetchedAt: nativeFeedFetchedAt,
@@ -163,6 +167,13 @@ describe("native link receipt attestation", () => {
     expect(hasVerifiedNativeLinkReceipt(input)).toBe(true);
     expect(nativeLinkStatusFromVerifiedReceipt(input)).toBe("verified");
     expect(nativeLinkStatusFromVerifiedReceipt({ ...input, publishedAtPrecision: "exact" })).toBe("verified");
+    expect(exactNativePublicationDateFromVerifiedReceipt({
+      ...input,
+      publishedAtPrecision: "unknown"
+    })).toEqual({
+      postedAt: X_POSTED_AT,
+      publishedAtPrecision: "exact"
+    });
   });
 
   it("fails closed for X identity, owner, timestamp, and receipt conflicts", () => {
@@ -178,6 +189,26 @@ describe("native link receipt attestation", () => {
       }
     })).toBe(false);
     expect(hasVerifiedNativeLinkReceipt({ ...input, publishedAtPrecision: "unknown" })).toBe(false);
+    expect(exactNativePublicationDateFromVerifiedReceipt({
+      ...input,
+      publishedAtPrecision: "unknown",
+      sourceUrl: "https://x.com/aidantiruvan/status/2091371352544674216"
+    })).toBeNull();
+    expect(exactNativePublicationDateFromVerifiedReceipt({
+      ...input,
+      publishedAtPrecision: "unknown",
+      rawVisibleText: JSON.stringify({ postedAt: input.postedAt })
+    })).toBeNull();
+    expect(exactNativePublicationDateFromVerifiedReceipt({
+      ...input,
+      publishedAtPrecision: "unknown",
+      authorHandle: null
+    })).toBeNull();
+    expect(exactNativePublicationDateFromVerifiedReceipt({
+      ...input,
+      publishedAtPrecision: "unknown",
+      authorHandle: "different_author"
+    })).toBeNull();
     expect(hasVerifiedNativeLinkReceipt({
       ...input,
       rawVisibleText: JSON.stringify({
@@ -221,6 +252,75 @@ describe("native link receipt attestation", () => {
     expect(hasVerifiedNativeLinkReceipt(standalone)).toBe(true);
     expect(nativeLinkStatusFromVerifiedReceipt(standalone)).toBe("verified");
     expect(hasVerifiedNativeLinkReceipt(profileInfo)).toBe(true);
+    expect(exactNativePublicationDateFromVerifiedReceipt({
+      ...standalone,
+      publishedAtPrecision: "unknown"
+    })).toEqual({
+      postedAt: "2026-08-24T01:02:36.000Z",
+      publishedAtPrecision: "exact"
+    });
+  });
+
+  it("recovers profile-receipt dates without trusting ISO shape alone", () => {
+    const input = verifiedInstagramInput(
+      "instagram_public_web_profile_info_with_native_feed_metrics_v1"
+    );
+    const payload = JSON.parse(String(input.rawVisibleText));
+    const profileInput: NativeLinkAttestationInput = {
+      ...input,
+      publishedAtPrecision: "unknown",
+      attributionProvenance: "instagram_public_web_profile_info_native_owner_v1",
+      rawVisibleText: JSON.stringify({
+        ...payload,
+        receipt: {
+          ...payload.receipt,
+          totalCount: 866,
+          receivedEdgeCount: 12,
+          processedEdgeCount: 12
+        },
+        post: { ...payload.post, nativeFeedOnly: false }
+      })
+    };
+
+    expect(exactNativePublicationDateFromVerifiedReceipt(profileInput)).toEqual({
+      postedAt: "2026-08-24T01:02:36.000Z",
+      publishedAtPrecision: "exact"
+    });
+    expect(exactNativePublicationDateFromVerifiedReceipt({
+      ...profileInput,
+      platformPostId: "Different_1"
+    })).toBeNull();
+    expect(exactNativePublicationDateFromVerifiedReceipt({
+      ...profileInput,
+      sourceUrl: "https://instagram.com/reel/Different_1"
+    })).toBeNull();
+    expect(exactNativePublicationDateFromVerifiedReceipt({
+      ...profileInput,
+      entityId: "a16z-speedrun-006-other"
+    })).toBeNull();
+    expect(exactNativePublicationDateFromVerifiedReceipt({
+      ...profileInput,
+      accountUrl: "https://instagram.com/another_owner"
+    })).toBeNull();
+    expect(exactNativePublicationDateFromVerifiedReceipt({
+      ...profileInput,
+      authorHandle: "another_owner"
+    })).toBeNull();
+    expect(exactNativePublicationDateFromVerifiedReceipt({
+      ...profileInput,
+      attributionProvenance: "instagram_search_result"
+    })).toBeNull();
+    expect(exactNativePublicationDateFromVerifiedReceipt({
+      ...profileInput,
+      rawVisibleText: JSON.stringify({ postedAt: profileInput.postedAt })
+    })).toBeNull();
+    expect(exactNativePublicationDateFromVerifiedReceipt({
+      ...profileInput,
+      rawVisibleText: JSON.stringify({
+        ...JSON.parse(String(profileInput.rawVisibleText)),
+        post: { ...JSON.parse(String(profileInput.rawVisibleText)).post, postedAt: "2026-08-24T01:02:37.000Z" }
+      })
+    })).toBeNull();
   });
 
   it("requires receipt-schema-consistent Instagram collection timestamps", () => {

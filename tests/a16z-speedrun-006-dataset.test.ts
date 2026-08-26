@@ -487,7 +487,7 @@ describe("a16z speedrun 006 dataset", () => {
     }));
   });
 
-  it("preserves the three newest canonical public Instagram ownership anchors", () => {
+  it("recovers receipt-backed exact dates for canonical public Instagram anchors", () => {
     const graph = buildGraphResponse(
       { batchSlug: A16Z_SPEEDRUN_006_BATCH_SLUG },
       ycSpring2026GraphDataset
@@ -525,6 +525,17 @@ describe("a16z speedrun 006 dataset", () => {
           "acct:founder:a16z-speedrun-006-idilio-founder-gabriela-tafur:instagram:https%3A%2F%2Fwww.instagram.com%2Fgabrielatafur",
         postedAt: "2026-07-30T21:30:45.000Z",
         metricMinimums: { likes: 3529, comments: 28 }
+      },
+      {
+        platformPostId: "DawUDejlnT3",
+        entityType: "founder",
+        entityId: "a16z-speedrun-006-idilio-founder-gabriela-tafur",
+        attachedCompanyId: "a16z-speedrun-006-idilio",
+        accountUrl: "https://www.instagram.com/gabrielatafur",
+        socialAccountId:
+          "acct:founder:a16z-speedrun-006-idilio-founder-gabriela-tafur:instagram:https%3A%2F%2Fwww.instagram.com%2Fgabrielatafur",
+        postedAt: "2026-07-14T01:29:43.000Z",
+        metricMinimums: { likes: 7425, comments: 61 }
       }
     ] as const;
 
@@ -537,6 +548,7 @@ describe("a16z speedrun 006 dataset", () => {
       expect(matches[0]).toEqual(expect.objectContaining({
         ...identity,
         publishedAtPrecision: "exact",
+        linkStatus: "verified",
         review_state: "verified"
       }));
       for (const [metric, minimum] of Object.entries(metricMinimums)) {
@@ -599,7 +611,7 @@ describe("a16z speedrun 006 dataset", () => {
     const seedAndLoggedPhysicalPost = graph.evidence.filter(
       (item) => item.platform === "instagram" && item.platformPostId === "DPTAEA5jM-q"
     );
-    const dateOnlyXPost = graph.evidence.find(
+    const receiptBackedXPost = graph.evidence.find(
       (item) => item.platform === "x" && item.platformPostId === "2046626219584889327"
     );
 
@@ -624,10 +636,15 @@ describe("a16z speedrun 006 dataset", () => {
       socialAccountId:
         "acct:founder:a16z-speedrun-006-idilio-founder-gabriela-tafur:instagram:https%3A%2F%2Fwww.instagram.com%2Fgabrielatafur",
       postedAt: "2026-07-14T01:29:43.000Z",
-      publishedAtPrecision: "exact"
+      publishedAtPrecision: "exact",
+      linkStatus: "verified"
     }));
     expect(instagramFounderPost[0].metrics.likes).toBeGreaterThanOrEqual(7425);
     expect(instagramFounderPost[0].metrics.comments).toBeGreaterThanOrEqual(61);
+    expect(scoringEligibility(instagramFounderPost[0])).toEqual({
+      eligible: true,
+      reason: "eligible"
+    });
     expect(seedAndLoggedPhysicalPost).toHaveLength(1);
     expect(seedAndLoggedPhysicalPost[0]).toEqual(expect.objectContaining({
       entityType: "company",
@@ -635,7 +652,15 @@ describe("a16z speedrun 006 dataset", () => {
     }));
     expect(seedAndLoggedPhysicalPost[0].metrics.likes).toBeGreaterThanOrEqual(220);
     expect(seedAndLoggedPhysicalPost[0].metrics.comments).toBe(8);
-    expect(["day", "exact"]).toContain(dateOnlyXPost?.publishedAtPrecision);
+    expect(receiptBackedXPost).toEqual(expect.objectContaining({
+      postedAt: "2026-04-21T16:24:49.000Z",
+      publishedAtPrecision: "exact",
+      linkStatus: "verified"
+    }));
+    expect(scoringEligibility(receiptBackedXPost!)).toEqual({
+      eligible: true,
+      reason: "eligible"
+    });
     expect(graph.evidence.some((item) => item.platformPostId === "DafmJgmjm0D")).toBe(false);
     const clairPost = graph.evidence.find((item) => item.platformPostId === "DbWVA8WAdbR");
     expect(clairPost?.authorHandle).toBe("clair_health");
