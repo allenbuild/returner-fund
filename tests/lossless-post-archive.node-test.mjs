@@ -242,10 +242,89 @@ test("appends edited observations as immutable revisions and keeps sparse media 
   });
 });
 
-test("versions same-slot normalization drift after raw compatibility and still fails closed on source drift", async () => {
+test("versions only catalog-derived attribution descriptor drift for one source observation", async () => {
   await withArchive(async (rootDir) => {
     const archive = await openLosslessPostArchive(rootDir);
+    const observedAt = "2026-08-26T03:53:04.852Z";
+    const nativeId = "2078180525601419281";
+    const rawEnvelope = { source: "x-public-profile", nativeId, text: "unchanged source post" };
+    const normalizedPost = {
+      platformPostId: nativeId,
+      text: "unchanged source post",
+      sourceUrl: `https://x.com/rationaldotto/status/${nativeId}`,
+      attributionDescriptorMatches: ["rational", "firms"],
+      media: [],
+      relationships: { parent: null, thread: null, quote: null }
+    };
     const first = await archive.appendPost({
+      platform: "x",
+      nativeId,
+      observedAt,
+      rawEnvelope,
+      normalizedPost
+    });
+    const descriptorRevisionInput = {
+      platform: "x",
+      nativeId,
+      observedAt,
+      rawEnvelope,
+      normalizedPost: {
+        ...normalizedPost,
+        attributionDescriptorMatches: ["rational"]
+      }
+    };
+    const revised = await archive.appendPost(descriptorRevisionInput);
+    const repeatedRevision = await archive.appendPost(descriptorRevisionInput);
+
+    assert.equal(revised.raw.status, "duplicate");
+    assert.equal(revised.normalized.status, "appended");
+    assert.notEqual(revised.normalized.contentHash, first.normalized.contentHash);
+    assert.equal(repeatedRevision.normalized.status, "duplicate");
+    assert.equal(repeatedRevision.normalized.contentHash, revised.normalized.contentHash);
+    assert.deepEqual(
+      archive.listPostRevisions({ platform: "x", nativeId })
+        .map((record) => record.content.post.attributionDescriptorMatches),
+      [["rational", "firms"], ["rational"]]
+    );
+
+    await assert.rejects(
+      archive.appendPost({
+        ...descriptorRevisionInput,
+        normalizedPost: { ...descriptorRevisionInput.normalizedPost, text: "semantic mutation" }
+      }),
+      (error) => error instanceof LosslessArchiveConflictError &&
+        error.code === "LOSSLESS_ARCHIVE_CONFLICT" && error.recordType === "normalized_post"
+    );
+    await assert.rejects(
+      archive.appendPost({
+        ...descriptorRevisionInput,
+        normalizedPost: { ...descriptorRevisionInput.normalizedPost, platformPostId: "different-native-id" }
+      }),
+      (error) => error instanceof LosslessArchiveConflictError &&
+        error.code === "LOSSLESS_ARCHIVE_CONFLICT" && error.recordType === "normalized_post"
+    );
+
+    const reopened = await openLosslessPostArchive(rootDir);
+    assert.equal(reopened.listPostRevisions({ platform: "x", nativeId }).length, 2);
+    assert.deepEqual(reopened.getPost("x", nativeId).attributionDescriptorMatches, ["rational"]);
+
+    const replayedFirst = await reopened.appendPost({
+      platform: "x",
+      nativeId,
+      observedAt,
+      rawEnvelope,
+      normalizedPost
+    });
+    assert.equal(replayedFirst.normalized.status, "duplicate");
+    assert.equal(replayedFirst.normalized.contentHash, first.normalized.contentHash);
+    assert.deepEqual(reopened.getPost("x", nativeId).attributionDescriptorMatches, ["rational"]);
+  });
+});
+
+test("fails closed on conflicting observation slots and destructive sparse rewrites", async () => {
+  await withArchive(async (rootDir) => {
+    const archive = await openLosslessPostArchive(rootDir);
+    await archive.appendPost({
       platform: "linkedin",
       nativeId: "activity-1",
       observedAt: "2026-08-04T00:00:00.000Z",
@@ -268,20 +347,17 @@ test("versions same-slot normalization drift after raw compatibility and still f
       (error) => error instanceof LosslessArchiveConflictError &&
         error.code === "LOSSLESS_ARCHIVE_CONFLICT" && error.recordType === "raw_envelope"
     );
-    const revisedInput = {
-      platform: "linkedin",
-      nativeId: "activity-1",
-      observedAt: "2026-08-04T00:00:00.000Z",
-      rawEnvelope: { text: "first" },
-      normalizedPost: { text: "revised normalization" }
-    };
-    const revised = await archive.appendPost(revisedInput);
-    const repeatedRevision = await archive.appendPost(revisedInput);
-    assert.equal(revised.raw.status, "duplicate");
-    assert.equal(revised.normalized.status, "appended");
-    assert.notEqual(revised.normalized.contentHash, first.normalized.contentHash);
-    assert.equal(repeatedRevision.normalized.status, "duplicate");
-    assert.equal(repeatedRevision.normalized.contentHash, revised.normalized.contentHash);
+    await assert.rejects(
+      archive.appendPost({
+        platform: "linkedin",
+        nativeId: "activity-1",
+        observedAt: "2026-08-04T00:00:00.000Z",
+        rawEnvelope: { text: "first" },
+        normalizedPost: { text: "conflicting normalization" }
+      }),
+      (error) => error instanceof LosslessArchiveConflictError &&
+        error.code === "LOSSLESS_ARCHIVE_CONFLICT" && error.recordType === "normalized_post"
+    );
     await assert.rejects(
       archive.appendPost({
         platform: "linkedin",
@@ -305,32 +381,9 @@ test("versions same-slot normalization drift after raw compatibility and still f
         error.code === "LOSSLESS_ARCHIVE_DESTRUCTIVE_AMBIGUITY" && error.field === "parent relationship"
     );
 
-    assert.equal(archive.getPost("linkedin", "activity-1").text, "revised normalization");
-    assert.equal(archive.listPostRevisions({ platform: "linkedin", nativeId: "activity-1" }).length, 2);
+    assert.equal(archive.getPost("linkedin", "activity-1").text, "first");
+    assert.equal(archive.listPostRevisions({ platform: "linkedin", nativeId: "activity-1" }).length, 1);
     assert.equal(archive.listRawEnvelopes({ platform: "linkedin", nativeId: "activity-1" }).length, 1);
-
-    const reopened = await openLosslessPostArchive(rootDir);
-    assert.deepEqual(
-      reopened.listPostRevisions({ platform: "linkedin", nativeId: "activity-1" })
-        .map((record) => record.content.post.text),
-      ["first", "revised normalization"]
-    );
-    assert.equal(reopened.getPost("linkedin", "activity-1").text, "revised normalization");
-
-    const replayedFirst = await reopened.appendPost({
-      platform: "linkedin",
-      nativeId: "activity-1",
-      observedAt: "2026-08-04T00:00:00.000Z",
-      rawEnvelope: { text: "first" },
-      normalizedPost: {
-        text: "first",
-        media: [{ type: "image", url: "https://cdn.example/one.jpg" }],
-        relationships: { parent: "parent-1" }
-      }
-    });
-    assert.equal(replayedFirst.normalized.status, "duplicate");
-    assert.equal(replayedFirst.normalized.contentHash, first.normalized.contentHash);
-    assert.equal(reopened.getPost("linkedin", "activity-1").text, "revised normalization");
   });
 });
 
