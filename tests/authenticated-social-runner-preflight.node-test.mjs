@@ -69,6 +69,13 @@ test("LinkedIn requires /in/me/ to redirect and positive own-account controls", 
     ok: true,
     reason: "linkedin_self_profile_verified"
   });
+  assert.deepEqual(linkedinViewerIdentityDecision({
+    ...base,
+    expectedSlug: "https://www.linkedin.com/in/allen-xu-474108336/"
+  }), {
+    ok: true,
+    reason: "linkedin_self_profile_verified"
+  });
 
   // A matching public profile URL/canonical pair is not authenticated
   // self-account proof without both authenticated navigation and owner edit UI.
@@ -260,6 +267,27 @@ test("runner configuration fails closed before any browser operation", () => {
   assert.equal(normalizeInstagramViewerHandle("@AllenXTech"), "allenxtech");
   assert.equal(normalizeInstagramViewerHandle("bad handle"), null);
   assert.equal(normalizeLinkedInViewerSlug("Allen-Xu-474108336/"), "allen-xu-474108336");
+  assert.equal(
+    normalizeLinkedInViewerSlug("https://www.linkedin.com/in/Allen-Xu-474108336/"),
+    "allen-xu-474108336"
+  );
+  assert.equal(
+    normalizeLinkedInViewerSlug("https://linkedin.com/in/allen-xu-474108336"),
+    "allen-xu-474108336"
+  );
+  for (const invalid of [
+    "http://www.linkedin.com/in/allen-xu-474108336/",
+    "https://user@www.linkedin.com/in/allen-xu-474108336/",
+    "https://www.linkedin.com:443/in/allen-xu-474108336/",
+    "https://www.linkedin.com:8443/in/allen-xu-474108336/",
+    "https://help.linkedin.com/in/allen-xu-474108336/",
+    "https://www.linkedin.com/in/allen-xu-474108336/details/",
+    "https://www.linkedin.com/in/allen-xu-474108336/?trk=profile",
+    "https://www.linkedin.com/in/allen-xu-474108336/#about",
+    "https://www.linkedin.com/in/allen%2Dxu-474108336/"
+  ]) {
+    assert.equal(normalizeLinkedInViewerSlug(invalid), null, invalid);
+  }
   assert.equal(normalizeLinkedInViewerSlug("bad slug!"), null);
 });
 
@@ -433,7 +461,7 @@ function authenticatedPreflightEnvironment(fixture) {
     OPENCLI_HOME: fixture.openCliHome,
     OPENCLI_PROFILE: "authenticated",
     OPENCLI_CONFIG_DIR: fixture.configDir,
-    RETURNER_LINKEDIN_VIEWER_PROFILE: "allen-xu-474108336",
+    RETURNER_LINKEDIN_VIEWER_PROFILE: "https://www.linkedin.com/in/allen-xu-474108336/",
     RETURNER_INSTAGRAM_VIEWER_HANDLE: "allenxtech"
   };
 }
