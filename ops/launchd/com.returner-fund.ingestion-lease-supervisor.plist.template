@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.returner-fund.ingestion-lease-supervisor</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>__NODE_BIN__</string>
+    <string>__SUPERVISOR_SCRIPT__</string>
+  </array>
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>PATH</key>
+    <string>/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin</string>
+    <key>RETURNER_GH_BIN</key>
+    <string>__GH_BIN__</string>
+    <key>RETURNER_REPOSITORY</key>
+    <string>allenbuild/returner-fund</string>
+    <key>RETURNER_WORKFLOW_PATH</key>
+    <string>.github/workflows/autonomous-ingestion.yml</string>
+    <key>RETURNER_DEFAULT_BRANCH</key>
+    <string>main</string>
+    <key>RETURNER_RUNNER_NAME</key>
+    <string>returner-social-mac-allenxtech</string>
+    <key>RETURNER_RUNNER_DIAG_DIR</key>
+    <string>__RUNNER_DIAG_DIR__</string>
+    <key>RETURNER_LEASE_SUPERVISOR_STATE_DIR</key>
+    <string>__STATE_DIR__</string>
+    <key>RETURNER_MIN_BATTERY_PERCENT</key>
+    <string>60</string>
+  </dict>
+  <key>WorkingDirectory</key>
+  <string>__INSTALL_ROOT__</string>
+  <key>RunAtLoad</key>
+  <true/>
+  <key>StartInterval</key>
+  <integer>300</integer>
+  <key>ProcessType</key>
+  <string>Background</string>
+  <key>LowPriorityIO</key>
+  <true/>
+  <key>ThrottleInterval</key>
+  <integer>60</integer>
+  <key>StandardOutPath</key>
+  <string>__STDOUT_LOG__</string>
+  <key>StandardErrorPath</key>
+  <string>__STDERR_LOG__</string>
+</dict>
+</plist>

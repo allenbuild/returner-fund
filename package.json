@@ -70,6 +70,8 @@
     "x:thumbnails:batch": "node scripts/backfill-evidence-thumbnails.mjs --platform=x --validate-x --missing-only --max-rows=100",
     "ingest:public": "node scripts/run-public-ingest.mjs",
     "ingest:autonomous": "node scripts/run-autonomous-ingestion.mjs",
+    "ingest:lease-supervisor": "node scripts/supervise-autonomous-ingestion-job-lease.mjs",
+    "ingest:lease-supervisor:install": "node scripts/install-autonomous-ingestion-job-lease-supervisor.mjs --install",
     "ingest:coverage:prepare": "node scripts/prepare-ingestion-coverage-campaign.mjs",
     "ingest:coverage:prove-recent": "node scripts/generate-recent-completion-proofs.mjs",
     "ingest:coverage:prove-historical": "node scripts/generate-historical-completion-proofs.mjs",
