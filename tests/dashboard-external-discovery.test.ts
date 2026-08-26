@@ -14,6 +14,56 @@ const YOUTUBE_INNERTUBE_API_KEY = "AIzaUnitTestPublicKey_123456789012345";
 const YOUTUBE_INNERTUBE_CLIENT_VERSION = "2.20260815.00.00";
 
 describe("public dashboard discovery", () => {
+  it("uses fixed channel identity with no-key official browse and player requests", async () => {
+    const channelId = "UCE_M8A5yxnLfW0KghEeajjw";
+    const requests: Array<{ url: URL; method: string; headers: Headers; body: Record<string, unknown> }> = [];
+    const fetchImpl = vi.fn(async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
+      const url = new URL(String(input));
+      const body = JSON.parse(String(init?.body)) as Record<string, unknown>;
+      requests.push({ url, method: init?.method ?? "GET", headers: new Headers(init?.headers), body });
+      if (url.pathname === "/youtubei/v1/browse") {
+        return json(youtubeUploadsBrowseResponse(["3WpzNmY35S4", "lowviews001", "thirdvid001"]));
+      }
+      if (url.pathname === "/youtubei/v1/player") {
+        const videoId = String(body.videoId);
+        return json(youtubePlayerResponse({
+          videoId,
+          channelId,
+          author: "Apple",
+          title: "Apple AI hardware launch",
+          description: "New AI hardware and developer software.",
+          publishedAt: "2026-08-15T03:00:00-07:00",
+          views: videoId === "3WpzNmY35S4" ? 2_000_000 : 999_999
+        }));
+      }
+      throw new Error(`Unexpected request ${url}`);
+    });
+
+    const result = await fetchYoutubeChannelCandidates(fetchImpl as typeof fetch, NOW, {
+      name: "Apple",
+      handle: "Apple",
+      channelId
+    });
+
+    expect(requests).toHaveLength(3);
+    expect(requests[0]).toMatchObject({ method: "POST" });
+    expect(requests[0]?.url.pathname).toBe("/youtubei/v1/browse");
+    expect(requests[0]?.url.searchParams.get("key")).toBeNull();
+    expect(requests[0]?.body).toMatchObject({ browseId: `VLUU${channelId.slice(2)}` });
+    expect(requests.slice(1).map(({ body }) => body.videoId)).toEqual(["3WpzNmY35S4", "lowviews001"]);
+    for (const request of requests) {
+      expect(request.url.searchParams.get("key")).toBeNull();
+      expect(request.headers.get("x-youtube-client-name")).toBe("1");
+      expect(request.headers.get("x-youtube-client-version")).toBeTruthy();
+      expect(JSON.stringify(request.body)).not.toContain("AIza");
+    }
+    expect(result.candidates).toEqual([
+      expect.objectContaining({ id: "youtube:3WpzNmY35S4", metrics: { views: 2_000_000, likes: null } }),
+      expect.objectContaining({ id: "youtube:lowviews001", metrics: { views: 999_999, likes: null } })
+    ]);
+    expect(buildDashboardSnapshot(result.candidates, { now: NOW }).snapshot.stories).toHaveLength(1);
+  });
+
   it("uses exact official player JSON when the watch HTML exposes only date-level metadata", async () => {
     const channelId = "UC1234567890123456789012";
     const channelPage = youtubeChannelPage(channelId, [{
@@ -256,26 +306,26 @@ describe("public dashboard discovery", () => {
 
   it("ships an expanded verified tech roster under the hard channel bound", () => {
     expect(DEFAULT_DASHBOARD_YOUTUBE_CHANNELS).toEqual([
-      { name: "Apple", handle: "Apple" },
-      { name: "MKBHD", handle: "mkbhd" },
-      { name: "OpenAI", handle: "OpenAI" },
-      { name: "Google", handle: "Google" },
-      { name: "NVIDIA", handle: "NVIDIA" },
-      { name: "Tesla", handle: "Tesla" },
-      { name: "Linus Tech Tips", handle: "LinusTechTips" },
-      { name: "Mrwhosetheboss", handle: "Mrwhosetheboss" },
-      { name: "Fireship", handle: "Fireship" },
-      { name: "Samsung", handle: "Samsung" },
-      { name: "Microsoft", handle: "Microsoft" },
-      { name: "Android", handle: "Android" },
-      { name: "Unbox Therapy", handle: "unboxtherapy" },
-      { name: "JerryRigEverything", handle: "JerryRigEverything" },
-      { name: "Dave2D", handle: "Dave2D" },
-      { name: "The Verge", handle: "TheVerge" },
-      { name: "SpaceX", handle: "SpaceX" },
-      { name: "Boston Dynamics", handle: "BostonDynamics" },
-      { name: "DJI", handle: "DJI" },
-      { name: "Nothing", handle: "NothingTechnology" }
+      { name: "Apple", handle: "Apple", channelId: "UCE_M8A5yxnLfW0KghEeajjw" },
+      { name: "MKBHD", handle: "mkbhd", channelId: "UCBJycsmduvYEL83R_U4JriQ" },
+      { name: "OpenAI", handle: "OpenAI", channelId: "UCXZCJLdBC09xxGZ6gcdrc6A" },
+      { name: "Google", handle: "Google", channelId: "UCK8sQmJBp8GCxrOtXWBpyEA" },
+      { name: "NVIDIA", handle: "NVIDIA", channelId: "UCHuiy8bXnmK5nisYHUd1J5g" },
+      { name: "Tesla", handle: "Tesla", channelId: "UC5WjFrtBdufl6CZojX3D8dQ" },
+      { name: "Linus Tech Tips", handle: "LinusTechTips", channelId: "UCXuqSBlHAE6Xw-yeJA0Tunw" },
+      { name: "Mrwhosetheboss", handle: "Mrwhosetheboss", channelId: "UCMiJRAwDNSNzuYeN2uWa0pA" },
+      { name: "Fireship", handle: "Fireship", channelId: "UCsBjURrPoezykLs9EqgamOA" },
+      { name: "Samsung", handle: "Samsung", channelId: "UCWwgaK7x0_FR1goeSRazfsQ" },
+      { name: "Microsoft", handle: "Microsoft", channelId: "UCFtEEv80fQVKkD4h1PF-Xqw" },
+      { name: "Android", handle: "Android", channelId: "UC9M7-jzdU8CVrQo1JwmIdWA" },
+      { name: "Unbox Therapy", handle: "unboxtherapy", channelId: "UCsTcErHg8oDvUnTzoqsYeNw" },
+      { name: "JerryRigEverything", handle: "JerryRigEverything", channelId: "UCWFKCr40YwOZQx8FHU_ZqqQ" },
+      { name: "Dave2D", handle: "Dave2D", channelId: "UCVYamHliCI9rw1tHR1xbkfw" },
+      { name: "The Verge", handle: "TheVerge", channelId: "UCddiUEpeqJcYeBxX1IVBKvQ" },
+      { name: "SpaceX", handle: "SpaceX", channelId: "UCtI0Hodo5o5dUb67FeUjDeA" },
+      { name: "Boston Dynamics", handle: "BostonDynamics", channelId: "UC7vVhkEfw4nOGp8TyDk7RcQ" },
+      { name: "DJI", handle: "DJI", channelId: "UCsNGtpqGsyw0U6qEG-WHadA" },
+      { name: "Nothing", handle: "NothingTechnology", channelId: "UCuVQmkiETvqmLviDcBtQw4A" }
     ]);
     expect(DEFAULT_DASHBOARD_YOUTUBE_CHANNELS.length).toBeLessThanOrEqual(MAX_DASHBOARD_YOUTUBE_CHANNELS);
     expect(DEFAULT_DASHBOARD_YOUTUBE_CHANNELS).toHaveLength(20);
@@ -315,6 +365,46 @@ describe("public dashboard discovery", () => {
       .map((channel) => `@${channel.handle}`));
     expect(result.failures).toHaveLength(MAX_DASHBOARD_YOUTUBE_CHANNELS);
     expect(fetchImpl).toHaveBeenCalledTimes(3 + MAX_DASHBOARD_YOUTUBE_CHANNELS);
+  });
+
+  it("bounds concurrent YouTube channel discovery on shared runner IPs", async () => {
+    const configured = Array.from({ length: 9 }, (_, index) => ({
+      name: `Channel ${index}`,
+      handle: `channel${index}`,
+      channelId: `UC${String(index).padStart(22, "0")}`
+    }));
+    let activeBrowseRequests = 0;
+    let maxActiveBrowseRequests = 0;
+    const fetchImpl = vi.fn(async (input: RequestInfo | URL): Promise<Response> => {
+      const url = new URL(String(input));
+      if (url.hostname === "hn.algolia.com") return json({ hits: [] });
+      if (url.hostname === "api.github.com" && url.pathname === "/search/repositories") return json({ items: [] });
+      if (url.hostname === "api.github.com" && url.pathname === "/events") return json([]);
+      if (url.pathname === "/youtubei/v1/browse") {
+        activeBrowseRequests += 1;
+        maxActiveBrowseRequests = Math.max(maxActiveBrowseRequests, activeBrowseRequests);
+        await new Promise((resolve) => setTimeout(resolve, 5));
+        activeBrowseRequests -= 1;
+        return json(youtubeUploadsBrowseResponse([]));
+      }
+      if (url.pathname.endsWith("/videos")) {
+        return new Response(youtubeChannelPage("UC1234567890123456789012", []));
+      }
+      throw new Error(`Unexpected request ${url}`);
+    });
+
+    const result = await discoverExternalDashboardCandidates({
+      now: NOW,
+      fetchImpl: fetchImpl as typeof fetch,
+      youtubeChannels: configured,
+      rssFeeds: [],
+      researchFeeds: [],
+      redditSubreddits: []
+    });
+
+    expect(maxActiveBrowseRequests).toBe(4);
+    expect(result.sources).toEqual(["github", "github_events", "hacker_news"]);
+    expect(result.failures).toHaveLength(configured.length);
   });
 
   it("isolates one YouTube channel failure from another channel's verified candidates", async () => {
@@ -1189,6 +1279,27 @@ function youtubePlayerResponse(input: {
       playerMicroformatRenderer: {
         publishDate: input.publishDate ?? input.publishedAt,
         uploadDate: input.uploadDate ?? input.publishedAt
+      }
+    }
+  };
+}
+
+function youtubeUploadsBrowseResponse(videoIds: string[]): unknown {
+  return {
+    contents: {
+      twoColumnBrowseResultsRenderer: {
+        tabs: [{
+          tabRenderer: {
+            selected: true,
+            content: {
+              sectionListRenderer: {
+                contents: videoIds.map((videoId) => ({
+                  playlistVideoRenderer: { videoId }
+                }))
+              }
+            }
+          }
+        }]
       }
     }
   };

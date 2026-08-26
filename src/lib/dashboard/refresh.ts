@@ -114,7 +114,7 @@ export async function refreshTechnologyDashboard(
     };
     externalAttempted = dashboardExternalAttemptCount(externalOptions);
     const external = await discoverExternalDashboardCandidates(externalOptions);
-    assertConfiguredYoutubeDiscoverySucceeded(externalOptions.youtubeChannels, external.sources);
+    assertConfiguredYoutubeDiscoverySucceeded(externalOptions.youtubeChannels, external.sources, external.failures);
     candidates.push(...external.candidates);
     externalSucceeded = external.sources.length;
     sourceCounts.industry = external.candidates.length;
@@ -285,11 +285,16 @@ export function dashboardExternalCandidateCounts(
  */
 export function assertConfiguredYoutubeDiscoverySucceeded(
   youtubeChannels: ExternalDiscoveryOptions["youtubeChannels"],
-  succeededSources: readonly string[]
+  succeededSources: readonly string[],
+  failureLabels: readonly string[] = []
 ): void {
   if (!youtubeChannels?.length) return;
   if (succeededSources.some((source) => source.startsWith("youtube:"))) return;
-  throw new Error("dashboard_youtube_discovery_unavailable");
+  const youtubeFailures = failureLabels
+    .filter((label) => /^youtube_[a-z0-9-]+_[a-z0-9_-]+$/i.test(label))
+    .slice(0, MAX_DASHBOARD_YOUTUBE_CHANNELS);
+  const diagnostic = youtubeFailures.length > 0 ? youtubeFailures.join(",") : "no_failure_labels";
+  throw new Error(`dashboard_youtube_discovery_unavailable:${diagnostic}`);
 }
 
 function configuredRssFeedAttemptCount(): number {

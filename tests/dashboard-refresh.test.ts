@@ -40,8 +40,11 @@ describe("dashboard worker metric-history enrichment", () => {
 
     expect(() => assertConfiguredYoutubeDiscoverySucceeded(
       channels,
-      ["hacker_news", "github", "rss:example"]
-    )).toThrowError("dashboard_youtube_discovery_unavailable");
+      ["hacker_news", "github", "rss:example"],
+      ["youtube_apple_browse_http_429", "youtube_mkbhd_browse_fetch_failed", "rss_example_http_503"]
+    )).toThrowError(
+      "dashboard_youtube_discovery_unavailable:youtube_apple_browse_http_429,youtube_mkbhd_browse_fetch_failed"
+    );
   });
 
   it("accepts one successful YouTube adapter even when it yields no eligible candidate", () => {
