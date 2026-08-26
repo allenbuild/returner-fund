@@ -491,6 +491,39 @@ describe("daily benchmark updater", () => {
     expect(next.daily[0]).not.toEqual(stale);
   });
 
+  it("refreshes a same-day entry when autonomous ingestion publishes a newer graph", () => {
+    const previousRecordedAt = new Date("2026-08-26T10:02:26.841Z");
+    const recordedAt = new Date("2026-08-26T12:14:24.397Z");
+    const previous = {
+      recordedAt: previousRecordedAt.toISOString(),
+      scoringModelVersion: "4.2.0",
+      inputGeneratedAt: "2026-08-26T10:01:00.000Z",
+      companies: [{ companyId: "old", companyName: "Old", score: 1, rank: 1 }]
+    };
+    const store = {
+      version: 1,
+      batchSlug: "S2026",
+      updatedAt: previousRecordedAt.toISOString(),
+      daily: [previous],
+      weekly: [previous]
+    };
+    const newerGraph = graphFor(BATCH_SNAPSHOTS[0], new Date("2026-08-26T12:13:26.086Z"));
+
+    const refreshed = appendObservedBenchmarkSnapshot(store, newerGraph, recordedAt);
+
+    expect(refreshed.updatedAt).toBe(recordedAt.toISOString());
+    expect(refreshed.daily).toHaveLength(1);
+    expect(refreshed.daily[0]).toMatchObject({
+      recordedAt: recordedAt.toISOString(),
+      inputGeneratedAt: "2026-08-26T12:13:26.086Z",
+      scoringModelVersion: "4.2.0"
+    });
+    expect(refreshed.daily[0]).not.toEqual(previous);
+
+    const olderGraph = graphFor(BATCH_SNAPSHOTS[0], new Date("2026-08-26T09:59:00.000Z"));
+    expect(appendObservedBenchmarkSnapshot(store, olderGraph, recordedAt)).toBe(store);
+  });
+
   it("aborts a graph fetch that exceeds its timeout", async () => {
     const server = http.createServer((_request, response) => {
       setTimeout(() => {

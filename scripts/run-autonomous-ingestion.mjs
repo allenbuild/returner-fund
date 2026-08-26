@@ -8530,10 +8530,7 @@ async function readCommitBackedReplayReceipt() {
   // falling back to an older receipt or mistaking the current code tip for the
   // publication.
   const { commit: publishedCommit, message } = candidates[0];
-  const publicationProvenance = validateReplayPublicationTrailers({
-    message,
-    sourceCommit: immutableSourceCommit
-  });
+  const publicationProvenance = validateReplayPublicationTrailers({ message });
   const committedReceipt = await readTextFromGitRef(
     publishedCommit,
     "outputs/ingestion-source-delta-current.json",
@@ -8566,8 +8563,10 @@ async function readCommitBackedReplayReceipt() {
       `Replay publication ${publishedCommit} is not an ancestor of current origin/${publicationBranch()}.`
     );
   }
-  await assertTrustedPublicationBaseCommit(publishedCommit, {
-    label: "commit-backed replay publication"
+  await assertTrustedReplayPublicationCommit(publishedCommit, {
+    label: "commit-backed replay publication",
+    provenanceSourceCommit: publicationProvenance.sourceSha,
+    immutableSourceCommit
   });
   const [currentReceipt, history] = await Promise.all([
     readJsonFromGitRef(
@@ -8615,7 +8614,7 @@ function exactPublicationTrailer(message, key) {
   return values[0];
 }
 
-function validateReplayPublicationTrailers({ message, sourceCommit }) {
+function validateReplayPublicationTrailers({ message }) {
   const slotKey = exactPublicationTrailer(message, "Returner-Slot-Key");
   const sourceSha = exactPublicationTrailer(message, "Returner-Source-SHA");
   const runId = exactPublicationTrailer(message, "Returner-Run-ID");
@@ -8624,13 +8623,105 @@ function validateReplayPublicationTrailers({ message, sourceCommit }) {
   if (!slotKey || !sourceSha || !runId || !runAttempt || !receiptSha256) {
     throw new Error("Replay publication provenance must contain exactly one complete Returner trailer for every field.");
   }
-  if (!/^[0-9a-f]{40}$/i.test(sourceSha) || sourceSha.toLowerCase() !== sourceCommit.toLowerCase()) {
-    throw new Error("Replay publication Returner-Source-SHA does not match the dispatch source commit.");
+  if (!/^[0-9a-f]{40}$/i.test(sourceSha)) {
+    throw new Error("Replay publication Returner-Source-SHA is not exact.");
   }
   if (!/^[0-9a-f]{64}$/i.test(receiptSha256)) {
     throw new Error("Replay publication Returner-Receipt-SHA256 is not exact.");
   }
   return { slotKey, sourceSha: sourceSha.toLowerCase(), runId, runAttempt, receiptSha256: receiptSha256.toLowerCase() };
+}
+
+async function assertTrustedReplayPublicationCommit(
+  commit,
+  { label, provenanceSourceCommit, immutableSourceCommit }
+) {
+  for (const [value, field] of [
+    [commit, label],
+    [provenanceSourceCommit, `${label} provenance source`],
+    [immutableSourceCommit, `${label} pinned source`]
+  ]) {
+    if (!/^[0-9a-f]{40}$/i.test(String(value))) {
+      throw new Error(`${field} is not a full 40-hex commit SHA.`);
+    }
+  }
+
+  const provenanceReachable = await runCommand(
+    "git",
+    ["merge-base", "--is-ancestor", provenanceSourceCommit, commit],
+    {
+      timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitDiffMs,
+      label: `verify provenance source reachability for ${label}`,
+      allowedExitCodes: [0, 1],
+      quiet: true,
+      recordEvents: false,
+      cwd: pinnedSourceRoot
+    }
+  );
+  if (provenanceReachable.code !== 0) {
+    throw new Error(
+      `${label} ${commit} does not descend from its Returner-Source-SHA ${provenanceSourceCommit}.`
+    );
+  }
+
+  const pinnedDescendsFromProvenance = await runCommand(
+    "git",
+    ["merge-base", "--is-ancestor", provenanceSourceCommit, immutableSourceCommit],
+    {
+      timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitDiffMs,
+      label: `verify pinned source provenance for ${label}`,
+      allowedExitCodes: [0, 1],
+      quiet: true,
+      recordEvents: false,
+      cwd: pinnedSourceRoot
+    }
+  );
+  if (pinnedDescendsFromProvenance.code !== 0) {
+    throw new Error(
+      `${label} Returner-Source-SHA ${provenanceSourceCommit} is not an ancestor of pinned source ${immutableSourceCommit}.`
+    );
+  }
+
+  const [publicationBeforePinned, pinnedBeforePublication] = await Promise.all([
+    runCommand("git", ["merge-base", "--is-ancestor", commit, immutableSourceCommit], {
+      timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitDiffMs,
+      label: `verify historical replay ancestry for ${label}`,
+      allowedExitCodes: [0, 1],
+      quiet: true,
+      recordEvents: false,
+      cwd: pinnedSourceRoot
+    }),
+    runCommand("git", ["merge-base", "--is-ancestor", immutableSourceCommit, commit], {
+      timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitDiffMs,
+      label: `verify forward replay ancestry for ${label}`,
+      allowedExitCodes: [0, 1],
+      quiet: true,
+      recordEvents: false,
+      cwd: pinnedSourceRoot
+    })
+  ]);
+  if (publicationBeforePinned.code !== 0 && pinnedBeforePublication.code !== 0) {
+    throw new Error(
+      `${label} ${commit} is not linearly related to pinned source ${immutableSourceCommit}.`
+    );
+  }
+
+  const changed = await runCommand(
+    "git",
+    ["diff", "--name-only", "--no-renames", "-z", provenanceSourceCommit, commit, "--"],
+    {
+      timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitDiffMs,
+      label: `inspect provenance-bound data drift for ${label}`,
+      captureLimit: STRUCTURED_GIT_OUTPUT_CAPTURE_LIMIT,
+      requireCompleteOutput: true,
+      quiet: true,
+      recordEvents: false,
+      cwd: pinnedSourceRoot
+    }
+  );
+  assertReplaySafePublicationChanges(parseNulPaths(changed.stdout), { label });
+  await assertNoTrackedSymlinksAtCommit(commit, { label });
+  return commit.toLowerCase();
 }
 
 async function resolvePublicationRemoteTip({ labelPrefix = "current replay publication" } = {}) {

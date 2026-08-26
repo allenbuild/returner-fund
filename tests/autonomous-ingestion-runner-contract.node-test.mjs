@@ -395,6 +395,38 @@ describe("autonomous ingestion runner CLI", () => {
     assert.match(outputs, new RegExp(`^published_commit=${remoteReceiptCommit}$`, "m"));
     assert.doesNotMatch(outputs, new RegExp(`^published_commit=${laterCodeTip}$`, "m"));
 
+    await symlink(path.join(repositoryRoot, "node_modules"), path.join(publisherRoot, "node_modules"), "dir");
+    const descendantOutputPath = path.join(publisherRoot, "descendant-github-output.txt");
+    const descendantResult = spawnSync(
+      process.execPath,
+      [
+        path.join(publisherRoot, "scripts", "run-autonomous-ingestion.mjs"),
+        `--idempotency-key=${idempotencyKey}`,
+        "--candidate-trigger=manual-replay",
+        "--scheduled-at="
+      ],
+      {
+        cwd: publisherRoot,
+        env: {
+          ...process.env,
+          GITHUB_ACTIONS: "true",
+          GITHUB_OUTPUT: descendantOutputPath,
+          GITHUB_SHA: laterCodeTip,
+          RETURNER_EXPECTED_SOURCE_SHA: laterCodeTip,
+          NEXT_PUBLIC_SUPABASE_URL: "",
+          SUPABASE_SERVICE_ROLE_KEY: ""
+        },
+        encoding: "utf8"
+      }
+    );
+
+    assert.equal(descendantResult.status, 0, descendantResult.stderr);
+    assert.equal(runGit(publisherRoot, ["rev-parse", "HEAD"]).stdout.trim(), laterCodeTip);
+    const descendantOutputs = await readFile(descendantOutputPath, "utf8");
+    assert.match(descendantOutputs, /^runner_status=already_completed$/m);
+    assert.match(descendantOutputs, new RegExp(`^published_commit=${remoteReceiptCommit}$`, "m"));
+    assert.doesNotMatch(descendantOutputs, new RegExp(`^published_commit=${laterCodeTip}$`, "m"));
+
     runGit(publisherRoot, [
       "commit",
       "--allow-empty",
@@ -1679,7 +1711,8 @@ describe("autonomous ingestion runner static safety contracts", () => {
     assert.ok(replay.includes('["merge-base", "--is-ancestor", immutableSourceCommit, remoteCommit]'));
     assert.ok(replayReader.includes('"--grep=Returner-Slot-Key:"'));
     assert.ok(replayReader.includes("validateReplayPublicationTrailers"));
-    assert.ok(replayReader.includes("assertTrustedPublicationBaseCommit(publishedCommit"));
+    assert.ok(replayReader.includes("assertTrustedReplayPublicationCommit(publishedCommit"));
+    assert.ok(replayReader.includes("provenanceSourceCommit: publicationProvenance.sourceSha"));
     assert.ok(replayReader.includes("return selected"));
     assert.match(verifier, /\^\[0-9a-f\]\{40\}\$/i);
     assert.ok(verifier.includes('["fetch", "--prune", "origin", branch]'));

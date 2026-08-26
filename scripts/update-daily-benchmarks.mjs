@@ -557,7 +557,8 @@ export function appendObservedBenchmarkSnapshot(store, graph, recordedAt) {
   // calendar key alone as an idempotency receipt.
   const replaceStaleDaily = alreadyRecordedDaily && (
     !isIsoTimestamp(recordedDaily?.inputGeneratedAt) ||
-    centralDayKey(new Date(recordedDaily.inputGeneratedAt)) !== dayKey
+    centralDayKey(new Date(recordedDaily.inputGeneratedAt)) !== dayKey ||
+    Date.parse(graph.generatedAt) > Date.parse(recordedDaily.inputGeneratedAt)
   );
   const matchingWeekly = store.weekly.filter(
     (candidate) =>
