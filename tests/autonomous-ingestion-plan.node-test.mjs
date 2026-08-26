@@ -1553,7 +1553,126 @@ describe("autonomous collector task accounting", () => {
     assert.equal(isAutonomousCollectorFailureRetryable("503 Service Unavailable"), true);
   });
 
-  it("corrects persisted coauthor-review retry flags without hiding a real collection interruption", () => {
+  it("does not reopen terminal public negative evidence from transport-shaped diagnostics", () => {
+    const transportFailure = "read ECONNRESET";
+    const youtubeReview =
+      "Official YC company page embedded this video, but the native YouTube channel identity was unavailable.";
+    assert.equal(isAutonomousCollectorFailureRetryable(transportFailure), true);
+    assert.equal(isAutonomousCollectorFailureRetryable(youtubeReview), true);
+    const snapshot = {
+      attempts: {
+        "S26:rss:arbital": {
+          attemptKey: "rss:arbital",
+          batchSlug: "S26",
+          platform: "rss",
+          entityType: "company",
+          entityId: "company-arbital",
+          error: transportFailure,
+          retryable: true,
+          outcomeStatus: "blocked_or_empty",
+          outcomeReason: "collector_checked_blocked_or_empty"
+        },
+        "S26:website:arbital": {
+          attemptKey: "website:arbital",
+          batchSlug: "S26",
+          platform: "web",
+          entityType: "company",
+          entityId: "company-arbital",
+          error: transportFailure,
+          retryable: true,
+          outcomeStatus: "blocked_or_empty",
+          outcomeReason: "collector_checked_blocked_or_empty"
+        },
+        "S26:youtube:nex": {
+          attemptKey: "youtube:nex",
+          batchSlug: "S26",
+          platform: "youtube",
+          entityType: "company",
+          entityId: "company-nex",
+          platformPostId: "2amZjOKdhD4",
+          error: youtubeReview,
+          retryable: true,
+          outcomeStatus: "needs_review",
+          outcomeReason: "collector_needs_review"
+        }
+      },
+      failures: [{
+        attemptKey: "rss:arbital",
+        platform: "rss",
+        entityType: "company",
+        entityId: "company-arbital",
+        message: transportFailure,
+        retryable: true
+      }, {
+        attemptKey: "website:arbital",
+        platform: "web",
+        entityType: "company",
+        entityId: "company-arbital",
+        message: transportFailure,
+        retryable: true
+      }]
+    };
+    const tasks = [{
+      batchSlug: "S26",
+      status: "queued",
+      platform: "rss",
+      entityType: "company",
+      entitySourceKey: "company-arbital",
+      account: null
+    }, {
+      batchSlug: "S26",
+      status: "queued",
+      platform: "web",
+      entityType: "company",
+      entitySourceKey: "company-arbital",
+      account: null
+    }, {
+      batchSlug: "S26",
+      status: "queued",
+      platform: "youtube",
+      entityType: "company",
+      entitySourceKey: "company-nex",
+      account: null
+    }];
+
+    const terminalCoverage = summarizeAutonomousCollectorTerminalTaskCoverage(snapshot, {
+      kind: "public",
+      batchSlug: "S26",
+      tasks
+    });
+    assert.equal(terminalCoverage.expected, 3);
+    assert.equal(terminalCoverage.terminal, 3);
+    assert.equal(terminalCoverage.nonTerminal, 0);
+    assert.deepEqual(autonomousCollectorRetryableFailures(snapshot), []);
+
+    const interrupted = structuredClone(snapshot);
+    interrupted.attempts["S26:rss:arbital"] = {
+      ...interrupted.attempts["S26:rss:arbital"],
+      outcomeStatus: "running",
+      outcomeReason: null
+    };
+    interrupted.failures = interrupted.failures.filter(
+      (failure) => failure.attemptKey !== "rss:arbital"
+    );
+    const interruptedCoverage = summarizeAutonomousCollectorTerminalTaskCoverage(interrupted, {
+      kind: "public",
+      batchSlug: "S26",
+      tasks
+    });
+    assert.equal(interruptedCoverage.terminal, 2);
+    assert.equal(interruptedCoverage.nonTerminal, 1);
+    assert.deepEqual(autonomousCollectorRetryableFailures(interrupted), [transportFailure]);
+
+    const failed = structuredClone(snapshot);
+    failed.attempts["S26:rss:arbital"] = {
+      ...failed.attempts["S26:rss:arbital"],
+      outcomeStatus: "failed",
+      outcomeReason: "collector_reported_failure"
+    };
+    assert.deepEqual(autonomousCollectorRetryableFailures(failed), [transportFailure]);
+  });
+
+  it("corrects persisted terminal-review retry flags without hiding a real collection interruption", () => {
     const boundedReview = ({ attemptKey, entityType, entityId, accountUrl, authorHandle }) => ({
       attemptKey,
       platform: "instagram",
