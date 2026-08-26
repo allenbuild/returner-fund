@@ -5,6 +5,16 @@ import path from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 import {
+  assertAwakeLaunchAgentPlist,
+  AWAKE_LABEL,
+  autonomousIngestionHostPaths,
+  installAutonomousIngestionHost,
+  renderLaunchAgentTemplate,
+  resolveInstallerOperation,
+  SUPERVISOR_LABEL,
+  uninstallAutonomousIngestionHost
+} from "../scripts/install-autonomous-ingestion-job-lease-supervisor.mjs";
+import {
   acquireSupervisorLock,
   createGitHubClient,
   evaluateLeaseLossEvent,
@@ -625,4 +635,119 @@ test("LaunchAgent template is a five-minute one-shot without KeepAlive", async (
   );
   assert.match(installer, /installedScheduleModule/);
   assert.match(installer, /scripts[\s\S]*?lib[\s\S]*?ingestion-schedule\.mjs/);
+});
+
+test("awake LaunchAgent is AC-only and never simulates user activity", async () => {
+  const template = await readFile(
+    new URL(
+      "../ops/launchd/com.returner-fund.ingestion-awake.plist.template",
+      import.meta.url
+    ),
+    "utf8"
+  );
+  const plist = renderLaunchAgentTemplate(template, {
+    __STDOUT_LOG__: "/Users/tester/Library/Logs/awake $& output.log",
+    __STDERR_LOG__: "/Users/tester/Library/Logs/awake.error.log"
+  });
+
+  assert.doesNotThrow(() => assertAwakeLaunchAgentPlist(plist));
+  assert.match(plist, /<string>\/usr\/bin\/caffeinate<\/string>\s*<string>-s<\/string>/);
+  assert.match(plist, /<key>KeepAlive<\/key>\s*<true\/>/);
+  assert.match(plist, /<key>RunAtLoad<\/key>\s*<true\/>/);
+  assert.match(plist, /awake \$&amp; output\.log/);
+  assert.doesNotMatch(plist, /<string>-[^<]*[du][^<]*<\/string>|pmset|sudo/i);
+
+  for (const mutation of [
+    plist.replace("<string>-s</string>", "<string>-su</string>"),
+    plist.replace("<string>-s</string>", "<string>-d</string>"),
+    plist.replace("/usr/bin/caffeinate", "/usr/bin/pmset"),
+    plist.replace("<key>KeepAlive</key>\n  <true/>", "<key>KeepAlive</key>\n  <false/>")
+  ]) {
+    assert.throws(() => assertAwakeLaunchAgentPlist(mutation), /Awake LaunchAgent/);
+  }
+});
+
+test("host installer requires one explicit reversible operation", () => {
+  assert.equal(resolveInstallerOperation(["--install"]), "install");
+  assert.equal(resolveInstallerOperation(["--uninstall"]), "uninstall");
+  for (const argv of [[], ["--install", "--uninstall"], ["--install", "extra"]]) {
+    assert.throws(() => resolveInstallerOperation(argv), /exactly one/);
+  }
+});
+
+test("host LaunchAgent install and uninstall are idempotent without deleting audit state", async (t) => {
+  const root = await mkdtemp(path.join(tmpdir(), "returner-host-installer-"));
+  t.after(() => rm(root, { recursive: true, force: true }));
+  const userHome = path.join(root, "home");
+  const runnerDiagDir = path.join(root, "runner-diag");
+  await mkdir(userHome, { recursive: true });
+  await mkdir(runnerDiagDir, { recursive: true });
+  const paths = autonomousIngestionHostPaths({ userHome, repositoryRoot });
+  const calls = [];
+  const run = async (command, args) => {
+    calls.push([command, ...args]);
+    if (command === "/bin/launchctl" && args[0] === "bootout") {
+      const error = new Error("Boot-out failed: 3: No such process");
+      error.code = 3;
+      error.stderr = "Boot-out failed: 3: No such process";
+      throw error;
+    }
+    return { stdout: "", stderr: "" };
+  };
+  const options = {
+    platform: "darwin",
+    userHome,
+    uid: 501,
+    repositoryRoot,
+    environment: {
+      RETURNER_NODE_BIN: process.execPath,
+      RETURNER_GH_BIN: path.join(root, "gh"),
+      RETURNER_RUNNER_DIAG_DIR: runnerDiagDir
+    },
+    run,
+    checkPath: async () => {}
+  };
+
+  const first = await installAutonomousIngestionHost(options);
+  const firstAwakePlist = await readFile(paths.awakePlistPath, "utf8");
+  const second = await installAutonomousIngestionHost(options);
+  assert.equal(await readFile(paths.awakePlistPath, "utf8"), firstAwakePlist);
+  assert.equal(first.installed, true);
+  assert.equal(second.installed, true);
+  assert.deepEqual(
+    first.launchAgents.map(({ label }) => label),
+    [AWAKE_LABEL, SUPERVISOR_LABEL]
+  );
+  assert.doesNotThrow(() => assertAwakeLaunchAgentPlist(firstAwakePlist));
+  await readFile(paths.supervisorPlistPath, "utf8");
+
+  const bootstrapTargets = calls
+    .filter(([command, operation]) => command === "/bin/launchctl" && operation === "bootstrap")
+    .map((call) => call[3]);
+  assert.deepEqual(bootstrapTargets, [
+    paths.awakePlistPath,
+    paths.supervisorPlistPath,
+    paths.awakePlistPath,
+    paths.supervisorPlistPath
+  ]);
+
+  const stateMarker = path.join(paths.stateDir, "preserved-state.json");
+  await writeFile(stateMarker, "{}\n", { mode: 0o600 });
+  const removed = await uninstallAutonomousIngestionHost({
+    platform: "darwin",
+    userHome,
+    uid: 501,
+    run
+  });
+  const removedAgain = await uninstallAutonomousIngestionHost({
+    platform: "darwin",
+    userHome,
+    uid: 501,
+    run
+  });
+  assert.equal(removed.installed, false);
+  assert.equal(removedAgain.installed, false);
+  await assert.rejects(readFile(paths.awakePlistPath, "utf8"), { code: "ENOENT" });
+  await assert.rejects(readFile(paths.supervisorPlistPath, "utf8"), { code: "ENOENT" });
+  assert.equal(await readFile(stateMarker, "utf8"), "{}\n");
 });
