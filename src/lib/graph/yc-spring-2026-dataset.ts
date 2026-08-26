@@ -36,6 +36,7 @@ import {
 } from "./dedupe";
 import { evidenceDisplayText } from "./evidence-display";
 import { enrichEvidenceThumbnail } from "./evidence-thumbnails";
+import { nativeLinkStatusFromVerifiedReceipt } from "./native-link-attestation";
 import { originalEvidenceText } from "./verbatim-evidence-text";
 import { reconcilePublishedCompanyScores } from "./published-score-reconciliation";
 import {
@@ -273,6 +274,18 @@ interface PublicEvidenceRecord {
   attributionStatus?: string;
   attributionMode?: string;
   attributionSignals?: string[];
+  nativeAuthorResolution?: {
+    status?: string;
+    author?: {
+      platform?: Platform;
+      key?: string;
+    };
+    owner?: {
+      batchSlug?: string;
+      entityType?: "company" | "founder";
+      entityId?: string;
+    };
+  };
   matchReason: string;
   first_seen_at: string;
   last_checked_at: string;
@@ -1207,6 +1220,12 @@ function publicEvidenceItem(item: PublicEvidenceRecord): EvidenceItem {
     ? linkedInProfileHandle(rawAuthorHandle ?? undefined) ?? rawAuthorHandle
     : rawAuthorHandle;
   const sourceUrl = contextEvidenceContentUrl(item.platform, item.platformPostId) ?? item.sourceUrl;
+  const receiptLinkStatus = nativeLinkStatusFromVerifiedReceipt(item);
+  const nativeLinkStatus = receiptLinkStatus === "invalid" || receiptLinkStatus === "blocked"
+    ? receiptLinkStatus
+    : isVerifiedOfficialYcCompanyPageYouTubeEmbed(item)
+      ? "verified"
+      : receiptLinkStatus;
 
   return enrichEvidenceThumbnail({
     id: item.id,
@@ -1237,7 +1256,7 @@ function publicEvidenceItem(item: PublicEvidenceRecord): EvidenceItem {
     mediaUrls,
     thumbnailUrl: item.thumbnailUrl ?? null,
     thumbnailSource: item.thumbnailSource ?? null,
-    linkStatus: isLinkedInCommentContext ? "unchecked" : item.linkStatus ?? null,
+    linkStatus: isLinkedInCommentContext ? "unchecked" : nativeLinkStatus,
     linkCheckedAt: isLinkedInCommentContext ? null : item.linkCheckedAt ?? null,
     linkFailureReason: item.linkFailureReason ?? null,
     metrics: item.metrics ?? {},

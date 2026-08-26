@@ -11,6 +11,7 @@ import {
   nativeEvidenceIdentityFromUrl
 } from "./dedupe";
 import { enrichEvidenceThumbnail } from "./evidence-thumbnails";
+import { nativeLinkStatusFromVerifiedReceipt } from "./native-link-attestation";
 import { aggregateBalancedTractionScore, normalizeEvidenceScores } from "./traction-scoring";
 import {
   assertRawEvidenceTemporalPreflight,
@@ -2005,6 +2006,7 @@ function publicEvidenceItemFromSource(
         : source.postedAt
           ? source.publishedAtPrecision ?? publicationTimestampPrecision(source.postedAt)
           : "unknown",
+      linkStatus: nativeLinkStatusFromVerifiedReceipt(source),
       observedAt,
       metricsCheckedAt: source.metricsCheckedAt ?? source.last_checked_at ?? snapshotFetchedAt,
       authorHandle: handle,
