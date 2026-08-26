@@ -3,11 +3,13 @@ import {
   DEFAULT_DASHBOARD_RESEARCH_FEEDS,
   DEFAULT_DASHBOARD_RSS_FEEDS,
   DEFAULT_DASHBOARD_YOUTUBE_CHANNELS,
+  DEFAULT_DASHBOARD_YOUTUBE_SEARCH_QUERIES,
   MAX_DASHBOARD_YOUTUBE_CHANNELS,
   discoverExternalDashboardCandidates,
-  fetchYoutubeChannelCandidates
+  fetchYoutubeChannelCandidates,
+  fetchYoutubeSearchCandidates
 } from "@/lib/dashboard/external-discovery";
-import { buildDashboardSnapshot } from "@/lib/dashboard/pipeline";
+import { buildDashboardSnapshot, dashboardTop100Eligibility } from "@/lib/dashboard/pipeline";
 
 const NOW = new Date("2026-08-15T12:00:00.000Z");
 const YOUTUBE_INNERTUBE_API_KEY = "AIzaUnitTestPublicKey_123456789012345";
@@ -302,6 +304,108 @@ describe("public dashboard discovery", () => {
       handle: "Apple"
     })).rejects.toThrow("youtube_apple_detail_unavailable");
     expect(fetchImpl).toHaveBeenCalledTimes(5);
+  });
+
+  it("bounds fixed view-sorted search and rereads every nominated video from the official player", async () => {
+    const channelId = "UC1234567890123456789012";
+    const searchRequests: URL[] = [];
+    const playerRequests: Array<{ videoId: string; signal: AbortSignal | null }> = [];
+    const idsByQuery = DEFAULT_DASHBOARD_YOUTUBE_SEARCH_QUERIES.map((_, queryIndex) =>
+      Array.from({ length: 8 }, (_, resultIndex) => `q${queryIndex + 1}video${String(resultIndex).padStart(4, "0")}`)
+    );
+    const fetchImpl = vi.fn(async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
+      const url = new URL(String(input));
+      if (url.pathname === "/results") {
+        searchRequests.push(url);
+        const queryIndex = DEFAULT_DASHBOARD_YOUTUBE_SEARCH_QUERIES.indexOf(
+          url.searchParams.get("search_query") as typeof DEFAULT_DASHBOARD_YOUTUBE_SEARCH_QUERIES[number]
+        );
+        return new Response(youtubeSearchPage(idsByQuery[queryIndex] ?? []));
+      }
+      if (url.pathname === "/youtubei/v1/player") {
+        const body = JSON.parse(String(init?.body)) as { videoId?: string };
+        const videoId = body.videoId ?? "";
+        playerRequests.push({ videoId, signal: init?.signal ?? null });
+        return json(youtubePlayerResponse({
+          videoId,
+          channelId,
+          author: "Verified technology creator",
+          title: `AI hardware launch ${videoId}`,
+          description: "Artificial intelligence chips and developer software.",
+          publishedAt: "2026-08-15T10:00:00.000Z",
+          views: 1_500_000
+        }));
+      }
+      throw new Error(`Unexpected request ${url}`);
+    });
+
+    const result = await fetchYoutubeSearchCandidates(fetchImpl as typeof fetch, NOW);
+
+    expect(searchRequests).toHaveLength(4);
+    expect(searchRequests.map((url) => url.searchParams.get("search_query"))).toEqual(
+      DEFAULT_DASHBOARD_YOUTUBE_SEARCH_QUERIES
+    );
+    for (const request of searchRequests) {
+      expect(request.searchParams.get("sp")).toBe("CAMSAggDEAE");
+      expect(request.searchParams.get("hl")).toBe("en");
+      expect(request.searchParams.get("gl")).toBe("US");
+    }
+    expect(playerRequests).toHaveLength(24);
+    expect(new Set(playerRequests.map(({ videoId }) => videoId)).size).toBe(24);
+    expect(playerRequests.every(({ signal }) => signal instanceof AbortSignal)).toBe(true);
+    expect(fetchImpl).toHaveBeenCalledTimes(28);
+    expect(result.source).toBe("youtube:search");
+    expect(result.candidates).toHaveLength(24);
+    expect(result.candidates[0]).toMatchObject({
+      platform: "youtube",
+      sourceVerified: true,
+      sourceLinkStatus: "verified",
+      publicationPrecision: "exact",
+      publishedAt: "2026-08-15T10:00:00.000Z",
+      metrics: { views: 1_500_000, likes: null },
+      entityKeys: [`youtube:channel:${channelId}`]
+    });
+    expect(buildDashboardSnapshot(result.candidates, { now: NOW }).snapshot.status.eligibleCandidateCount).toBe(24);
+  });
+
+  it("keeps a million-view rabbit-trap entertainment result out of the strict technology Top 100", async () => {
+    const videoId = "rabbit00001";
+    const channelId = "UC1234567890123456789012";
+    const fetchImpl = vi.fn(async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
+      const url = new URL(String(input));
+      if (url.pathname === "/results") return new Response(youtubeSearchPage([videoId]));
+      if (url.pathname === "/youtubei/v1/player") {
+        const body = JSON.parse(String(init?.body)) as { videoId?: string };
+        return json(youtubePlayerResponse({
+          videoId: body.videoId ?? "",
+          channelId,
+          author: "CHANNA SKILL",
+          title: "Beautiful Creative DIY Rabbit Trap #outdoors #camping #bushcraft #survival #technology #soap #shorts",
+          description: "A rabbit trap made outdoors while camping.",
+          publishedAt: "2026-08-15T09:00:00.000Z",
+          views: 17_704_162
+        }));
+      }
+      throw new Error(`Unexpected request ${url}`);
+    });
+
+    const result = await fetchYoutubeSearchCandidates(fetchImpl as typeof fetch, NOW);
+
+    expect(result.candidates).toHaveLength(1);
+    expect(result.candidates[0]).toMatchObject({ metrics: { views: 17_704_162, likes: null }, topics: [] });
+    expect(dashboardTop100Eligibility(result.candidates[0]!, NOW)).toMatchObject({
+      eligible: false,
+      reason: "unverified_source"
+    });
+    expect(buildDashboardSnapshot(result.candidates, { now: NOW }).snapshot.stories).toHaveLength(0);
+  });
+
+  it("reports one deterministic label when every fixed search page is unavailable", async () => {
+    const fetchImpl = vi.fn(async (): Promise<Response> => new Response("unavailable", { status: 503 }));
+
+    await expect(fetchYoutubeSearchCandidates(fetchImpl as typeof fetch, NOW))
+      .rejects.toThrow("youtube_search_pages_unavailable");
+    expect(fetchImpl).toHaveBeenCalledTimes(DEFAULT_DASHBOARD_YOUTUBE_SEARCH_QUERIES.length);
   });
 
   it("ships an expanded verified tech roster under the hard channel bound", () => {
@@ -1336,6 +1440,24 @@ function youtubeUploadsBrowseResponse(videoIds: string[]): unknown {
       }
     }
   };
+}
+
+function youtubeSearchPage(videoIds: string[]): string {
+  return `<script>var ytInitialData = ${JSON.stringify({
+    contents: {
+      twoColumnSearchResultsRenderer: {
+        primaryContents: {
+          sectionListRenderer: {
+            contents: [{
+              itemSectionRenderer: {
+                contents: videoIds.map((videoId) => ({ videoRenderer: { videoId } }))
+              }
+            }]
+          }
+        }
+      }
+    }
+  })};</script>`;
 }
 
 function youtubeWatchPage(input: {

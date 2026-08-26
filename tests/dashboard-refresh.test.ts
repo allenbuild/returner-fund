@@ -22,6 +22,7 @@ describe("dashboard worker metric-history enrichment", () => {
     expect(dashboardExternalAttemptCount(boundedSources)).toBe(3);
     expect(dashboardExternalAttemptCount({ ...boundedSources, xBearerToken: "x-token" })).toBe(4);
     expect(dashboardExternalAttemptCount({ ...boundedSources, xBearerToken: "   " })).toBe(3);
+    expect(dashboardExternalAttemptCount({ ...boundedSources, includeYoutubeSearch: true })).toBe(4);
     expect(dashboardExternalAttemptCount({
       ...boundedSources,
       youtubeChannels: [{ name: "Apple", handle: "Apple" }, { name: "MKBHD", handle: "mkbhd" }]
@@ -55,6 +56,16 @@ describe("dashboard worker metric-history enrichment", () => {
       ["hacker_news", "youtube:mkbhd"]
     )).not.toThrow();
     expect(() => assertConfiguredYoutubeDiscoverySucceeded([], ["hacker_news"])).not.toThrow();
+  });
+
+  it("does not let broad search conceal a total configured-channel outage", () => {
+    const channels = [{ name: "Apple", handle: "Apple" }];
+
+    expect(() => assertConfiguredYoutubeDiscoverySucceeded(
+      channels,
+      ["hacker_news", "youtube:search"],
+      ["youtube_apple_browse_http_429"]
+    )).toThrowError("dashboard_youtube_discovery_unavailable:youtube_apple_browse_http_429");
   });
 
   it("reports sanitized per-platform eligibility and rejection counts, including zero YouTube candidates", () => {
