@@ -3541,7 +3541,8 @@ describe("autonomous ingestion runner static safety contracts", () => {
     const validationIndex = publicationBuild.indexOf('"scripts/validate-public-artifacts.mjs"');
 
     assert.ok(auditIndex > -1 && manifestIndex > auditIndex && validationIndex > manifestIndex);
-    assert.ok(publicationBuild.includes("--run-dir="));
+    assert.ok(publicationBuild.includes("`--run-dir=${collectorRoot}`"));
+    assert.ok(!publicationBuild.includes("`--run-dir=${workRoot}`"));
     assert.ok(publicationBuild.includes("--output="));
   });
 });
