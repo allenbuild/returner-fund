@@ -2066,24 +2066,7 @@ async function getOrCreateRun() {
   const existing = existingData ?? null;
   if (existing?.status === "completed") return existing;
   if (existing) {
-    const leaseToken = randomUUID();
-    const { data, error } = await runSupabaseOperation(
-      "recover idempotent ingestion run lease",
-      () => supabase
-        .from("ingestion_runs")
-        .update({
-          status: "running",
-          heartbeat_at: runStartedAt.toISOString(),
-          lease_owner: workerId,
-          lease_token: leaseToken,
-          lease_expires_at: new Date(Date.now() + INGESTION_LEASE_DURATION_MS).toISOString()
-        })
-        .eq("id", existing.id)
-        .select("*")
-        .single()
-    );
-    check(error, "recover idempotent ingestion run lease");
-    return data;
+    return recoverIdempotentRun(existing);
   }
   const leaseToken = randomUUID();
   const payload = {
@@ -2117,6 +2100,58 @@ async function getOrCreateRun() {
   }
   check(error, "create ingestion run");
   return data;
+}
+
+async function recoverIdempotentRun(existing) {
+  if (existing.status === "completed") return existing;
+  const leaseToken = randomUUID();
+  const { data, error } = await runSupabaseOperation(
+    "recover idempotent ingestion run lease",
+    () => {
+      let recovery = supabase
+        .from("ingestion_runs")
+        .update({
+          status: "running",
+          finished_at: null,
+          heartbeat_at: runStartedAt.toISOString(),
+          lease_owner: workerId,
+          lease_token: leaseToken,
+          lease_expires_at: new Date(Date.now() + INGESTION_LEASE_DURATION_MS).toISOString(),
+          stats_json: { phase: "initializing" },
+          errors_json: []
+        })
+        .eq("id", existing.id)
+        .eq("status", existing.status);
+      for (const [column, value] of [
+        ["finished_at", existing.finished_at],
+        ["heartbeat_at", existing.heartbeat_at],
+        ["lease_owner", existing.lease_owner],
+        ["lease_token", existing.lease_token],
+        ["lease_expires_at", existing.lease_expires_at]
+      ]) {
+        recovery = value === null || value === undefined
+          ? recovery.is(column, null)
+          : recovery.eq(column, value);
+      }
+      return recovery.select("*").maybeSingle();
+    }
+  );
+  check(error, "recover idempotent ingestion run lease");
+  if (data) return data;
+
+  const { data: current, error: currentError } = await runSupabaseOperation(
+    "reconcile guarded ingestion run recovery",
+    () => supabase
+      .from("ingestion_runs")
+      .select("*")
+      .eq("id", existing.id)
+      .maybeSingle()
+  );
+  check(currentError, "reconcile guarded ingestion run recovery");
+  if (current?.status === "completed") return current;
+  throw new Error(
+    `Idempotent ingestion run ${existing.id} changed while its recovery lease was being claimed.`
+  );
 }
 
 async function event(
@@ -9727,6 +9762,118 @@ async function runLifecycleContractFixture(fixture) {
     run = null;
     lifecycleOperationTimeoutOverrideMs = null;
     return emit({ fixture, elapsedMs });
+  }
+
+  if (fixture === "run-recovery-reset") {
+    const previousSupabase = supabase;
+    const previousWorkerId = workerId;
+    const previousRunStartedAt = runStartedAt;
+    const makeRunClient = ({ initial, claimResult = "merge", reread = null }) => {
+      const capture = { tables: [], reads: 0, updates: [] };
+      return {
+        capture,
+        client: {
+          from: (table) => {
+            capture.tables.push(table);
+            let updatePayload = null;
+            const equalityFilters = [];
+            const nullFilters = [];
+            const query = {
+              select: () => query,
+              update: (payload) => {
+                updatePayload = payload;
+                return query;
+              },
+              eq: (column, value) => {
+                equalityFilters.push([column, value]);
+                return query;
+              },
+              is: (column, value) => {
+                nullFilters.push([column, value]);
+                return query;
+              },
+              limit: () => query,
+              maybeSingle: () => {
+                if (updatePayload) {
+                  capture.updates.push({
+                    payload: updatePayload,
+                    equalityFilters,
+                    nullFilters
+                  });
+                  return Promise.resolve({
+                    data: claimResult === "merge"
+                      ? { ...initial, ...updatePayload }
+                      : claimResult,
+                    error: null
+                  });
+                }
+                capture.reads += 1;
+                return Promise.resolve({
+                  data: capture.reads === 1 ? initial : reread,
+                  error: null
+                });
+              }
+            };
+            return query;
+          }
+        }
+      };
+    };
+    const durableRun = {
+      id: "135d2a00-durable-run",
+      idempotency_key: idempotencyKey,
+      status: "canceled",
+      started_at: "2026-08-26T03:34:27.000Z",
+      finished_at: "2026-08-26T04:16:08.000Z",
+      heartbeat_at: "2026-08-26T04:15:58.000Z",
+      lease_owner: null,
+      lease_token: null,
+      lease_expires_at: null,
+      stats_json: { phase: "canceled", canceledTasks: 11 },
+      errors_json: [{ message: "stale canceled attempt" }],
+      logs: ["durable run log", "prior attempt canceled"]
+    };
+    const completedRun = {
+      ...durableRun,
+      status: "completed",
+      finished_at: "2026-08-26T07:30:00.000Z",
+      stats_json: { phase: "completed", durable: true },
+      errors_json: []
+    };
+    try {
+      workerId = "run-recovery-fixture-worker";
+      runStartedAt = new Date("2026-08-26T06:52:18.000Z");
+
+      const recovery = makeRunClient({ initial: durableRun });
+      supabase = recovery.client;
+      const recovered = await getOrCreateRun();
+
+      const completed = makeRunClient({ initial: completedRun });
+      supabase = completed.client;
+      const completedReplay = await getOrCreateRun();
+
+      const completedRace = makeRunClient({
+        initial: durableRun,
+        claimResult: null,
+        reread: completedRun
+      });
+      supabase = completedRace.client;
+      const reconciledCompletion = await getOrCreateRun();
+
+      return emit({
+        fixture,
+        recovered,
+        recovery: recovery.capture,
+        completedReplay,
+        completed: completed.capture,
+        reconciledCompletion,
+        completedRace: completedRace.capture
+      });
+    } finally {
+      supabase = previousSupabase;
+      workerId = previousWorkerId;
+      runStartedAt = previousRunStartedAt;
+    }
   }
 
   if (fixture === "ingestion-task-pagination") {

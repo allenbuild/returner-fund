@@ -398,18 +398,26 @@ export class AutonomousIngestionStore {
       .from<IngestionRunRow>("ingestion_runs")
       .update({
         status: "running",
+        finished_at: null,
         heartbeat_at: nowIso,
         lease_owner: input.workerId.trim(),
         lease_token: leaseToken,
-        lease_expires_at: expiresAt
+        lease_expires_at: expiresAt,
+        stats_json: input.stats ?? {},
+        errors_json: []
       })
       .eq("id", existing.id)
-      .in("status", ["queued", "running"]);
-    claimQuery = existing.lease_token
-      ? claimQuery.eq("lease_token", existing.lease_token)
-      : claimQuery.is("lease_token", null);
-    if (existing.lease_expires_at) {
-      claimQuery = claimQuery.eq("lease_expires_at", existing.lease_expires_at);
+      .eq("status", existing.status);
+    for (const [column, value] of [
+      ["finished_at", existing.finished_at],
+      ["heartbeat_at", existing.heartbeat_at],
+      ["lease_owner", existing.lease_owner],
+      ["lease_token", existing.lease_token],
+      ["lease_expires_at", existing.lease_expires_at]
+    ] as const) {
+      claimQuery = value === null
+        ? claimQuery.is(column, null)
+        : claimQuery.eq(column, value);
     }
 
     const claimedRun = await this.maybeOne<IngestionRunRow>(

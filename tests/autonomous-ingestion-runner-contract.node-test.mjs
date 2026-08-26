@@ -680,6 +680,48 @@ if (mode === "fail") {
     assert.match(result.stdout, /"fixture":"event-timeout"/);
   });
 
+  it("atomically clears stale terminal metadata when reclaiming a durable run", () => {
+    const payload = lifecycleFixturePayload(runLifecycleFixture("run-recovery-reset"));
+    const update = payload.recovery.updates[0];
+
+    assert.equal(payload.recovered.id, "135d2a00-durable-run");
+    assert.equal(payload.recovered.status, "running");
+    assert.equal(payload.recovered.started_at, "2026-08-26T03:34:27.000Z");
+    assert.deepEqual(payload.recovered.logs, ["durable run log", "prior attempt canceled"]);
+    assert.equal(payload.recovered.finished_at, null);
+    assert.deepEqual(payload.recovered.stats_json, { phase: "initializing" });
+    assert.deepEqual(payload.recovered.errors_json, []);
+    assert.equal(payload.recovered.lease_owner, "run-recovery-fixture-worker");
+    assert.match(payload.recovered.lease_token, /^[0-9a-f-]{36}$/);
+    assert.equal(payload.recovered.heartbeat_at, "2026-08-26T06:52:18.000Z");
+
+    assert.ok(!Object.hasOwn(update.payload, "id"));
+    assert.ok(!Object.hasOwn(update.payload, "started_at"));
+    assert.ok(!Object.hasOwn(update.payload, "logs"));
+    assert.deepEqual(update.payload.stats_json, { phase: "initializing" });
+    assert.deepEqual(update.payload.errors_json, []);
+    assert.deepEqual(update.equalityFilters, [
+      ["id", "135d2a00-durable-run"],
+      ["status", "canceled"],
+      ["finished_at", "2026-08-26T04:16:08.000Z"],
+      ["heartbeat_at", "2026-08-26T04:15:58.000Z"]
+    ]);
+    assert.deepEqual(update.nullFilters, [
+      ["lease_owner", null],
+      ["lease_token", null],
+      ["lease_expires_at", null]
+    ]);
+    assert.deepEqual([...new Set(payload.recovery.tables)], ["ingestion_runs"]);
+
+    assert.equal(payload.completedReplay.status, "completed");
+    assert.deepEqual(payload.completedReplay.stats_json, { phase: "completed", durable: true });
+    assert.equal(payload.completed.updates.length, 0);
+    assert.equal(payload.reconciledCompletion.status, "completed");
+    assert.deepEqual(payload.reconciledCompletion.stats_json, { phase: "completed", durable: true });
+    assert.equal(payload.completedRace.updates.length, 1);
+    assert.equal(payload.completedRace.reads, 2);
+  });
+
   it("retries a thrown Supabase lifecycle timeout and cautiously restores task page size", () => {
     const payload = lifecycleFixturePayload(runLifecycleFixture(
       "ingestion-task-pagination",
