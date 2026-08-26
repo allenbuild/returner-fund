@@ -438,6 +438,12 @@ jobs:
           # near the reserve prevents an unplugged-but-charged Mac from
           # permanently blocking a stale publication slot.
           AUTONOMOUS_MIN_BATTERY_PERCENT: "60"
+          # An unplugged machine may cross the reserve during the multi-hour
+          # collection. Poll independently of the start gate and enter the
+          # retry controller's normal SIGTERM drain before power becomes
+          # critical, preserving checkpoints and leaving the slot retryable.
+          AUTONOMOUS_WORKFLOW_POWER_WATCHDOG_RESERVE_PERCENT: "20"
+          AUTONOMOUS_WORKFLOW_POWER_WATCHDOG_INTERVAL_SECONDS: "30"
         run: |
           set -euo pipefail
 

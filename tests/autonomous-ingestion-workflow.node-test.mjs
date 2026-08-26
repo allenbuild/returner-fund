@@ -30,6 +30,12 @@ import {
   parseAutonomousWorkflowRetryConfig,
   runAutonomousWorkflowRetries
 } from "../scripts/lib/autonomous-ingestion-workflow-retry.mjs";
+import {
+  parseAutonomousPowerWatchdogConfig,
+  parseMacPowerStatus,
+  shouldTerminateForLowPower,
+  startAutonomousIngestionPowerWatchdog
+} from "../scripts/lib/autonomous-ingestion-power-watchdog.mjs";
 import { DAILY_BENCHMARK_UTC_CRON_CANDIDATES } from "../scripts/lib/daily-benchmark-schedule.mjs";
 import { INGESTION_UTC_CRON_CANDIDATES } from "../scripts/lib/ingestion-schedule.mjs";
 
@@ -1282,6 +1288,133 @@ test("workflow retry policy isolates attempt outputs and enforces a bounded job 
   );
 });
 
+test("power watchdog preserves AC runs and trips once at the battery reserve floor", async () => {
+  assert.deepEqual(
+    parseAutonomousPowerWatchdogConfig({
+      AUTONOMOUS_WORKFLOW_POWER_WATCHDOG_RESERVE_PERCENT: "20",
+      AUTONOMOUS_WORKFLOW_POWER_WATCHDOG_INTERVAL_SECONDS: "30"
+    }),
+    { enabled: true, reservePercent: 20, intervalSeconds: 30 }
+  );
+  assert.throws(
+    () => parseAutonomousPowerWatchdogConfig({
+      AUTONOMOUS_WORKFLOW_POWER_WATCHDOG_RESERVE_PERCENT: "0"
+    }),
+    /must be an integer between 5 and 50/
+  );
+  assert.throws(
+    () => parseAutonomousPowerWatchdogConfig({
+      AUTONOMOUS_WORKFLOW_POWER_WATCHDOG_RESERVE_PERCENT: "20",
+      AUTONOMOUS_WORKFLOW_POWER_WATCHDOG_INTERVAL_SECONDS: "1"
+    }),
+    /must be an integer between 5 and 300/
+  );
+
+  const acAtFivePercent = parseMacPowerStatus(
+    "Now drawing from 'AC Power'\n -InternalBattery-0 5%; charging; 0:10 remaining"
+  );
+  const batteryAtTwentyOnePercent = parseMacPowerStatus(
+    "Now drawing from 'Battery Power'\n -InternalBattery-0 21%; discharging; 0:30 remaining"
+  );
+  const batteryAtTwentyPercent = parseMacPowerStatus(
+    "Now drawing from 'Battery Power'\n -InternalBattery-0 20%; discharging; 0:25 remaining"
+  );
+  assert.equal(shouldTerminateForLowPower(acAtFivePercent, 20), false);
+  assert.equal(shouldTerminateForLowPower(batteryAtTwentyOnePercent, 20), false);
+  assert.equal(shouldTerminateForLowPower(batteryAtTwentyPercent, 20), true);
+
+  const statuses = [acAtFivePercent, batteryAtTwentyOnePercent, batteryAtTwentyPercent];
+  const terminations = [];
+  let reads = 0;
+  const watchdog = startAutonomousIngestionPowerWatchdog({
+    environment: {
+      AUTONOMOUS_WORKFLOW_POWER_WATCHDOG_RESERVE_PERCENT: "20",
+      AUTONOMOUS_WORKFLOW_POWER_WATCHDOG_INTERVAL_SECONDS: "30"
+    },
+    intervalMs: 1,
+    readPowerStatus: async () => statuses[Math.min(reads++, statuses.length - 1)],
+    onLowReserve: (status) => terminations.push(status),
+    reporter: { warn() {}, error() {} }
+  });
+  await watchdog.done;
+  await watchdog.stop();
+  assert.deepEqual(terminations, [{ batteryPercent: 20, reservePercent: 20 }]);
+  const readsAfterStop = reads;
+  await new Promise((resolve) => setTimeout(resolve, 10));
+  assert.equal(reads, readsAfterStop, "the stopped watchdog must not retain a polling timer");
+});
+
+test("power watchdog enters the retry controller SIGTERM drain and leaves the slot retryable", async (t) => {
+  const directory = mkdtempSync(path.join(tmpdir(), "returner-power-watchdog-"));
+  t.after(() => rmSync(directory, { recursive: true, force: true }));
+  const fixture = path.join(directory, "checkpointing-runner.mjs");
+  const lifecycleMarker = path.join(directory, "lifecycle-marker");
+  const githubOutput = path.join(directory, "github-output");
+  writeFileSync(
+    fixture,
+    [
+      'import { appendFileSync, writeFileSync } from "node:fs";',
+      'process.once("SIGTERM", () => {',
+      '  appendFileSync(process.env.LIFECYCLE_MARKER, "sigterm\\n");',
+      '  appendFileSync(process.env.GITHUB_OUTPUT, [',
+      '    "runner_status=canceled",',
+      '    "publication_status=",',
+      '    "failure_message=Autonomous ingestion canceled by SIGTERM.",',
+      '    "published_commit="',
+      '  ].join("\\n") + "\\n");',
+      '  setTimeout(() => {',
+      '    appendFileSync(process.env.LIFECYCLE_MARKER, "cleanup-complete\\n");',
+      '    process.exit(143);',
+      '  }, 25);',
+      '});',
+      'writeFileSync(process.env.LIFECYCLE_MARKER, "started\\n");',
+      'setInterval(() => {}, 1_000);'
+    ].join("\n")
+  );
+
+  let powerReads = 0;
+  const exitCode = await runAutonomousWorkflowRetries({
+    runnerArguments: [],
+    runnerPath: fixture,
+    environment: {
+      ...process.env,
+      GITHUB_OUTPUT: githubOutput,
+      RUNNER_TEMP: directory,
+      LIFECYCLE_MARKER: lifecycleMarker,
+      AUTONOMOUS_WORKFLOW_RETRY_MAX_ATTEMPTS: "1",
+      AUTONOMOUS_WORKFLOW_POWER_WATCHDOG_RESERVE_PERCENT: "20",
+      AUTONOMOUS_WORKFLOW_POWER_WATCHDOG_INTERVAL_SECONDS: "30"
+    },
+    powerWatchdogOptions: {
+      intervalMs: 5,
+      readPowerStatus: async () => {
+        powerReads += 1;
+        return existsSync(lifecycleMarker)
+          ? { onACPower: false, batteryPercent: 20 }
+          : { onACPower: true, batteryPercent: 5 };
+      },
+      reporter: { warn() {}, error() {} }
+    }
+  });
+
+  assert.equal(exitCode, 143);
+  assert.equal(
+    readFileSync(lifecycleMarker, "utf8"),
+    "started\nsigterm\ncleanup-complete\n"
+  );
+  const output = readFileSync(githubOutput, "utf8");
+  assert.match(output, /^runner_status=canceled$/m);
+  assert.match(output, /^workflow_retry_attempts=1$/m);
+  assert.match(output, /^workflow_retry_disposition=controller-terminated$/m);
+  const readsAfterControllerExit = powerReads;
+  await new Promise((resolve) => setTimeout(resolve, 20));
+  assert.equal(
+    powerReads,
+    readsAfterControllerExit,
+    "the retry controller must clean up its completed power watchdog"
+  );
+});
+
 test("workflow attempt deadline allows the child to finish cancellation cleanup before hard kill", async (t) => {
   const directory = mkdtempSync(path.join(tmpdir(), "returner-workflow-deadline-"));
   t.after(() => rmSync(directory, { recursive: true, force: true }));
@@ -1420,6 +1553,8 @@ test("autonomous runner receives optional durability secrets and owns validated 
   assert.match(runnerStep, /AUTONOMOUS_WORKFLOW_RETRY_MIN_REMAINING_SECONDS:\s*"19860"/);
   assert.match(runnerStep, /AUTONOMOUS_WORKFLOW_RETRY_DELAYS_SECONDS:\s*"30,120,300,600,900"/);
   assert.match(runnerStep, /AUTONOMOUS_MIN_BATTERY_PERCENT:\s*"60"/);
+  assert.match(runnerStep, /AUTONOMOUS_WORKFLOW_POWER_WATCHDOG_RESERVE_PERCENT:\s*"20"/);
+  assert.match(runnerStep, /AUTONOMOUS_WORKFLOW_POWER_WATCHDOG_INTERVAL_SECONDS:\s*"30"/);
   assert.match(
     runnerStep,
     /if \[ "\$BATTERY_PERCENT" -lt "\$AUTONOMOUS_MIN_BATTERY_PERCENT" \]; then[\s\S]*?Runner battery reserve is low/
