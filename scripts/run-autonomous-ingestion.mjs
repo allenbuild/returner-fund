@@ -5969,7 +5969,7 @@ async function buildAndValidatePublication(publicationRunId, catalogState) {
   });
   await runCommand(process.execPath, [
     sourcePath("scripts", "audit-cohort-coverage.mjs"),
-    `--run-dir=${workRoot}`,
+    `--run-dir=${collectorRoot}`,
     `--output=${publishedCohortAuditPath}`
   ], {
     timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.artifactValidationMs,
