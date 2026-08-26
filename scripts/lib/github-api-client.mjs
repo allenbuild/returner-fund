@@ -1,3 +1,5 @@
+import { performance } from "node:perf_hooks";
+
 const DEFAULT_MAX_ATTEMPTS = 3;
 const DEFAULT_MAX_RATE_LIMIT_WAIT_MS = 65_000;
 const RETRYABLE_TRANSPORT_CODES = new Set([
@@ -154,7 +156,7 @@ export async function fetchGitHubJsonResponse(url, {
 export function createGitHubRetryAdmission({
   minimumSpacingMs = 250,
   jitterMs = 250,
-  now = Date.now,
+  now = monotonicNow,
   sleep = delay,
   random = Math.random
 } = {}) {
@@ -193,13 +195,15 @@ export function createGitHubRetryAdmission({
         }
         const randomizedDelay = Math.floor(randomValue * (jitterMs + 1));
         const waitMs = Math.max(0, nextAllowedAt - observedAt) + randomizedDelay;
-        if (waitMs > 0) await sleep(waitMs);
-        const admittedAt = finiteAdmissionClock(now());
-        if (admittedAt < observedAt) {
-          throw new Error("GitHub retry admission clock moved backwards.");
-        }
-        if (admittedAt < observedAt + waitMs) {
-          throw new Error("GitHub retry admission sleep completed before its admission boundary.");
+        const boundaryAt = observedAt + waitMs;
+        let admittedAt = observedAt;
+        while (admittedAt < boundaryAt) {
+          await sleep(Math.max(1, Math.ceil(boundaryAt - admittedAt)));
+          const currentTime = finiteAdmissionClock(now());
+          if (currentTime < admittedAt) {
+            throw new Error("GitHub retry admission clock moved backwards.");
+          }
+          admittedAt = currentTime;
         }
         nextAllowedAt = admittedAt + minimumSpacingMs;
         active = true;
@@ -221,6 +225,10 @@ export function createGitHubRetryAdmission({
     }
   };
   return Object.freeze(admission);
+}
+
+function monotonicNow() {
+  return performance.now();
 }
 
 export function githubApiFailureReceipt(error) {
