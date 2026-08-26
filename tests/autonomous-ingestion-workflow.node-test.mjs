@@ -31,6 +31,11 @@ import {
   runAutonomousWorkflowRetries
 } from "../scripts/lib/autonomous-ingestion-workflow-retry.mjs";
 import {
+  autonomousDatabaseFailureMetadata,
+  autonomousDatabaseOperationError,
+  isRetryableAutonomousDatabaseFailure
+} from "../scripts/lib/autonomous-ingestion-database-failure.mjs";
+import {
   parseAutonomousPowerWatchdogConfig,
   parseMacPowerStatus,
   shouldTerminateForLowPower,
@@ -1222,16 +1227,50 @@ test("workflow gates work through the schedule helper and stable key", () => {
   assert.match(workflow, /--recovery-debt="\$CANDIDATE_RECOVERY_DEBT"/);
 });
 
+test("database failures preserve only normalized structured retry metadata", () => {
+  const wrapped = autonomousDatabaseOperationError("persist fixture rows", {
+    code: "40p01",
+    message: "deadlock detected"
+  });
+  const outer = new Error("fixture wrapper", { cause: wrapped });
+
+  assert.deepEqual(autonomousDatabaseFailureMetadata(outer), {
+    domain: "database",
+    code: "40P01"
+  });
+  assert.equal(isRetryableAutonomousDatabaseFailure({
+    domain: "database",
+    code: "40P01"
+  }), true);
+
+  const invalidCode = autonomousDatabaseOperationError("persist fixture rows", {
+    code: "NOT_A_DATABASE_CODE",
+    message: "fixture failure"
+  });
+  assert.deepEqual(autonomousDatabaseFailureMetadata(invalidCode), {
+    domain: "database",
+    code: ""
+  });
+  assert.equal(isRetryableAutonomousDatabaseFailure({
+    domain: "database",
+    code: "23505"
+  }), false);
+});
+
 test("workflow retry policy retries transient failures but fails closed on lease loss and semantic ambiguity", () => {
   const outcome = ({
     runnerStatus = "failed",
     publicationStatus = "",
     failureMessage = "",
+    failureDomain = "",
+    failureCode = "",
     publishedCommit = ""
   } = {}) => [
     `runner_status=${runnerStatus}`,
     `publication_status=${publicationStatus}`,
     `failure_message=${failureMessage}`,
+    `failure_domain=${failureDomain}`,
+    `failure_code=${failureCode}`,
     `published_commit=${publishedCommit}`
   ].join("\n");
 
@@ -1247,6 +1286,85 @@ test("workflow retry policy retries transient failures but fails closed on lease
     });
     assert.equal(decision.retryable, true, failureMessage);
     assert.equal(decision.reason, "transient-infrastructure-failure");
+  }
+
+  for (const failureCode of [
+    "08000",
+    "08001",
+    "08003",
+    "08004",
+    "08006",
+    "08P01",
+    "40001",
+    "40P01",
+    "55P03",
+    "53300",
+    "57014",
+    "57P01",
+    "57P02",
+    "57P03",
+    "PGRST000",
+    "PGRST002",
+    "PGRST003"
+  ]) {
+    const decision = classifyAutonomousWorkflowAttempt({
+      exitCode: 1,
+      output: outcome({
+        failureMessage: "Failed to persist fixture rows: database operation unavailable",
+        failureDomain: "database",
+        failureCode
+      })
+    });
+    assert.equal(decision.retryable, true, failureCode);
+    assert.equal(decision.reason, "transient-database-failure", failureCode);
+  }
+
+  for (const [failureCode, failureMessage] of [
+    [
+      "23505",
+      'Failed to upsert canonical social accounts: duplicate key value violates unique constraint "social_accounts_entity_platform_native_key"'
+    ],
+    ["23503", "Failed to persist fixture rows: foreign key violation"],
+    ["22P02", "Failed to persist fixture rows: invalid input syntax"],
+    ["42P01", "Failed to persist fixture rows: undefined table"],
+    ["08007", "Failed to persist fixture rows: transaction resolution unknown"],
+    ["40003", "Failed to persist fixture rows: statement completion unknown"],
+    ["PGRST204", "Failed to persist fixture rows: schema cache mismatch"]
+  ]) {
+    const decision = classifyAutonomousWorkflowAttempt({
+      exitCode: 1,
+      output: outcome({ failureMessage, failureDomain: "database", failureCode })
+    });
+    assert.equal(decision.retryable, false, failureCode);
+    assert.equal(decision.reason, "non-retryable-database-failure", failureCode);
+  }
+
+  const semanticDatabaseFailure = classifyAutonomousWorkflowAttempt({
+    exitCode: 1,
+    output: outcome({
+      failureMessage: "Lease token mismatch after a serialization failure.",
+      failureDomain: "database",
+      failureCode: "40001"
+    })
+  });
+  assert.equal(semanticDatabaseFailure.reason, "semantic-lock-or-candidate-failure");
+  assert.equal(semanticDatabaseFailure.retryable, false);
+
+  for (const publicationProof of [
+    { publishedCommit: "d".repeat(40) },
+    { publicationStatus: "no_changes" }
+  ]) {
+    const decision = classifyAutonomousWorkflowAttempt({
+      exitCode: 1,
+      output: outcome({
+        ...publicationProof,
+        failureMessage: "Failed to persist fixture rows: deadlock detected",
+        failureDomain: "database",
+        failureCode: "40P01"
+      })
+    });
+    assert.equal(decision.reason, "publication-may-have-completed");
+    assert.equal(decision.retryable, false);
   }
 
   const lockContention = classifyAutonomousWorkflowAttempt({
@@ -1293,7 +1411,11 @@ test("workflow retry policy retries transient failures but fails closed on lease
   const canceled = classifyAutonomousWorkflowAttempt({
     exitCode: 143,
     signal: "SIGTERM",
-    output: outcome({ failureMessage: "fetch failed" })
+    output: outcome({
+      failureMessage: "Failed to persist fixture rows: deadlock detected",
+      failureDomain: "database",
+      failureCode: "40P01"
+    })
   });
   assert.equal(canceled.reason, "runner-terminated");
   assert.equal(canceled.retryable, false);
@@ -1644,6 +1766,65 @@ test("workflow retry controller forwards only the final isolated attempt outcome
   assert.equal((output.match(/^runner_status=/gm) ?? []).length, 1);
   assert.match(output, /^runner_status=refreshed$/m);
   assert.match(output, /^workflow_retry_attempts=1$/m);
+  assert.match(output, /^workflow_retry_disposition=completed$/m);
+});
+
+test("workflow retry controller replays a structured operational database failure", async (t) => {
+  const directory = mkdtempSync(path.join(tmpdir(), "returner-workflow-database-retry-"));
+  t.after(() => rmSync(directory, { recursive: true, force: true }));
+  const fixture = path.join(directory, "database-retry-runner.mjs");
+  const attemptCounter = path.join(directory, "attempt-counter");
+  const githubOutput = path.join(directory, "github-output");
+  writeFileSync(
+    fixture,
+    [
+      'import { appendFileSync, existsSync, readFileSync, writeFileSync } from "node:fs";',
+      'const attempt = existsSync(process.env.ATTEMPT_COUNTER)',
+      '  ? Number(readFileSync(process.env.ATTEMPT_COUNTER, "utf8")) + 1',
+      '  : 1;',
+      'writeFileSync(process.env.ATTEMPT_COUNTER, String(attempt));',
+      'if (attempt === 1) {',
+      '  appendFileSync(process.env.GITHUB_OUTPUT, [',
+      '    "runner_status=failed",',
+      '    "publication_status=",',
+      '    "failure_message=Failed to persist fixture rows: deadlock detected",',
+      '    "failure_domain=database",',
+      '    "failure_code=40P01",',
+      '    "published_commit="',
+      '  ].join("\\n") + "\\n");',
+      '  process.exit(1);',
+      '}',
+      'appendFileSync(process.env.GITHUB_OUTPUT, [',
+      '  "runner_status=refreshed",',
+      '  "publication_status=published",',
+      '  "failure_message=",',
+      '  "failure_domain=",',
+      '  "failure_code=",',
+      `  "published_commit=${"e".repeat(40)}"`,
+      '].join("\\n") + "\\n");'
+    ].join("\n")
+  );
+
+  const exitCode = await runAutonomousWorkflowRetries({
+    runnerArguments: [],
+    runnerPath: fixture,
+    environment: {
+      ...process.env,
+      GITHUB_OUTPUT: githubOutput,
+      RUNNER_TEMP: directory,
+      ATTEMPT_COUNTER: attemptCounter,
+      AUTONOMOUS_WORKFLOW_RETRY_MAX_ATTEMPTS: "2",
+      AUTONOMOUS_WORKFLOW_RETRY_DELAYS_SECONDS: "1"
+    }
+  });
+
+  assert.equal(exitCode, 0);
+  assert.equal(readFileSync(attemptCounter, "utf8"), "2");
+  const output = readFileSync(githubOutput, "utf8");
+  assert.equal((output.match(/^runner_status=/gm) ?? []).length, 1);
+  assert.match(output, /^runner_status=refreshed$/m);
+  assert.match(output, /^failure_domain=$/m);
+  assert.match(output, /^workflow_retry_attempts=2$/m);
   assert.match(output, /^workflow_retry_disposition=completed$/m);
 });
 

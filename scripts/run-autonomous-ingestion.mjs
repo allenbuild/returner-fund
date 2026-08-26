@@ -69,6 +69,10 @@ import {
   createAutonomousRunnerBudget
 } from "./lib/autonomous-ingestion-budget.mjs";
 import {
+  autonomousDatabaseFailureMetadata,
+  autonomousDatabaseOperationError
+} from "./lib/autonomous-ingestion-database-failure.mjs";
+import {
   INGESTION_RETRY_ATTEMPT_CEILING,
   cappedExponentialBackoffMs,
   retryDelayBeforeDeadlineMs
@@ -939,7 +943,7 @@ await Promise.all([
     hardFailure = error;
     const failure = sanitizedRunnerFailure(error);
     console.error(failure.message);
-    pendingRunnerOutcome = failedRunnerOutcome(failure.message);
+    pendingRunnerOutcome = failedRunnerOutcome(failure.message, failure);
     if (run?.id) {
       await event("run.failed", "error", failure.message, { stack: failure.stack }).catch(() => {});
       await completeRun("failed", {
@@ -981,7 +985,8 @@ await Promise.all([
       if (!hardFailure) {
         hardFailure = error;
         pendingRunnerOutcome = failedRunnerOutcome(
-          `Failed to release ingestion lease: ${failure.message}`
+          `Failed to release ingestion lease: ${failure.message}`,
+          failure
         );
         if (run?.id) {
           await event(
@@ -1001,7 +1006,8 @@ await Promise.all([
     if (!hardFailure) {
       hardFailure = error;
       pendingRunnerOutcome = failedRunnerOutcome(
-        `Failed to clean publication worktree: ${failure.message}`
+        `Failed to clean publication worktree: ${failure.message}`,
+        failure
       );
       process.exitCode = 1;
     }
@@ -1085,7 +1091,8 @@ async function emergencyCancellationCleanup() {
       const failure = sanitizedRunnerFailure(error);
       hardFailure = error;
       pendingRunnerOutcome = failedRunnerOutcome(
-        `Failed to record canceled ingestion run: ${failure.message}`
+        `Failed to record canceled ingestion run: ${failure.message}`,
+        failure
       );
       process.exitCode = 1;
     }
@@ -1096,7 +1103,8 @@ async function emergencyCancellationCleanup() {
     const failure = sanitizedRunnerFailure(error);
     hardFailure = error;
     pendingRunnerOutcome = failedRunnerOutcome(
-      `Failed to release ingestion lease: ${failure.message}`
+      `Failed to release ingestion lease: ${failure.message}`,
+      failure
     );
     process.exitCode = 1;
   }
@@ -1999,7 +2007,7 @@ function adoptHeartbeatRenewal(runSnapshot, lockSnapshot, renewal) {
 
 function checkHeartbeatResponse(error, operation) {
   if (error) {
-    throw new Error(`Failed to ${operation}: ${error.message ?? String(error)}`, { cause: error });
+    throw autonomousDatabaseOperationError(operation, error);
   }
 }
 
@@ -2054,7 +2062,10 @@ function failHeartbeat(error) {
 function assertLeaseHealthy() {
   if (terminationSignal) throw new Error(cancellationMessage(terminationSignal));
   if (heartbeatFailure) {
-    throw new Error(`Ingestion lease heartbeat failed; publication aborted: ${errorMessage(heartbeatFailure)}`);
+    throw new Error(
+      `Ingestion lease heartbeat failed; publication aborted: ${errorMessage(heartbeatFailure)}`,
+      { cause: heartbeatFailure }
+    );
   }
 }
 
@@ -8432,6 +8443,8 @@ async function writeRunnerOutcome(outcome) {
     mapped_provider_blocked_by_reason: JSON.stringify(normalized.mappedProviderBlockedByReason ?? {}),
     mapped_scope_unsupported: normalized.mappedScopeUnsupported ?? "",
     failure_message: normalized.failureMessage ?? "",
+    failure_domain: normalized.failureDomain ?? "",
+    failure_code: normalized.failureCode ?? "",
     mapped_expected: normalized.mappedExpected ?? "",
     mapped_failed: normalized.mappedFailed ?? "",
     mapped_nonterminal: normalized.mappedNonTerminal ?? "",
@@ -8692,7 +8705,7 @@ async function readRequiredCanonicalRows(path, label) {
 }
 
 function check(error, operation) {
-  if (error) throw new Error(`Failed to ${operation}: ${error.message ?? String(error)}`);
+  if (error) throw autonomousDatabaseOperationError(operation, error);
 }
 
 function normalizeReviewState(value) {
@@ -9093,11 +9106,14 @@ function sanitizedRunnerFailure(error) {
   const options = {
     secrets: runnerDiagnosticSecrets()
   };
+  const databaseFailure = autonomousDatabaseFailureMetadata(error);
   return {
     message: sanitizeRunnerFailureMessage(errorMessage(error), options),
     stack: error instanceof Error && error.stack
       ? sanitizeRunnerFailureMessage(error.stack, { ...options, maxLength: 8192 })
-      : null
+      : null,
+    failureDomain: databaseFailure?.domain ?? null,
+    failureCode: databaseFailure?.code ?? null
   };
 }
 
@@ -9113,10 +9129,15 @@ function replayCoverageOutcome(receipt) {
   };
 }
 
-function failedRunnerOutcome(failureMessage) {
+function failedRunnerOutcome(failureMessage, {
+  failureDomain = null,
+  failureCode = null
+} = {}) {
   return {
     status: "failed",
     failureMessage,
+    failureDomain,
+    failureCode,
     authenticatedSocialReplay: authenticatedSocial?.linkedinReplay ?? null,
     providerBlocked: latestCollectionCoverage?.providerBlocked,
     providerBlockedByReason: latestCollectionCoverage?.providerBlockedByReason,

@@ -476,9 +476,10 @@ jobs:
           INGESTION_RECOVERY_EXPECTED_HEAD_SHA: ${{ github.event.client_payload.expected_head_sha }}
           INGESTION_PUBLICATION_BRANCH: main
           AUTHENTICATED_SOCIAL_REPLAY: ${{ inputs.authenticated_backfill || false }}
-          # A single Actions job retries only explicit transport/time-out
-          # failures. The persistent cron wakeups keep retrying a stale slot
-          # across jobs until its repository watermark advances.
+          # A single Actions job retries only explicit transport/time-out and
+          # allowlisted operational database failures. The persistent cron
+          # wakeups keep retrying a stale slot across jobs until its repository
+          # watermark advances.
           AUTONOMOUS_WORKFLOW_RETRY_MAX_ATTEMPTS: "6"
           # The 370-minute controller window can admit all six bounded lock-
           # contention attempts through the 20.5-minute cumulative backoff,

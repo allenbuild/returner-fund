@@ -8,6 +8,7 @@ import {
   AUTONOMOUS_RUNNER_WALL_CLOCK_BUDGET_MS,
   AUTONOMOUS_RUNNER_WORKFLOW_HEADROOM_MS
 } from "./autonomous-ingestion-budget.mjs";
+import { isRetryableAutonomousDatabaseFailure } from "./autonomous-ingestion-database-failure.mjs";
 import { startAutonomousIngestionPowerWatchdog } from "./autonomous-ingestion-power-watchdog.mjs";
 
 const DEFAULT_MAX_ATTEMPTS = 6;
@@ -156,6 +157,8 @@ export function classifyAutonomousWorkflowAttempt({
   const publicationStatus = parsed.values.publication_status ?? "";
   const publishedCommit = parsed.values.published_commit ?? "";
   const failureMessage = parsed.values.failure_message ?? "";
+  const failureDomain = parsed.values.failure_domain ?? "";
+  const failureCode = parsed.values.failure_code ?? "";
   const diagnostic = `${runnerStatus} ${publicationStatus} ${failureMessage}`;
 
   if (
@@ -190,6 +193,17 @@ export function classifyAutonomousWorkflowAttempt({
   }
   if (SEMANTIC_TERMINAL_FAILURE.test(diagnostic)) {
     return terminalDecision("semantic-lock-or-candidate-failure", { parsed });
+  }
+  if (runnerStatus === "failed" && failureDomain === "database") {
+    if (isRetryableAutonomousDatabaseFailure({ domain: failureDomain, code: failureCode })) {
+      return Object.freeze({
+        completed: false,
+        retryable: true,
+        reason: "transient-database-failure",
+        parsed
+      });
+    }
+    return terminalDecision("non-retryable-database-failure", { parsed });
   }
   if (runnerStatus === "failed" && TRANSIENT_FAILURE.test(failureMessage)) {
     return Object.freeze({
@@ -408,6 +422,8 @@ async function appendFinalOutcome(githubOutput, attempt, disposition) {
       "runner_status=failed",
       "publication_status=",
       "failure_message=Autonomous ingestion attempt ended without a valid isolated runner outcome.",
+      "failure_domain=",
+      "failure_code=",
       "published_commit="
     ].join("\n");
   }
