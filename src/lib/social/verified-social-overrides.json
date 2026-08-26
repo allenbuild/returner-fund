@@ -721,9 +721,9 @@
   },
   "graphify-labs": {
     "companySocialLinks": {
-      "github": "https://github.com/Graphify-Labs"
+      "github": "https://github.com/graphify-labs"
     },
-    "sourceUrl": "https://github.com/Graphify-Labs",
+    "sourceUrl": "https://github.com/graphify-labs",
     "matchReason": "The live Graphify Labs GitHub organization links the exact official graphify.com domain and the same @graphify X and Graphify Labs LinkedIn identities. Preserve this verified organization when the upstream YC profile temporarily omits its GitHub link."
   },
   "gojiberry-ai": {

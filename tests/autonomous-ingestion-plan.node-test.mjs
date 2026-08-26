@@ -161,6 +161,12 @@ describe("autonomous ingestion planning against the collector catalogs", () => {
       graphify?.accounts.map((account) => account.platform).sort(),
       ["github", "linkedin", "x"]
     );
+    const graphifyGithub = graphify?.accounts.find((account) => account.platform === "github");
+    assert.equal(graphifyGithub?.url, "https://github.com/graphify-labs");
+    assert.equal(
+      graphifyGithub?.sourceKey,
+      "acct:company:company-graphify-labs:github:https%3A%2F%2Fgithub.com%2Fgraphify-labs"
+    );
   });
 
   it("schedules Advocate's official LinkedIn account from both audited mapping layers", async () => {
