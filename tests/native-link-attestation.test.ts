@@ -97,6 +97,65 @@ function verifiedYouTubeInput(): NativeLinkAttestationInput {
   };
 }
 
+function verifiedInstagramInput(
+  receiptSource = "instagram_anonymous_native_feed_standalone_v1"
+): NativeLinkAttestationInput {
+  const postedAt = "2026-08-24T01:02:36.000Z";
+  const fetchedAt = "2026-08-24T13:40:08.414Z";
+  const nativeFeedFetchedAt = receiptSource === "instagram_anonymous_native_feed_standalone_v1"
+    ? fetchedAt
+    : "2026-08-24T13:40:12.918Z";
+  return {
+    platform: "instagram",
+    sourceUrl: "https://instagram.com/reel/DcZ1Y7qSy_I",
+    platformPostId: "DcZ1Y7qSy_I",
+    postedAt,
+    publishedAtPrecision: "exact",
+    review_state: "verified",
+    linkStatus: null,
+    entityType: "company",
+    entityId: "a16z-speedrun-006-snag",
+    batchSlug: "A16ZSR006",
+    accountUrl: "https://instagram.com/snagsubletsnyc",
+    authorHandle: "snagsubletsnyc",
+    attributionVersion: 3,
+    attributionStatus: "verified",
+    attributionProvenance: "instagram_anonymous_native_feed_native_owner_v1",
+    nativeAuthorResolution: {
+      status: "matched",
+      author: { platform: "instagram", key: "snagsubletsnyc" },
+      owner: {
+        batchSlug: "A16ZSR006",
+        entityType: "company",
+        entityId: "a16z-speedrun-006-snag"
+      }
+    },
+    rawVisibleText: JSON.stringify({
+      receipt: {
+        source: receiptSource,
+        username: "snagsubletsnyc",
+        accountUrl: "https://www.instagram.com/snagsubletsnyc/",
+        fetchedAt,
+        nativeFeed: {
+          source: "instagram_anonymous_native_feed_v1",
+          fetchedAt: nativeFeedFetchedAt,
+          receivedItemCount: 504,
+          uniqueItemCount: 500
+        }
+      },
+      post: {
+        shortcode: "DcZ1Y7qSy_I",
+        url: "https://www.instagram.com/reel/DcZ1Y7qSy_I/",
+        authorUsername: "snagsubletsnyc",
+        profileRole: "primary",
+        postedAt,
+        nativeFeedOnly: true,
+        nativeFeedMetricSource: "instagram_anonymous_native_feed_v1"
+      }
+    })
+  };
+}
+
 describe("native link receipt attestation", () => {
   it("promotes a canonical X status only when its owner, ID, timestamps, and metric receipt agree", () => {
     const input = verifiedXInput();
@@ -149,6 +208,88 @@ describe("native link receipt attestation", () => {
         collector: "youtube-search",
         platform: "youtube",
         nativeId: "Tbd_RvuY04s"
+      })
+    })).toBe(false);
+  });
+
+  it("promotes exact primary-owner Instagram posts from either canonical native-feed receipt", () => {
+    const standalone = verifiedInstagramInput();
+    const profileInfo = verifiedInstagramInput(
+      "instagram_public_web_profile_info_with_native_feed_metrics_v1"
+    );
+
+    expect(hasVerifiedNativeLinkReceipt(standalone)).toBe(true);
+    expect(nativeLinkStatusFromVerifiedReceipt(standalone)).toBe("verified");
+    expect(hasVerifiedNativeLinkReceipt(profileInfo)).toBe(true);
+  });
+
+  it("requires receipt-schema-consistent Instagram collection timestamps", () => {
+    const standalone = verifiedInstagramInput();
+    const standalonePayload = JSON.parse(String(standalone.rawVisibleText));
+    expect(hasVerifiedNativeLinkReceipt({
+      ...standalone,
+      rawVisibleText: JSON.stringify({
+        ...standalonePayload,
+        receipt: {
+          ...standalonePayload.receipt,
+          nativeFeed: {
+            ...standalonePayload.receipt.nativeFeed,
+            fetchedAt: "2026-08-24T13:40:12.918Z"
+          }
+        }
+      })
+    })).toBe(false);
+
+    const profileInfo = verifiedInstagramInput(
+      "instagram_public_web_profile_info_with_native_feed_metrics_v1"
+    );
+    const profileInfoPayload = JSON.parse(String(profileInfo.rawVisibleText));
+    expect(hasVerifiedNativeLinkReceipt({
+      ...profileInfo,
+      rawVisibleText: JSON.stringify({
+        ...profileInfoPayload,
+        receipt: {
+          ...profileInfoPayload.receipt,
+          nativeFeed: {
+            ...profileInfoPayload.receipt.nativeFeed,
+            fetchedAt: "2026-08-24T13:40:04.918Z"
+          }
+        }
+      })
+    })).toBe(false);
+  });
+
+  it("fails closed for Instagram native ID, author, owner, timestamp, and receipt conflicts", () => {
+    const input = verifiedInstagramInput();
+    const payload = JSON.parse(String(input.rawVisibleText));
+
+    expect(hasVerifiedNativeLinkReceipt({ ...input, platformPostId: "Different_1" })).toBe(false);
+    expect(hasVerifiedNativeLinkReceipt({
+      ...input,
+      rawVisibleText: JSON.stringify({
+        ...payload,
+        post: { ...payload.post, authorUsername: "another_owner" }
+      })
+    })).toBe(false);
+    expect(hasVerifiedNativeLinkReceipt({
+      ...input,
+      nativeAuthorResolution: {
+        ...input.nativeAuthorResolution,
+        owner: { ...input.nativeAuthorResolution?.owner, entityId: "a16z-speedrun-006-other" }
+      }
+    })).toBe(false);
+    expect(hasVerifiedNativeLinkReceipt({
+      ...input,
+      rawVisibleText: JSON.stringify({
+        ...payload,
+        post: { ...payload.post, postedAt: "2026-08-24T01:02:37.000Z" }
+      })
+    })).toBe(false);
+    expect(hasVerifiedNativeLinkReceipt({
+      ...input,
+      rawVisibleText: JSON.stringify({
+        ...payload,
+        receipt: { ...payload.receipt, source: "instagram_search_result" }
       })
     })).toBe(false);
   });

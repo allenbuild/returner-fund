@@ -72,6 +72,7 @@ export function hasVerifiedNativeLinkReceipt(input: NativeLinkAttestationInput):
   const receipt = recordFromUnknown(parseReceipt(input.rawVisibleText));
   if (!receipt) return false;
   if (input.platform === "x") return verifiedXReceipt(input, receipt, nativeId, postedAt);
+  if (input.platform === "instagram") return verifiedInstagramNativeFeedReceipt(input, receipt, nativeId, postedAt);
   if (input.platform === "youtube") return verifiedYouTubeAtomReceipt(input, receipt, nativeId, postedAt);
   return false;
 }
@@ -179,11 +180,95 @@ function verifiedYouTubeAtomReceipt(
   return requestedBatch === null || requestedBatch === receiptBatch;
 }
 
+function verifiedInstagramNativeFeedReceipt(
+  input: NativeLinkAttestationInput,
+  payload: Record<string, unknown>,
+  nativeId: string,
+  postedAt: string
+): boolean {
+  const receipt = recordFromUnknown(payload.receipt);
+  const post = recordFromUnknown(payload.post);
+  const nativeFeed = recordFromUnknown(receipt?.nativeFeed);
+  const allowedReceiptSources = new Set([
+    "instagram_anonymous_native_feed_standalone_v1",
+    "instagram_public_web_profile_info_with_native_feed_metrics_v1"
+  ]);
+  const receiptSource = stringValue(receipt?.source);
+  const receiptFetchedAt = exactInstant(receipt?.fetchedAt);
+  const nativeFeedFetchedAt = exactInstant(nativeFeed?.fetchedAt);
+  if (
+    input.attributionProvenance !== "instagram_anonymous_native_feed_native_owner_v1" ||
+    !receipt ||
+    !post ||
+    !nativeFeed ||
+    !allowedReceiptSources.has(receiptSource ?? "") ||
+    stringValue(nativeFeed.source) !== "instagram_anonymous_native_feed_v1" ||
+    !receiptFetchedAt ||
+    !nativeFeedFetchedAt ||
+    !validInstagramReceiptTiming(receiptSource, receiptFetchedAt, nativeFeedFetchedAt) ||
+    !positiveInteger(nativeFeed.receivedItemCount) ||
+    !positiveInteger(nativeFeed.uniqueItemCount) ||
+    stringValue(post.shortcode) !== nativeId ||
+    nativeEvidenceIdentityFromUrl("instagram", stringValue(post.url) ?? "") !== nativeId ||
+    exactInstant(post.postedAt) !== postedAt ||
+    stringValue(post.profileRole) !== "primary" ||
+    post.nativeFeedOnly !== true ||
+    stringValue(post.nativeFeedMetricSource) !== "instagram_anonymous_native_feed_v1"
+  ) {
+    return false;
+  }
+
+  const nativeAuthor = input.nativeAuthorResolution;
+  const requestedBatch = normalizedBatchSlug(input.batchSlug ?? input.batch_slug);
+  const receiptBatch = normalizedBatchSlug(nativeAuthor?.owner?.batchSlug);
+  if (
+    nativeAuthor?.status !== "matched" ||
+    nativeAuthor.author?.platform !== "instagram" ||
+    nativeAuthor.owner?.entityType !== input.entityType ||
+    nativeAuthor.owner?.entityId !== input.entityId ||
+    (requestedBatch !== null && receiptBatch !== requestedBatch)
+  ) {
+    return false;
+  }
+
+  const receiptAuthor = normalizedHandle(receipt.username);
+  const postAuthor = normalizedHandle(post.authorUsername);
+  const resolvedAuthor = normalizedHandle(nativeAuthor.author?.key);
+  const inputAuthor = normalizedHandle(input.authorHandle);
+  if (
+    !receiptAuthor ||
+    receiptAuthor !== postAuthor ||
+    receiptAuthor !== resolvedAuthor ||
+    (inputAuthor && inputAuthor !== receiptAuthor)
+  ) {
+    return false;
+  }
+  return sameAccountUrl(input.accountUrl, stringValue(receipt.accountUrl));
+}
+
+function validInstagramReceiptTiming(
+  receiptSource: string | null,
+  receiptFetchedAt: string,
+  nativeFeedFetchedAt: string
+): boolean {
+  if (receiptSource === "instagram_anonymous_native_feed_standalone_v1") {
+    return nativeFeedFetchedAt === receiptFetchedAt;
+  }
+  return (
+    receiptSource === "instagram_public_web_profile_info_with_native_feed_metrics_v1" &&
+    Date.parse(nativeFeedFetchedAt) >= Date.parse(receiptFetchedAt)
+  );
+}
+
 function nativePostId(platform: Platform, value: string | null | undefined): string | null {
   const normalized = String(value ?? "").trim();
   if (!normalized) return null;
   if (/^https?:\/\//i.test(normalized)) return nativeEvidenceIdentityFromUrl(platform, normalized);
   if (platform === "x") return normalized.match(/(?:^|\/)status\/(\d+)/i)?.[1] ?? (/^\d+$/.test(normalized) ? normalized : null);
+  if (platform === "instagram") {
+    return normalized.match(/^(?:\/?)(?:p|reel|tv)[/:]([A-Za-z0-9_-]+)/i)?.[1] ??
+      (/^[A-Za-z0-9_-]{5,30}$/.test(normalized) ? normalized : null);
+  }
   if (platform === "youtube") {
     return normalized.match(/^(?:shorts|live)\/([A-Za-z0-9_-]+)$/i)?.[1] ??
       (/^[A-Za-z0-9_-]{6,}$/.test(normalized) ? normalized : null);
@@ -222,6 +307,11 @@ function arrayFromUnknown(value: unknown): unknown[] {
 
 function stringValue(value: unknown): string | null {
   return typeof value === "string" && value.trim() ? value.trim() : null;
+}
+
+function positiveInteger(value: unknown): boolean {
+  const number = typeof value === "number" ? value : Number.NaN;
+  return Number.isSafeInteger(number) && number > 0;
 }
 
 function normalizedBatchSlug(value: unknown): string | null {
