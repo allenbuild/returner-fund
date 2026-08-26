@@ -1305,13 +1305,13 @@ test("workflow retry policy isolates attempt outputs and enforces a bounded job 
   assert.deepEqual(
     parseAutonomousWorkflowRetryConfig({
       AUTONOMOUS_WORKFLOW_RETRY_MAX_ATTEMPTS: "6",
-      AUTONOMOUS_WORKFLOW_RETRY_MAX_ELAPSED_SECONDS: "20700",
+      AUTONOMOUS_WORKFLOW_RETRY_MAX_ELAPSED_SECONDS: "22200",
       AUTONOMOUS_WORKFLOW_RETRY_MIN_REMAINING_SECONDS: "19860",
       AUTONOMOUS_WORKFLOW_RETRY_DELAYS_SECONDS: "30,120,300,600,900"
     }),
     {
       maxAttempts: 6,
-      maxElapsedSeconds: 20_700,
+      maxElapsedSeconds: 22_200,
       minRemainingSeconds: 19_860,
       retryDelaysSeconds: [30, 120, 300, 600, 900]
     }
@@ -1325,7 +1325,7 @@ test("workflow retry policy isolates attempt outputs and enforces a bounded job 
       AUTONOMOUS_WORKFLOW_RETRY_MAX_ELAPSED_SECONDS: "19200",
       AUTONOMOUS_WORKFLOW_RETRY_MIN_REMAINING_SECONDS: "900"
     }),
-    /must be an integer between 19860 and 21000/
+    /must be an integer between 19860 and 22500/
   );
   assert.equal(
     AUTONOMOUS_WORKFLOW_ATTEMPT_ALLOWANCE_MS,
@@ -1338,6 +1338,50 @@ test("workflow retry policy isolates attempt outputs and enforces a bounded job 
   assert.equal(
     AUTONOMOUS_WORKFLOW_CHILD_TERMINATION_GRACE_MS,
     AUTONOMOUS_RUNNER_WORKFLOW_HEADROOM_MS
+  );
+});
+
+test("production lock-contention retries outwait one complete coordinator lease", () => {
+  const runnerStep = workflow.match(
+    /- name: Run autonomous ingestion[\s\S]*?(?=\n\s{6}- name:)/
+  )?.[0] ?? "";
+  const environmentValue = (name) => runnerStep.match(
+    new RegExp(`${name}:\\s*"([0-9,]+)"`)
+  )?.[1];
+  const config = parseAutonomousWorkflowRetryConfig({
+    AUTONOMOUS_WORKFLOW_RETRY_MAX_ATTEMPTS: environmentValue(
+      "AUTONOMOUS_WORKFLOW_RETRY_MAX_ATTEMPTS"
+    ),
+    AUTONOMOUS_WORKFLOW_RETRY_MAX_ELAPSED_SECONDS: environmentValue(
+      "AUTONOMOUS_WORKFLOW_RETRY_MAX_ELAPSED_SECONDS"
+    ),
+    AUTONOMOUS_WORKFLOW_RETRY_MIN_REMAINING_SECONDS: environmentValue(
+      "AUTONOMOUS_WORKFLOW_RETRY_MIN_REMAINING_SECONDS"
+    ),
+    AUTONOMOUS_WORKFLOW_RETRY_DELAYS_SECONDS: environmentValue(
+      "AUTONOMOUS_WORKFLOW_RETRY_DELAYS_SECONDS"
+    )
+  });
+  const attemptStartOffsetsSeconds = [0];
+  let elapsedSeconds = 0;
+  for (let attempt = 1; attempt < config.maxAttempts; attempt += 1) {
+    const delaySeconds = config.retryDelaysSeconds[
+      Math.min(attempt - 1, config.retryDelaysSeconds.length - 1)
+    ];
+    elapsedSeconds += delaySeconds;
+    if (config.maxElapsedSeconds - elapsedSeconds < config.minRemainingSeconds) break;
+    attemptStartOffsetsSeconds.push(elapsedSeconds);
+  }
+
+  assert.deepEqual(attemptStartOffsetsSeconds, [0, 30, 150, 450, 1_050, 1_950]);
+  assert.ok(
+    attemptStartOffsetsSeconds.at(-1) > 20 * 60,
+    "a full child attempt must remain admissible after the 20-minute coordinator lease expires"
+  );
+  assert.ok(
+    config.maxElapsedSeconds - attemptStartOffsetsSeconds.at(-1) >=
+      config.minRemainingSeconds,
+    "the post-lease attempt must retain the complete runner and cleanup allowance"
   );
 });
 
@@ -1600,7 +1644,7 @@ test("autonomous runner receives optional durability secrets and owns validated 
   )?.[1];
   assert.ok(runnerStep, "missing autonomous ingestion step");
   assert.match(runnerStep, /id:\s*ingestion/);
-  assert.match(runnerStep, /timeout-minutes:\s*355/);
+  assert.match(runnerStep, /timeout-minutes:\s*380/);
   assert.match(runnerStep, /NODE_OPTIONS:\s*--max-old-space-size=3072/);
   assert.match(runnerStep, /NEXT_PUBLIC_SUPABASE_URL:\s*\$\{\{ secrets\.NEXT_PUBLIC_SUPABASE_URL \}\}/);
   assert.match(runnerStep, /SUPABASE_SERVICE_ROLE_KEY:\s*\$\{\{ secrets\.SUPABASE_SERVICE_ROLE_KEY \}\}/);
@@ -1620,7 +1664,7 @@ test("autonomous runner receives optional durability secrets and owns validated 
   assert.doesNotMatch(runnerStep, /\/usr\/bin\/caffeinate -u/);
   assert.doesNotMatch(runnerStep, /exec node scripts\/run-autonomous-ingestion\.mjs/);
   assert.match(runnerStep, /AUTONOMOUS_WORKFLOW_RETRY_MAX_ATTEMPTS:\s*"6"/);
-  assert.match(runnerStep, /AUTONOMOUS_WORKFLOW_RETRY_MAX_ELAPSED_SECONDS:\s*"20700"/);
+  assert.match(runnerStep, /AUTONOMOUS_WORKFLOW_RETRY_MAX_ELAPSED_SECONDS:\s*"22200"/);
   assert.match(runnerStep, /AUTONOMOUS_WORKFLOW_RETRY_MIN_REMAINING_SECONDS:\s*"19860"/);
   assert.match(runnerStep, /AUTONOMOUS_WORKFLOW_RETRY_DELAYS_SECONDS:\s*"30,120,300,600,900"/);
   assert.doesNotMatch(runnerStep, /AUTONOMOUS_MIN_BATTERY_PERCENT/);
@@ -2500,9 +2544,9 @@ test("workflow step budgets leave setup and scheduling headroom", () => {
   const installTimeout = Number(workflow.match(/- name: Install dependencies[\s\S]*?timeout-minutes:\s*(\d+)/)?.[1]);
   const runnerTimeout = Number(workflow.match(/- name: Run autonomous ingestion[\s\S]*?timeout-minutes:\s*(\d+)/)?.[1]);
 
-  assert.equal(jobTimeout, 390);
+  assert.equal(jobTimeout, 415);
   assert.equal(installTimeout, 5);
-  assert.equal(runnerTimeout, 355);
+  assert.equal(runnerTimeout, 380);
   assert.ok(runnerTimeout < jobTimeout);
   assert.ok(installTimeout + runnerTimeout < jobTimeout);
   assert.ok(
@@ -2516,7 +2560,7 @@ test("workflow step budgets leave setup and scheduling headroom", () => {
     "every child attempt must retain its complete runner and cleanup allowance"
   );
   assert.ok(
-    20_700_000 + AUTONOMOUS_WORKFLOW_CHILD_TERMINATION_GRACE_MS < runnerTimeout * 60_000,
+    22_200_000 + AUTONOMOUS_WORKFLOW_CHILD_TERMINATION_GRACE_MS < runnerTimeout * 60_000,
     "the controller deadline and safe child signal grace must leave step-finalization headroom"
   );
   assert.ok(maxAutonomousRunnerProcessBudgetMs() < AUTONOMOUS_RUNNER_WALL_CLOCK_BUDGET_MS);
