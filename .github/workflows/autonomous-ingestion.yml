@@ -1,5 +1,5 @@
 name: Autonomous Ingestion
-run-name: Autonomous ingestion candidate ${{ github.event.schedule || inputs.replay_key }}
+run-name: Autonomous ingestion candidate ${{ github.event.schedule || github.event.action || inputs.replay_key }}
 
 on:
   schedule:
@@ -11,6 +11,11 @@ on:
     - cron: "0 23 * * *"
     # Frequent wakeups retry the newest slot while its graph watermark is stale.
     - cron: "7,22,37,52 * * * *"
+  # The installed host supervisor uses this exact event only after scheduled
+  # wakeups go missing. It supplies no slot: the resolver recomputes the newest
+  # Central slot and committed watermark from the dispatched main commit.
+  repository_dispatch:
+    types: [autonomous-ingestion-recovery]
   workflow_dispatch:
     inputs:
       replay_key:
@@ -68,6 +73,9 @@ jobs:
         id: schedule
         env:
           GITHUB_EVENT_SCHEDULE: ${{ github.event.schedule }}
+          GITHUB_EVENT_ACTION: ${{ github.event.action }}
+          GITHUB_TRIGGER_SHA: ${{ github.sha }}
+          INGESTION_RECOVERY_EXPECTED_HEAD_SHA: ${{ github.event.client_payload.expected_head_sha }}
           INGESTION_REPLAY_KEY: ${{ inputs.replay_key }}
         run: node scripts/lib/ingestion-schedule.mjs
 
@@ -318,7 +326,10 @@ jobs:
             process.exit(0);
           }
           assert.equal(trigger, "schedule", "queued ingestion trigger must be schedule or manual-replay");
-          assert.equal(eventName, "schedule", "scheduled ingestion must originate from a schedule event");
+          assert.ok(
+            eventName === "schedule" || eventName === "repository_dispatch",
+            "scheduled ingestion must originate from a trusted schedule wakeup"
+          );
           assert.equal(recoveryDebt, true, "scheduled ingestion requires publication-watermark retry authorization");
           assert.equal(reason, "retry-publication-watermark", "scheduled ingestion reason is not publication-watermark authorized");
           assert.match(slotKey, /^central-\d{4}-\d{2}-\d{2}-(?:0600|1800)$/);
@@ -352,6 +363,9 @@ jobs:
           CANDIDATE_REASON: ${{ needs.resolve.outputs.reason }}
           CANDIDATE_RECOVERY_DEBT: ${{ needs.resolve.outputs.recovery_debt }}
           GITHUB_EVENT_SCHEDULE: ${{ github.event.schedule }}
+          GITHUB_EVENT_ACTION: ${{ github.event.action }}
+          GITHUB_TRIGGER_SHA: ${{ github.sha }}
+          INGESTION_RECOVERY_EXPECTED_HEAD_SHA: ${{ github.event.client_payload.expected_head_sha }}
           INGESTION_REVALIDATE_CANDIDATE: "true"
           INGESTION_PUBLICATION_REF: refs/remotes/origin/main
           SOURCE_SHA: ${{ needs.resolve.outputs.source_sha }}
@@ -420,6 +434,9 @@ jobs:
           CANDIDATE_TRIGGER: ${{ needs.resolve.outputs.trigger }}
           CANDIDATE_SCHEDULED_AT: ${{ needs.resolve.outputs.scheduled_at }}
           CANDIDATE_RECOVERY_DEBT: ${{ needs.resolve.outputs.recovery_debt }}
+          GITHUB_EVENT_ACTION: ${{ github.event.action }}
+          GITHUB_TRIGGER_SHA: ${{ github.sha }}
+          INGESTION_RECOVERY_EXPECTED_HEAD_SHA: ${{ github.event.client_payload.expected_head_sha }}
           INGESTION_PUBLICATION_BRANCH: main
           AUTHENTICATED_SOCIAL_REPLAY: ${{ inputs.authenticated_backfill || false }}
           # A single Actions job retries only explicit transport/time-out
@@ -1193,7 +1210,10 @@ jobs:
               assert.equal(receipt.scheduledAt, null, "manual replay must not claim scheduledAt");
             } else {
               assert.equal(receipt.trigger, "schedule", "accepted resolver trigger is not recognized");
-              assert.equal(receipt.run.eventName, "schedule", "scheduled receipt must bind to schedule event");
+              assert.ok(
+                receipt.run.eventName === "schedule" || receipt.run.eventName === "repository_dispatch",
+                "scheduled receipt must bind to a trusted schedule wakeup"
+              );
               assert.ok(strictUtcRfc3339(receipt.scheduledAt), "scheduled receipt requires valid scheduledAt");
               const scheduled = new Date(receipt.scheduledAt);
               const parts = Object.fromEntries(new Intl.DateTimeFormat("en-US", {

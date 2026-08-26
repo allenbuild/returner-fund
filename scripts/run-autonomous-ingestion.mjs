@@ -77,8 +77,10 @@ import { selectPublishedAutonomousIngestionReceipt } from "./lib/autonomous-inge
 import {
   CENTRAL_TIME_ZONE,
   INGESTION_CENTRAL_SLOTS,
+  INGESTION_RECOVERY_CRON,
   centralDateTimeParts,
-  latestEligibleCentralSlot
+  latestEligibleCentralSlot,
+  scheduleForTrustedEvent
 } from "./lib/ingestion-schedule.mjs";
 import { mergeTargetedEvidenceSnapshots } from "./lib/targeted-evidence-merge.mjs";
 import { archiveAcceptedPublicSnapshot } from "./lib/archive-public-ingestion.mjs";
@@ -373,9 +375,9 @@ if (lifecycleContractFixture) {
 }
 if (
   args.recoveryDebt &&
-  (process.env.GITHUB_ACTIONS !== "true" || process.env.GITHUB_EVENT_NAME !== "schedule")
+  !resolverAuthorizedRecoveryDebtEvent(process.env)
 ) {
-  throw new Error("Recovery debt bypass requires a resolver-authorized GitHub schedule event.");
+  throw new Error("Recovery debt bypass requires a resolver-authorized GitHub schedule wakeup.");
 }
 await verifyPinnedSourceExecutionBoundary({ verifyPolicyCleanliness: !args.plan });
 candidateMetadata = validateCandidateMetadata({
@@ -8545,6 +8547,21 @@ function catalogSummary(allCatalogs) {
       0
     )
   }));
+}
+
+function resolverAuthorizedRecoveryDebtEvent(environment) {
+  if (environment.GITHUB_ACTIONS !== "true") return false;
+  if (environment.GITHUB_EVENT_NAME === "schedule") return true;
+  try {
+    return scheduleForTrustedEvent({
+      eventName: environment.GITHUB_EVENT_NAME,
+      eventAction: environment.GITHUB_EVENT_ACTION,
+      recoveryExpectedHeadSha: environment.INGESTION_RECOVERY_EXPECTED_HEAD_SHA,
+      triggerSha: environment.GITHUB_TRIGGER_SHA ?? environment.GITHUB_SHA
+    }) === INGESTION_RECOVERY_CRON;
+  } catch {
+    return false;
+  }
 }
 
 function validateCandidateMetadata({

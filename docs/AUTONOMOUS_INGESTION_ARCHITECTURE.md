@@ -44,25 +44,26 @@ The workflow targets two wall-clock slots every day in `America/Chicago`:
 
 | Central slot | During CDT, UTC-5 | During CST, UTC-6 |
 | --- | --- | --- |
-| `06:17` | `11:17 UTC` | `12:17 UTC` |
-| `18:17` | `23:17 UTC` | `00:17 UTC` on the following UTC date |
+| `06:00` | `11:00 UTC` | `12:00 UTC` |
+| `18:00` | `23:00 UTC` | `00:00 UTC` on the following UTC date |
 
 GitHub Actions cannot express an IANA time zone in cron, so the workflow declares all four UTC candidates:
 
 ```text
-17 0 * * *
-17 11 * * *
-17 12 * * *
-17 23 * * *
+0 0 * * *
+0 11 * * *
+0 12 * * *
+0 23 * * *
+7,22,37,52 * * * *
 ```
 
-`scripts/lib/ingestion-schedule.mjs` converts the candidate occurrence to `America/Chicago` and admits it only when the local time is exactly `06:17:00` or `18:17:00`. The inactive daylight-saving candidate exits without installing dependencies or collecting data. A scheduled candidate can be replayed for up to 11 hours after its nominal occurrence; an even later accepted candidate fails loudly so operators can replay the missing slot. The resolver anchors a delayed candidate to the nearest prior occurrence, which matters for the `23:17 UTC` candidate after midnight UTC.
+Every cron is only a wakeup. `scripts/lib/ingestion-schedule.mjs` evaluates the committed publication manifest and all required graph/benchmark artifacts, then resolves the newest eligible `06:00` or `18:00` `America/Chicago` slot. It admits that canonical slot while the minimum trusted artifact watermark is stale, missing, invalid, or divergent, and becomes a no-op only after the watermark is current.
 
-Accepted scheduled runs receive keys such as `central-2026-07-18-0617`. Manual `workflow_dispatch` runs require an explicit 1-128 character replay key matching `[A-Za-z0-9][A-Za-z0-9._:-]{0,127}`. The key becomes `ingestion_runs.idempotency_key` and is unique when non-null.
+Accepted scheduled runs receive keys such as `central-2026-07-18-0600`. Manual `workflow_dispatch` runs require an explicit 1-128 character replay key matching `[A-Za-z0-9][A-Za-z0-9._:-]{0,127}`. The key becomes `ingestion_runs.idempotency_key` and is unique when non-null.
 
-GitHub Actions also has a single non-canceling concurrency group named `autonomous-ingestion`. Database locking remains necessary because local invocations and other actors are outside that GitHub concurrency group.
+Accepted runs share the non-canceling `repository-publication-main` concurrency group with the other repository artifact publisher. Database locking remains necessary because local invocations and other actors are outside that GitHub concurrency group.
 
-The accepted-slot step wraps the coordinator with a same-key retry controller for explicit transient transport and timeout failures. A child is started only when at least 331 minutes remain: the coordinator's 324-minute work budget, its full six-minute cleanup allowance, and one minute for process startup. The controller never shortens that child window. Its 345-minute deadline and six-minute graceful-signal interval remain inside the 355-minute step timeout; the 390-minute job timeout leaves setup and post-step headroom. Later scheduled watermark wakeups continue retrying a stale slot when a same-job retry cannot safely receive that complete window.
+The accepted-slot step wraps the coordinator with a same-key retry controller for explicit transient transport and timeout failures. A child is started only when at least 331 minutes remain: the coordinator's 324-minute work budget, its full six-minute cleanup allowance, and one minute for process startup. The controller never shortens that child window. Its 345-minute deadline and six-minute graceful-signal interval remain inside the 355-minute step timeout; the 390-minute job timeout leaves setup and post-step headroom. Later scheduled watermark wakeups continue retrying a stale slot when a same-job retry cannot safely receive that complete window. Because GitHub documents that scheduled events may be delayed or dropped, the installed five-minute host supervisor independently checks for a 30-minute workflow silence, an online exact runner, eligible power, and a stale committed watermark. It then sends only the trusted `autonomous-ingestion-recovery` event with the inspected `main` SHA; the workflow recomputes the canonical newest slot and watermark from that exact commit and never accepts a host-supplied slot key.
 
 ## Coordinator lifecycle
 

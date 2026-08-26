@@ -29,6 +29,12 @@
     <string>__STATE_DIR__</string>
     <key>RETURNER_MIN_BATTERY_PERCENT</key>
     <string>60</string>
+    <key>RETURNER_SCHEDULE_RECOVERY_ENABLED</key>
+    <string>true</string>
+    <key>RETURNER_SCHEDULE_RECOVERY_SILENCE_MINUTES</key>
+    <string>30</string>
+    <key>RETURNER_SCHEDULE_RECOVERY_COOLDOWN_MINUTES</key>
+    <string>30</string>
   </dict>
   <key>WorkingDirectory</key>
   <string>__INSTALL_ROOT__</string>

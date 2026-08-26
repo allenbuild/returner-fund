@@ -12,6 +12,10 @@ import {
   isSafeInertPublicationBasePath,
   isValidatedPublicationRetryReuseSafePath
 } from "../scripts/lib/autonomous-publication-trust.mjs";
+import {
+  INGESTION_RECOVERY_DISPATCH_EVENT,
+  latestEligibleCentralSlot
+} from "../scripts/lib/ingestion-schedule.mjs";
 import { isTimelineCoverageMigrationUnavailable } from "../scripts/lib/timeline-migration-availability.mjs";
 
 const repositoryRoot = process.cwd();
@@ -101,6 +105,55 @@ describe("autonomous ingestion runner CLI", () => {
       githubTasksPerProcess: 4,
       githubInitialRequestsAcrossProcesses: 8
     });
+  });
+
+  it("accepts recovery debt only from an exact trusted host-dispatch binding", () => {
+    const slot = latestEligibleCentralSlot(new Date());
+    const head = spawnSync("git", ["rev-parse", "HEAD"], {
+      cwd: repositoryRoot,
+      encoding: "utf8"
+    });
+    assert.equal(head.status, 0, head.stderr);
+    const expectedHeadSha = head.stdout.trim();
+    const env = {
+      NODE_ENV: "test",
+      PATH: process.env.PATH ?? "/usr/local/bin:/usr/bin:/bin",
+      GITHUB_ACTIONS: "true",
+      GITHUB_EVENT_NAME: "repository_dispatch",
+      GITHUB_EVENT_ACTION: INGESTION_RECOVERY_DISPATCH_EVENT,
+      GITHUB_SHA: expectedHeadSha,
+      GITHUB_TRIGGER_SHA: expectedHeadSha,
+      INGESTION_RECOVERY_EXPECTED_HEAD_SHA: expectedHeadSha
+    };
+    const args = [
+      runnerPath,
+      "--plan",
+      `--idempotency-key=${slot.slotKey}`,
+      "--candidate-trigger=schedule",
+      `--scheduled-at=${slot.scheduledAt.toISOString()}`,
+      "--recovery-debt=true"
+    ];
+
+    const accepted = spawnSync(process.execPath, args, {
+      cwd: repositoryRoot,
+      env,
+      encoding: "utf8"
+    });
+    assert.equal(accepted.status, 0, accepted.stderr);
+
+    const mismatchedHead = spawnSync(process.execPath, args, {
+      cwd: repositoryRoot,
+      env: {
+        ...env,
+        INGESTION_RECOVERY_EXPECTED_HEAD_SHA: "b".repeat(40)
+      },
+      encoding: "utf8"
+    });
+    assert.equal(mismatchedHead.status, 1, mismatchedHead.stderr);
+    assert.match(
+      mismatchedHead.stderr,
+      /Recovery debt bypass requires a resolver-authorized GitHub schedule wakeup/
+    );
   });
 
   it("reports a missing idempotency key through GitHub outputs", async () => {
@@ -1121,6 +1174,10 @@ if (mode === "fail") {
 
 describe("autonomous ingestion runner static safety contracts", () => {
   it("binds scheduled publication to resolver authorization and newest-slot freshness", () => {
+    const eventAuthorization = section(
+      "function resolverAuthorizedRecoveryDebtEvent",
+      "function validateCandidateMetadata"
+    );
     const candidateValidation = section(
       "function validateCandidateMetadata",
       "function publicationCandidateReceiptFields"
@@ -1131,8 +1188,13 @@ describe("autonomous ingestion runner static safety contracts", () => {
     );
 
     assert.ok(runner.includes("args.recoveryDebt &&"));
-    assert.ok(runner.includes('process.env.GITHUB_ACTIONS !== "true"'));
-    assert.ok(runner.includes('process.env.GITHUB_EVENT_NAME !== "schedule"'));
+    assert.ok(runner.includes("!resolverAuthorizedRecoveryDebtEvent(process.env)"));
+    assert.ok(eventAuthorization.includes('environment.GITHUB_ACTIONS !== "true"'));
+    assert.ok(eventAuthorization.includes('environment.GITHUB_EVENT_NAME === "schedule"'));
+    assert.ok(eventAuthorization.includes("scheduleForTrustedEvent"));
+    assert.ok(eventAuthorization.includes("INGESTION_RECOVERY_EXPECTED_HEAD_SHA"));
+    assert.ok(eventAuthorization.includes("GITHUB_TRIGGER_SHA ?? environment.GITHUB_SHA"));
+    assert.ok(eventAuthorization.includes("=== INGESTION_RECOVERY_CRON"));
     assert.ok(runner.includes('recoveryDebt: booleanValue("--recovery-debt")'));
     assert.ok(candidateValidation.includes("recoveryDebt = false"));
     assert.ok(candidateValidation.includes("publication-watermark retry metadata"));

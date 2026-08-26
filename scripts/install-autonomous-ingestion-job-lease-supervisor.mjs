@@ -39,6 +39,8 @@ async function main() {
     installRoot,
     "supervise-autonomous-ingestion-job-lease.mjs"
   );
+  const installedLibraryDir = path.join(installRoot, "lib");
+  const installedScheduleModule = path.join(installedLibraryDir, "ingestion-schedule.mjs");
   const launchAgentsDir = path.join(userHome, "Library", "LaunchAgents");
   const plistPath = path.join(launchAgentsDir, `${LABEL}.plist`);
   const logsDir = path.join(userHome, "Library", "Logs");
@@ -53,6 +55,12 @@ async function main() {
     "scripts",
     "supervise-autonomous-ingestion-job-lease.mjs"
   );
+  const sourceScheduleModule = path.join(
+    repositoryRoot,
+    "scripts",
+    "lib",
+    "ingestion-schedule.mjs"
+  );
   const templatePath = path.join(
     repositoryRoot,
     "ops",
@@ -60,15 +68,19 @@ async function main() {
     `${LABEL}.plist.template`
   );
 
-  await Promise.all([nodeBin, ghBin, runnerDiagDir, sourceScript, templatePath].map(requirePath));
+  await Promise.all(
+    [nodeBin, ghBin, runnerDiagDir, sourceScript, sourceScheduleModule, templatePath].map(requirePath)
+  );
   await execFile(ghBin, ["auth", "status", "--hostname", "github.com"], {
     timeout: 15_000,
     maxBuffer: 1024 * 1024
   });
   await mkdir(stateDir, { recursive: true, mode: 0o700 });
+  await mkdir(installedLibraryDir, { recursive: true, mode: 0o700 });
   await mkdir(launchAgentsDir, { recursive: true });
   await mkdir(logsDir, { recursive: true });
 
+  await atomicWrite(installedScheduleModule, await readFile(sourceScheduleModule), 0o644);
   await atomicWrite(installedScript, await readFile(sourceScript), 0o755);
   await chmod(installedScript, 0o755);
   const template = await readFile(templatePath, "utf8");
@@ -113,7 +125,14 @@ async function main() {
     maxBuffer: 1024 * 1024
   });
   process.stdout.write(
-    `${JSON.stringify({ installed: true, label: LABEL, plistPath, installedScript, stateDir })}\n`
+    `${JSON.stringify({
+      installed: true,
+      label: LABEL,
+      plistPath,
+      installedScript,
+      installedScheduleModule,
+      stateDir
+    })}\n`
   );
 }
 

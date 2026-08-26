@@ -16,17 +16,27 @@ import { homedir } from "node:os";
 import path from "node:path";
 import { promisify } from "node:util";
 import { pathToFileURL } from "node:url";
+import {
+  INGESTION_RECOVERY_CRON,
+  INGESTION_RECOVERY_DISPATCH_EVENT,
+  latestEligibleCentralSlot,
+  readPublicationWatermark,
+  resolveScheduledIngestion
+} from "./lib/ingestion-schedule.mjs";
 
 const execFile = promisify(execFileCallback);
 
 export const SUPERVISOR_SCHEMA_VERSION = 1;
 export const DEFAULT_MIN_BATTERY_PERCENT = 60;
 export const DEFAULT_MAX_WORKER_LOG_BYTES = 32 * 1024 * 1024;
+export const DEFAULT_SCHEDULE_RECOVERY_SILENCE_MINUTES = 30;
+export const DEFAULT_SCHEDULE_RECOVERY_COOLDOWN_MINUTES = 30;
 export const AUTONOMOUS_WORKFLOW_NAME = "Autonomous Ingestion";
 export const AUTONOMOUS_INGESTION_STEP = "Run autonomous ingestion";
 export const AUTONOMOUS_PUBLISH_JOB_PREFIX = "Publish accepted slot ";
 
 const FULL_SHA = /^[0-9a-f]{40}$/i;
+const CENTRAL_SLOT_KEY = /^central-\d{4}-\d{2}-\d{2}-(?:0600|1800)$/;
 const POSITIVE_INTEGER = /^[1-9][0-9]*$/;
 const ACTIVE_RUN_STATUSES = new Set([
   "queued",
@@ -67,6 +77,18 @@ export function supervisorConfig(environment = process.env) {
     "RETURNER_MAX_WORKER_LOG_BYTES",
     { minimum: 1024 * 1024, maximum: 256 * 1024 * 1024 }
   );
+  const scheduleRecoverySilenceMinutes = strictInteger(
+    environment.RETURNER_SCHEDULE_RECOVERY_SILENCE_MINUTES,
+    DEFAULT_SCHEDULE_RECOVERY_SILENCE_MINUTES,
+    "RETURNER_SCHEDULE_RECOVERY_SILENCE_MINUTES",
+    { minimum: 15, maximum: 12 * 60 }
+  );
+  const scheduleRecoveryCooldownMinutes = strictInteger(
+    environment.RETURNER_SCHEDULE_RECOVERY_COOLDOWN_MINUTES,
+    DEFAULT_SCHEDULE_RECOVERY_COOLDOWN_MINUTES,
+    "RETURNER_SCHEDULE_RECOVERY_COOLDOWN_MINUTES",
+    { minimum: 5, maximum: 12 * 60 }
+  );
 
   return Object.freeze({
     repository: validateRepository(
@@ -89,6 +111,13 @@ export function supervisorConfig(environment = process.env) {
     ghBin: path.resolve(clean(environment.RETURNER_GH_BIN) ?? "/opt/homebrew/bin/gh"),
     minBatteryPercent,
     maxWorkerLogBytes,
+    scheduleRecoveryEnabled: strictBoolean(
+      environment.RETURNER_SCHEDULE_RECOVERY_ENABLED,
+      true,
+      "RETURNER_SCHEDULE_RECOVERY_ENABLED"
+    ),
+    scheduleRecoverySilenceMinutes,
+    scheduleRecoveryCooldownMinutes,
     dryRun: environment.RETURNER_LEASE_SUPERVISOR_DRY_RUN === "true"
   });
 }
@@ -185,7 +214,11 @@ export function verifyWorkflowRun({ workflow, run, event, config }) {
   if (!FULL_SHA.test(String(run.head_sha ?? ""))) {
     return { valid: false, reason: "invalid_head_sha" };
   }
-  if (!new Set(["schedule", "workflow_dispatch"]).has(String(run.event ?? ""))) {
+  if (
+    !new Set(["schedule", "workflow_dispatch", "repository_dispatch"]).has(
+      String(run.event ?? "")
+    )
+  ) {
     return { valid: false, reason: "unsupported_event" };
   }
   if (String(run.status ?? "") !== "completed" || String(run.conclusion ?? "") !== "failure") {
@@ -299,6 +332,193 @@ export async function evaluateLeaseLossEvent({
   });
 }
 
+export function verifyRecoveryWorkflow({ workflow, config }) {
+  if (!workflow) return { valid: false, reason: "missing_workflow" };
+  if (String(workflow.path ?? "") !== config.workflowPath) {
+    return { valid: false, reason: "workflow_path_mismatch" };
+  }
+  if (String(workflow.name ?? "") !== AUTONOMOUS_WORKFLOW_NAME) {
+    return { valid: false, reason: "workflow_name_mismatch" };
+  }
+  if (String(workflow.state ?? "") !== "active") {
+    return { valid: false, reason: "workflow_not_active" };
+  }
+  if (!Number.isSafeInteger(Number(workflow.id)) || Number(workflow.id) <= 0) {
+    return { valid: false, reason: "workflow_id_invalid" };
+  }
+  return { valid: true, reason: "verified" };
+}
+
+export function verifyRecoveryRunner({ runners, config }) {
+  const matching = (runners ?? []).filter(
+    (runner) => String(runner?.name ?? "") === config.runnerName
+  );
+  if (matching.length !== 1) {
+    return { valid: false, reason: "runner_not_exact", matching: matching.length };
+  }
+  if (String(matching[0].status ?? "") !== "online") {
+    return { valid: false, reason: "runner_offline" };
+  }
+  return {
+    valid: true,
+    reason: "verified",
+    runnerId: String(matching[0].id ?? ""),
+    busy: matching[0].busy === true
+  };
+}
+
+export async function evaluateScheduleRecovery({
+  config,
+  github,
+  state,
+  readPowerStatus,
+  now = new Date(),
+  dryRun = config.dryRun
+}) {
+  if (!(now instanceof Date) || !Number.isFinite(now.getTime())) {
+    throw new Error("Schedule recovery now must be a valid Date.");
+  }
+
+  const workflow = await github.getWorkflow(config.workflowPath);
+  const workflowVerification = verifyRecoveryWorkflow({ workflow, config });
+  if (!workflowVerification.valid) {
+    return Object.freeze({ action: "defer", reason: workflowVerification.reason });
+  }
+
+  const mainSha = String(await github.getBranchHead(config.defaultBranch)).toLowerCase();
+  if (!FULL_SHA.test(mainSha)) {
+    return Object.freeze({ action: "defer", reason: "invalid_default_branch_sha" });
+  }
+
+  const runs = await github.getWorkflowRuns();
+  const active = runs.find((run) => ACTIVE_RUN_STATUSES.has(String(run?.status ?? "")));
+  if (active) {
+    return Object.freeze({
+      action: "defer",
+      reason: "autonomous_run_active",
+      activeRunId: String(active.id ?? ""),
+      activeRunStatus: String(active.status ?? "")
+    });
+  }
+
+  const latestSlot = latestEligibleCentralSlot(now);
+  const lastDispatch = state?.recoveryDispatch ?? null;
+  if (lastDispatch?.slotKey === latestSlot.slotKey) {
+    const lastDispatchMs = Date.parse(lastDispatch.dispatchedAt ?? "");
+    if (!Number.isFinite(lastDispatchMs)) {
+      return Object.freeze({ action: "defer", reason: "invalid_recovery_dispatch_state" });
+    }
+    const cooldownAgeMs = now.getTime() - lastDispatchMs;
+    if (cooldownAgeMs < 0) {
+      return Object.freeze({ action: "defer", reason: "recovery_dispatch_state_in_future" });
+    }
+    if (cooldownAgeMs < config.scheduleRecoveryCooldownMinutes * 60_000) {
+      return Object.freeze({
+        action: "defer",
+        reason: "recovery_dispatch_cooldown",
+        slotKey: latestSlot.slotKey,
+        lastDispatchedAt: new Date(lastDispatchMs).toISOString()
+      });
+    }
+  }
+
+  const latestRun = runs
+    .map((run) => ({ run, createdAtMs: Date.parse(run?.created_at ?? "") }))
+    .filter(({ createdAtMs }) => Number.isFinite(createdAtMs))
+    .sort((left, right) => right.createdAtMs - left.createdAtMs)[0] ?? null;
+  if (latestRun) {
+    const silenceMs = now.getTime() - latestRun.createdAtMs;
+    if (silenceMs < 0) {
+      return Object.freeze({ action: "defer", reason: "workflow_run_created_in_future" });
+    }
+    if (silenceMs < config.scheduleRecoverySilenceMinutes * 60_000) {
+      return Object.freeze({
+        action: "defer",
+        reason: "recent_workflow_wakeup",
+        latestRunId: String(latestRun.run.id ?? ""),
+        latestRunCreatedAt: new Date(latestRun.createdAtMs).toISOString()
+      });
+    }
+  }
+
+  const runnerVerification = verifyRecoveryRunner({
+    runners: await github.getRunners(),
+    config
+  });
+  if (!runnerVerification.valid) {
+    return Object.freeze({
+      action: "defer",
+      reason: runnerVerification.reason,
+      matchingRunners: runnerVerification.matching
+    });
+  }
+
+  const power = evaluatePowerStatus(await readPowerStatus(), config.minBatteryPercent);
+  if (!power.eligible) {
+    return Object.freeze({
+      action: "defer",
+      reason: power.reason,
+      batteryPercent: power.percent
+    });
+  }
+
+  const reads = new Map();
+  const publicationState = await readPublicationWatermark({
+    now,
+    readText: (relativePath) => {
+      if (!reads.has(relativePath)) {
+        reads.set(relativePath, github.getRepositoryText(relativePath, mainSha));
+      }
+      return reads.get(relativePath);
+    }
+  });
+  const decision = resolveScheduledIngestion({
+    schedule: INGESTION_RECOVERY_CRON,
+    publicationState,
+    now
+  });
+  if (!decision.accepted) {
+    return Object.freeze({
+      action: "current",
+      reason: decision.reason,
+      mainSha,
+      watermarkStatus: decision.watermarkStatus,
+      publicationWatermark: decision.publicationWatermark,
+      latestSlotKey: decision.latestEligibleSlotKey
+    });
+  }
+  if (decision.slotKey !== latestSlot.slotKey) {
+    throw new Error(
+      `Schedule recovery slot changed while evaluating the same instant (${latestSlot.slotKey} != ${decision.slotKey}).`
+    );
+  }
+  if (dryRun) {
+    return Object.freeze({
+      action: "defer",
+      reason: "dry_run_would_dispatch_recovery",
+      mainSha,
+      slotKey: decision.slotKey,
+      watermarkStatus: decision.watermarkStatus,
+      batteryPercent: power.percent
+    });
+  }
+
+  await github.dispatchRecovery(mainSha);
+  return Object.freeze({
+    action: "dispatch",
+    disposition: "recovery_dispatch_accepted",
+    mainSha,
+    slotKey: decision.slotKey,
+    scheduledAt: decision.scheduledAt,
+    watermarkStatus: decision.watermarkStatus,
+    publicationWatermark: decision.publicationWatermark,
+    batteryPercent: power.percent,
+    powerReason: power.reason,
+    runnerId: runnerVerification.runnerId,
+    runnerBusy: runnerVerification.busy
+  });
+}
+
 export async function runSupervisor({
   config = supervisorConfig(),
   github = createGitHubClient(config),
@@ -347,6 +567,8 @@ export async function runSupervisor({
     }
     let marked = 0;
     let deferred = 0;
+    let rerunAccepted = false;
+    let leaseRecoveryUncertain = false;
     for (const event of scan.candidates) {
       if (state.handledEvents[event.eventId]) continue;
       let decision;
@@ -359,6 +581,7 @@ export async function runSupervisor({
         });
       } catch (error) {
         deferred += 1;
+        leaseRecoveryUncertain = true;
         logEvent("event_error", {
           eventId: event.eventId,
           message: safeErrorMessage(error)
@@ -387,6 +610,10 @@ export async function runSupervisor({
           runAttempt: event.runAttempt,
           ...withoutUndefined(decision)
         });
+        if (decision.disposition === "rerun_accepted") {
+          rerunAccepted = true;
+          break;
+        }
       } else {
         deferred += 1;
         logEvent("deferred", {
@@ -397,13 +624,46 @@ export async function runSupervisor({
         });
       }
     }
+
+    let recovery = { action: "disabled", reason: "schedule_recovery_disabled" };
+    if (config.scheduleRecoveryEnabled && !rerunAccepted && !leaseRecoveryUncertain) {
+      try {
+        recovery = await evaluateScheduleRecovery({
+          config,
+          github,
+          state,
+          readPowerStatus,
+          now: now()
+        });
+        if (recovery.action === "dispatch") {
+          state.recoveryDispatch = {
+            dispatchedAt: now().toISOString(),
+            eventType: INGESTION_RECOVERY_DISPATCH_EVENT,
+            expectedHeadSha: recovery.mainSha,
+            slotKey: recovery.slotKey
+          };
+          await writeSupervisorState(config.statePath, state, now());
+          logEvent("recovery_dispatch_accepted", withoutUndefined(recovery));
+        } else {
+          logEvent("recovery_dispatch_skipped", withoutUndefined(recovery));
+        }
+      } catch (error) {
+        recovery = { action: "defer", reason: "recovery_evaluation_error" };
+        logEvent("recovery_evaluation_error", { message: safeErrorMessage(error) });
+      }
+    } else if (rerunAccepted) {
+      recovery = { action: "defer", reason: "lease_rerun_accepted" };
+    } else if (leaseRecoveryUncertain) {
+      recovery = { action: "defer", reason: "lease_recovery_outcome_uncertain" };
+    }
     await writeSupervisorState(config.statePath, state, now());
     return {
       status: "completed",
       scanned: scan.scanned,
       candidates: scan.candidates.length,
       marked,
-      deferred
+      deferred,
+      recovery
     };
   } finally {
     await lock.release();
@@ -490,11 +750,33 @@ export function createGitHubClient(config, { execute = execFile } = {}) {
       throw new Error(`GitHub API returned invalid JSON for ${endpoint}: ${safeErrorMessage(error)}`);
     }
   };
+  const apiText = async (endpoint) => {
+    const { stdout } = await execute(
+      config.ghBin,
+      [
+        "api",
+        "--method",
+        "GET",
+        "-H",
+        "Accept: application/vnd.github.raw+json",
+        endpoint
+      ],
+      { timeout: 30_000, maxBuffer: 64 * 1024 * 1024, encoding: "utf8" }
+    );
+    return stdout;
+  };
   let workflowPromise = null;
   let mainPromise = null;
-  let activePromise = null;
+  let runsPromise = null;
+  let runnersPromise = null;
   const repoEndpoint = `repos/${config.repository}`;
   const workflowSelector = encodeURIComponent(path.basename(config.workflowPath));
+  const getWorkflowRuns = () => {
+    runsPromise ??= apiJson(
+      `${repoEndpoint}/actions/workflows/${workflowSelector}/runs?per_page=100`
+    ).then((response) => Array.isArray(response?.workflow_runs) ? response.workflow_runs : []);
+    return runsPromise;
+  };
 
   return Object.freeze({
     getWorkflow: () => {
@@ -514,20 +796,49 @@ export function createGitHubClient(config, { execute = execFile } = {}) {
       );
       return mainPromise;
     },
-    getActiveRuns: () => {
-      activePromise ??= apiJson(
-        `${repoEndpoint}/actions/workflows/${workflowSelector}/runs?per_page=100`
-      ).then((response) =>
-        (response?.workflow_runs ?? []).filter((run) =>
+    getWorkflowRuns,
+    getActiveRuns: () =>
+      getWorkflowRuns().then((runs) =>
+        runs.filter((run) =>
           ACTIVE_RUN_STATUSES.has(String(run?.status ?? ""))
         )
+      ),
+    getRunners: () => {
+      runnersPromise ??= apiJson(`${repoEndpoint}/actions/runners?per_page=100`).then(
+        (response) => Array.isArray(response?.runners) ? response.runners : []
       );
-      return activePromise;
+      return runnersPromise;
+    },
+    getRepositoryText: (relativePath, ref) => {
+      const encodedPath = encodeRepositoryPath(relativePath);
+      if (!FULL_SHA.test(String(ref ?? ""))) {
+        throw new Error("Repository artifact reads require an exact commit SHA.");
+      }
+      return apiText(`${repoEndpoint}/contents/${encodedPath}?ref=${encodeURIComponent(ref)}`);
     },
     rerunFailedJobs: async (runId) => {
       await execute(
         config.ghBin,
         ["api", "--method", "POST", `${repoEndpoint}/actions/runs/${runId}/rerun-failed-jobs`],
+        { timeout: 30_000, maxBuffer: 1024 * 1024, encoding: "utf8" }
+      );
+    },
+    dispatchRecovery: async (expectedHeadSha) => {
+      if (!FULL_SHA.test(String(expectedHeadSha ?? ""))) {
+        throw new Error("Recovery dispatch requires an exact expected main commit SHA.");
+      }
+      await execute(
+        config.ghBin,
+        [
+          "api",
+          "--method",
+          "POST",
+          `${repoEndpoint}/dispatches`,
+          "-F",
+          `event_type=${INGESTION_RECOVERY_DISPATCH_EVENT}`,
+          "-F",
+          `client_payload[expected_head_sha]=${String(expectedHeadSha).toLowerCase()}`
+        ],
         { timeout: 30_000, maxBuffer: 1024 * 1024, encoding: "utf8" }
       );
     }
@@ -540,7 +851,12 @@ export async function loadSupervisorState(statePath) {
     source = await readFile(statePath, "utf8");
   } catch (error) {
     if (error?.code === "ENOENT") {
-      return { schemaVersion: SUPERVISOR_SCHEMA_VERSION, workerLogs: {}, handledEvents: {} };
+      return {
+        schemaVersion: SUPERVISOR_SCHEMA_VERSION,
+        workerLogs: {},
+        handledEvents: {},
+        recoveryDispatch: null
+      };
     }
     throw error;
   }
@@ -556,6 +872,19 @@ export async function loadSupervisorState(statePath) {
   if (!plainObject(parsed.workerLogs) || !plainObject(parsed.handledEvents)) {
     throw new Error("Lease supervisor state maps are malformed.");
   }
+  if (parsed.recoveryDispatch !== undefined && parsed.recoveryDispatch !== null) {
+    const recovery = parsed.recoveryDispatch;
+    if (
+      !plainObject(recovery) ||
+      recovery.eventType !== INGESTION_RECOVERY_DISPATCH_EVENT ||
+      !FULL_SHA.test(recovery.expectedHeadSha ?? "") ||
+      !CENTRAL_SLOT_KEY.test(recovery.slotKey ?? "") ||
+      !Number.isFinite(Date.parse(recovery.dispatchedAt ?? ""))
+    ) {
+      throw new Error("Lease supervisor recovery dispatch state is malformed.");
+    }
+  }
+  parsed.recoveryDispatch ??= null;
   return parsed;
 }
 
@@ -565,7 +894,8 @@ export async function writeSupervisorState(statePath, state, timestamp = new Dat
     initializedAt: state.initializedAt ?? null,
     updatedAt: timestamp.toISOString(),
     workerLogs: state.workerLogs,
-    handledEvents: state.handledEvents
+    handledEvents: state.handledEvents,
+    recoveryDispatch: state.recoveryDispatch ?? null
   };
   const temporaryPath = `${statePath}.tmp-${process.pid}-${randomUUID()}`;
   await writeFile(temporaryPath, `${JSON.stringify(next, null, 2)}\n`, {
@@ -635,6 +965,26 @@ function strictInteger(value, fallback, label, { minimum, maximum }) {
     throw new Error(`${label} must be between ${minimum} and ${maximum}.`);
   }
   return parsed;
+}
+
+function strictBoolean(value, fallback, label) {
+  const normalized = clean(value);
+  if (normalized === null) return fallback;
+  if (normalized === "true") return true;
+  if (normalized === "false") return false;
+  throw new Error(`${label} must be exactly true or false.`);
+}
+
+function encodeRepositoryPath(relativePath) {
+  const normalized = clean(relativePath);
+  if (
+    !normalized ||
+    path.posix.isAbsolute(normalized) ||
+    normalized.split("/").some((segment) => !segment || segment === "." || segment === "..")
+  ) {
+    throw new Error("Repository artifact path must be a safe relative path.");
+  }
+  return normalized.split("/").map(encodeURIComponent).join("/");
 }
 
 function validateRepository(value) {

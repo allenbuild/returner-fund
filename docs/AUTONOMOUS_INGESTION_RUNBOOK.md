@@ -204,15 +204,15 @@ This is not read-only. It synchronizes inventory, creates a run and tasks, marks
 
 ## Schedule operations
 
-The intended Central schedule is exactly `06:17` and `18:17` every day.
+The intended Central schedule is exactly `06:00` and `18:00` every day.
 
-- During CDT, active UTC candidates are `11:17` and `23:17`.
-- During CST, active UTC candidates are `12:17` and `00:17` on the next UTC day for the prior Central evening.
-- The other two cron invocations exit as `inactive-dst-candidate`.
-- A candidate delayed by up to 11 hours is still admitted for replay; a still-later candidate fails and requires an explicit replay key.
-- GitHub concurrency is global to the workflow and does not cancel an in-progress run.
+- During CDT, the primary UTC candidates are `11:00` and `23:00`.
+- During CST, the primary UTC candidates are `12:00` and `00:00` on the next UTC day for the prior Central evening.
+- `7,22,37,52 * * * *` supplies recovery wakeups between the primary candidates.
+- Every cron resolves the same newest eligible Central slot and becomes a no-op only when the complete committed publication watermark is current.
+- Accepted publishers share the non-canceling `repository-publication-main` queue.
 
-Do not replace the four-cron resolver with fixed UTC assumptions. Verify DST behavior with `tests/ingestion-schedule.node-test.mjs` after any schedule edit.
+Do not replace the four primary cron candidates plus recovery wakeup with fixed UTC assumptions. Verify DST behavior with `tests/ingestion-schedule.node-test.mjs` after any schedule edit.
 
 ## Monitoring
 
@@ -391,9 +391,10 @@ Migration 008 and `AutonomousIngestionStore` can requeue expired leased tasks, b
 
 ### Workflow skips unexpectedly
 
-- Confirm `github.event_name` is `schedule` or `workflow_dispatch`.
-- Confirm scheduled cron is one of the four declared candidates.
-- Check resolver reason: `inactive-dst-candidate`, `outside-lateness-window`, `unrecognized-cron`, or `unsupported-event`.
+- Confirm `github.event_name` is `schedule`, `repository_dispatch`, or `workflow_dispatch`.
+- Confirm scheduled cron is one of the four primary candidates or the declared recovery cron.
+- Check resolver reason and watermark status: `publication-watermark-current`, `unrecognized-cron`, `unsupported-event`, `behind`, `divergent`, `missing`, or `invalid`.
+- For `repository_dispatch`, require the exact `autonomous-ingestion-recovery` action and matching expected/triggered full `main` SHA; the host must never provide a slot key.
 - For manual dispatch, ensure the replay key uses only letters, numbers, period, underscore, colon, and hyphen.
 
 ### Missing table, column, or RPC
@@ -412,7 +413,7 @@ The coordinator renews every 60 seconds against a 20-minute lease. Transient tra
 
 ### Self-hosted Actions job lease loss
 
-The optional macOS host supervisor handles the infrastructure case where GitHub invalidates a self-hosted job lease and the runner records `TaskOrchestrationJobNotFoundException` while cancelling `Run autonomous ingestion`. It does not replace the in-job retry controller.
+The optional macOS host supervisor handles both the infrastructure case where GitHub invalidates a self-hosted job lease and the recovery gap where GitHub delays or drops scheduled workflow events. It does not replace the in-job retry controller.
 
 Install or refresh the user LaunchAgent from a reviewed checkout:
 
@@ -424,6 +425,8 @@ launchctl print "gui/$(id -u)/com.returner-fund.ingestion-lease-supervisor"
 The one-shot agent runs at load and every 300 seconds. It scans `Worker_*.log` diagnostics and fails closed unless the GitHub API confirms the exact repository, workflow, failed run attempt, self-hosted runner, and cancelled ingestion step. It never stores a GitHub token; `/opt/homebrew/bin/gh` uses the logged-in user's keychain session.
 
 Recovery remains single-flight and power-aware. The supervisor defers while another autonomous workflow is active or while the Mac is below 60% on battery. It rejects an incident whose workflow SHA is not current `main`, which prevents an old failure from reviving superseded code. For an eligible event it calls GitHub's failed-jobs rerun endpoint, preserving the original event, run ID, replay/slot key, and candidate provenance. Durable dedupe is written only after GitHub accepts the rerun or reports a newer run attempt; stale-SHA incidents are recorded as intentionally skipped.
+
+Independently, after 30 minutes without any autonomous workflow wakeup, the supervisor verifies that the workflow is active, its exact named runner is online, local power is eligible, no autonomous run is active or pending, and the complete publication watermark read from the current `main` SHA is stale, missing, invalid, or divergent. It then emits `autonomous-ingestion-recovery` with only that expected SHA. The workflow requires the dispatched SHA to match, rereads the committed watermark, and computes the newest `06:00`/`18:00` Central slot itself. A durable same-slot 30-minute cooldown and GitHub active-run check prevent dispatch storms. Refresh the installed LaunchAgent after merging supervisor changes; merging alone does not update the copied host script.
 
 The checked-in template is `ops/launchd/com.returner-fund.ingestion-lease-supervisor.plist.template`. Runtime state is mode-restricted under `~/Library/Application Support/Returner Fund/ingestion-lease-supervisor/state`, and logs are in `~/Library/Logs/returner-fund-ingestion-lease-supervisor*.log`.
 
