@@ -413,22 +413,53 @@ The coordinator renews every 60 seconds against a 20-minute lease. Transient tra
 
 ### Self-hosted Actions job lease loss
 
-The optional macOS host supervisor handles both the infrastructure case where GitHub invalidates a self-hosted job lease and the recovery gap where GitHub delays or drops scheduled workflow events. It does not replace the in-job retry controller.
+The optional macOS host services handle both power continuity and recovery. The
+awake service continuously holds an AC-only system-sleep assertion; the lease
+supervisor handles the infrastructure case where GitHub invalidates a
+self-hosted job lease and the recovery gap where GitHub delays or drops
+scheduled workflow events. Neither replaces the in-job retry controller.
 
-Install or refresh the user LaunchAgent from a reviewed checkout:
+Install or idempotently refresh both user LaunchAgents from a reviewed checkout.
+Do this only while no ingestion is active because refresh briefly unloads the
+existing assertion before loading its reviewed replacement:
 
 ```bash
 npm run ingest:lease-supervisor:install
+launchctl print "gui/$(id -u)/com.returner-fund.ingestion-awake"
 launchctl print "gui/$(id -u)/com.returner-fund.ingestion-lease-supervisor"
+pmset -g assertions
 ```
+
+`com.returner-fund.ingestion-awake` runs exactly `/usr/bin/caffeinate -s` with
+`KeepAlive`. The `-s` assertion is valid only on AC power, does not keep the
+display awake, and does not simulate user activity. The workflow requires AC
+and an effective `PreventSystemSleep` assertion before dependency installation,
+then verifies a separate job-scoped assertion before collection. A scheduled
+non-user wake is therefore sufficient for public collectors without weakening
+the explicit user-wake gate that protects authenticated browser replay.
 
 The one-shot agent runs at load and every 300 seconds. It scans `Worker_*.log` diagnostics and fails closed unless the GitHub API confirms the exact repository, workflow, failed run attempt, self-hosted runner, and cancelled ingestion step. It never stores a GitHub token; `/opt/homebrew/bin/gh` uses the logged-in user's keychain session.
 
 Recovery remains single-flight and power-aware. The supervisor defers while another autonomous workflow is active or while the Mac is below 60% on battery. It rejects an incident whose workflow SHA is not current `main`, which prevents an old failure from reviving superseded code. For an eligible event it calls GitHub's failed-jobs rerun endpoint, preserving the original event, run ID, replay/slot key, and candidate provenance. Durable dedupe is written only after GitHub accepts the rerun or reports a newer run attempt; stale-SHA incidents are recorded as intentionally skipped.
 
-Independently, after 30 minutes without any autonomous workflow wakeup, the supervisor verifies that the workflow is active, its exact named runner is online, local power is eligible, no autonomous run is active or pending, and the complete publication watermark read from the current `main` SHA is stale, missing, invalid, or divergent. It then emits `autonomous-ingestion-recovery` with only that expected SHA. The workflow requires the dispatched SHA to match, rereads the committed watermark, and computes the newest `06:00`/`18:00` Central slot itself. A durable same-slot 30-minute cooldown and GitHub active-run check prevent dispatch storms. Refresh the installed LaunchAgent after merging supervisor changes; merging alone does not update the copied host script.
+Independently, after 30 minutes without any autonomous workflow wakeup, the supervisor verifies that the workflow is active, its exact named runner is online, local power is eligible, no autonomous run is active or pending, and the complete publication watermark read from the current `main` SHA is stale, missing, invalid, or divergent. It then emits `autonomous-ingestion-recovery` with only that expected SHA. The workflow requires the dispatched SHA to match, rereads the committed watermark, and computes the newest `06:00`/`18:00` Central slot itself. A durable same-slot 30-minute cooldown and GitHub active-run check prevent dispatch storms. Refresh the installed host services after merging installer or supervisor changes; merging alone does not update the copied host script or loaded plists.
 
-The checked-in template is `ops/launchd/com.returner-fund.ingestion-lease-supervisor.plist.template`. Runtime state is mode-restricted under `~/Library/Application Support/Returner Fund/ingestion-lease-supervisor/state`, and logs are in `~/Library/Logs/returner-fund-ingestion-lease-supervisor*.log`.
+The checked-in templates are
+`ops/launchd/com.returner-fund.ingestion-awake.plist.template` and
+`ops/launchd/com.returner-fund.ingestion-lease-supervisor.plist.template`.
+Runtime state is mode-restricted under
+`~/Library/Application Support/Returner Fund/ingestion-lease-supervisor/state`,
+and logs are in `~/Library/Logs/returner-fund-ingestion-*.log`.
+
+To unload both services and remove only their installed plists, again while no
+ingestion is active, run:
+
+```bash
+npm run ingest:lease-supervisor:uninstall
+```
+
+Uninstall is idempotent and intentionally preserves copied support files,
+supervisor state, and logs for audit or a later reinstall.
 
 ### Collector timeout or failure
 
