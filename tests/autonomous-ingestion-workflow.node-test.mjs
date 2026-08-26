@@ -455,7 +455,7 @@ test("accepted resolver jobs fail closed and re-export only validated outputs", 
   }
 });
 
-test("all workflow shell blocks remain fixed at 56 and queued schedules are rechecked", (t) => {
+test("all workflow shell blocks remain fixed at 57 and queued schedules are rechecked", (t) => {
   const shellBlockCount = [workflow, dailyBenchmarkWorkflow, readFileSync(
     path.join(repositoryRoot, ".github", "workflows", "public-artifacts.yml"),
     "utf8"
@@ -463,7 +463,7 @@ test("all workflow shell blocks remain fixed at 56 and queued schedules are rech
     (total, source) => total + (source.match(/^ {8}run:/gm)?.length ?? 0),
     0
   );
-  assert.equal(shellBlockCount, 56);
+  assert.equal(shellBlockCount, 57);
 
   const directory = mkdtempSync(path.join(tmpdir(), "returner-queued-freshness-"));
   t.after(() => rmSync(directory, { recursive: true, force: true }));
@@ -1578,6 +1578,23 @@ test("workflow retry controller forwards only the final isolated attempt outcome
 });
 
 test("autonomous runner receives optional durability secrets and owns validated publication", () => {
+  const hostPreflight = workflow.match(
+    /- name: Preflight autonomous ingestion host([\s\S]*?)(?=\n\s{6}- name:)/
+  )?.[1];
+  assert.ok(hostPreflight, "missing autonomous ingestion host preflight");
+  assert.match(hostPreflight, /\/usr\/bin\/pmset -g batt/);
+  assert.match(hostPreflight, /Runner requires AC power/);
+  assert.match(hostPreflight, /\/usr\/bin\/pmset -g assertions/);
+  assert.match(hostPreflight, /PreventSystemSleep\[\[:space:\]\]\+1/);
+  assert.match(hostPreflight, /if \[ "\$AUTHENTICATED_SOCIAL_REPLAY" = "true" \]/);
+  assert.match(hostPreflight, /IOPMUserTriggeredFullWake/);
+  assert.match(hostPreflight, /Authenticated replay requires a user wake/);
+  assert.doesNotMatch(hostPreflight, /\/usr\/bin\/caffeinate -u/);
+  assert.ok(
+    workflow.indexOf("- name: Preflight autonomous ingestion host") <
+      workflow.indexOf("- name: Preflight authenticated social runner"),
+    "power and interactive-wake safety must run before authenticated browser preflight"
+  );
   const runnerStep = workflow.match(
     /- name: Run autonomous ingestion([\s\S]*?)(?=\n\s{6}- name:)/
   )?.[1];
@@ -1594,28 +1611,27 @@ test("autonomous runner receives optional durability secrets and owns validated 
   assert.doesNotMatch(runnerStep, /NEXT_PUBLIC_SUPABASE_URL:\?/);
   assert.doesNotMatch(runnerStep, /SUPABASE_SERVICE_ROLE_KEY:\?/);
   assert.match(runnerStep, /node scripts\/lib\/autonomous-ingestion-workflow-retry\.mjs --/);
-  assert.match(runnerStep, /IOPMUserTriggeredFullWake/);
-  assert.match(runnerStep, /pmset -g batt/);
+  assert.doesNotMatch(runnerStep, /IOPMUserTriggeredFullWake/);
+  assert.match(runnerStep, /\/usr\/bin\/pmset -g batt/);
+  assert.match(runnerStep, /\/usr\/bin\/pmset -g assertions/);
   assert.match(runnerStep, /\/usr\/bin\/caffeinate -ims -w \$\$/);
   assert.doesNotMatch(runnerStep, /\/usr\/bin\/caffeinate -[^\n]*d[^\n]* -w \$\$/);
   assert.doesNotMatch(runnerStep, /\/usr\/bin\/caffeinate -[^\n]*u[^\n]* -w \$\$/);
-  assert.match(runnerStep, /\/usr\/bin\/caffeinate -u -t 30/);
+  assert.doesNotMatch(runnerStep, /\/usr\/bin\/caffeinate -u/);
   assert.doesNotMatch(runnerStep, /exec node scripts\/run-autonomous-ingestion\.mjs/);
   assert.match(runnerStep, /AUTONOMOUS_WORKFLOW_RETRY_MAX_ATTEMPTS:\s*"6"/);
   assert.match(runnerStep, /AUTONOMOUS_WORKFLOW_RETRY_MAX_ELAPSED_SECONDS:\s*"20700"/);
   assert.match(runnerStep, /AUTONOMOUS_WORKFLOW_RETRY_MIN_REMAINING_SECONDS:\s*"19860"/);
   assert.match(runnerStep, /AUTONOMOUS_WORKFLOW_RETRY_DELAYS_SECONDS:\s*"30,120,300,600,900"/);
-  assert.match(runnerStep, /AUTONOMOUS_MIN_BATTERY_PERCENT:\s*"60"/);
+  assert.doesNotMatch(runnerStep, /AUTONOMOUS_MIN_BATTERY_PERCENT/);
   assert.match(runnerStep, /AUTONOMOUS_WORKFLOW_POWER_WATCHDOG_RESERVE_PERCENT:\s*"20"/);
   assert.match(runnerStep, /AUTONOMOUS_WORKFLOW_POWER_WATCHDOG_INTERVAL_SECONDS:\s*"30"/);
-  assert.match(
-    runnerStep,
-    /if \[ "\$BATTERY_PERCENT" -lt "\$AUTONOMOUS_MIN_BATTERY_PERCENT" \]; then[\s\S]*?Runner battery reserve is low/
-  );
-  assert.match(runnerStep, /Runner using battery reserve/);
-  assert.doesNotMatch(runnerStep, /Runner requires AC power/);
+  assert.match(runnerStep, /Runner requires AC power/);
+  assert.doesNotMatch(runnerStep, /Runner using battery reserve/);
+  assert.match(runnerStep, /CAFFEINATE_PID=\$!/);
+  assert.match(runnerStep, /pid\[\[:space:\]\]\+\$\{CAFFEINATE_PID\}.*PreventSystemSleep/);
   assert.ok(
-    runnerStep.indexOf("/usr/bin/caffeinate -ims -w $$") < runnerStep.indexOf("pmset -g batt"),
+    runnerStep.indexOf("/usr/bin/caffeinate -ims -w $$") < runnerStep.indexOf("/usr/bin/pmset -g batt"),
     "wake assertion must be installed before the runner power preflight"
   );
   assert.match(runnerStep, /INGESTION_PUBLICATION_BRANCH:\s*main/);
