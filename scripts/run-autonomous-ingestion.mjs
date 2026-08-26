@@ -101,6 +101,7 @@ import {
   mergeLoggedInEvidenceRows
 } from "./lib/logged-in-evidence-content-dedupe.mjs";
 import { isTimelineCoverageMigrationUnavailable } from "./lib/timeline-migration-availability.mjs";
+import { runAuthenticatedSocialRunnerPreflight } from "./verify-authenticated-social-runner.mjs";
 
 let root;
 const pinnedSourceRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
@@ -3249,7 +3250,7 @@ async function runCollectors() {
     command.promise = runCollectorWithRetries(command);
   }
   const settled = await Promise.allSettled(commands.map((command) => command.promise));
-  const authenticatedSocial = await runAuthenticatedCollectors();
+  authenticatedSocial = await runAuthenticatedCollectors();
   const results = [];
   for (let index = 0; index < commands.length; index += 1) {
     const command = commands[index];
@@ -3317,18 +3318,90 @@ async function runCollectors() {
 }
 
 async function runAuthenticatedCollectors({ historicalReplay = false } = {}) {
-  const configured = Boolean(
-    cleanEnv(process.env.OPENCLI_BIN) &&
-    cleanEnv(process.env.OPENCLI_PROFILE) &&
-    cleanEnv(process.env.RETURNER_LINKEDIN_VIEWER_PROFILE) &&
-    cleanEnv(process.env.RETURNER_INSTAGRAM_VIEWER_HANDLE)
+  // Run this immediately before the authenticated collectors, after the public
+  // lanes have drained. A workflow-start probe would otherwise be stale by the
+  // time OpenCLI needs the browser bridge and exact platform adapter.
+  let preflight;
+  try {
+    const candidate = await runAuthenticatedSocialRunnerPreflight({ env: process.env });
+    if (!candidate || typeof candidate !== "object" || Array.isArray(candidate)) {
+      throw new Error("Authenticated social preflight returned an invalid result.");
+    }
+    preflight = candidate;
+  } catch {
+    const configured = [
+      "OPENCLI_BIN",
+      "OPENCLI_HOME",
+      "OPENCLI_PROFILE",
+      "RETURNER_LINKEDIN_VIEWER_PROFILE",
+      "RETURNER_INSTAGRAM_VIEWER_HANDLE"
+    ].every((key) => cleanEnv(process.env[key]));
+    const unavailable = {
+      ok: false,
+      reason: "authenticated_social_preflight_exception",
+      retryable: false,
+      attempts: 0
+    };
+    preflight = {
+      ok: false,
+      configured,
+      skipped: false,
+      reason: unavailable.reason,
+      service: null,
+      instagram: { ...unavailable },
+      linkedin: { ...unavailable }
+    };
+  }
+  const readiness = {
+    configured: preflight.configured === true,
+    skipped: preflight.skipped === true,
+    reason: preflight.reason,
+    service: preflight.service
+      ? {
+          ok: preflight.service.ok === true,
+          reason: preflight.service.reason,
+          attempts: preflight.service.attempts ?? 0
+        }
+      : null,
+    instagram: {
+      ok: preflight.instagram?.ok === true,
+      reason: preflight.instagram?.reason,
+      attempts: preflight.instagram?.attempts ?? 0
+    },
+    linkedin: {
+      ok: preflight.linkedin?.ok === true,
+      reason: preflight.linkedin?.reason,
+      attempts: preflight.linkedin?.attempts ?? 0
+    }
+  };
+  await event(
+    "authenticated_social.preflight.finished",
+    preflight.ok ? "info" : "warning",
+    preflight.ok
+      ? "Authenticated social browser service and platform adapters are ready."
+      : "Authenticated social preflight recorded per-platform collection debt.",
+    readiness
   );
-  if (!configured) {
+  if (historicalReplay && !preflight.ok) {
+    throw new Error(
+      `Authenticated social preflight failed closed for manual replay: ${preflight.reason ?? "unknown"}`
+    );
+  }
+  if (!preflight.configured) {
     await event(
       "authenticated_social.skipped",
       "warning",
       "Authenticated social collection was skipped because the dedicated runner profile is not fully configured.",
-      { required: ["OPENCLI_BIN", "OPENCLI_PROFILE", "RETURNER_LINKEDIN_VIEWER_PROFILE", "RETURNER_INSTAGRAM_VIEWER_HANDLE"] }
+      {
+        required: [
+          "OPENCLI_BIN",
+          "OPENCLI_HOME",
+          "OPENCLI_PROFILE",
+          "RETURNER_LINKEDIN_VIEWER_PROFILE",
+          "RETURNER_INSTAGRAM_VIEWER_HANDLE"
+        ],
+        readiness
+      }
     );
     const skippedReplayState = reduceLinkedInReplayState(
       createLinkedInReplayState(
@@ -3339,27 +3412,42 @@ async function runAuthenticatedCollectors({ historicalReplay = false } = {}) {
     );
     return {
       status: "skipped",
-      reason: "runner_profile_not_configured",
+      reason: preflight.reason ?? "runner_profile_not_configured",
+      readiness,
       batches: [],
       linkedinReplay: createLinkedInReplayResult({ ...skippedReplayState, status: "skipped" })
     };
   }
 
   const batches = [];
-  const linkedinReady = Boolean(
+  const instagramReady = preflight.instagram?.ok === true;
+  const linkedinPreflightReady = preflight.linkedin?.ok === true;
+  const durableLinkedinLockReady = Boolean(
     cleanEnv(process.env.NEXT_PUBLIC_SUPABASE_URL) &&
     cleanEnv(process.env.SUPABASE_SERVICE_ROLE_KEY) &&
     cleanEnv(process.env.LINKEDIN_GLOBAL_LOCK_NAMESPACE)
   );
   let replayState = createLinkedInReplayState(
     AUTONOMOUS_BATCHES.map((batch) => batch.slug),
-    { durableLockConfigured: linkedinReady }
+    { durableLockConfigured: durableLinkedinLockReady }
   );
-  if (!linkedinReady) {
+  if (!durableLinkedinLockReady) {
     replayState = reduceLinkedInReplayState(replayState, {
       type: "configuration_skipped",
       reason: "durable_linkedin_lock_not_configured"
     });
+  }
+  for (const [platform, platformReadiness] of [
+    ["instagram", readiness.instagram],
+    ["linkedin", readiness.linkedin]
+  ]) {
+    if (platformReadiness.ok) continue;
+    await event(
+      `authenticated_social.${platform}_preflight_debt`,
+      "warning",
+      `Authenticated ${platform} collection was deferred because its just-in-time preflight did not pass.`,
+      { platform, readiness: platformReadiness }
+    );
   }
   for (const batch of AUTONOMOUS_BATCHES) {
     const outputPath = loggedInOutputs.get(batch.slug);
@@ -3375,19 +3463,31 @@ async function runAuthenticatedCollectors({ historicalReplay = false } = {}) {
       `--checkpoint-path=${checkpointPath}`
     ];
     const instagramWorkers = historicalReplay ? 2 : 1;
-    const instagram = await runAuthenticatedCollectorCommand(
-      batch.slug,
-      "instagram",
-      [
-        ...commonArgs,
-        `--workers=${instagramWorkers}`,
-        "--platforms=instagram",
-        "--delay-ms=1800"
-      ]
-    );
+    const instagram = instagramReady
+      ? await runAuthenticatedCollectorCommand(
+          batch.slug,
+          "instagram",
+          [
+            ...commonArgs,
+            `--workers=${instagramWorkers}`,
+            "--platforms=instagram",
+            "--delay-ms=1800"
+          ]
+        )
+      : {
+          status: "skipped",
+          reason: "authenticated_instagram_preflight_failed",
+          preflightReason: readiness.instagram.reason
+        };
 
     let linkedin;
-    if (!linkedinReady) {
+    if (!linkedinPreflightReady) {
+      linkedin = {
+        status: "skipped",
+        reason: "authenticated_linkedin_preflight_failed",
+        preflightReason: readiness.linkedin.reason
+      };
+    } else if (!durableLinkedinLockReady) {
       linkedin = { status: "skipped", reason: "durable_linkedin_lock_not_configured" };
     } else if (replayState.halted) {
       linkedin = {
@@ -3422,7 +3522,7 @@ async function runAuthenticatedCollectors({ historicalReplay = false } = {}) {
       replayState = linkedin.replayState;
       delete linkedin.replayState;
     }
-    if (!linkedinReady) {
+    if (linkedinPreflightReady && !durableLinkedinLockReady) {
       await event(
         "authenticated_social.linkedin_skipped",
         "warning",
@@ -3454,8 +3554,13 @@ async function runAuthenticatedCollectors({ historicalReplay = false } = {}) {
     linkedinReplay
   );
   return {
-    status: historicalReplay && linkedinReplay.status !== "completed" ? "partial" : "completed",
+    status: historicalReplay
+      ? linkedinReplay.status !== "completed" ? "partial" : "completed"
+      : instagramReady && linkedinPreflightReady && durableLinkedinLockReady
+        ? "completed"
+        : "partial",
     historicalReplay,
+    readiness,
     batches,
     linkedinReplay
   };

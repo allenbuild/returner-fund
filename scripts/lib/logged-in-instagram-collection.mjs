@@ -768,7 +768,7 @@ export function instagramShouldRetryTransientBrowserFailure(value) {
   if (["auth", "challenge", "rate_limited"].includes(instagramFailureKind(message))) {
     return false;
   }
-  return /\b(?:detached while handling command|pre-navigation[\s\S]{0,100}detached|browser extension is running|transport|socket|timed? out|timeout)\b/i.test(
+  return /\b(?:detached while handling command|pre-navigation[\s\S]{0,100}detached|browser extension is running|browser profile[^\r\n]{0,120}not connected|profile[_ -]?disconnected|extension (?:is )?(?:not connected|disconnected)|browser bridge[^\r\n]{0,80}not connected|transport|socket|timed? out|timeout)\b/i.test(
     message
   );
 }

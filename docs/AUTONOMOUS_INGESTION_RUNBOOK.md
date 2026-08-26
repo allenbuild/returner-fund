@@ -122,9 +122,11 @@ Without either secret, the production API returns `503`. Without the Supabase UR
 
 Reddit client variables are still passed but are not consumed by the current broad-public script; Reddit continues to use public JSON/page access.
 
-`INGESTION_ARTIFACT_BUCKET` is not used; artifacts are not uploaded to object storage. `INGESTION_GLOBAL_CONCURRENCY`, `INGESTION_REQUEST_TIMEOUT_MS`, and `INGESTION_MAX_ATTEMPTS` are not read by the current coordinator or collectors. `YOUTUBE_COOKIES_PATH`, `PLATFORM_COOKIES_PATH`, browser profile variables, and logged-in collector state are not used by this workflow.
+`INGESTION_ARTIFACT_BUCKET` is not used; artifacts are not uploaded to object storage. `INGESTION_GLOBAL_CONCURRENCY`, `INGESTION_REQUEST_TIMEOUT_MS`, and `INGESTION_MAX_ATTEMPTS` are not read by the current coordinator or collectors. `YOUTUBE_COOKIES_PATH` and `PLATFORM_COOKIES_PATH` are not used by this workflow.
 
-`OPENCLI_BIN` and `OPENCLI_MAIN` support separate tooling, not the current autonomous coordinator.
+Authenticated social collection is optional and platform-isolated. It requires all of `OPENCLI_BIN`, `OPENCLI_HOME`, `OPENCLI_PROFILE`, `RETURNER_INSTAGRAM_VIEWER_HANDLE`, and `RETURNER_LINKEDIN_VIEWER_PROFILE` in the self-hosted runner environment. `OPENCLI_CONFIG_DIR` may point at the reviewed `browser-profiles.json`; otherwise OpenCLI uses its standard configuration directory. LinkedIn additionally requires the durable Supabase credentials and `LINKEDIN_GLOBAL_LOCK_NAMESPACE`. `OPENCLI_MAIN` is not consumed by the coordinator.
+
+Each ordinary scheduled run performs a just-in-time service and platform preflight after the public collectors finish. LinkedIn and Instagram have independent readiness, bounded retries, and explicit debt: one failed authenticated lane is skipped without blocking the other lane or the public GitHub/RSS/YouTube publication path. Instagram readiness invokes the exact `instagram profile <viewer> -f json --site-session persistent` adapter and then proves the signed-in account-settings DOM immediately before collection. An explicit authenticated historical replay is stricter and fails closed unless both platforms pass.
 
 ## Preflight and canary
 
@@ -413,19 +415,26 @@ The coordinator renews every 60 seconds against a 20-minute lease. Transient tra
 
 ### Self-hosted Actions job lease loss
 
-The optional macOS host services handle both power continuity and recovery. The
-awake service continuously holds an AC-only system-sleep assertion; the lease
+The optional macOS host services handle power continuity, authenticated-browser
+continuity, and recovery. The awake service continuously holds an AC-only
+system-sleep assertion. The auth-browser service keeps a stable local Chrome
+running against the dedicated signed-in data directory. The lease
 supervisor handles the infrastructure case where GitHub invalidates a
 self-hosted job lease and the recovery gap where GitHub delays or drops
-scheduled workflow events. Neither replaces the in-job retry controller.
+scheduled workflow events. None replaces the in-job retry controller.
 
-Install or idempotently refresh both user LaunchAgents from a reviewed checkout.
-Do this only while no ingestion is active because refresh briefly unloads the
-existing assertion before loading its reviewed replacement:
+Before install, place the vendor-signed Chrome application exactly at
+`~/Applications/Google Chrome.app`. The installer rejects symlinked executables,
+`/Volumes` and App Translocation paths, signature/team mismatches, and any
+alternative executable path. Install or idempotently refresh all three user
+LaunchAgents from a reviewed checkout. Do this only while no ingestion is active
+because refresh briefly unloads the existing services before loading their
+reviewed replacements:
 
 ```bash
 npm run ingest:lease-supervisor:install
 launchctl print "gui/$(id -u)/com.returner-fund.ingestion-awake"
+launchctl print "gui/$(id -u)/com.returner-fund.auth-chrome-runner"
 launchctl print "gui/$(id -u)/com.returner-fund.ingestion-lease-supervisor"
 pmset -g assertions
 ```
@@ -435,8 +444,20 @@ pmset -g assertions
 display awake, and does not simulate user activity. The workflow requires AC
 and an effective `PreventSystemSleep` assertion before dependency installation,
 then verifies a separate job-scoped assertion before collection. A scheduled
-non-user wake is therefore sufficient for public collectors without weakening
-the explicit user-wake gate that protects authenticated browser replay.
+non-user wake is sufficient for public collectors and the bounded ordinary
+authenticated lanes. The explicit user-wake gate remains required for a manual
+authenticated historical replay.
+
+`com.returner-fund.auth-chrome-runner` uses `KeepAlive` and the Aqua session to
+run exactly
+`~/Applications/Google Chrome.app/Contents/MacOS/Google Chrome` with
+`--user-data-dir=~/Library/Application Support/Returner Fund Auth Chrome Runner`
+and the `Default` profile. It exposes no remote-debugging port. The runtime
+preflight rechecks the vendor signature, exact launchd program and data
+directory, and running state before asking OpenCLI to prove each platform.
+Transient cold-start, bridge, extension, and `profile_disconnected` failures
+receive bounded retries; login walls, challenges, checkpoints, and rate limits
+do not.
 
 The one-shot agent runs at load and every 300 seconds. It scans `Worker_*.log` diagnostics and fails closed unless the GitHub API confirms the exact repository, workflow, failed run attempt, self-hosted runner, and cancelled ingestion step. It never stores a GitHub token; `/opt/homebrew/bin/gh` uses the logged-in user's keychain session.
 
@@ -445,21 +466,25 @@ Recovery remains single-flight and power-aware. The supervisor defers while anot
 Independently, after 30 minutes without any autonomous workflow wakeup, the supervisor verifies that the workflow is active, its exact named runner is online, local power is eligible, no autonomous run is active or pending, and the complete publication watermark read from the current `main` SHA is stale, missing, invalid, or divergent. It then emits `autonomous-ingestion-recovery` with only that expected SHA. The workflow requires the dispatched SHA to match, rereads the committed watermark, and computes the newest `06:00`/`18:00` Central slot itself. A durable same-slot 30-minute cooldown and GitHub active-run check prevent dispatch storms. Refresh the installed host services after merging installer or supervisor changes; merging alone does not update the copied host script or loaded plists.
 
 The checked-in templates are
-`ops/launchd/com.returner-fund.ingestion-awake.plist.template` and
+`ops/launchd/com.returner-fund.ingestion-awake.plist.template`,
+`ops/launchd/com.returner-fund.auth-chrome-runner.plist.template`, and
 `ops/launchd/com.returner-fund.ingestion-lease-supervisor.plist.template`.
 Runtime state is mode-restricted under
 `~/Library/Application Support/Returner Fund/ingestion-lease-supervisor/state`,
-and logs are in `~/Library/Logs/returner-fund-ingestion-*.log`.
+the persistent authenticated Chrome data is under
+`~/Library/Application Support/Returner Fund Auth Chrome Runner`, and logs are
+in `~/Library/Logs/returner-fund-*.log`.
 
-To unload both services and remove only their installed plists, again while no
-ingestion is active, run:
+To unload all three services and remove only their installed plists, again
+while no ingestion is active, run:
 
 ```bash
 npm run ingest:lease-supervisor:uninstall
 ```
 
 Uninstall is idempotent and intentionally preserves copied support files,
-supervisor state, and logs for audit or a later reinstall.
+supervisor state, the authenticated Chrome data directory, and logs for audit
+or a later reinstall.
 
 ### Collector timeout or failure
 
@@ -477,7 +502,7 @@ If every collector fails before writing a readable snapshot, the durable importe
 
 ### Source blocked or login-walled
 
-Record the source as failed, skipped, blocked/empty, or needs review. Confirm that the autonomous workflow did not invoke logged-in collection. Do not add cookies, browser sessions, or bypass behavior to restore a metric without approved access and a separate security review.
+Record the source as failed, skipped, blocked/empty, or needs review. Inspect `authenticated_social.preflight.finished` and the platform-specific `authenticated_social.*_preflight_debt` event before retrying. Login walls, challenges, checkpoints, and rate limits are nonretryable safety states for the authenticated lane; they do not stop public collection. Do not add cookies, browser sessions, or bypass behavior to restore a metric without approved access and a separate security review.
 
 ### Durable import failure
 
