@@ -1536,6 +1536,101 @@ describe("autonomous collector task accounting", () => {
     }
   });
 
+  it("does not interpret bounded collection cardinalities as HTTP status codes", () => {
+    const intentionalCoauthorReview =
+      "Anonymous Instagram native feed exposed this post on the exact mapped @snagsubletsnyc profile; " +
+      "native primary author=@subletgirl, profileRole=coauthor. The feed recovered 500 unique posts across " +
+      "42 page(s); sourceExhausted=false. The mapped profile is a declared coauthor, not the native primary " +
+      "author; queued for review and excluded from scored evidence.";
+
+    assert.equal(isAutonomousCollectorFailureRetryable(intentionalCoauthorReview), false);
+    assert.equal(
+      isAutonomousCollectorFailureRetryable("Recovered 503 verified posts before the bounded item limit."),
+      false
+    );
+    assert.equal(isAutonomousCollectorFailureRetryable("HTTP 500 internal server error"), true);
+    assert.equal(isAutonomousCollectorFailureRetryable("status=503"), true);
+    assert.equal(isAutonomousCollectorFailureRetryable("503 Service Unavailable"), true);
+  });
+
+  it("corrects persisted coauthor-review retry flags without hiding a real collection interruption", () => {
+    const boundedReview = ({ attemptKey, entityType, entityId, accountUrl, authorHandle }) => ({
+      attemptKey,
+      platform: "instagram",
+      entityType,
+      entityId,
+      accountUrl,
+      error:
+        `Anonymous Instagram native feed exposed this post on the exact mapped @${new URL(accountUrl).pathname.slice(1)} profile; ` +
+        `native primary author=@${authorHandle}, profileRole=coauthor. The feed recovered 500 unique posts across ` +
+        "42 page(s); sourceExhausted=false. The mapped profile is a declared coauthor, not the native primary " +
+        "author; queued for review and excluded from scored evidence.",
+      recentWindowProofBlocker: "native_recent_window_observation_missing",
+      retryable: true,
+      outcomeStatus: "completed",
+      outcomeReason: "collector_evidence_collected"
+    });
+    const interruptedAttemptKey =
+      "instagram:company:a16z-speedrun-006-transport:https://instagram.com/transport";
+    const interruptedCoauthor = boundedReview({
+      attemptKey:
+        "instagram:company:a16z-speedrun-006-interrupted-coauthor:https://instagram.com/interruptedcoauthor",
+      entityType: "company",
+      entityId: "a16z-speedrun-006-interrupted-coauthor",
+      accountUrl: "https://instagram.com/interruptedcoauthor",
+      authorHandle: "otherauthor"
+    });
+    interruptedCoauthor.error = interruptedCoauthor.error.replace(
+      "The mapped profile is a declared coauthor",
+      "Pagination transport failed: fetch failed: ECONNRESET. The mapped profile is a declared coauthor"
+    );
+    const snapshot = {
+      attempts: {
+        snag: boundedReview({
+          attemptKey: "instagram:company:a16z-speedrun-006-snag:https://instagram.com/snagsubletsnyc",
+          entityType: "company",
+          entityId: "a16z-speedrun-006-snag",
+          accountUrl: "https://instagram.com/snagsubletsnyc",
+          authorHandle: "subletgirl"
+        }),
+        idilio: boundedReview({
+          attemptKey: "instagram:company:a16z-speedrun-006-idilio:https://instagram.com/idiliotv",
+          entityType: "company",
+          entityId: "a16z-speedrun-006-idilio",
+          accountUrl: "https://instagram.com/idiliotv",
+          authorHandle: "produ"
+        }),
+        gabriela: boundedReview({
+          attemptKey:
+            "instagram:founder:a16z-speedrun-006-idilio-founder-gabriela-tafur:https://instagram.com/gabrielatafur",
+          entityType: "founder",
+          entityId: "a16z-speedrun-006-idilio-founder-gabriela-tafur",
+          accountUrl: "https://instagram.com/gabrielatafur",
+          authorHandle: "danielaalvareztv"
+        }),
+        interrupted: {
+          attemptKey: interruptedAttemptKey,
+          platform: "instagram",
+          entityType: "company",
+          entityId: "a16z-speedrun-006-transport",
+          accountUrl: "https://instagram.com/transport",
+          error:
+            "Instagram native-feed pagination was interrupted after verified rows; partial rows were preserved: " +
+            "page 42 request failed: fetch failed: ECONNRESET",
+          retryable: true,
+          outcomeStatus: "completed",
+          outcomeReason: "collector_evidence_collected"
+        },
+        interruptedCoauthor
+      }
+    };
+
+    assert.deepEqual(autonomousCollectorRetryableFailures(snapshot), [
+      snapshot.attempts.interrupted.error,
+      interruptedCoauthor.error
+    ]);
+  });
+
   it("uses exact attempt keys so stale sibling failures cannot reopen terminal work", () => {
     const snapshot = {
       attempts: {

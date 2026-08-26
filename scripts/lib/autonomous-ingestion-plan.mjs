@@ -1305,14 +1305,25 @@ const MISSING_COLLECTOR_OUTCOME_REASONS = new Set([
   "collector_returned_no_entity_attempt"
 ]);
 const RETRYABLE_COLLECTOR_FAILURE_PATTERN =
-  /(?:rate.?limit|secondary.?limit|\b403\b|\b408\b|\b425\b|forbidden|\b429\b|\b5\d\d\b|timeout|timed out|\babort(?:ed|error)?\b|\betimedout\b|network|fetch failed|econn|socket|temporar|unavailable)/i;
+  /(?:rate.?limit|secondary.?limit|forbidden|timeout|timed out|\babort(?:ed|error)?\b|\betimedout\b|network|fetch failed|econn|socket|temporar|unavailable)/i;
+const RETRYABLE_COLLECTOR_HTTP_STATUS_PATTERN =
+  /(?:\bhttp(?:[_ -]?status)?\s*[:=_/-]?\s*(?:403|408|425|429|5\d\d)\b|\bstatus(?: code)?\s*[:=_/-]?\s*(?:403|408|425|429|5\d\d)\b|\b403\s+forbidden\b|\b408\s+request timeout\b|\b425\s+too early\b|\b429\s+too many requests\b|\b5\d\d\s+(?:internal server error|bad gateway|service unavailable|gateway timeout)\b)/i;
 const NON_RETRYABLE_COLLECTOR_FAILURE_PATTERN =
-  /(?:\b(?:400|401|404|405|410|422)\b|not found|invalid (?:url|mapping|host|identity)|dead (?:url|mapping|account)|wrong host|host did not match|unsupported (?:owner )?url|referential)/i;
+  /(?:not found|invalid (?:url|mapping|host|identity)|dead (?:url|mapping|account)|wrong host|host did not match|unsupported (?:owner )?url|referential)/i;
+const NON_RETRYABLE_COLLECTOR_HTTP_STATUS_PATTERN =
+  /(?:\bhttp(?:[_ -]?status)?\s*[:=_/-]?\s*(?:400|401|404|405|410|422)\b|\bstatus(?: code)?\s*[:=_/-]?\s*(?:400|401|404|405|410|422)\b|\b400\s+bad request\b|\b401\s+unauthori[sz]ed\b|\b404\s+not found\b|\b405\s+method not allowed\b|\b410\s+gone\b|\b422\s+unprocessable entity\b)/i;
+const INTENTIONAL_INSTAGRAM_REVIEW_PATTERN =
+  /(?:the mapped profile is a declared coauthor, not the native primary author|the post appeared on the profile surface without native owner or coauthor proof); queued for review and excluded from scored evidence\.?$/i;
 
 export function isAutonomousCollectorFailureRetryable(message) {
   const normalized = String(message ?? "").trim();
-  if (!normalized || NON_RETRYABLE_COLLECTOR_FAILURE_PATTERN.test(normalized)) return false;
-  return RETRYABLE_COLLECTOR_FAILURE_PATTERN.test(normalized);
+  if (
+    !normalized ||
+    NON_RETRYABLE_COLLECTOR_FAILURE_PATTERN.test(normalized) ||
+    NON_RETRYABLE_COLLECTOR_HTTP_STATUS_PATTERN.test(normalized)
+  ) return false;
+  return RETRYABLE_COLLECTOR_FAILURE_PATTERN.test(normalized) ||
+    RETRYABLE_COLLECTOR_HTTP_STATUS_PATTERN.test(normalized);
 }
 
 export function autonomousCollectorRetryableFailures(snapshot) {
@@ -1353,6 +1364,13 @@ export function autonomousCollectorRetryableFailures(snapshot) {
 
   const explicitAttemptFailures = attempts
     .filter((attempt) => attempt.retryable === true)
+    // Older checkpoints could mark an intentional Instagram attribution
+    // review retryable because the templated message said that a bounded
+    // native-feed pass recovered `500` posts. A bare cardinality is not an
+    // HTTP 500, and replaying the same bounded pass cannot change the native
+    // primary-author proof. Correct that persisted flag at the retry boundary
+    // without overriding genuine transport/service failures.
+    .filter((attempt) => !isIntentionalInstagramReviewAttempt(attempt))
     .map((attempt) =>
       attempt.error ??
       attempt.failureReason ??
@@ -1392,6 +1410,7 @@ function collectorFailureRetryDecision(row, attemptsByKey, attemptsByOwner) {
   if (typeof row?.retryable === "boolean") return row.retryable;
   const attemptKey = String(row?.attemptKey ?? row?.attempt_key ?? "").trim();
   const exactAttempt = attemptKey ? attemptsByKey.get(attemptKey) : null;
+  if (isIntentionalInstagramReviewAttempt(exactAttempt)) return false;
   if (typeof exactAttempt?.retryable === "boolean") return exactAttempt.retryable;
 
   const ownerAttempts = attemptsByOwner.get(collectorOwnerKey(row)) ?? [];
@@ -1403,7 +1422,20 @@ function collectorFailureRetryDecision(row, attemptsByKey, attemptsByOwner) {
     : ownerAttempts;
   const explicit = matchingAttempts.filter((attempt) => typeof attempt.retryable === "boolean");
   if (!explicit.length) return null;
-  return explicit.some((attempt) => attempt.retryable === true);
+  return explicit.some((attempt) =>
+    attempt.retryable === true && !isIntentionalInstagramReviewAttempt(attempt)
+  );
+}
+
+function isIntentionalInstagramReviewAttempt(attempt) {
+  if (
+    attempt?.platform !== "instagram" ||
+    !["completed", "needs_review"].includes(attempt?.outcomeStatus) ||
+    !["collector_evidence_collected", "collector_needs_review"].includes(attempt?.outcomeReason)
+  ) return false;
+  const message = String(attempt?.error ?? attempt?.failureReason ?? "").trim();
+  return INTENTIONAL_INSTAGRAM_REVIEW_PATTERN.test(message) &&
+    !isAutonomousCollectorFailureRetryable(message);
 }
 
 function canonicalCollectorFailureAccountUrl(row) {
