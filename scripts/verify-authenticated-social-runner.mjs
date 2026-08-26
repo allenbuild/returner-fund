@@ -125,13 +125,20 @@ export function linkedinViewerIdentityDecision({
   if (rateLimited === true) return { ok: false, reason: "linkedin_rate_limited" };
 
   const current = parseLinkedInUrl(currentUrl);
-  const canonical = parseLinkedInUrl(canonicalUrl);
-  if (!current || !canonical) return { ok: false, reason: "linkedin_identity_url_missing" };
+  if (!current) return { ok: false, reason: "linkedin_identity_url_missing" };
   if (current.kind !== "profile" || current.slug !== expected) {
     return { ok: false, reason: "linkedin_redirect_slug_mismatch" };
   }
-  if (canonical.kind !== "profile" || canonical.slug !== expected) {
-    return { ok: false, reason: "linkedin_canonical_slug_mismatch" };
+
+  // LinkedIn does not consistently render a canonical link on its client-side
+  // profile surface. Treat the tag as corroborating evidence when present,
+  // while keeping the exact self-profile redirect and both authenticated,
+  // owner-only controls mandatory below.
+  if (!isMissingOptionalUrl(canonicalUrl)) {
+    const canonical = parseLinkedInUrl(canonicalUrl);
+    if (!canonical || canonical.kind !== "profile" || canonical.slug !== expected) {
+      return { ok: false, reason: "linkedin_canonical_slug_mismatch" };
+    }
   }
   if (authenticatedNavControl !== true) {
     return { ok: false, reason: "linkedin_authenticated_navigation_missing" };
@@ -627,6 +634,10 @@ function parseLinkedInUrl(value) {
   } catch {
     return null;
   }
+}
+
+function isMissingOptionalUrl(value) {
+  return value === null || value === undefined || (typeof value === "string" && value.trim() === "");
 }
 
 function exactHttpsUrl(value, allowedHosts) {
