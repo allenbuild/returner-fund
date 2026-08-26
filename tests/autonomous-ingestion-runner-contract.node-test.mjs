@@ -1588,6 +1588,8 @@ describe("autonomous ingestion runner static safety contracts", () => {
     assert.match(outcomeWriter, /provider_blocked:\s*normalized\.providerBlocked/);
     assert.match(outcomeWriter, /provider_blocked_by_reason:\s*JSON\.stringify/);
     assert.match(outcomeWriter, /mapped_scope_unsupported:\s*normalized\.mappedScopeUnsupported/);
+    assert.match(outcomeWriter, /failure_domain:\s*normalized\.failureDomain/);
+    assert.match(outcomeWriter, /failure_code:\s*normalized\.failureCode/);
   });
 
   it("uses an explicit bounded terminal-failure budget for publication", () => {
@@ -1885,6 +1887,8 @@ describe("autonomous ingestion runner static safety contracts", () => {
     assert.doesNotMatch(catchPath, /error\.stack/);
     assert.ok(sanitizer.includes("sanitizeRunnerFailureMessage(errorMessage(error), options)"));
     assert.ok(sanitizer.includes("sanitizeRunnerFailureMessage(error.stack"));
+    assert.ok(sanitizer.includes("autonomousDatabaseFailureMetadata(error)"));
+    assert.ok(catchPath.includes("failedRunnerOutcome(failure.message, failure)"));
   });
 
   it("turns runtime-lock cleanup failure into a failed outcome after preserving publication", () => {
