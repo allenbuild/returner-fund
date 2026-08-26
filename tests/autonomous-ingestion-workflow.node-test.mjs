@@ -1410,7 +1410,9 @@ test("autonomous runner receives optional durability secrets and owns validated 
   assert.match(runnerStep, /node scripts\/lib\/autonomous-ingestion-workflow-retry\.mjs --/);
   assert.match(runnerStep, /IOPMUserTriggeredFullWake/);
   assert.match(runnerStep, /pmset -g batt/);
-  assert.match(runnerStep, /\/usr\/bin\/caffeinate -dimsu -w \$\$/);
+  assert.match(runnerStep, /\/usr\/bin\/caffeinate -ims -w \$\$/);
+  assert.doesNotMatch(runnerStep, /\/usr\/bin\/caffeinate -[^\n]*d[^\n]* -w \$\$/);
+  assert.doesNotMatch(runnerStep, /\/usr\/bin\/caffeinate -[^\n]*u[^\n]* -w \$\$/);
   assert.match(runnerStep, /\/usr\/bin\/caffeinate -u -t 30/);
   assert.doesNotMatch(runnerStep, /exec node scripts\/run-autonomous-ingestion\.mjs/);
   assert.match(runnerStep, /AUTONOMOUS_WORKFLOW_RETRY_MAX_ATTEMPTS:\s*"6"/);
@@ -1425,7 +1427,7 @@ test("autonomous runner receives optional durability secrets and owns validated 
   assert.match(runnerStep, /Runner using battery reserve/);
   assert.doesNotMatch(runnerStep, /Runner requires AC power/);
   assert.ok(
-    runnerStep.indexOf("/usr/bin/caffeinate -dimsu -w $$") < runnerStep.indexOf("pmset -g batt"),
+    runnerStep.indexOf("/usr/bin/caffeinate -ims -w $$") < runnerStep.indexOf("pmset -g batt"),
     "wake assertion must be installed before the runner power preflight"
   );
   assert.match(runnerStep, /INGESTION_PUBLICATION_BRANCH:\s*main/);
