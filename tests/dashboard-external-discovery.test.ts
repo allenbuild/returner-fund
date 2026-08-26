@@ -2,6 +2,8 @@ import { describe, expect, it, vi } from "vitest";
 import {
   DEFAULT_DASHBOARD_RESEARCH_FEEDS,
   DEFAULT_DASHBOARD_RSS_FEEDS,
+  DEFAULT_DASHBOARD_YOUTUBE_CHANNELS,
+  MAX_DASHBOARD_YOUTUBE_CHANNELS,
   discoverExternalDashboardCandidates,
   fetchYoutubeChannelCandidates
 } from "@/lib/dashboard/external-discovery";
@@ -15,13 +17,18 @@ describe("public dashboard discovery", () => {
     const channelPage = youtubeChannelPage(channelId, [{
       videoId: "3WpzNmY35S4",
       title: "The new Mac mini with M6",
-      views: "2.5M views",
+      views: "842K views",
       relativeTime: "14 hours ago"
     }, {
-      videoId: "below00001",
+      videoId: "lowviews001",
       title: "A smaller Mac update",
-      views: "999K views",
+      views: "2.5M views",
       relativeTime: "2 hours ago"
+    }, {
+      videoId: "thirdvid001",
+      title: "A third recent upload",
+      views: "9M views",
+      relativeTime: "20 minutes ago"
     }]);
     const requested: string[] = [];
     const fetchImpl = vi.fn(async (input: RequestInfo | URL): Promise<Response> => {
@@ -40,6 +47,18 @@ describe("public dashboard discovery", () => {
           likes: 21_798
         }));
       }
+      if (url.pathname === "/watch" && url.searchParams.get("v") === "lowviews001") {
+        return new Response(youtubeWatchPage({
+          videoId: "lowviews001",
+          channelId,
+          author: "Apple",
+          title: "A smaller Mac update",
+          description: "A software and AI update for Mac developers.",
+          publishedAt: "2026-08-15T03:00:00-07:00",
+          views: 999_999,
+          likes: 4_000
+        }));
+      }
       throw new Error(`Unexpected request ${url}`);
     });
 
@@ -48,23 +67,159 @@ describe("public dashboard discovery", () => {
       handle: "Apple"
     });
 
-    expect(requested).toHaveLength(2);
-    expect(requested.some((url) => url.includes("below00001"))).toBe(false);
+    expect(requested).toHaveLength(3);
+    expect(requested.some((url) => url.includes("lowviews001"))).toBe(true);
+    expect(requested.some((url) => url.includes("thirdvid001"))).toBe(false);
     expect(result.source).toBe("youtube:apple");
-    expect(result.candidates).toEqual([expect.objectContaining({
-      canonicalKey: "youtube:video:3WpzNmY35S4",
-      url: "https://www.youtube.com/watch?v=3WpzNmY35S4",
-      platform: "youtube",
-      sourceKind: "video",
-      authorName: "Apple",
-      publishedAt: "2026-08-15T08:33:48.000Z",
-      metrics: { views: 2_547_274, likes: 21_798 },
-      socialBackfillEligible: true,
-      sourceVerified: true,
-      sourceLinkStatus: "verified",
-      publicationPrecision: "exact"
-    })]);
+    expect(result.candidates).toEqual([
+      expect.objectContaining({
+        canonicalKey: "youtube:video:3WpzNmY35S4",
+        url: "https://www.youtube.com/watch?v=3WpzNmY35S4",
+        platform: "youtube",
+        sourceKind: "video",
+        authorName: "Apple",
+        publishedAt: "2026-08-15T08:33:48.000Z",
+        metrics: { views: 2_547_274, likes: 21_798 },
+        socialBackfillEligible: true,
+        sourceVerified: true,
+        sourceLinkStatus: "verified",
+        publicationPrecision: "exact"
+      }),
+      expect.objectContaining({
+        canonicalKey: "youtube:video:lowviews001",
+        metrics: { views: 999_999, likes: 4_000 }
+      })
+    ]);
     expect(buildDashboardSnapshot(result.candidates, { now: NOW }).snapshot.stories).toHaveLength(1);
+  });
+
+  it("discovers legacy video, grid, and rich-item renderers in display order", async () => {
+    const channelId = "UC1234567890123456789012";
+    const channelPage = youtubeChannelPageFromContents(channelId, [
+      {
+        richItemRenderer: {
+          content: {
+            videoRenderer: {
+              videoId: "ngPkbaZliaU",
+              title: { runs: [{ text: "A concept phone" }] },
+              viewCountText: { simpleText: "No public counter here" }
+            }
+          }
+        }
+      },
+      {
+        gridVideoRenderer: {
+          videoId: "legacygr001",
+          title: { simpleText: "An AI developer update" },
+          viewCountText: { simpleText: "743K views" }
+        }
+      },
+      {
+        richItemRenderer: {
+          content: {
+            lockupViewModel: {
+              contentId: "thirdvid001",
+              contentType: "LOCKUP_CONTENT_TYPE_VIDEO"
+            }
+          }
+        }
+      }
+    ]);
+    const requestedIds: string[] = [];
+    const fetchImpl = vi.fn(async (input: RequestInfo | URL): Promise<Response> => {
+      const url = new URL(String(input));
+      if (url.pathname === "/@mkbhd/videos") return new Response(channelPage);
+      const videoId = url.searchParams.get("v");
+      if (url.pathname === "/watch" && videoId) {
+        requestedIds.push(videoId);
+        return new Response(youtubeWatchPage({
+          videoId,
+          channelId,
+          author: "Marques Brownlee",
+          title: videoId === "ngPkbaZliaU" ? "A concept phone" : "An AI developer update",
+          description: "Technology, software, hardware, and AI research.",
+          publishedAt: "2026-08-15T03:00:00-07:00",
+          views: 1_500_000,
+          likes: 10_000
+        }));
+      }
+      throw new Error(`Unexpected request ${url}`);
+    });
+
+    const result = await fetchYoutubeChannelCandidates(fetchImpl as typeof fetch, NOW, {
+      name: "MKBHD",
+      handle: "mkbhd"
+    });
+
+    expect(requestedIds).toEqual(["ngPkbaZliaU", "legacygr001"]);
+    expect(result.candidates.map((candidate) => candidate.id)).toEqual([
+      "youtube:ngPkbaZliaU",
+      "youtube:legacygr001"
+    ]);
+  });
+
+  it("reports an actionable failure when a configured channel page has no preview IDs", async () => {
+    const channelId = "UC1234567890123456789012";
+    const fetchImpl = vi.fn(async (): Promise<Response> =>
+      new Response(youtubeChannelPage(channelId, []))
+    );
+
+    await expect(fetchYoutubeChannelCandidates(fetchImpl as typeof fetch, NOW, {
+      name: "MKBHD",
+      handle: "mkbhd"
+    })).rejects.toThrow("youtube_mkbhd_no_video_preview_ids");
+    expect(fetchImpl).toHaveBeenCalledTimes(1);
+  });
+
+  it("ships a small verified tech roster under the hard channel bound", () => {
+    expect(DEFAULT_DASHBOARD_YOUTUBE_CHANNELS).toEqual([
+      { name: "Apple", handle: "Apple" },
+      { name: "MKBHD", handle: "mkbhd" },
+      { name: "OpenAI", handle: "OpenAI" },
+      { name: "Google", handle: "Google" },
+      { name: "NVIDIA", handle: "NVIDIA" },
+      { name: "Tesla", handle: "Tesla" },
+      { name: "Linus Tech Tips", handle: "LinusTechTips" },
+      { name: "Mrwhosetheboss", handle: "Mrwhosetheboss" },
+      { name: "Fireship", handle: "Fireship" }
+    ]);
+    expect(DEFAULT_DASHBOARD_YOUTUBE_CHANNELS.length).toBeLessThanOrEqual(MAX_DASHBOARD_YOUTUBE_CHANNELS);
+    expect(MAX_DASHBOARD_YOUTUBE_CHANNELS).toBe(10);
+  });
+
+  it("caps an explicit YouTube roster before issuing channel or watch requests", async () => {
+    const channelId = "UC1234567890123456789012";
+    const configured = Array.from({ length: MAX_DASHBOARD_YOUTUBE_CHANNELS + 1 }, (_, index) => ({
+      name: `Channel ${index}`,
+      handle: `channel${index}`
+    }));
+    const requestedHandles: string[] = [];
+    const fetchImpl = vi.fn(async (input: RequestInfo | URL): Promise<Response> => {
+      const url = new URL(String(input));
+      if (url.hostname === "hn.algolia.com") return json({ hits: [] });
+      if (url.hostname === "api.github.com" && url.pathname === "/search/repositories") return json({ items: [] });
+      if (url.hostname === "api.github.com" && url.pathname === "/events") return json([]);
+      if (url.hostname === "www.youtube.com" && url.pathname.endsWith("/videos")) {
+        requestedHandles.push(url.pathname.split("/")[1] ?? "");
+        return new Response(youtubeChannelPage(channelId, []));
+      }
+      throw new Error(`Unexpected request ${url}`);
+    });
+
+    const result = await discoverExternalDashboardCandidates({
+      now: NOW,
+      fetchImpl: fetchImpl as typeof fetch,
+      youtubeChannels: configured,
+      rssFeeds: [],
+      researchFeeds: [],
+      redditSubreddits: []
+    });
+
+    expect(requestedHandles).toEqual(configured
+      .slice(0, MAX_DASHBOARD_YOUTUBE_CHANNELS)
+      .map((channel) => `@${channel.handle}`));
+    expect(result.failures).toHaveLength(MAX_DASHBOARD_YOUTUBE_CHANNELS);
+    expect(fetchImpl).toHaveBeenCalledTimes(3 + MAX_DASHBOARD_YOUTUBE_CHANNELS);
   });
 
   it("isolates one YouTube channel failure from another channel's verified candidates", async () => {
@@ -75,7 +230,24 @@ describe("public dashboard discovery", () => {
       if (url.hostname === "api.github.com" && url.pathname === "/search/repositories") return json({ items: [] });
       if (url.hostname === "api.github.com" && url.pathname === "/events") return json([]);
       if (url.pathname === "/@Apple/videos") return new Response("blocked", { status: 503 });
-      if (url.pathname === "/@mkbhd/videos") return new Response(youtubeChannelPage(channelId, []));
+      if (url.pathname === "/@mkbhd/videos") return new Response(youtubeChannelPage(channelId, [{
+        videoId: "ngPkbaZliaU",
+        title: "A concept phone",
+        views: "2M views",
+        relativeTime: "1 day ago"
+      }]));
+      if (url.pathname === "/watch" && url.searchParams.get("v") === "ngPkbaZliaU") {
+        return new Response(youtubeWatchPage({
+          videoId: "ngPkbaZliaU",
+          channelId,
+          author: "Marques Brownlee",
+          title: "A concept phone",
+          description: "A new smartphone hardware and software concept.",
+          publishedAt: "2026-08-15T03:00:00-07:00",
+          views: 2_000_000,
+          likes: 10_000
+        }));
+      }
       throw new Error(`Unexpected request ${url}`);
     });
 
@@ -90,6 +262,7 @@ describe("public dashboard discovery", () => {
 
     expect(result.failures).toEqual(["youtube_apple_http_503"]);
     expect(result.sources).toEqual(["github", "github_events", "hacker_news", "youtube:mkbhd"]);
+    expect(result.candidates).toEqual([expect.objectContaining({ id: "youtube:ngPkbaZliaU" })]);
   });
 
   it("maps exact official X fields and lets the strict million-view gate reject lower-reach posts", async () => {
@@ -834,9 +1007,7 @@ function youtubeChannelPage(
   channelId: string,
   videos: Array<{ videoId: string; title: string; views: string; relativeTime: string }>
 ): string {
-  return `<script>var ytInitialData = ${JSON.stringify({
-    metadata: { channelMetadataRenderer: { externalId: channelId } },
-    contents: videos.map((video) => ({
+  return youtubeChannelPageFromContents(channelId, videos.map((video) => ({
       lockupViewModel: {
         contentId: video.videoId,
         contentType: "LOCKUP_CONTENT_TYPE_VIDEO",
@@ -856,7 +1027,13 @@ function youtubeChannelPage(
           }
         }
       }
-    }))
+    })));
+}
+
+function youtubeChannelPageFromContents(channelId: string, contents: unknown[]): string {
+  return `<script>var ytInitialData = ${JSON.stringify({
+    metadata: { channelMetadataRenderer: { externalId: channelId } },
+    contents
   })};</script>`;
 }
 
