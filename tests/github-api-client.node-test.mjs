@@ -301,3 +301,39 @@ test("structured GitHub rate limits remain terminal but resumably retryable", ()
 
   assert.deepEqual(autonomousCollectorRetryableFailures(snapshot), [message]);
 });
+
+test("mapped GitHub API transport exhaustion remains resumably retryable", () => {
+  const message =
+    "GitHub API transport failed for /users/example (ECONNRESET): fetch failed: socket reset by peer";
+  const snapshot = {
+    attempts: {
+      "company:company-example": {
+        attemptKey: "company:company-example",
+        platform: "github",
+        entityType: "company",
+        entityId: "company-example",
+        status: "done",
+        error: message,
+        failureReason: "github_transport_error",
+        retryable: true,
+        outcomeStatus: "failed",
+        outcomeReason: "collector_reported_failure"
+      }
+    },
+    accounts: [{
+      attemptKey: "account:company:company-example:https://github.com/example",
+      entityType: "company",
+      entityId: "company-example",
+      githubUrl: "https://github.com/example",
+      fetched: false,
+      error: message,
+      failureReason: "github_transport_error",
+      endpoint: "/users/example",
+      attempts: 3,
+      causeCode: "ECONNRESET",
+      retryable: true
+    }]
+  };
+
+  assert.deepEqual(autonomousCollectorRetryableFailures(snapshot), [message]);
+});

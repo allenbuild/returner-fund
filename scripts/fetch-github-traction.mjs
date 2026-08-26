@@ -33,6 +33,14 @@ const outputPath = resolveOutputPath(stringArg("--output") ?? stringArg("--out")
 const apiBase = "https://api.github.com";
 const workers = Math.max(1, Math.min(numberArg("--workers") ?? 6, 16));
 const searchWorkers = Math.max(1, Math.min(numberArg("--search-workers") ?? 1, 4));
+const officialSourceMaxAttempts = Math.max(
+  1,
+  Math.min(Math.floor(numberArg("--official-source-max-attempts") ?? 3), 5)
+);
+const officialSourceRetryBaseMs = Math.max(
+  0,
+  Math.min(Math.floor(numberArg("--official-source-retry-base-ms") ?? 500), 5_000)
+);
 const maxRepositoryPages = Math.max(
   1,
   Math.min(
@@ -290,6 +298,9 @@ function githubOwnerAttempts(owners, results, discovery) {
     const successfulSourceChecks = sourceChecks.filter((check) =>
       ["checked_empty", "found_candidates"].includes(check.status)
     );
+    const providerBlockedSourceChecks = sourceChecks.filter((check) =>
+      check.status === "provider_blocked" && check.blocker
+    );
     const mapped = owner.mappedUrls.length > 0;
     let outcomeStatus = "failed";
     let outcomeReason = mapped
@@ -304,9 +315,14 @@ function githubOwnerAttempts(owners, results, discovery) {
     } else if (ownerResults.some((result) => result.fetched === false)) {
       outcomeStatus = "failed";
       outcomeReason = githubCollectorFailureOutcomeReason(ownerResults);
-    } else if (successfulSourceChecks.length) {
+    } else if (successfulSourceChecks.length || (
+      providerBlockedSourceChecks.length &&
+      sourceChecks.every((check) => check.status !== "failed")
+    )) {
       outcomeStatus = "blocked_or_empty";
-      outcomeReason = "collector_official_sources_checked_empty_or_blocked";
+      outcomeReason = successfulSourceChecks.length
+        ? "collector_official_sources_checked_empty_or_blocked"
+        : "collector_official_source_provider_blocked";
     }
     const errors = [
       ...ownerResults.filter((result) => result.fetched === false).map((result) => result.error),
@@ -333,10 +349,15 @@ function githubOwnerAttempts(owners, results, discovery) {
         sourceKind: check.sourceKind,
         sourceUrl: check.sourceUrl,
         status: check.status,
-        error: check.error
+        error: check.error,
+        ...(check.attempts > 1 ? { attempts: check.attempts } : {}),
+        ...(check.failureReason ? { failureReason: check.failureReason } : {}),
+        ...(check.causeCode ? { causeCode: check.causeCode } : {}),
+        ...(check.blocker ? { blocker: check.blocker } : {})
       })),
       successfulSourceCheckCount: successfulSourceChecks.length,
-      failedSourceCheckCount: sourceChecks.length - successfulSourceChecks.length,
+      failedSourceCheckCount: sourceChecks.filter((check) => check.status === "failed").length,
+      providerBlockedSourceCheckCount: providerBlockedSourceChecks.length,
       status: "done",
       ...(retryableError ?? errors[0] ? { error: retryableError ?? errors[0] } : {}),
       ...(structuredFailure ? {
@@ -351,6 +372,17 @@ function githubOwnerAttempts(owners, results, discovery) {
         (structuredFailure?.retryable === true || Boolean(retryableError)),
       outcomeStatus,
       outcomeReason,
+      ...(providerBlockedSourceChecks.length ? {
+        blocker: providerBlockedSourceChecks[0].blocker,
+        providerBlockedSources: providerBlockedSourceChecks.map((check) => ({
+          sourceKind: check.sourceKind,
+          sourceUrl: check.sourceUrl,
+          attempts: check.attempts,
+          failureReason: check.failureReason,
+          ...(check.causeCode ? { causeCode: check.causeCode } : {}),
+          blocker: check.blocker
+        }))
+      } : {}),
       reviewCandidates: reviewCandidates.map((candidate) => candidate.githubUrl),
       checkedAt: new Date().toISOString()
     };
@@ -384,11 +416,15 @@ async function discoverGithubTargets(companies, explicitTargets, owners) {
       if (seenSources.has(source.url)) continue;
       seenSources.add(source.url);
       let urls = [];
-      let error = null;
+      let failure = null;
+      let attempts = 0;
       try {
-        urls = await discoverGithubLinksFromUrl(source.url);
+        const discovered = await discoverGithubLinksFromUrl(source.url);
+        urls = discovered.urls;
+        attempts = discovered.attempts;
       } catch (caught) {
-        error = errorMessage(caught);
+        failure = officialSourceFailureReceipt(caught);
+        attempts = failure.attempts;
       }
       stats.sourceChecks.push({
         attemptKey: githubSourceCheckAttemptKey(owner, source),
@@ -396,10 +432,16 @@ async function discoverGithubTargets(companies, explicitTargets, owners) {
         entityId: owner.entityId,
         sourceKind: source.kind,
         sourceUrl: source.url,
-        status: error ? "failed" : urls.length ? "found_candidates" : "checked_empty",
+        status: failure
+          ? failure.blocker ? "provider_blocked" : "failed"
+          : urls.length ? "found_candidates" : "checked_empty",
         githubUrls: urls,
-        error,
-        retryable: error ? isAutonomousCollectorFailureRetryable(error) : false
+        error: failure?.error ?? null,
+        attempts,
+        ...(failure?.failureReason ? { failureReason: failure.failureReason } : {}),
+        ...(failure?.causeCode ? { causeCode: failure.causeCode } : {}),
+        ...(failure?.blocker ? { blocker: failure.blocker } : {}),
+        retryable: false
       });
       for (const url of urls) {
         if (owner.retiredUrls.some((retiredUrl) => sameGithubTargetUrl(retiredUrl, url))) continue;
@@ -544,24 +586,14 @@ function writeStdout(value) {
 }
 
 async function discoverGithubLinksFromWebsite(company) {
-  return company.websiteUrl ? discoverGithubLinksFromUrl(company.websiteUrl) : [];
+  return company.websiteUrl
+    ? (await discoverGithubLinksFromUrl(company.websiteUrl)).urls
+    : [];
 }
 
 async function discoverGithubLinksFromUrl(sourceUrl) {
-  if (!sourceUrl) return [];
-  const response = await fetch(sourceUrl, {
-    signal: AbortSignal.timeout(8_000),
-    headers: {
-      "user-agent": "yc-network-intelligence-readonly-github-discovery",
-      accept: "text/html,text/plain,*/*"
-    }
-  });
-  if (!response.ok) {
-    throw new Error(
-      `Official source fetch failed for ${sourceUrl}: ${response.status} ${response.statusText || "HTTP error"}`
-    );
-  }
-  const html = await response.text();
+  if (!sourceUrl) return { urls: [], attempts: 0 };
+  const { html, attempts } = await fetchOfficialSourceHtml(sourceUrl);
   const urls = new Set();
   const regex = /https?:\/\/(?:www\.)?github\.com\/[A-Za-z0-9_.-]+(?:\/[A-Za-z0-9_.-]+)?/gi;
   let match;
@@ -572,7 +604,129 @@ async function discoverGithubLinksFromUrl(sourceUrl) {
     if (!parsed.login || invalidGithubPath(parsed)) continue;
     if (!/\/(?:topics|marketplace|features|pricing|login|signup)\b/i.test(url)) urls.add(url);
   }
-  return [...urls].slice(0, 6);
+  return { urls: [...urls].slice(0, 6), attempts };
+}
+
+async function fetchOfficialSourceHtml(sourceUrl) {
+  for (let attempt = 1; attempt <= officialSourceMaxAttempts; attempt += 1) {
+    try {
+      const response = await fetch(sourceUrl, {
+        signal: AbortSignal.timeout(8_000),
+        headers: {
+          "user-agent": "yc-network-intelligence-readonly-github-discovery",
+          accept: "text/html,text/plain,*/*"
+        }
+      });
+      if (!response.ok) {
+        const message =
+          `Official source fetch failed for ${sourceUrl}: ` +
+          `${response.status} ${response.statusText || "HTTP error"}`;
+        const retryable = isAutonomousCollectorFailureRetryable(message);
+        if (retryable && attempt < officialSourceMaxAttempts) {
+          await officialSourceRetryDelay(attempt);
+          continue;
+        }
+        throw officialSourceError(message, {
+          sourceUrl,
+          attempts: attempt,
+          httpStatus: response.status,
+          retryableDuringCheck: retryable,
+          providerBlocked: retryable || [401, 403, 429].includes(response.status)
+        });
+      }
+      return { html: await response.text(), attempts: attempt };
+    } catch (error) {
+      if (error?.name === "OfficialSourceFetchError") throw error;
+      const causeCode = nestedErrorCode(error);
+      const detail = nestedErrorDetail(error);
+      const message =
+        `Official source transport failed for ${sourceUrl}` +
+        `${causeCode ? ` (${causeCode})` : ""}: ${detail}`;
+      const retryable = isAutonomousCollectorFailureRetryable(message);
+      if (retryable && attempt < officialSourceMaxAttempts) {
+        await officialSourceRetryDelay(attempt);
+        continue;
+      }
+      throw officialSourceError(message, {
+        sourceUrl,
+        attempts: attempt,
+        causeCode,
+        retryableDuringCheck: retryable,
+        providerBlocked: retryable,
+        cause: error
+      });
+    }
+  }
+  throw new Error("Official source fetch exhausted attempts without a result.");
+}
+
+function officialSourceError(message, {
+  sourceUrl,
+  attempts,
+  httpStatus = null,
+  causeCode = null,
+  retryableDuringCheck,
+  providerBlocked,
+  cause
+}) {
+  const error = new Error(message, cause === undefined ? undefined : { cause });
+  error.name = "OfficialSourceFetchError";
+  error.sourceUrl = sourceUrl;
+  error.attempts = attempts;
+  error.httpStatus = httpStatus;
+  error.causeCode = causeCode;
+  error.failureReason = providerBlocked
+    ? httpStatus == null
+      ? "official_source_transport_exhausted"
+      : "official_source_http_exhausted"
+    : "official_source_request_failed";
+  error.retryableDuringCheck = retryableDuringCheck;
+  if (providerBlocked) {
+    error.blocker = {
+      provider: "official_source_html",
+      code: httpStatus == null
+        ? /timeout|timed out|abort/i.test(message)
+          ? "official_source_timeout"
+          : "official_source_transport_failure"
+        : "official_source_http_failure",
+      retryAt: null,
+      httpStatus,
+      message
+    };
+  }
+  return error;
+}
+
+function officialSourceFailureReceipt(error) {
+  return {
+    error: errorMessage(error),
+    failureReason: error?.failureReason ?? "official_source_request_failed",
+    attempts: Number.isInteger(error?.attempts) ? error.attempts : 1,
+    ...(error?.causeCode ? { causeCode: error.causeCode } : {}),
+    ...(error?.blocker ? { blocker: error.blocker } : {})
+  };
+}
+
+async function officialSourceRetryDelay(attempt) {
+  const waitMs = officialSourceRetryBaseMs * attempt;
+  if (waitMs > 0) await new Promise((resolveDelay) => setTimeout(resolveDelay, waitMs));
+}
+
+function nestedErrorCode(error) {
+  for (let current = error; current; current = current.cause) {
+    const code = String(current?.code ?? "").trim();
+    if (code) return code;
+  }
+  return null;
+}
+
+function nestedErrorDetail(error) {
+  const messages = [];
+  for (let current = error; current; current = current.cause) {
+    const message = errorMessage(current).trim();
+    if (message && !messages.includes(message)) messages.push(message);
+  }
+  return messages.join(": ") || "unknown transport failure";
 }
 
 async function searchGithubForCompany(company, stats) {

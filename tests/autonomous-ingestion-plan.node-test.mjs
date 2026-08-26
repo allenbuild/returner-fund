@@ -728,13 +728,70 @@ globalThis.fetch = async (input) => {
     assert.equal(requests.some((url) => /example\\.git(?:$|[/?#])/.test(url)), false);
   });
 
-  it("fails closed when every official GitHub discovery source is rate limited", async () => {
-    const directory = await mkdtemp(join(tmpdir(), "returner-github-owner-rate-limit-"));
+  it("recovers a transient official-site transport failure inside the bounded source check", async () => {
+    const directory = await mkdtemp(join(tmpdir(), "returner-github-source-recovery-"));
+    const output = join(directory, "github.json");
+    const preload = join(directory, "mock-fetch.mjs");
+    const requestLog = join(directory, "requests.log");
+    await writeFile(
+      preload,
+      `import { appendFileSync } from "node:fs";
+const requestLog = ${JSON.stringify(requestLog)};
+let websiteCalls = 0;
+globalThis.fetch = async (input) => {
+  const url = String(input);
+  appendFileSync(requestLog, url + "\\n");
+  if (url === "https://6thsense.dev" && ++websiteCalls === 1) {
+    throw new TypeError("fetch failed", {
+      cause: Object.assign(new Error("socket reset by peer"), { code: "ECONNRESET" })
+    });
+  }
+  return new Response("<html><body>No GitHub link</body></html>", { status: 200 });
+};
+`
+    );
+    execFileSync(process.execPath, [
+      "scripts/fetch-github-traction.mjs",
+      "--batch=S26",
+      "--max-companies=1",
+      "--website",
+      "--no-search",
+      "--official-source-retry-base-ms=0",
+      `--output=${output}`
+    ], {
+      cwd: repositoryRoot,
+      env: {
+        ...process.env,
+        NODE_OPTIONS: [process.env.NODE_OPTIONS, `--import=${preload}`].filter(Boolean).join(" ")
+      },
+      stdio: "pipe"
+    });
+
+    const snapshot = JSON.parse(await readFile(output, "utf8"));
+    const websiteCheck = snapshot.source.discovery.sourceChecks.find(
+      (check) => check.sourceUrl === "https://6thsense.dev"
+    );
+    assert.equal(websiteCheck.status, "checked_empty");
+    assert.equal(websiteCheck.attempts, 2);
+    assert.equal(websiteCheck.error, null);
+    assert.equal(websiteCheck.blocker, undefined);
+    const requests = (await readFile(requestLog, "utf8")).trim().split("\n");
+    assert.equal(requests.filter((url) => url === "https://6thsense.dev").length, 2);
+    assert.deepEqual(autonomousCollectorRetryableFailures(snapshot), []);
+  });
+
+  it("terminalizes exhausted official-source transport without inventing GitHub evidence", async () => {
+    const directory = await mkdtemp(join(tmpdir(), "returner-github-owner-transport-blocked-"));
     const output = join(directory, "github.json");
     const preload = join(directory, "mock-fetch.mjs");
     await writeFile(
       preload,
-      "globalThis.fetch = async () => new Response('rate limited', { status: 429, statusText: 'Too Many Requests' });\n"
+      `globalThis.fetch = async () => {
+  throw new TypeError("fetch failed", {
+    cause: Object.assign(new Error("socket reset by peer"), { code: "ECONNRESET" })
+  });
+};
+`
     );
     execFileSync(process.execPath, [
       "scripts/fetch-github-traction.mjs",
@@ -742,6 +799,7 @@ globalThis.fetch = async (input) => {
       "--max-companies=1",
       "--no-website",
       "--no-search",
+      "--official-source-retry-base-ms=0",
       `--output=${output}`
     ], {
       cwd: repositoryRoot,
@@ -754,22 +812,115 @@ globalThis.fetch = async (input) => {
 
     const snapshot = JSON.parse(await readFile(output, "utf8"));
     assert.equal(snapshot.source.discovery.sourceChecks.length, 3);
-    assert.ok(snapshot.source.discovery.sourceChecks.every((check) => check.status === "failed"));
+    assert.ok(snapshot.source.discovery.sourceChecks.every((check) => check.status === "provider_blocked"));
     assert.ok(snapshot.source.discovery.sourceChecks.every((check) =>
-      check.error.includes(check.sourceUrl) && /429 Too Many Requests/.test(check.error)
+      check.error.includes(check.sourceUrl) && /ECONNRESET/.test(check.error)
     ));
-    assert.ok(Object.values(snapshot.attempts).every((attempt) => attempt.outcomeStatus === "failed"));
+    assert.ok(snapshot.source.discovery.sourceChecks.every((check) => check.attempts === 3));
+    assert.ok(snapshot.source.discovery.sourceChecks.every((check) => check.retryable === false));
+    assert.ok(snapshot.source.discovery.sourceChecks.every((check) =>
+      check.failureReason === "official_source_transport_exhausted" &&
+      check.blocker.provider === "official_source_html" &&
+      check.blocker.code === "official_source_transport_failure" &&
+      check.blocker.retryAt === null &&
+      check.blocker.httpStatus === null &&
+      isAutonomousProviderBlocker(check.blocker, { platform: "github" })
+    ));
+    assert.ok(Object.values(snapshot.attempts).every((attempt) =>
+      attempt.outcomeStatus === "blocked_or_empty" &&
+      attempt.outcomeReason === "collector_official_source_provider_blocked" &&
+      attempt.retryable === false &&
+      attempt.providerBlockedSourceCheckCount === 1
+    ));
     assert.ok(Object.values(snapshot.attempts).every((attempt) => attempt.successfulSourceCheckCount === 0));
+    assert.equal(snapshot.accounts.length, 0);
+    assert.equal(countSuccessfulAutonomousCollectorRows(snapshot, "github"), 0);
+    assert.deepEqual(autonomousCollectorRetryableFailures(snapshot), []);
 
     const index = indexAutonomousCollectorTaskOutcomes(snapshot, {
       kind: "github",
-      batchSlug: "A16ZSR006"
+      batchSlug: "A16ZSR006",
+      explicitTerminalOnly: true
     });
-    assert.equal(classifyAutonomousCollectorTaskOutcome(index, {
+    assert.deepEqual(classifyAutonomousCollectorTaskOutcome(index, {
       platform: "github",
       entityType: "company",
       entityId: "a16z-speedrun-006-acceler8"
-    }).status, "failed");
+    }), {
+      status: "blocked_or_empty",
+      reason: "collector_official_source_provider_blocked",
+      providerBlocked: true,
+      providerBlockerReason: "provider_blocked:official_source_html:official_source_transport_failure"
+    });
+
+    const terminalCoverage = summarizeAutonomousCollectorTerminalTaskCoverage(snapshot, {
+      kind: "github",
+      batchSlug: "A16ZSR006",
+      tasks: Object.values(snapshot.attempts).map((attempt) => ({
+        batchSlug: "A16ZSR006",
+        status: "queued",
+        platform: "github",
+        entityType: attempt.entityType,
+        entitySourceKey: attempt.entityId,
+        account: null
+      }))
+    });
+    assert.equal(terminalCoverage.expected, 3);
+    assert.equal(terminalCoverage.terminal, 3);
+    assert.equal(terminalCoverage.nonTerminal, 0);
+    assert.equal(terminalCoverage.byStatus.blocked_or_empty, 3);
+    assert.equal(terminalCoverage.byStatus.completed, 0);
+  });
+
+  it("keeps a mixed empty-and-transport-blocked owner terminal and degraded", async () => {
+    const directory = await mkdtemp(join(tmpdir(), "returner-github-owner-partial-source-"));
+    const output = join(directory, "github.json");
+    const preload = join(directory, "mock-fetch.mjs");
+    await writeFile(
+      preload,
+      `globalThis.fetch = async (input) => {
+  if (String(input) === "https://6thsense.dev") {
+    throw new TypeError("fetch failed", {
+      cause: Object.assign(new Error("getaddrinfo ENOTFOUND 6thsense.dev"), { code: "ENOTFOUND" })
+    });
+  }
+  return new Response("<html><body>No GitHub link</body></html>", { status: 200 });
+};
+`
+    );
+    execFileSync(process.execPath, [
+      "scripts/fetch-github-traction.mjs",
+      "--batch=S26",
+      "--max-companies=1",
+      "--website",
+      "--no-search",
+      "--official-source-retry-base-ms=0",
+      `--output=${output}`
+    ], {
+      cwd: repositoryRoot,
+      env: {
+        ...process.env,
+        NODE_OPTIONS: [process.env.NODE_OPTIONS, `--import=${preload}`].filter(Boolean).join(" ")
+      },
+      stdio: "pipe"
+    });
+
+    const snapshot = JSON.parse(await readFile(output, "utf8"));
+    const companyAttempt = Object.values(snapshot.attempts).find(
+      (attempt) => attempt.entityType === "company"
+    );
+    assert.deepEqual(companyAttempt.checkedSources.map((check) => check.status).sort(), [
+      "checked_empty",
+      "provider_blocked"
+    ]);
+    assert.equal(companyAttempt.outcomeStatus, "blocked_or_empty");
+    assert.equal(companyAttempt.outcomeReason, "collector_official_sources_checked_empty_or_blocked");
+    assert.equal(companyAttempt.successfulSourceCheckCount, 1);
+    assert.equal(companyAttempt.failedSourceCheckCount, 0);
+    assert.equal(companyAttempt.providerBlockedSourceCheckCount, 1);
+    assert.equal(companyAttempt.retryable, false);
+    assert.equal(snapshot.accounts.length, 0);
+    assert.deepEqual(autonomousCollectorRetryableFailures(snapshot), []);
   });
 
   it("uses a verified founder source when no standalone accelerator profile exists", async () => {
