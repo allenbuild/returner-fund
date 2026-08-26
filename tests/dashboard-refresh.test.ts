@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { DashboardCandidate, DashboardMetrics, DashboardPublicSnapshot } from "@/lib/dashboard/contracts";
 import {
+  assertConfiguredInstagramDiscoverySucceeded,
   assertConfiguredYoutubeDiscoverySucceeded,
   dashboardExternalCandidateCounts,
   dashboardExternalAttemptCount,
@@ -9,7 +10,10 @@ import {
   enrichDashboardCandidatesWithPriorSnapshotMetrics,
   retainPriorDashboardSnapshotOnBroadSourceFailure
 } from "@/lib/dashboard/refresh";
-import { MAX_DASHBOARD_YOUTUBE_CHANNELS } from "@/lib/dashboard/external-discovery";
+import {
+  MAX_DASHBOARD_INSTAGRAM_ACCOUNTS,
+  MAX_DASHBOARD_YOUTUBE_CHANNELS
+} from "@/lib/dashboard/external-discovery";
 import { buildDashboardSnapshot } from "@/lib/dashboard/pipeline";
 import { velocityScore } from "@/lib/dashboard/scoring";
 
@@ -25,6 +29,10 @@ describe("dashboard worker metric-history enrichment", () => {
     expect(dashboardExternalAttemptCount({ ...boundedSources, includeYoutubeSearch: true })).toBe(4);
     expect(dashboardExternalAttemptCount({
       ...boundedSources,
+      instagramAccounts: [{ name: "Apple", username: "apple" }, { name: "MKBHD", username: "mkbhd" }]
+    })).toBe(5);
+    expect(dashboardExternalAttemptCount({
+      ...boundedSources,
       youtubeChannels: [{ name: "Apple", handle: "Apple" }, { name: "MKBHD", handle: "mkbhd" }]
     })).toBe(5);
     expect(dashboardExternalAttemptCount({
@@ -34,6 +42,13 @@ describe("dashboard worker metric-history enrichment", () => {
         handle: `channel${index}`
       }))
     })).toBe(3 + MAX_DASHBOARD_YOUTUBE_CHANNELS);
+    expect(dashboardExternalAttemptCount({
+      ...boundedSources,
+      instagramAccounts: Array.from({ length: MAX_DASHBOARD_INSTAGRAM_ACCOUNTS + 5 }, (_, index) => ({
+        name: `Account ${index}`,
+        username: `account${index}`
+      }))
+    })).toBe(3 + MAX_DASHBOARD_INSTAGRAM_ACCOUNTS);
   });
 
   it("fails closed when every configured YouTube adapter lacks a source receipt", () => {
@@ -66,6 +81,24 @@ describe("dashboard worker metric-history enrichment", () => {
       ["hacker_news", "youtube:search"],
       ["youtube_apple_browse_http_429"]
     )).toThrowError("dashboard_youtube_discovery_unavailable:youtube_apple_browse_http_429");
+  });
+
+  it("fails closed only when the entire configured Instagram roster lacks a receipt", () => {
+    const accounts = [{ name: "Apple", username: "apple" }, { name: "Tech Burner", username: "techburner" }];
+
+    expect(() => assertConfiguredInstagramDiscoverySucceeded(
+      accounts,
+      ["hacker_news", "github"],
+      ["instagram_apple_http_429", "instagram_techburner_fetch_failed"]
+    )).toThrowError(
+      "dashboard_instagram_discovery_unavailable:instagram_apple_http_429,instagram_techburner_fetch_failed"
+    );
+    expect(() => assertConfiguredInstagramDiscoverySucceeded(
+      accounts,
+      ["hacker_news", "instagram:apple"],
+      ["instagram_techburner_http_503"]
+    )).not.toThrow();
+    expect(() => assertConfiguredInstagramDiscoverySucceeded([], ["hacker_news"])).not.toThrow();
   });
 
   it("reports sanitized per-platform eligibility and rejection counts, including zero YouTube candidates", () => {

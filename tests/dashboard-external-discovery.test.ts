@@ -1,11 +1,14 @@
 import { describe, expect, it, vi } from "vitest";
 import {
+  DEFAULT_DASHBOARD_INSTAGRAM_ACCOUNTS,
   DEFAULT_DASHBOARD_RESEARCH_FEEDS,
   DEFAULT_DASHBOARD_RSS_FEEDS,
   DEFAULT_DASHBOARD_YOUTUBE_CHANNELS,
   DEFAULT_DASHBOARD_YOUTUBE_SEARCH_QUERIES,
+  MAX_DASHBOARD_INSTAGRAM_ACCOUNTS,
   MAX_DASHBOARD_YOUTUBE_CHANNELS,
   discoverExternalDashboardCandidates,
+  fetchInstagramAccountCandidates,
   fetchYoutubeChannelCandidates,
   fetchYoutubeSearchCandidates
 } from "@/lib/dashboard/external-discovery";
@@ -16,6 +19,242 @@ const YOUTUBE_INNERTUBE_API_KEY = "AIzaUnitTestPublicKey_123456789012345";
 const YOUTUBE_INNERTUBE_CLIENT_VERSION = "2.20260815.00.00";
 
 describe("public dashboard discovery", () => {
+  it("accepts exact primary-author Instagram reels with native million-play counters", async () => {
+    const now = new Date("2026-08-26T10:23:46.764Z");
+    const requests: Array<{ url: URL; init: RequestInit }> = [];
+    const payloads = new Map<string, unknown>([
+      ["apple", instagramNativeFeedPayload("apple", [{
+        shortcode: "DcbalRNsXiS",
+        nativeMediaId: "3700000000000000001",
+        postedAt: "2026-08-24T16:00:18.000Z",
+        plays: 21_545_529,
+        likes: 387_079,
+        comments: 1_142,
+        caption: "Wait for the drop. #ShotoniPhone by Phineas P. Additional software used."
+      }])],
+      ["techburner", instagramNativeFeedPayload("techburner", [{
+        shortcode: "Dcd_FfvP96F",
+        nativeMediaId: "3700000000000000002",
+        postedAt: "2026-08-25T15:44:22.000Z",
+        plays: 2_887_229,
+        likes: 114_709,
+        comments: 503,
+        caption: "Robot Phone 🤯 #robot #ai #smartphone #reels"
+      }])]
+    ]);
+    const fetchImpl = vi.fn(async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
+      const url = new URL(String(input));
+      const username = url.pathname.split("/")[5] ?? "";
+      requests.push({ url, init: init ?? {} });
+      return json(payloads.get(username));
+    });
+
+    const [apple, techBurner] = await Promise.all([
+      fetchInstagramAccountCandidates(fetchImpl as typeof fetch, now, { name: "Apple", username: "apple" }),
+      fetchInstagramAccountCandidates(fetchImpl as typeof fetch, now, { name: "Tech Burner", username: "techburner" })
+    ]);
+
+    expect(requests).toHaveLength(2);
+    for (const request of requests) {
+      expect(request.url.hostname).toBe("www.instagram.com");
+      expect(request.url.pathname).toMatch(/^\/api\/v1\/feed\/user\/(?:apple|techburner)\/username\/$/);
+      expect(request.url.searchParams.get("count")).toBe("50");
+      expect(request.init.credentials).toBe("omit");
+      expect(request.init.redirect).toBe("error");
+      const headers = new Headers(request.init.headers);
+      expect(headers.get("x-ig-app-id")).toBe("936619743392459");
+      expect(headers.get("authorization")).toBeNull();
+      expect(headers.get("cookie")).toBeNull();
+    }
+    expect(apple.candidates).toEqual([expect.objectContaining({
+      canonicalKey: "instagram:post:DcbalRNsXiS",
+      url: "https://www.instagram.com/reel/DcbalRNsXiS",
+      platform: "instagram",
+      sourceKind: "video",
+      authorHandle: "apple",
+      title: expect.stringContaining("#ShotoniPhone"),
+      publishedAt: "2026-08-24T16:00:18.000Z",
+      metrics: { views: 21_545_529, likes: 387_079, comments: 1_142 },
+      socialBackfillEligible: true,
+      sourceVerified: true,
+      sourceLinkStatus: "verified",
+      publicationPrecision: "exact"
+    })]);
+    expect(techBurner.candidates).toEqual([expect.objectContaining({
+      canonicalKey: "instagram:post:Dcd_FfvP96F",
+      authorHandle: "techburner",
+      publishedAt: "2026-08-25T15:44:22.000Z",
+      metrics: { views: 2_887_229, likes: 114_709, comments: 503 }
+    })]);
+    const candidates = [...apple.candidates, ...techBurner.candidates];
+    expect(candidates.map((candidate) => dashboardTop100Eligibility(candidate, now).reason)).toEqual([
+      "eligible",
+      "eligible"
+    ]);
+    expect(buildDashboardSnapshot(candidates, { now }).snapshot.stories).toHaveLength(2);
+  });
+
+  it("rejects vague high-view Instagram content and preserves the million-view gate", async () => {
+    const now = new Date("2026-08-26T10:23:46.764Z");
+    const fetchImpl = vi.fn(async (): Promise<Response> => json(instagramNativeFeedPayload("mkbhd", [{
+      shortcode: "DcezzvJQRen",
+      nativeMediaId: "3700000000000000011",
+      postedAt: "2026-08-25T23:25:08.000Z",
+      plays: 1_757_687,
+      likes: 101_168,
+      comments: 854,
+      caption: "Do a flip"
+    }, {
+      shortcode: "DceTechBelow",
+      nativeMediaId: "3700000000000000012",
+      postedAt: "2026-08-25T22:00:00.000Z",
+      plays: 999_999,
+      likes: 90_000,
+      comments: 400,
+      caption: "New AI smartphone and robot hardware"
+    }])));
+
+    const result = await fetchInstagramAccountCandidates(fetchImpl as typeof fetch, now, {
+      name: "MKBHD",
+      username: "mkbhd"
+    });
+
+    expect(result.candidates).toHaveLength(2);
+    expect(dashboardTop100Eligibility(result.candidates[0]!, now)).toMatchObject({
+      eligible: false,
+      reason: "unverified_source"
+    });
+    expect(dashboardTop100Eligibility(result.candidates[1]!, now)).toMatchObject({
+      eligible: false,
+      reason: "below_one_million_views"
+    });
+    expect(buildDashboardSnapshot(result.candidates, { now }).snapshot.stories).toHaveLength(0);
+  });
+
+  it("fails closed on an Instagram envelope mismatch and drops a surface-only author", async () => {
+    const now = new Date("2026-08-26T10:23:46.764Z");
+    const mismatchedEnvelope = vi.fn(async (): Promise<Response> => json(
+      instagramNativeFeedPayload("techburner", [])
+    ));
+    await expect(fetchInstagramAccountCandidates(mismatchedEnvelope as typeof fetch, now, {
+      name: "Apple",
+      username: "apple"
+    })).rejects.toThrow("instagram_native_feed_username_mismatch");
+
+    const surfaceOnly = vi.fn(async (): Promise<Response> => json(instagramNativeFeedPayload("apple", [{
+      shortcode: "DcbSurfaceOnly",
+      nativeMediaId: "3700000000000000021",
+      postedAt: "2026-08-25T16:00:18.000Z",
+      plays: 9_000_000,
+      likes: 100_000,
+      comments: 1_000,
+      caption: "AI smartphone software",
+      authorUsername: "unrelatedcreator"
+    }])));
+    const result = await fetchInstagramAccountCandidates(surfaceOnly as typeof fetch, now, {
+      name: "Apple",
+      username: "apple"
+    });
+    expect(result.source).toBe("instagram:apple");
+    expect(result.candidates).toEqual([]);
+  });
+
+  it("requires exact native timestamps and an actual native view counter", async () => {
+    const now = new Date("2026-08-26T10:23:46.764Z");
+    const missingTimestamp = instagramNativeFeedPayload("apple", [{
+      shortcode: "DcbNoTimestamp",
+      nativeMediaId: "3700000000000000031",
+      postedAt: "2026-08-25T16:00:18.000Z",
+      plays: 9_000_000,
+      likes: 100_000,
+      comments: 1_000,
+      caption: "AI smartphone software"
+    }]) as { items: Array<Record<string, unknown>> };
+    delete missingTimestamp.items[0]!.taken_at;
+    await expect(fetchInstagramAccountCandidates(
+      vi.fn(async (): Promise<Response> => json(missingTimestamp)) as typeof fetch,
+      now,
+      { name: "Apple", username: "apple" }
+    )).rejects.toThrow("instagram_native_feed_item_malformed");
+
+    const missingViews = instagramNativeFeedPayload("apple", [{
+      shortcode: "DcbNoViews",
+      nativeMediaId: "3700000000000000032",
+      postedAt: "2026-08-25T16:00:18.000Z",
+      plays: null,
+      likes: 100_000,
+      comments: 1_000,
+      caption: "AI smartphone software"
+    }]);
+    const result = await fetchInstagramAccountCandidates(
+      vi.fn(async (): Promise<Response> => json(missingViews)) as typeof fetch,
+      now,
+      { name: "Apple", username: "apple" }
+    );
+    expect(result.candidates).toEqual([]);
+  });
+
+  it("ships a unique, bounded fixed Instagram roster", () => {
+    expect(DEFAULT_DASHBOARD_INSTAGRAM_ACCOUNTS).toHaveLength(17);
+    expect(DEFAULT_DASHBOARD_INSTAGRAM_ACCOUNTS.length).toBeLessThanOrEqual(MAX_DASHBOARD_INSTAGRAM_ACCOUNTS);
+    expect(DEFAULT_DASHBOARD_INSTAGRAM_ACCOUNTS.map(({ username }) => username)).toEqual(expect.arrayContaining([
+      "apple",
+      "mkbhd",
+      "techburner",
+      "openai",
+      "nvidia",
+      "samsungmobile"
+    ]));
+    expect(new Set(DEFAULT_DASHBOARD_INSTAGRAM_ACCOUNTS.map(({ username }) => username)).size).toBe(
+      DEFAULT_DASHBOARD_INSTAGRAM_ACCOUNTS.length
+    );
+  });
+
+  it("caps and concurrency-bounds an explicit Instagram roster", async () => {
+    const configured = Array.from({ length: MAX_DASHBOARD_INSTAGRAM_ACCOUNTS + 5 }, (_, index) => ({
+      name: `Account ${index}`,
+      username: `account${index}`
+    }));
+    const requestedUsernames: string[] = [];
+    let activeInstagramRequests = 0;
+    let maxActiveInstagramRequests = 0;
+    const fetchImpl = vi.fn(async (input: RequestInfo | URL): Promise<Response> => {
+      const url = new URL(String(input));
+      if (url.hostname === "hn.algolia.com") return json({ hits: [] });
+      if (url.hostname === "api.github.com" && url.pathname === "/search/repositories") return json({ items: [] });
+      if (url.hostname === "api.github.com" && url.pathname === "/events") return json([]);
+      if (url.hostname === "www.instagram.com") {
+        const username = url.pathname.split("/")[5] ?? "";
+        requestedUsernames.push(username);
+        activeInstagramRequests += 1;
+        maxActiveInstagramRequests = Math.max(maxActiveInstagramRequests, activeInstagramRequests);
+        await new Promise((resolve) => setTimeout(resolve, 5));
+        activeInstagramRequests -= 1;
+        return json(instagramNativeFeedPayload(username, []));
+      }
+      throw new Error(`Unexpected request ${url}`);
+    });
+
+    const result = await discoverExternalDashboardCandidates({
+      now: NOW,
+      fetchImpl: fetchImpl as typeof fetch,
+      instagramAccounts: configured,
+      rssFeeds: [],
+      researchFeeds: [],
+      redditSubreddits: []
+    });
+
+    expect(requestedUsernames).toEqual(configured
+      .slice(0, MAX_DASHBOARD_INSTAGRAM_ACCOUNTS)
+      .map(({ username }) => username));
+    expect(maxActiveInstagramRequests).toBe(3);
+    expect(result.failures).toEqual([]);
+    expect(result.sources.filter((source) => source.startsWith("instagram:"))).toHaveLength(
+      MAX_DASHBOARD_INSTAGRAM_ACCOUNTS
+    );
+    expect(fetchImpl).toHaveBeenCalledTimes(3 + MAX_DASHBOARD_INSTAGRAM_ACCOUNTS);
+  });
+
   it("uses fixed channel identity with no-key official browse and player requests", async () => {
     const channelId = "UCE_M8A5yxnLfW0KghEeajjw";
     const requests: Array<{ url: URL; method: string; headers: Headers; body: Record<string, unknown> }> = [];
@@ -1318,6 +1557,41 @@ describe("public dashboard discovery", () => {
     }
   });
 });
+
+interface InstagramNativeFeedFixturePost {
+  shortcode: string;
+  nativeMediaId: string;
+  postedAt: string;
+  plays: number | null;
+  likes: number;
+  comments: number;
+  caption: string;
+  authorUsername?: string;
+}
+
+function instagramNativeFeedPayload(
+  requestedUsername: string,
+  posts: InstagramNativeFeedFixturePost[]
+): { user: { username: string }; items: Array<Record<string, unknown>>; num_results: number; more_available: false; next_max_id: null } {
+  return {
+    user: { username: requestedUsername },
+    items: posts.map((post) => ({
+      code: post.shortcode,
+      pk: post.nativeMediaId,
+      taken_at: Math.trunc(new Date(post.postedAt).getTime() / 1_000),
+      user: { username: post.authorUsername ?? requestedUsername },
+      media_type: 2,
+      product_type: "clips",
+      play_count: post.plays,
+      like_count: post.likes,
+      comment_count: post.comments,
+      caption: { text: post.caption }
+    })),
+    num_results: posts.length,
+    more_available: false,
+    next_max_id: null
+  };
+}
 
 function json(value: unknown): Response {
   return new Response(JSON.stringify(value), {

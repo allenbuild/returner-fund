@@ -13,7 +13,9 @@ import {
   DEFAULT_DASHBOARD_REDDIT_SUBREDDITS,
   DEFAULT_DASHBOARD_RESEARCH_FEEDS,
   DEFAULT_DASHBOARD_RSS_FEEDS,
+  DEFAULT_DASHBOARD_INSTAGRAM_ACCOUNTS,
   DEFAULT_DASHBOARD_YOUTUBE_CHANNELS,
+  MAX_DASHBOARD_INSTAGRAM_ACCOUNTS,
   MAX_DASHBOARD_YOUTUBE_CHANNELS,
   discoverExternalDashboardCandidates,
   type ExternalDiscoveryOptions
@@ -111,18 +113,23 @@ export async function refreshTechnologyDashboard(
       githubToken: options.external?.githubToken ?? process.env.GITHUB_TOKEN ?? null,
       xBearerToken: options.external?.xBearerToken ?? process.env.X_BEARER_TOKEN ?? null,
       youtubeChannels: options.external?.youtubeChannels ?? DEFAULT_DASHBOARD_YOUTUBE_CHANNELS,
+      instagramAccounts: options.external?.instagramAccounts ?? DEFAULT_DASHBOARD_INSTAGRAM_ACCOUNTS,
       includeYoutubeSearch: options.external?.includeYoutubeSearch ?? true
     };
     externalAttempted = dashboardExternalAttemptCount(externalOptions);
     const external = await discoverExternalDashboardCandidates(externalOptions);
     assertConfiguredYoutubeDiscoverySucceeded(externalOptions.youtubeChannels, external.sources, external.failures);
+    assertConfiguredInstagramDiscoverySucceeded(externalOptions.instagramAccounts, external.sources, external.failures);
     candidates.push(...external.candidates);
     externalSucceeded = external.sources.length;
     sourceCounts.industry = external.candidates.length;
     Object.assign(sourceCounts, dashboardExternalCandidateCounts(
       external.candidates,
       now,
-      externalOptions.youtubeChannels?.length ? ["youtube"] : []
+      [
+        ...(externalOptions.youtubeChannels?.length ? ["youtube" as const] : []),
+        ...(externalOptions.instagramAccounts?.length ? ["instagram" as const] : [])
+      ]
     ));
     failures.push(...external.failures);
   }
@@ -245,8 +252,9 @@ export function dashboardExternalAttemptCount(options: ExternalDiscoveryOptions 
     : DEFAULT_DASHBOARD_REDDIT_SUBREDDITS.length;
   const xJobs = options?.xBearerToken?.trim() ? 1 : 0;
   const youtubeJobs = Math.min(options?.youtubeChannels?.length ?? 0, MAX_DASHBOARD_YOUTUBE_CHANNELS);
+  const instagramJobs = Math.min(options?.instagramAccounts?.length ?? 0, MAX_DASHBOARD_INSTAGRAM_ACCOUNTS);
   const youtubeSearchJobs = options?.includeYoutubeSearch === true ? 1 : 0;
-  return fixedJobs + rssJobs + researchJobs + redditJobs + xJobs + youtubeJobs + youtubeSearchJobs;
+  return fixedJobs + rssJobs + researchJobs + redditJobs + xJobs + youtubeJobs + instagramJobs + youtubeSearchJobs;
 }
 
 /**
@@ -297,6 +305,26 @@ export function assertConfiguredYoutubeDiscoverySucceeded(
     .slice(0, MAX_DASHBOARD_YOUTUBE_CHANNELS);
   const diagnostic = youtubeFailures.length > 0 ? youtubeFailures.join(",") : "no_failure_labels";
   throw new Error(`dashboard_youtube_discovery_unavailable:${diagnostic}`);
+}
+
+/**
+ * Treat a complete fixed-roster Instagram outage as a failed refresh so the
+ * publication retry path keeps the previous truthful social projection. A
+ * healthy account may return zero candidates; the invariant is the official
+ * source receipt, never a required viral result.
+ */
+export function assertConfiguredInstagramDiscoverySucceeded(
+  instagramAccounts: ExternalDiscoveryOptions["instagramAccounts"],
+  succeededSources: readonly string[],
+  failureLabels: readonly string[] = []
+): void {
+  if (!instagramAccounts?.length) return;
+  if (succeededSources.some((source) => source.startsWith("instagram:"))) return;
+  const instagramFailures = failureLabels
+    .filter((label) => /^instagram_[a-z0-9._-]+_(?:fetch_failed|http_\d+|[a-z0-9_-]+)$/i.test(label))
+    .slice(0, MAX_DASHBOARD_INSTAGRAM_ACCOUNTS);
+  const diagnostic = instagramFailures.length > 0 ? instagramFailures.join(",") : "no_failure_labels";
+  throw new Error(`dashboard_instagram_discovery_unavailable:${diagnostic}`);
 }
 
 function configuredRssFeedAttemptCount(): number {
