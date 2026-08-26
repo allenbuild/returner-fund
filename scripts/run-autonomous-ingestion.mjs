@@ -101,6 +101,10 @@ import {
   mergeLoggedInEvidenceRows
 } from "./lib/logged-in-evidence-content-dedupe.mjs";
 import { isTimelineCoverageMigrationUnavailable } from "./lib/timeline-migration-availability.mjs";
+import {
+  canonicalSocialAccountRowIdentity,
+  reconcileCanonicalSocialAccountRows
+} from "./lib/social-account-upsert-reconciliation.mjs";
 import { runAuthenticatedSocialRunnerPreflight } from "./verify-authenticated-social-runner.mjs";
 
 let root;
@@ -2331,8 +2335,15 @@ async function syncCatalogs(allCatalogs) {
       canonicalAccounts.set(identity, accountRow(inventory.account, inventory.entityType, inventory.entityId));
     }
   }
+  const existingCanonicalAccounts = await readExistingCanonicalSocialAccounts(
+    new Set([...canonicalAccounts.values()].map((account) => account.source_key))
+  );
+  const reconciledCanonicalAccounts = reconcileCanonicalSocialAccountRows(
+    [...canonicalAccounts.values()],
+    existingCanonicalAccounts
+  );
   const accountIdByIdentity = new Map();
-  await mapWithConcurrency(chunks([...canonicalAccounts.values()], 250), 4, async (accountRows) => {
+  await mapWithConcurrency(chunks(reconciledCanonicalAccounts, 250), 4, async (accountRows) => {
     if (accountRows.length === 0) return;
     const { data, error } = await runSupabaseOperation(
       "upsert canonical social accounts",
@@ -2403,6 +2414,28 @@ async function syncCatalogs(allCatalogs) {
   };
 }
 
+async function readExistingCanonicalSocialAccounts(sourceKeys) {
+  if (sourceKeys.size === 0) return [];
+  const matches = [];
+  for (let offset = 0; ; offset += 1_000) {
+    const { data, error } = await runSupabaseOperation(
+      "read existing canonical social accounts",
+      () => supabase
+        .from("social_accounts")
+        .select("id,source_key,entity_type,entity_id,platform,url,account_id")
+        .not("source_key", "is", null)
+        .order("id", { ascending: true })
+        .range(offset, offset + 999)
+    );
+    check(error, "read existing canonical social accounts");
+    for (const account of data ?? []) {
+      if (sourceKeys.has(account.source_key)) matches.push(account);
+    }
+    if ((data?.length ?? 0) < 1_000) break;
+  }
+  return matches;
+}
+
 function accountRow(account, entityType, entityId) {
   return {
     source_key: account.sourceKey,
@@ -2470,20 +2503,13 @@ function socialAccountOwnerKey(owner) {
 }
 
 function socialAccountIdentity(account) {
-  return `${String(account.platform).toLowerCase()}\u0000${canonicalAccountUrl(account.url)}`;
-}
-
-function canonicalAccountUrl(value) {
-  const raw = String(value ?? "").trim();
-  try {
-    const url = new URL(raw);
-    url.hostname = url.hostname.toLowerCase();
-    url.hash = "";
-    if (url.pathname !== "/") url.pathname = url.pathname.replace(/\/+$/, "");
-    return url.toString();
-  } catch {
-    return raw;
+  const identity = canonicalSocialAccountRowIdentity(account);
+  if (!identity) {
+    throw new Error(
+      `Canonical social account ${account?.sourceKey ?? account?.source_key ?? "unknown"} has an invalid platform or URL.`
+    );
   }
+  return identity;
 }
 
 async function enqueueTasks(tasks, catalogState) {

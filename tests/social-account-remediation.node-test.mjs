@@ -7,8 +7,96 @@ import {
   canonicalSocialAccountUrl,
   socialAccountIdentityKey
 } from "../scripts/lib/social-account-url.mjs";
+import {
+  canonicalSocialAccountRowIdentity,
+  reconcileCanonicalSocialAccountRows
+} from "../scripts/lib/social-account-upsert-reconciliation.mjs";
 
 const root = process.cwd();
+
+test("canonical account upserts preserve a durable identity across URL presentation drift", () => {
+  const sourceKey =
+    "acct:company:company-graphify-labs:github:https%3A%2F%2Fgithub.com%2Fgraphify-labs";
+  const incoming = {
+    source_key: sourceKey,
+    entity_type: "company",
+    entity_id: "incoming-company-id",
+    platform: "github",
+    handle: "Graphify-Labs",
+    url: "https://github.com/Graphify-Labs",
+    account_id: "incoming-native-id",
+    verified: true,
+    review_state: "verified",
+    discovered_from_url: "https://github.com/Graphify-Labs",
+    evidence_json: { matchReason: "current verified override" }
+  };
+  const existing = {
+    id: "durable-account-id",
+    source_key: sourceKey,
+    entity_type: "company",
+    entity_id: "durable-company-id",
+    platform: "github",
+    url: "https://github.com/graphify-labs",
+    account_id: null
+  };
+
+  assert.equal(
+    canonicalSocialAccountRowIdentity(incoming),
+    canonicalSocialAccountRowIdentity(existing)
+  );
+  assert.deepEqual(
+    reconcileCanonicalSocialAccountRows([incoming], [existing]),
+    [{
+      ...incoming,
+      source_key: sourceKey,
+      entity_type: "company",
+      entity_id: "durable-company-id",
+      platform: "github",
+      url: "https://github.com/graphify-labs",
+      account_id: null
+    }]
+  );
+});
+
+test("canonical account upserts fail closed when a source key changes account identity", () => {
+  const sourceKey = "acct:company:company-example:github:stable";
+  const existing = {
+    id: "durable-account-id",
+    source_key: sourceKey,
+    entity_type: "company",
+    entity_id: "durable-company-id",
+    platform: "github",
+    url: "https://github.com/example",
+    account_id: null
+  };
+  const incoming = {
+    source_key: sourceKey,
+    entity_type: "company",
+    entity_id: "durable-company-id",
+    platform: "github",
+    url: "https://github.com/different-example",
+    account_id: null
+  };
+
+  assert.throws(
+    () => reconcileCanonicalSocialAccountRows([incoming], [existing]),
+    /changed canonical identity; refusing to overwrite/
+  );
+  assert.throws(
+    () => reconcileCanonicalSocialAccountRows([existing], [
+      existing,
+      { ...existing, id: "second-durable-account-id" }
+    ]),
+    /resolves to multiple durable rows/
+  );
+  assert.throws(
+    () => reconcileCanonicalSocialAccountRows([
+      incoming,
+      { ...incoming, url: "https://github.com/third-example" }
+    ], []),
+    /assigned to multiple incoming identities/
+  );
+});
 
 test("canonical social account identity strips LinkedIn surfaces and rejects wrong hosts", () => {
   assert.equal(

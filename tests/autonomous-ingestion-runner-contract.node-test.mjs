@@ -3660,6 +3660,9 @@ describe("autonomous ingestion runner static safety contracts", () => {
     assert.ok(sync.includes("first_seen_at: now"));
     assert.ok(sync.includes("last_seen_at: now"));
     assert.ok(sync.includes("founderByBatchSourceKey"));
+    assert.ok(sync.includes("await readExistingCanonicalSocialAccounts("));
+    assert.ok(sync.includes("reconcileCanonicalSocialAccountRows("));
+    assert.ok(sync.includes('.select("id,source_key,entity_type,entity_id,platform,url,account_id")'));
     assert.ok(retirement.includes('review_state: "rejected"'));
     assert.ok(retirement.includes('retirement_reason: "absent_from_current_batch_owner_inventory"'));
     assert.doesNotMatch(retirement, /\.delete\(/);
