@@ -8,6 +8,7 @@ import {
   AUTONOMOUS_RUNNER_WALL_CLOCK_BUDGET_MS,
   AUTONOMOUS_RUNNER_WORKFLOW_HEADROOM_MS
 } from "./autonomous-ingestion-budget.mjs";
+import { startAutonomousIngestionPowerWatchdog } from "./autonomous-ingestion-power-watchdog.mjs";
 
 const DEFAULT_MAX_ATTEMPTS = 6;
 const DEFAULT_MAX_ELAPSED_SECONDS = 345 * 60;
@@ -187,7 +188,8 @@ export async function runAutonomousWorkflowRetries({
   runnerArguments,
   environment = process.env,
   now = Date.now,
-  runnerPath = defaultRunnerPath()
+  runnerPath = defaultRunnerPath(),
+  powerWatchdogOptions = {}
 } = {}) {
   if (!Array.isArray(runnerArguments)) {
     throw new TypeError("runnerArguments must be an array.");
@@ -209,8 +211,10 @@ export async function runAutonomousWorkflowRetries({
   let activeChildTerminationTimer = null;
   let terminationSignal = null;
   let lastAttempt = null;
+  let powerWatchdog = null;
 
   const forwardSignal = (signal) => {
+    if (terminationSignal) return;
     terminationSignal = signal;
     retryAbortController.abort(new Error(`Retry controller received ${signal}.`));
     if (activeChild && activeChild.exitCode === null && activeChild.signalCode === null) {
@@ -229,6 +233,11 @@ export async function runAutonomousWorkflowRetries({
   process.once("SIGTERM", sigtermHandler);
 
   try {
+    powerWatchdog = startAutonomousIngestionPowerWatchdog({
+      ...powerWatchdogOptions,
+      environment,
+      onLowReserve: () => forwardSignal("SIGTERM")
+    });
     for (let attempt = 1; attempt <= config.maxAttempts; attempt += 1) {
       if (terminationSignal) break;
       const remainingBeforeAttemptMs = deadlineAt - now();
@@ -310,6 +319,7 @@ export async function runAutonomousWorkflowRetries({
     if (terminationSignal === "SIGTERM") return 143;
     return nonZeroExitCode(lastAttempt?.execution.exitCode);
   } finally {
+    await powerWatchdog?.stop();
     if (activeChildTerminationTimer) clearTimeout(activeChildTerminationTimer);
     process.removeListener("SIGINT", sigintHandler);
     process.removeListener("SIGTERM", sigtermHandler);
