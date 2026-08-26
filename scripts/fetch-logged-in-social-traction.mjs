@@ -86,6 +86,7 @@ import {
   checkpointCanonicalRows
 } from "./lib/logged-in-checkpoint-union.mjs";
 import { canonicalSocialAccountUrl } from "./lib/social-account-url.mjs";
+import { validatedRepositoryDataRoot } from "./lib/validated-repository-data-root.mjs";
 
 if (booleanArg("--help") || booleanArg("-h")) {
   await writeStdout(`${usage()}\n`);
@@ -93,6 +94,13 @@ if (booleanArg("--help") || booleanArg("-h")) {
 }
 
 const root = process.cwd();
+// Keep executable and default output resolution pinned to the source checkout,
+// while reading mutable publication catalogs and evidence from the validated
+// artifact root supplied by the autonomous runner.
+const dataRoot = validatedRepositoryDataRoot(process.env.SCORING_DATA_ROOT, {
+  fallbackRoot: root,
+  label: "authenticated social data root"
+});
 const batchConfig = resolveBatchConfig(stringArg("--batch") ?? stringArg("--batch-slug") ?? "S26");
 const ycSnapshotPath = batchConfig.snapshotPath;
 const isolatedOutputPath = stringArg("--output-path");
@@ -115,16 +123,16 @@ const checkpointPaths = [
   join(root, "work", "logged-in-social-checkpoint-s2026.json"),
   join(root, "work", "logged-in-social-checkpoint-a16zsr006.json")
 ].filter((path, index, paths) => paths.indexOf(path) === index);
-const verifiedSocialOverridesPath = join(root, "src", "lib", "social", "verified-social-overrides.json");
+const verifiedSocialOverridesPath = join(dataRoot, "src", "lib", "social", "verified-social-overrides.json");
 const priorityEvidencePaths = [
-  join(root, "src", "lib", "social", "public-evidence-current.json"),
-  join(root, "src", "lib", "social", "targeted-evidence-current.json"),
-  join(root, "src", "lib", "social", "a16z-speedrun-006-social-evidence.json"),
+  join(dataRoot, "src", "lib", "social", "public-evidence-current.json"),
+  join(dataRoot, "src", "lib", "social", "targeted-evidence-current.json"),
+  join(dataRoot, "src", "lib", "social", "a16z-speedrun-006-social-evidence.json"),
   // Autonomous collectors write to isolated campaign outputs. Include the
   // published authenticated corpus when prioritizing those isolated runs so
   // the five-target LinkedIn safety lane advances through untouched accounts
   // instead of repeatedly selecting the same zero-checkpoint targets.
-  join(root, "src", "lib", "social", "logged-in-evidence-current.json")
+  join(dataRoot, "src", "lib", "social", "logged-in-evidence-current.json")
 ];
 const collectionNowMs = Date.now();
 const now = new Date(collectionNowMs).toISOString();
@@ -201,7 +209,7 @@ const verifiedSocialOverrides = await readRequiredCanonicalJson(
   "Verified social overrides"
 );
 const resolveLegacyLoggedInEvidenceBatch = buildLegacyPublicEvidenceBatchResolver(
-  await loadAutonomousCatalogs(root)
+  await loadAutonomousCatalogs(dataRoot)
 );
 const targetCompanies = ycSnapshot.companies.filter(
   (company) =>
@@ -2967,21 +2975,21 @@ function resolveBatchConfig(value) {
     return {
       slug: "S26",
       label: "YC Summer 2026 (S26)",
-      snapshotPath: join(root, "src", "lib", "yc", "summer-2026-companies.json")
+      snapshotPath: join(dataRoot, "src", "lib", "yc", "summer-2026-companies.json")
     };
   }
   if (["S2026", "P26", "YCS2026", "YCP26", "SPRING2026", "YCSPRING2026"].includes(normalized)) {
     return {
       slug: "S2026",
       label: "YC Spring 2026 (P26)",
-      snapshotPath: join(root, "src", "lib", "yc", "spring-2026-companies.json")
+      snapshotPath: join(dataRoot, "src", "lib", "yc", "spring-2026-companies.json")
     };
   }
   if (["A16ZSR006", "A16ZSPEEDRUN006", "SPEEDRUN006"].includes(normalized)) {
     return {
       slug: "A16ZSR006",
       label: "a16z Speedrun 006",
-      snapshotPath: join(root, "public", "graph", "a16zsr006.json")
+      snapshotPath: join(dataRoot, "public", "graph", "a16zsr006.json")
     };
   }
   throw new Error(`Unsupported --batch=${value}. Supported batches: S26, S2026, A16ZSR006.`);

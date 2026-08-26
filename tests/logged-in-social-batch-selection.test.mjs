@@ -1,8 +1,10 @@
 import { execFileSync, spawnSync } from "node:child_process";
 import {
+  cpSync,
   mkdirSync,
   mkdtempSync,
   readFileSync,
+  realpathSync,
   rmSync,
   statSync,
   writeFileSync
@@ -26,7 +28,67 @@ describe("logged-in social batch selection", () => {
       path.join(root, "scripts", "fetch-logged-in-social-traction.mjs"),
       "utf8"
     );
-    expect(source).toContain('join(root, "src", "lib", "social", "logged-in-evidence-current.json")');
+    expect(source).toContain('join(dataRoot, "src", "lib", "social", "logged-in-evidence-current.json")');
+  });
+
+  it("plans authenticated targets from the explicit refreshed data root", () => {
+    const fixture = createAuthenticatedDataRootFixture();
+    try {
+      const snapshotPath = path.join(
+        fixture.dataRoot,
+        "src",
+        "lib",
+        "yc",
+        "summer-2026-companies.json"
+      );
+      const snapshot = JSON.parse(readFileSync(snapshotPath, "utf8"));
+      const company = snapshot.companies.find((candidate) => candidate.slug === "6thsense");
+      company.socialLinks = {
+        ...company.socialLinks,
+        instagram: "https://www.instagram.com/refreshed_data_root/"
+      };
+      company.matchReason = "Official company website outbound profile.";
+      writeFileSync(snapshotPath, `${JSON.stringify(snapshot, null, 2)}\n`);
+
+      const plan = runPlan([
+        "--batch=S26",
+        "--company=6thsense",
+        "--entities=company",
+        "--platforms=instagram",
+        `--checkpoint-path=${path.join(fixture.parent, "missing-checkpoint.json")}`
+      ], { SCORING_DATA_ROOT: fixture.dataRoot });
+
+      expect(plan.snapshotPath).toBe(path.join(
+        realpathSync(fixture.dataRoot),
+        "src",
+        "lib",
+        "yc",
+        "summer-2026-companies.json"
+      ));
+      expect(plan.targets).toEqual(expect.arrayContaining([
+        expect.objectContaining({
+          companySlug: "6thsense",
+          platform: "instagram",
+          accountUrl: "https://www.instagram.com/refreshed_data_root/"
+        })
+      ]));
+    } finally {
+      rmSync(fixture.parent, { recursive: true, force: true });
+    }
+  });
+
+  it("rejects a relative authenticated data root", () => {
+    const result = runPlanProcess([
+      "--batch=S26",
+      "--company=6thsense",
+      "--entities=company",
+      "--platforms=x"
+    ], { SCORING_DATA_ROOT: "relative-data-root" });
+
+    expect(result.status).not.toBe(0);
+    expect(result.stderr).toContain(
+      "authenticated social data root must be an absolute path"
+    );
   });
 
   it("plans the official Eden founder LinkedIn activity targets for Spring/P26", () => {
@@ -396,11 +458,16 @@ describe("native LinkedIn identity extraction", () => {
   });
 });
 
-function runPlan(args) {
+function runPlan(args, env = {}) {
   const output = execFileSync(
     process.execPath,
     ["scripts/fetch-logged-in-social-traction.mjs", "--plan", ...args],
-    { cwd: root, encoding: "utf8", maxBuffer: 20 * 1024 * 1024 }
+    {
+      cwd: root,
+      encoding: "utf8",
+      maxBuffer: 20 * 1024 * 1024,
+      env: { ...process.env, ...env }
+    }
   );
   return JSON.parse(output.slice(output.indexOf("{")));
 }
@@ -414,10 +481,34 @@ function runPublicPlan(args) {
   return JSON.parse(output.slice(output.indexOf("{")));
 }
 
-function runPlanProcess(args) {
+function runPlanProcess(args, env = {}) {
   return spawnSync(
     process.execPath,
     ["scripts/fetch-logged-in-social-traction.mjs", "--plan", ...args],
-    { cwd: root, encoding: "utf8", maxBuffer: 20 * 1024 * 1024 }
+    {
+      cwd: root,
+      encoding: "utf8",
+      maxBuffer: 20 * 1024 * 1024,
+      env: { ...process.env, ...env }
+    }
   );
+}
+
+function createAuthenticatedDataRootFixture() {
+  const parent = mkdtempSync(path.join(tmpdir(), "returner-authenticated-data-root-test-"));
+  const dataRoot = path.join(parent, "publication");
+  for (const relativePath of [
+    "package.json",
+    "public/graph/a16zsr006.json",
+    "src/lib/social/a16z-speedrun-006-social-accounts.json",
+    "src/lib/social/verified-social-overrides.json",
+    "src/lib/yc/spring-2026-companies.json",
+    "src/lib/yc/summer-2026-companies.json",
+    "src/lib/yc/summer-2026-company-aliases.json"
+  ]) {
+    const destination = path.join(dataRoot, relativePath);
+    mkdirSync(path.dirname(destination), { recursive: true });
+    cpSync(path.join(root, relativePath), destination);
+  }
+  return { parent, dataRoot };
 }
