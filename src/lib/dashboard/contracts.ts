@@ -79,6 +79,16 @@ export type DashboardSourceKind = (typeof DASHBOARD_SOURCE_KINDS)[number];
 export const DASHBOARD_TOP100_CONTENT_KINDS = ["viral_post", "news_article"] as const;
 export type DashboardTop100ContentKind = (typeof DASHBOARD_TOP100_CONTENT_KINDS)[number];
 
+export type DashboardTop100EligibilityReason =
+  | "eligible"
+  | "outside_72_hour_window"
+  | "missing_precise_publication_date"
+  | "unverified_source"
+  | "invalid_link"
+  | "missing_article_content"
+  | "below_one_million_views"
+  | "unsupported_content";
+
 const DASHBOARD_TOP100_SOCIAL_PLATFORMS = new Set<DashboardNativePlatform>([
   "x", "instagram", "linkedin", "youtube", "tiktok", "bluesky"
 ]);
@@ -387,6 +397,8 @@ export interface DashboardPipelineResult {
     clusterCount: number;
     newStoryCount: number;
     updatedStoryCount: number;
+    /** One terminal hard-gate decision per physically deduplicated candidate. */
+    eligibilityReasonDistribution: Record<DashboardTop100EligibilityReason, number>;
     platformDistribution: Record<string, number>;
     topicDistribution: Record<string, number>;
     universeDistribution: Record<DashboardStoryUniverse, number>;

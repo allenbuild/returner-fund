@@ -4,6 +4,7 @@ import {
   assertConfiguredYoutubeDiscoverySucceeded,
   dashboardExternalCandidateCounts,
   dashboardExternalAttemptCount,
+  dashboardRefreshLogDiagnostics,
   dashboardRefreshSourceHealth,
   enrichDashboardCandidatesWithPriorSnapshotMetrics,
   retainPriorDashboardSnapshotOnBroadSourceFailure
@@ -157,6 +158,28 @@ describe("dashboard worker metric-history enrichment", () => {
       failedSourceCount: 57,
       broadSourceFailure: true
     });
+  });
+
+  it("projects only bounded aggregate diagnostics into the worker log", () => {
+    const pipeline = buildDashboardSnapshot([
+      qualifyingSocialCandidate("eligible"),
+      qualifyingSocialCandidate("second")
+    ], { now: NOW });
+    const diagnosticsWithUnsafeFutureField = {
+      ...pipeline.diagnostics,
+      rawCandidateSample: [{ title: "private title", url: "https://private.example.com/source" }]
+    };
+
+    const logged = dashboardRefreshLogDiagnostics({
+      diagnostics: diagnosticsWithUnsafeFutureField
+    });
+
+    expect(logged).toEqual({
+      platformDistribution: pipeline.diagnostics.platformDistribution,
+      eligibilityReasonDistribution: pipeline.diagnostics.eligibilityReasonDistribution
+    });
+    expect(JSON.stringify(logged)).not.toContain("private title");
+    expect(JSON.stringify(logged)).not.toContain("private.example.com");
   });
 
   it("retains and marks the prior truthful window only when broad source failure shrinks it", () => {

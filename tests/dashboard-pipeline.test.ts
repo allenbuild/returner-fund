@@ -170,6 +170,66 @@ describe("technology dashboard pipeline", () => {
     ], { now: NOW }).snapshot.stories).toEqual([]);
   });
 
+  it("counts every terminal eligibility reason after physical-source deduplication", () => {
+    const eligible = dashboardCandidate({ id: "eligible" });
+    const result = buildDashboardSnapshot([
+      eligible,
+      eligible,
+      dashboardCandidate({
+        id: "outside-window",
+        publishedAt: "2026-08-12T11:59:59.999Z"
+      }),
+      dashboardCandidate({
+        id: "missing-precision",
+        publicationPrecision: "unknown"
+      }),
+      dashboardCandidate({
+        id: "unverified",
+        sourceVerified: false
+      }),
+      dashboardCandidate({
+        id: "invalid-link",
+        sourceLinkStatus: "unchecked"
+      }),
+      dashboardCandidate({
+        id: "missing-article-content",
+        canonicalKey: "web:missing-article-content",
+        platform: "web",
+        sourceKind: "article",
+        url: "https://publisher.example.com/empty",
+        title: "",
+        summary: "",
+        text: "",
+        metrics: {},
+        independentlyReported: true
+      }),
+      dashboardCandidate({
+        id: "below-minimum-views",
+        metrics: { views: DASHBOARD_MIN_SOCIAL_VIEWS - 1 }
+      }),
+      dashboardCandidate({
+        id: "unsupported-content",
+        canonicalKey: "github:unsupported-content",
+        platform: "github",
+        sourceKind: "repository",
+        url: "https://github.com/example/unsupported-content"
+      })
+    ], { now: NOW });
+
+    expect(result.diagnostics.duplicateSourcesRemoved).toBe(1);
+    expect(result.diagnostics.eligibilityReasonDistribution).toEqual({
+      eligible: 1,
+      outside_72_hour_window: 1,
+      missing_precise_publication_date: 1,
+      unverified_source: 1,
+      invalid_link: 1,
+      missing_article_content: 1,
+      below_one_million_views: 1,
+      unsupported_content: 1
+    });
+    expect(Object.values(result.diagnostics.eligibilityReasonDistribution).reduce((sum, count) => sum + count, 0)).toBe(8);
+  });
+
   it("uses broad candidates for clustering but excludes them from published sources and scoring", () => {
     const qualifiedNews = dashboardCandidate({
       id: "qualified-news",

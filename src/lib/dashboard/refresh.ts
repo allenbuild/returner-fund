@@ -56,6 +56,21 @@ export interface DashboardRefreshSourceHealthInput {
   externalSucceeded: number;
 }
 
+export interface DashboardRefreshLogDiagnostics {
+  platformDistribution: DashboardPipelineResult["diagnostics"]["platformDistribution"];
+  eligibilityReasonDistribution: DashboardPipelineResult["diagnostics"]["eligibilityReasonDistribution"];
+}
+
+/** Restricts worker logs to bounded aggregate diagnostics, never source rows. */
+export function dashboardRefreshLogDiagnostics(
+  result: Pick<DashboardRefreshResult, "diagnostics">
+): DashboardRefreshLogDiagnostics {
+  return {
+    platformDistribution: { ...result.diagnostics.platformDistribution },
+    eligibilityReasonDistribution: { ...result.diagnostics.eligibilityReasonDistribution }
+  };
+}
+
 /**
  * Worker-only refresh orchestration. It is not imported by the route/page;
  * each source is isolated so an outage produces a partial snapshot rather

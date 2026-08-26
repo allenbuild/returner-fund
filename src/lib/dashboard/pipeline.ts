@@ -16,6 +16,7 @@ import {
   type DashboardStory,
   type DashboardStorySource,
   type DashboardTop100ContentKind,
+  type DashboardTop100EligibilityReason,
   type DashboardTopic,
   type DashboardTrendStatus,
   type DashboardView,
@@ -38,6 +39,8 @@ import {
   platformNormalizedSignificance,
   scoreDashboardStory
 } from "./scoring";
+
+export type { DashboardTop100EligibilityReason } from "./contracts";
 
 type UnrankedDashboardStory = Omit<DashboardStory, "rank" | "previousRank" | "rankDelta" | "trendStatus" | "viewRankings">;
 
@@ -97,7 +100,15 @@ export function buildDashboardSnapshot(
       }] : [];
     })
   );
-  const diagnostics = buildDiagnostics(candidates, uniqueCandidates, eligibleCandidates, clusters, rankedStories, priorRanks);
+  const diagnostics = buildDiagnostics(
+    candidates,
+    uniqueCandidates,
+    eligibleCandidates,
+    clusters,
+    rankedStories,
+    priorRanks,
+    now
+  );
   const snapshot: DashboardPipelineResult["snapshot"] = {
     schemaVersion: DASHBOARD_SCHEMA_VERSION,
     generatedAt: now.toISOString(),
@@ -143,16 +154,6 @@ const HIGH_CONFIDENCE_SOCIAL_TOPICS = new Set<DashboardTopic>([
 // topic is already a high-confidence product, research, funding, or launch.
 const TECHNOLOGY_SOCIAL_SIGNAL = /\b(?:ai|artificial intelligence|machine learning|llm|model|agent|software|api|database|developer|code|coding|open[ -]?source|cloud|computer|robot(?:ics)?|automation|compute|inference|gpu|chip|hardware|voice|speech|screen|browser|security|biotech|healthtech|medical|healthcare|infrastructure|infra|saas|fintech|payments?|operating system|engineering|terminal|vision|simulat(?:ion|e)|autonom(?:ous|y)|drone|energy|nuclear|manufactur(?:ing)?|scientific|research|benchmark|dictation|language model|machine vision|digital twin|mri|concept phone|smartphone|mac mini|mac studio|macbook)\b/i;
 const NON_TECH_SOCIAL_SIGNAL = /\b(?:novelas?|telenovelas?|romance|amor|mafia|futbol(?:ista)?|football|super bowl|nfl|nba|mlb|nhl|soccer|golf|pickleball|world cup|sports?(?: betting)?|fantasy(?: football)?|episode|episodio|trailer|celebrity|gossip|fashion|outfit|birthday|wedding|altar|plants?|dogs?|pets?)\b/i;
-
-export type DashboardTop100EligibilityReason =
-  | "eligible"
-  | "outside_72_hour_window"
-  | "missing_precise_publication_date"
-  | "unverified_source"
-  | "invalid_link"
-  | "missing_article_content"
-  | "below_one_million_views"
-  | "unsupported_content";
 
 export interface DashboardTop100Eligibility {
   eligible: boolean;
@@ -937,8 +938,10 @@ function buildDiagnostics(
   eligible: readonly DashboardCandidate[],
   clusters: readonly DashboardStoryCluster[],
   stories: readonly DashboardStory[],
-  priorRanks: ReadonlyMap<string, DashboardRankSnapshot>
+  priorRanks: ReadonlyMap<string, DashboardRankSnapshot>,
+  now: Date
 ): DashboardPipelineResult["diagnostics"] {
+  const eligibilityReasonDistribution = countEligibilityReasons(unique, now);
   const platformDistribution = countBy(eligible, (candidate) => dashboardPlatformForCandidate(candidate));
   const topicDistribution = countBy(stories.flatMap((story) => story.topics), (topic) => topic);
   const universeDistribution = {
@@ -952,10 +955,31 @@ function buildDiagnostics(
     clusterCount: clusters.length,
     newStoryCount: stories.filter((story) => !priorRanks.has(rankSnapshotKey(story.stableKey, "hottest"))).length,
     updatedStoryCount: stories.filter((story) => priorRanks.has(rankSnapshotKey(story.stableKey, "hottest"))).length,
+    eligibilityReasonDistribution,
     platformDistribution,
     topicDistribution,
     universeDistribution
   };
+}
+
+function countEligibilityReasons(
+  candidates: readonly DashboardCandidate[],
+  now: Date
+): Record<DashboardTop100EligibilityReason, number> {
+  const counts: Record<DashboardTop100EligibilityReason, number> = {
+    eligible: 0,
+    outside_72_hour_window: 0,
+    missing_precise_publication_date: 0,
+    unverified_source: 0,
+    invalid_link: 0,
+    missing_article_content: 0,
+    below_one_million_views: 0,
+    unsupported_content: 0
+  };
+  for (const candidate of candidates) {
+    counts[dashboardTop100Eligibility(candidate, now).reason] += 1;
+  }
+  return counts;
 }
 
 function countBy<T>(items: readonly T[], keyFor: (item: T) => string): Record<string, number> {

@@ -4,6 +4,7 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import {
+  dashboardRefreshLogDiagnostics,
   refreshTechnologyDashboard,
   retainPriorDashboardSnapshotOnBroadSourceFailure
 } from "../src/lib/dashboard/refresh.ts";
@@ -37,6 +38,7 @@ async function main() {
   if (!isDashboardPublicSnapshot(result.snapshot)) {
     throw new Error("Dashboard refresh produced an invalid public snapshot.");
   }
+  const diagnostics = dashboardRefreshLogDiagnostics(result);
   const retainedSnapshot = retainPriorDashboardSnapshotOnBroadSourceFailure(
     priorSnapshot,
     result.snapshot,
@@ -65,6 +67,7 @@ async function main() {
       eligibleCandidateCount: result.snapshot.status.eligibleCandidateCount,
       sourceCounts: result.sourceCounts,
       sourceHealth: result.sourceHealth,
+      diagnostics,
       platformFailures: result.sourceFailures,
       artifactPath: "artifacts/dashboard/current.json"
     })}\n`);
@@ -93,6 +96,7 @@ async function main() {
     eligibleCandidateCount: result.snapshot.status.eligibleCandidateCount,
     sourceCounts: result.sourceCounts,
     sourceHealth: result.sourceHealth,
+    diagnostics,
     platformFailures: result.sourceFailures,
     persistence,
     artifactPath: "artifacts/dashboard/current.json"
