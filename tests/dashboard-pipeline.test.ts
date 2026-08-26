@@ -244,6 +244,36 @@ describe("technology dashboard pipeline", () => {
     }
   });
 
+  it("recognizes a concrete Redmi Note product-series signal without relaxing the million-view gate", () => {
+    const verifiedProductPost = dashboardCandidate({
+      id: "instagram:DcZYQjeCUd1",
+      canonicalKey: "instagram:post:DcZYQjeCUd1",
+      platform: "instagram",
+      sourceKind: "video",
+      url: "https://www.instagram.com/reel/DcZYQjeCUd1",
+      title: "A finish that changes with every turn of the light. See what's coming to the #REDMINote17Series.",
+      text: "A finish that changes with every turn of the light. See what's coming to the #REDMINote17Series.",
+      topics: [],
+      metrics: { views: DASHBOARD_MIN_SOCIAL_VIEWS }
+    });
+    const belowReach = dashboardCandidate({
+      ...verifiedProductPost,
+      id: "instagram:redmi-below-reach",
+      canonicalKey: "instagram:post:redmi-below-reach",
+      url: "https://www.instagram.com/reel/redmi-below-reach",
+      metrics: { views: DASHBOARD_MIN_SOCIAL_VIEWS - 1 }
+    });
+
+    expect(dashboardTop100Eligibility(verifiedProductPost, NOW)).toMatchObject({
+      eligible: true,
+      reason: "eligible"
+    });
+    expect(dashboardTop100Eligibility(belowReach, NOW)).toMatchObject({
+      eligible: false,
+      reason: "below_one_million_views"
+    });
+  });
+
   it("counts every terminal eligibility reason after physical-source deduplication", () => {
     const eligible = dashboardCandidate({ id: "eligible" });
     const result = buildDashboardSnapshot([
