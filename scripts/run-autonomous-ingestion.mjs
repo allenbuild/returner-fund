@@ -92,6 +92,7 @@ import { openLosslessPostArchive } from "./lib/lossless-post-archive.mjs";
 import { sanitizeRunnerFailureMessage } from "./lib/runner-failure-sanitizer.mjs";
 import { importEvidenceSnapshots } from "./lib/durable-evidence-import.mjs";
 import {
+  assertReplaySafePublicationAncestryChanges,
   assertReplaySafePublicationChanges,
   assertSafeInertPublicationBaseChanges,
   isProtectedSourcePolicyPath,
@@ -8719,7 +8720,7 @@ async function assertTrustedReplayPublicationCommit(
       cwd: pinnedSourceRoot
     }
   );
-  assertReplaySafePublicationChanges(parseNulPaths(changed.stdout), { label });
+  assertReplaySafePublicationAncestryChanges(parseNulPaths(changed.stdout), { label });
   await assertNoTrackedSymlinksAtCommit(commit, { label });
   return commit.toLowerCase();
 }

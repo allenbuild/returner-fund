@@ -307,6 +307,13 @@ describe("autonomous ingestion runner CLI", () => {
     runGit(publisherRoot, ["clone", remoteRoot, "."]);
     runGit(publisherRoot, ["config", "user.name", "Publisher Fixture"]);
     runGit(publisherRoot, ["config", "user.email", "publisher-fixture@example.com"]);
+    await mkdir(path.join(publisherRoot, "artifacts", "dashboard"), { recursive: true });
+    await mkdir(path.join(publisherRoot, "public", "dashboard"), { recursive: true });
+    await writeFile(path.join(publisherRoot, "artifacts", "dashboard", "current.json"), "{}\n");
+    await writeFile(path.join(publisherRoot, "public", "dashboard", "feed.json"), "{}\n");
+    runGit(publisherRoot, ["add", "artifacts/dashboard/current.json", "public/dashboard/feed.json"]);
+    runGit(publisherRoot, ["commit", "-m", "concurrent dashboard snapshot"]);
+    const dashboardBaseCommit = runGit(publisherRoot, ["rev-parse", "HEAD"]).stdout.trim();
     const idempotencyKey = "central-2026-08-10-1800";
     const receipt = {
       schemaVersion: 1,
@@ -356,6 +363,7 @@ describe("autonomous ingestion runner CLI", () => {
     ]);
     runGit(publisherRoot, ["push", "origin", "main"]);
     const remoteReceiptCommit = runGit(publisherRoot, ["rev-parse", "HEAD"]).stdout.trim();
+    assert.equal(runGit(publisherRoot, ["rev-parse", `${remoteReceiptCommit}^`]).stdout.trim(), dashboardBaseCommit);
     await writeFile(path.join(publisherRoot, "scripts", "later-code-only.mjs"), "export const later = true;\n");
     runGit(publisherRoot, ["add", "scripts/later-code-only.mjs"]);
     runGit(publisherRoot, ["commit", "-m", "later executable code"]);
