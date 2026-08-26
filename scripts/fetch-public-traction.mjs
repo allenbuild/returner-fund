@@ -113,6 +113,7 @@ const recentProofJournalDir = stringArg("--recent-proof-journal-dir")
   ? resolvePathArg(stringArg("--recent-proof-journal-dir"))
   : null;
 const now = new Date().toISOString();
+const REDDIT_PROVIDER_BLOCK_COOLDOWN_MS = 15 * 60_000;
 const recentCoverageCutoff = optionalCanonicalTimestampArg(
   stringArg("--recent-coverage-cutoff"),
   "--recent-coverage-cutoff"
@@ -2933,6 +2934,16 @@ async function ingestReddit(company) {
       const accessMessage = [401, 403, 429].includes(response.status)
         ? "Reddit public access blocked"
         : "Reddit public search JSON failed";
+      if ([401, 403, 429].includes(response.status)) {
+        const message = `${accessMessage}: HTTP ${response.status}.`;
+        return {
+          failures: [{
+            ...failure("reddit", company, url, message),
+            retryable: false,
+            blocker: redditPublicBlocker(response.status, message)
+          }]
+        };
+      }
       throw new Error(`${accessMessage}: HTTP ${response.status}.`);
     }
     const data = parsePublicJson(text, url);
@@ -7832,6 +7843,16 @@ function publicSearchBlockerFromError(error) {
     retryAt: error?.retryAt ?? null,
     httpStatus: Number.isInteger(error?.status) ? error.status : null,
     message: errorMessage(error)
+  });
+}
+
+function redditPublicBlocker(httpStatus, message) {
+  return Object.freeze({
+    provider: "reddit_public_json",
+    code: "reddit_public_access_blocked",
+    retryAt: new Date(Date.parse(now) + REDDIT_PROVIDER_BLOCK_COOLDOWN_MS).toISOString(),
+    httpStatus,
+    message
   });
 }
 
