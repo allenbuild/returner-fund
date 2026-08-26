@@ -13,6 +13,8 @@ export const INGESTION_PRIMARY_UTC_CRON_CANDIDATES = Object.freeze([
   "0 23 * * *"
 ]);
 export const INGESTION_RECOVERY_CRON = "7,22,37,52 * * * *";
+export const INGESTION_RECOVERY_DISPATCH_EVENT = "autonomous-ingestion-recovery";
+export const INGESTION_RECOVERY_DISPATCH_GITHUB_EVENT = "repository_dispatch";
 export const INGESTION_UTC_CRON_CANDIDATES = Object.freeze([
   ...INGESTION_PRIMARY_UTC_CRON_CANDIDATES,
   INGESTION_RECOVERY_CRON
@@ -45,6 +47,7 @@ export const PUBLICATION_WATERMARK_MANIFEST = Object.freeze({
 
 const REPLAY_KEY_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/;
 const CENTRAL_SLOT_KEY_PATTERN = /^central-\d{4}-\d{2}-\d{2}-(?:0600|1800)$/;
+const FULL_SHA_PATTERN = /^[0-9a-f]{40}$/i;
 const SCHEDULE_RETRY_REASON = "retry-publication-watermark";
 const STRICT_UTC_RFC3339 = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.\d{1,9})?Z$/;
 
@@ -65,11 +68,24 @@ export function resolveIngestionSchedule({
   eventName,
   schedule,
   replayKey,
+  eventAction,
+  recoveryExpectedHeadSha,
+  triggerSha,
   publicationState,
   now = new Date()
 } = {}) {
-  if (eventName === "schedule") {
-    return resolveScheduledIngestion({ schedule, publicationState, now });
+  if (
+    eventName === "schedule" ||
+    eventName === INGESTION_RECOVERY_DISPATCH_GITHUB_EVENT
+  ) {
+    const trustedSchedule = scheduleForTrustedEvent({
+      eventName,
+      schedule,
+      eventAction,
+      recoveryExpectedHeadSha,
+      triggerSha
+    });
+    return resolveScheduledIngestion({ schedule: trustedSchedule, publicationState, now });
   }
 
   if (eventName === "workflow_dispatch") {
@@ -136,10 +152,19 @@ export function revalidateIngestionCandidate({
   candidate,
   eventName,
   schedule,
+  eventAction,
+  recoveryExpectedHeadSha,
+  triggerSha,
   publicationState,
   now = new Date()
 } = {}) {
-  const validated = validateCandidateForRevalidation(candidate, { eventName });
+  const validated = validateCandidateForRevalidation(candidate, {
+    eventName,
+    schedule,
+    eventAction,
+    recoveryExpectedHeadSha,
+    triggerSha
+  });
   if (validated.trigger === "manual-replay") {
     return {
       accepted: true,
@@ -158,7 +183,11 @@ export function revalidateIngestionCandidate({
     };
   }
 
-  const current = resolveScheduledIngestion({ schedule, publicationState, now });
+  const current = resolveScheduledIngestion({
+    schedule: validated.schedule,
+    publicationState,
+    now
+  });
   if (!current.accepted) {
     if (current.reason !== "publication-watermark-current") {
       throw new Error(`Scheduled candidate revalidation failed closed: ${current.reason}.`);
@@ -192,7 +221,13 @@ export function revalidateIngestionCandidate({
   };
 }
 
-export function validateCandidateForRevalidation(candidate, { eventName } = {}) {
+export function validateCandidateForRevalidation(candidate, {
+  eventName,
+  schedule,
+  eventAction,
+  recoveryExpectedHeadSha,
+  triggerSha
+} = {}) {
   const trigger = cleanString(candidate?.trigger);
   const slotKey = cleanString(candidate?.slotKey);
   const scheduledAt = cleanString(candidate?.scheduledAt);
@@ -214,8 +249,15 @@ export function validateCandidateForRevalidation(candidate, { eventName } = {}) 
     return Object.freeze({ trigger, slotKey, scheduledAt: null, recoveryDebt: false });
   }
 
-  if (trigger !== "schedule" || eventName !== "schedule") {
-    throw new Error("Scheduled candidate must originate from a schedule event.");
+  const trustedSchedule = scheduleForTrustedEvent({
+    eventName,
+    schedule,
+    eventAction,
+    recoveryExpectedHeadSha,
+    triggerSha
+  });
+  if (trigger !== "schedule" || trustedSchedule === null) {
+    throw new Error("Scheduled candidate must originate from a trusted schedule wakeup.");
   }
   if (reason !== SCHEDULE_RETRY_REASON || candidate.recoveryDebt !== true) {
     throw new Error("Scheduled candidate is not authorized by the publication-watermark resolver.");
@@ -234,8 +276,35 @@ export function validateCandidateForRevalidation(candidate, { eventName } = {}) 
     trigger,
     slotKey,
     scheduledAt: scheduled.toISOString(),
-    recoveryDebt: true
+    recoveryDebt: true,
+    schedule: trustedSchedule
   });
+}
+
+export function scheduleForTrustedEvent({
+  eventName,
+  schedule,
+  eventAction,
+  recoveryExpectedHeadSha,
+  triggerSha
+} = {}) {
+  if (eventName === "schedule") return schedule;
+  if (eventName !== INGESTION_RECOVERY_DISPATCH_GITHUB_EVENT) return null;
+  if (eventAction !== INGESTION_RECOVERY_DISPATCH_EVENT) {
+    throw new Error("Recovery dispatch event type is not trusted.");
+  }
+
+  const expectedHeadSha = cleanString(recoveryExpectedHeadSha)?.toLowerCase() ?? "";
+  const actualTriggerSha = cleanString(triggerSha)?.toLowerCase() ?? "";
+  if (!FULL_SHA_PATTERN.test(expectedHeadSha) || !FULL_SHA_PATTERN.test(actualTriggerSha)) {
+    throw new Error("Recovery dispatch requires exact expected and triggered main commit SHAs.");
+  }
+  if (expectedHeadSha !== actualTriggerSha) {
+    throw new Error(
+      `Recovery dispatch main commit changed (expected ${expectedHeadSha}, triggered ${actualTriggerSha}).`
+    );
+  }
+  return INGESTION_RECOVERY_CRON;
 }
 
 export function resolveManualReplay(replayKey) {
@@ -522,7 +591,10 @@ export async function main(env = process.env, { cwd = process.cwd(), now = new D
   const revalidation = env.INGESTION_REVALIDATE_CANDIDATE === "true";
   const eventName = env.GITHUB_EVENT_NAME;
   let publicationState = null;
-  if (eventName === "schedule") {
+  if (
+    eventName === "schedule" ||
+    eventName === INGESTION_RECOVERY_DISPATCH_GITHUB_EVENT
+  ) {
     publicationState = await readPublicationWatermark({
       cwd,
       ref: cleanString(env.INGESTION_PUBLICATION_REF),
@@ -541,6 +613,9 @@ export async function main(env = process.env, { cwd = process.cwd(), now = new D
         },
         eventName,
         schedule: env.GITHUB_EVENT_SCHEDULE,
+        eventAction: env.GITHUB_EVENT_ACTION,
+        recoveryExpectedHeadSha: env.INGESTION_RECOVERY_EXPECTED_HEAD_SHA,
+        triggerSha: env.GITHUB_TRIGGER_SHA ?? env.GITHUB_SHA,
         publicationState,
         now
       })
@@ -548,6 +623,9 @@ export async function main(env = process.env, { cwd = process.cwd(), now = new D
         eventName,
         schedule: env.GITHUB_EVENT_SCHEDULE,
         replayKey: env.INGESTION_REPLAY_KEY,
+        eventAction: env.GITHUB_EVENT_ACTION,
+        recoveryExpectedHeadSha: env.INGESTION_RECOVERY_EXPECTED_HEAD_SHA,
+        triggerSha: env.GITHUB_TRIGGER_SHA ?? env.GITHUB_SHA,
         publicationState,
         now
       });

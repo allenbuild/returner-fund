@@ -3,19 +3,24 @@ import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import test from "node:test";
+import { fileURLToPath } from "node:url";
 import {
   acquireSupervisorLock,
+  createGitHubClient,
   evaluateLeaseLossEvent,
   evaluatePowerStatus,
+  evaluateScheduleRecovery,
   loadSupervisorState,
   parseWorkerLeaseLossLog,
   runSupervisor,
+  supervisorConfig,
   verifyCancelledAutonomousJob,
   verifyWorkflowRun
 } from "../scripts/supervise-autonomous-ingestion-job-lease.mjs";
 
 const CURRENT_SHA = "a".repeat(40);
 const STALE_SHA = "b".repeat(40);
+const repositoryRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const WORKER_LOG = `
 "jobDisplayName": "Publish accepted slot central-2026-08-25-1800",
 "contextData": {"github": {"d": [
@@ -42,6 +47,9 @@ function config(overrides = {}) {
     ghBin: "/opt/homebrew/bin/gh",
     minBatteryPercent: 60,
     maxWorkerLogBytes: 32 * 1024 * 1024,
+    scheduleRecoveryEnabled: false,
+    scheduleRecoverySilenceMinutes: 30,
+    scheduleRecoveryCooldownMinutes: 30,
     dryRun: false,
     ...overrides
   };
@@ -55,7 +63,8 @@ function workflow() {
   return {
     id: 42,
     name: "Autonomous Ingestion",
-    path: ".github/workflows/autonomous-ingestion.yml"
+    path: ".github/workflows/autonomous-ingestion.yml",
+    state: "active"
   };
 }
 
@@ -98,8 +107,16 @@ function github(overrides = {}) {
     getRun: async () => run(),
     getAttemptJobs: async () => jobs(),
     getBranchHead: async () => CURRENT_SHA,
+    getWorkflowRuns: async () => [],
     getActiveRuns: async () => [],
+    getRunners: async () => [{ id: 7, name: "returner-social-mac-allenxtech", status: "online", busy: false }],
+    getRepositoryText: async () => {
+      const error = new Error("fixture artifact is missing");
+      error.code = "ENOENT";
+      throw error;
+    },
     rerunFailedJobs: async () => {},
+    dispatchRecovery: async () => {},
     ...overrides
   };
 }
@@ -146,6 +163,21 @@ test("power gate admits AC or a healthy reserve and defers below 60 percent", ()
     { eligible: false, reason: "battery_below_reserve", percent: 59 }
   );
   assert.equal(evaluatePowerStatus("unknown").eligible, false);
+});
+
+test("schedule recovery is enabled with bounded silence and cooldown defaults", () => {
+  const defaults = supervisorConfig({});
+  assert.equal(defaults.scheduleRecoveryEnabled, true);
+  assert.equal(defaults.scheduleRecoverySilenceMinutes, 30);
+  assert.equal(defaults.scheduleRecoveryCooldownMinutes, 30);
+  assert.equal(
+    supervisorConfig({ RETURNER_SCHEDULE_RECOVERY_ENABLED: "false" }).scheduleRecoveryEnabled,
+    false
+  );
+  assert.throws(
+    () => supervisorConfig({ RETURNER_SCHEDULE_RECOVERY_SILENCE_MINUTES: "14" }),
+    /must be between 15 and 720/
+  );
 });
 
 test("remote verification is exact about workflow, failed run, runner, and cancelled step", () => {
@@ -246,6 +278,206 @@ test("active workflow and low reserve defer without issuing or deduping a rerun"
   assert.equal(lowBattery.action, "defer");
   assert.equal(lowBattery.reason, "battery_below_reserve");
   assert.equal(reruns, 0);
+});
+
+test("a dropped wake after an ordinary battery failure dispatches the canonical latest-slot recovery", async () => {
+  const dispatchedHeads = [];
+  const decision = await evaluateScheduleRecovery({
+    config: config({ scheduleRecoveryEnabled: true }),
+    github: github({
+      getWorkflowRuns: async () => [{
+        id: 880,
+        event: "schedule",
+        status: "completed",
+        conclusion: "failure",
+        created_at: "2026-08-26T04:30:00.000Z"
+      }],
+      dispatchRecovery: async (headSha) => dispatchedHeads.push(headSha)
+    }),
+    state: { recoveryDispatch: null },
+    readPowerStatus: async () => "Now drawing from 'AC Power'\n 72%; charging",
+    now: new Date("2026-08-26T05:05:00.000Z")
+  });
+
+  assert.equal(decision.action, "dispatch");
+  assert.equal(decision.slotKey, "central-2026-08-25-1800");
+  assert.equal(decision.scheduledAt, "2026-08-25T23:00:00.000Z");
+  assert.equal(decision.watermarkStatus, "missing");
+  assert.deepEqual(dispatchedHeads, [CURRENT_SHA]);
+});
+
+test("an active or pending autonomous run suppresses duplicate recovery", async () => {
+  let downstreamCalls = 0;
+  const decision = await evaluateScheduleRecovery({
+    config: config({ scheduleRecoveryEnabled: true }),
+    github: github({
+      getWorkflowRuns: async () => [{
+        id: 991,
+        event: "repository_dispatch",
+        status: "queued",
+        created_at: "2026-08-26T04:00:00.000Z"
+      }],
+      getRunners: async () => {
+        downstreamCalls += 1;
+        return [];
+      },
+      dispatchRecovery: async () => {
+        downstreamCalls += 1;
+      }
+    }),
+    state: { recoveryDispatch: null },
+    readPowerStatus: async () => {
+      downstreamCalls += 1;
+      return "Now drawing from 'AC Power'\n 100%; charged";
+    },
+    now: new Date("2026-08-26T05:05:00.000Z")
+  });
+
+  assert.equal(decision.action, "defer");
+  assert.equal(decision.reason, "autonomous_run_active");
+  assert.equal(decision.activeRunId, "991");
+  assert.equal(downstreamCalls, 0);
+});
+
+test("host recovery waits for the exact runner to be online and power-eligible", async () => {
+  let dispatches = 0;
+  const offline = await evaluateScheduleRecovery({
+    config: config({ scheduleRecoveryEnabled: true }),
+    github: github({
+      getWorkflowRuns: async () => [],
+      getRunners: async () => [{
+        id: 7,
+        name: "returner-social-mac-allenxtech",
+        status: "offline",
+        busy: false
+      }],
+      dispatchRecovery: async () => {
+        dispatches += 1;
+      }
+    }),
+    state: { recoveryDispatch: null },
+    readPowerStatus: async () => "Now drawing from 'AC Power'\n 100%; charged",
+    now: new Date("2026-08-26T05:05:00.000Z")
+  });
+  assert.equal(offline.reason, "runner_offline");
+
+  const lowBattery = await evaluateScheduleRecovery({
+    config: config({ scheduleRecoveryEnabled: true }),
+    github: github({
+      getWorkflowRuns: async () => [],
+      dispatchRecovery: async () => {
+        dispatches += 1;
+      }
+    }),
+    state: { recoveryDispatch: null },
+    readPowerStatus: async () => "Now drawing from 'Battery Power'\n 59%; discharging",
+    now: new Date("2026-08-26T05:05:00.000Z")
+  });
+  assert.equal(lowBattery.reason, "battery_below_reserve");
+  assert.equal(lowBattery.batteryPercent, 59);
+  assert.equal(dispatches, 0);
+});
+
+test("a current committed publication watermark makes host recovery a no-op", async () => {
+  const manifest = JSON.parse(
+    await readFile(path.join(repositoryRoot, "public/graph/manifest.json"), "utf8")
+  );
+  let dispatches = 0;
+  const decision = await evaluateScheduleRecovery({
+    config: config({ scheduleRecoveryEnabled: true }),
+    github: github({
+      getWorkflowRuns: async () => [{
+        id: 700,
+        event: "schedule",
+        status: "completed",
+        conclusion: "success",
+        created_at: "2026-08-24T12:00:00.000Z"
+      }],
+      getRepositoryText: (relativePath) => readFile(path.join(repositoryRoot, relativePath), "utf8"),
+      dispatchRecovery: async () => {
+        dispatches += 1;
+      }
+    }),
+    state: { recoveryDispatch: null },
+    readPowerStatus: async () => "Now drawing from 'AC Power'\n 100%; charged",
+    now: new Date(manifest.publishedAt)
+  });
+
+  assert.equal(decision.action, "current");
+  assert.equal(decision.reason, "publication-watermark-current");
+  assert.equal(decision.watermarkStatus, "current");
+  assert.equal(dispatches, 0);
+});
+
+test("missing workflow events dispatch once and durable same-slot cooldown prevents a storm", async (context) => {
+  const root = await mkdtemp(path.join(tmpdir(), "returner-schedule-recovery-test-"));
+  context.after(() => rm(root, { recursive: true, force: true }));
+  const runnerDiagDir = path.join(root, "diag");
+  const stateDir = path.join(root, "state");
+  await mkdir(runnerDiagDir, { recursive: true });
+  await mkdir(stateDir, { recursive: true });
+  const testConfig = config({
+    runnerDiagDir,
+    stateDir,
+    statePath: path.join(stateDir, "state-v1.json"),
+    lockPath: path.join(stateDir, "supervisor.lock"),
+    scheduleRecoveryEnabled: true
+  });
+  await writeFile(testConfig.statePath, `${JSON.stringify({
+    schemaVersion: 1,
+    initializedAt: "2026-08-26T03:00:00.000Z",
+    workerLogs: {},
+    handledEvents: {},
+    recoveryDispatch: null
+  })}\n`);
+  let dispatches = 0;
+  const api = github({
+    getWorkflowRuns: async () => [],
+    dispatchRecovery: async () => {
+      dispatches += 1;
+    }
+  });
+
+  const first = await runSupervisor({
+    config: testConfig,
+    github: api,
+    readPowerStatus: async () => "Now drawing from 'AC Power'\n 100%; charged",
+    now: () => new Date("2026-08-26T05:05:00.000Z")
+  });
+  assert.equal(first.recovery.action, "dispatch");
+  assert.equal(dispatches, 1);
+  const state = await loadSupervisorState(testConfig.statePath);
+  assert.deepEqual(state.recoveryDispatch, {
+    dispatchedAt: "2026-08-26T05:05:00.000Z",
+    eventType: "autonomous-ingestion-recovery",
+    expectedHeadSha: CURRENT_SHA,
+    slotKey: "central-2026-08-25-1800"
+  });
+
+  const second = await runSupervisor({
+    config: testConfig,
+    github: api,
+    readPowerStatus: async () => "Now drawing from 'AC Power'\n 100%; charged",
+    now: () => new Date("2026-08-26T05:10:00.000Z")
+  });
+  assert.equal(second.recovery.reason, "recovery_dispatch_cooldown");
+  assert.equal(dispatches, 1);
+});
+
+test("GitHub recovery dispatch sends only the trusted event and expected main SHA", async () => {
+  const calls = [];
+  const client = createGitHubClient(config(), {
+    execute: async (binary, args, options) => {
+      calls.push({ binary, args, options });
+      return { stdout: "", stderr: "" };
+    }
+  });
+
+  await client.dispatchRecovery(CURRENT_SHA);
+  assert.equal(calls.length, 1);
+  assert.ok(calls[0].args.includes("event_type=autonomous-ingestion-recovery"));
+  assert.ok(calls[0].args.includes(`client_payload[expected_head_sha]=${CURRENT_SHA}`));
+  assert.doesNotMatch(JSON.stringify(calls[0].args), /central-\d{4}/);
 });
 
 test("only an accepted rerun creates durable dedupe state", async (context) => {
@@ -373,5 +605,24 @@ test("LaunchAgent template is a five-minute one-shot without KeepAlive", async (
     template,
     /<string>__NODE_BIN__<\/string>\s*<string>__SUPERVISOR_SCRIPT__<\/string>/
   );
+  assert.match(
+    template,
+    /<key>RETURNER_SCHEDULE_RECOVERY_ENABLED<\/key>\s*<string>true<\/string>/
+  );
+  assert.match(
+    template,
+    /<key>RETURNER_SCHEDULE_RECOVERY_SILENCE_MINUTES<\/key>\s*<string>30<\/string>/
+  );
+  assert.match(
+    template,
+    /<key>RETURNER_SCHEDULE_RECOVERY_COOLDOWN_MINUTES<\/key>\s*<string>30<\/string>/
+  );
   assert.doesNotMatch(template, /<key>(?:KeepAlive|WatchPaths)<\/key>/);
+
+  const installer = await readFile(
+    new URL("../scripts/install-autonomous-ingestion-job-lease-supervisor.mjs", import.meta.url),
+    "utf8"
+  );
+  assert.match(installer, /installedScheduleModule/);
+  assert.match(installer, /scripts[\s\S]*?lib[\s\S]*?ingestion-schedule\.mjs/);
 });

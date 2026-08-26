@@ -15,6 +15,8 @@ import test from "node:test";
 import { fileURLToPath } from "node:url";
 import {
   INGESTION_UTC_CRON_CANDIDATES,
+  INGESTION_RECOVERY_DISPATCH_EVENT,
+  INGESTION_RECOVERY_DISPATCH_GITHUB_EVENT,
   latestEligibleCentralSlot,
   main as runScheduleController,
   readPublicationWatermark,
@@ -48,6 +50,77 @@ test("every scheduled cron is only a wakeup for the same newest eligible Central
     assert.equal(decision.recoveryDebt, true);
   }
   assert.equal(resolveScheduledIngestion({ schedule: "0 6 * * *", publicationState, now }).accepted, false);
+});
+
+test("trusted host recovery recomputes the exact newest Central slot without accepting a slot claim", () => {
+  const headSha = "a".repeat(40);
+  const now = new Date("2026-08-26T05:05:00.000Z");
+  const decision = resolveIngestionSchedule({
+    eventName: INGESTION_RECOVERY_DISPATCH_GITHUB_EVENT,
+    eventAction: INGESTION_RECOVERY_DISPATCH_EVENT,
+    recoveryExpectedHeadSha: headSha,
+    triggerSha: headSha,
+    replayKey: "central-1999-01-01-0600",
+    schedule: "untrusted-host-schedule",
+    publicationState: watermarkState(
+      "2026-08-24T14:38:24.295Z",
+      "2026-08-24T14:38:54.123Z"
+    ),
+    now
+  });
+
+  assert.equal(decision.accepted, true);
+  assert.equal(decision.trigger, "schedule");
+  assert.equal(decision.slotKey, "central-2026-08-25-1800");
+  assert.equal(decision.scheduledAt, "2026-08-25T23:00:00.000Z");
+  assert.equal(decision.recoveryDebt, true);
+
+  const revalidated = revalidateIngestionCandidate({
+    candidate: {
+      trigger: decision.trigger,
+      slotKey: decision.slotKey,
+      scheduledAt: decision.scheduledAt,
+      reason: decision.reason,
+      recoveryDebt: decision.recoveryDebt
+    },
+    eventName: INGESTION_RECOVERY_DISPATCH_GITHUB_EVENT,
+    eventAction: INGESTION_RECOVERY_DISPATCH_EVENT,
+    recoveryExpectedHeadSha: headSha,
+    triggerSha: headSha,
+    publicationState: watermarkState(
+      "2026-08-24T14:38:24.295Z",
+      "2026-08-24T14:38:54.123Z"
+    ),
+    now
+  });
+  assert.equal(revalidated.accepted, true);
+  assert.equal(revalidated.slotKey, decision.slotKey);
+  assert.equal(revalidated.reason, "revalidated-publication-watermark");
+});
+
+test("host recovery fails closed unless event type and expected main SHA are exact", () => {
+  const headSha = "a".repeat(40);
+  const base = {
+    eventName: INGESTION_RECOVERY_DISPATCH_GITHUB_EVENT,
+    eventAction: INGESTION_RECOVERY_DISPATCH_EVENT,
+    recoveryExpectedHeadSha: headSha,
+    triggerSha: headSha,
+    publicationState: { status: "missing" },
+    now: new Date("2026-08-26T05:05:00.000Z")
+  };
+
+  assert.throws(
+    () => resolveIngestionSchedule({ ...base, eventAction: "some-other-dispatch" }),
+    /event type is not trusted/
+  );
+  assert.throws(
+    () => resolveIngestionSchedule({ ...base, triggerSha: "b".repeat(40) }),
+    /main commit changed/
+  );
+  assert.throws(
+    () => resolveIngestionSchedule({ ...base, recoveryExpectedHeadSha: "" }),
+    /exact expected and triggered main commit SHAs/
+  );
 });
 
 test("minimum genuine graph timestamp is the publication watermark", () => {

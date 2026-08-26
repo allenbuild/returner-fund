@@ -121,6 +121,23 @@ test("workflow declares DST-safe primary candidates plus persistent recovery", (
 
   assert.deepEqual(cronCandidates, INGESTION_UTC_CRON_CANDIDATES);
   assert.match(workflow, /cron:\s*["']7,22,37,52 \* \* \* \*["']/);
+  assert.match(
+    workflow,
+    /repository_dispatch:\s*\n\s*types:\s*\[autonomous-ingestion-recovery\]/
+  );
+  assert.match(
+    workflow,
+    /INGESTION_RECOVERY_EXPECTED_HEAD_SHA:\s*\$\{\{ github\.event\.client_payload\.expected_head_sha \}\}/
+  );
+  assert.equal(
+    Array.from(
+      workflow.matchAll(
+        /INGESTION_RECOVERY_EXPECTED_HEAD_SHA:\s*\$\{\{ github\.event\.client_payload\.expected_head_sha \}\}/g
+      )
+    ).length,
+    3,
+    "resolver, serialized revalidation, and runner must share exact recovery-dispatch provenance"
+  );
   assert.match(workflow, /workflow_dispatch:\s*\n\s*inputs:\s*\n\s*replay_key:/);
   assert.match(workflow, /replay_key:[\s\S]*?required:\s*true/);
 });
@@ -458,6 +475,21 @@ test("all workflow shell blocks remain fixed at 56 and queued schedules are rech
   });
   assert.equal(freshIngestion.status, 0, `${freshIngestion.stdout}\n${freshIngestion.stderr}`);
 
+  const trustedHostRecovery = runScript(ingestionFreshness, repositoryRoot, {
+    NODE_OPTIONS: `--require=${freezeClock}`,
+    CANDIDATE_TRIGGER: "schedule",
+    CANDIDATE_SLOT_KEY: "central-2026-08-08-1800",
+    CANDIDATE_SCHEDULED_AT: "2026-08-08T23:00:00.000Z",
+    CANDIDATE_REASON: "retry-publication-watermark",
+    CANDIDATE_RECOVERY_DEBT: "true",
+    WORKFLOW_EVENT_NAME: "repository_dispatch"
+  });
+  assert.equal(
+    trustedHostRecovery.status,
+    0,
+    `${trustedHostRecovery.stdout}\n${trustedHostRecovery.stderr}`
+  );
+
   const historicalAuthorizedIngestion = runScript(ingestionFreshness, repositoryRoot, {
     NODE_OPTIONS: `--require=${freezeClock}`,
     CANDIDATE_TRIGGER: "schedule",
@@ -568,6 +600,8 @@ test("all workflow shell blocks remain fixed at 56 and queued schedules are rech
 test("workflow and receipt contracts are required by the ingestion check gate", () => {
   const contracts = packageJson.scripts["test:workflow-contracts"];
   assert.match(contracts, /tests\/autonomous-ingestion-workflow\.node-test\.mjs/);
+  assert.match(contracts, /tests\/autonomous-ingestion-job-lease-supervisor\.node-test\.mjs/);
+  assert.match(contracts, /tests\/ingestion-schedule\.node-test\.mjs/);
   assert.match(contracts, /tests\/autonomous-ingestion-receipt-policy\.node-test\.mjs/);
   assert.match(packageJson.scripts["test:collectors"], /npm run test:workflow-contracts/);
   assert.match(packageJson.scripts["test:collectors"], /npm run test:ingestion-contracts/);
