@@ -116,7 +116,7 @@ function parseSocialMediaPosting($, article) {
       directMeta($, article, "text") ??
       directMeta($, article, "headline")
   );
-  const postedAt = validIsoTimestamp(
+  const postedAt = validExactIsoTimestamp(
     directMeta($, article, "datePublished") ?? directMeta($, article, "dateCreated")
   );
 
@@ -254,6 +254,16 @@ function richerPost(left, right) {
 function validIsoTimestamp(value) {
   const timestamp = Date.parse(String(value ?? ""));
   return Number.isFinite(timestamp) ? new Date(timestamp).toISOString() : null;
+}
+
+function validExactIsoTimestamp(value) {
+  if (
+    typeof value !== "string" ||
+    !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,9})?(?:Z|[+-]\d{2}:\d{2})$/.test(value.trim())
+  ) {
+    return null;
+  }
+  return validIsoTimestamp(value);
 }
 
 function nonnegativeNumber(value) {

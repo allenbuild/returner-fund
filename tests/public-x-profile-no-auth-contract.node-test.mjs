@@ -94,6 +94,7 @@ test("a rerun reconciles stale same-post rows by native ID and keeps per-metric 
   assert.equal(rows.length, 1);
   assert.equal(rows[0].title, "this is much better than the video yall took in my apt lobby LMAO");
   assert.equal(rows[0].postedAt, "2026-07-31T21:32:07.000Z");
+  assert.equal(rows[0].publishedAtPrecision, "exact");
   assert.deepEqual(rows[0].metrics, {
     views: 400,
     likes: 5,
@@ -122,6 +123,19 @@ test("same native X post IDs with conflicting exact timestamps are quarantined",
   assert.equal(reviewRows.length, 1);
   assert.equal(reviewRows[0].xMetricReceipt.timestampConflict, true);
   assert.match(reviewRows[0].matchReason, /Conflicting exact native timestamps/);
+});
+
+test("a date-only X Schema.org label is rejected instead of promoted to exact", async (context) => {
+  const snapshot = await runMockedCodagCollector(context, {
+    xHtml: profileHtml({ includePost: true, postedAt: "2026-07-31" })
+  });
+
+  assert.equal(snapshot.evidence.some(
+    (row) => row.platformPostId === "2083304728046518692"
+  ), false);
+  assert.equal(snapshot.attempts[
+    "x:founder:founder-codag-michael-zhou-2706494:https://x.com/michaelzixizhou"
+  ].outcomeStatus, "needs_review");
 });
 
 test("zero-article X profiles are not terminally accepted as verified empty", async (context) => {
@@ -247,13 +261,13 @@ globalThis.fetch = async (url) => {
   return JSON.parse(await readFile(output, "utf8"));
 }
 
-function profileHtml({ includePost }) {
+function profileHtml({ includePost, postedAt = "2026-07-31T21:32:07.000Z" }) {
   return `<!doctype html><html><body>
     <div itemscope itemtype="https://schema.org/ProfilePage">
       <meta itemprop="url" content="https://x.com/michaelzixizhou">
       ${includePost ? `<article data-tweet-id="2083304728046518692" itemscope itemtype="https://schema.org/SocialMediaPosting">
         <meta itemprop="identifier" content="2083304728046518692">
-        <meta itemprop="datePublished" content="2026-07-31T21:32:07.000Z">
+        <meta itemprop="datePublished" content="${postedAt}">
         <meta itemprop="url" content="https://x.com/michaelzixizhou/status/2083304728046518692">
         <meta itemprop="articleBody" content="this is much better than the video yall took in my apt lobby LMAO">
         <div itemprop="author" itemscope itemtype="https://schema.org/Person">

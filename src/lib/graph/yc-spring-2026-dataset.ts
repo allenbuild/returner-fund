@@ -37,7 +37,10 @@ import {
 } from "./dedupe";
 import { evidenceDisplayText } from "./evidence-display";
 import { enrichEvidenceThumbnail } from "./evidence-thumbnails";
-import { nativeLinkStatusFromVerifiedReceipt } from "./native-link-attestation";
+import {
+  exactNativePublicationDateFromVerifiedReceipt,
+  nativeLinkStatusFromVerifiedReceipt
+} from "./native-link-attestation";
 import { originalEvidenceText } from "./verbatim-evidence-text";
 import { reconcilePublishedCompanyScores } from "./published-score-reconciliation";
 import {
@@ -1216,12 +1219,15 @@ function publicEvidenceItem(item: PublicEvidenceRecord): EvidenceItem {
     item.platform === "github" && githubTimestamps?.publishedAtPrecision !== "unknown"
       ? githubTimestamps
       : null;
+  const nativePublication = exactNativePublicationDateFromVerifiedReceipt(item);
   const rawAuthorHandle = nativeAuthor.handle ?? item.authorHandle ?? null;
   const authorHandle = item.platform === "linkedin"
     ? linkedInProfileHandle(rawAuthorHandle ?? undefined) ?? rawAuthorHandle
     : rawAuthorHandle;
   const sourceUrl = contextEvidenceContentUrl(item.platform, item.platformPostId) ?? item.sourceUrl;
-  const receiptLinkStatus = nativeLinkStatusFromVerifiedReceipt(item);
+  const receiptLinkStatus = nativeLinkStatusFromVerifiedReceipt(
+    nativePublication ? { ...item, ...nativePublication } : item
+  );
   const nativeLinkStatus = receiptLinkStatus === "invalid" || receiptLinkStatus === "blocked"
     ? receiptLinkStatus
     : isVerifiedOfficialYcCompanyPageYouTubeEmbed(item)
@@ -1238,14 +1244,16 @@ function publicEvidenceItem(item: PublicEvidenceRecord): EvidenceItem {
     authorHandle,
     postedAt: nativeGithubTimestamps
       ? nativeGithubTimestamps.postedAt
-      : item.postedAt ?? item.last_updated_at ?? publicSnapshot.source.fetchedAt,
+      : nativePublication?.postedAt ?? item.postedAt ?? item.last_updated_at ?? publicSnapshot.source.fetchedAt,
     publishedAtPrecision: item.platform === "github"
       ? nativeGithubTimestamps
         ? nativeGithubTimestamps.publishedAtPrecision
         : "unknown"
-      : item.postedAt
-        ? sourcePublicationTimestampPrecision(item)
-        : "unknown",
+      : nativePublication
+        ? nativePublication.publishedAtPrecision
+        : item.postedAt
+          ? sourcePublicationTimestampPrecision(item)
+          : "unknown",
     observedAt,
     metricsCheckedAt: item.last_checked_at ?? item.last_updated_at ?? publicSnapshot.source.fetchedAt,
     title: displayTitle,

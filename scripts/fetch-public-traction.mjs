@@ -3374,6 +3374,7 @@ async function ingestXPublicProfile(company, entity, entityType, accountUrl) {
     sourceExhausted: false
   };
   const evidence = receipt.posts.map((post) => {
+    const nativePostedAt = exactEvidenceTimestamp(post.postedAt);
     const metrics = removeNullish(post.metrics ?? {});
     const postReceipt = {
       id: post.id,
@@ -3381,7 +3382,7 @@ async function ingestXPublicProfile(company, entity, entityType, accountUrl) {
       authorHandle: post.authorHandle,
       authorName: post.authorName,
       text: post.text,
-      postedAt: post.postedAt,
+      postedAt: nativePostedAt,
       metrics,
       mediaUrlCount: Array.isArray(post.mediaUrls) ? post.mediaUrls.length : 0,
       quotedPostUrl: post.quotedPostUrl,
@@ -3398,7 +3399,8 @@ async function ingestXPublicProfile(company, entity, entityType, accountUrl) {
       title: firstUsefulText(post.text) ?? `${name} on X`,
       text: post.text,
       rawVisibleText: JSON.stringify({ receipt: receiptSummary, post: postReceipt }),
-      postedAt: post.postedAt,
+      postedAt: nativePostedAt,
+      publishedAtPrecision: nativePostedAt ? "exact" : "unknown",
       metrics,
       mediaUrls: post.mediaUrls,
       contributionScore: scoreMetrics("x", metrics),
@@ -3496,11 +3498,22 @@ function mergeXNativeEvidence(publicProfileEvidence, apiEvidence) {
         existing.attributionProvenance,
         item.attributionProvenance
       ]).has("x_recent_search_exact_mapped_author_v1");
+    const exactPostedAt = [existing, item]
+      .filter((candidate) => candidate.publishedAtPrecision === "exact")
+      .map((candidate) => exactEvidenceTimestamp(candidate.postedAt))
+      .find(Boolean) ?? null;
+    const postedAt = exactPostedAt ??
+      validEvidenceTimestamp(existing.postedAt) ??
+      validEvidenceTimestamp(item.postedAt);
+    const publishedAtPrecision = exactPostedAt
+      ? "exact"
+      : existing.publishedAtPrecision ?? item.publishedAtPrecision ?? "unknown";
     byNativeIdentity.set(nativeIdentity, {
       ...existing,
       metrics,
       contributionScore: scoreMetrics("x", metrics),
-      postedAt: validEvidenceTimestamp(existing.postedAt) ?? validEvidenceTimestamp(item.postedAt),
+      postedAt,
+      publishedAtPrecision,
       rawVisibleText: xReconciledRawVisibleText(existing, metricReceipt),
       xMetricReceipt: metricReceipt,
       ...(bothNativeSources
@@ -3538,6 +3551,16 @@ function mergeMetricMaximums(left = {}, right = {}) {
 function validEvidenceTimestamp(value) {
   const timestamp = Date.parse(String(value ?? ""));
   return Number.isFinite(timestamp) ? new Date(timestamp).toISOString() : null;
+}
+
+function exactEvidenceTimestamp(value) {
+  if (
+    typeof value !== "string" ||
+    !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,9})?(?:Z|[+-]\d{2}:\d{2})$/.test(value.trim())
+  ) {
+    return null;
+  }
+  return validEvidenceTimestamp(value);
 }
 
 function xNativeMetricReceipt(candidates, mergedMetrics) {
@@ -3742,6 +3765,10 @@ async function ingestInstagramPublicProfile(company, entity, entityType, account
       : {})
   };
   const rowRecords = receipt.posts.map((post) => {
+    // Both verified Instagram parsers derive this value from the native epoch
+    // field and emit canonical ISO. Keep invalid or absent values fail-closed;
+    // never infer an exact publication instant from display text.
+    const nativePostedAt = exactEvidenceTimestamp(post.postedAt);
     const postReceipt = {
       shortcode: post.shortcode,
       url: post.url,
@@ -3750,7 +3777,7 @@ async function ingestInstagramPublicProfile(company, entity, entityType, account
       coauthorUsernames: post.coauthorUsernames,
       profileRole: post.profileRole,
       caption: post.caption,
-      postedAt: post.postedAt,
+      postedAt: nativePostedAt,
       metrics: post.metrics,
       ...(post.nativeFeedMetrics
         ? {
@@ -3783,7 +3810,8 @@ async function ingestInstagramPublicProfile(company, entity, entityType, account
       // from the embedded receipt keeps carousel provenance valid JSON after
       // the canonical 6 KB raw-text cap.
       rawVisibleText: JSON.stringify({ receipt: receiptSummary, post: postReceipt }),
-      postedAt: post.postedAt,
+      postedAt: nativePostedAt,
+      publishedAtPrecision: nativePostedAt ? "exact" : "unknown",
       metrics,
       mediaUrls: post.mediaUrls,
       contributionScore: accepted ? scoreMetrics("instagram", metrics) : 0,
@@ -4010,6 +4038,7 @@ function xApiEvidenceForAccount(company, entity, entityType, accountUrl) {
       if (!Object.values(metrics).some((value) => Number(value) > 0)) return null;
       const authorHandle = String(post?.author?.username ?? handle);
       const sourceUrl = `https://x.com/${authorHandle}/status/${post.id}`;
+      const nativePostedAt = exactEvidenceTimestamp(post.created_at);
       return evidenceItem({
         company,
         entityType,
@@ -4021,7 +4050,8 @@ function xApiEvidenceForAccount(company, entity, entityType, accountUrl) {
         title: firstUsefulText(post.text) ?? `${entityName(entity, entityType)} on X`,
         text: post.text ?? "",
         rawVisibleText: JSON.stringify(post),
-        postedAt: post.created_at ?? null,
+        postedAt: nativePostedAt,
+        publishedAtPrecision: nativePostedAt ? "exact" : "unknown",
         metrics,
         contributionScore: scoreMetrics("x", metrics),
         review_state: "verified",

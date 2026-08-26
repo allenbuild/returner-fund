@@ -38,6 +38,43 @@ export interface NativeLinkAttestationInput {
   rawVisibleText?: unknown;
 }
 
+export interface ExactNativePublicationDate {
+  postedAt: string;
+  publishedAtPrecision: "exact";
+}
+
+/**
+ * Recover an exact native publication instant only from a collector receipt
+ * that binds the persisted row to the same X or Instagram post and owner. This is
+ * intentionally narrower than timestamp parsing: an ISO-looking `postedAt`
+ * alone is never enough to upgrade unknown publication precision.
+ */
+export function exactNativePublicationDateFromVerifiedReceipt(
+  input: NativeLinkAttestationInput
+): ExactNativePublicationDate | null {
+  if (
+    (input.platform !== "x" && input.platform !== "instagram") ||
+    input.review_state !== "verified" ||
+    Number(input.attributionVersion ?? 0) < 3 ||
+    input.attributionStatus !== "verified"
+  ) {
+    return null;
+  }
+
+  const nativeId = nativeEvidenceIdentityFromUrl(input.platform, input.sourceUrl);
+  const explicitId = nativePostId(input.platform, input.platformPostId);
+  const postedAt = exactInstant(input.postedAt);
+  if (!nativeId || !explicitId || nativeId !== explicitId || !postedAt) return null;
+
+  const payload = recordFromUnknown(parseReceipt(input.rawVisibleText));
+  if (!payload) return null;
+  const verified = input.platform === "x"
+    ? verifiedXReceipt(input, payload, nativeId, postedAt)
+    : verifiedInstagramReceipt(input, payload, nativeId, postedAt);
+  if (!verified) return null;
+  return { postedAt, publishedAtPrecision: "exact" };
+}
+
 /**
  * Promotes a native post link only when an already-persisted collection
  * receipt proves that the canonical URL, native ID, owner, and exact native
@@ -64,6 +101,10 @@ export function hasVerifiedNativeLinkReceipt(input: NativeLinkAttestationInput):
     return false;
   }
 
+  if (input.platform === "x" || input.platform === "instagram") {
+    return exactNativePublicationDateFromVerifiedReceipt(input) !== null;
+  }
+
   const nativeId = nativeEvidenceIdentityFromUrl(input.platform, input.sourceUrl);
   const explicitId = nativePostId(input.platform, input.platformPostId);
   const postedAt = exactInstant(input.postedAt);
@@ -71,8 +112,6 @@ export function hasVerifiedNativeLinkReceipt(input: NativeLinkAttestationInput):
 
   const receipt = recordFromUnknown(parseReceipt(input.rawVisibleText));
   if (!receipt) return false;
-  if (input.platform === "x") return verifiedXReceipt(input, receipt, nativeId, postedAt);
-  if (input.platform === "instagram") return verifiedInstagramNativeFeedReceipt(input, receipt, nativeId, postedAt);
   if (input.platform === "youtube") return verifiedYouTubeAtomReceipt(input, receipt, nativeId, postedAt);
   return false;
 }
@@ -122,7 +161,10 @@ function verifiedXReceipt(
   const receiptAuthor = normalizedHandle(nativeAuthor.author?.key);
   const primaryAuthor = normalizedHandle(primary.authorHandle);
   const inputAuthor = normalizedHandle(input.authorHandle);
-  if (!receiptAuthor || receiptAuthor !== primaryAuthor || (inputAuthor && inputAuthor !== receiptAuthor)) {
+  // Materializers resolve the persisted row's native author before invoking
+  // receipt recovery. Requiring it prevents a receipt alone from filling a
+  // missing row-level ownership claim.
+  if (!receiptAuthor || receiptAuthor !== primaryAuthor || !inputAuthor || inputAuthor !== receiptAuthor) {
     return false;
   }
 
@@ -180,7 +222,7 @@ function verifiedYouTubeAtomReceipt(
   return requestedBatch === null || requestedBatch === receiptBatch;
 }
 
-function verifiedInstagramNativeFeedReceipt(
+function verifiedInstagramReceipt(
   input: NativeLinkAttestationInput,
   payload: Record<string, unknown>,
   nativeId: string,
@@ -189,31 +231,45 @@ function verifiedInstagramNativeFeedReceipt(
   const receipt = recordFromUnknown(payload.receipt);
   const post = recordFromUnknown(payload.post);
   const nativeFeed = recordFromUnknown(receipt?.nativeFeed);
-  const allowedReceiptSources = new Set([
-    "instagram_anonymous_native_feed_standalone_v1",
-    "instagram_public_web_profile_info_with_native_feed_metrics_v1"
-  ]);
   const receiptSource = stringValue(receipt?.source);
   const receiptFetchedAt = exactInstant(receipt?.fetchedAt);
   const nativeFeedFetchedAt = exactInstant(nativeFeed?.fetchedAt);
+  const provenance = input.attributionProvenance;
+  const isNativeFeedReceipt =
+    provenance === "instagram_anonymous_native_feed_native_owner_v1" &&
+    post?.nativeFeedOnly === true &&
+    stringValue(post?.nativeFeedMetricSource) === "instagram_anonymous_native_feed_v1";
+  const isProfileReceipt =
+    provenance === "instagram_public_web_profile_info_native_owner_v1" &&
+    post?.nativeFeedOnly !== true;
+  const receiptKindIsValid =
+    receiptSource === "instagram_anonymous_native_feed_standalone_v1"
+      ? isNativeFeedReceipt && validInstagramNativeFeedReceipt(
+          nativeFeed,
+          receiptSource,
+          receiptFetchedAt,
+          nativeFeedFetchedAt
+        )
+      : receiptSource === "instagram_public_web_profile_info_with_native_feed_metrics_v1"
+        ? (isNativeFeedReceipt || isProfileReceipt) && validInstagramProfileReceipt(receipt) &&
+          validInstagramNativeFeedReceipt(
+            nativeFeed,
+            receiptSource,
+            receiptFetchedAt,
+            nativeFeedFetchedAt
+          )
+        : receiptSource === "instagram_public_web_profile_info_v1"
+          ? isProfileReceipt && validInstagramProfileReceipt(receipt)
+          : false;
   if (
-    input.attributionProvenance !== "instagram_anonymous_native_feed_native_owner_v1" ||
     !receipt ||
     !post ||
-    !nativeFeed ||
-    !allowedReceiptSources.has(receiptSource ?? "") ||
-    stringValue(nativeFeed.source) !== "instagram_anonymous_native_feed_v1" ||
     !receiptFetchedAt ||
-    !nativeFeedFetchedAt ||
-    !validInstagramReceiptTiming(receiptSource, receiptFetchedAt, nativeFeedFetchedAt) ||
-    !positiveInteger(nativeFeed.receivedItemCount) ||
-    !positiveInteger(nativeFeed.uniqueItemCount) ||
+    !receiptKindIsValid ||
     stringValue(post.shortcode) !== nativeId ||
     nativeEvidenceIdentityFromUrl("instagram", stringValue(post.url) ?? "") !== nativeId ||
     exactInstant(post.postedAt) !== postedAt ||
-    stringValue(post.profileRole) !== "primary" ||
-    post.nativeFeedOnly !== true ||
-    stringValue(post.nativeFeedMetricSource) !== "instagram_anonymous_native_feed_v1"
+    stringValue(post.profileRole) !== "primary"
   ) {
     return false;
   }
@@ -239,11 +295,38 @@ function verifiedInstagramNativeFeedReceipt(
     !receiptAuthor ||
     receiptAuthor !== postAuthor ||
     receiptAuthor !== resolvedAuthor ||
-    (inputAuthor && inputAuthor !== receiptAuthor)
+    !inputAuthor ||
+    inputAuthor !== receiptAuthor
   ) {
     return false;
   }
   return sameAccountUrl(input.accountUrl, stringValue(receipt.accountUrl));
+}
+
+function validInstagramProfileReceipt(receipt: Record<string, unknown> | null): boolean {
+  return Boolean(
+    receipt &&
+    positiveInteger(receipt.totalCount) &&
+    positiveInteger(receipt.receivedEdgeCount) &&
+    positiveInteger(receipt.processedEdgeCount)
+  );
+}
+
+function validInstagramNativeFeedReceipt(
+  nativeFeed: Record<string, unknown> | null,
+  receiptSource: string | null,
+  receiptFetchedAt: string | null,
+  nativeFeedFetchedAt: string | null
+): boolean {
+  return Boolean(
+    nativeFeed &&
+    receiptFetchedAt &&
+    nativeFeedFetchedAt &&
+    stringValue(nativeFeed.source) === "instagram_anonymous_native_feed_v1" &&
+    validInstagramReceiptTiming(receiptSource, receiptFetchedAt, nativeFeedFetchedAt) &&
+    positiveInteger(nativeFeed.receivedItemCount) &&
+    positiveInteger(nativeFeed.uniqueItemCount)
+  );
 }
 
 function validInstagramReceiptTiming(
