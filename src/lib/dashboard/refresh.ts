@@ -110,7 +110,8 @@ export async function refreshTechnologyDashboard(
       now,
       githubToken: options.external?.githubToken ?? process.env.GITHUB_TOKEN ?? null,
       xBearerToken: options.external?.xBearerToken ?? process.env.X_BEARER_TOKEN ?? null,
-      youtubeChannels: options.external?.youtubeChannels ?? DEFAULT_DASHBOARD_YOUTUBE_CHANNELS
+      youtubeChannels: options.external?.youtubeChannels ?? DEFAULT_DASHBOARD_YOUTUBE_CHANNELS,
+      includeYoutubeSearch: options.external?.includeYoutubeSearch ?? true
     };
     externalAttempted = dashboardExternalAttemptCount(externalOptions);
     const external = await discoverExternalDashboardCandidates(externalOptions);
@@ -244,7 +245,8 @@ export function dashboardExternalAttemptCount(options: ExternalDiscoveryOptions 
     : DEFAULT_DASHBOARD_REDDIT_SUBREDDITS.length;
   const xJobs = options?.xBearerToken?.trim() ? 1 : 0;
   const youtubeJobs = Math.min(options?.youtubeChannels?.length ?? 0, MAX_DASHBOARD_YOUTUBE_CHANNELS);
-  return fixedJobs + rssJobs + researchJobs + redditJobs + xJobs + youtubeJobs;
+  const youtubeSearchJobs = options?.includeYoutubeSearch === true ? 1 : 0;
+  return fixedJobs + rssJobs + researchJobs + redditJobs + xJobs + youtubeJobs + youtubeSearchJobs;
 }
 
 /**
@@ -289,9 +291,9 @@ export function assertConfiguredYoutubeDiscoverySucceeded(
   failureLabels: readonly string[] = []
 ): void {
   if (!youtubeChannels?.length) return;
-  if (succeededSources.some((source) => source.startsWith("youtube:"))) return;
+  if (succeededSources.some((source) => source.startsWith("youtube:") && source !== "youtube:search")) return;
   const youtubeFailures = failureLabels
-    .filter((label) => /^youtube_[a-z0-9-]+_[a-z0-9_-]+$/i.test(label))
+    .filter((label) => !label.startsWith("youtube_search_") && /^youtube_[a-z0-9-]+_[a-z0-9_-]+$/i.test(label))
     .slice(0, MAX_DASHBOARD_YOUTUBE_CHANNELS);
   const diagnostic = youtubeFailures.length > 0 ? youtubeFailures.join(",") : "no_failure_labels";
   throw new Error(`dashboard_youtube_discovery_unavailable:${diagnostic}`);
