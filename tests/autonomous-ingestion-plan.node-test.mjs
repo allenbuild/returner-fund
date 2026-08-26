@@ -2432,6 +2432,16 @@ describe("autonomous collector task accounting", () => {
       httpStatus: null,
       message: "Arbitrary parser failure."
     }, { platform: "x" }), false);
+
+    const redditBlocker = {
+      provider: "reddit_public_json",
+      code: "reddit_public_access_blocked",
+      retryAt: "2026-08-10T00:15:00.000Z",
+      httpStatus: 429,
+      message: "Reddit public access blocked: HTTP 429."
+    };
+    assert.equal(isAutonomousProviderBlocker(redditBlocker, { platform: "reddit" }), true);
+    assert.equal(isAutonomousProviderBlocker(redditBlocker, { platform: "linkedin" }), false);
   });
 
   it("normalizes legacy blocker failures and preserves provider health beside valid evidence", () => {

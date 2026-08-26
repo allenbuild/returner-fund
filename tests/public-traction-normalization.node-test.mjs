@@ -4,7 +4,10 @@ import { mkdtemp, readFile, stat, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
-import { loadAutonomousCatalogs } from "../scripts/lib/autonomous-ingestion-plan.mjs";
+import {
+  autonomousCollectorRetryableFailures,
+  loadAutonomousCatalogs
+} from "../scripts/lib/autonomous-ingestion-plan.mjs";
 import {
   PUBLIC_EVIDENCE_ARTIFACT_MAX_BYTES,
   PUBLIC_EVIDENCE_OPERATIONAL_LEDGER_MAX_BYTES,
@@ -1694,13 +1697,22 @@ globalThis.fetch = async (url) => {
   const snapshot = JSON.parse(await readFile(output, "utf8"));
   const receipt = snapshot.attempts["reddit:eden-robotics"];
   assert.equal(receipt.outcomeStatus, "blocked_or_empty");
-  assert.equal(receipt.outcomeReason, "collector_checked_blocked_or_empty");
+  assert.equal(receipt.outcomeReason, "collector_provider_blocked");
+  assert.equal(receipt.retryable, false);
+  assert.equal(receipt.blocker.provider, "reddit_public_json");
+  assert.equal(receipt.blocker.code, "reddit_public_access_blocked");
+  assert.equal(receipt.blocker.httpStatus, 403);
+  assert.ok(Date.parse(receipt.blocker.retryAt) > Date.parse(receipt.checkedAt));
   assert.equal(snapshot.evidence.length, 0);
-  assert.ok(snapshot.failures.some(
+  const blockedFailure = snapshot.failures.find(
     (failure) =>
       failure.platform === "reddit" &&
       failure.message === "Reddit public access blocked: HTTP 403."
-  ));
+  );
+  assert.ok(blockedFailure);
+  assert.equal(blockedFailure.retryable, false);
+  assert.deepEqual(blockedFailure.blocker, receipt.blocker);
+  assert.deepEqual(autonomousCollectorRetryableFailures(snapshot), []);
 });
 
 test("mapped Reddit accounts receive exact unsupported receipts separate from generic company search", async () => {

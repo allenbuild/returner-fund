@@ -238,6 +238,9 @@ const AUTONOMOUS_PROVIDER_BLOCKER_CODES = new Map([
     "linkedin_public_timeout",
     "linkedin_public_transport_failure",
     "linkedin_public_circuit_open"
+  ])],
+  ["reddit_public_json", new Set([
+    "reddit_public_access_blocked"
   ])]
 ]);
 
@@ -2629,7 +2632,8 @@ export function isAutonomousProviderBlocker(blocker, { platform = null } = {}) {
     if (provider === "duckduckgo_html" && !["x", "linkedin", "instagram", "product_hunt", "web"].includes(normalizedPlatform)) {
       return false;
     }
-    if (provider !== "duckduckgo_html" && normalizedPlatform !== "linkedin") return false;
+    if (provider === "reddit_public_json" && normalizedPlatform !== "reddit") return false;
+    if (!["duckduckgo_html", "reddit_public_json"].includes(provider) && normalizedPlatform !== "linkedin") return false;
   }
   const allowedKeys = new Set(["provider", "code", "retryAt", "httpStatus", "message"]);
   if (Object.keys(blocker).some((key) => !allowedKeys.has(key))) return false;
