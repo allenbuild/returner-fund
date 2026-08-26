@@ -43,8 +43,31 @@ export function normalizeInstagramViewerHandle(value) {
 }
 
 export function normalizeLinkedInViewerSlug(value) {
-  const normalized = String(value ?? "").trim().replace(/^@/, "").replace(/\/$/, "").toLowerCase();
-  return /^[a-z0-9][a-z0-9-]{0,99}$/.test(normalized) ? normalized : null;
+  const candidate = String(value ?? "").trim();
+  const bareSlug = candidate.replace(/^@/, "").replace(/\/$/, "").toLowerCase();
+  if (/^[a-z0-9][a-z0-9-]{0,99}$/.test(bareSlug)) return bareSlug;
+
+  // Preserve the host's established canonical profile URL without widening
+  // identity proof to arbitrary LinkedIn URLs, credentials, ports, or paths.
+  if (!/^https:\/\/(?:www\.)?linkedin\.com\//i.test(candidate)) return null;
+  try {
+    const url = new URL(candidate);
+    if (
+      url.protocol !== "https:" ||
+      !new Set(["linkedin.com", "www.linkedin.com"]).has(url.hostname.toLowerCase()) ||
+      url.username ||
+      url.password ||
+      url.port ||
+      url.search ||
+      url.hash
+    ) {
+      return null;
+    }
+    const match = /^\/in\/([a-z0-9][a-z0-9-]{0,99})\/?$/i.exec(url.pathname);
+    return match ? match[1].toLowerCase() : null;
+  } catch {
+    return null;
+  }
 }
 
 export function instagramSelfIdentityDecision({
