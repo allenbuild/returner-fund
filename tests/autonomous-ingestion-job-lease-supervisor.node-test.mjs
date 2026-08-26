@@ -541,6 +541,183 @@ test("missing workflow events dispatch once and durable same-slot cooldown preve
   assert.equal(dispatches, 1);
 });
 
+test("persistent lease lookup errors cannot starve independent schedule recovery", async (context) => {
+  for (const failingLookup of ["getRun", "getAttemptJobs"]) {
+    await context.test(failingLookup, async () => {
+      const root = await mkdtemp(path.join(tmpdir(), "returner-lease-uncertainty-test-"));
+      context.after(() => rm(root, { recursive: true, force: true }));
+      const runnerDiagDir = path.join(root, "diag");
+      const stateDir = path.join(root, "state");
+      await mkdir(runnerDiagDir, { recursive: true });
+      await mkdir(stateDir, { recursive: true });
+      await writeFile(path.join(runnerDiagDir, "Worker_20260826-012635-utc.log"), WORKER_LOG);
+      const testConfig = config({
+        runnerDiagDir,
+        stateDir,
+        statePath: path.join(stateDir, "state-v1.json"),
+        lockPath: path.join(stateDir, "supervisor.lock"),
+        scheduleRecoveryEnabled: true
+      });
+      await writeFile(testConfig.statePath, `${JSON.stringify({
+        schemaVersion: 1,
+        initializedAt: "2026-08-26T03:00:00.000Z",
+        workerLogs: {},
+        handledEvents: {},
+        recoveryDispatch: null
+      })}\n`);
+
+      let dispatches = 0;
+      let leaseLookupFailures = 0;
+      let workflowRunReads = 0;
+      const failLeaseLookup = async () => {
+        leaseLookupFailures += 1;
+        throw new Error(`persistent ${failingLookup} failure`);
+      };
+      const api = github({
+        [failingLookup]: failLeaseLookup,
+        getWorkflowRuns: async ({ fresh } = {}) => {
+          assert.equal(fresh, true);
+          workflowRunReads += 1;
+          return [];
+        },
+        dispatchRecovery: async () => {
+          dispatches += 1;
+        }
+      });
+
+      const first = await runSupervisor({
+        config: testConfig,
+        github: api,
+        readPowerStatus: async () => "Now drawing from 'AC Power'\n 100%; charged",
+        now: () => new Date("2026-08-26T05:05:00.000Z")
+      });
+      assert.equal(first.deferred, 1);
+      assert.equal(first.recovery.action, "dispatch");
+
+      const second = await runSupervisor({
+        config: testConfig,
+        github: api,
+        readPowerStatus: async () => "Now drawing from 'AC Power'\n 100%; charged",
+        now: () => new Date("2026-08-26T05:10:00.000Z")
+      });
+      assert.equal(second.deferred, 1);
+      assert.equal(second.recovery.reason, "recovery_dispatch_cooldown");
+      assert.equal(leaseLookupFailures, 2);
+      assert.equal(workflowRunReads, 2);
+      assert.equal(dispatches, 1);
+
+      const state = await loadSupervisorState(testConfig.statePath);
+      assert.deepEqual(state.handledEvents, {});
+      assert.equal(state.recoveryDispatch.slotKey, "central-2026-08-25-1800");
+    });
+  }
+});
+
+test("schedule recovery refreshes cached runs after an ambiguous rerun response", async (context) => {
+  const scenarios = [
+    {
+      name: "active rerun",
+      freshRuns: [{
+        id: 12345,
+        event: "schedule",
+        status: "queued",
+        conclusion: null,
+        created_at: "2026-08-26T05:04:00.000Z"
+      }],
+      expectedReason: "autonomous_run_active"
+    },
+    {
+      name: "recent completed rerun",
+      freshRuns: [{
+        id: 12345,
+        event: "schedule",
+        status: "completed",
+        conclusion: "failure",
+        created_at: "2026-08-26T05:04:00.000Z"
+      }],
+      expectedReason: "recent_workflow_wakeup"
+    }
+  ];
+
+  for (const scenario of scenarios) {
+    await context.test(scenario.name, async (subtest) => {
+      const root = await mkdtemp(path.join(tmpdir(), "returner-runs-refresh-test-"));
+      subtest.after(() => rm(root, { recursive: true, force: true }));
+      const runnerDiagDir = path.join(root, "diag");
+      const stateDir = path.join(root, "state");
+      await mkdir(runnerDiagDir, { recursive: true });
+      await mkdir(stateDir, { recursive: true });
+      await writeFile(path.join(runnerDiagDir, "Worker_20260826-012635-utc.log"), WORKER_LOG);
+      const testConfig = config({
+        runnerDiagDir,
+        stateDir,
+        statePath: path.join(stateDir, "state-v1.json"),
+        lockPath: path.join(stateDir, "supervisor.lock"),
+        scheduleRecoveryEnabled: true
+      });
+      await writeFile(testConfig.statePath, `${JSON.stringify({
+        schemaVersion: 1,
+        initializedAt: "2026-08-26T03:00:00.000Z",
+        workerLogs: {},
+        handledEvents: {},
+        recoveryDispatch: null
+      })}\n`);
+
+      let workflowRunsGets = 0;
+      let rerunPosts = 0;
+      let recoveryDispatchPosts = 0;
+      const execute = async (_binary, args) => {
+        const method = args[args.indexOf("--method") + 1];
+        const endpoint = args.find((argument) => argument.startsWith("repos/"));
+        if (method === "POST" && endpoint?.endsWith("/rerun-failed-jobs")) {
+          rerunPosts += 1;
+          throw new Error("connection reset after server accepted rerun");
+        }
+        if (method === "POST") {
+          recoveryDispatchPosts += 1;
+          return { stdout: "", stderr: "" };
+        }
+        if (endpoint?.endsWith("/actions/workflows/autonomous-ingestion.yml")) {
+          return { stdout: JSON.stringify(workflow()), stderr: "" };
+        }
+        if (endpoint?.endsWith("/actions/runs/12345")) {
+          return { stdout: JSON.stringify(run()), stderr: "" };
+        }
+        if (endpoint?.includes("/actions/runs/12345/attempts/1/jobs")) {
+          return { stdout: JSON.stringify({ jobs: jobs() }), stderr: "" };
+        }
+        if (endpoint?.endsWith("/git/ref/heads/main")) {
+          return { stdout: JSON.stringify({ object: { sha: CURRENT_SHA } }), stderr: "" };
+        }
+        if (endpoint?.includes("/actions/workflows/autonomous-ingestion.yml/runs?")) {
+          workflowRunsGets += 1;
+          return {
+            stdout: JSON.stringify({
+              workflow_runs: workflowRunsGets === 1 ? [] : scenario.freshRuns
+            }),
+            stderr: ""
+          };
+        }
+        throw new Error(`Unexpected GitHub API request: ${method} ${endpoint}`);
+      };
+
+      const result = await runSupervisor({
+        config: testConfig,
+        github: createGitHubClient(testConfig, { execute }),
+        readPowerStatus: async () => "Now drawing from 'AC Power'\n 100%; charged",
+        now: () => new Date("2026-08-26T05:05:00.000Z")
+      });
+
+      assert.equal(result.deferred, 1);
+      assert.equal(result.recovery.reason, scenario.expectedReason);
+      assert.equal(workflowRunsGets, 2);
+      assert.equal(rerunPosts, 1);
+      assert.equal(recoveryDispatchPosts, 0);
+      assert.deepEqual((await loadSupervisorState(testConfig.statePath)).handledEvents, {});
+    });
+  }
+});
+
 test("GitHub recovery dispatch sends only the trusted event and expected main SHA", async () => {
   const calls = [];
   const client = createGitHubClient(config(), {

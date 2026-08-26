@@ -391,7 +391,8 @@ export async function evaluateScheduleRecovery({
     return Object.freeze({ action: "defer", reason: "invalid_default_branch_sha" });
   }
 
-  const runs = await github.getWorkflowRuns();
+  // A lease rerun response can be ambiguous, so never reuse its pre-rerun run snapshot here.
+  const runs = await github.getWorkflowRuns({ fresh: true });
   const active = runs.find((run) => ACTIVE_RUN_STATUSES.has(String(run?.status ?? "")));
   if (active) {
     return Object.freeze({
@@ -575,7 +576,6 @@ export async function runSupervisor({
     let marked = 0;
     let deferred = 0;
     let rerunAccepted = false;
-    let leaseRecoveryUncertain = false;
     for (const event of scan.candidates) {
       if (state.handledEvents[event.eventId]) continue;
       let decision;
@@ -588,7 +588,6 @@ export async function runSupervisor({
         });
       } catch (error) {
         deferred += 1;
-        leaseRecoveryUncertain = true;
         logEvent("event_error", {
           eventId: event.eventId,
           message: safeErrorMessage(error)
@@ -633,7 +632,7 @@ export async function runSupervisor({
     }
 
     let recovery = { action: "disabled", reason: "schedule_recovery_disabled" };
-    if (config.scheduleRecoveryEnabled && !rerunAccepted && !leaseRecoveryUncertain) {
+    if (config.scheduleRecoveryEnabled && !rerunAccepted) {
       try {
         recovery = await evaluateScheduleRecovery({
           config,
@@ -660,8 +659,6 @@ export async function runSupervisor({
       }
     } else if (rerunAccepted) {
       recovery = { action: "defer", reason: "lease_rerun_accepted" };
-    } else if (leaseRecoveryUncertain) {
-      recovery = { action: "defer", reason: "lease_recovery_outcome_uncertain" };
     }
     await writeSupervisorState(config.statePath, state, now());
     return {
@@ -778,10 +775,12 @@ export function createGitHubClient(config, { execute = execFile } = {}) {
   let runnersPromise = null;
   const repoEndpoint = `repos/${config.repository}`;
   const workflowSelector = encodeURIComponent(path.basename(config.workflowPath));
-  const getWorkflowRuns = () => {
-    runsPromise ??= apiJson(
-      `${repoEndpoint}/actions/workflows/${workflowSelector}/runs?per_page=100`
-    ).then((response) => Array.isArray(response?.workflow_runs) ? response.workflow_runs : []);
+  const getWorkflowRuns = ({ fresh = false } = {}) => {
+    if (fresh || !runsPromise) {
+      runsPromise = apiJson(
+        `${repoEndpoint}/actions/workflows/${workflowSelector}/runs?per_page=100`
+      ).then((response) => Array.isArray(response?.workflow_runs) ? response.workflow_runs : []);
+    }
     return runsPromise;
   };
 
