@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { DashboardCandidate, DashboardMetrics, DashboardPublicSnapshot } from "@/lib/dashboard/contracts";
 import {
+  assertConfiguredYoutubeDiscoverySucceeded,
   dashboardExternalAttemptCount,
   dashboardRefreshSourceHealth,
   enrichDashboardCandidatesWithPriorSnapshotMetrics,
@@ -30,6 +31,25 @@ describe("dashboard worker metric-history enrichment", () => {
         handle: `channel${index}`
       }))
     })).toBe(3 + MAX_DASHBOARD_YOUTUBE_CHANNELS);
+  });
+
+  it("fails closed when every configured YouTube adapter lacks a source receipt", () => {
+    const channels = [{ name: "Apple", handle: "Apple" }, { name: "MKBHD", handle: "mkbhd" }];
+
+    expect(() => assertConfiguredYoutubeDiscoverySucceeded(
+      channels,
+      ["hacker_news", "github", "rss:example"]
+    )).toThrowError("dashboard_youtube_discovery_unavailable");
+  });
+
+  it("accepts one successful YouTube adapter even when it yields no eligible candidate", () => {
+    const channels = [{ name: "Apple", handle: "Apple" }, { name: "MKBHD", handle: "mkbhd" }];
+
+    expect(() => assertConfiguredYoutubeDiscoverySucceeded(
+      channels,
+      ["hacker_news", "youtube:mkbhd"]
+    )).not.toThrow();
+    expect(() => assertConfiguredYoutubeDiscoverySucceeded([], ["hacker_news"])).not.toThrow();
   });
 
   it("uses a prior published source reading plus the current worker reading for the exact canonical source", () => {
