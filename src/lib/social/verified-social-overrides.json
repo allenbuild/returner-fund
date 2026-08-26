@@ -719,6 +719,13 @@
       }
     ]
   },
+  "graphify-labs": {
+    "companySocialLinks": {
+      "github": "https://github.com/Graphify-Labs"
+    },
+    "sourceUrl": "https://github.com/Graphify-Labs",
+    "matchReason": "The live Graphify Labs GitHub organization links the exact official graphify.com domain and the same @graphify X and Graphify Labs LinkedIn identities. Preserve this verified organization when the upstream YC profile temporarily omits its GitHub link."
+  },
   "gojiberry-ai": {
     "matchReason": "Web Instagram search found exact company/domain handle match for Gojiberry AI; query=\"\"gojiberry\" Instagram\".",
     "rejectedInstagram": [
