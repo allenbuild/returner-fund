@@ -101,7 +101,7 @@ export class LosslessPostArchive {
         this._indexes.normalizedObservations.get(slot)?.content.post ??
           this._indexes.posts.get(key)?.content.post
       );
-      this._assertObservationCompatibility("raw_envelope", request.rawRecord, this._indexes.rawObservationHashes);
+      this._assertRawObservationCompatibility(request.rawRecord);
       this._assertObservationCompatibility(
         "normalized_post",
         request.normalizedRecord,
@@ -259,13 +259,13 @@ export class LosslessPostArchive {
   async _load() {
     await mkdir(this.rootDir, { recursive: true });
     this._indexes = {
-      rawObservationHashes: new Map(),
+      rawObservations: new Map(),
       rawEnvelopes: [],
       posts: new Map(),
       normalizedObservationHashes: new Map(),
       normalizedObservations: new Map(),
       postRevisions: [],
-      metricHashes: new Map(),
+      metricObservations: new Map(),
       metrics: [],
       identityHashes: new Map(),
       identities: [],
@@ -277,12 +277,12 @@ export class LosslessPostArchive {
 
     await this._loadFile(ARCHIVE_FILES.rawEnvelopes, (record) => {
       const slot = observationSlot(record.key, record.observedAt);
-      const existingHash = this._indexes.rawObservationHashes.get(slot);
-      if (existingHash && existingHash !== record.contentHash) {
-        throw conflict("raw_envelope", record.key, slot, existingHash, record.contentHash);
+      const existing = this._indexes.rawObservations.get(slot);
+      if (existing && !sameRawObservationCore(existing, record)) {
+        throw conflict("raw_envelope", record.key, slot, existing.contentHash, record.contentHash);
       }
-      if (existingHash) return;
-      this._indexes.rawObservationHashes.set(slot, record.contentHash);
+      if (existing) return;
+      this._indexes.rawObservations.set(slot, record);
       this._indexes.rawEnvelopes.push(record);
     });
     await this._loadFile(ARCHIVE_FILES.normalizedPosts, (record) => {
@@ -299,12 +299,12 @@ export class LosslessPostArchive {
     });
     await this._loadFile(ARCHIVE_FILES.metricSnapshots, (record) => {
       const slot = metricSlot(record.key, record.content.snapshotAt);
-      const existingHash = this._indexes.metricHashes.get(slot);
-      if (existingHash && existingHash !== record.contentHash) {
-        throw conflict("metric_snapshot", record.key, slot, existingHash, record.contentHash);
+      const existing = this._indexes.metricObservations.get(slot);
+      if (existing && !sameMetricObservationCore(existing, record)) {
+        throw conflict("metric_snapshot", record.key, slot, existing.contentHash, record.contentHash);
       }
-      if (!existingHash) {
-        this._indexes.metricHashes.set(slot, record.contentHash);
+      if (!existing) {
+        this._indexes.metricObservations.set(slot, record);
         this._indexes.metrics.push(record);
       }
     });
@@ -366,18 +366,27 @@ export class LosslessPostArchive {
     }
   }
 
+  _assertRawObservationCompatibility(record) {
+    const slot = observationSlot(record.key, record.observedAt);
+    const existing = this._indexes.rawObservations.get(slot);
+    if (existing && !sameRawObservationCore(existing, record)) {
+      throw conflict("raw_envelope", record.key, slot, existing.contentHash, record.contentHash);
+    }
+  }
+
   _assertMetricCompatibility(request) {
-    const existingHash = this._indexes.metricHashes.get(request.slot);
-    if (existingHash && existingHash !== request.record.contentHash) {
-      throw conflict("metric_snapshot", request.key, request.slot, existingHash, request.record.contentHash);
+    const existing = this._indexes.metricObservations.get(request.slot);
+    if (existing && !sameMetricObservationCore(existing, request.record)) {
+      throw conflict("metric_snapshot", request.key, request.slot, existing.contentHash, request.record.contentHash);
     }
   }
 
   async _appendRawIfNew(record) {
     const slot = observationSlot(record.key, record.observedAt);
-    if (this._indexes.rawObservationHashes.has(slot)) return result("duplicate", record);
+    const existing = this._indexes.rawObservations.get(slot);
+    if (existing) return result("duplicate", existing);
     await this._append(ARCHIVE_FILES.rawEnvelopes, record);
-    this._indexes.rawObservationHashes.set(slot, record.contentHash);
+    this._indexes.rawObservations.set(slot, record);
     this._indexes.rawEnvelopes.push(record);
     return result("appended", record);
   }
@@ -395,10 +404,10 @@ export class LosslessPostArchive {
   }
 
   async _appendMetricIfNew(request) {
-    const existingHash = this._indexes.metricHashes.get(request.slot);
-    if (existingHash) return result("duplicate", request.record);
+    const existing = this._indexes.metricObservations.get(request.slot);
+    if (existing) return result("duplicate", existing);
     await this._append(ARCHIVE_FILES.metricSnapshots, request.record);
-    this._indexes.metricHashes.set(request.slot, request.record.contentHash);
+    this._indexes.metricObservations.set(request.slot, request.record);
     this._indexes.metrics.push(request.record);
     return result("appended", request.record);
   }
@@ -626,6 +635,41 @@ function validateRecord(record, fileName, lineNumber) {
 
 function conflict(recordType, key, slot, existingHash, incomingHash) {
   return new LosslessArchiveConflictError({ recordType, key, slot, existingHash, incomingHash });
+}
+
+// Collector-run snapshot provenance is useful on the first archived
+// observation, but it can change when that same observation is merged into a
+// later snapshot. Strip only that volatile wrapper; every other immutable
+// record field remains part of same-slot compatibility.
+function sameRawObservationCore(left, right) {
+  return sameStableObservationCore(left, right);
+}
+
+function sameMetricObservationCore(left, right) {
+  return sameStableObservationCore(left, right);
+}
+
+function sameStableObservationCore(left, right) {
+  const leftCore = stableObservationCore(left);
+  const rightCore = stableObservationCore(right);
+  return leftCore !== null && rightCore !== null && canonicalJson(leftCore) === canonicalJson(rightCore);
+}
+
+function stableObservationCore(record) {
+  const content = record?.content;
+  if (!content || typeof content !== "object") return null;
+  let stableContent = content;
+  if (content.source && typeof content.source === "object" &&
+      !Array.isArray(content.source) && Object.hasOwn(content.source, "snapshot")) {
+    const { snapshot: _snapshot, ...stableSource } = content.source;
+    stableContent = { ...content, source: stableSource };
+  }
+  return {
+    schemaVersion: record.schemaVersion,
+    recordType: record.recordType,
+    key: record.key,
+    content: stableContent
+  };
 }
 
 function result(status, record) {
