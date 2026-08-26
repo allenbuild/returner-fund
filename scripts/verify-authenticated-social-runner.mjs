@@ -23,6 +23,15 @@ const PLATFORM_PREFLIGHT_ATTEMPTS = 3;
 const PLATFORM_PREFLIGHT_RETRY_DELAYS_MS = Object.freeze([2_000, 5_000]);
 const SERVICE_PREFLIGHT_ATTEMPTS = 5;
 const SERVICE_PREFLIGHT_RETRY_DELAYS_MS = Object.freeze([1_000, 2_000, 4_000, 8_000]);
+const SERVICE_RETRYABLE_REASONS = new Set([
+  "auth_browser_service_not_loaded",
+  "auth_browser_service_not_running",
+  "auth_browser_process_pid_missing",
+  "auth_browser_process_identity_mismatch",
+  "auth_browser_process_framework_missing",
+  "auth_browser_process_singleton_missing",
+  "auth_browser_process_inventory_unavailable"
+]);
 const AUTHENTICATED_RUNNER_REQUIRED_ENV = Object.freeze([
   "OPENCLI_BIN",
   "OPENCLI_HOME",
@@ -304,10 +313,7 @@ export async function runAuthenticatedSocialRunnerPreflight({
         const result = await verifyBrowserService({ userHome: env.HOME || os.homedir() });
         return {
           ...result,
-          retryable: [
-            "auth_browser_service_not_loaded",
-            "auth_browser_service_not_running"
-          ].includes(result.reason)
+          retryable: SERVICE_RETRYABLE_REASONS.has(result.reason)
         };
       } catch {
         return {
@@ -333,6 +339,29 @@ export async function runAuthenticatedSocialRunnerPreflight({
     });
   }
 
+  const profile = await retryAuthenticatedPreflight(
+    () => verifyOpenCliBrowserProfileConnection(runCommand),
+    {
+      attempts: SERVICE_PREFLIGHT_ATTEMPTS,
+      retryDelaysMs: SERVICE_PREFLIGHT_RETRY_DELAYS_MS,
+      sleep
+    }
+  );
+  if (!profile.ok) {
+    const browserService = {
+      ...profile,
+      launchAgent: service
+    };
+    return authenticatedPreflightResult({
+      configured: true,
+      reason: profile.reason,
+      service: browserService,
+      instagram: unavailablePlatform(profile.reason),
+      linkedin: unavailablePlatform(profile.reason)
+    });
+  }
+  const readyService = { ...service, profile };
+
   const linkedin = await retryAuthenticatedPreflight(
     () => verifyLinkedInIdentity(linkedinSlug, runCommand),
     {
@@ -357,7 +386,7 @@ export async function runAuthenticatedSocialRunnerPreflight({
     reason: instagram.ok && linkedin.ok
       ? "authenticated_social_runner_verified"
       : "authenticated_social_platform_preflight_failed",
-    service,
+    service: readyService,
     instagram,
     linkedin
   });
@@ -386,6 +415,37 @@ async function verifyInstagramReadiness(expectedHandle, runCommand) {
   const adapter = await verifyInstagramAdapter(expectedHandle, runCommand);
   if (!adapter.ok) return adapter;
   return verifyInstagramIdentity(expectedHandle, runCommand);
+}
+
+export async function verifyOpenCliBrowserProfileConnection(runCommand) {
+  const session = `preflight-profile-${process.pid}-${Date.now()}`;
+  try {
+    await withOpenCliBrowserSession({
+      session,
+      runOpenCli: runCommand,
+      operation: () => runCommand(
+        ["browser", session, "open", "about:blank"],
+        { timeoutMs: MAX_COMMAND_TIMEOUT_MS }
+      )
+    });
+    return {
+      ok: true,
+      reason: "auth_browser_profile_connected",
+      retryable: false
+    };
+  } catch (error) {
+    const diagnostic = authenticatedBrowserDiagnostic(error);
+    const disconnected = /\b(?:browser profile[^\r\n]{0,120}not connected|profile[_ -]?disconnected|extension (?:is )?(?:not connected|disconnected)|browser bridge[^\r\n]{0,80}not connected)\b/i.test(
+      diagnostic
+    );
+    return {
+      ok: false,
+      reason: disconnected
+        ? "auth_browser_profile_not_connected"
+        : "auth_browser_profile_probe_failed",
+      retryable: disconnected || authenticatedBrowserCommandRetryable(error)
+    };
+  }
 }
 
 async function verifyInstagramAdapter(expectedHandle, runCommand) {
@@ -491,10 +551,15 @@ async function verifyLinkedInIdentity(expectedSlug, runCommand) {
 }
 
 function authenticatedBrowserCommandRetryable(error) {
-  const diagnostic = [error?.message, error?.stdout, error?.stderr]
+  return instagramShouldRetryTransientBrowserFailure(
+    authenticatedBrowserDiagnostic(error)
+  );
+}
+
+function authenticatedBrowserDiagnostic(error) {
+  return [error?.message, error?.stdout, error?.stderr]
     .filter(Boolean)
     .join("\n");
-  return instagramShouldRetryTransientBrowserFailure(diagnostic);
 }
 
 function authenticatedRunnerConfigurationState(env) {

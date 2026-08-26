@@ -24,7 +24,8 @@ import {
   readableRunnerConfiguration,
   retryAuthenticatedPreflight,
   runAuthenticatedSocialRunnerPreflight,
-  resolveOpenCliProfileConfiguration
+  resolveOpenCliProfileConfiguration,
+  verifyOpenCliBrowserProfileConnection
 } from "../scripts/verify-authenticated-social-runner.mjs";
 
 test("Instagram preflight requires an exact HTTPS account-settings self signal", () => {
@@ -358,6 +359,12 @@ test("cold preflight retries a disconnected profile and proves the exact Instagr
 
   assert.equal(result.ok, true);
   assert.equal(result.service.attempts, 1);
+  assert.deepEqual(result.service.profile, {
+    ok: true,
+    reason: "auth_browser_profile_connected",
+    retryable: false,
+    attempts: 1
+  });
   assert.equal(result.linkedin.attempts, 1);
   assert.equal(result.instagram.attempts, 2);
   assert.deepEqual(sleeps, [2_000]);
@@ -373,6 +380,62 @@ test("cold preflight retries a disconnected profile and proves the exact Instagr
   assert.equal(calls.at(-1)[0], "browser");
   assert.equal(calls.at(-1)[2], "close");
   assert.match(calls.at(-1)[1], /^preflight-ig-/);
+});
+
+test("strict preflight fails closed before platform probes when the exact profile is disconnected", async (t) => {
+  const fixture = createRunnerFixture(t);
+  const env = authenticatedPreflightEnvironment(fixture);
+  const calls = [];
+  const sleeps = [];
+  const result = await runAuthenticatedSocialRunnerPreflight({
+    env,
+    runtimeResolver: () => ({ command: fixture.binaryA }),
+    verifyBrowserService: async () => ({
+      ok: true,
+      reason: "auth_browser_service_running",
+      pid: 8123
+    }),
+    runCommand: async (args) => {
+      calls.push(args);
+      if (args[0] === "browser" && args[2] === "close") return "";
+      throw new Error('Browser profile "context-authenticated" is not connected');
+    },
+    sleep: async (milliseconds) => sleeps.push(milliseconds)
+  });
+
+  assert.equal(result.ok, false);
+  assert.equal(result.reason, "auth_browser_profile_not_connected");
+  assert.equal(result.service.ok, false);
+  assert.equal(result.service.reason, "auth_browser_profile_not_connected");
+  assert.equal(result.service.attempts, 5);
+  assert.deepEqual(result.service.launchAgent, {
+    ok: true,
+    reason: "auth_browser_service_running",
+    pid: 8123,
+    retryable: false,
+    attempts: 1
+  });
+  assert.equal(result.instagram.reason, "auth_browser_profile_not_connected");
+  assert.equal(result.linkedin.reason, "auth_browser_profile_not_connected");
+  assert.equal(result.instagram.attempts, 0);
+  assert.equal(result.linkedin.attempts, 0);
+  assert.deepEqual(sleeps, [1_000, 2_000, 4_000, 8_000]);
+  assert.equal(calls.filter((args) => args[2] === "open").length, 5);
+  assert.equal(calls.filter((args) => args[2] === "close").length, 5);
+  assert.equal(calls.some((args) => args[0] === "instagram"), false);
+  assert.equal(calls.some((args) => args[1]?.startsWith("preflight-li-")), false);
+});
+
+test("profile connection probe does not retry a non-transient command failure", async () => {
+  const result = await verifyOpenCliBrowserProfileConnection(async (args) => {
+    if (args[2] === "close") return "";
+    throw new Error("invalid browser command");
+  });
+  assert.deepEqual(result, {
+    ok: false,
+    reason: "auth_browser_profile_probe_failed",
+    retryable: false
+  });
 });
 
 test("scheduled preflight skips absent configuration and preserves per-platform debt", async (t) => {

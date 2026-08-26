@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { chmod, mkdir, mkdtemp, readFile, rm, stat, writeFile } from "node:fs/promises";
+import { chmod, mkdir, mkdtemp, readFile, rm, stat, symlink, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import test from "node:test";
@@ -15,7 +15,11 @@ import {
   SUPERVISOR_LABEL,
   uninstallAutonomousIngestionHost
 } from "../scripts/install-autonomous-ingestion-job-lease-supervisor.mjs";
-import { AUTH_BROWSER_LABEL } from "../scripts/lib/auth-browser-service.mjs";
+import {
+  AUTH_BROWSER_LABEL,
+  AUTH_CHROME_BUNDLE_IDENTIFIER,
+  AUTH_CHROME_TEAM_IDENTIFIER
+} from "../scripts/lib/auth-browser-service.mjs";
 import {
   acquireSupervisorLock,
   createGitHubClient,
@@ -730,7 +734,7 @@ test("awake LaunchAgent is AC-only and never simulates user activity", async () 
   }
 });
 
-test("auth browser LaunchAgent pins the dedicated local Chrome and persistent data directory", async () => {
+test("auth browser LaunchAgent pins the dedicated local Chrome Canary and persistent data directory", async () => {
   const template = await readFile(
     new URL(
       "../ops/launchd/com.returner-fund.auth-chrome-runner.plist.template",
@@ -738,7 +742,7 @@ test("auth browser LaunchAgent pins the dedicated local Chrome and persistent da
     ),
     "utf8"
   );
-  const chromeExecutable = "/Users/tester/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
+  const chromeExecutable = "/Users/tester/Applications/Google Chrome Canary.app/Contents/MacOS/Google Chrome Canary";
   const dataDir = "/Users/tester/Library/Application Support/Returner Fund Auth Chrome Runner";
   const plist = renderLaunchAgentTemplate(template, {
     __AUTH_CHROME_BIN__: chromeExecutable,
@@ -756,7 +760,7 @@ test("auth browser LaunchAgent pins the dedicated local Chrome and persistent da
   assert.doesNotMatch(plist, /remote-debugging|\/Volumes|AppTranslocation/);
 
   for (const mutation of [
-    plist.replace(chromeExecutable, "/Volumes/Google Chrome/Google Chrome"),
+    plist.replace(chromeExecutable, "/Volumes/Google Chrome Canary/Google Chrome Canary"),
     plist.replace(`--user-data-dir=${dataDir}`, "--user-data-dir=/tmp/chrome"),
     plist.replace("<key>KeepAlive</key>\n  <true/>", "<key>KeepAlive</key>\n  <false/>"),
     plist.replace("--no-first-run", "--remote-debugging-port=9222")
@@ -787,6 +791,8 @@ test("host LaunchAgent install and uninstall are idempotent without deleting aud
   await mkdir(path.dirname(paths.authBrowserChromeExecutable), { recursive: true });
   await writeFile(paths.authBrowserChromeExecutable, "#!/bin/sh\nexit 0\n");
   await chmod(paths.authBrowserChromeExecutable, 0o755);
+  await mkdir(paths.authBrowserDataDir, { recursive: true });
+  await symlink("test-host-8123", path.join(paths.authBrowserDataDir, "SingletonLock"));
   const calls = [];
   const run = async (command, args) => {
     calls.push([command, ...args]);
@@ -800,6 +806,7 @@ test("host LaunchAgent install and uninstall are idempotent without deleting aud
       return {
         stdout: [
           "state = running",
+          "pid = 8123",
           `program = ${paths.authBrowserChromeExecutable}`,
           `--user-data-dir=${paths.authBrowserDataDir}`
         ].join("\n"),
@@ -809,7 +816,16 @@ test("host LaunchAgent install and uninstall are idempotent without deleting aud
     if (command === "/usr/bin/codesign" && args[0] === "-dv") {
       return {
         stdout: "",
-        stderr: "Identifier=com.google.Chrome\nTeamIdentifier=EQHXZ8M8AV\n"
+        stderr: `Identifier=${AUTH_CHROME_BUNDLE_IDENTIFIER}\nTeamIdentifier=${AUTH_CHROME_TEAM_IDENTIFIER}\n`
+      };
+    }
+    if (command === "/bin/ps") {
+      return {
+        stdout: [
+          `8123 1 ${paths.authBrowserChromeExecutable} --user-data-dir=${paths.authBrowserDataDir} --profile-directory=Default --no-first-run --no-default-browser-check about:blank`,
+          `8124 8123 ${paths.authBrowserAppBundlePath}/Contents/Frameworks/Google Chrome Framework.framework/Versions/Current/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper --type=gpu-process`
+        ].join("\n"),
+        stderr: ""
       };
     }
     return { stdout: "", stderr: "" };
