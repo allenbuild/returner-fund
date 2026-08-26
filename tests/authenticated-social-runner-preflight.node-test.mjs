@@ -77,6 +77,45 @@ test("LinkedIn requires /in/me/ to redirect and positive own-account controls", 
     ok: true,
     reason: "linkedin_self_profile_verified"
   });
+  assert.deepEqual(linkedinViewerIdentityDecision({
+    ...base,
+    canonicalUrl: null
+  }), {
+    ok: true,
+    reason: "linkedin_self_profile_verified"
+  });
+
+  assert.deepEqual(linkedinViewerIdentityDecision({
+    ...base,
+    currentUrl: "https://www.linkedin.com/in/someone-else/",
+    canonicalUrl: null
+  }), {
+    ok: false,
+    reason: "linkedin_redirect_slug_mismatch"
+  });
+  assert.deepEqual(linkedinViewerIdentityDecision({
+    ...base,
+    canonicalUrl: null,
+    ownerEditControl: false
+  }), {
+    ok: false,
+    reason: "linkedin_owner_control_missing"
+  });
+  assert.deepEqual(linkedinViewerIdentityDecision({
+    ...base,
+    canonicalUrl: null,
+    authenticatedNavControl: false
+  }), {
+    ok: false,
+    reason: "linkedin_authenticated_navigation_missing"
+  });
+  assert.deepEqual(linkedinViewerIdentityDecision({
+    ...base,
+    canonicalUrl: "https://www.linkedin.com/in/someone-else/"
+  }), {
+    ok: false,
+    reason: "linkedin_canonical_slug_mismatch"
+  });
 
   // A matching public profile URL/canonical pair is not authenticated
   // self-account proof without both authenticated navigation and owner edit UI.
