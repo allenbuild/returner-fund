@@ -27,7 +27,11 @@ jobs:
   refresh:
     name: Build and publish the precomputed snapshot
     if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
-    runs-on: ubuntu-latest
+    # GitHub-hosted egress can return YouTube browse queues while withholding
+    # the exact player/watch metadata needed to attest publication time and
+    # native views. The established Mac runner's public network returns that
+    # official proof; discovery still fails closed if the proof is unavailable.
+    runs-on: [self-hosted, macOS, ARM64, returner-social, returner-auth-browser]
     timeout-minutes: 18
     concurrency:
       # Only a Dashboard job that passed the workflow_run success gate may

@@ -168,6 +168,17 @@ test("only runnable dashboard refresh jobs share the repository publication lane
   assert.doesNotMatch(dashboardRefreshWorkflow.split("jobs:")[0], /concurrency:/);
 });
 
+test("dashboard refresh uses the Mac network for exact YouTube proof", () => {
+  assert.match(
+    dashboardRefreshWorkflow,
+    /refresh:[\s\S]*?runs-on:\s*\[self-hosted,\s*macOS,\s*ARM64,\s*returner-social,\s*returner-auth-browser\]/
+  );
+  assert.match(
+    dashboardRefreshWorkflow,
+    /GitHub-hosted egress[\s\S]*?exact player\/watch metadata[\s\S]*?discovery still fails closed/
+  );
+});
+
 test("daily benchmarks resolve DST before entering the shared publication lane", () => {
   const cronCandidates = Array.from(
     dailyBenchmarkWorkflow.matchAll(/^\s*- cron:\s*["']([^"']+)["']\s*$/gm),
