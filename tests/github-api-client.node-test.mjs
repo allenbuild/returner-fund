@@ -260,6 +260,33 @@ test("concurrent GitHub retries share one serialized jittered admission lane", a
   });
 });
 
+test("GitHub retry admission waits the remaining monotonic boundary after an early timer wake", async () => {
+  let clock = 0;
+  const sleeps = [];
+  const starts = [];
+  const retryAdmission = createGitHubRetryAdmission({
+    minimumSpacingMs: 100,
+    jitterMs: 0,
+    now: () => clock,
+    random: () => 0,
+    sleep: async (ms) => {
+      sleeps.push(ms);
+      clock += sleeps.length === 1 ? ms - 1 : ms;
+    }
+  });
+
+  await retryAdmission.run(async () => starts.push(clock));
+  await retryAdmission.run(async () => starts.push(clock));
+
+  assert.deepEqual(sleeps, [100, 1]);
+  assert.deepEqual(starts, [0, 100]);
+  assert.deepEqual(retryAdmission.snapshot(), {
+    active: false,
+    queued: 0,
+    nextAllowedAt: 200
+  });
+});
+
 test("GitHub endpoint identifiers discard query and credential material", () => {
   assert.equal(
     safeGitHubEndpoint("https://user:password@api.github.com/repos/example/repo?token=secret"),

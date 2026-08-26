@@ -1307,13 +1307,13 @@ test("workflow retry policy isolates attempt outputs and enforces a bounded job 
       AUTONOMOUS_WORKFLOW_RETRY_MAX_ATTEMPTS: "6",
       AUTONOMOUS_WORKFLOW_RETRY_MAX_ELAPSED_SECONDS: "22200",
       AUTONOMOUS_WORKFLOW_RETRY_MIN_REMAINING_SECONDS: "19860",
-      AUTONOMOUS_WORKFLOW_RETRY_DELAYS_SECONDS: "30,120,300,600,900"
+      AUTONOMOUS_WORKFLOW_RETRY_DELAYS_SECONDS: "30,120,300,600,180"
     }),
     {
       maxAttempts: 6,
       maxElapsedSeconds: 22_200,
       minRemainingSeconds: 19_860,
-      retryDelaysSeconds: [30, 120, 300, 600, 900]
+      retryDelaysSeconds: [30, 120, 300, 600, 180]
     }
   );
   assert.throws(
@@ -1373,15 +1373,39 @@ test("production lock-contention retries outwait one complete coordinator lease"
     attemptStartOffsetsSeconds.push(elapsedSeconds);
   }
 
-  assert.deepEqual(attemptStartOffsetsSeconds, [0, 30, 150, 450, 1_050, 1_950]);
+  assert.deepEqual(attemptStartOffsetsSeconds, [0, 30, 150, 450, 1_050, 1_230]);
   assert.ok(
-    attemptStartOffsetsSeconds.at(-1) > 20 * 60,
+    attemptStartOffsetsSeconds.at(-1) >= 20 * 60,
     "a full child attempt must remain admissible after the 20-minute coordinator lease expires"
+  );
+  assert.ok(
+    attemptStartOffsetsSeconds.at(-1) <= (20 * 60) + 60,
+    "the post-expiry claim must not leave a long orphan-lock retry gap"
   );
   assert.ok(
     config.maxElapsedSeconds - attemptStartOffsetsSeconds.at(-1) >=
       config.minRemainingSeconds,
     "the post-lease attempt must retain the complete runner and cleanup allowance"
+  );
+});
+
+test("workflow execs the retry controller so cancellation cannot orphan its signal owner", () => {
+  const runnerStep = workflow.match(
+    /- name: Run autonomous ingestion[\s\S]*?(?=\n\s{6}- name:)/
+  )?.[0] ?? "";
+  const execIndex = runnerStep.indexOf(
+    "exec node scripts/lib/autonomous-ingestion-workflow-retry.mjs --"
+  );
+
+  assert.ok(execIndex > 0, "the retry controller must replace the transient step shell");
+  assert.ok(
+    runnerStep.indexOf("/usr/bin/caffeinate -ims -w $$") < execIndex,
+    "the same exec-stable PID must own the verified wake assertion before controller launch"
+  );
+  assert.doesNotMatch(
+    runnerStep,
+    /(?:^|\n)\s*node scripts\/lib\/autonomous-ingestion-workflow-retry\.mjs --/,
+    "a shell-parented controller can be orphaned when Actions cancels the shell"
   );
 });
 
@@ -1654,7 +1678,7 @@ test("autonomous runner receives optional durability secrets and owns validated 
   assert.doesNotMatch(runnerStep, /REDDIT_(?:CLIENT_ID|CLIENT_SECRET|USER_AGENT)/);
   assert.doesNotMatch(runnerStep, /NEXT_PUBLIC_SUPABASE_URL:\?/);
   assert.doesNotMatch(runnerStep, /SUPABASE_SERVICE_ROLE_KEY:\?/);
-  assert.match(runnerStep, /node scripts\/lib\/autonomous-ingestion-workflow-retry\.mjs --/);
+  assert.match(runnerStep, /exec node scripts\/lib\/autonomous-ingestion-workflow-retry\.mjs --/);
   assert.doesNotMatch(runnerStep, /IOPMUserTriggeredFullWake/);
   assert.match(runnerStep, /\/usr\/bin\/pmset -g batt/);
   assert.match(runnerStep, /\/usr\/bin\/pmset -g assertions/);
@@ -1666,7 +1690,7 @@ test("autonomous runner receives optional durability secrets and owns validated 
   assert.match(runnerStep, /AUTONOMOUS_WORKFLOW_RETRY_MAX_ATTEMPTS:\s*"6"/);
   assert.match(runnerStep, /AUTONOMOUS_WORKFLOW_RETRY_MAX_ELAPSED_SECONDS:\s*"22200"/);
   assert.match(runnerStep, /AUTONOMOUS_WORKFLOW_RETRY_MIN_REMAINING_SECONDS:\s*"19860"/);
-  assert.match(runnerStep, /AUTONOMOUS_WORKFLOW_RETRY_DELAYS_SECONDS:\s*"30,120,300,600,900"/);
+  assert.match(runnerStep, /AUTONOMOUS_WORKFLOW_RETRY_DELAYS_SECONDS:\s*"30,120,300,600,180"/);
   assert.doesNotMatch(runnerStep, /AUTONOMOUS_MIN_BATTERY_PERCENT/);
   assert.match(runnerStep, /AUTONOMOUS_WORKFLOW_POWER_WATCHDOG_RESERVE_PERCENT:\s*"20"/);
   assert.match(runnerStep, /AUTONOMOUS_WORKFLOW_POWER_WATCHDOG_INTERVAL_SECONDS:\s*"30"/);
