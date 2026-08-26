@@ -1,6 +1,7 @@
 import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
+import { gzipSync } from "node:zlib";
 import { describe, expect, it, vi } from "vitest";
 import { isCrediblyPublishedToday } from "@/lib/graph/native-publication-date";
 import { loadLiveEvidenceRecords, runLiveSourceRefresh, type LiveEvidenceRecord } from "@/lib/ingestion/live-source-refresh";
@@ -2241,6 +2242,41 @@ describe("live source refresh", () => {
       const rows = await loadLiveEvidenceRecords(process.cwd(), { targetedEvidencePath });
 
       expect(rows.map((row) => row.id)).toEqual([good.id]);
+    } finally {
+      await rm(tempDir, { recursive: true, force: true });
+    }
+  });
+
+  it("loads persisted live evidence from the compressed production projection", async () => {
+    const tempDir = await mkdtemp(join(tmpdir(), "returner-live-refresh-compressed-"));
+    const targetedEvidencePath = join(tempDir, "targeted-evidence-current.json.gz");
+    const first = liveXRecord({
+      id: "live-x-compressed-first",
+      sourceUrl: "https://x.com/screenpipe/status/2077045452579778664",
+      platformPostId: "2077045452579778664"
+    });
+    const second = liveXRecord({
+      id: "live-x-compressed-second",
+      sourceUrl: "https://x.com/screenpipe/status/2077045452579778665",
+      platformPostId: "2077045452579778665",
+      rawVisibleText: liveRawText({
+        id: "2077045452579778665",
+        source: "live_x_profile",
+        handle: "screenpipe",
+        text: "screenpipe records and learns how you work"
+      })
+    });
+    const serialized = JSON.stringify({
+      source: { fetchedAt: "2026-07-14T00:00:00.000Z" },
+      evidence: [first, second],
+      needsReview: []
+    });
+    await writeFile(targetedEvidencePath, gzipSync(serialized));
+
+    try {
+      const rows = await loadLiveEvidenceRecords(process.cwd(), { targetedEvidencePath });
+
+      expect(rows.map((row) => row.id)).toEqual([first.id, second.id]);
     } finally {
       await rm(tempDir, { recursive: true, force: true });
     }

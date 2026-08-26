@@ -1,5 +1,6 @@
 import { mkdir, readFile, rename, rm, stat, writeFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
+import { gunzipSync } from "node:zlib";
 import type { EvidenceMetrics, Platform, TopVoiceAudienceId, TopVoiceMember } from "@/lib/graph/types";
 import { computeEvidenceRawEngagement } from "@/lib/graph/traction-scoring";
 import { resolveTopVoiceAudience } from "@/lib/social/top-voices";
@@ -343,7 +344,7 @@ const TARGETED_EVIDENCE_PATH = join("src", "lib", "social", "targeted-evidence-c
 const GENERATED_TARGETED_EVIDENCE_PATH = join(
   "generated-runtime",
   "graph",
-  "targeted-evidence-current.json",
+  "targeted-evidence-current.json.gz",
 );
 const A16Z_SOCIAL_ACCOUNTS_PATH = join("src", "lib", "social", "a16z-speedrun-006-social-accounts.json");
 const VERIFIED_SOCIAL_OVERRIDES_PATH = join("src", "lib", "social", "verified-social-overrides.json");
@@ -2846,7 +2847,10 @@ async function withEvidenceSnapshotWriteLock<T>(path: string, task: () => Promis
 async function readEvidenceSnapshot(path: string, fallbackFetchedAt: string): Promise<EvidenceSnapshot> {
   let rawSnapshot: string;
   try {
-    rawSnapshot = await readFile(/* turbopackIgnore: true */ path, "utf8");
+    const bytes = await readFile(/* turbopackIgnore: true */ path);
+    rawSnapshot = path.endsWith(".gz")
+      ? gunzipSync(bytes).toString("utf8")
+      : bytes.toString("utf8");
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code !== "ENOENT") {
       throw new Error(`Could not read evidence snapshot ${path}: ${errorMessage(error)}`);

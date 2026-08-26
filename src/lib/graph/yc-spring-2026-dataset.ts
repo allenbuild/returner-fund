@@ -6,6 +6,7 @@ import verifiedSocialOverridesJson from "@/lib/social/verified-social-overrides.
 import ycPartnerVerbatimText from "@/lib/social/yc-partner-verbatim-text.json";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import { gunzipSync } from "node:zlib";
 import { calibrateBatchCompanyScores } from "@/lib/scoring/batch-calibration";
 import { benchmarkGlobalCompanyScores } from "@/lib/scoring/global-score-benchmark";
 import { a16zSpeedrun006GraphDataset } from "./a16z-speedrun-006-dataset";
@@ -73,22 +74,22 @@ interface RawSnapshot {
 // Next's output-file tracing explicitly includes these files for every route
 // that imports the full graph dataset.
 type GraphRuntimeProjectionPath =
-  | "generated-runtime/graph/public-evidence-current.json"
-  | "generated-runtime/graph/logged-in-evidence-current.json"
-  | "generated-runtime/graph/targeted-evidence-current.json"
-  | "generated-runtime/graph/volume-evidence-current.json";
+  | "generated-runtime/graph/public-evidence-current.json.gz"
+  | "generated-runtime/graph/logged-in-evidence-current.json.gz"
+  | "generated-runtime/graph/targeted-evidence-current.json.gz"
+  | "generated-runtime/graph/volume-evidence-current.json.gz";
 
 const publicEvidenceSnapshot: unknown = readRuntimeJson(
-  "generated-runtime/graph/public-evidence-current.json",
+  "generated-runtime/graph/public-evidence-current.json.gz",
 );
 const loggedInEvidenceSnapshot: unknown = readRuntimeJson(
-  "generated-runtime/graph/logged-in-evidence-current.json",
+  "generated-runtime/graph/logged-in-evidence-current.json.gz",
 );
 const targetedEvidenceSnapshot: unknown = readRuntimeJson(
-  "generated-runtime/graph/targeted-evidence-current.json",
+  "generated-runtime/graph/targeted-evidence-current.json.gz",
 );
 const volumeEvidenceSnapshot: unknown = readRuntimeJson(
-  "generated-runtime/graph/volume-evidence-current.json",
+  "generated-runtime/graph/volume-evidence-current.json.gz",
 );
 
 function readRuntimeJson(relativePath: GraphRuntimeProjectionPath): unknown {
@@ -96,7 +97,7 @@ function readRuntimeJson(relativePath: GraphRuntimeProjectionPath): unknown {
   // These exact files are declared in outputFileTracingIncludes. Ignoring the
   // resolved argument here prevents Turbopack from treating it as a repo-wide
   // filesystem glob while preserving cwd-independent local/test resolution.
-  return JSON.parse(readFileSync(/* turbopackIgnore: true */ runtimePath, "utf8"));
+  return JSON.parse(gunzipSync(readFileSync(/* turbopackIgnore: true */ runtimePath)).toString("utf8"));
 }
 
 function resolveRuntimeDataPath(relativePath: GraphRuntimeProjectionPath): string {

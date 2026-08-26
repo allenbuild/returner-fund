@@ -1,6 +1,7 @@
 import { calibrateBatchCompanyScores } from "@/lib/scoring/batch-calibration";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import { gunzipSync } from "node:zlib";
 
 import {
   canonicalEvidenceKey,
@@ -34,10 +35,10 @@ type A16zRuntimeJsonPath =
   | "src/lib/social/github-traction-a16z-speedrun-006.json"
   | "src/lib/social/a16z-speedrun-006-attribution-reconciliation.json"
   | "src/lib/social/a16z-speedrun-006-social-evidence.json"
-  | "generated-runtime/graph/logged-in-evidence-current.json"
-  | "generated-runtime/graph/public-evidence-current.json"
-  | "generated-runtime/graph/targeted-evidence-current.json"
-  | "generated-runtime/graph/volume-evidence-current.json"
+  | "generated-runtime/graph/logged-in-evidence-current.json.gz"
+  | "generated-runtime/graph/public-evidence-current.json.gz"
+  | "generated-runtime/graph/targeted-evidence-current.json.gz"
+  | "generated-runtime/graph/volume-evidence-current.json.gz"
   | "src/lib/social/a16z-speedrun-006-social-accounts.json";
 
 const githubTractionSnapshot: unknown = readRuntimeJson(
@@ -50,16 +51,16 @@ const seededSocialEvidenceSnapshot: unknown = readRuntimeJson(
   "src/lib/social/a16z-speedrun-006-social-evidence.json",
 );
 const loggedInEvidenceSnapshot: unknown = readRuntimeJson(
-  "generated-runtime/graph/logged-in-evidence-current.json",
+  "generated-runtime/graph/logged-in-evidence-current.json.gz",
 );
 const publicEvidenceSnapshot: unknown = readRuntimeJson(
-  "generated-runtime/graph/public-evidence-current.json",
+  "generated-runtime/graph/public-evidence-current.json.gz",
 );
 const targetedEvidenceSnapshot: unknown = readRuntimeJson(
-  "generated-runtime/graph/targeted-evidence-current.json",
+  "generated-runtime/graph/targeted-evidence-current.json.gz",
 );
 const volumeEvidenceSnapshot: unknown = readRuntimeJson(
-  "generated-runtime/graph/volume-evidence-current.json",
+  "generated-runtime/graph/volume-evidence-current.json.gz",
 );
 const speedrunSocialAccountSnapshot: unknown = readRuntimeJson(
   "src/lib/social/a16z-speedrun-006-social-accounts.json",
@@ -70,7 +71,11 @@ function readRuntimeJson(relativePath: A16zRuntimeJsonPath): unknown {
   // These exact files are declared in outputFileTracingIncludes. Ignoring the
   // resolved argument here prevents Turbopack from treating it as a repo-wide
   // filesystem glob while preserving cwd-independent local/test resolution.
-  return JSON.parse(readFileSync(/* turbopackIgnore: true */ runtimePath, "utf8"));
+  const bytes = readFileSync(/* turbopackIgnore: true */ runtimePath);
+  const json = relativePath.endsWith(".gz")
+    ? gunzipSync(bytes).toString("utf8")
+    : bytes.toString("utf8");
+  return JSON.parse(json);
 }
 
 function resolveRuntimeDataPath(relativePath: A16zRuntimeJsonPath): string {
