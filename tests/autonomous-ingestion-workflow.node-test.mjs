@@ -1220,7 +1220,7 @@ test("workflow gates work through the schedule helper and stable key", () => {
   assert.match(workflow, /--recovery-debt="\$CANDIDATE_RECOVERY_DEBT"/);
 });
 
-test("workflow retry policy retries transport failures but fails closed on semantic ambiguity", () => {
+test("workflow retry policy retries transient failures but fails closed on lease loss and semantic ambiguity", () => {
   const outcome = ({
     runnerStatus = "failed",
     publicationStatus = "",
@@ -1247,8 +1247,16 @@ test("workflow retry policy retries transport failures but fails closed on seman
     assert.equal(decision.reason, "transient-infrastructure-failure");
   }
 
+  const lockContention = classifyAutonomousWorkflowAttempt({
+    exitCode: 1,
+    output: outcome({
+      failureMessage: "Another ingestion coordinator owns the non-expired autonomous-ingestion lease."
+    })
+  });
+  assert.equal(lockContention.retryable, true);
+  assert.equal(lockContention.reason, "runtime-lock-contention");
+
   for (const failureMessage of [
-    "Another ingestion coordinator owns the non-expired autonomous-ingestion lease.",
     "The ingestion runtime lock expired or was taken by another worker.",
     "Queued candidate is superseded by a newer Central slot.",
     "Unrecognized evidence schema."
