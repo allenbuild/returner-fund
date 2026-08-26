@@ -2397,7 +2397,7 @@ async function buildInputHashManifest() {
     ...sortedUnique(dataFiles)
       .filter(
         (filePath) =>
-          filePath.endsWith(".json") &&
+          /\.json(?:\.gz)?$/.test(filePath) &&
           filePath !== path.join(DATA_ROOT, "public", "graph", "manifest.json")
       )
       .map((filePath) => ({ filePath, path: dataRelativePath(filePath), provenance: "publication_data" }))

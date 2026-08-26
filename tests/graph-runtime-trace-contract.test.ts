@@ -6,10 +6,10 @@ import { describe, expect, it } from "vitest";
 
 const validatorPath = join(process.cwd(), "scripts/validate-graph-function-trace.mjs");
 const graphRuntimeProjections = [
-  "generated-runtime/graph/public-evidence-current.json",
-  "generated-runtime/graph/logged-in-evidence-current.json",
-  "generated-runtime/graph/targeted-evidence-current.json",
-  "generated-runtime/graph/volume-evidence-current.json"
+  "generated-runtime/graph/public-evidence-current.json.gz",
+  "generated-runtime/graph/logged-in-evidence-current.json.gz",
+  "generated-runtime/graph/targeted-evidence-current.json.gz",
+  "generated-runtime/graph/volume-evidence-current.json.gz"
 ];
 const publishedGraphSnapshots = [
   "public/graph/s2026.json",
@@ -92,7 +92,16 @@ describe("graph runtime trace contract", () => {
       expect(source).toContain("join(/* turbopackIgnore: true */ root, relativePath)");
       expect(source).toContain("existsSync(/* turbopackIgnore: true */ runtimePath)");
       expect(source).toContain("readFileSync(/* turbopackIgnore: true */ runtimePath");
+      expect(source).toContain("gunzipSync(");
     }
+  });
+
+  it("traces only compressed graph evidence projections", () => {
+    const config = readFileSync(join(process.cwd(), "next.config.mjs"), "utf8");
+    for (const projection of graphRuntimeProjections) {
+      expect(config).toContain(`"${projection}"`);
+    }
+    expect(config).not.toMatch(/generated-runtime\/graph\/[a-z-]+-evidence-current\.json["']/);
   });
 });
 

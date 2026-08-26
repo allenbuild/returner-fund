@@ -1,6 +1,7 @@
 import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
+import { gzipSync } from "node:zlib";
 import { describe, expect, it, vi } from "vitest";
 import { isCrediblyPublishedToday } from "@/lib/graph/native-publication-date";
 import { loadLiveEvidenceRecords, runLiveSourceRefresh, type LiveEvidenceRecord } from "@/lib/ingestion/live-source-refresh";
@@ -2242,6 +2243,65 @@ describe("live source refresh", () => {
 
       expect(rows.map((row) => row.id)).toEqual([good.id]);
     } finally {
+      await rm(tempDir, { recursive: true, force: true });
+    }
+  });
+
+  it("loads persisted live evidence from the compressed production projection", async () => {
+    const tempDir = await mkdtemp(join(tmpdir(), "returner-live-refresh-compressed-"));
+    const targetedEvidencePath = join(
+      tempDir,
+      "generated-runtime",
+      "graph",
+      "targeted-evidence-current.json.gz"
+    );
+    const summerCatalogPath = join(tempDir, "src", "lib", "yc", "summer-2026-companies.json");
+    const socialOverridesPath = join(tempDir, "src", "lib", "social", "verified-social-overrides.json");
+    const first = liveXRecord({
+      id: "live-x-compressed-first",
+      sourceUrl: "https://x.com/screenpipe/status/2077045452579778664",
+      platformPostId: "2077045452579778664"
+    });
+    const second = liveXRecord({
+      id: "live-x-compressed-second",
+      sourceUrl: "https://x.com/screenpipe/status/2077045452579778665",
+      platformPostId: "2077045452579778665",
+      rawVisibleText: liveRawText({
+        id: "2077045452579778665",
+        source: "live_x_profile",
+        handle: "screenpipe",
+        text: "screenpipe records and learns how you work"
+      })
+    });
+    const serialized = JSON.stringify({
+      source: { fetchedAt: "2026-07-14T00:00:00.000Z" },
+      evidence: [first, second],
+      needsReview: []
+    });
+    await mkdir(join(tempDir, "generated-runtime", "graph"), { recursive: true });
+    await mkdir(join(tempDir, "src", "lib", "yc"), { recursive: true });
+    await mkdir(join(tempDir, "src", "lib", "social"), { recursive: true });
+    await writeFile(targetedEvidencePath, gzipSync(serialized));
+    await writeFile(summerCatalogPath, JSON.stringify({
+      companies: [{
+        id: "screenpipe",
+        slug: "screenpipe",
+        name: "screenpipe",
+        batch: "S26",
+        websiteUrl: "https://screenpi.pe",
+        socialLinks: { x: "https://x.com/screenpipe" },
+        founders: []
+      }]
+    }));
+    await writeFile(socialOverridesPath, "{}\n");
+    vi.stubEnv("NODE_ENV", "production");
+
+    try {
+      const rows = await loadLiveEvidenceRecords(tempDir);
+
+      expect(rows.map((row) => row.id)).toEqual([first.id, second.id]);
+    } finally {
+      vi.unstubAllEnvs();
       await rm(tempDir, { recursive: true, force: true });
     }
   });
