@@ -271,10 +271,14 @@ describe("public dashboard discovery", () => {
       { name: "Unbox Therapy", handle: "unboxtherapy" },
       { name: "JerryRigEverything", handle: "JerryRigEverything" },
       { name: "Dave2D", handle: "Dave2D" },
-      { name: "The Verge", handle: "TheVerge" }
+      { name: "The Verge", handle: "TheVerge" },
+      { name: "SpaceX", handle: "SpaceX" },
+      { name: "Boston Dynamics", handle: "BostonDynamics" },
+      { name: "DJI", handle: "DJI" },
+      { name: "Nothing", handle: "NothingTechnology" }
     ]);
     expect(DEFAULT_DASHBOARD_YOUTUBE_CHANNELS.length).toBeLessThanOrEqual(MAX_DASHBOARD_YOUTUBE_CHANNELS);
-    expect(DEFAULT_DASHBOARD_YOUTUBE_CHANNELS).toHaveLength(16);
+    expect(DEFAULT_DASHBOARD_YOUTUBE_CHANNELS).toHaveLength(20);
     expect(MAX_DASHBOARD_YOUTUBE_CHANNELS).toBe(20);
   });
 

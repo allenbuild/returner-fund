@@ -243,7 +243,11 @@ export const DEFAULT_DASHBOARD_YOUTUBE_CHANNELS: readonly DashboardYoutubeChanne
   { name: "Unbox Therapy", handle: "unboxtherapy" },
   { name: "JerryRigEverything", handle: "JerryRigEverything" },
   { name: "Dave2D", handle: "Dave2D" },
-  { name: "The Verge", handle: "TheVerge" }
+  { name: "The Verge", handle: "TheVerge" },
+  { name: "SpaceX", handle: "SpaceX" },
+  { name: "Boston Dynamics", handle: "BostonDynamics" },
+  { name: "DJI", handle: "DJI" },
+  { name: "Nothing", handle: "NothingTechnology" }
 ];
 
 interface DashboardRssFeed {
