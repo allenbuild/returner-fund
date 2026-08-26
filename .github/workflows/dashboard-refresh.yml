@@ -83,6 +83,9 @@ jobs:
           # discovery implementation never writes, acts as a user, or sends
           # cookies/session data to a third party.
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Optional official X recent-search supplements the bounded public
+          # YouTube lane. The worker never receives an account session.
+          X_BEARER_TOKEN: ${{ secrets.X_BEARER_TOKEN }}
           # The same service-role credentials used by the established
           # ingestion workflow make the dashboard's durable provenance and
           # rank-history projection available. The artifact is still the
