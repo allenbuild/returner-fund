@@ -410,6 +410,23 @@ If the lock is expired and no process is active, a new claim can replace it. Pre
 
 The coordinator renews every 60 seconds against a 20-minute lease. Transient transport failures retry with capped exponential backoff beyond the former four-attempt ceiling while retaining the exact run and runtime-lock fencing tokens. It reserves enough of the current lease for both renewal calls; confirmed lock loss, a semantic database error, or exhaustion of that safe window fails closed. The next idempotent invocation may recover after the old lease expires, but do not manually start an overlapping replacement while the lock is nonexpired.
 
+### Self-hosted Actions job lease loss
+
+The optional macOS host supervisor handles the infrastructure case where GitHub invalidates a self-hosted job lease and the runner records `TaskOrchestrationJobNotFoundException` while cancelling `Run autonomous ingestion`. It does not replace the in-job retry controller.
+
+Install or refresh the user LaunchAgent from a reviewed checkout:
+
+```bash
+npm run ingest:lease-supervisor:install
+launchctl print "gui/$(id -u)/com.returner-fund.ingestion-lease-supervisor"
+```
+
+The one-shot agent runs at load and every 300 seconds. It scans `Worker_*.log` diagnostics and fails closed unless the GitHub API confirms the exact repository, workflow, failed run attempt, self-hosted runner, and cancelled ingestion step. It never stores a GitHub token; `/opt/homebrew/bin/gh` uses the logged-in user's keychain session.
+
+Recovery remains single-flight and power-aware. The supervisor defers while another autonomous workflow is active or while the Mac is below 60% on battery. It rejects an incident whose workflow SHA is not current `main`, which prevents an old failure from reviving superseded code. For an eligible event it calls GitHub's failed-jobs rerun endpoint, preserving the original event, run ID, replay/slot key, and candidate provenance. Durable dedupe is written only after GitHub accepts the rerun or reports a newer run attempt; stale-SHA incidents are recorded as intentionally skipped.
+
+The checked-in template is `ops/launchd/com.returner-fund.ingestion-lease-supervisor.plist.template`. Runtime state is mode-restricted under `~/Library/Application Support/Returner Fund/ingestion-lease-supervisor/state`, and logs are in `~/Library/Logs/returner-fund-ingestion-lease-supervisor*.log`.
+
 ### Collector timeout or failure
 
 - Broad-public shard timeout: 70 minutes per attempt.
