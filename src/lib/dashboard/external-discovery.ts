@@ -356,7 +356,10 @@ export async function fetchYoutubeChannelCandidates(
   const handle = compactWhitespace(channel.handle).replace(/^@/, "");
   if (!/^[A-Za-z0-9._-]{1,100}$/.test(handle)) throw new Error("youtube_invalid_channel_handle");
   const source = `youtube:${sourceSlug(handle)}`;
-  const channelResponse = await fetchImpl(`https://www.youtube.com/@${encodeURIComponent(handle)}/videos`, {
+  const channelUrl = new URL(`https://www.youtube.com/@${encodeURIComponent(handle)}/videos`);
+  channelUrl.searchParams.set("hl", "en");
+  channelUrl.searchParams.set("gl", "US");
+  const channelResponse = await fetchImpl(channelUrl, {
     headers: youtubePublicHeaders(),
     signal: AbortSignal.timeout(12_000)
   });
@@ -370,22 +373,22 @@ export async function fetchYoutubeChannelCandidates(
   // and differ across YouTube renderer variants. Use the newest renderer IDs
   // only as a bounded detail-page queue; the official watch page supplies the
   // exact identity, publication timestamp, and view count used downstream.
-  const videoIds = youtubeVideoPreviewIds(channelPage)
-    .slice(0, MAX_YOUTUBE_DETAIL_CANDIDATES_PER_CHANNEL);
+  const videosTab = youtubeSelectedVideosTabContent(channelPage);
+  if (!videosTab) throw new Error(`${source.replace(":", "_")}_missing_selected_videos_tab`);
+  const videoIds = youtubeVideoPreviewIds(videosTab, MAX_YOUTUBE_DETAIL_CANDIDATES_PER_CHANNEL);
   if (videoIds.length === 0) throw new Error(`${source.replace(":", "_")}_no_video_preview_ids`);
   const settled = await Promise.allSettled(videoIds.map((videoId) =>
     fetchYoutubeWatchCandidate(fetchImpl, videoId, channelId, channel.name, now)
   ));
-  if (settled.every((result) => result.status === "rejected")) {
+  const details = settled.flatMap((result) =>
+    result.status === "fulfilled" && result.value ? [result.value] : []
+  );
+  if (details.length === 0) {
     throw new Error(`${source.replace(":", "_")}_detail_unavailable`);
   }
   return {
     source,
-    candidates: settled.flatMap((result) =>
-      result.status === "fulfilled" && result.value && isDashboardCandidateEligible(result.value, now)
-        ? [result.value]
-        : []
-    )
+    candidates: details.filter((candidate) => isDashboardCandidateEligible(candidate, now))
   };
 }
 
@@ -396,17 +399,25 @@ async function fetchYoutubeWatchCandidate(
   rosterName: string,
   observedAt: Date
 ): Promise<DashboardCandidate | null> {
-  const response = await fetchImpl(`https://www.youtube.com/watch?v=${encodeURIComponent(videoId)}`, {
+  const watchUrl = new URL("https://www.youtube.com/watch");
+  watchUrl.searchParams.set("v", videoId);
+  watchUrl.searchParams.set("hl", "en");
+  watchUrl.searchParams.set("gl", "US");
+  const response = await fetchImpl(watchUrl, {
     headers: youtubePublicHeaders(),
     signal: AbortSignal.timeout(12_000)
   });
   if (!response.ok) throw new Error(`youtube_watch_http_${response.status}`);
   const html = await readBoundedText(response, `youtube_watch_${videoId}`, MAX_YOUTUBE_RESPONSE_BYTES);
-  const detailsStart = html.indexOf('"videoDetails":{');
-  const details = detailsStart >= 0 ? html.slice(detailsStart, detailsStart + 160_000) : html;
+  const playerResponse = parseAssignedJson(html, "ytInitialPlayerResponse");
+  // Prefer the one player-response object associated with this watch page so
+  // exact dates from unrelated recommendation payloads cannot attest it.
+  const playerMetadata = playerResponse ? JSON.stringify(playerResponse) : html;
+  const detailsStart = playerMetadata.indexOf('"videoDetails":{');
+  const details = detailsStart >= 0 ? playerMetadata.slice(detailsStart, detailsStart + 160_000) : playerMetadata;
   const nativeVideoId = jsonStringField(details, "videoId");
   const channelId = jsonStringField(details, "channelId");
-  const publicationValue = jsonStringField(html, "publishDate") ?? jsonStringField(html, "uploadDate");
+  const publicationValue = exactYoutubePublicationValue(playerMetadata);
   const publishedAt = validTimestamp(publicationValue);
   const title = compactWhitespace(jsonStringField(details, "title"));
   const description = compactWhitespace(jsonStringField(details, "shortDescription")).slice(0, 4_000);
@@ -1015,7 +1026,7 @@ function xTechnologyTopics(text: string): DashboardCandidate["topics"] {
   return [...topics];
 }
 
-function youtubeVideoPreviewIds(root: unknown): string[] {
+function youtubeVideoPreviewIds(root: unknown, limit: number): string[] {
   const result: string[] = [];
   const seen = new Set<string>();
   for (const value of objectGraph(root)) {
@@ -1023,9 +1034,37 @@ function youtubeVideoPreviewIds(root: unknown): string[] {
       if (seen.has(videoId)) continue;
       seen.add(videoId);
       result.push(videoId);
+      if (result.length >= limit) return result;
     }
   }
   return result;
+}
+
+function youtubeSelectedVideosTabContent(root: unknown): unknown | null {
+  for (const value of objectGraph(root)) {
+    const tab = objectValue(value.tabRenderer);
+    if (tab?.selected !== true || !tab.content) continue;
+    const title = youtubeText(tab.title).toLowerCase();
+    const endpoint = objectValue(tab.endpoint);
+    const commandMetadata = objectValue(endpoint?.commandMetadata);
+    const webCommandMetadata = objectValue(commandMetadata?.webCommandMetadata);
+    const endpointPath = typeof webCommandMetadata?.url === "string" ? webCommandMetadata.url : "";
+    if (title === "videos" || /\/videos(?:[?#]|$)/i.test(endpointPath)) return tab.content;
+  }
+  return null;
+}
+
+function youtubeText(value: unknown): string {
+  if (typeof value === "string") return compactWhitespace(value);
+  const record = objectValue(value);
+  if (!record) return "";
+  if (typeof record.simpleText === "string") return compactWhitespace(record.simpleText);
+  if (typeof record.content === "string") return compactWhitespace(record.content);
+  if (!Array.isArray(record.runs)) return "";
+  return compactWhitespace(record.runs.flatMap((run) => {
+    const text = objectValue(run)?.text;
+    return typeof text === "string" ? [text] : [];
+  }).join(" "));
 }
 
 function youtubeVideoIdsFromRendererRecord(value: Record<string, unknown>): string[] {
@@ -1138,6 +1177,21 @@ function jsonStringField(value: string, field: string): string | null {
 
 function jsonNumberField(value: string, field: string): string | null {
   return value.match(new RegExp(`"${field}":(\\d+)`))?.[1] ?? null;
+}
+
+function exactYoutubePublicationValue(value: string): string | null {
+  for (const field of ["publishDate", "uploadDate"]) {
+    const matches = value.matchAll(new RegExp(`"${field}":"((?:\\\\.|[^"\\\\])*)"`, "g"));
+    for (const match of matches) {
+      try {
+        const decoded = JSON.parse(`"${match[1]}"`) as string;
+        if (isExactYoutubePublicationValue(decoded) && validTimestamp(decoded)) return decoded;
+      } catch {
+        // Keep scanning bounded official metadata for another exact value.
+      }
+    }
+  }
+  return null;
 }
 
 function isExactYoutubePublicationValue(value: string | null): boolean {
