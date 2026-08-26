@@ -195,7 +195,7 @@ describe("public dashboard discovery", () => {
   });
 
   it("ships a unique, bounded fixed Instagram roster", () => {
-    expect(DEFAULT_DASHBOARD_INSTAGRAM_ACCOUNTS).toHaveLength(17);
+    expect(DEFAULT_DASHBOARD_INSTAGRAM_ACCOUNTS).toHaveLength(20);
     expect(DEFAULT_DASHBOARD_INSTAGRAM_ACCOUNTS.length).toBeLessThanOrEqual(MAX_DASHBOARD_INSTAGRAM_ACCOUNTS);
     expect(DEFAULT_DASHBOARD_INSTAGRAM_ACCOUNTS.map(({ username }) => username)).toEqual(expect.arrayContaining([
       "apple",
@@ -203,7 +203,10 @@ describe("public dashboard discovery", () => {
       "techburner",
       "openai",
       "nvidia",
-      "samsungmobile"
+      "samsungmobile",
+      "xiaomi.global",
+      "beebomco",
+      "teslamotors"
     ]));
     expect(new Set(DEFAULT_DASHBOARD_INSTAGRAM_ACCOUNTS.map(({ username }) => username)).size).toBe(
       DEFAULT_DASHBOARD_INSTAGRAM_ACCOUNTS.length

@@ -285,7 +285,10 @@ export const DEFAULT_DASHBOARD_INSTAGRAM_ACCOUNTS: readonly DashboardInstagramAc
   { name: "Nothing", username: "nothing" },
   { name: "DJI", username: "djiglobal" },
   { name: "Technical Guruji", username: "technicalguruji" },
-  { name: "Trakin Tech", username: "trakintech" }
+  { name: "Trakin Tech", username: "trakintech" },
+  { name: "Xiaomi", username: "xiaomi.global" },
+  { name: "Beebom", username: "beebomco" },
+  { name: "Tesla", username: "teslamotors" }
 ];
 
 /** Bounded, high-reach technology roster; every qualifying metric/date is
