@@ -241,6 +241,11 @@ const AUTONOMOUS_PROVIDER_BLOCKER_CODES = new Map([
   ])],
   ["reddit_public_json", new Set([
     "reddit_public_access_blocked"
+  ])],
+  ["official_source_html", new Set([
+    "official_source_http_failure",
+    "official_source_timeout",
+    "official_source_transport_failure"
   ])]
 ]);
 
@@ -1602,13 +1607,26 @@ export function indexAutonomousCollectorTaskOutcomes(
       const exactReason = nonEmptyCollectorReason(attempt.error ?? attempt.outcomeReason);
       if (explicitTerminalOnly && (!terminalStatus || !exactReason)) continue;
       const status = terminalStatus ?? "failed";
+      const providerBlocker = isAutonomousProviderBlocker(attempt?.blocker, {
+        platform: "github"
+      }) ? attempt.blocker : null;
       record(
         attempt,
         "github",
         status,
         explicitTerminalOnly
-          ? exactReason
-          : attempt.outcomeReason ?? "collector_owner_discovery_attempted"
+          ? providerBlocker
+            ? nonEmptyCollectorReason(attempt.outcomeReason) ?? exactReason
+            : exactReason
+          : attempt.outcomeReason ?? "collector_owner_discovery_attempted",
+        null,
+        providerBlocker
+          ? {
+              exactTypedReceipt: Boolean(terminalStatus && exactReason),
+              providerBlocked: true,
+              providerBlockerReason: typedProviderBlockerReason(providerBlocker, "github")
+            }
+          : { exactTypedReceipt: Boolean(terminalStatus && exactReason) }
       );
     }
     return outcomes;
@@ -2681,7 +2699,8 @@ export function isAutonomousProviderBlocker(blocker, { platform = null } = {}) {
       return false;
     }
     if (provider === "reddit_public_json" && normalizedPlatform !== "reddit") return false;
-    if (!["duckduckgo_html", "reddit_public_json"].includes(provider) && normalizedPlatform !== "linkedin") return false;
+    if (provider === "official_source_html" && normalizedPlatform !== "github") return false;
+    if (!["duckduckgo_html", "reddit_public_json", "official_source_html"].includes(provider) && normalizedPlatform !== "linkedin") return false;
   }
   const allowedKeys = new Set(["provider", "code", "retryAt", "httpStatus", "message"]);
   if (Object.keys(blocker).some((key) => !allowedKeys.has(key))) return false;
