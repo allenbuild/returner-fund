@@ -20,6 +20,11 @@ const MAX_X_RECENT_SEARCH_ITEMS = 100;
 const MAX_YOUTUBE_RESPONSE_BYTES = 1_750_000;
 const MAX_YOUTUBE_PLAYER_RESPONSE_BYTES = 750_000;
 const MAX_YOUTUBE_DETAIL_CANDIDATES_PER_CHANNEL = 2;
+const MAX_CONCURRENT_YOUTUBE_CHANNELS = 4;
+// This is a public Innertube protocol identifier, not a credential. YouTube's
+// no-key WEB browse/player endpoints accept older client versions, which lets
+// the worker avoid extracting and retaining a page-embedded API key.
+const YOUTUBE_WEB_CLIENT_VERSION = "2.20240101.00.00";
 export const MAX_DASHBOARD_YOUTUBE_CHANNELS = 20;
 const MAX_RSS_ITEMS_PER_FEED = 40;
 // Primary research is a direct, high-quality lane rather than a broad
@@ -223,31 +228,32 @@ export const DEFAULT_DASHBOARD_X_QUERY = [
 export interface DashboardYoutubeChannel {
   name: string;
   handle: string;
+  channelId?: string;
 }
 
 /** Bounded, high-reach technology roster; every qualifying metric/date is
  * re-read from the video's official player metadata. */
 export const DEFAULT_DASHBOARD_YOUTUBE_CHANNELS: readonly DashboardYoutubeChannel[] = [
-  { name: "Apple", handle: "Apple" },
-  { name: "MKBHD", handle: "mkbhd" },
-  { name: "OpenAI", handle: "OpenAI" },
-  { name: "Google", handle: "Google" },
-  { name: "NVIDIA", handle: "NVIDIA" },
-  { name: "Tesla", handle: "Tesla" },
-  { name: "Linus Tech Tips", handle: "LinusTechTips" },
-  { name: "Mrwhosetheboss", handle: "Mrwhosetheboss" },
-  { name: "Fireship", handle: "Fireship" },
-  { name: "Samsung", handle: "Samsung" },
-  { name: "Microsoft", handle: "Microsoft" },
-  { name: "Android", handle: "Android" },
-  { name: "Unbox Therapy", handle: "unboxtherapy" },
-  { name: "JerryRigEverything", handle: "JerryRigEverything" },
-  { name: "Dave2D", handle: "Dave2D" },
-  { name: "The Verge", handle: "TheVerge" },
-  { name: "SpaceX", handle: "SpaceX" },
-  { name: "Boston Dynamics", handle: "BostonDynamics" },
-  { name: "DJI", handle: "DJI" },
-  { name: "Nothing", handle: "NothingTechnology" }
+  { name: "Apple", handle: "Apple", channelId: "UCE_M8A5yxnLfW0KghEeajjw" },
+  { name: "MKBHD", handle: "mkbhd", channelId: "UCBJycsmduvYEL83R_U4JriQ" },
+  { name: "OpenAI", handle: "OpenAI", channelId: "UCXZCJLdBC09xxGZ6gcdrc6A" },
+  { name: "Google", handle: "Google", channelId: "UCK8sQmJBp8GCxrOtXWBpyEA" },
+  { name: "NVIDIA", handle: "NVIDIA", channelId: "UCHuiy8bXnmK5nisYHUd1J5g" },
+  { name: "Tesla", handle: "Tesla", channelId: "UC5WjFrtBdufl6CZojX3D8dQ" },
+  { name: "Linus Tech Tips", handle: "LinusTechTips", channelId: "UCXuqSBlHAE6Xw-yeJA0Tunw" },
+  { name: "Mrwhosetheboss", handle: "Mrwhosetheboss", channelId: "UCMiJRAwDNSNzuYeN2uWa0pA" },
+  { name: "Fireship", handle: "Fireship", channelId: "UCsBjURrPoezykLs9EqgamOA" },
+  { name: "Samsung", handle: "Samsung", channelId: "UCWwgaK7x0_FR1goeSRazfsQ" },
+  { name: "Microsoft", handle: "Microsoft", channelId: "UCFtEEv80fQVKkD4h1PF-Xqw" },
+  { name: "Android", handle: "Android", channelId: "UC9M7-jzdU8CVrQo1JwmIdWA" },
+  { name: "Unbox Therapy", handle: "unboxtherapy", channelId: "UCsTcErHg8oDvUnTzoqsYeNw" },
+  { name: "JerryRigEverything", handle: "JerryRigEverything", channelId: "UCWFKCr40YwOZQx8FHU_ZqqQ" },
+  { name: "Dave2D", handle: "Dave2D", channelId: "UCVYamHliCI9rw1tHR1xbkfw" },
+  { name: "The Verge", handle: "TheVerge", channelId: "UCddiUEpeqJcYeBxX1IVBKvQ" },
+  { name: "SpaceX", handle: "SpaceX", channelId: "UCtI0Hodo5o5dUb67FeUjDeA" },
+  { name: "Boston Dynamics", handle: "BostonDynamics", channelId: "UC7vVhkEfw4nOGp8TyDk7RcQ" },
+  { name: "DJI", handle: "DJI", channelId: "UCsNGtpqGsyw0U6qEG-WHadA" },
+  { name: "Nothing", handle: "NothingTechnology", channelId: "UCuVQmkiETvqmLviDcBtQw4A" }
 ];
 
 interface DashboardRssFeed {
@@ -296,12 +302,13 @@ export async function discoverExternalDashboardCandidates(
   // that input into an unbounded channel/detail crawl. Each retained channel
   // can nominate at most two official player reads below.
   const youtubeChannels = (options.youtubeChannels ?? []).slice(0, MAX_DASHBOARD_YOUTUBE_CHANNELS);
+  const youtubeJobs = boundedYoutubeDiscoveryJobs(fetchImpl, now, youtubeChannels);
   const jobs: Array<Promise<{ source: string; candidates: DashboardCandidate[] }>> = [
     fetchHackerNewsCandidates(fetchImpl, now),
     fetchGithubCandidates(fetchImpl, now, githubToken),
     fetchGithubReleaseCandidates(fetchImpl, now, githubToken),
     ...(xBearerToken ? [fetchXRecentSearchCandidates(fetchImpl, now, xBearerToken)] : []),
-    ...youtubeChannels.map((channel) => fetchYoutubeChannelCandidates(fetchImpl, now, channel)),
+    ...youtubeJobs,
     ...feeds.map((feed) => fetchRssCandidates(fetchImpl, feed, now)),
     ...researchFeeds.map((feed) => fetchRssCandidates(fetchImpl, feed, now)),
     ...subreddits.map((subreddit) => fetchRedditCandidates(fetchImpl, subreddit, now))
@@ -325,6 +332,20 @@ export async function discoverExternalDashboardCandidates(
     failures: [...new Set(failures)].sort(),
     sources: [...new Set(sources)].sort()
   };
+}
+
+function boundedYoutubeDiscoveryJobs(
+  fetchImpl: typeof fetch,
+  now: Date,
+  channels: readonly DashboardYoutubeChannel[]
+): Array<Promise<{ source: string; candidates: DashboardCandidate[] }>> {
+  const jobs: Array<Promise<{ source: string; candidates: DashboardCandidate[] }>> = [];
+  for (const [index, channel] of channels.entries()) {
+    const predecessor = jobs[index - MAX_CONCURRENT_YOUTUBE_CHANNELS];
+    const ready = predecessor ? predecessor.then(() => undefined, () => undefined) : Promise.resolve();
+    jobs.push(ready.then(() => fetchYoutubeChannelCandidates(fetchImpl, now, channel)));
+  }
+  return jobs;
 }
 
 export async function fetchXRecentSearchCandidates(
@@ -368,6 +389,85 @@ export async function fetchYoutubeChannelCandidates(
   const handle = compactWhitespace(channel.handle).replace(/^@/, "");
   if (!/^[A-Za-z0-9._-]{1,100}$/.test(handle)) throw new Error("youtube_invalid_channel_handle");
   const source = `youtube:${sourceSlug(handle)}`;
+  const configuredChannelId = compactWhitespace(channel.channelId);
+  if (channel.channelId !== undefined && !/^UC[A-Za-z0-9_-]{22}$/.test(configuredChannelId)) {
+    throw new Error(`${source.replace(":", "_")}_invalid_channel_id`);
+  }
+  let queue: YoutubeDiscoveryQueue;
+  if (configuredChannelId) {
+    try {
+      queue = await fetchYoutubeUploadsQueue(fetchImpl, configuredChannelId, source);
+    } catch (browseError) {
+      try {
+        queue = await fetchYoutubeChannelPageQueue(fetchImpl, handle, source);
+      } catch {
+        throw browseError;
+      }
+    }
+  } else {
+    queue = await fetchYoutubeChannelPageQueue(fetchImpl, handle, source);
+  }
+  const settled = await Promise.allSettled(queue.videoIds.map((videoId) =>
+    fetchYoutubeDetailCandidate(fetchImpl, videoId, queue.channelId, channel.name, now, queue.innertubeConfig)
+  ));
+  const details = settled.flatMap((result) =>
+    result.status === "fulfilled" && result.value ? [result.value] : []
+  );
+  if (details.length === 0) {
+    throw new Error(`${source.replace(":", "_")}_detail_unavailable`);
+  }
+  return {
+    source,
+    candidates: details.filter((candidate) => isDashboardCandidateEligible(candidate, now))
+  };
+}
+
+interface YoutubeDiscoveryQueue {
+  channelId: string;
+  videoIds: string[];
+  innertubeConfig: YoutubeInnertubeConfig | null;
+}
+
+async function fetchYoutubeUploadsQueue(
+  fetchImpl: typeof fetch,
+  channelId: string,
+  source: string
+): Promise<YoutubeDiscoveryQueue> {
+  const sourceLabel = `${source.replace(":", "_")}_browse`;
+  const browseUrl = new URL("https://www.youtube.com/youtubei/v1/browse");
+  browseUrl.searchParams.set("prettyPrint", "false");
+  let response: Response;
+  try {
+    response = await fetchImpl(browseUrl, {
+      method: "POST",
+      headers: youtubePlayerHeaders(YOUTUBE_WEB_CLIENT_VERSION),
+      body: JSON.stringify({
+        context: youtubeInnertubeContext(YOUTUBE_WEB_CLIENT_VERSION),
+        // Every UC channel has a deterministic UU uploads playlist. The VL
+        // prefix asks the official browse endpoint for that playlist directly.
+        browseId: `VLUU${channelId.slice(2)}`
+      }),
+      signal: AbortSignal.timeout(12_000)
+    });
+  } catch {
+    throw new Error(`${sourceLabel}_fetch_failed`);
+  }
+  if (!response.ok) throw new Error(`${sourceLabel}_http_${response.status}`);
+  const payload = await readBoundedJson<unknown>(response, sourceLabel, MAX_YOUTUBE_RESPONSE_BYTES);
+  const videoIds = youtubeVideoPreviewIds(payload, MAX_YOUTUBE_DETAIL_CANDIDATES_PER_CHANNEL);
+  if (videoIds.length === 0) throw new Error(`${sourceLabel}_no_video_preview_ids`);
+  return {
+    channelId,
+    videoIds,
+    innertubeConfig: { apiKey: null, clientVersion: YOUTUBE_WEB_CLIENT_VERSION }
+  };
+}
+
+async function fetchYoutubeChannelPageQueue(
+  fetchImpl: typeof fetch,
+  handle: string,
+  source: string
+): Promise<YoutubeDiscoveryQueue> {
   const channelUrl = new URL(`https://www.youtube.com/@${encodeURIComponent(handle)}/videos`);
   channelUrl.searchParams.set("hl", "en");
   channelUrl.searchParams.set("gl", "US");
@@ -390,23 +490,11 @@ export async function fetchYoutubeChannelCandidates(
   if (!videosTab) throw new Error(`${source.replace(":", "_")}_missing_selected_videos_tab`);
   const videoIds = youtubeVideoPreviewIds(videosTab, MAX_YOUTUBE_DETAIL_CANDIDATES_PER_CHANNEL);
   if (videoIds.length === 0) throw new Error(`${source.replace(":", "_")}_no_video_preview_ids`);
-  const settled = await Promise.allSettled(videoIds.map((videoId) =>
-    fetchYoutubeDetailCandidate(fetchImpl, videoId, channelId, channel.name, now, innertubeConfig)
-  ));
-  const details = settled.flatMap((result) =>
-    result.status === "fulfilled" && result.value ? [result.value] : []
-  );
-  if (details.length === 0) {
-    throw new Error(`${source.replace(":", "_")}_detail_unavailable`);
-  }
-  return {
-    source,
-    candidates: details.filter((candidate) => isDashboardCandidateEligible(candidate, now))
-  };
+  return { channelId, videoIds, innertubeConfig };
 }
 
 interface YoutubeInnertubeConfig {
-  apiKey: string;
+  apiKey: string | null;
   clientVersion: string;
 }
 
@@ -462,20 +550,13 @@ async function fetchYoutubePlayerCandidate(
   config: YoutubeInnertubeConfig
 ): Promise<DashboardCandidate | null> {
   const playerUrl = new URL("https://www.youtube.com/youtubei/v1/player");
-  playerUrl.searchParams.set("key", config.apiKey);
+  if (config.apiKey) playerUrl.searchParams.set("key", config.apiKey);
   playerUrl.searchParams.set("prettyPrint", "false");
   const response = await fetchImpl(playerUrl, {
     method: "POST",
     headers: youtubePlayerHeaders(config.clientVersion),
     body: JSON.stringify({
-      context: {
-        client: {
-          clientName: "WEB",
-          clientVersion: config.clientVersion,
-          hl: "en",
-          gl: "US"
-        }
-      },
+      context: youtubeInnertubeContext(config.clientVersion),
       videoId,
       contentCheckOk: true,
       racyCheckOk: true
@@ -505,6 +586,17 @@ async function fetchYoutubePlayerCandidate(
     publicationValue,
     likes: null
   });
+}
+
+function youtubeInnertubeContext(clientVersion: string): { client: Record<string, string> } {
+  return {
+    client: {
+      clientName: "WEB",
+      clientVersion,
+      hl: "en",
+      gl: "US"
+    }
+  };
 }
 
 async function fetchYoutubeWatchCandidate(
@@ -1231,7 +1323,8 @@ function youtubeVideoIdsFromRendererRecord(value: Record<string, unknown>): stri
   }
   ids.push(
     youtubeVideoId(objectValue(value.videoRenderer)?.videoId),
-    youtubeVideoId(objectValue(value.gridVideoRenderer)?.videoId)
+    youtubeVideoId(objectValue(value.gridVideoRenderer)?.videoId),
+    youtubeVideoId(objectValue(value.playlistVideoRenderer)?.videoId)
   );
 
   // Some rich-grid payloads keep the renderer under `richItemRenderer.content`
@@ -1243,7 +1336,8 @@ function youtubeVideoIdsFromRendererRecord(value: Record<string, unknown>): stri
   }
   ids.push(
     youtubeVideoId(objectValue(richContent?.videoRenderer)?.videoId),
-    youtubeVideoId(objectValue(richContent?.gridVideoRenderer)?.videoId)
+    youtubeVideoId(objectValue(richContent?.gridVideoRenderer)?.videoId),
+    youtubeVideoId(objectValue(richContent?.playlistVideoRenderer)?.videoId)
   );
   return ids.filter(Boolean);
 }
