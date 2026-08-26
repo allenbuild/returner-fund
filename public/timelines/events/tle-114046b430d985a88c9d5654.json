@@ -23,7 +23,7 @@
         "publisher": "theregbase",
         "domain": "x.com",
         "sourceType": "company_post",
-        "publishedAt": "2026-04-17T00:00:00.000Z",
+        "publishedAt": "2026-04-17T20:24:00.000Z",
         "evidenceRole": "primary",
         "url": "https://x.com/theregbase/status/2045236858154807379"
       },
@@ -33,7 +33,7 @@
         "publisher": "ethshea",
         "domain": "x.com",
         "sourceType": "founder_post",
-        "publishedAt": "2026-04-16T00:00:00.000Z",
+        "publishedAt": "2026-04-16T21:24:04.000Z",
         "evidenceRole": "primary",
         "url": "https://x.com/ethshea/status/2044889586040713438"
       },
@@ -55,10 +55,10 @@
         "publisher": "theregbase",
         "domain": "x.com",
         "sourceType": "company_post",
-        "publishedAt": "2026-04-17T00:00:00.000Z",
+        "publishedAt": "2026-04-17T20:24:00.000Z",
         "evidenceRole": "primary",
         "url": "https://x.com/theregbase/status/2045236858154807379",
-        "publicationDate": "2026-04-17T00:00:00.000Z",
+        "publicationDate": "2026-04-17T20:24:00.000Z",
         "excerpt": "Introducing Regbase: The AI-native Legal Research Platform Built alongside big law firms, Regbase cuts 100-hour research projects into down to just one.",
         "sourceEventDate": "2026-04-17",
         "isConflicting": false,
@@ -70,10 +70,10 @@
         "publisher": "ethshea",
         "domain": "x.com",
         "sourceType": "founder_post",
-        "publishedAt": "2026-04-16T00:00:00.000Z",
+        "publishedAt": "2026-04-16T21:24:04.000Z",
         "evidenceRole": "primary",
         "url": "https://x.com/ethshea/status/2044889586040713438",
-        "publicationDate": "2026-04-16T00:00:00.000Z",
+        "publicationDate": "2026-04-16T21:24:04.000Z",
         "excerpt": "Introducing Regbase: The AI-native Legal Research Platform Built alongside big law firms, @theregbase cuts 100-hour research projects into work that can be done in just one.",
         "sourceEventDate": "2026-04-17",
         "isConflicting": false,
@@ -122,7 +122,7 @@
           "likes": 12,
           "reposts": 0,
           "replies": 5,
-          "views": 525
+          "views": 526
         },
         "evidenceRole": "primary"
       },
@@ -134,7 +134,7 @@
         "excerpt": "Visit us at https://regbase.com",
         "url": "https://youtube.com/watch?v=lY1La0A4iaw",
         "metrics": {
-          "views": 613,
+          "views": 614,
           "likes": 3,
           "comments": 0
         },
@@ -142,6 +142,6 @@
       }
     ]
   },
-  "generatedAt": "2026-08-26T10:02:14.680Z",
-  "lastModifiedAt": "2026-08-26T10:02:14.680Z"
+  "generatedAt": "2026-08-26T12:14:17.474Z",
+  "lastModifiedAt": "2026-08-26T12:14:17.474Z"
 }

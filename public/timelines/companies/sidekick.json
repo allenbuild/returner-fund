@@ -5,8 +5,8 @@
     "slug": "sidekick",
     "name": "Sidekick"
   },
-  "generatedAt": "2026-08-26T10:02:14.680Z",
-  "lastModifiedAt": "2026-08-26T10:02:14.680Z",
+  "generatedAt": "2026-08-26T12:14:17.474Z",
+  "lastModifiedAt": "2026-08-26T12:14:17.474Z",
   "events": [
     {
       "id": "tle-2ecfc837045b990d6ed6f5c5",
@@ -47,7 +47,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-08-26T10:02:14.680Z"
+    "lastSuccessfulArtifactAt": "2026-08-26T12:14:17.474Z"
   },
   "nextCursor": null
 }

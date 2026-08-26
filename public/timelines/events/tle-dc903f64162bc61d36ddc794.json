@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-openwork",
+    "slug": "openwork",
+    "name": "OpenWork"
+  },
+  "event": {
+    "id": "tle-dc903f64162bc61d36ddc794",
+    "eventDate": "2026-08-26",
+    "eventDateType": "announcement_date",
+    "title": "OpenWork added support for the stateless mcp spec",
+    "summary": "openwork mcp gateway now supports the stateless mcp spec.",
+    "category": "product_update",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-71590dd2692891a03257c781",
+        "title": "openwork mcp gateway now supports the stateless mcp spec",
+        "publisher": "getopenwork",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-08-26T01:43:44.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/getopenwork/status/2092427745569751089"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-71590dd2692891a03257c781",
+        "title": "openwork mcp gateway now supports the stateless mcp spec",
+        "publisher": "getopenwork",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-08-26T01:43:44.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/getopenwork/status/2092427745569751089",
+        "publicationDate": "2026-08-26T01:43:44.000Z",
+        "excerpt": "openwork mcp gateway now supports the stateless mcp spec",
+        "sourceEventDate": "2026-08-26",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-975523e9148013fa4c2614d2",
+        "platform": "x",
+        "account": "getopenwork",
+        "postDate": "2026-08-26",
+        "excerpt": "openwork mcp gateway now supports the stateless mcp spec",
+        "url": "https://x.com/getopenwork/status/2092427745569751089",
+        "metrics": {
+          "likes": 2,
+          "reposts": 3,
+          "replies": 0,
+          "views": 255
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-26T12:14:17.474Z",
+  "lastModifiedAt": "2026-08-26T12:14:17.474Z"
+}

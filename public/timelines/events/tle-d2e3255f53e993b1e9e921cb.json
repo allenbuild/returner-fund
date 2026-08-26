@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-superlog",
+    "slug": "superlog",
+    "name": "Superlog"
+  },
+  "event": {
+    "id": "tle-d2e3255f53e993b1e9e921cb",
+    "eventDate": "2026-08-18",
+    "eventDateType": "announcement_date",
+    "title": "Superlog released integration",
+    "summary": "Superlog introduced an integration with @vercel Now you can give your agents read-only access to your Vercel deployments, functions, observability and more.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-308c25b834e0a8b3839b9bef",
+        "title": "Introducing an integration with @vercel Now you can give your agents read-only access to your Vercel deployments, functions, observability and more.",
+        "publisher": "superlogyc",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-08-18T15:21:20.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/superlogyc/status/2089734398622958048"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-308c25b834e0a8b3839b9bef",
+        "title": "Introducing an integration with @vercel Now you can give your agents read-only access to your Vercel deployments, functions, observability and more.",
+        "publisher": "superlogyc",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-08-18T15:21:20.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/superlogyc/status/2089734398622958048",
+        "publicationDate": "2026-08-18T15:21:20.000Z",
+        "excerpt": "Introducing an integration with @vercel Now you can give your agents read-only access to your Vercel deployments, functions, observability and more.",
+        "sourceEventDate": "2026-08-18",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-6cf08ccea10a9295657f59fd",
+        "platform": "x",
+        "account": "superlogyc",
+        "postDate": "2026-08-18",
+        "excerpt": "Introducing an integration with @vercel Now you can give your agents read-only access to your Vercel deployments, functions, observability and more.",
+        "url": "https://x.com/superlogyc/status/2089734398622958048",
+        "metrics": {
+          "likes": 2,
+          "reposts": 0,
+          "replies": 0,
+          "views": 530
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-26T12:14:17.474Z",
+  "lastModifiedAt": "2026-08-26T12:14:17.474Z"
+}

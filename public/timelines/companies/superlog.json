@@ -5,9 +5,57 @@
     "slug": "superlog",
     "name": "Superlog"
   },
-  "generatedAt": "2026-08-26T10:02:14.680Z",
-  "lastModifiedAt": "2026-08-26T10:02:14.680Z",
+  "generatedAt": "2026-08-26T12:14:17.474Z",
+  "lastModifiedAt": "2026-08-26T12:14:17.474Z",
   "events": [
+    {
+      "id": "tle-d2e3255f53e993b1e9e921cb",
+      "eventDate": "2026-08-18",
+      "eventDateType": "announcement_date",
+      "title": "Superlog released integration",
+      "summary": "Superlog introduced an integration with @vercel Now you can give your agents read-only access to your Vercel deployments, functions, observability and more.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-308c25b834e0a8b3839b9bef",
+          "title": "Introducing an integration with @vercel Now you can give your agents read-only access to your Vercel deployments, functions, observability and more.",
+          "publisher": "superlogyc",
+          "domain": "x.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-08-18T15:21:20.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/superlogyc/status/2089734398622958048"
+        }
+      ]
+    },
+    {
+      "id": "tle-e667326234e854d8c12b2a11",
+      "eventDate": "2026-08-06",
+      "eventDateType": "announcement_date",
+      "title": "Superlog released Responder on",
+      "summary": "Superlog just launched Responder on @ProductHunt.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-6eec0f02f4fc08aa62220b18",
+          "title": "we just launched Responder on @ProductHunt! (link's in the first comment 👇) quick story: every observability tool is great at exactly one thing, telling you something broke.",
+          "publisher": "nicolomagnante",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-08-06T07:07:49.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/nicolomagnante/status/2085261547643736089"
+        }
+      ]
+    },
     {
       "id": "tle-01197a4ccb8f5928ae8a172b",
       "eventDate": "2026-07-22",
@@ -230,6 +278,10 @@
       "year": 2026,
       "months": [
         {
+          "month": "2026-08",
+          "count": 2
+        },
+        {
           "month": "2026-07",
           "count": 4
         },
@@ -246,8 +298,8 @@
   ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 9,
-    "lastSuccessfulArtifactAt": "2026-08-26T10:02:14.680Z"
+    "publishedEventCount": 11,
+    "lastSuccessfulArtifactAt": "2026-08-26T12:14:17.474Z"
   },
   "nextCursor": null
 }

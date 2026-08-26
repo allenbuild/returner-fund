@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-hop-aero",
+    "slug": "hop-aero",
+    "name": "Hop Aero"
+  },
+  "event": {
+    "id": "tle-c7c2e659c85d7a46481f5ece",
+    "eventDate": "2026-07-28",
+    "eventDateType": "announcement_date",
+    "title": "Hop Aero released Rook by (YC S26)",
+    "summary": "Hop Aero introduced Rook by @Hop_Aero (YC S26): an autonomous hypersonic cargo rocket that delivers 550 lbs up to 450 miles in ~15 minutes.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-b5df6822574a38add52503f5",
+        "title": "Introducing Rook by @Hop_Aero (YC S26): an autonomous hypersonic cargo rocket that delivers 550 lbs up to 450 miles in ~15 minutes.",
+        "publisher": "mat_milenovic",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-07-28T17:26:38.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/mat_milenovic/status/2082155786994962489"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-b5df6822574a38add52503f5",
+        "title": "Introducing Rook by @Hop_Aero (YC S26): an autonomous hypersonic cargo rocket that delivers 550 lbs up to 450 miles in ~15 minutes.",
+        "publisher": "mat_milenovic",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-07-28T17:26:38.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/mat_milenovic/status/2082155786994962489",
+        "publicationDate": "2026-07-28T17:26:38.000Z",
+        "excerpt": "Introducing Rook by @Hop_Aero (YC S26): an autonomous hypersonic cargo rocket that delivers 550 lbs up to 450 miles in ~15 minutes. It launches from a standard 40-foot shipping container and lands on unprepared surfaces—no runways or fixed infrastructure required.",
+        "sourceEventDate": "2026-07-28",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-e7af9ea11fbdb61929c031cf",
+        "platform": "x",
+        "account": "mat_milenovic",
+        "postDate": "2026-07-28",
+        "excerpt": "Introducing Rook by @Hop_Aero (YC S26): an autonomous hypersonic cargo rocket that delivers 550 lbs up to 450 miles in ~15 minutes. It launches from a standard 40-foot shipping container and lands on unprepared surfaces—no runways or fixed infrastructure required.",
+        "url": "https://x.com/mat_milenovic/status/2082155786994962489",
+        "metrics": {
+          "likes": 3906,
+          "reposts": 272,
+          "replies": 306,
+          "views": 1215814
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-26T12:14:17.474Z",
+  "lastModifiedAt": "2026-08-26T12:14:17.474Z"
+}

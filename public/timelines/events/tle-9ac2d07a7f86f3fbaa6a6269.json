@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-hebbian-robotics",
+    "slug": "hebbian-robotics",
+    "name": "Hebbian Robotics"
+  },
+  "event": {
+    "id": "tle-9ac2d07a7f86f3fbaa6a6269",
+    "eventDate": "2026-08-09",
+    "eventDateType": "announcement_date",
+    "title": "Hebbian Robotics released Today we're launching Hebbian Robotics (YC S26) @hbr_pbc",
+    "summary": "Hebbian Robotics announced it was launching Hebbian Robotics (YC S26) @hbr_pbc.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-5feb08c73258f79ce0166a8c",
+        "title": "Today we're launching Hebbian Robotics (YC S26) @hbr_pbc .",
+        "publisher": "bdono_",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-08-09T03:06:06.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/bdono_/status/2086287878452400153"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-5feb08c73258f79ce0166a8c",
+        "title": "Today we're launching Hebbian Robotics (YC S26) @hbr_pbc .",
+        "publisher": "bdono_",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-08-09T03:06:06.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/bdono_/status/2086287878452400153",
+        "publicationDate": "2026-08-09T03:06:06.000Z",
+        "excerpt": "Today we're launching Hebbian Robotics (YC S26) @hbr_pbc . We build APIs for evaluating data quality, without training a robotics model. Data vendors use our API to search and analyze Physical AI data at scale, getting on-demand quality signals and metrics without managing",
+        "sourceEventDate": "2026-08-09",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-d09b3f550b0ed9e989c390c8",
+        "platform": "x",
+        "account": "bdono_",
+        "postDate": "2026-08-09",
+        "excerpt": "Today we're launching Hebbian Robotics (YC S26) @hbr_pbc . We build APIs for evaluating data quality, without training a robotics model. Data vendors use our API to search and analyze Physical AI data at scale, getting on-demand quality signals and metrics without managing",
+        "url": "https://x.com/bdono_/status/2086287878452400153",
+        "metrics": {
+          "likes": 410,
+          "reposts": 45,
+          "replies": 103,
+          "views": 165558
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-26T12:14:17.474Z",
+  "lastModifiedAt": "2026-08-26T12:14:17.474Z"
+}

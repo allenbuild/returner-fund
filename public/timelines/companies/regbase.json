@@ -5,8 +5,8 @@
     "slug": "regbase",
     "name": "Regbase"
   },
-  "generatedAt": "2026-08-26T10:02:14.680Z",
-  "lastModifiedAt": "2026-08-26T10:02:14.680Z",
+  "generatedAt": "2026-08-26T12:14:17.474Z",
+  "lastModifiedAt": "2026-08-26T12:14:17.474Z",
   "events": [
     {
       "id": "tle-114046b430d985a88c9d5654",
@@ -26,7 +26,7 @@
           "publisher": "theregbase",
           "domain": "x.com",
           "sourceType": "company_post",
-          "publishedAt": "2026-04-17T00:00:00.000Z",
+          "publishedAt": "2026-04-17T20:24:00.000Z",
           "evidenceRole": "primary",
           "url": "https://x.com/theregbase/status/2045236858154807379"
         },
@@ -36,7 +36,7 @@
           "publisher": "ethshea",
           "domain": "x.com",
           "sourceType": "founder_post",
-          "publishedAt": "2026-04-16T00:00:00.000Z",
+          "publishedAt": "2026-04-16T21:24:04.000Z",
           "evidenceRole": "primary",
           "url": "https://x.com/ethshea/status/2044889586040713438"
         },
@@ -67,7 +67,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-08-26T10:02:14.680Z"
+    "lastSuccessfulArtifactAt": "2026-08-26T12:14:17.474Z"
   },
   "nextCursor": null
 }

@@ -5,8 +5,8 @@
     "slug": "allowance",
     "name": "Allowance"
   },
-  "generatedAt": "2026-08-26T10:02:14.680Z",
-  "lastModifiedAt": "2026-08-26T10:02:14.680Z",
+  "generatedAt": "2026-08-26T12:14:17.474Z",
+  "lastModifiedAt": "2026-08-26T12:14:17.474Z",
   "events": [
     {
       "id": "tle-5764619c0fa8b756630a1e8a",
@@ -123,7 +123,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 4,
-    "lastSuccessfulArtifactAt": "2026-08-26T10:02:14.680Z"
+    "lastSuccessfulArtifactAt": "2026-08-26T12:14:17.474Z"
   },
   "nextCursor": null
 }

@@ -5,9 +5,33 @@
     "slug": "mireye",
     "name": "Mireye"
   },
-  "generatedAt": "2026-08-26T10:02:14.680Z",
-  "lastModifiedAt": "2026-08-26T10:02:14.680Z",
+  "generatedAt": "2026-08-26T12:14:17.474Z",
+  "lastModifiedAt": "2026-08-26T12:14:17.474Z",
   "events": [
+    {
+      "id": "tle-a9f13d6818d2ed165a6de13d",
+      "eventDate": "2026-07-31",
+      "eventDateType": "announcement_date",
+      "title": "Mireye released We are live 🚀",
+      "summary": "Mireye is live 🚀.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-10187aa81f168844ec25c0b5",
+          "title": "We are live 🚀",
+          "publisher": "mireyehq",
+          "domain": "x.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-07-31T14:17:48.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/mireyehq/status/2083195425784533364"
+        }
+      ]
+    },
     {
       "id": "tle-9223ce0b25ea1618893b0588",
       "eventDate": "2026-07-31",
@@ -39,15 +63,15 @@
       "months": [
         {
           "month": "2026-07",
-          "count": 1
+          "count": 2
         }
       ]
     }
   ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-08-26T10:02:14.680Z"
+    "publishedEventCount": 2,
+    "lastSuccessfulArtifactAt": "2026-08-26T12:14:17.474Z"
   },
   "nextCursor": null
 }

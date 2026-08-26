@@ -5,8 +5,8 @@
     "slug": "agnost-ai",
     "name": "Agnost AI"
   },
-  "generatedAt": "2026-08-26T10:02:14.680Z",
-  "lastModifiedAt": "2026-08-26T10:02:14.680Z",
+  "generatedAt": "2026-08-26T12:14:17.474Z",
+  "lastModifiedAt": "2026-08-26T12:14:17.474Z",
   "events": [
     {
       "id": "tle-1595112c2624390236423f6d",
@@ -121,10 +121,10 @@
       "title": "Agnost AI launched on Hacker News",
       "summary": "Launch HN: Agnost AI (YC S26) – Extract user feedback from agent conversations.",
       "category": "product_launch",
-      "isMajor": false,
+      "isMajor": true,
       "hasConflict": false,
       "conflictSummary": null,
-      "evidenceCount": 1,
+      "evidenceCount": 2,
       "sourcePreview": [
         {
           "id": "src-ef9573034a5b168a90a29be6",
@@ -135,6 +135,16 @@
           "publishedAt": "2026-07-14T16:06:18Z",
           "evidenceRole": "primary",
           "url": "https://news.ycombinator.com/item?id=48908950"
+        },
+        {
+          "id": "src-c68eb24ebec6f2ff257c641b",
+          "title": "WE ARE OFFICIALLY LIVE ON PRODUCT HUNT!!! GO SHOW US SOME SUPPORT!!!!",
+          "publisher": "agnostai",
+          "domain": "x.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-08-25T14:36:57.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/agnostai/status/2092259945450439001"
         }
       ]
     }
@@ -157,7 +167,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 5,
-    "lastSuccessfulArtifactAt": "2026-08-26T10:02:14.680Z"
+    "lastSuccessfulArtifactAt": "2026-08-26T12:14:17.474Z"
   },
   "nextCursor": null
 }

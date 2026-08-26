@@ -5,21 +5,31 @@
     "slug": "coarena",
     "name": "CoArena"
   },
-  "generatedAt": "2026-08-26T10:02:14.680Z",
-  "lastModifiedAt": "2026-08-26T10:02:14.680Z",
+  "generatedAt": "2026-08-26T12:14:17.474Z",
+  "lastModifiedAt": "2026-08-26T12:14:17.474Z",
   "events": [
     {
-      "id": "tle-372bf21784166ba76fa72d1f",
-      "eventDate": "2026-08-13",
+      "id": "tle-481d4ae449d4cc3bd7dc40ed",
+      "eventDate": "2026-08-22",
       "eventDateType": "announcement_date",
       "title": "CoArena announced its public launch",
-      "summary": "Coarena is live on ProductHunt.",
+      "summary": "CoArena announced it was launching Coarena - The biggest crowdsourced benchmark for Computer-Use Computer-use benchmarks are saturating.",
       "category": "product_launch",
-      "isMajor": false,
+      "isMajor": true,
       "hasConflict": false,
       "conflictSummary": null,
-      "evidenceCount": 1,
+      "evidenceCount": 2,
       "sourcePreview": [
+        {
+          "id": "src-b015aaa33a2c4cd3639b3866",
+          "title": "Today we are launching Coarena - The biggest crowdsourced benchmark for Computer-Use Computer-use benchmarks are saturating.",
+          "publisher": "coastyai",
+          "domain": "x.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-08-22T20:06:53.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/coastyai/status/2091255809896497382"
+        },
         {
           "id": "src-4ef8020baf90a8868541046b",
           "title": "Coarena is live on ProductHunt!! We want this to blow up so that we can give everyone the chance to use frontier models on computer use tasks for free!! Coarena by Coasty: The arena where agents battle on real-world work…",
@@ -99,7 +109,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 3,
-    "lastSuccessfulArtifactAt": "2026-08-26T10:02:14.680Z"
+    "lastSuccessfulArtifactAt": "2026-08-26T12:14:17.474Z"
   },
   "nextCursor": null
 }

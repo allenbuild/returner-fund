@@ -23,7 +23,7 @@
         "publisher": "foaster_ai",
         "domain": "x.com",
         "sourceType": "company_post",
-        "publishedAt": "2026-05-07T00:00:00.000Z",
+        "publishedAt": "2026-05-07T15:08:53.000Z",
         "evidenceRole": "primary",
         "url": "https://x.com/foaster_ai/status/2052405312729371111"
       }
@@ -35,10 +35,10 @@
         "publisher": "foaster_ai",
         "domain": "x.com",
         "sourceType": "company_post",
-        "publishedAt": "2026-05-07T00:00:00.000Z",
+        "publishedAt": "2026-05-07T15:08:53.000Z",
         "evidenceRole": "primary",
         "url": "https://x.com/foaster_ai/status/2052405312729371111",
-        "publicationDate": "2026-05-07T00:00:00.000Z",
+        "publicationDate": "2026-05-07T15:08:53.000Z",
         "excerpt": "We are live on YC’s socials !",
         "sourceEventDate": "2026-05-07",
         "isConflicting": false,
@@ -57,12 +57,12 @@
           "likes": 6,
           "reposts": 1,
           "replies": 3,
-          "views": 1538
+          "views": 1539
         },
         "evidenceRole": "primary"
       }
     ]
   },
-  "generatedAt": "2026-08-26T10:02:14.680Z",
-  "lastModifiedAt": "2026-08-26T10:02:14.680Z"
+  "generatedAt": "2026-08-26T12:14:17.474Z",
+  "lastModifiedAt": "2026-08-26T12:14:17.474Z"
 }

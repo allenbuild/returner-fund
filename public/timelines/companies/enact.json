@@ -5,14 +5,49 @@
     "slug": "enact",
     "name": "Enact"
   },
-  "generatedAt": "2026-08-26T10:02:14.680Z",
-  "lastModifiedAt": "2026-08-26T10:02:14.680Z",
-  "events": [],
-  "groups": [],
+  "generatedAt": "2026-08-26T12:14:17.474Z",
+  "lastModifiedAt": "2026-08-26T12:14:17.474Z",
+  "events": [
+    {
+      "id": "tle-271b7b03718b892eac1288f6",
+      "eventDate": "2026-08-11",
+      "eventDateType": "announcement_date",
+      "title": "Enact announced its public launch",
+      "summary": "Enact announced it was launching Enact: post-training infrastructure that makes robotics models work in the real world.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-71671a8bf41f414a256e8615",
+          "title": "Today we’re launching Enact: post-training infrastructure that makes robotics models work in the real world.",
+          "publisher": "jamesw_stevens",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-08-11T14:31:32.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/jamesw_stevens/status/2087185150765564246"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-08",
+          "count": 1
+        }
+      ]
+    }
+  ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 0,
-    "lastSuccessfulArtifactAt": "2026-08-26T10:02:14.680Z"
+    "publishedEventCount": 1,
+    "lastSuccessfulArtifactAt": "2026-08-26T12:14:17.474Z"
   },
   "nextCursor": null
 }

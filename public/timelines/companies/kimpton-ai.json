@@ -5,8 +5,8 @@
     "slug": "kimpton-ai",
     "name": "Kimpton AI"
   },
-  "generatedAt": "2026-08-26T10:02:14.680Z",
-  "lastModifiedAt": "2026-08-26T10:02:14.680Z",
+  "generatedAt": "2026-08-26T12:14:17.474Z",
+  "lastModifiedAt": "2026-08-26T12:14:17.474Z",
   "events": [
     {
       "id": "tle-e5c4dd35349cb57bb588d6ca",
@@ -26,7 +26,7 @@
           "publisher": "kimptonai",
           "domain": "x.com",
           "sourceType": "company_post",
-          "publishedAt": "2026-07-16",
+          "publishedAt": "2026-07-16T15:06:06.000Z",
           "evidenceRole": "primary",
           "url": "https://x.com/kimptonai/status/2077771762800931263"
         }
@@ -159,7 +159,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 5,
-    "lastSuccessfulArtifactAt": "2026-08-26T10:02:14.680Z"
+    "lastSuccessfulArtifactAt": "2026-08-26T12:14:17.474Z"
   },
   "nextCursor": null
 }

@@ -5,14 +5,49 @@
     "slug": "experiential-labs",
     "name": "Experiential Labs"
   },
-  "generatedAt": "2026-08-26T10:02:14.680Z",
-  "lastModifiedAt": "2026-08-26T10:02:14.680Z",
-  "events": [],
-  "groups": [],
+  "generatedAt": "2026-08-26T12:14:17.474Z",
+  "lastModifiedAt": "2026-08-26T12:14:17.474Z",
+  "events": [
+    {
+      "id": "tle-677e6af0e7f3cafd45f4600c",
+      "eventDate": "2026-07-26",
+      "eventDateType": "announcement_date",
+      "title": "Experiential Labs released tool train a specialized model at Fable quality and half the cost it... as open source",
+      "summary": "Experiential Labs just open sourced a tool train a specialized model at Fable quality and half the cost it uses agent traces to continuously improve via • distillation and RL • model routing • token compaction.",
+      "category": "open_source",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-7afcd0791bd5eb48dbb59ac1",
+          "title": "we just open sourced a tool train a specialized model at Fable quality and half the cost it uses agent traces to continuously improve via • distillation and RL • model routing • token compaction",
+          "publisher": "silennai",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-07-26T22:14:57.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/silennai/status/2081503565600985593"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-07",
+          "count": 1
+        }
+      ]
+    }
+  ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 0,
-    "lastSuccessfulArtifactAt": "2026-08-26T10:02:14.680Z"
+    "publishedEventCount": 1,
+    "lastSuccessfulArtifactAt": "2026-08-26T12:14:17.474Z"
   },
   "nextCursor": null
 }

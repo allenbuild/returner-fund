@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-ara",
+    "slug": "ara",
+    "name": "Ara"
+  },
+  "event": {
+    "id": "tle-9f5620487a94b41bfddd9f83",
+    "eventDate": "2026-07-25",
+    "eventDateType": "announcement_date",
+    "title": "Ara released Ara Review and our latest PR Review agent",
+    "summary": "Ara introduced Ara Review and our latest PR Review agent.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-5c6c509a795b7ceaae41b971",
+        "title": "Introducing Ara Review and our latest PR Review agent.",
+        "publisher": "aradotso",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-07-25T14:23:43.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/aradotso/status/2081022588323520782"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-5c6c509a795b7ceaae41b971",
+        "title": "Introducing Ara Review and our latest PR Review agent.",
+        "publisher": "aradotso",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-07-25T14:23:43.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/aradotso/status/2081022588323520782",
+        "publicationDate": "2026-07-25T14:23:43.000Z",
+        "excerpt": "Introducing Ara Review and our latest PR Review agent. Whether your other agents @coderabbitai @cursor_ai @greptile review a PR or not, Ara will make sure to take a final pass on top of them and prepare it for merging. Turn it on today in Automations, with 50$ of trial credits.",
+        "sourceEventDate": "2026-07-25",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-28b0501c6668c9cd3d8564b8",
+        "platform": "x",
+        "account": "aradotso",
+        "postDate": "2026-07-25",
+        "excerpt": "Introducing Ara Review and our latest PR Review agent. Whether your other agents @coderabbitai @cursor_ai @greptile review a PR or not, Ara will make sure to take a final pass on top of them and prepare it for merging. Turn it on today in Automations, with 50$ of trial credits.",
+        "url": "https://x.com/aradotso/status/2081022588323520782",
+        "metrics": {
+          "likes": 58,
+          "reposts": 5,
+          "replies": 7,
+          "views": 32642
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-26T12:14:17.474Z",
+  "lastModifiedAt": "2026-08-26T12:14:17.474Z"
+}

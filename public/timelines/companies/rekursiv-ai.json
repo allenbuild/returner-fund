@@ -5,9 +5,33 @@
     "slug": "rekursiv-ai",
     "name": "rekursiv.ai"
   },
-  "generatedAt": "2026-08-26T10:02:14.680Z",
-  "lastModifiedAt": "2026-08-26T10:02:14.680Z",
+  "generatedAt": "2026-08-26T12:14:17.474Z",
+  "lastModifiedAt": "2026-08-26T12:14:17.474Z",
   "events": [
+    {
+      "id": "tle-a4b211cf152e9f4c8cd8215c",
+      "eventDate": "2026-07-22",
+      "eventDateType": "announcement_date",
+      "title": "rekursiv.ai announced $5M funding round",
+      "summary": "rekursiv.ai raised $5M from Y Combinator to scale AI scientists whose own breakthroughs accelerate the next.",
+      "category": "funding",
+      "isMajor": true,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-ae5decf09f81705ccef358e2",
+          "title": "We raised $5M from Y Combinator to scale AI scientists whose own breakthroughs accelerate the next.",
+          "publisher": "hyperparticle",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-07-22T15:40:52.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/hyperparticle/status/2079954842580340996"
+        }
+      ]
+    },
     {
       "id": "tle-6efebe83966c8cf4d98136d6",
       "eventDate": "2025-01-15",
@@ -35,6 +59,15 @@
   ],
   "groups": [
     {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-07",
+          "count": 1
+        }
+      ]
+    },
+    {
       "year": 2025,
       "months": [
         {
@@ -46,8 +79,8 @@
   ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-08-26T10:02:14.680Z"
+    "publishedEventCount": 2,
+    "lastSuccessfulArtifactAt": "2026-08-26T12:14:17.474Z"
   },
   "nextCursor": null
 }

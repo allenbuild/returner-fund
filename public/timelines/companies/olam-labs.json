@@ -5,14 +5,49 @@
     "slug": "olam-labs",
     "name": "Olam Labs"
   },
-  "generatedAt": "2026-08-26T10:02:14.680Z",
-  "lastModifiedAt": "2026-08-26T10:02:14.680Z",
-  "events": [],
-  "groups": [],
+  "generatedAt": "2026-08-26T12:14:17.474Z",
+  "lastModifiedAt": "2026-08-26T12:14:17.474Z",
+  "events": [
+    {
+      "id": "tle-0c1ebccbe4ce46f14c32c305",
+      "eventDate": "2026-07-20",
+      "eventDateType": "announcement_date",
+      "title": "Olam Labs released Social Arena",
+      "summary": "Olam Labs is releasing Social Arena, and our first benchmark, the Deception Index Social Arena is the first platform where humans come play social games like Risk, Catan, or Poker versus AI agents These multi-agent matches are then used for evaluations on model behavior More.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-172c25c257524ace15f0be39",
+          "title": "We're releasing Social Arena, and our first benchmark, the Deception Index Social Arena is the first platform where humans come play social games like Risk, Catan, or Poker versus AI agents These multi-agent matches are then used for…",
+          "publisher": "olam_labs",
+          "domain": "x.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-07-20T21:00:08.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/olam_labs/status/2079310411716026588"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-07",
+          "count": 1
+        }
+      ]
+    }
+  ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 0,
-    "lastSuccessfulArtifactAt": "2026-08-26T10:02:14.680Z"
+    "publishedEventCount": 1,
+    "lastSuccessfulArtifactAt": "2026-08-26T12:14:17.474Z"
   },
   "nextCursor": null
 }

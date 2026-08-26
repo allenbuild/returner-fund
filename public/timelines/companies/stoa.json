@@ -5,14 +5,49 @@
     "slug": "stoa",
     "name": "Stoa"
   },
-  "generatedAt": "2026-08-26T10:02:14.680Z",
-  "lastModifiedAt": "2026-08-26T10:02:14.680Z",
-  "events": [],
-  "groups": [],
+  "generatedAt": "2026-08-26T12:14:17.474Z",
+  "lastModifiedAt": "2026-08-26T12:14:17.474Z",
+  "events": [
+    {
+      "id": "tle-0b8bbc92bc18cfa283c7af8b",
+      "eventDate": "2026-08-24",
+      "eventDateType": "announcement_date",
+      "title": "Stoa announced its public launch",
+      "summary": "Stoa announced it was launching Stoa Intelligence, a product I am particularly excited about.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-714a1ffe0d06ec70bb69eea9",
+          "title": "Today we are launching Stoa Intelligence, a product I am particularly excited about.",
+          "publisher": "erenberke0",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-08-24T22:52:11.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/erenberke0/status/2092022186295066704"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-08",
+          "count": 1
+        }
+      ]
+    }
+  ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 0,
-    "lastSuccessfulArtifactAt": "2026-08-26T10:02:14.680Z"
+    "publishedEventCount": 1,
+    "lastSuccessfulArtifactAt": "2026-08-26T12:14:17.474Z"
   },
   "nextCursor": null
 }

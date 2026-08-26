@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-vestris",
+    "slug": "vestris",
+    "name": "Vestris"
+  },
+  "event": {
+    "id": "tle-7d9bacb5d2d33f58bcfc2eb8",
+    "eventDate": "2026-08-06",
+    "eventDateType": "announcement_date",
+    "title": "Vestris announced its public launch",
+    "summary": "Vestris introduced Vestris (YC S26) -- an AI native title processing service Every US home sale runs through a title company: a weeks-long, lawyer-driven paper process on decades-old software.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-f5f52fa6757a482539c2f620",
+        "title": "Introducing Vestris (YC S26) -- an AI native title processing service Every US home sale runs through a title company: a weeks-long, lawyer-driven paper process on decades-old software.",
+        "publisher": "aahil__val",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-08-06T19:13:38.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/aahil__val/status/2085444205594226728"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-f5f52fa6757a482539c2f620",
+        "title": "Introducing Vestris (YC S26) -- an AI native title processing service Every US home sale runs through a title company: a weeks-long, lawyer-driven paper process on decades-old software.",
+        "publisher": "aahil__val",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-08-06T19:13:38.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/aahil__val/status/2085444205594226728",
+        "publicationDate": "2026-08-06T19:13:38.000Z",
+        "excerpt": "Introducing Vestris (YC S26) -- an AI native title processing service Every US home sale runs through a title company: a weeks-long, lawyer-driven paper process on decades-old software. It's a massive, invisible industry nobody's fixed. Vestris runs from contract to close:",
+        "sourceEventDate": "2026-08-06",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-5cabea2b64e5c59c2a346074",
+        "platform": "x",
+        "account": "aahil__val",
+        "postDate": "2026-08-06",
+        "excerpt": "Introducing Vestris (YC S26) -- an AI native title processing service Every US home sale runs through a title company: a weeks-long, lawyer-driven paper process on decades-old software. It's a massive, invisible industry nobody's fixed. Vestris runs from contract to close:",
+        "url": "https://x.com/aahil__val/status/2085444205594226728",
+        "metrics": {
+          "likes": 93,
+          "reposts": 10,
+          "replies": 15,
+          "views": 21445
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-26T12:14:17.474Z",
+  "lastModifiedAt": "2026-08-26T12:14:17.474Z"
+}

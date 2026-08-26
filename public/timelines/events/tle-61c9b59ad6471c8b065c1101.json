@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-click",
+    "slug": "click",
+    "name": "Click"
+  },
+  "event": {
+    "id": "tle-61c9b59ad6471c8b065c1101",
+    "eventDate": "2026-08-12",
+    "eventDateType": "announcement_date",
+    "title": "Click released Click (YC S26) - a research service for ChatGPT & Claude",
+    "summary": "Launching Click (YC S26) - a research service for ChatGPT & Claude.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-7696ee0b71d7ccd1cb1d02b3",
+        "title": "Launching Click (YC S26) - a research service for ChatGPT & Claude.",
+        "publisher": "adiasg",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-08-12T19:38:52.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/adiasg/status/2087624881299148959"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-7696ee0b71d7ccd1cb1d02b3",
+        "title": "Launching Click (YC S26) - a research service for ChatGPT & Claude.",
+        "publisher": "adiasg",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-08-12T19:38:52.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/adiasg/status/2087624881299148959",
+        "publicationDate": "2026-08-12T19:38:52.000Z",
+        "excerpt": "Launching Click (YC S26) - a research service for ChatGPT & Claude. Click brings live, source-backed context from professional & social platforms, financial data, marketplaces, maps, and more into the conversation - beyond what the built-in web search provides. Research people",
+        "sourceEventDate": "2026-08-12",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-dc81ef1dda204744a8a95509",
+        "platform": "x",
+        "account": "adiasg",
+        "postDate": "2026-08-12",
+        "excerpt": "Launching Click (YC S26) - a research service for ChatGPT & Claude. Click brings live, source-backed context from professional & social platforms, financial data, marketplaces, maps, and more into the conversation - beyond what the built-in web search provides. Research people",
+        "url": "https://x.com/adiasg/status/2087624881299148959",
+        "metrics": {
+          "likes": 338,
+          "reposts": 13,
+          "replies": 47,
+          "views": 34766
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-26T12:14:17.474Z",
+  "lastModifiedAt": "2026-08-26T12:14:17.474Z"
+}

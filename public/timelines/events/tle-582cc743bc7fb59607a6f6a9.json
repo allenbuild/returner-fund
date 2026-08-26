@@ -23,7 +23,7 @@
         "publisher": "bentolabsai",
         "domain": "x.com",
         "sourceType": "company_post",
-        "publishedAt": "2026-06-01T00:00:00.000Z",
+        "publishedAt": "2026-06-01T12:14:57.000Z",
         "evidenceRole": "primary",
         "url": "https://x.com/bentolabsai/status/2061421239378591870"
       },
@@ -45,10 +45,10 @@
         "publisher": "bentolabsai",
         "domain": "x.com",
         "sourceType": "company_post",
-        "publishedAt": "2026-06-01T00:00:00.000Z",
+        "publishedAt": "2026-06-01T12:14:57.000Z",
         "evidenceRole": "primary",
         "url": "https://x.com/bentolabsai/status/2061421239378591870",
-        "publicationDate": "2026-06-01T00:00:00.000Z",
+        "publicationDate": "2026-06-01T12:14:57.000Z",
         "excerpt": "We are live on @ycombinator ! Building the monitoring and learning layer for long-running agents.",
         "sourceEventDate": "2026-06-01",
         "isConflicting": false,
@@ -102,6 +102,6 @@
       }
     ]
   },
-  "generatedAt": "2026-08-26T10:02:14.680Z",
-  "lastModifiedAt": "2026-08-26T10:02:14.680Z"
+  "generatedAt": "2026-08-26T12:14:17.474Z",
+  "lastModifiedAt": "2026-08-26T12:14:17.474Z"
 }

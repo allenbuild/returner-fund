@@ -23,7 +23,7 @@
         "publisher": "bentolabsai",
         "domain": "x.com",
         "sourceType": "company_post",
-        "publishedAt": "2026-06-15T00:00:00.000Z",
+        "publishedAt": "2026-06-15T11:28:13.000Z",
         "evidenceRole": "primary",
         "url": "https://x.com/bentolabsai/status/2066482910241390800"
       }
@@ -35,10 +35,10 @@
         "publisher": "bentolabsai",
         "domain": "x.com",
         "sourceType": "company_post",
-        "publishedAt": "2026-06-15T00:00:00.000Z",
+        "publishedAt": "2026-06-15T11:28:13.000Z",
         "evidenceRole": "primary",
         "url": "https://x.com/bentolabsai/status/2066482910241390800",
-        "publicationDate": "2026-06-15T00:00:00.000Z",
+        "publicationDate": "2026-06-15T11:28:13.000Z",
         "excerpt": "Introducing Issues!",
         "sourceEventDate": "2026-06-15",
         "isConflicting": false,
@@ -63,6 +63,6 @@
       }
     ]
   },
-  "generatedAt": "2026-08-26T10:02:14.680Z",
-  "lastModifiedAt": "2026-08-26T10:02:14.680Z"
+  "generatedAt": "2026-08-26T12:14:17.474Z",
+  "lastModifiedAt": "2026-08-26T12:14:17.474Z"
 }

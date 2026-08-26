@@ -5,8 +5,8 @@
     "slug": "inkbox",
     "name": "Inkbox"
   },
-  "generatedAt": "2026-08-26T10:02:14.680Z",
-  "lastModifiedAt": "2026-08-26T10:02:14.680Z",
+  "generatedAt": "2026-08-26T12:14:17.474Z",
+  "lastModifiedAt": "2026-08-26T12:14:17.474Z",
   "events": [
     {
       "id": "tle-539a518cae173dc0445c6652",
@@ -29,6 +29,30 @@
           "publishedAt": "2026-08-11T18:12:38.000Z",
           "evidenceRole": "primary",
           "url": "https://x.com/rayruizhiliao/status/2087240792192733361"
+        }
+      ]
+    },
+    {
+      "id": "tle-95d55b51621f351ecd9668ef",
+      "eventDate": "2026-07-08",
+      "eventDateType": "announcement_date",
+      "title": "Inkbox announced its public launch",
+      "summary": "Inkbox announced it was launching Inkbox: the identity and communication layer for AI agents.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-1ebdde611b9cb80f0ed9ddc3",
+          "title": "Today we're launching Inkbox: the identity and communication layer for AI agents.",
+          "publisher": "rayruizhiliao",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-07-08T16:30:02.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/rayruizhiliao/status/2074893783133733039"
         }
       ]
     },
@@ -91,7 +115,7 @@
         },
         {
           "month": "2026-07",
-          "count": 1
+          "count": 2
         }
       ]
     },
@@ -107,8 +131,8 @@
   ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 3,
-    "lastSuccessfulArtifactAt": "2026-08-26T10:02:14.680Z"
+    "publishedEventCount": 4,
+    "lastSuccessfulArtifactAt": "2026-08-26T12:14:17.474Z"
   },
   "nextCursor": null
 }

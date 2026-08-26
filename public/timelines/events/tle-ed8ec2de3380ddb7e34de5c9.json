@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-kebra",
+    "slug": "kebra",
+    "name": "Kebra"
+  },
+  "event": {
+    "id": "tle-ed8ec2de3380ddb7e34de5c9",
+    "eventDate": "2026-07-31",
+    "eventDateType": "announcement_date",
+    "title": "Kebra released Kebra (YC S26), built to make field service companies AI-native",
+    "summary": "Kebra introduced Kebra (YC S26), built to make field service companies AI-native.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-8f129c3d6dd562a1b4627322",
+        "title": "Introducing Kebra (YC S26), built to make field service companies AI-native.",
+        "publisher": "lucahadife",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-07-31T00:08:09.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/lucahadife/status/2082981607104041324"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-8f129c3d6dd562a1b4627322",
+        "title": "Introducing Kebra (YC S26), built to make field service companies AI-native.",
+        "publisher": "lucahadife",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-07-31T00:08:09.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/lucahadife/status/2082981607104041324",
+        "publicationDate": "2026-07-31T00:08:09.000Z",
+        "excerpt": "Introducing Kebra (YC S26), built to make field service companies AI-native. Technicians are bad at documenting their jobs, forcing the back office to reconstruct what happened and manually file claims, order parts, and prepare invoices. Kebra captures what happens on every",
+        "sourceEventDate": "2026-07-31",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-184e06f2bd253377155f13fa",
+        "platform": "x",
+        "account": "lucahadife",
+        "postDate": "2026-07-31",
+        "excerpt": "Introducing Kebra (YC S26), built to make field service companies AI-native. Technicians are bad at documenting their jobs, forcing the back office to reconstruct what happened and manually file claims, order parts, and prepare invoices. Kebra captures what happens on every",
+        "url": "https://x.com/lucahadife/status/2082981607104041324",
+        "metrics": {
+          "likes": 19,
+          "reposts": 1,
+          "replies": 5,
+          "views": 5521
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-26T12:14:17.474Z",
+  "lastModifiedAt": "2026-08-26T12:14:17.474Z"
+}

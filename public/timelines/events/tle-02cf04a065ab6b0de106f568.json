@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-ekho-labs",
+    "slug": "ekho-labs",
+    "name": "Ekho Labs"
+  },
+  "event": {
+    "id": "tle-02cf04a065ab6b0de106f568",
+    "eventDate": "2026-08-11",
+    "eventDateType": "announcement_date",
+    "title": "Ekho Labs released Ekho Labs (YC S26), the Decision Engine for Supply Chains",
+    "summary": "Launching Ekho Labs (YC S26), the Decision Engine for Supply Chains.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-dace6b2f584c175226768ab8",
+        "title": "Launching Ekho Labs (YC S26), the Decision Engine for Supply Chains.",
+        "publisher": "olenyapark",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-08-11T21:02:51.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/olenyapark/status/2087283626547585204"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-dace6b2f584c175226768ab8",
+        "title": "Launching Ekho Labs (YC S26), the Decision Engine for Supply Chains.",
+        "publisher": "olenyapark",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-08-11T21:02:51.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/olenyapark/status/2087283626547585204",
+        "publicationDate": "2026-08-11T21:02:51.000Z",
+        "excerpt": "Launching Ekho Labs (YC S26), the Decision Engine for Supply Chains. Companies with global supply chains lose money to every disruption - strikes, tariffs, wars Ekho makes sure they don't. @EkhoLabs",
+        "sourceEventDate": "2026-08-11",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-27a6e1c179454b2bad8ee14a",
+        "platform": "x",
+        "account": "olenyapark",
+        "postDate": "2026-08-11",
+        "excerpt": "Launching Ekho Labs (YC S26), the Decision Engine for Supply Chains. Companies with global supply chains lose money to every disruption - strikes, tariffs, wars Ekho makes sure they don't. @EkhoLabs",
+        "url": "https://x.com/olenyapark/status/2087283626547585204",
+        "metrics": {
+          "likes": 208,
+          "reposts": 20,
+          "replies": 40,
+          "views": 28960
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-26T12:14:17.474Z",
+  "lastModifiedAt": "2026-08-26T12:14:17.474Z"
+}

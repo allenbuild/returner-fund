@@ -5,14 +5,49 @@
     "slug": "clara",
     "name": "Clara"
   },
-  "generatedAt": "2026-08-26T10:02:14.680Z",
-  "lastModifiedAt": "2026-08-26T10:02:14.680Z",
-  "events": [],
-  "groups": [],
+  "generatedAt": "2026-08-26T12:14:17.474Z",
+  "lastModifiedAt": "2026-08-26T12:14:17.474Z",
+  "events": [
+    {
+      "id": "tle-cd72528e9ff12bdb0333a262",
+      "eventDate": "2026-05-14",
+      "eventDateType": "announcement_date",
+      "title": "Clara announced its public launch",
+      "summary": "Clara announced it was launching Clara, an AI-powered primary care doctor with licensed medical providers reviewing everything.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-02a7d0bc717faec61e7ed7fe",
+          "title": "Today we are launching Clara, an AI-powered primary care doctor with licensed medical providers reviewing everything.",
+          "publisher": "askclarahealth",
+          "domain": "x.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-05-14T19:23:32.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/askclarahealth/status/2055006112370602069"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-05",
+          "count": 1
+        }
+      ]
+    }
+  ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 0,
-    "lastSuccessfulArtifactAt": "2026-08-26T10:02:14.680Z"
+    "publishedEventCount": 1,
+    "lastSuccessfulArtifactAt": "2026-08-26T12:14:17.474Z"
   },
   "nextCursor": null
 }

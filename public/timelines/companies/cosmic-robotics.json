@@ -5,14 +5,49 @@
     "slug": "cosmic-robotics",
     "name": "Cosmic Robotics"
   },
-  "generatedAt": "2026-08-26T10:02:14.680Z",
-  "lastModifiedAt": "2026-08-26T10:02:14.680Z",
-  "events": [],
-  "groups": [],
+  "generatedAt": "2026-08-26T12:14:17.474Z",
+  "lastModifiedAt": "2026-08-26T12:14:17.474Z",
+  "events": [
+    {
+      "id": "tle-6f7dac2b26602f1212244c4f",
+      "eventDate": "2026-08-19",
+      "eventDateType": "announcement_date",
+      "title": "Cosmic Robotics released tech roadmap at to start autonomous city construction on Mars in the...",
+      "summary": "Cosmic Robotics introduced our tech roadmap at @cosmic_robotics to start autonomous city construction on Mars in the mid-2030s.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-4ca1cd0558910a66e4b69091",
+          "title": "Introducing our tech roadmap at @cosmic_robotics to start autonomous city construction on Mars in the mid-2030s.",
+          "publisher": "thelcjones",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-08-19T17:00:19.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/thelcjones/status/2090121696481264048"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-08",
+          "count": 1
+        }
+      ]
+    }
+  ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 0,
-    "lastSuccessfulArtifactAt": "2026-08-26T10:02:14.680Z"
+    "publishedEventCount": 1,
+    "lastSuccessfulArtifactAt": "2026-08-26T12:14:17.474Z"
   },
   "nextCursor": null
 }

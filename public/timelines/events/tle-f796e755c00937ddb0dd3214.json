@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-youart",
+    "slug": "youart",
+    "name": "YouArt"
+  },
+  "event": {
+    "id": "tle-f796e755c00937ddb0dd3214",
+    "eventDate": "2026-08-25",
+    "eventDateType": "announcement_date",
+    "title": "YouArt released YouArt MCP × Prompt Reverse",
+    "summary": "YouArt introduced YouArt MCP × Prompt Reverse.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-dd2a28f33c29fe84f0d806d4",
+        "title": "Introducing YouArt MCP × Prompt Reverse.",
+        "publisher": "youartstudio",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-08-25T15:31:22.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/youartstudio/status/2092273636891598898"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-dd2a28f33c29fe84f0d806d4",
+        "title": "Introducing YouArt MCP × Prompt Reverse.",
+        "publisher": "youartstudio",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-08-25T15:31:22.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/youartstudio/status/2092273636891598898",
+        "publicationDate": "2026-08-25T15:31:22.000Z",
+        "excerpt": "Introducing YouArt MCP × Prompt Reverse. Bring your stories to life, right inside Codex & Claude.",
+        "sourceEventDate": "2026-08-25",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-726691ba67332b634dad8349",
+        "platform": "x",
+        "account": "youartstudio",
+        "postDate": "2026-08-25",
+        "excerpt": "Introducing YouArt MCP × Prompt Reverse. Bring your stories to life, right inside Codex & Claude.",
+        "url": "https://x.com/youartstudio/status/2092273636891598898",
+        "metrics": {
+          "likes": 114,
+          "reposts": 30,
+          "replies": 49,
+          "views": 43794
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-26T12:14:17.474Z",
+  "lastModifiedAt": "2026-08-26T12:14:17.474Z"
+}

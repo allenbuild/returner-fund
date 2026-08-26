@@ -5,14 +5,49 @@
     "slug": "coach",
     "name": "COACH"
   },
-  "generatedAt": "2026-08-26T10:02:14.680Z",
-  "lastModifiedAt": "2026-08-26T10:02:14.680Z",
-  "events": [],
-  "groups": [],
+  "generatedAt": "2026-08-26T12:14:17.474Z",
+  "lastModifiedAt": "2026-08-26T12:14:17.474Z",
+  "events": [
+    {
+      "id": "tle-c1aaf25e76670a1b8297c1ba",
+      "eventDate": "2026-07-30",
+      "eventDateType": "announcement_date",
+      "title": "COACH released Coach, the AI Coach for in-person sales reps",
+      "summary": "COACH introduced Coach, the AI Coach for in-person sales reps.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-74cb83f20d050dadc7b70787",
+          "title": "Introducing Coach, the AI Coach for in-person sales reps.",
+          "publisher": "sebcny",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-07-30T21:10:47.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/sebcny/status/2082936969424928812"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-07",
+          "count": 1
+        }
+      ]
+    }
+  ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 0,
-    "lastSuccessfulArtifactAt": "2026-08-26T10:02:14.680Z"
+    "publishedEventCount": 1,
+    "lastSuccessfulArtifactAt": "2026-08-26T12:14:17.474Z"
   },
   "nextCursor": null
 }

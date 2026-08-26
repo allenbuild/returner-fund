@@ -6318,5 +6318,310 @@
     "trigger": "manual-replay",
     "scheduledAt": null,
     "terminalFailureBudget": 124
+  },
+  {
+    "schemaVersion": 1,
+    "idempotencyKey": "central-2026-08-26-0600",
+    "centralDay": "2026-08-26",
+    "observedAt": "2026-08-26T12:11:54.132Z",
+    "baselinePhysicalSources": 16980,
+    "publishedPhysicalSources": 17038,
+    "newPhysicalSources": 58,
+    "newPhysicalSourcesThisAttempt": 58,
+    "retainedPhysicalSources": 16980,
+    "removedPhysicalSources": 0,
+    "dailyNewPhysicalSources": 58,
+    "dailySourceHealth": "healthy",
+    "collectionHealth": "degraded",
+    "collectionHealthReasons": [
+      "missing_credential:X_BEARER_TOKEN",
+      "missing_credential:EXA_API_KEY",
+      "mapped_failures:42",
+      "provider_blocked:5001",
+      "mapped_provider_blocked:1431",
+      "mapped_scope_unsupported:10"
+    ],
+    "mappedExpected": 2475,
+    "mappedSucceeded": 864,
+    "mappedNeedsReview": 350,
+    "mappedBlockedOrEmpty": 1219,
+    "providerBlocked": 5001,
+    "providerBlockedByReason": {
+      "provider_blocked:duckduckgo_html:public_search_circuit_open": 3092,
+      "provider_blocked:linkedin_public_html:linkedin_public_circuit_open": 1421,
+      "provider_blocked:official_source_html:official_source_transport_failure": 5,
+      "provider_blocked:reddit_public_json:reddit_public_access_blocked": 483
+    },
+    "mappedProviderBlocked": 1431,
+    "mappedProviderBlockedByReason": {
+      "provider_blocked:duckduckgo_html:public_search_circuit_open": 10,
+      "provider_blocked:linkedin_public_html:linkedin_public_circuit_open": 1421
+    },
+    "mappedScopeUnsupported": 10,
+    "mappedFailures": 42,
+    "mappedNonTerminal": 0,
+    "mappedSuccessRate": 0.3491,
+    "newestNewSourcePostedAt": "2026-08-26T10:17:19.000Z",
+    "insertedByBatchPlatform": {
+      "A16ZSR006:youtube": 6,
+      "S2026:github": 10,
+      "S2026:x": 17,
+      "S26:x": 25
+    },
+    "insertedSourceSamples": [
+      {
+        "batchSlug": "A16ZSR006",
+        "platform": "youtube",
+        "entityType": "company",
+        "entityId": "a16z-speedrun-006-idilio",
+        "sourceUrl": "https://youtube.com/watch?v=r34_7S5Jc3o",
+        "platformPostId": "r34_7S5Jc3o",
+        "platformObjectId": null,
+        "postedAt": "2026-08-24T21:44:55.000Z"
+      },
+      {
+        "batchSlug": "A16ZSR006",
+        "platform": "youtube",
+        "entityType": "company",
+        "entityId": "a16z-speedrun-006-idilio",
+        "sourceUrl": "https://youtube.com/watch?v=LU0A87Fv7Aw",
+        "platformPostId": "LU0A87Fv7Aw",
+        "platformObjectId": null,
+        "postedAt": "2026-08-25T22:55:29.000Z"
+      },
+      {
+        "batchSlug": "A16ZSR006",
+        "platform": "youtube",
+        "entityType": "company",
+        "entityId": "a16z-speedrun-006-antihero-studios",
+        "sourceUrl": "https://youtube.com/watch?v=gIYXjIhVPXM",
+        "platformPostId": "gIYXjIhVPXM",
+        "platformObjectId": null,
+        "postedAt": "2026-08-25T14:18:37.000Z"
+      },
+      {
+        "batchSlug": "A16ZSR006",
+        "platform": "youtube",
+        "entityType": "company",
+        "entityId": "a16z-speedrun-006-snapp-stats",
+        "sourceUrl": "https://youtube.com/watch?v=WmME4jXLrtw",
+        "platformPostId": "WmME4jXLrtw",
+        "platformObjectId": null,
+        "postedAt": "2026-08-24T17:25:20.000Z"
+      },
+      {
+        "batchSlug": "A16ZSR006",
+        "platform": "youtube",
+        "entityType": "company",
+        "entityId": "a16z-speedrun-006-sun",
+        "sourceUrl": "https://youtube.com/watch?v=juwdSuYIAfk",
+        "platformPostId": "juwdSuYIAfk",
+        "platformObjectId": null,
+        "postedAt": "2026-08-24T18:24:27.000Z"
+      },
+      {
+        "batchSlug": "A16ZSR006",
+        "platform": "youtube",
+        "entityType": "company",
+        "entityId": "a16z-speedrun-006-idilio",
+        "sourceUrl": "https://youtube.com/watch?v=eYx54x_UMBM",
+        "platformPostId": "eYx54x_UMBM",
+        "platformObjectId": null,
+        "postedAt": "2026-08-26T02:04:23.000Z"
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "x",
+        "entityType": "founder",
+        "entityId": "founder-zomma-jihyun-kim-3128623",
+        "sourceUrl": "https://x.com/jihprobs/status/2092490288958964142",
+        "platformPostId": "2092490288958964142",
+        "platformObjectId": null,
+        "postedAt": "2026-08-26T05:52:16.000Z"
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "x",
+        "entityType": "founder",
+        "entityId": "founder-edotenv-michael-zhang-2995240",
+        "sourceUrl": "https://x.com/michaelz1914/status/2092488314939158967",
+        "platformPostId": "2092488314939158967",
+        "platformObjectId": null,
+        "postedAt": "2026-08-26T05:44:25.000Z"
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "x",
+        "entityType": "founder",
+        "entityId": "founder-hoplite-bence-redmond-2614746",
+        "sourceUrl": "https://x.com/benceredmond/status/2092470004147200410",
+        "platformPostId": "2092470004147200410",
+        "platformObjectId": null,
+        "postedAt": "2026-08-26T04:31:39.000Z"
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "x",
+        "entityType": "founder",
+        "entityId": "founder-egoist-machines-erin-mcgurk-3328552",
+        "sourceUrl": "https://x.com/erinmerylstudy/status/2092471546959020320",
+        "platformPostId": "2092471546959020320",
+        "platformObjectId": null,
+        "postedAt": "2026-08-26T04:37:47.000Z"
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "x",
+        "entityType": "founder",
+        "entityId": "founder-hoplite-bence-redmond-2614746",
+        "sourceUrl": "https://x.com/benceredmond/status/2092472863702110468",
+        "platformPostId": "2092472863702110468",
+        "platformObjectId": null,
+        "postedAt": "2026-08-26T04:43:01.000Z"
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "x",
+        "entityType": "founder",
+        "entityId": "founder-egoist-machines-david-khachaturov-1963978",
+        "sourceUrl": "https://x.com/davidobot_/status/2092474509966364745",
+        "platformPostId": "2092474509966364745",
+        "platformObjectId": null,
+        "postedAt": "2026-08-26T04:49:34.000Z"
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "x",
+        "entityType": "founder",
+        "entityId": "founder-egoist-machines-erin-mcgurk-3328552",
+        "sourceUrl": "https://x.com/erinmerylstudy/status/2092477623851184406",
+        "platformPostId": "2092477623851184406",
+        "platformObjectId": null,
+        "postedAt": "2026-08-26T05:01:56.000Z"
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "x",
+        "entityType": "founder",
+        "entityId": "founder-executor-rhys-sullivan-1133501",
+        "sourceUrl": "https://x.com/rhyssullivan/status/2092478056502108609",
+        "platformPostId": "2092478056502108609",
+        "platformObjectId": null,
+        "postedAt": "2026-08-26T05:03:39.000Z"
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "x",
+        "entityType": "founder",
+        "entityId": "founder-egoist-machines-erin-mcgurk-3328552",
+        "sourceUrl": "https://x.com/erinmerylstudy/status/2092483233892196738",
+        "platformPostId": "2092483233892196738",
+        "platformObjectId": null,
+        "postedAt": "2026-08-26T05:24:14.000Z"
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "x",
+        "entityType": "founder",
+        "entityId": "founder-exosat-edward-ge-689300",
+        "sourceUrl": "https://x.com/edwardge/status/2092498364382453928",
+        "platformPostId": "2092498364382453928",
+        "platformObjectId": null,
+        "postedAt": "2026-08-26T06:24:21.000Z"
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "x",
+        "entityType": "founder",
+        "entityId": "founder-executor-rhys-sullivan-1133501",
+        "sourceUrl": "https://x.com/rhyssullivan/status/2092525623873032255",
+        "platformPostId": "2092525623873032255",
+        "platformObjectId": null,
+        "postedAt": "2026-08-26T08:12:40.000Z"
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "x",
+        "entityType": "founder",
+        "entityId": "founder-fabraix-ahmed-aly-693526",
+        "sourceUrl": "https://x.com/zachdotai/status/2092540668581421069",
+        "platformPostId": "2092540668581421069",
+        "platformObjectId": null,
+        "postedAt": "2026-08-26T09:12:27.000Z"
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "x",
+        "entityType": "founder",
+        "entityId": "founder-illume-labs-pari-latawa-2698620",
+        "sourceUrl": "https://x.com/parilatawa/status/2092463452711526537",
+        "platformPostId": "2092463452711526537",
+        "platformObjectId": null,
+        "postedAt": "2026-08-26T04:05:37.000Z"
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "x",
+        "entityType": "founder",
+        "entityId": "founder-illume-labs-pari-latawa-2698620",
+        "sourceUrl": "https://x.com/parilatawa/status/2092464012831404287",
+        "platformPostId": "2092464012831404287",
+        "platformObjectId": null,
+        "postedAt": "2026-08-26T04:07:51.000Z"
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "x",
+        "entityType": "company",
+        "entityId": "company-coarena",
+        "sourceUrl": "https://x.com/coastyai/status/2092490658112295003",
+        "platformPostId": "2092490658112295003",
+        "platformObjectId": null,
+        "postedAt": "2026-08-26T05:53:44.000Z"
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "x",
+        "entityType": "founder",
+        "entityId": "founder-coarena-prateek-jannu-1194042",
+        "sourceUrl": "https://x.com/prateekjannu/status/2092490966284620156",
+        "platformPostId": "2092490966284620156",
+        "platformObjectId": null,
+        "postedAt": "2026-08-26T05:54:57.000Z"
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "x",
+        "entityType": "founder",
+        "entityId": "founder-agnost-ai-shubham-palriwala-1987056",
+        "sourceUrl": "https://x.com/shubhamintech/status/2092499496446148919",
+        "platformPostId": "2092499496446148919",
+        "platformObjectId": null,
+        "postedAt": "2026-08-26T06:28:51.000Z"
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "x",
+        "entityType": "founder",
+        "entityId": "founder-agnost-ai-shubham-palriwala-1987056",
+        "sourceUrl": "https://x.com/shubhamintech/status/2092502577871204400",
+        "platformPostId": "2092502577871204400",
+        "platformObjectId": null,
+        "postedAt": "2026-08-26T06:41:06.000Z"
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "x",
+        "entityType": "founder",
+        "entityId": "founder-lamb-labs-niki-kotecha-726152",
+        "sourceUrl": "https://x.com/kotechaniki/status/2092502845090390036",
+        "platformPostId": "2092502845090390036",
+        "platformObjectId": null,
+        "postedAt": "2026-08-26T06:42:09.000Z"
+      }
+    ],
+    "trigger": "schedule",
+    "scheduledAt": "2026-08-26T11:00:00.000Z",
+    "terminalFailureBudget": 124
   }
 ]

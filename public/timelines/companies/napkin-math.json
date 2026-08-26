@@ -5,21 +5,31 @@
     "slug": "napkin-math",
     "name": "Napkin Math"
   },
-  "generatedAt": "2026-08-26T10:02:14.680Z",
-  "lastModifiedAt": "2026-08-26T10:02:14.680Z",
+  "generatedAt": "2026-08-26T12:14:17.474Z",
+  "lastModifiedAt": "2026-08-26T12:14:17.474Z",
   "events": [
     {
-      "id": "tle-cf6ef2c3c487917f413132e8",
-      "eventDate": "2026-06-10",
+      "id": "tle-f56a61e9da8e50b800b048e8",
+      "eventDate": "2026-03-25",
       "eventDateType": "announcement_date",
-      "title": "Napkin Math launched on Product Hunt",
-      "summary": "Napkin Math is live on product hunt now .",
+      "title": "Napkin Math was introduced",
+      "summary": "Napkin Math introduced napkin math.",
       "category": "product_launch",
-      "isMajor": false,
+      "isMajor": true,
       "hasConflict": false,
       "conflictSummary": null,
-      "evidenceCount": 1,
+      "evidenceCount": 2,
       "sourcePreview": [
+        {
+          "id": "src-827bef980c64fab23e9e45ee",
+          "title": "introducing napkin math! the first healthy gamified food tracker <3 i’m excited to share this project we’ve been working on. food & health is so personal to me, and this has felt like something that has been lacking in the space for so…",
+          "publisher": "napkinmath.club",
+          "domain": "instagram.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-03-25T00:43:09.000Z",
+          "evidenceRole": "primary",
+          "url": "https://instagram.com/reel/DWSaOqLE-WV"
+        },
         {
           "id": "src-1949b904f21e5b35282f3544",
           "title": "we are live on product hunt now ! Napkin Math: personalized AI food journal + nutrition coach | Product Hunt From producthunt.com",
@@ -38,7 +48,7 @@
       "year": 2026,
       "months": [
         {
-          "month": "2026-06",
+          "month": "2026-03",
           "count": 1
         }
       ]
@@ -47,7 +57,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-08-26T10:02:14.680Z"
+    "lastSuccessfulArtifactAt": "2026-08-26T12:14:17.474Z"
   },
   "nextCursor": null
 }

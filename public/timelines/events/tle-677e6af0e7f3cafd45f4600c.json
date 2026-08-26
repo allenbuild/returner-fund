@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-experiential-labs",
+    "slug": "experiential-labs",
+    "name": "Experiential Labs"
+  },
+  "event": {
+    "id": "tle-677e6af0e7f3cafd45f4600c",
+    "eventDate": "2026-07-26",
+    "eventDateType": "announcement_date",
+    "title": "Experiential Labs released tool train a specialized model at Fable quality and half the cost it... as open source",
+    "summary": "Experiential Labs just open sourced a tool train a specialized model at Fable quality and half the cost it uses agent traces to continuously improve via • distillation and RL • model routing • token compaction.",
+    "category": "open_source",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-7afcd0791bd5eb48dbb59ac1",
+        "title": "we just open sourced a tool train a specialized model at Fable quality and half the cost it uses agent traces to continuously improve via • distillation and RL • model routing • token compaction",
+        "publisher": "silennai",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-07-26T22:14:57.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/silennai/status/2081503565600985593"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-7afcd0791bd5eb48dbb59ac1",
+        "title": "we just open sourced a tool train a specialized model at Fable quality and half the cost it uses agent traces to continuously improve via • distillation and RL • model routing • token compaction",
+        "publisher": "silennai",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-07-26T22:14:57.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/silennai/status/2081503565600985593",
+        "publicationDate": "2026-07-26T22:14:57.000Z",
+        "excerpt": "we just open sourced a tool train a specialized model at Fable quality and half the cost it uses agent traces to continuously improve via • distillation and RL • model routing • token compaction",
+        "sourceEventDate": "2026-07-26",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-eac04ad1f86cc3597165b07d",
+        "platform": "x",
+        "account": "silennai",
+        "postDate": "2026-07-26",
+        "excerpt": "we just open sourced a tool train a specialized model at Fable quality and half the cost it uses agent traces to continuously improve via • distillation and RL • model routing • token compaction",
+        "url": "https://x.com/silennai/status/2081503565600985593",
+        "metrics": {
+          "likes": 186,
+          "reposts": 22,
+          "replies": 21,
+          "views": 25190
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-26T12:14:17.474Z",
+  "lastModifiedAt": "2026-08-26T12:14:17.474Z"
+}

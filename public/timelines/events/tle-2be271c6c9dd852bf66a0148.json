@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-rational",
+    "slug": "rational",
+    "name": "Rational"
+  },
+  "event": {
+    "id": "tle-2be271c6c9dd852bf66a0148",
+    "eventDate": "2026-06-30",
+    "eventDateType": "announcement_date",
+    "title": "Rational released future of accounting work as part of 's S26 batch",
+    "summary": "Rational just launched the future of accounting work as part of @ycombinator's S26 batch.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-a309f08e22d69b9a5eb76228",
+        "title": "We just launched the future of accounting work as part of @ycombinator's S26 batch.",
+        "publisher": "jibrilasif",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-06-30T23:30:47.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/jibrilasif/status/2072100566151610708"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-a309f08e22d69b9a5eb76228",
+        "title": "We just launched the future of accounting work as part of @ycombinator's S26 batch.",
+        "publisher": "jibrilasif",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-06-30T23:30:47.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/jibrilasif/status/2072100566151610708",
+        "publicationDate": "2026-06-30T23:30:47.000Z",
+        "excerpt": "We just launched the future of accounting work as part of @ycombinator's S26 batch. Reach out if you're an accounting firm leader looking to adopt AI at scale and grow your revenue. https://t.co/AN97THVrQe",
+        "sourceEventDate": "2026-06-30",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-1a66a4b41c5e3ff091ef9dd4",
+        "platform": "x",
+        "account": "jibrilasif",
+        "postDate": "2026-06-30",
+        "excerpt": "We just launched the future of accounting work as part of @ycombinator's S26 batch. Reach out if you're an accounting firm leader looking to adopt AI at scale and grow your revenue. https://t.co/AN97THVrQe",
+        "url": "https://x.com/jibrilasif/status/2072100566151610708",
+        "metrics": {
+          "likes": 7,
+          "reposts": 1,
+          "replies": 2,
+          "views": 245
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-26T12:14:17.474Z",
+  "lastModifiedAt": "2026-08-26T12:14:17.474Z"
+}

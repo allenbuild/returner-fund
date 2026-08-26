@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-clara-2",
+    "slug": "clara",
+    "name": "Clara"
+  },
+  "event": {
+    "id": "tle-cd72528e9ff12bdb0333a262",
+    "eventDate": "2026-05-14",
+    "eventDateType": "announcement_date",
+    "title": "Clara announced its public launch",
+    "summary": "Clara announced it was launching Clara, an AI-powered primary care doctor with licensed medical providers reviewing everything.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-02a7d0bc717faec61e7ed7fe",
+        "title": "Today we are launching Clara, an AI-powered primary care doctor with licensed medical providers reviewing everything.",
+        "publisher": "askclarahealth",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-05-14T19:23:32.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/askclarahealth/status/2055006112370602069"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-02a7d0bc717faec61e7ed7fe",
+        "title": "Today we are launching Clara, an AI-powered primary care doctor with licensed medical providers reviewing everything.",
+        "publisher": "askclarahealth",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-05-14T19:23:32.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/askclarahealth/status/2055006112370602069",
+        "publicationDate": "2026-05-14T19:23:32.000Z",
+        "excerpt": "Today we are launching Clara, an AI-powered primary care doctor with licensed medical providers reviewing everything. Try it free at https://t.co/xxwFjMjBAv. Also excited to announce we have raised $12M pre-seed and are part of the @ycombinator P26 batch.",
+        "sourceEventDate": "2026-05-14",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-e014dd0c9ed1203467cfac39",
+        "platform": "x",
+        "account": "askclarahealth",
+        "postDate": "2026-05-14",
+        "excerpt": "Today we are launching Clara, an AI-powered primary care doctor with licensed medical providers reviewing everything. Try it free at https://t.co/xxwFjMjBAv. Also excited to announce we have raised $12M pre-seed and are part of the @ycombinator P26 batch.",
+        "url": "https://x.com/askclarahealth/status/2055006112370602069",
+        "metrics": {
+          "likes": 34,
+          "reposts": 4,
+          "replies": 6,
+          "views": 3641
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-26T12:14:17.474Z",
+  "lastModifiedAt": "2026-08-26T12:14:17.474Z"
+}

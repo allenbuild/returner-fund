@@ -5,8 +5,8 @@
     "slug": "rational",
     "name": "Rational"
   },
-  "generatedAt": "2026-08-26T10:02:14.680Z",
-  "lastModifiedAt": "2026-08-26T10:02:14.680Z",
+  "generatedAt": "2026-08-26T12:14:17.474Z",
+  "lastModifiedAt": "2026-08-26T12:14:17.474Z",
   "events": [
     {
       "id": "tle-1763c9924a0d57d58d5fff8b",
@@ -31,6 +31,30 @@
           "url": "https://youtube.com/watch?v=mcF30tmNLTg"
         }
       ]
+    },
+    {
+      "id": "tle-2be271c6c9dd852bf66a0148",
+      "eventDate": "2026-06-30",
+      "eventDateType": "announcement_date",
+      "title": "Rational released future of accounting work as part of 's S26 batch",
+      "summary": "Rational just launched the future of accounting work as part of @ycombinator's S26 batch.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-a309f08e22d69b9a5eb76228",
+          "title": "We just launched the future of accounting work as part of @ycombinator's S26 batch.",
+          "publisher": "jibrilasif",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-06-30T23:30:47.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/jibrilasif/status/2072100566151610708"
+        }
+      ]
     }
   ],
   "groups": [
@@ -40,14 +64,18 @@
         {
           "month": "2026-07",
           "count": 1
+        },
+        {
+          "month": "2026-06",
+          "count": 1
         }
       ]
     }
   ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-08-26T10:02:14.680Z"
+    "publishedEventCount": 2,
+    "lastSuccessfulArtifactAt": "2026-08-26T12:14:17.474Z"
   },
   "nextCursor": null
 }

@@ -5,14 +5,49 @@
     "slug": "hubble",
     "name": "Hubble"
   },
-  "generatedAt": "2026-08-26T10:02:14.680Z",
-  "lastModifiedAt": "2026-08-26T10:02:14.680Z",
-  "events": [],
-  "groups": [],
+  "generatedAt": "2026-08-26T12:14:17.474Z",
+  "lastModifiedAt": "2026-08-26T12:14:17.474Z",
+  "events": [
+    {
+      "id": "tle-a161a35397b1e75358eec538",
+      "eventDate": "2026-08-18",
+      "eventDateType": "announcement_date",
+      "title": "Hubble released hubblehealthai (YC S26) out of last week",
+      "summary": "Hubble launched @hubblehealthai (YC S26) out of @ycombinator last week, and what stayed with me was the stories from the people who reached out.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-59cb564a9228b9b8c5ae7c2c",
+          "title": "We launched @hubblehealthai (YC S26) out of @ycombinator last week, and what stayed with me was the stories from the people who reached out.",
+          "publisher": "prabhadublish",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-08-18T14:10:42.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/prabhadublish/status/2089716621397102969"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-08",
+          "count": 1
+        }
+      ]
+    }
+  ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 0,
-    "lastSuccessfulArtifactAt": "2026-08-26T10:02:14.680Z"
+    "publishedEventCount": 1,
+    "lastSuccessfulArtifactAt": "2026-08-26T12:14:17.474Z"
   },
   "nextCursor": null
 }

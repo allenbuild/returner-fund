@@ -23,7 +23,7 @@
         "publisher": "pluvoapp",
         "domain": "instagram.com",
         "sourceType": "company_post",
-        "publishedAt": "2026-02-26T21:35:03Z",
+        "publishedAt": "2026-02-26T21:35:03.000Z",
         "evidenceRole": "primary",
         "url": "https://instagram.com/p/DVPISu_kn0U"
       },
@@ -33,7 +33,7 @@
         "publisher": "pluvoapp",
         "domain": "instagram.com",
         "sourceType": "company_post",
-        "publishedAt": "2026-03-09T18:37:10Z",
+        "publishedAt": "2026-03-09T18:37:10.000Z",
         "evidenceRole": "primary",
         "url": "https://instagram.com/p/DVrIqwBk_4B"
       }
@@ -45,10 +45,10 @@
         "publisher": "pluvoapp",
         "domain": "instagram.com",
         "sourceType": "company_post",
-        "publishedAt": "2026-02-26T21:35:03Z",
+        "publishedAt": "2026-02-26T21:35:03.000Z",
         "evidenceRole": "primary",
         "url": "https://instagram.com/p/DVPISu_kn0U",
-        "publicationDate": "2026-02-26T21:35:03Z",
+        "publicationDate": "2026-02-26T21:35:03.000Z",
         "excerpt": "Today, we announced a $5M Seed round to build the next generation of AI-native analysis for finance. The round includes participation from @speedrun , @getdeel, The Perseverance Fund, StandUp Ventures, @altaircapital, and a group of strategic angels. Modern finance teams don’t have a data problem. They have an analysis problem. While systems of record and dashboards have improved dramatically over the past decade, the leap from data to decisions remains slow and manual. Pluvo is building an…",
         "sourceEventDate": "2026-02-26",
         "isConflicting": false,
@@ -60,10 +60,10 @@
         "publisher": "pluvoapp",
         "domain": "instagram.com",
         "sourceType": "company_post",
-        "publishedAt": "2026-03-09T18:37:10Z",
+        "publishedAt": "2026-03-09T18:37:10.000Z",
         "evidenceRole": "primary",
         "url": "https://instagram.com/p/DVrIqwBk_4B",
-        "publicationDate": "2026-03-09T18:37:10Z",
+        "publicationDate": "2026-03-09T18:37:10.000Z",
         "excerpt": "ICYMI: We just raised $5M in seed funding. One of the coolest things about this round is that several of the angel investors are our own customers; the CFOs and finance leaders who use Pluvo every month to run their planning and analysis. When someone already pays for your product and then asks to own a piece of the business, that's a different kind of signal. No pitch deck does that. The product does that. The round was backed by a16z speedrun, @getdeel , The Perseverance fund, StandUp…",
         "sourceEventDate": "2026-02-26",
         "isConflicting": false,
@@ -99,6 +99,6 @@
       }
     ]
   },
-  "generatedAt": "2026-08-26T10:02:14.680Z",
-  "lastModifiedAt": "2026-08-26T10:02:14.680Z"
+  "generatedAt": "2026-08-26T12:14:17.474Z",
+  "lastModifiedAt": "2026-08-26T12:14:17.474Z"
 }

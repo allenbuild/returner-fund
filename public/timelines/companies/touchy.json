@@ -5,9 +5,33 @@
     "slug": "touchy",
     "name": "Touchy"
   },
-  "generatedAt": "2026-08-26T10:02:14.680Z",
-  "lastModifiedAt": "2026-08-26T10:02:14.680Z",
+  "generatedAt": "2026-08-26T12:14:17.474Z",
+  "lastModifiedAt": "2026-08-26T12:14:17.474Z",
   "events": [
+    {
+      "id": "tle-2fde6cf8f226df7319efe9bf",
+      "eventDate": "2026-08-20",
+      "eventDateType": "announcement_date",
+      "title": "Touchy released on yc",
+      "summary": "Touchy reported i launched on yc.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-6a1f7a77588972e381a4f6ab",
+          "title": "i launched on yc!",
+          "publisher": "touchyapp",
+          "domain": "x.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-08-20T21:34:43.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/touchyapp/status/2090553138520699194"
+        }
+      ]
+    },
     {
       "id": "tle-7bfd57770e65350f2ad8603a",
       "eventDate": "2026-08-11",
@@ -87,7 +111,7 @@
       "months": [
         {
           "month": "2026-08",
-          "count": 2
+          "count": 3
         },
         {
           "month": "2026-07",
@@ -98,8 +122,8 @@
   ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 3,
-    "lastSuccessfulArtifactAt": "2026-08-26T10:02:14.680Z"
+    "publishedEventCount": 4,
+    "lastSuccessfulArtifactAt": "2026-08-26T12:14:17.474Z"
   },
   "nextCursor": null
 }

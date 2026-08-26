@@ -5,14 +5,49 @@
     "slug": "oasis",
     "name": "Oasis"
   },
-  "generatedAt": "2026-08-26T10:02:14.680Z",
-  "lastModifiedAt": "2026-08-26T10:02:14.680Z",
-  "events": [],
-  "groups": [],
+  "generatedAt": "2026-08-26T12:14:17.474Z",
+  "lastModifiedAt": "2026-08-26T12:14:17.474Z",
+  "events": [
+    {
+      "id": "tle-b834160b220cc1a1132e171e",
+      "eventDate": "2026-08-21",
+      "eventDateType": "announcement_date",
+      "title": "Oasis announced its public launch",
+      "summary": "Oasis announced it was shipping Oasis Desktop, a Mac app that lets you share local coding agents with your teammates.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-8cad3eabefbe4d30aa87ae56",
+          "title": "Today we're shipping Oasis Desktop, a Mac app that lets you share local coding agents with your teammates.",
+          "publisher": "oasishq",
+          "domain": "x.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-08-21T16:26:23.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/oasishq/status/2090837930931601799"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-08",
+          "count": 1
+        }
+      ]
+    }
+  ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 0,
-    "lastSuccessfulArtifactAt": "2026-08-26T10:02:14.680Z"
+    "publishedEventCount": 1,
+    "lastSuccessfulArtifactAt": "2026-08-26T12:14:17.474Z"
   },
   "nextCursor": null
 }

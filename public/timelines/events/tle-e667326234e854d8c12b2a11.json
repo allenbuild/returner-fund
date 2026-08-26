@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-superlog",
+    "slug": "superlog",
+    "name": "Superlog"
+  },
+  "event": {
+    "id": "tle-e667326234e854d8c12b2a11",
+    "eventDate": "2026-08-06",
+    "eventDateType": "announcement_date",
+    "title": "Superlog released Responder on",
+    "summary": "Superlog just launched Responder on @ProductHunt.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-6eec0f02f4fc08aa62220b18",
+        "title": "we just launched Responder on @ProductHunt! (link's in the first comment 👇) quick story: every observability tool is great at exactly one thing, telling you something broke.",
+        "publisher": "nicolomagnante",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-08-06T07:07:49.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/nicolomagnante/status/2085261547643736089"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-6eec0f02f4fc08aa62220b18",
+        "title": "we just launched Responder on @ProductHunt! (link's in the first comment 👇) quick story: every observability tool is great at exactly one thing, telling you something broke.",
+        "publisher": "nicolomagnante",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-08-06T07:07:49.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/nicolomagnante/status/2085261547643736089",
+        "publicationDate": "2026-08-06T07:07:49.000Z",
+        "excerpt": "we just launched Responder on @ProductHunt! (link's in the first comment 👇) quick story: every observability tool is great at exactly one thing, telling you something broke. then it hands you a wall of logs and wishes you luck. we got tired of that. so we built Responder. now",
+        "sourceEventDate": "2026-08-06",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-43107311b225bda7bf9e8a16",
+        "platform": "x",
+        "account": "nicolomagnante",
+        "postDate": "2026-08-06",
+        "excerpt": "we just launched Responder on @ProductHunt! (link's in the first comment 👇) quick story: every observability tool is great at exactly one thing, telling you something broke. then it hands you a wall of logs and wishes you luck. we got tired of that. so we built Responder. now",
+        "url": "https://x.com/nicolomagnante/status/2085261547643736089",
+        "metrics": {
+          "likes": 22,
+          "reposts": 3,
+          "replies": 13,
+          "views": 1899
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-26T12:14:17.474Z",
+  "lastModifiedAt": "2026-08-26T12:14:17.474Z"
+}

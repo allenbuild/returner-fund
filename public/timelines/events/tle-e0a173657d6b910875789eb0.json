@@ -15,7 +15,7 @@
     "isMajor": true,
     "hasConflict": false,
     "conflictSummary": null,
-    "evidenceCount": 2,
+    "evidenceCount": 3,
     "sourcePreview": [
       {
         "id": "src-4a3b6d88a825a4f85d632a8e",
@@ -26,6 +26,16 @@
         "publishedAt": "2026-07-06T16:49:44.000Z",
         "evidenceRole": "primary",
         "url": "https://x.com/nourzahzah/status/2074173966571511892"
+      },
+      {
+        "id": "src-18f8d82d2a887122669c4d8e",
+        "title": "Introducing Vendo (YC S26), the customization layer that lets your users build their own features and micro-apps on top of your product For 50 years, software has been shipped one way for everyone.",
+        "publisher": "yousefhll",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-07-21T17:32:05.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/yousefhll/status/2079620440038002750"
       },
       {
         "id": "src-a355c190017197bc6c950f70",
@@ -51,6 +61,21 @@
         "publicationDate": "2026-07-06T16:49:44.000Z",
         "excerpt": "Introducing Vendo. Now every user gets their own personalized agentic experience of your product. Try it now 👇",
         "sourceEventDate": "2026-07-06",
+        "isConflicting": false,
+        "conflictDescription": null
+      },
+      {
+        "id": "src-18f8d82d2a887122669c4d8e",
+        "title": "Introducing Vendo (YC S26), the customization layer that lets your users build their own features and micro-apps on top of your product For 50 years, software has been shipped one way for everyone.",
+        "publisher": "yousefhll",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-07-21T17:32:05.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/yousefhll/status/2079620440038002750",
+        "publicationDate": "2026-07-21T17:32:05.000Z",
+        "excerpt": "Introducing Vendo (YC S26), the customization layer that lets your users build their own features and micro-apps on top of your product For 50 years, software has been shipped one way for everyone. That era is over. With Vendo, every user shapes your product into exactly what",
+        "sourceEventDate": "2026-07-21",
         "isConflicting": false,
         "conflictDescription": null
       },
@@ -89,6 +114,21 @@
         "evidenceRole": "primary"
       },
       {
+        "id": "post-96df72d7cd33208bb96f6a74",
+        "platform": "x",
+        "account": "yousefhll",
+        "postDate": "2026-07-21",
+        "excerpt": "Introducing Vendo (YC S26), the customization layer that lets your users build their own features and micro-apps on top of your product For 50 years, software has been shipped one way for everyone. That era is over. With Vendo, every user shapes your product into exactly what",
+        "url": "https://x.com/yousefhll/status/2079620440038002750",
+        "metrics": {
+          "likes": 1151,
+          "reposts": 91,
+          "replies": 182,
+          "views": 383754
+        },
+        "evidenceRole": "primary"
+      },
+      {
         "id": "post-4001770080dc66fbb682da09",
         "platform": "x",
         "account": "yousefhll",
@@ -105,6 +145,6 @@
       }
     ]
   },
-  "generatedAt": "2026-08-26T10:02:14.680Z",
-  "lastModifiedAt": "2026-08-26T10:02:14.680Z"
+  "generatedAt": "2026-08-26T12:14:17.474Z",
+  "lastModifiedAt": "2026-08-26T12:14:17.474Z"
 }

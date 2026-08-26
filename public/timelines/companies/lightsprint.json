@@ -5,8 +5,8 @@
     "slug": "lightsprint",
     "name": "Lightsprint"
   },
-  "generatedAt": "2026-08-26T10:02:14.680Z",
-  "lastModifiedAt": "2026-08-26T10:02:14.680Z",
+  "generatedAt": "2026-08-26T12:14:17.474Z",
+  "lastModifiedAt": "2026-08-26T12:14:17.474Z",
   "events": [
     {
       "id": "tle-38aba30e9dc09d03ae66f5d9",
@@ -26,7 +26,7 @@
           "publisher": "lightsprintai",
           "domain": "x.com",
           "sourceType": "company_post",
-          "publishedAt": "2026-05-21T00:00:00.000Z",
+          "publishedAt": "2026-05-21T23:42:15.000Z",
           "evidenceRole": "primary",
           "url": "https://x.com/lightsprintai/status/2057607939456971248"
         }
@@ -71,7 +71,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 2,
-    "lastSuccessfulArtifactAt": "2026-08-26T10:02:14.680Z"
+    "lastSuccessfulArtifactAt": "2026-08-26T12:14:17.474Z"
   },
   "nextCursor": null
 }

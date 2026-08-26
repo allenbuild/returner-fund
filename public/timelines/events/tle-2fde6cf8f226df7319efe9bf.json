@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-touchy",
+    "slug": "touchy",
+    "name": "Touchy"
+  },
+  "event": {
+    "id": "tle-2fde6cf8f226df7319efe9bf",
+    "eventDate": "2026-08-20",
+    "eventDateType": "announcement_date",
+    "title": "Touchy released on yc",
+    "summary": "Touchy reported i launched on yc.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-6a1f7a77588972e381a4f6ab",
+        "title": "i launched on yc!",
+        "publisher": "touchyapp",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-08-20T21:34:43.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/touchyapp/status/2090553138520699194"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-6a1f7a77588972e381a4f6ab",
+        "title": "i launched on yc!",
+        "publisher": "touchyapp",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-08-20T21:34:43.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/touchyapp/status/2090553138520699194",
+        "publicationDate": "2026-08-20T21:34:43.000Z",
+        "excerpt": "i launched on yc!",
+        "sourceEventDate": "2026-08-20",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-3297411c16adf39fa1917495",
+        "platform": "x",
+        "account": "touchyapp",
+        "postDate": "2026-08-20",
+        "excerpt": "i launched on yc!",
+        "url": "https://x.com/touchyapp/status/2090553138520699194",
+        "metrics": {
+          "likes": 3,
+          "reposts": 0,
+          "replies": 0,
+          "views": 316
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-26T12:14:17.474Z",
+  "lastModifiedAt": "2026-08-26T12:14:17.474Z"
+}

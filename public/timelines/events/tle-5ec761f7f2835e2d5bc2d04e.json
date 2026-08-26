@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-replicas",
+    "slug": "replicas",
+    "name": "Replicas"
+  },
+  "event": {
+    "id": "tle-5ec761f7f2835e2d5bc2d04e",
+    "eventDate": "2026-08-24",
+    "eventDateType": "announcement_date",
+    "title": "Replicas released Plugins in",
+    "summary": "Replicas introduced Plugins in @tryreplicas.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-6b34cf01ad6d71e193f010ed",
+        "title": "Introducing Plugins in @tryreplicas! Give cloud agents access to 101+ platforms like Notion, Google Drive, turbopuffer, Pangram, and much more.",
+        "publisher": "connortbot",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-08-24T16:45:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/connortbot/status/2091929779629175236"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-6b34cf01ad6d71e193f010ed",
+        "title": "Introducing Plugins in @tryreplicas! Give cloud agents access to 101+ platforms like Notion, Google Drive, turbopuffer, Pangram, and much more.",
+        "publisher": "connortbot",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-08-24T16:45:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/connortbot/status/2091929779629175236",
+        "publicationDate": "2026-08-24T16:45:00.000Z",
+        "excerpt": "Introducing Plugins in @tryreplicas! Give cloud agents access to 101+ platforms like Notion, Google Drive, turbopuffer, Pangram, and much more.",
+        "sourceEventDate": "2026-08-24",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-3b12f0c8950a1945e5f8735c",
+        "platform": "x",
+        "account": "connortbot",
+        "postDate": "2026-08-24",
+        "excerpt": "Introducing Plugins in @tryreplicas! Give cloud agents access to 101+ platforms like Notion, Google Drive, turbopuffer, Pangram, and much more.",
+        "url": "https://x.com/connortbot/status/2091929779629175236",
+        "metrics": {
+          "likes": 52,
+          "reposts": 6,
+          "replies": 10,
+          "views": 3424
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-26T12:14:17.474Z",
+  "lastModifiedAt": "2026-08-26T12:14:17.474Z"
+}

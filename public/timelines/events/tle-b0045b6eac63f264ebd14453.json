@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-aerogen-systems",
+    "slug": "aerogen-systems",
+    "name": "Aerogen Systems"
+  },
+  "event": {
+    "id": "tle-b0045b6eac63f264ebd14453",
+    "eventDate": "2026-08-18",
+    "eventDateType": "announcement_date",
+    "title": "Aerogen Systems released We're launching Aerogen Systems on YC today",
+    "summary": "Aerogen Systems is launching Aerogen Systems on YC today.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-c787925b817ca15dee0035c1",
+        "title": "We’re launching Aerogen Systems on YC today.",
+        "publisher": "aerogensystems",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-08-18T20:00:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/aerogensystems/status/2089804527037751567"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-c787925b817ca15dee0035c1",
+        "title": "We’re launching Aerogen Systems on YC today.",
+        "publisher": "aerogensystems",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-08-18T20:00:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/aerogensystems/status/2089804527037751567",
+        "publicationDate": "2026-08-18T20:00:00.000Z",
+        "excerpt": "We’re launching Aerogen Systems on YC today. We put modular reactor purifiers inside chipmaking tools to keep wafers clean without a cleanroom. Talos cleans the tools. The Cleanpipe connects them. Find us here: https://t.co/MjavehU0Md",
+        "sourceEventDate": "2026-08-18",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-5cb9e48261521fce629bd8a7",
+        "platform": "x",
+        "account": "aerogensystems",
+        "postDate": "2026-08-18",
+        "excerpt": "We’re launching Aerogen Systems on YC today. We put modular reactor purifiers inside chipmaking tools to keep wafers clean without a cleanroom. Talos cleans the tools. The Cleanpipe connects them. Find us here: https://t.co/MjavehU0Md",
+        "url": "https://x.com/aerogensystems/status/2089804527037751567",
+        "metrics": {
+          "likes": 33,
+          "reposts": 4,
+          "replies": 8,
+          "views": 204855
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-26T12:14:17.474Z",
+  "lastModifiedAt": "2026-08-26T12:14:17.474Z"
+}

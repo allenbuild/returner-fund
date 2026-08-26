@@ -23,7 +23,7 @@
         "publisher": "bysyncere",
         "domain": "instagram.com",
         "sourceType": "company_post",
-        "publishedAt": "2026-04-08T18:10:29Z",
+        "publishedAt": "2026-04-08T18:10:29.000Z",
         "evidenceRole": "primary",
         "url": "https://instagram.com/reel/DW4VYvfidcr"
       }
@@ -35,10 +35,10 @@
         "publisher": "bysyncere",
         "domain": "instagram.com",
         "sourceType": "company_post",
-        "publishedAt": "2026-04-08T18:10:29Z",
+        "publishedAt": "2026-04-08T18:10:29.000Z",
         "evidenceRole": "primary",
         "url": "https://instagram.com/reel/DW4VYvfidcr",
-        "publicationDate": "2026-04-08T18:10:29Z",
+        "publicationDate": "2026-04-08T18:10:29.000Z",
         "excerpt": "Introducing Lume. A lamp that does your chores. Order now. Shipping this summer.",
         "sourceEventDate": "2026-04-08",
         "isConflicting": false,
@@ -62,6 +62,6 @@
       }
     ]
   },
-  "generatedAt": "2026-08-26T10:02:14.680Z",
-  "lastModifiedAt": "2026-08-26T10:02:14.680Z"
+  "generatedAt": "2026-08-26T12:14:17.474Z",
+  "lastModifiedAt": "2026-08-26T12:14:17.474Z"
 }

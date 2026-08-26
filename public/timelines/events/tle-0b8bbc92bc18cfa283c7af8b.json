@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-stoa",
+    "slug": "stoa",
+    "name": "Stoa"
+  },
+  "event": {
+    "id": "tle-0b8bbc92bc18cfa283c7af8b",
+    "eventDate": "2026-08-24",
+    "eventDateType": "announcement_date",
+    "title": "Stoa announced its public launch",
+    "summary": "Stoa announced it was launching Stoa Intelligence, a product I am particularly excited about.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-714a1ffe0d06ec70bb69eea9",
+        "title": "Today we are launching Stoa Intelligence, a product I am particularly excited about.",
+        "publisher": "erenberke0",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-08-24T22:52:11.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/erenberke0/status/2092022186295066704"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-714a1ffe0d06ec70bb69eea9",
+        "title": "Today we are launching Stoa Intelligence, a product I am particularly excited about.",
+        "publisher": "erenberke0",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-08-24T22:52:11.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/erenberke0/status/2092022186295066704",
+        "publicationDate": "2026-08-24T22:52:11.000Z",
+        "excerpt": "Today we are launching Stoa Intelligence, a product I am particularly excited about. For months the same question kept coming up in customer conversations: where would a given GPU configuration clear today? There is plenty of pricing in this market. The problem is it lives in",
+        "sourceEventDate": "2026-08-24",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-ba7872b6db7fabf8f2a44acf",
+        "platform": "x",
+        "account": "erenberke0",
+        "postDate": "2026-08-24",
+        "excerpt": "Today we are launching Stoa Intelligence, a product I am particularly excited about. For months the same question kept coming up in customer conversations: where would a given GPU configuration clear today? There is plenty of pricing in this market. The problem is it lives in",
+        "url": "https://x.com/erenberke0/status/2092022186295066704",
+        "metrics": {
+          "likes": 13,
+          "reposts": 4,
+          "replies": 1,
+          "views": 4078
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-26T12:14:17.474Z",
+  "lastModifiedAt": "2026-08-26T12:14:17.474Z"
+}

@@ -23,7 +23,7 @@
         "publisher": "kinroai",
         "domain": "x.com",
         "sourceType": "company_post",
-        "publishedAt": "2026-03-31T00:00:00.000Z",
+        "publishedAt": "2026-03-31T15:05:54.000Z",
         "evidenceRole": "primary",
         "url": "https://x.com/kinroai/status/2038996213257888218"
       }
@@ -35,10 +35,10 @@
         "publisher": "kinroai",
         "domain": "x.com",
         "sourceType": "company_post",
-        "publishedAt": "2026-03-31T00:00:00.000Z",
+        "publishedAt": "2026-03-31T15:05:54.000Z",
         "evidenceRole": "primary",
         "url": "https://x.com/kinroai/status/2038996213257888218",
-        "publicationDate": "2026-03-31T00:00:00.000Z",
+        "publicationDate": "2026-03-31T15:05:54.000Z",
         "excerpt": "We’re excited to share that @kinroai has been accepted into Y Combinator’s Spring 2026 batch! At Kinro, we’re building AI sales agents for financial services, starting with insurance. Excited for what’s ahead and even more excited for what we’re launching this week!",
         "sourceEventDate": "2026-03-31",
         "isConflicting": false,
@@ -57,12 +57,12 @@
           "likes": 40,
           "reposts": 3,
           "replies": 11,
-          "views": 4607
+          "views": 4610
         },
         "evidenceRole": "primary"
       }
     ]
   },
-  "generatedAt": "2026-08-26T10:02:14.680Z",
-  "lastModifiedAt": "2026-08-26T10:02:14.680Z"
+  "generatedAt": "2026-08-26T12:14:17.474Z",
+  "lastModifiedAt": "2026-08-26T12:14:17.474Z"
 }

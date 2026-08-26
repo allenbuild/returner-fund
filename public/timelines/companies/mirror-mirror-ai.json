@@ -5,8 +5,8 @@
     "slug": "mirror-mirror-ai",
     "name": "Mirror Mirror AI"
   },
-  "generatedAt": "2026-08-26T10:02:14.680Z",
-  "lastModifiedAt": "2026-08-26T10:02:14.680Z",
+  "generatedAt": "2026-08-26T12:14:17.474Z",
+  "lastModifiedAt": "2026-08-26T12:14:17.474Z",
   "events": [
     {
       "id": "tle-c821ec3afe8e613fafb1b118",
@@ -26,7 +26,7 @@
           "publisher": "mirrormirror.ai",
           "domain": "instagram.com",
           "sourceType": "company_post",
-          "publishedAt": "2026-06-10T13:31:09Z",
+          "publishedAt": "2026-06-10T13:31:09.000Z",
           "evidenceRole": "primary",
           "url": "https://instagram.com/reel/DZaUqGAB-5G"
         },
@@ -43,17 +43,27 @@
       ]
     },
     {
-      "id": "tle-9489e6589de2ce42d213a22e",
+      "id": "tle-2561f3f6092209fb715adb32",
       "eventDate": "2026-03-22",
       "eventDateType": "announcement_date",
-      "title": "Mirror Mirror AI announced its public launch",
-      "summary": "Mirror Mirror AI announced its public launch in a dated company video.",
+      "title": "Mirror Mirror AI became publicly available",
+      "summary": "Mirror Mirror AI introduced e-commerce imagery, now live on Mirror Mirror AI.",
       "category": "product_launch",
-      "isMajor": false,
+      "isMajor": true,
       "hasConflict": false,
       "conflictSummary": null,
-      "evidenceCount": 1,
+      "evidenceCount": 2,
       "sourcePreview": [
+        {
+          "id": "src-1b7cc957b697c5410a034947",
+          "title": "Introducing e-commerce imagery, now live on Mirror Mirror AI. A complete e-commerce shoot with real models, done in hours, not weeks. Every shot consistent across the catalog. Consent, licensing, and compensation built into every image.…",
+          "publisher": "mirrormirror.ai",
+          "domain": "instagram.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-05-27T18:31:50.000Z",
+          "evidenceRole": "primary",
+          "url": "https://instagram.com/reel/DY2iw5kRRvZ"
+        },
         {
           "id": "src-7068fb04546d01a80e5f7b65",
           "title": "Mirror Mirror AI Launch Video",
@@ -118,7 +128,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 3,
-    "lastSuccessfulArtifactAt": "2026-08-26T10:02:14.680Z"
+    "lastSuccessfulArtifactAt": "2026-08-26T12:14:17.474Z"
   },
   "nextCursor": null
 }

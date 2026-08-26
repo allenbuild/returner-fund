@@ -5,9 +5,33 @@
     "slug": "youart",
     "name": "YouArt"
   },
-  "generatedAt": "2026-08-26T10:02:14.680Z",
-  "lastModifiedAt": "2026-08-26T10:02:14.680Z",
+  "generatedAt": "2026-08-26T12:14:17.474Z",
+  "lastModifiedAt": "2026-08-26T12:14:17.474Z",
   "events": [
+    {
+      "id": "tle-f796e755c00937ddb0dd3214",
+      "eventDate": "2026-08-25",
+      "eventDateType": "announcement_date",
+      "title": "YouArt released YouArt MCP × Prompt Reverse",
+      "summary": "YouArt introduced YouArt MCP × Prompt Reverse.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-dd2a28f33c29fe84f0d806d4",
+          "title": "Introducing YouArt MCP × Prompt Reverse.",
+          "publisher": "youartstudio",
+          "domain": "x.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-08-25T15:31:22.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/youartstudio/status/2092273636891598898"
+        }
+      ]
+    },
     {
       "id": "tle-6ab4b550e87d795de88b84e5",
       "eventDate": "2025-11-06",
@@ -35,6 +59,15 @@
   ],
   "groups": [
     {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-08",
+          "count": 1
+        }
+      ]
+    },
+    {
       "year": 2025,
       "months": [
         {
@@ -46,8 +79,8 @@
   ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-08-26T10:02:14.680Z"
+    "publishedEventCount": 2,
+    "lastSuccessfulArtifactAt": "2026-08-26T12:14:17.474Z"
   },
   "nextCursor": null
 }

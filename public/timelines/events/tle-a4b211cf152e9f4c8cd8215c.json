@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-rekursivai",
+    "slug": "rekursiv-ai",
+    "name": "rekursiv.ai"
+  },
+  "event": {
+    "id": "tle-a4b211cf152e9f4c8cd8215c",
+    "eventDate": "2026-07-22",
+    "eventDateType": "announcement_date",
+    "title": "rekursiv.ai announced $5M funding round",
+    "summary": "rekursiv.ai raised $5M from Y Combinator to scale AI scientists whose own breakthroughs accelerate the next.",
+    "category": "funding",
+    "isMajor": true,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-ae5decf09f81705ccef358e2",
+        "title": "We raised $5M from Y Combinator to scale AI scientists whose own breakthroughs accelerate the next.",
+        "publisher": "hyperparticle",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-07-22T15:40:52.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/hyperparticle/status/2079954842580340996"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-ae5decf09f81705ccef358e2",
+        "title": "We raised $5M from Y Combinator to scale AI scientists whose own breakthroughs accelerate the next.",
+        "publisher": "hyperparticle",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-07-22T15:40:52.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/hyperparticle/status/2079954842580340996",
+        "publicationDate": "2026-07-22T15:40:52.000Z",
+        "excerpt": "We raised $5M from Y Combinator to scale AI scientists whose own breakthroughs accelerate the next. In days, they matched top models on ARC-AGI at up to 10,000× lower cost, every gain from methods they invented themselves. How it works below:",
+        "sourceEventDate": "2026-07-22",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-28a4bd243126f3437a94b842",
+        "platform": "x",
+        "account": "hyperparticle",
+        "postDate": "2026-07-22",
+        "excerpt": "We raised $5M from Y Combinator to scale AI scientists whose own breakthroughs accelerate the next. In days, they matched top models on ARC-AGI at up to 10,000× lower cost, every gain from methods they invented themselves. How it works below:",
+        "url": "https://x.com/hyperparticle/status/2079954842580340996",
+        "metrics": {
+          "likes": 45,
+          "reposts": 7,
+          "replies": 7,
+          "views": 4942
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-26T12:14:17.474Z",
+  "lastModifiedAt": "2026-08-26T12:14:17.474Z"
+}

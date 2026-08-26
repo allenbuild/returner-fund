@@ -5,8 +5,8 @@
     "slug": "pluvo",
     "name": "Pluvo"
   },
-  "generatedAt": "2026-08-26T10:02:14.680Z",
-  "lastModifiedAt": "2026-08-26T10:02:14.680Z",
+  "generatedAt": "2026-08-26T12:14:17.474Z",
+  "lastModifiedAt": "2026-08-26T12:14:17.474Z",
   "events": [
     {
       "id": "tle-3b01d459ba901f48381713f3",
@@ -26,7 +26,7 @@
           "publisher": "pluvoapp",
           "domain": "instagram.com",
           "sourceType": "company_post",
-          "publishedAt": "2026-02-26T21:35:03Z",
+          "publishedAt": "2026-02-26T21:35:03.000Z",
           "evidenceRole": "primary",
           "url": "https://instagram.com/p/DVPISu_kn0U"
         },
@@ -36,7 +36,7 @@
           "publisher": "pluvoapp",
           "domain": "instagram.com",
           "sourceType": "company_post",
-          "publishedAt": "2026-03-09T18:37:10Z",
+          "publishedAt": "2026-03-09T18:37:10.000Z",
           "evidenceRole": "primary",
           "url": "https://instagram.com/p/DVrIqwBk_4B"
         }
@@ -57,7 +57,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-08-26T10:02:14.680Z"
+    "lastSuccessfulArtifactAt": "2026-08-26T12:14:17.474Z"
   },
   "nextCursor": null
 }

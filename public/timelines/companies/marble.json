@@ -5,14 +5,49 @@
     "slug": "marble",
     "name": "Marble"
   },
-  "generatedAt": "2026-08-26T10:02:14.680Z",
-  "lastModifiedAt": "2026-08-26T10:02:14.680Z",
-  "events": [],
-  "groups": [],
+  "generatedAt": "2026-08-26T12:14:17.474Z",
+  "lastModifiedAt": "2026-08-26T12:14:17.474Z",
+  "events": [
+    {
+      "id": "tle-19f2451f2c004f32e6156fa3",
+      "eventDate": "2026-07-30",
+      "eventDateType": "announcement_date",
+      "title": "Marble released Marble (YC S26) — the autonomous back of house for restaurants",
+      "summary": "Marble introduced Marble (YC S26) — the autonomous back of house for restaurants.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-62a964b28b2a3fda0f49b222",
+          "title": "Introducing Marble (YC S26) — the autonomous back of house for restaurants.",
+          "publisher": "arjunjchaliha",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-07-30T18:24:26.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/arjunjchaliha/status/2082895107557339601"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-07",
+          "count": 1
+        }
+      ]
+    }
+  ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 0,
-    "lastSuccessfulArtifactAt": "2026-08-26T10:02:14.680Z"
+    "publishedEventCount": 1,
+    "lastSuccessfulArtifactAt": "2026-08-26T12:14:17.474Z"
   },
   "nextCursor": null
 }

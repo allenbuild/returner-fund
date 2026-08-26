@@ -5,9 +5,33 @@
     "slug": "openwork",
     "name": "OpenWork"
   },
-  "generatedAt": "2026-08-26T10:02:14.680Z",
-  "lastModifiedAt": "2026-08-26T10:02:14.680Z",
+  "generatedAt": "2026-08-26T12:14:17.474Z",
+  "lastModifiedAt": "2026-08-26T12:14:17.474Z",
   "events": [
+    {
+      "id": "tle-dc903f64162bc61d36ddc794",
+      "eventDate": "2026-08-26",
+      "eventDateType": "announcement_date",
+      "title": "OpenWork added support for the stateless mcp spec",
+      "summary": "openwork mcp gateway now supports the stateless mcp spec.",
+      "category": "product_update",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-71590dd2692891a03257c781",
+          "title": "openwork mcp gateway now supports the stateless mcp spec",
+          "publisher": "getopenwork",
+          "domain": "x.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-08-26T01:43:44.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/getopenwork/status/2092427745569751089"
+        }
+      ]
+    },
     {
       "id": "tle-b1b8a22b8c3555944daa0fa7",
       "eventDate": "2026-08-02",
@@ -29,6 +53,30 @@
           "publishedAt": "2026-08-02T16:14:24.000Z",
           "evidenceRole": "primary",
           "url": "https://x.com/benjaminshafii/status/2083949544820060597"
+        }
+      ]
+    },
+    {
+      "id": "tle-2998725ce851dace786ad0ce",
+      "eventDate": "2026-07-26",
+      "eventDateType": "announcement_date",
+      "title": "OpenWork released OpenWork Web OpenWork web brings your setup to the cloud",
+      "summary": "OpenWork introduced OpenWork Web OpenWork web brings your setup to the cloud.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-85c7d208c6c10a4885c4f235",
+          "title": "Introducing OpenWork Web OpenWork web brings your setup to the cloud.",
+          "publisher": "getopenwork",
+          "domain": "x.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-07-26T11:19:43.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/getopenwork/status/2081338670527717862"
         }
       ]
     },
@@ -145,11 +193,11 @@
       "months": [
         {
           "month": "2026-08",
-          "count": 1
+          "count": 2
         },
         {
           "month": "2026-07",
-          "count": 1
+          "count": 2
         },
         {
           "month": "2026-03",
@@ -160,8 +208,8 @@
   ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 5,
-    "lastSuccessfulArtifactAt": "2026-08-26T10:02:14.680Z"
+    "publishedEventCount": 7,
+    "lastSuccessfulArtifactAt": "2026-08-26T12:14:17.474Z"
   },
   "nextCursor": null
 }

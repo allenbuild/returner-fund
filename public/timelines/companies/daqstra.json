@@ -5,8 +5,8 @@
     "slug": "daqstra",
     "name": "Daqstra"
   },
-  "generatedAt": "2026-08-26T10:02:14.680Z",
-  "lastModifiedAt": "2026-08-26T10:02:14.680Z",
+  "generatedAt": "2026-08-26T12:14:17.474Z",
+  "lastModifiedAt": "2026-08-26T12:14:17.474Z",
   "events": [
     {
       "id": "tle-92f33e0055fa64ad4f86b0eb",
@@ -26,7 +26,7 @@
           "publisher": "daqstra",
           "domain": "x.com",
           "sourceType": "company_post",
-          "publishedAt": "2026-07-23T00:00:00.000Z",
+          "publishedAt": "2026-07-23T20:46:50.000Z",
           "evidenceRole": "primary",
           "url": "https://x.com/daqstra/status/2080394228082024734"
         }
@@ -47,7 +47,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-08-26T10:02:14.680Z"
+    "lastSuccessfulArtifactAt": "2026-08-26T12:14:17.474Z"
   },
   "nextCursor": null
 }

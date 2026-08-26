@@ -5,14 +5,49 @@
     "slug": "rex",
     "name": "Rex"
   },
-  "generatedAt": "2026-08-26T10:02:14.680Z",
-  "lastModifiedAt": "2026-08-26T10:02:14.680Z",
-  "events": [],
-  "groups": [],
+  "generatedAt": "2026-08-26T12:14:17.474Z",
+  "lastModifiedAt": "2026-08-26T12:14:17.474Z",
+  "events": [
+    {
+      "id": "tle-2c95b860b7a490f80e030b96",
+      "eventDate": "2026-07-27",
+      "eventDateType": "announcement_date",
+      "title": "Rex announced its public launch",
+      "summary": "Rex announced it was launching Rex (YC S26) Every enterprise is exploring where AI can transform back-office operations.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-6589cf7df8e3b969d56d64bc",
+          "title": "Today we're launching Rex (YC S26) Every enterprise is exploring where AI can transform back-office operations.",
+          "publisher": "merlinkafka",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-07-27T20:02:02.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/merlinkafka/status/2081832504097665436"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-07",
+          "count": 1
+        }
+      ]
+    }
+  ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 0,
-    "lastSuccessfulArtifactAt": "2026-08-26T10:02:14.680Z"
+    "publishedEventCount": 1,
+    "lastSuccessfulArtifactAt": "2026-08-26T12:14:17.474Z"
   },
   "nextCursor": null
 }

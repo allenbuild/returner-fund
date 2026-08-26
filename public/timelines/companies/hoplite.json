@@ -5,14 +5,49 @@
     "slug": "hoplite",
     "name": "Hoplite"
   },
-  "generatedAt": "2026-08-26T10:02:14.680Z",
-  "lastModifiedAt": "2026-08-26T10:02:14.680Z",
-  "events": [],
-  "groups": [],
+  "generatedAt": "2026-08-26T12:14:17.474Z",
+  "lastModifiedAt": "2026-08-26T12:14:17.474Z",
+  "events": [
+    {
+      "id": "tle-91bfaf90e34d18b68190c934",
+      "eventDate": "2026-07-30",
+      "eventDateType": "announcement_date",
+      "title": "Hoplite released Hoplite (YC S26): effortless cloud coding agents",
+      "summary": "Hoplite introduced Hoplite (YC S26): effortless cloud coding agents.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-77cdc428c66a4102fd7eae9c",
+          "title": "Introducing Hoplite (YC S26): effortless cloud coding agents.",
+          "publisher": "ryan_morr",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-07-30T19:00:13.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/ryan_morr/status/2082904114053451916"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-07",
+          "count": 1
+        }
+      ]
+    }
+  ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 0,
-    "lastSuccessfulArtifactAt": "2026-08-26T10:02:14.680Z"
+    "publishedEventCount": 1,
+    "lastSuccessfulArtifactAt": "2026-08-26T12:14:17.474Z"
   },
   "nextCursor": null
 }

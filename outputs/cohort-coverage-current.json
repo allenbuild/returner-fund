@@ -12,8 +12,8 @@
         "catalog": "src/lib/social/a16z-speedrun-006-social-accounts.json",
         "profileSource": "src/lib/graph/a16z-speedrun-006-dataset.ts",
         "graph": "public/graph/a16zsr006.json",
-        "publicRun": "/Users/allenxu/Library/Application Support/Returner Fund OpenCLI/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-08-25-1800-1b2a4702ef377452/public-a16zsr006.json",
-        "githubRun": "/Users/allenxu/Library/Application Support/Returner Fund OpenCLI/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-08-25-1800-1b2a4702ef377452/github-a16zsr006.json"
+        "publicRun": "/Users/allenxu/Library/Application Support/Returner Fund OpenCLI/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-08-26-0600-636798a295f90683/public-a16zsr006.json",
+        "githubRun": "/Users/allenxu/Library/Application Support/Returner Fund OpenCLI/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-08-26-0600-636798a295f90683/github-a16zsr006.json"
       },
       "counts": {
         "companies": 59,
@@ -24,7 +24,7 @@
         "plannedOwnerMappings": 339,
         "multiAccountOwnerMappings": 4,
         "graphEvidence": 5000,
-        "graphNeedsReview": 2414
+        "graphNeedsReview": 2415
       },
       "structural": {
         "status": "pass",
@@ -828,8 +828,8 @@
         "catalog": "src/lib/yc/spring-2026-companies.json",
         "profileSource": null,
         "graph": "public/graph/s2026.json",
-        "publicRun": "/Users/allenxu/Library/Application Support/Returner Fund OpenCLI/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-08-25-1800-1b2a4702ef377452/public-s2026.json",
-        "githubRun": "/Users/allenxu/Library/Application Support/Returner Fund OpenCLI/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-08-25-1800-1b2a4702ef377452/github-s2026.json"
+        "publicRun": "/Users/allenxu/Library/Application Support/Returner Fund OpenCLI/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-08-26-0600-636798a295f90683/public-s2026.json",
+        "githubRun": "/Users/allenxu/Library/Application Support/Returner Fund OpenCLI/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-08-26-0600-636798a295f90683/github-s2026.json"
       },
       "counts": {
         "companies": 197,
@@ -840,7 +840,7 @@
         "plannedOwnerMappings": 994,
         "multiAccountOwnerMappings": 1,
         "graphEvidence": 5000,
-        "graphNeedsReview": 10063
+        "graphNeedsReview": 10071
       },
       "structural": {
         "status": "pass",
@@ -2348,19 +2348,19 @@
         "catalog": "src/lib/yc/summer-2026-companies.json",
         "profileSource": null,
         "graph": "public/graph/s26.json",
-        "publicRun": "/Users/allenxu/Library/Application Support/Returner Fund OpenCLI/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-08-25-1800-1b2a4702ef377452/public-s26.json",
-        "githubRun": "/Users/allenxu/Library/Application Support/Returner Fund OpenCLI/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-08-25-1800-1b2a4702ef377452/github-s26.json"
+        "publicRun": "/Users/allenxu/Library/Application Support/Returner Fund OpenCLI/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-08-26-0600-636798a295f90683/public-s26.json",
+        "githubRun": "/Users/allenxu/Library/Application Support/Returner Fund OpenCLI/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-08-26-0600-636798a295f90683/github-s26.json"
       },
       "counts": {
         "companies": 236,
         "founders": 470,
-        "catalogOwnerMappings": 1141,
-        "graphOwnerMappings": 1132,
-        "catalogOwnerPlatformGroups": 1139,
-        "plannedOwnerMappings": 1141,
+        "catalogOwnerMappings": 1142,
+        "graphOwnerMappings": 1133,
+        "catalogOwnerPlatformGroups": 1140,
+        "plannedOwnerMappings": 1142,
         "multiAccountOwnerMappings": 2,
         "graphEvidence": 5000,
-        "graphNeedsReview": 6938
+        "graphNeedsReview": 7012
       },
       "structural": {
         "status": "pass",
@@ -2583,8 +2583,8 @@
         ],
         "mappingCoverage": {
           "github": {
-            "companyMapped": 30,
-            "companyMissing": 206,
+            "companyMapped": 31,
+            "companyMissing": 205,
             "founderMapped": 1,
             "founderMissing": 469
           },

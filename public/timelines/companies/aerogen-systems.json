@@ -5,14 +5,49 @@
     "slug": "aerogen-systems",
     "name": "Aerogen Systems"
   },
-  "generatedAt": "2026-08-26T10:02:14.680Z",
-  "lastModifiedAt": "2026-08-26T10:02:14.680Z",
-  "events": [],
-  "groups": [],
+  "generatedAt": "2026-08-26T12:14:17.474Z",
+  "lastModifiedAt": "2026-08-26T12:14:17.474Z",
+  "events": [
+    {
+      "id": "tle-b0045b6eac63f264ebd14453",
+      "eventDate": "2026-08-18",
+      "eventDateType": "announcement_date",
+      "title": "Aerogen Systems released We're launching Aerogen Systems on YC today",
+      "summary": "Aerogen Systems is launching Aerogen Systems on YC today.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-c787925b817ca15dee0035c1",
+          "title": "We’re launching Aerogen Systems on YC today.",
+          "publisher": "aerogensystems",
+          "domain": "x.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-08-18T20:00:00.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/aerogensystems/status/2089804527037751567"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-08",
+          "count": 1
+        }
+      ]
+    }
+  ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 0,
-    "lastSuccessfulArtifactAt": "2026-08-26T10:02:14.680Z"
+    "publishedEventCount": 1,
+    "lastSuccessfulArtifactAt": "2026-08-26T12:14:17.474Z"
   },
   "nextCursor": null
 }

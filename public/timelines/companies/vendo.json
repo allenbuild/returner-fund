@@ -5,8 +5,8 @@
     "slug": "vendo",
     "name": "Vendo"
   },
-  "generatedAt": "2026-08-26T10:02:14.680Z",
-  "lastModifiedAt": "2026-08-26T10:02:14.680Z",
+  "generatedAt": "2026-08-26T12:14:17.474Z",
+  "lastModifiedAt": "2026-08-26T12:14:17.474Z",
   "events": [
     {
       "id": "tle-e0a173657d6b910875789eb0",
@@ -18,7 +18,7 @@
       "isMajor": true,
       "hasConflict": false,
       "conflictSummary": null,
-      "evidenceCount": 2,
+      "evidenceCount": 3,
       "sourcePreview": [
         {
           "id": "src-4a3b6d88a825a4f85d632a8e",
@@ -29,6 +29,16 @@
           "publishedAt": "2026-07-06T16:49:44.000Z",
           "evidenceRole": "primary",
           "url": "https://x.com/nourzahzah/status/2074173966571511892"
+        },
+        {
+          "id": "src-18f8d82d2a887122669c4d8e",
+          "title": "Introducing Vendo (YC S26), the customization layer that lets your users build their own features and micro-apps on top of your product For 50 years, software has been shipped one way for everyone.",
+          "publisher": "yousefhll",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-07-21T17:32:05.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/yousefhll/status/2079620440038002750"
         },
         {
           "id": "src-a355c190017197bc6c950f70",
@@ -113,7 +123,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 3,
-    "lastSuccessfulArtifactAt": "2026-08-26T10:02:14.680Z"
+    "lastSuccessfulArtifactAt": "2026-08-26T12:14:17.474Z"
   },
   "nextCursor": null
 }

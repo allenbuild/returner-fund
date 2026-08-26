@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-trident",
+    "slug": "trident",
+    "name": "Trident"
+  },
+  "event": {
+    "id": "tle-07f834d622aa7a33659fa0ee",
+    "eventDate": "2026-08-13",
+    "eventDateType": "announcement_date",
+    "title": "Trident announced its public launch",
+    "summary": "Trident introduced Trident (YC S26), the security engineer that never sleeps Most teams test security 2-3 times a year Your code changes 200+ times a year Trident tests your web apps and cloud infrastructure every day: Comment \"trident\" below for a free security scan (black box….",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-1e684da6fc4532da352faaf9",
+        "title": "Introducing Trident (YC S26), the security engineer that never sleeps Most teams test security 2-3 times a year Your code changes 200+ times a year Trident tests your web apps and cloud infrastructure every day: Comment \"trident\" below…",
+        "publisher": "tridentsecures",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-08-13T23:08:39.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/tridentsecures/status/2088040060700737571"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-1e684da6fc4532da352faaf9",
+        "title": "Introducing Trident (YC S26), the security engineer that never sleeps Most teams test security 2-3 times a year Your code changes 200+ times a year Trident tests your web apps and cloud infrastructure every day: Comment \"trident\" below…",
+        "publisher": "tridentsecures",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-08-13T23:08:39.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/tridentsecures/status/2088040060700737571",
+        "publicationDate": "2026-08-13T23:08:39.000Z",
+        "excerpt": "Introducing Trident (YC S26), the security engineer that never sleeps Most teams test security 2-3 times a year Your code changes 200+ times a year Trident tests your web apps and cloud infrastructure every day: Comment \"trident\" below for a free security scan (black box +",
+        "sourceEventDate": "2026-08-13",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-dda16c079061e1e7da2714d4",
+        "platform": "x",
+        "account": "tridentsecures",
+        "postDate": "2026-08-13",
+        "excerpt": "Introducing Trident (YC S26), the security engineer that never sleeps Most teams test security 2-3 times a year Your code changes 200+ times a year Trident tests your web apps and cloud infrastructure every day: Comment \"trident\" below for a free security scan (black box +",
+        "url": "https://x.com/tridentsecures/status/2088040060700737571",
+        "metrics": {
+          "likes": 39,
+          "reposts": 13,
+          "replies": 16,
+          "views": 6849
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-26T12:14:17.474Z",
+  "lastModifiedAt": "2026-08-26T12:14:17.474Z"
+}

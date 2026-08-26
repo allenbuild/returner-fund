@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-openwork",
+    "slug": "openwork",
+    "name": "OpenWork"
+  },
+  "event": {
+    "id": "tle-2998725ce851dace786ad0ce",
+    "eventDate": "2026-07-26",
+    "eventDateType": "announcement_date",
+    "title": "OpenWork released OpenWork Web OpenWork web brings your setup to the cloud",
+    "summary": "OpenWork introduced OpenWork Web OpenWork web brings your setup to the cloud.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-85c7d208c6c10a4885c4f235",
+        "title": "Introducing OpenWork Web OpenWork web brings your setup to the cloud.",
+        "publisher": "getopenwork",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-07-26T11:19:43.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/getopenwork/status/2081338670527717862"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-85c7d208c6c10a4885c4f235",
+        "title": "Introducing OpenWork Web OpenWork web brings your setup to the cloud.",
+        "publisher": "getopenwork",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-07-26T11:19:43.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/getopenwork/status/2081338670527717862",
+        "publicationDate": "2026-07-26T11:19:43.000Z",
+        "excerpt": "Introducing OpenWork Web OpenWork web brings your setup to the cloud. Your skills, mcps, and setup follows you in the Web now.",
+        "sourceEventDate": "2026-07-26",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-f06ac014ae8f040f4f6e7673",
+        "platform": "x",
+        "account": "getopenwork",
+        "postDate": "2026-07-26",
+        "excerpt": "Introducing OpenWork Web OpenWork web brings your setup to the cloud. Your skills, mcps, and setup follows you in the Web now.",
+        "url": "https://x.com/getopenwork/status/2081338670527717862",
+        "metrics": {
+          "likes": 152,
+          "reposts": 6,
+          "replies": 6,
+          "views": 18513
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-26T12:14:17.474Z",
+  "lastModifiedAt": "2026-08-26T12:14:17.474Z"
+}

@@ -5,14 +5,49 @@
     "slug": "openrelay",
     "name": "OpenRelay"
   },
-  "generatedAt": "2026-08-26T10:02:14.680Z",
-  "lastModifiedAt": "2026-08-26T10:02:14.680Z",
-  "events": [],
-  "groups": [],
+  "generatedAt": "2026-08-26T12:14:17.474Z",
+  "lastModifiedAt": "2026-08-26T12:14:17.474Z",
+  "events": [
+    {
+      "id": "tle-80d5cd8c6cdb8eae7dfe8ff4",
+      "eventDate": "2026-08-07",
+      "eventDateType": "announcement_date",
+      "title": "OpenRelay released OpenRelayInc",
+      "summary": "OpenRelay reported launching @OpenRelayInc: One Endpoint to Rule Them All - 100B tokens/week across 22 locations on 4 continents - 8 accelerator SKUs: NVIDIA, TPU, Trainium, AMD - Up to 20% cheaper than renting the hardware yourself Every chip on earth.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-7f8a60d212067f5103071779",
+          "title": "Launching @OpenRelayInc : One Endpoint to Rule Them All - 100B tokens/week across 22 locations on 4 continents - 8 accelerator SKUs: NVIDIA, TPU, Trainium, AMD - Up to 20% cheaper than renting the hardware yourself Every chip on earth.",
+          "publisher": "openrelayinc",
+          "domain": "x.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-08-07T20:37:54.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/openrelayinc/status/2085827799366173094"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-08",
+          "count": 1
+        }
+      ]
+    }
+  ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 0,
-    "lastSuccessfulArtifactAt": "2026-08-26T10:02:14.680Z"
+    "publishedEventCount": 1,
+    "lastSuccessfulArtifactAt": "2026-08-26T12:14:17.474Z"
   },
   "nextCursor": null
 }

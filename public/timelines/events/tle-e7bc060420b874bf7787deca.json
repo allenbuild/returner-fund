@@ -1,0 +1,108 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-river-markets",
+    "slug": "river-markets",
+    "name": "River Markets"
+  },
+  "event": {
+    "id": "tle-e7bc060420b874bf7787deca",
+    "eventDate": "2026-08-11",
+    "eventDateType": "announcement_date",
+    "title": "River Markets announced $8.5M seed round",
+    "summary": "Today, River Markets announced an $8.5M seed round led by @HaunVentures.",
+    "category": "funding",
+    "isMajor": true,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 2,
+    "sourcePreview": [
+      {
+        "id": "src-f01e0e829417c8e39f01ada6",
+        "title": "Today, River Markets announced an $8.5M seed round led by @HaunVentures .",
+        "publisher": "river_markets",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-08-11T14:08:29.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/river_markets/status/2087179350470963533"
+      },
+      {
+        "id": "src-a0a17c9af2f8c17a817b9455",
+        "title": "Today, River Markets announced an $8.5M seed round led by @HaunVentures We’re building the prime broker for prediction markets, giving professional trading firms unified execution and risk across venues.",
+        "publisher": "river_markets",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-08-11T17:45:09.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/river_markets/status/2087233874678202697"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-f01e0e829417c8e39f01ada6",
+        "title": "Today, River Markets announced an $8.5M seed round led by @HaunVentures .",
+        "publisher": "river_markets",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-08-11T14:08:29.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/river_markets/status/2087179350470963533",
+        "publicationDate": "2026-08-11T14:08:29.000Z",
+        "excerpt": "Today, River Markets announced an $8.5M seed round led by @HaunVentures . We’re building the prime broker for prediction markets, giving professional trading firms unified execution and risk across venues. Blog post : https://t.co/EvjqAYk2oM",
+        "sourceEventDate": "2026-08-11",
+        "isConflicting": false,
+        "conflictDescription": null
+      },
+      {
+        "id": "src-a0a17c9af2f8c17a817b9455",
+        "title": "Today, River Markets announced an $8.5M seed round led by @HaunVentures We’re building the prime broker for prediction markets, giving professional trading firms unified execution and risk across venues.",
+        "publisher": "river_markets",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-08-11T17:45:09.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/river_markets/status/2087233874678202697",
+        "publicationDate": "2026-08-11T17:45:09.000Z",
+        "excerpt": "Today, River Markets announced an $8.5M seed round led by @HaunVentures We’re building the prime broker for prediction markets, giving professional trading firms unified execution and risk across venues. Thanks to @FortuneMagazine and @c_grigera for covering what we're",
+        "sourceEventDate": "2026-08-11",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-1ab7b902324f180c94bf8d87",
+        "platform": "x",
+        "account": "river_markets",
+        "postDate": "2026-08-11",
+        "excerpt": "Today, River Markets announced an $8.5M seed round led by @HaunVentures . We’re building the prime broker for prediction markets, giving professional trading firms unified execution and risk across venues. Blog post : https://t.co/EvjqAYk2oM",
+        "url": "https://x.com/river_markets/status/2087179350470963533",
+        "metrics": {
+          "likes": 269,
+          "reposts": 26,
+          "replies": 46,
+          "views": 81874
+        },
+        "evidenceRole": "primary"
+      },
+      {
+        "id": "post-f7ef6188d1de1351334cdab7",
+        "platform": "x",
+        "account": "river_markets",
+        "postDate": "2026-08-11",
+        "excerpt": "Today, River Markets announced an $8.5M seed round led by @HaunVentures We’re building the prime broker for prediction markets, giving professional trading firms unified execution and risk across venues. Thanks to @FortuneMagazine and @c_grigera for covering what we're",
+        "url": "https://x.com/river_markets/status/2087233874678202697",
+        "metrics": {
+          "likes": 123,
+          "reposts": 8,
+          "replies": 34,
+          "views": 17967
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-26T12:14:17.474Z",
+  "lastModifiedAt": "2026-08-26T12:14:17.474Z"
+}

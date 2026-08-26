@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-hoplite",
+    "slug": "hoplite",
+    "name": "Hoplite"
+  },
+  "event": {
+    "id": "tle-91bfaf90e34d18b68190c934",
+    "eventDate": "2026-07-30",
+    "eventDateType": "announcement_date",
+    "title": "Hoplite released Hoplite (YC S26): effortless cloud coding agents",
+    "summary": "Hoplite introduced Hoplite (YC S26): effortless cloud coding agents.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-77cdc428c66a4102fd7eae9c",
+        "title": "Introducing Hoplite (YC S26): effortless cloud coding agents.",
+        "publisher": "ryan_morr",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-07-30T19:00:13.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/ryan_morr/status/2082904114053451916"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-77cdc428c66a4102fd7eae9c",
+        "title": "Introducing Hoplite (YC S26): effortless cloud coding agents.",
+        "publisher": "ryan_morr",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-07-30T19:00:13.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/ryan_morr/status/2082904114053451916",
+        "publicationDate": "2026-07-30T19:00:13.000Z",
+        "excerpt": "Introducing Hoplite (YC S26): effortless cloud coding agents. Local development is no longer fit for purpose. Laptop crashes, wrangling git worktress, and juggling ports. Hoplite moves your local setup into the cloud. Bring your local sessions, memories, and MCP, link below",
+        "sourceEventDate": "2026-07-30",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-e5a8f9d58f53a0b5f23463d6",
+        "platform": "x",
+        "account": "ryan_morr",
+        "postDate": "2026-07-30",
+        "excerpt": "Introducing Hoplite (YC S26): effortless cloud coding agents. Local development is no longer fit for purpose. Laptop crashes, wrangling git worktress, and juggling ports. Hoplite moves your local setup into the cloud. Bring your local sessions, memories, and MCP, link below",
+        "url": "https://x.com/ryan_morr/status/2082904114053451916",
+        "metrics": {
+          "likes": 242,
+          "reposts": 38,
+          "replies": 85,
+          "views": 35392
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-26T12:14:17.474Z",
+  "lastModifiedAt": "2026-08-26T12:14:17.474Z"
+}

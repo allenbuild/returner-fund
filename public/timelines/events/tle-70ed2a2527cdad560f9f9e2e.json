@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-trellistech",
+    "slug": "trellis",
+    "name": "Trellis"
+  },
+  "event": {
+    "id": "tle-70ed2a2527cdad560f9f9e2e",
+    "eventDate": "2026-04-22",
+    "eventDateType": "announcement_date",
+    "title": "Trellis launched on Y Combinator",
+    "summary": "Trellis just launched on @ycombinator's Launch YC.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-a051bacdec5530d4958d713f",
+        "title": "Trellis just launched on @ycombinator's Launch YC! Check it out 😎: https://t.co/zvmGayn7vC",
+        "publisher": "usetrellis",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-04-22T01:22:16.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/usetrellis/status/2046761472156467703"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-a051bacdec5530d4958d713f",
+        "title": "Trellis just launched on @ycombinator's Launch YC! Check it out 😎: https://t.co/zvmGayn7vC",
+        "publisher": "usetrellis",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-04-22T01:22:16.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/usetrellis/status/2046761472156467703",
+        "publicationDate": "2026-04-22T01:22:16.000Z",
+        "excerpt": "Trellis just launched on @ycombinator's Launch YC! Check it out 😎: https://t.co/zvmGayn7vC",
+        "sourceEventDate": "2026-04-22",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-f8567d546b2c4c26722a3b26",
+        "platform": "x",
+        "account": "usetrellis",
+        "postDate": "2026-04-22",
+        "excerpt": "Trellis just launched on @ycombinator's Launch YC! Check it out 😎: https://t.co/zvmGayn7vC",
+        "url": "https://x.com/usetrellis/status/2046761472156467703",
+        "metrics": {
+          "likes": 5,
+          "reposts": 0,
+          "replies": 2,
+          "views": 530
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-26T12:14:17.474Z",
+  "lastModifiedAt": "2026-08-26T12:14:17.474Z"
+}

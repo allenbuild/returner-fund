@@ -12,10 +12,10 @@
     "title": "Agnost AI launched on Hacker News",
     "summary": "Launch HN: Agnost AI (YC S26) – Extract user feedback from agent conversations.",
     "category": "product_launch",
-    "isMajor": false,
+    "isMajor": true,
     "hasConflict": false,
     "conflictSummary": null,
-    "evidenceCount": 1,
+    "evidenceCount": 2,
     "sourcePreview": [
       {
         "id": "src-ef9573034a5b168a90a29be6",
@@ -26,6 +26,16 @@
         "publishedAt": "2026-07-14T16:06:18Z",
         "evidenceRole": "primary",
         "url": "https://news.ycombinator.com/item?id=48908950"
+      },
+      {
+        "id": "src-c68eb24ebec6f2ff257c641b",
+        "title": "WE ARE OFFICIALLY LIVE ON PRODUCT HUNT!!! GO SHOW US SOME SUPPORT!!!!",
+        "publisher": "agnostai",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-08-25T14:36:57.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/agnostai/status/2092259945450439001"
       }
     ],
     "evidence": [
@@ -41,6 +51,21 @@
         "publicationDate": "2026-07-14T16:06:18Z",
         "excerpt": "Hey HN, we’re Shubham Parth, childhood friends building Agnost AI ( https: agnost.ai ), product analytics for teams building chat and voice agents. We read production conversations and find behavioral failures like users rageprompting (cursing at the agent), repeatedly rephrasing the same request, correcting the agent, asking for missing features, or leaving after an answer that was technically successful. We have an interactive demo with no signup here: https: app.agnost.ai?demo=true Here s a…",
         "sourceEventDate": "2026-07-14",
+        "isConflicting": false,
+        "conflictDescription": null
+      },
+      {
+        "id": "src-c68eb24ebec6f2ff257c641b",
+        "title": "WE ARE OFFICIALLY LIVE ON PRODUCT HUNT!!! GO SHOW US SOME SUPPORT!!!!",
+        "publisher": "agnostai",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-08-25T14:36:57.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/agnostai/status/2092259945450439001",
+        "publicationDate": "2026-08-25T14:36:57.000Z",
+        "excerpt": "WE ARE OFFICIALLY LIVE ON PRODUCT HUNT!!! GO SHOW US SOME SUPPORT!!!!",
+        "sourceEventDate": "2026-08-25",
         "isConflicting": false,
         "conflictDescription": null
       }
@@ -59,9 +84,24 @@
           "comments": 47
         },
         "evidenceRole": "primary"
+      },
+      {
+        "id": "post-f16e70d70ce4403f5be3e77e",
+        "platform": "x",
+        "account": "agnostai",
+        "postDate": "2026-08-25",
+        "excerpt": "WE ARE OFFICIALLY LIVE ON PRODUCT HUNT!!! GO SHOW US SOME SUPPORT!!!!",
+        "url": "https://x.com/agnostai/status/2092259945450439001",
+        "metrics": {
+          "likes": 15,
+          "reposts": 0,
+          "replies": 3,
+          "views": 803
+        },
+        "evidenceRole": "primary"
       }
     ]
   },
-  "generatedAt": "2026-08-26T10:02:14.680Z",
-  "lastModifiedAt": "2026-08-26T10:02:14.680Z"
+  "generatedAt": "2026-08-26T12:14:17.474Z",
+  "lastModifiedAt": "2026-08-26T12:14:17.474Z"
 }

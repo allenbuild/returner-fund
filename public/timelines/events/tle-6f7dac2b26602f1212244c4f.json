@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-cosmic-robotics",
+    "slug": "cosmic-robotics",
+    "name": "Cosmic Robotics"
+  },
+  "event": {
+    "id": "tle-6f7dac2b26602f1212244c4f",
+    "eventDate": "2026-08-19",
+    "eventDateType": "announcement_date",
+    "title": "Cosmic Robotics released tech roadmap at to start autonomous city construction on Mars in the...",
+    "summary": "Cosmic Robotics introduced our tech roadmap at @cosmic_robotics to start autonomous city construction on Mars in the mid-2030s.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-4ca1cd0558910a66e4b69091",
+        "title": "Introducing our tech roadmap at @cosmic_robotics to start autonomous city construction on Mars in the mid-2030s.",
+        "publisher": "thelcjones",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-08-19T17:00:19.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/thelcjones/status/2090121696481264048"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-4ca1cd0558910a66e4b69091",
+        "title": "Introducing our tech roadmap at @cosmic_robotics to start autonomous city construction on Mars in the mid-2030s.",
+        "publisher": "thelcjones",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-08-19T17:00:19.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/thelcjones/status/2090121696481264048",
+        "publicationDate": "2026-08-19T17:00:19.000Z",
+        "excerpt": "Introducing our tech roadmap at @cosmic_robotics to start autonomous city construction on Mars in the mid-2030s. Our team includes senior talent from SpaceX, Tesla, Google, Amazon, Zoox, Nuro, and Autodesk. We're already deploying robots on large-scale construction sites. Link",
+        "sourceEventDate": "2026-08-19",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-2830623e04b7d92e3406e813",
+        "platform": "x",
+        "account": "thelcjones",
+        "postDate": "2026-08-19",
+        "excerpt": "Introducing our tech roadmap at @cosmic_robotics to start autonomous city construction on Mars in the mid-2030s. Our team includes senior talent from SpaceX, Tesla, Google, Amazon, Zoox, Nuro, and Autodesk. We're already deploying robots on large-scale construction sites. Link",
+        "url": "https://x.com/thelcjones/status/2090121696481264048",
+        "metrics": {
+          "likes": 2016,
+          "reposts": 247,
+          "replies": 156,
+          "views": 676765
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-26T12:14:17.474Z",
+  "lastModifiedAt": "2026-08-26T12:14:17.474Z"
+}
