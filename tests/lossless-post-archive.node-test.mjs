@@ -242,10 +242,10 @@ test("appends edited observations as immutable revisions and keeps sparse media 
   });
 });
 
-test("fails closed on conflicting observation slots and destructive sparse rewrites", async () => {
+test("versions same-slot normalization drift after raw compatibility and still fails closed on source drift", async () => {
   await withArchive(async (rootDir) => {
     const archive = await openLosslessPostArchive(rootDir);
-    await archive.appendPost({
+    const first = await archive.appendPost({
       platform: "linkedin",
       nativeId: "activity-1",
       observedAt: "2026-08-04T00:00:00.000Z",
@@ -268,17 +268,20 @@ test("fails closed on conflicting observation slots and destructive sparse rewri
       (error) => error instanceof LosslessArchiveConflictError &&
         error.code === "LOSSLESS_ARCHIVE_CONFLICT" && error.recordType === "raw_envelope"
     );
-    await assert.rejects(
-      archive.appendPost({
-        platform: "linkedin",
-        nativeId: "activity-1",
-        observedAt: "2026-08-04T00:00:00.000Z",
-        rawEnvelope: { text: "first" },
-        normalizedPost: { text: "conflicting normalization" }
-      }),
-      (error) => error instanceof LosslessArchiveConflictError &&
-        error.code === "LOSSLESS_ARCHIVE_CONFLICT" && error.recordType === "normalized_post"
-    );
+    const revisedInput = {
+      platform: "linkedin",
+      nativeId: "activity-1",
+      observedAt: "2026-08-04T00:00:00.000Z",
+      rawEnvelope: { text: "first" },
+      normalizedPost: { text: "revised normalization" }
+    };
+    const revised = await archive.appendPost(revisedInput);
+    const repeatedRevision = await archive.appendPost(revisedInput);
+    assert.equal(revised.raw.status, "duplicate");
+    assert.equal(revised.normalized.status, "appended");
+    assert.notEqual(revised.normalized.contentHash, first.normalized.contentHash);
+    assert.equal(repeatedRevision.normalized.status, "duplicate");
+    assert.equal(repeatedRevision.normalized.contentHash, revised.normalized.contentHash);
     await assert.rejects(
       archive.appendPost({
         platform: "linkedin",
@@ -302,9 +305,32 @@ test("fails closed on conflicting observation slots and destructive sparse rewri
         error.code === "LOSSLESS_ARCHIVE_DESTRUCTIVE_AMBIGUITY" && error.field === "parent relationship"
     );
 
-    assert.equal(archive.getPost("linkedin", "activity-1").text, "first");
-    assert.equal(archive.listPostRevisions({ platform: "linkedin", nativeId: "activity-1" }).length, 1);
+    assert.equal(archive.getPost("linkedin", "activity-1").text, "revised normalization");
+    assert.equal(archive.listPostRevisions({ platform: "linkedin", nativeId: "activity-1" }).length, 2);
     assert.equal(archive.listRawEnvelopes({ platform: "linkedin", nativeId: "activity-1" }).length, 1);
+
+    const reopened = await openLosslessPostArchive(rootDir);
+    assert.deepEqual(
+      reopened.listPostRevisions({ platform: "linkedin", nativeId: "activity-1" })
+        .map((record) => record.content.post.text),
+      ["first", "revised normalization"]
+    );
+    assert.equal(reopened.getPost("linkedin", "activity-1").text, "revised normalization");
+
+    const replayedFirst = await reopened.appendPost({
+      platform: "linkedin",
+      nativeId: "activity-1",
+      observedAt: "2026-08-04T00:00:00.000Z",
+      rawEnvelope: { text: "first" },
+      normalizedPost: {
+        text: "first",
+        media: [{ type: "image", url: "https://cdn.example/one.jpg" }],
+        relationships: { parent: "parent-1" }
+      }
+    });
+    assert.equal(replayedFirst.normalized.status, "duplicate");
+    assert.equal(replayedFirst.normalized.contentHash, first.normalized.contentHash);
+    assert.equal(reopened.getPost("linkedin", "activity-1").text, "revised normalization");
   });
 });
 

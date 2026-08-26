@@ -102,11 +102,6 @@ export class LosslessPostArchive {
           this._indexes.posts.get(key)?.content.post
       );
       this._assertRawObservationCompatibility(request.rawRecord);
-      this._assertObservationCompatibility(
-        "normalized_post",
-        request.normalizedRecord,
-        this._indexes.normalizedObservationHashes
-      );
       const metricRequests = request.metricInputs.map((metric) =>
         prepareMetricRequest({
           ...metric,
@@ -262,7 +257,7 @@ export class LosslessPostArchive {
       rawObservations: new Map(),
       rawEnvelopes: [],
       posts: new Map(),
-      normalizedObservationHashes: new Map(),
+      normalizedObservationRevisions: new Map(),
       normalizedObservations: new Map(),
       postRevisions: [],
       metricObservations: new Map(),
@@ -287,12 +282,14 @@ export class LosslessPostArchive {
     });
     await this._loadFile(ARCHIVE_FILES.normalizedPosts, (record) => {
       const slot = observationSlot(record.key, record.observedAt);
-      const existingHash = this._indexes.normalizedObservationHashes.get(slot);
-      if (existingHash && existingHash !== record.contentHash) {
-        throw conflict("normalized_post", record.key, slot, existingHash, record.contentHash);
-      }
-      if (existingHash) return;
-      this._indexes.normalizedObservationHashes.set(slot, record.contentHash);
+      // One immutable source observation can be normalized again after
+      // canonical attribution or other derived logic changes. Keep every
+      // distinct hash in append order; the raw-envelope compatibility gate in
+      // appendPost still rejects a different source payload for this slot.
+      const revisions = this._indexes.normalizedObservationRevisions.get(slot) ?? new Map();
+      if (revisions.has(record.contentHash)) return;
+      revisions.set(record.contentHash, record);
+      this._indexes.normalizedObservationRevisions.set(slot, revisions);
       this._indexes.normalizedObservations.set(slot, record);
       this._indexes.postRevisions.push(record);
       this._indexes.posts.set(record.key, record);
@@ -358,14 +355,6 @@ export class LosslessPostArchive {
     }
   }
 
-  _assertObservationCompatibility(recordType, record, index) {
-    const slot = observationSlot(record.key, record.observedAt);
-    const existingHash = index.get(slot);
-    if (existingHash && existingHash !== record.contentHash) {
-      throw conflict(recordType, record.key, slot, existingHash, record.contentHash);
-    }
-  }
-
   _assertRawObservationCompatibility(record) {
     const slot = observationSlot(record.key, record.observedAt);
     const existing = this._indexes.rawObservations.get(slot);
@@ -393,10 +382,12 @@ export class LosslessPostArchive {
 
   async _appendNormalizedIfNew(record) {
     const slot = observationSlot(record.key, record.observedAt);
-    const existing = this._indexes.normalizedObservations.get(slot);
+    const revisions = this._indexes.normalizedObservationRevisions.get(slot) ?? new Map();
+    const existing = revisions.get(record.contentHash);
     if (existing) return result("duplicate", existing);
     await this._append(ARCHIVE_FILES.normalizedPosts, record);
-    this._indexes.normalizedObservationHashes.set(slot, record.contentHash);
+    revisions.set(record.contentHash, record);
+    this._indexes.normalizedObservationRevisions.set(slot, revisions);
     this._indexes.normalizedObservations.set(slot, record);
     this._indexes.postRevisions.push(record);
     this._indexes.posts.set(record.key, record);
