@@ -1321,7 +1321,7 @@ describe("autonomous ingestion runner static safety contracts", () => {
     assert.ok(runner.includes('envCategory: "public_collector"'));
     assert.ok(runner.includes('envCategory: "github_collector"'));
     assert.ok(runner.includes(
-      'authenticated_social: [\n    "HOME",\n    "OPENCLI_BIN",\n    "OPENCLI_CONFIG_DIR",\n    "OPENCLI_HOME"'
+      'authenticated_social: [\n    "HOME",\n    "SCORING_DATA_ROOT",\n    "OPENCLI_BIN",\n    "OPENCLI_CONFIG_DIR",\n    "OPENCLI_HOME"'
     ));
     assert.ok(runner.includes('envCategory: "durable_timeline"'));
     assert.ok(runner.includes('envCategory: "publication_data"'));
@@ -1999,6 +1999,7 @@ describe("autonomous ingestion runner static safety contracts", () => {
 
   it("runs authenticated social collection only through the dedicated bounded lane", () => {
     const collectors = section("async function runAuthenticatedCollectors", "async function runAuthenticatedCollectorCommand");
+    const command = section("async function runAuthenticatedCollectorCommand", "async function runShardedPublicCollector");
     const publicCollectors = section("async function runCollectors()", "async function runAuthenticatedCollectors");
     assert.match(collectors, /fetch-logged-in-social-traction/);
     assert.match(collectors, /runAuthenticatedSocialRunnerPreflight\(\{ env: process\.env \}\)/);
@@ -2014,7 +2015,36 @@ describe("autonomous ingestion runner static safety contracts", () => {
     assert.match(collectors, /"--delay-ms=30000"/);
     assert.match(publicCollectors, /authenticatedSocial = await runAuthenticatedCollectors\(\)/);
     assert.doesNotMatch(publicCollectors, /const authenticatedSocial = await runAuthenticatedCollectors/);
-    assert.ok(runner.includes('env: { HOME: process.env.HOME }'));
+    assert.match(command, /SCORING_DATA_ROOT:\s*publicationArtifactRoot\(\)/);
+    assert.match(command, /cwd:\s*root/);
+    assert.doesNotMatch(command, /cwd:\s*publicationArtifactRoot\(\)/);
+  });
+
+  it("passes the refreshed publication data root without moving authenticated execution", async () => {
+    const calls = [];
+    const runAuthenticatedCollectorCommand = authenticatedCollectorCommandRuntime({
+      runCommand: async (...args) => {
+        calls.push(args);
+        return { code: 0, stdout: "" };
+      },
+      event: async () => {},
+      warn: () => {},
+      publicationRoot: "/publication"
+    });
+
+    const result = await runAuthenticatedCollectorCommand(
+      "S26",
+      "instagram",
+      ["collector.mjs"]
+    );
+
+    assert.deepEqual(result, { status: "completed", exitCode: 0, stdout: "" });
+    assert.equal(calls.length, 1);
+    assert.equal(calls[0][2].cwd, "/repo");
+    assert.deepEqual(calls[0][2].env, {
+      HOME: "/runner/home",
+      SCORING_DATA_ROOT: "/publication"
+    });
   });
 
   it("drives LinkedIn historical replay through a sequential seven-chunk state machine", () => {
@@ -3943,7 +3973,12 @@ function authenticatedCollectorEnvironment({ durableLock = true } = {}) {
   };
 }
 
-function authenticatedCollectorCommandRuntime({ runCommand, event, warn }) {
+function authenticatedCollectorCommandRuntime({
+  runCommand,
+  event,
+  warn,
+  publicationRoot = "/publication"
+}) {
   const commandSource = section(
     "async function runAuthenticatedCollectorCommand",
     "async function runShardedPublicCollector"
@@ -3959,6 +3994,7 @@ function authenticatedCollectorCommandRuntime({ runCommand, event, warn }) {
     "collectionBudget",
     "COLLECTOR_NODE_HEAP_MB",
     "root",
+    "publicationArtifactRoot",
     "errorMessage",
     "event",
     "sanitizeRunnerDiagnosticText",
@@ -3976,6 +4012,7 @@ function authenticatedCollectorCommandRuntime({ runCommand, event, warn }) {
     { deadlineAt: 100_000 },
     512,
     "/repo",
+    () => publicationRoot,
     (error) => error instanceof Error ? error.message : String(error),
     event,
     (value) => String(value),

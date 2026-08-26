@@ -297,6 +297,7 @@ const CHILD_ENV_CATEGORY_KEYS = Object.freeze({
   github_collector: ["GITHUB_TOKEN"],
   authenticated_social: [
     "HOME",
+    "SCORING_DATA_ROOT",
     "OPENCLI_BIN",
     "OPENCLI_CONFIG_DIR",
     "OPENCLI_HOME",
@@ -3953,7 +3954,10 @@ async function runAuthenticatedCollectorCommand(
       deadlineAt,
       label: `authenticated ${platform} ${batchSlug}`,
       envCategory: "authenticated_social",
-      env: { HOME: process.env.HOME },
+      env: {
+        HOME: process.env.HOME,
+        SCORING_DATA_ROOT: publicationArtifactRoot()
+      },
       quiet: planOnly,
       cwd: root
     });
