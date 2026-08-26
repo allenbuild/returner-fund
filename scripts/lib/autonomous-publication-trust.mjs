@@ -140,6 +140,25 @@ export function assertReplaySafePublicationChanges(changedPaths, { label = "publ
   return true;
 }
 
+export function assertReplaySafePublicationAncestryChanges(
+  changedPaths,
+  { label = "publication ancestry" } = {}
+) {
+  const unsafe = [...new Set(changedPaths.map(normalizeTrackedRepositoryPath))]
+    .filter(
+      (filePath) =>
+        !isReplaySafePublicationDataPath(filePath) &&
+        !isValidatedPublicationRetryReuseSafePath(filePath)
+    )
+    .sort();
+  if (unsafe.length > 0) {
+    throw new Error(
+      `${label} contains executable, policy, dependency, or non-allowlisted drift: ${unsafe.join(", ")}`
+    );
+  }
+  return true;
+}
+
 export function isProtectedSourcePolicyPath(value) {
   const filePath = normalizeTrackedRepositoryPath(value);
   if (filePath.startsWith("scripts/")) return true;
