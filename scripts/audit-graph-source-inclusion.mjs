@@ -1,5 +1,6 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
+import { gunzipSync } from "node:zlib";
 
 import { buildGraphResponse } from "../src/lib/graph/graph-builder.ts";
 import {
@@ -16,7 +17,7 @@ const SOURCE_PRIORITY = new Map(SOURCE_NAMES.map((name, index) => [name, index])
 const sourceObservations = new Map();
 let verifiedSourceRows = 0;
 for (const sourceName of SOURCE_NAMES) {
-  const projection = readJson(join(ROOT, "generated-runtime", "graph", `${sourceName}-evidence-current.json`));
+  const projection = readJson(join(ROOT, "generated-runtime", "graph", `${sourceName}-evidence-current.json.gz`));
   for (const row of projection.evidence ?? []) {
     if (row.review_state !== "verified") continue;
     verifiedSourceRows += 1;
@@ -239,5 +240,7 @@ function countBy(rows, keyFor) {
 }
 
 function readJson(path) {
-  return JSON.parse(readFileSync(path, "utf8"));
+  const bytes = readFileSync(path);
+  const json = path.endsWith(".gz") ? gunzipSync(bytes).toString("utf8") : bytes.toString("utf8");
+  return JSON.parse(json);
 }

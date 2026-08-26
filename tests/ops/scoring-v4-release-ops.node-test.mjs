@@ -266,16 +266,16 @@ test("experiment parity gate is isolated and validates the complete parity surfa
           await mkdir(runtimeRoot, { recursive: true });
           await Promise.all(
             ["public", "logged-in", "targeted"].map((name) =>
-              writeFile(path.join(runtimeRoot, `${name}-evidence-current.json`), "{}\n", "utf8")
+              writeFile(path.join(runtimeRoot, `${name}-evidence-current.json.gz`), "fixture", "utf8")
             )
           );
           return { stdout: "", stderr: "" };
         }
 
         assert.equal(path.basename(args.at(-1)), "run-scoring-experiments.mjs");
-        await access(path.join(runtimeRoot, "public-evidence-current.json"));
-        await access(path.join(runtimeRoot, "logged-in-evidence-current.json"));
-        await access(path.join(runtimeRoot, "targeted-evidence-current.json"));
+        await access(path.join(runtimeRoot, "public-evidence-current.json.gz"));
+        await access(path.join(runtimeRoot, "logged-in-evidence-current.json.gz"));
+        await access(path.join(runtimeRoot, "targeted-evidence-current.json.gz"));
         const outputRoot = path.join(options.cwd, "docs", "outputs");
         await mkdir(outputRoot, { recursive: true });
         await writeFile(

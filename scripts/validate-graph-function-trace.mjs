@@ -23,10 +23,10 @@ const MAX_DEBUG_TRACE_BYTES = 190 * MEBIBYTE;
 const MAX_REFRESH_TRACE_BYTES = 225 * MEBIBYTE;
 const REPOSITORY_ROOT = resolve(".");
 const GRAPH_RUNTIME_PROJECTIONS = [
-  "generated-runtime/graph/public-evidence-current.json",
-  "generated-runtime/graph/logged-in-evidence-current.json",
-  "generated-runtime/graph/targeted-evidence-current.json",
-  "generated-runtime/graph/volume-evidence-current.json"
+  "generated-runtime/graph/public-evidence-current.json.gz",
+  "generated-runtime/graph/logged-in-evidence-current.json.gz",
+  "generated-runtime/graph/targeted-evidence-current.json.gz",
+  "generated-runtime/graph/volume-evidence-current.json.gz"
 ];
 const WHOLE_REPOSITORY_TRACE_FRAGMENTS = [
   `${normalize("/artifacts/")}`,

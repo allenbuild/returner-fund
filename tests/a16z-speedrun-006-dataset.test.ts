@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
+import { gunzipSync } from "node:zlib";
 import {
   A16Z_SPEEDRUN_006_BATCH_LABEL,
   A16Z_SPEEDRUN_006_BATCH_SLUG,
@@ -69,12 +70,14 @@ const socialAccountSeedSnapshot = readTestJson("src/lib/social/a16z-speedrun-006
 const seededSocialEvidenceSnapshot = readTestJson<SeededSocialEvidenceSnapshot>("src/lib/social/a16z-speedrun-006-social-evidence.json");
 const seededAttributionReconciliationSnapshot = readTestJson("src/lib/social/a16z-speedrun-006-attribution-reconciliation.json");
 const githubTractionSnapshot = readTestJson<GithubTractionSnapshot>("src/lib/social/github-traction-a16z-speedrun-006.json");
-const publicRuntimeProjection = readTestJson<RuntimeEvidenceProjection>("generated-runtime/graph/public-evidence-current.json");
-const loggedInRuntimeProjection = readTestJson<RuntimeEvidenceProjection>("generated-runtime/graph/logged-in-evidence-current.json");
-const targetedRuntimeProjection = readTestJson<RuntimeEvidenceProjection>("generated-runtime/graph/targeted-evidence-current.json");
+const publicRuntimeProjection = readTestJson<RuntimeEvidenceProjection>("generated-runtime/graph/public-evidence-current.json.gz");
+const loggedInRuntimeProjection = readTestJson<RuntimeEvidenceProjection>("generated-runtime/graph/logged-in-evidence-current.json.gz");
+const targetedRuntimeProjection = readTestJson<RuntimeEvidenceProjection>("generated-runtime/graph/targeted-evidence-current.json.gz");
 
 function readTestJson<T = unknown>(relativePath: string): T {
-  return JSON.parse(readFileSync(join(process.cwd(), relativePath), "utf8")) as T;
+  const bytes = readFileSync(join(process.cwd(), relativePath));
+  const json = relativePath.endsWith(".gz") ? gunzipSync(bytes).toString("utf8") : bytes.toString("utf8");
+  return JSON.parse(json) as T;
 }
 
 function latestTimestamp(...timestamps: Array<string | null | undefined>): string | undefined {
@@ -792,7 +795,7 @@ describe("a16z speedrun 006 dataset", () => {
       Number(item.attributionVersion ?? 0) >= 3 &&
       item.attributionStatus === "verified"
     )).toBe(true);
-    expect(source).toContain('"generated-runtime/graph/targeted-evidence-current.json"');
+    expect(source).toContain('"generated-runtime/graph/targeted-evidence-current.json.gz"');
     expect(source).toMatch(
       /targetedSnapshot\.evidence\.flatMap\(\(source\)\s*=>\s*publicEvidenceItemFromCanonicalAttribution\(source, targetedSnapshot\.source\.fetchedAt\)/
     );

@@ -58,10 +58,10 @@ const CANONICAL_DIRECT_EVIDENCE_PATHS = [
   "src/lib/social/volume-evidence-current.json",
 ] as const;
 const CANONICAL_GRAPH_RUNTIME_EVIDENCE_PATHS = [
-  "generated-runtime/graph/public-evidence-current.json",
-  "generated-runtime/graph/logged-in-evidence-current.json",
-  "generated-runtime/graph/targeted-evidence-current.json",
-  "generated-runtime/graph/volume-evidence-current.json",
+  "generated-runtime/graph/public-evidence-current.json.gz",
+  "generated-runtime/graph/logged-in-evidence-current.json.gz",
+  "generated-runtime/graph/targeted-evidence-current.json.gz",
+  "generated-runtime/graph/volume-evidence-current.json.gz",
 ] as const;
 const DEFAULT_CHECKPOINT = "work/timeline-backfill-checkpoint.json";
 const INTERNAL_COVERAGE_PATH = "artifacts/company-timeline/coverage.json";

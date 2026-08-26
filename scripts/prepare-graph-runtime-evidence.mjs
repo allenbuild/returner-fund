@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 
-import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
+import { mkdir, readFile, rename, rm, writeFile } from "node:fs/promises";
 import { join, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
+import { gzipSync } from "node:zlib";
 import { readPublicEvidenceArtifact } from "./lib/public-evidence-artifact.mjs";
 import { validatedRepositoryDataRoot } from "./lib/validated-repository-data-root.mjs";
 
@@ -65,12 +66,22 @@ export async function prepareGraphRuntimeEvidence({ rootDir } = {}) {
     const evidence = (source.evidence ?? []).filter(isRelevant);
     const needsReview = (source.needsReview ?? []).filter(isRelevant).map((row) => pick(row, reviewKeys));
     const output = { source: source.source, evidence, needsReview };
-    const target = join(outputRoot, `${name}-evidence-current.json`);
+    const target = join(outputRoot, `${name}-evidence-current.json.gz`);
     const temporary = `${target}.${process.pid}.tmp`;
     const serialized = `${JSON.stringify(output)}\n`;
-    await writeFile(temporary, serialized, "utf8");
+    const compressed = gzipSync(serialized, { level: 9 });
+    await writeFile(temporary, compressed);
     await rename(temporary, target);
-    results.push({ name, evidence: evidence.length, needsReview: needsReview.length, bytes: Buffer.byteLength(serialized) });
+    // A prior checkout may have prepared the legacy uncompressed projection.
+    // Remove it so local incremental builds cannot accidentally trace both.
+    await rm(join(outputRoot, `${name}-evidence-current.json`), { force: true });
+    results.push({
+      name,
+      evidence: evidence.length,
+      needsReview: needsReview.length,
+      bytes: compressed.length,
+      uncompressedBytes: Buffer.byteLength(serialized)
+    });
   }
 
   return { status: "prepared", outputRoot: "generated-runtime/graph", snapshots: results };

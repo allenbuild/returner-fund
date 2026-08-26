@@ -2,10 +2,10 @@ const benchmarkRuntimeData = [
   "outputs/benchmarks/**/*.json",
 ];
 const graphEvidenceRuntimeData = [
-  "generated-runtime/graph/public-evidence-current.json",
-  "generated-runtime/graph/logged-in-evidence-current.json",
-  "generated-runtime/graph/targeted-evidence-current.json",
-  "generated-runtime/graph/volume-evidence-current.json",
+  "generated-runtime/graph/public-evidence-current.json.gz",
+  "generated-runtime/graph/logged-in-evidence-current.json.gz",
+  "generated-runtime/graph/targeted-evidence-current.json.gz",
+  "generated-runtime/graph/volume-evidence-current.json.gz",
 ];
 const timelineRuntimeData = [
   "public/timelines/**/*.json",
