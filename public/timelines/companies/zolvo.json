@@ -5,8 +5,8 @@
     "slug": "zolvo",
     "name": "Zolvo"
   },
-  "generatedAt": "2026-08-27T06:26:04.866Z",
-  "lastModifiedAt": "2026-08-27T06:26:04.866Z",
+  "generatedAt": "2026-08-27T07:09:46.854Z",
+  "lastModifiedAt": "2026-08-27T07:09:46.854Z",
   "events": [
     {
       "id": "tle-d4fbf8954ec28f6d447c15ff",
@@ -47,7 +47,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-08-27T06:26:04.866Z"
+    "lastSuccessfulArtifactAt": "2026-08-27T07:09:46.854Z"
   },
   "nextCursor": null
 }

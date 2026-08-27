@@ -1,7 +1,7 @@
 {
   "version": 1,
   "batchSlug": "S26",
-  "updatedAt": "2026-08-27T06:26:18.843Z",
+  "updatedAt": "2026-08-27T07:10:18.379Z",
   "daily": [
     {
       "recordedAt": "2026-07-06T05:00:00.000Z",
@@ -38520,9 +38520,9 @@
       ]
     },
     {
-      "recordedAt": "2026-08-27T06:26:18.843Z",
+      "recordedAt": "2026-08-27T07:10:18.379Z",
       "scoringModelVersion": "4.2.0",
-      "inputGeneratedAt": "2026-08-27T06:25:40.854Z",
+      "inputGeneratedAt": "2026-08-27T07:08:51.012Z",
       "companies": [
         {
           "companyId": "company-screenpipe",
