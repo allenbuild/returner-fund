@@ -1,7 +1,7 @@
 {
   "version": 1,
   "batchSlug": "S2026",
-  "updatedAt": "2026-08-27T07:10:18.379Z",
+  "updatedAt": "2026-08-27T08:28:00.847Z",
   "daily": [
     {
       "recordedAt": "2026-06-29T16:52:33.375Z",
@@ -63007,9 +63007,9 @@
       ]
     },
     {
-      "recordedAt": "2026-08-27T07:10:18.379Z",
+      "recordedAt": "2026-08-27T08:28:00.847Z",
       "scoringModelVersion": "4.2.0",
-      "inputGeneratedAt": "2026-08-27T07:07:29.844Z",
+      "inputGeneratedAt": "2026-08-27T08:27:00.238Z",
       "companies": [
         {
           "companyId": "company-heyclicky",
