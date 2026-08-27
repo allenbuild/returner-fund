@@ -460,7 +460,7 @@ test("accepted resolver jobs fail closed and re-export only validated outputs", 
   }
 });
 
-test("all workflow shell blocks remain fixed at 57 and queued schedules are rechecked", (t) => {
+test("all workflow shell blocks remain fixed at 56 and queued schedules are rechecked", (t) => {
   const shellBlockCount = [workflow, dailyBenchmarkWorkflow, readFileSync(
     path.join(repositoryRoot, ".github", "workflows", "public-artifacts.yml"),
     "utf8"
@@ -468,7 +468,7 @@ test("all workflow shell blocks remain fixed at 57 and queued schedules are rech
     (total, source) => total + (source.match(/^ {8}run:/gm)?.length ?? 0),
     0
   );
-  assert.equal(shellBlockCount, 57);
+  assert.equal(shellBlockCount, 56);
 
   const directory = mkdtempSync(path.join(tmpdir(), "returner-queued-freshness-"));
   t.after(() => rmSync(directory, { recursive: true, force: true }));
@@ -875,7 +875,7 @@ test("daily benchmark receipt is always machine-readable and its audit rejects c
   }
 });
 
-test("daily benchmarks rebuild and validate timelines with a database-free fallback", () => {
+test("daily benchmarks rebuild and validate timelines through the structured migration fallback", () => {
   const updateJob = dailyBenchmarkWorkflow.match(/\n  update:[\s\S]*?(?=\n  receipt:)/)?.[0] ?? "";
   const benchmarkStep = updateJob.match(
     /- name: Update daily benchmark snapshots([\s\S]*?)(?=\n\s{6}- name:)/
@@ -885,15 +885,9 @@ test("daily benchmarks rebuild and validate timelines with a database-free fallb
   )?.[1] ?? "";
 
   assert.doesNotMatch(benchmarkStep, /SUPABASE|TIMELINE_REQUIRE_DATABASE|exit 1/);
-  assert.match(updateJob, /id:\s*timeline_database/);
-  assert.match(updateJob, /validateSupabaseConfiguration/);
-  assert.match(updateJob, /configured=false/);
-  assert.match(updateJob, /file-backed fallback/);
   assert.doesNotMatch(timelineStep, /^\s*if:\s*steps\.timeline_database/m);
-  assert.match(timelineStep, /TIMELINE_DATABASE_CONFIGURED/);
-  assert.match(timelineStep, /TIMELINE_REQUIRE_DATABASE=true npm run timeline:backfill/);
-  assert.match(timelineStep, /env -u NEXT_PUBLIC_SUPABASE_URL -u SUPABASE_SERVICE_ROLE_KEY TIMELINE_REQUIRE_DATABASE=false npm run timeline:backfill/);
-  assert.match(timelineStep, /npm run timeline:backfill/);
+  assert.match(timelineStep, /npm run timeline:backfill:daily/);
+  assert.doesNotMatch(timelineStep, /grep|migration_unavailable/);
   assert.match(updateJob, /benchmark_files=\([\s\S]*public\/timelines[\s\S]*artifacts\/company-timeline\/coverage\.json/);
   assert.match(updateJob, /npm run artifacts:validate/);
   assert.match(updateJob, /npm run artifacts:manifest:validate/);
