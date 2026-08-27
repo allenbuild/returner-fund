@@ -6932,5 +6932,311 @@
     "trigger": "schedule",
     "scheduledAt": "2026-08-26T23:00:00.000Z",
     "terminalFailureBudget": 124
+  },
+  {
+    "schemaVersion": 1,
+    "idempotencyKey": "central-2026-08-27-0600",
+    "centralDay": "2026-08-27",
+    "observedAt": "2026-08-27T11:41:21.189Z",
+    "baselinePhysicalSources": 17285,
+    "publishedPhysicalSources": 17329,
+    "newPhysicalSources": 44,
+    "newPhysicalSourcesThisAttempt": 44,
+    "retainedPhysicalSources": 17285,
+    "removedPhysicalSources": 0,
+    "dailyNewPhysicalSources": 44,
+    "dailySourceHealth": "healthy",
+    "collectionHealth": "degraded",
+    "collectionHealthReasons": [
+      "missing_credential:X_BEARER_TOKEN",
+      "missing_credential:EXA_API_KEY",
+      "mapped_failures:42",
+      "provider_blocked:4997",
+      "mapped_provider_blocked:1430",
+      "mapped_scope_unsupported:10"
+    ],
+    "mappedExpected": 2475,
+    "mappedSucceeded": 865,
+    "mappedNeedsReview": 352,
+    "mappedBlockedOrEmpty": 1216,
+    "providerBlocked": 4997,
+    "providerBlockedByReason": {
+      "provider_blocked:duckduckgo_html:public_search_circuit_open": 3089,
+      "provider_blocked:linkedin_public_html:linkedin_public_circuit_open": 1421,
+      "provider_blocked:official_source_html:official_source_transport_failure": 4,
+      "provider_blocked:reddit_public_json:reddit_public_access_blocked": 483
+    },
+    "mappedProviderBlocked": 1430,
+    "mappedProviderBlockedByReason": {
+      "provider_blocked:duckduckgo_html:public_search_circuit_open": 9,
+      "provider_blocked:linkedin_public_html:linkedin_public_circuit_open": 1421
+    },
+    "mappedScopeUnsupported": 10,
+    "mappedFailures": 42,
+    "mappedNonTerminal": 0,
+    "mappedSuccessRate": 0.3495,
+    "newestNewSourcePostedAt": "2026-08-27T10:54:23.000Z",
+    "insertedByBatchPlatform": {
+      "A16ZSR006:x": 5,
+      "A16ZSR006:youtube": 3,
+      "S2026:x": 6,
+      "S26:x": 29,
+      "S26:youtube": 1
+    },
+    "insertedSourceSamples": [
+      {
+        "batchSlug": "A16ZSR006",
+        "platform": "youtube",
+        "entityType": "company",
+        "entityId": "a16z-speedrun-006-idilio",
+        "sourceUrl": "https://youtube.com/watch?v=dYJYrXZODa8",
+        "platformPostId": "dYJYrXZODa8",
+        "platformObjectId": null,
+        "postedAt": "2026-08-27T02:04:11.000Z"
+      },
+      {
+        "batchSlug": "A16ZSR006",
+        "platform": "youtube",
+        "entityType": "company",
+        "entityId": "a16z-speedrun-006-idilio",
+        "sourceUrl": "https://youtube.com/watch?v=6BN7wEEvSew",
+        "platformPostId": "6BN7wEEvSew",
+        "platformObjectId": null,
+        "postedAt": "2026-08-26T16:11:34.000Z"
+      },
+      {
+        "batchSlug": "A16ZSR006",
+        "platform": "x",
+        "entityType": "founder",
+        "entityId": "a16z-speedrun-006-snapp-stats-founder-min-park",
+        "sourceUrl": "https://x.com/themichelinmin/status/2092897894588411992",
+        "platformPostId": "2092897894588411992",
+        "platformObjectId": null,
+        "postedAt": "2026-08-27T08:51:56.000Z"
+      },
+      {
+        "batchSlug": "A16ZSR006",
+        "platform": "x",
+        "entityType": "founder",
+        "entityId": "a16z-speedrun-006-snapp-stats-founder-min-park",
+        "sourceUrl": "https://x.com/themichelinmin/status/2092908444261273825",
+        "platformPostId": "2092908444261273825",
+        "platformObjectId": null,
+        "postedAt": "2026-08-27T09:33:52.000Z"
+      },
+      {
+        "batchSlug": "A16ZSR006",
+        "platform": "x",
+        "entityType": "founder",
+        "entityId": "a16z-speedrun-006-snapp-stats-founder-min-park",
+        "sourceUrl": "https://x.com/themichelinmin/status/2092918912879116469",
+        "platformPostId": "2092918912879116469",
+        "platformObjectId": null,
+        "postedAt": "2026-08-27T10:15:28.000Z"
+      },
+      {
+        "batchSlug": "A16ZSR006",
+        "platform": "x",
+        "entityType": "founder",
+        "entityId": "a16z-speedrun-006-snapp-stats-founder-min-park",
+        "sourceUrl": "https://x.com/themichelinmin/status/2092922093893558408",
+        "platformPostId": "2092922093893558408",
+        "platformObjectId": null,
+        "postedAt": "2026-08-27T10:28:06.000Z"
+      },
+      {
+        "batchSlug": "A16ZSR006",
+        "platform": "x",
+        "entityType": "founder",
+        "entityId": "a16z-speedrun-006-snapp-stats-founder-min-park",
+        "sourceUrl": "https://x.com/themichelinmin/status/2092922435515658278",
+        "platformPostId": "2092922435515658278",
+        "platformObjectId": null,
+        "postedAt": "2026-08-27T10:29:27.000Z"
+      },
+      {
+        "batchSlug": "A16ZSR006",
+        "platform": "youtube",
+        "entityType": "company",
+        "entityId": "a16z-speedrun-006-sun",
+        "sourceUrl": "https://youtube.com/watch?v=QeuAnw-eGyg",
+        "platformPostId": "QeuAnw-eGyg",
+        "platformObjectId": null,
+        "postedAt": "2026-08-27T10:33:04.000Z"
+      },
+      {
+        "batchSlug": "S2026",
+        "platform": "x",
+        "entityType": "founder",
+        "entityId": "founder-advanced-metal-research-angus-muffatti-2387747",
+        "sourceUrl": "https://x.com/dirtman/status/2092893953217728920",
+        "platformPostId": "2092893953217728920",
+        "platformObjectId": null,
+        "postedAt": "2026-08-27T08:36:17.000Z"
+      },
+      {
+        "batchSlug": "S2026",
+        "platform": "x",
+        "entityType": "founder",
+        "entityId": "founder-advanced-metal-research-angus-muffatti-2387747",
+        "sourceUrl": "https://x.com/dirtman/status/2092894509218877607",
+        "platformPostId": "2092894509218877607",
+        "platformObjectId": null,
+        "postedAt": "2026-08-27T08:38:29.000Z"
+      },
+      {
+        "batchSlug": "S2026",
+        "platform": "x",
+        "entityType": "founder",
+        "entityId": "founder-userlens-ankur-dahama-3403717",
+        "sourceUrl": "https://x.com/ankur_d/status/2092860804777345421",
+        "platformPostId": "2092860804777345421",
+        "platformObjectId": null,
+        "postedAt": "2026-08-27T06:24:33.000Z"
+      },
+      {
+        "batchSlug": "S2026",
+        "platform": "x",
+        "entityType": "founder",
+        "entityId": "founder-userlens-ankur-dahama-3403717",
+        "sourceUrl": "https://x.com/ankur_d/status/2092928707354562755",
+        "platformPostId": "2092928707354562755",
+        "platformObjectId": null,
+        "postedAt": "2026-08-27T10:54:23.000Z"
+      },
+      {
+        "batchSlug": "S2026",
+        "platform": "x",
+        "entityType": "founder",
+        "entityId": "founder-gojiberry-ai-rom-n-czerny-2152249",
+        "sourceUrl": "https://x.com/romanbuildsaas/status/2092911935419281720",
+        "platformPostId": "2092911935419281720",
+        "platformObjectId": null,
+        "postedAt": "2026-08-27T09:47:44.000Z"
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "x",
+        "entityType": "founder",
+        "entityId": "founder-textsidekick-justin-so-3332767",
+        "sourceUrl": "https://x.com/just1nso/status/2085787245110583594",
+        "platformPostId": "2085787245110583594",
+        "platformObjectId": null,
+        "postedAt": "2026-08-07T17:56:45.000Z"
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "x",
+        "entityType": "founder",
+        "entityId": "founder-textsidekick-justin-so-3332767",
+        "sourceUrl": "https://x.com/just1nso/status/2087925971731251606",
+        "platformPostId": "2087925971731251606",
+        "platformObjectId": null,
+        "postedAt": "2026-08-13T15:35:18.000Z"
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "x",
+        "entityType": "founder",
+        "entityId": "founder-textsidekick-justin-so-3332767",
+        "sourceUrl": "https://x.com/just1nso/status/2087934073293742391",
+        "platformPostId": "2087934073293742391",
+        "platformObjectId": null,
+        "postedAt": "2026-08-13T16:07:29.000Z"
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "x",
+        "entityType": "founder",
+        "entityId": "founder-textsidekick-justin-so-3332767",
+        "sourceUrl": "https://x.com/just1nso/status/2088382875603447854",
+        "platformPostId": "2088382875603447854",
+        "platformObjectId": null,
+        "postedAt": "2026-08-14T21:50:52.000Z"
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "x",
+        "entityType": "founder",
+        "entityId": "founder-textsidekick-justin-so-3332767",
+        "sourceUrl": "https://x.com/just1nso/status/2090141037608194055",
+        "platformPostId": "2090141037608194055",
+        "platformObjectId": null,
+        "postedAt": "2026-08-19T18:17:10.000Z"
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "youtube",
+        "entityType": "company",
+        "entityId": "company-edviro",
+        "sourceUrl": "https://youtube.com/watch?v=0sTQlaQGlOY",
+        "platformPostId": "0sTQlaQGlOY",
+        "platformObjectId": null,
+        "postedAt": "2026-08-25T20:03:29-07:00"
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "x",
+        "entityType": "founder",
+        "entityId": "founder-speko-beknazar-abdikamalov-451241",
+        "sourceUrl": "https://x.com/beknabdik/status/2092856710285435029",
+        "platformPostId": "2092856710285435029",
+        "platformObjectId": null,
+        "postedAt": "2026-08-27T06:08:17.000Z"
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "x",
+        "entityType": "founder",
+        "entityId": "founder-egoist-machines-erin-mcgurk-3328552",
+        "sourceUrl": "https://x.com/erinmerylstudy/status/2092861012202668286",
+        "platformPostId": "2092861012202668286",
+        "platformObjectId": null,
+        "postedAt": "2026-08-27T06:25:23.000Z"
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "x",
+        "entityType": "founder",
+        "entityId": "founder-egoist-machines-erin-mcgurk-3328552",
+        "sourceUrl": "https://x.com/erinmerylstudy/status/2092862911303831739",
+        "platformPostId": "2092862911303831739",
+        "platformObjectId": null,
+        "postedAt": "2026-08-27T06:32:56.000Z"
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "x",
+        "entityType": "company",
+        "entityId": "company-coarena",
+        "sourceUrl": "https://x.com/coastyai/status/2092867042202571255",
+        "platformPostId": "2092867042202571255",
+        "platformObjectId": null,
+        "postedAt": "2026-08-27T06:49:21.000Z"
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "x",
+        "entityType": "founder",
+        "entityId": "founder-coarena-prateek-jannu-1194042",
+        "sourceUrl": "https://x.com/prateekjannu/status/2092869058815570394",
+        "platformPostId": "2092869058815570394",
+        "platformObjectId": null,
+        "postedAt": "2026-08-27T06:57:21.000Z"
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "x",
+        "entityType": "company",
+        "entityId": "company-coarena",
+        "sourceUrl": "https://x.com/coastyai/status/2092886041737015673",
+        "platformPostId": "2092886041737015673",
+        "platformObjectId": null,
+        "postedAt": "2026-08-27T08:04:50.000Z"
+      }
+    ],
+    "trigger": "schedule",
+    "scheduledAt": "2026-08-27T11:00:00.000Z",
+    "terminalFailureBudget": 124
   }
 ]

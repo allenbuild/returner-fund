@@ -5,8 +5,8 @@
     "slug": "carsignal",
     "name": "CarSignal"
   },
-  "generatedAt": "2026-08-27T07:09:46.854Z",
-  "lastModifiedAt": "2026-08-27T07:09:46.854Z",
+  "generatedAt": "2026-08-27T11:43:26.137Z",
+  "lastModifiedAt": "2026-08-27T11:43:26.137Z",
   "events": [
     {
       "id": "tle-4ff4ea3abe10e85c3bc9f47a",
@@ -47,7 +47,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-08-27T07:09:46.854Z"
+    "lastSuccessfulArtifactAt": "2026-08-27T11:43:26.137Z"
   },
   "nextCursor": null
 }

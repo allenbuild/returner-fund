@@ -5,8 +5,8 @@
     "slug": "drafted",
     "name": "Drafted"
   },
-  "generatedAt": "2026-08-27T07:09:46.854Z",
-  "lastModifiedAt": "2026-08-27T07:09:46.854Z",
+  "generatedAt": "2026-08-27T11:43:26.137Z",
+  "lastModifiedAt": "2026-08-27T11:43:26.137Z",
   "events": [
     {
       "id": "tle-21f9fe1d74498b265e148232",
@@ -99,7 +99,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 3,
-    "lastSuccessfulArtifactAt": "2026-08-27T07:09:46.854Z"
+    "lastSuccessfulArtifactAt": "2026-08-27T11:43:26.137Z"
   },
   "nextCursor": null
 }

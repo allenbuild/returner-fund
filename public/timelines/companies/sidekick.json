@@ -5,9 +5,33 @@
     "slug": "sidekick",
     "name": "Sidekick"
   },
-  "generatedAt": "2026-08-27T07:09:46.854Z",
-  "lastModifiedAt": "2026-08-27T07:09:46.854Z",
+  "generatedAt": "2026-08-27T11:43:26.137Z",
+  "lastModifiedAt": "2026-08-27T11:43:26.137Z",
   "events": [
+    {
+      "id": "tle-d49083914c6555662e259fd6",
+      "eventDate": "2026-08-13",
+      "eventDateType": "announcement_date",
+      "title": "Sidekick launched on Y Combinator",
+      "summary": "Sidekick just launched on @ycombinator's Launch YC.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-16517c2902cf171b1b0b158d",
+          "title": "Sidekick just launched on @ycombinator's Launch YC! Sidekick: AI agent that handles frontline operations over text.",
+          "publisher": "just1nso",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-08-13T15:35:18.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/just1nso/status/2087925971731251606"
+        }
+      ]
+    },
     {
       "id": "tle-2ecfc837045b990d6ed6f5c5",
       "eventDate": "2026-07-15",
@@ -38,6 +62,10 @@
       "year": 2026,
       "months": [
         {
+          "month": "2026-08",
+          "count": 1
+        },
+        {
           "month": "2026-07",
           "count": 1
         }
@@ -46,8 +74,8 @@
   ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-08-27T07:09:46.854Z"
+    "publishedEventCount": 2,
+    "lastSuccessfulArtifactAt": "2026-08-27T11:43:26.137Z"
   },
   "nextCursor": null
 }

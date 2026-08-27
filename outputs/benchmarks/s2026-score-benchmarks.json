@@ -1,7 +1,7 @@
 {
   "version": 1,
   "batchSlug": "S2026",
-  "updatedAt": "2026-08-27T08:28:00.847Z",
+  "updatedAt": "2026-08-27T11:43:37.353Z",
   "daily": [
     {
       "recordedAt": "2026-06-29T16:52:33.375Z",
@@ -63007,9 +63007,9 @@
       ]
     },
     {
-      "recordedAt": "2026-08-27T08:28:00.847Z",
+      "recordedAt": "2026-08-27T11:43:37.353Z",
       "scoringModelVersion": "4.2.0",
-      "inputGeneratedAt": "2026-08-27T08:27:00.238Z",
+      "inputGeneratedAt": "2026-08-27T11:42:37.553Z",
       "companies": [
         {
           "companyId": "company-heyclicky",
@@ -63954,6 +63954,12 @@
           "rank": 157
         },
         {
+          "companyId": "company-complir",
+          "companyName": "Complir",
+          "score": 21,
+          "rank": 157
+        },
+        {
           "companyId": "company-dispatch",
           "companyName": "Dispatch",
           "score": 21,
@@ -64017,49 +64023,43 @@
           "companyId": "company-aice",
           "companyName": "AICE",
           "score": 19,
-          "rank": 168
-        },
-        {
-          "companyId": "company-complir",
-          "companyName": "Complir",
-          "score": 19,
-          "rank": 168
+          "rank": 169
         },
         {
           "companyId": "company-dayjob",
           "companyName": "Dayjob",
           "score": 19,
-          "rank": 168
+          "rank": 169
         },
         {
           "companyId": "company-govguard",
           "companyName": "GovGuard",
           "score": 19,
-          "rank": 168
+          "rank": 169
         },
         {
           "companyId": "company-hexa",
           "companyName": "Hexa",
           "score": 19,
-          "rank": 168
+          "rank": 169
         },
         {
           "companyId": "company-pairio",
           "companyName": "Pairio",
           "score": 19,
-          "rank": 168
+          "rank": 169
         },
         {
           "companyId": "company-soria",
           "companyName": "Soria",
           "score": 19,
-          "rank": 168
+          "rank": 169
         },
         {
           "companyId": "company-zibra-labs",
           "companyName": "Zibra Labs",
           "score": 19,
-          "rank": 168
+          "rank": 169
         },
         {
           "companyId": "company-aquashield",
@@ -64086,12 +64086,6 @@
           "rank": 176
         },
         {
-          "companyId": "company-textsidekick",
-          "companyName": "Sidekick",
-          "score": 17,
-          "rank": 176
-        },
-        {
           "companyId": "company-smartbase",
           "companyName": "Smartbase",
           "score": 17,
@@ -64101,49 +64095,55 @@
           "companyId": "company-arctic-health",
           "companyName": "Arctic Health",
           "score": 15,
-          "rank": 182
+          "rank": 181
         },
         {
           "companyId": "company-hessian",
           "companyName": "Hessian",
           "score": 15,
-          "rank": 182
+          "rank": 181
         },
         {
           "companyId": "company-plan0-ai",
           "companyName": "PLAN0 AI",
           "score": 15,
-          "rank": 182
+          "rank": 181
         },
         {
           "companyId": "company-uno-wallet",
           "companyName": "Uno Wallet",
           "score": 15,
-          "rank": 182
+          "rank": 181
         },
         {
           "companyId": "company-akkari",
           "companyName": "Akkari",
           "score": 13,
-          "rank": 186
+          "rank": 185
         },
         {
           "companyId": "company-elyra",
           "companyName": "Elyra",
           "score": 13,
-          "rank": 186
+          "rank": 185
         },
         {
           "companyId": "company-mount",
           "companyName": "Mount",
           "score": 13,
-          "rank": 186
+          "rank": 185
         },
         {
           "companyId": "company-nine-fives",
           "companyName": "Nine Fives",
           "score": 13,
-          "rank": 186
+          "rank": 185
+        },
+        {
+          "companyId": "company-textsidekick",
+          "companyName": "Sidekick",
+          "score": 13,
+          "rank": 185
         },
         {
           "companyId": "company-astraea",

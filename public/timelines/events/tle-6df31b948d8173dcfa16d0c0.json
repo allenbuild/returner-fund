@@ -82,7 +82,7 @@
           "likes": 0,
           "reposts": 0,
           "replies": 1,
-          "views": 16
+          "views": 18
         },
         "evidenceRole": "primary"
       },
@@ -94,15 +94,15 @@
         "excerpt": "Introducing MarigoldBench, a benchmark that measures whether an AI model can do the computational work that sits between a dataset and a decision in drug discovery. Each model gets 11 tools: ESMFold and Boltz-2 for structure prediction, RFdiffusion for backbone design,",
         "url": "https://x.com/rasyn_lab/status/2092705478346506284",
         "metrics": {
-          "likes": 0,
-          "reposts": 0,
+          "likes": 5,
+          "reposts": 1,
           "replies": 1,
-          "views": 37
+          "views": 10132
         },
         "evidenceRole": "primary"
       }
     ]
   },
-  "generatedAt": "2026-08-27T07:09:46.854Z",
-  "lastModifiedAt": "2026-08-27T07:09:46.854Z"
+  "generatedAt": "2026-08-27T11:43:26.137Z",
+  "lastModifiedAt": "2026-08-27T11:43:26.137Z"
 }

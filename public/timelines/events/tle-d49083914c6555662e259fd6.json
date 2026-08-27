@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-textsidekick",
+    "slug": "sidekick",
+    "name": "Sidekick"
+  },
+  "event": {
+    "id": "tle-d49083914c6555662e259fd6",
+    "eventDate": "2026-08-13",
+    "eventDateType": "announcement_date",
+    "title": "Sidekick launched on Y Combinator",
+    "summary": "Sidekick just launched on @ycombinator's Launch YC.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-16517c2902cf171b1b0b158d",
+        "title": "Sidekick just launched on @ycombinator's Launch YC! Sidekick: AI agent that handles frontline operations over text.",
+        "publisher": "just1nso",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-08-13T15:35:18.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/just1nso/status/2087925971731251606"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-16517c2902cf171b1b0b158d",
+        "title": "Sidekick just launched on @ycombinator's Launch YC! Sidekick: AI agent that handles frontline operations over text.",
+        "publisher": "just1nso",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-08-13T15:35:18.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/just1nso/status/2087925971731251606",
+        "publicationDate": "2026-08-13T15:35:18.000Z",
+        "excerpt": "Sidekick just launched on @ycombinator's Launch YC! Sidekick: AI agent that handles frontline operations over text. Check them out: https://t.co/WrOZ5gJZmc",
+        "sourceEventDate": "2026-08-13",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-ea6f75df21df658fd42131a9",
+        "platform": "x",
+        "account": "just1nso",
+        "postDate": "2026-08-13",
+        "excerpt": "Sidekick just launched on @ycombinator's Launch YC! Sidekick: AI agent that handles frontline operations over text. Check them out: https://t.co/WrOZ5gJZmc",
+        "url": "https://x.com/just1nso/status/2087925971731251606",
+        "metrics": {
+          "likes": 15,
+          "reposts": 2,
+          "replies": 3,
+          "views": 14015
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-27T11:43:26.137Z",
+  "lastModifiedAt": "2026-08-27T11:43:26.137Z"
+}

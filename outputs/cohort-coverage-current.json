@@ -12,8 +12,8 @@
         "catalog": "src/lib/social/a16z-speedrun-006-social-accounts.json",
         "profileSource": "src/lib/graph/a16z-speedrun-006-dataset.ts",
         "graph": "public/graph/a16zsr006.json",
-        "publicRun": "/Users/allenxu/Library/Application Support/Returner Fund OpenCLI/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-08-26-1800-d79e5473d4fe33e6/public-a16zsr006.json",
-        "githubRun": "/Users/allenxu/Library/Application Support/Returner Fund OpenCLI/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-08-26-1800-d79e5473d4fe33e6/github-a16zsr006.json"
+        "publicRun": "/Users/allenxu/Library/Application Support/Returner Fund OpenCLI/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-08-27-0600-f12894f0c31d2c96/public-a16zsr006.json",
+        "githubRun": "/Users/allenxu/Library/Application Support/Returner Fund OpenCLI/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-08-27-0600-f12894f0c31d2c96/github-a16zsr006.json"
       },
       "counts": {
         "companies": 59,
@@ -828,8 +828,8 @@
         "catalog": "src/lib/yc/spring-2026-companies.json",
         "profileSource": null,
         "graph": "public/graph/s2026.json",
-        "publicRun": "/Users/allenxu/Library/Application Support/Returner Fund OpenCLI/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-08-26-1800-d79e5473d4fe33e6/public-s2026.json",
-        "githubRun": "/Users/allenxu/Library/Application Support/Returner Fund OpenCLI/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-08-26-1800-d79e5473d4fe33e6/github-s2026.json"
+        "publicRun": "/Users/allenxu/Library/Application Support/Returner Fund OpenCLI/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-08-27-0600-f12894f0c31d2c96/public-s2026.json",
+        "githubRun": "/Users/allenxu/Library/Application Support/Returner Fund OpenCLI/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-08-27-0600-f12894f0c31d2c96/github-s2026.json"
       },
       "counts": {
         "companies": 197,
@@ -840,7 +840,7 @@
         "plannedOwnerMappings": 994,
         "multiAccountOwnerMappings": 1,
         "graphEvidence": 5000,
-        "graphNeedsReview": 10085
+        "graphNeedsReview": 10098
       },
       "structural": {
         "status": "pass",
@@ -1316,6 +1316,11 @@
           {
             "entityId": "company-savant",
             "name": "Savant",
+            "companyName": null
+          },
+          {
+            "entityId": "company-textsidekick",
+            "name": "Sidekick",
             "companyName": null
           },
           {
@@ -1863,6 +1868,11 @@
             "companyName": null
           },
           {
+            "entityId": "company-textsidekick",
+            "name": "Sidekick",
+            "companyName": null
+          },
+          {
             "entityId": "company-standard-signal",
             "name": "Standard Signal",
             "companyName": null
@@ -2348,19 +2358,19 @@
         "catalog": "src/lib/yc/summer-2026-companies.json",
         "profileSource": null,
         "graph": "public/graph/s26.json",
-        "publicRun": "/Users/allenxu/Library/Application Support/Returner Fund OpenCLI/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-08-26-1800-d79e5473d4fe33e6/public-s26.json",
-        "githubRun": "/Users/allenxu/Library/Application Support/Returner Fund OpenCLI/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-08-26-1800-d79e5473d4fe33e6/github-s26.json"
+        "publicRun": "/Users/allenxu/Library/Application Support/Returner Fund OpenCLI/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-08-27-0600-f12894f0c31d2c96/public-s26.json",
+        "githubRun": "/Users/allenxu/Library/Application Support/Returner Fund OpenCLI/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-08-27-0600-f12894f0c31d2c96/github-s26.json"
       },
       "counts": {
         "companies": 236,
         "founders": 470,
-        "catalogOwnerMappings": 1140,
-        "graphOwnerMappings": 1132,
-        "catalogOwnerPlatformGroups": 1139,
-        "plannedOwnerMappings": 1140,
+        "catalogOwnerMappings": 1142,
+        "graphOwnerMappings": 1134,
+        "catalogOwnerPlatformGroups": 1141,
+        "plannedOwnerMappings": 1142,
         "multiAccountOwnerMappings": 1,
         "graphEvidence": 5000,
-        "graphNeedsReview": 7024
+        "graphNeedsReview": 7030
       },
       "structural": {
         "status": "pass",
@@ -2571,10 +2581,10 @@
             "founderMissing": 470
           },
           "x": {
-            "companyMapped": 135,
-            "companyMissing": 101,
-            "founderMapped": 276,
-            "founderMissing": 194
+            "companyMapped": 136,
+            "companyMissing": 100,
+            "founderMapped": 277,
+            "founderMissing": 193
           },
           "youtube": {
             "companyMapped": 10,
@@ -2838,11 +2848,6 @@
           {
             "entityId": "company-dipole-labs",
             "name": "Dipole Labs",
-            "companyName": null
-          },
-          {
-            "entityId": "company-edviro",
-            "name": "Edviro",
             "companyName": null
           },
           {
@@ -3907,11 +3912,6 @@
           {
             "entityId": "company-dipole-labs",
             "name": "Dipole Labs",
-            "companyName": null
-          },
-          {
-            "entityId": "company-edviro",
-            "name": "Edviro",
             "companyName": null
           },
           {

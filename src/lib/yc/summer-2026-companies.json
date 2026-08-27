@@ -4,7 +4,7 @@
     "directoryUrl": "https://www.ycombinator.com/companies?batch=Summer%202026",
     "algoliaIndex": "YCCompany_production",
     "algoliaFilter": "batch:\"Summer 2026\"",
-    "fetchedAt": "2026-08-27T05:50:35.407Z",
+    "fetchedAt": "2026-08-27T11:05:26.064Z",
     "expectedCompanyCount": 236,
     "observedCompanyCount": 236,
     "minimumCompanyCount": 167,
@@ -2568,7 +2568,7 @@
       "batch": "Summer 2026",
       "ycProfileUrl": "https://www.ycombinator.com/companies/computable",
       "websiteUrl": "https://getcomputable.com",
-      "tagline": "Buy, sell, and redeem GPU hours for any week with instant liquidity",
+      "tagline": "Exchange for Physical Compute",
       "description": "",
       "industry": "Fintech",
       "subindustry": "Fintech",
@@ -2576,11 +2576,11 @@
         "Fintech"
       ],
       "tags": [
+        "Artificial Intelligence",
         "Marketplace",
         "Finance",
         "Cloud Computing",
-        "Trading",
-        "AI"
+        "Trading"
       ],
       "location": "New York City, NY",
       "teamSize": 2,
@@ -5060,7 +5060,7 @@
       "batch": "Summer 2026",
       "ycProfileUrl": "https://www.ycombinator.com/companies/grip",
       "websiteUrl": "https://www.griprobotics.ai",
-      "tagline": "Robotics for waste management",
+      "tagline": "Robots for waste management",
       "description": "Grip is a robotics company building intelligent robotic systems for waste and recycling. Its technology combines learning-based manipulation and custom hardware to identify and pick objects from messy, constantly changing waste streams. By learning from real-world operating data, including every successful and failed grasp, Grip’s systems become more reliable and adaptable over time. The goal is to help waste operators reduce difficult manual sorting, recover more valuable material, lower contamination, and deploy automation more flexibly across different facilities and waste streams. Ultimately, Grip is building the intelligent manipulation layer for waste infrastructure, making recycling and the circular economy more efficient and scalable.",
       "industry": "Industrials",
       "subindustry": "Industrials -> Manufacturing and Robotics",
@@ -5078,7 +5078,6 @@
       "groupPartner": "Jared Friedman",
       "groupPartnerUrl": "https://www.ycombinator.com/people/jared-friedman",
       "socialLinks": {
-        "github": "https://github.com/Grip-Robotics/",
         "linkedin": "https://www.linkedin.com/company/griprobotics"
       },
       "founders": [
@@ -7194,7 +7193,7 @@
       "ycProfileUrl": "https://www.ycombinator.com/companies/maingen",
       "websiteUrl": "https://www.maingen.ai/",
       "tagline": "Simulating Agents Running Industrial Companies",
-      "description": "Maingen builds simulations for industrial operations ($5 trillion slice of the US economy) so frontier labs can train models that actually run factories.",
+      "description": "Maingen builds simulations for industrial operations ($5 trillion slice of the US economy) so frontier labs can train models that actually run power plants, factories, and datacenters.",
       "industry": "Industrials",
       "subindustry": "Industrials -> Energy",
       "industries": [
@@ -9519,10 +9518,10 @@
         "B2B"
       ],
       "tags": [
+        "Artificial Intelligence",
         "B2B",
         "Legal",
-        "Automation",
-        "AI"
+        "Automation"
       ],
       "location": "San Francisco",
       "teamSize": 2,
@@ -11252,7 +11251,7 @@
       "ycProfileUrl": "https://www.ycombinator.com/companies/textsidekick",
       "websiteUrl": "https://textsidekick.com/",
       "tagline": "AI agent that handles frontline operations over text",
-      "description": "Sidekick is an AI assistant for frontline manufacturing workers. Sidekick lets workers text problems, photos, or voice memos in any language; it answers from the company's own documents, creates and routes the work order, and syncs with software the company already runs. Sidekick captures the tribal knowledge in veterans' heads - the know-how that usually walks out the door when they retire - into a searchable knowledge base the company owns. No app, no login, works on any phone.",
+      "description": "Sidekick is an AI agent that runs frontline operations over text. Workers text problems, photos, or voice memos in any language; it answers from the company's own documents, creates and routes the work order, and syncs with the software the company already runs. No app, no login, works on any phone.\r\n\r\nIt watches connected machine data and texts the right worker when something's drifting wrong, before it becomes downtime. And it compounds: every answer becomes a searchable knowledge base the company owns, so tribal knowledge stops walking out the door when veterans retire.",
       "industry": "B2B",
       "subindustry": "B2B -> Operations",
       "industries": [
@@ -11279,10 +11278,11 @@
           "id": "3332767",
           "name": "Justin So",
           "title": "Founder/CEO",
-          "bio": "Founder & CEO at Sidekick (YC S26). UPenn Masters in Computer Science. Previously Finance at Arm.",
+          "bio": "Founder & CEO at Sidekick (YC S26). Studied computer science at Penn. Previously Finance at Arm.",
           "ycProfileUrl": "https://www.ycombinator.com/people/justin-so",
           "socialLinks": {
-            "linkedin": "https://www.linkedin.com/in/justinso1/"
+            "linkedin": "https://www.linkedin.com/in/justinso1/",
+            "x": "https://x.com/Just1nSo"
           }
         }
       ],
@@ -13524,8 +13524,8 @@
       "batch": "Summer 2026",
       "ycProfileUrl": "https://www.ycombinator.com/companies/whitespace",
       "websiteUrl": "https://whitespacehq.ai/",
-      "tagline": "AI Operating System for Wholesale Distributors",
-      "description": "Whitespace is the AI operating system for wholesale distributors. It connects to their systems and inboxes to build a living model of their business, then deploys self-improving AI agents to automate work like inventory planning, customer support, and order entry.",
+      "tagline": "AI Operating System for Wholesale Distribution",
+      "description": "Whitespace is the AI operating system for wholesale distribution. We give wholesale distributors self-improving AI agents that learn their business and do work like inventory planning, customer service, and order processing.",
       "industry": "B2B",
       "subindustry": "B2B -> Supply Chain and Logistics",
       "industries": [
@@ -13533,10 +13533,10 @@
         "Supply Chain and Logistics"
       ],
       "tags": [
+        "Artificial Intelligence",
         "SaaS",
         "B2B",
-        "Supply Chain",
-        "AI"
+        "Supply Chain"
       ],
       "location": "San Francisco",
       "teamSize": 2,
@@ -13544,14 +13544,15 @@
       "groupPartner": "Jon Xu",
       "groupPartnerUrl": "https://www.ycombinator.com/people/jon-xu",
       "socialLinks": {
-        "linkedin": "https://www.linkedin.com/company/whitespaceai"
+        "linkedin": "https://www.linkedin.com/company/whitespaceai",
+        "x": "https://x.com/whitespacehqai"
       },
       "founders": [
         {
           "id": "2335228",
           "name": "Alex Tung",
           "title": "Founder/CEO",
-          "bio": "Founder at Whitespace. First non-engineer hire at Ankar (Index-backed); scaled the startup to 7-figure ARR within a year. Consultant at BCG; won firm award for performance given to ~100 employees globally. Economics at Cambridge; awarded academic scholarships in all years.",
+          "bio": "Founder at Whitespace. First non-engineer hire at Ankar (Index-backed), scaling it to 7-figure ARR in under a year. Previously BCG, deploying AI at F500 distributors. Cambridge Economics.",
           "ycProfileUrl": "https://www.ycombinator.com/people/alex-tung",
           "socialLinks": {
             "linkedin": "https://www.linkedin.com/in/alexyctung/",
@@ -13562,7 +13563,7 @@
           "id": "3405544",
           "name": "Leon Yao",
           "title": "Founder/CTO",
-          "bio": "Founder at Whitespace. Previously Research Engineer at Instadeep, designing RL solutions for NP-hard optimization problems. First-author paper at top-3 robotics conference on autonomous navigation. Former CTO at Test and Tutor (1000+ users, 3 school partnerships). MSc in Machine Learning and BEng in Mechanical Engineering from UCL.",
+          "bio": "Founder at Whitespace. Previously Research Engineer at InstaDeep, running 7-figure supply chain AI deployments for F500 enterprises. UCL Machine Learning, first-author paper at a top-3 robotics conference as an undergrad.",
           "ycProfileUrl": "https://www.ycombinator.com/people/leon-yao",
           "socialLinks": {
             "linkedin": "https://www.linkedin.com/in/linghong-yao/"

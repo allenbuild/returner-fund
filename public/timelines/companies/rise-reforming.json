@@ -5,9 +5,33 @@
     "slug": "rise-reforming",
     "name": "Rise Reforming"
   },
-  "generatedAt": "2026-08-27T07:09:46.854Z",
-  "lastModifiedAt": "2026-08-27T07:09:46.854Z",
+  "generatedAt": "2026-08-27T11:43:26.137Z",
+  "lastModifiedAt": "2026-08-27T11:43:26.137Z",
   "events": [
+    {
+      "id": "tle-cfedcf7e85f68224a0c0c975",
+      "eventDate": "2026-07-13",
+      "eventDateType": "announcement_date",
+      "title": "Rise Reforming announced its public launch",
+      "summary": "Rise Reforming announced its public launch in a dated company video.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-4ec8b786c51637770e61ad4a",
+          "title": "Rise Reforming Launch Video",
+          "publisher": "Rise Reforming Launch Video",
+          "domain": "youtube.com",
+          "sourceType": "video",
+          "publishedAt": "2026-07-13T08:21:00-07:00",
+          "evidenceRole": "primary",
+          "url": "https://youtube.com/watch?v=Bx_ASPapxlQ"
+        }
+      ]
+    },
     {
       "id": "tle-474ce6d23251a2cf08fa4f62",
       "eventDate": "2024-02-29",
@@ -35,6 +59,15 @@
   ],
   "groups": [
     {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-07",
+          "count": 1
+        }
+      ]
+    },
+    {
       "year": 2024,
       "months": [
         {
@@ -46,8 +79,8 @@
   ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-08-27T07:09:46.854Z"
+    "publishedEventCount": 2,
+    "lastSuccessfulArtifactAt": "2026-08-27T11:43:26.137Z"
   },
   "nextCursor": null
 }
