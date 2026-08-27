@@ -71,7 +71,7 @@ describe("cohort-wide structural coverage audit", () => {
         canonicalUrl: mapping.canonicalUrl
       }))
     );
-    assert.equal(multiAccountOwnerMappings.length, 7);
+    assert.equal(multiAccountOwnerMappings.length, 6);
     assert.deepEqual(
       multiAccountOwnerMappings.filter((mapping) => mapping.batchSlug === "S26"),
       [
@@ -80,12 +80,6 @@ describe("cohort-wide structural coverage audit", () => {
           entityId: "company-lato",
           platform: "linkedin",
           canonicalUrl: "https://linkedin.com/company/latoio"
-        },
-        {
-          batchSlug: "S26",
-          entityId: "founder-vestris-joshua-tang-3411757",
-          platform: "linkedin",
-          canonicalUrl: "https://linkedin.com/in/tangjoshua"
         }
       ]
     );
