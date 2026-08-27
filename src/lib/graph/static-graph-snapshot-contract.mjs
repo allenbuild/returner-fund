@@ -1313,6 +1313,42 @@ function validateMomentumDelta(value, leaderboardRow, path, generatedAtMs, addIs
       latestMessage: "must not be later than generatedAt"
     });
   }
+  if (
+    value.baselineSelection !== undefined &&
+    value.baselineSelection !== "latest_before_target"
+  ) {
+    addIssue(
+      `${path}.baselineSelection`,
+      'must be "latest_before_target" when present'
+    );
+  }
+  if (
+    value.baselineSelection === "latest_before_target" &&
+    value.benchmarkedAt === null
+  ) {
+    addIssue(
+      `${path}.baselineSelection`,
+      "requires an observed benchmark timestamp"
+    );
+  }
+  if (
+    value.baselineStatus !== undefined &&
+    value.baselineStatus !== "not_in_snapshot"
+  ) {
+    addIssue(
+      `${path}.baselineStatus`,
+      'must be "not_in_snapshot" when present'
+    );
+  }
+  if (
+    value.baselineStatus === "not_in_snapshot" &&
+    (!baselineScoreIsNull || !baselineRankIsNull || value.benchmarkedAt === null)
+  ) {
+    addIssue(
+      `${path}.baselineStatus`,
+      "requires null baseline fields and an observed benchmark timestamp"
+    );
+  }
 }
 
 function momentumRowIsComparable(row) {

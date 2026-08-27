@@ -519,59 +519,15 @@ jobs:
           assert.equal(centralDate, `${parts.year}-${parts.month}-${parts.day}`);
           NODE
 
-      - name: Resolve timeline publication mode
-        if: steps.existing_slot.outputs.publication_status != 'already_completed'
-        id: timeline_database
-        env:
-          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-        run: |
-          if node --input-type=module <<'NODE'
-          import { validateSupabaseConfiguration } from "./scripts/lib/supabase-configuration.mjs";
-          const result = validateSupabaseConfiguration(
-            process.env.NEXT_PUBLIC_SUPABASE_URL,
-            process.env.SUPABASE_SERVICE_ROLE_KEY,
-            { githubActions: true }
-          );
-          if (!result.valid) {
-            console.error(`Timeline database configuration unavailable: ${result.blockers.join(", ")}`);
-            process.exit(1);
-          }
-          NODE
-          then
-            echo "configured=true" >> "$GITHUB_OUTPUT"
-            echo "::notice title=Timeline database configured::The strict database-backed timeline publication gate will run."
-            {
-              echo "## Company Timeline publication"
-              echo "- Mode: database-backed"
-              echo "- Safety gate: validated privileged endpoint and service-role key"
-            } >> "$GITHUB_STEP_SUMMARY"
-          else
-            echo "configured=false" >> "$GITHUB_OUTPUT"
-            echo "::warning title=Timeline file-backed fallback::Supabase publication credentials are unavailable or invalid. Rebuilding the complete public timeline from canonical repository evidence without a database write."
-            {
-              echo "## Company Timeline publication"
-              echo "- Mode: file-backed fallback"
-              echo "- Safety action: rebuild public timelines from canonical evidence and preserve all validated events"
-              echo "- Database writes: disabled"
-            } >> "$GITHUB_STEP_SUMMARY"
-          fi
-
       - name: Rebuild timeline artifacts
         if: steps.existing_slot.outputs.publication_status != 'already_completed'
         timeout-minutes: 10
         env:
           NODE_OPTIONS: --max-old-space-size=3072
-          TIMELINE_DATABASE_CONFIGURED: ${{ steps.timeline_database.outputs.configured }}
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           EXA_API_KEY: ${{ secrets.EXA_API_KEY }}
-        run: |
-          if [ "$TIMELINE_DATABASE_CONFIGURED" = "true" ]; then
-            timeout 4m env TIMELINE_REQUIRE_DATABASE=true npm run timeline:backfill
-          else
-            timeout 4m env -u NEXT_PUBLIC_SUPABASE_URL -u SUPABASE_SERVICE_ROLE_KEY TIMELINE_REQUIRE_DATABASE=false npm run timeline:backfill
-          fi
+        run: timeout 4m npm run timeline:backfill:daily
 
       - name: Rebuild graph-derived artifacts
         if: steps.existing_slot.outputs.publication_status != 'already_completed'

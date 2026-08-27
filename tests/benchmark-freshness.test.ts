@@ -25,6 +25,38 @@ describe("graph benchmark freshness", () => {
     ).toBe(false);
   });
 
+  it("accepts bounded, explicitly marked causal fallbacks for missed scheduler days", () => {
+    const now = new Date("2026-08-26T17:00:00.000Z");
+    const graph = benchmarkGraph(
+      now,
+      "2026-08-24T17:00:00.000Z",
+      "2026-08-14T17:00:00.000Z"
+    );
+    graph.fastestGaining[0]!.dod.baselineSelection = "latest_before_target";
+    graph.fastestGaining[0]!.wow.baselineSelection = "latest_before_target";
+
+    expect(graphBenchmarkDatesAreFresh(graph, now)).toBe(true);
+  });
+
+  it("rejects unmarked or excessively old fallback comparisons", () => {
+    const now = new Date("2026-08-26T17:00:00.000Z");
+    const unmarked = benchmarkGraph(
+      now,
+      "2026-08-24T17:00:00.000Z",
+      "2026-08-14T17:00:00.000Z"
+    );
+    const tooOld = benchmarkGraph(
+      now,
+      "2026-08-18T17:00:00.000Z",
+      "2026-08-13T17:00:00.000Z"
+    );
+    tooOld.fastestGaining[0]!.dod.baselineSelection = "latest_before_target";
+    tooOld.fastestGaining[0]!.wow.baselineSelection = "latest_before_target";
+
+    expect(graphBenchmarkDatesAreFresh(unmarked, now)).toBe(false);
+    expect(graphBenchmarkDatesAreFresh(tooOld, now)).toBe(false);
+  });
+
   it("accepts an honest unavailable history window and rejects a synthesized date without a baseline", () => {
     const now = new Date("2026-07-14T17:00:00.000Z");
 

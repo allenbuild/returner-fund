@@ -43,6 +43,21 @@ jobs:
       queue: max
       cancel-in-progress: false
     steps:
+      - name: Preflight dashboard host
+        timeout-minutes: 1
+        run: |
+          set -euo pipefail
+          POWER_STATUS="$(/usr/bin/pmset -g batt)"
+          if [[ "${POWER_STATUS%%$'\n'*}" != *"'AC Power'"* ]]; then
+            echo "::error title=Runner requires AC power::Dashboard refresh is deferred while the Mac is on battery. The committed watermark remains stale and the host supervisor will retry after AC is connected."
+            exit 1
+          fi
+          POWER_ASSERTIONS="$(/usr/bin/pmset -g assertions 2>/dev/null || true)"
+          if ! grep -Eq '^[[:space:]]*PreventSystemSleep[[:space:]]+1([[:space:]]|$)' <<< "$POWER_ASSERTIONS"; then
+            echo "::error title=Runner sleep assertion is missing::The AC-powered Mac has no effective PreventSystemSleep assertion. Install or refresh the com.returner-fund.ingestion-awake LaunchAgent before retrying."
+            exit 1
+          fi
+
       - name: Check out current main
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:

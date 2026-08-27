@@ -9,6 +9,7 @@ import {
   assertAwakeLaunchAgentPlist,
   AWAKE_LABEL,
   autonomousIngestionHostPaths,
+  findLegacyBroadCaffeinateProcesses,
   installAutonomousIngestionHost,
   renderLaunchAgentTemplate,
   resolveInstallerOperation,
@@ -23,14 +24,17 @@ import {
 import {
   acquireSupervisorLock,
   createGitHubClient,
+  evaluateDashboardRecovery,
   evaluateLeaseLossEvent,
   evaluatePowerStatus,
   evaluateScheduleRecovery,
   loadSupervisorState,
   parseWorkerLeaseLossLog,
+  readDashboardPublicationWatermark,
   runSupervisor,
   supervisorConfig,
   verifyCancelledAutonomousJob,
+  verifyDashboardRecoveryWorkflow,
   verifyWorkflowRun
 } from "../scripts/supervise-autonomous-ingestion-job-lease.mjs";
 
@@ -54,6 +58,7 @@ function config(overrides = {}) {
   return {
     repository: "allenbuild/returner-fund",
     workflowPath: ".github/workflows/autonomous-ingestion.yml",
+    dashboardWorkflowPath: ".github/workflows/dashboard-refresh.yml",
     defaultBranch: "main",
     runnerName: "returner-social-mac-allenxtech",
     runnerDiagDir: "/tmp/returner-runner-diag",
@@ -61,11 +66,14 @@ function config(overrides = {}) {
     statePath: path.join(stateDir, "state-v1.json"),
     lockPath: path.join(stateDir, "supervisor.lock"),
     ghBin: "/opt/homebrew/bin/gh",
-    minBatteryPercent: 60,
     maxWorkerLogBytes: 32 * 1024 * 1024,
     scheduleRecoveryEnabled: false,
     scheduleRecoverySilenceMinutes: 30,
     scheduleRecoveryCooldownMinutes: 30,
+    dashboardRecoveryEnabled: false,
+    dashboardRecoveryMaxAgeMinutes: 120,
+    dashboardRecoverySilenceMinutes: 30,
+    dashboardRecoveryCooldownMinutes: 30,
     dryRun: false,
     ...overrides
   };
@@ -82,6 +90,39 @@ function workflow() {
     path: ".github/workflows/autonomous-ingestion.yml",
     state: "active"
   };
+}
+
+function dashboardWorkflow(overrides = {}) {
+  return {
+    id: 84,
+    name: "Technology Dashboard Refresh",
+    path: ".github/workflows/dashboard-refresh.yml",
+    state: "active",
+    ...overrides
+  };
+}
+
+function dashboardArtifact(generatedAt = "2026-08-26T17:00:00.000Z", overrides = {}) {
+  const generatedAtMs = Date.parse(generatedAt);
+  return JSON.stringify({
+    schemaVersion: "technology-dashboard-v2",
+    sourceSnapshotFingerprint: "f".repeat(64),
+    generatedAt,
+    updatedAt: generatedAt,
+    windowStart: new Date(generatedAtMs - 72 * 60 * 60 * 1_000).toISOString(),
+    windowEnd: generatedAt,
+    todayInTech: [],
+    stories: [],
+    availableFilters: { topics: [], platforms: [] },
+    status: {
+      candidateCount: 0,
+      eligibleCandidateCount: 0,
+      storyCount: 0,
+      viewStoryCounts: { hottest: 0, breaking: 0, emerging: 0 },
+      partialPlatformFailures: []
+    },
+    ...overrides
+  });
 }
 
 function run(overrides = {}) {
@@ -120,10 +161,12 @@ function jobs(overrides = {}) {
 function github(overrides = {}) {
   return {
     getWorkflow: async () => workflow(),
+    getDashboardWorkflow: async () => dashboardWorkflow(),
     getRun: async () => run(),
     getAttemptJobs: async () => jobs(),
     getBranchHead: async () => CURRENT_SHA,
     getWorkflowRuns: async () => [],
+    getDashboardWorkflowRuns: async () => [],
     getActiveRuns: async () => [],
     getRunners: async () => [{ id: 7, name: "returner-social-mac-allenxtech", status: "online", busy: false }],
     getRepositoryText: async () => {
@@ -133,6 +176,7 @@ function github(overrides = {}) {
     },
     rerunFailedJobs: async () => {},
     dispatchRecovery: async () => {},
+    dispatchDashboardRecovery: async () => {},
     ...overrides
   };
 }
@@ -165,20 +209,34 @@ test("worker parser requires exact autonomous context, cancellation, and JobNotF
   );
 });
 
-test("power gate admits AC or a healthy reserve and defers below 60 percent", () => {
+test("power gate exactly mirrors the workflow's AC-only preflight", () => {
   assert.deepEqual(
     evaluatePowerStatus("Now drawing from 'AC Power'\n -InternalBattery-0 12%; charging"),
     { eligible: true, reason: "ac_power", percent: 12 }
   );
-  assert.deepEqual(
-    evaluatePowerStatus("Now drawing from 'Battery Power'\n -InternalBattery-0 60%; discharging"),
-    { eligible: true, reason: "healthy_battery_reserve", percent: 60 }
-  );
-  assert.deepEqual(
-    evaluatePowerStatus("Now drawing from 'Battery Power'\n -InternalBattery-0 59%; discharging"),
-    { eligible: false, reason: "battery_below_reserve", percent: 59 }
-  );
-  assert.equal(evaluatePowerStatus("unknown").eligible, false);
+  assert.deepEqual(evaluatePowerStatus("Now drawing from 'AC Power'"), {
+    eligible: true,
+    reason: "ac_power",
+    percent: null
+  });
+  for (const percent of [100, 92, 60, 20, 0]) {
+    assert.deepEqual(
+      evaluatePowerStatus(
+        `Now drawing from 'Battery Power'\n -InternalBattery-0 ${percent}%; discharging`
+      ),
+      { eligible: false, reason: "ac_power_required", percent }
+    );
+  }
+  assert.deepEqual(evaluatePowerStatus("unknown"), {
+    eligible: false,
+    reason: "power_source_unknown",
+    percent: null
+  });
+  assert.deepEqual(evaluatePowerStatus(""), {
+    eligible: false,
+    reason: "power_status_unavailable",
+    percent: null
+  });
 });
 
 test("schedule recovery is enabled with bounded silence and cooldown defaults", () => {
@@ -186,6 +244,11 @@ test("schedule recovery is enabled with bounded silence and cooldown defaults", 
   assert.equal(defaults.scheduleRecoveryEnabled, true);
   assert.equal(defaults.scheduleRecoverySilenceMinutes, 30);
   assert.equal(defaults.scheduleRecoveryCooldownMinutes, 30);
+  assert.equal(Object.hasOwn(defaults, "minBatteryPercent"), false);
+  assert.equal(
+    Object.hasOwn(supervisorConfig({ RETURNER_MIN_BATTERY_PERCENT: "100" }), "minBatteryPercent"),
+    false
+  );
   assert.equal(
     supervisorConfig({ RETURNER_SCHEDULE_RECOVERY_ENABLED: "false" }).scheduleRecoveryEnabled,
     false
@@ -194,6 +257,227 @@ test("schedule recovery is enabled with bounded silence and cooldown defaults", 
     () => supervisorConfig({ RETURNER_SCHEDULE_RECOVERY_SILENCE_MINUTES: "14" }),
     /must be between 15 and 720/
   );
+});
+
+test("dashboard recovery is enabled with the public freshness and retry defaults", () => {
+  const defaults = supervisorConfig({});
+  assert.equal(defaults.dashboardWorkflowPath, ".github/workflows/dashboard-refresh.yml");
+  assert.equal(defaults.dashboardRecoveryEnabled, true);
+  assert.equal(defaults.dashboardRecoveryMaxAgeMinutes, 120);
+  assert.equal(defaults.dashboardRecoverySilenceMinutes, 30);
+  assert.equal(defaults.dashboardRecoveryCooldownMinutes, 30);
+  assert.equal(
+    supervisorConfig({ RETURNER_DASHBOARD_RECOVERY_ENABLED: "false" }).dashboardRecoveryEnabled,
+    false
+  );
+  assert.throws(
+    () => supervisorConfig({ RETURNER_DASHBOARD_RECOVERY_MAX_AGE_MINUTES: "59" }),
+    /must be between 60 and 1440/
+  );
+});
+
+test("dashboard watermark accepts only a coherent v2 publication and uses the two-hour boundary", async () => {
+  const current = await readDashboardPublicationWatermark({
+    readText: async () => dashboardArtifact("2026-08-26T17:00:00.000Z"),
+    now: new Date("2026-08-26T19:00:00.000Z"),
+    maxAgeMinutes: 120
+  });
+  assert.deepEqual(current, {
+    status: "current",
+    generatedAt: "2026-08-26T17:00:00.000Z",
+    ageMinutes: 120
+  });
+
+  const stale = await readDashboardPublicationWatermark({
+    readText: async () => dashboardArtifact("2026-08-26T17:00:00.000Z"),
+    now: new Date("2026-08-26T19:00:00.001Z"),
+    maxAgeMinutes: 120
+  });
+  assert.equal(stale.status, "stale");
+  assert.equal(stale.generatedAt, "2026-08-26T17:00:00.000Z");
+
+  for (const malformed of [
+    "not-json",
+    dashboardArtifact("2026-08-26T17:00:00.000Z", { schemaVersion: "other" }),
+    dashboardArtifact("2026-08-26T17:00:00.000Z", {
+      updatedAt: "2026-08-26T18:00:00.000Z"
+    }),
+    dashboardArtifact("2026-08-26T17:00:00.000Z", {
+      windowStart: "2026-08-24T17:00:00.000Z"
+    }),
+    dashboardArtifact("2026-08-26T20:00:00.000Z")
+  ]) {
+    const invalid = await readDashboardPublicationWatermark({
+      readText: async () => malformed,
+      now: new Date("2026-08-26T19:00:00.000Z")
+    });
+    assert.equal(invalid.status, "invalid");
+    assert.equal(invalid.generatedAt, null);
+  }
+
+  const missing = await readDashboardPublicationWatermark({
+    readText: async () => {
+      throw new Error("404");
+    },
+    now: new Date("2026-08-26T19:00:00.000Z")
+  });
+  assert.deepEqual(missing, { status: "missing", generatedAt: null, ageMinutes: null });
+});
+
+test("dashboard recovery verifies the exact active workflow identity", () => {
+  assert.equal(
+    verifyDashboardRecoveryWorkflow({ workflow: dashboardWorkflow(), config: config() }).valid,
+    true
+  );
+  assert.equal(
+    verifyDashboardRecoveryWorkflow({
+      workflow: dashboardWorkflow({ name: "Lookalike" }),
+      config: config()
+    }).reason,
+    "dashboard_workflow_name_mismatch"
+  );
+  assert.equal(
+    verifyDashboardRecoveryWorkflow({
+      workflow: dashboardWorkflow({ state: "disabled_manually" }),
+      config: config()
+    }).reason,
+    "dashboard_workflow_not_active"
+  );
+});
+
+test("stale dashboard recovery is AC-only, runner-idle, and never silenced by failed wakes", async () => {
+  const dispatches = [];
+  const testConfig = config({ dashboardRecoveryEnabled: true });
+  const api = github({
+    getRepositoryText: async () => dashboardArtifact("2026-08-26T17:00:00.000Z"),
+    getDashboardWorkflowRuns: async () => [{
+      id: 901,
+      status: "completed",
+      conclusion: "failure",
+      created_at: "2026-08-26T19:58:00.000Z"
+    }],
+    dispatchDashboardRecovery: async (headSha) => dispatches.push(headSha)
+  });
+  const state = { dashboardRecoveryDispatch: null };
+  const now = new Date("2026-08-26T20:05:00.000Z");
+
+  const battery = await evaluateDashboardRecovery({
+    config: testConfig,
+    github: api,
+    state,
+    readPowerStatus: async () => "Now drawing from 'Battery Power'\n 100%; discharging",
+    now
+  });
+  assert.equal(battery.action, "defer");
+  assert.equal(battery.reason, "ac_power_required");
+  assert.equal(battery.batteryPercent, 100);
+  assert.deepEqual(dispatches, []);
+
+  const busy = await evaluateDashboardRecovery({
+    config: testConfig,
+    github: github({
+      ...api,
+      getRunners: async () => [{
+        id: 7,
+        name: "returner-social-mac-allenxtech",
+        status: "online",
+        busy: true
+      }]
+    }),
+    state,
+    readPowerStatus: async () => "Now drawing from 'AC Power'\n 100%; charged",
+    now
+  });
+  assert.equal(busy.reason, "runner_busy");
+  assert.deepEqual(dispatches, []);
+
+  const accepted = await evaluateDashboardRecovery({
+    config: testConfig,
+    github: api,
+    state,
+    readPowerStatus: async () => "Now drawing from 'AC Power'\n 72%; charging",
+    now
+  });
+  assert.equal(accepted.action, "dispatch");
+  assert.equal(accepted.watermarkStatus, "stale");
+  assert.equal(accepted.publicationWatermark, "2026-08-26T17:00:00.000Z");
+  assert.deepEqual(dispatches, [CURRENT_SHA]);
+});
+
+test("active dashboard or ingestion work suppresses a duplicate dashboard dispatch", async () => {
+  const testConfig = config({ dashboardRecoveryEnabled: true });
+  let dispatches = 0;
+  const common = {
+    getRepositoryText: async () => dashboardArtifact("2026-08-26T17:00:00.000Z"),
+    dispatchDashboardRecovery: async () => {
+      dispatches += 1;
+    }
+  };
+  const dashboardActive = await evaluateDashboardRecovery({
+    config: testConfig,
+    github: github({
+      ...common,
+      getDashboardWorkflowRuns: async () => [{ id: 902, status: "queued" }]
+    }),
+    state: { dashboardRecoveryDispatch: null },
+    readPowerStatus: async () => "Now drawing from 'AC Power'",
+    now: new Date("2026-08-26T20:05:00.000Z")
+  });
+  assert.equal(dashboardActive.reason, "dashboard_run_active");
+
+  const ingestionActive = await evaluateDashboardRecovery({
+    config: testConfig,
+    github: github({
+      ...common,
+      getActiveRuns: async () => [{ id: 903, status: "in_progress" }]
+    }),
+    state: { dashboardRecoveryDispatch: null },
+    readPowerStatus: async () => "Now drawing from 'AC Power'",
+    now: new Date("2026-08-26T20:05:00.000Z")
+  });
+  assert.equal(ingestionActive.reason, "autonomous_run_active");
+  assert.equal(dispatches, 0);
+});
+
+test("a current dashboard feed and a recent successful wake suppress recovery", async () => {
+  const testConfig = config({ dashboardRecoveryEnabled: true });
+  let dispatches = 0;
+  const current = await evaluateDashboardRecovery({
+    config: testConfig,
+    github: github({
+      getRepositoryText: async () => dashboardArtifact("2026-08-26T19:00:00.000Z"),
+      dispatchDashboardRecovery: async () => {
+        dispatches += 1;
+      }
+    }),
+    state: { dashboardRecoveryDispatch: null },
+    readPowerStatus: async () => "Now drawing from 'AC Power'",
+    now: new Date("2026-08-26T20:05:00.000Z")
+  });
+  assert.equal(current.action, "current");
+  assert.equal(current.reason, "dashboard_publication_current");
+
+  const recentSuccess = await evaluateDashboardRecovery({
+    config: testConfig,
+    github: github({
+      getRepositoryText: async () => dashboardArtifact("2026-08-26T17:00:00.000Z"),
+      getDashboardWorkflowRuns: async () => [{
+      id: 904,
+      status: "completed",
+      conclusion: "success",
+      created_at: "2026-08-26T17:58:00.000Z",
+      updated_at: "2026-08-26T19:58:00.000Z"
+      }],
+      dispatchDashboardRecovery: async () => {
+        dispatches += 1;
+      }
+    }),
+    state: { dashboardRecoveryDispatch: null },
+    readPowerStatus: async () => "Now drawing from 'AC Power'",
+    now: new Date("2026-08-26T20:05:00.000Z")
+  });
+  assert.equal(recentSuccess.reason, "recent_successful_dashboard_wakeup");
+  assert.equal(dispatches, 0);
 });
 
 test("remote verification is exact about workflow, failed run, runner, and cancelled step", () => {
@@ -265,7 +549,7 @@ test("stale head and newer attempts are terminal without issuing a rerun", async
   assert.equal(reruns, 0);
 });
 
-test("active workflow and low reserve defer without issuing or deduping a rerun", async () => {
+test("active workflow and battery power defer without issuing or deduping a rerun", async () => {
   let reruns = 0;
   const active = await evaluateLeaseLossEvent({
     event: event(),
@@ -281,7 +565,7 @@ test("active workflow and low reserve defer without issuing or deduping a rerun"
   assert.equal(active.action, "defer");
   assert.equal(active.reason, "autonomous_run_active");
 
-  const lowBattery = await evaluateLeaseLossEvent({
+  const battery = await evaluateLeaseLossEvent({
     event: event(),
     config: config(),
     github: github({
@@ -289,36 +573,53 @@ test("active workflow and low reserve defer without issuing or deduping a rerun"
         reruns += 1;
       }
     }),
-    readPowerStatus: async () => "Now drawing from 'Battery Power'\n 46%; discharging"
+    readPowerStatus: async () => "Now drawing from 'Battery Power'\n 100%; discharging"
   });
-  assert.equal(lowBattery.action, "defer");
-  assert.equal(lowBattery.reason, "battery_below_reserve");
+  assert.equal(battery.action, "defer");
+  assert.equal(battery.reason, "ac_power_required");
+  assert.equal(battery.batteryPercent, 100);
   assert.equal(reruns, 0);
 });
 
-test("a dropped wake after an ordinary battery failure dispatches the canonical latest-slot recovery", async () => {
+test("a battery deferral preserves the stale slot for immediate AC recovery", async () => {
   const dispatchedHeads = [];
-  const decision = await evaluateScheduleRecovery({
+  const testConfig = config({ scheduleRecoveryEnabled: true });
+  const testGithub = github({
+    getWorkflowRuns: async () => [{
+      id: 880,
+      event: "schedule",
+      status: "completed",
+      conclusion: "failure",
+      created_at: "2026-08-26T04:30:00.000Z"
+    }],
+    dispatchRecovery: async (headSha) => dispatchedHeads.push(headSha)
+  });
+  const state = Object.freeze({ recoveryDispatch: null });
+  const batteryDecision = await evaluateScheduleRecovery({
+    config: testConfig,
+    github: testGithub,
+    state,
+    readPowerStatus: async () => "Now drawing from 'Battery Power'\n 100%; discharging",
+    now: new Date("2026-08-26T05:05:00.000Z")
+  });
+
+  assert.equal(batteryDecision.action, "defer");
+  assert.equal(batteryDecision.reason, "ac_power_required");
+  assert.equal(batteryDecision.batteryPercent, 100);
+  assert.deepEqual(dispatchedHeads, []);
+
+  const acDecision = await evaluateScheduleRecovery({
     config: config({ scheduleRecoveryEnabled: true }),
-    github: github({
-      getWorkflowRuns: async () => [{
-        id: 880,
-        event: "schedule",
-        status: "completed",
-        conclusion: "failure",
-        created_at: "2026-08-26T04:30:00.000Z"
-      }],
-      dispatchRecovery: async (headSha) => dispatchedHeads.push(headSha)
-    }),
-    state: { recoveryDispatch: null },
+    github: testGithub,
+    state,
     readPowerStatus: async () => "Now drawing from 'AC Power'\n 72%; charging",
     now: new Date("2026-08-26T05:05:00.000Z")
   });
 
-  assert.equal(decision.action, "dispatch");
-  assert.equal(decision.slotKey, "central-2026-08-25-1800");
-  assert.equal(decision.scheduledAt, "2026-08-25T23:00:00.000Z");
-  assert.equal(decision.watermarkStatus, "missing");
+  assert.equal(acDecision.action, "dispatch");
+  assert.equal(acDecision.slotKey, "central-2026-08-25-1800");
+  assert.equal(acDecision.scheduledAt, "2026-08-25T23:00:00.000Z");
+  assert.equal(acDecision.watermarkStatus, "missing");
   assert.deepEqual(dispatchedHeads, [CURRENT_SHA]);
 });
 
@@ -438,7 +739,7 @@ test("host recovery waits for the exact runner to be online and power-eligible",
   });
   assert.equal(offline.reason, "runner_offline");
 
-  const lowBattery = await evaluateScheduleRecovery({
+  const battery = await evaluateScheduleRecovery({
     config: config({ scheduleRecoveryEnabled: true }),
     github: github({
       getWorkflowRuns: async () => [],
@@ -447,11 +748,11 @@ test("host recovery waits for the exact runner to be online and power-eligible",
       }
     }),
     state: { recoveryDispatch: null },
-    readPowerStatus: async () => "Now drawing from 'Battery Power'\n 59%; discharging",
+    readPowerStatus: async () => "Now drawing from 'Battery Power'\n 100%; discharging",
     now: new Date("2026-08-26T05:05:00.000Z")
   });
-  assert.equal(lowBattery.reason, "battery_below_reserve");
-  assert.equal(lowBattery.batteryPercent, 59);
+  assert.equal(battery.reason, "ac_power_required");
+  assert.equal(battery.batteryPercent, 100);
   assert.equal(dispatches, 0);
 });
 
@@ -538,6 +839,63 @@ test("missing workflow events dispatch once and durable same-slot cooldown preve
     now: () => new Date("2026-08-26T05:10:00.000Z")
   });
   assert.equal(second.recovery.reason, "recovery_dispatch_cooldown");
+  assert.equal(dispatches, 1);
+});
+
+test("an accepted dashboard catch-up dispatch is durably cooled down", async (context) => {
+  const root = await mkdtemp(path.join(tmpdir(), "returner-dashboard-recovery-test-"));
+  context.after(() => rm(root, { recursive: true, force: true }));
+  const runnerDiagDir = path.join(root, "diag");
+  const stateDir = path.join(root, "state");
+  await mkdir(runnerDiagDir, { recursive: true });
+  await mkdir(stateDir, { recursive: true });
+  const testConfig = config({
+    runnerDiagDir,
+    stateDir,
+    statePath: path.join(stateDir, "state-v1.json"),
+    lockPath: path.join(stateDir, "supervisor.lock"),
+    dashboardRecoveryEnabled: true
+  });
+  await writeFile(testConfig.statePath, `${JSON.stringify({
+    schemaVersion: 1,
+    initializedAt: "2026-08-26T19:00:00.000Z",
+    workerLogs: {},
+    handledEvents: {},
+    recoveryDispatch: null,
+    dashboardRecoveryDispatch: null
+  })}\n`);
+  let dispatches = 0;
+  const api = github({
+    getRepositoryText: async () => dashboardArtifact("2026-08-26T17:00:00.000Z"),
+    dispatchDashboardRecovery: async () => {
+      dispatches += 1;
+    }
+  });
+
+  const first = await runSupervisor({
+    config: testConfig,
+    github: api,
+    readPowerStatus: async () => "Now drawing from 'AC Power'\n 100%; charged",
+    now: () => new Date("2026-08-26T20:05:00.000Z")
+  });
+  assert.equal(first.dashboardRecovery.action, "dispatch");
+  assert.equal(dispatches, 1);
+  assert.deepEqual((await loadSupervisorState(testConfig.statePath)).dashboardRecoveryDispatch, {
+    dispatchedAt: "2026-08-26T20:05:00.000Z",
+    eventType: "workflow_dispatch",
+    workflowPath: ".github/workflows/dashboard-refresh.yml",
+    observedHeadSha: CURRENT_SHA,
+    watermarkStatus: "stale",
+    observedGeneratedAt: "2026-08-26T17:00:00.000Z"
+  });
+
+  const second = await runSupervisor({
+    config: testConfig,
+    github: api,
+    readPowerStatus: async () => "Now drawing from 'AC Power'\n 100%; charged",
+    now: () => new Date("2026-08-26T20:10:00.000Z")
+  });
+  assert.equal(second.dashboardRecovery.reason, "dashboard_recovery_dispatch_cooldown");
   assert.equal(dispatches, 1);
 });
 
@@ -734,6 +1092,27 @@ test("GitHub recovery dispatch sends only the trusted event and expected main SH
   assert.doesNotMatch(JSON.stringify(calls[0].args), /central-\d{4}/);
 });
 
+test("GitHub dashboard recovery dispatch always requests the full strictly gated refresh", async () => {
+  const calls = [];
+  const client = createGitHubClient(config(), {
+    execute: async (binary, args, options) => {
+      calls.push({ binary, args, options });
+      return { stdout: "", stderr: "" };
+    }
+  });
+
+  await client.dispatchDashboardRecovery(CURRENT_SHA);
+  assert.equal(calls.length, 1);
+  assert.ok(
+    calls[0].args.includes(
+      "repos/allenbuild/returner-fund/actions/workflows/dashboard-refresh.yml/dispatches"
+    )
+  );
+  assert.ok(calls[0].args.includes("ref=main"));
+  assert.ok(calls[0].args.includes("inputs[skip_external_discovery]=false"));
+  assert.doesNotMatch(JSON.stringify(calls[0].args), /no-external|skip_external_discovery=true/);
+});
+
 test("only an accepted rerun creates durable dedupe state", async (context) => {
   const root = await mkdtemp(path.join(tmpdir(), "returner-lease-supervisor-test-"));
   context.after(() => rm(root, { recursive: true, force: true }));
@@ -871,6 +1250,23 @@ test("LaunchAgent template is a five-minute one-shot without KeepAlive", async (
     template,
     /<key>RETURNER_SCHEDULE_RECOVERY_COOLDOWN_MINUTES<\/key>\s*<string>30<\/string>/
   );
+  assert.match(
+    template,
+    /<key>RETURNER_DASHBOARD_RECOVERY_ENABLED<\/key>\s*<string>true<\/string>/
+  );
+  assert.match(
+    template,
+    /<key>RETURNER_DASHBOARD_RECOVERY_MAX_AGE_MINUTES<\/key>\s*<string>120<\/string>/
+  );
+  assert.match(
+    template,
+    /<key>RETURNER_DASHBOARD_RECOVERY_SILENCE_MINUTES<\/key>\s*<string>30<\/string>/
+  );
+  assert.match(
+    template,
+    /<key>RETURNER_DASHBOARD_RECOVERY_COOLDOWN_MINUTES<\/key>\s*<string>30<\/string>/
+  );
+  assert.doesNotMatch(template, /RETURNER_MIN_BATTERY_PERCENT/);
   assert.doesNotMatch(template, /<key>(?:KeepAlive|WatchPaths)<\/key>/);
 
   const installer = await readFile(
@@ -909,6 +1305,23 @@ test("awake LaunchAgent is AC-only and never simulates user activity", async () 
   ]) {
     assert.throws(() => assertAwakeLaunchAgentPlist(mutation), /Awake LaunchAgent/);
   }
+});
+
+test("host installer rejects only legacy broad standalone caffeinate assertions", () => {
+  assert.deepEqual(
+    findLegacyBroadCaffeinateProcesses([
+      " 4216 caffeinate -dimsu",
+      " 4217 /usr/bin/caffeinate -d -i -m -s -u",
+      " 97283 /usr/bin/caffeinate -s",
+      " 59519 /usr/bin/caffeinate -ims -w 59518",
+      " 77777 /usr/bin/caffeinate -s npm test",
+      " 88888 /usr/bin/not-caffeinate -dimsu"
+    ].join("\n")),
+    [
+      { pid: 4216, flags: "dimsu" },
+      { pid: 4217, flags: "dimsu" }
+    ]
+  );
 });
 
 test("auth browser LaunchAgent pins the dedicated local Chrome Canary and persistent data directory", async () => {
@@ -1027,6 +1440,18 @@ test("host LaunchAgent install and uninstall are idempotent without deleting aud
   assert.equal(await readFile(paths.awakePlistPath, "utf8"), firstAwakePlist);
   assert.equal(first.installed, true);
   assert.equal(second.installed, true);
+  await assert.rejects(
+    installAutonomousIngestionHost({
+      ...options,
+      run: async (command, args, commandOptions) => {
+        if (command === "/bin/ps" && args.join(" ") === "-axo pid=,command=") {
+          return { stdout: "4216 caffeinate -dimsu\n", stderr: "" };
+        }
+        return run(command, args, commandOptions);
+      }
+    }),
+    /Refusing to install while legacy broad caffeinate assertions are active: PID 4216 \(-dimsu\)/
+  );
   assert.deepEqual(
     first.launchAgents.map(({ label }) => label),
     [AUTH_BROWSER_LABEL, AWAKE_LABEL, SUPERVISOR_LABEL]

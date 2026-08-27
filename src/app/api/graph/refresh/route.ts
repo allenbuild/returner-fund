@@ -138,7 +138,9 @@ const snapshotMomentumSchema = z
     currentRank: z.number(),
     baselineScore: z.number().nullable(),
     baselineRank: z.number().nullable(),
-    benchmarkedAt: z.string().nullable()
+    benchmarkedAt: z.string().nullable(),
+    baselineSelection: z.literal("latest_before_target").optional(),
+    baselineStatus: z.literal("not_in_snapshot").optional()
   })
   .passthrough();
 const snapshotScoreConfidenceSchema = z

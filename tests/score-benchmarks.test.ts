@@ -76,7 +76,7 @@ describe("score benchmarks", () => {
     expect(after).toBe(before);
   });
 
-  it("leaves missed calendar dates missing instead of backfilling them", () => {
+  it("uses the latest causal observation when a scheduled calendar snapshot is missed", () => {
     const { graph, firstCompany, storePath } = benchmarkFixture();
 
     recordBenchmarkMomentum(graph, {
@@ -94,10 +94,36 @@ describe("score benchmarks", () => {
       "2026-06-29T12:00:00.000Z",
       "2026-07-01T12:00:00.000Z"
     ]);
-    expect(row?.dod.baselineScore).toBeNull();
-    expect(row?.dod.benchmarkedAt).toBeNull();
+    expect(row?.dod.baselineScore).toBe(firstCompany.score);
+    expect(row?.dod.scoreDelta).toBe(5);
+    expect(row?.dod.benchmarkedAt).toBe("2026-06-29T12:00:00.000Z");
+    expect(row?.dod.baselineSelection).toBe("latest_before_target");
+    // The June 29 observation is later than the June 24 weekly target, so it
+    // must never be used as a look-ahead baseline.
     expect(row?.wow.baselineScore).toBeNull();
     expect(row?.wow.benchmarkedAt).toBeNull();
+  });
+
+  it("bounds fallback history to one additional scheduler cycle", () => {
+    const { graph, firstCompany, storePath } = benchmarkFixture();
+
+    recordBenchmarkMomentum(graph, {
+      storePath,
+      now: new Date("2026-06-23T12:00:00.000Z")
+    });
+    const julyFirst = applyStoredBenchmarkMomentum(
+      withCompanyScore(graph, firstCompany.companyId, firstCompany.score + 5),
+      { storePath, now: new Date("2026-07-01T12:00:00.000Z") }
+    );
+    const row = julyFirst.fastestGaining.find(
+      (candidate) => candidate.companyId === firstCompany.companyId
+    );
+
+    expect(row?.dod.baselineScore).toBeNull();
+    expect(row?.dod.benchmarkedAt).toBeNull();
+    expect(row?.wow.baselineScore).toBe(firstCompany.score);
+    expect(row?.wow.benchmarkedAt).toBe("2026-06-23T12:00:00.000Z");
+    expect(row?.wow.baselineSelection).toBe("latest_before_target");
   });
 
   it("uses exact observed Central calendar days for daily and weekly comparisons", () => {

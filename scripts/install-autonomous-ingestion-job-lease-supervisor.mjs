@@ -62,6 +62,30 @@ export function assertAwakeLaunchAgentPlist(plist) {
   }
 }
 
+export function findLegacyBroadCaffeinateProcesses(source) {
+  const matches = [];
+  for (const line of String(source ?? "").split(/\r?\n/)) {
+    const row = /^\s*(\d+)\s+(.+?)\s*$/.exec(line);
+    if (!row) continue;
+    const pid = Number(row[1]);
+    const command = row[2].trim().split(/\s+/);
+    if (!Number.isSafeInteger(pid) || pid <= 1 || path.basename(command[0] ?? "") !== "caffeinate") {
+      continue;
+    }
+    const assertionArguments = command.slice(1);
+    if (
+      assertionArguments.length === 0 ||
+      assertionArguments.some((argument) => !/^-[dimsu]+$/.test(argument))
+    ) {
+      continue;
+    }
+    const flags = assertionArguments.join("").replaceAll("-", "");
+    if (!flags.includes("d") && !flags.includes("u")) continue;
+    matches.push(Object.freeze({ pid, flags }));
+  }
+  return Object.freeze(matches);
+}
+
 export function assertAuthBrowserLaunchAgentPlist(
   plist,
   { chromeExecutable, dataDir }
@@ -191,6 +215,21 @@ export async function installAutonomousIngestionHost({
       authBrowser.chromeExecutable
     ].map(checkPath)
   );
+  const processList = await run(
+    "/bin/ps",
+    ["-axo", "pid=,command="],
+    commandOptions()
+  );
+  const legacyCaffeinateProcesses = findLegacyBroadCaffeinateProcesses(processList.stdout);
+  if (legacyCaffeinateProcesses.length > 0) {
+    const identities = legacyCaffeinateProcesses
+      .map(({ pid, flags }) => `PID ${pid} (-${flags})`)
+      .join(", ");
+    throw new Error(
+      `Refusing to install while legacy broad caffeinate assertions are active: ${identities}. ` +
+      `Stop those stale processes first; the reviewed host service uses only /usr/bin/caffeinate -s.`
+    );
+  }
   await run(ghBin, ["auth", "status", "--hostname", "github.com"], commandOptions(15_000));
   const chromeSignature = await verifyGoogleChromeBundle({
     appBundlePath: authBrowser.appBundlePath,

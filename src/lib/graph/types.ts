@@ -401,6 +401,12 @@ export interface MomentumDelta {
   baselineScore: number | null;
   baselineRank: number | null;
   benchmarkedAt: string | null;
+  /** Present when a missed scheduled snapshot forced the comparison to use
+   * the latest causal observation before the requested benchmark day. */
+  baselineSelection?: "latest_before_target";
+  /** Distinguishes a company absent from a real cohort snapshot from a period
+   * for which no benchmark snapshot exists at all. */
+  baselineStatus?: "not_in_snapshot";
 }
 
 export interface NeedsReviewItem {

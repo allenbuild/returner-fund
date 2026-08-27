@@ -3,6 +3,10 @@ import path from "node:path";
 import type { FastestGainingRow, GraphResponse, MomentumDelta } from "./types";
 
 const WEEK_DAYS = 7;
+// A missed publisher must not make both momentum controls disappear. Look back
+// at most one additional scheduler cycle, never forward past the requested
+// comparison day, and retain the observed timestamp on every delta.
+const MAX_BASELINE_FALLBACK_DAYS = 6;
 const CENTRAL_TIME_ZONE = "America/Chicago";
 const CENTRAL_DAY_FORMATTER = new Intl.DateTimeFormat("en-US", {
   timeZone: CENTRAL_TIME_ZONE,
@@ -23,6 +27,11 @@ interface BenchmarkSnapshot {
   scoringModelVersion?: string;
   inputGeneratedAt?: string;
   companies: BenchmarkCompanySnapshot[];
+}
+
+interface SelectedBenchmarkBaseline {
+  snapshot: BenchmarkSnapshot;
+  baselineSelection?: "latest_before_target";
 }
 
 interface BenchmarkStore {
@@ -254,7 +263,7 @@ function selectDailyBaseline(
   snapshots: BenchmarkSnapshot[],
   now: Date,
   scoringModelVersion: string | undefined
-): BenchmarkSnapshot | null {
+): SelectedBenchmarkBaseline | null {
   return selectLatestBaselineOnCentralDay(snapshots, now, 1, scoringModelVersion);
 }
 
@@ -262,7 +271,7 @@ function selectWeeklyBaseline(
   snapshots: BenchmarkSnapshot[],
   now: Date,
   scoringModelVersion: string | undefined
-): BenchmarkSnapshot | null {
+): SelectedBenchmarkBaseline | null {
   return selectLatestBaselineOnCentralDay(snapshots, now, WEEK_DAYS, scoringModelVersion);
 }
 
@@ -271,21 +280,35 @@ function selectLatestBaselineOnCentralDay(
   now: Date,
   daysBack: number,
   scoringModelVersion: string | undefined
-): BenchmarkSnapshot | null {
-  const targetDayKey = offsetCentralDayKey(now, -daysBack);
-  const snapshotsOnTargetDay = snapshots.filter(
-    (snapshot) => centralDayKey(new Date(snapshot.recordedAt)) === targetDayKey
-  );
-  const sameModelSnapshot = latestSnapshot(
-    snapshotsOnTargetDay.filter((snapshot) => snapshotMatchesScoringModel(snapshot, scoringModelVersion))
-  );
+): SelectedBenchmarkBaseline | null {
+  for (let fallbackDays = 0; fallbackDays <= MAX_BASELINE_FALLBACK_DAYS; fallbackDays += 1) {
+    const candidateDayKey = offsetCentralDayKey(now, -(daysBack + fallbackDays));
+    const snapshotsOnCandidateDay = snapshots.filter(
+      (snapshot) => centralDayKey(new Date(snapshot.recordedAt)) === candidateDayKey
+    );
+    const sameModelSnapshot = latestSnapshot(
+      snapshotsOnCandidateDay.filter((snapshot) =>
+        snapshotMatchesScoringModel(snapshot, scoringModelVersion)
+      )
+    );
 
-  // Benchmark history predates model metadata. Prefer an exact model match, but
-  // preserve those observed legacy baselines during the v4 migration. Explicitly
-  // versioned snapshots from another model remain ineligible.
-  return sameModelSnapshot ?? latestSnapshot(
-    snapshotsOnTargetDay.filter((snapshot) => snapshot.scoringModelVersion === undefined)
-  );
+    // Benchmark history predates model metadata. Prefer an exact model match,
+    // but preserve observed legacy baselines during the v4 migration.
+    // Explicitly versioned snapshots from another model remain ineligible.
+    const snapshot = sameModelSnapshot ?? latestSnapshot(
+      snapshotsOnCandidateDay.filter((candidate) => candidate.scoringModelVersion === undefined)
+    );
+    if (snapshot) {
+      return {
+        snapshot,
+        ...(fallbackDays > 0
+          ? { baselineSelection: "latest_before_target" as const }
+          : {})
+      };
+    }
+  }
+
+  return null;
 }
 
 function shouldRecordWeeklySnapshot(
@@ -305,19 +328,33 @@ function shouldRecordWeeklySnapshot(
 
 function buildBenchmarkMomentumRows(
   graph: GraphResponse,
-  dailyBaseline: BenchmarkSnapshot | null,
-  weeklyBaseline: BenchmarkSnapshot | null
+  dailyBaseline: SelectedBenchmarkBaseline | null,
+  weeklyBaseline: SelectedBenchmarkBaseline | null
 ): FastestGainingRow[] {
-  const dailyByCompany = dailyBaseline ? snapshotIndex(dailyBaseline) : new Map<string, BenchmarkCompanySnapshot>();
-  const weeklyByCompany = weeklyBaseline ? snapshotIndex(weeklyBaseline) : new Map<string, BenchmarkCompanySnapshot>();
+  const dailyByCompany = dailyBaseline
+    ? snapshotIndex(dailyBaseline.snapshot)
+    : new Map<string, BenchmarkCompanySnapshot>();
+  const weeklyByCompany = weeklyBaseline
+    ? snapshotIndex(weeklyBaseline.snapshot)
+    : new Map<string, BenchmarkCompanySnapshot>();
 
   return graph.leaderboard
     .map((row) => ({
       rank: 0,
       companyId: row.companyId,
       companyName: row.companyName,
-      dod: deltaFor(row, dailyByCompany.get(row.companyId) ?? null, dailyBaseline?.recordedAt ?? null),
-      wow: deltaFor(row, weeklyByCompany.get(row.companyId) ?? null, weeklyBaseline?.recordedAt ?? null)
+      dod: deltaFor(
+        row,
+        dailyByCompany.get(row.companyId) ?? null,
+        dailyBaseline?.snapshot.recordedAt ?? null,
+        dailyBaseline?.baselineSelection
+      ),
+      wow: deltaFor(
+        row,
+        weeklyByCompany.get(row.companyId) ?? null,
+        weeklyBaseline?.snapshot.recordedAt ?? null,
+        weeklyBaseline?.baselineSelection
+      )
     }))
     .sort(momentumSort("dod"))
     .map((row, index) => ({ ...row, rank: index + 1 }));
@@ -330,7 +367,8 @@ function snapshotIndex(snapshot: BenchmarkSnapshot): Map<string, BenchmarkCompan
 function deltaFor(
   current: GraphResponse["leaderboard"][number],
   baseline: BenchmarkCompanySnapshot | null,
-  benchmarkedAt: string | null
+  benchmarkedAt: string | null,
+  baselineSelection?: "latest_before_target"
 ): MomentumDelta {
   const baselineScore = baseline?.score ?? null;
   const baselineRank = baseline?.rank ?? null;
@@ -344,7 +382,11 @@ function deltaFor(
     currentRank: current.rank,
     baselineScore,
     baselineRank,
-    benchmarkedAt
+    benchmarkedAt,
+    ...(baselineSelection ? { baselineSelection } : {}),
+    ...(baseline === null && benchmarkedAt !== null
+      ? { baselineStatus: "not_in_snapshot" as const }
+      : {})
   };
 }
 

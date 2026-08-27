@@ -37,8 +37,8 @@ const YOUTUBE_SEARCH_FILTER = "CAMSAggDEAE";
 // no-key WEB browse/player endpoints accept older client versions, which lets
 // the worker avoid extracting and retaining a page-embedded API key.
 const YOUTUBE_WEB_CLIENT_VERSION = "2.20240101.00.00";
-export const MAX_DASHBOARD_YOUTUBE_CHANNELS = 48;
-export const MAX_DASHBOARD_INSTAGRAM_ACCOUNTS = 20;
+export const MAX_DASHBOARD_YOUTUBE_CHANNELS = 54;
+export const MAX_DASHBOARD_INSTAGRAM_ACCOUNTS = 30;
 const MAX_RSS_ITEMS_PER_FEED = 40;
 // Primary research is a direct, high-quality lane rather than a broad
 // consumer feed. Keep its discovery window modestly wider so the Top 100 can
@@ -288,7 +288,17 @@ export const DEFAULT_DASHBOARD_INSTAGRAM_ACCOUNTS: readonly DashboardInstagramAc
   { name: "Trakin Tech", username: "trakintech" },
   { name: "Xiaomi", username: "xiaomi.global" },
   { name: "Beebom", username: "beebomco" },
-  { name: "Tesla", username: "teslamotors" }
+  { name: "Tesla", username: "teslamotors" },
+  { name: "TechWiser", username: "techwiser" },
+  { name: "Hayls World", username: "haylsworld" },
+  { name: "SuperSaf", username: "supersaf" },
+  { name: "iJustine", username: "ijustine" },
+  { name: "Austin Evans", username: "austinnotduncan" },
+  { name: "Made by Google", username: "googlepixel" },
+  { name: "OnePlus", username: "oneplus" },
+  { name: "Qualcomm", username: "qualcomm" },
+  { name: "OPPO", username: "oppo" },
+  { name: "HONOR", username: "honorglobal" }
 ];
 
 /** Bounded, high-reach technology roster; every qualifying metric/date is
@@ -341,7 +351,13 @@ export const DEFAULT_DASHBOARD_YOUTUBE_CHANNELS: readonly DashboardYoutubeChanne
   { name: "Engineering Explained", handle: "EngineeringExplained", channelId: "UClqhvGmHcvWL9w3R48t9QXQ" },
   { name: "Tech Burner", handle: "TechBurner", channelId: "UCXUJJNoP1QupwsYIWFXmsZg" },
   { name: "Technical Guruji", handle: "TechnicalGuruji", channelId: "UCOhHO2ICt0ti9KAh-QHvttQ" },
-  { name: "Trakin Tech", handle: "TrakinTech", channelId: "UCEPL07qzVsOcHd3sMUws65g" }
+  { name: "Trakin Tech", handle: "TrakinTech", channelId: "UCEPL07qzVsOcHd3sMUws65g" },
+  { name: "Hayls World", handle: "HaylsWorld", channelId: "UCIxLxlan8q9WA7sjuq6LdTQ" },
+  { name: "SuperSaf", handle: "SuperSaf", channelId: "UCIrrRLyFMVmmL9NDAU2obJA" },
+  { name: "TechWiser", handle: "techwiser", channelId: "UCdp6GUwjKscp5ST4M4WgIpw" },
+  { name: "GadgetIn", handle: "GadgetIn", channelId: "UC1dI4tO13ApuSX0QeX8pHng" },
+  { name: "Technology Gyan", handle: "TechnologyGyan", channelId: "UC1tVU8H153ZFO9eRsxdJlhA" },
+  { name: "UrAvgConsumer", handle: "UrAvgConsumer", channelId: "UC9fSZHEh6XsRpX-xJc6lT3A" }
 ];
 
 interface DashboardRssFeed {
@@ -651,8 +667,10 @@ export async function fetchYoutubeChannelCandidates(
  * nominate IDs; every returned candidate is rebuilt from the official player
  * response so renderer counters and relative dates never satisfy a gate.
  *
- * At most four fixed page requests and 24 player requests are issued, with
- * page/detail concurrency capped independently at two/four.
+ * At most four fixed page requests, four official search fallbacks, and 24
+ * player requests are issued, with nomination/detail concurrency capped
+ * independently at two/four. Search responses only nominate IDs; they never
+ * attest identity, publication time, content, or counters.
  */
 export async function fetchYoutubeSearchCandidates(
   fetchImpl: typeof fetch,
@@ -699,6 +717,23 @@ async function fetchYoutubeSearchPreviewIds(
   query: string,
   queryIndex: number
 ): Promise<string[]> {
+  try {
+    const videoIds = await fetchYoutubeSearchPagePreviewIds(fetchImpl, query, queryIndex);
+    if (videoIds.length > 0) return videoIds;
+  } catch {
+    // Public HTML requests can be redirected through Google's anti-abuse
+    // interstitial. Server-side fetch intentionally has no ambient cookie jar,
+    // so following that loop cannot recover the page. The official no-key WEB
+    // search endpoint below is the bounded compatibility path.
+  }
+  return fetchYoutubeInnertubeSearchPreviewIds(fetchImpl, query, queryIndex);
+}
+
+async function fetchYoutubeSearchPagePreviewIds(
+  fetchImpl: typeof fetch,
+  query: string,
+  queryIndex: number
+): Promise<string[]> {
   const source = `youtube_search_q${queryIndex + 1}`;
   const url = new URL("https://www.youtube.com/results");
   url.searchParams.set("search_query", query);
@@ -709,6 +744,9 @@ async function fetchYoutubeSearchPreviewIds(
   try {
     response = await fetchImpl(url, {
       headers: youtubePublicHeaders(),
+      // Do not spend the request budget following a Google sorry -> YouTube
+      // cookie redirect loop that a stateless server fetch cannot complete.
+      redirect: "manual",
       signal: AbortSignal.timeout(12_000)
     });
   } catch {
@@ -719,6 +757,34 @@ async function fetchYoutubeSearchPreviewIds(
   const initialData = parseAssignedJson(html, "ytInitialData");
   if (!initialData) throw new Error(`${source}_invalid_initial_data`);
   return youtubeVideoPreviewIds(initialData, MAX_YOUTUBE_SEARCH_RESULTS_PER_QUERY);
+}
+
+async function fetchYoutubeInnertubeSearchPreviewIds(
+  fetchImpl: typeof fetch,
+  query: string,
+  queryIndex: number
+): Promise<string[]> {
+  const source = `youtube_search_q${queryIndex + 1}_innertube`;
+  const url = new URL("https://www.youtube.com/youtubei/v1/search");
+  url.searchParams.set("prettyPrint", "false");
+  let response: Response;
+  try {
+    response = await fetchImpl(url, {
+      method: "POST",
+      headers: youtubePlayerHeaders(YOUTUBE_WEB_CLIENT_VERSION),
+      body: JSON.stringify({
+        context: youtubeInnertubeContext(YOUTUBE_WEB_CLIENT_VERSION),
+        query,
+        params: YOUTUBE_SEARCH_FILTER
+      }),
+      signal: AbortSignal.timeout(12_000)
+    });
+  } catch {
+    throw new Error(`${source}_fetch_failed`);
+  }
+  if (!response.ok) throw new Error(`${source}_http_${response.status}`);
+  const payload = await readBoundedJson<unknown>(response, source, MAX_YOUTUBE_RESPONSE_BYTES);
+  return youtubeVideoPreviewIds(payload, MAX_YOUTUBE_SEARCH_RESULTS_PER_QUERY);
 }
 
 function roundRobinYoutubeSearchIds(

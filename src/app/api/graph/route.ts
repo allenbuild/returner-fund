@@ -242,7 +242,7 @@ async function buildPublishedGraph(input: {
       batchSlug: query.batch,
       audienceId: query.topVoices
     });
-    return applyStoredBenchmarkMomentum(graph, { now });
+    return applyPublishedBenchmarkMomentum(graph, now);
   }
 
   const insiderGraph = await loadPublishedGraphSnapshot({
@@ -251,12 +251,12 @@ async function buildPublishedGraph(input: {
   });
   const selectedInsiderIds = query.insiderIds ?? [];
   if (!input.hasPersonalizedInsiderConfiguration && selectedInsiderIds.length === 0) {
-    return applyStoredBenchmarkMomentum(insiderGraph, { now });
+    return applyPublishedBenchmarkMomentum(insiderGraph, now);
   }
 
-  const baseGraph = applyStoredBenchmarkMomentum(
+  const baseGraph = applyPublishedBenchmarkMomentum(
     await loadPublishedGraphSnapshot({ batchSlug: query.batch, audienceId: "off" }),
-    { now }
+    now
   );
   return personalizeInsiderGraphSnapshot({
     insiderGraph,
@@ -264,6 +264,14 @@ async function buildPublishedGraph(input: {
     configuration: input.insiderConfiguration,
     selectedInsiderIds
   });
+}
+
+function applyPublishedBenchmarkMomentum(graph: GraphResponse, fallbackNow: Date): GraphResponse {
+  const generatedAt = new Date(graph.generatedAt);
+  const benchmarkNow = Number.isFinite(generatedAt.getTime()) && generatedAt <= fallbackNow
+    ? generatedAt
+    : fallbackNow;
+  return applyStoredBenchmarkMomentum(graph, { now: benchmarkNow });
 }
 
 async function resolveInsiderConfiguration(

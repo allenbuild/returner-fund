@@ -202,11 +202,11 @@ describe("insights tabs", () => {
     expect(rankedPeriodGroup).toHaveClass("ranked-posts-period-toggle");
     expect(within(rankedPeriodGroup).getAllByRole("button").map((button) => button.textContent)).toEqual([
       "All time",
-      "Today",
+      "Latest day · Jun 28",
       "Month"
     ]);
     expect(screen.getByRole("button", { name: "All time" })).toHaveAttribute("aria-pressed", "true");
-    expect(screen.getByRole("button", { name: "Today" })).toHaveAttribute("aria-pressed", "false");
+    expect(screen.getByRole("button", { name: "Latest day · Jun 28" })).toHaveAttribute("aria-pressed", "false");
     expect(screen.getByRole("button", { name: "Month" })).toHaveAttribute("aria-pressed", "false");
 
     fireEvent.keyDown(rankedTab, { key: "ArrowRight" });
@@ -636,6 +636,40 @@ describe("insights tabs", () => {
     const cells = table.querySelectorAll("tbody tr td");
     expect(cells[4]).toHaveTextContent("#11 / 55 points");
     expect(cells[5]).toHaveTextContent("#18 / 46 points on");
+  });
+
+  it("labels missed-run momentum fallbacks with the actual observed dates", () => {
+    const graph = graphResponse();
+    graph.fastestGaining = graph.fastestGaining.map((row) => ({
+      ...row,
+      dod: {
+        ...row.dod,
+        benchmarkedAt: "2026-08-24T17:00:00.000Z",
+        baselineSelection: "latest_before_target"
+      },
+      wow: {
+        ...row.wow,
+        benchmarkedAt: "2026-08-14T17:00:00.000Z",
+        baselineSelection: "latest_before_target"
+      }
+    }));
+
+    render(<InsightsTabs graph={graph} onSelectNode={vi.fn()} />);
+    fireEvent.click(screen.getByRole("tab", { name: "Hottest" }));
+
+    expect(screen.getByRole("button", { name: "Since Aug 24" })).toBeEnabled();
+    expect(screen.getByRole("button", { name: "Since Aug 14" })).toBeEnabled();
+    expect(screen.getByRole("status")).toHaveTextContent(
+      "The requested day-over-day snapshot was not captured."
+    );
+    expect(screen.getByRole("status")).toHaveTextContent(
+      "Showing change since the latest earlier snapshot on Aug 24."
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Since Aug 14" }));
+    expect(screen.getByRole("status")).toHaveTextContent(
+      "The requested week-over-week snapshot was not captured."
+    );
   });
 
   it("numbers Hot rank in the selected week-over-week order", () => {

@@ -195,7 +195,7 @@ describe("public dashboard discovery", () => {
   });
 
   it("ships a unique, bounded fixed Instagram roster", () => {
-    expect(DEFAULT_DASHBOARD_INSTAGRAM_ACCOUNTS).toHaveLength(20);
+    expect(DEFAULT_DASHBOARD_INSTAGRAM_ACCOUNTS).toHaveLength(30);
     expect(DEFAULT_DASHBOARD_INSTAGRAM_ACCOUNTS.length).toBeLessThanOrEqual(MAX_DASHBOARD_INSTAGRAM_ACCOUNTS);
     expect(DEFAULT_DASHBOARD_INSTAGRAM_ACCOUNTS.map(({ username }) => username)).toEqual(expect.arrayContaining([
       "apple",
@@ -206,7 +206,13 @@ describe("public dashboard discovery", () => {
       "samsungmobile",
       "xiaomi.global",
       "beebomco",
-      "teslamotors"
+      "teslamotors",
+      "techwiser",
+      "haylsworld",
+      "supersaf",
+      "googlepixel",
+      "oneplus",
+      "qualcomm"
     ]));
     expect(new Set(DEFAULT_DASHBOARD_INSTAGRAM_ACCOUNTS.map(({ username }) => username)).size).toBe(
       DEFAULT_DASHBOARD_INSTAGRAM_ACCOUNTS.length
@@ -642,12 +648,121 @@ describe("public dashboard discovery", () => {
     expect(buildDashboardSnapshot(result.candidates, { now: NOW }).snapshot.stories).toHaveLength(0);
   });
 
+  it("falls back to bounded official search and keeps player metadata behind every hard gate", async () => {
+    const videoIds = ["fallback001", "oldvideo001", "belowone001", "nontech0001"];
+    const channelId = "UC1234567890123456789012";
+    const pageRequests: RequestInit[] = [];
+    const fallbackRequests: Array<{ query: string; params: string; init: RequestInit }> = [];
+    const playerRequests: string[] = [];
+    const fetchImpl = vi.fn(async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
+      const url = new URL(String(input));
+      if (url.pathname === "/results") {
+        pageRequests.push(init ?? {});
+        return new Response(null, {
+          status: 302,
+          headers: { Location: "https://www.google.com/sorry/index" }
+        });
+      }
+      if (url.pathname === "/youtubei/v1/search") {
+        const body = JSON.parse(String(init?.body)) as { query?: string; params?: string };
+        fallbackRequests.push({
+          query: body.query ?? "",
+          params: body.params ?? "",
+          init: init ?? {}
+        });
+        return json(youtubeSearchResponse(videoIds));
+      }
+      if (url.pathname === "/youtubei/v1/player") {
+        const body = JSON.parse(String(init?.body)) as { videoId?: string };
+        const videoId = body.videoId ?? "";
+        playerRequests.push(videoId);
+        if (videoId === "oldvideo001") {
+          return json(youtubePlayerResponse({
+            videoId,
+            channelId,
+            author: "Old technology creator",
+            title: "AI hardware from last week",
+            description: "Artificial intelligence chips and developer software.",
+            publishedAt: "2026-08-11T10:00:00.000Z",
+            views: 4_000_000
+          }));
+        }
+        if (videoId === "belowone001") {
+          return json(youtubePlayerResponse({
+            videoId,
+            channelId,
+            author: "Robotics creator",
+            title: "New robotics hardware launch",
+            description: "An autonomous robot and its control software.",
+            publishedAt: "2026-08-15T09:00:00.000Z",
+            views: 999_999
+          }));
+        }
+        if (videoId === "nontech0001") {
+          return json(youtubePlayerResponse({
+            videoId,
+            channelId,
+            author: "Outdoor creator",
+            title: "Beautiful creative rabbit trap",
+            description: "A rabbit trap made outdoors while camping.",
+            publishedAt: "2026-08-15T08:00:00.000Z",
+            views: 8_000_000
+          }));
+        }
+        return json(youtubePlayerResponse({
+          videoId,
+          channelId,
+          author: "Verified technology creator",
+          title: "AI hardware launch",
+          description: "Artificial intelligence chips and developer software.",
+          publishedAt: "2026-08-15T10:00:00.000Z",
+          views: 1_500_000
+        }));
+      }
+      throw new Error(`Unexpected request ${url}`);
+    });
+
+    const result = await fetchYoutubeSearchCandidates(fetchImpl as typeof fetch, NOW);
+
+    expect(pageRequests).toHaveLength(DEFAULT_DASHBOARD_YOUTUBE_SEARCH_QUERIES.length);
+    expect(pageRequests.every(({ redirect }) => redirect === "manual")).toBe(true);
+    expect(fallbackRequests.map(({ query }) => query)).toEqual(DEFAULT_DASHBOARD_YOUTUBE_SEARCH_QUERIES);
+    expect(fallbackRequests.every(({ params }) => params === "CAMSAggDEAE")).toBe(true);
+    for (const { init } of fallbackRequests) {
+      expect(init.method).toBe("POST");
+      expect(init.signal).toBeInstanceOf(AbortSignal);
+      const headers = new Headers(init.headers);
+      expect(headers.get("x-youtube-client-name")).toBe("1");
+      expect(headers.get("x-youtube-client-version")).toMatch(/^2\.\d{8}\.\d{2}\.\d{2}$/);
+    }
+    expect(playerRequests).toEqual(videoIds);
+    expect(fetchImpl).toHaveBeenCalledTimes(12);
+    expect(result.candidates.map((candidate) => candidate.id)).toEqual([
+      "youtube:fallback001",
+      "youtube:belowone001",
+      "youtube:nontech0001"
+    ]);
+    expect(result.candidates[0]).toMatchObject({
+      sourceVerified: true,
+      sourceLinkStatus: "verified",
+      publicationPrecision: "exact",
+      publishedAt: "2026-08-15T10:00:00.000Z",
+      metrics: { views: 1_500_000, likes: null }
+    });
+    expect(result.candidates.map((candidate) => dashboardTop100Eligibility(candidate, NOW).reason)).toEqual([
+      "eligible",
+      "below_one_million_views",
+      "unverified_source"
+    ]);
+    expect(buildDashboardSnapshot(result.candidates, { now: NOW }).snapshot.stories).toHaveLength(1);
+  });
+
   it("reports one deterministic label when every fixed search page is unavailable", async () => {
     const fetchImpl = vi.fn(async (): Promise<Response> => new Response("unavailable", { status: 503 }));
 
     await expect(fetchYoutubeSearchCandidates(fetchImpl as typeof fetch, NOW))
       .rejects.toThrow("youtube_search_pages_unavailable");
-    expect(fetchImpl).toHaveBeenCalledTimes(DEFAULT_DASHBOARD_YOUTUBE_SEARCH_QUERIES.length);
+    expect(fetchImpl).toHaveBeenCalledTimes(DEFAULT_DASHBOARD_YOUTUBE_SEARCH_QUERIES.length * 2);
   });
 
   it("ships an expanded verified tech roster under the hard channel bound", () => {
@@ -699,11 +814,17 @@ describe("public dashboard discovery", () => {
       { name: "Engineering Explained", handle: "EngineeringExplained", channelId: "UClqhvGmHcvWL9w3R48t9QXQ" },
       { name: "Tech Burner", handle: "TechBurner", channelId: "UCXUJJNoP1QupwsYIWFXmsZg" },
       { name: "Technical Guruji", handle: "TechnicalGuruji", channelId: "UCOhHO2ICt0ti9KAh-QHvttQ" },
-      { name: "Trakin Tech", handle: "TrakinTech", channelId: "UCEPL07qzVsOcHd3sMUws65g" }
+      { name: "Trakin Tech", handle: "TrakinTech", channelId: "UCEPL07qzVsOcHd3sMUws65g" },
+      { name: "Hayls World", handle: "HaylsWorld", channelId: "UCIxLxlan8q9WA7sjuq6LdTQ" },
+      { name: "SuperSaf", handle: "SuperSaf", channelId: "UCIrrRLyFMVmmL9NDAU2obJA" },
+      { name: "TechWiser", handle: "techwiser", channelId: "UCdp6GUwjKscp5ST4M4WgIpw" },
+      { name: "GadgetIn", handle: "GadgetIn", channelId: "UC1dI4tO13ApuSX0QeX8pHng" },
+      { name: "Technology Gyan", handle: "TechnologyGyan", channelId: "UC1tVU8H153ZFO9eRsxdJlhA" },
+      { name: "UrAvgConsumer", handle: "UrAvgConsumer", channelId: "UC9fSZHEh6XsRpX-xJc6lT3A" }
     ]);
     expect(DEFAULT_DASHBOARD_YOUTUBE_CHANNELS.length).toBeLessThanOrEqual(MAX_DASHBOARD_YOUTUBE_CHANNELS);
-    expect(DEFAULT_DASHBOARD_YOUTUBE_CHANNELS).toHaveLength(48);
-    expect(MAX_DASHBOARD_YOUTUBE_CHANNELS).toBe(48);
+    expect(DEFAULT_DASHBOARD_YOUTUBE_CHANNELS).toHaveLength(54);
+    expect(MAX_DASHBOARD_YOUTUBE_CHANNELS).toBe(54);
     const channelIds = DEFAULT_DASHBOARD_YOUTUBE_CHANNELS.map(({ channelId }) => channelId);
     const handles = DEFAULT_DASHBOARD_YOUTUBE_CHANNELS.map(({ handle }) => handle.toLowerCase());
     expect(channelIds.every((channelId) => /^UC[A-Za-z0-9_-]{22}$/.test(channelId ?? ""))).toBe(true);
@@ -1720,7 +1841,11 @@ function youtubeUploadsBrowseResponse(videoIds: string[]): unknown {
 }
 
 function youtubeSearchPage(videoIds: string[]): string {
-  return `<script>var ytInitialData = ${JSON.stringify({
+  return `<script>var ytInitialData = ${JSON.stringify(youtubeSearchResponse(videoIds))};</script>`;
+}
+
+function youtubeSearchResponse(videoIds: string[]): unknown {
+  return {
     contents: {
       twoColumnSearchResultsRenderer: {
         primaryContents: {
@@ -1734,7 +1859,7 @@ function youtubeSearchPage(videoIds: string[]): string {
         }
       }
     }
-  })};</script>`;
+  };
 }
 
 function youtubeWatchPage(input: {

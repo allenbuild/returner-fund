@@ -27,13 +27,19 @@
     <string>__RUNNER_DIAG_DIR__</string>
     <key>RETURNER_LEASE_SUPERVISOR_STATE_DIR</key>
     <string>__STATE_DIR__</string>
-    <key>RETURNER_MIN_BATTERY_PERCENT</key>
-    <string>60</string>
     <key>RETURNER_SCHEDULE_RECOVERY_ENABLED</key>
     <string>true</string>
     <key>RETURNER_SCHEDULE_RECOVERY_SILENCE_MINUTES</key>
     <string>30</string>
     <key>RETURNER_SCHEDULE_RECOVERY_COOLDOWN_MINUTES</key>
+    <string>30</string>
+    <key>RETURNER_DASHBOARD_RECOVERY_ENABLED</key>
+    <string>true</string>
+    <key>RETURNER_DASHBOARD_RECOVERY_MAX_AGE_MINUTES</key>
+    <string>120</string>
+    <key>RETURNER_DASHBOARD_RECOVERY_SILENCE_MINUTES</key>
+    <string>30</string>
+    <key>RETURNER_DASHBOARD_RECOVERY_COOLDOWN_MINUTES</key>
     <string>30</string>
   </dict>
   <key>WorkingDirectory</key>
