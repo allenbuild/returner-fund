@@ -2,6 +2,7 @@ import { act, fireEvent, render, screen, waitFor, within } from "@testing-librar
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   Dashboard,
+  graphNeedsImmediateMomentumRevalidation,
   recordResumeRevalidationAt,
   RESUME_REVALIDATION_SCOPE_MAX_ENTRIES
 } from "@/components/Dashboard";
@@ -143,6 +144,27 @@ vi.mock("@/components/dashboard/TopStoriesDashboard", () => ({
 }));
 
 describe("dashboard filters", () => {
+  it("immediately revalidates only recent snapshots missing both momentum periods", () => {
+    const now = new Date("2026-08-27T17:00:00.000Z");
+    const missing = graphResponse([
+      makeNode("company:missing-momentum", "Missing Momentum", "b2b", "#7dd3fc")
+    ]);
+    missing.generatedAt = "2026-08-26T17:00:00.000Z";
+    const available = withBenchmarkDates(
+      missing,
+      "2026-08-26T12:00:00.000Z",
+      "2026-08-20T12:00:00.000Z"
+    );
+    available.generatedAt = missing.generatedAt;
+
+    expect(graphNeedsImmediateMomentumRevalidation(missing, now)).toBe(true);
+    expect(graphNeedsImmediateMomentumRevalidation(available, now)).toBe(false);
+    expect(graphNeedsImmediateMomentumRevalidation({
+      ...missing,
+      generatedAt: "2026-08-24T16:59:59.999Z"
+    }, now)).toBe(false);
+  });
+
   it("loads YC partner rankings for the active batch only", async () => {
     vi.useFakeTimers();
     const summerGraph = graphResponse(

@@ -42,7 +42,11 @@ import {
 } from "@/lib/graph/database-stats";
 import { evidenceDisplayText, isGenericEvidenceLabel } from "@/lib/graph/evidence-display";
 import { resolveEvidenceThumbnail } from "@/lib/graph/evidence-thumbnails";
-import { selectRankedPosts, type RankedPostsPeriod } from "@/lib/graph/ranked-posts";
+import {
+  rankedPostsReferenceDate,
+  selectRankedPosts,
+  type RankedPostsPeriod
+} from "@/lib/graph/ranked-posts";
 import type { RankedPostsSidecarScope } from "@/lib/graph/ranked-posts-sidecar";
 import { splitVerbatimSentences } from "@/lib/graph/verbatim-evidence-text";
 import type {
@@ -114,6 +118,13 @@ export function InsightsTabs({
     }),
     [graph.fastestGaining]
   );
+  const momentumFallbackDates = useMemo(
+    () => ({
+      dod: fallbackBenchmarkDate(graph.fastestGaining, "dod"),
+      wow: fallbackBenchmarkDate(graph.fastestGaining, "wow")
+    }),
+    [graph.fastestGaining]
+  );
   const resolvedMomentumPeriod = resolveMomentumPeriod(momentumPeriod, momentumAvailability);
   const momentumRows = useMemo(
     () => momentumRowsForDisplay(graph, resolvedMomentumPeriod),
@@ -128,11 +139,22 @@ export function InsightsTabs({
     [graph.leaderboard, overviewSort]
   );
   const databaseStats = useMemo(() => buildDatabaseStats(statsGraph), [statsGraph]);
+  const rankedPostsNow = useMemo(
+    () => now ?? rankedPostsReferenceDate(graph),
+    [graph, now]
+  );
+  const latestPublishedDayLabel = now === undefined
+    ? formatCentralSnapshotDate(rankedPostsNow)
+    : null;
   const rankedPosts = useMemo(
     () => rankedPostsSidecarScope === null
       ? []
-      : selectRankedPosts(graph, { period: rankedPeriod, now, sidecarScope: rankedPostsSidecarScope }),
-    [graph, now, rankedPeriod, rankedPostsSidecarScope]
+      : selectRankedPosts(graph, {
+          period: rankedPeriod,
+          now: rankedPostsNow,
+          sidecarScope: rankedPostsSidecarScope
+        }),
+    [graph, rankedPostsNow, rankedPeriod, rankedPostsSidecarScope]
   );
   const currentBatchSlug = graph.batch.slug;
 
@@ -255,27 +277,47 @@ export function InsightsTabs({
                 className={resolvedMomentumPeriod === "dod" ? "active" : ""}
                 aria-pressed={resolvedMomentumPeriod === "dod"}
                 disabled={!momentumAvailability.dod}
-                title={!momentumAvailability.dod ? unavailableMomentumTitle("dod") : undefined}
+                title={momentumControlTitle(
+                  "dod",
+                  momentumAvailability.dod,
+                  momentumFallbackDates.dod
+                )}
                 onClick={() => setMomentumPeriod("dod")}
               >
-                Day over day
+                {momentumControlLabel("dod", momentumFallbackDates.dod)}
               </button>
               <button
                 type="button"
                 className={resolvedMomentumPeriod === "wow" ? "active" : ""}
                 aria-pressed={resolvedMomentumPeriod === "wow"}
                 disabled={!momentumAvailability.wow}
-                title={!momentumAvailability.wow ? unavailableMomentumTitle("wow") : undefined}
+                title={momentumControlTitle(
+                  "wow",
+                  momentumAvailability.wow,
+                  momentumFallbackDates.wow
+                )}
                 onClick={() => setMomentumPeriod("wow")}
               >
-                Week over week
+                {momentumControlLabel("wow", momentumFallbackDates.wow)}
               </button>
             </div>
           )}
           {activeTab === "ranked" && (
             <div className="segmented-toggle ranked-posts-period-toggle" role="group" aria-label="Ranked posts period">
               <button type="button" className={rankedPeriod === "all_time" ? "active" : ""} aria-pressed={rankedPeriod === "all_time"} onClick={() => setRankedPeriod("all_time")}>All time</button>
-              <button type="button" className={rankedPeriod === "today" ? "active" : ""} aria-pressed={rankedPeriod === "today"} onClick={() => setRankedPeriod("today")}>Today</button>
+              <button
+                type="button"
+                className={rankedPeriod === "today" ? "active" : ""}
+                aria-pressed={rankedPeriod === "today"}
+                title={latestPublishedDayLabel
+                  ? `Latest published Central day in this graph snapshot: ${latestPublishedDayLabel}.`
+                  : undefined}
+                onClick={() => setRankedPeriod("today")}
+              >
+                {latestPublishedDayLabel
+                  ? `Latest day · ${latestPublishedDayLabel}`
+                  : "Today"}
+              </button>
               <button type="button" className={rankedPeriod === "month" ? "active" : ""} aria-pressed={rankedPeriod === "month"} onClick={() => setRankedPeriod("month")}>Month</button>
             </div>
           )}
@@ -385,6 +427,16 @@ export function InsightsTabs({
           role="tabpanel"
           aria-labelledby="insights-tab-gaining"
         >
+          {momentumFallbackDates[resolvedMomentumPeriod] && momentumComparisonCount > 0 && (
+            <div className="momentum-history-notice" role="status">
+              <strong>
+                The requested {resolvedMomentumPeriod === "dod" ? "day-over-day" : "week-over-week"} snapshot was not captured.
+              </strong>
+              <span>
+                Showing change since the latest earlier snapshot on {momentumFallbackDates[resolvedMomentumPeriod]}.
+              </span>
+            </div>
+          )}
           {momentumPeriod !== resolvedMomentumPeriod && momentumComparisonCount > 0 && (
             <div className="momentum-history-notice" role="status">
               <strong>
@@ -498,7 +550,9 @@ export function InsightsTabs({
                 {rankedPostsSidecarScope === null
                   ? "Refreshing ranked posts…"
                   : rankedPeriod === "today"
-                  ? "No reliably dated posts were published today."
+                  ? latestPublishedDayLabel
+                    ? `No reliably dated posts were published on ${latestPublishedDayLabel}.`
+                    : "No reliably dated posts were published today."
                   : rankedPeriod === "month"
                     ? "No reliably dated posts were published in the last 30 days."
                     : "No eligible scored posts match these filters."}
@@ -507,7 +561,9 @@ export function InsightsTabs({
                 {rankedPostsSidecarScope === null
                   ? "The full-corpus post index is being synchronized with this graph."
                   : rankedPeriod === "today"
-                  ? "Posts with unknown or imprecise publication timestamps are excluded from Today."
+                  ? latestPublishedDayLabel
+                    ? "Posts with unknown or imprecise publication timestamps are excluded from the latest published day."
+                    : "Posts with unknown or imprecise publication timestamps are excluded from Today."
                   : rankedPeriod === "month"
                     ? "Posts with unknown or imprecise publication timestamps are excluded from Month."
                     : "Try broadening one or more visibility filters."}
@@ -1389,6 +1445,49 @@ function resolveMomentumPeriod(
     return "wow";
   }
   return "dod";
+}
+
+function fallbackBenchmarkDate(
+  rows: readonly FastestGainingRow[],
+  period: MomentumPeriod
+): string | null {
+  const benchmarkedAt = rows.find((row) =>
+    row[period].baselineSelection === "latest_before_target" &&
+    row[period].benchmarkedAt !== null
+  )?.[period].benchmarkedAt;
+  return benchmarkedAt ? formatCentralSnapshotDate(new Date(benchmarkedAt)) : null;
+}
+
+function momentumControlLabel(period: MomentumPeriod, fallbackDate: string | null): string {
+  if (fallbackDate) {
+    return `Since ${fallbackDate}`;
+  }
+  return period === "dod" ? "Day over day" : "Week over week";
+}
+
+function momentumControlTitle(
+  period: MomentumPeriod,
+  available: boolean,
+  fallbackDate: string | null
+): string | undefined {
+  if (!available) {
+    return unavailableMomentumTitle(period);
+  }
+  if (fallbackDate) {
+    return `The scheduled ${period === "dod" ? "prior-day" : "seven-day"} snapshot is missing; comparing with the latest earlier observed snapshot from ${fallbackDate}.`;
+  }
+  return undefined;
+}
+
+function formatCentralSnapshotDate(date: Date): string | null {
+  if (!Number.isFinite(date.getTime())) {
+    return null;
+  }
+  return new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/Chicago",
+    month: "short",
+    day: "numeric"
+  }).format(date);
 }
 
 function unavailableMomentumTitle(period: MomentumPeriod): string {

@@ -49,7 +49,12 @@ export function selectRankedPosts(
   graph: GraphResponse,
   options: SelectRankedPostsOptions
 ): RankedPost[] {
-  const now = options.now ?? new Date();
+  // Ranked-post artifacts and their sidecars are immutable snapshots. Anchoring
+  // rolling filters to the browser clock makes a successfully published daily
+  // list become empty at Central midnight while the next ingest is still
+  // running. Explicit callers can still supply a live clock; dashboard reads
+  // default to the graph's truthful publication clock.
+  const now = options.now ?? rankedPostsReferenceDate(graph);
   const limit = Math.max(0, Math.min(RANKED_POSTS_LIMIT, Math.trunc(options.limit ?? RANKED_POSTS_LIMIT)));
   const companyNodes = graph.nodes.filter(isCompanyNode);
   const companiesById = new Map(companyNodes.map((node) => [node.entityId, node]));
@@ -124,6 +129,14 @@ export function selectRankedPosts(
     previousScore = score;
     return { ...candidate, rank: tiedRank };
   });
+}
+
+export function rankedPostsReferenceDate(
+  graph: Pick<GraphResponse, "generatedAt">,
+  fallbackNow = new Date()
+): Date {
+  const generatedAt = new Date(graph.generatedAt);
+  return Number.isFinite(generatedAt.getTime()) ? generatedAt : fallbackNow;
 }
 
 /** The single rankability contract shared by the UI and the sidecar builder. */

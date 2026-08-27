@@ -145,6 +145,31 @@ describe("ranked posts", () => {
     expect(ranked.map((item) => item.evidence.id)).toEqual(["at-midnight"]);
   });
 
+  it("anchors an implicit daily filter to the latest published graph day", () => {
+    const snapshot = graph([
+      evidence({
+        id: "latest-published-day",
+        postedAt: "2026-08-26T12:00:00.000Z",
+        sourceUrl: "https://x.com/c/status/711",
+        platformPostId: "711"
+      }),
+      evidence({
+        id: "browser-wall-clock-day",
+        postedAt: "2026-08-27T12:00:00.000Z",
+        sourceUrl: "https://x.com/c/status/712",
+        platformPostId: "712"
+      })
+    ]);
+    snapshot.generatedAt = "2026-08-26T17:00:00.000Z";
+
+    expect(selectRankedPosts(snapshot, { period: "today" }).map((item) => item.evidence.id))
+      .toEqual(["latest-published-day"]);
+    expect(selectRankedPosts(snapshot, {
+      period: "today",
+      now: new Date("2026-08-27T17:00:00.000Z")
+    }).map((item) => item.evidence.id)).toEqual(["browser-wall-clock-day"]);
+  });
+
   it("handles the Central daylight-saving boundary by calendar day", () => {
     const now = new Date("2026-03-08T18:00:00.000Z");
     const ranked = selectRankedPosts(graph([

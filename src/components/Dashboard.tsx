@@ -118,6 +118,7 @@ const YC_PARTNERS_INITIAL_LOAD_DELAY_MS = 2_000;
 const YC_PARTNERS_REVALIDATION_INTERVAL_MS = 60_000;
 const REFRESH_TIMEOUT_MS = 45_000;
 const BACKGROUND_REVALIDATION_DELAY_MS = 30_000;
+const IMMEDIATE_MOMENTUM_REVALIDATION_MAX_AGE_MS = 48 * 60 * 60 * 1_000;
 const RESUME_REVALIDATION_COOLDOWN_MS = 60_000;
 export const RESUME_REVALIDATION_SCOPE_MAX_ENTRIES = 24;
 const SCOPE_TRANSITION_MINIMUM_MS = 650;
@@ -145,6 +146,32 @@ export function recordResumeRevalidationAt(
     cache.delete(oldestKey);
   }
 }
+
+export function graphNeedsImmediateMomentumRevalidation(
+  graph: Pick<GraphResponse, "generatedAt" | "fastestGaining">,
+  now = new Date()
+): boolean {
+  const generatedAt = Date.parse(graph.generatedAt);
+  const age = now.getTime() - generatedAt;
+  if (
+    !Number.isFinite(generatedAt) ||
+    !Number.isFinite(now.getTime()) ||
+    age < 0 ||
+    age > IMMEDIATE_MOMENTUM_REVALIDATION_MAX_AGE_MS ||
+    graph.fastestGaining.length === 0
+  ) {
+    return false;
+  }
+
+  const hasDayComparison = graph.fastestGaining.some((row) =>
+    row.dod.baselineScore !== null && row.dod.baselineRank !== null
+  );
+  const hasWeekComparison = graph.fastestGaining.some((row) =>
+    row.wow.baselineScore !== null && row.wow.baselineRank !== null
+  );
+  return !hasDayComparison && !hasWeekComparison;
+}
+
 const TOPIC_FILTER_GROUPS: readonly DropdownOptionGroup<PostTopic>[] = TOPIC_FILTER_GROUP_ORDER.map((label) => ({
   id: label.toLowerCase().replaceAll(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""),
   label,
@@ -1510,7 +1537,9 @@ export function Dashboard({
       if (cachedEntry?.source === "static") {
         const timeoutId = window.setTimeout(() => {
           void fetchGraph({ background: true, forceApi: true, unfiltered: true });
-        }, BACKGROUND_REVALIDATION_DELAY_MS);
+        }, graphNeedsImmediateMomentumRevalidation(cachedGraph)
+          ? 0
+          : BACKGROUND_REVALIDATION_DELAY_MS);
         return () => window.clearTimeout(timeoutId);
       }
 
@@ -1523,7 +1552,9 @@ export function Dashboard({
         initialGraphHydratedRef.current = false;
         const timeoutId = window.setTimeout(() => {
           void fetchGraph({ background: true, forceApi: true, unfiltered: true });
-        }, BACKGROUND_REVALIDATION_DELAY_MS);
+        }, graphNeedsImmediateMomentumRevalidation(cachedGraph)
+          ? 0
+          : BACKGROUND_REVALIDATION_DELAY_MS);
         return () => window.clearTimeout(timeoutId);
       }
       return;
