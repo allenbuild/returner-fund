@@ -667,8 +667,10 @@ export async function fetchYoutubeChannelCandidates(
  * nominate IDs; every returned candidate is rebuilt from the official player
  * response so renderer counters and relative dates never satisfy a gate.
  *
- * At most four fixed page requests and 24 player requests are issued, with
- * page/detail concurrency capped independently at two/four.
+ * At most four fixed page requests, four official search fallbacks, and 24
+ * player requests are issued, with nomination/detail concurrency capped
+ * independently at two/four. Search responses only nominate IDs; they never
+ * attest identity, publication time, content, or counters.
  */
 export async function fetchYoutubeSearchCandidates(
   fetchImpl: typeof fetch,
@@ -715,6 +717,23 @@ async function fetchYoutubeSearchPreviewIds(
   query: string,
   queryIndex: number
 ): Promise<string[]> {
+  try {
+    const videoIds = await fetchYoutubeSearchPagePreviewIds(fetchImpl, query, queryIndex);
+    if (videoIds.length > 0) return videoIds;
+  } catch {
+    // Public HTML requests can be redirected through Google's anti-abuse
+    // interstitial. Server-side fetch intentionally has no ambient cookie jar,
+    // so following that loop cannot recover the page. The official no-key WEB
+    // search endpoint below is the bounded compatibility path.
+  }
+  return fetchYoutubeInnertubeSearchPreviewIds(fetchImpl, query, queryIndex);
+}
+
+async function fetchYoutubeSearchPagePreviewIds(
+  fetchImpl: typeof fetch,
+  query: string,
+  queryIndex: number
+): Promise<string[]> {
   const source = `youtube_search_q${queryIndex + 1}`;
   const url = new URL("https://www.youtube.com/results");
   url.searchParams.set("search_query", query);
@@ -725,6 +744,9 @@ async function fetchYoutubeSearchPreviewIds(
   try {
     response = await fetchImpl(url, {
       headers: youtubePublicHeaders(),
+      // Do not spend the request budget following a Google sorry -> YouTube
+      // cookie redirect loop that a stateless server fetch cannot complete.
+      redirect: "manual",
       signal: AbortSignal.timeout(12_000)
     });
   } catch {
@@ -735,6 +757,34 @@ async function fetchYoutubeSearchPreviewIds(
   const initialData = parseAssignedJson(html, "ytInitialData");
   if (!initialData) throw new Error(`${source}_invalid_initial_data`);
   return youtubeVideoPreviewIds(initialData, MAX_YOUTUBE_SEARCH_RESULTS_PER_QUERY);
+}
+
+async function fetchYoutubeInnertubeSearchPreviewIds(
+  fetchImpl: typeof fetch,
+  query: string,
+  queryIndex: number
+): Promise<string[]> {
+  const source = `youtube_search_q${queryIndex + 1}_innertube`;
+  const url = new URL("https://www.youtube.com/youtubei/v1/search");
+  url.searchParams.set("prettyPrint", "false");
+  let response: Response;
+  try {
+    response = await fetchImpl(url, {
+      method: "POST",
+      headers: youtubePlayerHeaders(YOUTUBE_WEB_CLIENT_VERSION),
+      body: JSON.stringify({
+        context: youtubeInnertubeContext(YOUTUBE_WEB_CLIENT_VERSION),
+        query,
+        params: YOUTUBE_SEARCH_FILTER
+      }),
+      signal: AbortSignal.timeout(12_000)
+    });
+  } catch {
+    throw new Error(`${source}_fetch_failed`);
+  }
+  if (!response.ok) throw new Error(`${source}_http_${response.status}`);
+  const payload = await readBoundedJson<unknown>(response, source, MAX_YOUTUBE_RESPONSE_BYTES);
+  return youtubeVideoPreviewIds(payload, MAX_YOUTUBE_SEARCH_RESULTS_PER_QUERY);
 }
 
 function roundRobinYoutubeSearchIds(
