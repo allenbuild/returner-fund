@@ -45,7 +45,7 @@ const S26_PARTNERS_GRAPH = buildGraphResponse(
 describe("YC partner exact full-post evidence", () => {
   it.each([
     {
-      companyName: "Instance",
+      companyName: "Most Robotic",
       platformPostId: "2077125864006062268",
       expected: EXPECTED_SENTENCES.Instance
     },
@@ -71,11 +71,11 @@ describe("YC partner exact full-post evidence", () => {
     expect(score.citations[0]?.excerpt).not.toMatch(GENERATED_SUMMARY_PHRASES);
   });
 
-  it("rejects generated summary language from every Ankit/Prized or Instance citation surface", () => {
+  it("rejects generated summary language from every Ankit/Prized or Most Robotic citation surface", () => {
     const relevantEvidence = S26_PARTNERS_GRAPH.evidence.filter(
       (item) =>
         item.topVoice?.displayName === "Ankit Gupta" &&
-        (item.attachedCompanyName === "Prized" || item.attachedCompanyName === "Instance")
+        (item.attachedCompanyName === "Prized" || item.attachedCompanyName === "Most Robotic")
     );
 
     expect(relevantEvidence.length).toBeGreaterThan(0);
@@ -89,7 +89,7 @@ describe("YC partner exact full-post evidence", () => {
 
   it.each([
     {
-      companyName: "Instance",
+      companyName: "Most Robotic",
       platformPostId: "2077125864006062268",
       expected: EXPECTED_SENTENCES.Instance
     },

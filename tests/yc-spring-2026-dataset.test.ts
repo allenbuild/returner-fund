@@ -174,12 +174,24 @@ describe("YC Summer 2026 official snapshot", () => {
   });
 
   it("uses GitHub repository creation—not a later refresh or push—as publication time", () => {
+    const evidence = ycSummer2026GraphDataset.evidence.find(
+      (item) =>
+        item.platform === "github" &&
+        item.sourceUrl === "https://github.com/screenpipe/screenpipe"
+    );
     const repository = summerGithubSnapshot.accounts
       .flatMap((account) => account.repos ?? [])
-      .find((repo) => repo.htmlUrl === "https://github.com/screenpipe/screenpipe");
-    const evidence = ycSummer2026GraphDataset.evidence.find(
-      (item) => item.sourceUrl === "https://github.com/screenpipe/screenpipe"
-    );
+      .find((repo) => {
+        const latestActivity = [repo.updatedAt, repo.pushedAt]
+          .filter((value): value is string => Boolean(value))
+          .sort()
+          .at(-1);
+        return (
+          repo.htmlUrl === evidence?.sourceUrl &&
+          String(repo.id) === evidence?.platformObjectId &&
+          latestActivity === evidence?.last_updated_at
+        );
+      });
 
     expect(repository).toBeDefined();
     expect(repository?.createdAt).not.toBe(repository?.pushedAt);
@@ -189,20 +201,23 @@ describe("YC Summer 2026 official snapshot", () => {
       .at(-1);
     expect(evidence).toEqual(
       expect.objectContaining({
+        id: "evidence-github-repo-company-screenpipe-screenpipe-screenpipe",
         postedAt: repository?.createdAt,
         publishedAtPrecision: "exact",
         observedAt: summerGithubSnapshot.source.fetchedAt,
         last_updated_at: latestRepositoryActivity
       })
     );
-    expect(JSON.parse(evidence?.rawVisibleText ?? "null")).toEqual({
-      repositoryTimestamps: {
-        createdAt: repository?.createdAt,
-        updatedAt: repository?.updatedAt,
-        pushedAt: repository?.pushedAt,
-        observedAt: summerGithubSnapshot.source.fetchedAt
-      }
-    });
+    expect(JSON.parse(evidence?.rawVisibleText ?? "null")).toEqual(
+      expect.objectContaining({
+        repositoryTimestamps: {
+          createdAt: repository?.createdAt,
+          updatedAt: repository?.updatedAt,
+          pushedAt: repository?.pushedAt,
+          observedAt: summerGithubSnapshot.source.fetchedAt
+        }
+      })
+    );
   });
 
   it("reconciles duplicate and targeted GitHub rows to native repository creation", () => {
@@ -366,6 +381,7 @@ describe("YC Summer 2026 official snapshot", () => {
         expect.objectContaining({
           platform: "github",
           sourceUrl: "https://github.com/Graphify-Labs/graphify",
+          platformObjectId: "1200597263",
           contributionScore: 100
         }),
         expect.objectContaining({
@@ -375,6 +391,24 @@ describe("YC Summer 2026 official snapshot", () => {
         expect.objectContaining({
           platform: "hacker_news",
           platformPostId: "47682798"
+        })
+      ])
+    );
+    const graphifyRepository = graphifyEvidence.find(
+      (item) =>
+        item.sourceUrl === "https://github.com/Graphify-Labs/graphify" &&
+        item.platformObjectId === "1200597263"
+    );
+    const graphify = ycSpring2026GraphDataset.companies.find(
+      (company) => company.id === "company-graphify-labs"
+    );
+    expect(graphifyRepository?.socialAccountId).toEqual(expect.any(String));
+    expect(graphify?.socialAccounts).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: graphifyRepository?.socialAccountId,
+          platform: "github",
+          url: "https://github.com/graphify-labs"
         })
       ])
     );

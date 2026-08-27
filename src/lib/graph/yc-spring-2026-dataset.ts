@@ -1861,8 +1861,19 @@ function buildOfficialSummerGithubUrlsByEntityId(): Map<string, Set<string>> {
   for (const company of snapshot.companies) {
     add(companyId(company), company.socialLinks.github);
     add(companyId(company), historicalSocialLinksForSummerCompany(company.slug).github);
+    add(
+      companyId(company),
+      verifiedSocialOverrides[company.slug]?.companySocialLinks?.github
+    );
     for (const founder of company.founders) {
       add(founderId(company, founder), founder.socialLinks.github);
+      add(
+        founderId(company, founder),
+        matchingVerifiedFounderOverride(company, founder.name)?.socialLinks.github
+      );
+    }
+    for (const founder of manualFounderOverrides(company)) {
+      add(manualFounderId(company, founder), founder.socialLinks.github);
     }
   }
 
@@ -2343,25 +2354,38 @@ function resolveEvidenceSocialAccountIds(
   }
 
   return items.map((item) => {
-    const key = socialAccountIdentityKey(
-      item.entityType,
-      item.entityId,
-      item.platform,
-      evidenceAccountUrl(item)
-    );
+    const socialAccountId = evidenceAccountUrls(item)
+      .map((url) => socialAccountIdentityKey(item.entityType, item.entityId, item.platform, url))
+      .map((key) => key ? accountIdByIdentity.get(key) : undefined)
+      .find((accountId): accountId is string => Boolean(accountId));
     return {
       ...item,
-      socialAccountId: key ? accountIdByIdentity.get(key) ?? null : null
+      socialAccountId: socialAccountId ?? null
     };
   });
 }
 
-function evidenceAccountUrl(item: EvidenceItem): string | null {
-  if (item.accountUrl) {
-    return item.accountUrl;
+function evidenceAccountUrls(item: EvidenceItem): string[] {
+  const candidates = item.accountUrl ? [item.accountUrl] : [];
+  if (canDeriveAccountUrlFromSource(item.platform)) {
+    candidates.push(item.sourceUrl);
   }
 
-  return canDeriveAccountUrlFromSource(item.platform) ? item.sourceUrl : null;
+  if (item.platform === "github") {
+    for (const candidate of [...candidates]) {
+      try {
+        const url = new URL(candidate);
+        const owner = url.pathname.split("/").filter(Boolean)[0];
+        if (owner) {
+          candidates.push(`https://github.com/${owner}`);
+        }
+      } catch {
+        // Keep the raw candidate so an explicitly materialized legacy URL can still match.
+      }
+    }
+  }
+
+  return [...new Set(candidates)];
 }
 
 function canDeriveAccountUrlFromSource(platform: Platform): boolean {
