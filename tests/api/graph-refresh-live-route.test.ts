@@ -1393,6 +1393,14 @@ function withV4SnapshotContract(
 ): GraphResponse {
   const capAtGeneration = (value: string | null | undefined) =>
     value && Date.parse(value) > Date.parse(generatedAt) ? generatedAt : value;
+  const withoutBenchmarkProvenance = (
+    delta: GraphResponse["fastestGaining"][number]["dod"]
+  ): GraphResponse["fastestGaining"][number]["dod"] => {
+    const undated = { ...delta };
+    delete undated.baselineSelection;
+    delete undated.baselineStatus;
+    return { ...undated, benchmarkedAt: null };
+  };
   return {
     ...graph,
     generatedAt,
@@ -1408,8 +1416,8 @@ function withV4SnapshotContract(
     })),
     fastestGaining: graph.fastestGaining.map((row) => ({
       ...row,
-      dod: { ...row.dod, benchmarkedAt: null },
-      wow: { ...row.wow, benchmarkedAt: null }
+      dod: withoutBenchmarkProvenance(row.dod),
+      wow: withoutBenchmarkProvenance(row.wow)
     })),
     nodes: graph.nodes.map((node) => {
       const existing = node.scoreBreakdown;

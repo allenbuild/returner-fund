@@ -1,7 +1,7 @@
 {
   "version": 1,
   "batchSlug": "S26",
-  "updatedAt": "2026-08-27T07:10:18.379Z",
+  "updatedAt": "2026-08-27T08:28:00.847Z",
   "daily": [
     {
       "recordedAt": "2026-07-06T05:00:00.000Z",
@@ -38520,9 +38520,9 @@
       ]
     },
     {
-      "recordedAt": "2026-08-27T07:10:18.379Z",
+      "recordedAt": "2026-08-27T08:28:00.847Z",
       "scoringModelVersion": "4.2.0",
-      "inputGeneratedAt": "2026-08-27T07:08:51.012Z",
+      "inputGeneratedAt": "2026-08-27T08:27:29.500Z",
       "companies": [
         {
           "companyId": "company-screenpipe",
@@ -38531,118 +38531,118 @@
           "rank": 1
         },
         {
+          "companyId": "company-graphify-labs",
+          "companyName": "Graphify Labs",
+          "score": 79,
+          "rank": 2
+        },
+        {
           "companyId": "company-tash",
           "companyName": "tash",
           "score": 75,
-          "rank": 2
+          "rank": 3
         },
         {
           "companyId": "company-gutgutgoose",
           "companyName": "Gutgutgoose",
           "score": 74,
-          "rank": 3
+          "rank": 4
         },
         {
           "companyId": "company-lumeria",
           "companyName": "Lumeria",
           "score": 70,
-          "rank": 4
+          "rank": 5
         },
         {
           "companyId": "company-onecli",
           "companyName": "OneCLI",
           "score": 70,
-          "rank": 4
+          "rank": 5
         },
         {
           "companyId": "company-codag",
           "companyName": "Codag",
-          "score": 66,
-          "rank": 6
+          "score": 68,
+          "rank": 7
         },
         {
           "companyId": "company-agnost-ai",
           "companyName": "Agnost AI",
           "score": 62,
-          "rank": 7
+          "rank": 8
         },
         {
           "companyId": "company-executor",
           "companyName": "Executor",
           "score": 62,
-          "rank": 7
+          "rank": 8
         },
         {
           "companyId": "company-vendo",
           "companyName": "Vendo",
           "score": 62,
-          "rank": 7
+          "rank": 8
         },
         {
           "companyId": "company-wondering",
           "companyName": "Wondering",
           "score": 62,
-          "rank": 7
+          "rank": 8
         },
         {
           "companyId": "company-bloomy",
           "companyName": "Bloomy",
           "score": 60,
-          "rank": 11
+          "rank": 12
         },
         {
           "companyId": "company-joinmarble",
           "companyName": "Marble",
           "score": 58,
-          "rank": 12
+          "rank": 13
         },
         {
           "companyId": "company-stoa",
           "companyName": "Stoa",
           "score": 58,
-          "rank": 12
+          "rank": 13
         },
         {
           "companyId": "company-tsenta",
           "companyName": "Tsenta",
           "score": 58,
-          "rank": 12
+          "rank": 13
         },
         {
           "companyId": "company-almanac",
           "companyName": "Almanac",
           "score": 57,
-          "rank": 15
+          "rank": 16
         },
         {
           "companyId": "company-cosmic-robotics",
           "companyName": "Cosmic Robotics",
           "score": 57,
-          "rank": 15
+          "rank": 16
         },
         {
           "companyId": "company-jcode",
           "companyName": "Jcode",
           "score": 57,
-          "rank": 15
+          "rank": 16
         },
         {
           "companyId": "company-contextdev",
           "companyName": "Context.dev",
           "score": 55,
-          "rank": 18
-        },
-        {
-          "companyId": "company-graphify-labs",
-          "companyName": "Graphify Labs",
-          "score": 55,
-          "rank": 18
+          "rank": 19
         },
         {
           "companyId": "company-talentpluto",
           "companyName": "Pluto",
           "score": 55,
-          "rank": 18
+          "rank": 19
         },
         {
           "companyId": "company-rekursivai",
