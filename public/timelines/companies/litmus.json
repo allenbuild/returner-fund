@@ -5,8 +5,8 @@
     "slug": "litmus",
     "name": "Litmus"
   },
-  "generatedAt": "2026-08-26T12:36:58.605Z",
-  "lastModifiedAt": "2026-08-26T12:36:58.605Z",
+  "generatedAt": "2026-08-27T06:26:04.866Z",
+  "lastModifiedAt": "2026-08-27T06:26:04.866Z",
   "events": [
     {
       "id": "tle-f6e70fd523c407ee430698fe",
@@ -47,7 +47,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-08-26T12:36:58.605Z"
+    "lastSuccessfulArtifactAt": "2026-08-27T06:26:04.866Z"
   },
   "nextCursor": null
 }

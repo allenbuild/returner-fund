@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-arga-labs",
+    "slug": "arga-labs",
+    "name": "Arga Labs"
+  },
+  "event": {
+    "id": "tle-79a7c9db07821d583e496391",
+    "eventDate": "2026-08-26",
+    "eventDateType": "announcement_date",
+    "title": "Arga Labs announced seed",
+    "summary": "Arga Labs has raised our 10M seed led by @generalcatalyst.",
+    "category": "funding",
+    "isMajor": true,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-152b83f4d1780bf0233b98ac",
+        "title": "We've raised our 10M seed led by @generalcatalyst.",
+        "publisher": "argalabs",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-08-26T17:20:46.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/argalabs/status/2092663558152867939"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-152b83f4d1780bf0233b98ac",
+        "title": "We've raised our 10M seed led by @generalcatalyst.",
+        "publisher": "argalabs",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-08-26T17:20:46.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/argalabs/status/2092663558152867939",
+        "publicationDate": "2026-08-26T17:20:46.000Z",
+        "excerpt": "We've raised our 10M seed led by @generalcatalyst. Agents are non-deterministic and current testing methods are obsolete. We believe a new primitive is required to test agents, and real-world sandboxes are what we imagine it to look like. Our sandboxes simulate external",
+        "sourceEventDate": "2026-08-26",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-32f6b139d901e8971aa24790",
+        "platform": "x",
+        "account": "argalabs",
+        "postDate": "2026-08-26",
+        "excerpt": "We've raised our 10M seed led by @generalcatalyst. Agents are non-deterministic and current testing methods are obsolete. We believe a new primitive is required to test agents, and real-world sandboxes are what we imagine it to look like. Our sandboxes simulate external",
+        "url": "https://x.com/argalabs/status/2092663558152867939",
+        "metrics": {
+          "likes": 29,
+          "reposts": 1,
+          "replies": 9,
+          "views": 2018
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-27T06:26:04.866Z",
+  "lastModifiedAt": "2026-08-27T06:26:04.866Z"
+}

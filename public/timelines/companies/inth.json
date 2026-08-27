@@ -5,9 +5,33 @@
     "slug": "inth",
     "name": "Inth"
   },
-  "generatedAt": "2026-08-26T12:36:58.605Z",
-  "lastModifiedAt": "2026-08-26T12:36:58.605Z",
+  "generatedAt": "2026-08-27T06:26:04.866Z",
+  "lastModifiedAt": "2026-08-27T06:26:04.866Z",
   "events": [
+    {
+      "id": "tle-ccbad5cfa63c6efafcfbb86d",
+      "eventDate": "2026-08-26",
+      "eventDateType": "announcement_date",
+      "title": "Inth released Today we're launching the @Inth I always wanted",
+      "summary": "Inth announced it was launching the @Inth I always wanted.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-4e70f44cfa15b72ada033471",
+          "title": "Today we’re launching the @Inth I always wanted.",
+          "publisher": "burnedchris",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-08-26T14:45:49.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/burnedchris/status/2092624564102562064"
+        }
+      ]
+    },
     {
       "id": "tle-df01176bf5d39d62e67ea548",
       "eventDate": "2026-08-06",
@@ -73,7 +97,7 @@
       "months": [
         {
           "month": "2026-08",
-          "count": 1
+          "count": 2
         },
         {
           "month": "2026-04",
@@ -84,8 +108,8 @@
   ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 2,
-    "lastSuccessfulArtifactAt": "2026-08-26T12:36:58.605Z"
+    "publishedEventCount": 3,
+    "lastSuccessfulArtifactAt": "2026-08-27T06:26:04.866Z"
   },
   "nextCursor": null
 }

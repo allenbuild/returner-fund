@@ -5,14 +5,59 @@
     "slug": "rasyn",
     "name": "Rasyn"
   },
-  "generatedAt": "2026-08-26T12:36:58.605Z",
-  "lastModifiedAt": "2026-08-26T12:36:58.605Z",
-  "events": [],
-  "groups": [],
+  "generatedAt": "2026-08-27T06:26:04.866Z",
+  "lastModifiedAt": "2026-08-27T06:26:04.866Z",
+  "events": [
+    {
+      "id": "tle-6df31b948d8173dcfa16d0c0",
+      "eventDate": "2026-08-26",
+      "eventDateType": "announcement_date",
+      "title": "Rasyn released MarigoldBench",
+      "summary": "Rasyn introduced MarigoldBench, a benchmark that measures whether an AI model can do the computational work that sits between a dataset and a decision in drug discovery.",
+      "category": "product_launch",
+      "isMajor": true,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 2,
+      "sourcePreview": [
+        {
+          "id": "src-cb21e2af30fee34238f19f20",
+          "title": "Introducing MarigoldBench, a benchmark that measures whether an AI model can do the computational work that sits between a dataset and a decision in drug discovery.",
+          "publisher": "rasyn_lab",
+          "domain": "x.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-08-26T19:10:00.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/rasyn_lab/status/2092691046098722854"
+        },
+        {
+          "id": "src-1ae2a40e2b9e70c42a40b45f",
+          "title": "Introducing MarigoldBench, a benchmark that measures whether an AI model can do the computational work that sits between a dataset and a decision in drug discovery.",
+          "publisher": "rasyn_lab",
+          "domain": "x.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-08-26T20:07:21.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/rasyn_lab/status/2092705478346506284"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-08",
+          "count": 1
+        }
+      ]
+    }
+  ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 0,
-    "lastSuccessfulArtifactAt": "2026-08-26T12:36:58.605Z"
+    "publishedEventCount": 1,
+    "lastSuccessfulArtifactAt": "2026-08-27T06:26:04.866Z"
   },
   "nextCursor": null
 }

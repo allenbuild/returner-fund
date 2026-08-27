@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-ara",
+    "slug": "ara",
+    "name": "Ara"
+  },
+  "event": {
+    "id": "tle-4357f198b3f10e3dfc63650e",
+    "eventDate": "2026-08-26",
+    "eventDateType": "announcement_date",
+    "title": "Ara released new Ara The fastest way to code Codex or Claude Code layout from...",
+    "summary": "Ara introduced a new Ara The fastest way to code Codex or Claude Code layout from settings Pick the model.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-b748d3514da946742ff634e4",
+        "title": "Introducing a new Ara The fastest way to code Codex or Claude Code layout from settings Pick the model.",
+        "publisher": "xadisingh",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-08-26T14:18:44.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/xadisingh/status/2092617744969851274"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-b748d3514da946742ff634e4",
+        "title": "Introducing a new Ara The fastest way to code Codex or Claude Code layout from settings Pick the model.",
+        "publisher": "xadisingh",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-08-26T14:18:44.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/xadisingh/status/2092617744969851274",
+        "publicationDate": "2026-08-26T14:18:44.000Z",
+        "excerpt": "Introducing a new Ara The fastest way to code Codex or Claude Code layout from settings Pick the model. Connect the provider you already pay The run stays in the same session as the chat Get started free of charge",
+        "sourceEventDate": "2026-08-26",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-74d6c8e34a17d79772b9b6ec",
+        "platform": "x",
+        "account": "xadisingh",
+        "postDate": "2026-08-26",
+        "excerpt": "Introducing a new Ara The fastest way to code Codex or Claude Code layout from settings Pick the model. Connect the provider you already pay The run stays in the same session as the chat Get started free of charge",
+        "url": "https://x.com/xadisingh/status/2092617744969851274",
+        "metrics": {
+          "likes": 93,
+          "reposts": 3,
+          "replies": 7,
+          "views": 8901
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-27T06:26:04.866Z",
+  "lastModifiedAt": "2026-08-27T06:26:04.866Z"
+}

@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-inth",
+    "slug": "inth",
+    "name": "Inth"
+  },
+  "event": {
+    "id": "tle-ccbad5cfa63c6efafcfbb86d",
+    "eventDate": "2026-08-26",
+    "eventDateType": "announcement_date",
+    "title": "Inth released Today we're launching the @Inth I always wanted",
+    "summary": "Inth announced it was launching the @Inth I always wanted.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-4e70f44cfa15b72ada033471",
+        "title": "Today we’re launching the @Inth I always wanted.",
+        "publisher": "burnedchris",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-08-26T14:45:49.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/burnedchris/status/2092624564102562064"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-4e70f44cfa15b72ada033471",
+        "title": "Today we’re launching the @Inth I always wanted.",
+        "publisher": "burnedchris",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-08-26T14:45:49.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/burnedchris/status/2092624564102562064",
+        "publicationDate": "2026-08-26T14:45:49.000Z",
+        "excerpt": "Today we’re launching the @Inth I always wanted. Privacy shouldn’t become a fire drill when diligence starts. It should live in the codebase, on the website and in every PR. That’s what we’ve built. We spent months rebuilding Inth from the bottom-up, and I am so excited for it",
+        "sourceEventDate": "2026-08-26",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-0a87b4549a605e6df73682c7",
+        "platform": "x",
+        "account": "burnedchris",
+        "postDate": "2026-08-26",
+        "excerpt": "Today we’re launching the @Inth I always wanted. Privacy shouldn’t become a fire drill when diligence starts. It should live in the codebase, on the website and in every PR. That’s what we’ve built. We spent months rebuilding Inth from the bottom-up, and I am so excited for it",
+        "url": "https://x.com/burnedchris/status/2092624564102562064",
+        "metrics": {
+          "likes": 61,
+          "reposts": 3,
+          "replies": 11,
+          "views": 5837
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-27T06:26:04.866Z",
+  "lastModifiedAt": "2026-08-27T06:26:04.866Z"
+}

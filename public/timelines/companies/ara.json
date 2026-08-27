@@ -5,9 +5,33 @@
     "slug": "ara",
     "name": "Ara"
   },
-  "generatedAt": "2026-08-26T12:36:58.605Z",
-  "lastModifiedAt": "2026-08-26T12:36:58.605Z",
+  "generatedAt": "2026-08-27T06:26:04.866Z",
+  "lastModifiedAt": "2026-08-27T06:26:04.866Z",
   "events": [
+    {
+      "id": "tle-4357f198b3f10e3dfc63650e",
+      "eventDate": "2026-08-26",
+      "eventDateType": "announcement_date",
+      "title": "Ara released new Ara The fastest way to code Codex or Claude Code layout from...",
+      "summary": "Ara introduced a new Ara The fastest way to code Codex or Claude Code layout from settings Pick the model.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-b748d3514da946742ff634e4",
+          "title": "Introducing a new Ara The fastest way to code Codex or Claude Code layout from settings Pick the model.",
+          "publisher": "xadisingh",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-08-26T14:18:44.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/xadisingh/status/2092617744969851274"
+        }
+      ]
+    },
     {
       "id": "tle-9f5620487a94b41bfddd9f83",
       "eventDate": "2026-07-25",
@@ -312,6 +336,10 @@
       "year": 2026,
       "months": [
         {
+          "month": "2026-08",
+          "count": 1
+        },
+        {
           "month": "2026-07",
           "count": 5
         },
@@ -336,8 +364,8 @@
   ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 12,
-    "lastSuccessfulArtifactAt": "2026-08-26T12:36:58.605Z"
+    "publishedEventCount": 13,
+    "lastSuccessfulArtifactAt": "2026-08-27T06:26:04.866Z"
   },
   "nextCursor": null
 }

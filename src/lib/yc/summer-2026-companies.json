@@ -4,7 +4,7 @@
     "directoryUrl": "https://www.ycombinator.com/companies?batch=Summer%202026",
     "algoliaIndex": "YCCompany_production",
     "algoliaFilter": "batch:\"Summer 2026\"",
-    "fetchedAt": "2026-08-26T11:39:32.678Z",
+    "fetchedAt": "2026-08-27T05:50:35.407Z",
     "expectedCompanyCount": 236,
     "observedCompanyCount": 236,
     "minimumCompanyCount": 167,
@@ -691,7 +691,7 @@
       "batch": "Summer 2026",
       "ycProfileUrl": "https://www.ycombinator.com/companies/alloovium",
       "websiteUrl": "https://www.alloovium.com/en",
-      "tagline": "Construction paperwork that finally works for your team",
+      "tagline": "The company brain for construction companies",
       "description": "Alloovium is the document intelligence layer for construction 🏗️ It reads every document and piece of data on a project (contracts, specs, drawings, compliance records, conversations), turning them into answers you can trust and actions with real value: every answer cites its exact source sentence, paperwork is checked clause by clause against the builder's own Integrated Management System, and nothing AI-drafted moves without a human sign-off, with it all compliant by default.",
       "industry": "Real Estate and Construction",
       "subindustry": "Real Estate and Construction -> Construction",
@@ -700,8 +700,8 @@
         "Construction"
       ],
       "tags": [
-        "Artificial Intelligence",
-        "Construction"
+        "Construction",
+        "AI"
       ],
       "location": "Brisbane, Australia",
       "teamSize": 5,
@@ -1555,7 +1555,7 @@
           "id": "3763127",
           "name": "Campbell Mercer-Butcher",
           "title": "Founder/CTO",
-          "bio": "Co-founder at Avoca Systems (YC S26). Previously Principal Software Engineer at Honey Insurance and Tech Lead at Ailo. Founded and led engineering at Epex.",
+          "bio": "Co-founder at Avoca Systems (YC S26). Principal engineer at Honey Insurance, Macquarie Bank, and Ailo. Built Macquarie's robo-advice platform, used by 1,000+ financial advisors, and automated claims processing at Honey, replacing manual review with instant decisions.",
           "ycProfileUrl": "https://www.ycombinator.com/people/campbell-mercer-butcher",
           "socialLinks": {
             "linkedin": "https://www.linkedin.com/in/campbell-mercer-butcher"
@@ -2130,8 +2130,9 @@
         "B2B"
       ],
       "tags": [
-        "Artificial Intelligence",
         "SaaS",
+        "B2B",
+        "AI",
         "Automotive"
       ],
       "location": "Los Angeles, CA",
@@ -2196,7 +2197,6 @@
       "groupPartner": "Brad Flora",
       "groupPartnerUrl": "https://www.ycombinator.com/people/brad-flora",
       "socialLinks": {
-        "github": "https://codeberg.org/caution",
         "linkedin": "https://www.linkedin.com/company/cautionco",
         "x": "https://x.com/CautionHosting"
       },
@@ -2491,7 +2491,7 @@
           "id": "1194042",
           "name": "Prateek Jannu",
           "title": "Founder/CEO",
-          "bio": "Love bagels and writing code, sometimes computers get involved and a lot of people like it.",
+          "bio": "Building CoArena (Computer-Use evals we all can trust), dropped out of Stanford. Love bagels and writing code, sometimes computers get involved and a lot of people like it.",
           "ycProfileUrl": "https://www.ycombinator.com/people/prateek-jannu",
           "socialLinks": {
             "linkedin": "https://linkedin.com/in/prateekjannu",
@@ -2631,7 +2631,7 @@
         {
           "id": "3664042",
           "name": "Michael Jeffords",
-          "title": "Founder/CEO",
+          "title": "Founder/CGO",
           "bio": "Co-founder at Conifer (YC S26). Previously co-founded The HeartCheck Foundation, scaling free hypertension screenings to 20+ barbershops and over 10,000 individuals. Engineered an ML-driven computer vision pipeline using pose estimation for early-onset ALS and Parkinson's detection. Former clinical researcher at the Dell Med Institute of Vascular Surgery and UTHSC, specializing in hematopoetic stem cell transplantation, achieving infiltration levels >90% in mouse models. ",
           "ycProfileUrl": "https://www.ycombinator.com/people/michael-jeffords",
           "socialLinks": {
@@ -3859,7 +3859,7 @@
       "batch": "Summer 2026",
       "ycProfileUrl": "https://www.ycombinator.com/companies/egoist-machines",
       "websiteUrl": "https://ego.ist/",
-      "tagline": "Secure, user-owned context for every AI app",
+      "tagline": "Your personal context, securely portable across every AI app and…",
       "description": "Egoist Machines is building the user-owned context layer that will be the unlock for the next generation of consumer AI applications. Our product, AI Passport, lets people carry the personal context they generate in everyday apps into any new product, so it understands them from the first interaction. Tell ChatGPT something and Claude already knows, for example, without any app ever owning your data.\n\nThe bottleneck for consumer AI is shifting from the model to context. Models can already handle most everyday tasks for the average user, but every new app starts cold, forcing users to re-explain themselves and forcing businesses to rebuild profiles of data that already exist.\n\nApps integrate with a \"Sign in with AI Passport\" button, then request specific information for a stated purpose and duration. Users stay in control of what moves between products and can revoke access later, which matters most for sensitive health and financial context. Under the hood, AI Passport runs on our own vector database built for fast, compact per-user memory with cryptographically enforced access control.\n\nWe're building first-party apps that give people a reason to create their Passport today, while integrating it into consumer products with existing audiences of billions.\n\nOur North Star: your context living on your own device, sovereign to you, with every model, app, and agent coming to you.",
       "industry": "Consumer",
       "subindustry": "Consumer",
@@ -4557,7 +4557,7 @@
       "ycProfileUrl": "https://www.ycombinator.com/companies/financial-datasets",
       "websiteUrl": "https://financialdatasets.ai/",
       "tagline": "Connect your agent to the stock market ",
-      "description": "Financial Datasets gives agents access to real-time global financial data.\r\n\r\nWe index financial data directly from primary sources and make it available through fast, predictable APIs built for machines.\r\n\r\nEarnings, news, fundamentals, KPIs, and more. All searchable within seconds of publication.\r\n\r\nWe're building the default data layer for financial agents doing research at scale.",
+      "description": "Financial Datasets gives agents access to real-time global market information.\r\n\r\nWe index the world's markets so agents can search every filing, answer any financial question, and monitor markets in real time.\r\n\r\nFor 40 years, market data was built for humans reading a screen. We are rebuilding it for agents that research every company, all day, across the world.",
       "industry": "B2B",
       "subindustry": "B2B",
       "industries": [
@@ -4565,6 +4565,7 @@
       ],
       "tags": [
         "Fintech",
+        "Investing",
         "AI",
         "Stocks"
       ],
@@ -4582,7 +4583,7 @@
           "id": "2001420",
           "name": "Virat Singh",
           "title": "Founder/CEO",
-          "bio": "Founder at Financial Datasets (YC S26). Previously tech lead at Faire, building listing quality recommendations and shipping experience. Earlier software engineer at Airbnb (Payments, Experiences, Search), Acorns, GoPro, and Sony. Started career in buy-side M&A at Gateway Partners. BA Economics, UC San Diego.",
+          "bio": "Founder at Financial Datasets. 90,000+ stars on AI x Finance projects on GitHub.  Previously tech lead at Faire, building search recommendations. Earlier software engineer at Airbnb (Payments, Search) and Acorns. Started career in buy-side M&A",
           "ycProfileUrl": "https://www.ycombinator.com/people/virat-singh",
           "socialLinks": {
             "linkedin": "https://www.linkedin.com/in/singhvirat/",
@@ -5230,7 +5231,7 @@
       "batch": "Summer 2026",
       "ycProfileUrl": "https://www.ycombinator.com/companies/gutgutgoose",
       "websiteUrl": "https://gutgutgoose.com/",
-      "tagline": "Personalized probiotics, guaranteed to colonize.",
+      "tagline": "We sequence your gut and build the probiotics it’s missing",
       "description": "Most data companies pay for their data. Ours pays for itself.\r\nCustomers send us a stool sample. We sequence it, build a metabolic model of that gut, and simulate whether each probiotic strain has an open niche it can colonize. We formulate the best candidates, then re-sequence 90 days later to see what actually took hold and what changed. Each cycle gives us the baseline gut, the intervention, and the outcome. At scale, the endgame is models that predict chronic disease years before symptoms.",
       "industry": "Healthcare",
       "subindustry": "Healthcare",
@@ -5424,7 +5425,7 @@
       "tags": [
         "B2B",
         "Design",
-        "3D Printing",
+        "Design Tools",
         "Manufacturing",
         "Industrial"
       ],
@@ -6264,7 +6265,7 @@
           "id": "3752974",
           "name": "James Tennant",
           "title": "Founder",
-          "bio": "I'm a co-founder of Isengard Industries. We build counter-drone interceptors that allies manufacture locally at a fraction of prime cost. \n\nBefore Isengard I served as an Australian Army Officer, then spent a decade in private equity and private credit. I ran Balmoral, a private credit fund, and have led diligence and structuring on defence-tech deals across Australia, Ukraine and the Gulf. I'm also completing a PhD on economic warfare and hybrid threats.",
+          "bio": "I'm a co-founder of Isengard Industries. We build attack drones and counter-drone interceptors that allies manufacture locally at a fraction of prime cost. \n\nBefore Isengard I served as an Australian Army Officer. I have spent a decade in private equity and private credit. I ran Balmoral, a Defense Investment Bank, and have led diligence and structuring on defence-tech deals across Australia, Ukraine and the Gulf. \n\nI'm also completing a PhD on economic warfare and hybrid threats.",
           "ycProfileUrl": "https://www.ycombinator.com/people/james-tennant",
           "socialLinks": {
             "linkedin": "https://www.linkedin.com/in/jamesjtennant/"
@@ -6587,7 +6588,7 @@
       "batch": "Summer 2026",
       "ycProfileUrl": "https://www.ycombinator.com/companies/lato",
       "websiteUrl": "https://www.latolabs.io/",
-      "tagline": "Agent-native research and simulation platform for investors",
+      "tagline": "Agentic deal diligence for institutional investors",
       "description": "The best investments come from conviction, and conviction comes from understanding a market deeply: its customers, its competitors, and where it's heading.\r\n\r\nToday that understanding is slow and expensive to build. Reaching the right people takes weeks, a commercial study costs $300k+, and each one starts from scratch.\r\n\r\nLATO does this research end-to-end, combining public data and the fund's own knowledge with first-hand interviews of a market's consumers, experts, and operators. \r\n\r\nThis research grounds a simulation of the market to predict how market participants behave.",
       "industry": "B2B",
       "subindustry": "B2B",
@@ -6595,10 +6596,10 @@
         "B2B"
       ],
       "tags": [
-        "Artificial Intelligence",
         "B2B",
         "Investing",
-        "Market Research"
+        "Market Research",
+        "AI"
       ],
       "location": "San Francisco",
       "teamSize": 2,
@@ -6607,14 +6608,14 @@
       "groupPartnerUrl": "https://www.ycombinator.com/people/gustaf-alstromer",
       "socialLinks": {
         "linkedin": "https://www.linkedin.com/company/lato",
-        "x": "https://x.com/latolabs_io"
+        "x": "https://x.com/lato_ai"
       },
       "founders": [
         {
           "id": "3156352",
           "name": "Tymek Staniszewski",
           "title": "Founder/CEO",
-          "bio": "Co-Founder at LATO - agent-native research and simulation platform for investors.\nPreviously 6 years in growth and private equity at Verdane (11$bn AUM).",
+          "bio": "Co-Founder at LATO - agentic deal diligence for institutional investors.\nPreviously 6 years in growth and private equity at Verdane ($11B AUM).",
           "ycProfileUrl": "https://www.ycombinator.com/people/tymek-staniszewski",
           "socialLinks": {
             "linkedin": "https://www.linkedin.com/in/tymeks/",
@@ -7481,7 +7482,7 @@
           "id": "334251",
           "name": "David Pastewka",
           "title": "Founder",
-          "bio": "Co-founder of Marker. Previously co-founded Drapr (S20), acquired by Gap Inc. UC Berkeley, Business & Computer Science.",
+          "bio": "Co-founder & CEO of Marker. Previously co-founded Drapr (S20), acquired by Gap Inc. UC Berkeley, Business & Computer Science.",
           "ycProfileUrl": "https://www.ycombinator.com/people/david-pastewka",
           "socialLinks": {
             "linkedin": "https://www.linkedin.com/in/davidpastewka/"
@@ -8742,10 +8743,10 @@
       ],
       "tags": [
         "AIOps",
-        "Artificial Intelligence",
         "B2B",
         "Workflow Automation",
-        "Enterprise Software"
+        "Enterprise Software",
+        "AI"
       ],
       "location": "San Francisco",
       "teamSize": 3,
@@ -8753,14 +8754,14 @@
       "groupPartner": "Jared Friedman",
       "groupPartnerUrl": "https://www.ycombinator.com/people/jared-friedman",
       "socialLinks": {
-        "linkedin": "https://www.linkedin.com/company/gini-agent/"
+        "linkedin": "https://www.linkedin.com/company/109881466"
       },
       "founders": [
         {
           "id": "802295",
           "name": "Tony Kam",
           "title": "Founder/CEO",
-          "bio": "Building Open Tag. Previously at Tesla and founded Lilac Labs (S24). Studied EECS at Berkeley.",
+          "bio": "Co-founder and CEO at Open Tag. Previously at Tesla and founded Lilac Labs (S24). Studied EECS at Berkeley.",
           "ycProfileUrl": "https://www.ycombinator.com/people/tony-kam",
           "socialLinks": {
             "linkedin": "https://linkedin.com/in/tonyshekkam",
@@ -9636,7 +9637,7 @@
       "ycProfileUrl": "https://www.ycombinator.com/companies/talentpluto",
       "websiteUrl": "https://talentpluto.com",
       "tagline": "AI voice agent that helps professionals get discovered",
-      "description": "Resumes made careers readable. LinkedIn made them searchable. Pluto makes them understood.\n\nProfessionals spend 10 minutes talking to Pluto's voice agent about what they've done, what they're great at, and what they want next. Pluto turns that into a structured picture of who someone actually is, capturing the competency and intent that resumes and LinkedIn don't.\n\nWhen companies and AI agents go looking to hire, Pluto makes the right people discoverable.\n\n25K+ professionals have shared their career context with Pluto, and 50+ companies, including Mercor, Warp, and Rho, use it to find and reach the right people. Long term, we're building the professional data layer AI agents will use to understand and find people.",
+      "description": "Resumes made careers readable. LinkedIn made them filterable. Pluto makes them searchable.\r\n\r\nProfessionals spend 10 minutes talking to Pluto's voice agent about what they've done, what they're great at, and what they want next. Pluto turns that into a structured picture of who someone actually is, capturing the competency and intent that resumes and LinkedIn don't.\r\n\r\nWhen companies and AI agents go looking to hire, Pluto makes the right people discoverable.\r\n\r\n25K+ professionals have shared their career context with Pluto, and 50+ companies, including Mercor, Warp, and Rho, use it to find and reach the right people. Long term, we're building the professional data layer AI agents will use to understand and find people.\r\n",
       "industry": "B2B",
       "subindustry": "B2B -> Recruiting and Talent",
       "industries": [
@@ -9644,7 +9645,7 @@
         "Recruiting and Talent"
       ],
       "tags": [
-        "AI",
+        "Artificial Intelligence",
         "Careers",
         "Conversational AI"
       ],
@@ -10417,7 +10418,7 @@
           "id": "3475945",
           "name": "Ansh Tiwari",
           "title": "Founder/CEO",
-          "bio": "ceo at rasyn (S26)",
+          "bio": "Co-Founder/CEO at Rasyn (S26)",
           "ycProfileUrl": "https://www.ycombinator.com/people/ansh-tiwari",
           "socialLinks": {}
         },
@@ -11122,7 +11123,6 @@
       "groupPartner": "Gustaf Alstromer",
       "groupPartnerUrl": "https://www.ycombinator.com/people/gustaf-alstromer",
       "socialLinks": {
-        "github": "https://github.com/screenpipe",
         "linkedin": "https://www.linkedin.com/company/screenpipe",
         "x": "https://x.com/screenpipe"
       },
@@ -11546,7 +11546,7 @@
       "batch": "Summer 2026",
       "ycProfileUrl": "https://www.ycombinator.com/companies/speko",
       "websiteUrl": "https://speko.ai/?utm_source=ycombinator&utm_medium=profile",
-      "tagline": "A router for voice models. One key, every model.",
+      "tagline": "OpenRouter for Voice",
       "description": "Speko is a router for voice models: one API key, and your voice agent runs on the speech-to-text, LLM, and text-to-speech models we measured as best for your language and use case. The measurements are public at benchmarks.speko.ai: we test new models the day they ship and re-route when the numbers change, so you rewrite nothing. We ran this bake-off by hand for four years at Hupo, shipping production voice for Morgan Stanley, Prudential, HSBC, and Grab.",
       "industry": "B2B",
       "subindustry": "B2B -> Infrastructure",
@@ -11555,8 +11555,8 @@
         "Infrastructure"
       ],
       "tags": [
-        "Artificial Intelligence",
         "Developer Tools",
+        "AI",
         "Conversational AI"
       ],
       "location": "San Francisco",
@@ -11891,13 +11891,14 @@
       "name": "Sunflower",
       "batch": "Summer 2026",
       "ycProfileUrl": "https://www.ycombinator.com/companies/sunflower",
-      "websiteUrl": "https://sunflowersober.com/",
-      "tagline": "Building the Sobriety Platform for the future of Superintelligence. 🌻",
-      "description": "Sunflower is on a mission to create one trillion days sober. Our product is both a consumer app (think a \"Duolingo for addiction\") but also with a tele-therapy clinic inside. \r\n\r\nConsumer App: \r\n- We built the #1 AI Sponsor for any kind of addiction\r\n- Beautiful visual progression tracking to power the core \"task to be done\" of addiction\r\n- A twitter style social media for addicts \r\n- DIY learn content (think Masterclass for addiction) for all major addiction types \r\n- CBT based journaling exercises \r\n\r\nTele-Therapy: \r\n- Think a \"Early Medical Peter Attia\" quality of clinic, but completely focused on addiction \r\n- Starting with talk therapy in CA & TX we're rolling out to all 50 states + MAT \r\n- Bringing together the worlds best doctors to create the most effective protocol for addiction \r\n\r\nSunflower went from 0 - 100k MAU in less than 6 months, and now we're continuing the traction to create the #1 product for addiction for the 1.2B humans on this planet that struggle with this fundamental human problem. ",
-      "industry": "Consumer",
-      "subindustry": "Consumer",
+      "websiteUrl": "https://sunflowerclinic.com/",
+      "tagline": "We are building an AI-native telemedicine clinic for addiction. 🌻",
+      "description": "Sunflower is building an AI-native telemedicine clinic for addiction. There are over 18,750 patients on a waitlist for Therapy or Meds, representing $153M worth of TAM just waiting to be served. \r\n\r\nWe started by launching Sunflower Sober, the first AI Sponsor for addiction which grew to 100 MAU in less than 6 months and currently driving about $1.5M in run-rate worth of subscription app revenue.  \r\n\r\nSunflower Sober is currently pacing to add over 800,000 new users a year which means we are growing literally faster than Alcoholics Anonymous. \r\n\r\nWe have built one of the largest and most deeply loved brands within sobriety, and now we are building the clinical services underneath this brand to better fulfill on our mission & serve Medicaid who spends over $30B a year on SUD services. \r\n\r\nSunflower is founded by Koby who previously led Growth at Rupa from $5M to $75M/year. Our team includes clinical leaders (MDs / LPCs) from the Mayo Clinic, Choose Your Horizon, & Charlie Health. ",
+      "industry": "Healthcare",
+      "subindustry": "Healthcare -> Healthcare Services",
       "industries": [
-        "Consumer"
+        "Healthcare",
+        "Healthcare Services"
       ],
       "tags": [],
       "location": "San Francisco",
@@ -12089,7 +12090,7 @@
       "ycProfileUrl": "https://www.ycombinator.com/companies/tash",
       "websiteUrl": "https://www.tash.cards/",
       "tagline": "The investment platform for sports & trading cards",
-      "description": "tash (www.tash.cards) is building the investment platform for sports and trading cards. We create professionally constructed portfolios of iconic, investment-grade cards, giving investors exposure to the asset class without the hassle of selecting, buying, storing, and selling individual cards.\r\n\r\nTrading card investing remains fragmented, opaque, and difficult to access. tash is building the infrastructure to make the asset class simpler, more transparent, and professionally managed. We are currently pursuing SEC qualification to launch regulated investment offerings backed by trading cards.",
+      "description": "tash is building the investment platform for sports and trading cards. We create professionally constructed portfolios of iconic, investment-grade cards, giving investors exposure to the asset class without the hassle of selecting, buying, storing, and selling individual cards.\r\n\r\nTrading card investing remains fragmented, opaque, and difficult to access. tash is building the infrastructure to make the asset class simpler, more transparent, and professionally managed. We are currently pursuing SEC qualification to launch regulated investment offerings backed by trading cards.",
       "industry": "Consumer",
       "subindustry": "Consumer",
       "industries": [
@@ -12425,7 +12426,7 @@
       "batch": "Summer 2026",
       "ycProfileUrl": "https://www.ycombinator.com/companies/touchy",
       "websiteUrl": "https://touchyapp.com",
-      "tagline": "AI voice assistant that understands the world around you",
+      "tagline": "AI iOS assistant that instantly uses voice and video to take action",
       "description": "Touchy is your personal AI assistant that lives on your iPhone. One button press and you're talking to an assistant that sees what you see, remembers what you tell it, and takes action across 1,000+ apps--so you can get back to living in the moment.",
       "industry": "Consumer",
       "subindustry": "Consumer",
@@ -12712,16 +12713,16 @@
       "ycProfileUrl": "https://www.ycombinator.com/companies/trope",
       "websiteUrl": "https://trope.ai",
       "tagline": "AI FDE that deploys custom AI agents into ERPs",
-      "description": "Trope deploys custom AI agents into ERPs for mid-market companies. Our AI FDE learns each company’s customized ERP and business processes, then builds and deploys the agents needed for their specific workflows.",
+      "description": "Trope deploys AI agents into ERPs for mid-market companies.\r\n\r\nNo two ERPs are the same. Every ERP has been configured over months by implementation consultants.\r\n\r\nThat means every useful AI agent requires customization, leaving ERP vendors, consulting firms, and customers stuck with slow deployments, subpar solutions, and services that are too expensive to scale.\r\n\r\nTrope’s AI FDE learns each company’s ERP and business processes, then builds, tests, and deploys the agents automatically, turning that last mile from services into software.",
       "industry": "B2B",
       "subindustry": "B2B",
       "industries": [
         "B2B"
       ],
       "tags": [
-        "Artificial Intelligence",
         "SaaS",
-        "B2B"
+        "B2B",
+        "AI"
       ],
       "location": "San Francisco",
       "teamSize": 2,
@@ -13371,10 +13372,10 @@
           "id": "3411757",
           "name": "Joshua Tang",
           "title": "Founder",
-          "bio": "Founder at Vestris. Built an autonomous weed killing robot, reinvented the bike lock, and worked on Michigan's Formula SAE team.",
+          "bio": "Founder at Vestris, with the goal of becoming an AI-native title company. Studied Computer Engineering at the University of Michigan, and built telemetry software for MRacing, the school's FSAE team.",
           "ycProfileUrl": "https://www.ycombinator.com/people/joshua-tang",
           "socialLinks": {
-            "linkedin": "https://www.linkedin.com/in/joshua-tang-449717279/",
+            "linkedin": "https://www.linkedin.com/in/tangjoshua/",
             "x": "https://x.com/joshtang07"
           }
         },
@@ -13621,7 +13622,7 @@
           "id": "3675432",
           "name": "Angelica Kosasih",
           "title": "Founder/CTO",
-          "bio": "Co-Founder of Wondering\nPrev Meta, Cornell",
+          "bio": "Co-Founder of Wondering\nPrev Meta",
           "ycProfileUrl": "https://www.ycombinator.com/people/angelica-kosasih",
           "socialLinks": {
             "linkedin": "https://www.linkedin.com/in/angelica-kosasih/",

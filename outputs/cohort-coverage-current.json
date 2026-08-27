@@ -12,8 +12,8 @@
         "catalog": "src/lib/social/a16z-speedrun-006-social-accounts.json",
         "profileSource": "src/lib/graph/a16z-speedrun-006-dataset.ts",
         "graph": "public/graph/a16zsr006.json",
-        "publicRun": "/Users/allenxu/Library/Application Support/Returner Fund OpenCLI/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-08-26-0600-636798a295f90683/public-a16zsr006.json",
-        "githubRun": "/Users/allenxu/Library/Application Support/Returner Fund OpenCLI/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-08-26-0600-636798a295f90683/github-a16zsr006.json"
+        "publicRun": "/Users/allenxu/Library/Application Support/Returner Fund OpenCLI/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-08-26-1800-d79e5473d4fe33e6/public-a16zsr006.json",
+        "githubRun": "/Users/allenxu/Library/Application Support/Returner Fund OpenCLI/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-08-26-1800-d79e5473d4fe33e6/github-a16zsr006.json"
       },
       "counts": {
         "companies": 59,
@@ -828,8 +828,8 @@
         "catalog": "src/lib/yc/spring-2026-companies.json",
         "profileSource": null,
         "graph": "public/graph/s2026.json",
-        "publicRun": "/Users/allenxu/Library/Application Support/Returner Fund OpenCLI/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-08-26-0600-636798a295f90683/public-s2026.json",
-        "githubRun": "/Users/allenxu/Library/Application Support/Returner Fund OpenCLI/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-08-26-0600-636798a295f90683/github-s2026.json"
+        "publicRun": "/Users/allenxu/Library/Application Support/Returner Fund OpenCLI/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-08-26-1800-d79e5473d4fe33e6/public-s2026.json",
+        "githubRun": "/Users/allenxu/Library/Application Support/Returner Fund OpenCLI/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-08-26-1800-d79e5473d4fe33e6/github-s2026.json"
       },
       "counts": {
         "companies": 197,
@@ -840,7 +840,7 @@
         "plannedOwnerMappings": 994,
         "multiAccountOwnerMappings": 1,
         "graphEvidence": 5000,
-        "graphNeedsReview": 10071
+        "graphNeedsReview": 10085
       },
       "structural": {
         "status": "pass",
@@ -2348,19 +2348,19 @@
         "catalog": "src/lib/yc/summer-2026-companies.json",
         "profileSource": null,
         "graph": "public/graph/s26.json",
-        "publicRun": "/Users/allenxu/Library/Application Support/Returner Fund OpenCLI/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-08-26-0600-636798a295f90683/public-s26.json",
-        "githubRun": "/Users/allenxu/Library/Application Support/Returner Fund OpenCLI/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-08-26-0600-636798a295f90683/github-s26.json"
+        "publicRun": "/Users/allenxu/Library/Application Support/Returner Fund OpenCLI/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-08-26-1800-d79e5473d4fe33e6/public-s26.json",
+        "githubRun": "/Users/allenxu/Library/Application Support/Returner Fund OpenCLI/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-08-26-1800-d79e5473d4fe33e6/github-s26.json"
       },
       "counts": {
         "companies": 236,
         "founders": 470,
-        "catalogOwnerMappings": 1142,
-        "graphOwnerMappings": 1133,
-        "catalogOwnerPlatformGroups": 1140,
-        "plannedOwnerMappings": 1142,
-        "multiAccountOwnerMappings": 2,
+        "catalogOwnerMappings": 1140,
+        "graphOwnerMappings": 1132,
+        "catalogOwnerPlatformGroups": 1139,
+        "plannedOwnerMappings": 1140,
+        "multiAccountOwnerMappings": 1,
         "graphEvidence": 5000,
-        "graphNeedsReview": 7012
+        "graphNeedsReview": 7024
       },
       "structural": {
         "status": "pass",
@@ -2522,24 +2522,6 @@
               "princeps-conrad-fr-yland-moe-3685149"
             ],
             "key": "S26|founder|founder-princeps-conrad-fr-yland-moe-3685149|linkedin|https://linkedin.com/in/conrad-fr%C3%B8yland-moe-7950b1229"
-          },
-          {
-            "batchSlug": "S26",
-            "entityType": "founder",
-            "entityId": "founder-vestris-joshua-tang-3411757",
-            "entityName": "Joshua Tang",
-            "sourceId": "3411757",
-            "companyEntityId": "company-vestris",
-            "companySlug": "vestris",
-            "platform": "linkedin",
-            "canonicalUrl": "https://linkedin.com/in/joshua-tang-449717279",
-            "originalUrl": "https://www.linkedin.com/in/joshua-tang-449717279/",
-            "ownerReferenceCandidates": [
-              "3411757",
-              "founder-vestris-joshua-tang-3411757",
-              "vestris-joshua-tang-3411757"
-            ],
-            "key": "S26|founder|founder-vestris-joshua-tang-3411757|linkedin|https://linkedin.com/in/joshua-tang-449717279"
           }
         ],
         "unexpectedGraphOwnerMappings": [],
@@ -2561,30 +2543,12 @@
               "lato"
             ],
             "key": "S26|company|company-lato|linkedin|https://linkedin.com/company/latoio"
-          },
-          {
-            "batchSlug": "S26",
-            "entityType": "founder",
-            "entityId": "founder-vestris-joshua-tang-3411757",
-            "entityName": "Joshua Tang",
-            "sourceId": "3411757",
-            "companyEntityId": "company-vestris",
-            "companySlug": "vestris",
-            "platform": "linkedin",
-            "canonicalUrl": "https://linkedin.com/in/tangjoshua",
-            "originalUrl": "https://www.linkedin.com/in/tangjoshua",
-            "ownerReferenceCandidates": [
-              "3411757",
-              "founder-vestris-joshua-tang-3411757",
-              "vestris-joshua-tang-3411757"
-            ],
-            "key": "S26|founder|founder-vestris-joshua-tang-3411757|linkedin|https://linkedin.com/in/tangjoshua"
           }
         ],
         "mappingCoverage": {
           "github": {
-            "companyMapped": 31,
-            "companyMissing": 205,
+            "companyMapped": 30,
+            "companyMissing": 206,
             "founderMapped": 1,
             "founderMissing": 469
           },
@@ -2939,11 +2903,6 @@
           {
             "entityId": "company-peer",
             "name": "Peer",
-            "companyName": null
-          },
-          {
-            "entityId": "company-pennant",
-            "name": "Pennant",
             "companyName": null
           },
           {
@@ -4013,11 +3972,6 @@
           {
             "entityId": "company-peer",
             "name": "Peer",
-            "companyName": null
-          },
-          {
-            "entityId": "company-pennant",
-            "name": "Pennant",
             "companyName": null
           },
           {

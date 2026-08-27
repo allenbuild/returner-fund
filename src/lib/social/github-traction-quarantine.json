@@ -1,7 +1,7 @@
 {
   "source": {
     "schemaVersion": 1,
-    "generatedFromFetchedAt": "2026-08-26T12:11:53.846Z",
+    "generatedFromFetchedAt": "2026-08-27T06:23:16.356Z",
     "publicationPolicy": "stored_but_unpublished",
     "scoringEligible": false,
     "reason": "Rows absent from a fully authoritative whole-cohort GitHub receipt are retained only for audit and manual attribution review; they are not scoring inputs.",
@@ -12005,9 +12005,23 @@
             "kind": "repository",
             "canonicalUrl": "https://github.com/limrun-inc/java-sdk",
             "repositoryId": "1053009265",
-            "status": "not_represented_in_current_canonical_receipt",
-            "matchedBy": [],
-            "canonicalMatches": []
+            "status": "represented_in_current_canonical_receipt",
+            "matchedBy": [
+              "repository_id",
+              "canonical_url"
+            ],
+            "canonicalMatches": [
+              {
+                "entityType": "company",
+                "entityId": "company-limrun",
+                "entityName": "Limrun",
+                "accountKey": "company:company-limrun:limrun-inc:",
+                "location": "repository",
+                "accountUrl": "https://github.com/limrun-inc",
+                "repositoryId": "1053009265",
+                "repositoryUrl": "https://github.com/limrun-inc/java-sdk"
+              }
+            ]
           },
           {
             "kind": "repository",
@@ -12329,23 +12343,9 @@
             "kind": "repository",
             "canonicalUrl": "https://github.com/limrun-inc/sample-xcodegen-app",
             "repositoryId": "1292455384",
-            "status": "represented_in_current_canonical_receipt",
-            "matchedBy": [
-              "repository_id",
-              "canonical_url"
-            ],
-            "canonicalMatches": [
-              {
-                "entityType": "company",
-                "entityId": "company-limrun",
-                "entityName": "Limrun",
-                "accountKey": "company:company-limrun:limrun-inc:",
-                "location": "repository",
-                "accountUrl": "https://github.com/limrun-inc",
-                "repositoryId": "1292455384",
-                "repositoryUrl": "https://github.com/limrun-inc/sample-xcodegen-app"
-              }
-            ]
+            "status": "not_represented_in_current_canonical_receipt",
+            "matchedBy": [],
+            "canonicalMatches": []
           },
           {
             "kind": "repository",
@@ -27407,14 +27407,27 @@
       "batchSlug": "S26",
       "category": "legacy_account_mapping_absent_from_authoritative_targets",
       "reason": "The prior account mapping is absent from the complete authenticated target receipt. Preserve it for audit only until its entity attribution is manually re-verified.",
-      "currentCanonicality": "absent_from_current_canonical_receipt",
+      "currentCanonicality": "physical_object_present_under_different_canonical_attribution",
       "physicalRepresentation": {
         "kind": "account",
         "canonicalUrl": "https://github.com/louis030195",
         "repositoryId": null,
-        "status": "not_represented_in_current_canonical_receipt",
-        "matchedBy": [],
-        "canonicalMatches": [],
+        "status": "represented_in_current_canonical_receipt",
+        "matchedBy": [
+          "canonical_url"
+        ],
+        "canonicalMatches": [
+          {
+            "entityType": "company",
+            "entityId": "company-screenpipe",
+            "entityName": "screenpipe",
+            "accountKey": "company:company-screenpipe:louis030195:",
+            "location": "account",
+            "accountUrl": "https://github.com/louis030195",
+            "repositoryId": null,
+            "repositoryUrl": null
+          }
+        ],
         "repositories": [
           {
             "kind": "repository",
@@ -27460,9 +27473,23 @@
             "kind": "repository",
             "canonicalUrl": "https://github.com/louis030195/awesome-context-ai",
             "repositoryId": "1141879908",
-            "status": "not_represented_in_current_canonical_receipt",
-            "matchedBy": [],
-            "canonicalMatches": []
+            "status": "represented_in_current_canonical_receipt",
+            "matchedBy": [
+              "repository_id",
+              "canonical_url"
+            ],
+            "canonicalMatches": [
+              {
+                "entityType": "company",
+                "entityId": "company-screenpipe",
+                "entityName": "screenpipe",
+                "accountKey": "company:company-screenpipe:louis030195:",
+                "location": "repository",
+                "accountUrl": "https://github.com/louis030195",
+                "repositoryId": "1141879908",
+                "repositoryUrl": "https://github.com/louis030195/awesome-context-ai"
+              }
+            ]
           },
           {
             "kind": "repository",
@@ -27492,25 +27519,67 @@
             "kind": "repository",
             "canonicalUrl": "https://github.com/louis030195/prismarine-gym",
             "repositoryId": "304070678",
-            "status": "not_represented_in_current_canonical_receipt",
-            "matchedBy": [],
-            "canonicalMatches": []
+            "status": "represented_in_current_canonical_receipt",
+            "matchedBy": [
+              "repository_id",
+              "canonical_url"
+            ],
+            "canonicalMatches": [
+              {
+                "entityType": "company",
+                "entityId": "company-screenpipe",
+                "entityName": "screenpipe",
+                "accountKey": "company:company-screenpipe:louis030195:",
+                "location": "repository",
+                "accountUrl": "https://github.com/louis030195",
+                "repositoryId": "304070678",
+                "repositoryUrl": "https://github.com/louis030195/prismarine-gym"
+              }
+            ]
           },
           {
             "kind": "repository",
             "canonicalUrl": "https://github.com/louis030195/louis030195",
             "repositoryId": "304672965",
-            "status": "not_represented_in_current_canonical_receipt",
-            "matchedBy": [],
-            "canonicalMatches": []
+            "status": "represented_in_current_canonical_receipt",
+            "matchedBy": [
+              "repository_id",
+              "canonical_url"
+            ],
+            "canonicalMatches": [
+              {
+                "entityType": "company",
+                "entityId": "company-screenpipe",
+                "entityName": "screenpipe",
+                "accountKey": "company:company-screenpipe:louis030195:",
+                "location": "repository",
+                "accountUrl": "https://github.com/louis030195",
+                "repositoryId": "304672965",
+                "repositoryUrl": "https://github.com/louis030195/louis030195"
+              }
+            ]
           },
           {
             "kind": "repository",
             "canonicalUrl": "https://github.com/louis030195/mineflayer-k8s",
             "repositoryId": "316023967",
-            "status": "not_represented_in_current_canonical_receipt",
-            "matchedBy": [],
-            "canonicalMatches": []
+            "status": "represented_in_current_canonical_receipt",
+            "matchedBy": [
+              "repository_id",
+              "canonical_url"
+            ],
+            "canonicalMatches": [
+              {
+                "entityType": "company",
+                "entityId": "company-screenpipe",
+                "entityName": "screenpipe",
+                "accountKey": "company:company-screenpipe:louis030195:",
+                "location": "repository",
+                "accountUrl": "https://github.com/louis030195",
+                "repositoryId": "316023967",
+                "repositoryUrl": "https://github.com/louis030195/mineflayer-k8s"
+              }
+            ]
           },
           {
             "kind": "repository",
@@ -27524,9 +27593,23 @@
             "kind": "repository",
             "canonicalUrl": "https://github.com/louis030195/awesome-obsidian-templates",
             "repositoryId": "655352775",
-            "status": "not_represented_in_current_canonical_receipt",
-            "matchedBy": [],
-            "canonicalMatches": []
+            "status": "represented_in_current_canonical_receipt",
+            "matchedBy": [
+              "repository_id",
+              "canonical_url"
+            ],
+            "canonicalMatches": [
+              {
+                "entityType": "company",
+                "entityId": "company-screenpipe",
+                "entityName": "screenpipe",
+                "accountKey": "company:company-screenpipe:louis030195:",
+                "location": "repository",
+                "accountUrl": "https://github.com/louis030195",
+                "repositoryId": "655352775",
+                "repositoryUrl": "https://github.com/louis030195/awesome-obsidian-templates"
+              }
+            ]
           },
           {
             "kind": "repository",
@@ -27540,9 +27623,23 @@
             "kind": "repository",
             "canonicalUrl": "https://github.com/louis030195/ai-health-assistant",
             "repositoryId": "670280795",
-            "status": "not_represented_in_current_canonical_receipt",
-            "matchedBy": [],
-            "canonicalMatches": []
+            "status": "represented_in_current_canonical_receipt",
+            "matchedBy": [
+              "repository_id",
+              "canonical_url"
+            ],
+            "canonicalMatches": [
+              {
+                "entityType": "company",
+                "entityId": "company-screenpipe",
+                "entityName": "screenpipe",
+                "accountKey": "company:company-screenpipe:louis030195:",
+                "location": "repository",
+                "accountUrl": "https://github.com/louis030195",
+                "repositoryId": "670280795",
+                "repositoryUrl": "https://github.com/louis030195/ai-health-assistant"
+              }
+            ]
           },
           {
             "kind": "repository",
@@ -27572,15 +27669,29 @@
             "kind": "repository",
             "canonicalUrl": "https://github.com/louis030195/easy-obsidian-mcp",
             "repositoryId": "961181931",
-            "status": "not_represented_in_current_canonical_receipt",
-            "matchedBy": [],
-            "canonicalMatches": []
+            "status": "represented_in_current_canonical_receipt",
+            "matchedBy": [
+              "repository_id",
+              "canonical_url"
+            ],
+            "canonicalMatches": [
+              {
+                "entityType": "company",
+                "entityId": "company-screenpipe",
+                "entityName": "screenpipe",
+                "accountKey": "company:company-screenpipe:louis030195:",
+                "location": "repository",
+                "accountUrl": "https://github.com/louis030195",
+                "repositoryId": "961181931",
+                "repositoryUrl": "https://github.com/louis030195/easy-obsidian-mcp"
+              }
+            ]
           }
         ]
       },
       "ownerAttributionReview": {
-        "status": "queued_missing_physical_representation",
-        "reason": "The physical GitHub object is absent from the authoritative receipt and requires manual verification before any future publication.",
+        "status": "required",
+        "reason": "The physical GitHub object remains represented, but this legacy owner mapping is not canonical and must not be restored without review.",
         "legacyOwner": {
           "entityType": "founder",
           "entityId": "founder-screenpipe-louis-beaumont-716431",
@@ -27966,9 +28077,19 @@
             "entityType": "company",
             "entityId": "company-screenpipe",
             "entityName": "screenpipe",
-            "accountKey": "company:company-screenpipe:screenpipe:",
+            "accountKey": "company:company-screenpipe:screenpipe:screenpipe",
+            "location": "account",
+            "accountUrl": "https://github.com/screenpipe/screenpipe",
+            "repositoryId": null,
+            "repositoryUrl": null
+          },
+          {
+            "entityType": "company",
+            "entityId": "company-screenpipe",
+            "entityName": "screenpipe",
+            "accountKey": "company:company-screenpipe:screenpipe:screenpipe",
             "location": "repository",
-            "accountUrl": "https://github.com/screenpipe",
+            "accountUrl": "https://github.com/screenpipe/screenpipe",
             "repositoryId": "817326197",
             "repositoryUrl": "https://github.com/screenpipe/screenpipe"
           }
@@ -27988,9 +28109,19 @@
                 "entityType": "company",
                 "entityId": "company-screenpipe",
                 "entityName": "screenpipe",
-                "accountKey": "company:company-screenpipe:screenpipe:",
+                "accountKey": "company:company-screenpipe:screenpipe:screenpipe",
+                "location": "account",
+                "accountUrl": "https://github.com/screenpipe/screenpipe",
+                "repositoryId": null,
+                "repositoryUrl": null
+              },
+              {
+                "entityType": "company",
+                "entityId": "company-screenpipe",
+                "entityName": "screenpipe",
+                "accountKey": "company:company-screenpipe:screenpipe:screenpipe",
                 "location": "repository",
-                "accountUrl": "https://github.com/screenpipe",
+                "accountUrl": "https://github.com/screenpipe/screenpipe",
                 "repositoryId": "817326197",
                 "repositoryUrl": "https://github.com/screenpipe/screenpipe"
               }

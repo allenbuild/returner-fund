@@ -5,9 +5,33 @@
     "slug": "arga-labs",
     "name": "Arga Labs"
   },
-  "generatedAt": "2026-08-26T12:36:58.605Z",
-  "lastModifiedAt": "2026-08-26T12:36:58.605Z",
+  "generatedAt": "2026-08-27T06:26:04.866Z",
+  "lastModifiedAt": "2026-08-27T06:26:04.866Z",
   "events": [
+    {
+      "id": "tle-79a7c9db07821d583e496391",
+      "eventDate": "2026-08-26",
+      "eventDateType": "announcement_date",
+      "title": "Arga Labs announced seed",
+      "summary": "Arga Labs has raised our 10M seed led by @generalcatalyst.",
+      "category": "funding",
+      "isMajor": true,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-152b83f4d1780bf0233b98ac",
+          "title": "We've raised our 10M seed led by @generalcatalyst.",
+          "publisher": "argalabs",
+          "domain": "x.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-08-26T17:20:46.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/argalabs/status/2092663558152867939"
+        }
+      ]
+    },
     {
       "id": "tle-f82e3ee62642159b0d1a1830",
       "eventDate": "2026-04-13",
@@ -62,6 +86,10 @@
       "year": 2026,
       "months": [
         {
+          "month": "2026-08",
+          "count": 1
+        },
+        {
           "month": "2026-04",
           "count": 1
         },
@@ -74,8 +102,8 @@
   ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 2,
-    "lastSuccessfulArtifactAt": "2026-08-26T12:36:58.605Z"
+    "publishedEventCount": 3,
+    "lastSuccessfulArtifactAt": "2026-08-27T06:26:04.866Z"
   },
   "nextCursor": null
 }
