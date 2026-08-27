@@ -683,29 +683,30 @@ export async function fetchYoutubeSearchCandidates(
   );
   const settledPages = await Promise.allSettled(pageJobs);
   const successfulPages = settledPages.flatMap((result, index) =>
-    result.status === "fulfilled" ? [{ index, videoIds: result.value }] : []
+    result.status === "fulfilled" ? [{ index, ...result.value }] : []
   );
   if (successfulPages.length === 0) throw new Error("youtube_search_pages_unavailable");
 
-  const videoIds = roundRobinYoutubeSearchIds(successfulPages);
-  if (videoIds.length === 0) return { source: "youtube:search", candidates: [] };
+  const nominations = roundRobinYoutubeSearchNominations(successfulPages);
+  if (nominations.length === 0) return { source: "youtube:search", candidates: [] };
 
   const detailJobs = boundedAsyncJobs(
-    videoIds,
+    nominations,
     MAX_CONCURRENT_YOUTUBE_SEARCH_DETAILS,
-    (videoId) => fetchYoutubePlayerCandidate(
+    ({ videoId, innertubeConfig }) => fetchYoutubeDetailCandidate(
       fetchImpl,
       videoId,
       null,
       null,
       now,
-      { apiKey: null, clientVersion: YOUTUBE_WEB_CLIENT_VERSION }
+      innertubeConfig
     )
   );
   const settledDetails = await Promise.allSettled(detailJobs);
-  const successfulDetailReads = settledDetails.filter((result) => result.status === "fulfilled");
-  if (successfulDetailReads.length === 0) throw new Error("youtube_search_detail_unavailable");
-  const candidates = successfulDetailReads.flatMap((result) => result.value ? [result.value] : []);
+  const candidates = settledDetails.flatMap((result) =>
+    result.status === "fulfilled" && result.value ? [result.value] : []
+  );
+  if (candidates.length === 0) throw new Error("youtube_search_detail_unavailable");
   return {
     source: "youtube:search",
     candidates: candidates.filter((candidate) => isDashboardCandidateEligible(candidate, now))
@@ -716,10 +717,10 @@ async function fetchYoutubeSearchPreviewIds(
   fetchImpl: typeof fetch,
   query: string,
   queryIndex: number
-): Promise<string[]> {
+): Promise<YoutubeSearchPreviewQueue> {
   try {
-    const videoIds = await fetchYoutubeSearchPagePreviewIds(fetchImpl, query, queryIndex);
-    if (videoIds.length > 0) return videoIds;
+    const queue = await fetchYoutubeSearchPagePreviewIds(fetchImpl, query, queryIndex);
+    if (queue.videoIds.length > 0) return queue;
   } catch {
     // Public HTML requests can be redirected through Google's anti-abuse
     // interstitial. Server-side fetch intentionally has no ambient cookie jar,
@@ -733,7 +734,7 @@ async function fetchYoutubeSearchPagePreviewIds(
   fetchImpl: typeof fetch,
   query: string,
   queryIndex: number
-): Promise<string[]> {
+): Promise<YoutubeSearchPreviewQueue> {
   const source = `youtube_search_q${queryIndex + 1}`;
   const url = new URL("https://www.youtube.com/results");
   url.searchParams.set("search_query", query);
@@ -756,14 +757,17 @@ async function fetchYoutubeSearchPagePreviewIds(
   const html = await readBoundedText(response, source, MAX_YOUTUBE_RESPONSE_BYTES);
   const initialData = parseAssignedJson(html, "ytInitialData");
   if (!initialData) throw new Error(`${source}_invalid_initial_data`);
-  return youtubeVideoPreviewIds(initialData, MAX_YOUTUBE_SEARCH_RESULTS_PER_QUERY);
+  return {
+    videoIds: youtubeVideoPreviewIds(initialData, MAX_YOUTUBE_SEARCH_RESULTS_PER_QUERY),
+    innertubeConfig: youtubeInnertubeConfig(html) ?? defaultYoutubeInnertubeConfig()
+  };
 }
 
 async function fetchYoutubeInnertubeSearchPreviewIds(
   fetchImpl: typeof fetch,
   query: string,
   queryIndex: number
-): Promise<string[]> {
+): Promise<YoutubeSearchPreviewQueue> {
   const source = `youtube_search_q${queryIndex + 1}_innertube`;
   const url = new URL("https://www.youtube.com/youtubei/v1/search");
   url.searchParams.set("prettyPrint", "false");
@@ -784,21 +788,37 @@ async function fetchYoutubeInnertubeSearchPreviewIds(
   }
   if (!response.ok) throw new Error(`${source}_http_${response.status}`);
   const payload = await readBoundedJson<unknown>(response, source, MAX_YOUTUBE_RESPONSE_BYTES);
-  return youtubeVideoPreviewIds(payload, MAX_YOUTUBE_SEARCH_RESULTS_PER_QUERY);
+  return {
+    videoIds: youtubeVideoPreviewIds(payload, MAX_YOUTUBE_SEARCH_RESULTS_PER_QUERY),
+    innertubeConfig: {
+      ...defaultYoutubeInnertubeConfig(),
+      visitorData: youtubeResponseVisitorData(payload)
+    }
+  };
 }
 
-function roundRobinYoutubeSearchIds(
-  pages: ReadonlyArray<{ index: number; videoIds: readonly string[] }>
-): string[] {
+interface YoutubeSearchPreviewQueue {
+  videoIds: string[];
+  innertubeConfig: YoutubeInnertubeConfig;
+}
+
+interface YoutubeSearchNomination {
+  videoId: string;
+  innertubeConfig: YoutubeInnertubeConfig;
+}
+
+function roundRobinYoutubeSearchNominations(
+  pages: ReadonlyArray<{ index: number; videoIds: readonly string[]; innertubeConfig: YoutubeInnertubeConfig }>
+): YoutubeSearchNomination[] {
   const orderedPages = [...pages].sort((left, right) => left.index - right.index);
-  const result: string[] = [];
+  const result: YoutubeSearchNomination[] = [];
   const seen = new Set<string>();
   for (let offset = 0; offset < MAX_YOUTUBE_SEARCH_RESULTS_PER_QUERY; offset += 1) {
     for (const page of orderedPages) {
       const videoId = page.videoIds[offset];
       if (!videoId || seen.has(videoId)) continue;
       seen.add(videoId);
-      result.push(videoId);
+      result.push({ videoId, innertubeConfig: page.innertubeConfig });
       if (result.length >= MAX_YOUTUBE_SEARCH_DETAIL_CANDIDATES) return result;
     }
   }
@@ -856,7 +876,10 @@ async function fetchYoutubeUploadsQueue(
   return {
     channelId,
     videoIds,
-    innertubeConfig: { apiKey: null, clientVersion: YOUTUBE_WEB_CLIENT_VERSION }
+    innertubeConfig: {
+      ...defaultYoutubeInnertubeConfig(),
+      visitorData: youtubeResponseVisitorData(payload)
+    }
   };
 }
 
@@ -893,6 +916,7 @@ async function fetchYoutubeChannelPageQueue(
 interface YoutubeInnertubeConfig {
   apiKey: string | null;
   clientVersion: string;
+  visitorData: string | null;
 }
 
 function youtubeInnertubeConfig(channelHtml: string): YoutubeInnertubeConfig | null {
@@ -902,7 +926,25 @@ function youtubeInnertubeConfig(channelHtml: string): YoutubeInnertubeConfig | n
     !apiKey || !/^AIza[A-Za-z0-9_-]{20,80}$/.test(apiKey) ||
     !clientVersion || !/^\d{1,3}\.\d{8}\.\d{2}\.\d{2}$/.test(clientVersion)
   ) return null;
-  return { apiKey, clientVersion };
+  return {
+    apiKey,
+    clientVersion,
+    visitorData: youtubeVisitorData(jsonStringField(channelHtml, "VISITOR_DATA"))
+  };
+}
+
+function youtubeResponseVisitorData(payload: unknown): string | null {
+  const responseContext = objectValue(objectValue(payload)?.responseContext);
+  return youtubeVisitorData(responseContext?.visitorData);
+}
+
+function youtubeVisitorData(value: unknown): string | null {
+  const normalized = typeof value === "string" ? compactWhitespace(value) : "";
+  return /^[A-Za-z0-9_%=+./-]{10,1024}$/.test(normalized) ? normalized : null;
+}
+
+function defaultYoutubeInnertubeConfig(): YoutubeInnertubeConfig {
+  return { apiKey: null, clientVersion: YOUTUBE_WEB_CLIENT_VERSION, visitorData: null };
 }
 
 async function fetchYoutubeDetailCandidate(
@@ -951,9 +993,9 @@ async function fetchYoutubePlayerCandidate(
   playerUrl.searchParams.set("prettyPrint", "false");
   const response = await fetchImpl(playerUrl, {
     method: "POST",
-    headers: youtubePlayerHeaders(config.clientVersion),
+    headers: youtubePlayerHeaders(config.clientVersion, config.visitorData),
     body: JSON.stringify({
-      context: youtubeInnertubeContext(config.clientVersion),
+      context: youtubeInnertubeContext(config.clientVersion, config.visitorData),
       videoId,
       contentCheckOk: true,
       racyCheckOk: true
@@ -985,13 +1027,17 @@ async function fetchYoutubePlayerCandidate(
   });
 }
 
-function youtubeInnertubeContext(clientVersion: string): { client: Record<string, string> } {
+function youtubeInnertubeContext(
+  clientVersion: string,
+  visitorData: string | null = null
+): { client: Record<string, string> } {
   return {
     client: {
       clientName: "WEB",
       clientVersion,
       hl: "en",
-      gl: "US"
+      gl: "US",
+      ...(visitorData ? { visitorData } : {})
     }
   };
 }
@@ -1102,7 +1148,7 @@ function youtubePublicHeaders(): HeadersInit {
   };
 }
 
-function youtubePlayerHeaders(clientVersion: string): HeadersInit {
+function youtubePlayerHeaders(clientVersion: string, visitorData: string | null = null): HeadersInit {
   return {
     Accept: "application/json",
     "Accept-Language": "en-US,en;q=0.9",
@@ -1110,7 +1156,8 @@ function youtubePlayerHeaders(clientVersion: string): HeadersInit {
     Origin: "https://www.youtube.com",
     "User-Agent": "Mozilla/5.0 (compatible; ReturnerDashboard/1.0; +https://github.com/allenbuild/returner-fund)",
     "X-YouTube-Client-Name": "1",
-    "X-YouTube-Client-Version": clientVersion
+    "X-YouTube-Client-Version": clientVersion,
+    ...(visitorData ? { "X-Goog-Visitor-Id": visitorData } : {})
   };
 }
 

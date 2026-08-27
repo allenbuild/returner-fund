@@ -266,13 +266,17 @@ describe("public dashboard discovery", () => {
 
   it("uses fixed channel identity with no-key official browse and player requests", async () => {
     const channelId = "UCE_M8A5yxnLfW0KghEeajjw";
+    const visitorData = "CgtDaGFubmVsVmlzaXRvcg%3D%3D";
     const requests: Array<{ url: URL; method: string; headers: Headers; body: Record<string, unknown> }> = [];
     const fetchImpl = vi.fn(async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
       const url = new URL(String(input));
       const body = JSON.parse(String(init?.body)) as Record<string, unknown>;
       requests.push({ url, method: init?.method ?? "GET", headers: new Headers(init?.headers), body });
       if (url.pathname === "/youtubei/v1/browse") {
-        return json(youtubeUploadsBrowseResponse(["3WpzNmY35S4", "lowviews001", "thirdvid001"]));
+        return json(youtubeUploadsBrowseResponse(
+          ["3WpzNmY35S4", "lowviews001", "thirdvid001"],
+          visitorData
+        ));
       }
       if (url.pathname === "/youtubei/v1/player") {
         const videoId = String(body.videoId);
@@ -301,6 +305,10 @@ describe("public dashboard discovery", () => {
     expect(requests[0]?.url.searchParams.get("key")).toBeNull();
     expect(requests[0]?.body).toMatchObject({ browseId: `VLUU${channelId.slice(2)}` });
     expect(requests.slice(1).map(({ body }) => body.videoId)).toEqual(["3WpzNmY35S4", "lowviews001"]);
+    for (const request of requests.slice(1)) {
+      expect(request.headers.get("x-goog-visitor-id")).toBe(visitorData);
+      expect(request.body).toMatchObject({ context: { client: { visitorData } } });
+    }
     for (const request of requests) {
       expect(request.url.searchParams.get("key")).toBeNull();
       expect(request.headers.get("x-youtube-client-name")).toBe("1");
@@ -755,6 +763,113 @@ describe("public dashboard discovery", () => {
       "unverified_source"
     ]);
     expect(buildDashboardSnapshot(result.candidates, { now: NOW }).snapshot.stories).toHaveLength(1);
+  });
+
+  it("propagates the public search visitor receipt into exact player detail", async () => {
+    const videoId = "fallback001";
+    const channelId = "UC1234567890123456789012";
+    const visitorData = "CgtVbml0VGVzdFZpc2l0b3I%3D";
+    const playerRequests: Array<{ headers: Headers; body: Record<string, unknown> }> = [];
+    const fetchImpl = vi.fn(async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
+      const url = new URL(String(input));
+      if (url.pathname === "/results") {
+        return new Response(null, {
+          status: 302,
+          headers: { Location: "https://www.google.com/sorry/index" }
+        });
+      }
+      if (url.pathname === "/youtubei/v1/search") {
+        return json(youtubeSearchResponse([videoId], visitorData));
+      }
+      if (url.pathname === "/youtubei/v1/player") {
+        playerRequests.push({
+          headers: new Headers(init?.headers),
+          body: JSON.parse(String(init?.body)) as Record<string, unknown>
+        });
+        return json(youtubePlayerResponse({
+          videoId,
+          channelId,
+          author: "Verified technology creator",
+          title: "AI hardware launch",
+          description: "Artificial intelligence chips and developer software.",
+          publishedAt: "2026-08-15T10:00:00.000Z",
+          views: 1_500_000
+        }));
+      }
+      throw new Error(`Unexpected request ${url}`);
+    });
+
+    const result = await fetchYoutubeSearchCandidates(fetchImpl as typeof fetch, NOW);
+
+    expect(playerRequests).toHaveLength(1);
+    expect(playerRequests[0]?.headers.get("x-goog-visitor-id")).toBe(visitorData);
+    expect(playerRequests[0]?.body).toMatchObject({
+      context: { client: { visitorData } },
+      videoId
+    });
+    expect(result.candidates).toEqual([
+      expect.objectContaining({
+        id: `youtube:${videoId}`,
+        publishedAt: "2026-08-15T10:00:00.000Z",
+        metrics: { views: 1_500_000, likes: null },
+        sourceVerified: true,
+        publicationPrecision: "exact"
+      })
+    ]);
+    expect(dashboardTop100Eligibility(result.candidates[0]!, NOW).reason).toBe("eligible");
+  });
+
+  it("uses exact watch metadata when a search player response is login-gated", async () => {
+    const videoId = "fallback001";
+    const channelId = "UC1234567890123456789012";
+    const watchRequests: string[] = [];
+    const fetchImpl = vi.fn(async (input: RequestInfo | URL): Promise<Response> => {
+      const url = new URL(String(input));
+      if (url.pathname === "/results") return new Response(youtubeSearchPage([videoId]));
+      if (url.pathname === "/youtubei/v1/player") {
+        return json({ playabilityStatus: { status: "LOGIN_REQUIRED" } });
+      }
+      if (url.pathname === "/watch") {
+        watchRequests.push(url.toString());
+        return new Response(youtubeWatchPage({
+          videoId,
+          channelId,
+          author: "Verified technology creator",
+          title: "AI hardware launch",
+          description: "Artificial intelligence chips and developer software.",
+          publishedAt: "2026-08-15T10:00:00.000Z",
+          views: 1_500_000,
+          likes: 21_798
+        }));
+      }
+      throw new Error(`Unexpected request ${url}`);
+    });
+
+    const result = await fetchYoutubeSearchCandidates(fetchImpl as typeof fetch, NOW);
+
+    expect(watchRequests).toEqual([`https://www.youtube.com/watch?v=${videoId}&hl=en&gl=US`]);
+    expect(result.candidates).toEqual([
+      expect.objectContaining({
+        id: `youtube:${videoId}`,
+        publishedAt: "2026-08-15T10:00:00.000Z",
+        metrics: { views: 1_500_000, likes: 21_798 }
+      })
+    ]);
+  });
+
+  it("reports detail-unavailable when every search nomination lacks exact player and watch proof", async () => {
+    const fetchImpl = vi.fn(async (input: RequestInfo | URL): Promise<Response> => {
+      const url = new URL(String(input));
+      if (url.pathname === "/results") return new Response(youtubeSearchPage(["unproven001"]));
+      if (url.pathname === "/youtubei/v1/player") {
+        return json({ playabilityStatus: { status: "LOGIN_REQUIRED" } });
+      }
+      if (url.pathname === "/watch") return new Response("unavailable", { status: 503 });
+      throw new Error(`Unexpected request ${url}`);
+    });
+
+    await expect(fetchYoutubeSearchCandidates(fetchImpl as typeof fetch, NOW))
+      .rejects.toThrow("youtube_search_detail_unavailable");
   });
 
   it("reports one deterministic label when every fixed search page is unavailable", async () => {
@@ -1819,8 +1934,9 @@ function youtubePlayerResponse(input: {
   };
 }
 
-function youtubeUploadsBrowseResponse(videoIds: string[]): unknown {
+function youtubeUploadsBrowseResponse(videoIds: string[], visitorData?: string): unknown {
   return {
+    ...(visitorData ? { responseContext: { visitorData } } : {}),
     contents: {
       twoColumnBrowseResultsRenderer: {
         tabs: [{
@@ -1844,8 +1960,9 @@ function youtubeSearchPage(videoIds: string[]): string {
   return `<script>var ytInitialData = ${JSON.stringify(youtubeSearchResponse(videoIds))};</script>`;
 }
 
-function youtubeSearchResponse(videoIds: string[]): unknown {
+function youtubeSearchResponse(videoIds: string[], visitorData?: string): unknown {
   return {
+    ...(visitorData ? { responseContext: { visitorData } } : {}),
     contents: {
       twoColumnSearchResultsRenderer: {
         primaryContents: {
