@@ -200,9 +200,11 @@ describe("YC traction scoring regressions", () => {
     expect(summerInstagram?.authMethod).toContain("authenticated browser session");
   });
 
-  it("preserves Ankit Gupta's verbatim Instance commentary for favorite citations", () => {
+  it("preserves Ankit Gupta's verbatim pre-rename Instance commentary for favorite citations", () => {
     const article = ycSpring2026GraphDataset.evidence.find(
-      (item) => item.platformPostId === "2077125864006062268" && item.entityId === "company-instance"
+      (item) =>
+        item.platformPostId === "2077125864006062268" &&
+        item.entityId === "company-most-robotic"
     );
 
     expect(article?.text).toContain(
@@ -323,9 +325,9 @@ describe("YC traction scoring regressions", () => {
     expectTopVoiceEvidence(summerPartners.evidence, "2075013475424952797", "Tyler Bosmeny", "83 Sciences");
     expectTopVoiceEvidence(summerPartners.evidence, "2075342772392067278", "Tyler Bosmeny", "Inkbox");
     expectTopVoiceEvidence(summerPartners.evidence, "2072753766701625532", "Tyler Bosmeny", "Bloomy");
-    expectTopVoiceEvidence(summerPartners.evidence, "2077125864006062268", "Ankit Gupta", "Instance");
+    expectTopVoiceEvidence(summerPartners.evidence, "2077125864006062268", "Ankit Gupta", "Most Robotic");
     expectTopVoiceEvidence(summerPartners.evidence, "2077424054966088137", "Ankit Gupta", "Prized");
-    expectTopVoiceEvidence(summerPartners.evidence, "2076783005025124492", "Ankit Gupta", "Instance");
+    expectTopVoiceEvidence(summerPartners.evidence, "2076783005025124492", "Ankit Gupta", "Most Robotic");
     expectTopVoiceEvidence(summerPartners.evidence, "2076459852113858684", "Tyler Bosmeny", "Inkbox");
     expect(
       springPartners.evidence.some(
@@ -635,13 +637,19 @@ describe("YC traction scoring regressions", () => {
     const operonPost = summerGraph.evidence.find(
       (item) => item.platformPostId === "7478586962652655616"
     );
-    expect(operonPost).toEqual(
+    expect(operonPost).toBeUndefined();
+    expect(
+      targetedEvidenceSnapshot.needsReview.find(
+        (item) =>
+          item.platformPostId === "7478586962652655616" &&
+          item.entityId === "founder-operon-anderson-chen-2155140"
+      )
+    ).toEqual(
       expect.objectContaining({
-        platform: "linkedin",
-        attachedCompanyId: "company-operon"
+        review_state: "needs_review",
+        quarantineReasons: expect.arrayContaining(["entity_not_in_canonical_batch_catalog"])
       })
     );
-    expect(operonPost?.contributionScore).toBeGreaterThan(0);
     const rexPost = summerGraph.evidence.find(
       (item) => item.platformPostId === "7475606763560632320"
     );

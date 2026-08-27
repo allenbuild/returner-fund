@@ -1687,9 +1687,18 @@
   },
   "screenpipe": {
     "companySocialLinks": {
+      "github": "https://github.com/screenpipe",
       "youtube": "https://www.youtube.com/@screen_pipe",
       "reddit": "https://www.reddit.com/r/screen_pipe/",
       "product_hunt": "https://www.producthunt.com/products/screenpipe"
+    },
+    "githubValidation": {
+      "review_state": "verified",
+      "method": "native_repository_owner_and_official_domain_reciprocal_identity",
+      "sourceUrl": "https://github.com/screenpipe/screenpipe",
+      "checkedAt": "2026-08-27T07:40:00.000Z",
+      "repositoryHomepage": "https://screenpipe.com",
+      "repositoryOwnerUrl": "https://github.com/screenpipe"
     },
     "youtubeValidation": {
       "review_state": "verified",
@@ -1698,7 +1707,7 @@
       "checkedAt": "2026-08-03T04:58:57.754Z"
     },
     "sourceUrl": "https://screenpipe.com",
-    "matchReason": "The exact official screenpipe website links directly to this verified native youtube company profile.",
+    "matchReason": "Verified native screenpipe profiles map to the exact official company identity. The GitHub repository is owned by the screenpipe organization, links to screenpipe.com, and names YC S26 in its native description.",
     "redditValidation": {
       "review_state": "verified",
       "method": "official_site_outbound_link_and_reachable_native_reddit_profile",
