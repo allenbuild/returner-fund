@@ -33,6 +33,14 @@
     <string>30</string>
     <key>RETURNER_SCHEDULE_RECOVERY_COOLDOWN_MINUTES</key>
     <string>30</string>
+    <key>RETURNER_DASHBOARD_RECOVERY_ENABLED</key>
+    <string>true</string>
+    <key>RETURNER_DASHBOARD_RECOVERY_MAX_AGE_MINUTES</key>
+    <string>120</string>
+    <key>RETURNER_DASHBOARD_RECOVERY_SILENCE_MINUTES</key>
+    <string>30</string>
+    <key>RETURNER_DASHBOARD_RECOVERY_COOLDOWN_MINUTES</key>
+    <string>30</string>
   </dict>
   <key>WorkingDirectory</key>
   <string>__INSTALL_ROOT__</string>

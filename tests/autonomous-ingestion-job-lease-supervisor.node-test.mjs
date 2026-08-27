@@ -24,14 +24,17 @@ import {
 import {
   acquireSupervisorLock,
   createGitHubClient,
+  evaluateDashboardRecovery,
   evaluateLeaseLossEvent,
   evaluatePowerStatus,
   evaluateScheduleRecovery,
   loadSupervisorState,
   parseWorkerLeaseLossLog,
+  readDashboardPublicationWatermark,
   runSupervisor,
   supervisorConfig,
   verifyCancelledAutonomousJob,
+  verifyDashboardRecoveryWorkflow,
   verifyWorkflowRun
 } from "../scripts/supervise-autonomous-ingestion-job-lease.mjs";
 
@@ -55,6 +58,7 @@ function config(overrides = {}) {
   return {
     repository: "allenbuild/returner-fund",
     workflowPath: ".github/workflows/autonomous-ingestion.yml",
+    dashboardWorkflowPath: ".github/workflows/dashboard-refresh.yml",
     defaultBranch: "main",
     runnerName: "returner-social-mac-allenxtech",
     runnerDiagDir: "/tmp/returner-runner-diag",
@@ -66,6 +70,10 @@ function config(overrides = {}) {
     scheduleRecoveryEnabled: false,
     scheduleRecoverySilenceMinutes: 30,
     scheduleRecoveryCooldownMinutes: 30,
+    dashboardRecoveryEnabled: false,
+    dashboardRecoveryMaxAgeMinutes: 120,
+    dashboardRecoverySilenceMinutes: 30,
+    dashboardRecoveryCooldownMinutes: 30,
     dryRun: false,
     ...overrides
   };
@@ -82,6 +90,39 @@ function workflow() {
     path: ".github/workflows/autonomous-ingestion.yml",
     state: "active"
   };
+}
+
+function dashboardWorkflow(overrides = {}) {
+  return {
+    id: 84,
+    name: "Technology Dashboard Refresh",
+    path: ".github/workflows/dashboard-refresh.yml",
+    state: "active",
+    ...overrides
+  };
+}
+
+function dashboardArtifact(generatedAt = "2026-08-26T17:00:00.000Z", overrides = {}) {
+  const generatedAtMs = Date.parse(generatedAt);
+  return JSON.stringify({
+    schemaVersion: "technology-dashboard-v2",
+    sourceSnapshotFingerprint: "f".repeat(64),
+    generatedAt,
+    updatedAt: generatedAt,
+    windowStart: new Date(generatedAtMs - 72 * 60 * 60 * 1_000).toISOString(),
+    windowEnd: generatedAt,
+    todayInTech: [],
+    stories: [],
+    availableFilters: { topics: [], platforms: [] },
+    status: {
+      candidateCount: 0,
+      eligibleCandidateCount: 0,
+      storyCount: 0,
+      viewStoryCounts: { hottest: 0, breaking: 0, emerging: 0 },
+      partialPlatformFailures: []
+    },
+    ...overrides
+  });
 }
 
 function run(overrides = {}) {
@@ -120,10 +161,12 @@ function jobs(overrides = {}) {
 function github(overrides = {}) {
   return {
     getWorkflow: async () => workflow(),
+    getDashboardWorkflow: async () => dashboardWorkflow(),
     getRun: async () => run(),
     getAttemptJobs: async () => jobs(),
     getBranchHead: async () => CURRENT_SHA,
     getWorkflowRuns: async () => [],
+    getDashboardWorkflowRuns: async () => [],
     getActiveRuns: async () => [],
     getRunners: async () => [{ id: 7, name: "returner-social-mac-allenxtech", status: "online", busy: false }],
     getRepositoryText: async () => {
@@ -133,6 +176,7 @@ function github(overrides = {}) {
     },
     rerunFailedJobs: async () => {},
     dispatchRecovery: async () => {},
+    dispatchDashboardRecovery: async () => {},
     ...overrides
   };
 }
@@ -213,6 +257,227 @@ test("schedule recovery is enabled with bounded silence and cooldown defaults", 
     () => supervisorConfig({ RETURNER_SCHEDULE_RECOVERY_SILENCE_MINUTES: "14" }),
     /must be between 15 and 720/
   );
+});
+
+test("dashboard recovery is enabled with the public freshness and retry defaults", () => {
+  const defaults = supervisorConfig({});
+  assert.equal(defaults.dashboardWorkflowPath, ".github/workflows/dashboard-refresh.yml");
+  assert.equal(defaults.dashboardRecoveryEnabled, true);
+  assert.equal(defaults.dashboardRecoveryMaxAgeMinutes, 120);
+  assert.equal(defaults.dashboardRecoverySilenceMinutes, 30);
+  assert.equal(defaults.dashboardRecoveryCooldownMinutes, 30);
+  assert.equal(
+    supervisorConfig({ RETURNER_DASHBOARD_RECOVERY_ENABLED: "false" }).dashboardRecoveryEnabled,
+    false
+  );
+  assert.throws(
+    () => supervisorConfig({ RETURNER_DASHBOARD_RECOVERY_MAX_AGE_MINUTES: "59" }),
+    /must be between 60 and 1440/
+  );
+});
+
+test("dashboard watermark accepts only a coherent v2 publication and uses the two-hour boundary", async () => {
+  const current = await readDashboardPublicationWatermark({
+    readText: async () => dashboardArtifact("2026-08-26T17:00:00.000Z"),
+    now: new Date("2026-08-26T19:00:00.000Z"),
+    maxAgeMinutes: 120
+  });
+  assert.deepEqual(current, {
+    status: "current",
+    generatedAt: "2026-08-26T17:00:00.000Z",
+    ageMinutes: 120
+  });
+
+  const stale = await readDashboardPublicationWatermark({
+    readText: async () => dashboardArtifact("2026-08-26T17:00:00.000Z"),
+    now: new Date("2026-08-26T19:00:00.001Z"),
+    maxAgeMinutes: 120
+  });
+  assert.equal(stale.status, "stale");
+  assert.equal(stale.generatedAt, "2026-08-26T17:00:00.000Z");
+
+  for (const malformed of [
+    "not-json",
+    dashboardArtifact("2026-08-26T17:00:00.000Z", { schemaVersion: "other" }),
+    dashboardArtifact("2026-08-26T17:00:00.000Z", {
+      updatedAt: "2026-08-26T18:00:00.000Z"
+    }),
+    dashboardArtifact("2026-08-26T17:00:00.000Z", {
+      windowStart: "2026-08-24T17:00:00.000Z"
+    }),
+    dashboardArtifact("2026-08-26T20:00:00.000Z")
+  ]) {
+    const invalid = await readDashboardPublicationWatermark({
+      readText: async () => malformed,
+      now: new Date("2026-08-26T19:00:00.000Z")
+    });
+    assert.equal(invalid.status, "invalid");
+    assert.equal(invalid.generatedAt, null);
+  }
+
+  const missing = await readDashboardPublicationWatermark({
+    readText: async () => {
+      throw new Error("404");
+    },
+    now: new Date("2026-08-26T19:00:00.000Z")
+  });
+  assert.deepEqual(missing, { status: "missing", generatedAt: null, ageMinutes: null });
+});
+
+test("dashboard recovery verifies the exact active workflow identity", () => {
+  assert.equal(
+    verifyDashboardRecoveryWorkflow({ workflow: dashboardWorkflow(), config: config() }).valid,
+    true
+  );
+  assert.equal(
+    verifyDashboardRecoveryWorkflow({
+      workflow: dashboardWorkflow({ name: "Lookalike" }),
+      config: config()
+    }).reason,
+    "dashboard_workflow_name_mismatch"
+  );
+  assert.equal(
+    verifyDashboardRecoveryWorkflow({
+      workflow: dashboardWorkflow({ state: "disabled_manually" }),
+      config: config()
+    }).reason,
+    "dashboard_workflow_not_active"
+  );
+});
+
+test("stale dashboard recovery is AC-only, runner-idle, and never silenced by failed wakes", async () => {
+  const dispatches = [];
+  const testConfig = config({ dashboardRecoveryEnabled: true });
+  const api = github({
+    getRepositoryText: async () => dashboardArtifact("2026-08-26T17:00:00.000Z"),
+    getDashboardWorkflowRuns: async () => [{
+      id: 901,
+      status: "completed",
+      conclusion: "failure",
+      created_at: "2026-08-26T19:58:00.000Z"
+    }],
+    dispatchDashboardRecovery: async (headSha) => dispatches.push(headSha)
+  });
+  const state = { dashboardRecoveryDispatch: null };
+  const now = new Date("2026-08-26T20:05:00.000Z");
+
+  const battery = await evaluateDashboardRecovery({
+    config: testConfig,
+    github: api,
+    state,
+    readPowerStatus: async () => "Now drawing from 'Battery Power'\n 100%; discharging",
+    now
+  });
+  assert.equal(battery.action, "defer");
+  assert.equal(battery.reason, "ac_power_required");
+  assert.equal(battery.batteryPercent, 100);
+  assert.deepEqual(dispatches, []);
+
+  const busy = await evaluateDashboardRecovery({
+    config: testConfig,
+    github: github({
+      ...api,
+      getRunners: async () => [{
+        id: 7,
+        name: "returner-social-mac-allenxtech",
+        status: "online",
+        busy: true
+      }]
+    }),
+    state,
+    readPowerStatus: async () => "Now drawing from 'AC Power'\n 100%; charged",
+    now
+  });
+  assert.equal(busy.reason, "runner_busy");
+  assert.deepEqual(dispatches, []);
+
+  const accepted = await evaluateDashboardRecovery({
+    config: testConfig,
+    github: api,
+    state,
+    readPowerStatus: async () => "Now drawing from 'AC Power'\n 72%; charging",
+    now
+  });
+  assert.equal(accepted.action, "dispatch");
+  assert.equal(accepted.watermarkStatus, "stale");
+  assert.equal(accepted.publicationWatermark, "2026-08-26T17:00:00.000Z");
+  assert.deepEqual(dispatches, [CURRENT_SHA]);
+});
+
+test("active dashboard or ingestion work suppresses a duplicate dashboard dispatch", async () => {
+  const testConfig = config({ dashboardRecoveryEnabled: true });
+  let dispatches = 0;
+  const common = {
+    getRepositoryText: async () => dashboardArtifact("2026-08-26T17:00:00.000Z"),
+    dispatchDashboardRecovery: async () => {
+      dispatches += 1;
+    }
+  };
+  const dashboardActive = await evaluateDashboardRecovery({
+    config: testConfig,
+    github: github({
+      ...common,
+      getDashboardWorkflowRuns: async () => [{ id: 902, status: "queued" }]
+    }),
+    state: { dashboardRecoveryDispatch: null },
+    readPowerStatus: async () => "Now drawing from 'AC Power'",
+    now: new Date("2026-08-26T20:05:00.000Z")
+  });
+  assert.equal(dashboardActive.reason, "dashboard_run_active");
+
+  const ingestionActive = await evaluateDashboardRecovery({
+    config: testConfig,
+    github: github({
+      ...common,
+      getActiveRuns: async () => [{ id: 903, status: "in_progress" }]
+    }),
+    state: { dashboardRecoveryDispatch: null },
+    readPowerStatus: async () => "Now drawing from 'AC Power'",
+    now: new Date("2026-08-26T20:05:00.000Z")
+  });
+  assert.equal(ingestionActive.reason, "autonomous_run_active");
+  assert.equal(dispatches, 0);
+});
+
+test("a current dashboard feed and a recent successful wake suppress recovery", async () => {
+  const testConfig = config({ dashboardRecoveryEnabled: true });
+  let dispatches = 0;
+  const current = await evaluateDashboardRecovery({
+    config: testConfig,
+    github: github({
+      getRepositoryText: async () => dashboardArtifact("2026-08-26T19:00:00.000Z"),
+      dispatchDashboardRecovery: async () => {
+        dispatches += 1;
+      }
+    }),
+    state: { dashboardRecoveryDispatch: null },
+    readPowerStatus: async () => "Now drawing from 'AC Power'",
+    now: new Date("2026-08-26T20:05:00.000Z")
+  });
+  assert.equal(current.action, "current");
+  assert.equal(current.reason, "dashboard_publication_current");
+
+  const recentSuccess = await evaluateDashboardRecovery({
+    config: testConfig,
+    github: github({
+      getRepositoryText: async () => dashboardArtifact("2026-08-26T17:00:00.000Z"),
+      getDashboardWorkflowRuns: async () => [{
+      id: 904,
+      status: "completed",
+      conclusion: "success",
+      created_at: "2026-08-26T17:58:00.000Z",
+      updated_at: "2026-08-26T19:58:00.000Z"
+      }],
+      dispatchDashboardRecovery: async () => {
+        dispatches += 1;
+      }
+    }),
+    state: { dashboardRecoveryDispatch: null },
+    readPowerStatus: async () => "Now drawing from 'AC Power'",
+    now: new Date("2026-08-26T20:05:00.000Z")
+  });
+  assert.equal(recentSuccess.reason, "recent_successful_dashboard_wakeup");
+  assert.equal(dispatches, 0);
 });
 
 test("remote verification is exact about workflow, failed run, runner, and cancelled step", () => {
@@ -577,6 +842,63 @@ test("missing workflow events dispatch once and durable same-slot cooldown preve
   assert.equal(dispatches, 1);
 });
 
+test("an accepted dashboard catch-up dispatch is durably cooled down", async (context) => {
+  const root = await mkdtemp(path.join(tmpdir(), "returner-dashboard-recovery-test-"));
+  context.after(() => rm(root, { recursive: true, force: true }));
+  const runnerDiagDir = path.join(root, "diag");
+  const stateDir = path.join(root, "state");
+  await mkdir(runnerDiagDir, { recursive: true });
+  await mkdir(stateDir, { recursive: true });
+  const testConfig = config({
+    runnerDiagDir,
+    stateDir,
+    statePath: path.join(stateDir, "state-v1.json"),
+    lockPath: path.join(stateDir, "supervisor.lock"),
+    dashboardRecoveryEnabled: true
+  });
+  await writeFile(testConfig.statePath, `${JSON.stringify({
+    schemaVersion: 1,
+    initializedAt: "2026-08-26T19:00:00.000Z",
+    workerLogs: {},
+    handledEvents: {},
+    recoveryDispatch: null,
+    dashboardRecoveryDispatch: null
+  })}\n`);
+  let dispatches = 0;
+  const api = github({
+    getRepositoryText: async () => dashboardArtifact("2026-08-26T17:00:00.000Z"),
+    dispatchDashboardRecovery: async () => {
+      dispatches += 1;
+    }
+  });
+
+  const first = await runSupervisor({
+    config: testConfig,
+    github: api,
+    readPowerStatus: async () => "Now drawing from 'AC Power'\n 100%; charged",
+    now: () => new Date("2026-08-26T20:05:00.000Z")
+  });
+  assert.equal(first.dashboardRecovery.action, "dispatch");
+  assert.equal(dispatches, 1);
+  assert.deepEqual((await loadSupervisorState(testConfig.statePath)).dashboardRecoveryDispatch, {
+    dispatchedAt: "2026-08-26T20:05:00.000Z",
+    eventType: "workflow_dispatch",
+    workflowPath: ".github/workflows/dashboard-refresh.yml",
+    observedHeadSha: CURRENT_SHA,
+    watermarkStatus: "stale",
+    observedGeneratedAt: "2026-08-26T17:00:00.000Z"
+  });
+
+  const second = await runSupervisor({
+    config: testConfig,
+    github: api,
+    readPowerStatus: async () => "Now drawing from 'AC Power'\n 100%; charged",
+    now: () => new Date("2026-08-26T20:10:00.000Z")
+  });
+  assert.equal(second.dashboardRecovery.reason, "dashboard_recovery_dispatch_cooldown");
+  assert.equal(dispatches, 1);
+});
+
 test("persistent lease lookup errors cannot starve independent schedule recovery", async (context) => {
   for (const failingLookup of ["getRun", "getAttemptJobs"]) {
     await context.test(failingLookup, async () => {
@@ -770,6 +1092,27 @@ test("GitHub recovery dispatch sends only the trusted event and expected main SH
   assert.doesNotMatch(JSON.stringify(calls[0].args), /central-\d{4}/);
 });
 
+test("GitHub dashboard recovery dispatch always requests the full strictly gated refresh", async () => {
+  const calls = [];
+  const client = createGitHubClient(config(), {
+    execute: async (binary, args, options) => {
+      calls.push({ binary, args, options });
+      return { stdout: "", stderr: "" };
+    }
+  });
+
+  await client.dispatchDashboardRecovery(CURRENT_SHA);
+  assert.equal(calls.length, 1);
+  assert.ok(
+    calls[0].args.includes(
+      "repos/allenbuild/returner-fund/actions/workflows/dashboard-refresh.yml/dispatches"
+    )
+  );
+  assert.ok(calls[0].args.includes("ref=main"));
+  assert.ok(calls[0].args.includes("inputs[skip_external_discovery]=false"));
+  assert.doesNotMatch(JSON.stringify(calls[0].args), /no-external|skip_external_discovery=true/);
+});
+
 test("only an accepted rerun creates durable dedupe state", async (context) => {
   const root = await mkdtemp(path.join(tmpdir(), "returner-lease-supervisor-test-"));
   context.after(() => rm(root, { recursive: true, force: true }));
@@ -906,6 +1249,22 @@ test("LaunchAgent template is a five-minute one-shot without KeepAlive", async (
   assert.match(
     template,
     /<key>RETURNER_SCHEDULE_RECOVERY_COOLDOWN_MINUTES<\/key>\s*<string>30<\/string>/
+  );
+  assert.match(
+    template,
+    /<key>RETURNER_DASHBOARD_RECOVERY_ENABLED<\/key>\s*<string>true<\/string>/
+  );
+  assert.match(
+    template,
+    /<key>RETURNER_DASHBOARD_RECOVERY_MAX_AGE_MINUTES<\/key>\s*<string>120<\/string>/
+  );
+  assert.match(
+    template,
+    /<key>RETURNER_DASHBOARD_RECOVERY_SILENCE_MINUTES<\/key>\s*<string>30<\/string>/
+  );
+  assert.match(
+    template,
+    /<key>RETURNER_DASHBOARD_RECOVERY_COOLDOWN_MINUTES<\/key>\s*<string>30<\/string>/
   );
   assert.doesNotMatch(template, /RETURNER_MIN_BATTERY_PERCENT/);
   assert.doesNotMatch(template, /<key>(?:KeepAlive|WatchPaths)<\/key>/);

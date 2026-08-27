@@ -30,9 +30,16 @@ export const SUPERVISOR_SCHEMA_VERSION = 1;
 export const DEFAULT_MAX_WORKER_LOG_BYTES = 32 * 1024 * 1024;
 export const DEFAULT_SCHEDULE_RECOVERY_SILENCE_MINUTES = 30;
 export const DEFAULT_SCHEDULE_RECOVERY_COOLDOWN_MINUTES = 30;
+export const DEFAULT_DASHBOARD_RECOVERY_MAX_AGE_MINUTES = 120;
+export const DEFAULT_DASHBOARD_RECOVERY_SILENCE_MINUTES = 30;
+export const DEFAULT_DASHBOARD_RECOVERY_COOLDOWN_MINUTES = 30;
 export const AUTONOMOUS_WORKFLOW_NAME = "Autonomous Ingestion";
 export const AUTONOMOUS_INGESTION_STEP = "Run autonomous ingestion";
 export const AUTONOMOUS_PUBLISH_JOB_PREFIX = "Publish accepted slot ";
+export const DASHBOARD_WORKFLOW_NAME = "Technology Dashboard Refresh";
+export const DASHBOARD_WORKFLOW_PATH = ".github/workflows/dashboard-refresh.yml";
+export const DASHBOARD_ARTIFACT_PATH = "public/dashboard/feed.json";
+export const DASHBOARD_SCHEMA_VERSION = "technology-dashboard-v2";
 
 const FULL_SHA = /^[0-9a-f]{40}$/i;
 const CENTRAL_SLOT_KEY = /^central-\d{4}-\d{2}-\d{2}-(?:0600|1800)$/;
@@ -45,6 +52,9 @@ const ACTIVE_RUN_STATUSES = new Set([
   "waiting"
 ]);
 const NON_SILENCING_RUN_CONCLUSIONS = new Set(["cancelled", "skipped"]);
+const DASHBOARD_WINDOW_MS = 72 * 60 * 60 * 1_000;
+const DASHBOARD_MAX_FUTURE_SKEW_MS = 5 * 60 * 1_000;
+const DASHBOARD_WATERMARK_STATUSES = new Set(["current", "stale", "missing", "invalid"]);
 const TERMINAL_EVENT_DISPOSITIONS = new Set([
   "baseline",
   "newer_attempt",
@@ -83,6 +93,24 @@ export function supervisorConfig(environment = process.env) {
     "RETURNER_SCHEDULE_RECOVERY_COOLDOWN_MINUTES",
     { minimum: 5, maximum: 12 * 60 }
   );
+  const dashboardRecoveryMaxAgeMinutes = strictInteger(
+    environment.RETURNER_DASHBOARD_RECOVERY_MAX_AGE_MINUTES,
+    DEFAULT_DASHBOARD_RECOVERY_MAX_AGE_MINUTES,
+    "RETURNER_DASHBOARD_RECOVERY_MAX_AGE_MINUTES",
+    { minimum: 60, maximum: 24 * 60 }
+  );
+  const dashboardRecoverySilenceMinutes = strictInteger(
+    environment.RETURNER_DASHBOARD_RECOVERY_SILENCE_MINUTES,
+    DEFAULT_DASHBOARD_RECOVERY_SILENCE_MINUTES,
+    "RETURNER_DASHBOARD_RECOVERY_SILENCE_MINUTES",
+    { minimum: 5, maximum: 12 * 60 }
+  );
+  const dashboardRecoveryCooldownMinutes = strictInteger(
+    environment.RETURNER_DASHBOARD_RECOVERY_COOLDOWN_MINUTES,
+    DEFAULT_DASHBOARD_RECOVERY_COOLDOWN_MINUTES,
+    "RETURNER_DASHBOARD_RECOVERY_COOLDOWN_MINUTES",
+    { minimum: 5, maximum: 12 * 60 }
+  );
 
   return Object.freeze({
     repository: validateRepository(
@@ -91,6 +119,7 @@ export function supervisorConfig(environment = process.env) {
     workflowPath:
       clean(environment.RETURNER_WORKFLOW_PATH) ??
       ".github/workflows/autonomous-ingestion.yml",
+    dashboardWorkflowPath: DASHBOARD_WORKFLOW_PATH,
     defaultBranch: clean(environment.RETURNER_DEFAULT_BRANCH) ?? "main",
     runnerName:
       clean(environment.RETURNER_RUNNER_NAME) ??
@@ -111,6 +140,14 @@ export function supervisorConfig(environment = process.env) {
     ),
     scheduleRecoverySilenceMinutes,
     scheduleRecoveryCooldownMinutes,
+    dashboardRecoveryEnabled: strictBoolean(
+      environment.RETURNER_DASHBOARD_RECOVERY_ENABLED,
+      true,
+      "RETURNER_DASHBOARD_RECOVERY_ENABLED"
+    ),
+    dashboardRecoveryMaxAgeMinutes,
+    dashboardRecoverySilenceMinutes,
+    dashboardRecoveryCooldownMinutes,
     dryRun: environment.RETURNER_LEASE_SUPERVISOR_DRY_RUN === "true"
   });
 }
@@ -359,6 +396,272 @@ export function verifyRecoveryRunner({ runners, config }) {
     runnerId: String(matching[0].id ?? ""),
     busy: matching[0].busy === true
   };
+}
+
+export async function readDashboardPublicationWatermark({
+  readText,
+  now = new Date(),
+  maxAgeMinutes = DEFAULT_DASHBOARD_RECOVERY_MAX_AGE_MINUTES
+}) {
+  if (typeof readText !== "function") {
+    throw new Error("Dashboard publication watermark requires a text reader.");
+  }
+  if (!(now instanceof Date) || !Number.isFinite(now.getTime())) {
+    throw new Error("Dashboard publication watermark now must be a valid Date.");
+  }
+  if (!Number.isSafeInteger(maxAgeMinutes) || maxAgeMinutes < 1) {
+    throw new Error("Dashboard publication watermark maximum age must be a positive integer.");
+  }
+
+  let source;
+  try {
+    source = await readText(DASHBOARD_ARTIFACT_PATH);
+  } catch {
+    return Object.freeze({
+      status: "missing",
+      generatedAt: null,
+      ageMinutes: null
+    });
+  }
+
+  try {
+    const artifact = JSON.parse(source);
+    if (!plainObject(artifact) || artifact.schemaVersion !== DASHBOARD_SCHEMA_VERSION) {
+      throw new Error("dashboard artifact schema is invalid");
+    }
+    if (
+      typeof artifact.sourceSnapshotFingerprint !== "string" ||
+      artifact.sourceSnapshotFingerprint.length < 1 ||
+      artifact.sourceSnapshotFingerprint.length > 128 ||
+      !Array.isArray(artifact.todayInTech) ||
+      !artifact.todayInTech.every((item) => typeof item === "string" && item.length <= 600) ||
+      !Array.isArray(artifact.stories) ||
+      artifact.stories.length > 300 ||
+      !plainObject(artifact.availableFilters) ||
+      !Array.isArray(artifact.availableFilters.topics) ||
+      !Array.isArray(artifact.availableFilters.platforms) ||
+      !plainObject(artifact.status) ||
+      !nonNegativeInteger(artifact.status.candidateCount) ||
+      !nonNegativeInteger(artifact.status.eligibleCandidateCount) ||
+      !nonNegativeInteger(artifact.status.storyCount) ||
+      !plainObject(artifact.status.viewStoryCounts) ||
+      !["hottest", "breaking", "emerging"].every((view) =>
+        nonNegativeInteger(artifact.status.viewStoryCounts[view])
+      ) ||
+      !Array.isArray(artifact.status.partialPlatformFailures) ||
+      artifact.status.storyCount !== artifact.stories.length
+    ) {
+      throw new Error("dashboard artifact publication fields are invalid");
+    }
+
+    const generatedAt = strictUtcInstant(artifact.generatedAt);
+    const updatedAt = strictUtcInstant(artifact.updatedAt);
+    const windowStart = strictUtcInstant(artifact.windowStart);
+    const windowEnd = strictUtcInstant(artifact.windowEnd);
+    if (
+      generatedAt.getTime() !== updatedAt.getTime() ||
+      generatedAt.getTime() !== windowEnd.getTime() ||
+      windowEnd.getTime() - windowStart.getTime() !== DASHBOARD_WINDOW_MS
+    ) {
+      throw new Error("dashboard artifact clocks are inconsistent");
+    }
+
+    const ageMs = now.getTime() - generatedAt.getTime();
+    if (ageMs < -DASHBOARD_MAX_FUTURE_SKEW_MS) {
+      throw new Error("dashboard artifact publication is in the future");
+    }
+    return Object.freeze({
+      status: ageMs <= maxAgeMinutes * 60_000 ? "current" : "stale",
+      generatedAt: generatedAt.toISOString(),
+      ageMinutes: ageMs / 60_000
+    });
+  } catch {
+    return Object.freeze({
+      status: "invalid",
+      generatedAt: null,
+      ageMinutes: null
+    });
+  }
+}
+
+export function verifyDashboardRecoveryWorkflow({ workflow, config }) {
+  if (!workflow) return { valid: false, reason: "missing_dashboard_workflow" };
+  if (String(workflow.path ?? "") !== config.dashboardWorkflowPath) {
+    return { valid: false, reason: "dashboard_workflow_path_mismatch" };
+  }
+  if (String(workflow.name ?? "") !== DASHBOARD_WORKFLOW_NAME) {
+    return { valid: false, reason: "dashboard_workflow_name_mismatch" };
+  }
+  if (String(workflow.state ?? "") !== "active") {
+    return { valid: false, reason: "dashboard_workflow_not_active" };
+  }
+  if (!Number.isSafeInteger(Number(workflow.id)) || Number(workflow.id) <= 0) {
+    return { valid: false, reason: "dashboard_workflow_id_invalid" };
+  }
+  return { valid: true, reason: "verified" };
+}
+
+export async function evaluateDashboardRecovery({
+  config,
+  github,
+  state,
+  readPowerStatus,
+  now = new Date(),
+  dryRun = config.dryRun
+}) {
+  if (!(now instanceof Date) || !Number.isFinite(now.getTime())) {
+    throw new Error("Dashboard recovery now must be a valid Date.");
+  }
+
+  const workflow = await github.getDashboardWorkflow();
+  const workflowVerification = verifyDashboardRecoveryWorkflow({ workflow, config });
+  if (!workflowVerification.valid) {
+    return Object.freeze({ action: "defer", reason: workflowVerification.reason });
+  }
+
+  const mainSha = String(await github.getBranchHead(config.defaultBranch)).toLowerCase();
+  if (!FULL_SHA.test(mainSha)) {
+    return Object.freeze({ action: "defer", reason: "invalid_default_branch_sha" });
+  }
+
+  const watermark = await readDashboardPublicationWatermark({
+    readText: (relativePath) => github.getRepositoryText(relativePath, mainSha),
+    now,
+    maxAgeMinutes: config.dashboardRecoveryMaxAgeMinutes
+  });
+  if (watermark.status === "current") {
+    return Object.freeze({
+      action: "current",
+      reason: "dashboard_publication_current",
+      mainSha,
+      watermarkStatus: watermark.status,
+      publicationWatermark: watermark.generatedAt,
+      ageMinutes: watermark.ageMinutes
+    });
+  }
+
+  const dashboardRuns = await github.getDashboardWorkflowRuns({ fresh: true });
+  const activeDashboardRun = dashboardRuns.find((run) =>
+    ACTIVE_RUN_STATUSES.has(String(run?.status ?? ""))
+  );
+  if (activeDashboardRun) {
+    return Object.freeze({
+      action: "defer",
+      reason: "dashboard_run_active",
+      activeRunId: String(activeDashboardRun.id ?? ""),
+      activeRunStatus: String(activeDashboardRun.status ?? ""),
+      watermarkStatus: watermark.status
+    });
+  }
+
+  const activeIngestionRun = (await github.getActiveRuns({ fresh: true }))[0];
+  if (activeIngestionRun) {
+    return Object.freeze({
+      action: "defer",
+      reason: "autonomous_run_active",
+      activeRunId: String(activeIngestionRun.id ?? ""),
+      activeRunStatus: String(activeIngestionRun.status ?? ""),
+      watermarkStatus: watermark.status
+    });
+  }
+
+  const lastDispatch = state?.dashboardRecoveryDispatch ?? null;
+  if (lastDispatch) {
+    const lastDispatchMs = Date.parse(lastDispatch.dispatchedAt ?? "");
+    if (!Number.isFinite(lastDispatchMs)) {
+      return Object.freeze({ action: "defer", reason: "invalid_dashboard_recovery_dispatch_state" });
+    }
+    const cooldownAgeMs = now.getTime() - lastDispatchMs;
+    if (cooldownAgeMs < 0) {
+      return Object.freeze({ action: "defer", reason: "dashboard_recovery_dispatch_state_in_future" });
+    }
+    if (cooldownAgeMs < config.dashboardRecoveryCooldownMinutes * 60_000) {
+      return Object.freeze({
+        action: "defer",
+        reason: "dashboard_recovery_dispatch_cooldown",
+        lastDispatchedAt: new Date(lastDispatchMs).toISOString(),
+        watermarkStatus: watermark.status
+      });
+    }
+  }
+
+  const latestSuccessfulRun = dashboardRuns
+    .filter((run) => String(run?.conclusion ?? "").toLowerCase() === "success")
+    .map((run) => ({
+      run,
+      completedAtMs: Date.parse(run?.updated_at ?? run?.created_at ?? "")
+    }))
+    .filter(({ completedAtMs }) => Number.isFinite(completedAtMs))
+    .sort((left, right) => right.completedAtMs - left.completedAtMs)[0] ?? null;
+  if (latestSuccessfulRun) {
+    const silenceMs = now.getTime() - latestSuccessfulRun.completedAtMs;
+    if (silenceMs < 0) {
+      return Object.freeze({ action: "defer", reason: "dashboard_run_completed_in_future" });
+    }
+    if (silenceMs < config.dashboardRecoverySilenceMinutes * 60_000) {
+      return Object.freeze({
+        action: "defer",
+        reason: "recent_successful_dashboard_wakeup",
+        latestRunId: String(latestSuccessfulRun.run.id ?? ""),
+        latestRunCompletedAt: new Date(latestSuccessfulRun.completedAtMs).toISOString(),
+        watermarkStatus: watermark.status
+      });
+    }
+  }
+
+  const runnerVerification = verifyRecoveryRunner({
+    runners: await github.getRunners({ fresh: true }),
+    config
+  });
+  if (!runnerVerification.valid) {
+    return Object.freeze({
+      action: "defer",
+      reason: runnerVerification.reason,
+      matchingRunners: runnerVerification.matching,
+      watermarkStatus: watermark.status
+    });
+  }
+  if (runnerVerification.busy) {
+    return Object.freeze({
+      action: "defer",
+      reason: "runner_busy",
+      runnerId: runnerVerification.runnerId,
+      watermarkStatus: watermark.status
+    });
+  }
+
+  const power = evaluatePowerStatus(await readPowerStatus());
+  if (!power.eligible) {
+    return Object.freeze({
+      action: "defer",
+      reason: power.reason,
+      batteryPercent: power.percent,
+      watermarkStatus: watermark.status
+    });
+  }
+  if (dryRun) {
+    return Object.freeze({
+      action: "defer",
+      reason: "dry_run_would_dispatch_dashboard_recovery",
+      mainSha,
+      watermarkStatus: watermark.status,
+      publicationWatermark: watermark.generatedAt,
+      batteryPercent: power.percent
+    });
+  }
+
+  await github.dispatchDashboardRecovery(mainSha);
+  return Object.freeze({
+    action: "dispatch",
+    disposition: "dashboard_recovery_dispatch_accepted",
+    mainSha,
+    watermarkStatus: watermark.status,
+    publicationWatermark: watermark.generatedAt,
+    ageMinutes: watermark.ageMinutes,
+    batteryPercent: power.percent,
+    powerReason: power.reason,
+    runnerId: runnerVerification.runnerId
+  });
 }
 
 export async function evaluateScheduleRecovery({
@@ -653,6 +956,45 @@ export async function runSupervisor({
     } else if (rerunAccepted) {
       recovery = { action: "defer", reason: "lease_rerun_accepted" };
     }
+
+    let dashboardRecovery = {
+      action: "disabled",
+      reason: "dashboard_recovery_disabled"
+    };
+    const ingestionRecoveryAccepted = rerunAccepted || recovery.action === "dispatch";
+    if (config.dashboardRecoveryEnabled && !ingestionRecoveryAccepted) {
+      try {
+        dashboardRecovery = await evaluateDashboardRecovery({
+          config,
+          github,
+          state,
+          readPowerStatus,
+          now: now()
+        });
+        if (dashboardRecovery.action === "dispatch") {
+          state.dashboardRecoveryDispatch = {
+            dispatchedAt: now().toISOString(),
+            eventType: "workflow_dispatch",
+            workflowPath: config.dashboardWorkflowPath,
+            observedHeadSha: dashboardRecovery.mainSha,
+            watermarkStatus: dashboardRecovery.watermarkStatus,
+            observedGeneratedAt: dashboardRecovery.publicationWatermark ?? null
+          };
+          await writeSupervisorState(config.statePath, state, now());
+          logEvent("dashboard_recovery_dispatch_accepted", withoutUndefined(dashboardRecovery));
+        } else {
+          logEvent("dashboard_recovery_dispatch_skipped", withoutUndefined(dashboardRecovery));
+        }
+      } catch (error) {
+        dashboardRecovery = { action: "defer", reason: "dashboard_recovery_evaluation_error" };
+        logEvent("dashboard_recovery_evaluation_error", { message: safeErrorMessage(error) });
+      }
+    } else if (ingestionRecoveryAccepted) {
+      dashboardRecovery = {
+        action: "defer",
+        reason: rerunAccepted ? "lease_rerun_accepted" : "ingestion_recovery_dispatch_accepted"
+      };
+    }
     await writeSupervisorState(config.statePath, state, now());
     return {
       status: "completed",
@@ -660,7 +1002,8 @@ export async function runSupervisor({
       candidates: scan.candidates.length,
       marked,
       deferred,
-      recovery
+      recovery,
+      dashboardRecovery
     };
   } finally {
     await lock.release();
@@ -763,11 +1106,14 @@ export function createGitHubClient(config, { execute = execFile } = {}) {
     return stdout;
   };
   let workflowPromise = null;
+  let dashboardWorkflowPromise = null;
   let mainPromise = null;
   let runsPromise = null;
+  let dashboardRunsPromise = null;
   let runnersPromise = null;
   const repoEndpoint = `repos/${config.repository}`;
   const workflowSelector = encodeURIComponent(path.basename(config.workflowPath));
+  const dashboardWorkflowSelector = encodeURIComponent(path.basename(config.dashboardWorkflowPath));
   const getWorkflowRuns = ({ fresh = false } = {}) => {
     if (fresh || !runsPromise) {
       runsPromise = apiJson(
@@ -776,11 +1122,25 @@ export function createGitHubClient(config, { execute = execFile } = {}) {
     }
     return runsPromise;
   };
+  const getDashboardWorkflowRuns = ({ fresh = false } = {}) => {
+    if (fresh || !dashboardRunsPromise) {
+      dashboardRunsPromise = apiJson(
+        `${repoEndpoint}/actions/workflows/${dashboardWorkflowSelector}/runs?per_page=100`
+      ).then((response) => Array.isArray(response?.workflow_runs) ? response.workflow_runs : []);
+    }
+    return dashboardRunsPromise;
+  };
 
   return Object.freeze({
     getWorkflow: () => {
       workflowPromise ??= apiJson(`${repoEndpoint}/actions/workflows/${workflowSelector}`);
       return workflowPromise;
+    },
+    getDashboardWorkflow: () => {
+      dashboardWorkflowPromise ??= apiJson(
+        `${repoEndpoint}/actions/workflows/${dashboardWorkflowSelector}`
+      );
+      return dashboardWorkflowPromise;
     },
     getRun: (runId) => apiJson(`${repoEndpoint}/actions/runs/${runId}`),
     getAttemptJobs: async (runId, attempt) => {
@@ -796,16 +1156,19 @@ export function createGitHubClient(config, { execute = execFile } = {}) {
       return mainPromise;
     },
     getWorkflowRuns,
-    getActiveRuns: () =>
-      getWorkflowRuns().then((runs) =>
+    getDashboardWorkflowRuns,
+    getActiveRuns: ({ fresh = false } = {}) =>
+      getWorkflowRuns({ fresh }).then((runs) =>
         runs.filter((run) =>
           ACTIVE_RUN_STATUSES.has(String(run?.status ?? ""))
         )
       ),
-    getRunners: () => {
-      runnersPromise ??= apiJson(`${repoEndpoint}/actions/runners?per_page=100`).then(
-        (response) => Array.isArray(response?.runners) ? response.runners : []
-      );
+    getRunners: ({ fresh = false } = {}) => {
+      if (fresh || !runnersPromise) {
+        runnersPromise = apiJson(`${repoEndpoint}/actions/runners?per_page=100`).then(
+          (response) => Array.isArray(response?.runners) ? response.runners : []
+        );
+      }
       return runnersPromise;
     },
     getRepositoryText: (relativePath, ref) => {
@@ -840,6 +1203,25 @@ export function createGitHubClient(config, { execute = execFile } = {}) {
         ],
         { timeout: 30_000, maxBuffer: 1024 * 1024, encoding: "utf8" }
       );
+    },
+    dispatchDashboardRecovery: async (observedHeadSha) => {
+      if (!FULL_SHA.test(String(observedHeadSha ?? ""))) {
+        throw new Error("Dashboard recovery dispatch requires an exact observed main commit SHA.");
+      }
+      await execute(
+        config.ghBin,
+        [
+          "api",
+          "--method",
+          "POST",
+          `${repoEndpoint}/actions/workflows/${dashboardWorkflowSelector}/dispatches`,
+          "-F",
+          `ref=${config.defaultBranch}`,
+          "-F",
+          "inputs[skip_external_discovery]=false"
+        ],
+        { timeout: 30_000, maxBuffer: 1024 * 1024, encoding: "utf8" }
+      );
     }
   });
 }
@@ -854,7 +1236,8 @@ export async function loadSupervisorState(statePath) {
         schemaVersion: SUPERVISOR_SCHEMA_VERSION,
         workerLogs: {},
         handledEvents: {},
-        recoveryDispatch: null
+        recoveryDispatch: null,
+        dashboardRecoveryDispatch: null
       };
     }
     throw error;
@@ -884,6 +1267,25 @@ export async function loadSupervisorState(statePath) {
     }
   }
   parsed.recoveryDispatch ??= null;
+  if (
+    parsed.dashboardRecoveryDispatch !== undefined &&
+    parsed.dashboardRecoveryDispatch !== null
+  ) {
+    const recovery = parsed.dashboardRecoveryDispatch;
+    if (
+      !plainObject(recovery) ||
+      recovery.eventType !== "workflow_dispatch" ||
+      recovery.workflowPath !== DASHBOARD_WORKFLOW_PATH ||
+      !FULL_SHA.test(recovery.observedHeadSha ?? "") ||
+      !DASHBOARD_WATERMARK_STATUSES.has(recovery.watermarkStatus) ||
+      (recovery.observedGeneratedAt !== null &&
+        !strictUtcInstantOrNull(recovery.observedGeneratedAt)) ||
+      !Number.isFinite(Date.parse(recovery.dispatchedAt ?? ""))
+    ) {
+      throw new Error("Lease supervisor dashboard recovery dispatch state is malformed.");
+    }
+  }
+  parsed.dashboardRecoveryDispatch ??= null;
   return parsed;
 }
 
@@ -894,7 +1296,8 @@ export async function writeSupervisorState(statePath, state, timestamp = new Dat
     updatedAt: timestamp.toISOString(),
     workerLogs: state.workerLogs,
     handledEvents: state.handledEvents,
-    recoveryDispatch: state.recoveryDispatch ?? null
+    recoveryDispatch: state.recoveryDispatch ?? null,
+    dashboardRecoveryDispatch: state.dashboardRecoveryDispatch ?? null
   };
   const temporaryPath = `${statePath}.tmp-${process.pid}-${randomUUID()}`;
   await writeFile(temporaryPath, `${JSON.stringify(next, null, 2)}\n`, {
@@ -972,6 +1375,30 @@ function strictBoolean(value, fallback, label) {
   if (normalized === "true") return true;
   if (normalized === "false") return false;
   throw new Error(`${label} must be exactly true or false.`);
+}
+
+function nonNegativeInteger(value) {
+  return Number.isSafeInteger(value) && value >= 0;
+}
+
+function strictUtcInstant(value) {
+  if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(value)) {
+    throw new Error("Timestamp must be an exact UTC RFC3339 instant.");
+  }
+  const instant = new Date(value);
+  if (!Number.isFinite(instant.getTime()) || instant.toISOString() !== value) {
+    throw new Error("Timestamp must identify a real UTC instant.");
+  }
+  return instant;
+}
+
+function strictUtcInstantOrNull(value) {
+  try {
+    strictUtcInstant(value);
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 function encodeRepositoryPath(relativePath) {

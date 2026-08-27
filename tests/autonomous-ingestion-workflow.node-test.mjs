@@ -182,6 +182,14 @@ test("dashboard refresh uses the Mac network for exact YouTube proof", () => {
     dashboardRefreshWorkflow,
     /GitHub-hosted egress[\s\S]*?exact player\/watch metadata[\s\S]*?discovery still fails closed/
   );
+  assert.match(
+    dashboardRefreshWorkflow,
+    /Preflight dashboard host[\s\S]*?pmset -g batt[\s\S]*?'AC Power'[\s\S]*?pmset -g assertions[\s\S]*?PreventSystemSleep/
+  );
+  assert.match(
+    dashboardRefreshWorkflow,
+    /if \[ "\$\{\{ inputs\.skip_external_discovery \}\}" = "true" \]; then[\s\S]*?dashboard:refresh -- --no-external[\s\S]*?else[\s\S]*?dashboard:refresh/
+  );
 });
 
 test("daily benchmarks resolve DST before entering the shared publication lane", () => {
