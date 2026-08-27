@@ -9,6 +9,7 @@ import {
   assertAwakeLaunchAgentPlist,
   AWAKE_LABEL,
   autonomousIngestionHostPaths,
+  findLegacyBroadCaffeinateProcesses,
   installAutonomousIngestionHost,
   renderLaunchAgentTemplate,
   resolveInstallerOperation,
@@ -61,7 +62,6 @@ function config(overrides = {}) {
     statePath: path.join(stateDir, "state-v1.json"),
     lockPath: path.join(stateDir, "supervisor.lock"),
     ghBin: "/opt/homebrew/bin/gh",
-    minBatteryPercent: 60,
     maxWorkerLogBytes: 32 * 1024 * 1024,
     scheduleRecoveryEnabled: false,
     scheduleRecoverySilenceMinutes: 30,
@@ -165,20 +165,34 @@ test("worker parser requires exact autonomous context, cancellation, and JobNotF
   );
 });
 
-test("power gate admits AC or a healthy reserve and defers below 60 percent", () => {
+test("power gate exactly mirrors the workflow's AC-only preflight", () => {
   assert.deepEqual(
     evaluatePowerStatus("Now drawing from 'AC Power'\n -InternalBattery-0 12%; charging"),
     { eligible: true, reason: "ac_power", percent: 12 }
   );
-  assert.deepEqual(
-    evaluatePowerStatus("Now drawing from 'Battery Power'\n -InternalBattery-0 60%; discharging"),
-    { eligible: true, reason: "healthy_battery_reserve", percent: 60 }
-  );
-  assert.deepEqual(
-    evaluatePowerStatus("Now drawing from 'Battery Power'\n -InternalBattery-0 59%; discharging"),
-    { eligible: false, reason: "battery_below_reserve", percent: 59 }
-  );
-  assert.equal(evaluatePowerStatus("unknown").eligible, false);
+  assert.deepEqual(evaluatePowerStatus("Now drawing from 'AC Power'"), {
+    eligible: true,
+    reason: "ac_power",
+    percent: null
+  });
+  for (const percent of [100, 92, 60, 20, 0]) {
+    assert.deepEqual(
+      evaluatePowerStatus(
+        `Now drawing from 'Battery Power'\n -InternalBattery-0 ${percent}%; discharging`
+      ),
+      { eligible: false, reason: "ac_power_required", percent }
+    );
+  }
+  assert.deepEqual(evaluatePowerStatus("unknown"), {
+    eligible: false,
+    reason: "power_source_unknown",
+    percent: null
+  });
+  assert.deepEqual(evaluatePowerStatus(""), {
+    eligible: false,
+    reason: "power_status_unavailable",
+    percent: null
+  });
 });
 
 test("schedule recovery is enabled with bounded silence and cooldown defaults", () => {
@@ -186,6 +200,11 @@ test("schedule recovery is enabled with bounded silence and cooldown defaults", 
   assert.equal(defaults.scheduleRecoveryEnabled, true);
   assert.equal(defaults.scheduleRecoverySilenceMinutes, 30);
   assert.equal(defaults.scheduleRecoveryCooldownMinutes, 30);
+  assert.equal(Object.hasOwn(defaults, "minBatteryPercent"), false);
+  assert.equal(
+    Object.hasOwn(supervisorConfig({ RETURNER_MIN_BATTERY_PERCENT: "100" }), "minBatteryPercent"),
+    false
+  );
   assert.equal(
     supervisorConfig({ RETURNER_SCHEDULE_RECOVERY_ENABLED: "false" }).scheduleRecoveryEnabled,
     false
@@ -265,7 +284,7 @@ test("stale head and newer attempts are terminal without issuing a rerun", async
   assert.equal(reruns, 0);
 });
 
-test("active workflow and low reserve defer without issuing or deduping a rerun", async () => {
+test("active workflow and battery power defer without issuing or deduping a rerun", async () => {
   let reruns = 0;
   const active = await evaluateLeaseLossEvent({
     event: event(),
@@ -281,7 +300,7 @@ test("active workflow and low reserve defer without issuing or deduping a rerun"
   assert.equal(active.action, "defer");
   assert.equal(active.reason, "autonomous_run_active");
 
-  const lowBattery = await evaluateLeaseLossEvent({
+  const battery = await evaluateLeaseLossEvent({
     event: event(),
     config: config(),
     github: github({
@@ -289,36 +308,53 @@ test("active workflow and low reserve defer without issuing or deduping a rerun"
         reruns += 1;
       }
     }),
-    readPowerStatus: async () => "Now drawing from 'Battery Power'\n 46%; discharging"
+    readPowerStatus: async () => "Now drawing from 'Battery Power'\n 100%; discharging"
   });
-  assert.equal(lowBattery.action, "defer");
-  assert.equal(lowBattery.reason, "battery_below_reserve");
+  assert.equal(battery.action, "defer");
+  assert.equal(battery.reason, "ac_power_required");
+  assert.equal(battery.batteryPercent, 100);
   assert.equal(reruns, 0);
 });
 
-test("a dropped wake after an ordinary battery failure dispatches the canonical latest-slot recovery", async () => {
+test("a battery deferral preserves the stale slot for immediate AC recovery", async () => {
   const dispatchedHeads = [];
-  const decision = await evaluateScheduleRecovery({
+  const testConfig = config({ scheduleRecoveryEnabled: true });
+  const testGithub = github({
+    getWorkflowRuns: async () => [{
+      id: 880,
+      event: "schedule",
+      status: "completed",
+      conclusion: "failure",
+      created_at: "2026-08-26T04:30:00.000Z"
+    }],
+    dispatchRecovery: async (headSha) => dispatchedHeads.push(headSha)
+  });
+  const state = Object.freeze({ recoveryDispatch: null });
+  const batteryDecision = await evaluateScheduleRecovery({
+    config: testConfig,
+    github: testGithub,
+    state,
+    readPowerStatus: async () => "Now drawing from 'Battery Power'\n 100%; discharging",
+    now: new Date("2026-08-26T05:05:00.000Z")
+  });
+
+  assert.equal(batteryDecision.action, "defer");
+  assert.equal(batteryDecision.reason, "ac_power_required");
+  assert.equal(batteryDecision.batteryPercent, 100);
+  assert.deepEqual(dispatchedHeads, []);
+
+  const acDecision = await evaluateScheduleRecovery({
     config: config({ scheduleRecoveryEnabled: true }),
-    github: github({
-      getWorkflowRuns: async () => [{
-        id: 880,
-        event: "schedule",
-        status: "completed",
-        conclusion: "failure",
-        created_at: "2026-08-26T04:30:00.000Z"
-      }],
-      dispatchRecovery: async (headSha) => dispatchedHeads.push(headSha)
-    }),
-    state: { recoveryDispatch: null },
+    github: testGithub,
+    state,
     readPowerStatus: async () => "Now drawing from 'AC Power'\n 72%; charging",
     now: new Date("2026-08-26T05:05:00.000Z")
   });
 
-  assert.equal(decision.action, "dispatch");
-  assert.equal(decision.slotKey, "central-2026-08-25-1800");
-  assert.equal(decision.scheduledAt, "2026-08-25T23:00:00.000Z");
-  assert.equal(decision.watermarkStatus, "missing");
+  assert.equal(acDecision.action, "dispatch");
+  assert.equal(acDecision.slotKey, "central-2026-08-25-1800");
+  assert.equal(acDecision.scheduledAt, "2026-08-25T23:00:00.000Z");
+  assert.equal(acDecision.watermarkStatus, "missing");
   assert.deepEqual(dispatchedHeads, [CURRENT_SHA]);
 });
 
@@ -438,7 +474,7 @@ test("host recovery waits for the exact runner to be online and power-eligible",
   });
   assert.equal(offline.reason, "runner_offline");
 
-  const lowBattery = await evaluateScheduleRecovery({
+  const battery = await evaluateScheduleRecovery({
     config: config({ scheduleRecoveryEnabled: true }),
     github: github({
       getWorkflowRuns: async () => [],
@@ -447,11 +483,11 @@ test("host recovery waits for the exact runner to be online and power-eligible",
       }
     }),
     state: { recoveryDispatch: null },
-    readPowerStatus: async () => "Now drawing from 'Battery Power'\n 59%; discharging",
+    readPowerStatus: async () => "Now drawing from 'Battery Power'\n 100%; discharging",
     now: new Date("2026-08-26T05:05:00.000Z")
   });
-  assert.equal(lowBattery.reason, "battery_below_reserve");
-  assert.equal(lowBattery.batteryPercent, 59);
+  assert.equal(battery.reason, "ac_power_required");
+  assert.equal(battery.batteryPercent, 100);
   assert.equal(dispatches, 0);
 });
 
@@ -871,6 +907,7 @@ test("LaunchAgent template is a five-minute one-shot without KeepAlive", async (
     template,
     /<key>RETURNER_SCHEDULE_RECOVERY_COOLDOWN_MINUTES<\/key>\s*<string>30<\/string>/
   );
+  assert.doesNotMatch(template, /RETURNER_MIN_BATTERY_PERCENT/);
   assert.doesNotMatch(template, /<key>(?:KeepAlive|WatchPaths)<\/key>/);
 
   const installer = await readFile(
@@ -909,6 +946,23 @@ test("awake LaunchAgent is AC-only and never simulates user activity", async () 
   ]) {
     assert.throws(() => assertAwakeLaunchAgentPlist(mutation), /Awake LaunchAgent/);
   }
+});
+
+test("host installer rejects only legacy broad standalone caffeinate assertions", () => {
+  assert.deepEqual(
+    findLegacyBroadCaffeinateProcesses([
+      " 4216 caffeinate -dimsu",
+      " 4217 /usr/bin/caffeinate -d -i -m -s -u",
+      " 97283 /usr/bin/caffeinate -s",
+      " 59519 /usr/bin/caffeinate -ims -w 59518",
+      " 77777 /usr/bin/caffeinate -s npm test",
+      " 88888 /usr/bin/not-caffeinate -dimsu"
+    ].join("\n")),
+    [
+      { pid: 4216, flags: "dimsu" },
+      { pid: 4217, flags: "dimsu" }
+    ]
+  );
 });
 
 test("auth browser LaunchAgent pins the dedicated local Chrome Canary and persistent data directory", async () => {
@@ -1027,6 +1081,18 @@ test("host LaunchAgent install and uninstall are idempotent without deleting aud
   assert.equal(await readFile(paths.awakePlistPath, "utf8"), firstAwakePlist);
   assert.equal(first.installed, true);
   assert.equal(second.installed, true);
+  await assert.rejects(
+    installAutonomousIngestionHost({
+      ...options,
+      run: async (command, args, commandOptions) => {
+        if (command === "/bin/ps" && args.join(" ") === "-axo pid=,command=") {
+          return { stdout: "4216 caffeinate -dimsu\n", stderr: "" };
+        }
+        return run(command, args, commandOptions);
+      }
+    }),
+    /Refusing to install while legacy broad caffeinate assertions are active: PID 4216 \(-dimsu\)/
+  );
   assert.deepEqual(
     first.launchAgents.map(({ label }) => label),
     [AUTH_BROWSER_LABEL, AWAKE_LABEL, SUPERVISOR_LABEL]

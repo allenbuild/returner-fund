@@ -449,6 +449,12 @@ non-user wake is sufficient for public collectors and the bounded ordinary
 authenticated lanes. The explicit user-wake gate remains required for a manual
 authenticated historical replay.
 
+The installer also refuses to refresh the host services while a standalone
+legacy `caffeinate` process carries display (`-d`) or synthetic-user (`-u`)
+assertions. Stop only the reported stale PID before retrying installation. The
+job-scoped `/usr/bin/caffeinate -ims -w <controller-pid>` assertion and the
+durable AC-only `-s` service remain explicitly allowed.
+
 `com.returner-fund.auth-chrome-runner` uses `KeepAlive` and the Aqua session to
 run exactly
 `~/Applications/Google Chrome Canary.app/Contents/MacOS/Google Chrome Canary` with
@@ -465,9 +471,9 @@ retry.
 
 The one-shot agent runs at load and every 300 seconds. It scans `Worker_*.log` diagnostics and fails closed unless the GitHub API confirms the exact repository, workflow, failed run attempt, self-hosted runner, and cancelled ingestion step. It never stores a GitHub token; `/opt/homebrew/bin/gh` uses the logged-in user's keychain session.
 
-Recovery remains single-flight and power-aware. The supervisor defers while another autonomous workflow is active or while the Mac is below 60% on battery. It rejects an incident whose workflow SHA is not current `main`, which prevents an old failure from reviving superseded code. For an eligible event it calls GitHub's failed-jobs rerun endpoint, preserving the original event, run ID, replay/slot key, and candidate provenance. Durable dedupe is written only after GitHub accepts the rerun or reports a newer run attempt; stale-SHA incidents are recorded as intentionally skipped.
+Recovery remains single-flight and uses the same AC-only gate as the workflow. The supervisor defers while another autonomous workflow is active or whenever the Mac is on battery, regardless of its charge. A battery deferral does not consume the recovery cooldown or write durable dispatch state, so the stale Central slot remains retryable on the first eligible supervisor interval after AC returns. It rejects an incident whose workflow SHA is not current `main`, which prevents an old failure from reviving superseded code. For an eligible event it calls GitHub's failed-jobs rerun endpoint, preserving the original event, run ID, replay/slot key, and candidate provenance. Durable dedupe is written only after GitHub accepts the rerun or reports a newer run attempt; stale-SHA incidents are recorded as intentionally skipped.
 
-Independently, after 30 minutes without any autonomous workflow wakeup, the supervisor verifies that the workflow is active, its exact named runner is online, local power is eligible, no autonomous run is active or pending, and the complete publication watermark read from the current `main` SHA is stale, missing, invalid, or divergent. It then emits `autonomous-ingestion-recovery` with only that expected SHA. The workflow requires the dispatched SHA to match, rereads the committed watermark, and computes the newest `06:00`/`18:00` Central slot itself. A durable same-slot 30-minute cooldown and GitHub active-run check prevent dispatch storms. Refresh the installed host services after merging installer or supervisor changes; merging alone does not update the copied host script or loaded plists.
+Independently, after 30 minutes without any autonomous workflow wakeup, the supervisor verifies that the workflow is active, its exact named runner is online, AC power is present, no autonomous run is active or pending, and the complete publication watermark read from the current `main` SHA is stale, missing, invalid, or divergent. It then emits `autonomous-ingestion-recovery` with only that expected SHA. The workflow requires the dispatched SHA to match, rereads the committed watermark, and computes the newest `06:00`/`18:00` Central slot itself. A durable same-slot 30-minute cooldown and GitHub active-run check prevent dispatch storms. Refresh the installed host services after merging installer or supervisor changes; merging alone does not update the copied host script or loaded plists.
 
 The checked-in templates are
 `ops/launchd/com.returner-fund.ingestion-awake.plist.template`,

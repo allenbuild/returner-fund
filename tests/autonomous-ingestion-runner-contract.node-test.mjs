@@ -37,6 +37,7 @@ const supabaseConfiguration = await readFile(
 );
 const packageJson = JSON.parse(await readFile(path.join(repositoryRoot, "package.json"), "utf8"));
 const temporaryRoots = [];
+const FIXTURE_PROCESS_MAX_LIFETIME_MS = 10_000;
 
 afterEach(async () => {
   await Promise.all(temporaryRoots.splice(0).map((root) => rm(root, { recursive: true, force: true })));
@@ -562,6 +563,18 @@ setInterval(() => {}, 1000);
     await assert.rejects(readFile(markerPath, "utf8"), /ENOENT/);
   });
 
+  it("self-expires adversarial fixture daemons if the test harness disappears", () => {
+    const startedAt = Date.now();
+    const result = spawnSync(process.execPath, ["-e", boundedFixtureDaemonSource(100)], {
+      encoding: "utf8",
+      timeout: 2_000
+    });
+
+    assert.equal(result.status, 98, result.stderr);
+    assert.equal(result.error, undefined);
+    assert.ok(Date.now() - startedAt < 1_000, "fixture self-expiry must remain bounded");
+  });
+
   it("hard-settles when an escaped descendant keeps the subprocess pipes open", async () => {
     const root = await mkdtemp(path.join(os.tmpdir(), "autonomous-ingestion-escaped-child-"));
     temporaryRoots.push(root);
@@ -571,7 +584,7 @@ setInterval(() => {}, 1000);
 import { spawn } from "node:child_process";
 import { writeFileSync } from "node:fs";
 process.on("SIGTERM", () => {});
-const escaped = spawn(process.execPath, ["-e", "setInterval(() => {}, 1000)"], {
+const escaped = spawn(process.execPath, ["-e", ${JSON.stringify(boundedFixtureDaemonSource())}], {
   detached: true,
   stdio: ["ignore", process.stdout, process.stderr]
 });
@@ -581,7 +594,7 @@ writeFileSync(process.env.LIFECYCLE_FIXTURE_MARKER, JSON.stringify({
   escaped: escaped.pid,
   unrelatedSecret: process.env.UNRELATED_RUNNER_SECRET ?? null
 }));
-setInterval(() => {}, 1000);
+${boundedFixtureDaemonSource()}
 `);
     const startedAt = Date.now();
     const result = spawnSync(
@@ -623,7 +636,7 @@ setInterval(() => {}, 1000);
     await writeExecutable(commandPath, `#!/usr/bin/env node
 import { spawn } from "node:child_process";
 import { writeFileSync } from "node:fs";
-const escaped = spawn(process.execPath, ["-e", "setInterval(() => {}, 1000)"], {
+const escaped = spawn(process.execPath, ["-e", ${JSON.stringify(boundedFixtureDaemonSource())}], {
   detached: true,
   stdio: "ignore"
 });
@@ -669,7 +682,7 @@ const mode = process.argv[2];
 if (mode === "fail") {
   setTimeout(() => process.exit(7), 150);
 } else {
-  const escaped = spawn(process.execPath, ["-e", "setInterval(() => {}, 1000)"], {
+  const escaped = spawn(process.execPath, ["-e", ${JSON.stringify(boundedFixtureDaemonSource())}], {
     detached: true,
     stdio: "ignore"
   });
@@ -678,7 +691,7 @@ if (mode === "fail") {
     sibling: process.pid,
     escaped: escaped.pid
   }));
-  setInterval(() => {}, 1000);
+  ${boundedFixtureDaemonSource()}
 }
 `);
     const result = runLifecycleFixture("fail-fast-siblings", {
@@ -4191,6 +4204,13 @@ function processExists(pid) {
     if (error?.code === "ESRCH") return false;
     throw error;
   }
+}
+
+function boundedFixtureDaemonSource(maximumLifetimeMs = FIXTURE_PROCESS_MAX_LIFETIME_MS) {
+  if (!Number.isInteger(maximumLifetimeMs) || maximumLifetimeMs <= 0) {
+    throw new TypeError("Fixture lifetime must be a positive integer.");
+  }
+  return `setTimeout(() => process.exit(98), ${maximumLifetimeMs}); setInterval(() => {}, 1000);`;
 }
 
 function escapeRegExp(value) {

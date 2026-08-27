@@ -27,7 +27,6 @@ import {
 const execFile = promisify(execFileCallback);
 
 export const SUPERVISOR_SCHEMA_VERSION = 1;
-export const DEFAULT_MIN_BATTERY_PERCENT = 60;
 export const DEFAULT_MAX_WORKER_LOG_BYTES = 32 * 1024 * 1024;
 export const DEFAULT_SCHEDULE_RECOVERY_SILENCE_MINUTES = 30;
 export const DEFAULT_SCHEDULE_RECOVERY_COOLDOWN_MINUTES = 30;
@@ -65,12 +64,6 @@ export function supervisorConfig(environment = process.env) {
         "ingestion-lease-supervisor",
         "state"
       )
-  );
-  const minBatteryPercent = strictInteger(
-    environment.RETURNER_MIN_BATTERY_PERCENT,
-    DEFAULT_MIN_BATTERY_PERCENT,
-    "RETURNER_MIN_BATTERY_PERCENT",
-    { minimum: 1, maximum: 100 }
   );
   const maxWorkerLogBytes = strictInteger(
     environment.RETURNER_MAX_WORKER_LOG_BYTES,
@@ -110,7 +103,6 @@ export function supervisorConfig(environment = process.env) {
     statePath: path.join(stateDir, "state-v1.json"),
     lockPath: path.join(stateDir, "supervisor.lock"),
     ghBin: path.resolve(clean(environment.RETURNER_GH_BIN) ?? "/opt/homebrew/bin/gh"),
-    minBatteryPercent,
     maxWorkerLogBytes,
     scheduleRecoveryEnabled: strictBoolean(
       environment.RETURNER_SCHEDULE_RECOVERY_ENABLED,
@@ -169,24 +161,25 @@ export function parseWorkerLeaseLossLog(source, { filename = "Worker.log" } = {}
   });
 }
 
-export function evaluatePowerStatus(source, minimumPercent = DEFAULT_MIN_BATTERY_PERCENT) {
+export function evaluatePowerStatus(source) {
   if (typeof source !== "string" || !source.trim()) {
     return Object.freeze({ eligible: false, reason: "power_status_unavailable", percent: null });
   }
   const firstLine = source.split(/\r?\n/, 1)[0] ?? "";
   const onAc = /(?:Now drawing from )?'AC Power'/i.test(firstLine);
+  const onBattery = /(?:Now drawing from )?'Battery Power'/i.test(firstLine);
   const percentMatch = /(?:^|\s)([0-9]{1,3})%;/.exec(source);
-  const percent = percentMatch ? Number(percentMatch[1]) : null;
+  const parsedPercent = percentMatch ? Number(percentMatch[1]) : null;
+  const percent = Number.isInteger(parsedPercent) && parsedPercent >= 0 && parsedPercent <= 100
+    ? parsedPercent
+    : null;
   if (onAc) {
     return Object.freeze({ eligible: true, reason: "ac_power", percent });
   }
-  if (!Number.isInteger(percent) || percent < 0 || percent > 100) {
-    return Object.freeze({ eligible: false, reason: "battery_percent_unknown", percent: null });
+  if (onBattery) {
+    return Object.freeze({ eligible: false, reason: "ac_power_required", percent });
   }
-  if (percent < minimumPercent) {
-    return Object.freeze({ eligible: false, reason: "battery_below_reserve", percent });
-  }
-  return Object.freeze({ eligible: true, reason: "healthy_battery_reserve", percent });
+  return Object.freeze({ eligible: false, reason: "power_source_unknown", percent });
 }
 
 export function verifyWorkflowRun({ workflow, run, event, config }) {
@@ -311,7 +304,7 @@ export async function evaluateLeaseLossEvent({
     });
   }
 
-  const power = evaluatePowerStatus(await readPowerStatus(), config.minBatteryPercent);
+  const power = evaluatePowerStatus(await readPowerStatus());
   if (!power.eligible) {
     return Object.freeze({ action: "defer", reason: power.reason, batteryPercent: power.percent });
   }
@@ -461,7 +454,7 @@ export async function evaluateScheduleRecovery({
     });
   }
 
-  const power = evaluatePowerStatus(await readPowerStatus(), config.minBatteryPercent);
+  const power = evaluatePowerStatus(await readPowerStatus());
   if (!power.eligible) {
     return Object.freeze({
       action: "defer",
