@@ -195,7 +195,7 @@ describe("public dashboard discovery", () => {
   });
 
   it("ships a unique, bounded fixed Instagram roster", () => {
-    expect(DEFAULT_DASHBOARD_INSTAGRAM_ACCOUNTS).toHaveLength(20);
+    expect(DEFAULT_DASHBOARD_INSTAGRAM_ACCOUNTS).toHaveLength(30);
     expect(DEFAULT_DASHBOARD_INSTAGRAM_ACCOUNTS.length).toBeLessThanOrEqual(MAX_DASHBOARD_INSTAGRAM_ACCOUNTS);
     expect(DEFAULT_DASHBOARD_INSTAGRAM_ACCOUNTS.map(({ username }) => username)).toEqual(expect.arrayContaining([
       "apple",
@@ -206,7 +206,13 @@ describe("public dashboard discovery", () => {
       "samsungmobile",
       "xiaomi.global",
       "beebomco",
-      "teslamotors"
+      "teslamotors",
+      "techwiser",
+      "haylsworld",
+      "supersaf",
+      "googlepixel",
+      "oneplus",
+      "qualcomm"
     ]));
     expect(new Set(DEFAULT_DASHBOARD_INSTAGRAM_ACCOUNTS.map(({ username }) => username)).size).toBe(
       DEFAULT_DASHBOARD_INSTAGRAM_ACCOUNTS.length
@@ -699,11 +705,17 @@ describe("public dashboard discovery", () => {
       { name: "Engineering Explained", handle: "EngineeringExplained", channelId: "UClqhvGmHcvWL9w3R48t9QXQ" },
       { name: "Tech Burner", handle: "TechBurner", channelId: "UCXUJJNoP1QupwsYIWFXmsZg" },
       { name: "Technical Guruji", handle: "TechnicalGuruji", channelId: "UCOhHO2ICt0ti9KAh-QHvttQ" },
-      { name: "Trakin Tech", handle: "TrakinTech", channelId: "UCEPL07qzVsOcHd3sMUws65g" }
+      { name: "Trakin Tech", handle: "TrakinTech", channelId: "UCEPL07qzVsOcHd3sMUws65g" },
+      { name: "Hayls World", handle: "HaylsWorld", channelId: "UCIxLxlan8q9WA7sjuq6LdTQ" },
+      { name: "SuperSaf", handle: "SuperSaf", channelId: "UCIrrRLyFMVmmL9NDAU2obJA" },
+      { name: "TechWiser", handle: "techwiser", channelId: "UCdp6GUwjKscp5ST4M4WgIpw" },
+      { name: "GadgetIn", handle: "GadgetIn", channelId: "UC1dI4tO13ApuSX0QeX8pHng" },
+      { name: "Technology Gyan", handle: "TechnologyGyan", channelId: "UC1tVU8H153ZFO9eRsxdJlhA" },
+      { name: "UrAvgConsumer", handle: "UrAvgConsumer", channelId: "UC9fSZHEh6XsRpX-xJc6lT3A" }
     ]);
     expect(DEFAULT_DASHBOARD_YOUTUBE_CHANNELS.length).toBeLessThanOrEqual(MAX_DASHBOARD_YOUTUBE_CHANNELS);
-    expect(DEFAULT_DASHBOARD_YOUTUBE_CHANNELS).toHaveLength(48);
-    expect(MAX_DASHBOARD_YOUTUBE_CHANNELS).toBe(48);
+    expect(DEFAULT_DASHBOARD_YOUTUBE_CHANNELS).toHaveLength(54);
+    expect(MAX_DASHBOARD_YOUTUBE_CHANNELS).toBe(54);
     const channelIds = DEFAULT_DASHBOARD_YOUTUBE_CHANNELS.map(({ channelId }) => channelId);
     const handles = DEFAULT_DASHBOARD_YOUTUBE_CHANNELS.map(({ handle }) => handle.toLowerCase());
     expect(channelIds.every((channelId) => /^UC[A-Za-z0-9_-]{22}$/.test(channelId ?? ""))).toBe(true);

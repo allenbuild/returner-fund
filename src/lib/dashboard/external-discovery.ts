@@ -37,8 +37,8 @@ const YOUTUBE_SEARCH_FILTER = "CAMSAggDEAE";
 // no-key WEB browse/player endpoints accept older client versions, which lets
 // the worker avoid extracting and retaining a page-embedded API key.
 const YOUTUBE_WEB_CLIENT_VERSION = "2.20240101.00.00";
-export const MAX_DASHBOARD_YOUTUBE_CHANNELS = 48;
-export const MAX_DASHBOARD_INSTAGRAM_ACCOUNTS = 20;
+export const MAX_DASHBOARD_YOUTUBE_CHANNELS = 54;
+export const MAX_DASHBOARD_INSTAGRAM_ACCOUNTS = 30;
 const MAX_RSS_ITEMS_PER_FEED = 40;
 // Primary research is a direct, high-quality lane rather than a broad
 // consumer feed. Keep its discovery window modestly wider so the Top 100 can
@@ -288,7 +288,17 @@ export const DEFAULT_DASHBOARD_INSTAGRAM_ACCOUNTS: readonly DashboardInstagramAc
   { name: "Trakin Tech", username: "trakintech" },
   { name: "Xiaomi", username: "xiaomi.global" },
   { name: "Beebom", username: "beebomco" },
-  { name: "Tesla", username: "teslamotors" }
+  { name: "Tesla", username: "teslamotors" },
+  { name: "TechWiser", username: "techwiser" },
+  { name: "Hayls World", username: "haylsworld" },
+  { name: "SuperSaf", username: "supersaf" },
+  { name: "iJustine", username: "ijustine" },
+  { name: "Austin Evans", username: "austinnotduncan" },
+  { name: "Made by Google", username: "googlepixel" },
+  { name: "OnePlus", username: "oneplus" },
+  { name: "Qualcomm", username: "qualcomm" },
+  { name: "OPPO", username: "oppo" },
+  { name: "HONOR", username: "honorglobal" }
 ];
 
 /** Bounded, high-reach technology roster; every qualifying metric/date is
@@ -341,7 +351,13 @@ export const DEFAULT_DASHBOARD_YOUTUBE_CHANNELS: readonly DashboardYoutubeChanne
   { name: "Engineering Explained", handle: "EngineeringExplained", channelId: "UClqhvGmHcvWL9w3R48t9QXQ" },
   { name: "Tech Burner", handle: "TechBurner", channelId: "UCXUJJNoP1QupwsYIWFXmsZg" },
   { name: "Technical Guruji", handle: "TechnicalGuruji", channelId: "UCOhHO2ICt0ti9KAh-QHvttQ" },
-  { name: "Trakin Tech", handle: "TrakinTech", channelId: "UCEPL07qzVsOcHd3sMUws65g" }
+  { name: "Trakin Tech", handle: "TrakinTech", channelId: "UCEPL07qzVsOcHd3sMUws65g" },
+  { name: "Hayls World", handle: "HaylsWorld", channelId: "UCIxLxlan8q9WA7sjuq6LdTQ" },
+  { name: "SuperSaf", handle: "SuperSaf", channelId: "UCIrrRLyFMVmmL9NDAU2obJA" },
+  { name: "TechWiser", handle: "techwiser", channelId: "UCdp6GUwjKscp5ST4M4WgIpw" },
+  { name: "GadgetIn", handle: "GadgetIn", channelId: "UC1dI4tO13ApuSX0QeX8pHng" },
+  { name: "Technology Gyan", handle: "TechnologyGyan", channelId: "UC1tVU8H153ZFO9eRsxdJlhA" },
+  { name: "UrAvgConsumer", handle: "UrAvgConsumer", channelId: "UC9fSZHEh6XsRpX-xJc6lT3A" }
 ];
 
 interface DashboardRssFeed {
