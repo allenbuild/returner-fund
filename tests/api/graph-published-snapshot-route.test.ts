@@ -91,7 +91,7 @@ describe("GET /api/graph published snapshot runtime", () => {
     expect(benchmarkMocks.applyStoredBenchmarkMomentum).toHaveBeenCalledOnce();
     expect(benchmarkMocks.applyStoredBenchmarkMomentum).toHaveBeenCalledWith(
       expect.objectContaining({ fastestGaining: published.fastestGaining }),
-      { now: FIXED_ROUTE_NOW }
+      { now: new Date(published.generatedAt) }
     );
     expect(graph.generatedAt).toBe(published.generatedAt);
     expect(graph.scoringContext).toEqual(published.scoringContext);
@@ -134,7 +134,7 @@ describe("GET /api/graph published snapshot runtime", () => {
       { now: Date }
     ];
     expect(canonicalProjection(hydrationInput)).toEqual(canonicalProjection(published));
-    expect(hydrationOptions).toEqual({ now: FIXED_ROUTE_NOW });
+    expect(hydrationOptions).toEqual({ now: new Date(published.generatedAt) });
     expect(graph.selectedTopVoiceAudience.id).toBe("yc_partners");
     expect(canonicalProjection(graph)).toEqual(canonicalProjection(expected));
     expect(graph.nodes.every((node) => node.entityType !== "company" || node.score >= 60)).toBe(true);
