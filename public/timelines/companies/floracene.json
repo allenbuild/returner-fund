@@ -5,14 +5,14 @@
     "slug": "floracene",
     "name": "Floracene"
   },
-  "generatedAt": "2026-08-27T11:43:26.137Z",
-  "lastModifiedAt": "2026-08-27T11:43:26.137Z",
+  "generatedAt": "2026-08-28T20:10:39.009Z",
+  "lastModifiedAt": "2026-08-28T20:10:39.009Z",
   "events": [],
   "groups": [],
   "coverage": {
     "status": "partial",
     "publishedEventCount": 0,
-    "lastSuccessfulArtifactAt": "2026-08-27T11:43:26.137Z"
+    "lastSuccessfulArtifactAt": "2026-08-28T20:10:39.009Z"
   },
   "nextCursor": null
 }

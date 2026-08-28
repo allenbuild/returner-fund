@@ -893,6 +893,37 @@
           "https://x.com/akshaymistry8"
         ]
       }
+    },
+    {
+      "companyId": "33969",
+      "companySlug": "opentag",
+      "companyName": "OpenTag",
+      "founderId": "3880379",
+      "change": "added",
+      "fromName": null,
+      "toName": "Wilson Nguyen",
+      "accounts": {
+        "linkedin": [
+          "https://www.linkedin.com/in/nguyenwilson/"
+        ],
+        "x": [
+          "https://x.com/potatoparser"
+        ]
+      }
+    },
+    {
+      "companyId": "31569",
+      "companySlug": "proprio-robotics",
+      "companyName": "Proprio Robotics",
+      "founderId": "1216142",
+      "change": "removed",
+      "fromName": "Raghav Punnam",
+      "toName": null,
+      "accounts": {
+        "linkedin": [
+          "https://www.linkedin.com/in/raghav-punnam/"
+        ]
+      }
     }
   ]
 }

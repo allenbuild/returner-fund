@@ -54,15 +54,15 @@
         "excerpt": "we just open sourced a tool train a specialized model at Fable quality and half the cost it uses agent traces to continuously improve via • distillation and RL • model routing • token compaction",
         "url": "https://x.com/silennai/status/2081503565600985593",
         "metrics": {
-          "likes": 186,
+          "likes": 187,
           "reposts": 22,
           "replies": 21,
-          "views": 25206
+          "views": 25230
         },
         "evidenceRole": "primary"
       }
     ]
   },
-  "generatedAt": "2026-08-27T11:43:26.137Z",
-  "lastModifiedAt": "2026-08-27T11:43:26.137Z"
+  "generatedAt": "2026-08-28T20:10:39.009Z",
+  "lastModifiedAt": "2026-08-28T20:10:39.009Z"
 }

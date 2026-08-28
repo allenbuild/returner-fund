@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-robocurve",
+    "slug": "robocurve",
+    "name": "Robocurve"
+  },
+  "event": {
+    "id": "tle-d10ef25e41a43f6d32a581a3",
+    "eventDate": "2026-08-27",
+    "eventDateType": "announcement_date",
+    "title": "Robocurve announced its public launch",
+    "summary": "Robocurve introduced @robocurve, a Public Benefit Corporation to measure and report frontier robotics capabilities.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-4cc1a83b3860d0ad643704c4",
+        "title": "Introducing @robocurve, a Public Benefit Corporation to measure and report frontier robotics capabilities.",
+        "publisher": "chooi_jeq",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-08-27T21:22:20.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/chooi_jeq/status/2093086738218725720"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-4cc1a83b3860d0ad643704c4",
+        "title": "Introducing @robocurve, a Public Benefit Corporation to measure and report frontier robotics capabilities.",
+        "publisher": "chooi_jeq",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-08-27T21:22:20.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/chooi_jeq/status/2093086738218725720",
+        "publicationDate": "2026-08-27T21:22:20.000Z",
+        "excerpt": "Introducing @robocurve, a Public Benefit Corporation to measure and report frontier robotics capabilities. We build real-world evaluations for robots and publish results as a neutral third party.",
+        "sourceEventDate": "2026-08-27",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-1b5f4511259469e953ad029b",
+        "platform": "x",
+        "account": "chooi_jeq",
+        "postDate": "2026-08-27",
+        "excerpt": "Introducing @robocurve, a Public Benefit Corporation to measure and report frontier robotics capabilities. We build real-world evaluations for robots and publish results as a neutral third party.",
+        "url": "https://x.com/chooi_jeq/status/2093086738218725720",
+        "metrics": {
+          "likes": 310,
+          "reposts": 36,
+          "replies": 30,
+          "views": 43948
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-28T20:10:39.009Z",
+  "lastModifiedAt": "2026-08-28T20:10:39.009Z"
+}

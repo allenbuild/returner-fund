@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-coarena",
+    "slug": "coarena",
+    "name": "CoArena"
+  },
+  "event": {
+    "id": "tle-af6d1088f84a8d0e0110225f",
+    "eventDate": "2026-08-27",
+    "eventDateType": "announcement_date",
+    "title": "CoArena released McFable NAME",
+    "summary": "CoArena introduced McFable NAME: McFable AGE: 14.5 T Params OCCUPATION: Frontier Model Access Enjoyer CLEARANCE: $250,000+ in credits plot twist: you don't need one of these to get access to Fable.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-ee780017d438aea68fa41eb8",
+        "title": "Introducing McFable NAME: McFable AGE: 14.5 T Params OCCUPATION: Frontier Model Access Enjoyer CLEARANCE: $250,000+ in credits plot twist: you don't need one of these to get access to Fable.",
+        "publisher": "coastyai",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-08-27T20:42:54.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/coastyai/status/2093076812150820982"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-ee780017d438aea68fa41eb8",
+        "title": "Introducing McFable NAME: McFable AGE: 14.5 T Params OCCUPATION: Frontier Model Access Enjoyer CLEARANCE: $250,000+ in credits plot twist: you don't need one of these to get access to Fable.",
+        "publisher": "coastyai",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-08-27T20:42:54.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/coastyai/status/2093076812150820982",
+        "publicationDate": "2026-08-27T20:42:54.000Z",
+        "excerpt": "Introducing McFable NAME: McFable AGE: 14.5 T Params OCCUPATION: Frontier Model Access Enjoyer CLEARANCE: $250,000+ in credits plot twist: you don't need one of these to get access to Fable. Fable is free on CoArena. that's the whole bit.",
+        "sourceEventDate": "2026-08-27",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-14458101b59438116546aedc",
+        "platform": "x",
+        "account": "coastyai",
+        "postDate": "2026-08-27",
+        "excerpt": "Introducing McFable NAME: McFable AGE: 14.5 T Params OCCUPATION: Frontier Model Access Enjoyer CLEARANCE: $250,000+ in credits plot twist: you don't need one of these to get access to Fable. Fable is free on CoArena. that's the whole bit.",
+        "url": "https://x.com/coastyai/status/2093076812150820982",
+        "metrics": {
+          "likes": 37,
+          "reposts": 6,
+          "replies": 5,
+          "views": 7155
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-28T20:10:39.009Z",
+  "lastModifiedAt": "2026-08-28T20:10:39.009Z"
+}

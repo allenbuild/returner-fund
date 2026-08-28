@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-almanac",
+    "slug": "almanac",
+    "name": "Almanac"
+  },
+  "event": {
+    "id": "tle-ef735f7d9a8a03ad08d09d66",
+    "eventDate": "2026-08-28",
+    "eventDateType": "announcement_date",
+    "title": "Almanac released on ProductHunt",
+    "summary": "Almanac just launched on ProductHunt.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-2facd1e8e15203cb5a812990",
+        "title": "Almanac just launched on ProductHunt!! We're moving towards a world where people want to give more and more content to their AI Agents.",
+        "publisher": "kushagrchitkar",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-08-28T07:30:41.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/kushagrchitkar/status/2093239833431073106"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-2facd1e8e15203cb5a812990",
+        "title": "Almanac just launched on ProductHunt!! We're moving towards a world where people want to give more and more content to their AI Agents.",
+        "publisher": "kushagrchitkar",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-08-28T07:30:41.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/kushagrchitkar/status/2093239833431073106",
+        "publicationDate": "2026-08-28T07:30:41.000Z",
+        "excerpt": "Almanac just launched on ProductHunt!! We're moving towards a world where people want to give more and more content to their AI Agents. But without proper compilation, it's just noise. At @usealmanac, we're building this missing layer",
+        "sourceEventDate": "2026-08-28",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-2a2da834d621bd694510deec",
+        "platform": "x",
+        "account": "kushagrchitkar",
+        "postDate": "2026-08-28",
+        "excerpt": "Almanac just launched on ProductHunt!! We're moving towards a world where people want to give more and more content to their AI Agents. But without proper compilation, it's just noise. At @usealmanac, we're building this missing layer",
+        "url": "https://x.com/kushagrchitkar/status/2093239833431073106",
+        "metrics": {
+          "likes": 17,
+          "reposts": 1,
+          "replies": 5,
+          "views": 457
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-28T20:10:39.009Z",
+  "lastModifiedAt": "2026-08-28T20:10:39.009Z"
+}

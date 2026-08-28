@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-omanta",
+    "slug": "omanta",
+    "name": "Omanta"
+  },
+  "event": {
+    "id": "tle-fd78adefc86c3f32e141211c",
+    "eventDate": "2026-08-04",
+    "eventDateType": "announcement_date",
+    "title": "Omanta released Omanta (YC S26) the personalized research lab for each patient",
+    "summary": "Omanta introduced Omanta (YC S26) the personalized research lab for each patient.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-dc3fcd37407053962cf873d6",
+        "title": "Introducing Omanta (YC S26) the personalized research lab for each patient.",
+        "publisher": "omantahealth",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-08-04T17:42:27.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/omantahealth/status/2084696480829628826"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-dc3fcd37407053962cf873d6",
+        "title": "Introducing Omanta (YC S26) the personalized research lab for each patient.",
+        "publisher": "omantahealth",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-08-04T17:42:27.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/omantahealth/status/2084696480829628826",
+        "publicationDate": "2026-08-04T17:42:27.000Z",
+        "excerpt": "Introducing Omanta (YC S26) the personalized research lab for each patient. Omanta integrates a patient's full medical record, personal genomics, and the latest scientific evidence to understand the molecular drivers of their disease. It maps existing and emerging therapies",
+        "sourceEventDate": "2026-08-04",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-e276ecc6cd871632a25757aa",
+        "platform": "x",
+        "account": "omantahealth",
+        "postDate": "2026-08-04",
+        "excerpt": "Introducing Omanta (YC S26) the personalized research lab for each patient. Omanta integrates a patient's full medical record, personal genomics, and the latest scientific evidence to understand the molecular drivers of their disease. It maps existing and emerging therapies",
+        "url": "https://x.com/omantahealth/status/2084696480829628826",
+        "metrics": {
+          "likes": 2109,
+          "reposts": 172,
+          "replies": 89,
+          "views": 994356
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-28T20:10:39.009Z",
+  "lastModifiedAt": "2026-08-28T20:10:39.009Z"
+}

@@ -1,0 +1,108 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-mochitv",
+    "slug": "mochi-tv",
+    "name": "MOCHI.TV"
+  },
+  "event": {
+    "id": "tle-f0f9fca62ed17f9c9ac778ea",
+    "eventDate": "2026-08-28",
+    "eventDateType": "announcement_date",
+    "title": "MOCHI.TV released Mochi Lab 🧪 Make your own anime",
+    "summary": "MOCHI.TV introduced Mochi Lab 🧪 Make your own anime.",
+    "category": "product_launch",
+    "isMajor": true,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 2,
+    "sourcePreview": [
+      {
+        "id": "src-0b26f3884dab151fbe9eb7b3",
+        "title": "Introducing Mochi Lab 🧪 Make your own anime.",
+        "publisher": "watchmochi",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-08-28T04:30:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/watchmochi/status/2093194364747215030"
+      },
+      {
+        "id": "src-4e2c8934c98fc30528000cae",
+        "title": "Introducing Mochi Lab 🧪 Make your own anime.",
+        "publisher": "watchmochi",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-08-28T04:37:05.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/watchmochi/status/2093196146353291374"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-0b26f3884dab151fbe9eb7b3",
+        "title": "Introducing Mochi Lab 🧪 Make your own anime.",
+        "publisher": "watchmochi",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-08-28T04:30:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/watchmochi/status/2093194364747215030",
+        "publicationDate": "2026-08-28T04:30:00.000Z",
+        "excerpt": "Introducing Mochi Lab 🧪 Make your own anime. Climb the leaderboards and earn Gems to power your series.",
+        "sourceEventDate": "2026-08-28",
+        "isConflicting": false,
+        "conflictDescription": null
+      },
+      {
+        "id": "src-4e2c8934c98fc30528000cae",
+        "title": "Introducing Mochi Lab 🧪 Make your own anime.",
+        "publisher": "watchmochi",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-08-28T04:37:05.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/watchmochi/status/2093196146353291374",
+        "publicationDate": "2026-08-28T04:37:05.000Z",
+        "excerpt": "Introducing Mochi Lab 🧪 Make your own anime. Climb the leaderboards and earn Gems to power your series.",
+        "sourceEventDate": "2026-08-28",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-bd6c580eca9d7425c76efff2",
+        "platform": "x",
+        "account": "watchmochi",
+        "postDate": "2026-08-28",
+        "excerpt": "Introducing Mochi Lab 🧪 Make your own anime. Climb the leaderboards and earn Gems to power your series.",
+        "url": "https://x.com/watchmochi/status/2093194364747215030",
+        "metrics": {
+          "likes": 5,
+          "reposts": 0,
+          "replies": 1,
+          "views": 163
+        },
+        "evidenceRole": "primary"
+      },
+      {
+        "id": "post-a66dbd3abf651c19ab058bd2",
+        "platform": "x",
+        "account": "watchmochi",
+        "postDate": "2026-08-28",
+        "excerpt": "Introducing Mochi Lab 🧪 Make your own anime. Climb the leaderboards and earn Gems to power your series.",
+        "url": "https://x.com/watchmochi/status/2093196146353291374",
+        "metrics": {
+          "likes": 6,
+          "reposts": 0,
+          "replies": 0,
+          "views": 376
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-28T20:10:39.009Z",
+  "lastModifiedAt": "2026-08-28T20:10:39.009Z"
+}

@@ -12,8 +12,8 @@
         "catalog": "src/lib/social/a16z-speedrun-006-social-accounts.json",
         "profileSource": "src/lib/graph/a16z-speedrun-006-dataset.ts",
         "graph": "public/graph/a16zsr006.json",
-        "publicRun": "/Users/allenxu/Library/Application Support/Returner Fund OpenCLI/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-08-27-0600-f12894f0c31d2c96/public-a16zsr006.json",
-        "githubRun": "/Users/allenxu/Library/Application Support/Returner Fund OpenCLI/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-08-27-0600-f12894f0c31d2c96/github-a16zsr006.json"
+        "publicRun": "/Users/allenxu/Library/Application Support/Returner Fund OpenCLI/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-08-28-0600-2eb7cc23c954dbc4/public-a16zsr006.json",
+        "githubRun": "/Users/allenxu/Library/Application Support/Returner Fund OpenCLI/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-08-28-0600-2eb7cc23c954dbc4/github-a16zsr006.json"
       },
       "counts": {
         "companies": 59,
@@ -24,7 +24,7 @@
         "plannedOwnerMappings": 339,
         "multiAccountOwnerMappings": 4,
         "graphEvidence": 5000,
-        "graphNeedsReview": 2415
+        "graphNeedsReview": 2417
       },
       "structural": {
         "status": "pass",
@@ -828,8 +828,8 @@
         "catalog": "src/lib/yc/spring-2026-companies.json",
         "profileSource": null,
         "graph": "public/graph/s2026.json",
-        "publicRun": "/Users/allenxu/Library/Application Support/Returner Fund OpenCLI/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-08-27-0600-f12894f0c31d2c96/public-s2026.json",
-        "githubRun": "/Users/allenxu/Library/Application Support/Returner Fund OpenCLI/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-08-27-0600-f12894f0c31d2c96/github-s2026.json"
+        "publicRun": "/Users/allenxu/Library/Application Support/Returner Fund OpenCLI/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-08-28-0600-2eb7cc23c954dbc4/public-s2026.json",
+        "githubRun": "/Users/allenxu/Library/Application Support/Returner Fund OpenCLI/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-08-28-0600-2eb7cc23c954dbc4/github-s2026.json"
       },
       "counts": {
         "companies": 197,
@@ -840,7 +840,7 @@
         "plannedOwnerMappings": 994,
         "multiAccountOwnerMappings": 1,
         "graphEvidence": 5000,
-        "graphNeedsReview": 10098
+        "graphNeedsReview": 10122
       },
       "structural": {
         "status": "pass",
@@ -1252,6 +1252,11 @@
         ],
         "zeroFamilyNativeEvidenceCompanies": [
           {
+            "entityId": "company-centralcoms",
+            "name": "CentralComs",
+            "companyName": null
+          },
+          {
             "entityId": "company-savant",
             "name": "Savant",
             "companyName": null
@@ -1281,6 +1286,11 @@
           {
             "entityId": "company-biostack-platforms",
             "name": "BioStack Platforms",
+            "companyName": null
+          },
+          {
+            "entityId": "company-centralcoms",
+            "name": "CentralComs",
             "companyName": null
           },
           {
@@ -1316,11 +1326,6 @@
           {
             "entityId": "company-savant",
             "name": "Savant",
-            "companyName": null
-          },
-          {
-            "entityId": "company-textsidekick",
-            "name": "Sidekick",
             "companyName": null
           },
           {
@@ -1551,6 +1556,11 @@
             "companyName": "Kimpton AI"
           },
           {
+            "entityId": "founder-kimpton-ai-mauricio-ortiz-3193138",
+            "name": "Mauricio Ortiz",
+            "companyName": "Kimpton AI"
+          },
+          {
             "entityId": "founder-klaimee-julien-catonnet-1500510",
             "name": "Julien Catonnet",
             "companyName": "Klaimee"
@@ -1666,6 +1676,11 @@
             "companyName": "Prism"
           },
           {
+            "entityId": "founder-qomplement-andres-garza-2737673",
+            "name": "Andres Garza",
+            "companyName": "qomplement"
+          },
+          {
             "entityId": "founder-reasonblocks-rohan-vij-3490183",
             "name": "Rohan Vij",
             "companyName": "ReasonBlocks"
@@ -1744,6 +1759,11 @@
             "entityId": "founder-synphony-lucas-amlicke-2385109",
             "name": "Lucas Amlicke",
             "companyName": "Synphony"
+          },
+          {
+            "entityId": "founder-tdaycom-david-mcdonough-3751920",
+            "name": "David McDonough",
+            "companyName": "tday.com"
           },
           {
             "entityId": "founder-tdaycom-shyamsundar-shrestha-2900701",
@@ -1833,6 +1853,11 @@
             "companyName": null
           },
           {
+            "entityId": "company-centralcoms",
+            "name": "CentralComs",
+            "companyName": null
+          },
+          {
             "entityId": "company-fuchsia",
             "name": "Fuchsia",
             "companyName": null
@@ -1865,11 +1890,6 @@
           {
             "entityId": "company-savant",
             "name": "Savant",
-            "companyName": null
-          },
-          {
-            "entityId": "company-textsidekick",
-            "name": "Sidekick",
             "companyName": null
           },
           {
@@ -2100,6 +2120,11 @@
             "companyName": "Kimpton AI"
           },
           {
+            "entityId": "founder-kimpton-ai-mauricio-ortiz-3193138",
+            "name": "Mauricio Ortiz",
+            "companyName": "Kimpton AI"
+          },
+          {
             "entityId": "founder-klaimee-julien-catonnet-1500510",
             "name": "Julien Catonnet",
             "companyName": "Klaimee"
@@ -2215,6 +2240,11 @@
             "companyName": "Prism"
           },
           {
+            "entityId": "founder-qomplement-andres-garza-2737673",
+            "name": "Andres Garza",
+            "companyName": "qomplement"
+          },
+          {
             "entityId": "founder-reasonblocks-rohan-vij-3490183",
             "name": "Rohan Vij",
             "companyName": "ReasonBlocks"
@@ -2295,6 +2325,11 @@
             "companyName": "Synphony"
           },
           {
+            "entityId": "founder-tdaycom-david-mcdonough-3751920",
+            "name": "David McDonough",
+            "companyName": "tday.com"
+          },
+          {
             "entityId": "founder-tdaycom-shyamsundar-shrestha-2900701",
             "name": "Shyamsundar Shrestha",
             "companyName": "tday.com"
@@ -2358,19 +2393,19 @@
         "catalog": "src/lib/yc/summer-2026-companies.json",
         "profileSource": null,
         "graph": "public/graph/s26.json",
-        "publicRun": "/Users/allenxu/Library/Application Support/Returner Fund OpenCLI/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-08-27-0600-f12894f0c31d2c96/public-s26.json",
-        "githubRun": "/Users/allenxu/Library/Application Support/Returner Fund OpenCLI/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-08-27-0600-f12894f0c31d2c96/github-s26.json"
+        "publicRun": "/Users/allenxu/Library/Application Support/Returner Fund OpenCLI/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-08-28-0600-2eb7cc23c954dbc4/public-s26.json",
+        "githubRun": "/Users/allenxu/Library/Application Support/Returner Fund OpenCLI/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-08-28-0600-2eb7cc23c954dbc4/github-s26.json"
       },
       "counts": {
-        "companies": 236,
-        "founders": 470,
-        "catalogOwnerMappings": 1142,
-        "graphOwnerMappings": 1134,
-        "catalogOwnerPlatformGroups": 1141,
-        "plannedOwnerMappings": 1142,
+        "companies": 235,
+        "founders": 468,
+        "catalogOwnerMappings": 1130,
+        "graphOwnerMappings": 1122,
+        "catalogOwnerPlatformGroups": 1129,
+        "plannedOwnerMappings": 1130,
         "multiAccountOwnerMappings": 1,
         "graphEvidence": 5000,
-        "graphNeedsReview": 7030
+        "graphNeedsReview": 7017
       },
       "structural": {
         "status": "pass",
@@ -2557,40 +2592,40 @@
         ],
         "mappingCoverage": {
           "github": {
-            "companyMapped": 30,
-            "companyMissing": 206,
+            "companyMapped": 21,
+            "companyMissing": 214,
             "founderMapped": 1,
-            "founderMissing": 469
+            "founderMissing": 467
           },
           "instagram": {
             "companyMapped": 7,
-            "companyMissing": 229,
+            "companyMissing": 228,
             "founderMapped": 0,
-            "founderMissing": 470
+            "founderMissing": 468
           },
           "linkedin": {
             "companyMapped": 209,
-            "companyMissing": 27,
-            "founderMapped": 465,
+            "companyMissing": 26,
+            "founderMapped": 463,
             "founderMissing": 5
           },
           "product_hunt": {
             "companyMapped": 5,
-            "companyMissing": 231,
+            "companyMissing": 230,
             "founderMapped": 0,
-            "founderMissing": 470
+            "founderMissing": 468
           },
           "x": {
             "companyMapped": 136,
-            "companyMissing": 100,
-            "founderMapped": 277,
-            "founderMissing": 193
+            "companyMissing": 99,
+            "founderMapped": 276,
+            "founderMissing": 192
           },
           "youtube": {
             "companyMapped": 10,
-            "companyMissing": 226,
+            "companyMissing": 225,
             "founderMapped": 0,
-            "founderMissing": 470
+            "founderMissing": 468
           }
         },
         "noMappedAccounts": [
@@ -2627,11 +2662,6 @@
           {
             "entityId": "company-edotenv",
             "name": "EdotEnv",
-            "companyName": null
-          },
-          {
-            "entityId": "company-erinys",
-            "name": "Erinys",
             "companyName": null
           },
           {
@@ -2818,11 +2848,6 @@
           {
             "entityId": "company-aktoria-robotics",
             "name": "Aktoria Robotics",
-            "companyName": null
-          },
-          {
-            "entityId": "company-amulet",
-            "name": "Amulet",
             "companyName": null
           },
           {
@@ -3633,11 +3658,6 @@
             "companyName": "Proprio Robotics"
           },
           {
-            "entityId": "founder-proprio-robotics-raghav-punnam-1216142",
-            "name": "Raghav Punnam",
-            "companyName": "Proprio Robotics"
-          },
-          {
             "entityId": "founder-qlo-liv-huang-3743083",
             "name": "Liv Huang",
             "companyName": "Qlo"
@@ -3882,11 +3902,6 @@
           {
             "entityId": "company-aktoria-robotics",
             "name": "Aktoria Robotics",
-            "companyName": null
-          },
-          {
-            "entityId": "company-amulet",
-            "name": "Amulet",
             "companyName": null
           },
           {
@@ -4474,11 +4489,6 @@
           {
             "entityId": "founder-proprio-robotics-anirudh-pai-2910355",
             "name": "Anirudh Pai",
-            "companyName": "Proprio Robotics"
-          },
-          {
-            "entityId": "founder-proprio-robotics-raghav-punnam-1216142",
-            "name": "Raghav Punnam",
             "companyName": "Proprio Robotics"
           },
           {

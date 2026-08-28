@@ -5,14 +5,49 @@
     "slug": "robocurve",
     "name": "Robocurve"
   },
-  "generatedAt": "2026-08-27T11:43:26.137Z",
-  "lastModifiedAt": "2026-08-27T11:43:26.137Z",
-  "events": [],
-  "groups": [],
+  "generatedAt": "2026-08-28T20:10:39.009Z",
+  "lastModifiedAt": "2026-08-28T20:10:39.009Z",
+  "events": [
+    {
+      "id": "tle-d10ef25e41a43f6d32a581a3",
+      "eventDate": "2026-08-27",
+      "eventDateType": "announcement_date",
+      "title": "Robocurve announced its public launch",
+      "summary": "Robocurve introduced @robocurve, a Public Benefit Corporation to measure and report frontier robotics capabilities.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-4cc1a83b3860d0ad643704c4",
+          "title": "Introducing @robocurve, a Public Benefit Corporation to measure and report frontier robotics capabilities.",
+          "publisher": "chooi_jeq",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-08-27T21:22:20.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/chooi_jeq/status/2093086738218725720"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-08",
+          "count": 1
+        }
+      ]
+    }
+  ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 0,
-    "lastSuccessfulArtifactAt": "2026-08-27T11:43:26.137Z"
+    "publishedEventCount": 1,
+    "lastSuccessfulArtifactAt": "2026-08-28T20:10:39.009Z"
   },
   "nextCursor": null
 }

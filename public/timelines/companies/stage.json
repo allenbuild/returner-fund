@@ -5,8 +5,8 @@
     "slug": "stage",
     "name": "Stage"
   },
-  "generatedAt": "2026-08-27T11:43:26.137Z",
-  "lastModifiedAt": "2026-08-27T11:43:26.137Z",
+  "generatedAt": "2026-08-28T20:10:39.009Z",
+  "lastModifiedAt": "2026-08-28T20:10:39.009Z",
   "events": [
     {
       "id": "tle-bf446f6a0c631cedccfaa0f8",
@@ -91,7 +91,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 2,
-    "lastSuccessfulArtifactAt": "2026-08-27T11:43:26.137Z"
+    "lastSuccessfulArtifactAt": "2026-08-28T20:10:39.009Z"
   },
   "nextCursor": null
 }

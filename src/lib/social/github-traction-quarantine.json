@@ -1,7 +1,7 @@
 {
   "source": {
     "schemaVersion": 1,
-    "generatedFromFetchedAt": "2026-08-27T11:41:20.921Z",
+    "generatedFromFetchedAt": "2026-08-28T20:08:19.186Z",
     "publicationPolicy": "stored_but_unpublished",
     "scoringEligible": false,
     "reason": "Rows absent from a fully authoritative whole-cohort GitHub receipt are retained only for audit and manual attribution review; they are not scoring inputs.",
@@ -21259,28 +21259,56 @@
       "batchSlug": "S26",
       "category": "legacy_repository_projection_absent_from_authoritative_targets",
       "reason": "The prior repository-specific projection is absent from the complete authenticated target receipt. Preserve it for audit only until its entity attribution is manually re-verified.",
-      "currentCanonicality": "absent_from_current_canonical_receipt",
+      "currentCanonicality": "physical_object_present_under_different_canonical_attribution",
       "physicalRepresentation": {
         "kind": "repository",
         "canonicalUrl": "https://github.com/coasty-ai/coasty-osworld",
         "repositoryId": "1231434381",
-        "status": "not_represented_in_current_canonical_receipt",
-        "matchedBy": [],
-        "canonicalMatches": [],
+        "status": "represented_in_current_canonical_receipt",
+        "matchedBy": [
+          "repository_id",
+          "canonical_url"
+        ],
+        "canonicalMatches": [
+          {
+            "entityType": "company",
+            "entityId": "company-coarena",
+            "entityName": "CoArena",
+            "accountKey": "company:company-coarena:coasty-ai:",
+            "location": "repository",
+            "accountUrl": "https://github.com/coasty-ai",
+            "repositoryId": "1231434381",
+            "repositoryUrl": "https://github.com/coasty-ai/coasty-osworld"
+          }
+        ],
         "repositories": [
           {
             "kind": "repository",
             "canonicalUrl": "https://github.com/coasty-ai/coasty-osworld",
             "repositoryId": "1231434381",
-            "status": "not_represented_in_current_canonical_receipt",
-            "matchedBy": [],
-            "canonicalMatches": []
+            "status": "represented_in_current_canonical_receipt",
+            "matchedBy": [
+              "repository_id",
+              "canonical_url"
+            ],
+            "canonicalMatches": [
+              {
+                "entityType": "company",
+                "entityId": "company-coarena",
+                "entityName": "CoArena",
+                "accountKey": "company:company-coarena:coasty-ai:",
+                "location": "repository",
+                "accountUrl": "https://github.com/coasty-ai",
+                "repositoryId": "1231434381",
+                "repositoryUrl": "https://github.com/coasty-ai/coasty-osworld"
+              }
+            ]
           }
         ]
       },
       "ownerAttributionReview": {
-        "status": "queued_missing_physical_representation",
-        "reason": "The physical GitHub object is absent from the authoritative receipt and requires manual verification before any future publication.",
+        "status": "required",
+        "reason": "The physical GitHub object remains represented, but this legacy owner mapping is not canonical and must not be restored without review.",
         "legacyOwner": {
           "entityType": "founder",
           "entityId": "founder-coasty-nitish-kovuru-2457255",
@@ -21388,28 +21416,56 @@
       "batchSlug": "S26",
       "category": "legacy_repository_projection_absent_from_authoritative_targets",
       "reason": "The prior repository-specific projection is absent from the complete authenticated target receipt. Preserve it for audit only until its entity attribution is manually re-verified.",
-      "currentCanonicality": "absent_from_current_canonical_receipt",
+      "currentCanonicality": "physical_object_present_under_different_canonical_attribution",
       "physicalRepresentation": {
         "kind": "repository",
         "canonicalUrl": "https://github.com/coasty-ai/coasty-osworld",
         "repositoryId": "1231434381",
-        "status": "not_represented_in_current_canonical_receipt",
-        "matchedBy": [],
-        "canonicalMatches": [],
+        "status": "represented_in_current_canonical_receipt",
+        "matchedBy": [
+          "repository_id",
+          "canonical_url"
+        ],
+        "canonicalMatches": [
+          {
+            "entityType": "company",
+            "entityId": "company-coarena",
+            "entityName": "CoArena",
+            "accountKey": "company:company-coarena:coasty-ai:",
+            "location": "repository",
+            "accountUrl": "https://github.com/coasty-ai",
+            "repositoryId": "1231434381",
+            "repositoryUrl": "https://github.com/coasty-ai/coasty-osworld"
+          }
+        ],
         "repositories": [
           {
             "kind": "repository",
             "canonicalUrl": "https://github.com/coasty-ai/coasty-osworld",
             "repositoryId": "1231434381",
-            "status": "not_represented_in_current_canonical_receipt",
-            "matchedBy": [],
-            "canonicalMatches": []
+            "status": "represented_in_current_canonical_receipt",
+            "matchedBy": [
+              "repository_id",
+              "canonical_url"
+            ],
+            "canonicalMatches": [
+              {
+                "entityType": "company",
+                "entityId": "company-coarena",
+                "entityName": "CoArena",
+                "accountKey": "company:company-coarena:coasty-ai:",
+                "location": "repository",
+                "accountUrl": "https://github.com/coasty-ai",
+                "repositoryId": "1231434381",
+                "repositoryUrl": "https://github.com/coasty-ai/coasty-osworld"
+              }
+            ]
           }
         ]
       },
       "ownerAttributionReview": {
-        "status": "queued_missing_physical_representation",
-        "reason": "The physical GitHub object is absent from the authoritative receipt and requires manual verification before any future publication.",
+        "status": "required",
+        "reason": "The physical GitHub object remains represented, but this legacy owner mapping is not canonical and must not be restored without review.",
         "legacyOwner": {
           "entityType": "founder",
           "entityId": "founder-coasty-prateek-jannu-1194042",
@@ -21796,9 +21852,9 @@
             "entityType": "company",
             "entityId": "company-experiential-labs",
             "entityName": "Experiential Labs",
-            "accountKey": "company:company-experiential-labs:experientiallabs:",
+            "accountKey": "company:company-experiential-labs:experientiallabs:experiential",
             "location": "repository",
-            "accountUrl": "https://github.com/experientiallabs",
+            "accountUrl": "https://github.com/experientiallabs/experiential",
             "repositoryId": "1279659344",
             "repositoryUrl": "https://github.com/experientiallabs/experiential"
           }
@@ -21817,9 +21873,9 @@
                 "entityType": "company",
                 "entityId": "company-experiential-labs",
                 "entityName": "Experiential Labs",
-                "accountKey": "company:company-experiential-labs:experientiallabs:",
+                "accountKey": "company:company-experiential-labs:experientiallabs:experiential",
                 "location": "repository",
-                "accountUrl": "https://github.com/experientiallabs",
+                "accountUrl": "https://github.com/experientiallabs/experiential",
                 "repositoryId": "1279659344",
                 "repositoryUrl": "https://github.com/experientiallabs/experiential"
               }
@@ -21910,9 +21966,9 @@
             "entityType": "company",
             "entityId": "company-experiential-labs",
             "entityName": "Experiential Labs",
-            "accountKey": "company:company-experiential-labs:experientiallabs:",
+            "accountKey": "company:company-experiential-labs:experientiallabs:experiential",
             "location": "repository",
-            "accountUrl": "https://github.com/experientiallabs",
+            "accountUrl": "https://github.com/experientiallabs/experiential",
             "repositoryId": "1279659344",
             "repositoryUrl": "https://github.com/experientiallabs/experiential"
           }
@@ -21931,9 +21987,9 @@
                 "entityType": "company",
                 "entityId": "company-experiential-labs",
                 "entityName": "Experiential Labs",
-                "accountKey": "company:company-experiential-labs:experientiallabs:",
+                "accountKey": "company:company-experiential-labs:experientiallabs:experiential",
                 "location": "repository",
-                "accountUrl": "https://github.com/experientiallabs",
+                "accountUrl": "https://github.com/experientiallabs/experiential",
                 "repositoryId": "1279659344",
                 "repositoryUrl": "https://github.com/experientiallabs/experiential"
               }

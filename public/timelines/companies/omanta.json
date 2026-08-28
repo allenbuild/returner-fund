@@ -5,9 +5,33 @@
     "slug": "omanta",
     "name": "Omanta"
   },
-  "generatedAt": "2026-08-27T11:43:26.137Z",
-  "lastModifiedAt": "2026-08-27T11:43:26.137Z",
+  "generatedAt": "2026-08-28T20:10:39.009Z",
+  "lastModifiedAt": "2026-08-28T20:10:39.009Z",
   "events": [
+    {
+      "id": "tle-fd78adefc86c3f32e141211c",
+      "eventDate": "2026-08-04",
+      "eventDateType": "announcement_date",
+      "title": "Omanta released Omanta (YC S26) the personalized research lab for each patient",
+      "summary": "Omanta introduced Omanta (YC S26) the personalized research lab for each patient.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-dc3fcd37407053962cf873d6",
+          "title": "Introducing Omanta (YC S26) the personalized research lab for each patient.",
+          "publisher": "omantahealth",
+          "domain": "x.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-08-04T17:42:27.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/omantahealth/status/2084696480829628826"
+        }
+      ]
+    },
     {
       "id": "tle-02853050c54edb9872fac754",
       "eventDate": "2026-08-03",
@@ -39,15 +63,15 @@
       "months": [
         {
           "month": "2026-08",
-          "count": 1
+          "count": 2
         }
       ]
     }
   ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-08-27T11:43:26.137Z"
+    "publishedEventCount": 2,
+    "lastSuccessfulArtifactAt": "2026-08-28T20:10:39.009Z"
   },
   "nextCursor": null
 }

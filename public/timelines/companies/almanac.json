@@ -5,9 +5,33 @@
     "slug": "almanac",
     "name": "Almanac"
   },
-  "generatedAt": "2026-08-27T11:43:26.137Z",
-  "lastModifiedAt": "2026-08-27T11:43:26.137Z",
+  "generatedAt": "2026-08-28T20:10:39.009Z",
+  "lastModifiedAt": "2026-08-28T20:10:39.009Z",
   "events": [
+    {
+      "id": "tle-ef735f7d9a8a03ad08d09d66",
+      "eventDate": "2026-08-28",
+      "eventDateType": "announcement_date",
+      "title": "Almanac released on ProductHunt",
+      "summary": "Almanac just launched on ProductHunt.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-2facd1e8e15203cb5a812990",
+          "title": "Almanac just launched on ProductHunt!! We're moving towards a world where people want to give more and more content to their AI Agents.",
+          "publisher": "kushagrchitkar",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-08-28T07:30:41.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/kushagrchitkar/status/2093239833431073106"
+        }
+      ]
+    },
     {
       "id": "tle-7fd14765421430083586dac0",
       "eventDate": "2026-08-13",
@@ -107,7 +131,7 @@
       "months": [
         {
           "month": "2026-08",
-          "count": 1
+          "count": 2
         },
         {
           "month": "2026-03",
@@ -127,8 +151,8 @@
   ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 3,
-    "lastSuccessfulArtifactAt": "2026-08-27T11:43:26.137Z"
+    "publishedEventCount": 4,
+    "lastSuccessfulArtifactAt": "2026-08-28T20:10:39.009Z"
   },
   "nextCursor": null
 }
