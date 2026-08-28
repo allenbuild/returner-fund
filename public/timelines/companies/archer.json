@@ -5,8 +5,8 @@
     "slug": "archer",
     "name": "Archer"
   },
-  "generatedAt": "2026-08-28T20:10:39.009Z",
-  "lastModifiedAt": "2026-08-28T20:10:39.009Z",
+  "generatedAt": "2026-08-28T23:39:06.851Z",
+  "lastModifiedAt": "2026-08-28T23:39:06.851Z",
   "events": [
     {
       "id": "tle-01ddf97027269e2875dc7127",
@@ -47,7 +47,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-08-28T20:10:39.009Z"
+    "lastSuccessfulArtifactAt": "2026-08-28T23:39:06.851Z"
   },
   "nextCursor": null
 }

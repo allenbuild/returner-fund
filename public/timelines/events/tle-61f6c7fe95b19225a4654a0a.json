@@ -54,7 +54,7 @@
         "excerpt": "Lab0 builds AI agents that turn enterprise software from a consulting-heavy deployment into a self-serve product. Every rollout, whether it's a traditional ERP or a new AI system, requires months of manual integration, configuration, and tuning done by armies of system integrators and forward-deployed engineers. Lab0 builds agentic systems that automate this layer, compressing months-long implementations into weeks.",
         "url": "https://youtube.com/watch?v=UDrqfnYWlLI",
         "metrics": {
-          "views": 344,
+          "views": 345,
           "likes": 2,
           "comments": 0
         },
@@ -62,6 +62,6 @@
       }
     ]
   },
-  "generatedAt": "2026-08-28T20:10:39.009Z",
-  "lastModifiedAt": "2026-08-28T20:10:39.009Z"
+  "generatedAt": "2026-08-28T23:39:06.851Z",
+  "lastModifiedAt": "2026-08-28T23:39:06.851Z"
 }

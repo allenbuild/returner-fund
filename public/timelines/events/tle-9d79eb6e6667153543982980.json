@@ -39,7 +39,7 @@
         "evidenceRole": "primary",
         "url": "https://youtube.com/watch?v=25SjZ28WX6Q",
         "publicationDate": "2026-05-19T09:29:05.000Z",
-        "excerpt": "InLoop Robotics (YC P26) Launch",
+        "excerpt": "InLoop deploys robot employees you can hire by the month. Our intelligent robotic arms pack, kit, and fulfill in warehouses, fulfillment centers, and factories. We handle everything else. Paid pilots live in customer warehouses today: 300+ picks/hour, generalizing across hundreds of SKUs, replacing $100k+ integration projects per station. Ask: If you run ops at a warehouse, fulfillment center, or factory - what's the one repetitive task you wish a robot could just do tomorrow? Tell us. We'll…",
         "sourceEventDate": "2026-05-19",
         "isConflicting": false,
         "conflictDescription": null
@@ -51,15 +51,17 @@
         "platform": "youtube",
         "account": "InLoop Robotics (YC P26) Launch",
         "postDate": "2026-05-19",
-        "excerpt": "InLoop Robotics (YC P26) Launch",
+        "excerpt": "InLoop deploys robot employees you can hire by the month. Our intelligent robotic arms pack, kit, and fulfill in warehouses, fulfillment centers, and factories. We handle everything else. Paid pilots live in customer warehouses today: 300+ picks/hour, generalizing across hundreds of SKUs, replacing $100k+ integration projects per station. Ask: If you run ops at a warehouse, fulfillment center, or factory - what's the one repetitive task you wish a robot could just do tomorrow? Tell us. We'll…",
         "url": "https://youtube.com/watch?v=25SjZ28WX6Q",
         "metrics": {
-          "views": 232
+          "views": 232,
+          "likes": 1,
+          "comments": 0
         },
         "evidenceRole": "primary"
       }
     ]
   },
-  "generatedAt": "2026-08-28T20:10:39.009Z",
-  "lastModifiedAt": "2026-08-28T20:10:39.009Z"
+  "generatedAt": "2026-08-28T23:39:06.851Z",
+  "lastModifiedAt": "2026-08-28T23:39:06.851Z"
 }

@@ -1,7 +1,7 @@
 {
   "version": 1,
   "batchSlug": "S26",
-  "updatedAt": "2026-08-28T20:10:51.012Z",
+  "updatedAt": "2026-08-28T23:39:18.639Z",
   "daily": [
     {
       "recordedAt": "2026-07-06T05:00:00.000Z",
@@ -39943,9 +39943,9 @@
       ]
     },
     {
-      "recordedAt": "2026-08-28T20:10:51.012Z",
+      "recordedAt": "2026-08-28T23:39:18.639Z",
       "scoringModelVersion": "4.2.0",
-      "inputGeneratedAt": "2026-08-28T20:10:17.780Z",
+      "inputGeneratedAt": "2026-08-28T23:38:45.132Z",
       "companies": [
         {
           "companyId": "company-screenpipe",
@@ -40266,12 +40266,6 @@
           "rank": 53
         },
         {
-          "companyId": "company-greypoint-industries",
-          "companyName": "Greypoint Industries",
-          "score": 43,
-          "rank": 53
-        },
-        {
           "companyId": "company-impact-drones",
           "companyName": "IMPACT Drones",
           "score": 43,
@@ -40305,79 +40299,85 @@
           "companyId": "company-alloovium",
           "companyName": "Alloovium",
           "score": 42,
-          "rank": 60
+          "rank": 59
         },
         {
           "companyId": "company-cerenovus",
           "companyName": "Cerenovus",
           "score": 42,
-          "rank": 60
+          "rank": 59
         },
         {
           "companyId": "company-experiential-labs",
           "companyName": "Experiential Labs",
           "score": 42,
-          "rank": 60
+          "rank": 59
         },
         {
           "companyId": "company-gamgee",
           "companyName": "Gamgee",
           "score": 42,
-          "rank": 60
+          "rank": 59
+        },
+        {
+          "companyId": "company-greypoint-industries",
+          "companyName": "Greypoint Industries",
+          "score": 42,
+          "rank": 59
         },
         {
           "companyId": "company-lamb-labs",
           "companyName": "Lamb Labs",
           "score": 42,
-          "rank": 60
+          "rank": 59
         },
         {
           "companyId": "company-mosaic-inc",
           "companyName": "Mosaic",
           "score": 42,
-          "rank": 60
+          "rank": 59
         },
         {
           "companyId": "company-provenmetal",
           "companyName": "ProvenMetal",
           "score": 42,
-          "rank": 60
+          "rank": 59
         },
         {
           "companyId": "company-realpact",
           "companyName": "RealPact",
           "score": 42,
-          "rank": 60
+          "rank": 59
         },
         {
           "companyId": "company-rex-inc",
           "companyName": "Rex",
           "score": 42,
-          "rank": 60
+          "rank": 59
         },
         {
           "companyId": "company-touchmark",
           "companyName": "Touchmark",
           "score": 42,
-          "rank": 60
+          "rank": 59
         },
         {
           "companyId": "company-trynearby",
           "companyName": "TryNearby",
           "score": 42,
-          "rank": 60
+          "rank": 59
         },
         {
           "companyId": "company-whitespace",
           "companyName": "Whitespace",
           "score": 42,
-          "rank": 60
+          "rank": 59
         },
         {
           "companyId": "company-zaplar",
           "companyName": "Zaplar",
           "score": 42,
-          "rank": 60
+          "rank": 59
         },
         {
           "companyId": "company-83-sciences",
@@ -40872,6 +40872,12 @@
           "rank": 150
         },
         {
+          "companyId": "company-hardware-intelligence",
+          "companyName": "hardware intelligence",
+          "score": 25,
+          "rank": 150
+        },
+        {
           "companyId": "company-hiloop",
           "companyName": "hiloop",
           "score": 25,
@@ -40941,61 +40947,55 @@
           "companyId": "company-agent-fm",
           "companyName": "Agent FM",
           "score": 23,
-          "rank": 166
+          "rank": 167
         },
         {
           "companyId": "company-axelrod",
           "companyName": "Axelrod",
           "score": 23,
-          "rank": 166
+          "rank": 167
         },
         {
           "companyId": "company-gitcafe",
           "companyName": "GitCafe",
           "score": 23,
-          "rank": 166
-        },
-        {
-          "companyId": "company-hardware-intelligence",
-          "companyName": "hardware intelligence",
-          "score": 23,
-          "rank": 166
+          "rank": 167
         },
         {
           "companyId": "company-hyperprobe",
           "companyName": "HyperProbe",
           "score": 23,
-          "rank": 166
+          "rank": 167
         },
         {
           "companyId": "company-marker",
           "companyName": "Marker",
           "score": 23,
-          "rank": 166
+          "rank": 167
         },
         {
           "companyId": "company-palisade",
           "companyName": "Palisade",
           "score": 23,
-          "rank": 166
+          "rank": 167
         },
         {
           "companyId": "company-princeps",
           "companyName": "PRINCEPS",
           "score": 23,
-          "rank": 166
+          "rank": 167
         },
         {
           "companyId": "company-rational",
           "companyName": "Rational",
           "score": 23,
-          "rank": 166
+          "rank": 167
         },
         {
           "companyId": "company-tensr",
           "companyName": "Tensr",
           "score": 23,
-          "rank": 166
+          "rank": 167
         },
         {
           "companyId": "company-aktoria-robotics",
@@ -41250,6 +41250,12 @@
           "rank": 215
         },
         {
+          "companyId": "company-pacific",
+          "companyName": "Pacific",
+          "score": 4,
+          "rank": 215
+        },
+        {
           "companyId": "company-palisade-2",
           "companyName": "Palisade",
           "score": 4,
@@ -41271,37 +41277,31 @@
           "companyId": "company-akon-labs",
           "companyName": "Akon Labs",
           "score": 2,
-          "rank": 221
+          "rank": 222
         },
         {
           "companyId": "company-derya",
           "companyName": "Derya",
           "score": 2,
-          "rank": 221
+          "rank": 222
         },
         {
           "companyId": "company-donkey",
           "companyName": "Donkey",
           "score": 2,
-          "rank": 221
+          "rank": 222
         },
         {
           "companyId": "company-manifold-2",
           "companyName": "Manifold",
           "score": 2,
-          "rank": 221
-        },
-        {
-          "companyId": "company-pacific",
-          "companyName": "Pacific",
-          "score": 2,
-          "rank": 221
+          "rank": 222
         },
         {
           "companyId": "company-shielded",
           "companyName": "Shielded",
           "score": 2,
-          "rank": 221
+          "rank": 222
         },
         {
           "companyId": "company-audun",

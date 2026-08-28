@@ -4,7 +4,7 @@
     "directoryUrl": "https://www.ycombinator.com/companies?batch=Summer%202026",
     "algoliaIndex": "YCCompany_production",
     "algoliaFilter": "batch:\"Summer 2026\"",
-    "fetchedAt": "2026-08-28T19:47:36.418Z",
+    "fetchedAt": "2026-08-28T23:02:36.769Z",
     "expectedCompanyCount": 235,
     "observedCompanyCount": 235,
     "minimumCompanyCount": 167,
@@ -77,10 +77,10 @@
           "id": "2055952",
           "name": "Matt Wulff",
           "title": "Founder/CPO",
-          "bio": "Founder of 6thSense (YC S26). Lead Vision Guided Robotics (ME) @Tesla at 20yo, Homeschooled, First Company at 16yo, Build Rockets for fun, Lead Tactile Data Capture at Mecka AI, Dreamer and adrenaline junky",
+          "bio": "Co-Founder of 6thSense (YC S26). Lead Vision Guided Robotics (ME) @Tesla at 20yo, Homeschooled, First Company at 16yo, Build Rockets for fun, Lead Tactile Data Capture at Mecka AI, Dreamer and adrenaline junky",
           "ycProfileUrl": "https://www.ycombinator.com/people/matt-wulff",
           "socialLinks": {
-            "linkedin": "https://www.linkedin.com/in/mattowulff/",
+            "linkedin": "https://www.linkedin.com/in/makeitmatto/",
             "x": "https://x.com/makeitmatto"
           }
         }
@@ -1570,7 +1570,7 @@
       "batch": "Summer 2026",
       "ycProfileUrl": "https://www.ycombinator.com/companies/baud",
       "websiteUrl": "https://baudlabs.ai",
-      "tagline": "AI chips for ultra-fast model training and inference",
+      "tagline": "AI chips for ultra-fast training and inference",
       "description": "Novel AI hardware and developer platform, built from first principles to let companies train, fine-tune, and deploy frontier models with orders of magnitude better performance than incumbents",
       "industry": "Industrials",
       "subindustry": "Industrials",
@@ -6036,7 +6036,7 @@
       "ycProfileUrl": "https://www.ycombinator.com/companies/instaplay",
       "websiteUrl": "https://instaplay.ai",
       "tagline": "AI-Native Social Platform, Starting with Games",
-      "description": "",
+      "description": "Over 25k creators and 100k players are on Instaplay, playing and making games. We work with the leading frontier labs to improve their game generation and coding capabilities. ",
       "industry": "Consumer",
       "subindustry": "Consumer -> Gaming",
       "industries": [
@@ -6044,8 +6044,8 @@
         "Gaming"
       ],
       "tags": [
-        "Artificial Intelligence",
-        "Gaming"
+        "Gaming",
+        "AI"
       ],
       "location": "San Francisco",
       "teamSize": 3,
@@ -7305,7 +7305,7 @@
       "ycProfileUrl": "https://www.ycombinator.com/companies/marengo",
       "websiteUrl": "https://marengox.com",
       "tagline": "AI-Native Engineering Firm designing Data Centers ",
-      "description": "Marengo designs data centers in half the time and half the cost with AI. We’re working with some of the largest data center builders in the world to improve how design is done today.\r\n\r\nWe're backed by Y Combinator, a16z & Index Venture Scout Funds, as well as investors/angels in OpenAI, Anthropic, SpaceX, and more.\r\n\r\nOur advisors include the former President & CEO of Saipem America ($3B+ P&L), former President of Exyte's Advanced Technology Facilities GBU ($6B+ P&L) and more.",
+      "description": "Marengo is an AI-native engineering firm designing data centers in half the time and half the cost. We have $4M in design partnerships with two of the world's largest developers ($XB).\r\n\r\nMarengo is backed by YC, Future Planet Capital, undisclosed $2B AUM family office, and other top-tier investors.\r\n\r\nOur advisors include the former President & CEO of Saipem America ($3B+ P&L), former President of Exyte's Advanced Technology Facilities GBU ($6B+ P&L) and more.",
       "industry": "Industrials",
       "subindustry": "Industrials -> Energy",
       "industries": [
@@ -7313,10 +7313,10 @@
         "Energy"
       ],
       "tags": [
+        "Artificial Intelligence",
         "Design",
         "Energy",
-        "Architecture",
-        "AI"
+        "Architecture"
       ],
       "location": "San Francisco",
       "teamSize": 5,
@@ -8814,7 +8814,6 @@
       "groupPartner": "Jon Xu",
       "groupPartnerUrl": "https://www.ycombinator.com/people/jon-xu",
       "socialLinks": {
-        "github": "https://github.com/openvector-labs",
         "linkedin": "https://linked.com/in/openvectorlabs",
         "x": "https://x.com/openvectorlabs"
       },
@@ -10052,15 +10051,18 @@
         "Manufacturing and Robotics"
       ],
       "tags": [
-        "Robotics",
-        "AI"
+        "Artificial Intelligence",
+        "Robotics"
       ],
       "location": "San Francisco",
-      "teamSize": 2,
+      "teamSize": 1,
       "status": "Active",
       "groupPartner": "Ankit Gupta",
       "groupPartnerUrl": "https://www.ycombinator.com/people/ankit-gupta",
-      "socialLinks": {},
+      "socialLinks": {
+        "linkedin": "https://www.linkedin.com/company/proprio-robotics",
+        "x": "https://x.com/ProprioRobotics"
+      },
       "founders": [
         {
           "id": "2910355",
@@ -10682,9 +10684,10 @@
         "Engineering, Product and Design"
       ],
       "tags": [
-        "Artificial Intelligence",
         "Developer Tools",
-        "B2B"
+        "SaaS",
+        "Infrastructure",
+        "AI"
       ],
       "location": "Boston",
       "teamSize": 2,
@@ -10917,7 +10920,7 @@
       "ycProfileUrl": "https://www.ycombinator.com/companies/ronanrx-inc",
       "websiteUrl": "https://ronanrx.com/",
       "tagline": "Full Stack Pharmaceutical Company for Personalized Peptides and GLP-1s",
-      "description": "RonanRX helps you personalize GLP-1s like Ozempic, peptides, and other treatments using your labs, wearables, medical history, treatment response, and the latest medical research. Instead of treating the average patient, we continuously personalize your treatment as your body changes.\r\n\r\nWe've built the complete feedback loop for personalized medicine: your health data automatically syncs into one place, AI helps personalize treatment, licensed doctors make prescribing decisions, medications are delivered to your door, and every outcome continuously improves your protocol.\r\n\r\nConnect your health data once. RonanRX automatically syncs your labs, wearables, and medical records into a single AI-powered health profile that helps personalize GLP-1s like Ozempic, peptides, supplements, and other treatments around your biology. If prescribed, your medication is delivered to your door.\r\n\r\nOur founders have built and exited multiple companies, raised over $100M, and previously built a $50M U.S. medical manufacturing business.\r\n\r\nStart with a text at RonanRX.com and become the maximum version of yourself, \r\n\r\n",
+      "description": "RonanRX is a full-stack pharmaceutical company, starting with personalized peptides and GLP-1s.\r\n\r\nIn our first 10 weeks, we went from having no pharmacy to being licensed in 33 states. Since launch, we’ve grown 50% week over week.\r\n\r\nWe manufacture the medications ourselves, sell directly to patients, and eliminate the layers of middlemen that make prescription drugs more expensive.\r\n\r\nWhat makes this possible is AI.\r\n\r\nTraditional pharmaceutical companies are built to manufacture one drug for millions of people. RonanRX is purpose-built to personalize treatment for each patient: different biology, different response, different dose.\r\n\r\nPatients come directly to RonanRX or through doctors using our platform. Every patient completes our medical intake, meets with a licensed doctor through our telehealth platform, and receives a personalized prescription when appropriate. From there, we manufacture the medication ourselves and deliver it directly to the patient.\r\n\r\nLabs, wearables, medical history, treatment response, and other health data feed back into the platform so doctors can continuously refine treatment over time.\r\n\r\nBefore AI, doing this for every patient at scale was impossible.\r\n\r\nWe didn't invent the demand we are seeing. 80 Million people are on a GLP-1 and millions more are using Peptides. We're building a better way to manufacture, personalize, prescribe, and deliver them.\r\n\r\nOur founders have built and exited multiple companies, raised more than $100M, built a $50M U.S. medical manufacturing business, and spent years developing peptide therapeutics at companies including Eli Lilly and AbbVie.\r\n\r\nWe’re just getting started with peptides and GLP-1s. Next comes hormone therapy and the rest of personalized medicine.",
       "industry": "Healthcare",
       "subindustry": "Healthcare",
       "industries": [
@@ -10933,13 +10936,16 @@
       "status": "Active",
       "groupPartner": "Tyler Bosmeny",
       "groupPartnerUrl": "https://www.ycombinator.com/people/tyler-bosmeny",
-      "socialLinks": {},
+      "socialLinks": {
+        "linkedin": "https://www.linkedin.com/company/ronanrx/",
+        "x": "https://x.com/Ronan_RX"
+      },
       "founders": [
         {
           "id": "26799",
           "name": "Lloyd Armbrust",
           "title": "Founder/CEO",
-          "bio": "2x YC founder. 3 Exits. 6 Kids. Built a $50M manufacturing business. Now building RonanRX.\n\nWe use AI to personalize peptides and GLP1s like Ozempic to your biology. By combining labs, wearables, medical history, treatment response, and the latest research, we continuously personalize your treatment as your body changes.\n\nPeptides are like Claude Code for your body. Your biology is the prompt.",
+          "bio": "2x YC founder. 3 Exits. 6 Kids. Built a $50M manufacturing business. Now building RonanRX.\n\nWe are the world's first full-stack pharmaceutical company for personalized peptides & GLP-1s. We manufacture and ship direct to patients, using AI to personalize treatment. This was impossible before AI. \n\nLicensed in 33 states; growing 50% WoW.",
           "ycProfileUrl": "https://www.ycombinator.com/people/lloyd-armbrust",
           "socialLinks": {
             "linkedin": "https://www.linkedin.com/in/lloydarmbrust/",

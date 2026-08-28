@@ -5,9 +5,33 @@
     "slug": "conifer",
     "name": "Conifer"
   },
-  "generatedAt": "2026-08-28T20:10:39.009Z",
-  "lastModifiedAt": "2026-08-28T20:10:39.009Z",
+  "generatedAt": "2026-08-28T23:39:06.851Z",
+  "lastModifiedAt": "2026-08-28T23:39:06.851Z",
   "events": [
+    {
+      "id": "tle-d64a6a72ecb97d71e7d495ab",
+      "eventDate": "2026-08-28",
+      "eventDateType": "announcement_date",
+      "title": "Conifer released an open-source project",
+      "summary": "Conifer's SDK is open-sourced as of today.",
+      "category": "open_source",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-948fd61a61df310b5e89db87",
+          "title": "Conifer's SDK is open-sourced as of today.",
+          "publisher": "coniferbuild",
+          "domain": "x.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-08-28T18:36:39.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/coniferbuild/status/2093407427849072942"
+        }
+      ]
+    },
     {
       "id": "tle-4785581ab00c0baf9787c3c4",
       "eventDate": "2026-07-15",
@@ -38,6 +62,10 @@
       "year": 2026,
       "months": [
         {
+          "month": "2026-08",
+          "count": 1
+        },
+        {
           "month": "2026-07",
           "count": 1
         }
@@ -46,8 +74,8 @@
   ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-08-28T20:10:39.009Z"
+    "publishedEventCount": 2,
+    "lastSuccessfulArtifactAt": "2026-08-28T23:39:06.851Z"
   },
   "nextCursor": null
 }

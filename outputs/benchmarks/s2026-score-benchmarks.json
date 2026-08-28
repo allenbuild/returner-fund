@@ -1,7 +1,7 @@
 {
   "version": 1,
   "batchSlug": "S2026",
-  "updatedAt": "2026-08-28T20:10:51.012Z",
+  "updatedAt": "2026-08-28T23:39:18.639Z",
   "daily": [
     {
       "recordedAt": "2026-06-29T16:52:33.375Z",
@@ -64196,9 +64196,9 @@
       ]
     },
     {
-      "recordedAt": "2026-08-28T20:10:51.012Z",
+      "recordedAt": "2026-08-28T23:39:18.639Z",
       "scoringModelVersion": "4.2.0",
-      "inputGeneratedAt": "2026-08-28T20:09:46.156Z",
+      "inputGeneratedAt": "2026-08-28T23:38:14.259Z",
       "companies": [
         {
           "companyId": "company-heyclicky",
@@ -64375,82 +64375,82 @@
           "rank": 29
         },
         {
+          "companyId": "company-amboras",
+          "companyName": "Amboras",
+          "score": 55,
+          "rank": 29
+        },
+        {
           "companyId": "company-revnu",
           "companyName": "Revnu",
           "score": 55,
           "rank": 29
         },
         {
-          "companyId": "company-amboras",
-          "companyName": "Amboras",
-          "score": 53,
-          "rank": 31
-        },
-        {
           "companyId": "company-arga-labs",
           "companyName": "Arga Labs",
           "score": 53,
-          "rank": 31
+          "rank": 32
         },
         {
           "companyId": "company-biostack-platforms",
           "companyName": "BioStack Platforms",
           "score": 53,
-          "rank": 31
+          "rank": 32
         },
         {
           "companyId": "company-datost",
           "companyName": "Datost",
           "score": 53,
-          "rank": 31
+          "rank": 32
         },
         {
           "companyId": "company-foaster",
           "companyName": "Foaster",
           "score": 53,
-          "rank": 31
+          "rank": 32
         },
         {
           "companyId": "company-gigacatalyst",
           "companyName": "Gigacatalyst",
           "score": 53,
-          "rank": 31
+          "rank": 32
         },
         {
           "companyId": "company-instaagent",
           "companyName": "InstaAgent",
           "score": 53,
-          "rank": 31
+          "rank": 32
         },
         {
           "companyId": "company-lightsprint",
           "companyName": "Lightsprint",
           "score": 53,
-          "rank": 31
+          "rank": 32
         },
         {
           "companyId": "company-mochatrade",
           "companyName": "Mochatrade",
           "score": 53,
-          "rank": 31
+          "rank": 32
         },
         {
           "companyId": "company-openprose",
           "companyName": "OpenProse",
           "score": 53,
-          "rank": 31
+          "rank": 32
         },
         {
           "companyId": "company-playablai",
           "companyName": "Playabl.ai",
           "score": 53,
-          "rank": 31
+          "rank": 32
         },
         {
           "companyId": "company-result",
           "companyName": "Result",
           "score": 53,
-          "rank": 31
+          "rank": 32
         },
         {
           "companyId": "company-9-mothers-corporation",
@@ -64939,6 +64939,12 @@
           "rank": 121
         },
         {
+          "companyId": "company-oddpool",
+          "companyName": "Oddpool",
+          "score": 32,
+          "rank": 121
+        },
+        {
           "companyId": "company-plena-health",
           "companyName": "Plena Health",
           "score": 32,
@@ -64972,43 +64978,37 @@
           "companyId": "company-callab-ai",
           "companyName": "Callab AI",
           "score": 30,
-          "rank": 129
+          "rank": 130
         },
         {
           "companyId": "company-drippay",
           "companyName": "Drip",
           "score": 30,
-          "rank": 129
+          "rank": 130
         },
         {
           "companyId": "company-finaldose",
           "companyName": "FinalDose",
           "score": 30,
-          "rank": 129
+          "rank": 130
         },
         {
           "companyId": "company-general-aviation",
           "companyName": "General Aviation",
           "score": 30,
-          "rank": 129
+          "rank": 130
         },
         {
           "companyId": "company-kelai",
           "companyName": "KelAI",
           "score": 30,
-          "rank": 129
+          "rank": 130
         },
         {
           "companyId": "company-klarify",
           "companyName": "Klarify",
           "score": 30,
-          "rank": 129
-        },
-        {
-          "companyId": "company-oddpool",
-          "companyName": "Oddpool",
-          "score": 30,
-          "rank": 129
+          "rank": 130
         },
         {
           "companyId": "company-archer",
@@ -65047,6 +65047,12 @@
           "rank": 136
         },
         {
+          "companyId": "company-alchemize",
+          "companyName": "Alchemize",
+          "score": 26,
+          "rank": 142
+        },
+        {
           "companyId": "company-foresight",
           "companyName": "Foresight",
           "score": 26,
@@ -65065,46 +65071,40 @@
           "rank": 142
         },
         {
-          "companyId": "company-alchemize",
-          "companyName": "Alchemize",
-          "score": 25,
-          "rank": 145
-        },
-        {
           "companyId": "company-autostep",
           "companyName": "Autostep",
           "score": 25,
-          "rank": 145
+          "rank": 146
         },
         {
           "companyId": "company-flowscope",
           "companyName": "flowscope",
           "score": 25,
-          "rank": 145
+          "rank": 146
         },
         {
           "companyId": "company-humwork",
           "companyName": "Humwork",
           "score": 25,
-          "rank": 145
+          "rank": 146
         },
         {
           "companyId": "company-imperfect",
           "companyName": "Imperfect",
           "score": 25,
-          "rank": 145
+          "rank": 146
         },
         {
           "companyId": "company-korso",
           "companyName": "Korso",
           "score": 25,
-          "rank": 145
+          "rank": 146
         },
         {
           "companyId": "company-rudus",
           "companyName": "Rudus",
           "score": 25,
-          "rank": 145
+          "rank": 146
         },
         {
           "companyId": "company-arden",
