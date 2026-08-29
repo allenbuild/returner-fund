@@ -82,7 +82,7 @@
           "likes": 17,
           "reposts": 2,
           "replies": 6,
-          "views": 3988
+          "views": 3993
         },
         "evidenceRole": "primary"
       },
@@ -96,13 +96,13 @@
         "metrics": {
           "likes": 439,
           "reposts": 56,
-          "replies": 91,
-          "views": 96797
+          "replies": 92,
+          "views": 96855
         },
         "evidenceRole": "primary"
       }
     ]
   },
-  "generatedAt": "2026-08-28T23:39:06.851Z",
-  "lastModifiedAt": "2026-08-28T23:39:06.851Z"
+  "generatedAt": "2026-08-29T18:10:35.748Z",
+  "lastModifiedAt": "2026-08-29T18:10:35.748Z"
 }

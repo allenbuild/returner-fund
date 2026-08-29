@@ -5,14 +5,14 @@
     "slug": "lyon",
     "name": "Lyon"
   },
-  "generatedAt": "2026-08-28T23:39:06.851Z",
-  "lastModifiedAt": "2026-08-28T23:39:06.851Z",
+  "generatedAt": "2026-08-29T18:10:35.748Z",
+  "lastModifiedAt": "2026-08-29T18:10:35.748Z",
   "events": [],
   "groups": [],
   "coverage": {
     "status": "partial",
     "publishedEventCount": 0,
-    "lastSuccessfulArtifactAt": "2026-08-28T23:39:06.851Z"
+    "lastSuccessfulArtifactAt": "2026-08-29T18:10:35.748Z"
   },
   "nextCursor": null
 }

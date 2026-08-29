@@ -5,8 +5,8 @@
     "slug": "aseon-labs",
     "name": "Aseon Labs"
   },
-  "generatedAt": "2026-08-28T23:39:06.851Z",
-  "lastModifiedAt": "2026-08-28T23:39:06.851Z",
+  "generatedAt": "2026-08-29T18:10:35.748Z",
+  "lastModifiedAt": "2026-08-29T18:10:35.748Z",
   "events": [
     {
       "id": "tle-43a512c77f8265e54f3b50ea",
@@ -57,7 +57,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-08-28T23:39:06.851Z"
+    "lastSuccessfulArtifactAt": "2026-08-29T18:10:35.748Z"
   },
   "nextCursor": null
 }

@@ -5,8 +5,8 @@
     "slug": "qlo",
     "name": "Qlo"
   },
-  "generatedAt": "2026-08-28T23:39:06.851Z",
-  "lastModifiedAt": "2026-08-28T23:39:06.851Z",
+  "generatedAt": "2026-08-29T18:10:35.748Z",
+  "lastModifiedAt": "2026-08-29T18:10:35.748Z",
   "events": [
     {
       "id": "tle-43e81bd1d48bea330e96c2c0",
@@ -47,7 +47,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-08-28T23:39:06.851Z"
+    "lastSuccessfulArtifactAt": "2026-08-29T18:10:35.748Z"
   },
   "nextCursor": null
 }

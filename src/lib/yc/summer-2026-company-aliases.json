@@ -395,6 +395,49 @@
           }
         }
       ]
+    },
+    {
+      "companyId": "33345",
+      "fromSlug": "snap-poker",
+      "fromName": "Snap Poker",
+      "toSlug": "cuebench",
+      "toName": "CueBench",
+      "companyAccounts": {},
+      "founders": [
+        {
+          "founderId": "3732725",
+          "name": "Dillon Mehta",
+          "accounts": {
+            "linkedin": [
+              "https://www.linkedin.com/in/dillon-mehta-49aa2827b/"
+            ],
+            "x": [
+              "https://x.com/PickleDilll_"
+            ]
+          }
+        },
+        {
+          "founderId": "3762638",
+          "name": "Neel Gadde",
+          "accounts": {
+            "linkedin": [
+              "https://www.linkedin.com/in/neel-gadde-491880377/"
+            ],
+            "x": [
+              "https://x.com/neelapolitan?s=11"
+            ]
+          }
+        },
+        {
+          "founderId": "3791688",
+          "name": "Rishan Hemrajani",
+          "accounts": {
+            "linkedin": [
+              "https://www.linkedin.com/in/rishan-hemrajani-254bba292"
+            ]
+          }
+        }
+      ]
     }
   ],
   "founderTransitions": [

@@ -4,7 +4,7 @@
     "directoryUrl": "https://www.ycombinator.com/companies?batch=Summer%202026",
     "algoliaIndex": "YCCompany_production",
     "algoliaFilter": "batch:\"Summer 2026\"",
-    "fetchedAt": "2026-08-28T23:02:36.769Z",
+    "fetchedAt": "2026-08-29T17:29:15.844Z",
     "expectedCompanyCount": 235,
     "observedCompanyCount": 235,
     "minimumCompanyCount": 167,
@@ -659,7 +659,7 @@
           "id": "3759395",
           "name": "Amie Leighton",
           "title": "Founder/CEO",
-          "bio": "Founder at Allia Health. Dropped out of Oxford University, where she was head of healthcare at the M&A Group and conducted NERC-funded research at Imperial College on hydrological systems in data-scarce regions for UK AID and UN FAO.  ",
+          "bio": "Co-founder & CEO of Allia Health, the first AI-native medical group for mental health. Oxford dropout (declined med school); ex-Head of Healthcare M&A, Oxford M&A Society.",
           "ycProfileUrl": "https://www.ycombinator.com/people/amie-leighton",
           "socialLinks": {
             "linkedin": "https://www.linkedin.com/in/amieleighton/"
@@ -2818,6 +2818,71 @@
       ]
     },
     {
+      "id": "33345",
+      "objectID": "33345",
+      "slug": "cuebench",
+      "name": "CueBench",
+      "batch": "Summer 2026",
+      "ycProfileUrl": "https://www.ycombinator.com/companies/cuebench",
+      "websiteUrl": "https://cuebench.dev",
+      "tagline": "RL post-training for science reasoning and performance engineering",
+      "description": "",
+      "industry": "B2B",
+      "subindustry": "B2B",
+      "industries": [
+        "B2B"
+      ],
+      "tags": [
+        "Reinforcement Learning",
+        "Data Engineering"
+      ],
+      "location": "San Francisco",
+      "teamSize": 3,
+      "status": "Active",
+      "groupPartner": "Vivian Midha Shen",
+      "groupPartnerUrl": null,
+      "socialLinks": {},
+      "founders": [
+        {
+          "id": "3732725",
+          "name": "Dillon Mehta",
+          "title": "Founder/CEO",
+          "bio": "Founder and CEO at CueBench",
+          "ycProfileUrl": "https://www.ycombinator.com/people/dillon-mehta",
+          "socialLinks": {
+            "linkedin": "https://www.linkedin.com/in/dillon-mehta/",
+            "x": "https://x.com/PickleDilll_"
+          }
+        },
+        {
+          "id": "3762638",
+          "name": "Neel Gadde",
+          "title": "Founder/COO",
+          "bio": "Co-Founder and CRO at Snap Poker",
+          "ycProfileUrl": "https://www.ycombinator.com/people/neel-gadde",
+          "socialLinks": {
+            "linkedin": "https://www.linkedin.com/in/neel-gadde-491880377/",
+            "x": "https://x.com/neelapolitan?s=11"
+          }
+        },
+        {
+          "id": "3791688",
+          "name": "Rishan Hemrajani",
+          "title": "Founder",
+          "bio": "Co-Founder & CTO of CueBench.",
+          "ycProfileUrl": "https://www.ycombinator.com/people/rishan-hemrajani",
+          "socialLinks": {
+            "linkedin": "https://www.linkedin.com/in/rishan-hemrajani-254bba292"
+          }
+        }
+      ],
+      "launch": null,
+      "sourceUrls": [
+        "https://www.ycombinator.com/companies/cuebench",
+        "https://www.ycombinator.com/companies?batch=Summer%202026"
+      ]
+    },
+    {
       "id": "32649",
       "objectID": "32649",
       "slug": "daqstra",
@@ -3283,7 +3348,7 @@
       "batch": "Summer 2026",
       "ycProfileUrl": "https://www.ycombinator.com/companies/dialogus",
       "websiteUrl": "https://www.dialoguslabs.com/",
-      "tagline": "Infra for enterprise voice agents.",
+      "tagline": "The AI-native contact center.",
       "description": "Dialogus builds voice agent infrastructure for enterprises.\r\n\r\nMost companies can demo an AI voice agent, but getting one into production is hard. Enterprise agents need to connect to phone systems, internal tools, databases, CRMs, messaging channels, human escalation flows, monitoring, and compliance processes.\r\n\r\nDialogus provides the infrastructure to deploy production-grade voice agents that don’t just talk but complete real workflows. Our platform lets enterprises launch agents that collect information, validate it against internal systems, update records, send follow-up messages, and escalate edge cases to humans.",
       "industry": "B2B",
       "subindustry": "B2B -> Infrastructure",
@@ -3736,7 +3801,7 @@
       "batch": "Summer 2026",
       "ycProfileUrl": "https://www.ycombinator.com/companies/edviro",
       "websiteUrl": "https://edviroenergy.com",
-      "tagline": "AI That Operates Energy Infrastructure",
+      "tagline": "AI That Operates Energy Infrastructure and Data Centers",
       "description": "Edviro builds AI that operates energy infrastructure. We connect to meters, HVAC systems, batteries, solar, and other energy equipment and continuously handle the work required to keep them efficient: detecting and diagnosing problems to forecasting demand, simulating fixes, creating work orders, coordinating maintenance, and controlling equipment where authorized. Our energy world models learn how each site behaves, choose the highest-value actions, and verify the results against real operational, meter, and billing data.",
       "industry": "B2B",
       "subindustry": "B2B -> Infrastructure",
@@ -4424,8 +4489,8 @@
       "batch": "Summer 2026",
       "ycProfileUrl": "https://www.ycombinator.com/companies/familiar",
       "websiteUrl": "https://thefamiliarlab.com",
-      "tagline": "Dubbing is Finally Good. Audio-Visual Translation.",
-      "description": "World models for accurate humans.\r\n🦋 Content in every language. Performances, preserved. Movies & TV, Micro-dramas, Live Broadcasts, Live Shopping, Corporate & Education, Ads, Creators & Podcasts, Platforms.\r\n\r\nFounders An Zhu Liu, Jibin Song, Mingi Kwon, and Xu Zheng lead a team of PhDs, professors, and researchers from the world's top universities who started the field of joint audio-visual human models and co-authored the current state of the art in real-time human animation. Since 2021: over 10,000 citations and 100+ papers at ICLR, NeurIPS, CVPR, ECCV, and more.\r\n\r\nThey started with video language translation, and they've already built one of the most accurate translators available today, the only one that works in real time. Everyone else scaffolds separate models and pre-processing; a world model just understands -- what the speaker means, from voice, person, and scene together. That's why the dub keeps the speaker's own voice, face, and delivery.\r\n\r\nVs ElevenLabs: they lose the laughter, the music, the ambiance -- 270% more background-sound error -- and ours sounds 27.8% more like you. Vs human translators: 100.3% of their quality -- scalable, real time. Published benchmarks: https://thefamiliarlab.com/benchmark\r\n\r\nThe $14B spent on dubbing every year flips to AI once it's good enough -- most of it movies and TV, the traditional dubbing heartland. Live multiplies it: a $32 billion market.",
+      "tagline": "Dubbing is Finally Good. Neolab for World Translation.",
+      "description": "The first and only one that works in real time. World translation: not just changing voice and lips into a new language, but understanding the scene, the sound, and preserving the human. \r\n\r\n🦋 Movies & TV, Micro-dramas, Live Broadcasts, Live Shopping, Corporate & Education, Ads, Creators & Podcasts, Platforms. Day-and-date, in every territory.\r\n\r\nFounders An Zhu Liu, Jibin Song, Mingi Kwon, and Xu Zheng lead a team of PhDs, professors, and researchers from the world's top universities who started the field of joint audio-visual human models and co-authored the current state of the art in real-time human animation. Since 2021: over 10,000 citations and 100+ papers at ICLR, NeurIPS, CVPR, ECCV, and more.\r\n\r\nTranslation has to be a world model. A translator has to know who's speaking: where every sound in the dense polyphony originates. Laughter here, a short yell there, a voice from off-screen, someone on screen mouthing words before being interrupted. Everyone else scaffolds separate models and pre-processing; a world model simulates the scene. It's a spatio-temporal reasoner: predicting continuity across frames forces it to internalize 3D geometry, spatial reasoning, and permanence -- of objects, people, and the environment itself. The scene state survives the edit: when the shot pans or cuts away, someone off-screen still exists, still owns their voice, and is still there when the camera comes back. Multiple people, side views, off angles, fast motion -- the hard cases hold.\r\n\r\nVs ElevenLabs: they lose the laughter, the music, the ambiance -- 270% more background-sound error -- and ours sounds 27.8% more like you. That means no recasting, no ADR, no M&E stems required -- it works from the final mix.\r\n\r\nVs human translators: 100.3% of their quality -- scalable, real time. Published benchmarks: https://thefamiliarlab.com/benchmark",
       "industry": "B2B",
       "subindustry": "B2B -> Infrastructure",
       "industries": [
@@ -4439,7 +4504,7 @@
         "Entertainment"
       ],
       "location": "Toronto, Canada",
-      "teamSize": 7,
+      "teamSize": 8,
       "status": "Active",
       "groupPartner": "Harshita Arora",
       "groupPartnerUrl": "https://www.ycombinator.com/people/harshita-arora",
@@ -4520,7 +4585,7 @@
           "id": "2001420",
           "name": "Virat Singh",
           "title": "Founder/CEO",
-          "bio": "Founder at Financial Datasets. 90,000+ stars on AI x Finance projects on GitHub.  Previously tech lead at Faire, building search recommendations. Earlier software engineer at Airbnb (Payments, Search) and Acorns. Started career in buy-side M&A",
+          "bio": "Founder at Financial Datasets. 90,000+ stars on financial agent projects on GitHub.  Previously tech lead at Faire, building search recommendations. Earlier software engineer at Airbnb (Payments, Search) and Acorns. Started career in buy-side M&A",
           "ycProfileUrl": "https://www.ycombinator.com/people/virat-singh",
           "socialLinks": {
             "linkedin": "https://www.linkedin.com/in/singhvirat/",
@@ -4777,7 +4842,7 @@
       "ycProfileUrl": "https://www.ycombinator.com/companies/gitcafe",
       "websiteUrl": "https://git.cafe",
       "tagline": "The Git forge for the next hundred billion commits",
-      "description": "We are GitCafe and we build GitHub for agents. We're rebuilding the infrastructure for the next hundred billion commits and CI jobs with hundreds of engineers already making the move.",
+      "description": "We build GitHub for agents. We're rebuilding the infrastructure for the next hundred billion commits and CI jobs with hundreds of engineers already making the move.",
       "industry": "B2B",
       "subindustry": "B2B -> Infrastructure",
       "industries": [
@@ -4786,7 +4851,9 @@
       ],
       "tags": [
         "Developer Tools",
-        "DevOps"
+        "B2B",
+        "DevOps",
+        "AI"
       ],
       "location": "San Francisco",
       "teamSize": 2,
@@ -6812,7 +6879,7 @@
       "ycProfileUrl": "https://www.ycombinator.com/companies/locke",
       "websiteUrl": "https://locke.inc",
       "tagline": "AI agents that help companies and governments work together.",
-      "description": "Locke builds AI agents that help companies and governments work together.\r\n\r\nOur agents also power Locke Government Affairs, the first AI-native government affairs firm.",
+      "description": "Locke builds AI agents that help companies and governments work together.\r\n\r\nOur agents power Locke Government Affairs, the first AI-native government affairs firm, and are now being deployed to government agencies across America.\r\n\r\nEvery major company in America needs to work with government: AI labs, data centers, robotics, defense, the list goes on.\r\n\r\nLocke is fixing the access and software bottlenecks that prevent that from happening.\r\n\r\nLocke's team comes from The White House, Deloitte, the US Congress, and the Pentagon.",
       "industry": "B2B",
       "subindustry": "B2B",
       "industries": [
@@ -7943,8 +8010,8 @@
       "batch": "Summer 2026",
       "ycProfileUrl": "https://www.ycombinator.com/companies/moving-atoms",
       "websiteUrl": "https://movingatoms.ai/",
-      "tagline": "World Model Lab for Evaluating and Training Robots.",
-      "description": "Moving Atoms is building world models trained on internet scale video: models that accurately predict physical interactions and are conditioned on robot actions. Our first model, Atom 1, already tops the Physics IQ benchmark. \r\n\r\nAn exceptional world model is what makes an exceptional robot model possible, and that's phase two.\r\nLLMs were unlocked by the trillions of text tokens sitting free on the internet. We believe robotics gets unlocked a similar way, by the latent physics information in online video content.",
+      "tagline": "Robot Model Lab. Our goal is to solve robotics, then solve abundance.",
+      "description": "Moving Atoms is frontier robotics lab. Our goal is to solve robotics, then solve abundance.\r\n\r\nOur first model, Atom 1, already tops the Physics IQ benchmark - this is stage 1 of the robot model we are building (a World Action Model).\r\n\r\nCurrently, robot models are trained end-to-end to recieve large scale tasks like \"fold t-shirt\". They were never designed to have an advanced LLM micromanaging them, telling them how to move and when (“reach(mug marked in frame)”, “grasp(marked mug at handle)”)\r\n\r\nBy training World Action Model that can be micro-managed, we allow robotics to use the orchestration and planning abilities of LLMs while having the physics, contact and timing be controlled by the robot model.",
       "industry": "Industrials",
       "subindustry": "Industrials -> Manufacturing and Robotics",
       "industries": [
@@ -9576,7 +9643,7 @@
       "ycProfileUrl": "https://www.ycombinator.com/companies/talentpluto",
       "websiteUrl": "https://talentpluto.com",
       "tagline": "Voice agent that learns about professionals and makes them searchable",
-      "description": "Resumes made careers readable. LinkedIn made them filterable. Pluto makes them searchable.\r\n\r\nProfessionals spend 10 minutes talking to Pluto's voice agent about what they've done, what they're great at, and what they want next. Pluto turns that into a structured picture of who someone actually is, capturing the competency and intent that resumes and LinkedIn don't.\r\n\r\nWhen companies and AI agents go looking to hire, Pluto makes the right people discoverable.\r\n\r\n25K+ professionals have shared their career context with Pluto, and 50+ companies, including Mercor, Warp, and Rho, use it to find and reach the right people. Long term, we're building the professional data layer AI agents will use to understand and find people.\r\n",
+      "description": "Resumes made careers readable. LinkedIn made them filterable. Pluto makes them searchable.\r\n\r\nProfessionals spend 10 minutes talking to Pluto's voice agent about what they've done, what they're great at, and what they want next. Pluto turns that into a structured picture of who someone actually is, capturing the competency and intent that resumes and LinkedIn don't.\r\n\r\nWhen companies and AI agents go looking to hire, Pluto makes the right people discoverable.\r\n\r\n25K+ professionals have shared their career context with Pluto, and 50+ companies, including Mercor, Warp, and Rho, use it to find and reach the right people. Long-term, we're building the LinkedIn for agents.\r\n",
       "industry": "B2B",
       "subindustry": "B2B -> Recruiting and Talent",
       "industries": [
@@ -9584,7 +9651,7 @@
         "Recruiting and Talent"
       ],
       "tags": [
-        "Artificial Intelligence",
+        "AI",
         "Careers",
         "Conversational AI"
       ],
@@ -9683,7 +9750,7 @@
       "batch": "Summer 2026",
       "ycProfileUrl": "https://www.ycombinator.com/companies/poth-labs",
       "websiteUrl": "https://pothlabs.com",
-      "tagline": "Helping companies understand why users behave the way they do",
+      "tagline": "Conversational surveys that replace Qualtrics for large brands",
       "description": "Poth is an agentic research platform that connects to your company data, creates hypotheses about what might be causing problems, and validates them using both existing data and adaptive user feedback.",
       "industry": "B2B",
       "subindustry": "B2B",
@@ -11279,73 +11346,6 @@
       ]
     },
     {
-      "id": "33345",
-      "objectID": "33345",
-      "slug": "snap-poker",
-      "name": "Snap Poker",
-      "batch": "Summer 2026",
-      "ycProfileUrl": "https://www.ycombinator.com/companies/snap-poker",
-      "websiteUrl": "https://playsnappoker.com",
-      "tagline": "The social network for online poker",
-      "description": "Snap Poker is the first social poker app, a real-money platform with a feed built in. Players post hands as interactive reels with voiceover and build a following, and we take zero rake because we monetize like a game rather than a casino. We're bringing everyone to online poker.",
-      "industry": "Consumer",
-      "subindustry": "Consumer -> Social",
-      "industries": [
-        "Consumer",
-        "Social"
-      ],
-      "tags": [
-        "Consumer",
-        "Gaming",
-        "Social Media"
-      ],
-      "location": "San Francisco",
-      "teamSize": 3,
-      "status": "Active",
-      "groupPartner": "Vivian Midha Shen",
-      "groupPartnerUrl": null,
-      "socialLinks": {},
-      "founders": [
-        {
-          "id": "3732725",
-          "name": "Dillon Mehta",
-          "title": "Founder/CEO",
-          "bio": "Founder and CEO at Snap Poker.",
-          "ycProfileUrl": "https://www.ycombinator.com/people/dillon-mehta",
-          "socialLinks": {
-            "linkedin": "https://www.linkedin.com/in/dillon-mehta-49aa2827b/",
-            "x": "https://x.com/PickleDilll_"
-          }
-        },
-        {
-          "id": "3762638",
-          "name": "Neel Gadde",
-          "title": "Founder/COO",
-          "bio": "Co-Founder and CRO at Snap Poker",
-          "ycProfileUrl": "https://www.ycombinator.com/people/neel-gadde",
-          "socialLinks": {
-            "linkedin": "https://www.linkedin.com/in/neel-gadde-491880377/",
-            "x": "https://x.com/neelapolitan?s=11"
-          }
-        },
-        {
-          "id": "3791688",
-          "name": "Rishan Hemrajani",
-          "title": "Founder",
-          "bio": "Co-Founder & CTO of CueBench.",
-          "ycProfileUrl": "https://www.ycombinator.com/people/rishan-hemrajani",
-          "socialLinks": {
-            "linkedin": "https://www.linkedin.com/in/rishan-hemrajani-254bba292"
-          }
-        }
-      ],
-      "launch": null,
-      "sourceUrls": [
-        "https://www.ycombinator.com/companies/snap-poker",
-        "https://www.ycombinator.com/companies?batch=Summer%202026"
-      ]
-    },
-    {
       "id": "33311",
       "objectID": "33311",
       "slug": "spaceflow-technologies-inc",
@@ -11710,8 +11710,8 @@
       "batch": "Summer 2026",
       "ycProfileUrl": "https://www.ycombinator.com/companies/studio",
       "websiteUrl": "https://trystudio.ai",
-      "tagline": "Engineer the future",
-      "description": "Studio is a simulation lab studying how humans and societies respond to new ideas, and is building the first software models that can accurately predict that response. Instead of creating digital twins of survey respondents, Studio builds live market models of interconnected audience segments from real, traceable consumer-behavior evidence. Our predictions match live KPI outcomes like revenue and sentiment with over 95% accuracy for large consumer-facing brands.",
+      "tagline": "Accurately simulate market response at scale",
+      "description": "Studio is a simulation lab studying how humans and societies respond to new ideas, and is building the first software models that can accurately predict that response. Instead of creating digital twins of survey respondents, Studio builds live market models of interconnected audience segments from real, traceable consumer-behavior data. Our simulations match live KPI outcomes like revenue and purchase behavior with over 97% accuracy for consumer-facing enterprises, higher than any synthetic panel, simulation lab, or traditional market research.",
       "industry": "B2B",
       "subindustry": "B2B -> Analytics",
       "industries": [
@@ -11722,6 +11722,7 @@
         "Artificial Intelligence",
         "B2B",
         "Analytics",
+        "Market Research",
         "AI"
       ],
       "location": "San Francisco",
@@ -12650,16 +12651,16 @@
       "ycProfileUrl": "https://www.ycombinator.com/companies/trope",
       "websiteUrl": "https://trope.ai",
       "tagline": "AI FDE that deploys custom AI agents into ERPs",
-      "description": "Trope deploys AI agents into ERPs for mid-market companies.\r\n\r\nNo two ERPs are the same. Every ERP has been configured over months by implementation consultants.\r\n\r\nThat means every useful AI agent requires customization, leaving ERP vendors, consulting firms, and customers stuck with slow deployments, subpar solutions, and services that are too expensive to scale.\r\n\r\nTrope’s AI FDE learns each company’s ERP and business processes, then builds, tests, and deploys the agents automatically, turning that last mile from services into software.",
+      "description": "Trope deploys custom AI agents into ERPs for mid-market companies. Every ERP is heavily customized, so useful agents need custom deployment too. Trope’s AI FDE learns each business and ERP, then builds and deploys agents, turning the last mile from services into software.",
       "industry": "B2B",
       "subindustry": "B2B",
       "industries": [
         "B2B"
       ],
       "tags": [
+        "Artificial Intelligence",
         "SaaS",
-        "B2B",
-        "AI"
+        "B2B"
       ],
       "location": "San Francisco",
       "teamSize": 2,
@@ -12898,7 +12899,7 @@
           "id": "2875171",
           "name": "Alexander Urbanski",
           "title": "Founder",
-          "bio": "Founder & Chief Research Officer of Ultrasonium. Former founder of the DOE-funded nuclear startup Bay State Energy and inventor of the Nuclear Thermoelectric Generator. Studied physics at Boston University. First hire at Phase3D - built and commercialized metals manufacturing tech. ",
+          "bio": "Founder & Chief Research Officer of Ultrasonium. Former founder of the DOE-funded nuclear energy startup Bay State Energy and inventor of the Nuclear Thermoelectric Generator. Studied physics and computer science at Boston University. First hire at Phase3D - built and commercialized metals manufacturing technology deployed across NASA, USAF, and companies across four continents. Former metals manufacturing research engineer at Argonne National Laboratory. Dropped out of mech-e grad program. ",
           "ycProfileUrl": "https://www.ycombinator.com/people/alexander-urbanski",
           "socialLinks": {
             "linkedin": "https://www.linkedin.com/in/aurban42/",
@@ -13659,9 +13660,20 @@
       },
       "founders": [
         {
+          "id": "3037509",
+          "name": "Douglas Solberg",
+          "title": "Founder/CEO",
+          "bio": "CEO of Zaplar. Previously studied physics and mathematics at the University of Chicago. At 14, I started a web development and cinematography business, with customers including some of the biggest brand in the Nordics, and has award-winning photographs. At 18, I started a nonprofit that built 30 solar systems in Tanzania. I also had a SWE internship at Newscoop and held an internship at the Becker Friedman Institute for Economics.",
+          "ycProfileUrl": "https://www.ycombinator.com/people/douglas-solberg",
+          "socialLinks": {
+            "linkedin": "https://www.linkedin.com/in/douglas-solberg/",
+            "x": "https://x.com/douglassolberg1"
+          }
+        },
+        {
           "id": "3424482",
           "name": "Axel Andersson Lingbert",
-          "title": "Founder/CEO",
+          "title": "Founder/COO",
           "bio": "Co-founder at Zaplar. Previously worked in hotels and restaurants; MSc engineering mathematics Lund Faculty of Engineering (LTH) dropout; co-led anti-money laundering (AML) and counter-terrorist financing (CTF) group at major Swedish bank.",
           "ycProfileUrl": "https://www.ycombinator.com/people/axel-andersson-lingbert",
           "socialLinks": {
@@ -13687,17 +13699,6 @@
           "socialLinks": {
             "linkedin": "https://www.linkedin.com/in/jon-milles",
             "x": "https://x.com/jnmlsxyz"
-          }
-        },
-        {
-          "id": "3037509",
-          "name": "Douglas Solberg",
-          "title": "Founder",
-          "bio": "CEO of Zaplar. Previously studied physics and mathematics at the University of Chicago. At 14, I started a web development and cinematography business, with customers including some of the biggest brand in the Nordics, and has award-winning photographs. At 18, I started a nonprofit that built 30 solar systems in Tanzania. I also had a SWE internship at Newscoop and held an internship at the Becker Friedman Institute for Economics.",
-          "ycProfileUrl": "https://www.ycombinator.com/people/douglas-solberg",
-          "socialLinks": {
-            "linkedin": "https://www.linkedin.com/in/douglas-solberg/",
-            "x": "https://x.com/douglassolberg1"
           }
         }
       ],

@@ -12,8 +12,8 @@
         "catalog": "src/lib/social/a16z-speedrun-006-social-accounts.json",
         "profileSource": "src/lib/graph/a16z-speedrun-006-dataset.ts",
         "graph": "public/graph/a16zsr006.json",
-        "publicRun": "/Users/allenxu/Library/Application Support/Returner Fund OpenCLI/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-08-28-1800-bb0f0c28168437b3/public-a16zsr006.json",
-        "githubRun": "/Users/allenxu/Library/Application Support/Returner Fund OpenCLI/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-08-28-1800-bb0f0c28168437b3/github-a16zsr006.json"
+        "publicRun": "/Users/allenxu/Library/Application Support/Returner Fund OpenCLI/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-08-29-0600-f59116079e31a0c7/public-a16zsr006.json",
+        "githubRun": "/Users/allenxu/Library/Application Support/Returner Fund OpenCLI/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-08-29-0600-f59116079e31a0c7/github-a16zsr006.json"
       },
       "counts": {
         "companies": 59,
@@ -828,8 +828,8 @@
         "catalog": "src/lib/yc/spring-2026-companies.json",
         "profileSource": null,
         "graph": "public/graph/s2026.json",
-        "publicRun": "/Users/allenxu/Library/Application Support/Returner Fund OpenCLI/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-08-28-1800-bb0f0c28168437b3/public-s2026.json",
-        "githubRun": "/Users/allenxu/Library/Application Support/Returner Fund OpenCLI/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-08-28-1800-bb0f0c28168437b3/github-s2026.json"
+        "publicRun": "/Users/allenxu/Library/Application Support/Returner Fund OpenCLI/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-08-29-0600-f59116079e31a0c7/public-s2026.json",
+        "githubRun": "/Users/allenxu/Library/Application Support/Returner Fund OpenCLI/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-08-29-0600-f59116079e31a0c7/github-s2026.json"
       },
       "counts": {
         "companies": 197,
@@ -840,7 +840,7 @@
         "plannedOwnerMappings": 994,
         "multiAccountOwnerMappings": 1,
         "graphEvidence": 5000,
-        "graphNeedsReview": 10130
+        "graphNeedsReview": 10141
       },
       "structural": {
         "status": "pass",
@@ -2393,8 +2393,8 @@
         "catalog": "src/lib/yc/summer-2026-companies.json",
         "profileSource": null,
         "graph": "public/graph/s26.json",
-        "publicRun": "/Users/allenxu/Library/Application Support/Returner Fund OpenCLI/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-08-28-1800-bb0f0c28168437b3/public-s26.json",
-        "githubRun": "/Users/allenxu/Library/Application Support/Returner Fund OpenCLI/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-08-28-1800-bb0f0c28168437b3/github-s26.json"
+        "publicRun": "/Users/allenxu/Library/Application Support/Returner Fund OpenCLI/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-08-29-0600-f59116079e31a0c7/public-s26.json",
+        "githubRun": "/Users/allenxu/Library/Application Support/Returner Fund OpenCLI/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-08-29-0600-f59116079e31a0c7/github-s26.json"
       },
       "counts": {
         "companies": 235,
@@ -2405,7 +2405,7 @@
         "plannedOwnerMappings": 1132,
         "multiAccountOwnerMappings": 1,
         "graphEvidence": 5000,
-        "graphNeedsReview": 7029
+        "graphNeedsReview": 7036
       },
       "structural": {
         "status": "pass",
@@ -2655,6 +2655,11 @@
             "companyName": null
           },
           {
+            "entityId": "company-cuebench",
+            "name": "CueBench",
+            "companyName": null
+          },
+          {
             "entityId": "company-dipole-labs",
             "name": "Dipole Labs",
             "companyName": null
@@ -2717,11 +2722,6 @@
           {
             "entityId": "company-riften",
             "name": "Riften",
-            "companyName": null
-          },
-          {
-            "entityId": "company-snap-poker",
-            "name": "Snap Poker",
             "companyName": null
           },
           {
@@ -2936,11 +2936,6 @@
             "companyName": null
           },
           {
-            "entityId": "company-snap-poker",
-            "name": "Snap Poker",
-            "companyName": null
-          },
-          {
             "entityId": "company-spaceflow-technologies-inc",
             "name": "SpaceFlow Technologies, Inc.",
             "companyName": null
@@ -3146,6 +3141,16 @@
             "entityId": "founder-control-seat-jack-grodnick-3132492",
             "name": "Jack Grodnick",
             "companyName": "Control Seat"
+          },
+          {
+            "entityId": "founder-cuebench-dillon-mehta-3732725",
+            "name": "Dillon Mehta",
+            "companyName": "CueBench"
+          },
+          {
+            "entityId": "founder-cuebench-rishan-hemrajani-3791688",
+            "name": "Rishan Hemrajani",
+            "companyName": "CueBench"
           },
           {
             "entityId": "founder-datoric-nikhil-reddy-1486120",
@@ -3708,16 +3713,6 @@
             "companyName": "Salem Robotics Inc"
           },
           {
-            "entityId": "founder-snap-poker-dillon-mehta-3732725",
-            "name": "Dillon Mehta",
-            "companyName": "Snap Poker"
-          },
-          {
-            "entityId": "founder-snap-poker-rishan-hemrajani-3791688",
-            "name": "Rishan Hemrajani",
-            "companyName": "Snap Poker"
-          },
-          {
             "entityId": "founder-spaceflow-technologies-inc-ali-eren-aytekin-2475947",
             "name": "Ali Eren Aytekin",
             "companyName": "SpaceFlow Technologies, Inc."
@@ -3985,11 +3980,6 @@
             "companyName": null
           },
           {
-            "entityId": "company-snap-poker",
-            "name": "Snap Poker",
-            "companyName": null
-          },
-          {
             "entityId": "company-spaceflow-technologies-inc",
             "name": "SpaceFlow Technologies, Inc.",
             "companyName": null
@@ -4140,6 +4130,11 @@
             "entityId": "founder-control-seat-jack-grodnick-3132492",
             "name": "Jack Grodnick",
             "companyName": "Control Seat"
+          },
+          {
+            "entityId": "founder-cuebench-dillon-mehta-3732725",
+            "name": "Dillon Mehta",
+            "companyName": "CueBench"
           },
           {
             "entityId": "founder-datoric-nikhil-reddy-1486120",
@@ -4510,11 +4505,6 @@
             "entityId": "founder-salem-robotics-inc-janak-crasun-panthi-3208433",
             "name": "Janak (Crasun) Panthi",
             "companyName": "Salem Robotics Inc"
-          },
-          {
-            "entityId": "founder-snap-poker-dillon-mehta-3732725",
-            "name": "Dillon Mehta",
-            "companyName": "Snap Poker"
           },
           {
             "entityId": "founder-spaceflow-technologies-inc-hakan-enes-aksu-3610149",

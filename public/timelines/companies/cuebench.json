@@ -1,9 +1,9 @@
 {
   "schemaVersion": "company-timeline.v1",
   "company": {
-    "id": "company-nex",
-    "slug": "nex",
-    "name": "Nex"
+    "id": "company-cuebench",
+    "slug": "cuebench",
+    "name": "CueBench"
   },
   "generatedAt": "2026-08-29T18:10:35.748Z",
   "lastModifiedAt": "2026-08-29T18:10:35.748Z",
