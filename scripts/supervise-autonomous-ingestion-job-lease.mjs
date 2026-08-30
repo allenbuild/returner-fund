@@ -31,6 +31,9 @@ export const DEFAULT_MIN_BATTERY_PERCENT = 30;
 export const DEFAULT_MAX_WORKER_LOG_BYTES = 32 * 1024 * 1024;
 export const DEFAULT_SCHEDULE_RECOVERY_SILENCE_MINUTES = 30;
 export const DEFAULT_SCHEDULE_RECOVERY_COOLDOWN_MINUTES = 30;
+export const DEFAULT_RUNNER_RESTART_COOLDOWN_MINUTES = 30;
+export const DEFAULT_RUNNER_LAUNCHD_LABEL =
+  "actions.runner.allenbuild-returner-fund.returner-social-mac-allenxtech";
 export const DEFAULT_DASHBOARD_RECOVERY_MAX_AGE_MINUTES = 120;
 export const DEFAULT_DASHBOARD_RECOVERY_SILENCE_MINUTES = 30;
 export const DEFAULT_DASHBOARD_RECOVERY_COOLDOWN_MINUTES = 30;
@@ -56,6 +59,7 @@ const NON_SILENCING_RUN_CONCLUSIONS = new Set(["cancelled", "skipped"]);
 const DASHBOARD_WINDOW_MS = 72 * 60 * 60 * 1_000;
 const DASHBOARD_MAX_FUTURE_SKEW_MS = 5 * 60 * 1_000;
 const DASHBOARD_WATERMARK_STATUSES = new Set(["current", "stale", "missing", "invalid"]);
+const RUNNER_RESTART_OUTCOMES = new Set(["pending", "accepted", "failed"]);
 const TERMINAL_EVENT_DISPOSITIONS = new Set([
   "baseline",
   "newer_attempt",
@@ -100,6 +104,12 @@ export function supervisorConfig(environment = process.env) {
     "RETURNER_SCHEDULE_RECOVERY_COOLDOWN_MINUTES",
     { minimum: 5, maximum: 12 * 60 }
   );
+  const runnerRestartCooldownMinutes = strictInteger(
+    environment.RETURNER_RUNNER_RESTART_COOLDOWN_MINUTES,
+    DEFAULT_RUNNER_RESTART_COOLDOWN_MINUTES,
+    "RETURNER_RUNNER_RESTART_COOLDOWN_MINUTES",
+    { minimum: 5, maximum: 12 * 60 }
+  );
   const dashboardRecoveryMaxAgeMinutes = strictInteger(
     environment.RETURNER_DASHBOARD_RECOVERY_MAX_AGE_MINUTES,
     DEFAULT_DASHBOARD_RECOVERY_MAX_AGE_MINUTES,
@@ -131,6 +141,10 @@ export function supervisorConfig(environment = process.env) {
     runnerName:
       clean(environment.RETURNER_RUNNER_NAME) ??
       "returner-social-mac-allenxtech",
+    runnerLaunchdLabel: validateLaunchdLabel(
+      clean(environment.RETURNER_RUNNER_LAUNCHD_LABEL) ??
+        DEFAULT_RUNNER_LAUNCHD_LABEL
+    ),
     runnerDiagDir: path.resolve(
       clean(environment.RETURNER_RUNNER_DIAG_DIR) ??
         path.join(userHome, "returner-fund-actions-runner", "_diag")
@@ -141,6 +155,12 @@ export function supervisorConfig(environment = process.env) {
     ghBin: path.resolve(clean(environment.RETURNER_GH_BIN) ?? "/opt/homebrew/bin/gh"),
     minBatteryPercent,
     maxWorkerLogBytes,
+    runnerRestartEnabled: strictBoolean(
+      environment.RETURNER_RUNNER_RESTART_ENABLED,
+      true,
+      "RETURNER_RUNNER_RESTART_ENABLED"
+    ),
+    runnerRestartCooldownMinutes,
     scheduleRecoveryEnabled: strictBoolean(
       environment.RETURNER_SCHEDULE_RECOVERY_ENABLED,
       true,
@@ -233,6 +253,84 @@ export function evaluatePowerStatus(source, minimumPercent = DEFAULT_MIN_BATTERY
   return Object.freeze({ eligible: false, reason: "power_source_unknown", percent });
 }
 
+export function evaluateMaintenanceWakeStatus(source) {
+  if (typeof source !== "string" || !source.trim()) {
+    return Object.freeze({ fullWake: false, reason: "wake_status_unavailable" });
+  }
+  const matches = [
+    ...source.matchAll(/"IOPMUserTriggeredFullWake"\s*=\s*(Yes|No)\b/g)
+  ];
+  if (matches.length !== 1) {
+    return Object.freeze({ fullWake: false, reason: "wake_status_unavailable" });
+  }
+  if (matches[0][1] === "Yes") {
+    return Object.freeze({ fullWake: true, reason: "full_wake" });
+  }
+  return Object.freeze({ fullWake: false, reason: "maintenance_dark_wake" });
+}
+
+export function evaluateRecoveryHostStatus({
+  powerSource,
+  wakeSource,
+  minimumPercent = DEFAULT_MIN_BATTERY_PERCENT
+}) {
+  const power = evaluatePowerStatus(powerSource, minimumPercent);
+  if (!power.eligible) {
+    return Object.freeze({
+      eligible: false,
+      reason: power.reason,
+      percent: power.percent,
+      powerReason: power.reason,
+      wakeReason: null
+    });
+  }
+  if (power.reason !== "healthy_battery_reserve") {
+    return Object.freeze({
+      eligible: true,
+      reason: power.reason,
+      percent: power.percent,
+      powerReason: power.reason,
+      wakeReason: null
+    });
+  }
+
+  const wake = evaluateMaintenanceWakeStatus(wakeSource);
+  if (!wake.fullWake) {
+    return Object.freeze({
+      eligible: false,
+      reason: wake.reason,
+      percent: power.percent,
+      powerReason: power.reason,
+      wakeReason: wake.reason
+    });
+  }
+  return Object.freeze({
+    eligible: true,
+    reason: power.reason,
+    percent: power.percent,
+    powerReason: power.reason,
+    wakeReason: wake.reason
+  });
+}
+
+async function readRecoveryHostStatus({ config, readPowerStatus, readWakeStatus }) {
+  const powerSource = await readPowerStatus();
+  const power = evaluatePowerStatus(powerSource, config.minBatteryPercent);
+  let wakeSource = null;
+  if (power.eligible && power.reason === "healthy_battery_reserve") {
+    try {
+      wakeSource = typeof readWakeStatus === "function" ? await readWakeStatus() : null;
+    } catch {
+      wakeSource = null;
+    }
+  }
+  return evaluateRecoveryHostStatus({
+    powerSource,
+    wakeSource,
+    minimumPercent: config.minBatteryPercent
+  });
+}
+
 export function verifyWorkflowRun({ workflow, run, event, config }) {
   if (!workflow || !run) return { valid: false, reason: "missing_workflow_or_run" };
   if (String(workflow.path ?? "") !== config.workflowPath) {
@@ -303,6 +401,7 @@ export async function evaluateLeaseLossEvent({
   config,
   github,
   readPowerStatus,
+  readWakeStatus,
   dryRun = config.dryRun
 }) {
   const workflow = await github.getWorkflow(config.workflowPath);
@@ -355,15 +454,15 @@ export async function evaluateLeaseLossEvent({
     });
   }
 
-  const power = evaluatePowerStatus(await readPowerStatus(), config.minBatteryPercent);
-  if (!power.eligible) {
-    return Object.freeze({ action: "defer", reason: power.reason, batteryPercent: power.percent });
+  const host = await readRecoveryHostStatus({ config, readPowerStatus, readWakeStatus });
+  if (!host.eligible) {
+    return Object.freeze({ action: "defer", reason: host.reason, batteryPercent: host.percent });
   }
   if (dryRun) {
     return Object.freeze({
       action: "defer",
       reason: "dry_run_would_rerun",
-      batteryPercent: power.percent
+      batteryPercent: host.percent
     });
   }
 
@@ -372,8 +471,9 @@ export async function evaluateLeaseLossEvent({
     action: "mark",
     disposition: "rerun_accepted",
     currentAttempt,
-    batteryPercent: power.percent,
-    powerReason: power.reason
+    batteryPercent: host.percent,
+    powerReason: host.powerReason,
+    wakeReason: host.wakeReason
   });
 }
 
@@ -401,15 +501,162 @@ export function verifyRecoveryRunner({ runners, config }) {
   if (matching.length !== 1) {
     return { valid: false, reason: "runner_not_exact", matching: matching.length };
   }
-  if (String(matching[0].status ?? "") !== "online") {
-    return { valid: false, reason: "runner_offline" };
+  const runner = matching[0];
+  const runnerId = String(runner?.id ?? "");
+  if (!POSITIVE_INTEGER.test(runnerId)) {
+    return { valid: false, reason: "runner_id_invalid" };
+  }
+  const status = String(runner?.status ?? "");
+  if (status === "offline") {
+    return {
+      valid: false,
+      reason: "runner_offline",
+      runnerId,
+      busy: runner.busy === true
+    };
+  }
+  if (status !== "online") {
+    return {
+      valid: false,
+      reason: "runner_status_unrecognized",
+      runnerId,
+      status,
+      busy: runner.busy === true
+    };
   }
   return {
     valid: true,
     reason: "verified",
-    runnerId: String(matching[0].id ?? ""),
-    busy: matching[0].busy === true
+    runnerId,
+    busy: runner.busy === true
   };
+}
+
+export async function evaluateRunnerRestart({
+  config,
+  github,
+  state,
+  readPowerStatus,
+  readWakeStatus,
+  now = new Date(),
+  dryRun = config.dryRun
+}) {
+  if (!(now instanceof Date) || !Number.isFinite(now.getTime())) {
+    throw new Error("Runner restart now must be a valid Date.");
+  }
+  if (
+    !Number.isSafeInteger(config.runnerRestartCooldownMinutes) ||
+    config.runnerRestartCooldownMinutes < 5 ||
+    config.runnerRestartCooldownMinutes > 12 * 60
+  ) {
+    throw new Error("Runner restart cooldown must be between 5 and 720 minutes.");
+  }
+  const launchdLabel = validateLaunchdLabel(config.runnerLaunchdLabel);
+  const runnerVerification = verifyRecoveryRunner({
+    runners: await github.getRunners({ fresh: true }),
+    config
+  });
+  if (runnerVerification.valid) {
+    return Object.freeze({
+      action: "current",
+      reason: runnerVerification.busy ? "runner_online_busy" : "runner_online_idle",
+      runnerId: runnerVerification.runnerId,
+      runnerBusy: runnerVerification.busy
+    });
+  }
+  if (runnerVerification.reason !== "runner_offline") {
+    return Object.freeze({
+      action: "defer",
+      reason: runnerVerification.reason,
+      matchingRunners: runnerVerification.matching,
+      runnerId: runnerVerification.runnerId,
+      runnerStatus: runnerVerification.status
+    });
+  }
+  if (runnerVerification.busy) {
+    return Object.freeze({
+      action: "defer",
+      reason: "runner_offline_busy_inconsistent",
+      runnerId: runnerVerification.runnerId
+    });
+  }
+
+  const lastAttempt = state?.runnerRestartAttempt ?? null;
+  if (lastAttempt?.launchdLabel === launchdLabel) {
+    const attemptedAtMs = Date.parse(lastAttempt.attemptedAt ?? "");
+    if (!Number.isFinite(attemptedAtMs)) {
+      return Object.freeze({ action: "defer", reason: "invalid_runner_restart_state" });
+    }
+    const cooldownAgeMs = now.getTime() - attemptedAtMs;
+    if (cooldownAgeMs < 0) {
+      return Object.freeze({ action: "defer", reason: "runner_restart_state_in_future" });
+    }
+    if (cooldownAgeMs < config.runnerRestartCooldownMinutes * 60_000) {
+      return Object.freeze({
+        action: "defer",
+        reason: "runner_restart_cooldown",
+        runnerId: runnerVerification.runnerId,
+        lastAttemptedAt: new Date(attemptedAtMs).toISOString(),
+        lastOutcome: lastAttempt.outcome
+      });
+    }
+  }
+
+  const host = await readRecoveryHostStatus({ config, readPowerStatus, readWakeStatus });
+  if (!host.eligible) {
+    return Object.freeze({
+      action: "defer",
+      reason: host.reason,
+      runnerId: runnerVerification.runnerId,
+      batteryPercent: host.percent,
+      powerReason: host.powerReason,
+      wakeReason: host.wakeReason
+    });
+  }
+  if (dryRun) {
+    return Object.freeze({
+      action: "defer",
+      reason: "dry_run_would_restart_runner",
+      runnerId: runnerVerification.runnerId,
+      batteryPercent: host.percent,
+      powerReason: host.powerReason,
+      wakeReason: host.wakeReason
+    });
+  }
+  return Object.freeze({
+    action: "kickstart",
+    reason: "runner_offline",
+    runnerId: runnerVerification.runnerId,
+    launchdLabel,
+    batteryPercent: host.percent,
+    powerReason: host.powerReason,
+    wakeReason: host.wakeReason
+  });
+}
+
+export async function kickstartRunnerLaunchAgent({
+  label,
+  uid = process.getuid?.(),
+  execute = execFile
+}) {
+  const launchdLabel = validateLaunchdLabel(label);
+  if (!Number.isSafeInteger(uid) || uid <= 0) {
+    throw new Error("Runner kickstart requires a non-root macOS user ID.");
+  }
+  const { stdout } = await execute(
+    "/bin/launchctl",
+    ["kickstart", "-p", `gui/${uid}/${launchdLabel}`],
+    { timeout: 10_000, maxBuffer: 1024 * 1024, encoding: "utf8" }
+  );
+  const pidSource = String(stdout ?? "").trim();
+  if (!POSITIVE_INTEGER.test(pidSource)) {
+    throw new Error("Runner kickstart did not return one positive process ID.");
+  }
+  const pid = Number(pidSource);
+  if (!Number.isSafeInteger(pid) || pid <= 0) {
+    throw new Error("Runner kickstart returned an invalid process ID.");
+  }
+  return Object.freeze({ pid });
 }
 
 export async function readDashboardPublicationWatermark({
@@ -520,6 +767,7 @@ export async function evaluateDashboardRecovery({
   github,
   state,
   readPowerStatus,
+  readWakeStatus,
   now = new Date(),
   dryRun = config.dryRun
 }) {
@@ -644,12 +892,12 @@ export async function evaluateDashboardRecovery({
     });
   }
 
-  const power = evaluatePowerStatus(await readPowerStatus(), config.minBatteryPercent);
-  if (!power.eligible) {
+  const host = await readRecoveryHostStatus({ config, readPowerStatus, readWakeStatus });
+  if (!host.eligible) {
     return Object.freeze({
       action: "defer",
-      reason: power.reason,
-      batteryPercent: power.percent,
+      reason: host.reason,
+      batteryPercent: host.percent,
       watermarkStatus: watermark.status
     });
   }
@@ -660,7 +908,7 @@ export async function evaluateDashboardRecovery({
       mainSha,
       watermarkStatus: watermark.status,
       publicationWatermark: watermark.generatedAt,
-      batteryPercent: power.percent
+      batteryPercent: host.percent
     });
   }
 
@@ -672,8 +920,9 @@ export async function evaluateDashboardRecovery({
     watermarkStatus: watermark.status,
     publicationWatermark: watermark.generatedAt,
     ageMinutes: watermark.ageMinutes,
-    batteryPercent: power.percent,
-    powerReason: power.reason,
+    batteryPercent: host.percent,
+    powerReason: host.powerReason,
+    wakeReason: host.wakeReason,
     runnerId: runnerVerification.runnerId
   });
 }
@@ -683,6 +932,7 @@ export async function evaluateScheduleRecovery({
   github,
   state,
   readPowerStatus,
+  readWakeStatus,
   now = new Date(),
   dryRun = config.dryRun
 }) {
@@ -771,12 +1021,12 @@ export async function evaluateScheduleRecovery({
     });
   }
 
-  const power = evaluatePowerStatus(await readPowerStatus(), config.minBatteryPercent);
-  if (!power.eligible) {
+  const host = await readRecoveryHostStatus({ config, readPowerStatus, readWakeStatus });
+  if (!host.eligible) {
     return Object.freeze({
       action: "defer",
-      reason: power.reason,
-      batteryPercent: power.percent
+      reason: host.reason,
+      batteryPercent: host.percent
     });
   }
 
@@ -817,7 +1067,7 @@ export async function evaluateScheduleRecovery({
       mainSha,
       slotKey: decision.slotKey,
       watermarkStatus: decision.watermarkStatus,
-      batteryPercent: power.percent
+      batteryPercent: host.percent
     });
   }
 
@@ -830,8 +1080,9 @@ export async function evaluateScheduleRecovery({
     scheduledAt: decision.scheduledAt,
     watermarkStatus: decision.watermarkStatus,
     publicationWatermark: decision.publicationWatermark,
-    batteryPercent: power.percent,
-    powerReason: power.reason,
+    batteryPercent: host.percent,
+    powerReason: host.powerReason,
+    wakeReason: host.wakeReason,
     runnerId: runnerVerification.runnerId,
     runnerBusy: runnerVerification.busy
   });
@@ -841,6 +1092,8 @@ export async function runSupervisor({
   config = supervisorConfig(),
   github = createGitHubClient(config),
   readPowerStatus = readHostPowerStatus,
+  readWakeStatus = readHostWakeStatus,
+  kickstartRunner = ({ label }) => kickstartRunnerLaunchAgent({ label }),
   now = () => new Date()
 } = {}) {
   await mkdir(config.stateDir, { recursive: true, mode: 0o700 });
@@ -883,18 +1136,106 @@ export async function runSupervisor({
         deferred: 0
       };
     }
+
+    let runnerRecovery = { action: "disabled", reason: "runner_restart_disabled" };
+    let runnerRecoveryBlocksMutations = false;
+    if (config.runnerRestartEnabled) {
+      try {
+        runnerRecovery = await evaluateRunnerRestart({
+          config,
+          github,
+          state,
+          readPowerStatus,
+          readWakeStatus,
+          now: now()
+        });
+        if (runnerRecovery.action === "kickstart") {
+          const attemptedAt = now().toISOString();
+          state.runnerRestartAttempt = {
+            attemptedAt,
+            launchdLabel: runnerRecovery.launchdLabel,
+            runnerId: runnerRecovery.runnerId,
+            outcome: "pending",
+            pid: null
+          };
+          // Persist the cooldown before the external side effect. A crash after
+          // launchctl accepts the request must not create a five-minute restart loop.
+          await writeSupervisorState(config.statePath, state, now());
+          try {
+            const restart = await kickstartRunner({
+              label: runnerRecovery.launchdLabel,
+              runnerId: runnerRecovery.runnerId
+            });
+            if (!Number.isSafeInteger(restart?.pid) || restart.pid <= 0) {
+              throw new Error("Runner kickstart result did not contain a positive process ID.");
+            }
+            state.runnerRestartAttempt = {
+              ...state.runnerRestartAttempt,
+              outcome: "accepted",
+              pid: restart.pid
+            };
+            runnerRecovery = Object.freeze({
+              ...runnerRecovery,
+              reason: "runner_restart_accepted",
+              attemptedAt,
+              pid: restart.pid
+            });
+            logEvent("runner_restart_accepted", withoutUndefined(runnerRecovery));
+          } catch (error) {
+            state.runnerRestartAttempt = {
+              ...state.runnerRestartAttempt,
+              outcome: "failed",
+              pid: null
+            };
+            runnerRecovery = Object.freeze({
+              action: "defer",
+              reason: "runner_restart_failed",
+              runnerId: state.runnerRestartAttempt.runnerId,
+              launchdLabel: state.runnerRestartAttempt.launchdLabel,
+              attemptedAt
+            });
+            logEvent("runner_restart_failed", {
+              ...withoutUndefined(runnerRecovery),
+              message: safeErrorMessage(error)
+            });
+          }
+          await writeSupervisorState(config.statePath, state, now());
+        } else {
+          logEvent("runner_restart_skipped", withoutUndefined(runnerRecovery));
+        }
+        runnerRecoveryBlocksMutations = runnerRecovery.action !== "current";
+      } catch (error) {
+        runnerRecovery = { action: "defer", reason: "runner_restart_evaluation_error" };
+        runnerRecoveryBlocksMutations = true;
+        logEvent("runner_restart_evaluation_error", { message: safeErrorMessage(error) });
+      }
+    }
+
     let marked = 0;
     let deferred = 0;
     let rerunAccepted = false;
     for (const event of scan.candidates) {
       if (state.handledEvents[event.eventId]) continue;
+      if (runnerRecoveryBlocksMutations) {
+        deferred += 1;
+        logEvent("deferred", {
+          eventId: event.eventId,
+          runId: event.runId,
+          runAttempt: event.runAttempt,
+          action: "defer",
+          reason: "runner_recovery_required",
+          runnerRecoveryReason: runnerRecovery.reason
+        });
+        continue;
+      }
       let decision;
       try {
         decision = await evaluateLeaseLossEvent({
           event,
           config,
           github,
-          readPowerStatus
+          readPowerStatus,
+          readWakeStatus
         });
       } catch (error) {
         deferred += 1;
@@ -942,13 +1283,20 @@ export async function runSupervisor({
     }
 
     let recovery = { action: "disabled", reason: "schedule_recovery_disabled" };
-    if (config.scheduleRecoveryEnabled && !rerunAccepted) {
+    if (runnerRecoveryBlocksMutations) {
+      recovery = {
+        action: "defer",
+        reason: "runner_recovery_required",
+        runnerRecoveryReason: runnerRecovery.reason
+      };
+    } else if (config.scheduleRecoveryEnabled && !rerunAccepted) {
       try {
         recovery = await evaluateScheduleRecovery({
           config,
           github,
           state,
           readPowerStatus,
+          readWakeStatus,
           now: now()
         });
         if (recovery.action === "dispatch") {
@@ -976,13 +1324,20 @@ export async function runSupervisor({
       reason: "dashboard_recovery_disabled"
     };
     const ingestionRecoveryAccepted = rerunAccepted || recovery.action === "dispatch";
-    if (config.dashboardRecoveryEnabled && !ingestionRecoveryAccepted) {
+    if (runnerRecoveryBlocksMutations) {
+      dashboardRecovery = {
+        action: "defer",
+        reason: "runner_recovery_required",
+        runnerRecoveryReason: runnerRecovery.reason
+      };
+    } else if (config.dashboardRecoveryEnabled && !ingestionRecoveryAccepted) {
       try {
         dashboardRecovery = await evaluateDashboardRecovery({
           config,
           github,
           state,
           readPowerStatus,
+          readWakeStatus,
           now: now()
         });
         if (dashboardRecovery.action === "dispatch") {
@@ -1016,6 +1371,7 @@ export async function runSupervisor({
       candidates: scan.candidates.length,
       marked,
       deferred,
+      runnerRecovery,
       recovery,
       dashboardRecovery
     };
@@ -1250,6 +1606,7 @@ export async function loadSupervisorState(statePath) {
         schemaVersion: SUPERVISOR_SCHEMA_VERSION,
         workerLogs: {},
         handledEvents: {},
+        runnerRestartAttempt: null,
         recoveryDispatch: null,
         dashboardRecoveryDispatch: null
       };
@@ -1268,6 +1625,22 @@ export async function loadSupervisorState(statePath) {
   if (!plainObject(parsed.workerLogs) || !plainObject(parsed.handledEvents)) {
     throw new Error("Lease supervisor state maps are malformed.");
   }
+  if (parsed.runnerRestartAttempt !== undefined && parsed.runnerRestartAttempt !== null) {
+    const attempt = parsed.runnerRestartAttempt;
+    if (
+      !plainObject(attempt) ||
+      !strictUtcInstantOrNull(attempt.attemptedAt) ||
+      !validLaunchdLabel(attempt.launchdLabel) ||
+      typeof attempt.runnerId !== "string" ||
+      !POSITIVE_INTEGER.test(attempt.runnerId) ||
+      !RUNNER_RESTART_OUTCOMES.has(attempt.outcome) ||
+      (attempt.pid !== null &&
+        (!Number.isSafeInteger(attempt.pid) || attempt.pid <= 0))
+    ) {
+      throw new Error("Lease supervisor runner restart state is malformed.");
+    }
+  }
+  parsed.runnerRestartAttempt ??= null;
   if (parsed.recoveryDispatch !== undefined && parsed.recoveryDispatch !== null) {
     const recovery = parsed.recoveryDispatch;
     if (
@@ -1310,6 +1683,7 @@ export async function writeSupervisorState(statePath, state, timestamp = new Dat
     updatedAt: timestamp.toISOString(),
     workerLogs: state.workerLogs,
     handledEvents: state.handledEvents,
+    runnerRestartAttempt: state.runnerRestartAttempt ?? null,
     recoveryDispatch: state.recoveryDispatch ?? null,
     dashboardRecoveryDispatch: state.dashboardRecoveryDispatch ?? null
   };
@@ -1343,6 +1717,15 @@ async function readHostPowerStatus() {
     maxBuffer: 1024 * 1024,
     encoding: "utf8"
   });
+  return stdout;
+}
+
+export async function readHostWakeStatus({ execute = execFile } = {}) {
+  const { stdout } = await execute(
+    "/usr/sbin/ioreg",
+    ["-r", "-k", "IOPMUserTriggeredFullWake", "-d", "4"],
+    { timeout: 10_000, maxBuffer: 1024 * 1024, encoding: "utf8" }
+  );
   return stdout;
 }
 
@@ -1430,6 +1813,18 @@ function encodeRepositoryPath(relativePath) {
 function validateRepository(value) {
   if (!/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(value)) {
     throw new Error("RETURNER_REPOSITORY must be an owner/repository pair.");
+  }
+  return value;
+}
+
+function validLaunchdLabel(value) {
+  return typeof value === "string" &&
+    /^[A-Za-z0-9][A-Za-z0-9._-]{0,254}$/.test(value);
+}
+
+function validateLaunchdLabel(value) {
+  if (!validLaunchdLabel(value)) {
+    throw new Error("RETURNER_RUNNER_LAUNCHD_LABEL must be a safe launchd service label.");
   }
   return value;
 }

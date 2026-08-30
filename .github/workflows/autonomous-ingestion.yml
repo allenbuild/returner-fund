@@ -281,8 +281,130 @@ jobs:
       host_ready: ${{ steps.host_preflight.outputs.ready }}
       host_defer_reason: ${{ steps.host_preflight.outputs.reason }}
     steps:
+      - name: Preflight autonomous ingestion host
+        id: host_preflight
+        timeout-minutes: 1
+        env:
+          AUTHENTICATED_SOCIAL_REPLAY: ${{ inputs.authenticated_backfill || false }}
+          AUTONOMOUS_MIN_BATTERY_PERCENT: "30"
+          CANDIDATE_TRIGGER: ${{ needs.resolve.outputs.trigger }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+
+          {
+            echo "ready=false"
+            echo "reason=power_status_unavailable"
+          } >> "$GITHUB_OUTPUT"
+
+          POWER_STATUS="$(/usr/bin/pmset -g batt)"
+          BATTERY_PERCENT="$(sed -nE 's/.*[[:space:]]([0-9]{1,3})%;.*/\1/p' <<< "$POWER_STATUS" | head -n 1)"
+          if [[ "${POWER_STATUS%%$'\n'*}" != *"'AC Power'"* ]]; then
+            if [[ ! "$BATTERY_PERCENT" =~ ^[0-9]+$ ]]; then
+              if [ "$AUTHENTICATED_SOCIAL_REPLAY" = "true" ]; then
+                echo "::error title=Authenticated replay power state unavailable::The battery reserve could not be verified. Retry this manual replay after confirming host power."
+                exit 1
+              fi
+              echo "::warning title=Runner power state unavailable::The battery reserve could not be verified. This slot remains stale and the host supervisor will retry it."
+              exit 0
+            fi
+            if [ "$BATTERY_PERCENT" -lt "$AUTONOMOUS_MIN_BATTERY_PERCENT" ]; then
+              echo "reason=battery_below_start_reserve" >> "$GITHUB_OUTPUT"
+              if [ "$AUTHENTICATED_SOCIAL_REPLAY" = "true" ]; then
+                echo "::error title=Authenticated replay battery reserve is low::Battery is ${BATTERY_PERCENT}%. Retry this manual replay at ${AUTONOMOUS_MIN_BATTERY_PERCENT}% or on AC."
+                exit 1
+              fi
+              echo "::warning title=Autonomous ingestion safely deferred::Battery is ${BATTERY_PERCENT}%; the slot remains stale and will retry automatically at ${AUTONOMOUS_MIN_BATTERY_PERCENT}% or on AC."
+              exit 0
+            fi
+
+            USER_WAKE_STATE="$(/usr/sbin/ioreg -r -k IOPMUserTriggeredFullWake -d 4 2>/dev/null || true)"
+            WAKE_MATCH_COUNT="$(grep -Eo '"IOPMUserTriggeredFullWake"[[:space:]]*=[[:space:]]*(Yes|No)([[:space:]]|$)' <<< "$USER_WAKE_STATE" | wc -l | tr -d '[:space:]' || true)"
+            FULL_WAKE_MATCH_COUNT="$(grep -Eo '"IOPMUserTriggeredFullWake"[[:space:]]*=[[:space:]]*Yes([[:space:]]|$)' <<< "$USER_WAKE_STATE" | wc -l | tr -d '[:space:]' || true)"
+            if [ "$WAKE_MATCH_COUNT" -ne 1 ] || [ "$FULL_WAKE_MATCH_COUNT" -ne 1 ]; then
+              echo "reason=battery_full_wake_unverified" >> "$GITHUB_OUTPUT"
+              if [ "$AUTHENTICATED_SOCIAL_REPLAY" = "true" ]; then
+                echo "::error title=Authenticated replay requires a full wake::The Mac is on battery without one verified user-triggered full wake. Retry after explicitly waking the host or connecting AC."
+                exit 1
+              fi
+              echo "::warning title=Autonomous ingestion safely deferred::The Mac is on battery without one verified user-triggered full wake. The slot remains stale and will retry automatically after a full wake or on AC."
+              exit 0
+            fi
+            echo "::warning title=Runner using healthy battery reserve::Battery is ${BATTERY_PERCENT}% and a full wake is verified; autonomous ingestion will proceed under a job-scoped sleep assertion."
+          elif [[ "$BATTERY_PERCENT" =~ ^[0-9]+$ ]] && [ "$BATTERY_PERCENT" -lt 20 ]; then
+            echo "::warning title=Runner battery reserve is low::The Mac is connected to AC but reports ${BATTERY_PERCENT}% battery. Keep power connected for this ingestion."
+          fi
+
+          # A self-hosted job can be assigned after its workflow has spent a
+          # long time queued, or resume after GitHub has invalidated a job that
+          # slept offline. Prove the ephemeral Actions token is still usable
+          # before checkout or expensive setup. The credential exists only in
+          # this one git process; it is never written to repository or user
+          # configuration. Use the canonical repository URL because this gate
+          # intentionally runs before actions/checkout creates origin.
+          if [ -z "${GITHUB_TOKEN:-}" ]; then
+            echo "reason=publication_token_unusable" >> "$GITHUB_OUTPUT"
+            echo "::error title=Publication credential unavailable::The accepted ${CANDIDATE_TRIGGER:-unknown} candidate cannot publish without a GitHub token. Scheduled slots remain durable for a fresh wakeup; manual replay must be explicitly retried."
+            exit 1
+          fi
+          echo "::add-mask::$GITHUB_TOKEN"
+          AUTH_PAYLOAD="$(printf 'x-access-token:%s' "$GITHUB_TOKEN")"
+          AUTH_BASE64="$(printf '%s' "$AUTH_PAYLOAD" | base64 | tr -d '\r\n')"
+          echo "::add-mask::$AUTH_BASE64"
+          PUBLICATION_EXTRAHEADER="AUTHORIZATION: basic $AUTH_BASE64"
+          echo "::add-mask::$PUBLICATION_EXTRAHEADER"
+          PUBLICATION_REMOTE="https://github.com/${GITHUB_REPOSITORY}.git"
+          if ! GIT_CONFIG_COUNT=3 \
+            GIT_CONFIG_KEY_0="http.https://github.com/.extraheader" \
+            GIT_CONFIG_VALUE_0="$PUBLICATION_EXTRAHEADER" \
+            GIT_CONFIG_KEY_1="core.hooksPath" \
+            GIT_CONFIG_VALUE_1="/dev/null" \
+            GIT_CONFIG_KEY_2="credential.helper" \
+            GIT_CONFIG_VALUE_2="" \
+            GIT_CONFIG_NOSYSTEM=1 \
+            GIT_CONFIG_GLOBAL=/dev/null \
+            GIT_TERMINAL_PROMPT=0 \
+            GIT_TRACE=0 \
+            GIT_TRACE_CURL=0 \
+            GIT_CURL_VERBOSE=0 \
+            GIT_TRACE_REDACT=1 \
+            git ls-remote --exit-code "$PUBLICATION_REMOTE" refs/heads/main >/dev/null; then
+            unset GITHUB_TOKEN AUTH_PAYLOAD AUTH_BASE64 PUBLICATION_EXTRAHEADER PUBLICATION_REMOTE
+            echo "reason=publication_token_unusable" >> "$GITHUB_OUTPUT"
+            echo "::error title=Publication credential rejected::GitHub rejected this queued job's ephemeral token. Scheduled slots remain durable for a fresh wakeup; manual replay must be explicitly retried."
+            exit 1
+          fi
+          unset GITHUB_TOKEN AUTH_PAYLOAD AUTH_BASE64 PUBLICATION_EXTRAHEADER PUBLICATION_REMOTE
+
+          POWER_ASSERTIONS="$(/usr/bin/pmset -g assertions 2>/dev/null || true)"
+          if ! grep -Eq '^[[:space:]]*PreventSystemSleep[[:space:]]+1([[:space:]]|$)' <<< "$POWER_ASSERTIONS"; then
+            echo "::warning title=Durable sleep assertion is missing::The job-scoped assertion will protect this run; reinstall the host supervisor to restore maintenance-wake coverage."
+          fi
+
+          # Public collection may proceed from an AC maintenance wake because
+          # the durable AC-only assertion can protect it. All battery work
+          # requires one verified full wake. Authenticated browser replay remains
+          # interactive-only and never manufactures user presence.
+          if [ "$AUTHENTICATED_SOCIAL_REPLAY" = "true" ]; then
+            USER_WAKE_STATE="$(/usr/sbin/ioreg -r -k IOPMUserTriggeredFullWake -d 4 2>/dev/null || true)"
+            WAKE_MATCH_COUNT="$(grep -Eo '"IOPMUserTriggeredFullWake"[[:space:]]*=[[:space:]]*(Yes|No)([[:space:]]|$)' <<< "$USER_WAKE_STATE" | wc -l | tr -d '[:space:]' || true)"
+            FULL_WAKE_MATCH_COUNT="$(grep -Eo '"IOPMUserTriggeredFullWake"[[:space:]]*=[[:space:]]*Yes([[:space:]]|$)' <<< "$USER_WAKE_STATE" | wc -l | tr -d '[:space:]' || true)"
+            if [ "$WAKE_MATCH_COUNT" -ne 1 ] || [ "$FULL_WAKE_MATCH_COUNT" -ne 1 ]; then
+              echo "reason=authenticated_replay_user_wake_missing" >> "$GITHUB_OUTPUT"
+              echo "::error title=Authenticated replay requires a user wake::The Mac was not explicitly woken by a user. Retry this manual replay after waking the host; public scheduled ingestion remains autonomous."
+              exit 1
+            fi
+          fi
+
+          {
+            echo "ready=true"
+            echo "reason=ready"
+          } >> "$GITHUB_OUTPUT"
+
       - name: Check out repository
         id: primary_checkout
+        if: steps.host_preflight.outputs.ready == 'true'
         continue-on-error: true
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
@@ -291,7 +413,7 @@ jobs:
           persist-credentials: false
 
       - name: Retry repository checkout after transient transport failure
-        if: steps.primary_checkout.outcome == 'failure'
+        if: steps.host_preflight.outputs.ready == 'true' && steps.primary_checkout.outcome == 'failure'
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           ref: ${{ needs.resolve.outputs.source_sha }}
@@ -300,6 +422,7 @@ jobs:
 
       - name: Record executed checkout
         id: checkout_state
+        if: steps.host_preflight.outputs.ready == 'true'
         env:
           SOURCE_SHA: ${{ needs.resolve.outputs.source_sha }}
         run: |
@@ -313,11 +436,13 @@ jobs:
           echo "executed_sha=$EXECUTED_SHA" >> "$GITHUB_OUTPUT"
 
       - name: Use Node.js
+        if: steps.host_preflight.outputs.ready == 'true'
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 24.14.0
 
       - name: Require isolated publication credential
+        if: steps.host_preflight.outputs.ready == 'true'
         env:
           CANDIDATE_TRIGGER: ${{ needs.resolve.outputs.trigger }}
           CANDIDATE_SLOT_KEY: ${{ needs.resolve.outputs.slot_key }}
@@ -378,6 +503,7 @@ jobs:
 
       - name: Revalidate serialized publication candidate
         id: revalidate
+        if: steps.host_preflight.outputs.ready == 'true'
         env:
           CANDIDATE_TRIGGER: ${{ needs.resolve.outputs.trigger }}
           CANDIDATE_SLOT_KEY: ${{ needs.resolve.outputs.slot_key }}
@@ -423,109 +549,6 @@ jobs:
           fi
           echo "remote_main_commit=$REMOTE_MAIN_COMMIT" >> "$GITHUB_OUTPUT"
           node scripts/lib/ingestion-schedule.mjs
-
-      - name: Preflight autonomous ingestion host
-        id: host_preflight
-        if: steps.revalidate.outputs.should_run == 'true'
-        timeout-minutes: 1
-        env:
-          AUTHENTICATED_SOCIAL_REPLAY: ${{ inputs.authenticated_backfill || false }}
-          AUTONOMOUS_MIN_BATTERY_PERCENT: "30"
-          CANDIDATE_TRIGGER: ${{ needs.resolve.outputs.trigger }}
-          GITHUB_TOKEN: ${{ github.token }}
-        run: |
-          set -euo pipefail
-
-          {
-            echo "ready=false"
-            echo "reason=power_status_unavailable"
-          } >> "$GITHUB_OUTPUT"
-
-          POWER_STATUS="$(/usr/bin/pmset -g batt)"
-          BATTERY_PERCENT="$(sed -nE 's/.*[[:space:]]([0-9]{1,3})%;.*/\1/p' <<< "$POWER_STATUS" | head -n 1)"
-          if [[ "${POWER_STATUS%%$'\n'*}" != *"'AC Power'"* ]]; then
-            if [[ ! "$BATTERY_PERCENT" =~ ^[0-9]+$ ]]; then
-              if [ "$AUTHENTICATED_SOCIAL_REPLAY" = "true" ]; then
-                echo "::error title=Authenticated replay power state unavailable::The battery reserve could not be verified. Retry this manual replay after confirming host power."
-                exit 1
-              fi
-              echo "::warning title=Runner power state unavailable::The battery reserve could not be verified. This slot remains stale and the host supervisor will retry it."
-              exit 0
-            fi
-            if [ "$BATTERY_PERCENT" -lt "$AUTONOMOUS_MIN_BATTERY_PERCENT" ]; then
-              echo "reason=battery_below_start_reserve" >> "$GITHUB_OUTPUT"
-              if [ "$AUTHENTICATED_SOCIAL_REPLAY" = "true" ]; then
-                echo "::error title=Authenticated replay battery reserve is low::Battery is ${BATTERY_PERCENT}%. Retry this manual replay at ${AUTONOMOUS_MIN_BATTERY_PERCENT}% or on AC."
-                exit 1
-              fi
-              echo "::warning title=Autonomous ingestion safely deferred::Battery is ${BATTERY_PERCENT}%; the slot remains stale and will retry automatically at ${AUTONOMOUS_MIN_BATTERY_PERCENT}% or on AC."
-              exit 0
-            fi
-            echo "::warning title=Runner using healthy battery reserve::Battery is ${BATTERY_PERCENT}%; autonomous ingestion will proceed under a job-scoped sleep assertion."
-          elif [[ "$BATTERY_PERCENT" =~ ^[0-9]+$ ]] && [ "$BATTERY_PERCENT" -lt 20 ]; then
-            echo "::warning title=Runner battery reserve is low::The Mac is connected to AC but reports ${BATTERY_PERCENT}% battery. Keep power connected for this ingestion."
-          fi
-
-          # A self-hosted job can be assigned after its workflow has spent a
-          # long time queued, or resume after GitHub has invalidated a job that
-          # slept offline. Prove the ephemeral Actions token is still usable
-          # before expensive setup. The credential exists only in this one git
-          # process; it is never written to repository or user configuration.
-          if [ -z "${GITHUB_TOKEN:-}" ]; then
-            echo "reason=publication_token_unusable" >> "$GITHUB_OUTPUT"
-            echo "::error title=Publication credential unavailable::The accepted ${CANDIDATE_TRIGGER:-unknown} candidate cannot publish without a GitHub token. Scheduled slots remain durable for a fresh wakeup; manual replay must be explicitly retried."
-            exit 1
-          fi
-          echo "::add-mask::$GITHUB_TOKEN"
-          AUTH_PAYLOAD="$(printf 'x-access-token:%s' "$GITHUB_TOKEN")"
-          AUTH_BASE64="$(printf '%s' "$AUTH_PAYLOAD" | base64 | tr -d '\r\n')"
-          echo "::add-mask::$AUTH_BASE64"
-          PUBLICATION_EXTRAHEADER="AUTHORIZATION: basic $AUTH_BASE64"
-          echo "::add-mask::$PUBLICATION_EXTRAHEADER"
-          if ! GIT_CONFIG_COUNT=3 \
-            GIT_CONFIG_KEY_0="http.https://github.com/.extraheader" \
-            GIT_CONFIG_VALUE_0="$PUBLICATION_EXTRAHEADER" \
-            GIT_CONFIG_KEY_1="core.hooksPath" \
-            GIT_CONFIG_VALUE_1="/dev/null" \
-            GIT_CONFIG_KEY_2="credential.helper" \
-            GIT_CONFIG_VALUE_2="" \
-            GIT_CONFIG_NOSYSTEM=1 \
-            GIT_CONFIG_GLOBAL=/dev/null \
-            GIT_TERMINAL_PROMPT=0 \
-            GIT_TRACE=0 \
-            GIT_TRACE_CURL=0 \
-            GIT_CURL_VERBOSE=0 \
-            GIT_TRACE_REDACT=1 \
-            git ls-remote --exit-code origin refs/heads/main >/dev/null; then
-            unset GITHUB_TOKEN AUTH_PAYLOAD AUTH_BASE64 PUBLICATION_EXTRAHEADER
-            echo "reason=publication_token_unusable" >> "$GITHUB_OUTPUT"
-            echo "::error title=Publication credential rejected::GitHub rejected this queued job's ephemeral token. Scheduled slots remain durable for a fresh wakeup; manual replay must be explicitly retried."
-            exit 1
-          fi
-          unset GITHUB_TOKEN AUTH_PAYLOAD AUTH_BASE64 PUBLICATION_EXTRAHEADER
-
-          POWER_ASSERTIONS="$(/usr/bin/pmset -g assertions 2>/dev/null || true)"
-          if ! grep -Eq '^[[:space:]]*PreventSystemSleep[[:space:]]+1([[:space:]]|$)' <<< "$POWER_ASSERTIONS"; then
-            echo "::warning title=Durable sleep assertion is missing::The job-scoped assertion will protect this run; reinstall the host supervisor to restore maintenance-wake coverage."
-          fi
-
-          # Public collectors are safe in a maintenance wake with verified
-          # reserve. Authenticated browser replay remains interactive-only and
-          # fails visibly instead of claiming an automatic retry that does not
-          # exist; it never manufactures user presence with synthetic activity.
-          if [ "$AUTHENTICATED_SOCIAL_REPLAY" = "true" ]; then
-            USER_WAKE_STATE="$(/usr/sbin/ioreg -r -k IOPMUserTriggeredFullWake -d 4 2>/dev/null || true)"
-            if ! grep -q '"IOPMUserTriggeredFullWake" = Yes' <<< "$USER_WAKE_STATE"; then
-              echo "reason=authenticated_replay_user_wake_missing" >> "$GITHUB_OUTPUT"
-              echo "::error title=Authenticated replay requires a user wake::The Mac was not explicitly woken by a user. Retry this manual replay after waking the host; public scheduled ingestion remains autonomous."
-              exit 1
-            fi
-          fi
-
-          {
-            echo "ready=true"
-            echo "reason=ready"
-          } >> "$GITHUB_OUTPUT"
 
       - name: Install dependencies
         if: steps.revalidate.outputs.should_run == 'true' && steps.host_preflight.outputs.ready == 'true'
@@ -635,7 +658,7 @@ jobs:
             --authenticated-social-replay="$AUTHENTICATED_SOCIAL_REPLAY"
 
       - name: Verify publication credential isolation
-        if: always()
+        if: always() && steps.host_preflight.outputs.ready == 'true'
         run: |
           set -euo pipefail
           if git config --local --get-all http.https://github.com/.extraheader | grep -q .; then

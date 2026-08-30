@@ -111,7 +111,15 @@ jobs:
               echo "::warning title=Dashboard refresh safely deferred::Battery is ${BATTERY_PERCENT}%; the stale dashboard will retry at ${DASHBOARD_MIN_BATTERY_PERCENT}% or on AC."
               exit 0
             fi
-            echo "::warning title=Dashboard using healthy battery reserve::Battery is ${BATTERY_PERCENT}%; the short refresh will run under job-scoped sleep assertions."
+            USER_WAKE_STATE="$(/usr/sbin/ioreg -r -k IOPMUserTriggeredFullWake -d 4 2>/dev/null || true)"
+            WAKE_MATCH_COUNT="$(grep -Eo '"IOPMUserTriggeredFullWake"[[:space:]]*=[[:space:]]*(Yes|No)([[:space:]]|$)' <<< "$USER_WAKE_STATE" | wc -l | tr -d '[:space:]' || true)"
+            FULL_WAKE_MATCH_COUNT="$(grep -Eo '"IOPMUserTriggeredFullWake"[[:space:]]*=[[:space:]]*Yes([[:space:]]|$)' <<< "$USER_WAKE_STATE" | wc -l | tr -d '[:space:]' || true)"
+            if [ "$WAKE_MATCH_COUNT" -ne 1 ] || [ "$FULL_WAKE_MATCH_COUNT" -ne 1 ]; then
+              echo "reason=battery_full_wake_unverified" >> "$GITHUB_OUTPUT"
+              echo "::warning title=Dashboard refresh safely deferred::The Mac is on battery without one verified user-triggered full wake; the committed watermark remains stale and will retry automatically."
+              exit 0
+            fi
+            echo "::warning title=Dashboard using healthy battery reserve::Battery is ${BATTERY_PERCENT}% and a full wake is verified; the short refresh will run under job-scoped sleep assertions."
           fi
           POWER_ASSERTIONS="$(/usr/bin/pmset -g assertions 2>/dev/null || true)"
           if ! grep -Eq '^[[:space:]]*PreventSystemSleep[[:space:]]+1([[:space:]]|$)' <<< "$POWER_ASSERTIONS"; then
