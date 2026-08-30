@@ -319,12 +319,17 @@ export async function installAutonomousIngestionHost({
   });
 
   const domain = `gui/${uid}`;
-  await bootoutIfLoaded({ domain, label: AUTH_BROWSER_LABEL, run });
-  await bootstrapAgent({
+  const authBrowserTeardownStarted = await bootoutIfLoaded({
+    domain,
+    label: AUTH_BROWSER_LABEL,
+    run
+  });
+  await bootstrapLaunchAgentAfterTeardown({
     domain,
     label: AUTH_BROWSER_LABEL,
     plistPath: paths.authBrowserPlistPath,
-    run
+    run,
+    teardownStarted: authBrowserTeardownStarted
   });
   const authBrowserService = await waitForAuthBrowserLaunchAgent({
     userHome,
@@ -338,14 +343,25 @@ export async function installAutonomousIngestionHost({
   // Leave the pre-existing power and recovery services loaded until the new
   // auth browser has proved ready, so an auth-only install failure cannot
   // unnecessarily interrupt autonomous public collection.
-  await bootoutIfLoaded({ domain, label: SUPERVISOR_LABEL, run });
-  await bootoutIfLoaded({ domain, label: AWAKE_LABEL, run });
-  await bootstrapAgent({ domain, label: AWAKE_LABEL, plistPath: paths.awakePlistPath, run });
-  await bootstrapAgent({
+  const supervisorTeardownStarted = await bootoutIfLoaded({
+    domain,
+    label: SUPERVISOR_LABEL,
+    run
+  });
+  const awakeTeardownStarted = await bootoutIfLoaded({ domain, label: AWAKE_LABEL, run });
+  await bootstrapLaunchAgentAfterTeardown({
+    domain,
+    label: AWAKE_LABEL,
+    plistPath: paths.awakePlistPath,
+    run,
+    teardownStarted: awakeTeardownStarted
+  });
+  await bootstrapLaunchAgentAfterTeardown({
     domain,
     label: SUPERVISOR_LABEL,
     plistPath: paths.supervisorPlistPath,
-    run
+    run,
+    teardownStarted: supervisorTeardownStarted
   });
 
   return {
@@ -408,9 +424,75 @@ function launchAgentWasNotLoaded(error) {
   return Number(error?.code) === 3 || /no such process|could not find service/i.test(detail);
 }
 
-async function bootstrapAgent({ domain, label, plistPath, run }) {
-  await run("/bin/launchctl", ["bootstrap", domain, plistPath], commandOptions());
+export async function bootstrapLaunchAgentAfterTeardown({
+  domain,
+  label,
+  plistPath,
+  run = execFile,
+  sleep = delay,
+  teardownStarted = false
+}) {
+  if (teardownStarted) {
+    await waitForLaunchAgentAbsence({ domain, label, run, sleep });
+  }
+  const bootstrapArguments = ["bootstrap", domain, plistPath];
+  const retryDelaysMs = [1_000, 2_000, 4_000];
+  for (let attempt = 0; ; attempt += 1) {
+    try {
+      await run("/bin/launchctl", bootstrapArguments, commandOptions());
+      break;
+    } catch (error) {
+      if (!transientLaunchctlBootstrapIoError(error)) throw error;
+      if (await launchAgentIsLoaded({ domain, label, run })) break;
+      if (attempt >= retryDelaysMs.length) throw error;
+      await sleep(retryDelaysMs[attempt]);
+    }
+  }
   await run("/bin/launchctl", ["enable", `${domain}/${label}`], commandOptions());
+}
+
+async function waitForLaunchAgentAbsence({ domain, label, run, sleep }) {
+  const maxAttempts = 5;
+  for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+    if (!(await launchAgentIsLoaded({ domain, label, run }))) return;
+    if (attempt < maxAttempts) await sleep(250);
+  }
+  throw new Error(`LaunchAgent ${domain}/${label} remained loaded after teardown.`);
+}
+
+async function launchAgentIsLoaded({ domain, label, run }) {
+  try {
+    await run("/bin/launchctl", ["print", `${domain}/${label}`], commandOptions());
+    return true;
+  } catch (error) {
+    if (launchAgentWasNotLoaded(error)) return false;
+    throw error;
+  }
+}
+
+function transientLaunchctlBootstrapIoError(error) {
+  if (
+    error?.code !== 5 ||
+    error?.killed !== false ||
+    error?.signal !== null ||
+    error?.stdout !== ""
+  ) {
+    return false;
+  }
+  const lines = String(error?.stderr ?? "")
+    .trim()
+    .split(/\r?\n/)
+    .map((line) => line.trim());
+  return (
+    lines[0] === "Bootstrap failed: 5: Input/output error" &&
+    (
+      lines.length === 1 ||
+      (
+        lines.length === 2 &&
+        lines[1] === "Try re-running the command as root for richer errors."
+      )
+    )
+  );
 }
 
 async function validateAndInstallPlist({ plist, targetPath, validationDir, run }) {
@@ -448,6 +530,10 @@ async function atomicWrite(targetPath, bytes, mode) {
 
 function commandOptions(timeout = 10_000) {
   return { timeout, maxBuffer: 1024 * 1024 };
+}
+
+function delay(milliseconds) {
+  return new Promise((resolve) => setTimeout(resolve, Math.max(0, milliseconds)));
 }
 
 function xmlEscape(value) {
