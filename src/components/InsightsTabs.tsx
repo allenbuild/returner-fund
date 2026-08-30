@@ -43,7 +43,7 @@ import {
 import { evidenceDisplayText, isGenericEvidenceLabel } from "@/lib/graph/evidence-display";
 import { resolveEvidenceThumbnail } from "@/lib/graph/evidence-thumbnails";
 import {
-  rankedPostsReferenceDate,
+  rankedPostsLatestPublishedDate,
   selectRankedPosts,
   type RankedPostsPeriod
 } from "@/lib/graph/ranked-posts";
@@ -139,22 +139,24 @@ export function InsightsTabs({
     [graph.leaderboard, overviewSort]
   );
   const databaseStats = useMemo(() => buildDatabaseStats(statsGraph), [statsGraph]);
-  const rankedPostsNow = useMemo(
-    () => now ?? rankedPostsReferenceDate(graph),
-    [graph, now]
+  const latestPublishedDate = useMemo(
+    () => now ?? rankedPostsLatestPublishedDate(graph, {
+      sidecarScope: rankedPostsSidecarScope
+    }),
+    [graph, now, rankedPostsSidecarScope]
   );
   const latestPublishedDayLabel = now === undefined
-    ? formatCentralSnapshotDate(rankedPostsNow)
+    ? formatCentralSnapshotDate(latestPublishedDate)
     : null;
   const rankedPosts = useMemo(
     () => rankedPostsSidecarScope === null
       ? []
       : selectRankedPosts(graph, {
           period: rankedPeriod,
-          now: rankedPostsNow,
+          ...(now ? { now } : {}),
           sidecarScope: rankedPostsSidecarScope
         }),
-    [graph, rankedPostsNow, rankedPeriod, rankedPostsSidecarScope]
+    [graph, now, rankedPeriod, rankedPostsSidecarScope]
   );
   const currentBatchSlug = graph.batch.slug;
 

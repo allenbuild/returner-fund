@@ -520,6 +520,47 @@ describe("insights tabs", () => {
     expect(within(list).getAllByRole("listitem")).toHaveLength(platforms.length);
   });
 
+  it("keeps the implicit Latest day label and list on the latest credible post day", () => {
+    const graph = buildGraphResponse({ batchSlug: "S2026" }, ycSpring2026GraphDataset);
+    const company = graph.nodes.find((node) => node.entityType === "company");
+    expect(company).toBeDefined();
+    graph.generatedAt = "2026-08-30T15:00:00.000Z";
+    graph.evidence = [{
+      id: "implicit-latest-day",
+      batchSlug: "S2026",
+      entityType: "company",
+      entityId: company!.entityId,
+      attachedCompanyId: company!.entityId,
+      attachedCompanyName: company!.label,
+      platform: "x",
+      authorName: "Latest day test",
+      authorHandle: "latest_day_test",
+      postedAt: "2026-08-29T22:00:00.000Z",
+      publishedAtPrecision: "exact",
+      title: "Published on the latest credible day",
+      text: "Published on the latest credible day",
+      mediaType: "text",
+      metrics: { views: 5_000, likes: 100 },
+      contributionScore: 70,
+      normalizedScore: 70,
+      tractionStatus: "scored",
+      sourceUrl: "https://x.com/latestdaytest/status/2100000000000000301",
+      platformPostId: "2100000000000000301",
+      why: "Implicit latest-day UI regression",
+      review_state: "verified",
+      linkStatus: "verified"
+    }];
+
+    render(<InsightsTabs graph={graph} onSelectNode={vi.fn()} />);
+    fireEvent.click(screen.getByRole("tab", { name: "Ranked Posts" }));
+    const latestDay = screen.getByRole("button", { name: "Latest day · Aug 29" });
+    fireEvent.click(latestDay);
+
+    const list = screen.getByRole("list", { name: "Ranked posts" });
+    expect(within(list).getByText("Published on the latest credible day")).toBeInTheDocument();
+    expect(screen.queryByText(/No reliably dated posts were published/)).not.toBeInTheDocument();
+  });
+
   it("keeps every ranked-post label readable instead of clipping it into an ellipsis", () => {
     const css = readFileSync("src/app/globals.css", "utf8");
     const rankedPostRules = css.slice(

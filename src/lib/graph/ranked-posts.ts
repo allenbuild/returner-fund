@@ -11,6 +11,7 @@ import {
 } from "./ranked-posts-sidecar";
 import type { PostTopic } from "./post-topics";
 import type { EvidenceItem, GraphNode, GraphResponse, Platform } from "./types";
+import { centralDayKey } from "../time/central-day";
 
 export const RANKED_POSTS_LIMIT = 100;
 export const RANKED_POSTS_MONTH_WINDOW_MS = 30 * 24 * 60 * 60 * 1_000;
@@ -39,6 +40,11 @@ export interface SelectRankedPostsOptions {
   sidecarScope?: RankedPostsSidecarScope | null;
 }
 
+type RankedPostsCandidateOptions = Pick<
+  SelectRankedPostsOptions,
+  "platforms" | "topics" | "sidecarScope"
+>;
+
 type RankedPostCandidate = Omit<RankedPost, "rank">;
 
 /**
@@ -49,13 +55,62 @@ export function selectRankedPosts(
   graph: GraphResponse,
   options: SelectRankedPostsOptions
 ): RankedPost[] {
+  const limit = Math.max(0, Math.min(RANKED_POSTS_LIMIT, Math.trunc(options.limit ?? RANKED_POSTS_LIMIT)));
+  const candidates = rankedPostCandidates(graph, options);
   // Ranked-post artifacts and their sidecars are immutable snapshots. Anchoring
   // rolling filters to the browser clock makes a successfully published daily
   // list become empty at Central midnight while the next ingest is still
-  // running. Explicit callers can still supply a live clock; dashboard reads
-  // default to the graph's truthful publication clock.
-  const now = options.now ?? rankedPostsReferenceDate(graph);
-  const limit = Math.max(0, Math.min(RANKED_POSTS_LIMIT, Math.trunc(options.limit ?? RANKED_POSTS_LIMIT)));
+  // running. The daily view therefore uses the latest credible native
+  // publication day represented by the snapshot, while Month remains anchored
+  // to the graph's truthful generation clock. Explicit callers can still supply
+  // a live clock for literal Today behavior.
+  const snapshotNow = rankedPostsReferenceDate(graph);
+  const now = options.now ?? (
+    options.period === "today"
+      ? latestCandidatePublicationDate(candidates, snapshotNow)
+      : snapshotNow
+  );
+  const periodCandidates = candidates.filter((candidate) => {
+    const evidence = candidate.evidence;
+    if (options.period === "today") {
+      return isCrediblyPublishedToday(evidence, now);
+    }
+    if (options.period === "month") {
+      return isCrediblyPublishedWithinWindow(evidence, now, RANKED_POSTS_MONTH_WINDOW_MS);
+    }
+    return true;
+  });
+
+  const rankedCandidates = periodCandidates
+    .sort(compareRankedPostCandidates)
+    .slice(0, limit);
+  let tiedRank = 0;
+  let previousScore: number | null = null;
+
+  return rankedCandidates.map((candidate, index) => {
+    const score = rankedPostScore(candidate.evidence);
+    if (previousScore === null || score !== previousScore) {
+      tiedRank = index + 1;
+    }
+    previousScore = score;
+    return { ...candidate, rank: tiedRank };
+  });
+}
+
+/** Latest credible native publication represented by the eligible snapshot. */
+export function rankedPostsLatestPublishedDate(
+  graph: GraphResponse,
+  options: RankedPostsCandidateOptions = {},
+  fallbackNow = new Date()
+): Date {
+  const snapshotNow = rankedPostsReferenceDate(graph, fallbackNow);
+  return latestCandidatePublicationDate(rankedPostCandidates(graph, options), snapshotNow);
+}
+
+function rankedPostCandidates(
+  graph: GraphResponse,
+  options: RankedPostsCandidateOptions
+): RankedPostCandidate[] {
   const companyNodes = graph.nodes.filter(isCompanyNode);
   const companiesById = new Map(companyNodes.map((node) => [node.entityId, node]));
   const companyByFounderId = founderCompanyIndex(companyNodes);
@@ -82,19 +137,6 @@ export function selectRankedPosts(
   const candidates: RankedPostCandidate[] = [];
 
   for (const evidence of eligibleEvidence) {
-    if (
-      options.period === "today" &&
-      !isCrediblyPublishedToday(evidence, now)
-    ) {
-      continue;
-    }
-    if (
-      options.period === "month" &&
-      !isCrediblyPublishedWithinWindow(evidence, now, RANKED_POSTS_MONTH_WINDOW_MS)
-    ) {
-      continue;
-    }
-
     const companyId = evidenceCompanyId(evidence, companiesById, companyByFounderId);
     if (!companyId) continue;
     const company = companiesById.get(companyId);
@@ -114,21 +156,7 @@ export function selectRankedPosts(
     };
     candidates.push(candidate);
   }
-
-  const rankedCandidates = candidates
-    .sort(compareRankedPostCandidates)
-    .slice(0, limit);
-  let tiedRank = 0;
-  let previousScore: number | null = null;
-
-  return rankedCandidates.map((candidate, index) => {
-    const score = rankedPostScore(candidate.evidence);
-    if (previousScore === null || score !== previousScore) {
-      tiedRank = index + 1;
-    }
-    previousScore = score;
-    return { ...candidate, rank: tiedRank };
-  });
+  return candidates;
 }
 
 export function rankedPostsReferenceDate(
@@ -137,6 +165,31 @@ export function rankedPostsReferenceDate(
 ): Date {
   const generatedAt = new Date(graph.generatedAt);
   return Number.isFinite(generatedAt.getTime()) ? generatedAt : fallbackNow;
+}
+
+function latestCandidatePublicationDate(
+  candidates: readonly RankedPostCandidate[],
+  snapshotNow: Date
+): Date {
+  const snapshotTimestamp = snapshotNow.getTime();
+  const snapshotDay = centralDayKey(snapshotNow);
+  if (!Number.isFinite(snapshotTimestamp) || !snapshotDay) return snapshotNow;
+
+  let latest: ReturnType<typeof credibleNativePublicationDate> = null;
+  for (const candidate of candidates) {
+    const publication = credibleNativePublicationDate(candidate.evidence);
+    if (!publication || publication.centralDay > snapshotDay) continue;
+    if (publication.precision === "exact" && publication.timestamp > snapshotTimestamp) continue;
+    if (
+      !latest ||
+      publication.centralDay > latest.centralDay ||
+      (publication.centralDay === latest.centralDay && publication.timestamp > latest.timestamp)
+    ) {
+      latest = publication;
+    }
+  }
+
+  return latest ? new Date(latest.timestamp) : snapshotNow;
 }
 
 /** The single rankability contract shared by the UI and the sidecar builder. */
