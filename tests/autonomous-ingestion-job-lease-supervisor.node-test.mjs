@@ -9,6 +9,7 @@ import {
   assertAwakeLaunchAgentPlist,
   AWAKE_LABEL,
   autonomousIngestionHostPaths,
+  bootstrapLaunchAgentAfterTeardown,
   findLegacyBroadCaffeinateProcesses,
   installAutonomousIngestionHost,
   renderLaunchAgentTemplate,
@@ -1823,6 +1824,153 @@ test("host installer requires one explicit reversible operation", () => {
   }
 });
 
+test("launchd bootstrap retries only the exact transient post-teardown I/O error", async () => {
+  const calls = [];
+  const sleeps = [];
+  let bootstrapAttempts = 0;
+  await bootstrapLaunchAgentAfterTeardown({
+    domain: "gui/501",
+    label: AUTH_BROWSER_LABEL,
+    plistPath: "/Users/tester/Library/LaunchAgents/auth-browser.plist",
+    run: async (command, args, options) => {
+      calls.push([command, ...args]);
+      assert.deepEqual(options, { timeout: 10_000, maxBuffer: 1024 * 1024 });
+      if (args[0] === "bootstrap") {
+        bootstrapAttempts += 1;
+        if (bootstrapAttempts === 1) throw launchctlBootstrapIoError();
+      }
+      if (args[0] === "print") throw launchAgentNotLoadedError();
+      return { stdout: "", stderr: "" };
+    },
+    sleep: async (milliseconds) => sleeps.push(milliseconds)
+  });
+
+  assert.equal(bootstrapAttempts, 2);
+  assert.deepEqual(sleeps, [1_000]);
+  assert.deepEqual(calls, [
+    [
+      "/bin/launchctl",
+      "bootstrap",
+      "gui/501",
+      "/Users/tester/Library/LaunchAgents/auth-browser.plist"
+    ],
+    [
+      "/bin/launchctl",
+      "print",
+      `gui/501/${AUTH_BROWSER_LABEL}`
+    ],
+    [
+      "/bin/launchctl",
+      "bootstrap",
+      "gui/501",
+      "/Users/tester/Library/LaunchAgents/auth-browser.plist"
+    ],
+    ["/bin/launchctl", "enable", `gui/501/${AUTH_BROWSER_LABEL}`]
+  ]);
+});
+
+test("launchd bootstrap keeps every non-exact I/O failure fail-closed", async () => {
+  const failures = [
+    launchctlBootstrapIoError({ code: 4 }),
+    launchctlBootstrapIoError({ code: "5" }),
+    launchctlBootstrapIoError({ killed: true, signal: "SIGTERM" }),
+    launchctlBootstrapIoError({ stdout: "unexpected output\n" }),
+    launchctlBootstrapIoError({ stderr: "Bootstrap failed: 5: Permission denied\n" }),
+    launchctlBootstrapIoError({
+      stderr: "Bootstrap failed: 5: Input/output error\nUnexpected extra diagnostic\n"
+    })
+  ];
+
+  for (const failure of failures) {
+    const calls = [];
+    const sleeps = [];
+    await assert.rejects(
+      bootstrapLaunchAgentAfterTeardown({
+        domain: "gui/501",
+        label: AUTH_BROWSER_LABEL,
+        plistPath: "/Users/tester/Library/LaunchAgents/auth-browser.plist",
+        run: async (command, args) => {
+          calls.push([command, ...args]);
+          throw failure;
+        },
+        sleep: async (milliseconds) => sleeps.push(milliseconds)
+      }),
+      (error) => error === failure
+    );
+    assert.equal(calls.length, 1);
+    assert.deepEqual(sleeps, []);
+  }
+});
+
+test("launchd bootstrap bounds exact I/O retries to 1s, 2s, and 4s backoff", async () => {
+  const failure = launchctlBootstrapIoError();
+  const calls = [];
+  const sleeps = [];
+  await assert.rejects(
+    bootstrapLaunchAgentAfterTeardown({
+      domain: "gui/501",
+      label: AUTH_BROWSER_LABEL,
+      plistPath: "/Users/tester/Library/LaunchAgents/auth-browser.plist",
+      run: async (command, args) => {
+        calls.push([command, ...args]);
+        if (args[0] === "print") throw launchAgentNotLoadedError();
+        throw failure;
+      },
+      sleep: async (milliseconds) => sleeps.push(milliseconds)
+    }),
+    (error) => error === failure
+  );
+  assert.equal(calls.filter(([, operation]) => operation === "bootstrap").length, 4);
+  assert.equal(calls.filter(([, operation]) => operation === "print").length, 4);
+  assert.deepEqual(sleeps, [1_000, 2_000, 4_000]);
+});
+
+test("launchd bootstrap reconciles an ambiguous exit-5 response before retrying", async () => {
+  const calls = [];
+  const sleeps = [];
+  await bootstrapLaunchAgentAfterTeardown({
+    domain: "gui/501",
+    label: AUTH_BROWSER_LABEL,
+    plistPath: "/Users/tester/Library/LaunchAgents/auth-browser.plist",
+    run: async (command, args) => {
+      calls.push([command, ...args]);
+      if (args[0] === "bootstrap") throw launchctlBootstrapIoError();
+      return { stdout: "state = running\n", stderr: "" };
+    },
+    sleep: async (milliseconds) => sleeps.push(milliseconds)
+  });
+
+  assert.equal(calls.filter(([, operation]) => operation === "bootstrap").length, 1);
+  assert.equal(calls.filter(([, operation]) => operation === "print").length, 1);
+  assert.equal(calls.filter(([, operation]) => operation === "enable").length, 1);
+  assert.deepEqual(sleeps, []);
+});
+
+test("launchd bootstrap polls boundedly for teardown absence before starting", async () => {
+  const calls = [];
+  const sleeps = [];
+  let printAttempts = 0;
+  await bootstrapLaunchAgentAfterTeardown({
+    domain: "gui/501",
+    label: AUTH_BROWSER_LABEL,
+    plistPath: "/Users/tester/Library/LaunchAgents/auth-browser.plist",
+    teardownStarted: true,
+    run: async (command, args) => {
+      calls.push([command, ...args]);
+      if (args[0] === "print") {
+        printAttempts += 1;
+        if (printAttempts === 2) throw launchAgentNotLoadedError();
+      }
+      return { stdout: "", stderr: "" };
+    },
+    sleep: async (milliseconds) => sleeps.push(milliseconds)
+  });
+
+  assert.equal(printAttempts, 2);
+  assert.equal(calls.filter(([, operation]) => operation === "bootstrap").length, 1);
+  assert.deepEqual(sleeps, [250]);
+});
+
 test("host LaunchAgent install and uninstall are idempotent without deleting audit state", async (t) => {
   const root = await mkdtemp(path.join(tmpdir(), "returner-host-installer-"));
   t.after(() => rm(root, { recursive: true, force: true }));
@@ -1963,3 +2111,23 @@ test("host LaunchAgent install and uninstall are idempotent without deleting aud
   assert.equal(await readFile(stateMarker, "utf8"), "{}\n");
   assert.equal(await readFile(authBrowserMarker, "utf8"), "{}\n");
 });
+
+function launchctlBootstrapIoError(overrides = {}) {
+  return Object.assign(new Error("launchctl bootstrap failed"), {
+    code: 5,
+    killed: false,
+    signal: null,
+    stdout: "",
+    stderr: "Bootstrap failed: 5: Input/output error\n"
+  }, overrides);
+}
+
+function launchAgentNotLoadedError() {
+  return Object.assign(new Error("Could not find service"), {
+    code: 3,
+    killed: false,
+    signal: null,
+    stdout: "",
+    stderr: "Could not find service\n"
+  });
+}

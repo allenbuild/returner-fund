@@ -90,6 +90,41 @@ export async function verifyGoogleChromeBundle({
   appBundlePath,
   run = execFile
 } = {}) {
+  const initialVerification = await verifyChromeSignatureAndQuarantine({
+    appBundlePath,
+    run
+  });
+  if (!initialVerification.ok) return initialVerification;
+
+  try {
+    await run(
+      "/usr/sbin/spctl",
+      ["--assess", "--type", "execute", appBundlePath],
+      commandOptions(30_000)
+    );
+  } catch (error) {
+    if (!execFileTimedOut(error)) {
+      return { ok: false, reason: "auth_chrome_vendor_signature_unverified" };
+    }
+
+    // Gatekeeper can occasionally stop responding even for a valid, already
+    // installed Google bundle. A timeout is not an explicit policy rejection.
+    // Re-run every deterministic bundle check after the timeout so a bundle
+    // changed while spctl was blocked still fails closed.
+    const postTimeoutVerification = await verifyChromeSignatureAndQuarantine({
+      appBundlePath,
+      run
+    });
+    if (!postTimeoutVerification.ok) return postTimeoutVerification;
+    return {
+      ok: true,
+      reason: "auth_chrome_vendor_signature_verified_gatekeeper_timeout"
+    };
+  }
+  return { ok: true, reason: "auth_chrome_vendor_signature_verified" };
+}
+
+async function verifyChromeSignatureAndQuarantine({ appBundlePath, run }) {
   try {
     await run(
       "/usr/bin/codesign",
@@ -127,17 +162,7 @@ export async function verifyGoogleChromeBundle({
   if (recursiveQuarantinePresent(attributes?.stdout)) {
     return { ok: false, reason: "auth_chrome_bundle_quarantined" };
   }
-
-  try {
-    await run(
-      "/usr/sbin/spctl",
-      ["--assess", "--type", "execute", appBundlePath],
-      commandOptions(30_000)
-    );
-  } catch {
-    return { ok: false, reason: "auth_chrome_vendor_signature_unverified" };
-  }
-  return { ok: true, reason: "auth_chrome_vendor_signature_verified" };
+  return { ok: true };
 }
 
 export function authBrowserLaunchAgentDecision({
@@ -331,6 +356,18 @@ function launchctlFieldContains(value, field, expected) {
 
 function commandOptions(timeout) {
   return { timeout, maxBuffer: 1024 * 1024 };
+}
+
+function execFileTimedOut(error) {
+  return (
+    error !== null &&
+    typeof error === "object" &&
+    error.code === null &&
+    error.killed === true &&
+    error.signal === "SIGTERM" &&
+    error.stdout === "" &&
+    error.stderr === ""
+  );
 }
 
 function delay(milliseconds) {
