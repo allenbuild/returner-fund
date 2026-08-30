@@ -1848,14 +1848,19 @@ function hasCrossBatchEntityAmbiguity(
 
 function isKnownSummerGithubAccount(account: GithubAccount): boolean {
   const officialGithubUrls = officialGithubUrlsByEntityId.get(account.entityId);
-  return Boolean(officialGithubUrls?.has(canonicalAccountUrl(account.githubUrl)));
+  const canonicalUrl = canonicalGithubTargetUrl(account.githubUrl);
+  return Boolean(canonicalUrl && officialGithubUrls?.has(canonicalUrl));
 }
 
 function buildOfficialSummerGithubUrlsByEntityId(): Map<string, Set<string>> {
   const urlsByEntityId = new Map<string, Set<string>>();
   const add = (entityId: string, rawUrl: string | undefined) => {
     if (!rawUrl) return;
-    const canonicalUrl = canonicalAccountUrl(rawUrl);
+    // GitHub repository links are narrower ownership claims than organization
+    // links. Preserve the repository segment here so an immutable alias for
+    // `owner/repository` cannot authorize every repository owned by `owner`.
+    const canonicalUrl = canonicalGithubTargetUrl(rawUrl);
+    if (!canonicalUrl) return;
     urlsByEntityId.set(entityId, new Set([...(urlsByEntityId.get(entityId) ?? []), canonicalUrl]));
   };
 
@@ -1886,6 +1891,30 @@ function buildOfficialSummerGithubUrlsByEntityId(): Map<string, Set<string>> {
   }
 
   return urlsByEntityId;
+}
+
+function canonicalGithubTargetUrl(rawUrl: string): string | null {
+  try {
+    const url = new URL(rawUrl);
+    const host = url.hostname.replace(/^www\./i, "").toLowerCase();
+    if (host !== "github.com") return null;
+
+    const parts = url.pathname
+      .split("/")
+      .filter(Boolean)
+      .map((part) => decodeUrlPathSegment(part));
+    const ownerIndex = parts[0]?.toLowerCase() === "orgs" ? 1 : 0;
+    const owner = parts[ownerIndex]?.trim() ?? "";
+    const repository = (parts[ownerIndex + 1]?.trim() ?? "").replace(/\.git$/i, "");
+    const validPathPart = /^[A-Za-z0-9_.-]+$/;
+    if (!validPathPart.test(owner) || (repository && !validPathPart.test(repository))) {
+      return null;
+    }
+
+    return `https://github.com/${owner.toLowerCase()}${repository ? `/${repository.toLowerCase()}` : ""}`;
+  } catch {
+    return null;
+  }
 }
 
 function historicalSocialLinksForSummerCompany(slug: string): RawSocialLinks {

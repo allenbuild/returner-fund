@@ -317,6 +317,44 @@ describe("YC Summer 2026 official snapshot", () => {
         )
       ).toBe(false);
     }
+
+    const coastyOrganization = summerGithubSnapshot.accounts.find(
+      (account) =>
+        account.entityId === "company-coarena" &&
+        account.githubUrl.toLowerCase() === "https://github.com/coasty-ai"
+    );
+    const organizationRepositoryUrls = new Set(
+      (coastyOrganization?.repos ?? []).map((repo) => repo.htmlUrl.toLowerCase())
+    );
+    const materializedCoastyGithub = ycSpring2026GraphDataset.evidence.filter(
+      (item) =>
+        item.platform === "github" &&
+        item.attachedCompanyId === "company-coarena" &&
+        item.sourceUrl.toLowerCase().startsWith("https://github.com/coasty-ai")
+    );
+    const materializedOrganizationRepositories = materializedCoastyGithub.filter((item) =>
+      organizationRepositoryUrls.has(item.sourceUrl.toLowerCase())
+    );
+
+    expect(organizationRepositoryUrls.size).toBe(17);
+    expect(materializedOrganizationRepositories).toEqual([
+      expect.objectContaining({
+        id: "evidence-github-repo-company-coarena-coasty-ai-open-cowork",
+        entityId: "company-coarena",
+        attachedCompanyId: "company-coarena",
+        attachedCompanyName: "CoArena",
+        sourceUrl: "https://github.com/coasty-ai/open-cowork",
+        platformPostId: "coasty-ai/open-cowork",
+        platformObjectId: "1266626193",
+        review_state: "verified"
+      })
+    ]);
+    expect(materializedCoastyGithub).toHaveLength(2);
+    expect(
+      materializedCoastyGithub.find(
+        (item) => item.sourceUrl.toLowerCase() === "https://github.com/coasty-ai"
+      )
+    ).toEqual(expect.objectContaining({ contributionScore: 0 }));
   });
 
   it("fails closed when a GitHub repository row has no auditable native creation time", () => {
