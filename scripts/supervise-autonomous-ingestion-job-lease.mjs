@@ -27,6 +27,7 @@ import {
 const execFile = promisify(execFileCallback);
 
 export const SUPERVISOR_SCHEMA_VERSION = 1;
+export const DEFAULT_MIN_BATTERY_PERCENT = 30;
 export const DEFAULT_MAX_WORKER_LOG_BYTES = 32 * 1024 * 1024;
 export const DEFAULT_SCHEDULE_RECOVERY_SILENCE_MINUTES = 30;
 export const DEFAULT_SCHEDULE_RECOVERY_COOLDOWN_MINUTES = 30;
@@ -81,6 +82,12 @@ export function supervisorConfig(environment = process.env) {
     "RETURNER_MAX_WORKER_LOG_BYTES",
     { minimum: 1024 * 1024, maximum: 256 * 1024 * 1024 }
   );
+  const minBatteryPercent = strictInteger(
+    environment.RETURNER_MIN_BATTERY_PERCENT,
+    DEFAULT_MIN_BATTERY_PERCENT,
+    "RETURNER_MIN_BATTERY_PERCENT",
+    { minimum: 21, maximum: 100 }
+  );
   const scheduleRecoverySilenceMinutes = strictInteger(
     environment.RETURNER_SCHEDULE_RECOVERY_SILENCE_MINUTES,
     DEFAULT_SCHEDULE_RECOVERY_SILENCE_MINUTES,
@@ -132,6 +139,7 @@ export function supervisorConfig(environment = process.env) {
     statePath: path.join(stateDir, "state-v1.json"),
     lockPath: path.join(stateDir, "supervisor.lock"),
     ghBin: path.resolve(clean(environment.RETURNER_GH_BIN) ?? "/opt/homebrew/bin/gh"),
+    minBatteryPercent,
     maxWorkerLogBytes,
     scheduleRecoveryEnabled: strictBoolean(
       environment.RETURNER_SCHEDULE_RECOVERY_ENABLED,
@@ -198,7 +206,7 @@ export function parseWorkerLeaseLossLog(source, { filename = "Worker.log" } = {}
   });
 }
 
-export function evaluatePowerStatus(source) {
+export function evaluatePowerStatus(source, minimumPercent = DEFAULT_MIN_BATTERY_PERCENT) {
   if (typeof source !== "string" || !source.trim()) {
     return Object.freeze({ eligible: false, reason: "power_status_unavailable", percent: null });
   }
@@ -214,7 +222,13 @@ export function evaluatePowerStatus(source) {
     return Object.freeze({ eligible: true, reason: "ac_power", percent });
   }
   if (onBattery) {
-    return Object.freeze({ eligible: false, reason: "ac_power_required", percent });
+    if (percent === null) {
+      return Object.freeze({ eligible: false, reason: "battery_percent_unknown", percent: null });
+    }
+    if (percent < minimumPercent) {
+      return Object.freeze({ eligible: false, reason: "battery_below_reserve", percent });
+    }
+    return Object.freeze({ eligible: true, reason: "healthy_battery_reserve", percent });
   }
   return Object.freeze({ eligible: false, reason: "power_source_unknown", percent });
 }
@@ -341,7 +355,7 @@ export async function evaluateLeaseLossEvent({
     });
   }
 
-  const power = evaluatePowerStatus(await readPowerStatus());
+  const power = evaluatePowerStatus(await readPowerStatus(), config.minBatteryPercent);
   if (!power.eligible) {
     return Object.freeze({ action: "defer", reason: power.reason, batteryPercent: power.percent });
   }
@@ -630,7 +644,7 @@ export async function evaluateDashboardRecovery({
     });
   }
 
-  const power = evaluatePowerStatus(await readPowerStatus());
+  const power = evaluatePowerStatus(await readPowerStatus(), config.minBatteryPercent);
   if (!power.eligible) {
     return Object.freeze({
       action: "defer",
@@ -757,7 +771,7 @@ export async function evaluateScheduleRecovery({
     });
   }
 
-  const power = evaluatePowerStatus(await readPowerStatus());
+  const power = evaluatePowerStatus(await readPowerStatus(), config.minBatteryPercent);
   if (!power.eligible) {
     return Object.freeze({
       action: "defer",

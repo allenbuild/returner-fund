@@ -2217,7 +2217,9 @@ function normalizeYcCompany(company, batch, aliasLedger = null) {
     reviewState: "verified",
     legacyEntityAliases,
     historicalFounders,
-    accounts: normalizeYcAccounts(company.socialLinks, {
+    accounts: normalizeMutableYcOwnerAccounts({
+      currentLinks: company.socialLinks,
+      historicalLinkMaps: companyAliasEntries.map((entry) => entry?.companyAccounts),
       entityType: "company",
       entitySourceKey: sourceKey,
       discoveredFromUrl: profileUrl
@@ -2305,7 +2307,13 @@ function normalizeYcFounder(founder, company, batch, companyAliasEntries = []) {
     websiteUrl: founder.websiteUrl ?? null,
     reviewState: "verified",
     legacyEntityAliases,
-    accounts: normalizeYcAccounts(founder.socialLinks, {
+    accounts: normalizeMutableYcOwnerAccounts({
+      currentLinks: founder.socialLinks,
+      historicalLinkMaps: companyAliasEntries.flatMap((entry) =>
+        (entry?.founders ?? [])
+          .filter((candidate) => String(candidate?.founderId ?? "") === String(founder.id))
+          .map((candidate) => candidate?.accounts)
+      ),
       entityType: "founder",
       entitySourceKey: sourceKey,
       discoveredFromUrl: profileUrl
@@ -2320,7 +2328,11 @@ function uniqueCatalogAliases(values) {
 export function mergeVerifiedOverridesIntoCatalog(companies, overrides, batch) {
   return companies.map((company) => {
     const companySlug = autonomousCompanySlug(company);
-    const override = overrides?.[companySlug];
+    const override = resolveVerifiedCompanyOverride(
+      overrides,
+      companySlug,
+      company.legacyEntityAliases
+    );
     if (!override) return company;
 
     const companyLinks = override.companySocialLinks ?? override.company ?? {};
@@ -2384,6 +2396,24 @@ export function mergeVerifiedOverridesIntoCatalog(companies, overrides, batch) {
       founders
     };
   });
+}
+
+export function resolveVerifiedCompanyOverride(overrides, companySlug, legacyEntityAliases = []) {
+  if (overrides?.[companySlug]) return overrides[companySlug];
+
+  // Mutable YC companies can rename without changing their immutable company
+  // identity. Continue applying the audited override stored under the former
+  // slug until a current-slug override explicitly supersedes it.
+  const legacySlugs = [...legacyEntityAliases]
+    .reverse()
+    .flatMap((alias) => {
+      const raw = String(alias ?? "").trim().replace(/^company-/, "");
+      return raw ? [raw, slugify(raw)] : [];
+    });
+  for (const legacySlug of legacySlugs) {
+    if (overrides?.[legacySlug]) return overrides[legacySlug];
+  }
+  return null;
 }
 
 function verifiedFounderOverrideSourceKey(companySlug, founderOverride, batch) {
@@ -2511,29 +2541,84 @@ function autonomousCompanySlug(company) {
     .replace(/^a16z-speedrun-006-/, "");
 }
 
-function normalizeYcAccounts(links, { entityType, entitySourceKey, discoveredFromUrl }) {
+export function normalizeMutableYcOwnerAccounts({
+  currentLinks,
+  historicalLinkMaps = [],
+  entityType,
+  entitySourceKey,
+  discoveredFromUrl
+}) {
+  const currentAccounts = normalizeYcAccounts(currentLinks, {
+    entityType,
+    entitySourceKey,
+    discoveredFromUrl
+  });
+  const occupiedPlatforms = new Set(currentAccounts.map((account) => account.platform));
+  const historicalFallbacks = new Map();
+
+  // Alias entries are append-only and chronological. For a platform omitted
+  // by the latest mutable roster, retain only the newest immutable-ID-backed
+  // account lineage rather than accumulating every stale account ever seen.
+  for (const historicalLinks of [...historicalLinkMaps].reverse()) {
+    const accounts = normalizeYcAccounts(historicalLinks, {
+      entityType,
+      entitySourceKey,
+      discoveredFromUrl,
+      matchReason:
+        "Retained from the immutable YC alias ledger after the mutable profile omitted this platform."
+    });
+    for (const account of accounts) {
+      if (occupiedPlatforms.has(account.platform)) continue;
+      const existing = historicalFallbacks.get(account.platform) ?? [];
+      historicalFallbacks.set(account.platform, [...existing, account]);
+    }
+    for (const platform of new Set(accounts.map((account) => account.platform))) {
+      occupiedPlatforms.add(platform);
+    }
+  }
+
+  return [
+    ...currentAccounts,
+    ...[...historicalFallbacks.entries()]
+      .sort(([left], [right]) => left.localeCompare(right))
+      .flatMap(([, accounts]) => accounts)
+  ];
+}
+
+function normalizeYcAccounts(
+  links,
+  {
+    entityType,
+    entitySourceKey,
+    discoveredFromUrl,
+    matchReason = "Linked from the official public YC profile."
+  }
+) {
   return Object.entries(links ?? {})
-    .filter(([, url]) => typeof url === "string" && url.trim())
-    .flatMap(([rawPlatform, url]) => {
-      const declaredPlatform = normalizePlatform(rawPlatform);
-      const platform = socialUrlMatchesPlatform(declaredPlatform, url)
-        ? declaredPlatform
-        : socialPlatformFromUrl(url);
-      if (!platform) return [];
-      const canonicalUrl = canonicalSocialAccountUrl(platform, url);
-      const handle = socialHandle(canonicalUrl);
-      if (!handle) return [];
-      return [{
-        sourceKey: `acct:${entityType}:${entitySourceKey}:${platform}:${encodeURIComponent(canonicalUrl)}`,
-        platform,
-        handle,
-        url: canonicalUrl,
-        accountId: null,
-        reviewState: "verified",
-        verified: true,
-        discoveredFromUrl,
-        matchReason: "Linked from the official public YC profile."
-      }];
+    .flatMap(([rawPlatform, rawUrls]) => {
+      const urls = Array.isArray(rawUrls) ? rawUrls : [rawUrls];
+      return urls.flatMap((url) => {
+        if (typeof url !== "string" || !url.trim()) return [];
+        const declaredPlatform = normalizePlatform(rawPlatform);
+        const platform = socialUrlMatchesPlatform(declaredPlatform, url)
+          ? declaredPlatform
+          : socialPlatformFromUrl(url);
+        if (!platform) return [];
+        const canonicalUrl = canonicalSocialAccountUrl(platform, url);
+        const handle = socialHandle(canonicalUrl);
+        if (!handle) return [];
+        return [{
+          sourceKey: `acct:${entityType}:${entitySourceKey}:${platform}:${encodeURIComponent(canonicalUrl)}`,
+          platform,
+          handle,
+          url: canonicalUrl,
+          accountId: null,
+          reviewState: "verified",
+          verified: true,
+          discoveredFromUrl,
+          matchReason
+        }];
+      });
     });
 }
 

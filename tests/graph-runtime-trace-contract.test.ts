@@ -27,7 +27,6 @@ const returnerFundApiSnapshots = [
   "public/graph/s26.json",
   "public/graph/a16zsr006.json"
 ];
-
 describe("graph runtime trace contract", () => {
   it("accepts full and refresh traces containing every compact evidence projection", () => {
     const result = runValidator();
@@ -83,6 +82,19 @@ describe("graph runtime trace contract", () => {
     expect(result.output).toContain("sharp-libvips-linuxmusl-x64");
   });
 
+  it("keeps unused audience snapshots out of the Returner Fund company API function", () => {
+    const config = readFileSync(join(process.cwd(), "next.config.mjs"), "utf8");
+    expect(config).toContain('"/api/v1/companies/*/returner-fund": returnerFundApiTraceExcludes');
+    expect(config).toContain('"public/graph/*-yc-partners.json"');
+    expect(config).toContain('"public/graph/*-insiders.json"');
+
+    const result = runValidator({ leakUnusedGraphSnapshotIntoReturnerApi: true });
+
+    expect(result.status).toBe(1);
+    expect(result.output).toContain("Returner Fund company API trace contains forbidden runtime artifacts:");
+    expect(result.output).toContain("s26-yc-partners.json");
+  });
+
   it("keeps Turbopack ignore directives on both dynamic path construction and filesystem consumers", () => {
     for (const file of [
       "src/lib/graph/a16z-speedrun-006-dataset.ts",
@@ -110,6 +122,7 @@ function runValidator(options: {
   leakWholeRepositoryFileIntoFull?: boolean;
   leakRepositoryWorkFileIntoFull?: boolean;
   leakMuslSharpIntoDebug?: boolean;
+  leakUnusedGraphSnapshotIntoReturnerApi?: boolean;
   runUnderWorkParent?: boolean;
 } = {}) {
   const fixtureRoot = mkdtempSync(join(tmpdir(), "graph-trace-contract-"));
@@ -126,7 +139,9 @@ function runValidator(options: {
     writeManifest(
       root,
       ".next/server/app/api/v1/companies/[slug]/returner-fund/route.js.nft.json",
-      returnerFundApiSnapshots
+      options.leakUnusedGraphSnapshotIntoReturnerApi
+        ? [...returnerFundApiSnapshots, "public/graph/s26-yc-partners.json"]
+        : returnerFundApiSnapshots
     );
     const fullTraceFiles = graphRuntimeProjections.filter((file) => file !== options.missingFromFull);
     const allowedPackageScript = "node_modules/trace-fixture/scripts/allowed.js";

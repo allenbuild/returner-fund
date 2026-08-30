@@ -66,6 +66,7 @@ function config(overrides = {}) {
     statePath: path.join(stateDir, "state-v1.json"),
     lockPath: path.join(stateDir, "supervisor.lock"),
     ghBin: "/opt/homebrew/bin/gh",
+    minBatteryPercent: 30,
     maxWorkerLogBytes: 32 * 1024 * 1024,
     scheduleRecoveryEnabled: false,
     scheduleRecoverySilenceMinutes: 30,
@@ -209,7 +210,7 @@ test("worker parser requires exact autonomous context, cancellation, and JobNotF
   );
 });
 
-test("power gate exactly mirrors the workflow's AC-only preflight", () => {
+test("power gate accepts AC and healthy battery while preserving the reserve floor", () => {
   assert.deepEqual(
     evaluatePowerStatus("Now drawing from 'AC Power'\n -InternalBattery-0 12%; charging"),
     { eligible: true, reason: "ac_power", percent: 12 }
@@ -219,14 +220,27 @@ test("power gate exactly mirrors the workflow's AC-only preflight", () => {
     reason: "ac_power",
     percent: null
   });
-  for (const percent of [100, 92, 60, 20, 0]) {
+  for (const percent of [100, 92, 60, 30]) {
     assert.deepEqual(
       evaluatePowerStatus(
         `Now drawing from 'Battery Power'\n -InternalBattery-0 ${percent}%; discharging`
       ),
-      { eligible: false, reason: "ac_power_required", percent }
+      { eligible: true, reason: "healthy_battery_reserve", percent }
     );
   }
+  for (const percent of [29, 20, 0]) {
+    assert.deepEqual(
+      evaluatePowerStatus(
+        `Now drawing from 'Battery Power'\n -InternalBattery-0 ${percent}%; discharging`
+      ),
+      { eligible: false, reason: "battery_below_reserve", percent }
+    );
+  }
+  assert.deepEqual(evaluatePowerStatus("Now drawing from 'Battery Power'", 30), {
+    eligible: false,
+    reason: "battery_percent_unknown",
+    percent: null
+  });
   assert.deepEqual(evaluatePowerStatus("unknown"), {
     eligible: false,
     reason: "power_source_unknown",
@@ -244,10 +258,11 @@ test("schedule recovery is enabled with bounded silence and cooldown defaults", 
   assert.equal(defaults.scheduleRecoveryEnabled, true);
   assert.equal(defaults.scheduleRecoverySilenceMinutes, 30);
   assert.equal(defaults.scheduleRecoveryCooldownMinutes, 30);
-  assert.equal(Object.hasOwn(defaults, "minBatteryPercent"), false);
-  assert.equal(
-    Object.hasOwn(supervisorConfig({ RETURNER_MIN_BATTERY_PERCENT: "100" }), "minBatteryPercent"),
-    false
+  assert.equal(defaults.minBatteryPercent, 30);
+  assert.equal(supervisorConfig({ RETURNER_MIN_BATTERY_PERCENT: "100" }).minBatteryPercent, 100);
+  assert.throws(
+    () => supervisorConfig({ RETURNER_MIN_BATTERY_PERCENT: "20" }),
+    /must be between 21 and 100/
   );
   assert.equal(
     supervisorConfig({ RETURNER_SCHEDULE_RECOVERY_ENABLED: "false" }).scheduleRecoveryEnabled,
@@ -345,7 +360,7 @@ test("dashboard recovery verifies the exact active workflow identity", () => {
   );
 });
 
-test("stale dashboard recovery is AC-only, runner-idle, and never silenced by failed wakes", async () => {
+test("stale dashboard recovery respects battery reserve, runner idle state, and failed wakes", async () => {
   const dispatches = [];
   const testConfig = config({ dashboardRecoveryEnabled: true });
   const api = github({
@@ -365,12 +380,12 @@ test("stale dashboard recovery is AC-only, runner-idle, and never silenced by fa
     config: testConfig,
     github: api,
     state,
-    readPowerStatus: async () => "Now drawing from 'Battery Power'\n 100%; discharging",
+    readPowerStatus: async () => "Now drawing from 'Battery Power'\n 29%; discharging",
     now
   });
   assert.equal(battery.action, "defer");
-  assert.equal(battery.reason, "ac_power_required");
-  assert.equal(battery.batteryPercent, 100);
+  assert.equal(battery.reason, "battery_below_reserve");
+  assert.equal(battery.batteryPercent, 29);
   assert.deepEqual(dispatches, []);
 
   const busy = await evaluateDashboardRecovery({
@@ -549,7 +564,7 @@ test("stale head and newer attempts are terminal without issuing a rerun", async
   assert.equal(reruns, 0);
 });
 
-test("active workflow and battery power defer without issuing or deduping a rerun", async () => {
+test("active workflow and low battery defer without issuing or deduping a rerun", async () => {
   let reruns = 0;
   const active = await evaluateLeaseLossEvent({
     event: event(),
@@ -573,15 +588,15 @@ test("active workflow and battery power defer without issuing or deduping a reru
         reruns += 1;
       }
     }),
-    readPowerStatus: async () => "Now drawing from 'Battery Power'\n 100%; discharging"
+    readPowerStatus: async () => "Now drawing from 'Battery Power'\n 29%; discharging"
   });
   assert.equal(battery.action, "defer");
-  assert.equal(battery.reason, "ac_power_required");
-  assert.equal(battery.batteryPercent, 100);
+  assert.equal(battery.reason, "battery_below_reserve");
+  assert.equal(battery.batteryPercent, 29);
   assert.equal(reruns, 0);
 });
 
-test("a battery deferral preserves the stale slot for immediate AC recovery", async () => {
+test("a low-battery deferral preserves the stale slot for immediate charged recovery", async () => {
   const dispatchedHeads = [];
   const testConfig = config({ scheduleRecoveryEnabled: true });
   const testGithub = github({
@@ -599,27 +614,27 @@ test("a battery deferral preserves the stale slot for immediate AC recovery", as
     config: testConfig,
     github: testGithub,
     state,
-    readPowerStatus: async () => "Now drawing from 'Battery Power'\n 100%; discharging",
+    readPowerStatus: async () => "Now drawing from 'Battery Power'\n 29%; discharging",
     now: new Date("2026-08-26T05:05:00.000Z")
   });
 
   assert.equal(batteryDecision.action, "defer");
-  assert.equal(batteryDecision.reason, "ac_power_required");
-  assert.equal(batteryDecision.batteryPercent, 100);
+  assert.equal(batteryDecision.reason, "battery_below_reserve");
+  assert.equal(batteryDecision.batteryPercent, 29);
   assert.deepEqual(dispatchedHeads, []);
 
-  const acDecision = await evaluateScheduleRecovery({
+  const chargedDecision = await evaluateScheduleRecovery({
     config: config({ scheduleRecoveryEnabled: true }),
     github: testGithub,
     state,
-    readPowerStatus: async () => "Now drawing from 'AC Power'\n 72%; charging",
+    readPowerStatus: async () => "Now drawing from 'Battery Power'\n 72%; discharging",
     now: new Date("2026-08-26T05:05:00.000Z")
   });
 
-  assert.equal(acDecision.action, "dispatch");
-  assert.equal(acDecision.slotKey, "central-2026-08-25-1800");
-  assert.equal(acDecision.scheduledAt, "2026-08-25T23:00:00.000Z");
-  assert.equal(acDecision.watermarkStatus, "missing");
+  assert.equal(chargedDecision.action, "dispatch");
+  assert.equal(chargedDecision.slotKey, "central-2026-08-25-1800");
+  assert.equal(chargedDecision.scheduledAt, "2026-08-25T23:00:00.000Z");
+  assert.equal(chargedDecision.watermarkStatus, "missing");
   assert.deepEqual(dispatchedHeads, [CURRENT_SHA]);
 });
 
@@ -748,11 +763,11 @@ test("host recovery waits for the exact runner to be online and power-eligible",
       }
     }),
     state: { recoveryDispatch: null },
-    readPowerStatus: async () => "Now drawing from 'Battery Power'\n 100%; discharging",
+    readPowerStatus: async () => "Now drawing from 'Battery Power'\n 29%; discharging",
     now: new Date("2026-08-26T05:05:00.000Z")
   });
-  assert.equal(battery.reason, "ac_power_required");
-  assert.equal(battery.batteryPercent, 100);
+  assert.equal(battery.reason, "battery_below_reserve");
+  assert.equal(battery.batteryPercent, 29);
   assert.equal(dispatches, 0);
 });
 
@@ -1266,7 +1281,10 @@ test("LaunchAgent template is a five-minute one-shot without KeepAlive", async (
     template,
     /<key>RETURNER_DASHBOARD_RECOVERY_COOLDOWN_MINUTES<\/key>\s*<string>30<\/string>/
   );
-  assert.doesNotMatch(template, /RETURNER_MIN_BATTERY_PERCENT/);
+  assert.match(
+    template,
+    /<key>RETURNER_MIN_BATTERY_PERCENT<\/key>\s*<string>30<\/string>/
+  );
   assert.doesNotMatch(template, /<key>(?:KeepAlive|WatchPaths)<\/key>/);
 
   const installer = await readFile(

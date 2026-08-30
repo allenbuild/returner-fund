@@ -125,6 +125,16 @@ const returnerFundApiSnapshots = [
   "public/graph/s26.json",
   "public/graph/a16zsr006.json"
 ];
+// The company API always requests the canonical `off` audience. Turbopack's
+// bounded dynamic path also discovers sibling audience snapshots, but those
+// files can never be opened by this route and needlessly grow every deploy.
+const returnerFundApiTraceExcludes = [
+  ...graphTraceExcludes,
+  "generated-runtime/**/*",
+  "public/graph/*-yc-partners.json",
+  "public/graph/*-insiders.json",
+  "public/graph/manifest.json"
+];
 const publishedGraphRuntimeSnapshots = [
   "public/graph/s2026.json",
   "public/graph/s2026-yc-partners.json",
@@ -256,7 +266,7 @@ const nextConfig = {
     "/debug/workers": graphRuntimeData,
     "/api/insiders/recompute": [...insiderRuntimeSnapshots, ...benchmarkRuntimeData],
     "/api/companies/[slug]/timeline": [...timelineRuntimeData, ...timelineInternalRuntimeData],
-    "/api/v1/companies/[slug]/returner-fund": returnerFundApiSnapshots,
+    "/api/v1/companies/*/returner-fund": returnerFundApiSnapshots,
     "/api/timeline/events/[eventId]": [...timelineRuntimeData, ...timelineInternalRuntimeData],
     "/api/admin/timeline/**/*": [...timelineRuntimeData, ...timelineInternalRuntimeData],
     "/dashboard": dashboardRuntimeData,
@@ -268,6 +278,7 @@ const nextConfig = {
     "/api/graph/full": fullGraphTraceExcludes,
     "/api/graph/refresh": graphTraceExcludes,
     "/api/insiders/recompute": insiderRecomputeTraceExcludes,
+    "/api/v1/companies/*/returner-fund": returnerFundApiTraceExcludes,
     "/api/admin/ingestion": adminDiagnosticsTraceExcludes,
     "/debug/duplicates": debugGraphTraceExcludes,
     "/debug/evidence": debugGraphTraceExcludes,

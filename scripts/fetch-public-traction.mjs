@@ -65,7 +65,8 @@ import {
   AUTONOMOUS_PROCESS_BUDGETS,
   isAutonomousProviderBlocker,
   isAutonomousCollectorFailureRetryable,
-  prioritizeAutonomousCompaniesByCoverage
+  prioritizeAutonomousCompaniesByCoverage,
+  resolveVerifiedCompanyOverride
 } from "./lib/autonomous-ingestion-plan.mjs";
 import {
   PublicSearchUnavailableError,
@@ -253,6 +254,10 @@ if (recentCoverageCutoff && recentCoverageCutoff > now) {
 const verifiedSocialOverrides = await readRequiredCanonicalJson(
   verifiedSocialOverridesPath,
   "Verified social overrides"
+);
+const summerCompanyAliasLedger = await readRequiredCanonicalJson(
+  join(root, "src", "lib", "yc", "summer-2026-company-aliases.json"),
+  "YC Summer 2026 company alias ledger"
 );
 const normalizedBatchSnapshot = normalizeBatchSnapshot(
   JSON.parse(await readFile(batchSnapshotPath, "utf8")),
@@ -6617,7 +6622,11 @@ function normalizeSnapshotOwnerLinks(owner) {
 
 function mergeVerifiedSocialOverrides(companies, overrides) {
   return companies.map((company) => {
-    const override = overrides?.[company.slug];
+    const override = resolveVerifiedCompanyOverride(
+      overrides,
+      company.slug,
+      legacySummerCompanyAliases(company)
+    );
     if (!override) return company;
 
     const overrideCompanyLinks = override.companySocialLinks ?? override.company ?? {};
@@ -6676,6 +6685,19 @@ function mergeVerifiedSocialOverrides(companies, overrides) {
       founders
     };
   });
+}
+
+function legacySummerCompanyAliases(company) {
+  const companyId = String(company?.id ?? company?.objectID ?? "").trim();
+  if (!companyId) return [];
+  return (summerCompanyAliasLedger?.aliases ?? [])
+    .filter((entry) => String(entry?.companyId ?? "") === companyId)
+    .flatMap((entry) => [
+      entry?.fromSlug,
+      entry?.fromName,
+      entry?.fromSlug ? `company-${entry.fromSlug}` : null
+    ])
+    .filter(Boolean);
 }
 
 function mergeVerifiedOwnerSocialLinks(baseLinks = {}, positiveLinks = {}, ownerOverride = {}) {

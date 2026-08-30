@@ -68,6 +68,24 @@ describe("timeline operational tooling", () => {
     expect(fetchImpl).toHaveBeenCalledTimes(1);
   });
 
+  it("treats social-host 404s as inconclusive while retaining generic 404 failures", async () => {
+    const fetchImpl = vi.fn(async () => new Response(null, { status: 404 }));
+    const result = await verifyPublicLinks([
+      "https://x.com/usealmanac/status/2033693731552170192",
+      "https://returner.example/missing"
+    ], {
+      concurrency: 1,
+      timeoutMs: 1_000,
+      fetchImpl,
+    });
+
+    expect(result.blocked).toBe(1);
+    expect(result.failed).toBe(1);
+    expect(result.failures).toEqual([
+      { url: "https://returner.example/missing", reason: "HTTP 404" }
+    ]);
+  });
+
   it("rejects generic founder chatter, prospective milestones, and duplicated titles", () => {
     const company = { id: "company-graphify", slug: "graphify-labs", name: "Graphify Labs" };
     const base = {

@@ -163,10 +163,14 @@ test("accepted runs share the repository publication lane without delaying inact
   assert.match(resolverJob, /recovery_debt:\s*\$\{\{ steps\.decision\.outputs\.recovery_debt \}\}/);
 });
 
-test("only runnable dashboard refresh jobs share the repository publication lane", () => {
+test("dashboard refresh always inspects current main inside the publication lane", () => {
   assert.match(
     dashboardRefreshWorkflow,
-    /refresh:[\s\S]*?if:\s*\$\{\{ github\.event_name != 'workflow_run' \|\| github\.event\.workflow_run\.conclusion == 'success' \}\}[\s\S]*?concurrency:\s*\n(?:\s*#[^\n]*\n)*\s*group:\s*repository-publication-main\s*\n\s*queue:\s*max\s*\n\s*cancel-in-progress:\s*false/
+    /refresh:[\s\S]*?publication commit can land before downstream validation[\s\S]*?concurrency:\s*\n(?:\s*#[^\n]*\n)*\s*group:\s*repository-publication-main\s*\n\s*queue:\s*max\s*\n\s*cancel-in-progress:\s*false/
+  );
+  assert.doesNotMatch(
+    dashboardRefreshWorkflow.match(/\n  refresh:[\s\S]*?(?=\n  [a-z_]+:|$)/)?.[0] ?? "",
+    /github\.event\.workflow_run\.conclusion/
   );
   assertSupportedConcurrencySchema(dashboardRefreshWorkflow);
   assertExactExternalActionPins(dashboardRefreshWorkflow);
@@ -186,6 +190,9 @@ test("dashboard refresh uses the Mac network for exact YouTube proof", () => {
     dashboardRefreshWorkflow,
     /Preflight dashboard host[\s\S]*?pmset -g batt[\s\S]*?'AC Power'[\s\S]*?pmset -g assertions[\s\S]*?PreventSystemSleep/
   );
+  assert.match(dashboardRefreshWorkflow, /exec \/usr\/bin\/caffeinate -im npm ci/);
+  assert.match(dashboardRefreshWorkflow, /\/usr\/bin\/caffeinate -im npm run dashboard:refresh/);
+  assert.doesNotMatch(dashboardRefreshWorkflow, /\/usr\/bin\/caffeinate[^\n]*&/);
   assert.match(
     dashboardRefreshWorkflow,
     /if \[ "\$\{\{ inputs\.skip_external_discovery \}\}" = "true" \]; then[\s\S]*?dashboard:refresh -- --no-external[\s\S]*?else[\s\S]*?dashboard:refresh/
@@ -1835,13 +1842,18 @@ test("autonomous runner receives optional durability secrets and owns validated 
     /- name: Preflight autonomous ingestion host([\s\S]*?)(?=\n\s{6}- name:)/
   )?.[1];
   assert.ok(hostPreflight, "missing autonomous ingestion host preflight");
+  assert.match(hostPreflight, /id:\s*host_preflight/);
   assert.match(hostPreflight, /\/usr\/bin\/pmset -g batt/);
-  assert.match(hostPreflight, /Runner requires AC power/);
+  assert.match(hostPreflight, /AUTONOMOUS_MIN_BATTERY_PERCENT:\s*"30"/);
+  assert.match(hostPreflight, /Runner using healthy battery reserve/);
+  assert.match(hostPreflight, /Autonomous ingestion safely deferred/);
+  assert.match(hostPreflight, /echo "ready=true"/);
   assert.match(hostPreflight, /\/usr\/bin\/pmset -g assertions/);
   assert.match(hostPreflight, /PreventSystemSleep\[\[:space:\]\]\+1/);
   assert.match(hostPreflight, /if \[ "\$AUTHENTICATED_SOCIAL_REPLAY" = "true" \]/);
   assert.match(hostPreflight, /IOPMUserTriggeredFullWake/);
   assert.match(hostPreflight, /Authenticated replay requires a user wake/);
+  assert.match(hostPreflight, /Retry this manual replay/);
   assert.doesNotMatch(hostPreflight, /\/usr\/bin\/caffeinate -u/);
   assert.ok(
     workflow.indexOf("- name: Preflight autonomous ingestion host") <
@@ -1876,13 +1888,13 @@ test("autonomous runner receives optional durability secrets and owns validated 
   assert.match(runnerStep, /AUTONOMOUS_WORKFLOW_RETRY_MAX_ELAPSED_SECONDS:\s*"22200"/);
   assert.match(runnerStep, /AUTONOMOUS_WORKFLOW_RETRY_MIN_REMAINING_SECONDS:\s*"19860"/);
   assert.match(runnerStep, /AUTONOMOUS_WORKFLOW_RETRY_DELAYS_SECONDS:\s*"30,120,300,600,180"/);
-  assert.doesNotMatch(runnerStep, /AUTONOMOUS_MIN_BATTERY_PERCENT/);
+  assert.match(runnerStep, /AUTONOMOUS_MIN_BATTERY_PERCENT:\s*"30"/);
   assert.match(runnerStep, /AUTONOMOUS_WORKFLOW_POWER_WATCHDOG_RESERVE_PERCENT:\s*"20"/);
   assert.match(runnerStep, /AUTONOMOUS_WORKFLOW_POWER_WATCHDOG_INTERVAL_SECONDS:\s*"30"/);
-  assert.match(runnerStep, /Runner requires AC power/);
-  assert.doesNotMatch(runnerStep, /Runner using battery reserve/);
+  assert.doesNotMatch(runnerStep, /Runner requires AC power/);
+  assert.match(runnerStep, /Runner using battery reserve/);
   assert.match(runnerStep, /CAFFEINATE_PID=\$!/);
-  assert.match(runnerStep, /pid\[\[:space:\]\]\+\$\{CAFFEINATE_PID\}.*PreventSystemSleep/);
+  assert.match(runnerStep, /pid\[\[:space:\]\]\+\$\{CAFFEINATE_PID\}.*Prevent\(UserIdle\)\?SystemSleep/);
   assert.ok(
     runnerStep.indexOf("/usr/bin/caffeinate -ims -w $$") < runnerStep.indexOf("/usr/bin/pmset -g batt"),
     "wake assertion must be installed before the runner power preflight"
@@ -1901,7 +1913,7 @@ test("autonomous runner receives optional durability secrets and owns validated 
   assert.doesNotMatch(ingestJob, /name:\s*Validate generated public artifacts/);
   assert.match(
     workflow,
-    /validate_publication:[\s\S]*?uses:\s*\.\/\.github\/workflows\/public-artifacts\.yml[\s\S]*?target_sha:\s*\$\{\{ needs\.ingest\.outputs\.validation_candidate \|\| needs\.resolve\.outputs\.source_sha \}\}/
+    /validate_publication:[\s\S]*?uses:\s*\.\/\.github\/workflows\/public-artifacts\.yml[\s\S]*?target_sha:\s*\$\{\{ needs\.ingest\.outputs\.validation_candidate \}\}/
   );
   const runnerSource = readFileSync(path.join(repositoryRoot, "scripts", "run-autonomous-ingestion.mjs"), "utf8");
   assert.match(runnerSource, /publication_push:\s*\[[\s\S]*?"GIT_CONFIG_VALUE_0"/);
@@ -2223,7 +2235,7 @@ test("autonomous replay accepts one prior run identity and rejects forged or amb
   }
   assert.match(
     workflow,
-    /validate_publication:[\s\S]*?target_sha:\s*\$\{\{ needs\.ingest\.outputs\.validation_candidate \|\| needs\.resolve\.outputs\.source_sha \}\}[\s\S]*?publication_source_sha:\s*\$\{\{ needs\.ingest\.outputs\.publication_source_sha \|\| needs\.resolve\.outputs\.source_sha \}\}[\s\S]*?publication_run_id:\s*\$\{\{ needs\.ingest\.outputs\.publication_run_id \|\| github\.run_id \}\}[\s\S]*?publication_run_attempt:\s*\$\{\{ needs\.ingest\.outputs\.publication_run_attempt \|\| github\.run_attempt \}\}[\s\S]*?publication_trigger:\s*\$\{\{ needs\.ingest\.outputs\.publication_trigger \|\| needs\.resolve\.outputs\.trigger \}\}[\s\S]*?publication_scheduled_at:\s*\$\{\{ needs\.ingest\.outputs\.publication_scheduled_at \|\| needs\.resolve\.outputs\.scheduled_at \}\}/
+    /validate_publication:[\s\S]*?target_sha:\s*\$\{\{ needs\.ingest\.outputs\.validation_candidate \}\}[\s\S]*?publication_source_sha:\s*\$\{\{ needs\.ingest\.outputs\.publication_source_sha \}\}[\s\S]*?publication_run_id:\s*\$\{\{ needs\.ingest\.outputs\.publication_run_id \}\}[\s\S]*?publication_run_attempt:\s*\$\{\{ needs\.ingest\.outputs\.publication_run_attempt \}\}[\s\S]*?publication_trigger:\s*\$\{\{ needs\.ingest\.outputs\.publication_trigger \}\}[\s\S]*?publication_scheduled_at:\s*\$\{\{ needs\.ingest\.outputs\.publication_scheduled_at \}\}/
   );
 
   const contradictoryStatus = runScript(script, checkout, {
@@ -2617,7 +2629,7 @@ exec "$REAL_GIT" "$@"
 
   assert.match(
     workflow,
-    /validate_publication:[\s\S]*?if:\s*\$\{\{ always\(\) && needs\.resolve\.outputs\.should_run == 'true' && needs\.ingest\.outputs\.revalidation_should_run == 'true' \}\}[\s\S]*?target_sha:\s*\$\{\{ needs\.ingest\.outputs\.validation_candidate \|\| needs\.resolve\.outputs\.source_sha \}\}/
+    /validate_publication:[\s\S]*?if:\s*\$\{\{ always\(\) && needs\.resolve\.outputs\.should_run == 'true' && needs\.ingest\.outputs\.revalidation_should_run == 'true' && needs\.ingest\.outputs\.host_ready == 'true' && needs\.ingest\.outputs\.commit_verified == 'true' && needs\.ingest\.outputs\.validation_candidate != '' \}\}[\s\S]*?target_sha:\s*\$\{\{ needs\.ingest\.outputs\.validation_candidate \}\}/
   );
   assert.match(
     dailyBenchmarkWorkflow,
@@ -2821,7 +2833,7 @@ test("workflow routes authenticated ingestion to the dedicated Mac runner", () =
   assert.ok(preflightIndex < ingestionIndex, "preflight must run before collection");
   assert.match(
     ingestJob,
-    /name: Preflight authenticated social runner[\s\S]*?if: steps\.revalidate\.outputs\.should_run == 'true' && needs\.resolve\.outputs\.trigger == 'manual-replay' && inputs\.authenticated_backfill == true[\s\S]*?timeout-minutes:\s*20[\s\S]*?node scripts\/verify-authenticated-social-runner\.mjs/
+    /name: Preflight authenticated social runner[\s\S]*?if: steps\.revalidate\.outputs\.should_run == 'true' && steps\.host_preflight\.outputs\.ready == 'true' && needs\.resolve\.outputs\.trigger == 'manual-replay' && inputs\.authenticated_backfill == true[\s\S]*?timeout-minutes:\s*20[\s\S]*?node scripts\/verify-authenticated-social-runner\.mjs/
   );
   assert.doesNotMatch(
     ingestJob.match(/name: Preflight authenticated social runner[\s\S]*?(?=\n\s{6}- name:|$)/)?.[0] ?? "",
@@ -2833,6 +2845,7 @@ test("inactive candidates and accepted publication outcomes have distinct audita
   assert.match(workflow, /name:\s*Resolve Central slot candidate/);
   assert.match(workflow, /name:\s*Publish accepted slot \$\{\{ needs\.resolve\.outputs\.slot_key \}\}/);
   assert.match(workflow, /STATUS="inactive_candidate_no_refresh"/);
+  assert.match(workflow, /STATUS="deferred_host_unavailable"/);
   assert.match(workflow, /STATUS="queued_candidate_noop"/);
   assert.match(workflow, /STATUS="accepted_slot_failed"/);
   assert.match(workflow, /node scripts\/lib\/autonomous-ingestion-receipt-policy\.mjs/);
@@ -2866,11 +2879,11 @@ test("inactive candidates and accepted publication outcomes have distinct audita
   assert.match(workflow, /providerBlockedByReason:\s*countMap\(process\.env\.PROVIDER_BLOCKED_BY_REASON\)/);
   assert.match(workflow, /mappedProviderBlocked:\s*integerOrNull\(process\.env\.MAPPED_PROVIDER_BLOCKED\)/);
   assert.match(workflow, /mappedProviderBlockedByReason:\s*countMap\(process\.env\.MAPPED_PROVIDER_BLOCKED_BY_REASON\)/);
-  assert.match(workflow, /validate_publication:[\s\S]*?uses:\s*\.\/\.github\/workflows\/public-artifacts\.yml[\s\S]*?target_sha:\s*\$\{\{ needs\.ingest\.outputs\.validation_candidate \|\| needs\.resolve\.outputs\.source_sha \}\}[\s\S]*?policy_source_sha:\s*\$\{\{ needs\.resolve\.outputs\.source_sha \}\}/);
-  assert.match(workflow, /validate_publication:[\s\S]*?if:\s*\$\{\{ always\(\) && needs\.resolve\.outputs\.should_run == 'true' && needs\.ingest\.outputs\.revalidation_should_run == 'true' \}\}/);
+  assert.match(workflow, /validate_publication:[\s\S]*?uses:\s*\.\/\.github\/workflows\/public-artifacts\.yml[\s\S]*?target_sha:\s*\$\{\{ needs\.ingest\.outputs\.validation_candidate \}\}[\s\S]*?policy_source_sha:\s*\$\{\{ needs\.resolve\.outputs\.source_sha \}\}/);
+  assert.match(workflow, /validate_publication:[\s\S]*?if:\s*\$\{\{ always\(\) && needs\.resolve\.outputs\.should_run == 'true' && needs\.ingest\.outputs\.revalidation_should_run == 'true' && needs\.ingest\.outputs\.host_ready == 'true' && needs\.ingest\.outputs\.commit_verified == 'true' && needs\.ingest\.outputs\.validation_candidate != '' \}\}/);
   assert.match(workflow, /publication_kind:\s*autonomous-ingestion/);
   assert.match(workflow, /publication_receipt_path:\s*outputs\/ingestion-source-delta-current\.json/);
-  assert.match(workflow, /name:\s*Recover exact publication commit[\s\S]*?if:\s*\$\{\{ always\(\) && steps\.revalidate\.outputs\.should_run == 'true' \}\}/);
+  assert.match(workflow, /name:\s*Recover exact publication commit[\s\S]*?if:\s*\$\{\{ always\(\) && steps\.revalidate\.outputs\.should_run == 'true' && steps\.host_preflight\.outputs\.ready == 'true' \}\}/);
   assert.match(workflow, /published_commit:\s*\$\{\{ steps\.recover_publication\.outputs\.published_commit \}\}/);
   assert.match(workflow, /needs:\s*\[resolve, ingest, validate_publication\]/);
   assert.match(workflow, /VALIDATION_RESULT:\s*\$\{\{ needs\.validate_publication\.result \}\}/);

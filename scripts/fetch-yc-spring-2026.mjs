@@ -6,6 +6,11 @@ import {
   readJson,
   reconcileMutableYcRoster
 } from "./lib/yc-mutable-roster-refresh.mjs";
+import {
+  fetchYcCompanyDetailOrRetirement,
+  YC_ALGOLIA_ABSENCE_VERIFICATION,
+  YC_ALGOLIA_OBJECT_URL_BASE
+} from "./lib/yc-company-detail-retirements.mjs";
 
 const DEFAULT_BATCH_NAME = "Summer 2026";
 const DIRECTORY_URL_BASE = "https://www.ycombinator.com/companies";
@@ -43,19 +48,31 @@ async function main() {
       `YC Algolia returned an incomplete ${config.batchName} page: nbHits=${listing.nbHits}, hits=${listing.hits.length}.`
     );
   }
-  if (config.expectedCount !== null && listing.nbHits !== config.expectedCount) {
-    throw new Error(
-      `Expected exactly ${config.expectedCount} ${config.batchName} companies from YC Algolia; got ${listing.nbHits}.`
-    );
-  }
   validateListing(listing, config);
 
   const detailController = new AbortController();
   const detailSignal = AbortSignal.any([config.signal, detailController.signal]);
-  let companies;
+  let detailOutcomes;
   try {
-    companies = await mapLimit(listing.hits, CONCURRENCY, async (hit, index) => {
-      const detail = await fetchCompanyDetail(hit.slug, detailSignal);
+    detailOutcomes = await mapLimit(listing.hits, CONCURRENCY, async (hit, index) => {
+      const outcome = await fetchYcCompanyDetailOrRetirement(
+        hit,
+        (slug) => fetchCompanyDetail(slug, detailSignal),
+        (retiredHit, detail404) => verifyCompanyRetirement(
+          retiredHit,
+          detail404,
+          algolia,
+          detailSignal
+        )
+      );
+      if (outcome.kind === "retired") {
+        console.warn(
+          `[yc-catalog] accepted verified retirement ${outcome.tombstone.id}/${outcome.tombstone.slug} ` +
+            `after independent HTTP 404 receipts from its canonical detail URL and exact Algolia object lookup`
+        );
+        return outcome;
+      }
+      const { detail } = outcome;
       const hitId = String(hit.id ?? hit.objectID ?? "").trim();
       const detailId = String(detail.id ?? "").trim();
       if (hitId !== detailId || (detail.slug && detail.slug !== hit.slug)) {
@@ -64,15 +81,43 @@ async function main() {
           `listing=${hitId}/${hit.slug}, detail=${detailId}/${detail.slug ?? "missing"}.`
         );
       }
-      return sanitizeCompany(hit, detail, index, config);
+      return {
+        kind: "active",
+        company: sanitizeCompany(hit, detail, index, config)
+      };
     });
   } catch (error) {
     detailController.abort(error);
     throw error;
   }
 
+  const companies = detailOutcomes
+    .filter((outcome) => outcome.kind === "active")
+    .map((outcome) => outcome.company);
+  const verifiedRetirements = detailOutcomes
+    .filter((outcome) => outcome.kind === "retired")
+    .map(({ tombstone, httpStatus }) => ({
+      id: tombstone.id,
+      objectID: tombstone.objectID,
+      slug: tombstone.slug,
+      name: tombstone.name,
+      batch: tombstone.batch,
+      detailUrl: tombstone.detailUrl,
+      detailHttpStatus: httpStatus,
+      directoryLookupUrl: tombstone.directoryLookupUrl,
+      directoryLookupHttpStatus: tombstone.directoryLookupHttpStatus,
+      verification: tombstone.verification,
+      reason: tombstone.reason
+    }));
+
   companies.sort((left, right) => left.name.localeCompare(right.name));
-  validateCompanies(companies, listing, config);
+  validateCompanies(companies, listing, config, verifiedRetirements);
+  if (config.expectedCount !== null && companies.length !== config.expectedCount) {
+    throw new Error(
+      `Expected exactly ${config.expectedCount} active ${config.batchName} companies after ` +
+      `verified retirements; got ${companies.length}.`
+    );
+  }
 
   const payload = {
     source: {
@@ -81,12 +126,18 @@ async function main() {
       algoliaIndex: "YCCompany_production",
       algoliaFilter: `batch:"${config.batchName}"`,
       fetchedAt: new Date().toISOString(),
-      expectedCompanyCount: listing.nbHits,
+      expectedCompanyCount: companies.length,
       observedCompanyCount: companies.length,
+      directoryCompanyHitCount: listing.nbHits,
+      verifiedRetiredCompanyCount: verifiedRetirements.length,
+      verifiedRetiredCompanies: verifiedRetirements,
       minimumCompanyCount: config.minimumCount,
       notes: [
         "Generated from public, unauthenticated YC pages.",
-        "Signed image URLs, CSRF tokens, cookies, emails, and session-specific fields are intentionally not stored."
+        "Signed image URLs, CSRF tokens, cookies, emails, and session-specific fields are intentionally not stored.",
+        ...(verifiedRetirements.length > 0
+          ? ["Exact immutable-ID tombstones are excluded only after independent 404 receipts from the canonical YC detail URL and exact Algolia object lookup."]
+          : [])
       ]
     },
     companies
@@ -182,7 +233,7 @@ async function fetchText(url, signal) {
     headers: { "user-agent": "yc-network-intelligence-readonly" }
   });
   if (!response.ok) {
-    throw new Error(`GET ${url} failed with HTTP ${response.status}`);
+    throw new YcHttpStatusError(url, response.status);
   }
   return text;
 }
@@ -273,7 +324,7 @@ function validateListing(listing, config) {
   }
 }
 
-function validateCompanies(companies, listing, config) {
+function validateCompanies(companies, listing, config, verifiedRetirements = []) {
   const ids = new Set();
   const slugs = new Set();
   for (const company of companies) {
@@ -289,9 +340,17 @@ function validateCompanies(companies, listing, config) {
     ids.add(company.id);
     slugs.add(company.slug);
   }
-  if (companies.length !== listing.nbHits) {
+  if (companies.length < config.minimumCount) {
     throw new Error(
-      `YC detail crawl is incomplete: nbHits=${listing.nbHits}, companies=${companies.length}.`
+      `YC detail crawl retained ${companies.length} active ${config.batchName} companies; ` +
+      `at least ${config.minimumCount} are required.`
+    );
+  }
+  const expectedActiveCompanies = listing.nbHits - verifiedRetirements.length;
+  if (companies.length !== expectedActiveCompanies) {
+    throw new Error(
+      `YC detail crawl is incomplete: nbHits=${listing.nbHits}, ` +
+      `verifiedRetirements=${verifiedRetirements.length}, companies=${companies.length}.`
     );
   }
 }
@@ -305,6 +364,61 @@ async function fetchCompanyDetail(slug, signal) {
   }
   const page = JSON.parse(dataPage);
   return page.props.company;
+}
+
+async function verifyCompanyRetirement(hit, detail404, algolia, signal) {
+  const objectID = String(hit.objectID ?? "").trim();
+  const lookupUrl = `${YC_ALGOLIA_OBJECT_URL_BASE}/${encodeURIComponent(objectID)}`;
+  const { response, text } = await requestText(lookupUrl, {
+    signal,
+    headers: {
+      "x-algolia-application-id": algolia.app,
+      "x-algolia-api-key": algolia.key
+    }
+  });
+  if (response.ok) {
+    return null;
+  }
+  if (response.status !== 404) {
+    throw new YcHttpStatusError(lookupUrl, response.status);
+  }
+
+  let receipt;
+  try {
+    receipt = JSON.parse(text);
+  } catch (error) {
+    throw new Error(`Algolia retirement verification for ${objectID} returned invalid JSON.`, {
+      cause: error
+    });
+  }
+  if (Number(receipt?.status) !== 404 || receipt?.message !== "ObjectID does not exist") {
+    throw new Error(
+      `Algolia retirement verification for ${objectID} returned an unrecognized HTTP 404 receipt.`
+    );
+  }
+
+  return {
+    id: String(hit.id),
+    objectID,
+    slug: hit.slug,
+    name: hit.name,
+    batch: hit.batch,
+    detailUrl: detail404.detailUrl,
+    detailHttpStatus: 404,
+    directoryLookupUrl: lookupUrl,
+    directoryLookupHttpStatus: 404,
+    verification: YC_ALGOLIA_ABSENCE_VERIFICATION,
+    reason: "The exact canonical YC detail URL and exact immutable Algolia object lookup both returned HTTP 404."
+  };
+}
+
+class YcHttpStatusError extends Error {
+  constructor(url, status) {
+    super(`GET ${url} failed with HTTP ${status}`);
+    this.name = "YcHttpStatusError";
+    this.url = url;
+    this.status = status;
+  }
 }
 
 function publicRequestTarget(value) {
