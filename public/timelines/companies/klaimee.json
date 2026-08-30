@@ -5,8 +5,8 @@
     "slug": "klaimee",
     "name": "Klaimee"
   },
-  "generatedAt": "2026-08-30T03:50:55.015Z",
-  "lastModifiedAt": "2026-08-30T03:50:55.015Z",
+  "generatedAt": "2026-08-30T10:29:24.249Z",
+  "lastModifiedAt": "2026-08-30T10:29:24.249Z",
   "events": [
     {
       "id": "tle-7206f84613b8162d01648fb5",
@@ -75,7 +75,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 2,
-    "lastSuccessfulArtifactAt": "2026-08-30T03:50:55.015Z"
+    "lastSuccessfulArtifactAt": "2026-08-30T10:29:24.249Z"
   },
   "nextCursor": null
 }

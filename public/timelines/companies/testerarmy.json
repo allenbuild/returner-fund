@@ -5,8 +5,8 @@
     "slug": "testerarmy",
     "name": "TesterArmy"
   },
-  "generatedAt": "2026-08-30T03:50:55.015Z",
-  "lastModifiedAt": "2026-08-30T03:50:55.015Z",
+  "generatedAt": "2026-08-30T10:29:24.249Z",
+  "lastModifiedAt": "2026-08-30T10:29:24.249Z",
   "events": [
     {
       "id": "tle-3d2176e270c5a9e2781c3f7b",
@@ -199,7 +199,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 7,
-    "lastSuccessfulArtifactAt": "2026-08-30T03:50:55.015Z"
+    "lastSuccessfulArtifactAt": "2026-08-30T10:29:24.249Z"
   },
   "nextCursor": null
 }

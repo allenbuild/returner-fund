@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
   "kind": "daily-score-benchmark-publication",
-  "slotKey": "daily-benchmark-2026-08-27",
-  "sourceSha": "ea7c678df047d402e30c623b49d7aac96557c370",
-  "runId": "33047754927",
+  "slotKey": "daily-benchmark-2026-08-30",
+  "sourceSha": "4788f2b6347c0bc8a769887e1e92d517060eb2a8",
+  "runId": "33306141502",
   "runAttempt": "1",
-  "trigger": "manual-dispatch",
-  "scheduledUtcHour": null,
-  "scheduledAt": "2026-08-27T06:58:25.540Z",
-  "centralDate": "2026-08-27",
-  "generatedAt": "2026-08-27T07:32:54.995Z"
+  "trigger": "schedule",
+  "scheduledUtcHour": "5",
+  "scheduledAt": "2026-08-30T05:00:00.000Z",
+  "centralDate": "2026-08-30",
+  "generatedAt": "2026-08-30T10:51:59.570Z"
 }
