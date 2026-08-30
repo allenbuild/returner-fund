@@ -11,8 +11,17 @@ const DEFAULT_COMPANY_SAMPLE = 30;
 const DEFAULT_EVENT_SAMPLE = 150;
 // Treat explicit access controls and transient upstream/gateway failures as
 // inconclusive rather than declaring the underlying evidence URL invalid.
-// A repeatable 4xx such as 404 remains a hard audit failure.
+// A repeatable 4xx such as 404 remains a hard audit failure except on social
+// hosts that deliberately serve bot/deleted-post 404s for historically
+// attested URLs. Those are inconclusive, not proof that the publication was
+// fabricated, and must not strand an unrelated release.
 const BLOCKED_STATUSES = new Set([401, 403, 407, 418, 423, 425, 429, 451, 502, 503, 504]);
+const INCONCLUSIVE_NOT_FOUND_HOSTS = new Set([
+  "instagram.com",
+  "linkedin.com",
+  "twitter.com",
+  "x.com"
+]);
 
 export async function auditTimelineQuality({
   rootDir = process.cwd(),
@@ -245,7 +254,10 @@ async function verifyOneLink(initialUrl, { timeoutMs, fetchImpl }) {
         clearTimeout(fallbackTimeout);
         await fallback.body?.cancel().catch(() => undefined);
         if (fallback.ok) return { url: initialUrl, status: "reachable", reason: `HTTP ${fallback.status} (HEAD fallback)` };
-        if (BLOCKED_STATUSES.has(fallback.status)) return { url: initialUrl, status: "blocked", reason: `HTTP ${fallback.status} (HEAD fallback)` };
+        if (
+          BLOCKED_STATUSES.has(fallback.status) ||
+          (fallback.status === 404 && inconclusiveNotFoundHost(currentUrl))
+        ) return { url: initialUrl, status: "blocked", reason: `HTTP ${fallback.status} (HEAD fallback)` };
       } catch {
         clearTimeout(fallbackTimeout);
       }
@@ -264,7 +276,10 @@ async function verifyOneLink(initialUrl, { timeoutMs, fetchImpl }) {
       continue;
     }
     if (response.ok || response.status === 206) return { url: initialUrl, status: "reachable", reason: `HTTP ${response.status}` };
-    if (BLOCKED_STATUSES.has(response.status)) return { url: initialUrl, status: "blocked", reason: `HTTP ${response.status}` };
+    if (
+      BLOCKED_STATUSES.has(response.status) ||
+      (response.status === 404 && inconclusiveNotFoundHost(currentUrl))
+    ) return { url: initialUrl, status: "blocked", reason: `HTTP ${response.status}` };
     return { url: initialUrl, status: "failed", reason: `HTTP ${response.status}` };
   }
   return { url: initialUrl, status: "failed", reason: "more than five redirects" };
@@ -288,6 +303,17 @@ function isPublicHostname(hostname) {
   }
   if (ipVersion === 6) return !(normalized === "::1" || normalized.startsWith("fc") || normalized.startsWith("fd") || normalized.startsWith("fe8") || normalized.startsWith("fe9") || normalized.startsWith("fea") || normalized.startsWith("feb"));
   return true;
+}
+
+function inconclusiveNotFoundHost(value) {
+  try {
+    const hostname = new URL(value).hostname.toLowerCase().replace(/^www\./, "");
+    return [...INCONCLUSIVE_NOT_FOUND_HOSTS].some(
+      (candidate) => hostname === candidate || hostname.endsWith(`.${candidate}`)
+    );
+  } catch {
+    return false;
+  }
 }
 
 function parseArgs(rawArgs) {

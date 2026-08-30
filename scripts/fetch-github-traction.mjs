@@ -1004,9 +1004,10 @@ function batchConfigs() {
       searchMatchReason: "Conservative GitHub repository search match on company name, domain root, or homepage.",
       defaultWebsiteDiscovery: false,
       defaultSearchDiscovery: false,
-      loadSnapshot: async () => JSON.parse(await readFile(ycSnapshotPath, "utf8")),
-      companyId: (company) => `company-${company.slug}`,
-      founderId: (company, founder) => `founder-${company.slug}-${slugify(founder.name)}-${founder.id}`,
+      loadSnapshot: () => loadSummer2026GithubSnapshot(ycSnapshotPath),
+      companyId: (company) => company.entityId ?? `company-${company.slug}`,
+      founderId: (company, founder) =>
+        founder.entityId ?? `founder-${company.slug}-${slugify(founder.name)}-${founder.id}`,
       companyProfileUrl: (company) => company.ycProfileUrl,
       founderProfileUrl: (_company, founder) => founder.ycProfileUrl,
       notes: [
@@ -1083,25 +1084,24 @@ function relativePath(path) {
   return path.startsWith(`${root}/`) ? path.slice(root.length + 1) : path;
 }
 
-async function loadA16zSpeedrun006Snapshot(datasetPath) {
+async function loadAutonomousCatalogGithubSnapshot(batchSlug, datasetPath, source) {
   // Use the same normalized, override-aware owner inventory as the autonomous
-  // planner. The TypeScript profile seed intentionally omits most social links;
-  // rebuilding from it made 27 of 28 active a16z GitHub mappings disappear.
+  // planner. Mutable roster snapshots can omit an account retained in their
+  // immutable alias ledger, while static profile seeds can omit social links.
+  // A single inventory prevents collector-plan drift in both cases.
   const { loadAutonomousCatalogs } = await import("./lib/autonomous-ingestion-plan.mjs");
   const catalog = (await loadAutonomousCatalogs(root)).find(
-    (candidate) => candidate.slug === "A16ZSR006"
+    (candidate) => candidate.slug === batchSlug
   );
-  if (!catalog) throw new Error(`Unable to load the A16ZSR006 autonomous catalog from ${datasetPath}.`);
+  if (!catalog) throw new Error(`Unable to load the ${batchSlug} autonomous catalog from ${datasetPath}.`);
   return {
-    source: {
-      directoryUrl: "https://speedrun.a16z.com/",
-      expectedCompanyCount: 59,
-      observedCompanyCount: catalog.companies.length
-    },
+    source: { ...source, observedCompanyCount: catalog.companies.length },
     companies: catalog.companies.map((company) => ({
       id: company.sourceKey,
       entityId: company.sourceKey,
-      slug: String(company.sourceKey).replace(/^a16z-speedrun-006-/, ""),
+      slug: String(company.sourceKey)
+        .replace(/^company-/, "")
+        .replace(/^a16z-speedrun-006-/, ""),
       name: company.name,
       ycProfileUrl: company.profileUrl,
       websiteUrl: company.websiteUrl,
@@ -1123,6 +1123,19 @@ async function loadA16zSpeedrun006Snapshot(datasetPath) {
       sourceUrls: [company.profileUrl, company.websiteUrl].filter(Boolean)
     }))
   };
+}
+
+function loadSummer2026GithubSnapshot(datasetPath) {
+  return loadAutonomousCatalogGithubSnapshot("S26", datasetPath, {
+    directoryUrl: "https://www.ycombinator.com/companies?batch=Summer%202026"
+  });
+}
+
+function loadA16zSpeedrun006Snapshot(datasetPath) {
+  return loadAutonomousCatalogGithubSnapshot("A16ZSR006", datasetPath, {
+    directoryUrl: "https://speedrun.a16z.com/",
+    expectedCompanyCount: 59
+  });
 }
 
 function firstLinksByPlatform(accounts) {

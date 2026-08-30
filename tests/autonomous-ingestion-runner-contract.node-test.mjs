@@ -17,6 +17,10 @@ import {
   latestEligibleCentralSlot
 } from "../scripts/lib/ingestion-schedule.mjs";
 import { isTimelineCoverageMigrationUnavailable } from "../scripts/lib/timeline-migration-availability.mjs";
+import {
+  fetchYcCompanyDetailOrRetirement,
+  isCanonicalYcCompanyDetail404
+} from "../scripts/lib/yc-company-detail-retirements.mjs";
 
 const repositoryRoot = process.cwd();
 const runnerPath = path.join(repositoryRoot, "scripts", "run-autonomous-ingestion.mjs");
@@ -44,6 +48,93 @@ afterEach(async () => {
 });
 
 describe("autonomous ingestion runner CLI", () => {
+  it("accepts only the exact immutable YC company tombstone on its canonical 404", async () => {
+    const amulet = {
+      id: "33315",
+      objectID: "33315",
+      slug: "amulet",
+      name: "Amulet",
+      batch: "Summer 2026"
+    };
+    const canonical404 = Object.assign(new Error("fixture 404"), {
+      status: 404,
+      url: "https://www.ycombinator.com/companies/amulet"
+    });
+
+    assert.equal(isCanonicalYcCompanyDetail404(amulet, canonical404)?.id, "33315");
+    const verifiedTombstone = {
+      ...amulet,
+      detailUrl: canonical404.url,
+      detailHttpStatus: 404,
+      directoryLookupUrl: "https://45BWZJ1SGC.algolia.net/1/indexes/YCCompany_production/33315",
+      directoryLookupHttpStatus: 404,
+      verification: "yc_algolia_exact_object_absence_v1",
+      reason: "fixture independent absence proof"
+    };
+    assert.deepEqual(
+      await fetchYcCompanyDetailOrRetirement(
+        amulet,
+        async () => {
+          throw canonical404;
+        },
+        async () => verifiedTombstone
+      ),
+      {
+        kind: "retired",
+        tombstone: verifiedTombstone,
+        httpStatus: 404
+      }
+    );
+
+    for (const [hit, error] of [
+      [{ ...amulet, id: "different-id" }, canonical404],
+      [{ ...amulet, slug: "different-slug" }, canonical404],
+      [amulet, Object.assign(new Error("unknown 404"), {
+        status: 404,
+        url: "https://www.ycombinator.com/companies/different-company"
+      })],
+      [amulet, Object.assign(new Error("provider failure"), {
+        status: 500,
+        url: "https://www.ycombinator.com/companies/amulet"
+      })]
+    ]) {
+      assert.equal(isCanonicalYcCompanyDetail404(hit, error), null);
+      await assert.rejects(
+        fetchYcCompanyDetailOrRetirement(
+          hit,
+          async () => {
+            throw error;
+          },
+          async () => verifiedTombstone
+        ),
+        (thrown) => thrown === error
+      );
+    }
+
+    await assert.rejects(
+      fetchYcCompanyDetailOrRetirement(
+        amulet,
+        async () => {
+          throw canonical404;
+        },
+        async () => null
+      ),
+      (thrown) => thrown === canonical404,
+      "a canonical detail 404 alone is not a verified retirement"
+    );
+    await assert.rejects(
+      fetchYcCompanyDetailOrRetirement(
+        amulet,
+        async () => {
+          throw canonical404;
+        },
+        async () => ({ ...verifiedTombstone, objectID: "different-id" })
+      ),
+      (thrown) => thrown === canonical404,
+      "a mismatched absence receipt cannot retire the listing hit"
+    );
+  });
+
   it("fails open only for the exact absent Timeline coverage table", () => {
     assert.equal(isTimelineCoverageMigrationUnavailable({
       code: "PGRST205",
@@ -2636,6 +2727,9 @@ describe("autonomous ingestion runner static safety contracts", () => {
     assert.match(ycCatalogRefresh, /maxAttempts: REQUEST_MAX_ATTEMPTS/);
     assert.ok((ycCatalogRefresh.match(/requestText\(/g) ?? []).length >= 3);
     assert.match(ycCatalogRefresh, /detailController\.abort\(error\)/);
+    assert.match(ycCatalogRefresh, /verifyCompanyRetirement/);
+    assert.match(ycCatalogRefresh, /ObjectID does not exist/);
+    assert.match(ycCatalogRefresh, /YC_ALGOLIA_ABSENCE_VERIFICATION/);
     assert.doesNotMatch(ycCatalogRefresh, /requestSignal/);
   });
 

@@ -42,6 +42,17 @@ describe("cohort-wide structural coverage audit", () => {
     assert.equal(sharedHyperparticle.length, 1);
     assert.equal(sharedHyperparticle[0].entityType, "founder");
     assert.equal(sharedHyperparticle[0].entityId, "founder-rekursivai-dan-kondratyuk-3527564");
+    const summerMappingKeys = new Set(summer.mappings.map(
+      (mapping) => `${mapping.entityId}:${mapping.platform}:${mapping.canonicalUrl}`
+    ));
+    for (const expectedMapping of [
+      "company-coarena:github:https://github.com/coasty-ai/open-cowork",
+      "company-coarena:youtube:https://youtube.com/@coastyai",
+      "company-definite:github:https://github.com/usebylaw",
+      "company-hoplite:github:https://github.com/carboncopyinc"
+    ]) {
+      assert.ok(summerMappingKeys.has(expectedMapping), `missing ${expectedMapping}`);
+    }
 
     const a16z = cohorts.find((cohort) => cohort.batchSlug === "A16ZSR006").catalog;
     assert.deepEqual(
@@ -139,6 +150,60 @@ describe("cohort-wide structural coverage audit", () => {
     assert.deepEqual(
       inventory.mappings.map((mapping) => mapping.canonicalUrl),
       ["https://github.com/example-co"]
+    );
+  });
+
+  it("independently retains the newest missing-platform alias mapping and old-slug override", () => {
+    const inventory = buildYcOwnerInventory({
+      batchSlug: "TEST",
+      catalog: {
+        companies: [{
+          id: "42",
+          slug: "current-company",
+          name: "Current Company",
+          socialLinks: { x: "https://x.com/currentcompany" },
+          founders: []
+        }]
+      },
+      aliasLedger: {
+        aliases: [
+          {
+            companyId: "42",
+            fromSlug: "oldest-company",
+            fromName: "Oldest Company",
+            companyAccounts: {
+              github: ["https://github.com/example/oldest-repository"]
+            },
+            founders: []
+          },
+          {
+            companyId: "42",
+            fromSlug: "former-company",
+            fromName: "Former Company",
+            companyAccounts: {
+              github: ["https://github.com/example/current-repository"],
+              x: ["https://x.com/formercompany"]
+            },
+            founders: []
+          }
+        ]
+      },
+      overrides: {
+        "former-company": {
+          companySocialLinks: {
+            youtube: "https://www.youtube.com/@currentcompany"
+          }
+        }
+      }
+    });
+
+    assert.deepEqual(
+      inventory.mappings.map((mapping) => `${mapping.platform}:${mapping.canonicalUrl}`).sort(),
+      [
+        "github:https://github.com/example/current-repository",
+        "x:https://x.com/currentcompany",
+        "youtube:https://youtube.com/@currentcompany"
+      ]
     );
   });
 

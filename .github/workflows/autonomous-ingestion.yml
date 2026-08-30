@@ -49,6 +49,16 @@ jobs:
       source_sha: ${{ steps.source.outputs.source_sha }}
     steps:
       - name: Check out repository
+        id: primary_checkout
+        continue-on-error: true
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Retry repository checkout after transient transport failure
+        if: steps.primary_checkout.outcome == 'failure'
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           ref: ${{ github.sha }}
@@ -268,8 +278,20 @@ jobs:
       revalidation_watermark_status: ${{ steps.revalidate.outputs.watermark_status }}
       revalidation_latest_slot_key: ${{ steps.revalidate.outputs.latest_slot_key }}
       revalidated_main_commit: ${{ steps.revalidate.outputs.remote_main_commit }}
+      host_ready: ${{ steps.host_preflight.outputs.ready }}
+      host_defer_reason: ${{ steps.host_preflight.outputs.reason }}
     steps:
       - name: Check out repository
+        id: primary_checkout
+        continue-on-error: true
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ needs.resolve.outputs.source_sha }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Retry repository checkout after transient transport failure
+        if: steps.primary_checkout.outcome == 'failure'
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           ref: ${{ needs.resolve.outputs.source_sha }}
@@ -403,47 +425,75 @@ jobs:
           node scripts/lib/ingestion-schedule.mjs
 
       - name: Preflight autonomous ingestion host
+        id: host_preflight
         if: steps.revalidate.outputs.should_run == 'true'
         timeout-minutes: 1
         env:
           AUTHENTICATED_SOCIAL_REPLAY: ${{ inputs.authenticated_backfill || false }}
+          AUTONOMOUS_MIN_BATTERY_PERCENT: "30"
         run: |
           set -euo pipefail
+
+          {
+            echo "ready=false"
+            echo "reason=power_status_unavailable"
+          } >> "$GITHUB_OUTPUT"
 
           POWER_STATUS="$(/usr/bin/pmset -g batt)"
           BATTERY_PERCENT="$(sed -nE 's/.*[[:space:]]([0-9]{1,3})%;.*/\1/p' <<< "$POWER_STATUS" | head -n 1)"
           if [[ "${POWER_STATUS%%$'\n'*}" != *"'AC Power'"* ]]; then
-            echo "::error title=Runner requires AC power::Autonomous ingestion is deferred while the Mac is on battery. The stale Central slot remains durable and will retry automatically after AC is connected."
-            exit 1
-          fi
-          if [[ "$BATTERY_PERCENT" =~ ^[0-9]+$ ]] && [ "$BATTERY_PERCENT" -lt 20 ]; then
+            if [[ ! "$BATTERY_PERCENT" =~ ^[0-9]+$ ]]; then
+              if [ "$AUTHENTICATED_SOCIAL_REPLAY" = "true" ]; then
+                echo "::error title=Authenticated replay power state unavailable::The battery reserve could not be verified. Retry this manual replay after confirming host power."
+                exit 1
+              fi
+              echo "::warning title=Runner power state unavailable::The battery reserve could not be verified. This slot remains stale and the host supervisor will retry it."
+              exit 0
+            fi
+            if [ "$BATTERY_PERCENT" -lt "$AUTONOMOUS_MIN_BATTERY_PERCENT" ]; then
+              echo "reason=battery_below_start_reserve" >> "$GITHUB_OUTPUT"
+              if [ "$AUTHENTICATED_SOCIAL_REPLAY" = "true" ]; then
+                echo "::error title=Authenticated replay battery reserve is low::Battery is ${BATTERY_PERCENT}%. Retry this manual replay at ${AUTONOMOUS_MIN_BATTERY_PERCENT}% or on AC."
+                exit 1
+              fi
+              echo "::warning title=Autonomous ingestion safely deferred::Battery is ${BATTERY_PERCENT}%; the slot remains stale and will retry automatically at ${AUTONOMOUS_MIN_BATTERY_PERCENT}% or on AC."
+              exit 0
+            fi
+            echo "::warning title=Runner using healthy battery reserve::Battery is ${BATTERY_PERCENT}%; autonomous ingestion will proceed under a job-scoped sleep assertion."
+          elif [[ "$BATTERY_PERCENT" =~ ^[0-9]+$ ]] && [ "$BATTERY_PERCENT" -lt 20 ]; then
             echo "::warning title=Runner battery reserve is low::The Mac is connected to AC but reports ${BATTERY_PERCENT}% battery. Keep power connected for this ingestion."
           fi
 
           POWER_ASSERTIONS="$(/usr/bin/pmset -g assertions 2>/dev/null || true)"
           if ! grep -Eq '^[[:space:]]*PreventSystemSleep[[:space:]]+1([[:space:]]|$)' <<< "$POWER_ASSERTIONS"; then
-            echo "::error title=Runner sleep assertion is missing::The AC-powered Mac has no effective PreventSystemSleep assertion. Install or refresh the com.returner-fund.ingestion-awake LaunchAgent before retrying."
-            exit 1
+            echo "::warning title=Durable sleep assertion is missing::The job-scoped assertion will protect this run; reinstall the host supervisor to restore maintenance-wake coverage."
           fi
 
-          # Public collectors are safe in an AC maintenance wake. Authenticated
-          # browser replay remains interactive-only and never tries to
-          # manufacture user presence with a synthetic activity assertion.
+          # Public collectors are safe in a maintenance wake with verified
+          # reserve. Authenticated browser replay remains interactive-only and
+          # fails visibly instead of claiming an automatic retry that does not
+          # exist; it never manufactures user presence with synthetic activity.
           if [ "$AUTHENTICATED_SOCIAL_REPLAY" = "true" ]; then
             USER_WAKE_STATE="$(/usr/sbin/ioreg -r -k IOPMUserTriggeredFullWake -d 4 2>/dev/null || true)"
             if ! grep -q '"IOPMUserTriggeredFullWake" = Yes' <<< "$USER_WAKE_STATE"; then
-              echo "::error title=Authenticated replay requires a user wake::The Mac was not explicitly woken by a user. Public ingestion may run autonomously, but signed-in browser replay is deferred."
+              echo "reason=authenticated_replay_user_wake_missing" >> "$GITHUB_OUTPUT"
+              echo "::error title=Authenticated replay requires a user wake::The Mac was not explicitly woken by a user. Retry this manual replay after waking the host; public scheduled ingestion remains autonomous."
               exit 1
             fi
           fi
 
+          {
+            echo "ready=true"
+            echo "reason=ready"
+          } >> "$GITHUB_OUTPUT"
+
       - name: Install dependencies
-        if: steps.revalidate.outputs.should_run == 'true'
+        if: steps.revalidate.outputs.should_run == 'true' && steps.host_preflight.outputs.ready == 'true'
         timeout-minutes: 5
         run: npm ci
 
       - name: Preflight authenticated social runner
-        if: steps.revalidate.outputs.should_run == 'true' && needs.resolve.outputs.trigger == 'manual-replay' && inputs.authenticated_backfill == true
+        if: steps.revalidate.outputs.should_run == 'true' && steps.host_preflight.outputs.ready == 'true' && needs.resolve.outputs.trigger == 'manual-replay' && inputs.authenticated_backfill == true
         # Covers three bounded 60-second cold-bridge attempts per platform,
         # including session cleanup, without making the retry loop unbounded.
         timeout-minutes: 20
@@ -453,7 +503,7 @@ jobs:
 
       - name: Run autonomous ingestion
         id: ingestion
-        if: steps.revalidate.outputs.should_run == 'true'
+        if: steps.revalidate.outputs.should_run == 'true' && steps.host_preflight.outputs.ready == 'true'
         timeout-minutes: 380
         env:
           # The coordinator retains the sealed collection inputs while a
@@ -494,6 +544,7 @@ jobs:
           # the maximum 20-minute coordinator lease instead of leaving a
           # twelve-minute orphan-lock gap after attempt five.
           AUTONOMOUS_WORKFLOW_RETRY_DELAYS_SECONDS: "30,120,300,600,180"
+          AUTONOMOUS_MIN_BATTERY_PERCENT: "30"
           # An unplugged machine may cross the reserve during the multi-hour
           # collection. Poll independently of the start gate and enter the
           # retry controller's normal SIGTERM drain before power becomes
@@ -511,8 +562,11 @@ jobs:
           POWER_STATUS="$(/usr/bin/pmset -g batt)"
           BATTERY_PERCENT="$(sed -nE 's/.*[[:space:]]([0-9]{1,3})%;.*/\1/p' <<< "$POWER_STATUS" | head -n 1)"
           if [[ "${POWER_STATUS%%$'\n'*}" != *"'AC Power'"* ]]; then
-            echo "::error title=Runner requires AC power::The Mac disconnected from AC after host preflight. The stale Central slot remains durable and will retry automatically."
-            exit 1
+            if [[ ! "$BATTERY_PERCENT" =~ ^[0-9]+$ ]] || [ "$BATTERY_PERCENT" -lt "$AUTONOMOUS_MIN_BATTERY_PERCENT" ]; then
+              echo "::error title=Runner battery reserve changed::The verified start reserve is no longer available. The stale Central slot remains durable and will retry automatically."
+              exit 1
+            fi
+            echo "::warning title=Runner using battery reserve::The Mac is on battery at ${BATTERY_PERCENT}%; the 20% watchdog will checkpoint and stop before reserve is exhausted."
           elif [[ "$BATTERY_PERCENT" =~ ^[0-9]+$ ]] && [ "$BATTERY_PERCENT" -lt 20 ]; then
             echo "::warning title=Runner battery reserve is low::The Mac is connected to AC but reports ${BATTERY_PERCENT}% battery. Keep power connected for this ingestion."
           fi
@@ -520,14 +574,14 @@ jobs:
           JOB_ASSERTION_READY=false
           for attempt in 1 2 3 4 5; do
             POWER_ASSERTIONS="$(/usr/bin/pmset -g assertions 2>/dev/null || true)"
-            if grep -Eq "pid[[:space:]]+${CAFFEINATE_PID}\\(caffeinate\\):.*PreventSystemSleep" <<< "$POWER_ASSERTIONS"; then
+            if grep -Eq "pid[[:space:]]+${CAFFEINATE_PID}\\(caffeinate\\):.*Prevent(UserIdle)?SystemSleep" <<< "$POWER_ASSERTIONS"; then
               JOB_ASSERTION_READY=true
               break
             fi
             sleep 1
           done
           if [ "$JOB_ASSERTION_READY" != "true" ]; then
-            echo "::error title=Runner sleep assertion failed::The job-scoped caffeinate process did not acquire PreventSystemSleep on AC. The stale Central slot remains durable and will retry automatically."
+            echo "::error title=Runner sleep assertion failed::The job-scoped caffeinate process did not acquire an effective system-sleep assertion. The stale Central slot remains durable and will retry automatically."
             exit 1
           fi
 
@@ -551,7 +605,7 @@ jobs:
 
       - name: Verify repository-backed publication commit
         id: verify_publication
-        if: steps.revalidate.outputs.should_run == 'true'
+        if: steps.revalidate.outputs.should_run == 'true' && steps.host_preflight.outputs.ready == 'true'
         env:
           RUNNER_PUBLISHED_COMMIT: ${{ steps.ingestion.outputs.published_commit }}
         run: |
@@ -585,7 +639,7 @@ jobs:
 
       - name: Record publication receipt
         id: publication_receipt
-        if: steps.revalidate.outputs.should_run == 'true'
+        if: steps.revalidate.outputs.should_run == 'true' && steps.host_preflight.outputs.ready == 'true'
         env:
           SLOT_KEY: ${{ needs.resolve.outputs.slot_key }}
           RUNNER_STATUS: ${{ steps.ingestion.outputs.runner_status }}
@@ -606,7 +660,7 @@ jobs:
 
       - name: Recover exact publication commit
         id: recover_publication
-        if: ${{ always() && steps.revalidate.outputs.should_run == 'true' }}
+        if: ${{ always() && steps.revalidate.outputs.should_run == 'true' && steps.host_preflight.outputs.ready == 'true' }}
         env:
           VERIFIED_PUBLISHED_COMMIT: ${{ steps.verify_publication.outputs.published_commit }}
           RUNNER_PUBLISHED_COMMIT: ${{ steps.ingestion.outputs.published_commit }}
@@ -863,21 +917,21 @@ jobs:
   validate_publication:
     name: Validate published commit ${{ needs.ingest.outputs.published_commit }}
     needs: [resolve, ingest]
-    if: ${{ always() && needs.resolve.outputs.should_run == 'true' && needs.ingest.outputs.revalidation_should_run == 'true' }}
+    if: ${{ always() && needs.resolve.outputs.should_run == 'true' && needs.ingest.outputs.revalidation_should_run == 'true' && needs.ingest.outputs.host_ready == 'true' && needs.ingest.outputs.commit_verified == 'true' && needs.ingest.outputs.validation_candidate != '' }}
     permissions:
       contents: read
     uses: ./.github/workflows/public-artifacts.yml
     with:
-      target_sha: ${{ needs.ingest.outputs.validation_candidate || needs.resolve.outputs.source_sha }}
+      target_sha: ${{ needs.ingest.outputs.validation_candidate }}
       policy_source_sha: ${{ needs.resolve.outputs.source_sha }}
       publication_kind: autonomous-ingestion
       publication_receipt_path: outputs/ingestion-source-delta-current.json
-      publication_source_sha: ${{ needs.ingest.outputs.publication_source_sha || needs.resolve.outputs.source_sha }}
+      publication_source_sha: ${{ needs.ingest.outputs.publication_source_sha }}
       publication_slot_key: ${{ needs.resolve.outputs.slot_key }}
-      publication_run_id: ${{ needs.ingest.outputs.publication_run_id || github.run_id }}
-      publication_run_attempt: ${{ needs.ingest.outputs.publication_run_attempt || github.run_attempt }}
-      publication_trigger: ${{ needs.ingest.outputs.publication_trigger || needs.resolve.outputs.trigger }}
-      publication_scheduled_at: ${{ needs.ingest.outputs.publication_scheduled_at || needs.resolve.outputs.scheduled_at }}
+      publication_run_id: ${{ needs.ingest.outputs.publication_run_id }}
+      publication_run_attempt: ${{ needs.ingest.outputs.publication_run_attempt }}
+      publication_trigger: ${{ needs.ingest.outputs.publication_trigger }}
+      publication_scheduled_at: ${{ needs.ingest.outputs.publication_scheduled_at }}
 
   receipt:
     name: Audit refresh outcome
@@ -908,6 +962,8 @@ jobs:
           REVALIDATION_WATERMARK_STATUS: ${{ needs.ingest.outputs.revalidation_watermark_status }}
           REVALIDATION_PUBLICATION_WATERMARK: ${{ needs.ingest.outputs.revalidation_publication_watermark }}
           REVALIDATION_LATEST_SLOT_KEY: ${{ needs.ingest.outputs.revalidation_latest_slot_key }}
+          HOST_READY: ${{ needs.ingest.outputs.host_ready }}
+          HOST_DEFER_REASON: ${{ needs.ingest.outputs.host_defer_reason }}
         run: |
           RECEIPT_RECOGNIZED=false
           case "$RECEIPT_CONCLUSION:$RECEIPT_STATUS" in
@@ -926,6 +982,8 @@ jobs:
             STATUS="inactive_candidate_no_refresh"
           elif [ "$SHOULD_RUN" != "true" ] || [ -z "$SLOT_KEY" ]; then
             STATUS="resolver_failed"
+          elif [ "$HOST_READY" = "false" ] && [ "$INGEST_RESULT" = "success" ] && [ "$VALIDATION_RESULT" = "skipped" ]; then
+            STATUS="deferred_host_unavailable"
           elif [ "$REVALIDATION_SHOULD_RUN" = "false" ] && [ "$INGEST_RESULT" = "success" ] && [ "$VALIDATION_RESULT" = "skipped" ]; then
             STATUS="queued_candidate_noop"
           elif [ "$INGEST_RESULT" = "success" ] && [ "$VALIDATION_RESULT" = "success" ] && [ "$RECEIPT_RECOGNIZED" = "true" ] && [ "$COMMIT_PROOF_VALID" = "true" ] && [ "$COMMIT_REPOSITORY_VERIFIED" = "true" ]; then
@@ -953,6 +1011,8 @@ jobs:
             echo "- Revalidation watermark status: ${REVALIDATION_WATERMARK_STATUS:-n/a}"
             echo "- Revalidation publication watermark: ${REVALIDATION_PUBLICATION_WATERMARK:-n/a}"
             echo "- Revalidation latest slot: ${REVALIDATION_LATEST_SLOT_KEY:-n/a}"
+            echo "- Host ready: ${HOST_READY:-n/a}"
+            echo "- Host defer reason: ${HOST_DEFER_REASON:-n/a}"
             echo "- Published commit: ${PUBLISHED_COMMIT:-none}"
           } >> "$GITHUB_STEP_SUMMARY"
           if [ -n "${GITHUB_OUTPUT:-}" ]; then
@@ -968,6 +1028,8 @@ jobs:
             exit 1
           elif [ "$RECEIPT_CONCLUSION" = "warning" ]; then
             echo "::warning title=Autonomous ingestion completed with warnings::$STATUS for ${SLOT_KEY:-unknown slot}"
+          elif [ "$STATUS" = "deferred_host_unavailable" ]; then
+            echo "::warning title=Autonomous ingestion safely deferred::${HOST_DEFER_REASON:-host unavailable} for ${SLOT_KEY:-unknown slot}; the durable slot will retry automatically."
           fi
           echo "::notice title=Autonomous ingestion outcome::$STATUS for ${SLOT_KEY:-inactive candidate}"
 
@@ -1019,6 +1081,8 @@ jobs:
           REVALIDATION_WATERMARK_STATUS: ${{ needs.ingest.outputs.revalidation_watermark_status }}
           REVALIDATION_PUBLICATION_WATERMARK: ${{ needs.ingest.outputs.revalidation_publication_watermark }}
           REVALIDATION_LATEST_SLOT_KEY: ${{ needs.ingest.outputs.revalidation_latest_slot_key }}
+          HOST_READY: ${{ needs.ingest.outputs.host_ready }}
+          HOST_DEFER_REASON: ${{ needs.ingest.outputs.host_defer_reason }}
           EVENT_NAME: ${{ github.event_name }}
           WORKFLOW_NAME: ${{ github.workflow }}
           REPOSITORY: ${{ github.repository }}
@@ -1045,6 +1109,8 @@ jobs:
             ? "resolver_failed"
             : process.env.SHOULD_RUN === "false"
               ? "inactive_candidate_no_refresh"
+              : process.env.HOST_READY === "false"
+                ? "deferred_host_unavailable"
               : process.env.REVALIDATION_SHOULD_RUN === "false"
                 ? "queued_candidate_noop"
                 : "accepted_slot_failed";
@@ -1097,6 +1163,8 @@ jobs:
             revalidationWatermarkStatus: optional(process.env.REVALIDATION_WATERMARK_STATUS),
             revalidationPublicationWatermark: optional(process.env.REVALIDATION_PUBLICATION_WATERMARK),
             revalidationLatestSlotKey: optional(process.env.REVALIDATION_LATEST_SLOT_KEY),
+            hostReady: booleanOrNull(process.env.HOST_READY),
+            hostDeferReason: optional(process.env.HOST_DEFER_REASON),
             run: {
               id: optional(process.env.RUN_ID),
               attempt: optional(process.env.RUN_ATTEMPT),
@@ -1162,6 +1230,7 @@ jobs:
             ...successfulStatuses,
             ...warningStatuses,
             "inactive_candidate_no_refresh",
+            "deferred_host_unavailable",
             "queued_candidate_noop",
             "resolver_failed",
             "accepted_slot_failed"
@@ -1305,6 +1374,21 @@ jobs:
             assert.ok(exactSha(receipt.executedSha));
             assert.equal(receipt.executedSha, receipt.sourceSha);
             assert.ok(exactSha(receipt.remoteMainCommit));
+            assert.equal(receipt.publishedCommit, null);
+            assert.equal(receipt.commitProofValid, false);
+            assert.equal(receipt.commitRepositoryVerified, false);
+          } else if (receipt.status === "deferred_host_unavailable") {
+            assert.equal(receipt.shouldRun, true);
+            assert.equal(receipt.resolveResult, "success");
+            assert.equal(receipt.ingestResult, "success");
+            assert.equal(receipt.validationResult, "skipped");
+            assert.equal(receipt.revalidationShouldRun, true);
+            assert.equal(receipt.hostReady, false);
+            assert.equal(typeof receipt.hostDeferReason, "string");
+            assert.ok(receipt.hostDeferReason.length > 0);
+            assert.ok(validSlotKey(receipt.slotKey));
+            assert.ok(exactSha(receipt.executedSha));
+            assert.equal(receipt.executedSha, receipt.sourceSha);
             assert.equal(receipt.publishedCommit, null);
             assert.equal(receipt.commitProofValid, false);
             assert.equal(receipt.commitRepositoryVerified, false);

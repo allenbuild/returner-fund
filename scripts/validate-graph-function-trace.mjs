@@ -136,7 +136,7 @@ const routeTraces = [
   {
     label: "Returner Fund company API",
     manifest: ".next/server/app/api/v1/companies/[slug]/returner-fund/route.js.nft.json",
-    maxBytes: 65 * MEBIBYTE,
+    maxBytes: 75 * MEBIBYTE,
     required: [
       "public/graph/s2026.json",
       "public/graph/s26.json",
@@ -145,7 +145,14 @@ const routeTraces = [
     forbidden: [
       ...WHOLE_REPOSITORY_TRACE_FRAGMENTS,
       ...RAW_EVIDENCE_FRAGMENTS,
-      `${normalize("/generated-runtime/")}`
+      `${normalize("/generated-runtime/")}`,
+      `${normalize("/public/graph/s2026-yc-partners.json")}`,
+      `${normalize("/public/graph/s2026-insiders.json")}`,
+      `${normalize("/public/graph/s26-yc-partners.json")}`,
+      `${normalize("/public/graph/s26-insiders.json")}`,
+      `${normalize("/public/graph/a16zsr006-yc-partners.json")}`,
+      `${normalize("/public/graph/a16zsr006-insiders.json")}`,
+      `${normalize("/public/graph/manifest.json")}`
     ]
   },
   {

@@ -24,6 +24,7 @@ import {
   mergeGithubTractionSnapshots,
   mergePublicEvidenceSnapshots,
   mergeVerifiedOverridesIntoCatalog,
+  normalizeMutableYcOwnerAccounts,
   normalizeVerifiedSocialOverrideLinks,
   normalizeAutonomousFailureEntityId,
   partitionAutonomousTaskInventory,
@@ -313,6 +314,76 @@ describe("autonomous ingestion planning against the collector catalogs", () => {
     assert.ok(vestris.founders[0].accounts.some((account) =>
       account.platform === "linkedin" && /linkedin\.com\/in\/aahil-valliani/.test(account.url)
     ));
+  });
+
+  it("uses immutable alias account lineage only for platforms omitted by the mutable YC roster", () => {
+    const accounts = normalizeMutableYcOwnerAccounts({
+      currentLinks: {
+        linkedin: "https://www.linkedin.com/company/coarena",
+        x: "https://x.com/coarena"
+      },
+      historicalLinkMaps: [
+        {
+          github: ["https://github.com/coasty-ai/older-repository"],
+          x: ["https://x.com/coastyai"]
+        },
+        {
+          github: ["https://github.com/coasty-ai/open-cowork"],
+          linkedin: ["https://www.linkedin.com/company/coastyai"]
+        }
+      ],
+      entityType: "company",
+      entitySourceKey: "company-coarena",
+      discoveredFromUrl: "https://www.ycombinator.com/companies/coarena"
+    });
+
+    assert.deepEqual(
+      accounts.map((account) => `${account.platform}:${account.url}`).sort(),
+      [
+        "github:https://github.com/coasty-ai/open-cowork",
+        "linkedin:https://linkedin.com/company/coarena",
+        "x:https://x.com/coarena"
+      ]
+    );
+    assert.match(
+      accounts.find((account) => account.platform === "github").matchReason,
+      /immutable YC alias ledger/
+    );
+  });
+
+  it("applies an old-slug verified override to the same immutable mutable-roster owner", () => {
+    const [coArena] = mergeVerifiedOverridesIntoCatalog([{
+      entityType: "company",
+      sourceKey: "company-coarena",
+      name: "CoArena",
+      batchSlug: "S26",
+      profileUrl: "https://www.ycombinator.com/companies/coarena",
+      legacyEntityAliases: ["coasty", "Coasty", "company-coasty"],
+      accounts: [
+        {
+          platform: "github",
+          url: "https://github.com/coasty-ai/open-cowork"
+        },
+        {
+          platform: "github",
+          url: "https://github.com/third-party/not-coasty"
+        }
+      ],
+      founders: []
+    }], {
+      coasty: {
+        companySocialLinks: { youtube: "https://www.youtube.com/@CoastyAI" },
+        rejectedGithub: [{ url: "https://github.com/third-party/not-coasty" }]
+      }
+    }, { slug: "S26" });
+
+    assert.deepEqual(
+      coArena.accounts.map((account) => `${account.platform}:${account.url}`).sort(),
+      [
+        "github:https://github.com/coasty-ai/open-cowork",
+        "youtube:https://www.youtube.com/@CoastyAI"
+      ]
+    );
   });
 
   it("loads every staged Product Hunt and Reddit mapping, including multiple same-platform owner accounts", async () => {

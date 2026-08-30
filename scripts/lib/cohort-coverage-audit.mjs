@@ -20,6 +20,7 @@ export const COVERAGE_BATCH_SPECS = Object.freeze([
   {
     batchSlug: "S26",
     catalogPath: "src/lib/yc/summer-2026-companies.json",
+    aliasLedgerPath: "src/lib/yc/summer-2026-company-aliases.json",
     graphPath: "public/graph/s26.json",
     runSuffix: "s26",
     catalogKind: "yc"
@@ -64,16 +65,19 @@ export async function loadAuthoritativeCoverageInputs(rootDir, options = {}) {
     const catalogPath = join(rootDir, spec.catalogPath);
     const graphPath = join(rootDir, spec.graphPath);
     const profilePath = spec.profilePath ? join(rootDir, spec.profilePath) : null;
-    const [catalogSource, graph, profileSource] = await Promise.all([
+    const aliasLedgerPath = spec.aliasLedgerPath ? join(rootDir, spec.aliasLedgerPath) : null;
+    const [catalogSource, graph, profileSource, aliasLedger] = await Promise.all([
       readJson(catalogPath),
       readJson(graphPath),
-      profilePath ? readFile(profilePath, "utf8") : null
+      profilePath ? readFile(profilePath, "utf8") : null,
+      aliasLedgerPath ? readJson(aliasLedgerPath) : null
     ]);
     const catalog = spec.catalogKind === "yc"
       ? buildYcOwnerInventory({
           batchSlug: spec.batchSlug,
           catalog: catalogSource,
-          overrides
+          overrides,
+          aliasLedger
         })
       : buildA16zOwnerInventory({
           batchSlug: spec.batchSlug,
@@ -102,7 +106,7 @@ export async function loadAuthoritativeCoverageInputs(rootDir, options = {}) {
   return cohorts;
 }
 
-export function buildYcOwnerInventory({ batchSlug, catalog, overrides = {} }) {
+export function buildYcOwnerInventory({ batchSlug, catalog, overrides = {}, aliasLedger = null }) {
   const companies = Array.isArray(catalog) ? catalog : catalog?.companies;
   if (!Array.isArray(companies)) {
     throw new Error(`${batchSlug} YC catalog does not contain a companies array.`);
@@ -112,7 +116,10 @@ export function buildYcOwnerInventory({ batchSlug, catalog, overrides = {} }) {
   const mappings = [];
   for (const company of companies) {
     if (!company?.slug || !company?.name) continue;
-    const companyOverride = overrides[company.slug] ?? {};
+    const aliasEntries = (aliasLedger?.aliases ?? []).filter(
+      (entry) => String(entry?.companyId ?? "") === String(company?.id ?? "")
+    );
+    const companyOverride = verifiedYcCompanyOverride(company, overrides, aliasEntries);
     const companyEntityId = `company-${company.slug}`;
     const companyOwner = ownerRecord({
       batchSlug,
@@ -124,7 +131,10 @@ export function buildYcOwnerInventory({ batchSlug, catalog, overrides = {} }) {
       companySlug: company.slug
     });
     const companyLinks = mergeOwnerLinks(
-      company.socialLinks,
+      mergeMutableYcOwnerLinks(
+        company.socialLinks,
+        aliasEntries.map((entry) => entry?.companyAccounts)
+      ),
       companyOverride.companySocialLinks ?? companyOverride.company,
       retiredOwnerAccounts(companyOverride)
     );
@@ -132,7 +142,20 @@ export function buildYcOwnerInventory({ batchSlug, catalog, overrides = {} }) {
     entities.push(companyOwner);
     mappings.push(...companyOwner.accounts);
 
-    const founders = mergeYcFounders(company.founders ?? [], companyOverride.founders ?? []);
+    const founders = mergeYcFounders(
+      (company.founders ?? []).map((founder) => ({
+        ...founder,
+        socialLinks: mergeMutableYcOwnerLinks(
+          founder.socialLinks,
+          aliasEntries.flatMap((entry) =>
+            (entry?.founders ?? [])
+              .filter((candidate) => String(candidate?.founderId ?? "") === String(founder?.id ?? ""))
+              .map((candidate) => candidate?.accounts)
+          )
+        )
+      })),
+      companyOverride.founders ?? []
+    );
     for (const founder of founders) {
       if (!founder?.name) continue;
       const sourceId = String(founder.id ?? slugify(founder.name));
@@ -690,10 +713,65 @@ function accountMappings(owner, linksOrAccounts) {
   return sortedMappings(mappings);
 }
 
+function verifiedYcCompanyOverride(company, overrides, aliasEntries) {
+  if (overrides?.[company.slug]) return overrides[company.slug];
+  for (const entry of [...aliasEntries].reverse()) {
+    for (const candidate of [entry?.fromSlug, slugify(entry?.fromName ?? "")]) {
+      if (candidate && overrides?.[candidate]) return overrides[candidate];
+    }
+  }
+  return {};
+}
+
+function mergeMutableYcOwnerLinks(currentLinks, historicalLinkMaps) {
+  const currentRows = ownerLinkRows(currentLinks);
+  const occupiedPlatforms = new Set(
+    currentRows
+      .map((account) => platformForUrl(account?.platform, account?.url))
+      .filter(Boolean)
+  );
+  const fallbacks = [];
+
+  // The alias ledger is append-only and chronological. A current mapping wins;
+  // otherwise use every URL from the newest immutable-ID transition that knew
+  // the omitted platform, without accumulating older aliases for that lane.
+  for (const historicalLinks of [...historicalLinkMaps].reverse()) {
+    const rowsByPlatform = Map.groupBy(
+      ownerLinkRows(historicalLinks).filter((account) =>
+        Boolean(platformForUrl(account?.platform, account?.url))
+      ),
+      (account) => platformForUrl(account.platform, account.url)
+    );
+    for (const [platform, rows] of rowsByPlatform) {
+      if (occupiedPlatforms.has(platform)) continue;
+      fallbacks.push(...rows);
+      occupiedPlatforms.add(platform);
+    }
+  }
+
+  return [...currentRows, ...fallbacks];
+}
+
+function ownerLinkRows(linksOrAccounts) {
+  if (Array.isArray(linksOrAccounts)) {
+    return linksOrAccounts
+      .filter((account) => account?.platform && account?.url)
+      .map((account) => ({ ...account }));
+  }
+  return Object.entries(linksOrAccounts ?? {}).flatMap(([platform, rawValue]) => {
+    const urls = Array.isArray(rawValue) ? rawValue : [rawValue];
+    return urls.flatMap((url) =>
+      typeof url === "string" && url.trim() ? [{ platform, url }] : []
+    );
+  });
+}
+
 function mergeYcFounders(rawFounders, founderOverrides) {
   const founders = rawFounders.map((founder) => ({
     ...founder,
-    socialLinks: { ...(founder.socialLinks ?? {}) }
+    socialLinks: Array.isArray(founder.socialLinks)
+      ? [...founder.socialLinks]
+      : { ...(founder.socialLinks ?? {}) }
   }));
   for (const override of founderOverrides) {
     const exactId = founders.find(
