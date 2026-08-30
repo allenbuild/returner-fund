@@ -431,6 +431,7 @@ jobs:
         env:
           AUTHENTICATED_SOCIAL_REPLAY: ${{ inputs.authenticated_backfill || false }}
           AUTONOMOUS_MIN_BATTERY_PERCENT: "30"
+          CANDIDATE_TRIGGER: ${{ needs.resolve.outputs.trigger }}
           GITHUB_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
@@ -472,12 +473,13 @@ jobs:
           # process; it is never written to repository or user configuration.
           if [ -z "${GITHUB_TOKEN:-}" ]; then
             echo "reason=publication_token_unusable" >> "$GITHUB_OUTPUT"
-            echo "::warning title=Publication credential unavailable::This stale slot remains durable and will be retried by a fresh workflow wakeup."
-            exit 0
+            echo "::error title=Publication credential unavailable::The accepted ${CANDIDATE_TRIGGER:-unknown} candidate cannot publish without a GitHub token. Scheduled slots remain durable for a fresh wakeup; manual replay must be explicitly retried."
+            exit 1
           fi
           echo "::add-mask::$GITHUB_TOKEN"
           AUTH_PAYLOAD="$(printf 'x-access-token:%s' "$GITHUB_TOKEN")"
           AUTH_BASE64="$(printf '%s' "$AUTH_PAYLOAD" | base64 | tr -d '\r\n')"
+          echo "::add-mask::$AUTH_BASE64"
           PUBLICATION_EXTRAHEADER="AUTHORIZATION: basic $AUTH_BASE64"
           echo "::add-mask::$PUBLICATION_EXTRAHEADER"
           if ! GIT_CONFIG_COUNT=3 \
@@ -490,11 +492,15 @@ jobs:
             GIT_CONFIG_NOSYSTEM=1 \
             GIT_CONFIG_GLOBAL=/dev/null \
             GIT_TERMINAL_PROMPT=0 \
+            GIT_TRACE=0 \
+            GIT_TRACE_CURL=0 \
+            GIT_CURL_VERBOSE=0 \
+            GIT_TRACE_REDACT=1 \
             git ls-remote --exit-code origin refs/heads/main >/dev/null; then
             unset GITHUB_TOKEN AUTH_PAYLOAD AUTH_BASE64 PUBLICATION_EXTRAHEADER
             echo "reason=publication_token_unusable" >> "$GITHUB_OUTPUT"
-            echo "::warning title=Publication credential rejected::GitHub no longer accepts this queued job's ephemeral token. The slot remains stale and a fresh workflow wakeup will retry it."
-            exit 0
+            echo "::error title=Publication credential rejected::GitHub rejected this queued job's ephemeral token. Scheduled slots remain durable for a fresh wakeup; manual replay must be explicitly retried."
+            exit 1
           fi
           unset GITHUB_TOKEN AUTH_PAYLOAD AUTH_BASE64 PUBLICATION_EXTRAHEADER
 

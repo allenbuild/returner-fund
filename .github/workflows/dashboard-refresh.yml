@@ -28,6 +28,8 @@ jobs:
     name: Keep stale ingestion ahead of dashboard work
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    permissions:
+      contents: read
     outputs:
       should_run: ${{ steps.priority.outputs.should_run }}
       reason: ${{ steps.priority.outputs.reason }}
@@ -137,12 +139,17 @@ jobs:
           node-version: 24.14.0
           cache: npm
 
-      - name: Install dependencies
+      - name: Revalidate ingestion priority inside the publication lane
+        id: priority_revalidation
         if: steps.host_preflight.outputs.ready == 'true'
+        run: node scripts/lib/dashboard-refresh-priority.mjs
+
+      - name: Install dependencies
+        if: steps.host_preflight.outputs.ready == 'true' && steps.priority_revalidation.outputs.should_run == 'true'
         run: exec /usr/bin/caffeinate -im npm ci
 
       - name: Validate dashboard code and deterministic build
-        if: steps.host_preflight.outputs.ready == 'true'
+        if: steps.host_preflight.outputs.ready == 'true' && steps.priority_revalidation.outputs.should_run == 'true'
         # This is deliberately offline: it verifies the rolling-window,
         # clustering, snapshot, and public-access contracts without making an
         # external source outage a prerequisite for publication.
@@ -163,7 +170,7 @@ jobs:
           /usr/bin/caffeinate -im npm run dashboard:validate
 
       - name: Refresh published dashboard data
-        if: steps.host_preflight.outputs.ready == 'true'
+        if: steps.host_preflight.outputs.ready == 'true' && steps.priority_revalidation.outputs.should_run == 'true'
         env:
           # Optional API access only raises the public GitHub API quota. The
           # discovery implementation never writes, acts as a user, or sends
@@ -187,7 +194,7 @@ jobs:
           fi
 
       - name: Commit a materially changed snapshot
-        if: steps.host_preflight.outputs.ready == 'true'
+        if: steps.host_preflight.outputs.ready == 'true' && steps.priority_revalidation.outputs.should_run == 'true'
         run: |
           set -euo pipefail
           # `git diff` does not report a first, untracked artifact. Porcelain
