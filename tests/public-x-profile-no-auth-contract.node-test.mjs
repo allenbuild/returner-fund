@@ -105,6 +105,27 @@ test("a rerun reconciles stale same-post rows by native ID and keeps per-metric 
   assert.equal(rows[0].xMetricReceipt.timestampConflict, false);
   assert.equal(rows[0].xMetricReceipt.observations.length, 2);
   assert.equal(JSON.parse(rows[0].rawVisibleText).source, "x_native_evidence_reconciled_v1");
+
+  // A resumed shard can normalize its already-enriched row without collecting
+  // a replacement for that physical post. The generated reconciliation clause
+  // must remain singular so the immutable same-observation archive can replay.
+  const resumedSnapshot = await runMockedCodagCollector(context, {
+    xHtml: profileHtml({ includePost: false }),
+    seedEvidence: rows
+  });
+  const resumedRows = resumedSnapshot.evidence.filter(
+    (row) => row.platformPostId === "2083304728046518692"
+  );
+  const sourceReason = rows[0].matchReason.replace(
+    / Canonical write reconciled [0-9]+ same-owner observations by native X post ID and retained per-metric maxima\./g,
+    ""
+  );
+  assert.equal(resumedRows.length, 1);
+  assert.equal(
+    resumedRows[0].matchReason,
+    `${sourceReason} Canonical write reconciled 1 same-owner observations by native X post ID and retained per-metric maxima.`
+  );
+  assert.equal(resumedRows[0].matchReason.match(/Canonical write reconciled/g)?.length, 1);
 });
 
 test("same native X post IDs with conflicting exact timestamps are quarantined", async (context) => {
@@ -123,6 +144,23 @@ test("same native X post IDs with conflicting exact timestamps are quarantined",
   assert.equal(reviewRows.length, 1);
   assert.equal(reviewRows[0].xMetricReceipt.timestampConflict, true);
   assert.match(reviewRows[0].matchReason, /Conflicting exact native timestamps/);
+
+  const resumed = await runMockedCodagCollector(context, {
+    xHtml: profileHtml({ includePost: false }),
+    seedEvidence: reviewRows
+  });
+  const resumedReviewRows = resumed.needsReview.filter(
+    (row) => row.platformPostId === "2083304728046518692"
+  );
+  assert.equal(resumedReviewRows.length, 1);
+  assert.equal(
+    resumedReviewRows[0].matchReason.match(/Conflicting exact native timestamps/g)?.length,
+    1
+  );
+  assert.equal(
+    resumedReviewRows[0].matchReason.match(/Canonical write reconciled/g)?.length,
+    1
+  );
 });
 
 test("a date-only X Schema.org label is rejected instead of promoted to exact", async (context) => {

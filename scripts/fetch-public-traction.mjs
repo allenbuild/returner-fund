@@ -35,6 +35,10 @@ import {
 } from "./lib/instagram-public-profile.mjs";
 import { extractXPublicProfileReceipt } from "./lib/x-public-profile-html.mjs";
 import {
+  canonicalXNativeMergeReason,
+  canonicalXNativeReconciliationReason
+} from "./lib/x-native-reconciliation-reason.mjs";
+import {
   assessPublicEvidenceAttribution,
   assessLinkedInPrimaryPostBody,
   containsExactTokenSequence,
@@ -3495,14 +3499,17 @@ function mergeXNativeEvidence(publicProfileEvidence, apiEvidence) {
 
     const metrics = mergeMetricMaximums(existing.metrics, item.metrics);
     const metricReceipt = xNativeMetricReceipt([existing, item], metrics);
-    const bothNativeSources = new Set([
+    const nativeSources = [
       existing.attributionProvenance,
-      item.attributionProvenance
-    ]).has("x_public_profile_schema_org_exact_owner_v1") &&
-      new Set([
-        existing.attributionProvenance,
-        item.attributionProvenance
-      ]).has("x_recent_search_exact_mapped_author_v1");
+      item.attributionProvenance,
+      ...(existing.xMetricReceipt?.observations ?? []).map((observation) => observation?.source),
+      ...(item.xMetricReceipt?.observations ?? []).map((observation) => observation?.source)
+    ].map((source) => String(source ?? ""));
+    const bothNativeSources = nativeSources.some((source) =>
+      source.includes("x_public_profile_schema_org_exact_owner_v1")
+    ) && nativeSources.some((source) =>
+      source.includes("x_recent_search_exact_mapped_author_v1")
+    );
     const exactPostedAt = [existing, item]
       .filter((candidate) => candidate.publishedAtPrecision === "exact")
       .map((candidate) => exactEvidenceTimestamp(candidate.postedAt))
@@ -3521,18 +3528,20 @@ function mergeXNativeEvidence(publicProfileEvidence, apiEvidence) {
       publishedAtPrecision,
       rawVisibleText: xReconciledRawVisibleText(existing, metricReceipt),
       xMetricReceipt: metricReceipt,
+      matchReason: canonicalXNativeMergeReason(existing.matchReason, {
+        credentialedRecentSearchMatch: bothNativeSources,
+        timestampConflict: metricReceipt.timestampConflict
+      }),
       ...(bothNativeSources
         ? {
-            attributionProvenance: "x_public_profile_schema_org+x_recent_search_exact_owner_v1",
-            matchReason: `${existing.matchReason} The credentialed X recent-search result independently matched the same native post ID; per-metric maxima were retained.`
+            attributionProvenance: "x_public_profile_schema_org+x_recent_search_exact_owner_v1"
           }
         : {}),
       ...(metricReceipt.timestampConflict
         ? {
             contributionScore: 0,
             review_state: "needs_review",
-            attributionStatus: "needs_review",
-            matchReason: `${existing.matchReason} Conflicting exact native timestamps were observed for the same X post ID; queued for review.`
+            attributionStatus: "needs_review"
           }
         : {})
     });
@@ -7489,10 +7498,6 @@ function reconcileNormalizedXNativeCandidates(candidates) {
   const lastCheckedAt = latestIsoTimestamp(
     ...candidates.map((item) => item.last_checked_at ?? item.checkedAt)
   );
-  const conflictReason = metricReceipt.timestampConflict
-    ? " Conflicting exact native timestamps were observed for the same X post ID; queued for review."
-    : "";
-
   return {
     ...preferred,
     metrics,
@@ -7503,11 +7508,22 @@ function reconcileNormalizedXNativeCandidates(candidates) {
     xMetricReceipt: metricReceipt,
     ...(firstSeenAt ? { first_seen_at: firstSeenAt } : {}),
     ...(lastCheckedAt ? { last_checked_at: lastCheckedAt } : {}),
-    matchReason:
-      `${preferred.matchReason ?? "Verified native X evidence."} ` +
-      `Canonical write reconciled ${candidates.length} same-owner observations by native X post ID and retained per-metric maxima.` +
-      conflictReason
+    matchReason: canonicalXNativeReconciliationReason(
+      preferred.matchReason,
+      candidates.length,
+      {
+        credentialedRecentSearchMatch: xReceiptHasCredentialedRecentSearch(metricReceipt) ||
+          String(preferred.attributionProvenance ?? "").includes("x_recent_search_exact"),
+        timestampConflict: metricReceipt.timestampConflict
+      }
+    )
   };
+}
+
+function xReceiptHasCredentialedRecentSearch(receipt) {
+  return (receipt?.observations ?? []).some((observation) =>
+    String(observation?.source ?? "").includes("x_recent_search_exact")
+  );
 }
 
 function isExactXSchemaEvidence(item) {

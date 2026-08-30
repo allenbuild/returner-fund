@@ -321,6 +321,169 @@ test("versions only catalog-derived attribution descriptor drift for one source 
   });
 });
 
+test("keeps normalized same-slot semantic mutations fail-closed", async () => {
+  await withArchive(async (rootDir) => {
+    const archive = await openLosslessPostArchive(rootDir);
+    const observedAt = "2026-08-30T15:48:05.575Z";
+    const generatedClause =
+      "Canonical write reconciled 1 same-owner observations by native X post ID and retained per-metric maxima.";
+    const normalizedPost = {
+      platformPostId: "555580343420723200",
+      text: "native body",
+      sourceUrl: "https://x.com/maryamjm/status/555580343420723200",
+      matchReason: `Exact native author verified. ${generatedClause}`
+    };
+    const input = {
+      platform: "x",
+      nativeId: "555580343420723200",
+      observedAt,
+      rawEnvelope: { text: "native body" },
+      normalizedPost
+    };
+    const first = await archive.appendPost(input);
+    const replay = await archive.appendPost(input);
+
+    assert.equal(first.normalized.status, "appended");
+    assert.equal(replay.normalized.status, "duplicate");
+    await assert.rejects(
+      archive.appendPost({
+        ...input,
+        normalizedPost: {
+          ...normalizedPost,
+          matchReason: `${normalizedPost.matchReason} Analyst changed the semantic provenance.`
+        }
+      }),
+      (error) => error instanceof LosslessArchiveConflictError &&
+        error.code === "LOSSLESS_ARCHIVE_CONFLICT" &&
+        error.recordType === "normalized_post"
+    );
+    assert.equal(
+      archive.listPostRevisions({ platform: "x", nativeId: "555580343420723200" }).length,
+      1
+    );
+  });
+});
+
+test("versions only exact generated X provenance drift for legacy same-slot rows", async () => {
+  await withArchive(async (rootDir) => {
+    let archive = await openLosslessPostArchive(rootDir);
+    const nativeId = "555580343420723200";
+    const observedAt = "2026-08-30T15:48:05.575Z";
+    const clause = (count) =>
+      `Canonical write reconciled ${count} same-owner observations by native X post ID and retained per-metric maxima.`;
+    const conflictClause =
+      "Conflicting exact native timestamps were observed for the same X post ID; queued for review.";
+    const recentSearchClause =
+      "The credentialed X recent-search result independently matched the same native post ID; per-metric maxima were retained.";
+    const receipt = {
+      source: "x_native_metric_reconciliation_v1",
+      nativePostId: nativeId,
+      mergedMetrics: { likes: 1 },
+      timestampConflict: false,
+      observedTimestamps: ["2015-01-15T04:20:50.000Z"],
+      observations: [{
+        source: "x_recent_search_exact_mapped_author_v1",
+        checkedAt: observedAt,
+        postedAt: "2015-01-15T04:20:50.000Z",
+        metrics: { likes: 1 }
+      }]
+    };
+    const basePost = {
+      platformPostId: nativeId,
+      text: "native body",
+      sourceUrl: `https://x.com/maryamjm/status/${nativeId}`,
+      xMetricReceipt: receipt
+    };
+    const append = (normalizedPost) => archive.appendPost({
+      platform: "x",
+      nativeId,
+      observedAt,
+      rawEnvelope: { text: "native body" },
+      normalizedPost
+    });
+    const legacy = await append({
+      ...basePost,
+      matchReason:
+        `Exact native author verified. ${clause(13)} ${clause(2)} ${clause(1)} ${clause(1)} ` +
+        `${conflictClause} ${conflictClause} ${recentSearchClause} ${recentSearchClause}`
+    });
+    const canonicalInput = {
+      ...basePost,
+      matchReason: `Exact native author verified. ${recentSearchClause} ${clause(1)}`
+    };
+    const canonical = await append(canonicalInput);
+    const replay = await append(canonicalInput);
+
+    assert.equal(legacy.normalized.status, "appended");
+    assert.equal(canonical.normalized.status, "appended");
+    assert.notEqual(canonical.normalized.contentHash, legacy.normalized.contentHash);
+    assert.equal(replay.normalized.status, "duplicate");
+    assert.equal(
+      archive.listPostRevisions({ platform: "x", nativeId }).length,
+      2
+    );
+    archive = await openLosslessPostArchive(rootDir);
+    assert.equal(
+      archive.listPostRevisions({ platform: "x", nativeId }).length,
+      2
+    );
+    await assert.rejects(
+      append({
+        ...canonicalInput,
+        matchReason: `Changed analyst provenance. ${clause(1)}`
+      }),
+      (error) => error instanceof LosslessArchiveConflictError &&
+        error.code === "LOSSLESS_ARCHIVE_CONFLICT" &&
+        error.recordType === "normalized_post"
+    );
+    await assert.rejects(
+      append({
+        ...canonicalInput,
+        text: "changed native body"
+      }),
+      (error) => error instanceof LosslessArchiveConflictError &&
+        error.code === "LOSSLESS_ARCHIVE_CONFLICT" &&
+        error.recordType === "normalized_post"
+    );
+    await assert.rejects(
+      append({
+        ...canonicalInput,
+        xMetricReceipt: {
+          ...receipt,
+          timestampConflict: true
+        }
+      }),
+      (error) => error instanceof LosslessArchiveConflictError &&
+        error.code === "LOSSLESS_ARCHIVE_CONFLICT" &&
+        error.recordType === "normalized_post"
+    );
+
+    const linkedInInput = {
+      platform: "linkedin",
+      nativeId: "activity-1",
+      observedAt,
+      rawEnvelope: { text: "linkedin body" },
+      normalizedPost: {
+        text: "linkedin body",
+        matchReason: `Exact native author verified. ${clause(1)}`
+      }
+    };
+    await archive.appendPost(linkedInInput);
+    await assert.rejects(
+      archive.appendPost({
+        ...linkedInInput,
+        normalizedPost: {
+          ...linkedInInput.normalizedPost,
+          matchReason: `Exact native author verified. ${clause(1)} ${clause(1)}`
+        }
+      }),
+      (error) => error instanceof LosslessArchiveConflictError &&
+        error.code === "LOSSLESS_ARCHIVE_CONFLICT" &&
+        error.recordType === "normalized_post"
+    );
+  });
+});
+
 test("fails closed on conflicting observation slots and destructive sparse rewrites", async () => {
   await withArchive(async (rootDir) => {
     const archive = await openLosslessPostArchive(rootDir);
