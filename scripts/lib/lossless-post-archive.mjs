@@ -2,6 +2,8 @@ import { appendFile, mkdir, readFile } from "node:fs/promises";
 import { createHash } from "node:crypto";
 import path from "node:path";
 
+import { splitGeneratedXNativeReconciliationReason } from "./x-native-reconciliation-reason.mjs";
+
 const SCHEMA_VERSION = 1;
 const DEFAULT_MAX_RECORD_BYTES = 8 * 1024 * 1024;
 
@@ -668,11 +670,44 @@ function stableNormalizedObservationCore(record) {
   }
   const stablePost = { ...post };
   delete stablePost.attributionDescriptorMatches;
+  if (content.platform === "x" && typeof stablePost.matchReason === "string") {
+    stablePost.matchReason = stableXNormalizedMatchReason(stablePost);
+  }
   return {
     schemaVersion: record.schemaVersion,
     recordType: record.recordType,
     key: record.key,
     content: { ...content, post: stablePost }
+  };
+}
+
+function stableXNormalizedMatchReason(post) {
+  const generated = splitGeneratedXNativeReconciliationReason(post.matchReason);
+  const receipt = post.xMetricReceipt;
+  const receiptObservations = Array.isArray(receipt?.observations)
+    ? receipt.observations.length
+    : null;
+  const receiptTimestampConflict = typeof receipt?.timestampConflict === "boolean"
+    ? receipt.timestampConflict
+    : null;
+  const receiptRecentSearchMatch = Array.isArray(receipt?.observations)
+    ? receipt.observations.some((observation) =>
+        String(observation?.source ?? "").includes("x_recent_search_exact")
+      )
+    : null;
+  const observationCounts = receiptObservations !== null && receiptObservations > 0
+    ? [String(receiptObservations)]
+    : [...new Set(generated.observationCounts)];
+
+  return {
+    prose: generated.prose,
+    generatedProvenance: {
+      observationCounts,
+      timestampConflict:
+        receiptTimestampConflict ?? (generated.timestampConflictOccurrences > 0),
+      credentialedRecentSearchMatch:
+        receiptRecentSearchMatch ?? (generated.credentialedRecentSearchOccurrences > 0)
+    }
   };
 }
 
