@@ -1,12 +1,14 @@
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
-import { mkdtemp, readFile, stat, writeFile } from "node:fs/promises";
+import { mkdtemp, readFile, rm, stat, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
 import {
   autonomousCollectorRetryableFailures,
-  loadAutonomousCatalogs
+  loadAutonomousCatalogs,
+  summarizeAutonomousCollectorTerminalTaskCoverage,
+  validateAutonomousCollectorReferentialIntegrity
 } from "../scripts/lib/autonomous-ingestion-plan.mjs";
 import {
   PUBLIC_EVIDENCE_ARTIFACT_MAX_BYTES,
@@ -3115,6 +3117,195 @@ test("checkpoint flush canonicalizes native IDs, eligibility, and exact social a
       .sort(),
     ["company-9-mothers-corporation", "company-dayjob"].sort()
   );
+});
+
+test("checkpoint flush prunes exact removed-founder failures without weakening accepted references", async (t) => {
+  const directory = await mkdtemp(join(tmpdir(), "returner-retired-founder-failures-"));
+  t.after(() => rm(directory, { recursive: true, force: true }));
+  const output = join(directory, "public-evidence.json");
+  const checkpoint = join(directory, "checkpoint.json");
+  const discoveryAttempts = join(directory, "discovery-attempts.json");
+  const sourceDiscoveryPaths = join(directory, "source-discovery-paths.json");
+  const staleFounderId = "founder-conifer-yavuz-inan-3606209";
+  const catalogs = await loadAutonomousCatalogs(root);
+  const catalog = catalogs.find((candidate) => candidate.slug === "S26");
+  const conifer = catalog.companies.find((company) => company.sourceKey === "company-conifer");
+  const currentFounder = conifer.founders.find((founder) => founder.name === "Michael Jeffords");
+  const staleFailures = [
+    ["instagram", null, "No mapped public Instagram URL for founder Yavuz Inan."],
+    ["linkedin", "https://linkedin.com/in/yavuz-selim-inan", "LinkedIn anonymous public HTML was blocked."],
+    ["linkedin", "https://linkedin.com/in/yavuz-selim-inan", "LinkedIn public post discovery was blocked."],
+    ["x", null, "No mapped public X URL for founder Yavuz Inan."]
+  ].map(([platform, accountUrl, message], index) => ({
+    id: `stale-yavuz-failure-${index + 1}`,
+    entityType: "founder",
+    entityId: staleFounderId,
+    entityName: "Yavuz Inan",
+    companySlug: "conifer",
+    companyName: "Conifer",
+    platform,
+    accountUrl,
+    sourceUrl: accountUrl,
+    message,
+    checkedAt: "2026-08-30T19:45:52.000Z",
+    retryable: false
+  }));
+  const currentFailure = {
+    id: "current-conifer-founder-failure",
+    entityType: "founder",
+    entityId: currentFounder.sourceKey,
+    entityName: currentFounder.name,
+    companySlug: "conifer",
+    companyName: "Conifer",
+    platform: "x",
+    message: "No mapped public X URL for current founder.",
+    checkedAt: "2026-08-30T19:45:52.000Z",
+    retryable: false
+  };
+  const unknownFailure = {
+    ...currentFailure,
+    id: "unrecorded-founder-failure",
+    entityId: "founder-conifer-unrecorded-person-9999999",
+    entityName: "Unrecorded Person",
+    message: "Unknown owner reference must remain fail-closed."
+  };
+  const beforeReconciliation = {
+    source: {
+      label: "Public unauthenticated platform/page ingestion",
+      batchSlug: "S26",
+      fetchedAt: "2026-08-30T19:45:52.000Z"
+    },
+    attempts: {},
+    evidence: [],
+    needsReview: [],
+    failures: [...staleFailures, currentFailure]
+  };
+  assert.throws(
+    () => validateAutonomousCollectorReferentialIntegrity(beforeReconciliation, {
+      kind: "public",
+      batchSlug: "S26",
+      catalog
+    }),
+    /4 rows do not resolve to exact S26 catalog entity IDs/
+  );
+
+  await Promise.all([
+    writeFile(output, `${JSON.stringify({
+      source: {},
+      attempts: {},
+      evidence: [],
+      needsReview: [],
+      failures: [...staleFailures.slice(0, 2), currentFailure]
+    }, null, 2)}\n`),
+    writeFile(checkpoint, `${JSON.stringify({
+      attempts: {},
+      evidence: [],
+      needsReview: [],
+      failures: [...staleFailures.slice(2), unknownFailure],
+      discoveryAttempts: [],
+      sourceDiscoveryPaths: []
+    }, null, 2)}\n`),
+    writeFile(discoveryAttempts, "[]\n"),
+    writeFile(sourceDiscoveryPaths, "[]\n")
+  ]);
+
+  const command = [
+    "scripts/fetch-public-traction.mjs",
+    "--batch=S26",
+    "--max-companies=0",
+    "--social=none",
+    "--workers=1",
+    "--delay-ms=0",
+    `--output=${output}`,
+    `--checkpoint=${checkpoint}`,
+    `--discovery-attempts=${discoveryAttempts}`,
+    `--source-discovery-paths=${sourceDiscoveryPaths}`
+  ];
+  execFileSync(process.execPath, command, { cwd: root, stdio: "pipe" });
+
+  const [snapshot, persistedCheckpoint] = await Promise.all([
+    readFile(output, "utf8").then(JSON.parse),
+    readFile(checkpoint, "utf8").then(JSON.parse)
+  ]);
+  for (const payload of [snapshot, persistedCheckpoint]) {
+    assert.equal(payload.failures.some((row) => row.entityId === staleFounderId), false);
+    assert.equal(payload.failures.some((row) => row.id === currentFailure.id), true);
+    assert.equal(payload.failures.some((row) => row.id === unknownFailure.id), true);
+  }
+  assert.equal(snapshot.source.operationalReferenceReconciliation.prunedFailureCount, 4);
+  assert.deepEqual(
+    snapshot.source.operationalReferenceReconciliation.prunedFounderEntityIds,
+    [staleFounderId]
+  );
+  assert.equal(persistedCheckpoint.operationalReferenceReconciliation.prunedFailureCount, 4);
+
+  assert.throws(
+    () => validateAutonomousCollectorReferentialIntegrity(snapshot, {
+      kind: "public",
+      batchSlug: "S26",
+      catalog
+    }),
+    /do not resolve to exact S26 catalog entity IDs/
+  );
+  const terminalReplay = {
+    ...snapshot,
+    failures: snapshot.failures.filter((row) => row.id !== unknownFailure.id)
+  };
+  assert.equal(validateAutonomousCollectorReferentialIntegrity(terminalReplay, {
+    kind: "public",
+    batchSlug: "S26",
+    catalog
+  }), terminalReplay);
+  assert.deepEqual(autonomousCollectorRetryableFailures(terminalReplay), []);
+  const replayTasks = [{
+    batchSlug: "S26",
+    status: "queued",
+    platform: "x",
+    entityType: "founder",
+    entitySourceKey: currentFounder.sourceKey,
+    account: null
+  }];
+  assert.deepEqual(
+    summarizeAutonomousCollectorTerminalTaskCoverage(beforeReconciliation, {
+      kind: "public",
+      batchSlug: "S26",
+      tasks: replayTasks
+    }),
+    summarizeAutonomousCollectorTerminalTaskCoverage(terminalReplay, {
+      kind: "public",
+      batchSlug: "S26",
+      tasks: replayTasks
+    })
+  );
+  assert.equal(
+    summarizeAutonomousCollectorTerminalTaskCoverage(terminalReplay, {
+      kind: "public",
+      batchSlug: "S26",
+      tasks: replayTasks
+    }).nonTerminal,
+    0
+  );
+  assert.throws(
+    () => validateAutonomousCollectorReferentialIntegrity({
+      ...terminalReplay,
+      evidence: [{
+        id: "invalid-accepted-stale-founder-evidence",
+        entityType: "founder",
+        entityId: staleFounderId,
+        platform: "x",
+        sourceUrl: "https://x.com/yavuz/status/2090000000000000000"
+      }]
+    }, {
+      kind: "public",
+      batchSlug: "S26",
+      catalog
+    }),
+    /do not resolve to exact S26 catalog entity IDs/
+  );
+
+  execFileSync(process.execPath, command, { cwd: root, stdio: "pipe" });
+  const replayedCheckpoint = JSON.parse(await readFile(checkpoint, "utf8"));
+  assert.equal(replayedCheckpoint.failures.some((row) => row.entityId === staleFounderId), false);
 });
 
 test("legacy semantic false positives carry explicit durable quarantine directives", async () => {

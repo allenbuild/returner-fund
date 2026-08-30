@@ -100,6 +100,7 @@ import {
   readAutonomousCollectorLaunchProvenance
 } from "./lib/autonomous-collector-provenance.mjs";
 import { redactTokenLikeStrings } from "./lib/public-token-redaction.mjs";
+import { reconcileRetiredFounderOperationalFailures } from "./lib/public-collector-operational-references.mjs";
 import { validatedRepositoryDataRoot } from "./lib/validated-repository-data-root.mjs";
 
 const root = validatedRepositoryDataRoot(
@@ -317,7 +318,16 @@ const attemptMap = new Map(
 );
 const evidence = dedupeById([...(currentOutput.evidence ?? []), ...(checkpoint.evidence ?? [])]);
 const needsReview = dedupeById([...(currentOutput.needsReview ?? []), ...(checkpoint.needsReview ?? [])]);
-const failures = dedupeFailures([...(currentOutput.failures ?? []), ...(checkpoint.failures ?? [])]);
+const operationalFailureReconciliation = reconcileRetiredFounderOperationalFailures(
+  dedupeFailures([...(currentOutput.failures ?? []), ...(checkpoint.failures ?? [])]),
+  {
+    currentEntityIds: companySlugByEntityId.keys(),
+    founderTransitions: batchConfig.slug === "S26"
+      ? summerCompanyAliasLedger?.founderTransitions
+      : []
+  }
+);
+const failures = operationalFailureReconciliation.failures;
 const discoveryAttempts = dedupeDiscoveryAttempts([
   ...batchScopedRows(previousMergedOutput?.discoveryAttempts, normalizedBatchSnapshot, batchConfig.slug),
   ...batchScopedRows(currentOutput.discoveryAttempts, normalizedBatchSnapshot, batchConfig.slug),
@@ -574,6 +584,9 @@ const payload = {
       },
       exa: { configured: Boolean(exaApiKey), errorCount: exaFailureCount }
     },
+    ...(operationalFailureReconciliation.receipt
+      ? { operationalReferenceReconciliation: operationalFailureReconciliation.receipt }
+      : {}),
     platformsAttempted: attemptedPlatformsForRun(),
     notes: [
       "Read-only public requests only.",
@@ -7675,6 +7688,9 @@ async function writeCheckpoint({ force = false } = {}) {
         ...normalizedCheckpointEvidence.needsReview
       ]),
       failures: dedupeFailures(failures),
+      ...(operationalFailureReconciliation.receipt
+        ? { operationalReferenceReconciliation: operationalFailureReconciliation.receipt }
+        : {}),
       discoveryAttempts: dedupeDiscoveryAttempts(discoveryAttempts),
       sourceDiscoveryPaths: dedupeById(sourceDiscoveryPaths)
     };
