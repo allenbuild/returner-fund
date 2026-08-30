@@ -53,7 +53,8 @@ import {
 import { isKnownTopVoiceAccountUrl, isKnownTopVoiceNativeIdentity } from "@/lib/social/top-voices";
 import {
   reconcileLegacySummerEvidenceEntity,
-  reconcileLegacySummerGithubAccount
+  reconcileLegacySummerGithubAccount,
+  SUMMER_COMPANY_ALIAS_LEDGER
 } from "./summer-company-rename-reconciliation";
 import {
   assertRawEvidenceTemporalPreflight,
@@ -1859,10 +1860,17 @@ function buildOfficialSummerGithubUrlsByEntityId(): Map<string, Set<string>> {
   };
 
   for (const company of snapshot.companies) {
-    add(companyId(company), company.socialLinks.github);
-    add(companyId(company), historicalSocialLinksForSummerCompany(company.slug).github);
+    const entityId = companyId(company);
+    add(entityId, company.socialLinks.github);
+    add(entityId, historicalSocialLinksForSummerCompany(company.slug).github);
+    for (const alias of SUMMER_COMPANY_ALIAS_LEDGER.aliases) {
+      if (alias.companyId !== company.id) continue;
+      for (const githubUrl of alias.companyAccounts.github ?? []) {
+        add(entityId, githubUrl);
+      }
+    }
     add(
-      companyId(company),
+      entityId,
       verifiedSocialOverrides[company.slug]?.companySocialLinks?.github
     );
     for (const founder of company.founders) {
@@ -2300,6 +2308,7 @@ function attributionCompanyProfile(raw: RawCompany): AttributionCompanyProfile {
     socialLinks: [
       ...attributionSocialLinks(raw.socialLinks),
       ...attributionSocialLinks(historicalSocialLinksForSummerCompany(raw.slug)),
+      ...historicalAliasAttributionSocialLinks(raw),
       ...attributionSocialLinks(verifiedSocialOverrides[raw.slug]?.companySocialLinks ?? {})
     ],
     founders: [
@@ -2329,6 +2338,17 @@ function attributionSocialLinks(links: RawSocialLinks): AttributionSocialLink[] 
     .filter(([platform, url]) => urlMatchesPlatform(url, platform))
     .filter(([, url]) => Boolean(handleFromUrl(url)))
     .map(([platform, url]) => ({ platform, url }));
+}
+
+function historicalAliasAttributionSocialLinks(raw: RawCompany): AttributionSocialLink[] {
+  return SUMMER_COMPANY_ALIAS_LEDGER.aliases
+    .filter((alias) => alias.companyId === raw.id)
+    .flatMap((alias) =>
+      Object.entries(alias.companyAccounts).flatMap(([platform, urls]) =>
+        (urls ?? []).map((url) => ({ platform: platform as Platform, url }))
+      )
+    )
+    .filter(({ platform, url }) => urlMatchesPlatform(url, platform) && Boolean(handleFromUrl(url)));
 }
 
 function groupEvidenceByEntity(items: EvidenceItem[]): Map<string, EvidenceItem[]> {
