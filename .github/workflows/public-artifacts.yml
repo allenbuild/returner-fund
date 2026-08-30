@@ -21,6 +21,10 @@ on:
         description: Exact caller/source commit whose reusable validation policy was loaded
         required: true
         type: string
+      artifact_freshness_policy:
+        description: Explicit artifact freshness policy selected by the reusable caller
+        required: true
+        type: string
       publication_kind:
         description: Optional publication provenance kind for bot-authored commits
         required: false
@@ -80,6 +84,7 @@ jobs:
     timeout-minutes: 10
     outputs:
       target_sha: ${{ steps.target.outputs.target_sha }}
+      artifact_freshness_policy: ${{ steps.target.outputs.artifact_freshness_policy }}
     steps:
       - name: Check out requested validation target
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
@@ -94,6 +99,7 @@ jobs:
           REQUESTED_SHA: ${{ inputs.target_sha || github.sha }}
           REQUIRE_MAIN_REACHABILITY: ${{ github.event_name != 'pull_request' }}
           POLICY_SOURCE_SHA: ${{ inputs.policy_source_sha }}
+          REQUESTED_ARTIFACT_FRESHNESS_POLICY: ${{ inputs.artifact_freshness_policy }}
           PUBLICATION_KIND: ${{ inputs.publication_kind }}
           PUBLICATION_RECEIPT_PATH: ${{ inputs.publication_receipt_path }}
           PUBLICATION_SOURCE_SHA: ${{ inputs.publication_source_sha }}
@@ -335,13 +341,31 @@ jobs:
             fi
           fi
 
+          if [ -z "$REQUESTED_ARTIFACT_FRESHNESS_POLICY" ]; then
+            if [ -n "$POLICY_SOURCE_SHA" ]; then
+              echo "::error title=Missing artifact freshness policy::Reusable validation must select an explicit freshness policy."
+              exit 1
+            fi
+            ARTIFACT_FRESHNESS_POLICY="latest-completed-slot"
+          else
+            ARTIFACT_FRESHNESS_POLICY="$REQUESTED_ARTIFACT_FRESHNESS_POLICY"
+          fi
+          case "$ARTIFACT_FRESHNESS_POLICY" in
+            strict-current-day|latest-completed-slot) ;;
+            *)
+              echo "::error title=Invalid artifact freshness policy::Expected strict-current-day or latest-completed-slot, received '$ARTIFACT_FRESHNESS_POLICY'."
+              exit 1
+              ;;
+          esac
           echo "target_sha=$EXECUTED_SHA" >> "$GITHUB_OUTPUT"
+          echo "artifact_freshness_policy=$ARTIFACT_FRESHNESS_POLICY" >> "$GITHUB_OUTPUT"
           {
             echo "## Public artifact validation target"
             echo "- Event: $GITHUB_EVENT_NAME"
             echo "- Exact commit: $EXECUTED_SHA"
             echo "- Main reachability required: $REQUIRE_MAIN_REACHABILITY"
             echo "- Workflow policy parity required: $([ -n "$POLICY_SOURCE_SHA" ] && echo true || echo false)"
+            echo "- Artifact freshness policy: $ARTIFACT_FRESHNESS_POLICY"
           } >> "$GITHUB_STEP_SUMMARY"
 
   quality:
@@ -544,6 +568,10 @@ jobs:
         timeout-minutes: 55
         env:
           NODE_OPTIONS: --max-old-space-size=3072
+          # Publication callers explicitly stay strict. Direct push/PR/dispatch
+          # validation permits only the bounded midnight-to-06:00 rollover day
+          # implied by the autonomous 06:00/18:00 Central ingestion cadence.
+          PUBLIC_ARTIFACT_FRESHNESS_POLICY: ${{ needs.resolve_target.outputs.artifact_freshness_policy }}
         run: npm run check:release:artifacts
 
   validate:
