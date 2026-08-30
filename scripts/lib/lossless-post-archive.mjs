@@ -670,8 +670,19 @@ function stableNormalizedObservationCore(record) {
   }
   const stablePost = { ...post };
   delete stablePost.attributionDescriptorMatches;
-  if (content.platform === "x" && typeof stablePost.matchReason === "string") {
-    stablePost.matchReason = stableXNormalizedMatchReason(stablePost);
+  if (content.platform === "x") {
+    // Descriptor-token rescoring can add this catalog-only corroboration to
+    // an otherwise identical native X observation during publication merge.
+    if (Array.isArray(stablePost.attributionSignals)) {
+      const stableSignals = stablePost.attributionSignals.filter(
+        (signal) => signal !== "catalog_distinctive_phrase"
+      );
+      if (stableSignals.length === 0) delete stablePost.attributionSignals;
+      else stablePost.attributionSignals = stableSignals;
+    }
+    if (typeof stablePost.matchReason === "string") {
+      stablePost.matchReason = stableXNormalizedMatchReason(stablePost);
+    }
   }
   return {
     schemaVersion: record.schemaVersion,

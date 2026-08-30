@@ -37,6 +37,7 @@ import {
   loadSupervisorState,
   parseWorkerLeaseLossLog,
   readDashboardPublicationWatermark,
+  readHostWakeStatus,
   runSupervisor,
   supervisorConfig,
   verifyCancelledAutonomousJob,
@@ -282,6 +283,90 @@ test("maintenance-wake gate accepts exactly one full-wake signal and fails close
       reason: "wake_status_unavailable"
     });
   }
+});
+
+test("wake-status reader uses the root power domain and retries one transient failure", async () => {
+  const calls = [];
+  const expected = '"IOPMUserTriggeredFullWake" = Yes';
+  const actual = await readHostWakeStatus({
+    execute: async (command, args, options) => {
+      calls.push({ command, args, options });
+      if (calls.length === 1) throw new Error("transient ioreg timeout");
+      return { stdout: expected };
+    }
+  });
+
+  assert.equal(actual, expected);
+  assert.equal(calls.length, 2);
+  for (const call of calls) {
+    assert.equal(call.command, "/usr/sbin/ioreg");
+    assert.deepEqual(call.args, ["-r", "-n", "IOPMrootDomain", "-d", "1"]);
+    assert.deepEqual(call.options, {
+      timeout: 10_000,
+      maxBuffer: 1024 * 1024,
+      encoding: "utf8"
+    });
+  }
+});
+
+test("wake-status reader retries an unavailable result and still fails closed", async () => {
+  let calls = 0;
+  const actual = await readHostWakeStatus({
+    execute: async () => {
+      calls += 1;
+      return { stdout: "IOPMUserTriggeredFullWake is unavailable" };
+    }
+  });
+
+  assert.equal(calls, 2);
+  assert.deepEqual(evaluateMaintenanceWakeStatus(actual), {
+    fullWake: false,
+    reason: "wake_status_unavailable"
+  });
+});
+
+test("wake-status reader accepts a valid maintenance wake without retrying", async () => {
+  let calls = 0;
+  const actual = await readHostWakeStatus({
+    execute: async () => {
+      calls += 1;
+      return { stdout: '"IOPMUserTriggeredFullWake" = No' };
+    }
+  });
+
+  assert.equal(calls, 1);
+  assert.deepEqual(evaluateMaintenanceWakeStatus(actual), {
+    fullWake: false,
+    reason: "maintenance_dark_wake"
+  });
+});
+
+test("two wake-reader failures remain fail-closed through schedule recovery", async () => {
+  let wakeReads = 0;
+  let dispatches = 0;
+  const decision = await evaluateScheduleRecovery({
+    config: config({ scheduleRecoveryEnabled: true }),
+    github: github({
+      dispatchRecovery: async () => {
+        dispatches += 1;
+      }
+    }),
+    state: { recoveryDispatch: null },
+    readPowerStatus: async () => "Now drawing from 'Battery Power'\n 87%; discharging",
+    readWakeStatus: () => readHostWakeStatus({
+      execute: async () => {
+        wakeReads += 1;
+        throw new Error("persistent ioreg timeout");
+      }
+    }),
+    now: new Date("2026-08-26T05:05:00.000Z")
+  });
+
+  assert.equal(wakeReads, 2);
+  assert.equal(decision.action, "defer");
+  assert.equal(decision.reason, "wake_status_unavailable");
+  assert.equal(decision.batteryPercent, 87);
+  assert.equal(dispatches, 0);
 });
 
 test("recovery host gate ignores wake state on AC and requires full wake on battery", () => {

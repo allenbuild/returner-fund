@@ -321,6 +321,258 @@ test("versions only catalog-derived attribution descriptor drift for one source 
   });
 });
 
+test("replays the exact Zomma catalog-projection revision without weakening immutable post fields", async () => {
+  await withArchive(async (rootDir) => {
+    let archive = await openLosslessPostArchive(rootDir);
+    const nativeId = "2089757203444154593";
+    const observedAt = "2026-08-30T15:48:05.575Z";
+    const basePost = {
+      accountUrl: "https://x.com/jihprobs",
+      attributionDescriptorMatches: ["computer", "funds", "hedge", "is", "project", "today", "use"],
+      attributionMode: "account_owner",
+      attributionProvenance: "x_public_profile_schema_org_exact_owner_v1",
+      attributionSignals: ["mapped_official_account", "unique_native_author"],
+      attributionStatus: "verified",
+      attributionVersion: 3,
+      authorHandle: "jihprobs",
+      batchSlug: "S26",
+      companyName: "Zomma",
+      companySlug: "zomma",
+      entityId: "founder-zomma-jihyun-kim-3128623",
+      entityName: "Jihyun Kim",
+      entityType: "founder",
+      id: "x-founder-zomma-jihyun-kim-3128623-x-com-jihprobs-status-2089757203444154593-today-we-are-launching-zommalabs-what-started-as-a-2am-library-project-to-build-a-computer-use-agent-10",
+      matchReason: "Anonymous server-rendered X profile Schema.org data exposed this native post on the exact mapped @jihprobs profile; native author=@jihprobs, native status URL owner=@jihprobs. The first public profile page exposed 5 post surfaces, retained 5 exact-owner posts, rejected 0 foreign or invalid nested posts, and returned 5; truncated=false. This is one bounded server-rendered profile page, not proof of historical exhaustion. Canonical write reconciled 1 same-owner observations by native X post ID and retained per-metric maxima.",
+      media: [],
+      nativeAuthorResolution: {
+        author: { key: "jihprobs", platform: "x" },
+        changed: false,
+        owner: {
+          batchSlug: "S26",
+          companyEntityId: "company-zomma",
+          companyName: "Zomma",
+          companySlug: "zomma",
+          entityId: "founder-zomma-jihyun-kim-3128623",
+          entityName: "Jihyun Kim",
+          entityType: "founder"
+        },
+        status: "matched"
+      },
+      nativeId,
+      originalText: "Today we are launching @ZommaLabs\n\nWhat started as a 2am library project to build a computer use agent -> 100s conversations with hedge funds, payments, fintechs -> getting into @ycombinator -> starting with a billion dollar compliance problem that computer use is uniquely good",
+      platform: "x",
+      platformPostId: nativeId,
+      postedAt: "2026-08-18T16:51:57.000Z",
+      publishedAtPrecision: "exact",
+      relationships: { parent: null, quote: null, thread: null },
+      review_state: "verified",
+      sourceUrl: `https://x.com/jihprobs/status/${nativeId}`,
+      text: "Today we are launching @ZommaLabs What started as a 2am library project to build a computer use agent -> 100s conversations with hedge funds, payments, fintechs -> getting into @ycombinator -> starting with a billion dollar compliance problem that computer use is uniquely good",
+      title: "Today we are launching @ZommaLabs What started as a 2am library project to build a computer use agent -> 100s conversations with hedge funds, payments, fintechs -> getting into @ycombinator -> starting with a billion dollar compliance problem that computer use is uniquely good",
+      xMetricReceipt: {
+        mergedMetrics: { likes: 35, replies: 11, reposts: 3, views: 6701 },
+        nativePostId: nativeId,
+        observations: [{
+          checkedAt: observedAt,
+          metrics: { likes: 35, replies: 11, reposts: 3, views: 6701 },
+          postedAt: "2026-08-18T16:51:57.000Z",
+          source: "x_public_profile_schema_org_exact_owner_v1"
+        }],
+        observedTimestamps: ["2026-08-18T16:51:57.000Z"],
+        source: "x_native_metric_reconciliation_v1",
+        timestampConflict: false
+      }
+    };
+    const projectedPost = {
+      ...basePost,
+      attributionDescriptorMatches: ["computer", "is", "project", "today", "use"],
+      attributionSignals: [
+        "catalog_distinctive_phrase",
+        "mapped_official_account",
+        "unique_native_author"
+      ]
+    };
+    const append = (normalizedPost) => archive.appendPost({
+      platform: "x",
+      nativeId,
+      observedAt,
+      rawEnvelope: { nativeId, source: "x_native_evidence_reconciled_v1" },
+      normalizedPost
+    });
+
+    const legacy = await append(basePost);
+    const projected = await append(projectedPost);
+    assert.equal(
+      legacy.normalized.contentHash,
+      "dd49a01cdcd4a8605c2dc3e09e172a93e9ad1a8b413bbb05cbe339e98c3ced2d"
+    );
+    assert.equal(
+      projected.normalized.contentHash,
+      "3b8e2fbecf10c045633d80b253f24c1b960be26fb84f62314f0c9c9384835011"
+    );
+    assert.equal(projected.normalized.status, "appended");
+
+    const { companyEntityId: _projectedCompanyEntityId, ...ownerWithoutCompanyEntityId } =
+      projectedPost.nativeAuthorResolution.owner;
+    const sparseProjection = {
+      ...projectedPost,
+      nativeAuthorResolution: {
+        ...projectedPost.nativeAuthorResolution,
+        owner: ownerWithoutCompanyEntityId
+      }
+    };
+    assert.equal(archive.listPostRevisions({ platform: "x", nativeId }).length, 2);
+
+    const conflictCases = [
+      {
+        label: "omitted native owner company identity",
+        post: sparseProjection
+      },
+      {
+        label: "top-level entity identity",
+        post: { ...projectedPost, entityId: "founder-zomma-other" }
+      },
+      {
+        label: "native owner entity identity",
+        post: {
+          ...projectedPost,
+          nativeAuthorResolution: {
+            ...projectedPost.nativeAuthorResolution,
+            owner: { ...projectedPost.nativeAuthorResolution.owner, entityId: "founder-zomma-other" }
+          }
+        }
+      },
+      {
+        label: "native owner company slug",
+        post: {
+          ...projectedPost,
+          nativeAuthorResolution: {
+            ...projectedPost.nativeAuthorResolution,
+            owner: { ...projectedPost.nativeAuthorResolution.owner, companySlug: "other-company" }
+          }
+        }
+      },
+      {
+        label: "explicit native owner company identity",
+        post: {
+          ...projectedPost,
+          nativeAuthorResolution: {
+            ...projectedPost.nativeAuthorResolution,
+            owner: { ...projectedPost.nativeAuthorResolution.owner, companyEntityId: "company-other" }
+          }
+        }
+      },
+      {
+        label: "attribution provenance",
+        post: { ...projectedPost, attributionProvenance: "different_native_source_v1" }
+      },
+      {
+        label: "attribution status",
+        post: { ...projectedPost, attributionStatus: "needs_review" }
+      },
+      {
+        label: "stable attribution signal",
+        post: {
+          ...projectedPost,
+          attributionSignals: ["catalog_distinctive_phrase", "unique_native_author"]
+        }
+      },
+      {
+        label: "native body",
+        post: { ...projectedPost, text: `${projectedPost.text} changed` }
+      },
+      {
+        label: "native publication timestamp",
+        post: { ...projectedPost, postedAt: "2026-08-18T16:51:58.000Z" }
+      },
+      {
+        label: "metric observation timestamp",
+        post: {
+          ...projectedPost,
+          xMetricReceipt: {
+            ...projectedPost.xMetricReceipt,
+            observations: [{
+              ...projectedPost.xMetricReceipt.observations[0],
+              checkedAt: "2026-08-30T15:48:06.575Z"
+            }]
+          }
+        }
+      },
+      {
+        label: "native metrics",
+        post: {
+          ...projectedPost,
+          xMetricReceipt: {
+            ...projectedPost.xMetricReceipt,
+            mergedMetrics: { ...projectedPost.xMetricReceipt.mergedMetrics, views: 6702 }
+          }
+        }
+      }
+    ];
+    for (const conflictCase of conflictCases) {
+      await assert.rejects(
+        append(conflictCase.post),
+        (error) => error instanceof LosslessArchiveConflictError &&
+          error.code === "LOSSLESS_ARCHIVE_CONFLICT" &&
+          error.recordType === "normalized_post",
+        conflictCase.label
+      );
+    }
+
+    const linkedInPost = {
+      text: "same LinkedIn body",
+      sourceUrl: "https://linkedin.com/feed/update/urn:li:activity:123",
+      attributionSignals: ["mapped_official_account"],
+      nativeAuthorResolution: {
+        status: "matched",
+        owner: {
+          batchSlug: "S26",
+          entityType: "founder",
+          entityId: "founder-zomma-jihyun-kim-3128623",
+          companySlug: "zomma",
+          companyEntityId: "company-zomma"
+        }
+      }
+    };
+    const appendLinkedIn = (normalizedPost) => archive.appendPost({
+      platform: "linkedin",
+      nativeId: "activity:123",
+      observedAt,
+      rawEnvelope: { nativeId: "activity:123" },
+      normalizedPost
+    });
+    await appendLinkedIn(linkedInPost);
+    await assert.rejects(
+      appendLinkedIn({
+        ...linkedInPost,
+        attributionSignals: ["catalog_distinctive_phrase", "mapped_official_account"]
+      }),
+      (error) => error instanceof LosslessArchiveConflictError &&
+        error.recordType === "normalized_post",
+      "non-X catalog signal drift must remain fail-closed"
+    );
+    const { companyEntityId: _linkedInCompanyEntityId, ...linkedInSparseOwner } =
+      linkedInPost.nativeAuthorResolution.owner;
+    await assert.rejects(
+      appendLinkedIn({
+        ...linkedInPost,
+        nativeAuthorResolution: {
+          ...linkedInPost.nativeAuthorResolution,
+          owner: linkedInSparseOwner
+        }
+      }),
+      (error) => error instanceof LosslessArchiveConflictError &&
+        error.recordType === "normalized_post",
+      "non-X owner projection drift must remain fail-closed"
+    );
+
+    archive = await openLosslessPostArchive(rootDir);
+    assert.equal(archive.listPostRevisions({ platform: "x", nativeId }).length, 2);
+    assert.equal((await append(basePost)).normalized.status, "duplicate");
+    assert.equal((await append(projectedPost)).normalized.status, "duplicate");
+  });
+});
+
 test("keeps normalized same-slot semantic mutations fail-closed", async () => {
   await withArchive(async (rootDir) => {
     const archive = await openLosslessPostArchive(rootDir);
