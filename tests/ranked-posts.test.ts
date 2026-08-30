@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { selectRankedPosts } from "@/lib/graph/ranked-posts";
+import {
+  rankedPostsLatestPublishedDate,
+  selectRankedPosts
+} from "@/lib/graph/ranked-posts";
 import type { RankedPostsSidecarScope } from "@/lib/graph/ranked-posts-sidecar";
 import type { EvidenceItem, GraphNode, GraphResponse } from "@/lib/graph/types";
 
@@ -170,6 +173,35 @@ describe("ranked posts", () => {
     }).map((item) => item.evidence.id)).toEqual(["browser-wall-clock-day"]);
   });
 
+  it("uses the latest credible post day when the graph was generated the following day", () => {
+    const snapshot = graph([
+      evidence({
+        id: "prior-published-day",
+        postedAt: "2026-08-28T22:00:00.000Z",
+        sourceUrl: "https://x.com/c/status/721",
+        platformPostId: "721"
+      }),
+      evidence({
+        id: "latest-published-day",
+        postedAt: "2026-08-29T22:00:00.000Z",
+        sourceUrl: "https://x.com/c/status/722",
+        platformPostId: "722"
+      }),
+      evidence({
+        id: "future-after-snapshot",
+        postedAt: "2026-08-31T12:00:00.000Z",
+        sourceUrl: "https://x.com/c/status/723",
+        platformPostId: "723"
+      })
+    ]);
+    snapshot.generatedAt = "2026-08-30T15:00:00.000Z";
+
+    expect(rankedPostsLatestPublishedDate(snapshot).toISOString())
+      .toBe("2026-08-29T22:00:00.000Z");
+    expect(selectRankedPosts(snapshot, { period: "today" }).map((item) => item.evidence.id))
+      .toEqual(["latest-published-day"]);
+  });
+
   it("handles the Central daylight-saving boundary by calendar day", () => {
     const now = new Date("2026-03-08T18:00:00.000Z");
     const ranked = selectRankedPosts(graph([
@@ -291,6 +323,33 @@ describe("ranked posts", () => {
     });
 
     expect(ranked.map((item) => item.evidence.id)).toEqual(["overflow-post", "preview-post"]);
+  });
+
+  it("lets matching overflow establish the implicit latest publication day", () => {
+    const preview = evidence({
+      id: "preview-latest-day",
+      postedAt: "2026-07-19T22:00:00.000Z",
+      sourceUrl: "https://x.com/company/status/973",
+      platformPostId: "973"
+    });
+    const overflow = evidence({
+      id: "overflow-latest-day",
+      postedAt: "2026-07-20T03:00:00.000Z",
+      sourceUrl: "https://x.com/company/status/974",
+      platformPostId: "974"
+    });
+    const snapshot = graph([preview]);
+    const scope = sidecarScope([overflow], { "company-1": 1 });
+
+    expect(rankedPostsLatestPublishedDate(snapshot, { sidecarScope: scope }).toISOString())
+      .toBe("2026-07-20T03:00:00.000Z");
+    expect(selectRankedPosts(snapshot, {
+      period: "today",
+      sidecarScope: scope
+    }).map((item) => item.evidence.id)).toEqual([
+      "overflow-latest-day",
+      "preview-latest-day"
+    ]);
   });
 
   it("fails closed on overflow when an evidence facet has reduced preview coverage", () => {

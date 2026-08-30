@@ -163,14 +163,58 @@ test("accepted runs share the repository publication lane without delaying inact
   assert.match(resolverJob, /recovery_debt:\s*\$\{\{ steps\.decision\.outputs\.recovery_debt \}\}/);
 });
 
-test("dashboard refresh always inspects current main inside the publication lane", () => {
+test("dashboard refresh gives a stale ingestion priority before entering the Mac publication lane", () => {
+  const admissionJob = dashboardRefreshWorkflow.match(
+    /\n  prioritize_ingestion:[\s\S]*?(?=\n  refresh:)/
+  )?.[0] ?? "";
+  assert.match(admissionJob, /runs-on:\s*ubuntu-latest/);
+  assert.match(admissionJob, /permissions:\s*\n\s*contents:\s*read/);
+  assert.match(
+    admissionJob,
+    /Check out current main for priority decision[\s\S]*?ref:\s*main[\s\S]*?persist-credentials:\s*false/
+  );
+  assert.match(admissionJob, /node scripts\/lib\/dashboard-refresh-priority\.mjs/);
+  assert.doesNotMatch(admissionJob, /runs-on:\s*\[[^\n]*self-hosted|concurrency:\s*\n/);
+  assert.doesNotMatch(admissionJob, /github\.event\.workflow_run\.conclusion/);
   assert.match(
     dashboardRefreshWorkflow,
-    /refresh:[\s\S]*?publication commit can land before downstream validation[\s\S]*?concurrency:\s*\n(?:\s*#[^\n]*\n)*\s*group:\s*repository-publication-main\s*\n\s*queue:\s*max\s*\n\s*cancel-in-progress:\s*false/
+    /refresh:[\s\S]*?needs:\s*prioritize_ingestion\s*\n\s*if:\s*needs\.prioritize_ingestion\.outputs\.should_run == 'true'[\s\S]*?publication commit can land before downstream validation[\s\S]*?concurrency:\s*\n(?:\s*#[^\n]*\n)*\s*group:\s*repository-publication-main\s*\n\s*queue:\s*max\s*\n\s*cancel-in-progress:\s*false/
   );
-  assert.doesNotMatch(
-    dashboardRefreshWorkflow.match(/\n  refresh:[\s\S]*?(?=\n  [a-z_]+:|$)/)?.[0] ?? "",
-    /github\.event\.workflow_run\.conclusion/
+  assert.match(
+    dashboardRefreshWorkflow,
+    /reads current main rather than trusting[\s\S]*?workflow conclusion[\s\S]*?stale ingestion never enters the Mac queue/
+  );
+  const refreshJob = dashboardRefreshWorkflow.match(
+    /\n  refresh:[\s\S]*$/
+  )?.[0] ?? "";
+  assert.match(
+    refreshJob,
+    /Check out current main[\s\S]*?Use Node\.js[\s\S]*?Revalidate ingestion priority inside the publication lane[\s\S]*?id:\s*priority_revalidation[\s\S]*?node scripts\/lib\/dashboard-refresh-priority\.mjs/
+  );
+  assert.match(
+    refreshJob,
+    /name: Use Node\.js\s*\n\s*if: steps\.host_preflight\.outputs\.ready == 'true'\s*\n\s*uses: actions\/setup-node@[0-9a-f]{40}/
+  );
+  assert.ok(
+    refreshJob.indexOf("Revalidate ingestion priority inside the publication lane") <
+      refreshJob.indexOf("Install dependencies"),
+    "queued dashboard work must revalidate the Central slot before dependencies or discovery"
+  );
+  for (const stepName of [
+    "Install dependencies",
+    "Validate dashboard code and deterministic build",
+    "Refresh published dashboard data",
+    "Commit a materially changed snapshot"
+  ]) {
+    const escapedStepName = stepName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    assert.match(
+      refreshJob,
+      new RegExp(`name: ${escapedStepName}[\\s\\S]*?if: steps\\.host_preflight\\.outputs\\.ready == 'true' && steps\\.priority_revalidation\\.outputs\\.should_run == 'true'`)
+    );
+  }
+  assert.match(
+    admissionJob,
+    /A deferred dashboard run never enters the self-hosted runner or shared publication queue/
   );
   assertSupportedConcurrencySchema(dashboardRefreshWorkflow);
   assertExactExternalActionPins(dashboardRefreshWorkflow);
@@ -1847,6 +1891,26 @@ test("autonomous runner receives optional durability secrets and owns validated 
   assert.match(hostPreflight, /AUTONOMOUS_MIN_BATTERY_PERCENT:\s*"30"/);
   assert.match(hostPreflight, /Runner using healthy battery reserve/);
   assert.match(hostPreflight, /Autonomous ingestion safely deferred/);
+  assert.match(hostPreflight, /GITHUB_TOKEN:\s*\$\{\{ github\.token \}\}/);
+  assert.match(hostPreflight, /CANDIDATE_TRIGGER:\s*\$\{\{ needs\.resolve\.outputs\.trigger \}\}/);
+  assert.match(hostPreflight, /reason=publication_token_unusable/);
+  assert.match(hostPreflight, /git ls-remote --exit-code origin refs\/heads\/main/);
+  assert.match(hostPreflight, /GIT_CONFIG_COUNT=3/);
+  assert.match(hostPreflight, /GIT_CONFIG_KEY_0="http\.https:\/\/github\.com\/\.extraheader"/);
+  assert.match(hostPreflight, /GIT_CONFIG_KEY_1="core\.hooksPath"[\s\S]*?GIT_CONFIG_VALUE_1="\/dev\/null"/);
+  assert.match(hostPreflight, /GIT_CONFIG_KEY_2="credential\.helper"[\s\S]*?GIT_CONFIG_VALUE_2=""/);
+  assert.match(hostPreflight, /GIT_CONFIG_NOSYSTEM=1/);
+  assert.match(hostPreflight, /GIT_CONFIG_GLOBAL=\/dev\/null/);
+  assert.match(hostPreflight, /GIT_TERMINAL_PROMPT=0/);
+  assert.match(hostPreflight, /::add-mask::\$AUTH_BASE64/);
+  assert.match(hostPreflight, /GIT_TRACE=0/);
+  assert.match(hostPreflight, /GIT_TRACE_CURL=0/);
+  assert.match(hostPreflight, /GIT_CURL_VERBOSE=0/);
+  assert.match(hostPreflight, /GIT_TRACE_REDACT=1/);
+  assert.match(hostPreflight, /Publication credential unavailable[\s\S]*?exit 1/);
+  assert.match(hostPreflight, /Publication credential rejected[\s\S]*?exit 1/);
+  assert.match(hostPreflight, /unset GITHUB_TOKEN AUTH_PAYLOAD AUTH_BASE64 PUBLICATION_EXTRAHEADER/);
+  assert.doesNotMatch(hostPreflight, /git config --(?:local|global|system)/);
   assert.match(hostPreflight, /echo "ready=true"/);
   assert.match(hostPreflight, /\/usr\/bin\/pmset -g assertions/);
   assert.match(hostPreflight, /PreventSystemSleep\[\[:space:\]\]\+1/);

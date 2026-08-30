@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { cp, mkdtemp, mkdir, readFile, rm, symlink, writeFile } from "node:fs/promises";
+import { chmod, cp, mkdtemp, mkdir, readFile, rm, symlink, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, describe, it } from "node:test";
@@ -479,6 +479,7 @@ describe("autonomous ingestion runner CLI", () => {
           ...process.env,
           GITHUB_ACTIONS: "true",
           GITHUB_OUTPUT: outputPath,
+          GITHUB_TOKEN: "fixture-publication-token",
           GITHUB_SHA: sourceSha,
           RETURNER_EXPECTED_SOURCE_SHA: sourceSha,
           NEXT_PUBLIC_SUPABASE_URL: "",
@@ -511,6 +512,7 @@ describe("autonomous ingestion runner CLI", () => {
           ...process.env,
           GITHUB_ACTIONS: "true",
           GITHUB_OUTPUT: descendantOutputPath,
+          GITHUB_TOKEN: "fixture-publication-token",
           GITHUB_SHA: laterCodeTip,
           RETURNER_EXPECTED_SOURCE_SHA: laterCodeTip,
           NEXT_PUBLIC_SUPABASE_URL: "",
@@ -557,6 +559,7 @@ describe("autonomous ingestion runner CLI", () => {
           ...process.env,
           GITHUB_ACTIONS: "true",
           GITHUB_OUTPUT: forgedOutputPath,
+          GITHUB_TOKEN: "fixture-publication-token",
           GITHUB_SHA: sourceSha,
           RETURNER_EXPECTED_SOURCE_SHA: sourceSha,
           NEXT_PUBLIC_SUPABASE_URL: "",
@@ -1355,6 +1358,49 @@ if (mode === "fail") {
 
     assert.equal(result.status, 0, result.stderr);
     assert.match(result.stdout, /"rejectedBeforeSpawn":true/);
+  });
+
+  it("injects the isolated extraheader into a private GitHub HTTPS fetch process", async () => {
+    const fixtureRoot = await mkdtemp(path.join(os.tmpdir(), "returner-private-fetch-auth-"));
+    temporaryRoots.push(fixtureRoot);
+    const bin = path.join(fixtureRoot, "bin");
+    await mkdir(bin, { recursive: true });
+    const git = path.join(bin, "git");
+    const token = "fixture-private-publication-token";
+    const authorization = `AUTHORIZATION: basic ${Buffer.from(`x-access-token:${token}`).toString("base64")}`;
+    await writeFile(git, `#!/bin/sh
+set -eu
+test "$#" -eq 4
+test "$1" = "fetch"
+test "$2" = "--no-tags"
+test "$3" = "https://github.com/returner-private-fixture/private-repository.git"
+test "$4" = "+refs/heads/main:refs/remotes/origin/main"
+test "\${GIT_CONFIG_COUNT:-}" = "3"
+test "\${GIT_CONFIG_KEY_0:-}" = "http.https://github.com/.extraheader"
+test "\${GIT_CONFIG_VALUE_0:-}" = "${authorization}"
+test "\${GIT_CONFIG_KEY_1:-}" = "core.hooksPath"
+test "\${GIT_CONFIG_VALUE_1:-}" = "/dev/null"
+test "\${GIT_CONFIG_KEY_2:-}" = "credential.helper"
+test -z "\${GIT_CONFIG_VALUE_2:-}"
+test "\${GIT_CONFIG_NOSYSTEM:-}" = "1"
+test "\${GIT_CONFIG_GLOBAL:-}" = "/dev/null"
+test "\${GIT_TERMINAL_PROMPT:-}" = "0"
+test -z "\${GITHUB_TOKEN:-}"
+printf '%s\\n' private-fetch-extraheader-ok
+`, "utf8");
+    await chmod(git, 0o755);
+
+    const result = runLifecycleFixture("publication-fetch-credential-injection", {
+      GITHUB_TOKEN: token,
+      LIFECYCLE_FIXTURE_PRIVATE_ORIGIN:
+        "https://github.com/returner-private-fixture/private-repository.git",
+      PATH: `${bin}:${process.env.PATH}`
+    });
+
+    assert.equal(result.status, 0, result.stderr);
+    assert.match(result.stdout, /"credentialInjected":true/);
+    assert.doesNotMatch(result.stdout, new RegExp(token));
+    assert.doesNotMatch(result.stderr, new RegExp(token));
   });
 });
 
