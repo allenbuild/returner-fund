@@ -1721,12 +1721,28 @@ async function readHostPowerStatus() {
 }
 
 export async function readHostWakeStatus({ execute = execFile } = {}) {
-  const { stdout } = await execute(
-    "/usr/sbin/ioreg",
-    ["-r", "-k", "IOPMUserTriggeredFullWake", "-d", "4"],
-    { timeout: 10_000, maxBuffer: 1024 * 1024, encoding: "utf8" }
-  );
-  return stdout;
+  let lastOutput = "";
+  let lastError = null;
+
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    try {
+      const { stdout } = await execute(
+        "/usr/sbin/ioreg",
+        ["-r", "-n", "IOPMrootDomain", "-d", "1"],
+        { timeout: 10_000, maxBuffer: 1024 * 1024, encoding: "utf8" }
+      );
+      lastOutput = stdout;
+      lastError = null;
+      if (evaluateMaintenanceWakeStatus(stdout).reason !== "wake_status_unavailable") {
+        return stdout;
+      }
+    } catch (error) {
+      lastError = error;
+    }
+  }
+
+  if (lastError) throw lastError;
+  return lastOutput;
 }
 
 function contextString(source, key) {
