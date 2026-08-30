@@ -110,6 +110,159 @@ test("auth Chrome verification requires the exact Google bundle, team, and host 
   });
 });
 
+test("auth Chrome verification accepts only a real Gatekeeper timeout after full revalidation", async () => {
+  const calls = [];
+  let gatekeeperAttempts = 0;
+  const result = await verifyGoogleChromeBundle({
+    appBundlePath: "/Users/tester/Applications/Google Chrome Canary.app",
+    run: async (command, args, options) => {
+      calls.push([command, ...args]);
+      if (command === "/usr/bin/codesign" && args[0] === "-dv") {
+        return {
+          stdout: "",
+          stderr: `Identifier=${AUTH_CHROME_BUNDLE_IDENTIFIER}\nTeamIdentifier=${AUTH_CHROME_TEAM_IDENTIFIER}\n`
+        };
+      }
+      if (command === "/usr/bin/xattr") {
+        return { stdout: "/nested: com.apple.provenance: value\n", stderr: "" };
+      }
+      if (command === "/usr/sbin/spctl") {
+        gatekeeperAttempts += 1;
+        assert.deepEqual(options, { timeout: 30_000, maxBuffer: 1024 * 1024 });
+        throw gatekeeperTimeoutError();
+      }
+      return { stdout: "", stderr: "" };
+    }
+  });
+
+  assert.deepEqual(result, {
+    ok: true,
+    reason: "auth_chrome_vendor_signature_verified_gatekeeper_timeout"
+  });
+  assert.equal(gatekeeperAttempts, 1);
+  assert.deepEqual(calls.map(([command]) => command), [
+    "/usr/bin/codesign",
+    "/usr/bin/codesign",
+    "/usr/bin/xattr",
+    "/usr/sbin/spctl",
+    "/usr/bin/codesign",
+    "/usr/bin/codesign",
+    "/usr/bin/xattr"
+  ]);
+});
+
+test("auth Chrome verification keeps explicit Gatekeeper rejection and timeout lookalikes fail-closed", async () => {
+  const failures = [
+    Object.assign(new Error("rejected"), {
+      code: 3,
+      killed: false,
+      signal: null,
+      stderr: "rejected (the code is valid but does not seem to be an app)"
+    }),
+    Object.assign(new Error("Command timed out"), {
+      code: "ETIMEDOUT",
+      killed: false,
+      signal: null
+    }),
+    Object.assign(new Error("terminated externally"), {
+      code: null,
+      killed: false,
+      signal: "SIGTERM"
+    }),
+    Object.assign(new Error("killed with a different signal"), {
+      code: null,
+      killed: true,
+      signal: "SIGKILL"
+    }),
+    Object.assign(new Error("explicit rejection before timeout termination"), {
+      code: null,
+      killed: true,
+      signal: "SIGTERM",
+      stdout: "",
+      stderr: "rejected: source=Unnotarized Developer ID"
+    }),
+    Object.assign(new Error("explicit output before timeout termination"), {
+      code: null,
+      killed: true,
+      signal: "SIGTERM",
+      stdout: "accepted\n",
+      stderr: ""
+    })
+  ];
+
+  for (const gatekeeperFailure of failures) {
+    let signatureVerificationCount = 0;
+    const result = await verifyGoogleChromeBundle({
+      appBundlePath: "/Users/tester/Applications/Google Chrome Canary.app",
+      run: async (command, args) => {
+        if (command === "/usr/bin/codesign" && args[0] === "--verify") {
+          signatureVerificationCount += 1;
+        }
+        if (command === "/usr/bin/codesign" && args[0] === "-dv") {
+          return {
+            stdout: "",
+            stderr: `Identifier=${AUTH_CHROME_BUNDLE_IDENTIFIER}\nTeamIdentifier=${AUTH_CHROME_TEAM_IDENTIFIER}\n`
+          };
+        }
+        if (command === "/usr/bin/xattr") return { stdout: "", stderr: "" };
+        if (command === "/usr/sbin/spctl") throw gatekeeperFailure;
+        return { stdout: "", stderr: "" };
+      }
+    });
+    assert.deepEqual(result, {
+      ok: false,
+      reason: "auth_chrome_vendor_signature_unverified"
+    });
+    assert.equal(signatureVerificationCount, 1, "non-timeout rejection must not enter fallback");
+  }
+});
+
+test("auth Chrome verification fails closed when the bundle changes during a Gatekeeper timeout", async () => {
+  for (const mutation of ["signature", "identity", "quarantine", "quarantine-scan"]) {
+    let verificationPass = 0;
+    const result = await verifyGoogleChromeBundle({
+      appBundlePath: "/Users/tester/Applications/Google Chrome Canary.app",
+      run: async (command, args) => {
+        if (command === "/usr/bin/codesign" && args[0] === "--verify") {
+          verificationPass += 1;
+          if (verificationPass === 2 && mutation === "signature") {
+            throw new Error("a sealed resource is missing or invalid");
+          }
+        }
+        if (command === "/usr/bin/codesign" && args[0] === "-dv") {
+          return {
+            stdout: "",
+            stderr: verificationPass === 2 && mutation === "identity"
+              ? `Identifier=com.google.Chrome\nTeamIdentifier=${AUTH_CHROME_TEAM_IDENTIFIER}\n`
+              : `Identifier=${AUTH_CHROME_BUNDLE_IDENTIFIER}\nTeamIdentifier=${AUTH_CHROME_TEAM_IDENTIFIER}\n`
+          };
+        }
+        if (command === "/usr/bin/xattr") {
+          if (verificationPass === 2 && mutation === "quarantine-scan") {
+            throw new Error("xattr scan failed");
+          }
+          return {
+            stdout: verificationPass === 2 && mutation === "quarantine"
+              ? "/nested: com.apple.quarantine: 0083;...\n"
+              : "",
+            stderr: ""
+          };
+        }
+        if (command === "/usr/sbin/spctl") throw gatekeeperTimeoutError();
+        return { stdout: "", stderr: "" };
+      }
+    });
+
+    assert.equal(result.ok, false);
+    assert.equal(result.reason, {
+      signature: "auth_chrome_vendor_signature_unverified",
+      identity: "auth_chrome_vendor_signature_mismatch",
+      quarantine: "auth_chrome_bundle_quarantined",
+      "quarantine-scan": "auth_chrome_quarantine_scan_failed"
+    }[mutation]);
+  }
+});
+
 test("auth browser service proves signature, process tree, singleton, and launch arguments", async (t) => {
   const fixture = await createChromeFixture(t);
   const launchctlOutput = launchctlFixture(fixture);
@@ -277,4 +430,14 @@ function processFixture(fixture) {
     `8123 1 ${fixture.paths.chromeExecutable} --user-data-dir=${fixture.paths.dataDir} --profile-directory=Default --no-first-run --no-default-browser-check about:blank`,
     `8124 8123 ${fixture.paths.appBundlePath}/Contents/Frameworks/Google Chrome Framework.framework/Versions/Current/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper --type=gpu-process`
   ].join("\n");
+}
+
+function gatekeeperTimeoutError() {
+  return Object.assign(new Error("Command failed: /usr/sbin/spctl --assess"), {
+    code: null,
+    killed: true,
+    signal: "SIGTERM",
+    stdout: "",
+    stderr: ""
+  });
 }
