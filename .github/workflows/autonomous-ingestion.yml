@@ -431,6 +431,7 @@ jobs:
         env:
           AUTHENTICATED_SOCIAL_REPLAY: ${{ inputs.authenticated_backfill || false }}
           AUTONOMOUS_MIN_BATTERY_PERCENT: "30"
+          GITHUB_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
 
@@ -463,6 +464,39 @@ jobs:
           elif [[ "$BATTERY_PERCENT" =~ ^[0-9]+$ ]] && [ "$BATTERY_PERCENT" -lt 20 ]; then
             echo "::warning title=Runner battery reserve is low::The Mac is connected to AC but reports ${BATTERY_PERCENT}% battery. Keep power connected for this ingestion."
           fi
+
+          # A self-hosted job can be assigned after its workflow has spent a
+          # long time queued, or resume after GitHub has invalidated a job that
+          # slept offline. Prove the ephemeral Actions token is still usable
+          # before expensive setup. The credential exists only in this one git
+          # process; it is never written to repository or user configuration.
+          if [ -z "${GITHUB_TOKEN:-}" ]; then
+            echo "reason=publication_token_unusable" >> "$GITHUB_OUTPUT"
+            echo "::warning title=Publication credential unavailable::This stale slot remains durable and will be retried by a fresh workflow wakeup."
+            exit 0
+          fi
+          echo "::add-mask::$GITHUB_TOKEN"
+          AUTH_PAYLOAD="$(printf 'x-access-token:%s' "$GITHUB_TOKEN")"
+          AUTH_BASE64="$(printf '%s' "$AUTH_PAYLOAD" | base64 | tr -d '\r\n')"
+          PUBLICATION_EXTRAHEADER="AUTHORIZATION: basic $AUTH_BASE64"
+          echo "::add-mask::$PUBLICATION_EXTRAHEADER"
+          if ! GIT_CONFIG_COUNT=3 \
+            GIT_CONFIG_KEY_0="http.https://github.com/.extraheader" \
+            GIT_CONFIG_VALUE_0="$PUBLICATION_EXTRAHEADER" \
+            GIT_CONFIG_KEY_1="core.hooksPath" \
+            GIT_CONFIG_VALUE_1="/dev/null" \
+            GIT_CONFIG_KEY_2="credential.helper" \
+            GIT_CONFIG_VALUE_2="" \
+            GIT_CONFIG_NOSYSTEM=1 \
+            GIT_CONFIG_GLOBAL=/dev/null \
+            GIT_TERMINAL_PROMPT=0 \
+            git ls-remote --exit-code origin refs/heads/main >/dev/null; then
+            unset GITHUB_TOKEN AUTH_PAYLOAD AUTH_BASE64 PUBLICATION_EXTRAHEADER
+            echo "reason=publication_token_unusable" >> "$GITHUB_OUTPUT"
+            echo "::warning title=Publication credential rejected::GitHub no longer accepts this queued job's ephemeral token. The slot remains stale and a fresh workflow wakeup will retry it."
+            exit 0
+          fi
+          unset GITHUB_TOKEN AUTH_PAYLOAD AUTH_BASE64 PUBLICATION_EXTRAHEADER
 
           POWER_ASSERTIONS="$(/usr/bin/pmset -g assertions 2>/dev/null || true)"
           if ! grep -Eq '^[[:space:]]*PreventSystemSleep[[:space:]]+1([[:space:]]|$)' <<< "$POWER_ASSERTIONS"; then

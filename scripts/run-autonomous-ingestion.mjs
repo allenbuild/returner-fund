@@ -8730,12 +8730,10 @@ async function resolvePublicationRemoteTip({ labelPrefix = "current replay publi
   const fetchOptions = {
     timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitPushMs,
     label: `fetch ${labelPrefix} history`,
+    envCategory: "publication_push",
+    env: publicationPushAuthEnvironment(),
     cwd: root
   };
-  if (cleanEnv(process.env.GITHUB_TOKEN)) {
-    fetchOptions.envCategory = "publication_push";
-    fetchOptions.env = publicationPushAuthEnvironment();
-  }
   await runCommand(
     "git",
     ["fetch", "--no-tags", "origin", `+refs/heads/${branch}:refs/remotes/origin/${branch}`],
@@ -10743,6 +10741,35 @@ async function runLifecycleContractFixture(fixture) {
       throw new Error(`Publication credential boundary did not fail closed: ${errorMessage(failure)}`);
     }
     return emit({ fixture, rejectedBeforeSpawn: true });
+  }
+
+  if (fixture === "publication-fetch-credential-injection") {
+    const privateOrigin = cleanEnv(process.env.LIFECYCLE_FIXTURE_PRIVATE_ORIGIN);
+    if (!privateOrigin || !/^https:\/\/github\.com\/[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+(?:\.git)?$/.test(privateOrigin)) {
+      throw new Error("Publication fetch credential-injection fixture requires a GitHub HTTPS origin.");
+    }
+    const result = await runCommand(
+      "git",
+      [
+        "fetch",
+        "--no-tags",
+        privateOrigin,
+        "+refs/heads/main:refs/remotes/origin/main"
+      ],
+      {
+        timeoutMs: 1_000,
+        label: "private HTTPS publication fetch credential fixture",
+        envCategory: "publication_push",
+        env: publicationPushAuthEnvironment(),
+        recordEvents: false,
+        quiet: true,
+        cwd: root
+      }
+    );
+    if (result.stdout.trim() !== "private-fetch-extraheader-ok") {
+      throw new Error("Private HTTPS publication fetch did not confirm its process-scoped credential.");
+    }
+    return emit({ fixture, credentialInjected: true });
   }
 
   if (fixture === "publication-executable-boundary") {

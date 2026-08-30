@@ -1847,6 +1847,18 @@ test("autonomous runner receives optional durability secrets and owns validated 
   assert.match(hostPreflight, /AUTONOMOUS_MIN_BATTERY_PERCENT:\s*"30"/);
   assert.match(hostPreflight, /Runner using healthy battery reserve/);
   assert.match(hostPreflight, /Autonomous ingestion safely deferred/);
+  assert.match(hostPreflight, /GITHUB_TOKEN:\s*\$\{\{ github\.token \}\}/);
+  assert.match(hostPreflight, /reason=publication_token_unusable/);
+  assert.match(hostPreflight, /git ls-remote --exit-code origin refs\/heads\/main/);
+  assert.match(hostPreflight, /GIT_CONFIG_COUNT=3/);
+  assert.match(hostPreflight, /GIT_CONFIG_KEY_0="http\.https:\/\/github\.com\/\.extraheader"/);
+  assert.match(hostPreflight, /GIT_CONFIG_KEY_1="core\.hooksPath"[\s\S]*?GIT_CONFIG_VALUE_1="\/dev\/null"/);
+  assert.match(hostPreflight, /GIT_CONFIG_KEY_2="credential\.helper"[\s\S]*?GIT_CONFIG_VALUE_2=""/);
+  assert.match(hostPreflight, /GIT_CONFIG_NOSYSTEM=1/);
+  assert.match(hostPreflight, /GIT_CONFIG_GLOBAL=\/dev\/null/);
+  assert.match(hostPreflight, /GIT_TERMINAL_PROMPT=0/);
+  assert.match(hostPreflight, /unset GITHUB_TOKEN AUTH_PAYLOAD AUTH_BASE64 PUBLICATION_EXTRAHEADER/);
+  assert.doesNotMatch(hostPreflight, /git config --(?:local|global|system)/);
   assert.match(hostPreflight, /echo "ready=true"/);
   assert.match(hostPreflight, /\/usr\/bin\/pmset -g assertions/);
   assert.match(hostPreflight, /PreventSystemSleep\[\[:space:\]\]\+1/);
