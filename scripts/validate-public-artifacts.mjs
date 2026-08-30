@@ -6,6 +6,10 @@ import {
   formatStaticGraphSnapshotContractIssue,
   validateStaticGraphSnapshotContract
 } from "../src/lib/graph/static-graph-snapshot-contract.mjs";
+import {
+  CENTRAL_TIME_ZONE,
+  latestEligibleCentralSlot
+} from "./lib/ingestion-schedule.mjs";
 
 export const EXPECTED_SCORING_MODEL = Object.freeze({
   id: "returner-traction",
@@ -13,6 +17,10 @@ export const EXPECTED_SCORING_MODEL = Object.freeze({
   name: "returner-traction-v4-absolute-fixed-platform-global-best"
 });
 export const HISTORICAL_SCORING_MODEL_VERSIONS = Object.freeze(["4.0.0", "4.0.1", "4.0.2", "4.1.0"]);
+export const PUBLIC_ARTIFACT_FRESHNESS_POLICIES = Object.freeze({
+  STRICT_CURRENT_DAY: "strict-current-day",
+  LATEST_COMPLETED_SLOT: "latest-completed-slot"
+});
 const SUPPORTED_HISTORY_MODEL_VERSIONS = new Set([
   EXPECTED_SCORING_MODEL.version,
   ...HISTORICAL_SCORING_MODEL_VERSIONS
@@ -64,7 +72,6 @@ const SIGNAL_FAMILIES = Object.freeze([
 const SUPPORTED_PLATFORM_COUNT = Object.keys(PLATFORM_WEIGHTS).length;
 const SCORE_EPSILON = 1e-9;
 const MAX_FUTURE_SKEW_MS = 60_000;
-const CENTRAL_TIME_ZONE = "America/Chicago";
 const CANONICAL_NODE_FIELDS = [
   "score",
   "previousScore",
@@ -131,7 +138,8 @@ export class PublicArtifactValidationError extends Error {
 export async function validatePublicArtifacts({
   rootDir = process.cwd(),
   now = new Date(),
-  requireCurrentCentralDay = false
+  requireCurrentCentralDay = false,
+  freshnessPolicy = null
 } = {}) {
   if (!isValidDate(now)) {
     throw new TypeError("Public artifact validation requires a valid now timestamp");
@@ -148,7 +156,8 @@ export async function validatePublicArtifacts({
     if (graph === null) continue;
     violations.push(...collectGraphArtifactViolations(graph, descriptor, {
       now,
-      requireCurrentCentralDay
+      requireCurrentCentralDay,
+      freshnessPolicy
     }));
     graphArtifacts.push({ descriptor, graph });
     graphNodes += Array.isArray(graph?.nodes) ? graph.nodes.length : 0;
@@ -165,7 +174,8 @@ export async function validatePublicArtifacts({
     if (history === null) continue;
     const result = collectHistoryArtifactViolations(history, descriptor, {
       now,
-      requireCurrentCentralDay
+      requireCurrentCentralDay,
+      freshnessPolicy
     });
     violations.push(...result.violations);
     versionedDailyEntries += result.versionedDailyEntries;
@@ -342,7 +352,7 @@ export function collectS26GraphCensusViolations(catalog, graphArtifacts) {
 export function collectGraphArtifactViolations(
   graph,
   descriptor,
-  { now = new Date(), requireCurrentCentralDay = false } = {}
+  { now = new Date(), requireCurrentCentralDay = false, freshnessPolicy = null } = {}
 ) {
   const violations = [];
   const artifactPath = descriptor?.path ?? "public graph artifact";
@@ -355,6 +365,10 @@ export function collectGraphArtifactViolations(
   }
 
   const validationNow = isValidDate(now) ? now : new Date();
+  const freshnessRequirement = resolveCentralFreshnessRequirement(validationNow, {
+    requireCurrentCentralDay,
+    freshnessPolicy
+  });
   const contract = validateStaticGraphSnapshotContract(graph, {
     now: validationNow,
     maxFutureSkewMs: MAX_FUTURE_SKEW_MS
@@ -390,9 +404,12 @@ export function collectGraphArtifactViolations(
   }
   if (!isIsoTimestamp(graph.generatedAt)) {
     violations.push(`${artifactPath}: generatedAt must be an ISO timestamp`);
-  } else if (requireCurrentCentralDay && !isCurrentCentralDay(graph.generatedAt, validationNow)) {
+  } else if (
+    freshnessRequirement &&
+    !freshnessRequirement.allowedCentralDays.has(centralDayKey(new Date(graph.generatedAt)))
+  ) {
     violations.push(
-      `${artifactPath}: generatedAt must be on the current ${CENTRAL_TIME_ZONE} day ${centralDayKey(validationNow)}`
+      `${artifactPath}: generatedAt must be on ${freshnessRequirement.description}`
     );
   }
 
@@ -632,14 +649,17 @@ function collectCanonicalAudienceGraphViolations(baseGraph, audienceGraph, artif
 export function collectHistoryArtifactViolations(
   history,
   descriptor,
-  { now = new Date(), requireCurrentCentralDay = false } = {}
+  { now = new Date(), requireCurrentCentralDay = false, freshnessPolicy = null } = {}
 ) {
   const violations = [];
   const artifactPath = descriptor?.path ?? "benchmark history artifact";
   const expectedBatch = descriptor?.batch;
   const validationNow = isValidDate(now) ? now : new Date();
   const latestAllowedTime = validationNow.getTime() + MAX_FUTURE_SKEW_MS;
-  const currentDay = centralDayKey(validationNow);
+  const freshnessRequirement = resolveCentralFreshnessRequirement(validationNow, {
+    requireCurrentCentralDay,
+    freshnessPolicy
+  });
   let versionedDailyEntries = 0;
   let versionedWeeklyEntries = 0;
   let latestRecordedTime = null;
@@ -671,7 +691,7 @@ export function collectHistoryArtifactViolations(
     const entries = arrayField(history, series, artifactPath, violations) ?? [];
     let versionedEntries = 0;
     let previousRecordedTime = null;
-    let hasCurrentCanonicalEntry = false;
+    let hasFreshCanonicalEntry = false;
     const canonicalDays = new Set();
     for (const [index, entry] of entries.entries()) {
       const scope = `${artifactPath}: ${series}[${index}]`;
@@ -748,12 +768,19 @@ export function collectHistoryArtifactViolations(
         } else {
           canonicalDays.add(entryDay);
         }
-        if (series === "daily" && entryDay === currentDay) {
-          if (centralDayKey(new Date(inputGeneratedAtTime)) === currentDay) {
-            hasCurrentCanonicalEntry = true;
-          } else if (requireCurrentCentralDay) {
+        if (
+          series === "daily" &&
+          freshnessRequirement?.allowedCentralDays.has(entryDay)
+        ) {
+          const inputDay = centralDayKey(new Date(inputGeneratedAtTime));
+          if (inputDay === entryDay) {
+            hasFreshCanonicalEntry = true;
+          } else {
+            const requirement = freshnessRequirement.allowedCentralDays.has(inputDay)
+              ? `the same allowed ${CENTRAL_TIME_ZONE} day as recordedAt ${entryDay}`
+              : freshnessRequirement.description;
             violations.push(
-              `${scope}.inputGeneratedAt must be on the current ${CENTRAL_TIME_ZONE} day ${currentDay}`
+              `${scope}.inputGeneratedAt must be on ${requirement}`
             );
           }
         }
@@ -766,9 +793,9 @@ export function collectHistoryArtifactViolations(
         `${artifactPath}: ${series} must contain a ${EXPECTED_SCORING_MODEL.id}@${EXPECTED_SCORING_MODEL.version} version-tagged entry`
       );
     }
-    if (series === "daily" && requireCurrentCentralDay && !hasCurrentCanonicalEntry) {
+    if (series === "daily" && freshnessRequirement && !hasFreshCanonicalEntry) {
       violations.push(
-        `${artifactPath}: daily must contain a current ${CENTRAL_TIME_ZONE} day ${currentDay} ${EXPECTED_SCORING_MODEL.id}@${EXPECTED_SCORING_MODEL.version} entry`
+        `${artifactPath}: daily must contain ${freshnessRequirement.historyDescription} ${EXPECTED_SCORING_MODEL.id}@${EXPECTED_SCORING_MODEL.version} entry`
       );
     }
     if (series === "daily") versionedDailyEntries = versionedEntries;
@@ -1844,9 +1871,42 @@ function centralDayKey(date) {
   return `${parts.year}-${parts.month}-${parts.day}`;
 }
 
-function isCurrentCentralDay(value, now) {
-  if (!isIsoTimestamp(value)) return false;
-  return centralDayKey(new Date(value)) === centralDayKey(now);
+function resolveCentralFreshnessRequirement(
+  now,
+  { requireCurrentCentralDay = false, freshnessPolicy = null } = {}
+) {
+  const policy = requireCurrentCentralDay
+    ? PUBLIC_ARTIFACT_FRESHNESS_POLICIES.STRICT_CURRENT_DAY
+    : freshnessPolicy;
+  if (policy === null || policy === undefined) return null;
+  if (!Object.values(PUBLIC_ARTIFACT_FRESHNESS_POLICIES).includes(policy)) {
+    throw new TypeError(
+      `Public artifact freshness policy must be ${Object.values(PUBLIC_ARTIFACT_FRESHNESS_POLICIES).join(" or ")}, received ${formatValue(policy)}`
+    );
+  }
+
+  const currentDay = centralDayKey(now);
+  const allowedCentralDays = new Set([currentDay]);
+  if (policy === PUBLIC_ARTIFACT_FRESHNESS_POLICIES.LATEST_COMPLETED_SLOT) {
+    allowedCentralDays.add(latestEligibleCentralSlot(now).centralDate);
+  }
+
+  if (allowedCentralDays.size === 1) {
+    return {
+      policy,
+      allowedCentralDays,
+      description: `the current ${CENTRAL_TIME_ZONE} day ${currentDay}`,
+      historyDescription: `a current ${CENTRAL_TIME_ZONE} day ${currentDay}`
+    };
+  }
+
+  const latestSlotDay = [...allowedCentralDays].find((day) => day !== currentDay);
+  return {
+    policy,
+    allowedCentralDays,
+    description: `the current ${CENTRAL_TIME_ZONE} day ${currentDay} or latest completed ingestion-slot day ${latestSlotDay}`,
+    historyDescription: `a current ${CENTRAL_TIME_ZONE} day ${currentDay} or latest completed ingestion-slot day ${latestSlotDay}`
+  };
 }
 
 function isIsoTimestamp(value) {
@@ -1875,6 +1935,7 @@ function formatValidationFailure(violations) {
 
 function parseCliArgs(rawArgs) {
   let rootDir = process.cwd();
+  let freshnessPolicy = null;
   for (let index = 0; index < rawArgs.length; index += 1) {
     const argument = rawArgs[index];
     if (argument === "--root") {
@@ -1888,19 +1949,35 @@ function parseCliArgs(rawArgs) {
       rootDir = path.resolve(argument.slice("--root=".length));
       continue;
     }
+    if (argument === "--freshness-policy") {
+      const value = rawArgs[index + 1];
+      if (!value) throw new Error("--freshness-policy requires a policy name");
+      freshnessPolicy = value;
+      index += 1;
+      continue;
+    }
+    if (argument.startsWith("--freshness-policy=")) {
+      freshnessPolicy = argument.slice("--freshness-policy=".length);
+      if (!freshnessPolicy) throw new Error("--freshness-policy requires a policy name");
+      continue;
+    }
     throw new Error(`Unknown argument: ${argument}`);
   }
-  return { rootDir };
+  return { rootDir, freshnessPolicy };
 }
 
 export function runPublicArtifactValidationCli(
   rawArgs = process.argv.slice(2),
-  { now = new Date() } = {}
+  { now = new Date(), env = process.env } = {}
 ) {
+  const parsed = parseCliArgs(rawArgs);
+  const freshnessPolicy = parsed.freshnessPolicy ||
+    env?.PUBLIC_ARTIFACT_FRESHNESS_POLICY ||
+    PUBLIC_ARTIFACT_FRESHNESS_POLICIES.STRICT_CURRENT_DAY;
   return validatePublicArtifacts({
-    ...parseCliArgs(rawArgs),
+    rootDir: parsed.rootDir,
     now,
-    requireCurrentCentralDay: true
+    freshnessPolicy
   });
 }
 

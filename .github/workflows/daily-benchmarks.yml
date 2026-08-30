@@ -1118,6 +1118,7 @@ jobs:
     with:
       target_sha: ${{ needs.update.outputs.validation_candidate || needs.resolve.outputs.source_sha }}
       policy_source_sha: ${{ needs.resolve.outputs.source_sha }}
+      artifact_freshness_policy: strict-current-day
       publication_kind: daily-benchmark
       publication_receipt_path: outputs/benchmarks/daily-publication-receipt.json
       publication_source_sha: ${{ needs.update.outputs.publication_source_sha }}
@@ -1142,6 +1143,7 @@ jobs:
       # release state instead of executing stale validation code from that slot.
       target_sha: ${{ needs.resolve.outputs.source_sha }}
       policy_source_sha: ${{ needs.resolve.outputs.source_sha }}
+      artifact_freshness_policy: strict-current-day
 
   receipt:
     name: Audit benchmark outcome

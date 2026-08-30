@@ -7,6 +7,7 @@ import {
   EXPECTED_SCORING_MODEL,
   GRAPH_ARTIFACTS,
   HISTORY_ARTIFACTS,
+  PUBLIC_ARTIFACT_FRESHNESS_POLICIES,
   PublicArtifactValidationError,
   S26_CATALOG_PATH,
   collectCanonicalGraphSetViolations,
@@ -644,7 +645,8 @@ test("CLI validation requires graph and canonical daily artifacts from the curre
   const rootDir = await writeValidArtifactTree();
 
   const valid = await runPublicArtifactValidationCli(["--root", rootDir], {
-    now: VALIDATION_NOW
+    now: VALIDATION_NOW,
+    env: {}
   });
   assert.equal(valid.status, "ok");
 
@@ -655,13 +657,210 @@ test("CLI validation requires graph and canonical daily artifacts from the curre
   await writeJson(rootDir, GRAPH_ARTIFACTS[0].path, graph);
 
   await assert.rejects(
-    runPublicArtifactValidationCli([`--root=${rootDir}`], { now: VALIDATION_NOW }),
+    runPublicArtifactValidationCli([`--root=${rootDir}`], {
+      now: VALIDATION_NOW,
+      env: {}
+    }),
     (error) => {
       assert.ok(error instanceof PublicArtifactValidationError);
       assert.ok(error.violations.some((violation) => /generatedAt must be on the current America\/Chicago day/.test(violation)));
       return true;
     }
   );
+});
+
+test("latest-completed-slot policy permits only the bounded pre-06:00 Central rollover day", async () => {
+  const rolloverNow = new Date("2026-08-30T05:08:00.000Z"); // 00:08 America/Chicago.
+  const previousSlotTree = await writeValidArtifactTree({
+    generatedAt: "2026-08-30T03:50:00.000Z", // 22:50 on the prior Central day.
+    recordedAt: "2026-08-30T03:51:00.000Z"
+  });
+
+  const graceResult = await runPublicArtifactValidationCli(
+    ["--root", previousSlotTree],
+    {
+      now: rolloverNow,
+      env: {
+        PUBLIC_ARTIFACT_FRESHNESS_POLICY:
+          PUBLIC_ARTIFACT_FRESHNESS_POLICIES.LATEST_COMPLETED_SLOT
+      }
+    }
+  );
+  assert.equal(graceResult.status, "ok");
+
+  await assert.rejects(
+    validatePublicArtifacts({
+      rootDir: previousSlotTree,
+      now: rolloverNow,
+      requireCurrentCentralDay: true,
+      freshnessPolicy: PUBLIC_ARTIFACT_FRESHNESS_POLICIES.LATEST_COMPLETED_SLOT
+    }),
+    (error) => {
+      assert.ok(error instanceof PublicArtifactValidationError);
+      assert.ok(
+        error.violations.some((violation) =>
+          /generatedAt must be on the current America\/Chicago day 2026-08-30/.test(violation)
+        )
+      );
+      return true;
+    }
+  );
+
+  await assert.rejects(
+    runPublicArtifactValidationCli(
+      [
+        `--root=${previousSlotTree}`,
+        `--freshness-policy=${PUBLIC_ARTIFACT_FRESHNESS_POLICIES.STRICT_CURRENT_DAY}`
+      ],
+      { now: rolloverNow, env: {} }
+    ),
+    (error) => {
+      assert.ok(error instanceof PublicArtifactValidationError);
+      assert.equal(error.violations.length, GRAPH_ARTIFACTS.length + HISTORY_ARTIFACTS.length);
+      assert.ok(error.violations.every((violation) => /current America\/Chicago day 2026-08-30/.test(violation)));
+      return true;
+    }
+  );
+
+  const lastPreSlotResult = await runPublicArtifactValidationCli(
+    ["--root", previousSlotTree],
+    {
+      now: new Date("2026-08-30T10:59:59.999Z"), // 05:59:59 America/Chicago.
+      env: {
+        PUBLIC_ARTIFACT_FRESHNESS_POLICY:
+          PUBLIC_ARTIFACT_FRESHNESS_POLICIES.LATEST_COMPLETED_SLOT
+      }
+    }
+  );
+  assert.equal(lastPreSlotResult.status, "ok");
+
+  await assert.rejects(
+    runPublicArtifactValidationCli(["--root", previousSlotTree], {
+      now: new Date("2026-08-30T11:00:00.000Z"), // 06:00 America/Chicago.
+      env: {
+        PUBLIC_ARTIFACT_FRESHNESS_POLICY:
+          PUBLIC_ARTIFACT_FRESHNESS_POLICIES.LATEST_COMPLETED_SLOT
+      }
+    }),
+    (error) => {
+      assert.ok(error instanceof PublicArtifactValidationError);
+      assert.ok(
+        error.violations.some((violation) =>
+          /generatedAt must be on the current America\/Chicago day 2026-08-30/.test(violation)
+        )
+      );
+      return true;
+    }
+  );
+});
+
+test("latest-completed-slot rollover accepts newer current-day artifacts and rejects older days", async () => {
+  const rolloverNow = new Date("2026-08-30T05:08:00.000Z"); // 00:08 America/Chicago.
+  const policyEnv = {
+    PUBLIC_ARTIFACT_FRESHNESS_POLICY:
+      PUBLIC_ARTIFACT_FRESHNESS_POLICIES.LATEST_COMPLETED_SLOT
+  };
+  const currentDayTree = await writeValidArtifactTree({
+    generatedAt: "2026-08-30T05:03:00.000Z",
+    recordedAt: "2026-08-30T05:04:00.000Z"
+  });
+
+  const currentResult = await runPublicArtifactValidationCli(
+    ["--root", currentDayTree],
+    { now: rolloverNow, env: policyEnv }
+  );
+  assert.equal(currentResult.status, "ok");
+
+  const historyPath = path.join(currentDayTree, HISTORY_ARTIFACTS[0].path);
+  const crossedMidnightHistory = JSON.parse(await readFile(historyPath, "utf8"));
+  crossedMidnightHistory.daily[0].inputGeneratedAt = "2026-08-30T03:50:00.000Z";
+  await writeJson(currentDayTree, HISTORY_ARTIFACTS[0].path, crossedMidnightHistory);
+  await assert.rejects(
+    runPublicArtifactValidationCli(["--root", currentDayTree], {
+      now: rolloverNow,
+      env: policyEnv
+    }),
+    (error) => {
+      assert.ok(error instanceof PublicArtifactValidationError);
+      assert.ok(
+        error.violations.some((violation) =>
+          /inputGeneratedAt must be on the same allowed America\/Chicago day as recordedAt 2026-08-30/.test(
+            violation
+          )
+        )
+      );
+      return true;
+    }
+  );
+
+  crossedMidnightHistory.daily[0].inputGeneratedAt = "2026-08-29T03:50:00.000Z";
+  await writeJson(currentDayTree, HISTORY_ARTIFACTS[0].path, crossedMidnightHistory);
+  await assert.rejects(
+    runPublicArtifactValidationCli(["--root", currentDayTree], {
+      now: rolloverNow,
+      env: policyEnv
+    }),
+    (error) => {
+      assert.ok(error instanceof PublicArtifactValidationError);
+      assert.ok(
+        error.violations.some((violation) =>
+          /inputGeneratedAt must be on the current America\/Chicago day 2026-08-30 or latest completed ingestion-slot day 2026-08-29/.test(
+            violation
+          )
+        )
+      );
+      return true;
+    }
+  );
+
+  const olderTree = await writeValidArtifactTree({
+    generatedAt: "2026-08-29T03:50:00.000Z",
+    recordedAt: "2026-08-29T03:51:00.000Z"
+  });
+  await assert.rejects(
+    runPublicArtifactValidationCli(["--root", olderTree], {
+      now: rolloverNow,
+      env: policyEnv
+    }),
+    (error) => {
+      assert.ok(error instanceof PublicArtifactValidationError);
+      assert.ok(
+        error.violations.some((violation) =>
+          /latest completed ingestion-slot day 2026-08-29/.test(violation)
+        )
+      );
+      return true;
+    }
+  );
+});
+
+test("CLI freshness selection fails closed and an explicit policy overrides the environment", async () => {
+  const rootDir = await writeValidArtifactTree();
+
+  await assert.rejects(
+    runPublicArtifactValidationCli(["--root", rootDir], {
+      now: VALIDATION_NOW,
+      env: { PUBLIC_ARTIFACT_FRESHNESS_POLICY: "unbounded" }
+    }),
+    /Public artifact freshness policy must be strict-current-day or latest-completed-slot/
+  );
+
+  const strict = await runPublicArtifactValidationCli(
+    [
+      "--root",
+      rootDir,
+      "--freshness-policy",
+      PUBLIC_ARTIFACT_FRESHNESS_POLICIES.STRICT_CURRENT_DAY
+    ],
+    {
+      now: VALIDATION_NOW,
+      env: {
+        PUBLIC_ARTIFACT_FRESHNESS_POLICY:
+          PUBLIC_ARTIFACT_FRESHNESS_POLICIES.LATEST_COMPLETED_SLOT
+      }
+    }
+  );
+  assert.equal(strict.status, "ok");
 });
 
 test("reports missing committed artifacts as one deterministic validation error", async () => {
@@ -688,17 +887,24 @@ test("reports missing committed artifacts as one deterministic validation error"
   );
 });
 
-async function writeValidArtifactTree() {
+async function writeValidArtifactTree({
+  generatedAt = GENERATED_AT,
+  recordedAt = "2026-07-16T12:05:00.000Z"
+} = {}) {
   const rootDir = await mkdtemp(path.join(tmpdir(), "returner-artifacts-valid-"));
   temporaryRoots.push(rootDir);
 
   await writeJson(rootDir, S26_CATALOG_PATH, makeS26Catalog());
 
   for (const [index, descriptor] of GRAPH_ARTIFACTS.entries()) {
-    await writeJson(rootDir, descriptor.path, makeGraph(descriptor, index + 1));
+    await writeJson(rootDir, descriptor.path, makeGraph(descriptor, index + 1, generatedAt));
   }
   for (const descriptor of HISTORY_ARTIFACTS) {
-    await writeJson(rootDir, descriptor.path, makeHistory(descriptor));
+    await writeJson(
+      rootDir,
+      descriptor.path,
+      makeHistory(descriptor, { inputGeneratedAt: generatedAt, recordedAt })
+    );
   }
   return rootDir;
 }
@@ -743,7 +949,7 @@ function makeS26CensusEntries(catalog) {
   );
 }
 
-function makeGraph(descriptor, serial) {
+function makeGraph(descriptor, serial, generatedAt = GENERATED_AT) {
   const audience = descriptor.audience;
   const companyId = `company-${descriptor.batch.toLowerCase()}`;
   const companyName = `Fixture ${descriptor.batch}`;
@@ -807,7 +1013,7 @@ function makeGraph(descriptor, serial) {
     },
     calibration,
     limitations: ["Fixture limitation."],
-    evidenceAsOf: GENERATED_AT,
+    evidenceAsOf: generatedAt,
     explanation: "Canonical v4 fixture score."
   };
   const evidence = {
@@ -817,7 +1023,7 @@ function makeGraph(descriptor, serial) {
     platform: "x",
     sourceUrl: `https://x.com/returner/status/${nativeId}`,
     platformPostId: nativeId,
-    postedAt: GENERATED_AT,
+    postedAt: generatedAt,
     publishedAtPrecision: "exact",
     contributionScore: 70,
     normalizedScore: 70,
@@ -898,15 +1104,15 @@ function makeGraph(descriptor, serial) {
     }],
     evidence: [evidence],
     selectedTopVoiceAudience,
-    generatedAt: GENERATED_AT,
+    generatedAt,
     scoringContext: {
       modelId: EXPECTED_SCORING_MODEL.id,
       modelVersion: EXPECTED_SCORING_MODEL.version,
       modelName: EXPECTED_SCORING_MODEL.name,
       scoreScope: "all_platforms",
       selectedPlatforms: [],
-      responseBuiltAt: GENERATED_AT,
-      evidenceAsOf: GENERATED_AT
+      responseBuiltAt: generatedAt,
+      evidenceAsOf: generatedAt
     },
     mode: "official_snapshot"
   };
@@ -992,11 +1198,17 @@ function materializedSocialAccountId(entityType, entityId, platform, canonicalUr
   return `acct:${entityType}:${entityId}:${platform}:${encodeURIComponent(canonicalUrl)}`;
 }
 
-function makeHistory(descriptor) {
+function makeHistory(
+  descriptor,
+  {
+    inputGeneratedAt = GENERATED_AT,
+    recordedAt = "2026-07-16T12:05:00.000Z"
+  } = {}
+) {
   const entry = {
-    recordedAt: "2026-07-16T12:05:00.000Z",
+    recordedAt,
     scoringModelVersion: EXPECTED_SCORING_MODEL.version,
-    inputGeneratedAt: GENERATED_AT,
+    inputGeneratedAt,
     companies: [
       {
         companyId: `company-${descriptor.batch.toLowerCase()}`,

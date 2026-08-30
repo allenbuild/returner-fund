@@ -924,6 +924,7 @@ jobs:
     with:
       target_sha: ${{ needs.ingest.outputs.validation_candidate }}
       policy_source_sha: ${{ needs.resolve.outputs.source_sha }}
+      artifact_freshness_policy: strict-current-day
       publication_kind: autonomous-ingestion
       publication_receipt_path: outputs/ingestion-source-delta-current.json
       publication_source_sha: ${{ needs.ingest.outputs.publication_source_sha }}

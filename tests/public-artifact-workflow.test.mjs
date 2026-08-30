@@ -18,6 +18,14 @@ const workflow = readFileSync(
   path.join(repositoryRoot, ".github", "workflows", "public-artifacts.yml"),
   "utf8"
 );
+const autonomousWorkflow = readFileSync(
+  path.join(repositoryRoot, ".github", "workflows", "autonomous-ingestion.yml"),
+  "utf8"
+);
+const dailyBenchmarkWorkflow = readFileSync(
+  path.join(repositoryRoot, ".github", "workflows", "daily-benchmarks.yml"),
+  "utf8"
+);
 const packageJson = JSON.parse(
   readFileSync(path.join(repositoryRoot, "package.json"), "utf8")
 );
@@ -58,6 +66,9 @@ describe("Public Artifact Validation workflow", () => {
   it("supports exact-SHA reusable validation without canceling another commit", () => {
     expect(workflow).toMatch(/workflow_call:[\s\S]*?target_sha:[\s\S]*?required:\s*true/);
     expect(workflow).toMatch(/workflow_call:[\s\S]*?policy_source_sha:[\s\S]*?required:\s*true/);
+    expect(workflow).toMatch(
+      /workflow_call:[\s\S]*?artifact_freshness_policy:[\s\S]*?required:\s*true/
+    );
     for (const input of [
       "publication_kind",
       "publication_receipt_path",
@@ -71,6 +82,17 @@ describe("Public Artifact Validation workflow", () => {
     expect(workflow).toMatch(/workflow_dispatch:[\s\S]*?target_sha:/);
     expect(workflow).toContain("validated_sha:");
     expect(workflow).toContain("value: ${{ jobs.validate.outputs.validated_sha }}");
+    expect(workflow).toContain(
+      "artifact_freshness_policy: ${{ steps.target.outputs.artifact_freshness_policy }}"
+    );
+    expect(workflow).toContain('ARTIFACT_FRESHNESS_POLICY="latest-completed-slot"');
+    expect(workflow).toContain(
+      'ARTIFACT_FRESHNESS_POLICY="$REQUESTED_ARTIFACT_FRESHNESS_POLICY"'
+    );
+    expect(workflow).toContain("strict-current-day|latest-completed-slot)");
+    expect(workflow).toContain(
+      'echo "artifact_freshness_policy=$ARTIFACT_FRESHNESS_POLICY" >> "$GITHUB_OUTPUT"'
+    );
     expect(workflow).toContain("group: public-artifacts-${{ inputs.target_sha || github.sha }}");
     expect(workflow).toContain("cancel-in-progress: false");
     expect(concurrencyKeys(workflow)).toEqual([["group", "cancel-in-progress"]]);
@@ -128,6 +150,11 @@ describe("Public Artifact Validation workflow", () => {
       expect(gateStep).toContain(
         `env:\n          NODE_OPTIONS: --max-old-space-size=${expectedHeapMb}`
       );
+      if (job === "artifacts") {
+        expect(gateStep).toContain(
+          "PUBLIC_ARTIFACT_FRESHNESS_POLICY: ${{ needs.resolve_target.outputs.artifact_freshness_policy }}"
+        );
+      }
     }
 
     const appTestsJob = workflow.match(
@@ -202,6 +229,19 @@ describe("Public Artifact Validation workflow", () => {
     expect(workflow).toMatch(/push:\s*\n\s+branches:\s*\n\s+- main/);
   });
 
+  it("keeps every autonomous and benchmark publication validation strict", () => {
+    expect(autonomousWorkflow).toMatch(
+      /validate_publication:[\s\S]*?uses:\s*\.\/\.github\/workflows\/public-artifacts\.yml[\s\S]*?artifact_freshness_policy:\s*strict-current-day/
+    );
+    for (const job of ["validate_publication", "validate_adopted_release"]) {
+      const section = dailyBenchmarkWorkflow.match(
+        new RegExp(`\\n  ${job}:[\\s\\S]*?(?=\\n  [a-z][a-z_-]*:|$)`)
+      )?.[0] ?? "";
+      expect(section).toContain("uses: ./.github/workflows/public-artifacts.yml");
+      expect(section).toContain("artifact_freshness_policy: strict-current-day");
+    }
+  });
+
   it("rejects fabricated and unpublished exact SHAs before release gates", () => {
     const directory = mkdtempSync(path.join(tmpdir(), "returner-public-workflow-"));
     try {
@@ -229,7 +269,9 @@ describe("Public Artifact Validation workflow", () => {
         eventName: "workflow_dispatch"
       });
       expect(valid.status, `${valid.stdout}\n${valid.stderr}`).toBe(0);
-      expect(readFileSync(valid.outputPath, "utf8")).toContain(`target_sha=${publishedSha}`);
+      const directOutputs = readFileSync(valid.outputPath, "utf8");
+      expect(directOutputs).toContain(`target_sha=${publishedSha}`);
+      expect(directOutputs).toContain("artifact_freshness_policy=latest-completed-slot");
 
       runGit(checkout, "config", "user.name", "Workflow Test");
       runGit(checkout, "config", "user.email", "workflow@example.com");
@@ -302,6 +344,27 @@ describe("Public Artifact Validation workflow", () => {
         callerSourceSha
       });
       expect(valid.status, `${valid.stdout}\n${valid.stderr}`).toBe(0);
+      expect(readFileSync(valid.outputPath, "utf8")).toContain(
+        "artifact_freshness_policy=strict-current-day"
+      );
+
+      const invalidFreshnessPolicy = runVerification(script, checkout, dataOnlyTarget, {
+        requireMainReachability: true,
+        eventName: "workflow_call",
+        callerSourceSha,
+        artifactFreshnessPolicy: "unbounded"
+      });
+      expect(invalidFreshnessPolicy.status).toBe(1);
+      expect(invalidFreshnessPolicy.stdout).toContain("Invalid artifact freshness policy");
+
+      const missingFreshnessPolicy = runVerification(script, checkout, dataOnlyTarget, {
+        requireMainReachability: true,
+        eventName: "workflow_call",
+        callerSourceSha,
+        artifactFreshnessPolicy: ""
+      });
+      expect(missingFreshnessPolicy.status).toBe(1);
+      expect(missingFreshnessPolicy.stdout).toContain("Missing artifact freshness policy");
 
       writeFileSync(
         path.join(seed, ".github", "workflows", "public-artifacts.yml"),
@@ -633,7 +696,13 @@ function runVerification(
   script,
   cwd,
   requestedSha,
-  { requireMainReachability, eventName, callerSourceSha = requestedSha, provenance = {} }
+  {
+    requireMainReachability,
+    eventName,
+    callerSourceSha = requestedSha,
+    provenance = {},
+    artifactFreshnessPolicy = null
+  }
 ) {
   const outputPath = path.join(cwd, `output-${Date.now()}-${Math.random()}`);
   const summaryPath = path.join(cwd, `summary-${Date.now()}-${Math.random()}`);
@@ -648,6 +717,8 @@ function runVerification(
         REQUESTED_SHA: requestedSha,
         REQUIRE_MAIN_REACHABILITY: String(requireMainReachability),
         POLICY_SOURCE_SHA: eventName === "workflow_call" ? callerSourceSha : "",
+        REQUESTED_ARTIFACT_FRESHNESS_POLICY:
+          artifactFreshnessPolicy ?? (eventName === "workflow_call" ? "strict-current-day" : ""),
         PUBLICATION_KIND: provenance.kind ?? "",
         PUBLICATION_RECEIPT_PATH: provenance.receiptPath ?? "",
         PUBLICATION_SOURCE_SHA: provenance.sourceSha ?? "",
