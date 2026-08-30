@@ -147,8 +147,8 @@
         "public/topic-facets"
       ],
       "fileCount": 3,
-      "totalByteSize": 8230833,
-      "contentHash": "663b167716b534ed01f2bbcbbdfb3af3a9015405fa6184bc0fbbad51c21d0ae1"
+      "totalByteSize": 8231348,
+      "contentHash": "363170c240edaafac0a4e3f7458d41bd99219b7635c6a67102bbb746334b731d"
     },
     {
       "key": "rankedPostsSidecar",
@@ -156,8 +156,8 @@
         "src/lib/graph/ranked-posts-sidecar.generated.json"
       ],
       "fileCount": 1,
-      "totalByteSize": 3783408,
-      "contentHash": "3dced139744091c564f95afb783985064d650dc8f798ef887b1e1105dc441ae2"
+      "totalByteSize": 3790162,
+      "contentHash": "7a53a0844a178c13f40e4ea0c6300e3e3c9afcf72481d9ad28a4a80b75729ba6"
     },
     {
       "key": "timelines",
@@ -179,5 +179,5 @@
       "contentHash": "08a63938cc586e0bf5f7b827001588f0ff13ef65a63cc5af3012705c69ea79fa"
     }
   ],
-  "contentHash": "21fa1eeb0c69e5bef5027ada6fa05759dc1305ece658e38703509e6e1a4a11c1"
+  "contentHash": "3e43ed4ba2f7111c83f9a689e915842b540c8488cb0c64d7b4ec225bced7339e"
 }
