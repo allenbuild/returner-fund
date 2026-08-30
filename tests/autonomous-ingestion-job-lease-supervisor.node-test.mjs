@@ -13,6 +13,7 @@ import {
   installAutonomousIngestionHost,
   renderLaunchAgentTemplate,
   resolveInstallerOperation,
+  RUNNER_LAUNCHD_LABEL,
   SUPERVISOR_LABEL,
   uninstallAutonomousIngestionHost
 } from "../scripts/install-autonomous-ingestion-job-lease-supervisor.mjs";
@@ -26,8 +27,12 @@ import {
   createGitHubClient,
   evaluateDashboardRecovery,
   evaluateLeaseLossEvent,
+  evaluateMaintenanceWakeStatus,
   evaluatePowerStatus,
+  evaluateRecoveryHostStatus,
+  evaluateRunnerRestart,
   evaluateScheduleRecovery,
+  kickstartRunnerLaunchAgent,
   loadSupervisorState,
   parseWorkerLeaseLossLog,
   readDashboardPublicationWatermark,
@@ -61,6 +66,7 @@ function config(overrides = {}) {
     dashboardWorkflowPath: ".github/workflows/dashboard-refresh.yml",
     defaultBranch: "main",
     runnerName: "returner-social-mac-allenxtech",
+    runnerLaunchdLabel: RUNNER_LAUNCHD_LABEL,
     runnerDiagDir: "/tmp/returner-runner-diag",
     stateDir,
     statePath: path.join(stateDir, "state-v1.json"),
@@ -68,6 +74,8 @@ function config(overrides = {}) {
     ghBin: "/opt/homebrew/bin/gh",
     minBatteryPercent: 30,
     maxWorkerLogBytes: 32 * 1024 * 1024,
+    runnerRestartEnabled: false,
+    runnerRestartCooldownMinutes: 30,
     scheduleRecoveryEnabled: false,
     scheduleRecoverySilenceMinutes: 30,
     scheduleRecoveryCooldownMinutes: 30,
@@ -253,8 +261,70 @@ test("power gate accepts AC and healthy battery while preserving the reserve flo
   });
 });
 
+test("maintenance-wake gate accepts exactly one full-wake signal and fails closed", () => {
+  assert.deepEqual(
+    evaluateMaintenanceWakeStatus('+-o Root  <class IORegistryEntry>\n  "IOPMUserTriggeredFullWake" = Yes'),
+    { fullWake: true, reason: "full_wake" }
+  );
+  assert.deepEqual(
+    evaluateMaintenanceWakeStatus('"IOPMUserTriggeredFullWake" = No'),
+    { fullWake: false, reason: "maintenance_dark_wake" }
+  );
+  for (const unavailable of [
+    "",
+    "IOPMUserTriggeredFullWake is missing",
+    '"IOPMUserTriggeredFullWake" = Yes\n"IOPMUserTriggeredFullWake" = Yes',
+    '"IOPMUserTriggeredFullWake" = Yes\n"IOPMUserTriggeredFullWake" = No'
+  ]) {
+    assert.deepEqual(evaluateMaintenanceWakeStatus(unavailable), {
+      fullWake: false,
+      reason: "wake_status_unavailable"
+    });
+  }
+});
+
+test("recovery host gate ignores wake state on AC and requires full wake on battery", () => {
+  assert.deepEqual(
+    evaluateRecoveryHostStatus({
+      powerSource: "Now drawing from 'AC Power'\n 12%; charging",
+      wakeSource: '"IOPMUserTriggeredFullWake" = No'
+    }),
+    {
+      eligible: true,
+      reason: "ac_power",
+      percent: 12,
+      powerReason: "ac_power",
+      wakeReason: null
+    }
+  );
+  assert.equal(
+    evaluateRecoveryHostStatus({
+      powerSource: "Now drawing from 'Battery Power'\n 72%; discharging",
+      wakeSource: '"IOPMUserTriggeredFullWake" = Yes'
+    }).eligible,
+    true
+  );
+  assert.equal(
+    evaluateRecoveryHostStatus({
+      powerSource: "Now drawing from 'Battery Power'\n 72%; discharging",
+      wakeSource: '"IOPMUserTriggeredFullWake" = No'
+    }).reason,
+    "maintenance_dark_wake"
+  );
+  assert.equal(
+    evaluateRecoveryHostStatus({
+      powerSource: "Now drawing from 'Battery Power'\n 72%; discharging",
+      wakeSource: ""
+    }).reason,
+    "wake_status_unavailable"
+  );
+});
+
 test("schedule recovery is enabled with bounded silence and cooldown defaults", () => {
   const defaults = supervisorConfig({});
+  assert.equal(defaults.runnerRestartEnabled, true);
+  assert.equal(defaults.runnerLaunchdLabel, RUNNER_LAUNCHD_LABEL);
+  assert.equal(defaults.runnerRestartCooldownMinutes, 30);
   assert.equal(defaults.scheduleRecoveryEnabled, true);
   assert.equal(defaults.scheduleRecoverySilenceMinutes, 30);
   assert.equal(defaults.scheduleRecoveryCooldownMinutes, 30);
@@ -267,6 +337,14 @@ test("schedule recovery is enabled with bounded silence and cooldown defaults", 
   assert.equal(
     supervisorConfig({ RETURNER_SCHEDULE_RECOVERY_ENABLED: "false" }).scheduleRecoveryEnabled,
     false
+  );
+  assert.equal(
+    supervisorConfig({ RETURNER_RUNNER_RESTART_ENABLED: "false" }).runnerRestartEnabled,
+    false
+  );
+  assert.throws(
+    () => supervisorConfig({ RETURNER_RUNNER_LAUNCHD_LABEL: "unsafe/label" }),
+    /safe launchd service label/
   );
   assert.throws(
     () => supervisorConfig({ RETURNER_SCHEDULE_RECOVERY_SILENCE_MINUTES: "14" }),
@@ -534,6 +612,92 @@ test("remote verification is exact about workflow, failed run, runner, and cance
   );
 });
 
+test("runner kickstart uses one bounded same-user launchctl command without replacement", async () => {
+  const calls = [];
+  const result = await kickstartRunnerLaunchAgent({
+    label: RUNNER_LAUNCHD_LABEL,
+    uid: 501,
+    execute: async (binary, args, options) => {
+      calls.push({ binary, args, options });
+      return { stdout: "8123\n", stderr: "" };
+    }
+  });
+  assert.deepEqual(result, { pid: 8123 });
+  assert.deepEqual(calls, [{
+    binary: "/bin/launchctl",
+    args: ["kickstart", "-p", `gui/501/${RUNNER_LAUNCHD_LABEL}`],
+    options: { timeout: 10_000, maxBuffer: 1024 * 1024, encoding: "utf8" }
+  }]);
+  assert.equal(calls[0].args.includes("-k"), false);
+  assert.doesNotMatch(JSON.stringify(calls[0]), /svc\.sh|bootstrap|bootout|sudo|shell/);
+
+  await assert.rejects(
+    kickstartRunnerLaunchAgent({
+      label: RUNNER_LAUNCHD_LABEL,
+      uid: 501,
+      execute: async () => ({ stdout: "8123\n8124\n", stderr: "" })
+    }),
+    /one positive process ID/
+  );
+  await assert.rejects(
+    kickstartRunnerLaunchAgent({ label: RUNNER_LAUNCHD_LABEL, uid: 0 }),
+    /non-root macOS user ID/
+  );
+});
+
+test("runner restart evaluation never kickstarts online, busy, missing, or duplicate identities", async () => {
+  const cases = [
+    {
+      runners: [{ id: 7, name: "returner-social-mac-allenxtech", status: "online", busy: false }],
+      action: "current",
+      reason: "runner_online_idle"
+    },
+    {
+      runners: [{ id: 7, name: "returner-social-mac-allenxtech", status: "online", busy: true }],
+      action: "current",
+      reason: "runner_online_busy"
+    },
+    { runners: [], action: "defer", reason: "runner_not_exact" },
+    {
+      runners: [
+        { id: 7, name: "returner-social-mac-allenxtech", status: "offline", busy: false },
+        { id: 8, name: "returner-social-mac-allenxtech", status: "offline", busy: false }
+      ],
+      action: "defer",
+      reason: "runner_not_exact"
+    },
+    {
+      runners: [{ id: 7, name: "returner-social-mac-allenxtech", status: "offline", busy: true }],
+      action: "defer",
+      reason: "runner_offline_busy_inconsistent"
+    }
+  ];
+
+  for (const scenario of cases) {
+    let fresh = null;
+    const decision = await evaluateRunnerRestart({
+      config: config({ runnerRestartEnabled: true }),
+      github: {
+        getRunners: async (options) => {
+          fresh = options?.fresh;
+          return scenario.runners;
+        }
+      },
+      state: { runnerRestartAttempt: null },
+      readPowerStatus: async () => {
+        throw new Error("power must not be read for this runner state");
+      },
+      readWakeStatus: async () => {
+        throw new Error("wake must not be read for this runner state");
+      },
+      now: new Date("2026-08-26T05:05:00.000Z")
+    });
+    assert.equal(fresh, true);
+    assert.equal(decision.action, scenario.action);
+    assert.equal(decision.reason, scenario.reason);
+  }
+});
+
 test("stale head and newer attempts are terminal without issuing a rerun", async () => {
   let reruns = 0;
   const stale = await evaluateLeaseLossEvent({
@@ -596,6 +760,54 @@ test("active workflow and low battery defer without issuing or deduping a rerun"
   assert.equal(reruns, 0);
 });
 
+test("every supervisor recovery mutation defers during a battery maintenance dark wake", async () => {
+  let mutations = 0;
+  const api = github({
+    getRepositoryText: async () => dashboardArtifact("2026-08-26T17:00:00.000Z"),
+    rerunFailedJobs: async () => {
+      mutations += 1;
+    },
+    dispatchRecovery: async () => {
+      mutations += 1;
+    },
+    dispatchDashboardRecovery: async () => {
+      mutations += 1;
+    }
+  });
+  const readPowerStatus = async () => "Now drawing from 'Battery Power'\n 72%; discharging";
+  const readWakeStatus = async () => '"IOPMUserTriggeredFullWake" = No';
+
+  const lease = await evaluateLeaseLossEvent({
+    event: event(),
+    config: config(),
+    github: api,
+    readPowerStatus,
+    readWakeStatus
+  });
+  assert.equal(lease.reason, "maintenance_dark_wake");
+
+  const schedule = await evaluateScheduleRecovery({
+    config: config({ scheduleRecoveryEnabled: true }),
+    github: api,
+    state: { recoveryDispatch: null },
+    readPowerStatus,
+    readWakeStatus,
+    now: new Date("2026-08-26T05:05:00.000Z")
+  });
+  assert.equal(schedule.reason, "maintenance_dark_wake");
+
+  const dashboard = await evaluateDashboardRecovery({
+    config: config({ dashboardRecoveryEnabled: true }),
+    github: api,
+    state: { dashboardRecoveryDispatch: null },
+    readPowerStatus,
+    readWakeStatus,
+    now: new Date("2026-08-26T20:05:00.000Z")
+  });
+  assert.equal(dashboard.reason, "maintenance_dark_wake");
+  assert.equal(mutations, 0);
+});
+
 test("a low-battery deferral preserves the stale slot for immediate charged recovery", async () => {
   const dispatchedHeads = [];
   const testConfig = config({ scheduleRecoveryEnabled: true });
@@ -628,6 +840,7 @@ test("a low-battery deferral preserves the stale slot for immediate charged reco
     github: testGithub,
     state,
     readPowerStatus: async () => "Now drawing from 'Battery Power'\n 72%; discharging",
+    readWakeStatus: async () => '"IOPMUserTriggeredFullWake" = Yes',
     now: new Date("2026-08-26T05:05:00.000Z")
   });
 
@@ -800,6 +1013,175 @@ test("a current committed publication watermark makes host recovery a no-op", as
   assert.equal(decision.reason, "publication-watermark-current");
   assert.equal(decision.watermarkStatus, "current");
   assert.equal(dispatches, 0);
+});
+
+test("offline runner kickstart is pre-persisted, suppresses mutations, and obeys durable cooldown", async (context) => {
+  const root = await mkdtemp(path.join(tmpdir(), "returner-runner-restart-test-"));
+  context.after(() => rm(root, { recursive: true, force: true }));
+  const runnerDiagDir = path.join(root, "diag");
+  const stateDir = path.join(root, "state");
+  await mkdir(runnerDiagDir, { recursive: true });
+  await mkdir(stateDir, { recursive: true });
+  await writeFile(path.join(runnerDiagDir, "Worker_20260826-012635-utc.log"), WORKER_LOG);
+  const testConfig = config({
+    runnerDiagDir,
+    stateDir,
+    statePath: path.join(stateDir, "state-v1.json"),
+    lockPath: path.join(stateDir, "supervisor.lock"),
+    runnerRestartEnabled: true,
+    scheduleRecoveryEnabled: true,
+    dashboardRecoveryEnabled: true
+  });
+  await writeFile(testConfig.statePath, `${JSON.stringify({
+    schemaVersion: 1,
+    initializedAt: "2026-08-26T03:00:00.000Z",
+    workerLogs: {},
+    handledEvents: {},
+    recoveryDispatch: null,
+    dashboardRecoveryDispatch: null
+  })}\n`);
+
+  let kickstarts = 0;
+  let mutations = 0;
+  let maskedActiveRunReads = 0;
+  const api = github({
+    getRunners: async ({ fresh } = {}) => {
+      assert.equal(fresh, true);
+      return [{
+        id: 7,
+        name: "returner-social-mac-allenxtech",
+        status: "offline",
+        busy: false
+      }];
+    },
+    getActiveRuns: async () => {
+      maskedActiveRunReads += 1;
+      return [{ id: 991, status: "queued" }];
+    },
+    getWorkflowRuns: async () => {
+      maskedActiveRunReads += 1;
+      return [{ id: 991, status: "queued" }];
+    },
+    rerunFailedJobs: async () => {
+      mutations += 1;
+    },
+    dispatchRecovery: async () => {
+      mutations += 1;
+    },
+    dispatchDashboardRecovery: async () => {
+      mutations += 1;
+    }
+  });
+  const kickstartRunner = async ({ label, runnerId }) => {
+    kickstarts += 1;
+    assert.equal(label, RUNNER_LAUNCHD_LABEL);
+    assert.equal(runnerId, "7");
+    const stateDuringEffect = await loadSupervisorState(testConfig.statePath);
+    assert.equal(stateDuringEffect.runnerRestartAttempt.outcome, "pending");
+    assert.equal(stateDuringEffect.runnerRestartAttempt.pid, null);
+    return { pid: 8100 + kickstarts };
+  };
+
+  const first = await runSupervisor({
+    config: testConfig,
+    github: api,
+    readPowerStatus: async () => "Now drawing from 'AC Power'\n 100%; charged",
+    kickstartRunner,
+    now: () => new Date("2026-08-26T05:05:00.000Z")
+  });
+  assert.equal(first.runnerRecovery.action, "kickstart");
+  assert.equal(first.runnerRecovery.reason, "runner_restart_accepted");
+  assert.equal(first.runnerRecovery.pid, 8101);
+  assert.equal(first.deferred, 1);
+  assert.equal(first.recovery.reason, "runner_recovery_required");
+  assert.equal(first.dashboardRecovery.reason, "runner_recovery_required");
+  assert.equal(kickstarts, 1);
+  assert.equal(mutations, 0);
+  assert.equal(maskedActiveRunReads, 0);
+  assert.deepEqual((await loadSupervisorState(testConfig.statePath)).runnerRestartAttempt, {
+    attemptedAt: "2026-08-26T05:05:00.000Z",
+    launchdLabel: RUNNER_LAUNCHD_LABEL,
+    runnerId: "7",
+    outcome: "accepted",
+    pid: 8101
+  });
+
+  const cooldown = await runSupervisor({
+    config: testConfig,
+    github: api,
+    readPowerStatus: async () => "Now drawing from 'AC Power'\n 100%; charged",
+    kickstartRunner,
+    now: () => new Date("2026-08-26T05:10:00.000Z")
+  });
+  assert.equal(cooldown.runnerRecovery.reason, "runner_restart_cooldown");
+  assert.equal(kickstarts, 1);
+
+  const expired = await runSupervisor({
+    config: testConfig,
+    github: api,
+    readPowerStatus: async () => "Now drawing from 'AC Power'\n 100%; charged",
+    kickstartRunner,
+    now: () => new Date("2026-08-26T05:36:00.000Z")
+  });
+  assert.equal(expired.runnerRecovery.reason, "runner_restart_accepted");
+  assert.equal(expired.runnerRecovery.pid, 8102);
+  assert.equal(kickstarts, 2);
+  assert.equal(mutations, 0);
+});
+
+test("failed runner kickstart is durable and consumes the same cooldown", async (context) => {
+  const root = await mkdtemp(path.join(tmpdir(), "returner-runner-restart-failure-test-"));
+  context.after(() => rm(root, { recursive: true, force: true }));
+  const runnerDiagDir = path.join(root, "diag");
+  const stateDir = path.join(root, "state");
+  await mkdir(runnerDiagDir, { recursive: true });
+  await mkdir(stateDir, { recursive: true });
+  const testConfig = config({
+    runnerDiagDir,
+    stateDir,
+    statePath: path.join(stateDir, "state-v1.json"),
+    lockPath: path.join(stateDir, "supervisor.lock"),
+    runnerRestartEnabled: true
+  });
+  await writeFile(testConfig.statePath, `${JSON.stringify({
+    schemaVersion: 1,
+    initializedAt: "2026-08-26T03:00:00.000Z",
+    workerLogs: {},
+    handledEvents: {}
+  })}\n`);
+  const api = github({
+    getRunners: async () => [{
+      id: 7,
+      name: "returner-social-mac-allenxtech",
+      status: "offline",
+      busy: false
+    }]
+  });
+  let kickstarts = 0;
+  const kickstartRunner = async () => {
+    kickstarts += 1;
+    throw new Error("launchctl rejected fixture request");
+  };
+
+  const failed = await runSupervisor({
+    config: testConfig,
+    github: api,
+    readPowerStatus: async () => "Now drawing from 'AC Power'",
+    kickstartRunner,
+    now: () => new Date("2026-08-26T05:05:00.000Z")
+  });
+  assert.equal(failed.runnerRecovery.reason, "runner_restart_failed");
+  assert.equal((await loadSupervisorState(testConfig.statePath)).runnerRestartAttempt.outcome, "failed");
+
+  const cooldown = await runSupervisor({
+    config: testConfig,
+    github: api,
+    readPowerStatus: async () => "Now drawing from 'AC Power'",
+    kickstartRunner,
+    now: () => new Date("2026-08-26T05:10:00.000Z")
+  });
+  assert.equal(cooldown.runnerRecovery.reason, "runner_restart_cooldown");
+  assert.equal(kickstarts, 1);
 });
 
 test("missing workflow events dispatch once and durable same-slot cooldown prevents a storm", async (context) => {
@@ -1225,6 +1607,47 @@ test("first run baselines historical candidates without calling GitHub", async (
   assert.equal(state.handledEvents[event().eventId].disposition, "baseline");
 });
 
+test("runner restart state is backward compatible and strictly validated", async (context) => {
+  const root = await mkdtemp(path.join(tmpdir(), "returner-runner-state-test-"));
+  context.after(() => rm(root, { recursive: true, force: true }));
+  const statePath = path.join(root, "state-v1.json");
+  const legacyState = {
+    schemaVersion: 1,
+    initializedAt: "2026-08-26T03:00:00.000Z",
+    workerLogs: {},
+    handledEvents: {},
+    recoveryDispatch: null,
+    dashboardRecoveryDispatch: null
+  };
+  await writeFile(statePath, `${JSON.stringify(legacyState)}\n`);
+  assert.equal((await loadSupervisorState(statePath)).runnerRestartAttempt, null);
+
+  const validAttempt = {
+    attemptedAt: "2026-08-26T05:05:00.000Z",
+    launchdLabel: RUNNER_LAUNCHD_LABEL,
+    runnerId: "7",
+    outcome: "accepted",
+    pid: 8123
+  };
+  for (const malformed of [
+    { ...validAttempt, attemptedAt: "2026-08-26T05:05:00Z" },
+    { ...validAttempt, launchdLabel: "unsafe/label" },
+    { ...validAttempt, runnerId: 7 },
+    { ...validAttempt, runnerId: "0" },
+    { ...validAttempt, outcome: "unknown" },
+    { ...validAttempt, pid: 0 }
+  ]) {
+    await writeFile(statePath, `${JSON.stringify({
+      ...legacyState,
+      runnerRestartAttempt: malformed
+    })}\n`);
+    await assert.rejects(
+      loadSupervisorState(statePath),
+      /runner restart state is malformed/
+    );
+  }
+});
+
 test("atomic directory lock rejects overlap and recovers a dead owner", async (context) => {
   const root = await mkdtemp(path.join(tmpdir(), "returner-lease-lock-test-"));
   context.after(() => rm(root, { recursive: true, force: true }));
@@ -1256,6 +1679,18 @@ test("LaunchAgent template is a five-minute one-shot without KeepAlive", async (
   assert.match(
     template,
     /<key>RETURNER_SCHEDULE_RECOVERY_ENABLED<\/key>\s*<string>true<\/string>/
+  );
+  assert.match(
+    template,
+    /<key>RETURNER_RUNNER_RESTART_ENABLED<\/key>\s*<string>true<\/string>/
+  );
+  assert.match(
+    template,
+    /<key>RETURNER_RUNNER_LAUNCHD_LABEL<\/key>\s*<string>__RUNNER_LAUNCHD_LABEL__<\/string>/
+  );
+  assert.match(
+    template,
+    /<key>RETURNER_RUNNER_RESTART_COOLDOWN_MINUTES<\/key>\s*<string>30<\/string>/
   );
   assert.match(
     template,
@@ -1458,6 +1893,7 @@ test("host LaunchAgent install and uninstall are idempotent without deleting aud
   assert.equal(await readFile(paths.awakePlistPath, "utf8"), firstAwakePlist);
   assert.equal(first.installed, true);
   assert.equal(second.installed, true);
+  assert.equal(first.runnerLaunchdLabel, RUNNER_LAUNCHD_LABEL);
   await assert.rejects(
     installAutonomousIngestionHost({
       ...options,
@@ -1494,6 +1930,14 @@ test("host LaunchAgent install and uninstall are idempotent without deleting aud
     paths.awakePlistPath,
     paths.supervisorPlistPath
   ]);
+  assert.equal(
+    calls.some((call) =>
+      call[0] === "/bin/launchctl" &&
+      new Set(["bootstrap", "bootout", "enable"]).has(call[1]) &&
+      call.some((argument) => String(argument).includes(RUNNER_LAUNCHD_LABEL))
+    ),
+    false
+  );
 
   const stateMarker = path.join(paths.stateDir, "preserved-state.json");
   const authBrowserMarker = path.join(paths.authBrowserDataDir, "preserved-profile.json");

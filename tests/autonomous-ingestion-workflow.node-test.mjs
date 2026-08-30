@@ -234,6 +234,20 @@ test("dashboard refresh uses the Mac network for exact YouTube proof", () => {
     dashboardRefreshWorkflow,
     /Preflight dashboard host[\s\S]*?pmset -g batt[\s\S]*?'AC Power'[\s\S]*?pmset -g assertions[\s\S]*?PreventSystemSleep/
   );
+  const refreshJob = dashboardRefreshWorkflow.match(
+    /\n  refresh:[\s\S]*?(?=\n  [a-z_]+:|$)/
+  )?.[0] ?? "";
+  assert.ok(
+    refreshJob.indexOf("Preflight dashboard host") < refreshJob.indexOf("Check out current main"),
+    "dashboard wake and power gate must run before checkout"
+  );
+  const hostPreflight = refreshJob.match(
+    /- name: Preflight dashboard host[\s\S]*?(?=\n\s{6}- name:)/
+  )?.[0] ?? "";
+  assert.match(hostPreflight, /\/usr\/sbin\/ioreg -r -k IOPMUserTriggeredFullWake -d 4/);
+  assert.match(hostPreflight, /reason=battery_full_wake_unverified/);
+  assert.match(hostPreflight, /WAKE_MATCH_COUNT[\s\S]*?FULL_WAKE_MATCH_COUNT/);
+  assert.doesNotMatch(hostPreflight, /\/usr\/bin\/caffeinate -u/);
   assert.match(dashboardRefreshWorkflow, /exec \/usr\/bin\/caffeinate -im npm ci/);
   assert.match(dashboardRefreshWorkflow, /\/usr\/bin\/caffeinate -im npm run dashboard:refresh/);
   assert.doesNotMatch(dashboardRefreshWorkflow, /\/usr\/bin\/caffeinate[^\n]*&/);
@@ -1892,9 +1906,11 @@ test("autonomous runner receives optional durability secrets and owns validated 
   assert.match(hostPreflight, /Runner using healthy battery reserve/);
   assert.match(hostPreflight, /Autonomous ingestion safely deferred/);
   assert.match(hostPreflight, /GITHUB_TOKEN:\s*\$\{\{ github\.token \}\}/);
+  assert.match(hostPreflight, /GITHUB_REPOSITORY:\s*\$\{\{ github\.repository \}\}/);
   assert.match(hostPreflight, /CANDIDATE_TRIGGER:\s*\$\{\{ needs\.resolve\.outputs\.trigger \}\}/);
   assert.match(hostPreflight, /reason=publication_token_unusable/);
-  assert.match(hostPreflight, /git ls-remote --exit-code origin refs\/heads\/main/);
+  assert.match(hostPreflight, /PUBLICATION_REMOTE="https:\/\/github\.com\/\$\{GITHUB_REPOSITORY\}\.git"/);
+  assert.match(hostPreflight, /git ls-remote --exit-code "\$PUBLICATION_REMOTE" refs\/heads\/main/);
   assert.match(hostPreflight, /GIT_CONFIG_COUNT=3/);
   assert.match(hostPreflight, /GIT_CONFIG_KEY_0="http\.https:\/\/github\.com\/\.extraheader"/);
   assert.match(hostPreflight, /GIT_CONFIG_KEY_1="core\.hooksPath"[\s\S]*?GIT_CONFIG_VALUE_1="\/dev\/null"/);
@@ -1916,6 +1932,8 @@ test("autonomous runner receives optional durability secrets and owns validated 
   assert.match(hostPreflight, /PreventSystemSleep\[\[:space:\]\]\+1/);
   assert.match(hostPreflight, /if \[ "\$AUTHENTICATED_SOCIAL_REPLAY" = "true" \]/);
   assert.match(hostPreflight, /IOPMUserTriggeredFullWake/);
+  assert.match(hostPreflight, /reason=battery_full_wake_unverified/);
+  assert.match(hostPreflight, /WAKE_MATCH_COUNT[\s\S]*?FULL_WAKE_MATCH_COUNT/);
   assert.match(hostPreflight, /Authenticated replay requires a user wake/);
   assert.match(hostPreflight, /Retry this manual replay/);
   assert.doesNotMatch(hostPreflight, /\/usr\/bin\/caffeinate -u/);
@@ -1968,9 +1986,33 @@ test("autonomous runner receives optional durability secrets and owns validated 
   assert.match(runnerStep, /CANDIDATE_SCHEDULED_AT:\s*\$\{\{ needs\.resolve\.outputs\.scheduled_at \}\}/);
   assert.match(runnerStep, /CANDIDATE_RECOVERY_DEBT:\s*\$\{\{ needs\.resolve\.outputs\.recovery_debt \}\}/);
   const ingestJob = workflow.match(/\n  ingest:[\s\S]*?(?=\n  receipt:)/)?.[0] ?? "";
+  assert.ok(
+    ingestJob.indexOf("Preflight autonomous ingestion host") <
+      ingestJob.indexOf("Check out repository"),
+    "battery wake gate must be the first accepted-slot host operation"
+  );
   assert.match(ingestJob, /uses:\s*actions\/checkout@[0-9a-f]{40}\s+# v4[\s\S]*?ref:\s*\$\{\{ needs\.resolve\.outputs\.source_sha \}\}[\s\S]*?fetch-depth:\s*0[\s\S]*?persist-credentials:\s*false/);
+  assert.match(
+    ingestJob,
+    /name:\s*Check out repository[\s\S]*?if:\s*steps\.host_preflight\.outputs\.ready == 'true'/
+  );
+  assert.match(
+    ingestJob,
+    /name:\s*Retry repository checkout[\s\S]*?if:\s*steps\.host_preflight\.outputs\.ready == 'true' && steps\.primary_checkout\.outcome == 'failure'/
+  );
+  for (const stepName of [
+    "Record executed checkout",
+    "Use Node.js",
+    "Require isolated publication credential",
+    "Revalidate serialized publication candidate"
+  ]) {
+    const step = ingestJob.match(
+      new RegExp(`- name: ${stepName}[\\s\\S]*?(?=\\n\\s{6}- name:|$)`)
+    )?.[0] ?? "";
+    assert.match(step, /if:\s*steps\.host_preflight\.outputs\.ready == 'true'/);
+  }
   assert.match(ingestJob, /name:\s*Require isolated publication credential/);
-  assert.match(ingestJob, /name:\s*Verify publication credential isolation[\s\S]*?if:\s*always\(\)/);
+  assert.match(ingestJob, /name:\s*Verify publication credential isolation[\s\S]*?if:\s*always\(\) && steps\.host_preflight\.outputs\.ready == 'true'/);
   assert.doesNotMatch(ingestJob, /git config --local http\.https:\/\/github\.com\/\.extraheader/);
   assert.match(ingestJob, /name:\s*Verify repository-backed publication commit/);
   assert.match(ingestJob, /VERIFIED_COMMIT[\s\S]*?REMOTE_MAIN_COMMIT[\s\S]*?git merge-base --is-ancestor/);

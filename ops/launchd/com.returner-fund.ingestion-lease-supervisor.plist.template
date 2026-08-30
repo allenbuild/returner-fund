@@ -23,6 +23,12 @@
     <string>main</string>
     <key>RETURNER_RUNNER_NAME</key>
     <string>returner-social-mac-allenxtech</string>
+    <key>RETURNER_RUNNER_RESTART_ENABLED</key>
+    <string>true</string>
+    <key>RETURNER_RUNNER_LAUNCHD_LABEL</key>
+    <string>__RUNNER_LAUNCHD_LABEL__</string>
+    <key>RETURNER_RUNNER_RESTART_COOLDOWN_MINUTES</key>
+    <string>30</string>
     <key>RETURNER_RUNNER_DIAG_DIR</key>
     <string>__RUNNER_DIAG_DIR__</string>
     <key>RETURNER_LEASE_SUPERVISOR_STATE_DIR</key>

@@ -27,6 +27,8 @@ import {
 const execFile = promisify(execFileCallback);
 export const SUPERVISOR_LABEL = "com.returner-fund.ingestion-lease-supervisor";
 export const AWAKE_LABEL = "com.returner-fund.ingestion-awake";
+export const RUNNER_LAUNCHD_LABEL =
+  "actions.runner.allenbuild-returner-fund.returner-social-mac-allenxtech";
 const scriptPath = fileURLToPath(import.meta.url);
 const defaultRepositoryRoot = path.resolve(path.dirname(scriptPath), "..");
 
@@ -259,6 +261,7 @@ export async function installAutonomousIngestionHost({
       __SUPERVISOR_SCRIPT__: paths.installedScript,
       __GH_BIN__: ghBin,
       __RUNNER_DIAG_DIR__: runnerDiagDir,
+      __RUNNER_LAUNCHD_LABEL__: RUNNER_LAUNCHD_LABEL,
       __STATE_DIR__: paths.stateDir,
       __INSTALL_ROOT__: paths.installRoot,
       __STDOUT_LOG__: path.join(
@@ -356,6 +359,7 @@ export async function installAutonomousIngestionHost({
     installedScript: paths.installedScript,
     installedScheduleModule: paths.installedScheduleModule,
     stateDir: paths.stateDir,
+    runnerLaunchdLabel: RUNNER_LAUNCHD_LABEL,
     authBrowserDataDir: authBrowser.dataDir,
     authBrowserChromeExecutable: authBrowser.chromeExecutable,
     authBrowserService
