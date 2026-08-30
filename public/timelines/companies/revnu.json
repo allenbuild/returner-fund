@@ -5,8 +5,8 @@
     "slug": "revnu",
     "name": "Revnu"
   },
-  "generatedAt": "2026-08-29T18:10:35.748Z",
-  "lastModifiedAt": "2026-08-29T18:10:35.748Z",
+  "generatedAt": "2026-08-30T03:50:55.015Z",
+  "lastModifiedAt": "2026-08-30T03:50:55.015Z",
   "events": [
     {
       "id": "tle-d3c26a50957979a58883c6eb",
@@ -109,7 +109,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 3,
-    "lastSuccessfulArtifactAt": "2026-08-29T18:10:35.748Z"
+    "lastSuccessfulArtifactAt": "2026-08-30T03:50:55.015Z"
   },
   "nextCursor": null
 }

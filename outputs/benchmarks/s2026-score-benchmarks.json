@@ -1,7 +1,7 @@
 {
   "version": 1,
   "batchSlug": "S2026",
-  "updatedAt": "2026-08-29T18:10:48.516Z",
+  "updatedAt": "2026-08-30T03:51:06.838Z",
   "daily": [
     {
       "recordedAt": "2026-06-29T16:52:33.375Z",
@@ -65385,9 +65385,9 @@
       ]
     },
     {
-      "recordedAt": "2026-08-29T18:10:48.516Z",
+      "recordedAt": "2026-08-30T03:51:06.838Z",
       "scoringModelVersion": "4.2.0",
-      "inputGeneratedAt": "2026-08-29T18:09:42.489Z",
+      "inputGeneratedAt": "2026-08-30T03:50:03.073Z",
       "companies": [
         {
           "companyId": "company-heyclicky",
@@ -65918,6 +65918,12 @@
           "rank": 86
         },
         {
+          "companyId": "company-keyframe-labs",
+          "companyName": "Keyframe Labs",
+          "score": 42,
+          "rank": 86
+        },
+        {
           "companyId": "company-kinro",
           "companyName": "Kinro",
           "score": 42,
@@ -65933,43 +65939,37 @@
           "companyId": "company-runharbor",
           "companyName": "Harbor",
           "score": 40,
-          "rank": 91
-        },
-        {
-          "companyId": "company-keyframe-labs",
-          "companyName": "Keyframe Labs",
-          "score": 40,
-          "rank": 91
+          "rank": 92
         },
         {
           "companyId": "company-kugelaudio",
           "companyName": "KugelAudio",
           "score": 40,
-          "rank": 91
+          "rank": 92
         },
         {
           "companyId": "company-lamina-labs",
           "companyName": "Lamina Labs",
           "score": 40,
-          "rank": 91
+          "rank": 92
         },
         {
           "companyId": "company-miso-labs",
           "companyName": "Miso Labs",
           "score": 40,
-          "rank": 91
+          "rank": 92
         },
         {
           "companyId": "company-reasonblocks",
           "companyName": "ReasonBlocks",
           "score": 40,
-          "rank": 91
+          "rank": 92
         },
         {
           "companyId": "company-walter",
           "companyName": "Walter",
           "score": 40,
-          "rank": 91
+          "rank": 92
         },
         {
           "companyId": "company-deep-interactions",

@@ -5,9 +5,33 @@
     "slug": "result",
     "name": "Result"
   },
-  "generatedAt": "2026-08-29T18:10:35.748Z",
-  "lastModifiedAt": "2026-08-29T18:10:35.748Z",
+  "generatedAt": "2026-08-30T03:50:55.015Z",
+  "lastModifiedAt": "2026-08-30T03:50:55.015Z",
   "events": [
+    {
+      "id": "tle-fe8ea70ba05f1cdf52571678",
+      "eventDate": "2026-08-29",
+      "eventDateType": "announcement_date",
+      "title": "Result released Sodium",
+      "summary": "Result introduced Sodium.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-509f800c0acc59535611ca88",
+          "title": "Introducing Sodium!",
+          "publisher": "tryresult",
+          "domain": "x.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-08-29T20:45:48.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/tryresult/status/2093802317648945537"
+        }
+      ]
+    },
     {
       "id": "tle-c20a0f16f5d15d8075e4dc26",
       "eventDate": "2026-05-16",
@@ -82,6 +106,10 @@
       "year": 2026,
       "months": [
         {
+          "month": "2026-08",
+          "count": 1
+        },
+        {
           "month": "2026-05",
           "count": 2
         }
@@ -90,8 +118,8 @@
   ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 2,
-    "lastSuccessfulArtifactAt": "2026-08-29T18:10:35.748Z"
+    "publishedEventCount": 3,
+    "lastSuccessfulArtifactAt": "2026-08-30T03:50:55.015Z"
   },
   "nextCursor": null
 }

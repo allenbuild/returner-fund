@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-result",
+    "slug": "result",
+    "name": "Result"
+  },
+  "event": {
+    "id": "tle-fe8ea70ba05f1cdf52571678",
+    "eventDate": "2026-08-29",
+    "eventDateType": "announcement_date",
+    "title": "Result released Sodium",
+    "summary": "Result introduced Sodium.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-509f800c0acc59535611ca88",
+        "title": "Introducing Sodium!",
+        "publisher": "tryresult",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-08-29T20:45:48.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/tryresult/status/2093802317648945537"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-509f800c0acc59535611ca88",
+        "title": "Introducing Sodium!",
+        "publisher": "tryresult",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-08-29T20:45:48.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/tryresult/status/2093802317648945537",
+        "publicationDate": "2026-08-29T20:45:48.000Z",
+        "excerpt": "Introducing Sodium!",
+        "sourceEventDate": "2026-08-29",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-b137cd6047bd5fca318fc0a0",
+        "platform": "x",
+        "account": "tryresult",
+        "postDate": "2026-08-29",
+        "excerpt": "Introducing Sodium!",
+        "url": "https://x.com/tryresult/status/2093802317648945537",
+        "metrics": {
+          "likes": 1,
+          "reposts": 0,
+          "replies": 0,
+          "views": 256
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-30T03:50:55.015Z",
+  "lastModifiedAt": "2026-08-30T03:50:55.015Z"
+}

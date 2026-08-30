@@ -82,7 +82,7 @@
           "likes": 22,
           "reposts": 0,
           "replies": 4,
-          "views": 5208
+          "views": 5213
         },
         "evidenceRole": "primary"
       },
@@ -94,12 +94,12 @@
         "excerpt": "Ara (YC P26) Launch Video",
         "url": "https://youtube.com/watch?v=6ASb9QW2QEw",
         "metrics": {
-          "views": 1480
+          "views": 1482
         },
         "evidenceRole": "primary"
       }
     ]
   },
-  "generatedAt": "2026-08-29T18:10:35.748Z",
-  "lastModifiedAt": "2026-08-29T18:10:35.748Z"
+  "generatedAt": "2026-08-30T03:50:55.015Z",
+  "lastModifiedAt": "2026-08-30T03:50:55.015Z"
 }

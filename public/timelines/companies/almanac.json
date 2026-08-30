@@ -5,9 +5,33 @@
     "slug": "almanac",
     "name": "Almanac"
   },
-  "generatedAt": "2026-08-29T18:10:35.748Z",
-  "lastModifiedAt": "2026-08-29T18:10:35.748Z",
+  "generatedAt": "2026-08-30T03:50:55.015Z",
+  "lastModifiedAt": "2026-08-30T03:50:55.015Z",
   "events": [
+    {
+      "id": "tle-115811282b18d9a9fbb11917",
+      "eventDate": "2026-08-29",
+      "eventDateType": "announcement_date",
+      "title": "Almanac released Almanac payments, powered by AgentCard",
+      "summary": "Almanac introduced Almanac payments, powered by AgentCard.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-660af54cd71262f6f214fc12",
+          "title": "Introducing Almanac payments, powered by AgentCard.",
+          "publisher": "kushagrchitkar",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-08-29T22:58:06.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/kushagrchitkar/status/2093835614156476521"
+        }
+      ]
+    },
     {
       "id": "tle-ef735f7d9a8a03ad08d09d66",
       "eventDate": "2026-08-28",
@@ -131,7 +155,7 @@
       "months": [
         {
           "month": "2026-08",
-          "count": 2
+          "count": 3
         },
         {
           "month": "2026-03",
@@ -151,8 +175,8 @@
   ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 4,
-    "lastSuccessfulArtifactAt": "2026-08-29T18:10:35.748Z"
+    "publishedEventCount": 5,
+    "lastSuccessfulArtifactAt": "2026-08-30T03:50:55.015Z"
   },
   "nextCursor": null
 }

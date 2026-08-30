@@ -4,7 +4,7 @@
     "directoryUrl": "https://www.ycombinator.com/companies?batch=Summer%202026",
     "algoliaIndex": "YCCompany_production",
     "algoliaFilter": "batch:\"Summer 2026\"",
-    "fetchedAt": "2026-08-29T17:29:15.844Z",
+    "fetchedAt": "2026-08-30T03:14:42.224Z",
     "expectedCompanyCount": 235,
     "observedCompanyCount": 235,
     "minimumCompanyCount": 167,
@@ -1206,7 +1206,7 @@
       "batch": "Summer 2026",
       "ycProfileUrl": "https://www.ycombinator.com/companies/atlas-discovery",
       "websiteUrl": "https://atlasdiscovery.bio",
-      "tagline": "Predicting human response to drugs in clinical trials",
+      "tagline": "AI-native pharma company",
       "description": "",
       "industry": "Healthcare",
       "subindustry": "Healthcare -> Drug Discovery and Delivery",
@@ -1791,8 +1791,8 @@
       "batch": "Summer 2026",
       "ycProfileUrl": "https://www.ycombinator.com/companies/bizmark",
       "websiteUrl": "https://bizmark.ai",
-      "tagline": "The OS for companies that make, move, or sell physical goods",
-      "description": "Bizmark is the operating system for companies that make, move, or sell physical goods.\r\n\r\nLegacy ERPs force operators into templates that don’t reflect how the business runs. As a result, decisions that directly affect revenue, margins, and service levels are made from spreadsheets, with less information than the company has, often by whoever is closest, not whoever knows best.\r\n\r\nBizmark solves this by connecting to the systems, inboxes, spreadsheets, documents, and the knowledge that lives in people’s heads, then turning that context into optimized decisions and automated workflows. Bizmark adapts to how each company operates, not the other way around. And customers get a working product in weeks, not years.\r\n\r\nSome of the most innovative American companies use Bizmark to transform their operations.",
+      "tagline": "Agentic supply chain optimization",
+      "description": "Bizmark deploys optimization methods at manufacturers, distributors and retailers. This traditionally took years of work; we do it in weeks through an agentic approach. Our first customers are seeing millions in value in weeks. We’re currently at $xxxk ARR after 8 weeks of work, and we’ve beaten SAP, Oracle, and Infor for those contracts. The founders are cousins Rodrigo Mosqueira and Oscar Aguilar, who’ve previously grown a supply chain business from 0 to $60M and implemented optimization methods at Intel, Amazon, and J&J.",
       "industry": "B2B",
       "subindustry": "B2B",
       "industries": [
@@ -1846,8 +1846,8 @@
       "batch": "Summer 2026",
       "ycProfileUrl": "https://www.ycombinator.com/companies/bloomy",
       "websiteUrl": "https://bloomylearning.com/",
-      "tagline": "AI-powered mastery learning for K-12",
-      "description": "Bloomy helps students learn more efficiently by using AI to identify exactly what a student should learn and when they should learn it. We provide adaptive and personalized curriculum to K-12, starting with English Language Arts, Math, and Writing.",
+      "tagline": "AI-driven 1-to-1 learning for every student",
+      "description": "Bloomy is the fastest way to teach anything in school. We provide schools with an AI curriculum and teacher to help K-12 students learn faster. Backed by the founders of Clever. ",
       "industry": "Education",
       "subindustry": "Education",
       "industries": [
@@ -1855,10 +1855,10 @@
       ],
       "tags": [
         "AI-Enhanced Learning",
-        "Artificial Intelligence",
         "Education",
         "eLearning",
-        "Personalization"
+        "Personalization",
+        "AI"
       ],
       "location": "San Francisco",
       "teamSize": 1,
@@ -3393,7 +3393,7 @@
           "id": "3047141",
           "name": "Rodrigo Terán",
           "title": "Founder/CTO",
-          "bio": "Co-founder @ Dialogus | Ex-Google, Meta, Microsoft.",
+          "bio": "Co-founder @ Dialogus | Ex-Google, Meta | Math & Physics Olympiad",
           "ycProfileUrl": "https://www.ycombinator.com/people/rodrigo-ter-n",
           "socialLinks": {
             "linkedin": "https://www.linkedin.com/in/rodrigoteranhdz",
@@ -4489,8 +4489,8 @@
       "batch": "Summer 2026",
       "ycProfileUrl": "https://www.ycombinator.com/companies/familiar",
       "websiteUrl": "https://thefamiliarlab.com",
-      "tagline": "Dubbing is Finally Good. Neolab for World Translation.",
-      "description": "The first and only one that works in real time. World translation: not just changing voice and lips into a new language, but understanding the scene, the sound, and preserving the human. \r\n\r\n🦋 Movies & TV, Micro-dramas, Live Broadcasts, Live Shopping, Corporate & Education, Ads, Creators & Podcasts, Platforms. Day-and-date, in every territory.\r\n\r\nFounders An Zhu Liu, Jibin Song, Mingi Kwon, and Xu Zheng lead a team of PhDs, professors, and researchers from the world's top universities who started the field of joint audio-visual human models and co-authored the current state of the art in real-time human animation. Since 2021: over 10,000 citations and 100+ papers at ICLR, NeurIPS, CVPR, ECCV, and more.\r\n\r\nTranslation has to be a world model. A translator has to know who's speaking: where every sound in the dense polyphony originates. Laughter here, a short yell there, a voice from off-screen, someone on screen mouthing words before being interrupted. Everyone else scaffolds separate models and pre-processing; a world model simulates the scene. It's a spatio-temporal reasoner: predicting continuity across frames forces it to internalize 3D geometry, spatial reasoning, and permanence -- of objects, people, and the environment itself. The scene state survives the edit: when the shot pans or cuts away, someone off-screen still exists, still owns their voice, and is still there when the camera comes back. Multiple people, side views, off angles, fast motion -- the hard cases hold.\r\n\r\nVs ElevenLabs: they lose the laughter, the music, the ambiance -- 270% more background-sound error -- and ours sounds 27.8% more like you. That means no recasting, no ADR, no M&E stems required -- it works from the final mix.\r\n\r\nVs human translators: 100.3% of their quality -- scalable, real time. Published benchmarks: https://thefamiliarlab.com/benchmark",
+      "tagline": "Real-Time AI Dubbing. Neolab for World Translation.",
+      "description": "Audio-visual translation infrastructure for all video, live and recorded -- the first and only that works in real time. World translation: not just changing voice and lips into a new language, but understanding the scene, the sound, and preserving the human.\r\n\r\n🦋 Movies & TV, Micro-dramas, Live Broadcasts, Live Shopping, Corporate & Education, Ads, Creators & Podcasts, Platforms. Day-and-date, in every territory.\r\n\r\nFounders An Zhu Liu, Jibin Song, Mingi Kwon, and Xu Zheng lead a team of PhDs, professors, and researchers from the world's top universities who started the field of joint audio-visual human models and co-authored the current state of the art in real-time human animation. Since 2021: over 10,000 citations and 100+ papers at ICLR, NeurIPS, CVPR, ECCV, and more.\r\n\r\nTranslation has to be a world model. A translator has to know who's speaking: where every sound in the dense polyphony originates. Laughter here, a short yell there, a voice from off-screen, someone on screen mouthing words before being interrupted. Everyone else scaffolds separate models and pre-processing; a world model simulates the scene. It's a spatio-temporal reasoner: predicting continuity across frames forces it to internalize 3D geometry, spatial reasoning, and permanence -- of objects, people, and the environment itself. The scene state survives the edit: when the shot pans or cuts away, someone off-screen still exists, still owns their voice, and is still there when the camera comes back. Multiple people, side views, off angles, fast motion -- the hard cases hold.\r\n\r\nVs ElevenLabs: they lose the laughter, the music, the ambiance -- 270% more background-sound error -- and ours sounds 27.8% more like you. That means no recasting, no ADR, no M&E stems required -- it works from the final mix.\r\n\r\nVs human translators: 100.3% of their quality -- scalable, real time. Published benchmarks: https://thefamiliarlab.com/benchmark",
       "industry": "B2B",
       "subindustry": "B2B -> Infrastructure",
       "industries": [
@@ -4498,10 +4498,10 @@
         "Infrastructure"
       ],
       "tags": [
-        "Artificial Intelligence",
         "Generative AI",
         "B2B",
-        "Entertainment"
+        "Entertainment",
+        "AI"
       ],
       "location": "Toronto, Canada",
       "teamSize": 8,
@@ -5063,8 +5063,8 @@
       "batch": "Summer 2026",
       "ycProfileUrl": "https://www.ycombinator.com/companies/grip",
       "websiteUrl": "https://www.griprobotics.ai",
-      "tagline": "Robots for waste management",
-      "description": "Grip is a robotics company building intelligent robotic systems for waste and recycling. Its technology combines learning-based manipulation and custom hardware to identify and pick objects from messy, constantly changing waste streams. By learning from real-world operating data, including every successful and failed grasp, Grip’s systems become more reliable and adaptable over time. The goal is to help waste operators reduce difficult manual sorting, recover more valuable material, lower contamination, and deploy automation more flexibly across different facilities and waste streams. Ultimately, Grip is building the intelligent manipulation layer for waste infrastructure, making recycling and the circular economy more efficient and scalable.",
+      "tagline": "Robots for waste manipulation",
+      "description": "Grip is a robotics company building intelligent robotic systems for waste and recycling. We are starting with organic waste, where removing contaminants from messy, constantly changing streams remains difficult and highly manual. Our technology combines learning-based manipulation and custom hardware to identify and pick objects, learning from real-world operating data, including every successful and failed grasp, to become more reliable and adaptable over time. This helps waste operators reduce manual sorting, recover more valuable material, lower contamination, and deploy automation flexibly across facilities. Over time, Grip aims to expand beyond organics and build the intelligent manipulation layer for trash in general, making waste processing and the circular economy more efficient and scalable.",
       "industry": "Industrials",
       "subindustry": "Industrials -> Manufacturing and Robotics",
       "industries": [
@@ -6140,7 +6140,8 @@
           "bio": "Prev SWE at Instagram",
           "ycProfileUrl": "https://www.ycombinator.com/people/frank-liu",
           "socialLinks": {
-            "linkedin": "https://www.linkedin.com/in/frvnk/"
+            "linkedin": "https://www.linkedin.com/in/frvnk/",
+            "x": "https://x.com/frvnkliu"
           }
         },
         {
@@ -6196,7 +6197,7 @@
           "id": "3378177",
           "name": "Bryan Chung",
           "title": "Co-Founder",
-          "bio": "Co-founder at Insurf. 18th Internationally in Physics, Top 80 Internationally in Computer Science, 2x IEEE Publisher, USACO Platinum, Research at Cambridge, Brown, CMU, RIT, and UCSC",
+          "bio": "Co-founder at Insurf. Samsung at 14. 18th Internationally in Physics, Top 80 Internationally in Computer Science, 2x IEEE Publisher, USACO Platinum, Research at Cambridge, Brown, CMU, RIT, and UCSC",
           "ycProfileUrl": "https://www.ycombinator.com/people/bryan-chung",
           "socialLinks": {
             "linkedin": "https://www.linkedin.com/in/bryan-chung-21b531265/"
@@ -8010,8 +8011,8 @@
       "batch": "Summer 2026",
       "ycProfileUrl": "https://www.ycombinator.com/companies/moving-atoms",
       "websiteUrl": "https://movingatoms.ai/",
-      "tagline": "Robot Model Lab. Our goal is to solve robotics, then solve abundance.",
-      "description": "Moving Atoms is frontier robotics lab. Our goal is to solve robotics, then solve abundance.\r\n\r\nOur first model, Atom 1, already tops the Physics IQ benchmark - this is stage 1 of the robot model we are building (a World Action Model).\r\n\r\nCurrently, robot models are trained end-to-end to recieve large scale tasks like \"fold t-shirt\". They were never designed to have an advanced LLM micromanaging them, telling them how to move and when (“reach(mug marked in frame)”, “grasp(marked mug at handle)”)\r\n\r\nBy training World Action Model that can be micro-managed, we allow robotics to use the orchestration and planning abilities of LLMs while having the physics, contact and timing be controlled by the robot model.",
+      "tagline": "Robot Model Lab.",
+      "description": "Moving Atoms is frontier robotics lab. Our goal is to solve robotics, then solve abundance.\r\n\r\nOur first model, Atom 1, pre-trained on the internets video, and fine tuned for physics, already tops the Physics IQ benchmark.\r\n\r\nBy using this model, we can significantly reduce the amount of robot data we need to collect to build our robot model (a world action model).\r\n\r\nOur second core bet is to design our robot model to be micromanaged by LLMs, allow robotics to use the orchestration and planning abilities of LLMs while having the physics, contact and timing be controlled by the robot model (world action model).",
       "industry": "Industrials",
       "subindustry": "Industrials -> Manufacturing and Robotics",
       "industries": [
@@ -8114,7 +8115,7 @@
         {
           "id": "3676409",
           "name": "Frank Wu",
-          "title": "Founder",
+          "title": "Founder/Security Research Lead",
           "bio": "Founder of Nebula Security (YC S26). Black Hat USA speaker and DEF CON finalist with r3kapig, the world's No. 1 hacking team in 2025. He led the DARPA AIxCC automated program repair team and shipped end-to-end RCE/LPE exploit chains on Chrome, Firefox, Linux, and Android. He pwned Google's kernelCTF multiple times with zero-days, and has published research at top academic venues such as USENIX Security and NDSS. Ph.D. dropout.",
           "ycProfileUrl": "https://www.ycombinator.com/people/frank-wu",
           "socialLinks": {
@@ -8982,8 +8983,8 @@
       "batch": "Summer 2026",
       "ycProfileUrl": "https://www.ycombinator.com/companies/osmaura",
       "websiteUrl": "https://osmaura.com",
-      "tagline": "AI growth engine for law firms.",
-      "description": "Our agents scan the web to deliver new client & cross-selling opportunities for law firm partners.\r\n\r\nEvery day, our customers log onto our platform to see who to contact, why now, and what to say.\r\n\r\nPartners are trained to practice law - not to prospect, sell, and manage pipelines. We're here to help them grow while they focus on what they do best.",
+      "tagline": "AI growth engine for corporate law firms.",
+      "description": "Our agents scan the web to deliver new client & cross-selling opportunities for law firm partners. We grew 0 -> 15k MRR in 4 weeks after launching mid-batch.\r\n\r\nEvery day, our customers log onto our platform to see who to contact, why now, and what to say.\r\n\r\nPartners are trained to practice law - not to prospect, sell, and manage pipelines. We're here to help them grow while they focus on what they do best.",
       "industry": "B2B",
       "subindustry": "B2B",
       "industries": [
@@ -9004,17 +9005,6 @@
       },
       "founders": [
         {
-          "id": "2718831",
-          "name": "Kali Abeje",
-          "title": "Founder",
-          "bio": "Previously studied CS at MIT with a minor in public policy. 2x AWS Intern. I’ve also done NLP and ML research with the Econ department and MIT GOV/LAB including work on argument extraction and policy prediction. I’ve been interested in law and public institutions for years through debate and mock trial, and I bring that context to building AI for the legal industry.",
-          "ycProfileUrl": "https://www.ycombinator.com/people/kali-abeje",
-          "socialLinks": {
-            "linkedin": "https://www.linkedin.com/in/yeabkal-abeje/",
-            "x": "https://x.com/abe_yebe"
-          }
-        },
-        {
           "id": "1366260",
           "name": "Jity Woldemichael",
           "title": "Founder",
@@ -9023,6 +9013,17 @@
           "socialLinks": {
             "linkedin": "https://www.linkedin.com/in/tselote/",
             "x": "https://x.com/rookunderfire"
+          }
+        },
+        {
+          "id": "2718831",
+          "name": "Kali Abeje",
+          "title": "Founder",
+          "bio": "Previously studied CS at MIT with a minor in public policy. 2x AWS Intern. I’ve also done NLP and ML research with the Econ department and MIT GOV/LAB including work on argument extraction and policy prediction. I’ve been interested in law and public institutions for years through debate and mock trial, and I bring that context to building AI for the legal industry.",
+          "ycProfileUrl": "https://www.ycombinator.com/people/kali-abeje",
+          "socialLinks": {
+            "linkedin": "https://www.linkedin.com/in/yeabkal-abeje/",
+            "x": "https://x.com/abe_yebe"
           }
         }
       ],
@@ -10275,7 +10276,7 @@
       "batch": "Summer 2026",
       "ycProfileUrl": "https://www.ycombinator.com/companies/radley",
       "websiteUrl": "https://radley.health/",
-      "tagline": "The first AI-native radiology practice",
+      "tagline": "The AI-native radiology practice",
       "description": "Radley is the first AI-native radiology practice. We're acquiring a radiology practice bringing Radley to $4.3M in annualized revenue and rebuilding it with agents from the ground up.\r\n\r\nRadiology is already in crisis: there aren't enough radiologists to interpret 1 in 6 medical scans. In 10 years, that gap is growing to 1 in 3 - 246M scans a year.\r\n\r\nFrom past experience, we know that point solutions won’t cut it. While there is demand (we have $2.2M in contracts to prove it), bottleneck isn't just software, it's outdated systems and slow, inefficient operations. That's why we own the full stack, clinical and operational, end to end.\r\n\r\nWe met at Carbon Health as we scaled operations 31x and expanded to 100+ clinics. Now we're rebuilding radiology.",
       "industry": "Healthcare",
       "subindustry": "Healthcare",
@@ -10943,14 +10944,14 @@
         "Manufacturing and Robotics"
       ],
       "tags": [
+        "Artificial Intelligence",
         "Hard Tech",
         "Hardware",
         "Robotics",
-        "Open Source",
-        "AI"
+        "Open Source"
       ],
       "location": "San Francisco",
-      "teamSize": 2,
+      "teamSize": 3,
       "status": "Active",
       "groupPartner": "Ankit Gupta",
       "groupPartnerUrl": "https://www.ycombinator.com/people/ankit-gupta",
@@ -11483,7 +11484,7 @@
       "batch": "Summer 2026",
       "ycProfileUrl": "https://www.ycombinator.com/companies/speko",
       "websiteUrl": "https://speko.ai/?utm_source=ycombinator&utm_medium=profile",
-      "tagline": "OpenRouter for Voice",
+      "tagline": "OpenRouter for Voice AI: one API, every call on the best speech model",
       "description": "Speko is a router for voice models: one API key, and your voice agent runs on the speech-to-text, LLM, and text-to-speech models we measured as best for your language and use case. The measurements are public at benchmarks.speko.ai: we test new models the day they ship and re-route when the numbers change, so you rewrite nothing. We ran this bake-off by hand for four years at Hupo, shipping production voice for Morgan Stanley, Prudential, HSBC, and Grab.",
       "industry": "B2B",
       "subindustry": "B2B -> Infrastructure",
@@ -11502,7 +11503,6 @@
       "groupPartner": "Tyler Bosmeny",
       "groupPartnerUrl": "https://www.ycombinator.com/people/tyler-bosmeny",
       "socialLinks": {
-        "github": "https://github.com/spekoai",
         "linkedin": "https://linkedin.com/company/speko-ai"
       },
       "founders": [

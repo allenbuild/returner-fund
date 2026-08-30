@@ -12,8 +12,8 @@
         "catalog": "src/lib/social/a16z-speedrun-006-social-accounts.json",
         "profileSource": "src/lib/graph/a16z-speedrun-006-dataset.ts",
         "graph": "public/graph/a16zsr006.json",
-        "publicRun": "/Users/allenxu/Library/Application Support/Returner Fund OpenCLI/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-08-29-0600-f59116079e31a0c7/public-a16zsr006.json",
-        "githubRun": "/Users/allenxu/Library/Application Support/Returner Fund OpenCLI/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-08-29-0600-f59116079e31a0c7/github-a16zsr006.json"
+        "publicRun": "/Users/allenxu/Library/Application Support/Returner Fund OpenCLI/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-08-29-1800-8ecdb2fd6a5d2629/public-a16zsr006.json",
+        "githubRun": "/Users/allenxu/Library/Application Support/Returner Fund OpenCLI/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-08-29-1800-8ecdb2fd6a5d2629/github-a16zsr006.json"
       },
       "counts": {
         "companies": 59,
@@ -828,8 +828,8 @@
         "catalog": "src/lib/yc/spring-2026-companies.json",
         "profileSource": null,
         "graph": "public/graph/s2026.json",
-        "publicRun": "/Users/allenxu/Library/Application Support/Returner Fund OpenCLI/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-08-29-0600-f59116079e31a0c7/public-s2026.json",
-        "githubRun": "/Users/allenxu/Library/Application Support/Returner Fund OpenCLI/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-08-29-0600-f59116079e31a0c7/github-s2026.json"
+        "publicRun": "/Users/allenxu/Library/Application Support/Returner Fund OpenCLI/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-08-29-1800-8ecdb2fd6a5d2629/public-s2026.json",
+        "githubRun": "/Users/allenxu/Library/Application Support/Returner Fund OpenCLI/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-08-29-1800-8ecdb2fd6a5d2629/github-s2026.json"
       },
       "counts": {
         "companies": 197,
@@ -840,7 +840,7 @@
         "plannedOwnerMappings": 994,
         "multiAccountOwnerMappings": 1,
         "graphEvidence": 5000,
-        "graphNeedsReview": 10141
+        "graphNeedsReview": 10145
       },
       "structural": {
         "status": "pass",
@@ -2393,8 +2393,8 @@
         "catalog": "src/lib/yc/summer-2026-companies.json",
         "profileSource": null,
         "graph": "public/graph/s26.json",
-        "publicRun": "/Users/allenxu/Library/Application Support/Returner Fund OpenCLI/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-08-29-0600-f59116079e31a0c7/public-s26.json",
-        "githubRun": "/Users/allenxu/Library/Application Support/Returner Fund OpenCLI/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-08-29-0600-f59116079e31a0c7/github-s26.json"
+        "publicRun": "/Users/allenxu/Library/Application Support/Returner Fund OpenCLI/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-08-29-1800-8ecdb2fd6a5d2629/public-s26.json",
+        "githubRun": "/Users/allenxu/Library/Application Support/Returner Fund OpenCLI/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-08-29-1800-8ecdb2fd6a5d2629/github-s26.json"
       },
       "counts": {
         "companies": 235,
@@ -2405,7 +2405,7 @@
         "plannedOwnerMappings": 1132,
         "multiAccountOwnerMappings": 1,
         "graphEvidence": 5000,
-        "graphNeedsReview": 7036
+        "graphNeedsReview": 7042
       },
       "structural": {
         "status": "pass",
@@ -2592,8 +2592,8 @@
         ],
         "mappingCoverage": {
           "github": {
-            "companyMapped": 20,
-            "companyMissing": 215,
+            "companyMapped": 19,
+            "companyMissing": 216,
             "founderMapped": 1,
             "founderMissing": 467
           },
@@ -2618,8 +2618,8 @@
           "x": {
             "companyMapped": 137,
             "companyMissing": 98,
-            "founderMapped": 276,
-            "founderMissing": 192
+            "founderMapped": 277,
+            "founderMissing": 191
           },
           "youtube": {
             "companyMapped": 10,
@@ -3380,11 +3380,6 @@
           {
             "entityId": "founder-instaplay-akhil-aggarwal-957153",
             "name": "Akhil Aggarwal",
-            "companyName": "Instaplay"
-          },
-          {
-            "entityId": "founder-instaplay-frank-liu-2530050",
-            "name": "Frank Liu",
             "companyName": "Instaplay"
           },
           {
