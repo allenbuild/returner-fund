@@ -24,11 +24,54 @@ permissions:
   contents: write
 
 jobs:
+  prioritize_ingestion:
+    name: Keep stale ingestion ahead of dashboard work
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      should_run: ${{ steps.priority.outputs.should_run }}
+      reason: ${{ steps.priority.outputs.reason }}
+      ingestion_slot_key: ${{ steps.priority.outputs.ingestion_slot_key }}
+      publication_watermark: ${{ steps.priority.outputs.publication_watermark }}
+      watermark_status: ${{ steps.priority.outputs.watermark_status }}
+    steps:
+      - name: Check out current main for priority decision
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: main
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Resolve dashboard admission from the ingestion watermark
+        id: priority
+        run: node scripts/lib/dashboard-refresh-priority.mjs
+
+      - name: Record dashboard admission
+        env:
+          SHOULD_RUN: ${{ steps.priority.outputs.should_run }}
+          REASON: ${{ steps.priority.outputs.reason }}
+          INGESTION_SLOT_KEY: ${{ steps.priority.outputs.ingestion_slot_key }}
+          PUBLICATION_WATERMARK: ${{ steps.priority.outputs.publication_watermark }}
+          WATERMARK_STATUS: ${{ steps.priority.outputs.watermark_status }}
+        run: |
+          {
+            echo "## Dashboard admission"
+            echo "- Run: $SHOULD_RUN"
+            echo "- Reason: $REASON"
+            echo "- Newest ingestion slot: ${INGESTION_SLOT_KEY:-unknown}"
+            echo "- Publication watermark: ${PUBLICATION_WATERMARK:-unavailable}"
+            echo "- Watermark status: ${WATERMARK_STATUS:-unknown}"
+            echo "- A deferred dashboard run never enters the self-hosted runner or shared publication queue."
+          } >> "$GITHUB_STEP_SUMMARY"
+
   refresh:
     name: Build and publish the precomputed snapshot
+    needs: prioritize_ingestion
+    if: needs.prioritize_ingestion.outputs.should_run == 'true'
     # A publication commit can land before downstream validation reports a
-    # failure. Always inspect current main after an ingestion completion so a
-    # valid new snapshot is not stranded behind an unrelated red check.
+    # failure. The hosted admission job reads current main rather than trusting
+    # the workflow conclusion, so that valid publication can still wake this
+    # job while a genuinely stale ingestion never enters the Mac queue.
     # GitHub-hosted egress can return YouTube browse queues while withholding
     # the exact player/watch metadata needed to attest publication time and
     # native views. The established Mac runner's public network returns that

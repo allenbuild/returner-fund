@@ -163,14 +163,29 @@ test("accepted runs share the repository publication lane without delaying inact
   assert.match(resolverJob, /recovery_debt:\s*\$\{\{ steps\.decision\.outputs\.recovery_debt \}\}/);
 });
 
-test("dashboard refresh always inspects current main inside the publication lane", () => {
+test("dashboard refresh gives a stale ingestion priority before entering the Mac publication lane", () => {
+  const admissionJob = dashboardRefreshWorkflow.match(
+    /\n  prioritize_ingestion:[\s\S]*?(?=\n  refresh:)/
+  )?.[0] ?? "";
+  assert.match(admissionJob, /runs-on:\s*ubuntu-latest/);
+  assert.match(
+    admissionJob,
+    /Check out current main for priority decision[\s\S]*?ref:\s*main[\s\S]*?persist-credentials:\s*false/
+  );
+  assert.match(admissionJob, /node scripts\/lib\/dashboard-refresh-priority\.mjs/);
+  assert.doesNotMatch(admissionJob, /runs-on:\s*\[[^\n]*self-hosted|concurrency:\s*\n/);
+  assert.doesNotMatch(admissionJob, /github\.event\.workflow_run\.conclusion/);
   assert.match(
     dashboardRefreshWorkflow,
-    /refresh:[\s\S]*?publication commit can land before downstream validation[\s\S]*?concurrency:\s*\n(?:\s*#[^\n]*\n)*\s*group:\s*repository-publication-main\s*\n\s*queue:\s*max\s*\n\s*cancel-in-progress:\s*false/
+    /refresh:[\s\S]*?needs:\s*prioritize_ingestion\s*\n\s*if:\s*needs\.prioritize_ingestion\.outputs\.should_run == 'true'[\s\S]*?publication commit can land before downstream validation[\s\S]*?concurrency:\s*\n(?:\s*#[^\n]*\n)*\s*group:\s*repository-publication-main\s*\n\s*queue:\s*max\s*\n\s*cancel-in-progress:\s*false/
   );
-  assert.doesNotMatch(
-    dashboardRefreshWorkflow.match(/\n  refresh:[\s\S]*?(?=\n  [a-z_]+:|$)/)?.[0] ?? "",
-    /github\.event\.workflow_run\.conclusion/
+  assert.match(
+    dashboardRefreshWorkflow,
+    /reads current main rather than trusting[\s\S]*?workflow conclusion[\s\S]*?stale ingestion never enters the Mac queue/
+  );
+  assert.match(
+    admissionJob,
+    /A deferred dashboard run never enters the self-hosted runner or shared publication queue/
   );
   assertSupportedConcurrencySchema(dashboardRefreshWorkflow);
   assertExactExternalActionPins(dashboardRefreshWorkflow);
