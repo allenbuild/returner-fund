@@ -245,6 +245,9 @@ test("dashboard refresh uses the Mac network for exact YouTube proof", () => {
     /- name: Preflight dashboard host[\s\S]*?(?=\n\s{6}- name:)/
   )?.[0] ?? "";
   assert.match(hostPreflight, /\/usr\/sbin\/ioreg -r -k IOPMUserTriggeredFullWake -d 4/);
+  assert.match(hostPreflight, /\/usr\/sbin\/ioreg -r -k AppleClamshellState -d 4/);
+  assert.match(hostPreflight, /reason=battery_clamshell_closed/);
+  assert.match(hostPreflight, /caffeinate cannot override clamshell sleep/);
   assert.match(hostPreflight, /reason=battery_full_wake_unverified/);
   assert.match(hostPreflight, /WAKE_MATCH_COUNT[\s\S]*?FULL_WAKE_MATCH_COUNT/);
   assert.doesNotMatch(hostPreflight, /\/usr\/bin\/caffeinate -u/);
@@ -1932,6 +1935,17 @@ test("autonomous runner receives optional durability secrets and owns validated 
   assert.match(hostPreflight, /PreventSystemSleep\[\[:space:\]\]\+1/);
   assert.match(hostPreflight, /if \[ "\$AUTHENTICATED_SOCIAL_REPLAY" = "true" \]/);
   assert.match(hostPreflight, /IOPMUserTriggeredFullWake/);
+  assert.match(hostPreflight, /AppleClamshellState/);
+  assert.match(hostPreflight, /reason=battery_clamshell_closed/);
+  assert.match(hostPreflight, /caffeinate cannot override clamshell sleep/);
+  assert.match(
+    hostPreflight,
+    /reason=battery_clamshell_status_unavailable[\s\S]*?if \[ "\$AUTHENTICATED_SOCIAL_REPLAY" = "true" \][\s\S]*?Retry this manual replay[\s\S]*?exit 1/
+  );
+  assert.match(
+    hostPreflight,
+    /reason=battery_clamshell_closed[\s\S]*?if \[ "\$AUTHENTICATED_SOCIAL_REPLAY" = "true" \][\s\S]*?Retry this manual replay[\s\S]*?exit 1/
+  );
   assert.match(hostPreflight, /reason=battery_full_wake_unverified/);
   assert.match(hostPreflight, /WAKE_MATCH_COUNT[\s\S]*?FULL_WAKE_MATCH_COUNT/);
   assert.match(hostPreflight, /Authenticated replay requires a user wake/);
@@ -3179,6 +3193,48 @@ test("autonomous receipt audits publication, inactive, queued no-op, and failure
       }
     },
     {
+      name: "deferred-host-unavailable",
+      overrides: {
+        AUDIT_STATUS: "deferred_host_unavailable",
+        INGEST_RESULT: "success",
+        VALIDATION_RESULT: "skipped",
+        RUNNER_STATUS: "",
+        RUNNER_FAILURE_MESSAGE: "",
+        PUBLICATION_STATUS: "",
+        COLLECTION_HEALTH: "",
+        COLLECTION_HEALTH_REASONS: "",
+        NEW_PHYSICAL_SOURCES: "",
+        DAILY_NEW_PHYSICAL_SOURCES: "",
+        DAILY_SOURCE_HEALTH: "",
+        PROVIDER_BLOCKED: "",
+        PROVIDER_BLOCKED_BY_REASON: "",
+        MAPPED_PROVIDER_BLOCKED: "",
+        MAPPED_PROVIDER_BLOCKED_BY_REASON: "",
+        MAPPED_SCOPE_UNSUPPORTED: "",
+        MAPPED_EXPECTED: "",
+        MAPPED_FAILED: "",
+        MAPPED_NONTERMINAL: "",
+        TERMINAL_FAILURE_BUDGET: "",
+        RECEIPT_STATUS: "",
+        RECEIPT_CONCLUSION: "",
+        RECEIPT_RECOGNIZED: "false",
+        COMMIT_PROOF_VALID: "false",
+        COMMIT_REPOSITORY_VERIFIED: "false",
+        RECOVERY_METHOD: "",
+        REMOTE_MAIN_COMMIT: "",
+        PUBLISHED_COMMIT: "",
+        RUNNER_PUBLISHED_COMMIT: "",
+        EXECUTED_SHA: "",
+        REVALIDATION_SHOULD_RUN: "",
+        REVALIDATION_REASON: "",
+        REVALIDATION_WATERMARK_STATUS: "",
+        REVALIDATION_PUBLICATION_WATERMARK: "",
+        REVALIDATION_LATEST_SLOT_KEY: "",
+        HOST_READY: "false",
+        HOST_DEFER_REASON: "battery_clamshell_closed"
+      }
+    },
+    {
       name: "accepted-failure-after-push",
       overrides: {
         AUDIT_STATUS: "accepted_slot_failed",
@@ -3235,6 +3291,25 @@ test("autonomous receipt audits publication, inactive, queued no-op, and failure
       EXPECTED_RUN_ATTEMPT: runAttempt
     });
     assert.equal(audited.status, 0, `${scenario.name}: ${audited.stdout}\n${audited.stderr}`);
+  }
+
+  const deferredRoot = path.join(directory, "deferred-host-unavailable");
+  const deferredPath = path.join(deferredRoot, "autonomous-ingestion-receipt", "receipt.json");
+  const deferredReceipt = JSON.parse(readFileSync(deferredPath, "utf8"));
+  for (const [name, mutate] of [
+    ["claimed revalidation", (value) => { value.revalidationShouldRun = true; }],
+    ["claimed execution", (value) => { value.executedSha = FULL_COMMIT_SHA; }]
+  ]) {
+    const corrupted = JSON.parse(JSON.stringify(deferredReceipt));
+    mutate(corrupted);
+    writeFileSync(deferredPath, `${JSON.stringify(corrupted, null, 2)}\n`);
+    const audited = runScript(audit, repositoryRoot, {
+      RUNNER_TEMP: deferredRoot,
+      EXPECTED_TRIGGER_SHA: FULL_COMMIT_SHA,
+      EXPECTED_RUN_ID: runId,
+      EXPECTED_RUN_ATTEMPT: runAttempt
+    });
+    assert.notEqual(audited.status, 0, `${name}: host deferral must remain pre-checkout`);
   }
 
   const acceptedFailureRoot = path.join(directory, "accepted-failure-after-push");

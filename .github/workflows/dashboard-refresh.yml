@@ -111,6 +111,19 @@ jobs:
               echo "::warning title=Dashboard refresh safely deferred::Battery is ${BATTERY_PERCENT}%; the stale dashboard will retry at ${DASHBOARD_MIN_BATTERY_PERCENT}% or on AC."
               exit 0
             fi
+            CLAMSHELL_STATE="$(/usr/sbin/ioreg -r -k AppleClamshellState -d 4 2>/dev/null || true)"
+            CLAMSHELL_MATCH_COUNT="$(grep -Eo '"AppleClamshellState"[[:space:]]*=[[:space:]]*(Yes|No)([[:space:]]|$)' <<< "$CLAMSHELL_STATE" | wc -l | tr -d '[:space:]' || true)"
+            CLAMSHELL_CLOSED_COUNT="$(grep -Eo '"AppleClamshellState"[[:space:]]*=[[:space:]]*Yes([[:space:]]|$)' <<< "$CLAMSHELL_STATE" | wc -l | tr -d '[:space:]' || true)"
+            if [ "$CLAMSHELL_MATCH_COUNT" -ne 1 ]; then
+              echo "reason=battery_clamshell_status_unavailable" >> "$GITHUB_OUTPUT"
+              echo "::warning title=Dashboard refresh safely deferred::The Mac lid state could not be verified while on battery; the committed watermark remains stale and will retry automatically after a verified full wake or on AC."
+              exit 0
+            fi
+            if [ "$CLAMSHELL_CLOSED_COUNT" -eq 1 ]; then
+              echo "reason=battery_clamshell_closed" >> "$GITHUB_OUTPUT"
+              echo "::warning title=Dashboard refresh safely deferred::The Mac lid is closed while on battery, and caffeinate cannot override clamshell sleep. The committed watermark remains stale and will retry automatically after the lid opens or an AC-supported clamshell setup is active."
+              exit 0
+            fi
             USER_WAKE_STATE="$(/usr/sbin/ioreg -r -k IOPMUserTriggeredFullWake -d 4 2>/dev/null || true)"
             WAKE_MATCH_COUNT="$(grep -Eo '"IOPMUserTriggeredFullWake"[[:space:]]*=[[:space:]]*(Yes|No)([[:space:]]|$)' <<< "$USER_WAKE_STATE" | wc -l | tr -d '[:space:]' || true)"
             FULL_WAKE_MATCH_COUNT="$(grep -Eo '"IOPMUserTriggeredFullWake"[[:space:]]*=[[:space:]]*Yes([[:space:]]|$)' <<< "$USER_WAKE_STATE" | wc -l | tr -d '[:space:]' || true)"
