@@ -212,7 +212,7 @@ describe("daily benchmark updater", () => {
         now: new Date("2026-07-16T05:01:00.000Z"),
         windowStart: new Date("2026-07-16T05:00:00.000Z")
       })
-    ).toEqual({ scoringModelId: "returner-traction", scoringModelVersion: "4.2.0" });
+    ).toEqual({ scoringModelId: "returner-traction", scoringModelVersion: "4.3.0" });
 
     snapshots[8].graph.scoringContext.modelVersion = "5.0.0";
     snapshots[8].graph.nodes.forEach((node) => {
@@ -223,7 +223,7 @@ describe("daily benchmark updater", () => {
         now: new Date("2026-07-16T05:01:00.000Z"),
         windowStart: new Date("2026-07-16T05:00:00.000Z")
       })
-    ).toThrow(/returner-traction@4\.2\.0/i);
+    ).toThrow(/returner-traction@4\.3\.0/i);
 
     const consistentlyLegacySnapshots = graphSnapshots(generatedAt);
     for (const snapshot of consistentlyLegacySnapshots) {
@@ -237,7 +237,7 @@ describe("daily benchmark updater", () => {
         now: new Date("2026-07-16T05:01:00.000Z"),
         windowStart: new Date("2026-07-16T05:00:00.000Z")
       })
-    ).toThrow(/returner-traction@4\.2\.0/i);
+    ).toThrow(/returner-traction@4\.3\.0/i);
   });
 
   it("rejects audience node state that drifts from the canonical base snapshot", () => {
@@ -369,7 +369,7 @@ describe("daily benchmark updater", () => {
         validationNow: new Date("2026-07-16T05:01:00.000Z"),
         windowStart: new Date("2026-07-16T05:00:00.000Z")
       })
-    ).rejects.toThrow(/complete returner-traction@4\.2\.0 score breakdown/i);
+    ).rejects.toThrow(/complete returner-traction@4\.3\.0 score breakdown/i);
 
     expect(fs.readFileSync(sentinelPath, "utf8")).toBe("sentinel\n");
     expect(fs.readdirSync(path.dirname(sentinelPath))).toEqual(["s2026.json"]);
@@ -422,7 +422,7 @@ describe("daily benchmark updater", () => {
         selectedPlatforms: []
       }));
       if (descriptor.topVoices) {
-        expect(publishedGraph.leaderboard[0]).toEqual(expect.objectContaining({ score: 19, rank: 1 }));
+        expect(publishedGraph.leaderboard[0]).toEqual(expect.objectContaining({ score: 86, rank: 1 }));
       }
     }
     for (const slug of ["s2026", "s26", "a16zsr006"]) {
@@ -432,7 +432,7 @@ describe("daily benchmark updater", () => {
       expect(history.daily[0]).toEqual(legacySnapshot);
       expect(history.daily[1]).toMatchObject({
         recordedAt: recordedAt.toISOString(),
-        scoringModelVersion: "4.2.0",
+        scoringModelVersion: "4.3.0",
         inputGeneratedAt: generatedAt.toISOString()
       });
     }
@@ -460,14 +460,14 @@ describe("daily benchmark updater", () => {
 
     expect(next.daily[0]).toEqual(legacy);
     expect(next.daily).toHaveLength(2);
-    expect(next.daily[1].scoringModelVersion).toBe("4.2.0");
+    expect(next.daily[1].scoringModelVersion).toBe("4.3.0");
   });
 
   it("repairs a same-day entry whose graph input belongs to the previous Central day", () => {
     const recordedAt = new Date("2026-07-17T05:05:00.000Z");
     const stale = {
       recordedAt: recordedAt.toISOString(),
-      scoringModelVersion: "4.2.0",
+      scoringModelVersion: "4.3.0",
       inputGeneratedAt: "2026-07-17T04:59:59.000Z",
       companies: [{ companyId: "stale", companyName: "Stale", score: 1, rank: 1 }]
     };
@@ -486,7 +486,7 @@ describe("daily benchmark updater", () => {
     expect(next.daily[0]).toMatchObject({
       recordedAt: recordedAt.toISOString(),
       inputGeneratedAt: "2026-07-17T05:04:00.000Z",
-      scoringModelVersion: "4.2.0"
+      scoringModelVersion: "4.3.0"
     });
     expect(next.daily[0]).not.toEqual(stale);
   });
@@ -496,7 +496,7 @@ describe("daily benchmark updater", () => {
     const recordedAt = new Date("2026-08-26T12:14:24.397Z");
     const previous = {
       recordedAt: previousRecordedAt.toISOString(),
-      scoringModelVersion: "4.2.0",
+      scoringModelVersion: "4.3.0",
       inputGeneratedAt: "2026-08-26T10:01:00.000Z",
       companies: [{ companyId: "old", companyName: "Old", score: 1, rank: 1 }]
     };
@@ -516,7 +516,7 @@ describe("daily benchmark updater", () => {
     expect(refreshed.daily[0]).toMatchObject({
       recordedAt: recordedAt.toISOString(),
       inputGeneratedAt: "2026-08-26T12:13:26.086Z",
-      scoringModelVersion: "4.2.0"
+      scoringModelVersion: "4.3.0"
     });
     expect(refreshed.daily[0]).not.toEqual(previous);
 
@@ -988,7 +988,7 @@ function writeSkipHistories(rootDir, { recordedAt, staleBatch, staleInputBatch }
       : snapshotRecordedAt;
     const snapshot = {
       recordedAt: snapshotRecordedAt.toISOString(),
-      scoringModelVersion: "4.2.0",
+      scoringModelVersion: "4.3.0",
       inputGeneratedAt: snapshotInputGeneratedAt.toISOString(),
       companies: []
     };
@@ -1010,10 +1010,10 @@ function graphFor(descriptor, generatedAt) {
   const topVoices = descriptor.topVoices ?? "off";
   const rows = topVoices === "off"
     ? [
-        leaderboardRow("company-1", "Company 1", 19, 1, 90),
-        leaderboardRow("company-2", "Company 2", 17, 2, 81)
+        leaderboardRow("company-1", "Company 1", 86, 1, 90),
+        leaderboardRow("company-2", "Company 2", 78, 2, 81)
       ]
-    : [leaderboardRow("company-1", "Company 1", 19, 1, 90)];
+    : [leaderboardRow("company-1", "Company 1", 86, 1, 90)];
   const evidence = rows.map((row) => benchmarkEvidence(row, generatedAt, topVoices));
   return {
     batch: {
@@ -1053,8 +1053,8 @@ function graphFor(descriptor, generatedAt) {
     generatedAt: generatedAt.toISOString(),
     scoringContext: {
       modelId: "returner-traction",
-      modelVersion: "4.2.0",
-      modelName: "returner-traction-v4-absolute-fixed-platform-global-best",
+      modelVersion: "4.3.0",
+      modelName: "returner-traction-v4-bounded-primary-signal-global-best",
       scoreScope: "all_platforms",
       selectedPlatforms: [],
       responseBuiltAt: generatedAt.toISOString(),
@@ -1067,8 +1067,8 @@ function graphFor(descriptor, generatedAt) {
 function v4ScoreBreakdown(score, platformScore) {
   return {
     modelId: "returner-traction",
-    modelVersion: "4.2.0",
-    modelName: "returner-traction-v4-absolute-fixed-platform-global-best",
+    modelVersion: "4.3.0",
+    modelName: "returner-traction-v4-bounded-primary-signal-global-best",
     totalScore: score,
     absoluteScore: score,
     weightedAvailableScore: platformScore,
@@ -1080,8 +1080,8 @@ function v4ScoreBreakdown(score, platformScore) {
       platform: "x",
       score: platformScore,
       configuredWeight: 0.21,
-      appliedWeight: 0.21,
-      contribution: Math.round(platformScore * 0.21 * 100) / 100,
+      appliedWeight: 0.9605,
+      contribution: Math.round(platformScore * 0.9605 * 100) / 100,
       evidenceCount: 1
     }],
     signalFamilyScores: {

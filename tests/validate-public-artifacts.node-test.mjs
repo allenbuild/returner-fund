@@ -36,7 +36,7 @@ test("validates the complete nine-graph and three-history manifest without a ser
 
   assert.deepEqual(result, {
     status: "ok",
-    scoringModel: "returner-traction@4.2.0",
+    scoringModel: "returner-traction@4.3.0",
     graphSnapshots: 9,
     historyFiles: 3,
     graphNodes: 9,
@@ -151,7 +151,7 @@ test("rejects wrong batch, audience, scoring scope, v4 identity, and incomplete 
   assert.match(violations, /mode must be official_snapshot/);
   assert.match(violations, /batch\.slug must be S2026/);
   assert.match(violations, /selectedTopVoiceAudience\.id must be off/);
-  assert.match(violations, /scoringContext\.modelVersion must be 4\.2\.0/);
+  assert.match(violations, /scoringContext\.modelVersion must be 4\.3\.0/);
   assert.match(violations, /scoringContext\.scoreScope must be all_platforms/);
   assert.match(violations, /scoreBreakdown\.confidence must be an object/);
 });
@@ -215,7 +215,7 @@ test("rejects per-batch or audience-specific global benchmark signatures", () =>
   const violations = collectCanonicalGraphSetViolations(entries).join("\n");
 
   assert.match(violations, /calibration\.cohortSize must be global count 3/);
-  assert.match(violations, /calibration\.benchmarkScore must be global maximum 15/);
+  assert.match(violations, /calibration\.benchmarkScore must be global maximum 67/);
 });
 
 test("detects duplicate native posts across URL aliases and explicit identity conflicts", () => {
@@ -599,12 +599,12 @@ test("allows legacy history rows but requires valid v4 daily and weekly entries"
 
   assert.equal(result.versionedDailyEntries, 0);
   assert.equal(result.versionedWeeklyEntries, 0);
-  assert.match(violations, /daily must contain a returner-traction@4\.2\.0 version-tagged entry/);
+  assert.match(violations, /daily must contain a returner-traction@4\.3\.0 version-tagged entry/);
   assert.match(
     violations,
-    /weekly\[0\]\.scoringModelVersion must be 4\.2\.0 or a supported historical version/
+    /weekly\[0\]\.scoringModelVersion must be 4\.3\.0 or a supported historical version/
   );
-  assert.match(violations, /weekly must contain a returner-traction@4\.2\.0 version-tagged entry/);
+  assert.match(violations, /weekly must contain a returner-traction@4\.3\.0 version-tagged entry/);
 });
 
 test("rejects future history, non-tied canonical ranks, and stale Central-day entries", () => {
@@ -961,7 +961,7 @@ function makeGraph(descriptor, serial, generatedAt = GENERATED_AT) {
     "x",
     "https://x.com/returner"
   );
-  const absoluteScore = 15;
+  const absoluteScore = 67;
   const benchmarkScore = absoluteScore;
   const totalScore = 100;
   const selectedTopVoiceAudience = { id: audience };
@@ -991,8 +991,8 @@ function makeGraph(descriptor, serial, generatedAt = GENERATED_AT) {
         platform: "x",
         score: 70,
         configuredWeight: 0.21,
-        appliedWeight: 0.21,
-        contribution: 14.7,
+        appliedWeight: 0.9605,
+        contribution: 67.24,
         evidenceCount: 1
       }
     ],

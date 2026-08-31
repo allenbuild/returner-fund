@@ -29,7 +29,7 @@ export function calibrateBatchCompanyScores(
           percentile: null,
           inputScore
         },
-        explanation: `${company.scoreBreakdown.explanation} The absolute fixed-platform score is used directly; cohort distribution does not change it.`
+        explanation: `${company.scoreBreakdown.explanation} The absolute bounded-primary score is used directly; cohort distribution does not change it.`
       }
     };
   });
