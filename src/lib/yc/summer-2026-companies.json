@@ -4,10 +4,10 @@
     "directoryUrl": "https://www.ycombinator.com/companies?batch=Summer%202026",
     "algoliaIndex": "YCCompany_production",
     "algoliaFilter": "batch:\"Summer 2026\"",
-    "fetchedAt": "2026-08-31T01:35:54.270Z",
-    "expectedCompanyCount": 235,
-    "observedCompanyCount": 235,
-    "directoryCompanyHitCount": 235,
+    "fetchedAt": "2026-08-31T14:55:59.925Z",
+    "expectedCompanyCount": 236,
+    "observedCompanyCount": 236,
+    "directoryCompanyHitCount": 236,
     "verifiedRetiredCompanyCount": 0,
     "verifiedRetiredCompanies": [],
     "minimumCompanyCount": 167,
@@ -463,7 +463,7 @@
       "batch": "Summer 2026",
       "ycProfileUrl": "https://www.ycombinator.com/companies/akon-labs",
       "websiteUrl": "https://akonlabs.com",
-      "tagline": "Nervous System for AI Agents",
+      "tagline": "The Github For Coding Agents",
       "description": "",
       "industry": "B2B",
       "subindustry": "B2B",
@@ -471,9 +471,10 @@
         "B2B"
       ],
       "tags": [
-        "Deep Learning",
+        "Artificial Intelligence",
         "Generative AI",
-        "SaaS"
+        "SaaS",
+        "B2B"
       ],
       "location": "San Francisco",
       "teamSize": 2,
@@ -1412,7 +1413,7 @@
           "bio": "Founder at Audun. Previously consultant at McKinsey & Company. Holds a MSc in Computer Science & Finance from NTNU.",
           "ycProfileUrl": "https://www.ycombinator.com/people/jacob-hambro",
           "socialLinks": {
-            "linkedin": "https://www.linkedin.com/in/jacob-fagerlund-hambro-70a9b1153/"
+            "linkedin": "https://www.linkedin.com/in/jacob-hambro-70a9b1153/"
           }
         },
         {
@@ -4561,16 +4562,16 @@
       "ycProfileUrl": "https://www.ycombinator.com/companies/financial-datasets",
       "websiteUrl": "https://financialdatasets.ai/",
       "tagline": "Connect your agent to the stock market ",
-      "description": "Financial Datasets gives agents access to real-time global market information.\r\n\r\nWe index the world's markets so agents can search every filing, answer any financial question, and monitor markets in real time.\r\n\r\nFor 40 years, market data was built for humans reading a screen. We are rebuilding it for agents that research every company, all day, across the world.",
+      "description": "Financial Datasets is the largest search index for stock market data, built for AI agents.\r\n\r\nWe index the world's markets so agents can search every filing, answer any financial question, and monitor markets in real time.\r\n\r\nFor 40 years, market data was built for humans reading a screen. We are rebuilding it for agents that research every company, all day, across the world.",
       "industry": "B2B",
       "subindustry": "B2B",
       "industries": [
         "B2B"
       ],
       "tags": [
+        "Artificial Intelligence",
         "Fintech",
         "Investing",
-        "AI",
         "Stocks"
       ],
       "location": "New York City, NY",
@@ -4783,6 +4784,51 @@
       "launch": null,
       "sourceUrls": [
         "https://www.ycombinator.com/companies/flowmanual",
+        "https://www.ycombinator.com/companies?batch=Summer%202026"
+      ]
+    },
+    {
+      "id": "30923",
+      "objectID": "30923",
+      "slug": "frontier-computing",
+      "name": "Frontier Computing",
+      "batch": "Summer 2026",
+      "ycProfileUrl": "https://www.ycombinator.com/companies/frontier-computing",
+      "websiteUrl": "https://frontier.site",
+      "tagline": "Frontier grows scalable biological brains as an ML training substrate",
+      "description": "Frontier is first to grow biological brains at scale, serving biological neural nets with substrate-level colocation of memory and compute, enabling highly cost effective training of large parameter count models.\r\n\r\nWhile academia has traditionally been limited to ~1M neurons in vitro, Frontier has built a pathway to scale to 100M+ neurons by circumventing traditional scaling challenges in biological culture, demonstrating this strategy's functionality by training a biological brain using this scaling primitive to play Frogger.\r\n\r\nFrontier is now growing exascale compute clusters to produce substrates capable of long-horizon language reasoning while operating at much higher sample efficiencies than traditional architectures, and collocating memory with compute to enable significantly larger parameter counts than would be tractable for training within traditional compute clusters.",
+      "industry": "Industrials",
+      "subindustry": "Industrials",
+      "industries": [
+        "Industrials"
+      ],
+      "tags": [
+        "Artificial Intelligence",
+        "Hard Tech",
+        "Hardware"
+      ],
+      "location": "London, United Kingdom",
+      "teamSize": 1,
+      "status": "Active",
+      "groupPartner": "Harshita Arora",
+      "groupPartnerUrl": "https://www.ycombinator.com/people/harshita-arora",
+      "socialLinks": {},
+      "founders": [
+        {
+          "id": "2627752",
+          "name": "Michael Domarkas",
+          "title": "Founder/CEO",
+          "bio": "19 y/o ex-Cambridge natural scientist\n\nprev growing brains in my bedroom\n\nnow growing exascale brains for continual learning",
+          "ycProfileUrl": "https://www.ycombinator.com/people/michael-domarkas",
+          "socialLinks": {
+            "linkedin": "https://www.linkedin.com/in/michael-domarkas",
+            "x": "https://x.com/MichaelDmrks"
+          }
+        }
+      ],
+      "launch": null,
+      "sourceUrls": [
+        "https://www.ycombinator.com/companies/frontier-computing",
         "https://www.ycombinator.com/companies?batch=Summer%202026"
       ]
     },
@@ -6289,15 +6335,15 @@
       "ycProfileUrl": "https://www.ycombinator.com/companies/jcode",
       "websiteUrl": "https://jcode.sh/",
       "tagline": "The harness company",
-      "description": "An agent is LLM + harness: We work purely on that second component. We do research to produce the most capable harness for coding, and we also make an open source, terminal based, coding agent product with 18k github stars. ",
+      "description": "An agent is LLM + harness: We work purely on that second component. We do research to produce the most capable harness. Our harness has 18k stars on github",
       "industry": "Consumer",
       "subindustry": "Consumer",
       "industries": [
         "Consumer"
       ],
       "tags": [
-        "Developer Tools",
-        "AI"
+        "Artificial Intelligence",
+        "Developer Tools"
       ],
       "location": "San Francisco",
       "teamSize": 1,
@@ -6709,7 +6755,7 @@
       "batch": "Summer 2026",
       "ycProfileUrl": "https://www.ycombinator.com/companies/levocred-ai",
       "websiteUrl": "https://levocred.com/",
-      "tagline": "The AI analyst for lenders",
+      "tagline": "AI Workforce for lenders",
       "description": "Levocred builds and deploys AI agents inside credit funds, fintechs and banks to automate workflows like back-office tasks, portfolio monitoring, compliance and underwriting. Live across multiple lending teams, running ~$1Bn in receivables through the platform.",
       "industry": "Fintech",
       "subindustry": "Fintech",
@@ -8651,6 +8697,17 @@
         "x": "https://x.com/Ooakdata"
       },
       "founders": [
+        {
+          "id": "3207024",
+          "name": "Pierre-Louis Vouteau",
+          "title": "Founder/CEO",
+          "bio": "Cofounder & CEO at Ooak Data (YC S26). \nPrior COO @Visely (UK ed-tech)\nex Gopuff and L'Oréal",
+          "ycProfileUrl": "https://www.ycombinator.com/people/pierre-louis-vouteau",
+          "socialLinks": {
+            "linkedin": "https://www.linkedin.com/in/pierre-louis-vouteauau-15a06566/",
+            "x": "https://x.com/PLouisV"
+          }
+        },
         {
           "id": "3207121",
           "name": "Thomas Aubry",

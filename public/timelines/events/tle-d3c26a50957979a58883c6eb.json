@@ -82,7 +82,7 @@
           "likes": 49,
           "reposts": 4,
           "replies": 6,
-          "views": 11755
+          "views": 11762
         },
         "evidenceRole": "primary"
       },
@@ -94,7 +94,7 @@
         "excerpt": "Revnu Launch Video (YC P26) https://revnu.com",
         "url": "https://youtube.com/watch?v=cL_dwhuRvGM",
         "metrics": {
-          "views": 407,
+          "views": 408,
           "likes": 0,
           "comments": 0
         },
@@ -102,6 +102,6 @@
       }
     ]
   },
-  "generatedAt": "2026-08-31T01:59:40.360Z",
-  "lastModifiedAt": "2026-08-31T01:59:40.360Z"
+  "generatedAt": "2026-08-31T15:15:37.656Z",
+  "lastModifiedAt": "2026-08-31T15:15:37.656Z"
 }

@@ -12,8 +12,8 @@
         "catalog": "src/lib/social/a16z-speedrun-006-social-accounts.json",
         "profileSource": "src/lib/graph/a16z-speedrun-006-dataset.ts",
         "graph": "public/graph/a16zsr006.json",
-        "publicRun": "/Users/allenxu/Library/Application Support/Returner Fund OpenCLI/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-08-30-1800-4c4d9bb2c8e75eb6/public-a16zsr006.json",
-        "githubRun": "/Users/allenxu/Library/Application Support/Returner Fund OpenCLI/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-08-30-1800-4c4d9bb2c8e75eb6/github-a16zsr006.json"
+        "publicRun": "/Users/allenxu/Library/Application Support/Returner Fund OpenCLI/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-08-31-0600-845697ed40ef57e2/public-a16zsr006.json",
+        "githubRun": "/Users/allenxu/Library/Application Support/Returner Fund OpenCLI/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-08-31-0600-845697ed40ef57e2/github-a16zsr006.json"
       },
       "counts": {
         "companies": 59,
@@ -828,8 +828,8 @@
         "catalog": "src/lib/yc/spring-2026-companies.json",
         "profileSource": null,
         "graph": "public/graph/s2026.json",
-        "publicRun": "/Users/allenxu/Library/Application Support/Returner Fund OpenCLI/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-08-30-1800-4c4d9bb2c8e75eb6/public-s2026.json",
-        "githubRun": "/Users/allenxu/Library/Application Support/Returner Fund OpenCLI/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-08-30-1800-4c4d9bb2c8e75eb6/github-s2026.json"
+        "publicRun": "/Users/allenxu/Library/Application Support/Returner Fund OpenCLI/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-08-31-0600-845697ed40ef57e2/public-s2026.json",
+        "githubRun": "/Users/allenxu/Library/Application Support/Returner Fund OpenCLI/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-08-31-0600-845697ed40ef57e2/github-s2026.json"
       },
       "counts": {
         "companies": 197,
@@ -840,7 +840,7 @@
         "plannedOwnerMappings": 994,
         "multiAccountOwnerMappings": 1,
         "graphEvidence": 5000,
-        "graphNeedsReview": 10157
+        "graphNeedsReview": 10169
       },
       "structural": {
         "status": "pass",
@@ -1351,6 +1351,11 @@
           {
             "entityId": "company-valctrl",
             "name": "ValCtrl",
+            "companyName": null
+          },
+          {
+            "entityId": "company-wealor",
+            "name": "Wealor",
             "companyName": null
           }
         ],
@@ -1916,6 +1921,11 @@
             "entityId": "company-valctrl",
             "name": "ValCtrl",
             "companyName": null
+          },
+          {
+            "entityId": "company-wealor",
+            "name": "Wealor",
+            "companyName": null
           }
         ],
         "reviewOnlyFounders": [
@@ -2393,19 +2403,19 @@
         "catalog": "src/lib/yc/summer-2026-companies.json",
         "profileSource": null,
         "graph": "public/graph/s26.json",
-        "publicRun": "/Users/allenxu/Library/Application Support/Returner Fund OpenCLI/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-08-30-1800-4c4d9bb2c8e75eb6/public-s26.json",
-        "githubRun": "/Users/allenxu/Library/Application Support/Returner Fund OpenCLI/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-08-30-1800-4c4d9bb2c8e75eb6/github-s26.json"
+        "publicRun": "/Users/allenxu/Library/Application Support/Returner Fund OpenCLI/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-08-31-0600-845697ed40ef57e2/public-s26.json",
+        "githubRun": "/Users/allenxu/Library/Application Support/Returner Fund OpenCLI/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-08-31-0600-845697ed40ef57e2/github-s26.json"
       },
       "counts": {
-        "companies": 235,
-        "founders": 468,
-        "catalogOwnerMappings": 1135,
-        "graphOwnerMappings": 1123,
-        "catalogOwnerPlatformGroups": 1134,
-        "plannedOwnerMappings": 1135,
+        "companies": 236,
+        "founders": 470,
+        "catalogOwnerMappings": 1139,
+        "graphOwnerMappings": 1127,
+        "catalogOwnerPlatformGroups": 1138,
+        "plannedOwnerMappings": 1139,
         "multiAccountOwnerMappings": 1,
         "graphEvidence": 5000,
-        "graphNeedsReview": 7071
+        "graphNeedsReview": 7083
       },
       "structural": {
         "status": "pass",
@@ -2665,39 +2675,39 @@
         "mappingCoverage": {
           "github": {
             "companyMapped": 20,
-            "companyMissing": 215,
+            "companyMissing": 216,
             "founderMapped": 1,
-            "founderMissing": 467
+            "founderMissing": 469
           },
           "instagram": {
             "companyMapped": 7,
-            "companyMissing": 228,
+            "companyMissing": 229,
             "founderMapped": 0,
-            "founderMissing": 468
+            "founderMissing": 470
           },
           "linkedin": {
             "companyMapped": 212,
-            "companyMissing": 23,
-            "founderMapped": 463,
+            "companyMissing": 24,
+            "founderMapped": 465,
             "founderMissing": 5
           },
           "product_hunt": {
             "companyMapped": 5,
-            "companyMissing": 230,
+            "companyMissing": 231,
             "founderMapped": 0,
-            "founderMissing": 468
+            "founderMissing": 470
           },
           "x": {
             "companyMapped": 137,
-            "companyMissing": 98,
-            "founderMapped": 277,
+            "companyMissing": 99,
+            "founderMapped": 279,
             "founderMissing": 191
           },
           "youtube": {
             "companyMapped": 11,
-            "companyMissing": 224,
+            "companyMissing": 225,
             "founderMapped": 0,
-            "founderMissing": 468
+            "founderMissing": 470
           }
         },
         "noMappedAccounts": [
@@ -2744,6 +2754,11 @@
           {
             "entityId": "company-floracene",
             "name": "Floracene",
+            "companyName": null
+          },
+          {
+            "entityId": "company-frontier-computing",
+            "name": "Frontier Computing",
             "companyName": null
           },
           {
@@ -2950,6 +2965,11 @@
           {
             "entityId": "company-floracene",
             "name": "Floracene",
+            "companyName": null
+          },
+          {
+            "entityId": "company-frontier-computing",
+            "name": "Frontier Computing",
             "companyName": null
           },
           {
@@ -3989,6 +4009,11 @@
           {
             "entityId": "company-floracene",
             "name": "Floracene",
+            "companyName": null
+          },
+          {
+            "entityId": "company-frontier-computing",
+            "name": "Frontier Computing",
             "companyName": null
           },
           {

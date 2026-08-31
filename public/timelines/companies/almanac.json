@@ -5,8 +5,8 @@
     "slug": "almanac",
     "name": "Almanac"
   },
-  "generatedAt": "2026-08-31T01:59:40.360Z",
-  "lastModifiedAt": "2026-08-31T01:59:40.360Z",
+  "generatedAt": "2026-08-31T15:15:37.656Z",
+  "lastModifiedAt": "2026-08-31T15:15:37.656Z",
   "events": [
     {
       "id": "tle-115811282b18d9a9fbb11917",
@@ -176,7 +176,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 5,
-    "lastSuccessfulArtifactAt": "2026-08-31T01:59:40.360Z"
+    "lastSuccessfulArtifactAt": "2026-08-31T15:15:37.656Z"
   },
   "nextCursor": null
 }

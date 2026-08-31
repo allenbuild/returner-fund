@@ -967,6 +967,23 @@
           "https://www.linkedin.com/in/raghav-punnam/"
         ]
       }
+    },
+    {
+      "companyId": "32554",
+      "companySlug": "ooak-data",
+      "companyName": "Ooak Data",
+      "founderId": "3207024",
+      "change": "added",
+      "fromName": null,
+      "toName": "Pierre-Louis Vouteau",
+      "accounts": {
+        "linkedin": [
+          "https://www.linkedin.com/in/pierre-louis-vouteauau-15a06566/"
+        ],
+        "x": [
+          "https://x.com/PLouisV"
+        ]
+      }
     }
   ]
 }

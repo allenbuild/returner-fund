@@ -1,9 +1,9 @@
 {
   "schemaVersion": "company-timeline.v1",
   "company": {
-    "id": "company-anoria",
-    "slug": "anoria",
-    "name": "ANORIA"
+    "id": "company-frontier-computing",
+    "slug": "frontier-computing",
+    "name": "Frontier Computing"
   },
   "generatedAt": "2026-08-31T15:15:37.656Z",
   "lastModifiedAt": "2026-08-31T15:15:37.656Z",

@@ -82,7 +82,7 @@
           "likes": 366,
           "reposts": 38,
           "replies": 91,
-          "views": 50183
+          "views": 50208
         },
         "evidenceRole": "primary"
       },
@@ -94,7 +94,7 @@
         "excerpt": "Embedded in the official Fabraix YC company page.",
         "url": "https://youtube.com/watch?v=WHmJIMIuAEM",
         "metrics": {
-          "views": 187,
+          "views": 188,
           "likes": 1,
           "comments": 0
         },
@@ -102,6 +102,6 @@
       }
     ]
   },
-  "generatedAt": "2026-08-31T01:59:40.360Z",
-  "lastModifiedAt": "2026-08-31T01:59:40.360Z"
+  "generatedAt": "2026-08-31T15:15:37.656Z",
+  "lastModifiedAt": "2026-08-31T15:15:37.656Z"
 }

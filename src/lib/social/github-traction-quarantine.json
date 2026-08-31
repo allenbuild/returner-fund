@@ -1,7 +1,7 @@
 {
   "source": {
     "schemaVersion": 1,
-    "generatedFromFetchedAt": "2026-08-31T01:57:05.709Z",
+    "generatedFromFetchedAt": "2026-08-31T15:13:23.035Z",
     "publicationPolicy": "stored_but_unpublished",
     "scoringEligible": false,
     "reason": "Rows absent from a fully authoritative whole-cohort GitHub receipt are retained only for audit and manual attribution review; they are not scoring inputs.",
