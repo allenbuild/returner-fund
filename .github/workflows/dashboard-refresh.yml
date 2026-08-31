@@ -153,17 +153,18 @@ jobs:
           ref: main
           fetch-depth: 0
 
-      - name: Use Node.js
-        if: steps.host_preflight.outputs.ready == 'true'
-        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
-        with:
-          node-version: 24.14.0
-          cache: npm
-
       - name: Revalidate ingestion priority inside the publication lane
         id: priority_revalidation
         if: steps.host_preflight.outputs.ready == 'true'
         run: node scripts/lib/dashboard-refresh-priority.mjs
+
+      - name: Use Node.js
+        if: steps.host_preflight.outputs.ready == 'true' && steps.priority_revalidation.outputs.should_run == 'true'
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 24.14.0
+          # This persistent host already retains ~/.npm. Restoring it through
+          # Actions cache downloaded a 1.5 GiB archive before every refresh.
 
       - name: Install dependencies
         if: steps.host_preflight.outputs.ready == 'true' && steps.priority_revalidation.outputs.should_run == 'true'

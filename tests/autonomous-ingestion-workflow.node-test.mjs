@@ -189,29 +189,42 @@ test("dashboard refresh gives a stale ingestion priority before entering the Mac
   )?.[0] ?? "";
   assert.match(
     refreshJob,
-    /Check out current main[\s\S]*?Use Node\.js[\s\S]*?Revalidate ingestion priority inside the publication lane[\s\S]*?id:\s*priority_revalidation[\s\S]*?node scripts\/lib\/dashboard-refresh-priority\.mjs/
+    /Check out current main[\s\S]*?Revalidate ingestion priority inside the publication lane[\s\S]*?id:\s*priority_revalidation[\s\S]*?node scripts\/lib\/dashboard-refresh-priority\.mjs[\s\S]*?Use Node\.js/
   );
   assert.match(
     refreshJob,
-    /name: Use Node\.js\s*\n\s*if: steps\.host_preflight\.outputs\.ready == 'true'\s*\n\s*uses: actions\/setup-node@[0-9a-f]{40}/
+    /name: Revalidate ingestion priority inside the publication lane[\s\S]*?if: steps\.host_preflight\.outputs\.ready == 'true'[\s\S]*?node scripts\/lib\/dashboard-refresh-priority\.mjs/
   );
   assert.ok(
     refreshJob.indexOf("Revalidate ingestion priority inside the publication lane") <
-      refreshJob.indexOf("Install dependencies"),
-    "queued dashboard work must revalidate the Central slot before dependencies or discovery"
+      refreshJob.indexOf("Use Node.js"),
+    "queued dashboard work must revalidate the Central slot before setup-node can restore dependencies"
   );
   for (const stepName of [
+    "Use Node.js",
     "Install dependencies",
     "Validate dashboard code and deterministic build",
     "Refresh published dashboard data",
     "Commit a materially changed snapshot"
   ]) {
     const escapedStepName = stepName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const guardedStep = refreshJob.match(
+      new RegExp(`- name: ${escapedStepName}[\\s\\S]*?(?=\\n\\s{6}- name:|$)`)
+    )?.[0] ?? "";
     assert.match(
-      refreshJob,
-      new RegExp(`name: ${escapedStepName}[\\s\\S]*?if: steps\\.host_preflight\\.outputs\\.ready == 'true' && steps\\.priority_revalidation\\.outputs\\.should_run == 'true'`)
+      guardedStep,
+      /if: steps\.host_preflight\.outputs\.ready == 'true' && steps\.priority_revalidation\.outputs\.should_run == 'true'/
     );
   }
+  const setupNodeStep = refreshJob.match(
+    /- name: Use Node\.js[\s\S]*?(?=\n\s{6}- name:|$)/
+  )?.[0] ?? "";
+  assert.match(setupNodeStep, /uses: actions\/setup-node@[0-9a-f]{40}/);
+  assert.doesNotMatch(
+    setupNodeStep,
+    /^\s*cache:/m,
+    "the persistent self-hosted npm cache must not be downloaded from Actions cache"
+  );
   assert.match(
     admissionJob,
     /A deferred dashboard run never enters the self-hosted runner or shared publication queue/
