@@ -101,9 +101,9 @@ function fixtureResponse(): ReturnerFundCompanyResponse {
       returnerFundUrl: "https://www.returner.fund/companies/atlia",
     },
     returnerFund: {
-      score: 17,
+      score: 34,
       scale: { min: 0, max: 100 },
-      absoluteScore: 9,
+      absoluteScore: 34,
       topPlatform: "x",
       platformScores: { x: 35, youtube: 18 },
       cohort: {

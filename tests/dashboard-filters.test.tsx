@@ -2850,7 +2850,7 @@ function makeNode(
     scoreDelta: 5,
     radius: 20,
     topPlatform,
-    platformScores: { [topPlatform]: 50 },
+    platformScores: { [topPlatform]: score },
     socialAccounts: [],
     evidenceIds: [],
     ycProfileUrl: `https://www.ycombinator.com/companies/${entityId}`,
