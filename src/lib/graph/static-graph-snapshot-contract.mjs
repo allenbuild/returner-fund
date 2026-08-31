@@ -1,6 +1,6 @@
 export const STATIC_GRAPH_SCORING_MODEL_ID = "returner-traction";
-export const STATIC_GRAPH_SCORING_MODEL_VERSION = "4.2.0";
-export const STATIC_GRAPH_SCORING_MODEL_NAME = "returner-traction-v4-absolute-fixed-platform-global-best";
+export const STATIC_GRAPH_SCORING_MODEL_VERSION = "4.3.0";
+export const STATIC_GRAPH_SCORING_MODEL_NAME = "returner-traction-v4-bounded-primary-signal-global-best";
 
 const MAX_ISSUES = 100;
 const DEFAULT_MAX_FUTURE_SKEW_MS = 60_000;
@@ -31,6 +31,8 @@ const V4_CANONICAL_PLATFORM_WEIGHTS = Object.freeze({
 const V4_SCORE_ELIGIBLE_PLATFORMS = new Set(
   Object.keys(V4_CANONICAL_PLATFORM_WEIGHTS)
 );
+const PRIMARY_PLATFORM_WEIGHT = 0.95;
+const CORROBORATING_PLATFORM_WEIGHT = 0.05;
 const SIGNAL_FAMILY_KEYS = [
   "reach",
   "engagement",
@@ -640,6 +642,18 @@ function validateNodes(nodes, evidenceById, context, addIssue) {
       addIssue
     );
     if (Array.isArray(breakdown.weightedPlatforms)) {
+      const appliedContributionTotal = breakdown.weightedPlatforms.reduce(
+        (sum, row) =>
+          sum +
+          (isRecord(row) &&
+          typeof row.score === "number" &&
+          Number.isFinite(row.score) &&
+          typeof row.appliedWeight === "number" &&
+          Number.isFinite(row.appliedWeight)
+            ? row.score * row.appliedWeight
+            : 0),
+        0
+      );
       const fixedContributionTotal = breakdown.weightedPlatforms.reduce(
         (sum, row) =>
           sum +
@@ -663,11 +677,11 @@ function validateNodes(nodes, evidenceById, context, addIssue) {
         0
       );
       const expectedAbsoluteScore =
-        fixedContributionTotal > 0 ? Math.max(1, Math.round(fixedContributionTotal)) : 0;
+        appliedContributionTotal > 0 ? Math.max(1, Math.round(appliedContributionTotal)) : 0;
       if (absoluteScoreIsValid && breakdown.absoluteScore !== expectedAbsoluteScore) {
         addIssue(
           `${path}.scoreBreakdown.absoluteScore`,
-          `must equal the rounded fixed platform contribution total (${expectedAbsoluteScore})`
+          `must equal the rounded bounded-primary contribution total (${expectedAbsoluteScore})`
         );
       }
       if (
@@ -1598,6 +1612,7 @@ function validateWeightedPlatforms(value, path, addIssue) {
   let evidenceCountTotal = 0;
   const seenPlatforms = new Set();
   let allEvidenceCountsValid = true;
+  const primaryPlatform = primaryPlatformFromWeightedRows(value);
   for (const [index, row] of value.entries()) {
     const rowPath = `${path}[${index}]`;
     if (!isRecord(row)) {
@@ -1639,14 +1654,19 @@ function validateWeightedPlatforms(value, path, addIssue) {
       `${rowPath}.appliedWeight`,
       addIssue
     );
+    const expectedAppliedWeight =
+      configuredWeightIsValid && platform
+        ? row.configuredWeight * CORROBORATING_PLATFORM_WEIGHT +
+          (platform === primaryPlatform ? PRIMARY_PLATFORM_WEIGHT : 0)
+        : null;
     if (
       appliedWeightIsValid &&
-      configuredWeightIsValid &&
-      row.appliedWeight !== row.configuredWeight
+      expectedAppliedWeight !== null &&
+      Math.abs(row.appliedWeight - expectedAppliedWeight) > 1e-12
     ) {
       addIssue(
         `${rowPath}.appliedWeight`,
-        "must equal configuredWeight; present platforms are not renormalized"
+        `must equal the bounded-primary weight ${expectedAppliedWeight}`
       );
     }
     const contributionIsValid = validateScore(
@@ -1656,15 +1676,17 @@ function validateWeightedPlatforms(value, path, addIssue) {
     );
     if (
       contributionIsValid &&
-      configuredWeightIsValid &&
+      expectedAppliedWeight !== null &&
       typeof row.score === "number" &&
       Number.isFinite(row.score)
     ) {
-      const expectedContribution = Math.round(row.score * row.configuredWeight * 100) / 100;
+      const expectedContribution = roundScoreContribution(
+        row.score * expectedAppliedWeight
+      );
       if (Math.abs(row.contribution - expectedContribution) > 0.001) {
         addIssue(
           `${rowPath}.contribution`,
-          `must equal score * configuredWeight (${expectedContribution})`
+          `must equal score * appliedWeight (${expectedContribution})`
         );
       }
     }
@@ -1675,6 +1697,31 @@ function validateWeightedPlatforms(value, path, addIssue) {
     }
   }
   return allEvidenceCountsValid ? evidenceCountTotal : null;
+}
+
+function primaryPlatformFromWeightedRows(rows) {
+  return rows
+    .filter(
+      (row) =>
+        isRecord(row) &&
+        V4_SCORE_ELIGIBLE_PLATFORMS.has(row.platform) &&
+        typeof row.score === "number" &&
+        Number.isFinite(row.score) &&
+        row.score > 0
+    )
+    .sort(
+      (left, right) =>
+        right.score - left.score ||
+        V4_CANONICAL_PLATFORM_WEIGHTS[right.platform] -
+          V4_CANONICAL_PLATFORM_WEIGHTS[left.platform] ||
+        left.platform.localeCompare(right.platform)
+    )[0]?.platform ?? null;
+}
+
+function roundScoreContribution(value) {
+  const scaled = value * 100;
+  const roundingGuard = Number.EPSILON * Math.max(1, Math.abs(scaled));
+  return Math.round(scaled + roundingGuard) / 100;
 }
 
 function validateSignalFamilyScores(value, path, addIssue) {

@@ -16,8 +16,8 @@ describe("traction scoring config validation", () => {
 
     expect(() => validateTractionScoringConfig(config)).not.toThrow();
     expect(config).toEqual(original);
-    expect(config.version).toBe("4.2.0");
-    expect(config.name).toBe("returner-traction-v4-absolute-fixed-platform-global-best");
+    expect(config.version).toBe("4.3.0");
+    expect(config.name).toBe("returner-traction-v4-bounded-primary-signal-global-best");
     expect(config.absoluteEvidenceWeight).toBe(1);
     expect(config.cohortPercentileWeight).toBe(0);
     expect(config).not.toHaveProperty("durableSignalWeight");
@@ -36,9 +36,9 @@ describe("traction scoring config validation", () => {
     );
   });
 
-  it("registers the exact global-best headline config as immutable model version 4.2.0", () => {
+  it("registers the exact bounded-primary config as immutable model version 4.3.0", () => {
     const migration = readFileSync(
-      "supabase/migrations/016_register_traction_scoring_v4_2_0.sql",
+      "supabase/migrations/031_register_traction_scoring_v4_3_0.sql",
       "utf8"
     );
     const configJson = migration.match(/v4_config constant jsonb := \$config\$([\s\S]*?)\$config\$/i)?.[1];
@@ -54,6 +54,13 @@ describe("traction scoring config validation", () => {
         .digest("hex")
     );
     expect(migration).toContain("Earlier scoring model rows remain untouched");
+  });
+
+  it("caps platform and source breadth influence at five percent", () => {
+    expect(TRACTION_SCORING_CONFIG.strongestPlatformWeight).toBe(0.95);
+    expect(TRACTION_SCORING_CONFIG.diversifiedPlatformWeight).toBe(0.05);
+    expect(TRACTION_SCORING_CONFIG.platformEvidenceSlots).toEqual([0.95, 0.05]);
+    expect(TRACTION_SCORING_CONFIG.confidence.platformBreadthWeight).toBe(0.05);
   });
 
   it("accepts normalized totals inside the deterministic tolerance", () => {
@@ -153,7 +160,7 @@ describe("traction scoring config validation", () => {
         config.strongestPlatformWeight = 0.2;
         config.diversifiedPlatformWeight = 0.8;
       },
-      /fixed platform blend must use only configured platform shares/
+      /bounded primary platform blend must reserve 95%/
     ],
     [
       "batch calibration weights outside the unit interval",
@@ -227,28 +234,28 @@ describe("traction scoring config validation", () => {
     [
       "zero-valued slots",
       (config) => {
-        config.platformEvidenceSlots[4] = 0;
+        config.platformEvidenceSlots[1] = 0;
       },
-      /platformEvidenceSlots\[4\] must be positive/
+      /platformEvidenceSlots\[1\] must be positive/
     ],
     [
       "non-finite slots",
       (config) => {
-        config.platformEvidenceSlots[2] = Number.NaN;
+        config.platformEvidenceSlots[1] = Number.NaN;
       },
-      /platformEvidenceSlots\[2\].*finite non-negative weight/
+      /platformEvidenceSlots\[1\].*finite non-negative weight/
     ],
     [
       "non-monotone slots",
       (config) => {
-        config.platformEvidenceSlots = [0.82, 0.05, 0.08, 0.03, 0.02];
+        config.platformEvidenceSlots = [0.05, 0.95];
       },
       /platformEvidenceSlots must be monotonically non-increasing/
     ],
     [
       "slot totals outside tolerance",
       (config) => {
-        config.platformEvidenceSlots[4] = 0.021;
+        config.platformEvidenceSlots[1] = 0.051;
       },
       /platform evidence slots must sum to 1/
     ]

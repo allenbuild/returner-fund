@@ -64,8 +64,8 @@ const NORMALIZED_WEIGHT_TOLERANCE = 1e-9;
  */
 export const TRACTION_SCORING_CONFIG: TractionScoringConfig = {
   modelId: "returner-traction",
-  version: "4.2.0",
-  name: "returner-traction-v4-absolute-fixed-platform-global-best",
+  version: "4.3.0",
+  name: "returner-traction-v4-bounded-primary-signal-global-best",
   platformWeights: {
     x: 0.21,
     instagram: 0.21,
@@ -91,7 +91,10 @@ export const TRACTION_SCORING_CONFIG: TractionScoringConfig = {
     rss: {}
   },
   platformReferences: {
-    github: { highEngagement: 40_000 },
+    // The old 40k raw reference hard-capped both a 112k-star repository and a
+    // 21k-star repository at 100. Keep the shared logarithmic curve, but move
+    // saturation high enough to preserve that material adoption difference.
+    github: { highEngagement: 250_000 },
     x: { highEngagement: 120_000 },
     linkedin: { highEngagement: 18_000 },
     instagram: { highEngagement: 80_000 },
@@ -103,18 +106,25 @@ export const TRACTION_SCORING_CONFIG: TractionScoringConfig = {
   },
   absoluteEvidenceWeight: 1,
   cohortPercentileWeight: 0,
-  strongestPlatformWeight: 0,
-  diversifiedPlatformWeight: 1,
-  platformEvidenceSlots: [0.82, 0.08, 0.05, 0.03, 0.02],
+  // Headline points follow the strongest native signal. The remaining 5% uses
+  // fixed configured platform shares, so missing-platform influence is
+  // bounded to five points and adding non-negative evidence cannot lower a
+  // score.
+  strongestPlatformWeight: 0.95,
+  diversifiedPlatformWeight: 0.05,
+  // One source/repository owns 95% of its platform score. A second independent
+  // row may corroborate it, but collecting a long tail cannot manufacture
+  // additional points.
+  platformEvidenceSlots: [0.95, 0.05],
   batchCalibration: {
     absoluteScoreWeight: 1,
     cohortPercentileWeight: 0
   },
   confidence: {
     base: 0.2,
-    evidenceDepthWeight: 0.38,
+    evidenceDepthWeight: 0.55,
     evidenceDepthScale: 4,
-    platformBreadthWeight: 0.22,
+    platformBreadthWeight: 0.05,
     publicationDateWeight: 0.12,
     verifiedLinkWeight: 0.08,
     mediumThreshold: 0.5,
@@ -192,10 +202,10 @@ export function validateTractionScoringConfig(config: TractionScoringConfig): vo
     ["strongestPlatformWeight", config.strongestPlatformWeight],
     ["diversifiedPlatformWeight", config.diversifiedPlatformWeight]
   ]);
-  if (config.strongestPlatformWeight !== 0 || config.diversifiedPlatformWeight !== 1) {
+  if (config.strongestPlatformWeight !== 0.95 || config.diversifiedPlatformWeight !== 0.05) {
     invalidConfig(
-      "fixed platform blend",
-      "must use only configured platform shares (strongestPlatformWeight=0, diversifiedPlatformWeight=1)",
+      "bounded primary platform blend",
+      "must reserve 95% for the strongest platform and at most 5% for configured-share corroboration",
       [config.strongestPlatformWeight, config.diversifiedPlatformWeight]
     );
   }
@@ -214,6 +224,17 @@ export function validateTractionScoringConfig(config: TractionScoringConfig): vo
     }
   }
   assertNormalizedWeightTotal("platform evidence slots", config.platformEvidenceSlots);
+  if (
+    config.platformEvidenceSlots.length !== 2 ||
+    config.platformEvidenceSlots[0] !== 0.95 ||
+    config.platformEvidenceSlots[1] !== 0.05
+  ) {
+    invalidConfig(
+      "bounded primary evidence blend",
+      "must reserve 95% for the strongest evidence row and at most 5% for one corroborating row",
+      config.platformEvidenceSlots
+    );
+  }
 
   assertNormalizedWeights("batch calibration", [
     ["batchCalibration.absoluteScoreWeight", config.batchCalibration.absoluteScoreWeight],

@@ -13,10 +13,16 @@ import {
 
 export const EXPECTED_SCORING_MODEL = Object.freeze({
   id: "returner-traction",
-  version: "4.2.0",
-  name: "returner-traction-v4-absolute-fixed-platform-global-best"
+  version: "4.3.0",
+  name: "returner-traction-v4-bounded-primary-signal-global-best"
 });
-export const HISTORICAL_SCORING_MODEL_VERSIONS = Object.freeze(["4.0.0", "4.0.1", "4.0.2", "4.1.0"]);
+export const HISTORICAL_SCORING_MODEL_VERSIONS = Object.freeze([
+  "4.0.0",
+  "4.0.1",
+  "4.0.2",
+  "4.1.0",
+  "4.2.0"
+]);
 export const PUBLIC_ARTIFACT_FRESHNESS_POLICIES = Object.freeze({
   STRICT_CURRENT_DAY: "strict-current-day",
   LATEST_COMPLETED_SLOT: "latest-completed-slot"
@@ -70,6 +76,8 @@ const SIGNAL_FAMILIES = Object.freeze([
   "momentum"
 ]);
 const SUPPORTED_PLATFORM_COUNT = Object.keys(PLATFORM_WEIGHTS).length;
+const PRIMARY_PLATFORM_WEIGHT = 0.95;
+const CORROBORATING_PLATFORM_WEIGHT = 0.05;
 const SCORE_EPSILON = 1e-9;
 const MAX_FUTURE_SKEW_MS = 60_000;
 const CANONICAL_NODE_FIELDS = [
@@ -935,7 +943,15 @@ function validateScoreBreakdown(breakdown, nodeScore, scope, violations) {
       `${scope} scoreBreakdown.platformScores and weightedPlatforms must cover the same platforms`
     );
   }
-  const contributionTotal = weightedPlatforms.reduce(
+  const appliedContributionTotal = weightedPlatforms.reduce(
+    (sum, row) =>
+      sum +
+      (isFiniteNumber(row.score) && isFiniteNumber(row.appliedWeight)
+        ? row.score * row.appliedWeight
+        : 0),
+    0
+  );
+  const fixedContributionTotal = weightedPlatforms.reduce(
     (sum, row) =>
       sum +
       (isFiniteNumber(row.score) && isFiniteNumber(row.configuredWeight)
@@ -947,9 +963,11 @@ function validateScoreBreakdown(breakdown, nodeScore, scope, violations) {
     (sum, row) => sum + (isFiniteNumber(row.configuredWeight) ? row.configuredWeight : 0),
     0
   );
-  const expectedAbsoluteScore = contributionTotal > 0 ? Math.max(1, Math.round(contributionTotal)) : 0;
+  const expectedAbsoluteScore = appliedContributionTotal > 0
+    ? Math.max(1, Math.round(appliedContributionTotal))
+    : 0;
   if (!numbersEqual(breakdown.absoluteScore, expectedAbsoluteScore)) {
-    violations.push(`${scope} scoreBreakdown.absoluteScore must equal the rounded fixed contribution total`);
+    violations.push(`${scope} scoreBreakdown.absoluteScore must equal the rounded bounded-primary contribution total`);
   }
   if (
     breakdown.calibration?.method === "none" &&
@@ -961,7 +979,7 @@ function validateScoreBreakdown(breakdown, nodeScore, scope, violations) {
     violations.push(`${scope} scoreBreakdown.coverageFactor must equal present configured platform weight`);
   }
   const expectedWeightedAvailableScore = configuredCoverage > 0
-    ? contributionTotal / configuredCoverage
+    ? fixedContributionTotal / configuredCoverage
     : 0;
   if (Math.abs(breakdown.weightedAvailableScore - expectedWeightedAvailableScore) > 0.011) {
     violations.push(`${scope} scoreBreakdown.weightedAvailableScore must be the present-platform weighted average`);
@@ -1007,6 +1025,7 @@ function validateWeightedPlatforms(value, platformScores, scope, violations) {
     return [];
   }
   const seen = new Set();
+  const primaryPlatform = primaryPlatformFromWeightedRows(value);
   for (const [index, row] of value.entries()) {
     const rowScope = `${scope} scoreBreakdown.weightedPlatforms[${index}]`;
     if (!isRecord(row)) {
@@ -1028,12 +1047,17 @@ function validateWeightedPlatforms(value, platformScores, scope, violations) {
       if (platformScores && !numbersEqual(row.score, platformScores[row.platform])) {
         violations.push(`${rowScope}.score must match scoreBreakdown.platformScores`);
       }
-      if (!numbersEqual(row.appliedWeight, row.configuredWeight)) {
-        violations.push(`${rowScope}.appliedWeight must equal configuredWeight`);
+      const expectedAppliedWeight =
+        row.configuredWeight * CORROBORATING_PLATFORM_WEIGHT +
+        (row.platform === primaryPlatform ? PRIMARY_PLATFORM_WEIGHT : 0);
+      if (!numbersEqual(row.appliedWeight, expectedAppliedWeight)) {
+        violations.push(`${rowScope}.appliedWeight must equal ${expectedAppliedWeight}`);
       }
-      const expectedContribution = Math.round(row.score * row.configuredWeight * 100) / 100;
+      const expectedContribution = roundScoreContribution(
+        row.score * expectedAppliedWeight
+      );
       if (!numbersEqual(row.contribution, expectedContribution)) {
-        violations.push(`${rowScope}.contribution must equal score multiplied by configuredWeight`);
+        violations.push(`${rowScope}.contribution must equal score multiplied by appliedWeight`);
       }
     }
     validateScore(row.score, `${rowScope}.score`, violations, { integer: true });
@@ -1044,6 +1068,29 @@ function validateWeightedPlatforms(value, platformScores, scope, violations) {
     }
   }
   return value;
+}
+
+function primaryPlatformFromWeightedRows(rows) {
+  return rows
+    .filter(
+      (row) =>
+        isRecord(row) &&
+        hasOwn(PLATFORM_WEIGHTS, row.platform) &&
+        isFiniteNumber(row.score) &&
+        row.score > 0
+    )
+    .sort(
+      (left, right) =>
+        right.score - left.score ||
+        PLATFORM_WEIGHTS[right.platform] - PLATFORM_WEIGHTS[left.platform] ||
+        left.platform.localeCompare(right.platform)
+    )[0]?.platform ?? null;
+}
+
+function roundScoreContribution(value) {
+  const scaled = value * 100;
+  const roundingGuard = Number.EPSILON * Math.max(1, Math.abs(scaled));
+  return Math.round(scaled + roundingGuard) / 100;
 }
 
 function validateConfidence(confidence, scope, violations) {

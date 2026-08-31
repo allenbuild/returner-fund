@@ -454,12 +454,14 @@ describe("traction scoring v4 invariants", () => {
     const confidence = aggregateBalancedTractionScore(rows).confidence;
 
     expect(confidence).toMatchObject({
-      value: TRACTION_SCORING_CONFIG.confidence.highThreshold,
-      level: "high",
       scoredEvidenceCount: 96,
       datedEvidenceCount: 14,
       verifiedLinkCount: 95
     });
+    expect(confidence.value).toBeGreaterThanOrEqual(
+      TRACTION_SCORING_CONFIG.confidence.highThreshold
+    );
+    expect(confidence.level).toBe("high");
   });
 
   it("is invariant to evidence permutations", () => {
@@ -604,18 +606,65 @@ describe("traction scoring v4 invariants", () => {
     );
   });
 
-  it("keeps missing platform weights at zero instead of renormalizing a saturated platform", () => {
+  it("bounds missing-platform influence to five points without breaking monotonicity", () => {
     const onePlatformRows = perfectPlatformRows("x");
     const allPlatformRows = SUPPORTED_PLATFORMS.flatMap((platform) => perfectPlatformRows(platform));
     const onePlatform = aggregateBalancedTractionScore(onePlatformRows);
     const allPlatforms = aggregateBalancedTractionScore(allPlatformRows);
 
     expect(onePlatform.platformScores.x).toBe(100);
-    expect(onePlatform.totalScore).toBe(21);
-    expect(onePlatform.totalScore).toBeLessThan(allPlatforms.totalScore);
+    expect(onePlatform.totalScore).toBeGreaterThanOrEqual(95);
+    expect(allPlatforms.totalScore - onePlatform.totalScore).toBeLessThanOrEqual(5);
+    expect(allPlatforms.totalScore).toBeGreaterThanOrEqual(onePlatform.totalScore);
     expect(allPlatforms.totalScore).toBe(100);
     expect(onePlatform.coverageFactor).toBe(0.21);
     expect(allPlatforms.coverageFactor).toBe(1);
+    expect(
+      onePlatform.weightedPlatforms.reduce(
+        (sum, row) => sum + row.score * row.appliedWeight,
+        0
+      )
+    ).toBeCloseTo(96.05, 8);
+  });
+
+  it("uses deterministic primary-platform tie breaking", () => {
+    const tied = aggregateBalancedTractionScore([
+      ...perfectPlatformRows("x", "tied-x"),
+      ...perfectPlatformRows("instagram", "tied-instagram")
+    ]);
+
+    expect(tied.platformScores.x).toBe(100);
+    expect(tied.platformScores.instagram).toBe(100);
+    expect(tied.weightedPlatforms[0]?.platform).toBe("instagram");
+    expect(tied.weightedPlatforms[0]?.appliedWeight).toBeCloseTo(0.9605, 12);
+    expect(tied.weightedPlatforms[1]?.appliedWeight).toBeCloseTo(0.0105, 12);
+  });
+
+  it("caps same-platform source breadth at five points", () => {
+    const primary = evidence("primary-repo", "github", positiveMetrics("github"), {
+      contributionScore: 100
+    });
+    const corroborating = evidence(
+      "corroborating-repo",
+      "github",
+      positiveMetrics("github"),
+      { contributionScore: 100 }
+    );
+    const longTail = Array.from({ length: 20 }, (_, index) =>
+      evidence(`tail-repo-${index}`, "github", positiveMetrics("github"), {
+        contributionScore: 100
+      })
+    );
+    const singleton = aggregateBalancedTractionScore([primary]);
+    const pair = aggregateBalancedTractionScore([primary, corroborating]);
+    const broad = aggregateBalancedTractionScore([primary, corroborating, ...longTail]);
+
+    expect(singleton.platformScores.github).toBe(95);
+    expect(pair.platformScores.github).toBe(100);
+    expect(pair.totalScore).toBeGreaterThanOrEqual(singleton.totalScore);
+    expect(pair.totalScore - singleton.totalScore).toBeLessThanOrEqual(5);
+    expect(broad.platformScores.github).toBe(pair.platformScores.github);
+    expect(broad.totalScore).toBe(pair.totalScore);
   });
 
   it("never calibrates real positive evidence to zero", () => {

@@ -646,10 +646,10 @@ function validSnapshot() {
   };
   const scoreBreakdown = {
     modelId: "returner-traction",
-    modelVersion: "4.2.0",
-    modelName: "returner-traction-v4-absolute-fixed-platform-global-best",
-    totalScore: 13,
-    absoluteScore: 13,
+    modelVersion: "4.3.0",
+    modelName: "returner-traction-v4-bounded-primary-signal-global-best",
+    totalScore: 61,
+    absoluteScore: 61,
     weightedAvailableScore: 64,
     coverageFactor: 0.21,
     platformsWithEvidence: 1,
@@ -659,8 +659,8 @@ function validSnapshot() {
       platform: "x",
       score: 64,
       configuredWeight: 0.21,
-      appliedWeight: 0.21,
-      contribution: 13.44,
+      appliedWeight: 0.9605,
+      contribution: 61.47,
       evidenceCount: 1
     }],
     signalFamilyScores: {
@@ -682,7 +682,7 @@ function validSnapshot() {
       method: "global_best_ratio",
       cohortSize: 1,
       percentile: null,
-      inputScore: 13,
+      inputScore: 61,
       benchmarkScore: 100,
       scaleFactor: 1,
       benchmarkScope: "all_supported_batches",
@@ -698,7 +698,7 @@ function validSnapshot() {
     entityId: "company-1",
     label: "Company One",
     batchSlug: "S2026",
-    score: 13,
+    score: 61,
     topPlatform: "x",
     platformScores: { x: 64 },
     scoreBreakdown,
@@ -717,7 +717,7 @@ function validSnapshot() {
       rank: 1,
       companyId: "company-1",
       companyName: "Company One",
-      score: 13,
+      score: 61,
       topPlatform: "x",
       biggestContribution: evidence
     }],
@@ -725,8 +725,8 @@ function validSnapshot() {
       rank: 1,
       companyId: "company-1",
       companyName: "Company One",
-      dod: momentum(13, 1),
-      wow: momentum(13, 1)
+      dod: momentum(61, 1),
+      wow: momentum(61, 1)
     }],
     needsReview: [],
     evidence: [evidence],
@@ -736,8 +736,8 @@ function validSnapshot() {
     generatedAt: "2026-07-16T05:00:00.000Z",
     scoringContext: {
       modelId: "returner-traction",
-      modelVersion: "4.2.0",
-      modelName: "returner-traction-v4-absolute-fixed-platform-global-best",
+      modelVersion: "4.3.0",
+      modelName: "returner-traction-v4-bounded-primary-signal-global-best",
       scoreScope: "all_platforms",
       selectedPlatforms: [] as string[],
       responseBuiltAt: "2026-07-16T05:00:00.000Z",
@@ -790,7 +790,7 @@ function addTiedCompany(graph: ValidSnapshot) {
     rank: 1,
     companyId: "company-2",
     companyName: "Company Two",
-    score: 13,
+    score: 61,
     topPlatform: "x",
     biggestContribution: evidence
   });
@@ -798,8 +798,8 @@ function addTiedCompany(graph: ValidSnapshot) {
     rank: 2,
     companyId: "company-2",
     companyName: "Company Two",
-    dod: momentum(13, 1),
-    wow: momentum(13, 1)
+    dod: momentum(61, 1),
+    wow: momentum(61, 1)
   });
 }
 

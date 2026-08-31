@@ -42,23 +42,23 @@ describe("global company benchmark integration", () => {
   it("keeps raw platform scores and contributions independent of the headline factor", () => {
     for (const company of yc2026GraphDataset.companies) {
       const breakdown = company.scoreBreakdown!;
-      const rawContributionTotal = breakdown.weightedPlatforms.reduce(
-        (sum, platform) => sum + platform.score * platform.configuredWeight,
+      const appliedContributionTotal = breakdown.weightedPlatforms.reduce(
+        (sum, platform) => sum + platform.score * platform.appliedWeight,
         0
       );
-      const expectedAbsolute = rawContributionTotal > 0
-        ? Math.max(1, Math.round(rawContributionTotal))
+      const expectedAbsolute = appliedContributionTotal > 0
+        ? Math.max(1, Math.round(appliedContributionTotal))
         : 0;
 
       expect(breakdown.absoluteScore).toBe(expectedAbsolute);
-      expect(
-        breakdown.weightedPlatforms.every(
-          (platform) =>
-            platform.appliedWeight === platform.configuredWeight &&
-            platform.contribution ===
-              Math.round(platform.score * platform.configuredWeight * 100) / 100
-        )
-      ).toBe(true);
+      for (const platform of breakdown.weightedPlatforms) {
+        expect(platform.appliedWeight).toBeGreaterThanOrEqual(
+          platform.configuredWeight * 0.05 - 1e-12
+        );
+        expect(
+          Math.abs(platform.contribution - platform.score * platform.appliedWeight)
+        ).toBeLessThanOrEqual(0.011);
+      }
     }
   });
 

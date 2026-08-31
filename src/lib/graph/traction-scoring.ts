@@ -133,22 +133,24 @@ export function aggregateBalancedTractionScore(items: EvidenceItem[]): ScoreBrea
   );
   const platformScores = platformScoresFromEvidence(uniqueItems);
   const evidenceCounts = evidenceCountsByPlatform(uniqueItems);
-  const weightedPlatforms = weightedPlatformScores(platformScores, evidenceCounts);
+  const primaryPlatform = primaryPlatformFromScores(platformScores);
+  const availableWeight = configuredPlatformWeight(platformScores);
+  const weightedPlatforms = weightedPlatformScores(
+    platformScores,
+    evidenceCounts,
+    primaryPlatform
+  );
   const platformsWithEvidence = weightedPlatforms.length;
   const scoredEvidenceCount = uniqueItems.length;
-  const strongestPlatformScore = Math.max(0, ...Object.values(platformScores));
-  const availableWeight = weightedPlatforms.reduce((sum, item) => sum + item.configuredWeight, 0);
   const weightedAvailableScore =
     availableWeight > 0
-      ? weightedPlatforms.reduce((sum, item) => sum + item.score * item.configuredWeight, 0) / availableWeight
+      ? weightedPlatforms.reduce(
+        (sum, item) => sum + item.score * item.configuredWeight,
+        0
+      ) / availableWeight
       : 0;
-  const fixedPlatformScore = weightedPlatforms.reduce(
-    (sum, item) => sum + item.score * item.configuredWeight,
-    0
-  );
   const absoluteScoreValue = clamp(
-    strongestPlatformScore * TRACTION_SCORING_CONFIG.strongestPlatformWeight +
-      fixedPlatformScore * TRACTION_SCORING_CONFIG.diversifiedPlatformWeight,
+    weightedPlatforms.reduce((sum, item) => sum + item.score * item.appliedWeight, 0),
     0,
     100
   );
@@ -165,12 +167,15 @@ export function aggregateBalancedTractionScore(items: EvidenceItem[]): ScoreBrea
     );
   }
   const evidenceAsOf = latestEvidenceTimestamp(uniqueItems);
-  const topPlatform = weightedPlatforms[0];
+  const topPlatform = primaryPlatform
+    ? weightedPlatforms.find((item) => item.platform === primaryPlatform)
+    : undefined;
   const explanation = topPlatform
-    ? `${topPlatform.platform} is the largest contribution at ${round(topPlatform.contribution, 1)} points. ` +
+    ? `${topPlatform.platform} is the primary signal at ${topPlatform.score}/100 and contributes ` +
+      `${round(topPlatform.contribution, 1)} points under the bounded 95/5 blend. ` +
       `${scoredEvidenceCount} unique native evidence row${scoredEvidenceCount === 1 ? "" : "s"} across ` +
       `${platformsWithEvidence}/${SUPPORTED_PLATFORM_COUNT} supported platforms produce ${absoluteScore}/100 ` +
-      `with absent platforms contributing zero; cohort rank does not change the score.`
+      `with missing-platform influence capped at five points; cohort rank does not change the score.`
     : "No verified native evidence with visible traction metrics was eligible for scoring.";
 
   return {
@@ -215,20 +220,25 @@ export function platformScoresFromEvidence(items: EvidenceItem[]): Partial<Recor
 
 function weightedPlatformScores(
   platformScores: Partial<Record<Platform, number>>,
-  evidenceCounts: Map<Platform, number>
+  evidenceCounts: Map<Platform, number>,
+  primaryPlatform: Platform | null
 ): WeightedPlatformScore[] {
   const entries = Object.entries(platformScores) as Array<[Platform, number]>;
   const contributions = entries.map(([platform, score]) => {
     const configuredWeight = TRACTION_PLATFORM_WEIGHTS[platform] ?? 0;
-    const contribution = score * configuredWeight;
-    return { platform, score, configuredWeight, contribution };
+    const corroborationWeight =
+      TRACTION_SCORING_CONFIG.diversifiedPlatformWeight * configuredWeight;
+    const appliedWeight = corroborationWeight + (
+      platform === primaryPlatform ? TRACTION_SCORING_CONFIG.strongestPlatformWeight : 0
+    );
+    const contribution = score * appliedWeight;
+    return { platform, score, configuredWeight, appliedWeight, contribution };
   });
 
   return contributions
     .filter((item) => item.configuredWeight > 0)
     .map((item) => ({
       ...item,
-      appliedWeight: item.configuredWeight,
       contribution: round(item.contribution, 2),
       evidenceCount: evidenceCounts.get(item.platform) ?? 0
     }))
@@ -239,6 +249,35 @@ function weightedPlatformScores(
         right.configuredWeight - left.configuredWeight ||
         left.platform.localeCompare(right.platform)
     );
+}
+
+function primaryPlatformFromScores(
+  platformScores: Partial<Record<Platform, number>>
+): Platform | null {
+  const candidates = (Object.entries(platformScores) as Array<[Platform, number]>)
+    .filter(([platform, score]) =>
+      (TRACTION_PLATFORM_WEIGHTS[platform] ?? 0) > 0 && Number.isFinite(score) && score > 0
+    )
+    .sort(
+      ([leftPlatform, leftScore], [rightPlatform, rightScore]) =>
+        rightScore - leftScore ||
+        (TRACTION_PLATFORM_WEIGHTS[rightPlatform] ?? 0) -
+          (TRACTION_PLATFORM_WEIGHTS[leftPlatform] ?? 0) ||
+        leftPlatform.localeCompare(rightPlatform)
+    );
+  return candidates[0]?.[0] ?? null;
+}
+
+function configuredPlatformWeight(
+  platformScores: Partial<Record<Platform, number>>
+): number {
+  return (Object.entries(platformScores) as Array<[Platform, number]>).reduce(
+    (sum, [platform, score]) =>
+      Number.isFinite(score) && score > 0
+        ? sum + (TRACTION_PLATFORM_WEIGHTS[platform] ?? 0)
+        : sum,
+    0
+  );
 }
 
 function evidenceCountsByPlatform(items: EvidenceItem[]): Map<Platform, number> {

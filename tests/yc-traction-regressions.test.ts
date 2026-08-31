@@ -744,7 +744,7 @@ describe("YC traction scoring regressions", () => {
     expect(careGp?.scoreBreakdown?.weightedPlatforms[0]?.evidenceCount).toBeGreaterThanOrEqual(1);
   });
 
-  it("keeps screenpipe above one-platform Nori using actual fixed platform contributions", () => {
+  it("reconciles screenpipe and one-platform Nori through actual bounded-primary contributions", () => {
     const graph = buildGraphResponse({ batchSlug: "S26" }, ycSpring2026GraphDataset);
     const nori = graph.nodes.find((node) => node.entityType === "company" && node.label === "Nori");
     const screenpipe = graph.nodes.find(
@@ -759,14 +759,13 @@ describe("YC traction scoring regressions", () => {
     expect(screenpipe?.scoreBreakdown?.coverageFactor).toBeGreaterThan(
       nori?.scoreBreakdown?.coverageFactor ?? 0
     );
-    expect(screenpipe?.score).toBeGreaterThan(nori?.score ?? 0);
 
     for (const company of [nori!, screenpipe!]) {
-      const fixedContributionTotal = company.scoreBreakdown!.weightedPlatforms.reduce(
-        (sum, row) => sum + row.score * row.configuredWeight,
+      const appliedContributionTotal = company.scoreBreakdown!.weightedPlatforms.reduce(
+        (sum, row) => sum + row.score * row.appliedWeight,
         0
       );
-      expect(company.scoreBreakdown?.absoluteScore).toBe(Math.round(fixedContributionTotal));
+      expect(company.scoreBreakdown?.absoluteScore).toBe(Math.round(appliedContributionTotal));
       expect(company.score).toBe(
         Math.round(
           (company.scoreBreakdown!.absoluteScore /
@@ -776,10 +775,45 @@ describe("YC traction scoring regressions", () => {
       );
       expect(
         company.scoreBreakdown!.weightedPlatforms.every(
-          (row) => row.appliedWeight === row.configuredWeight
+          (row) =>
+            row.appliedWeight >= row.configuredWeight *
+              TRACTION_SCORING_CONFIG.diversifiedPlatformWeight
         )
       ).toBe(true);
     }
+  });
+
+  it("ranks Graphify Labs above screenpipe from shared source metrics", () => {
+    const graph = buildGraphResponse({ batchSlug: "S26" }, ycSpring2026GraphDataset);
+    const graphify = graph.nodes.find(
+      (node) => node.entityType === "company" && node.label === "Graphify Labs"
+    );
+    const screenpipe = graph.nodes.find(
+      (node) => node.entityType === "company" && node.label === "screenpipe"
+    );
+
+    expect(graphify).toBeTruthy();
+    expect(screenpipe).toBeTruthy();
+
+    const graphifyGithub = selectedNodeEvidence(graph, graphify!).filter(
+      (item) => item.platform === "github"
+    );
+    const screenpipeGithub = selectedNodeEvidence(graph, screenpipe!).filter(
+      (item) => item.platform === "github"
+    );
+    const graphifyStars = Math.max(...graphifyGithub.map((item) => item.metrics.stars ?? 0));
+    const screenpipeStars = Math.max(...screenpipeGithub.map((item) => item.metrics.stars ?? 0));
+
+    expect(graphifyStars).toBeGreaterThan(100_000);
+    expect(screenpipeStars).toBeGreaterThan(20_000);
+    expect(graphifyStars).toBeGreaterThan(screenpipeStars * 5);
+    expect(graphify?.platformScores.github).toBeGreaterThan(
+      screenpipe?.platformScores.github ?? 0
+    );
+    expect(graphify?.scoreBreakdown?.absoluteScore).toBeGreaterThan(
+      screenpipe?.scoreBreakdown?.absoluteScore ?? 0
+    );
+    expect(graphify?.score).toBeGreaterThan(screenpipe?.score ?? 0);
   });
 
   it("uses one global current-company benchmark across S2026, S26, and A16Z", () => {
@@ -979,7 +1013,7 @@ describe("YC traction scoring regressions", () => {
     expect(scored[0]?.contributionScore).toBeGreaterThan(scored[2]?.contributionScore ?? 0);
   });
 
-  it("uses only fixed platform contributions without a hidden diversity bonus", () => {
+  it("caps the cross-platform corroboration slice at five points", () => {
     const githubOnly = aggregateBalancedTractionScore([evidence("github-only", "github", {}, 100)]);
     const crossPlatform = aggregateBalancedTractionScore([
       evidence("x", "x", {}, 98),
@@ -989,13 +1023,18 @@ describe("YC traction scoring regressions", () => {
       evidence("youtube", "youtube", {}, 98)
     ]);
 
-    expect(githubOnly.totalScore).toBe(
-      Math.round(githubOnly.weightedPlatforms.reduce((sum, row) => sum + row.contribution, 0))
-    );
-    expect(crossPlatform.totalScore).toBe(
-      Math.round(crossPlatform.weightedPlatforms.reduce((sum, row) => sum + row.contribution, 0))
-    );
-    expect(crossPlatform.totalScore).toBeLessThan(crossPlatform.weightedAvailableScore);
+    for (const score of [githubOnly, crossPlatform]) {
+      expect(score.totalScore).toBe(
+        Math.round(
+          score.weightedPlatforms.reduce(
+            (sum, row) => sum + row.score * row.appliedWeight,
+            0
+          )
+        )
+      );
+    }
+    expect(crossPlatform.totalScore).toBeGreaterThanOrEqual(githubOnly.totalScore);
+    expect(crossPlatform.totalScore - githubOnly.totalScore).toBeLessThanOrEqual(5);
   });
 
   it("does not average away a viral view-heavy social post", () => {
@@ -1009,12 +1048,17 @@ describe("YC traction scoring regressions", () => {
 
     expect(score.platformScores.x).toBeGreaterThanOrEqual(80);
     expect(score.totalScore).toBe(
-      Math.round(score.weightedPlatforms.reduce((sum, row) => sum + row.contribution, 0))
+      Math.round(
+        score.weightedPlatforms.reduce(
+          (sum, row) => sum + row.score * row.appliedWeight,
+          0
+        )
+      )
     );
     expect(score.totalScore).toBe(score.absoluteScore);
   });
 
-  it("treats missing platforms as zero instead of renormalizing present platforms", () => {
+  it("bounds the score effect of missing platforms while preserving coverage evidence", () => {
     const onePlatform = aggregateBalancedTractionScore([evidence("x", "x", {}, 100)]);
     const allConfiguredPlatforms = aggregateBalancedTractionScore([
       evidence("x", "x", {}, 100),
@@ -1030,20 +1074,20 @@ describe("YC traction scoring regressions", () => {
 
     expect(onePlatform.coverageFactor).toBe(0.21);
     expect(allConfiguredPlatforms.coverageFactor).toBe(1);
-    expect(onePlatform.totalScore).toBe(17);
-    expect(allConfiguredPlatforms.totalScore).toBe(82);
-    expect(onePlatform.totalScore).toBeLessThan(allConfiguredPlatforms.totalScore);
+    expect(onePlatform.totalScore).toBe(91);
+    expect(allConfiguredPlatforms.totalScore).toBe(95);
+    expect(allConfiguredPlatforms.totalScore - onePlatform.totalScore).toBeLessThanOrEqual(5);
   });
 
-  it("orders score explanations by configured-weight contribution", () => {
+  it("orders score explanations by the primary-signal contribution", () => {
     const score = aggregateBalancedTractionScore([
       evidence("github", "github", {}, 100),
       evidence("instagram", "instagram", {}, 80)
     ]);
 
-    expect(score.weightedPlatforms[0]?.platform).toBe("instagram");
+    expect(score.weightedPlatforms[0]?.platform).toBe("github");
     expect(score.weightedPlatforms[0]?.contribution).toBeGreaterThan(score.weightedPlatforms[1]?.contribution ?? 0);
-    expect(score.explanation).toContain("largest contribution");
+    expect(score.explanation).toContain("primary signal");
   });
 
   it("lets a perfect social signal outrank a moderate GitHub signal", () => {
@@ -1058,7 +1102,7 @@ describe("YC traction scoring regressions", () => {
 
   it("uses the recommended long-run scoring config for live graph scoring", () => {
     expect(TRACTION_SCORING_CONFIG.name).toBe(
-      "returner-traction-v4-absolute-fixed-platform-global-best"
+      "returner-traction-v4-bounded-primary-signal-global-best"
     );
     expect(TRACTION_SCORING_CONFIG.platformWeights.github).toBe(0.15);
     expect(TRACTION_SCORING_CONFIG.platformWeights.x).toBe(0.21);
