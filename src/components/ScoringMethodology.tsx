@@ -82,10 +82,11 @@ export function ScoringMethodology({ currentModel }: ScoringMethodologyProps) {
             {baseline.postSlotPercents.join("%, ")}% by slot. Posts are therefore not simply summed without limit.
           </p>
           <p>
-            Platform results use the fixed configured shares below. A platform with no eligible evidence contributes
-            zero at its configured share; present platforms are never renormalized to fill the missing weight. Breadth
-            is not a separate bonus ({baseline.platformBlend.strongestPercent}% strongest-platform blend and {" "}
-            {baseline.platformBlend.diversifiedPercent}% fixed-share blend). That raw absolute score remains the
+            The strongest platform supplies {baseline.platformBlend.strongestPercent}% of the entity score. The
+            remaining {baseline.platformBlend.diversifiedPercent}% is a fixed-share corroboration slice using the
+            configured shares below; missing platforms contribute zero only inside that bounded slice. Adding
+            platforms therefore cannot lower a score, while platform breadth can change it by at most {" "}
+            {baseline.platformBlend.diversifiedPercent} points. That raw absolute score remains the
             auditable benchmark input ({baseline.calibration.absolutePercent}% absolute and {" "}
             {baseline.calibration.cohortPercentilePercent}% cohort-percentile signal). The displayed headline uses one
             ratio shared by every supported batch: the strongest current company&apos;s absolute score maps to 100 and

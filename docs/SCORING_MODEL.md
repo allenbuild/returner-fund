@@ -5,8 +5,8 @@
 The production graph scoring model is:
 
 - Model ID: `returner-traction`
-- Version: `4.1.0`
-- Name: `returner-traction-v4-absolute-fixed-platform`
+- Version: `4.3.0`
+- Name: `returner-traction-v4-bounded-primary-signal-global-best`
 - Canonical configuration: [`src/lib/scoring/traction-config.ts`](../src/lib/scoring/traction-config.ts)
 - Evidence normalizer and entity aggregate: [`src/lib/graph/traction-scoring.ts`](../src/lib/graph/traction-scoring.ts)
 - Shared company score finalization: [`src/lib/scoring/batch-calibration.ts`](../src/lib/scoring/batch-calibration.ts)
@@ -16,7 +16,7 @@ The production graph scoring model is:
 - Live refresh overlay: [`src/lib/graph/live-evidence-overlay.ts`](../src/lib/graph/live-evidence-overlay.ts)
 - Runtime score types: [`src/lib/graph/types.ts`](../src/lib/graph/types.ts)
 
-The compatibility module at `src/lib/graph/traction-scoring-config.ts` only re-exports the canonical configuration; it defines no independent weights. The canonical object includes the evidence, platform, score-finalization, and confidence parameters and validates normalized totals, scored-platform references and metrics, slot ordering, finite weights, and confidence thresholds at import time. The production `buildGraphResponse` path uses `traction-config.ts` and the identity finalizer in `batch-calibration.ts` under `src/lib/scoring/`. A separate legacy demo-domain path in `src/lib/graph/build.ts` still imports `src/lib/scoring/model.ts`, which in turn uses the compatibility APIs in `aggregation.ts` and `formulas.ts`; those compatibility APIs also return fixed-weight absolute totals and do not use peer scores.
+The compatibility module at `src/lib/graph/traction-scoring-config.ts` only re-exports the canonical configuration; it defines no independent weights. The canonical object includes the evidence, platform, score-finalization, and confidence parameters and validates normalized totals, scored-platform references and metrics, slot ordering, finite weights, and confidence thresholds at import time. The production `buildGraphResponse` path uses `traction-config.ts` and the identity finalizer in `batch-calibration.ts` under `src/lib/scoring/`. A separate legacy demo-domain path in `src/lib/graph/build.ts` still imports `src/lib/scoring/model.ts`, which in turn uses the compatibility APIs in `aggregation.ts` and `formulas.ts`; those compatibility APIs route through the same bounded-primary aggregate and do not use peer scores.
 
 The score is a deterministic traction index on a `0..100` scale. It is not a probability, valuation, company-quality judgment, or statistically calibrated prediction of an outcome. See [`SCORING_V4_AUDIT.md`](SCORING_V4_AUDIT.md) for the v3 retirement rationale, migration notes, and validation boundary.
 
@@ -30,8 +30,8 @@ For each canonical all-platform scoring run, v4 performs these stages:
 4. Normalize each row against its fixed platform reference. Evidence-level cohort rank is disabled.
 5. Keep the evidence score date-invariant: publication age, missing dates, and
    recent-activity proxy metrics do not change it.
-6. Deduplicate physical evidence and aggregate the strongest five rows into each platform score.
-7. Aggregate platform scores at their fixed configured weights. A missing platform contributes zero; present platforms are never renormalized upward.
+6. Deduplicate physical evidence and aggregate the strongest two rows into each platform score. The best row supplies `95%`; one corroborating row can supply the remaining `5%`.
+7. Give the strongest platform `95%` of the entity aggregate and reserve only `5%` for fixed-share cross-platform corroboration. Missing platforms contribute zero only inside that bounded corroboration slice.
 8. Publish the absolute company or founder score directly. Cohort rank, cohort size, and peer scores do not change it. A material live-overlay rebuild recalculates that same canonical all-platform score before any response filters are applied.
 9. Report confidence, limitations, model identity, and evidence timestamps separately from the traction score.
 
@@ -161,14 +161,14 @@ Each platform has an absolute raw-engagement reference `H_p` and a company diver
 | X | 120,000 | 0.21 |
 | Instagram | 80,000 | 0.21 |
 | LinkedIn | 18,000 | 0.15 |
-| GitHub | 40,000 | 0.15 |
+| GitHub | 250,000 | 0.15 |
 | YouTube | 35,000 | 0.10 |
 | Product Hunt | 4,000 | 0.07 |
 | Hacker News | 2,500 | 0.05 |
 | Reddit | 4,000 | 0.04 |
 | Bilibili | 35,000 | 0.02 |
 
-The platform weights sum to `1` across the complete configuration. They are fixed shares of the headline score. Missing platforms contribute zero at their configured share, and the weight of a present platform is never expanded to fill missing coverage.
+The platform weights sum to `1` across the complete configuration. In v4.3 they divide only the `5%` corroboration slice; they no longer determine `100%` of the headline score. The strongest available platform receives the separate `95%` primary share. Missing platforms contribute zero inside the corroboration slice, and present platforms are never renormalized to fill missing coverage.
 
 ### Reference-anchored monotonic normalization
 
@@ -179,13 +179,15 @@ A = clamp(100 * log1p(R_p) / log1p(H_p), 0, 100)
 B = A
 ```
 
-Version `4.1.0` uses `absoluteEvidenceWeight=1` and
+Version `4.3.0` uses `absoluteEvidenceWeight=1` and
 `cohortPercentileWeight=0`. This is deliberate: an evidence row's normalized
 score depends on its own durable configured metrics and platform reference,
 not on its publication date or the metrics or rank of another row. Increasing
 a configured positive metric therefore cannot lower an
 unmodified peer row, the owning platform aggregate, or the owning company
-aggregate. Version `4.0.0` used an `85%` absolute / `15%` within-platform
+aggregate. GitHub's v4.3 reference is `250,000` weighted raw-engagement units,
+which prevents materially different repository adoption from collapsing at the
+old `40,000` ceiling. Version `4.0.0` used an `85%` absolute / `15%` within-platform
 midrank blend; it remains registered as the immutable rollback target but is no
 longer the production default because rank crossings could lower a same-owner
 peer enough to violate company-level monotonicity.
@@ -204,44 +206,41 @@ receives at least `1`; an ineligible row receives exactly `0`.
 
 ## Platform aggregation
 
-For each platform, deduplicated positive evidence scores are sorted from strongest to weakest. At most five fixed slots contribute:
+For each platform, deduplicated positive evidence scores are sorted from strongest to weakest. At most two fixed slots contribute:
 
 ```text
 P_p = round(
-  0.82 * E_1 +
-  0.08 * E_2 +
-  0.05 * E_3 +
-  0.03 * E_4 +
-  0.02 * E_5
+  0.95 * E_1 +
+  0.05 * E_2
 )
 ```
 
-Missing slots contribute zero. The slot weights sum to `1` and decrease with rank. For fixed evidence scores, adding another nonnegative row or increasing a row cannot lower the platform score. This replaces v3's averages and consistency bonuses, which could let a weak additional row dilute an otherwise strong platform.
+The missing second slot contributes zero, so source/repository count can change a platform score by at most five points. Third and later rows remain visible evidence but add no score. The slot weights sum to `1` and decrease with rank. For fixed evidence scores, adding another nonnegative row or increasing a row cannot lower the platform score. This replaces v3's averages and consistency bonuses, which could let a weak additional row dilute an otherwise strong platform.
 
 Runtime slot count is controlled by `platformEvidenceSlots.length`; there is no separate v4 `topKPosts` setting.
 
 ## Cross-platform aggregation
 
-Let `A` be the sum of configured weights for platforms with eligible evidence. The fixed-weight entity score is:
+Let `M` be the strongest platform score and `A` the sum of configured weights for platforms with eligible evidence. Ties for strongest platform resolve by configured weight and then platform ID. The bounded-primary entity score is:
 
 ```text
-U = round(clamp(sum(w_p * P_p), 0, 100))
+U = round(clamp(0.95 * M + 0.05 * sum(w_p * P_p), 0, 100))
 ```
 
-Missing platforms contribute zero because their platform score is zero. The present-platform normalized average is retained only as a diagnostic:
+Missing platforms contribute zero only to the fixed-share corroboration term. The present-platform normalized average is retained only as a diagnostic:
 
 ```text
 D = sum(w_p * P_p) / A    when A > 0, otherwise 0
 ```
 
-Platforms with equal configured weights receive equal base influence and differ only through their platform scores. Missing coverage lowers the attainable total rather than reallocating its weight to the platforms that happen to be present. For fixed platform scores, increasing any platform cannot lower `U`.
+The strongest platform carries the primary signal regardless of which platform produced it. Configured platform weights affect only the five-point corroboration slice. Consequently, adding all missing platforms can change `U` by at most five points, and increasing or adding any nonnegative platform signal cannot lower `U`.
 
 `aggregateBalancedTractionScore` returns `totalScore = absoluteScore = U`. It also returns two diagnostics:
 
 - `weightedAvailableScore` is `D`, the normalized average among present platforms. It is not the headline score.
 - `coverageFactor` is `A`, the configured share covered by present platforms.
 
-In `weightedPlatforms`, `contribution = w_p * P_p`, and `appliedWeight = configuredWeight = w_p`. These rows add up to the unrounded absolute score; the UI displays them directly and does not inflate them to match a rounded or calibrated total.
+In `weightedPlatforms`, the primary platform has `appliedWeight = 0.95 + 0.05 * w_p`; every other represented platform has `appliedWeight = 0.05 * w_p`. Each row's `contribution` is `appliedWeight * P_p`. These rows add up to the unrounded absolute score; the UI displays them directly and does not inflate them to match a rounded or calibrated total.
 
 Contribution rows are ordered by contribution, then platform score, configured weight, and platform ID for deterministic display.
 
@@ -259,7 +258,7 @@ The positive canonical cohort size may be retained as provenance, but it has no 
 
 ## Canonical score and response filters
 
-There is one company score: the absolute fixed-weight all-platform score assembled for the complete batch. Every company and founder row records calibration method `none`. Every canonical graph and static snapshot carries `scoringContext.scoreScope = "all_platforms"` and `scoringContext.selectedPlatforms = []`.
+There is one company score: the absolute bounded-primary all-platform score assembled for the complete batch. Every company and founder row records calibration method `none`. Every canonical graph and static snapshot carries `scoringContext.scoreScope = "all_platforms"` and `scoringContext.selectedPlatforms = []`.
 
 Platform and Top Voice controls are visibility filters, not scoring modes:
 
@@ -299,8 +298,8 @@ link_completeness = v / n
 
 confidence_raw = clamp(
   0.20 +
-  0.38 * depth +
-  0.22 * breadth +
+  0.55 * depth +
+  0.05 * breadth +
   0.12 * date_completeness +
   0.08 * link_completeness,
   0,
@@ -341,7 +340,7 @@ Migration [`004_traction_scoring_evidence_lineage.sql`](../supabase/migrations/0
 
 The nullable version tuple `scoring_model_version_id`, `as_of_at`, and `input_observed_through` must be supplied together, with the observation cutoff no later than the run's as-of time. A new completed run additionally requires non-null `input_fingerprint` and `run_key`. A trigger makes those completed-run provenance fields immutable, and another trigger prevents changes to a model definition after a completed run references it; the foreign key also restricts deletion of a referenced model version. Model rows can still be corrected before their first completed use. `metric_observations` is described as append-only, but migration 004 does not add an update/delete prevention trigger for that table. A completed score should never be relabeled from v3 to v4; publish a new model-version row and a new scoring run.
 
-The migration is additive and leaves legacy posts, post scores, runs, and snapshots readable. Version fields and snapshot run links are nullable so pre-v4 rows remain valid. Migration 004 does not backfill old rows or insert the v4 model-version record; migration [`015_register_traction_scoring_v4_1_0.sql`](../supabase/migrations/015_register_traction_scoring_v4_1_0.sql) registers the exact `4.1.0` canonical model/config when applied and rejects drift on rerun. Earlier immutable model rows remain available as rollback targets. Neither file proves deployment or an end-to-end runtime writer. Operational rollout and rollback details are in [`SCORING_V4_AUDIT.md`](SCORING_V4_AUDIT.md).
+The migration is additive and leaves legacy posts, post scores, runs, and snapshots readable. Version fields and snapshot run links are nullable so pre-v4 rows remain valid. Migration 004 does not backfill old rows or insert a v4 model-version record; migration [`031_register_traction_scoring_v4_3_0.sql`](../supabase/migrations/031_register_traction_scoring_v4_3_0.sql) registers the exact `4.3.0` canonical model/config when applied and rejects drift on rerun. Earlier immutable model rows remain available as rollback targets. Neither file proves deployment or an end-to-end runtime writer. Operational rollout and rollback details are in [`SCORING_V4_AUDIT.md`](SCORING_V4_AUDIT.md).
 
 ## Artifacts and reproducibility
 
@@ -372,7 +371,7 @@ Focused regression coverage includes `tests/traction-scoring-v4.test.ts`, `tests
 
 - Metric weights, platform references, slot weights, and confidence weights are product heuristics, not fitted or statistically validated parameters.
 - Company and founder headline totals are cohort-independent; rank remains a separate descriptive surface that can change when peers change.
-- Evidence, fixed-slot, and cross-platform aggregation are monotone and publication-date invariant. An explicit observation cutoff can still exclude evidence that was not yet available.
+- Evidence, bounded-slot, and cross-platform aggregation are monotone and publication-date invariant. An explicit observation cutoff can still exclude evidence that was not yet available.
 - Public metric availability and semantics differ by platform. Missing, hidden, deleted, private, estimated, botted, or paid engagement is not fully detectable.
 - Native URL validation is syntactic even though host/path grammar is strict. Unchecked or missing link status may score, and no check proves ownership, liveness, or metric freshness.
 - Entity aggregation physically deduplicates and reruns the full scoring-eligibility check, but it does not call `normalizeEvidenceScores`. It treats each surviving positive `contributionScore` as an already-normalized evidence score, so direct callers must normalize first or deliberately supply values with that meaning.
@@ -388,6 +387,6 @@ Focused regression coverage includes `tests/traction-scoring-v4.test.ts`, `tests
 - A material live overlay rebuilds companies represented in the incoming canonical graph evidence, including company radii, leaderboard, benchmark momentum, and scoring context, but standalone founder graph-node totals and radii remain unchanged. The current API overlays the full all-platform graph before client filtering, and an exact effective replay leaves the graph unchanged.
 - Native-proof attribution intentionally favors false negatives over accepting generated/provenance metadata as evidence. Legitimate relationships visible only in omitted metadata require review or better native capture.
 - Checked-in diagnostics and experiments are point-in-time fixture results, not live-source checks. The diagnostic's full 52-file envelope currently matches and regenerates byte-for-byte; the experiment manifest is narrower and must be rerun after changes to unmanifested inputs before its examples are treated as current.
-- The separate `src/lib/graph/build.ts` demo path and its `src/lib/scoring/model.ts` compatibility helpers retain older follower-rate and average diagnostics. Their headline compatibility aggregate is fixed-weight and cohort-independent, but its diagnostic fields must not be mixed with `buildGraphResponse` v4 outputs.
+- The separate `src/lib/graph/build.ts` demo path and its `src/lib/scoring/model.ts` compatibility helpers retain older follower-rate and average diagnostics. Their headline compatibility aggregate routes through the bounded-primary scorer and remains cohort-independent, but its diagnostic fields must not be mixed with `buildGraphResponse` v4 outputs.
 - Migration 004 protects completed-run provenance, blocks model-version rewrites after completed use, and restricts deletion of referenced model versions. Its append-only description for `metric_observations` is not enforced by an update/delete prevention trigger.
 - Score changes across model versions are not longitudinal traction changes unless the same model, configuration, and evidence cutoff are replayed.
