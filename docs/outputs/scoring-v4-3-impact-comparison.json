@@ -1,0 +1,120 @@
+{
+  "metadata": {
+    "report_version": "scoring-v4-3-impact-comparison",
+    "schema_version": 1,
+    "generated_at": "2026-08-31T17:13:06Z",
+    "source_git_sha": "c2d1a2bc95def3ebce77e1020f29c84b61e724e5",
+    "source_model_version": "4.2.0",
+    "candidate_model_version": "4.3.0",
+    "cohorts": ["S26", "S2026", "A16ZSR006"],
+    "network_fetch": false
+  },
+  "methodology": {
+    "company_count": 492,
+    "positive_company_count": 481,
+    "represented_evidence_rows": 16480,
+    "positive_evidence_rows": 16051,
+    "source_files": [
+      "public/graph/s26.json",
+      "public/graph/s2026.json",
+      "public/graph/a16zsr006.json",
+      "src/lib/graph/ranked-posts-sidecar.generated.json"
+    ],
+    "baseline_reproduction": {
+      "platform_score_mismatches": 0,
+      "company_absolute_score_mismatches": 0,
+      "github_rows_checked": 272,
+      "github_normalization_mismatches": 0
+    },
+    "ranking": "Competition rank within each batch; headline scores share one global current-company benchmark."
+  },
+  "candidate": {
+    "platform_evidence_slots": [0.95, 0.05],
+    "strongest_platform_weight": 0.95,
+    "configured_platform_share_weight": 0.05,
+    "github_high_engagement_reference": 250000
+  },
+  "global_comparison": {
+    "benchmark": { "before": 53, "after": 98 },
+    "headline": {
+      "mean": { "before": 35.13, "after": 62.8 },
+      "median": { "before": 34, "after": 66 },
+      "p90": { "before": 57, "after": 86 },
+      "distinct_scores": { "before": 47, "after": 82 },
+      "companies_in_ties": { "before": 486, "after": 478 },
+      "largest_tie": { "before": 26, "after": 16 },
+      "score_100_count": { "before": 2, "after": 1 },
+      "changed_company_count": 479
+    },
+    "absolute": {
+      "mean": { "before": 18.61, "after": 61.6 },
+      "changed_company_count": 481
+    },
+    "maximum_absolute_batch_rank_shift": 135
+  },
+  "batch_impact": {
+    "S26": {
+      "company_count": 236,
+      "top_10_entered": 8,
+      "top_10_exited": 8,
+      "maximum_absolute_rank_shift": 135
+    },
+    "S2026": {
+      "company_count": 197,
+      "top_10_entered": 6,
+      "top_10_exited": 7,
+      "maximum_absolute_rank_shift": 112
+    },
+    "A16ZSR006": {
+      "company_count": 59,
+      "top_10_entered": 5,
+      "top_10_exited": 5,
+      "maximum_absolute_rank_shift": 32
+    }
+  },
+  "graphify_vs_screenpipe": {
+    "graphify_labs": {
+      "before": { "s26_rank": 2, "headline_score": 79, "absolute_score": 42, "github_platform_score": 85 },
+      "after": { "s26_rank": 5, "headline_score": 95, "absolute_score": 93, "github_platform_score": 95 },
+      "github_primary": { "raw_engagement": 213893.5, "normalized_score": 99 },
+      "github_second": { "raw_engagement": 15, "normalized_score": 22 }
+    },
+    "screenpipe": {
+      "before": { "s26_rank": 1, "headline_score": 100, "absolute_score": 53, "github_platform_score": 91 },
+      "after": { "s26_rank": 25, "headline_score": 84, "absolute_score": 82, "github_platform_score": 83 },
+      "github_primary": { "raw_engagement": 40643.5, "normalized_score": 85 },
+      "github_second": { "raw_engagement": 426.5, "normalized_score": 49 }
+    }
+  },
+  "concentration": {
+    "candidate_score_relevant_rows": 2021,
+    "candidate_ignored_rows": 14030,
+    "additional_rows_ignored_relative_to_current_top_five_slots": 1696,
+    "primary_evidence_owner": { "founder": 316, "company": 165 },
+    "primary_platform": {
+      "x": 259,
+      "linkedin": 154,
+      "youtube": 24,
+      "hacker_news": 17,
+      "instagram": 16,
+      "github": 8,
+      "product_hunt": 3
+    },
+    "one_platform_company_headline_mean": { "before": 15.75, "after": 47.96 },
+    "two_platform_company_headline_mean": { "before": 28.34, "after": 62.49 }
+  },
+  "alternative_98_2": {
+    "headline_mean": 64.31,
+    "headline_median": 68,
+    "benchmark": 99,
+    "score_100_count": 7,
+    "graphify_labs": { "s26_rank": 5, "headline_score": 97 },
+    "screenpipe": { "s26_rank": 29, "headline_score": 84 },
+    "recommendation": "Prefer 95/5: it resolves the named GitHub saturation defect while retaining more corroboration and avoiding the 98/2 ceiling cluster."
+  },
+  "regression_boundaries": {
+    "editorial_top_100": "Separate rolling-72-hour, one-million-view dashboard scoring; aggregate company traction changes must not affect it.",
+    "ranked_posts": "Aggregate company-score changes must not affect post ordering; GitHub post scores intentionally change because the GitHub normalization reference changes.",
+    "daily_benchmarks": "Version or backfill histories before publication so model migration is not displayed as organic day-over-day or week-over-week movement."
+  }
+}
