@@ -1133,7 +1133,7 @@ function validateCalibration(calibration, totalScore, absoluteScore, scope, viol
   }
   if (calibration.method !== "global_best_ratio") {
     violations.push(
-      `${scope} scoreBreakdown.calibration.method must be global_best_ratio for the 4.2 scoring model`
+      `${scope} scoreBreakdown.calibration.method must be global_best_ratio for the 4.3 scoring model`
     );
   }
   if (!isNonNegativeInteger(calibration.cohortSize)) {

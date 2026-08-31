@@ -62,8 +62,9 @@ vi.mock("@/lib/social/user-insiders-client", () => ({
   }
 }));
 
-const V4_MODEL_ID = "returner-traction";
-const V4_MODEL_VERSION = "4.2.0";
+const V4_MODEL_ID = TRACTION_SCORING_CONFIG.modelId;
+const V4_MODEL_VERSION = TRACTION_SCORING_CONFIG.version;
+const V4_MODEL_NAME = TRACTION_SCORING_CONFIG.name;
 
 function insiderConfigurationResponse(version = 0, paulGrahamWeight = 5): InsiderConfigurationResponse {
   const defaults = defaultInsiderMembers();
@@ -2566,7 +2567,7 @@ function graphResponse(
     scoringContext: {
       modelId: V4_MODEL_ID,
       modelVersion: V4_MODEL_VERSION,
-      modelName: "returner-traction-v4-absolute-fixed-platform-global-best",
+      modelName: V4_MODEL_NAME,
       scoreScope: "all_platforms",
       selectedPlatforms: [],
       responseBuiltAt: "2026-06-29T00:00:00.000Z",
@@ -2616,16 +2617,29 @@ function unbenchmarkedMomentum(currentScore: number, currentRank: number) {
   };
 }
 
+function roundFixtureContribution(value: number): number {
+  const scaledValue = value * 100;
+  const roundingGuard = Number.EPSILON * Math.max(1, Math.abs(scaledValue));
+  return Math.round(scaledValue + roundingGuard) / 100;
+}
+
 function testScoreBreakdown(node: GraphNode): ScoreBreakdown {
   const platform = node.topPlatform ?? "github";
   const platformScore = node.platformScores[platform] ?? node.score;
   const configuredWeight = TRACTION_SCORING_CONFIG.platformWeights[platform] ?? 0;
+  const appliedWeight = TRACTION_SCORING_CONFIG.strongestPlatformWeight +
+    TRACTION_SCORING_CONFIG.diversifiedPlatformWeight * configuredWeight;
+  const absoluteScoreValue = platformScore * appliedWeight;
+  const absoluteScore = absoluteScoreValue > 0
+    ? Math.max(1, Math.round(absoluteScoreValue))
+    : 0;
+  const benchmarkScore = node.score > 0 ? absoluteScore * 100 / node.score : 0;
   return {
     modelId: V4_MODEL_ID,
     modelVersion: V4_MODEL_VERSION,
-    modelName: "returner-traction-v4-absolute-fixed-platform-global-best",
+    modelName: V4_MODEL_NAME,
     totalScore: node.score,
-    absoluteScore: node.score,
+    absoluteScore,
     weightedAvailableScore: platformScore,
     coverageFactor: configuredWeight,
     platformsWithEvidence: 1,
@@ -2635,8 +2649,8 @@ function testScoreBreakdown(node: GraphNode): ScoreBreakdown {
       platform,
       score: platformScore,
       configuredWeight,
-      appliedWeight: configuredWeight,
-      contribution: Math.round(platformScore * configuredWeight * 100) / 100,
+      appliedWeight,
+      contribution: roundFixtureContribution(platformScore * appliedWeight),
       evidenceCount: 1
     }],
     signalFamilyScores: {
@@ -2658,9 +2672,9 @@ function testScoreBreakdown(node: GraphNode): ScoreBreakdown {
       method: "global_best_ratio",
       cohortSize: 1,
       percentile: null,
-      inputScore: node.score,
-      benchmarkScore: 100,
-      scaleFactor: 1,
+      inputScore: absoluteScore,
+      benchmarkScore,
+      scaleFactor: benchmarkScore > 0 ? 100 / benchmarkScore : 0,
       benchmarkScope: "all_supported_batches",
       benchmarkPopulation: "current_company_snapshot"
     },
@@ -2675,12 +2689,16 @@ function staticGraphFixture(graph: GraphResponse): GraphResponse {
     const platform = node.topPlatform ?? "github";
     const platformScore = node.platformScores[platform] ?? node.score;
     const configuredWeight = TRACTION_SCORING_CONFIG.platformWeights[platform] ?? 0;
-    const fixedScoreValue = platformScore * configuredWeight;
-    const fixedScore = fixedScoreValue > 0 ? Math.max(1, Math.round(fixedScoreValue)) : 0;
+    const appliedWeight = TRACTION_SCORING_CONFIG.strongestPlatformWeight +
+      TRACTION_SCORING_CONFIG.diversifiedPlatformWeight * configuredWeight;
+    const boundedPrimaryScoreValue = platformScore * appliedWeight;
+    const boundedPrimaryScore = boundedPrimaryScoreValue > 0
+      ? Math.max(1, Math.round(boundedPrimaryScoreValue))
+      : 0;
     const adjustedNode = {
       ...node,
-      score: fixedScore,
-      previousScore: fixedScore,
+      score: boundedPrimaryScore,
+      previousScore: boundedPrimaryScore,
       scoreDelta: 0
     };
     return {
@@ -2689,24 +2707,41 @@ function staticGraphFixture(graph: GraphResponse): GraphResponse {
     };
   });
   const nodesByEntityId = new Map(nodes.map((node) => [node.entityId, node]));
-  const leaderboard = graph.leaderboard.map((row) => ({
-    ...row,
-    score: nodesByEntityId.get(row.companyId)?.score ?? row.score
-  }));
+  const leaderboard = graph.leaderboard
+    .map((row) => ({
+      ...row,
+      score: nodesByEntityId.get(row.companyId)?.score ?? row.score
+    }))
+    .sort((left, right) =>
+      right.score - left.score ||
+      left.companyName.localeCompare(right.companyName) ||
+      left.companyId.localeCompare(right.companyId)
+    )
+    .map((row, _index, rows) => ({
+      ...row,
+      rank: rows.findIndex((candidate) => candidate.score === row.score) + 1
+    }));
+
+  const originalMomentumByCompanyId = new Map(
+    graph.fastestGaining.map((row) => [row.companyId, row])
+  );
+  const fastestGaining = leaderboard.map((leaderboardRow, index) => {
+    const originalRow = originalMomentumByCompanyId.get(leaderboardRow.companyId);
+    return {
+      ...originalRow,
+      rank: index + 1,
+      companyId: leaderboardRow.companyId,
+      companyName: leaderboardRow.companyName,
+      dod: unbenchmarkedMomentum(leaderboardRow.score, leaderboardRow.rank),
+      wow: unbenchmarkedMomentum(leaderboardRow.score, leaderboardRow.rank)
+    };
+  });
 
   return {
     ...graph,
     nodes,
     leaderboard,
-    fastestGaining: graph.fastestGaining.map((row) => {
-      const leaderboardRow = leaderboard.find((candidate) => candidate.companyId === row.companyId);
-      const score = leaderboardRow?.score ?? row.dod.currentScore;
-      return {
-        ...row,
-        dod: unbenchmarkedMomentum(score, row.rank),
-        wow: unbenchmarkedMomentum(score, row.rank)
-      };
-    })
+    fastestGaining
   };
 }
 
@@ -2759,8 +2794,8 @@ function withBenchmarkDates(graph: GraphResponse, dodBenchmarkedAt: string | nul
     scoringContext: graph.scoringContext
       ? { ...graph.scoringContext, responseBuiltAt: generatedAt }
       : undefined,
-    fastestGaining: graph.leaderboard.map((row) => ({
-      rank: row.rank,
+    fastestGaining: graph.leaderboard.map((row, index) => ({
+      rank: index + 1,
       companyId: row.companyId,
       companyName: row.companyName,
       dod: {

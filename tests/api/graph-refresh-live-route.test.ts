@@ -1430,8 +1430,8 @@ function withV4SnapshotContract(
     }),
     scoringContext: {
       modelId: "returner-traction",
-      modelVersion: "4.2.0",
-      modelName: "returner-traction-v4-absolute-fixed-platform-global-best",
+      modelVersion: "4.3.0",
+      modelName: "returner-traction-v4-bounded-primary-signal-global-best",
       scoreScope: "all_platforms",
       selectedPlatforms: [],
       responseBuiltAt: generatedAt,

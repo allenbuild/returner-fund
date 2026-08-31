@@ -50,8 +50,8 @@ describe("global company score benchmark", () => {
   });
 
   it("preserves raw absolute, platform, and contribution values", () => {
-    const best = company("best", "S2026", 80, 16.8);
-    const selected = company("selected", "S26", 40, 8.4);
+    const best = company("best", "S2026", 80);
+    const selected = company("selected", "S26", 40);
     const originalBreakdown = structuredClone(selected.scoreBreakdown!);
 
     const [benchmarked] = benchmarkGlobalCompanyScores([selected], [best, selected]);
@@ -80,7 +80,7 @@ describe("global company score benchmark", () => {
 
   it("does not let legacy records participate in the benchmark", () => {
     const canonical = company("canonical", "S26", 25);
-    const legacy = { ...company("legacy", "S2026", 100), scoreBreakdown: undefined };
+    const legacy = { ...company("legacy", "S2026", 95), scoreBreakdown: undefined };
 
     const result = benchmarkGlobalCompanyScores([canonical, legacy]);
 
@@ -108,7 +108,8 @@ describe("global company score benchmark", () => {
   });
 
   it("reuses a published global factor for partial live overlays", () => {
-    const selected = company("selected", "S26", 26, 5.46);
+    const selected = company("selected", "S26", 26);
+    const originalContribution = selected.scoreBreakdown?.weightedPlatforms[0]?.contribution;
 
     const [benchmarked] = benchmarkCompanyScoresWithPublishedGlobalFactor(
       [selected],
@@ -126,7 +127,7 @@ describe("global company score benchmark", () => {
 
     expect(benchmarked?.totalScore).toBe(50);
     expect(benchmarked?.scoreBreakdown?.absoluteScore).toBe(26);
-    expect(benchmarked?.scoreBreakdown?.weightedPlatforms[0]?.contribution).toBe(5.46);
+    expect(benchmarked?.scoreBreakdown?.weightedPlatforms[0]?.contribution).toBe(originalContribution);
     expect(benchmarked?.scoreBreakdown?.calibration).toEqual(
       expect.objectContaining({
         cohortSize: 365,
@@ -169,10 +170,14 @@ describe("global company score benchmark", () => {
 function company(
   id: string,
   batchSlug: string,
-  absoluteScore: number,
-  contribution = absoluteScore
+  absoluteScore: number
 ): CompanyRecord {
   const base = aggregateBalancedTractionScore([]);
+  const configuredWeight = TRACTION_SCORING_CONFIG.platformWeights.x ?? 0;
+  const appliedWeight = TRACTION_SCORING_CONFIG.strongestPlatformWeight +
+    TRACTION_SCORING_CONFIG.diversifiedPlatformWeight * configuredWeight;
+  const platformScore = platformScoreForAbsoluteScore(absoluteScore, appliedWeight);
+  const contribution = Math.round(platformScore * appliedWeight * 100) / 100;
   const scoreBreakdown: ScoreBreakdown = {
     ...base,
     modelId: TRACTION_SCORING_CONFIG.modelId,
@@ -180,16 +185,16 @@ function company(
     modelName: TRACTION_SCORING_CONFIG.name,
     totalScore: absoluteScore,
     absoluteScore,
-    weightedAvailableScore: absoluteScore,
-    coverageFactor: absoluteScore > 0 ? 0.21 : 0,
+    weightedAvailableScore: platformScore,
+    coverageFactor: absoluteScore > 0 ? configuredWeight : 0,
     platformsWithEvidence: absoluteScore > 0 ? 1 : 0,
-    platformScores: absoluteScore > 0 ? { x: absoluteScore } : {},
+    platformScores: absoluteScore > 0 ? { x: platformScore } : {},
     weightedPlatforms: absoluteScore > 0
       ? [{
           platform: "x",
-          score: absoluteScore,
-          configuredWeight: 0.21,
-          appliedWeight: 0.21,
+          score: platformScore,
+          configuredWeight,
+          appliedWeight,
           contribution,
           evidenceCount: 1
         }]
@@ -200,7 +205,7 @@ function company(
       percentile: null,
       inputScore: absoluteScore
     },
-    explanation: "Absolute fixed-platform fixture."
+    explanation: "Absolute bounded-primary fixture."
   };
 
   return {
@@ -224,4 +229,12 @@ function company(
     platformScores: scoreBreakdown.platformScores,
     scoreBreakdown
   };
+}
+
+function platformScoreForAbsoluteScore(absoluteScore: number, appliedWeight: number): number {
+  if (absoluteScore === 0) return 0;
+  for (let platformScore = 1; platformScore <= 100; platformScore += 1) {
+    if (Math.round(platformScore * appliedWeight) === absoluteScore) return platformScore;
+  }
+  throw new Error(`No one-platform v4.3 fixture score maps to absolute score ${absoluteScore}.`);
 }

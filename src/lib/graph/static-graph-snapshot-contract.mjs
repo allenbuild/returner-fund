@@ -1551,7 +1551,7 @@ function validateCalibration(value, totalScore, absoluteScore, absoluteScoreIsVa
 
   const methodIsValid = CALIBRATION_METHODS.has(value.method);
   if (!methodIsValid) {
-    addIssue(`${path}.method`, "must be global_best_ratio for the 4.2 scoring model");
+    addIssue(`${path}.method`, "must be global_best_ratio for the 4.3 scoring model");
   }
   validateNonNegativeInteger(value.cohortSize, `${path}.cohortSize`, addIssue);
   const inputScoreIsValid = validateScore(value.inputScore, `${path}.inputScore`, addIssue);

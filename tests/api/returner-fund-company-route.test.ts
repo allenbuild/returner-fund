@@ -51,7 +51,7 @@ describe("GET /api/v1/companies/[slug]/returner-fund", () => {
       "public, max-age=60, s-maxage=60, stale-while-revalidate=300"
     );
     expect(response.headers.get("x-content-type-options")).toBe("nosniff");
-    expect(response.headers.get("x-returner-fund-model")).toBe("4.2.0");
+    expect(response.headers.get("x-returner-fund-model")).toBe("4.3.0");
     await expect(response.json()).resolves.toEqual(fixtureResponse());
     expect(lookup).toHaveBeenCalledWith({ companyReference: "atlia", batchSlug: "S26", limit: 4 });
   });
@@ -112,7 +112,11 @@ function fixtureResponse(): ReturnerFundCompanyResponse {
         derivedPercentile: 20.18,
         percentileMethod: "tie_aware_midrank_all_published_companies",
       },
-      model: { id: "returner-traction", version: "4.2.0", name: "returner-traction-v4" },
+      model: {
+        id: "returner-traction",
+        version: "4.3.0",
+        name: "returner-traction-v4-bounded-primary-signal-global-best"
+      },
       confidence: { level: "high", value: 0.773, scoredEvidenceCount: 10 },
       explanation: "Current score explanation.",
       evidenceAsOf: "2026-08-13T23:47:23.885Z",

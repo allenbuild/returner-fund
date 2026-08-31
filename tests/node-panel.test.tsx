@@ -4,7 +4,8 @@ import { NodePanel } from "@/components/NodePanel";
 import { selectedNodeEvidence } from "@/lib/graph/evidence-selection";
 import { buildGraphResponse } from "@/lib/graph/graph-builder";
 import { TOP_POSTS_LIMIT } from "@/lib/graph/presentation-limits";
-import type { EvidenceItem, GraphNode } from "@/lib/graph/types";
+import type { EvidenceItem, GraphNode, Platform, WeightedPlatformScore } from "@/lib/graph/types";
+import { TRACTION_SCORING_CONFIG } from "@/lib/scoring/traction-config";
 import { ycSpring2026GraphDataset } from "@/lib/graph/yc-spring-2026-dataset";
 
 describe("NodePanel", () => {
@@ -172,13 +173,17 @@ describe("NodePanel", () => {
     const calibratedNode: GraphNode = {
       ...node!,
       score: 87,
+      topPlatform: "instagram",
+      platformScores: { instagram: 48 },
       scoreBreakdown: {
         ...node!.scoreBreakdown!,
         totalScore: 87,
         absoluteScore: 46,
-        weightedPlatforms: [
-          { platform: "instagram", score: 95, configuredWeight: 0.21, appliedWeight: 0.21, contribution: 20, evidenceCount: 63 }
-        ],
+        weightedAvailableScore: 48,
+        coverageFactor: 0.21,
+        platformsWithEvidence: 1,
+        platformScores: { instagram: 48 },
+        weightedPlatforms: [weightedPlatformFixture("instagram", 48, 63, true)],
         calibration: {
           method: "global_best_ratio",
           cohortSize: 423,
@@ -196,8 +201,8 @@ describe("NodePanel", () => {
     render(<NodePanel node={calibratedNode} relatedNodes={[]} evidence={[]} />);
 
     const section = screen.getByRole("heading", { name: "Platform contributions" }).closest("section");
-    expect(section).toHaveTextContent("37.7 pts");
-    expect(section).not.toHaveTextContent("20 pts");
+    expect(section).toHaveTextContent("87.0 pts");
+    expect(section).not.toHaveTextContent("46.1 pts");
   });
 
   it("reconciles calibrated platform rows to the published base score", () => {
@@ -208,23 +213,29 @@ describe("NodePanel", () => {
     const calibratedNode: GraphNode = {
       ...node!,
       score: 87,
+      topPlatform: "youtube",
+      platformScores: { instagram: 47, x: 52, linkedin: 52, youtube: 69 },
       scoreBreakdown: {
         ...node!.scoreBreakdown!,
         totalScore: 87,
-        absoluteScore: 46,
+        absoluteScore: 67,
+        weightedAvailableScore: 35.49 / 0.67,
+        coverageFactor: 0.67,
+        platformsWithEvidence: 4,
+        platformScores: { instagram: 47, x: 52, linkedin: 52, youtube: 69 },
         weightedPlatforms: [
-          { platform: "instagram", score: 95, configuredWeight: 0.21, appliedWeight: 0.21, contribution: 19.95, evidenceCount: 63 },
-          { platform: "x", score: 52, configuredWeight: 0.21, appliedWeight: 0.21, contribution: 10.92, evidenceCount: 20 },
-          { platform: "linkedin", score: 52, configuredWeight: 0.15, appliedWeight: 0.15, contribution: 7.8, evidenceCount: 11 },
-          { platform: "youtube", score: 69, configuredWeight: 0.1, appliedWeight: 0.1, contribution: 6.9, evidenceCount: 20 }
+          weightedPlatformFixture("youtube", 69, 20, true),
+          weightedPlatformFixture("x", 52, 20),
+          weightedPlatformFixture("instagram", 47, 63),
+          weightedPlatformFixture("linkedin", 52, 11),
         ],
         calibration: {
           method: "global_best_ratio",
           cohortSize: 423,
           percentile: null,
-          inputScore: 46,
-          benchmarkScore: 53,
-          scaleFactor: 100 / 53,
+          inputScore: 67,
+          benchmarkScore: 77,
+          scaleFactor: 100 / 77,
           benchmarkScope: "all_supported_batches",
           benchmarkPopulation: "current_company_snapshot"
         },
@@ -243,7 +254,7 @@ describe("NodePanel", () => {
     expect(contributionRows).toHaveLength(4);
     expect(
       contributionRows.map((row) => row.querySelector("strong")?.textContent)
-    ).toEqual(["37.7 pts", "20.6 pts", "14.7 pts", "14.0 pts"]);
+    ).toEqual(["85.6 pts", "0.8 pts", "0.5 pts", "0.1 pts"]);
     expect(displayedTenths).toBe(870);
     expect(screen.queryByText("SCORING EXPLANATION MUST NOT RENDER IN NODEPANEL")).not.toBeInTheDocument();
     expect(screen.queryByText(/global calibration|multiplier|rounding residual/i)).not.toBeInTheDocument();
@@ -473,3 +484,22 @@ describe("NodePanel", () => {
     expect(founderAccountHrefs.some((href) => href.includes("speedrun.a16z.com"))).toBe(false);
   });
 });
+
+function weightedPlatformFixture(
+  platform: Platform,
+  score: number,
+  evidenceCount: number,
+  primary = false
+): WeightedPlatformScore {
+  const configuredWeight = TRACTION_SCORING_CONFIG.platformWeights[platform] ?? 0;
+  const appliedWeight = TRACTION_SCORING_CONFIG.diversifiedPlatformWeight * configuredWeight +
+    (primary ? TRACTION_SCORING_CONFIG.strongestPlatformWeight : 0);
+  return {
+    platform,
+    score,
+    configuredWeight,
+    appliedWeight,
+    contribution: Math.round(score * appliedWeight * 100) / 100,
+    evidenceCount
+  };
+}

@@ -335,7 +335,7 @@ function graphFixture(batchSlug) {
     generatedAt: NOW,
     scoringContext: {
       modelId: "returner-traction",
-      modelVersion: "4.2.0",
+      modelVersion: "4.3.0",
       evidenceAsOf: NOW
     },
     mode: "official_snapshot"

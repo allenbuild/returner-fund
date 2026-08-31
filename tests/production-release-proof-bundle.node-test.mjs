@@ -334,8 +334,8 @@ function graphFixture(batchSlug) {
     evidenceCollectedAt: NOW,
     scoringContext: {
       modelId: "returner-traction",
-      modelVersion: "4.2.0",
-      modelName: "canonical",
+      modelVersion: "4.3.0",
+      modelName: "returner-traction-v4-bounded-primary-signal-global-best",
       evidenceAsOf: NOW
     }
   };

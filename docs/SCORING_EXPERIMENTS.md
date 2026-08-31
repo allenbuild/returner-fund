@@ -5,9 +5,9 @@
 - Frozen clock: `2026-07-16T12:00:00.000Z`.
 - Historical production model used for this frozen experiment:
   `returner-traction@4.0.0` (`returner-traction-v4-canonical`). Current
-  production is `returner-traction@4.0.2`
-  (`returner-traction-v4-date-invariant`), which no longer uses the frozen
-  experiment's recency component.
+  production is `returner-traction@4.3.0`
+  (`returner-traction-v4-bounded-primary-signal-global-best`), which no longer
+  uses the frozen experiment's recency component and bounds breadth influence.
 - Scope: 3 cohorts, 339 companies, 4074 cohort-scoped evidence rows, and 9 candidate combinations.
 - Canonical parity assertions: 93321; production config mutated: `false`.
 - Machine-readable artifact SHA-256: `16bd3e64027c962af3650252a94032de5beb9ab7fe4640e488b9051772e11ff4`.

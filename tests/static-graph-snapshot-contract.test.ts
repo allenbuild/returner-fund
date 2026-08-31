@@ -391,7 +391,7 @@ describe("canonical v4 static graph snapshot contract", () => {
       mutate: (graph: ValidSnapshot) => { graph.nodes[0]!.scoreBreakdown.calibration.inputScore = 101; }
     },
     {
-      name: "4.2 identity calibration",
+      name: "4.3 identity calibration",
       path: "nodes[0].scoreBreakdown.calibration.method",
       mutate: (graph: ValidSnapshot) => {
         (graph.nodes[0]!.scoreBreakdown.calibration as { method: string }).method = "none";

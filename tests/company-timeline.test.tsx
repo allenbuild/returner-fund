@@ -320,7 +320,7 @@ describe("Company Timeline", () => {
     render(<NodePanel node={node} relatedNodes={[]} evidence={[]} />);
 
     expect(screen.getByRole("heading", { name: "Conifer" })).toBeVisible();
-    expect(screen.getByLabelText("Score 37")).toBeVisible();
+    expect(screen.getByLabelText("Score 44")).toBeVisible();
     expect(await screen.findByRole("button", { name: "Show Conifer posts" })).toHaveTextContent("Posts");
     expect(screen.queryByRole("heading", { name: "Platform contributions" })).not.toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: "Top Posts" })).not.toBeInTheDocument();
@@ -349,7 +349,7 @@ describe("Company Timeline", () => {
     expect(window.location.pathname).toBe("/");
     expect(window.location.search).toContain("view=timeline");
     expect(screen.getByRole("heading", { name: "Conifer" })).toBeVisible();
-    expect(screen.getByLabelText("Score 37")).toBeVisible();
+    expect(screen.getByLabelText("Score 44")).toBeVisible();
     const postsButton = await screen.findByRole("button", { name: "Show Conifer posts" });
     expect(postsButton).toBe(timelineButton);
     expect(postsButton).toHaveAttribute("aria-pressed", "true");
@@ -458,20 +458,20 @@ function timelineGraphNode(): GraphNode {
     entityId: "company-conifer",
     label: "Conifer",
     batchSlug: "S26",
-    score: 37,
-    previousScore: 35,
-    scoreDelta: 2,
+    score: 44,
+    previousScore: 44,
+    scoreDelta: 0,
     radius: 12,
     topPlatform: "x",
     platformScores: { x: 46 },
     scoreBreakdown: {
       modelId: "returner-traction",
-      modelVersion: "4.2.0",
-      modelName: "Returner Traction",
-      totalScore: 37,
-      absoluteScore: 19,
-      weightedAvailableScore: 19,
-      coverageFactor: 0.46,
+      modelVersion: "4.3.0",
+      modelName: "returner-traction-v4-bounded-primary-signal-global-best",
+      totalScore: 44,
+      absoluteScore: 44,
+      weightedAvailableScore: 46,
+      coverageFactor: 0.21,
       platformsWithEvidence: 1,
       totalSupportedPlatforms: 9,
       platformScores: { x: 46 },
@@ -479,8 +479,8 @@ function timelineGraphNode(): GraphNode {
         platform: "x",
         score: 46,
         configuredWeight: 0.21,
-        appliedWeight: 0.21,
-        contribution: 9.7,
+        appliedWeight: 0.9605,
+        contribution: 44.18,
         evidenceCount: 2,
       }],
       signalFamilyScores: {
@@ -498,7 +498,7 @@ function timelineGraphNode(): GraphNode {
         datedEvidenceCount: 2,
         verifiedLinkCount: 2,
       },
-      calibration: { method: "none", cohortSize: 1, percentile: null, inputScore: 19 },
+      calibration: { method: "none", cohortSize: 1, percentile: null, inputScore: 44 },
       limitations: [],
       evidenceAsOf: "2026-08-02T00:00:00.000Z",
       explanation: "Evidence-backed score.",

@@ -161,13 +161,10 @@ describe("scoring formulas", () => {
 
     expect(platform.score).toBe(canonicalPlatformAggregate("github", [100, 90, 80, 70, 60]));
     expect(platform.review_state).toBe("verified");
-    expect(platform.explanationJson.topPostAverage).toBe(80);
+    expect(platform.explanationJson.topPostAverage).toBe(95);
     expect(platform.explanationJson.topPostIds).toEqual([
       "post-0",
-      "post-1",
-      "post-2",
-      "post-3",
-      "post-4"
+      "post-1"
     ]);
   });
 
@@ -186,7 +183,7 @@ describe("scoring formulas", () => {
     expect(platform.explanationJson.limitations.join(" ")).toContain("excluded from canonical scoring");
   });
 
-  it("adapts company and founder scores to canonical fixed-weight aggregation", () => {
+  it("adapts company and founder scores to canonical bounded-primary aggregation", () => {
     const officialX = {
       entityId: "company-1",
       platform: "x" as const,

@@ -3,7 +3,7 @@
 Status: **research artifact rejected for insufficient data; not a production model**
 Artifact ID: `traction-post-forecast-v5@5.0.0-research`
 Target protocol: `returner-post-performance-v5-prereg-2026-07-20`
-Production default: `returner-traction@4.0.2` (`returner-traction-v4-date-invariant`)
+Production default: `returner-traction@4.3.0` (`returner-traction-v4-bounded-primary-signal-global-best`)
 Rollback target: `returner-traction@4.0.0` (`returner-traction-v4-canonical`)
 
 ## Executive decision
