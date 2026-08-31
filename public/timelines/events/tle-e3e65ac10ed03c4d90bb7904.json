@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-gojiberry-ai",
+    "slug": "gojiberry-ai",
+    "name": "Gojiberry AI"
+  },
+  "event": {
+    "id": "tle-e3e65ac10ed03c4d90bb7904",
+    "eventDate": "2026-08-30",
+    "eventDateType": "announcement_date",
+    "title": "Gojiberry AI announced a product update",
+    "summary": "GojiberryAI is now available inside Grok Bot 🍓 Through our MCP, Grok @bot can now interact directly with GojiberryAI.",
+    "category": "product_update",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-5fe23cb9bf9b6d884114e048",
+        "title": "GojiberryAI is now available inside Grok Bot 🍓 Through our MCP, Grok @bot can now interact directly with GojiberryAI.",
+        "publisher": "gojiberryai",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-08-30T11:27:50.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/gojiberryai/status/2094024289825558816"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-5fe23cb9bf9b6d884114e048",
+        "title": "GojiberryAI is now available inside Grok Bot 🍓 Through our MCP, Grok @bot can now interact directly with GojiberryAI.",
+        "publisher": "gojiberryai",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-08-30T11:27:50.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/gojiberryai/status/2094024289825558816",
+        "publicationDate": "2026-08-30T11:27:50.000Z",
+        "excerpt": "GojiberryAI is now available inside Grok Bot 🍓 Through our MCP, Grok @bot can now interact directly with GojiberryAI. You can literally ask it to: → Find leads already in-market and add them to the right list → Tune your agents on the fly: ICP, buying signals, exclusions,",
+        "sourceEventDate": "2026-08-30",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-e4b60afe8f9e6645f9bd5c0b",
+        "platform": "x",
+        "account": "gojiberryai",
+        "postDate": "2026-08-30",
+        "excerpt": "GojiberryAI is now available inside Grok Bot 🍓 Through our MCP, Grok @bot can now interact directly with GojiberryAI. You can literally ask it to: → Find leads already in-market and add them to the right list → Tune your agents on the fly: ICP, buying signals, exclusions,",
+        "url": "https://x.com/gojiberryai/status/2094024289825558816",
+        "metrics": {
+          "likes": 16,
+          "reposts": 4,
+          "replies": 4,
+          "views": 957
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-31T01:59:40.360Z",
+  "lastModifiedAt": "2026-08-31T01:59:40.360Z"
+}

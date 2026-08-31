@@ -4,9 +4,12 @@
     "directoryUrl": "https://www.ycombinator.com/companies?batch=Summer%202026",
     "algoliaIndex": "YCCompany_production",
     "algoliaFilter": "batch:\"Summer 2026\"",
-    "fetchedAt": "2026-08-30T03:14:42.224Z",
+    "fetchedAt": "2026-08-31T01:35:54.270Z",
     "expectedCompanyCount": 235,
     "observedCompanyCount": 235,
+    "directoryCompanyHitCount": 235,
+    "verifiedRetiredCompanyCount": 0,
+    "verifiedRetiredCompanies": [],
     "minimumCompanyCount": 167,
     "notes": [
       "Generated from public, unauthenticated YC pages.",
@@ -703,7 +706,7 @@
         "Construction",
         "AI"
       ],
-      "location": "Brisbane, Australia",
+      "location": "San Francisco",
       "teamSize": 5,
       "status": "Active",
       "groupPartner": "Gustaf Alstromer",
@@ -1306,7 +1309,7 @@
           "ycProfileUrl": "https://www.ycombinator.com/people/shaan-yadav",
           "socialLinks": {
             "linkedin": "https://www.linkedin.com/in/shaanyadav",
-            "x": "https://x.com/TheShaanShaan"
+            "x": "https://x.com/TheShaan"
           }
         }
       ],
@@ -2780,7 +2783,7 @@
         "Healthcare",
         "AI"
       ],
-      "location": "Detroit, MI",
+      "location": "San Francisco",
       "teamSize": 2,
       "status": "Active",
       "groupPartner": "Jared Friedman",
@@ -3073,7 +3076,7 @@
         "Infrastructure",
         "AI"
       ],
-      "location": "Bengaluru, India",
+      "location": "San Francisco",
       "teamSize": 2,
       "status": "Active",
       "groupPartner": "Brad Flora",
@@ -4152,7 +4155,7 @@
       "ycProfileUrl": "https://www.ycombinator.com/companies/ethos-space-resources",
       "websiteUrl": "https://ethos-space.com",
       "tagline": "We make Silicon on the Moon.",
-      "description": "The Moon will become the next Silicon Valley as compute moves to space. Already, rockets cannot keep up with launch demand. \r\n\r\nWe make silicon from raw materials already present on the Moon, so that power in space can be made in space.\r\n\r\nSilicon on the Moon is how to ascend the Kardashev scale.",
+      "description": "The Moon will become the next Silicon Valley as data centers move to space. Already, rockets cannot keep up with launch demand. \r\n\r\nWe make silicon from raw materials already present on the Moon, so that power in space can be made in space.\r\n\r\nSilicon on the Moon is how to ascend the Kardashev scale.",
       "industry": "Industrials",
       "subindustry": "Industrials -> Aviation and Space",
       "industries": [
@@ -4448,7 +4451,6 @@
       "groupPartner": "Jon Xu",
       "groupPartnerUrl": "https://www.ycombinator.com/people/jon-xu",
       "socialLinks": {
-        "github": "https://github.com/fabraix",
         "linkedin": "https://www.linkedin.com/company/fabraix/",
         "x": "https://x.com/FabraixHQ"
       },
@@ -4468,7 +4470,7 @@
           "id": "2769430",
           "name": "ibrahim abdu",
           "title": "Founder/CTO",
-          "bio": "Founder at Fabraix. Previously SWE at Meta building AI agents to debug and fix production errors. Early engineer at Sequoia-backed startup Two B2B. Built proprietary compiler/database at TradingHub for algorithmic insider trading detection. BA in Philosophy, Politics and Economics from Oxford (ranked top 8% of cohort).",
+          "bio": "Red-teamed AI agents in Meta's Privacy org; built an SRE agent triaging 3M+ errors/month, saving 10,000+ engineering hours a year. Built a compiler for insider-trading detection at TradingHub: $100M+ in daily trades; Oxford PPE, top 8% of cohort.",
           "ycProfileUrl": "https://www.ycombinator.com/people/ibrahim-abdu",
           "socialLinks": {
             "linkedin": "https://www.linkedin.com/in/i-a-7352b7137/"
@@ -4490,7 +4492,7 @@
       "ycProfileUrl": "https://www.ycombinator.com/companies/familiar",
       "websiteUrl": "https://thefamiliarlab.com",
       "tagline": "Real-Time AI Dubbing. Neolab for World Translation.",
-      "description": "Audio-visual translation infrastructure for all video, live and recorded -- the first and only that works in real time. World translation: not just changing voice and lips into a new language, but understanding the scene, the sound, and preserving the human.\r\n\r\n🦋 Movies & TV, Micro-dramas, Live Broadcasts, Live Shopping, Corporate & Education, Ads, Creators & Podcasts, Platforms. Day-and-date, in every territory.\r\n\r\nFounders An Zhu Liu, Jibin Song, Mingi Kwon, and Xu Zheng lead a team of PhDs, professors, and researchers from the world's top universities who started the field of joint audio-visual human models and co-authored the current state of the art in real-time human animation. Since 2021: over 10,000 citations and 100+ papers at ICLR, NeurIPS, CVPR, ECCV, and more.\r\n\r\nTranslation has to be a world model. A translator has to know who's speaking: where every sound in the dense polyphony originates. Laughter here, a short yell there, a voice from off-screen, someone on screen mouthing words before being interrupted. Everyone else scaffolds separate models and pre-processing; a world model simulates the scene. It's a spatio-temporal reasoner: predicting continuity across frames forces it to internalize 3D geometry, spatial reasoning, and permanence -- of objects, people, and the environment itself. The scene state survives the edit: when the shot pans or cuts away, someone off-screen still exists, still owns their voice, and is still there when the camera comes back. Multiple people, side views, off angles, fast motion -- the hard cases hold.\r\n\r\nVs ElevenLabs: they lose the laughter, the music, the ambiance -- 270% more background-sound error -- and ours sounds 27.8% more like you. That means no recasting, no ADR, no M&E stems required -- it works from the final mix.\r\n\r\nVs human translators: 100.3% of their quality -- scalable, real time. Published benchmarks: https://thefamiliarlab.com/benchmark",
+      "description": "Audio-visual translation infrastructure for all video, live and recorded -- the first and only that works in real time. World translation: not just changing voice and lips into a new language, but understanding the scene, the sound, and preserving the human.\r\n\r\n🦋 Movies & TV, Micro-dramas, Live Broadcasts, Live Shopping, Corporate & Education, Ads, Creators & Podcasts, Platforms. Day-and-date, in every territory.\r\n\r\nFounders An Zhu Liu, Jibin Song, Mingi Kwon, and Xu Zheng lead a team of PhDs, professors, and researchers from the world's top universities who started the field of joint audio-visual human models and co-authored the current state of the art in real-time human animation. Since 2021: over 10,000 citations and 100+ papers at ICLR, NeurIPS, CVPR, ECCV, and more.\r\n\r\nTranslation has to be a world model. A translator has to know who's speaking: where every sound in the dense polyphony originates (laughter, layered crowds). Laughter here, a short yell there, a voice from off-screen, someone on screen mouthing words before being interrupted. Everyone else scaffolds separate models and pre-processing; a world model simulates the scene. It's a spatio-temporal reasoner: predicting continuity across frames forces it to internalize 3D geometry, spatial reasoning, and permanence -- of objects, people, and the environment itself. The scene state survives the edit: when the shot pans or cuts away, someone off-screen still exists, still owns their voice, and is still there when the camera comes back. Multiple people, side views, off angles, dense polyphony, fast motion -- the hard cases hold.\r\n\r\nVs ElevenLabs: they lose the laughter, the music, the ambiance -- 270% more background-sound error -- and ours sounds 27.8% more like you. That means no recasting, no ADR, no M&E stems required -- it works from the final mix.\r\n\r\nVs human translators: 100.3% of their quality -- scalable, real time. Published benchmarks: https://thefamiliarlab.com/benchmark",
       "industry": "B2B",
       "subindustry": "B2B -> Infrastructure",
       "industries": [
@@ -4498,10 +4500,10 @@
         "Infrastructure"
       ],
       "tags": [
+        "Artificial Intelligence",
         "Generative AI",
         "B2B",
-        "Entertainment",
-        "AI"
+        "Entertainment"
       ],
       "location": "Toronto, Canada",
       "teamSize": 8,
@@ -6857,7 +6859,7 @@
           "id": "2315600",
           "name": "Elena Zhao",
           "title": "Founder/CTO",
-          "bio": "Building Litmus",
+          "bio": "Evals for humans",
           "ycProfileUrl": "https://www.ycombinator.com/people/elena-zhao",
           "socialLinks": {
             "linkedin": "https://www.linkedin.com/in/elena-zhao-015353217/",
@@ -6880,7 +6882,7 @@
       "ycProfileUrl": "https://www.ycombinator.com/companies/locke",
       "websiteUrl": "https://locke.inc",
       "tagline": "AI agents that help companies and governments work together.",
-      "description": "Locke builds AI agents that help companies and governments work together.\r\n\r\nOur agents power Locke Government Affairs, the first AI-native government affairs firm, and are now being deployed to government agencies across America.\r\n\r\nEvery major company in America needs to work with government: AI labs, data centers, robotics, defense, the list goes on.\r\n\r\nLocke is fixing the access and software bottlenecks that prevent that from happening.\r\n\r\nLocke's team comes from The White House, Deloitte, the US Congress, and the Pentagon.",
+      "description": "Locke builds AI agents that help companies and governments work together.\r\n\r\nOur agents power Locke Government Affairs, the first AI-native government affairs firm, and are being deployed to government agencies across America.\r\n\r\nEvery consequential American company in the 21st century will need to work with the government: AI labs, data centers, healthcare, defense, robotics, the list goes on. Locke is building the AI infrastructure to power the next era of public-private collaboration.\r\n\r\nLocke's team comes from The White House, Deloitte, the US Congress, and the Pentagon.",
       "industry": "B2B",
       "subindustry": "B2B",
       "industries": [
@@ -8011,8 +8013,8 @@
       "batch": "Summer 2026",
       "ycProfileUrl": "https://www.ycombinator.com/companies/moving-atoms",
       "websiteUrl": "https://movingatoms.ai/",
-      "tagline": "Robot Model Lab.",
-      "description": "Moving Atoms is frontier robotics lab. Our goal is to solve robotics, then solve abundance.\r\n\r\nOur first model, Atom 1, pre-trained on the internets video, and fine tuned for physics, already tops the Physics IQ benchmark.\r\n\r\nBy using this model, we can significantly reduce the amount of robot data we need to collect to build our robot model (a world action model).\r\n\r\nOur second core bet is to design our robot model to be micromanaged by LLMs, allow robotics to use the orchestration and planning abilities of LLMs while having the physics, contact and timing be controlled by the robot model (world action model).",
+      "tagline": "World models that train and test robots in sim, #1 on Physics-IQ",
+      "description": "Our first model, Atom 1, pre-trained on the internets video, and fine tuned for physics, already tops the Physics IQ benchmark.\r\nIt has been action conditioned, so you can simulate robot actions within it.\r\nThis lets Robot Labs check every checkpoint, getting you results in minutes; instead of having to wait days for human evaluations. \r\nIt also lets you simulate unseen and hard to replicate environments.\r\n\r\nA world model good enough to grade robots is a world model good enough to drive one!\r\nOur second core bet is to design our robot model (world action model) to be micromanaged by LLMs, allow robotics to use the orchestration and planning abilities of LLMs while having the physics, contact and timing be controlled by the robot model (world action model).",
       "industry": "Industrials",
       "subindustry": "Industrials -> Manufacturing and Robotics",
       "industries": [
@@ -8595,7 +8597,7 @@
           "id": "2573695",
           "name": "Hannah Chung",
           "title": "Founder/CEO",
-          "bio": "MIT CS & Econ → @Virtu Financial →  Fastest, Cheapest Lightweight Inference @TrustAI\n",
+          "bio": "MIT CS & Econ → @Virtu Financial →  Fastest, Cheapest Lightweight Inference @OneTriangle\n",
           "ycProfileUrl": "https://www.ycombinator.com/people/hannah-chung",
           "socialLinks": {
             "linkedin": "https://www.linkedin.com/in/hannahchung1/",
@@ -8922,8 +8924,8 @@
       "batch": "Summer 2026",
       "ycProfileUrl": "https://www.ycombinator.com/companies/os3",
       "websiteUrl": "https://os3robotics.com/",
-      "tagline": "Full Stack Robotics: Deploying US-Built Robots & Video Action Models",
-      "description": "We are building robots, including custom actuators. Our first model is trained for the robot with 150k hours of video data. \r\n\r\nThe robot, a mobile semi-humanoid priced, is already signed for deployments in hospitality and biotech. Our developer version lets anyone deploy robots in their own verticals, and we are working with startups deploying in hospitals and data centers.\r\n\r\nWe are scaling American robotics while making it accessible to more businesses.",
+      "tagline": "Deploying US-Built Robots & Training Video Action Models",
+      "description": "We are deploying the robots we built, including custom actuators. Our first model is trained for the robot with 150k hours of video data. \r\n\r\nThe robot, a mobile semi-humanoid available as Robot as a service, is already signed for deployments in hospitality and biotech. Our developer version lets anyone deploy robots in their own verticals as well, and we are working with startups deploying in hospitals and data centers.\r\n\r\nWe are scaling American robotics while making it accessible to more businesses.",
       "industry": "Industrials",
       "subindustry": "Industrials -> Manufacturing and Robotics",
       "industries": [
@@ -10410,7 +10412,6 @@
       "groupPartner": "Ankit Gupta",
       "groupPartnerUrl": "https://www.ycombinator.com/people/ankit-gupta",
       "socialLinks": {
-        "github": "https://github.com/rasynai",
         "linkedin": "https://www.linkedin.com/company/rasyn-ycs26/",
         "x": "https://x.com/rasyn_lab"
       },
@@ -10458,8 +10459,8 @@
       "batch": "Summer 2026",
       "ycProfileUrl": "https://www.ycombinator.com/companies/rational",
       "websiteUrl": "https://rational.to",
-      "tagline": "AI Employees for Accounting",
-      "description": "Rational builds AI coworkers for in-house accounting teams. Our agents onboard themselves to the firm, build a company brain, and do the work, from month-end close to tax prep. In addition, they follow up and communicate with the right members of your team.",
+      "tagline": "AI Employees for In-House Enterprise Accounting",
+      "description": "Rational builds AI employees for in-house enterprise accounting teams. Enterprises process high volumes of complex, multinational transactions that require broad expertise in international tax and accounting. Powered by the most accurate tax model in the world, we save teams enormous time on tax and close work while also eliminating unnecessary audit costs. ",
       "industry": "B2B",
       "subindustry": "B2B -> Operations",
       "industries": [
@@ -10704,18 +10705,20 @@
         "Infrastructure"
       ],
       "tags": [
+        "Artificial Intelligence",
         "Developer Tools",
         "Reinforcement Learning",
         "Open Source",
-        "Infrastructure",
-        "AI"
+        "Infrastructure"
       ],
       "location": "San Francisco",
       "teamSize": 0,
       "status": "Active",
       "groupPartner": "Harshita Arora",
       "groupPartnerUrl": "https://www.ycombinator.com/people/harshita-arora",
-      "socialLinks": {},
+      "socialLinks": {
+        "linkedin": "https://www.linkedin.com/company/riftenai/people/?viewAsMember=true"
+      },
       "founders": [
         {
           "id": "2941426",
@@ -10873,8 +10876,8 @@
       "batch": "Summer 2026",
       "ycProfileUrl": "https://www.ycombinator.com/companies/risklytics",
       "websiteUrl": "https://www.risklytics.ai/",
-      "tagline": "Insurance for the Frontier",
-      "description": "Risklytics is a commercial insurance brokerage for frontier tech: robotics, autonomy, data centers, and energy infrastructure. Insurers are writing AI exclusions into standard liability forms, so companies whose products act in the physical world end up holding risk they thought they had transferred. We specialize in that gap, and we know which carriers in the admitted and surplus lines markets will still underwrite it. If you're building anything that moves, lifts, drives, or powers something, we'd like to talk.",
+      "tagline": "Insurance for Frontier Tech",
+      "description": "Risklytics is the insurance company for frontier tech such as physical AI, robotics, and data centers. Companies answer 6 questions and we bind a tailored policy that other insurance companies won’t.",
       "industry": "Fintech",
       "subindustry": "Fintech -> Insurance",
       "industries": [
@@ -10882,11 +10885,11 @@
         "Insurance"
       ],
       "tags": [
-        "Artificial Intelligence",
         "Hardware",
         "Machine Learning",
         "B2B",
-        "Insurance"
+        "Insurance",
+        "AI"
       ],
       "location": "San Francisco",
       "teamSize": 2,
@@ -11135,7 +11138,7 @@
           "id": "716431",
           "name": "Louis Beaumont",
           "title": "Founder/CEO",
-          "bio": "Previously French CIA. Turned down OpenAI, Cursor, Mercor in their early days.\nBuilt 4 figure video game bots business when I was 14. ",
+          "bio": "Previously French Intelligence (acquired). Turned down OpenAI, Cursor, Mercor in their early days.\nBuilt 4 figure video game bots business when I was 14. Contributor to OpenAI reinforcement learning OSS projects 10 years ago.",
           "ycProfileUrl": "https://www.ycombinator.com/people/louis-beaumont",
           "socialLinks": {
             "linkedin": "https://www.linkedin.com/in/louis030195/",
@@ -13003,24 +13006,24 @@
       },
       "founders": [
         {
-          "id": "976541",
-          "name": "Roland Jaloszynski",
-          "title": "Founder/CEO",
-          "bio": "Roland is a co-founder of Veltha, an AI claims adjuster for federally regulated insurance. He was previously a technical lead on mortgage underwriting automation at Palantir for a $642B servicer, compiling agency guidebooks into executable rules. He earned his computing degree from Poznan University of Technology while working as a software engineer at Amazon, LocalBini and DAC.digital.",
-          "ycProfileUrl": "https://www.ycombinator.com/people/roland-jaloszynski",
-          "socialLinks": {
-            "linkedin": "https://www.linkedin.com/in/roland-jal",
-            "x": "https://x.com/RJaloszynski"
-          }
-        },
-        {
           "id": "2366971",
           "name": "Edin Citaku",
-          "title": "Founder/CTO",
+          "title": "Founder/CEO",
           "bio": "Edin is CEO and co-founder of Veltha, building the AI adjuster for regulated insurance. Prior to Veltha he led Palantir's AI deployment at the german FBI. \nHe graduated with BSc and MSc in computer science at the TU Munich",
           "ycProfileUrl": "https://www.ycombinator.com/people/edin-citaku",
           "socialLinks": {
             "linkedin": "https://www.linkedin.com/in/edin-citaku-564000127"
+          }
+        },
+        {
+          "id": "976541",
+          "name": "Roland Jaloszynski",
+          "title": "Founder/CTO",
+          "bio": "Roland is a co-founder of Veltha, an AI-native TPA. He was previously a technical lead on mortgage underwriting automation at Palantir for a $642B servicer, compiling agency guidebooks into executable rules. He earned his computing degree from Poznan University of Technology while working as a software engineer at Amazon, LocalBini and DAC.digital.",
+          "ycProfileUrl": "https://www.ycombinator.com/people/roland-jaloszynski",
+          "socialLinks": {
+            "linkedin": "https://www.linkedin.com/in/roland-jal",
+            "x": "https://x.com/RJaloszynski"
           }
         }
       ],
@@ -13716,19 +13719,19 @@
       "batch": "Summer 2026",
       "ycProfileUrl": "https://www.ycombinator.com/companies/zomma",
       "websiteUrl": "https://zommalabs.com",
-      "tagline": "Computer Use Agents for back offices in finance",
-      "description": "Zomma builds Computer Use Agents that do the repetitive screen work in finance: logging into portals, pulling reports, reconciling books, and filling forms across systems that will never get an API. Our agents use the same screens your ops team uses today, so there is no integration project. Every action stops for human approval before anything submits. Hedge funds, asset managers, and fintech firms use Zomma for reconciliation, client onboarding, KYC, and investor reporting: the work that was never automatable until now.",
+      "tagline": "Computer-use agent swarms for financial back offices",
+      "description": "Zomma builds Computer Use Agents that do the repetitive screen work in finance: logging into portals, pulling reports, reconciling books, and filling forms across systems that will never get an API. Our agents use the same screens your ops team uses today, so there is no integration project. Every action stops for human approval before anything submits.",
       "industry": "B2B",
       "subindustry": "B2B",
       "industries": [
         "B2B"
       ],
       "tags": [
-        "Artificial Intelligence",
         "Robotic Process Automation",
         "Finance",
         "B2B",
-        "Workflow Automation"
+        "Workflow Automation",
+        "AI"
       ],
       "location": "San Francisco",
       "teamSize": 5,

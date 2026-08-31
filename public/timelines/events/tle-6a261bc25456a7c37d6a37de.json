@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-wondering",
+    "slug": "wondering",
+    "name": "Wondering"
+  },
+  "event": {
+    "id": "tle-6a261bc25456a7c37d6a37de",
+    "eventDate": "2026-08-30",
+    "eventDateType": "announcement_date",
+    "title": "Wondering released live challenge",
+    "summary": "Wondering launched live challenge today on @WonderingApp and already see learners sharing their use case like doing system design interview prep.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-8a5ff6b8e2cbddce2cfd5816",
+        "title": "we launched live challenge today on @WonderingApp and already see learners sharing their use case like doing system design interview prep!",
+        "publisher": "hcwxd",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-08-30T03:39:44.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/hcwxd/status/2093906488083583247"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-8a5ff6b8e2cbddce2cfd5816",
+        "title": "we launched live challenge today on @WonderingApp and already see learners sharing their use case like doing system design interview prep!",
+        "publisher": "hcwxd",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-08-30T03:39:44.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/hcwxd/status/2093906488083583247",
+        "publicationDate": "2026-08-30T03:39:44.000Z",
+        "excerpt": "we launched live challenge today on @WonderingApp and already see learners sharing their use case like doing system design interview prep!",
+        "sourceEventDate": "2026-08-30",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-19ff5bf72053a8fb22a49cfd",
+        "platform": "x",
+        "account": "hcwxd",
+        "postDate": "2026-08-30",
+        "excerpt": "we launched live challenge today on @WonderingApp and already see learners sharing their use case like doing system design interview prep!",
+        "url": "https://x.com/hcwxd/status/2093906488083583247",
+        "metrics": {
+          "likes": 13,
+          "reposts": 0,
+          "replies": 0,
+          "views": 932
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-31T01:59:40.360Z",
+  "lastModifiedAt": "2026-08-31T01:59:40.360Z"
+}

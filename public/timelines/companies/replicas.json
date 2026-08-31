@@ -5,8 +5,8 @@
     "slug": "replicas",
     "name": "Replicas"
   },
-  "generatedAt": "2026-08-30T10:29:24.249Z",
-  "lastModifiedAt": "2026-08-30T10:29:24.249Z",
+  "generatedAt": "2026-08-31T01:59:40.360Z",
+  "lastModifiedAt": "2026-08-31T01:59:40.360Z",
   "events": [
     {
       "id": "tle-5ec761f7f2835e2d5bc2d04e",
@@ -175,7 +175,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 6,
-    "lastSuccessfulArtifactAt": "2026-08-30T10:29:24.249Z"
+    "lastSuccessfulArtifactAt": "2026-08-31T01:59:40.360Z"
   },
   "nextCursor": null
 }

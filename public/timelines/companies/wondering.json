@@ -5,9 +5,33 @@
     "slug": "wondering",
     "name": "Wondering"
   },
-  "generatedAt": "2026-08-30T10:29:24.249Z",
-  "lastModifiedAt": "2026-08-30T10:29:24.249Z",
+  "generatedAt": "2026-08-31T01:59:40.360Z",
+  "lastModifiedAt": "2026-08-31T01:59:40.360Z",
   "events": [
+    {
+      "id": "tle-6a261bc25456a7c37d6a37de",
+      "eventDate": "2026-08-30",
+      "eventDateType": "announcement_date",
+      "title": "Wondering released live challenge",
+      "summary": "Wondering launched live challenge today on @WonderingApp and already see learners sharing their use case like doing system design interview prep.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-8a5ff6b8e2cbddce2cfd5816",
+          "title": "we launched live challenge today on @WonderingApp and already see learners sharing their use case like doing system design interview prep!",
+          "publisher": "hcwxd",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-08-30T03:39:44.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/hcwxd/status/2093906488083583247"
+        }
+      ]
+    },
     {
       "id": "tle-d537031451c44c24ddeddb94",
       "eventDate": "2026-08-20",
@@ -179,7 +203,7 @@
       "months": [
         {
           "month": "2026-08",
-          "count": 1
+          "count": 2
         },
         {
           "month": "2026-07",
@@ -194,8 +218,8 @@
   ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 6,
-    "lastSuccessfulArtifactAt": "2026-08-30T10:29:24.249Z"
+    "publishedEventCount": 7,
+    "lastSuccessfulArtifactAt": "2026-08-31T01:59:40.360Z"
   },
   "nextCursor": null
 }

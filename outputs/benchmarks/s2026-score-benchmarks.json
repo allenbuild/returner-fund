@@ -1,7 +1,7 @@
 {
   "version": 1,
   "batchSlug": "S2026",
-  "updatedAt": "2026-08-30T10:29:55.367Z",
+  "updatedAt": "2026-08-31T01:59:53.447Z",
   "daily": [
     {
       "recordedAt": "2026-06-29T16:52:33.375Z",
@@ -66574,9 +66574,9 @@
       ]
     },
     {
-      "recordedAt": "2026-08-30T10:29:55.367Z",
+      "recordedAt": "2026-08-31T01:59:53.447Z",
       "scoringModelVersion": "4.2.0",
-      "inputGeneratedAt": "2026-08-30T10:27:06.907Z",
+      "inputGeneratedAt": "2026-08-31T01:58:42.006Z",
       "companies": [
         {
           "companyId": "company-heyclicky",
@@ -67239,6 +67239,12 @@
           "rank": 107
         },
         {
+          "companyId": "company-clara-2",
+          "companyName": "Clara",
+          "score": 36,
+          "rank": 107
+        },
+        {
           "companyId": "company-inth",
           "companyName": "Inth",
           "score": 36,
@@ -67260,43 +67266,37 @@
           "companyId": "company-bentolabs-ai",
           "companyName": "BentoLabs AI",
           "score": 34,
-          "rank": 114
+          "rank": 115
         },
         {
           "companyId": "company-cignara",
           "companyName": "Cignara",
           "score": 34,
-          "rank": 114
-        },
-        {
-          "companyId": "company-clara-2",
-          "companyName": "Clara",
-          "score": 34,
-          "rank": 114
+          "rank": 115
         },
         {
           "companyId": "company-cohesion",
           "companyName": "Cohesion",
           "score": 34,
-          "rank": 114
+          "rank": 115
         },
         {
           "companyId": "company-regbase",
           "companyName": "Regbase",
           "score": 34,
-          "rank": 114
+          "rank": 115
         },
         {
           "companyId": "company-silmaril",
           "companyName": "Silmaril",
           "score": 34,
-          "rank": 114
+          "rank": 115
         },
         {
           "companyId": "company-trellistech",
           "companyName": "Trellis",
           "score": 34,
-          "rank": 114
+          "rank": 115
         },
         {
           "companyId": "company-abinitio-bio",

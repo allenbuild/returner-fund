@@ -5,9 +5,33 @@
     "slug": "gojiberry-ai",
     "name": "Gojiberry AI"
   },
-  "generatedAt": "2026-08-30T10:29:24.249Z",
-  "lastModifiedAt": "2026-08-30T10:29:24.249Z",
+  "generatedAt": "2026-08-31T01:59:40.360Z",
+  "lastModifiedAt": "2026-08-31T01:59:40.360Z",
   "events": [
+    {
+      "id": "tle-e3e65ac10ed03c4d90bb7904",
+      "eventDate": "2026-08-30",
+      "eventDateType": "announcement_date",
+      "title": "Gojiberry AI announced a product update",
+      "summary": "GojiberryAI is now available inside Grok Bot 🍓 Through our MCP, Grok @bot can now interact directly with GojiberryAI.",
+      "category": "product_update",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-5fe23cb9bf9b6d884114e048",
+          "title": "GojiberryAI is now available inside Grok Bot 🍓 Through our MCP, Grok @bot can now interact directly with GojiberryAI.",
+          "publisher": "gojiberryai",
+          "domain": "x.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-08-30T11:27:50.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/gojiberryai/status/2094024289825558816"
+        }
+      ]
+    },
     {
       "id": "tle-b9363c4875c6bc999fef89d6",
       "eventDate": "2026-08-20",
@@ -111,7 +135,7 @@
       "months": [
         {
           "month": "2026-08",
-          "count": 1
+          "count": 2
         },
         {
           "month": "2026-07",
@@ -130,8 +154,8 @@
   ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 4,
-    "lastSuccessfulArtifactAt": "2026-08-30T10:29:24.249Z"
+    "publishedEventCount": 5,
+    "lastSuccessfulArtifactAt": "2026-08-31T01:59:40.360Z"
   },
   "nextCursor": null
 }

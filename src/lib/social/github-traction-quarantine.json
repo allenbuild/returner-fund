@@ -1,7 +1,7 @@
 {
   "source": {
     "schemaVersion": 1,
-    "generatedFromFetchedAt": "2026-08-30T03:48:40.180Z",
+    "generatedFromFetchedAt": "2026-08-31T01:57:05.709Z",
     "publicationPolicy": "stored_but_unpublished",
     "scoringEligible": false,
     "reason": "Rows absent from a fully authoritative whole-cohort GitHub receipt are retained only for audit and manual attribution review; they are not scoring inputs.",
@@ -20469,14 +20469,27 @@
       "batchSlug": "S26",
       "category": "legacy_account_mapping_absent_from_authoritative_targets",
       "reason": "The prior account mapping is absent from the complete authenticated target receipt. Preserve it for audit only until its entity attribution is manually re-verified.",
-      "currentCanonicality": "absent_from_current_canonical_receipt",
+      "currentCanonicality": "physical_object_present_under_different_canonical_attribution",
       "physicalRepresentation": {
         "kind": "account",
         "canonicalUrl": "https://github.com/usebylaw",
         "repositoryId": null,
-        "status": "not_represented_in_current_canonical_receipt",
-        "matchedBy": [],
-        "canonicalMatches": [],
+        "status": "represented_in_current_canonical_receipt",
+        "matchedBy": [
+          "canonical_url"
+        ],
+        "canonicalMatches": [
+          {
+            "entityType": "company",
+            "entityId": "company-definite",
+            "entityName": "Definite",
+            "accountKey": "company:company-definite:usebylaw:",
+            "location": "account",
+            "accountUrl": "https://github.com/usebylaw",
+            "repositoryId": null,
+            "repositoryUrl": null
+          }
+        ],
         "repositories": [
           {
             "kind": "repository",
@@ -20497,8 +20510,8 @@
         ]
       },
       "ownerAttributionReview": {
-        "status": "queued_missing_physical_representation",
-        "reason": "The physical GitHub object is absent from the authoritative receipt and requires manual verification before any future publication.",
+        "status": "required",
+        "reason": "The physical GitHub object remains represented, but this legacy owner mapping is not canonical and must not be restored without review.",
         "legacyOwner": {
           "entityType": "company",
           "entityId": "company-bylaw",

@@ -12,8 +12,8 @@
         "catalog": "src/lib/social/a16z-speedrun-006-social-accounts.json",
         "profileSource": "src/lib/graph/a16z-speedrun-006-dataset.ts",
         "graph": "public/graph/a16zsr006.json",
-        "publicRun": "/Users/allenxu/Library/Application Support/Returner Fund OpenCLI/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-08-29-1800-8ecdb2fd6a5d2629/public-a16zsr006.json",
-        "githubRun": "/Users/allenxu/Library/Application Support/Returner Fund OpenCLI/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-08-29-1800-8ecdb2fd6a5d2629/github-a16zsr006.json"
+        "publicRun": "/Users/allenxu/Library/Application Support/Returner Fund OpenCLI/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-08-30-1800-4c4d9bb2c8e75eb6/public-a16zsr006.json",
+        "githubRun": "/Users/allenxu/Library/Application Support/Returner Fund OpenCLI/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-08-30-1800-4c4d9bb2c8e75eb6/github-a16zsr006.json"
       },
       "counts": {
         "companies": 59,
@@ -24,7 +24,7 @@
         "plannedOwnerMappings": 339,
         "multiAccountOwnerMappings": 4,
         "graphEvidence": 5000,
-        "graphNeedsReview": 2418
+        "graphNeedsReview": 2425
       },
       "structural": {
         "status": "pass",
@@ -828,8 +828,8 @@
         "catalog": "src/lib/yc/spring-2026-companies.json",
         "profileSource": null,
         "graph": "public/graph/s2026.json",
-        "publicRun": "/Users/allenxu/Library/Application Support/Returner Fund OpenCLI/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-08-29-1800-8ecdb2fd6a5d2629/public-s2026.json",
-        "githubRun": "/Users/allenxu/Library/Application Support/Returner Fund OpenCLI/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-08-29-1800-8ecdb2fd6a5d2629/github-s2026.json"
+        "publicRun": "/Users/allenxu/Library/Application Support/Returner Fund OpenCLI/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-08-30-1800-4c4d9bb2c8e75eb6/public-s2026.json",
+        "githubRun": "/Users/allenxu/Library/Application Support/Returner Fund OpenCLI/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-08-30-1800-4c4d9bb2c8e75eb6/github-s2026.json"
       },
       "counts": {
         "companies": 197,
@@ -840,7 +840,7 @@
         "plannedOwnerMappings": 994,
         "multiAccountOwnerMappings": 1,
         "graphEvidence": 5000,
-        "graphNeedsReview": 10145
+        "graphNeedsReview": 10157
       },
       "structural": {
         "status": "pass",
@@ -2393,19 +2393,19 @@
         "catalog": "src/lib/yc/summer-2026-companies.json",
         "profileSource": null,
         "graph": "public/graph/s26.json",
-        "publicRun": "/Users/allenxu/Library/Application Support/Returner Fund OpenCLI/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-08-29-1800-8ecdb2fd6a5d2629/public-s26.json",
-        "githubRun": "/Users/allenxu/Library/Application Support/Returner Fund OpenCLI/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-08-29-1800-8ecdb2fd6a5d2629/github-s26.json"
+        "publicRun": "/Users/allenxu/Library/Application Support/Returner Fund OpenCLI/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-08-30-1800-4c4d9bb2c8e75eb6/public-s26.json",
+        "githubRun": "/Users/allenxu/Library/Application Support/Returner Fund OpenCLI/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-08-30-1800-4c4d9bb2c8e75eb6/github-s26.json"
       },
       "counts": {
         "companies": 235,
         "founders": 468,
-        "catalogOwnerMappings": 1132,
-        "graphOwnerMappings": 1124,
-        "catalogOwnerPlatformGroups": 1131,
-        "plannedOwnerMappings": 1132,
+        "catalogOwnerMappings": 1135,
+        "graphOwnerMappings": 1123,
+        "catalogOwnerPlatformGroups": 1134,
+        "plannedOwnerMappings": 1135,
         "multiAccountOwnerMappings": 1,
         "graphEvidence": 5000,
-        "graphNeedsReview": 7042
+        "graphNeedsReview": 7071
       },
       "structural": {
         "status": "pass",
@@ -2427,6 +2427,60 @@
           {
             "batchSlug": "S26",
             "entityType": "company",
+            "entityId": "company-coarena",
+            "entityName": "CoArena",
+            "sourceId": "33738",
+            "companyEntityId": "company-coarena",
+            "companySlug": "coarena",
+            "platform": "github",
+            "canonicalUrl": "https://github.com/coasty-ai/open-cowork",
+            "originalUrl": "https://github.com/coasty-ai/open-cowork",
+            "ownerReferenceCandidates": [
+              "33738",
+              "coarena",
+              "company-coarena"
+            ],
+            "key": "S26|company|company-coarena|github|https://github.com/coasty-ai/open-cowork"
+          },
+          {
+            "batchSlug": "S26",
+            "entityType": "company",
+            "entityId": "company-coarena",
+            "entityName": "CoArena",
+            "sourceId": "33738",
+            "companyEntityId": "company-coarena",
+            "companySlug": "coarena",
+            "platform": "youtube",
+            "canonicalUrl": "https://youtube.com/@coastyai",
+            "originalUrl": "https://www.youtube.com/@CoastyAI",
+            "ownerReferenceCandidates": [
+              "33738",
+              "coarena",
+              "company-coarena"
+            ],
+            "key": "S26|company|company-coarena|youtube|https://youtube.com/@coastyai"
+          },
+          {
+            "batchSlug": "S26",
+            "entityType": "company",
+            "entityId": "company-definite",
+            "entityName": "Definite",
+            "sourceId": "32286",
+            "companyEntityId": "company-definite",
+            "companySlug": "definite",
+            "platform": "github",
+            "canonicalUrl": "https://github.com/usebylaw",
+            "originalUrl": "https://github.com/UseBylaw",
+            "ownerReferenceCandidates": [
+              "32286",
+              "company-definite",
+              "definite"
+            ],
+            "key": "S26|company|company-definite|github|https://github.com/usebylaw"
+          },
+          {
+            "batchSlug": "S26",
+            "entityType": "company",
             "entityId": "company-denta",
             "entityName": "Denta",
             "sourceId": "32782",
@@ -2441,6 +2495,24 @@
               "denta"
             ],
             "key": "S26|company|company-denta|x|https://x.com/jackbeecher23"
+          },
+          {
+            "batchSlug": "S26",
+            "entityType": "company",
+            "entityId": "company-hoplite",
+            "entityName": "Hoplite",
+            "sourceId": "32089",
+            "companyEntityId": "company-hoplite",
+            "companySlug": "hoplite",
+            "platform": "github",
+            "canonicalUrl": "https://github.com/carboncopyinc",
+            "originalUrl": "https://github.com/CarbonCopyInc",
+            "ownerReferenceCandidates": [
+              "32089",
+              "company-hoplite",
+              "hoplite"
+            ],
+            "key": "S26|company|company-hoplite|github|https://github.com/carboncopyinc"
           },
           {
             "batchSlug": "S26",
@@ -2592,8 +2664,8 @@
         ],
         "mappingCoverage": {
           "github": {
-            "companyMapped": 19,
-            "companyMissing": 216,
+            "companyMapped": 20,
+            "companyMissing": 215,
             "founderMapped": 1,
             "founderMissing": 467
           },
@@ -2604,8 +2676,8 @@
             "founderMissing": 468
           },
           "linkedin": {
-            "companyMapped": 211,
-            "companyMissing": 24,
+            "companyMapped": 212,
+            "companyMissing": 23,
             "founderMapped": 463,
             "founderMissing": 5
           },
@@ -2622,8 +2694,8 @@
             "founderMissing": 191
           },
           "youtube": {
-            "companyMapped": 10,
-            "companyMissing": 225,
+            "companyMapped": 11,
+            "companyMissing": 224,
             "founderMapped": 0,
             "founderMissing": 468
           }
@@ -2717,11 +2789,6 @@
           {
             "entityId": "company-princeps",
             "name": "PRINCEPS",
-            "companyName": null
-          },
-          {
-            "entityId": "company-riften",
-            "name": "Riften",
             "companyName": null
           },
           {
