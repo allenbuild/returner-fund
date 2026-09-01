@@ -2290,6 +2290,92 @@ globalThis.fetch = async (input) => {
   assert.deepEqual(autonomousCollectorRetryableFailures(snapshot), [atomFailure.message]);
 });
 
+test("mapped YouTube empty pages terminalize Atom 404 but retry transient feed failures", async () => {
+  const fixtures = [
+    {
+      feedStatus: 404,
+      expectedRetryable: false,
+      expectedVerifiedEmpty: true,
+      expectedOutcomeStatus: "completed",
+      expectedOutcomeReason: "collector_verified_native_account_empty_public_window"
+    },
+    {
+      feedStatus: 500,
+      expectedRetryable: true,
+      expectedVerifiedEmpty: false,
+      expectedOutcomeStatus: "blocked_or_empty",
+      expectedOutcomeReason: "collector_checked_blocked_or_empty"
+    }
+  ];
+
+  for (const fixture of fixtures) {
+    const directory = await mkdtemp(join(tmpdir(), `returner-public-youtube-empty-${fixture.feedStatus}-`));
+    const output = join(directory, "public-evidence.json");
+    const checkpoint = join(directory, "checkpoint.json");
+    const discoveryAttempts = join(directory, "discovery-attempts.json");
+    const sourceDiscoveryPaths = join(directory, "source-discovery-paths.json");
+    const preload = join(directory, "mock-fetch.mjs");
+    const accountUrl = "https://youtube.com/@roborebel6031";
+    const entityId = "a16z-speedrun-006-crebit-founder-jensen-coonradt";
+    const channelId = "UCemptyfeed123";
+    await Promise.all([
+      writeFile(discoveryAttempts, "[]\n"),
+      writeFile(sourceDiscoveryPaths, "[]\n"),
+      writeFile(preload, withMockPublicDns(`
+globalThis.fetch = async (input) => {
+  const value = String(input);
+  if (value === "https://youtube.com/@roborebel6031/videos") {
+    return new Response('<script>{"channelId":"${channelId}"}</script>', { status: 200 });
+  }
+  if (value === "https://www.youtube.com/feeds/videos.xml?channel_id=${channelId}") {
+    return new Response("feed unavailable", { status: ${fixture.feedStatus} });
+  }
+  throw new Error("unexpected URL: " + value);
+};
+`))
+    ]);
+
+    execFileSync(process.execPath, [
+      "scripts/fetch-public-traction.mjs",
+      "--batch=A16ZSR006",
+      "--company=crebit",
+      "--platforms=youtube",
+      "--social=all",
+      "--workers=1",
+      "--delay-ms=0",
+      "--force",
+      `--output=${output}`,
+      `--checkpoint=${checkpoint}`,
+      `--discovery-attempts=${discoveryAttempts}`,
+      `--source-discovery-paths=${sourceDiscoveryPaths}`
+    ], {
+      cwd: root,
+      env: {
+        ...process.env,
+        NODE_OPTIONS: [process.env.NODE_OPTIONS, `--import=${preload}`].filter(Boolean).join(" ")
+      },
+      stdio: "pipe"
+    });
+
+    const snapshot = JSON.parse(await readFile(output, "utf8"));
+    const attempt = Object.values(snapshot.attempts).find(
+      (row) => row.entityId === entityId && row.accountUrl === accountUrl
+    );
+    const atomFailure = snapshot.failures.find(
+      (row) => new RegExp(`Official YouTube Atom feed returned HTTP ${fixture.feedStatus}`).test(row.message ?? "")
+    );
+    assert.equal(attempt?.retryable, fixture.expectedRetryable);
+    assert.equal(attempt?.outcomeStatus, fixture.expectedOutcomeStatus);
+    assert.equal(attempt?.outcomeReason, fixture.expectedOutcomeReason);
+    assert.equal(atomFailure?.retryable, fixture.expectedRetryable);
+    assert.equal(attempt?.coverageReceipt?.verifiedEmpty === true, fixture.expectedVerifiedEmpty);
+    assert.deepEqual(
+      autonomousCollectorRetryableFailures(snapshot),
+      fixture.expectedRetryable ? [atomFailure.message] : []
+    );
+  }
+});
+
 test("official YC embeds and exact Product Hunt launch slugs recover unmapped native sources", async () => {
   const cases = [{
     company: "dayjob",

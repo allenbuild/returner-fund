@@ -1,9 +1,19 @@
 import assert from "node:assert/strict";
-import { chmod, mkdir, mkdtemp, readFile, rm, stat, symlink, writeFile } from "node:fs/promises";
+import {
+  chmod,
+  mkdir,
+  mkdtemp,
+  readFile,
+  rm,
+  stat,
+  symlink,
+  utimes,
+  writeFile
+} from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import test from "node:test";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import {
   assertAuthBrowserLaunchAgentPlist,
   assertAwakeLaunchAgentPlist,
@@ -1772,6 +1782,86 @@ test("atomic directory lock rejects overlap and recovers a dead owner", async (c
   await replacement.release();
 });
 
+test("supervisor lock preserves fresh incomplete owners and reclaims them after grace", async (context) => {
+  const root = await mkdtemp(path.join(tmpdir(), "returner-incomplete-lock-test-"));
+  context.after(() => rm(root, { recursive: true, force: true }));
+  const createdAt = new Date("2026-08-26T05:00:00.000Z");
+  const readProcessIdentity = async (pid) => `fixture-process-${pid}`;
+
+  for (const [name, ownerSource] of [
+    ["missing-owner", null],
+    ["malformed-owner", "{not-json\n"]
+  ]) {
+    const lockPath = path.join(root, name);
+    await mkdir(lockPath);
+    if (ownerSource !== null) {
+      await writeFile(path.join(lockPath, "owner.json"), ownerSource);
+    }
+    await utimes(lockPath, createdAt, createdAt);
+
+    const fresh = await acquireSupervisorLock(lockPath, {
+      now: () => new Date(createdAt.getTime() + 59_999),
+      readProcessIdentity,
+      initializationGraceMs: 60_000
+    });
+    assert.equal(fresh.acquired, false);
+
+    const recovered = await acquireSupervisorLock(lockPath, {
+      now: () => new Date(createdAt.getTime() + 60_000),
+      readProcessIdentity,
+      initializationGraceMs: 60_000
+    });
+    assert.equal(recovered.acquired, true);
+    const owner = JSON.parse(await readFile(path.join(lockPath, "owner.json"), "utf8"));
+    assert.equal(owner.schemaVersion, 1);
+    assert.equal(owner.pid, process.pid);
+    assert.equal(owner.processIdentity, `fixture-process-${process.pid}`);
+    await recovered.release();
+  }
+});
+
+test("supervisor lock protects exact live identity and safely recovers a reused PID", async (context) => {
+  const root = await mkdtemp(path.join(tmpdir(), "returner-lock-identity-test-"));
+  context.after(() => rm(root, { recursive: true, force: true }));
+  const lockPath = path.join(root, "lock");
+  const acquiredAt = new Date("2026-08-26T05:00:00.000Z");
+  const currentIdentity = `fixture-process-${process.pid}`;
+  const readProcessIdentity = async () => currentIdentity;
+  const first = await acquireSupervisorLock(lockPath, {
+    now: () => acquiredAt,
+    readProcessIdentity,
+    initializationGraceMs: 1
+  });
+  assert.equal(first.acquired, true);
+  await utimes(lockPath, new Date(0), new Date(0));
+
+  const exactLiveOwner = await acquireSupervisorLock(lockPath, {
+    now: () => new Date("2026-08-26T06:00:00.000Z"),
+    readProcessIdentity,
+    initializationGraceMs: 1
+  });
+  assert.equal(exactLiveOwner.acquired, false);
+
+  const staleOwner = JSON.parse(await readFile(path.join(lockPath, "owner.json"), "utf8"));
+  staleOwner.processIdentity = "different-process-start";
+  await writeFile(path.join(lockPath, "owner.json"), `${JSON.stringify(staleOwner)}\n`);
+  const replacement = await acquireSupervisorLock(lockPath, {
+    now: () => new Date("2026-08-26T06:00:00.000Z"),
+    readProcessIdentity,
+    initializationGraceMs: 1
+  });
+  assert.equal(replacement.acquired, true);
+
+  await first.release();
+  const replacementStillOwned = await acquireSupervisorLock(lockPath, {
+    now: () => new Date("2026-08-26T06:00:00.000Z"),
+    readProcessIdentity,
+    initializationGraceMs: 1
+  });
+  assert.equal(replacementStillOwned.acquired, false);
+  await replacement.release();
+});
+
 test("LaunchAgent template is a five-minute one-shot without KeepAlive", async () => {
   const template = await readFile(
     new URL(
@@ -1838,6 +1928,8 @@ test("LaunchAgent template is a five-minute one-shot without KeepAlive", async (
   );
   assert.match(installer, /installedScheduleModule/);
   assert.match(installer, /scripts[\s\S]*?lib[\s\S]*?ingestion-schedule\.mjs/);
+  assert.match(installer, /installedArtifactManifestModule/);
+  assert.match(installer, /scripts[\s\S]*?lib[\s\S]*?artifact-manifest\.mjs/);
 });
 
 test("awake LaunchAgent is AC-only and never simulates user activity", async () => {
@@ -2151,6 +2243,17 @@ test("host LaunchAgent install and uninstall are idempotent without deleting aud
   assert.equal(first.installed, true);
   assert.equal(second.installed, true);
   assert.equal(first.runnerLaunchdLabel, RUNNER_LAUNCHD_LABEL);
+  assert.equal(
+    await readFile(paths.installedScheduleModule, "utf8"),
+    await readFile(paths.sourceScheduleModule, "utf8")
+  );
+  assert.equal(
+    await readFile(paths.installedArtifactManifestModule, "utf8"),
+    await readFile(paths.sourceArtifactManifestModule, "utf8")
+  );
+  const installedSupervisorUrl = pathToFileURL(paths.installedScript);
+  installedSupervisorUrl.searchParams.set("install-contract", String(Date.now()));
+  await assert.doesNotReject(import(installedSupervisorUrl.href));
   await assert.rejects(
     installAutonomousIngestionHost({
       ...options,

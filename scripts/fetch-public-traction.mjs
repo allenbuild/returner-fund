@@ -2251,12 +2251,14 @@ async function ingestMappedYouTubeAccount(company, entity, entityType, accountUr
   const name = entityName(entity, entityType);
   let feed = null;
   let feedFailure = null;
+  let feedHttpStatus = null;
   if (channelId) {
     const feedSourceUrl = youtubeFeedUrl(channelId);
     try {
       const { response: feedResponse, text: feedBody } = await fetchPublicBoundedText(feedSourceUrl, {
         accept: "application/atom+xml,application/xml,text/xml"
       });
+      feedHttpStatus = feedResponse.status;
       if (!feedResponse.ok) {
         throw new Error(`Official YouTube Atom feed returned HTTP ${feedResponse.status}.`);
       }
@@ -2323,9 +2325,17 @@ async function ingestMappedYouTubeAccount(company, entity, entityType, accountUr
   }
   const videos = [...videosById.values()];
   if (!videos.length) {
+    const verifiedEmptyAtom404 =
+      feedHttpStatus === 404 &&
+      pageVideos.length === 0 &&
+      Boolean(pageObservation.channelId) &&
+      pageObservation.channelId === channelId;
+    const terminalFeedFailure = verifiedEmptyAtom404 && feedFailure
+      ? { ...feedFailure, retryable: false }
+      : feedFailure;
     return {
       failures: [
-        ...(feedFailure ? [feedFailure] : []),
+        ...(terminalFeedFailure ? [terminalFeedFailure] : []),
         failure(
           "youtube",
           company,
@@ -2335,7 +2345,24 @@ async function ingestMappedYouTubeAccount(company, entity, entityType, accountUr
           name,
           entityId
         )
-      ]
+      ],
+      ...(verifiedEmptyAtom404
+        ? {
+            verifiedEmpty: true,
+            coverageReceipt: {
+              source: "youtube_verified_empty_channel_page_atom_404_v1",
+              verified: true,
+              verifiedEmpty: true,
+              accountUrl: canonicalAccountUrl,
+              channelId,
+              pageUrl: videosUrl,
+              pageVideoCount: 0,
+              feedHttpStatus,
+              checkedAt: now,
+              outcome: "verified_empty_mapped_channel_page_feed_unavailable"
+            }
+          }
+        : {})
     };
   }
   const evidence = [];

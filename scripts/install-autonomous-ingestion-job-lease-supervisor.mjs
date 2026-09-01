@@ -141,6 +141,11 @@ export function autonomousIngestionHostPaths({
     ),
     installedLibraryDir: path.join(installRoot, "lib"),
     installedScheduleModule: path.join(installRoot, "lib", "ingestion-schedule.mjs"),
+    installedArtifactManifestModule: path.join(
+      installRoot,
+      "lib",
+      "artifact-manifest.mjs"
+    ),
     launchAgentsDir,
     logsDir: path.join(userHome, "Library", "Logs"),
     supervisorPlistPath: path.join(launchAgentsDir, `${SUPERVISOR_LABEL}.plist`),
@@ -159,6 +164,12 @@ export function autonomousIngestionHostPaths({
       "scripts",
       "lib",
       "ingestion-schedule.mjs"
+    ),
+    sourceArtifactManifestModule: path.join(
+      repositoryRoot,
+      "scripts",
+      "lib",
+      "artifact-manifest.mjs"
     ),
     supervisorTemplatePath: path.join(
       repositoryRoot,
@@ -211,6 +222,7 @@ export async function installAutonomousIngestionHost({
       "/usr/bin/caffeinate",
       paths.sourceScript,
       paths.sourceScheduleModule,
+      paths.sourceArtifactManifestModule,
       paths.supervisorTemplatePath,
       paths.awakeTemplatePath,
       paths.authBrowserTemplatePath,
@@ -247,6 +259,13 @@ export async function installAutonomousIngestionHost({
   await mkdir(paths.launchAgentsDir, { recursive: true });
   await mkdir(paths.logsDir, { recursive: true });
 
+  // Install the schedule module's local dependency before its importer so a
+  // concurrent launchd tick can never observe an incomplete module graph.
+  await atomicWrite(
+    paths.installedArtifactManifestModule,
+    await readFile(paths.sourceArtifactManifestModule),
+    0o644
+  );
   await atomicWrite(
     paths.installedScheduleModule,
     await readFile(paths.sourceScheduleModule),
@@ -374,6 +393,7 @@ export async function installAutonomousIngestionHost({
     ],
     installedScript: paths.installedScript,
     installedScheduleModule: paths.installedScheduleModule,
+    installedArtifactManifestModule: paths.installedArtifactManifestModule,
     stateDir: paths.stateDir,
     runnerLaunchdLabel: RUNNER_LAUNCHD_LABEL,
     authBrowserDataDir: authBrowser.dataDir,

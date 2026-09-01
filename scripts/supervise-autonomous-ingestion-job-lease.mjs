@@ -37,6 +37,7 @@ export const DEFAULT_RUNNER_LAUNCHD_LABEL =
 export const DEFAULT_DASHBOARD_RECOVERY_MAX_AGE_MINUTES = 120;
 export const DEFAULT_DASHBOARD_RECOVERY_SILENCE_MINUTES = 30;
 export const DEFAULT_DASHBOARD_RECOVERY_COOLDOWN_MINUTES = 30;
+export const DEFAULT_SUPERVISOR_LOCK_INITIALIZATION_GRACE_MS = 60_000;
 export const AUTONOMOUS_WORKFLOW_NAME = "Autonomous Ingestion";
 export const AUTONOMOUS_INGESTION_STEP = "Run autonomous ingestion";
 export const AUTONOMOUS_PUBLISH_JOB_PREFIX = "Publish accepted slot ";
@@ -1412,39 +1413,150 @@ export async function scanWorkerLogs({ config, state }) {
   return { scanned, candidates };
 }
 
-export async function acquireSupervisorLock(lockPath, { now = () => new Date() } = {}) {
+export async function acquireSupervisorLock(lockPath, {
+  now = () => new Date(),
+  readProcessIdentity = readSupervisorProcessIdentity,
+  initializationGraceMs = DEFAULT_SUPERVISOR_LOCK_INITIALIZATION_GRACE_MS
+} = {}) {
+  if (typeof now !== "function") throw new TypeError("Supervisor lock now must be a function.");
+  if (typeof readProcessIdentity !== "function") {
+    throw new TypeError("Supervisor lock process identity reader must be a function.");
+  }
+  if (!Number.isSafeInteger(initializationGraceMs) || initializationGraceMs < 1) {
+    throw new RangeError("Supervisor lock initialization grace must be a positive integer.");
+  }
+  const processIdentity = await readProcessIdentity(process.pid);
+  if (!validProcessIdentity(processIdentity)) {
+    throw new Error("Unable to establish the supervisor process start identity.");
+  }
+  const ownerId = randomUUID();
+
   const tryAcquire = async () => {
+    let directoryCreated = false;
     try {
       await mkdir(lockPath, { mode: 0o700 });
+      directoryCreated = true;
+      const startedAt = now();
+      if (!(startedAt instanceof Date) || !Number.isFinite(startedAt.getTime())) {
+        throw new Error("Supervisor lock acquisition time must be a valid Date.");
+      }
       await writeFile(
         path.join(lockPath, "owner.json"),
-        `${JSON.stringify({ pid: process.pid, startedAt: now().toISOString() })}\n`,
-        { mode: 0o600 }
+        `${JSON.stringify({
+          schemaVersion: 1,
+          ownerId,
+          pid: process.pid,
+          startedAt: startedAt.toISOString(),
+          processIdentity
+        })}\n`,
+        { mode: 0o600, flag: "wx" }
       );
       return true;
     } catch (error) {
-      if (error?.code === "EEXIST") return false;
+      if (!directoryCreated && error?.code === "EEXIST") return false;
+      if (directoryCreated) await rm(lockPath, { recursive: true, force: true });
       throw error;
     }
   };
 
   if (await tryAcquire()) {
-    return { acquired: true, release: () => rm(lockPath, { recursive: true, force: true }) };
+    return {
+      acquired: true,
+      release: () => releaseSupervisorLock(lockPath, ownerId)
+    };
   }
 
   let owner = null;
   try {
     owner = JSON.parse(await readFile(path.join(lockPath, "owner.json"), "utf8"));
   } catch {
-    return { acquired: false, release: async () => {} };
+    owner = null;
   }
-  if (Number.isInteger(owner?.pid) && owner.pid > 0 && processExists(owner.pid)) {
-    return { acquired: false, release: async () => {} };
+  if (validSupervisorLockOwner(owner)) {
+    const liveOwner = await matchingLiveSupervisorLockOwner(owner, readProcessIdentity);
+    if (liveOwner) return { acquired: false, release: async () => {} };
+  } else {
+    if (!(await supervisorLockInitializationGraceExpired(
+      lockPath,
+      now,
+      initializationGraceMs
+    ))) {
+      return { acquired: false, release: async () => {} };
+    }
+    // The initializer may have completed while this contender was checking
+    // the grace boundary. Re-read immediately before reclamation and preserve
+    // any now-complete owner whose PID and start identity both still match.
+    try {
+      const completedOwner = JSON.parse(
+        await readFile(path.join(lockPath, "owner.json"), "utf8")
+      );
+      if (
+        validSupervisorLockOwner(completedOwner) &&
+        await matchingLiveSupervisorLockOwner(completedOwner, readProcessIdentity)
+      ) {
+        return { acquired: false, release: async () => {} };
+      }
+    } catch {
+      // Still incomplete after the grace period; reclaim below.
+    }
   }
 
   await rm(lockPath, { recursive: true, force: true });
   if (!(await tryAcquire())) return { acquired: false, release: async () => {} };
-  return { acquired: true, release: () => rm(lockPath, { recursive: true, force: true }) };
+  return {
+    acquired: true,
+    release: () => releaseSupervisorLock(lockPath, ownerId)
+  };
+}
+
+async function supervisorLockInitializationGraceExpired(lockPath, now, graceMs) {
+  let lockStat;
+  try {
+    lockStat = await stat(lockPath);
+  } catch {
+    return false;
+  }
+  const observedAt = now();
+  if (!(observedAt instanceof Date) || !Number.isFinite(observedAt.getTime())) return false;
+  const ageMs = observedAt.getTime() - lockStat.mtimeMs;
+  return Number.isFinite(ageMs) && ageMs >= graceMs;
+}
+
+function validSupervisorLockOwner(owner) {
+  return plainObject(owner) &&
+    owner.schemaVersion === 1 &&
+    typeof owner.ownerId === "string" &&
+    /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+      owner.ownerId
+    ) &&
+    Number.isSafeInteger(owner.pid) &&
+    owner.pid > 0 &&
+    strictUtcInstantOrNull(owner.startedAt) &&
+    validProcessIdentity(owner.processIdentity);
+}
+
+async function matchingLiveSupervisorLockOwner(owner, readProcessIdentity) {
+  if (!processExists(owner.pid)) return false;
+  try {
+    const observedIdentity = await readProcessIdentity(owner.pid);
+    if (validProcessIdentity(observedIdentity)) {
+      return observedIdentity === owner.processIdentity;
+    }
+  } catch {
+    // An unverifiable but still-live PID must remain protected. A later tick
+    // can reclaim it only after the PID disappears or its identity differs.
+  }
+  return processExists(owner.pid);
+}
+
+async function releaseSupervisorLock(lockPath, ownerId) {
+  try {
+    const owner = JSON.parse(await readFile(path.join(lockPath, "owner.json"), "utf8"));
+    if (owner?.ownerId !== ownerId) return;
+  } catch {
+    return;
+  }
+  await rm(lockPath, { recursive: true, force: true });
 }
 
 export function createGitHubClient(config, { execute = execFile } = {}) {
@@ -1843,6 +1955,29 @@ function validateLaunchdLabel(value) {
     throw new Error("RETURNER_RUNNER_LAUNCHD_LABEL must be a safe launchd service label.");
   }
   return value;
+}
+
+async function readSupervisorProcessIdentity(pid) {
+  if (!Number.isSafeInteger(pid) || pid <= 0) return null;
+  try {
+    const { stdout } = await execFile(
+      "/bin/ps",
+      ["-p", String(pid), "-o", "lstart="],
+      { timeout: 5_000, maxBuffer: 64 * 1_024, encoding: "utf8" }
+    );
+    const identity = String(stdout ?? "").trim().replace(/\s+/g, " ");
+    return validProcessIdentity(identity) ? identity : null;
+  } catch (error) {
+    if (Number(error?.code) === 1) return null;
+    throw error;
+  }
+}
+
+function validProcessIdentity(value) {
+  return typeof value === "string" &&
+    value.length > 0 &&
+    value.length <= 256 &&
+    !/[\r\n\0]/.test(value);
 }
 
 function processExists(pid) {
