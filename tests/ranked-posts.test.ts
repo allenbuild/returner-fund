@@ -3,7 +3,9 @@ import {
   rankedPostsLatestPublishedDate,
   selectRankedPosts
 } from "@/lib/graph/ranked-posts";
+import { RANKED_POST_EDITORIAL_SCORE_VERSION } from "@/lib/graph/ranked-post-editorial-score";
 import type { RankedPostsSidecarScope } from "@/lib/graph/ranked-posts-sidecar";
+import { normalizeEvidenceScores } from "@/lib/graph/traction-scoring";
 import type { EvidenceItem, GraphNode, GraphResponse } from "@/lib/graph/types";
 
 describe("ranked posts", () => {
@@ -83,6 +85,107 @@ describe("ranked posts", () => {
     expect(ranked.map((item) => item.rank)).toEqual([1, 1, 3]);
   });
 
+  it("preserves the legacy editorial order when v4.3 renormalizes real GitHub evidence", () => {
+    const legacySmolVm = evidence({
+      id: "evidence-github-repo-company-smol-machines-smol-machines-smolvm",
+      platform: "github",
+      mediaType: "repo",
+      metrics: { stars: 5_862, forks: 279, watchers: 5_862, issues: 84 },
+      contributionScore: 87,
+      normalizedScore: 87,
+      rawEngagement: 9_951,
+      sourceUrl: "https://github.com/smol-machines/smolvm",
+      platformPostId: null,
+      platformObjectId: "1119210021"
+    });
+    const currentSmolVm = normalizeEvidenceScores([legacySmolVm])[0]!;
+    const currentPloyLinkedIn = normalizeEvidenceScores([evidence({
+      id: "linkedin-founder_post-s2026-founder-ploy-7473015352021397504",
+      platform: "linkedin",
+      metrics: { reactions: 965, comments: 193, likes: 965 },
+      contributionScore: 79,
+      normalizedScore: 79,
+      rawEngagement: 2_219.5,
+      sourceUrl: "https://www.linkedin.com/posts/bryantchou_ai-is-making-marketers-lazy-so-we-made-activity-7473015352021397504-OGTC",
+      platformPostId: "7473015352021397504"
+    })])[0]!;
+
+    expect(RANKED_POST_EDITORIAL_SCORE_VERSION).toBe("ranked-post-editorial-v1");
+    expect(currentSmolVm.normalizedScore).toBe(74);
+    expect(currentPloyLinkedIn.normalizedScore).toBe(79);
+
+    const legacyResults = rankedPostIdentity(selectRankedPosts(
+      graph([legacySmolVm, currentPloyLinkedIn]),
+      { period: "all_time" }
+    ));
+    const currentResults = rankedPostIdentity(selectRankedPosts(
+      graph([currentSmolVm, currentPloyLinkedIn]),
+      { period: "all_time" }
+    ));
+
+    expect(currentResults).toEqual(legacyResults);
+    expect(currentResults).toEqual([
+      {
+        id: "evidence-github-repo-company-smol-machines-smol-machines-smolvm",
+        rank: 1,
+        editorialScore: 87
+      },
+      {
+        id: "linkedin-founder_post-s2026-founder-ploy-7473015352021397504",
+        rank: 2,
+        editorialScore: 79
+      }
+    ]);
+  });
+
+  it("keeps Graphify ahead of screenpipe on the frozen editorial curve", () => {
+    const legacyGraphify = evidence({
+      id: "evidence-github-repo-company-graphify-labs-graphify-labs-graphify",
+      platform: "github",
+      mediaType: "repo",
+      metrics: { stars: 112_910, forks: 10_986, watchers: 112_910, issues: 1_169 },
+      contributionScore: 100,
+      normalizedScore: 100,
+      rawEngagement: 213_893.5,
+      sourceUrl: "https://github.com/Graphify-Labs/graphify",
+      platformPostId: null,
+      platformObjectId: "1200597263"
+    });
+    const legacyScreenpipe = evidence({
+      id: "evidence-github-repo-company-screenpipe-screenpipe-screenpipe",
+      platform: "github",
+      mediaType: "repo",
+      metrics: { stars: 21_326, forks: 2_156, watchers: 21_326, issues: 61 },
+      contributionScore: 100,
+      normalizedScore: 100,
+      rawEngagement: 40_643.5,
+      sourceUrl: "https://github.com/screenpipe/screenpipe",
+      platformPostId: null,
+      platformObjectId: "817326197"
+    });
+    const [currentGraphify, currentScreenpipe] = normalizeEvidenceScores([
+      legacyGraphify,
+      legacyScreenpipe
+    ]);
+
+    expect([currentGraphify?.normalizedScore, currentScreenpipe?.normalizedScore]).toEqual([99, 85]);
+
+    const legacyResults = rankedPostIdentity(selectRankedPosts(
+      graph([legacyScreenpipe, legacyGraphify]),
+      { period: "all_time" }
+    ));
+    const currentResults = rankedPostIdentity(selectRankedPosts(
+      graph([currentScreenpipe!, currentGraphify!]),
+      { period: "all_time" }
+    ));
+
+    expect(currentResults).toEqual(legacyResults);
+    expect(currentResults).toEqual([
+      { id: legacyGraphify.id, rank: 1, editorialScore: 100 },
+      { id: legacyScreenpipe.id, rank: 1, editorialScore: 100 }
+    ]);
+  });
+
   it("uses deterministic canonical tie ordering under shuffled input", () => {
     const candidates = [
       evidence({ id: "b", sourceUrl: "https://x.com/company/status/502", platformPostId: "502" }),
@@ -96,12 +199,12 @@ describe("ranked posts", () => {
     expect(reversed.map((item) => item.evidence.id)).toEqual(forward.map((item) => item.evidence.id));
   });
 
-  it("ranks by normalized score, raw engagement, publication time, URL, and stable ID", () => {
+  it("ranks by editorial score, editorial raw engagement, publication time, URL, and stable ID", () => {
     const ranked = selectRankedPosts(graph([
-      evidence({ id: "contribution-only", normalizedScore: undefined, contributionScore: 89, rawEngagement: 10, sourceUrl: "https://x.com/c/status/611", platformPostId: "611" }),
-      evidence({ id: "normalized", normalizedScore: 90, contributionScore: 1, rawEngagement: 1, sourceUrl: "https://x.com/c/status/612", platformPostId: "612" }),
-      evidence({ id: "engagement", normalizedScore: 89, rawEngagement: 20, sourceUrl: "https://x.com/c/status/613", platformPostId: "613" }),
-      evidence({ id: "newer", normalizedScore: 89, rawEngagement: 10, postedAt: "2026-07-19T12:00:00.000Z", sourceUrl: "https://x.com/c/status/614", platformPostId: "614" })
+      evidence({ id: "contribution-only", normalizedScore: undefined, contributionScore: 89, metrics: xMetricsForEditorialValue(89.1), rawEngagement: 10, sourceUrl: "https://x.com/c/status/611", platformPostId: "611" }),
+      evidence({ id: "normalized", normalizedScore: 90, contributionScore: 1, metrics: xMetricsForEditorialValue(90), rawEngagement: 1, sourceUrl: "https://x.com/c/status/612", platformPostId: "612" }),
+      evidence({ id: "engagement", normalizedScore: 89, metrics: xMetricsForEditorialValue(89.4), rawEngagement: 20, sourceUrl: "https://x.com/c/status/613", platformPostId: "613" }),
+      evidence({ id: "newer", normalizedScore: 89, metrics: xMetricsForEditorialValue(89.2), rawEngagement: 10, postedAt: "2026-07-19T12:00:00.000Z", sourceUrl: "https://x.com/c/status/614", platformPostId: "614" })
     ]), { period: "all_time" });
 
     expect(ranked.map((item) => item.evidence.id)).toEqual([
@@ -434,6 +537,7 @@ function companyNode(): GraphNode {
 }
 
 function evidence(overrides: Partial<EvidenceItem> = {}): EvidenceItem {
+  const desiredScore = overrides.normalizedScore ?? overrides.contributionScore ?? 80;
   return {
     id: "eligible",
     entityType: "company",
@@ -445,7 +549,7 @@ function evidence(overrides: Partial<EvidenceItem> = {}): EvidenceItem {
     publishedAtPrecision: "exact",
     text: "We reached 10,000 users.",
     mediaType: "text",
-    metrics: { likes: 100 },
+    metrics: xMetricsForEditorialValue(desiredScore),
     contributionScore: 80,
     normalizedScore: 80,
     rawEngagement: 100,
@@ -457,6 +561,20 @@ function evidence(overrides: Partial<EvidenceItem> = {}): EvidenceItem {
     linkStatus: "verified",
     ...overrides
   };
+}
+
+function xMetricsForEditorialValue(score: number): EvidenceItem["metrics"] {
+  if (!Number.isFinite(score) || score <= 0) return {};
+  const rawEngagement = Math.expm1((Math.min(100, score) / 100) * Math.log1p(120_000));
+  return { views: rawEngagement / 0.04 };
+}
+
+function rankedPostIdentity(posts: ReturnType<typeof selectRankedPosts>) {
+  return posts.map((post) => ({
+    id: post.evidence.id,
+    rank: post.rank,
+    editorialScore: post.editorialScore
+  }));
 }
 
 function audience() {

@@ -9,6 +9,10 @@ import {
   rankedPostsSidecarScope,
   type RankedPostsSidecarScope
 } from "./ranked-posts-sidecar";
+import {
+  rankedPostEditorialRawEngagement,
+  rankedPostEditorialScore
+} from "./ranked-post-editorial-score";
 import type { PostTopic } from "./post-topics";
 import type { EvidenceItem, GraphNode, GraphResponse, Platform } from "./types";
 import { centralDayKey } from "../time/central-day";
@@ -21,6 +25,7 @@ export type RankedPostSourceKind = "company" | "founder" | "top_voice";
 
 export interface RankedPost {
   rank: number;
+  editorialScore: number;
   evidence: EvidenceItem;
   companyId: string;
   companyName: string;
@@ -45,11 +50,14 @@ type RankedPostsCandidateOptions = Pick<
   "platforms" | "topics" | "sidecarScope"
 >;
 
-type RankedPostCandidate = Omit<RankedPost, "rank">;
+type RankedPostCandidate = Omit<RankedPost, "rank"> & {
+  editorialRawEngagement: number;
+};
 
 /**
  * Selects ranked posts from an already visibility-filtered graph. This function
- * never calculates or mutates evidence or company scores.
+ * never mutates evidence or company scores. Its versioned editorial score is
+ * calculated independently from the active company-traction model.
  */
 export function selectRankedPosts(
   graph: GraphResponse,
@@ -88,12 +96,20 @@ export function selectRankedPosts(
   let previousScore: number | null = null;
 
   return rankedCandidates.map((candidate, index) => {
-    const score = rankedPostScore(candidate.evidence);
+    const score = candidate.editorialScore;
     if (previousScore === null || score !== previousScore) {
       tiedRank = index + 1;
     }
     previousScore = score;
-    return { ...candidate, rank: tiedRank };
+    return {
+      rank: tiedRank,
+      editorialScore: candidate.editorialScore,
+      evidence: candidate.evidence,
+      companyId: candidate.companyId,
+      companyName: candidate.companyName,
+      sourceKind: candidate.sourceKind,
+      canonicalPostKey: candidate.canonicalPostKey
+    };
   });
 }
 
@@ -144,6 +160,8 @@ function rankedPostCandidates(
 
     const physicalPostKey = canonicalPostKey(evidence);
     const candidate: RankedPostCandidate = {
+      editorialRawEngagement: rankedPostEditorialRawEngagement(evidence),
+      editorialScore: rankedPostEditorialScore(evidence),
       evidence,
       companyId,
       companyName: company.label,
@@ -206,8 +224,8 @@ export function rankableEvidence(evidence: readonly EvidenceItem[]): EvidenceIte
 
 export function compareRankedPostEvidence(left: EvidenceItem, right: EvidenceItem): number {
   return (
-    rankedPostScore(right) - rankedPostScore(left) ||
-    finiteNumber(right.rawEngagement) - finiteNumber(left.rawEngagement) ||
+    rankedPostEditorialScore(right) - rankedPostEditorialScore(left) ||
+    rankedPostEditorialRawEngagement(right) - rankedPostEditorialRawEngagement(left) ||
     publicationSortValue(right) - publicationSortValue(left) ||
     canonicalEvidenceUrl(left.sourceUrl).localeCompare(canonicalEvidenceUrl(right.sourceUrl)) ||
     left.id.localeCompare(right.id)
@@ -216,20 +234,16 @@ export function compareRankedPostEvidence(left: EvidenceItem, right: EvidenceIte
 
 function compareRankedPostCandidates(left: RankedPostCandidate, right: RankedPostCandidate): number {
   return (
-    compareRankedPostEvidence(left.evidence, right.evidence) ||
+    right.editorialScore - left.editorialScore ||
+    right.editorialRawEngagement - left.editorialRawEngagement ||
+    publicationSortValue(right.evidence) - publicationSortValue(left.evidence) ||
+    canonicalEvidenceUrl(left.evidence.sourceUrl).localeCompare(
+      canonicalEvidenceUrl(right.evidence.sourceUrl)
+    ) ||
+    left.evidence.id.localeCompare(right.evidence.id) ||
     left.companyId.localeCompare(right.companyId) ||
     left.sourceKind.localeCompare(right.sourceKind)
   );
-}
-
-function rankedPostScore(item: EvidenceItem): number {
-  return Number.isFinite(item.normalizedScore)
-    ? Number(item.normalizedScore)
-    : finiteNumber(item.contributionScore);
-}
-
-function finiteNumber(value: number | null | undefined): number {
-  return typeof value === "number" && Number.isFinite(value) ? value : 0;
 }
 
 function publicationSortValue(

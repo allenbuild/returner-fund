@@ -576,7 +576,7 @@ export function InsightsTabs({
               {rankedPosts.map((post) => {
                 const item = post.evidence;
                 const contribution = formatContribution(item);
-                const score = rankedEvidenceScore(item);
+                const score = post.editorialScore;
                 const card = (
                   <article className="ranked-post-card">
                     <div className="ranked-post-rank"><RankDisplay rank={post.rank} /></div>
@@ -1582,11 +1582,6 @@ function formatPostDate(value: string): string {
 function formatAuthor(author: string, handle: string | null): string {
   if (!handle || author.toLowerCase().includes(handle.toLowerCase())) return author;
   return `${author} · @${handle.replace(/^@/, "")}`;
-}
-
-function rankedEvidenceScore(item: EvidenceItem): number {
-  const value = Number.isFinite(item.normalizedScore) ? item.normalizedScore : item.contributionScore;
-  return Math.max(0, Math.min(100, Math.round(value ?? 0)));
 }
 
 function xHandleFromEvidenceUrl(value: string | null | undefined): string {

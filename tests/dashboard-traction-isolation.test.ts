@@ -64,7 +64,7 @@ function graphFixture(
       handle: "graphifylabs",
       platformPostId: "1001",
       postedAt: "2026-08-31T12:00:00.000Z",
-      metrics: { views: 4_000_000, likes: 80_000, reposts: 12_000 },
+      metrics: { views: 1_200_000, likes: 1_000, reposts: 100 },
       contributionScore: 83
     }),
     socialEvidence({
@@ -74,7 +74,7 @@ function graphFixture(
       handle: "screenpipe",
       platformPostId: "1002",
       postedAt: "2026-08-31T10:00:00.000Z",
-      metrics: { views: 2_000_000, likes: 30_000, reposts: 4_000 },
+      metrics: { views: 1_000_000, likes: 500, reposts: 50 },
       contributionScore: 82
     })
   ];

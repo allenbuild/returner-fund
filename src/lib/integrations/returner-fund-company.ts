@@ -219,7 +219,7 @@ function buildCompanyResponse(
         authorName,
         authorHandle: post.evidence.authorHandle,
         publishedAt: post.evidence.postedAt,
-        score: rankedEvidenceScore(post.evidence),
+        score: post.editorialScore,
         metrics: post.evidence.metrics,
         topics: post.evidence.topics ?? [],
       };
@@ -244,13 +244,6 @@ function companySlug(company: GraphNode): string {
     // Fall through to the stable graph identity.
   }
   return company.entityId.replace(/^company-/, "") || slugify(company.label);
-}
-
-function rankedEvidenceScore(evidence: { normalizedScore?: number; contributionScore: number }): number {
-  const value = Number.isFinite(evidence.normalizedScore)
-    ? Number(evidence.normalizedScore)
-    : evidence.contributionScore;
-  return Math.max(0, Math.min(100, Math.round(value)));
 }
 
 function compactText(value: string, maxLength: number): string {

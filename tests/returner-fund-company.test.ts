@@ -222,6 +222,7 @@ function companyNode(id: string, label: string, score: number, ycProfileUrl: str
 }
 
 function evidence(overrides: Partial<EvidenceItem> = {}): EvidenceItem {
+  const desiredScore = overrides.normalizedScore ?? overrides.contributionScore ?? 80;
   return {
     id: "company-second",
     batchSlug: "S26",
@@ -236,7 +237,7 @@ function evidence(overrides: Partial<EvidenceItem> = {}): EvidenceItem {
     title: "Example post",
     text: "Example post",
     mediaType: "text",
-    metrics: { views: 10_000, likes: 100 },
+    metrics: xMetricsForEditorialScore(desiredScore),
     contributionScore: 80,
     normalizedScore: 80,
     rawEngagement: 100,
@@ -248,6 +249,12 @@ function evidence(overrides: Partial<EvidenceItem> = {}): EvidenceItem {
     linkStatus: "verified",
     ...overrides,
   };
+}
+
+function xMetricsForEditorialScore(score: number): EvidenceItem["metrics"] {
+  if (!Number.isFinite(score) || score <= 0) return {};
+  const rawEngagement = Math.expm1((Math.min(100, score) / 100) * Math.log1p(120_000));
+  return { views: rawEngagement / 0.04 };
 }
 
 function fixtureSidecar(): RankedPostsSidecarScope {
