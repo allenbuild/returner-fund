@@ -524,6 +524,64 @@ describe("daily benchmark updater", () => {
     expect(appendObservedBenchmarkSnapshot(store, olderGraph, recordedAt)).toBe(store);
   });
 
+  it("repairs unsorted model backfills on an otherwise idempotent same-day rerun", () => {
+    const graphGeneratedAt = new Date("2026-08-31T15:00:00.000Z");
+    const rerunRecordedAt = new Date("2026-09-01T01:00:00.000Z");
+    const graph = graphFor(BATCH_SNAPSHOTS[0], graphGeneratedAt);
+    const companies = graph.leaderboard.map(({ companyId, companyName, score, rank }) => ({
+      companyId,
+      companyName,
+      score,
+      rank
+    }));
+    const olderBackfill = {
+      recordedAt: "2026-08-24T14:39:26.108Z",
+      scoringModelVersion: "4.3.0",
+      inputGeneratedAt: "2026-08-24T14:38:24.295Z",
+      companies
+    };
+    const currentModelSnapshot = {
+      recordedAt: "2026-08-31T15:15:49.601Z",
+      scoringModelVersion: "4.3.0",
+      inputGeneratedAt: graphGeneratedAt.toISOString(),
+      companies
+    };
+    const newerOtherModelSnapshot = {
+      recordedAt: "2026-08-31T20:00:00.000Z",
+      scoringModelVersion: "4.2.0",
+      inputGeneratedAt: "2026-08-31T19:59:00.000Z",
+      companies
+    };
+    const store = {
+      version: 1,
+      batchSlug: "S2026",
+      updatedAt: newerOtherModelSnapshot.recordedAt,
+      daily: [newerOtherModelSnapshot, olderBackfill, currentModelSnapshot],
+      weekly: [newerOtherModelSnapshot, olderBackfill, currentModelSnapshot]
+    };
+
+    const repaired = appendObservedBenchmarkSnapshot(store, graph, rerunRecordedAt);
+
+    expect(repaired).not.toBe(store);
+    expect(repaired.updatedAt).toBe(store.updatedAt);
+    expect(repaired.daily).toEqual([
+      olderBackfill,
+      currentModelSnapshot,
+      newerOtherModelSnapshot
+    ]);
+    expect(repaired.weekly).toEqual([
+      olderBackfill,
+      currentModelSnapshot,
+      newerOtherModelSnapshot
+    ]);
+    expect(store.daily).toEqual([
+      newerOtherModelSnapshot,
+      olderBackfill,
+      currentModelSnapshot
+    ]);
+    expect(appendObservedBenchmarkSnapshot(repaired, graph, rerunRecordedAt)).toBe(repaired);
+  });
+
   it("aborts a graph fetch that exceeds its timeout", async () => {
     const server = http.createServer((_request, response) => {
       setTimeout(() => {

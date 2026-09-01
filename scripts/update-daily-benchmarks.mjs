@@ -572,22 +572,51 @@ export function appendObservedBenchmarkSnapshot(store, graph, recordedAt) {
   const weeklyDue =
     !latestWeekly || centralDayDistance(new Date(latestWeekly.recordedAt), recordedAt) >= 7;
 
-  if (alreadyRecordedDaily && !replaceStaleDaily && !weeklyDue) {
-    return store;
-  }
-
-  const daily = !alreadyRecordedDaily
+  const upsertedDaily = !alreadyRecordedDaily
     ? [...store.daily, snapshot]
     : replaceStaleDaily
       ? store.daily.map((candidate, index) => index === recordedDailyIndex ? snapshot : candidate)
       : store.daily;
+  const upsertedWeekly = weeklyDue ? [...store.weekly, snapshot] : store.weekly;
+  const daily = sortBenchmarkSnapshotsChronologically(upsertedDaily);
+  const weekly = sortBenchmarkSnapshotsChronologically(upsertedWeekly);
+  const observedSnapshotChanged = !alreadyRecordedDaily || replaceStaleDaily || weeklyDue;
+
+  // Historical model-version backfills can be appended after newer rows. A
+  // same-day publisher retry must still repair that ordering even when the
+  // current observation itself is already recorded, otherwise atomic release
+  // validation keeps seeing a stale, non-chronological history.
+  if (!observedSnapshotChanged && daily === store.daily && weekly === store.weekly) {
+    return store;
+  }
 
   return {
     ...store,
-    updatedAt: recordedAt.toISOString(),
+    updatedAt: observedSnapshotChanged ? recordedAt.toISOString() : store.updatedAt,
     daily,
-    weekly: weeklyDue ? [...store.weekly, snapshot] : store.weekly
+    weekly
   };
+}
+
+function sortBenchmarkSnapshotsChronologically(snapshots) {
+  const ordered = snapshots
+    .map((snapshot, originalIndex) => ({
+      originalIndex,
+      recordedAt: isIsoTimestamp(snapshot?.recordedAt)
+        ? Date.parse(snapshot.recordedAt)
+        : Number.POSITIVE_INFINITY,
+      snapshot
+    }))
+    .sort(
+      (left, right) =>
+        left.recordedAt - right.recordedAt || left.originalIndex - right.originalIndex
+    );
+
+  if (ordered.every((entry, index) => entry.originalIndex === index)) {
+    return snapshots;
+  }
+
+  return ordered.map((entry) => entry.snapshot);
 }
 
 export async function assertSkippedRunHasCurrentBenchmarks({ rootDir, now }) {
