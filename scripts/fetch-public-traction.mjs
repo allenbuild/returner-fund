@@ -2228,7 +2228,7 @@ function canonicalYouTubeChannelUrl(value) {
 async function ingestMappedYouTubeAccount(company, entity, entityType, accountUrl) {
   const canonicalAccountUrl = canonicalProfileUrl(accountUrl, "youtube").replace(/\/$/, "");
   const videosUrl = `${canonicalAccountUrl}/videos`;
-  const { text: html } = await fetchPublicBoundedText(videosUrl);
+  const { response: pageResponse, text: html } = await fetchPublicBoundedText(videosUrl);
   const pageObservation = parseYouTubePublicPage(html);
   const mappedChannelId = youtubeChannelIdFromAccountUrl(canonicalAccountUrl);
   if (mappedChannelId && pageObservation.channelId && mappedChannelId !== pageObservation.channelId) {
@@ -2326,8 +2326,12 @@ async function ingestMappedYouTubeAccount(company, entity, entityType, accountUr
   const videos = [...videosById.values()];
   if (!videos.length) {
     const verifiedEmptyAtom404 =
+      pageResponse.ok &&
       feedHttpStatus === 404 &&
       pageVideos.length === 0 &&
+      pageObservation.itemsSeen === 0 &&
+      pageObservation.discoveredVideoIds.length === 0 &&
+      pageObservation.continuationTokens.length === 0 &&
       Boolean(pageObservation.channelId) &&
       pageObservation.channelId === channelId;
     const terminalFeedFailure = verifiedEmptyAtom404 && feedFailure

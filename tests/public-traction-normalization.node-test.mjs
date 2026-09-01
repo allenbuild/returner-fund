@@ -2293,18 +2293,40 @@ globalThis.fetch = async (input) => {
 test("mapped YouTube empty pages terminalize Atom 404 but retry transient feed failures", async () => {
   const fixtures = [
     {
+      pageStatus: 200,
       feedStatus: 404,
+      pagePayload: "",
       expectedRetryable: false,
       expectedVerifiedEmpty: true,
       expectedOutcomeStatus: "completed",
       expectedOutcomeReason: "collector_verified_native_account_empty_public_window"
     },
     {
+      pageStatus: 200,
+      feedStatus: 404,
+      pagePayload: ',"videoId":"visibleVideo123","title":{"simpleText":"Visible video"}',
+      expectedRetryable: true,
+      expectedVerifiedEmpty: false,
+      expectedOutcomeStatus: "failed",
+      expectedOutcomeReason: "collector_reported_failure"
+    },
+    {
+      pageStatus: 200,
       feedStatus: 500,
+      pagePayload: "",
       expectedRetryable: true,
       expectedVerifiedEmpty: false,
       expectedOutcomeStatus: "blocked_or_empty",
       expectedOutcomeReason: "collector_checked_blocked_or_empty"
+    },
+    {
+      pageStatus: 404,
+      feedStatus: 404,
+      pagePayload: "",
+      expectedRetryable: true,
+      expectedVerifiedEmpty: false,
+      expectedOutcomeStatus: "failed",
+      expectedOutcomeReason: "collector_reported_failure"
     }
   ];
 
@@ -2325,7 +2347,7 @@ test("mapped YouTube empty pages terminalize Atom 404 but retry transient feed f
 globalThis.fetch = async (input) => {
   const value = String(input);
   if (value === "https://youtube.com/@roborebel6031/videos") {
-    return new Response('<script>{"channelId":"${channelId}"}</script>', { status: 200 });
+    return new Response('<script>{"channelId":"${channelId}"${fixture.pagePayload}}</script>', { status: ${fixture.pageStatus} });
   }
   if (value === "https://www.youtube.com/feeds/videos.xml?channel_id=${channelId}") {
     return new Response("feed unavailable", { status: ${fixture.feedStatus} });
