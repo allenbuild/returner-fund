@@ -416,11 +416,14 @@ describe("YC Summer 2026 official snapshot", () => {
 
     expect(graphifyEvidence).toEqual(
       expect.arrayContaining([
+        // V4.3's bounded GitHub normalization maps the current 112,910-star
+        // repository receipt to 99; the global company benchmark is applied
+        // later and must not be baked into this evidence-row expectation.
         expect.objectContaining({
           platform: "github",
           sourceUrl: "https://github.com/Graphify-Labs/graphify",
           platformObjectId: "1200597263",
-          contributionScore: 100
+          contributionScore: 99
         }),
         expect.objectContaining({
           platform: "linkedin",
@@ -942,10 +945,25 @@ describe("YC Summer 2026 official snapshot", () => {
     ).toEqual(
       expect.objectContaining({
         category: "legacy_account_mapping_absent_from_authoritative_targets",
-        currentCanonicality: "absent_from_current_canonical_receipt",
+        // The UseBylaw account is physically present in the current receipt,
+        // but its canonical owner is now Definite. Keep the legacy Bylaw row
+        // quarantined and require explicit owner-attribution review.
+        currentCanonicality: "physical_object_present_under_different_canonical_attribution",
         scoringEligible: false,
         physicalRepresentation: expect.objectContaining({
-          status: "not_represented_in_current_canonical_receipt"
+          status: "represented_in_current_canonical_receipt",
+          canonicalMatches: expect.arrayContaining([
+            expect.objectContaining({
+              entityId: "company-definite",
+              accountUrl: "https://github.com/usebylaw"
+            })
+          ])
+        }),
+        ownerAttributionReview: expect.objectContaining({
+          status: "required",
+          legacyOwner: expect.objectContaining({
+            entityId: "company-bylaw"
+          })
         }),
         legacyRow: expect.objectContaining({
           entityId: "company-bylaw",
