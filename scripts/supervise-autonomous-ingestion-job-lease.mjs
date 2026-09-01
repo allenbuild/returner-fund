@@ -4,6 +4,7 @@ import { execFile as execFileCallback } from "node:child_process";
 import { randomUUID } from "node:crypto";
 import {
   mkdir,
+  link,
   open,
   readFile,
   readdir,
@@ -49,6 +50,8 @@ export const DASHBOARD_SCHEMA_VERSION = "technology-dashboard-v2";
 const FULL_SHA = /^[0-9a-f]{40}$/i;
 const CENTRAL_SLOT_KEY = /^central-\d{4}-\d{2}-\d{2}-(?:0600|1800)$/;
 const POSITIVE_INTEGER = /^[1-9][0-9]*$/;
+const SUPERVISOR_LOCK_OWNER_FILE = /^owner-([1-9][0-9]{0,14})\.json$/;
+const SUPERVISOR_LOCK_RELEASE_FILE = /^release-([1-9][0-9]{0,14})\.json$/;
 const ACTIVE_RUN_STATUSES = new Set([
   "queued",
   "in_progress",
@@ -1416,115 +1419,173 @@ export async function scanWorkerLogs({ config, state }) {
 export async function acquireSupervisorLock(lockPath, {
   now = () => new Date(),
   readProcessIdentity = readSupervisorProcessIdentity,
-  initializationGraceMs = DEFAULT_SUPERVISOR_LOCK_INITIALIZATION_GRACE_MS
+  initializationGraceMs = DEFAULT_SUPERVISOR_LOCK_INITIALIZATION_GRACE_MS,
+  beforeGenerationPublish = async () => {},
+  readLockFile = readFile
 } = {}) {
   if (typeof now !== "function") throw new TypeError("Supervisor lock now must be a function.");
   if (typeof readProcessIdentity !== "function") {
     throw new TypeError("Supervisor lock process identity reader must be a function.");
   }
+  if (typeof beforeGenerationPublish !== "function") {
+    throw new TypeError("Supervisor lock generation publish hook must be a function.");
+  }
+  if (typeof readLockFile !== "function") {
+    throw new TypeError("Supervisor lock file reader must be a function.");
+  }
   if (!Number.isSafeInteger(initializationGraceMs) || initializationGraceMs < 1) {
     throw new RangeError("Supervisor lock initialization grace must be a positive integer.");
+  }
+  const startedAt = now();
+  if (!(startedAt instanceof Date) || !Number.isFinite(startedAt.getTime())) {
+    throw new Error("Supervisor lock acquisition time must be a valid Date.");
   }
   const processIdentity = await readProcessIdentity(process.pid);
   if (!validProcessIdentity(processIdentity)) {
     throw new Error("Unable to establish the supervisor process start identity.");
   }
   const ownerId = randomUUID();
+  let directoryCreated = false;
+  try {
+    await mkdir(lockPath, { mode: 0o700 });
+    directoryCreated = true;
+  } catch (error) {
+    if (error?.code !== "EEXIST") throw error;
+  }
 
-  const tryAcquire = async () => {
-    let directoryCreated = false;
-    try {
-      await mkdir(lockPath, { mode: 0o700 });
-      directoryCreated = true;
-      const startedAt = now();
-      if (!(startedAt instanceof Date) || !Number.isFinite(startedAt.getTime())) {
-        throw new Error("Supervisor lock acquisition time must be a valid Date.");
-      }
-      await writeFile(
-        path.join(lockPath, "owner.json"),
-        `${JSON.stringify({
-          schemaVersion: 1,
-          ownerId,
-          pid: process.pid,
-          startedAt: startedAt.toISOString(),
-          processIdentity
-        })}\n`,
-        { mode: 0o600, flag: "wx" }
-      );
-      return true;
-    } catch (error) {
-      if (!directoryCreated && error?.code === "EEXIST") return false;
-      if (directoryCreated) await rm(lockPath, { recursive: true, force: true });
-      throw error;
-    }
+  const observation = await observeSupervisorLock({
+    lockPath,
+    observedAt: startedAt,
+    directoryCreated,
+    initializationGraceMs,
+    readProcessIdentity,
+    readLockFile
+  });
+  if (!observation.acquirable) return unacquiredSupervisorLock();
+
+  const generation = observation.nextGeneration;
+  const owner = {
+    schemaVersion: 2,
+    generation,
+    ownerId,
+    pid: process.pid,
+    startedAt: startedAt.toISOString(),
+    processIdentity
   };
+  await beforeGenerationPublish({ lockPath, generation, ownerId });
+  const published = await publishExclusiveSupervisorLockJson(
+    lockPath,
+    supervisorOwnerFilename(generation),
+    owner,
+    ownerId
+  );
+  if (!published) return unacquiredSupervisorLock();
 
-  if (await tryAcquire()) {
+  // A contender may have been suspended long enough for this generation to
+  // be acquired, released, and pruned before its exclusive link ran. Never
+  // let that delayed contender resurrect a superseded generation.
+  const confirmedGeneration = await highestSupervisorLockGeneration(lockPath);
+  if (confirmedGeneration !== generation) return unacquiredSupervisorLock();
+  const confirmedOwner = await readJsonOrNull(
+    path.join(lockPath, supervisorOwnerFilename(generation)),
+    readLockFile
+  );
+  if (
+    !validSupervisorGenerationOwner(confirmedOwner, generation) ||
+    confirmedOwner.ownerId !== ownerId
+  ) {
+    return unacquiredSupervisorLock();
+  }
+
+  await cleanupSupersededSupervisorLockGenerations(lockPath, generation);
+  return {
+    acquired: true,
+    release: () => releaseSupervisorLock(lockPath, owner)
+  };
+}
+
+async function observeSupervisorLock({
+  lockPath,
+  observedAt,
+  directoryCreated,
+  initializationGraceMs,
+  readProcessIdentity,
+  readLockFile
+}) {
+  const highestGeneration = await highestSupervisorLockGeneration(lockPath);
+  if (highestGeneration !== null) {
+    const ownerPath = path.join(lockPath, supervisorOwnerFilename(highestGeneration));
+    const owner = await readJsonOrNull(ownerPath, readLockFile);
+    if (!validSupervisorGenerationOwner(owner, highestGeneration)) {
+      return {
+        acquirable: await supervisorPathAgeExpired(
+          ownerPath,
+          observedAt,
+          initializationGraceMs
+        ),
+        nextGeneration: nextSupervisorLockGeneration(highestGeneration)
+      };
+    }
+    if (await validSupervisorLockRelease(lockPath, owner, readLockFile)) {
+      return {
+        acquirable: true,
+        nextGeneration: nextSupervisorLockGeneration(highestGeneration)
+      };
+    }
+    if (await matchingLiveSupervisorLockOwner(owner, readProcessIdentity)) {
+      return { acquirable: false, nextGeneration: null };
+    }
     return {
-      acquired: true,
-      release: () => releaseSupervisorLock(lockPath, ownerId)
+      acquirable: true,
+      nextGeneration: nextSupervisorLockGeneration(highestGeneration)
     };
   }
 
-  let owner = null;
-  try {
-    owner = JSON.parse(await readFile(path.join(lockPath, "owner.json"), "utf8"));
-  } catch {
-    owner = null;
-  }
-  if (validSupervisorLockOwner(owner)) {
-    const liveOwner = await matchingLiveSupervisorLockOwner(owner, readProcessIdentity);
-    if (liveOwner) return { acquired: false, release: async () => {} };
-  } else {
-    if (!(await supervisorLockInitializationGraceExpired(
-      lockPath,
-      now,
-      initializationGraceMs
-    ))) {
-      return { acquired: false, release: async () => {} };
+  const legacyOwnerPath = path.join(lockPath, "owner.json");
+  const legacyOwner = await readJsonOrNull(legacyOwnerPath, readLockFile);
+  if (validLegacySupervisorLockOwner(legacyOwner)) {
+    if (await matchingLiveSupervisorLockOwner(legacyOwner, readProcessIdentity)) {
+      return { acquirable: false, nextGeneration: null };
     }
-    // The initializer may have completed while this contender was checking
-    // the grace boundary. Re-read immediately before reclamation and preserve
-    // any now-complete owner whose PID and start identity both still match.
-    try {
-      const completedOwner = JSON.parse(
-        await readFile(path.join(lockPath, "owner.json"), "utf8")
-      );
-      if (
-        validSupervisorLockOwner(completedOwner) &&
-        await matchingLiveSupervisorLockOwner(completedOwner, readProcessIdentity)
-      ) {
-        return { acquired: false, release: async () => {} };
-      }
-    } catch {
-      // Still incomplete after the grace period; reclaim below.
-    }
+    return { acquirable: true, nextGeneration: 1 };
   }
-
-  await rm(lockPath, { recursive: true, force: true });
-  if (!(await tryAcquire())) return { acquired: false, release: async () => {} };
+  if (directoryCreated) return { acquirable: true, nextGeneration: 1 };
   return {
-    acquired: true,
-    release: () => releaseSupervisorLock(lockPath, ownerId)
+    acquirable: await supervisorPathAgeExpired(
+      legacyOwner === null ? lockPath : legacyOwnerPath,
+      observedAt,
+      initializationGraceMs
+    ),
+    nextGeneration: 1
   };
 }
 
-async function supervisorLockInitializationGraceExpired(lockPath, now, graceMs) {
-  let lockStat;
+async function highestSupervisorLockGeneration(lockPath) {
+  const entries = await readdir(lockPath, { withFileTypes: true });
+  let highest = null;
+  for (const entry of entries) {
+    if (!entry.isFile()) continue;
+    const generation = supervisorGenerationFromFilename(entry.name, SUPERVISOR_LOCK_OWNER_FILE);
+    if (generation !== null && (highest === null || generation > highest)) {
+      highest = generation;
+    }
+  }
+  return highest;
+}
+
+async function supervisorPathAgeExpired(targetPath, observedAt, graceMs) {
+  let metadata;
   try {
-    lockStat = await stat(lockPath);
+    metadata = await stat(targetPath);
   } catch {
     return false;
   }
-  const observedAt = now();
-  if (!(observedAt instanceof Date) || !Number.isFinite(observedAt.getTime())) return false;
-  const ageMs = observedAt.getTime() - lockStat.mtimeMs;
+  const ageMs = observedAt.getTime() - metadata.mtimeMs;
   return Number.isFinite(ageMs) && ageMs >= graceMs;
 }
 
-function validSupervisorLockOwner(owner) {
+function validSupervisorLockOwnerIdentity(owner) {
   return plainObject(owner) &&
-    owner.schemaVersion === 1 &&
     typeof owner.ownerId === "string" &&
     /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
       owner.ownerId
@@ -1533,6 +1594,16 @@ function validSupervisorLockOwner(owner) {
     owner.pid > 0 &&
     strictUtcInstantOrNull(owner.startedAt) &&
     validProcessIdentity(owner.processIdentity);
+}
+
+function validLegacySupervisorLockOwner(owner) {
+  return owner?.schemaVersion === 1 && validSupervisorLockOwnerIdentity(owner);
+}
+
+function validSupervisorGenerationOwner(owner, generation) {
+  return owner?.schemaVersion === 2 &&
+    owner.generation === generation &&
+    validSupervisorLockOwnerIdentity(owner);
 }
 
 async function matchingLiveSupervisorLockOwner(owner, readProcessIdentity) {
@@ -1549,14 +1620,134 @@ async function matchingLiveSupervisorLockOwner(owner, readProcessIdentity) {
   return processExists(owner.pid);
 }
 
-async function releaseSupervisorLock(lockPath, ownerId) {
+async function validSupervisorLockRelease(lockPath, owner, readLockFile = readFile) {
+  const release = await readJsonOrNull(
+    path.join(lockPath, supervisorReleaseFilename(owner.generation)),
+    readLockFile
+  );
+  return plainObject(release) &&
+    release.schemaVersion === 1 &&
+    release.generation === owner.generation &&
+    release.ownerId === owner.ownerId &&
+    strictUtcInstantOrNull(release.releasedAt);
+}
+
+async function publishExclusiveSupervisorLockJson(
+  lockPath,
+  filename,
+  payload,
+  ownerId
+) {
+  const temporaryPath = path.join(
+    lockPath,
+    `.candidate-${ownerId}-${randomUUID()}.json`
+  );
+  await writeFile(temporaryPath, `${JSON.stringify(payload)}\n`, {
+    mode: 0o600,
+    flag: "wx"
+  });
   try {
-    const owner = JSON.parse(await readFile(path.join(lockPath, "owner.json"), "utf8"));
-    if (owner?.ownerId !== ownerId) return;
+    await link(temporaryPath, path.join(lockPath, filename));
+    return true;
+  } catch (error) {
+    if (error?.code === "EEXIST") return false;
+    throw error;
+  } finally {
+    await rm(temporaryPath, { force: true }).catch(() => {});
+  }
+}
+
+async function releaseSupervisorLock(lockPath, owner) {
+  const highestGeneration = await highestSupervisorLockGeneration(lockPath).catch(() => null);
+  if (highestGeneration !== owner.generation) return;
+  const currentOwner = await readJsonOrNull(
+    path.join(lockPath, supervisorOwnerFilename(owner.generation))
+  );
+  if (
+    !validSupervisorGenerationOwner(currentOwner, owner.generation) ||
+    currentOwner.ownerId !== owner.ownerId
+  ) {
+    return;
+  }
+  const release = {
+    schemaVersion: 1,
+    generation: owner.generation,
+    ownerId: owner.ownerId,
+    releasedAt: new Date().toISOString()
+  };
+  const published = await publishExclusiveSupervisorLockJson(
+    lockPath,
+    supervisorReleaseFilename(owner.generation),
+    release,
+    owner.ownerId
+  ).catch(() => false);
+  if (!published && !(await validSupervisorLockRelease(lockPath, owner))) {
+    throw new Error("Supervisor lock release marker could not be published safely.");
+  }
+}
+
+async function cleanupSupersededSupervisorLockGenerations(lockPath, currentGeneration) {
+  let entries;
+  try {
+    entries = await readdir(lockPath, { withFileTypes: true });
   } catch {
     return;
   }
-  await rm(lockPath, { recursive: true, force: true });
+  await Promise.all(entries.map(async (entry) => {
+    if (!entry.isFile()) return;
+    const ownerGeneration = supervisorGenerationFromFilename(
+      entry.name,
+      SUPERVISOR_LOCK_OWNER_FILE
+    );
+    const releaseGeneration = supervisorGenerationFromFilename(
+      entry.name,
+      SUPERVISOR_LOCK_RELEASE_FILE
+    );
+    const generation = ownerGeneration ?? releaseGeneration;
+    if (generation === null || generation >= currentGeneration) return;
+    await rm(path.join(lockPath, entry.name), { force: true }).catch(() => {});
+  }));
+}
+
+function supervisorGenerationFromFilename(filename, pattern) {
+  const match = pattern.exec(filename);
+  if (!match) return null;
+  const generation = Number(match[1]);
+  return Number.isSafeInteger(generation) && generation > 0 ? generation : null;
+}
+
+function supervisorOwnerFilename(generation) {
+  return `owner-${generation}.json`;
+}
+
+function supervisorReleaseFilename(generation) {
+  return `release-${generation}.json`;
+}
+
+function nextSupervisorLockGeneration(generation) {
+  if (!Number.isSafeInteger(generation) || generation < 1 || generation >= 999_999_999_999_999) {
+    throw new Error("Supervisor lock generation is exhausted or malformed.");
+  }
+  return generation + 1;
+}
+
+function unacquiredSupervisorLock() {
+  return { acquired: false, release: async () => {} };
+}
+
+async function readJsonOrNull(filePath, readLockFile = readFile) {
+  let source;
+  try {
+    source = await readLockFile(filePath, "utf8");
+  } catch (error) {
+    if (error?.code === "ENOENT") return null;
+    throw error;
+  }
+  try {
+    return JSON.parse(source);
+  } catch {
+    return null;
+  }
 }
 
 export function createGitHubClient(config, { execute = execFile } = {}) {

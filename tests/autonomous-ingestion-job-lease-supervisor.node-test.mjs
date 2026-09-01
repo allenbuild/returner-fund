@@ -4,6 +4,7 @@ import {
   mkdir,
   mkdtemp,
   readFile,
+  readdir,
   rm,
   stat,
   symlink,
@@ -1782,6 +1783,21 @@ test("atomic directory lock rejects overlap and recovers a dead owner", async (c
   await replacement.release();
 });
 
+async function currentSupervisorGenerationOwner(lockPath) {
+  const ownerFiles = (await readdir(lockPath))
+    .map((filename) => ({
+      filename,
+      generation: Number(/^owner-([1-9][0-9]{0,14})\.json$/.exec(filename)?.[1] ?? NaN)
+    }))
+    .filter(({ generation }) => Number.isSafeInteger(generation))
+    .sort((left, right) => right.generation - left.generation);
+  assert.ok(ownerFiles.length > 0, "expected a published supervisor lock generation");
+  return {
+    ...ownerFiles[0],
+    owner: JSON.parse(await readFile(path.join(lockPath, ownerFiles[0].filename), "utf8"))
+  };
+}
+
 test("supervisor lock preserves fresh incomplete owners and reclaims them after grace", async (context) => {
   const root = await mkdtemp(path.join(tmpdir(), "returner-incomplete-lock-test-"));
   context.after(() => rm(root, { recursive: true, force: true }));
@@ -1812,8 +1828,10 @@ test("supervisor lock preserves fresh incomplete owners and reclaims them after 
       initializationGraceMs: 60_000
     });
     assert.equal(recovered.acquired, true);
-    const owner = JSON.parse(await readFile(path.join(lockPath, "owner.json"), "utf8"));
-    assert.equal(owner.schemaVersion, 1);
+    const { generation, owner } = await currentSupervisorGenerationOwner(lockPath);
+    assert.equal(generation, 1);
+    assert.equal(owner.schemaVersion, 2);
+    assert.equal(owner.generation, 1);
     assert.equal(owner.pid, process.pid);
     assert.equal(owner.processIdentity, `fixture-process-${process.pid}`);
     await recovered.release();
@@ -1842,9 +1860,13 @@ test("supervisor lock protects exact live identity and safely recovers a reused 
   });
   assert.equal(exactLiveOwner.acquired, false);
 
-  const staleOwner = JSON.parse(await readFile(path.join(lockPath, "owner.json"), "utf8"));
+  const firstGeneration = await currentSupervisorGenerationOwner(lockPath);
+  const staleOwner = firstGeneration.owner;
   staleOwner.processIdentity = "different-process-start";
-  await writeFile(path.join(lockPath, "owner.json"), `${JSON.stringify(staleOwner)}\n`);
+  await writeFile(
+    path.join(lockPath, firstGeneration.filename),
+    `${JSON.stringify(staleOwner)}\n`
+  );
   const replacement = await acquireSupervisorLock(lockPath, {
     now: () => new Date("2026-08-26T06:00:00.000Z"),
     readProcessIdentity,
@@ -1860,6 +1882,136 @@ test("supervisor lock protects exact live identity and safely recovers a reused 
   });
   assert.equal(replacementStillOwned.acquired, false);
   await replacement.release();
+});
+
+test("supervisor lock fails closed on operational owner read errors", async (context) => {
+  const root = await mkdtemp(path.join(tmpdir(), "returner-lock-read-error-test-"));
+  context.after(() => rm(root, { recursive: true, force: true }));
+  const lockPath = path.join(root, "lock");
+  const observedAt = new Date("2026-08-26T06:00:00.000Z");
+  const readProcessIdentity = async (pid) => `fixture-process-${pid}`;
+  const first = await acquireSupervisorLock(lockPath, {
+    now: () => observedAt,
+    readProcessIdentity,
+    initializationGraceMs: 1
+  });
+  assert.equal(first.acquired, true);
+  const current = await currentSupervisorGenerationOwner(lockPath);
+  await utimes(path.join(lockPath, current.filename), new Date(0), new Date(0));
+
+  const readError = Object.assign(new Error("fixture owner read failed"), { code: "EIO" });
+  await assert.rejects(
+    acquireSupervisorLock(lockPath, {
+      now: () => observedAt,
+      readProcessIdentity,
+      initializationGraceMs: 1,
+      readLockFile: async (filePath, encoding) => {
+        if (filePath === path.join(lockPath, current.filename)) throw readError;
+        return readFile(filePath, encoding);
+      }
+    }),
+    (error) => error === readError
+  );
+
+  const overlap = await acquireSupervisorLock(lockPath, {
+    now: () => observedAt,
+    readProcessIdentity,
+    initializationGraceMs: 1
+  });
+  assert.equal(overlap.acquired, false);
+  await first.release();
+});
+
+test("supervisor lock generation fencing admits exactly one concurrent stale takeover", async (context) => {
+  const root = await mkdtemp(path.join(tmpdir(), "returner-lock-fencing-test-"));
+  context.after(() => rm(root, { recursive: true, force: true }));
+  const lockPath = path.join(root, "lock");
+  const contenderCount = 12;
+  const observedAt = new Date("2026-08-26T06:00:00.000Z");
+  const readProcessIdentity = async (pid) => `fixture-process-${pid}`;
+  await mkdir(lockPath);
+  await writeFile(path.join(lockPath, "owner.json"), "{incomplete\n");
+  await utimes(lockPath, new Date(0), new Date(0));
+
+  const contend = async () => {
+    let arrivals = 0;
+    let releaseBarrier;
+    const barrier = new Promise((resolve) => {
+      releaseBarrier = resolve;
+    });
+    const beforeGenerationPublish = async () => {
+      arrivals += 1;
+      if (arrivals === contenderCount) releaseBarrier();
+      await barrier;
+    };
+    const locks = await Promise.all(Array.from({ length: contenderCount }, () =>
+      acquireSupervisorLock(lockPath, {
+        now: () => observedAt,
+        readProcessIdentity,
+        initializationGraceMs: 1,
+        beforeGenerationPublish
+      })
+    ));
+    assert.equal(arrivals, contenderCount);
+    assert.equal(locks.filter(({ acquired }) => acquired).length, 1);
+    return locks.find(({ acquired }) => acquired);
+  };
+
+  const first = await contend();
+  assert.equal((await currentSupervisorGenerationOwner(lockPath)).generation, 1);
+  await first.release();
+
+  const second = await contend();
+  assert.equal((await currentSupervisorGenerationOwner(lockPath)).generation, 2);
+  await second.release();
+});
+
+test("supervisor lock fencing rejects a delayed contender for a pruned generation", async (context) => {
+  const root = await mkdtemp(path.join(tmpdir(), "returner-lock-delayed-fencing-test-"));
+  context.after(() => rm(root, { recursive: true, force: true }));
+  const lockPath = path.join(root, "lock");
+  const observedAt = new Date("2026-08-26T06:00:00.000Z");
+  const readProcessIdentity = async (pid) => `fixture-process-${pid}`;
+  const options = {
+    now: () => observedAt,
+    readProcessIdentity,
+    initializationGraceMs: 1
+  };
+
+  const first = await acquireSupervisorLock(lockPath, options);
+  assert.equal(first.acquired, true);
+  await first.release();
+
+  let delayedReady;
+  const ready = new Promise((resolve) => {
+    delayedReady = resolve;
+  });
+  let resumeDelayed;
+  const resumed = new Promise((resolve) => {
+    resumeDelayed = resolve;
+  });
+  const delayed = acquireSupervisorLock(lockPath, {
+    ...options,
+    beforeGenerationPublish: async ({ generation }) => {
+      assert.equal(generation, 2);
+      delayedReady();
+      await resumed;
+    }
+  });
+  await ready;
+
+  const second = await acquireSupervisorLock(lockPath, options);
+  assert.equal(second.acquired, true);
+  await second.release();
+  const third = await acquireSupervisorLock(lockPath, options);
+  assert.equal(third.acquired, true);
+  assert.equal((await currentSupervisorGenerationOwner(lockPath)).generation, 3);
+
+  resumeDelayed();
+  assert.equal((await delayed).acquired, false);
+  const overlap = await acquireSupervisorLock(lockPath, options);
+  assert.equal(overlap.acquired, false);
+  await third.release();
 });
 
 test("LaunchAgent template is a five-minute one-shot without KeepAlive", async () => {
