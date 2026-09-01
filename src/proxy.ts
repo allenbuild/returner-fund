@@ -3,6 +3,7 @@ import {
   hasTrustedAutomationCredential,
   hasValidSiteAccessToken,
   isSiteAccessConfigured,
+  isSiteAccessEnabled,
   SITE_ACCESS_COOKIE
 } from "@/lib/site-access";
 import { isReturnerFundApiRequest } from "@/lib/integrations/returner-api-auth";
@@ -18,6 +19,12 @@ const PUBLIC_DASHBOARD_SOURCE_DETAIL_PATH = /^\/api\/dashboard\/stories\/story-[
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
+
+  // Public mode bypasses only the site-wide browser gate. Individual API
+  // routes continue to enforce their own mutation and diagnostic secrets.
+  if (!isSiteAccessEnabled()) {
+    return NextResponse.next();
+  }
 
   if (PUBLIC_PATHS.has(pathname) || PUBLIC_DASHBOARD_SOURCE_DETAIL_PATH.test(pathname)) {
     return NextResponse.next();

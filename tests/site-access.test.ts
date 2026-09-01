@@ -6,14 +6,67 @@ import {
   createSiteAccessToken,
   hasValidSiteAccessToken,
   isSiteAccessConfigured,
+  isSiteAccessEnabled,
   passwordMatchesSiteAccess,
+  safeSiteAccessReturnTo,
   SITE_ACCESS_COOKIE
 } from "@/lib/site-access";
 import { POST as unlock } from "@/app/api/access/unlock/route";
 import { proxy } from "@/proxy";
 
 describe("site access", () => {
+  it("keeps the site public unless the password gate is explicitly enabled", async () => {
+    vi.stubEnv("SITE_ACCESS_ENABLED", undefined);
+    vi.stubEnv("SITE_PASSWORD", "correct horse battery staple");
+    vi.stubEnv("SITE_ACCESS_SECRET", "signing-secret");
+
+    expect(isSiteAccessEnabled()).toBe(false);
+
+    const pageResponse = await proxy(new NextRequest("https://returner.fund/rankings?batch=S26"));
+    expect(pageResponse.headers.get("x-middleware-next")).toBe("1");
+
+    const apiResponse = await proxy(new NextRequest("https://returner.fund/api/yc-partners?batch=S26"));
+    expect(apiResponse.headers.get("x-middleware-next")).toBe("1");
+
+    const graphResponse = await proxy(new NextRequest("https://returner.fund/graph/s2026.json"));
+    expect(graphResponse.headers.get("x-middleware-next")).toBe("1");
+
+    const unlockResponse = await unlock(unlockRequest({
+      password: "anything",
+      returnTo: "/rankings?batch=S26"
+    }));
+    expect(unlockResponse.status).toBe(303);
+    expect(unlockResponse.headers.get("location")).toBe("https://returner.fund/rankings?batch=S26");
+    expect(unlockResponse.headers.get("set-cookie")).toBeNull();
+  });
+
+  it("enables the password gate only for an explicit true flag", () => {
+    for (const value of [undefined, "", "false", "0", "yes"]) {
+      vi.stubEnv("SITE_ACCESS_ENABLED", value);
+      expect(isSiteAccessEnabled()).toBe(false);
+    }
+
+    for (const value of ["true", " TRUE "]) {
+      vi.stubEnv("SITE_ACCESS_ENABLED", value);
+      expect(isSiteAccessEnabled()).toBe(true);
+    }
+  });
+
+  it("keeps disabled-mode unlock redirects on the canonical site", () => {
+    expect(safeSiteAccessReturnTo("/rankings?batch=S26#top")).toBe("/rankings?batch=S26#top");
+    for (const value of [
+      "https://attacker.example",
+      "//attacker.example",
+      "/\\attacker.example",
+      "/unlock?returnTo=/rankings",
+      "rankings"
+    ]) {
+      expect(safeSiteAccessReturnTo(value)).toBe("/");
+    }
+  });
+
   it("requires both configuration values before enabling the lock", () => {
+    vi.stubEnv("SITE_ACCESS_ENABLED", "true");
     vi.stubEnv("SITE_PASSWORD", "");
     vi.stubEnv("SITE_ACCESS_SECRET", "signing-secret");
     expect(isSiteAccessConfigured()).toBe(false);
@@ -24,6 +77,7 @@ describe("site access", () => {
   });
 
   it("validates the configured password and issues expiring signed sessions", async () => {
+    vi.stubEnv("SITE_ACCESS_ENABLED", "true");
     vi.stubEnv("SITE_PASSWORD", "correct horse battery staple");
     vi.stubEnv("SITE_ACCESS_SECRET", "signing-secret");
 
@@ -39,6 +93,7 @@ describe("site access", () => {
   });
 
   it("redirects browser traffic to the lock and rejects unauthenticated API requests", async () => {
+    vi.stubEnv("SITE_ACCESS_ENABLED", "true");
     vi.stubEnv("SITE_PASSWORD", "correct horse battery staple");
     vi.stubEnv("SITE_ACCESS_SECRET", "signing-secret");
 
@@ -58,6 +113,7 @@ describe("site access", () => {
   });
 
   it("keeps the public discovery dashboard available without a site-access cookie", async () => {
+    vi.stubEnv("SITE_ACCESS_ENABLED", "true");
     vi.stubEnv("SITE_PASSWORD", "correct horse battery staple");
     vi.stubEnv("SITE_ACCESS_SECRET", "signing-secret");
 
@@ -92,6 +148,7 @@ describe("site access", () => {
   });
 
   it("allows a request carrying a valid signed access cookie", async () => {
+    vi.stubEnv("SITE_ACCESS_ENABLED", "true");
     vi.stubEnv("SITE_PASSWORD", "correct horse battery staple");
     vi.stubEnv("SITE_ACCESS_SECRET", "signing-secret");
 
@@ -105,6 +162,7 @@ describe("site access", () => {
   });
 
   it("preserves scoped automation calls that already present their route secret", async () => {
+    vi.stubEnv("SITE_ACCESS_ENABLED", "true");
     vi.stubEnv("SITE_PASSWORD", "correct horse battery staple");
     vi.stubEnv("SITE_ACCESS_SECRET", "signing-secret");
     vi.stubEnv("REFRESH_SECRET", "refresh-secret");
@@ -122,6 +180,7 @@ describe("site access", () => {
   });
 
   it("lets only read requests to the exact Returner Fund integration route reach its own auth check", async () => {
+    vi.stubEnv("SITE_ACCESS_ENABLED", "true");
     vi.stubEnv("SITE_PASSWORD", "correct horse battery staple");
     vi.stubEnv("SITE_ACCESS_SECRET", "signing-secret");
     const url = "https://returner.fund/api/v1/companies/atlia/returner-fund?batch=S26";
@@ -142,6 +201,7 @@ describe("site access", () => {
   });
 
   it("fails closed when site access credentials are not configured", async () => {
+    vi.stubEnv("SITE_ACCESS_ENABLED", "true");
     vi.stubEnv("SITE_PASSWORD", "");
     vi.stubEnv("SITE_ACCESS_SECRET", "");
 
@@ -169,6 +229,7 @@ describe("public dashboard deployment contract", () => {
 
 describe("site access unlock route", () => {
   it("sets an HttpOnly signed session and returns the visitor to the requested page", async () => {
+    vi.stubEnv("SITE_ACCESS_ENABLED", "true");
     vi.stubEnv("SITE_PASSWORD", "correct horse battery staple");
     vi.stubEnv("SITE_ACCESS_SECRET", "signing-secret");
 
@@ -188,6 +249,7 @@ describe("site access unlock route", () => {
   });
 
   it("rejects an external form origin and never follows an external return URL", async () => {
+    vi.stubEnv("SITE_ACCESS_ENABLED", "true");
     vi.stubEnv("SITE_PASSWORD", "correct horse battery staple");
     vi.stubEnv("SITE_ACCESS_SECRET", "signing-secret");
 

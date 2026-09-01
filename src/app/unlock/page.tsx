@@ -1,5 +1,10 @@
-import type { Metadata } from "next";
-import { isSiteAccessConfigured } from "@/lib/site-access";
+import type { Metadata, Route } from "next";
+import { redirect } from "next/navigation";
+import {
+  isSiteAccessConfigured,
+  isSiteAccessEnabled,
+  safeSiteAccessReturnTo
+} from "@/lib/site-access";
 import { UnlockForm } from "./unlock-form";
 import styles from "./unlock.module.css";
 
@@ -16,8 +21,13 @@ interface UnlockPageProps {
 
 export default async function UnlockPage({ searchParams }: UnlockPageProps) {
   const params = (await searchParams) ?? {};
+  const returnTo = safeSiteAccessReturnTo(singleQueryValue(params.returnTo));
+
+  if (!isSiteAccessEnabled()) {
+    redirect(returnTo as Route);
+  }
+
   const configured = isSiteAccessConfigured();
-  const returnTo = safeReturnTo(singleQueryValue(params.returnTo));
   const invalidPassword = singleQueryValue(params.invalid) === "1";
   const configurationPending = !configured;
 
@@ -42,12 +52,4 @@ export default async function UnlockPage({ searchParams }: UnlockPageProps) {
 
 function singleQueryValue(value: string | string[] | undefined): string | undefined {
   return Array.isArray(value) ? value[0] : value;
-}
-
-function safeReturnTo(value: string | undefined): string {
-  if (!value || !value.startsWith("/") || value.startsWith("//")) {
-    return "/";
-  }
-
-  return value;
 }

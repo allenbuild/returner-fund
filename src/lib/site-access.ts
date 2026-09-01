@@ -15,6 +15,32 @@ type SiteAccessSession = {
   version: 1;
 };
 
+/**
+ * The password gate is opt-in so deployments can be made public without
+ * deleting their existing password or signing secret. Set this exact flag to
+ * `true` to restore the gate.
+ */
+export function isSiteAccessEnabled(): boolean {
+  return process.env.SITE_ACCESS_ENABLED?.trim().toLowerCase() === "true";
+}
+
+export function safeSiteAccessReturnTo(value: unknown): string {
+  if (typeof value !== "string" || !value.startsWith("/") || value.startsWith("//")) {
+    return "/";
+  }
+
+  try {
+    const target = new URL(value, "https://returner.fund");
+    if (target.origin !== "https://returner.fund" || target.pathname === "/unlock") {
+      return "/";
+    }
+
+    return `${target.pathname}${target.search}${target.hash}`;
+  } catch {
+    return "/";
+  }
+}
+
 function siteAccessConfiguration(): SiteAccessConfiguration | null {
   const password = process.env.SITE_PASSWORD ?? "";
   const signingSecret = process.env.SITE_ACCESS_SECRET?.trim() ?? "";
