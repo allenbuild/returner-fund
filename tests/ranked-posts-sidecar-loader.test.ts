@@ -13,6 +13,7 @@ import {
 } from "@/lib/graph/ranked-posts-sidecar-loader";
 import {
   rankedPostsSidecarSnapshot,
+  type RankedPostsSidecarScope,
   type RankedPostsSidecarSnapshot
 } from "@/lib/graph/ranked-posts-sidecar";
 
@@ -133,7 +134,10 @@ describe("ranked posts sidecar loader", () => {
       const generatedAt = new Date(Date.UTC(2031, 3, 15, 12, index)).toISOString();
       await expect(loadRankedPostsSidecarForGraph(graphTarget(generatedAt, batchSlug), {
         fetchImpl: vi.fn<typeof fetch>(async () =>
-          new Response(JSON.stringify(snapshotWithScopeTimestamp(generatedAt, batchSlug)))),
+          // Exercise the global cache bound with a small, independently valid
+          // scope. Cloning the near-4 MiB production sidecar and adding a batch
+          // would test the response-size guard before reaching cache eviction.
+          new Response(JSON.stringify(minimalSnapshotWithScopeTimestamp(generatedAt, batchSlug)))),
         signal: new AbortController().signal
       })).resolves.toMatchObject({ previewGeneratedAt: generatedAt });
       expect(rankedPostsSidecarLoaderCacheEntryCount()).toBe(
@@ -390,4 +394,48 @@ function snapshotWithScopeTimestamp(
     }
   };
   return snapshot;
+}
+
+function minimalSnapshotWithScopeTimestamp(
+  generatedAt: string,
+  batchSlug: string,
+  audienceId: TopVoiceAudienceId = "off"
+): RankedPostsSidecarSnapshot {
+  const emptyDigest = "0".repeat(64);
+  const scope: RankedPostsSidecarScope = {
+    previewGeneratedAt: generatedAt,
+    sourceEvidenceCount: 0,
+    previewEvidenceCount: 0,
+    fullRankableCount: 0,
+    previewRankableCount: 0,
+    overflowRankableCount: 0,
+    fullRankableDigest: emptyDigest,
+    representedRankableDigest: emptyDigest,
+    crossAudiencePreviewProjectionCount: 0,
+    crossAudiencePreviewProjectionKeys: [],
+    previewRankableByCompany: {},
+    fullRankableByCompany: {},
+    evidence: []
+  };
+
+  return {
+    version: rankedPostsSidecarSnapshot.version,
+    generatedAt,
+    canonicalParity: {
+      fullRankableCount: 0,
+      previewRankableCount: 0,
+      representedRankableCount: 0,
+      overflowRankableCount: 0,
+      crossAudiencePreviewProjectionCount: 0,
+      fullRankableDigest: emptyDigest,
+      previewRankableDigest: emptyDigest,
+      representedRankableDigest: emptyDigest,
+      crossAudiencePreviewProjectionKeys: []
+    },
+    batches: {
+      [batchSlug]: {
+        [audienceId]: scope
+      }
+    }
+  };
 }

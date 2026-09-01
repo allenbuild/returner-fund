@@ -1127,7 +1127,10 @@ describe("a16z speedrun 006 dataset", () => {
     const modaic = graph.nodes.find((node) => node.entityType === "company" && node.label === "Modaic");
     const sentra = graph.nodes.find((node) => node.entityType === "company" && node.label === "Sentra");
 
-    expect(["github", "x"]).toContain(modaic?.topPlatform);
+    // In the current v4.3 snapshot, Modaic's strongest verified native
+    // contribution is LinkedIn; GitHub remains a verified account but is no
+    // longer expected to lead the company's bounded-primary score.
+    expect(modaic?.topPlatform).toBe("linkedin");
     expect(modaic?.score).toBeGreaterThan(0);
     expect(modaic?.socialAccounts.map((account) => account.platform)).toContain("github");
     expect(["linkedin", "x"]).toContain(sentra?.topPlatform);
