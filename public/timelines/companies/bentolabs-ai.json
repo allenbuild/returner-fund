@@ -5,8 +5,8 @@
     "slug": "bentolabs-ai",
     "name": "BentoLabs AI"
   },
-  "generatedAt": "2026-09-01T01:28:42.404Z",
-  "lastModifiedAt": "2026-09-01T01:28:42.404Z",
+  "generatedAt": "2026-09-01T09:58:59.221Z",
+  "lastModifiedAt": "2026-09-01T09:58:59.221Z",
   "events": [
     {
       "id": "tle-8dee8e7a8d308e4a9b88f5ea",
@@ -109,7 +109,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 3,
-    "lastSuccessfulArtifactAt": "2026-09-01T01:28:42.404Z"
+    "lastSuccessfulArtifactAt": "2026-09-01T09:58:59.221Z"
   },
   "nextCursor": null
 }
