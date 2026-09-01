@@ -5,8 +5,8 @@
     "slug": "runtime",
     "name": "Runtime"
   },
-  "generatedAt": "2026-08-31T15:15:37.656Z",
-  "lastModifiedAt": "2026-08-31T15:15:37.656Z",
+  "generatedAt": "2026-09-01T01:28:42.404Z",
+  "lastModifiedAt": "2026-09-01T01:28:42.404Z",
   "events": [
     {
       "id": "tle-6466b9cb42920e8cbcfaf876",
@@ -113,7 +113,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 3,
-    "lastSuccessfulArtifactAt": "2026-08-31T15:15:37.656Z"
+    "lastSuccessfulArtifactAt": "2026-09-01T01:28:42.404Z"
   },
   "nextCursor": null
 }

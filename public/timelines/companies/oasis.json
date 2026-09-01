@@ -5,8 +5,8 @@
     "slug": "oasis",
     "name": "Oasis"
   },
-  "generatedAt": "2026-08-31T15:15:37.656Z",
-  "lastModifiedAt": "2026-08-31T15:15:37.656Z",
+  "generatedAt": "2026-09-01T01:28:42.404Z",
+  "lastModifiedAt": "2026-09-01T01:28:42.404Z",
   "events": [
     {
       "id": "tle-b834160b220cc1a1132e171e",
@@ -47,7 +47,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-08-31T15:15:37.656Z"
+    "lastSuccessfulArtifactAt": "2026-09-01T01:28:42.404Z"
   },
   "nextCursor": null
 }
