@@ -33,6 +33,12 @@ describe("global company score benchmark", () => {
       benchmarkScope: "all_supported_batches",
       benchmarkPopulation: "current_company_snapshot"
     });
+    expect(byId.get("summer-best")?.scoreBreakdown?.explanation).toContain(
+      "the current strongest absolute evidence score is 52, which maps to headline 100"
+    );
+    expect(byId.get("summer-best")?.scoreBreakdown?.explanation).not.toContain(
+      "the strongest absolute evidence score is 100"
+    );
   });
 
   it("benchmarks a selected batch against the full global population", () => {
@@ -105,6 +111,9 @@ describe("global company score benchmark", () => {
       benchmarkScope: "all_supported_batches",
       benchmarkPopulation: "current_company_snapshot"
     });
+    expect(benchmarked?.scoreBreakdown?.explanation).toContain(
+      "the current population has no positive absolute evidence score, so headline scores remain 0"
+    );
   });
 
   it("reuses a published global factor for partial live overlays", () => {

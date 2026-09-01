@@ -57,6 +57,9 @@ function applyGlobalBenchmark(
   parameters: GlobalBenchmarkParameters
 ): CompanyRecord[] {
   const { cohortSize, benchmarkScore, scaleFactor } = parameters;
+  const benchmarkExplanation = benchmarkScore > 0
+    ? `the current strongest absolute evidence score is ${benchmarkScore}, which maps to headline 100.`
+    : "the current population has no positive absolute evidence score, so headline scores remain 0.";
 
   return companies.map((company) => {
     if (!hasCanonicalScoreBreakdown(company)) return company;
@@ -84,7 +87,7 @@ function applyGlobalBenchmark(
           benchmarkScope: GLOBAL_BENCHMARK_SCOPE,
           benchmarkPopulation: GLOBAL_BENCHMARK_POPULATION
         },
-        explanation: `${company.scoreBreakdown.explanation} Headline scores use one global current-company benchmark across all supported batches: the strongest absolute evidence score is 100. Stored platform contributions remain raw; each displayed platform component applies this benchmark scale and reconciles to the headline.`
+        explanation: `${company.scoreBreakdown.explanation} Headline scores use one global current-company benchmark across all supported batches: ${benchmarkExplanation} Stored platform contributions remain raw; each displayed platform component applies this benchmark scale and reconciles to the headline.`
       }
     };
   });
