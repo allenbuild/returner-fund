@@ -3,6 +3,8 @@ import os from "node:os";
 import path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 import {
+  ACCEPTED_FULL_COLLECTION_EVIDENCE_KIND,
+  ARTIFACT_DERIVED_EVIDENCE_KIND,
   buildArtifactManifest,
   buildSupportingArtifactManifest,
   validateArtifactManifest,
@@ -34,6 +36,7 @@ describe("artifact publication manifest", () => {
       publishedAt,
       ingestionRunId: "ingestion-run-42",
       evidenceCollectedAt: "2026-07-18T14:00:00.000Z",
+      evidenceCollectedAtKind: ARTIFACT_DERIVED_EVIDENCE_KIND,
       oldestPlatformRefreshAt: "2026-07-18T12:00:00.000Z",
       modelVersions: ["returner-traction@4.0.0"],
       models: [{ id: "returner-traction", version: "4.0.0", name: "canonical" }]
@@ -95,8 +98,13 @@ describe("artifact publication manifest", () => {
 
   it("accepts CLI arguments or environment provenance and validates after writing", async () => {
     const rootDir = await fixtureRoot();
-    expect(parseArgs(["--ingestion-run-id=run-7", "--validate"])).toEqual({
+    expect(parseArgs([
+      "--ingestion-run-id=run-7",
+      `--evidence-collected-at-kind=${ACCEPTED_FULL_COLLECTION_EVIDENCE_KIND}`,
+      "--validate"
+    ])).toEqual({
       ingestionRunId: "run-7",
+      evidenceCollectedAtKind: ACCEPTED_FULL_COLLECTION_EVIDENCE_KIND,
       validate: true
     });
 
@@ -108,11 +116,141 @@ describe("artifact publication manifest", () => {
         { ARTIFACT_INGESTION_RUN_ID: "env-run-9" }
       );
       expect(written.status).toBe("written");
+      expect(JSON.parse(
+        await readFile(path.join(rootDir, "public", "graph", "manifest.json"), "utf8")
+      ).evidenceCollectedAtKind).toBe(ARTIFACT_DERIVED_EVIDENCE_KIND);
       const validated = await main(["--root-dir", rootDir, "--validate"], {});
       expect(validated.status).toBe("valid");
     } finally {
       console.log = originalLog;
     }
+  });
+
+  it("advances accepted collection freshness without new rows and preserves it across benchmark rewrites", async () => {
+    const rootDir = await fixtureRoot();
+    const originalLog = console.log;
+    console.log = () => undefined;
+    try {
+      await expect(main([
+        "--root-dir", rootDir,
+        "--published-at", "2026-07-18T14:50:00.000Z",
+        "--evidence-collected-at", "2026-07-18T14:10:00.000Z"
+      ], { ARTIFACT_INGESTION_RUN_ID: "unmarked-run" })).rejects.toThrow(
+        /requires both --evidence-collected-at and --evidence-collected-at-kind/
+      );
+
+      await main([
+        "--root-dir", rootDir,
+        "--published-at", "2026-07-18T14:50:00.000Z",
+        "--evidence-collected-at", "2026-07-18T14:10:00.000Z",
+        "--evidence-collected-at-kind", ACCEPTED_FULL_COLLECTION_EVIDENCE_KIND
+      ], { ARTIFACT_INGESTION_RUN_ID: "accepted-run-1" });
+      let manifest = JSON.parse(
+        await readFile(path.join(rootDir, "public", "graph", "manifest.json"), "utf8")
+      );
+      expect(manifest.evidenceCollectedAt).toBe("2026-07-18T14:10:00.000Z");
+      expect(manifest.evidenceCollectedAtKind).toBe(
+        ACCEPTED_FULL_COLLECTION_EVIDENCE_KIND
+      );
+
+      await main([
+        "--root-dir", rootDir,
+        "--published-at", "2026-07-18T15:00:00.000Z",
+        "--evidence-collected-at", "2026-07-18T14:50:00.000Z",
+        "--evidence-collected-at-kind", ACCEPTED_FULL_COLLECTION_EVIDENCE_KIND
+      ], { ARTIFACT_INGESTION_RUN_ID: "accepted-run-2" });
+      manifest = JSON.parse(
+        await readFile(path.join(rootDir, "public", "graph", "manifest.json"), "utf8")
+      );
+      expect(manifest.evidenceCollectedAt).toBe("2026-07-18T14:50:00.000Z");
+      expect(manifest.evidenceCollectedAtKind).toBe(
+        ACCEPTED_FULL_COLLECTION_EVIDENCE_KIND
+      );
+      expect(JSON.parse(
+        await readFile(path.join(rootDir, "public", "graph", "s2026.json"), "utf8")
+      ).scoringContext.evidenceAsOf).toBe("2026-07-18T14:00:00.000Z");
+
+      await expect(main([
+        "--root-dir", rootDir,
+        "--published-at", "2026-07-18T15:01:00.000Z",
+        "--evidence-collected-at", "2026-07-18T14:40:00.000Z",
+        "--evidence-collected-at-kind", ACCEPTED_FULL_COLLECTION_EVIDENCE_KIND
+      ], { ARTIFACT_INGESTION_RUN_ID: "regressing-run" })).rejects.toThrow(
+        /cannot regress below existing accepted timestamp/
+      );
+      manifest = JSON.parse(
+        await readFile(path.join(rootDir, "public", "graph", "manifest.json"), "utf8")
+      );
+      expect(manifest.ingestionRunId).toBe("accepted-run-2");
+      expect(manifest.evidenceCollectedAt).toBe("2026-07-18T14:50:00.000Z");
+
+      await writeJson(
+        path.join(rootDir, "outputs", "benchmarks", "s2026-score-benchmarks.json"),
+        benchmarkFixture({ updatedAt: "2026-07-18T15:05:00.000Z" })
+      );
+      await main([
+        "--root-dir", rootDir,
+        "--published-at", "2026-07-18T15:10:00.000Z"
+      ], { ARTIFACT_INGESTION_RUN_ID: manifest.ingestionRunId });
+      manifest = JSON.parse(
+        await readFile(path.join(rootDir, "public", "graph", "manifest.json"), "utf8")
+      );
+      expect(manifest.evidenceCollectedAt).toBe("2026-07-18T14:50:00.000Z");
+      expect(manifest.evidenceCollectedAtKind).toBe(
+        ACCEPTED_FULL_COLLECTION_EVIDENCE_KIND
+      );
+      expect(manifest.benchmarkArtifacts[0].generatedAt).toBe("2026-07-18T15:05:00.000Z");
+
+      const validated = await main(["--root-dir", rootDir, "--validate"], {});
+      expect(validated.status).toBe("valid");
+    } finally {
+      console.log = originalLog;
+    }
+  });
+
+  it("fails closed on missing or future collection provenance", async () => {
+    const rootDir = await fixtureRoot();
+    await expect(buildArtifactManifest({
+      rootDir,
+      ingestionRunId: "unmarked-run",
+      publishedAt: "2026-07-18T15:00:00.000Z",
+      evidenceCollectedAt: "2026-07-18T14:50:00.000Z"
+    })).rejects.toThrow(/requires evidenceCollectedAtKind=accepted-full-collection/);
+    await expect(buildArtifactManifest({
+      rootDir,
+      ingestionRunId: "future-run",
+      publishedAt: "2026-07-18T15:00:00.000Z",
+      evidenceCollectedAt: "2026-07-18T15:00:01.000Z",
+      evidenceCollectedAtKind: ACCEPTED_FULL_COLLECTION_EVIDENCE_KIND
+    })).rejects.toThrow(/cannot be newer than publishedAt/);
+    await expect(buildArtifactManifest({
+      rootDir,
+      ingestionRunId: "future-publication-run",
+      publishedAt: "2026-07-18T15:00:00.000Z",
+      evidenceCollectedAt: "2026-07-18T14:50:00.000Z",
+      evidenceCollectedAtKind: ACCEPTED_FULL_COLLECTION_EVIDENCE_KIND,
+      now: "2026-07-18T14:59:59.000Z"
+    })).rejects.toThrow(/publishedAt cannot be in the future/);
+
+    const manifest = await buildArtifactManifest({
+      rootDir,
+      ingestionRunId: "missing-run",
+      publishedAt: "2026-07-18T15:00:00.000Z"
+    });
+    delete manifest.evidenceCollectedAt;
+    const missing = await validateArtifactManifest(manifest, { rootDir });
+    expect(missing.ok).toBe(false);
+    expect(missing.errors).toContain(
+      "Manifest evidenceCollectedAt must be an ISO-8601 timestamp."
+    );
+
+    const legacy = { ...manifest };
+    delete legacy.evidenceCollectedAtKind;
+    const legacyValidation = await validateArtifactManifest(legacy, { rootDir });
+    expect(legacyValidation.ok).toBe(false);
+    expect(legacyValidation.errors).toContain(
+      "Manifest evidenceCollectedAtKind must be accepted-full-collection or artifact-derived."
+    );
   });
 
   it("binds derived authenticated and public bundles to a compact deterministic catalog", async () => {
@@ -241,11 +379,11 @@ function graphFixture({ generatedAt = "2026-07-18T14:30:00.000Z" } = {}) {
   };
 }
 
-function benchmarkFixture() {
+function benchmarkFixture({ updatedAt = "2026-07-18T14:45:00.000Z" } = {}) {
   return {
     version: 1,
     batchSlug: "S2026",
-    updatedAt: "2026-07-18T14:45:00.000Z",
+    updatedAt,
     daily: [{ scoringModelVersion: "4.0.0" }],
     weekly: []
   };

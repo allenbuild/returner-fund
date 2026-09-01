@@ -124,6 +124,8 @@ let args;
 let idempotencyKey;
 let workerId;
 let runStartedAt;
+let acceptedCollectionCompletedAt = null;
+let advancesAutonomousCompleteness = false;
 let runnerBudget;
 let workRoot;
 let collectorRoot;
@@ -700,8 +702,24 @@ await Promise.all([
     if (!args.authenticatedSocialReplay) {
       assertSuccessfulTopVoiceRefresh(topVoiceRefresh);
     }
+    advancesAutonomousCompleteness =
+      !args.skipNetwork &&
+      !args.authenticatedSocialReplay &&
+      candidateMetadata?.trigger !== "manual-replay";
+    if (advancesAutonomousCompleteness) {
+      // This clock advances when the full bounded collector matrix is
+      // accepted, even when it found no new posts. Artifact generation clocks
+      // and newest row dates cannot stand in for a completed collection pass.
+      // Partial and manual replays preserve the last accepted scheduled pass.
+      acceptedCollectionCompletedAt = new Date().toISOString();
+    }
     const publicationRunId = run?.id ?? `file:${idempotencyKey}`;
-    if (!args.skipPublish) await synchronizePublicationBase();
+    if (!args.skipPublish) {
+      await synchronizePublicationBase();
+      if (!advancesAutonomousCompleteness) {
+        acceptedCollectionCompletedAt = await readCommittedCollectionCompletedAt();
+      }
+    }
     const publicationBaseline = await readPublicationEvidenceBaseline();
     const sourceDeltaHistory = await readJson(publishedSourceDeltaHistoryPath, []);
     const loggedInEvidenceSnapshots = await readLoggedInEvidenceSnapshots();
@@ -808,6 +826,7 @@ await Promise.all([
         credentialGaps: collectionCredentialGaps
       }),
       ...publicationCandidateReceiptFields(),
+      evidenceCollectedAt: acceptedCollectionCompletedAt,
       ...(args.authenticatedSocialReplay
         ? { authenticatedSocialReplay: authenticatedSocial?.linkedinReplay ?? null }
         : {}),
@@ -3301,7 +3320,7 @@ async function runCollectors() {
           expectedAttemptId: command.latestAttemptContext?.attemptId ?? null,
           expectedCampaignKey: collectorCampaignKey(),
           expectedExecutionNonce: executionCompletionNonce,
-          expectedIdempotencyKey: command.latestAttemptContext?.idempotencyKey ?? null,
+          expectedIdempotencyKey: command.latestAttemptContext?.idempotencyKey ?? idempotencyKey,
           expectedNotBefore: command.latestAttemptContext?.startedAtMs ?? null,
           notBefore: command.latestAttemptContext?.startedAtMs !== undefined
             ? command.latestAttemptContext.startedAtMs - COLLECTOR_SNAPSHOT_FILE_SKEW_MS
@@ -3316,6 +3335,9 @@ async function runCollectors() {
           tasks: plannedTasks
         })
       : null;
+    const recoveredRetryableFailures = recoveredSnapshot
+      ? retryableFailuresFromSnapshot(recoveredSnapshot)
+      : [];
     results.push({
       ...command,
       promise: undefined,
@@ -3323,7 +3345,7 @@ async function runCollectors() {
       expectedAttemptId: command.latestAttemptContext?.attemptId ?? null,
       expectedCampaignKey: collectorCampaignKey(),
       expectedExecutionNonce: command.latestAttemptContext?.executionNonce ?? null,
-      expectedIdempotencyKey: command.latestAttemptContext?.idempotencyKey ?? null,
+      expectedIdempotencyKey: command.latestAttemptContext?.idempotencyKey ?? idempotencyKey,
       expectedNotBefore: command.latestAttemptContext?.startedAtMs ?? null,
       notBefore: command.latestAttemptContext?.startedAtMs !== undefined
         ? command.latestAttemptContext.startedAtMs - COLLECTOR_SNAPSHOT_FILE_SKEW_MS
@@ -3339,10 +3361,12 @@ async function runCollectors() {
         : recoveredSnapshot
           ? successfulCollectorRowCount(recoveredSnapshot, command.kind)
           : 0,
-      retryableFailures: result.status === "fulfilled" ? result.value.retryableFailures : 0,
+      retryableFailures: result.status === "fulfilled"
+        ? result.value.retryableFailures
+        : recoveredRetryableFailures.length,
       exhaustedRetryableFailures: result.status === "fulfilled"
         ? result.value.exhaustedRetryableFailures
-        : 0,
+        : recoveredRetryableFailures.length,
       terminalCoverage: result.status === "fulfilled"
         ? result.value.terminalCoverage
         : recoveredTerminalCoverage,
@@ -4178,6 +4202,40 @@ function collectorCampaignKey() {
   return String(args.campaignKey ?? idempotencyKey);
 }
 
+function collectorSnapshotCompletionFloorMs(nowMs = Date.now()) {
+  const maximumAgeFloorMs = nowMs - COLLECTOR_RESUME_MAX_AGE_MS;
+  return candidateMetadata?.trigger === "schedule"
+    ? Math.max(maximumAgeFloorMs, candidateMetadata.scheduledAtMs)
+    : maximumAgeFloorMs;
+}
+
+function assertCurrentCollectorSnapshotBinding(
+  binding,
+  { kind, batchSlug, label = `${kind} ${batchSlug}`, nowMs = Date.now() }
+) {
+  const startedAtMs = Date.parse(binding?.startedAt);
+  const completedAtMs = Date.parse(binding?.completedAt);
+  const requiredStrings = [binding?.attemptId, binding?.executionNonce];
+  if (
+    binding?.schemaVersion !== 1 ||
+    binding?.kind !== kind ||
+    binding?.batchSlug !== batchSlug ||
+    binding?.campaignKey !== collectorCampaignKey() ||
+    binding?.idempotencyKey !== idempotencyKey ||
+    requiredStrings.some((value) => typeof value !== "string" || !value.trim()) ||
+    !Number.isFinite(startedAtMs) ||
+    !Number.isFinite(completedAtMs) ||
+    completedAtMs < startedAtMs ||
+    completedAtMs < collectorSnapshotCompletionFloorMs(nowMs) ||
+    completedAtMs > nowMs + COLLECTOR_SNAPSHOT_FUTURE_SKEW_MS
+  ) {
+    throw new Error(
+      `${label} snapshot has stale, future, prior-slot, or foreign collector provenance.`
+    );
+  }
+  return binding;
+}
+
 function createCollectorAttemptContext(command, attempt) {
   const startedAtMs = Date.now();
   const hardDeadlineAt = Math.min(
@@ -4594,20 +4652,17 @@ async function runTopVoiceCollectorUntilSuccess() {
 }
 
 async function resumeTopVoiceRefresh() {
+  const batchSlug = AUTONOMOUS_BATCHES.map((batch) => batch.slug).join(",");
   const result = await resumeValidatedSnapshotOrRun({
     resume: args.resumeSnapshots,
     readSnapshot: () => readJson(topVoiceOutput, null),
     validateSnapshot: (receipt) => {
       assertSuccessfulTopVoiceRefresh(receipt);
-      const binding = receipt?.autonomousAttempt;
-      if (
-        !binding ||
-        binding.campaignKey !== collectorCampaignKey() ||
-        Date.parse(binding.completedAt) < Date.now() - COLLECTOR_RESUME_MAX_AGE_MS ||
-        Date.parse(binding.completedAt) > Date.now() + COLLECTOR_SNAPSHOT_FUTURE_SKEW_MS
-      ) {
-        throw new Error("Top Voice discovery snapshot has stale, future, or foreign collector provenance.");
-      }
+      assertCurrentCollectorSnapshotBinding(receipt?.autonomousAttempt, {
+        kind: "top_voice",
+        batchSlug,
+        label: "Top Voice discovery"
+      });
     },
     runFresh: runTopVoiceCollectorUntilSuccess
   });
@@ -4663,7 +4718,8 @@ async function runCollectorWithRetries(command) {
         notBefore: Date.now() - COLLECTOR_RESUME_MAX_AGE_MS,
         notAfter: Date.now() + COLLECTOR_SNAPSHOT_FUTURE_SKEW_MS,
         requireAttemptBinding: true,
-        expectedCampaignKey: collectorCampaignKey()
+        expectedCampaignKey: collectorCampaignKey(),
+        expectedIdempotencyKey: idempotencyKey
       });
     } catch (error) {
       await event(
@@ -4718,7 +4774,8 @@ async function runCollectorWithRetries(command) {
         requireAttemptBinding: true,
         expectedAttemptId: attemptContext.attemptId,
         expectedCampaignKey: attemptContext.campaignKey,
-        expectedExecutionNonce: attemptContext.executionNonce
+        expectedExecutionNonce: attemptContext.executionNonce,
+        expectedIdempotencyKey: attemptContext.idempotencyKey
       });
       if (!snapshot) throw new Error(`${command.kind} ${command.batchSlug} did not write a collector snapshot.`);
       const retryableFailures = retryableFailuresFromSnapshot(snapshot);
@@ -5449,6 +5506,44 @@ function assertSuccessfulCollection(collectionResults, coverage) {
   if (collectionResults.length === 0 || !collectionResults.some((result) => result.snapshotAvailable)) {
     throw new Error("No collector completed successfully; publication and run completion are prohibited.");
   }
+  const incompleteCollectors = collectionResults.filter(
+    (result) =>
+      result.snapshotAvailable !== true ||
+      result.terminalCoverage?.nonTerminal !== 0
+  );
+  if (incompleteCollectors.length > 0) {
+    const labels = incompleteCollectors
+      .map((result) =>
+        `${result.kind}:${result.batchSlug} (` +
+        (result.snapshotAvailable === true
+          ? `nonterminal=${String(result.terminalCoverage?.nonTerminal ?? "missing")}`
+          : "validated snapshot missing") +
+        ")"
+      )
+      .join(", ");
+    throw new Error(
+      `Every required collector must provide a validated snapshot with exact zero nonterminal tasks: ${labels}; ` +
+      "publication, freshness advancement, and run completion are prohibited."
+    );
+  }
+  if (coverage?.nonTerminal !== 0) {
+    throw new Error(
+      `Collection coverage still contains ${String(coverage?.nonTerminal ?? "unknown")} nonterminal task(s); ` +
+      "publication, freshness advancement, and run completion are prohibited regardless of the mapped terminal-failure budget."
+    );
+  }
+  const unresolvedRetryableCollectors = collectionResults.filter(
+    (result) => result.snapshotAvailable && result.exhaustedRetryableFailures > 0
+  );
+  if (unresolvedRetryableCollectors.length > 0) {
+    const labels = unresolvedRetryableCollectors
+      .map((result) => `${result.kind}:${result.batchSlug} (${result.exhaustedRetryableFailures})`)
+      .join(", ");
+    throw new Error(
+      `Collector snapshots still contain retryable failures after the collection deadline: ${labels}; ` +
+      "publication, freshness advancement, and run completion are prohibited."
+    );
+  }
   if (!collectionResults.some((result) => result.snapshotAvailable && result.successfulRows > 0)) {
     throw new Error("Collector snapshots contained no successful rows; publication and run completion are prohibited.");
   }
@@ -5955,6 +6050,7 @@ function isTimelineMigrationUnavailable(error) {
 async function buildAndValidatePublication(publicationRunId, catalogState) {
   latestTimelineBuildReceipt = null;
   const targetRoot = publicationArtifactRoot();
+  const evidenceCollectedAt = requireAcceptedCollectionCompletedAt();
   // All code executed in this secret-bearing process is pinned to sourceCommit.
   // Mutable publication-root files are data only. The exact pushed SHA receives
   // its application build in the separate secretless reusable validation job.
@@ -6125,7 +6221,9 @@ async function buildAndValidatePublication(publicationRunId, catalogState) {
   });
   await runCommand(process.execPath, [
     sourcePath("scripts", "write-artifact-manifest.mjs"),
-    `--ingestion-run-id=${publicationRunId}`
+    `--ingestion-run-id=${publicationRunId}`,
+    `--evidence-collected-at=${evidenceCollectedAt}`,
+    "--evidence-collected-at-kind=accepted-full-collection"
   ], {
     timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.artifactManifestMs,
     label: "artifact manifest",
@@ -6136,11 +6234,65 @@ async function buildAndValidatePublication(publicationRunId, catalogState) {
     label: "artifact validation",
     cwd: targetRoot
   });
-  await runCommand(process.execPath, [sourcePath("scripts", "write-artifact-manifest.mjs"), "--validate"], {
+  await runCommand(process.execPath, [
+    sourcePath("scripts", "write-artifact-manifest.mjs"),
+    "--validate",
+    `--evidence-collected-at=${evidenceCollectedAt}`,
+    "--evidence-collected-at-kind=accepted-full-collection"
+  ], {
     timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.artifactManifestMs,
     label: "strict artifact manifest validation",
     cwd: targetRoot
   });
+}
+
+function requireAcceptedCollectionCompletedAt(now = new Date()) {
+  const value = String(acceptedCollectionCompletedAt ?? "").trim();
+  const timestamp = Date.parse(value);
+  if (!value || !Number.isFinite(timestamp) || new Date(timestamp).toISOString() !== value) {
+    throw new Error("Publication requires an exact accepted collection-completion timestamp.");
+  }
+  if (timestamp > now.getTime()) {
+    throw new Error("Accepted collection-completion timestamp cannot be in the future.");
+  }
+  return value;
+}
+
+async function readCommittedCollectionCompletedAt({ baseRef = null } = {}) {
+  const relativeManifestPath = "public/graph/manifest.json";
+  const manifestPath = baseRef
+    ? `${baseRef}:${relativeManifestPath}`
+    : join(publicationArtifactRoot(), "public", "graph", "manifest.json");
+  let manifest;
+  try {
+    manifest = baseRef
+      ? await readJsonFromGitRef(baseRef, relativeManifestPath, null)
+      : JSON.parse(await readFile(manifestPath, "utf8"));
+    if (!manifest) throw new Error("manifest is missing");
+  } catch (error) {
+    throw new Error(
+      `Partial publication cannot preserve accepted collection provenance from ${manifestPath}: ` +
+      errorMessage(error)
+    );
+  }
+  const value = String(manifest?.evidenceCollectedAt ?? "").trim();
+  const publishedAt = String(manifest?.publishedAt ?? "").trim();
+  const timestamp = Date.parse(value);
+  const publishedTimestamp = Date.parse(publishedAt);
+  if (
+    manifest?.evidenceCollectedAtKind !== "accepted-full-collection" ||
+    !value ||
+    !Number.isFinite(timestamp) ||
+    new Date(timestamp).toISOString() !== value ||
+    !Number.isFinite(publishedTimestamp) ||
+    new Date(publishedTimestamp).toISOString() !== publishedAt ||
+    timestamp > publishedTimestamp ||
+    timestamp > Date.now() ||
+    publishedTimestamp > Date.now()
+  ) {
+    throw new Error("Committed artifact manifest has invalid accepted collection provenance.");
+  }
+  return value;
 }
 
 async function synchronizePublicationBase() {
@@ -6842,6 +6994,15 @@ async function rebuildPublicationCandidateOnConcurrentBase({
     };
   }
 
+  const priorCollectionCompletedAt = requireAcceptedCollectionCompletedAt();
+  const rebasedCollectionCompletedAt = await readCommittedCollectionCompletedAt({
+    baseRef: retryBaseCommit
+  });
+  acceptedCollectionCompletedAt =
+    Date.parse(rebasedCollectionCompletedAt) >= Date.parse(priorCollectionCompletedAt)
+      ? rebasedCollectionCompletedAt
+      : priorCollectionCompletedAt;
+
   const rebasedSanitizedTargetedSnapshot = await prepareSanitizedTargetedSnapshot(
     publicationInputs.topVoiceRefresh,
     { baseRef: publicationBaseCommit }
@@ -6907,6 +7068,7 @@ async function rebuildPublicationCandidateOnConcurrentBase({
       credentialGaps: publicationInputs.credentialGaps
     }),
     ...publicationCandidateReceiptFields(),
+    evidenceCollectedAt: acceptedCollectionCompletedAt,
     mappedExpected: publicationInputs.collectionCoverage.mappedExpected,
     mappedNonTerminal: publicationInputs.collectionCoverage.mappedNonTerminal,
     terminalFailureBudget: publicationInputs.sourceDelta.terminalFailureBudget
@@ -8412,6 +8574,12 @@ async function readCollectorSnapshot(path, kind, validation) {
       expectedIdempotencyKey: validation.expectedIdempotencyKey ?? null,
       expectedNotBefore: validation.expectedNotBefore ?? null
     });
+    if (validation.requireAttemptBinding === true) {
+      assertCurrentCollectorSnapshotBinding(snapshot.source.autonomousAttempt, {
+        kind,
+        batchSlug: validation.batchSlug
+      });
+    }
     return validateAutonomousCollectorReferentialIntegrity(snapshot, {
       kind,
       batchSlug: validation.batchSlug,

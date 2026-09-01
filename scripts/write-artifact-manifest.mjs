@@ -1,8 +1,11 @@
 #!/usr/bin/env node
 
 import path from "node:path";
+import { readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import {
+  ACCEPTED_FULL_COLLECTION_EVIDENCE_KIND,
+  ARTIFACT_DERIVED_EVIDENCE_KIND,
   assertValidArtifactManifest,
   validateArtifactManifest,
   writeArtifactManifest
@@ -20,10 +23,18 @@ export async function main(rawArgs = process.argv.slice(2), env = process.env) {
     ? path.resolve(rootDir, args.output)
     : path.join(rootDir, "public", "graph", "manifest.json");
   const ingestionRunId = args.ingestionRunId ?? env.ARTIFACT_INGESTION_RUN_ID ?? env.INGESTION_RUN_ID;
+  const requestedEvidenceOptions = explicitEvidenceCollectionOptions({
+    evidenceCollectedAt: args.evidenceCollectedAt ?? env.EVIDENCE_COLLECTED_AT,
+    evidenceCollectedAtKind:
+      args.evidenceCollectedAtKind ?? env.EVIDENCE_COLLECTED_AT_KIND
+  });
+  const evidenceOptions = requestedEvidenceOptions ?? (
+    args.validate ? {} : await readExistingEvidenceCollection(manifestPath)
+  );
   const commonOptions = {
     rootDir,
     manifestPath,
-    evidenceCollectedAt: args.evidenceCollectedAt ?? env.EVIDENCE_COLLECTED_AT,
+    ...evidenceOptions,
     oldestPlatformRefreshAt: args.oldestPlatformRefreshAt ?? env.OLDEST_PLATFORM_REFRESH_AT
   };
 
@@ -75,6 +86,58 @@ export async function main(rawArgs = process.argv.slice(2), env = process.env) {
   return payload;
 }
 
+function explicitEvidenceCollectionOptions({
+  evidenceCollectedAt,
+  evidenceCollectedAtKind
+}) {
+  const hasTimestamp = evidenceCollectedAt !== undefined;
+  const hasKind = evidenceCollectedAtKind !== undefined;
+  if (!hasTimestamp && !hasKind) return null;
+  if (!hasTimestamp || !hasKind) {
+    throw new Error(
+      "Explicit accepted collection provenance requires both --evidence-collected-at and " +
+      "--evidence-collected-at-kind."
+    );
+  }
+  if (evidenceCollectedAtKind !== ACCEPTED_FULL_COLLECTION_EVIDENCE_KIND) {
+    throw new Error(
+      `--evidence-collected-at-kind must be ${ACCEPTED_FULL_COLLECTION_EVIDENCE_KIND}.`
+    );
+  }
+  return { evidenceCollectedAt, evidenceCollectedAtKind };
+}
+
+async function readExistingEvidenceCollection(manifestPath) {
+  let source;
+  try {
+    source = await readFile(manifestPath, "utf8");
+  } catch (error) {
+    if (error?.code === "ENOENT") return undefined;
+    throw error;
+  }
+  let manifest;
+  try {
+    manifest = JSON.parse(source);
+  } catch (error) {
+    throw new Error(`Existing artifact manifest is invalid JSON: ${error.message}`);
+  }
+  const kind = manifest?.evidenceCollectedAtKind;
+  if (kind === ACCEPTED_FULL_COLLECTION_EVIDENCE_KIND) {
+    const value = manifest?.evidenceCollectedAt;
+    if (typeof value !== "string" || !value.trim()) {
+      throw new Error("Existing accepted artifact manifest is missing evidenceCollectedAt.");
+    }
+    return {
+      evidenceCollectedAt: value,
+      evidenceCollectedAtKind: ACCEPTED_FULL_COLLECTION_EVIDENCE_KIND
+    };
+  }
+  if (kind === undefined || kind === ARTIFACT_DERIVED_EVIDENCE_KIND) {
+    return { evidenceCollectedAtKind: ARTIFACT_DERIVED_EVIDENCE_KIND };
+  }
+  throw new Error(`Existing artifact manifest has unsupported evidenceCollectedAtKind: ${kind}.`);
+}
+
 export function parseArgs(rawArgs) {
   const parsed = {};
   const valueOptions = new Map([
@@ -83,6 +146,7 @@ export function parseArgs(rawArgs) {
     ["--ingestion-run-id", "ingestionRunId"],
     ["--published-at", "publishedAt"],
     ["--evidence-collected-at", "evidenceCollectedAt"],
+    ["--evidence-collected-at-kind", "evidenceCollectedAtKind"],
     ["--oldest-platform-refresh-at", "oldestPlatformRefreshAt"]
   ]);
 
@@ -117,7 +181,8 @@ function usage() {
     "",
     "  --ingestion-run-id <id>             Required for writes; env: ARTIFACT_INGESTION_RUN_ID or INGESTION_RUN_ID",
     "  --published-at <timestamp>           Override publication time",
-    "  --evidence-collected-at <timestamp>  Override derived evidence watermark",
+    "  --evidence-collected-at <timestamp>  Accepted full-collection timestamp; requires kind",
+    "  --evidence-collected-at-kind <kind>   Must be accepted-full-collection for explicit writes",
     "  --oldest-platform-refresh-at <time>  Override derived platform refresh watermark",
     "  --root-dir <path>                    Repository root (default: cwd)",
     "  --output <path>                      Manifest path relative to root or absolute",

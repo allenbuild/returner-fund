@@ -1070,10 +1070,31 @@ test("host recovery waits for the exact runner to be online and power-eligible",
   assert.equal(dispatches, 0);
 });
 
-test("a current committed publication watermark makes host recovery a no-op", async () => {
-  const manifest = JSON.parse(
+test("a committed completeness watermark triggers host recovery once stale", async () => {
+  const manifest = {
+    ...JSON.parse(
     await readFile(path.join(repositoryRoot, "public/graph/manifest.json"), "utf8")
-  );
+    ),
+    evidenceCollectedAtKind: "accepted-full-collection"
+  };
+  const requiredBenchmarks = new Set([
+    "s2026-score-benchmarks.json",
+    "s26-score-benchmarks.json",
+    "a16zsr006-score-benchmarks.json"
+  ]);
+  const completenessInstants = [
+    new Date(manifest.evidenceCollectedAt),
+    ...manifest.benchmarkArtifacts
+      .filter(({ filename }) => requiredBenchmarks.has(filename))
+      .map(({ generatedAt }) => new Date(generatedAt))
+  ].sort((left, right) => left.getTime() - right.getTime());
+  assert.equal(completenessInstants.length, requiredBenchmarks.size + 1);
+  const publicationWatermark = completenessInstants[0].toISOString();
+  const newestCompletenessMs = completenessInstants.at(-1).getTime();
+  const evaluationNow = new Date(Math.max(
+    Date.parse(manifest.publishedAt),
+    newestCompletenessMs + 13 * 60 * 60 * 1_000
+  ));
   let dispatches = 0;
   const decision = await evaluateScheduleRecovery({
     config: config({ scheduleRecoveryEnabled: true }),
@@ -1085,20 +1106,23 @@ test("a current committed publication watermark makes host recovery a no-op", as
         conclusion: "success",
         created_at: "2026-08-24T12:00:00.000Z"
       }],
-      getRepositoryText: (relativePath) => readFile(path.join(repositoryRoot, relativePath), "utf8"),
+      getRepositoryText: (relativePath) => relativePath === "public/graph/manifest.json"
+        ? JSON.stringify(manifest)
+        : readFile(path.join(repositoryRoot, relativePath), "utf8"),
       dispatchRecovery: async () => {
         dispatches += 1;
       }
     }),
     state: { recoveryDispatch: null },
     readPowerStatus: async () => "Now drawing from 'AC Power'\n 100%; charged",
-    now: new Date(manifest.publishedAt)
+    now: evaluationNow
   });
 
-  assert.equal(decision.action, "current");
-  assert.equal(decision.reason, "publication-watermark-current");
-  assert.equal(decision.watermarkStatus, "current");
-  assert.equal(dispatches, 0);
+  assert.equal(decision.action, "dispatch");
+  assert.equal(decision.disposition, "recovery_dispatch_accepted");
+  assert.equal(decision.watermarkStatus, "behind");
+  assert.equal(decision.publicationWatermark, publicationWatermark);
+  assert.equal(dispatches, 1);
 });
 
 test("offline runner kickstart is pre-persisted, suppresses mutations, and obeys durable cooldown", async (context) => {

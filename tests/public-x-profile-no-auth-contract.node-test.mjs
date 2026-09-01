@@ -4,6 +4,8 @@ import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
+import { autonomousCollectorRetryableFailures } from
+  "../scripts/lib/autonomous-ingestion-plan.mjs";
 
 const collector = await readFile(
   join(process.cwd(), "scripts", "fetch-public-traction.mjs"),
@@ -193,6 +195,27 @@ test("zero-article X profiles are not terminally accepted as verified empty", as
   assert.ok(snapshot.failures.length > 0);
 });
 
+test("a zero-evidence X review stays retryable when its reader transport fails", async (context) => {
+  const snapshot = await runMockedCodagCollector(context, {
+    xHtml: profileHtml({ includePost: false }),
+    xFallbackError: "fetch failed: socket closed"
+  });
+  const attempt = snapshot.attempts[
+    "x:founder:founder-codag-michael-zhou-2706494:https://x.com/michaelzixizhou"
+  ];
+  const transportFailure = snapshot.failures.find(
+    (row) => /X public-reader fallback failed: fetch failed: socket closed/.test(row.message ?? "")
+  );
+
+  assert.equal(snapshot.evidence.length, 0);
+  assert.ok(snapshot.needsReview.length > 0);
+  assert.ok(transportFailure);
+  assert.equal(transportFailure.retryable, undefined);
+  assert.equal(attempt.outcomeStatus, "needs_review");
+  assert.equal(attempt.retryable, true);
+  assert.ok(autonomousCollectorRetryableFailures(snapshot).includes(transportFailure.message));
+});
+
 test("direct X HTTP blockers remain explicit without a remote-reader retry", async (context) => {
   const snapshot = await runMockedCodagCollector(context, {
     xHtml: "rate limited",
@@ -209,7 +232,7 @@ test("direct X HTTP blockers remain explicit without a remote-reader retry", asy
   assert.equal(attempt.coverageReceipt.blocker, "Anonymous X public profile returned HTTP 429.");
 });
 
-test("a mapped X account returning 404 is explicitly queued for manual review", async (context) => {
+test("a mapped X account returning 404 writes an exact typed terminal receipt", async (context) => {
   const snapshot = await runMockedCodagCollector(context, {
     xHtml: "not found",
     xStatus: 404
@@ -218,18 +241,318 @@ test("a mapped X account returning 404 is explicitly queued for manual review", 
     "x:founder:founder-codag-michael-zhou-2706494:https://x.com/michaelzixizhou"
   ];
 
-  assert.equal(attempt.outcomeStatus, "needs_review");
-  assert.equal(attempt.outcomeReason, "collector_needs_review");
+  assert.equal(attempt.outcomeStatus, "blocked_or_empty");
+  assert.equal(attempt.outcomeReason, "collector_mapped_account_not_found");
   assert.equal(attempt.coverageReceipt.reason, "x_public_profile_http_404");
+  assert.equal(attempt.retryable, false);
   assert.ok(snapshot.needsReview.some(
     (row) => row.entityId === "founder-codag-michael-zhou-2706494"
   ));
 });
 
+test("a mapped X identity mismatch writes an exact typed review receipt", async (context) => {
+  const snapshot = await runMockedCodagCollector(context, {
+    xHtml: profileHtml({ includePost: true, profileHandle: "different" }),
+    xFallbackError: "fetch failed: socket closed"
+  });
+  const attempt = snapshot.attempts[
+    "x:founder:founder-codag-michael-zhou-2706494:https://x.com/michaelzixizhou"
+  ];
+
+  assert.equal(attempt.outcomeStatus, "needs_review");
+  assert.equal(attempt.outcomeReason, "collector_mapped_account_identity_mismatch");
+  assert.equal(attempt.coverageReceipt.reason, "x_profile_identity_mismatch");
+  assert.equal(attempt.retryable, false);
+  assert.ok(snapshot.failures.some(
+    (row) => /X public-reader fallback failed: fetch failed: socket closed/.test(row.message ?? "")
+  ));
+});
+
+test("resume upgrades an exact legacy X receipt without repeating network collection", async (context) => {
+  const directory = await mkdtemp(join(tmpdir(), "returner-x-legacy-terminal-resume-"));
+  context.after(() => rm(directory, { recursive: true, force: true }));
+  const output = join(directory, "public-evidence.json");
+  const checkpoint = join(directory, "checkpoint.json");
+  const discoveryAttempts = join(directory, "discovery-attempts.json");
+  const sourceDiscoveryPaths = join(directory, "source-discovery-paths.json");
+  const preload = join(directory, "mock-fetch.mjs");
+  const accountUrl = "https://x.com/michaelzixizhou";
+  const entityId = "founder-codag-michael-zhou-2706494";
+  const attemptKey = `x:founder:${entityId}:${accountUrl}`;
+  const message = "Anonymous X public profile returned HTTP 404.";
+  const legacyAttempt = {
+    attemptKey,
+    attributionVersion: 4,
+    batchSlug: "S26",
+    platform: "x",
+    companySlug: "codag",
+    entityType: "founder",
+    entityId,
+    entityName: "Michael Zhou",
+    accountUrl,
+    status: "done",
+    checkedAt: new Date().toISOString(),
+    error: message,
+    retryable: false,
+    outcomeStatus: "needs_review",
+    outcomeReason: "collector_needs_review",
+    coverageReceipt: {
+      verified: false,
+      accountUrl,
+      reason: "x_public_profile_http_404"
+    }
+  };
+  await Promise.all([
+    writeFile(output, `${JSON.stringify({
+      source: {},
+      attempts: {},
+      evidence: [],
+      needsReview: [],
+      failures: [],
+      discoveryAttempts: [],
+      sourceDiscoveryPaths: []
+    })}\n`),
+    writeFile(checkpoint, `${JSON.stringify({
+      attempts: { [attemptKey]: legacyAttempt },
+      evidence: [],
+      needsReview: [],
+      failures: [{
+        attemptKey,
+        platform: "x",
+        entityType: "founder",
+        entityId,
+        accountUrl,
+        message
+      }],
+      discoveryAttempts: [],
+      sourceDiscoveryPaths: []
+    })}\n`),
+    writeFile(discoveryAttempts, "[]\n"),
+    writeFile(sourceDiscoveryPaths, "[]\n"),
+    writeFile(preload, `
+globalThis.fetch = async () => {
+  throw new Error("network collection must not run for an upgraded fresh receipt");
+};
+`)
+  ]);
+
+  execFileSync(process.execPath, [
+    "scripts/fetch-public-traction.mjs",
+    "--batch=S26",
+    "--company=codag",
+    "--platforms=x",
+    "--social=all",
+    "--mapped-only",
+    "--workers=1",
+    "--x-workers=1",
+    "--delay-ms=0",
+    `--output=${output}`,
+    `--checkpoint=${checkpoint}`,
+    `--discovery-attempts=${discoveryAttempts}`,
+    `--source-discovery-paths=${sourceDiscoveryPaths}`
+  ], {
+    cwd: process.cwd(),
+    env: {
+      ...process.env,
+      X_BEARER_TOKEN: "",
+      EXA_API_KEY: "",
+      NODE_OPTIONS: `--import=${preload}`
+    },
+    stdio: "pipe"
+  });
+
+  const snapshot = JSON.parse(await readFile(output, "utf8"));
+  const migrated = snapshot.attempts[attemptKey];
+  assert.equal(migrated.outcomeStatus, "blocked_or_empty");
+  assert.equal(migrated.outcomeReason, "collector_mapped_account_not_found");
+  assert.equal(migrated.retryable, false);
+  assert.equal(migrated.coverageReceipt.reason, "x_public_profile_http_404");
+  assert.deepEqual(autonomousCollectorRetryableFailures(snapshot), []);
+});
+
+test("resume collision selects the strictly newer attempt before legacy X upgrade", async (context) => {
+  const currentCheckedAt = new Date(Date.now() - 60_000).toISOString();
+  const staleCheckpointCheckedAt = new Date(Date.now() - 120_000).toISOString();
+  const currentWinner = storedXAttempt({ checkedAt: currentCheckedAt });
+  const staleLegacyCheckpoint = storedXAttempt({
+    checkedAt: staleCheckpointCheckedAt,
+    legacy404: true
+  });
+  const currentSnapshot = await runXAttemptCollision(context, {
+    currentAttempt: currentWinner,
+    checkpointAttempt: staleLegacyCheckpoint
+  });
+
+  assert.equal(currentSnapshot.attempts[currentWinner.attemptKey].checkedAt, currentCheckedAt);
+  assert.equal(currentSnapshot.attempts[currentWinner.attemptKey].outcomeStatus, "completed");
+  assert.equal(currentSnapshot.attempts[currentWinner.attemptKey].coverageReceipt, undefined);
+
+  const newerCheckpointCheckedAt = new Date(Date.now() - 30_000).toISOString();
+  const checkpointWinner = storedXAttempt({
+    checkedAt: newerCheckpointCheckedAt,
+    legacy404: true
+  });
+  const checkpointSnapshot = await runXAttemptCollision(context, {
+    currentAttempt: storedXAttempt({ checkedAt: staleCheckpointCheckedAt }),
+    checkpointAttempt: checkpointWinner
+  });
+  const selectedCheckpoint = checkpointSnapshot.attempts[checkpointWinner.attemptKey];
+
+  assert.equal(selectedCheckpoint.checkedAt, newerCheckpointCheckedAt);
+  assert.equal(selectedCheckpoint.outcomeStatus, "blocked_or_empty");
+  assert.equal(selectedCheckpoint.outcomeReason, "collector_mapped_account_not_found");
+  assert.equal(selectedCheckpoint.retryable, false);
+});
+
+test("equal or undated resume collisions fail closed and rerun collection", async (context) => {
+  const equalCheckedAt = new Date(Date.now() - 60_000).toISOString();
+  const cases = [{
+    label: "equal",
+    currentCheckedAt: equalCheckedAt,
+    checkpointCheckedAt: equalCheckedAt
+  }, {
+    label: "undated-current",
+    currentCheckedAt: null,
+    checkpointCheckedAt: new Date(Date.now() - 30_000).toISOString()
+  }];
+
+  for (const fixture of cases) {
+    const currentAttempt = storedXAttempt({ checkedAt: fixture.currentCheckedAt });
+    const checkpointAttempt = storedXAttempt({
+      checkedAt: fixture.checkpointCheckedAt,
+      legacy404: true
+    });
+    const snapshot = await runXAttemptCollision(context, {
+      currentAttempt,
+      checkpointAttempt,
+      collectHtml: profileHtml({ includePost: true })
+    });
+    const collected = snapshot.attempts[currentAttempt.attemptKey];
+
+    assert.equal(collected.outcomeStatus, "completed", fixture.label);
+    assert.equal(collected.coverageReceipt.verified, true, fixture.label);
+    assert.notEqual(collected.checkedAt, fixture.checkpointCheckedAt, fixture.label);
+    assert.ok(snapshot.evidence.some(
+      (row) => row.platformPostId === "2083304728046518692"
+    ), fixture.label);
+  }
+});
+
+function storedXAttempt({ checkedAt, legacy404 = false }) {
+  const accountUrl = "https://x.com/michaelzixizhou";
+  const entityId = "founder-codag-michael-zhou-2706494";
+  const attemptKey = `x:founder:${entityId}:${accountUrl}`;
+  return {
+    attemptKey,
+    attributionVersion: 4,
+    batchSlug: "S26",
+    platform: "x",
+    companySlug: "codag",
+    entityType: "founder",
+    entityId,
+    entityName: "Michael Zhou",
+    accountUrl,
+    status: "done",
+    ...(checkedAt ? { checkedAt } : {}),
+    retryable: false,
+    outcomeStatus: legacy404 ? "needs_review" : "completed",
+    outcomeReason: legacy404 ? "collector_needs_review" : "collector_evidence_collected",
+    ...(legacy404
+      ? {
+          error: "Anonymous X public profile returned HTTP 404.",
+          coverageReceipt: {
+            verified: false,
+            accountUrl,
+            reason: "x_public_profile_http_404"
+          }
+        }
+      : {})
+  };
+}
+
+async function runXAttemptCollision(context, {
+  currentAttempt,
+  checkpointAttempt,
+  collectHtml = null
+}) {
+  const directory = await mkdtemp(join(tmpdir(), "returner-x-attempt-collision-"));
+  context.after(() => rm(directory, { recursive: true, force: true }));
+  const output = join(directory, "public-evidence.json");
+  const checkpoint = join(directory, "checkpoint.json");
+  const discoveryAttempts = join(directory, "discovery-attempts.json");
+  const sourceDiscoveryPaths = join(directory, "source-discovery-paths.json");
+  const preload = join(directory, "mock-fetch.mjs");
+  const attemptKey = currentAttempt.attemptKey;
+  await Promise.all([
+    writeFile(output, `${JSON.stringify({
+      source: {},
+      attempts: { [attemptKey]: currentAttempt },
+      evidence: [],
+      needsReview: [],
+      failures: [],
+      discoveryAttempts: [],
+      sourceDiscoveryPaths: []
+    })}\n`),
+    writeFile(checkpoint, `${JSON.stringify({
+      attempts: { [attemptKey]: checkpointAttempt },
+      evidence: [],
+      needsReview: [],
+      failures: [],
+      discoveryAttempts: [],
+      sourceDiscoveryPaths: []
+    })}\n`),
+    writeFile(discoveryAttempts, "[]\n"),
+    writeFile(sourceDiscoveryPaths, "[]\n"),
+    writeFile(preload, `
+import dns from "node:dns";
+dns.lookup = (_hostname, options, callback) => {
+  const addresses = [{ address: "93.184.216.34", family: 4 }];
+  if (options?.all) callback(null, addresses);
+  else callback(null, addresses[0].address, addresses[0].family);
+};
+const collectHtml = ${JSON.stringify(collectHtml)};
+globalThis.fetch = async (url) => {
+  if (collectHtml && String(url) === "https://x.com/michaelzixizhou") {
+    return new Response(collectHtml, { status: 200, headers: { "content-type": "text/html" } });
+  }
+  throw new Error("resume collision winner must not collect network data");
+};
+`)
+  ]);
+
+  execFileSync(process.execPath, [
+    "scripts/fetch-public-traction.mjs",
+    "--batch=S26",
+    "--company=codag",
+    "--platforms=x",
+    "--social=all",
+    "--mapped-only",
+    "--workers=1",
+    "--x-workers=1",
+    "--delay-ms=0",
+    `--output=${output}`,
+    `--checkpoint=${checkpoint}`,
+    `--discovery-attempts=${discoveryAttempts}`,
+    `--source-discovery-paths=${sourceDiscoveryPaths}`
+  ], {
+    cwd: process.cwd(),
+    env: {
+      ...process.env,
+      X_BEARER_TOKEN: "",
+      EXA_API_KEY: "",
+      NODE_OPTIONS: `--import=${preload}`
+    },
+    stdio: "pipe"
+  });
+
+  return JSON.parse(await readFile(output, "utf8"));
+}
+
 async function runMockedCodagCollector(context, {
   xHtml,
   xStatus = 200,
-  seedEvidence = []
+  seedEvidence = [],
+  xFallbackError = null
 }) {
   const directory = await mkdtemp(join(tmpdir(), "returner-public-x-contract-"));
   context.after(() => rm(directory, { recursive: true, force: true }));
@@ -258,9 +581,13 @@ dns.lookup = (_hostname, options, callback) => {
   else callback(null, addresses[0].address, addresses[0].family);
 };
 const xHtml = ${JSON.stringify(xHtml)};
+const xFallbackError = ${JSON.stringify(xFallbackError)};
+let xRequestCount = 0;
 globalThis.fetch = async (url) => {
   const value = String(url);
   if (value === "https://x.com/michaelzixizhou") {
+    xRequestCount += 1;
+    if (xRequestCount > 1 && xFallbackError) throw new Error(xFallbackError);
     return new Response(xHtml, { status: ${xStatus}, headers: { "content-type": "text/html" } });
   }
   if (value.startsWith("https://r.jina.ai/http://")) {
@@ -299,10 +626,14 @@ globalThis.fetch = async (url) => {
   return JSON.parse(await readFile(output, "utf8"));
 }
 
-function profileHtml({ includePost, postedAt = "2026-07-31T21:32:07.000Z" }) {
+function profileHtml({
+  includePost,
+  postedAt = "2026-07-31T21:32:07.000Z",
+  profileHandle = "michaelzixizhou"
+}) {
   return `<!doctype html><html><body>
     <div itemscope itemtype="https://schema.org/ProfilePage">
-      <meta itemprop="url" content="https://x.com/michaelzixizhou">
+      <meta itemprop="url" content="https://x.com/${profileHandle}">
       ${includePost ? `<article data-tweet-id="2083304728046518692" itemscope itemtype="https://schema.org/SocialMediaPosting">
         <meta itemprop="identifier" content="2083304728046518692">
         <meta itemprop="datePublished" content="${postedAt}">

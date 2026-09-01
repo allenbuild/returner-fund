@@ -2945,6 +2945,12 @@ test("daily derived-artifact steps use the bounded Node heap", () => {
     /- name: Test daily benchmark updater[\s\S]*?(?=\n\s{6}- name:|$)/
   )?.[0] ?? "";
   assert.match(benchmarkTestStep, /env:\s+NODE_OPTIONS: --max-old-space-size=2304/);
+
+  const manifestStep = dailyBenchmarkWorkflow.match(
+    /- name: Refresh artifact manifest[\s\S]*?(?=\n\s{6}- name:|$)/
+  )?.[0] ?? "";
+  assert.match(manifestStep, /--ingestion-run-id="\$INGESTION_RUN_ID"/);
+  assert.doesNotMatch(manifestStep, /--evidence-collected-at/);
 });
 
 test("workflow routes authenticated ingestion to the dedicated Mac runner", () => {

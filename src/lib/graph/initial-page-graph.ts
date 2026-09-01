@@ -1,5 +1,6 @@
 import { applyBenchmarkMomentumRows, benchmarkStoreVersion, ensureBenchmarkMomentum } from "./benchmarks";
 import { buildGraphResponse } from "./graph-builder";
+import { initialSelectedNodeId } from "./initial-selection";
 import { sanitizeGraphResponse } from "./response-sanitizer";
 import type { GraphFilters, GraphResponse } from "./types";
 import { YC_SPRING_2026_BATCH_SLUG, yc2026GraphDataset } from "./yc-spring-2026-dataset";
@@ -52,8 +53,11 @@ function localDayKey(date: Date): string {
 }
 
 function trimInitialEvidence(graph: GraphResponse): GraphResponse {
-  const selectedCompanyId = graph.leaderboard[0]?.companyId;
-  const selectedNodeId = selectedCompanyId ? `company:${selectedCompanyId}` : graph.nodes[0]?.id;
+  // Filtered first loads can keep companies that merely have a mapped account for
+  // the requested platform. Prefer the highest-ranked company with an actual
+  // matching evidence row so the initial evidence projection is not empty while
+  // other visible companies do have evidence.
+  const selectedNodeId = initialSelectedNodeId(graph);
   const selectedNode = graph.nodes.find((node) => node.id === selectedNodeId);
   const selectedEvidenceIds = new Set(selectedNode?.evidenceIds ?? []);
   const evidence = graph.evidence

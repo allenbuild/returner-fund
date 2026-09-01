@@ -5,6 +5,13 @@ import path from "node:path";
 
 export const ARTIFACT_MANIFEST_VERSION = 2;
 export const DEFAULT_ARTIFACT_MANIFEST_PATH = path.join("public", "graph", "manifest.json");
+export const ACCEPTED_FULL_COLLECTION_EVIDENCE_KIND = "accepted-full-collection";
+export const ARTIFACT_DERIVED_EVIDENCE_KIND = "artifact-derived";
+
+const EVIDENCE_COLLECTION_KINDS = new Set([
+  ACCEPTED_FULL_COLLECTION_EVIDENCE_KIND,
+  ARTIFACT_DERIVED_EVIDENCE_KIND
+]);
 
 export const SUPPORTING_ARTIFACT_DESCRIPTORS = Object.freeze([
   Object.freeze({
@@ -51,13 +58,19 @@ export async function buildArtifactManifest({
   manifestPath,
   ingestionRunId,
   publishedAt = new Date(),
+  now = new Date(),
   evidenceCollectedAt,
+  evidenceCollectedAtKind,
   oldestPlatformRefreshAt,
   allowEmptyGraphArtifacts = false
 } = {}) {
   const paths = resolveArtifactPaths({ rootDir, graphDir, benchmarkDir, manifestPath });
   const normalizedRunId = requiredString(ingestionRunId, "ingestionRunId");
   const normalizedPublishedAt = isoTimestamp(publishedAt, "publishedAt");
+  const normalizedNow = isoTimestamp(now, "now");
+  if (Date.parse(normalizedPublishedAt) > Date.parse(normalizedNow)) {
+    throw new Error("publishedAt cannot be in the future.");
+  }
   const [graphArtifacts, benchmarkArtifacts, supportingArtifacts] = await Promise.all([
     readArtifactDirectory(paths.graphDir, {
       kind: "graph",
@@ -86,6 +99,19 @@ export async function buildArtifactManifest({
     ])
   );
   const derivedOldestPlatformRefreshAt = deriveOldestPlatformRefreshAt(graphArtifacts);
+  const normalizedEvidenceCollectedAtKind = evidenceCollectionKind({
+    evidenceCollectedAt,
+    evidenceCollectedAtKind
+  });
+  const normalizedEvidenceCollectedAt = isoTimestamp(
+    normalizedEvidenceCollectedAtKind === ACCEPTED_FULL_COLLECTION_EVIDENCE_KIND
+      ? evidenceCollectedAt
+      : derivedEvidenceCollectedAt,
+    "evidenceCollectedAt"
+  );
+  if (Date.parse(normalizedEvidenceCollectedAt) > Date.parse(normalizedPublishedAt)) {
+    throw new Error("evidenceCollectedAt cannot be newer than publishedAt.");
+  }
   const graphEntries = graphArtifacts.map(publicArtifactEntry);
   const benchmarkEntries = benchmarkArtifacts.map(publicArtifactEntry);
   const contentHash = artifactContentHash(graphEntries, benchmarkEntries, supportingArtifacts);
@@ -94,10 +120,8 @@ export async function buildArtifactManifest({
     schemaVersion: ARTIFACT_MANIFEST_VERSION,
     publishedAt: normalizedPublishedAt,
     ingestionRunId: normalizedRunId,
-    evidenceCollectedAt: optionalIsoTimestamp(
-      evidenceCollectedAt ?? derivedEvidenceCollectedAt,
-      "evidenceCollectedAt"
-    ),
+    evidenceCollectedAt: normalizedEvidenceCollectedAt,
+    evidenceCollectedAtKind: normalizedEvidenceCollectedAtKind,
     oldestPlatformRefreshAt: optionalIsoTimestamp(
       oldestPlatformRefreshAt ?? derivedOldestPlatformRefreshAt,
       "oldestPlatformRefreshAt"
@@ -146,8 +170,37 @@ export const generateArtifactManifest = buildArtifactManifest;
 export async function writeArtifactManifest(options = {}) {
   const paths = resolveArtifactPaths(options);
   const manifest = await buildArtifactManifest(options);
+  await assertAcceptedEvidenceDoesNotRegress(paths.manifestPath, manifest);
   await writeJsonAtomically(paths.manifestPath, manifest);
   return { manifest, manifestPath: paths.manifestPath };
+}
+
+async function assertAcceptedEvidenceDoesNotRegress(manifestPath, nextManifest) {
+  let existing;
+  try {
+    existing = JSON.parse(await readFile(manifestPath, "utf8"));
+  } catch (error) {
+    if (error?.code === "ENOENT" || error instanceof SyntaxError) return;
+    throw error;
+  }
+
+  if (
+    existing?.evidenceCollectedAtKind !== ACCEPTED_FULL_COLLECTION_EVIDENCE_KIND ||
+    !isIsoTimestamp(existing.evidenceCollectedAt)
+  ) {
+    return;
+  }
+  if (nextManifest.evidenceCollectedAtKind !== ACCEPTED_FULL_COLLECTION_EVIDENCE_KIND) {
+    throw new Error(
+      "Cannot replace accepted full-collection evidence provenance with artifact-derived provenance."
+    );
+  }
+  if (Date.parse(nextManifest.evidenceCollectedAt) < Date.parse(existing.evidenceCollectedAt)) {
+    throw new Error(
+      `evidenceCollectedAt cannot regress below existing accepted timestamp ` +
+      `${existing.evidenceCollectedAt}.`
+    );
+  }
 }
 
 export async function validateArtifactManifest(manifestOrOptions, maybeOptions = {}) {
@@ -184,7 +237,16 @@ export async function validateArtifactManifest(manifestOrOptions, maybeOptions =
       manifestPath: paths.manifestPath,
       ingestionRunId: options.expectedIngestionRunId ?? manifest.ingestionRunId,
       publishedAt: manifest.publishedAt,
-      evidenceCollectedAt: options.evidenceCollectedAt,
+      // Accepted collection provenance is not derivable from artifact row
+      // timestamps. Preserve the committed value during strict validation
+      // unless the caller supplies an exact expected value.
+      evidenceCollectedAt: options.evidenceCollectedAt ?? (
+        manifest.evidenceCollectedAtKind === ACCEPTED_FULL_COLLECTION_EVIDENCE_KIND
+          ? manifest.evidenceCollectedAt
+          : undefined
+      ),
+      evidenceCollectedAtKind:
+        options.evidenceCollectedAtKind ?? manifest.evidenceCollectedAtKind,
       oldestPlatformRefreshAt: options.oldestPlatformRefreshAt,
       allowEmptyGraphArtifacts: true
     });
@@ -205,6 +267,9 @@ export async function validateArtifactManifest(manifestOrOptions, maybeOptions =
     errors.push("Model version references are stale for the current artifact set.");
   }
   compareOptionalTimestamp(manifest, current, "evidenceCollectedAt", errors);
+  if (manifest.evidenceCollectedAtKind !== current.evidenceCollectedAtKind) {
+    errors.push("Manifest evidenceCollectedAtKind is stale for the current provenance.");
+  }
   compareOptionalTimestamp(manifest, current, "oldestPlatformRefreshAt", errors);
 
   return validationResult(errors, manifest, current);
@@ -439,8 +504,35 @@ function validateManifestShape(manifest, options) {
       `Manifest ingestionRunId is ${manifest.ingestionRunId}; expected ${options.expectedIngestionRunId}.`
     );
   }
-  validateTimestampField(manifest, "evidenceCollectedAt", errors, false);
+  validateTimestampField(manifest, "evidenceCollectedAt", errors, true);
+  if (!EVIDENCE_COLLECTION_KINDS.has(manifest.evidenceCollectedAtKind)) {
+    errors.push(
+      "Manifest evidenceCollectedAtKind must be accepted-full-collection or artifact-derived."
+    );
+  }
+  if (
+    options.evidenceCollectedAtKind !== undefined &&
+    manifest.evidenceCollectedAtKind !== options.evidenceCollectedAtKind
+  ) {
+    errors.push(
+      `Manifest evidenceCollectedAtKind is ${manifest.evidenceCollectedAtKind}; ` +
+      `expected ${options.evidenceCollectedAtKind}.`
+    );
+  }
   validateTimestampField(manifest, "oldestPlatformRefreshAt", errors, false);
+  const now = options.now instanceof Date ? options.now : new Date(options.now ?? Date.now());
+  const publishedAtMs = Date.parse(manifest.publishedAt);
+  const evidenceCollectedAtMs = Date.parse(manifest.evidenceCollectedAt);
+  if (Number.isFinite(publishedAtMs) && publishedAtMs > now.getTime()) {
+    errors.push("Manifest publishedAt cannot be in the future.");
+  }
+  if (
+    Number.isFinite(evidenceCollectedAtMs) &&
+    Number.isFinite(publishedAtMs) &&
+    evidenceCollectedAtMs > publishedAtMs
+  ) {
+    errors.push("Manifest evidenceCollectedAt cannot be newer than publishedAt.");
+  }
   if (!Array.isArray(manifest.modelVersions) || !Array.isArray(manifest.models)) {
     errors.push("Manifest modelVersions and models must be arrays.");
   }
@@ -627,6 +719,31 @@ function extremumTimestamp(values, replacesCurrent) {
     }
   }
   return result;
+}
+
+function evidenceCollectionKind({ evidenceCollectedAt, evidenceCollectedAtKind }) {
+  const kind = optionalString(evidenceCollectedAtKind);
+  const hasExplicitTimestamp = evidenceCollectedAt !== undefined;
+  if (!kind) {
+    if (hasExplicitTimestamp) {
+      throw new Error(
+        "Explicit evidenceCollectedAt requires evidenceCollectedAtKind=accepted-full-collection."
+      );
+    }
+    return ARTIFACT_DERIVED_EVIDENCE_KIND;
+  }
+  if (!EVIDENCE_COLLECTION_KINDS.has(kind)) {
+    throw new Error(`Unsupported evidenceCollectedAtKind: ${kind}.`);
+  }
+  if (kind === ACCEPTED_FULL_COLLECTION_EVIDENCE_KIND && !hasExplicitTimestamp) {
+    throw new Error(
+      "accepted-full-collection evidence provenance requires an explicit evidenceCollectedAt."
+    );
+  }
+  if (kind === ARTIFACT_DERIVED_EVIDENCE_KIND && hasExplicitTimestamp) {
+    throw new Error("artifact-derived evidence provenance must be derived from graph artifacts.");
+  }
+  return kind;
 }
 
 function isoTimestamp(value, label) {

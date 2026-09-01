@@ -3,6 +3,7 @@ import os from "node:os";
 import path from "node:path";
 import { describe, expect, it, vi } from "vitest";
 import { applyClientGraphFilters } from "@/lib/graph/client-filters";
+import { initialSelectedNodeId } from "@/lib/graph/initial-selection";
 
 const HEAVY_GRAPH_TEST_TIMEOUT_MS = 300_000;
 
@@ -70,6 +71,11 @@ describe("initial page graph", () => {
     expect(graph.nodes.some((node) => node.entityType === "company" && node.label === "HeyClicky")).toBe(false);
     expect(graph.evidence.length).toBeGreaterThan(0);
     expect(graph.evidence.every((item) => item.platform === "youtube")).toBe(true);
+    const selectedNodeId = initialSelectedNodeId(graph);
+    const selectedNode = graph.nodes.find((node) => node.id === selectedNodeId);
+    const retainedEvidenceIds = new Set(graph.evidence.map((item) => item.id));
+    expect(selectedNode?.evidenceIds.length).toBeGreaterThan(0);
+    expect(selectedNode?.evidenceIds.every((id) => retainedEvidenceIds.has(id))).toBe(true);
   }, HEAVY_GRAPH_TEST_TIMEOUT_MS);
 
   it("keeps leaderboard top posts available after the first client filter pass", async () => {

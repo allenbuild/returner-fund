@@ -123,7 +123,7 @@ test("host recovery fails closed unless event type and expected main SHA are exa
   );
 });
 
-test("minimum genuine graph timestamp is the publication watermark", () => {
+test("minimum required completeness timestamp is the publication watermark", () => {
   const now = new Date("2026-08-22T12:10:00.000Z");
   const decision = resolveScheduledIngestion({
     schedule: INGESTION_UTC_CRON_CANDIDATES[0],
@@ -141,9 +141,9 @@ test("minimum genuine graph timestamp is the publication watermark", () => {
   assert.equal(decision.latestEligibleSlotKey, "central-2026-08-22-0600");
 });
 
-test("coverage disagreement is divergent while jointly stale graphs retry newest-first", () => {
+test("a stale completeness watermark retries newest-first regardless of rebuild clocks", () => {
   const now = new Date("2026-08-22T23:10:00.000Z");
-  const divergent = resolveScheduledIngestion({
+  const rebuilt = resolveScheduledIngestion({
     schedule: INGESTION_UTC_CRON_CANDIDATES[1],
     publicationState: watermarkState(
       "2026-08-22T22:59:59.000Z",
@@ -160,9 +160,9 @@ test("coverage disagreement is divergent while jointly stale graphs retry newest
     now
   });
 
-  assert.equal(divergent.accepted, true);
-  assert.equal(divergent.watermarkStatus, "divergent");
-  assert.equal(divergent.slotKey, "central-2026-08-22-1800");
+  assert.equal(rebuilt.accepted, true);
+  assert.equal(rebuilt.watermarkStatus, "behind");
+  assert.equal(rebuilt.slotKey, "central-2026-08-22-1800");
   assert.equal(stale.accepted, true);
   assert.equal(stale.watermarkStatus, "behind");
   assert.equal(stale.slotKey, "central-2026-08-22-1800");
@@ -240,7 +240,60 @@ test("reader validates both expected graph identities and timestamps using temp 
   assert.equal((await readPublicationWatermark({ cwd: directory, now })).status, "invalid");
 });
 
-test("complete publication manifest keeps recovery open when a non-base artifact is stale", async (t) => {
+test("fresh graph and benchmark rebuilds cannot mask stale accepted ingest evidence", async (t) => {
+  const directory = temporaryDirectory(t, "returner-watermark-stale-evidence-");
+  const now = new Date("2026-08-22T12:10:00.000Z");
+  const staleEvidenceAt = "2026-08-21T23:00:00.000Z";
+  writeGraphs(directory, {
+    s26: "2026-08-22T11:05:00.000Z",
+    s2026: "2026-08-22T11:06:00.000Z",
+    evidenceCollectedAt: staleEvidenceAt
+  });
+
+  const state = await readPublicationWatermark({ cwd: directory, now });
+  const decision = resolveScheduledIngestion({
+    schedule: INGESTION_UTC_CRON_CANDIDATES[0],
+    publicationState: state,
+    now
+  });
+
+  assert.equal(state.status, "valid");
+  assert.equal(state.watermark.toISOString(), staleEvidenceAt);
+  assert.equal(state.newestGeneratedAt.toISOString(), "2026-08-22T11:06:00.000Z");
+  assert.equal(decision.accepted, true);
+  assert.equal(decision.reason, "retry-publication-watermark");
+  assert.equal(decision.watermarkStatus, "behind");
+  assert.equal(decision.slotKey, "central-2026-08-22-0600");
+});
+
+test("legacy and artifact-derived manifest timestamps cannot close recovery", async (t) => {
+  const directory = temporaryDirectory(t, "returner-watermark-untrusted-evidence-");
+  const now = new Date("2026-08-22T12:10:00.000Z");
+  const currentTimestamp = "2026-08-22T11:01:00.000Z";
+
+  for (const evidenceCollectedAtKind of [null, "artifact-derived"]) {
+    writeGraphs(directory, {
+      s26: "2026-08-22T11:02:00.000Z",
+      s2026: currentTimestamp,
+      evidenceCollectedAt: currentTimestamp,
+      evidenceCollectedAtKind
+    });
+    const state = await readPublicationWatermark({ cwd: directory, now });
+    const decision = resolveScheduledIngestion({
+      schedule: INGESTION_UTC_CRON_CANDIDATES[0],
+      publicationState: state,
+      now
+    });
+
+    assert.equal(state.status, "invalid");
+    assert.equal(state.watermark, null);
+    assert.equal(decision.accepted, true);
+    assert.equal(decision.watermarkStatus, "invalid");
+    assert.equal(decision.reason, "retry-publication-watermark");
+  }
+});
+
+test("completeness uses accepted manifest evidence and required benchmark freshness", async (t) => {
   const directory = temporaryDirectory(t, "returner-watermark-completeness-");
   const now = new Date("2026-08-22T12:10:00.000Z");
   writeGraphs(directory, {
@@ -256,10 +309,10 @@ test("complete publication manifest keeps recovery open when a non-base artifact
     now
   });
   assert.equal(state.status, "valid");
-  assert.equal(state.watermark.toISOString(), "2026-08-20T23:00:00.000Z");
-  assert.equal(decision.accepted, true);
-  assert.equal(decision.watermarkStatus, "divergent");
-  assert.equal(decision.slotKey, "central-2026-08-22-0600");
+  assert.equal(state.watermark.toISOString(), "2026-08-22T11:01:00.000Z");
+  assert.equal(decision.accepted, false);
+  assert.equal(decision.watermarkStatus, "current");
+  assert.equal(decision.latestEligibleSlotKey, "central-2026-08-22-0600");
 
   writeGraphs(directory, {
     s26: "2026-08-22T11:02:00.000Z",
@@ -268,11 +321,14 @@ test("complete publication manifest keeps recovery open when a non-base artifact
   });
   const benchmarkState = await readPublicationWatermark({ cwd: directory, now });
   assert.equal(benchmarkState.watermark.toISOString(), "2026-08-20T23:30:00.000Z");
-  assert.equal(resolveScheduledIngestion({
+  assert.equal(benchmarkState.newestGeneratedAt.toISOString(), "2026-08-22T11:02:00.000Z");
+  const benchmarkDecision = resolveScheduledIngestion({
     schedule: INGESTION_UTC_CRON_CANDIDATES.at(-1),
     publicationState: benchmarkState,
     now
-  }).accepted, true);
+  });
+  assert.equal(benchmarkDecision.accepted, true);
+  assert.equal(benchmarkDecision.watermarkStatus, "behind");
 });
 
 test("publication manifest fails closed when a required artifact is missing or corrupted", async (t) => {
@@ -283,6 +339,16 @@ test("publication manifest fails closed when a required artifact is missing or c
     s2026: "2026-08-22T11:01:00.000Z"
   });
 
+  const manifestPath = path.join(directory, "public/graph/manifest.json");
+  const futureEvidenceManifest = JSON.parse(readFileSync(manifestPath, "utf8"));
+  futureEvidenceManifest.evidenceCollectedAt = "2026-08-22T11:03:00.000Z";
+  writeFileSync(manifestPath, `${JSON.stringify(futureEvidenceManifest)}\n`);
+  assert.equal((await readPublicationWatermark({ cwd: directory, now })).status, "invalid");
+
+  writeGraphs(directory, {
+    s26: "2026-08-22T11:02:00.000Z",
+    s2026: "2026-08-22T11:01:00.000Z"
+  });
   const missingPath = path.join(directory, "public/graph/a16zsr006-insiders.json");
   rmSync(missingPath);
   assert.equal((await readPublicationWatermark({ cwd: directory, now })).status, "missing");
@@ -569,13 +635,34 @@ function temporaryDirectory(t, prefix) {
   return directory;
 }
 
-function writeGraphs(root, { s26, s2026, overrides = {} }) {
-  writeGraph(root, "s26", "S26", s26);
-  writeGraph(root, "s2026", "S2026", s2026);
-  writePublicationManifest(root, { s26, s2026, overrides });
+function writeGraphs(root, {
+  s26,
+  s2026,
+  rowEvidenceAsOf = null,
+  evidenceCollectedAt = null,
+  evidenceCollectedAtKind = "accepted-full-collection",
+  overrides = {}
+}) {
+  writeGraph(root, "s26", "S26", s26, rowEvidenceAsOf ?? s26);
+  writeGraph(root, "s2026", "S2026", s2026, rowEvidenceAsOf ?? s2026);
+  writePublicationManifest(root, {
+    s26,
+    s2026,
+    rowEvidenceAsOf,
+    evidenceCollectedAt,
+    evidenceCollectedAtKind,
+    overrides
+  });
 }
 
-function writePublicationManifest(root, { s26, s2026, overrides = {} }) {
+function writePublicationManifest(root, {
+  s26,
+  s2026,
+  rowEvidenceAsOf = null,
+  evidenceCollectedAt = null,
+  evidenceCollectedAtKind = "accepted-full-collection",
+  overrides = {}
+}) {
   const graphFilenames = [
     "s2026.json", "s2026-yc-partners.json", "s2026-insiders.json",
     "s26.json", "s26-yc-partners.json", "s26-insiders.json",
@@ -590,12 +677,19 @@ function writePublicationManifest(root, { s26, s2026, overrides = {} }) {
   const benchmarkDirectory = path.join(root, "outputs/benchmarks");
   mkdirSync(graphDirectory, { recursive: true });
   mkdirSync(benchmarkDirectory, { recursive: true });
+  const graphEvidenceInstants = [];
   const graphArtifacts = graphFilenames.map((filename) => {
     const generatedAt = overrides[filename] ?? (filename.startsWith("s2026") ? s2026 : filename.startsWith("s26") ? s26 : fallback);
+    const graphEvidenceAsOf = rowEvidenceAsOf ?? generatedAt;
+    graphEvidenceInstants.push(graphEvidenceAsOf);
     const filePath = path.join(graphDirectory, filename);
     if (!existsSync(filePath) || !["s26.json", "s2026.json"].includes(filename)) {
       const batchSlug = filename.startsWith("s2026") ? "S2026" : filename.startsWith("s26") ? "S26" : "A16ZSR006";
-      writeFileSync(filePath, `${JSON.stringify({ batch: { slug: batchSlug }, generatedAt })}\n`);
+      writeFileSync(filePath, `${JSON.stringify({
+        batch: { slug: batchSlug },
+        generatedAt,
+        scoringContext: { evidenceAsOf: graphEvidenceAsOf }
+      })}\n`);
     }
     return fixtureArtifactEntry(filePath, filename, generatedAt);
   });
@@ -609,6 +703,8 @@ function writePublicationManifest(root, { s26, s2026, overrides = {} }) {
     schemaVersion: 2,
     publishedAt: [s26, s2026].sort().at(-1),
     ingestionRunId: "fixture-run",
+    evidenceCollectedAt: evidenceCollectedAt ?? graphEvidenceInstants.sort().at(-1),
+    ...(evidenceCollectedAtKind === null ? {} : { evidenceCollectedAtKind }),
     graphArtifacts,
     benchmarkArtifacts,
     contentHash: "b".repeat(64)
@@ -625,11 +721,15 @@ function fixtureArtifactEntry(filePath, filename, generatedAt) {
   };
 }
 
-function writeGraph(root, fileSlug, batchSlug, generatedAt) {
+function writeGraph(root, fileSlug, batchSlug, generatedAt, evidenceAsOf = generatedAt) {
   const graphDirectory = path.join(root, "public/graph");
   mkdirSync(graphDirectory, { recursive: true });
   writeFileSync(
     path.join(graphDirectory, `${fileSlug}.json`),
-    `${JSON.stringify({ batch: { slug: batchSlug }, generatedAt })}\n`
+    `${JSON.stringify({
+      batch: { slug: batchSlug },
+      generatedAt,
+      scoringContext: { evidenceAsOf }
+    })}\n`
   );
 }

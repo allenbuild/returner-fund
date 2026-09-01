@@ -3096,7 +3096,61 @@ describe("autonomous ingestion runner static safety contracts", () => {
     assert.ok(retry.includes("args.resumeSnapshots"));
     assert.ok(retry.includes("collector.snapshot_resumed"));
     assert.ok(retry.includes("terminalCoverage.nonTerminal === 0 && retryableFailures.length === 0"));
+    assert.ok(retry.includes("expectedIdempotencyKey: idempotencyKey"));
     assert.ok(runner.includes('resumeSnapshots: !rawArgs.includes("--no-resume-snapshots")'));
+  });
+
+  it("binds resumed collector completion to the exact current scheduled slot", () => {
+    const bindingSource = section(
+      "function collectorCampaignKey",
+      "function createCollectorAttemptContext"
+    );
+    const scheduledAtMs = Date.parse("2026-08-31T10:00:00.000Z");
+    const nowMs = scheduledAtMs + 60_000;
+    const slotKey = "central-2026-08-31-0600";
+    const validate = new Function(
+      "args",
+      "candidateMetadata",
+      "idempotencyKey",
+      "COLLECTOR_RESUME_MAX_AGE_MS",
+      "COLLECTOR_SNAPSHOT_FUTURE_SKEW_MS",
+      `${bindingSource}\nreturn assertCurrentCollectorSnapshotBinding;`
+    )(
+      { campaignKey: "campaign-contract" },
+      { trigger: "schedule", scheduledAtMs },
+      slotKey,
+      12 * 60 * 60_000,
+      60_000
+    );
+    const binding = {
+      schemaVersion: 1,
+      attemptId: "attempt-contract",
+      campaignKey: "campaign-contract",
+      idempotencyKey: slotKey,
+      executionNonce: "execution-contract",
+      kind: "public",
+      batchSlug: "S26",
+      startedAt: new Date(scheduledAtMs).toISOString(),
+      completedAt: new Date(scheduledAtMs).toISOString()
+    };
+
+    assert.doesNotThrow(() => validate(binding, { kind: "public", batchSlug: "S26", nowMs }));
+    assert.throws(
+      () => validate({
+        ...binding,
+        startedAt: new Date(scheduledAtMs - 2_000).toISOString(),
+        completedAt: new Date(scheduledAtMs - 1).toISOString()
+      }, { kind: "public", batchSlug: "S26", nowMs }),
+      /prior-slot/
+    );
+    assert.throws(
+      () => validate({ ...binding, idempotencyKey: "central-2026-08-30-1800" }, {
+        kind: "public",
+        batchSlug: "S26",
+        nowMs
+      }),
+      /foreign collector provenance/
+    );
   });
 
   it("reuses a campaign collector ledger across distinct durable sweep runs", () => {
@@ -3179,7 +3233,7 @@ describe("autonomous ingestion runner static safety contracts", () => {
     assert.ok(topVoiceResume.includes("resumeValidatedSnapshotOrRun"));
     assert.ok(topVoiceResume.includes("validateSnapshot: (receipt) =>"));
     assert.ok(topVoiceResume.includes("assertSuccessfulTopVoiceRefresh(receipt)"));
-    assert.ok(topVoiceResume.includes("stale, future, or foreign collector provenance"));
+    assert.ok(topVoiceResume.includes("assertCurrentCollectorSnapshotBinding"));
     assert.ok(topVoiceResume.includes("runFresh: runTopVoiceCollector"));
     assert.ok(runner.includes("assertSuccessfulTopVoiceRefresh(topVoiceRefresh)"));
     assert.ok(runner.includes('receipt.status !== "completed"'));
@@ -3206,20 +3260,82 @@ describe("autonomous ingestion runner static safety contracts", () => {
     assert.ok(publicationIndex > guardIndex);
     assert.ok(completionIndex > publicationIndex);
     assert.ok(guard.includes("collectionResults.some((result) => result.snapshotAvailable)"));
+    assert.ok(guard.includes("result.exhaustedRetryableFailures > 0"));
+    assert.ok(guard.includes("freshness advancement"));
     assert.ok(guard.includes("result.snapshotAvailable && result.successfulRows > 0"));
     assert.ok(guard.includes("coverage.succeeded === 0"));
   });
 
-  it("publishes validated snapshots recovered from collectors that exhausted retries", () => {
+  it("publishes recovered terminal snapshots but blocks recovered unresolved retryable failures", () => {
     const publicationInputs = section(
       "const publishableCollectorResults",
       "const collectionCoverage = await summarizeCollectionCoverage"
     );
+    const collectors = section("async function runCollectors()", "async function runAuthenticatedCollectors");
+    const guard = section("function assertSuccessfulCollection", "async function persistCoverage");
 
     assert.ok(publicationInputs.includes("result.snapshotAvailable"));
     assert.ok(publicationInputs.includes('result.kind === "public"'));
     assert.ok(publicationInputs.includes('result.kind === "github"'));
     assert.doesNotMatch(publicationInputs, /filter\(\(result\) => result\.ok\)/);
+    assert.ok(collectors.includes("retryableFailuresFromSnapshot(recoveredSnapshot)"));
+    assert.ok(collectors.includes("recoveredRetryableFailures.length"));
+    assert.ok(guard.includes("unresolvedRetryableCollectors"));
+    assert.ok(guard.includes("result.snapshotAvailable !== true"));
+    assert.ok(guard.includes("result.terminalCoverage?.nonTerminal !== 0"));
+    assert.ok(guard.includes("coverage?.nonTerminal !== 0"));
+    assert.ok(guard.includes("regardless of the mapped terminal-failure budget"));
+  });
+
+  it("fails publication closed when any required collector snapshot is missing or nonterminal", () => {
+    const guardSource = section(
+      "function assertSuccessfulCollection",
+      "function assertAuthenticatedReplayCanPublish"
+    );
+    const assertCanPublish = new Function(
+      `${guardSource}\nreturn assertSuccessfulCollection;`
+    )();
+    const completeResult = (kind, batchSlug) => ({
+      kind,
+      batchSlug,
+      snapshotAvailable: true,
+      successfulRows: 1,
+      exhaustedRetryableFailures: 0,
+      terminalCoverage: { expected: 10, terminal: 10, nonTerminal: 0 }
+    });
+    const completeResults = [
+      completeResult("public", "S26"),
+      completeResult("github", "S26")
+    ];
+    const completeCoverage = {
+      succeeded: 2,
+      nonTerminal: 0,
+      mappedNonTerminal: 0,
+      mappedFailed: 0
+    };
+
+    assert.doesNotThrow(() => assertCanPublish(completeResults, completeCoverage));
+    assert.throws(
+      () => assertCanPublish([
+        completeResults[0],
+        { ...completeResults[1], snapshotAvailable: false }
+      ], completeCoverage),
+      /validated snapshot with exact zero nonterminal tasks/
+    );
+    assert.throws(
+      () => assertCanPublish([
+        completeResults[0],
+        {
+          ...completeResults[1],
+          terminalCoverage: { expected: 10, terminal: 9, nonTerminal: 1 }
+        }
+      ], completeCoverage),
+      /nonterminal=1/
+    );
+    assert.throws(
+      () => assertCanPublish(completeResults, { ...completeCoverage, nonTerminal: 1 }),
+      /regardless of the mapped terminal-failure budget/
+    );
   });
 
   it("batches task persistence and reconciliation with bounded concurrency", () => {
@@ -3419,8 +3535,14 @@ describe("autonomous ingestion runner static safety contracts", () => {
     const scoringDiagnosticsIndex = publicationBuild.indexOf('"scripts/run-scoring-diagnostics-v4.mjs"');
     const writeIndex = publicationBuild.indexOf('"scripts/write-artifact-manifest.mjs"');
     const validateIndex = publicationBuild.indexOf('["scripts/validate-public-artifacts.mjs"]');
-    const strictManifestIndex = publicationBuild.indexOf('"scripts/write-artifact-manifest.mjs", "--validate"');
+    const strictManifestIndex = publicationBuild.indexOf('"--validate"', writeIndex);
     const buildCallIndex = runner.indexOf("await buildAndValidatePublication(publicationRunId, catalogState)");
+    const acceptedCollectionIndex = runner.indexOf(
+      "acceptedCollectionCompletedAt = new Date().toISOString()"
+    );
+    const collectionGateIndex = runner.indexOf(
+      "assertSuccessfulCollection(collectionResults, collectionCoverage)"
+    );
     const publishIndex = runner.indexOf(
       "await publishRepositoryArtifacts(publicationRunId, publicationInputs)"
     );
@@ -3444,6 +3566,51 @@ describe("autonomous ingestion runner static safety contracts", () => {
 
     assert.ok(scoringDiagnosticsIndex > -1);
     assert.ok(writeIndex > -1);
+    assert.ok(collectionGateIndex > -1 && acceptedCollectionIndex > collectionGateIndex);
+    assert.ok(acceptedCollectionIndex < buildCallIndex);
+    assert.match(
+      runner,
+      /advancesAutonomousCompleteness =\s*!args\.skipNetwork &&\s*!args\.authenticatedSocialReplay &&\s*candidateMetadata\?\.trigger !== "manual-replay"/
+    );
+    assert.ok(runner.includes(
+      "acceptedCollectionCompletedAt = await readCommittedCollectionCompletedAt()"
+    ));
+    const preservedCollectionClock = section(
+      "async function readCommittedCollectionCompletedAt",
+      "async function synchronizePublicationBase"
+    );
+    assert.ok(preservedCollectionClock.includes("manifest?.evidenceCollectedAt"));
+    assert.ok(preservedCollectionClock.includes(
+      'manifest?.evidenceCollectedAtKind !== "accepted-full-collection"'
+    ));
+    assert.ok(preservedCollectionClock.includes("timestamp > publishedTimestamp"));
+    assert.ok(preservedCollectionClock.includes("timestamp > Date.now()"));
+    const concurrentRebuild = section(
+      "async function rebuildPublicationCandidateOnConcurrentBase",
+      "async function inspectValidatedPublicationCandidateReuse"
+    );
+    assert.match(
+      concurrentRebuild,
+      /readCommittedCollectionCompletedAt\(\{\s*baseRef: retryBaseCommit\s*\}\)/
+    );
+    assert.ok(
+      concurrentRebuild.indexOf("if (validatedCandidateReuse)") <
+      concurrentRebuild.indexOf("const priorCollectionCompletedAt")
+    );
+    assert.equal(
+      (publicationBuild.match(/`--evidence-collected-at=\$\{evidenceCollectedAt\}`/g) ?? []).length,
+      2
+    );
+    assert.equal(
+      (publicationBuild.match(/"--evidence-collected-at-kind=accepted-full-collection"/g) ?? []).length,
+      2
+    );
+    assert.ok(publicationBuild.includes("requireAcceptedCollectionCompletedAt()"));
+    assert.equal(
+      (runner.match(/evidenceCollectedAt: acceptedCollectionCompletedAt/g) ?? []).length,
+      2,
+      "initial and rebased source-delta receipts bind the same accepted collection clock"
+    );
     assert.ok(
       writeIndex > scoringDiagnosticsIndex &&
       validateIndex > writeIndex &&

@@ -3,6 +3,7 @@
   "publishedAt": "2026-09-01T01:59:02.804Z",
   "ingestionRunId": "889b743e-02f2-4a19-992b-ca9a2f890a98",
   "evidenceCollectedAt": "2026-08-31T15:13:23.035Z",
+  "evidenceCollectedAtKind": "artifact-derived",
   "oldestPlatformRefreshAt": "2026-07-29T07:11:00.000Z",
   "modelVersions": [
     "returner-traction@4.3.0",

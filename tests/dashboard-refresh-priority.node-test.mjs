@@ -67,7 +67,7 @@ test("a dashboard admitted before a Central rollover is rejected after waiting i
   assert.equal(revalidated.ingestionSlotKey, "central-2026-08-30-0600");
 });
 
-test("missing, invalid, and divergent publication states all fail closed for ingestion priority", () => {
+test("missing, invalid, and stale publication states all fail closed for ingestion priority", () => {
   const scenarios = [
     { publicationState: { status: "missing" }, expectedStatus: "missing" },
     { publicationState: { status: "invalid" }, expectedStatus: "invalid" },
@@ -76,7 +76,7 @@ test("missing, invalid, and divergent publication states all fail closed for ing
         "2026-08-30T10:59:59.000Z",
         "2026-08-30T11:00:01.000Z"
       ),
-      expectedStatus: "divergent"
+      expectedStatus: "behind"
     }
   ];
 

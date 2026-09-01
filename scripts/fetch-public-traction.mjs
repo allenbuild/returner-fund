@@ -3,6 +3,7 @@ import dns from "node:dns";
 import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import { BlockList, isIP } from "node:net";
 import { dirname, join, resolve } from "node:path";
+import { isDeepStrictEqual } from "node:util";
 import { gunzipSync } from "node:zlib";
 import { Agent, request as undiciRequest } from "undici";
 import {
@@ -303,18 +304,14 @@ const checkpoint = await readJson(checkpointPath, {
   discoveryAttempts: [],
   sourceDiscoveryPaths: []
 });
-const attemptMap = new Map(
-  [
-    ...Object.entries(currentOutput.attempts ?? {})
-      .filter(([, attempt]) => attempt?.batchSlug === batchConfig.slug)
-      .map(([key, attempt]) => [
-        attempt.attemptKey ?? stripStoredAttemptBatchPrefix(key, batchConfig.slug),
-        attempt
-      ]),
-    ...Object.entries(checkpoint.attempts ?? {})
-  ]
-    .filter(([, attempt]) => !isObsoleteInternalFailure(attempt))
-    .map(([key, attempt]) => [key, withAttemptBatchScope(attempt)])
+const attemptMap = mergeCurrentAndCheckpointAttempts(
+  Object.entries(currentOutput.attempts ?? {})
+    .filter(([, attempt]) => attempt?.batchSlug === batchConfig.slug)
+    .map(([key, attempt]) => [
+      attempt.attemptKey ?? stripStoredAttemptBatchPrefix(key, batchConfig.slug),
+      attempt
+    ]),
+  Object.entries(checkpoint.attempts ?? {})
 );
 const evidence = dedupeById([...(currentOutput.evidence ?? []), ...(checkpoint.evidence ?? [])]);
 const needsReview = dedupeById([...(currentOutput.needsReview ?? []), ...(checkpoint.needsReview ?? [])]);
@@ -901,13 +898,14 @@ async function attempt(platform, key, company, fn) {
     }
     addItems(result?.evidence ?? [], evidence);
     addItems(result?.needsReview ?? [], needsReview);
-    addItems(
-      (result?.failures ?? []).map((row) => ({ ...row, attemptKey })),
-      failures
-    );
+    const attributedFailures = (result?.failures ?? []).map((row) => ({
+      ...row,
+      attemptKey
+    }));
+    addItems(attributedFailures, failures);
     addItems(result?.sourceDiscoveryPaths ?? [], sourceDiscoveryPaths);
     const attemptSummary = summarizeConnectorResult(result);
-    const providerBlocker = (result?.failures ?? [])
+    const providerBlocker = attributedFailures
       .find((row) => isAutonomousProviderBlocker(row?.blocker, {
         platform: row?.platform ?? normalizedPlatform
       }))?.blocker ?? null;
@@ -916,9 +914,9 @@ async function attempt(platform, key, company, fn) {
       : providerBlocker
         ? "blocked_or_empty"
         : collectorOutcomeStatus(attemptSummary);
-    const retryable = recentProof?.recentWindowProof
+    const retryable = recentProof?.recentWindowProof || result?.verifiedEmpty === true
       ? false
-      : retryableCollectorFailure(attemptSummary.failureReason);
+      : connectorResultHasRetryableFailure(attemptSummary, attributedFailures);
     discoveryAttempts.push(
       discoveryAttempt({
         company,
@@ -1107,17 +1105,17 @@ async function attemptSocialProfile(company, entity, entityType, platform, accou
         resultCount: 0,
         usefulResultCount: 0,
         selectedUrl: url,
-        status: "failed",
+        status: "needs_review",
         failureReason: mappingMessage
       })
     );
     attemptMap.set(key, socialAttemptRecord({
       attemptKey: key,
-      status: "failed",
+      status: "done",
       checkedAt: now,
       error: mappingMessage,
       retryable: false,
-      outcomeStatus: "failed",
+      outcomeStatus: "needs_review",
       outcomeReason: "collector_invalid_account_mapping"
     }, { platform, companySlug: company.slug, entityType, entityId, name, accountUrl: url }));
     await writeCheckpoint();
@@ -1353,11 +1351,22 @@ async function attemptSocialProfile(company, entity, entityType, platform, accou
         blocker: providerBlocker
       })
     );
+    const mappedTerminalOutcome = recentProof?.recentWindowProof || providerBlocker
+      ? null
+      : structuredMappedAccountTerminalOutcome(result, {
+          platform,
+          accountUrl: url,
+          usefulResultCount: attemptSummary.usefulResultCount
+        });
+    const hasRetryableFailure = connectorResultHasRetryableFailure(
+      attemptSummary,
+      attributedFailures
+    );
     const outcomeStatus = recentProof?.recentWindowProof
       ? "completed"
       : providerBlocker
         ? "blocked_or_empty"
-        : collectorOutcomeStatus(attemptSummary);
+        : mappedTerminalOutcome?.status ?? collectorOutcomeStatus(attemptSummary);
     const failureReason = String(attemptSummary.failureReason ?? "").trim();
     attemptMap.set(key, socialAttemptRecord({
       attemptKey: key,
@@ -1375,17 +1384,19 @@ async function attemptSocialProfile(company, entity, entityType, platform, accou
         ? { recentWindowCoverageCutoff: recentProof.coverageCutoff }
         : {}),
       ...(result?.coverageReceipt ? { coverageReceipt: result.coverageReceipt } : {}),
-      retryable: recentProof?.recentWindowProof
+      retryable: recentProof?.recentWindowProof || result?.verifiedEmpty === true
         ? false
         : providerBlocker
         ? !providerBlocker.retryAt
-        : retryableCollectorFailure(failureReason),
+        : mappedTerminalOutcome
+        ? false
+        : hasRetryableFailure,
       outcomeStatus,
       outcomeReason: recentProof?.recentWindowProof
         ? "collector_native_recent_window_exhausted"
         : providerBlocker
           ? "collector_provider_blocked"
-          : collectorOutcomeReason(attemptSummary)
+          : mappedTerminalOutcome?.reason ?? collectorOutcomeReason(attemptSummary)
     }, { platform, companySlug: company.slug, entityType, entityId, name, accountUrl: url }));
   } catch (error) {
     recordPlatformCooldownIfNeeded(platform, error);
@@ -1560,6 +1571,57 @@ function withAttemptBatchScope(attempt) {
   };
 }
 
+function mergeCurrentAndCheckpointAttempts(currentEntries, checkpointEntries) {
+  const currentAttempts = new Map(
+    currentEntries.filter(([, attempt]) => !isObsoleteInternalFailure(attempt))
+  );
+  const checkpointAttempts = new Map(
+    checkpointEntries.filter(([, attempt]) => !isObsoleteInternalFailure(attempt))
+  );
+  const merged = new Map();
+
+  for (const key of new Set([...currentAttempts.keys(), ...checkpointAttempts.keys()])) {
+    const hasCurrent = currentAttempts.has(key);
+    const hasCheckpoint = checkpointAttempts.has(key);
+    let selected;
+    if (hasCurrent && hasCheckpoint) {
+      selected = strictlyNewestAttempt(
+        currentAttempts.get(key),
+        checkpointAttempts.get(key)
+      );
+      // Equal or unparseable timestamps do not prove which resume receipt is
+      // authoritative. Drop the collision so the selected task must collect
+      // again instead of trusting an insertion-order winner.
+      if (!selected) continue;
+    } else {
+      selected = hasCurrent ? currentAttempts.get(key) : checkpointAttempts.get(key);
+    }
+    merged.set(
+      key,
+      upgradeLegacyStructuredXTerminalAttempt(withAttemptBatchScope(selected))
+    );
+  }
+  return merged;
+}
+
+function strictlyNewestAttempt(currentAttempt, checkpointAttempt) {
+  const currentCheckedAt = Date.parse(currentAttempt?.checkedAt ?? "");
+  const checkpointCheckedAt = Date.parse(checkpointAttempt?.checkedAt ?? "");
+  if (
+    !Number.isFinite(currentCheckedAt) ||
+    !Number.isFinite(checkpointCheckedAt) ||
+    currentCheckedAt === checkpointCheckedAt
+  ) {
+    // The canonical output and its checkpoint are normally written from the
+    // same in-memory receipt. Retain that byte-equivalent idempotent copy;
+    // equal-time or undated *different* receipts remain ambiguous and rerun.
+    return isDeepStrictEqual(currentAttempt, checkpointAttempt)
+      ? currentAttempt
+      : null;
+  }
+  return currentCheckedAt > checkpointCheckedAt ? currentAttempt : checkpointAttempt;
+}
+
 function collectorOutcomeStatus(summary) {
   if (["success", "partial_success"].includes(summary.status)) return "completed";
   if (summary.status === "needs_review") return "needs_review";
@@ -1574,6 +1636,79 @@ function collectorOutcomeReason(summary) {
   if (status === "needs_review") return "collector_needs_review";
   if (status === "failed") return "collector_reported_failure";
   return "collector_checked_blocked_or_empty";
+}
+
+function structuredMappedAccountTerminalOutcome(
+  result,
+  { platform, accountUrl, usefulResultCount = 0 }
+) {
+  if (platform !== "x" || usefulResultCount > 0) return null;
+  const receipt = result?.coverageReceipt;
+  if (!receipt || receipt.verified !== false) return null;
+  const taskAccountUrl = canonicalSocialAccountUrl("x", accountUrl);
+  const receiptAccountUrl = canonicalSocialAccountUrl("x", receipt.accountUrl);
+  if (!taskAccountUrl || !receiptAccountUrl || taskAccountUrl !== receiptAccountUrl) return null;
+
+  if (receipt.reason === "x_public_profile_http_404") {
+    return {
+      status: "blocked_or_empty",
+      reason: "collector_mapped_account_not_found"
+    };
+  }
+  if (receipt.reason === "x_profile_identity_mismatch") {
+    return {
+      status: "needs_review",
+      reason: "collector_mapped_account_identity_mismatch"
+    };
+  }
+  return null;
+}
+
+function upgradeLegacyStructuredXTerminalAttempt(attempt) {
+  if (attempt?.platform !== "x") return attempt;
+  const entityType = String(attempt.entityType ?? "").trim();
+  const entityId = String(attempt.entityId ?? "").trim();
+  const accountUrl = String(attempt.accountUrl ?? "").trim();
+  const attemptKey = String(attempt.attemptKey ?? "").trim();
+  if (
+    !["company", "founder"].includes(entityType) ||
+    !entityId ||
+    !accountUrl ||
+    attemptKey !== `x:${entityType}:${entityId}:${accountUrl}`
+  ) {
+    return attempt;
+  }
+  const receipt = attempt.coverageReceipt;
+  if (!receipt || receipt.verified !== false) return attempt;
+  const attemptAccountUrl = canonicalSocialAccountUrl("x", accountUrl);
+  const receiptAccountUrl = canonicalSocialAccountUrl("x", receipt.accountUrl);
+  if (
+    !attemptAccountUrl ||
+    !receiptAccountUrl ||
+    attemptAccountUrl !== receiptAccountUrl
+  ) {
+    return attempt;
+  }
+
+  if (receipt.reason === "x_public_profile_http_404") {
+    return {
+      ...attempt,
+      status: "done",
+      retryable: false,
+      outcomeStatus: "blocked_or_empty",
+      outcomeReason: "collector_mapped_account_not_found"
+    };
+  }
+  if (receipt.reason === "x_profile_identity_mismatch") {
+    return {
+      ...attempt,
+      status: "done",
+      retryable: false,
+      outcomeStatus: "needs_review",
+      outcomeReason: "collector_mapped_account_identity_mismatch"
+    };
+  }
+  return attempt;
 }
 
 function expectedAccessOrEmptyMessage(value) {
@@ -1592,6 +1727,19 @@ function retryableCollectorFailure(value) {
     return false;
   }
   return isAutonomousCollectorFailureRetryable(message);
+}
+
+function connectorResultHasRetryableFailure(summary, attributedFailures) {
+  if (!attributedFailures.length) {
+    return summary.status === "failed" && retryableCollectorFailure(summary.failureReason);
+  }
+  return attributedFailures.some((row) => {
+    if (row?.retryable === false) return false;
+    if (row?.retryable === true) return true;
+    return retryableCollectorFailure(
+      row?.message ?? row?.failure_reason ?? row?.error ?? ""
+    );
+  });
 }
 
 function discoveredSocialCandidatesFromPaths(company, platform, entity = company, entityType = "company") {
@@ -2126,15 +2274,25 @@ async function ingestMappedYouTubeAccount(company, entity, entityType, accountUr
         discoveredAt: new Date(now)
       });
     } catch (error) {
-      feedFailure = failure(
-        "youtube",
-        company,
-        feedSourceUrl,
-        `Official YouTube Atom feed could not be exhausted: ${errorMessage(error)}`,
-        entityType,
-        name,
-        entityId
-      );
+      const message = `Official YouTube Atom feed could not be exhausted: ${errorMessage(error)}`;
+      feedFailure = {
+        ...failure(
+          "youtube",
+          company,
+          feedSourceUrl,
+          message,
+          entityType,
+          name,
+          entityId
+        ),
+        // A healthy channel page is useful partial evidence, but it is not a
+        // substitute for exhausting the channel's exact native feed. In
+        // particular, YouTube intermittently returns 404 for valid channel
+        // feed URLs, so keep the page rows and retry the bounded collection.
+        retryable:
+          /Official YouTube Atom feed returned HTTP 404\b/i.test(message) ||
+          retryableCollectorFailure(message)
+      };
     }
   }
 

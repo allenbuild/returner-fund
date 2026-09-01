@@ -1335,20 +1335,54 @@ export function isAutonomousCollectorFailureRetryable(message) {
     RETRYABLE_COLLECTOR_HTTP_STATUS_PATTERN.test(normalized);
 }
 
-export function autonomousCollectorRetryableFailures(snapshot) {
-  const attempts = Object.entries(snapshot?.attempts ?? {}).map(([storedKey, attempt]) => {
-    const batchPrefix = attempt?.batchSlug ? `${attempt.batchSlug}:` : "";
+function currentAutonomousCollectorAttempts(snapshot, { batchSlug = null } = {}) {
+  const groups = new Map();
+  for (const [storedKey, sourceAttempt] of Object.entries(snapshot?.attempts ?? {})) {
+    const scopedBatchSlug = String(sourceAttempt?.batchSlug ?? batchSlug ?? "").trim();
+    const batchPrefix = scopedBatchSlug ? `${scopedBatchSlug}:` : "";
     const attemptKey = String(
-      attempt?.attemptKey ??
+      sourceAttempt?.attemptKey ??
       (batchPrefix && storedKey.startsWith(batchPrefix)
         ? storedKey.slice(batchPrefix.length)
         : storedKey)
     ).trim();
-    return {
-      ...attempt,
-      attemptKey
-    };
-  });
+    if (!attemptKey) continue;
+    const attempt = { ...sourceAttempt, attemptKey };
+    const groupKey = `${scopedBatchSlug}\u0000${attemptKey}`;
+    groups.set(groupKey, [...(groups.get(groupKey) ?? []), attempt]);
+  }
+
+  const selected = [];
+  for (const attempts of groups.values()) {
+    const newestTimestamp = Math.max(
+      ...attempts.map((attempt) => Date.parse(attempt.checkedAt ?? "") || 0)
+    );
+    let current = newestTimestamp > 0
+      ? attempts.filter((attempt) => {
+          const timestamp = Date.parse(attempt.checkedAt ?? "") || 0;
+          // An undated peer cannot safely be declared older than a dated
+          // receipt. Keep it in the ambiguity set so a hard peer wins.
+          return timestamp === 0 || timestamp === newestTimestamp;
+        })
+      : attempts;
+    const hasTypedMappedTerminal = current.some((attempt) =>
+      Boolean(exactTypedMappedAccountTerminalOutcome(attempt))
+    );
+    const hasHardOrUntypedPeer = current.some((attempt) =>
+      !exactTypedMappedAccountTerminalOutcome(attempt)
+    );
+    // Equal-time or undated ambiguity fails closed. A typed historical
+    // negative may never outrank a hard attempt unless it is strictly newer.
+    if (hasTypedMappedTerminal && hasHardOrUntypedPeer) {
+      current = current.filter((attempt) => !exactTypedMappedAccountTerminalOutcome(attempt));
+    }
+    selected.push(...current);
+  }
+  return selected;
+}
+
+export function autonomousCollectorRetryableFailures(snapshot) {
+  const attempts = currentAutonomousCollectorAttempts(snapshot);
   const attemptsByKey = new Map(
     attempts
       .filter((attempt) => attempt.attemptKey)
@@ -1373,13 +1407,11 @@ export function autonomousCollectorRetryableFailures(snapshot) {
 
   const explicitAttemptFailures = attempts
     .filter((attempt) => attempt.retryable === true)
-    // A task-level terminal negative receipt is authoritative even when an
-    // older collector persisted retryable=true from transport-shaped
-    // diagnostic text. Replaying an explicit blocked/review outcome cannot
-    // improve terminal coverage. Completed partial interruptions and failed
-    // attempts retain their existing retry behavior.
-    .filter((attempt) => !isExplicitTerminalNegativeCollectorAttempt(attempt))
-    .filter((attempt) => !isIntentionalInstagramReviewAttempt(attempt))
+    // Generic blocked/review labels are not proof that a transport-shaped
+    // failure is terminal. Only exact structured mapped-account receipts and
+    // established intentional/provider terminal contracts may override an
+    // explicit retryable flag.
+    .filter((attempt) => !isAuthoritativeCollectorNoRetryAttempt(attempt))
     .map((attempt) =>
       attempt.error ??
       attempt.failureReason ??
@@ -1394,6 +1426,32 @@ export function autonomousCollectorRetryableFailures(snapshot) {
     ))
     .filter((check) => collectorFailureRetryDecision(check, attemptsByKey, attemptsByOwner) !== false)
     .map((check) => check.error);
+  const explicitRowFailures = [
+    ...(snapshot?.failures ?? [])
+      .filter((failure) => failure?.retryable === true)
+      .filter((failure) => collectorFailureRetryDecision(
+        failure,
+        attemptsByKey,
+        attemptsByOwner
+      ) === true)
+      .map((failure) => failure.message ?? failure.error),
+    ...(snapshot?.accounts ?? [])
+      .filter((account) => account?.retryable === true)
+      .filter((account) => collectorFailureRetryDecision(
+        account,
+        attemptsByKey,
+        attemptsByOwner
+      ) === true)
+      .map((account) => account.error),
+    ...sourceChecks
+      .filter((check) => check?.retryable === true)
+      .filter((check) => collectorFailureRetryDecision(
+        check,
+        attemptsByKey,
+        attemptsByOwner
+      ) === true)
+      .map((check) => check.error)
+  ];
   const messages = [
     ...explicitAttemptFailures,
     ...(snapshot?.failures ?? [])
@@ -1411,17 +1469,18 @@ export function autonomousCollectorRetryableFailures(snapshot) {
       .map((message) => String(message ?? "").trim())
       .filter(Boolean)
       .filter((message) => isAutonomousCollectorFailureRetryable(message) ||
-        explicitAttemptFailures.includes(message))
+        explicitAttemptFailures.includes(message) ||
+        explicitRowFailures.includes(message))
   )];
 }
 
 function collectorFailureRetryDecision(row, attemptsByKey, attemptsByOwner) {
   const attemptKey = String(row?.attemptKey ?? row?.attempt_key ?? "").trim();
   const exactAttempt = attemptKey ? attemptsByKey.get(attemptKey) : null;
-  if (isExplicitTerminalNegativeCollectorAttempt(exactAttempt)) return false;
-  if (isIntentionalInstagramReviewAttempt(exactAttempt)) return false;
+  if (isAuthoritativeCollectorNoRetryAttempt(exactAttempt)) return false;
   if (typeof row?.retryable === "boolean") return row.retryable;
   if (typeof exactAttempt?.retryable === "boolean") return exactAttempt.retryable;
+  if (isExplicitTerminalNegativeCollectorAttempt(exactAttempt)) return false;
 
   const ownerAttempts = attemptsByOwner.get(collectorOwnerKey(row)) ?? [];
   const accountUrl = canonicalCollectorFailureAccountUrl(row);
@@ -1436,6 +1495,16 @@ function collectorFailureRetryDecision(row, attemptsByKey, attemptsByOwner) {
   if (!explicit.length) return null;
   return explicit.some((attempt) =>
     attempt.retryable === true && !isIntentionalInstagramReviewAttempt(attempt)
+  );
+}
+
+function isAuthoritativeCollectorNoRetryAttempt(attempt) {
+  if (!attempt) return false;
+  if (exactTypedMappedAccountTerminalOutcome(attempt)) return true;
+  if (isIntentionalInstagramReviewAttempt(attempt)) return true;
+  return Boolean(
+    isAutonomousProviderBlocker(attempt.blocker, { platform: attempt.platform }) &&
+    TERMINAL_COLLECTOR_OUTCOME_STATUSES.has(attempt.outcomeStatus)
   );
 }
 
@@ -1538,6 +1607,7 @@ export function indexAutonomousCollectorTaskOutcomes(
   { kind, batchSlug, explicitTerminalOnly = false }
 ) {
   const outcomes = new Map();
+  const collectorAttempts = currentAutonomousCollectorAttempts(snapshot, { batchSlug });
   const record = (row, platform, status, reason, accountUrl = null, metadata = {}) => {
     const entityType = row?.entityType ?? "company";
     const rawEntityId = row?.entityId ?? row?.attachedCompanyId ?? row?.companySlug ?? row?.companyName;
@@ -1552,22 +1622,37 @@ export function indexAutonomousCollectorTaskOutcomes(
     const accountKey = resolvedAccountUrl
       ? autonomousCollectorAccountKey(platform, entityType, entityId, resolvedAccountUrl)
       : null;
-    // An unsafe or malformed mapped URL is not an owner-level receipt. Dropping
-    // it here prevents a rejected account identity from inheriting blocker
-    // metadata into either another mapped account or the discovery task.
-    if (resolvedAccountUrl && !accountKey) return;
-    const keys = [{ key: entityKey, exactTaskKey: !resolvedAccountUrl }];
-    if (accountKey) {
-      keys.push({
-        key: accountKey,
-        exactTaskKey: true
-      });
+    let keys;
+    if (resolvedAccountUrl && !accountKey) {
+      // Malformed URLs never inherit owner-level evidence or blocker state.
+      // The sole exception is a collector-authored, exact-attempt invalid
+      // mapping receipt, indexed under the literal rejected URL identity.
+      const rejectedAccountKey = metadata.allowRejectedAccountIdentity === true
+        ? autonomousCollectorRejectedAccountKey(
+            platform,
+            entityType,
+            entityId,
+            resolvedAccountUrl
+          )
+        : null;
+      if (!rejectedAccountKey) return;
+      keys = [{ key: rejectedAccountKey, exactTaskKey: true }];
+    } else {
+      keys = [{ key: entityKey, exactTaskKey: !resolvedAccountUrl }];
+      if (accountKey) {
+        keys.push({
+          key: accountKey,
+          exactTaskKey: true
+        });
+      }
     }
     for (const { key, exactTaskKey } of keys) {
       const previous = outcomes.get(key);
       const scopedCandidate = {
         ...candidate,
-        exactTypedReceipt: candidate.exactTypedReceipt === true && exactTaskKey
+        exactTypedReceipt: candidate.exactTypedReceipt === true && exactTaskKey,
+        exactTypedMappedAccountTerminal:
+          candidate.exactTypedMappedAccountTerminal === true && exactTaskKey
       };
       const selected = !previous || shouldReplaceCollectorOutcome(previous, scopedCandidate)
         ? scopedCandidate
@@ -1599,7 +1684,7 @@ export function indexAutonomousCollectorTaskOutcomes(
         account.githubUrl ?? account.url ?? null
       );
     }
-    for (const attempt of Object.values(snapshot?.attempts ?? {})) {
+    for (const attempt of collectorAttempts) {
       if (!attempt?.entityId) continue;
       const terminalStatus = TERMINAL_COLLECTOR_OUTCOME_STATUSES.has(attempt.outcomeStatus)
         ? attempt.outcomeStatus
@@ -1657,7 +1742,7 @@ export function indexAutonomousCollectorTaskOutcomes(
     );
   }
   const providerBlockerAttemptsByKey = new Map();
-  for (const attempt of Object.values(snapshot?.attempts ?? {})) {
+  for (const attempt of collectorAttempts) {
     if (!attempt?.attemptKey) continue;
     const key = String(attempt.attemptKey);
     const attempts = providerBlockerAttemptsByKey.get(key) ?? [];
@@ -1680,11 +1765,7 @@ export function indexAutonomousCollectorTaskOutcomes(
     const candidateProviderBlocker = matchingBlockerAttempts.length === 1
       ? matchingBlockerAttempts[0].blocker
       : null;
-    const typedProviderBlocker = isDeterministicPublicMappingFailure(failure, {
-      trustedProviderBlocker: Boolean(candidateProviderBlocker)
-    })
-      ? null
-      : candidateProviderBlocker;
+    const typedProviderBlocker = candidateProviderBlocker;
     const providerBlocked = Boolean(typedProviderBlocker);
     const expectedEmpty = providerBlocked || isExpectedPublicAccessOrEmptyFailure(failure);
     record(
@@ -1708,23 +1789,34 @@ export function indexAutonomousCollectorTaskOutcomes(
           }
         : {
             incidentalRawFailure: expectedEmpty,
-            hardRawFailure: !expectedEmpty
+            hardRawFailure: !expectedEmpty,
+            attemptKey: nonEmptyCollectorReason(failure?.attemptKey)
           }
     );
   }
-  for (const attempt of Object.values(snapshot?.attempts ?? {})) {
+  for (const attempt of collectorAttempts) {
     if (!attempt?.entityId || !attempt?.platform) continue;
     const sameKeyAttempts = providerBlockerAttemptsByKey.get(String(attempt?.attemptKey ?? "")) ?? [];
     const providerBlocker = sameKeyAttempts.length === 1 &&
       isAutonomousProviderBlocker(attempt?.blocker, { platform: attempt.platform })
       ? attempt.blocker
       : null;
+    const typedMappedOutcome = exactTypedMappedAccountTerminalOutcome(attempt);
+    const rejectedReservedOutcome = isReservedMappedAccountTerminalReason(attempt.outcomeReason) &&
+      !typedMappedOutcome;
+    const declaredTerminalStatus = TERMINAL_COLLECTOR_OUTCOME_STATUSES.has(attempt.outcomeStatus)
+      ? attempt.outcomeStatus
+      : null;
+    const exactReason = nonEmptyCollectorReason(
+      rejectedReservedOutcome
+        ? attempt.error ?? "collector_invalid_mapped_account_terminal_receipt"
+        : attempt.error ?? attempt.outcomeReason
+    );
     const terminalStatus = providerBlocker && attempt.outcomeStatus === "failed"
       ? "blocked_or_empty"
-      : TERMINAL_COLLECTOR_OUTCOME_STATUSES.has(attempt.outcomeStatus)
-        ? attempt.outcomeStatus
-        : null;
-    const exactReason = nonEmptyCollectorReason(attempt.error ?? attempt.outcomeReason);
+      : rejectedReservedOutcome
+        ? "failed"
+        : typedMappedOutcome?.status ?? declaredTerminalStatus;
     if (explicitTerminalOnly && (!terminalStatus || !exactReason)) continue;
     // URL-less social discovery is a real queued task. Once the collector has
     // written an explicit terminal status and reason for that owner/platform,
@@ -1738,7 +1830,9 @@ export function indexAutonomousCollectorTaskOutcomes(
       attempt,
       attempt.platform,
       status,
-      explicitTerminalOnly
+      typedMappedOutcome
+        ? typedMappedOutcome.reason
+        : explicitTerminalOnly
         ? exactReason
         : attempt.outcomeReason ?? (status === "failed"
           ? "collector_reported_failure"
@@ -1750,7 +1844,17 @@ export function indexAutonomousCollectorTaskOutcomes(
             providerBlocked: true,
             providerBlockerReason: typedProviderBlockerReason(providerBlocker, attempt.platform)
           }
-        : { exactTypedReceipt: Boolean(terminalStatus && exactReason) }
+        : {
+            exactTypedReceipt: Boolean(terminalStatus && exactReason),
+            ...(typedMappedOutcome
+              ? {
+                  exactTypedMappedAccountTerminal: true,
+                  allowRejectedAccountIdentity:
+                    typedMappedOutcome.reason === "collector_invalid_account_mapping",
+                  attemptKey: attempt.attemptKey
+                }
+              : {})
+          }
     );
   }
   return outcomes;
@@ -1765,6 +1869,14 @@ export function classifyAutonomousCollectorTaskOutcome(
     ? autonomousCollectorAccountKey(platform, entityType, entityId, accountUrl)
     : null;
   if (accountUrl && !accountKey) {
+    const rejectedAccountKey = autonomousCollectorRejectedAccountKey(
+      platform,
+      entityType,
+      entityId,
+      accountUrl
+    );
+    const rejectedOutcome = rejectedAccountKey ? outcomeIndex?.get(rejectedAccountKey) : null;
+    if (rejectedOutcome) return collectorOutcomePublicView(rejectedOutcome);
     return { status: "failed", reason: "collector_invalid_account_url" };
   }
   const key = accountKey ?? autonomousCollectorEntityKey(platform, entityType, entityId);
@@ -1804,6 +1916,12 @@ export function autonomousCollectorAccountKey(platform, entityType, entityId, ac
   const canonicalUrl = canonicalSocialAccountUrl(normalizedPlatform, accountUrl);
   if (!canonicalUrl) return null;
   return `${autonomousCollectorEntityKey(normalizedPlatform, entityType, entityId)}:account:${canonicalUrl.toLowerCase()}`;
+}
+
+function autonomousCollectorRejectedAccountKey(platform, entityType, entityId, accountUrl) {
+  const rawUrl = String(accountUrl ?? "");
+  if (!rawUrl || rawUrl.length > 8_192) return null;
+  return `${autonomousCollectorEntityKey(platform, entityType, entityId)}:rejected-account:${encodeURIComponent(rawUrl)}`;
 }
 
 function collectorOwnerKey(row) {
@@ -2707,6 +2825,17 @@ function collectorOutcomePriority(status) {
 function shouldReplaceCollectorOutcome(previous, candidate) {
   if (candidate.validatedCompletedEvidence === true) return true;
   if (previous.validatedCompletedEvidence === true) return false;
+  if (candidate.exactTypedMappedAccountTerminal === true) {
+    if (previous.hardRawFailure === true) {
+      return Boolean(
+        candidate.attemptKey &&
+        previous.attemptKey &&
+        candidate.attemptKey === previous.attemptKey
+      );
+    }
+    return true;
+  }
+  if (previous.exactTypedMappedAccountTerminal === true) return false;
   if (candidate.hardRawFailure === true) return true;
   if (previous.hardRawFailure === true) return false;
   if (candidate.exactTypedReceipt === true && previous.incidentalRawFailure === true) return true;
@@ -2756,15 +2885,63 @@ function isExpectedPublicAccessOrEmptyFailure(failure) {
   return /(?:no\b[^.\n]{0,100}\b(?:matches?|posts?|videos?|content|results?|items?|candidates?|evidence|mentions?|links?)\b|empty|login|log in|sign in|signup|join (?:linkedin|x)|access (?:blocked|denied)|\bblocked\b|rate.?limit|\b429\b|captcha|robots|authentication required|http[_ -]?(?:401|403|408|425|429|5\d\d)|\b(?:unauthori[sz]ed|forbidden|timeout|timed out)\b|(?:network|transport) (?:error|failed|failure)|fetch failed|operation was aborted|aborterror|\betimedout\b|\beconn[a-z]*\b|socket (?:hang up|closed)|circuit is open)/i.test(message);
 }
 
-function isDeterministicPublicMappingFailure(
-  failure,
-  { trustedProviderBlocker = false } = {}
-) {
-  const message = String(failure?.message ?? failure?.error ?? "").toLowerCase();
-  if (/(?:invalid (?:url|mapping|host|identity)|dead (?:url|mapping|account)|wrong host|host did not match|unsupported .*url|referential)/i.test(message)) {
-    return true;
+const RESERVED_MAPPED_ACCOUNT_TERMINAL_REASONS = new Set([
+  "collector_mapped_account_not_found",
+  "collector_mapped_account_identity_mismatch",
+  "collector_invalid_account_mapping"
+]);
+
+function isReservedMappedAccountTerminalReason(reason) {
+  return RESERVED_MAPPED_ACCOUNT_TERMINAL_REASONS.has(String(reason ?? "").trim());
+}
+
+function exactTypedMappedAccountTerminalOutcome(attempt) {
+  const platform = normalizePlatform(attempt?.platform);
+  const entityType = attempt?.entityType ?? "company";
+  const entityId = String(attempt?.entityId ?? "").trim();
+  const accountUrl = String(attempt?.accountUrl ?? attempt?.account_url ?? "").trim();
+  const attemptKey = String(attempt?.attemptKey ?? "").trim();
+  const outcomeReason = String(attempt?.outcomeReason ?? "").trim();
+  if (!platform || !entityId || !accountUrl || !attemptKey) return null;
+  if (attemptKey !== `${platform}:${entityType}:${entityId}:${accountUrl}`) return null;
+
+  if (
+    attempt?.outcomeStatus === "needs_review" &&
+    outcomeReason === "collector_invalid_account_mapping"
+  ) {
+    return { status: "needs_review", reason: outcomeReason };
   }
-  return !trustedProviderBlocker && /(?:\b404\b|http[_ -]?404|not found)/i.test(message);
+
+  const receipt = attempt?.coverageReceipt;
+  if (
+    platform !== "x" ||
+    !receipt ||
+    receipt.verified !== false ||
+    !receipt.accountUrl
+  ) {
+    return null;
+  }
+  const attemptAccountUrl = canonicalSocialAccountUrl("x", accountUrl);
+  const receiptAccountUrl = canonicalSocialAccountUrl("x", receipt.accountUrl);
+  if (!attemptAccountUrl || !receiptAccountUrl || attemptAccountUrl !== receiptAccountUrl) {
+    return null;
+  }
+
+  if (
+    attempt.outcomeStatus === "blocked_or_empty" &&
+    outcomeReason === "collector_mapped_account_not_found" &&
+    receipt.reason === "x_public_profile_http_404"
+  ) {
+    return { status: "blocked_or_empty", reason: outcomeReason };
+  }
+  if (
+    attempt.outcomeStatus === "needs_review" &&
+    outcomeReason === "collector_mapped_account_identity_mismatch" &&
+    receipt.reason === "x_profile_identity_mismatch"
+  ) {
+    return { status: "needs_review", reason: outcomeReason };
+  }
+  return null;
 }
 
 export function isAutonomousProviderBlocker(blocker, { platform = null } = {}) {

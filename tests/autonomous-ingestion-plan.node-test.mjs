@@ -1781,7 +1781,7 @@ describe("autonomous collector task accounting", () => {
     assert.equal(isAutonomousCollectorFailureRetryable("503 Service Unavailable"), true);
   });
 
-  it("does not reopen terminal public negative evidence from transport-shaped diagnostics", () => {
+  it("retries explicit transport failures without reopening deliberate review-only evidence", () => {
     const transportFailure = "read ECONNRESET";
     const youtubeReview =
       "Official YC company page embedded this video, but the native YouTube channel identity was unavailable.";
@@ -1819,7 +1819,7 @@ describe("autonomous collector task accounting", () => {
           entityId: "company-nex",
           platformPostId: "2amZjOKdhD4",
           error: youtubeReview,
-          retryable: true,
+          retryable: false,
           outcomeStatus: "needs_review",
           outcomeReason: "collector_needs_review"
         }
@@ -1871,7 +1871,7 @@ describe("autonomous collector task accounting", () => {
     assert.equal(terminalCoverage.expected, 3);
     assert.equal(terminalCoverage.terminal, 3);
     assert.equal(terminalCoverage.nonTerminal, 0);
-    assert.deepEqual(autonomousCollectorRetryableFailures(snapshot), []);
+    assert.deepEqual(autonomousCollectorRetryableFailures(snapshot), [transportFailure]);
 
     const interrupted = structuredClone(snapshot);
     interrupted.attempts["S26:rss:arbital"] = {
@@ -2024,6 +2024,80 @@ describe("autonomous collector task accounting", () => {
       retryable: false
     };
     assert.deepEqual(autonomousCollectorRetryableFailures(snapshot), []);
+  });
+
+  it("keeps explicit transport retries through generic terminal labels", () => {
+    for (const outcomeStatus of ["blocked_or_empty", "needs_review"]) {
+      const accountUrl = `https://x.com/${outcomeStatus}`;
+      const attemptKey = `x:company:company-${outcomeStatus}:${accountUrl}`;
+      const message = `Public X transport failed with HTTP 503 (${outcomeStatus}).`;
+      const snapshot = {
+        failures: [{
+          attemptKey,
+          platform: "x",
+          entityType: "company",
+          entityId: `company-${outcomeStatus}`,
+          accountUrl,
+          message
+        }],
+        attempts: {
+          [attemptKey]: {
+            attemptKey,
+            platform: "x",
+            entityType: "company",
+            entityId: `company-${outcomeStatus}`,
+            accountUrl,
+            checkedAt: "2026-08-31T12:00:00.000Z",
+            error: message,
+            retryable: true,
+            outcomeStatus,
+            outcomeReason: outcomeStatus === "needs_review"
+              ? "collector_needs_review"
+              : "collector_checked_blocked_or_empty"
+          }
+        }
+      };
+
+      assert.deepEqual(autonomousCollectorRetryableFailures(snapshot), [message]);
+    }
+
+    const providerMessage = "Jina LinkedIn reader circuit is open.";
+    const providerUrl = "https://linkedin.com/company/provider-bounded";
+    const providerKey = `linkedin:company:company-provider-bounded:${providerUrl}`;
+    const blocker = {
+      provider: "jina_linkedin_reader",
+      code: "linkedin_public_circuit_open",
+      retryAt: "2026-09-01T12:00:00.000Z",
+      httpStatus: null,
+      message: providerMessage
+    };
+    assert.deepEqual(autonomousCollectorRetryableFailures({
+      failures: [{
+        attemptKey: providerKey,
+        platform: "linkedin",
+        entityType: "company",
+        entityId: "company-provider-bounded",
+        accountUrl: providerUrl,
+        message: providerMessage,
+        retryable: true,
+        blocker
+      }],
+      attempts: {
+        [providerKey]: {
+          attemptKey: providerKey,
+          platform: "linkedin",
+          entityType: "company",
+          entityId: "company-provider-bounded",
+          accountUrl: providerUrl,
+          checkedAt: "2026-08-31T12:00:00.000Z",
+          error: providerMessage,
+          retryable: true,
+          outcomeStatus: "blocked_or_empty",
+          outcomeReason: "collector_provider_blocked",
+          blocker
+        }
+      }
+    }), []);
   });
 
   it("keeps retryability isolated across multiple GitHub accounts for one owner", () => {
@@ -2601,10 +2675,11 @@ describe("autonomous collector task accounting", () => {
     });
   });
 
-  it("does not let typed receipts erase hard failures without validated evidence", () => {
+  it("does not infer mapped terminal outcomes from raw diagnostic text", () => {
     const cases = [
       ["company-invalid", "https://x.com/invalid", "Invalid URL mapping: host did not match x.com.", "blocked_or_empty"],
-      ["company-not-found", "https://x.com/not-found", "HTTP 404 Not Found", "needs_review"],
+      ["company-not-found", "https://x.com/not_found", "HTTP 404 Not Found", "needs_review"],
+      ["company-identity", "https://x.com/identity", "x_profile_identity_mismatch", "needs_review"],
       ["company-unknown", "https://x.com/unknown", "Unexpected response schema", "completed"]
     ];
     const index = indexAutonomousCollectorTaskOutcomes({
@@ -2632,13 +2707,13 @@ describe("autonomous collector task accounting", () => {
       ]))
     }, { kind: "public", batchSlug: "S26", explicitTerminalOnly: true });
 
-    for (const [entityId, accountUrl] of cases) {
-      assert.equal(classifyAutonomousCollectorTaskOutcome(index, {
+    for (const [entityId, accountUrl, message] of cases) {
+      assert.deepEqual(classifyAutonomousCollectorTaskOutcome(index, {
         platform: "x",
         entityType: "company",
         entityId,
         accountUrl
-      }).status, "failed");
+      }), { status: "failed", reason: message });
     }
   });
 
@@ -2756,6 +2831,65 @@ describe("autonomous collector task accounting", () => {
         reason: "collector_returned_no_entity_attempt"
       });
     }
+  });
+
+  it("accepts only an exact typed invalid-account mapping receipt", () => {
+    const accountUrl = "https://127.0.0.1/company/exact-invalid";
+    const entityId = "company-exact-invalid";
+    const attemptKey = `linkedin:company:${entityId}:${accountUrl}`;
+    const exactAttempt = {
+      attemptKey,
+      platform: "linkedin",
+      entityType: "company",
+      entityId,
+      accountUrl,
+      outcomeStatus: "needs_review",
+      outcomeReason: "collector_invalid_account_mapping",
+      error: "Invalid URL mapping: linkedin account URL host did not match the declared platform.",
+      retryable: true
+    };
+    const exactIndex = indexAutonomousCollectorTaskOutcomes({
+      evidence: [],
+      needsReview: [],
+      failures: [],
+      attempts: { exact: exactAttempt }
+    }, { kind: "public", batchSlug: "S26", explicitTerminalOnly: true });
+
+    assert.deepEqual(classifyAutonomousCollectorTaskOutcome(exactIndex, {
+      platform: "linkedin",
+      entityType: "company",
+      entityId,
+      accountUrl
+    }), {
+      status: "needs_review",
+      reason: "collector_invalid_account_mapping"
+    });
+    assert.deepEqual(autonomousCollectorRetryableFailures({
+      attempts: { exact: exactAttempt }
+    }), []);
+
+    const spoofedAttempt = {
+      ...exactAttempt,
+      attemptKey: `${attemptKey}:wrong-task`
+    };
+    const spoofedIndex = indexAutonomousCollectorTaskOutcomes({
+      evidence: [],
+      needsReview: [],
+      failures: [],
+      attempts: { spoofed: spoofedAttempt }
+    }, { kind: "public", batchSlug: "S26", explicitTerminalOnly: true });
+    assert.deepEqual(classifyAutonomousCollectorTaskOutcome(spoofedIndex, {
+      platform: "linkedin",
+      entityType: "company",
+      entityId,
+      accountUrl
+    }), {
+      status: "failed",
+      reason: "collector_invalid_account_url"
+    });
+    assert.deepEqual(autonomousCollectorRetryableFailures({
+      attempts: { spoofed: spoofedAttempt }
+    }), [exactAttempt.error]);
   });
 
   it("rejects standalone, ambiguous, untyped, and platform-incompatible blockers", () => {
@@ -2998,12 +3132,328 @@ describe("autonomous collector task accounting", () => {
       entityId: "company-provider-404",
       accountUrl: providerUrl
     }).status, "blocked_or_empty");
-    assert.equal(classifyAutonomousCollectorTaskOutcome(index, {
+    assert.deepEqual(classifyAutonomousCollectorTaskOutcome(index, {
       platform: "linkedin",
       entityType: "company",
       entityId: "company-target-404",
       accountUrl: targetUrl
-    }).status, "failed");
+    }), {
+      status: "failed",
+      reason: "HTTP 404 Not Found"
+    });
+  });
+
+  it("accepts production X negatives only through exact structured receipts", () => {
+    const cases = [{
+      entityId: "company-profile-404",
+      accountUrl: "https://x.com/profile404",
+      message: "Anonymous X public profile returned HTTP 404.",
+      receiptReason: "x_public_profile_http_404",
+      outcomeStatus: "blocked_or_empty",
+      outcomeReason: "collector_mapped_account_not_found"
+    }, {
+      entityId: "company-identity-mismatch",
+      accountUrl: "https://x.com/id_mismatch",
+      message: "Anonymous X public profile verification failed: x_profile_identity_mismatch.",
+      receiptReason: "x_profile_identity_mismatch",
+      outcomeStatus: "needs_review",
+      outcomeReason: "collector_mapped_account_identity_mismatch"
+    }];
+    const snapshot = {
+      evidence: [],
+      needsReview: [],
+      failures: [
+        ...cases.map(({ entityId, accountUrl, message }) => ({
+          attemptKey: `x:company:${entityId}:${accountUrl}`,
+          platform: "x",
+          entityType: "company",
+          entityId,
+          accountUrl,
+          message
+        })),
+        {
+          attemptKey: "x:company:company-profile-404:https://x.com/profile404",
+          platform: "x",
+          entityType: "company",
+          entityId: "company-profile-404",
+          accountUrl: "https://x.com/profile404",
+          message: "X public-reader fallback failed: Direct public page returned HTTP404."
+        }
+      ],
+      attempts: Object.fromEntries(cases.map(({
+        entityId,
+        accountUrl,
+        message,
+        receiptReason,
+        outcomeStatus,
+        outcomeReason
+      }) => [entityId, {
+        attemptKey: `x:company:${entityId}:${accountUrl}`,
+        platform: "x",
+        entityType: "company",
+        entityId,
+        accountUrl,
+        outcomeStatus,
+        outcomeReason,
+        error: message,
+        retryable: true,
+        checkedAt: "2026-08-31T12:00:00.000Z",
+        coverageReceipt: {
+          verified: false,
+          accountUrl,
+          reason: receiptReason
+        }
+      }]))
+    };
+    const index = indexAutonomousCollectorTaskOutcomes(snapshot, {
+      kind: "public",
+      batchSlug: "S26",
+      explicitTerminalOnly: true
+    });
+
+    for (const { entityId, accountUrl, outcomeStatus, outcomeReason } of cases) {
+      assert.deepEqual(classifyAutonomousCollectorTaskOutcome(index, {
+        platform: "x",
+        entityType: "company",
+        entityId,
+        accountUrl
+      }), { status: outcomeStatus, reason: outcomeReason });
+    }
+
+    const coverage = summarizeAutonomousCollectorTerminalTaskCoverage(snapshot, {
+      kind: "public",
+      batchSlug: "S26",
+      tasks: cases.map(({ entityId, accountUrl }) => ({
+        batchSlug: "S26",
+        status: "queued",
+        platform: "x",
+        entityType: "company",
+        entitySourceKey: entityId,
+        account: { url: accountUrl }
+      }))
+    });
+    assert.deepEqual(coverage.byStatus, {
+      completed: 0,
+      needs_review: 1,
+      blocked_or_empty: 1,
+      failed: 0
+    });
+    assert.equal(coverage.terminal, cases.length);
+    assert.equal(coverage.nonTerminal, 0);
+    assert.deepEqual(autonomousCollectorRetryableFailures(snapshot), []);
+  });
+
+  it("keeps untyped X, subordinate YouTube Atom 404, and process failures fatal", () => {
+    const cases = [{
+      platform: "x",
+      entityId: "company-untyped-x-404",
+      accountUrl: "https://x.com/untyped404",
+      message: "Anonymous X public profile returned HTTP 404.",
+      outcomeStatus: "failed",
+      outcomeReason: "collector_reported_failure"
+    }, {
+      platform: "x",
+      entityId: "company-spoofed-x-404",
+      accountUrl: "https://x.com/spoofed404",
+      message: "Anonymous X public profile returned HTTP 404.",
+      outcomeStatus: "blocked_or_empty",
+      outcomeReason: "collector_mapped_account_not_found",
+      coverageReceipt: {
+        verified: false,
+        accountUrl: "https://x.com/different",
+        reason: "x_public_profile_http_404"
+      }
+    }, {
+      platform: "youtube",
+      entityId: "company-youtube-atom-404",
+      accountUrl: "https://www.youtube.com/@acme",
+      message: "YouTube Atom feed request returned HTTP 404 Not Found.",
+      outcomeStatus: "failed",
+      outcomeReason: "collector_reported_failure"
+    }, {
+      platform: "x",
+      entityId: "company-process-failure",
+      accountUrl: "https://x.com/processfailure",
+      message: "Collector process failed: browser executable not found.",
+      outcomeStatus: "failed",
+      outcomeReason: "collector_reported_failure"
+    }];
+    const snapshot = {
+      evidence: [],
+      needsReview: [],
+      failures: cases.map(({ platform, entityId, accountUrl, message }) => ({
+        attemptKey: `${platform}:company:${entityId}:${accountUrl}`,
+        platform,
+        entityType: "company",
+        entityId,
+        accountUrl,
+        message
+      })),
+      attempts: Object.fromEntries(cases.map((row) => [row.entityId, {
+        ...row,
+        attemptKey: `${row.platform}:company:${row.entityId}:${row.accountUrl}`,
+        entityType: "company",
+        error: row.message,
+        retryable: true,
+        checkedAt: "2026-08-31T12:00:00.000Z"
+      }]))
+    };
+    const index = indexAutonomousCollectorTaskOutcomes(snapshot, {
+      kind: "public",
+      batchSlug: "S26",
+      explicitTerminalOnly: true
+    });
+
+    for (const { platform, entityId, accountUrl, message } of cases) {
+      assert.deepEqual(classifyAutonomousCollectorTaskOutcome(index, {
+        platform,
+        entityType: "company",
+        entityId,
+        accountUrl
+      }), { status: "failed", reason: message });
+    }
+    assert.deepEqual(autonomousCollectorRetryableFailures(snapshot), [
+      cases[0].message,
+      cases[2].message,
+      cases[3].message
+    ]);
+    assert.deepEqual(autonomousCollectorRetryableFailures({
+      failures: [{
+        platform: "youtube",
+        entityType: "company",
+        entityId: cases[2].entityId,
+        accountUrl: cases[2].accountUrl,
+        message: cases[2].message,
+        retryable: true
+      }]
+    }), [cases[2].message]);
+  });
+
+  it("retries a production-shaped YouTube Atom 404 without discarding page evidence", () => {
+    const entityId = "company-youtube-partial";
+    const accountUrl = "https://youtube.com/@partial";
+    const attemptKey = `youtube:company:${entityId}:${accountUrl}`;
+    const message =
+      "Official YouTube Atom feed could not be exhausted: " +
+      "Official YouTube Atom feed returned HTTP 404.";
+    const snapshot = {
+      evidence: [{
+        platform: "youtube",
+        entityType: "company",
+        entityId,
+        accountUrl,
+        sourceUrl: "https://www.youtube.com/watch?v=abcdefghijk",
+        platformPostId: "abcdefghijk",
+        contributionScore: 1,
+        review_state: "verified",
+        metrics: { views: 123 }
+      }],
+      needsReview: [],
+      failures: [{
+        attemptKey,
+        platform: "youtube",
+        entityType: "company",
+        entityId,
+        accountUrl,
+        message,
+        retryable: true
+      }],
+      attempts: {
+        [attemptKey]: {
+          attemptKey,
+          platform: "youtube",
+          entityType: "company",
+          entityId,
+          accountUrl,
+          checkedAt: "2026-08-31T12:00:00.000Z",
+          error: message,
+          retryable: true,
+          outcomeStatus: "completed",
+          outcomeReason: "collector_evidence_collected"
+        }
+      }
+    };
+    const tasks = [{
+      batchSlug: "S26",
+      status: "queued",
+      platform: "youtube",
+      entityType: "company",
+      entitySourceKey: entityId,
+      account: { url: accountUrl }
+    }];
+
+    assert.deepEqual(
+      summarizeAutonomousCollectorTerminalTaskCoverage(snapshot, {
+        kind: "public",
+        batchSlug: "S26",
+        tasks
+      }).byStatus,
+      { completed: 1, needs_review: 0, blocked_or_empty: 0, failed: 0 }
+    );
+    assert.deepEqual(autonomousCollectorRetryableFailures(snapshot), [message]);
+  });
+
+  it("does not let an older typed negative mask a newer hard attempt", () => {
+    const entityId = "company-current-hard";
+    const accountUrl = "https://x.com/currenthard";
+    const attemptKey = `x:company:${entityId}:${accountUrl}`;
+    const hardError = "Unexpected response schema in the current X attempt.";
+    const snapshot = {
+      evidence: [],
+      needsReview: [],
+      failures: [{
+        attemptKey,
+        platform: "x",
+        entityType: "company",
+        entityId,
+        accountUrl,
+        message: hardError
+      }],
+      attempts: {
+        current: {
+          attemptKey,
+          platform: "x",
+          entityType: "company",
+          entityId,
+          accountUrl,
+          checkedAt: "2026-08-31T13:00:00.000Z",
+          outcomeStatus: "failed",
+          outcomeReason: "collector_reported_failure",
+          error: hardError,
+          retryable: true
+        },
+        historical: {
+          attemptKey,
+          platform: "x",
+          entityType: "company",
+          entityId,
+          accountUrl,
+          checkedAt: "2026-08-31T12:00:00.000Z",
+          outcomeStatus: "blocked_or_empty",
+          outcomeReason: "collector_mapped_account_not_found",
+          error: "Anonymous X public profile returned HTTP 404.",
+          retryable: false,
+          coverageReceipt: {
+            verified: false,
+            accountUrl,
+            reason: "x_public_profile_http_404"
+          }
+        }
+      }
+    };
+    const index = indexAutonomousCollectorTaskOutcomes(snapshot, {
+      kind: "public",
+      batchSlug: "S26",
+      explicitTerminalOnly: true
+    });
+
+    assert.deepEqual(classifyAutonomousCollectorTaskOutcome(index, {
+      platform: "x",
+      entityType: "company",
+      entityId,
+      accountUrl
+    }), { status: "failed", reason: hardError });
+    assert.deepEqual(autonomousCollectorRetryableFailures(snapshot), [hardError]);
   });
 
   it("indexes explicit terminal receipts for URL-less social discovery tasks", () => {

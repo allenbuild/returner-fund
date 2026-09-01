@@ -44,6 +44,7 @@ import {
   companyVerticalCounts,
   enrichGraphTaxonomies
 } from "@/lib/graph/graph-taxonomies";
+import { initialSelectedNodeId } from "@/lib/graph/initial-selection";
 import {
   topicFacetRowsForAudience,
   withTopicFacetRows
@@ -495,11 +496,6 @@ interface RefreshResponse {
 
 interface SuccessfulRefreshResponse extends RefreshResponse {
   graph: GraphResponse;
-}
-
-function initialSelectedNodeId(graph: GraphResponse | undefined): string | null {
-  const topCompanyId = graph?.leaderboard[0]?.companyId;
-  return topCompanyId ? `company:${topCompanyId}` : graph?.nodes[0]?.id ?? null;
 }
 
 function initialBatchSlug(graph: GraphResponse | undefined, batchSlug: string | undefined): string {

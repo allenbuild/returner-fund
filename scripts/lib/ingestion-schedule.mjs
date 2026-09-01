@@ -4,6 +4,7 @@ import { appendFileSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
+import { ACCEPTED_FULL_COLLECTION_EVIDENCE_KIND } from "./artifact-manifest.mjs";
 
 export const CENTRAL_TIME_ZONE = "America/Chicago";
 export const INGESTION_PRIMARY_UTC_CRON_CANDIDATES = Object.freeze([
@@ -108,14 +109,11 @@ export function resolveScheduledIngestion({
   const latest = latestEligibleCentralSlot(now);
   const state = normalizePublicationState(publicationState, now);
   const watermarkMs = state.watermark?.getTime() ?? null;
-  const newestGraphMs = state.newestGeneratedAt?.getTime() ?? watermarkMs;
   let watermarkStatus = state.status;
 
   if (state.status === "valid") {
     if (watermarkMs >= latest.scheduledAt.getTime()) {
       watermarkStatus = "current";
-    } else if (newestGraphMs >= latest.scheduledAt.getTime()) {
-      watermarkStatus = "divergent";
     } else {
       watermarkStatus = "behind";
     }
@@ -370,7 +368,8 @@ export async function readPublicationWatermark({
     ? (relativePath) => readGitBlobText({ cwd, ref, relativePath })
     : (relativePath) => readFile(path.join(cwd, relativePath), "utf8"));
   const graphGeneratedAt = {};
-  const genuineInstants = [];
+  const completenessInstants = [];
+  const generationInstants = [];
   let missing = false;
   let invalid = false;
 
@@ -392,35 +391,47 @@ export async function readPublicationWatermark({
       if (graph.batch?.slug !== batchSlug) {
         throw new Error(`graph batch is not ${batchSlug}`);
       }
-      const generatedAt = parseStrictUtcRfc3339(
-        graph.generatedAt,
-        `${relativePath} generatedAt`
-      );
-      if (generatedAt.getTime() > now.getTime()) {
-        throw new Error(`${relativePath} generatedAt is in the future`);
-      }
+      const { generatedAt } = graphPublicationProvenance({
+        graph,
+        relativePath,
+        now
+      });
       graphGeneratedAt[relativePath] = generatedAt.toISOString();
-      genuineInstants.push(generatedAt);
+      generationInstants.push(generatedAt);
     } catch {
       graphGeneratedAt[relativePath] = null;
       invalid = true;
     }
-  }), inspectPublicationManifest({ reader, now, graphGeneratedAt, genuineInstants })
+  }), inspectPublicationManifest({
+    reader,
+    now,
+    graphGeneratedAt,
+    completenessInstants,
+    generationInstants
+  })
     .then(({ status }) => {
       if (status === "missing") missing = true;
       if (status === "invalid") invalid = true;
     })]);
 
-  genuineInstants.sort((left, right) => left.getTime() - right.getTime());
+  completenessInstants.sort((left, right) => left.getTime() - right.getTime());
+  generationInstants.sort((left, right) => left.getTime() - right.getTime());
+  const watermark = completenessInstants[0] ?? null;
   return Object.freeze({
     status: missing ? "missing" : invalid ? "invalid" : "valid",
-    watermark: genuineInstants[0] ?? null,
-    newestGeneratedAt: genuineInstants.at(-1) ?? null,
+    watermark,
+    newestGeneratedAt: generationInstants.at(-1) ?? null,
     graphGeneratedAt: Object.freeze({ ...graphGeneratedAt })
   });
 }
 
-async function inspectPublicationManifest({ reader, now, graphGeneratedAt, genuineInstants }) {
+async function inspectPublicationManifest({
+  reader,
+  now,
+  graphGeneratedAt,
+  completenessInstants,
+  generationInstants
+}) {
   const descriptor = PUBLICATION_WATERMARK_MANIFEST;
   let source;
   try {
@@ -444,11 +455,20 @@ async function inspectPublicationManifest({ reader, now, graphGeneratedAt, genui
     if (!/^[a-f0-9]{64}$/.test(manifest.contentHash ?? "")) {
       throw new Error("manifest content hash is invalid");
     }
+    if (manifest.evidenceCollectedAtKind !== ACCEPTED_FULL_COLLECTION_EVIDENCE_KIND) {
+      throw new Error("manifest evidence timestamp is not accepted full-collection provenance");
+    }
 
     const publishedAt = publicationInstant(manifest.publishedAt, `${descriptor.path} publishedAt`, now);
+    const evidenceCollectedAt = publicationInstant(
+      manifest.evidenceCollectedAt,
+      `${descriptor.path} evidenceCollectedAt`,
+      now
+    );
     const graphEntries = artifactEntryMap(manifest.graphArtifacts, "graph");
     const benchmarkEntries = artifactEntryMap(manifest.benchmarkArtifacts, "benchmark");
     const artifactInstants = [];
+    const benchmarkInstants = [];
     let missingArtifact = false;
     for (const filename of descriptor.graphFilenames) {
       const result = await readManifestArtifactInstant({
@@ -474,7 +494,10 @@ async function inspectPublicationManifest({ reader, now, graphGeneratedAt, genui
         graphGeneratedAt
       });
       missingArtifact ||= result.status === "missing";
-      if (result.instant) artifactInstants.push(result.instant);
+      if (result.instant) {
+        artifactInstants.push(result.instant);
+        benchmarkInstants.push(result.instant);
+      }
     }
     if (missingArtifact) {
       graphGeneratedAt[descriptor.path] = null;
@@ -483,9 +506,13 @@ async function inspectPublicationManifest({ reader, now, graphGeneratedAt, genui
     if (artifactInstants.some((instant) => instant.getTime() > publishedAt.getTime())) {
       throw new Error("manifest publication timestamp predates a required artifact");
     }
+    if (evidenceCollectedAt.getTime() > publishedAt.getTime()) {
+      throw new Error("manifest publication timestamp predates its evidence");
+    }
 
     graphGeneratedAt[descriptor.path] = publishedAt.toISOString();
-    genuineInstants.push(publishedAt, ...artifactInstants);
+    generationInstants.push(publishedAt, ...artifactInstants);
+    completenessInstants.push(evidenceCollectedAt, ...benchmarkInstants);
     return { status: "valid" };
   } catch {
     graphGeneratedAt[descriptor.path] = null;
@@ -537,10 +564,16 @@ async function readManifestArtifactInstant({
   if (!artifact || typeof artifact !== "object" || Array.isArray(artifact)) {
     throw new Error(`manifest artifact ${filename} root is not an object`);
   }
-  const actualGeneratedAt = kind === "graph"
-    ? artifact.generatedAt
-    : artifact.generatedAt ?? artifact.updatedAt;
-  const instant = publicationInstant(actualGeneratedAt, `${relativePath} generatedAt`, now);
+  const provenance = kind === "graph"
+    ? graphPublicationProvenance({ graph: artifact, relativePath, now })
+    : {
+        generatedAt: publicationInstant(
+          artifact.generatedAt ?? artifact.updatedAt,
+          `${relativePath} generatedAt`,
+          now
+        )
+      };
+  const instant = provenance.generatedAt;
   const manifestInstant = publicationInstant(
     entry.generatedAt,
     `${descriptorLabel(kind)} manifest generatedAt`,
@@ -551,6 +584,23 @@ async function readManifestArtifactInstant({
   }
   graphGeneratedAt[relativePath] = instant.toISOString();
   return { status: "valid", instant };
+}
+
+function graphPublicationProvenance({ graph, relativePath, now }) {
+  const generatedAt = publicationInstant(
+    graph.generatedAt,
+    `${relativePath} generatedAt`,
+    now
+  );
+  const evidenceAsOf = publicationInstant(
+    graph.scoringContext?.evidenceAsOf,
+    `${relativePath} scoringContext.evidenceAsOf`,
+    now
+  );
+  if (evidenceAsOf.getTime() > generatedAt.getTime()) {
+    throw new Error(`${relativePath} evidence timestamp is newer than its generation timestamp`);
+  }
+  return { generatedAt };
 }
 
 function descriptorLabel(kind) {
