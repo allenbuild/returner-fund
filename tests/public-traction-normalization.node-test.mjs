@@ -2406,10 +2406,12 @@ test("mapped YouTube empty pages terminalize Atom 404 but retry transient feed f
       pageStatus: 200,
       feedStatus: 404,
       pagePayload: ',"videoId":"visibleVideo123","title":{"simpleText":"Visible video"}',
+      watchPayload: '<script>{"videoDetails":{"videoId":"differentVideo9","title":"Wrong video","channelId":"UCemptyfeed123","author":"Crebit","shortDescription":"Wrong payload","viewCount":"123"},"publishDate":"2026-08-30T10:15:00-07:00"}</script>',
       expectedRetryable: true,
       expectedVerifiedEmpty: false,
       expectedOutcomeStatus: "failed",
-      expectedOutcomeReason: "collector_reported_failure"
+      expectedOutcomeReason: "collector_reported_failure",
+      expectedWatchIdentityMismatch: true
     },
     {
       pageStatus: 200,
@@ -2452,6 +2454,9 @@ globalThis.fetch = async (input) => {
   }
   if (value === "https://www.youtube.com/feeds/videos.xml?channel_id=${channelId}") {
     return new Response("feed unavailable", { status: ${fixture.feedStatus} });
+  }
+  if (value === "https://www.youtube.com/watch?v=visibleVideo123" && ${Boolean(fixture.watchPayload)}) {
+    return new Response(${JSON.stringify(fixture.watchPayload ?? "")}, { status: 200 });
   }
   throw new Error("unexpected URL: " + value);
 };
@@ -2496,6 +2501,11 @@ globalThis.fetch = async (input) => {
     assert.equal(retryableFailures.includes(atomFailure.message), fixture.expectedRetryable);
     if (fixture.pagePayload.includes("visibleVideo123")) {
       assert.ok(retryableFailures.some((message) => /identity- and timestamp-verified/.test(message)));
+    }
+    if (fixture.expectedWatchIdentityMismatch) {
+      assert.ok(retryableFailures.some(
+        (message) => /watch video differentVideo9 did not match visibleVideo123/.test(message)
+      ));
     }
     if (fixture.pageStatus === 404) {
       assert.ok(retryableFailures.some((message) => /videos page returned HTTP 404/.test(message)));

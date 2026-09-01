@@ -2229,9 +2229,11 @@ async function fetchYouTubeWatchMetadata(videoId) {
     if (!response.ok) return null;
     const detailsStart = html.indexOf('"videoDetails":{');
     const details = detailsStart >= 0 ? html.slice(detailsStart, detailsStart + 120_000) : html;
+    const youtubeVideoId = jsonStringField(details, "videoId");
     const youtubeChannelId = jsonStringField(details, "channelId");
     const youtubeChannelName = jsonStringField(details, "author") ?? jsonStringField(html, "ownerChannelName");
     return {
+      youtubeVideoId,
       title: jsonStringField(details, "title"),
       description: jsonStringField(details, "shortDescription"),
       postedAt: jsonStringField(html, "publishDate") ?? jsonStringField(html, "uploadDate"),
@@ -2734,7 +2736,9 @@ async function hydrateMappedYouTubeListingVideos(videoIds, channelId) {
         const postedAt = exactEvidenceTimestamp(metadata?.postedAt);
         let reason = null;
         if (!metadata) reason = "watch metadata unavailable";
-        else if (!channelId || metadata.youtubeChannelId !== channelId) {
+        else if (metadata.youtubeVideoId !== videoId) {
+          reason = `watch video ${metadata.youtubeVideoId ?? "missing"} did not match ${videoId}`;
+        } else if (!channelId || metadata.youtubeChannelId !== channelId) {
           reason = `watch channel ${metadata.youtubeChannelId ?? "missing"} did not match ${channelId ?? "missing"}`;
         } else if (!postedAt) reason = "exact native publication timestamp unavailable";
         if (reason) {
