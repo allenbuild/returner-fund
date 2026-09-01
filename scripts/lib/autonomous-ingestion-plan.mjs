@@ -246,6 +246,11 @@ const AUTONOMOUS_PROVIDER_BLOCKER_CODES = new Map([
     "official_source_http_failure",
     "official_source_timeout",
     "official_source_transport_failure"
+  ])],
+  ["official_source_http", new Set([
+    "official_source_http_failure",
+    "official_source_timeout",
+    "official_source_transport_failure"
   ])]
 ]);
 
@@ -1477,11 +1482,6 @@ export function autonomousCollectorRetryableFailures(snapshot) {
 function collectorFailureRetryDecision(row, attemptsByKey, attemptsByOwner) {
   const attemptKey = String(row?.attemptKey ?? row?.attempt_key ?? "").trim();
   const exactAttempt = attemptKey ? attemptsByKey.get(attemptKey) : null;
-  if (isAuthoritativeCollectorNoRetryAttempt(exactAttempt)) return false;
-  if (typeof row?.retryable === "boolean") return row.retryable;
-  if (typeof exactAttempt?.retryable === "boolean") return exactAttempt.retryable;
-  if (isExplicitTerminalNegativeCollectorAttempt(exactAttempt)) return false;
-
   const ownerAttempts = attemptsByOwner.get(collectorOwnerKey(row)) ?? [];
   const accountUrl = canonicalCollectorFailureAccountUrl(row);
   const matchingAttempts = accountUrl
@@ -1489,6 +1489,15 @@ function collectorFailureRetryDecision(row, attemptsByKey, attemptsByOwner) {
         canonicalCollectorFailureAccountUrl(attempt) === accountUrl
       )
     : ownerAttempts;
+  if (newerAuthoritativeCollectorNoRetryAttempt(row, matchingAttempts)) return false;
+  if (
+    isAuthoritativeCollectorNoRetryAttempt(exactAttempt) &&
+    authoritativeAttemptIsNotOlder(row, exactAttempt)
+  ) return false;
+  if (typeof row?.retryable === "boolean") return row.retryable;
+  if (typeof exactAttempt?.retryable === "boolean") return exactAttempt.retryable;
+  if (isExplicitTerminalNegativeCollectorAttempt(exactAttempt)) return false;
+
   const explicit = matchingAttempts
     .filter((attempt) => !isExplicitTerminalNegativeCollectorAttempt(attempt))
     .filter((attempt) => typeof attempt.retryable === "boolean");
@@ -1496,6 +1505,39 @@ function collectorFailureRetryDecision(row, attemptsByKey, attemptsByOwner) {
   return explicit.some((attempt) =>
     attempt.retryable === true && !isIntentionalInstagramReviewAttempt(attempt)
   );
+}
+
+function newerAuthoritativeCollectorNoRetryAttempt(row, attempts) {
+  const rowCheckedAt = Date.parse(row?.checkedAt ?? row?.last_checked_at ?? "");
+  if (!Number.isFinite(rowCheckedAt)) return false;
+  return attempts.some((attempt) => {
+    const attemptCheckedAt = Date.parse(attempt?.checkedAt ?? "");
+    return Number.isFinite(attemptCheckedAt) &&
+      attemptCheckedAt > rowCheckedAt &&
+      exactCollectorFailureAttemptIdentityMatches(row, attempt) &&
+      isAuthoritativeCollectorNoRetryAttempt(attempt);
+  });
+}
+
+function exactCollectorFailureAttemptIdentityMatches(row, attempt) {
+  const rowAttemptKey = String(row?.attemptKey ?? row?.attempt_key ?? "").trim();
+  const attemptKey = String(attempt?.attemptKey ?? "").trim();
+  if (rowAttemptKey || attemptKey) return Boolean(rowAttemptKey) && rowAttemptKey === attemptKey;
+  const rowAccountUrl = canonicalCollectorFailureAccountUrl(row);
+  const attemptAccountUrl = canonicalCollectorFailureAccountUrl(attempt);
+  return Boolean(rowAccountUrl) &&
+    rowAccountUrl === attemptAccountUrl &&
+    normalizePlatform(row?.platform) === normalizePlatform(attempt?.platform) &&
+    (row?.entityType ?? "company") === (attempt?.entityType ?? "company") &&
+    String(row?.entityId ?? "").trim() === String(attempt?.entityId ?? "").trim();
+}
+
+function authoritativeAttemptIsNotOlder(row, attempt) {
+  const rowCheckedAt = Date.parse(row?.checkedAt ?? row?.last_checked_at ?? "");
+  const attemptCheckedAt = Date.parse(attempt?.checkedAt ?? "");
+  return !Number.isFinite(rowCheckedAt) ||
+    !Number.isFinite(attemptCheckedAt) ||
+    attemptCheckedAt >= rowCheckedAt;
 }
 
 function isAuthoritativeCollectorNoRetryAttempt(attempt) {
@@ -2905,6 +2947,10 @@ function exactTypedMappedAccountTerminalOutcome(attempt) {
   if (!platform || !entityId || !accountUrl || !attemptKey) return null;
   if (attemptKey !== `${platform}:${entityType}:${entityId}:${accountUrl}`) return null;
 
+  if (platform === "youtube") {
+    return exactTypedYouTubeListingTerminalOutcome(attempt, accountUrl);
+  }
+
   if (
     attempt?.outcomeStatus === "needs_review" &&
     outcomeReason === "collector_invalid_account_mapping"
@@ -2944,6 +2990,68 @@ function exactTypedMappedAccountTerminalOutcome(attempt) {
   return null;
 }
 
+function exactTypedYouTubeListingTerminalOutcome(attempt, accountUrl) {
+  const receipt = attempt?.coverageReceipt;
+  if (
+    attempt?.retryable !== false ||
+    receipt?.schemaVersion !== 1 ||
+    receipt?.source !== "youtube_exhausted_public_listing_watch_metadata_atom_404_v1" ||
+    receipt?.verified !== true ||
+    receipt?.listingExhausted !== true ||
+    receipt?.allDiscoveredVideosVerified !== true ||
+    receipt?.feedHttpStatus !== 404 ||
+    !/^UC[A-Za-z0-9_-]+$/.test(String(receipt?.channelId ?? "")) ||
+    receipt?.checkedAt !== attempt?.checkedAt
+  ) {
+    return null;
+  }
+  const attemptAccountUrl = canonicalSocialAccountUrl("youtube", accountUrl);
+  const receiptAccountUrl = canonicalSocialAccountUrl("youtube", receipt.accountUrl);
+  if (!attemptAccountUrl || !receiptAccountUrl || attemptAccountUrl !== receiptAccountUrl) {
+    return null;
+  }
+  const pageVideoCount = Number(receipt.pageVideoCount);
+  const continuationPageCount = Number(receipt.continuationPageCount);
+  const hydratedVideoCount = Number(receipt.hydratedVideoCount);
+  const exactTimestampVideoCount = Number(receipt.exactTimestampVideoCount);
+  if (
+    !Number.isSafeInteger(pageVideoCount) ||
+    pageVideoCount < 0 ||
+    !Number.isSafeInteger(continuationPageCount) ||
+    continuationPageCount < 0 ||
+    hydratedVideoCount !== pageVideoCount ||
+    exactTimestampVideoCount !== pageVideoCount ||
+    receipt.verifiedEmpty !== (pageVideoCount === 0)
+  ) {
+    return null;
+  }
+  let expectedPageUrl;
+  try {
+    expectedPageUrl = `${attemptAccountUrl.replace(/\/+$/, "")}/videos`;
+  } catch {
+    return null;
+  }
+  if (String(receipt.pageUrl ?? "").replace(/\/+$/, "") !== expectedPageUrl) return null;
+
+  const nonempty = pageVideoCount > 0;
+  if (
+    receipt.outcome !== (nonempty
+      ? "verified_nonempty_mapped_channel_page_feed_unavailable"
+      : "verified_empty_mapped_channel_page_feed_unavailable")
+  ) {
+    return null;
+  }
+  const allowed = nonempty
+    ? new Map([
+        ["completed", "collector_evidence_collected"],
+        ["needs_review", "collector_needs_review"]
+      ])
+    : new Map([["completed", "collector_verified_native_account_empty_public_window"]]);
+  return allowed.get(attempt.outcomeStatus) === attempt.outcomeReason
+    ? { status: attempt.outcomeStatus, reason: attempt.outcomeReason }
+    : null;
+}
+
 export function isAutonomousProviderBlocker(blocker, { platform = null } = {}) {
   if (!blocker || typeof blocker !== "object" || Array.isArray(blocker)) return false;
   const provider = String(blocker.provider ?? "").trim();
@@ -2962,7 +3070,16 @@ export function isAutonomousProviderBlocker(blocker, { platform = null } = {}) {
     }
     if (provider === "reddit_public_json" && normalizedPlatform !== "reddit") return false;
     if (provider === "official_source_html" && normalizedPlatform !== "github") return false;
-    if (!["duckduckgo_html", "reddit_public_json", "official_source_html"].includes(provider) && normalizedPlatform !== "linkedin") return false;
+    if (provider === "official_source_http" && !["web", "rss"].includes(normalizedPlatform)) return false;
+    if (
+      ![
+        "duckduckgo_html",
+        "reddit_public_json",
+        "official_source_html",
+        "official_source_http"
+      ].includes(provider) &&
+      normalizedPlatform !== "linkedin"
+    ) return false;
   }
   const allowedKeys = new Set(["provider", "code", "retryAt", "httpStatus", "message"]);
   if (Object.keys(blocker).some((key) => !allowedKeys.has(key))) return false;

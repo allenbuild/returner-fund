@@ -2026,6 +2026,66 @@ describe("autonomous collector task accounting", () => {
     assert.deepEqual(autonomousCollectorRetryableFailures(snapshot), []);
   });
 
+  it("lets a newer exact typed terminal receipt suppress an older retryable row", () => {
+    const accountUrl = "https://youtube.com/@atrisaai";
+    const attemptKey = `youtube:company:company-atrisa:${accountUrl}`;
+    const message = "Official YouTube Atom feed returned HTTP 404.";
+    const checkedAt = "2026-09-01T05:00:00.000Z";
+    const attempt = {
+      attemptKey,
+      platform: "youtube",
+      entityType: "company",
+      entityId: "company-atrisa",
+      accountUrl,
+      checkedAt,
+      retryable: false,
+      outcomeStatus: "completed",
+      outcomeReason: "collector_evidence_collected",
+      coverageReceipt: {
+        schemaVersion: 1,
+        source: "youtube_exhausted_public_listing_watch_metadata_atom_404_v1",
+        verified: true,
+        verifiedEmpty: false,
+        accountUrl,
+        channelId: "UCaGlJ3taiBb56BnjmfNy6nQ",
+        pageUrl: `${accountUrl}/videos`,
+        pageVideoCount: 2,
+        continuationPageCount: 1,
+        listingExhausted: true,
+        hydratedVideoCount: 2,
+        exactTimestampVideoCount: 2,
+        allDiscoveredVideosVerified: true,
+        feedHttpStatus: 404,
+        checkedAt,
+        outcome: "verified_nonempty_mapped_channel_page_feed_unavailable"
+      }
+    };
+    const snapshot = {
+      attempts: { atrisa: attempt },
+      failures: [{
+        attemptKey,
+        platform: "youtube",
+        entityType: "company",
+        entityId: "company-atrisa",
+        accountUrl,
+        checkedAt: "2026-09-01T04:50:00.000Z",
+        message,
+        retryable: true
+      }]
+    };
+    assert.deepEqual(autonomousCollectorRetryableFailures(snapshot), []);
+
+    snapshot.failures[0].attemptKey = `${attemptKey}:sibling`;
+    assert.deepEqual(autonomousCollectorRetryableFailures(snapshot), [message]);
+    snapshot.failures[0].attemptKey = attemptKey;
+    snapshot.attempts.atrisa.coverageReceipt.source = "untyped_claim";
+    assert.deepEqual(autonomousCollectorRetryableFailures(snapshot), [message]);
+    snapshot.attempts.atrisa.coverageReceipt.source =
+      "youtube_exhausted_public_listing_watch_metadata_atom_404_v1";
+    snapshot.failures[0].checkedAt = "2026-09-01T05:10:00.000Z";
+    assert.deepEqual(autonomousCollectorRetryableFailures(snapshot), [message]);
+  });
+
   it("keeps explicit transport retries through generic terminal labels", () => {
     for (const outcomeStatus of ["blocked_or_empty", "needs_review"]) {
       const accountUrl = `https://x.com/${outcomeStatus}`;
@@ -3020,6 +3080,27 @@ describe("autonomous collector task accounting", () => {
     assert.equal(isAutonomousProviderBlocker(redditBlocker, { platform: "linkedin" }), false);
     assert.equal(isAutonomousProviderBlocker({ ...redditBlocker, httpStatus: 500 }, { platform: "reddit" }), false);
     assert.equal(isAutonomousProviderBlocker({ ...redditBlocker, retryAt: null }, { platform: "reddit" }), false);
+
+    const officialSourceBlocker = {
+      provider: "official_source_http",
+      code: "official_source_transport_failure",
+      retryAt: "2026-08-10T00:15:00.000Z",
+      httpStatus: null,
+      message: "Official source transport failed three times."
+    };
+    assert.equal(isAutonomousProviderBlocker(officialSourceBlocker, { platform: "web" }), true);
+    assert.equal(isAutonomousProviderBlocker(officialSourceBlocker, { platform: "rss" }), true);
+    assert.equal(isAutonomousProviderBlocker(officialSourceBlocker, { platform: "youtube" }), false);
+    assert.equal(isAutonomousProviderBlocker(officialSourceBlocker, { platform: "github" }), false);
+    assert.equal(isAutonomousProviderBlocker({
+      ...officialSourceBlocker,
+      code: "official_source_http_failure",
+      httpStatus: 503
+    }, { platform: "web" }), true);
+    assert.equal(isAutonomousProviderBlocker({
+      ...officialSourceBlocker,
+      code: "official_source_http_failure"
+    }, { platform: "web" }), false);
   });
 
   it("normalizes legacy blocker failures and preserves provider health beside valid evidence", () => {

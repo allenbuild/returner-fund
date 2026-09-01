@@ -2171,7 +2171,7 @@ test("mapped YouTube and Product Hunt URLs get direct account-attributed attempt
     platform: "youtube",
     expectedEntityId: "a16z-speedrun-006-crebit-founder-jensen-coonradt",
     expectedAccountUrl: "https://youtube.com/@roborebel6031",
-    body: `<script>{"videoId":"abcdefghijk","title":{"runs":[{"text":"Crebit founder update"}]},"viewCountText":{"simpleText":"123 views"}}</script>`
+    body: `<script>{"channelId":"UCdirectMappedFixture","videoId":"abcdefghijk","title":{"runs":[{"text":"Crebit founder update"}]},"viewCountText":{"simpleText":"123 views"},"videoDetails":{"videoId":"abcdefghijk","title":"Crebit founder update","channelId":"UCdirectMappedFixture","author":"Crebit","shortDescription":"Founder update","viewCount":"123"},"publishDate":"2026-08-30T10:15:00-07:00"}</script>`
   }, {
     company: "quanto",
     platform: "product_hunt",
@@ -2225,7 +2225,7 @@ test("mapped YouTube and Product Hunt URLs get direct account-attributed attempt
   }
 });
 
-test("mapped YouTube page evidence survives a retryable official Atom 404", async () => {
+test("mapped YouTube page evidence survives retryable Atom and continuation failures", async () => {
   const directory = await mkdtemp(join(tmpdir(), "returner-public-youtube-atom-retry-"));
   const output = join(directory, "public-evidence.json");
   const checkpoint = join(directory, "checkpoint.json");
@@ -2242,10 +2242,16 @@ test("mapped YouTube page evidence survives a retryable official Atom 404", asyn
 globalThis.fetch = async (input) => {
   const value = String(input);
   if (value === "https://youtube.com/@roborebel6031/videos") {
-    return new Response('<script>{"channelId":"${channelId}","videoId":"abcdefghijk","title":{"runs":[{"text":"Crebit founder update"}]},"viewCountText":{"simpleText":"123 views"}}</script>', { status: 200 });
+    return new Response('<script>{"channelId":"${channelId}","INNERTUBE_API_KEY":"test-key","INNERTUBE_CLIENT_VERSION":"2.test","videoId":"abcdefghijk","title":{"runs":[{"text":"Crebit founder update"}]},"viewCountText":{"simpleText":"123 views"},"continuationCommand":{"token":"retry-token"}}</script>', { status: 200 });
   }
   if (value === "https://www.youtube.com/feeds/videos.xml?channel_id=${channelId}") {
     return new Response("not found", { status: 404 });
+  }
+  if (value === "https://www.youtube.com/youtubei/v1/browse?key=test-key") {
+    return new Response("temporarily unavailable", { status: 503 });
+  }
+  if (value === "https://www.youtube.com/watch?v=abcdefghijk") {
+    return new Response('<script>{"videoDetails":{"videoId":"abcdefghijk","title":"Crebit founder update","channelId":"${channelId}","author":"Crebit","shortDescription":"Founder update","viewCount":"123"},"publishDate":"2026-08-30T10:15:00-07:00"}</script>', { status: 200 });
   }
   throw new Error("unexpected URL: " + value);
 };
@@ -2281,13 +2287,108 @@ globalThis.fetch = async (input) => {
   const atomFailure = snapshot.failures.find(
     (row) => /Official YouTube Atom feed returned HTTP 404/.test(row.message ?? "")
   );
+  const continuationFailure = snapshot.failures.find(
+    (row) => /continuation returned HTTP 503/.test(row.message ?? "")
+  );
   assert.ok(snapshot.evidence.some(
     (row) => row.entityId === entityId && row.accountUrl === accountUrl
   ));
   assert.equal(attempt?.outcomeStatus, "completed");
   assert.equal(attempt?.retryable, true);
   assert.equal(atomFailure?.retryable, true);
-  assert.deepEqual(autonomousCollectorRetryableFailures(snapshot), [atomFailure.message]);
+  assert.equal(continuationFailure?.retryable, true);
+  const retryableFailures = autonomousCollectorRetryableFailures(snapshot);
+  assert.ok(retryableFailures.includes(atomFailure.message));
+  assert.ok(retryableFailures.includes(continuationFailure.message));
+});
+
+test("mapped YouTube exhausts current page serialization and terminalizes Atom 404 only after exact watch hydration", async () => {
+  const directory = await mkdtemp(join(tmpdir(), "returner-public-youtube-listing-fallback-"));
+  const output = join(directory, "public-evidence.json");
+  const checkpoint = join(directory, "checkpoint.json");
+  const discoveryAttempts = join(directory, "discovery-attempts.json");
+  const sourceDiscoveryPaths = join(directory, "source-discovery-paths.json");
+  const preload = join(directory, "mock-fetch.mjs");
+  const accountUrl = "https://youtube.com/@roborebel6031";
+  const entityId = "a16z-speedrun-006-crebit-founder-jensen-coonradt";
+  const channelId = "UCatrisaCurrentSerialization";
+  await Promise.all([
+    writeFile(discoveryAttempts, "[]\n"),
+    writeFile(sourceDiscoveryPaths, "[]\n"),
+    writeFile(preload, withMockPublicDns(`
+globalThis.fetch = async (input, init = {}) => {
+  const value = String(input);
+  if (value === "https://youtube.com/@roborebel6031/videos") {
+    return new Response('<script>{"channelId":"${channelId}","INNERTUBE_API_KEY":"listing-key","INNERTUBE_CLIENT_VERSION":"2.20260831.01.00","richItemRenderer":{"content":{"videoRenderer":{"videoId":"YupbVdchblk","title":{"simpleText":"Atrisa video one"}}}},"richItemRenderer":{"content":{"videoRenderer":{"videoId":"TxMvQ9Xu2rE","title":{"simpleText":"Atrisa video two"}}}},"continuationCommand":{"token":"terminal-token"}}</script>', { status: 200 });
+  }
+  if (value === "https://www.youtube.com/feeds/videos.xml?channel_id=${channelId}") {
+    return new Response("not found", { status: 404 });
+  }
+  if (value === "https://www.youtube.com/youtubei/v1/browse?key=listing-key") {
+    const request = JSON.parse(String(init.body));
+    if (init.method !== "POST" || request.continuation !== "terminal-token") {
+      return new Response("bad continuation request", { status: 400 });
+    }
+    return new Response('{"onResponseReceivedActions":[{"appendContinuationItemsAction":{"continuationItems":[]}}]}', { status: 200 });
+  }
+  if (value === "https://www.youtube.com/watch?v=YupbVdchblk") {
+    return new Response('<script>{"videoDetails":{"videoId":"YupbVdchblk","title":"Atrisa video one","channelId":"${channelId}","author":"Atrisa AI","shortDescription":"First","viewCount":"681"},"publishDate":"2026-06-02T09:55:14-07:00"}</script>', { status: 200 });
+  }
+  if (value === "https://www.youtube.com/watch?v=TxMvQ9Xu2rE") {
+    return new Response('<script>{"videoDetails":{"videoId":"TxMvQ9Xu2rE","title":"Atrisa video two","channelId":"${channelId}","author":"Atrisa AI","shortDescription":"Second","viewCount":"375"},"publishDate":"2026-05-29T19:08:04-07:00"}</script>', { status: 200 });
+  }
+  throw new Error("unexpected URL: " + value);
+};
+`))
+  ]);
+
+  execFileSync(process.execPath, [
+    "scripts/fetch-public-traction.mjs",
+    "--batch=A16ZSR006",
+    "--company=crebit",
+    "--platforms=youtube",
+    "--social=all",
+    "--workers=1",
+    "--delay-ms=0",
+    "--force",
+    `--output=${output}`,
+    `--checkpoint=${checkpoint}`,
+    `--discovery-attempts=${discoveryAttempts}`,
+    `--source-discovery-paths=${sourceDiscoveryPaths}`
+  ], {
+    cwd: root,
+    env: {
+      ...process.env,
+      NODE_OPTIONS: [process.env.NODE_OPTIONS, `--import=${preload}`].filter(Boolean).join(" ")
+    },
+    stdio: "pipe"
+  });
+
+  const snapshot = JSON.parse(await readFile(output, "utf8"));
+  const attempt = Object.values(snapshot.attempts).find(
+    (row) => row.entityId === entityId && row.accountUrl === accountUrl
+  );
+  const rows = snapshot.evidence
+    .filter((row) => row.entityId === entityId && row.accountUrl === accountUrl)
+    .sort((left, right) => left.platformPostId.localeCompare(right.platformPostId));
+  const atomFailure = snapshot.failures.find(
+    (row) => /Official YouTube Atom feed returned HTTP 404/.test(row.message ?? "")
+  );
+  assert.deepEqual(rows.map((row) => row.platformPostId), ["TxMvQ9Xu2rE", "YupbVdchblk"]);
+  assert.deepEqual(rows.map((row) => row.postedAt), [
+    "2026-05-30T02:08:04.000Z",
+    "2026-06-02T16:55:14.000Z"
+  ]);
+  assert.equal(attempt?.outcomeStatus, "completed");
+  assert.equal(attempt?.outcomeReason, "collector_evidence_collected");
+  assert.equal(attempt?.retryable, false);
+  assert.equal(atomFailure?.retryable, false);
+  assert.equal(attempt?.coverageReceipt?.source, "youtube_exhausted_public_listing_watch_metadata_atom_404_v1");
+  assert.equal(attempt?.coverageReceipt?.listingExhausted, true);
+  assert.equal(attempt?.coverageReceipt?.pageVideoCount, 2);
+  assert.equal(attempt?.coverageReceipt?.continuationPageCount, 1);
+  assert.equal(attempt?.coverageReceipt?.allDiscoveredVideosVerified, true);
+  assert.deepEqual(autonomousCollectorRetryableFailures(snapshot), []);
 });
 
 test("mapped YouTube empty pages terminalize Atom 404 but retry transient feed failures", async () => {
@@ -2391,10 +2492,17 @@ globalThis.fetch = async (input) => {
     assert.equal(attempt?.outcomeReason, fixture.expectedOutcomeReason);
     assert.equal(atomFailure?.retryable, fixture.expectedRetryable);
     assert.equal(attempt?.coverageReceipt?.verifiedEmpty === true, fixture.expectedVerifiedEmpty);
-    assert.deepEqual(
-      autonomousCollectorRetryableFailures(snapshot),
-      fixture.expectedRetryable ? [atomFailure.message] : []
-    );
+    const retryableFailures = autonomousCollectorRetryableFailures(snapshot);
+    assert.equal(retryableFailures.includes(atomFailure.message), fixture.expectedRetryable);
+    if (fixture.pagePayload.includes("visibleVideo123")) {
+      assert.ok(retryableFailures.some((message) => /identity- and timestamp-verified/.test(message)));
+    }
+    if (fixture.pageStatus === 404) {
+      assert.ok(retryableFailures.some((message) => /videos page returned HTTP 404/.test(message)));
+    }
+    if (!fixture.expectedRetryable) {
+      assert.deepEqual(retryableFailures, []);
+    }
   }
 });
 

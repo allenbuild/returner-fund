@@ -4379,6 +4379,12 @@ async function runShardedGithubCollector({
         nodeHeapMb: COLLECTOR_NODE_HEAP_MB,
         deadlineAt: collectionBudget.deadlineAt,
         label: `github ${batchSlug} shard ${shard.shardIndex + 1}/${shardCount}`,
+        // Collector progress is intentionally high-volume and is already
+        // persisted in the bound shard snapshot plus structured run events.
+        // Replaying the tail of every shard into the Actions console creates
+        // enough log backpressure to delay retries and cancellation.
+        quiet: true,
+        captureLimit: 8_000,
         envCategory: "github_collector",
         cwd: root
       }
@@ -4544,6 +4550,11 @@ async function runPublicCollectorWithCheckpointRecovery({
       nodeHeapMb: COLLECTOR_NODE_HEAP_MB,
       deadlineAt: collectionBudget.deadlineAt,
       label: `public ${batchSlug} shard ${shardIndex + 1}/${shardCount}`,
+      // The checkpoint/snapshot is the source of truth. Keep per-company
+      // progress out of the workflow console so a completed shard cannot be
+      // held behind megabytes of Actions log upload.
+      quiet: true,
+      captureLimit: 8_000,
       envCategory: "public_collector",
       cwd: root
     });
@@ -4563,6 +4574,8 @@ async function runPublicCollectorWithCheckpointRecovery({
       nodeHeapMb: COLLECTOR_NODE_HEAP_MB,
       deadlineAt: collectionDrainBudget.deadlineAt,
       label: `public ${batchSlug} shard ${shardIndex + 1}/${shardCount} checkpoint flush`,
+      quiet: true,
+      captureLimit: 8_000,
       envCategory: "public_collector",
       cwd: root
     });

@@ -93,6 +93,7 @@ import {
 import {
   parseYouTubeFeed,
   parseYouTubePublicPage,
+  youtubeBrowseContinuationRequest,
   youtubeChannelIdFromAccountUrl,
   youtubeFeedUrl
 } from "./lib/historical-depth-sources.mjs";
@@ -151,6 +152,36 @@ const publicFetchTimeoutMs = Math.max(
     Math.floor(numberArg("--public-fetch-timeout-ms") ?? DEFAULT_PUBLIC_FETCH_TIMEOUT_MS)
   )
 );
+const OFFICIAL_PUBLIC_SOURCE_MAX_ATTEMPTS = 3;
+const officialPublicSourceRetryBaseMs = Math.max(
+  0,
+  Math.min(Math.floor(numberArg("--official-source-retry-base-ms") ?? 500), 5_000)
+);
+
+class OfficialPublicSourceUnavailableError extends Error {
+  constructor(message, { sourceUrl, attempts, httpStatus = null, causeCode = null, cause } = {}) {
+    super(message, cause === undefined ? undefined : { cause });
+    this.name = "OfficialPublicSourceUnavailableError";
+    this.sourceUrl = sourceUrl;
+    this.attempts = attempts;
+    this.httpStatus = httpStatus;
+    this.causeCode = causeCode;
+    this.blocker = Object.freeze({
+      provider: "official_source_http",
+      code: Number.isInteger(httpStatus)
+        ? "official_source_http_failure"
+        : /timeout|timed out|abort|etimedout/i.test(`${message} ${causeCode ?? ""}`)
+          ? "official_source_timeout"
+          : "official_source_transport_failure",
+      retryAt: new Date(
+        Date.parse(now) + AUTONOMOUS_PROCESS_BUDGETS.collectionPhaseMs
+      ).toISOString(),
+      httpStatus,
+      message
+    });
+  }
+}
+
 const PUBLIC_SEARCH_TIMEOUT_MS = 8_000;
 const PUBLIC_SEARCH_MAX_ENCODED_BODY_BYTES = 2 * 1024 * 1024;
 const PUBLIC_SEARCH_MAX_DECODED_BODY_BYTES = 4 * 1024 * 1024;
@@ -178,6 +209,9 @@ const instagramWorkerCount = Math.max(
   Math.min(MAX_INSTAGRAM_WORKERS, Math.floor(numberArg("--instagram-workers") ?? 2))
 );
 const MAX_INSTAGRAM_NATIVE_FEED_PAGES = 50;
+const MAX_MAPPED_YOUTUBE_CONTINUATION_PAGES = 50;
+const MAX_MAPPED_YOUTUBE_DISCOVERED_VIDEOS = 5_000;
+const MAX_MAPPED_YOUTUBE_WATCH_WORKERS = 4;
 const MAX_INSTAGRAM_NATIVE_FEED_ITEMS = 500;
 const instagramNativeFeedMaxPages = Math.max(
   1,
@@ -449,6 +483,7 @@ function usage() {
     `  --checkpoint-every=N     Persist after N task completions (1-${MAX_CHECKPOINT_EVERY}; default 25)`,
     "  --delay-ms=N",
     `  --public-fetch-timeout-ms=N  Website/feed deadline (25-${DEFAULT_PUBLIC_FETCH_TIMEOUT_MS}ms)`,
+    "  --official-source-retry-base-ms=N  Website/feed transient retry backoff (0-5000ms)",
     "  --fresh-for-hours=N",
     "  --discover-missing-social",
     "  --mapped-only             Skip every URL-less social discovery task",
@@ -967,7 +1002,12 @@ async function attempt(platform, key, company, fn) {
     recordPlatformCooldownIfNeeded(normalizedPlatform, error);
     const message = errorMessage(error);
     const publicSearchBlocked = error instanceof PublicSearchUnavailableError;
-    const blocker = publicSearchBlocked ? publicSearchBlockerFromError(error) : null;
+    const officialSourceBlocked = error instanceof OfficialPublicSourceUnavailableError;
+    const blocker = publicSearchBlocked
+      ? publicSearchBlockerFromError(error)
+      : officialSourceBlocked
+        ? officialPublicSourceBlockerFromError(error)
+        : null;
     const recentWindowFields = recentWindowTerminalFields(
       normalizedPlatform,
       `native_recent_window_request_failed:${message}`
@@ -998,12 +1038,16 @@ async function attempt(platform, key, company, fn) {
       error: message,
       ...(blocker ? { blocker } : {}),
       ...recentWindowFields,
-      retryable: publicSearchBlocked ? false : retryableCollectorFailure(message),
-      outcomeStatus: publicSearchBlocked || expectedAccessOrEmptyMessage(message)
+      retryable: blocker ? !blocker.retryAt : retryableCollectorFailure(message),
+      outcomeStatus: blocker || expectedAccessOrEmptyMessage(message)
         ? "blocked_or_empty"
         : "failed",
-      outcomeReason: publicSearchBlocked || expectedAccessOrEmptyMessage(message)
-        ? "collector_checked_blocked_or_empty"
+      outcomeReason: blocker
+        ? officialSourceBlocked
+          ? "collector_provider_blocked"
+          : "collector_checked_blocked_or_empty"
+        : expectedAccessOrEmptyMessage(message)
+          ? "collector_checked_blocked_or_empty"
         : "collector_reported_failure"
     }, {
       platform: normalizedPlatform,
@@ -1400,7 +1444,10 @@ async function attemptSocialProfile(company, entity, entityType, platform, accou
     }, { platform, companySlug: company.slug, entityType, entityId, name, accountUrl: url }));
   } catch (error) {
     recordPlatformCooldownIfNeeded(platform, error);
-    const providerBlocker = linkedinPublicBlockerFromError(error);
+    const officialSourceBlocked = error instanceof OfficialPublicSourceUnavailableError;
+    const providerBlocker = officialSourceBlocked
+      ? officialPublicSourceBlockerFromError(error)
+      : linkedinPublicBlockerFromError(error);
     const retryable = providerBlocker
       ? !providerBlocker.retryAt
       : error?.platformCooldownUntil
@@ -1443,8 +1490,12 @@ async function attemptSocialProfile(company, entity, entityType, platform, accou
       ...recentWindowFields,
       retryable,
       outcomeStatus: providerBlocker || expectedAccessOrEmptyMessage(message) ? "blocked_or_empty" : "failed",
-      outcomeReason: providerBlocker || expectedAccessOrEmptyMessage(message)
-        ? "collector_checked_blocked_or_empty"
+      outcomeReason: providerBlocker
+        ? officialSourceBlocked
+          ? "collector_provider_blocked"
+          : "collector_checked_blocked_or_empty"
+        : expectedAccessOrEmptyMessage(message)
+          ? "collector_checked_blocked_or_empty"
         : "collector_reported_failure"
     }, { platform, companySlug: company.slug, entityType, entityId, name, accountUrl: url }));
   }
@@ -1782,7 +1833,7 @@ async function ingestWebsite(company) {
     return { failures: [failure("web", company, null, "No company website URL.")] };
   }
 
-  const page = await fetchReadable(company.websiteUrl, { readerFallback: true });
+  const page = await fetchOfficialReadable(company.websiteUrl);
   if (isBlocked(page.text)) {
     return { failures: [failure("web", company, company.websiteUrl, "Website returned a block/login/CAPTCHA page.")] };
   }
@@ -1834,21 +1885,31 @@ async function ingestRss(company) {
     return { failures: [failure("rss", company, null, "No company website URL for feed discovery.")] };
   }
 
-  const homepage = await fetchReadable(company.websiteUrl, { readerFallback: false }).catch(() => null);
+  let homepage = null;
+  let homepageError = null;
+  try {
+    homepage = await fetchOfficialReadable(company.websiteUrl);
+  } catch (error) {
+    homepageError = error;
+  }
   const feedUrls = discoverFeedUrls(company.websiteUrl, homepage?.html ?? "");
   if (!feedUrls.length) {
     return { failures: [failure("rss", company, company.websiteUrl, "No RSS/Atom feed discovered on public homepage.")] };
   }
 
   const feedEvidence = [];
-  const feedFailures = [];
+  const feedFailureErrors = homepageError
+    ? [{ url: company.websiteUrl, error: homepageError }]
+    : [];
   for (const feedUrl of feedUrls.slice(0, 2)) {
     try {
-      const { text: xml } = await fetchPublicBoundedText(feedUrl, {
-        accept: "application/atom+xml,application/rss+xml,application/xml,text/xml",
-        maxResponseBytes: HISTORICAL_BACKFILL_LIMITS.maxResponseBytes,
-        maxDecodedBytes: HISTORICAL_BACKFILL_LIMITS.maxDecodedBytes
-      });
+      const { text: xml } = await fetchOfficialPublicSource(feedUrl, () =>
+        fetchPublicBoundedText(feedUrl, {
+          accept: "application/atom+xml,application/rss+xml,application/xml,text/xml",
+          maxResponseBytes: HISTORICAL_BACKFILL_LIMITS.maxResponseBytes,
+          maxDecodedBytes: HISTORICAL_BACKFILL_LIMITS.maxDecodedBytes
+        })
+      );
       const items = parseFeedItems(xml);
       for (const item of items) {
         feedEvidence.push(
@@ -1870,10 +1931,22 @@ async function ingestRss(company) {
         );
       }
     } catch (error) {
-      feedFailures.push(failure("rss", company, feedUrl, errorMessage(error)));
+      feedFailureErrors.push({ url: feedUrl, error });
     }
   }
 
+  const feedFailures = feedFailureErrors.map(({ url, error }) => {
+    const blocker = feedEvidence.length === 0 && error instanceof OfficialPublicSourceUnavailableError
+      ? officialPublicSourceBlockerFromError(error)
+      : null;
+    return {
+      ...failure("rss", company, url, errorMessage(error)),
+      ...(error instanceof OfficialPublicSourceUnavailableError
+        ? { retryable: false }
+        : {}),
+      ...(blocker ? { blocker } : {})
+    };
+  });
   return { evidence: feedEvidence, failures: feedFailures };
 }
 
@@ -2298,6 +2371,55 @@ async function ingestMappedYouTubeAccount(company, entity, entityType, accountUr
     }
   }
 
+  const shouldUsePublicListingFallback = !feed || (feed.evidence?.length ?? 0) === 0;
+  const listing = shouldUsePublicListingFallback
+    ? await exhaustMappedYouTubePublicListing({
+        pageResponse,
+        pageObservation,
+        channelId
+      })
+    : {
+        discoveredVideoIds: [],
+        continuationPageCount: 0,
+        exhausted: false,
+        failureMessage: null
+      };
+  const listingFailure = listing.failureMessage
+    ? {
+        ...failure(
+          "youtube",
+          company,
+          videosUrl,
+          listing.failureMessage,
+          entityType,
+          name,
+          entityId
+        ),
+        retryable: true
+      }
+    : null;
+  const hydratedListing = await hydrateMappedYouTubeListingVideos(
+    listing.discoveredVideoIds,
+    channelId
+  );
+  const hydrationFailure = hydratedListing.unverified.length > 0
+    ? {
+        ...failure(
+          "youtube",
+          company,
+          videosUrl,
+          `Mapped YouTube public videos could not all be identity- and timestamp-verified: ${hydratedListing.unverified
+            .slice(0, 12)
+            .map((item) => `${item.videoId} (${item.reason})`)
+            .join(", ")}${hydratedListing.unverified.length > 12 ? ` and ${hydratedListing.unverified.length - 12} more` : ""}.`,
+          entityType,
+          name,
+          entityId
+        ),
+        retryable: true
+      }
+    : null;
+
   const videosById = new Map();
   for (const video of feed?.evidence ?? []) {
     videosById.set(video.nativeId, {
@@ -2312,34 +2434,56 @@ async function ingestMappedYouTubeAccount(company, entity, entityType, accountUr
       discoveryMethod: video.discoveryMethod
     });
   }
-  for (const video of pageVideos) {
-    const prior = videosById.get(video.videoId);
-    videosById.set(video.videoId, {
+  const pageVideosById = new Map(pageVideos.map((video) => [video.videoId, video]));
+  for (const watchVideo of hydratedListing.videos) {
+    const pageVideo = pageVideosById.get(watchVideo.videoId);
+    const prior = videosById.get(watchVideo.videoId);
+    const viewCandidates = [prior?.views, pageVideo?.views, watchVideo.views]
+      .map(Number)
+      .filter((value) => Number.isFinite(value) && value >= 0);
+    videosById.set(watchVideo.videoId, {
       ...prior,
-      ...video,
-      postedAt: prior?.postedAt ?? null,
-      views: Number(video.views) > 0 ? video.views : prior?.views ?? video.views,
-      raw: cleanText(`${prior?.raw ?? ""} ${video.raw ?? ""}`),
-      discoveryMethod: prior?.discoveryMethod ?? "youtube_verified_channel_videos_page"
+      ...pageVideo,
+      ...watchVideo,
+      title: watchVideo.title ?? pageVideo?.title ?? prior?.title ?? `${name} YouTube video`,
+      description: watchVideo.description ?? pageVideo?.description ?? prior?.description ?? "",
+      postedAt: watchVideo.postedAt,
+      views: viewCandidates.length > 0 ? Math.max(...viewCandidates) : null,
+      raw: cleanText(`${prior?.raw ?? ""} ${pageVideo?.raw ?? ""} ${watchVideo.raw ?? ""}`),
+      discoveryMethod: "youtube_exhausted_public_listing_exact_watch_metadata_v1"
     });
   }
+  const allDiscoveredVideosVerified =
+    listing.exhausted === true &&
+    hydratedListing.unverified.length === 0 &&
+    hydratedListing.videos.length === listing.discoveredVideoIds.length;
+  const terminalAtom404Listing =
+    pageResponse.ok &&
+    feedHttpStatus === 404 &&
+    Boolean(channelId) &&
+    pageObservation.channelId === channelId &&
+    allDiscoveredVideosVerified;
+  const terminalFeedFailure = terminalAtom404Listing && feedFailure
+    ? { ...feedFailure, retryable: false }
+    : feedFailure;
+  const coverageReceipt = terminalAtom404Listing
+    ? mappedYouTubeListingCoverageReceipt({
+        canonicalAccountUrl,
+        channelId,
+        videosUrl,
+        listing,
+        hydratedListing,
+        feedHttpStatus
+      })
+    : null;
   const videos = [...videosById.values()];
   if (!videos.length) {
-    const verifiedEmptyAtom404 =
-      pageResponse.ok &&
-      feedHttpStatus === 404 &&
-      pageVideos.length === 0 &&
-      pageObservation.itemsSeen === 0 &&
-      pageObservation.discoveredVideoIds.length === 0 &&
-      pageObservation.continuationTokens.length === 0 &&
-      Boolean(pageObservation.channelId) &&
-      pageObservation.channelId === channelId;
-    const terminalFeedFailure = verifiedEmptyAtom404 && feedFailure
-      ? { ...feedFailure, retryable: false }
-      : feedFailure;
+    const verifiedEmptyAtom404 = terminalAtom404Listing && listing.discoveredVideoIds.length === 0;
     return {
       failures: [
         ...(terminalFeedFailure ? [terminalFeedFailure] : []),
+        ...(listingFailure ? [listingFailure] : []),
+        ...(hydrationFailure ? [hydrationFailure] : []),
         failure(
           "youtube",
           company,
@@ -2353,18 +2497,7 @@ async function ingestMappedYouTubeAccount(company, entity, entityType, accountUr
       ...(verifiedEmptyAtom404
         ? {
             verifiedEmpty: true,
-            coverageReceipt: {
-              source: "youtube_verified_empty_channel_page_atom_404_v1",
-              verified: true,
-              verifiedEmpty: true,
-              accountUrl: canonicalAccountUrl,
-              channelId,
-              pageUrl: videosUrl,
-              pageVideoCount: 0,
-              feedHttpStatus,
-              checkedAt: now,
-              outcome: "verified_empty_mapped_channel_page_feed_unavailable"
-            }
+            coverageReceipt
           }
         : {})
     };
@@ -2415,7 +2548,244 @@ async function ingestMappedYouTubeAccount(company, entity, entityType, accountUr
   return {
     evidence,
     needsReview,
-    failures: feedFailure ? [feedFailure] : []
+    failures: [
+      ...(terminalFeedFailure ? [terminalFeedFailure] : []),
+      ...(listingFailure ? [listingFailure] : []),
+      ...(hydrationFailure ? [hydrationFailure] : [])
+    ],
+    ...(coverageReceipt ? { coverageReceipt } : {})
+  };
+}
+
+async function exhaustMappedYouTubePublicListing({ pageResponse, pageObservation, channelId }) {
+  const discoveredVideoIds = [...new Set(pageObservation.discoveredVideoIds ?? [])];
+  const failureResult = (reason) => ({
+    discoveredVideoIds,
+    continuationPageCount: 0,
+    exhausted: false,
+    failureMessage: `Mapped YouTube public videos listing could not be exhausted: ${reason}`
+  });
+  if (!pageResponse.ok) return failureResult(`videos page returned HTTP ${pageResponse.status}.`);
+  if (!channelId || !pageObservation.channelId) {
+    if (
+      discoveredVideoIds.length === 0 &&
+      pageObservation.itemsSeen === 0 &&
+      (pageObservation.continuationTokens?.length ?? 0) === 0
+    ) {
+      // An unidentifiable generic empty page is not proof of an empty native
+      // channel, but it also has no visible native item that could be lost.
+      // Preserve the ordinary blocked/empty outcome without minting the strict
+      // exhausted-listing receipt.
+      return {
+        discoveredVideoIds,
+        continuationPageCount: 0,
+        exhausted: false,
+        failureMessage: null
+      };
+    }
+    return failureResult("videos page did not expose an exact native channel ID.");
+  }
+  if (pageObservation.channelId !== channelId) {
+    return failureResult(
+      `videos page channel ${pageObservation.channelId} did not match verified channel ${channelId}.`
+    );
+  }
+  if (discoveredVideoIds.length >= MAX_MAPPED_YOUTUBE_DISCOVERED_VIDEOS) {
+    return failureResult(
+      `discovery reached the ${MAX_MAPPED_YOUTUBE_DISCOVERED_VIDEOS}-video safety limit.`
+    );
+  }
+
+  const queuedTokens = [...new Set(pageObservation.continuationTokens ?? [])];
+  const seenTokens = new Set();
+  const seenVideos = new Set(discoveredVideoIds.map((videoId) => `youtube:${videoId}`));
+  let continuationPageCount = 0;
+  while (queuedTokens.length > 0) {
+    if (continuationPageCount >= MAX_MAPPED_YOUTUBE_CONTINUATION_PAGES) {
+      return {
+        discoveredVideoIds,
+        continuationPageCount,
+        exhausted: false,
+        failureMessage:
+          `Mapped YouTube public videos listing could not be exhausted: continuation reached the ` +
+          `${MAX_MAPPED_YOUTUBE_CONTINUATION_PAGES}-page safety limit.`
+      };
+    }
+    const token = queuedTokens.shift();
+    if (seenTokens.has(token)) {
+      return {
+        discoveredVideoIds,
+        continuationPageCount,
+        exhausted: false,
+        failureMessage: "Mapped YouTube public videos listing could not be exhausted: continuation token loop detected."
+      };
+    }
+    if (!pageObservation.innertubeApiKey) {
+      return {
+        discoveredVideoIds,
+        continuationPageCount,
+        exhausted: false,
+        failureMessage:
+          "Mapped YouTube public videos listing could not be exhausted: continuation API configuration was absent from the verified page."
+      };
+    }
+    seenTokens.add(token);
+    const request = youtubeBrowseContinuationRequest({
+      token,
+      apiKey: pageObservation.innertubeApiKey,
+      clientVersion: pageObservation.innertubeClientVersion
+    });
+    let response;
+    let payloadText;
+    try {
+      ({ response, text: payloadText } = await fetchPublicBoundedText(request.url, {
+        ...request.init,
+        redirect: "error",
+        maxResponseBytes: HISTORICAL_BACKFILL_LIMITS.maxResponseBytes,
+        maxDecodedBytes: HISTORICAL_BACKFILL_LIMITS.maxDecodedBytes
+      }));
+    } catch (error) {
+      return {
+        discoveredVideoIds,
+        continuationPageCount,
+        exhausted: false,
+        failureMessage:
+          `Mapped YouTube public videos listing could not be exhausted: continuation request failed: ${errorMessage(error)}`
+      };
+    }
+    continuationPageCount += 1;
+    if (!response.ok) {
+      return {
+        discoveredVideoIds,
+        continuationPageCount,
+        exhausted: false,
+        failureMessage:
+          `Mapped YouTube public videos listing could not be exhausted: continuation returned HTTP ${response.status}.`
+      };
+    }
+    const remainingItems = MAX_MAPPED_YOUTUBE_DISCOVERED_VIDEOS - discoveredVideoIds.length;
+    if (remainingItems <= 0) {
+      return {
+        discoveredVideoIds,
+        continuationPageCount,
+        exhausted: false,
+        failureMessage:
+          `Mapped YouTube public videos listing could not be exhausted: discovery reached the ` +
+          `${MAX_MAPPED_YOUTUBE_DISCOVERED_VIDEOS}-video safety limit.`
+      };
+    }
+    const observation = parseYouTubePublicPage(payloadText, {
+      seen: seenVideos,
+      maxItems: remainingItems
+    });
+    if (observation.channelId && observation.channelId !== channelId) {
+      return {
+        discoveredVideoIds,
+        continuationPageCount,
+        exhausted: false,
+        failureMessage:
+          `Mapped YouTube public videos listing could not be exhausted: continuation channel ` +
+          `${observation.channelId} did not match verified channel ${channelId}.`
+      };
+    }
+    discoveredVideoIds.push(...observation.discoveredVideoIds);
+    if (discoveredVideoIds.length >= MAX_MAPPED_YOUTUBE_DISCOVERED_VIDEOS) {
+      return {
+        discoveredVideoIds,
+        continuationPageCount,
+        exhausted: false,
+        failureMessage:
+          `Mapped YouTube public videos listing could not be exhausted: discovery reached the ` +
+          `${MAX_MAPPED_YOUTUBE_DISCOVERED_VIDEOS}-video safety limit.`
+      };
+    }
+    for (const nextToken of observation.continuationTokens) {
+      if (seenTokens.has(nextToken)) {
+        return {
+          discoveredVideoIds,
+          continuationPageCount,
+          exhausted: false,
+          failureMessage: "Mapped YouTube public videos listing could not be exhausted: continuation token loop detected."
+        };
+      }
+      if (!queuedTokens.includes(nextToken)) queuedTokens.push(nextToken);
+    }
+  }
+  return {
+    discoveredVideoIds,
+    continuationPageCount,
+    exhausted: true,
+    failureMessage: null
+  };
+}
+
+async function hydrateMappedYouTubeListingVideos(videoIds, channelId) {
+  const videos = new Array(videoIds.length);
+  const unverified = [];
+  let cursor = 0;
+  const workers = Array.from(
+    { length: Math.min(MAX_MAPPED_YOUTUBE_WATCH_WORKERS, videoIds.length) },
+    async () => {
+      while (cursor < videoIds.length) {
+        const index = cursor;
+        cursor += 1;
+        const videoId = videoIds[index];
+        const metadata = await fetchYouTubeWatchMetadata(videoId);
+        const postedAt = exactEvidenceTimestamp(metadata?.postedAt);
+        let reason = null;
+        if (!metadata) reason = "watch metadata unavailable";
+        else if (!channelId || metadata.youtubeChannelId !== channelId) {
+          reason = `watch channel ${metadata.youtubeChannelId ?? "missing"} did not match ${channelId ?? "missing"}`;
+        } else if (!postedAt) reason = "exact native publication timestamp unavailable";
+        if (reason) {
+          unverified.push({ videoId, reason });
+          continue;
+        }
+        videos[index] = {
+          ...metadata,
+          videoId,
+          postedAt,
+          discoveryMethod: "youtube_exhausted_public_listing_exact_watch_metadata_v1"
+        };
+      }
+    }
+  );
+  await Promise.all(workers);
+  return {
+    videos: videos.filter(Boolean),
+    unverified: unverified.sort((left, right) => left.videoId.localeCompare(right.videoId))
+  };
+}
+
+function mappedYouTubeListingCoverageReceipt({
+  canonicalAccountUrl,
+  channelId,
+  videosUrl,
+  listing,
+  hydratedListing,
+  feedHttpStatus
+}) {
+  const pageVideoCount = listing.discoveredVideoIds.length;
+  const verifiedEmpty = pageVideoCount === 0;
+  return {
+    schemaVersion: 1,
+    source: "youtube_exhausted_public_listing_watch_metadata_atom_404_v1",
+    verified: true,
+    verifiedEmpty,
+    accountUrl: canonicalAccountUrl,
+    channelId,
+    pageUrl: videosUrl,
+    pageVideoCount,
+    continuationPageCount: listing.continuationPageCount,
+    listingExhausted: true,
+    hydratedVideoCount: hydratedListing.videos.length,
+    exactTimestampVideoCount: hydratedListing.videos.length,
+    allDiscoveredVideosVerified: true,
+    feedHttpStatus,
+    checkedAt: now,
+    outcome: verifiedEmpty
+      ? "verified_empty_mapped_channel_page_feed_unavailable"
+      : "verified_nonempty_mapped_channel_page_feed_unavailable"
   };
 }
 
@@ -4951,6 +5321,77 @@ function normalizePlatformArg(platform) {
   return platform;
 }
 
+async function fetchOfficialPublicSource(sourceUrl, operation) {
+  for (let attemptNumber = 1; attemptNumber <= OFFICIAL_PUBLIC_SOURCE_MAX_ATTEMPTS; attemptNumber += 1) {
+    try {
+      const result = await operation();
+      const httpStatus = Number(result?.response?.status);
+      if (!isTransientOfficialPublicSourceHttpStatus(httpStatus)) return result;
+      const statusText = cleanText(result?.response?.statusText ?? "");
+      const message =
+        `Official source HTTP failed for ${sourceUrl}: ${httpStatus}` +
+        `${statusText ? ` ${statusText}` : ""}`;
+      if (attemptNumber < OFFICIAL_PUBLIC_SOURCE_MAX_ATTEMPTS) {
+        await delay(officialPublicSourceRetryBaseMs * attemptNumber);
+        continue;
+      }
+      throw new OfficialPublicSourceUnavailableError(message, {
+        sourceUrl,
+        attempts: attemptNumber,
+        httpStatus
+      });
+    } catch (error) {
+      if (error instanceof OfficialPublicSourceUnavailableError) throw error;
+      const causeCode = nestedOfficialPublicSourceErrorCode(error);
+      const message =
+        `Official source transport failed for ${sourceUrl}` +
+        `${causeCode ? ` (${causeCode})` : ""}: ${errorMessage(error)}`;
+      if (!isRetryableOfficialPublicSourceError(error, message)) throw error;
+      if (attemptNumber < OFFICIAL_PUBLIC_SOURCE_MAX_ATTEMPTS) {
+        await delay(officialPublicSourceRetryBaseMs * attemptNumber);
+        continue;
+      }
+      throw new OfficialPublicSourceUnavailableError(message, {
+        sourceUrl,
+        attempts: attemptNumber,
+        causeCode,
+        cause: error
+      });
+    }
+  }
+  throw new Error("Official public source fetch exhausted attempts without a result.");
+}
+
+function isTransientOfficialPublicSourceHttpStatus(status) {
+  return [408, 425, 429].includes(status) || (status >= 500 && status <= 599);
+}
+
+function nestedOfficialPublicSourceErrorCode(error) {
+  let current = error;
+  for (let depth = 0; current && depth < 8; depth += 1) {
+    const code = String(current.code ?? "").trim();
+    if (code) return code;
+    current = current.cause;
+  }
+  return null;
+}
+
+function isRetryableOfficialPublicSourceError(error, message) {
+  const code = nestedOfficialPublicSourceErrorCode(error);
+  return /^(?:ECONNRESET|ECONNREFUSED|EHOSTUNREACH|ENETUNREACH|ENOTFOUND|EAI_AGAIN|ETIMEDOUT|UND_ERR_[A-Z_]+|public_fetch_timeout)$/i.test(code ?? "") ||
+    retryableCollectorFailure(message);
+}
+
+async function fetchOfficialReadable(url) {
+  const { text: html } = await fetchOfficialPublicSource(url, () =>
+    fetchPublicBoundedText(url, {
+      maxResponseBytes: HISTORICAL_BACKFILL_LIMITS.maxResponseBytes,
+      maxDecodedBytes: HISTORICAL_BACKFILL_LIMITS.maxDecodedBytes
+    })
+  );
+  return htmlToReadable(url, html);
+}
+
 async function fetchReadable(url) {
   const { text: html } = await fetchPublicBoundedText(url, {
     maxResponseBytes: HISTORICAL_BACKFILL_LIMITS.maxResponseBytes,
@@ -5100,7 +5541,9 @@ async function fetchPublicBoundedText(url, {
           signal: controller.signal,
           headers: publicRequestHeaders(options),
           dispatcher,
-          timeoutMs
+          timeoutMs,
+          method: options.method,
+          body: options.body
         });
         response = result.response;
         bodyIsEncoded = result.bodyIsEncoded;
@@ -5170,13 +5613,18 @@ async function fetchPublicBoundedText(url, {
   }
 }
 
-async function requestPublicDestination(destination, { signal, headers, dispatcher, timeoutMs }) {
+async function requestPublicDestination(
+  destination,
+  { signal, headers, dispatcher, timeoutMs, method = "GET", body = undefined }
+) {
   const fetchImplementation = injectedPublicFetchImplementation();
   if (fetchImplementation) {
     return {
       response: await fetchImplementation(destination.url, {
         signal,
         headers,
+        method,
+        ...(body === undefined ? {} : { body }),
         redirect: "manual",
         dispatcher
       }),
@@ -5191,7 +5639,8 @@ async function requestPublicDestination(destination, { signal, headers, dispatch
     ? globalThis.__RETURNER_PUBLIC_RAW_REQUEST__
     : undiciRequest;
   const result = await requestImplementation(destination.url, {
-    method: "GET",
+    method,
+    ...(body === undefined ? {} : { body }),
     signal,
     headers,
     dispatcher,
@@ -8116,6 +8565,13 @@ function publicSearchBlockerFromError(error) {
     httpStatus: Number.isInteger(error?.status) ? error.status : null,
     message: errorMessage(error)
   });
+}
+
+function officialPublicSourceBlockerFromError(error) {
+  if (!(error instanceof OfficialPublicSourceUnavailableError) || !error.blocker) {
+    throw new TypeError("Only a typed exhausted official-source transport failure can become a provider blocker.");
+  }
+  return error.blocker;
 }
 
 function redditPublicBlocker(httpStatus, message) {
