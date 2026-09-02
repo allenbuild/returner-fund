@@ -9,10 +9,12 @@ import {
   HISTORY_ARTIFACTS,
   PUBLIC_ARTIFACT_FRESHNESS_POLICIES,
   PublicArtifactValidationError,
+  RANKED_POSTS_SIDECAR_PATH,
   S26_CATALOG_PATH,
   collectCanonicalGraphSetViolations,
   collectGraphArtifactViolations,
   collectHistoryArtifactViolations,
+  collectRankedPostsSidecarGraphAlignmentViolations,
   collectS26GraphCensusViolations,
   nativeEvidenceIdentityFromUrl,
   runPublicArtifactValidationCli,
@@ -36,7 +38,7 @@ test("validates the complete nine-graph and three-history manifest without a ser
 
   assert.deepEqual(result, {
     status: "ok",
-    scoringModel: "returner-traction@4.3.0",
+    scoringModel: "returner-traction@4.3.1",
     graphSnapshots: 9,
     historyFiles: 3,
     graphNodes: 9,
@@ -44,6 +46,48 @@ test("validates the complete nine-graph and three-history manifest without a ser
     versionedDailyEntries: 3,
     versionedWeeklyEntries: 3
   });
+});
+
+test("rejects a Ranked Posts sidecar built against older public graph snapshots", async () => {
+  const rootDir = await writeValidArtifactTree();
+  const sidecar = JSON.parse(
+    await readFile(path.join(rootDir, RANKED_POSTS_SIDECAR_PATH), "utf8")
+  );
+  sidecar.batches.S2026.yc_partners.previewGeneratedAt = "2026-07-16T11:59:59.000Z";
+  await writeJson(rootDir, RANKED_POSTS_SIDECAR_PATH, sidecar);
+
+  await assert.rejects(
+    validatePublicArtifacts({ rootDir }),
+    (error) => {
+      assert.ok(error instanceof PublicArtifactValidationError);
+      assert.ok(
+        error.violations.some((violation) =>
+          /batches\.S2026\.yc_partners\.previewGeneratedAt must equal public\/graph\/s2026-yc-partners\.json generatedAt/.test(
+            violation
+          )
+        )
+      );
+      return true;
+    }
+  );
+});
+
+test("requires every sidecar scope and its top-level timestamp to align with public graphs", () => {
+  const graphArtifacts = GRAPH_ARTIFACTS.map((descriptor, index) => ({
+    descriptor,
+    graph: makeGraph(descriptor, index + 1)
+  }));
+  const sidecar = makeRankedPostsSidecar(GENERATED_AT);
+  delete sidecar.batches.A16ZSR006.insiders;
+  sidecar.generatedAt = "2026-07-16T11:59:59.000Z";
+
+  const violations = collectRankedPostsSidecarGraphAlignmentViolations(
+    sidecar,
+    graphArtifacts
+  ).join("\n");
+
+  assert.match(violations, /batches\.A16ZSR006\.insiders must be an object aligned with/);
+  assert.match(violations, /generatedAt must equal the latest public graph generatedAt/);
 });
 
 test("enforces the S26 catalog count and exact base ID/slug census across graph artifacts", () => {
@@ -151,7 +195,7 @@ test("rejects wrong batch, audience, scoring scope, v4 identity, and incomplete 
   assert.match(violations, /mode must be official_snapshot/);
   assert.match(violations, /batch\.slug must be S2026/);
   assert.match(violations, /selectedTopVoiceAudience\.id must be off/);
-  assert.match(violations, /scoringContext\.modelVersion must be 4\.3\.0/);
+  assert.match(violations, /scoringContext\.modelVersion must be 4\.3\.1/);
   assert.match(violations, /scoringContext\.scoreScope must be all_platforms/);
   assert.match(violations, /scoreBreakdown\.confidence must be an object/);
 });
@@ -211,11 +255,28 @@ test("rejects per-batch or audience-specific global benchmark signatures", () =>
     .graph.nodes[0].scoreBreakdown.calibration.cohortSize = 1;
   entries.find(({ descriptor }) => descriptor.batch === "A16ZSR006" && descriptor.audience === "insiders")
     .graph.nodes[0].scoreBreakdown.calibration.benchmarkScore = 99;
+  entries.find(({ descriptor }) => descriptor.batch === "S2026" && descriptor.audience === "yc_partners")
+    .graph.nodes[0].scoreBreakdown.calibration.benchmarkTarget = 96;
 
   const violations = collectCanonicalGraphSetViolations(entries).join("\n");
 
   assert.match(violations, /calibration\.cohortSize must be global count 3/);
   assert.match(violations, /calibration\.benchmarkScore must be global maximum 67/);
+  assert.match(violations, /calibration\.benchmarkTarget must be 95/);
+});
+
+test("requires the target-95 calibration and rejects the legacy 100-point factor", () => {
+  const descriptor = GRAPH_ARTIFACTS[0];
+  const missingTarget = makeGraph(descriptor, 1);
+  delete missingTarget.nodes[0].scoreBreakdown.calibration.benchmarkTarget;
+  let violations = collectGraphArtifactViolations(missingTarget, descriptor).join("\n");
+  assert.match(violations, /calibration\.benchmarkTarget must (?:equal|be) 95/);
+
+  const legacyFactor = makeGraph(descriptor, 1);
+  legacyFactor.nodes[0].scoreBreakdown.calibration.scaleFactor =
+    100 / legacyFactor.nodes[0].scoreBreakdown.calibration.benchmarkScore;
+  violations = collectGraphArtifactViolations(legacyFactor, descriptor).join("\n");
+  assert.match(violations, /calibration\.scaleFactor must equal benchmarkTarget \/ benchmarkScore/);
 });
 
 test("detects duplicate native posts across URL aliases and explicit identity conflicts", () => {
@@ -586,7 +647,7 @@ test("allows legacy history rows but requires valid v4 daily and weekly entries"
   const historicalV4 = structuredClone(history.daily[1]);
   historicalV4.recordedAt = "2026-07-02T12:00:00.000Z";
   historicalV4.inputGeneratedAt = "2026-07-02T11:59:00.000Z";
-  historicalV4.scoringModelVersion = "4.1.0";
+  historicalV4.scoringModelVersion = "4.3.0";
   history.daily.splice(1, 0, historicalV4);
 
   assert.deepEqual(collectHistoryArtifactViolations(history, descriptor).violations, []);
@@ -599,12 +660,49 @@ test("allows legacy history rows but requires valid v4 daily and weekly entries"
 
   assert.equal(result.versionedDailyEntries, 0);
   assert.equal(result.versionedWeeklyEntries, 0);
-  assert.match(violations, /daily must contain a returner-traction@4\.3\.0 version-tagged entry/);
+  assert.match(violations, /daily must contain a returner-traction@4\.3\.1 version-tagged entry/);
   assert.match(
     violations,
-    /weekly\[0\]\.scoringModelVersion must be 4\.3\.0 or a supported historical version/
+    /weekly\[0\]\.scoringModelVersion must be 4\.3\.1 or a supported historical version/
   );
-  assert.match(violations, /weekly must contain a returner-traction@4\.3\.0 version-tagged entry/);
+  assert.match(violations, /weekly must contain a returner-traction@4\.3\.1 version-tagged entry/);
+});
+
+test("validates optional v4.3.1 score-rebase metadata as one exact block", () => {
+  const descriptor = HISTORY_ARTIFACTS[0];
+  const exactCalibration = {
+    kind: "linear_model_rebase",
+    sourceModelVersion: "4.3.0",
+    factor: 0.95,
+    headlineTarget: 95,
+    rounding: "nearest_integer"
+  };
+
+  const observed = makeHistory(descriptor);
+  assert.deepEqual(collectHistoryArtifactViolations(observed, descriptor).violations, []);
+
+  const projected = makeHistory(descriptor);
+  projected.daily[0].scoreCalibration = structuredClone(exactCalibration);
+  projected.weekly[0].scoreCalibration = structuredClone(exactCalibration);
+  assert.deepEqual(collectHistoryArtifactViolations(projected, descriptor).violations, []);
+
+  const partial = makeHistory(descriptor);
+  partial.daily[0].scoreCalibration = structuredClone(exactCalibration);
+  delete partial.daily[0].scoreCalibration.factor;
+  let violations = collectHistoryArtifactViolations(partial, descriptor).violations.join("\n");
+  assert.match(violations, /daily\[0\]\.scoreCalibration\.factor is required/);
+
+  const historical = makeHistory(descriptor);
+  historical.daily[0].scoringModelVersion = "4.3.0";
+  historical.daily[0].scoreCalibration = structuredClone(exactCalibration);
+  violations = collectHistoryArtifactViolations(historical, descriptor).violations.join("\n");
+  assert.match(violations, /scoreCalibration is only valid for 4\.3\.1 target clones/);
+
+  const inexact = makeHistory(descriptor);
+  inexact.daily[0].scoreCalibration = { ...exactCalibration, factor: 1, note: "extra" };
+  violations = collectHistoryArtifactViolations(inexact, descriptor).violations.join("\n");
+  assert.match(violations, /scoreCalibration\.factor must be 0\.95/);
+  assert.match(violations, /scoreCalibration\.note is not supported/);
 });
 
 test("rejects future history, non-tied canonical ranks, and stale Central-day entries", () => {
@@ -873,9 +971,9 @@ test("reports missing committed artifacts as one deterministic validation error"
       assert.ok(error instanceof PublicArtifactValidationError);
       assert.equal(
         error.violations.length,
-        GRAPH_ARTIFACTS.length + HISTORY_ARTIFACTS.length + 1
+        GRAPH_ARTIFACTS.length + HISTORY_ARTIFACTS.length + 2
       );
-      assert.match(error.message, /Public artifact validation failed with 13 violation\(s\)/);
+      assert.match(error.message, /Public artifact validation failed with 14 violation\(s\)/);
       assert.match(error.violations[0], /public\/graph\/s2026\.json: could not be read/);
       assert.ok(
         error.violations.some((violation) =>
@@ -895,6 +993,11 @@ async function writeValidArtifactTree({
   temporaryRoots.push(rootDir);
 
   await writeJson(rootDir, S26_CATALOG_PATH, makeS26Catalog());
+  await writeJson(
+    rootDir,
+    RANKED_POSTS_SIDECAR_PATH,
+    makeRankedPostsSidecar(generatedAt)
+  );
 
   for (const [index, descriptor] of GRAPH_ARTIFACTS.entries()) {
     await writeJson(rootDir, descriptor.path, makeGraph(descriptor, index + 1, generatedAt));
@@ -907,6 +1010,19 @@ async function writeValidArtifactTree({
     );
   }
   return rootDir;
+}
+
+function makeRankedPostsSidecar(generatedAt) {
+  const batches = {};
+  for (const { batch, audience } of GRAPH_ARTIFACTS) {
+    batches[batch] ??= {};
+    batches[batch][audience] = { previewGeneratedAt: generatedAt };
+  }
+  return {
+    version: "ranked-posts-full-corpus-v1",
+    generatedAt,
+    batches
+  };
 }
 
 function makeS26Catalog(companies = [{ id: "32552", slug: "s26" }]) {
@@ -963,7 +1079,7 @@ function makeGraph(descriptor, serial, generatedAt = GENERATED_AT) {
   );
   const absoluteScore = 67;
   const benchmarkScore = absoluteScore;
-  const totalScore = 100;
+  const totalScore = 95;
   const selectedTopVoiceAudience = { id: audience };
   const calibration = {
     method: "global_best_ratio",
@@ -971,7 +1087,8 @@ function makeGraph(descriptor, serial, generatedAt = GENERATED_AT) {
     percentile: null,
     inputScore: absoluteScore,
     benchmarkScore,
-    scaleFactor: 100 / benchmarkScore,
+    benchmarkTarget: 95,
+    scaleFactor: 95 / benchmarkScore,
     benchmarkScope: "all_supported_batches",
     benchmarkPopulation: "current_company_snapshot"
   };

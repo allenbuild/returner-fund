@@ -287,6 +287,94 @@ describe("score benchmarks", () => {
     expect(store.daily).toHaveLength(2);
   });
 
+  it("uses an observed baseline instead of a projected baseline on timestamp ties", () => {
+    const { graph, firstCompany, storePath } = benchmarkFixture();
+    const recordedAt = "2026-06-30T12:00:00.000Z";
+    const projectedScore = firstCompany.score - 9;
+    const observedScore = firstCompany.score - 4;
+    const company = (score: number) => ({
+      companyId: firstCompany.companyId,
+      companyName: firstCompany.companyName,
+      score,
+      rank: 1
+    });
+    writeStore(storePath, {
+      version: 1,
+      batchSlug: graph.batch.slug,
+      updatedAt: recordedAt,
+      daily: [
+        {
+          recordedAt,
+          scoringModelVersion: graph.scoringContext!.modelVersion,
+          inputGeneratedAt: graph.generatedAt,
+          companies: [company(projectedScore)],
+          scoreCalibration: projectedScoreCalibration()
+        },
+        {
+          recordedAt,
+          scoringModelVersion: graph.scoringContext!.modelVersion,
+          inputGeneratedAt: graph.generatedAt,
+          companies: [company(observedScore)]
+        }
+      ],
+      weekly: []
+    });
+
+    const hydrated = applyStoredBenchmarkMomentum(graph, {
+      storePath,
+      now: new Date("2026-07-01T12:00:00.000Z")
+    });
+    const row = hydrated.fastestGaining.find(
+      (candidate) => candidate.companyId === firstCompany.companyId
+    );
+
+    expect(row?.dod.baselineScore).toBe(observedScore);
+    expect(row?.dod.scoreDelta).toBe(firstCompany.score - observedScore);
+  });
+
+  it("replaces same-day projected daily and weekly rows with an observed snapshot", () => {
+    const { graph, firstCompany, storePath } = benchmarkFixture();
+    const recordedAt = "2026-06-30T12:00:00.000Z";
+    const projection = {
+      recordedAt,
+      scoringModelVersion: graph.scoringContext!.modelVersion,
+      inputGeneratedAt: graph.generatedAt,
+      scoreCalibration: projectedScoreCalibration(),
+      companies: [{
+        companyId: firstCompany.companyId,
+        companyName: firstCompany.companyName,
+        score: firstCompany.score - 5,
+        rank: 1
+      }]
+    };
+    writeStore(storePath, {
+      version: 1,
+      batchSlug: graph.batch.slug,
+      updatedAt: recordedAt,
+      daily: [projection],
+      weekly: [projection]
+    });
+
+    const recorded = recordBenchmarkMomentum(graph, {
+      storePath,
+      now: new Date(recordedAt)
+    });
+    const store = readStore(storePath);
+
+    expect(recorded.recordedDaily).toBe(true);
+    expect(recorded.recordedWeekly).toBe(true);
+    expect(store.daily).toHaveLength(1);
+    expect(store.weekly).toHaveLength(1);
+    expect(store.daily[0]).not.toHaveProperty("scoreCalibration");
+    expect(store.weekly[0]).not.toHaveProperty("scoreCalibration");
+    expect((store.daily[0]!.companies as Array<{ score: number }>)[0]?.score).toBe(
+      firstCompany.score
+    );
+    expect((store.weekly[0]!.companies as Array<{ score: number }>)[0]?.score).toBe(
+      firstCompany.score
+    );
+  });
+
   it("normalizes corrupt stored ranks from score order without mutating the file", () => {
     const { graph, storePath } = benchmarkFixture();
     const [firstCompany, secondCompany, thirdCompany] = graph.leaderboard;
@@ -419,4 +507,14 @@ function withModelVersion(graph: GraphResponse, modelVersion: string): GraphResp
       ? { ...graph.scoringContext, modelVersion }
       : undefined
   };
+}
+
+function projectedScoreCalibration() {
+  return {
+    kind: "linear_model_rebase",
+    sourceModelVersion: "4.3.0",
+    factor: 0.95,
+    headlineTarget: 95,
+    rounding: "nearest_integer"
+  } as const;
 }

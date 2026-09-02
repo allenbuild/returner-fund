@@ -160,6 +160,7 @@ const snapshotGlobalScoreCalibrationSchema = z
     percentile: z.null(),
     inputScore: z.number().min(0).max(100),
     benchmarkScore: z.number().min(0).max(100),
+    benchmarkTarget: z.literal(95),
     scaleFactor: z.number().nonnegative(),
     benchmarkScope: z.literal("all_supported_batches"),
     benchmarkPopulation: z.literal("current_company_snapshot")
@@ -167,13 +168,13 @@ const snapshotGlobalScoreCalibrationSchema = z
   .passthrough()
   .superRefine((calibration, context) => {
     const expectedFactor = calibration.benchmarkScore > 0
-      ? 100 / calibration.benchmarkScore
+      ? calibration.benchmarkTarget / calibration.benchmarkScore
       : 0;
     if (Math.abs(calibration.scaleFactor - expectedFactor) > 1e-9) {
       context.addIssue({
         code: "custom",
         path: ["scaleFactor"],
-        message: "Global scaleFactor must equal 100 / benchmarkScore."
+        message: "Global scaleFactor must equal benchmarkTarget / benchmarkScore."
       });
     }
     if ((calibration.benchmarkScore > 0) !== (calibration.cohortSize > 0)) {
@@ -207,9 +208,10 @@ const snapshotScoreBreakdownSchema = z
       ? Math.max(
           1,
           Math.min(
-            100,
+            breakdown.calibration.benchmarkTarget,
             Math.round(
-              (breakdown.absoluteScore / breakdown.calibration.benchmarkScore) * 100
+              (breakdown.absoluteScore / breakdown.calibration.benchmarkScore) *
+                breakdown.calibration.benchmarkTarget
             )
           )
         )

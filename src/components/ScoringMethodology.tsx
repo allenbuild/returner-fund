@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import type { ScoringContext } from "@/lib/graph/types";
 import { buildScoringMethodologyPresentation } from "@/lib/scoring/presentation";
 
@@ -71,7 +72,9 @@ export function ScoringMethodology({ currentModel }: ScoringMethodologyProps) {
             This explains {baseline.modelId} v{baseline.modelVersion}, not the intended learned V5 formula. The model
             starts with verified native evidence whose configured visible metrics are normalized
             to canonical aliases. It maps each raw count through the table value, then applies a platform-specific
-            logarithmic reference. The current monotonic patch uses {baseline.evidenceBlend.absolutePercent}%
+            logarithmic reference. After that evidence value is clamped, the configured score-level calibration
+            retains {baseline.calibration.scoreLevelMultiplierPercent}% before integer rounding. The current
+            monotonic patch uses {baseline.evidenceBlend.absolutePercent}%
             reference-anchored absolute signal and {baseline.evidenceBlend.platformMidrankPercent}% evidence-level
             cohort midrank, so changing one row cannot lower an unchanged same-platform peer.
           </p>
@@ -89,9 +92,10 @@ export function ScoringMethodology({ currentModel }: ScoringMethodologyProps) {
             {baseline.platformBlend.diversifiedPercent} points. That raw absolute score remains the
             auditable benchmark input ({baseline.calibration.absolutePercent}% absolute and {" "}
             {baseline.calibration.cohortPercentilePercent}% cohort-percentile signal). The displayed headline uses one
-            ratio shared by every supported batch: the strongest current company&apos;s absolute score maps to 100 and
-            every other company receives the same global calibration. There is no per-batch min/max stretch, and
-            platform visibility filters never recompute this canonical factor.
+            ratio shared by every supported batch: the strongest current company&apos;s absolute score maps to the
+            configured global target of {baseline.calibration.globalBenchmarkTarget}, and every other company receives
+            the same global calibration. There is no per-batch min/max stretch, and platform visibility filters never
+            recompute this canonical factor.
           </p>
 
           <div className="scoring-baseline-table-wrap">
@@ -136,10 +140,10 @@ export function ScoringMethodology({ currentModel }: ScoringMethodologyProps) {
 
       <div className="scoring-methodology-grid">
         <MethodQuestion title="1. What does the displayed score measure?">
-          V4 summarizes verified, visible platform-native traction evidence on a bounded 0–100 index. The proposed
-          V5 target is a pre-registered future platform-native performance outcome observed after a genuine t0
-          measurement; it will be labeled as a probability or percentile only if held-out calibration supports that
-          interpretation.
+          V4 summarizes verified, visible platform-native traction evidence on a bounded index. Its current company
+          headline target is {baseline.calibration.globalBenchmarkTarget}, not 100. The proposed V5 target is a
+          pre-registered future platform-native performance outcome observed after a genuine t0 measurement; it will
+          be labeled as a probability or percentile only if held-out calibration supports that interpretation.
         </MethodQuestion>
 
         <MethodQuestion title="2. Which research and datasets support V5?">
@@ -175,10 +179,11 @@ export function ScoringMethodology({ currentModel }: ScoringMethodologyProps) {
         </MethodQuestion>
 
         <MethodQuestion title="7. Is there a maximum and does recency affect the score?">
-          The displayed deterministic index is bounded from 0 to 100. Publication date and post age do not affect its
-          score, so an older post is not discounted and a newer post receives no freshness bonus. Date completeness may
-          be reported separately as confidence metadata. Any future learned age effect would require its own held-out
-          validation before it could change a score.
+          The deterministic calculation retains a 0–100 safety bound, then retains {baseline.calibration.scoreLevelMultiplierPercent}%
+          at the evidence level and uses a {baseline.calibration.globalBenchmarkTarget}-point company headline target.
+          Publication date and post age do not affect the score, so an older post is not discounted and a newer post
+          receives no freshness bonus. Date completeness may be reported separately as confidence metadata. Any future
+          learned age effect would require its own held-out validation before it could change a score.
         </MethodQuestion>
 
         <MethodQuestion title="8. How is uncertainty represented?">
@@ -210,7 +215,7 @@ export function ScoringMethodology({ currentModel }: ScoringMethodologyProps) {
   );
 }
 
-function MethodQuestion({ title, children }: { title: string; children: string }) {
+function MethodQuestion({ title, children }: { title: string; children: ReactNode }) {
   return (
     <article>
       <h3>{title}</h3>

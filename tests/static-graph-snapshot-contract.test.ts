@@ -391,7 +391,29 @@ describe("canonical v4 static graph snapshot contract", () => {
       mutate: (graph: ValidSnapshot) => { graph.nodes[0]!.scoreBreakdown.calibration.inputScore = 101; }
     },
     {
-      name: "4.3 identity calibration",
+      name: "missing global benchmark target",
+      path: "nodes[0].scoreBreakdown.calibration.benchmarkTarget",
+      mutate: (graph: ValidSnapshot) => {
+        delete (graph.nodes[0]!.scoreBreakdown.calibration as { benchmarkTarget?: number })
+          .benchmarkTarget;
+      }
+    },
+    {
+      name: "wrong global benchmark target",
+      path: "nodes[0].scoreBreakdown.calibration.benchmarkTarget",
+      mutate: (graph: ValidSnapshot) => {
+        graph.nodes[0]!.scoreBreakdown.calibration.benchmarkTarget = 100;
+      }
+    },
+    {
+      name: "legacy 100-point global scale factor",
+      path: "nodes[0].scoreBreakdown.calibration.scaleFactor",
+      mutate: (graph: ValidSnapshot) => {
+        graph.nodes[0]!.scoreBreakdown.calibration.scaleFactor = 100 / 95;
+      }
+    },
+    {
+      name: "4.3.1 identity calibration",
       path: "nodes[0].scoreBreakdown.calibration.method",
       mutate: (graph: ValidSnapshot) => {
         (graph.nodes[0]!.scoreBreakdown.calibration as { method: string }).method = "none";
@@ -646,8 +668,8 @@ function validSnapshot() {
   };
   const scoreBreakdown = {
     modelId: "returner-traction",
-    modelVersion: "4.3.0",
-    modelName: "returner-traction-v4-bounded-primary-signal-global-best",
+    modelVersion: "4.3.1",
+    modelName: "returner-traction-v4-bounded-primary-signal-calibrated",
     totalScore: 61,
     absoluteScore: 61,
     weightedAvailableScore: 64,
@@ -683,7 +705,8 @@ function validSnapshot() {
       cohortSize: 1,
       percentile: null,
       inputScore: 61,
-      benchmarkScore: 100,
+      benchmarkScore: 95,
+      benchmarkTarget: 95,
       scaleFactor: 1,
       benchmarkScope: "all_supported_batches",
       benchmarkPopulation: "current_company_snapshot"
@@ -736,8 +759,8 @@ function validSnapshot() {
     generatedAt: "2026-07-16T05:00:00.000Z",
     scoringContext: {
       modelId: "returner-traction",
-      modelVersion: "4.3.0",
-      modelName: "returner-traction-v4-bounded-primary-signal-global-best",
+      modelVersion: "4.3.1",
+      modelName: "returner-traction-v4-bounded-primary-signal-calibrated",
       scoreScope: "all_platforms",
       selectedPlatforms: [] as string[],
       responseBuiltAt: "2026-07-16T05:00:00.000Z",

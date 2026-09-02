@@ -189,6 +189,8 @@ export interface ScoreCalibration {
   inputScore: number;
   /** Raw absolute score of the strongest current company across all supported batches. */
   benchmarkScore?: number;
+  /** Canonical ceiling assigned to the strongest current company. */
+  benchmarkTarget?: number;
   /** One multiplicative factor shared by every batch and audience. */
   scaleFactor?: number;
   benchmarkScope?: "all_supported_batches";

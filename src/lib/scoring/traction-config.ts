@@ -44,6 +44,10 @@ export interface TractionScoringConfig {
   modelId: string;
   version: string;
   name: string;
+  /** Multiplies each bounded evidence score after the logarithmic curve. */
+  scoreLevelMultiplier: number;
+  /** Maximum headline score assigned by the shared global benchmark. */
+  globalBenchmarkTarget: number;
   platformWeights: Partial<Record<Platform, number>>;
   metricWeights: Partial<Record<Platform, PlatformMetricWeights>>;
   platformReferences: Partial<Record<Platform, PlatformScoringReference>>;
@@ -64,8 +68,12 @@ const NORMALIZED_WEIGHT_TOLERANCE = 1e-9;
  */
 export const TRACTION_SCORING_CONFIG: TractionScoringConfig = {
   modelId: "returner-traction",
-  version: "4.3.0",
-  name: "returner-traction-v4-bounded-primary-signal-global-best",
+  version: "4.3.1",
+  name: "returner-traction-v4-bounded-primary-signal-calibrated",
+  // Keep the shape of the evidence curve and every cross-entity ordering
+  // signal intact while lowering the overall level by a modest five percent.
+  scoreLevelMultiplier: 0.95,
+  globalBenchmarkTarget: 95,
   platformWeights: {
     x: 0.21,
     instagram: 0.21,
@@ -135,6 +143,23 @@ export const TRACTION_SCORING_CONFIG: TractionScoringConfig = {
 validateTractionScoringConfig(TRACTION_SCORING_CONFIG);
 
 export function validateTractionScoringConfig(config: TractionScoringConfig): void {
+  assertPositiveUnitWeight("scoreLevelMultiplier", config.scoreLevelMultiplier);
+  if (config.scoreLevelMultiplier !== 0.95) {
+    invalidConfig(
+      "scoreLevelMultiplier",
+      "must preserve the canonical 0.95 score-level calibration",
+      config.scoreLevelMultiplier
+    );
+  }
+  assertPositiveFinite("globalBenchmarkTarget", config.globalBenchmarkTarget);
+  if (!Number.isInteger(config.globalBenchmarkTarget) || config.globalBenchmarkTarget !== 95) {
+    invalidConfig(
+      "globalBenchmarkTarget",
+      "must preserve the canonical integer headline target of 95",
+      config.globalBenchmarkTarget
+    );
+  }
+
   const platformWeights = sortedRecordEntries(config.platformWeights).map(([platform, weight]) => {
     assertUnitWeight(`platformWeights.${platform}`, weight);
     return [platform, weight] as const;

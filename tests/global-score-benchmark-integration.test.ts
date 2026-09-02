@@ -1,28 +1,37 @@
 import { describe, expect, it } from "vitest";
 import { buildGraphResponse } from "@/lib/graph/graph-builder";
 import { yc2026GraphDataset } from "@/lib/graph/yc-spring-2026-dataset";
+import { TRACTION_SCORING_CONFIG } from "@/lib/scoring/traction-config";
 
 const BATCHES = ["S2026", "S26", "A16ZSR006"];
 
 describe("global company benchmark integration", () => {
-  it("uses one current-company factor across all batches and makes the global best 100", () => {
+  it("uses one current-company factor across all batches and maps the global best to the configured target", () => {
     const positiveCompanies = yc2026GraphDataset.companies.filter(
       (company) => (company.scoreBreakdown?.absoluteScore ?? 0) > 0
     );
     const benchmarkScore = Math.max(
       ...positiveCompanies.map((company) => company.scoreBreakdown!.absoluteScore)
     );
-    const scaleFactor = 100 / benchmarkScore;
+    const scaleFactor = TRACTION_SCORING_CONFIG.globalBenchmarkTarget / benchmarkScore;
 
     expect(new Set(positiveCompanies.map((company) => company.batchSlug))).toEqual(
       new Set(BATCHES)
     );
-    expect(Math.max(...positiveCompanies.map((company) => company.totalScore))).toBe(100);
+    expect(Math.max(...positiveCompanies.map((company) => company.totalScore))).toBe(
+      TRACTION_SCORING_CONFIG.globalBenchmarkTarget
+    );
 
     for (const company of yc2026GraphDataset.companies) {
       const breakdown = company.scoreBreakdown!;
       const expectedHeadline = breakdown.absoluteScore > 0
-        ? Math.max(1, Math.min(100, Math.round(breakdown.absoluteScore * scaleFactor)))
+        ? Math.max(
+          1,
+          Math.min(
+            TRACTION_SCORING_CONFIG.globalBenchmarkTarget,
+            Math.round(breakdown.absoluteScore * scaleFactor)
+          )
+        )
         : 0;
       expect(company.totalScore).toBe(expectedHeadline);
       expect(breakdown.totalScore).toBe(expectedHeadline);
@@ -32,6 +41,7 @@ describe("global company benchmark integration", () => {
         percentile: null,
         inputScore: breakdown.absoluteScore,
         benchmarkScore,
+        benchmarkTarget: TRACTION_SCORING_CONFIG.globalBenchmarkTarget,
         scaleFactor,
         benchmarkScope: "all_supported_batches",
         benchmarkPopulation: "current_company_snapshot"

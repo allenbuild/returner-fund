@@ -303,7 +303,12 @@ function aggregatePlatformEvidenceScore(items: EvidenceItem[]): number {
 
 function absoluteEvidenceScore(platform: Platform, rawEngagement: number): number {
   const reference = TRACTION_SCORING_CONFIG.platformReferences[platform]?.highEngagement ?? 10_000;
-  return clamp((Math.log1p(rawEngagement) / Math.log1p(reference)) * 100, 0, 100);
+  const boundedScore = clamp(
+    (Math.log1p(rawEngagement) / Math.log1p(reference)) * 100,
+    0,
+    100
+  );
+  return boundedScore * TRACTION_SCORING_CONFIG.scoreLevelMultiplier;
 }
 
 function scoreConfidence(items: EvidenceItem[], platformsWithEvidence: number): ScoreConfidence {

@@ -2633,7 +2633,8 @@ function testScoreBreakdown(node: GraphNode): ScoreBreakdown {
   const absoluteScore = absoluteScoreValue > 0
     ? Math.max(1, Math.round(absoluteScoreValue))
     : 0;
-  const benchmarkScore = node.score > 0 ? absoluteScore * 100 / node.score : 0;
+  const benchmarkTarget = TRACTION_SCORING_CONFIG.globalBenchmarkTarget;
+  const benchmarkScore = node.score > 0 ? absoluteScore * benchmarkTarget / node.score : 0;
   return {
     modelId: V4_MODEL_ID,
     modelVersion: V4_MODEL_VERSION,
@@ -2674,7 +2675,8 @@ function testScoreBreakdown(node: GraphNode): ScoreBreakdown {
       percentile: null,
       inputScore: absoluteScore,
       benchmarkScore,
-      scaleFactor: benchmarkScore > 0 ? 100 / benchmarkScore : 0,
+      benchmarkTarget,
+      scaleFactor: benchmarkScore > 0 ? benchmarkTarget / benchmarkScore : 0,
       benchmarkScope: "all_supported_batches",
       benchmarkPopulation: "current_company_snapshot"
     },
@@ -2693,7 +2695,13 @@ function staticGraphFixture(graph: GraphResponse): GraphResponse {
       TRACTION_SCORING_CONFIG.diversifiedPlatformWeight * configuredWeight;
     const boundedPrimaryScoreValue = platformScore * appliedWeight;
     const boundedPrimaryScore = boundedPrimaryScoreValue > 0
-      ? Math.max(1, Math.round(boundedPrimaryScoreValue))
+      ? Math.max(
+        1,
+        Math.min(
+          TRACTION_SCORING_CONFIG.globalBenchmarkTarget,
+          Math.round(boundedPrimaryScoreValue)
+        )
+      )
       : 0;
     const adjustedNode = {
       ...node,

@@ -1,9 +1,10 @@
 # Scoring v4 Implementation Audit
 
-> Historical baseline: this audit records `4.0.0`. Production `4.3.0`
-> (`returner-traction-v4-bounded-primary-signal-global-best`) removes publication-age and
+> Historical baseline: this audit records `4.0.0`. Production `4.3.1`
+> (`returner-traction-v4-bounded-primary-signal-calibrated`) removes publication-age and
 > recent-commit scoring, gives the strongest platform `95%` of the entity aggregate,
 > bounds cross-platform corroboration to `5%`, publishes one globally benchmarked score,
+> applies a 95% level calibration and 95-point global headline target,
 > preserves prior versions as rollback targets, and is documented in
 > [`SCORING_MODEL.md`](SCORING_MODEL.md).
 
@@ -12,7 +13,7 @@
 This is a historical documentation-level code conformance audit of the `4.0.0` scoring implementation. It covers the canonical configuration, graph scorer, entity- and physical-evidence dedupe, shared company calibration, visibility filters, live overlays, diagnostics, runtime types, and migrations 004 and 007. It does not describe the date-invariant `4.0.2` evidence formula and does not certify predictive accuracy, statistical calibration, fairness, causal validity, or business outcomes.
 
 The graph path audited here identified itself as `returner-traction` version
-`4.0.0`. The current graph path identifies as `4.3.0`. Each batch graph
+`4.0.0`. The current graph path identifies as `4.3.1`. Each batch graph
 preserves one calibrated all-platform company score and canonical rank;
 platform and Top Voice controls change visibility and evidence presentation
 without creating alternate score scopes.

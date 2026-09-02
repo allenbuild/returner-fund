@@ -41,6 +41,8 @@ const SERVER_STOP_TIMEOUT_MS = 5_000;
 const TERMINATION_SIGNALS = ["SIGINT", "SIGTERM"];
 const GENERATED_AT_CLOCK_SKEW_MS = 60_000;
 const CENTRAL_TIME_ZONE = "America/Chicago";
+const PROJECTED_SCORE_MODEL_VERSION = "4.3.1";
+const PROJECTED_SCORE_CALIBRATION_KIND = "linear_model_rebase";
 const CANONICAL_NODE_FIELDS = [
   "score",
   "previousScore",
@@ -546,6 +548,7 @@ export function appendObservedBenchmarkSnapshot(store, graph, recordedAt) {
   const recordedDailyIndex = store.daily.findIndex(
     (candidate) =>
       candidate?.scoringModelVersion === scoringModelVersion &&
+      !isProjectedBenchmarkSnapshot(candidate) &&
       isIsoTimestamp(candidate.recordedAt) &&
       centralDayKey(new Date(candidate.recordedAt)) === dayKey
   );
@@ -562,7 +565,9 @@ export function appendObservedBenchmarkSnapshot(store, graph, recordedAt) {
   );
   const matchingWeekly = store.weekly.filter(
     (candidate) =>
-      candidate?.scoringModelVersion === scoringModelVersion && isIsoTimestamp(candidate.recordedAt)
+      candidate?.scoringModelVersion === scoringModelVersion &&
+      !isProjectedBenchmarkSnapshot(candidate) &&
+      isIsoTimestamp(candidate.recordedAt)
   );
   const latestWeekly = matchingWeekly.reduce(
     (latest, candidate) =>
@@ -573,11 +578,13 @@ export function appendObservedBenchmarkSnapshot(store, graph, recordedAt) {
     !latestWeekly || centralDayDistance(new Date(latestWeekly.recordedAt), recordedAt) >= 7;
 
   const upsertedDaily = !alreadyRecordedDaily
-    ? [...store.daily, snapshot]
+    ? replaceProjectedSnapshotOnCentralDay(store.daily, snapshot, recordedAt, scoringModelVersion)
     : replaceStaleDaily
       ? store.daily.map((candidate, index) => index === recordedDailyIndex ? snapshot : candidate)
       : store.daily;
-  const upsertedWeekly = weeklyDue ? [...store.weekly, snapshot] : store.weekly;
+  const upsertedWeekly = weeklyDue
+    ? replaceProjectedSnapshotOnCentralDay(store.weekly, snapshot, recordedAt, scoringModelVersion)
+    : store.weekly;
   const daily = sortBenchmarkSnapshotsChronologically(upsertedDaily);
   const weekly = sortBenchmarkSnapshotsChronologically(upsertedWeekly);
   const observedSnapshotChanged = !alreadyRecordedDaily || replaceStaleDaily || weeklyDue;
@@ -596,6 +603,35 @@ export function appendObservedBenchmarkSnapshot(store, graph, recordedAt) {
     daily,
     weekly
   };
+}
+
+function replaceProjectedSnapshotOnCentralDay(
+  snapshots,
+  observedSnapshot,
+  recordedAt,
+  scoringModelVersion
+) {
+  const dayKey = centralDayKey(recordedAt);
+  let replaced = false;
+  const next = snapshots.flatMap((candidate) => {
+    const isSameProjectedDay =
+      candidate?.scoringModelVersion === scoringModelVersion &&
+      isProjectedBenchmarkSnapshot(candidate) &&
+      isIsoTimestamp(candidate.recordedAt) &&
+      centralDayKey(new Date(candidate.recordedAt)) === dayKey;
+    if (!isSameProjectedDay) return [candidate];
+    if (replaced) return [];
+    replaced = true;
+    return [observedSnapshot];
+  });
+  return replaced ? next : [...snapshots, observedSnapshot];
+}
+
+function isProjectedBenchmarkSnapshot(snapshot) {
+  return (
+    snapshot?.scoringModelVersion === PROJECTED_SCORE_MODEL_VERSION &&
+    snapshot?.scoreCalibration?.kind === PROJECTED_SCORE_CALIBRATION_KIND
+  );
 }
 
 function sortBenchmarkSnapshotsChronologically(snapshots) {

@@ -13,15 +13,16 @@ import {
 
 export const EXPECTED_SCORING_MODEL = Object.freeze({
   id: "returner-traction",
-  version: "4.3.0",
-  name: "returner-traction-v4-bounded-primary-signal-global-best"
+  version: "4.3.1",
+  name: "returner-traction-v4-bounded-primary-signal-calibrated"
 });
 export const HISTORICAL_SCORING_MODEL_VERSIONS = Object.freeze([
   "4.0.0",
   "4.0.1",
   "4.0.2",
   "4.1.0",
-  "4.2.0"
+  "4.2.0",
+  "4.3.0"
 ]);
 export const PUBLIC_ARTIFACT_FRESHNESS_POLICIES = Object.freeze({
   STRICT_CURRENT_DAY: "strict-current-day",
@@ -31,6 +32,14 @@ const SUPPORTED_HISTORY_MODEL_VERSIONS = new Set([
   EXPECTED_SCORING_MODEL.version,
   ...HISTORICAL_SCORING_MODEL_VERSIONS
 ]);
+const EXPECTED_GLOBAL_BENCHMARK_TARGET = 95;
+const EXPECTED_HISTORY_SCORE_CALIBRATION = Object.freeze({
+  kind: "linear_model_rebase",
+  sourceModelVersion: "4.3.0",
+  factor: 0.95,
+  headlineTarget: 95,
+  rounding: "nearest_integer"
+});
 
 export const GRAPH_ARTIFACTS = Object.freeze([
   graphArtifact("S2026", "s2026.json"),
@@ -55,6 +64,12 @@ export const S26_CATALOG_PATH = path.posix.join(
   "lib",
   "yc",
   "summer-2026-companies.json"
+);
+export const RANKED_POSTS_SIDECAR_PATH = path.posix.join(
+  "src",
+  "lib",
+  "graph",
+  "ranked-posts-sidecar.generated.json"
 );
 
 const PLATFORM_WEIGHTS = Object.freeze({
@@ -175,6 +190,19 @@ export async function validatePublicArtifacts({
   if (s26Catalog !== null) {
     violations.push(...collectS26GraphCensusViolations(s26Catalog, graphArtifacts));
   }
+  const rankedPostsSidecar = await readJsonArtifact(
+    rootDir,
+    RANKED_POSTS_SIDECAR_PATH,
+    violations
+  );
+  if (rankedPostsSidecar !== null) {
+    violations.push(
+      ...collectRankedPostsSidecarGraphAlignmentViolations(
+        rankedPostsSidecar,
+        graphArtifacts
+      )
+    );
+  }
   violations.push(...collectCanonicalGraphSetViolations(graphArtifacts));
 
   for (const descriptor of HISTORY_ARTIFACTS) {
@@ -204,6 +232,59 @@ export async function validatePublicArtifacts({
     versionedDailyEntries,
     versionedWeeklyEntries
   };
+}
+
+export function collectRankedPostsSidecarGraphAlignmentViolations(
+  sidecar,
+  graphArtifacts
+) {
+  if (!isRecord(sidecar)) {
+    return [`${RANKED_POSTS_SIDECAR_PATH}: expected a JSON object`];
+  }
+
+  const violations = [];
+  if (sidecar.version !== "ranked-posts-full-corpus-v1") {
+    violations.push(
+      `${RANKED_POSTS_SIDECAR_PATH}: version must be ranked-posts-full-corpus-v1, received ${formatValue(sidecar.version)}`
+    );
+  }
+  if (!isRecord(sidecar.batches)) {
+    violations.push(`${RANKED_POSTS_SIDECAR_PATH}: batches must be an object`);
+    return violations;
+  }
+
+  const graphTimestamps = [];
+  for (const { descriptor, graph } of graphArtifacts) {
+    if (isIsoTimestamp(graph?.generatedAt)) {
+      graphTimestamps.push(graph.generatedAt);
+    }
+    const scopePath = `batches.${descriptor.batch}.${descriptor.audience}`;
+    const scope = sidecar.batches[descriptor.batch]?.[descriptor.audience];
+    if (!isRecord(scope)) {
+      violations.push(
+        `${RANKED_POSTS_SIDECAR_PATH}: ${scopePath} must be an object aligned with ${descriptor.path}`
+      );
+      continue;
+    }
+    if (scope.previewGeneratedAt !== graph?.generatedAt) {
+      violations.push(
+        `${RANKED_POSTS_SIDECAR_PATH}: ${scopePath}.previewGeneratedAt must equal ${descriptor.path} generatedAt ${formatValue(graph?.generatedAt)}, received ${formatValue(scope.previewGeneratedAt)}`
+      );
+    }
+  }
+
+  if (graphTimestamps.length === GRAPH_ARTIFACTS.length) {
+    const expectedGeneratedAt = graphTimestamps.reduce((latest, timestamp) =>
+      Date.parse(timestamp) > Date.parse(latest) ? timestamp : latest
+    );
+    if (sidecar.generatedAt !== expectedGeneratedAt) {
+      violations.push(
+        `${RANKED_POSTS_SIDECAR_PATH}: generatedAt must equal the latest public graph generatedAt ${formatValue(expectedGeneratedAt)}, received ${formatValue(sidecar.generatedAt)}`
+      );
+    }
+  }
+
+  return violations;
 }
 
 export function collectS26GraphCensusViolations(catalog, graphArtifacts) {
@@ -567,7 +648,9 @@ export function collectCanonicalGraphSetViolations(entries) {
   const expectedBenchmarkScore = expectedCohortSize > 0
     ? Math.max(...positiveBaseCompanyNodes.map((node) => node.scoreBreakdown.absoluteScore))
     : 0;
-  const expectedScaleFactor = expectedBenchmarkScore > 0 ? 100 / expectedBenchmarkScore : 0;
+  const expectedScaleFactor = expectedBenchmarkScore > 0
+    ? EXPECTED_GLOBAL_BENCHMARK_TARGET / expectedBenchmarkScore
+    : 0;
 
   for (const entry of graphByBatchAndAudience.values()) {
     if (!isRecord(entry.graph)) continue;
@@ -583,6 +666,11 @@ export function collectCanonicalGraphSetViolations(entries) {
       }
       if (!numbersEqual(calibration.benchmarkScore, expectedBenchmarkScore)) {
         violations.push(`${scope} calibration.benchmarkScore must be global maximum ${expectedBenchmarkScore}`);
+      }
+      if (!numbersEqual(calibration.benchmarkTarget, EXPECTED_GLOBAL_BENCHMARK_TARGET)) {
+        violations.push(
+          `${scope} calibration.benchmarkTarget must be ${EXPECTED_GLOBAL_BENCHMARK_TARGET}`
+        );
       }
       if (
         !isFiniteNumber(calibration.scaleFactor) ||
@@ -726,6 +814,14 @@ export function collectHistoryArtifactViolations(
 
       const hasVersion = hasOwn(entry, "scoringModelVersion");
       const hasInputTime = hasOwn(entry, "inputGeneratedAt");
+      if (hasOwn(entry, "scoreCalibration")) {
+        validateHistoryScoreCalibration(
+          entry.scoreCalibration,
+          entry.scoringModelVersion,
+          scope,
+          violations
+        );
+      }
       const isCurrentCanonical =
         hasVersion &&
         hasInputTime &&
@@ -819,6 +915,33 @@ export function collectHistoryArtifactViolations(
   }
 
   return { violations, versionedDailyEntries, versionedWeeklyEntries };
+}
+
+function validateHistoryScoreCalibration(calibration, scoringModelVersion, scope, violations) {
+  if (!isRecord(calibration)) {
+    violations.push(`${scope}.scoreCalibration must be a complete object when present`);
+    return;
+  }
+  if (scoringModelVersion !== EXPECTED_SCORING_MODEL.version) {
+    violations.push(
+      `${scope}.scoreCalibration is only valid for ${EXPECTED_SCORING_MODEL.version} target clones`
+    );
+  }
+
+  for (const [field, expectedValue] of Object.entries(EXPECTED_HISTORY_SCORE_CALIBRATION)) {
+    if (!hasOwn(calibration, field)) {
+      violations.push(`${scope}.scoreCalibration.${field} is required when scoreCalibration is present`);
+    } else if (!Object.is(calibration[field], expectedValue)) {
+      violations.push(
+        `${scope}.scoreCalibration.${field} must be ${formatValue(expectedValue)}, received ${formatValue(calibration[field])}`
+      );
+    }
+  }
+  for (const field of Object.keys(calibration)) {
+    if (!hasOwn(EXPECTED_HISTORY_SCORE_CALIBRATION, field)) {
+      violations.push(`${scope}.scoreCalibration.${field} is not supported`);
+    }
+  }
 }
 
 function validateScoringContext(context, generatedAt, expectedScope, artifactPath, violations) {
@@ -1133,7 +1256,7 @@ function validateCalibration(calibration, totalScore, absoluteScore, scope, viol
   }
   if (calibration.method !== "global_best_ratio") {
     violations.push(
-      `${scope} scoreBreakdown.calibration.method must be global_best_ratio for the 4.3 scoring model`
+      `${scope} scoreBreakdown.calibration.method must be global_best_ratio for the ${EXPECTED_SCORING_MODEL.version} scoring model`
     );
   }
   if (!isNonNegativeInteger(calibration.cohortSize)) {
@@ -1151,6 +1274,11 @@ function validateCalibration(calibration, totalScore, absoluteScore, scope, viol
       `${scope} scoreBreakdown.calibration.benchmarkScore`,
       violations
     );
+    if (!numbersEqual(calibration.benchmarkTarget, EXPECTED_GLOBAL_BENCHMARK_TARGET)) {
+      violations.push(
+        `${scope} scoreBreakdown.calibration.benchmarkTarget must be ${EXPECTED_GLOBAL_BENCHMARK_TARGET}`
+      );
+    }
     if (!isFiniteNumber(calibration.scaleFactor) || calibration.scaleFactor < 0) {
       violations.push(`${scope} scoreBreakdown.calibration.scaleFactor must be finite and non-negative`);
     }
@@ -1162,13 +1290,23 @@ function validateCalibration(calibration, totalScore, absoluteScore, scope, viol
     }
     if (isFiniteNumber(calibration.benchmarkScore) && isFiniteNumber(calibration.scaleFactor)) {
       const expectedFactor = calibration.benchmarkScore > 0
-        ? 100 / calibration.benchmarkScore
+        ? EXPECTED_GLOBAL_BENCHMARK_TARGET / calibration.benchmarkScore
         : 0;
       if (Math.abs(calibration.scaleFactor - expectedFactor) > 1e-9) {
-        violations.push(`${scope} scoreBreakdown.calibration.scaleFactor must equal 100 / benchmarkScore`);
+        violations.push(
+          `${scope} scoreBreakdown.calibration.scaleFactor must equal benchmarkTarget / benchmarkScore`
+        );
       }
       const expectedTotal = calibration.benchmarkScore > 0 && absoluteScore > 0
-        ? Math.max(1, Math.min(100, Math.round((absoluteScore / calibration.benchmarkScore) * 100)))
+        ? Math.max(
+            1,
+            Math.min(
+              EXPECTED_GLOBAL_BENCHMARK_TARGET,
+              Math.round(
+                (absoluteScore / calibration.benchmarkScore) * EXPECTED_GLOBAL_BENCHMARK_TARGET
+              )
+            )
+          )
         : 0;
       if (!numbersEqual(totalScore, expectedTotal)) {
         violations.push(`${scope} scoreBreakdown.totalScore must equal global benchmark score ${expectedTotal}`);
@@ -1206,6 +1344,7 @@ function validateCalibrationModes(breakdowns, expectedAudience, artifactPath, vi
       globalSignatures.add(JSON.stringify({
         cohortSize: calibration.cohortSize,
         benchmarkScore: calibration.benchmarkScore,
+        benchmarkTarget: calibration.benchmarkTarget,
         scaleFactor: calibration.scaleFactor,
         benchmarkScope: calibration.benchmarkScope,
         benchmarkPopulation: calibration.benchmarkPopulation

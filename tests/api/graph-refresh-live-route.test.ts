@@ -1140,6 +1140,13 @@ describe("POST /api/graph/refresh live evidence validation", () => {
     contradictoryGraph.nodes[0]!.scoreBreakdown!.totalScore = contradictoryGraph.nodes[0]!.score === 100
       ? 99
       : contradictoryGraph.nodes[0]!.score + 1;
+    const wrongBenchmarkTargetGraph = structuredClone(rebuiltGraph);
+    wrongBenchmarkTargetGraph.nodes[0]!.scoreBreakdown!.calibration.benchmarkTarget = 100;
+    const legacyScaleFactorGraph = structuredClone(rebuiltGraph);
+    const legacyCalibration = legacyScaleFactorGraph.nodes[0]!.scoreBreakdown!.calibration;
+    legacyCalibration.scaleFactor = legacyCalibration.benchmarkScore
+      ? 100 / legacyCalibration.benchmarkScore
+      : 0;
     const temporaryRoot = await mkdtemp(join(tmpdir(), "returner-fund-refresh-route-"));
     const snapshotDirectory = join(temporaryRoot, "public", "graph");
     const snapshotPath = join(snapshotDirectory, "s26-insiders.json");
@@ -1168,6 +1175,16 @@ describe("POST /api/graph/refresh live evidence validation", () => {
         label: "contradictory v4 score",
         reason: "invalid_structure",
         snapshot: JSON.stringify(contradictoryGraph)
+      },
+      {
+        label: "wrong v4 benchmark target",
+        reason: "invalid_structure",
+        snapshot: JSON.stringify(wrongBenchmarkTargetGraph)
+      },
+      {
+        label: "legacy 100-point scale factor",
+        reason: "invalid_structure",
+        snapshot: JSON.stringify(legacyScaleFactorGraph)
       },
       { label: "invalid JSON", reason: "invalid_json", snapshot: "{not-json" }
     ] as const;
@@ -1430,8 +1447,8 @@ function withV4SnapshotContract(
     }),
     scoringContext: {
       modelId: "returner-traction",
-      modelVersion: "4.3.0",
-      modelName: "returner-traction-v4-bounded-primary-signal-global-best",
+      modelVersion: "4.3.1",
+      modelName: "returner-traction-v4-bounded-primary-signal-calibrated",
       scoreScope: "all_platforms",
       selectedPlatforms: [],
       responseBuiltAt: generatedAt,

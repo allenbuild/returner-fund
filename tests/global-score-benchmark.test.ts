@@ -19,9 +19,9 @@ describe("global company score benchmark", () => {
     const benchmarked = benchmarkGlobalCompanyScores(population);
     const byId = new Map(benchmarked.map((row) => [row.id, row]));
 
-    expect(byId.get("spring-best")?.totalScore).toBe(100);
-    expect(byId.get("summer-best")?.totalScore).toBe(92);
-    expect(byId.get("speedrun-best")?.totalScore).toBe(69);
+    expect(byId.get("spring-best")?.totalScore).toBe(95);
+    expect(byId.get("summer-best")?.totalScore).toBe(88);
+    expect(byId.get("speedrun-best")?.totalScore).toBe(66);
     expect(byId.get("no-evidence")?.totalScore).toBe(0);
     expect(byId.get("summer-best")?.scoreBreakdown?.calibration).toEqual({
       method: "global_best_ratio",
@@ -29,12 +29,13 @@ describe("global company score benchmark", () => {
       percentile: null,
       inputScore: 48,
       benchmarkScore: 52,
-      scaleFactor: 100 / 52,
+      benchmarkTarget: 95,
+      scaleFactor: 95 / 52,
       benchmarkScope: "all_supported_batches",
       benchmarkPopulation: "current_company_snapshot"
     });
     expect(byId.get("summer-best")?.scoreBreakdown?.explanation).toContain(
-      "the current strongest absolute evidence score is 52, which maps to headline 100"
+      "the current strongest absolute evidence score is 52, which maps to headline 95"
     );
     expect(byId.get("summer-best")?.scoreBreakdown?.explanation).not.toContain(
       "the strongest absolute evidence score is 100"
@@ -51,7 +52,7 @@ describe("global company score benchmark", () => {
 
     const benchmarked = benchmarkGlobalCompanyScores(selected, globalPopulation);
 
-    expect(benchmarked.map((row) => row.totalScore)).toEqual([50, 25]);
+    expect(benchmarked.map((row) => row.totalScore)).toEqual([48, 24]);
     expect(benchmarked.every((row) => row.scoreBreakdown?.calibration.benchmarkScore === 80)).toBe(true);
   });
 
@@ -62,7 +63,7 @@ describe("global company score benchmark", () => {
 
     const [benchmarked] = benchmarkGlobalCompanyScores([selected], [best, selected]);
 
-    expect(benchmarked?.totalScore).toBe(50);
+    expect(benchmarked?.totalScore).toBe(48);
     expect(benchmarked?.scoreBreakdown?.absoluteScore).toBe(40);
     expect(benchmarked?.scoreBreakdown?.platformScores).toEqual(originalBreakdown.platformScores);
     expect(benchmarked?.scoreBreakdown?.weightedPlatforms).toEqual(originalBreakdown.weightedPlatforms);
@@ -79,7 +80,7 @@ describe("global company score benchmark", () => {
       [staleSelected, otherBatchSameId]
     );
 
-    expect(benchmarked?.totalScore).toBe(100);
+    expect(benchmarked?.totalScore).toBe(95);
     expect(benchmarked?.scoreBreakdown?.calibration.cohortSize).toBe(2);
     expect(benchmarked?.scoreBreakdown?.calibration.benchmarkScore).toBe(80);
   });
@@ -90,7 +91,7 @@ describe("global company score benchmark", () => {
 
     const result = benchmarkGlobalCompanyScores([canonical, legacy]);
 
-    expect(result[0]?.totalScore).toBe(100);
+    expect(result[0]?.totalScore).toBe(95);
     expect(result[0]?.scoreBreakdown?.calibration.cohortSize).toBe(1);
     expect(result[1]).toEqual(legacy);
   });
@@ -107,6 +108,7 @@ describe("global company score benchmark", () => {
       percentile: null,
       inputScore: 0,
       benchmarkScore: 0,
+      benchmarkTarget: 95,
       scaleFactor: 0,
       benchmarkScope: "all_supported_batches",
       benchmarkPopulation: "current_company_snapshot"
@@ -128,13 +130,14 @@ describe("global company score benchmark", () => {
         percentile: null,
         inputScore: 48,
         benchmarkScore: 52,
-        scaleFactor: 100 / 52,
+        benchmarkTarget: 95,
+        scaleFactor: 95 / 52,
         benchmarkScope: "all_supported_batches",
         benchmarkPopulation: "current_company_snapshot"
       }
     );
 
-    expect(benchmarked?.totalScore).toBe(50);
+    expect(benchmarked?.totalScore).toBe(48);
     expect(benchmarked?.scoreBreakdown?.absoluteScore).toBe(26);
     expect(benchmarked?.scoreBreakdown?.weightedPlatforms[0]?.contribution).toBe(originalContribution);
     expect(benchmarked?.scoreBreakdown?.calibration).toEqual(
@@ -142,7 +145,8 @@ describe("global company score benchmark", () => {
         cohortSize: 365,
         inputScore: 26,
         benchmarkScore: 52,
-        scaleFactor: 100 / 52
+        benchmarkTarget: 95,
+        scaleFactor: 95 / 52
       })
     );
   });
@@ -158,6 +162,7 @@ describe("global company score benchmark", () => {
         percentile: null,
         inputScore: 48,
         benchmarkScore: 52,
+        benchmarkTarget: 95,
         scaleFactor: 2,
         benchmarkScope: "all_supported_batches",
         benchmarkPopulation: "current_company_snapshot"

@@ -88,6 +88,8 @@ export interface ScoringMethodologyPresentation {
   calibration: {
     absolutePercent: number;
     cohortPercentilePercent: number;
+    scoreLevelMultiplierPercent: number;
+    globalBenchmarkTarget: number;
   };
   metricWeights: ScoringMetricWeightRow[];
   confidence: {
@@ -139,7 +141,9 @@ export function buildScoringMethodologyPresentation(
     },
     calibration: {
       absolutePercent: percent(config.batchCalibration.absoluteScoreWeight),
-      cohortPercentilePercent: percent(config.batchCalibration.cohortPercentileWeight)
+      cohortPercentilePercent: percent(config.batchCalibration.cohortPercentileWeight),
+      scoreLevelMultiplierPercent: percent(config.scoreLevelMultiplier),
+      globalBenchmarkTarget: config.globalBenchmarkTarget
     },
     metricWeights,
     confidence: {

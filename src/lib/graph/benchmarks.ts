@@ -26,7 +26,16 @@ interface BenchmarkSnapshot {
   recordedAt: string;
   scoringModelVersion?: string;
   inputGeneratedAt?: string;
+  scoreCalibration?: BenchmarkScoreCalibration;
   companies: BenchmarkCompanySnapshot[];
+}
+
+interface BenchmarkScoreCalibration {
+  kind: "linear_model_rebase";
+  sourceModelVersion: "4.3.0";
+  factor: 0.95;
+  headlineTarget: 95;
+  rounding: "nearest_integer";
 }
 
 interface SelectedBenchmarkBaseline {
@@ -93,9 +102,14 @@ export function recordBenchmarkMomentum(
 
   if (
     currentSnapshot.companies.length &&
-    !latestSnapshotOnCentralDay(store.daily, now, scoringModelVersion)
+    !latestObservedSnapshotOnCentralDay(store.daily, now, scoringModelVersion)
   ) {
-    persistedStore.daily = [...persistedStore.daily, currentSnapshot];
+    persistedStore.daily = replaceProjectedSnapshotOnCentralDay(
+      persistedStore.daily,
+      currentSnapshot,
+      now,
+      scoringModelVersion
+    );
     recordedDaily = true;
   }
 
@@ -103,7 +117,12 @@ export function recordBenchmarkMomentum(
     currentSnapshot.companies.length &&
     shouldRecordWeeklySnapshot(store.weekly, now, scoringModelVersion)
   ) {
-    persistedStore.weekly = [...persistedStore.weekly, currentSnapshot];
+    persistedStore.weekly = replaceProjectedSnapshotOnCentralDay(
+      persistedStore.weekly,
+      currentSnapshot,
+      now,
+      scoringModelVersion
+    );
     recordedWeekly = true;
   }
 
@@ -240,11 +259,23 @@ function latestSnapshot(snapshots: BenchmarkSnapshot[]): BenchmarkSnapshot | nul
     if (!latest) {
       return snapshot;
     }
-    return new Date(snapshot.recordedAt).getTime() > new Date(latest.recordedAt).getTime() ? snapshot : latest;
+    const snapshotTime = new Date(snapshot.recordedAt).getTime();
+    const latestTime = new Date(latest.recordedAt).getTime();
+    if (snapshotTime > latestTime) {
+      return snapshot;
+    }
+    if (
+      snapshotTime === latestTime &&
+      isProjectedBenchmarkSnapshot(latest) &&
+      !isProjectedBenchmarkSnapshot(snapshot)
+    ) {
+      return snapshot;
+    }
+    return latest;
   }, null);
 }
 
-function latestSnapshotOnCentralDay(
+function latestObservedSnapshotOnCentralDay(
   snapshots: BenchmarkSnapshot[],
   day: Date,
   scoringModelVersion: string | undefined
@@ -254,9 +285,35 @@ function latestSnapshotOnCentralDay(
     snapshots.filter(
       (snapshot) =>
         centralDayKey(new Date(snapshot.recordedAt)) === dayKey &&
-        snapshotMatchesScoringModel(snapshot, scoringModelVersion)
+        snapshotMatchesScoringModel(snapshot, scoringModelVersion) &&
+        !isProjectedBenchmarkSnapshot(snapshot)
     )
   );
+}
+
+function replaceProjectedSnapshotOnCentralDay(
+  snapshots: BenchmarkSnapshot[],
+  observedSnapshot: BenchmarkSnapshot,
+  day: Date,
+  scoringModelVersion: string | undefined
+): BenchmarkSnapshot[] {
+  const dayKey = centralDayKey(day);
+  let replaced = false;
+  const next = snapshots.flatMap((snapshot) => {
+    const isSameProjectedDay =
+      centralDayKey(new Date(snapshot.recordedAt)) === dayKey &&
+      snapshotMatchesScoringModel(snapshot, scoringModelVersion) &&
+      isProjectedBenchmarkSnapshot(snapshot);
+    if (!isSameProjectedDay) {
+      return [snapshot];
+    }
+    if (replaced) {
+      return [];
+    }
+    replaced = true;
+    return [observedSnapshot];
+  });
+  return replaced ? next : [...snapshots, observedSnapshot];
 }
 
 function selectDailyBaseline(
@@ -317,7 +374,11 @@ function shouldRecordWeeklySnapshot(
   scoringModelVersion: string | undefined
 ): boolean {
   const latest = latestSnapshot(
-    snapshots.filter((snapshot) => snapshotMatchesScoringModel(snapshot, scoringModelVersion))
+    snapshots.filter(
+      (snapshot) =>
+        snapshotMatchesScoringModel(snapshot, scoringModelVersion) &&
+        !isProjectedBenchmarkSnapshot(snapshot)
+    )
   );
   if (!latest) {
     return true;
@@ -599,24 +660,47 @@ function benchmarkSnapshotMetadata(
 
 function normalizeBenchmarkSnapshotMetadata(
   candidate: Partial<BenchmarkSnapshot>
-): Pick<BenchmarkSnapshot, "scoringModelVersion" | "inputGeneratedAt"> | Record<string, never> | null {
+): Pick<BenchmarkSnapshot, "scoringModelVersion" | "inputGeneratedAt" | "scoreCalibration"> | Record<string, never> | null {
   const hasModelVersion = candidate.scoringModelVersion !== undefined;
   const hasInputGeneratedAt = candidate.inputGeneratedAt !== undefined;
   if (!hasModelVersion && !hasInputGeneratedAt) {
-    return {};
+    return candidate.scoreCalibration === undefined ? {} : null;
   }
   if (
     typeof candidate.scoringModelVersion !== "string" ||
     !candidate.scoringModelVersion.trim() ||
     typeof candidate.inputGeneratedAt !== "string" ||
-    !isValidTimestamp(candidate.inputGeneratedAt)
+    !isValidTimestamp(candidate.inputGeneratedAt) ||
+    (candidate.scoreCalibration !== undefined &&
+      !isBenchmarkScoreCalibration(candidate.scoreCalibration))
   ) {
     return null;
   }
   return {
     scoringModelVersion: candidate.scoringModelVersion,
-    inputGeneratedAt: candidate.inputGeneratedAt
+    inputGeneratedAt: candidate.inputGeneratedAt,
+    ...(candidate.scoreCalibration
+      ? { scoreCalibration: candidate.scoreCalibration }
+      : {})
   };
+}
+
+function isProjectedBenchmarkSnapshot(snapshot: BenchmarkSnapshot): boolean {
+  return isBenchmarkScoreCalibration(snapshot.scoreCalibration);
+}
+
+function isBenchmarkScoreCalibration(value: unknown): value is BenchmarkScoreCalibration {
+  if (!value || typeof value !== "object") {
+    return false;
+  }
+  const candidate = value as Partial<BenchmarkScoreCalibration>;
+  return (
+    candidate.kind === "linear_model_rebase" &&
+    candidate.sourceModelVersion === "4.3.0" &&
+    candidate.factor === 0.95 &&
+    candidate.headlineTarget === 95 &&
+    candidate.rounding === "nearest_integer"
+  );
 }
 
 function graphScoringModelVersion(graph: GraphResponse): string | undefined {

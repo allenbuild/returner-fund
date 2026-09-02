@@ -490,6 +490,12 @@ function collectNodeScoreViolations(
   mismatch(violations, `${nodeScope} calibration percentile`, calibration.percentile, null);
   mismatch(
     violations,
+    `${nodeScope} calibration benchmarkTarget`,
+    calibration.benchmarkTarget,
+    TRACTION_SCORING_CONFIG.globalBenchmarkTarget
+  );
+  mismatch(
+    violations,
     `${nodeScope} calibration benchmarkScope`,
     calibration.benchmarkScope,
     "all_supported_batches"
@@ -504,7 +510,10 @@ function collectNodeScoreViolations(
     violations,
     `${nodeScope} global headline score`,
     node.score,
-    Math.round((breakdown.absoluteScore / (calibration.benchmarkScore ?? 100)) * 100)
+    Math.round(
+      (breakdown.absoluteScore / (calibration.benchmarkScore ?? 100)) *
+      TRACTION_SCORING_CONFIG.globalBenchmarkTarget
+    )
   );
 }
 

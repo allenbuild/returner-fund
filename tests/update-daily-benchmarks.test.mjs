@@ -212,7 +212,7 @@ describe("daily benchmark updater", () => {
         now: new Date("2026-07-16T05:01:00.000Z"),
         windowStart: new Date("2026-07-16T05:00:00.000Z")
       })
-    ).toEqual({ scoringModelId: "returner-traction", scoringModelVersion: "4.3.0" });
+    ).toEqual({ scoringModelId: "returner-traction", scoringModelVersion: "4.3.1" });
 
     snapshots[8].graph.scoringContext.modelVersion = "5.0.0";
     snapshots[8].graph.nodes.forEach((node) => {
@@ -223,7 +223,7 @@ describe("daily benchmark updater", () => {
         now: new Date("2026-07-16T05:01:00.000Z"),
         windowStart: new Date("2026-07-16T05:00:00.000Z")
       })
-    ).toThrow(/returner-traction@4\.3\.0/i);
+    ).toThrow(/returner-traction@4\.3\.1/i);
 
     const consistentlyLegacySnapshots = graphSnapshots(generatedAt);
     for (const snapshot of consistentlyLegacySnapshots) {
@@ -237,7 +237,7 @@ describe("daily benchmark updater", () => {
         now: new Date("2026-07-16T05:01:00.000Z"),
         windowStart: new Date("2026-07-16T05:00:00.000Z")
       })
-    ).toThrow(/returner-traction@4\.3\.0/i);
+    ).toThrow(/returner-traction@4\.3\.1/i);
   });
 
   it("rejects audience node state that drifts from the canonical base snapshot", () => {
@@ -369,7 +369,7 @@ describe("daily benchmark updater", () => {
         validationNow: new Date("2026-07-16T05:01:00.000Z"),
         windowStart: new Date("2026-07-16T05:00:00.000Z")
       })
-    ).rejects.toThrow(/complete returner-traction@4\.3\.0 score breakdown/i);
+    ).rejects.toThrow(/complete returner-traction@4\.3\.1 score breakdown/i);
 
     expect(fs.readFileSync(sentinelPath, "utf8")).toBe("sentinel\n");
     expect(fs.readdirSync(path.dirname(sentinelPath))).toEqual(["s2026.json"]);
@@ -432,7 +432,7 @@ describe("daily benchmark updater", () => {
       expect(history.daily[0]).toEqual(legacySnapshot);
       expect(history.daily[1]).toMatchObject({
         recordedAt: recordedAt.toISOString(),
-        scoringModelVersion: "4.3.0",
+        scoringModelVersion: "4.3.1",
         inputGeneratedAt: generatedAt.toISOString()
       });
     }
@@ -442,7 +442,7 @@ describe("daily benchmark updater", () => {
     const recordedAt = new Date("2026-07-16T05:01:00.000Z");
     const legacy = {
       recordedAt: recordedAt.toISOString(),
-      scoringModelVersion: "3.0.0",
+      scoringModelVersion: "4.3.0",
       inputGeneratedAt: "2026-07-16T05:00:00.000Z",
       marker: "old-model",
       companies: [{ companyId: "one", companyName: "One", score: 1, rank: 1 }]
@@ -460,14 +460,89 @@ describe("daily benchmark updater", () => {
 
     expect(next.daily[0]).toEqual(legacy);
     expect(next.daily).toHaveLength(2);
-    expect(next.daily[1].scoringModelVersion).toBe("4.3.0");
+    expect(next.daily[1].scoringModelVersion).toBe("4.3.1");
+  });
+
+  it("replaces same-day projected daily and weekly rows with the real observation", () => {
+    const recordedAt = new Date("2026-09-02T15:00:00.000Z");
+    const graph = graphFor(BATCH_SNAPSHOTS[0], new Date("2026-09-02T14:59:00.000Z"));
+    const projection = {
+      recordedAt: recordedAt.toISOString(),
+      scoringModelVersion: "4.3.1",
+      inputGeneratedAt: "2026-09-02T14:59:30.000Z",
+      scoreCalibration: projectedScoreCalibration(),
+      companies: [{ companyId: "projected", companyName: "Projected", score: 1, rank: 1 }]
+    };
+    const store = {
+      version: 1,
+      batchSlug: "S2026",
+      updatedAt: projection.recordedAt,
+      daily: [projection],
+      weekly: [projection]
+    };
+
+    const next = appendObservedBenchmarkSnapshot(store, graph, recordedAt);
+    const expectedCompanies = graph.leaderboard.map(({ companyId, companyName, score, rank }) => ({
+      companyId,
+      companyName,
+      score,
+      rank
+    }));
+
+    expect(next.daily).toHaveLength(1);
+    expect(next.weekly).toHaveLength(1);
+    expect(next.daily[0]).not.toHaveProperty("scoreCalibration");
+    expect(next.weekly[0]).not.toHaveProperty("scoreCalibration");
+    expect(next.daily[0].companies).toEqual(expectedCompanies);
+    expect(next.weekly[0]).toEqual(next.daily[0]);
+  });
+
+  it("excludes projected rows when deciding whether the weekly cadence is due", () => {
+    const recordedAt = new Date("2026-09-02T15:00:00.000Z");
+    const graph = graphFor(BATCH_SNAPSHOTS[0], new Date("2026-09-02T14:59:00.000Z"));
+    const companies = graph.leaderboard.map(({ companyId, companyName, score, rank }) => ({
+      companyId,
+      companyName,
+      score,
+      rank
+    }));
+    const lastObservedWeekly = {
+      recordedAt: "2026-08-24T15:00:00.000Z",
+      scoringModelVersion: "4.3.1",
+      inputGeneratedAt: "2026-08-24T14:59:00.000Z",
+      companies
+    };
+    const recentProjection = {
+      recordedAt: "2026-08-31T15:00:00.000Z",
+      scoringModelVersion: "4.3.1",
+      inputGeneratedAt: "2026-08-31T14:59:00.000Z",
+      scoreCalibration: projectedScoreCalibration(),
+      companies
+    };
+    const store = {
+      version: 1,
+      batchSlug: "S2026",
+      updatedAt: recentProjection.recordedAt,
+      daily: [],
+      weekly: [lastObservedWeekly, recentProjection]
+    };
+
+    const next = appendObservedBenchmarkSnapshot(store, graph, recordedAt);
+
+    expect(next.weekly).toHaveLength(3);
+    expect(next.weekly.at(-1)).toMatchObject({
+      recordedAt: recordedAt.toISOString(),
+      scoringModelVersion: "4.3.1",
+      inputGeneratedAt: graph.generatedAt
+    });
+    expect(next.weekly.at(-1)).not.toHaveProperty("scoreCalibration");
   });
 
   it("repairs a same-day entry whose graph input belongs to the previous Central day", () => {
     const recordedAt = new Date("2026-07-17T05:05:00.000Z");
     const stale = {
       recordedAt: recordedAt.toISOString(),
-      scoringModelVersion: "4.3.0",
+      scoringModelVersion: "4.3.1",
       inputGeneratedAt: "2026-07-17T04:59:59.000Z",
       companies: [{ companyId: "stale", companyName: "Stale", score: 1, rank: 1 }]
     };
@@ -486,7 +561,7 @@ describe("daily benchmark updater", () => {
     expect(next.daily[0]).toMatchObject({
       recordedAt: recordedAt.toISOString(),
       inputGeneratedAt: "2026-07-17T05:04:00.000Z",
-      scoringModelVersion: "4.3.0"
+      scoringModelVersion: "4.3.1"
     });
     expect(next.daily[0]).not.toEqual(stale);
   });
@@ -496,7 +571,7 @@ describe("daily benchmark updater", () => {
     const recordedAt = new Date("2026-08-26T12:14:24.397Z");
     const previous = {
       recordedAt: previousRecordedAt.toISOString(),
-      scoringModelVersion: "4.3.0",
+      scoringModelVersion: "4.3.1",
       inputGeneratedAt: "2026-08-26T10:01:00.000Z",
       companies: [{ companyId: "old", companyName: "Old", score: 1, rank: 1 }]
     };
@@ -516,7 +591,7 @@ describe("daily benchmark updater", () => {
     expect(refreshed.daily[0]).toMatchObject({
       recordedAt: recordedAt.toISOString(),
       inputGeneratedAt: "2026-08-26T12:13:26.086Z",
-      scoringModelVersion: "4.3.0"
+      scoringModelVersion: "4.3.1"
     });
     expect(refreshed.daily[0]).not.toEqual(previous);
 
@@ -536,13 +611,13 @@ describe("daily benchmark updater", () => {
     }));
     const olderBackfill = {
       recordedAt: "2026-08-24T14:39:26.108Z",
-      scoringModelVersion: "4.3.0",
+      scoringModelVersion: "4.3.1",
       inputGeneratedAt: "2026-08-24T14:38:24.295Z",
       companies
     };
     const currentModelSnapshot = {
       recordedAt: "2026-08-31T15:15:49.601Z",
-      scoringModelVersion: "4.3.0",
+      scoringModelVersion: "4.3.1",
       inputGeneratedAt: graphGeneratedAt.toISOString(),
       companies
     };
@@ -1046,7 +1121,7 @@ function writeSkipHistories(rootDir, { recordedAt, staleBatch, staleInputBatch }
       : snapshotRecordedAt;
     const snapshot = {
       recordedAt: snapshotRecordedAt.toISOString(),
-      scoringModelVersion: "4.3.0",
+      scoringModelVersion: "4.3.1",
       inputGeneratedAt: snapshotInputGeneratedAt.toISOString(),
       companies: []
     };
@@ -1111,8 +1186,8 @@ function graphFor(descriptor, generatedAt) {
     generatedAt: generatedAt.toISOString(),
     scoringContext: {
       modelId: "returner-traction",
-      modelVersion: "4.3.0",
-      modelName: "returner-traction-v4-bounded-primary-signal-global-best",
+      modelVersion: "4.3.1",
+      modelName: "returner-traction-v4-bounded-primary-signal-calibrated",
       scoreScope: "all_platforms",
       selectedPlatforms: [],
       responseBuiltAt: generatedAt.toISOString(),
@@ -1125,8 +1200,8 @@ function graphFor(descriptor, generatedAt) {
 function v4ScoreBreakdown(score, platformScore) {
   return {
     modelId: "returner-traction",
-    modelVersion: "4.3.0",
-    modelName: "returner-traction-v4-bounded-primary-signal-global-best",
+    modelVersion: "4.3.1",
+    modelName: "returner-traction-v4-bounded-primary-signal-calibrated",
     totalScore: score,
     absoluteScore: score,
     weightedAvailableScore: platformScore,
@@ -1162,7 +1237,8 @@ function v4ScoreBreakdown(score, platformScore) {
       cohortSize: 6,
       percentile: null,
       inputScore: score,
-      benchmarkScore: 100,
+      benchmarkScore: 95,
+      benchmarkTarget: 95,
       scaleFactor: 1,
       benchmarkScope: "all_supported_batches",
       benchmarkPopulation: "current_company_snapshot"
@@ -1170,6 +1246,16 @@ function v4ScoreBreakdown(score, platformScore) {
     limitations: [],
     evidenceAsOf: null,
     explanation: "Updater v4 contract fixture."
+  };
+}
+
+function projectedScoreCalibration() {
+  return {
+    kind: "linear_model_rebase",
+    sourceModelVersion: "4.3.0",
+    factor: 0.95,
+    headlineTarget: 95,
+    rounding: "nearest_integer"
   };
 }
 

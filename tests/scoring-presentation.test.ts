@@ -22,7 +22,12 @@ describe("scoring methodology presentation", () => {
     expect(presentation.postSlotPercents).toEqual(
       TRACTION_SCORING_CONFIG.platformEvidenceSlots.map((weight) => weight * 100)
     );
-    expect(presentation.calibration).toEqual({ absolutePercent: 100, cohortPercentilePercent: 0 });
+    expect(presentation.calibration).toEqual({
+      absolutePercent: 100,
+      cohortPercentilePercent: 0,
+      scoreLevelMultiplierPercent: TRACTION_SCORING_CONFIG.scoreLevelMultiplier * 100,
+      globalBenchmarkTarget: TRACTION_SCORING_CONFIG.globalBenchmarkTarget
+    });
     expect(presentation.platformReferences.find((row) => row.platform === "x")).toEqual({
       platform: "x",
       highEngagement: 120_000
@@ -42,6 +47,8 @@ describe("scoring methodology presentation", () => {
   it("changes when a supplied config fixture changes instead of retaining stale constants", () => {
     const fixture = {
       ...TRACTION_SCORING_CONFIG,
+      scoreLevelMultiplier: 0.8,
+      globalBenchmarkTarget: 88,
       platformEvidenceSlots: [1],
       batchCalibration: { absoluteScoreWeight: 0.7, cohortPercentileWeight: 0.3 },
       metricWeights: {
@@ -52,7 +59,12 @@ describe("scoring methodology presentation", () => {
 
     const presentation = buildScoringMethodologyPresentation(fixture);
     expect(presentation.postSlotPercents).toEqual([100]);
-    expect(presentation.calibration).toEqual({ absolutePercent: 70, cohortPercentilePercent: 30 });
+    expect(presentation.calibration).toEqual({
+      absolutePercent: 70,
+      cohortPercentilePercent: 30,
+      scoreLevelMultiplierPercent: 80,
+      globalBenchmarkTarget: 88
+    });
     expect(presentation.metricWeights.find((row) => row.platform === "x")?.metrics).toEqual([
       { metric: "likes", weight: 9 }
     ]);
@@ -99,9 +111,9 @@ describe("score presentation conservation", () => {
         ).toEqual(sourceRows.map((row) => row.platform));
         expect(
           contributions.every(
-            (row) => Number.isFinite(row.displayContribution) && row.displayContribution > 0
+            (row) => Number.isFinite(row.displayContribution) && row.displayContribution >= 0
           ),
-          `${relativePath}:${node.label}:finite positive rows`
+          `${relativePath}:${node.label}:finite non-negative rows`
         ).toBe(true);
 
         if (contributions.length === 0) {
@@ -170,7 +182,7 @@ describe("score presentation conservation", () => {
     expect(contributingCompanies).toBe(expectedContributingCompanies);
   });
 
-  it("renders the Antihero conversion as 20 -> 37.7 while totaling 87", () => {
+  it("renders the v4.3.1 Antihero conversion as 90.3 -> 92.2 while totaling 94", () => {
     const graph = JSON.parse(
       readFileSync(path.join(process.cwd(), "public/graph/a16zsr006.json"), "utf8")
     ) as { nodes: GraphNode[] };
@@ -180,18 +192,18 @@ describe("score presentation conservation", () => {
 
     expect(antihero).toBeDefined();
     const sourceRows = antihero!.scoreBreakdown!.weightedPlatforms;
-    expect(roundToTenths(sourceRows[0]!.contribution)).toBe(20);
+    expect(roundToTenths(sourceRows[0]!.contribution)).toBe(90.3);
 
     const contributions = displayPlatformContributions(antihero!);
     expect(contributions.map((row) => [row.platform, row.displayContribution])).toEqual([
-      ["instagram", 37.7],
-      ["x", 20.6],
-      ["linkedin", 14.7],
-      ["youtube", 14]
+      ["instagram", 92.2],
+      ["x", 0.9],
+      ["linkedin", 0.5],
+      ["youtube", 0.4]
     ]);
     expect(
       contributions.reduce((sum, row) => sum + Math.round(row.displayContribution * 10), 0)
-    ).toBe(870);
+    ).toBe(940);
   });
 
   it("never rescales method:none rows, even when their rounded subtotal is near the score", () => {
@@ -203,17 +215,22 @@ describe("score presentation conservation", () => {
     )!;
     const noCalibrationNode: GraphNode = {
       ...antihero,
-      score: 46,
+      score: antihero.scoreBreakdown!.absoluteScore,
       scoreBreakdown: {
         ...antihero.scoreBreakdown!,
-        totalScore: 46,
-        calibration: { method: "none", cohortSize: 1, percentile: null, inputScore: 46 }
+        totalScore: antihero.scoreBreakdown!.absoluteScore,
+        calibration: {
+          method: "none",
+          cohortSize: 1,
+          percentile: null,
+          inputScore: antihero.scoreBreakdown!.absoluteScore
+        }
       }
     };
 
     expect(
       displayPlatformContributions(noCalibrationNode).map((row) => row.displayContribution)
-    ).toEqual([20, 10.9, 7.8, 6.9]);
+    ).toEqual([90.3, 0.5, 0.4, 0.4]);
   });
 
   it("keeps malformed rows and calibration metadata from leaking invalid or synthetic UI rows", () => {

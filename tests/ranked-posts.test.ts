@@ -85,7 +85,7 @@ describe("ranked posts", () => {
     expect(ranked.map((item) => item.rank)).toEqual([1, 1, 3]);
   });
 
-  it("preserves the legacy editorial order when v4.3 renormalizes real GitHub evidence", () => {
+  it("preserves the legacy editorial order when v4.3.1 renormalizes real GitHub evidence", () => {
     const legacySmolVm = evidence({
       id: "evidence-github-repo-company-smol-machines-smol-machines-smolvm",
       platform: "github",
@@ -111,8 +111,8 @@ describe("ranked posts", () => {
     })])[0]!;
 
     expect(RANKED_POST_EDITORIAL_SCORE_VERSION).toBe("ranked-post-editorial-v1");
-    expect(currentSmolVm.normalizedScore).toBe(74);
-    expect(currentPloyLinkedIn.normalizedScore).toBe(79);
+    expect(currentSmolVm.normalizedScore).toBe(70);
+    expect(currentPloyLinkedIn.normalizedScore).toBe(75);
 
     const legacyResults = rankedPostIdentity(selectRankedPosts(
       graph([legacySmolVm, currentPloyLinkedIn]),
@@ -168,7 +168,7 @@ describe("ranked posts", () => {
       legacyScreenpipe
     ]);
 
-    expect([currentGraphify?.normalizedScore, currentScreenpipe?.normalizedScore]).toEqual([99, 85]);
+    expect([currentGraphify?.normalizedScore, currentScreenpipe?.normalizedScore]).toEqual([94, 81]);
 
     const legacyResults = rankedPostIdentity(selectRankedPosts(
       graph([legacyScreenpipe, legacyGraphify]),

@@ -113,6 +113,16 @@ describe("traction scoring v4 invariants", () => {
     expect("topKPosts" in TRACTION_SCORING_CONFIG).toBe(false);
   });
 
+  it("applies the canonical level calibration after bounding the evidence curve", () => {
+    const [scored] = normalizeEvidenceScores([
+      evidence("saturated-x", "x", { views: 1_000_000_000 })
+    ]);
+
+    expect(TRACTION_SCORING_CONFIG.scoreLevelMultiplier).toBe(0.95);
+    expect(scored?.normalizedScore).toBe(95);
+    expect(scored?.contributionScore).toBe(95);
+  });
+
   it.each(aliasCases)("counts $platform metric aliases once", ({ platform, canonical, aliases }) => {
     const canonicalScore = computeEvidenceRawEngagement(platform, canonical);
 

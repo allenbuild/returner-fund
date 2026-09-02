@@ -770,7 +770,7 @@ describe("YC traction scoring regressions", () => {
         Math.round(
           (company.scoreBreakdown!.absoluteScore /
             company.scoreBreakdown!.calibration.benchmarkScore!) *
-            100
+            TRACTION_SCORING_CONFIG.globalBenchmarkTarget
         )
       );
       expect(
@@ -823,7 +823,7 @@ describe("YC traction scoring regressions", () => {
     const globalBenchmarkScore = Math.max(
       ...globalPositiveCompanies.map((company) => company.scoreBreakdown!.absoluteScore)
     );
-    const globalScaleFactor = 100 / globalBenchmarkScore;
+    const globalScaleFactor = TRACTION_SCORING_CONFIG.globalBenchmarkTarget / globalBenchmarkScore;
 
     for (const batchSlug of ["S2026", "S26", "A16ZSR006"]) {
       const companies = ycSpring2026GraphDataset.companies.filter((company) => company.batchSlug === batchSlug);
@@ -832,7 +832,9 @@ describe("YC traction scoring regressions", () => {
 
       expect(positiveCompanies.length).toBeGreaterThan(0);
       expect(Math.min(...positiveScores)).toBeGreaterThanOrEqual(1);
-      expect(Math.max(...positiveScores)).toBeLessThanOrEqual(100);
+      expect(Math.max(...positiveScores)).toBeLessThanOrEqual(
+        TRACTION_SCORING_CONFIG.globalBenchmarkTarget
+      );
       for (const company of positiveCompanies) {
         expect(company.totalScore).toBeGreaterThan(0);
         expect(company.totalScore).toBe(
@@ -845,6 +847,7 @@ describe("YC traction scoring regressions", () => {
             percentile: null,
             inputScore: company.scoreBreakdown?.absoluteScore,
             benchmarkScore: globalBenchmarkScore,
+            benchmarkTarget: TRACTION_SCORING_CONFIG.globalBenchmarkTarget,
             scaleFactor: globalScaleFactor,
             benchmarkScope: "all_supported_batches",
             benchmarkPopulation: "current_company_snapshot"
@@ -1102,8 +1105,10 @@ describe("YC traction scoring regressions", () => {
 
   it("uses the recommended long-run scoring config for live graph scoring", () => {
     expect(TRACTION_SCORING_CONFIG.name).toBe(
-      "returner-traction-v4-bounded-primary-signal-global-best"
+      "returner-traction-v4-bounded-primary-signal-calibrated"
     );
+    expect(TRACTION_SCORING_CONFIG.scoreLevelMultiplier).toBe(0.95);
+    expect(TRACTION_SCORING_CONFIG.globalBenchmarkTarget).toBe(95);
     expect(TRACTION_SCORING_CONFIG.platformWeights.github).toBe(0.15);
     expect(TRACTION_SCORING_CONFIG.platformWeights.x).toBe(0.21);
     expect(TRACTION_SCORING_CONFIG.platformWeights.linkedin).toBe(0.15);

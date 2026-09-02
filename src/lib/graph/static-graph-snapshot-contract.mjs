@@ -1,12 +1,13 @@
 export const STATIC_GRAPH_SCORING_MODEL_ID = "returner-traction";
-export const STATIC_GRAPH_SCORING_MODEL_VERSION = "4.3.0";
-export const STATIC_GRAPH_SCORING_MODEL_NAME = "returner-traction-v4-bounded-primary-signal-global-best";
+export const STATIC_GRAPH_SCORING_MODEL_VERSION = "4.3.1";
+export const STATIC_GRAPH_SCORING_MODEL_NAME = "returner-traction-v4-bounded-primary-signal-calibrated";
 
 const MAX_ISSUES = 100;
 const DEFAULT_MAX_FUTURE_SKEW_MS = 60_000;
 const PUBLIC_GRAPH_EVIDENCE_LIMIT = 5_000;
 const CONFIDENCE_LEVELS = new Set(["low", "medium", "high"]);
 const CALIBRATION_METHODS = new Set(["global_best_ratio"]);
+const GLOBAL_BENCHMARK_TARGET = 95;
 const EDGE_TYPES = new Set(["industry_similarity", "same_group_partner"]);
 const CANONICAL_ACCOUNT_ID_WWW_PLATFORMS = new Set([
   "instagram",
@@ -1551,7 +1552,10 @@ function validateCalibration(value, totalScore, absoluteScore, absoluteScoreIsVa
 
   const methodIsValid = CALIBRATION_METHODS.has(value.method);
   if (!methodIsValid) {
-    addIssue(`${path}.method`, "must be global_best_ratio for the 4.3 scoring model");
+    addIssue(
+      `${path}.method`,
+      `must be global_best_ratio for the ${STATIC_GRAPH_SCORING_MODEL_VERSION} scoring model`
+    );
   }
   validateNonNegativeInteger(value.cohortSize, `${path}.cohortSize`, addIssue);
   const inputScoreIsValid = validateScore(value.inputScore, `${path}.inputScore`, addIssue);
@@ -1573,6 +1577,10 @@ function validateCalibration(value, totalScore, absoluteScore, absoluteScoreIsVa
       `${path}.benchmarkScore`,
       addIssue
     );
+    const benchmarkTargetIsValid = value.benchmarkTarget === GLOBAL_BENCHMARK_TARGET;
+    if (!benchmarkTargetIsValid) {
+      addIssue(`${path}.benchmarkTarget`, `must equal ${GLOBAL_BENCHMARK_TARGET}`);
+    }
     const scaleFactorIsValid = isNonNegativeFiniteNumber(value.scaleFactor);
     if (!scaleFactorIsValid) {
       addIssue(`${path}.scaleFactor`, "must be finite and non-negative");
@@ -1584,13 +1592,21 @@ function validateCalibration(value, totalScore, absoluteScore, absoluteScoreIsVa
       `${path}.benchmarkPopulation`,
       addIssue
     );
-    if (benchmarkScoreIsValid && scaleFactorIsValid) {
-      const expectedFactor = value.benchmarkScore > 0 ? 100 / value.benchmarkScore : 0;
+    if (benchmarkScoreIsValid && benchmarkTargetIsValid && scaleFactorIsValid) {
+      const expectedFactor = value.benchmarkScore > 0
+        ? value.benchmarkTarget / value.benchmarkScore
+        : 0;
       if (Math.abs(value.scaleFactor - expectedFactor) > 1e-9) {
-        addIssue(`${path}.scaleFactor`, "must equal 100 divided by benchmarkScore");
+        addIssue(`${path}.scaleFactor`, "must equal benchmarkTarget divided by benchmarkScore");
       }
       const expectedTotal = value.benchmarkScore > 0 && absoluteScore > 0
-        ? Math.max(1, Math.min(100, Math.round((absoluteScore / value.benchmarkScore) * 100)))
+        ? Math.max(
+            1,
+            Math.min(
+              value.benchmarkTarget,
+              Math.round((absoluteScore / value.benchmarkScore) * value.benchmarkTarget)
+            )
+          )
         : 0;
       if (totalScore !== expectedTotal) {
         addIssue(`${path}`, `must map absoluteScore to global headline ${expectedTotal}`);

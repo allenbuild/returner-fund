@@ -61,6 +61,7 @@
     "artifacts:manifest:validate": "node scripts/write-artifact-manifest.mjs --validate",
     "test:artifacts": "node --test tests/validate-public-artifacts.node-test.mjs && vitest run tests/validate-public-artifacts-real-data.test.mjs",
     "benchmarks:daily": "node scripts/update-daily-benchmarks.mjs",
+    "benchmarks:rebase:v4.3.1": "node scripts/rebase-score-benchmarks-v4-3-1.mjs",
     "thumbnails:backfill": "node scripts/backfill-evidence-thumbnails.mjs",
     "thumbnails:instagram": "node scripts/backfill-evidence-thumbnails.mjs --platform=instagram --cache-instagram --force",
     "thumbnails:x": "node scripts/backfill-evidence-thumbnails.mjs --platform=x --cache-x --validate-x --force",

@@ -7,7 +7,8 @@ const GLOBAL_BENCHMARK_POPULATION = "current_company_snapshot" as const;
 /**
  * Converts canonical absolute evidence scores into one cross-batch headline scale.
  *
- * The strongest current company across the supplied global population is 100.
+ * The strongest current company across the supplied global population maps to
+ * the canonical headline target.
  * This is a ratio to a single shared maximum, not per-cohort min/max stretching.
  * Raw absolute scores, platform scores, and weighted platform contributions remain
  * untouched so the evidence math stays auditable.
@@ -22,11 +23,13 @@ export function benchmarkGlobalCompanyScores(
     .map(absoluteCompanyScore)
     .filter((score) => Number.isFinite(score) && score > 0);
   const benchmarkScore = positiveScores.length > 0 ? Math.max(...positiveScores) : 0;
-  const scaleFactor = benchmarkScore > 0 ? 100 / benchmarkScore : 0;
+  const benchmarkTarget = TRACTION_SCORING_CONFIG.globalBenchmarkTarget;
+  const scaleFactor = benchmarkScore > 0 ? benchmarkTarget / benchmarkScore : 0;
 
   return applyGlobalBenchmark(companies, {
     cohortSize: positiveScores.length,
     benchmarkScore,
+    benchmarkTarget,
     scaleFactor
   });
 }
@@ -49,6 +52,7 @@ export function benchmarkCompanyScoresWithPublishedGlobalFactor(
 interface GlobalBenchmarkParameters {
   cohortSize: number;
   benchmarkScore: number;
+  benchmarkTarget: number;
   scaleFactor: number;
 }
 
@@ -56,9 +60,9 @@ function applyGlobalBenchmark(
   companies: CompanyRecord[],
   parameters: GlobalBenchmarkParameters
 ): CompanyRecord[] {
-  const { cohortSize, benchmarkScore, scaleFactor } = parameters;
+  const { cohortSize, benchmarkScore, benchmarkTarget, scaleFactor } = parameters;
   const benchmarkExplanation = benchmarkScore > 0
-    ? `the current strongest absolute evidence score is ${benchmarkScore}, which maps to headline 100.`
+    ? `the current strongest absolute evidence score is ${benchmarkScore}, which maps to headline ${benchmarkTarget}.`
     : "the current population has no positive absolute evidence score, so headline scores remain 0.";
 
   return companies.map((company) => {
@@ -66,7 +70,7 @@ function applyGlobalBenchmark(
 
     const inputScore = absoluteCompanyScore(company);
     const headlineScore = benchmarkScore > 0
-      ? clampScore(Math.round((inputScore / benchmarkScore) * 100))
+      ? clampScore(Math.round((inputScore / benchmarkScore) * benchmarkTarget), benchmarkTarget)
       : 0;
 
     return {
@@ -83,6 +87,7 @@ function applyGlobalBenchmark(
           percentile: null,
           inputScore,
           benchmarkScore,
+          benchmarkTarget,
           scaleFactor,
           benchmarkScope: GLOBAL_BENCHMARK_SCOPE,
           benchmarkPopulation: GLOBAL_BENCHMARK_POPULATION
@@ -106,6 +111,8 @@ function validatedPublishedParameters(
     !Number.isFinite(calibration.benchmarkScore) ||
     Number(calibration.benchmarkScore) < 0 ||
     Number(calibration.benchmarkScore) > 100 ||
+    !Number.isFinite(calibration.benchmarkTarget) ||
+    Number(calibration.benchmarkTarget) !== TRACTION_SCORING_CONFIG.globalBenchmarkTarget ||
     !Number.isFinite(calibration.scaleFactor) ||
     Number(calibration.scaleFactor) < 0
   ) {
@@ -113,8 +120,9 @@ function validatedPublishedParameters(
   }
 
   const benchmarkScore = Number(calibration.benchmarkScore);
+  const benchmarkTarget = Number(calibration.benchmarkTarget);
   const scaleFactor = Number(calibration.scaleFactor);
-  const expectedScaleFactor = benchmarkScore > 0 ? 100 / benchmarkScore : 0;
+  const expectedScaleFactor = benchmarkScore > 0 ? benchmarkTarget / benchmarkScore : 0;
   const tolerance = Math.max(1, expectedScaleFactor) * 1e-12;
   const zeroStateIsValid = benchmarkScore === 0 && scaleFactor === 0 && calibration.cohortSize === 0;
   const positiveStateIsValid =
@@ -129,6 +137,7 @@ function validatedPublishedParameters(
   return {
     cohortSize: calibration.cohortSize,
     benchmarkScore,
+    benchmarkTarget,
     scaleFactor
   };
 }
@@ -167,6 +176,6 @@ function absoluteCompanyScore(company: CompanyRecord): number {
   return clampScore(score);
 }
 
-function clampScore(score: number): number {
-  return Math.max(0, Math.min(100, score));
+function clampScore(score: number, maximum = 100): number {
+  return Math.max(0, Math.min(maximum, score));
 }

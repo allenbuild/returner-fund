@@ -16,8 +16,10 @@ describe("traction scoring config validation", () => {
 
     expect(() => validateTractionScoringConfig(config)).not.toThrow();
     expect(config).toEqual(original);
-    expect(config.version).toBe("4.3.0");
-    expect(config.name).toBe("returner-traction-v4-bounded-primary-signal-global-best");
+    expect(config.version).toBe("4.3.1");
+    expect(config.name).toBe("returner-traction-v4-bounded-primary-signal-calibrated");
+    expect(config.scoreLevelMultiplier).toBe(0.95);
+    expect(config.globalBenchmarkTarget).toBe(95);
     expect(config.absoluteEvidenceWeight).toBe(1);
     expect(config.cohortPercentileWeight).toBe(0);
     expect(config).not.toHaveProperty("durableSignalWeight");
@@ -36,9 +38,9 @@ describe("traction scoring config validation", () => {
     );
   });
 
-  it("registers the exact bounded-primary config as immutable model version 4.3.0", () => {
+  it("registers the exact calibrated config as immutable model version 4.3.1", () => {
     const migration = readFileSync(
-      "supabase/migrations/031_register_traction_scoring_v4_3_0.sql",
+      "supabase/migrations/032_register_traction_scoring_v4_3_1.sql",
       "utf8"
     );
     const configJson = migration.match(/v4_config constant jsonb := \$config\$([\s\S]*?)\$config\$/i)?.[1];
@@ -71,6 +73,20 @@ describe("traction scoring config validation", () => {
   });
 
   it.each<[string, ConfigMutation, RegExp]>([
+    [
+      "a non-canonical score-level multiplier",
+      (config) => {
+        config.scoreLevelMultiplier = 0.9;
+      },
+      /scoreLevelMultiplier must preserve the canonical 0\.95/
+    ],
+    [
+      "a non-canonical global headline target",
+      (config) => {
+        config.globalBenchmarkTarget = 96;
+      },
+      /globalBenchmarkTarget must preserve the canonical integer headline target of 95/
+    ],
     [
       "non-finite platform weights",
       (config) => {

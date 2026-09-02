@@ -8,8 +8,8 @@ export type StaticGraphSnapshotContractResult =
   | { ok: false; issues: StaticGraphSnapshotContractIssue[] };
 
 export const STATIC_GRAPH_SCORING_MODEL_ID: "returner-traction";
-export const STATIC_GRAPH_SCORING_MODEL_VERSION: "4.3.0";
-export const STATIC_GRAPH_SCORING_MODEL_NAME: "returner-traction-v4-bounded-primary-signal-global-best";
+export const STATIC_GRAPH_SCORING_MODEL_VERSION: "4.3.1";
+export const STATIC_GRAPH_SCORING_MODEL_NAME: "returner-traction-v4-bounded-primary-signal-calibrated";
 
 export interface StaticGraphSnapshotContractOptions {
   now?: Date;

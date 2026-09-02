@@ -1,10 +1,11 @@
 # Scoring v4 Final Methodology Report
 
 > Historical baseline: this report records the immutable `4.0.0` methodology.
-> Production `4.3.0` uses a reference-anchored monotonic transform, removes
+> Production `4.3.1` uses a reference-anchored monotonic transform, removes
 > publication-age and recent-commit scoring, uses two `95/5` evidence slots,
 > gives the strongest platform `95%` of the entity aggregate, bounds fixed-share
-> cross-platform corroboration to `5%`, and applies one global-best ratio. See
+> cross-platform corroboration to `5%`, applies a 95% level calibration, and
+> maps the global best to a 95-point headline target. See
 > [`SCORING_MODEL.md`](SCORING_MODEL.md) for the current contract.
 
 ## 1. Decision and evidence boundary
