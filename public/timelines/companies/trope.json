@@ -5,8 +5,8 @@
     "slug": "trope",
     "name": "Trope"
   },
-  "generatedAt": "2026-09-02T09:30:34.481Z",
-  "lastModifiedAt": "2026-09-02T09:30:34.481Z",
+  "generatedAt": "2026-09-02T20:24:31.584Z",
+  "lastModifiedAt": "2026-09-02T20:24:31.584Z",
   "events": [
     {
       "id": "tle-fd7548f0c9c74dd6ecad769f",
@@ -47,7 +47,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-09-02T09:30:34.481Z"
+    "lastSuccessfulArtifactAt": "2026-09-02T20:24:31.584Z"
   },
   "nextCursor": null
 }

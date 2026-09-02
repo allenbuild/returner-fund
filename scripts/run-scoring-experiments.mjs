@@ -85,7 +85,7 @@ const NORMALIZATION_VARIANTS = [
     percentileWeight: 0,
     canonical: false,
     description:
-      "Uses the canonical date-invariant platform raw-engagement reference without a peer-percentile component."
+      "Uses the canonical date-invariant platform raw-engagement reference without a peer-percentile component, then applies the imported production score-level multiplier."
   },
   {
     id: "percentile-heavy",
@@ -94,7 +94,7 @@ const NORMALIZATION_VARIANTS = [
     percentileWeight: 0.65,
     canonical: false,
     description:
-      "Stress-tests cohort dependence with 35% canonical absolute signal and 65% same-platform physical-post midrank."
+      "Stress-tests cohort dependence with 35% canonical absolute signal and 65% same-platform physical-post midrank, then applies the imported production score-level multiplier."
   },
   {
     id: "v4-robust-blend",
@@ -207,6 +207,7 @@ const experimentReport = {
       "Eligibility and native-post identity checks",
       "Physical-post dedupe",
       "Date-invariant platform references",
+      "Configured score-level multiplier and score bounds",
       "Canonical v4 confidence and caveats",
       "Canonical v4 strongest/diversified cross-platform blend",
       "Canonical v4 tie-aware company batch calibration"
@@ -215,7 +216,7 @@ const experimentReport = {
   methodology: {
     rank_rule: "Score descending, then company name ascending, then company ID ascending.",
     normalization_parity_guard:
-      "The candidate component decomposition reconstructs the imported v4 robust blend for every eligible row and aborts on any score mismatch; published baseline rows use the imported normalizer output itself.",
+      "The candidate component decomposition reconstructs the imported v4 robust blend and score-level multiplier for every eligible row and aborts on any score mismatch; published baseline rows use the imported normalizer output itself.",
     aggregation_adapter:
       "Max and mean project each platform's deduplicated normalized rows to the requested platform statistic, then call the imported v4 aggregate so cross-platform scoring and confidence stay canonical. Decaying slots pass rows through unchanged.",
     perturbations: [
@@ -452,14 +453,12 @@ function normalizeCandidateEvidence(items, normalization, asOf) {
       (samplesByPlatform.get(original.platform) ?? []).map((sample) => sample.logEngagement),
       Math.log1p(rawEngagement)
     );
-    const reconstructedCanonical = Math.round(
-      clamp(
-        absoluteScore * TRACTION_SCORING_CONFIG.absoluteEvidenceWeight +
-          percentileScore * TRACTION_SCORING_CONFIG.cohortPercentileWeight,
-        1,
-        100
-      )
-    );
+    const reconstructedCanonical = experimentNormalizedScore({
+      absoluteScore,
+      percentileScore,
+      absoluteWeight: TRACTION_SCORING_CONFIG.absoluteEvidenceWeight,
+      percentileWeight: TRACTION_SCORING_CONFIG.cohortPercentileWeight
+    });
     normalizationParityAssertions += 1;
 
     if (reconstructedCanonical !== canonicalRow.contributionScore) {
@@ -470,14 +469,12 @@ function normalizeCandidateEvidence(items, normalization, asOf) {
 
     if (normalization.canonical) return canonicalRow;
 
-    const candidateScore = Math.round(
-      clamp(
-        absoluteScore * normalization.absoluteWeight +
-          percentileScore * normalization.percentileWeight,
-        1,
-        100
-      )
-    );
+    const candidateScore = experimentNormalizedScore({
+      absoluteScore,
+      percentileScore,
+      absoluteWeight: normalization.absoluteWeight,
+      percentileWeight: normalization.percentileWeight
+    });
 
     return {
       ...canonicalRow,
@@ -486,9 +483,29 @@ function normalizeCandidateEvidence(items, normalization, asOf) {
       why: `${canonicalRow.why} Experiment-only ${normalization.id}: absolute ${round(
         absoluteScore,
         1
-      )}, physical-post percentile ${round(percentileScore, 1)}, publication age excluded; scored ${candidateScore}/100.`
+      )}, physical-post percentile ${round(percentileScore, 1)}, score-level multiplier ${TRACTION_SCORING_CONFIG.scoreLevelMultiplier}, publication age excluded; scored ${candidateScore}/100.`
     };
   });
+}
+
+function experimentNormalizedScore({
+  absoluteScore,
+  percentileScore,
+  absoluteWeight,
+  percentileWeight
+}) {
+  const blendedScore = clamp(
+    absoluteScore * absoluteWeight + percentileScore * percentileWeight,
+    0,
+    100
+  );
+  return Math.round(
+    clamp(
+      blendedScore * TRACTION_SCORING_CONFIG.scoreLevelMultiplier,
+      1,
+      100
+    )
+  );
 }
 
 function isNormalizationSampleEligible(item, explicitAsOf) {
@@ -1053,7 +1070,7 @@ function renderDetailedMarkdown(report, jsonSha256) {
       return `| ${escapeMarkdown(normalization?.label ?? candidate.normalization)} | ${formatPercent(normalization?.absolute_weight ?? 0)} | ${formatPercent(normalization?.percentile_weight ?? 0)} | ${escapeMarkdown(candidate.aggregation)} | ${candidate.is_v4_baseline ? "yes" : "no"} |`;
     }),
     "",
-    "Max and mean vary only within-platform reduction. All candidates retain canonical v4 metric aliases/weights, eligibility, native identity, physical dedupe, date-invariant scoring, cross-platform aggregation, confidence, and company batch calibration.",
+    "Max and mean vary only within-platform reduction. All candidates retain canonical v4 metric aliases/weights, eligibility, native identity, physical dedupe, date-invariant scoring, the imported score-level multiplier, cross-platform aggregation, confidence, and company batch calibration.",
     "",
     "## Diagnostic Ranking",
     "",
@@ -1149,7 +1166,7 @@ function renderSummaryMarkdown(report, jsonSha256) {
     "",
     "## Candidates",
     "",
-    "Normalization compares absolute-only, percentile-heavy (35/65), and the imported v4 robust blend. Platform aggregation compares max, mean of the canonical top-K window, and imported v4 decaying slots. Metric aliases/weights, eligibility, identity, physical dedupe, date-invariant scoring, cross-platform aggregation, confidence, and company batch calibration remain canonical.",
+    "Normalization compares absolute-only, percentile-heavy (35/65), and the imported v4 robust blend. Platform aggregation compares max, mean of the canonical top-K window, and imported v4 decaying slots. Metric aliases/weights, eligibility, identity, physical dedupe, date-invariant scoring, the score-level multiplier, cross-platform aggregation, confidence, and company batch calibration remain canonical.",
     "",
     "## Deterministic Diagnostic Order",
     "",

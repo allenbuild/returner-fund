@@ -5,8 +5,8 @@
     "slug": "arga-labs",
     "name": "Arga Labs"
   },
-  "generatedAt": "2026-09-02T09:30:34.481Z",
-  "lastModifiedAt": "2026-09-02T09:30:34.481Z",
+  "generatedAt": "2026-09-02T20:24:31.584Z",
+  "lastModifiedAt": "2026-09-02T20:24:31.584Z",
   "events": [
     {
       "id": "tle-79a7c9db07821d583e496391",
@@ -103,7 +103,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 3,
-    "lastSuccessfulArtifactAt": "2026-09-02T09:30:34.481Z"
+    "lastSuccessfulArtifactAt": "2026-09-02T20:24:31.584Z"
   },
   "nextCursor": null
 }

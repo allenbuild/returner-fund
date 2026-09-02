@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "publishedAt": "2026-09-02T21:01:38.100Z",
+  "publishedAt": "2026-09-02T21:16:30.196Z",
   "ingestionRunId": "889b743e-02f2-4a19-992b-ca9a2f890a98",
   "evidenceCollectedAt": "2026-08-31T15:13:23.035Z",
   "evidenceCollectedAtKind": "artifact-derived",
@@ -177,7 +177,7 @@
       ],
       "fileCount": 943,
       "totalByteSize": 2054757,
-      "contentHash": "da6826293943edb491f98ff25cc504225ca3607cf2d1c2a20b7777c88aba5fbc"
+      "contentHash": "9db34b845034e03add24e1b941a8e37639727ef601bc5e198f29caa1b52512e9"
     },
     {
       "key": "scoringDiagnostics",
@@ -190,5 +190,5 @@
       "contentHash": "ed63e17097109a8f48eff9ecae38247421161fd421856323c3527e86138fd1f8"
     }
   ],
-  "contentHash": "83a71b88b5d5ca1113d176144c327258f2956a92143cebdac6e42ae9d06a5dfb"
+  "contentHash": "d0ca389ecb369700e6b192f9a95eb77b1510dfe5291d19ff2cd8df88aff8df74"
 }
