@@ -416,14 +416,15 @@ describe("YC Summer 2026 official snapshot", () => {
 
     expect(graphifyEvidence).toEqual(
       expect.arrayContaining([
-        // V4.3's bounded GitHub normalization maps the current 112,910-star
-        // repository receipt to 99; the global company benchmark is applied
-        // later and must not be baked into this evidence-row expectation.
+        // V4.3.1's bounded GitHub normalization maps the current 112,910-star
+        // repository receipt to 94 after score-level calibration; the global
+        // company benchmark is applied later and must not be baked into this
+        // evidence-row expectation.
         expect.objectContaining({
           platform: "github",
           sourceUrl: "https://github.com/Graphify-Labs/graphify",
           platformObjectId: "1200597263",
-          contributionScore: 99
+          contributionScore: 94
         }),
         expect.objectContaining({
           platform: "linkedin",
