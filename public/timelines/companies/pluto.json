@@ -5,8 +5,8 @@
     "slug": "pluto",
     "name": "Pluto"
   },
-  "generatedAt": "2026-09-01T09:58:59.221Z",
-  "lastModifiedAt": "2026-09-01T09:58:59.221Z",
+  "generatedAt": "2026-09-02T09:30:34.481Z",
+  "lastModifiedAt": "2026-09-02T09:30:34.481Z",
   "events": [
     {
       "id": "tle-fbd1da080384b59ad972d8e5",
@@ -75,7 +75,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 2,
-    "lastSuccessfulArtifactAt": "2026-09-01T09:58:59.221Z"
+    "lastSuccessfulArtifactAt": "2026-09-02T09:30:34.481Z"
   },
   "nextCursor": null
 }

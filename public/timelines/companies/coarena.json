@@ -5,8 +5,8 @@
     "slug": "coarena",
     "name": "CoArena"
   },
-  "generatedAt": "2026-09-01T09:58:59.221Z",
-  "lastModifiedAt": "2026-09-01T09:58:59.221Z",
+  "generatedAt": "2026-09-02T09:30:34.481Z",
+  "lastModifiedAt": "2026-09-02T09:30:34.481Z",
   "events": [
     {
       "id": "tle-af6d1088f84a8d0e0110225f",
@@ -133,7 +133,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 4,
-    "lastSuccessfulArtifactAt": "2026-09-01T09:58:59.221Z"
+    "lastSuccessfulArtifactAt": "2026-09-02T09:30:34.481Z"
   },
   "nextCursor": null
 }

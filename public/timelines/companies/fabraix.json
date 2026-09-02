@@ -5,8 +5,8 @@
     "slug": "fabraix",
     "name": "Fabraix"
   },
-  "generatedAt": "2026-09-01T09:58:59.221Z",
-  "lastModifiedAt": "2026-09-01T09:58:59.221Z",
+  "generatedAt": "2026-09-02T09:30:34.481Z",
+  "lastModifiedAt": "2026-09-02T09:30:34.481Z",
   "events": [
     {
       "id": "tle-2861049254722e979ec5b6ad",
@@ -133,7 +133,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 4,
-    "lastSuccessfulArtifactAt": "2026-09-01T09:58:59.221Z"
+    "lastSuccessfulArtifactAt": "2026-09-02T09:30:34.481Z"
   },
   "nextCursor": null
 }

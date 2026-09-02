@@ -1,7 +1,7 @@
 {
   "version": 1,
   "batchSlug": "A16ZSR006",
-  "updatedAt": "2026-09-01T09:59:30.393Z",
+  "updatedAt": "2026-09-02T09:31:03.858Z",
   "daily": [
     {
       "recordedAt": "2026-07-06T05:00:00.000Z",
@@ -20219,6 +20219,367 @@
       "recordedAt": "2026-09-01T09:59:30.393Z",
       "scoringModelVersion": "4.3.0",
       "inputGeneratedAt": "2026-09-01T09:58:59.221Z",
+      "companies": [
+        {
+          "companyId": "a16z-speedrun-006-syncere",
+          "companyName": "Syncere",
+          "score": 99,
+          "rank": 1
+        },
+        {
+          "companyId": "a16z-speedrun-006-antihero-studios",
+          "companyName": "Antihero Studios",
+          "score": 98,
+          "rank": 2
+        },
+        {
+          "companyId": "a16z-speedrun-006-idilio",
+          "companyName": "Idilio",
+          "score": 98,
+          "rank": 2
+        },
+        {
+          "companyId": "a16z-speedrun-006-zerodrift",
+          "companyName": "ZeroDrift",
+          "score": 98,
+          "rank": 2
+        },
+        {
+          "companyId": "a16z-speedrun-006-oasis",
+          "companyName": "Oasis",
+          "score": 95,
+          "rank": 5
+        },
+        {
+          "companyId": "a16z-speedrun-006-snag",
+          "companyName": "snag",
+          "score": 94,
+          "rank": 6
+        },
+        {
+          "companyId": "a16z-speedrun-006-mirror-mirror-ai",
+          "companyName": "Mirror Mirror AI",
+          "score": 85,
+          "rank": 7
+        },
+        {
+          "companyId": "a16z-speedrun-006-snapp-stats",
+          "companyName": "Snapp Stats",
+          "score": 83,
+          "rank": 8
+        },
+        {
+          "companyId": "a16z-speedrun-006-sun",
+          "companyName": "SUN",
+          "score": 83,
+          "rank": 8
+        },
+        {
+          "companyId": "a16z-speedrun-006-clair-health",
+          "companyName": "Clair Health",
+          "score": 81,
+          "rank": 10
+        },
+        {
+          "companyId": "a16z-speedrun-006-cascade",
+          "companyName": "Cascade",
+          "score": 80,
+          "rank": 11
+        },
+        {
+          "companyId": "a16z-speedrun-006-quo-labs",
+          "companyName": "Quo Labs",
+          "score": 78,
+          "rank": 12
+        },
+        {
+          "companyId": "a16z-speedrun-006-straia",
+          "companyName": "Straia",
+          "score": 78,
+          "rank": 12
+        },
+        {
+          "companyId": "a16z-speedrun-006-taxnova",
+          "companyName": "Taxnova",
+          "score": 78,
+          "rank": 12
+        },
+        {
+          "companyId": "a16z-speedrun-006-auto",
+          "companyName": "Auto",
+          "score": 76,
+          "rank": 15
+        },
+        {
+          "companyId": "a16z-speedrun-006-acceler8",
+          "companyName": "Acceler8",
+          "score": 74,
+          "rank": 16
+        },
+        {
+          "companyId": "a16z-speedrun-006-sellara",
+          "companyName": "Sellara",
+          "score": 74,
+          "rank": 16
+        },
+        {
+          "companyId": "a16z-speedrun-006-sparta",
+          "companyName": "Sparta",
+          "score": 74,
+          "rank": 16
+        },
+        {
+          "companyId": "a16z-speedrun-006-oasiz",
+          "companyName": "Oasiz",
+          "score": 73,
+          "rank": 19
+        },
+        {
+          "companyId": "a16z-speedrun-006-modern-industrials",
+          "companyName": "Modern Industrials",
+          "score": 72,
+          "rank": 20
+        },
+        {
+          "companyId": "a16z-speedrun-006-omi-health",
+          "companyName": "Omi Health",
+          "score": 72,
+          "rank": 20
+        },
+        {
+          "companyId": "a16z-speedrun-006-smart-bricks",
+          "companyName": "Smart Bricks",
+          "score": 72,
+          "rank": 20
+        },
+        {
+          "companyId": "a16z-speedrun-006-crebit",
+          "companyName": "Crebit",
+          "score": 71,
+          "rank": 23
+        },
+        {
+          "companyId": "a16z-speedrun-006-hotbox",
+          "companyName": "Hotbox",
+          "score": 70,
+          "rank": 24
+        },
+        {
+          "companyId": "a16z-speedrun-006-hammock",
+          "companyName": "Hammock",
+          "score": 68,
+          "rank": 25
+        },
+        {
+          "companyId": "a16z-speedrun-006-heavi",
+          "companyName": "Heavi",
+          "score": 68,
+          "rank": 25
+        },
+        {
+          "companyId": "a16z-speedrun-006-thirdbrain-labs",
+          "companyName": "Thirdbrain Labs",
+          "score": 68,
+          "rank": 25
+        },
+        {
+          "companyId": "a16z-speedrun-006-alike",
+          "companyName": "Alike",
+          "score": 67,
+          "rank": 28
+        },
+        {
+          "companyId": "a16z-speedrun-006-coalition-systems",
+          "companyName": "Coalition Systems",
+          "score": 67,
+          "rank": 28
+        },
+        {
+          "companyId": "a16z-speedrun-006-kaaro",
+          "companyName": "Kaaro",
+          "score": 67,
+          "rank": 28
+        },
+        {
+          "companyId": "a16z-speedrun-006-modaic",
+          "companyName": "Modaic",
+          "score": 67,
+          "rank": 28
+        },
+        {
+          "companyId": "a16z-speedrun-006-bilrost",
+          "companyName": "Bilrost",
+          "score": 66,
+          "rank": 32
+        },
+        {
+          "companyId": "a16z-speedrun-006-concorda",
+          "companyName": "Concorda",
+          "score": 66,
+          "rank": 32
+        },
+        {
+          "companyId": "a16z-speedrun-006-variantnow",
+          "companyName": "VariantNow",
+          "score": 66,
+          "rank": 32
+        },
+        {
+          "companyId": "a16z-speedrun-006-bota",
+          "companyName": "Bota",
+          "score": 64,
+          "rank": 35
+        },
+        {
+          "companyId": "a16z-speedrun-006-cedar",
+          "companyName": "Cedar",
+          "score": 64,
+          "rank": 35
+        },
+        {
+          "companyId": "a16z-speedrun-006-belong",
+          "companyName": "Belong",
+          "score": 61,
+          "rank": 37
+        },
+        {
+          "companyId": "a16z-speedrun-006-amdahl",
+          "companyName": "Amdahl",
+          "score": 59,
+          "rank": 38
+        },
+        {
+          "companyId": "a16z-speedrun-006-panorama",
+          "companyName": "Panorama",
+          "score": 58,
+          "rank": 39
+        },
+        {
+          "companyId": "a16z-speedrun-006-sentra",
+          "companyName": "Sentra",
+          "score": 58,
+          "rank": 39
+        },
+        {
+          "companyId": "a16z-speedrun-006-august",
+          "companyName": "August",
+          "score": 57,
+          "rank": 41
+        },
+        {
+          "companyId": "a16z-speedrun-006-meridian",
+          "companyName": "Meridian",
+          "score": 57,
+          "rank": 41
+        },
+        {
+          "companyId": "a16z-speedrun-006-pluvo",
+          "companyName": "Pluvo",
+          "score": 57,
+          "rank": 41
+        },
+        {
+          "companyId": "a16z-speedrun-006-safeworld",
+          "companyName": "SafeWorld",
+          "score": 57,
+          "rank": 41
+        },
+        {
+          "companyId": "a16z-speedrun-006-miraka",
+          "companyName": "Miraka",
+          "score": 56,
+          "rank": 45
+        },
+        {
+          "companyId": "a16z-speedrun-006-vereda",
+          "companyName": "Vereda",
+          "score": 54,
+          "rank": 46
+        },
+        {
+          "companyId": "a16z-speedrun-006-picpet",
+          "companyName": "PicPet",
+          "score": 53,
+          "rank": 47
+        },
+        {
+          "companyId": "a16z-speedrun-006-quanto",
+          "companyName": "Quanto",
+          "score": 53,
+          "rank": 47
+        },
+        {
+          "companyId": "a16z-speedrun-006-loops-ai",
+          "companyName": "Loops AI",
+          "score": 52,
+          "rank": 49
+        },
+        {
+          "companyId": "a16z-speedrun-006-sirius-technology",
+          "companyName": "Sirius Technology",
+          "score": 48,
+          "rank": 50
+        },
+        {
+          "companyId": "a16z-speedrun-006-quinn",
+          "companyName": "Quinn",
+          "score": 45,
+          "rank": 51
+        },
+        {
+          "companyId": "a16z-speedrun-006-emanate",
+          "companyName": "Emanate",
+          "score": 39,
+          "rank": 52
+        },
+        {
+          "companyId": "a16z-speedrun-006-partyhat",
+          "companyName": "PartyHat",
+          "score": 39,
+          "rank": 52
+        },
+        {
+          "companyId": "a16z-speedrun-006-advocate",
+          "companyName": "Advocate",
+          "score": 32,
+          "rank": 54
+        },
+        {
+          "companyId": "a16z-speedrun-006-grove-tax",
+          "companyName": "Grove Tax",
+          "score": 32,
+          "rank": 54
+        },
+        {
+          "companyId": "a16z-speedrun-006-piper-ai",
+          "companyName": "Piper-ai",
+          "score": 32,
+          "rank": 54
+        },
+        {
+          "companyId": "a16z-speedrun-006-paypath",
+          "companyName": "PayPath",
+          "score": 22,
+          "rank": 57
+        },
+        {
+          "companyId": "a16z-speedrun-006-simula",
+          "companyName": "Simula",
+          "score": 7,
+          "rank": 58
+        },
+        {
+          "companyId": "a16z-speedrun-006-prior-foundry",
+          "companyName": "Prior Foundry",
+          "score": 0,
+          "rank": 59
+        }
+      ]
+    },
+    {
+      "recordedAt": "2026-09-02T09:31:03.858Z",
+      "scoringModelVersion": "4.3.0",
+      "inputGeneratedAt": "2026-09-02T09:30:34.481Z",
       "companies": [
         {
           "companyId": "a16z-speedrun-006-syncere",
