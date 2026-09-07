@@ -744,7 +744,7 @@ describe("YC traction scoring regressions", () => {
     expect(careGp?.scoreBreakdown?.weightedPlatforms[0]?.evidenceCount).toBeGreaterThanOrEqual(1);
   });
 
-  it("reconciles screenpipe and one-platform Nori through actual bounded-primary contributions", () => {
+  it("reconciles screenpipe and two-platform Nori through actual bounded-primary contributions", () => {
     const graph = buildGraphResponse({ batchSlug: "S26" }, ycSpring2026GraphDataset);
     const nori = graph.nodes.find((node) => node.entityType === "company" && node.label === "Nori");
     const screenpipe = graph.nodes.find(
@@ -755,7 +755,13 @@ describe("YC traction scoring regressions", () => {
     expect(screenpipe).toBeTruthy();
     expect(nori?.score).toBeGreaterThan(nori?.scoreBreakdown?.absoluteScore ?? 0);
     expect(screenpipe?.score).toBeGreaterThan(screenpipe?.scoreBreakdown?.absoluteScore ?? 0);
-    expect(nori?.scoreBreakdown?.coverageFactor).toBe(0.21);
+    expect(
+      nori?.scoreBreakdown?.weightedPlatforms.map((row) => row.platform).sort()
+    ).toEqual(["hacker_news", "x"]);
+    expect(nori?.scoreBreakdown?.coverageFactor).toBe(
+      (TRACTION_SCORING_CONFIG.platformWeights.x ?? 0) +
+        (TRACTION_SCORING_CONFIG.platformWeights.hacker_news ?? 0)
+    );
     expect(screenpipe?.scoreBreakdown?.coverageFactor).toBeGreaterThan(
       nori?.scoreBreakdown?.coverageFactor ?? 0
     );
