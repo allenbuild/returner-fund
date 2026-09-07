@@ -98,7 +98,7 @@ test("trusted host recovery recomputes the exact newest Central slot without acc
   assert.equal(revalidated.reason, "revalidated-publication-watermark");
 });
 
-test("host recovery fails closed unless event type and expected main SHA are exact", () => {
+test("host recovery requires trusted event and exact SHA receipts while tolerating main advancing", () => {
   const headSha = "a".repeat(40);
   const base = {
     eventName: INGESTION_RECOVERY_DISPATCH_GITHUB_EVENT,
@@ -113,10 +113,9 @@ test("host recovery fails closed unless event type and expected main SHA are exa
     () => resolveIngestionSchedule({ ...base, eventAction: "some-other-dispatch" }),
     /event type is not trusted/
   );
-  assert.throws(
-    () => resolveIngestionSchedule({ ...base, triggerSha: "b".repeat(40) }),
-    /main commit changed/
-  );
+  const advancedMain = resolveIngestionSchedule({ ...base, triggerSha: "b".repeat(40) });
+  assert.equal(advancedMain.accepted, true);
+  assert.equal(advancedMain.slotKey, "central-2026-08-25-1800");
   assert.throws(
     () => resolveIngestionSchedule({ ...base, recoveryExpectedHeadSha: "" }),
     /exact expected and triggered main commit SHAs/
