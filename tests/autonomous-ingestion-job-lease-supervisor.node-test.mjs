@@ -1636,6 +1636,69 @@ test("GitHub recovery dispatch sends only the trusted event and expected main SH
   assert.doesNotMatch(JSON.stringify(calls[0].args), /central-\d{4}/);
 });
 
+test("GitHub repository reads retry transient exact-SHA propagation failures", async () => {
+  let attempts = 0;
+  const delays = [];
+  const client = createGitHubClient(config(), {
+    execute: async () => {
+      attempts += 1;
+      if (attempts < 3) {
+        const error = new Error("exact commit is not readable yet");
+        error.stdout = JSON.stringify({
+          message: `No commit found for the ref ${CURRENT_SHA}`,
+          status: "404"
+        });
+        throw error;
+      }
+      return { stdout: "trusted contents", stderr: "" };
+    },
+    sleep: async (milliseconds) => delays.push(milliseconds)
+  });
+
+  assert.equal(await client.getRepositoryText("package.json", CURRENT_SHA), "trusted contents");
+  assert.equal(attempts, 3);
+  assert.deepEqual(delays, [500, 1_500]);
+});
+
+test("GitHub repository reads preserve deterministic missing artifacts without retry", async () => {
+  let attempts = 0;
+  const client = createGitHubClient(config(), {
+    execute: async () => {
+      attempts += 1;
+      const error = new Error("artifact is absent");
+      error.stdout = JSON.stringify({ message: "Not Found", status: "404" });
+      throw error;
+    },
+    sleep: async () => assert.fail("deterministic 404 must not be retried")
+  });
+
+  await assert.rejects(
+    client.getRepositoryText("missing.json", CURRENT_SHA),
+    (error) => error?.code === "ENOENT"
+  );
+  assert.equal(attempts, 1);
+});
+
+test("schedule recovery fails closed when exact-SHA artifact reads stay inconclusive", async () => {
+  let dispatches = 0;
+  const decision = evaluateScheduleRecovery({
+    config: config({ scheduleRecoveryEnabled: true }),
+    github: github({
+      getRepositoryText: async () => {
+        throw new Error("temporary GitHub contents outage");
+      },
+      dispatchRecovery: async () => {
+        dispatches += 1;
+      }
+    }),
+    state: { recoveryDispatch: null },
+    now: new Date("2026-08-26T05:05:00.000Z")
+  });
+
+  await assert.rejects(decision, /Repository artifact read was inconclusive/);
+  assert.equal(dispatches, 0);
+});
+
 test("GitHub dashboard recovery dispatch requests the hosted no-external refresh", async () => {
   const calls = [];
   const client = createGitHubClient(config(), {

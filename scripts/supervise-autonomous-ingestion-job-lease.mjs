@@ -22,6 +22,7 @@ import {
   INGESTION_RECOVERY_DISPATCH_EVENT,
   latestEligibleCentralSlot,
   readPublicationWatermark,
+  REPOSITORY_ARTIFACT_READ_UNCERTAIN_CODE,
   resolveScheduledIngestion
 } from "./lib/ingestion-schedule.mjs";
 
@@ -62,6 +63,8 @@ const ACTIVE_RUN_STATUSES = new Set([
 const NON_SILENCING_RUN_CONCLUSIONS = new Set(["cancelled", "skipped"]);
 const DASHBOARD_WINDOW_MS = 72 * 60 * 60 * 1_000;
 const DASHBOARD_MAX_FUTURE_SKEW_MS = 5 * 60 * 1_000;
+const REPOSITORY_TEXT_READ_MAX_ATTEMPTS = 4;
+const REPOSITORY_TEXT_READ_RETRY_DELAYS_MS = Object.freeze([500, 1_500, 4_000]);
 const DASHBOARD_WATERMARK_STATUSES = new Set(["current", "stale", "missing", "invalid"]);
 const RUNNER_RESTART_OUTCOMES = new Set(["pending", "accepted", "failed"]);
 const TERMINAL_EVENT_DISPOSITIONS = new Set([
@@ -681,7 +684,8 @@ export async function readDashboardPublicationWatermark({
   let source;
   try {
     source = await readText(DASHBOARD_ARTIFACT_PATH);
-  } catch {
+  } catch (error) {
+    rethrowUncertainRepositoryRead(error);
     return Object.freeze({
       status: "missing",
       generatedAt: null,
@@ -789,7 +793,11 @@ export async function evaluateDashboardRecovery({
   }
 
   const watermark = await readDashboardPublicationWatermark({
-    readText: (relativePath) => github.getRepositoryText(relativePath, mainSha),
+    readText: (relativePath) => readRepositoryTextAtCommit({
+      github,
+      relativePath,
+      ref: mainSha
+    }),
     now,
     maxAgeMinutes: config.dashboardRecoveryMaxAgeMinutes
   });
@@ -979,7 +987,11 @@ export async function evaluateScheduleRecovery({
     now,
     readText: (relativePath) => {
       if (!reads.has(relativePath)) {
-        reads.set(relativePath, github.getRepositoryText(relativePath, mainSha));
+        reads.set(relativePath, readRepositoryTextAtCommit({
+          github,
+          relativePath,
+          ref: mainSha
+        }));
       }
       return reads.get(relativePath);
     }
@@ -1673,7 +1685,10 @@ async function readJsonOrNull(filePath, readLockFile = readFile) {
   }
 }
 
-export function createGitHubClient(config, { execute = execFile } = {}) {
+export function createGitHubClient(
+  config,
+  { execute = execFile, sleep = sleepMilliseconds } = {}
+) {
   const apiJson = async (endpoint) => {
     const { stdout } = await execute(
       config.ghBin,
@@ -1687,19 +1702,31 @@ export function createGitHubClient(config, { execute = execFile } = {}) {
     }
   };
   const apiText = async (endpoint) => {
-    const { stdout } = await execute(
-      config.ghBin,
-      [
-        "api",
-        "--method",
-        "GET",
-        "-H",
-        "Accept: application/vnd.github.raw+json",
-        endpoint
-      ],
-      { timeout: 30_000, maxBuffer: 64 * 1024 * 1024, encoding: "utf8" }
-    );
-    return stdout;
+    for (let attempt = 1; attempt <= REPOSITORY_TEXT_READ_MAX_ATTEMPTS; attempt += 1) {
+      try {
+        const { stdout } = await execute(
+          config.ghBin,
+          [
+            "api",
+            "--method",
+            "GET",
+            "-H",
+            "Accept: application/vnd.github.raw+json",
+            endpoint
+          ],
+          { timeout: 30_000, maxBuffer: 64 * 1024 * 1024, encoding: "utf8" }
+        );
+        return stdout;
+      } catch (error) {
+        if (repositoryArtifactNotFound(error)) {
+          error.code = "ENOENT";
+          throw error;
+        }
+        if (attempt === REPOSITORY_TEXT_READ_MAX_ATTEMPTS) throw error;
+        await sleep(REPOSITORY_TEXT_READ_RETRY_DELAYS_MS[attempt - 1]);
+      }
+    }
+    throw new Error("Repository text read exhausted without a terminal result.");
   };
   let workflowPromise = null;
   let dashboardWorkflowPromise = null;
@@ -2114,6 +2141,37 @@ function pruneRecord(record, maximum, score) {
 
 function withoutUndefined(value) {
   return Object.fromEntries(Object.entries(value).filter(([, entry]) => entry !== undefined));
+}
+
+async function readRepositoryTextAtCommit({ github, relativePath, ref }) {
+  try {
+    return await github.getRepositoryText(relativePath, ref);
+  } catch (error) {
+    if (error?.code === "ENOENT") throw error;
+    const uncertain = new Error(
+      `Repository artifact read was inconclusive for ${relativePath} at ${ref}: ${safeErrorMessage(error)}`,
+      { cause: error }
+    );
+    uncertain.code = REPOSITORY_ARTIFACT_READ_UNCERTAIN_CODE;
+    throw uncertain;
+  }
+}
+
+function repositoryArtifactNotFound(error) {
+  try {
+    const response = JSON.parse(String(error?.stdout ?? ""));
+    return String(response?.status ?? "") === "404" && response?.message === "Not Found";
+  } catch {
+    return false;
+  }
+}
+
+function rethrowUncertainRepositoryRead(error) {
+  if (error?.code === REPOSITORY_ARTIFACT_READ_UNCERTAIN_CODE) throw error;
+}
+
+function sleepMilliseconds(milliseconds) {
+  return new Promise((resolve) => setTimeout(resolve, milliseconds));
 }
 
 function plainObject(value) {

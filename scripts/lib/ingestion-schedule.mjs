@@ -23,6 +23,8 @@ export const INGESTION_PRIMARY_UTC_CRON_CANDIDATES = Object.freeze([
 export const INGESTION_RECOVERY_CRON = "7,22,37,52 * * * *";
 export const INGESTION_RECOVERY_DISPATCH_EVENT = "autonomous-ingestion-recovery";
 export const INGESTION_RECOVERY_DISPATCH_GITHUB_EVENT = "repository_dispatch";
+export const REPOSITORY_ARTIFACT_READ_UNCERTAIN_CODE =
+  "RETURNER_REPOSITORY_ARTIFACT_READ_UNCERTAIN";
 export const INGESTION_UTC_CRON_CANDIDATES = Object.freeze([
   ...INGESTION_PRIMARY_UTC_CRON_CANDIDATES,
   INGESTION_RECOVERY_CRON
@@ -412,7 +414,8 @@ export async function readPublicationWatermark({
     let source;
     try {
       source = await reader(relativePath);
-    } catch {
+    } catch (error) {
+      rethrowUncertainRepositoryRead(error);
       graphGeneratedAt[relativePath] = null;
       missing = true;
       return;
@@ -468,7 +471,8 @@ async function inspectPublicationAcceptance({ reader, cwd, ref, now }) {
   let markerText;
   try {
     markerText = await reader(INGESTION_ACCEPTANCE_MARKER_PATH);
-  } catch {
+  } catch (error) {
+    rethrowUncertainRepositoryRead(error);
     return Object.freeze({ status: "missing", marker: null, error: null });
   }
 
@@ -525,6 +529,7 @@ async function inspectPublicationAcceptance({ reader, cwd, ref, now }) {
     }
     return inspected;
   } catch (error) {
+    rethrowUncertainRepositoryRead(error);
     return Object.freeze({
       status: "invalid",
       marker: null,
@@ -544,7 +549,8 @@ async function inspectPublicationManifest({
   let source;
   try {
     source = await reader(descriptor.path);
-  } catch {
+  } catch (error) {
+    rethrowUncertainRepositoryRead(error);
     graphGeneratedAt[descriptor.path] = null;
     return { status: "missing" };
   }
@@ -622,7 +628,8 @@ async function inspectPublicationManifest({
     generationInstants.push(publishedAt, ...artifactInstants);
     completenessInstants.push(evidenceCollectedAt, ...benchmarkInstants);
     return { status: "valid" };
-  } catch {
+  } catch (error) {
+    rethrowUncertainRepositoryRead(error);
     graphGeneratedAt[descriptor.path] = null;
     return { status: "invalid" };
   }
@@ -657,7 +664,8 @@ async function readManifestArtifactInstant({
   let source;
   try {
     source = await reader(relativePath);
-  } catch {
+  } catch (error) {
+    rethrowUncertainRepositoryRead(error);
     graphGeneratedAt[relativePath] = null;
     return { status: "missing", instant: null };
   }
@@ -713,6 +721,10 @@ function graphPublicationProvenance({ graph, relativePath, now }) {
 
 function descriptorLabel(kind) {
   return kind === "graph" ? "graph artifact" : "benchmark artifact";
+}
+
+function rethrowUncertainRepositoryRead(error) {
+  if (error?.code === REPOSITORY_ARTIFACT_READ_UNCERTAIN_CODE) throw error;
 }
 
 function publicationInstant(value, label, now) {
