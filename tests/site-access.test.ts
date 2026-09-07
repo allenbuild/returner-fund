@@ -179,6 +179,23 @@ describe("site access", () => {
     expect(unrelatedApiResponse.status).toBe(401);
   });
 
+  it("lets the exact Vercel Cron wakeup route enforce CRON_SECRET itself", async () => {
+    vi.stubEnv("SITE_ACCESS_ENABLED", "true");
+    vi.stubEnv("SITE_PASSWORD", "");
+    vi.stubEnv("SITE_ACCESS_SECRET", "");
+
+    const wakeup = await proxy(new NextRequest(
+      "https://returner.fund/api/internal/ingestion-wakeup",
+      { headers: { authorization: "Bearer deliberately-invalid" } }
+    ));
+    expect(wakeup.headers.get("x-middleware-next")).toBe("1");
+
+    const neighboring = await proxy(new NextRequest(
+      "https://returner.fund/api/internal/ingestion-wakeup/other"
+    ));
+    expect(neighboring.status).toBe(503);
+  });
+
   it("lets only read requests to the exact Returner Fund integration route reach its own auth check", async () => {
     vi.stubEnv("SITE_ACCESS_ENABLED", "true");
     vi.stubEnv("SITE_PASSWORD", "correct horse battery staple");

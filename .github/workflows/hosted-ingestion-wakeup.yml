@@ -1,0 +1,117 @@
+name: Hosted Ingestion Wakeup Bridge
+run-name: Hosted ingestion wakeup from ${{ github.event.action || github.event.deployment_status.state }}
+
+on:
+  # Vercel emits this independently of GitHub's cron scheduler for every
+  # successful Git-connected production deployment, including deploy hooks.
+  repository_dispatch:
+    types: [vercel.deployment.success]
+  # Retain the legacy Vercel GitHub event as a second independent signal.
+  deployment_status:
+
+permissions: {}
+
+concurrency:
+  group: hosted-ingestion-wakeup-main
+  cancel-in-progress: false
+
+jobs:
+  resolve:
+    name: Revalidate current main before recovery
+    if: >-
+      github.event_name == 'repository_dispatch' ||
+      github.event.deployment_status.state == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    permissions:
+      actions: read
+      contents: write
+    outputs:
+      should_dispatch: ${{ steps.resolve.outputs.should_dispatch }}
+      expected_head_sha: ${{ steps.resolve.outputs.expected_head_sha }}
+      reason: ${{ steps.resolve.outputs.reason }}
+      slot_key: ${{ steps.resolve.outputs.slot_key }}
+    steps:
+      - name: Check out current main with acceptance history
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Resolve exact publication and acceptance debt
+        id: resolve
+        run: node scripts/lib/hosted-ingestion-wakeup.mjs
+
+      - name: Dispatch recovery only if debt still exists
+        if: steps.resolve.outputs.should_dispatch == 'true'
+        env:
+          EXPECTED_HEAD_SHA: ${{ steps.resolve.outputs.expected_head_sha }}
+          GH_API_URL: ${{ github.api_url }}
+          GH_REPOSITORY: ${{ github.repository }}
+          GH_RUN_ID: ${{ github.run_id }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          git fetch --quiet --no-tags origin refs/heads/main
+          CURRENT_HEAD_SHA="$(git rev-parse FETCH_HEAD)"
+          if [ "$CURRENT_HEAD_SHA" != "$EXPECTED_HEAD_SHA" ]; then
+            echo "Current main advanced after admission; the matching Vercel deployment will re-evaluate it."
+            exit 0
+          fi
+
+          node --input-type=module <<'NODE'
+          const apiBase = process.env.GH_API_URL;
+          const repository = process.env.GH_REPOSITORY;
+          const token = process.env.GH_TOKEN;
+          const expectedHeadSha = process.env.EXPECTED_HEAD_SHA;
+          if (!/^https:\/\/api\.github\.com$/.test(apiBase ?? "") ||
+              repository !== "allenbuild/returner-fund" ||
+              !/^[0-9a-f]{40}$/.test(expectedHeadSha ?? "") ||
+              !token) {
+            throw new Error("Recovery dispatch environment failed closed validation.");
+          }
+          const headers = {
+            Accept: "application/vnd.github+json",
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+            "X-GitHub-Api-Version": "2022-11-28"
+          };
+          for (const status of ["in_progress", "queued"]) {
+            const runs = await fetch(
+              `${apiBase}/repos/${repository}/actions/workflows/autonomous-ingestion.yml/runs?branch=main&status=${status}&per_page=1`,
+              { headers }
+            );
+            if (!runs.ok) throw new Error("Could not verify existing ingestion runs.");
+            const body = await runs.json();
+            if (Number(body.total_count) > 0) {
+              process.stdout.write(`Autonomous Ingestion already has a ${status} run; no duplicate dispatch.\n`);
+              process.exit(0);
+            }
+          }
+          const response = await fetch(`${apiBase}/repos/${repository}/dispatches`, {
+            method: "POST",
+            headers,
+            body: JSON.stringify({
+              event_type: "autonomous-ingestion-recovery",
+              client_payload: { expected_head_sha: expectedHeadSha }
+            })
+          });
+          if (response.status !== 204) throw new Error("GitHub rejected the recovery dispatch.");
+          process.stdout.write("Authorized one autonomous-ingestion recovery dispatch.\n");
+          NODE
+
+      - name: Record hosted wakeup decision
+        if: always()
+        env:
+          SHOULD_DISPATCH: ${{ steps.resolve.outputs.should_dispatch }}
+          REASON: ${{ steps.resolve.outputs.reason }}
+          SLOT_KEY: ${{ steps.resolve.outputs.slot_key }}
+        run: |
+          {
+            echo "## Hosted ingestion wakeup"
+            echo "- Recovery debt: ${SHOULD_DISPATCH:-not-evaluated}"
+            echo "- Resolver reason: ${REASON:-unavailable}"
+            echo "- Central slot: ${SLOT_KEY:-unavailable}"
+            echo "- Current accepted state creates no Autonomous Ingestion run."
+          } >> "$GITHUB_STEP_SUMMARY"

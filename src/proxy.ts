@@ -16,6 +16,10 @@ const PUBLIC_PATHS = new Set(["/unlock", "/api/access/unlock", "/dashboard", "/d
 // `stableKey` is an opaque worker-created `story-…` id. This allows the one
 // source expansion route without making `/api/dashboard/**` public.
 const PUBLIC_DASHBOARD_SOURCE_DETAIL_PATH = /^\/api\/dashboard\/stories\/story-[a-z0-9][a-z0-9_-]{0,127}\/sources\/?$/;
+// Vercel Cron authenticates this exact route with CRON_SECRET. Let the route
+// perform that stronger scoped check independently of the optional browser
+// password gate, including if browser-gate configuration is incomplete.
+const SELF_AUTHENTICATED_AUTOMATION_PATHS = new Set(["/api/internal/ingestion-wakeup"]);
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -27,6 +31,10 @@ export async function proxy(request: NextRequest) {
   }
 
   if (PUBLIC_PATHS.has(pathname) || PUBLIC_DASHBOARD_SOURCE_DETAIL_PATH.test(pathname)) {
+    return NextResponse.next();
+  }
+
+  if (SELF_AUTHENTICATED_AUTOMATION_PATHS.has(pathname)) {
     return NextResponse.next();
   }
 
