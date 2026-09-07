@@ -484,12 +484,18 @@ function createExternalDiscoveryDeadline(durationMs: number): ExternalDiscoveryD
           return;
         }
         pending.then(
-          (value) => finish(() => resolve(value)),
-          (error) => finish(() => reject(
-            error instanceof ExternalDiscoveryDeadlineFailure
-              ? deadlineFailure(failureLabel)
-              : error
-          ))
+          (value) => {
+            if (expired()) return;
+            finish(() => resolve(value));
+          },
+          (error) => {
+            if (expired()) return;
+            finish(() => reject(
+              error instanceof ExternalDiscoveryDeadlineFailure
+                ? deadlineFailure(failureLabel)
+                : error
+            ));
+          }
         );
       });
     },

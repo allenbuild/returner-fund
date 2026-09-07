@@ -1459,6 +1459,81 @@ describe("public dashboard discovery", () => {
     }
   });
 
+  it("settles at the hard deadline when transports ignore the abort signal", async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(NOW);
+    try {
+      const requestSignals: AbortSignal[] = [];
+      const fetchImpl = vi.fn((_input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
+        if (init?.signal) requestSignals.push(init.signal);
+        return new Promise<Response>(() => undefined);
+      });
+
+      const pending = discoverExternalDashboardCandidates({
+        now: NOW,
+        fetchImpl: fetchImpl as typeof fetch,
+        rssFeeds: [],
+        researchFeeds: [],
+        redditSubreddits: [],
+        discoveryTimeoutMs: 10
+      });
+      await vi.advanceTimersByTimeAsync(10);
+      const result = await pending;
+
+      expect(requestSignals).toHaveLength(3);
+      expect(requestSignals.every((signal) => signal.aborted)).toBe(true);
+      expect(result.sources).toEqual([]);
+      expect(result.failures).toEqual([
+        "external_discovery_deadline_exceeded",
+        "github_discovery_deadline",
+        "github_events_discovery_deadline",
+        "hacker_news_discovery_deadline"
+      ]);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("rejects I/O that settles after wall-clock expiry before the timer callback", async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(NOW);
+    try {
+      const completeRequests: Array<() => void> = [];
+      const fetchImpl = vi.fn((input: RequestInfo | URL): Promise<Response> => {
+        const url = new URL(String(input));
+        return new Promise<Response>((resolve) => completeRequests.push(() => {
+          if (url.hostname === "hn.algolia.com") resolve(json({ hits: [] }));
+          else if (url.pathname === "/search/repositories") resolve(json({ items: [] }));
+          else resolve(json([]));
+        }));
+      });
+
+      const pending = discoverExternalDashboardCandidates({
+        now: NOW,
+        fetchImpl: fetchImpl as typeof fetch,
+        rssFeeds: [],
+        researchFeeds: [],
+        redditSubreddits: [],
+        discoveryTimeoutMs: 10
+      });
+      await vi.advanceTimersByTimeAsync(0);
+      expect(completeRequests).toHaveLength(3);
+      vi.setSystemTime(new Date(NOW.getTime() + 20));
+      for (const complete of completeRequests) complete();
+      const result = await pending;
+
+      expect(result.sources).toEqual([]);
+      expect(result.failures).toEqual([
+        "external_discovery_deadline_exceeded",
+        "github_discovery_deadline",
+        "github_events_discovery_deadline",
+        "hacker_news_discovery_deadline"
+      ]);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it("aborts an active request at the remaining YouTube run budget", async () => {
     vi.useFakeTimers();
     vi.setSystemTime(NOW);
