@@ -266,9 +266,21 @@ describe("YC traction scoring regressions", () => {
     expect(postIds(summerGraph.evidence)).toEqual(
       expect.arrayContaining([
         "2072025943397564912",
-        "2073250618014044531",
-        "7475947824581529600"
+        "2073250618014044531"
       ])
+    );
+    expect(postIds(summerGraph.evidence)).not.toContain("7475947824581529600");
+    expect(
+      targetedEvidenceSnapshot.needsReview.find(
+        (item) =>
+          item.platformPostId === "7475947824581529600" &&
+          item.entityId === "founder-osmaura-jity-woldemichael-1366260"
+      )
+    ).toEqual(
+      expect.objectContaining({
+        review_state: "needs_review",
+        quarantineReasons: expect.arrayContaining(["entity_not_in_canonical_batch_catalog"])
+      })
     );
   });
 

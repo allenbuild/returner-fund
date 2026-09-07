@@ -50,6 +50,20 @@ const targetedEvidenceSnapshot = JSON.parse(
   }>;
 };
 
+const publicReviewLedgerSnapshot = JSON.parse(
+  readFileSync(join(process.cwd(), "outputs/public-ingestion-review-ledger-current.json"), "utf8")
+) as {
+  needsReview: Array<{
+    platformPostId?: string | null;
+    review_state: string;
+    quarantineReasons?: string[];
+    nativeAuthorResolution?: {
+      status?: string;
+      reason?: string;
+    };
+  }>;
+};
+
 const githubQuarantineSnapshot = JSON.parse(
   readFileSync(join(process.cwd(), "src/lib/social/github-traction-quarantine.json"), "utf8")
 ) as {
@@ -105,9 +119,10 @@ const VERIFIED_S26_LINKEDIN_POST_IDS = [
   "7473272593333166082",
   "7482811226582867968",
   "7474910574120787968",
-  "7481966021390647296",
   "7476759966184488960"
 ] as const;
+
+const RETIRED_OSMAURA_LINKEDIN_POST_ID = "7481966021390647296";
 
 describe("YC Summer 2026 official snapshot", () => {
   it("publishes more than 40,000 unique content rows without RSS/web alias inflation", () => {
@@ -606,6 +621,24 @@ describe("YC Summer 2026 official snapshot", () => {
     expect(evidence.every((item) => item.platform === "linkedin")).toBe(true);
     expect(evidence.every((item) => scoringEligibility(item).eligible)).toBe(true);
     expect(graph.evidence.some((item) => item.platformPostId === "7478895855991775232")).toBe(false);
+    expect(graph.evidence.some((item) => item.platformPostId === RETIRED_OSMAURA_LINKEDIN_POST_ID)).toBe(false);
+    expect(
+      publicReviewLedgerSnapshot.needsReview.find(
+        (item) => item.platformPostId === RETIRED_OSMAURA_LINKEDIN_POST_ID
+      )
+    ).toEqual(
+      expect.objectContaining({
+        review_state: "needs_review",
+        quarantineReasons: expect.arrayContaining([
+          "founder_subject_without_exact_founder_or_native_owner",
+          "semantic_attribution:canonical_company_attribution_unresolved"
+        ]),
+        nativeAuthorResolution: expect.objectContaining({
+          status: "unmatched",
+          reason: "native_author_not_in_canonical_roster"
+        })
+      })
+    );
   });
 
   it("accepts the targeted Libra Robotics post from exact native company-author proof", () => {

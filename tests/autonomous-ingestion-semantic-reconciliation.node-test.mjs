@@ -1114,7 +1114,7 @@ describe("autonomous ingestion semantic attribution contracts", () => {
     );
   });
 
-  it("resolves every native-author audit record to its exact canonical owner", async () => {
+  it("resolves every current native-author audit record and rejects removed canonical owners", async () => {
     const audit = JSON.parse(await readFile(
       join(root, "outputs/source-hunt/current-run-native-author-owner-resolution-audit.json"),
       "utf8"
@@ -1122,6 +1122,19 @@ describe("autonomous ingestion semantic attribution contracts", () => {
     const resolveNativeAuthor = buildAutonomousPublicNativeAuthorResolver(
       await loadAutonomousCatalogs(root)
     );
+    const removedCanonicalOwners = new Map([
+      [
+        "linkedin:post:7482293696571539456",
+        {
+          entityId: "founder-osmaura-jity-woldemichael-1366260",
+          resolution: {
+            status: "unmatched",
+            reason: "native_author_not_in_canonical_roster",
+            author: { platform: "linkedin", key: "tselote" }
+          }
+        }
+      ]
+    ]);
     for (const record of audit.records) {
       const resolution = resolveNativeAuthor({
         platform: record.platform,
@@ -1129,6 +1142,12 @@ describe("autonomous ingestion semantic attribution contracts", () => {
         authorHandle: record.nativeAuthorProof?.authorHandle,
         rawVisibleText: record.nativeAuthorProof?.authorUrl
       });
+      const removedOwner = removedCanonicalOwners.get(record.physicalIdentity);
+      if (removedOwner) {
+        assert.equal(record.resolvedAttribution.entityId, removedOwner.entityId, record.physicalIdentity);
+        assert.deepEqual(resolution, removedOwner.resolution, record.physicalIdentity);
+        continue;
+      }
       assert.equal(resolution.status, "matched", record.physicalIdentity);
       assert.deepEqual(
         [resolution.owner.batchSlug, resolution.owner.entityType, resolution.owner.entityId],
