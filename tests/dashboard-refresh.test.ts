@@ -8,13 +8,14 @@ import {
   dashboardRefreshLogDiagnostics,
   dashboardRefreshSourceHealth,
   enrichDashboardCandidatesWithPriorSnapshotMetrics,
+  retainPriorVerifiedYoutubeCandidatesOnDetailFailure,
   retainPriorDashboardSnapshotOnBroadSourceFailure
 } from "@/lib/dashboard/refresh";
 import {
   MAX_DASHBOARD_INSTAGRAM_ACCOUNTS,
   MAX_DASHBOARD_YOUTUBE_CHANNELS
 } from "@/lib/dashboard/external-discovery";
-import { buildDashboardSnapshot } from "@/lib/dashboard/pipeline";
+import { buildDashboardSnapshot, dashboardTop100Eligibility } from "@/lib/dashboard/pipeline";
 import { velocityScore } from "@/lib/dashboard/scoring";
 
 const PRIOR_GENERATED_AT = "2026-08-15T11:00:00.000Z";
@@ -81,6 +82,107 @@ describe("dashboard worker metric-history enrichment", () => {
       ["hacker_news", "youtube:search"],
       ["youtube_apple_browse_http_429"]
     )).toThrowError("dashboard_youtube_discovery_unavailable:youtube_apple_browse_http_429");
+  });
+
+  it("accepts a prior verified YouTube candidate only for transient detail unavailability", () => {
+    const channels = [{ name: "Apple", handle: "Apple" }];
+    expect(() => assertConfiguredYoutubeDiscoverySucceeded(
+      channels,
+      ["hacker_news"],
+      ["youtube_apple_detail_unavailable"],
+      1
+    )).not.toThrow();
+    expect(() => assertConfiguredYoutubeDiscoverySucceeded(
+      channels,
+      ["hacker_news"],
+      ["youtube_apple_browse_http_429"],
+      1
+    )).toThrowError("dashboard_youtube_discovery_unavailable:youtube_apple_browse_http_429");
+    expect(() => assertConfiguredYoutubeDiscoverySucceeded(
+      [...channels, { name: "MKBHD", handle: "mkbhd" }],
+      ["hacker_news"],
+      ["youtube_apple_detail_unavailable", "youtube_mkbhd_browse_http_429"],
+      1
+    )).toThrowError(
+      "dashboard_youtube_discovery_unavailable:youtube_apple_detail_unavailable,youtube_mkbhd_browse_http_429"
+    );
+  });
+
+  it("retains only prior YouTube proof that still clears every strict Top-100 gate", () => {
+    const channels = [{ name: "Apple", handle: "Apple" }];
+    const prior = buildDashboardSnapshot(
+      [qualifyingYoutubeCandidate()],
+      { now: new Date(PRIOR_GENERATED_AT) }
+    ).snapshot;
+    const later = NOW;
+    const failures = ["youtube_apple_detail_unavailable"];
+    const retained = retainPriorVerifiedYoutubeCandidatesOnDetailFailure([], prior, later, failures, channels);
+
+    expect(retained).toEqual([
+      expect.objectContaining({
+        id: "youtube:abcdefghijk",
+        canonicalKey: "youtube:video:abcdefghijk",
+        priorStoryStableKey: prior.stories[0]!.stableKey,
+        publishedAt: "2026-08-15T10:00:00.000Z",
+        observedAt: PRIOR_GENERATED_AT,
+        metrics: { views: 2_000_000, likes: 20_000 },
+        publicationPrecision: "exact",
+        sourceVerified: true,
+        sourceLinkStatus: "verified"
+      })
+    ]);
+    expect(retained[0]?.metricHistory).toBeUndefined();
+    expect(dashboardTop100Eligibility(retained[0]!, later)).toMatchObject({ eligible: true });
+    const firstCarry = buildDashboardSnapshot(retained, { now: later }).snapshot;
+    expect(firstCarry.stories[0]?.stableKey).toBe(prior.stories[0]?.stableKey);
+    expect(firstCarry.stories[0]?.updatedAt).toBe(PRIOR_GENERATED_AT);
+    expect(firstCarry.updatedAt).toBe(later.toISOString());
+    const recursiveCarry = retainPriorVerifiedYoutubeCandidatesOnDetailFailure(
+      [],
+      firstCarry,
+      new Date("2026-08-15T13:00:00.000Z"),
+      failures,
+      channels
+    );
+    expect(recursiveCarry[0]?.observedAt).toBe(PRIOR_GENERATED_AT);
+
+    const belowReach = structuredClone(prior);
+    belowReach.stories[0]!.sources[0]!.metrics.views = 999_999;
+    expect(retainPriorVerifiedYoutubeCandidatesOnDetailFailure([], belowReach, later, failures, channels)).toEqual([]);
+
+    const imprecise = structuredClone(prior);
+    imprecise.stories[0]!.sources[0]!.publishedAt = "2026-08-15";
+    expect(retainPriorVerifiedYoutubeCandidatesOnDetailFailure([], imprecise, later, failures, channels)).toEqual([]);
+
+    const expired = structuredClone(prior);
+    expired.stories[0]!.sources[0]!.publishedAt = "2026-08-12T11:59:59.999Z";
+    expect(retainPriorVerifiedYoutubeCandidatesOnDetailFailure([], expired, later, failures, channels)).toEqual([]);
+
+    const wrongIdentity = structuredClone(prior);
+    wrongIdentity.stories[0]!.sources[0]!.canonicalKey = "youtube:video:different01";
+    expect(retainPriorVerifiedYoutubeCandidatesOnDetailFailure([], wrongIdentity, later, failures, channels)).toEqual([]);
+
+    expect(retainPriorVerifiedYoutubeCandidatesOnDetailFailure(
+      [qualifyingYoutubeCandidate()],
+      prior,
+      later,
+      failures,
+      channels
+    )).toEqual([]);
+    expect(retainPriorVerifiedYoutubeCandidatesOnDetailFailure(
+      [],
+      prior,
+      later,
+      ["youtube_apple_browse_http_429"],
+      channels
+    )).toEqual([]);
+    expect(retainPriorVerifiedYoutubeCandidatesOnDetailFailure(
+      [],
+      prior,
+      later,
+      failures,
+      [{ name: "Different channel", handle: "DifferentChannel" }]
+    )).toEqual([]);
   });
 
   it("records a complete Instagram outage as partial while healthy adapters continue", () => {
@@ -305,6 +407,21 @@ function qualifyingSocialCandidate(id: string, publishedAt = "2026-08-15T11:00:0
     sourceVerified: true,
     sourceLinkStatus: "verified",
     publicationPrecision: "exact"
+  };
+}
+
+function qualifyingYoutubeCandidate(): DashboardCandidate {
+  return {
+    ...qualifyingSocialCandidate("abcdefghijk", "2026-08-15T10:00:00.000Z"),
+    id: "youtube:abcdefghijk",
+    canonicalKey: "youtube:video:abcdefghijk",
+    platform: "youtube",
+    sourceKind: "video",
+    url: "https://www.youtube.com/watch?v=abcdefghijk",
+    authorName: "Apple",
+    publisher: "YouTube",
+    observedAt: PRIOR_GENERATED_AT,
+    topics: ["ai"]
   };
 }
 

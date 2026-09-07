@@ -213,6 +213,14 @@ function hasSpecificSharedToken(left: Set<string>, right: Set<string>): boolean 
 }
 
 function storyStableKey(candidates: DashboardCandidate[]): string {
+  const priorStableKeys = new Set(candidates
+    .map((candidate) => candidate.priorStoryStableKey?.trim() ?? "")
+    .filter((value) => /^story-[a-z0-9]{8,64}$/.test(value)));
+  // A prior public snapshot is a durable identity receipt. Preserve it when
+  // exactly one previous story contributed to this cluster; conflicting
+  // receipts fail closed into the ordinary deterministic identity path.
+  if (priorStableKeys.size === 1) return [...priorStableKeys][0]!;
+
   // A cluster grows as independent coverage arrives. Its durable identity must
   // therefore come from one canonical event anchor, rather than a sorted union
   // of every source's URLs, adapter keys, and tokens. Otherwise a later

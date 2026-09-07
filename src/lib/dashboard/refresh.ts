@@ -20,7 +20,7 @@ import {
   discoverExternalDashboardCandidates,
   type ExternalDiscoveryOptions
 } from "./external-discovery";
-import { dashboardPlatformForCandidate, safeDate } from "./normalization";
+import { canonicalDashboardUrl, dashboardPlatformForCandidate, safeDate } from "./normalization";
 import { buildDashboardSnapshot, dashboardTop100Eligibility } from "./pipeline";
 import { dashboardCandidatesFromGraph } from "./returner-candidates";
 
@@ -29,6 +29,8 @@ const RETURNER_BATCHES: readonly PublishedGraphBatchSlug[] = ["S2026", "S26", "A
 // bounded public adapters finish. Permit that expected scheduler/adapter
 // skew, but reject a malformed timestamp materially beyond the run.
 const MAX_METRIC_OBSERVATION_SKEW_MS = 30 * 60 * 1_000;
+const YOUTUBE_DETAIL_UNAVAILABLE_FAILURE = /^youtube_(?!search_)[a-z0-9-]+_detail_unavailable$/i;
+const YOUTUBE_RETAINED_FAILURE = "youtube_prior_verified_retained";
 
 export interface DashboardRefreshOptions {
   now?: Date;
@@ -118,17 +120,34 @@ export async function refreshTechnologyDashboard(
     };
     externalAttempted = dashboardExternalAttemptCount(externalOptions);
     const external = await discoverExternalDashboardCandidates(externalOptions);
-    assertConfiguredYoutubeDiscoverySucceeded(externalOptions.youtubeChannels, external.sources, external.failures);
+    const retainedYoutubeCandidates = retainPriorVerifiedYoutubeCandidatesOnDetailFailure(
+      external.candidates,
+      options.priorSnapshot,
+      now,
+      external.failures,
+      externalOptions.youtubeChannels
+    );
+    assertConfiguredYoutubeDiscoverySucceeded(
+      externalOptions.youtubeChannels,
+      external.sources,
+      external.failures,
+      retainedYoutubeCandidates.length
+    );
     failures.push(...external.failures);
+    if (retainedYoutubeCandidates.length > 0) failures.push(YOUTUBE_RETAINED_FAILURE);
     failures.push(...configuredInstagramDiscoveryFailureLabels(
       externalOptions.instagramAccounts,
       external.sources
     ));
-    candidates.push(...external.candidates);
+    const externalCandidates = [...external.candidates, ...retainedYoutubeCandidates];
+    candidates.push(...externalCandidates);
     externalSucceeded = external.sources.length;
-    sourceCounts.industry = external.candidates.length;
+    sourceCounts.industry = externalCandidates.length;
+    if (retainedYoutubeCandidates.length > 0) {
+      sourceCounts["industry:youtube:retained"] = retainedYoutubeCandidates.length;
+    }
     Object.assign(sourceCounts, dashboardExternalCandidateCounts(
-      external.candidates,
+      externalCandidates,
       now,
       [
         ...(externalOptions.youtubeChannels?.length ? ["youtube" as const] : []),
@@ -299,15 +318,149 @@ export function dashboardExternalCandidateCounts(
 export function assertConfiguredYoutubeDiscoverySucceeded(
   youtubeChannels: ExternalDiscoveryOptions["youtubeChannels"],
   succeededSources: readonly string[],
-  failureLabels: readonly string[] = []
+  failureLabels: readonly string[] = [],
+  retainedVerifiedCandidateCount = 0
 ): void {
   if (!youtubeChannels?.length) return;
   if (succeededSources.some((source) => source.startsWith("youtube:") && source !== "youtube:search")) return;
+  if (
+    retainedVerifiedCandidateCount > 0 &&
+    isSystemicConfiguredYoutubeDetailOutage(youtubeChannels, failureLabels)
+  ) return;
   const youtubeFailures = failureLabels
     .filter((label) => !label.startsWith("youtube_search_") && /^youtube_[a-z0-9-]+_[a-z0-9_-]+$/i.test(label))
     .slice(0, MAX_DASHBOARD_YOUTUBE_CHANNELS);
   const diagnostic = youtubeFailures.length > 0 ? youtubeFailures.join(",") : "no_failure_labels";
   throw new Error(`dashboard_youtube_discovery_unavailable:${diagnostic}`);
+}
+
+/**
+ * Reuses only the last published, strictly-qualified YouTube source when the
+ * hosted worker cannot obtain any current video detail. The copied counters
+ * remain the prior native observation, receive no synthetic metric history,
+ * and must pass the current rolling-window and Top-100 gates again.
+ */
+export function retainPriorVerifiedYoutubeCandidatesOnDetailFailure(
+  currentCandidates: readonly DashboardCandidate[],
+  priorSnapshot: DashboardPublicSnapshot | null | undefined,
+  now: Date,
+  failureLabels: readonly string[],
+  youtubeChannels: ExternalDiscoveryOptions["youtubeChannels"]
+): DashboardCandidate[] {
+  if (
+    !priorSnapshot ||
+    !Number.isFinite(now.getTime()) ||
+    currentCandidates.some((candidate) => candidate.platform === "youtube") ||
+    !isSystemicConfiguredYoutubeDetailOutage(youtubeChannels, failureLabels)
+  ) return [];
+
+  const priorObservedAt = safeDate(priorSnapshot.generatedAt);
+  if (!priorObservedAt || priorObservedAt.getTime() > now.getTime()) return [];
+  const configuredAuthorNames = new Set(
+    (youtubeChannels ?? [])
+      .slice(0, MAX_DASHBOARD_YOUTUBE_CHANNELS)
+      .map((channel) => normalizedYoutubeAuthorName(channel.name))
+      .filter(Boolean)
+  );
+
+  const retained = new Map<string, DashboardCandidate>();
+  for (const story of priorSnapshot.stories) {
+    // The public artifact does not persist a per-source observation clock yet.
+    // A single-source story's updatedAt is therefore the only exact compatible
+    // observation receipt. Requiring one source prevents another clustered
+    // source from advancing that clock on YouTube's behalf.
+    if (story.sources.length !== 1) continue;
+    for (const source of story.sources) {
+      if (
+        source.platform !== "youtube" ||
+        source.nativePlatform !== "youtube" ||
+        source.sourceKind !== "video" ||
+        source.verificationState !== "verified"
+      ) continue;
+      const publishedAt = safeDate(source.publishedAt);
+      const sourceObservedAt = safeDate(story.updatedAt);
+      const videoId = youtubeWatchVideoId(source.url);
+      if (
+        !publishedAt ||
+        publishedAt.toISOString() !== source.publishedAt ||
+        publishedAt.getTime() > priorObservedAt.getTime() ||
+        !sourceObservedAt ||
+        sourceObservedAt.getTime() < publishedAt.getTime() ||
+        sourceObservedAt.getTime() > priorObservedAt.getTime() ||
+        !configuredAuthorNames.has(normalizedYoutubeAuthorName(source.authorName)) ||
+        source.publisher !== "YouTube" ||
+        !videoId ||
+        source.id !== `youtube:${videoId}` ||
+        source.canonicalKey !== `youtube:video:${videoId}`
+      ) continue;
+
+      const candidate: DashboardCandidate = {
+        id: source.id,
+        canonicalKey: source.canonicalKey,
+        platform: "youtube",
+        sourceKind: "video",
+        url: source.url,
+        destinationUrl: source.destinationUrl,
+        title: source.title,
+        summary: source.summary,
+        text: [source.title, source.summary].filter(Boolean).join(" "),
+        authorName: source.authorName,
+        publisher: source.publisher,
+        publishedAt: source.publishedAt,
+        observedAt: sourceObservedAt.toISOString(),
+        metrics: { ...source.metrics },
+        priorStoryStableKey: story.stableKey,
+        trackedEntity: source.trackedEntity,
+        topics: [...story.topics],
+        thumbnailUrl: source.thumbnailUrl,
+        thumbnailAlt: source.thumbnailAlt,
+        independentlyReported: false,
+        sourceQuality: 80,
+        socialBackfillEligible: true,
+        sourceVerified: true,
+        sourceLinkStatus: "verified",
+        publicationPrecision: "exact"
+      };
+      if (dashboardTop100Eligibility(candidate, now).eligible) {
+        retained.set(candidate.canonicalKey, candidate);
+      }
+    }
+  }
+  return [...retained.values()].sort((left, right) => left.canonicalKey.localeCompare(right.canonicalKey));
+}
+
+function isSystemicConfiguredYoutubeDetailOutage(
+  youtubeChannels: ExternalDiscoveryOptions["youtubeChannels"],
+  failureLabels: readonly string[]
+): boolean {
+  const channels = (youtubeChannels ?? []).slice(0, MAX_DASHBOARD_YOUTUBE_CHANNELS);
+  if (channels.length === 0) return false;
+  const failures = new Set(failureLabels.filter((label) => YOUTUBE_DETAIL_UNAVAILABLE_FAILURE.test(label)));
+  return channels.every((channel) => failures.has(youtubeDetailUnavailableFailureLabel(channel.handle)));
+}
+
+function youtubeDetailUnavailableFailureLabel(handleValue: string): string {
+  const handle = handleValue.trim().replace(/^@/, "");
+  const slug = handle.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "source";
+  return `youtube_${slug}_detail_unavailable`;
+}
+
+function normalizedYoutubeAuthorName(value: string | null | undefined): string {
+  return String(value ?? "").trim().replace(/\s+/g, " ").toLocaleLowerCase("en-US");
+}
+
+function youtubeWatchVideoId(value: string): string | null {
+  const canonical = canonicalDashboardUrl(value);
+  if (!canonical) return null;
+  try {
+    const url = new URL(canonical);
+    const videoId = url.searchParams.get("v") ?? "";
+    return url.hostname === "www.youtube.com" && url.pathname === "/watch" && /^[A-Za-z0-9_-]{11}$/.test(videoId)
+      ? videoId
+      : null;
+  } catch {
+    return null;
+  }
 }
 
 /**

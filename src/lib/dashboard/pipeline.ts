@@ -112,7 +112,11 @@ export function buildDashboardSnapshot(
   const snapshot: DashboardPipelineResult["snapshot"] = {
     schemaVersion: DASHBOARD_SCHEMA_VERSION,
     generatedAt: now.toISOString(),
-    updatedAt: latestUpdatedAt(rankedStories) ?? now.toISOString(),
+    // This is the publication clock for the complete snapshot. Individual
+    // stories retain their own source-observation clocks below; using the
+    // newest story here makes an otherwise successful hourly publication look
+    // stale or internally inconsistent to the recovery supervisor.
+    updatedAt: now.toISOString(),
     windowStart: windowStart.toISOString(),
     windowEnd: now.toISOString(),
     todayInTech: groundedTodayInTech(hottestStories),
@@ -989,10 +993,6 @@ function countBy<T>(items: readonly T[], keyFor: (item: T) => string): Record<st
     result[key] = (result[key] ?? 0) + 1;
   }
   return result;
-}
-
-function latestUpdatedAt(stories: readonly DashboardStory[]): string | null {
-  return stories.map((story) => story.updatedAt).sort().at(-1) ?? null;
 }
 
 function uniqueSorted<T extends string>(values: readonly T[]): T[] {

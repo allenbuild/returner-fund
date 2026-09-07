@@ -185,6 +185,8 @@ export interface DashboardCandidate {
   entityKeys?: string[];
   /** Optional deterministic event identity from a trusted adapter or previous story match. */
   storyKey?: string | null;
+  /** Worker-only exact identity receipt when reconstructing a previously published story. */
+  priorStoryStableKey?: string | null;
   entityLabel?: string | null;
   trackedEntity?: DashboardTrackedEntity | null;
   topics?: DashboardTopic[];
