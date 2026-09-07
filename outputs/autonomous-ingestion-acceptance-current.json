@@ -1,23 +1,23 @@
 {
   "schemaVersion": 1,
   "kind": "autonomous-ingestion-publication-acceptance",
-  "slotKey": "central-2026-09-06-1800",
-  "scheduledAt": "2026-09-06T23:00:00.000Z",
-  "acceptedAt": "2026-09-07T10:32:02.000Z",
-  "publicationCommit": "2dd6e8fdd717e66d98ea0f0f6bbddeea18f555f6",
-  "publicationSourceSha": "24ca586ce66c6dd8fb800577dbc9cd9846eff0a1",
-  "publicationRunId": "34085679151",
+  "slotKey": "central-2026-09-07-0600",
+  "scheduledAt": "2026-09-07T11:00:00.000Z",
+  "acceptedAt": "2026-09-07T19:18:44.000Z",
+  "publicationCommit": "8704983f8f1e32754532e55c6ca1fe227501ac8b",
+  "publicationSourceSha": "b6cd05a3cad67328c0f10815e209a5b1c2cb7448",
+  "publicationRunId": "34115714508",
   "publicationRunAttempt": "1",
   "receiptPath": "outputs/ingestion-source-delta-current.json",
-  "receiptSha256": "d58dbc87130ef5bb10e3c768aedeafd7173f343d83be1e06e3c9614310aa4381",
+  "receiptSha256": "c6a35bb52c6798bcd2086b74ffd28d9f6bddb20fe3b8912eb1870d152277658c",
   "manifestPath": "public/graph/manifest.json",
-  "manifestSha256": "677d9586252a020c61d9d0fe27293c6f094b221b513402e0604290e20a37c641",
-  "manifestContentHash": "32f06ed22081673d465fa4e0b6f358672c1545cea777dd1be49e5898b0faf8e3",
-  "evidenceCollectedAt": "2026-09-07T05:47:11.477Z",
+  "manifestSha256": "312183ac26cc703af40135d89ea4a6f0807647a710e1555522daf04f3faec9f2",
+  "manifestContentHash": "366c5cf5168783bdb0018491b2c601e3d9c938b5a10dd0a0c864d5258182e909",
+  "evidenceCollectedAt": "2026-09-07T15:52:35.996Z",
   "validation": {
-    "validatedSha": "72588ecd42eaf2688708de0b6da94894674e3010",
-    "workflowRunId": "34107454759",
+    "validatedSha": "2fbbc5e4d0e8471944152cfe8ed2394078c33cd7",
+    "workflowRunId": "34149607107",
     "workflowRunAttempt": "1"
   },
-  "bindingSha256": "fdb2251d011b68a4a9d4a865c3fea45013a7425dd7346f7a686f1e26d25aa4c6"
+  "bindingSha256": "02010d625267c4ce558e840011e0d1ab1e1e90b2d80c16f0f0c5e25e0164d6c3"
 }
