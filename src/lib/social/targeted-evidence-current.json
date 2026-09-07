@@ -1,7 +1,7 @@
 {
   "source": {
     "label": "Targeted long-run public evidence",
-    "fetchedAt": "2026-08-31T14:04:35.009Z",
+    "fetchedAt": "2026-09-07T05:13:21.070Z",
     "notes": [
       "Read-only public search/result snippets and accessible pages only.",
       "No Instagram login actions, likes, saves, follows, comments, DMs, or CAPTCHA bypassing.",
@@ -113,18 +113,20 @@
       "pidBackfilled": 1
     },
     "targetedMergeAudit": {
-      "mergedAt": "2026-08-31T15:11:33.494Z",
+      "mergedAt": "2026-09-07T05:47:12.571Z",
       "existingSnapshots": 1,
       "existingInputRows": 3400,
-      "isolatedRunInputRows": 7,
-      "acceptedRunRows": 7,
-      "duplicateRows": 7,
-      "quarantinedRows": 0,
-      "canonicalReattributedRows": 52,
-      "quarantineReasonCounts": {},
-      "attributionReconciliationCount": 182,
-      "outputEvidenceRows": 3400,
-      "outputNeedsReviewRows": 131
+      "isolatedRunInputRows": 0,
+      "acceptedRunRows": 0,
+      "duplicateRows": 0,
+      "quarantinedRows": 1,
+      "canonicalReattributedRows": 68,
+      "quarantineReasonCounts": {
+        "entity_not_in_canonical_batch_catalog": 1
+      },
+      "attributionReconciliationCount": 199,
+      "outputEvidenceRows": 3399,
+      "outputNeedsReviewRows": 132
     },
     "attributionReconciledAt": "2026-07-24T13:50:16.000Z",
     "evidenceCount": 3464
@@ -112356,9 +112358,9 @@
     },
     {
       "entityType": "founder",
-      "entityId": "founder-understudy-labs-luis-manrique-3647059",
-      "companyName": "Understudy Labs",
-      "companySlug": "understudy-labs",
+      "entityId": "founder-orchestra-luis-manrique-3647059",
+      "companyName": "Orchestra",
+      "companySlug": "orchestra",
       "platform": "x",
       "sourceUrl": "https://x.com/lluismanrique/status/2077424249640550592",
       "platformPostId": "2077424249640550592",
@@ -112423,10 +112425,18 @@
       "last_checked_at": "2026-07-19T06:35:00.000Z",
       "last_updated_at": "2026-07-15T16:05:12.000Z",
       "entityName": "Luis Manrique",
-      "attachedCompanyId": "company-understudy-labs",
+      "attachedCompanyId": "company-orchestra",
       "thumbnailUrl": "/evidence-thumbnails/x/source-hunt-020d34327f43118cf9fa.svg",
       "thumbnailSource": "fxtwitter-text-preview",
       "mediaUrl": "/evidence-thumbnails/x/source-hunt-020d34327f43118cf9fa.svg",
+      "previousAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-understudy-labs-luis-manrique-3647059",
+        "companySlug": "understudy-labs",
+        "companyName": "Understudy Labs"
+      },
+      "attributionReconciliationReason": "canonical_targeted_legacy_entity_alias",
       "batchSlug": "S26"
     },
     {
@@ -115916,9 +115926,9 @@
     },
     {
       "entityType": "founder",
-      "entityId": "founder-understudy-labs-luis-manrique-3647059",
-      "companyName": "Understudy Labs",
-      "companySlug": "understudy-labs",
+      "entityId": "founder-orchestra-luis-manrique-3647059",
+      "companyName": "Orchestra",
+      "companySlug": "orchestra",
       "platform": "x",
       "sourceUrl": "https://x.com/lluismanrique/status/2077413026077250030",
       "platformPostId": "2077413026077250030",
@@ -115981,10 +115991,18 @@
       "last_checked_at": "2026-07-19T06:35:00.000Z",
       "last_updated_at": "2026-07-15T15:20:36.000Z",
       "entityName": "Luis Manrique",
-      "attachedCompanyId": "company-understudy-labs",
+      "attachedCompanyId": "company-orchestra",
       "thumbnailUrl": "/evidence-thumbnails/x/source-hunt-22ff926d8b403333d466.svg",
       "thumbnailSource": "fxtwitter-text-preview",
       "mediaUrl": "/evidence-thumbnails/x/source-hunt-22ff926d8b403333d466.svg",
+      "previousAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-understudy-labs-luis-manrique-3647059",
+        "companySlug": "understudy-labs",
+        "companyName": "Understudy Labs"
+      },
+      "attributionReconciliationReason": "canonical_targeted_legacy_entity_alias",
       "batchSlug": "S26"
     },
     {
@@ -116930,9 +116948,9 @@
     },
     {
       "entityType": "founder",
-      "entityId": "founder-understudy-labs-luis-manrique-3647059",
-      "companyName": "Understudy Labs",
-      "companySlug": "understudy-labs",
+      "entityId": "founder-orchestra-luis-manrique-3647059",
+      "companyName": "Orchestra",
+      "companySlug": "orchestra",
       "platform": "x",
       "sourceUrl": "https://x.com/lluismanrique/status/2077281280367251653",
       "platformPostId": "2077281280367251653",
@@ -116994,10 +117012,18 @@
       "last_checked_at": "2026-07-19T06:35:00.000Z",
       "last_updated_at": "2026-07-15T06:37:05.000Z",
       "entityName": "Luis Manrique",
-      "attachedCompanyId": "company-understudy-labs",
+      "attachedCompanyId": "company-orchestra",
       "thumbnailUrl": "/evidence-thumbnails/x/source-hunt-2c11edf3ddd5ae22a3eb.svg",
       "thumbnailSource": "fxtwitter-text-preview",
       "mediaUrl": "/evidence-thumbnails/x/source-hunt-2c11edf3ddd5ae22a3eb.svg",
+      "previousAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-understudy-labs-luis-manrique-3647059",
+        "companySlug": "understudy-labs",
+        "companyName": "Understudy Labs"
+      },
+      "attributionReconciliationReason": "canonical_targeted_legacy_entity_alias",
       "batchSlug": "S26"
     },
     {
@@ -117216,9 +117242,9 @@
     },
     {
       "entityType": "company",
-      "entityId": "company-understudy-labs",
-      "companyName": "Understudy Labs",
-      "companySlug": "understudy-labs",
+      "entityId": "company-orchestra",
+      "companyName": "Orchestra",
+      "companySlug": "orchestra",
       "platform": "github",
       "sourceUrl": "https://github.com/understudylabs/lowermyaibill",
       "platformPostId": "understudylabs/lowermyaibill",
@@ -117278,11 +117304,19 @@
       "first_seen_at": "2026-07-19T06:35:00.000Z",
       "last_checked_at": "2026-07-19T06:35:00.000Z",
       "last_updated_at": "2026-07-14T05:37:10Z",
-      "entityName": "Understudy Labs",
-      "attachedCompanyId": "company-understudy-labs",
+      "entityName": "Orchestra",
+      "attachedCompanyId": "company-orchestra",
       "thumbnailUrl": "https://opengraph.githubassets.com/source-hunt-2d4100cf16386923c2cf/understudylabs/lowermyaibill",
       "thumbnailSource": "github",
       "mediaUrl": "https://github.com/understudylabs/lowermyaibill",
+      "previousAttribution": {
+        "batchSlug": "S26",
+        "entityType": "company",
+        "entityId": "company-understudy-labs",
+        "companySlug": "understudy-labs",
+        "companyName": "Understudy Labs"
+      },
+      "attributionReconciliationReason": "canonical_targeted_legacy_entity_alias",
       "batchSlug": "S26"
     },
     {
@@ -119767,9 +119801,9 @@
     },
     {
       "entityType": "founder",
-      "entityId": "founder-understudy-labs-luis-manrique-3647059",
-      "companyName": "Understudy Labs",
-      "companySlug": "understudy-labs",
+      "entityId": "founder-orchestra-luis-manrique-3647059",
+      "companyName": "Orchestra",
+      "companySlug": "orchestra",
       "platform": "x",
       "sourceUrl": "https://x.com/lluismanrique/status/2077281099903054138",
       "platformPostId": "2077281099903054138",
@@ -119830,10 +119864,18 @@
       "last_checked_at": "2026-07-19T06:35:00.000Z",
       "last_updated_at": "2026-07-15T06:36:22.000Z",
       "entityName": "Luis Manrique",
-      "attachedCompanyId": "company-understudy-labs",
+      "attachedCompanyId": "company-orchestra",
       "thumbnailUrl": "/evidence-thumbnails/x/source-hunt-5301b4676eeb5a3f79fc.svg",
       "thumbnailSource": "fxtwitter-text-preview",
       "mediaUrl": "/evidence-thumbnails/x/source-hunt-5301b4676eeb5a3f79fc.svg",
+      "previousAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-understudy-labs-luis-manrique-3647059",
+        "companySlug": "understudy-labs",
+        "companyName": "Understudy Labs"
+      },
+      "attributionReconciliationReason": "canonical_targeted_legacy_entity_alias",
       "batchSlug": "S26"
     },
     {
@@ -120530,9 +120572,9 @@
     },
     {
       "entityType": "founder",
-      "entityId": "founder-understudy-labs-luis-manrique-3647059",
-      "companyName": "Understudy Labs",
-      "companySlug": "understudy-labs",
+      "entityId": "founder-orchestra-luis-manrique-3647059",
+      "companyName": "Orchestra",
+      "companySlug": "orchestra",
       "platform": "x",
       "sourceUrl": "https://x.com/lluismanrique/status/2078302156474794317",
       "platformPostId": "2078302156474794317",
@@ -120593,10 +120635,18 @@
       "last_checked_at": "2026-07-19T06:35:00.000Z",
       "last_updated_at": "2026-07-18T02:13:41.000Z",
       "entityName": "Luis Manrique",
-      "attachedCompanyId": "company-understudy-labs",
+      "attachedCompanyId": "company-orchestra",
       "thumbnailUrl": "/evidence-thumbnails/x/source-hunt-56f588d8786140fdf4af.svg",
       "thumbnailSource": "fxtwitter-text-preview",
       "mediaUrl": "/evidence-thumbnails/x/source-hunt-56f588d8786140fdf4af.svg",
+      "previousAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-understudy-labs-luis-manrique-3647059",
+        "companySlug": "understudy-labs",
+        "companyName": "Understudy Labs"
+      },
+      "attributionReconciliationReason": "canonical_targeted_legacy_entity_alias",
       "batchSlug": "S26"
     },
     {
@@ -122226,9 +122276,9 @@
     },
     {
       "entityType": "founder",
-      "entityId": "founder-understudy-labs-luis-manrique-3647059",
-      "companyName": "Understudy Labs",
-      "companySlug": "understudy-labs",
+      "entityId": "founder-orchestra-luis-manrique-3647059",
+      "companyName": "Orchestra",
+      "companySlug": "orchestra",
       "platform": "x",
       "sourceUrl": "https://x.com/lluismanrique/status/2077769920222519363",
       "platformPostId": "2077769920222519363",
@@ -122289,10 +122339,18 @@
       "last_checked_at": "2026-07-19T06:35:00.000Z",
       "last_updated_at": "2026-07-16T14:58:46.000Z",
       "entityName": "Luis Manrique",
-      "attachedCompanyId": "company-understudy-labs",
+      "attachedCompanyId": "company-orchestra",
       "thumbnailUrl": "/evidence-thumbnails/x/source-hunt-626ed22082dc92ab4625.svg",
       "thumbnailSource": "fxtwitter-text-preview",
       "mediaUrl": "/evidence-thumbnails/x/source-hunt-626ed22082dc92ab4625.svg",
+      "previousAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-understudy-labs-luis-manrique-3647059",
+        "companySlug": "understudy-labs",
+        "companyName": "Understudy Labs"
+      },
+      "attributionReconciliationReason": "canonical_targeted_legacy_entity_alias",
       "batchSlug": "S26"
     },
     {
@@ -122441,9 +122499,9 @@
     },
     {
       "entityType": "founder",
-      "entityId": "founder-understudy-labs-luis-manrique-3647059",
-      "companyName": "Understudy Labs",
-      "companySlug": "understudy-labs",
+      "entityId": "founder-orchestra-luis-manrique-3647059",
+      "companyName": "Orchestra",
+      "companySlug": "orchestra",
       "platform": "x",
       "sourceUrl": "https://x.com/lluismanrique/status/2077407863543382146",
       "platformPostId": "2077407863543382146",
@@ -122505,10 +122563,18 @@
       "last_checked_at": "2026-07-19T06:35:00.000Z",
       "last_updated_at": "2026-07-15T15:00:05.000Z",
       "entityName": "Luis Manrique",
-      "attachedCompanyId": "company-understudy-labs",
+      "attachedCompanyId": "company-orchestra",
       "thumbnailUrl": "/evidence-thumbnails/x/source-hunt-631f5170fe2b1ffe37bf.svg",
       "thumbnailSource": "fxtwitter-text-preview",
       "mediaUrl": "/evidence-thumbnails/x/source-hunt-631f5170fe2b1ffe37bf.svg",
+      "previousAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-understudy-labs-luis-manrique-3647059",
+        "companySlug": "understudy-labs",
+        "companyName": "Understudy Labs"
+      },
+      "attributionReconciliationReason": "canonical_targeted_legacy_entity_alias",
       "batchSlug": "S26"
     },
     {
@@ -126032,9 +126098,9 @@
     },
     {
       "entityType": "founder",
-      "entityId": "founder-understudy-labs-luis-manrique-3647059",
-      "companyName": "Understudy Labs",
-      "companySlug": "understudy-labs",
+      "entityId": "founder-orchestra-luis-manrique-3647059",
+      "companyName": "Orchestra",
+      "companySlug": "orchestra",
       "platform": "x",
       "sourceUrl": "https://x.com/lluismanrique/status/2077412738310308177",
       "platformPostId": "2077412738310308177",
@@ -126095,10 +126161,18 @@
       "last_checked_at": "2026-07-19T06:35:00.000Z",
       "last_updated_at": "2026-07-15T15:19:27.000Z",
       "entityName": "Luis Manrique",
-      "attachedCompanyId": "company-understudy-labs",
+      "attachedCompanyId": "company-orchestra",
       "thumbnailUrl": "/evidence-thumbnails/x/source-hunt-903f90d0dc1077519f94.svg",
       "thumbnailSource": "fxtwitter-text-preview",
       "mediaUrl": "/evidence-thumbnails/x/source-hunt-903f90d0dc1077519f94.svg",
+      "previousAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-understudy-labs-luis-manrique-3647059",
+        "companySlug": "understudy-labs",
+        "companyName": "Understudy Labs"
+      },
+      "attributionReconciliationReason": "canonical_targeted_legacy_entity_alias",
       "batchSlug": "S26"
     },
     {
@@ -126364,9 +126438,9 @@
     },
     {
       "entityType": "founder",
-      "entityId": "founder-understudy-labs-luis-manrique-3647059",
-      "companyName": "Understudy Labs",
-      "companySlug": "understudy-labs",
+      "entityId": "founder-orchestra-luis-manrique-3647059",
+      "companyName": "Orchestra",
+      "companySlug": "orchestra",
       "platform": "x",
       "sourceUrl": "https://x.com/lluismanrique/status/2077772589897011497",
       "platformPostId": "2077772589897011497",
@@ -126430,10 +126504,18 @@
       "last_checked_at": "2026-07-19T06:35:00.000Z",
       "last_updated_at": "2026-07-16T15:09:23.000Z",
       "entityName": "Luis Manrique",
-      "attachedCompanyId": "company-understudy-labs",
+      "attachedCompanyId": "company-orchestra",
       "thumbnailUrl": "/evidence-thumbnails/x/source-hunt-927caa7dd5dd3c8e61ed.svg",
       "thumbnailSource": "fxtwitter-text-preview",
       "mediaUrl": "/evidence-thumbnails/x/source-hunt-927caa7dd5dd3c8e61ed.svg",
+      "previousAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-understudy-labs-luis-manrique-3647059",
+        "companySlug": "understudy-labs",
+        "companyName": "Understudy Labs"
+      },
+      "attributionReconciliationReason": "canonical_targeted_legacy_entity_alias",
       "batchSlug": "S26"
     },
     {
@@ -127560,9 +127642,9 @@
     },
     {
       "entityType": "founder",
-      "entityId": "founder-understudy-labs-luis-manrique-3647059",
-      "companyName": "Understudy Labs",
-      "companySlug": "understudy-labs",
+      "entityId": "founder-orchestra-luis-manrique-3647059",
+      "companyName": "Orchestra",
+      "companySlug": "orchestra",
       "platform": "x",
       "sourceUrl": "https://x.com/lluismanrique/status/2077411923793158431",
       "platformPostId": "2077411923793158431",
@@ -127624,10 +127706,18 @@
       "last_checked_at": "2026-07-19T06:35:00.000Z",
       "last_updated_at": "2026-07-15T15:16:13.000Z",
       "entityName": "Luis Manrique",
-      "attachedCompanyId": "company-understudy-labs",
+      "attachedCompanyId": "company-orchestra",
       "thumbnailUrl": "/evidence-thumbnails/x/source-hunt-a2b06108ba2d0331a8fc.svg",
       "thumbnailSource": "fxtwitter-text-preview",
       "mediaUrl": "/evidence-thumbnails/x/source-hunt-a2b06108ba2d0331a8fc.svg",
+      "previousAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-understudy-labs-luis-manrique-3647059",
+        "companySlug": "understudy-labs",
+        "companyName": "Understudy Labs"
+      },
+      "attributionReconciliationReason": "canonical_targeted_legacy_entity_alias",
       "batchSlug": "S26"
     },
     {
@@ -129409,9 +129499,9 @@
     },
     {
       "entityType": "founder",
-      "entityId": "founder-understudy-labs-luis-manrique-3647059",
-      "companyName": "Understudy Labs",
-      "companySlug": "understudy-labs",
+      "entityId": "founder-orchestra-luis-manrique-3647059",
+      "companyName": "Orchestra",
+      "companySlug": "orchestra",
       "platform": "x",
       "sourceUrl": "https://x.com/lluismanrique/status/2077412354837577775",
       "platformPostId": "2077412354837577775",
@@ -129472,10 +129562,18 @@
       "last_checked_at": "2026-07-19T06:35:00.000Z",
       "last_updated_at": "2026-07-15T15:17:56.000Z",
       "entityName": "Luis Manrique",
-      "attachedCompanyId": "company-understudy-labs",
+      "attachedCompanyId": "company-orchestra",
       "thumbnailUrl": "https://pbs.twimg.com/media/HNRzbHTagAAIDkM.png?name=orig",
       "thumbnailSource": "fxtwitter-direct-media",
       "mediaUrl": "/evidence-thumbnails/x/source-hunt-b50a18682cc170bea952.png",
+      "previousAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-understudy-labs-luis-manrique-3647059",
+        "companySlug": "understudy-labs",
+        "companyName": "Understudy Labs"
+      },
+      "attributionReconciliationReason": "canonical_targeted_legacy_entity_alias",
       "batchSlug": "S26"
     },
     {
@@ -129770,9 +129868,9 @@
     },
     {
       "entityType": "founder",
-      "entityId": "founder-understudy-labs-luis-manrique-3647059",
-      "companyName": "Understudy Labs",
-      "companySlug": "understudy-labs",
+      "entityId": "founder-orchestra-luis-manrique-3647059",
+      "companyName": "Orchestra",
+      "companySlug": "orchestra",
       "platform": "x",
       "sourceUrl": "https://x.com/lluismanrique/status/2077413246307614995",
       "platformPostId": "2077413246307614995",
@@ -129835,10 +129933,18 @@
       "last_checked_at": "2026-07-19T06:35:00.000Z",
       "last_updated_at": "2026-07-15T15:21:29.000Z",
       "entityName": "Luis Manrique",
-      "attachedCompanyId": "company-understudy-labs",
+      "attachedCompanyId": "company-orchestra",
       "thumbnailUrl": "/evidence-thumbnails/x/source-hunt-b6fe88fab2601f074452.svg",
       "thumbnailSource": "fxtwitter-text-preview",
       "mediaUrl": "/evidence-thumbnails/x/source-hunt-b6fe88fab2601f074452.svg",
+      "previousAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-understudy-labs-luis-manrique-3647059",
+        "companySlug": "understudy-labs",
+        "companyName": "Understudy Labs"
+      },
+      "attributionReconciliationReason": "canonical_targeted_legacy_entity_alias",
       "batchSlug": "S26"
     },
     {
@@ -130418,9 +130524,9 @@
     },
     {
       "entityType": "founder",
-      "entityId": "founder-understudy-labs-luis-manrique-3647059",
-      "companyName": "Understudy Labs",
-      "companySlug": "understudy-labs",
+      "entityId": "founder-orchestra-luis-manrique-3647059",
+      "companyName": "Orchestra",
+      "companySlug": "orchestra",
       "platform": "x",
       "sourceUrl": "https://x.com/lluismanrique/status/2077509978555093206",
       "platformPostId": "2077509978555093206",
@@ -130481,10 +130587,18 @@
       "last_checked_at": "2026-07-19T06:35:00.000Z",
       "last_updated_at": "2026-07-15T21:45:51.000Z",
       "entityName": "Luis Manrique",
-      "attachedCompanyId": "company-understudy-labs",
+      "attachedCompanyId": "company-orchestra",
       "thumbnailUrl": "https://pbs.twimg.com/media/HNTMUC7bwAA9ghK.jpg?name=orig",
       "thumbnailSource": "fxtwitter-direct-media",
       "mediaUrl": "/evidence-thumbnails/x/source-hunt-bdf405fc948453bfbfae.jpg",
+      "previousAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-understudy-labs-luis-manrique-3647059",
+        "companySlug": "understudy-labs",
+        "companyName": "Understudy Labs"
+      },
+      "attributionReconciliationReason": "canonical_targeted_legacy_entity_alias",
       "batchSlug": "S26"
     },
     {
@@ -133746,9 +133860,9 @@
     },
     {
       "entityType": "founder",
-      "entityId": "founder-understudy-labs-luis-manrique-3647059",
-      "companyName": "Understudy Labs",
-      "companySlug": "understudy-labs",
+      "entityId": "founder-orchestra-luis-manrique-3647059",
+      "companyName": "Orchestra",
+      "companySlug": "orchestra",
       "platform": "x",
       "sourceUrl": "https://x.com/lluismanrique/status/2077481255403426120",
       "platformPostId": "2077481255403426120",
@@ -133809,10 +133923,18 @@
       "last_checked_at": "2026-07-19T06:35:00.000Z",
       "last_updated_at": "2026-07-15T19:51:43.000Z",
       "entityName": "Luis Manrique",
-      "attachedCompanyId": "company-understudy-labs",
+      "attachedCompanyId": "company-orchestra",
       "thumbnailUrl": "/evidence-thumbnails/x/source-hunt-e7313c177292195d0ea5.svg",
       "thumbnailSource": "fxtwitter-text-preview",
       "mediaUrl": "/evidence-thumbnails/x/source-hunt-e7313c177292195d0ea5.svg",
+      "previousAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-understudy-labs-luis-manrique-3647059",
+        "companySlug": "understudy-labs",
+        "companyName": "Understudy Labs"
+      },
+      "attributionReconciliationReason": "canonical_targeted_legacy_entity_alias",
       "batchSlug": "S26"
     },
     {
@@ -135298,9 +135420,9 @@
     },
     {
       "entityType": "founder",
-      "entityId": "founder-understudy-labs-luis-manrique-3647059",
-      "companyName": "Understudy Labs",
-      "companySlug": "understudy-labs",
+      "entityId": "founder-orchestra-luis-manrique-3647059",
+      "companyName": "Orchestra",
+      "companySlug": "orchestra",
       "platform": "x",
       "sourceUrl": "https://x.com/lluismanrique/status/2077772889567445097",
       "platformPostId": "2077772889567445097",
@@ -135363,10 +135485,18 @@
       "last_checked_at": "2026-07-19T06:35:00.000Z",
       "last_updated_at": "2026-07-16T15:10:34.000Z",
       "entityName": "Luis Manrique",
-      "attachedCompanyId": "company-understudy-labs",
+      "attachedCompanyId": "company-orchestra",
       "thumbnailUrl": "/evidence-thumbnails/x/source-hunt-f73ba065ad3e29cc3855.svg",
       "thumbnailSource": "fxtwitter-text-preview",
       "mediaUrl": "/evidence-thumbnails/x/source-hunt-f73ba065ad3e29cc3855.svg",
+      "previousAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-understudy-labs-luis-manrique-3647059",
+        "companySlug": "understudy-labs",
+        "companyName": "Understudy Labs"
+      },
+      "attributionReconciliationReason": "canonical_targeted_legacy_entity_alias",
       "batchSlug": "S26"
     },
     {
@@ -147790,39 +147920,6 @@
       "batchSlug": "S26"
     },
     {
-      "id": "linkedin-source-hunt-founder-cerenovus-jonathan-waldorf-3502381-7480447104734109696",
-      "entityType": "founder",
-      "entityId": "founder-cerenovus-jonathan-waldorf-3502381",
-      "companyName": "Cerenovus",
-      "platform": "linkedin",
-      "title": "#buildinpublic #ycombinator #startups #ycs26",
-      "sourceUrl": "https://www.linkedin.com/posts/jonathan-waldorf_buildinpublic-ycombinator-startups-activity-7480447104734109696-R0m8",
-      "platformPostId": "7480447104734109696",
-      "text": "Jonathan Waldorf introduced the Cerenovus founding team and described building Cerenovus for enterprise knowledge organization, with YC S26 context.",
-      "rawVisibleText": "{\"source\":\"yc_nonx_fifth_pass\",\"artifactPath\":\"outputs/source-hunt/yc-nonx-fifth-pass.json\",\"profile\":{\"name\":\"Cerenovus\",\"username\":null,\"url\":null},\"post\":{\"id\":\"7480447104734109696\",\"url\":\"https://www.linkedin.com/posts/jonathan-waldorf_buildinpublic-ycombinator-startups-activity-7480447104734109696-R0m8\",\"rawText\":\"Jonathan Waldorf introduced the Cerenovus founding team and described building Cerenovus for enterprise knowledge organization, with YC S26 context.\",\"text\":\"Jonathan Waldorf introduced the Cerenovus founding team and described building Cerenovus for enterprise knowledge organization, with YC S26 context.\",\"created_at\":\"1w Edited\",\"authorName\":\"Cerenovus\",\"authorHandle\":null},\"counts\":{\"reactions\":67,\"comments\":11,\"likes\":67},\"target\":{\"batch\":\"S26\",\"companyName\":\"Cerenovus\",\"founderName\":\"Jonathan Waldorf\"},\"verification\":{\"status\":\"accepted\",\"checkedAt\":\"2026-07-15T23:59:00.000Z\",\"method\":\"yc_nonx_fifth_pass; native URL and visible metrics checked before import.\",\"metricsVisible\":true,\"notProfileOrSearchPage\":true,\"attributionSignals\":[],\"reason\":\"Fresh native LinkedIn founder post with visible reactions/comments; text names Cerenovus and YC S26, and local Summer 2026 roster lists Cerenovus with founder Jonathan Waldorf.\"},\"batchContext\":{\"batch\":\"S26\",\"source\":\"known_summer_snapshot_entity_id\"}}",
-      "postedAt": "2026-07-15T23:59:00.000Z",
-      "metrics": {
-        "reactions": 67,
-        "comments": 11,
-        "likes": 67
-      },
-      "contributionScore": 1,
-      "review_state": "verified",
-      "matchReason": "Fresh native LinkedIn founder post with visible reactions/comments; text names Cerenovus and YC S26, and local Summer 2026 roster lists Cerenovus with founder Jonathan Waldorf.",
-      "first_seen_at": "2026-07-15T23:59:00.000Z",
-      "last_checked_at": "2026-07-15T23:59:00.000Z",
-      "last_updated_at": "2026-07-15T23:59:00.000Z",
-      "linkStatus": "verified",
-      "linkCheckedAt": "2026-07-15T23:59:00.000Z",
-      "entityName": "Jonathan Waldorf",
-      "companySlug": "cerenovus",
-      "attachedCompanyId": "company-cerenovus",
-      "thumbnailUrl": "https://dms.licdn.com/playlist/vid/v2/D5605AQEsDtCIEcWoBQ/thumbnail-with-play-button-overlay-high/B56Z8_IWiSG8C0-/0/1783470589022?e=2147483647&v=beta&t=4Rzia0--7bhPucrLIsY2HSPBJlytzWtD3xiddrkMXhk",
-      "thumbnailSource": "link-preview-og-image",
-      "mediaUrl": "/evidence-thumbnails/linkedin/linkedin-source-hunt-founder-cerenovus-jonathan-waldorf-3502381-7480447104734109696.svg",
-      "batchSlug": "S26"
-    },
-    {
       "id": "linkedin-source-hunt-founder-realpact-erik-peterson-2392871-7474911468765855744",
       "entityType": "founder",
       "entityId": "founder-realpact-erik-peterson-2392871",
@@ -158163,6 +158260,35 @@
       }
     },
     {
+      "id": "quarantine-linkedin-source-hunt-founder-cerenovus-jonathan-waldorf-3502381-7480447104734109696-3135",
+      "batchSlug": "S26",
+      "entityType": "founder",
+      "entityId": "founder-cerenovus-jonathan-waldorf-3502381",
+      "entityName": "Cerenovus",
+      "platform": "linkedin",
+      "platformPostId": "7480447104734109696",
+      "candidateUrl": "https://www.linkedin.com/posts/jonathan-waldorf_buildinpublic-ycombinator-startups-activity-7480447104734109696-R0m8",
+      "review_state": "needs_review",
+      "sourceEvidenceId": "linkedin-source-hunt-founder-cerenovus-jonathan-waldorf-3502381-7480447104734109696",
+      "quarantineReasons": [
+        "entity_not_in_canonical_batch_catalog"
+      ],
+      "matchReason": "Quarantined during targeted evidence publication: entity_not_in_canonical_batch_catalog.",
+      "attributionReconciliationDirective": {
+        "platform": "linkedin",
+        "sourceUrl": "https://linkedin.com/posts/jonathan-waldorf_buildinpublic-ycombinator-startups-activity-7480447104734109696-R0m8",
+        "platformPostId": "7480447104734109696",
+        "disposition": "quarantined",
+        "reason": "entity_not_in_canonical_batch_catalog",
+        "staleAttribution": {
+          "batchSlug": "S26",
+          "entityType": "founder",
+          "entityId": "founder-cerenovus-jonathan-waldorf-3502381",
+          "attributionType": "subject"
+        }
+      }
+    },
+    {
       "id": "quarantine-linkedin-topvoice-company-9-mothers-corporation-tarof-activity-7471229920451629056-1355",
       "batchSlug": "S2026",
       "entityType": "company",
@@ -161479,6 +161605,25 @@
     },
     {
       "platform": "github",
+      "sourceUrl": "https://github.com/understudylabs/lowermyaibill",
+      "platformPostId": "understudylabs/lowermyaibill",
+      "disposition": "reattributed",
+      "reason": "canonical_targeted_legacy_entity_alias",
+      "staleAttribution": {
+        "batchSlug": "S26",
+        "entityType": "company",
+        "entityId": "company-understudy-labs",
+        "attributionType": "subject"
+      },
+      "replacementAttribution": {
+        "batchSlug": "S26",
+        "entityType": "company",
+        "entityId": "company-orchestra",
+        "attributionType": "subject"
+      }
+    },
+    {
+      "platform": "github",
       "sourceUrl": "https://github.com/UseBylaw/typescript-sdk",
       "platformPostId": "UseBylaw/typescript-sdk",
       "disposition": "reattributed",
@@ -162641,6 +162786,19 @@
     },
     {
       "platform": "linkedin",
+      "sourceUrl": "https://linkedin.com/posts/jonathan-waldorf_buildinpublic-ycombinator-startups-activity-7480447104734109696-R0m8",
+      "platformPostId": "7480447104734109696",
+      "disposition": "quarantined",
+      "reason": "entity_not_in_canonical_batch_catalog",
+      "staleAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-cerenovus-jonathan-waldorf-3502381",
+        "attributionType": "subject"
+      }
+    },
+    {
+      "platform": "linkedin",
       "sourceUrl": "https://linkedin.com/posts/coastyai_coasty-computer-using-agents-on-secure-cloud-activity-7480998697632165888-QKxx",
       "platformPostId": "7480998697632165888",
       "disposition": "quarantined",
@@ -163467,6 +163625,196 @@
     },
     {
       "platform": "x",
+      "sourceUrl": "https://x.com/lluismanrique/status/2077281099903054138",
+      "platformPostId": "2077281099903054138",
+      "disposition": "reattributed",
+      "reason": "canonical_targeted_legacy_entity_alias",
+      "staleAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-understudy-labs-luis-manrique-3647059",
+        "attributionType": "subject"
+      },
+      "replacementAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-orchestra-luis-manrique-3647059",
+        "attributionType": "subject"
+      }
+    },
+    {
+      "platform": "x",
+      "sourceUrl": "https://x.com/lluismanrique/status/2077281280367251653",
+      "platformPostId": "2077281280367251653",
+      "disposition": "reattributed",
+      "reason": "canonical_targeted_legacy_entity_alias",
+      "staleAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-understudy-labs-luis-manrique-3647059",
+        "attributionType": "subject"
+      },
+      "replacementAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-orchestra-luis-manrique-3647059",
+        "attributionType": "subject"
+      }
+    },
+    {
+      "platform": "x",
+      "sourceUrl": "https://x.com/lluismanrique/status/2077407863543382146",
+      "platformPostId": "2077407863543382146",
+      "disposition": "reattributed",
+      "reason": "canonical_targeted_legacy_entity_alias",
+      "staleAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-understudy-labs-luis-manrique-3647059",
+        "attributionType": "subject"
+      },
+      "replacementAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-orchestra-luis-manrique-3647059",
+        "attributionType": "subject"
+      }
+    },
+    {
+      "platform": "x",
+      "sourceUrl": "https://x.com/lluismanrique/status/2077411923793158431",
+      "platformPostId": "2077411923793158431",
+      "disposition": "reattributed",
+      "reason": "canonical_targeted_legacy_entity_alias",
+      "staleAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-understudy-labs-luis-manrique-3647059",
+        "attributionType": "subject"
+      },
+      "replacementAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-orchestra-luis-manrique-3647059",
+        "attributionType": "subject"
+      }
+    },
+    {
+      "platform": "x",
+      "sourceUrl": "https://x.com/lluismanrique/status/2077412354837577775",
+      "platformPostId": "2077412354837577775",
+      "disposition": "reattributed",
+      "reason": "canonical_targeted_legacy_entity_alias",
+      "staleAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-understudy-labs-luis-manrique-3647059",
+        "attributionType": "subject"
+      },
+      "replacementAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-orchestra-luis-manrique-3647059",
+        "attributionType": "subject"
+      }
+    },
+    {
+      "platform": "x",
+      "sourceUrl": "https://x.com/lluismanrique/status/2077412738310308177",
+      "platformPostId": "2077412738310308177",
+      "disposition": "reattributed",
+      "reason": "canonical_targeted_legacy_entity_alias",
+      "staleAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-understudy-labs-luis-manrique-3647059",
+        "attributionType": "subject"
+      },
+      "replacementAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-orchestra-luis-manrique-3647059",
+        "attributionType": "subject"
+      }
+    },
+    {
+      "platform": "x",
+      "sourceUrl": "https://x.com/lluismanrique/status/2077413026077250030",
+      "platformPostId": "2077413026077250030",
+      "disposition": "reattributed",
+      "reason": "canonical_targeted_legacy_entity_alias",
+      "staleAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-understudy-labs-luis-manrique-3647059",
+        "attributionType": "subject"
+      },
+      "replacementAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-orchestra-luis-manrique-3647059",
+        "attributionType": "subject"
+      }
+    },
+    {
+      "platform": "x",
+      "sourceUrl": "https://x.com/lluismanrique/status/2077413246307614995",
+      "platformPostId": "2077413246307614995",
+      "disposition": "reattributed",
+      "reason": "canonical_targeted_legacy_entity_alias",
+      "staleAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-understudy-labs-luis-manrique-3647059",
+        "attributionType": "subject"
+      },
+      "replacementAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-orchestra-luis-manrique-3647059",
+        "attributionType": "subject"
+      }
+    },
+    {
+      "platform": "x",
+      "sourceUrl": "https://x.com/lluismanrique/status/2077424249640550592",
+      "platformPostId": "2077424249640550592",
+      "disposition": "reattributed",
+      "reason": "canonical_targeted_legacy_entity_alias",
+      "staleAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-understudy-labs-luis-manrique-3647059",
+        "attributionType": "subject"
+      },
+      "replacementAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-orchestra-luis-manrique-3647059",
+        "attributionType": "subject"
+      }
+    },
+    {
+      "platform": "x",
+      "sourceUrl": "https://x.com/lluismanrique/status/2077481255403426120",
+      "platformPostId": "2077481255403426120",
+      "disposition": "reattributed",
+      "reason": "canonical_targeted_legacy_entity_alias",
+      "staleAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-understudy-labs-luis-manrique-3647059",
+        "attributionType": "subject"
+      },
+      "replacementAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-orchestra-luis-manrique-3647059",
+        "attributionType": "subject"
+      }
+    },
+    {
+      "platform": "x",
       "sourceUrl": "https://x.com/philipxmeng/status/2077506971465376215",
       "platformPostId": "2077506971465376215",
       "disposition": "quarantined",
@@ -163480,6 +163828,25 @@
     },
     {
       "platform": "x",
+      "sourceUrl": "https://x.com/lluismanrique/status/2077509978555093206",
+      "platformPostId": "2077509978555093206",
+      "disposition": "reattributed",
+      "reason": "canonical_targeted_legacy_entity_alias",
+      "staleAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-understudy-labs-luis-manrique-3647059",
+        "attributionType": "subject"
+      },
+      "replacementAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-orchestra-luis-manrique-3647059",
+        "attributionType": "subject"
+      }
+    },
+    {
+      "platform": "x",
       "sourceUrl": "https://x.com/varunpuru/status/2077567491916886411",
       "platformPostId": "2077567491916886411",
       "disposition": "quarantined",
@@ -163488,6 +163855,63 @@
         "batchSlug": "S26",
         "entityType": "founder",
         "entityId": "founder-amulet-varun-puru-936447",
+        "attributionType": "subject"
+      }
+    },
+    {
+      "platform": "x",
+      "sourceUrl": "https://x.com/lluismanrique/status/2077769920222519363",
+      "platformPostId": "2077769920222519363",
+      "disposition": "reattributed",
+      "reason": "canonical_targeted_legacy_entity_alias",
+      "staleAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-understudy-labs-luis-manrique-3647059",
+        "attributionType": "subject"
+      },
+      "replacementAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-orchestra-luis-manrique-3647059",
+        "attributionType": "subject"
+      }
+    },
+    {
+      "platform": "x",
+      "sourceUrl": "https://x.com/lluismanrique/status/2077772589897011497",
+      "platformPostId": "2077772589897011497",
+      "disposition": "reattributed",
+      "reason": "canonical_targeted_legacy_entity_alias",
+      "staleAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-understudy-labs-luis-manrique-3647059",
+        "attributionType": "subject"
+      },
+      "replacementAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-orchestra-luis-manrique-3647059",
+        "attributionType": "subject"
+      }
+    },
+    {
+      "platform": "x",
+      "sourceUrl": "https://x.com/lluismanrique/status/2077772889567445097",
+      "platformPostId": "2077772889567445097",
+      "disposition": "reattributed",
+      "reason": "canonical_targeted_legacy_entity_alias",
+      "staleAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-understudy-labs-luis-manrique-3647059",
+        "attributionType": "subject"
+      },
+      "replacementAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-orchestra-luis-manrique-3647059",
         "attributionType": "subject"
       }
     },
@@ -163572,6 +163996,25 @@
         "batchSlug": "S26",
         "entityType": "founder",
         "entityId": "founder-archal-noah-song-2561732",
+        "attributionType": "subject"
+      }
+    },
+    {
+      "platform": "x",
+      "sourceUrl": "https://x.com/lluismanrique/status/2078302156474794317",
+      "platformPostId": "2078302156474794317",
+      "disposition": "reattributed",
+      "reason": "canonical_targeted_legacy_entity_alias",
+      "staleAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-understudy-labs-luis-manrique-3647059",
+        "attributionType": "subject"
+      },
+      "replacementAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-orchestra-luis-manrique-3647059",
         "attributionType": "subject"
       }
     },

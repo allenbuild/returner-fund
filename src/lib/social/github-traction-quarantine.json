@@ -1,7 +1,7 @@
 {
   "source": {
     "schemaVersion": 1,
-    "generatedFromFetchedAt": "2026-08-31T15:13:23.035Z",
+    "generatedFromFetchedAt": "2026-09-07T05:49:16.123Z",
     "publicationPolicy": "stored_but_unpublished",
     "scoringEligible": false,
     "reason": "Rows absent from a fully authoritative whole-cohort GitHub receipt are retained only for audit and manual attribution review; they are not scoring inputs.",
@@ -16420,9 +16420,19 @@
                 "entityType": "company",
                 "entityId": "company-superlog",
                 "entityName": "Superlog",
-                "accountKey": "company:company-superlog:superloglabs:",
+                "accountKey": "company:company-superlog:superloglabs:superlog",
+                "location": "account",
+                "accountUrl": "https://github.com/superloglabs/superlog",
+                "repositoryId": null,
+                "repositoryUrl": null
+              },
+              {
+                "entityType": "company",
+                "entityId": "company-superlog",
+                "entityName": "Superlog",
+                "accountKey": "company:company-superlog:superloglabs:superlog",
                 "location": "repository",
-                "accountUrl": "https://github.com/superloglabs",
+                "accountUrl": "https://github.com/superloglabs/superlog",
                 "repositoryId": "1257533286",
                 "repositoryUrl": "https://github.com/superloglabs/superlog"
               }
@@ -16877,9 +16887,19 @@
                 "entityType": "company",
                 "entityId": "company-superlog",
                 "entityName": "Superlog",
-                "accountKey": "company:company-superlog:superloglabs:",
+                "accountKey": "company:company-superlog:superloglabs:superlog",
+                "location": "account",
+                "accountUrl": "https://github.com/superloglabs/superlog",
+                "repositoryId": null,
+                "repositoryUrl": null
+              },
+              {
+                "entityType": "company",
+                "entityId": "company-superlog",
+                "entityName": "Superlog",
+                "accountKey": "company:company-superlog:superloglabs:superlog",
                 "location": "repository",
-                "accountUrl": "https://github.com/superloglabs",
+                "accountUrl": "https://github.com/superloglabs/superlog",
                 "repositoryId": "1257533286",
                 "repositoryUrl": "https://github.com/superloglabs/superlog"
               }
@@ -22555,23 +22575,9 @@
             "kind": "repository",
             "canonicalUrl": "https://github.com/inkbox-ai/whoop-hermes-agent-plugin",
             "repositoryId": "1300120498",
-            "status": "represented_in_current_canonical_receipt",
-            "matchedBy": [
-              "repository_id",
-              "canonical_url"
-            ],
-            "canonicalMatches": [
-              {
-                "entityType": "company",
-                "entityId": "company-inkbox",
-                "entityName": "Inkbox",
-                "accountKey": "company:company-inkbox:inkbox-ai:",
-                "location": "repository",
-                "accountUrl": "https://github.com/inkbox-ai",
-                "repositoryId": "1300120498",
-                "repositoryUrl": "https://github.com/inkbox-ai/whoop-hermes-agent-plugin"
-              }
-            ]
+            "status": "not_represented_in_current_canonical_receipt",
+            "matchedBy": [],
+            "canonicalMatches": []
           }
         ]
       },
@@ -23050,23 +23056,9 @@
             "kind": "repository",
             "canonicalUrl": "https://github.com/inkbox-ai/whoop-hermes-agent-plugin",
             "repositoryId": "1300120498",
-            "status": "represented_in_current_canonical_receipt",
-            "matchedBy": [
-              "repository_id",
-              "canonical_url"
-            ],
-            "canonicalMatches": [
-              {
-                "entityType": "company",
-                "entityId": "company-inkbox",
-                "entityName": "Inkbox",
-                "accountKey": "company:company-inkbox:inkbox-ai:",
-                "location": "repository",
-                "accountUrl": "https://github.com/inkbox-ai",
-                "repositoryId": "1300120498",
-                "repositoryUrl": "https://github.com/inkbox-ai/whoop-hermes-agent-plugin"
-              }
-            ]
+            "status": "not_represented_in_current_canonical_receipt",
+            "matchedBy": [],
+            "canonicalMatches": []
           }
         ]
       },
@@ -23545,23 +23537,9 @@
             "kind": "repository",
             "canonicalUrl": "https://github.com/inkbox-ai/whoop-hermes-agent-plugin",
             "repositoryId": "1300120498",
-            "status": "represented_in_current_canonical_receipt",
-            "matchedBy": [
-              "repository_id",
-              "canonical_url"
-            ],
-            "canonicalMatches": [
-              {
-                "entityType": "company",
-                "entityId": "company-inkbox",
-                "entityName": "Inkbox",
-                "accountKey": "company:company-inkbox:inkbox-ai:",
-                "location": "repository",
-                "accountUrl": "https://github.com/inkbox-ai",
-                "repositoryId": "1300120498",
-                "repositoryUrl": "https://github.com/inkbox-ai/whoop-hermes-agent-plugin"
-              }
-            ]
+            "status": "not_represented_in_current_canonical_receipt",
+            "matchedBy": [],
+            "canonicalMatches": []
           }
         ]
       },
@@ -26486,23 +26464,9 @@
             "kind": "repository",
             "canonicalUrl": "https://github.com/robocurve/kitchenbench",
             "repositoryId": "1282042008",
-            "status": "represented_in_current_canonical_receipt",
-            "matchedBy": [
-              "repository_id",
-              "canonical_url"
-            ],
-            "canonicalMatches": [
-              {
-                "entityType": "company",
-                "entityId": "company-robocurve",
-                "entityName": "Robocurve",
-                "accountKey": "company:company-robocurve:robocurve:",
-                "location": "repository",
-                "accountUrl": "https://github.com/robocurve",
-                "repositoryId": "1282042008",
-                "repositoryUrl": "https://github.com/robocurve/kitchenbench"
-              }
-            ]
+            "status": "not_represented_in_current_canonical_receipt",
+            "matchedBy": [],
+            "canonicalMatches": []
           },
           {
             "kind": "repository",
@@ -27005,23 +26969,9 @@
             "kind": "repository",
             "canonicalUrl": "https://github.com/robocurve/kitchenbench",
             "repositoryId": "1282042008",
-            "status": "represented_in_current_canonical_receipt",
-            "matchedBy": [
-              "repository_id",
-              "canonical_url"
-            ],
-            "canonicalMatches": [
-              {
-                "entityType": "company",
-                "entityId": "company-robocurve",
-                "entityName": "Robocurve",
-                "accountKey": "company:company-robocurve:robocurve:",
-                "location": "repository",
-                "accountUrl": "https://github.com/robocurve",
-                "repositoryId": "1282042008",
-                "repositoryUrl": "https://github.com/robocurve/kitchenbench"
-              }
-            ]
+            "status": "not_represented_in_current_canonical_receipt",
+            "matchedBy": [],
+            "canonicalMatches": []
           },
           {
             "kind": "repository",

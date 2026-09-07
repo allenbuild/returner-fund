@@ -12,8 +12,8 @@
         "catalog": "src/lib/social/a16z-speedrun-006-social-accounts.json",
         "profileSource": "src/lib/graph/a16z-speedrun-006-dataset.ts",
         "graph": "public/graph/a16zsr006.json",
-        "publicRun": "/Users/allenxu/Library/Application Support/Returner Fund OpenCLI/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-08-31-0600-845697ed40ef57e2/public-a16zsr006.json",
-        "githubRun": "/Users/allenxu/Library/Application Support/Returner Fund OpenCLI/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-08-31-0600-845697ed40ef57e2/github-a16zsr006.json"
+        "publicRun": "/home/runner/work/_temp/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-09-06-1800-b4a1bf33dcc7e6a3/public-a16zsr006.json",
+        "githubRun": "/home/runner/work/_temp/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-09-06-1800-b4a1bf33dcc7e6a3/github-a16zsr006.json"
       },
       "counts": {
         "companies": 59,
@@ -24,7 +24,7 @@
         "plannedOwnerMappings": 339,
         "multiAccountOwnerMappings": 4,
         "graphEvidence": 5000,
-        "graphNeedsReview": 2425
+        "graphNeedsReview": 2428
       },
       "structural": {
         "status": "pass",
@@ -228,12 +228,12 @@
             "companyEntityId": "a16z-speedrun-006-variantnow",
             "companySlug": "variantnow",
             "platform": "youtube",
-            "canonicalUrl": "https://youtube.com/channel/ucxphv6slevicu8rusx0ky5g",
+            "canonicalUrl": "https://youtube.com/channel/UCxpHV6SlEVicu8RuSx0KY5g",
             "originalUrl": "https://www.youtube.com/channel/UCxpHV6SlEVicu8RuSx0KY5g",
             "ownerReferenceCandidates": [
               "a16z-speedrun-006-variantnow"
             ],
-            "key": "A16ZSR006|company|a16z-speedrun-006-variantnow|youtube|https://youtube.com/channel/ucxphv6slevicu8rusx0ky5g"
+            "key": "A16ZSR006|company|a16z-speedrun-006-variantnow|youtube|https://youtube.com/channel/UCxpHV6SlEVicu8RuSx0KY5g"
           }
         ],
         "unexpectedGraphOwnerMappings": [],
@@ -828,8 +828,8 @@
         "catalog": "src/lib/yc/spring-2026-companies.json",
         "profileSource": null,
         "graph": "public/graph/s2026.json",
-        "publicRun": "/Users/allenxu/Library/Application Support/Returner Fund OpenCLI/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-08-31-0600-845697ed40ef57e2/public-s2026.json",
-        "githubRun": "/Users/allenxu/Library/Application Support/Returner Fund OpenCLI/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-08-31-0600-845697ed40ef57e2/github-s2026.json"
+        "publicRun": "/home/runner/work/_temp/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-09-06-1800-b4a1bf33dcc7e6a3/public-s2026.json",
+        "githubRun": "/home/runner/work/_temp/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-09-06-1800-b4a1bf33dcc7e6a3/github-s2026.json"
       },
       "counts": {
         "companies": 197,
@@ -840,7 +840,7 @@
         "plannedOwnerMappings": 994,
         "multiAccountOwnerMappings": 1,
         "graphEvidence": 5000,
-        "graphNeedsReview": 10169
+        "graphNeedsReview": 10219
       },
       "structural": {
         "status": "pass",
@@ -1257,6 +1257,11 @@
             "companyName": null
           },
           {
+            "entityId": "company-infera",
+            "name": "Infera",
+            "companyName": null
+          },
+          {
             "entityId": "company-savant",
             "name": "Savant",
             "companyName": null
@@ -1314,6 +1319,16 @@
             "companyName": null
           },
           {
+            "entityId": "company-infera",
+            "name": "Infera",
+            "companyName": null
+          },
+          {
+            "entityId": "company-korso",
+            "name": "Korso",
+            "companyName": null
+          },
+          {
             "entityId": "company-matforge",
             "name": "matforge",
             "companyName": null
@@ -1351,11 +1366,6 @@
           {
             "entityId": "company-valctrl",
             "name": "ValCtrl",
-            "companyName": null
-          },
-          {
-            "entityId": "company-wealor",
-            "name": "Wealor",
             "companyName": null
           }
         ],
@@ -1883,6 +1893,16 @@
             "companyName": null
           },
           {
+            "entityId": "company-infera",
+            "name": "Infera",
+            "companyName": null
+          },
+          {
+            "entityId": "company-korso",
+            "name": "Korso",
+            "companyName": null
+          },
+          {
             "entityId": "company-matforge",
             "name": "matforge",
             "companyName": null
@@ -1920,11 +1940,6 @@
           {
             "entityId": "company-valctrl",
             "name": "ValCtrl",
-            "companyName": null
-          },
-          {
-            "entityId": "company-wealor",
-            "name": "Wealor",
             "companyName": null
           }
         ],
@@ -2403,19 +2418,19 @@
         "catalog": "src/lib/yc/summer-2026-companies.json",
         "profileSource": null,
         "graph": "public/graph/s26.json",
-        "publicRun": "/Users/allenxu/Library/Application Support/Returner Fund OpenCLI/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-08-31-0600-845697ed40ef57e2/public-s26.json",
-        "githubRun": "/Users/allenxu/Library/Application Support/Returner Fund OpenCLI/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-08-31-0600-845697ed40ef57e2/github-s26.json"
+        "publicRun": "/home/runner/work/_temp/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-09-06-1800-b4a1bf33dcc7e6a3/public-s26.json",
+        "githubRun": "/home/runner/work/_temp/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-09-06-1800-b4a1bf33dcc7e6a3/github-s26.json"
       },
       "counts": {
-        "companies": 236,
-        "founders": 470,
-        "catalogOwnerMappings": 1139,
-        "graphOwnerMappings": 1127,
-        "catalogOwnerPlatformGroups": 1138,
-        "plannedOwnerMappings": 1139,
-        "multiAccountOwnerMappings": 1,
+        "companies": 235,
+        "founders": 469,
+        "catalogOwnerMappings": 1131,
+        "graphOwnerMappings": 1118,
+        "catalogOwnerPlatformGroups": 1129,
+        "plannedOwnerMappings": 1131,
+        "multiAccountOwnerMappings": 2,
         "graphEvidence": 5000,
-        "graphNeedsReview": 7083
+        "graphNeedsReview": 7136
       },
       "structural": {
         "status": "pass",
@@ -2649,6 +2664,24 @@
               "princeps-conrad-fr-yland-moe-3685149"
             ],
             "key": "S26|founder|founder-princeps-conrad-fr-yland-moe-3685149|linkedin|https://linkedin.com/in/conrad-fr%C3%B8yland-moe-7950b1229"
+          },
+          {
+            "batchSlug": "S26",
+            "entityType": "founder",
+            "entityId": "founder-vestris-joshua-tang-3411757",
+            "entityName": "Joshua Tang",
+            "sourceId": "3411757",
+            "companyEntityId": "company-vestris",
+            "companySlug": "vestris",
+            "platform": "linkedin",
+            "canonicalUrl": "https://linkedin.com/in/joshua-tang-449717279",
+            "originalUrl": "https://www.linkedin.com/in/joshua-tang-449717279/",
+            "ownerReferenceCandidates": [
+              "3411757",
+              "founder-vestris-joshua-tang-3411757",
+              "vestris-joshua-tang-3411757"
+            ],
+            "key": "S26|founder|founder-vestris-joshua-tang-3411757|linkedin|https://linkedin.com/in/joshua-tang-449717279"
           }
         ],
         "unexpectedGraphOwnerMappings": [],
@@ -2670,44 +2703,62 @@
               "lato"
             ],
             "key": "S26|company|company-lato|linkedin|https://linkedin.com/company/latoio"
+          },
+          {
+            "batchSlug": "S26",
+            "entityType": "founder",
+            "entityId": "founder-vestris-joshua-tang-3411757",
+            "entityName": "Joshua Tang",
+            "sourceId": "3411757",
+            "companyEntityId": "company-vestris",
+            "companySlug": "vestris",
+            "platform": "linkedin",
+            "canonicalUrl": "https://linkedin.com/in/tangjoshua",
+            "originalUrl": "https://www.linkedin.com/in/tangjoshua",
+            "ownerReferenceCandidates": [
+              "3411757",
+              "founder-vestris-joshua-tang-3411757",
+              "vestris-joshua-tang-3411757"
+            ],
+            "key": "S26|founder|founder-vestris-joshua-tang-3411757|linkedin|https://linkedin.com/in/tangjoshua"
           }
         ],
         "mappingCoverage": {
           "github": {
-            "companyMapped": 20,
-            "companyMissing": 216,
+            "companyMapped": 13,
+            "companyMissing": 222,
             "founderMapped": 1,
-            "founderMissing": 469
+            "founderMissing": 468
           },
           "instagram": {
             "companyMapped": 7,
-            "companyMissing": 229,
+            "companyMissing": 228,
             "founderMapped": 0,
-            "founderMissing": 470
+            "founderMissing": 469
           },
           "linkedin": {
-            "companyMapped": 212,
+            "companyMapped": 211,
             "companyMissing": 24,
-            "founderMapped": 465,
+            "founderMapped": 464,
             "founderMissing": 5
           },
           "product_hunt": {
             "companyMapped": 5,
-            "companyMissing": 231,
+            "companyMissing": 230,
             "founderMapped": 0,
-            "founderMissing": 470
+            "founderMissing": 469
           },
           "x": {
             "companyMapped": 137,
-            "companyMissing": 99,
+            "companyMissing": 98,
             "founderMapped": 279,
-            "founderMissing": 191
+            "founderMissing": 190
           },
           "youtube": {
             "companyMapped": 11,
-            "companyMissing": 225,
+            "companyMissing": 224,
             "founderMapped": 0,
-            "founderMissing": 470
+            "founderMissing": 469
           }
         },
         "noMappedAccounts": [
@@ -3053,11 +3104,6 @@
             "companyName": null
           },
           {
-            "entityId": "company-veltha",
-            "name": "Veltha",
-            "companyName": null
-          },
-          {
             "entityId": "company-verdant",
             "name": "Verdant",
             "companyName": null
@@ -3158,6 +3204,11 @@
             "entityId": "founder-withasync-connor-park-1593011",
             "name": "Connor Park",
             "companyName": "Async"
+          },
+          {
+            "entityId": "founder-atlas-discovery-christian-gensbigler-2088957",
+            "name": "Christian Gensbigler",
+            "companyName": "Atlas Discovery"
           },
           {
             "entityId": "founder-atlia-edmond-niu-1330444",
@@ -3650,6 +3701,11 @@
             "companyName": "OpenVector"
           },
           {
+            "entityId": "founder-orchestra-aamir-poonawalla-73303",
+            "name": "Aamir Poonawalla",
+            "companyName": "Orchestra"
+          },
+          {
             "entityId": "founder-osseus-ayush-patel-1979222",
             "name": "Ayush Patel",
             "companyName": "Osseus"
@@ -3870,6 +3926,11 @@
             "companyName": "Traceforce"
           },
           {
+            "entityId": "founder-tracer-adam-rida-1217984",
+            "name": "Adam Rida",
+            "companyName": "Tracer"
+          },
+          {
             "entityId": "founder-trident-junaid-mahmood-2758911",
             "name": "Junaid Mahmood",
             "companyName": "Trident"
@@ -3898,16 +3959,6 @@
             "entityId": "founder-ultrasonium-jack-qiu-3735756",
             "name": "Jack Qiu",
             "companyName": "Ultrasonium"
-          },
-          {
-            "entityId": "founder-understudy-labs-aamir-poonawalla-73303",
-            "name": "Aamir Poonawalla",
-            "companyName": "Understudy Labs"
-          },
-          {
-            "entityId": "founder-veltha-edin-citaku-2366971",
-            "name": "Edin Citaku",
-            "companyName": "Veltha"
           },
           {
             "entityId": "founder-verdict-machine-dan-danay-85721",
@@ -4094,11 +4145,6 @@
           {
             "entityId": "company-torus",
             "name": "Torus",
-            "companyName": null
-          },
-          {
-            "entityId": "company-veltha",
-            "name": "Veltha",
             "companyName": null
           },
           {
@@ -4637,11 +4683,6 @@
             "entityId": "founder-trident-junaid-mahmood-2758911",
             "name": "Junaid Mahmood",
             "companyName": "Trident"
-          },
-          {
-            "entityId": "founder-understudy-labs-aamir-poonawalla-73303",
-            "name": "Aamir Poonawalla",
-            "companyName": "Understudy Labs"
           },
           {
             "entityId": "founder-verdict-machine-dan-danay-85721",

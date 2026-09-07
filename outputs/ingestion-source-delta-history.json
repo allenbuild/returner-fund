@@ -9086,5 +9086,317 @@
     "trigger": "schedule",
     "scheduledAt": "2026-08-31T11:00:00.000Z",
     "terminalFailureBudget": 124
+  },
+  {
+    "schemaVersion": 1,
+    "idempotencyKey": "central-2026-09-06-1800",
+    "centralDay": "2026-09-06",
+    "observedAt": "2026-09-07T05:49:16.753Z",
+    "baselinePhysicalSources": 17979,
+    "publishedPhysicalSources": 18009,
+    "newPhysicalSources": 46,
+    "newPhysicalSourcesThisAttempt": 46,
+    "retainedPhysicalSources": 17963,
+    "removedPhysicalSources": 16,
+    "dailyNewPhysicalSources": 46,
+    "dailySourceHealth": "healthy",
+    "collectionHealth": "degraded",
+    "collectionHealthReasons": [
+      "missing_credential:X_BEARER_TOKEN",
+      "missing_credential:EXA_API_KEY",
+      "mapped_failures:1",
+      "provider_blocked:3429",
+      "mapped_provider_blocked:1432",
+      "mapped_scope_unsupported:10",
+      "mapped_success_rate_below_10_percent:0.0337"
+    ],
+    "mappedExpected": 2464,
+    "mappedSucceeded": 83,
+    "mappedNeedsReview": 249,
+    "mappedBlockedOrEmpty": 2131,
+    "providerBlocked": 3429,
+    "providerBlockedByReason": {
+      "provider_blocked:duckduckgo_html:public_search_circuit_open": 1513,
+      "provider_blocked:linkedin_public_html:linkedin_public_circuit_open": 1422,
+      "provider_blocked:official_source_html:official_source_http_failure": 5,
+      "provider_blocked:official_source_html:official_source_transport_failure": 2,
+      "provider_blocked:official_source_http:official_source_http_failure": 5,
+      "provider_blocked:reddit_public_json:reddit_public_access_blocked": 482
+    },
+    "mappedProviderBlocked": 1432,
+    "mappedProviderBlockedByReason": {
+      "provider_blocked:duckduckgo_html:public_search_circuit_open": 10,
+      "provider_blocked:linkedin_public_html:linkedin_public_circuit_open": 1422
+    },
+    "mappedScopeUnsupported": 10,
+    "mappedFailures": 1,
+    "mappedNonTerminal": 0,
+    "mappedSuccessRate": 0.0337,
+    "newestNewSourcePostedAt": "2026-09-06T13:54:21Z",
+    "insertedByBatchPlatform": {
+      "A16ZSR006:github": 2,
+      "A16ZSR006:youtube": 22,
+      "S2026:github": 2,
+      "S2026:youtube": 3,
+      "S26:github": 7,
+      "S26:hacker_news": 3,
+      "S26:youtube": 7
+    },
+    "insertedSourceSamples": [
+      {
+        "batchSlug": "A16ZSR006",
+        "platform": "youtube",
+        "entityType": "company",
+        "entityId": "a16z-speedrun-006-idilio",
+        "sourceUrl": "https://youtube.com/watch?v=BrGKCiPoxlw",
+        "platformPostId": "BrGKCiPoxlw",
+        "platformObjectId": null,
+        "postedAt": "2026-09-04T13:31:55.000Z"
+      },
+      {
+        "batchSlug": "A16ZSR006",
+        "platform": "youtube",
+        "entityType": "company",
+        "entityId": "a16z-speedrun-006-idilio",
+        "sourceUrl": "https://youtube.com/watch?v=YJIEiEFSLDk",
+        "platformPostId": "YJIEiEFSLDk",
+        "platformObjectId": null,
+        "postedAt": "2026-09-04T13:30:49.000Z"
+      },
+      {
+        "batchSlug": "A16ZSR006",
+        "platform": "youtube",
+        "entityType": "company",
+        "entityId": "a16z-speedrun-006-idilio",
+        "sourceUrl": "https://youtube.com/watch?v=OM0y7KwG2lE",
+        "platformPostId": "OM0y7KwG2lE",
+        "platformObjectId": null,
+        "postedAt": "2026-09-04T13:35:50.000Z"
+      },
+      {
+        "batchSlug": "A16ZSR006",
+        "platform": "youtube",
+        "entityType": "company",
+        "entityId": "a16z-speedrun-006-idilio",
+        "sourceUrl": "https://youtube.com/watch?v=GLh1YICMR7s",
+        "platformPostId": "GLh1YICMR7s",
+        "platformObjectId": null,
+        "postedAt": "2026-09-04T13:35:22.000Z"
+      },
+      {
+        "batchSlug": "A16ZSR006",
+        "platform": "youtube",
+        "entityType": "company",
+        "entityId": "a16z-speedrun-006-antihero-studios",
+        "sourceUrl": "https://youtube.com/watch?v=6uGAUCWSSzU",
+        "platformPostId": "6uGAUCWSSzU",
+        "platformObjectId": null,
+        "postedAt": "2026-09-01T13:56:47.000Z"
+      },
+      {
+        "batchSlug": "A16ZSR006",
+        "platform": "youtube",
+        "entityType": "company",
+        "entityId": "a16z-speedrun-006-idilio",
+        "sourceUrl": "https://youtube.com/watch?v=MHKcL-Xyw_Y",
+        "platformPostId": "MHKcL-Xyw_Y",
+        "platformObjectId": null,
+        "postedAt": "2026-09-03T21:17:50.000Z"
+      },
+      {
+        "batchSlug": "A16ZSR006",
+        "platform": "youtube",
+        "entityType": "company",
+        "entityId": "a16z-speedrun-006-idilio",
+        "sourceUrl": "https://youtube.com/watch?v=_S81NovO-qU",
+        "platformPostId": "_S81NovO-qU",
+        "platformObjectId": null,
+        "postedAt": "2026-09-03T22:39:17.000Z"
+      },
+      {
+        "batchSlug": "A16ZSR006",
+        "platform": "youtube",
+        "entityType": "company",
+        "entityId": "a16z-speedrun-006-idilio",
+        "sourceUrl": "https://youtube.com/watch?v=JeEj6FG0awc",
+        "platformPostId": "JeEj6FG0awc",
+        "platformObjectId": null,
+        "postedAt": "2026-09-03T22:42:09.000Z"
+      },
+      {
+        "batchSlug": "A16ZSR006",
+        "platform": "youtube",
+        "entityType": "company",
+        "entityId": "a16z-speedrun-006-idilio",
+        "sourceUrl": "https://youtube.com/watch?v=2YiYYItZ8zA",
+        "platformPostId": "2YiYYItZ8zA",
+        "platformObjectId": null,
+        "postedAt": "2026-09-04T13:24:11.000Z"
+      },
+      {
+        "batchSlug": "A16ZSR006",
+        "platform": "youtube",
+        "entityType": "company",
+        "entityId": "a16z-speedrun-006-idilio",
+        "sourceUrl": "https://youtube.com/watch?v=78ceJquw4cY",
+        "platformPostId": "78ceJquw4cY",
+        "platformObjectId": null,
+        "postedAt": "2026-09-03T22:34:08.000Z"
+      },
+      {
+        "batchSlug": "A16ZSR006",
+        "platform": "youtube",
+        "entityType": "company",
+        "entityId": "a16z-speedrun-006-idilio",
+        "sourceUrl": "https://youtube.com/watch?v=Ys4kmdJykqo",
+        "platformPostId": "Ys4kmdJykqo",
+        "platformObjectId": null,
+        "postedAt": "2026-09-03T22:26:45.000Z"
+      },
+      {
+        "batchSlug": "A16ZSR006",
+        "platform": "youtube",
+        "entityType": "company",
+        "entityId": "a16z-speedrun-006-idilio",
+        "sourceUrl": "https://youtube.com/watch?v=g_rAY6d9wNQ",
+        "platformPostId": "g_rAY6d9wNQ",
+        "platformObjectId": null,
+        "postedAt": "2026-09-05T20:05:38.000Z"
+      },
+      {
+        "batchSlug": "A16ZSR006",
+        "platform": "youtube",
+        "entityType": "company",
+        "entityId": "a16z-speedrun-006-snapp-stats",
+        "sourceUrl": "https://youtube.com/watch?v=oU1aXBnwUWQ",
+        "platformPostId": "oU1aXBnwUWQ",
+        "platformObjectId": null,
+        "postedAt": "2026-08-31T21:50:56.000Z"
+      },
+      {
+        "batchSlug": "A16ZSR006",
+        "platform": "youtube",
+        "entityType": "company",
+        "entityId": "a16z-speedrun-006-idilio",
+        "sourceUrl": "https://youtube.com/watch?v=2QauoIahFBc",
+        "platformPostId": "2QauoIahFBc",
+        "platformObjectId": null,
+        "postedAt": "2026-09-03T22:12:43.000Z"
+      },
+      {
+        "batchSlug": "A16ZSR006",
+        "platform": "youtube",
+        "entityType": "company",
+        "entityId": "a16z-speedrun-006-idilio",
+        "sourceUrl": "https://youtube.com/watch?v=EymNyXK3N1w",
+        "platformPostId": "EymNyXK3N1w",
+        "platformObjectId": null,
+        "postedAt": "2026-09-04T16:38:39.000Z"
+      },
+      {
+        "batchSlug": "A16ZSR006",
+        "platform": "youtube",
+        "entityType": "company",
+        "entityId": "a16z-speedrun-006-idilio",
+        "sourceUrl": "https://youtube.com/watch?v=S6YqCCqehZg",
+        "platformPostId": "S6YqCCqehZg",
+        "platformObjectId": null,
+        "postedAt": "2026-09-04T13:35:48.000Z"
+      },
+      {
+        "batchSlug": "A16ZSR006",
+        "platform": "youtube",
+        "entityType": "company",
+        "entityId": "a16z-speedrun-006-sun",
+        "sourceUrl": "https://youtube.com/watch?v=kMrWH2bZGBg",
+        "platformPostId": "kMrWH2bZGBg",
+        "platformObjectId": null,
+        "postedAt": "2026-08-31T19:16:58.000Z"
+      },
+      {
+        "batchSlug": "A16ZSR006",
+        "platform": "youtube",
+        "entityType": "company",
+        "entityId": "a16z-speedrun-006-zerodrift",
+        "sourceUrl": "https://youtube.com/watch?v=fmYrVpCiuGA",
+        "platformPostId": "fmYrVpCiuGA",
+        "platformObjectId": null,
+        "postedAt": "2026-09-02T13:00:35.000Z"
+      },
+      {
+        "batchSlug": "A16ZSR006",
+        "platform": "youtube",
+        "entityType": "company",
+        "entityId": "a16z-speedrun-006-sun",
+        "sourceUrl": "https://youtube.com/watch?v=N_IukWiEXzk",
+        "platformPostId": "N_IukWiEXzk",
+        "platformObjectId": null,
+        "postedAt": "2026-09-02T16:58:05.000Z"
+      },
+      {
+        "batchSlug": "A16ZSR006",
+        "platform": "youtube",
+        "entityType": "company",
+        "entityId": "a16z-speedrun-006-idilio",
+        "sourceUrl": "https://youtube.com/watch?v=Si0Ahx-9wZA",
+        "platformPostId": "Si0Ahx-9wZA",
+        "platformObjectId": null,
+        "postedAt": "2026-09-04T13:31:38.000Z"
+      },
+      {
+        "batchSlug": "A16ZSR006",
+        "platform": "youtube",
+        "entityType": "company",
+        "entityId": "a16z-speedrun-006-sun",
+        "sourceUrl": "https://youtube.com/watch?v=Qh_lFaiYSyA",
+        "platformPostId": "Qh_lFaiYSyA",
+        "platformObjectId": null,
+        "postedAt": "2026-08-31T23:39:38.000Z"
+      },
+      {
+        "batchSlug": "A16ZSR006",
+        "platform": "youtube",
+        "entityType": "company",
+        "entityId": "a16z-speedrun-006-sun",
+        "sourceUrl": "https://youtube.com/watch?v=Bx3I6tVXGGg",
+        "platformPostId": "Bx3I6tVXGGg",
+        "platformObjectId": null,
+        "postedAt": "2026-09-01T20:27:34.000Z"
+      },
+      {
+        "batchSlug": "S2026",
+        "platform": "youtube",
+        "entityType": "company",
+        "entityId": "company-tasklet-2",
+        "sourceUrl": "https://youtube.com/watch?v=HdxaLtP6CFk",
+        "platformPostId": "HdxaLtP6CFk",
+        "platformObjectId": null,
+        "postedAt": null
+      },
+      {
+        "batchSlug": "S2026",
+        "platform": "youtube",
+        "entityType": "company",
+        "entityId": "company-klarify",
+        "sourceUrl": "https://youtube.com/watch?v=aMFbgOrb4Us",
+        "platformPostId": "aMFbgOrb4Us",
+        "platformObjectId": null,
+        "postedAt": null
+      },
+      {
+        "batchSlug": "S2026",
+        "platform": "youtube",
+        "entityType": "company",
+        "entityId": "company-pavoot",
+        "sourceUrl": "https://youtube.com/watch?v=ujFGSTs2ruc",
+        "platformPostId": "ujFGSTs2ruc",
+        "platformObjectId": null,
+        "postedAt": "2026-09-01T16:26:31.000Z"
+      }
+    ],
+    "trigger": "schedule",
+    "scheduledAt": "2026-09-06T23:00:00.000Z",
+    "evidenceCollectedAt": "2026-09-07T05:47:11.477Z",
+    "terminalFailureBudget": 124
   }
 ]

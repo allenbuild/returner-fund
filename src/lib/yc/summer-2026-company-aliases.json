@@ -438,6 +438,44 @@
           }
         }
       ]
+    },
+    {
+      "companyId": "32167",
+      "fromSlug": "understudy-labs",
+      "fromName": "Understudy Labs",
+      "toSlug": "orchestra",
+      "toName": "Orchestra",
+      "companyAccounts": {
+        "linkedin": [
+          "https://www.linkedin.com/company/understudy-labs"
+        ],
+        "x": [
+          "https://x.com/understudylabs"
+        ]
+      },
+      "founders": [
+        {
+          "founderId": "3647059",
+          "name": "Luis Manrique",
+          "accounts": {
+            "linkedin": [
+              "https://www.linkedin.com/in/luismanrique"
+            ],
+            "x": [
+              "https://x.com/lluismanrique"
+            ]
+          }
+        },
+        {
+          "founderId": "73303",
+          "name": "Aamir Poonawalla",
+          "accounts": {
+            "linkedin": [
+              "https://www.linkedin.com/in/aamir-p-a3575318/"
+            ]
+          }
+        }
+      ]
     }
   ],
   "founderTransitions": [
@@ -982,6 +1020,54 @@
         ],
         "x": [
           "https://x.com/PLouisV"
+        ]
+      }
+    },
+    {
+      "companyId": "31532",
+      "companySlug": "atlas-discovery",
+      "companyName": "Atlas Discovery",
+      "founderId": "2088957",
+      "change": "added",
+      "fromName": null,
+      "toName": "Christian Gensbigler",
+      "accounts": {
+        "linkedin": [
+          "https://www.linkedin.com/in/christian-g-a2594029"
+        ]
+      }
+    },
+    {
+      "companyId": "32520",
+      "companySlug": "cerenovus",
+      "companyName": "Cerenovus",
+      "founderId": "3502381",
+      "change": "removed",
+      "fromName": "Jonathan Waldorf",
+      "toName": null,
+      "accounts": {
+        "linkedin": [
+          "https://www.linkedin.com/in/jonathan-waldorf/"
+        ],
+        "x": [
+          "https://x.com/jwaldorf"
+        ]
+      }
+    },
+    {
+      "companyId": "33316",
+      "companySlug": "tracer",
+      "companyName": "Tracer",
+      "founderId": "1217984",
+      "change": "added",
+      "fromName": null,
+      "toName": "Adam Rida",
+      "accounts": {
+        "linkedin": [
+          "https://www.linkedin.com/in/adam-rida-581296142/"
+        ],
+        "x": [
+          "https://x.com/_adamr_1"
         ]
       }
     }
