@@ -238,14 +238,14 @@ test("dashboard refresh gives stale ingestion priority before entering the publi
   assert.doesNotMatch(dashboardRefreshWorkflow.split("jobs:")[0], /concurrency:/);
 });
 
-test("dashboard routine refresh is hosted while full external replay retains exact Mac proof", () => {
+test("dashboard refresh stays hosted while full public discovery remains the default", () => {
   assert.match(
     dashboardRefreshWorkflow,
-    /refresh:[\s\S]*?runs-on:\s*\$\{\{ \(github\.event_name == 'workflow_dispatch' && inputs\.skip_external_discovery != true\) && fromJSON\('\["self-hosted","macOS","ARM64","returner-social","returner-auth-browser"\]'\) \|\| 'ubuntu-latest' \}\}/
+    /refresh:[\s\S]*?runs-on:\s*ubuntu-latest/
   );
   assert.match(
     dashboardRefreshWorkflow,
-    /Routine schedule\/workflow-run refreshes[\s\S]*?GitHub-hosted[\s\S]*?Only an explicit manual full-external replay uses the Mac[\s\S]*?exact YouTube player\/watch proof/
+    /Every routine, recovery, and manual refresh runs on GitHub-hosted capacity[\s\S]*?Full bounded public discovery is the default[\s\S]*?artifact-only diagnosis and emergency recovery/
   );
   assert.match(
     dashboardRefreshWorkflow,
@@ -263,7 +263,7 @@ test("dashboard routine refresh is hosted while full external replay retains exa
   )?.[0] ?? "";
   assert.match(
     hostPreflight,
-    /if \[ "\$\{RUNNER_OS:-\}" != "macOS" \]; then[\s\S]*?reason=github_hosted_no_external[\s\S]*?exit 0[\s\S]*?POWER_STATUS="\$\(\/usr\/bin\/pmset -g batt\)"/
+    /if \[ "\$\{RUNNER_OS:-\}" != "macOS" \]; then[\s\S]*?reason=github_hosted_public_discovery[\s\S]*?exit 0[\s\S]*?POWER_STATUS="\$\(\/usr\/bin\/pmset -g batt\)"/
   );
   assert.match(hostPreflight, /\/usr\/sbin\/ioreg -r -k IOPMUserTriggeredFullWake -d 4/);
   assert.match(hostPreflight, /\/usr\/sbin\/ioreg -r -k AppleClamshellState -d 4/);
@@ -296,7 +296,7 @@ test("dashboard routine refresh is hosted while full external replay retains exa
   assert.doesNotMatch(dashboardRefreshWorkflow, /\/usr\/bin\/caffeinate[^\n]*&/);
   assert.match(
     dashboardRefreshWorkflow,
-    /if \[ "\$\{RUNNER_OS:-\}" != "macOS" \] \|\| \[ "\$\{\{ inputs\.skip_external_discovery \}\}" = "true" \]; then[\s\S]*?dashboard:refresh -- --no-external[\s\S]*?else[\s\S]*?dashboard:refresh/
+    /if \[ "\$\{\{ inputs\.skip_external_discovery \}\}" = "true" \]; then[\s\S]*?dashboard:refresh -- --no-external[\s\S]*?else[\s\S]*?dashboard:refresh/
   );
 });
 

@@ -74,12 +74,11 @@ jobs:
     # failure. The hosted admission job reads current main rather than trusting
     # the workflow conclusion, so that valid publication can still wake this
     # job while a genuinely stale ingestion never enters the publication queue.
-    # Routine schedule/workflow-run refreshes and explicit no-external recovery
-    # rebuild from the freshly published ingestion artifacts on GitHub-hosted
-    # capacity. Only an explicit manual full-external replay uses the Mac: its
-    # public network can supply exact YouTube player/watch proof that hosted
-    # egress sometimes withholds.
-    runs-on: ${{ (github.event_name == 'workflow_dispatch' && inputs.skip_external_discovery != true) && fromJSON('["self-hosted","macOS","ARM64","returner-social","returner-auth-browser"]') || 'ubuntu-latest' }}
+    # Every routine, recovery, and manual refresh runs on GitHub-hosted capacity
+    # so dashboard freshness never depends on a particular Mac being awake.
+    # Full bounded public discovery is the default; the explicit no-external
+    # input exists only for artifact-only diagnosis and emergency recovery.
+    runs-on: ubuntu-latest
     timeout-minutes: 18
     concurrency:
       # The job reads current main inside the serialized writer lane, so a
@@ -104,7 +103,7 @@ jobs:
           if [ "${RUNNER_OS:-}" != "macOS" ]; then
             {
               echo "ready=true"
-              echo "reason=github_hosted_no_external"
+              echo "reason=github_hosted_public_discovery"
             } >> "$GITHUB_OUTPUT"
             exit 0
           fi
@@ -237,7 +236,7 @@ jobs:
               "$@"
             fi
           }
-          if [ "${RUNNER_OS:-}" != "macOS" ] || [ "${{ inputs.skip_external_discovery }}" = "true" ]; then
+          if [ "${{ inputs.skip_external_discovery }}" = "true" ]; then
             run_with_sleep_assertion npm run dashboard:refresh -- --no-external
           else
             run_with_sleep_assertion npm run dashboard:refresh
