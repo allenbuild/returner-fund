@@ -140,7 +140,12 @@ test("workflow provides a non-cron bridge without creating a current-state recur
   assert.match(workflow, /node scripts\/lib\/hosted-ingestion-wakeup\.mjs/);
   assert.match(workflow, /steps\.resolve\.outputs\.should_dispatch == 'true'/);
   assert.match(workflow, /git fetch --quiet --no-tags origin refs\/heads\/main/);
-  assert.match(workflow, /actions\/workflows\/autonomous-ingestion\.yml\/runs\?branch=main&status=/);
+  assert.match(workflow, /actions\/workflows\/autonomous-ingestion\.yml\/runs\?branch=main&per_page=100/);
+  for (const status of ["requested", "waiting", "pending", "queued", "in_progress"]) {
+    assert.match(workflow, new RegExp(`"${status}"`));
+  }
+  assert.match(workflow, /activeStatuses\.has\(String\(run\?\.status/);
+  assert.doesNotMatch(workflow, /runs\?branch=main&status=/);
   assert.match(workflow, /event_type:\s*"autonomous-ingestion-recovery"/);
   assert.match(workflow, /client_payload:\s*\{ expected_head_sha: expectedHeadSha \}/);
   assert.match(workflow, /"Content-Type":\s*"application\/json"/);

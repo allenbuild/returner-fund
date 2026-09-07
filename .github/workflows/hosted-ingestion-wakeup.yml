@@ -83,17 +83,27 @@ jobs:
             "Content-Type": "application/json",
             "X-GitHub-Api-Version": "2022-11-28"
           };
-          for (const status of ["in_progress", "queued"]) {
-            const runs = await fetch(
-              `${apiBase}/repos/${repository}/actions/workflows/autonomous-ingestion.yml/runs?branch=main&status=${status}&per_page=1`,
-              { headers }
+          const activeStatuses = new Set([
+            "requested",
+            "waiting",
+            "pending",
+            "queued",
+            "in_progress"
+          ]);
+          const runs = await fetch(
+            `${apiBase}/repos/${repository}/actions/workflows/autonomous-ingestion.yml/runs?branch=main&per_page=100`,
+            { headers }
+          );
+          if (!runs.ok) throw new Error("Could not verify existing ingestion runs.");
+          const body = await runs.json();
+          const activeRun = Array.isArray(body.workflow_runs)
+            ? body.workflow_runs.find((run) => activeStatuses.has(String(run?.status ?? "")))
+            : null;
+          if (activeRun) {
+            process.stdout.write(
+              `Autonomous Ingestion already has an active ${activeRun.status} run ${activeRun.id}; no duplicate dispatch.\n`
             );
-            if (!runs.ok) throw new Error("Could not verify existing ingestion runs.");
-            const body = await runs.json();
-            if (Number(body.total_count) > 0) {
-              process.stdout.write(`Autonomous Ingestion already has a ${status} run; no duplicate dispatch.\n`);
-              process.exit(0);
-            }
+            process.exit(0);
           }
           const response = await fetch(`${apiBase}/repos/${repository}/dispatches`, {
             method: "POST",
