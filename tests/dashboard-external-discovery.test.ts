@@ -5,6 +5,7 @@ import {
   DEFAULT_DASHBOARD_RSS_FEEDS,
   DEFAULT_DASHBOARD_YOUTUBE_CHANNELS,
   DEFAULT_DASHBOARD_YOUTUBE_SEARCH_QUERIES,
+  MAX_CONCURRENT_DASHBOARD_YOUTUBE_DETAILS,
   MAX_DASHBOARD_INSTAGRAM_ACCOUNTS,
   MAX_DASHBOARD_YOUTUBE_CHANNELS,
   discoverExternalDashboardCandidates,
@@ -531,7 +532,7 @@ describe("public dashboard discovery", () => {
         const body = JSON.parse(String(init?.body)) as { videoId?: string };
         return json(youtubePlayerResponse({
           videoId: body.videoId ?? "",
-          channelId: "UCwrongchannel123456789012",
+          channelId: "UC9999999999999999999999",
           author: "Wrong channel",
           title: "Mismatched video",
           description: "Software and AI.",
@@ -558,8 +559,133 @@ describe("public dashboard discovery", () => {
     await expect(fetchYoutubeChannelCandidates(fetchImpl as typeof fetch, NOW, {
       name: "Apple",
       handle: "Apple"
-    })).rejects.toThrow("youtube_apple_detail_unavailable");
+    })).rejects.toThrow(
+      "youtube_apple_detail_unavailable:player_channel_id_mismatch:watch_exact_publication_unavailable"
+    );
     expect(fetchImpl).toHaveBeenCalledTimes(5);
+  });
+
+  it("retries an explicit transient player response with bounded backoff", async () => {
+    const channelId = "UC1234567890123456789012";
+    const videoId = "retryvid001";
+    let playerRequests = 0;
+    let watchRequests = 0;
+    const fetchImpl = vi.fn(async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
+      const url = new URL(String(input));
+      if (url.pathname === "/@Apple/videos") {
+        return new Response(youtubeChannelPage(channelId, [{
+          videoId,
+          title: "Apple AI hardware launch",
+          views: "2M views",
+          relativeTime: "1 hour ago"
+        }], true));
+      }
+      if (url.pathname === "/youtubei/v1/player") {
+        playerRequests += 1;
+        if (playerRequests === 1) return new Response("rate limited", { status: 429 });
+        const body = JSON.parse(String(init?.body)) as { videoId?: string };
+        return json(youtubePlayerResponse({
+          videoId: body.videoId ?? "",
+          channelId,
+          author: "Apple",
+          title: "Apple AI hardware launch",
+          description: "New artificial intelligence hardware and developer software.",
+          publishedAt: "2026-08-15T10:00:00.000Z",
+          views: 2_000_000
+        }));
+      }
+      if (url.pathname === "/watch") {
+        watchRequests += 1;
+        throw new Error("Watch fallback must not run after a successful transient retry.");
+      }
+      throw new Error(`Unexpected request ${url}`);
+    });
+
+    const result = await fetchYoutubeChannelCandidates(fetchImpl as typeof fetch, NOW, {
+      name: "Apple",
+      handle: "Apple"
+    });
+
+    expect(playerRequests).toBe(2);
+    expect(watchRequests).toBe(0);
+    expect(result.candidates).toEqual([
+      expect.objectContaining({ id: `youtube:${videoId}`, metrics: { views: 2_000_000, likes: null } })
+    ]);
+  });
+
+  it("shares one bounded transient retry budget across candidate details", async () => {
+    const channelId = "UC1234567890123456789012";
+    let playerRequests = 0;
+    let watchRequests = 0;
+    const fetchImpl = vi.fn(async (input: RequestInfo | URL): Promise<Response> => {
+      const url = new URL(String(input));
+      if (url.pathname === "/@Apple/videos") {
+        return new Response(youtubeChannelPage(channelId, [
+          { videoId: "retrycap001", title: "Apple AI launch", views: "2M views", relativeTime: "1 hour ago" },
+          { videoId: "retrycap002", title: "Apple AI launch", views: "2M views", relativeTime: "1 hour ago" }
+        ], true));
+      }
+      if (url.pathname === "/youtubei/v1/player") {
+        playerRequests += 1;
+        return new Response("unavailable", { status: 503 });
+      }
+      if (url.pathname === "/watch") {
+        watchRequests += 1;
+        return new Response("forbidden", { status: 403 });
+      }
+      throw new Error(`Unexpected request ${url}`);
+    });
+    const scheduleImmediately = <T>(run: () => Promise<T>): Promise<T> => run();
+    const retryBudget = { remaining: 1 };
+
+    await expect(fetchYoutubeChannelCandidates(
+      fetchImpl as typeof fetch,
+      NOW,
+      { name: "Apple", handle: "Apple" },
+      scheduleImmediately,
+      retryBudget
+    )).rejects.toThrow(
+      "youtube_apple_detail_unavailable:player_http_503:watch_http_403"
+    );
+
+    expect(playerRequests).toBe(3);
+    expect(watchRequests).toBe(2);
+    expect(retryBudget.remaining).toBe(0);
+  });
+
+  it("does not retry non-transient player or watch access responses", async () => {
+    const channelId = "UC1234567890123456789012";
+    let playerRequests = 0;
+    let watchRequests = 0;
+    const fetchImpl = vi.fn(async (input: RequestInfo | URL): Promise<Response> => {
+      const url = new URL(String(input));
+      if (url.pathname === "/@Apple/videos") {
+        return new Response(youtubeChannelPage(channelId, [{
+          videoId: "blocked0001",
+          title: "Apple AI hardware launch",
+          views: "2M views",
+          relativeTime: "1 hour ago"
+        }], true));
+      }
+      if (url.pathname === "/youtubei/v1/player") {
+        playerRequests += 1;
+        return new Response("forbidden", { status: 403 });
+      }
+      if (url.pathname === "/watch") {
+        watchRequests += 1;
+        return new Response("forbidden", { status: 403 });
+      }
+      throw new Error(`Unexpected request ${url}`);
+    });
+
+    await expect(fetchYoutubeChannelCandidates(fetchImpl as typeof fetch, NOW, {
+      name: "Apple",
+      handle: "Apple"
+    })).rejects.toThrow(
+      "youtube_apple_detail_unavailable:player_http_403:watch_http_403"
+    );
+    expect(playerRequests).toBe(1);
+    expect(watchRequests).toBe(1);
   });
 
   it("bounds fixed view-sorted search and rereads every nominated video from the official player", async () => {
@@ -858,18 +984,25 @@ describe("public dashboard discovery", () => {
   });
 
   it("reports detail-unavailable when every search nomination lacks exact player and watch proof", async () => {
+    let watchRequests = 0;
     const fetchImpl = vi.fn(async (input: RequestInfo | URL): Promise<Response> => {
       const url = new URL(String(input));
       if (url.pathname === "/results") return new Response(youtubeSearchPage(["unproven001"]));
       if (url.pathname === "/youtubei/v1/player") {
         return json({ playabilityStatus: { status: "LOGIN_REQUIRED" } });
       }
-      if (url.pathname === "/watch") return new Response("unavailable", { status: 503 });
+      if (url.pathname === "/watch") {
+        watchRequests += 1;
+        return new Response("unavailable", { status: 503 });
+      }
       throw new Error(`Unexpected request ${url}`);
     });
 
     await expect(fetchYoutubeSearchCandidates(fetchImpl as typeof fetch, NOW))
-      .rejects.toThrow("youtube_search_detail_unavailable");
+      .rejects.toThrow(
+        "youtube_search_detail_unavailable:player_playability_login_required:watch_http_503"
+      );
+    expect(watchRequests).toBe(3);
   });
 
   it("reports one deterministic label when every fixed search page is unavailable", async () => {
@@ -1017,9 +1150,83 @@ describe("public dashboard discovery", () => {
       redditSubreddits: []
     });
 
-    expect(maxActiveBrowseRequests).toBe(4);
+    expect(maxActiveBrowseRequests).toBe(2);
     expect(result.sources).toEqual(["github", "github_events", "hacker_news"]);
     expect(result.failures).toHaveLength(configured.length);
+  });
+
+  it("shares one reduced concurrency gate across channel and search detail reads", async () => {
+    const configured = Array.from({ length: 4 }, (_, index) => ({
+      name: `Channel ${index}`,
+      handle: `channel${index}`,
+      channelId: `UC${String(index).padStart(22, "0")}`
+    }));
+    const channelByVideoId = new Map<string, string>();
+    let activeDetailRequests = 0;
+    let maxActiveDetailRequests = 0;
+    const fetchImpl = vi.fn(async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
+      const url = new URL(String(input));
+      if (url.hostname === "hn.algolia.com") return json({ hits: [] });
+      if (url.hostname === "api.github.com" && url.pathname === "/search/repositories") return json({ items: [] });
+      if (url.hostname === "api.github.com" && url.pathname === "/events") return json([]);
+      if (url.pathname === "/youtubei/v1/browse") {
+        const body = JSON.parse(String(init?.body)) as { browseId?: string };
+        const channel = configured.find(({ channelId }) => body.browseId === `VLUU${channelId.slice(2)}`);
+        if (!channel) throw new Error("Unexpected uploads playlist.");
+        const index = configured.indexOf(channel);
+        const videoIds = [`channel${index}a00`, `channel${index}b00`];
+        for (const videoId of videoIds) channelByVideoId.set(videoId, channel.channelId);
+        return json(youtubeUploadsBrowseResponse(videoIds));
+      }
+      if (url.pathname === "/results") {
+        const queryIndex = DEFAULT_DASHBOARD_YOUTUBE_SEARCH_QUERIES.indexOf(
+          url.searchParams.get("search_query") as typeof DEFAULT_DASHBOARD_YOUTUBE_SEARCH_QUERIES[number]
+        );
+        return new Response(youtubeSearchPage([`search${queryIndex}a000`, `search${queryIndex}b000`]));
+      }
+      if (url.pathname === "/youtubei/v1/player") {
+        activeDetailRequests += 1;
+        maxActiveDetailRequests = Math.max(maxActiveDetailRequests, activeDetailRequests);
+        await new Promise((resolve) => setTimeout(resolve, 5));
+        activeDetailRequests -= 1;
+        const body = JSON.parse(String(init?.body)) as { videoId?: string };
+        const videoId = body.videoId ?? "";
+        const channelId = channelByVideoId.get(videoId) ?? "UC1234567890123456789012";
+        return json(youtubePlayerResponse({
+          videoId,
+          channelId,
+          author: "Verified technology creator",
+          title: `AI hardware launch ${videoId}`,
+          description: "Artificial intelligence chips and developer software.",
+          publishedAt: "2026-08-15T10:00:00.000Z",
+          views: 2_000_000
+        }));
+      }
+      throw new Error(`Unexpected request ${url}`);
+    });
+
+    const result = await discoverExternalDashboardCandidates({
+      now: NOW,
+      fetchImpl: fetchImpl as typeof fetch,
+      youtubeChannels: configured,
+      includeYoutubeSearch: true,
+      rssFeeds: [],
+      researchFeeds: [],
+      redditSubreddits: []
+    });
+
+    expect(maxActiveDetailRequests).toBe(MAX_CONCURRENT_DASHBOARD_YOUTUBE_DETAILS);
+    expect(result.failures).toEqual([]);
+    expect(result.sources).toEqual([
+      "github",
+      "github_events",
+      "hacker_news",
+      "youtube:channel0",
+      "youtube:channel1",
+      "youtube:channel2",
+      "youtube:channel3",
+      "youtube:search"
+    ]);
   });
 
   it("isolates one YouTube channel failure from another channel's verified candidates", async () => {

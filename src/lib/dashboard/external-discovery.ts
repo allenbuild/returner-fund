@@ -25,11 +25,25 @@ const MAX_X_RECENT_SEARCH_ITEMS = 100;
 const MAX_YOUTUBE_RESPONSE_BYTES = 1_750_000;
 const MAX_YOUTUBE_PLAYER_RESPONSE_BYTES = 750_000;
 const MAX_YOUTUBE_DETAIL_CANDIDATES_PER_CHANNEL = 2;
-const MAX_CONCURRENT_YOUTUBE_CHANNELS = 4;
+const MAX_CONCURRENT_YOUTUBE_CHANNELS = 2;
 const MAX_YOUTUBE_SEARCH_RESULTS_PER_QUERY = 6;
 const MAX_YOUTUBE_SEARCH_DETAIL_CANDIDATES = 24;
 const MAX_CONCURRENT_YOUTUBE_SEARCH_PAGES = 2;
-const MAX_CONCURRENT_YOUTUBE_SEARCH_DETAILS = 4;
+const MAX_CONCURRENT_YOUTUBE_SEARCH_DETAILS = 2;
+export const MAX_CONCURRENT_DASHBOARD_YOUTUBE_DETAILS = 4;
+export const MAX_DASHBOARD_YOUTUBE_TRANSIENT_DETAIL_RETRIES = 12;
+const YOUTUBE_TRANSIENT_DETAIL_RETRY_DELAYS_MS = [250, 1_000] as const;
+const YOUTUBE_TRANSIENT_HTTP_STATUSES = new Set([408, 425, 429, 500, 502, 503, 504]);
+const YOUTUBE_TRANSIENT_TRANSPORT_CODES = new Set([
+  "EAI_AGAIN",
+  "ECONNRESET",
+  "ENETDOWN",
+  "ENETUNREACH",
+  "ETIMEDOUT",
+  "UND_ERR_CONNECT_TIMEOUT",
+  "UND_ERR_HEADERS_TIMEOUT",
+  "UND_ERR_SOCKET"
+]);
 const MAX_INSTAGRAM_RESPONSE_BYTES = 4_000_000;
 const MAX_CONCURRENT_INSTAGRAM_ACCOUNTS = 3;
 const YOUTUBE_SEARCH_FILTER = "CAMSAggDEAE";
@@ -404,15 +418,30 @@ export async function discoverExternalDashboardCandidates(
   const subreddits = normalizeSubreddits(options.redditSubreddits ?? DEFAULT_DASHBOARD_REDDIT_SUBREDDITS);
   const githubToken = options.githubToken ?? null;
   const xBearerToken = options.xBearerToken?.trim() || null;
+  const scheduleYoutubeDetail = createYoutubeDetailScheduler(
+    MAX_CONCURRENT_DASHBOARD_YOUTUBE_DETAILS
+  );
+  const youtubeDetailRetryBudget = createYoutubeDetailRetryBudget();
   // The worker may be called with an explicit roster, but it must never turn
   // that input into an unbounded channel/detail crawl. Each retained channel
   // can nominate at most two official player reads below.
   const youtubeChannels = (options.youtubeChannels ?? []).slice(0, MAX_DASHBOARD_YOUTUBE_CHANNELS);
-  const youtubeJobs = boundedYoutubeDiscoveryJobs(fetchImpl, now, youtubeChannels);
+  const youtubeJobs = boundedYoutubeDiscoveryJobs(
+    fetchImpl,
+    now,
+    youtubeChannels,
+    scheduleYoutubeDetail,
+    youtubeDetailRetryBudget
+  );
   const instagramAccounts = (options.instagramAccounts ?? []).slice(0, MAX_DASHBOARD_INSTAGRAM_ACCOUNTS);
   const instagramJobs = boundedInstagramDiscoveryJobs(fetchImpl, now, instagramAccounts);
   const youtubeSearchJobs = options.includeYoutubeSearch === true
-    ? [fetchYoutubeSearchCandidates(fetchImpl, now)]
+    ? [fetchYoutubeSearchCandidates(
+        fetchImpl,
+        now,
+        scheduleYoutubeDetail,
+        youtubeDetailRetryBudget
+      )]
     : [];
   const jobs: Array<Promise<{ source: string; candidates: DashboardCandidate[] }>> = [
     fetchHackerNewsCandidates(fetchImpl, now),
@@ -462,13 +491,21 @@ function boundedInstagramDiscoveryJobs(
 function boundedYoutubeDiscoveryJobs(
   fetchImpl: typeof fetch,
   now: Date,
-  channels: readonly DashboardYoutubeChannel[]
+  channels: readonly DashboardYoutubeChannel[],
+  scheduleYoutubeDetail: YoutubeDetailScheduler,
+  youtubeDetailRetryBudget: YoutubeDetailRetryBudget
 ): Array<Promise<{ source: string; candidates: DashboardCandidate[] }>> {
   const jobs: Array<Promise<{ source: string; candidates: DashboardCandidate[] }>> = [];
   for (const [index, channel] of channels.entries()) {
     const predecessor = jobs[index - MAX_CONCURRENT_YOUTUBE_CHANNELS];
     const ready = predecessor ? predecessor.then(() => undefined, () => undefined) : Promise.resolve();
-    jobs.push(ready.then(() => fetchYoutubeChannelCandidates(fetchImpl, now, channel)));
+    jobs.push(ready.then(() => fetchYoutubeChannelCandidates(
+      fetchImpl,
+      now,
+      channel,
+      scheduleYoutubeDetail,
+      youtubeDetailRetryBudget
+    )));
   }
   return jobs;
 }
@@ -624,7 +661,11 @@ export async function fetchXRecentSearchCandidates(
 export async function fetchYoutubeChannelCandidates(
   fetchImpl: typeof fetch,
   now: Date,
-  channel: DashboardYoutubeChannel
+  channel: DashboardYoutubeChannel,
+  scheduleYoutubeDetail: YoutubeDetailScheduler = createYoutubeDetailScheduler(
+    MAX_CONCURRENT_DASHBOARD_YOUTUBE_DETAILS
+  ),
+  youtubeDetailRetryBudget: YoutubeDetailRetryBudget = createYoutubeDetailRetryBudget()
 ): Promise<{ source: string; candidates: DashboardCandidate[] }> {
   const handle = compactWhitespace(channel.handle).replace(/^@/, "");
   if (!/^[A-Za-z0-9._-]{1,100}$/.test(handle)) throw new Error("youtube_invalid_channel_handle");
@@ -647,14 +688,23 @@ export async function fetchYoutubeChannelCandidates(
   } else {
     queue = await fetchYoutubeChannelPageQueue(fetchImpl, handle, source);
   }
-  const settled = await Promise.allSettled(queue.videoIds.map((videoId) =>
-    fetchYoutubeDetailCandidate(fetchImpl, videoId, queue.channelId, channel.name, now, queue.innertubeConfig)
+  const settled = await Promise.all(queue.videoIds.map((videoId) =>
+    scheduleYoutubeDetail(() => fetchYoutubeDetailCandidate(
+      fetchImpl,
+      videoId,
+      queue.channelId,
+      channel.name,
+      now,
+      queue.innertubeConfig,
+      youtubeDetailRetryBudget
+    ))
   ));
-  const details = settled.flatMap((result) =>
-    result.status === "fulfilled" && result.value ? [result.value] : []
-  );
+  const details = settled.flatMap((result) => result.candidate ? [result.candidate] : []);
   if (details.length === 0) {
-    throw new Error(`${source.replace(":", "_")}_detail_unavailable`);
+    throw new Error(youtubeDetailUnavailableLabel(
+      `${source.replace(":", "_")}_detail_unavailable`,
+      settled
+    ));
   }
   return {
     source,
@@ -668,13 +718,18 @@ export async function fetchYoutubeChannelCandidates(
  * response so renderer counters and relative dates never satisfy a gate.
  *
  * At most four fixed page requests, four official search fallbacks, and 24
- * player requests are issued, with nomination/detail concurrency capped
- * independently at two/four. Search responses only nominate IDs; they never
- * attest identity, publication time, content, or counters.
+ * player requests are issued, with nomination and search-detail concurrency
+ * capped at two. One shared four-request detail gate covers roster and search
+ * player/watch traffic together. Search responses only nominate IDs; they
+ * never attest identity, publication time, content, or counters.
  */
 export async function fetchYoutubeSearchCandidates(
   fetchImpl: typeof fetch,
-  now: Date
+  now: Date,
+  scheduleYoutubeDetail: YoutubeDetailScheduler = createYoutubeDetailScheduler(
+    MAX_CONCURRENT_DASHBOARD_YOUTUBE_DETAILS
+  ),
+  youtubeDetailRetryBudget: YoutubeDetailRetryBudget = createYoutubeDetailRetryBudget()
 ): Promise<{ source: string; candidates: DashboardCandidate[] }> {
   const pageJobs = boundedAsyncJobs(
     DEFAULT_DASHBOARD_YOUTUBE_SEARCH_QUERIES,
@@ -693,20 +748,26 @@ export async function fetchYoutubeSearchCandidates(
   const detailJobs = boundedAsyncJobs(
     nominations,
     MAX_CONCURRENT_YOUTUBE_SEARCH_DETAILS,
-    ({ videoId, innertubeConfig }) => fetchYoutubeDetailCandidate(
-      fetchImpl,
-      videoId,
-      null,
-      null,
-      now,
-      innertubeConfig
+    ({ videoId, innertubeConfig }) => scheduleYoutubeDetail(() =>
+      fetchYoutubeDetailCandidate(
+        fetchImpl,
+        videoId,
+        null,
+        null,
+        now,
+        innertubeConfig,
+        youtubeDetailRetryBudget
+      )
     )
   );
-  const settledDetails = await Promise.allSettled(detailJobs);
-  const candidates = settledDetails.flatMap((result) =>
-    result.status === "fulfilled" && result.value ? [result.value] : []
-  );
-  if (candidates.length === 0) throw new Error("youtube_search_detail_unavailable");
+  const settledDetails = await Promise.all(detailJobs);
+  const candidates = settledDetails.flatMap((result) => result.candidate ? [result.candidate] : []);
+  if (candidates.length === 0) {
+    throw new Error(youtubeDetailUnavailableLabel(
+      "youtube_search_detail_unavailable",
+      settledDetails
+    ));
+  }
   return {
     source: "youtube:search",
     candidates: candidates.filter((candidate) => isDashboardCandidateEligible(candidate, now))
@@ -839,6 +900,34 @@ function boundedAsyncJobs<T, R>(
   return jobs;
 }
 
+type YoutubeDetailScheduler = <T>(run: () => Promise<T>) => Promise<T>;
+
+interface YoutubeDetailRetryBudget {
+  remaining: number;
+}
+
+function createYoutubeDetailRetryBudget(): YoutubeDetailRetryBudget {
+  return { remaining: MAX_DASHBOARD_YOUTUBE_TRANSIENT_DETAIL_RETRIES };
+}
+
+function createYoutubeDetailScheduler(concurrency: number): YoutubeDetailScheduler {
+  const limit = Math.max(1, Math.trunc(concurrency));
+  let active = 0;
+  const waiting: Array<() => void> = [];
+  return async <T>(run: () => Promise<T>): Promise<T> => {
+    if (active >= limit) {
+      await new Promise<void>((resolve) => waiting.push(resolve));
+    }
+    active += 1;
+    try {
+      return await run();
+    } finally {
+      active -= 1;
+      waiting.shift()?.();
+    }
+  };
+}
+
 interface YoutubeDiscoveryQueue {
   channelId: string;
   videoIds: string[];
@@ -953,31 +1042,40 @@ async function fetchYoutubeDetailCandidate(
   expectedChannelId: string | null,
   rosterName: string | null,
   observedAt: Date,
-  innertubeConfig: YoutubeInnertubeConfig | null
-): Promise<DashboardCandidate | null> {
+  innertubeConfig: YoutubeInnertubeConfig | null,
+  retryBudget: YoutubeDetailRetryBudget
+): Promise<YoutubeDetailResult> {
+  const failureCodes: string[] = [];
   // The key is public page configuration and is used only for this request.
   // Never include it in a failure label or returned discovery data.
   if (innertubeConfig) {
-    try {
-      const candidate = await fetchYoutubePlayerCandidate(
+    const player = await fetchYoutubeDetailWithTransientRetry(
+      "player",
+      () => fetchYoutubePlayerCandidate(
         fetchImpl,
         videoId,
         expectedChannelId,
         rosterName,
         observedAt,
         innertubeConfig
-      );
-      if (candidate) return candidate;
-    } catch {
-      // A bounded official watch-page read is the compatibility fallback for
-      // transient endpoint/config changes. It has the same exact proof gates.
-    }
+      ),
+      retryBudget
+    );
+    if (player.candidate) return player;
+    failureCodes.push(...player.failureCodes);
   }
-  try {
-    return await fetchYoutubeWatchCandidate(fetchImpl, videoId, expectedChannelId, rosterName, observedAt);
-  } catch {
-    return null;
-  }
+  // A bounded official watch-page read is the compatibility fallback for the
+  // no-key player endpoint. It has the same exact identity/date/metric gates.
+  const watch = await fetchYoutubeDetailWithTransientRetry(
+    "watch",
+    () => fetchYoutubeWatchCandidate(fetchImpl, videoId, expectedChannelId, rosterName, observedAt),
+    retryBudget
+  );
+  if (watch.candidate) return watch;
+  return {
+    candidate: null,
+    failureCodes: [...new Set([...failureCodes, ...watch.failureCodes])]
+  };
 }
 
 async function fetchYoutubePlayerCandidate(
@@ -987,28 +1085,42 @@ async function fetchYoutubePlayerCandidate(
   rosterName: string | null,
   observedAt: Date,
   config: YoutubeInnertubeConfig
-): Promise<DashboardCandidate | null> {
+): Promise<DashboardCandidate> {
   const playerUrl = new URL("https://www.youtube.com/youtubei/v1/player");
   if (config.apiKey) playerUrl.searchParams.set("key", config.apiKey);
   playerUrl.searchParams.set("prettyPrint", "false");
-  const response = await fetchImpl(playerUrl, {
-    method: "POST",
-    headers: youtubePlayerHeaders(config.clientVersion, config.visitorData),
-    body: JSON.stringify({
-      context: youtubeInnertubeContext(config.clientVersion, config.visitorData),
-      videoId,
-      contentCheckOk: true,
-      racyCheckOk: true
-    }),
-    signal: AbortSignal.timeout(12_000)
-  });
-  if (!response.ok) throw new Error(`youtube_player_http_${response.status}`);
-  const payload = await readBoundedJson<YoutubePlayerResponse>(
-    response,
-    `youtube_player_${videoId}`,
-    MAX_YOUTUBE_PLAYER_RESPONSE_BYTES
-  );
+  let response: Response;
+  try {
+    response = await fetchImpl(playerUrl, {
+      method: "POST",
+      headers: youtubePlayerHeaders(config.clientVersion, config.visitorData),
+      body: JSON.stringify({
+        context: youtubeInnertubeContext(config.clientVersion, config.visitorData),
+        videoId,
+        contentCheckOk: true,
+        racyCheckOk: true
+      }),
+      signal: AbortSignal.timeout(12_000)
+    });
+  } catch (error) {
+    throw youtubeDetailTransportFailure("player", error);
+  }
+  if (!response.ok) throw youtubeDetailHttpFailure("player", response.status);
+  let payload: YoutubePlayerResponse;
+  try {
+    payload = await readBoundedJson<YoutubePlayerResponse>(
+      response,
+      `youtube_player_${videoId}`,
+      MAX_YOUTUBE_PLAYER_RESPONSE_BYTES
+    );
+  } catch (error) {
+    throw youtubeDetailResponseFailure("player", error);
+  }
   const details = payload.videoDetails;
+  const playabilityStatus = youtubeMachineReason(payload.playabilityStatus?.status);
+  if (!details && playabilityStatus) {
+    throw new YoutubeDetailFailure(`player_playability_${playabilityStatus}`, false);
+  }
   const microformat = payload.microformat?.playerMicroformatRenderer;
   const publicationValue = exactYoutubePlayerPublicationValue(microformat);
   return youtubeCandidateFromMetadata({
@@ -1024,7 +1136,7 @@ async function fetchYoutubePlayerCandidate(
     viewCount: details?.viewCount,
     publicationValue,
     likes: null
-  });
+  }, "player");
 }
 
 function youtubeInnertubeContext(
@@ -1048,17 +1160,27 @@ async function fetchYoutubeWatchCandidate(
   expectedChannelId: string | null,
   rosterName: string | null,
   observedAt: Date
-): Promise<DashboardCandidate | null> {
+): Promise<DashboardCandidate> {
   const watchUrl = new URL("https://www.youtube.com/watch");
   watchUrl.searchParams.set("v", videoId);
   watchUrl.searchParams.set("hl", "en");
   watchUrl.searchParams.set("gl", "US");
-  const response = await fetchImpl(watchUrl, {
-    headers: youtubePublicHeaders(),
-    signal: AbortSignal.timeout(12_000)
-  });
-  if (!response.ok) throw new Error(`youtube_watch_http_${response.status}`);
-  const html = await readBoundedText(response, `youtube_watch_${videoId}`, MAX_YOUTUBE_RESPONSE_BYTES);
+  let response: Response;
+  try {
+    response = await fetchImpl(watchUrl, {
+      headers: youtubePublicHeaders(),
+      signal: AbortSignal.timeout(12_000)
+    });
+  } catch (error) {
+    throw youtubeDetailTransportFailure("watch", error);
+  }
+  if (!response.ok) throw youtubeDetailHttpFailure("watch", response.status);
+  let html: string;
+  try {
+    html = await readBoundedText(response, `youtube_watch_${videoId}`, MAX_YOUTUBE_RESPONSE_BYTES);
+  } catch (error) {
+    throw youtubeDetailResponseFailure("watch", error);
+  }
   const playerResponse = parseAssignedJson(html, "ytInitialPlayerResponse");
   // Prefer the one player-response object associated with this watch page so
   // exact dates from unrelated recommendation payloads cannot attest it.
@@ -1079,10 +1201,10 @@ async function fetchYoutubeWatchCandidate(
     viewCount: jsonStringField(details, "viewCount") ?? jsonNumberField(details, "viewCount"),
     publicationValue,
     likes: finiteNonnegative(jsonStringField(html, "likeCount") ?? jsonNumberField(html, "likeCount"))
-  });
+  }, "watch");
 }
 
-function youtubeCandidateFromMetadata(input: {
+interface YoutubeCandidateMetadata {
   videoId: string;
   expectedChannelId: string | null;
   rosterName: string | null;
@@ -1095,7 +1217,12 @@ function youtubeCandidateFromMetadata(input: {
   viewCount: unknown;
   publicationValue: string | null;
   likes: number | null;
-}): DashboardCandidate | null {
+}
+
+function youtubeCandidateFromMetadata(
+  input: YoutubeCandidateMetadata,
+  surface: "player" | "watch"
+): DashboardCandidate {
   const nativeVideoId = typeof input.nativeVideoId === "string" ? input.nativeVideoId : "";
   const channelId = typeof input.channelId === "string" ? input.channelId : "";
   const publishedAt = validTimestamp(input.publicationValue);
@@ -1103,12 +1230,22 @@ function youtubeCandidateFromMetadata(input: {
   const description = compactWhitespace(typeof input.description === "string" ? input.description : "").slice(0, 4_000);
   const views = youtubeViewCount(input.viewCount);
   const authorName = compactWhitespace(typeof input.author === "string" ? input.author : "") || input.rosterName || "";
-  if (
-    nativeVideoId !== input.videoId || !/^UC[A-Za-z0-9_-]{22}$/.test(channelId) ||
-    (input.expectedChannelId !== null && channelId !== input.expectedChannelId) ||
-    !authorName || !title || !publishedAt ||
-    !isExactYoutubePublicationValue(input.publicationValue) || views === null
-  ) return null;
+  const proofFailure = youtubeDetailProofFailure({
+    surface,
+    requestedVideoId: input.videoId,
+    nativeVideoId,
+    channelId,
+    expectedChannelId: input.expectedChannelId,
+    authorName,
+    title,
+    publishedAt,
+    publicationValue: input.publicationValue,
+    views
+  });
+  if (proofFailure) throw new YoutubeDetailFailure(proofFailure, false);
+  if (!publishedAt || views === null) {
+    throw new YoutubeDetailFailure(`${surface}_proof_invariant_failed`, false);
+  }
   const text = compactWhitespace(`${title} ${description}`);
   const url = `https://www.youtube.com/watch?v=${input.videoId}`;
   return {
@@ -1138,6 +1275,142 @@ function youtubeCandidateFromMetadata(input: {
     sourceLinkStatus: "verified",
     publicationPrecision: "exact"
   };
+}
+
+interface YoutubeDetailResult {
+  candidate: DashboardCandidate | null;
+  failureCodes: string[];
+}
+
+class YoutubeDetailFailure extends Error {
+  readonly code: string;
+  readonly transient: boolean;
+
+  constructor(code: string, transient: boolean) {
+    super(code);
+    this.name = "YoutubeDetailFailure";
+    this.code = code;
+    this.transient = transient;
+  }
+}
+
+async function fetchYoutubeDetailWithTransientRetry(
+  surface: "player" | "watch",
+  run: () => Promise<DashboardCandidate>,
+  retryBudget: YoutubeDetailRetryBudget
+): Promise<YoutubeDetailResult> {
+  const failureCodes: string[] = [];
+  for (let attempt = 0; ; attempt += 1) {
+    try {
+      return { candidate: await run(), failureCodes: [] };
+    } catch (error) {
+      const failure = error instanceof YoutubeDetailFailure
+        ? error
+        : new YoutubeDetailFailure(`${surface}_unexpected_failure`, false);
+      failureCodes.push(failure.code);
+      if (
+        !failure.transient ||
+        attempt >= YOUTUBE_TRANSIENT_DETAIL_RETRY_DELAYS_MS.length ||
+        retryBudget.remaining <= 0
+      ) {
+        return { candidate: null, failureCodes: [...new Set(failureCodes)] };
+      }
+      retryBudget.remaining -= 1;
+      await delayMilliseconds(YOUTUBE_TRANSIENT_DETAIL_RETRY_DELAYS_MS[attempt] ?? 0);
+    }
+  }
+}
+
+function youtubeDetailHttpFailure(
+  surface: "player" | "watch",
+  status: number
+): YoutubeDetailFailure {
+  return new YoutubeDetailFailure(
+    `${surface}_http_${Number.isInteger(status) ? status : "unknown"}`,
+    YOUTUBE_TRANSIENT_HTTP_STATUSES.has(status)
+  );
+}
+
+function youtubeDetailTransportFailure(
+  surface: "player" | "watch",
+  error: unknown
+): YoutubeDetailFailure {
+  const errorRecord = objectValue(error);
+  const cause = objectValue(errorRecord?.cause);
+  const name = typeof errorRecord?.name === "string" ? errorRecord.name.toUpperCase() : "";
+  const transportCode = [errorRecord?.code, cause?.code]
+    .find((value) => typeof value === "string" && YOUTUBE_TRANSIENT_TRANSPORT_CODES.has(value.toUpperCase()));
+  if (name === "ABORTERROR" || name === "TIMEOUTERROR") {
+    return new YoutubeDetailFailure(`${surface}_timeout`, true);
+  }
+  if (typeof transportCode === "string") {
+    return new YoutubeDetailFailure(
+      `${surface}_transport_${transportCode.toLowerCase()}`,
+      true
+    );
+  }
+  return new YoutubeDetailFailure(`${surface}_fetch_failed`, false);
+}
+
+function youtubeDetailResponseFailure(
+  surface: "player" | "watch",
+  error: unknown
+): YoutubeDetailFailure {
+  const transportFailure = youtubeDetailTransportFailure(surface, error);
+  return transportFailure.transient
+    ? transportFailure
+    : new YoutubeDetailFailure(`${surface}_response_unreadable`, false);
+}
+
+function youtubeDetailProofFailure(input: {
+  surface: "player" | "watch";
+  requestedVideoId: string;
+  nativeVideoId: string;
+  channelId: string;
+  expectedChannelId: string | null;
+  authorName: string;
+  title: string;
+  publishedAt: string | null;
+  publicationValue: string | null;
+  views: number | null;
+}): string | null {
+  if (!input.nativeVideoId) return `${input.surface}_native_video_id_missing`;
+  if (input.nativeVideoId !== input.requestedVideoId) return `${input.surface}_native_video_id_mismatch`;
+  if (!/^UC[A-Za-z0-9_-]{22}$/.test(input.channelId)) return `${input.surface}_channel_id_missing`;
+  if (input.expectedChannelId !== null && input.channelId !== input.expectedChannelId) {
+    return `${input.surface}_channel_id_mismatch`;
+  }
+  if (!input.authorName) return `${input.surface}_author_missing`;
+  if (!input.title) return `${input.surface}_title_missing`;
+  if (!input.publishedAt || !isExactYoutubePublicationValue(input.publicationValue)) {
+    return `${input.surface}_exact_publication_unavailable`;
+  }
+  if (input.views === null) return `${input.surface}_native_views_unavailable`;
+  return null;
+}
+
+function youtubeMachineReason(value: unknown): string | null {
+  if (typeof value !== "string") return null;
+  const normalized = value.trim().toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_|_$/g, "");
+  return normalized.slice(0, 48) || null;
+}
+
+function youtubeDetailUnavailableLabel(
+  base: string,
+  results: readonly YoutubeDetailResult[]
+): string {
+  const reasons = [...new Set(results.flatMap((result) => result.failureCodes))]
+    .sort();
+  let label = base;
+  for (const reason of reasons) {
+    if (`${label}:${reason}`.length > 156) break;
+    label = `${label}:${reason}`;
+  }
+  return label === base ? `${base}:unknown` : label;
+}
+
+async function delayMilliseconds(delayMs: number): Promise<void> {
+  await new Promise<void>((resolve) => setTimeout(resolve, Math.max(0, delayMs)));
 }
 
 function youtubePublicHeaders(): HeadersInit {
@@ -2156,6 +2429,9 @@ interface YoutubePlayerMicroformatRenderer {
   uploadDate?: unknown;
 }
 interface YoutubePlayerResponse {
+  playabilityStatus?: {
+    status?: unknown;
+  } | null;
   videoDetails?: {
     videoId?: unknown;
     channelId?: unknown;

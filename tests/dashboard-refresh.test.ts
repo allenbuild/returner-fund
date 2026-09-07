@@ -89,7 +89,7 @@ describe("dashboard worker metric-history enrichment", () => {
     expect(() => assertConfiguredYoutubeDiscoverySucceeded(
       channels,
       ["hacker_news"],
-      ["youtube_apple_detail_unavailable"],
+      ["youtube_apple_detail_unavailable:player_http_429:watch_http_503"],
       1
     )).not.toThrow();
     expect(() => assertConfiguredYoutubeDiscoverySucceeded(
@@ -101,10 +101,10 @@ describe("dashboard worker metric-history enrichment", () => {
     expect(() => assertConfiguredYoutubeDiscoverySucceeded(
       [...channels, { name: "MKBHD", handle: "mkbhd" }],
       ["hacker_news"],
-      ["youtube_apple_detail_unavailable", "youtube_mkbhd_browse_http_429"],
+      ["youtube_apple_detail_unavailable:player_http_429:watch_http_503", "youtube_mkbhd_browse_http_429"],
       1
     )).toThrowError(
-      "dashboard_youtube_discovery_unavailable:youtube_apple_detail_unavailable,youtube_mkbhd_browse_http_429"
+      "dashboard_youtube_discovery_unavailable:youtube_apple_detail_unavailable:player_http_429:watch_http_503,youtube_mkbhd_browse_http_429"
     );
   });
 
@@ -115,7 +115,7 @@ describe("dashboard worker metric-history enrichment", () => {
       { now: new Date(PRIOR_GENERATED_AT) }
     ).snapshot;
     const later = NOW;
-    const failures = ["youtube_apple_detail_unavailable"];
+    const failures = ["youtube_apple_detail_unavailable:player_http_429:watch_http_503"];
     const retained = retainPriorVerifiedYoutubeCandidatesOnDetailFailure([], prior, later, failures, channels);
 
     expect(retained).toEqual([

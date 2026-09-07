@@ -29,7 +29,7 @@ const RETURNER_BATCHES: readonly PublishedGraphBatchSlug[] = ["S2026", "S26", "A
 // bounded public adapters finish. Permit that expected scheduler/adapter
 // skew, but reject a malformed timestamp materially beyond the run.
 const MAX_METRIC_OBSERVATION_SKEW_MS = 30 * 60 * 1_000;
-const YOUTUBE_DETAIL_UNAVAILABLE_FAILURE = /^youtube_(?!search_)[a-z0-9-]+_detail_unavailable$/i;
+const YOUTUBE_DETAIL_UNAVAILABLE_FAILURE = /^youtube_(?!search_)[a-z0-9-]+_detail_unavailable(?::[a-z0-9_-]+)*$/i;
 const YOUTUBE_RETAINED_FAILURE = "youtube_prior_verified_retained";
 
 export interface DashboardRefreshOptions {
@@ -328,7 +328,10 @@ export function assertConfiguredYoutubeDiscoverySucceeded(
     isSystemicConfiguredYoutubeDetailOutage(youtubeChannels, failureLabels)
   ) return;
   const youtubeFailures = failureLabels
-    .filter((label) => !label.startsWith("youtube_search_") && /^youtube_[a-z0-9-]+_[a-z0-9_-]+$/i.test(label))
+    .filter((label) =>
+      !label.startsWith("youtube_search_") &&
+      /^youtube_[a-z0-9-]+_[a-z0-9_-]+(?::[a-z0-9_-]+)*$/i.test(label)
+    )
     .slice(0, MAX_DASHBOARD_YOUTUBE_CHANNELS);
   const diagnostic = youtubeFailures.length > 0 ? youtubeFailures.join(",") : "no_failure_labels";
   throw new Error(`dashboard_youtube_discovery_unavailable:${diagnostic}`);
@@ -360,7 +363,10 @@ export function retainPriorVerifiedYoutubeCandidatesOnDetailFailure(
   const configuredAuthorNames = new Set(
     (youtubeChannels ?? [])
       .slice(0, MAX_DASHBOARD_YOUTUBE_CHANNELS)
-      .filter((channel) => failureSet.has(youtubeDetailUnavailableFailureLabel(channel.handle)))
+      .filter((channel) => youtubeDetailFailureForHandle(
+        failureSet,
+        channel.handle
+      ))
       .map((channel) => normalizedYoutubeAuthorName(channel.name))
       .filter(Boolean)
   );
@@ -439,7 +445,7 @@ function isSystemicConfiguredYoutubeDetailOutage(
   if (channels.length === 0) return false;
   const failures = new Set(failureLabels.filter((label) => YOUTUBE_DETAIL_UNAVAILABLE_FAILURE.test(label)));
   const failedConfiguredChannels = channels.filter((channel) =>
-    failures.has(youtubeDetailUnavailableFailureLabel(channel.handle))
+    youtubeDetailFailureForHandle(failures, channel.handle)
   ).length;
   // A platform-wide cloud-runner block can still leave one adapter with a
   // coarser fetch diagnostic. Small explicit rosters must fail unanimously;
@@ -455,6 +461,14 @@ function youtubeDetailUnavailableFailureLabel(handleValue: string): string {
   const handle = handleValue.trim().replace(/^@/, "");
   const slug = handle.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "source";
   return `youtube_${slug}_detail_unavailable`;
+}
+
+function youtubeDetailFailureForHandle(
+  failureLabels: ReadonlySet<string>,
+  handleValue: string
+): boolean {
+  const base = youtubeDetailUnavailableFailureLabel(handleValue);
+  return [...failureLabels].some((label) => label === base || label.startsWith(`${base}:`));
 }
 
 function normalizedYoutubeAuthorName(value: string | null | undefined): string {
