@@ -433,7 +433,7 @@ describe("autonomous ingestion planning against the collector catalogs", () => {
 
     for (const [batchSlug, entityId, platform, expectedCanonicalUrl] of [
       ["S2026", "company-anoria", "youtube", "https://youtube.com/@anoria_inc"],
-      ["S26", "company-luca-iq", "youtube", "https://youtube.com/channel/ucskrxhk7dyia_atzzbzz8ba"],
+      ["S26", "company-luca-iq", "youtube", "https://youtube.com/channel/UCsKrXhK7dyIA_ATzzbzZ8bA"],
       ["S2026", "company-gojiberry-ai", "reddit", "https://reddit.com/user/ecstatic-tough6503"],
       ["S2026", "company-napkin-math", "product_hunt", "https://producthunt.com/products/napkin-math"]
     ]) {
