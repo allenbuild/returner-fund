@@ -770,8 +770,6 @@ export async function evaluateDashboardRecovery({
   config,
   github,
   state,
-  readPowerStatus,
-  readWakeStatus,
   now = new Date(),
   dryRun = config.dryRun
 }) {
@@ -875,44 +873,13 @@ export async function evaluateDashboardRecovery({
     }
   }
 
-  const runnerVerification = verifyRecoveryRunner({
-    runners: await github.getRunners({ fresh: true }),
-    config
-  });
-  if (!runnerVerification.valid) {
-    return Object.freeze({
-      action: "defer",
-      reason: runnerVerification.reason,
-      matchingRunners: runnerVerification.matching,
-      watermarkStatus: watermark.status
-    });
-  }
-  if (runnerVerification.busy) {
-    return Object.freeze({
-      action: "defer",
-      reason: "runner_busy",
-      runnerId: runnerVerification.runnerId,
-      watermarkStatus: watermark.status
-    });
-  }
-
-  const host = await readRecoveryHostStatus({ config, readPowerStatus, readWakeStatus });
-  if (!host.eligible) {
-    return Object.freeze({
-      action: "defer",
-      reason: host.reason,
-      batteryPercent: host.percent,
-      watermarkStatus: watermark.status
-    });
-  }
   if (dryRun) {
     return Object.freeze({
       action: "defer",
       reason: "dry_run_would_dispatch_dashboard_recovery",
       mainSha,
       watermarkStatus: watermark.status,
-      publicationWatermark: watermark.generatedAt,
-      batteryPercent: host.percent
+      publicationWatermark: watermark.generatedAt
     });
   }
 
@@ -923,11 +890,7 @@ export async function evaluateDashboardRecovery({
     mainSha,
     watermarkStatus: watermark.status,
     publicationWatermark: watermark.generatedAt,
-    ageMinutes: watermark.ageMinutes,
-    batteryPercent: host.percent,
-    powerReason: host.powerReason,
-    wakeReason: host.wakeReason,
-    runnerId: runnerVerification.runnerId
+    ageMinutes: watermark.ageMinutes
   });
 }
 
@@ -1293,20 +1256,15 @@ export async function runSupervisor({
       reason: "dashboard_recovery_disabled"
     };
     const ingestionRecoveryAccepted = rerunAccepted || recovery.action === "dispatch";
-    if (runnerRecoveryBlocksMutations) {
-      dashboardRecovery = {
-        action: "defer",
-        reason: "runner_recovery_required",
-        runnerRecoveryReason: runnerRecovery.reason
-      };
-    } else if (config.dashboardRecoveryEnabled && !ingestionRecoveryAccepted) {
+    // Dashboard recovery dispatches a GitHub-hosted no-external refresh. Like
+    // public ingestion recovery, it must not depend on the authenticated Mac
+    // runner being online, idle, powered, or fully awake.
+    if (config.dashboardRecoveryEnabled && !ingestionRecoveryAccepted) {
       try {
         dashboardRecovery = await evaluateDashboardRecovery({
           config,
           github,
           state,
-          readPowerStatus,
-          readWakeStatus,
           now: now()
         });
         if (dashboardRecovery.action === "dispatch") {
@@ -1856,7 +1814,7 @@ export function createGitHubClient(config, { execute = execFile } = {}) {
           "-F",
           `ref=${config.defaultBranch}`,
           "-F",
-          "inputs[skip_external_discovery]=false"
+          "inputs[skip_external_discovery]=true"
         ],
         { timeout: 30_000, maxBuffer: 1024 * 1024, encoding: "utf8" }
       );

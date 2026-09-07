@@ -15,7 +15,7 @@ on:
   workflow_dispatch:
     inputs:
       skip_external_discovery:
-        description: Skip public HN/GitHub/RSS discovery for this replay
+        description: Rebuild only from published ingestion artifacts on a hosted runner
         required: false
         default: false
         type: boolean
@@ -73,12 +73,13 @@ jobs:
     # A publication commit can land before downstream validation reports a
     # failure. The hosted admission job reads current main rather than trusting
     # the workflow conclusion, so that valid publication can still wake this
-    # job while a genuinely stale ingestion never enters the Mac queue.
-    # GitHub-hosted egress can return YouTube browse queues while withholding
-    # the exact player/watch metadata needed to attest publication time and
-    # native views. The established Mac runner's public network returns that
-    # official proof; discovery still fails closed if the proof is unavailable.
-    runs-on: [self-hosted, macOS, ARM64, returner-social, returner-auth-browser]
+    # job while a genuinely stale ingestion never enters the publication queue.
+    # Routine schedule/workflow-run refreshes and explicit no-external recovery
+    # rebuild from the freshly published ingestion artifacts on GitHub-hosted
+    # capacity. Only an explicit manual full-external replay uses the Mac: its
+    # public network can supply exact YouTube player/watch proof that hosted
+    # egress sometimes withholds.
+    runs-on: ${{ (github.event_name == 'workflow_dispatch' && inputs.skip_external_discovery != true) && fromJSON('["self-hosted","macOS","ARM64","returner-social","returner-auth-browser"]') || 'ubuntu-latest' }}
     timeout-minutes: 18
     concurrency:
       # The job reads current main inside the serialized writer lane, so a
@@ -99,6 +100,15 @@ jobs:
             echo "ready=false"
             echo "reason=power_status_unavailable"
           } >> "$GITHUB_OUTPUT"
+
+          if [ "${RUNNER_OS:-}" != "macOS" ]; then
+            {
+              echo "ready=true"
+              echo "reason=github_hosted_no_external"
+            } >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
           POWER_STATUS="$(/usr/bin/pmset -g batt)"
           BATTERY_PERCENT="$(sed -nE 's/.*[[:space:]]([0-9]{1,3})%;.*/\1/p' <<< "$POWER_STATUS" | head -n 1)"
           if [[ "${POWER_STATUS%%$'\n'*}" != *"'AC Power'"* ]]; then
@@ -168,7 +178,11 @@ jobs:
 
       - name: Install dependencies
         if: steps.host_preflight.outputs.ready == 'true' && steps.priority_revalidation.outputs.should_run == 'true'
-        run: exec /usr/bin/caffeinate -im npm ci
+        run: |
+          if [ "${RUNNER_OS:-}" = "macOS" ]; then
+            exec /usr/bin/caffeinate -im npm ci
+          fi
+          exec npm ci
 
       - name: Validate dashboard code and deterministic build
         if: steps.host_preflight.outputs.ready == 'true' && steps.priority_revalidation.outputs.should_run == 'true'
@@ -176,8 +190,15 @@ jobs:
         # clustering, snapshot, and public-access contracts without making an
         # external source outage a prerequisite for publication.
         run: |
-          /usr/bin/caffeinate -im npm run typecheck
-          /usr/bin/caffeinate -im npx vitest run \
+          run_with_sleep_assertion() {
+            if [ "${RUNNER_OS:-}" = "macOS" ]; then
+              /usr/bin/caffeinate -im "$@"
+            else
+              "$@"
+            fi
+          }
+          run_with_sleep_assertion npm run typecheck
+          run_with_sleep_assertion npx vitest run \
             tests/dashboard-pipeline.test.ts \
             tests/dashboard-external-discovery.test.ts \
             tests/dashboard-refresh.test.ts \
@@ -189,7 +210,7 @@ jobs:
             tests/dashboard-thumbnail-rendering.test.tsx \
             tests/top-stories-dashboard.test.tsx \
             tests/site-access.test.ts
-          /usr/bin/caffeinate -im npm run dashboard:validate
+          run_with_sleep_assertion npm run dashboard:validate
 
       - name: Refresh published dashboard data
         if: steps.host_preflight.outputs.ready == 'true' && steps.priority_revalidation.outputs.should_run == 'true'
@@ -209,10 +230,17 @@ jobs:
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: |
           set -euo pipefail
-          if [ "${{ inputs.skip_external_discovery }}" = "true" ]; then
-            /usr/bin/caffeinate -im npm run dashboard:refresh -- --no-external
+          run_with_sleep_assertion() {
+            if [ "${RUNNER_OS:-}" = "macOS" ]; then
+              /usr/bin/caffeinate -im "$@"
+            else
+              "$@"
+            fi
+          }
+          if [ "${RUNNER_OS:-}" != "macOS" ] || [ "${{ inputs.skip_external_discovery }}" = "true" ]; then
+            run_with_sleep_assertion npm run dashboard:refresh -- --no-external
           else
-            /usr/bin/caffeinate -im npm run dashboard:refresh
+            run_with_sleep_assertion npm run dashboard:refresh
           fi
 
       - name: Commit a materially changed snapshot
@@ -233,10 +261,17 @@ jobs:
           # can still land during discovery. This commit changes only the two
           # regenerated Dashboard artifacts, so prefer this current worker's
           # deterministic projection if that same pair conflicts on rebase.
+          run_with_sleep_assertion() {
+            if [ "${RUNNER_OS:-}" = "macOS" ]; then
+              /usr/bin/caffeinate -im "$@"
+            else
+              "$@"
+            fi
+          }
           for attempt in 1 2 3; do
-            /usr/bin/caffeinate -im git fetch origin main
-            /usr/bin/caffeinate -im git rebase -X theirs origin/main
-            if /usr/bin/caffeinate -im git push origin "HEAD:main"; then
+            run_with_sleep_assertion git fetch origin main
+            run_with_sleep_assertion git rebase -X theirs origin/main
+            if run_with_sleep_assertion git push origin "HEAD:main"; then
               exit 0
             fi
           done

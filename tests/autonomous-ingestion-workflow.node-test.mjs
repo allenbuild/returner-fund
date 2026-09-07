@@ -163,7 +163,7 @@ test("accepted runs share the repository publication lane without delaying inact
   assert.match(resolverJob, /recovery_debt:\s*\$\{\{ steps\.decision\.outputs\.recovery_debt \}\}/);
 });
 
-test("dashboard refresh gives a stale ingestion priority before entering the Mac publication lane", () => {
+test("dashboard refresh gives stale ingestion priority before entering the publication lane", () => {
   const admissionJob = dashboardRefreshWorkflow.match(
     /\n  prioritize_ingestion:[\s\S]*?(?=\n  refresh:)/
   )?.[0] ?? "";
@@ -182,7 +182,7 @@ test("dashboard refresh gives a stale ingestion priority before entering the Mac
   );
   assert.match(
     dashboardRefreshWorkflow,
-    /reads current main rather than trusting[\s\S]*?workflow conclusion[\s\S]*?stale ingestion never enters the Mac queue/
+    /reads current main rather than trusting[\s\S]*?workflow conclusion[\s\S]*?stale ingestion never enters the publication queue/
   );
   const refreshJob = dashboardRefreshWorkflow.match(
     /\n  refresh:[\s\S]*$/
@@ -223,7 +223,7 @@ test("dashboard refresh gives a stale ingestion priority before entering the Mac
   assert.doesNotMatch(
     setupNodeStep,
     /^\s*cache:/m,
-    "the persistent self-hosted npm cache must not be downloaded from Actions cache"
+    "dashboard refresh must not download the previously oversized Actions cache"
   );
   assert.match(
     admissionJob,
@@ -234,14 +234,14 @@ test("dashboard refresh gives a stale ingestion priority before entering the Mac
   assert.doesNotMatch(dashboardRefreshWorkflow.split("jobs:")[0], /concurrency:/);
 });
 
-test("dashboard refresh uses the Mac network for exact YouTube proof", () => {
+test("dashboard routine refresh is hosted while full external replay retains exact Mac proof", () => {
   assert.match(
     dashboardRefreshWorkflow,
-    /refresh:[\s\S]*?runs-on:\s*\[self-hosted,\s*macOS,\s*ARM64,\s*returner-social,\s*returner-auth-browser\]/
+    /refresh:[\s\S]*?runs-on:\s*\$\{\{ \(github\.event_name == 'workflow_dispatch' && inputs\.skip_external_discovery != true\) && fromJSON\('\["self-hosted","macOS","ARM64","returner-social","returner-auth-browser"\]'\) \|\| 'ubuntu-latest' \}\}/
   );
   assert.match(
     dashboardRefreshWorkflow,
-    /GitHub-hosted egress[\s\S]*?exact player\/watch metadata[\s\S]*?discovery still fails closed/
+    /Routine schedule\/workflow-run refreshes[\s\S]*?GitHub-hosted[\s\S]*?Only an explicit manual full-external replay uses the Mac[\s\S]*?exact YouTube player\/watch proof/
   );
   assert.match(
     dashboardRefreshWorkflow,
@@ -257,6 +257,10 @@ test("dashboard refresh uses the Mac network for exact YouTube proof", () => {
   const hostPreflight = refreshJob.match(
     /- name: Preflight dashboard host[\s\S]*?(?=\n\s{6}- name:)/
   )?.[0] ?? "";
+  assert.match(
+    hostPreflight,
+    /if \[ "\$\{RUNNER_OS:-\}" != "macOS" \]; then[\s\S]*?reason=github_hosted_no_external[\s\S]*?exit 0[\s\S]*?POWER_STATUS="\$\(\/usr\/bin\/pmset -g batt\)"/
+  );
   assert.match(hostPreflight, /\/usr\/sbin\/ioreg -r -k IOPMUserTriggeredFullWake -d 4/);
   assert.match(hostPreflight, /\/usr\/sbin\/ioreg -r -k AppleClamshellState -d 4/);
   assert.match(hostPreflight, /reason=battery_clamshell_closed/);
@@ -264,12 +268,31 @@ test("dashboard refresh uses the Mac network for exact YouTube proof", () => {
   assert.match(hostPreflight, /reason=battery_full_wake_unverified/);
   assert.match(hostPreflight, /WAKE_MATCH_COUNT[\s\S]*?FULL_WAKE_MATCH_COUNT/);
   assert.doesNotMatch(hostPreflight, /\/usr\/bin\/caffeinate -u/);
-  assert.match(dashboardRefreshWorkflow, /exec \/usr\/bin\/caffeinate -im npm ci/);
-  assert.match(dashboardRefreshWorkflow, /\/usr\/bin\/caffeinate -im npm run dashboard:refresh/);
+  const installStep = refreshJob.match(
+    /- name: Install dependencies[\s\S]*?(?=\n\s{6}- name:)/
+  )?.[0] ?? "";
+  assert.match(
+    installStep,
+    /if \[ "\$\{RUNNER_OS:-\}" = "macOS" \]; then[\s\S]*?exec \/usr\/bin\/caffeinate -im npm ci[\s\S]*?fi[\s\S]*?exec npm ci/
+  );
+  for (const stepName of [
+    "Validate dashboard code and deterministic build",
+    "Refresh published dashboard data",
+    "Commit a materially changed snapshot"
+  ]) {
+    const escapedStepName = stepName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const guardedStep = refreshJob.match(
+      new RegExp(`- name: ${escapedStepName}[\\s\\S]*?(?=\\n\\s{6}- name:|$)`)
+    )?.[0] ?? "";
+    assert.match(
+      guardedStep,
+      /run_with_sleep_assertion\(\) \{[\s\S]*?if \[ "\$\{RUNNER_OS:-\}" = "macOS" \]; then[\s\S]*?\/usr\/bin\/caffeinate -im "\$@"[\s\S]*?else[\s\S]*?"\$@"/
+    );
+  }
   assert.doesNotMatch(dashboardRefreshWorkflow, /\/usr\/bin\/caffeinate[^\n]*&/);
   assert.match(
     dashboardRefreshWorkflow,
-    /if \[ "\$\{\{ inputs\.skip_external_discovery \}\}" = "true" \]; then[\s\S]*?dashboard:refresh -- --no-external[\s\S]*?else[\s\S]*?dashboard:refresh/
+    /if \[ "\$\{RUNNER_OS:-\}" != "macOS" \] \|\| \[ "\$\{\{ inputs\.skip_external_discovery \}\}" = "true" \]; then[\s\S]*?dashboard:refresh -- --no-external[\s\S]*?else[\s\S]*?dashboard:refresh/
   );
 });
 

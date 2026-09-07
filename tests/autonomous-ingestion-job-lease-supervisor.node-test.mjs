@@ -539,8 +539,9 @@ test("dashboard recovery verifies the exact active workflow identity", () => {
   );
 });
 
-test("stale dashboard recovery respects battery reserve, runner idle state, and failed wakes", async () => {
+test("stale dashboard recovery never reads Mac runner, power, or wake state", async () => {
   const dispatches = [];
+  let hostReads = 0;
   const testConfig = config({ dashboardRecoveryEnabled: true });
   const api = github({
     getRepositoryText: async () => dashboardArtifact("2026-08-26T17:00:00.000Z"),
@@ -550,48 +551,30 @@ test("stale dashboard recovery respects battery reserve, runner idle state, and 
       conclusion: "failure",
       created_at: "2026-08-26T19:58:00.000Z"
     }],
+    getRunners: async () => {
+      hostReads += 1;
+      throw new Error("hosted dashboard recovery must not inspect self-hosted runners");
+    },
     dispatchDashboardRecovery: async (headSha) => dispatches.push(headSha)
   });
   const state = { dashboardRecoveryDispatch: null };
   const now = new Date("2026-08-26T20:05:00.000Z");
 
-  const battery = await evaluateDashboardRecovery({
-    config: testConfig,
-    github: api,
-    state,
-    readPowerStatus: async () => "Now drawing from 'Battery Power'\n 29%; discharging",
-    now
-  });
-  assert.equal(battery.action, "defer");
-  assert.equal(battery.reason, "battery_below_reserve");
-  assert.equal(battery.batteryPercent, 29);
-  assert.deepEqual(dispatches, []);
-
-  const busy = await evaluateDashboardRecovery({
-    config: testConfig,
-    github: github({
-      ...api,
-      getRunners: async () => [{
-        id: 7,
-        name: "returner-social-mac-allenxtech",
-        status: "online",
-        busy: true
-      }]
-    }),
-    state,
-    readPowerStatus: async () => "Now drawing from 'AC Power'\n 100%; charged",
-    now
-  });
-  assert.equal(busy.reason, "runner_busy");
-  assert.deepEqual(dispatches, []);
-
   const accepted = await evaluateDashboardRecovery({
     config: testConfig,
     github: api,
     state,
-    readPowerStatus: async () => "Now drawing from 'AC Power'\n 72%; charging",
+    readPowerStatus: async () => {
+      hostReads += 1;
+      throw new Error("hosted dashboard recovery must not inspect Mac power");
+    },
+    readWakeStatus: async () => {
+      hostReads += 1;
+      throw new Error("hosted dashboard recovery must not inspect Mac wake state");
+    },
     now
   });
+  assert.equal(hostReads, 0);
   assert.equal(accepted.action, "dispatch");
   assert.equal(accepted.watermarkStatus, "stale");
   assert.equal(accepted.publicationWatermark, "2026-08-26T17:00:00.000Z");
@@ -861,7 +844,7 @@ test("active workflow and low battery defer without issuing or deduping a rerun"
   assert.equal(reruns, 0);
 });
 
-test("Mac-gated recovery defers during a dark wake while hosted schedule recovery dispatches", async () => {
+test("dark wake gates only Mac lease reruns while hosted recoveries dispatch", async () => {
   let mutations = 0;
   const api = github({
     getRepositoryText: async () => dashboardArtifact("2026-08-26T17:00:00.000Z"),
@@ -905,8 +888,8 @@ test("Mac-gated recovery defers during a dark wake while hosted schedule recover
     readWakeStatus,
     now: new Date("2026-08-26T20:05:00.000Z")
   });
-  assert.equal(dashboard.reason, "maintenance_dark_wake");
-  assert.equal(mutations, 1);
+  assert.equal(dashboard.action, "dispatch");
+  assert.equal(mutations, 2);
 });
 
 test("low Mac battery does not hold back stale hosted schedule recovery", async () => {
@@ -1203,7 +1186,7 @@ test("offline runner kickstart suppresses Mac mutations but not hosted recovery"
   assert.equal(first.runnerRecovery.pid, 8101);
   assert.equal(first.deferred, 1);
   assert.equal(first.recovery.action, "dispatch");
-  assert.equal(first.dashboardRecovery.reason, "runner_recovery_required");
+  assert.equal(first.dashboardRecovery.reason, "ingestion_recovery_dispatch_accepted");
   assert.equal(kickstarts, 1);
   assert.equal(leaseReruns, 0);
   assert.equal(recoveryDispatches, 1);
@@ -1243,7 +1226,54 @@ test("offline runner kickstart suppresses Mac mutations but not hosted recovery"
   assert.equal(recoveryDispatches, 2);
   assert.equal(dashboardDispatches, 0);
   assert.equal(scheduleRunReads, 3);
-  assert.equal(dashboardActiveRunReads, 0);
+  assert.equal(dashboardActiveRunReads, 1);
+});
+
+test("offline low-battery Mac cannot block hosted dashboard recovery", async (context) => {
+  const root = await mkdtemp(path.join(tmpdir(), "returner-hosted-dashboard-recovery-test-"));
+  context.after(() => rm(root, { recursive: true, force: true }));
+  const runnerDiagDir = path.join(root, "diag");
+  const stateDir = path.join(root, "state");
+  await mkdir(runnerDiagDir, { recursive: true });
+  await mkdir(stateDir, { recursive: true });
+  const testConfig = config({
+    runnerDiagDir,
+    stateDir,
+    statePath: path.join(stateDir, "state-v1.json"),
+    lockPath: path.join(stateDir, "supervisor.lock"),
+    runnerRestartEnabled: true,
+    dashboardRecoveryEnabled: true
+  });
+  await writeFile(testConfig.statePath, `${JSON.stringify({
+    schemaVersion: 1,
+    initializedAt: "2026-08-26T19:00:00.000Z",
+    workerLogs: {},
+    handledEvents: {},
+    recoveryDispatch: null,
+    dashboardRecoveryDispatch: null
+  })}\n`);
+  let dashboardDispatches = 0;
+  const result = await runSupervisor({
+    config: testConfig,
+    github: github({
+      getRunners: async () => [{
+        id: 7,
+        name: "returner-social-mac-allenxtech",
+        status: "offline",
+        busy: false
+      }],
+      getRepositoryText: async () => dashboardArtifact("2026-08-26T17:00:00.000Z"),
+      dispatchDashboardRecovery: async () => {
+        dashboardDispatches += 1;
+      }
+    }),
+    readPowerStatus: async () => "Now drawing from 'Battery Power'\n 12%; discharging",
+    now: () => new Date("2026-08-26T20:05:00.000Z")
+  });
+
+  assert.equal(result.runnerRecovery.reason, "battery_below_reserve");
+  assert.equal(result.dashboardRecovery.action, "dispatch");
+  assert.equal(dashboardDispatches, 1);
 });
 
 test("failed runner kickstart is durable and consumes the same cooldown", async (context) => {
@@ -1606,7 +1636,7 @@ test("GitHub recovery dispatch sends only the trusted event and expected main SH
   assert.doesNotMatch(JSON.stringify(calls[0].args), /central-\d{4}/);
 });
 
-test("GitHub dashboard recovery dispatch always requests the full strictly gated refresh", async () => {
+test("GitHub dashboard recovery dispatch requests the hosted no-external refresh", async () => {
   const calls = [];
   const client = createGitHubClient(config(), {
     execute: async (binary, args, options) => {
@@ -1623,8 +1653,8 @@ test("GitHub dashboard recovery dispatch always requests the full strictly gated
     )
   );
   assert.ok(calls[0].args.includes("ref=main"));
-  assert.ok(calls[0].args.includes("inputs[skip_external_discovery]=false"));
-  assert.doesNotMatch(JSON.stringify(calls[0].args), /no-external|skip_external_discovery=true/);
+  assert.ok(calls[0].args.includes("inputs[skip_external_discovery]=true"));
+  assert.doesNotMatch(JSON.stringify(calls[0].args), /skip_external_discovery=false/);
 });
 
 test("only an accepted rerun creates durable dedupe state", async (context) => {
