@@ -151,14 +151,25 @@ test("workflow declares DST-safe primary candidates plus persistent recovery", (
   assert.match(workflow, /replay_key:[\s\S]*?required:\s*true/);
 });
 
-test("accepted runs share the repository publication lane without delaying inactive resolvers", () => {
+test("autonomous runs serialize through validation and acceptance without cancellation", () => {
   assert.match(
     workflow,
     /ingest:[\s\S]*?concurrency:\s*\n\s*group:\s*repository-publication-main\s*\n\s*queue:\s*max\s*\n\s*cancel-in-progress:\s*false/
   );
   assertSupportedConcurrencySchema(workflow);
   assertExactExternalActionPins(workflow);
-  assert.doesNotMatch(workflow.split("jobs:")[0], /concurrency:/);
+  assert.match(
+    workflow.split("jobs:")[0],
+    /concurrency:\s*\n\s*group:\s*autonomous-ingestion-main\s*\n\s*queue:\s*max\s*\n\s*cancel-in-progress:\s*false/
+  );
+  assert.match(
+    workflow,
+    /name:\s*Revalidate serialized publication candidate[\s\S]*?INGESTION_REVALIDATE_CANDIDATE:\s*"true"[\s\S]*?INGESTION_PUBLICATION_REF:\s*refs\/remotes\/origin\/main[\s\S]*?git fetch --no-tags origin \+refs\/heads\/main:refs\/remotes\/origin\/main[\s\S]*?node scripts\/lib\/ingestion-schedule\.mjs/
+  );
+  assert.match(
+    workflow,
+    /validate_publication:[\s\S]*?if:\s*\$\{\{ always\(\) && needs\.resolve\.outputs\.should_run == 'true' && needs\.ingest\.outputs\.revalidation_should_run == 'true'/
+  );
   assert.match(workflow, /permissions:\s*\n\s*contents:\s*read/);
   assert.match(workflow, /ingest:[\s\S]*?permissions:\s*\n\s*contents:\s*write/);
   const resolverJob = workflow.match(/\n  resolve:[\s\S]*?(?=\n  ingest:)/)?.[0] ?? "";

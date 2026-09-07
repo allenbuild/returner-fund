@@ -31,6 +31,14 @@ on:
 permissions:
   contents: read
 
+# Keep publication, reusable validation, and acceptance atomic across every
+# autonomous wake. Later wakeups remain durable and revalidate current main
+# only after the active run has either committed acceptance or left retry debt.
+concurrency:
+  group: autonomous-ingestion-main
+  queue: max
+  cancel-in-progress: false
+
 jobs:
   resolve:
     name: Resolve Central slot candidate
