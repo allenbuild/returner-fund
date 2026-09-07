@@ -3071,7 +3071,7 @@ test("workflow routes public ingestion to hosted Linux and authenticated replay 
   );
 });
 
-test("failed hosted collection restores source-bound state without caching authenticated browser data", () => {
+test("failed or cancelled hosted collection restores source-bound state without caching authenticated browser data", () => {
   const ingestJob = workflow.match(/\n  ingest:[\s\S]*?(?=\n  receipt:)/)?.[0] ?? "";
   const restoreStep = ingestJob.match(
     /- name: Restore hosted collector recovery state[\s\S]*?(?=\n\s{6}- name:|$)/
@@ -3107,7 +3107,7 @@ test("failed hosted collection restores source-bound state without caching authe
   );
   assert.match(
     saveStep,
-    /if:\s*\$\{\{ always\(\) && runner\.os == 'Linux'[\s\S]*?steps\.ingestion\.outcome == 'failure' \}\}/
+    /if:\s*\$\{\{ always\(\) && runner\.os == 'Linux'[\s\S]*?steps\.ingestion\.outcome == 'failure' \|\| steps\.ingestion\.outcome == 'cancelled'[\s\S]*?\}\}/
   );
   assert.match(saveStep, /continue-on-error:\s*true/);
   assert.match(

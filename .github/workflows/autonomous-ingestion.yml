@@ -704,7 +704,7 @@ jobs:
             --authenticated-social-replay="$AUTHENTICATED_SOCIAL_REPLAY"
 
       - name: Save failed hosted collector recovery state
-        if: ${{ always() && runner.os == 'Linux' && steps.revalidate.outputs.should_run == 'true' && steps.host_preflight.outputs.ready == 'true' && steps.ingestion.outcome == 'failure' }}
+        if: ${{ always() && runner.os == 'Linux' && steps.revalidate.outputs.should_run == 'true' && steps.host_preflight.outputs.ready == 'true' && (steps.ingestion.outcome == 'failure' || steps.ingestion.outcome == 'cancelled') }}
         continue-on-error: true
         uses: actions/cache/save@0400d5f644dc74513175e3cd8d07132dd4860809 # v4
         with:
