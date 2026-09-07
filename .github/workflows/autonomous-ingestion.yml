@@ -1111,7 +1111,18 @@ jobs:
   accept_publication:
     name: Record validated slot acceptance
     needs: [resolve, ingest, validate_publication]
-    if: ${{ always() && needs.resolve.outputs.should_run == 'true' && needs.resolve.outputs.trigger == 'schedule' && needs.validate_publication.result == 'success' && needs.ingest.outputs.commit_verified == 'true' }}
+    if: >-
+      ${{
+        always() &&
+        needs.resolve.outputs.should_run == 'true' &&
+        needs.resolve.outputs.trigger == 'schedule' &&
+        needs.validate_publication.result == 'success' &&
+        needs.ingest.outputs.commit_verified == 'true' &&
+        contains(
+          fromJSON('["success:published","success:noop_completed","warning:published_degraded","warning:published_no_new_sources","warning:published_stale_day","warning:no_changes","warning:no_changes_stale_day","warning:noop_degraded","warning:noop_no_new_sources","warning:noop_stale_day"]'),
+          format('{0}:{1}', needs.ingest.outputs.receipt_conclusion, needs.ingest.outputs.receipt_status)
+        )
+      }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:

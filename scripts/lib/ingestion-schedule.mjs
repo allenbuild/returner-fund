@@ -10,7 +10,7 @@ import {
   INGESTION_GRAPH_MANIFEST_PATH,
   INGESTION_PUBLICATION_RECEIPT_PATH,
   inspectIngestionAcceptanceMarker,
-  sha256Text
+  inspectIngestionPublicationBinding
 } from "./ingestion-acceptance-marker.mjs";
 
 export const CENTRAL_TIME_ZONE = "America/Chicago";
@@ -494,7 +494,7 @@ async function inspectPublicationAcceptance({ reader, cwd, ref, now }) {
       if (!(await gitIsAncestor({ cwd, ancestor: publicationCommit, descendant: ref }))) {
         throw new Error("accepted publication commit is not reachable from the publication ref");
       }
-      const [publishedReceipt, publishedManifest] = await Promise.all([
+      const [publishedReceipt, publishedManifest, validatedReceipt, validatedManifest] = await Promise.all([
         readGitBlobText({
           cwd,
           ref: publicationCommit,
@@ -504,13 +504,34 @@ async function inspectPublicationAcceptance({ reader, cwd, ref, now }) {
           cwd,
           ref: publicationCommit,
           relativePath: INGESTION_GRAPH_MANIFEST_PATH
+        }),
+        readGitBlobText({
+          cwd,
+          ref: inspected.marker.validation.validatedSha,
+          relativePath: INGESTION_PUBLICATION_RECEIPT_PATH
+        }),
+        readGitBlobText({
+          cwd,
+          ref: inspected.marker.validation.validatedSha,
+          relativePath: INGESTION_GRAPH_MANIFEST_PATH
         })
       ]);
-      if (sha256Text(publishedReceipt) !== inspected.marker.receiptSha256) {
-        throw new Error("accepted publication receipt hash does not match its immutable commit");
+      const publicationInspection = inspectIngestionPublicationBinding({
+        marker: inspected.marker,
+        receiptText: publishedReceipt,
+        manifestText: publishedManifest
+      });
+      if (publicationInspection.status !== "valid") {
+        throw new Error(`immutable publication binding is invalid: ${publicationInspection.error}`);
       }
-      if (sha256Text(publishedManifest) !== inspected.marker.manifestSha256) {
-        throw new Error("accepted graph manifest hash does not match its immutable commit");
+      const validationInspection = inspectIngestionAcceptanceMarker({
+        markerText,
+        receiptText: validatedReceipt,
+        manifestText: validatedManifest,
+        now
+      });
+      if (validationInspection.status !== "valid") {
+        throw new Error(`validation target binding is invalid: ${validationInspection.error}`);
       }
       if (!(await gitIsAncestor({
         cwd,

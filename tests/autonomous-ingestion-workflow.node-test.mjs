@@ -3280,6 +3280,29 @@ test("inactive candidates and accepted publication outcomes have distinct audita
   ]) assert.ok(receiptPolicy.includes(`"${failureStatus}"`));
 });
 
+test("acceptance requires an exact recognized ingestion receipt pair", () => {
+  const acceptanceJob = workflow.match(/\n  accept_publication:[\s\S]*?(?=\n  receipt:)/)?.[0] ?? "";
+  const allowlistSource = acceptanceJob.match(/fromJSON\('(\[[^']+\])'\)/)?.[1];
+  assert.ok(allowlistSource, "acceptance receipt allowlist must be explicit JSON");
+  assert.deepEqual(JSON.parse(allowlistSource), [
+    "success:published",
+    "success:noop_completed",
+    "warning:published_degraded",
+    "warning:published_no_new_sources",
+    "warning:published_stale_day",
+    "warning:no_changes",
+    "warning:no_changes_stale_day",
+    "warning:noop_degraded",
+    "warning:noop_no_new_sources",
+    "warning:noop_stale_day"
+  ]);
+  assert.match(
+    acceptanceJob,
+    /format\('\{0\}:\{1\}', needs\.ingest\.outputs\.receipt_conclusion, needs\.ingest\.outputs\.receipt_status\)/
+  );
+  assert.doesNotMatch(acceptanceJob, /receipt_conclusion\s*!=\s*'failure'/);
+});
+
 test("autonomous receipt audits publication, inactive, queued no-op, and failure outcomes", (t) => {
   const directory = mkdtempSync(path.join(tmpdir(), "returner-autonomous-receipts-"));
   t.after(() => rmSync(directory, { recursive: true, force: true }));

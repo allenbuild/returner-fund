@@ -262,7 +262,7 @@ function publicationBundle({
   }, null, 2)}\n`;
   const receiptText = `${receiptBase}${receiptSuffix}`;
   const marker: Record<string, unknown> = {
-    schemaVersion: 1,
+    schemaVersion: 2,
     kind: "autonomous-ingestion-publication-acceptance",
     slotKey,
     scheduledAt,
@@ -274,8 +274,10 @@ function publicationBundle({
     receiptPath: "outputs/ingestion-source-delta-current.json",
     receiptSha256: sha256Text(receiptBase),
     manifestPath: "public/graph/manifest.json",
-    manifestSha256: sha256Text(manifestText),
-    manifestContentHash: "b".repeat(64),
+    publicationManifestSha256: sha256Text(manifestText),
+    publicationManifestContentHash: "b".repeat(64),
+    validatedManifestSha256: sha256Text(manifestText),
+    validatedManifestContentHash: "b".repeat(64),
     evidenceCollectedAt,
     validation: {
       validatedSha: "c".repeat(40),

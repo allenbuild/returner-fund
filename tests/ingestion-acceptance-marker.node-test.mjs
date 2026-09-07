@@ -4,6 +4,7 @@ import {
   acceptanceBindingSha256,
   buildIngestionAcceptanceMarker,
   inspectIngestionAcceptanceMarker,
+  inspectIngestionPublicationBinding,
   sha256Text
 } from "../scripts/lib/ingestion-acceptance-marker.mjs";
 
@@ -26,6 +27,12 @@ const manifestText = `${JSON.stringify({
   evidenceCollectedAtKind: "accepted-full-collection",
   contentHash: "d".repeat(64)
 })}\n`;
+const refreshedManifestText = `${JSON.stringify({
+  schemaVersion: 2,
+  evidenceCollectedAt,
+  evidenceCollectedAtKind: "accepted-full-collection",
+  contentHash: "e".repeat(64)
+})}\n`;
 const publicationMessage = [
   `Publish autonomous ingestion ${slotKey}`,
   "",
@@ -43,7 +50,8 @@ test("builds a publication-bound marker from an artifact-equivalent latest-polic
   assert.equal(marker.publicationCommit, publicationCommit);
   assert.equal(marker.validation.validatedSha, validatedCommit);
   assert.equal(marker.receiptSha256, sha256Text(receiptText));
-  assert.equal(marker.manifestSha256, sha256Text(manifestText));
+  assert.equal(marker.publicationManifestSha256, sha256Text(manifestText));
+  assert.equal(marker.validatedManifestSha256, sha256Text(manifestText));
   assert.equal(marker.bindingSha256, acceptanceBindingSha256(marker));
 
   const inspection = inspectIngestionAcceptanceMarker({
@@ -90,20 +98,97 @@ test("acceptance inspection fails closed on marker, receipt, or manifest mismatc
   }
 });
 
-test("builder rejects a latest-policy validation whose artifacts diverge from publication", async () => {
+test("builder binds a rebuilt latest-policy manifest when current main matches it", async () => {
+  const marker = await buildFixtureMarker({
+    validatedManifestText: refreshedManifestText,
+    currentManifestText: refreshedManifestText
+  });
+
+  assert.equal(marker.publicationManifestSha256, sha256Text(manifestText));
+  assert.equal(marker.publicationManifestContentHash, "d".repeat(64));
+  assert.equal(marker.validatedManifestSha256, sha256Text(refreshedManifestText));
+  assert.equal(marker.validatedManifestContentHash, "e".repeat(64));
+
+  const inspection = inspectIngestionAcceptanceMarker({
+    markerText: `${JSON.stringify(marker)}\n`,
+    receiptText,
+    manifestText: refreshedManifestText,
+    now: new Date("2026-09-07T07:01:00.000Z")
+  });
+  assert.equal(inspection.status, "valid", inspection.error);
+
+  const publicationInspection = inspectIngestionPublicationBinding({
+    marker,
+    receiptText,
+    manifestText
+  });
+  assert.equal(publicationInspection.status, "valid", publicationInspection.error);
+});
+
+test("builder rejects current main when it diverges from the exact validated manifest", async () => {
   await assert.rejects(
     () => buildFixtureMarker({
-      validatedManifestText: manifestText.replace(`"contentHash":"${"d".repeat(64)}"`, `"contentHash":"${"e".repeat(64)}"`)
+      validatedManifestText: refreshedManifestText,
+      currentManifestText: manifestText
     }),
-    /validation target graph manifest diverged/
+    /current main graph manifest diverged from the validated target/
   );
 });
 
-async function buildFixtureMarker({ validatedManifestText = manifestText } = {}) {
+test("builder rejects a refreshed manifest that no longer represents the ingestion receipt", async () => {
+  const wrongEvidenceManifest = refreshedManifestText.replace(
+    evidenceCollectedAt,
+    "2026-09-07T05:48:11.477Z"
+  );
+  await assert.rejects(
+    () => buildFixtureMarker({
+      validatedManifestText: wrongEvidenceManifest,
+      currentManifestText: wrongEvidenceManifest
+    }),
+    /graph manifest evidence timestamp does not match publication receipt/
+  );
+});
+
+test("builder rejects current main unless it is the exact validated commit", async () => {
+  await assert.rejects(
+    () => buildFixtureMarker({ currentCommit: "f".repeat(40) }),
+    /current main is not the exact validated target/
+  );
+});
+
+test("immutable publication and latest validation bindings fail independently", async () => {
+  const marker = await buildFixtureMarker({
+    validatedManifestText: refreshedManifestText,
+    currentManifestText: refreshedManifestText
+  });
+  const publicationTamper = inspectIngestionPublicationBinding({
+    marker,
+    receiptText,
+    manifestText: refreshedManifestText
+  });
+  assert.equal(publicationTamper.status, "invalid");
+  assert.match(publicationTamper.error, /publication graph manifest does not match/);
+
+  const validationTamper = inspectIngestionAcceptanceMarker({
+    markerText: `${JSON.stringify(marker)}\n`,
+    receiptText,
+    manifestText,
+    now: new Date("2026-09-07T07:01:00.000Z")
+  });
+  assert.equal(validationTamper.status, "invalid");
+  assert.match(validationTamper.error, /current graph manifest does not match/);
+});
+
+async function buildFixtureMarker({
+  publicationManifestText = manifestText,
+  validatedManifestText = manifestText,
+  currentManifestText = validatedManifestText,
+  currentCommit = validatedCommit
+} = {}) {
   const textByRef = new Map([
-    [publicationCommit, { receipt: receiptText, manifest: manifestText }],
+    [publicationCommit, { receipt: receiptText, manifest: publicationManifestText }],
     [validatedCommit, { receipt: receiptText, manifest: validatedManifestText }],
-    ["refs/remotes/origin/main", { receipt: receiptText, manifest: manifestText }]
+    ["refs/remotes/origin/main", { receipt: receiptText, manifest: currentManifestText }]
   ]);
   return buildIngestionAcceptanceMarker({
     publicationRef: publicationCommit,
@@ -120,6 +205,7 @@ async function buildFixtureMarker({ validatedManifestText = manifestText } = {})
       return relativePath.endsWith("manifest.json") ? fixture.manifest : fixture.receipt;
     },
     readCommitMessage: async () => publicationMessage,
+    resolveRef: async () => currentCommit,
     isAncestor: async (ancestor, descendant) =>
       [publicationCommit, validatedCommit, sourceCommit].includes(ancestor) &&
       [publicationCommit, validatedCommit, "refs/remotes/origin/main"].includes(descendant)

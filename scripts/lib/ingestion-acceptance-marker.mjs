@@ -8,7 +8,7 @@ export const INGESTION_ACCEPTANCE_MARKER_PATH =
   "outputs/autonomous-ingestion-acceptance-current.json";
 export const INGESTION_ACCEPTANCE_MARKER_KIND =
   "autonomous-ingestion-publication-acceptance";
-export const INGESTION_ACCEPTANCE_MARKER_SCHEMA_VERSION = 1;
+export const INGESTION_ACCEPTANCE_MARKER_SCHEMA_VERSION = 2;
 export const INGESTION_PUBLICATION_RECEIPT_PATH =
   "outputs/ingestion-source-delta-current.json";
 export const INGESTION_GRAPH_MANIFEST_PATH = "public/graph/manifest.json";
@@ -38,9 +38,9 @@ export function inspectIngestionAcceptanceMarker({
       "bindingSha256",
       "evidenceCollectedAt",
       "kind",
-      "manifestContentHash",
       "manifestPath",
-      "manifestSha256",
+      "publicationManifestContentHash",
+      "publicationManifestSha256",
       "publicationCommit",
       "publicationRunAttempt",
       "publicationRunId",
@@ -50,6 +50,8 @@ export function inspectIngestionAcceptanceMarker({
       "scheduledAt",
       "schemaVersion",
       "slotKey",
+      "validatedManifestContentHash",
+      "validatedManifestSha256",
       "validation"
     ], "acceptance marker");
     if (marker.schemaVersion !== INGESTION_ACCEPTANCE_MARKER_SCHEMA_VERSION) {
@@ -90,8 +92,10 @@ export function inspectIngestionAcceptanceMarker({
     }
     for (const [value, label] of [
       [marker.receiptSha256, "receipt SHA-256"],
-      [marker.manifestSha256, "manifest SHA-256"],
-      [marker.manifestContentHash, "manifest content hash"],
+      [marker.publicationManifestSha256, "publication manifest SHA-256"],
+      [marker.publicationManifestContentHash, "publication manifest content hash"],
+      [marker.validatedManifestSha256, "validated manifest SHA-256"],
+      [marker.validatedManifestContentHash, "validated manifest content hash"],
       [marker.bindingSha256, "acceptance binding SHA-256"]
     ]) {
       if (!SHA256_PATTERN.test(value ?? "")) throw new Error(`${label} is invalid`);
@@ -122,7 +126,7 @@ export function inspectIngestionAcceptanceMarker({
     if (sha256Text(receiptText) !== marker.receiptSha256) {
       throw new Error("current publication receipt does not match acceptance marker");
     }
-    if (sha256Text(manifestText) !== marker.manifestSha256) {
+    if (sha256Text(manifestText) !== marker.validatedManifestSha256) {
       throw new Error("current graph manifest does not match acceptance marker");
     }
     validateReceiptAndManifest({
@@ -131,7 +135,7 @@ export function inspectIngestionAcceptanceMarker({
       slotKey: marker.slotKey,
       scheduledAt: marker.scheduledAt,
       evidenceCollectedAt: marker.evidenceCollectedAt,
-      manifestContentHash: marker.manifestContentHash
+      manifestContentHash: marker.validatedManifestContentHash
     });
 
     return Object.freeze({
@@ -143,6 +147,40 @@ export function inspectIngestionAcceptanceMarker({
     return Object.freeze({
       status: "invalid",
       marker: null,
+      error: error instanceof Error ? error.message : String(error)
+    });
+  }
+}
+
+export function inspectIngestionPublicationBinding({
+  marker,
+  receiptText,
+  manifestText
+} = {}) {
+  try {
+    if (!marker || marker.schemaVersion !== INGESTION_ACCEPTANCE_MARKER_SCHEMA_VERSION) {
+      throw new Error("acceptance marker schema version is not recognized");
+    }
+    if (sha256Text(receiptText) !== marker.receiptSha256) {
+      throw new Error("publication receipt does not match acceptance marker");
+    }
+    if (sha256Text(manifestText) !== marker.publicationManifestSha256) {
+      throw new Error("publication graph manifest does not match acceptance marker");
+    }
+    const receipt = parseObject(receiptText, "immutable publication receipt");
+    const manifest = parseObject(manifestText, "immutable publication graph manifest");
+    validateReceiptAndManifest({
+      receipt,
+      manifest,
+      slotKey: marker.slotKey,
+      scheduledAt: marker.scheduledAt,
+      evidenceCollectedAt: marker.evidenceCollectedAt,
+      manifestContentHash: marker.publicationManifestContentHash
+    });
+    return Object.freeze({ status: "valid", error: null });
+  } catch (error) {
+    return Object.freeze({
+      status: "invalid",
       error: error instanceof Error ? error.message : String(error)
     });
   }
@@ -160,7 +198,8 @@ export async function buildIngestionAcceptanceMarker({
   validationWorkflowRunAttempt,
   readTextAtRef = (ref, relativePath) => gitText(cwd, ref, relativePath),
   readCommitMessage = (ref) => gitCommitMessage(cwd, ref),
-  isAncestor = (ancestor, descendant) => gitIsAncestor(cwd, ancestor, descendant)
+  isAncestor = (ancestor, descendant) => gitIsAncestor(cwd, ancestor, descendant),
+  resolveRef = (ref) => gitResolveCommit(cwd, ref)
 } = {}) {
   const normalizedPublicationRef = normalizeFullSha(publicationRef, "publication ref");
   const normalizedValidatedRef = normalizeFullSha(validatedRef, "validated ref");
@@ -181,6 +220,10 @@ export async function buildIngestionAcceptanceMarker({
     validationWorkflowRunAttempt,
     "validation workflow run attempt"
   );
+  const currentCommit = normalizeFullSha(await resolveRef(currentRef), "current ref");
+  if (currentCommit !== normalizedValidatedRef) {
+    throw new Error("current main is not the exact validated target");
+  }
   if (!(await isAncestor(normalizedPublicationRef, currentRef))) {
     throw new Error("validated publication is not reachable from current main");
   }
@@ -207,22 +250,38 @@ export async function buildIngestionAcceptanceMarker({
       readCommitMessage(normalizedPublicationRef)
     ]);
   const receiptSha256 = sha256Text(publicationReceiptText);
-  const manifestSha256 = sha256Text(publicationManifestText);
+  const publicationManifestSha256 = sha256Text(publicationManifestText);
+  const validatedManifestSha256 = sha256Text(validatedManifestText);
   if (sha256Text(currentReceiptText) !== receiptSha256) {
     throw new Error("current main receipt diverged from the validated publication");
-  }
-  if (sha256Text(currentManifestText) !== manifestSha256) {
-    throw new Error("current main graph manifest diverged from the validated publication");
   }
   if (sha256Text(validatedReceiptText) !== receiptSha256) {
     throw new Error("validation target receipt diverged from the bound publication");
   }
-  if (sha256Text(validatedManifestText) !== manifestSha256) {
-    throw new Error("validation target graph manifest diverged from the bound publication");
+  if (sha256Text(currentManifestText) !== validatedManifestSha256) {
+    throw new Error("current main graph manifest diverged from the validated target");
   }
 
   const receipt = parseObject(publicationReceiptText, "validated publication receipt");
-  const manifest = parseObject(publicationManifestText, "validated graph manifest");
+  const publicationManifest = parseObject(publicationManifestText, "publication graph manifest");
+  validateReceiptAndManifest({
+    receipt,
+    manifest: publicationManifest,
+    slotKey,
+    scheduledAt: scheduled.toISOString(),
+    evidenceCollectedAt: receipt.evidenceCollectedAt,
+    manifestContentHash: publicationManifest.contentHash
+  });
+
+  // Validation replay deliberately runs the latest policy against current
+  // main. Daily benchmark publication can legitimately rebuild graph files
+  // (and therefore the manifest) after the immutable ingestion commit while
+  // preserving the exact ingestion receipt and evidence watermark. Bind the
+  // marker to the manifest that actually passed validation, and require
+  // current main to remain byte-identical to that target. This keeps replay
+  // safe without making every routine benchmark rebuild invalidate an
+  // otherwise accepted ingestion forever.
+  const manifest = parseObject(validatedManifestText, "validated graph manifest");
   validateReceiptAndManifest({
     receipt,
     manifest,
@@ -253,8 +312,10 @@ export async function buildIngestionAcceptanceMarker({
     receiptPath: INGESTION_PUBLICATION_RECEIPT_PATH,
     receiptSha256,
     manifestPath: INGESTION_GRAPH_MANIFEST_PATH,
-    manifestSha256,
-    manifestContentHash: manifest.contentHash,
+    publicationManifestSha256,
+    publicationManifestContentHash: publicationManifest.contentHash,
+    validatedManifestSha256,
+    validatedManifestContentHash: manifest.contentHash,
     evidenceCollectedAt: receipt.evidenceCollectedAt,
     validation: {
       validatedSha: normalizedValidatedRef,
@@ -266,11 +327,21 @@ export async function buildIngestionAcceptanceMarker({
   const inspection = inspectIngestionAcceptanceMarker({
     markerText: `${JSON.stringify(marker)}\n`,
     receiptText: publicationReceiptText,
-    manifestText: publicationManifestText,
+    manifestText: validatedManifestText,
     now: accepted
   });
   if (inspection.status !== "valid") {
     throw new Error(`generated acceptance marker failed self-validation: ${inspection.error}`);
+  }
+  const publicationInspection = inspectIngestionPublicationBinding({
+    marker,
+    receiptText: publicationReceiptText,
+    manifestText: publicationManifestText
+  });
+  if (publicationInspection.status !== "valid") {
+    throw new Error(
+      `generated acceptance marker failed publication validation: ${publicationInspection.error}`
+    );
   }
   return Object.freeze(marker);
 }
@@ -450,6 +521,15 @@ async function gitIsAncestor(cwd, ancestor, descendant) {
     if (error?.code === 1) return false;
     throw error;
   }
+}
+
+async function gitResolveCommit(cwd, ref) {
+  const { stdout } = await execFileAsync("git", ["rev-parse", `${ref}^{commit}`], {
+    cwd,
+    encoding: "utf8",
+    maxBuffer: 1024 * 1024
+  });
+  return stdout.trim();
 }
 
 function assertValidDate(value, label) {
