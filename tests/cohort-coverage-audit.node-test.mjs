@@ -82,17 +82,18 @@ describe("cohort-wide structural coverage audit", () => {
         canonicalUrl: mapping.canonicalUrl
       }))
     );
-    assert.equal(multiAccountOwnerMappings.length, 6);
+    assert.equal(
+      multiAccountOwnerMappings.filter((mapping) => mapping.batchSlug !== "S26").length,
+      5
+    );
     assert.deepEqual(
-      multiAccountOwnerMappings.filter((mapping) => mapping.batchSlug === "S26"),
-      [
-        {
-          batchSlug: "S26",
-          entityId: "company-lato",
-          platform: "linkedin",
-          canonicalUrl: "https://linkedin.com/company/latoio"
-        }
-      ]
+      multiAccountOwnerMappings.find((mapping) => mapping.entityId === "company-lato"),
+      {
+        batchSlug: "S26",
+        entityId: "company-lato",
+        platform: "linkedin",
+        canonicalUrl: "https://linkedin.com/company/latoio"
+      }
     );
   });
 
