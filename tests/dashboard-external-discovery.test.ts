@@ -6,8 +6,11 @@ import {
   DEFAULT_DASHBOARD_YOUTUBE_CHANNELS,
   DEFAULT_DASHBOARD_YOUTUBE_SEARCH_QUERIES,
   MAX_CONCURRENT_DASHBOARD_YOUTUBE_DETAILS,
+  MAX_DASHBOARD_YOUTUBE_TRANSIENT_DETAIL_RETRIES,
+  MAX_EXTERNAL_DISCOVERY_DURATION_MS,
   MAX_DASHBOARD_INSTAGRAM_ACCOUNTS,
   MAX_DASHBOARD_YOUTUBE_CHANNELS,
+  MAX_YOUTUBE_DISCOVERY_DURATION_MS,
   discoverExternalDashboardCandidates,
   fetchInstagramAccountCandidates,
   fetchYoutubeChannelCandidates,
@@ -1229,6 +1232,309 @@ describe("public dashboard discovery", () => {
     ]);
   });
 
+  it("keeps the full roster and search lane under one four-request detail gate", async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(NOW);
+    try {
+      const fixture = fullYoutubeDiscoveryFixture();
+      const playerVideoIds = new Set<string>();
+      let activeDetails = 0;
+      let maxActiveDetails = 0;
+      const fetchImpl = vi.fn(async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
+        const url = new URL(String(input));
+        if (url.hostname === "hn.algolia.com") return json({ hits: [] });
+        if (url.hostname === "api.github.com" && url.pathname === "/search/repositories") return json({ items: [] });
+        if (url.hostname === "api.github.com" && url.pathname === "/events") return json([]);
+        if (url.pathname === "/youtubei/v1/browse") {
+          const body = JSON.parse(String(init?.body)) as { browseId?: string };
+          return json(youtubeUploadsBrowseResponse(fixture.uploadsByBrowseId.get(body.browseId ?? "") ?? []));
+        }
+        if (url.pathname === "/results") {
+          return new Response(youtubeSearchPage(
+            fixture.searchByQuery.get(url.searchParams.get("search_query") ?? "") ?? []
+          ));
+        }
+        if (url.pathname === "/youtubei/v1/player") {
+          const body = JSON.parse(String(init?.body)) as { videoId?: string };
+          const videoId = body.videoId ?? "";
+          const channel = fixture.channelByVideoId.get(videoId);
+          playerVideoIds.add(videoId);
+          activeDetails += 1;
+          maxActiveDetails = Math.max(maxActiveDetails, activeDetails);
+          return await new Promise<Response>((resolve) => setTimeout(() => {
+            activeDetails -= 1;
+            resolve(json(youtubePlayerResponse({
+              videoId,
+              channelId: channel?.channelId ?? "UC1234567890123456789012",
+              author: channel?.name ?? "Verified technology creator",
+              title: `AI software hardware launch ${videoId}`,
+              description: "Artificial intelligence chips and developer software.",
+              publishedAt: "2026-08-15T10:00:00.000Z",
+              views: 2_000_000
+            })));
+          }, 5));
+        }
+        throw new Error(`Unexpected request ${url}`);
+      });
+
+      const pending = discoverExternalDashboardCandidates({
+        now: NOW,
+        fetchImpl: fetchImpl as typeof fetch,
+        youtubeChannels: DEFAULT_DASHBOARD_YOUTUBE_CHANNELS,
+        includeYoutubeSearch: true,
+        rssFeeds: [],
+        researchFeeds: [],
+        redditSubreddits: [],
+        discoveryTimeoutMs: 10_000,
+        youtubeDiscoveryTimeoutMs: 10_000
+      });
+      await vi.advanceTimersByTimeAsync(1_000);
+      const result = await pending;
+
+      expect(MAX_YOUTUBE_DISCOVERY_DURATION_MS).toBe(4 * 60_000);
+      expect(MAX_EXTERNAL_DISCOVERY_DURATION_MS).toBe(5 * 60_000);
+      expect(maxActiveDetails).toBe(MAX_CONCURRENT_DASHBOARD_YOUTUBE_DETAILS);
+      expect(playerVideoIds.size).toBe((MAX_DASHBOARD_YOUTUBE_CHANNELS * 2) + 24);
+      expect(result.candidates).toHaveLength((MAX_DASHBOARD_YOUTUBE_CHANNELS * 2) + 24);
+      expect(result.failures).toEqual([]);
+      expect(result.sources.filter((source) => source.startsWith("youtube:"))).toHaveLength(
+        MAX_DASHBOARD_YOUTUBE_CHANNELS + 1
+      );
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("shares the production retry ceiling across roster and search details", async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(NOW);
+    try {
+      const channels = DEFAULT_DASHBOARD_YOUTUBE_CHANNELS.slice(0, 2);
+      const fixture = fullYoutubeDiscoveryFixture(channels);
+      const playerRequests = new Map<string, number>();
+      let watchRequests = 0;
+      const fetchImpl = vi.fn(async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
+        const url = new URL(String(input));
+        if (url.hostname === "hn.algolia.com") return json({ hits: [] });
+        if (url.hostname === "api.github.com" && url.pathname === "/search/repositories") return json({ items: [] });
+        if (url.hostname === "api.github.com" && url.pathname === "/events") return json([]);
+        if (url.pathname === "/youtubei/v1/browse") {
+          const body = JSON.parse(String(init?.body)) as { browseId?: string };
+          return json(youtubeUploadsBrowseResponse(fixture.uploadsByBrowseId.get(body.browseId ?? "") ?? []));
+        }
+        if (url.pathname === "/results") {
+          return new Response(youtubeSearchPage(
+            fixture.searchByQuery.get(url.searchParams.get("search_query") ?? "") ?? []
+          ));
+        }
+        if (url.pathname === "/youtubei/v1/player") {
+          const body = JSON.parse(String(init?.body)) as { videoId?: string };
+          const videoId = body.videoId ?? "";
+          playerRequests.set(videoId, (playerRequests.get(videoId) ?? 0) + 1);
+          return new Response("unavailable", { status: 503 });
+        }
+        if (url.pathname === "/watch") {
+          watchRequests += 1;
+          return new Response("forbidden", { status: 403 });
+        }
+        throw new Error(`Unexpected request ${url}`);
+      });
+
+      const pending = discoverExternalDashboardCandidates({
+        now: NOW,
+        fetchImpl: fetchImpl as typeof fetch,
+        youtubeChannels: channels,
+        includeYoutubeSearch: true,
+        rssFeeds: [],
+        researchFeeds: [],
+        redditSubreddits: [],
+        discoveryTimeoutMs: 10_000,
+        youtubeDiscoveryTimeoutMs: 10_000
+      });
+      await vi.advanceTimersByTimeAsync(5_000);
+      const result = await pending;
+      const baselineDetails = (channels.length * 2) + 24;
+      const totalPlayerRequests = [...playerRequests.values()].reduce((sum, count) => sum + count, 0);
+
+      expect(playerRequests.size).toBe(baselineDetails);
+      expect(totalPlayerRequests - baselineDetails).toBe(MAX_DASHBOARD_YOUTUBE_TRANSIENT_DETAIL_RETRIES);
+      expect(Math.max(...playerRequests.values())).toBeLessThanOrEqual(3);
+      expect(watchRequests).toBe(baselineDetails);
+      expect(result.failures).toHaveLength(channels.length + 1);
+      expect(result.failures).not.toContain("youtube_discovery_deadline_exceeded");
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("settles the full queued roster at the shared deadline without starting late work", async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(NOW);
+    try {
+      const fixture = fullYoutubeDiscoveryFixture();
+      let activeDetails = 0;
+      let maxActiveDetails = 0;
+      let youtubeRequests = 0;
+      let watchRequests = 0;
+      const abortingHang = (signal: AbortSignal | null): Promise<Response> => new Promise((_, reject) => {
+        const rejectAbort = () => reject(signal?.reason ?? new DOMException("Aborted", "AbortError"));
+        if (signal?.aborted) {
+          rejectAbort();
+          return;
+        }
+        signal?.addEventListener("abort", rejectAbort, { once: true });
+      });
+      const fetchImpl = vi.fn(async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
+        const url = new URL(String(input));
+        if (url.hostname === "hn.algolia.com") return json({ hits: [] });
+        if (url.hostname === "api.github.com" && url.pathname === "/search/repositories") return json({ items: [] });
+        if (url.hostname === "api.github.com" && url.pathname === "/events") return json([]);
+        if (url.hostname === "hung-feed.example.test") return await abortingHang(init?.signal ?? null);
+        if (url.hostname === "www.youtube.com") youtubeRequests += 1;
+        if (url.pathname === "/youtubei/v1/browse") {
+          const body = JSON.parse(String(init?.body)) as { browseId?: string };
+          return json(youtubeUploadsBrowseResponse(fixture.uploadsByBrowseId.get(body.browseId ?? "") ?? []));
+        }
+        if (url.pathname === "/results") {
+          return new Response(youtubeSearchPage(
+            fixture.searchByQuery.get(url.searchParams.get("search_query") ?? "") ?? []
+          ));
+        }
+        if (url.pathname === "/youtubei/v1/player") {
+          activeDetails += 1;
+          maxActiveDetails = Math.max(maxActiveDetails, activeDetails);
+          try {
+            return await abortingHang(init?.signal ?? null);
+          } finally {
+            activeDetails -= 1;
+          }
+        }
+        if (url.pathname === "/watch") {
+          watchRequests += 1;
+          return await abortingHang(init?.signal ?? null);
+        }
+        throw new Error(`Unexpected request ${url}`);
+      });
+
+      let settled = false;
+      const pending = discoverExternalDashboardCandidates({
+        now: NOW,
+        fetchImpl: fetchImpl as typeof fetch,
+        youtubeChannels: DEFAULT_DASHBOARD_YOUTUBE_CHANNELS,
+        includeYoutubeSearch: true,
+        rssFeeds: [{ name: "Hung Feed", url: "https://hung-feed.example.test/feed.xml" }],
+        researchFeeds: [],
+        redditSubreddits: [],
+        discoveryTimeoutMs: 50,
+        youtubeDiscoveryTimeoutMs: 50
+      }).then((result) => {
+        settled = true;
+        return result;
+      });
+      await vi.advanceTimersByTimeAsync(0);
+      expect(maxActiveDetails).toBe(MAX_CONCURRENT_DASHBOARD_YOUTUBE_DETAILS);
+      expect(settled).toBe(false);
+      await vi.advanceTimersByTimeAsync(49);
+      expect(settled).toBe(false);
+      await vi.advanceTimersByTimeAsync(1);
+      const result = await pending;
+      const expectedFailures = [
+        "external_discovery_deadline_exceeded",
+        "rss_hung-feed_discovery_deadline",
+        "youtube_discovery_deadline_exceeded",
+        "youtube_search_detail_unavailable:discovery_deadline",
+        ...DEFAULT_DASHBOARD_YOUTUBE_CHANNELS.map((channel) => youtubeDeadlineFailureLabel(channel.handle))
+      ].sort();
+
+      expect(result.candidates).toEqual([]);
+      expect(result.sources).toEqual(["github", "github_events", "hacker_news"]);
+      expect(result.failures).toEqual(expectedFailures);
+      expect(watchRequests).toBe(0);
+      expect(activeDetails).toBe(0);
+      const requestsAtDeadline = youtubeRequests;
+      await vi.advanceTimersByTimeAsync(20_000);
+      expect(youtubeRequests).toBe(requestsAtDeadline);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("aborts an active request at the remaining YouTube run budget", async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(NOW);
+    try {
+      const channel = DEFAULT_DASHBOARD_YOUTUBE_CHANNELS[0]!;
+      const fixture = fullYoutubeDiscoveryFixture([channel]);
+      const startedAt = NOW.getTime();
+      let playerStartedAt: number | null = null;
+      let playerAbortedAt: number | null = null;
+      let watchRequests = 0;
+      const fetchImpl = vi.fn(async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
+        const url = new URL(String(input));
+        if (url.hostname === "hn.algolia.com") return json({ hits: [] });
+        if (url.hostname === "api.github.com" && url.pathname === "/search/repositories") return json({ items: [] });
+        if (url.hostname === "api.github.com" && url.pathname === "/events") return json([]);
+        if (url.pathname === "/youtubei/v1/browse") {
+          const body = JSON.parse(String(init?.body)) as { browseId?: string };
+          const videoIds = fixture.uploadsByBrowseId.get(body.browseId ?? "") ?? [];
+          return await new Promise<Response>((resolve) => setTimeout(
+            () => resolve(json(youtubeUploadsBrowseResponse(videoIds.slice(0, 1)))),
+            750
+          ));
+        }
+        if (url.pathname === "/youtubei/v1/player") {
+          playerStartedAt = Date.now();
+          const signal = init?.signal ?? null;
+          return await new Promise<Response>((_, reject) => {
+            const rejectAbort = () => {
+              playerAbortedAt = Date.now();
+              reject(signal?.reason ?? new DOMException("Aborted", "AbortError"));
+            };
+            if (signal?.aborted) rejectAbort();
+            else signal?.addEventListener("abort", rejectAbort, { once: true });
+          });
+        }
+        if (url.pathname === "/watch") {
+          watchRequests += 1;
+          return new Response("forbidden", { status: 403 });
+        }
+        throw new Error(`Unexpected request ${url}`);
+      });
+
+      let settled = false;
+      const pending = discoverExternalDashboardCandidates({
+        now: NOW,
+        fetchImpl: fetchImpl as typeof fetch,
+        youtubeChannels: [channel],
+        rssFeeds: [],
+        researchFeeds: [],
+        redditSubreddits: [],
+        discoveryTimeoutMs: 2_000,
+        youtubeDiscoveryTimeoutMs: 1_000
+      }).then((result) => {
+        settled = true;
+        return result;
+      });
+      await vi.advanceTimersByTimeAsync(750);
+      expect(playerStartedAt).toBe(startedAt + 750);
+      await vi.advanceTimersByTimeAsync(249);
+      expect(playerAbortedAt).toBeNull();
+      expect(settled).toBe(false);
+      await vi.advanceTimersByTimeAsync(1);
+      const result = await pending;
+
+      expect(playerAbortedAt! - playerStartedAt!).toBe(250);
+      expect(watchRequests).toBe(0);
+      expect(result.failures).toEqual([
+        "youtube_apple_detail_unavailable:discovery_deadline",
+        "youtube_discovery_deadline_exceeded"
+      ]);
+      expect(result.sources).toEqual(["github", "github_events", "hacker_news"]);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it("isolates one YouTube channel failure from another channel's verified candidates", async () => {
     const channelId = "UC1234567890123456789012";
     const fetchImpl = vi.fn(async (input: RequestInfo | URL): Promise<Response> => {
@@ -2161,6 +2467,40 @@ function youtubeUploadsBrowseResponse(videoIds: string[], visitorData?: string):
       }
     }
   };
+}
+
+function fullYoutubeDiscoveryFixture(
+  channels: readonly (typeof DEFAULT_DASHBOARD_YOUTUBE_CHANNELS)[number][] = DEFAULT_DASHBOARD_YOUTUBE_CHANNELS
+): {
+  uploadsByBrowseId: Map<string, string[]>;
+  channelByVideoId: Map<string, { channelId: string; name: string }>;
+  searchByQuery: Map<string, string[]>;
+} {
+  const uploadsByBrowseId = new Map<string, string[]>();
+  const channelByVideoId = new Map<string, { channelId: string; name: string }>();
+  for (const [index, channel] of channels.entries()) {
+    if (!channel.channelId) throw new Error(`Missing channel ID for ${channel.handle}`);
+    const videoIds = [0, 1].map((slot) => fixtureYoutubeVideoId("c", index, slot));
+    uploadsByBrowseId.set(`VLUU${channel.channelId.slice(2)}`, videoIds);
+    for (const videoId of videoIds) {
+      channelByVideoId.set(videoId, { channelId: channel.channelId, name: channel.name });
+    }
+  }
+  const searchByQuery = new Map(DEFAULT_DASHBOARD_YOUTUBE_SEARCH_QUERIES.map((query, queryIndex) => [
+    query,
+    Array.from({ length: 6 }, (_, resultIndex) => fixtureYoutubeVideoId("s", queryIndex, resultIndex))
+  ]));
+  return { uploadsByBrowseId, channelByVideoId, searchByQuery };
+}
+
+function fixtureYoutubeVideoId(prefix: "c" | "s", group: number, slot: number): string {
+  const identifier = `${prefix}${group.toString(36).padStart(2, "0")}${slot.toString(36)}`;
+  return `${identifier}${"0".repeat(11 - identifier.length)}`;
+}
+
+function youtubeDeadlineFailureLabel(handle: string): string {
+  const slug = handle.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "source";
+  return `youtube_${slug}_detail_unavailable:discovery_deadline`;
 }
 
 function youtubeSearchPage(videoIds: string[]): string {

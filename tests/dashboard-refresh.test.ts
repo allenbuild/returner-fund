@@ -95,6 +95,12 @@ describe("dashboard worker metric-history enrichment", () => {
     expect(() => assertConfiguredYoutubeDiscoverySucceeded(
       channels,
       ["hacker_news"],
+      ["youtube_apple_detail_unavailable:discovery_deadline"],
+      1
+    )).not.toThrow();
+    expect(() => assertConfiguredYoutubeDiscoverySucceeded(
+      channels,
+      ["hacker_news"],
       ["youtube_apple_browse_http_429"],
       1
     )).toThrowError("dashboard_youtube_discovery_unavailable:youtube_apple_browse_http_429");
@@ -117,6 +123,13 @@ describe("dashboard worker metric-history enrichment", () => {
     const later = NOW;
     const failures = ["youtube_apple_detail_unavailable:player_http_429:watch_http_503"];
     const retained = retainPriorVerifiedYoutubeCandidatesOnDetailFailure([], prior, later, failures, channels);
+    const deadlineRetained = retainPriorVerifiedYoutubeCandidatesOnDetailFailure(
+      [],
+      prior,
+      later,
+      ["youtube_apple_detail_unavailable:discovery_deadline"],
+      channels
+    );
 
     expect(retained).toEqual([
       expect.objectContaining({
@@ -132,6 +145,7 @@ describe("dashboard worker metric-history enrichment", () => {
       })
     ]);
     expect(retained[0]?.metricHistory).toBeUndefined();
+    expect(deadlineRetained).toEqual(retained);
     expect(dashboardTop100Eligibility(retained[0]!, later)).toMatchObject({ eligible: true });
     const firstCarry = buildDashboardSnapshot(retained, { now: later }).snapshot;
     expect(firstCarry.stories[0]?.stableKey).toBe(prior.stories[0]?.stableKey);

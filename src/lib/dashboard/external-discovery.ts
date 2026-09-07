@@ -32,6 +32,10 @@ const MAX_CONCURRENT_YOUTUBE_SEARCH_PAGES = 2;
 const MAX_CONCURRENT_YOUTUBE_SEARCH_DETAILS = 2;
 export const MAX_CONCURRENT_DASHBOARD_YOUTUBE_DETAILS = 4;
 export const MAX_DASHBOARD_YOUTUBE_TRANSIENT_DETAIL_RETRIES = 12;
+export const MAX_YOUTUBE_DISCOVERY_DURATION_MS = 4 * 60_000;
+export const MAX_EXTERNAL_DISCOVERY_DURATION_MS = 5 * 60_000;
+const EXTERNAL_DISCOVERY_DEADLINE_FAILURE = "external_discovery_deadline_exceeded";
+const YOUTUBE_DISCOVERY_DEADLINE_FAILURE = "youtube_discovery_deadline_exceeded";
 const YOUTUBE_TRANSIENT_DETAIL_RETRY_DELAYS_MS = [250, 1_000] as const;
 const YOUTUBE_TRANSIENT_HTTP_STATUSES = new Set([408, 425, 429, 500, 502, 503, 504]);
 const YOUTUBE_TRANSIENT_TRANSPORT_CODES = new Set([
@@ -401,6 +405,119 @@ export interface ExternalDiscoveryOptions {
   rssFeeds?: ReadonlyArray<DashboardRssFeed>;
   researchFeeds?: ReadonlyArray<DashboardRssFeed>;
   redditSubreddits?: readonly string[];
+  /** Shorten-only test/operations seam; production is capped at five minutes. */
+  discoveryTimeoutMs?: number;
+  /** Shorten-only YouTube seam; production is capped at four minutes. */
+  youtubeDiscoveryTimeoutMs?: number;
+}
+
+interface ExternalDiscoveryDeadline {
+  signal: AbortSignal;
+  expired: () => boolean;
+  remainingMs: () => number;
+  throwIfExpired: () => void;
+  run: <T>(failureLabel: string, task: () => Promise<T>) => Promise<T>;
+  dispose: () => void;
+}
+
+class ExternalDiscoveryDeadlineFailure extends Error {
+  constructor(message = EXTERNAL_DISCOVERY_DEADLINE_FAILURE) {
+    super(message);
+    this.name = "ExternalDiscoveryDeadlineFailure";
+  }
+}
+
+function boundedDiscoveryDuration(value: number | undefined, maximumMs: number): number {
+  if (value === undefined || !Number.isFinite(value)) return maximumMs;
+  return Math.max(1, Math.min(maximumMs, Math.trunc(value)));
+}
+
+function createExternalDiscoveryDeadline(durationMs: number): ExternalDiscoveryDeadline {
+  const controller = new AbortController();
+  const expiresAt = Date.now() + Math.max(1, Math.trunc(durationMs));
+  const listeners = new Set<() => void>();
+  let didExpire = false;
+  let disposed = false;
+  const expire = (): void => {
+    if (didExpire || disposed) return;
+    didExpire = true;
+    controller.abort(new ExternalDiscoveryDeadlineFailure());
+    for (const listener of [...listeners]) listener();
+    listeners.clear();
+  };
+  const timeout = setTimeout(expire, Math.max(1, expiresAt - Date.now()));
+  (timeout as ReturnType<typeof setTimeout> & { unref?: () => void }).unref?.();
+  const expired = (): boolean => {
+    if (!didExpire && !disposed && Date.now() >= expiresAt) expire();
+    return didExpire;
+  };
+  const deadlineFailure = (failureLabel: string): ExternalDiscoveryDeadlineFailure =>
+    new ExternalDiscoveryDeadlineFailure(failureLabel);
+
+  return {
+    signal: controller.signal,
+    expired,
+    remainingMs: () => Math.max(0, expiresAt - Date.now()),
+    throwIfExpired: () => {
+      if (expired()) throw deadlineFailure(EXTERNAL_DISCOVERY_DEADLINE_FAILURE);
+    },
+    run: <T>(failureLabel: string, task: () => Promise<T>): Promise<T> => {
+      if (expired()) return Promise.reject(deadlineFailure(failureLabel));
+      return new Promise<T>((resolve, reject) => {
+        let settled = false;
+        const finish = (callback: () => void): void => {
+          if (settled) return;
+          settled = true;
+          listeners.delete(onDeadline);
+          callback();
+        };
+        const onDeadline = (): void => finish(() => reject(deadlineFailure(failureLabel)));
+        listeners.add(onDeadline);
+        if (expired()) {
+          onDeadline();
+          return;
+        }
+        let pending: Promise<T>;
+        try {
+          pending = Promise.resolve(task());
+        } catch (error) {
+          finish(() => reject(error));
+          return;
+        }
+        pending.then(
+          (value) => finish(() => resolve(value)),
+          (error) => finish(() => reject(
+            error instanceof ExternalDiscoveryDeadlineFailure
+              ? deadlineFailure(failureLabel)
+              : error
+          ))
+        );
+      });
+    },
+    dispose: () => {
+      if (disposed) return;
+      disposed = true;
+      clearTimeout(timeout);
+      listeners.clear();
+    }
+  };
+}
+
+function deadlineBoundFetch(
+  fetchImpl: typeof fetch,
+  deadline: ExternalDiscoveryDeadline
+): typeof fetch {
+  return ((input: RequestInfo | URL, init?: RequestInit): Promise<Response> =>
+    deadline.run(EXTERNAL_DISCOVERY_DEADLINE_FAILURE, () => {
+      deadline.throwIfExpired();
+      // The shared signal fires at the remaining run budget. Combining it
+      // with each adapter's existing 12-second signal takes the earlier bound.
+      const signal = AbortSignal.any([
+        deadline.signal,
+        ...(init?.signal ? [init.signal] : [])
+      ]);
+      return fetchImpl(input, { ...init, signal });
+    })) as typeof fetch;
 }
 
 /**
@@ -412,14 +529,25 @@ export async function discoverExternalDashboardCandidates(
   options: ExternalDiscoveryOptions = {}
 ): Promise<ExternalDiscoveryResult> {
   const now = options.now ?? new Date();
-  const fetchImpl = options.fetchImpl ?? fetch;
+  const externalDeadline = createExternalDiscoveryDeadline(
+    boundedDiscoveryDuration(options.discoveryTimeoutMs, MAX_EXTERNAL_DISCOVERY_DURATION_MS)
+  );
+  const youtubeDeadline = createExternalDiscoveryDeadline(
+    Math.min(
+      externalDeadline.remainingMs(),
+      boundedDiscoveryDuration(options.youtubeDiscoveryTimeoutMs, MAX_YOUTUBE_DISCOVERY_DURATION_MS)
+    )
+  );
+  const fetchImpl = deadlineBoundFetch(options.fetchImpl ?? fetch, externalDeadline);
+  const youtubeFetchImpl = deadlineBoundFetch(fetchImpl, youtubeDeadline);
   const feeds = options.rssFeeds ?? configuredRssFeeds();
   const researchFeeds = options.researchFeeds ?? DEFAULT_DASHBOARD_RESEARCH_FEEDS;
   const subreddits = normalizeSubreddits(options.redditSubreddits ?? DEFAULT_DASHBOARD_REDDIT_SUBREDDITS);
   const githubToken = options.githubToken ?? null;
   const xBearerToken = options.xBearerToken?.trim() || null;
   const scheduleYoutubeDetail = createYoutubeDetailScheduler(
-    MAX_CONCURRENT_DASHBOARD_YOUTUBE_DETAILS
+    MAX_CONCURRENT_DASHBOARD_YOUTUBE_DETAILS,
+    youtubeDeadline
   );
   const youtubeDetailRetryBudget = createYoutubeDetailRetryBudget();
   // The worker may be called with an explicit roster, but it must never turn
@@ -427,64 +555,99 @@ export async function discoverExternalDashboardCandidates(
   // can nominate at most two official player reads below.
   const youtubeChannels = (options.youtubeChannels ?? []).slice(0, MAX_DASHBOARD_YOUTUBE_CHANNELS);
   const youtubeJobs = boundedYoutubeDiscoveryJobs(
-    fetchImpl,
+    youtubeFetchImpl,
     now,
     youtubeChannels,
     scheduleYoutubeDetail,
-    youtubeDetailRetryBudget
+    youtubeDetailRetryBudget,
+    youtubeDeadline
   );
   const instagramAccounts = (options.instagramAccounts ?? []).slice(0, MAX_DASHBOARD_INSTAGRAM_ACCOUNTS);
-  const instagramJobs = boundedInstagramDiscoveryJobs(fetchImpl, now, instagramAccounts);
+  const instagramJobs = boundedInstagramDiscoveryJobs(fetchImpl, now, instagramAccounts, externalDeadline);
   const youtubeSearchJobs = options.includeYoutubeSearch === true
-    ? [fetchYoutubeSearchCandidates(
-        fetchImpl,
-        now,
-        scheduleYoutubeDetail,
-        youtubeDetailRetryBudget
+    ? [youtubeDeadline.run(
+        "youtube_search_detail_unavailable:discovery_deadline",
+        () => fetchYoutubeSearchCandidates(
+          youtubeFetchImpl,
+          now,
+          scheduleYoutubeDetail,
+          youtubeDetailRetryBudget,
+          youtubeDeadline
+        )
       )]
     : [];
+  const allYoutubeJobs = [...youtubeJobs, ...youtubeSearchJobs];
+  if (allYoutubeJobs.length === 0) youtubeDeadline.dispose();
+  else void Promise.allSettled(allYoutubeJobs).then(() => youtubeDeadline.dispose());
   const jobs: Array<Promise<{ source: string; candidates: DashboardCandidate[] }>> = [
-    fetchHackerNewsCandidates(fetchImpl, now),
-    fetchGithubCandidates(fetchImpl, now, githubToken),
-    fetchGithubReleaseCandidates(fetchImpl, now, githubToken),
-    ...(xBearerToken ? [fetchXRecentSearchCandidates(fetchImpl, now, xBearerToken)] : []),
+    externalDeadline.run("hacker_news_discovery_deadline", () => fetchHackerNewsCandidates(fetchImpl, now)),
+    externalDeadline.run("github_discovery_deadline", () => fetchGithubCandidates(fetchImpl, now, githubToken)),
+    externalDeadline.run(
+      "github_events_discovery_deadline",
+      () => fetchGithubReleaseCandidates(fetchImpl, now, githubToken)
+    ),
+    ...(xBearerToken ? [externalDeadline.run(
+      "x_recent_search_discovery_deadline",
+      () => fetchXRecentSearchCandidates(fetchImpl, now, xBearerToken)
+    )] : []),
     ...youtubeJobs,
     ...youtubeSearchJobs,
     ...instagramJobs,
-    ...feeds.map((feed) => fetchRssCandidates(fetchImpl, feed, now)),
-    ...researchFeeds.map((feed) => fetchRssCandidates(fetchImpl, feed, now)),
-    ...subreddits.map((subreddit) => fetchRedditCandidates(fetchImpl, subreddit, now))
+    ...feeds.map((feed) => externalDeadline.run(
+      `rss_${sourceSlug(feed.name)}_discovery_deadline`,
+      () => fetchRssCandidates(fetchImpl, feed, now)
+    )),
+    ...researchFeeds.map((feed) => externalDeadline.run(
+      `rss_${sourceSlug(feed.name)}_discovery_deadline`,
+      () => fetchRssCandidates(fetchImpl, feed, now)
+    )),
+    ...subreddits.map((subreddit) => externalDeadline.run(
+      `reddit_${sourceSlug(subreddit)}_discovery_deadline`,
+      () => fetchRedditCandidates(fetchImpl, subreddit, now)
+    ))
   ];
-  const settled = await Promise.allSettled(jobs);
-  const candidates: DashboardCandidate[] = [];
-  const failures: string[] = [];
-  const sources: string[] = [];
-  for (const result of settled) {
-    if (result.status === "fulfilled") {
-      candidates.push(...result.value.candidates);
-      sources.push(result.value.source);
-    } else {
-      // Safe observability label only; do not retain headers, tokens, or raw
-      // provider bodies in a public dashboard artifact.
-      failures.push(discoveryFailureLabel(result.reason));
+  try {
+    const settled = await Promise.allSettled(jobs);
+    const candidates: DashboardCandidate[] = [];
+    const failures: string[] = [];
+    const sources: string[] = [];
+    for (const result of settled) {
+      if (result.status === "fulfilled") {
+        candidates.push(...result.value.candidates);
+        sources.push(result.value.source);
+      } else {
+        // Safe observability label only; do not retain headers, tokens, or raw
+        // provider bodies in a public dashboard artifact.
+        failures.push(discoveryFailureLabel(result.reason));
+      }
     }
+    if (youtubeDeadline.expired()) failures.push(YOUTUBE_DISCOVERY_DEADLINE_FAILURE);
+    if (externalDeadline.expired()) failures.push(EXTERNAL_DISCOVERY_DEADLINE_FAILURE);
+    return {
+      candidates,
+      failures: [...new Set(failures)].sort(),
+      sources: [...new Set(sources)].sort()
+    };
+  } finally {
+    youtubeDeadline.dispose();
+    externalDeadline.dispose();
   }
-  return {
-    candidates,
-    failures: [...new Set(failures)].sort(),
-    sources: [...new Set(sources)].sort()
-  };
 }
 
 function boundedInstagramDiscoveryJobs(
   fetchImpl: typeof fetch,
   now: Date,
-  accounts: readonly DashboardInstagramAccount[]
+  accounts: readonly DashboardInstagramAccount[],
+  deadline: ExternalDiscoveryDeadline
 ): Array<Promise<{ source: string; candidates: DashboardCandidate[] }>> {
   return boundedAsyncJobs(
     accounts,
     MAX_CONCURRENT_INSTAGRAM_ACCOUNTS,
-    (account) => fetchInstagramAccountCandidates(fetchImpl, now, account)
+    (account) => deadline.run(
+      `instagram_${sourceSlug(account.username)}_discovery_deadline`,
+      () => fetchInstagramAccountCandidates(fetchImpl, now, account)
+    ),
+    deadline
   );
 }
 
@@ -493,18 +656,23 @@ function boundedYoutubeDiscoveryJobs(
   now: Date,
   channels: readonly DashboardYoutubeChannel[],
   scheduleYoutubeDetail: YoutubeDetailScheduler,
-  youtubeDetailRetryBudget: YoutubeDetailRetryBudget
+  youtubeDetailRetryBudget: YoutubeDetailRetryBudget,
+  deadline: ExternalDiscoveryDeadline
 ): Array<Promise<{ source: string; candidates: DashboardCandidate[] }>> {
   const jobs: Array<Promise<{ source: string; candidates: DashboardCandidate[] }>> = [];
   for (const [index, channel] of channels.entries()) {
     const predecessor = jobs[index - MAX_CONCURRENT_YOUTUBE_CHANNELS];
     const ready = predecessor ? predecessor.then(() => undefined, () => undefined) : Promise.resolve();
-    jobs.push(ready.then(() => fetchYoutubeChannelCandidates(
-      fetchImpl,
-      now,
-      channel,
-      scheduleYoutubeDetail,
-      youtubeDetailRetryBudget
+    jobs.push(ready.then(() => deadline.run(
+      `youtube_${sourceSlug(channel.handle)}_detail_unavailable:discovery_deadline`,
+      () => fetchYoutubeChannelCandidates(
+        fetchImpl,
+        now,
+        channel,
+        scheduleYoutubeDetail,
+        youtubeDetailRetryBudget,
+        deadline
+      )
     )));
   }
   return jobs;
@@ -535,7 +703,8 @@ export async function fetchInstagramAccountCandidates(
       ...request.options,
       signal: AbortSignal.timeout(12_000)
     });
-  } catch {
+  } catch (error) {
+    if (error instanceof ExternalDiscoveryDeadlineFailure) throw error;
     throw new Error(`${sourceLabel}_fetch_failed`);
   }
   if (!response.ok) throw new Error(`${sourceLabel}_http_${response.status}`);
@@ -665,7 +834,8 @@ export async function fetchYoutubeChannelCandidates(
   scheduleYoutubeDetail: YoutubeDetailScheduler = createYoutubeDetailScheduler(
     MAX_CONCURRENT_DASHBOARD_YOUTUBE_DETAILS
   ),
-  youtubeDetailRetryBudget: YoutubeDetailRetryBudget = createYoutubeDetailRetryBudget()
+  youtubeDetailRetryBudget: YoutubeDetailRetryBudget = createYoutubeDetailRetryBudget(),
+  deadline: ExternalDiscoveryDeadline | null = null
 ): Promise<{ source: string; candidates: DashboardCandidate[] }> {
   const handle = compactWhitespace(channel.handle).replace(/^@/, "");
   if (!/^[A-Za-z0-9._-]{1,100}$/.test(handle)) throw new Error("youtube_invalid_channel_handle");
@@ -679,9 +849,15 @@ export async function fetchYoutubeChannelCandidates(
     try {
       queue = await fetchYoutubeUploadsQueue(fetchImpl, configuredChannelId, source);
     } catch (browseError) {
+      if (browseError instanceof ExternalDiscoveryDeadlineFailure || deadline?.expired()) {
+        throw new ExternalDiscoveryDeadlineFailure();
+      }
       try {
         queue = await fetchYoutubeChannelPageQueue(fetchImpl, handle, source);
-      } catch {
+      } catch (pageError) {
+        if (pageError instanceof ExternalDiscoveryDeadlineFailure || deadline?.expired()) {
+          throw pageError;
+        }
         throw browseError;
       }
     }
@@ -696,7 +872,8 @@ export async function fetchYoutubeChannelCandidates(
       channel.name,
       now,
       queue.innertubeConfig,
-      youtubeDetailRetryBudget
+      youtubeDetailRetryBudget,
+      deadline
     ))
   ));
   const details = settled.flatMap((result) => result.candidate ? [result.candidate] : []);
@@ -729,12 +906,14 @@ export async function fetchYoutubeSearchCandidates(
   scheduleYoutubeDetail: YoutubeDetailScheduler = createYoutubeDetailScheduler(
     MAX_CONCURRENT_DASHBOARD_YOUTUBE_DETAILS
   ),
-  youtubeDetailRetryBudget: YoutubeDetailRetryBudget = createYoutubeDetailRetryBudget()
+  youtubeDetailRetryBudget: YoutubeDetailRetryBudget = createYoutubeDetailRetryBudget(),
+  deadline: ExternalDiscoveryDeadline | null = null
 ): Promise<{ source: string; candidates: DashboardCandidate[] }> {
   const pageJobs = boundedAsyncJobs(
     DEFAULT_DASHBOARD_YOUTUBE_SEARCH_QUERIES,
     MAX_CONCURRENT_YOUTUBE_SEARCH_PAGES,
-    (query, index) => fetchYoutubeSearchPreviewIds(fetchImpl, query, index)
+    (query, index) => fetchYoutubeSearchPreviewIds(fetchImpl, query, index, deadline),
+    deadline
   );
   const settledPages = await Promise.allSettled(pageJobs);
   const successfulPages = settledPages.flatMap((result, index) =>
@@ -756,9 +935,11 @@ export async function fetchYoutubeSearchCandidates(
         null,
         now,
         innertubeConfig,
-        youtubeDetailRetryBudget
+        youtubeDetailRetryBudget,
+        deadline
       )
-    )
+    ),
+    deadline
   );
   const settledDetails = await Promise.all(detailJobs);
   const candidates = settledDetails.flatMap((result) => result.candidate ? [result.candidate] : []);
@@ -777,12 +958,14 @@ export async function fetchYoutubeSearchCandidates(
 async function fetchYoutubeSearchPreviewIds(
   fetchImpl: typeof fetch,
   query: string,
-  queryIndex: number
+  queryIndex: number,
+  deadline: ExternalDiscoveryDeadline | null
 ): Promise<YoutubeSearchPreviewQueue> {
   try {
     const queue = await fetchYoutubeSearchPagePreviewIds(fetchImpl, query, queryIndex);
     if (queue.videoIds.length > 0) return queue;
-  } catch {
+  } catch (error) {
+    if (error instanceof ExternalDiscoveryDeadlineFailure || deadline?.expired()) throw error;
     // Public HTML requests can be redirected through Google's anti-abuse
     // interstitial. Server-side fetch intentionally has no ambient cookie jar,
     // so following that loop cannot recover the page. The official no-key WEB
@@ -811,7 +994,8 @@ async function fetchYoutubeSearchPagePreviewIds(
       redirect: "manual",
       signal: AbortSignal.timeout(12_000)
     });
-  } catch {
+  } catch (error) {
+    if (error instanceof ExternalDiscoveryDeadlineFailure) throw error;
     throw new Error(`${source}_fetch_failed`);
   }
   if (!response.ok) throw new Error(`${source}_http_${response.status}`);
@@ -844,7 +1028,8 @@ async function fetchYoutubeInnertubeSearchPreviewIds(
       }),
       signal: AbortSignal.timeout(12_000)
     });
-  } catch {
+  } catch (error) {
+    if (error instanceof ExternalDiscoveryDeadlineFailure) throw error;
     throw new Error(`${source}_fetch_failed`);
   }
   if (!response.ok) throw new Error(`${source}_http_${response.status}`);
@@ -889,13 +1074,17 @@ function roundRobinYoutubeSearchNominations(
 function boundedAsyncJobs<T, R>(
   values: readonly T[],
   concurrency: number,
-  run: (value: T, index: number) => Promise<R>
+  run: (value: T, index: number) => Promise<R>,
+  deadline: ExternalDiscoveryDeadline | null = null
 ): Array<Promise<R>> {
   const jobs: Array<Promise<R>> = [];
   for (const [index, value] of values.entries()) {
     const predecessor = jobs[index - concurrency];
     const ready = predecessor ? predecessor.then(() => undefined, () => undefined) : Promise.resolve();
-    jobs.push(ready.then(() => run(value, index)));
+    jobs.push(ready.then(() => {
+      deadline?.throwIfExpired();
+      return run(value, index);
+    }));
   }
   return jobs;
 }
@@ -910,20 +1099,42 @@ function createYoutubeDetailRetryBudget(): YoutubeDetailRetryBudget {
   return { remaining: MAX_DASHBOARD_YOUTUBE_TRANSIENT_DETAIL_RETRIES };
 }
 
-function createYoutubeDetailScheduler(concurrency: number): YoutubeDetailScheduler {
+function createYoutubeDetailScheduler(
+  concurrency: number,
+  deadline: ExternalDiscoveryDeadline | null = null
+): YoutubeDetailScheduler {
   const limit = Math.max(1, Math.trunc(concurrency));
   let active = 0;
-  const waiting: Array<() => void> = [];
+  const waiting: Array<{ resolve: () => void }> = [];
   return async <T>(run: () => Promise<T>): Promise<T> => {
+    deadline?.throwIfExpired();
     if (active >= limit) {
-      await new Promise<void>((resolve) => waiting.push(resolve));
+      let waiter: { resolve: () => void };
+      const ready = new Promise<void>((resolve) => {
+        waiter = { resolve };
+        waiting.push(waiter);
+      });
+      try {
+        if (deadline) {
+          await deadline.run("youtube_detail_discovery_deadline", () => ready);
+        } else {
+          await ready;
+        }
+      } catch (error) {
+        const waitingIndex = waiting.indexOf(waiter!);
+        if (waitingIndex >= 0) waiting.splice(waitingIndex, 1);
+        throw error;
+      }
     }
+    deadline?.throwIfExpired();
     active += 1;
     try {
-      return await run();
+      return deadline
+        ? await deadline.run("youtube_detail_discovery_deadline", run)
+        : await run();
     } finally {
       active -= 1;
-      waiting.shift()?.();
+      waiting.shift()?.resolve();
     }
   };
 }
@@ -955,7 +1166,8 @@ async function fetchYoutubeUploadsQueue(
       }),
       signal: AbortSignal.timeout(12_000)
     });
-  } catch {
+  } catch (error) {
+    if (error instanceof ExternalDiscoveryDeadlineFailure) throw error;
     throw new Error(`${sourceLabel}_fetch_failed`);
   }
   if (!response.ok) throw new Error(`${sourceLabel}_http_${response.status}`);
@@ -1043,8 +1255,10 @@ async function fetchYoutubeDetailCandidate(
   rosterName: string | null,
   observedAt: Date,
   innertubeConfig: YoutubeInnertubeConfig | null,
-  retryBudget: YoutubeDetailRetryBudget
+  retryBudget: YoutubeDetailRetryBudget,
+  deadline: ExternalDiscoveryDeadline | null
 ): Promise<YoutubeDetailResult> {
+  deadline?.throwIfExpired();
   const failureCodes: string[] = [];
   // The key is public page configuration and is used only for this request.
   // Never include it in a failure label or returned discovery data.
@@ -1057,19 +1271,30 @@ async function fetchYoutubeDetailCandidate(
         expectedChannelId,
         rosterName,
         observedAt,
-        innertubeConfig
+        innertubeConfig,
+        deadline
       ),
-      retryBudget
+      retryBudget,
+      deadline
     );
     if (player.candidate) return player;
     failureCodes.push(...player.failureCodes);
   }
   // A bounded official watch-page read is the compatibility fallback for the
   // no-key player endpoint. It has the same exact identity/date/metric gates.
+  deadline?.throwIfExpired();
   const watch = await fetchYoutubeDetailWithTransientRetry(
     "watch",
-    () => fetchYoutubeWatchCandidate(fetchImpl, videoId, expectedChannelId, rosterName, observedAt),
-    retryBudget
+    () => fetchYoutubeWatchCandidate(
+      fetchImpl,
+      videoId,
+      expectedChannelId,
+      rosterName,
+      observedAt,
+      deadline
+    ),
+    retryBudget,
+    deadline
   );
   if (watch.candidate) return watch;
   return {
@@ -1084,7 +1309,8 @@ async function fetchYoutubePlayerCandidate(
   expectedChannelId: string | null,
   rosterName: string | null,
   observedAt: Date,
-  config: YoutubeInnertubeConfig
+  config: YoutubeInnertubeConfig,
+  deadline: ExternalDiscoveryDeadline | null
 ): Promise<DashboardCandidate> {
   const playerUrl = new URL("https://www.youtube.com/youtubei/v1/player");
   if (config.apiKey) playerUrl.searchParams.set("key", config.apiKey);
@@ -1103,6 +1329,7 @@ async function fetchYoutubePlayerCandidate(
       signal: AbortSignal.timeout(12_000)
     });
   } catch (error) {
+    if (error instanceof ExternalDiscoveryDeadlineFailure || deadline?.expired()) throw error;
     throw youtubeDetailTransportFailure("player", error);
   }
   if (!response.ok) throw youtubeDetailHttpFailure("player", response.status);
@@ -1114,6 +1341,7 @@ async function fetchYoutubePlayerCandidate(
       MAX_YOUTUBE_PLAYER_RESPONSE_BYTES
     );
   } catch (error) {
+    if (error instanceof ExternalDiscoveryDeadlineFailure || deadline?.expired()) throw error;
     throw youtubeDetailResponseFailure("player", error);
   }
   const details = payload.videoDetails;
@@ -1159,7 +1387,8 @@ async function fetchYoutubeWatchCandidate(
   videoId: string,
   expectedChannelId: string | null,
   rosterName: string | null,
-  observedAt: Date
+  observedAt: Date,
+  deadline: ExternalDiscoveryDeadline | null
 ): Promise<DashboardCandidate> {
   const watchUrl = new URL("https://www.youtube.com/watch");
   watchUrl.searchParams.set("v", videoId);
@@ -1172,6 +1401,7 @@ async function fetchYoutubeWatchCandidate(
       signal: AbortSignal.timeout(12_000)
     });
   } catch (error) {
+    if (error instanceof ExternalDiscoveryDeadlineFailure || deadline?.expired()) throw error;
     throw youtubeDetailTransportFailure("watch", error);
   }
   if (!response.ok) throw youtubeDetailHttpFailure("watch", response.status);
@@ -1179,6 +1409,7 @@ async function fetchYoutubeWatchCandidate(
   try {
     html = await readBoundedText(response, `youtube_watch_${videoId}`, MAX_YOUTUBE_RESPONSE_BYTES);
   } catch (error) {
+    if (error instanceof ExternalDiscoveryDeadlineFailure || deadline?.expired()) throw error;
     throw youtubeDetailResponseFailure("watch", error);
   }
   const playerResponse = parseAssignedJson(html, "ytInitialPlayerResponse");
@@ -1297,13 +1528,17 @@ class YoutubeDetailFailure extends Error {
 async function fetchYoutubeDetailWithTransientRetry(
   surface: "player" | "watch",
   run: () => Promise<DashboardCandidate>,
-  retryBudget: YoutubeDetailRetryBudget
+  retryBudget: YoutubeDetailRetryBudget,
+  deadline: ExternalDiscoveryDeadline | null
 ): Promise<YoutubeDetailResult> {
   const failureCodes: string[] = [];
   for (let attempt = 0; ; attempt += 1) {
     try {
       return { candidate: await run(), failureCodes: [] };
     } catch (error) {
+      if (error instanceof ExternalDiscoveryDeadlineFailure || deadline?.expired()) {
+        throw new ExternalDiscoveryDeadlineFailure();
+      }
       const failure = error instanceof YoutubeDetailFailure
         ? error
         : new YoutubeDetailFailure(`${surface}_unexpected_failure`, false);
@@ -1315,8 +1550,20 @@ async function fetchYoutubeDetailWithTransientRetry(
       ) {
         return { candidate: null, failureCodes: [...new Set(failureCodes)] };
       }
+      deadline?.throwIfExpired();
       retryBudget.remaining -= 1;
-      await delayMilliseconds(YOUTUBE_TRANSIENT_DETAIL_RETRY_DELAYS_MS[attempt] ?? 0);
+      const retryDelay = () => delayMilliseconds(YOUTUBE_TRANSIENT_DETAIL_RETRY_DELAYS_MS[attempt] ?? 0);
+      try {
+        if (deadline) {
+          await deadline.run("youtube_detail_discovery_deadline", retryDelay);
+        } else {
+          await retryDelay();
+        }
+      } catch (error) {
+        // A reservation that never reaches another request is not a retry.
+        retryBudget.remaining += 1;
+        throw error;
+      }
     }
   }
 }
