@@ -356,9 +356,11 @@ export function retainPriorVerifiedYoutubeCandidatesOnDetailFailure(
 
   const priorObservedAt = safeDate(priorSnapshot.generatedAt);
   if (!priorObservedAt || priorObservedAt.getTime() > now.getTime()) return [];
+  const failureSet = new Set(failureLabels);
   const configuredAuthorNames = new Set(
     (youtubeChannels ?? [])
       .slice(0, MAX_DASHBOARD_YOUTUBE_CHANNELS)
+      .filter((channel) => failureSet.has(youtubeDetailUnavailableFailureLabel(channel.handle)))
       .map((channel) => normalizedYoutubeAuthorName(channel.name))
       .filter(Boolean)
   );
@@ -436,7 +438,17 @@ function isSystemicConfiguredYoutubeDetailOutage(
   const channels = (youtubeChannels ?? []).slice(0, MAX_DASHBOARD_YOUTUBE_CHANNELS);
   if (channels.length === 0) return false;
   const failures = new Set(failureLabels.filter((label) => YOUTUBE_DETAIL_UNAVAILABLE_FAILURE.test(label)));
-  return channels.every((channel) => failures.has(youtubeDetailUnavailableFailureLabel(channel.handle)));
+  const failedConfiguredChannels = channels.filter((channel) =>
+    failures.has(youtubeDetailUnavailableFailureLabel(channel.handle))
+  ).length;
+  // A platform-wide cloud-runner block can still leave one adapter with a
+  // coarser fetch diagnostic. Small explicit rosters must fail unanimously;
+  // the production roster requires at least 90% independently matching
+  // detail failures, which cannot be triggered by one malformed/private video.
+  const requiredFailures = channels.length < 3
+    ? channels.length
+    : Math.max(3, Math.ceil(channels.length * 0.9));
+  return failedConfiguredChannels >= requiredFailures;
 }
 
 function youtubeDetailUnavailableFailureLabel(handleValue: string): string {
