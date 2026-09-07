@@ -205,7 +205,6 @@ jobs:
             tests/dashboard-persistence.test.ts \
             tests/dashboard-store.test.ts \
             tests/api/dashboard-route.test.ts \
-            tests/dashboard-thumbnail-policy.test.ts \
             tests/dashboard-thumbnail-rendering.test.tsx \
             tests/top-stories-dashboard.test.tsx \
             tests/site-access.test.ts
@@ -241,6 +240,10 @@ jobs:
           else
             run_with_sleep_assertion npm run dashboard:refresh
           fi
+          # This integration contract reads the materialized feed. Run it only
+          # after discovery so an empty prior artifact cannot deadlock the job
+          # that repairs it, while a newly empty candidate still cannot publish.
+          run_with_sleep_assertion npx vitest run tests/dashboard-thumbnail-policy.test.ts
 
       - name: Commit a materially changed snapshot
         if: steps.host_preflight.outputs.ready == 'true' && steps.priority_revalidation.outputs.should_run == 'true'

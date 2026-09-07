@@ -293,6 +293,17 @@ test("dashboard refresh stays hosted while full public discovery remains the def
       /run_with_sleep_assertion\(\) \{[\s\S]*?if \[ "\$\{RUNNER_OS:-\}" = "macOS" \]; then[\s\S]*?\/usr\/bin\/caffeinate -im "\$@"[\s\S]*?else[\s\S]*?"\$@"/
     );
   }
+  const preRefreshValidationStep = refreshJob.match(
+    /- name: Validate dashboard code and deterministic build[\s\S]*?(?=\n\s{6}- name:)/
+  )?.[0] ?? "";
+  const materializationStep = refreshJob.match(
+    /- name: Refresh published dashboard data[\s\S]*?(?=\n\s{6}- name:)/
+  )?.[0] ?? "";
+  assert.doesNotMatch(preRefreshValidationStep, /dashboard-thumbnail-policy\.test\.ts/);
+  assert.match(
+    materializationStep,
+    /npm run dashboard:refresh[\s\S]*?npx vitest run tests\/dashboard-thumbnail-policy\.test\.ts/
+  );
   assert.doesNotMatch(dashboardRefreshWorkflow, /\/usr\/bin\/caffeinate[^\n]*&/);
   assert.match(
     dashboardRefreshWorkflow,
