@@ -1,0 +1,18 @@
+{
+  "schemaVersion": "company-timeline.v1",
+  "company": {
+    "id": "company-moonshot-computer",
+    "slug": "moonshot",
+    "name": "Moonshot"
+  },
+  "generatedAt": "2026-09-07T16:00:45.424Z",
+  "lastModifiedAt": "2026-09-07T16:00:45.424Z",
+  "events": [],
+  "groups": [],
+  "coverage": {
+    "status": "partial",
+    "publishedEventCount": 0,
+    "lastSuccessfulArtifactAt": "2026-09-07T16:00:45.424Z"
+  },
+  "nextCursor": null
+}

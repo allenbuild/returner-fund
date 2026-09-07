@@ -4,10 +4,10 @@
     "directoryUrl": "https://www.ycombinator.com/companies?batch=Summer%202026",
     "algoliaIndex": "YCCompany_production",
     "algoliaFilter": "batch:\"Summer 2026\"",
-    "fetchedAt": "2026-09-07T05:13:01.509Z",
-    "expectedCompanyCount": 235,
-    "observedCompanyCount": 235,
-    "directoryCompanyHitCount": 235,
+    "fetchedAt": "2026-09-07T15:21:07.897Z",
+    "expectedCompanyCount": 234,
+    "observedCompanyCount": 234,
+    "directoryCompanyHitCount": 234,
     "verifiedRetiredCompanyCount": 0,
     "verifiedRetiredCompanies": [],
     "minimumCompanyCount": 167,
@@ -1652,8 +1652,8 @@
         "B2B"
       ],
       "tags": [
-        "Machine Learning",
-        "AI"
+        "Artificial Intelligence",
+        "Machine Learning"
       ],
       "location": "San Francisco",
       "teamSize": 1,
@@ -3065,8 +3065,8 @@
       "batch": "Summer 2026",
       "ycProfileUrl": "https://www.ycombinator.com/companies/decawork",
       "websiteUrl": "https://decawork.ai/",
-      "tagline": "AI models that control AI agents inside your company.",
-      "description": "Decawork is building AI models that control what agents do inside companies.\r\n\r\nGiving an agent access to a system does not tell it when using that access is right for the business. The same action can be appropriate for one task and wrong for another. IT teams understand the business, but they can’t turn every judgment into a rule or manually approve every step.\r\n\r\nWe train individual models for companies that understand its business, critical systems, and priorities. It learns from the policies IT teams set and the decisions they make in practice. We’re training these models to combine that understanding with an agent’s task and past actions to decide what it should be allowed to do in real time.\r\n\r\nCompanies will rent intelligence from AI labs or run open-source models. They’ll own the models that keep their entire AI workforce acting in their interests. And Decawork is building those models.",
+      "tagline": "Training company-specific models that approve AI actions.",
+      "description": "Giving an agent access to a system doesn’t tell it when using that access is right for the business. The same action can be appropriate for one task and wrong for another. Companies can’t turn every business judgment into a rule or have people manually approve every step.\r\n\r\nWe train a model for each company using its policies and the decisions its teams make in practice. The model is designed to understand the company’s business, critical systems, and priorities, and combine that context with an agent’s task and past actions. Its job is to decide, in real time, whether a proposed action serves the company’s interests and should be approved.\r\n\r\nCompanies will rent intelligence from AI labs or run open-source models to power their agents. They’ll own the models that keep their entire AI workforce acting in their interests. Decawork is building those models.",
       "industry": "B2B",
       "subindustry": "B2B -> Infrastructure",
       "industries": [
@@ -3074,10 +3074,10 @@
         "Infrastructure"
       ],
       "tags": [
-        "Artificial Intelligence",
         "B2B",
         "Security",
-        "Infrastructure"
+        "Infrastructure",
+        "AI"
       ],
       "location": "San Francisco",
       "teamSize": 2,
@@ -3707,7 +3707,7 @@
       "ycProfileUrl": "https://www.ycombinator.com/companies/edgerun",
       "websiteUrl": "https://edgerun.com",
       "tagline": "Military exoskeletons",
-      "description": "Edgerun Industries builds military exoskeletons. Our hip-mounted system assists every step a soldier takes under combat load, so they can travel farther, carry more, and arrive ready to fight.",
+      "description": "Edgerun builds powered legs that double a soldier's range. Started this year. $100M+ in Ukrainian LOIs, requested by the most combat-experienced infantry on Earth. Our work is just beginning.",
       "industry": "Industrials",
       "subindustry": "Industrials -> Defense",
       "industries": [
@@ -3715,11 +3715,13 @@
         "Defense"
       ],
       "tags": [
+        "Hard Tech",
+        "Hardware",
         "Robotics",
         "Defense"
       ],
       "location": "San Francisco",
-      "teamSize": 8,
+      "teamSize": 5,
       "status": "Active",
       "groupPartner": "Tyler Bosmeny",
       "groupPartnerUrl": "https://www.ycombinator.com/people/tyler-bosmeny",
@@ -3732,7 +3734,7 @@
           "id": "1393855",
           "name": "David Venegas",
           "title": "Founder/CEO",
-          "bio": "Pro-human expansionist",
+          "bio": "Founder @ Edgerun, building military exoskeletons. Started the company in early 2026 after researching NASA's spacesuit program; units are now being field-iterated in Ukraine with $100M+ in LOIs. Previously co-founded Durin (autonomous mining robotics) and worked at Hadrian and Stoke Space at 19. High-school dropout, state-championship runner, skydiver, scuba diver, pilot.",
           "ycProfileUrl": "https://www.ycombinator.com/people/david-venegas",
           "socialLinks": {
             "linkedin": "https://www.linkedin.com/in/david-venegas-m/",
@@ -4441,7 +4443,7 @@
       "batch": "Summer 2026",
       "ycProfileUrl": "https://www.ycombinator.com/companies/fabraix",
       "websiteUrl": "https://fabraix.com",
-      "tagline": "The world's frontier hacker for AI agents.",
+      "tagline": "The world's frontier hacker of AI agents.",
       "description": "Fabraix builds state-of-the-art AI red-teaming agents that continuously detect security vulnerabilities in customer-facing AI. Our product, Nyx, has already found vulnerabilities in agents at dozens of Fortune 500 companies. On AgentHarm, the leading benchmark for offensive AI security, Nyx achieved a 78% attack success rate, compared with 67% for GPT-5.6 Sol.\r\n\r\nAI agents can change more often than teams can test them. A new model, prompt, tool, permission, or data source can change what an agent does, even when the application code stays the same. And AI is also increasing how much software companies produce and how often it changes. We built Nyx to automate the work required to red-team AI agents. It is multi modal by design and interacts with the target indirectly through controlled replicas of SaaS products and websites that we maintain, placing malicious payloads in webpages, documents, files, messages, and tool outputs to test how an agent behaves under different conditions.\r\n\r\nNyx often finds its first vulnerability within minutes or hours rather than days or weeks. Because the work is fully automated, companies can repeat the test with every change and at a much lower cost than what a 7-figure red-teaming (and point-in-time) engagement would require.\r\n\r\nWe're also the team behind ACE (Adversarial Cost to Exploit), a benchmark that measures AI security in terms of how much it costs attackers to break an AI system; providing a game-theoretic framework to understand how motivated a rational attacker would be in exploiting the system.",
       "industry": "B2B",
       "subindustry": "B2B -> Security",
@@ -5784,7 +5786,7 @@
       "ycProfileUrl": "https://www.ycombinator.com/companies/hubble-ai",
       "websiteUrl": "https://hubble.ai/",
       "tagline": "AI-native retrieval engine for medical records",
-      "description": "Hubble is the AI Plaid for healthcare: we use AI to retrieve patient medical records and deliver them to developers through a single API. We're the team behind the AI agents at Grow Therapy and Amazon's One Medical, used by millions of patients (Prabha was Grow's first PM building and scaling their AI agents, and Aaron built the AI infrastructure at One Medical serving 1M+ patients). Companies building in legal, life insurance underwriting, clinical trials, and digital health all need a patient's records to make decisions, but pulling that data out of thousands of EHRs and payors is still slow and manual. Our AI agents retrieve records the way a person would and normalize them into one clean API. We signed our first paying customers within three weeks of launching, all on usage-based pricing. https://hubble.ai",
+      "description": "Hubble is the AI-native retrieval engine for medical records, delivered in one API. I scaled Grow Therapy to a $3B valuation; my cofounder built One Medical's first AI agents, now used by millions of patients. Four weeks in, we already have ten signed customers and 7-figure year-one revenue across platform and usage fees. Every new agentic use case across industries like legal, clinical trials, consumer health, insurance, needs a complete medical record, and today that still means faxes and phone calls. Hubble fixes that with voice and browser agents that reach the providers APIs can't, in a market worth $45B just in the verticals we've mapped so far.",
       "industry": "Healthcare",
       "subindustry": "Healthcare -> Healthcare IT",
       "industries": [
@@ -7838,13 +7840,13 @@
     {
       "id": "32205",
       "objectID": "32205",
-      "slug": "mochitv",
-      "name": "MOCHI.TV",
+      "slug": "mochi",
+      "name": "Mochi",
       "batch": "Summer 2026",
-      "ycProfileUrl": "https://www.ycombinator.com/companies/mochitv",
+      "ycProfileUrl": "https://www.ycombinator.com/companies/mochi",
       "websiteUrl": "https://www.mochi.tv/",
-      "tagline": "Watch and create anime microdramas",
-      "description": "Mochi is a mobile-first entertainment platform for vertical anime shorts. Users can scroll to discover shows and binge bite-sized episodes, unlocking them with either coins or a subscription. We produce new shows daily with AI, and they've hit 200M+ views organically across all platforms.",
+      "tagline": "Watch and create anime",
+      "description": "Mochi is an app to watch and create anime microdramas: fast paced shows with a cliffhanger every minute. We produce originals with AI, collaborating with writers from Marvel, Cartoon Network, and Toei Animation, and our users can also create in app too - with over 500 episodes created each day from 3,000+ creators.",
       "industry": "Consumer",
       "subindustry": "Consumer -> Content",
       "industries": [
@@ -7852,8 +7854,8 @@
         "Content"
       ],
       "tags": [
-        "Consumer",
-        "AI"
+        "Artificial Intelligence",
+        "Consumer"
       ],
       "location": "San Francisco",
       "teamSize": 3,
@@ -7879,7 +7881,7 @@
       ],
       "launch": null,
       "sourceUrls": [
-        "https://www.ycombinator.com/companies/mochitv",
+        "https://www.ycombinator.com/companies/mochi",
         "https://www.ycombinator.com/companies?batch=Summer%202026"
       ]
     },
@@ -7939,6 +7941,61 @@
       "launch": null,
       "sourceUrls": [
         "https://www.ycombinator.com/companies/molagri",
+        "https://www.ycombinator.com/companies?batch=Summer%202026"
+      ]
+    },
+    {
+      "id": "32121",
+      "objectID": "32121",
+      "slug": "moonshot-computer",
+      "name": "Moonshot",
+      "batch": "Summer 2026",
+      "ycProfileUrl": "https://www.ycombinator.com/companies/moonshot-computer",
+      "websiteUrl": "https://moonshot.computer/",
+      "tagline": "agents for the rest of us",
+      "description": "We want to bring AI agents to a billion people.\r\n\r\nTo do this, we believe it needs to be 1. proactive and 2. personal. A billion people already carry the right device, but none of them have the right connector.\r\n\r\nMoonshot is personal intelligence that lives on your iPhone and listens to you 24/7. It continuously builds up a greater understanding of you through constantly listening and building context. It just pays deep attention, the way a good friend does. Through this, Moonshot monitors your conscious and subconscious life, figuring out what you need before you know, reminding you about open loops, identifying life and emotional trends before you recognize it, and covering a lot more of what we gloss over in daily life.\r\n\r\nFor fifty years, software has waited to be asked. We think tools are just good enough to flip this, and the next great software will provide value before asking for something first. We're doing it through Moonshot.\r\n\r\nOur thesis is simple: you're only living half your life. The half that you actively remember. The other half just evaporates into your subconscious: what you said, felt, promised, and forgot. It's the more interesting half, and until now nothing could catch it, making it not actionable.\r\n\r\nMoonshot catches your subconscious half and understands you well enough to take actions on your behalf.\r\n\r\nTake life personally.\r\n\r\nThe iOS app is designed around ambient listening and clear user control. Short microphone chunks are sent securely to Moonshot's private transcription service and deleted when transcription finishes. Text and selected context can be sent through Moonshot's server to a model when the app needs to understand a moment. Nothing leaves without your yes. The privacy policy explains every data path, stored copy, permission, and deletion control in detail.\r\n\r\nMoonshot is in early access. Join the waitlist to hear when access opens, read more about the team and product on the About page, or use the Contact page for a direct written response from the Moonshot team.\r\n\r\nLet's make it a Moonshot.",
+      "industry": "Consumer",
+      "subindustry": "Consumer",
+      "industries": [
+        "Consumer"
+      ],
+      "tags": [],
+      "location": "Seattle, WA",
+      "teamSize": 3,
+      "status": "Active",
+      "groupPartner": "Diana Hu",
+      "groupPartnerUrl": "https://www.ycombinator.com/people/diana-hu",
+      "socialLinks": {
+        "linkedin": "https://www.linkedin.com/company/heymoonshot",
+        "x": "https://x.com/heymoonshot"
+      },
+      "founders": [
+        {
+          "id": "2384611",
+          "name": "Ojas Kandhare",
+          "title": "Founder/CEO",
+          "bio": "goofing",
+          "ycProfileUrl": "https://www.ycombinator.com/people/ojas-kandhare",
+          "socialLinks": {
+            "linkedin": "https://www.linkedin.com/in/ojas-kandhare-74b349212/",
+            "x": "https://x.com/ojaskandy"
+          }
+        },
+        {
+          "id": "2613840",
+          "name": "Tario You",
+          "title": "Founder/CTO",
+          "bio": "mooning",
+          "ycProfileUrl": "https://www.ycombinator.com/people/tario-you",
+          "socialLinks": {
+            "linkedin": "https://www.linkedin.com/in/tario-you",
+            "x": "https://x.com/deftarioo"
+          }
+        }
+      ],
+      "launch": null,
+      "sourceUrls": [
+        "https://www.ycombinator.com/companies/moonshot-computer",
         "https://www.ycombinator.com/companies?batch=Summer%202026"
       ]
     },
@@ -8798,7 +8855,7 @@
       "batch": "Summer 2026",
       "ycProfileUrl": "https://www.ycombinator.com/companies/opentag",
       "websiteUrl": "https://www.tryopentag.com/",
-      "tagline": "Model Agnostic Claude Tag",
+      "tagline": "The AI coworker that lives in Slack",
       "description": "OpenTag - is an AI coworker that lives in your Slack and Teams. It has full context on your company, so it can answer questions, join calls, and take real work off your team's plate. OpenTag also keeps your company wiki and knowledge base up to date automatically, so your team's knowledge never goes stale or walks out the door.",
       "industry": "B2B",
       "subindustry": "B2B",
@@ -8857,67 +8914,6 @@
       "launch": null,
       "sourceUrls": [
         "https://www.ycombinator.com/companies/opentag",
-        "https://www.ycombinator.com/companies?batch=Summer%202026"
-      ]
-    },
-    {
-      "id": "32121",
-      "objectID": "32121",
-      "slug": "opentrade",
-      "name": "OpenTrade",
-      "batch": "Summer 2026",
-      "ycProfileUrl": "https://www.ycombinator.com/companies/opentrade",
-      "websiteUrl": "https://opentrade.live/",
-      "tagline": "The new interface for investing.",
-      "description": "OpenTrade is rebuilding the trading experience for a generation raised on games, social products, and AI.",
-      "industry": "Consumer",
-      "subindustry": "Consumer",
-      "industries": [
-        "Consumer"
-      ],
-      "tags": [
-        "Finance",
-        "Gaming",
-        "Investing",
-        "Consumer Finance",
-        "Stocks"
-      ],
-      "location": "Seattle, WA",
-      "teamSize": 3,
-      "status": "Active",
-      "groupPartner": "Diana Hu",
-      "groupPartnerUrl": "https://www.ycombinator.com/people/diana-hu",
-      "socialLinks": {
-        "linkedin": "https://www.linkedin.com/company/opentradelive/",
-        "x": "https://x.com/opendottrade"
-      },
-      "founders": [
-        {
-          "id": "2384611",
-          "name": "Ojas Kandhare",
-          "title": "Founder/CEO",
-          "bio": "goofing",
-          "ycProfileUrl": "https://www.ycombinator.com/people/ojas-kandhare",
-          "socialLinks": {
-            "linkedin": "https://www.linkedin.com/in/ojas-kandhare-74b349212/",
-            "x": "https://x.com/ojaskandy"
-          }
-        },
-        {
-          "id": "2613840",
-          "name": "Tario You",
-          "title": "Founder/CTO",
-          "bio": "mooning",
-          "ycProfileUrl": "https://www.ycombinator.com/people/tario-you",
-          "socialLinks": {
-            "linkedin": "https://www.linkedin.com/in/tario-you",
-            "x": "https://x.com/deftarioo"
-          }
-        }
-      ],
-      "launch": null,
-      "sourceUrls": [
-        "https://www.ycombinator.com/companies/opentrade",
         "https://www.ycombinator.com/companies?batch=Summer%202026"
       ]
     },
@@ -9099,66 +9095,6 @@
       "launch": null,
       "sourceUrls": [
         "https://www.ycombinator.com/companies/os3",
-        "https://www.ycombinator.com/companies?batch=Summer%202026"
-      ]
-    },
-    {
-      "id": "31342",
-      "objectID": "31342",
-      "slug": "osmaura",
-      "name": "Osmaura",
-      "batch": "Summer 2026",
-      "ycProfileUrl": "https://www.ycombinator.com/companies/osmaura",
-      "websiteUrl": "https://osmaura.com",
-      "tagline": "AI-native network of corporate law firms",
-      "description": "We surface client engagement, cross selling, upselling, and new client opportunities that a firm is well positioned to take advantage of. We manage the client experience from sourcing to onboarding to future matters.\r\n\r\nWe grew 0 -> 17.5k MRR in less than 5 weeks.\r\n\r\nWe're here to help law firms grow and care for their clients while they focus on what they do best. Lawyers are trained to practice law - not to prospect, sell, and manage clients.",
-      "industry": "B2B",
-      "subindustry": "B2B",
-      "industries": [
-        "B2B"
-      ],
-      "tags": [
-        "B2B",
-        "Sales Enablement",
-        "LegalTech",
-        "Customer Service",
-        "AI"
-      ],
-      "location": "San Francisco",
-      "teamSize": 2,
-      "status": "Active",
-      "groupPartner": "Jon Xu",
-      "groupPartnerUrl": "https://www.ycombinator.com/people/jon-xu",
-      "socialLinks": {
-        "linkedin": "https://www.linkedin.com/company/with-osmaura"
-      },
-      "founders": [
-        {
-          "id": "1366260",
-          "name": "Jity Woldemichael",
-          "title": "Founder",
-          "bio": "Prev CS @ MIT. I learned engineering in projects and at places like Meta/Jane Street. I'd love to see a future where everyday professionals can just start their businesses without stressing about getting clients.",
-          "ycProfileUrl": "https://www.ycombinator.com/people/jity-woldemichael",
-          "socialLinks": {
-            "linkedin": "https://www.linkedin.com/in/tselote/",
-            "x": "https://x.com/rookunderfire"
-          }
-        },
-        {
-          "id": "2718831",
-          "name": "Kali Abeje",
-          "title": "Founder",
-          "bio": "Previously studied CS at MIT with a minor in public policy. 2x AWS Intern. I’ve also done NLP and ML research with the Econ department and MIT GOV/LAB including work on argument extraction and policy prediction. I’ve been interested in law and public institutions for years through debate and mock trial, and I bring that context to building AI for the legal industry.",
-          "ycProfileUrl": "https://www.ycombinator.com/people/kali-abeje",
-          "socialLinks": {
-            "linkedin": "https://www.linkedin.com/in/yeabkal-abeje/",
-            "x": "https://x.com/abe_yebe"
-          }
-        }
-      ],
-      "launch": null,
-      "sourceUrls": [
-        "https://www.ycombinator.com/companies/osmaura",
         "https://www.ycombinator.com/companies?batch=Summer%202026"
       ]
     },
@@ -10064,7 +10000,7 @@
       "ycProfileUrl": "https://www.ycombinator.com/companies/princeps",
       "websiteUrl": "https://princeps.dev",
       "tagline": "AI-native insurance company for the compute economy",
-      "description": "PRINCEPS is the first purpose-built insurance company (and MGA) for the trillion-dollar compute buildout. We underwrite SLA, GPU residual value, and outage risk, and price the coverage that unlocks cheaper financing for data centers and neoclouds.",
+      "description": "PRINCEPS is the first purpose-built insurance company for the trillion-dollar compute buildout. We underwrite SLA, GPU residual value, and outage risk, and price the coverage that unlocks cheaper financing for data centers and neoclouds.",
       "industry": "Fintech",
       "subindustry": "Fintech -> Insurance",
       "industries": [
@@ -10073,10 +10009,12 @@
       ],
       "tags": [
         "Artificial Intelligence",
-        "Machine Learning"
+        "Fintech",
+        "Machine Learning",
+        "Insurance"
       ],
       "location": "London, United Kingdom",
-      "teamSize": 3,
+      "teamSize": 2,
       "status": "Active",
       "groupPartner": "Vivian Midha Shen",
       "groupPartnerUrl": null,
@@ -10096,7 +10034,7 @@
           "id": "3671622",
           "name": "Anya Trofimova",
           "title": "Founder/COO",
-          "bio": "Co-Founder of PRINCEPS. Previously VP of the Oxford Union ($3M+ institution). Designed and led UN digital campaign at 16, then worked on data centre project finance at Big-Law and built software for UK Parliament for energy & industrials. Youth Fellow at Chatham House researching defence and infrastructure security. University of Oxford Casberd Scholar.",
+          "bio": "Co-Founder of PRINCEPS. Previously worked on data centre project finance, including a $2bn Gulf data centre deal and the first ever space data centre project, and built software for UK Parliament on energy and industrial policy. Youth Fellow at Chatham House researching defence and infrastructure security. Oxford Casberd academic Scholar and former VP of the Oxford Union ($3M+ institution). Designed and led a UN digital campaign at 16.",
           "ycProfileUrl": "https://www.ycombinator.com/people/anya-trofimova",
           "socialLinks": {
             "linkedin": "https://www.linkedin.com/in/anyatrofimova",
@@ -10548,7 +10486,9 @@
           "title": "Founder/CEO",
           "bio": "Co-Founder/CEO at Rasyn (S26)",
           "ycProfileUrl": "https://www.ycombinator.com/people/ansh-tiwari",
-          "socialLinks": {}
+          "socialLinks": {
+            "linkedin": "https://www.linkedin.com/in/ansschh/"
+          }
         },
         {
           "id": "972683",
@@ -12237,16 +12177,16 @@
       "ycProfileUrl": "https://www.ycombinator.com/companies/tenor",
       "websiteUrl": "https://heytenor.com/",
       "tagline": "Infrastructure for building and scaling AI-native service businesses.",
-      "description": "The next generation of successful white-collar service businesses will be built and scaled around AI from the ground up. These companies need more than capable AI models. They need a company data layer, governed workflows that AI can execute, and harnesses that continuously improve based on outcomes and decision checkpoints. Tenor is building this infrastructure so millions of AI-native businesses don’t have to build it themselves.",
+      "description": "Tenor enables domain experts to build, run, and scale AI-native service businesses.\r\nThe next generation of successful white-collar service businesses will be built and scaled around AI from the ground up. These companies need more than capable AI models. They need a company data layer, governed workflows that AI can execute, and harnesses that continuously improve based on outcomes and decision checkpoints. Tenor is building this infrastructure so millions of AI-native businesses don’t have to build it themselves.",
       "industry": "B2B",
       "subindustry": "B2B",
       "industries": [
         "B2B"
       ],
       "tags": [
+        "Artificial Intelligence",
         "B2B",
-        "Automation",
-        "AI"
+        "Automation"
       ],
       "location": "San Francisco",
       "teamSize": 3,

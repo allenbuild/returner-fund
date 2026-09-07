@@ -9398,5 +9398,134 @@
     "scheduledAt": "2026-09-06T23:00:00.000Z",
     "evidenceCollectedAt": "2026-09-07T05:47:11.477Z",
     "terminalFailureBudget": 124
+  },
+  {
+    "schemaVersion": 1,
+    "idempotencyKey": "central-2026-09-07-0600",
+    "centralDay": "2026-09-07",
+    "observedAt": "2026-09-07T15:54:58.544Z",
+    "baselinePhysicalSources": 18009,
+    "publishedPhysicalSources": 17983,
+    "newPhysicalSources": 7,
+    "newPhysicalSourcesThisAttempt": 7,
+    "retainedPhysicalSources": 17976,
+    "removedPhysicalSources": 33,
+    "dailyNewPhysicalSources": 7,
+    "dailySourceHealth": "healthy",
+    "collectionHealth": "degraded",
+    "collectionHealthReasons": [
+      "missing_credential:X_BEARER_TOKEN",
+      "missing_credential:EXA_API_KEY",
+      "mapped_failures:1",
+      "provider_blocked:3373",
+      "mapped_provider_blocked:1428",
+      "mapped_scope_unsupported:10",
+      "mapped_success_rate_below_10_percent:0.0337"
+    ],
+    "mappedExpected": 2460,
+    "mappedSucceeded": 83,
+    "mappedNeedsReview": 249,
+    "mappedBlockedOrEmpty": 2127,
+    "providerBlocked": 3373,
+    "providerBlockedByReason": {
+      "provider_blocked:duckduckgo_html:public_search_circuit_open": 1462,
+      "provider_blocked:duckduckgo_html:public_search_timeout": 1,
+      "provider_blocked:linkedin_public_html:linkedin_public_circuit_open": 1417,
+      "provider_blocked:official_source_html:official_source_http_failure": 5,
+      "provider_blocked:official_source_html:official_source_transport_failure": 2,
+      "provider_blocked:official_source_http:official_source_http_failure": 5,
+      "provider_blocked:reddit_public_json:reddit_public_access_blocked": 481
+    },
+    "mappedProviderBlocked": 1428,
+    "mappedProviderBlockedByReason": {
+      "provider_blocked:duckduckgo_html:public_search_circuit_open": 11,
+      "provider_blocked:linkedin_public_html:linkedin_public_circuit_open": 1417
+    },
+    "mappedScopeUnsupported": 10,
+    "mappedFailures": 1,
+    "mappedNonTerminal": 0,
+    "mappedSuccessRate": 0.0337,
+    "newestNewSourcePostedAt": "2026-09-07T05:40:03Z",
+    "insertedByBatchPlatform": {
+      "S2026:github": 1,
+      "S26:github": 3,
+      "S26:youtube": 3
+    },
+    "insertedSourceSamples": [
+      {
+        "batchSlug": "S26",
+        "platform": "youtube",
+        "entityType": "company",
+        "entityId": "company-moonshot-computer",
+        "sourceUrl": "https://youtube.com/watch?v=KfIqEOeC6kE",
+        "platformPostId": "KfIqEOeC6kE",
+        "platformObjectId": null,
+        "postedAt": null
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "youtube",
+        "entityType": "company",
+        "entityId": "company-mosaic-inc",
+        "sourceUrl": "https://youtube.com/watch?v=nrQTXk6Da1s",
+        "platformPostId": "nrQTXk6Da1s",
+        "platformObjectId": null,
+        "postedAt": null
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "youtube",
+        "entityType": "company",
+        "entityId": "company-mosaic-inc",
+        "sourceUrl": "https://youtube.com/watch?v=m3vModu5n8s",
+        "platformPostId": "m3vModu5n8s",
+        "platformObjectId": null,
+        "postedAt": null
+      },
+      {
+        "batchSlug": "S2026",
+        "platform": "github",
+        "entityType": "company",
+        "entityId": "company-zenbu-2",
+        "sourceUrl": "https://github.com/zenbu-labs/terminal-electron",
+        "platformPostId": "zenbu-labs/terminal-electron",
+        "platformObjectId": "1357652514",
+        "postedAt": "2026-09-04T22:49:04Z"
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "github",
+        "entityType": "company",
+        "entityId": "company-chromie",
+        "sourceUrl": "https://github.com/chromie-dev/chromie-federal-buyer-map-trial",
+        "platformPostId": "chromie-dev/chromie-federal-buyer-map-trial",
+        "platformObjectId": "1359805678",
+        "postedAt": "2026-09-07T05:39:47Z"
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "github",
+        "entityType": "company",
+        "entityId": "company-chromie",
+        "sourceUrl": "https://github.com/chromie-dev/chromie-sled-intelligence-trial",
+        "platformPostId": "chromie-dev/chromie-sled-intelligence-trial",
+        "platformObjectId": "1359805993",
+        "postedAt": "2026-09-07T05:40:03Z"
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "github",
+        "entityType": "company",
+        "entityId": "company-moonshot-computer",
+        "sourceUrl": "https://github.com/moonshot-67labs/opentrade-brand-assets",
+        "platformPostId": "moonshot-67labs/opentrade-brand-assets",
+        "platformObjectId": "1321054822",
+        "postedAt": "2026-08-03T01:11:23Z"
+      }
+    ],
+    "trigger": "schedule",
+    "scheduledAt": "2026-09-07T11:00:00.000Z",
+    "evidenceCollectedAt": "2026-09-07T15:52:35.996Z",
+    "terminalFailureBudget": 123
   }
 ]

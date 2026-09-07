@@ -1,7 +1,7 @@
 {
   "source": {
     "label": "Targeted long-run public evidence",
-    "fetchedAt": "2026-09-07T05:13:21.070Z",
+    "fetchedAt": "2026-09-07T11:17:50.938Z",
     "notes": [
       "Read-only public search/result snippets and accessible pages only.",
       "No Instagram login actions, likes, saves, follows, comments, DMs, or CAPTCHA bypassing.",
@@ -113,20 +113,20 @@
       "pidBackfilled": 1
     },
     "targetedMergeAudit": {
-      "mergedAt": "2026-09-07T05:47:12.571Z",
+      "mergedAt": "2026-09-07T15:52:37.056Z",
       "existingSnapshots": 1,
-      "existingInputRows": 3400,
+      "existingInputRows": 3399,
       "isolatedRunInputRows": 0,
       "acceptedRunRows": 0,
       "duplicateRows": 0,
-      "quarantinedRows": 1,
-      "canonicalReattributedRows": 68,
+      "quarantinedRows": 19,
+      "canonicalReattributedRows": 93,
       "quarantineReasonCounts": {
-        "entity_not_in_canonical_batch_catalog": 1
+        "entity_not_in_canonical_batch_catalog": 19
       },
-      "attributionReconciliationCount": 199,
-      "outputEvidenceRows": 3399,
-      "outputNeedsReviewRows": 132
+      "attributionReconciliationCount": 243,
+      "outputEvidenceRows": 3380,
+      "outputNeedsReviewRows": 151
     },
     "attributionReconciledAt": "2026-07-24T13:50:16.000Z",
     "evidenceCount": 3464
@@ -35279,9 +35279,9 @@
     },
     {
       "entityType": "founder",
-      "entityId": "founder-opentrade-tario-you-2613840",
-      "companySlug": "opentrade",
-      "companyName": "OpenTrade",
+      "entityId": "founder-moonshot-computer-tario-you-2613840",
+      "companySlug": "moonshot-computer",
+      "companyName": "Moonshot",
       "founderName": "Tario You",
       "platform": "linkedin",
       "sourceUrl": "https://linkedin.com/posts/tario-you_today-were-introducing-claude-for-investing-activity-7479930890618396673-ir4b",
@@ -35306,10 +35306,18 @@
       "last_checked_at": "2026-07-24T14:13:10.000Z",
       "last_updated_at": "2026-07-06T16:14:54.719Z",
       "entityName": "Tario You",
-      "attachedCompanyId": "company-opentrade",
+      "attachedCompanyId": "company-moonshot-computer",
       "thumbnailUrl": "https://dms.licdn.com/playlist/vid/v2/D5605AQEowTta_nGx6g/thumbnail-with-play-button-overlay-high/B56Z84NeVVJoC0-/0/1783354485873?e=2147483647&v=beta&t=kqRnTv_3lpJQDglDoXjE8whlU2Rcr5fZR3Jba6xAgqQ",
       "thumbnailSource": "link-preview-og-image",
       "mediaUrl": "/evidence-thumbnails/linkedin/source-hunt-55f3c26df7bd75d405b2.svg",
+      "previousAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-opentrade-tario-you-2613840",
+        "companySlug": "opentrade",
+        "companyName": "OpenTrade"
+      },
+      "attributionReconciliationReason": "canonical_targeted_legacy_entity_alias",
       "batchSlug": "S26"
     },
     {
@@ -35349,9 +35357,9 @@
     },
     {
       "entityType": "founder",
-      "entityId": "founder-opentrade-tario-you-2613840",
-      "companySlug": "opentrade",
-      "companyName": "OpenTrade",
+      "entityId": "founder-moonshot-computer-tario-you-2613840",
+      "companySlug": "moonshot-computer",
+      "companyName": "Moonshot",
       "founderName": "Tario You",
       "platform": "linkedin",
       "sourceUrl": "https://linkedin.com/posts/tario-you_alright-lets-do-this-one-last-time-my-activity-7481147292071337984-pe_5",
@@ -35376,10 +35384,18 @@
       "last_checked_at": "2026-07-24T14:13:10.000Z",
       "last_updated_at": "2026-07-10T00:48:27.425Z",
       "entityName": "Tario You",
-      "attachedCompanyId": "company-opentrade",
+      "attachedCompanyId": "company-moonshot-computer",
       "thumbnailUrl": "https://media.licdn.com/dms/image/v2/D5622AQEw0vWjMr0iZg/feedshare-shrink_800/B56Z9Jf0nIG0Ac-/0/1783644506843?e=2147483647&v=beta&t=0_ntwsh4Ozp0HnrqfWjx3XcnioxbKz3Dh9iI3-1_lO0",
       "thumbnailSource": "link-preview-og-image",
       "mediaUrl": "/evidence-thumbnails/linkedin/source-hunt-7994801c3be84b63e19b.svg",
+      "previousAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-opentrade-tario-you-2613840",
+        "companySlug": "opentrade",
+        "companyName": "OpenTrade"
+      },
+      "attributionReconciliationReason": "canonical_targeted_legacy_entity_alias",
       "batchSlug": "S26"
     },
     {
@@ -35419,9 +35435,9 @@
     },
     {
       "entityType": "founder",
-      "entityId": "founder-opentrade-tario-you-2613840",
-      "companySlug": "opentrade",
-      "companyName": "OpenTrade",
+      "entityId": "founder-moonshot-computer-tario-you-2613840",
+      "companySlug": "moonshot-computer",
+      "companyName": "Moonshot",
       "founderName": "Tario You",
       "platform": "linkedin",
       "sourceUrl": "https://linkedin.com/posts/tario-you_y-combinator-just-bet-on-opentrade-yc-s26-activity-7476400958906986496-kL5l",
@@ -35446,10 +35462,18 @@
       "last_checked_at": "2026-07-24T14:13:10.000Z",
       "last_updated_at": "2026-06-26T22:28:13.416Z",
       "entityName": "Tario You",
-      "attachedCompanyId": "company-opentrade",
+      "attachedCompanyId": "company-moonshot-computer",
       "thumbnailUrl": "https://media.licdn.com/dms/image/v2/D5622AQEWlyVs4Ta9PQ/feedshare-image-high-res/B56Z8GDDS4HUAY-/0/1782512892631?e=2147483647&v=beta&t=-a1Ior_IDhsFLXvEmbiy1ZD8HifPbOcm43IJ3fSXmaA",
       "thumbnailSource": "link-preview-og-image",
       "mediaUrl": "/evidence-thumbnails/linkedin/source-hunt-a1cfe226510d2b72909f.svg",
+      "previousAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-opentrade-tario-you-2613840",
+        "companySlug": "opentrade",
+        "companyName": "OpenTrade"
+      },
+      "attributionReconciliationReason": "canonical_targeted_legacy_entity_alias",
       "batchSlug": "S26"
     },
     {
@@ -51065,11 +51089,11 @@
       "batchSlug": "S2026"
     },
     {
-      "companyName": "OpenTrade",
+      "companyName": "Moonshot",
       "companyId": "company-opentrade",
       "entityType": "company",
-      "entityId": "company-opentrade",
-      "entityName": "OpenTrade",
+      "entityId": "company-moonshot-computer",
+      "entityName": "Moonshot",
       "accountUrl": "https://x.com/opendottrade",
       "handle": "opendottrade",
       "platform": "x",
@@ -51106,11 +51130,19 @@
       "first_seen_at": "2026-07-24T12:49:59.000Z",
       "last_checked_at": "2026-07-24T12:49:59.000Z",
       "last_updated_at": "2026-06-30T16:09:56.000Z",
-      "companySlug": "opentrade",
-      "attachedCompanyId": "company-opentrade",
+      "companySlug": "moonshot-computer",
+      "attachedCompanyId": "company-moonshot-computer",
       "thumbnailUrl": "/evidence-thumbnails/x/source-hunt-1b783209e71e70aedfb8.svg",
       "thumbnailSource": "fxtwitter-text-preview",
       "mediaUrl": "/evidence-thumbnails/x/source-hunt-1b783209e71e70aedfb8.svg",
+      "previousAttribution": {
+        "batchSlug": "S26",
+        "entityType": "company",
+        "entityId": "company-opentrade",
+        "companySlug": "opentrade",
+        "companyName": "OpenTrade"
+      },
+      "attributionReconciliationReason": "canonical_targeted_legacy_entity_alias",
       "batchSlug": "S26"
     },
     {
@@ -51171,11 +51203,11 @@
       "batchSlug": "S26"
     },
     {
-      "companyName": "OpenTrade",
+      "companyName": "Moonshot",
       "companyId": "company-opentrade",
       "entityType": "company",
-      "entityId": "company-opentrade",
-      "entityName": "OpenTrade",
+      "entityId": "company-moonshot-computer",
+      "entityName": "Moonshot",
       "accountUrl": "https://x.com/opendottrade",
       "handle": "opendottrade",
       "platform": "x",
@@ -51212,11 +51244,19 @@
       "first_seen_at": "2026-07-24T12:49:59.000Z",
       "last_checked_at": "2026-07-24T12:49:59.000Z",
       "last_updated_at": "2026-06-28T01:26:52.000Z",
-      "companySlug": "opentrade",
-      "attachedCompanyId": "company-opentrade",
+      "companySlug": "moonshot-computer",
+      "attachedCompanyId": "company-moonshot-computer",
       "thumbnailUrl": "/evidence-thumbnails/x/source-hunt-1c6ac1794bc9bf733ae1.svg",
       "thumbnailSource": "fxtwitter-text-preview",
       "mediaUrl": "/evidence-thumbnails/x/source-hunt-1c6ac1794bc9bf733ae1.svg",
+      "previousAttribution": {
+        "batchSlug": "S26",
+        "entityType": "company",
+        "entityId": "company-opentrade",
+        "companySlug": "opentrade",
+        "companyName": "OpenTrade"
+      },
+      "attributionReconciliationReason": "canonical_targeted_legacy_entity_alias",
       "batchSlug": "S26"
     },
     {
@@ -51911,55 +51951,6 @@
       "thumbnailUrl": "/evidence-thumbnails/x/source-hunt-28ea729c30d682d54770.svg",
       "thumbnailSource": "fxtwitter-text-preview",
       "mediaUrl": "/evidence-thumbnails/x/source-hunt-28ea729c30d682d54770.svg",
-      "batchSlug": "S26"
-    },
-    {
-      "companyName": "Osmaura",
-      "companyId": "company-osmaura",
-      "entityType": "founder",
-      "entityId": "founder-osmaura-jity-woldemichael-1366260",
-      "entityName": "Jity Woldemichael",
-      "accountUrl": "https://x.com/rookunderfire",
-      "handle": "rookunderfire",
-      "platform": "x",
-      "sourceUrl": "https://x.com/rookunderfire/status/2070188523563708454",
-      "platformPostId": "2070188523563708454",
-      "postedAt": "2026-06-25T16:53:00.000Z",
-      "title": "I’m excited to share that Osmaura has joined Y Combinator’s S26 batch.\n\nYeabkal and I left MIT last semester to work on our startup toget...",
-      "text": "I’m excited to share that Osmaura has joined Y Combinator’s S26 batch.\n\nYeabkal and I left MIT last semester to work on our startup together full time. We spent months in pivot hell, chasing ideas, throwing things away, and trying to find a problem that felt both important and real.\n\nAfter months of trying, we've landed on a problem that's exciting to us.\n\nLaw firm partners are under constant pressure to originate more work, stay close to clients, and spot new matter opportunities week after week.\n\nOsmaura is our attempt to help.\n\nOur agents monitor web, news, socials, and internal firm context to identify relevant client opportunities, explain why they matter, and help partners act on them at the right time.\n\nDoing this well is a hard technical problem. The signals are noisy and the output has to be trusted by people operating in high stakes relationships.\n\nThat is exactly why we are excited to work on it.\n\nGrateful to everyone who has helped us get here, especially @xuster, @agupta, and others who helped us early. I am also especially excited to build this with @abe_yebe.\n\nIf you are a law firm partner, BD leader, or someone thinking deeply about how firms grow, we would love to talk at jity@osmaura.com or kali@osmaura.com.",
-      "authorName": "Jity Woldemichael",
-      "authorHandle": "rookunderfire",
-      "metrics": {
-        "views": 2965,
-        "likes": 123,
-        "replies": 12,
-        "reposts": 9,
-        "quotes": 1,
-        "bookmarks": 4
-      },
-      "mediaType": "image",
-      "rawVisibleText": "{\"source\":\"fxtwitter_native_profile_timeline\",\"profile\":{\"name\":\"Jity Woldemichael\",\"username\":\"rookunderfire\",\"url\":\"https://x.com/rookunderfire\"},\"post\":{\"id\":\"2070188523563708454\",\"authorName\":\"Jity Woldemichael\",\"authorHandle\":\"rookunderfire\",\"text\":\"I’m excited to share that Osmaura has joined Y Combinator’s S26 batch.\\n\\nYeabkal and I left MIT last semester to work on our startup together full time. We spent months in pivot hell, chasing ideas, throwing things away, and trying to find a problem that felt both important and real.\\n\\nAfter months of trying, we've landed on a problem that's exciting to us.\\n\\nLaw firm partners are under constant pressure to originate more work, stay close to clients, and spot new matter opportunities week after week.\\n\\nOsmaura is our attempt to help.\\n\\nOur agents monitor web, news, socials, and internal firm context to identify relevant client opportunities, explain why they matter, and help partners act on them at the right time.\\n\\nDoing this well is a hard technical problem. The signals are noisy and the output has to be trusted by people operating in high stakes relationships.\\n\\nThat is exactly why we are excited to work on it.\\n\\nGrateful to everyone who has helped us get here, especially @xuster, @agupta, and others who helped us early. I am also especially excited to build this with @abe_yebe.\\n\\nIf you are a law firm partner, BD leader, or someone thinking deeply about how firms grow, we would love to talk at jity@osmaura.com or kali@osmaura.com.\",\"replyingTo\":null},\"counts\":{\"views\":2965,\"likes\":123,\"replies\":12,\"reposts\":9,\"quotes\":1,\"bookmarks\":4}}",
-      "matchReason": "The canonical roster X account @rookunderfire is the native author, the profile timeline exposes this exact status ID, and the status has positive visible metrics.",
-      "review_state": "verified",
-      "nativeTimelineUrl": "https://api.fxtwitter.com/2/profile/rookunderfire/statuses?count=100&since=1780272000&until=1782864000",
-      "verification": {
-        "nativeAuthorHandle": "rookunderfire",
-        "canonicalOwnerCount": 1,
-        "nativeAuthorVerified": true,
-        "notRepost": true,
-        "positiveVisibleMetrics": true,
-        "dedupeStatus": "net_new"
-      },
-      "id": "source-hunt-2b0ba8feab4addd942b2",
-      "contributionScore": 1,
-      "first_seen_at": "2026-07-24T12:49:59.000Z",
-      "last_checked_at": "2026-07-24T12:49:59.000Z",
-      "last_updated_at": "2026-06-25T16:53:00.000Z",
-      "companySlug": "osmaura",
-      "attachedCompanyId": "company-osmaura",
-      "thumbnailUrl": "https://pbs.twimg.com/media/HLrJaMHaIAA2Y0i.jpg?name=orig",
-      "thumbnailSource": "fxtwitter-direct-media",
-      "mediaUrl": "/evidence-thumbnails/x/source-hunt-2b0ba8feab4addd942b2.jpg",
       "batchSlug": "S26"
     },
     {
@@ -58344,11 +58335,11 @@
       "batchSlug": "S2026"
     },
     {
-      "companyName": "OpenTrade",
+      "companyName": "Moonshot",
       "companyId": "company-opentrade",
       "entityType": "company",
-      "entityId": "company-opentrade",
-      "entityName": "OpenTrade",
+      "entityId": "company-moonshot-computer",
+      "entityName": "Moonshot",
       "accountUrl": "https://x.com/opendottrade",
       "handle": "opendottrade",
       "platform": "x",
@@ -58385,11 +58376,19 @@
       "first_seen_at": "2026-07-24T12:49:59.000Z",
       "last_checked_at": "2026-07-24T12:49:59.000Z",
       "last_updated_at": "2026-06-28T01:12:53.000Z",
-      "companySlug": "opentrade",
-      "attachedCompanyId": "company-opentrade",
+      "companySlug": "moonshot-computer",
+      "attachedCompanyId": "company-moonshot-computer",
       "thumbnailUrl": "/evidence-thumbnails/x/source-hunt-b7732ab56d75361708bf.svg",
       "thumbnailSource": "fxtwitter-text-preview",
       "mediaUrl": "/evidence-thumbnails/x/source-hunt-b7732ab56d75361708bf.svg",
+      "previousAttribution": {
+        "batchSlug": "S26",
+        "entityType": "company",
+        "entityId": "company-opentrade",
+        "companySlug": "opentrade",
+        "companyName": "OpenTrade"
+      },
+      "attributionReconciliationReason": "canonical_targeted_legacy_entity_alias",
       "batchSlug": "S26"
     },
     {
@@ -61831,55 +61830,6 @@
       "batchSlug": "S2026"
     },
     {
-      "companyName": "Osmaura",
-      "companyId": "company-osmaura",
-      "entityType": "founder",
-      "entityId": "founder-osmaura-kali-abeje-2718831",
-      "entityName": "Kali Abeje",
-      "accountUrl": "https://x.com/abe_yebe",
-      "handle": "abe_yebe",
-      "platform": "x",
-      "sourceUrl": "https://x.com/abe_yebe/status/2078677163017130085",
-      "platformPostId": "2078677163017130085",
-      "postedAt": "2026-07-19T03:03:50.000Z",
-      "title": "@mitchellh @rookunderfire I was working with the MIT GOV Lab a few months back on a simple version of this - having people defining their...",
-      "text": "@mitchellh @rookunderfire I was working with the MIT GOV Lab a few months back on a simple version of this - having people defining their beliefs on a policy and iterating with them (socratic seminar type beat) - and refining the conversation agent took some time to actually get it to where we wanted it",
-      "authorName": "Yeabkal",
-      "authorHandle": "abe_yebe",
-      "metrics": {
-        "views": 27,
-        "likes": 0,
-        "replies": 1,
-        "reposts": 0,
-        "quotes": 0,
-        "bookmarks": 0
-      },
-      "mediaType": "text",
-      "rawVisibleText": "{\"source\":\"fxtwitter_native_profile_timeline\",\"profile\":{\"name\":\"Yeabkal\",\"username\":\"abe_yebe\",\"url\":\"https://x.com/abe_yebe\"},\"post\":{\"id\":\"2078677163017130085\",\"authorName\":\"Yeabkal\",\"authorHandle\":\"abe_yebe\",\"text\":\"@mitchellh @rookunderfire I was working with the MIT GOV Lab a few months back on a simple version of this - having people defining their beliefs on a policy and iterating with them (socratic seminar type beat) - and refining the conversation agent took some time to actually get it to where we wanted it\",\"replyingTo\":{\"screen_name\":\"abe_yebe\",\"status\":\"2078676503022506232\",\"url\":\"https://x.com/abe_yebe/status/2078676503022506232\",\"profile_url\":\"https://x.com/abe_yebe\"}},\"counts\":{\"views\":27,\"likes\":0,\"replies\":1,\"reposts\":0,\"quotes\":0,\"bookmarks\":0}}",
-      "matchReason": "The canonical roster X account @abe_yebe is the native author, the profile timeline exposes this exact status ID, and the status has positive visible metrics.",
-      "review_state": "verified",
-      "nativeTimelineUrl": "https://api.fxtwitter.com/2/profile/abe_yebe/statuses?count=100&since=1782864000&until=1784678400",
-      "verification": {
-        "nativeAuthorHandle": "abe_yebe",
-        "canonicalOwnerCount": 1,
-        "nativeAuthorVerified": true,
-        "notRepost": true,
-        "positiveVisibleMetrics": true,
-        "dedupeStatus": "net_new"
-      },
-      "id": "source-hunt-0003980035d893723bec",
-      "contributionScore": 1,
-      "first_seen_at": "2026-07-24T12:46:41.000Z",
-      "last_checked_at": "2026-07-24T12:46:41.000Z",
-      "last_updated_at": "2026-07-19T03:03:50.000Z",
-      "companySlug": "osmaura",
-      "attachedCompanyId": "company-osmaura",
-      "thumbnailUrl": "/evidence-thumbnails/x/source-hunt-0003980035d893723bec.svg",
-      "thumbnailSource": "fxtwitter-text-preview",
-      "mediaUrl": "/evidence-thumbnails/x/source-hunt-0003980035d893723bec.svg",
-      "batchSlug": "S26"
-    },
-    {
       "companyName": "Superlog",
       "companyId": "company-superlog",
       "entityType": "founder",
@@ -61978,10 +61928,10 @@
       "batchSlug": "S2026"
     },
     {
-      "companyName": "OpenTrade",
+      "companyName": "Moonshot",
       "companyId": "company-opentrade",
       "entityType": "founder",
-      "entityId": "founder-opentrade-ojas-kandhare-2384611",
+      "entityId": "founder-moonshot-computer-ojas-kandhare-2384611",
       "entityName": "Ojas Kandhare",
       "accountUrl": "https://x.com/ojaskandy",
       "handle": "ojaskandy",
@@ -62019,11 +61969,19 @@
       "first_seen_at": "2026-07-24T12:46:41.000Z",
       "last_checked_at": "2026-07-24T12:46:41.000Z",
       "last_updated_at": "2026-07-14T06:41:51.000Z",
-      "companySlug": "opentrade",
-      "attachedCompanyId": "company-opentrade",
+      "companySlug": "moonshot-computer",
+      "attachedCompanyId": "company-moonshot-computer",
       "thumbnailUrl": "/evidence-thumbnails/x/source-hunt-00de08449f54498db9a4.svg",
       "thumbnailSource": "fxtwitter-text-preview",
       "mediaUrl": "/evidence-thumbnails/x/source-hunt-00de08449f54498db9a4.svg",
+      "previousAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-opentrade-ojas-kandhare-2384611",
+        "companySlug": "opentrade",
+        "companyName": "OpenTrade"
+      },
+      "attributionReconciliationReason": "canonical_targeted_legacy_entity_alias",
       "batchSlug": "S26"
     },
     {
@@ -62368,55 +62326,6 @@
       "thumbnailSource": "fxtwitter-text-preview",
       "mediaUrl": "/evidence-thumbnails/x/source-hunt-04a627e1ff55ce070a32.svg",
       "batchSlug": "S2026"
-    },
-    {
-      "companyName": "Osmaura",
-      "companyId": "company-osmaura",
-      "entityType": "founder",
-      "entityId": "founder-osmaura-jity-woldemichael-1366260",
-      "entityName": "Jity Woldemichael",
-      "accountUrl": "https://x.com/rookunderfire",
-      "handle": "rookunderfire",
-      "platform": "x",
-      "sourceUrl": "https://x.com/rookunderfire/status/2072133157315600451",
-      "platformPostId": "2072133157315600451",
-      "postedAt": "2026-07-01T01:40:17.000Z",
-      "title": "Introducing Osmaura (YC S26), AI agents that help corporate law firm partners find new matter opportunities. 🧵\n\nIf you want access to ou...",
-      "text": "Introducing Osmaura (YC S26), AI agents that help corporate law firm partners find new matter opportunities. 🧵\n\nIf you want access to our tool, reply with “early access” and we’ll reach out to you!",
-      "authorName": "Jity Woldemichael",
-      "authorHandle": "rookunderfire",
-      "metrics": {
-        "views": 13947,
-        "likes": 129,
-        "replies": 22,
-        "reposts": 13,
-        "quotes": 0,
-        "bookmarks": 29
-      },
-      "mediaType": "image",
-      "rawVisibleText": "{\"source\":\"fxtwitter_native_profile_timeline\",\"profile\":{\"name\":\"Jity Woldemichael\",\"username\":\"rookunderfire\",\"url\":\"https://x.com/rookunderfire\"},\"post\":{\"id\":\"2072133157315600451\",\"authorName\":\"Jity Woldemichael\",\"authorHandle\":\"rookunderfire\",\"text\":\"Introducing Osmaura (YC S26), AI agents that help corporate law firm partners find new matter opportunities. 🧵\\n\\nIf you want access to our tool, reply with “early access” and we’ll reach out to you!\",\"replyingTo\":null},\"counts\":{\"views\":13947,\"likes\":129,\"replies\":22,\"reposts\":13,\"quotes\":0,\"bookmarks\":29}}",
-      "matchReason": "The canonical roster X account @rookunderfire is the native author, the profile timeline exposes this exact status ID, and the status has positive visible metrics.",
-      "review_state": "verified",
-      "nativeTimelineUrl": "https://api.fxtwitter.com/2/profile/rookunderfire/statuses?count=100&since=1782864000&until=1784678400",
-      "verification": {
-        "nativeAuthorHandle": "rookunderfire",
-        "canonicalOwnerCount": 1,
-        "nativeAuthorVerified": true,
-        "notRepost": true,
-        "positiveVisibleMetrics": true,
-        "dedupeStatus": "net_new"
-      },
-      "id": "source-hunt-04cb21c7978df5afff0f",
-      "contributionScore": 1,
-      "first_seen_at": "2026-07-24T12:46:41.000Z",
-      "last_checked_at": "2026-07-24T12:46:41.000Z",
-      "last_updated_at": "2026-07-01T01:40:17.000Z",
-      "companySlug": "osmaura",
-      "attachedCompanyId": "company-osmaura",
-      "thumbnailUrl": "https://pbs.twimg.com/amplify_video_thumb/2072132510939758592/img/Ak-rUL-kfxWo_Z6G.jpg",
-      "thumbnailSource": "fxtwitter-direct-media",
-      "mediaUrl": "/evidence-thumbnails/x/source-hunt-04cb21c7978df5afff0f.jpg",
-      "batchSlug": "S26"
     },
     {
       "companyName": "OneTriangle",
@@ -65073,55 +64982,6 @@
       "batchSlug": "S2026"
     },
     {
-      "companyName": "Osmaura",
-      "companyId": "company-osmaura",
-      "entityType": "founder",
-      "entityId": "founder-osmaura-jity-woldemichael-1366260",
-      "entityName": "Jity Woldemichael",
-      "accountUrl": "https://x.com/rookunderfire",
-      "handle": "rookunderfire",
-      "platform": "x",
-      "sourceUrl": "https://x.com/rookunderfire/status/2072133160285143166",
-      "platformPostId": "2072133160285143166",
-      "postedAt": "2026-07-01T01:40:18.000Z",
-      "title": "Our agents monitor companies and regulators across the web (including disclosures, product launches, customer complaints, enforcement act...",
-      "text": "Our agents monitor companies and regulators across the web (including disclosures, product launches, customer complaints, enforcement actions, rule changes) to surface early signals that a company may soon need counsel.",
-      "authorName": "Jity Woldemichael",
-      "authorHandle": "rookunderfire",
-      "metrics": {
-        "views": 265,
-        "likes": 2,
-        "replies": 1,
-        "reposts": 0,
-        "quotes": 0,
-        "bookmarks": 0
-      },
-      "mediaType": "text",
-      "rawVisibleText": "{\"source\":\"fxtwitter_native_profile_timeline\",\"profile\":{\"name\":\"Jity Woldemichael\",\"username\":\"rookunderfire\",\"url\":\"https://x.com/rookunderfire\"},\"post\":{\"id\":\"2072133160285143166\",\"authorName\":\"Jity Woldemichael\",\"authorHandle\":\"rookunderfire\",\"text\":\"Our agents monitor companies and regulators across the web (including disclosures, product launches, customer complaints, enforcement actions, rule changes) to surface early signals that a company may soon need counsel.\",\"replyingTo\":{\"screen_name\":\"rookunderfire\",\"status\":\"2072133159110787152\",\"url\":\"https://x.com/rookunderfire/status/2072133159110787152\",\"profile_url\":\"https://x.com/rookunderfire\"}},\"counts\":{\"views\":265,\"likes\":2,\"replies\":1,\"reposts\":0,\"quotes\":0,\"bookmarks\":0}}",
-      "matchReason": "The canonical roster X account @rookunderfire is the native author, the profile timeline exposes this exact status ID, and the status has positive visible metrics.",
-      "review_state": "verified",
-      "nativeTimelineUrl": "https://api.fxtwitter.com/2/profile/rookunderfire/statuses?count=100&since=1782864000&until=1784678400",
-      "verification": {
-        "nativeAuthorHandle": "rookunderfire",
-        "canonicalOwnerCount": 1,
-        "nativeAuthorVerified": true,
-        "notRepost": true,
-        "positiveVisibleMetrics": true,
-        "dedupeStatus": "net_new"
-      },
-      "id": "source-hunt-1b5fba598e89c983535b",
-      "contributionScore": 1,
-      "first_seen_at": "2026-07-24T12:46:41.000Z",
-      "last_checked_at": "2026-07-24T12:46:41.000Z",
-      "last_updated_at": "2026-07-01T01:40:18.000Z",
-      "companySlug": "osmaura",
-      "attachedCompanyId": "company-osmaura",
-      "thumbnailUrl": "/evidence-thumbnails/x/source-hunt-1b5fba598e89c983535b.svg",
-      "thumbnailSource": "fxtwitter-text-preview",
-      "mediaUrl": "/evidence-thumbnails/x/source-hunt-1b5fba598e89c983535b.svg",
-      "batchSlug": "S26"
-    },
-    {
       "companyName": "Pluto",
       "companyId": "company-talentpluto",
       "entityType": "founder",
@@ -66208,10 +66068,10 @@
       "batchSlug": "S2026"
     },
     {
-      "companyName": "OpenTrade",
+      "companyName": "Moonshot",
       "companyId": "company-opentrade",
       "entityType": "founder",
-      "entityId": "founder-opentrade-ojas-kandhare-2384611",
+      "entityId": "founder-moonshot-computer-ojas-kandhare-2384611",
       "entityName": "Ojas Kandhare",
       "accountUrl": "https://x.com/ojaskandy",
       "handle": "ojaskandy",
@@ -66249,11 +66109,19 @@
       "first_seen_at": "2026-07-24T12:46:41.000Z",
       "last_checked_at": "2026-07-24T12:46:41.000Z",
       "last_updated_at": "2026-07-12T07:19:52.000Z",
-      "companySlug": "opentrade",
-      "attachedCompanyId": "company-opentrade",
+      "companySlug": "moonshot-computer",
+      "attachedCompanyId": "company-moonshot-computer",
       "thumbnailUrl": "/evidence-thumbnails/x/source-hunt-2a7b755c0a15bda900a4.svg",
       "thumbnailSource": "fxtwitter-text-preview",
       "mediaUrl": "/evidence-thumbnails/x/source-hunt-2a7b755c0a15bda900a4.svg",
+      "previousAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-opentrade-ojas-kandhare-2384611",
+        "companySlug": "opentrade",
+        "companyName": "OpenTrade"
+      },
+      "attributionReconciliationReason": "canonical_targeted_legacy_entity_alias",
       "batchSlug": "S26"
     },
     {
@@ -66304,55 +66172,6 @@
       "thumbnailSource": "fxtwitter-text-preview",
       "mediaUrl": "/evidence-thumbnails/x/source-hunt-2b178c876c0f268e5081.svg",
       "batchSlug": "S2026"
-    },
-    {
-      "companyName": "Osmaura",
-      "companyId": "company-osmaura",
-      "entityType": "founder",
-      "entityId": "founder-osmaura-kali-abeje-2718831",
-      "entityName": "Kali Abeje",
-      "accountUrl": "https://x.com/abe_yebe",
-      "handle": "abe_yebe",
-      "platform": "x",
-      "sourceUrl": "https://x.com/abe_yebe/status/2072133219949158572",
-      "platformPostId": "2072133219949158572",
-      "postedAt": "2026-07-01T01:40:32.000Z",
-      "title": "Introducing Osmaura (YC S26) a tool that surfaces new matter opportunities for corporate law firm partners. 🧵",
-      "text": "Introducing Osmaura (YC S26) a tool that surfaces new matter opportunities for corporate law firm partners. 🧵",
-      "authorName": "Yeabkal",
-      "authorHandle": "abe_yebe",
-      "metrics": {
-        "views": 530,
-        "likes": 14,
-        "replies": 2,
-        "reposts": 1,
-        "quotes": 0,
-        "bookmarks": 1
-      },
-      "mediaType": "text",
-      "rawVisibleText": "{\"source\":\"fxtwitter_native_profile_timeline\",\"profile\":{\"name\":\"Yeabkal\",\"username\":\"abe_yebe\",\"url\":\"https://x.com/abe_yebe\"},\"post\":{\"id\":\"2072133219949158572\",\"authorName\":\"Yeabkal\",\"authorHandle\":\"abe_yebe\",\"text\":\"Introducing Osmaura (YC S26) a tool that surfaces new matter opportunities for corporate law firm partners. 🧵\",\"replyingTo\":null},\"counts\":{\"views\":530,\"likes\":14,\"replies\":2,\"reposts\":1,\"quotes\":0,\"bookmarks\":1}}",
-      "matchReason": "The canonical roster X account @abe_yebe is the native author, the profile timeline exposes this exact status ID, and the status has positive visible metrics.",
-      "review_state": "verified",
-      "nativeTimelineUrl": "https://api.fxtwitter.com/2/profile/abe_yebe/statuses?count=100&since=1782864000&until=1784678400",
-      "verification": {
-        "nativeAuthorHandle": "abe_yebe",
-        "canonicalOwnerCount": 1,
-        "nativeAuthorVerified": true,
-        "notRepost": true,
-        "positiveVisibleMetrics": true,
-        "dedupeStatus": "net_new"
-      },
-      "id": "source-hunt-2c4f6a031f559e412690",
-      "contributionScore": 1,
-      "first_seen_at": "2026-07-24T12:46:41.000Z",
-      "last_checked_at": "2026-07-24T12:46:41.000Z",
-      "last_updated_at": "2026-07-01T01:40:32.000Z",
-      "companySlug": "osmaura",
-      "attachedCompanyId": "company-osmaura",
-      "thumbnailUrl": "/evidence-thumbnails/x/source-hunt-2c4f6a031f559e412690.svg",
-      "thumbnailSource": "fxtwitter-text-preview",
-      "mediaUrl": "/evidence-thumbnails/x/source-hunt-2c4f6a031f559e412690.svg",
-      "batchSlug": "S26"
     },
     {
       "companyName": "Trope",
@@ -67039,55 +66858,6 @@
       "thumbnailSource": "fxtwitter-text-preview",
       "mediaUrl": "/evidence-thumbnails/x/source-hunt-30ec065d1663d0dd6b23.svg",
       "batchSlug": "S2026"
-    },
-    {
-      "companyName": "Osmaura",
-      "companyId": "company-osmaura",
-      "entityType": "founder",
-      "entityId": "founder-osmaura-kali-abeje-2718831",
-      "entityName": "Kali Abeje",
-      "accountUrl": "https://x.com/abe_yebe",
-      "handle": "abe_yebe",
-      "platform": "x",
-      "sourceUrl": "https://x.com/abe_yebe/status/2078670261755564494",
-      "platformPostId": "2078670261755564494",
-      "postedAt": "2026-07-19T02:36:24.000Z",
-      "title": "One of the biggest things I’m excited about in the next few years is AI enabling hypothesis testing on things that normally would not hav...",
-      "text": "One of the biggest things I’m excited about in the next few years is AI enabling hypothesis testing on things that normally would not have made economic sense to spend resources on. Like normal things that normally wouldn’t have made sense to optimize or iterate on now you can.",
-      "authorName": "Yeabkal",
-      "authorHandle": "abe_yebe",
-      "metrics": {
-        "views": 1111,
-        "likes": 10,
-        "replies": 1,
-        "reposts": 1,
-        "quotes": 0,
-        "bookmarks": 2
-      },
-      "mediaType": "text",
-      "rawVisibleText": "{\"source\":\"fxtwitter_native_profile_timeline\",\"profile\":{\"name\":\"Yeabkal\",\"username\":\"abe_yebe\",\"url\":\"https://x.com/abe_yebe\"},\"post\":{\"id\":\"2078670261755564494\",\"authorName\":\"Yeabkal\",\"authorHandle\":\"abe_yebe\",\"text\":\"One of the biggest things I’m excited about in the next few years is AI enabling hypothesis testing on things that normally would not have made economic sense to spend resources on. Like normal things that normally wouldn’t have made sense to optimize or iterate on now you can.\",\"replyingTo\":null},\"counts\":{\"views\":1111,\"likes\":10,\"replies\":1,\"reposts\":1,\"quotes\":0,\"bookmarks\":2}}",
-      "matchReason": "The canonical roster X account @abe_yebe is the native author, the profile timeline exposes this exact status ID, and the status has positive visible metrics.",
-      "review_state": "verified",
-      "nativeTimelineUrl": "https://api.fxtwitter.com/2/profile/abe_yebe/statuses?count=100&since=1782864000&until=1784678400",
-      "verification": {
-        "nativeAuthorHandle": "abe_yebe",
-        "canonicalOwnerCount": 1,
-        "nativeAuthorVerified": true,
-        "notRepost": true,
-        "positiveVisibleMetrics": true,
-        "dedupeStatus": "net_new"
-      },
-      "id": "source-hunt-311946637a031bff5a85",
-      "contributionScore": 1,
-      "first_seen_at": "2026-07-24T12:46:41.000Z",
-      "last_checked_at": "2026-07-24T12:46:41.000Z",
-      "last_updated_at": "2026-07-19T02:36:24.000Z",
-      "companySlug": "osmaura",
-      "attachedCompanyId": "company-osmaura",
-      "thumbnailUrl": "/evidence-thumbnails/x/source-hunt-311946637a031bff5a85.svg",
-      "thumbnailSource": "fxtwitter-text-preview",
-      "mediaUrl": "/evidence-thumbnails/x/source-hunt-311946637a031bff5a85.svg",
-      "batchSlug": "S26"
     },
     {
       "companyName": "Conifer",
@@ -68029,10 +67799,10 @@
       "batchSlug": "S26"
     },
     {
-      "companyName": "OpenTrade",
+      "companyName": "Moonshot",
       "companyId": "company-opentrade",
       "entityType": "founder",
-      "entityId": "founder-opentrade-ojas-kandhare-2384611",
+      "entityId": "founder-moonshot-computer-ojas-kandhare-2384611",
       "entityName": "Ojas Kandhare",
       "accountUrl": "https://x.com/ojaskandy",
       "handle": "ojaskandy",
@@ -68070,11 +67840,19 @@
       "first_seen_at": "2026-07-24T12:46:41.000Z",
       "last_checked_at": "2026-07-24T12:46:41.000Z",
       "last_updated_at": "2026-07-19T00:47:18.000Z",
-      "companySlug": "opentrade",
-      "attachedCompanyId": "company-opentrade",
+      "companySlug": "moonshot-computer",
+      "attachedCompanyId": "company-moonshot-computer",
       "thumbnailUrl": "/evidence-thumbnails/x/source-hunt-3d58a4b0acd228e97f68.svg",
       "thumbnailSource": "fxtwitter-text-preview",
       "mediaUrl": "/evidence-thumbnails/x/source-hunt-3d58a4b0acd228e97f68.svg",
+      "previousAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-opentrade-ojas-kandhare-2384611",
+        "companySlug": "opentrade",
+        "companyName": "OpenTrade"
+      },
+      "attributionReconciliationReason": "canonical_targeted_legacy_entity_alias",
       "batchSlug": "S26"
     },
     {
@@ -69254,55 +69032,6 @@
       "batchSlug": "S2026"
     },
     {
-      "companyName": "Osmaura",
-      "companyId": "company-osmaura",
-      "entityType": "founder",
-      "entityId": "founder-osmaura-kali-abeje-2718831",
-      "entityName": "Kali Abeje",
-      "accountUrl": "https://x.com/abe_yebe",
-      "handle": "abe_yebe",
-      "platform": "x",
-      "sourceUrl": "https://x.com/abe_yebe/status/2074554728722448579",
-      "platformPostId": "2074554728722448579",
-      "postedAt": "2026-07-07T18:02:45.000Z",
-      "title": "To make people something want you have to optimize for speed to contact with reality + learning. There is actually so much nuance you can...",
-      "text": "To make people something want you have to optimize for speed to contact with reality + learning. There is actually so much nuance you can’t even begin to get to know if you don’t allow ideas to get stress tested.",
-      "authorName": "Yeabkal",
-      "authorHandle": "abe_yebe",
-      "metrics": {
-        "views": 173,
-        "likes": 5,
-        "replies": 2,
-        "reposts": 0,
-        "quotes": 0,
-        "bookmarks": 0
-      },
-      "mediaType": "text",
-      "rawVisibleText": "{\"source\":\"fxtwitter_native_profile_timeline\",\"profile\":{\"name\":\"Yeabkal\",\"username\":\"abe_yebe\",\"url\":\"https://x.com/abe_yebe\"},\"post\":{\"id\":\"2074554728722448579\",\"authorName\":\"Yeabkal\",\"authorHandle\":\"abe_yebe\",\"text\":\"To make people something want you have to optimize for speed to contact with reality + learning. There is actually so much nuance you can’t even begin to get to know if you don’t allow ideas to get stress tested.\",\"replyingTo\":null},\"counts\":{\"views\":173,\"likes\":5,\"replies\":2,\"reposts\":0,\"quotes\":0,\"bookmarks\":0}}",
-      "matchReason": "The canonical roster X account @abe_yebe is the native author, the profile timeline exposes this exact status ID, and the status has positive visible metrics.",
-      "review_state": "verified",
-      "nativeTimelineUrl": "https://api.fxtwitter.com/2/profile/abe_yebe/statuses?count=100&since=1782864000&until=1784678400",
-      "verification": {
-        "nativeAuthorHandle": "abe_yebe",
-        "canonicalOwnerCount": 1,
-        "nativeAuthorVerified": true,
-        "notRepost": true,
-        "positiveVisibleMetrics": true,
-        "dedupeStatus": "net_new"
-      },
-      "id": "source-hunt-48ca9b39b17f6d2672eb",
-      "contributionScore": 1,
-      "first_seen_at": "2026-07-24T12:46:41.000Z",
-      "last_checked_at": "2026-07-24T12:46:41.000Z",
-      "last_updated_at": "2026-07-07T18:02:45.000Z",
-      "companySlug": "osmaura",
-      "attachedCompanyId": "company-osmaura",
-      "thumbnailUrl": "/evidence-thumbnails/x/source-hunt-48ca9b39b17f6d2672eb.svg",
-      "thumbnailSource": "fxtwitter-text-preview",
-      "mediaUrl": "/evidence-thumbnails/x/source-hunt-48ca9b39b17f6d2672eb.svg",
-      "batchSlug": "S26"
-    },
-    {
       "companyName": "OneTriangle",
       "companyId": "company-trustai",
       "entityType": "founder",
@@ -69801,10 +69530,10 @@
       "batchSlug": "S2026"
     },
     {
-      "companyName": "OpenTrade",
+      "companyName": "Moonshot",
       "companyId": "company-opentrade",
       "entityType": "founder",
-      "entityId": "founder-opentrade-ojas-kandhare-2384611",
+      "entityId": "founder-moonshot-computer-ojas-kandhare-2384611",
       "entityName": "Ojas Kandhare",
       "accountUrl": "https://x.com/ojaskandy",
       "handle": "ojaskandy",
@@ -69842,11 +69571,19 @@
       "first_seen_at": "2026-07-24T12:46:41.000Z",
       "last_checked_at": "2026-07-24T12:46:41.000Z",
       "last_updated_at": "2026-07-20T21:52:32.000Z",
-      "companySlug": "opentrade",
-      "attachedCompanyId": "company-opentrade",
+      "companySlug": "moonshot-computer",
+      "attachedCompanyId": "company-moonshot-computer",
       "thumbnailUrl": "/evidence-thumbnails/x/source-hunt-4d8bebc7bd8ea2387160.svg",
       "thumbnailSource": "fxtwitter-text-preview",
       "mediaUrl": "/evidence-thumbnails/x/source-hunt-4d8bebc7bd8ea2387160.svg",
+      "previousAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-opentrade-ojas-kandhare-2384611",
+        "companySlug": "opentrade",
+        "companyName": "OpenTrade"
+      },
+      "attributionReconciliationReason": "canonical_targeted_legacy_entity_alias",
       "batchSlug": "S26"
     },
     {
@@ -70242,10 +69979,10 @@
       "batchSlug": "S2026"
     },
     {
-      "companyName": "OpenTrade",
+      "companyName": "Moonshot",
       "companyId": "company-opentrade",
       "entityType": "founder",
-      "entityId": "founder-opentrade-ojas-kandhare-2384611",
+      "entityId": "founder-moonshot-computer-ojas-kandhare-2384611",
       "entityName": "Ojas Kandhare",
       "accountUrl": "https://x.com/ojaskandy",
       "handle": "ojaskandy",
@@ -70283,11 +70020,19 @@
       "first_seen_at": "2026-07-24T12:46:41.000Z",
       "last_checked_at": "2026-07-24T12:46:41.000Z",
       "last_updated_at": "2026-07-16T21:45:39.000Z",
-      "companySlug": "opentrade",
-      "attachedCompanyId": "company-opentrade",
+      "companySlug": "moonshot-computer",
+      "attachedCompanyId": "company-moonshot-computer",
       "thumbnailUrl": "https://pbs.twimg.com/media/HNYV0CYa0AANVvN.png?name=orig",
       "thumbnailSource": "fxtwitter-direct-media",
       "mediaUrl": "/evidence-thumbnails/x/source-hunt-5038ffe22ab9c6ef0f0f.png",
+      "previousAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-opentrade-ojas-kandhare-2384611",
+        "companySlug": "opentrade",
+        "companyName": "OpenTrade"
+      },
+      "attributionReconciliationReason": "canonical_targeted_legacy_entity_alias",
       "batchSlug": "S26"
     },
     {
@@ -70435,55 +70180,6 @@
       "thumbnailUrl": "https://pbs.twimg.com/media/HM5XbA6a4AA9qjb.jpg?name=orig",
       "thumbnailSource": "fxtwitter-direct-media",
       "mediaUrl": "/evidence-thumbnails/x/source-hunt-5172d0ce986ba8201867.jpg",
-      "batchSlug": "S26"
-    },
-    {
-      "companyName": "Osmaura",
-      "companyId": "company-osmaura",
-      "entityType": "founder",
-      "entityId": "founder-osmaura-kali-abeje-2718831",
-      "entityName": "Kali Abeje",
-      "accountUrl": "https://x.com/abe_yebe",
-      "handle": "abe_yebe",
-      "platform": "x",
-      "sourceUrl": "https://x.com/abe_yebe/status/2078678684156973126",
-      "platformPostId": "2078678684156973126",
-      "postedAt": "2026-07-19T03:09:52.000Z",
-      "title": "Found the post I was referencing :)",
-      "text": "Found the post I was referencing :)",
-      "authorName": "Yeabkal",
-      "authorHandle": "abe_yebe",
-      "metrics": {
-        "views": 1566,
-        "likes": 3,
-        "replies": 0,
-        "reposts": 0,
-        "quotes": 0,
-        "bookmarks": 1
-      },
-      "mediaType": "text",
-      "rawVisibleText": "{\"source\":\"fxtwitter_native_profile_timeline\",\"profile\":{\"name\":\"Yeabkal\",\"username\":\"abe_yebe\",\"url\":\"https://x.com/abe_yebe\"},\"post\":{\"id\":\"2078678684156973126\",\"authorName\":\"Yeabkal\",\"authorHandle\":\"abe_yebe\",\"text\":\"Found the post I was referencing :)\",\"replyingTo\":null},\"counts\":{\"views\":1566,\"likes\":3,\"replies\":0,\"reposts\":0,\"quotes\":0,\"bookmarks\":1}}",
-      "matchReason": "The canonical roster X account @abe_yebe is the native author, the profile timeline exposes this exact status ID, and the status has positive visible metrics.",
-      "review_state": "verified",
-      "nativeTimelineUrl": "https://api.fxtwitter.com/2/profile/abe_yebe/statuses?count=100&since=1782864000&until=1784678400",
-      "verification": {
-        "nativeAuthorHandle": "abe_yebe",
-        "canonicalOwnerCount": 1,
-        "nativeAuthorVerified": true,
-        "notRepost": true,
-        "positiveVisibleMetrics": true,
-        "dedupeStatus": "net_new"
-      },
-      "id": "source-hunt-529f9425e28e26b4b349",
-      "contributionScore": 1,
-      "first_seen_at": "2026-07-24T12:46:41.000Z",
-      "last_checked_at": "2026-07-24T12:46:41.000Z",
-      "last_updated_at": "2026-07-19T03:09:52.000Z",
-      "companySlug": "osmaura",
-      "attachedCompanyId": "company-osmaura",
-      "thumbnailUrl": "/evidence-thumbnails/x/source-hunt-529f9425e28e26b4b349.svg",
-      "thumbnailSource": "fxtwitter-text-preview",
-      "mediaUrl": "/evidence-thumbnails/x/source-hunt-529f9425e28e26b4b349.svg",
       "batchSlug": "S26"
     },
     {
@@ -71671,55 +71367,6 @@
       "batchSlug": "S2026"
     },
     {
-      "companyName": "Osmaura",
-      "companyId": "company-osmaura",
-      "entityType": "founder",
-      "entityId": "founder-osmaura-kali-abeje-2718831",
-      "entityName": "Kali Abeje",
-      "accountUrl": "https://x.com/abe_yebe",
-      "handle": "abe_yebe",
-      "platform": "x",
-      "sourceUrl": "https://x.com/abe_yebe/status/2078289982721003559",
-      "platformPostId": "2078289982721003559",
-      "postedAt": "2026-07-18T01:25:19.000Z",
-      "title": "Ran into a friend from high school at the airport. We only knew each other in passing but it was really exciting to catch up and see what...",
-      "text": "Ran into a friend from high school at the airport. We only knew each other in passing but it was really exciting to catch up and see what they were up to. Doing things you find cool really does keep you connected to other cool people. Bring the energy you want to see frfr",
-      "authorName": "Yeabkal",
-      "authorHandle": "abe_yebe",
-      "metrics": {
-        "views": 204,
-        "likes": 4,
-        "replies": 1,
-        "reposts": 0,
-        "quotes": 0,
-        "bookmarks": 0
-      },
-      "mediaType": "text",
-      "rawVisibleText": "{\"source\":\"fxtwitter_native_profile_timeline\",\"profile\":{\"name\":\"Yeabkal\",\"username\":\"abe_yebe\",\"url\":\"https://x.com/abe_yebe\"},\"post\":{\"id\":\"2078289982721003559\",\"authorName\":\"Yeabkal\",\"authorHandle\":\"abe_yebe\",\"text\":\"Ran into a friend from high school at the airport. We only knew each other in passing but it was really exciting to catch up and see what they were up to. Doing things you find cool really does keep you connected to other cool people. Bring the energy you want to see frfr\",\"replyingTo\":null},\"counts\":{\"views\":204,\"likes\":4,\"replies\":1,\"reposts\":0,\"quotes\":0,\"bookmarks\":0}}",
-      "matchReason": "The canonical roster X account @abe_yebe is the native author, the profile timeline exposes this exact status ID, and the status has positive visible metrics.",
-      "review_state": "verified",
-      "nativeTimelineUrl": "https://api.fxtwitter.com/2/profile/abe_yebe/statuses?count=100&since=1782864000&until=1784678400",
-      "verification": {
-        "nativeAuthorHandle": "abe_yebe",
-        "canonicalOwnerCount": 1,
-        "nativeAuthorVerified": true,
-        "notRepost": true,
-        "positiveVisibleMetrics": true,
-        "dedupeStatus": "net_new"
-      },
-      "id": "source-hunt-61f0703f1e78a528d71a",
-      "contributionScore": 1,
-      "first_seen_at": "2026-07-24T12:46:41.000Z",
-      "last_checked_at": "2026-07-24T12:46:41.000Z",
-      "last_updated_at": "2026-07-18T01:25:19.000Z",
-      "companySlug": "osmaura",
-      "attachedCompanyId": "company-osmaura",
-      "thumbnailUrl": "/evidence-thumbnails/x/source-hunt-61f0703f1e78a528d71a.svg",
-      "thumbnailSource": "fxtwitter-text-preview",
-      "mediaUrl": "/evidence-thumbnails/x/source-hunt-61f0703f1e78a528d71a.svg",
-      "batchSlug": "S26"
-    },
-    {
       "companyName": "Pluto",
       "companyId": "company-talentpluto",
       "entityType": "founder",
@@ -72504,10 +72151,10 @@
       "batchSlug": "S26"
     },
     {
-      "companyName": "OpenTrade",
+      "companyName": "Moonshot",
       "companyId": "company-opentrade",
       "entityType": "founder",
-      "entityId": "founder-opentrade-ojas-kandhare-2384611",
+      "entityId": "founder-moonshot-computer-ojas-kandhare-2384611",
       "entityName": "Ojas Kandhare",
       "accountUrl": "https://x.com/ojaskandy",
       "handle": "ojaskandy",
@@ -72545,11 +72192,19 @@
       "first_seen_at": "2026-07-24T12:46:41.000Z",
       "last_checked_at": "2026-07-24T12:46:41.000Z",
       "last_updated_at": "2026-07-21T03:33:07.000Z",
-      "companySlug": "opentrade",
-      "attachedCompanyId": "company-opentrade",
+      "companySlug": "moonshot-computer",
+      "attachedCompanyId": "company-moonshot-computer",
       "thumbnailUrl": "/evidence-thumbnails/x/source-hunt-6d2b779dc5432a8e4d9b.svg",
       "thumbnailSource": "fxtwitter-text-preview",
       "mediaUrl": "/evidence-thumbnails/x/source-hunt-6d2b779dc5432a8e4d9b.svg",
+      "previousAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-opentrade-ojas-kandhare-2384611",
+        "companySlug": "opentrade",
+        "companyName": "OpenTrade"
+      },
+      "attributionReconciliationReason": "canonical_targeted_legacy_entity_alias",
       "batchSlug": "S26"
     },
     {
@@ -72698,55 +72353,6 @@
       "thumbnailSource": "fxtwitter-direct-media",
       "mediaUrl": "/evidence-thumbnails/x/source-hunt-6e854ef00bdf7b86b5d1.jpg",
       "batchSlug": "S2026"
-    },
-    {
-      "companyName": "Osmaura",
-      "companyId": "company-osmaura",
-      "entityType": "founder",
-      "entityId": "founder-osmaura-jity-woldemichael-1366260",
-      "entityName": "Jity Woldemichael",
-      "accountUrl": "https://x.com/rookunderfire",
-      "handle": "rookunderfire",
-      "platform": "x",
-      "sourceUrl": "https://x.com/rookunderfire/status/2072133161451147376",
-      "platformPostId": "2072133161451147376",
-      "postedAt": "2026-07-01T01:40:18.000Z",
-      "title": "We're starting with the commercial litigation & disputes and rapidly expanding into more practice groups.",
-      "text": "We're starting with the commercial litigation & disputes and rapidly expanding into more practice groups.",
-      "authorName": "Jity Woldemichael",
-      "authorHandle": "rookunderfire",
-      "metrics": {
-        "views": 220,
-        "likes": 2,
-        "replies": 1,
-        "reposts": 0,
-        "quotes": 0,
-        "bookmarks": 0
-      },
-      "mediaType": "text",
-      "rawVisibleText": "{\"source\":\"fxtwitter_native_profile_timeline\",\"profile\":{\"name\":\"Jity Woldemichael\",\"username\":\"rookunderfire\",\"url\":\"https://x.com/rookunderfire\"},\"post\":{\"id\":\"2072133161451147376\",\"authorName\":\"Jity Woldemichael\",\"authorHandle\":\"rookunderfire\",\"text\":\"We're starting with the commercial litigation & disputes and rapidly expanding into more practice groups.\",\"replyingTo\":{\"screen_name\":\"rookunderfire\",\"status\":\"2072133160285143166\",\"url\":\"https://x.com/rookunderfire/status/2072133160285143166\",\"profile_url\":\"https://x.com/rookunderfire\"}},\"counts\":{\"views\":220,\"likes\":2,\"replies\":1,\"reposts\":0,\"quotes\":0,\"bookmarks\":0}}",
-      "matchReason": "The canonical roster X account @rookunderfire is the native author, the profile timeline exposes this exact status ID, and the status has positive visible metrics.",
-      "review_state": "verified",
-      "nativeTimelineUrl": "https://api.fxtwitter.com/2/profile/rookunderfire/statuses?count=100&since=1782864000&until=1784678400",
-      "verification": {
-        "nativeAuthorHandle": "rookunderfire",
-        "canonicalOwnerCount": 1,
-        "nativeAuthorVerified": true,
-        "notRepost": true,
-        "positiveVisibleMetrics": true,
-        "dedupeStatus": "net_new"
-      },
-      "id": "source-hunt-6ee2b44d5e6c5f541273",
-      "contributionScore": 1,
-      "first_seen_at": "2026-07-24T12:46:41.000Z",
-      "last_checked_at": "2026-07-24T12:46:41.000Z",
-      "last_updated_at": "2026-07-01T01:40:18.000Z",
-      "companySlug": "osmaura",
-      "attachedCompanyId": "company-osmaura",
-      "thumbnailUrl": "/evidence-thumbnails/x/source-hunt-6ee2b44d5e6c5f541273.svg",
-      "thumbnailSource": "fxtwitter-text-preview",
-      "mediaUrl": "/evidence-thumbnails/x/source-hunt-6ee2b44d5e6c5f541273.svg",
-      "batchSlug": "S26"
     },
     {
       "companyName": "Userlens",
@@ -73051,10 +72657,10 @@
       "batchSlug": "S26"
     },
     {
-      "companyName": "OpenTrade",
+      "companyName": "Moonshot",
       "companyId": "company-opentrade",
       "entityType": "founder",
-      "entityId": "founder-opentrade-ojas-kandhare-2384611",
+      "entityId": "founder-moonshot-computer-ojas-kandhare-2384611",
       "entityName": "Ojas Kandhare",
       "accountUrl": "https://x.com/ojaskandy",
       "handle": "ojaskandy",
@@ -73092,11 +72698,19 @@
       "first_seen_at": "2026-07-24T12:46:41.000Z",
       "last_checked_at": "2026-07-24T12:46:41.000Z",
       "last_updated_at": "2026-07-15T22:17:57.000Z",
-      "companySlug": "opentrade",
-      "attachedCompanyId": "company-opentrade",
+      "companySlug": "moonshot-computer",
+      "attachedCompanyId": "company-moonshot-computer",
       "thumbnailUrl": "https://pbs.twimg.com/media/HNTTdCvaUAAvwiY.png?name=orig",
       "thumbnailSource": "fxtwitter-direct-media",
       "mediaUrl": "/evidence-thumbnails/x/source-hunt-72dcbb5285835380435a.png",
+      "previousAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-opentrade-ojas-kandhare-2384611",
+        "companySlug": "opentrade",
+        "companyName": "OpenTrade"
+      },
+      "attributionReconciliationReason": "canonical_targeted_legacy_entity_alias",
       "batchSlug": "S26"
     },
     {
@@ -73149,10 +72763,10 @@
       "batchSlug": "S2026"
     },
     {
-      "companyName": "OpenTrade",
+      "companyName": "Moonshot",
       "companyId": "company-opentrade",
       "entityType": "founder",
-      "entityId": "founder-opentrade-ojas-kandhare-2384611",
+      "entityId": "founder-moonshot-computer-ojas-kandhare-2384611",
       "entityName": "Ojas Kandhare",
       "accountUrl": "https://x.com/ojaskandy",
       "handle": "ojaskandy",
@@ -73190,11 +72804,19 @@
       "first_seen_at": "2026-07-24T12:46:41.000Z",
       "last_checked_at": "2026-07-24T12:46:41.000Z",
       "last_updated_at": "2026-07-19T04:06:44.000Z",
-      "companySlug": "opentrade",
-      "attachedCompanyId": "company-opentrade",
+      "companySlug": "moonshot-computer",
+      "attachedCompanyId": "company-moonshot-computer",
       "thumbnailUrl": "/evidence-thumbnails/x/source-hunt-74d2698213ff17bde651.svg",
       "thumbnailSource": "fxtwitter-text-preview",
       "mediaUrl": "/evidence-thumbnails/x/source-hunt-74d2698213ff17bde651.svg",
+      "previousAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-opentrade-ojas-kandhare-2384611",
+        "companySlug": "opentrade",
+        "companyName": "OpenTrade"
+      },
+      "attributionReconciliationReason": "canonical_targeted_legacy_entity_alias",
       "batchSlug": "S26"
     },
     {
@@ -73884,10 +73506,10 @@
       "batchSlug": "S2026"
     },
     {
-      "companyName": "OpenTrade",
+      "companyName": "Moonshot",
       "companyId": "company-opentrade",
       "entityType": "founder",
-      "entityId": "founder-opentrade-ojas-kandhare-2384611",
+      "entityId": "founder-moonshot-computer-ojas-kandhare-2384611",
       "entityName": "Ojas Kandhare",
       "accountUrl": "https://x.com/ojaskandy",
       "handle": "ojaskandy",
@@ -73925,11 +73547,19 @@
       "first_seen_at": "2026-07-24T12:46:41.000Z",
       "last_checked_at": "2026-07-24T12:46:41.000Z",
       "last_updated_at": "2026-07-13T06:28:54.000Z",
-      "companySlug": "opentrade",
-      "attachedCompanyId": "company-opentrade",
+      "companySlug": "moonshot-computer",
+      "attachedCompanyId": "company-moonshot-computer",
       "thumbnailUrl": "/evidence-thumbnails/x/source-hunt-7f08b176f642c55b2940.svg",
       "thumbnailSource": "fxtwitter-text-preview",
       "mediaUrl": "/evidence-thumbnails/x/source-hunt-7f08b176f642c55b2940.svg",
+      "previousAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-opentrade-ojas-kandhare-2384611",
+        "companySlug": "opentrade",
+        "companyName": "OpenTrade"
+      },
+      "attributionReconciliationReason": "canonical_targeted_legacy_entity_alias",
       "batchSlug": "S26"
     },
     {
@@ -76628,10 +76258,10 @@
       "batchSlug": "S2026"
     },
     {
-      "companyName": "OpenTrade",
+      "companyName": "Moonshot",
       "companyId": "company-opentrade",
       "entityType": "founder",
-      "entityId": "founder-opentrade-ojas-kandhare-2384611",
+      "entityId": "founder-moonshot-computer-ojas-kandhare-2384611",
       "entityName": "Ojas Kandhare",
       "accountUrl": "https://x.com/ojaskandy",
       "handle": "ojaskandy",
@@ -76669,11 +76299,19 @@
       "first_seen_at": "2026-07-24T12:46:41.000Z",
       "last_checked_at": "2026-07-24T12:46:41.000Z",
       "last_updated_at": "2026-07-20T09:12:17.000Z",
-      "companySlug": "opentrade",
-      "attachedCompanyId": "company-opentrade",
+      "companySlug": "moonshot-computer",
+      "attachedCompanyId": "company-moonshot-computer",
       "thumbnailUrl": "https://pbs.twimg.com/media/HNqPxuDbAAA8Y3s.jpg?name=orig",
       "thumbnailSource": "fxtwitter-direct-media",
       "mediaUrl": "/evidence-thumbnails/x/source-hunt-96f6ee145d2ab213cb7c.jpg",
+      "previousAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-opentrade-ojas-kandhare-2384611",
+        "companySlug": "opentrade",
+        "companyName": "OpenTrade"
+      },
+      "attributionReconciliationReason": "canonical_targeted_legacy_entity_alias",
       "batchSlug": "S26"
     },
     {
@@ -78539,55 +78177,6 @@
       "batchSlug": "S2026"
     },
     {
-      "companyName": "Osmaura",
-      "companyId": "company-osmaura",
-      "entityType": "founder",
-      "entityId": "founder-osmaura-kali-abeje-2718831",
-      "entityName": "Kali Abeje",
-      "accountUrl": "https://x.com/abe_yebe",
-      "handle": "abe_yebe",
-      "platform": "x",
-      "sourceUrl": "https://x.com/abe_yebe/status/2076570362624848007",
-      "platformPostId": "2076570362624848007",
-      "postedAt": "2026-07-13T07:32:09.000Z",
-      "title": "My favorite part about iteration is how it can sometimes reframe your entire world model. And you realize the puzzle pieces you were unco...",
-      "text": "My favorite part about iteration is how it can sometimes reframe your entire world model. And you realize the puzzle pieces you were uncomfortably holding in your hand actually have a place",
-      "authorName": "Yeabkal",
-      "authorHandle": "abe_yebe",
-      "metrics": {
-        "views": 519,
-        "likes": 5,
-        "replies": 4,
-        "reposts": 0,
-        "quotes": 0,
-        "bookmarks": 1
-      },
-      "mediaType": "text",
-      "rawVisibleText": "{\"source\":\"fxtwitter_native_profile_timeline\",\"profile\":{\"name\":\"Yeabkal\",\"username\":\"abe_yebe\",\"url\":\"https://x.com/abe_yebe\"},\"post\":{\"id\":\"2076570362624848007\",\"authorName\":\"Yeabkal\",\"authorHandle\":\"abe_yebe\",\"text\":\"My favorite part about iteration is how it can sometimes reframe your entire world model. And you realize the puzzle pieces you were uncomfortably holding in your hand actually have a place\",\"replyingTo\":null},\"counts\":{\"views\":519,\"likes\":5,\"replies\":4,\"reposts\":0,\"quotes\":0,\"bookmarks\":1}}",
-      "matchReason": "The canonical roster X account @abe_yebe is the native author, the profile timeline exposes this exact status ID, and the status has positive visible metrics.",
-      "review_state": "verified",
-      "nativeTimelineUrl": "https://api.fxtwitter.com/2/profile/abe_yebe/statuses?count=100&since=1782864000&until=1784678400",
-      "verification": {
-        "nativeAuthorHandle": "abe_yebe",
-        "canonicalOwnerCount": 1,
-        "nativeAuthorVerified": true,
-        "notRepost": true,
-        "positiveVisibleMetrics": true,
-        "dedupeStatus": "net_new"
-      },
-      "id": "source-hunt-a756785c7c7d3eb4eaf8",
-      "contributionScore": 1,
-      "first_seen_at": "2026-07-24T12:46:41.000Z",
-      "last_checked_at": "2026-07-24T12:46:41.000Z",
-      "last_updated_at": "2026-07-13T07:32:09.000Z",
-      "companySlug": "osmaura",
-      "attachedCompanyId": "company-osmaura",
-      "thumbnailUrl": "/evidence-thumbnails/x/source-hunt-a756785c7c7d3eb4eaf8.svg",
-      "thumbnailSource": "fxtwitter-text-preview",
-      "mediaUrl": "/evidence-thumbnails/x/source-hunt-a756785c7c7d3eb4eaf8.svg",
-      "batchSlug": "S26"
-    },
-    {
       "companyName": "Userlens",
       "companyId": "company-userlens",
       "entityType": "founder",
@@ -79078,55 +78667,6 @@
       "batchSlug": "S2026"
     },
     {
-      "companyName": "Osmaura",
-      "companyId": "company-osmaura",
-      "entityType": "founder",
-      "entityId": "founder-osmaura-kali-abeje-2718831",
-      "entityName": "Kali Abeje",
-      "accountUrl": "https://x.com/abe_yebe",
-      "handle": "abe_yebe",
-      "platform": "x",
-      "sourceUrl": "https://x.com/abe_yebe/status/2076570570230243389",
-      "platformPostId": "2076570570230243389",
-      "postedAt": "2026-07-13T07:32:59.000Z",
-      "title": "Other times u just feel like shit. But hey ig it takes two to tango",
-      "text": "Other times u just feel like shit. But hey ig it takes two to tango",
-      "authorName": "Yeabkal",
-      "authorHandle": "abe_yebe",
-      "metrics": {
-        "views": 62,
-        "likes": 3,
-        "replies": 1,
-        "reposts": 0,
-        "quotes": 0,
-        "bookmarks": 0
-      },
-      "mediaType": "text",
-      "rawVisibleText": "{\"source\":\"fxtwitter_native_profile_timeline\",\"profile\":{\"name\":\"Yeabkal\",\"username\":\"abe_yebe\",\"url\":\"https://x.com/abe_yebe\"},\"post\":{\"id\":\"2076570570230243389\",\"authorName\":\"Yeabkal\",\"authorHandle\":\"abe_yebe\",\"text\":\"Other times u just feel like shit. But hey ig it takes two to tango\",\"replyingTo\":{\"screen_name\":\"abe_yebe\",\"status\":\"2076570362624848007\",\"url\":\"https://x.com/abe_yebe/status/2076570362624848007\",\"profile_url\":\"https://x.com/abe_yebe\"}},\"counts\":{\"views\":62,\"likes\":3,\"replies\":1,\"reposts\":0,\"quotes\":0,\"bookmarks\":0}}",
-      "matchReason": "The canonical roster X account @abe_yebe is the native author, the profile timeline exposes this exact status ID, and the status has positive visible metrics.",
-      "review_state": "verified",
-      "nativeTimelineUrl": "https://api.fxtwitter.com/2/profile/abe_yebe/statuses?count=100&since=1782864000&until=1784678400",
-      "verification": {
-        "nativeAuthorHandle": "abe_yebe",
-        "canonicalOwnerCount": 1,
-        "nativeAuthorVerified": true,
-        "notRepost": true,
-        "positiveVisibleMetrics": true,
-        "dedupeStatus": "net_new"
-      },
-      "id": "source-hunt-ac729390dcb40463c061",
-      "contributionScore": 1,
-      "first_seen_at": "2026-07-24T12:46:41.000Z",
-      "last_checked_at": "2026-07-24T12:46:41.000Z",
-      "last_updated_at": "2026-07-13T07:32:59.000Z",
-      "companySlug": "osmaura",
-      "attachedCompanyId": "company-osmaura",
-      "thumbnailUrl": "/evidence-thumbnails/x/source-hunt-ac729390dcb40463c061.svg",
-      "thumbnailSource": "fxtwitter-text-preview",
-      "mediaUrl": "/evidence-thumbnails/x/source-hunt-ac729390dcb40463c061.svg",
-      "batchSlug": "S26"
-    },
-    {
       "companyName": "Conifer",
       "companyId": "company-conifer",
       "entityType": "founder",
@@ -79173,55 +78713,6 @@
       "thumbnailUrl": "https://pbs.twimg.com/media/HNjtdJJaIAEY3VI.jpg?name=orig",
       "thumbnailSource": "fxtwitter-direct-media",
       "mediaUrl": "/evidence-thumbnails/x/source-hunt-ac9adeeb99f60e8ba381.jpg",
-      "batchSlug": "S26"
-    },
-    {
-      "companyName": "Osmaura",
-      "companyId": "company-osmaura",
-      "entityType": "founder",
-      "entityId": "founder-osmaura-kali-abeje-2718831",
-      "entityName": "Kali Abeje",
-      "accountUrl": "https://x.com/abe_yebe",
-      "handle": "abe_yebe",
-      "platform": "x",
-      "sourceUrl": "https://x.com/abe_yebe/status/2078678413943226640",
-      "platformPostId": "2078678413943226640",
-      "postedAt": "2026-07-19T03:08:48.000Z",
-      "title": "But it really made me think about how even for the things that impacts people every day (okay I love public policy so I may be biased) it...",
-      "text": "But it really made me think about how even for the things that impacts people every day (okay I love public policy so I may be biased) it’s actually really hard for everyday people to get a granular understanding of the problems that impact them. Like genuinely. But if that kind of robust scientific exploration is embedded in the systems people use day to day imagine the amount of bottlenecks people could more effectively remove for themselves.",
-      "authorName": "Yeabkal",
-      "authorHandle": "abe_yebe",
-      "metrics": {
-        "views": 24,
-        "likes": 0,
-        "replies": 0,
-        "reposts": 0,
-        "quotes": 0,
-        "bookmarks": 0
-      },
-      "mediaType": "text",
-      "rawVisibleText": "{\"source\":\"fxtwitter_native_profile_timeline\",\"profile\":{\"name\":\"Yeabkal\",\"username\":\"abe_yebe\",\"url\":\"https://x.com/abe_yebe\"},\"post\":{\"id\":\"2078678413943226640\",\"authorName\":\"Yeabkal\",\"authorHandle\":\"abe_yebe\",\"text\":\"But it really made me think about how even for the things that impacts people every day (okay I love public policy so I may be biased) it’s actually really hard for everyday people to get a granular understanding of the problems that impact them. Like genuinely. But if that kind of robust scientific exploration is embedded in the systems people use day to day imagine the amount of bottlenecks people could more effectively remove for themselves.\",\"replyingTo\":{\"screen_name\":\"abe_yebe\",\"status\":\"2078677163017130085\",\"url\":\"https://x.com/abe_yebe/status/2078677163017130085\",\"profile_url\":\"https://x.com/abe_yebe\"}},\"counts\":{\"views\":24,\"likes\":0,\"replies\":0,\"reposts\":0,\"quotes\":0,\"bookmarks\":0}}",
-      "matchReason": "The canonical roster X account @abe_yebe is the native author, the profile timeline exposes this exact status ID, and the status has positive visible metrics.",
-      "review_state": "verified",
-      "nativeTimelineUrl": "https://api.fxtwitter.com/2/profile/abe_yebe/statuses?count=100&since=1782864000&until=1784678400",
-      "verification": {
-        "nativeAuthorHandle": "abe_yebe",
-        "canonicalOwnerCount": 1,
-        "nativeAuthorVerified": true,
-        "notRepost": true,
-        "positiveVisibleMetrics": true,
-        "dedupeStatus": "net_new"
-      },
-      "id": "source-hunt-acbdd2cd268b1c9ed23e",
-      "contributionScore": 1,
-      "first_seen_at": "2026-07-24T12:46:41.000Z",
-      "last_checked_at": "2026-07-24T12:46:41.000Z",
-      "last_updated_at": "2026-07-19T03:08:48.000Z",
-      "companySlug": "osmaura",
-      "attachedCompanyId": "company-osmaura",
-      "thumbnailUrl": "/evidence-thumbnails/x/source-hunt-acbdd2cd268b1c9ed23e.svg",
-      "thumbnailSource": "fxtwitter-text-preview",
-      "mediaUrl": "/evidence-thumbnails/x/source-hunt-acbdd2cd268b1c9ed23e.svg",
       "batchSlug": "S26"
     },
     {
@@ -79666,55 +79157,6 @@
       "batchSlug": "S2026"
     },
     {
-      "companyName": "Osmaura",
-      "companyId": "company-osmaura",
-      "entityType": "founder",
-      "entityId": "founder-osmaura-jity-woldemichael-1366260",
-      "entityName": "Jity Woldemichael",
-      "accountUrl": "https://x.com/rookunderfire",
-      "handle": "rookunderfire",
-      "platform": "x",
-      "sourceUrl": "https://x.com/rookunderfire/status/2072133165607780552",
-      "platformPostId": "2072133165607780552",
-      "postedAt": "2026-07-01T01:40:19.000Z",
-      "title": "Reach out to founders@osmaura.com to learn more!",
-      "text": "Reach out to founders@osmaura.com to learn more!",
-      "authorName": "Jity Woldemichael",
-      "authorHandle": "rookunderfire",
-      "metrics": {
-        "views": 364,
-        "likes": 5,
-        "replies": 0,
-        "reposts": 0,
-        "quotes": 0,
-        "bookmarks": 1
-      },
-      "mediaType": "text",
-      "rawVisibleText": "{\"source\":\"fxtwitter_native_profile_timeline\",\"profile\":{\"name\":\"Jity Woldemichael\",\"username\":\"rookunderfire\",\"url\":\"https://x.com/rookunderfire\"},\"post\":{\"id\":\"2072133165607780552\",\"authorName\":\"Jity Woldemichael\",\"authorHandle\":\"rookunderfire\",\"text\":\"Reach out to founders@osmaura.com to learn more!\",\"replyingTo\":{\"screen_name\":\"rookunderfire\",\"status\":\"2072133164429119748\",\"url\":\"https://x.com/rookunderfire/status/2072133164429119748\",\"profile_url\":\"https://x.com/rookunderfire\"}},\"counts\":{\"views\":364,\"likes\":5,\"replies\":0,\"reposts\":0,\"quotes\":0,\"bookmarks\":1}}",
-      "matchReason": "The canonical roster X account @rookunderfire is the native author, the profile timeline exposes this exact status ID, and the status has positive visible metrics.",
-      "review_state": "verified",
-      "nativeTimelineUrl": "https://api.fxtwitter.com/2/profile/rookunderfire/statuses?count=100&since=1782864000&until=1784678400",
-      "verification": {
-        "nativeAuthorHandle": "rookunderfire",
-        "canonicalOwnerCount": 1,
-        "nativeAuthorVerified": true,
-        "notRepost": true,
-        "positiveVisibleMetrics": true,
-        "dedupeStatus": "net_new"
-      },
-      "id": "source-hunt-b44a9fff5dc85422bf70",
-      "contributionScore": 1,
-      "first_seen_at": "2026-07-24T12:46:41.000Z",
-      "last_checked_at": "2026-07-24T12:46:41.000Z",
-      "last_updated_at": "2026-07-01T01:40:19.000Z",
-      "companySlug": "osmaura",
-      "attachedCompanyId": "company-osmaura",
-      "thumbnailUrl": "/evidence-thumbnails/x/source-hunt-b44a9fff5dc85422bf70.svg",
-      "thumbnailSource": "fxtwitter-text-preview",
-      "mediaUrl": "/evidence-thumbnails/x/source-hunt-b44a9fff5dc85422bf70.svg",
-      "batchSlug": "S26"
-    },
-    {
       "companyName": "Taiga",
       "companyId": "company-taiga",
       "entityType": "company",
@@ -79960,10 +79402,10 @@
       "batchSlug": "S2026"
     },
     {
-      "companyName": "OpenTrade",
+      "companyName": "Moonshot",
       "companyId": "company-opentrade",
       "entityType": "founder",
-      "entityId": "founder-opentrade-ojas-kandhare-2384611",
+      "entityId": "founder-moonshot-computer-ojas-kandhare-2384611",
       "entityName": "Ojas Kandhare",
       "accountUrl": "https://x.com/ojaskandy",
       "handle": "ojaskandy",
@@ -80001,11 +79443,19 @@
       "first_seen_at": "2026-07-24T12:46:41.000Z",
       "last_checked_at": "2026-07-24T12:46:41.000Z",
       "last_updated_at": "2026-07-16T19:34:30.000Z",
-      "companySlug": "opentrade",
-      "attachedCompanyId": "company-opentrade",
+      "companySlug": "moonshot-computer",
+      "attachedCompanyId": "company-moonshot-computer",
       "thumbnailUrl": "/evidence-thumbnails/x/source-hunt-b752590226309c11b5d7.svg",
       "thumbnailSource": "fxtwitter-text-preview",
       "mediaUrl": "/evidence-thumbnails/x/source-hunt-b752590226309c11b5d7.svg",
+      "previousAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-opentrade-ojas-kandhare-2384611",
+        "companySlug": "opentrade",
+        "companyName": "OpenTrade"
+      },
+      "attributionReconciliationReason": "canonical_targeted_legacy_entity_alias",
       "batchSlug": "S26"
     },
     {
@@ -80352,10 +79802,10 @@
       "batchSlug": "S26"
     },
     {
-      "companyName": "OpenTrade",
+      "companyName": "Moonshot",
       "companyId": "company-opentrade",
       "entityType": "founder",
-      "entityId": "founder-opentrade-ojas-kandhare-2384611",
+      "entityId": "founder-moonshot-computer-ojas-kandhare-2384611",
       "entityName": "Ojas Kandhare",
       "accountUrl": "https://x.com/ojaskandy",
       "handle": "ojaskandy",
@@ -80393,11 +79843,19 @@
       "first_seen_at": "2026-07-24T12:46:41.000Z",
       "last_checked_at": "2026-07-24T12:46:41.000Z",
       "last_updated_at": "2026-07-15T23:22:41.000Z",
-      "companySlug": "opentrade",
-      "attachedCompanyId": "company-opentrade",
+      "companySlug": "moonshot-computer",
+      "attachedCompanyId": "company-moonshot-computer",
       "thumbnailUrl": "https://pbs.twimg.com/media/HNTieKabYAAAcEF.png?name=orig",
       "thumbnailSource": "fxtwitter-direct-media",
       "mediaUrl": "/evidence-thumbnails/x/source-hunt-bb2b73fb174f62f6a0f1.png",
+      "previousAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-opentrade-ojas-kandhare-2384611",
+        "companySlug": "opentrade",
+        "companyName": "OpenTrade"
+      },
+      "attributionReconciliationReason": "canonical_targeted_legacy_entity_alias",
       "batchSlug": "S26"
     },
     {
@@ -80499,60 +79957,11 @@
       "batchSlug": "S2026"
     },
     {
-      "companyName": "Osmaura",
-      "companyId": "company-osmaura",
-      "entityType": "founder",
-      "entityId": "founder-osmaura-jity-woldemichael-1366260",
-      "entityName": "Jity Woldemichael",
-      "accountUrl": "https://x.com/rookunderfire",
-      "handle": "rookunderfire",
-      "platform": "x",
-      "sourceUrl": "https://x.com/rookunderfire/status/2072133164429119748",
-      "platformPostId": "2072133164429119748",
-      "postedAt": "2026-07-01T01:40:19.000Z",
-      "title": "We love the legal world and are excited to help law firm partners grow their practice while they focus on what they do best.",
-      "text": "We love the legal world and are excited to help law firm partners grow their practice while they focus on what they do best.",
-      "authorName": "Jity Woldemichael",
-      "authorHandle": "rookunderfire",
-      "metrics": {
-        "views": 396,
-        "likes": 8,
-        "replies": 2,
-        "reposts": 0,
-        "quotes": 0,
-        "bookmarks": 2
-      },
-      "mediaType": "text",
-      "rawVisibleText": "{\"source\":\"fxtwitter_native_profile_timeline\",\"profile\":{\"name\":\"Jity Woldemichael\",\"username\":\"rookunderfire\",\"url\":\"https://x.com/rookunderfire\"},\"post\":{\"id\":\"2072133164429119748\",\"authorName\":\"Jity Woldemichael\",\"authorHandle\":\"rookunderfire\",\"text\":\"We love the legal world and are excited to help law firm partners grow their practice while they focus on what they do best.\",\"replyingTo\":{\"screen_name\":\"rookunderfire\",\"status\":\"2072133163254739175\",\"url\":\"https://x.com/rookunderfire/status/2072133163254739175\",\"profile_url\":\"https://x.com/rookunderfire\"}},\"counts\":{\"views\":396,\"likes\":8,\"replies\":2,\"reposts\":0,\"quotes\":0,\"bookmarks\":2}}",
-      "matchReason": "The canonical roster X account @rookunderfire is the native author, the profile timeline exposes this exact status ID, and the status has positive visible metrics.",
-      "review_state": "verified",
-      "nativeTimelineUrl": "https://api.fxtwitter.com/2/profile/rookunderfire/statuses?count=100&since=1782864000&until=1784678400",
-      "verification": {
-        "nativeAuthorHandle": "rookunderfire",
-        "canonicalOwnerCount": 1,
-        "nativeAuthorVerified": true,
-        "notRepost": true,
-        "positiveVisibleMetrics": true,
-        "dedupeStatus": "net_new"
-      },
-      "id": "source-hunt-bbc5be5867aacd3b3512",
-      "contributionScore": 1,
-      "first_seen_at": "2026-07-24T12:46:41.000Z",
-      "last_checked_at": "2026-07-24T12:46:41.000Z",
-      "last_updated_at": "2026-07-01T01:40:19.000Z",
-      "companySlug": "osmaura",
-      "attachedCompanyId": "company-osmaura",
-      "thumbnailUrl": "/evidence-thumbnails/x/source-hunt-bbc5be5867aacd3b3512.svg",
-      "thumbnailSource": "fxtwitter-text-preview",
-      "mediaUrl": "/evidence-thumbnails/x/source-hunt-bbc5be5867aacd3b3512.svg",
-      "batchSlug": "S26"
-    },
-    {
-      "companyName": "OpenTrade",
+      "companyName": "Moonshot",
       "companyId": "company-opentrade",
       "entityType": "company",
-      "entityId": "company-opentrade",
-      "entityName": "OpenTrade",
+      "entityId": "company-moonshot-computer",
+      "entityName": "Moonshot",
       "accountUrl": "https://x.com/opendottrade",
       "handle": "opendottrade",
       "platform": "x",
@@ -80589,11 +79998,19 @@
       "first_seen_at": "2026-07-24T12:46:41.000Z",
       "last_checked_at": "2026-07-24T12:46:41.000Z",
       "last_updated_at": "2026-07-06T21:09:02.000Z",
-      "companySlug": "opentrade",
-      "attachedCompanyId": "company-opentrade",
+      "companySlug": "moonshot-computer",
+      "attachedCompanyId": "company-moonshot-computer",
       "thumbnailUrl": "/evidence-thumbnails/x/source-hunt-bc09c3cbfef12154e2ba.svg",
       "thumbnailSource": "fxtwitter-text-preview",
       "mediaUrl": "/evidence-thumbnails/x/source-hunt-bc09c3cbfef12154e2ba.svg",
+      "previousAttribution": {
+        "batchSlug": "S26",
+        "entityType": "company",
+        "entityId": "company-opentrade",
+        "companySlug": "opentrade",
+        "companyName": "OpenTrade"
+      },
+      "attributionReconciliationReason": "canonical_targeted_legacy_entity_alias",
       "batchSlug": "S26"
     },
     {
@@ -80891,55 +80308,6 @@
       "batchSlug": "S26"
     },
     {
-      "companyName": "Osmaura",
-      "companyId": "company-osmaura",
-      "entityType": "founder",
-      "entityId": "founder-osmaura-jity-woldemichael-1366260",
-      "entityName": "Jity Woldemichael",
-      "accountUrl": "https://x.com/rookunderfire",
-      "handle": "rookunderfire",
-      "platform": "x",
-      "sourceUrl": "https://x.com/rookunderfire/status/2072133163254739175",
-      "platformPostId": "2072133163254739175",
-      "postedAt": "2026-07-01T01:40:19.000Z",
-      "title": "We're Kali and Jity, two friends from MIT who built Osmaura after hearing from partners about the pressure to originate while serving cli...",
-      "text": "We're Kali and Jity, two friends from MIT who built Osmaura after hearing from partners about the pressure to originate while serving clients.",
-      "authorName": "Jity Woldemichael",
-      "authorHandle": "rookunderfire",
-      "metrics": {
-        "views": 222,
-        "likes": 4,
-        "replies": 1,
-        "reposts": 0,
-        "quotes": 0,
-        "bookmarks": 0
-      },
-      "mediaType": "text",
-      "rawVisibleText": "{\"source\":\"fxtwitter_native_profile_timeline\",\"profile\":{\"name\":\"Jity Woldemichael\",\"username\":\"rookunderfire\",\"url\":\"https://x.com/rookunderfire\"},\"post\":{\"id\":\"2072133163254739175\",\"authorName\":\"Jity Woldemichael\",\"authorHandle\":\"rookunderfire\",\"text\":\"We're Kali and Jity, two friends from MIT who built Osmaura after hearing from partners about the pressure to originate while serving clients.\",\"replyingTo\":{\"screen_name\":\"rookunderfire\",\"status\":\"2072133161451147376\",\"url\":\"https://x.com/rookunderfire/status/2072133161451147376\",\"profile_url\":\"https://x.com/rookunderfire\"}},\"counts\":{\"views\":222,\"likes\":4,\"replies\":1,\"reposts\":0,\"quotes\":0,\"bookmarks\":0}}",
-      "matchReason": "The canonical roster X account @rookunderfire is the native author, the profile timeline exposes this exact status ID, and the status has positive visible metrics.",
-      "review_state": "verified",
-      "nativeTimelineUrl": "https://api.fxtwitter.com/2/profile/rookunderfire/statuses?count=100&since=1782864000&until=1784678400",
-      "verification": {
-        "nativeAuthorHandle": "rookunderfire",
-        "canonicalOwnerCount": 1,
-        "nativeAuthorVerified": true,
-        "notRepost": true,
-        "positiveVisibleMetrics": true,
-        "dedupeStatus": "net_new"
-      },
-      "id": "source-hunt-c00c9abf85b0ffe441e0",
-      "contributionScore": 1,
-      "first_seen_at": "2026-07-24T12:46:41.000Z",
-      "last_checked_at": "2026-07-24T12:46:41.000Z",
-      "last_updated_at": "2026-07-01T01:40:19.000Z",
-      "companySlug": "osmaura",
-      "attachedCompanyId": "company-osmaura",
-      "thumbnailUrl": "/evidence-thumbnails/x/source-hunt-c00c9abf85b0ffe441e0.svg",
-      "thumbnailSource": "fxtwitter-text-preview",
-      "mediaUrl": "/evidence-thumbnails/x/source-hunt-c00c9abf85b0ffe441e0.svg",
-      "batchSlug": "S26"
-    },
-    {
       "companyName": "Lightsprint",
       "companyId": "company-lightsprint",
       "entityType": "founder",
@@ -81136,11 +80504,11 @@
       "batchSlug": "S2026"
     },
     {
-      "companyName": "OpenTrade",
+      "companyName": "Moonshot",
       "companyId": "company-opentrade",
       "entityType": "company",
-      "entityId": "company-opentrade",
-      "entityName": "OpenTrade",
+      "entityId": "company-moonshot-computer",
+      "entityName": "Moonshot",
       "accountUrl": "https://x.com/opendottrade",
       "handle": "opendottrade",
       "platform": "x",
@@ -81177,11 +80545,19 @@
       "first_seen_at": "2026-07-24T12:46:41.000Z",
       "last_checked_at": "2026-07-24T12:46:41.000Z",
       "last_updated_at": "2026-07-06T16:36:13.000Z",
-      "companySlug": "opentrade",
-      "attachedCompanyId": "company-opentrade",
+      "companySlug": "moonshot-computer",
+      "attachedCompanyId": "company-moonshot-computer",
       "thumbnailUrl": "/evidence-thumbnails/x/source-hunt-c3978f23569aa0544a41.svg",
       "thumbnailSource": "fxtwitter-text-preview",
       "mediaUrl": "/evidence-thumbnails/x/source-hunt-c3978f23569aa0544a41.svg",
+      "previousAttribution": {
+        "batchSlug": "S26",
+        "entityType": "company",
+        "entityId": "company-opentrade",
+        "companySlug": "opentrade",
+        "companyName": "OpenTrade"
+      },
+      "attributionReconciliationReason": "canonical_targeted_legacy_entity_alias",
       "batchSlug": "S26"
     },
     {
@@ -81977,10 +81353,10 @@
       "batchSlug": "S26"
     },
     {
-      "companyName": "OpenTrade",
+      "companyName": "Moonshot",
       "companyId": "company-opentrade",
       "entityType": "founder",
-      "entityId": "founder-opentrade-ojas-kandhare-2384611",
+      "entityId": "founder-moonshot-computer-ojas-kandhare-2384611",
       "entityName": "Ojas Kandhare",
       "accountUrl": "https://x.com/ojaskandy",
       "handle": "ojaskandy",
@@ -82018,11 +81394,19 @@
       "first_seen_at": "2026-07-24T12:46:41.000Z",
       "last_checked_at": "2026-07-24T12:46:41.000Z",
       "last_updated_at": "2026-07-12T05:23:11.000Z",
-      "companySlug": "opentrade",
-      "attachedCompanyId": "company-opentrade",
+      "companySlug": "moonshot-computer",
+      "attachedCompanyId": "company-moonshot-computer",
       "thumbnailUrl": "/evidence-thumbnails/x/source-hunt-cc9c11037e309c9697a8.svg",
       "thumbnailSource": "fxtwitter-text-preview",
       "mediaUrl": "/evidence-thumbnails/x/source-hunt-cc9c11037e309c9697a8.svg",
+      "previousAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-opentrade-ojas-kandhare-2384611",
+        "companySlug": "opentrade",
+        "companyName": "OpenTrade"
+      },
+      "attributionReconciliationReason": "canonical_targeted_legacy_entity_alias",
       "batchSlug": "S26"
     },
     {
@@ -82565,10 +81949,10 @@
       "batchSlug": "S2026"
     },
     {
-      "companyName": "OpenTrade",
+      "companyName": "Moonshot",
       "companyId": "company-opentrade",
       "entityType": "founder",
-      "entityId": "founder-opentrade-ojas-kandhare-2384611",
+      "entityId": "founder-moonshot-computer-ojas-kandhare-2384611",
       "entityName": "Ojas Kandhare",
       "accountUrl": "https://x.com/ojaskandy",
       "handle": "ojaskandy",
@@ -82606,11 +81990,19 @@
       "first_seen_at": "2026-07-24T12:46:41.000Z",
       "last_checked_at": "2026-07-24T12:46:41.000Z",
       "last_updated_at": "2026-07-14T06:41:12.000Z",
-      "companySlug": "opentrade",
-      "attachedCompanyId": "company-opentrade",
+      "companySlug": "moonshot-computer",
+      "attachedCompanyId": "company-moonshot-computer",
       "thumbnailUrl": "https://pbs.twimg.com/media/HNKzkLoasAAefMj.jpg?name=orig",
       "thumbnailSource": "fxtwitter-direct-media",
       "mediaUrl": "/evidence-thumbnails/x/source-hunt-d39a1f605cf2dd038ad3.jpg",
+      "previousAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-opentrade-ojas-kandhare-2384611",
+        "companySlug": "opentrade",
+        "companyName": "OpenTrade"
+      },
+      "attributionReconciliationReason": "canonical_targeted_legacy_entity_alias",
       "batchSlug": "S26"
     },
     {
@@ -83006,10 +82398,10 @@
       "batchSlug": "S2026"
     },
     {
-      "companyName": "OpenTrade",
+      "companyName": "Moonshot",
       "companyId": "company-opentrade",
       "entityType": "founder",
-      "entityId": "founder-opentrade-ojas-kandhare-2384611",
+      "entityId": "founder-moonshot-computer-ojas-kandhare-2384611",
       "entityName": "Ojas Kandhare",
       "accountUrl": "https://x.com/ojaskandy",
       "handle": "ojaskandy",
@@ -83047,11 +82439,19 @@
       "first_seen_at": "2026-07-24T12:46:41.000Z",
       "last_checked_at": "2026-07-24T12:46:41.000Z",
       "last_updated_at": "2026-07-12T05:42:23.000Z",
-      "companySlug": "opentrade",
-      "attachedCompanyId": "company-opentrade",
+      "companySlug": "moonshot-computer",
+      "attachedCompanyId": "company-moonshot-computer",
       "thumbnailUrl": "https://pbs.twimg.com/media/HNATBFubYAANGX8.jpg?name=orig",
       "thumbnailSource": "fxtwitter-direct-media",
       "mediaUrl": "/evidence-thumbnails/x/source-hunt-da8dbf02cfa08e7f2bb9.jpg",
+      "previousAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-opentrade-ojas-kandhare-2384611",
+        "companySlug": "opentrade",
+        "companyName": "OpenTrade"
+      },
+      "attributionReconciliationReason": "canonical_targeted_legacy_entity_alias",
       "batchSlug": "S26"
     },
     {
@@ -83788,55 +83188,6 @@
       "thumbnailSource": "fxtwitter-text-preview",
       "mediaUrl": "/evidence-thumbnails/x/source-hunt-e004b89737595812524e.svg",
       "batchSlug": "S2026"
-    },
-    {
-      "companyName": "Osmaura",
-      "companyId": "company-osmaura",
-      "entityType": "founder",
-      "entityId": "founder-osmaura-jity-woldemichael-1366260",
-      "entityName": "Jity Woldemichael",
-      "accountUrl": "https://x.com/rookunderfire",
-      "handle": "rookunderfire",
-      "platform": "x",
-      "sourceUrl": "https://x.com/rookunderfire/status/2072133159110787152",
-      "platformPostId": "2072133159110787152",
-      "postedAt": "2026-07-01T01:40:18.000Z",
-      "title": "As soon as a lawyer is made a partner, they’re expected to bring in new business.\n\nHowever, it’s often not clear when a company is going ...",
-      "text": "As soon as a lawyer is made a partner, they’re expected to bring in new business.\n\nHowever, it’s often not clear when a company is going to need legal counsel. So, partners are encouraged to do business development with every person in their network with the hope that at least one of them gives them work.",
-      "authorName": "Jity Woldemichael",
-      "authorHandle": "rookunderfire",
-      "metrics": {
-        "views": 312,
-        "likes": 3,
-        "replies": 1,
-        "reposts": 0,
-        "quotes": 0,
-        "bookmarks": 0
-      },
-      "mediaType": "text",
-      "rawVisibleText": "{\"source\":\"fxtwitter_native_profile_timeline\",\"profile\":{\"name\":\"Jity Woldemichael\",\"username\":\"rookunderfire\",\"url\":\"https://x.com/rookunderfire\"},\"post\":{\"id\":\"2072133159110787152\",\"authorName\":\"Jity Woldemichael\",\"authorHandle\":\"rookunderfire\",\"text\":\"As soon as a lawyer is made a partner, they’re expected to bring in new business.\\n\\nHowever, it’s often not clear when a company is going to need legal counsel. So, partners are encouraged to do business development with every person in their network with the hope that at least one of them gives them work.\",\"replyingTo\":{\"screen_name\":\"rookunderfire\",\"status\":\"2072133157315600451\",\"url\":\"https://x.com/rookunderfire/status/2072133157315600451\",\"profile_url\":\"https://x.com/rookunderfire\"}},\"counts\":{\"views\":312,\"likes\":3,\"replies\":1,\"reposts\":0,\"quotes\":0,\"bookmarks\":0}}",
-      "matchReason": "The canonical roster X account @rookunderfire is the native author, the profile timeline exposes this exact status ID, and the status has positive visible metrics.",
-      "review_state": "verified",
-      "nativeTimelineUrl": "https://api.fxtwitter.com/2/profile/rookunderfire/statuses?count=100&since=1782864000&until=1784678400",
-      "verification": {
-        "nativeAuthorHandle": "rookunderfire",
-        "canonicalOwnerCount": 1,
-        "nativeAuthorVerified": true,
-        "notRepost": true,
-        "positiveVisibleMetrics": true,
-        "dedupeStatus": "net_new"
-      },
-      "id": "source-hunt-e0970de6d4237e62e914",
-      "contributionScore": 1,
-      "first_seen_at": "2026-07-24T12:46:41.000Z",
-      "last_checked_at": "2026-07-24T12:46:41.000Z",
-      "last_updated_at": "2026-07-01T01:40:18.000Z",
-      "companySlug": "osmaura",
-      "attachedCompanyId": "company-osmaura",
-      "thumbnailUrl": "/evidence-thumbnails/x/source-hunt-e0970de6d4237e62e914.svg",
-      "thumbnailSource": "fxtwitter-text-preview",
-      "mediaUrl": "/evidence-thumbnails/x/source-hunt-e0970de6d4237e62e914.svg",
-      "batchSlug": "S26"
     },
     {
       "companyName": "Interfaze",
@@ -96297,10 +95648,10 @@
       "batchSlug": "S26"
     },
     {
-      "companyName": "OpenTrade",
+      "companyName": "Moonshot",
       "companyId": "company-opentrade",
       "entityType": "founder",
-      "entityId": "founder-opentrade-ojas-kandhare-2384611",
+      "entityId": "founder-moonshot-computer-ojas-kandhare-2384611",
       "entityName": "Ojas Kandhare",
       "accountUrl": "https://x.com/ojaskandy",
       "handle": "ojaskandy",
@@ -96338,11 +95689,19 @@
       "first_seen_at": "2026-07-24T12:41:41.000Z",
       "last_checked_at": "2026-07-24T12:41:41.000Z",
       "last_updated_at": "2026-07-22T17:31:29.000Z",
-      "companySlug": "opentrade",
-      "attachedCompanyId": "company-opentrade",
+      "companySlug": "moonshot-computer",
+      "attachedCompanyId": "company-moonshot-computer",
       "thumbnailUrl": "https://pbs.twimg.com/media/HN2VOVNasAAdv5f.jpg?name=orig",
       "thumbnailSource": "fxtwitter-direct-media",
       "mediaUrl": "/evidence-thumbnails/x/source-hunt-97eafa66a6abbcc41a24.jpg",
+      "previousAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-opentrade-ojas-kandhare-2384611",
+        "companySlug": "opentrade",
+        "companyName": "OpenTrade"
+      },
+      "attributionReconciliationReason": "canonical_targeted_legacy_entity_alias",
       "batchSlug": "S26"
     },
     {
@@ -144164,83 +143523,6 @@
       "batchSlug": "S26"
     },
     {
-      "id": "youtube-sol-ultra-s26-company-osmaura-uczvt8doojtjmpww3ocqhr2g-hbbdbunp-mw",
-      "entityType": "company",
-      "entityId": "company-osmaura",
-      "companyName": "Osmaura",
-      "companySlug": "osmaura",
-      "platform": "youtube",
-      "title": "How do you find new clients as a law firm partner?",
-      "sourceUrl": "https://www.youtube.com/watch?v=hbBDbuNP-Mw",
-      "platformPostId": "hbBDbuNP-Mw",
-      "authorName": "Osmaura",
-      "authorHandle": "UCZvt8dOOJTJMPWw3ocQhr2g",
-      "text": "How do you find new clients as a law firm partner? The native description names Osmaura, YC S26, its law-firm business-development product, and the osmaura.com domain. The official Osmaura website embeds this exact video. The native video description names Osmaura and YC S26.",
-      "rawVisibleText": "{\"source\":\"s26_regular_zero_sol_ultra\",\"artifactPath\":\"outputs/source-hunt/s26-regular-zero-sol-ultra.json\",\"profile\":{\"name\":\"Osmaura\",\"username\":\"UCZvt8dOOJTJMPWw3ocQhr2g\",\"url\":\"https://www.youtube.com/channel/UCZvt8dOOJTJMPWw3ocQhr2g\",\"relationship\":\"company\"},\"post\":{\"id\":\"hbBDbuNP-Mw\",\"url\":\"https://www.youtube.com/watch?v=hbBDbuNP-Mw\",\"rawText\":\"How do you find new clients as a law firm partner? The native description names Osmaura, YC S26, its law-firm business-development product, and the osmaura.com domain. The official Osmaura website embeds this exact video. The native video description names Osmaura and YC S26.\",\"text\":\"How do you find new clients as a law firm partner? The native description names Osmaura, YC S26, its law-firm business-development product, and the osmaura.com domain. The official Osmaura website embeds this exact video. The native video description names Osmaura and YC S26.\",\"created_at\":\"2026-06-30T15:59:51Z\",\"authorName\":\"Osmaura\",\"authorHandle\":\"UCZvt8dOOJTJMPWw3ocQhr2g\"},\"counts\":{\"views\":416,\"likes\":3},\"target\":{\"batch\":\"S26\",\"batchSlug\":\"S26\",\"companyName\":\"Osmaura\",\"companySlug\":\"osmaura\",\"founderName\":null},\"verification\":{\"status\":\"accepted\",\"checkedAt\":\"2026-07-16T01:28:58Z\",\"method\":\"YouTube watch-page embedded metadata plus the native channel RSS feed exposed canonical video ID, channel, timestamp, views, and likes.\",\"metricsVisible\":true,\"notProfileOrSearchPage\":true,\"attributionSignals\":[\"The official Osmaura website embeds this exact video.\",\"The native video description names Osmaura and YC S26.\"],\"reason\":\"YouTube watch-page embedded metadata plus the native channel RSS feed exposed canonical video ID, channel, timestamp, views, and likes.\"},\"batchContext\":{\"batch\":\"S26\",\"source\":\"sol_ultra_regular_source_hunt\"}}",
-      "postedAt": "2026-06-30T15:59:51Z",
-      "metrics": {
-        "views": 416,
-        "likes": 3
-      },
-      "contributionScore": 18,
-      "rawEngagement": 18,
-      "normalizedScore": 35,
-      "mediaType": "video",
-      "mediaUrl": "https://www.youtube.com/watch?v=hbBDbuNP-Mw",
-      "mediaUrls": [],
-      "thumbnailUrl": "https://i.ytimg.com/vi/hbBDbuNP-Mw/hqdefault.jpg",
-      "thumbnailSource": "youtube",
-      "linkStatus": "verified",
-      "linkCheckedAt": "2026-07-16T01:28:58Z",
-      "linkFailureReason": null,
-      "review_state": "verified",
-      "matchReason": "The official Osmaura website embeds this exact video.; The native video description names Osmaura and YC S26.; YouTube watch-page embedded metadata plus the native channel RSS feed exposed canonical video ID, channel, timestamp, views, and likes.",
-      "first_seen_at": "2026-07-16T01:28:58Z",
-      "last_checked_at": "2026-07-16T01:28:58Z",
-      "last_updated_at": "2026-06-30T15:59:51Z",
-      "attachedCompanyId": "company-osmaura",
-      "attachedCompanyName": "Osmaura",
-      "socialAccountId": "youtube:company:UCZvt8dOOJTJMPWw3ocQhr2g",
-      "accountUrl": "https://www.youtube.com/channel/UCZvt8dOOJTJMPWw3ocQhr2g",
-      "target": {
-        "batch": "S26",
-        "batchSlug": "S26",
-        "companyName": "Osmaura",
-        "companySlug": "osmaura",
-        "founderName": null
-      },
-      "profile": {
-        "name": "Osmaura",
-        "username": "UCZvt8dOOJTJMPWw3ocQhr2g",
-        "url": "https://www.youtube.com/channel/UCZvt8dOOJTJMPWw3ocQhr2g",
-        "relationship": "company"
-      },
-      "post": {
-        "id": "hbBDbuNP-Mw",
-        "url": "https://www.youtube.com/watch?v=hbBDbuNP-Mw",
-        "rawText": "How do you find new clients as a law firm partner? The native description names Osmaura, YC S26, its law-firm business-development product, and the osmaura.com domain. The official Osmaura website embeds this exact video. The native video description names Osmaura and YC S26.",
-        "text": "How do you find new clients as a law firm partner? The native description names Osmaura, YC S26, its law-firm business-development product, and the osmaura.com domain. The official Osmaura website embeds this exact video. The native video description names Osmaura and YC S26.",
-        "created_at": "2026-06-30T15:59:51Z",
-        "authorName": "Osmaura",
-        "authorHandle": "UCZvt8dOOJTJMPWw3ocQhr2g"
-      },
-      "verification": {
-        "status": "accepted",
-        "checkedAt": "2026-07-16T01:28:58Z",
-        "method": "YouTube watch-page embedded metadata plus the native channel RSS feed exposed canonical video ID, channel, timestamp, views, and likes.",
-        "metricsVisible": true,
-        "notProfileOrSearchPage": true,
-        "attributionSignals": [
-          "The official Osmaura website embeds this exact video.",
-          "The native video description names Osmaura and YC S26."
-        ],
-        "reason": "YouTube watch-page embedded metadata plus the native channel RSS feed exposed canonical video ID, channel, timestamp, views, and likes."
-      },
-      "why": "How do you find new clients as a law firm partner? The native description names Osmaura, YC S26, its law-firm business-development product, and the osmaura.com domain. The official Osmaura website embeds this exact video. The native video description names Osmaura and YC S26.",
-      "entityName": "Osmaura",
-      "batchSlug": "S26"
-    },
-    {
       "id": "linkedin-sol-ultra-s2026-company-napkin-math-napkin-math-yc-p26-napkinmath-7448054220575907840",
       "entityType": "company",
       "entityId": "company-napkin-math",
@@ -153390,38 +152672,6 @@
       "batchSlug": "S2026"
     },
     {
-      "id": "linkedin-firstparty-founder-founder-osmaura-jity-woldemichael-1366260-tselote-activity-7475947824581529600",
-      "entityType": "founder",
-      "entityId": "founder-osmaura-jity-woldemichael-1366260",
-      "companyName": "Osmaura",
-      "platform": "linkedin",
-      "title": "Jity Woldemichael post about Osmaura",
-      "sourceUrl": "https://www.linkedin.com/posts/tselote_im-excited-to-share-that-osmaura-yc-s26-activity-7475947824581529600-j5BM",
-      "platformPostId": "7475947824581529600",
-      "text": "Jity Woldemichael announced Osmaura (YC S26).",
-      "rawVisibleText": "{\"profile\":{\"name\":\"Jity Woldemichael\",\"username\":\"tselote\",\"url\":\"https://www.linkedin.com/in/tselote/\"},\"post\":{\"authorName\":\"Jity Woldemichael\",\"authorHandle\":\"tselote\",\"rawText\":\"Jity Woldemichael announced Osmaura (YC S26).\",\"visibleDate\":\"2w Edited\",\"datePrecision\":\"relative_public_linkedin_label\"},\"counts\":{\"reaction_count\":1144,\"comment_count\":131,\"repost_count\":0},\"verification\":{\"method\":\"Public LinkedIn post page visible text and metrics audit\",\"checkedAt\":\"2026-07-15T21:00:00.000Z\",\"finalUrl\":\"https://www.linkedin.com/posts/tselote_im-excited-to-share-that-osmaura-yc-s26-activity-7475947824581529600-j5BM\"},\"batchContext\":{\"batch\":\"YC Summer 2026\",\"source\":\"known_snapshot_entity_id\",\"datePrecision\":\"relative_public_linkedin_label\"}}",
-      "postedAt": "2026-07-01T00:00:00.000Z",
-      "metrics": {
-        "likes": 1144,
-        "comments": 131
-      },
-      "contributionScore": 1,
-      "review_state": "verified",
-      "linkStatus": "verified",
-      "linkCheckedAt": "2026-07-15T21:00:00.000Z",
-      "first_seen_at": "2026-07-15T21:00:00.000Z",
-      "last_checked_at": "2026-07-15T21:00:00.000Z",
-      "last_updated_at": "2026-07-01T00:00:00.000Z",
-      "matchReason": "Native LinkedIn post from YC-listed Osmaura founder Jity Woldemichael; public LinkedIn page exposed a post-level URL, visible author, relative date label, and reaction/comment counters.",
-      "entityName": "Jity Woldemichael",
-      "companySlug": "osmaura",
-      "attachedCompanyId": "company-osmaura",
-      "thumbnailUrl": "https://media.licdn.com/dms/image/v2/D4E22AQHg9QhQbYChdw/feedshare-shrink_800/B4EZ7_m7V7HsAc-/0/1782404856214?e=2147483647&v=beta&t=Xi9emv0AWHo_UzuLAKRzrOkjtnvaCQPpFgOEIEaV7sk",
-      "thumbnailSource": "link-preview-og-image",
-      "mediaUrl": "/evidence-thumbnails/linkedin/linkedin-firstparty-founder-founder-osmaura-jity-woldemichael-1366260-tselote-activity-7475947824581529600.svg",
-      "batchSlug": "S26"
-    },
-    {
       "id": "linkedin-firstparty-founder-founder-parasma-sean-cole-3388159-sean-cole-8985a4207-activity-7476123052993372160",
       "entityType": "founder",
       "entityId": "founder-parasma-sean-cole-3388159",
@@ -155576,8 +154826,8 @@
     {
       "id": "live-x-company-opentrade-2074240171848130676",
       "entityType": "company",
-      "entityId": "company-opentrade",
-      "companyName": "OpenTrade",
+      "entityId": "company-moonshot-computer",
+      "companyName": "Moonshot",
       "platform": "x",
       "title": "Today, we're introducing Claude for Investing.\n\nJust tell it your investing goal, and OpenTrade's 24/7 AI agents read filings, scrape the i…",
       "sourceUrl": "https://x.com/opendottrade/status/2074240171848130676",
@@ -155611,9 +154861,17 @@
       "first_seen_at": "2026-07-14T22:52:52.606Z",
       "last_checked_at": "2026-07-15T01:36:34.554Z",
       "last_updated_at": "2026-07-06T21:12:49.000Z",
-      "entityName": "OpenTrade",
-      "companySlug": "opentrade",
-      "attachedCompanyId": "company-opentrade",
+      "entityName": "Moonshot",
+      "companySlug": "moonshot-computer",
+      "attachedCompanyId": "company-moonshot-computer",
+      "previousAttribution": {
+        "batchSlug": "S26",
+        "entityType": "company",
+        "entityId": "company-opentrade",
+        "companySlug": "opentrade",
+        "companyName": "OpenTrade"
+      },
+      "attributionReconciliationReason": "canonical_targeted_legacy_entity_alias",
       "batchSlug": "S26"
     },
     {
@@ -158028,6 +157286,35 @@
       }
     },
     {
+      "id": "quarantine-linkedin-firstparty-founder-founder-osmaura-jity-woldemichael-1366260-tselote-activity-7475947824581529600-3286",
+      "batchSlug": "S26",
+      "entityType": "founder",
+      "entityId": "founder-osmaura-jity-woldemichael-1366260",
+      "entityName": "Osmaura",
+      "platform": "linkedin",
+      "platformPostId": "7475947824581529600",
+      "candidateUrl": "https://www.linkedin.com/posts/tselote_im-excited-to-share-that-osmaura-yc-s26-activity-7475947824581529600-j5BM",
+      "review_state": "needs_review",
+      "sourceEvidenceId": "linkedin-firstparty-founder-founder-osmaura-jity-woldemichael-1366260-tselote-activity-7475947824581529600",
+      "quarantineReasons": [
+        "entity_not_in_canonical_batch_catalog"
+      ],
+      "matchReason": "Quarantined during targeted evidence publication: entity_not_in_canonical_batch_catalog.",
+      "attributionReconciliationDirective": {
+        "platform": "linkedin",
+        "sourceUrl": "https://linkedin.com/posts/tselote_im-excited-to-share-that-osmaura-yc-s26-activity-7475947824581529600-j5BM",
+        "platformPostId": "7475947824581529600",
+        "disposition": "quarantined",
+        "reason": "entity_not_in_canonical_batch_catalog",
+        "staleAttribution": {
+          "batchSlug": "S26",
+          "entityType": "founder",
+          "entityId": "founder-osmaura-jity-woldemichael-1366260",
+          "attributionType": "subject"
+        }
+      }
+    },
+    {
       "id": "quarantine-linkedin-s26-company-coasty-7480998697632165888-29",
       "batchSlug": "S26",
       "entityType": "company",
@@ -158463,6 +157750,35 @@
       }
     },
     {
+      "id": "quarantine-source-hunt-0003980035d893723bec-1433",
+      "batchSlug": "S26",
+      "entityType": "founder",
+      "entityId": "founder-osmaura-kali-abeje-2718831",
+      "entityName": "Osmaura",
+      "platform": "x",
+      "platformPostId": "2078677163017130085",
+      "candidateUrl": "https://x.com/abe_yebe/status/2078677163017130085",
+      "review_state": "needs_review",
+      "sourceEvidenceId": "source-hunt-0003980035d893723bec",
+      "quarantineReasons": [
+        "entity_not_in_canonical_batch_catalog"
+      ],
+      "matchReason": "Quarantined during targeted evidence publication: entity_not_in_canonical_batch_catalog.",
+      "attributionReconciliationDirective": {
+        "platform": "x",
+        "sourceUrl": "https://x.com/abe_yebe/status/2078677163017130085",
+        "platformPostId": "2078677163017130085",
+        "disposition": "quarantined",
+        "reason": "entity_not_in_canonical_batch_catalog",
+        "staleAttribution": {
+          "batchSlug": "S26",
+          "entityType": "founder",
+          "entityId": "founder-osmaura-kali-abeje-2718831",
+          "attributionType": "subject"
+        }
+      }
+    },
+    {
       "id": "quarantine-source-hunt-02a2ab4c027359acc720-1361",
       "batchSlug": "S2026",
       "entityType": "company",
@@ -158545,6 +157861,35 @@
           "batchSlug": "S26",
           "entityType": "founder",
           "entityId": "founder-shepherd-3-philip-meng-2723488",
+          "attributionType": "subject"
+        }
+      }
+    },
+    {
+      "id": "quarantine-source-hunt-04cb21c7978df5afff0f-1444",
+      "batchSlug": "S26",
+      "entityType": "founder",
+      "entityId": "founder-osmaura-jity-woldemichael-1366260",
+      "entityName": "Osmaura",
+      "platform": "x",
+      "platformPostId": "2072133157315600451",
+      "candidateUrl": "https://x.com/rookunderfire/status/2072133157315600451",
+      "review_state": "needs_review",
+      "sourceEvidenceId": "source-hunt-04cb21c7978df5afff0f",
+      "quarantineReasons": [
+        "entity_not_in_canonical_batch_catalog"
+      ],
+      "matchReason": "Quarantined during targeted evidence publication: entity_not_in_canonical_batch_catalog.",
+      "attributionReconciliationDirective": {
+        "platform": "x",
+        "sourceUrl": "https://x.com/rookunderfire/status/2072133157315600451",
+        "platformPostId": "2072133157315600451",
+        "disposition": "quarantined",
+        "reason": "entity_not_in_canonical_batch_catalog",
+        "staleAttribution": {
+          "batchSlug": "S26",
+          "entityType": "founder",
+          "entityId": "founder-osmaura-jity-woldemichael-1366260",
           "attributionType": "subject"
         }
       }
@@ -158811,6 +158156,35 @@
       }
     },
     {
+      "id": "quarantine-source-hunt-1b5fba598e89c983535b-1499",
+      "batchSlug": "S26",
+      "entityType": "founder",
+      "entityId": "founder-osmaura-jity-woldemichael-1366260",
+      "entityName": "Osmaura",
+      "platform": "x",
+      "platformPostId": "2072133160285143166",
+      "candidateUrl": "https://x.com/rookunderfire/status/2072133160285143166",
+      "review_state": "needs_review",
+      "sourceEvidenceId": "source-hunt-1b5fba598e89c983535b",
+      "quarantineReasons": [
+        "entity_not_in_canonical_batch_catalog"
+      ],
+      "matchReason": "Quarantined during targeted evidence publication: entity_not_in_canonical_batch_catalog.",
+      "attributionReconciliationDirective": {
+        "platform": "x",
+        "sourceUrl": "https://x.com/rookunderfire/status/2072133160285143166",
+        "platformPostId": "2072133160285143166",
+        "disposition": "quarantined",
+        "reason": "entity_not_in_canonical_batch_catalog",
+        "staleAttribution": {
+          "batchSlug": "S26",
+          "entityType": "founder",
+          "entityId": "founder-osmaura-jity-woldemichael-1366260",
+          "attributionType": "subject"
+        }
+      }
+    },
+    {
       "id": "quarantine-source-hunt-1c376c900a287168eb51-1357",
       "batchSlug": "S2026",
       "entityType": "company",
@@ -159043,6 +158417,35 @@
       }
     },
     {
+      "id": "quarantine-source-hunt-2b0ba8feab4addd942b2-1232",
+      "batchSlug": "S26",
+      "entityType": "founder",
+      "entityId": "founder-osmaura-jity-woldemichael-1366260",
+      "entityName": "Osmaura",
+      "platform": "x",
+      "platformPostId": "2070188523563708454",
+      "candidateUrl": "https://x.com/rookunderfire/status/2070188523563708454",
+      "review_state": "needs_review",
+      "sourceEvidenceId": "source-hunt-2b0ba8feab4addd942b2",
+      "quarantineReasons": [
+        "entity_not_in_canonical_batch_catalog"
+      ],
+      "matchReason": "Quarantined during targeted evidence publication: entity_not_in_canonical_batch_catalog.",
+      "attributionReconciliationDirective": {
+        "platform": "x",
+        "sourceUrl": "https://x.com/rookunderfire/status/2070188523563708454",
+        "platformPostId": "2070188523563708454",
+        "disposition": "quarantined",
+        "reason": "entity_not_in_canonical_batch_catalog",
+        "staleAttribution": {
+          "batchSlug": "S26",
+          "entityType": "founder",
+          "entityId": "founder-osmaura-jity-woldemichael-1366260",
+          "attributionType": "subject"
+        }
+      }
+    },
+    {
       "id": "quarantine-source-hunt-2c3a2954b75276b5dc19-186",
       "batchSlug": "S26",
       "entityType": "founder",
@@ -159072,6 +158475,35 @@
       }
     },
     {
+      "id": "quarantine-source-hunt-2c4f6a031f559e412690-1524",
+      "batchSlug": "S26",
+      "entityType": "founder",
+      "entityId": "founder-osmaura-kali-abeje-2718831",
+      "entityName": "Osmaura",
+      "platform": "x",
+      "platformPostId": "2072133219949158572",
+      "candidateUrl": "https://x.com/abe_yebe/status/2072133219949158572",
+      "review_state": "needs_review",
+      "sourceEvidenceId": "source-hunt-2c4f6a031f559e412690",
+      "quarantineReasons": [
+        "entity_not_in_canonical_batch_catalog"
+      ],
+      "matchReason": "Quarantined during targeted evidence publication: entity_not_in_canonical_batch_catalog.",
+      "attributionReconciliationDirective": {
+        "platform": "x",
+        "sourceUrl": "https://x.com/abe_yebe/status/2072133219949158572",
+        "platformPostId": "2072133219949158572",
+        "disposition": "quarantined",
+        "reason": "entity_not_in_canonical_batch_catalog",
+        "staleAttribution": {
+          "batchSlug": "S26",
+          "entityType": "founder",
+          "entityId": "founder-osmaura-kali-abeje-2718831",
+          "attributionType": "subject"
+        }
+      }
+    },
+    {
       "id": "quarantine-source-hunt-30b8f7c0af7790fa8f39-1351",
       "batchSlug": "S26",
       "entityType": "founder",
@@ -159096,6 +158528,35 @@
           "batchSlug": "S26",
           "entityType": "founder",
           "entityId": "founder-shepherd-3-elijah-renner-3348061",
+          "attributionType": "subject"
+        }
+      }
+    },
+    {
+      "id": "quarantine-source-hunt-311946637a031bff5a85-1539",
+      "batchSlug": "S26",
+      "entityType": "founder",
+      "entityId": "founder-osmaura-kali-abeje-2718831",
+      "entityName": "Osmaura",
+      "platform": "x",
+      "platformPostId": "2078670261755564494",
+      "candidateUrl": "https://x.com/abe_yebe/status/2078670261755564494",
+      "review_state": "needs_review",
+      "sourceEvidenceId": "source-hunt-311946637a031bff5a85",
+      "quarantineReasons": [
+        "entity_not_in_canonical_batch_catalog"
+      ],
+      "matchReason": "Quarantined during targeted evidence publication: entity_not_in_canonical_batch_catalog.",
+      "attributionReconciliationDirective": {
+        "platform": "x",
+        "sourceUrl": "https://x.com/abe_yebe/status/2078670261755564494",
+        "platformPostId": "2078670261755564494",
+        "disposition": "quarantined",
+        "reason": "entity_not_in_canonical_batch_catalog",
+        "staleAttribution": {
+          "batchSlug": "S26",
+          "entityType": "founder",
+          "entityId": "founder-osmaura-kali-abeje-2718831",
           "attributionType": "subject"
         }
       }
@@ -159420,6 +158881,35 @@
       }
     },
     {
+      "id": "quarantine-source-hunt-48ca9b39b17f6d2672eb-1584",
+      "batchSlug": "S26",
+      "entityType": "founder",
+      "entityId": "founder-osmaura-kali-abeje-2718831",
+      "entityName": "Osmaura",
+      "platform": "x",
+      "platformPostId": "2074554728722448579",
+      "candidateUrl": "https://x.com/abe_yebe/status/2074554728722448579",
+      "review_state": "needs_review",
+      "sourceEvidenceId": "source-hunt-48ca9b39b17f6d2672eb",
+      "quarantineReasons": [
+        "entity_not_in_canonical_batch_catalog"
+      ],
+      "matchReason": "Quarantined during targeted evidence publication: entity_not_in_canonical_batch_catalog.",
+      "attributionReconciliationDirective": {
+        "platform": "x",
+        "sourceUrl": "https://x.com/abe_yebe/status/2074554728722448579",
+        "platformPostId": "2074554728722448579",
+        "disposition": "quarantined",
+        "reason": "entity_not_in_canonical_batch_catalog",
+        "staleAttribution": {
+          "batchSlug": "S26",
+          "entityType": "founder",
+          "entityId": "founder-osmaura-kali-abeje-2718831",
+          "attributionType": "subject"
+        }
+      }
+    },
+    {
       "id": "quarantine-source-hunt-49024ecbb9e6ebe1a4d4-265",
       "batchSlug": "S26",
       "entityType": "founder",
@@ -159652,6 +159142,35 @@
       }
     },
     {
+      "id": "quarantine-source-hunt-529f9425e28e26b4b349-1608",
+      "batchSlug": "S26",
+      "entityType": "founder",
+      "entityId": "founder-osmaura-kali-abeje-2718831",
+      "entityName": "Osmaura",
+      "platform": "x",
+      "platformPostId": "2078678684156973126",
+      "candidateUrl": "https://x.com/abe_yebe/status/2078678684156973126",
+      "review_state": "needs_review",
+      "sourceEvidenceId": "source-hunt-529f9425e28e26b4b349",
+      "quarantineReasons": [
+        "entity_not_in_canonical_batch_catalog"
+      ],
+      "matchReason": "Quarantined during targeted evidence publication: entity_not_in_canonical_batch_catalog.",
+      "attributionReconciliationDirective": {
+        "platform": "x",
+        "sourceUrl": "https://x.com/abe_yebe/status/2078678684156973126",
+        "platformPostId": "2078678684156973126",
+        "disposition": "quarantined",
+        "reason": "entity_not_in_canonical_batch_catalog",
+        "staleAttribution": {
+          "batchSlug": "S26",
+          "entityType": "founder",
+          "entityId": "founder-osmaura-kali-abeje-2718831",
+          "attributionType": "subject"
+        }
+      }
+    },
+    {
       "id": "quarantine-source-hunt-5a15230adc2034bd8d86-1365",
       "batchSlug": "S2026",
       "entityType": "company",
@@ -159705,6 +159224,35 @@
           "batchSlug": "S26",
           "entityType": "founder",
           "entityId": "founder-archal-noah-song-2561732",
+          "attributionType": "subject"
+        }
+      }
+    },
+    {
+      "id": "quarantine-source-hunt-61f0703f1e78a528d71a-1633",
+      "batchSlug": "S26",
+      "entityType": "founder",
+      "entityId": "founder-osmaura-kali-abeje-2718831",
+      "entityName": "Osmaura",
+      "platform": "x",
+      "platformPostId": "2078289982721003559",
+      "candidateUrl": "https://x.com/abe_yebe/status/2078289982721003559",
+      "review_state": "needs_review",
+      "sourceEvidenceId": "source-hunt-61f0703f1e78a528d71a",
+      "quarantineReasons": [
+        "entity_not_in_canonical_batch_catalog"
+      ],
+      "matchReason": "Quarantined during targeted evidence publication: entity_not_in_canonical_batch_catalog.",
+      "attributionReconciliationDirective": {
+        "platform": "x",
+        "sourceUrl": "https://x.com/abe_yebe/status/2078289982721003559",
+        "platformPostId": "2078289982721003559",
+        "disposition": "quarantined",
+        "reason": "entity_not_in_canonical_batch_catalog",
+        "staleAttribution": {
+          "batchSlug": "S26",
+          "entityType": "founder",
+          "entityId": "founder-osmaura-kali-abeje-2718831",
           "attributionType": "subject"
         }
       }
@@ -159821,6 +159369,35 @@
           "batchSlug": "S26",
           "entityType": "company",
           "entityId": "company-coasty",
+          "attributionType": "subject"
+        }
+      }
+    },
+    {
+      "id": "quarantine-source-hunt-6ee2b44d5e6c5f541273-1654",
+      "batchSlug": "S26",
+      "entityType": "founder",
+      "entityId": "founder-osmaura-jity-woldemichael-1366260",
+      "entityName": "Osmaura",
+      "platform": "x",
+      "platformPostId": "2072133161451147376",
+      "candidateUrl": "https://x.com/rookunderfire/status/2072133161451147376",
+      "review_state": "needs_review",
+      "sourceEvidenceId": "source-hunt-6ee2b44d5e6c5f541273",
+      "quarantineReasons": [
+        "entity_not_in_canonical_batch_catalog"
+      ],
+      "matchReason": "Quarantined during targeted evidence publication: entity_not_in_canonical_batch_catalog.",
+      "attributionReconciliationDirective": {
+        "platform": "x",
+        "sourceUrl": "https://x.com/rookunderfire/status/2072133161451147376",
+        "platformPostId": "2072133161451147376",
+        "disposition": "quarantined",
+        "reason": "entity_not_in_canonical_batch_catalog",
+        "staleAttribution": {
+          "batchSlug": "S26",
+          "entityType": "founder",
+          "entityId": "founder-osmaura-jity-woldemichael-1366260",
           "attributionType": "subject"
         }
       }
@@ -160522,6 +160099,35 @@
       }
     },
     {
+      "id": "quarantine-source-hunt-a756785c7c7d3eb4eaf8-1773",
+      "batchSlug": "S26",
+      "entityType": "founder",
+      "entityId": "founder-osmaura-kali-abeje-2718831",
+      "entityName": "Osmaura",
+      "platform": "x",
+      "platformPostId": "2076570362624848007",
+      "candidateUrl": "https://x.com/abe_yebe/status/2076570362624848007",
+      "review_state": "needs_review",
+      "sourceEvidenceId": "source-hunt-a756785c7c7d3eb4eaf8",
+      "quarantineReasons": [
+        "entity_not_in_canonical_batch_catalog"
+      ],
+      "matchReason": "Quarantined during targeted evidence publication: entity_not_in_canonical_batch_catalog.",
+      "attributionReconciliationDirective": {
+        "platform": "x",
+        "sourceUrl": "https://x.com/abe_yebe/status/2076570362624848007",
+        "platformPostId": "2076570362624848007",
+        "disposition": "quarantined",
+        "reason": "entity_not_in_canonical_batch_catalog",
+        "staleAttribution": {
+          "batchSlug": "S26",
+          "entityType": "founder",
+          "entityId": "founder-osmaura-kali-abeje-2718831",
+          "attributionType": "subject"
+        }
+      }
+    },
+    {
       "id": "quarantine-source-hunt-aacd5cfadd3d5491a1e5-2034",
       "batchSlug": "S26",
       "entityType": "company",
@@ -160609,6 +160215,64 @@
       }
     },
     {
+      "id": "quarantine-source-hunt-ac729390dcb40463c061-1784",
+      "batchSlug": "S26",
+      "entityType": "founder",
+      "entityId": "founder-osmaura-kali-abeje-2718831",
+      "entityName": "Osmaura",
+      "platform": "x",
+      "platformPostId": "2076570570230243389",
+      "candidateUrl": "https://x.com/abe_yebe/status/2076570570230243389",
+      "review_state": "needs_review",
+      "sourceEvidenceId": "source-hunt-ac729390dcb40463c061",
+      "quarantineReasons": [
+        "entity_not_in_canonical_batch_catalog"
+      ],
+      "matchReason": "Quarantined during targeted evidence publication: entity_not_in_canonical_batch_catalog.",
+      "attributionReconciliationDirective": {
+        "platform": "x",
+        "sourceUrl": "https://x.com/abe_yebe/status/2076570570230243389",
+        "platformPostId": "2076570570230243389",
+        "disposition": "quarantined",
+        "reason": "entity_not_in_canonical_batch_catalog",
+        "staleAttribution": {
+          "batchSlug": "S26",
+          "entityType": "founder",
+          "entityId": "founder-osmaura-kali-abeje-2718831",
+          "attributionType": "subject"
+        }
+      }
+    },
+    {
+      "id": "quarantine-source-hunt-acbdd2cd268b1c9ed23e-1786",
+      "batchSlug": "S26",
+      "entityType": "founder",
+      "entityId": "founder-osmaura-kali-abeje-2718831",
+      "entityName": "Osmaura",
+      "platform": "x",
+      "platformPostId": "2078678413943226640",
+      "candidateUrl": "https://x.com/abe_yebe/status/2078678413943226640",
+      "review_state": "needs_review",
+      "sourceEvidenceId": "source-hunt-acbdd2cd268b1c9ed23e",
+      "quarantineReasons": [
+        "entity_not_in_canonical_batch_catalog"
+      ],
+      "matchReason": "Quarantined during targeted evidence publication: entity_not_in_canonical_batch_catalog.",
+      "attributionReconciliationDirective": {
+        "platform": "x",
+        "sourceUrl": "https://x.com/abe_yebe/status/2078678413943226640",
+        "platformPostId": "2078678413943226640",
+        "disposition": "quarantined",
+        "reason": "entity_not_in_canonical_batch_catalog",
+        "staleAttribution": {
+          "batchSlug": "S26",
+          "entityType": "founder",
+          "entityId": "founder-osmaura-kali-abeje-2718831",
+          "attributionType": "subject"
+        }
+      }
+    },
+    {
       "id": "quarantine-source-hunt-b0be36ed60de77d10c37-1371",
       "batchSlug": "S2026",
       "entityType": "company",
@@ -160633,6 +160297,35 @@
           "batchSlug": "S2026",
           "entityType": "company",
           "entityId": "company-humwork",
+          "attributionType": "subject"
+        }
+      }
+    },
+    {
+      "id": "quarantine-source-hunt-b44a9fff5dc85422bf70-1796",
+      "batchSlug": "S26",
+      "entityType": "founder",
+      "entityId": "founder-osmaura-jity-woldemichael-1366260",
+      "entityName": "Osmaura",
+      "platform": "x",
+      "platformPostId": "2072133165607780552",
+      "candidateUrl": "https://x.com/rookunderfire/status/2072133165607780552",
+      "review_state": "needs_review",
+      "sourceEvidenceId": "source-hunt-b44a9fff5dc85422bf70",
+      "quarantineReasons": [
+        "entity_not_in_canonical_batch_catalog"
+      ],
+      "matchReason": "Quarantined during targeted evidence publication: entity_not_in_canonical_batch_catalog.",
+      "attributionReconciliationDirective": {
+        "platform": "x",
+        "sourceUrl": "https://x.com/rookunderfire/status/2072133165607780552",
+        "platformPostId": "2072133165607780552",
+        "disposition": "quarantined",
+        "reason": "entity_not_in_canonical_batch_catalog",
+        "staleAttribution": {
+          "batchSlug": "S26",
+          "entityType": "founder",
+          "entityId": "founder-osmaura-jity-woldemichael-1366260",
           "attributionType": "subject"
         }
       }
@@ -160812,6 +160505,35 @@
       }
     },
     {
+      "id": "quarantine-source-hunt-bbc5be5867aacd3b3512-1813",
+      "batchSlug": "S26",
+      "entityType": "founder",
+      "entityId": "founder-osmaura-jity-woldemichael-1366260",
+      "entityName": "Osmaura",
+      "platform": "x",
+      "platformPostId": "2072133164429119748",
+      "candidateUrl": "https://x.com/rookunderfire/status/2072133164429119748",
+      "review_state": "needs_review",
+      "sourceEvidenceId": "source-hunt-bbc5be5867aacd3b3512",
+      "quarantineReasons": [
+        "entity_not_in_canonical_batch_catalog"
+      ],
+      "matchReason": "Quarantined during targeted evidence publication: entity_not_in_canonical_batch_catalog.",
+      "attributionReconciliationDirective": {
+        "platform": "x",
+        "sourceUrl": "https://x.com/rookunderfire/status/2072133164429119748",
+        "platformPostId": "2072133164429119748",
+        "disposition": "quarantined",
+        "reason": "entity_not_in_canonical_batch_catalog",
+        "staleAttribution": {
+          "batchSlug": "S26",
+          "entityType": "founder",
+          "entityId": "founder-osmaura-jity-woldemichael-1366260",
+          "attributionType": "subject"
+        }
+      }
+    },
+    {
       "id": "quarantine-source-hunt-bdfe79cdde1f8a722356-1647",
       "batchSlug": "S26",
       "entityType": "founder",
@@ -160865,6 +160587,35 @@
           "batchSlug": "S2026",
           "entityType": "company",
           "entityId": "company-apollo-atomics-inc",
+          "attributionType": "subject"
+        }
+      }
+    },
+    {
+      "id": "quarantine-source-hunt-c00c9abf85b0ffe441e0-1821",
+      "batchSlug": "S26",
+      "entityType": "founder",
+      "entityId": "founder-osmaura-jity-woldemichael-1366260",
+      "entityName": "Osmaura",
+      "platform": "x",
+      "platformPostId": "2072133163254739175",
+      "candidateUrl": "https://x.com/rookunderfire/status/2072133163254739175",
+      "review_state": "needs_review",
+      "sourceEvidenceId": "source-hunt-c00c9abf85b0ffe441e0",
+      "quarantineReasons": [
+        "entity_not_in_canonical_batch_catalog"
+      ],
+      "matchReason": "Quarantined during targeted evidence publication: entity_not_in_canonical_batch_catalog.",
+      "attributionReconciliationDirective": {
+        "platform": "x",
+        "sourceUrl": "https://x.com/rookunderfire/status/2072133163254739175",
+        "platformPostId": "2072133163254739175",
+        "disposition": "quarantined",
+        "reason": "entity_not_in_canonical_batch_catalog",
+        "staleAttribution": {
+          "batchSlug": "S26",
+          "entityType": "founder",
+          "entityId": "founder-osmaura-jity-woldemichael-1366260",
           "attributionType": "subject"
         }
       }
@@ -161155,6 +160906,35 @@
           "batchSlug": "S26",
           "entityType": "founder",
           "entityId": "founder-shepherd-3-philip-meng-2723488",
+          "attributionType": "subject"
+        }
+      }
+    },
+    {
+      "id": "quarantine-source-hunt-e0970de6d4237e62e914-1880",
+      "batchSlug": "S26",
+      "entityType": "founder",
+      "entityId": "founder-osmaura-jity-woldemichael-1366260",
+      "entityName": "Osmaura",
+      "platform": "x",
+      "platformPostId": "2072133159110787152",
+      "candidateUrl": "https://x.com/rookunderfire/status/2072133159110787152",
+      "review_state": "needs_review",
+      "sourceEvidenceId": "source-hunt-e0970de6d4237e62e914",
+      "quarantineReasons": [
+        "entity_not_in_canonical_batch_catalog"
+      ],
+      "matchReason": "Quarantined during targeted evidence publication: entity_not_in_canonical_batch_catalog.",
+      "attributionReconciliationDirective": {
+        "platform": "x",
+        "sourceUrl": "https://x.com/rookunderfire/status/2072133159110787152",
+        "platformPostId": "2072133159110787152",
+        "disposition": "quarantined",
+        "reason": "entity_not_in_canonical_batch_catalog",
+        "staleAttribution": {
+          "batchSlug": "S26",
+          "entityType": "founder",
+          "entityId": "founder-osmaura-jity-woldemichael-1366260",
           "attributionType": "subject"
         }
       }
@@ -161503,6 +161283,35 @@
           "batchSlug": "S26",
           "entityType": "company",
           "entityId": "company-coasty",
+          "attributionType": "subject"
+        }
+      }
+    },
+    {
+      "id": "quarantine-youtube-sol-ultra-s26-company-osmaura-uczvt8doojtjmpww3ocqhr2g-hbbdbunp-mw-3044",
+      "batchSlug": "S26",
+      "entityType": "company",
+      "entityId": "company-osmaura",
+      "entityName": "Osmaura",
+      "platform": "youtube",
+      "platformPostId": "hbBDbuNP-Mw",
+      "candidateUrl": "https://www.youtube.com/watch?v=hbBDbuNP-Mw",
+      "review_state": "needs_review",
+      "sourceEvidenceId": "youtube-sol-ultra-s26-company-osmaura-uczvt8doojtjmpww3ocqhr2g-hbbdbunp-mw",
+      "quarantineReasons": [
+        "entity_not_in_canonical_batch_catalog"
+      ],
+      "matchReason": "Quarantined during targeted evidence publication: entity_not_in_canonical_batch_catalog.",
+      "attributionReconciliationDirective": {
+        "platform": "youtube",
+        "sourceUrl": "https://youtube.com/watch?v=hbBDbuNP-Mw",
+        "platformPostId": "hbBDbuNP-Mw",
+        "disposition": "quarantined",
+        "reason": "entity_not_in_canonical_batch_catalog",
+        "staleAttribution": {
+          "batchSlug": "S26",
+          "entityType": "company",
+          "entityId": "company-osmaura",
           "attributionType": "subject"
         }
       }
@@ -162722,6 +162531,38 @@
     },
     {
       "platform": "linkedin",
+      "sourceUrl": "https://linkedin.com/posts/tselote_im-excited-to-share-that-osmaura-yc-s26-activity-7475947824581529600-j5BM",
+      "platformPostId": "7475947824581529600",
+      "disposition": "quarantined",
+      "reason": "entity_not_in_canonical_batch_catalog",
+      "staleAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-osmaura-jity-woldemichael-1366260",
+        "attributionType": "subject"
+      }
+    },
+    {
+      "platform": "linkedin",
+      "sourceUrl": "https://linkedin.com/posts/tario-you_y-combinator-just-bet-on-opentrade-yc-s26-activity-7476400958906986496-kL5l",
+      "platformPostId": "7476400958906986496",
+      "disposition": "reattributed",
+      "reason": "canonical_targeted_legacy_entity_alias",
+      "staleAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-opentrade-tario-you-2613840",
+        "attributionType": "subject"
+      },
+      "replacementAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-moonshot-computer-tario-you-2613840",
+        "attributionType": "subject"
+      }
+    },
+    {
+      "platform": "linkedin",
       "sourceUrl": "https://linkedin.com/posts/rodrigoteranhdz_ycombinator-yc-dialogus-activity-7476734114193240064-SbX4",
       "platformPostId": "7476734114193240064",
       "disposition": "reattributed",
@@ -162768,6 +162609,25 @@
         "batchSlug": "S26",
         "entityType": "founder",
         "entityId": "founder-operon-anderson-chen-2155140",
+        "attributionType": "subject"
+      }
+    },
+    {
+      "platform": "linkedin",
+      "sourceUrl": "https://linkedin.com/posts/tario-you_today-were-introducing-claude-for-investing-activity-7479930890618396673-ir4b",
+      "platformPostId": "7479930890618396673",
+      "disposition": "reattributed",
+      "reason": "canonical_targeted_legacy_entity_alias",
+      "staleAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-opentrade-tario-you-2613840",
+        "attributionType": "subject"
+      },
+      "replacementAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-moonshot-computer-tario-you-2613840",
         "attributionType": "subject"
       }
     },
@@ -162820,6 +162680,25 @@
         "batchSlug": "S26",
         "entityType": "company",
         "entityId": "company-coasty",
+        "attributionType": "subject"
+      }
+    },
+    {
+      "platform": "linkedin",
+      "sourceUrl": "https://linkedin.com/posts/tario-you_alright-lets-do-this-one-last-time-my-activity-7481147292071337984-pe_5",
+      "platformPostId": "7481147292071337984",
+      "disposition": "reattributed",
+      "reason": "canonical_targeted_legacy_entity_alias",
+      "staleAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-opentrade-tario-you-2613840",
+        "attributionType": "subject"
+      },
+      "replacementAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-moonshot-computer-tario-you-2613840",
         "attributionType": "subject"
       }
     },
@@ -163202,6 +163081,19 @@
     },
     {
       "platform": "x",
+      "sourceUrl": "https://x.com/rookunderfire/status/2070188523563708454",
+      "platformPostId": "2070188523563708454",
+      "disposition": "quarantined",
+      "reason": "entity_not_in_canonical_batch_catalog",
+      "staleAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-osmaura-jity-woldemichael-1366260",
+        "attributionType": "subject"
+      }
+    },
+    {
+      "platform": "x",
       "sourceUrl": "https://x.com/philipxmeng/status/2070354221401280649",
       "platformPostId": "2070354221401280649",
       "disposition": "quarantined",
@@ -163234,6 +163126,167 @@
     },
     {
       "platform": "x",
+      "sourceUrl": "https://x.com/opendottrade/status/2071039098996068726",
+      "platformPostId": "2071039098996068726",
+      "disposition": "reattributed",
+      "reason": "canonical_targeted_legacy_entity_alias",
+      "staleAttribution": {
+        "batchSlug": "S26",
+        "entityType": "company",
+        "entityId": "company-opentrade",
+        "attributionType": "subject"
+      },
+      "replacementAttribution": {
+        "batchSlug": "S26",
+        "entityType": "company",
+        "entityId": "company-moonshot-computer",
+        "attributionType": "subject"
+      }
+    },
+    {
+      "platform": "x",
+      "sourceUrl": "https://x.com/opendottrade/status/2071042617312411803",
+      "platformPostId": "2071042617312411803",
+      "disposition": "reattributed",
+      "reason": "canonical_targeted_legacy_entity_alias",
+      "staleAttribution": {
+        "batchSlug": "S26",
+        "entityType": "company",
+        "entityId": "company-opentrade",
+        "attributionType": "subject"
+      },
+      "replacementAttribution": {
+        "batchSlug": "S26",
+        "entityType": "company",
+        "entityId": "company-moonshot-computer",
+        "attributionType": "subject"
+      }
+    },
+    {
+      "platform": "x",
+      "sourceUrl": "https://x.com/opendottrade/status/2071989624470466662",
+      "platformPostId": "2071989624470466662",
+      "disposition": "reattributed",
+      "reason": "canonical_targeted_legacy_entity_alias",
+      "staleAttribution": {
+        "batchSlug": "S26",
+        "entityType": "company",
+        "entityId": "company-opentrade",
+        "attributionType": "subject"
+      },
+      "replacementAttribution": {
+        "batchSlug": "S26",
+        "entityType": "company",
+        "entityId": "company-moonshot-computer",
+        "attributionType": "subject"
+      }
+    },
+    {
+      "platform": "x",
+      "sourceUrl": "https://x.com/rookunderfire/status/2072133157315600451",
+      "platformPostId": "2072133157315600451",
+      "disposition": "quarantined",
+      "reason": "entity_not_in_canonical_batch_catalog",
+      "staleAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-osmaura-jity-woldemichael-1366260",
+        "attributionType": "subject"
+      }
+    },
+    {
+      "platform": "x",
+      "sourceUrl": "https://x.com/rookunderfire/status/2072133159110787152",
+      "platformPostId": "2072133159110787152",
+      "disposition": "quarantined",
+      "reason": "entity_not_in_canonical_batch_catalog",
+      "staleAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-osmaura-jity-woldemichael-1366260",
+        "attributionType": "subject"
+      }
+    },
+    {
+      "platform": "x",
+      "sourceUrl": "https://x.com/rookunderfire/status/2072133160285143166",
+      "platformPostId": "2072133160285143166",
+      "disposition": "quarantined",
+      "reason": "entity_not_in_canonical_batch_catalog",
+      "staleAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-osmaura-jity-woldemichael-1366260",
+        "attributionType": "subject"
+      }
+    },
+    {
+      "platform": "x",
+      "sourceUrl": "https://x.com/rookunderfire/status/2072133161451147376",
+      "platformPostId": "2072133161451147376",
+      "disposition": "quarantined",
+      "reason": "entity_not_in_canonical_batch_catalog",
+      "staleAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-osmaura-jity-woldemichael-1366260",
+        "attributionType": "subject"
+      }
+    },
+    {
+      "platform": "x",
+      "sourceUrl": "https://x.com/rookunderfire/status/2072133163254739175",
+      "platformPostId": "2072133163254739175",
+      "disposition": "quarantined",
+      "reason": "entity_not_in_canonical_batch_catalog",
+      "staleAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-osmaura-jity-woldemichael-1366260",
+        "attributionType": "subject"
+      }
+    },
+    {
+      "platform": "x",
+      "sourceUrl": "https://x.com/rookunderfire/status/2072133164429119748",
+      "platformPostId": "2072133164429119748",
+      "disposition": "quarantined",
+      "reason": "entity_not_in_canonical_batch_catalog",
+      "staleAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-osmaura-jity-woldemichael-1366260",
+        "attributionType": "subject"
+      }
+    },
+    {
+      "platform": "x",
+      "sourceUrl": "https://x.com/rookunderfire/status/2072133165607780552",
+      "platformPostId": "2072133165607780552",
+      "disposition": "quarantined",
+      "reason": "entity_not_in_canonical_batch_catalog",
+      "staleAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-osmaura-jity-woldemichael-1366260",
+        "attributionType": "subject"
+      }
+    },
+    {
+      "platform": "x",
+      "sourceUrl": "https://x.com/abe_yebe/status/2072133219949158572",
+      "platformPostId": "2072133219949158572",
+      "disposition": "quarantined",
+      "reason": "entity_not_in_canonical_batch_catalog",
+      "staleAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-osmaura-kali-abeje-2718831",
+        "attributionType": "subject"
+      }
+    },
+    {
+      "platform": "x",
       "sourceUrl": "https://x.com/philipxmeng/status/2072426088257802265",
       "platformPostId": "2072426088257802265",
       "disposition": "quarantined",
@@ -163242,6 +163295,63 @@
         "batchSlug": "S26",
         "entityType": "founder",
         "entityId": "founder-shepherd-3-philip-meng-2723488",
+        "attributionType": "subject"
+      }
+    },
+    {
+      "platform": "x",
+      "sourceUrl": "https://x.com/opendottrade/status/2074170563560718842",
+      "platformPostId": "2074170563560718842",
+      "disposition": "reattributed",
+      "reason": "canonical_targeted_legacy_entity_alias",
+      "staleAttribution": {
+        "batchSlug": "S26",
+        "entityType": "company",
+        "entityId": "company-opentrade",
+        "attributionType": "subject"
+      },
+      "replacementAttribution": {
+        "batchSlug": "S26",
+        "entityType": "company",
+        "entityId": "company-moonshot-computer",
+        "attributionType": "subject"
+      }
+    },
+    {
+      "platform": "x",
+      "sourceUrl": "https://x.com/opendottrade/status/2074239220789719341",
+      "platformPostId": "2074239220789719341",
+      "disposition": "reattributed",
+      "reason": "canonical_targeted_legacy_entity_alias",
+      "staleAttribution": {
+        "batchSlug": "S26",
+        "entityType": "company",
+        "entityId": "company-opentrade",
+        "attributionType": "subject"
+      },
+      "replacementAttribution": {
+        "batchSlug": "S26",
+        "entityType": "company",
+        "entityId": "company-moonshot-computer",
+        "attributionType": "subject"
+      }
+    },
+    {
+      "platform": "x",
+      "sourceUrl": "https://x.com/opendottrade/status/2074240171848130676",
+      "platformPostId": "2074240171848130676",
+      "disposition": "reattributed",
+      "reason": "canonical_targeted_legacy_entity_alias",
+      "staleAttribution": {
+        "batchSlug": "S26",
+        "entityType": "company",
+        "entityId": "company-opentrade",
+        "attributionType": "subject"
+      },
+      "replacementAttribution": {
+        "batchSlug": "S26",
+        "entityType": "company",
+        "entityId": "company-moonshot-computer",
         "attributionType": "subject"
       }
     },
@@ -163299,6 +163409,19 @@
         "batchSlug": "S26",
         "entityType": "founder",
         "entityId": "founder-onetriangle-hannah-chung-2573695",
+        "attributionType": "subject"
+      }
+    },
+    {
+      "platform": "x",
+      "sourceUrl": "https://x.com/abe_yebe/status/2074554728722448579",
+      "platformPostId": "2074554728722448579",
+      "disposition": "quarantined",
+      "reason": "entity_not_in_canonical_batch_catalog",
+      "staleAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-osmaura-kali-abeje-2718831",
         "attributionType": "subject"
       }
     },
@@ -163517,6 +163640,63 @@
     },
     {
       "platform": "x",
+      "sourceUrl": "https://x.com/ojaskandy/status/2076175515652849769",
+      "platformPostId": "2076175515652849769",
+      "disposition": "reattributed",
+      "reason": "canonical_targeted_legacy_entity_alias",
+      "staleAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-opentrade-ojas-kandhare-2384611",
+        "attributionType": "subject"
+      },
+      "replacementAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-moonshot-computer-ojas-kandhare-2384611",
+        "attributionType": "subject"
+      }
+    },
+    {
+      "platform": "x",
+      "sourceUrl": "https://x.com/ojaskandy/status/2076180349672157438",
+      "platformPostId": "2076180349672157438",
+      "disposition": "reattributed",
+      "reason": "canonical_targeted_legacy_entity_alias",
+      "staleAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-opentrade-ojas-kandhare-2384611",
+        "attributionType": "subject"
+      },
+      "replacementAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-moonshot-computer-ojas-kandhare-2384611",
+        "attributionType": "subject"
+      }
+    },
+    {
+      "platform": "x",
+      "sourceUrl": "https://x.com/ojaskandy/status/2076204881883607547",
+      "platformPostId": "2076204881883607547",
+      "disposition": "reattributed",
+      "reason": "canonical_targeted_legacy_entity_alias",
+      "staleAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-opentrade-ojas-kandhare-2384611",
+        "attributionType": "subject"
+      },
+      "replacementAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-moonshot-computer-ojas-kandhare-2384611",
+        "attributionType": "subject"
+      }
+    },
+    {
+      "platform": "x",
       "sourceUrl": "https://x.com/ro_seelamsetty/status/2076476018597237037",
       "platformPostId": "2076476018597237037",
       "disposition": "reattributed",
@@ -163531,6 +163711,51 @@
         "batchSlug": "S26",
         "entityType": "founder",
         "entityId": "founder-praxis-robotics-rohan-seelamsetty-2794157",
+        "attributionType": "subject"
+      }
+    },
+    {
+      "platform": "x",
+      "sourceUrl": "https://x.com/ojaskandy/status/2076554444167385245",
+      "platformPostId": "2076554444167385245",
+      "disposition": "reattributed",
+      "reason": "canonical_targeted_legacy_entity_alias",
+      "staleAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-opentrade-ojas-kandhare-2384611",
+        "attributionType": "subject"
+      },
+      "replacementAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-moonshot-computer-ojas-kandhare-2384611",
+        "attributionType": "subject"
+      }
+    },
+    {
+      "platform": "x",
+      "sourceUrl": "https://x.com/abe_yebe/status/2076570362624848007",
+      "platformPostId": "2076570362624848007",
+      "disposition": "quarantined",
+      "reason": "entity_not_in_canonical_batch_catalog",
+      "staleAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-osmaura-kali-abeje-2718831",
+        "attributionType": "subject"
+      }
+    },
+    {
+      "platform": "x",
+      "sourceUrl": "https://x.com/abe_yebe/status/2076570570230243389",
+      "platformPostId": "2076570570230243389",
+      "disposition": "quarantined",
+      "reason": "entity_not_in_canonical_batch_catalog",
+      "staleAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-osmaura-kali-abeje-2718831",
         "attributionType": "subject"
       }
     },
@@ -163601,6 +163826,44 @@
         "batchSlug": "S26",
         "entityType": "company",
         "entityId": "company-most-robotic",
+        "attributionType": "subject"
+      }
+    },
+    {
+      "platform": "x",
+      "sourceUrl": "https://x.com/ojaskandy/status/2076919928721154241",
+      "platformPostId": "2076919928721154241",
+      "disposition": "reattributed",
+      "reason": "canonical_targeted_legacy_entity_alias",
+      "staleAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-opentrade-ojas-kandhare-2384611",
+        "attributionType": "subject"
+      },
+      "replacementAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-moonshot-computer-ojas-kandhare-2384611",
+        "attributionType": "subject"
+      }
+    },
+    {
+      "platform": "x",
+      "sourceUrl": "https://x.com/ojaskandy/status/2076920089975394814",
+      "platformPostId": "2076920089975394814",
+      "disposition": "reattributed",
+      "reason": "canonical_targeted_legacy_entity_alias",
+      "staleAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-opentrade-ojas-kandhare-2384611",
+        "attributionType": "subject"
+      },
+      "replacementAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-moonshot-computer-ojas-kandhare-2384611",
         "attributionType": "subject"
       }
     },
@@ -163847,6 +164110,44 @@
     },
     {
       "platform": "x",
+      "sourceUrl": "https://x.com/ojaskandy/status/2077518057434677441",
+      "platformPostId": "2077518057434677441",
+      "disposition": "reattributed",
+      "reason": "canonical_targeted_legacy_entity_alias",
+      "staleAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-opentrade-ojas-kandhare-2384611",
+        "attributionType": "subject"
+      },
+      "replacementAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-moonshot-computer-ojas-kandhare-2384611",
+        "attributionType": "subject"
+      }
+    },
+    {
+      "platform": "x",
+      "sourceUrl": "https://x.com/ojaskandy/status/2077534346098131376",
+      "platformPostId": "2077534346098131376",
+      "disposition": "reattributed",
+      "reason": "canonical_targeted_legacy_entity_alias",
+      "staleAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-opentrade-ojas-kandhare-2384611",
+        "attributionType": "subject"
+      },
+      "replacementAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-moonshot-computer-ojas-kandhare-2384611",
+        "attributionType": "subject"
+      }
+    },
+    {
+      "platform": "x",
       "sourceUrl": "https://x.com/varunpuru/status/2077567491916886411",
       "platformPostId": "2077567491916886411",
       "disposition": "quarantined",
@@ -163917,6 +164218,25 @@
     },
     {
       "platform": "x",
+      "sourceUrl": "https://x.com/ojaskandy/status/2077839311274430585",
+      "platformPostId": "2077839311274430585",
+      "disposition": "reattributed",
+      "reason": "canonical_targeted_legacy_entity_alias",
+      "staleAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-opentrade-ojas-kandhare-2384611",
+        "attributionType": "subject"
+      },
+      "replacementAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-moonshot-computer-ojas-kandhare-2384611",
+        "attributionType": "subject"
+      }
+    },
+    {
+      "platform": "x",
       "sourceUrl": "https://x.com/coastyai/status/2077841044981579879",
       "platformPostId": "2077841044981579879",
       "disposition": "quarantined",
@@ -163938,6 +164258,25 @@
         "batchSlug": "S26",
         "entityType": "founder",
         "entityId": "founder-archal-noah-song-2561732",
+        "attributionType": "subject"
+      }
+    },
+    {
+      "platform": "x",
+      "sourceUrl": "https://x.com/ojaskandy/status/2077872313224376444",
+      "platformPostId": "2077872313224376444",
+      "disposition": "reattributed",
+      "reason": "canonical_targeted_legacy_entity_alias",
+      "staleAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-opentrade-ojas-kandhare-2384611",
+        "attributionType": "subject"
+      },
+      "replacementAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-moonshot-computer-ojas-kandhare-2384611",
         "attributionType": "subject"
       }
     },
@@ -164001,6 +164340,19 @@
     },
     {
       "platform": "x",
+      "sourceUrl": "https://x.com/abe_yebe/status/2078289982721003559",
+      "platformPostId": "2078289982721003559",
+      "disposition": "quarantined",
+      "reason": "entity_not_in_canonical_batch_catalog",
+      "staleAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-osmaura-kali-abeje-2718831",
+        "attributionType": "subject"
+      }
+    },
+    {
+      "platform": "x",
       "sourceUrl": "https://x.com/lluismanrique/status/2078302156474794317",
       "platformPostId": "2078302156474794317",
       "disposition": "reattributed",
@@ -164033,6 +164385,25 @@
     },
     {
       "platform": "x",
+      "sourceUrl": "https://x.com/ojaskandy/status/2078642802377056396",
+      "platformPostId": "2078642802377056396",
+      "disposition": "reattributed",
+      "reason": "canonical_targeted_legacy_entity_alias",
+      "staleAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-opentrade-ojas-kandhare-2384611",
+        "attributionType": "subject"
+      },
+      "replacementAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-moonshot-computer-ojas-kandhare-2384611",
+        "attributionType": "subject"
+      }
+    },
+    {
+      "platform": "x",
       "sourceUrl": "https://x.com/theophorus7/status/2078663929040109773",
       "platformPostId": "2078663929040109773",
       "disposition": "quarantined",
@@ -164041,6 +164412,77 @@
         "batchSlug": "S26",
         "entityType": "founder",
         "entityId": "founder-archal-noah-song-2561732",
+        "attributionType": "subject"
+      }
+    },
+    {
+      "platform": "x",
+      "sourceUrl": "https://x.com/abe_yebe/status/2078670261755564494",
+      "platformPostId": "2078670261755564494",
+      "disposition": "quarantined",
+      "reason": "entity_not_in_canonical_batch_catalog",
+      "staleAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-osmaura-kali-abeje-2718831",
+        "attributionType": "subject"
+      }
+    },
+    {
+      "platform": "x",
+      "sourceUrl": "https://x.com/abe_yebe/status/2078677163017130085",
+      "platformPostId": "2078677163017130085",
+      "disposition": "quarantined",
+      "reason": "entity_not_in_canonical_batch_catalog",
+      "staleAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-osmaura-kali-abeje-2718831",
+        "attributionType": "subject"
+      }
+    },
+    {
+      "platform": "x",
+      "sourceUrl": "https://x.com/abe_yebe/status/2078678413943226640",
+      "platformPostId": "2078678413943226640",
+      "disposition": "quarantined",
+      "reason": "entity_not_in_canonical_batch_catalog",
+      "staleAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-osmaura-kali-abeje-2718831",
+        "attributionType": "subject"
+      }
+    },
+    {
+      "platform": "x",
+      "sourceUrl": "https://x.com/abe_yebe/status/2078678684156973126",
+      "platformPostId": "2078678684156973126",
+      "disposition": "quarantined",
+      "reason": "entity_not_in_canonical_batch_catalog",
+      "staleAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-osmaura-kali-abeje-2718831",
+        "attributionType": "subject"
+      }
+    },
+    {
+      "platform": "x",
+      "sourceUrl": "https://x.com/ojaskandy/status/2078692992907714629",
+      "platformPostId": "2078692992907714629",
+      "disposition": "reattributed",
+      "reason": "canonical_targeted_legacy_entity_alias",
+      "staleAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-opentrade-ojas-kandhare-2384611",
+        "attributionType": "subject"
+      },
+      "replacementAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-moonshot-computer-ojas-kandhare-2384611",
         "attributionType": "subject"
       }
     },
@@ -164104,6 +164546,25 @@
     },
     {
       "platform": "x",
+      "sourceUrl": "https://x.com/ojaskandy/status/2079132274411635197",
+      "platformPostId": "2079132274411635197",
+      "disposition": "reattributed",
+      "reason": "canonical_targeted_legacy_entity_alias",
+      "staleAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-opentrade-ojas-kandhare-2384611",
+        "attributionType": "subject"
+      },
+      "replacementAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-moonshot-computer-ojas-kandhare-2384611",
+        "attributionType": "subject"
+      }
+    },
+    {
+      "platform": "x",
       "sourceUrl": "https://x.com/nithikbala/status/2079229339376447805",
       "platformPostId": "2079229339376447805",
       "disposition": "quarantined",
@@ -164125,6 +164586,44 @@
         "batchSlug": "S26",
         "entityType": "founder",
         "entityId": "founder-amulet-nithik-bala-3489066",
+        "attributionType": "subject"
+      }
+    },
+    {
+      "platform": "x",
+      "sourceUrl": "https://x.com/ojaskandy/status/2079323597798244499",
+      "platformPostId": "2079323597798244499",
+      "disposition": "reattributed",
+      "reason": "canonical_targeted_legacy_entity_alias",
+      "staleAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-opentrade-ojas-kandhare-2384611",
+        "attributionType": "subject"
+      },
+      "replacementAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-moonshot-computer-ojas-kandhare-2384611",
+        "attributionType": "subject"
+      }
+    },
+    {
+      "platform": "x",
+      "sourceUrl": "https://x.com/ojaskandy/status/2079409309117739251",
+      "platformPostId": "2079409309117739251",
+      "disposition": "reattributed",
+      "reason": "canonical_targeted_legacy_entity_alias",
+      "staleAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-opentrade-ojas-kandhare-2384611",
+        "attributionType": "subject"
+      },
+      "replacementAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-moonshot-computer-ojas-kandhare-2384611",
         "attributionType": "subject"
       }
     },
@@ -164157,6 +164656,25 @@
         "batchSlug": "S26",
         "entityType": "company",
         "entityId": "company-coasty",
+        "attributionType": "subject"
+      }
+    },
+    {
+      "platform": "x",
+      "sourceUrl": "https://x.com/ojaskandy/status/2079982680868089898",
+      "platformPostId": "2079982680868089898",
+      "disposition": "reattributed",
+      "reason": "canonical_targeted_legacy_entity_alias",
+      "staleAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-opentrade-ojas-kandhare-2384611",
+        "attributionType": "subject"
+      },
+      "replacementAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-moonshot-computer-ojas-kandhare-2384611",
         "attributionType": "subject"
       }
     },
@@ -164375,6 +164893,19 @@
         "batchSlug": "S26",
         "entityType": "company",
         "entityId": "company-coasty",
+        "attributionType": "subject"
+      }
+    },
+    {
+      "platform": "youtube",
+      "sourceUrl": "https://youtube.com/watch?v=hbBDbuNP-Mw",
+      "platformPostId": "hbBDbuNP-Mw",
+      "disposition": "quarantined",
+      "reason": "entity_not_in_canonical_batch_catalog",
+      "staleAttribution": {
+        "batchSlug": "S26",
+        "entityType": "company",
+        "entityId": "company-osmaura",
         "attributionType": "subject"
       }
     },

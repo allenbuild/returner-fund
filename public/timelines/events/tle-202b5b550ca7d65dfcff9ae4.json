@@ -1,0 +1,65 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-luca-iq",
+    "slug": "luca-iq",
+    "name": "Luca IQ"
+  },
+  "event": {
+    "id": "tle-202b5b550ca7d65dfcff9ae4",
+    "eventDate": "2026-07-31",
+    "eventDateType": "announcement_date",
+    "title": "Luca IQ released Luca IQ (YC S26) Launch",
+    "summary": "Luca IQ (YC S26) Launch.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-c4d8a22134e0ece034cf515a",
+        "title": "Luca IQ (YC S26) Launch",
+        "publisher": "Luca IQ (YC S26) Launch",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-07-31T07:00:25.000Z",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=IV5nl7grMxI"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-c4d8a22134e0ece034cf515a",
+        "title": "Luca IQ (YC S26) Launch",
+        "publisher": "Luca IQ (YC S26) Launch",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-07-31T07:00:25.000Z",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=IV5nl7grMxI",
+        "publicationDate": "2026-07-31T07:00:25.000Z",
+        "excerpt": "Luca IQ is a modern professional tax software made by CPAs for CPAs Learn more at lucaiq.com",
+        "sourceEventDate": "2026-07-31",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-6759c4c8e4dff8a8c3528b31",
+        "platform": "youtube",
+        "account": "Luca IQ (YC S26) Launch",
+        "postDate": "2026-07-31",
+        "excerpt": "Luca IQ is a modern professional tax software made by CPAs for CPAs Learn more at lucaiq.com",
+        "url": "https://youtube.com/watch?v=IV5nl7grMxI",
+        "metrics": {
+          "views": 165
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-09-07T16:00:45.424Z",
+  "lastModifiedAt": "2026-09-07T16:00:45.424Z"
+}

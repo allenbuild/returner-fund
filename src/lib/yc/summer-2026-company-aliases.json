@@ -476,6 +476,76 @@
           }
         }
       ]
+    },
+    {
+      "companyId": "32205",
+      "fromSlug": "mochitv",
+      "fromName": "MOCHI.TV",
+      "toSlug": "mochi",
+      "toName": "Mochi",
+      "companyAccounts": {
+        "linkedin": [
+          "https://www.linkedin.com/company/mochitv/"
+        ],
+        "x": [
+          "https://x.com/watchmochi/"
+        ]
+      },
+      "founders": [
+        {
+          "founderId": "1027100",
+          "name": "Robert Qiu",
+          "accounts": {
+            "linkedin": [
+              "https://linkedin.com/in/robertqiu"
+            ],
+            "x": [
+              "https://x.com/whatsrobdoing_"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "companyId": "32121",
+      "fromSlug": "opentrade",
+      "fromName": "OpenTrade",
+      "toSlug": "moonshot-computer",
+      "toName": "Moonshot",
+      "companyAccounts": {
+        "linkedin": [
+          "https://www.linkedin.com/company/opentradelive/"
+        ],
+        "x": [
+          "https://x.com/opendottrade"
+        ]
+      },
+      "founders": [
+        {
+          "founderId": "2384611",
+          "name": "Ojas Kandhare",
+          "accounts": {
+            "linkedin": [
+              "https://www.linkedin.com/in/ojas-kandhare-74b349212/"
+            ],
+            "x": [
+              "https://x.com/ojaskandy"
+            ]
+          }
+        },
+        {
+          "founderId": "2613840",
+          "name": "Tario You",
+          "accounts": {
+            "linkedin": [
+              "https://www.linkedin.com/in/tario-you"
+            ],
+            "x": [
+              "https://x.com/deftarioo"
+            ]
+          }
+        }
+      ]
     }
   ],
   "founderTransitions": [

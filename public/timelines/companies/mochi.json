@@ -1,19 +1,19 @@
 {
   "schemaVersion": "company-timeline.v1",
   "company": {
-    "id": "company-mochitv",
-    "slug": "mochi-tv",
-    "name": "MOCHI.TV"
+    "id": "company-mochi",
+    "slug": "mochi",
+    "name": "Mochi"
   },
-  "generatedAt": "2026-09-07T05:53:52.791Z",
-  "lastModifiedAt": "2026-09-07T05:53:52.791Z",
+  "generatedAt": "2026-09-07T16:00:45.424Z",
+  "lastModifiedAt": "2026-09-07T16:00:45.424Z",
   "events": [
     {
-      "id": "tle-f0f9fca62ed17f9c9ac778ea",
+      "id": "tle-f59fc1851a6d84d3a95e2801",
       "eventDate": "2026-08-28",
       "eventDateType": "announcement_date",
-      "title": "MOCHI.TV released Mochi Lab 🧪 Make your own anime",
-      "summary": "MOCHI.TV introduced Mochi Lab 🧪 Make your own anime.",
+      "title": "Mochi released Mochi Lab 🧪 Make your own anime",
+      "summary": "Mochi introduced Mochi Lab 🧪 Make your own anime.",
       "category": "product_launch",
       "isMajor": true,
       "hasConflict": false,
@@ -57,7 +57,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-09-07T05:53:52.791Z"
+    "lastSuccessfulArtifactAt": "2026-09-07T16:00:45.424Z"
   },
   "nextCursor": null
 }

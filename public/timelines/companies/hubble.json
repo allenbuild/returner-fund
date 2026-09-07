@@ -5,8 +5,8 @@
     "slug": "hubble",
     "name": "Hubble"
   },
-  "generatedAt": "2026-09-07T05:53:52.791Z",
-  "lastModifiedAt": "2026-09-07T05:53:52.791Z",
+  "generatedAt": "2026-09-07T16:00:45.424Z",
+  "lastModifiedAt": "2026-09-07T16:00:45.424Z",
   "events": [
     {
       "id": "tle-a161a35397b1e75358eec538",
@@ -47,7 +47,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-09-07T05:53:52.791Z"
+    "lastSuccessfulArtifactAt": "2026-09-07T16:00:45.424Z"
   },
   "nextCursor": null
 }

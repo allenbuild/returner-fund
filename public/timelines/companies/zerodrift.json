@@ -5,8 +5,8 @@
     "slug": "zerodrift",
     "name": "ZeroDrift"
   },
-  "generatedAt": "2026-09-07T05:53:52.791Z",
-  "lastModifiedAt": "2026-09-07T05:53:52.791Z",
+  "generatedAt": "2026-09-07T16:00:45.424Z",
+  "lastModifiedAt": "2026-09-07T16:00:45.424Z",
   "events": [
     {
       "id": "tle-0ef6fed2e4a50d5157d02739",
@@ -57,26 +57,46 @@
       ]
     },
     {
-      "id": "tle-32b0a7ffa6158b5e69b57247",
+      "id": "tle-28722f21ae1390d5153e0f06",
       "eventDate": "2026-02-10",
       "eventDateType": "announcement_date",
-      "title": "ZeroDrift released ZeroDrift: Move Fast and Stay Compliant",
-      "summary": "ZeroDrift introduced ZeroDrift: Move Fast and Stay Compliant.",
+      "title": "ZeroDrift released Command",
+      "summary": "ZeroDrift introduced Command: The Control Plane for AI Compliance.",
       "category": "product_launch",
-      "isMajor": false,
+      "isMajor": true,
       "hasConflict": false,
       "conflictSummary": null,
-      "evidenceCount": 1,
+      "evidenceCount": 3,
       "sourcePreview": [
+        {
+          "id": "src-469732a3f1ce267a846200cd",
+          "title": "Introducing Command: The Control Plane for AI Compliance",
+          "publisher": "zerodrift-ai",
+          "domain": "youtube.com",
+          "sourceType": "video",
+          "publishedAt": "2026-08-11T13:04:19.000Z",
+          "evidenceRole": "primary",
+          "url": "https://youtube.com/watch?v=7NjUZp_IW-k"
+        },
         {
           "id": "src-7e2a18c230db3b600d96cea1",
           "title": "Introducing ZeroDrift: Move Fast and Stay Compliant",
           "publisher": "zerodrift-ai",
           "domain": "youtube.com",
           "sourceType": "video",
-          "publishedAt": "2026-02-10T04:43:43-08:00",
+          "publishedAt": "2026-02-10T12:43:43.000Z",
           "evidenceRole": "primary",
           "url": "https://youtube.com/watch?v=EMT2VhGFidw"
+        },
+        {
+          "id": "src-ec08b5645d24a05e454d380c",
+          "title": "Introducing Guard for Agents",
+          "publisher": "zerodrift-ai",
+          "domain": "youtube.com",
+          "sourceType": "video",
+          "publishedAt": "2026-09-02T13:00:35.000Z",
+          "evidenceRole": "primary",
+          "url": "https://youtube.com/watch?v=fmYrVpCiuGA"
         }
       ]
     }
@@ -103,7 +123,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 3,
-    "lastSuccessfulArtifactAt": "2026-09-07T05:53:52.791Z"
+    "lastSuccessfulArtifactAt": "2026-09-07T16:00:45.424Z"
   },
   "nextCursor": null
 }
