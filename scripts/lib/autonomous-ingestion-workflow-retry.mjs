@@ -69,6 +69,7 @@ const TRANSIENT_FAILURE = new RegExp(
     "connection reset",
     "temporar(?:y|ily)",
     "transient",
+    "collector snapshots still contain retryable failures after the collection deadline",
     "timed out",
     "timeout",
     "\\b(?:EAI_AGAIN|ECONNREFUSED|ECONNRESET|ENETDOWN|ENETUNREACH|EHOSTUNREACH|ETIMEDOUT|UND_ERR_[A-Z_]+)\\b",

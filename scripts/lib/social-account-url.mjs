@@ -213,7 +213,22 @@ export function canonicalSocialAccountUrl(rawPlatform, rawUrl) {
         return identity ? `https://youtube.com/@${encodeIdentity(identity)}` : null;
       }
       const normalizedNamespace = namespace.toLowerCase();
-      if (["channel", "c", "user"].includes(normalizedNamespace) && parts[1]) {
+      if (normalizedNamespace === "channel" && parts[1]) {
+        // YouTube's opaque channel IDs are case-sensitive. Lowercasing them
+        // changes the resource and can turn a verified channel mapping into a
+        // persistent 404. Vanity `/c` and `/user` identities remain
+        // case-normalized below.
+        const identity = normalizeIdentity(parts[1], {
+          lowercase: false,
+          pattern: ASCII_ACCOUNT_IDENTITY,
+          maxLength: 200,
+          requireAlphaNumeric: true
+        });
+        return identity
+          ? `https://youtube.com/channel/${encodeIdentity(identity)}`
+          : null;
+      }
+      if (["c", "user"].includes(normalizedNamespace) && parts[1]) {
         const identity = normalizeIdentity(parts[1], {
           pattern: INTERNATIONAL_ACCOUNT_IDENTITY,
           maxLength: 200,

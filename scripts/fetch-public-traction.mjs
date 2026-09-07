@@ -1693,12 +1693,34 @@ function structuredMappedAccountTerminalOutcome(
   result,
   { platform, accountUrl, usefulResultCount = 0 }
 ) {
-  if (platform !== "x" || usefulResultCount > 0) return null;
+  if (usefulResultCount > 0) return null;
   const receipt = result?.coverageReceipt;
   if (!receipt || receipt.verified !== false) return null;
-  const taskAccountUrl = canonicalSocialAccountUrl("x", accountUrl);
-  const receiptAccountUrl = canonicalSocialAccountUrl("x", receipt.accountUrl);
+  const taskAccountUrl = canonicalSocialAccountUrl(platform, accountUrl);
+  const receiptAccountUrl = canonicalSocialAccountUrl(platform, receipt.accountUrl);
   if (!taskAccountUrl || !receiptAccountUrl || taskAccountUrl !== receiptAccountUrl) return null;
+
+  if (platform === "youtube") {
+    const channelMatch = /^https:\/\/youtube\.com\/channel\/(UC[A-Za-z0-9_-]+)$/.exec(taskAccountUrl);
+    if (
+      !channelMatch ||
+      receipt.schemaVersion !== 1 ||
+      receipt.source !== "youtube_exact_mapped_channel_http_404_v1" ||
+      receipt.reason !== "youtube_exact_mapped_channel_http_404" ||
+      receipt.channelId !== channelMatch[1] ||
+      receipt.pageUrl !== `${taskAccountUrl}/videos` ||
+      receipt.httpStatus !== 404 ||
+      receipt.checkedAt !== now
+    ) {
+      return null;
+    }
+    return {
+      status: "needs_review",
+      reason: "collector_mapped_account_not_found"
+    };
+  }
+
+  if (platform !== "x") return null;
 
   if (receipt.reason === "x_public_profile_http_404") {
     return {
@@ -2306,6 +2328,53 @@ async function ingestMappedYouTubeAccount(company, entity, entityType, accountUr
   const { response: pageResponse, text: html } = await fetchPublicBoundedText(videosUrl);
   const pageObservation = parseYouTubePublicPage(html);
   const mappedChannelId = youtubeChannelIdFromAccountUrl(canonicalAccountUrl);
+  const entityId = entityIdFor(company, entity, entityType);
+  const name = entityName(entity, entityType);
+  const exactMappedChannelUrl = mappedChannelId
+    ? `https://youtube.com/channel/${mappedChannelId}`
+    : null;
+  if (
+    pageResponse.status === 404 &&
+    exactMappedChannelUrl &&
+    canonicalAccountUrl === exactMappedChannelUrl
+  ) {
+    const message =
+      "Mapped YouTube public videos listing could not be exhausted: videos page returned HTTP 404.";
+    return {
+      needsReview: [reviewCandidate(
+        company,
+        "youtube",
+        canonicalAccountUrl,
+        `The exact mapped YouTube channel ${mappedChannelId} returned HTTP 404 and requires mapping review.`,
+        entityType,
+        entityId,
+        name
+      )],
+      failures: [{
+        ...failure(
+          "youtube",
+          company,
+          videosUrl,
+          message,
+          entityType,
+          name,
+          entityId
+        ),
+        retryable: false
+      }],
+      coverageReceipt: {
+        schemaVersion: 1,
+        source: "youtube_exact_mapped_channel_http_404_v1",
+        verified: false,
+        accountUrl: canonicalAccountUrl,
+        channelId: mappedChannelId,
+        pageUrl: videosUrl,
+        httpStatus: 404,
+        reason: "youtube_exact_mapped_channel_http_404",
+        checkedAt: now
+      }
+    };
+  }
   if (mappedChannelId && pageObservation.channelId && mappedChannelId !== pageObservation.channelId) {
     return {
       failures: [failure(
@@ -2322,8 +2391,6 @@ async function ingestMappedYouTubeAccount(company, entity, entityType, accountUr
   const pageVideos = parseYouTubeResults(html);
   const channelId = mappedChannelId ?? pageObservation.channelId ??
     pageVideos.find((video) => video.youtubeChannelId)?.youtubeChannelId ?? null;
-  const entityId = entityIdFor(company, entity, entityType);
-  const name = entityName(entity, entityType);
   let feed = null;
   let feedFailure = null;
   let feedHttpStatus = null;

@@ -2948,7 +2948,8 @@ function exactTypedMappedAccountTerminalOutcome(attempt) {
   if (attemptKey !== `${platform}:${entityType}:${entityId}:${accountUrl}`) return null;
 
   if (platform === "youtube") {
-    return exactTypedYouTubeListingTerminalOutcome(attempt, accountUrl);
+    return exactTypedYouTubeMappedAccountTerminalOutcome(attempt, accountUrl)
+      ?? exactTypedYouTubeListingTerminalOutcome(attempt, accountUrl);
   }
 
   if (
@@ -2988,6 +2989,40 @@ function exactTypedMappedAccountTerminalOutcome(attempt) {
     return { status: "needs_review", reason: outcomeReason };
   }
   return null;
+}
+
+function exactTypedYouTubeMappedAccountTerminalOutcome(attempt, accountUrl) {
+  const receipt = attempt?.coverageReceipt;
+  if (
+    attempt?.retryable !== false ||
+    attempt?.outcomeStatus !== "needs_review" ||
+    attempt?.outcomeReason !== "collector_mapped_account_not_found" ||
+    receipt?.schemaVersion !== 1 ||
+    receipt?.source !== "youtube_exact_mapped_channel_http_404_v1" ||
+    receipt?.verified !== false ||
+    receipt?.reason !== "youtube_exact_mapped_channel_http_404" ||
+    receipt?.httpStatus !== 404 ||
+    receipt?.checkedAt !== attempt?.checkedAt
+  ) {
+    return null;
+  }
+  const attemptAccountUrl = canonicalSocialAccountUrl("youtube", accountUrl);
+  const receiptAccountUrl = canonicalSocialAccountUrl("youtube", receipt.accountUrl);
+  const channelMatch = /^https:\/\/youtube\.com\/channel\/(UC[A-Za-z0-9_-]+)$/.exec(
+    attemptAccountUrl ?? ""
+  );
+  if (
+    !channelMatch ||
+    receiptAccountUrl !== attemptAccountUrl ||
+    receipt.channelId !== channelMatch[1] ||
+    receipt.pageUrl !== `${attemptAccountUrl}/videos`
+  ) {
+    return null;
+  }
+  return {
+    status: "needs_review",
+    reason: "collector_mapped_account_not_found"
+  };
 }
 
 function exactTypedYouTubeListingTerminalOutcome(attempt, accountUrl) {

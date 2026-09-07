@@ -122,6 +122,17 @@ test("canonical social account identity strips LinkedIn surfaces and rejects wro
 
 test("canonical mapped-account URLs preserve identity and reject unsafe hosts", () => {
   assert.equal(
+    canonicalSocialAccountUrl(
+      "youtube",
+      "https://www.youtube.com/channel/UCxpHV6SlEVicu8RuSx0KY5g/videos"
+    ),
+    "https://youtube.com/channel/UCxpHV6SlEVicu8RuSx0KY5g"
+  );
+  assert.equal(
+    canonicalSocialAccountUrl("youtube", "https://youtube.com/user/MixedCaseName/videos"),
+    "https://youtube.com/user/mixedcasename"
+  );
+  assert.equal(
     canonicalSocialAccountUrl("reddit", "https://old.reddit.com/u/Total_Birthday8070/"),
     "https://reddit.com/user/total_birthday8070"
   );

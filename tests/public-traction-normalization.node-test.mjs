@@ -2516,6 +2516,83 @@ globalThis.fetch = async (input) => {
   }
 });
 
+test("an exact case-sensitive mapped YouTube channel 404 is terminal needs-review", async () => {
+  const directory = await mkdtemp(join(tmpdir(), "returner-public-youtube-channel-404-"));
+  const output = join(directory, "public-evidence.json");
+  const checkpoint = join(directory, "checkpoint.json");
+  const discoveryAttempts = join(directory, "discovery-attempts.json");
+  const sourceDiscoveryPaths = join(directory, "source-discovery-paths.json");
+  const preload = join(directory, "mock-fetch.mjs");
+  const accountUrl = "https://youtube.com/channel/UCxpHV6SlEVicu8RuSx0KY5g";
+  const videosUrl = `${accountUrl}/videos`;
+  const entityId = "a16z-speedrun-006-variantnow";
+
+  await Promise.all([
+    writeFile(discoveryAttempts, "[]\n"),
+    writeFile(sourceDiscoveryPaths, "[]\n"),
+    writeFile(preload, withMockPublicDns(`
+globalThis.fetch = async (input) => {
+  const value = String(input);
+  if (value === ${JSON.stringify(videosUrl)}) {
+    return new Response("not found", { status: 404 });
+  }
+  throw new Error("unexpected URL: " + value);
+};
+`))
+  ]);
+
+  execFileSync(process.execPath, [
+    "scripts/fetch-public-traction.mjs",
+    "--batch=A16ZSR006",
+    "--company=variantnow",
+    "--platforms=youtube",
+    "--social=all",
+    "--workers=1",
+    "--delay-ms=0",
+    "--force",
+    `--output=${output}`,
+    `--checkpoint=${checkpoint}`,
+    `--discovery-attempts=${discoveryAttempts}`,
+    `--source-discovery-paths=${sourceDiscoveryPaths}`
+  ], {
+    cwd: root,
+    env: {
+      ...process.env,
+      NODE_OPTIONS: [process.env.NODE_OPTIONS, `--import=${preload}`].filter(Boolean).join(" ")
+    },
+    stdio: "pipe"
+  });
+
+  const snapshot = JSON.parse(await readFile(output, "utf8"));
+  const attempt = Object.values(snapshot.attempts).find(
+    (row) => row.entityId === entityId && row.accountUrl === accountUrl
+  );
+  const mappedFailure = snapshot.failures.find(
+    (row) => row.entityId === entityId && row.sourceUrl === videosUrl
+  );
+  const review = snapshot.needsReview.find(
+    (row) => row.entityId === entityId && row.candidateUrl === accountUrl
+  );
+
+  assert.equal(attempt?.retryable, false);
+  assert.equal(attempt?.outcomeStatus, "needs_review");
+  assert.equal(attempt?.outcomeReason, "collector_mapped_account_not_found");
+  assert.equal(mappedFailure?.retryable, false);
+  assert.match(review?.matchReason ?? "", /exact mapped YouTube channel .* HTTP 404/i);
+  assert.deepEqual(attempt?.coverageReceipt, {
+    schemaVersion: 1,
+    source: "youtube_exact_mapped_channel_http_404_v1",
+    verified: false,
+    accountUrl,
+    channelId: "UCxpHV6SlEVicu8RuSx0KY5g",
+    pageUrl: videosUrl,
+    httpStatus: 404,
+    reason: "youtube_exact_mapped_channel_http_404",
+    checkedAt: attempt.checkedAt
+  });
+  assert.deepEqual(autonomousCollectorRetryableFailures(snapshot), []);
+});
+
 test("official YC embeds and exact Product Hunt launch slugs recover unmapped native sources", async () => {
   const cases = [{
     company: "dayjob",
