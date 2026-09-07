@@ -132,6 +132,10 @@ test("workflow provides a non-cron bridge without creating a current-state recur
   assert.match(workflow, /repository_dispatch:\s*\n\s*types:\s*\[vercel\.deployment\.success\]/);
   assert.match(workflow, /\n\s*deployment_status:\s*\n/);
   assert.doesNotMatch(workflow, /workflow_run:/);
+  assert.match(workflow, /github\.event\.deployment_status\.state == 'success'/);
+  assert.match(workflow, /github\.event\.deployment\.environment == 'Production'/);
+  assert.match(workflow, /github\.event\.deployment\.creator\.login == 'vercel\[bot\]'/);
+  assert.match(workflow, /github\.event\.sender\.login == 'vercel\[bot\]'/);
   assert.match(workflow, /ref:\s*main[\s\S]*?fetch-depth:\s*0[\s\S]*?persist-credentials:\s*false/);
   assert.match(workflow, /node scripts\/lib\/hosted-ingestion-wakeup\.mjs/);
   assert.match(workflow, /steps\.resolve\.outputs\.should_dispatch == 'true'/);

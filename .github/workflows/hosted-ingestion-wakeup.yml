@@ -20,7 +20,13 @@ jobs:
     name: Revalidate current main before recovery
     if: >-
       github.event_name == 'repository_dispatch' ||
-      github.event.deployment_status.state == 'success'
+      (
+        github.event.deployment_status.state == 'success' &&
+        github.event.deployment.environment == 'Production' &&
+        github.event.deployment.task == 'deploy' &&
+        github.event.deployment.creator.login == 'vercel[bot]' &&
+        github.event.sender.login == 'vercel[bot]'
+      )
     runs-on: ubuntu-latest
     timeout-minutes: 8
     permissions:

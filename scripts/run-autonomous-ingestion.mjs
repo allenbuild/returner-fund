@@ -453,8 +453,8 @@ if (!args.plan && !args.skipPublish && process.env.GITHUB_ACTIONS === "true") {
 if (commitBackedReplay) {
   const { receipt, classification, publishedCommit } = commitBackedReplay;
   console.log(
-    `Ingestion ${idempotencyKey} already has a validated publication receipt in main; ` +
-    `the file-backed replay is a no-op (${classification.receiptStatus}).`
+    `Ingestion ${idempotencyKey} already has an exact committed publication receipt in main; ` +
+    `collection is skipped and post-publication validation resumes (${classification.receiptStatus}).`
   );
   await writeRunnerOutcome({
     status: "already_completed",
