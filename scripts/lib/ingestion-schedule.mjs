@@ -5,6 +5,13 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { ACCEPTED_FULL_COLLECTION_EVIDENCE_KIND } from "./artifact-manifest.mjs";
+import {
+  INGESTION_ACCEPTANCE_MARKER_PATH,
+  INGESTION_GRAPH_MANIFEST_PATH,
+  INGESTION_PUBLICATION_RECEIPT_PATH,
+  inspectIngestionAcceptanceMarker,
+  sha256Text
+} from "./ingestion-acceptance-marker.mjs";
 
 export const CENTRAL_TIME_ZONE = "America/Chicago";
 export const INGESTION_PRIMARY_UTC_CRON_CANDIDATES = Object.freeze([
@@ -49,7 +56,12 @@ export const PUBLICATION_WATERMARK_MANIFEST = Object.freeze({
 const REPLAY_KEY_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/;
 const CENTRAL_SLOT_KEY_PATTERN = /^central-\d{4}-\d{2}-\d{2}-(?:0600|1800)$/;
 const FULL_SHA_PATTERN = /^[0-9a-f]{40}$/i;
-const SCHEDULE_RETRY_REASON = "retry-publication-watermark";
+export const SCHEDULE_WATERMARK_RETRY_REASON = "retry-publication-watermark";
+export const SCHEDULE_VALIDATION_RETRY_REASON = "retry-publication-validation";
+const SCHEDULE_RETRY_REASONS = new Set([
+  SCHEDULE_WATERMARK_RETRY_REASON,
+  SCHEDULE_VALIDATION_RETRY_REASON
+]);
 const STRICT_UTC_RFC3339 = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.\d{1,9})?Z$/;
 
 const CENTRAL_FORMATTER = new Intl.DateTimeFormat("en-US", {
@@ -122,26 +134,44 @@ export function resolveScheduledIngestion({
   const decisionDetails = {
     publicationWatermark: state.watermark?.toISOString() ?? null,
     watermarkStatus,
+    acceptanceStatus: acceptanceStatusForSlot(state.acceptance, latest),
+    acceptedPublicationCommit: state.acceptance?.marker?.publicationCommit ?? null,
     latestEligibleSlotKey: latest.slotKey,
     graphGeneratedAt: state.graphGeneratedAt
   };
   if (watermarkStatus === "current") {
-    return rejectedDecision("publication-watermark-current", {
+    if (decisionDetails.acceptanceStatus === "current") {
+      return rejectedDecision("publication-acceptance-current", {
+        trigger: "schedule",
+        ...decisionDetails
+      });
+    }
+    return {
+      accepted: true,
       trigger: "schedule",
+      reason: SCHEDULE_VALIDATION_RETRY_REASON,
+      slotKey: latest.slotKey,
+      centralDate: latest.centralDate,
+      centralTime: latest.centralTime,
+      scheduledAt: latest.scheduledAt.toISOString(),
+      latenessMinutes: (now.getTime() - latest.scheduledAt.getTime()) / 60_000,
+      recoveryDebt: true,
+      validationReplay: true,
       ...decisionDetails
-    });
+    };
   }
 
   return {
     accepted: true,
     trigger: "schedule",
-    reason: SCHEDULE_RETRY_REASON,
+    reason: SCHEDULE_WATERMARK_RETRY_REASON,
     slotKey: latest.slotKey,
     centralDate: latest.centralDate,
     centralTime: latest.centralTime,
     scheduledAt: latest.scheduledAt.toISOString(),
     latenessMinutes: (now.getTime() - latest.scheduledAt.getTime()) / 60_000,
     recoveryDebt: true,
+    validationReplay: false,
     ...decisionDetails
   };
 }
@@ -187,14 +217,16 @@ export function revalidateIngestionCandidate({
     now
   });
   if (!current.accepted) {
-    if (current.reason !== "publication-watermark-current") {
+    if (current.reason !== "publication-acceptance-current") {
       throw new Error(`Scheduled candidate revalidation failed closed: ${current.reason}.`);
     }
-    return rejectedDecision("queued-publication-watermark-current", {
+    return rejectedDecision("queued-publication-acceptance-current", {
       trigger: validated.trigger,
       candidateSlotKey: validated.slotKey,
       publicationWatermark: current.publicationWatermark,
       watermarkStatus: current.watermarkStatus,
+      acceptanceStatus: current.acceptanceStatus,
+      acceptedPublicationCommit: current.acceptedPublicationCommit,
       latestEligibleSlotKey: current.latestEligibleSlotKey,
       graphGeneratedAt: current.graphGeneratedAt
     });
@@ -215,7 +247,9 @@ export function revalidateIngestionCandidate({
 
   return {
     ...current,
-    reason: "revalidated-publication-watermark"
+    reason: current.validationReplay
+      ? "revalidated-publication-validation"
+      : "revalidated-publication-watermark"
   };
 }
 
@@ -257,8 +291,8 @@ export function validateCandidateForRevalidation(candidate, {
   if (trigger !== "schedule" || trustedSchedule === null) {
     throw new Error("Scheduled candidate must originate from a trusted schedule wakeup.");
   }
-  if (reason !== SCHEDULE_RETRY_REASON || candidate.recoveryDebt !== true) {
-    throw new Error("Scheduled candidate is not authorized by the publication-watermark resolver.");
+  if (!SCHEDULE_RETRY_REASONS.has(reason) || candidate.recoveryDebt !== true) {
+    throw new Error("Scheduled candidate is not authorized by the publication/validation resolver.");
   }
   if (!CENTRAL_SLOT_KEY_PATTERN.test(slotKey)) {
     throw new Error("Scheduled candidate slot key is not a Central publication slot.");
@@ -370,6 +404,7 @@ export async function readPublicationWatermark({
   const graphGeneratedAt = {};
   const completenessInstants = [];
   const generationInstants = [];
+  let acceptance = Object.freeze({ status: "missing", marker: null, error: null });
   let missing = false;
   let invalid = false;
 
@@ -412,6 +447,9 @@ export async function readPublicationWatermark({
     .then(({ status }) => {
       if (status === "missing") missing = true;
       if (status === "invalid") invalid = true;
+    }), inspectPublicationAcceptance({ reader, cwd, ref, now })
+    .then((value) => {
+      acceptance = value;
     })]);
 
   completenessInstants.sort((left, right) => left.getTime() - right.getTime());
@@ -421,8 +459,78 @@ export async function readPublicationWatermark({
     status: missing ? "missing" : invalid ? "invalid" : "valid",
     watermark,
     newestGeneratedAt: generationInstants.at(-1) ?? null,
-    graphGeneratedAt: Object.freeze({ ...graphGeneratedAt })
+    graphGeneratedAt: Object.freeze({ ...graphGeneratedAt }),
+    acceptance
   });
+}
+
+async function inspectPublicationAcceptance({ reader, cwd, ref, now }) {
+  let markerText;
+  try {
+    markerText = await reader(INGESTION_ACCEPTANCE_MARKER_PATH);
+  } catch {
+    return Object.freeze({ status: "missing", marker: null, error: null });
+  }
+
+  try {
+    const [receiptText, manifestText] = await Promise.all([
+      reader(INGESTION_PUBLICATION_RECEIPT_PATH),
+      reader(INGESTION_GRAPH_MANIFEST_PATH)
+    ]);
+    const inspected = inspectIngestionAcceptanceMarker({
+      markerText,
+      receiptText,
+      manifestText,
+      now
+    });
+    if (inspected.status !== "valid") return inspected;
+
+    if (ref) {
+      const publicationCommit = inspected.marker.publicationCommit;
+      if (!(await gitIsAncestor({ cwd, ancestor: publicationCommit, descendant: ref }))) {
+        throw new Error("accepted publication commit is not reachable from the publication ref");
+      }
+      const [publishedReceipt, publishedManifest] = await Promise.all([
+        readGitBlobText({
+          cwd,
+          ref: publicationCommit,
+          relativePath: INGESTION_PUBLICATION_RECEIPT_PATH
+        }),
+        readGitBlobText({
+          cwd,
+          ref: publicationCommit,
+          relativePath: INGESTION_GRAPH_MANIFEST_PATH
+        })
+      ]);
+      if (sha256Text(publishedReceipt) !== inspected.marker.receiptSha256) {
+        throw new Error("accepted publication receipt hash does not match its immutable commit");
+      }
+      if (sha256Text(publishedManifest) !== inspected.marker.manifestSha256) {
+        throw new Error("accepted graph manifest hash does not match its immutable commit");
+      }
+      if (!(await gitIsAncestor({
+        cwd,
+        ancestor: inspected.marker.publicationSourceSha,
+        descendant: publicationCommit
+      }))) {
+        throw new Error("accepted publication does not descend from its source SHA");
+      }
+      if (!(await gitIsAncestor({
+        cwd,
+        ancestor: inspected.marker.validation.validatedSha,
+        descendant: ref
+      }))) {
+        throw new Error("acceptance validation target is not reachable from the publication ref");
+      }
+    }
+    return inspected;
+  } catch (error) {
+    return Object.freeze({
+      status: "invalid",
+      marker: null,
+      error: error instanceof Error ? error.message : String(error)
+    });
+  }
 }
 
 async function inspectPublicationManifest({
@@ -625,8 +733,11 @@ export function writeGithubOutputs(decision, outputPath = process.env.GITHUB_OUT
     reason: decision.reason,
     scheduled_at: decision.accepted ? decision.scheduledAt ?? "" : "",
     recovery_debt: String(decision.accepted && decision.recoveryDebt === true),
+    validation_replay: String(decision.accepted && decision.validationReplay === true),
     publication_watermark: decision.publicationWatermark ?? "",
     watermark_status: decision.watermarkStatus ?? "",
+    acceptance_status: decision.acceptanceStatus ?? "",
+    accepted_publication_commit: decision.acceptedPublicationCommit ?? "",
     latest_slot_key: decision.latestEligibleSlotKey ?? ""
   };
   appendFileSync(
@@ -695,7 +806,8 @@ function normalizePublicationState(value, now) {
       status: "invalid",
       watermark: null,
       newestGeneratedAt: null,
-      graphGeneratedAt: {}
+      graphGeneratedAt: {},
+      acceptance: normalizeAcceptanceState(value?.acceptance)
     };
   }
   if (value.status !== "valid") {
@@ -703,7 +815,8 @@ function normalizePublicationState(value, now) {
       status: value.status,
       watermark: null,
       newestGeneratedAt: null,
-      graphGeneratedAt: value.graphGeneratedAt ?? {}
+      graphGeneratedAt: value.graphGeneratedAt ?? {},
+      acceptance: normalizeAcceptanceState(value.acceptance)
     };
   }
   const watermark = normalizeOptionalDate(value.watermark);
@@ -721,15 +834,49 @@ function normalizePublicationState(value, now) {
       status: "invalid",
       watermark: null,
       newestGeneratedAt: null,
-      graphGeneratedAt: value.graphGeneratedAt ?? {}
+      graphGeneratedAt: value.graphGeneratedAt ?? {},
+      acceptance: normalizeAcceptanceState(value.acceptance)
     };
   }
   return {
     status: value.status,
     watermark,
     newestGeneratedAt,
-    graphGeneratedAt: value.graphGeneratedAt ?? {}
+    graphGeneratedAt: value.graphGeneratedAt ?? {},
+    acceptance: normalizeAcceptanceState(value.acceptance)
   };
+}
+
+function normalizeAcceptanceState(value) {
+  if (!value || !["valid", "missing", "invalid"].includes(value.status)) {
+    return { status: "missing", marker: null, error: null };
+  }
+  if (value.status !== "valid" || !value.marker || typeof value.marker !== "object") {
+    return { status: value.status, marker: null, error: cleanString(value.error) };
+  }
+  return { status: "valid", marker: value.marker, error: null };
+}
+
+function acceptanceStatusForSlot(acceptance, latest) {
+  if (!acceptance || acceptance.status !== "valid") return acceptance?.status ?? "missing";
+  const marker = acceptance.marker;
+  if (
+    marker?.slotKey === latest.slotKey &&
+    marker?.scheduledAt === latest.scheduledAt.toISOString()
+  ) {
+    return "current";
+  }
+  try {
+    const acceptedSlot = centralSlotFromScheduledAt(
+      parseStrictUtcRfc3339(marker?.scheduledAt, "Acceptance marker scheduledAt")
+    );
+    if (acceptedSlot.slotKey !== marker?.slotKey) return "invalid";
+    return acceptedSlot.scheduledAt.getTime() < latest.scheduledAt.getTime()
+      ? "behind"
+      : "divergent";
+  } catch {
+    return "invalid";
+  }
 }
 
 function normalizeOptionalDate(value) {
@@ -809,6 +956,31 @@ function readGitBlobText({ cwd, ref, relativePath }) {
   });
 }
 
+function gitIsAncestor({ cwd, ancestor, descendant }) {
+  for (const [value, label] of [[ancestor, "ancestor"], [descendant, "descendant"]]) {
+    const normalized = cleanString(value);
+    if (!normalized || normalized.startsWith("-") || /[:\r\n\0]/.test(normalized)) {
+      return Promise.reject(new Error(`Publication acceptance ${label} ref is not safe.`));
+    }
+  }
+  return new Promise((resolve, reject) => {
+    const child = spawn("git", ["merge-base", "--is-ancestor", ancestor, descendant], {
+      cwd,
+      stdio: ["ignore", "ignore", "pipe"]
+    });
+    const stderr = [];
+    child.stderr.on("data", (chunk) => stderr.push(chunk));
+    child.on("error", reject);
+    child.on("close", (code) => {
+      if (code === 0) return resolve(true);
+      if (code === 1) return resolve(false);
+      reject(new Error(
+        `Unable to verify publication acceptance ancestry: ${Buffer.concat(stderr).toString("utf8").trim()}`
+      ));
+    });
+  });
+}
+
 function parseStrictBoolean(value, label) {
   if (value === "true") return true;
   if (value === "false") return false;
@@ -831,8 +1003,11 @@ function rejectedDecision(reason, details = {}) {
     scheduledAt: null,
     latenessMinutes: null,
     recoveryDebt: false,
+    validationReplay: false,
     publicationWatermark: null,
     watermarkStatus: null,
+    acceptanceStatus: null,
+    acceptedPublicationCommit: null,
     latestEligibleSlotKey: null,
     graphGeneratedAt: {},
     ...details

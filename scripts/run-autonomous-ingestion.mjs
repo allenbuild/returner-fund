@@ -444,7 +444,10 @@ supabase = durableStorageConfigured
   : null;
 
 let commitBackedReplay = null;
-if (!args.plan && !args.skipPublish && !durableStorageConfigured && process.env.GITHUB_ACTIONS === "true") {
+if (!args.plan && !args.skipPublish && process.env.GITHUB_ACTIONS === "true") {
+  // Repository publication is the durable boundary for validation replay.
+  // Consult it before the database so a committed slot whose post-publication
+  // validation or acceptance-marker write failed never recollects the corpus.
   commitBackedReplay = await readCommitBackedReplayReceipt();
 }
 if (commitBackedReplay) {

@@ -141,6 +141,11 @@ export function autonomousIngestionHostPaths({
     ),
     installedLibraryDir: path.join(installRoot, "lib"),
     installedScheduleModule: path.join(installRoot, "lib", "ingestion-schedule.mjs"),
+    installedAcceptanceMarkerModule: path.join(
+      installRoot,
+      "lib",
+      "ingestion-acceptance-marker.mjs"
+    ),
     installedArtifactManifestModule: path.join(
       installRoot,
       "lib",
@@ -164,6 +169,12 @@ export function autonomousIngestionHostPaths({
       "scripts",
       "lib",
       "ingestion-schedule.mjs"
+    ),
+    sourceAcceptanceMarkerModule: path.join(
+      repositoryRoot,
+      "scripts",
+      "lib",
+      "ingestion-acceptance-marker.mjs"
     ),
     sourceArtifactManifestModule: path.join(
       repositoryRoot,
@@ -222,6 +233,7 @@ export async function installAutonomousIngestionHost({
       "/usr/bin/caffeinate",
       paths.sourceScript,
       paths.sourceScheduleModule,
+      paths.sourceAcceptanceMarkerModule,
       paths.sourceArtifactManifestModule,
       paths.supervisorTemplatePath,
       paths.awakeTemplatePath,
@@ -264,6 +276,11 @@ export async function installAutonomousIngestionHost({
   await atomicWrite(
     paths.installedArtifactManifestModule,
     await readFile(paths.sourceArtifactManifestModule),
+    0o644
+  );
+  await atomicWrite(
+    paths.installedAcceptanceMarkerModule,
+    await readFile(paths.sourceAcceptanceMarkerModule),
     0o644
   );
   await atomicWrite(
@@ -393,6 +410,7 @@ export async function installAutonomousIngestionHost({
     ],
     installedScript: paths.installedScript,
     installedScheduleModule: paths.installedScheduleModule,
+    installedAcceptanceMarkerModule: paths.installedAcceptanceMarkerModule,
     installedArtifactManifestModule: paths.installedArtifactManifestModule,
     stateDir: paths.stateDir,
     runnerLaunchdLabel: RUNNER_LAUNCHD_LABEL,

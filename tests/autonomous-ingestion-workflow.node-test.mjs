@@ -367,8 +367,11 @@ test("accepted resolver jobs fail closed and re-export only validated outputs", 
     REASON: "retry-publication-watermark",
     SCHEDULED_AT: "2026-08-09T23:00:00.000Z",
     RECOVERY_DEBT: "true",
+    VALIDATION_REPLAY: "false",
     PUBLICATION_WATERMARK: "2026-08-09T10:00:00.000Z",
     WATERMARK_STATUS: "behind",
+    ACCEPTANCE_STATUS: "missing",
+    ACCEPTED_PUBLICATION_COMMIT: "",
     LATEST_SLOT_KEY: "central-2026-08-09-1800",
     GITHUB_OUTPUT: ingestionOutput,
     GITHUB_STEP_SUMMARY: "/dev/null"
@@ -387,14 +390,41 @@ test("accepted resolver jobs fail closed and re-export only validated outputs", 
     REASON: "retry-publication-watermark",
     SCHEDULED_AT: "2026-08-22T11:00:00.000Z",
     RECOVERY_DEBT: "true",
+    VALIDATION_REPLAY: "false",
     PUBLICATION_WATERMARK: "",
     WATERMARK_STATUS: "missing",
+    ACCEPTANCE_STATUS: "missing",
+    ACCEPTED_PUBLICATION_COMMIT: "",
     LATEST_SLOT_KEY: "central-2026-08-22-0600",
     GITHUB_OUTPUT: recoveryOutput,
     GITHUB_STEP_SUMMARY: "/dev/null"
   });
   assert.equal(validRecovery.status, 0, `${validRecovery.stdout}\n${validRecovery.stderr}`);
   assert.match(readFileSync(recoveryOutput, "utf8"), /recovery_debt=true/);
+
+  const validationReplayOutput = path.join(directory, "ingestion-validation-replay-output");
+  const validValidationReplay = runScript(ingestionScript, repositoryRoot, {
+    SHOULD_RUN: "true",
+    SLOT_KEY: "central-2026-08-09-1800",
+    TRIGGER: "schedule",
+    REASON: "retry-publication-validation",
+    SCHEDULED_AT: "2026-08-09T23:00:00.000Z",
+    RECOVERY_DEBT: "true",
+    VALIDATION_REPLAY: "true",
+    PUBLICATION_WATERMARK: "2026-08-09T23:01:00.000Z",
+    WATERMARK_STATUS: "current",
+    ACCEPTANCE_STATUS: "missing",
+    ACCEPTED_PUBLICATION_COMMIT: "",
+    LATEST_SLOT_KEY: "central-2026-08-09-1800",
+    GITHUB_OUTPUT: validationReplayOutput,
+    GITHUB_STEP_SUMMARY: "/dev/null"
+  });
+  assert.equal(
+    validValidationReplay.status,
+    0,
+    `${validValidationReplay.stdout}\n${validValidationReplay.stderr}`
+  );
+  assert.match(readFileSync(validationReplayOutput, "utf8"), /validation_replay=true/);
 
   for (const overrides of [
     { SHOULD_RUN: "" },
@@ -408,6 +438,7 @@ test("accepted resolver jobs fail closed and re-export only validated outputs", 
     { RECOVERY_DEBT: "TRUE" },
     { RECOVERY_DEBT: "true", REASON: "intended-central-slot" },
     { RECOVERY_DEBT: "false" },
+    { VALIDATION_REPLAY: "true" },
     { WATERMARK_STATUS: "current" },
     { WATERMARK_STATUS: "behind", PUBLICATION_WATERMARK: "" },
     { LATEST_SLOT_KEY: "central-2026-08-09-0600" },
@@ -428,8 +459,11 @@ test("accepted resolver jobs fail closed and re-export only validated outputs", 
       REASON: "retry-publication-watermark",
       SCHEDULED_AT: "2026-08-09T23:00:00.000Z",
       RECOVERY_DEBT: "true",
+      VALIDATION_REPLAY: "false",
       PUBLICATION_WATERMARK: "2026-08-09T10:00:00.000Z",
       WATERMARK_STATUS: "behind",
+      ACCEPTANCE_STATUS: "missing",
+      ACCEPTED_PUBLICATION_COMMIT: "",
       LATEST_SLOT_KEY: "central-2026-08-09-1800",
       GITHUB_OUTPUT: path.join(directory, `invalid-ingestion-${Math.random()}`),
       GITHUB_STEP_SUMMARY: "/dev/null",
@@ -485,11 +519,14 @@ test("accepted resolver jobs fail closed and re-export only validated outputs", 
     SHOULD_RUN: "false",
     SLOT_KEY: "",
     TRIGGER: "schedule",
-    REASON: "publication-watermark-current",
+    REASON: "publication-acceptance-current",
     SCHEDULED_AT: "",
     RECOVERY_DEBT: "false",
+    VALIDATION_REPLAY: "false",
     PUBLICATION_WATERMARK: "2026-08-09T23:01:00.000Z",
     WATERMARK_STATUS: "current",
+    ACCEPTANCE_STATUS: "current",
+    ACCEPTED_PUBLICATION_COMMIT: FULL_COMMIT_SHA,
     LATEST_SLOT_KEY: "central-2026-08-09-1800",
     GITHUB_OUTPUT: path.join(directory, "inactive-ingestion-output"),
     GITHUB_STEP_SUMMARY: "/dev/null"
@@ -587,7 +624,7 @@ test("accepted resolver jobs fail closed and re-export only validated outputs", 
   }
 });
 
-test("all workflow shell blocks remain fixed at 56 and queued schedules are rechecked", (t) => {
+test("all workflow shell blocks remain fixed at 58 and queued schedules are rechecked", (t) => {
   const shellBlockCount = [workflow, dailyBenchmarkWorkflow, readFileSync(
     path.join(repositoryRoot, ".github", "workflows", "public-artifacts.yml"),
     "utf8"
@@ -595,7 +632,7 @@ test("all workflow shell blocks remain fixed at 56 and queued schedules are rech
     (total, source) => total + (source.match(/^ {8}run:/gm)?.length ?? 0),
     0
   );
-  assert.equal(shellBlockCount, 56);
+  assert.equal(shellBlockCount, 58);
 
   const directory = mkdtempSync(path.join(tmpdir(), "returner-queued-freshness-"));
   t.after(() => rmSync(directory, { recursive: true, force: true }));
@@ -684,7 +721,7 @@ test("all workflow shell blocks remain fixed at 56 and queued schedules are rech
     WORKFLOW_EVENT_NAME: "schedule"
   });
   assert.notEqual(falseRecoveryClaim.status, 0);
-  assert.match(falseRecoveryClaim.stderr, /reason is not publication-watermark authorized/);
+  assert.match(falseRecoveryClaim.stderr, /reason is not publication\/validation authorized/);
 
   const missingAuthorization = runScript(ingestionFreshness, repositoryRoot, {
     NODE_OPTIONS: `--require=${freezeClock}`,
@@ -2122,8 +2159,10 @@ test("autonomous runner receives optional durability secrets and owns validated 
   assert.doesNotMatch(ingestJob, /name:\s*Validate generated public artifacts/);
   assert.match(
     workflow,
-    /validate_publication:[\s\S]*?uses:\s*\.\/\.github\/workflows\/public-artifacts\.yml[\s\S]*?target_sha:\s*\$\{\{ needs\.ingest\.outputs\.validation_candidate \}\}/
+    /validate_publication:[\s\S]*?uses:\s*\.\/\.github\/workflows\/public-artifacts\.yml[\s\S]*?target_sha:\s*\$\{\{ needs\.resolve\.outputs\.validation_replay == 'true' && needs\.resolve\.outputs\.source_sha \|\| needs\.ingest\.outputs\.validation_candidate \}\}/
   );
+  assert.match(workflow, /accept_publication:[\s\S]*?group:\s*repository-publication-main/);
+  assert.match(workflow, /scripts\/lib\/ingestion-acceptance-marker\.mjs/);
   const runnerSource = readFileSync(path.join(repositoryRoot, "scripts", "run-autonomous-ingestion.mjs"), "utf8");
   assert.match(runnerSource, /publication_push:\s*\[[\s\S]*?"GIT_CONFIG_VALUE_0"/);
   assert.match(runnerSource, /GIT_CONFIG_KEY_0:\s*"http\.https:\/\/github\.com\/\.extraheader"/);
@@ -2444,7 +2483,7 @@ test("autonomous replay accepts one prior run identity and rejects forged or amb
   }
   assert.match(
     workflow,
-    /validate_publication:[\s\S]*?target_sha:\s*\$\{\{ needs\.ingest\.outputs\.validation_candidate \}\}[\s\S]*?publication_source_sha:\s*\$\{\{ needs\.ingest\.outputs\.publication_source_sha \}\}[\s\S]*?publication_run_id:\s*\$\{\{ needs\.ingest\.outputs\.publication_run_id \}\}[\s\S]*?publication_run_attempt:\s*\$\{\{ needs\.ingest\.outputs\.publication_run_attempt \}\}[\s\S]*?publication_trigger:\s*\$\{\{ needs\.ingest\.outputs\.publication_trigger \}\}[\s\S]*?publication_scheduled_at:\s*\$\{\{ needs\.ingest\.outputs\.publication_scheduled_at \}\}/
+    /validate_publication:[\s\S]*?target_sha:\s*\$\{\{ needs\.resolve\.outputs\.validation_replay == 'true' && needs\.resolve\.outputs\.source_sha \|\| needs\.ingest\.outputs\.validation_candidate \}\}[\s\S]*?publication_source_sha:\s*\$\{\{ needs\.resolve\.outputs\.validation_replay != 'true' && needs\.ingest\.outputs\.publication_source_sha \|\| '' \}\}[\s\S]*?publication_run_id:\s*\$\{\{ needs\.resolve\.outputs\.validation_replay != 'true' && needs\.ingest\.outputs\.publication_run_id \|\| '' \}\}/
   );
 
   const contradictoryStatus = runScript(script, checkout, {
@@ -2838,7 +2877,7 @@ exec "$REAL_GIT" "$@"
 
   assert.match(
     workflow,
-    /validate_publication:[\s\S]*?if:\s*\$\{\{ always\(\) && needs\.resolve\.outputs\.should_run == 'true' && needs\.ingest\.outputs\.revalidation_should_run == 'true' && needs\.ingest\.outputs\.host_ready == 'true' && needs\.ingest\.outputs\.commit_verified == 'true' && needs\.ingest\.outputs\.validation_candidate != '' \}\}[\s\S]*?target_sha:\s*\$\{\{ needs\.ingest\.outputs\.validation_candidate \}\}/
+    /validate_publication:[\s\S]*?if:\s*\$\{\{ always\(\) && needs\.resolve\.outputs\.should_run == 'true' && needs\.ingest\.outputs\.revalidation_should_run == 'true' && needs\.ingest\.outputs\.host_ready == 'true' && needs\.ingest\.outputs\.commit_verified == 'true' && needs\.ingest\.outputs\.validation_candidate != '' \}\}[\s\S]*?target_sha:\s*\$\{\{ needs\.resolve\.outputs\.validation_replay == 'true' && needs\.resolve\.outputs\.source_sha \|\| needs\.ingest\.outputs\.validation_candidate \}\}/
   );
   assert.match(
     dailyBenchmarkWorkflow,
@@ -3188,13 +3227,15 @@ test("inactive candidates and accepted publication outcomes have distinct audita
   assert.match(workflow, /providerBlockedByReason:\s*countMap\(process\.env\.PROVIDER_BLOCKED_BY_REASON\)/);
   assert.match(workflow, /mappedProviderBlocked:\s*integerOrNull\(process\.env\.MAPPED_PROVIDER_BLOCKED\)/);
   assert.match(workflow, /mappedProviderBlockedByReason:\s*countMap\(process\.env\.MAPPED_PROVIDER_BLOCKED_BY_REASON\)/);
-  assert.match(workflow, /validate_publication:[\s\S]*?uses:\s*\.\/\.github\/workflows\/public-artifacts\.yml[\s\S]*?target_sha:\s*\$\{\{ needs\.ingest\.outputs\.validation_candidate \}\}[\s\S]*?policy_source_sha:\s*\$\{\{ needs\.resolve\.outputs\.source_sha \}\}/);
+  assert.match(workflow, /validate_publication:[\s\S]*?uses:\s*\.\/\.github\/workflows\/public-artifacts\.yml[\s\S]*?target_sha:\s*\$\{\{ needs\.resolve\.outputs\.validation_replay == 'true' && needs\.resolve\.outputs\.source_sha \|\| needs\.ingest\.outputs\.validation_candidate \}\}[\s\S]*?policy_source_sha:\s*\$\{\{ needs\.resolve\.outputs\.source_sha \}\}/);
   assert.match(workflow, /validate_publication:[\s\S]*?if:\s*\$\{\{ always\(\) && needs\.resolve\.outputs\.should_run == 'true' && needs\.ingest\.outputs\.revalidation_should_run == 'true' && needs\.ingest\.outputs\.host_ready == 'true' && needs\.ingest\.outputs\.commit_verified == 'true' && needs\.ingest\.outputs\.validation_candidate != '' \}\}/);
-  assert.match(workflow, /publication_kind:\s*autonomous-ingestion/);
-  assert.match(workflow, /publication_receipt_path:\s*outputs\/ingestion-source-delta-current\.json/);
+  assert.match(workflow, /publication_kind:\s*\$\{\{ needs\.resolve\.outputs\.validation_replay != 'true' && 'autonomous-ingestion' \|\| '' \}\}/);
+  assert.match(workflow, /publication_receipt_path:\s*\$\{\{ needs\.resolve\.outputs\.validation_replay != 'true' && 'outputs\/ingestion-source-delta-current\.json' \|\| '' \}\}/);
   assert.match(workflow, /name:\s*Recover exact publication commit[\s\S]*?if:\s*\$\{\{ always\(\) && steps\.revalidate\.outputs\.should_run == 'true' && steps\.host_preflight\.outputs\.ready == 'true' \}\}/);
   assert.match(workflow, /published_commit:\s*\$\{\{ steps\.recover_publication\.outputs\.published_commit \}\}/);
-  assert.match(workflow, /needs:\s*\[resolve, ingest, validate_publication\]/);
+  assert.match(workflow, /needs:\s*\[resolve, ingest, validate_publication, accept_publication\]/);
+  assert.match(workflow, /name:\s*Record validated slot acceptance/);
+  assert.match(workflow, /ACCEPTANCE_RESULT:\s*\$\{\{ needs\.accept_publication\.result \}\}/);
   assert.match(workflow, /VALIDATION_RESULT:\s*\$\{\{ needs\.validate_publication\.result \}\}/);
   assert.match(workflow, /COMMIT_REPOSITORY_VERIFIED:\s*\$\{\{ needs\.ingest\.outputs\.commit_verified \}\}/);
   assert.match(workflow, /autonomous-ingestion-receipt-\$\{\{ github\.run_id \}\}-\$\{\{ github\.run_attempt \}\}/);
@@ -3234,6 +3275,8 @@ test("autonomous receipt audits publication, inactive, queued no-op, and failure
     RESOLVE_RESULT: "success",
     INGEST_RESULT: "success",
     VALIDATION_RESULT: "success",
+    ACCEPTANCE_RESULT: "success",
+    ACCEPTANCE_MARKER_COMMIT: FULL_COMMIT_SHA,
     RUNNER_STATUS: "completed",
     RUNNER_FAILURE_MESSAGE: "",
     PUBLICATION_STATUS: "published",
@@ -3298,6 +3341,8 @@ test("autonomous receipt audits publication, inactive, queued no-op, and failure
         SCHEDULED_AT: "",
         INGEST_RESULT: "skipped",
         VALIDATION_RESULT: "skipped",
+        ACCEPTANCE_RESULT: "skipped",
+        ACCEPTANCE_MARKER_COMMIT: "",
         RUNNER_STATUS: "",
         PUBLICATION_STATUS: "",
         COLLECTION_HEALTH: "",
@@ -3340,6 +3385,8 @@ test("autonomous receipt audits publication, inactive, queued no-op, and failure
         RESOLVE_RESULT: "failure",
         INGEST_RESULT: "skipped",
         VALIDATION_RESULT: "skipped",
+        ACCEPTANCE_RESULT: "skipped",
+        ACCEPTANCE_MARKER_COMMIT: "",
         RUNNER_STATUS: "",
         PUBLICATION_STATUS: "",
         RECEIPT_STATUS: "",
@@ -3365,6 +3412,8 @@ test("autonomous receipt audits publication, inactive, queued no-op, and failure
         AUDIT_STATUS: "queued_candidate_noop",
         INGEST_RESULT: "success",
         VALIDATION_RESULT: "skipped",
+        ACCEPTANCE_RESULT: "skipped",
+        ACCEPTANCE_MARKER_COMMIT: "",
         RUNNER_STATUS: "",
         PUBLICATION_STATUS: "",
         RECEIPT_STATUS: "",
@@ -3376,7 +3425,7 @@ test("autonomous receipt audits publication, inactive, queued no-op, and failure
         PUBLISHED_COMMIT: "",
         RUNNER_PUBLISHED_COMMIT: "",
         REVALIDATION_SHOULD_RUN: "false",
-        REVALIDATION_REASON: "queued-publication-watermark-current",
+        REVALIDATION_REASON: "queued-publication-acceptance-current",
         REVALIDATION_WATERMARK_STATUS: "current",
         REVALIDATION_PUBLICATION_WATERMARK: "2026-08-09T23:01:00Z"
       }
@@ -3387,6 +3436,8 @@ test("autonomous receipt audits publication, inactive, queued no-op, and failure
         AUDIT_STATUS: "deferred_host_unavailable",
         INGEST_RESULT: "success",
         VALIDATION_RESULT: "skipped",
+        ACCEPTANCE_RESULT: "skipped",
+        ACCEPTANCE_MARKER_COMMIT: "",
         RUNNER_STATUS: "",
         RUNNER_FAILURE_MESSAGE: "",
         PUBLICATION_STATUS: "",
@@ -3443,6 +3494,8 @@ test("autonomous receipt audits publication, inactive, queued no-op, and failure
         AUDIT_STATUS: "accepted_slot_failed",
         INGEST_RESULT: "failure",
         VALIDATION_RESULT: "failure",
+        ACCEPTANCE_RESULT: "skipped",
+        ACCEPTANCE_MARKER_COMMIT: "",
         RUNNER_STATUS: "failed",
         RUNNER_FAILURE_MESSAGE: "topic facet regeneration timed out",
         RECEIPT_STATUS: "",
@@ -3572,9 +3625,12 @@ test("autonomous audit fails closed for every accepted job without a recognized 
   const base = {
     SHOULD_RUN: "true",
     SLOT_KEY: "central-2026-08-09-1800",
+    CANDIDATE_TRIGGER: "schedule",
     RESOLVE_RESULT: "success",
     INGEST_RESULT: "success",
     VALIDATION_RESULT: "success",
+    ACCEPTANCE_RESULT: "success",
+    ACCEPTANCE_MARKER_COMMIT: FULL_COMMIT_SHA,
     RECEIPT_STATUS: "published",
     RECEIPT_CONCLUSION: "success",
     PUBLISHED_COMMIT: FULL_COMMIT_SHA,
@@ -3597,6 +3653,8 @@ test("autonomous audit fails closed for every accepted job without a recognized 
     { VALIDATION_RESULT: "failure" },
     { VALIDATION_RESULT: "cancelled" },
     { VALIDATION_RESULT: "skipped" },
+    { ACCEPTANCE_RESULT: "failure" },
+    { ACCEPTANCE_MARKER_COMMIT: "" },
     { RECEIPT_STATUS: "invented_warning", RECEIPT_CONCLUSION: "warning" },
     { RECEIPT_STATUS: "published", RECEIPT_CONCLUSION: "failure" }
   ]) {

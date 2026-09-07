@@ -199,7 +199,7 @@ describe("autonomous ingestion runner CLI", () => {
     });
   });
 
-  it("accepts recovery debt only from an exact trusted host-dispatch binding", () => {
+  it("accepts recovery debt from exact trusted host-dispatch receipts across a main-head race", () => {
     const slot = latestEligibleCentralSlot(new Date());
     const head = spawnSync("git", ["rev-parse", "HEAD"], {
       cwd: repositoryRoot,
@@ -241,9 +241,19 @@ describe("autonomous ingestion runner CLI", () => {
       },
       encoding: "utf8"
     });
-    assert.equal(mismatchedHead.status, 1, mismatchedHead.stderr);
+    assert.equal(mismatchedHead.status, 0, mismatchedHead.stderr);
+
+    const malformedHead = spawnSync(process.execPath, args, {
+      cwd: repositoryRoot,
+      env: {
+        ...env,
+        INGESTION_RECOVERY_EXPECTED_HEAD_SHA: "not-a-full-commit-sha"
+      },
+      encoding: "utf8"
+    });
+    assert.equal(malformedHead.status, 1, malformedHead.stderr);
     assert.match(
-      mismatchedHead.stderr,
+      malformedHead.stderr,
       /Recovery debt bypass requires a resolver-authorized GitHub schedule wakeup/
     );
   });
@@ -1823,10 +1833,11 @@ describe("autonomous ingestion runner static safety contracts", () => {
     assert.ok(receiptReader.includes("selectPublishedAutonomousIngestionReceipt"));
   });
 
-  it("uses a commit-backed receipt to make file-backed GitHub Actions replays idempotent", () => {
+  it("uses a commit-backed receipt before storage or collection for validation replay", () => {
     const replayGate = section("let commitBackedReplay", "await Promise.all([");
     assert.ok(replayGate.includes('process.env.GITHUB_ACTIONS === "true"'));
-    assert.ok(replayGate.includes("!durableStorageConfigured"));
+    assert.ok(replayGate.includes('process.env.GITHUB_ACTIONS === "true"'));
+    assert.ok(!replayGate.includes("!durableStorageConfigured"));
     assert.ok(replayGate.includes("!args.skipPublish"));
     assert.ok(replayGate.includes('status: "already_completed"'));
     assert.ok(replayGate.includes('publicationStatus: "already_completed"'));
@@ -4097,6 +4108,10 @@ describe("pinned source and publication-base trust boundaries", () => {
     assert.equal(isReplaySafePublicationDataPath("src/lib/social/package.json"), false);
     assert.equal(isReplaySafePublicationDataPath("artifacts/dashboard/current.json"), false);
     assert.equal(isReplaySafePublicationDataPath("public/dashboard/feed.json"), false);
+    assert.equal(
+      isReplaySafePublicationDataPath("outputs/autonomous-ingestion-acceptance-current.json"),
+      true
+    );
     assert.equal(isSafeInertPublicationBasePath("artifacts/dashboard/current.json"), true);
     assert.equal(isSafeInertPublicationBasePath("public/dashboard/feed.json"), true);
     assert.equal(isSafeInertPublicationBasePath("src/lib/graph/layout.ts"), true);

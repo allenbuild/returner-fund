@@ -122,7 +122,7 @@ test("host recovery requires trusted event and exact SHA receipts while tolerati
   );
 });
 
-test("minimum required completeness timestamp is the publication watermark", () => {
+test("fresh graph watermark still carries validation replay debt without acceptance", () => {
   const now = new Date("2026-08-22T12:10:00.000Z");
   const decision = resolveScheduledIngestion({
     schedule: INGESTION_UTC_CRON_CANDIDATES[0],
@@ -133,8 +133,9 @@ test("minimum required completeness timestamp is the publication watermark", () 
     now
   });
 
-  assert.equal(decision.accepted, false);
-  assert.equal(decision.reason, "publication-watermark-current");
+  assert.equal(decision.accepted, true);
+  assert.equal(decision.reason, "retry-publication-validation");
+  assert.equal(decision.validationReplay, true);
   assert.equal(decision.publicationWatermark, "2026-08-22T11:00:05.000Z");
   assert.equal(decision.watermarkStatus, "current");
   assert.equal(decision.latestEligibleSlotKey, "central-2026-08-22-0600");
@@ -309,7 +310,8 @@ test("completeness uses accepted manifest evidence and required benchmark freshn
   });
   assert.equal(state.status, "valid");
   assert.equal(state.watermark.toISOString(), "2026-08-22T11:01:00.000Z");
-  assert.equal(decision.accepted, false);
+  assert.equal(decision.accepted, true);
+  assert.equal(decision.reason, "retry-publication-validation");
   assert.equal(decision.watermarkStatus, "current");
   assert.equal(decision.latestEligibleSlotKey, "central-2026-08-22-0600");
 
@@ -369,7 +371,10 @@ test("a reverted pair of graph artifacts reopens only the newest slot", async (t
     s2026: "2026-08-22T11:01:00.000Z"
   });
   let state = await readPublicationWatermark({ cwd: directory, now });
-  assert.equal(resolveScheduledIngestion({ schedule: INGESTION_UTC_CRON_CANDIDATES[0], publicationState: state, now }).accepted, false);
+  assert.equal(
+    resolveScheduledIngestion({ schedule: INGESTION_UTC_CRON_CANDIDATES[0], publicationState: state, now }).reason,
+    "retry-publication-validation"
+  );
 
   writeGraphs(directory, {
     s26: "2026-08-14T20:00:00.000Z",
@@ -410,7 +415,7 @@ test("git-ref watermark reads committed HEAD rather than mutable worktree files"
   assert.equal(committed.watermark.toISOString(), "2026-08-20T22:00:00.000Z");
 });
 
-test("serialized revalidation no-ops duplicate queued wakeups after main becomes current", () => {
+test("serialized revalidation no-ops only after matching acceptance becomes current", () => {
   const candidate = scheduledCandidate();
   const decision = revalidateIngestionCandidate({
     candidate,
@@ -418,17 +423,19 @@ test("serialized revalidation no-ops duplicate queued wakeups after main becomes
     schedule: INGESTION_UTC_CRON_CANDIDATES[0],
     publicationState: watermarkState(
       "2026-08-22T11:01:00.000Z",
-      "2026-08-22T11:02:00.000Z"
+      "2026-08-22T11:02:00.000Z",
+      { accepted: true }
     ),
     now: new Date("2026-08-22T12:10:00.000Z")
   });
 
   assert.equal(decision.accepted, false);
-  assert.equal(decision.reason, "queued-publication-watermark-current");
+  assert.equal(decision.reason, "queued-publication-acceptance-current");
   assert.equal(decision.watermarkStatus, "current");
+  assert.equal(decision.acceptanceStatus, "current");
 });
 
-test("serialized controller revalidation reads the fetched git ref and emits a queued no-op", async (t) => {
+test("serialized controller does not no-op merely because fetched graph is fresh", async (t) => {
   const directory = temporaryDirectory(t, "returner-watermark-revalidation-");
   execFileSync("git", ["init", "--quiet"], { cwd: directory });
   execFileSync("git", ["config", "user.name", "Ingestion Schedule Test"], { cwd: directory });
@@ -458,9 +465,11 @@ test("serialized controller revalidation reads the fetched git ref and emits a q
     now: new Date("2026-08-22T12:10:00.000Z")
   });
 
-  assert.equal(decision.reason, "queued-publication-watermark-current");
-  assert.match(readFileSync(outputPath, "utf8"), /^should_run=false$/m);
+  assert.equal(decision.reason, "revalidated-publication-validation");
+  assert.match(readFileSync(outputPath, "utf8"), /^should_run=true$/m);
+  assert.match(readFileSync(outputPath, "utf8"), /^validation_replay=true$/m);
   assert.match(readFileSync(outputPath, "utf8"), /^watermark_status=current$/m);
+  assert.match(readFileSync(outputPath, "utf8"), /^acceptance_status=missing$/m);
 });
 
 test("newest-slot rollover preempts an older queued candidate", () => {
@@ -546,7 +555,7 @@ test("queued candidate provenance is strict and cannot claim ordinary schedule s
       ...scheduledCandidate(),
       reason: "intended-central-slot"
     }, { eventName: "schedule" }),
-    /publication-watermark resolver/
+    /publication\/validation resolver/
   );
   assert.throws(
     () => validateCandidateForRevalidation({
@@ -597,15 +606,18 @@ test("writes watermark diagnostics as GitHub step outputs", (t) => {
       "reason=explicit-replay-key",
       "scheduled_at=",
       "recovery_debt=false",
+      "validation_replay=false",
       "publication_watermark=",
       "watermark_status=manual",
+      "acceptance_status=",
+      "accepted_publication_commit=",
       "latest_slot_key=",
       ""
     ].join("\n")
   );
 });
 
-function watermarkState(first, second) {
+function watermarkState(first, second, { accepted = false } = {}) {
   const instants = [new Date(first), new Date(second)].sort((left, right) => left - right);
   return {
     status: "valid",
@@ -614,7 +626,17 @@ function watermarkState(first, second) {
     graphGeneratedAt: {
       "public/graph/s26.json": first,
       "public/graph/s2026.json": second
-    }
+    },
+    acceptance: accepted
+      ? {
+          status: "valid",
+          marker: {
+            slotKey: "central-2026-08-22-0600",
+            scheduledAt: "2026-08-22T11:00:00.000Z",
+            publicationCommit: "a".repeat(40)
+          }
+        }
+      : { status: "missing", marker: null }
   };
 }
 

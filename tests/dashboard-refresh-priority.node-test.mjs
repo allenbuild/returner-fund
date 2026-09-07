@@ -7,6 +7,7 @@ import {
   resolveDashboardRefreshPriority,
   writeDashboardRefreshPriorityOutputs
 } from "../scripts/lib/dashboard-refresh-priority.mjs";
+import { latestEligibleCentralSlot } from "../scripts/lib/ingestion-schedule.mjs";
 
 const NOW = new Date("2026-08-30T14:00:00.000Z");
 
@@ -115,10 +116,22 @@ test("workflow outputs expose an auditable admission decision", async (context) 
 });
 
 function watermarkState(watermark, newestGeneratedAt) {
+  const scheduledAt = new Date(watermark);
+  const acceptedSlot = latestEligibleCentralSlot(
+    new Date(scheduledAt.getTime() + 1_000)
+  );
   return {
     status: "valid",
-    watermark: new Date(watermark),
+    watermark: scheduledAt,
     newestGeneratedAt: new Date(newestGeneratedAt),
-    graphGeneratedAt: {}
+    graphGeneratedAt: {},
+    acceptance: {
+      status: "valid",
+      marker: {
+        slotKey: acceptedSlot.slotKey,
+        scheduledAt: acceptedSlot.scheduledAt.toISOString()
+      },
+      error: null
+    }
   };
 }

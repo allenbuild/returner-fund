@@ -14,6 +14,7 @@ const SAFE_EXACT_PATHS = new Set([
   "docs/outputs/scoring-diagnostics-v4-report.md",
   "outputs/cohort-coverage-current.json",
   "outputs/discovery-attempts-current.json",
+  "outputs/autonomous-ingestion-acceptance-current.json",
   "outputs/ingestion-source-delta-current.json",
   "outputs/ingestion-source-delta-history.json",
   "outputs/benchmarks/daily-publication-receipt.json",

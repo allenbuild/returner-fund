@@ -2106,6 +2106,8 @@ test("LaunchAgent template is a five-minute one-shot without KeepAlive", async (
   );
   assert.match(installer, /installedScheduleModule/);
   assert.match(installer, /scripts[\s\S]*?lib[\s\S]*?ingestion-schedule\.mjs/);
+  assert.match(installer, /installedAcceptanceMarkerModule/);
+  assert.match(installer, /scripts[\s\S]*?lib[\s\S]*?ingestion-acceptance-marker\.mjs/);
   assert.match(installer, /installedArtifactManifestModule/);
   assert.match(installer, /scripts[\s\S]*?lib[\s\S]*?artifact-manifest\.mjs/);
 });
@@ -2424,6 +2426,10 @@ test("host LaunchAgent install and uninstall are idempotent without deleting aud
   assert.equal(
     await readFile(paths.installedScheduleModule, "utf8"),
     await readFile(paths.sourceScheduleModule, "utf8")
+  );
+  assert.equal(
+    await readFile(paths.installedAcceptanceMarkerModule, "utf8"),
+    await readFile(paths.sourceAcceptanceMarkerModule, "utf8")
   );
   assert.equal(
     await readFile(paths.installedArtifactManifestModule, "utf8"),

@@ -21,7 +21,7 @@ export function resolveDashboardRefreshPriority({ publicationState, now = new Da
       watermarkStatus: ingestion.watermarkStatus
     });
   }
-  if (ingestion.reason !== "publication-watermark-current") {
+  if (ingestion.reason !== "publication-acceptance-current") {
     throw new Error(`Dashboard priority resolver received an unexpected ingestion decision: ${ingestion.reason}.`);
   }
 
