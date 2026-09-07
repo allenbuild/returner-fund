@@ -5,8 +5,8 @@
     "slug": "rekursiv-ai",
     "name": "rekursiv.ai"
   },
-  "generatedAt": "2026-09-07T16:00:45.424Z",
-  "lastModifiedAt": "2026-09-07T16:00:45.424Z",
+  "generatedAt": "2026-09-07T21:07:18.411Z",
+  "lastModifiedAt": "2026-09-07T21:07:18.411Z",
   "events": [
     {
       "id": "tle-a4b211cf152e9f4c8cd8215c",
@@ -80,7 +80,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 2,
-    "lastSuccessfulArtifactAt": "2026-09-07T16:00:45.424Z"
+    "lastSuccessfulArtifactAt": "2026-09-07T21:07:18.411Z"
   },
   "nextCursor": null
 }

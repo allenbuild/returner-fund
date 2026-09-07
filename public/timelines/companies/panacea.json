@@ -5,8 +5,8 @@
     "slug": "panacea",
     "name": "Panacea"
   },
-  "generatedAt": "2026-09-07T16:00:45.424Z",
-  "lastModifiedAt": "2026-09-07T16:00:45.424Z",
+  "generatedAt": "2026-09-07T21:07:18.411Z",
+  "lastModifiedAt": "2026-09-07T21:07:18.411Z",
   "events": [
     {
       "id": "tle-bf95e68a2c01be04e212ba4b",
@@ -47,7 +47,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-09-07T16:00:45.424Z"
+    "lastSuccessfulArtifactAt": "2026-09-07T21:07:18.411Z"
   },
   "nextCursor": null
 }
