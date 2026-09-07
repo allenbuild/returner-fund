@@ -352,32 +352,36 @@ test("wake-status reader accepts a valid maintenance wake without retrying", asy
   });
 });
 
-test("two wake-reader failures remain fail-closed through schedule recovery", async () => {
-  let wakeReads = 0;
+test("scheduled public recovery never reads Mac runner, power, or wake state", async () => {
+  let hostReads = 0;
   let dispatches = 0;
   const decision = await evaluateScheduleRecovery({
     config: config({ scheduleRecoveryEnabled: true }),
     github: github({
+      getRunners: async () => {
+        hostReads += 1;
+        throw new Error("hosted recovery must not inspect self-hosted runners");
+      },
       dispatchRecovery: async () => {
         dispatches += 1;
       }
     }),
     state: { recoveryDispatch: null },
-    readPowerStatus: async () => "Now drawing from 'Battery Power'\n 87%; discharging",
-    readWakeStatus: () => readHostWakeStatus({
-      execute: async () => {
-        wakeReads += 1;
-        throw new Error("persistent ioreg timeout");
-      }
-    }),
+    readPowerStatus: async () => {
+      hostReads += 1;
+      throw new Error("hosted recovery must not inspect Mac power");
+    },
+    readWakeStatus: async () => {
+      hostReads += 1;
+      throw new Error("hosted recovery must not inspect Mac wake state");
+    },
     now: new Date("2026-08-26T05:05:00.000Z")
   });
 
-  assert.equal(wakeReads, 2);
-  assert.equal(decision.action, "defer");
-  assert.equal(decision.reason, "wake_status_unavailable");
-  assert.equal(decision.batteryPercent, 87);
-  assert.equal(dispatches, 0);
+  assert.equal(hostReads, 0);
+  assert.equal(decision.action, "dispatch");
+  assert.equal(decision.reason, undefined);
+  assert.equal(dispatches, 1);
 });
 
 test("recovery host gate ignores wake state on AC and requires full wake on battery", () => {
@@ -857,7 +861,7 @@ test("active workflow and low battery defer without issuing or deduping a rerun"
   assert.equal(reruns, 0);
 });
 
-test("every supervisor recovery mutation defers during a battery maintenance dark wake", async () => {
+test("Mac-gated recovery defers during a dark wake while hosted schedule recovery dispatches", async () => {
   let mutations = 0;
   const api = github({
     getRepositoryText: async () => dashboardArtifact("2026-08-26T17:00:00.000Z"),
@@ -891,7 +895,7 @@ test("every supervisor recovery mutation defers during a battery maintenance dar
     readWakeStatus,
     now: new Date("2026-08-26T05:05:00.000Z")
   });
-  assert.equal(schedule.reason, "maintenance_dark_wake");
+  assert.equal(schedule.action, "dispatch");
 
   const dashboard = await evaluateDashboardRecovery({
     config: config({ dashboardRecoveryEnabled: true }),
@@ -902,11 +906,12 @@ test("every supervisor recovery mutation defers during a battery maintenance dar
     now: new Date("2026-08-26T20:05:00.000Z")
   });
   assert.equal(dashboard.reason, "maintenance_dark_wake");
-  assert.equal(mutations, 0);
+  assert.equal(mutations, 1);
 });
 
-test("a low-battery deferral preserves the stale slot for immediate charged recovery", async () => {
+test("low Mac battery does not hold back stale hosted schedule recovery", async () => {
   const dispatchedHeads = [];
+  let powerReads = 0;
   const testConfig = config({ scheduleRecoveryEnabled: true });
   const testGithub = github({
     getWorkflowRuns: async () => [{
@@ -919,32 +924,22 @@ test("a low-battery deferral preserves the stale slot for immediate charged reco
     dispatchRecovery: async (headSha) => dispatchedHeads.push(headSha)
   });
   const state = Object.freeze({ recoveryDispatch: null });
-  const batteryDecision = await evaluateScheduleRecovery({
+  const decision = await evaluateScheduleRecovery({
     config: testConfig,
     github: testGithub,
     state,
-    readPowerStatus: async () => "Now drawing from 'Battery Power'\n 29%; discharging",
+    readPowerStatus: async () => {
+      powerReads += 1;
+      return "Now drawing from 'Battery Power'\n 29%; discharging";
+    },
     now: new Date("2026-08-26T05:05:00.000Z")
   });
 
-  assert.equal(batteryDecision.action, "defer");
-  assert.equal(batteryDecision.reason, "battery_below_reserve");
-  assert.equal(batteryDecision.batteryPercent, 29);
-  assert.deepEqual(dispatchedHeads, []);
-
-  const chargedDecision = await evaluateScheduleRecovery({
-    config: config({ scheduleRecoveryEnabled: true }),
-    github: testGithub,
-    state,
-    readPowerStatus: async () => "Now drawing from 'Battery Power'\n 72%; discharging",
-    readWakeStatus: async () => '"IOPMUserTriggeredFullWake" = Yes',
-    now: new Date("2026-08-26T05:05:00.000Z")
-  });
-
-  assert.equal(chargedDecision.action, "dispatch");
-  assert.equal(chargedDecision.slotKey, "central-2026-08-25-1800");
-  assert.equal(chargedDecision.scheduledAt, "2026-08-25T23:00:00.000Z");
-  assert.equal(chargedDecision.watermarkStatus, "missing");
+  assert.equal(powerReads, 0);
+  assert.equal(decision.action, "dispatch");
+  assert.equal(decision.slotKey, "central-2026-08-25-1800");
+  assert.equal(decision.scheduledAt, "2026-08-25T23:00:00.000Z");
+  assert.equal(decision.watermarkStatus, "missing");
   assert.deepEqual(dispatchedHeads, [CURRENT_SHA]);
 });
 
@@ -1042,18 +1037,22 @@ test("an active or pending autonomous run suppresses duplicate recovery", async 
   assert.equal(downstreamCalls, 0);
 });
 
-test("host recovery waits for the exact runner to be online and power-eligible", async () => {
+test("hosted schedule recovery ignores an offline Mac runner", async () => {
   let dispatches = 0;
-  const offline = await evaluateScheduleRecovery({
+  let runnerReads = 0;
+  const decision = await evaluateScheduleRecovery({
     config: config({ scheduleRecoveryEnabled: true }),
     github: github({
       getWorkflowRuns: async () => [],
-      getRunners: async () => [{
-        id: 7,
-        name: "returner-social-mac-allenxtech",
-        status: "offline",
-        busy: false
-      }],
+      getRunners: async () => {
+        runnerReads += 1;
+        return [{
+          id: 7,
+          name: "returner-social-mac-allenxtech",
+          status: "offline",
+          busy: false
+        }];
+      },
       dispatchRecovery: async () => {
         dispatches += 1;
       }
@@ -1062,23 +1061,9 @@ test("host recovery waits for the exact runner to be online and power-eligible",
     readPowerStatus: async () => "Now drawing from 'AC Power'\n 100%; charged",
     now: new Date("2026-08-26T05:05:00.000Z")
   });
-  assert.equal(offline.reason, "runner_offline");
-
-  const battery = await evaluateScheduleRecovery({
-    config: config({ scheduleRecoveryEnabled: true }),
-    github: github({
-      getWorkflowRuns: async () => [],
-      dispatchRecovery: async () => {
-        dispatches += 1;
-      }
-    }),
-    state: { recoveryDispatch: null },
-    readPowerStatus: async () => "Now drawing from 'Battery Power'\n 29%; discharging",
-    now: new Date("2026-08-26T05:05:00.000Z")
-  });
-  assert.equal(battery.reason, "battery_below_reserve");
-  assert.equal(battery.batteryPercent, 29);
-  assert.equal(dispatches, 0);
+  assert.equal(runnerReads, 0);
+  assert.equal(decision.action, "dispatch");
+  assert.equal(dispatches, 1);
 });
 
 test("a committed completeness watermark triggers host recovery once stale", async () => {
@@ -1136,7 +1121,7 @@ test("a committed completeness watermark triggers host recovery once stale", asy
   assert.equal(dispatches, 1);
 });
 
-test("offline runner kickstart is pre-persisted, suppresses mutations, and obeys durable cooldown", async (context) => {
+test("offline runner kickstart suppresses Mac mutations but not hosted recovery", async (context) => {
   const root = await mkdtemp(path.join(tmpdir(), "returner-runner-restart-test-"));
   context.after(() => rm(root, { recursive: true, force: true }));
   const runnerDiagDir = path.join(root, "diag");
@@ -1163,8 +1148,11 @@ test("offline runner kickstart is pre-persisted, suppresses mutations, and obeys
   })}\n`);
 
   let kickstarts = 0;
-  let mutations = 0;
-  let maskedActiveRunReads = 0;
+  let leaseReruns = 0;
+  let recoveryDispatches = 0;
+  let dashboardDispatches = 0;
+  let scheduleRunReads = 0;
+  let dashboardActiveRunReads = 0;
   const api = github({
     getRunners: async ({ fresh } = {}) => {
       assert.equal(fresh, true);
@@ -1176,21 +1164,21 @@ test("offline runner kickstart is pre-persisted, suppresses mutations, and obeys
       }];
     },
     getActiveRuns: async () => {
-      maskedActiveRunReads += 1;
+      dashboardActiveRunReads += 1;
       return [{ id: 991, status: "queued" }];
     },
     getWorkflowRuns: async () => {
-      maskedActiveRunReads += 1;
-      return [{ id: 991, status: "queued" }];
+      scheduleRunReads += 1;
+      return [];
     },
     rerunFailedJobs: async () => {
-      mutations += 1;
+      leaseReruns += 1;
     },
     dispatchRecovery: async () => {
-      mutations += 1;
+      recoveryDispatches += 1;
     },
     dispatchDashboardRecovery: async () => {
-      mutations += 1;
+      dashboardDispatches += 1;
     }
   });
   const kickstartRunner = async ({ label, runnerId }) => {
@@ -1214,11 +1202,14 @@ test("offline runner kickstart is pre-persisted, suppresses mutations, and obeys
   assert.equal(first.runnerRecovery.reason, "runner_restart_accepted");
   assert.equal(first.runnerRecovery.pid, 8101);
   assert.equal(first.deferred, 1);
-  assert.equal(first.recovery.reason, "runner_recovery_required");
+  assert.equal(first.recovery.action, "dispatch");
   assert.equal(first.dashboardRecovery.reason, "runner_recovery_required");
   assert.equal(kickstarts, 1);
-  assert.equal(mutations, 0);
-  assert.equal(maskedActiveRunReads, 0);
+  assert.equal(leaseReruns, 0);
+  assert.equal(recoveryDispatches, 1);
+  assert.equal(dashboardDispatches, 0);
+  assert.equal(scheduleRunReads, 1);
+  assert.equal(dashboardActiveRunReads, 0);
   assert.deepEqual((await loadSupervisorState(testConfig.statePath)).runnerRestartAttempt, {
     attemptedAt: "2026-08-26T05:05:00.000Z",
     launchdLabel: RUNNER_LAUNCHD_LABEL,
@@ -1235,6 +1226,7 @@ test("offline runner kickstart is pre-persisted, suppresses mutations, and obeys
     now: () => new Date("2026-08-26T05:10:00.000Z")
   });
   assert.equal(cooldown.runnerRecovery.reason, "runner_restart_cooldown");
+  assert.equal(cooldown.recovery.reason, "recovery_dispatch_cooldown");
   assert.equal(kickstarts, 1);
 
   const expired = await runSupervisor({
@@ -1247,7 +1239,11 @@ test("offline runner kickstart is pre-persisted, suppresses mutations, and obeys
   assert.equal(expired.runnerRecovery.reason, "runner_restart_accepted");
   assert.equal(expired.runnerRecovery.pid, 8102);
   assert.equal(kickstarts, 2);
-  assert.equal(mutations, 0);
+  assert.equal(leaseReruns, 0);
+  assert.equal(recoveryDispatches, 2);
+  assert.equal(dashboardDispatches, 0);
+  assert.equal(scheduleRunReads, 3);
+  assert.equal(dashboardActiveRunReads, 0);
 });
 
 test("failed runner kickstart is durable and consumes the same cooldown", async (context) => {

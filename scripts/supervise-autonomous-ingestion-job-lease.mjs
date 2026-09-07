@@ -935,8 +935,6 @@ export async function evaluateScheduleRecovery({
   config,
   github,
   state,
-  readPowerStatus,
-  readWakeStatus,
   now = new Date(),
   dryRun = config.dryRun
 }) {
@@ -1013,27 +1011,6 @@ export async function evaluateScheduleRecovery({
     }
   }
 
-  const runnerVerification = verifyRecoveryRunner({
-    runners: await github.getRunners(),
-    config
-  });
-  if (!runnerVerification.valid) {
-    return Object.freeze({
-      action: "defer",
-      reason: runnerVerification.reason,
-      matchingRunners: runnerVerification.matching
-    });
-  }
-
-  const host = await readRecoveryHostStatus({ config, readPowerStatus, readWakeStatus });
-  if (!host.eligible) {
-    return Object.freeze({
-      action: "defer",
-      reason: host.reason,
-      batteryPercent: host.percent
-    });
-  }
-
   const reads = new Map();
   const publicationState = await readPublicationWatermark({
     now,
@@ -1070,8 +1047,7 @@ export async function evaluateScheduleRecovery({
       reason: "dry_run_would_dispatch_recovery",
       mainSha,
       slotKey: decision.slotKey,
-      watermarkStatus: decision.watermarkStatus,
-      batteryPercent: host.percent
+      watermarkStatus: decision.watermarkStatus
     });
   }
 
@@ -1083,12 +1059,7 @@ export async function evaluateScheduleRecovery({
     slotKey: decision.slotKey,
     scheduledAt: decision.scheduledAt,
     watermarkStatus: decision.watermarkStatus,
-    publicationWatermark: decision.publicationWatermark,
-    batteryPercent: host.percent,
-    powerReason: host.powerReason,
-    wakeReason: host.wakeReason,
-    runnerId: runnerVerification.runnerId,
-    runnerBusy: runnerVerification.busy
+    publicationWatermark: decision.publicationWatermark
   });
 }
 
@@ -1287,20 +1258,14 @@ export async function runSupervisor({
     }
 
     let recovery = { action: "disabled", reason: "schedule_recovery_disabled" };
-    if (runnerRecoveryBlocksMutations) {
-      recovery = {
-        action: "defer",
-        reason: "runner_recovery_required",
-        runnerRecoveryReason: runnerRecovery.reason
-      };
-    } else if (config.scheduleRecoveryEnabled && !rerunAccepted) {
+    // Public schedule recovery runs on GitHub-hosted infrastructure. It must remain
+    // independently dispatchable while the authenticated Mac runner is unavailable.
+    if (config.scheduleRecoveryEnabled && !rerunAccepted) {
       try {
         recovery = await evaluateScheduleRecovery({
           config,
           github,
           state,
-          readPowerStatus,
-          readWakeStatus,
           now: now()
         });
         if (recovery.action === "dispatch") {

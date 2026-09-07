@@ -232,8 +232,13 @@ jobs:
     name: Publish accepted slot ${{ needs.resolve.outputs.slot_key }}
     needs: resolve
     if: needs.resolve.outputs.should_run == 'true'
-    runs-on: [self-hosted, macOS, ARM64, returner-social, returner-auth-browser]
-    timeout-minutes: 415
+    # Public scheduled collection must not depend on one laptop remaining
+    # powered, open, and online for several hours. Only an explicitly requested
+    # authenticated browser replay needs the dedicated local Mac profile.
+    runs-on: ${{ (github.event_name == 'workflow_dispatch' && inputs.authenticated_backfill == true) && fromJSON('["self-hosted","macOS","ARM64","returner-social","returner-auth-browser"]') || 'ubuntu-latest' }}
+    # GitHub-hosted jobs have a six-hour ceiling. The public lane stays inside
+    # it; authenticated Mac replay retains the longer self-hosted allowance.
+    timeout-minutes: ${{ (github.event_name == 'workflow_dispatch' && inputs.authenticated_backfill == true) && 415 || 360 }}
     permissions:
       contents: write
     concurrency:
@@ -295,67 +300,75 @@ jobs:
 
           {
             echo "ready=false"
-            echo "reason=power_status_unavailable"
+            echo "reason=host_preflight_pending"
           } >> "$GITHUB_OUTPUT"
 
-          POWER_STATUS="$(/usr/bin/pmset -g batt)"
-          BATTERY_PERCENT="$(sed -nE 's/.*[[:space:]]([0-9]{1,3})%;.*/\1/p' <<< "$POWER_STATUS" | head -n 1)"
-          if [[ "${POWER_STATUS%%$'\n'*}" != *"'AC Power'"* ]]; then
-            if [[ ! "$BATTERY_PERCENT" =~ ^[0-9]+$ ]]; then
-              if [ "$AUTHENTICATED_SOCIAL_REPLAY" = "true" ]; then
-                echo "::error title=Authenticated replay power state unavailable::The battery reserve could not be verified. Retry this manual replay after confirming host power."
-                exit 1
-              fi
-              echo "::warning title=Runner power state unavailable::The battery reserve could not be verified. This slot remains stale and the host supervisor will retry it."
-              exit 0
-            fi
-            if [ "$BATTERY_PERCENT" -lt "$AUTONOMOUS_MIN_BATTERY_PERCENT" ]; then
-              echo "reason=battery_below_start_reserve" >> "$GITHUB_OUTPUT"
-              if [ "$AUTHENTICATED_SOCIAL_REPLAY" = "true" ]; then
-                echo "::error title=Authenticated replay battery reserve is low::Battery is ${BATTERY_PERCENT}%. Retry this manual replay at ${AUTONOMOUS_MIN_BATTERY_PERCENT}% or on AC."
-                exit 1
-              fi
-              echo "::warning title=Autonomous ingestion safely deferred::Battery is ${BATTERY_PERCENT}%; the slot remains stale and will retry automatically at ${AUTONOMOUS_MIN_BATTERY_PERCENT}% or on AC."
-              exit 0
-            fi
+          if [ "$AUTHENTICATED_SOCIAL_REPLAY" = "true" ] && [ "${RUNNER_OS:-}" != "macOS" ]; then
+            echo "reason=authenticated_replay_requires_local_mac" >> "$GITHUB_OUTPUT"
+            echo "::error title=Authenticated replay runner mismatch::Authenticated browser replay must run on the dedicated local Mac."
+            exit 1
+          fi
 
-            CLAMSHELL_STATE="$(/usr/sbin/ioreg -r -k AppleClamshellState -d 4 2>/dev/null || true)"
-            CLAMSHELL_MATCH_COUNT="$(grep -Eo '"AppleClamshellState"[[:space:]]*=[[:space:]]*(Yes|No)([[:space:]]|$)' <<< "$CLAMSHELL_STATE" | wc -l | tr -d '[:space:]' || true)"
-            CLAMSHELL_CLOSED_COUNT="$(grep -Eo '"AppleClamshellState"[[:space:]]*=[[:space:]]*Yes([[:space:]]|$)' <<< "$CLAMSHELL_STATE" | wc -l | tr -d '[:space:]' || true)"
-            if [ "$CLAMSHELL_MATCH_COUNT" -ne 1 ]; then
-              echo "reason=battery_clamshell_status_unavailable" >> "$GITHUB_OUTPUT"
-              if [ "$AUTHENTICATED_SOCIAL_REPLAY" = "true" ]; then
-                echo "::error title=Authenticated replay requires a verified lid state::The Mac lid state could not be verified while on battery. Retry this manual replay after opening the lid or connecting AC."
-                exit 1
+          if [ "${RUNNER_OS:-}" = "macOS" ]; then
+            POWER_STATUS="$(/usr/bin/pmset -g batt)"
+            BATTERY_PERCENT="$(sed -nE 's/.*[[:space:]]([0-9]{1,3})%;.*/\1/p' <<< "$POWER_STATUS" | head -n 1)"
+            if [[ "${POWER_STATUS%%$'\n'*}" != *"'AC Power'"* ]]; then
+              if [[ ! "$BATTERY_PERCENT" =~ ^[0-9]+$ ]]; then
+                if [ "$AUTHENTICATED_SOCIAL_REPLAY" = "true" ]; then
+                  echo "::error title=Authenticated replay power state unavailable::The battery reserve could not be verified. Retry this manual replay after confirming host power."
+                  exit 1
+                fi
+                echo "::warning title=Runner power state unavailable::The battery reserve could not be verified. This slot remains stale and the host supervisor will retry it."
+                exit 0
               fi
-              echo "::warning title=Autonomous ingestion safely deferred::The Mac lid state could not be verified while on battery. The slot remains durable and will retry automatically after a verified full wake or on AC."
-              exit 0
-            fi
-            if [ "$CLAMSHELL_CLOSED_COUNT" -eq 1 ]; then
-              echo "reason=battery_clamshell_closed" >> "$GITHUB_OUTPUT"
-              if [ "$AUTHENTICATED_SOCIAL_REPLAY" = "true" ]; then
-                echo "::error title=Authenticated replay requires an awake Mac::The Mac lid is closed while on battery, and caffeinate cannot override clamshell sleep. Retry this manual replay after opening the lid or using an AC-supported clamshell setup."
-                exit 1
+              if [ "$BATTERY_PERCENT" -lt "$AUTONOMOUS_MIN_BATTERY_PERCENT" ]; then
+                echo "reason=battery_below_start_reserve" >> "$GITHUB_OUTPUT"
+                if [ "$AUTHENTICATED_SOCIAL_REPLAY" = "true" ]; then
+                  echo "::error title=Authenticated replay battery reserve is low::Battery is ${BATTERY_PERCENT}%. Retry this manual replay at ${AUTONOMOUS_MIN_BATTERY_PERCENT}% or on AC."
+                  exit 1
+                fi
+                echo "::warning title=Autonomous ingestion safely deferred::Battery is ${BATTERY_PERCENT}%; the slot remains stale and will retry automatically at ${AUTONOMOUS_MIN_BATTERY_PERCENT}% or on AC."
+                exit 0
               fi
-              echo "::warning title=Autonomous ingestion safely deferred::The Mac lid is closed while on battery, and caffeinate cannot override clamshell sleep. The slot remains durable and will retry automatically after the lid opens or an AC-supported clamshell setup is active."
-              exit 0
-            fi
 
-            USER_WAKE_STATE="$(/usr/sbin/ioreg -r -k IOPMUserTriggeredFullWake -d 4 2>/dev/null || true)"
-            WAKE_MATCH_COUNT="$(grep -Eo '"IOPMUserTriggeredFullWake"[[:space:]]*=[[:space:]]*(Yes|No)([[:space:]]|$)' <<< "$USER_WAKE_STATE" | wc -l | tr -d '[:space:]' || true)"
-            FULL_WAKE_MATCH_COUNT="$(grep -Eo '"IOPMUserTriggeredFullWake"[[:space:]]*=[[:space:]]*Yes([[:space:]]|$)' <<< "$USER_WAKE_STATE" | wc -l | tr -d '[:space:]' || true)"
-            if [ "$WAKE_MATCH_COUNT" -ne 1 ] || [ "$FULL_WAKE_MATCH_COUNT" -ne 1 ]; then
-              echo "reason=battery_full_wake_unverified" >> "$GITHUB_OUTPUT"
-              if [ "$AUTHENTICATED_SOCIAL_REPLAY" = "true" ]; then
-                echo "::error title=Authenticated replay requires a full wake::The Mac is on battery without one verified user-triggered full wake. Retry after explicitly waking the host or connecting AC."
-                exit 1
+              CLAMSHELL_STATE="$(/usr/sbin/ioreg -r -k AppleClamshellState -d 4 2>/dev/null || true)"
+              CLAMSHELL_MATCH_COUNT="$(grep -Eo '"AppleClamshellState"[[:space:]]*=[[:space:]]*(Yes|No)([[:space:]]|$)' <<< "$CLAMSHELL_STATE" | wc -l | tr -d '[:space:]' || true)"
+              CLAMSHELL_CLOSED_COUNT="$(grep -Eo '"AppleClamshellState"[[:space:]]*=[[:space:]]*Yes([[:space:]]|$)' <<< "$CLAMSHELL_STATE" | wc -l | tr -d '[:space:]' || true)"
+              if [ "$CLAMSHELL_MATCH_COUNT" -ne 1 ]; then
+                echo "reason=battery_clamshell_status_unavailable" >> "$GITHUB_OUTPUT"
+                if [ "$AUTHENTICATED_SOCIAL_REPLAY" = "true" ]; then
+                  echo "::error title=Authenticated replay requires a verified lid state::The Mac lid state could not be verified while on battery. Retry this manual replay after opening the lid or connecting AC."
+                  exit 1
+                fi
+                echo "::warning title=Autonomous ingestion safely deferred::The Mac lid state could not be verified while on battery. The slot remains durable and will retry automatically after a verified full wake or on AC."
+                exit 0
               fi
-              echo "::warning title=Autonomous ingestion safely deferred::The Mac is on battery without one verified user-triggered full wake. The slot remains stale and will retry automatically after a full wake or on AC."
-              exit 0
+              if [ "$CLAMSHELL_CLOSED_COUNT" -eq 1 ]; then
+                echo "reason=battery_clamshell_closed" >> "$GITHUB_OUTPUT"
+                if [ "$AUTHENTICATED_SOCIAL_REPLAY" = "true" ]; then
+                  echo "::error title=Authenticated replay requires an awake Mac::The Mac lid is closed while on battery, and caffeinate cannot override clamshell sleep. Retry this manual replay after opening the lid or using an AC-supported clamshell setup."
+                  exit 1
+                fi
+                echo "::warning title=Autonomous ingestion safely deferred::The Mac lid is closed while on battery, and caffeinate cannot override clamshell sleep. The slot remains durable and will retry automatically after the lid opens or an AC-supported clamshell setup is active."
+                exit 0
+              fi
+
+              USER_WAKE_STATE="$(/usr/sbin/ioreg -r -k IOPMUserTriggeredFullWake -d 4 2>/dev/null || true)"
+              WAKE_MATCH_COUNT="$(grep -Eo '"IOPMUserTriggeredFullWake"[[:space:]]*=[[:space:]]*(Yes|No)([[:space:]]|$)' <<< "$USER_WAKE_STATE" | wc -l | tr -d '[:space:]' || true)"
+              FULL_WAKE_MATCH_COUNT="$(grep -Eo '"IOPMUserTriggeredFullWake"[[:space:]]*=[[:space:]]*Yes([[:space:]]|$)' <<< "$USER_WAKE_STATE" | wc -l | tr -d '[:space:]' || true)"
+              if [ "$WAKE_MATCH_COUNT" -ne 1 ] || [ "$FULL_WAKE_MATCH_COUNT" -ne 1 ]; then
+                echo "reason=battery_full_wake_unverified" >> "$GITHUB_OUTPUT"
+                if [ "$AUTHENTICATED_SOCIAL_REPLAY" = "true" ]; then
+                  echo "::error title=Authenticated replay requires a full wake::The Mac is on battery without one verified user-triggered full wake. Retry after explicitly waking the host or connecting AC."
+                  exit 1
+                fi
+                echo "::warning title=Autonomous ingestion safely deferred::The Mac is on battery without one verified user-triggered full wake. The slot remains stale and will retry automatically after a full wake or on AC."
+                exit 0
+              fi
+              echo "::warning title=Runner using healthy battery reserve::Battery is ${BATTERY_PERCENT}% and a full wake is verified; autonomous ingestion will proceed under a job-scoped sleep assertion."
+            elif [[ "$BATTERY_PERCENT" =~ ^[0-9]+$ ]] && [ "$BATTERY_PERCENT" -lt 20 ]; then
+              echo "::warning title=Runner battery reserve is low::The Mac is connected to AC but reports ${BATTERY_PERCENT}% battery. Keep power connected for this ingestion."
             fi
-            echo "::warning title=Runner using healthy battery reserve::Battery is ${BATTERY_PERCENT}% and a full wake is verified; autonomous ingestion will proceed under a job-scoped sleep assertion."
-          elif [[ "$BATTERY_PERCENT" =~ ^[0-9]+$ ]] && [ "$BATTERY_PERCENT" -lt 20 ]; then
-            echo "::warning title=Runner battery reserve is low::The Mac is connected to AC but reports ${BATTERY_PERCENT}% battery. Keep power connected for this ingestion."
           fi
 
           # A self-hosted job can be assigned after its workflow has spent a
@@ -399,23 +412,23 @@ jobs:
           fi
           unset GITHUB_TOKEN AUTH_PAYLOAD AUTH_BASE64 PUBLICATION_EXTRAHEADER PUBLICATION_REMOTE
 
-          POWER_ASSERTIONS="$(/usr/bin/pmset -g assertions 2>/dev/null || true)"
-          if ! grep -Eq '^[[:space:]]*PreventSystemSleep[[:space:]]+1([[:space:]]|$)' <<< "$POWER_ASSERTIONS"; then
-            echo "::warning title=Durable sleep assertion is missing::The job-scoped assertion will protect this run; reinstall the host supervisor to restore maintenance-wake coverage."
-          fi
+          if [ "${RUNNER_OS:-}" = "macOS" ]; then
+            POWER_ASSERTIONS="$(/usr/bin/pmset -g assertions 2>/dev/null || true)"
+            if ! grep -Eq '^[[:space:]]*PreventSystemSleep[[:space:]]+1([[:space:]]|$)' <<< "$POWER_ASSERTIONS"; then
+              echo "::warning title=Durable sleep assertion is missing::The job-scoped assertion will protect this run; reinstall the host supervisor to restore maintenance-wake coverage."
+            fi
 
-          # Public collection may proceed from an AC maintenance wake because
-          # the durable AC-only assertion can protect it. All battery work
-          # requires one verified full wake. Authenticated browser replay remains
-          # interactive-only and never manufactures user presence.
-          if [ "$AUTHENTICATED_SOCIAL_REPLAY" = "true" ]; then
-            USER_WAKE_STATE="$(/usr/sbin/ioreg -r -k IOPMUserTriggeredFullWake -d 4 2>/dev/null || true)"
-            WAKE_MATCH_COUNT="$(grep -Eo '"IOPMUserTriggeredFullWake"[[:space:]]*=[[:space:]]*(Yes|No)([[:space:]]|$)' <<< "$USER_WAKE_STATE" | wc -l | tr -d '[:space:]' || true)"
-            FULL_WAKE_MATCH_COUNT="$(grep -Eo '"IOPMUserTriggeredFullWake"[[:space:]]*=[[:space:]]*Yes([[:space:]]|$)' <<< "$USER_WAKE_STATE" | wc -l | tr -d '[:space:]' || true)"
-            if [ "$WAKE_MATCH_COUNT" -ne 1 ] || [ "$FULL_WAKE_MATCH_COUNT" -ne 1 ]; then
-              echo "reason=authenticated_replay_user_wake_missing" >> "$GITHUB_OUTPUT"
-              echo "::error title=Authenticated replay requires a user wake::The Mac was not explicitly woken by a user. Retry this manual replay after waking the host; public scheduled ingestion remains autonomous."
-              exit 1
+            # Authenticated browser replay remains interactive-only and never
+            # manufactures user presence on the dedicated Mac.
+            if [ "$AUTHENTICATED_SOCIAL_REPLAY" = "true" ]; then
+              USER_WAKE_STATE="$(/usr/sbin/ioreg -r -k IOPMUserTriggeredFullWake -d 4 2>/dev/null || true)"
+              WAKE_MATCH_COUNT="$(grep -Eo '"IOPMUserTriggeredFullWake"[[:space:]]*=[[:space:]]*(Yes|No)([[:space:]]|$)' <<< "$USER_WAKE_STATE" | wc -l | tr -d '[:space:]' || true)"
+              FULL_WAKE_MATCH_COUNT="$(grep -Eo '"IOPMUserTriggeredFullWake"[[:space:]]*=[[:space:]]*Yes([[:space:]]|$)' <<< "$USER_WAKE_STATE" | wc -l | tr -d '[:space:]' || true)"
+              if [ "$WAKE_MATCH_COUNT" -ne 1 ] || [ "$FULL_WAKE_MATCH_COUNT" -ne 1 ]; then
+                echo "reason=authenticated_replay_user_wake_missing" >> "$GITHUB_OUTPUT"
+                echo "::error title=Authenticated replay requires a user wake::The Mac was not explicitly woken by a user. Retry this manual replay after waking the host; public scheduled ingestion remains autonomous."
+                exit 1
+              fi
             fi
           fi
 
@@ -589,7 +602,7 @@ jobs:
       - name: Run autonomous ingestion
         id: ingestion
         if: steps.revalidate.outputs.should_run == 'true' && steps.host_preflight.outputs.ready == 'true'
-        timeout-minutes: 380
+        timeout-minutes: ${{ runner.os == 'macOS' && 380 || 342 }}
         env:
           # The coordinator retains the sealed collection inputs while a
           # bounded concurrent-main recovery may need to inspect them again.
@@ -616,14 +629,10 @@ jobs:
           # wakeups keep retrying a stale slot across jobs until its repository
           # watermark advances.
           AUTONOMOUS_WORKFLOW_RETRY_MAX_ATTEMPTS: "6"
-          # The 370-minute controller window can admit all six bounded lock-
-          # contention attempts through the 20.5-minute cumulative backoff,
-          # while every admitted child still has at least 331 minutes: 324
-          # minutes of runner work, six minutes of runner cleanup, and one
-          # minute of process-start headroom. Its six-minute SIGTERM grace plus
-          # four minutes of controller finalization remain inside this step's
-          # 380-minute timeout.
-          AUTONOMOUS_WORKFLOW_RETRY_MAX_ELAPSED_SECONDS: "22200"
+          # The hosted public controller stays within GitHub's six-hour job
+          # ceiling while retaining one complete 331-minute child window. The
+          # self-hosted authenticated lane keeps the wider retry allowance.
+          AUTONOMOUS_WORKFLOW_RETRY_MAX_ELAPSED_SECONDS: ${{ runner.os == 'macOS' && '22200' || '20100' }}
           AUTONOMOUS_WORKFLOW_RETRY_MIN_REMAINING_SECONDS: "19860"
           # The final three-minute delay puts attempt six 30 seconds beyond
           # the maximum 20-minute coordinator lease instead of leaving a
@@ -634,40 +643,41 @@ jobs:
           # collection. Poll independently of the start gate and enter the
           # retry controller's normal SIGTERM drain before power becomes
           # critical, preserving checkpoints and leaving the slot retryable.
-          AUTONOMOUS_WORKFLOW_POWER_WATCHDOG_RESERVE_PERCENT: "20"
-          AUTONOMOUS_WORKFLOW_POWER_WATCHDOG_INTERVAL_SECONDS: "30"
+          AUTONOMOUS_WORKFLOW_POWER_WATCHDOG_RESERVE_PERCENT: ${{ runner.os == 'macOS' && '20' || '' }}
+          AUTONOMOUS_WORKFLOW_POWER_WATCHDOG_INTERVAL_SECONDS: ${{ runner.os == 'macOS' && '30' || '' }}
         run: |
           set -euo pipefail
 
-          # Keep the system and disks awake without forcing the display on.
-          # The host preflight already proved an AC-only durable assertion;
-          # this job-scoped assertion independently covers the ingestion shell.
-          /usr/bin/caffeinate -ims -w $$ &
-          CAFFEINATE_PID=$!
-          POWER_STATUS="$(/usr/bin/pmset -g batt)"
-          BATTERY_PERCENT="$(sed -nE 's/.*[[:space:]]([0-9]{1,3})%;.*/\1/p' <<< "$POWER_STATUS" | head -n 1)"
-          if [[ "${POWER_STATUS%%$'\n'*}" != *"'AC Power'"* ]]; then
-            if [[ ! "$BATTERY_PERCENT" =~ ^[0-9]+$ ]] || [ "$BATTERY_PERCENT" -lt "$AUTONOMOUS_MIN_BATTERY_PERCENT" ]; then
-              echo "::error title=Runner battery reserve changed::The verified start reserve is no longer available. The stale Central slot remains durable and will retry automatically."
+          if [ "${RUNNER_OS:-}" = "macOS" ]; then
+            # Keep the local system and disks awake without forcing its display
+            # on. Hosted public runs do not need a machine-power assertion.
+            /usr/bin/caffeinate -ims -w $$ &
+            CAFFEINATE_PID=$!
+            POWER_STATUS="$(/usr/bin/pmset -g batt)"
+            BATTERY_PERCENT="$(sed -nE 's/.*[[:space:]]([0-9]{1,3})%;.*/\1/p' <<< "$POWER_STATUS" | head -n 1)"
+            if [[ "${POWER_STATUS%%$'\n'*}" != *"'AC Power'"* ]]; then
+              if [[ ! "$BATTERY_PERCENT" =~ ^[0-9]+$ ]] || [ "$BATTERY_PERCENT" -lt "$AUTONOMOUS_MIN_BATTERY_PERCENT" ]; then
+                echo "::error title=Runner battery reserve changed::The verified start reserve is no longer available. The stale Central slot remains durable and will retry automatically."
+                exit 1
+              fi
+              echo "::warning title=Runner using battery reserve::The Mac is on battery at ${BATTERY_PERCENT}%; the 20% watchdog will checkpoint and stop before reserve is exhausted."
+            elif [[ "$BATTERY_PERCENT" =~ ^[0-9]+$ ]] && [ "$BATTERY_PERCENT" -lt 20 ]; then
+              echo "::warning title=Runner battery reserve is low::The Mac is connected to AC but reports ${BATTERY_PERCENT}% battery. Keep power connected for this ingestion."
+            fi
+
+            JOB_ASSERTION_READY=false
+            for attempt in 1 2 3 4 5; do
+              POWER_ASSERTIONS="$(/usr/bin/pmset -g assertions 2>/dev/null || true)"
+              if grep -Eq "pid[[:space:]]+${CAFFEINATE_PID}\\(caffeinate\\):.*Prevent(UserIdle)?SystemSleep" <<< "$POWER_ASSERTIONS"; then
+                JOB_ASSERTION_READY=true
+                break
+              fi
+              sleep 1
+            done
+            if [ "$JOB_ASSERTION_READY" != "true" ]; then
+              echo "::error title=Runner sleep assertion failed::The job-scoped caffeinate process did not acquire an effective system-sleep assertion. The stale Central slot remains durable and will retry automatically."
               exit 1
             fi
-            echo "::warning title=Runner using battery reserve::The Mac is on battery at ${BATTERY_PERCENT}%; the 20% watchdog will checkpoint and stop before reserve is exhausted."
-          elif [[ "$BATTERY_PERCENT" =~ ^[0-9]+$ ]] && [ "$BATTERY_PERCENT" -lt 20 ]; then
-            echo "::warning title=Runner battery reserve is low::The Mac is connected to AC but reports ${BATTERY_PERCENT}% battery. Keep power connected for this ingestion."
-          fi
-
-          JOB_ASSERTION_READY=false
-          for attempt in 1 2 3 4 5; do
-            POWER_ASSERTIONS="$(/usr/bin/pmset -g assertions 2>/dev/null || true)"
-            if grep -Eq "pid[[:space:]]+${CAFFEINATE_PID}\\(caffeinate\\):.*Prevent(UserIdle)?SystemSleep" <<< "$POWER_ASSERTIONS"; then
-              JOB_ASSERTION_READY=true
-              break
-            fi
-            sleep 1
-          done
-          if [ "$JOB_ASSERTION_READY" != "true" ]; then
-            echo "::error title=Runner sleep assertion failed::The job-scoped caffeinate process did not acquire an effective system-sleep assertion. The stale Central slot remains durable and will retry automatically."
-            exit 1
           fi
 
           # Replace the step shell so Actions cancellation reaches the retry

@@ -1548,19 +1548,20 @@ test("workflow retry policy isolates attempt outputs and enforces a bounded job 
   );
 });
 
-test("production lock-contention retries outwait one complete coordinator lease", () => {
+test("authenticated retries outwait a lease while hosted retries retain a complete child window", () => {
   const runnerStep = workflow.match(
     /- name: Run autonomous ingestion[\s\S]*?(?=\n\s{6}- name:)/
   )?.[0] ?? "";
   const environmentValue = (name) => runnerStep.match(
     new RegExp(`${name}:\\s*"([0-9,]+)"`)
   )?.[1];
-  const config = parseAutonomousWorkflowRetryConfig({
+  const dynamicElapsed = runnerStep.match(
+    /AUTONOMOUS_WORKFLOW_RETRY_MAX_ELAPSED_SECONDS:\s*\$\{\{ runner\.os == 'macOS' && '(\d+)' \|\| '(\d+)' \}\}/
+  );
+  assert.ok(dynamicElapsed, "missing lane-specific retry-controller budgets");
+  const commonEnvironment = {
     AUTONOMOUS_WORKFLOW_RETRY_MAX_ATTEMPTS: environmentValue(
       "AUTONOMOUS_WORKFLOW_RETRY_MAX_ATTEMPTS"
-    ),
-    AUTONOMOUS_WORKFLOW_RETRY_MAX_ELAPSED_SECONDS: environmentValue(
-      "AUTONOMOUS_WORKFLOW_RETRY_MAX_ELAPSED_SECONDS"
     ),
     AUTONOMOUS_WORKFLOW_RETRY_MIN_REMAINING_SECONDS: environmentValue(
       "AUTONOMOUS_WORKFLOW_RETRY_MIN_REMAINING_SECONDS"
@@ -1568,32 +1569,51 @@ test("production lock-contention retries outwait one complete coordinator lease"
     AUTONOMOUS_WORKFLOW_RETRY_DELAYS_SECONDS: environmentValue(
       "AUTONOMOUS_WORKFLOW_RETRY_DELAYS_SECONDS"
     )
+  };
+  const authenticatedConfig = parseAutonomousWorkflowRetryConfig({
+    ...commonEnvironment,
+    AUTONOMOUS_WORKFLOW_RETRY_MAX_ELAPSED_SECONDS: dynamicElapsed[1]
   });
-  const attemptStartOffsetsSeconds = [0];
-  let elapsedSeconds = 0;
-  for (let attempt = 1; attempt < config.maxAttempts; attempt += 1) {
-    const delaySeconds = config.retryDelaysSeconds[
-      Math.min(attempt - 1, config.retryDelaysSeconds.length - 1)
-    ];
-    elapsedSeconds += delaySeconds;
-    if (config.maxElapsedSeconds - elapsedSeconds < config.minRemainingSeconds) break;
-    attemptStartOffsetsSeconds.push(elapsedSeconds);
-  }
+  const hostedConfig = parseAutonomousWorkflowRetryConfig({
+    ...commonEnvironment,
+    AUTONOMOUS_WORKFLOW_RETRY_MAX_ELAPSED_SECONDS: dynamicElapsed[2]
+  });
+  const attemptStartOffsets = (config) => {
+    const offsets = [0];
+    let elapsedSeconds = 0;
+    for (let attempt = 1; attempt < config.maxAttempts; attempt += 1) {
+      const delaySeconds = config.retryDelaysSeconds[
+        Math.min(attempt - 1, config.retryDelaysSeconds.length - 1)
+      ];
+      elapsedSeconds += delaySeconds;
+      if (config.maxElapsedSeconds - elapsedSeconds < config.minRemainingSeconds) break;
+      offsets.push(elapsedSeconds);
+    }
+    return offsets;
+  };
+  const authenticatedOffsets = attemptStartOffsets(authenticatedConfig);
+  const hostedOffsets = attemptStartOffsets(hostedConfig);
 
-  assert.deepEqual(attemptStartOffsetsSeconds, [0, 30, 150, 450, 1_050, 1_230]);
+  assert.deepEqual(authenticatedOffsets, [0, 30, 150, 450, 1_050, 1_230]);
   assert.ok(
-    attemptStartOffsetsSeconds.at(-1) >= 20 * 60,
+    authenticatedOffsets.at(-1) >= 20 * 60,
     "a full child attempt must remain admissible after the 20-minute coordinator lease expires"
   );
   assert.ok(
-    attemptStartOffsetsSeconds.at(-1) <= (20 * 60) + 60,
+    authenticatedOffsets.at(-1) <= (20 * 60) + 60,
     "the post-expiry claim must not leave a long orphan-lock retry gap"
   );
   assert.ok(
-    config.maxElapsedSeconds - attemptStartOffsetsSeconds.at(-1) >=
-      config.minRemainingSeconds,
+    authenticatedConfig.maxElapsedSeconds - authenticatedOffsets.at(-1) >=
+      authenticatedConfig.minRemainingSeconds,
     "the post-lease attempt must retain the complete runner and cleanup allowance"
   );
+  assert.deepEqual(hostedOffsets, [0, 30, 150]);
+  assert.ok(
+    hostedConfig.maxElapsedSeconds - hostedOffsets.at(-1) >= hostedConfig.minRemainingSeconds,
+    "every admitted hosted retry must retain the complete runner and cleanup allowance"
+  );
+  assert.match(workflow, /Frequent wakeups retry the newest slot while its graph watermark is stale/);
 });
 
 test("workflow execs the retry controller so cancellation cannot orphan its signal owner", () => {
@@ -1917,6 +1937,12 @@ test("autonomous runner receives optional durability secrets and owns validated 
   )?.[1];
   assert.ok(hostPreflight, "missing autonomous ingestion host preflight");
   assert.match(hostPreflight, /id:\s*host_preflight/);
+  assert.match(hostPreflight, /reason=host_preflight_pending/);
+  assert.match(hostPreflight, /reason=authenticated_replay_requires_local_mac/);
+  assert.match(
+    hostPreflight,
+    /if \[ "\$\{RUNNER_OS:-\}" = "macOS" \]; then[\s\S]*?\/usr\/bin\/pmset -g batt/
+  );
   assert.match(hostPreflight, /\/usr\/bin\/pmset -g batt/);
   assert.match(hostPreflight, /AUTONOMOUS_MIN_BATTERY_PERCENT:\s*"30"/);
   assert.match(hostPreflight, /Runner using healthy battery reserve/);
@@ -1974,7 +2000,10 @@ test("autonomous runner receives optional durability secrets and owns validated 
   )?.[1];
   assert.ok(runnerStep, "missing autonomous ingestion step");
   assert.match(runnerStep, /id:\s*ingestion/);
-  assert.match(runnerStep, /timeout-minutes:\s*380/);
+  assert.match(
+    runnerStep,
+    /timeout-minutes:\s*\$\{\{ runner\.os == 'macOS' && 380 \|\| 342 \}\}/
+  );
   assert.match(runnerStep, /NODE_OPTIONS:\s*--max-old-space-size=3072/);
   assert.match(runnerStep, /NEXT_PUBLIC_SUPABASE_URL:\s*\$\{\{ secrets\.NEXT_PUBLIC_SUPABASE_URL \}\}/);
   assert.match(runnerStep, /SUPABASE_SERVICE_ROLE_KEY:\s*\$\{\{ secrets\.SUPABASE_SERVICE_ROLE_KEY \}\}/);
@@ -1994,12 +2023,21 @@ test("autonomous runner receives optional durability secrets and owns validated 
   assert.doesNotMatch(runnerStep, /\/usr\/bin\/caffeinate -u/);
   assert.doesNotMatch(runnerStep, /exec node scripts\/run-autonomous-ingestion\.mjs/);
   assert.match(runnerStep, /AUTONOMOUS_WORKFLOW_RETRY_MAX_ATTEMPTS:\s*"6"/);
-  assert.match(runnerStep, /AUTONOMOUS_WORKFLOW_RETRY_MAX_ELAPSED_SECONDS:\s*"22200"/);
+  assert.match(
+    runnerStep,
+    /AUTONOMOUS_WORKFLOW_RETRY_MAX_ELAPSED_SECONDS:\s*\$\{\{ runner\.os == 'macOS' && '22200' \|\| '20100' \}\}/
+  );
   assert.match(runnerStep, /AUTONOMOUS_WORKFLOW_RETRY_MIN_REMAINING_SECONDS:\s*"19860"/);
   assert.match(runnerStep, /AUTONOMOUS_WORKFLOW_RETRY_DELAYS_SECONDS:\s*"30,120,300,600,180"/);
   assert.match(runnerStep, /AUTONOMOUS_MIN_BATTERY_PERCENT:\s*"30"/);
-  assert.match(runnerStep, /AUTONOMOUS_WORKFLOW_POWER_WATCHDOG_RESERVE_PERCENT:\s*"20"/);
-  assert.match(runnerStep, /AUTONOMOUS_WORKFLOW_POWER_WATCHDOG_INTERVAL_SECONDS:\s*"30"/);
+  assert.match(
+    runnerStep,
+    /AUTONOMOUS_WORKFLOW_POWER_WATCHDOG_RESERVE_PERCENT:\s*\$\{\{ runner\.os == 'macOS' && '20' \|\| '' \}\}/
+  );
+  assert.match(
+    runnerStep,
+    /AUTONOMOUS_WORKFLOW_POWER_WATCHDOG_INTERVAL_SECONDS:\s*\$\{\{ runner\.os == 'macOS' && '30' \|\| '' \}\}/
+  );
   assert.doesNotMatch(runnerStep, /Runner requires AC power/);
   assert.match(runnerStep, /Runner using battery reserve/);
   assert.match(runnerStep, /CAFFEINATE_PID=\$!/);
@@ -2894,33 +2932,53 @@ test("daily publication proof accepts an exact published ancestor but rejects a 
 });
 
 test("workflow step budgets leave setup and scheduling headroom", () => {
-  const jobTimeout = Number(workflow.match(/\n  ingest:[\s\S]*?timeout-minutes:\s*(\d+)/)?.[1]);
   const installTimeout = Number(workflow.match(/- name: Install dependencies[\s\S]*?timeout-minutes:\s*(\d+)/)?.[1]);
-  const runnerTimeout = Number(workflow.match(/- name: Run autonomous ingestion[\s\S]*?timeout-minutes:\s*(\d+)/)?.[1]);
+  const authenticated = { jobTimeout: 415, runnerTimeout: 380, controllerMs: 22_200_000 };
+  const hosted = { jobTimeout: 360, runnerTimeout: 342, controllerMs: 20_100_000 };
 
-  assert.equal(jobTimeout, 415);
   assert.equal(installTimeout, 5);
-  assert.equal(runnerTimeout, 380);
-  assert.ok(runnerTimeout < jobTimeout);
-  assert.ok(installTimeout + runnerTimeout < jobTimeout);
-  assert.ok(
-    jobTimeout - installTimeout - runnerTimeout >= 25,
-    "checkout, setup-node, receipt, and post steps require explicit job-level headroom"
+  assert.match(
+    workflow,
+    /timeout-minutes:\s*\$\{\{ \(github\.event_name == 'workflow_dispatch' && inputs\.authenticated_backfill == true\) && 415 \|\| 360 \}\}/
   );
-  assert.ok(maxAutonomousRunnerProcessBudgetMs() < runnerTimeout * 60_000);
+  assert.match(
+    workflow,
+    /- name: Run autonomous ingestion[\s\S]*?timeout-minutes:\s*\$\{\{ runner\.os == 'macOS' && 380 \|\| 342 \}\}/
+  );
   assert.equal(
     AUTONOMOUS_RUNNER_WALL_CLOCK_BUDGET_MS + AUTONOMOUS_RUNNER_WORKFLOW_HEADROOM_MS,
     AUTONOMOUS_WORKFLOW_ATTEMPT_ALLOWANCE_MS,
     "every child attempt must retain its complete runner and cleanup allowance"
   );
-  assert.ok(
-    22_200_000 + AUTONOMOUS_WORKFLOW_CHILD_TERMINATION_GRACE_MS < runnerTimeout * 60_000,
-    "the controller deadline and safe child signal grace must leave step-finalization headroom"
-  );
   assert.ok(maxAutonomousRunnerProcessBudgetMs() < AUTONOMOUS_RUNNER_WALL_CLOCK_BUDGET_MS);
+  for (const [lane, budget] of Object.entries({ authenticated, hosted })) {
+    assert.ok(budget.runnerTimeout < budget.jobTimeout, `${lane} runner must finish inside its job`);
+    assert.ok(
+      installTimeout + budget.runnerTimeout < budget.jobTimeout,
+      `${lane} job must preserve setup and receipt headroom`
+    );
+    assert.ok(
+      maxAutonomousRunnerProcessBudgetMs() < budget.runnerTimeout * 60_000,
+      `${lane} runner step must contain every subprocess budget`
+    );
+    assert.ok(
+      budget.controllerMs + AUTONOMOUS_WORKFLOW_CHILD_TERMINATION_GRACE_MS <
+        budget.runnerTimeout * 60_000,
+      `${lane} controller and child drain must leave step-finalization headroom`
+    );
+    assert.ok(
+      installTimeout * 60_000 + maxAutonomousRunnerProcessBudgetMs() <
+        budget.jobTimeout * 60_000,
+      `${lane} job must contain installation and maximum runner work`
+    );
+  }
   assert.ok(
-    installTimeout * 60_000 + maxAutonomousRunnerProcessBudgetMs() <
-      jobTimeout * 60_000
+    authenticated.jobTimeout - installTimeout - authenticated.runnerTimeout >= 25,
+    "the authenticated lane retains its existing extended post-step headroom"
+  );
+  assert.ok(
+    hosted.jobTimeout - installTimeout - hosted.runnerTimeout >= 10,
+    "the hosted lane retains bounded checkout, setup, receipt, and post-step headroom"
   );
 });
 
@@ -2953,11 +3011,17 @@ test("daily derived-artifact steps use the bounded Node heap", () => {
   assert.doesNotMatch(manifestStep, /--evidence-collected-at/);
 });
 
-test("workflow routes authenticated ingestion to the dedicated Mac runner", () => {
+test("workflow routes public ingestion to hosted Linux and authenticated replay to the dedicated Mac", () => {
   const ingestJob = workflow.match(/\n  ingest:[\s\S]*?(?=\n  receipt:)/)?.[0] ?? "";
   assert.match(
     ingestJob,
-    /runs-on:\s*\[self-hosted,\s*macOS,\s*ARM64,\s*returner-social,\s*returner-auth-browser\]/
+    /runs-on:\s*\$\{\{ \(github\.event_name == 'workflow_dispatch' && inputs\.authenticated_backfill == true\) && fromJSON\('\["self-hosted","macOS","ARM64","returner-social","returner-auth-browser"\]'\) \|\| 'ubuntu-latest' \}\}/
+  );
+  assert.match(ingestJob, /Public scheduled collection must not depend on one laptop/);
+  assert.match(ingestJob, /authenticated_replay_requires_local_mac/);
+  assert.match(
+    ingestJob,
+    /if \[ "\$\{RUNNER_OS:-\}" = "macOS" \]; then[\s\S]*?\/usr\/bin\/caffeinate -ims -w \$\$/
   );
   assert.match(workflow, /SUPABASE_SERVICE_ROLE_KEY:\s*\$\{\{ secrets\.SUPABASE_SERVICE_ROLE_KEY \}\}/);
   assert.match(
