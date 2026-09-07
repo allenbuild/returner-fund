@@ -119,7 +119,11 @@ export async function refreshTechnologyDashboard(
     externalAttempted = dashboardExternalAttemptCount(externalOptions);
     const external = await discoverExternalDashboardCandidates(externalOptions);
     assertConfiguredYoutubeDiscoverySucceeded(externalOptions.youtubeChannels, external.sources, external.failures);
-    assertConfiguredInstagramDiscoverySucceeded(externalOptions.instagramAccounts, external.sources, external.failures);
+    failures.push(...external.failures);
+    failures.push(...configuredInstagramDiscoveryFailureLabels(
+      externalOptions.instagramAccounts,
+      external.sources
+    ));
     candidates.push(...external.candidates);
     externalSucceeded = external.sources.length;
     sourceCounts.industry = external.candidates.length;
@@ -131,7 +135,6 @@ export async function refreshTechnologyDashboard(
         ...(externalOptions.instagramAccounts?.length ? ["instagram" as const] : [])
       ]
     ));
-    failures.push(...external.failures);
   }
 
   const priorRankSnapshots: DashboardRankSnapshot[] = (options.priorSnapshot?.stories ?? []).flatMap((story) =>
@@ -308,23 +311,19 @@ export function assertConfiguredYoutubeDiscoverySucceeded(
 }
 
 /**
- * Treat a complete fixed-roster Instagram outage as a failed refresh so the
- * publication retry path keeps the previous truthful social projection. A
- * healthy account may return zero candidates; the invariant is the official
- * source receipt, never a required viral result.
+ * Record a complete fixed-roster Instagram outage without discarding healthy
+ * RSS, GitHub, YouTube, and other discovery results. Per-account diagnostics
+ * are already carried by the external discovery result; this bounded aggregate
+ * label makes the platform-wide outage explicit in the published snapshot.
+ * Broad source collapse remains fail-closed through source-health retention.
  */
-export function assertConfiguredInstagramDiscoverySucceeded(
+export function configuredInstagramDiscoveryFailureLabels(
   instagramAccounts: ExternalDiscoveryOptions["instagramAccounts"],
-  succeededSources: readonly string[],
-  failureLabels: readonly string[] = []
-): void {
-  if (!instagramAccounts?.length) return;
-  if (succeededSources.some((source) => source.startsWith("instagram:"))) return;
-  const instagramFailures = failureLabels
-    .filter((label) => /^instagram_[a-z0-9._-]+_(?:fetch_failed|http_\d+|[a-z0-9_-]+)$/i.test(label))
-    .slice(0, MAX_DASHBOARD_INSTAGRAM_ACCOUNTS);
-  const diagnostic = instagramFailures.length > 0 ? instagramFailures.join(",") : "no_failure_labels";
-  throw new Error(`dashboard_instagram_discovery_unavailable:${diagnostic}`);
+  succeededSources: readonly string[]
+): string[] {
+  if (!instagramAccounts?.length) return [];
+  if (succeededSources.some((source) => source.startsWith("instagram:"))) return [];
+  return ["instagram_discovery_unavailable"];
 }
 
 function configuredRssFeedAttemptCount(): number {

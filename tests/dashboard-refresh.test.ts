@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 import type { DashboardCandidate, DashboardMetrics, DashboardPublicSnapshot } from "@/lib/dashboard/contracts";
 import {
-  assertConfiguredInstagramDiscoverySucceeded,
   assertConfiguredYoutubeDiscoverySucceeded,
+  configuredInstagramDiscoveryFailureLabels,
   dashboardExternalCandidateCounts,
   dashboardExternalAttemptCount,
   dashboardRefreshLogDiagnostics,
@@ -83,22 +83,39 @@ describe("dashboard worker metric-history enrichment", () => {
     )).toThrowError("dashboard_youtube_discovery_unavailable:youtube_apple_browse_http_429");
   });
 
-  it("fails closed only when the entire configured Instagram roster lacks a receipt", () => {
+  it("records a complete Instagram outage as partial while healthy adapters continue", () => {
     const accounts = [{ name: "Apple", username: "apple" }, { name: "Tech Burner", username: "techburner" }];
+    const accountFailures = ["instagram_apple_http_401", "instagram_techburner_http_401"];
 
-    expect(() => assertConfiguredInstagramDiscoverySucceeded(
+    expect(configuredInstagramDiscoveryFailureLabels(
       accounts,
-      ["hacker_news", "github"],
-      ["instagram_apple_http_429", "instagram_techburner_fetch_failed"]
-    )).toThrowError(
-      "dashboard_instagram_discovery_unavailable:instagram_apple_http_429,instagram_techburner_fetch_failed"
-    );
-    expect(() => assertConfiguredInstagramDiscoverySucceeded(
+      ["hacker_news", "github", "youtube:mkbhd"]
+    )).toEqual(["instagram_discovery_unavailable"]);
+    expect(configuredInstagramDiscoveryFailureLabels(
       accounts,
-      ["hacker_news", "instagram:apple"],
-      ["instagram_techburner_http_503"]
-    )).not.toThrow();
-    expect(() => assertConfiguredInstagramDiscoverySucceeded([], ["hacker_news"])).not.toThrow();
+      ["hacker_news", "instagram:apple"]
+    )).toEqual([]);
+    expect(configuredInstagramDiscoveryFailureLabels([], ["hacker_news"])).toEqual([]);
+
+    const pipeline = buildDashboardSnapshot([qualifyingSocialCandidate("healthy-youtube")], {
+      now: NOW,
+      platformFailures: [
+        ...accountFailures,
+        ...configuredInstagramDiscoveryFailureLabels(accounts, ["hacker_news", "github", "youtube:mkbhd"])
+      ]
+    });
+    expect(pipeline.snapshot.stories).toHaveLength(1);
+    expect(pipeline.snapshot.status.partialPlatformFailures).toEqual([
+      "instagram_apple_http_401",
+      "instagram_discovery_unavailable",
+      "instagram_techburner_http_401"
+    ]);
+    expect(dashboardRefreshSourceHealth({
+      returnerAttempted: 3,
+      returnerSucceeded: 3,
+      externalAttempted: 5,
+      externalSucceeded: 3
+    }).broadSourceFailure).toBe(false);
   });
 
   it("reports sanitized per-platform eligibility and rejection counts, including zero YouTube candidates", () => {
