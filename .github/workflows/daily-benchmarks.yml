@@ -722,22 +722,54 @@ jobs:
           }
           publish_exact_candidate() {
             local candidate="$1"
-            local attempt remote_commit
-            for attempt in 1 2; do
+            local attempt remote_commit candidate_base
+            PUBLISHED_CANDIDATE="$candidate"
+            for attempt in 1 2 3; do
               if push_with_process_auth "$candidate"; then
+                PUBLISHED_CANDIDATE="$candidate"
                 return 0
               fi
               if reconcile_pushed_candidate "$candidate"; then
+                PUBLISHED_CANDIDATE="$candidate"
                 return 0
               fi
               remote_commit="$(git rev-parse "refs/remotes/origin/$PUBLICATION_BRANCH")"
-              if ! git merge-base --is-ancestor "$remote_commit" "$candidate"; then
-                echo "::error title=Benchmark publication race::Remote main advanced to $remote_commit; refusing to execute or rebase newer target code in the credential-bearing step."
+              candidate_base="$(git rev-parse "${candidate}^" 2>/dev/null || true)"
+              if [[ ! "$candidate_base" =~ ^[0-9a-f]{40}$ ]]; then
+                echo "::error title=Benchmark publication race::Candidate $candidate is not a single-parent commit with an exact base."
                 return 1
               fi
-              if [ "$attempt" -lt 2 ]; then
+              if [ "$remote_commit" = "$candidate_base" ]; then
+                if [ "$attempt" -lt 3 ]; then
+                  echo "::warning title=Exact benchmark push retry::Retrying the same immutable candidate $candidate after an ambiguous response."
+                  sleep "${PUBLICATION_PUSH_RETRY_DELAY_SECONDS:-2}"
+                fi
+                continue
+              fi
+              if [ "$attempt" -ge 3 ]; then
+                echo "::error title=Benchmark publication race::Remote main advanced to $remote_commit after the final bounded attempt."
+                return 1
+              fi
+              if ! node scripts/lib/daily-benchmark-publication-retry.mjs \
+                --root="$PWD" \
+                --candidate-base="$candidate_base" \
+                --candidate="$candidate" \
+                --retry-base="$remote_commit"; then
+                echo "::error title=Benchmark publication race::Remote main changed overlapping, executable, policy, or non-dashboard paths; refusing candidate reuse."
+                return 1
+              fi
+              if [ "$PUBLICATION_STATUS" = "no_changes" ]; then
+                git -c core.hooksPath=/dev/null -c credential.helper= \
+                  commit --allow-empty -m "Record daily score benchmark publication" -m "$PUBLICATION_TRAILERS"
+              else
+                git -c core.hooksPath=/dev/null -c credential.helper= \
+                  commit -m "Update daily score benchmark snapshots" -m "$PUBLICATION_TRAILERS"
+              fi
+              candidate="$(git rev-parse HEAD)"
+              PUBLISHED_CANDIDATE="$candidate"
+              echo "::notice title=Benchmark publication race recovered::Preserved the validated benchmark delta as $candidate on dashboard-only main $remote_commit."
+              if [ "$attempt" -lt 3 ]; then
                 echo "::warning title=Exact benchmark push retry::Retrying the same immutable candidate $candidate after an ambiguous response."
-                sleep "${PUBLICATION_PUSH_RETRY_DELAY_SECONDS:-2}"
               fi
             done
             return 1
@@ -842,11 +874,11 @@ jobs:
               ;;
           esac
           FIRST_PUSH_CANDIDATE="$(git rev-parse HEAD)"
-          echo "publish_candidate=$FIRST_PUSH_CANDIDATE" >> "$GITHUB_OUTPUT"
           if ! publish_exact_candidate "$FIRST_PUSH_CANDIDATE"; then
             echo "::error title=Benchmark push failed::The exact prepared candidate was not published; a fresh run against current main is required."
             exit 1
           fi
+          echo "publish_candidate=$PUBLISHED_CANDIDATE" >> "$GITHUB_OUTPUT"
 
           PUBLISHED_COMMIT="$(git rev-parse HEAD)"
           fetch_publication_branch --no-tags origin "+refs/heads/$PUBLICATION_BRANCH:refs/remotes/origin/$PUBLICATION_BRANCH"

@@ -791,6 +791,7 @@ test("all workflow shell blocks remain fixed at 58 and queued schedules are rech
 test("workflow and receipt contracts are required by the ingestion check gate", () => {
   const contracts = packageJson.scripts["test:workflow-contracts"];
   assert.match(contracts, /tests\/autonomous-ingestion-workflow\.node-test\.mjs/);
+  assert.match(contracts, /tests\/daily-benchmark-publication-retry\.node-test\.mjs/);
   assert.match(contracts, /tests\/autonomous-ingestion-job-lease-supervisor\.node-test\.mjs/);
   assert.match(contracts, /tests\/auth-browser-service\.node-test\.mjs/);
   assert.match(contracts, /tests\/authenticated-social-runner-preflight\.node-test\.mjs/);
@@ -819,7 +820,13 @@ test("daily benchmarks snapshot source, publish one exact candidate, and verify 
   assert.match(dailyBenchmarkWorkflow, /reconcile_pushed_candidate\(\)/);
   assert.match(dailyBenchmarkWorkflow, /publish_exact_candidate\(\)/);
   assert.match(dailyBenchmarkWorkflow, /if ! publish_exact_candidate "\$FIRST_PUSH_CANDIDATE"/);
-  assert.doesNotMatch(dailyBenchmarkWorkflow, /RETRY_PUSH_CANDIDATE|git rebase/);
+  assert.match(dailyBenchmarkWorkflow, /for attempt in 1 2 3/);
+  assert.match(
+    dailyBenchmarkWorkflow,
+    /node scripts\/lib\/daily-benchmark-publication-retry\.mjs[\s\S]*?--candidate-base="\$candidate_base"[\s\S]*?--candidate="\$candidate"[\s\S]*?--retry-base="\$remote_commit"/
+  );
+  assert.match(dailyBenchmarkWorkflow, /publish_candidate=\$PUBLISHED_CANDIDATE/);
+  assert.doesNotMatch(dailyBenchmarkWorkflow, /git rebase/);
   for (const trailer of [
     "Returner-Slot-Key",
     "Returner-Source-SHA",
@@ -1092,21 +1099,25 @@ test("daily publication prepares artifacts before entering the credential-bearin
   }
   assert.doesNotMatch(
     publishStep,
-    /\bnpm\b|node scripts\/(?!lib\/publication-semantic-diff\.mjs\b)|git\s+(?:rebase|merge(?!-base)|pull)/,
+    /\bnpm\b|node scripts\/(?!lib\/(?:publication-semantic-diff|daily-benchmark-publication-retry)\.mjs\b)|git\s+(?:rebase|merge(?!-base)|pull)/,
   );
   assert.equal(
     (publishStep.match(/node scripts\/lib\/publication-semantic-diff\.mjs --root "\$PWD" --base HEAD --target index --ignore "\$PUBLICATION_RECEIPT_PATH"/g) ?? []).length,
     1,
   );
   assert.match(publishStep, /node --input-type=module/);
-  assert.match(publishStep, /publish_exact_candidate\(\)[\s\S]*?for attempt in 1 2/);
+  assert.match(publishStep, /publish_exact_candidate\(\)[\s\S]*?for attempt in 1 2 3/);
   assert.match(
     publishStep,
     /push_with_process_auth\(\)[\s\S]*?assert_safe_candidate_modes "\$candidate"[\s\S]*?recheck_candidate_freshness[\s\S]*?git push origin "\$candidate:\$PUBLICATION_BRANCH"/
   );
   assert.match(publishStep, /git push origin "\$candidate:\$PUBLICATION_BRANCH"/);
   assert.match(publishStep, /core\.hooksPath[\s\S]*?\/dev\/null[\s\S]*?credential\.helper/);
-  assert.match(publishStep, /refusing to execute or rebase newer target code/);
+  assert.match(
+    publishStep,
+    /daily-benchmark-publication-retry\.mjs[\s\S]*?Remote main changed overlapping, executable, policy, or non-dashboard paths; refusing candidate reuse/
+  );
+  assert.match(publishStep, /PUBLISHED_COMMIT="\$\(git rev-parse HEAD\)"/);
 });
 
 test.skip("legacy credential-bearing rebase rebuild fixture is retired", (t) => {
