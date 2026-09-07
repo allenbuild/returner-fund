@@ -12,7 +12,8 @@ describe("timeline operational tooling", () => {
     const workflow = readFileSync(join(process.cwd(), ".github", "workflows", "daily-benchmarks.yml"), "utf8");
     expect(workflow).toContain("NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}");
     expect(workflow).toContain("SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}");
-    expect(workflow).toContain("timeout 4m npm run timeline:backfill:daily");
+    expect(workflow).toContain("timeout 8m npm run timeline:backfill:daily");
+    expect(workflow).not.toContain("timeout 4m npm run timeline:backfill:daily");
     expect(workflow).not.toContain("migration_unavailable");
     expect(workflow).toContain("public/timelines");
     expect(workflow).toContain("artifacts/company-timeline/coverage.json");

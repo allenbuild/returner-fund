@@ -527,7 +527,10 @@ jobs:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           EXA_API_KEY: ${{ secrets.EXA_API_KEY }}
-        run: timeout 4m npm run timeline:backfill:daily
+        # The configured database probe can consume nearly four minutes before
+        # the migration-unavailable file fallback starts. Keep a strict bound,
+        # but leave enough time for the complete 490+ company artifact rebuild.
+        run: timeout 8m npm run timeline:backfill:daily
 
       - name: Rebuild graph-derived artifacts
         if: steps.existing_slot.outputs.publication_status != 'already_completed'
