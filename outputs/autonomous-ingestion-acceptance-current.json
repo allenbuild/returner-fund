@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "kind": "autonomous-ingestion-publication-acceptance",
+  "slotKey": "central-2026-09-06-1800",
+  "scheduledAt": "2026-09-06T23:00:00.000Z",
+  "acceptedAt": "2026-09-07T10:32:02.000Z",
+  "publicationCommit": "2dd6e8fdd717e66d98ea0f0f6bbddeea18f555f6",
+  "publicationSourceSha": "24ca586ce66c6dd8fb800577dbc9cd9846eff0a1",
+  "publicationRunId": "34085679151",
+  "publicationRunAttempt": "1",
+  "receiptPath": "outputs/ingestion-source-delta-current.json",
+  "receiptSha256": "d58dbc87130ef5bb10e3c768aedeafd7173f343d83be1e06e3c9614310aa4381",
+  "manifestPath": "public/graph/manifest.json",
+  "manifestSha256": "677d9586252a020c61d9d0fe27293c6f094b221b513402e0604290e20a37c641",
+  "manifestContentHash": "32f06ed22081673d465fa4e0b6f358672c1545cea777dd1be49e5898b0faf8e3",
+  "evidenceCollectedAt": "2026-09-07T05:47:11.477Z",
+  "validation": {
+    "validatedSha": "72588ecd42eaf2688708de0b6da94894674e3010",
+    "workflowRunId": "34107454759",
+    "workflowRunAttempt": "1"
+  },
+  "bindingSha256": "fdb2251d011b68a4a9d4a865c3fea45013a7425dd7346f7a686f1e26d25aa4c6"
+}
