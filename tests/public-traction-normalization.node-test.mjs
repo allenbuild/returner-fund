@@ -6,6 +6,8 @@ import { join } from "node:path";
 import test from "node:test";
 import {
   autonomousCollectorRetryableFailures,
+  classifyAutonomousCollectorTaskOutcome,
+  indexAutonomousCollectorTaskOutcomes,
   loadAutonomousCatalogs,
   summarizeAutonomousCollectorTerminalTaskCoverage,
   validateAutonomousCollectorReferentialIntegrity
@@ -2590,6 +2592,42 @@ globalThis.fetch = async (input) => {
     reason: "youtube_exact_mapped_channel_http_404",
     checkedAt: attempt.checkedAt
   });
+  const taskIdentity = {
+    platform: "youtube",
+    entityType: "company",
+    entityId,
+    accountUrl
+  };
+  assert.deepEqual(
+    classifyAutonomousCollectorTaskOutcome(
+      indexAutonomousCollectorTaskOutcomes(snapshot, {
+        kind: "public",
+        batchSlug: "A16ZSR006",
+        explicitTerminalOnly: true
+      }),
+      taskIdentity
+    ),
+    {
+      status: "needs_review",
+      reason: "collector_mapped_account_not_found"
+    }
+  );
+  const tamperedSnapshot = structuredClone(snapshot);
+  const tamperedAttempt = Object.values(tamperedSnapshot.attempts).find(
+    (row) => row.entityId === entityId && row.accountUrl === accountUrl
+  );
+  tamperedAttempt.coverageReceipt.channelId = tamperedAttempt.coverageReceipt.channelId.toLowerCase();
+  assert.equal(
+    classifyAutonomousCollectorTaskOutcome(
+      indexAutonomousCollectorTaskOutcomes(tamperedSnapshot, {
+        kind: "public",
+        batchSlug: "A16ZSR006",
+        explicitTerminalOnly: true
+      }),
+      taskIdentity
+    ).status,
+    "failed"
+  );
   assert.deepEqual(autonomousCollectorRetryableFailures(snapshot), []);
 });
 
