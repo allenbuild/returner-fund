@@ -446,7 +446,6 @@ function createExternalDiscoveryDeadline(durationMs: number): ExternalDiscoveryD
     listeners.clear();
   };
   const timeout = setTimeout(expire, Math.max(1, expiresAt - Date.now()));
-  (timeout as ReturnType<typeof setTimeout> & { unref?: () => void }).unref?.();
   const expired = (): boolean => {
     if (!didExpire && !disposed && Date.now() >= expiresAt) expire();
     return didExpire;
@@ -1559,6 +1558,7 @@ async function fetchYoutubeDetailWithTransientRetry(
         } else {
           await retryDelay();
         }
+        deadline?.throwIfExpired();
       } catch (error) {
         // A reservation that never reaches another request is not a retry.
         retryBudget.remaining += 1;
