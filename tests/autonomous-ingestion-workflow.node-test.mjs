@@ -113,7 +113,11 @@ function assertExactExternalActionPins(source) {
   const external = uses.filter((match) => !match[1].startsWith("./"));
   assert.ok(external.length > 0, "workflow must contain external actions");
   for (const [, action, comment] of external) {
-    assert.match(action, /^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+@[0-9a-f]{40}$/, `${action} is not commit-pinned`);
+    assert.match(
+      action,
+      /^[A-Za-z0-9_.-]+(?:\/[A-Za-z0-9_.-]+)+@[0-9a-f]{40}$/,
+      `${action} is not commit-pinned`
+    );
     assert.equal(comment, "v4", `${action} must retain its v4 audit comment`);
   }
 }
@@ -3064,6 +3068,74 @@ test("workflow routes public ingestion to hosted Linux and authenticated replay 
   assert.doesNotMatch(
     ingestJob.match(/name: Preflight authenticated social runner[\s\S]*?(?=\n\s{6}- name:|$)/)?.[0] ?? "",
     /SUPABASE|X_BEARER|EXA_API|GITHUB_TOKEN/
+  );
+});
+
+test("failed hosted collection restores source-bound state without caching authenticated browser data", () => {
+  const ingestJob = workflow.match(/\n  ingest:[\s\S]*?(?=\n  receipt:)/)?.[0] ?? "";
+  const restoreStep = ingestJob.match(
+    /- name: Restore hosted collector recovery state[\s\S]*?(?=\n\s{6}- name:|$)/
+  )?.[0] ?? "";
+  const runnerStep = ingestJob.match(
+    /- name: Run autonomous ingestion[\s\S]*?(?=\n\s{6}- name:|$)/
+  )?.[0] ?? "";
+  const saveStep = ingestJob.match(
+    /- name: Save failed hosted collector recovery state[\s\S]*?(?=\n\s{6}- name:|$)/
+  )?.[0] ?? "";
+  const immutableKey =
+    "returner-ingestion-state-v1-${{ runner.os }}-${{ needs.resolve.outputs.slot_key }}-" +
+    "${{ needs.resolve.outputs.source_sha }}-${{ github.run_id }}-${{ github.run_attempt }}";
+  const restorePrefix =
+    "returner-ingestion-state-v1-${{ runner.os }}-${{ needs.resolve.outputs.slot_key }}-" +
+    "${{ needs.resolve.outputs.source_sha }}-";
+
+  assert.match(restoreStep, /if: steps\.revalidate\.outputs\.should_run == 'true'[\s\S]*?runner\.os == 'Linux'/);
+  assert.match(restoreStep, /continue-on-error:\s*true/);
+  assert.match(
+    restoreStep,
+    /uses: actions\/cache\/restore@0400d5f644dc74513175e3cd8d07132dd4860809\s+# v4/
+  );
+  assert.ok(restoreStep.includes(`key: ${immutableKey}`));
+  assert.ok(restoreStep.includes(restorePrefix));
+  assert.match(
+    restoreStep,
+    /path:\s*\$\{\{ runner\.temp \}\}\/returner-fund-autonomous-ingestion-state\/v1/
+  );
+  assert.match(
+    runnerStep,
+    /RETURNER_INGESTION_STATE_ROOT:\s*\$\{\{ runner\.temp \}\}\/returner-fund-autonomous-ingestion-state\/v1/
+  );
+  assert.match(
+    saveStep,
+    /if:\s*\$\{\{ always\(\) && runner\.os == 'Linux'[\s\S]*?steps\.ingestion\.outcome == 'failure' \}\}/
+  );
+  assert.match(saveStep, /continue-on-error:\s*true/);
+  assert.match(
+    saveStep,
+    /uses: actions\/cache\/save@0400d5f644dc74513175e3cd8d07132dd4860809\s+# v4/
+  );
+  assert.ok(saveStep.includes(`key: ${immutableKey}`));
+  assert.match(
+    saveStep,
+    /path:\s*\$\{\{ runner\.temp \}\}\/returner-fund-autonomous-ingestion-state\/v1/
+  );
+  for (const cacheStep of [restoreStep, saveStep]) {
+    assert.doesNotMatch(
+      cacheStep,
+      /OPENCLI_HOME|OPENCLI_PROFILE|authenticated|browser|SUPABASE|X_BEARER|EXA_API|GITHUB_TOKEN/i
+    );
+  }
+  assert.ok(
+    ingestJob.indexOf("Restore hosted collector recovery state") <
+      ingestJob.indexOf("Run autonomous ingestion")
+  );
+  assert.ok(
+    ingestJob.indexOf("Run autonomous ingestion") <
+      ingestJob.indexOf("Save failed hosted collector recovery state")
+  );
+  assert.ok(
+    ingestJob.indexOf("Save failed hosted collector recovery state") <
+      ingestJob.indexOf("Verify publication credential isolation")
   );
 });
 

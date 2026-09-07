@@ -585,6 +585,17 @@ jobs:
           echo "remote_main_commit=$REMOTE_MAIN_COMMIT" >> "$GITHUB_OUTPUT"
           node scripts/lib/ingestion-schedule.mjs
 
+      - name: Restore hosted collector recovery state
+        id: restore_hosted_collector_state
+        if: steps.revalidate.outputs.should_run == 'true' && steps.host_preflight.outputs.ready == 'true' && runner.os == 'Linux'
+        continue-on-error: true
+        uses: actions/cache/restore@0400d5f644dc74513175e3cd8d07132dd4860809 # v4
+        with:
+          path: ${{ runner.temp }}/returner-fund-autonomous-ingestion-state/v1
+          key: returner-ingestion-state-v1-${{ runner.os }}-${{ needs.resolve.outputs.slot_key }}-${{ needs.resolve.outputs.source_sha }}-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: |
+            returner-ingestion-state-v1-${{ runner.os }}-${{ needs.resolve.outputs.slot_key }}-${{ needs.resolve.outputs.source_sha }}-
+
       - name: Install dependencies
         if: steps.revalidate.outputs.should_run == 'true' && steps.host_preflight.outputs.ready == 'true'
         timeout-minutes: 5
@@ -624,6 +635,9 @@ jobs:
           INGESTION_RECOVERY_EXPECTED_HEAD_SHA: ${{ github.event.client_payload.expected_head_sha }}
           INGESTION_PUBLICATION_BRANCH: main
           AUTHENTICATED_SOCIAL_REPLAY: ${{ inputs.authenticated_backfill || false }}
+          # The authenticated replay selects OPENCLI_HOME before consulting
+          # this public state override. Only Linux steps restore or save it.
+          RETURNER_INGESTION_STATE_ROOT: ${{ runner.temp }}/returner-fund-autonomous-ingestion-state/v1
           # A single Actions job retries only explicit transport/time-out and
           # allowlisted operational database failures. The persistent cron
           # wakeups keep retrying a stale slot across jobs until its repository
@@ -688,6 +702,17 @@ jobs:
             --scheduled-at="$CANDIDATE_SCHEDULED_AT" \
             --recovery-debt="$CANDIDATE_RECOVERY_DEBT" \
             --authenticated-social-replay="$AUTHENTICATED_SOCIAL_REPLAY"
+
+      - name: Save failed hosted collector recovery state
+        if: ${{ always() && runner.os == 'Linux' && steps.revalidate.outputs.should_run == 'true' && steps.host_preflight.outputs.ready == 'true' && steps.ingestion.outcome == 'failure' }}
+        continue-on-error: true
+        uses: actions/cache/save@0400d5f644dc74513175e3cd8d07132dd4860809 # v4
+        with:
+          path: ${{ runner.temp }}/returner-fund-autonomous-ingestion-state/v1
+          # Cache entries are immutable. A unique run-attempt suffix saves the
+          # newest failed state, while the source-bound prefix restores only
+          # compatible same-slot public collection on the next wakeup.
+          key: returner-ingestion-state-v1-${{ runner.os }}-${{ needs.resolve.outputs.slot_key }}-${{ needs.resolve.outputs.source_sha }}-${{ github.run_id }}-${{ github.run_attempt }}
 
       - name: Verify publication credential isolation
         if: always() && steps.host_preflight.outputs.ready == 'true'
