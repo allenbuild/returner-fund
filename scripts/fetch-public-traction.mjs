@@ -2187,6 +2187,7 @@ async function ingestOfficialEmbeddedYouTube(company) {
     const youtubeChannelId = watchMetadata?.youtubeChannelId ?? channel.youtubeChannelId;
     const youtubeChannelUrl = watchMetadata?.youtubeChannelUrl ?? channel.youtubeChannelUrl;
     const youtubeChannelName = watchMetadata?.youtubeChannelName ?? channel.youtubeChannelName;
+    const nativePublication = normalizeNewsPublicationDate(watchMetadata?.postedAt);
     const hasNativeChannel = Boolean(youtubeChannelId || youtubeChannelUrl);
     paths.push(sourceDiscoveryPath({
       company,
@@ -2226,7 +2227,8 @@ async function ingestOfficialEmbeddedYouTube(company) {
       title: watchMetadata?.title || channel.title || `${company.name} launch video`,
       text: watchMetadata?.description || `Embedded in the official ${company.name} YC company page.`,
       rawVisibleText: watchMetadata?.raw ?? launchPage.text,
-      postedAt: watchMetadata?.postedAt ?? null,
+      postedAt: nativePublication.postedAt,
+      publishedAtPrecision: nativePublication.publishedAtPrecision,
       metrics,
       contributionScore: scoreMetrics("youtube", metrics),
       review_state: "verified",
@@ -2592,6 +2594,7 @@ async function ingestMappedYouTubeAccount(company, entity, entityType, accountUr
       });
       continue;
     }
+    const nativePublication = normalizeNewsPublicationDate(video.postedAt);
     evidence.push(evidenceItem({
       company,
       entityType,
@@ -2602,7 +2605,8 @@ async function ingestMappedYouTubeAccount(company, entity, entityType, accountUr
       title: video.title,
       text: video.description || video.title,
       rawVisibleText: video.raw,
-      postedAt: video.postedAt ?? null,
+      postedAt: nativePublication.postedAt,
+      publishedAtPrecision: nativePublication.publishedAtPrecision,
       metrics: { views: video.views },
       contributionScore: scoreMetrics("youtube", { views: video.views }),
       review_state: "verified",

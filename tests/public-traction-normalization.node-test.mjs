@@ -2221,9 +2221,14 @@ test("mapped YouTube and Product Hunt URLs get direct account-attributed attempt
     );
     assert.ok(attempt, `${fixture.platform} mapped URL did not receive an account attempt`);
     assert.equal(attempt.outcomeStatus, "completed");
-    assert.ok(snapshot.evidence.some(
+    const mappedEvidence = snapshot.evidence.find(
       (row) => row.entityId === fixture.expectedEntityId && row.accountUrl === fixture.expectedAccountUrl
-    ));
+    );
+    assert.ok(mappedEvidence);
+    if (fixture.platform === "youtube") {
+      assert.equal(mappedEvidence.postedAt, "2026-08-30T17:15:00.000Z");
+      assert.equal(mappedEvidence.publishedAtPrecision, "exact");
+    }
   }
 });
 
@@ -2381,6 +2386,7 @@ globalThis.fetch = async (input, init = {}) => {
     "2026-05-30T02:08:04.000Z",
     "2026-06-02T16:55:14.000Z"
   ]);
+  assert.deepEqual(rows.map((row) => row.publishedAtPrecision), ["exact", "exact"]);
   assert.equal(attempt?.outcomeStatus, "completed");
   assert.equal(attempt?.outcomeReason, "collector_evidence_collected");
   assert.equal(attempt?.retryable, false);
