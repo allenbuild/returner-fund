@@ -635,7 +635,7 @@ test("accepted resolver jobs fail closed and re-export only validated outputs", 
   }
 });
 
-test("all workflow shell blocks remain fixed at 58 and queued schedules are rechecked", (t) => {
+test("all workflow shell blocks remain fixed at 62 and queued schedules are rechecked", (t) => {
   const shellBlockCount = [workflow, dailyBenchmarkWorkflow, readFileSync(
     path.join(repositoryRoot, ".github", "workflows", "public-artifacts.yml"),
     "utf8"
@@ -643,7 +643,7 @@ test("all workflow shell blocks remain fixed at 58 and queued schedules are rech
     (total, source) => total + (source.match(/^ {8}run:/gm)?.length ?? 0),
     0
   );
-  assert.equal(shellBlockCount, 58);
+  assert.equal(shellBlockCount, 62);
 
   const directory = mkdtempSync(path.join(tmpdir(), "returner-queued-freshness-"));
   t.after(() => rmSync(directory, { recursive: true, force: true }));
@@ -3143,7 +3143,7 @@ test("workflow routes public ingestion to hosted Linux and authenticated replay 
   );
 });
 
-test("failed or cancelled hosted collection restores source-bound state without caching authenticated browser data", () => {
+test("failed or cancelled hosted collection restores source-bound redundant state without caching authenticated browser data", () => {
   const ingestJob = workflow.match(/\n  ingest:[\s\S]*?(?=\n  receipt:)/)?.[0] ?? "";
   const restoreStep = ingestJob.match(
     /- name: Restore hosted collector recovery state[\s\S]*?(?=\n\s{6}- name:|$)/
@@ -3153,6 +3153,24 @@ test("failed or cancelled hosted collection restores source-bound state without 
   )?.[0] ?? "";
   const saveStep = ingestJob.match(
     /- name: Save failed hosted collector recovery state[\s\S]*?(?=\n\s{6}- name:|$)/
+  )?.[0] ?? "";
+  const prepareArtifactStep = ingestJob.match(
+    /- name: Prepare hosted collector artifact fallback[\s\S]*?(?=\n\s{6}- name:|$)/
+  )?.[0] ?? "";
+  const locateArtifactStep = ingestJob.match(
+    /- name: Locate exact hosted collector recovery artifact[\s\S]*?(?=\n\s{6}- name:|$)/
+  )?.[0] ?? "";
+  const downloadArtifactStep = ingestJob.match(
+    /- name: Download exact hosted collector recovery artifact[\s\S]*?(?=\n\s{6}- name:|$)/
+  )?.[0] ?? "";
+  const promoteArtifactStep = ingestJob.match(
+    /- name: Validate and promote hosted collector recovery artifact[\s\S]*?(?=\n\s{6}- name:|$)/
+  )?.[0] ?? "";
+  const stageArtifactStep = ingestJob.match(
+    /- name: Stage failed hosted collector recovery artifact[\s\S]*?(?=\n\s{6}- name:|$)/
+  )?.[0] ?? "";
+  const uploadArtifactStep = ingestJob.match(
+    /- name: Upload failed hosted collector recovery artifact[\s\S]*?(?=\n\s{6}- name:|$)/
   )?.[0] ?? "";
   const immutableKey =
     "returner-ingestion-state-v1-${{ runner.os }}-${{ needs.resolve.outputs.slot_key }}-" +
@@ -3177,6 +3195,53 @@ test("failed or cancelled hosted collection restores source-bound state without 
     runnerStep,
     /RETURNER_INGESTION_STATE_ROOT:\s*\$\{\{ runner\.temp \}\}\/returner-fund-autonomous-ingestion-state\/v1/
   );
+  assert.match(ingestJob, /permissions:\s*\n\s*actions:\s*read\s*\n\s*contents:\s*write/);
+  assert.match(
+    prepareArtifactStep,
+    /steps\.restore_hosted_collector_state\.outcome == 'failure'[\s\S]*?steps\.restore_hosted_collector_state\.outputs\.cache-matched-key == ''/
+  );
+  assert.match(prepareArtifactStep, /needs\.resolve\.outputs\.trigger == 'schedule'/);
+  assert.match(prepareArtifactStep, /hosted-collector-state-artifact\.mjs prepare/);
+  assert.match(prepareArtifactStep, /timeout-minutes:\s*1/);
+  assert.match(
+    locateArtifactStep,
+    /if:\s*steps\.prepare_hosted_collector_artifact\.outcome == 'success'/
+  );
+  assert.match(locateArtifactStep, /continue-on-error:\s*true/);
+  assert.match(locateArtifactStep, /timeout-minutes:\s*3/);
+  assert.match(locateArtifactStep, /HOSTED_COLLECTOR_SLOT_KEY:\s*\$\{\{ needs\.resolve\.outputs\.slot_key \}\}/);
+  assert.match(locateArtifactStep, /HOSTED_COLLECTOR_SOURCE_SHA:\s*\$\{\{ needs\.resolve\.outputs\.source_sha \}\}/);
+  assert.match(locateArtifactStep, /hosted-collector-state-artifact\.mjs locate/);
+  assert.match(
+    downloadArtifactStep,
+    /uses:\s*actions\/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093\s+# v4/
+  );
+  assert.match(downloadArtifactStep, /steps\.locate_hosted_collector_artifact\.outputs\.artifact_found == 'true'/);
+  assert.match(downloadArtifactStep, /run-id:\s*\$\{\{ steps\.locate_hosted_collector_artifact\.outputs\.artifact_run_id \}\}/);
+  assert.match(downloadArtifactStep, /github-token:\s*\$\{\{ github\.token \}\}/);
+  assert.match(downloadArtifactStep, /repository:\s*\$\{\{ github\.repository \}\}/);
+  assert.match(downloadArtifactStep, /timeout-minutes:\s*5/);
+  assert.match(promoteArtifactStep, /continue-on-error:\s*true/);
+  assert.match(promoteArtifactStep, /timeout-minutes:\s*3/);
+  assert.match(promoteArtifactStep, /hosted-collector-state-artifact\.mjs promote/);
+  assert.match(stageArtifactStep, /runner\.os == 'Linux'/);
+  assert.match(stageArtifactStep, /needs\.resolve\.outputs\.trigger == 'schedule'/);
+  assert.match(stageArtifactStep, /timeout-minutes:\s*3/);
+  assert.match(stageArtifactStep, /steps\.ingestion\.outcome == 'failure' \|\| steps\.ingestion\.outcome == 'cancelled'/);
+  assert.match(stageArtifactStep, /hosted-collector-state-artifact\.mjs stage/);
+  assert.match(
+    uploadArtifactStep,
+    /uses:\s*actions\/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02\s+# v4/
+  );
+  assert.match(
+    uploadArtifactStep,
+    /if:\s*\$\{\{\s*always\(\) && steps\.stage_hosted_collector_artifact\.outcome == 'success' && steps\.stage_hosted_collector_artifact\.outputs\.bundle_ready == 'true'\s*\}\}/
+  );
+  assert.match(uploadArtifactStep, /if-no-files-found:\s*error/);
+  assert.match(uploadArtifactStep, /retention-days:\s*2/);
+  assert.match(uploadArtifactStep, /timeout-minutes:\s*5/);
+  assert.match(uploadArtifactStep, /compression-level:\s*6/);
+  assert.match(uploadArtifactStep, /include-hidden-files:\s*false/);
   assert.match(
     saveStep,
     /if:\s*\$\{\{ always\(\) && runner\.os == 'Linux'[\s\S]*?steps\.ingestion\.outcome == 'failure' \|\| steps\.ingestion\.outcome == 'cancelled'[\s\S]*?\}\}/
@@ -3199,10 +3264,26 @@ test("failed or cancelled hosted collection restores source-bound state without 
   }
   assert.ok(
     ingestJob.indexOf("Restore hosted collector recovery state") <
+      ingestJob.indexOf("Prepare hosted collector artifact fallback")
+  );
+  assert.ok(
+    ingestJob.indexOf("Prepare hosted collector artifact fallback") <
+      ingestJob.indexOf("Download exact hosted collector recovery artifact")
+  );
+  assert.ok(
+    ingestJob.indexOf("Download exact hosted collector recovery artifact") <
       ingestJob.indexOf("Run autonomous ingestion")
   );
   assert.ok(
     ingestJob.indexOf("Run autonomous ingestion") <
+      ingestJob.indexOf("Stage failed hosted collector recovery artifact")
+  );
+  assert.ok(
+    ingestJob.indexOf("Stage failed hosted collector recovery artifact") <
+      ingestJob.indexOf("Upload failed hosted collector recovery artifact")
+  );
+  assert.ok(
+    ingestJob.indexOf("Upload failed hosted collector recovery artifact") <
       ingestJob.indexOf("Save failed hosted collector recovery state")
   );
   assert.ok(

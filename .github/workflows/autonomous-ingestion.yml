@@ -287,6 +287,7 @@ jobs:
     # it; authenticated Mac replay retains the longer self-hosted allowance.
     timeout-minutes: ${{ (github.event_name == 'workflow_dispatch' && inputs.authenticated_backfill == true) && 415 || 360 }}
     permissions:
+      actions: read
       contents: write
     concurrency:
       group: repository-publication-main
@@ -647,6 +648,66 @@ jobs:
           restore-keys: |
             returner-ingestion-state-v1-${{ runner.os }}-${{ needs.resolve.outputs.slot_key }}-${{ needs.resolve.outputs.source_sha }}-
 
+      - name: Prepare hosted collector artifact fallback
+        id: prepare_hosted_collector_artifact
+        if: >-
+          steps.revalidate.outputs.should_run == 'true' &&
+          steps.host_preflight.outputs.ready == 'true' &&
+          runner.os == 'Linux' &&
+          needs.resolve.outputs.trigger == 'schedule' &&
+          (
+            steps.restore_hosted_collector_state.outcome == 'failure' ||
+            steps.restore_hosted_collector_state.outputs.cache-matched-key == ''
+          )
+        env:
+          HOSTED_COLLECTOR_STATE_ROOT: ${{ runner.temp }}/returner-fund-autonomous-ingestion-state/v1
+          HOSTED_COLLECTOR_ARTIFACT_DOWNLOAD_ROOT: ${{ runner.temp }}/returner-fund-hosted-collector-artifact/download-${{ github.run_id }}-${{ github.run_attempt }}
+        timeout-minutes: 1
+        run: node scripts/lib/hosted-collector-state-artifact.mjs prepare
+
+      - name: Locate exact hosted collector recovery artifact
+        id: locate_hosted_collector_artifact
+        if: steps.prepare_hosted_collector_artifact.outcome == 'success'
+        continue-on-error: true
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          HOSTED_COLLECTOR_SLOT_KEY: ${{ needs.resolve.outputs.slot_key }}
+          HOSTED_COLLECTOR_SOURCE_SHA: ${{ needs.resolve.outputs.source_sha }}
+        timeout-minutes: 3
+        run: node scripts/lib/hosted-collector-state-artifact.mjs locate
+
+      - name: Download exact hosted collector recovery artifact
+        id: download_hosted_collector_artifact
+        if: steps.locate_hosted_collector_artifact.outcome == 'success' && steps.locate_hosted_collector_artifact.outputs.artifact_found == 'true'
+        continue-on-error: true
+        timeout-minutes: 5
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: ${{ steps.locate_hosted_collector_artifact.outputs.artifact_name }}
+          path: ${{ runner.temp }}/returner-fund-hosted-collector-artifact/download-${{ github.run_id }}-${{ github.run_attempt }}
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          run-id: ${{ steps.locate_hosted_collector_artifact.outputs.artifact_run_id }}
+
+      - name: Validate and promote hosted collector recovery artifact
+        if: steps.download_hosted_collector_artifact.outcome == 'success'
+        continue-on-error: true
+        timeout-minutes: 3
+        env:
+          HOSTED_COLLECTOR_STATE_ROOT: ${{ runner.temp }}/returner-fund-autonomous-ingestion-state/v1
+          HOSTED_COLLECTOR_ARTIFACT_DOWNLOAD_ROOT: ${{ runner.temp }}/returner-fund-hosted-collector-artifact/download-${{ github.run_id }}-${{ github.run_attempt }}
+          HOSTED_COLLECTOR_SLOT_KEY: ${{ needs.resolve.outputs.slot_key }}
+          HOSTED_COLLECTOR_SOURCE_SHA: ${{ needs.resolve.outputs.source_sha }}
+          HOSTED_COLLECTOR_ARTIFACT_RUN_ID: ${{ steps.locate_hosted_collector_artifact.outputs.artifact_run_id }}
+          HOSTED_COLLECTOR_ARTIFACT_RUN_ATTEMPT: ${{ steps.locate_hosted_collector_artifact.outputs.artifact_run_attempt }}
+          HOSTED_COLLECTOR_ARTIFACT_NAME: ${{ steps.locate_hosted_collector_artifact.outputs.artifact_name }}
+          GITHUB_REPOSITORY_ID: ${{ github.repository_id }}
+          HOSTED_COLLECTOR_STATE_SECRET_GITHUB: ${{ github.token }}
+          HOSTED_COLLECTOR_STATE_SECRET_SUPABASE: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          HOSTED_COLLECTOR_STATE_SECRET_X: ${{ secrets.X_BEARER_TOKEN }}
+          HOSTED_COLLECTOR_STATE_SECRET_EXA: ${{ secrets.EXA_API_KEY }}
+        run: node scripts/lib/hosted-collector-state-artifact.mjs promote
+
       - name: Install dependencies
         if: steps.revalidate.outputs.should_run == 'true' && steps.host_preflight.outputs.ready == 'true'
         timeout-minutes: 5
@@ -753,6 +814,36 @@ jobs:
             --scheduled-at="$CANDIDATE_SCHEDULED_AT" \
             --recovery-debt="$CANDIDATE_RECOVERY_DEBT" \
             --authenticated-social-replay="$AUTHENTICATED_SOCIAL_REPLAY"
+
+      - name: Stage failed hosted collector recovery artifact
+        id: stage_hosted_collector_artifact
+        if: ${{ always() && runner.os == 'Linux' && needs.resolve.outputs.trigger == 'schedule' && steps.revalidate.outputs.should_run == 'true' && steps.host_preflight.outputs.ready == 'true' && (steps.ingestion.outcome == 'failure' || steps.ingestion.outcome == 'cancelled') }}
+        continue-on-error: true
+        timeout-minutes: 3
+        env:
+          HOSTED_COLLECTOR_STATE_ROOT: ${{ runner.temp }}/returner-fund-autonomous-ingestion-state/v1
+          HOSTED_COLLECTOR_ARTIFACT_UPLOAD_ROOT: ${{ runner.temp }}/returner-fund-hosted-collector-artifact/upload-${{ github.run_id }}-${{ github.run_attempt }}
+          HOSTED_COLLECTOR_SLOT_KEY: ${{ needs.resolve.outputs.slot_key }}
+          HOSTED_COLLECTOR_SOURCE_SHA: ${{ needs.resolve.outputs.source_sha }}
+          GITHUB_REPOSITORY_ID: ${{ github.repository_id }}
+          HOSTED_COLLECTOR_STATE_SECRET_GITHUB: ${{ github.token }}
+          HOSTED_COLLECTOR_STATE_SECRET_SUPABASE: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          HOSTED_COLLECTOR_STATE_SECRET_X: ${{ secrets.X_BEARER_TOKEN }}
+          HOSTED_COLLECTOR_STATE_SECRET_EXA: ${{ secrets.EXA_API_KEY }}
+        run: node scripts/lib/hosted-collector-state-artifact.mjs stage
+
+      - name: Upload failed hosted collector recovery artifact
+        if: ${{ always() && steps.stage_hosted_collector_artifact.outcome == 'success' && steps.stage_hosted_collector_artifact.outputs.bundle_ready == 'true' }}
+        continue-on-error: true
+        timeout-minutes: 5
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: ${{ steps.stage_hosted_collector_artifact.outputs.artifact_name }}
+          path: ${{ steps.stage_hosted_collector_artifact.outputs.bundle_path }}
+          if-no-files-found: error
+          retention-days: 2
+          compression-level: 6
+          include-hidden-files: false
 
       - name: Save failed hosted collector recovery state
         if: ${{ always() && runner.os == 'Linux' && steps.revalidate.outputs.should_run == 'true' && steps.host_preflight.outputs.ready == 'true' && (steps.ingestion.outcome == 'failure' || steps.ingestion.outcome == 'cancelled') }}
