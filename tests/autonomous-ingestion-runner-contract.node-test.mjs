@@ -3504,7 +3504,11 @@ describe("autonomous ingestion runner static safety contracts", () => {
 
     assert.ok(collectorRunner.includes("collector.timeout_checkpoint_flush"));
     assert.ok(collectorRunner.includes("AUTONOMOUS_COLLECTION_BUDGET_EXCEEDED"));
+    assert.ok(collectorRunner.includes("COMMAND_PHASE_DEADLINE_EXCEEDED"));
     assert.ok(collectorRunner.includes("collectionBudgetExhaustedBeforeSpawn"));
+    assert.ok(collectorRunner.includes("collectionDeadlineExpiredBeforeSpawn"));
+    assert.ok(collectorRunner.includes("error?.commandResult?.timedOut === true"));
+    assert.doesNotMatch(collectorRunner, /timed out after/i);
     assert.ok(collectorRunner.includes("warnOptionalRetryTelemetry("));
     assert.ok(collectorRunner.includes('"--max-companies=0"'));
     assert.ok(collectorRunner.includes("AUTONOMOUS_PROCESS_BUDGETS.collectorCheckpointFlushMs"));
@@ -3538,6 +3542,42 @@ describe("autonomous ingestion runner static safety contracts", () => {
     assert.equal(result.freshSpawned, false);
     assert.equal(result.flushSpawned, true);
     assert.equal(await readFile(markerPath, "utf8"), "flush\n");
+  });
+
+  it("flushes a public checkpoint when the deadline expires during pre-spawn setup", async () => {
+    const fixtureRoot = await mkdtemp(path.join(os.tmpdir(), "returner-public-pre-spawn-flush-"));
+    temporaryRoots.push(fixtureRoot);
+    const markerPath = path.join(fixtureRoot, "launches.txt");
+    const result = lifecycleFixturePayload(runLifecycleFixture(
+      "public-pre-spawn-deadline-checkpoint-flush",
+      { LIFECYCLE_FIXTURE_MARKER: markerPath },
+      repositoryRoot,
+      2_000
+    ));
+
+    assert.equal(result.preSpawnGuardInvoked, true);
+    assert.deepEqual(result.launches, ["flush"]);
+    assert.equal(result.freshSpawned, false);
+    assert.equal(result.flushSpawned, true);
+    assert.equal(await readFile(markerPath, "utf8"), "flush\n");
+  });
+
+  it("does not mistake timeout wording from an ordinary collector failure for a process timeout", async () => {
+    const fixtureRoot = await mkdtemp(path.join(os.tmpdir(), "returner-public-timeout-phrase-"));
+    temporaryRoots.push(fixtureRoot);
+    const markerPath = path.join(fixtureRoot, "launches.txt");
+    const result = lifecycleFixturePayload(runLifecycleFixture(
+      "public-timeout-phrase-is-not-timeout",
+      { LIFECYCLE_FIXTURE_MARKER: markerPath },
+      repositoryRoot,
+      2_000
+    ));
+
+    assert.deepEqual(result.launches, ["fresh"]);
+    assert.equal(result.failure.exitCode, 17);
+    assert.equal(result.failure.timedOut, false);
+    assert.equal(result.flushSpawned, false);
+    assert.equal(await readFile(markerPath, "utf8"), "fresh\n");
   });
 
   it("shards large public cohorts and merges shard checkpoints before coverage", () => {

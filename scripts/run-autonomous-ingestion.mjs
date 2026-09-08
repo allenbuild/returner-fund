@@ -4542,7 +4542,8 @@ async function runPublicCollectorWithCheckpointRecovery({
   shardCount,
   outputPath,
   checkpointPath,
-  args
+  args,
+  preSpawnGuard = null
 }) {
   try {
     return await runCommand(process.execPath, args, {
@@ -4559,14 +4560,19 @@ async function runPublicCollectorWithCheckpointRecovery({
       quiet: true,
       captureLimit: 8_000,
       envCategory: "public_collector",
+      preSpawnGuard,
       cwd: root
     });
   } catch (error) {
     const collectionBudgetExhaustedBeforeSpawn = [error?.code, error?.cause?.code]
       .includes("AUTONOMOUS_COLLECTION_BUDGET_EXCEEDED");
+    const collectionDeadlineExpiredBeforeSpawn = [error?.code, error?.cause?.code]
+      .includes("COMMAND_PHASE_DEADLINE_EXCEEDED");
+    const collectorProcessTimedOut = error?.commandResult?.timedOut === true;
     if (
       !collectionBudgetExhaustedBeforeSpawn &&
-      !/timed out after/i.test(errorMessage(error))
+      !collectionDeadlineExpiredBeforeSpawn &&
+      !collectorProcessTimedOut
     ) {
       throw error;
     }
@@ -4580,7 +4586,9 @@ async function runPublicCollectorWithCheckpointRecovery({
         shardCount,
         outputPath,
         checkpointPath,
-        collectionBudgetExhaustedBeforeSpawn
+        collectionBudgetExhaustedBeforeSpawn,
+        collectionDeadlineExpiredBeforeSpawn,
+        collectorProcessTimedOut
       }
     ).catch((eventError) => warnOptionalRetryTelemetry(
       `public ${batchSlug} shard ${shardIndex + 1}/${shardCount} checkpoint flush`,
@@ -8353,7 +8361,9 @@ async function runCommand(command, commandArgs, {
         ? runnerRemainingMs
         : Math.floor(deadlineAt - Date.now());
       if (deadlineRemainingMs <= 0) {
-        throw new Error(`${label} did not start before its phase deadline.`);
+        const deadlineError = new Error(`${label} did not start before its phase deadline.`);
+        deadlineError.code = "COMMAND_PHASE_DEADLINE_EXCEEDED";
+        throw deadlineError;
       }
       effectiveTimeoutMs = Math.min(timeoutMs, runnerRemainingMs, deadlineRemainingMs);
       if (!Number.isFinite(effectiveTimeoutMs) || effectiveTimeoutMs <= 0) {
@@ -9990,6 +10000,121 @@ async function runLifecycleContractFixture(fixture) {
         freshSpawned: launches.includes("fresh"),
         flushSpawned: launches.includes("flush")
       });
+    } finally {
+      collectionBudget = previousCollectionBudget;
+      collectionDrainBudget = previousCollectionDrainBudget;
+    }
+  }
+
+  if (fixture === "public-pre-spawn-deadline-checkpoint-flush") {
+    const markerPath = cleanEnv(process.env.LIFECYCLE_FIXTURE_MARKER);
+    if (!markerPath) throw new Error("Pre-spawn public checkpoint fixture requires a marker path.");
+    const previousCollectionBudget = collectionBudget;
+    const previousCollectionDrainBudget = collectionDrainBudget;
+    let preSpawnGuardInvoked = false;
+    try {
+      const now = Date.now();
+      collectionBudget = createAutonomousCollectionBudget({
+        phaseMs: 100,
+        startedAt: now
+      });
+      collectionDrainBudget = createAutonomousCollectionDrainBudget({
+        collectionDeadlineAt: collectionBudget.deadlineAt,
+        drainHeadroomMs: 5_000,
+        runnerDeadlineAt: runnerBudget.deadlineAt
+      });
+      const childScript = [
+        'const { appendFileSync } = require("node:fs");',
+        `appendFileSync(${JSON.stringify(markerPath)}, ` +
+          '(process.argv.includes("--max-companies=0") ? "flush\\n" : "fresh\\n"));'
+      ].join("\n");
+      await runPublicCollectorWithCheckpointRecovery({
+        batchSlug: "FIXTURE",
+        shardIndex: 0,
+        shardCount: 1,
+        outputPath: `${markerPath}.snapshot.json`,
+        checkpointPath: `${markerPath}.checkpoint.json`,
+        args: ["-e", childScript, "--"],
+        preSpawnGuard: () => {
+          preSpawnGuardInvoked = true;
+          const waitUntil = Date.now() + 150;
+          while (Date.now() < waitUntil) {
+            // Deterministically cross the collection deadline after the initial
+            // budget admission but before the final subprocess spawn.
+          }
+        }
+      });
+      const launches = (await readFile(markerPath, "utf8"))
+        .trim()
+        .split("\n")
+        .filter(Boolean);
+      if (!preSpawnGuardInvoked || launches.length !== 1 || launches[0] !== "flush") {
+        throw new Error(`Pre-spawn public checkpoint fixture launched unexpected commands: ${launches.join(",")}.`);
+      }
+      return emit({
+        fixture,
+        launches,
+        preSpawnGuardInvoked,
+        freshSpawned: launches.includes("fresh"),
+        flushSpawned: launches.includes("flush")
+      });
+    } finally {
+      collectionBudget = previousCollectionBudget;
+      collectionDrainBudget = previousCollectionDrainBudget;
+    }
+  }
+
+  if (fixture === "public-timeout-phrase-is-not-timeout") {
+    const markerPath = cleanEnv(process.env.LIFECYCLE_FIXTURE_MARKER);
+    if (!markerPath) throw new Error("Public timeout-phrase fixture requires a marker path.");
+    const previousCollectionBudget = collectionBudget;
+    const previousCollectionDrainBudget = collectionDrainBudget;
+    try {
+      const now = Date.now();
+      collectionBudget = createAutonomousCollectionBudget({
+        phaseMs: 5_000,
+        startedAt: now
+      });
+      collectionDrainBudget = createAutonomousCollectionDrainBudget({
+        collectionDeadlineAt: collectionBudget.deadlineAt,
+        drainHeadroomMs: 5_000,
+        runnerDeadlineAt: runnerBudget.deadlineAt
+      });
+      const childScript = [
+        'const { appendFileSync } = require("node:fs");',
+        `const markerPath = ${JSON.stringify(markerPath)};`,
+        'if (process.argv.includes("--max-companies=0")) {',
+        '  appendFileSync(markerPath, "flush\\n");',
+        '} else {',
+        '  appendFileSync(markerPath, "fresh\\n");',
+        '  console.error("an upstream request timed out after 1ms");',
+        '  process.exitCode = 17;',
+        '}'
+      ].join("\n");
+      let failure = null;
+      try {
+        await runPublicCollectorWithCheckpointRecovery({
+          batchSlug: "FIXTURE",
+          shardIndex: 0,
+          shardCount: 1,
+          outputPath: `${markerPath}.snapshot.json`,
+          checkpointPath: `${markerPath}.checkpoint.json`,
+          args: ["-e", childScript, "--"]
+        });
+      } catch (error) {
+        failure = {
+          exitCode: error?.commandResult?.code ?? null,
+          timedOut: error?.commandResult?.timedOut === true
+        };
+      }
+      const launches = (await readFile(markerPath, "utf8"))
+        .trim()
+        .split("\n")
+        .filter(Boolean);
+      if (!failure || failure.exitCode !== 17 || failure.timedOut || launches.join(",") !== "fresh") {
+        throw new Error(`Public timeout-phrase fixture was misclassified: ${JSON.stringify({ failure, launches })}.`);
+      }
+      return emit({ fixture, failure, launches, flushSpawned: launches.includes("flush") });
     } finally {
       collectionBudget = previousCollectionBudget;
       collectionDrainBudget = previousCollectionDrainBudget;
