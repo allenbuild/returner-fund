@@ -3048,6 +3048,24 @@ describe("autonomous collector task accounting", () => {
   });
 
   it("validates the complete provider blocker schema and platform pairing", () => {
+    const xBlocker = {
+      provider: "x_public_html",
+      code: "x_public_access_blocked",
+      retryAt: "2099-08-10T00:00:00.000Z",
+      httpStatus: 429,
+      message: "Anonymous X public profile returned HTTP 429."
+    };
+    const xBlockerWithoutRetryAt = { ...xBlocker };
+    delete xBlockerWithoutRetryAt.retryAt;
+    assert.equal(isAutonomousProviderBlocker(xBlocker, { platform: "x" }), true);
+    assert.equal(isAutonomousProviderBlocker(xBlocker, { platform: "linkedin" }), false);
+    assert.equal(isAutonomousProviderBlocker({ ...xBlocker, httpStatus: 403 }, { platform: "x" }), true);
+    assert.equal(isAutonomousProviderBlocker({ ...xBlocker, httpStatus: 500 }, { platform: "x" }), false);
+    assert.equal(isAutonomousProviderBlocker(xBlockerWithoutRetryAt, { platform: "x" }), false);
+    assert.equal(isAutonomousProviderBlocker({ ...xBlocker, retryAt: null }, { platform: "x" }), false);
+    assert.equal(isAutonomousProviderBlocker({ ...xBlocker, retryAt: "not-a-date" }, { platform: "x" }), false);
+    assert.equal(isAutonomousProviderBlocker({ ...xBlocker, retryAt: "2026-08-10T00:00:00.000Z" }, { platform: "x" }), true);
+
     const blocker = {
       provider: "jina_linkedin_reader",
       code: "linkedin_public_circuit_open",

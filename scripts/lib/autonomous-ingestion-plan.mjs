@@ -212,6 +212,9 @@ const PUBLIC_PLATFORM_COLLECTORS = new Set([
 const FOUNDER_SOCIAL_PLATFORMS = new Set(["github", "x", "instagram", "linkedin"]);
 const EXPLICITLY_UNAVAILABLE = new Set(["bilibili", "tiktok", "bluesky"]);
 const AUTONOMOUS_PROVIDER_BLOCKER_CODES = new Map([
+  ["x_public_html", new Set([
+    "x_public_access_blocked"
+  ])],
   ["duckduckgo_html", new Set([
     "public_search_access_blocked",
     "public_search_http_failure",
@@ -3095,11 +3098,15 @@ export function isAutonomousProviderBlocker(blocker, { platform = null } = {}) {
     return false;
   }
   if (AUTONOMOUS_PROVIDER_BLOCKER_CODES.get(provider)?.has(code) !== true) return false;
+  if (provider === "x_public_html" && (
+    ![403, 429].includes(blocker.httpStatus) || blocker.retryAt === null
+  )) return false;
   if (provider === "reddit_public_json" && (
     ![401, 403, 429].includes(blocker.httpStatus) || blocker.retryAt === null
   )) return false;
   const normalizedPlatform = normalizePlatform(platform);
   if (normalizedPlatform) {
+    if (provider === "x_public_html" && normalizedPlatform !== "x") return false;
     if (provider === "duckduckgo_html" && !["x", "linkedin", "instagram", "product_hunt", "web"].includes(normalizedPlatform)) {
       return false;
     }
@@ -3109,6 +3116,7 @@ export function isAutonomousProviderBlocker(blocker, { platform = null } = {}) {
     if (
       ![
         "duckduckgo_html",
+        "x_public_html",
         "reddit_public_json",
         "official_source_html",
         "official_source_http"

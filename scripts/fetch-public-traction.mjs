@@ -827,6 +827,9 @@ async function runLane(lane, tasks, limit) {
         const cooldown = platformCooldowns.get(lane);
         if (cooldown && cooldown.until > Date.now()) {
           const message = `Platform cooldown active until ${new Date(cooldown.until).toISOString()}: ${cooldown.reason}`;
+          const providerBlocker = lane === "x"
+            ? xPublicBlockerFromCooldown(cooldown, message)
+            : null;
           const identity = task.terminalIdentity;
           failures.push(identity
             ? {
@@ -840,7 +843,8 @@ async function runLane(lane, tasks, limit) {
                   identity.entityId
                 ),
                 accountUrl: identity.accountUrl,
-                attemptKey: identity.attemptKey
+                attemptKey: identity.attemptKey,
+                ...(providerBlocker ? { retryable: false, blocker: providerBlocker } : {})
               }
             : {
                 ...failure(lane, task.company, null, message),
@@ -856,11 +860,16 @@ async function runLane(lane, tasks, limit) {
               status: "failed",
               checkedAt: now,
               error: message,
+              ...(providerBlocker ? { blocker: providerBlocker } : {}),
               ...recentWindowFields,
-              retryable: Object.keys(recentWindowFields).length === 0 &&
-                retryableCollectorFailure(message),
+              retryable: providerBlocker
+                ? false
+                : Object.keys(recentWindowFields).length === 0 &&
+                  retryableCollectorFailure(message),
               outcomeStatus: "blocked_or_empty",
-              outcomeReason: "collector_checked_blocked_or_empty"
+              outcomeReason: providerBlocker
+                ? "collector_provider_blocked"
+                : "collector_checked_blocked_or_empty"
             }, identity));
           }
           await writeCheckpoint();
@@ -3762,6 +3771,10 @@ async function ingestSocialProfile(company, entity, entityType, platform, url) {
   } catch (error) {
     if (platform !== "x" || !directXCoverageReceipt) throw error;
     const readerMessage = `X public-reader fallback failed: ${errorMessage(error)}`;
+    const providerBlocker = xPublicBlockerFromCooldown(
+      platformCooldowns.get("x"),
+      `${directXFailures[0]?.message ?? "Anonymous X public profile was blocked."} ${readerMessage}`
+    );
     const verificationNeedsReview = /(?:identity_mismatch|no_exact_owner_social_media_postings|x_public_profile_http_404)/.test(
       directXCoverageReceipt.reason ?? ""
     );
@@ -3780,15 +3793,18 @@ async function ingestSocialProfile(company, entity, entityType, platform, url) {
         : [],
       failures: [
         ...directXFailures,
-        failure(
-          "x",
-          company,
-          url,
-          readerMessage,
-          entityType,
-          entityName(entity, entityType),
-          entityIdFor(company, entity, entityType)
-        )
+        {
+          ...failure(
+            "x",
+            company,
+            url,
+            readerMessage,
+            entityType,
+            entityName(entity, entityType),
+            entityIdFor(company, entity, entityType)
+          ),
+          ...(providerBlocker ? { retryable: false, blocker: providerBlocker } : {})
+        }
       ],
       coverageReceipt: directXCoverageReceipt,
       source: "x_public_profile_schema_org+x_public_reader_fallback",
@@ -6347,6 +6363,25 @@ function recordPlatformCooldownIfNeeded(platform, error) {
   });
 }
 
+function xPublicBlockerFromCooldown(cooldown, message) {
+  const statusMatch = /^x_public_profile_http_(403|429)$/.exec(
+    String(cooldown?.reason ?? "")
+  );
+  const retryAtMs = Number(cooldown?.until);
+  if (!statusMatch || !Number.isFinite(retryAtMs) || retryAtMs <= Date.now()) {
+    return null;
+  }
+  const retryAtDate = new Date(retryAtMs);
+  if (!Number.isFinite(retryAtDate.valueOf())) return null;
+  return Object.freeze({
+    provider: "x_public_html",
+    code: "x_public_access_blocked",
+    retryAt: retryAtDate.toISOString(),
+    httpStatus: Number(statusMatch[1]),
+    message: String(message ?? "").trim()
+  });
+}
+
 function htmlToReadable(url, html) {
   const $ = cheerio.load(html);
   $("script,style,noscript,svg,canvas").remove();
@@ -8548,7 +8583,10 @@ function isFreshCompletedAttempt(attempt) {
     // freshness and do not hammer a public endpoint during process recovery.
     return false;
   }
-  if (isAutonomousProviderBlocker(attempt.blocker, { platform: attempt.platform })) {
+  if (attempt.blocker) {
+    if (!isAutonomousProviderBlocker(attempt.blocker, { platform: attempt.platform })) {
+      return false;
+    }
     const blockerRetryAt = Date.parse(attempt.blocker.retryAt ?? "");
     // A provider block is terminal only while an explicit live cooldown is in
     // force. Missing, malformed, or expired retry metadata must re-probe on

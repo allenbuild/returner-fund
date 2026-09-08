@@ -216,20 +216,108 @@ test("a zero-evidence X review stays retryable when its reader transport fails",
   assert.ok(autonomousCollectorRetryableFailures(snapshot).includes(transportFailure.message));
 });
 
-test("direct X HTTP blockers remain explicit without a remote-reader retry", async (context) => {
+test("generic HTTP 403 text remains retryable without an exact X cooldown receipt", async (context) => {
   const snapshot = await runMockedCodagCollector(context, {
-    xHtml: "rate limited",
-    xStatus: 429
+    xHtml: profileHtml({ includePost: false }),
+    xFallbackError: "Direct public page returned HTTP 403."
   });
   const attempt = snapshot.attempts[
     "x:founder:founder-codag-michael-zhou-2706494:https://x.com/michaelzixizhou"
   ];
 
-  assert.ok(snapshot.failures.some(
-    (failure) => failure.message === "Anonymous X public profile returned HTTP 429."
+  assert.equal(attempt.blocker, undefined);
+  assert.equal(attempt.retryable, true);
+  assert.ok(autonomousCollectorRetryableFailures(snapshot).some(
+    (message) => /Direct public page returned HTTP 403/.test(message)
   ));
-  assert.equal(attempt.coverageReceipt.reason, "x_public_profile_http_429");
-  assert.equal(attempt.coverageReceipt.blocker, "Anonymous X public profile returned HTTP 429.");
+});
+
+test("exact live X HTTP cooldowns become expiring provider blockers", async (context) => {
+  for (const status of [403, 429]) {
+    const snapshot = await runMockedCodagCollector(context, {
+      xHtml: "rate limited",
+      xStatus: status
+    });
+    const attempt = snapshot.attempts[
+      "x:founder:founder-codag-michael-zhou-2706494:https://x.com/michaelzixizhou"
+    ];
+
+    assert.ok(snapshot.failures.some(
+      (failure) => failure.message === `Anonymous X public profile returned HTTP ${status}.`
+    ));
+    assert.equal(attempt.coverageReceipt.reason, `x_public_profile_http_${status}`);
+    assert.equal(attempt.coverageReceipt.blocker, `Anonymous X public profile returned HTTP ${status}.`);
+    assert.deepEqual(attempt.blocker, {
+      provider: "x_public_html",
+      code: "x_public_access_blocked",
+      retryAt: attempt.blocker.retryAt,
+      httpStatus: status,
+      message: attempt.blocker.message
+    });
+    assert.ok(Date.parse(attempt.blocker.retryAt) > Date.now());
+    assert.equal(attempt.retryable, false);
+    assert.equal(attempt.outcomeStatus, "blocked_or_empty");
+    assert.equal(attempt.outcomeReason, "collector_provider_blocked");
+    assert.deepEqual(autonomousCollectorRetryableFailures(snapshot), []);
+  }
+});
+
+test("an exact X cooldown terminalizes later skipped accounts without claiming evidence", async (context) => {
+  const snapshot = await runMockedCodagCollector(context, {
+    companySlug: "6thsense",
+    xHtml: "rate limited",
+    xStatus: 429
+  });
+  const attempts = Object.values(snapshot.attempts).filter((attempt) => attempt.platform === "x");
+  const skippedAttempt = attempts.find((attempt) => /Platform cooldown active/.test(attempt.error ?? ""));
+
+  assert.equal(attempts.length, 2);
+  assert.ok(skippedAttempt);
+  assert.equal(snapshot.evidence.length, 0);
+  assert.equal(skippedAttempt.blocker.provider, "x_public_html");
+  assert.equal(skippedAttempt.blocker.code, "x_public_access_blocked");
+  assert.equal(skippedAttempt.blocker.httpStatus, 429);
+  assert.ok(Date.parse(skippedAttempt.blocker.retryAt) > Date.now());
+  assert.equal(skippedAttempt.retryable, false);
+  assert.equal(skippedAttempt.outcomeStatus, "blocked_or_empty");
+  assert.equal(skippedAttempt.outcomeReason, "collector_provider_blocked");
+  assert.deepEqual(autonomousCollectorRetryableFailures(snapshot), []);
+});
+
+test("stored X cooldowns skip only until retryAt and malformed blockers fail closed", async (context) => {
+  const attemptKey =
+    "x:founder:founder-codag-michael-zhou-2706494:https://x.com/michaelzixizhou";
+  const futureAttempt = storedXProviderBlockerAttempt(
+    new Date(Date.now() + 60 * 60_000).toISOString()
+  );
+  const futureSnapshot = await runMockedCodagCollector(context, {
+    xHtml: profileHtml({ includePost: true }),
+    force: false,
+    checkpointAttempts: { [attemptKey]: futureAttempt }
+  });
+  assert.equal(futureSnapshot.evidence.length, 0);
+  assert.equal(futureSnapshot.attempts[attemptKey].checkedAt, futureAttempt.checkedAt);
+
+  const invalidCases = [
+    storedXProviderBlockerAttempt(new Date(Date.now() - 60_000).toISOString()),
+    storedXProviderBlockerAttempt(null),
+    storedXProviderBlockerAttempt("not-a-date")
+  ];
+  for (const storedAttempt of invalidCases) {
+    if (storedAttempt.blocker.retryAt === null) delete storedAttempt.blocker.retryAt;
+    const snapshot = await runMockedCodagCollector(context, {
+      xHtml: profileHtml({ includePost: true }),
+      force: false,
+      checkpointAttempts: { [attemptKey]: storedAttempt }
+    });
+    const refreshed = snapshot.attempts[attemptKey];
+    assert.ok(snapshot.evidence.some(
+      (row) => row.platformPostId === "2083304728046518692"
+    ));
+    assert.equal(refreshed.outcomeStatus, "completed");
+    assert.equal(refreshed.blocker, undefined);
+    assert.ok(Date.parse(refreshed.checkedAt) > Date.parse(storedAttempt.checkedAt));
+  }
 });
 
 test("a mapped X account returning 404 writes an exact typed terminal receipt", async (context) => {
@@ -552,7 +640,10 @@ async function runMockedCodagCollector(context, {
   xHtml,
   xStatus = 200,
   seedEvidence = [],
-  xFallbackError = null
+  xFallbackError = null,
+  companySlug = "codag",
+  force = true,
+  checkpointAttempts = {}
 }) {
   const directory = await mkdtemp(join(tmpdir(), "returner-public-x-contract-"));
   context.after(() => rm(directory, { recursive: true, force: true }));
@@ -566,6 +657,14 @@ async function runMockedCodagCollector(context, {
       source: {},
       attempts: {},
       evidence: seedEvidence,
+      needsReview: [],
+      failures: [],
+      discoveryAttempts: [],
+      sourceDiscoveryPaths: []
+    })}\n`),
+    writeFile(checkpoint, `${JSON.stringify({
+      attempts: checkpointAttempts,
+      evidence: [],
       needsReview: [],
       failures: [],
       discoveryAttempts: [],
@@ -585,7 +684,7 @@ const xFallbackError = ${JSON.stringify(xFallbackError)};
 let xRequestCount = 0;
 globalThis.fetch = async (url) => {
   const value = String(url);
-  if (value === "https://x.com/michaelzixizhou") {
+  if (value.startsWith("https://x.com/")) {
     xRequestCount += 1;
     if (xRequestCount > 1 && xFallbackError) throw new Error(xFallbackError);
     return new Response(xHtml, { status: ${xStatus}, headers: { "content-type": "text/html" } });
@@ -601,14 +700,14 @@ globalThis.fetch = async (url) => {
   execFileSync(process.execPath, [
     "scripts/fetch-public-traction.mjs",
     "--batch=S26",
-    "--company=codag",
+    `--company=${companySlug}`,
     "--platforms=x",
     "--social=all",
     "--mapped-only",
     "--workers=1",
     "--x-workers=1",
     "--delay-ms=0",
-    "--force",
+    ...(force ? ["--force"] : []),
     `--output=${output}`,
     `--checkpoint=${checkpoint}`,
     `--discovery-attempts=${discoveryAttempts}`,
@@ -624,6 +723,36 @@ globalThis.fetch = async (url) => {
     stdio: "pipe"
   });
   return JSON.parse(await readFile(output, "utf8"));
+}
+
+function storedXProviderBlockerAttempt(retryAt) {
+  const accountUrl = "https://x.com/michaelzixizhou";
+  const entityId = "founder-codag-michael-zhou-2706494";
+  const attemptKey = `x:founder:${entityId}:${accountUrl}`;
+  return {
+    attemptKey,
+    attributionVersion: 4,
+    batchSlug: "S26",
+    platform: "x",
+    companySlug: "codag",
+    entityType: "founder",
+    entityId,
+    entityName: "Michael Zhou",
+    accountUrl,
+    status: "failed",
+    checkedAt: new Date(Date.now() - 5 * 60_000).toISOString(),
+    error: "Anonymous X public profile returned HTTP 429.",
+    blocker: {
+      provider: "x_public_html",
+      code: "x_public_access_blocked",
+      retryAt,
+      httpStatus: 429,
+      message: "Anonymous X public profile returned HTTP 429."
+    },
+    retryable: false,
+    outcomeStatus: "blocked_or_empty",
+    outcomeReason: "collector_provider_blocked"
+  };
 }
 
 function profileHtml({
