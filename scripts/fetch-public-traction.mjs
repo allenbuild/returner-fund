@@ -3665,6 +3665,7 @@ async function ingestReddit(company) {
 async function ingestSocialProfile(company, entity, entityType, platform, url) {
   let directXFailures = [];
   let directXCoverageReceipt = null;
+  let directXProviderBlocker = null;
   if (platform === "x") {
     const apiEvidence = xApiEvidenceForAccount(company, entity, entityType, url);
     const publicProfileResult = await ingestXPublicProfile(
@@ -3675,6 +3676,11 @@ async function ingestSocialProfile(company, entity, entityType, platform, url) {
     );
     directXFailures = publicProfileResult?.failures ?? [];
     directXCoverageReceipt = publicProfileResult?.coverageReceipt ?? null;
+    directXProviderBlocker = xPublicBlockerFromDirectReceipt(
+      directXCoverageReceipt,
+      platformCooldowns.get("x"),
+      directXFailures[0]?.message ?? "Anonymous X public profile was blocked."
+    );
     const mergedEvidence = mergeXNativeEvidence(
       publicProfileResult?.evidence ?? [],
       apiEvidence
@@ -3684,7 +3690,11 @@ async function ingestSocialProfile(company, entity, entityType, platform, url) {
       return {
         ...(publicProfileResult ?? {}),
         evidence: mergedEvidence,
-        failures: directXFailures,
+        failures: xDirectFailuresAfterFallback(
+          directXFailures,
+          directXProviderBlocker,
+          mergedEvidence
+        ),
         needsReview: publicProfileResult?.needsReview ?? [],
         source: publicProfileVerified && apiEvidence.length
           ? "x_public_profile_schema_org+x_recent_search_api"
@@ -3771,10 +3781,7 @@ async function ingestSocialProfile(company, entity, entityType, platform, url) {
   } catch (error) {
     if (platform !== "x" || !directXCoverageReceipt) throw error;
     const readerMessage = `X public-reader fallback failed: ${errorMessage(error)}`;
-    const providerBlocker = xPublicBlockerFromCooldown(
-      platformCooldowns.get("x"),
-      `${directXFailures[0]?.message ?? "Anonymous X public profile was blocked."} ${readerMessage}`
-    );
+    const providerBlocker = directXProviderBlocker;
     const verificationNeedsReview = /(?:identity_mismatch|no_exact_owner_social_media_postings|x_public_profile_http_404)/.test(
       directXCoverageReceipt.reason ?? ""
     );
@@ -3792,7 +3799,7 @@ async function ingestSocialProfile(company, entity, entityType, platform, url) {
           )]
         : [],
       failures: [
-        ...directXFailures,
+        ...xDirectFailuresAfterFallback(directXFailures, providerBlocker, []),
         {
           ...failure(
             "x",
@@ -3802,8 +3809,7 @@ async function ingestSocialProfile(company, entity, entityType, platform, url) {
             entityType,
             entityName(entity, entityType),
             entityIdFor(company, entity, entityType)
-          ),
-          ...(providerBlocker ? { retryable: false, blocker: providerBlocker } : {})
+          )
         }
       ],
       coverageReceipt: directXCoverageReceipt,
@@ -3822,11 +3828,16 @@ async function ingestSocialProfile(company, entity, entityType, platform, url) {
           entityType
         )
       : { evidence: [], needsReview: [], failures: [], sourceDiscoveryPaths: [] };
+    const fallbackEvidence = fallback.evidence ?? [];
     return {
-      evidence: fallback.evidence,
+      evidence: fallbackEvidence,
       needsReview: fallback.needsReview,
       failures: [
-        ...directXFailures,
+        ...xDirectFailuresAfterFallback(
+          directXFailures,
+          directXProviderBlocker,
+          fallbackEvidence
+        ),
         failure(
           platform,
           company,
@@ -3862,7 +3873,11 @@ async function ingestSocialProfile(company, entity, entityType, platform, url) {
   if (!verified) {
     return {
       evidence: [],
-      failures: directXFailures,
+      failures: xDirectFailuresAfterFallback(
+        directXFailures,
+        directXProviderBlocker,
+        []
+      ),
       needsReview: [
         reviewCandidate(
           company,
@@ -3934,30 +3949,36 @@ async function ingestSocialProfile(company, entity, entityType, platform, url) {
         )]
       : [];
 
+  const collectedEvidence = [
+    ...(platform === "x" && directXCoverageReceipt?.verified === false
+      ? []
+      : [evidenceItem({
+          company,
+          entityType,
+          entityId: entityIdFor(company, entity, entityType),
+          platform,
+          sourceUrl: url,
+          title: page.title || name,
+          text: socialProfileSummary(platform, page.text, page.title || name),
+          rawVisibleText: page.text,
+          metrics,
+          contributionScore: 0,
+          review_state: "verified",
+          matchReason: `Verified public ${platform} profile readable without login. Stored as identity context only; profile followers are not counted as post traction.`
+        })]),
+    ...attributedPosts.evidence,
+    ...zeroPostFallback.evidence
+  ];
+
   return {
-    evidence: [
-      ...(platform === "x" && directXCoverageReceipt?.verified === false
-        ? []
-        : [evidenceItem({
-            company,
-            entityType,
-            entityId: entityIdFor(company, entity, entityType),
-            platform,
-            sourceUrl: url,
-            title: page.title || name,
-            text: socialProfileSummary(platform, page.text, page.title || name),
-            rawVisibleText: page.text,
-            metrics,
-            contributionScore: 0,
-            review_state: "verified",
-            matchReason: `Verified public ${platform} profile readable without login. Stored as identity context only; profile followers are not counted as post traction.`
-          })]),
-      ...attributedPosts.evidence,
-      ...zeroPostFallback.evidence
-    ],
+    evidence: collectedEvidence,
     needsReview: [...postNeedsReview, ...directXVerificationNeedsReview],
     failures: [
-      ...directXFailures,
+      ...xDirectFailuresAfterFallback(
+        directXFailures,
+        directXProviderBlocker,
+        collectedEvidence
+      ),
       ...postResults.flatMap((result) => result.failures ?? []),
       ...(zeroPostFallback.failures ?? [])
     ],
@@ -6380,6 +6401,29 @@ function xPublicBlockerFromCooldown(cooldown, message) {
     httpStatus: Number(statusMatch[1]),
     message: String(message ?? "").trim()
   });
+}
+
+function xPublicBlockerFromDirectReceipt(receipt, cooldown, message) {
+  const statusMatch = /^x_public_profile_http_(403|429)$/.exec(
+    String(receipt?.reason ?? "")
+  );
+  if (receipt?.verified !== false || !statusMatch) return null;
+  const blocker = xPublicBlockerFromCooldown(cooldown, message);
+  return blocker?.httpStatus === Number(statusMatch[1]) ? blocker : null;
+}
+
+function xDirectFailuresAfterFallback(failures, providerBlocker, evidence) {
+  if (!providerBlocker) return failures;
+  const recoveredVerifiedNativeEvidence = (evidence ?? []).some((row) =>
+    row?.platform === "x" &&
+    row?.review_state === "verified" &&
+    (String(row?.platformPostId ?? "").trim() || isSocialPostUrl(row?.sourceUrl, "x"))
+  );
+  return failures.map((row) => ({
+    ...row,
+    retryable: false,
+    ...(recoveredVerifiedNativeEvidence ? {} : { blocker: providerBlocker })
+  }));
 }
 
 function htmlToReadable(url, html) {

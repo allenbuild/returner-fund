@@ -226,10 +226,65 @@ test("generic HTTP 403 text remains retryable without an exact X cooldown receip
   ];
 
   assert.equal(attempt.blocker, undefined);
+  assert.equal(snapshot.failures.some((failure) => failure.blocker), false);
   assert.equal(attempt.retryable, true);
   assert.ok(autonomousCollectorRetryableFailures(snapshot).some(
     (message) => /Direct public page returned HTTP 403/.test(message)
   ));
+});
+
+test("an exact direct X 429 remains a typed blocker when its HTTP 200 fallback is login-walled", async (context) => {
+  const snapshot = await runMockedCodagCollector(context, {
+    xHtml: "rate limited",
+    xStatus: 429,
+    xFallbackHtml: "<!doctype html><html><body>To continue, log in</body></html>",
+    xFallbackStatus: 200
+  });
+  const attempt = snapshot.attempts[
+    "x:founder:founder-codag-michael-zhou-2706494:https://x.com/michaelzixizhou"
+  ];
+  const blockerFailure = snapshot.failures.find((failure) =>
+    failure.blocker?.provider === "x_public_html"
+  );
+
+  assert.equal(snapshot.evidence.length, 0);
+  assert.ok(blockerFailure);
+  assert.equal(blockerFailure.retryable, false);
+  assert.equal(blockerFailure.blocker.code, "x_public_access_blocked");
+  assert.equal(blockerFailure.blocker.httpStatus, 429);
+  assert.ok(Date.parse(blockerFailure.blocker.retryAt) > Date.now());
+  assert.equal(attempt.blocker.code, "x_public_access_blocked");
+  assert.equal(attempt.blocker.httpStatus, 429);
+  assert.equal(attempt.retryable, false);
+  assert.equal(attempt.outcomeStatus, "blocked_or_empty");
+  assert.equal(attempt.outcomeReason, "collector_provider_blocked");
+  assert.deepEqual(autonomousCollectorRetryableFailures(snapshot), []);
+});
+
+test("verified exact-owner native evidence recovered after a direct X 429 wins over the cooldown", async (context) => {
+  const postUrl = "https://x.com/michaelzixizhou/status/2083304728046518692";
+  const snapshot = await runMockedCodagCollector(context, {
+    xHtml: "rate limited",
+    xStatus: 429,
+    xFallbackHtml: `<!doctype html><html><head><title>Michael Zhou</title></head><body>Michael Zhou Codag ${postUrl}</body></html>`,
+    xFallbackStatus: 200,
+    xPostHtml: "<!doctype html><html><head><title>Codag launch by Michael Zhou</title></head><body>Michael Zhou launched Codag, an AI startup. 1.2M views 5K likes Aug 20, 2026</body></html>",
+    xPostStatus: 200
+  });
+  const attempt = snapshot.attempts[
+    "x:founder:founder-codag-michael-zhou-2706494:https://x.com/michaelzixizhou"
+  ];
+  const recovered = snapshot.evidence.find((row) => row.sourceUrl === postUrl);
+
+  assert.ok(recovered);
+  assert.equal(recovered.review_state, "verified");
+  assert.equal(recovered.platformPostId, "2083304728046518692");
+  assert.equal(attempt.blocker, undefined);
+  assert.equal(snapshot.failures.some((failure) => failure.blocker), false);
+  assert.equal(attempt.retryable, false);
+  assert.equal(attempt.outcomeStatus, "completed");
+  assert.equal(attempt.outcomeReason, "collector_evidence_collected");
+  assert.deepEqual(autonomousCollectorRetryableFailures(snapshot), []);
 });
 
 test("exact live X HTTP cooldowns become expiring provider blockers", async (context) => {
@@ -639,6 +694,10 @@ globalThis.fetch = async (url) => {
 async function runMockedCodagCollector(context, {
   xHtml,
   xStatus = 200,
+  xFallbackHtml = xHtml,
+  xFallbackStatus = xStatus,
+  xPostHtml = xFallbackHtml,
+  xPostStatus = xFallbackStatus,
   seedEvidence = [],
   xFallbackError = null,
   companySlug = "codag",
@@ -680,6 +739,10 @@ dns.lookup = (_hostname, options, callback) => {
   else callback(null, addresses[0].address, addresses[0].family);
 };
 const xHtml = ${JSON.stringify(xHtml)};
+const xFallbackHtml = ${JSON.stringify(xFallbackHtml)};
+const xFallbackStatus = ${JSON.stringify(xFallbackStatus)};
+const xPostHtml = ${JSON.stringify(xPostHtml)};
+const xPostStatus = ${JSON.stringify(xPostStatus)};
 const xFallbackError = ${JSON.stringify(xFallbackError)};
 let xRequestCount = 0;
 globalThis.fetch = async (url) => {
@@ -687,7 +750,13 @@ globalThis.fetch = async (url) => {
   if (value.startsWith("https://x.com/")) {
     xRequestCount += 1;
     if (xRequestCount > 1 && xFallbackError) throw new Error(xFallbackError);
-    return new Response(xHtml, { status: ${xStatus}, headers: { "content-type": "text/html" } });
+    return new Response(
+      xRequestCount > 2 ? xPostHtml : xRequestCount > 1 ? xFallbackHtml : xHtml,
+      {
+        status: xRequestCount > 2 ? xPostStatus : xRequestCount > 1 ? xFallbackStatus : ${xStatus},
+        headers: { "content-type": "text/html" }
+      }
+    );
   }
   if (value.startsWith("https://r.jina.ai/http://")) {
     throw new Error("remote reader fallback must remain disabled");
