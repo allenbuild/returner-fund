@@ -274,6 +274,52 @@ describe("technology dashboard pipeline", () => {
     });
   });
 
+  it("recognizes a numbered Google Pixel model without admitting pixel-art posts", () => {
+    const observedAt = new Date("2026-09-08T00:02:44.106Z");
+    const verifiedPixelReview = dashboardCandidate({
+      id: "youtube:ANmTVYkEtLw",
+      canonicalKey: "youtube:video:ANmTVYkEtLw",
+      platform: "youtube",
+      sourceKind: "video",
+      url: "https://www.youtube.com/watch?v=ANmTVYkEtLw",
+      title: "Google Pixel 11/Pro Review: Poker Face",
+      summary: "Pixel 11 proves Google is going all in in one thing.",
+      text: "Google Pixel 11/Pro Review: Poker Face Pixel 11 proves Google is going all in in one thing.",
+      publishedAt: "2026-09-05T21:18:49.000Z",
+      topics: [],
+      metrics: { views: 3_348_082, likes: null }
+    });
+
+    expect(dashboardTop100Eligibility(verifiedPixelReview, observedAt)).toMatchObject({
+      eligible: true,
+      reason: "eligible"
+    });
+
+    for (const [id, title] of [
+      ["pixelart001", "Google Pixel art showcase"],
+      ["pixelart002", "Pixel art tutorial"]
+    ] as const) {
+      const pixelArtPost = dashboardCandidate({
+        id: `youtube:${id}`,
+        canonicalKey: `youtube:video:${id}`,
+        platform: "youtube",
+        sourceKind: "video",
+        url: `https://www.youtube.com/watch?v=${id}`,
+        title,
+        summary: title,
+        text: title,
+        publishedAt: "2026-09-05T21:18:49.000Z",
+        topics: [],
+        metrics: { views: 3_348_082, likes: null }
+      });
+
+      expect(dashboardTop100Eligibility(pixelArtPost, observedAt)).toMatchObject({
+        eligible: false,
+        reason: "unverified_source"
+      });
+    }
+  });
+
   it("counts every terminal eligibility reason after physical-source deduplication", () => {
     const eligible = dashboardCandidate({ id: "eligible" });
     const result = buildDashboardSnapshot([

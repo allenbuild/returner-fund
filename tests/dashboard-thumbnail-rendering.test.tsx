@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { TopStoriesDashboard } from "@/components/dashboard/TopStoriesDashboard";
 import type { DashboardPublicFeedSnapshot } from "@/lib/dashboard/contracts";
@@ -31,6 +31,25 @@ describe("dashboard thumbnail rendering", () => {
 
     expect(screen.queryByRole("img", { name: "Unapproved dashboard thumbnail" })).not.toBeInTheDocument();
     expect(screen.getByLabelText("Unapproved dashboard thumbnail").tagName).toBe("SPAN");
+  });
+
+  it("retries image rendering when a story receives a new thumbnail URL", () => {
+    const firstThumbnailUrl = "https://avatars.githubusercontent.com/u/123?v=4";
+    const secondThumbnailUrl = "https://avatars.githubusercontent.com/u/456?v=4";
+    const { rerender } = render(
+      <TopStoriesDashboard snapshot={snapshotWithThumbnail(firstThumbnailUrl, "Changing dashboard thumbnail")} />
+    );
+
+    fireEvent.error(screen.getByRole("img", { name: "Changing dashboard thumbnail" }));
+    expect(screen.queryByRole("img", { name: "Changing dashboard thumbnail" })).not.toBeInTheDocument();
+    expect(screen.getByLabelText("Changing dashboard thumbnail").tagName).toBe("SPAN");
+
+    rerender(
+      <TopStoriesDashboard snapshot={snapshotWithThumbnail(secondThumbnailUrl, "Changing dashboard thumbnail")} />
+    );
+
+    const replacementImage = screen.getByRole("img", { name: "Changing dashboard thumbnail" });
+    expect(replacementImage.getAttribute("src")).toContain(encodeURIComponent(secondThumbnailUrl));
   });
 });
 

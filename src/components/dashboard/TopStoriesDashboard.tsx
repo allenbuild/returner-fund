@@ -50,6 +50,19 @@ interface TopStoriesDashboardProps {
 const knownPlatforms = new Set<string>(PLATFORM_VALUES);
 const DASHBOARD_RECOVERY_MAX_AGE_MS = 48 * 60 * 60 * 1_000;
 const DASHBOARD_RECOVERY_MAX_FUTURE_SKEW_MS = 5 * 60 * 1_000;
+const DASHBOARD_REVALIDATION_INTERVAL_MS = 5 * 60 * 1_000;
+const DASHBOARD_REVALIDATION_DEDUPE_MS = 60 * 1_000;
+const DASHBOARD_REVALIDATION_TIMEOUT_MS = 20 * 1_000;
+
+type DashboardFeedState = {
+  suppliedSnapshot: DashboardPublicFeedSnapshot | null | undefined;
+  lastPublishedSnapshot: DashboardPublicFeedSnapshot | null;
+};
+
+type DashboardRevalidationTimeout = {
+  controller: AbortController;
+  timeoutId: number;
+};
 
 /**
  * A deliberately single-purpose public index. The worker owns discovery and
@@ -58,9 +71,27 @@ const DASHBOARD_RECOVERY_MAX_FUTURE_SKEW_MS = 5 * 60 * 1_000;
  */
 export function TopStoriesDashboard({ snapshot, variant = "standalone" }: TopStoriesDashboardProps) {
   const [now, setNow] = useState<number | null>(null);
-  const [recoveredSnapshot, setRecoveredSnapshot] = useState<DashboardPublicFeedSnapshot | null>(null);
+  const [feedState, setFeedState] = useState<DashboardFeedState>(() => ({
+    suppliedSnapshot: snapshot,
+    lastPublishedSnapshot: suppliedPublishedFeedSnapshot(snapshot)
+  }));
   const [selectedStableKey, setSelectedStableKey] = useState<string | null>(null);
-  const recoveryAttempted = useRef(false);
+  const requestRevalidationRef = useRef<() => void>(() => undefined);
+  const revalidationControllerRef = useRef<AbortController | null>(null);
+  const revalidationTimeoutRef = useRef<DashboardRevalidationTimeout | null>(null);
+  const lastRevalidationStartedAtRef = useRef<number | null>(null);
+
+  let currentFeedState = feedState;
+  if (currentFeedState.suppliedSnapshot !== snapshot) {
+    currentFeedState = {
+      suppliedSnapshot: snapshot,
+      lastPublishedSnapshot: newestPublishedFeedSnapshot(
+        currentFeedState.lastPublishedSnapshot,
+        suppliedPublishedFeedSnapshot(snapshot)
+      )
+    };
+    setFeedState(currentFeedState);
+  }
 
   useEffect(() => {
     const refreshNow = () => setNow(Date.now());
@@ -70,36 +101,98 @@ export function TopStoriesDashboard({ snapshot, variant = "standalone" }: TopSto
   }, []);
 
   useEffect(() => {
-    if (!needsSnapshotRecovery(snapshot) || recoveryAttempted.current) return;
-    recoveryAttempted.current = true;
-
     let active = true;
-    const controller = new AbortController();
 
-    void fetch("/api/dashboard", {
-      cache: "no-store",
-      headers: { Accept: "application/json" },
-      signal: controller.signal
-    })
-      .then(async (response) => {
-        if (!response.ok) return null;
-        return response.json() as Promise<unknown>;
+    const requestRevalidation = () => {
+      if (!active || document.visibilityState !== "visible") return;
+
+      const requestedAt = Date.now();
+      const lastRequestedAt = lastRevalidationStartedAtRef.current;
+      if (
+        revalidationControllerRef.current !== null ||
+        (lastRequestedAt !== null && requestedAt - lastRequestedAt < DASHBOARD_REVALIDATION_DEDUPE_MS)
+      ) return;
+
+      const controller = new AbortController();
+      revalidationControllerRef.current = controller;
+      lastRevalidationStartedAtRef.current = requestedAt;
+      const timeoutId = window.setTimeout(() => {
+        if (revalidationControllerRef.current !== controller) return;
+        revalidationControllerRef.current = null;
+        lastRevalidationStartedAtRef.current = null;
+        if (revalidationTimeoutRef.current?.controller === controller) {
+          revalidationTimeoutRef.current = null;
+        }
+        controller.abort();
+      }, DASHBOARD_REVALIDATION_TIMEOUT_MS);
+      revalidationTimeoutRef.current = { controller, timeoutId };
+
+      void fetch("/api/dashboard", {
+        cache: "no-store",
+        headers: { Accept: "application/json" },
+        signal: controller.signal
       })
-      .then((payload) => {
-        if (active && isCurrentPublishedFeedSnapshot(payload)) setRecoveredSnapshot(payload);
-      })
-      .catch(() => {
-        // The SSR empty state remains visible if the one client recovery
-        // request cannot reach the already-published public feed.
-      });
+        .then(async (response) => {
+          if (!response.ok) return null;
+          return response.json() as Promise<unknown>;
+        })
+        .then((payload) => {
+          if (!active || controller.signal.aborted || !isCurrentPublishedFeedSnapshot(payload)) return;
+
+          setFeedState((current) => {
+            const baseline = newestPublishedFeedSnapshot(
+              current.lastPublishedSnapshot,
+              suppliedPublishedFeedSnapshot(current.suppliedSnapshot)
+            );
+            if (!isEqualOrNewerPublishedFeedSnapshot(payload, baseline)) return current;
+            return { ...current, lastPublishedSnapshot: payload };
+          });
+        })
+        .catch(() => {
+          // Network, abort, and payload failures never displace the last
+          // successfully rendered publication.
+        })
+        .finally(() => {
+          if (revalidationTimeoutRef.current?.controller === controller) {
+            window.clearTimeout(revalidationTimeoutRef.current.timeoutId);
+            revalidationTimeoutRef.current = null;
+          }
+          if (revalidationControllerRef.current === controller) {
+            revalidationControllerRef.current = null;
+          }
+        });
+    };
+
+    requestRevalidationRef.current = requestRevalidation;
+    const interval = window.setInterval(requestRevalidation, DASHBOARD_REVALIDATION_INTERVAL_MS);
+    const revalidateOnFocus = () => requestRevalidation();
+    const revalidateOnVisibility = () => {
+      if (document.visibilityState === "visible") requestRevalidation();
+    };
+    window.addEventListener("focus", revalidateOnFocus);
+    document.addEventListener("visibilitychange", revalidateOnVisibility);
 
     return () => {
       active = false;
-      controller.abort();
+      requestRevalidationRef.current = () => undefined;
+      window.clearInterval(interval);
+      window.removeEventListener("focus", revalidateOnFocus);
+      document.removeEventListener("visibilitychange", revalidateOnVisibility);
+      const timeout = revalidationTimeoutRef.current;
+      revalidationTimeoutRef.current = null;
+      if (timeout) window.clearTimeout(timeout.timeoutId);
+      const controller = revalidationControllerRef.current;
+      revalidationControllerRef.current = null;
+      if (controller) lastRevalidationStartedAtRef.current = null;
+      controller?.abort();
     };
+  }, []);
+
+  useEffect(() => {
+    if (needsSnapshotRecovery(snapshot)) requestRevalidationRef.current();
   }, [snapshot]);
 
-  const displayedSnapshot = needsSnapshotRecovery(snapshot) ? recoveredSnapshot ?? snapshot : snapshot;
+  const displayedSnapshot = currentFeedState.lastPublishedSnapshot ?? snapshot;
   const stories = consolidatedStories(safeStories(displayedSnapshot));
   const snapshotExtras = displayedSnapshot as DashboardSnapshotExtras | null | undefined;
   const selectedStory = stories.find(({ story }) => story.stableKey === selectedStableKey) ?? stories[0] ?? null;
@@ -317,7 +410,12 @@ function StoryCardContent({
       <div className={styles.media}>
         <span className={styles.rank} aria-label={`Item ${ranking.rank}`}>#{ranking.rank}</span>
         <span className={styles.score} aria-label={`Surfacing score ${story.trendScore} out of 100`}>{story.trendScore}<small>/100</small></span>
-        <StoryThumbnail linkToSource={Boolean(primarySourceUrl)} sourceUrl={primarySourceUrl ?? null} story={story} />
+        <StoryThumbnail
+          key={`${story.stableKey}:${story.thumbnailUrl ?? ""}`}
+          linkToSource={Boolean(primarySourceUrl)}
+          sourceUrl={primarySourceUrl ?? null}
+          story={story}
+        />
       </div>
       <div className={styles.storyBody}>
         <div className={styles.sourceLine}>
@@ -386,7 +484,12 @@ function TopStoryDetailPanel({
         <span className={styles.detailRank} aria-label={`Item ${ranking.rank}`}>#{ranking.rank}</span>
       </header>
       <h2>{story.title}</h2>
-      <StoryThumbnail linkToSource sourceUrl={primarySource.url} story={story} />
+      <StoryThumbnail
+        key={`${story.stableKey}:${story.thumbnailUrl ?? ""}`}
+        linkToSource
+        sourceUrl={primarySource.url}
+        story={story}
+      />
       <p className={styles.detailSummary}>{story.summary}</p>
       <div className={styles.detailMetadata}>
         {story.publishedAt && <time dateTime={story.publishedAt}>{displayRelativeDate(story.publishedAt, now)}</time>}
@@ -399,7 +502,12 @@ function TopStoryDetailPanel({
         </a>
       )}
       {story.sourceCount > 0 && (
-        <StorySources now={now} sourceCount={story.sourceCount} stableKey={story.stableKey} />
+        <StorySources
+          key={story.stableKey}
+          now={now}
+          sourceCount={story.sourceCount}
+          stableKey={story.stableKey}
+        />
       )}
     </aside>
   );
@@ -471,23 +579,36 @@ function StorySources({
   const [state, setState] = useState<"idle" | "loading" | "loaded" | "error">("idle");
   const [sources, setSources] = useState<unknown[]>([]);
   const [truncated, setTruncated] = useState(false);
+  const requestControllerRef = useRef<AbortController | null>(null);
+
+  useEffect(() => () => {
+    requestControllerRef.current?.abort();
+    requestControllerRef.current = null;
+  }, []);
 
   const loadSources = async () => {
+    if (requestControllerRef.current) return;
+    const controller = new AbortController();
+    requestControllerRef.current = controller;
     setState("loading");
     try {
       const response = await fetch(
         "/api/dashboard/stories/" + encodeURIComponent(stableKey) + "/sources",
-        { headers: { Accept: "application/json" } }
+        { headers: { Accept: "application/json" }, signal: controller.signal }
       );
       if (!response.ok) throw new Error("source_detail_request_failed");
       const payload: unknown = await response.json();
       const detail = sourceDetailPayload(payload, stableKey);
       if (!detail) throw new Error("invalid_source_detail_payload");
+      if (controller.signal.aborted || requestControllerRef.current !== controller) return;
       setSources(detail.sources);
       setTruncated(detail.truncated);
       setState("loaded");
     } catch {
+      if (controller.signal.aborted || requestControllerRef.current !== controller) return;
       setState("error");
+    } finally {
+      if (requestControllerRef.current === controller) requestControllerRef.current = null;
     }
   };
 
@@ -550,6 +671,45 @@ function needsSnapshotRecovery(snapshot: DashboardPublicFeedSnapshot | null | un
   return snapshotAvailability((snapshot as DashboardSnapshotExtras).status) === "unavailable";
 }
 
+function suppliedPublishedFeedSnapshot(
+  snapshot: DashboardPublicFeedSnapshot | null | undefined
+): DashboardPublicFeedSnapshot | null {
+  if (!snapshot) return null;
+  const availability = snapshotAvailability((snapshot as DashboardSnapshotExtras).status);
+  if (availability === "unavailable") return null;
+  if (hasPublishedStories(snapshot)) return snapshot;
+  return availability === null ? snapshot : null;
+}
+
+function publishedFeedTimestamp(snapshot: DashboardPublicFeedSnapshot | null | undefined): number | null {
+  if (!snapshot) return null;
+  const timestamp = new Date(snapshot.windowEnd).getTime();
+  return Number.isFinite(timestamp) ? timestamp : null;
+}
+
+/** Returns the second snapshot on an equal publication clock. */
+function newestPublishedFeedSnapshot(
+  current: DashboardPublicFeedSnapshot | null | undefined,
+  candidate: DashboardPublicFeedSnapshot | null | undefined
+): DashboardPublicFeedSnapshot | null {
+  if (!current) return candidate ?? null;
+  if (!candidate) return current;
+  const currentTimestamp = publishedFeedTimestamp(current);
+  const candidateTimestamp = publishedFeedTimestamp(candidate);
+  if (candidateTimestamp === null) return current;
+  if (currentTimestamp === null || candidateTimestamp >= currentTimestamp) return candidate;
+  return current;
+}
+
+function isEqualOrNewerPublishedFeedSnapshot(
+  candidate: DashboardPublicFeedSnapshot,
+  current: DashboardPublicFeedSnapshot | null | undefined
+): boolean {
+  const candidateTimestamp = publishedFeedTimestamp(candidate);
+  const currentTimestamp = publishedFeedTimestamp(current);
+  return candidateTimestamp !== null && (currentTimestamp === null || candidateTimestamp >= currentTimestamp);
+}
+
 /**
  * The server store is deliberately server-only, so recovery validates the
  * compact public contract locally before it replaces the SSR snapshot. This
@@ -559,9 +719,8 @@ function needsSnapshotRecovery(snapshot: DashboardPublicFeedSnapshot | null | un
 function isCurrentPublishedFeedSnapshot(value: unknown): value is DashboardPublicFeedSnapshot {
   if (!isDashboardPublicFeedSnapshot(value)) return false;
   const snapshot = value as DashboardPublicFeedSnapshot;
-  if (snapshot.status.partialPlatformFailures.includes("snapshot_unavailable")) {
-    return false;
-  }
+  const availability = snapshotAvailability(snapshot.status);
+  if (availability === "unavailable" || (availability === "stale" && !hasPublishedStories(snapshot))) return false;
 
   const now = Date.now();
   const generatedAt = new Date(snapshot.generatedAt).getTime();
@@ -584,7 +743,6 @@ function isDashboardPublicFeedSnapshot(value: unknown): value is DashboardPublic
   if (!isMaxLengthStringArray(value.todayInTech, 600)) return false;
   if (
     !Array.isArray(value.stories) ||
-    value.stories.length === 0 ||
     value.stories.length > DASHBOARD_VIEWS.length * DASHBOARD_TOP_LIMIT ||
     !value.stories.every(isDashboardStoryCard)
   ) return false;

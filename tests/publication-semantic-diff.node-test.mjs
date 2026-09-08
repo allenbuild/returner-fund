@@ -12,8 +12,16 @@ const roots = new Set();
 const MODULE_PATH = path.join(process.cwd(), "scripts", "lib", "publication-semantic-diff.mjs");
 
 test.afterEach(async () => {
-  await Promise.all([...roots].map((root) => rm(root, { recursive: true, force: true })));
+  const cleanupRoots = [...roots];
   roots.clear();
+  for (const root of cleanupRoots) {
+    await rm(root, {
+      recursive: true,
+      force: true,
+      maxRetries: 5,
+      retryDelay: 100
+    });
+  }
 });
 
 test("ignores an exact changed provenance path only when target JSON is valid", async () => {

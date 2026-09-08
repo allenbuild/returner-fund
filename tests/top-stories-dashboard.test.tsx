@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { TopStoriesDashboard } from "@/components/dashboard/TopStoriesDashboard";
 import {
@@ -91,12 +91,76 @@ describe("TopStoriesDashboard", () => {
     expect(details.open).toBe(true);
     await waitFor(() => expect(fetchSources).toHaveBeenCalledWith(
       "/api/dashboard/stories/story-atlas/sources",
-      { headers: { Accept: "application/json" } }
+      expect.objectContaining({
+        headers: { Accept: "application/json" },
+        signal: expect.any(AbortSignal)
+      })
     ));
     expect(await within(details).findByRole("link", { name: /Atlas Runtime launch/i })).toHaveAttribute(
       "href",
       "https://example.com/atlas-launch"
     );
+  });
+
+  it("resets source details and aborts the stale story request when selection changes", async () => {
+    let resolveAtlas: ((value: { ok: true; json: () => Promise<unknown> }) => void) | undefined;
+    let atlasSignal: AbortSignal | undefined;
+    const atlasRequest = new Promise<{ ok: true; json: () => Promise<unknown> }>((resolve) => {
+      resolveAtlas = resolve;
+    });
+    const paperDetail = source("paper-detail", "research", "Current paper source", "https://arxiv.org/abs/9999.9999");
+    const fetchSources = vi.fn((input: RequestInfo | URL, init?: RequestInit) => {
+      const url = String(input);
+      if (url.endsWith("/story-atlas/sources")) {
+        atlasSignal = init?.signal ?? undefined;
+        return atlasRequest;
+      }
+      if (url.endsWith("/story-paper/sources")) {
+        return Promise.resolve({
+          ok: true as const,
+          json: async () => ({
+            stableKey: "story-paper",
+            sourceCount: 1,
+            truncated: false,
+            sources: [paperDetail]
+          })
+        });
+      }
+      return Promise.resolve({ ok: false as const, json: async () => null });
+    });
+    vi.stubGlobal("fetch", fetchSources);
+
+    render(<TopStoriesDashboard snapshot={snapshotFixture()} variant="network-map" />);
+
+    fireEvent.click(screen.getByText("View 2 underlying sources"));
+    await waitFor(() => expect(fetchSources).toHaveBeenCalledTimes(1));
+    expect(atlasSignal?.aborted).toBe(false);
+    expect(screen.getByText("Loading sources…")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Show Industry research paper rises" }));
+    expect(atlasSignal?.aborted).toBe(true);
+    expect(screen.queryByText("Loading sources…")).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByText("View 1 underlying source"));
+    expect(await screen.findByRole("link", { name: /Current paper source/i })).toHaveAttribute(
+      "href",
+      "https://arxiv.org/abs/9999.9999"
+    );
+
+    await act(async () => {
+      resolveAtlas?.({
+        ok: true,
+        json: async () => ({
+          stableKey: "story-atlas",
+          sourceCount: 1,
+          truncated: false,
+          sources: [source("stale-atlas", "x", "Stale Atlas source", "https://example.com/stale-atlas")]
+        })
+      });
+      await Promise.resolve();
+    });
+    expect(screen.queryByText("Stale Atlas source")).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /Current paper source/i })).toBeInTheDocument();
   });
 
   it("recovers a stale empty server render with one current public feed request", async () => {
@@ -239,6 +303,261 @@ describe("TopStoriesDashboard", () => {
     expect(screen.getByText("Atlas launches an agent runtime")).toBeInTheDocument();
   });
 
+  it("recovers an unavailable empty render with a retained nonempty publication", async () => {
+    const retainedSnapshot = currentSnapshotFixture();
+    retainedSnapshot.status.partialPlatformFailures = ["snapshot_stale"];
+    const fetchDashboard = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => retainedSnapshot
+    });
+    vi.stubGlobal("fetch", fetchDashboard);
+
+    render(<TopStoriesDashboard snapshot={unavailableSnapshotFixture()} />);
+
+    await waitFor(() => expect(fetchDashboard).toHaveBeenCalledTimes(1));
+    expect(await screen.findByText("Atlas launches an agent runtime")).toBeInTheDocument();
+    expect(screen.queryByText("Loading articles…")).not.toBeInTheDocument();
+  });
+
+  it("revalidates a visible open dashboard every five minutes and accepts equal or newer publications", async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-09-07T12:10:00.000Z"));
+    const initialSnapshot = titledSnapshot("2026-09-07T12:05:00.000Z", "Initial publication");
+    const equalSnapshot = titledSnapshot("2026-09-07T12:05:00.000Z", "Equal-clock publication");
+    const newerSnapshot = titledSnapshot("2026-09-07T12:15:00.000Z", "Newer publication");
+    const fetchDashboard = vi.fn()
+      .mockResolvedValueOnce({ ok: true, json: async () => equalSnapshot })
+      .mockResolvedValueOnce({ ok: true, json: async () => newerSnapshot });
+    vi.stubGlobal("fetch", fetchDashboard);
+
+    render(<TopStoriesDashboard snapshot={initialSnapshot} />);
+
+    expect(fetchDashboard).not.toHaveBeenCalled();
+    expect(screen.getByText("Initial publication")).toBeInTheDocument();
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(5 * 60 * 1_000);
+    });
+    expect(fetchDashboard).toHaveBeenCalledTimes(1);
+    expect(screen.getByText("Equal-clock publication")).toBeInTheDocument();
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(5 * 60 * 1_000);
+    });
+    expect(fetchDashboard).toHaveBeenCalledTimes(2);
+    expect(screen.getByText("Newer publication")).toBeInTheDocument();
+  });
+
+  it("replaces a stale nonempty feed with a newer canonical empty publication", async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-09-07T12:10:00.000Z"));
+    const emptyPublication = emptySnapshotAt("2026-09-07T12:10:00.000Z");
+    const fetchDashboard = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => emptyPublication
+    });
+    vi.stubGlobal("fetch", fetchDashboard);
+
+    render(<TopStoriesDashboard snapshot={titledSnapshot("2026-09-07T12:05:00.000Z", "Stale publication")} />);
+    expect(screen.getByText("Stale publication")).toBeInTheDocument();
+
+    window.dispatchEvent(new Event("focus"));
+    await act(async () => Promise.resolve());
+
+    expect(fetchDashboard).toHaveBeenCalledTimes(1);
+    expect(screen.queryByText("Stale publication")).not.toBeInTheDocument();
+    expect(screen.getByText("No items clear the strict 72-hour surfacing gates yet.")).toBeInTheDocument();
+    expect(screen.queryByText("Loading articles…")).not.toBeInTheDocument();
+  });
+
+  it("does not replace a last-good publication with a newer stale empty response", async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-09-07T12:10:00.000Z"));
+    const fetchDashboard = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => emptySnapshotAt("2026-09-07T12:10:00.000Z", "snapshot_stale")
+    });
+    vi.stubGlobal("fetch", fetchDashboard);
+
+    render(<TopStoriesDashboard snapshot={titledSnapshot("2026-09-07T12:05:00.000Z", "Last-good publication")} />);
+    window.dispatchEvent(new Event("focus"));
+    await act(async () => Promise.resolve());
+
+    expect(fetchDashboard).toHaveBeenCalledTimes(1);
+    expect(screen.getByText("Last-good publication")).toBeInTheDocument();
+    expect(screen.queryByText("No items clear the strict 72-hour surfacing gates yet.")).not.toBeInTheDocument();
+  });
+
+  it("promotes newer supplied publications and never rolls back through unavailable or older props", async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-09-07T12:20:00.000Z"));
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: false, json: async () => null }));
+    const publicationA = titledSnapshot("2026-09-07T12:05:00.000Z", "Publication A");
+    const publicationB = titledSnapshot("2026-09-07T12:10:00.000Z", "Publication B");
+    const unavailable = emptySnapshotAt("2026-09-07T12:15:00.000Z", "snapshot_unavailable");
+    const unavailableWithStories = titledSnapshot("2026-09-07T12:16:00.000Z", "Unavailable publication");
+    unavailableWithStories.status.partialPlatformFailures = ["snapshot_unavailable"];
+    const emptyPublication = emptySnapshotAt("2026-09-07T12:20:00.000Z");
+    const { rerender } = render(<TopStoriesDashboard snapshot={publicationA} />);
+
+    rerender(<TopStoriesDashboard snapshot={publicationB} />);
+    expect(screen.getByText("Publication B")).toBeInTheDocument();
+
+    rerender(<TopStoriesDashboard snapshot={unavailable} />);
+    await act(async () => Promise.resolve());
+    expect(screen.getByText("Publication B")).toBeInTheDocument();
+
+    rerender(<TopStoriesDashboard snapshot={unavailableWithStories} />);
+    expect(screen.getByText("Publication B")).toBeInTheDocument();
+    expect(screen.queryByText("Unavailable publication")).not.toBeInTheDocument();
+
+    rerender(<TopStoriesDashboard snapshot={publicationA} />);
+    expect(screen.getByText("Publication B")).toBeInTheDocument();
+    expect(screen.queryByText("Publication A")).not.toBeInTheDocument();
+
+    rerender(<TopStoriesDashboard snapshot={emptyPublication} />);
+    expect(screen.queryByText("Publication B")).not.toBeInTheDocument();
+    expect(screen.getByText("No items clear the strict 72-hour surfacing gates yet.")).toBeInTheDocument();
+
+    rerender(<TopStoriesDashboard snapshot={unavailable} />);
+    expect(screen.queryByText("Publication B")).not.toBeInTheDocument();
+    expect(screen.getByText("No items clear the strict 72-hour surfacing gates yet.")).toBeInTheDocument();
+  });
+
+  it("refreshes immediately on visible resume, skips hidden work, and deduplicates resume requests for 60 seconds", async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-09-07T12:10:00.000Z"));
+    const visibility = vi.spyOn(document, "visibilityState", "get");
+    visibility.mockReturnValue("hidden");
+    const refreshedSnapshot = titledSnapshot("2026-09-07T12:10:00.000Z", "Visible publication");
+    const fetchDashboard = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => refreshedSnapshot
+    });
+    vi.stubGlobal("fetch", fetchDashboard);
+
+    render(<TopStoriesDashboard snapshot={titledSnapshot("2026-09-07T12:05:00.000Z", "Initial publication")} />);
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(5 * 60 * 1_000);
+    });
+    window.dispatchEvent(new Event("focus"));
+    await act(async () => Promise.resolve());
+    expect(fetchDashboard).not.toHaveBeenCalled();
+
+    visibility.mockReturnValue("visible");
+    document.dispatchEvent(new Event("visibilitychange"));
+    await act(async () => Promise.resolve());
+    expect(fetchDashboard).toHaveBeenCalledTimes(1);
+    expect(screen.getByText("Visible publication")).toBeInTheDocument();
+
+    window.dispatchEvent(new Event("focus"));
+    await act(async () => Promise.resolve());
+    expect(fetchDashboard).toHaveBeenCalledTimes(1);
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(59_999);
+    });
+    window.dispatchEvent(new Event("focus"));
+    await act(async () => Promise.resolve());
+    expect(fetchDashboard).toHaveBeenCalledTimes(1);
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(1);
+    });
+    window.dispatchEvent(new Event("focus"));
+    await act(async () => Promise.resolve());
+    expect(fetchDashboard).toHaveBeenCalledTimes(2);
+  });
+
+  it("keeps the newest last-good publication and aborts an in-flight revalidation on cleanup", async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-09-07T12:10:00.000Z"));
+    const initialSnapshot = titledSnapshot("2026-09-07T12:05:00.000Z", "Initial publication");
+    const newerSnapshot = titledSnapshot("2026-09-07T12:10:00.000Z", "Newest publication");
+    const olderSnapshot = titledSnapshot("2026-09-07T12:04:00.000Z", "Older publication");
+    const malformedSnapshot = titledSnapshot("2026-09-07T12:11:00.000Z", "Malformed publication");
+    malformedSnapshot.sourceSnapshotFingerprint = "";
+    let pendingSignal: AbortSignal | undefined;
+    const fetchDashboard = vi.fn()
+      .mockResolvedValueOnce({ ok: true, json: async () => newerSnapshot })
+      .mockResolvedValueOnce({ ok: true, json: async () => olderSnapshot })
+      .mockResolvedValueOnce({ ok: true, json: async () => malformedSnapshot })
+      .mockImplementationOnce((_input: RequestInfo | URL, init?: RequestInit) => {
+        pendingSignal = init?.signal ?? undefined;
+        return new Promise(() => undefined);
+      });
+    vi.stubGlobal("fetch", fetchDashboard);
+
+    const { unmount } = render(<TopStoriesDashboard snapshot={initialSnapshot} />);
+
+    window.dispatchEvent(new Event("focus"));
+    await act(async () => Promise.resolve());
+    expect(screen.getByText("Newest publication")).toBeInTheDocument();
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(60_000);
+    });
+    window.dispatchEvent(new Event("focus"));
+    await act(async () => Promise.resolve());
+    expect(fetchDashboard).toHaveBeenCalledTimes(2);
+    expect(screen.getByText("Newest publication")).toBeInTheDocument();
+    expect(screen.queryByText("Older publication")).not.toBeInTheDocument();
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(60_000);
+    });
+    window.dispatchEvent(new Event("focus"));
+    await act(async () => Promise.resolve());
+    expect(fetchDashboard).toHaveBeenCalledTimes(3);
+    expect(screen.getByText("Newest publication")).toBeInTheDocument();
+    expect(screen.queryByText("Malformed publication")).not.toBeInTheDocument();
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(60_000);
+    });
+    window.dispatchEvent(new Event("focus"));
+    expect(fetchDashboard).toHaveBeenCalledTimes(4);
+    expect(pendingSignal?.aborted).toBe(false);
+
+    window.dispatchEvent(new Event("focus"));
+    expect(fetchDashboard).toHaveBeenCalledTimes(4);
+
+    unmount();
+    expect(pendingSignal?.aborted).toBe(true);
+  });
+
+  it("times out a hung revalidation and permits a later retry", async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-09-07T12:10:00.000Z"));
+    let hungSignal: AbortSignal | undefined;
+    const recoveredSnapshot = titledSnapshot("2026-09-07T12:11:00.000Z", "Recovered publication");
+    const fetchDashboard = vi.fn()
+      .mockImplementationOnce((_input: RequestInfo | URL, init?: RequestInit) => {
+        hungSignal = init?.signal ?? undefined;
+        return new Promise(() => undefined);
+      })
+      .mockResolvedValueOnce({ ok: true, json: async () => recoveredSnapshot });
+    vi.stubGlobal("fetch", fetchDashboard);
+
+    render(<TopStoriesDashboard snapshot={titledSnapshot("2026-09-07T12:05:00.000Z", "Initial publication")} />);
+
+    window.dispatchEvent(new Event("focus"));
+    expect(fetchDashboard).toHaveBeenCalledTimes(1);
+    expect(hungSignal?.aborted).toBe(false);
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(20_000);
+    });
+    expect(hungSignal?.aborted).toBe(true);
+
+    window.dispatchEvent(new Event("focus"));
+    await act(async () => Promise.resolve());
+
+    expect(fetchDashboard).toHaveBeenCalledTimes(2);
+    expect(screen.getByText("Recovered publication")).toBeInTheDocument();
+  });
+
   it("uses canonical hottest ranks as the sole Top 100 ordering", () => {
     render(<TopStoriesDashboard snapshot={snapshotFixture()} />);
 
@@ -354,6 +673,30 @@ function currentSnapshotFixture(now = new Date()): DashboardPublicFeedSnapshot {
   snapshot.updatedAt = windowEnd;
   snapshot.windowEnd = windowEnd;
   snapshot.windowStart = new Date(now.getTime() - 72 * 60 * 60 * 1_000).toISOString();
+  return snapshot;
+}
+
+function titledSnapshot(windowEnd: string, title: string): DashboardPublicFeedSnapshot {
+  const snapshot = currentSnapshotFixture(new Date(windowEnd));
+  snapshot.sourceSnapshotFingerprint = `dsh-${title.toLowerCase().replaceAll(/[^a-z0-9]+/g, "-")}`;
+  snapshot.stories[0]!.title = title;
+  return snapshot;
+}
+
+function emptySnapshotAt(
+  windowEnd: string,
+  failure?: "snapshot_stale" | "snapshot_unavailable"
+): DashboardPublicFeedSnapshot {
+  const snapshot = currentSnapshotFixture(new Date(windowEnd));
+  snapshot.sourceSnapshotFingerprint = `dsh-empty-${windowEnd}`;
+  snapshot.stories = [];
+  snapshot.status = {
+    candidateCount: 0,
+    eligibleCandidateCount: 0,
+    storyCount: 0,
+    viewStoryCounts: { hottest: 0, breaking: 0, emerging: 0 },
+    partialPlatformFailures: failure ? [failure] : []
+  };
   return snapshot;
 }
 
