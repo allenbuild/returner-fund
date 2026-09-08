@@ -320,6 +320,130 @@ describe("technology dashboard pipeline", () => {
     }
   });
 
+  it("recognizes an escalator mechanical-safety investigation without admitting generic sports or lifestyle posts", () => {
+    const observedAt = new Date("2026-09-08T00:47:33.922Z");
+    const verifiedMechanicalInvestigation = dashboardCandidate({
+      id: "youtube:oR94cicO7xM",
+      canonicalKey: "youtube:video:oR94cicO7xM",
+      platform: "youtube",
+      sourceKind: "video",
+      url: "https://www.youtube.com/watch?v=oR94cicO7xM",
+      title: "The Most Dangerous Escalator In Europe",
+      summary: "Football fans boarded an escalator before the machine sprung a fault.",
+      text: "The Most Dangerous Escalator In Europe. In 2018 football fans were leaving a stadium in Rome. They boarded an escalator down to the metro. Suddenly the machine sprung a fault. Multiple safety systems were triggered.",
+      authorName: "Veritasium",
+      publishedAt: "2026-09-06T13:00:26.000Z",
+      topics: [],
+      metrics: { views: 2_472_415, likes: null }
+    });
+
+    expect(dashboardTop100Eligibility(verifiedMechanicalInvestigation, observedAt)).toMatchObject({
+      eligible: true,
+      reason: "eligible"
+    });
+
+    const hardGateVariants = [
+      [
+        dashboardCandidate({
+          ...verifiedMechanicalInvestigation,
+          id: "escalator-below-reach",
+          canonicalKey: "youtube:video:escalator-below-reach",
+          url: "https://www.youtube.com/watch?v=belowreach1",
+          metrics: { views: DASHBOARD_MIN_SOCIAL_VIEWS - 1, likes: null }
+        }),
+        "below_one_million_views"
+      ],
+      [
+        dashboardCandidate({
+          ...verifiedMechanicalInvestigation,
+          id: "escalator-stale",
+          canonicalKey: "youtube:video:escalator-stale",
+          url: "https://www.youtube.com/watch?v=escalator01",
+          publishedAt: "2026-09-04T00:47:33.921Z"
+        }),
+        "outside_72_hour_window"
+      ],
+      [
+        dashboardCandidate({
+          ...verifiedMechanicalInvestigation,
+          id: "escalator-unverified",
+          canonicalKey: "youtube:video:escalator-unverified",
+          url: "https://www.youtube.com/watch?v=unverified1",
+          sourceVerified: false
+        }),
+        "unverified_source"
+      ],
+      [
+        dashboardCandidate({
+          ...verifiedMechanicalInvestigation,
+          id: "escalator-unchecked-link",
+          canonicalKey: "youtube:video:escalator-unchecked-link",
+          url: "https://www.youtube.com/watch?v=unchecked01",
+          sourceLinkStatus: "unchecked"
+        }),
+        "invalid_link"
+      ],
+      [
+        dashboardCandidate({
+          ...verifiedMechanicalInvestigation,
+          id: "escalator-imprecise",
+          canonicalKey: "youtube:video:escalator-imprecise",
+          url: "https://www.youtube.com/watch?v=imprecise01",
+          publicationPrecision: "unknown"
+        }),
+        "missing_precise_publication_date"
+      ]
+    ] as const;
+    for (const [candidate, reason] of hardGateVariants) {
+      expect(dashboardTop100Eligibility(candidate, observedAt)).toMatchObject({
+        eligible: false,
+        reason
+      });
+    }
+
+    for (const [id, title, text] of [
+      [
+        "football-escalator",
+        "Football fans ride the escalator to the stadium",
+        "A match-day crowd takes the escalator before the football game."
+      ],
+      [
+        "lifestyle-escalator",
+        "My escalator outfit of the day",
+        "A fashion and lifestyle video filmed at the mall."
+      ],
+      [
+        "sports-machine-escalator",
+        "Football machine challenge on an escalator",
+        "A sports challenge with fans at the stadium."
+      ],
+      [
+        "fashion-machine-failure-escalator",
+        "Football fans filmed a fashion challenge on an escalator",
+        "The machine challenge ended in failure and everyone laughed."
+      ]
+    ] as const) {
+      const genericNonTechnologyPost = dashboardCandidate({
+        id: `youtube:${id}`,
+        canonicalKey: `youtube:video:${id}`,
+        platform: "youtube",
+        sourceKind: "video",
+        url: `https://www.youtube.com/watch?v=${id}`,
+        title,
+        summary: text,
+        text,
+        publishedAt: "2026-09-06T13:00:26.000Z",
+        topics: [],
+        metrics: { views: 2_472_415, likes: null }
+      });
+
+      expect(dashboardTop100Eligibility(genericNonTechnologyPost, observedAt)).toMatchObject({
+        eligible: false,
+        reason: "unverified_source"
+      });
+    }
+  });
+
   it("counts every terminal eligibility reason after physical-source deduplication", () => {
     const eligible = dashboardCandidate({ id: "eligible" });
     const result = buildDashboardSnapshot([

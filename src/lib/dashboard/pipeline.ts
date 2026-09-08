@@ -157,6 +157,10 @@ const HIGH_CONFIDENCE_SOCIAL_TOPICS = new Set<DashboardTopic>([
 // company post still needs a concrete technology cue unless its normalized
 // topic is already a high-confidence product, research, funding, or launch.
 const TECHNOLOGY_SOCIAL_SIGNAL = /\b(?:ai|artificial intelligence|machine learning|llm|model|agent|software|api|database|developer|code|coding|open[ -]?source|cloud|computer|robot(?:ics)?|automation|compute|inference|gpu|chip|hardware|laptops?|voice|speech|screen|browser|security|biotech|healthtech|medical|healthcare|infrastructure|infra|saas|fintech|payments?|operating system|engineering|terminal|vision|simulat(?:ion|e)|autonom(?:ous|y)|drone|energy|nuclear|manufactur(?:ing)?|scientific|research|benchmark|dictation|language model|machine vision|digital twin|mri|concept phone|smartphone|redmi\s*note\d*\s*series|google\s+pixel\s+\d{1,2}(?:\s*\/\s*pro)?|mac mini|mac studio|macbook)\b/i;
+// A sports word can be incidental to an engineering incident. Keep the
+// generic non-technology veto intact, but recognize only the narrow sequence
+// of an escalator machine fault followed by triggered safety systems.
+const ESCALATOR_MECHANICAL_SAFETY_SIGNAL = /\bescalator\b[\s\S]{0,360}\bmachine\b[\s\S]{0,80}\b(?:sprung\s+a\s+)?fault\b[\s\S]{0,160}\b(?:multiple\s+)?safety systems?\s+(?:were\s+)?triggered\b/i;
 const NON_TECH_SOCIAL_SIGNAL = /\b(?:novelas?|telenovelas?|romance|amor|mafia|futbol(?:ista)?|football|super bowl|nfl|nba|mlb|nhl|soccer|golf|pickleball|world cup|sports?(?: betting)?|fantasy(?: football)?|episode|episodio|trailer|celebrity|gossip|fashion|outfit|birthday|wedding|altar|plants?|dogs?|pets?)\b/i;
 
 export interface DashboardTop100Eligibility {
@@ -868,8 +872,10 @@ function hasTechnologySocialContent(
     candidate.summary ?? "",
     "text" in candidate ? candidate.text ?? "" : ""
   ].join(" ");
-  return !NON_TECH_SOCIAL_SIGNAL.test(content) &&
-    (hasHighConfidenceSocialTopic(topics) || TECHNOLOGY_SOCIAL_SIGNAL.test(content));
+  return ESCALATOR_MECHANICAL_SAFETY_SIGNAL.test(content) || (
+    !NON_TECH_SOCIAL_SIGNAL.test(content) &&
+    (hasHighConfidenceSocialTopic(topics) || TECHNOLOGY_SOCIAL_SIGNAL.test(content))
+  );
 }
 
 function scoreForView(story: UnrankedDashboardStory, view: DashboardView): number {
