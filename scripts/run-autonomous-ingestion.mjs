@@ -4562,13 +4562,30 @@ async function runPublicCollectorWithCheckpointRecovery({
       cwd: root
     });
   } catch (error) {
-    if (!/timed out after/i.test(errorMessage(error))) throw error;
+    const collectionBudgetExhaustedBeforeSpawn = [error?.code, error?.cause?.code]
+      .includes("AUTONOMOUS_COLLECTION_BUDGET_EXCEEDED");
+    if (
+      !collectionBudgetExhaustedBeforeSpawn &&
+      !/timed out after/i.test(errorMessage(error))
+    ) {
+      throw error;
+    }
     await event(
       "collector.timeout_checkpoint_flush",
       "warning",
-      `public ${batchSlug} shard ${shardIndex + 1}/${shardCount} reached its process limit; flushing its durable checkpoint before coverage evaluation.`,
-      { batchSlug, shardIndex, shardCount, outputPath, checkpointPath }
-    );
+      `public ${batchSlug} shard ${shardIndex + 1}/${shardCount} reached its process or queued collection limit; flushing its durable checkpoint before coverage evaluation.`,
+      {
+        batchSlug,
+        shardIndex,
+        shardCount,
+        outputPath,
+        checkpointPath,
+        collectionBudgetExhaustedBeforeSpawn
+      }
+    ).catch((eventError) => warnOptionalRetryTelemetry(
+      `public ${batchSlug} shard ${shardIndex + 1}/${shardCount} checkpoint flush`,
+      eventError
+    ));
     return runCommand(process.execPath, [...args, "--max-companies=0"], {
       timeoutMs: boundedCollectionDrainTimeoutMs(
         AUTONOMOUS_PROCESS_BUDGETS.collectorCheckpointFlushMs,
@@ -9929,6 +9946,54 @@ async function runLifecycleContractFixture(fixture) {
       elapsedMs: Date.now() - startedAt,
       failureMessage
     });
+  }
+
+  if (fixture === "public-queued-budget-checkpoint-flush") {
+    const markerPath = cleanEnv(process.env.LIFECYCLE_FIXTURE_MARKER);
+    if (!markerPath) throw new Error("Queued public checkpoint fixture requires a marker path.");
+    const previousCollectionBudget = collectionBudget;
+    const previousCollectionDrainBudget = collectionDrainBudget;
+    try {
+      const now = Date.now();
+      collectionBudget = createAutonomousCollectionBudget({
+        phaseMs: 1,
+        startedAt: now - 100
+      });
+      collectionDrainBudget = createAutonomousCollectionDrainBudget({
+        collectionDeadlineAt: collectionBudget.deadlineAt,
+        drainHeadroomMs: 5_000,
+        runnerDeadlineAt: runnerBudget.deadlineAt
+      });
+      const childScript = [
+        'const { appendFileSync } = require("node:fs");',
+        `appendFileSync(${JSON.stringify(markerPath)}, ` +
+          '(process.argv.includes("--max-companies=0") ? "flush\\n" : "fresh\\n"));'
+      ].join("\n");
+      await runPublicCollectorWithCheckpointRecovery({
+        batchSlug: "FIXTURE",
+        shardIndex: 0,
+        shardCount: 1,
+        outputPath: `${markerPath}.snapshot.json`,
+        checkpointPath: `${markerPath}.checkpoint.json`,
+        args: ["-e", childScript, "--"]
+      });
+      const launches = (await readFile(markerPath, "utf8"))
+        .trim()
+        .split("\n")
+        .filter(Boolean);
+      if (launches.length !== 1 || launches[0] !== "flush") {
+        throw new Error(`Queued public checkpoint fixture launched unexpected commands: ${launches.join(",")}.`);
+      }
+      return emit({
+        fixture,
+        launches,
+        freshSpawned: launches.includes("fresh"),
+        flushSpawned: launches.includes("flush")
+      });
+    } finally {
+      collectionBudget = previousCollectionBudget;
+      collectionDrainBudget = previousCollectionDrainBudget;
+    }
   }
 
   if (fixture === "remote-verification-budget") {

@@ -3503,6 +3503,9 @@ describe("autonomous ingestion runner static safety contracts", () => {
     const collectorRunner = section("async function runPublicCollectorWithCheckpointRecovery", "async function runTopVoiceCollector");
 
     assert.ok(collectorRunner.includes("collector.timeout_checkpoint_flush"));
+    assert.ok(collectorRunner.includes("AUTONOMOUS_COLLECTION_BUDGET_EXCEEDED"));
+    assert.ok(collectorRunner.includes("collectionBudgetExhaustedBeforeSpawn"));
+    assert.ok(collectorRunner.includes("warnOptionalRetryTelemetry("));
     assert.ok(collectorRunner.includes('"--max-companies=0"'));
     assert.ok(collectorRunner.includes("AUTONOMOUS_PROCESS_BUDGETS.collectorCheckpointFlushMs"));
     assert.ok(collectorRunner.includes("boundedCollectionDrainTimeoutMs("));
@@ -3518,6 +3521,23 @@ describe("autonomous ingestion runner static safety contracts", () => {
     ));
     assert.ok(runner.includes("runnerDeadlineAt: runnerBudget.deadlineAt"));
     assert.match(runner, /`--x-workers=\$\{PUBLIC_SOCIAL_LANE_CONCURRENCY\}`/);
+  });
+
+  it("flushes a queued public checkpoint when the collection budget expires before spawn", async () => {
+    const fixtureRoot = await mkdtemp(path.join(os.tmpdir(), "returner-public-checkpoint-flush-"));
+    temporaryRoots.push(fixtureRoot);
+    const markerPath = path.join(fixtureRoot, "launches.txt");
+    const result = lifecycleFixturePayload(runLifecycleFixture(
+      "public-queued-budget-checkpoint-flush",
+      { LIFECYCLE_FIXTURE_MARKER: markerPath },
+      repositoryRoot,
+      2_000
+    ));
+
+    assert.deepEqual(result.launches, ["flush"]);
+    assert.equal(result.freshSpawned, false);
+    assert.equal(result.flushSpawned, true);
+    assert.equal(await readFile(markerPath, "utf8"), "flush\n");
   });
 
   it("shards large public cohorts and merges shard checkpoints before coverage", () => {
