@@ -5,8 +5,8 @@
     "slug": "deepreach-inc",
     "name": "DeepReach Inc."
   },
-  "generatedAt": "2026-09-08T10:22:13.241Z",
-  "lastModifiedAt": "2026-09-08T10:22:13.241Z",
+  "generatedAt": "2026-09-09T11:33:53.652Z",
+  "lastModifiedAt": "2026-09-09T11:33:53.652Z",
   "events": [
     {
       "id": "tle-473698795b0f014ae6f21437",
@@ -47,7 +47,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-09-08T10:22:13.241Z"
+    "lastSuccessfulArtifactAt": "2026-09-09T11:33:53.652Z"
   },
   "nextCursor": null
 }

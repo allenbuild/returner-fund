@@ -5,8 +5,8 @@
     "slug": "screenpipe",
     "name": "screenpipe"
   },
-  "generatedAt": "2026-09-08T10:22:13.241Z",
-  "lastModifiedAt": "2026-09-08T10:22:13.241Z",
+  "generatedAt": "2026-09-09T11:33:53.652Z",
+  "lastModifiedAt": "2026-09-09T11:33:53.652Z",
   "events": [
     {
       "id": "tle-a23ec3bf308f64ad46e21ec8",
@@ -271,7 +271,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 9,
-    "lastSuccessfulArtifactAt": "2026-09-08T10:22:13.241Z"
+    "lastSuccessfulArtifactAt": "2026-09-09T11:33:53.652Z"
   },
   "nextCursor": null
 }

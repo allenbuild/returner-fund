@@ -5,8 +5,8 @@
     "slug": "jcode",
     "name": "Jcode"
   },
-  "generatedAt": "2026-09-08T10:22:13.241Z",
-  "lastModifiedAt": "2026-09-08T10:22:13.241Z",
+  "generatedAt": "2026-09-09T11:33:53.652Z",
+  "lastModifiedAt": "2026-09-09T11:33:53.652Z",
   "events": [
     {
       "id": "tle-7c613701ec03c131906a6ec5",
@@ -75,7 +75,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 2,
-    "lastSuccessfulArtifactAt": "2026-09-08T10:22:13.241Z"
+    "lastSuccessfulArtifactAt": "2026-09-09T11:33:53.652Z"
   },
   "nextCursor": null
 }
