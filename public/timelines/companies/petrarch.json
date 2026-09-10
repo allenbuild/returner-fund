@@ -5,8 +5,8 @@
     "slug": "petrarch",
     "name": "Petrarch"
   },
-  "generatedAt": "2026-09-09T11:33:53.652Z",
-  "lastModifiedAt": "2026-09-09T11:33:53.652Z",
+  "generatedAt": "2026-09-10T10:21:22.013Z",
+  "lastModifiedAt": "2026-09-10T10:21:22.013Z",
   "events": [
     {
       "id": "tle-2f57a4b3be235276178a00c7",
@@ -47,7 +47,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-09-09T11:33:53.652Z"
+    "lastSuccessfulArtifactAt": "2026-09-10T10:21:22.013Z"
   },
   "nextCursor": null
 }
