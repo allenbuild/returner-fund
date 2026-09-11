@@ -5,8 +5,8 @@
     "slug": "rudus",
     "name": "Rudus"
   },
-  "generatedAt": "2026-09-10T10:21:22.013Z",
-  "lastModifiedAt": "2026-09-10T10:21:22.013Z",
+  "generatedAt": "2026-09-11T11:28:11.823Z",
+  "lastModifiedAt": "2026-09-11T11:28:11.823Z",
   "events": [
     {
       "id": "tle-b866c7050cdf152cc0eed5d4",
@@ -47,7 +47,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-09-10T10:21:22.013Z"
+    "lastSuccessfulArtifactAt": "2026-09-11T11:28:11.823Z"
   },
   "nextCursor": null
 }

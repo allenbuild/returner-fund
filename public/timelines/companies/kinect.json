@@ -5,8 +5,8 @@
     "slug": "kinect",
     "name": "Kinect"
   },
-  "generatedAt": "2026-09-10T10:21:22.013Z",
-  "lastModifiedAt": "2026-09-10T10:21:22.013Z",
+  "generatedAt": "2026-09-11T11:28:11.823Z",
+  "lastModifiedAt": "2026-09-11T11:28:11.823Z",
   "events": [
     {
       "id": "tle-8c1a9e8f19b12926416eae0c",
@@ -47,7 +47,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-09-10T10:21:22.013Z"
+    "lastSuccessfulArtifactAt": "2026-09-11T11:28:11.823Z"
   },
   "nextCursor": null
 }
