@@ -261,6 +261,30 @@ test("an exact direct X 429 remains a typed blocker when its HTTP 200 fallback i
   assert.deepEqual(autonomousCollectorRetryableFailures(snapshot), []);
 });
 
+test("exact direct X cooldowns terminalize a failed public-reader fallback", async (context) => {
+  for (const status of [403, 429]) {
+    const snapshot = await runMockedCodagCollector(context, {
+      xHtml: "rate limited",
+      xStatus: status,
+      xFallbackError: "fetch failed: socket closed"
+    });
+    const attempt = snapshot.attempts[
+      "x:founder:founder-codag-michael-zhou-2706494:https://x.com/michaelzixizhou"
+    ];
+    const readerFailure = snapshot.failures.find(
+      (row) => /X public-reader fallback failed: fetch failed: socket closed/.test(row.message ?? "")
+    );
+
+    assert.ok(readerFailure);
+    assert.equal(readerFailure.retryable, false);
+    assert.equal(readerFailure.blocker, undefined);
+    assert.equal(attempt.blocker.code, "x_public_access_blocked");
+    assert.equal(attempt.blocker.httpStatus, status);
+    assert.equal(attempt.retryable, false);
+    assert.deepEqual(autonomousCollectorRetryableFailures(snapshot), []);
+  }
+});
+
 test("verified exact-owner native evidence recovered after a direct X 429 wins over the cooldown", async (context) => {
   const postUrl = "https://x.com/michaelzixizhou/status/2083304728046518692";
   const snapshot = await runMockedCodagCollector(context, {

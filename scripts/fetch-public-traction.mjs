@@ -3809,7 +3809,11 @@ async function ingestSocialProfile(company, entity, entityType, platform, url) {
             entityType,
             entityName(entity, entityType),
             entityIdFor(company, entity, entityType)
-          )
+          ),
+          // A trusted direct 403/429 receipt already makes this account
+          // terminal for the bounded run. Preserve the fallback diagnostic
+          // without letting its transport-shaped text reopen the task.
+          ...(providerBlocker ? { retryable: false } : {})
         }
       ],
       coverageReceipt: directXCoverageReceipt,
