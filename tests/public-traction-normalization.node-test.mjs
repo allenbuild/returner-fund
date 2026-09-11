@@ -26,9 +26,11 @@ import { canonicalSocialAccountUrl } from "../scripts/lib/social-account-url.mjs
 
 const root = process.cwd();
 
-test("public output redaction preserves collector provenance containing task while removing real sk tokens", () => {
+test("public output redaction preserves collector provenance while covering hosted-artifact credential shapes", () => {
   const campaignKey = "manual-replay-20260820T173210Z-full-public-ingestion-task-pagination-fix";
   const secret = `sk-${"a".repeat(24)}`;
+  const jwt = `eyJ${"a".repeat(12)}.${"b".repeat(12)}.${"c".repeat(12)}`;
+  const nestedBearer = `Bearer <${"f".repeat(24)}>`;
   const serialized = redactTokenLikeStrings(JSON.stringify({
     source: {
       autonomousAttempt: {
@@ -36,14 +38,28 @@ test("public output redaction preserves collector provenance containing task whi
         idempotencyKey: campaignKey
       }
     },
-    diagnostic: `credential=${secret}`
+    diagnostic: `credential=${secret}`,
+    bearerExample: "Bearer <YOUR_ACCESS_TOKEN>",
+    authorizationHeader: `Authorization: Basic ${"d".repeat(24)}`,
+    proxyAuthorizationHeader: `Proxy-Authorization=Custom-Scheme ${"e".repeat(24)}`,
+    rawVisibleText: JSON.stringify({ authorization: nestedBearer }),
+    jwt
   }));
   const parsed = JSON.parse(serialized);
 
   assert.equal(parsed.source.autonomousAttempt.campaignKey, campaignKey);
   assert.equal(parsed.source.autonomousAttempt.idempotencyKey, campaignKey);
   assert.equal(parsed.diagnostic, "credential=[redacted-public-token]");
+  assert.equal(parsed.bearerExample, "Bearer [redacted-public-token]");
+  assert.equal(parsed.authorizationHeader, "Authorization: [redacted-public-token]");
+  assert.equal(parsed.proxyAuthorizationHeader, "Proxy-Authorization=[redacted-public-token]");
+  assert.deepEqual(JSON.parse(parsed.rawVisibleText), {
+    authorization: "Bearer [redacted-public-token]"
+  });
+  assert.equal(parsed.jwt, "[redacted-public-token]");
   assert.doesNotMatch(serialized, new RegExp(secret));
+  assert.doesNotMatch(serialized, new RegExp(jwt.replace(/[.]/g, "\\.")));
+  assert.doesNotMatch(serialized, new RegExp(nestedBearer.replace(/[<>]/g, "\\$&")));
 });
 
 function withMockPublicDns(source) {

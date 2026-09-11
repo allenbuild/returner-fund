@@ -26,6 +26,7 @@ import {
   promoteHostedCollectorStateArtifact,
   stageHostedCollectorStateArtifact
 } from "../scripts/lib/hosted-collector-state-artifact.mjs";
+import { redactTokenLikeStrings } from "../scripts/lib/public-token-redaction.mjs";
 
 const SLOT = "central-2026-09-07-1800";
 const SHA = "a".repeat(40);
@@ -112,6 +113,37 @@ test("validated public state stages with a content manifest and atomically promo
     "utf8"
   ));
   assert.equal(restored.attempts.complete.status, "completed");
+});
+
+test("redacted nested authorization diagnostics remain valid and artifact-safe", async (t) => {
+  const fixture = await stateFixture(t, { empty: true });
+  const nested = JSON.stringify({
+    authorization: `Bearer <${"a".repeat(24)}>`,
+    proxyAuthorization: `Proxy-Authorization: Custom-Scheme ${"b".repeat(24)}`
+  });
+  const checkpointText = redactTokenLikeStrings(JSON.stringify({ rawVisibleText: nested }));
+  const checkpoint = JSON.parse(checkpointText);
+  assert.deepEqual(JSON.parse(checkpoint.rawVisibleText), {
+    authorization: "Bearer [redacted-public-token]",
+    proxyAuthorization: "Proxy-Authorization: [redacted-public-token]"
+  });
+  await writeFile(
+    path.join(fixture.slotRoot, "checkpoint-public-s26-shard-0-of-1.json"),
+    `${checkpointText}\n`
+  );
+
+  const bundleRoot = path.join(
+    fixture.managedRoot,
+    "returner-fund-hosted-collector-artifact",
+    "redacted-nested-authorization"
+  );
+  const staged = await stageHostedCollectorStateArtifact({
+    ...provenance(),
+    managedRoot: fixture.managedRoot,
+    stateRoot: fixture.stateRoot,
+    bundleRoot
+  });
+  assert.equal(staged.fileCount, 1);
 });
 
 test("the maximum supported file count produces a bounded manifest that promotes", async (t) => {

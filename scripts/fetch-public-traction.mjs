@@ -829,7 +829,9 @@ async function runLane(lane, tasks, limit) {
           const message = `Platform cooldown active until ${new Date(cooldown.until).toISOString()}: ${cooldown.reason}`;
           const providerBlocker = lane === "x"
             ? xPublicBlockerFromCooldown(cooldown, message)
-            : null;
+            : lane === "instagram"
+              ? instagramPublicBlockerFromCooldown(cooldown, message)
+              : null;
           const identity = task.terminalIdentity;
           failures.push(identity
             ? {
@@ -1456,7 +1458,9 @@ async function attemptSocialProfile(company, entity, entityType, platform, accou
     const officialSourceBlocked = error instanceof OfficialPublicSourceUnavailableError;
     const providerBlocker = officialSourceBlocked
       ? officialPublicSourceBlockerFromError(error)
-      : linkedinPublicBlockerFromError(error);
+      : platform === "instagram"
+        ? instagramPublicBlockerFromError(error)
+        : linkedinPublicBlockerFromError(error);
     const retryable = providerBlocker
       ? !providerBlocker.retryAt
       : error?.platformCooldownUntil
@@ -1500,7 +1504,7 @@ async function attemptSocialProfile(company, entity, entityType, platform, accou
       retryable,
       outcomeStatus: providerBlocker || expectedAccessOrEmptyMessage(message) ? "blocked_or_empty" : "failed",
       outcomeReason: providerBlocker
-        ? officialSourceBlocked
+        ? officialSourceBlocked || platform === "instagram"
           ? "collector_provider_blocked"
           : "collector_checked_blocked_or_empty"
         : expectedAccessOrEmptyMessage(message)
@@ -4422,26 +4426,39 @@ async function ingestInstagramPublicProfile(company, entity, entityType, account
     ? profileFailureMessage
     : null;
   if (nativeFeedFailure) {
-    collectionFailures.push(failure(
-      "instagram",
-      company,
-      accountUrl,
-      `Instagram native-feed enrichment failed; verified profile rows were preserved: ${errorMessage(nativeFeedFailure)}`,
-      entityType,
-      entityName(entity, entityType),
-      entityIdFor(company, entity, entityType)
-    ));
+    const message =
+      `Instagram native-feed enrichment failed; verified profile rows were preserved: ${errorMessage(nativeFeedFailure)}`;
+    const providerBlocker = instagramPublicBlockerFromError(nativeFeedFailure, message);
+    collectionFailures.push({
+      ...failure(
+        "instagram",
+        company,
+        accountUrl,
+        message,
+        entityType,
+        entityName(entity, entityType),
+        entityIdFor(company, entity, entityType)
+      ),
+      ...(providerBlocker ? { retryable: false, blocker: providerBlocker } : {})
+    });
   }
   if (nativeFeedReceipt?.paginationFailureMessage) {
-    collectionFailures.push(failure(
-      "instagram",
-      company,
-      accountUrl,
-      `Instagram native-feed pagination was interrupted after verified rows; partial rows were preserved: ${nativeFeedReceipt.paginationFailureMessage}`,
-      entityType,
-      entityName(entity, entityType),
-      entityIdFor(company, entity, entityType)
-    ));
+    const message =
+      `Instagram native-feed pagination was interrupted after verified rows; partial rows were preserved: ${nativeFeedReceipt.paginationFailureMessage}`;
+    collectionFailures.push({
+      ...failure(
+        "instagram",
+        company,
+        accountUrl,
+        message,
+        entityType,
+        entityName(entity, entityType),
+        entityIdFor(company, entity, entityType)
+      ),
+      ...(nativeFeedReceipt.paginationProviderBlocker
+        ? { retryable: false, blocker: nativeFeedReceipt.paginationProviderBlocker }
+        : {})
+    });
   }
 
   const entityId = entityIdFor(company, entity, entityType);
@@ -4616,12 +4633,13 @@ async function fetchInstagramNativeFeedMetricReceipt(accountUrl) {
   const seenCursors = new Set();
   const seenShortcodes = new Set();
   let maxId = null;
-  const partialReceipt = (reason, message) => ({
+  const partialReceipt = (reason, message, providerBlocker = null) => ({
     ...mergeInstagramNativeFeedPages(pages, {
       maxItems: instagramNativeFeedMaxItems,
       interruptionReason: reason
     }),
-    paginationFailureMessage: message
+    paginationFailureMessage: message,
+    ...(providerBlocker ? { paginationProviderBlocker: providerBlocker } : {})
   });
 
   for (let pageIndex = 0; pageIndex < instagramNativeFeedMaxPages; pageIndex += 1) {
@@ -4656,9 +4674,11 @@ async function fetchInstagramNativeFeedMetricReceipt(accountUrl) {
         error.platformCooldownReason = `instagram_native_feed_http_${response.status}`;
         if (pages.length > 0) {
           recordPlatformCooldownIfNeeded("instagram", error);
+          const message = `page ${pageIndex + 1} returned HTTP ${response.status}`;
           return partialReceipt(
             `http_${response.status}`,
-            `page ${pageIndex + 1} returned HTTP ${response.status}`
+            message,
+            instagramPublicBlockerFromError(error, message)
           );
         }
         throw error;
@@ -4684,9 +4704,12 @@ async function fetchInstagramNativeFeedMetricReceipt(accountUrl) {
         error.platformCooldownReason = receipt.reason;
         if (pages.length > 0) {
           recordPlatformCooldownIfNeeded("instagram", error);
+          const message =
+            `page ${pageIndex + 1} failed verification: ${receipt.reason}`;
           return partialReceipt(
             receipt.reason,
-            `page ${pageIndex + 1} failed verification: ${receipt.reason}`
+            message,
+            instagramPublicBlockerFromError(error, message)
           );
         }
         throw error;
@@ -6405,6 +6428,45 @@ function xPublicBlockerFromCooldown(cooldown, message) {
     httpStatus: Number(statusMatch[1]),
     message: String(message ?? "").trim()
   });
+}
+
+function instagramPublicBlockerFromCooldown(cooldown, message) {
+  const reason = String(cooldown?.reason ?? "");
+  const statusMatch = /^instagram_(?:web_profile_info|native_feed)_http_(401|403|429)$/.exec(
+    reason
+  );
+  const receiptReasonMatch = /^instagram_(?:public_profile|native_feed)_(auth_required|challenge|rate_limited)$/.exec(
+    reason
+  );
+  const receiptCode = {
+    auth_required: "instagram_public_auth_required",
+    challenge: "instagram_public_challenge",
+    rate_limited: "instagram_public_rate_limited"
+  }[receiptReasonMatch?.[1]];
+  const code = statusMatch
+    ? "instagram_public_access_blocked"
+    : receiptCode;
+  const httpStatus = statusMatch ? Number(statusMatch[1]) : null;
+  const retryAtMs = Number(cooldown?.until);
+  if (!code || !Number.isFinite(retryAtMs) || retryAtMs <= Date.now()) {
+    return null;
+  }
+  const retryAtDate = new Date(retryAtMs);
+  if (!Number.isFinite(retryAtDate.valueOf())) return null;
+  return Object.freeze({
+    provider: "instagram_public_json",
+    code,
+    retryAt: retryAtDate.toISOString(),
+    httpStatus,
+    message: String(message ?? "").trim()
+  });
+}
+
+function instagramPublicBlockerFromError(error, message = errorMessage(error)) {
+  return instagramPublicBlockerFromCooldown({
+    until: error?.platformCooldownUntil,
+    reason: error?.platformCooldownReason
+  }, message);
 }
 
 function xPublicBlockerFromDirectReceipt(receipt, cooldown, message) {

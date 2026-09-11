@@ -637,6 +637,54 @@ jobs:
           echo "remote_main_commit=$REMOTE_MAIN_COMMIT" >> "$GITHUB_OUTPUT"
           node scripts/lib/ingestion-schedule.mjs
 
+      - name: Resolve hosted collector cache recovery scope
+        id: hosted_collector_cache_scope
+        if: steps.revalidate.outputs.should_run == 'true' && steps.host_preflight.outputs.ready == 'true' && runner.os == 'Linux'
+        env:
+          WORKFLOW_EVENT_NAME: ${{ github.event_name }}
+          WORKFLOW_EVENT_ACTION: ${{ github.event.action }}
+          CURRENT_SOURCE_SHA: ${{ needs.resolve.outputs.source_sha }}
+          REQUESTED_RECOVERY_SOURCE_SHA: ${{ github.event.client_payload.cache_recovery_source_sha }}
+          HOSTED_COLLECTOR_SLOT_KEY: ${{ needs.resolve.outputs.slot_key }}
+          HOSTED_COLLECTOR_RUNNER_OS: ${{ runner.os }}
+        run: |
+          set -euo pipefail
+          if [[ ! "$CURRENT_SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "::error title=Invalid cache source::The current collector cache source must be a lowercase full commit SHA."
+            exit 1
+          fi
+
+          CURRENT_RESTORE_PREFIX="returner-ingestion-state-v1-${HOSTED_COLLECTOR_RUNNER_OS}-${HOSTED_COLLECTOR_SLOT_KEY}-${CURRENT_SOURCE_SHA}-"
+          DIRECT_PARENT_RESTORE_PREFIX=""
+          if [ -n "$REQUESTED_RECOVERY_SOURCE_SHA" ]; then
+            if [ "$WORKFLOW_EVENT_NAME" != "repository_dispatch" ] || [ "$WORKFLOW_EVENT_ACTION" != "autonomous-ingestion-recovery" ]; then
+              echo "::error title=Unauthorized cache recovery::A direct-parent collector cache may be requested only by autonomous-ingestion-recovery repository_dispatch."
+              exit 1
+            fi
+            if [[ ! "$REQUESTED_RECOVERY_SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]]; then
+              echo "::error title=Invalid cache recovery source::The requested collector cache recovery source must be a lowercase full commit SHA."
+              exit 1
+            fi
+            if ! DIRECT_PARENT_SOURCE_SHA="$(git rev-parse --verify "${CURRENT_SOURCE_SHA}^" 2>/dev/null)"; then
+              echo "::error title=Missing cache recovery parent::The current source does not have a resolvable direct parent."
+              exit 1
+            fi
+            if [ "$REQUESTED_RECOVERY_SOURCE_SHA" != "$DIRECT_PARENT_SOURCE_SHA" ]; then
+              echo "::error title=Invalid cache recovery parent::The requested collector cache source is not the exact direct parent of the current source."
+              exit 1
+            fi
+            DIRECT_PARENT_RESTORE_PREFIX="returner-ingestion-state-v1-${HOSTED_COLLECTOR_RUNNER_OS}-${HOSTED_COLLECTOR_SLOT_KEY}-${REQUESTED_RECOVERY_SOURCE_SHA}-"
+          fi
+
+          {
+            echo "restore_keys<<HOSTED_COLLECTOR_CACHE_RESTORE_KEYS"
+            echo "$CURRENT_RESTORE_PREFIX"
+            if [ -n "$DIRECT_PARENT_RESTORE_PREFIX" ]; then
+              echo "$DIRECT_PARENT_RESTORE_PREFIX"
+            fi
+            echo "HOSTED_COLLECTOR_CACHE_RESTORE_KEYS"
+          } >> "$GITHUB_OUTPUT"
+
       - name: Restore hosted collector recovery state
         id: restore_hosted_collector_state
         if: steps.revalidate.outputs.should_run == 'true' && steps.host_preflight.outputs.ready == 'true' && runner.os == 'Linux'
@@ -645,8 +693,7 @@ jobs:
         with:
           path: ${{ runner.temp }}/returner-fund-autonomous-ingestion-state/v1
           key: returner-ingestion-state-v1-${{ runner.os }}-${{ needs.resolve.outputs.slot_key }}-${{ needs.resolve.outputs.source_sha }}-${{ github.run_id }}-${{ github.run_attempt }}
-          restore-keys: |
-            returner-ingestion-state-v1-${{ runner.os }}-${{ needs.resolve.outputs.slot_key }}-${{ needs.resolve.outputs.source_sha }}-
+          restore-keys: ${{ steps.hosted_collector_cache_scope.outputs.restore_keys }}
 
       - name: Prepare hosted collector artifact fallback
         id: prepare_hosted_collector_artifact

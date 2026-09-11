@@ -635,7 +635,7 @@ test("accepted resolver jobs fail closed and re-export only validated outputs", 
   }
 });
 
-test("all workflow shell blocks remain fixed at 62 and queued schedules are rechecked", (t) => {
+test("all workflow shell blocks remain fixed at 63 and queued schedules are rechecked", (t) => {
   const shellBlockCount = [workflow, dailyBenchmarkWorkflow, readFileSync(
     path.join(repositoryRoot, ".github", "workflows", "public-artifacts.yml"),
     "utf8"
@@ -643,7 +643,7 @@ test("all workflow shell blocks remain fixed at 62 and queued schedules are rech
     (total, source) => total + (source.match(/^ {8}run:/gm)?.length ?? 0),
     0
   );
-  assert.equal(shellBlockCount, 62);
+  assert.equal(shellBlockCount, 63);
 
   const directory = mkdtempSync(path.join(tmpdir(), "returner-queued-freshness-"));
   t.after(() => rmSync(directory, { recursive: true, force: true }));
@@ -3145,6 +3145,9 @@ test("workflow routes public ingestion to hosted Linux and authenticated replay 
 
 test("failed or cancelled hosted collection restores source-bound redundant state without caching authenticated browser data", () => {
   const ingestJob = workflow.match(/\n  ingest:[\s\S]*?(?=\n  receipt:)/)?.[0] ?? "";
+  const cacheScopeStep = ingestJob.match(
+    /- name: Resolve hosted collector cache recovery scope[\s\S]*?(?=\n\s{6}- name:|$)/
+  )?.[0] ?? "";
   const restoreStep = ingestJob.match(
     /- name: Restore hosted collector recovery state[\s\S]*?(?=\n\s{6}- name:|$)/
   )?.[0] ?? "";
@@ -3175,10 +3178,13 @@ test("failed or cancelled hosted collection restores source-bound redundant stat
   const immutableKey =
     "returner-ingestion-state-v1-${{ runner.os }}-${{ needs.resolve.outputs.slot_key }}-" +
     "${{ needs.resolve.outputs.source_sha }}-${{ github.run_id }}-${{ github.run_attempt }}";
-  const restorePrefix =
-    "returner-ingestion-state-v1-${{ runner.os }}-${{ needs.resolve.outputs.slot_key }}-" +
-    "${{ needs.resolve.outputs.source_sha }}-";
 
+  assert.match(cacheScopeStep, /id:\s*hosted_collector_cache_scope/);
+  assert.match(cacheScopeStep, /if: steps\.revalidate\.outputs\.should_run == 'true'[\s\S]*?runner\.os == 'Linux'/);
+  assert.match(
+    cacheScopeStep,
+    /REQUESTED_RECOVERY_SOURCE_SHA:\s*\$\{\{ github\.event\.client_payload\.cache_recovery_source_sha \}\}/
+  );
   assert.match(restoreStep, /if: steps\.revalidate\.outputs\.should_run == 'true'[\s\S]*?runner\.os == 'Linux'/);
   assert.match(restoreStep, /continue-on-error:\s*true/);
   assert.match(
@@ -3186,7 +3192,10 @@ test("failed or cancelled hosted collection restores source-bound redundant stat
     /uses: actions\/cache\/restore@0400d5f644dc74513175e3cd8d07132dd4860809\s+# v4/
   );
   assert.ok(restoreStep.includes(`key: ${immutableKey}`));
-  assert.ok(restoreStep.includes(restorePrefix));
+  assert.match(
+    restoreStep,
+    /restore-keys:\s*\$\{\{ steps\.hosted_collector_cache_scope\.outputs\.restore_keys \}\}/
+  );
   assert.match(
     restoreStep,
     /path:\s*\$\{\{ runner\.temp \}\}\/returner-fund-autonomous-ingestion-state\/v1/
@@ -3263,6 +3272,10 @@ test("failed or cancelled hosted collection restores source-bound redundant stat
     );
   }
   assert.ok(
+    ingestJob.indexOf("Resolve hosted collector cache recovery scope") <
+      ingestJob.indexOf("Restore hosted collector recovery state")
+  );
+  assert.ok(
     ingestJob.indexOf("Restore hosted collector recovery state") <
       ingestJob.indexOf("Prepare hosted collector artifact fallback")
   );
@@ -3290,6 +3303,85 @@ test("failed or cancelled hosted collection restores source-bound redundant stat
     ingestJob.indexOf("Save failed hosted collector recovery state") <
       ingestJob.indexOf("Verify publication credential isolation")
   );
+});
+
+test("hosted cache recovery accepts only a lowercase exact direct parent on recovery dispatch", (t) => {
+  const directory = mkdtempSync(path.join(tmpdir(), "returner-cache-recovery-scope-"));
+  t.after(() => rmSync(directory, { recursive: true, force: true }));
+  const script = workflowStepScript(workflow, "Resolve hosted collector cache recovery scope");
+  const directParentSha = runGit(repositoryRoot, "rev-parse", `${FULL_COMMIT_SHA}^`);
+  const slotKey = "central-2026-09-11-1800";
+  const currentPrefix =
+    `returner-ingestion-state-v1-Linux-${slotKey}-${FULL_COMMIT_SHA}-`;
+  const parentPrefix =
+    `returner-ingestion-state-v1-Linux-${slotKey}-${directParentSha}-`;
+  let invocation = 0;
+
+  const runScope = ({ eventName, eventAction = "", requestedSha = "" }) => {
+    invocation += 1;
+    const output = path.join(directory, `output-${invocation}`);
+    const result = runScript(script, repositoryRoot, {
+      WORKFLOW_EVENT_NAME: eventName,
+      WORKFLOW_EVENT_ACTION: eventAction,
+      CURRENT_SOURCE_SHA: FULL_COMMIT_SHA,
+      REQUESTED_RECOVERY_SOURCE_SHA: requestedSha,
+      HOSTED_COLLECTOR_SLOT_KEY: slotKey,
+      HOSTED_COLLECTOR_RUNNER_OS: "Linux",
+      GITHUB_OUTPUT: output
+    });
+    return { output, result };
+  };
+  const restoreKeys = (output) => {
+    const lines = readFileSync(output, "utf8").trimEnd().split(/\r?\n/);
+    assert.equal(lines[0], "restore_keys<<HOSTED_COLLECTOR_CACHE_RESTORE_KEYS");
+    assert.equal(lines.at(-1), "HOSTED_COLLECTOR_CACHE_RESTORE_KEYS");
+    return lines.slice(1, -1);
+  };
+
+  for (const [eventName, eventAction] of [
+    ["schedule", ""],
+    ["workflow_dispatch", ""],
+    ["repository_dispatch", "autonomous-ingestion-recovery"]
+  ]) {
+    const { output, result } = runScope({ eventName, eventAction });
+    assert.equal(result.status, 0, `${result.stdout}\n${result.stderr}`);
+    assert.deepEqual(restoreKeys(output), [currentPrefix]);
+  }
+
+  const valid = runScope({
+    eventName: "repository_dispatch",
+    eventAction: "autonomous-ingestion-recovery",
+    requestedSha: directParentSha
+  });
+  assert.equal(valid.result.status, 0, `${valid.result.stdout}\n${valid.result.stderr}`);
+  assert.deepEqual(restoreKeys(valid.output), [currentPrefix, parentPrefix]);
+
+  for (const invalid of [{
+    eventName: "schedule",
+    requestedSha: directParentSha
+  }, {
+    eventName: "workflow_dispatch",
+    requestedSha: directParentSha
+  }, {
+    eventName: "repository_dispatch",
+    eventAction: "different-action",
+    requestedSha: directParentSha
+  }, {
+    eventName: "repository_dispatch",
+    eventAction: "autonomous-ingestion-recovery",
+    requestedSha: directParentSha.toUpperCase()
+  }, {
+    eventName: "repository_dispatch",
+    eventAction: "autonomous-ingestion-recovery",
+    requestedSha: directParentSha.slice(0, -1)
+  }, {
+    eventName: "repository_dispatch",
+    eventAction: "autonomous-ingestion-recovery",
+    requestedSha: FULL_COMMIT_SHA
+  }]) {
+    const { result } = runScope(invalid);
+    assert.notEqual(result.status, 0, JSON.stringify(invalid));
+  }
 });
 
 test("inactive candidates and accepted publication outcomes have distinct auditable receipts", () => {

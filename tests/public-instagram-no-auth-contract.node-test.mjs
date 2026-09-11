@@ -9,6 +9,9 @@ import {
   instagramNativeFeedRequest,
   instagramPublicProfileRequest
 } from "../scripts/lib/instagram-public-profile.mjs";
+import {
+  autonomousCollectorRetryableFailures
+} from "../scripts/lib/autonomous-ingestion-plan.mjs";
 
 const root = process.cwd();
 const collector = await readFile(
@@ -227,6 +230,91 @@ test("an exhausted exact native feed preserves verified-empty terminal proof", a
   );
 });
 
+test("exact first-page native-feed HTTP 403/429 is terminal for the current run", async (context) => {
+  for (const status of [403, 429]) {
+    const snapshot = await runMockedTashInstagramCollector(context, {
+      nativeFeedSteps: [{ status, payload: "access blocked" }]
+    });
+    const attempt = tashInstagramAttempt(snapshot);
+    const blockerFailure = snapshot.failures.find((row) =>
+      row.blocker?.provider === "instagram_public_json"
+    );
+
+    assert.equal(snapshot.evidence.length, 0);
+    assert.ok(blockerFailure);
+    assert.equal(
+      blockerFailure.message,
+      `Instagram anonymous native feed returned HTTP ${status}.`
+    );
+    assert.equal(blockerFailure.retryable, false);
+    assert.equal(blockerFailure.blocker.code, "instagram_public_access_blocked");
+    assert.equal(blockerFailure.blocker.httpStatus, status);
+    assert.ok(Date.parse(blockerFailure.blocker.retryAt) > Date.now());
+    assert.equal(attempt.blocker.code, "instagram_public_access_blocked");
+    assert.equal(attempt.retryable, false);
+    assert.equal(attempt.outcomeStatus, "blocked_or_empty");
+    assert.equal(attempt.outcomeReason, "collector_provider_blocked");
+    assert.deepEqual(autonomousCollectorRetryableFailures(snapshot), []);
+  }
+});
+
+test("partial exact native-feed HTTP 429 preserves page one without reopening the run", async (context) => {
+  const snapshot = await runMockedTashInstagramCollector(context, {
+    nativeFeedSteps: paginatedNativeFeedSteps({
+      status: 429,
+      payload: "rate limited"
+    })
+  });
+  const attempt = tashInstagramAttempt(snapshot);
+  const failure = snapshot.failures.find((row) =>
+    /page 2 returned HTTP 429/.test(row.message ?? "")
+  );
+  const instagramEvidence = snapshot.evidence.filter((row) => row.platform === "instagram");
+
+  assert.deepEqual(instagramEvidence.map((row) => row.platformPostId), ["PAGE1"]);
+  assert.ok(failure);
+  assert.equal(failure.retryable, false);
+  assert.equal(failure.blocker.provider, "instagram_public_json");
+  assert.equal(failure.blocker.code, "instagram_public_access_blocked");
+  assert.equal(failure.blocker.httpStatus, 429);
+  assert.equal(attempt.blocker.code, "instagram_public_access_blocked");
+  assert.equal(attempt.retryable, false);
+  assert.equal(attempt.outcomeStatus, "blocked_or_empty");
+  assert.equal(attempt.outcomeReason, "collector_provider_blocked");
+  const receipt = JSON.parse(instagramEvidence[0].rawVisibleText).receipt.nativeFeed;
+  assert.equal(receipt.truncationReason, "pagination_interrupted:http_429");
+  assert.equal(receipt.pageCount, 1);
+  assert.equal(receipt.sourceExhausted, false);
+  assert.deepEqual(autonomousCollectorRetryableFailures(snapshot), []);
+});
+
+test("partial native-feed ECONNRESET remains retryable", async (context) => {
+  const snapshot = await runMockedTashInstagramCollector(context, {
+    nativeFeedSteps: paginatedNativeFeedSteps({
+      error: "fetch failed: ECONNRESET"
+    })
+  });
+  const attempt = tashInstagramAttempt(snapshot);
+  const failure = snapshot.failures.find((row) =>
+    /page 2 request failed: fetch failed: ECONNRESET/.test(row.message ?? "")
+  );
+  const instagramEvidence = snapshot.evidence.filter((row) => row.platform === "instagram");
+
+  assert.deepEqual(instagramEvidence.map((row) => row.platformPostId), ["PAGE1"]);
+  assert.ok(failure);
+  assert.equal(failure.retryable, undefined);
+  assert.equal(failure.blocker, undefined);
+  assert.equal(attempt.blocker, undefined);
+  assert.equal(attempt.retryable, true);
+  assert.equal(attempt.outcomeStatus, "completed");
+  assert.equal(attempt.outcomeReason, "collector_evidence_collected");
+  const receipt = JSON.parse(instagramEvidence[0].rawVisibleText).receipt.nativeFeed;
+  assert.equal(receipt.truncationReason, "pagination_interrupted:request_failed");
+  assert.equal(receipt.pageCount, 1);
+  assert.equal(receipt.sourceExhausted, false);
+  assert.deepEqual(autonomousCollectorRetryableFailures(snapshot), [failure.message]);
+});
+
 test("--mapped-only disables discovery and exits before URL-less task fanout", () => {
   const argumentSetup = section(
     collector,
@@ -307,7 +395,10 @@ function assertSafeSourceSnapshot(document, label) {
   );
 }
 
-async function runMockedTashInstagramCollector(context, { items = null } = {}) {
+async function runMockedTashInstagramCollector(
+  context,
+  { items = null, nativeFeedSteps = null } = {}
+) {
   const directory = await mkdtemp(join(tmpdir(), "returner-public-instagram-contract-"));
   context.after(() => rm(directory, { recursive: true, force: true }));
   const output = join(directory, "public-evidence.json");
@@ -320,6 +411,17 @@ async function runMockedTashInstagramCollector(context, { items = null } = {}) {
     nativeFeedFixture("COAUTHOR", "2", "other.author", ["tash.cards"]),
     nativeFeedFixture("SURFACE", "3", "surface.author", ["someone.else"])
   ];
+  const feedSteps = nativeFeedSteps ?? [{
+    status: 200,
+    payload: {
+      status: "ok",
+      user: { username: "tash.cards" },
+      num_results: nativeItems.length,
+      more_available: false,
+      next_max_id: null,
+      items: nativeItems
+    }
+  }];
   await Promise.all([
     writeFile(output, `${JSON.stringify({
       source: {}, attempts: {}, evidence: [], needsReview: [], failures: [],
@@ -328,24 +430,24 @@ async function runMockedTashInstagramCollector(context, { items = null } = {}) {
     writeFile(discoveryAttempts, "[]\n"),
     writeFile(sourceDiscoveryPaths, "[]\n"),
     writeFile(preload, `
-const feed = ${JSON.stringify({
-  status: "ok",
-  user: { username: "tash.cards" },
-  num_results: nativeItems.length,
-  more_available: false,
-  next_max_id: null,
-  items: nativeItems
-})};
+const feedSteps = ${JSON.stringify(feedSteps)};
+let feedCallIndex = 0;
 globalThis.fetch = async (url) => {
   const value = String(url);
   if (value.includes("/api/v1/users/web_profile_info/")) {
     return new Response("asset unavailable", { status: 400 });
   }
   if (value.includes("/api/v1/feed/user/tash.cards/username/")) {
-    return new Response(JSON.stringify(feed), {
-      status: 200,
-      headers: { "content-type": "application/json" }
-    });
+    const step = feedSteps[feedCallIndex++];
+    if (!step) throw new Error("unexpected native-feed request: " + value);
+    if (step.error) throw new Error(step.error);
+    return new Response(
+      typeof step.payload === "string" ? step.payload : JSON.stringify(step.payload),
+      {
+        status: step.status,
+        headers: { "content-type": "application/json" }
+      }
+    );
   }
   throw new Error("unexpected request: " + value);
 };
@@ -378,6 +480,26 @@ globalThis.fetch = async (url) => {
     stdio: "pipe"
   });
   return JSON.parse(await readFile(output, "utf8"));
+}
+
+function tashInstagramAttempt(snapshot) {
+  return snapshot.attempts[
+    "instagram:company:company-tash:https://instagram.com/tash.cards"
+  ];
+}
+
+function paginatedNativeFeedSteps(lastStep) {
+  return [{
+    status: 200,
+    payload: {
+      status: "ok",
+      user: { username: "tash.cards" },
+      num_results: 1,
+      more_available: true,
+      next_max_id: "cursor-2",
+      items: [nativeFeedFixture("PAGE1", "1", "tash.cards", [])]
+    }
+  }, lastStep];
 }
 
 function nativeFeedFixture(shortcode, pk, authorUsername, coauthors) {

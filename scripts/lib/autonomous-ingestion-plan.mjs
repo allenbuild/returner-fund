@@ -215,6 +215,12 @@ const AUTONOMOUS_PROVIDER_BLOCKER_CODES = new Map([
   ["x_public_html", new Set([
     "x_public_access_blocked"
   ])],
+  ["instagram_public_json", new Set([
+    "instagram_public_access_blocked",
+    "instagram_public_auth_required",
+    "instagram_public_challenge",
+    "instagram_public_rate_limited"
+  ])],
   ["duckduckgo_html", new Set([
     "public_search_access_blocked",
     "public_search_http_failure",
@@ -3101,12 +3107,21 @@ export function isAutonomousProviderBlocker(blocker, { platform = null } = {}) {
   if (provider === "x_public_html" && (
     ![403, 429].includes(blocker.httpStatus) || blocker.retryAt === null
   )) return false;
+  if (provider === "instagram_public_json") {
+    if (blocker.retryAt === null) return false;
+    if (
+      code === "instagram_public_access_blocked"
+        ? ![401, 403, 429].includes(blocker.httpStatus)
+        : blocker.httpStatus !== null
+    ) return false;
+  }
   if (provider === "reddit_public_json" && (
     ![401, 403, 429].includes(blocker.httpStatus) || blocker.retryAt === null
   )) return false;
   const normalizedPlatform = normalizePlatform(platform);
   if (normalizedPlatform) {
     if (provider === "x_public_html" && normalizedPlatform !== "x") return false;
+    if (provider === "instagram_public_json" && normalizedPlatform !== "instagram") return false;
     if (provider === "duckduckgo_html" && !["x", "linkedin", "instagram", "product_hunt", "web"].includes(normalizedPlatform)) {
       return false;
     }
@@ -3117,6 +3132,7 @@ export function isAutonomousProviderBlocker(blocker, { platform = null } = {}) {
       ![
         "duckduckgo_html",
         "x_public_html",
+        "instagram_public_json",
         "reddit_public_json",
         "official_source_html",
         "official_source_http"
