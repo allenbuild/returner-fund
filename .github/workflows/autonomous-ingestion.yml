@@ -388,21 +388,47 @@ jobs:
           if [ "${RUNNER_OS:-}" = "macOS" ]; then
             POWER_STATUS="$(/usr/bin/pmset -g batt)"
             BATTERY_PERCENT="$(sed -nE 's/.*[[:space:]]([0-9]{1,3})%;.*/\1/p' <<< "$POWER_STATUS" | head -n 1)"
-            if [[ "${POWER_STATUS%%$'\n'*}" != *"'AC Power'"* ]]; then
+            if [ "$AUTHENTICATED_SOCIAL_REPLAY" = "true" ]; then
+              # pmset can retain an "AC Power" header after the charger is
+              # physically disconnected. Authenticated browser work must use
+              # the battery controller and lid telemetry as the fail-closed
+              # source of truth because caffeinate cannot override clamshell
+              # sleep on battery.
+              SMART_BATTERY_STATE="$(/usr/sbin/ioreg -r -c AppleSmartBattery -d 1 2>/dev/null || true)"
+              EXTERNAL_POWER_MATCH_COUNT="$(grep -Eo '^[[:space:]|]*"ExternalConnected"[[:space:]]*=[[:space:]]*(Yes|No)[[:space:]]*$' <<< "$SMART_BATTERY_STATE" | wc -l | tr -d '[:space:]' || true)"
+              EXTERNAL_POWER_CONNECTED_COUNT="$(grep -Eo '^[[:space:]|]*"ExternalConnected"[[:space:]]*=[[:space:]]*Yes[[:space:]]*$' <<< "$SMART_BATTERY_STATE" | wc -l | tr -d '[:space:]' || true)"
+              if [ "$EXTERNAL_POWER_MATCH_COUNT" -ne 1 ]; then
+                echo "reason=authenticated_external_power_unverified" >> "$GITHUB_OUTPUT"
+                echo "::error title=Authenticated replay physical power unverified::AppleSmartBattery ExternalConnected telemetry is missing or ambiguous. Retry only after the Mac hardware reports one authoritative connected state."
+                exit 1
+              fi
+              if [ "$EXTERNAL_POWER_CONNECTED_COUNT" -ne 1 ]; then
+                echo "reason=authenticated_external_power_disconnected" >> "$GITHUB_OUTPUT"
+                echo "::error title=Authenticated replay requires physical AC power::AppleSmartBattery reports ExternalConnected=No. Connect power before retrying; the pmset header is not accepted as proof."
+                exit 1
+              fi
+
+              CLAMSHELL_STATE="$(/usr/sbin/ioreg -r -k AppleClamshellState -d 4 2>/dev/null || true)"
+              CLAMSHELL_MATCH_COUNT="$(grep -Eo '^[[:space:]|]*"AppleClamshellState"[[:space:]]*=[[:space:]]*(Yes|No)[[:space:]]*$' <<< "$CLAMSHELL_STATE" | wc -l | tr -d '[:space:]' || true)"
+              CLAMSHELL_OPEN_COUNT="$(grep -Eo '^[[:space:]|]*"AppleClamshellState"[[:space:]]*=[[:space:]]*No[[:space:]]*$' <<< "$CLAMSHELL_STATE" | wc -l | tr -d '[:space:]' || true)"
+              if [ "$CLAMSHELL_MATCH_COUNT" -ne 1 ]; then
+                echo "reason=authenticated_clamshell_unverified" >> "$GITHUB_OUTPUT"
+                echo "::error title=Authenticated replay lid state unverified::AppleClamshellState telemetry is missing or ambiguous. Retry only after one authoritative open-lid state is available."
+                exit 1
+              fi
+              if [ "$CLAMSHELL_OPEN_COUNT" -ne 1 ]; then
+                echo "reason=authenticated_clamshell_closed" >> "$GITHUB_OUTPUT"
+                echo "::error title=Authenticated replay requires an open lid::AppleClamshellState reports Yes. Open the Mac lid before retrying because caffeinate cannot override clamshell sleep."
+                exit 1
+              fi
+              echo "::notice title=Authenticated replay power continuity verified::AppleSmartBattery reports physical AC connected and AppleClamshellState reports an open lid."
+            elif [[ "${POWER_STATUS%%$'\n'*}" != *"'AC Power'"* ]]; then
               if [[ ! "$BATTERY_PERCENT" =~ ^[0-9]+$ ]]; then
-                if [ "$AUTHENTICATED_SOCIAL_REPLAY" = "true" ]; then
-                  echo "::error title=Authenticated replay power state unavailable::The battery reserve could not be verified. Retry this manual replay after confirming host power."
-                  exit 1
-                fi
                 echo "::warning title=Runner power state unavailable::The battery reserve could not be verified. This slot remains stale and the host supervisor will retry it."
                 exit 0
               fi
               if [ "$BATTERY_PERCENT" -lt "$AUTONOMOUS_MIN_BATTERY_PERCENT" ]; then
                 echo "reason=battery_below_start_reserve" >> "$GITHUB_OUTPUT"
-                if [ "$AUTHENTICATED_SOCIAL_REPLAY" = "true" ]; then
-                  echo "::error title=Authenticated replay battery reserve is low::Battery is ${BATTERY_PERCENT}%. Retry this manual replay at ${AUTONOMOUS_MIN_BATTERY_PERCENT}% or on AC."
-                  exit 1
-                fi
                 echo "::warning title=Autonomous ingestion safely deferred::Battery is ${BATTERY_PERCENT}%; the slot remains stale and will retry automatically at ${AUTONOMOUS_MIN_BATTERY_PERCENT}% or on AC."
                 exit 0
               fi
@@ -412,19 +438,11 @@ jobs:
               CLAMSHELL_CLOSED_COUNT="$(grep -Eo '"AppleClamshellState"[[:space:]]*=[[:space:]]*Yes([[:space:]]|$)' <<< "$CLAMSHELL_STATE" | wc -l | tr -d '[:space:]' || true)"
               if [ "$CLAMSHELL_MATCH_COUNT" -ne 1 ]; then
                 echo "reason=battery_clamshell_status_unavailable" >> "$GITHUB_OUTPUT"
-                if [ "$AUTHENTICATED_SOCIAL_REPLAY" = "true" ]; then
-                  echo "::error title=Authenticated replay requires a verified lid state::The Mac lid state could not be verified while on battery. Retry this manual replay after opening the lid or connecting AC."
-                  exit 1
-                fi
                 echo "::warning title=Autonomous ingestion safely deferred::The Mac lid state could not be verified while on battery. The slot remains durable and will retry automatically after a verified full wake or on AC."
                 exit 0
               fi
               if [ "$CLAMSHELL_CLOSED_COUNT" -eq 1 ]; then
                 echo "reason=battery_clamshell_closed" >> "$GITHUB_OUTPUT"
-                if [ "$AUTHENTICATED_SOCIAL_REPLAY" = "true" ]; then
-                  echo "::error title=Authenticated replay requires an awake Mac::The Mac lid is closed while on battery, and caffeinate cannot override clamshell sleep. Retry this manual replay after opening the lid or using an AC-supported clamshell setup."
-                  exit 1
-                fi
                 echo "::warning title=Autonomous ingestion safely deferred::The Mac lid is closed while on battery, and caffeinate cannot override clamshell sleep. The slot remains durable and will retry automatically after the lid opens or an AC-supported clamshell setup is active."
                 exit 0
               fi
@@ -434,10 +452,6 @@ jobs:
               FULL_WAKE_MATCH_COUNT="$(grep -Eo '"IOPMUserTriggeredFullWake"[[:space:]]*=[[:space:]]*Yes([[:space:]]|$)' <<< "$USER_WAKE_STATE" | wc -l | tr -d '[:space:]' || true)"
               if [ "$WAKE_MATCH_COUNT" -ne 1 ] || [ "$FULL_WAKE_MATCH_COUNT" -ne 1 ]; then
                 echo "reason=battery_full_wake_unverified" >> "$GITHUB_OUTPUT"
-                if [ "$AUTHENTICATED_SOCIAL_REPLAY" = "true" ]; then
-                  echo "::error title=Authenticated replay requires a full wake::The Mac is on battery without one verified user-triggered full wake. Retry after explicitly waking the host or connecting AC."
-                  exit 1
-                fi
                 echo "::warning title=Autonomous ingestion safely deferred::The Mac is on battery without one verified user-triggered full wake. The slot remains stale and will retry automatically after a full wake or on AC."
                 exit 0
               fi
@@ -879,7 +893,35 @@ jobs:
             CAFFEINATE_PID=$!
             POWER_STATUS="$(/usr/bin/pmset -g batt)"
             BATTERY_PERCENT="$(sed -nE 's/.*[[:space:]]([0-9]{1,3})%;.*/\1/p' <<< "$POWER_STATUS" | head -n 1)"
-            if [[ "${POWER_STATUS%%$'\n'*}" != *"'AC Power'"* ]]; then
+            if [ "$AUTHENTICATED_SOCIAL_REPLAY" = "true" ]; then
+              # Recheck the authoritative hardware state immediately before
+              # launching the controller. The earlier host gate can go stale
+              # during checkout/setup, and pmset may retain an AC header after
+              # physical power is disconnected.
+              SMART_BATTERY_STATE="$(/usr/sbin/ioreg -r -c AppleSmartBattery -d 1 2>/dev/null || true)"
+              EXTERNAL_POWER_MATCH_COUNT="$(grep -Eo '^[[:space:]|]*"ExternalConnected"[[:space:]]*=[[:space:]]*(Yes|No)[[:space:]]*$' <<< "$SMART_BATTERY_STATE" | wc -l | tr -d '[:space:]' || true)"
+              EXTERNAL_POWER_CONNECTED_COUNT="$(grep -Eo '^[[:space:]|]*"ExternalConnected"[[:space:]]*=[[:space:]]*Yes[[:space:]]*$' <<< "$SMART_BATTERY_STATE" | wc -l | tr -d '[:space:]' || true)"
+              if [ "$EXTERNAL_POWER_MATCH_COUNT" -ne 1 ]; then
+                echo "::error title=Authenticated replay physical power unverified::AppleSmartBattery ExternalConnected telemetry became missing or ambiguous before controller launch. The stale Central slot remains durable and retryable."
+                exit 1
+              fi
+              if [ "$EXTERNAL_POWER_CONNECTED_COUNT" -ne 1 ]; then
+                echo "::error title=Authenticated replay lost physical AC power::AppleSmartBattery reports ExternalConnected=No before controller launch. Reconnect power before retrying."
+                exit 1
+              fi
+
+              CLAMSHELL_STATE="$(/usr/sbin/ioreg -r -k AppleClamshellState -d 4 2>/dev/null || true)"
+              CLAMSHELL_MATCH_COUNT="$(grep -Eo '^[[:space:]|]*"AppleClamshellState"[[:space:]]*=[[:space:]]*(Yes|No)[[:space:]]*$' <<< "$CLAMSHELL_STATE" | wc -l | tr -d '[:space:]' || true)"
+              CLAMSHELL_OPEN_COUNT="$(grep -Eo '^[[:space:]|]*"AppleClamshellState"[[:space:]]*=[[:space:]]*No[[:space:]]*$' <<< "$CLAMSHELL_STATE" | wc -l | tr -d '[:space:]' || true)"
+              if [ "$CLAMSHELL_MATCH_COUNT" -ne 1 ]; then
+                echo "::error title=Authenticated replay lid state unverified::AppleClamshellState telemetry became missing or ambiguous before controller launch. The stale Central slot remains durable and retryable."
+                exit 1
+              fi
+              if [ "$CLAMSHELL_OPEN_COUNT" -ne 1 ]; then
+                echo "::error title=Authenticated replay lid closed::AppleClamshellState reports Yes before controller launch. Open the lid before retrying because caffeinate cannot override clamshell sleep."
+                exit 1
+              fi
+            elif [[ "${POWER_STATUS%%$'\n'*}" != *"'AC Power'"* ]]; then
               if [[ ! "$BATTERY_PERCENT" =~ ^[0-9]+$ ]] || [ "$BATTERY_PERCENT" -lt "$AUTONOMOUS_MIN_BATTERY_PERCENT" ]; then
                 echo "::error title=Runner battery reserve changed::The verified start reserve is no longer available. The stale Central slot remains durable and will retry automatically."
                 exit 1

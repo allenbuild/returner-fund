@@ -36,7 +36,9 @@ import {
   isRetryableAutonomousDatabaseFailure
 } from "../scripts/lib/autonomous-ingestion-database-failure.mjs";
 import {
+  authenticatedMacPowerUnsafeReason,
   parseAutonomousPowerWatchdogConfig,
+  parseAuthenticatedMacPowerState,
   parseMacPowerStatus,
   shouldTerminateForLowPower,
   startAutonomousIngestionPowerWatchdog
@@ -1814,6 +1816,7 @@ test("power watchdog preserves AC runs and trips once at the battery reserve flo
   const statuses = [acAtFivePercent, batteryAtTwentyOnePercent, batteryAtTwentyPercent];
   const terminations = [];
   let reads = 0;
+  let authenticatedReads = 0;
   const watchdog = startAutonomousIngestionPowerWatchdog({
     environment: {
       AUTONOMOUS_WORKFLOW_POWER_WATCHDOG_RESERVE_PERCENT: "20",
@@ -1821,15 +1824,104 @@ test("power watchdog preserves AC runs and trips once at the battery reserve flo
     },
     intervalMs: 1,
     readPowerStatus: async () => statuses[Math.min(reads++, statuses.length - 1)],
+    readAuthenticatedPowerState: async () => {
+      authenticatedReads += 1;
+      throw new Error("public runs must not consult authenticated Mac telemetry");
+    },
     onLowReserve: (status) => terminations.push(status),
     reporter: { warn() {}, error() {} }
   });
   await watchdog.done;
   await watchdog.stop();
   assert.deepEqual(terminations, [{ batteryPercent: 20, reservePercent: 20 }]);
+  assert.equal(authenticatedReads, 0, "public watchdog behavior must remain unchanged");
   const readsAfterStop = reads;
   await new Promise((resolve) => setTimeout(resolve, 10));
   assert.equal(reads, readsAfterStop, "the stopped watchdog must not retain a polling timer");
+});
+
+test("authenticated power watchdog trusts hardware power and lid telemetry fail closed", async () => {
+  const healthy = parseAuthenticatedMacPowerState({
+    batteryTelemetry: '    "ExternalConnected" = Yes\n',
+    clamshellTelemetry: '  |   "AppleClamshellState" = No\n'
+  });
+  const disconnected = parseAuthenticatedMacPowerState({
+    batteryTelemetry: '    "ExternalConnected" = No\n',
+    clamshellTelemetry: '    "AppleClamshellState" = No\n'
+  });
+  const closed = parseAuthenticatedMacPowerState({
+    batteryTelemetry: '    "ExternalConnected" = Yes\n',
+    clamshellTelemetry: '    "AppleClamshellState" = Yes\n'
+  });
+  const missingLid = parseAuthenticatedMacPowerState({
+    batteryTelemetry: '    "ExternalConnected" = Yes\n',
+    clamshellTelemetry: ""
+  });
+  const ambiguousPower = parseAuthenticatedMacPowerState({
+    batteryTelemetry: [
+      '    "ExternalConnected" = Yes',
+      '    "ExternalConnected" = Yes'
+    ].join("\n"),
+    clamshellTelemetry: '    "AppleClamshellState" = No\n'
+  });
+
+  assert.deepEqual(healthy, { externalConnected: true, clamshellOpen: true });
+  assert.equal(authenticatedMacPowerUnsafeReason(healthy), null);
+  assert.equal(
+    authenticatedMacPowerUnsafeReason(disconnected),
+    "authenticated_external_power_disconnected"
+  );
+  assert.equal(
+    authenticatedMacPowerUnsafeReason(closed),
+    "authenticated_clamshell_closed"
+  );
+  assert.equal(
+    authenticatedMacPowerUnsafeReason(missingLid),
+    "authenticated_clamshell_unverified"
+  );
+  assert.deepEqual(ambiguousPower, { externalConnected: null, clamshellOpen: true });
+  assert.equal(
+    authenticatedMacPowerUnsafeReason(ambiguousPower),
+    "authenticated_external_power_unverified"
+  );
+
+  const stalePmsetHeader = parseMacPowerStatus(
+    "Now drawing from 'AC Power'\n -InternalBattery-0 96%; discharging; 0:30 remaining"
+  );
+  const authenticatedStates = [healthy, disconnected];
+  const terminations = [];
+  const errors = [];
+  let authenticatedReads = 0;
+  let pmsetReads = 0;
+  const watchdog = startAutonomousIngestionPowerWatchdog({
+    environment: {
+      AUTHENTICATED_SOCIAL_REPLAY: "true",
+      AUTONOMOUS_WORKFLOW_POWER_WATCHDOG_RESERVE_PERCENT: "20",
+      AUTONOMOUS_WORKFLOW_POWER_WATCHDOG_INTERVAL_SECONDS: "30"
+    },
+    intervalMs: 1,
+    readAuthenticatedPowerState: async () => authenticatedStates[
+      Math.min(authenticatedReads++, authenticatedStates.length - 1)
+    ],
+    readPowerStatus: async () => {
+      pmsetReads += 1;
+      return stalePmsetHeader;
+    },
+    onLowReserve: (status) => terminations.push(status),
+    reporter: { warn() {}, error(message) { errors.push(message); } }
+  });
+  await watchdog.done;
+  await watchdog.stop();
+
+  assert.equal(authenticatedReads, 2);
+  assert.equal(pmsetReads, 1, "pmset must not override disconnected hardware telemetry");
+  assert.deepEqual(terminations, [{
+    reason: "authenticated_external_power_disconnected",
+    externalConnected: false,
+    clamshellOpen: true
+  }]);
+  assert.match(errors.join("\n"), /lost physical AC power/);
+  assert.match(errors.join("\n"), /ExternalConnected=No/);
 });
 
 test("power watchdog enters the retry controller SIGTERM drain and leaves the slot retryable", async (t) => {
@@ -2113,17 +2205,24 @@ test("autonomous runner receives optional durability secrets and owns validated 
   assert.match(hostPreflight, /\/usr\/bin\/pmset -g assertions/);
   assert.match(hostPreflight, /PreventSystemSleep\[\[:space:\]\]\+1/);
   assert.match(hostPreflight, /if \[ "\$AUTHENTICATED_SOCIAL_REPLAY" = "true" \]/);
+  assert.match(hostPreflight, /\/usr\/sbin\/ioreg -r -c AppleSmartBattery -d 1/);
+  assert.match(hostPreflight, /"ExternalConnected"/);
+  assert.match(hostPreflight, /reason=authenticated_external_power_unverified/);
+  assert.match(hostPreflight, /reason=authenticated_external_power_disconnected/);
+  assert.match(hostPreflight, /EXTERNAL_POWER_MATCH_COUNT[\s\S]*?-ne 1/);
+  assert.match(hostPreflight, /EXTERNAL_POWER_CONNECTED_COUNT[\s\S]*?-ne 1/);
   assert.match(hostPreflight, /IOPMUserTriggeredFullWake/);
   assert.match(hostPreflight, /AppleClamshellState/);
+  assert.match(hostPreflight, /reason=authenticated_clamshell_unverified/);
+  assert.match(hostPreflight, /reason=authenticated_clamshell_closed/);
+  assert.match(hostPreflight, /CLAMSHELL_MATCH_COUNT[\s\S]*?-ne 1/);
+  assert.match(hostPreflight, /CLAMSHELL_OPEN_COUNT[\s\S]*?-ne 1/);
   assert.match(hostPreflight, /reason=battery_clamshell_closed/);
   assert.match(hostPreflight, /caffeinate cannot override clamshell sleep/);
-  assert.match(
-    hostPreflight,
-    /reason=battery_clamshell_status_unavailable[\s\S]*?if \[ "\$AUTHENTICATED_SOCIAL_REPLAY" = "true" \][\s\S]*?Retry this manual replay[\s\S]*?exit 1/
-  );
-  assert.match(
-    hostPreflight,
-    /reason=battery_clamshell_closed[\s\S]*?if \[ "\$AUTHENTICATED_SOCIAL_REPLAY" = "true" \][\s\S]*?Retry this manual replay[\s\S]*?exit 1/
+  assert.ok(
+    hostPreflight.indexOf('if [ "$AUTHENTICATED_SOCIAL_REPLAY" = "true" ]') <
+      hostPreflight.indexOf(`elif [[ "\${POWER_STATUS%%$'\\n'*}" != *"'AC Power'"* ]]`),
+    "authenticated hardware telemetry must decide before the legacy pmset battery branch"
   );
   assert.match(hostPreflight, /reason=battery_full_wake_unverified/);
   assert.match(hostPreflight, /WAKE_MATCH_COUNT[\s\S]*?FULL_WAKE_MATCH_COUNT/);
@@ -2156,6 +2255,17 @@ test("autonomous runner receives optional durability secrets and owns validated 
   assert.match(runnerStep, /exec node scripts\/lib\/autonomous-ingestion-workflow-retry\.mjs --/);
   assert.doesNotMatch(runnerStep, /IOPMUserTriggeredFullWake/);
   assert.match(runnerStep, /\/usr\/bin\/pmset -g batt/);
+  assert.match(runnerStep, /\/usr\/sbin\/ioreg -r -c AppleSmartBattery -d 1/);
+  assert.match(runnerStep, /"ExternalConnected"/);
+  assert.match(runnerStep, /EXTERNAL_POWER_MATCH_COUNT[\s\S]*?-ne 1/);
+  assert.match(runnerStep, /EXTERNAL_POWER_CONNECTED_COUNT[\s\S]*?-ne 1/);
+  assert.match(runnerStep, /\/usr\/sbin\/ioreg -r -k AppleClamshellState -d 4/);
+  assert.match(runnerStep, /CLAMSHELL_MATCH_COUNT[\s\S]*?-ne 1/);
+  assert.match(runnerStep, /CLAMSHELL_OPEN_COUNT[\s\S]*?-ne 1/);
+  assert.match(runnerStep, /physical power unverified/);
+  assert.match(runnerStep, /lost physical AC power/);
+  assert.match(runnerStep, /lid state unverified/);
+  assert.match(runnerStep, /lid closed/);
   assert.match(runnerStep, /\/usr\/bin\/pmset -g assertions/);
   assert.match(runnerStep, /\/usr\/bin\/caffeinate -ims -w \$\$/);
   assert.doesNotMatch(runnerStep, /\/usr\/bin\/caffeinate -[^\n]*d[^\n]* -w \$\$/);
@@ -2178,13 +2288,17 @@ test("autonomous runner receives optional durability secrets and owns validated 
     runnerStep,
     /AUTONOMOUS_WORKFLOW_POWER_WATCHDOG_INTERVAL_SECONDS:\s*\$\{\{ runner\.os == 'macOS' && '30' \|\| '' \}\}/
   );
-  assert.doesNotMatch(runnerStep, /Runner requires AC power/);
   assert.match(runnerStep, /Runner using battery reserve/);
   assert.match(runnerStep, /CAFFEINATE_PID=\$!/);
   assert.match(runnerStep, /pid\[\[:space:\]\]\+\$\{CAFFEINATE_PID\}.*Prevent\(UserIdle\)\?SystemSleep/);
   assert.ok(
     runnerStep.indexOf("/usr/bin/caffeinate -ims -w $$") < runnerStep.indexOf("/usr/bin/pmset -g batt"),
     "wake assertion must be installed before the runner power preflight"
+  );
+  assert.ok(
+    runnerStep.indexOf('/usr/sbin/ioreg -r -c AppleSmartBattery -d 1') <
+      runnerStep.indexOf("exec node scripts/lib/autonomous-ingestion-workflow-retry.mjs --"),
+    "authenticated physical-power and lid telemetry must be rechecked before controller launch"
   );
   assert.match(runnerStep, /INGESTION_PUBLICATION_BRANCH:\s*main/);
   assert.match(runnerStep, /CANDIDATE_TRIGGER:\s*\$\{\{ needs\.resolve\.outputs\.trigger \}\}/);
