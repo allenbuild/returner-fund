@@ -4031,7 +4031,7 @@ describe("autonomous ingestion runner static safety contracts", () => {
     assert.ok(manifestPersistence.includes("manifestSha256: sha256"));
   });
 
-  it("persists exact mapped policy inputs and the computed terminal budget in every source receipt", () => {
+  it("persists mapped policy inputs and marks authenticated terminal budgets not applicable", () => {
     const initialReceipt = section(
       "publicationInputs.sourceDelta = {",
       "await writeSourceDeltaReceipt(publicationInputs.sourceDelta, sourceDeltaHistory)"
@@ -4050,8 +4050,14 @@ describe("autonomous ingestion runner static safety contracts", () => {
       assert.match(receipt, /mappedNonTerminal:/);
       assert.match(receipt, /terminalFailureBudget:/);
     }
-    assert.ok(initialReceipt.includes("terminalFailureBudget: terminalFailureBudget"));
-    assert.ok(rebasedReceipt.includes("publicationInputs.sourceDelta.terminalFailureBudget"));
+    assert.match(
+      initialReceipt,
+      /terminalFailureBudget:\s*args\.authenticatedSocialReplay\s*\?\s*null\s*:\s*terminalFailureBudget/
+    );
+    assert.match(
+      rebasedReceipt,
+      /terminalFailureBudget:\s*args\.authenticatedSocialReplay\s*\?\s*null\s*:\s*publicationInputs\.sourceDelta\.terminalFailureBudget/
+    );
     assert.ok(successfulOutcome.includes("publicationInputs.sourceDelta.terminalFailureBudget"));
   });
 
