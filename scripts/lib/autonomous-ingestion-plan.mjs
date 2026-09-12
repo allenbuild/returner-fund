@@ -3163,7 +3163,8 @@ function exactTypedMappedAccountTerminalOutcome(attempt) {
 
   if (platform === "youtube") {
     return exactTypedYouTubeMappedAccountTerminalOutcome(attempt, accountUrl)
-      ?? exactTypedYouTubeListingTerminalOutcome(attempt, accountUrl);
+      ?? exactTypedYouTubeListingTerminalOutcome(attempt, accountUrl)
+      ?? exactTypedYouTubeIdentityRejectionTerminalOutcome(attempt, accountUrl);
   }
 
   if (
@@ -3212,11 +3213,10 @@ function exactTypedYouTubeMappedAccountTerminalOutcome(attempt, accountUrl) {
     attempt?.outcomeStatus !== "needs_review" ||
     attempt?.outcomeReason !== "collector_mapped_account_not_found" ||
     receipt?.schemaVersion !== 1 ||
-    receipt?.source !== "youtube_exact_mapped_channel_http_404_v1" ||
     receipt?.verified !== false ||
-    receipt?.reason !== "youtube_exact_mapped_channel_http_404" ||
     receipt?.httpStatus !== 404 ||
-    receipt?.checkedAt !== attempt?.checkedAt
+    receipt?.checkedAt !== attempt?.checkedAt ||
+    !canonicalIsoTimestamp(attempt?.checkedAt)
   ) {
     return null;
   }
@@ -3226,10 +3226,29 @@ function exactTypedYouTubeMappedAccountTerminalOutcome(attempt, accountUrl) {
     attemptAccountUrl ?? ""
   );
   if (
-    !channelMatch ||
+    !attemptAccountUrl ||
+    !receiptAccountUrl ||
     receiptAccountUrl !== attemptAccountUrl ||
-    receipt.channelId !== channelMatch[1] ||
     receipt.pageUrl !== `${attemptAccountUrl}/videos`
+  ) {
+    return null;
+  }
+  if (
+    receipt.source === "youtube_mapped_account_http_404_v1" &&
+    receipt.reason === "youtube_mapped_account_http_404" &&
+    !channelMatch &&
+    receipt.channelId == null
+  ) {
+    return {
+      status: "needs_review",
+      reason: "collector_mapped_account_not_found"
+    };
+  }
+  if (
+    !channelMatch ||
+    receipt.source !== "youtube_exact_mapped_channel_http_404_v1" ||
+    receipt.reason !== "youtube_exact_mapped_channel_http_404" ||
+    receipt.channelId !== channelMatch[1]
   ) {
     return null;
   }
@@ -3296,6 +3315,104 @@ function exactTypedYouTubeListingTerminalOutcome(attempt, accountUrl) {
         ["needs_review", "collector_needs_review"]
       ])
     : new Map([["completed", "collector_verified_native_account_empty_public_window"]]);
+  return allowed.get(attempt.outcomeStatus) === attempt.outcomeReason
+    ? { status: attempt.outcomeStatus, reason: attempt.outcomeReason }
+    : null;
+}
+
+function exactTypedYouTubeIdentityRejectionTerminalOutcome(attempt, accountUrl) {
+  const receipt = attempt?.coverageReceipt;
+  if (
+    attempt?.retryable !== false ||
+    receipt?.schemaVersion !== 1 ||
+    receipt?.source !== "youtube_exhausted_public_listing_identity_rejections_v1" ||
+    receipt?.verified !== false ||
+    receipt?.reason !== "youtube_listing_watch_identity_rejections" ||
+    receipt?.listingExhausted !== true ||
+    receipt?.allUnverifiedIdentityRejected !== true ||
+    receipt?.outcome !== "exhausted_mapped_channel_listing_with_identity_rejections" ||
+    receipt?.checkedAt !== attempt?.checkedAt ||
+    !canonicalIsoTimestamp(attempt?.checkedAt) ||
+    !/^UC[A-Za-z0-9_-]+$/.test(String(receipt?.channelId ?? ""))
+  ) {
+    return null;
+  }
+  const attemptAccountUrl = canonicalSocialAccountUrl("youtube", accountUrl);
+  const receiptAccountUrl = canonicalSocialAccountUrl("youtube", receipt.accountUrl);
+  if (
+    !attemptAccountUrl ||
+    receiptAccountUrl !== attemptAccountUrl ||
+    receipt.pageUrl !== `${attemptAccountUrl.replace(/\/+$/, "")}/videos`
+  ) {
+    return null;
+  }
+  const exactChannelMatch = /^https:\/\/youtube\.com\/channel\/(UC[A-Za-z0-9_-]+)$/.exec(
+    attemptAccountUrl
+  );
+  if (exactChannelMatch && receipt.channelId !== exactChannelMatch[1]) return null;
+
+  const pageVideoCount = Number(receipt.pageVideoCount);
+  const continuationPageCount = Number(receipt.continuationPageCount);
+  const hydratedVideoCount = Number(receipt.hydratedVideoCount);
+  const identityRejectedVideoCount = Number(receipt.identityRejectedVideoCount);
+  const identityRejections = receipt.identityRejections;
+  if (
+    !Number.isSafeInteger(pageVideoCount) ||
+    pageVideoCount <= 0 ||
+    !Number.isSafeInteger(continuationPageCount) ||
+    continuationPageCount < 0 ||
+    !Number.isSafeInteger(hydratedVideoCount) ||
+    hydratedVideoCount < 0 ||
+    !Number.isSafeInteger(identityRejectedVideoCount) ||
+    identityRejectedVideoCount <= 0 ||
+    hydratedVideoCount + identityRejectedVideoCount !== pageVideoCount ||
+    !Array.isArray(identityRejections) ||
+    identityRejections.length !== identityRejectedVideoCount
+  ) {
+    return null;
+  }
+  let previousVideoId = null;
+  for (const rejection of identityRejections) {
+    const videoId = rejection?.videoId;
+    if (
+      typeof videoId !== "string" ||
+      !/^[A-Za-z0-9_-]{6,128}$/.test(videoId) ||
+      (previousVideoId !== null && previousVideoId.localeCompare(videoId) >= 0)
+    ) {
+      return null;
+    }
+    previousVideoId = videoId;
+    if (rejection.kind === "video_identity_mismatch") {
+      const observedVideoId = rejection.observedVideoId;
+      if (
+        typeof observedVideoId !== "string" ||
+        !/^[A-Za-z0-9_-]{6,128}$/.test(observedVideoId) ||
+        observedVideoId === videoId
+      ) {
+        return null;
+      }
+      continue;
+    }
+    if (rejection.kind === "channel_identity_mismatch") {
+      if (rejection.observedVideoId !== videoId) return null;
+      const observedChannelId = rejection.observedChannelId;
+      if (
+        observedChannelId !== null &&
+        (typeof observedChannelId !== "string" ||
+          !/^UC[A-Za-z0-9_-]+$/.test(observedChannelId) ||
+          observedChannelId === receipt.channelId)
+      ) {
+        return null;
+      }
+      continue;
+    }
+    return null;
+  }
+
+  const allowed = new Map([
+    ["completed", "collector_evidence_collected"],
+    ["needs_review", "collector_mapped_account_identity_mismatch"]
+  ]);
   return allowed.get(attempt.outcomeStatus) === attempt.outcomeReason
     ? { status: attempt.outcomeStatus, reason: attempt.outcomeReason }
     : null;

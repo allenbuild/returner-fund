@@ -2592,12 +2592,13 @@ globalThis.fetch = async (input, init = {}) => {
   assert.deepEqual(autonomousCollectorRetryableFailures(snapshot), []);
 });
 
-test("mapped YouTube empty pages terminalize Atom 404 but retry transient feed failures", async () => {
+test("mapped YouTube terminalizes deterministic page/watch rejections but retries transient gaps", async () => {
   const fixtures = [
     {
       pageStatus: 200,
       feedStatus: 404,
       pagePayload: "",
+      expectedAtomRetryable: false,
       expectedRetryable: false,
       expectedVerifiedEmpty: true,
       expectedOutcomeStatus: "completed",
@@ -2608,6 +2609,7 @@ test("mapped YouTube empty pages terminalize Atom 404 but retry transient feed f
       feedStatus: 404,
       pagePayload: ',"videoId":"visibleVideo123","title":{"simpleText":"Visible video"}',
       watchPayload: '<script>{"videoDetails":{"videoId":"differentVideo9","title":"Wrong video","channelId":"UCemptyfeed123","author":"Crebit","shortDescription":"Wrong payload","viewCount":"123"},"publishDate":"2026-08-30T10:15:00-07:00"}</script>',
+      expectedAtomRetryable: true,
       expectedRetryable: true,
       expectedVerifiedEmpty: false,
       expectedOutcomeStatus: "failed",
@@ -2618,6 +2620,7 @@ test("mapped YouTube empty pages terminalize Atom 404 but retry transient feed f
       pageStatus: 200,
       feedStatus: 500,
       pagePayload: "",
+      expectedAtomRetryable: true,
       expectedRetryable: true,
       expectedVerifiedEmpty: false,
       expectedOutcomeStatus: "blocked_or_empty",
@@ -2627,10 +2630,144 @@ test("mapped YouTube empty pages terminalize Atom 404 but retry transient feed f
       pageStatus: 404,
       feedStatus: 404,
       pagePayload: "",
+      expectedAtomRetryable: null,
+      expectedRetryable: false,
+      expectedVerifiedEmpty: false,
+      expectedOutcomeStatus: "needs_review",
+      expectedOutcomeReason: "collector_mapped_account_not_found",
+      expectedHandle404Receipt: true
+    },
+    {
+      pageStatus: 503,
+      feedStatus: 200,
+      feedPayload: '<feed xmlns="http://www.w3.org/2005/Atom"></feed>',
+      pagePayload: "",
+      expectedAtomRetryable: null,
       expectedRetryable: true,
       expectedVerifiedEmpty: false,
-      expectedOutcomeStatus: "failed",
-      expectedOutcomeReason: "collector_reported_failure"
+      expectedOutcomeStatus: "blocked_or_empty",
+      expectedOutcomeReason: "collector_checked_blocked_or_empty",
+      expectedPageStatusRetryable: 503
+    },
+    {
+      pageStatus: 200,
+      pageThrows: true,
+      feedStatus: 200,
+      pagePayload: "",
+      expectedAtomRetryable: null,
+      expectedRetryable: true,
+      expectedVerifiedEmpty: false,
+      expectedOutcomeStatus: "blocked_or_empty",
+      expectedOutcomeReason: "collector_checked_blocked_or_empty",
+      expectedPageTransportRetryable: true
+    },
+    {
+      pageStatus: 200,
+      feedStatus: 200,
+      feedPayload: '<feed xmlns="http://www.w3.org/2005/Atom"></feed>',
+      pagePayload: ',"videoId":"visibleVideo123","title":{"simpleText":"Visible video"}',
+      watchStatus: 500,
+      expectedAtomRetryable: null,
+      expectedRetryable: true,
+      expectedVerifiedEmpty: false,
+      expectedOutcomeStatus: "blocked_or_empty",
+      expectedOutcomeReason: "collector_checked_blocked_or_empty",
+      expectedWatchMetadataUnavailable: true
+    },
+    {
+      pageStatus: 200,
+      feedStatus: 200,
+      feedPayload: '<feed xmlns="http://www.w3.org/2005/Atom"></feed>',
+      pagePayload: ',"videoId":"visibleVideo123","title":{"simpleText":"Visible video"}',
+      watchPayload: '<script>{"videoDetails":{"videoId":"visibleVideo123","title":"Identity unavailable","author":"Crebit","shortDescription":"Missing channel","viewCount":"123"},"publishDate":"2026-08-30T10:15:00-07:00"}</script>',
+      expectedAtomRetryable: null,
+      expectedRetryable: false,
+      expectedVerifiedEmpty: false,
+      expectedOutcomeStatus: "needs_review",
+      expectedOutcomeReason: "collector_mapped_account_identity_mismatch",
+      expectedWatchChannelMismatch: true,
+      expectedIdentityReceipt: true
+    },
+    {
+      pageStatus: 200,
+      feedStatus: 200,
+      feedPayload: '<feed xmlns="http://www.w3.org/2005/Atom"></feed>',
+      pagePayload: ',"videoId":"visibleVideo123","title":{"simpleText":"Visible video"}',
+      watchPayload: '<script>{"videoDetails":{"videoId":"visibleVideo123","title":"Wrong channel","channelId":"UCwrongChannel999","author":"Other","shortDescription":"Wrong channel","viewCount":"123"},"publishDate":"2026-08-30T10:15:00-07:00"}</script>',
+      expectedAtomRetryable: null,
+      expectedRetryable: false,
+      expectedVerifiedEmpty: false,
+      expectedOutcomeStatus: "needs_review",
+      expectedOutcomeReason: "collector_mapped_account_identity_mismatch",
+      expectedWatchChannelMismatch: true,
+      expectedObservedChannelId: "UCwrongChannel999",
+      expectedIdentityReceipt: true
+    },
+    {
+      pageStatus: 200,
+      feedStatus: 200,
+      feedPayload: '<feed xmlns="http://www.w3.org/2005/Atom"></feed>',
+      pagePayload: ',"videoId":"visibleVideo123","title":{"simpleText":"Visible video"}',
+      watchPayload: '<script>{"videoDetails":{"videoId":"differentVideo9","title":"Wrong video","channelId":"UCemptyfeed123","author":"Crebit","shortDescription":"Wrong video","viewCount":"123"},"publishDate":"2026-08-30T10:15:00-07:00"}</script>',
+      expectedAtomRetryable: null,
+      expectedRetryable: false,
+      expectedVerifiedEmpty: false,
+      expectedOutcomeStatus: "needs_review",
+      expectedOutcomeReason: "collector_mapped_account_identity_mismatch",
+      expectedWatchIdentityMismatch: true,
+      expectedIdentityReceipt: true
+    },
+    {
+      pageStatus: 200,
+      feedStatus: 200,
+      feedPayload: '<feed xmlns="http://www.w3.org/2005/Atom"></feed>',
+      pagePayload: ',"videoId":"visibleVideo123","title":{"simpleText":"Visible video"}',
+      watchPayload: '<script>{"videoDetails":{"videoId":"visibleVideo123","title":"Timestamp unavailable","channelId":"UCemptyfeed123","author":"Crebit","shortDescription":"Missing timestamp","viewCount":"123"}}</script>',
+      expectedAtomRetryable: null,
+      expectedRetryable: true,
+      expectedVerifiedEmpty: false,
+      expectedOutcomeStatus: "blocked_or_empty",
+      expectedOutcomeReason: "collector_checked_blocked_or_empty",
+      expectedWatchTimestampUnavailable: true
+    },
+    {
+      pageStatus: 200,
+      feedStatus: 200,
+      feedPayload: '<feed xmlns="http://www.w3.org/2005/Atom"></feed>',
+      pagePayload: ',"videoId":"visibleVideo123","title":{"simpleText":"Visible video"}',
+      watchPayload: '<script>{"videoDetails":{"title":"Video identity unavailable","channelId":"UCemptyfeed123","author":"Crebit","shortDescription":"Missing video identity","viewCount":"123"},"publishDate":"2026-08-30T10:15:00-07:00"}</script>',
+      expectedAtomRetryable: null,
+      expectedRetryable: true,
+      expectedVerifiedEmpty: false,
+      expectedOutcomeStatus: "blocked_or_empty",
+      expectedOutcomeReason: "collector_checked_blocked_or_empty",
+      expectedWatchVideoIdentityUnavailable: true
+    },
+    {
+      pageStatus: 200,
+      feedStatus: 200,
+      feedPayload: '<feed xmlns="http://www.w3.org/2005/Atom"></feed>',
+      pagePayload: ',"videoId":"visibleVideo123","title":{"simpleText":"Visible video"}',
+      watchPayload: '<script>{"videoId":"visibleVideo123","channelId":"UCemptyfeed123","publishDate":"2026-08-30T10:15:00-07:00"}</script>',
+      expectedAtomRetryable: null,
+      expectedRetryable: true,
+      expectedVerifiedEmpty: false,
+      expectedOutcomeStatus: "blocked_or_empty",
+      expectedOutcomeReason: "collector_checked_blocked_or_empty",
+      expectedWatchDetailsUnavailable: true
+    },
+    {
+      pageStatus: 200,
+      feedStatus: 200,
+      feedPayload: '<feed xmlns="http://www.w3.org/2005/Atom"></feed>',
+      pagePayload: ',"videoId":"visibleVideo123","title":{"simpleText":"Visible video"},"videoId":"transientVideo456","title":{"simpleText":"Transient video"}',
+      watchPayload: '<script>{"videoDetails":{"videoId":"visibleVideo123","title":"Identity unavailable","author":"Crebit","shortDescription":"Missing channel","viewCount":"123"},"publishDate":"2026-08-30T10:15:00-07:00"}</script>',
+      expectedAtomRetryable: null,
+      expectedRetryable: true,
+      expectedVerifiedEmpty: false,
+      expectedOutcomeStatus: "blocked_or_empty",
+      expectedOutcomeReason: "collector_checked_blocked_or_empty",
+      expectedMixedHydration: true
     }
   ];
 
@@ -2651,10 +2788,14 @@ test("mapped YouTube empty pages terminalize Atom 404 but retry transient feed f
 globalThis.fetch = async (input) => {
   const value = String(input);
   if (value === "https://youtube.com/@roborebel6031/videos") {
+    if (${Boolean(fixture.pageThrows)}) throw new Error("fetch failed: ECONNRESET");
     return new Response('<script>{"channelId":"${channelId}"${fixture.pagePayload}}</script>', { status: ${fixture.pageStatus} });
   }
   if (value === "https://www.youtube.com/feeds/videos.xml?channel_id=${channelId}") {
-    return new Response("feed unavailable", { status: ${fixture.feedStatus} });
+    return new Response(${JSON.stringify(fixture.feedPayload ?? "feed unavailable")}, { status: ${fixture.feedStatus} });
+  }
+  if (value === "https://www.youtube.com/watch?v=visibleVideo123" && ${Number.isInteger(fixture.watchStatus)}) {
+    return new Response("watch unavailable", { status: ${fixture.watchStatus ?? 500} });
   }
   if (value === "https://www.youtube.com/watch?v=visibleVideo123" && ${Boolean(fixture.watchPayload)}) {
     return new Response(${JSON.stringify(fixture.watchPayload ?? "")}, { status: 200 });
@@ -2696,20 +2837,141 @@ globalThis.fetch = async (input) => {
     assert.equal(attempt?.retryable, fixture.expectedRetryable);
     assert.equal(attempt?.outcomeStatus, fixture.expectedOutcomeStatus);
     assert.equal(attempt?.outcomeReason, fixture.expectedOutcomeReason);
-    assert.equal(atomFailure?.retryable, fixture.expectedRetryable);
+    if (fixture.expectedAtomRetryable == null) {
+      assert.equal(atomFailure, undefined);
+    } else {
+      assert.equal(atomFailure?.retryable, fixture.expectedAtomRetryable);
+    }
     assert.equal(attempt?.coverageReceipt?.verifiedEmpty === true, fixture.expectedVerifiedEmpty);
     const retryableFailures = autonomousCollectorRetryableFailures(snapshot);
-    assert.equal(retryableFailures.includes(atomFailure.message), fixture.expectedRetryable);
-    if (fixture.pagePayload.includes("visibleVideo123")) {
-      assert.ok(retryableFailures.some((message) => /identity- and timestamp-verified/.test(message)));
+    if (atomFailure) {
+      assert.equal(
+        retryableFailures.includes(atomFailure.message),
+        fixture.expectedAtomRetryable
+      );
     }
     if (fixture.expectedWatchIdentityMismatch) {
-      assert.ok(retryableFailures.some(
-        (message) => /watch video differentVideo9 did not match visibleVideo123/.test(message)
-      ));
+      const hydrationFailure = snapshot.failures.find(
+        (row) => /watch video differentVideo9 did not match visibleVideo123/.test(row.message ?? "")
+      );
+      assert.equal(hydrationFailure?.retryable, false);
+      assert.equal(retryableFailures.includes(hydrationFailure.message), false);
+    }
+    if (fixture.expectedWatchMetadataUnavailable) {
+      const hydrationFailure = snapshot.failures.find(
+        (row) => /visibleVideo123 \(watch metadata unavailable\)/.test(row.message ?? "")
+      );
+      assert.equal(hydrationFailure?.retryable, true);
+      assert.equal(retryableFailures.includes(hydrationFailure.message), true);
+    }
+    if (fixture.expectedWatchChannelMismatch) {
+      const observedChannelId = fixture.expectedObservedChannelId ?? "missing";
+      const hydrationFailure = snapshot.failures.find(
+        (row) => new RegExp(
+          `visibleVideo123 \\(watch channel ${observedChannelId} did not match UCemptyfeed123\\)`
+        ).test(row.message ?? "")
+      );
+      assert.equal(hydrationFailure?.retryable, false);
+      assert.equal(retryableFailures.includes(hydrationFailure.message), false);
+    }
+    if (fixture.expectedWatchTimestampUnavailable) {
+      const hydrationFailure = snapshot.failures.find(
+        (row) => /visibleVideo123 \(exact native publication timestamp unavailable\)/.test(row.message ?? "")
+      );
+      assert.equal(hydrationFailure?.retryable, true);
+      assert.equal(retryableFailures.includes(hydrationFailure.message), true);
+      assert.equal(attempt?.coverageReceipt, undefined);
+    }
+    if (fixture.expectedWatchVideoIdentityUnavailable) {
+      const hydrationFailure = snapshot.failures.find(
+        (row) => /visibleVideo123 \(watch video identity unavailable\)/.test(row.message ?? "")
+      );
+      assert.equal(hydrationFailure?.retryable, true);
+      assert.equal(retryableFailures.includes(hydrationFailure.message), true);
+      assert.equal(attempt?.coverageReceipt, undefined);
+    }
+    if (fixture.expectedWatchDetailsUnavailable) {
+      const hydrationFailure = snapshot.failures.find(
+        (row) => /visibleVideo123 \(watch video details unavailable\)/.test(row.message ?? "")
+      );
+      assert.equal(hydrationFailure?.retryable, true);
+      assert.equal(retryableFailures.includes(hydrationFailure.message), true);
+      assert.equal(attempt?.coverageReceipt, undefined);
+    }
+    if (fixture.expectedMixedHydration) {
+      const hydrationFailure = snapshot.failures.find(
+        (row) => /transientVideo456 \(watch metadata unavailable\)/.test(row.message ?? "")
+      );
+      assert.match(
+        hydrationFailure?.message ?? "",
+        /visibleVideo123 \(watch channel missing did not match UCemptyfeed123\)/
+      );
+      assert.equal(hydrationFailure?.retryable, true);
+      assert.equal(retryableFailures.includes(hydrationFailure.message), true);
+      assert.equal(attempt?.coverageReceipt, undefined);
+    }
+    if (fixture.expectedIdentityReceipt) {
+      assert.deepEqual(attempt?.coverageReceipt, {
+        schemaVersion: 1,
+        source: "youtube_exhausted_public_listing_identity_rejections_v1",
+        verified: false,
+        reason: "youtube_listing_watch_identity_rejections",
+        accountUrl,
+        channelId,
+        pageUrl: `${accountUrl}/videos`,
+        pageVideoCount: 1,
+        continuationPageCount: 0,
+        listingExhausted: true,
+        hydratedVideoCount: 0,
+        identityRejectedVideoCount: 1,
+        allUnverifiedIdentityRejected: true,
+        identityRejections: [fixture.expectedWatchIdentityMismatch
+          ? {
+              videoId: "visibleVideo123",
+              kind: "video_identity_mismatch",
+              observedVideoId: "differentVideo9"
+            }
+          : {
+              videoId: "visibleVideo123",
+              kind: "channel_identity_mismatch",
+              observedVideoId: "visibleVideo123",
+              observedChannelId: fixture.expectedObservedChannelId ?? null
+            }],
+        outcome: "exhausted_mapped_channel_listing_with_identity_rejections",
+        checkedAt: attempt.checkedAt
+      });
     }
     if (fixture.pageStatus === 404) {
-      assert.ok(retryableFailures.some((message) => /videos page returned HTTP 404/.test(message)));
+      const listingFailure = snapshot.failures.find(
+        (row) => /videos page returned HTTP 404/.test(row.message ?? "")
+      );
+      assert.equal(listingFailure?.retryable, false);
+      assert.equal(retryableFailures.includes(listingFailure.message), false);
+    }
+    if (fixture.expectedPageStatusRetryable) {
+      const listingFailure = snapshot.failures.find(
+        (row) => new RegExp(`videos page returned HTTP ${fixture.expectedPageStatusRetryable}`).test(row.message ?? "")
+      );
+      assert.equal(listingFailure?.retryable, true);
+      assert.equal(retryableFailures.includes(listingFailure.message), true);
+      assert.equal(attempt?.coverageReceipt, undefined);
+    }
+    if (fixture.expectedPageTransportRetryable) {
+      assert.match(attempt?.error ?? "", /fetch failed: ECONNRESET/);
+      assert.ok(retryableFailures.some((message) => /fetch failed: ECONNRESET/.test(message)));
+      assert.equal(attempt?.coverageReceipt, undefined);
+    }
+    if (fixture.expectedHandle404Receipt) {
+      assert.deepEqual(attempt?.coverageReceipt, {
+        schemaVersion: 1,
+        source: "youtube_mapped_account_http_404_v1",
+        verified: false,
+        accountUrl,
+        pageUrl: `${accountUrl}/videos`,
+        httpStatus: 404,
+        reason: "youtube_mapped_account_http_404",
+        checkedAt: attempt.checkedAt
+      });
     }
     if (!fixture.expectedRetryable) {
       assert.deepEqual(retryableFailures, []);

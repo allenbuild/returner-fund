@@ -1729,6 +1729,33 @@ function structuredMappedAccountTerminalOutcome(
   if (!taskAccountUrl || !receiptAccountUrl || taskAccountUrl !== receiptAccountUrl) return null;
 
   if (platform === "youtube") {
+    if (
+      receipt?.schemaVersion === 1 &&
+      receipt.source === "youtube_mapped_account_http_404_v1" &&
+      receipt.verified === false &&
+      receipt.reason === "youtube_mapped_account_http_404" &&
+      receipt.httpStatus === 404 &&
+      receipt.checkedAt === now &&
+      receiptAccountUrl === taskAccountUrl &&
+      receipt.pageUrl === `${taskAccountUrl}/videos` &&
+      receipt.channelId == null &&
+      !/^https:\/\/youtube\.com\/channel\/UC[A-Za-z0-9_-]+$/.test(taskAccountUrl)
+    ) {
+      return {
+        status: "needs_review",
+        reason: "collector_mapped_account_not_found"
+      };
+    }
+    if (validMappedYouTubeIdentityRejectionCoverageReceipt(
+      receipt,
+      taskAccountUrl,
+      now
+    )) {
+      return {
+        status: "needs_review",
+        reason: "collector_mapped_account_identity_mismatch"
+      };
+    }
     const channelMatch = /^https:\/\/youtube\.com\/channel\/(UC[A-Za-z0-9_-]+)$/.exec(taskAccountUrl);
     if (
       !channelMatch ||
@@ -2285,6 +2312,7 @@ async function fetchYouTubeWatchMetadata(videoId) {
     const youtubeChannelId = jsonStringField(details, "channelId");
     const youtubeChannelName = jsonStringField(details, "author") ?? jsonStringField(html, "ownerChannelName");
     return {
+      youtubeVideoDetailsPresent: detailsStart >= 0,
       youtubeVideoId,
       title: jsonStringField(details, "title"),
       description: jsonStringField(details, "shortDescription"),
@@ -2356,26 +2384,26 @@ async function ingestMappedYouTubeAccount(company, entity, entityType, accountUr
   const canonicalAccountUrl = canonicalProfileUrl(accountUrl, "youtube").replace(/\/$/, "");
   const videosUrl = `${canonicalAccountUrl}/videos`;
   const { response: pageResponse, text: html } = await fetchPublicBoundedText(videosUrl);
-  const pageObservation = parseYouTubePublicPage(html);
   const mappedChannelId = youtubeChannelIdFromAccountUrl(canonicalAccountUrl);
   const entityId = entityIdFor(company, entity, entityType);
   const name = entityName(entity, entityType);
   const exactMappedChannelUrl = mappedChannelId
     ? `https://youtube.com/channel/${mappedChannelId}`
     : null;
-  if (
-    pageResponse.status === 404 &&
-    exactMappedChannelUrl &&
-    canonicalAccountUrl === exactMappedChannelUrl
-  ) {
+  if (pageResponse.status === 404) {
     const message =
       "Mapped YouTube public videos listing could not be exhausted: videos page returned HTTP 404.";
-    return {
+    const exactMappedChannelMissing = Boolean(
+      exactMappedChannelUrl && canonicalAccountUrl === exactMappedChannelUrl
+    );
+    const result = {
       needsReview: [reviewCandidate(
         company,
         "youtube",
         canonicalAccountUrl,
-        `The exact mapped YouTube channel ${mappedChannelId} returned HTTP 404 and requires mapping review.`,
+        exactMappedChannelMissing
+          ? `The exact mapped YouTube channel ${mappedChannelId} returned HTTP 404 and requires mapping review.`
+          : `The mapped YouTube account ${canonicalAccountUrl} returned HTTP 404 and requires mapping review.`,
         entityType,
         entityId,
         name
@@ -2391,7 +2419,29 @@ async function ingestMappedYouTubeAccount(company, entity, entityType, accountUr
           entityId
         ),
         retryable: false
-      }],
+      }]
+    };
+    // A non-OK videos page cannot supply trustworthy embedded channel IDs.
+    // Stop here instead of parsing its body or probing an Atom URL derived
+    // from it. Exact /channel/ mappings retain their channel-ID-bound receipt;
+    // other canonical account forms use a separate strict mapping receipt.
+    if (!exactMappedChannelMissing) {
+      return {
+        ...result,
+        coverageReceipt: {
+          schemaVersion: 1,
+          source: "youtube_mapped_account_http_404_v1",
+          verified: false,
+          accountUrl: canonicalAccountUrl,
+          pageUrl: videosUrl,
+          httpStatus: 404,
+          reason: "youtube_mapped_account_http_404",
+          checkedAt: now
+        }
+      };
+    }
+    return {
+      ...result,
       coverageReceipt: {
         schemaVersion: 1,
         source: "youtube_exact_mapped_channel_http_404_v1",
@@ -2405,6 +2455,7 @@ async function ingestMappedYouTubeAccount(company, entity, entityType, accountUr
       }
     };
   }
+  const pageObservation = parseYouTubePublicPage(html);
   if (mappedChannelId && pageObservation.channelId && mappedChannelId !== pageObservation.channelId) {
     return {
       failures: [failure(
@@ -2494,7 +2545,7 @@ async function ingestMappedYouTubeAccount(company, entity, entityType, accountUr
           name,
           entityId
         ),
-        retryable: true
+        retryable: listing.failureRetryable !== false
       }
     : null;
   const hydratedListing = await hydrateMappedYouTubeListingVideos(
@@ -2515,7 +2566,7 @@ async function ingestMappedYouTubeAccount(company, entity, entityType, accountUr
           name,
           entityId
         ),
-        retryable: true
+        retryable: hydratedListing.unverified.some((item) => item.retryable !== false)
       }
     : null;
 
@@ -2565,6 +2616,22 @@ async function ingestMappedYouTubeAccount(company, entity, entityType, accountUr
   const terminalFeedFailure = terminalAtom404Listing && feedFailure
     ? { ...feedFailure, retryable: false }
     : feedFailure;
+  const allUnverifiedAreTerminalIdentityRejections =
+    hydratedListing.unverified.length > 0 &&
+    hydratedListing.unverified.every((item) =>
+      item.retryable === false &&
+      ["video_identity_mismatch", "channel_identity_mismatch"].includes(item.kind)
+    );
+  const terminalIdentityRejectionListing =
+    pageResponse.ok &&
+    listing.exhausted === true &&
+    !listingFailure &&
+    Boolean(channelId) &&
+    pageObservation.channelId === channelId &&
+    allUnverifiedAreTerminalIdentityRejections &&
+    hydratedListing.videos.length + hydratedListing.unverified.length ===
+      listing.discoveredVideoIds.length &&
+    terminalFeedFailure?.retryable !== true;
   const coverageReceipt = terminalAtom404Listing
     ? mappedYouTubeListingCoverageReceipt({
         canonicalAccountUrl,
@@ -2574,7 +2641,15 @@ async function ingestMappedYouTubeAccount(company, entity, entityType, accountUr
         hydratedListing,
         feedHttpStatus
       })
-    : null;
+    : terminalIdentityRejectionListing
+      ? mappedYouTubeIdentityRejectionCoverageReceipt({
+          canonicalAccountUrl,
+          channelId,
+          videosUrl,
+          listing,
+          hydratedListing
+        })
+      : null;
   const videos = [...videosById.values()];
   if (!videos.length) {
     const verifiedEmptyAtom404 = terminalAtom404Listing && listing.discoveredVideoIds.length === 0;
@@ -2594,11 +2669,9 @@ async function ingestMappedYouTubeAccount(company, entity, entityType, accountUr
         )
       ],
       ...(verifiedEmptyAtom404
-        ? {
-            verifiedEmpty: true,
-            coverageReceipt
-          }
-        : {})
+        ? { verifiedEmpty: true }
+        : {}),
+      ...(coverageReceipt ? { coverageReceipt } : {})
     };
   }
   const evidence = [];
@@ -2660,13 +2733,23 @@ async function ingestMappedYouTubeAccount(company, entity, entityType, accountUr
 
 async function exhaustMappedYouTubePublicListing({ pageResponse, pageObservation, channelId }) {
   const discoveredVideoIds = [...new Set(pageObservation.discoveredVideoIds ?? [])];
-  const failureResult = (reason) => ({
+  const failureResult = (reason, { retryable = true } = {}) => ({
     discoveredVideoIds,
     continuationPageCount: 0,
     exhausted: false,
-    failureMessage: `Mapped YouTube public videos listing could not be exhausted: ${reason}`
+    failureMessage: `Mapped YouTube public videos listing could not be exhausted: ${reason}`,
+    failureRetryable: retryable
   });
-  if (!pageResponse.ok) return failureResult(`videos page returned HTTP ${pageResponse.status}.`);
+  if (!pageResponse.ok) {
+    return failureResult(
+      `videos page returned HTTP ${pageResponse.status}.`,
+      // Unlike the intermittently unavailable Atom endpoint, a 404 from the
+      // exact mapped channel/handle videos page is a bounded mapping failure.
+      // It remains eligible for a later scheduled freshness replay, but must
+      // not hold every batch publication open indefinitely.
+      { retryable: pageResponse.status !== 404 }
+    );
+  }
   if (!channelId || !pageObservation.channelId) {
     if (
       discoveredVideoIds.length === 0 &&
@@ -2834,14 +2917,39 @@ async function hydrateMappedYouTubeListingVideos(videoIds, channelId) {
         const metadata = await fetchYouTubeWatchMetadata(videoId);
         const postedAt = exactEvidenceTimestamp(metadata?.postedAt);
         let reason = null;
-        if (!metadata) reason = "watch metadata unavailable";
-        else if (metadata.youtubeVideoId !== videoId) {
+        let kind = null;
+        let retryable = true;
+        const identity = {};
+        if (!metadata) {
+          reason = "watch metadata unavailable";
+          kind = "metadata_unavailable";
+        } else if (metadata.youtubeVideoDetailsPresent !== true) {
+          reason = "watch video details unavailable";
+          kind = "metadata_unavailable";
+        } else if (!metadata.youtubeVideoId) {
+          reason = "watch video identity unavailable";
+          kind = "metadata_unavailable";
+        } else if (metadata.youtubeVideoId !== videoId) {
           reason = `watch video ${metadata.youtubeVideoId ?? "missing"} did not match ${videoId}`;
+          kind = "video_identity_mismatch";
+          identity.observedVideoId = metadata.youtubeVideoId;
+          retryable = false;
         } else if (!channelId || metadata.youtubeChannelId !== channelId) {
           reason = `watch channel ${metadata.youtubeChannelId ?? "missing"} did not match ${channelId ?? "missing"}`;
-        } else if (!postedAt) reason = "exact native publication timestamp unavailable";
+          kind = "channel_identity_mismatch";
+          identity.observedVideoId = metadata.youtubeVideoId;
+          identity.observedChannelId = metadata.youtubeChannelId ?? null;
+          retryable = false;
+        } else if (!postedAt) {
+          reason = "exact native publication timestamp unavailable";
+          kind = "timestamp_unavailable";
+        }
         if (reason) {
-          unverified.push({ videoId, reason });
+          // A parsed watch response that proves the wrong video/channel is a
+          // deterministic attribution rejection. Transport/metadata and
+          // timestamp gaps remain retryable because a later fetch can fill
+          // them without weakening the identity boundary.
+          unverified.push({ videoId, reason, kind, retryable, ...identity });
           continue;
         }
         videos[index] = {
@@ -2890,6 +2998,121 @@ function mappedYouTubeListingCoverageReceipt({
       ? "verified_empty_mapped_channel_page_feed_unavailable"
       : "verified_nonempty_mapped_channel_page_feed_unavailable"
   };
+}
+
+function mappedYouTubeIdentityRejectionCoverageReceipt({
+  canonicalAccountUrl,
+  channelId,
+  videosUrl,
+  listing,
+  hydratedListing
+}) {
+  const identityRejections = hydratedListing.unverified.map((item) => ({
+    videoId: item.videoId,
+    kind: item.kind,
+    ...(item.kind === "video_identity_mismatch"
+      ? { observedVideoId: item.observedVideoId ?? null }
+      : {
+          observedVideoId: item.observedVideoId ?? null,
+          observedChannelId: item.observedChannelId ?? null
+        })
+  }));
+  return {
+    schemaVersion: 1,
+    source: "youtube_exhausted_public_listing_identity_rejections_v1",
+    verified: false,
+    reason: "youtube_listing_watch_identity_rejections",
+    accountUrl: canonicalAccountUrl,
+    channelId,
+    pageUrl: videosUrl,
+    pageVideoCount: listing.discoveredVideoIds.length,
+    continuationPageCount: listing.continuationPageCount,
+    listingExhausted: true,
+    hydratedVideoCount: hydratedListing.videos.length,
+    identityRejectedVideoCount: identityRejections.length,
+    allUnverifiedIdentityRejected: true,
+    identityRejections,
+    outcome: "exhausted_mapped_channel_listing_with_identity_rejections",
+    checkedAt: now
+  };
+}
+
+function validMappedYouTubeIdentityRejectionCoverageReceipt(
+  receipt,
+  accountUrl,
+  checkedAt
+) {
+  if (
+    receipt?.schemaVersion !== 1 ||
+    receipt.source !== "youtube_exhausted_public_listing_identity_rejections_v1" ||
+    receipt.verified !== false ||
+    receipt.reason !== "youtube_listing_watch_identity_rejections" ||
+    receipt.checkedAt !== checkedAt ||
+    canonicalSocialAccountUrl("youtube", receipt.accountUrl) !== accountUrl ||
+    receipt.pageUrl !== `${accountUrl}/videos` ||
+    !/^UC[A-Za-z0-9_-]+$/.test(String(receipt.channelId ?? "")) ||
+    receipt.listingExhausted !== true ||
+    receipt.allUnverifiedIdentityRejected !== true ||
+    receipt.outcome !== "exhausted_mapped_channel_listing_with_identity_rejections"
+  ) {
+    return false;
+  }
+  const pageVideoCount = Number(receipt.pageVideoCount);
+  const continuationPageCount = Number(receipt.continuationPageCount);
+  const hydratedVideoCount = Number(receipt.hydratedVideoCount);
+  const identityRejectedVideoCount = Number(receipt.identityRejectedVideoCount);
+  if (
+    !Number.isSafeInteger(pageVideoCount) ||
+    pageVideoCount <= 0 ||
+    !Number.isSafeInteger(continuationPageCount) ||
+    continuationPageCount < 0 ||
+    !Number.isSafeInteger(hydratedVideoCount) ||
+    hydratedVideoCount < 0 ||
+    !Number.isSafeInteger(identityRejectedVideoCount) ||
+    identityRejectedVideoCount <= 0 ||
+    hydratedVideoCount + identityRejectedVideoCount !== pageVideoCount ||
+    !Array.isArray(receipt.identityRejections) ||
+    receipt.identityRejections.length !== identityRejectedVideoCount
+  ) {
+    return false;
+  }
+  let previousVideoId = null;
+  for (const rejection of receipt.identityRejections) {
+    const videoId = rejection?.videoId;
+    if (
+      typeof videoId !== "string" ||
+      !/^[A-Za-z0-9_-]{6,128}$/.test(videoId) ||
+      (previousVideoId !== null && previousVideoId.localeCompare(videoId) >= 0)
+    ) {
+      return false;
+    }
+    previousVideoId = videoId;
+    if (rejection.kind === "video_identity_mismatch") {
+      const observedVideoId = rejection.observedVideoId;
+      if (
+        typeof observedVideoId !== "string" ||
+        !/^[A-Za-z0-9_-]{6,128}$/.test(observedVideoId) ||
+        observedVideoId === videoId
+      ) {
+        return false;
+      }
+      continue;
+    }
+    if (rejection.kind === "channel_identity_mismatch") {
+      if (rejection.observedVideoId !== videoId) return false;
+      const observedChannelId = rejection.observedChannelId;
+      if (
+        observedChannelId !== null &&
+        (!/^UC[A-Za-z0-9_-]+$/.test(String(observedChannelId)) ||
+          observedChannelId === receipt.channelId)
+      ) {
+        return false;
+      }
+      continue;
+    }
+    return false;
+  }
+  return true;
 }
 
 async function ingestMappedProductHuntAccount(company, entity, entityType, accountUrl) {

@@ -2305,6 +2305,133 @@ describe("autonomous collector task accounting", () => {
     assert.deepEqual(autonomousCollectorRetryableFailures(snapshot), [message]);
   });
 
+  it("lets strict YouTube 404 and identity receipts supersede older cross-message retries", () => {
+    const checkedAt = "2026-09-01T05:00:00.000Z";
+    const olderCheckedAt = "2026-09-01T04:50:00.000Z";
+    const cases = [{
+      accountUrl: "https://youtube.com/@mappedhandle",
+      entityId: "company-mapped-handle",
+      outcomeReason: "collector_mapped_account_not_found",
+      receipt: {
+        schemaVersion: 1,
+        source: "youtube_mapped_account_http_404_v1",
+        verified: false,
+        accountUrl: "https://youtube.com/@mappedhandle",
+        pageUrl: "https://youtube.com/@mappedhandle/videos",
+        httpStatus: 404,
+        reason: "youtube_mapped_account_http_404",
+        checkedAt
+      }
+    }, {
+      accountUrl: "https://youtube.com/@mappedidentity",
+      entityId: "company-mapped-identity",
+      outcomeReason: "collector_mapped_account_identity_mismatch",
+      receipt: {
+        schemaVersion: 1,
+        source: "youtube_exhausted_public_listing_identity_rejections_v1",
+        verified: false,
+        reason: "youtube_listing_watch_identity_rejections",
+        accountUrl: "https://youtube.com/@mappedidentity",
+        channelId: "UCmappedIdentity123",
+        pageUrl: "https://youtube.com/@mappedidentity/videos",
+        pageVideoCount: 1,
+        continuationPageCount: 0,
+        listingExhausted: true,
+        hydratedVideoCount: 0,
+        identityRejectedVideoCount: 1,
+        allUnverifiedIdentityRejected: true,
+        identityRejections: [{
+          videoId: "JO0dwm_NU_s",
+          kind: "channel_identity_mismatch",
+          observedVideoId: "JO0dwm_NU_s",
+          observedChannelId: null
+        }],
+        outcome: "exhausted_mapped_channel_listing_with_identity_rejections",
+        checkedAt
+      }
+    }];
+
+    for (const fixture of cases) {
+      const attemptKey = `youtube:company:${fixture.entityId}:${fixture.accountUrl}`;
+      const oldMessage = `HTTP 503 older YouTube failure for ${fixture.entityId}`;
+      const snapshot = {
+        attempts: {
+          current: {
+            attemptKey,
+            platform: "youtube",
+            entityType: "company",
+            entityId: fixture.entityId,
+            accountUrl: fixture.accountUrl,
+            checkedAt,
+            retryable: false,
+            outcomeStatus: "needs_review",
+            outcomeReason: fixture.outcomeReason,
+            coverageReceipt: fixture.receipt
+          }
+        },
+        failures: [{
+          attemptKey,
+          platform: "youtube",
+          entityType: "company",
+          entityId: fixture.entityId,
+          accountUrl: fixture.accountUrl,
+          checkedAt: olderCheckedAt,
+          message: oldMessage,
+          retryable: true
+        }]
+      };
+      assert.deepEqual(autonomousCollectorRetryableFailures(snapshot), []);
+
+      const receiptMutations = [
+        (receipt) => { receipt.accountUrl = `${fixture.accountUrl}-other`; },
+        (receipt) => { receipt.pageUrl = `${fixture.accountUrl}/shorts`; },
+        (receipt) => { receipt.reason = "untyped_youtube_claim"; },
+        (receipt) => { receipt.checkedAt = olderCheckedAt; }
+      ];
+      if (fixture.receipt.source === "youtube_mapped_account_http_404_v1") {
+        receiptMutations.push(
+          (receipt) => { receipt.httpStatus = 503; },
+          (receipt) => { receipt.channelId = "UCunexpectedChannel"; }
+        );
+      } else {
+        receiptMutations.push(
+          (receipt) => { receipt.channelId = "invalid-channel"; },
+          (receipt) => { receipt.outcome = "untyped_identity_claim"; },
+          (receipt) => { receipt.identityRejectedVideoCount = 2; },
+          (receipt) => { receipt.identityRejections[0].videoId = 123456; },
+          (receipt) => { receipt.identityRejections[0].observedVideoId = "differentVideo999"; }
+        );
+      }
+      for (const mutateReceipt of receiptMutations) {
+        const tampered = structuredClone(snapshot);
+        mutateReceipt(tampered.attempts.current.coverageReceipt);
+        assert.deepEqual(autonomousCollectorRetryableFailures(tampered), [oldMessage]);
+      }
+
+      if (fixture.receipt.source === "youtube_mapped_account_http_404_v1") {
+        const invalidAccount = structuredClone(snapshot);
+        const invalidUrl = "not-a-youtube-url";
+        const invalidAttemptKey = `youtube:company:${fixture.entityId}:${invalidUrl}`;
+        invalidAccount.attempts.current.accountUrl = invalidUrl;
+        invalidAccount.attempts.current.attemptKey = invalidAttemptKey;
+        invalidAccount.attempts.current.coverageReceipt.accountUrl = invalidUrl;
+        invalidAccount.attempts.current.coverageReceipt.pageUrl = "null/videos";
+        invalidAccount.failures[0].accountUrl = invalidUrl;
+        invalidAccount.failures[0].attemptKey = invalidAttemptKey;
+        assert.deepEqual(autonomousCollectorRetryableFailures(invalidAccount), [oldMessage]);
+      }
+
+      const invalidTime = structuredClone(snapshot);
+      invalidTime.attempts.current.checkedAt = "invalid-time";
+      invalidTime.attempts.current.coverageReceipt.checkedAt = "invalid-time";
+      assert.deepEqual(autonomousCollectorRetryableFailures(invalidTime), [oldMessage]);
+
+      const newerFailure = structuredClone(snapshot);
+      newerFailure.failures[0].checkedAt = "2026-09-01T05:10:00.000Z";
+      assert.deepEqual(autonomousCollectorRetryableFailures(newerFailure), [oldMessage]);
+    }
+  });
+
   it("keeps explicit transport retries through generic terminal labels", () => {
     for (const outcomeStatus of ["blocked_or_empty", "needs_review"]) {
       const accountUrl = `https://x.com/${outcomeStatus}`;
