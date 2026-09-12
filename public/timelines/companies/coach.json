@@ -5,8 +5,8 @@
     "slug": "coach",
     "name": "COACH"
   },
-  "generatedAt": "2026-09-12T04:09:14.205Z",
-  "lastModifiedAt": "2026-09-12T04:09:14.205Z",
+  "generatedAt": "2026-09-12T09:13:45.571Z",
+  "lastModifiedAt": "2026-09-12T09:13:45.571Z",
   "events": [
     {
       "id": "tle-c1aaf25e76670a1b8297c1ba",
@@ -47,7 +47,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-09-12T04:09:14.205Z"
+    "lastSuccessfulArtifactAt": "2026-09-12T09:13:45.571Z"
   },
   "nextCursor": null
 }

@@ -5,8 +5,8 @@
     "slug": "lab0",
     "name": "Lab0"
   },
-  "generatedAt": "2026-09-12T04:09:14.205Z",
-  "lastModifiedAt": "2026-09-12T04:09:14.205Z",
+  "generatedAt": "2026-09-12T09:13:45.571Z",
+  "lastModifiedAt": "2026-09-12T09:13:45.571Z",
   "events": [
     {
       "id": "tle-61f6c7fe95b19225a4654a0a",
@@ -47,7 +47,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-09-12T04:09:14.205Z"
+    "lastSuccessfulArtifactAt": "2026-09-12T09:13:45.571Z"
   },
   "nextCursor": null
 }
