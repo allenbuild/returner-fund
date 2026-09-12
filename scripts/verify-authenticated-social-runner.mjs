@@ -33,13 +33,16 @@ const SERVICE_RETRYABLE_REASONS = new Set([
   "auth_browser_process_singleton_missing",
   "auth_browser_process_inventory_unavailable"
 ]);
-const AUTHENTICATED_RUNNER_REQUIRED_ENV = Object.freeze([
+const AUTHENTICATED_RUNNER_COMMON_REQUIRED_ENV = Object.freeze([
   "OPENCLI_BIN",
   "OPENCLI_HOME",
   "OPENCLI_PROFILE",
-  "RETURNER_LINKEDIN_VIEWER_PROFILE",
-  "RETURNER_INSTAGRAM_VIEWER_HANDLE"
+  "RETURNER_LINKEDIN_VIEWER_PROFILE"
 ]);
+const AUTHENTICATED_BACKFILL_PLATFORMS = Object.freeze({
+  all: Object.freeze(["instagram", "linkedin"]),
+  linkedin: Object.freeze(["linkedin"])
+});
 const INSTAGRAM_ADAPTER_FORMAT_ARGS = Object.freeze([
   "-f",
   "json",
@@ -78,6 +81,13 @@ export function normalizeLinkedInViewerSlug(value) {
   } catch {
     return null;
   }
+}
+
+export function normalizeAuthenticatedBackfillScope(value = "all") {
+  const normalized = String(value ?? "all").trim();
+  return Object.hasOwn(AUTHENTICATED_BACKFILL_PLATFORMS, normalized)
+    ? normalized
+    : null;
 }
 
 export function instagramSelfIdentityDecision({
@@ -273,9 +283,21 @@ export async function runAuthenticatedSocialRunnerPreflight({
   sleep = delay
 } = {}) {
   const strictReplay = String(env.AUTHENTICATED_SOCIAL_REPLAY ?? "").toLowerCase() === "true";
-  const configurationState = authenticatedRunnerConfigurationState(env);
+  const requestedScope = normalizeAuthenticatedBackfillScope(
+    env.AUTHENTICATED_BACKFILL_SCOPE ?? "all"
+  );
+  if (!requestedScope) {
+    return authenticatedPreflightResult({
+      requestedScope: null,
+      configured: false,
+      reason: "authenticated_backfill_scope_invalid"
+    });
+  }
+  const requestedPlatforms = AUTHENTICATED_BACKFILL_PLATFORMS[requestedScope];
+  const configurationState = authenticatedRunnerConfigurationState(env, requestedPlatforms);
   if (configurationState.absent && !strictReplay) {
     return authenticatedPreflightResult({
+      requestedScope,
       skipped: true,
       configured: false,
       reason: "authenticated_social_not_configured"
@@ -283,6 +305,7 @@ export async function runAuthenticatedSocialRunnerPreflight({
   }
   if (!configurationState.complete) {
     return authenticatedPreflightResult({
+      requestedScope,
       configured: false,
       reason: "authenticated_social_configuration_incomplete"
     });
@@ -297,19 +320,27 @@ export async function runAuthenticatedSocialRunnerPreflight({
     runtimeResolver
   });
   if (!configuration.ok) {
-    return authenticatedPreflightResult({ configured: false, reason: configuration.reason });
+    return authenticatedPreflightResult({
+      requestedScope,
+      configured: false,
+      reason: configuration.reason
+    });
   }
 
-  const instagramHandle = normalizeInstagramViewerHandle(env.RETURNER_INSTAGRAM_VIEWER_HANDLE);
   const linkedinSlug = normalizeLinkedInViewerSlug(env.RETURNER_LINKEDIN_VIEWER_PROFILE);
-  if (!instagramHandle) {
+  const instagramHandle = requestedPlatforms.includes("instagram")
+    ? normalizeInstagramViewerHandle(env.RETURNER_INSTAGRAM_VIEWER_HANDLE)
+    : null;
+  if (requestedPlatforms.includes("instagram") && !instagramHandle) {
     return authenticatedPreflightResult({
+      requestedScope,
       configured: false,
       reason: "instagram_viewer_handle_missing_or_invalid"
     });
   }
   if (!linkedinSlug) {
     return authenticatedPreflightResult({
+      requestedScope,
       configured: false,
       reason: "linkedin_viewer_profile_missing_or_invalid"
     });
@@ -339,10 +370,13 @@ export async function runAuthenticatedSocialRunnerPreflight({
   );
   if (!service.ok) {
     return authenticatedPreflightResult({
+      requestedScope,
       configured: true,
       reason: service.reason,
       service,
-      instagram: unavailablePlatform(service.reason),
+      instagram: requestedPlatforms.includes("instagram")
+        ? unavailablePlatform(service.reason)
+        : unrequestedPlatform(),
       linkedin: unavailablePlatform(service.reason)
     });
   }
@@ -361,10 +395,13 @@ export async function runAuthenticatedSocialRunnerPreflight({
       launchAgent: service
     };
     return authenticatedPreflightResult({
+      requestedScope,
       configured: true,
       reason: profile.reason,
       service: browserService,
-      instagram: unavailablePlatform(profile.reason),
+      instagram: requestedPlatforms.includes("instagram")
+        ? unavailablePlatform(profile.reason)
+        : unrequestedPlatform(),
       linkedin: unavailablePlatform(profile.reason)
     });
   }
@@ -378,21 +415,27 @@ export async function runAuthenticatedSocialRunnerPreflight({
       sleep
     }
   );
-  // Keep Instagram last: its exact adapter invocation and identity DOM proof
-  // are the final preflight operations before the coordinator launches the
-  // Instagram collector lane.
-  const instagram = await retryAuthenticatedPreflight(
-    () => verifyInstagramReadiness(instagramHandle, runCommand),
-    {
-      attempts: PLATFORM_PREFLIGHT_ATTEMPTS,
-      retryDelaysMs: PLATFORM_PREFLIGHT_RETRY_DELAYS_MS,
-      sleep
-    }
-  );
+  // Keep Instagram last when it was explicitly requested: its exact adapter
+  // invocation and identity DOM proof are then the final preflight operations
+  // before the coordinator launches the Instagram collector lane. A LinkedIn-
+  // only replay never invokes an Instagram adapter or browser probe.
+  const instagram = requestedPlatforms.includes("instagram")
+    ? await retryAuthenticatedPreflight(
+        () => verifyInstagramReadiness(instagramHandle, runCommand),
+        {
+          attempts: PLATFORM_PREFLIGHT_ATTEMPTS,
+          retryDelaysMs: PLATFORM_PREFLIGHT_RETRY_DELAYS_MS,
+          sleep
+        }
+      )
+    : unrequestedPlatform();
   return authenticatedPreflightResult({
+    requestedScope,
     configured: true,
-    reason: instagram.ok && linkedin.ok
-      ? "authenticated_social_runner_verified"
+    reason: linkedin.ok && (!requestedPlatforms.includes("instagram") || instagram.ok)
+      ? requestedScope === "linkedin"
+        ? "authenticated_linkedin_runner_verified"
+        : "authenticated_social_runner_verified"
       : "authenticated_social_platform_preflight_failed",
     service: readyService,
     instagram,
@@ -570,26 +613,47 @@ function authenticatedBrowserDiagnostic(error) {
     .join("\n");
 }
 
-function authenticatedRunnerConfigurationState(env) {
-  const present = AUTHENTICATED_RUNNER_REQUIRED_ENV.filter((key) =>
+function authenticatedRunnerConfigurationState(env, requestedPlatforms = AUTHENTICATED_BACKFILL_PLATFORMS.all) {
+  const required = [
+    ...AUTHENTICATED_RUNNER_COMMON_REQUIRED_ENV,
+    ...(requestedPlatforms.includes("instagram") ? ["RETURNER_INSTAGRAM_VIEWER_HANDLE"] : [])
+  ];
+  const present = required.filter((key) =>
     String(env[key] ?? "").trim()
   );
   return {
     absent: present.length === 0,
-    complete: present.length === AUTHENTICATED_RUNNER_REQUIRED_ENV.length
+    complete: present.length === required.length
   };
 }
 
 function authenticatedPreflightResult({
+  requestedScope = "all",
   configured = false,
   skipped = false,
   reason,
   service = null,
-  instagram = unavailablePlatform(reason),
+  instagram = requestedScope === "linkedin"
+    ? unrequestedPlatform()
+    : unavailablePlatform(reason),
   linkedin = unavailablePlatform(reason)
 }) {
+  const requestedPlatforms = requestedScope
+    ? [...AUTHENTICATED_BACKFILL_PLATFORMS[requestedScope]]
+    : [];
+  const readiness = { instagram, linkedin };
+  const platformDebt = Object.fromEntries(
+    requestedPlatforms
+      .filter((platform) => readiness[platform]?.ok !== true)
+      .map((platform) => [platform, readiness[platform]?.reason ?? "authenticated_platform_unavailable"])
+  );
   return {
-    ok: instagram.ok === true && linkedin.ok === true,
+    ok: requestedScope !== null &&
+      requestedPlatforms.length > 0 &&
+      requestedPlatforms.every((platform) => readiness[platform]?.ok === true),
+    requestedScope,
+    requestedPlatforms,
+    platformDebt,
     configured,
     skipped,
     reason,
@@ -601,6 +665,17 @@ function authenticatedPreflightResult({
 
 function unavailablePlatform(reason) {
   return { ok: false, reason, retryable: false, attempts: 0 };
+}
+
+function unrequestedPlatform() {
+  return {
+    ok: false,
+    requested: false,
+    skipped: true,
+    reason: "authenticated_platform_not_requested",
+    retryable: false,
+    attempts: 0
+  };
 }
 
 function parseProbe(raw) {
@@ -798,7 +873,7 @@ async function main() {
       ["Instagram", result.instagram],
       ["LinkedIn", result.linkedin]
     ]) {
-      if (readiness.ok) continue;
+      if (readiness.ok || readiness.requested === false) continue;
       process.stderr.write(
         `::warning title=${platform} authenticated lane deferred::${readiness.reason}\n`
       );
@@ -812,6 +887,9 @@ async function main() {
 function writePreflightOutputs(result, outputPath) {
   if (!outputPath) return;
   const lines = [
+    `authenticated_backfill_scope=${safeOutputValue(result.requestedScope)}`,
+    `requested_platforms=${(result.requestedPlatforms ?? []).join(",")}`,
+    `platform_debt=${JSON.stringify(result.platformDebt ?? {})}`,
     `configured=${result.configured === true}`,
     `instagram_ready=${result.instagram?.ok === true}`,
     `instagram_reason=${safeOutputValue(result.instagram?.reason)}`,

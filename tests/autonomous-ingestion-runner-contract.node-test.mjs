@@ -2208,7 +2208,10 @@ describe("autonomous ingestion runner static safety contracts", () => {
     const command = section("async function runAuthenticatedCollectorCommand", "async function runShardedPublicCollector");
     const publicCollectors = section("async function runCollectors()", "async function runAuthenticatedCollectors");
     assert.match(collectors, /fetch-logged-in-social-traction/);
-    assert.match(collectors, /runAuthenticatedSocialRunnerPreflight\(\{ env: process\.env \}\)/);
+    assert.match(
+      collectors,
+      /runAuthenticatedSocialRunnerPreflight\(\{[\s\S]*?AUTHENTICATED_BACKFILL_SCOPE: requestedScope[\s\S]*?\}\)/
+    );
     assert.match(collectors, /"OPENCLI_HOME"/);
     assert.match(collectors, /authenticated_social\.\$\{platform\}_preflight_debt/);
     assert.match(collectors, /failed closed for manual replay/);
@@ -2603,16 +2606,129 @@ describe("autonomous ingestion runner static safety contracts", () => {
     const forgedCompletion = {
       ...result,
       status: "completed",
+      platformStatus: {
+        ...result.platformStatus,
+        linkedin: { requested: true, status: "completed" }
+      },
+      platformDebt: [],
       linkedinReplay: {
         ...result.linkedinReplay,
         status: "completed",
-        configurationSkipped: false
+        configurationSkipped: false,
+        platformStatus: {
+          ...result.linkedinReplay.platformStatus,
+          linkedin: { requested: true, status: "completed" }
+        },
+        platformDebt: []
       }
     };
     assert.throws(
       () => assertCanPublish(forgedCompletion),
       /cannot claim completion without a durable lock and exact zero remaining targets/
     );
+  });
+
+  it("runs an explicit LinkedIn-only replay without any Instagram collector and binds completion to LinkedIn", async () => {
+    const replay = linkedInReplayRuntime();
+    const collectorCalls = [];
+    const replayBatches = [];
+    const replayArgs = [];
+    const runAuthenticatedCollectors = authenticatedCollectorsRuntime({
+      replay,
+      collect: async (...call) => {
+        collectorCalls.push(call);
+        throw new Error("LinkedIn-only replay must not invoke the ordinary authenticated collector.");
+      },
+      replayBatch: async ({ batch, commonArgs, replayState }) => {
+        replayBatches.push(batch.slug);
+        replayArgs.push(commonArgs);
+        return {
+          status: "completed",
+          chunks: [],
+          finalPlan: {},
+          replayState: replay.reduceLinkedInReplayState(replayState, {
+            type: "plan",
+            batchSlug: batch.slug,
+            runnableTargetCount: 0
+          })
+        };
+      }
+    });
+
+    const result = await runAuthenticatedCollectors({
+      historicalReplay: true,
+      requestedScope: "linkedin"
+    });
+
+    assert.deepEqual(collectorCalls, []);
+    assert.deepEqual(replayBatches, ["S2026", "S26", "A16ZSR006"]);
+    assert.deepEqual(
+      replayArgs.map((args) => args.find((arg) => arg.startsWith("--output-path="))),
+      [
+        "--output-path=/outputs/S2026.json",
+        "--output-path=/outputs/S26.json",
+        "--output-path=/outputs/A16ZSR006.json"
+      ]
+    );
+    assert.deepEqual(
+      replayArgs.map((args) => args.find((arg) => arg.startsWith("--checkpoint-path="))),
+      [
+        "--checkpoint-path=/checkpoints/S2026.json",
+        "--checkpoint-path=/checkpoints/S26.json",
+        "--checkpoint-path=/checkpoints/A16ZSR006.json"
+      ]
+    );
+    assert.equal(result.status, "completed");
+    assert.equal(result.requestedScope, "linkedin");
+    assert.deepEqual(result.requestedPlatforms, ["linkedin"]);
+    assert.deepEqual(result.platformDebt, []);
+    assert.deepEqual(result.platformStatus, {
+      instagram: { requested: false, status: "not_requested" },
+      linkedin: { requested: true, status: "completed" }
+    });
+    assert.ok(result.batches.every(({ instagram }) =>
+      instagram.status === "skipped" &&
+      instagram.reason === "authenticated_platform_not_requested"
+    ));
+    assert.equal(result.linkedinReplay.requestedScope, "linkedin");
+    assert.deepEqual(result.linkedinReplay.requestedPlatforms, ["linkedin"]);
+    assert.deepEqual(result.linkedinReplay.platformDebt, []);
+    const assertCanPublish = authenticatedReplayPublicationValidator();
+    assert.doesNotThrow(() => assertCanPublish(result));
+    assert.throws(
+      () => assertCanPublish({
+        ...result,
+        batches: result.batches.map((batch, index) => index === 0
+          ? { ...batch, instagram: { status: "completed" } }
+          : batch)
+      }),
+      /Instagram collector was invoked/
+    );
+    assert.throws(
+      () => assertCanPublish({ ...result, status: "partial" }),
+      /root status does not match requested-platform completion state/
+    );
+  });
+
+  it("fails a LinkedIn-only replay before collection when the durable global lock is absent", async () => {
+    const replay = linkedInReplayRuntime();
+    let collections = 0;
+    const runAuthenticatedCollectors = authenticatedCollectorsRuntime({
+      replay,
+      env: authenticatedCollectorEnvironment({ durableLock: false }),
+      collect: async () => {
+        collections += 1;
+      },
+      replayBatch: async () => {
+        collections += 1;
+      }
+    });
+
+    await assert.rejects(
+      runAuthenticatedCollectors({ historicalReplay: true, requestedScope: "linkedin" }),
+      /Authenticated linkedin replay requires .*LINKEDIN_GLOBAL_LOCK_NAMESPACE/
+    );
+    assert.equal(collections, 0);
   });
 
   it("records scheduled per-platform preflight debt without blocking a ready authenticated lane", async () => {
@@ -2738,24 +2854,40 @@ describe("autonomous ingestion runner static safety contracts", () => {
       "if (!args.skipNetwork && args.authenticatedSocialReplay)",
       "} else if (!args.skipNetwork)"
     );
-    assert.match(authenticatedBranch, /runAuthenticatedCollectors\(\{ historicalReplay: true \}\)/);
+    assert.match(
+      authenticatedBranch,
+      /runAuthenticatedCollectors\(\{[\s\S]*?historicalReplay: true,[\s\S]*?requestedScope: args\.authenticatedBackfillScope[\s\S]*?\}\)/
+    );
     assert.equal((runner.match(/publicationReceipt = await publishRepositoryArtifacts\(publicationRunId, publicationInputs\)/g) ?? []).length, 1);
     assert.match(runner, /linkedin_remaining_target_count/);
     assert.match(runner, /linkedin_chunk_budget_exhausted/);
     assert.match(runner, /linkedin_deadline_exhausted/);
     assert.match(runner, /linkedin_safety_stopped/);
     assert.match(runner, /linkedin_infrastructure_stopped/);
+    assert.match(runner, /authenticated_backfill_scope/);
+    assert.match(runner, /authenticated_requested_platforms/);
+    assert.match(runner, /authenticated_platform_debt/);
   });
 
   it("publishes authenticated historical replays without rerunning public collector lanes", () => {
     assert.ok(runner.includes('args.authenticatedSocialReplay'));
-    assert.ok(runner.includes('runAuthenticatedCollectors({ historicalReplay: true })'));
+    assert.match(
+      runner,
+      /runAuthenticatedCollectors\(\{[\s\S]*?historicalReplay: true,[\s\S]*?requestedScope: args\.authenticatedBackfillScope/
+    );
     assert.ok(runner.includes('{ skipNetwork: args.skipNetwork || args.authenticatedSocialReplay }'));
     assert.ok(runner.includes('candidateMetadata?.trigger !== "manual-replay"'));
     assert.ok(runner.includes('collectorRoot = autonomousCollectorStateRoot()'));
     assert.ok(runner.includes('if (args.authenticatedSocialReplay) return authenticatedSocialReplayRoot()'));
     assert.ok(runner.includes('resolve(openCliHome)'));
     assert.ok(runner.includes('if (!args.authenticatedSocialReplay) {\n      assertSuccessfulTopVoiceRefresh(topVoiceRefresh);'));
+    assert.ok(runner.includes('const authenticatedBackfillScope = value("--authenticated-backfill-scope") ?? "all"'));
+    const loggedInMerge = section(
+      "async function prepareMergedLoggedInEvidenceSnapshot",
+      "async function readCanonicalContentIdentityReferenceRows"
+    );
+    assert.match(loggedInMerge, /const snapshots = \[base, current, \.\.\.\(incomingSnapshots \?\? \[\]\)\]/);
+    assert.match(loggedInMerge, /mergeLoggedInEvidenceRows\(\[base, current\], incomingSnapshots \?\? \[\]\)/);
   });
 
   it("refreshes and publishes the mutable Summer catalog before planning", () => {
@@ -4519,7 +4651,17 @@ function authenticatedCollectorsRuntime({
   return runtime(
     { env },
     (value) => typeof value === "string" && value.trim() ? value.trim() : null,
-    preflight,
+    async (options) => {
+      const result = await preflight(options);
+      const requestedScope = options?.env?.AUTHENTICATED_BACKFILL_SCOPE ?? "all";
+      return {
+        ...result,
+        requestedScope: result.requestedScope ?? requestedScope,
+        requestedPlatforms: result.requestedPlatforms ?? (
+          requestedScope === "linkedin" ? ["linkedin"] : ["instagram", "linkedin"]
+        )
+      };
+    },
     async (...args) => events.push(args),
     batches,
     new Map(batchSlugs.map((slug) => [slug, `/outputs/${slug}.json`])),

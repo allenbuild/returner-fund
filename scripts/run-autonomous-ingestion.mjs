@@ -403,6 +403,9 @@ candidateMetadata = validateCandidateMetadata({
 if (args.authenticatedSocialReplay && candidateMetadata?.trigger !== "manual-replay") {
   throw new Error("Authenticated social historical replay is available only for an explicit manual replay.");
 }
+if (!args.authenticatedSocialReplay && args.authenticatedBackfillScope !== "all") {
+  throw new Error("Authenticated backfill scope is available only with authenticated social replay.");
+}
 assertCandidateFreshForPublication("runner start");
 workRoot = join(root, "work", "autonomous-ingestion", safePathSegment(idempotencyKey));
 collectorRoot = autonomousCollectorStateRoot();
@@ -622,6 +625,10 @@ await Promise.all([
         "Authenticated social historical replay started with bounded platform-specific parallelism.",
         {
           historicalReplay: true,
+          requestedScope: args.authenticatedBackfillScope,
+          requestedPlatforms: args.authenticatedBackfillScope === "linkedin"
+            ? ["linkedin"]
+            : ["instagram", "linkedin"],
           instagramWorkers: 2,
           linkedinWorkers: 1,
           linkedinTargetCapPerChunk: LINKEDIN_REPLAY_TARGET_CAP,
@@ -630,7 +637,10 @@ await Promise.all([
           linkedinDrainHeadroomMs: AUTONOMOUS_PROCESS_BUDGETS.collectionDeadlineDrainHeadroomMs
         }
       );
-      authenticatedSocial = await runAuthenticatedCollectors({ historicalReplay: true });
+      authenticatedSocial = await runAuthenticatedCollectors({
+        historicalReplay: true,
+        requestedScope: args.authenticatedBackfillScope
+      });
       await event(
         "collection.finished",
         "info",
@@ -3383,15 +3393,35 @@ async function runCollectors() {
   return results;
 }
 
-async function runAuthenticatedCollectors({ historicalReplay = false } = {}) {
+async function runAuthenticatedCollectors({
+  historicalReplay = false,
+  requestedScope = "all"
+} = {}) {
+  if (!["all", "linkedin"].includes(requestedScope)) {
+    throw new Error("Authenticated collector scope must be all or linkedin.");
+  }
+  const requestedPlatforms = requestedScope === "linkedin"
+    ? ["linkedin"]
+    : ["instagram", "linkedin"];
   // Run this immediately before the authenticated collectors, after the public
   // lanes have drained. A workflow-start probe would otherwise be stale by the
   // time OpenCLI needs the browser bridge and exact platform adapter.
   let preflight;
   try {
-    const candidate = await runAuthenticatedSocialRunnerPreflight({ env: process.env });
+    const candidate = await runAuthenticatedSocialRunnerPreflight({
+      env: {
+        ...process.env,
+        AUTHENTICATED_BACKFILL_SCOPE: requestedScope
+      }
+    });
     if (!candidate || typeof candidate !== "object" || Array.isArray(candidate)) {
       throw new Error("Authenticated social preflight returned an invalid result.");
+    }
+    if (
+      candidate.requestedScope !== requestedScope ||
+      JSON.stringify(candidate.requestedPlatforms) !== JSON.stringify(requestedPlatforms)
+    ) {
+      throw new Error("Authenticated social preflight returned mismatched scope evidence.");
     }
     preflight = candidate;
   } catch {
@@ -3400,7 +3430,9 @@ async function runAuthenticatedCollectors({ historicalReplay = false } = {}) {
       "OPENCLI_HOME",
       "OPENCLI_PROFILE",
       "RETURNER_LINKEDIN_VIEWER_PROFILE",
-      "RETURNER_INSTAGRAM_VIEWER_HANDLE"
+      ...(requestedPlatforms.includes("instagram")
+        ? ["RETURNER_INSTAGRAM_VIEWER_HANDLE"]
+        : [])
     ].every((key) => cleanEnv(process.env[key]));
     const unavailable = {
       ok: false,
@@ -3410,6 +3442,11 @@ async function runAuthenticatedCollectors({ historicalReplay = false } = {}) {
     };
     preflight = {
       ok: false,
+      requestedScope,
+      requestedPlatforms,
+      platformDebt: Object.fromEntries(
+        requestedPlatforms.map((platform) => [platform, unavailable.reason])
+      ),
       configured,
       skipped: false,
       reason: unavailable.reason,
@@ -3419,6 +3456,13 @@ async function runAuthenticatedCollectors({ historicalReplay = false } = {}) {
     };
   }
   const readiness = {
+    requestedScope,
+    requestedPlatforms,
+    platformDebt: preflight.platformDebt ?? Object.fromEntries(
+      requestedPlatforms
+        .filter((platform) => preflight[platform]?.ok !== true)
+        .map((platform) => [platform, preflight[platform]?.reason ?? "authenticated_platform_unavailable"])
+    ),
     configured: preflight.configured === true,
     skipped: preflight.skipped === true,
     reason: preflight.reason,
@@ -3450,7 +3494,8 @@ async function runAuthenticatedCollectors({ historicalReplay = false } = {}) {
   );
   if (historicalReplay && !preflight.ok) {
     throw new Error(
-      `Authenticated social preflight failed closed for manual replay: ${preflight.reason ?? "unknown"}`
+      `Authenticated social preflight failed closed for manual replay ` +
+      `(scope ${requestedScope}): ${preflight.reason ?? "unknown"}`
     );
   }
   if (!preflight.configured) {
@@ -3464,8 +3509,12 @@ async function runAuthenticatedCollectors({ historicalReplay = false } = {}) {
           "OPENCLI_HOME",
           "OPENCLI_PROFILE",
           "RETURNER_LINKEDIN_VIEWER_PROFILE",
-          "RETURNER_INSTAGRAM_VIEWER_HANDLE"
+          ...(requestedPlatforms.includes("instagram")
+            ? ["RETURNER_INSTAGRAM_VIEWER_HANDLE"]
+            : [])
         ],
+        requestedScope,
+        requestedPlatforms,
         readiness
       }
     );
@@ -3479,6 +3528,9 @@ async function runAuthenticatedCollectors({ historicalReplay = false } = {}) {
     return {
       status: "skipped",
       reason: preflight.reason ?? "runner_profile_not_configured",
+      requestedScope,
+      requestedPlatforms,
+      platformDebt: readiness.platformDebt,
       readiness,
       batches: [],
       linkedinReplay: createLinkedInReplayResult({ ...skippedReplayState, status: "skipped" })
@@ -3486,13 +3538,20 @@ async function runAuthenticatedCollectors({ historicalReplay = false } = {}) {
   }
 
   const batches = [];
-  const instagramReady = preflight.instagram?.ok === true;
+  const instagramRequested = requestedPlatforms.includes("instagram");
+  const instagramReady = instagramRequested && preflight.instagram?.ok === true;
   const linkedinPreflightReady = preflight.linkedin?.ok === true;
   const durableLinkedinLockReady = Boolean(
     cleanEnv(process.env.NEXT_PUBLIC_SUPABASE_URL) &&
     cleanEnv(process.env.SUPABASE_SERVICE_ROLE_KEY) &&
     cleanEnv(process.env.LINKEDIN_GLOBAL_LOCK_NAMESPACE)
   );
+  if (historicalReplay && requestedScope === "linkedin" && !durableLinkedinLockReady) {
+    throw new Error(
+      "Authenticated linkedin replay requires NEXT_PUBLIC_SUPABASE_URL, " +
+      "SUPABASE_SERVICE_ROLE_KEY, and LINKEDIN_GLOBAL_LOCK_NAMESPACE for its durable global lock."
+    );
+  }
   let replayState = createLinkedInReplayState(
     AUTONOMOUS_BATCHES.map((batch) => batch.slug),
     { durableLockConfigured: durableLinkedinLockReady }
@@ -3503,10 +3562,8 @@ async function runAuthenticatedCollectors({ historicalReplay = false } = {}) {
       reason: "durable_linkedin_lock_not_configured"
     });
   }
-  for (const [platform, platformReadiness] of [
-    ["instagram", readiness.instagram],
-    ["linkedin", readiness.linkedin]
-  ]) {
+  for (const platform of requestedPlatforms) {
+    const platformReadiness = readiness[platform];
     if (platformReadiness.ok) continue;
     await event(
       `authenticated_social.${platform}_preflight_debt`,
@@ -3542,7 +3599,9 @@ async function runAuthenticatedCollectors({ historicalReplay = false } = {}) {
         )
       : {
           status: "skipped",
-          reason: "authenticated_instagram_preflight_failed",
+          reason: instagramRequested
+            ? "authenticated_instagram_preflight_failed"
+            : "authenticated_platform_not_requested",
           preflightReason: readiness.instagram.reason
         };
 
@@ -3598,7 +3657,7 @@ async function runAuthenticatedCollectors({ historicalReplay = false } = {}) {
     }
     batches.push({ batchSlug: batch.slug, instagram, linkedin });
   }
-  const linkedinReplay = createLinkedInReplayResult({
+  const baseLinkedinReplay = createLinkedInReplayResult({
     ...replayState,
     status: !historicalReplay
       ? "not_applicable"
@@ -3613,6 +3672,43 @@ async function runAuthenticatedCollectors({ historicalReplay = false } = {}) {
               : "incomplete",
     batches
   });
+  const platformStatus = {
+    instagram: {
+      requested: instagramRequested,
+      status: !instagramRequested
+        ? "not_requested"
+        : batches.every(({ instagram }) => instagram.status === "completed")
+          ? "completed"
+          : "incomplete"
+    },
+    linkedin: {
+      requested: true,
+      status: historicalReplay
+        ? baseLinkedinReplay.status
+        : batches.every(({ linkedin }) => linkedin.status === "completed")
+          ? "completed"
+          : "incomplete"
+    }
+  };
+  const platformDebt = requestedPlatforms
+    .filter((platform) => platformStatus[platform].status !== "completed")
+    .map((platform) => ({
+      platform,
+      status: platformStatus[platform].status,
+      reason: readiness[platform]?.ok === true
+        ? "authenticated_collection_incomplete"
+        : readiness[platform]?.reason ?? "authenticated_platform_unavailable"
+    }));
+  const requestedPlatformsCompleted = requestedPlatforms.every(
+    (platform) => platformStatus[platform].status === "completed"
+  );
+  const linkedinReplay = {
+    ...baseLinkedinReplay,
+    requestedScope,
+    requestedPlatforms,
+    platformStatus,
+    platformDebt
+  };
   await event(
     "authenticated_social.linkedin_replay.finished",
     linkedinReplay.safetyStopped || linkedinReplay.infrastructureStopped ? "warning" : "info",
@@ -3620,12 +3716,12 @@ async function runAuthenticatedCollectors({ historicalReplay = false } = {}) {
     linkedinReplay
   );
   return {
-    status: historicalReplay
-      ? linkedinReplay.status !== "completed" ? "partial" : "completed"
-      : instagramReady && linkedinPreflightReady && durableLinkedinLockReady
-        ? "completed"
-        : "partial",
+    status: requestedPlatformsCompleted ? "completed" : "partial",
     historicalReplay,
+    requestedScope,
+    requestedPlatforms,
+    platformStatus,
+    platformDebt,
     readiness,
     batches,
     linkedinReplay
@@ -5713,6 +5809,72 @@ function assertAuthenticatedReplayCanPublish(replay) {
     throw new Error("Authenticated replay did not return its bounded LinkedIn replay receipt.");
   }
   const linkedinReplay = replay.linkedinReplay;
+  const expectedPlatformsByScope = {
+    all: ["instagram", "linkedin"],
+    linkedin: ["linkedin"]
+  };
+  const requestedScope = replay.requestedScope;
+  const expectedPlatforms = expectedPlatformsByScope[requestedScope];
+  if (!expectedPlatforms) {
+    throw new Error("Authenticated replay did not bind publication to an allowed requested scope.");
+  }
+  if (
+    linkedinReplay.requestedScope !== requestedScope ||
+    JSON.stringify(replay.requestedPlatforms) !== JSON.stringify(expectedPlatforms) ||
+    JSON.stringify(linkedinReplay.requestedPlatforms) !== JSON.stringify(expectedPlatforms)
+  ) {
+    throw new Error("Authenticated replay requested-platform receipt does not match its requested scope.");
+  }
+  if (requestedScope === "linkedin") {
+    const unexpectedInstagram = (replay.batches ?? []).find(
+      ({ instagram }) => instagram?.status !== "skipped" ||
+        instagram?.reason !== "authenticated_platform_not_requested"
+    );
+    if (unexpectedInstagram) {
+      throw new Error("LinkedIn-only replay receipt indicates that an Instagram collector was invoked.");
+    }
+  }
+  const platformStatus = replay.platformStatus;
+  if (
+    !platformStatus ||
+    typeof platformStatus !== "object" ||
+    !linkedinReplay.platformStatus ||
+    typeof linkedinReplay.platformStatus !== "object" ||
+    !Array.isArray(replay.platformDebt) ||
+    !Array.isArray(linkedinReplay.platformDebt)
+  ) {
+    throw new Error("Authenticated replay did not return requested-platform completion state.");
+  }
+  if (
+    JSON.stringify(replay.platformStatus) !== JSON.stringify(linkedinReplay.platformStatus) ||
+    JSON.stringify(replay.platformDebt) !== JSON.stringify(linkedinReplay.platformDebt)
+  ) {
+    throw new Error("Authenticated replay publication metadata disagrees with its bounded replay receipt.");
+  }
+  for (const platform of ["instagram", "linkedin"]) {
+    const expectedRequested = expectedPlatforms.includes(platform);
+    if (platformStatus[platform]?.requested !== expectedRequested) {
+      throw new Error("Authenticated replay platform-request flags do not match its requested scope.");
+    }
+  }
+  const incompleteRequestedPlatforms = expectedPlatforms.filter(
+    (platform) => platformStatus[platform]?.status !== "completed"
+  );
+  const debtPlatforms = new Set(
+    replay.platformDebt.map((entry) => entry?.platform)
+  );
+  if (
+    incompleteRequestedPlatforms.some((platform) => !debtPlatforms.has(platform)) ||
+    [...debtPlatforms].some((platform) => !incompleteRequestedPlatforms.includes(platform))
+  ) {
+    throw new Error("Authenticated replay platform debt does not match requested-platform completion state.");
+  }
+  const expectedReplayStatus = incompleteRequestedPlatforms.length === 0
+    ? "completed"
+    : "partial";
+  if (replay.status !== expectedReplayStatus) {
+    throw new Error("Authenticated replay root status does not match requested-platform completion state.");
+  }
   if (
     linkedinReplay.chunksAdmitted > LINKEDIN_REPLAY_MAX_CHUNKS ||
     linkedinReplay.chunksAttempted !== linkedinReplay.chunksAdmitted ||
@@ -5741,6 +5903,9 @@ function assertAuthenticatedReplayCanPublish(replay) {
   }
   if (replay.historicalReplay && replay.status === "completed" && linkedinReplay.status !== "completed") {
     throw new Error("Authenticated historical replay cannot claim completion while LinkedIn is incomplete or skipped.");
+  }
+  if (replay.historicalReplay && replay.status === "completed" && incompleteRequestedPlatforms.length > 0) {
+    throw new Error("Authenticated historical replay cannot claim completion while a requested platform is incomplete or skipped.");
   }
 }
 
@@ -8780,6 +8945,9 @@ async function writeRunnerOutcome(outcome) {
     daily_new_physical_sources: normalized.dailyNewPhysicalSources ?? "",
     daily_source_health: normalized.dailySourceHealth ?? "",
     authenticated_social_replay: JSON.stringify(normalized.authenticatedSocialReplay ?? null),
+    authenticated_backfill_scope: normalized.authenticatedSocialReplay?.requestedScope ?? "",
+    authenticated_requested_platforms: (normalized.authenticatedSocialReplay?.requestedPlatforms ?? []).join(","),
+    authenticated_platform_debt: JSON.stringify(normalized.authenticatedSocialReplay?.platformDebt ?? []),
     linkedin_remaining_target_count: normalized.authenticatedSocialReplay?.remainingTargetCount ?? "",
     linkedin_remaining_target_count_known: normalized.authenticatedSocialReplay?.remainingTargetCountKnown ?? "",
     linkedin_known_remaining_target_count: normalized.authenticatedSocialReplay?.knownRemainingTargetCount ?? "",
@@ -9303,6 +9471,10 @@ function parseArgs(rawArgs) {
   if (rawArgs.includes("--resume-snapshots") && rawArgs.includes("--no-resume-snapshots")) {
     throw new Error("--resume-snapshots and --no-resume-snapshots cannot be combined.");
   }
+  const authenticatedBackfillScope = value("--authenticated-backfill-scope") ?? "all";
+  if (!["all", "linkedin"].includes(authenticatedBackfillScope)) {
+    throw new Error("--authenticated-backfill-scope must be all or linkedin.");
+  }
   return {
     idempotencyKey: value("--idempotency-key"),
     campaignKey: value("--campaign-key"),
@@ -9316,7 +9488,8 @@ function parseArgs(rawArgs) {
     resumeSnapshots: !rawArgs.includes("--no-resume-snapshots"),
     skipNetwork: rawArgs.includes("--skip-network"),
     skipPublish: rawArgs.includes("--skip-publish"),
-    authenticatedSocialReplay: booleanValue("--authenticated-social-replay")
+    authenticatedSocialReplay: booleanValue("--authenticated-social-replay"),
+    authenticatedBackfillScope
   };
 }
 

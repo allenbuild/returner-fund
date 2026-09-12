@@ -3158,7 +3158,12 @@ test("workflow routes public ingestion to hosted Linux and authenticated replay 
     /LINKEDIN_GLOBAL_LOCK_NAMESPACE:\s*returner-fund-production-linkedin-allen-xu-v1/
   );
   assert.match(workflow, /authenticated_backfill:[\s\S]*?type:\s*boolean/);
+  assert.match(
+    workflow,
+    /authenticated_backfill_scope:[\s\S]*?default:\s*all[\s\S]*?type:\s*choice[\s\S]*?options:[\s\S]*?- all[\s\S]*?- linkedin/
+  );
   assert.match(ingestJob, /--authenticated-social-replay="\$AUTHENTICATED_SOCIAL_REPLAY"/);
+  assert.match(ingestJob, /--authenticated-backfill-scope="\$AUTHENTICATED_BACKFILL_SCOPE"/);
   const preflightIndex = ingestJob.indexOf("Preflight authenticated social runner");
   const ingestionIndex = ingestJob.indexOf("Run autonomous ingestion");
   assert.ok(preflightIndex >= 0, "authenticated runner preflight is required");
@@ -3167,8 +3172,15 @@ test("workflow routes public ingestion to hosted Linux and authenticated replay 
     ingestJob,
     /name: Preflight authenticated social runner[\s\S]*?if: steps\.revalidate\.outputs\.should_run == 'true' && steps\.host_preflight\.outputs\.ready == 'true' && needs\.resolve\.outputs\.trigger == 'manual-replay' && inputs\.authenticated_backfill == true[\s\S]*?timeout-minutes:\s*20[\s\S]*?node scripts\/verify-authenticated-social-runner\.mjs/
   );
+  const preflightStep = ingestJob.match(
+    /name: Preflight authenticated social runner[\s\S]*?(?=\n\s{6}- name:|$)/
+  )?.[0] ?? "";
+  assert.match(
+    preflightStep,
+    /AUTHENTICATED_BACKFILL_SCOPE:\s*\$\{\{ inputs\.authenticated_backfill_scope \|\| 'all' \}\}/
+  );
   assert.doesNotMatch(
-    ingestJob.match(/name: Preflight authenticated social runner[\s\S]*?(?=\n\s{6}- name:|$)/)?.[0] ?? "",
+    preflightStep,
     /SUPABASE|X_BEARER|EXA_API|GITHUB_TOKEN/
   );
 });

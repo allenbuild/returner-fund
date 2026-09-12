@@ -27,6 +27,14 @@ on:
         required: false
         default: false
         type: boolean
+      authenticated_backfill_scope:
+        description: Authenticated platforms to replay (all remains the fail-closed default)
+        required: false
+        default: all
+        type: choice
+        options:
+          - all
+          - linkedin
 
 permissions:
   contents: read
@@ -767,6 +775,7 @@ jobs:
         timeout-minutes: 20
         env:
           AUTHENTICATED_SOCIAL_REPLAY: ${{ inputs.authenticated_backfill || false }}
+          AUTHENTICATED_BACKFILL_SCOPE: ${{ inputs.authenticated_backfill_scope || 'all' }}
         run: node scripts/verify-authenticated-social-runner.mjs
 
       - name: Run autonomous ingestion
@@ -794,6 +803,7 @@ jobs:
           INGESTION_RECOVERY_EXPECTED_HEAD_SHA: ${{ github.event.client_payload.expected_head_sha }}
           INGESTION_PUBLICATION_BRANCH: main
           AUTHENTICATED_SOCIAL_REPLAY: ${{ inputs.authenticated_backfill || false }}
+          AUTHENTICATED_BACKFILL_SCOPE: ${{ inputs.authenticated_backfill_scope || 'all' }}
           # The authenticated replay selects OPENCLI_HOME before consulting
           # this public state override. Only Linux steps restore or save it.
           RETURNER_INGESTION_STATE_ROOT: ${{ runner.temp }}/returner-fund-autonomous-ingestion-state/v1
@@ -860,7 +870,8 @@ jobs:
             --candidate-trigger="$CANDIDATE_TRIGGER" \
             --scheduled-at="$CANDIDATE_SCHEDULED_AT" \
             --recovery-debt="$CANDIDATE_RECOVERY_DEBT" \
-            --authenticated-social-replay="$AUTHENTICATED_SOCIAL_REPLAY"
+            --authenticated-social-replay="$AUTHENTICATED_SOCIAL_REPLAY" \
+            --authenticated-backfill-scope="$AUTHENTICATED_BACKFILL_SCOPE"
 
       - name: Stage failed hosted collector recovery artifact
         id: stage_hosted_collector_artifact

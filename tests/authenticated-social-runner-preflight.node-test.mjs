@@ -19,6 +19,7 @@ import {
   instagramSelfIdentityDecision,
   linkedInIdentityProbeJs,
   linkedinViewerIdentityDecision,
+  normalizeAuthenticatedBackfillScope,
   normalizeInstagramViewerHandle,
   normalizeLinkedInViewerSlug,
   readableRunnerConfiguration,
@@ -329,6 +330,11 @@ test("runner configuration fails closed before any browser operation", () => {
     assert.equal(normalizeLinkedInViewerSlug(invalid), null, invalid);
   }
   assert.equal(normalizeLinkedInViewerSlug("bad slug!"), null);
+  assert.equal(normalizeAuthenticatedBackfillScope(), "all");
+  assert.equal(normalizeAuthenticatedBackfillScope("all"), "all");
+  assert.equal(normalizeAuthenticatedBackfillScope("linkedin"), "linkedin");
+  assert.equal(normalizeAuthenticatedBackfillScope("instagram"), null);
+  assert.equal(normalizeAuthenticatedBackfillScope("LinkedIn"), null);
 });
 
 test("identity probes combine URL and DOM safety over a bounded window beyond 5k", () => {
@@ -423,6 +429,113 @@ test("cold preflight retries a disconnected profile and proves the exact Instagr
   assert.equal(calls.at(-1)[0], "browser");
   assert.equal(calls.at(-1)[2], "close");
   assert.match(calls.at(-1)[1], /^preflight-ig-/);
+});
+
+test("LinkedIn-only preflight proves the exact account without requiring or invoking Instagram", async (t) => {
+  const fixture = createRunnerFixture(t);
+  const env = {
+    ...authenticatedPreflightEnvironment(fixture),
+    AUTHENTICATED_SOCIAL_REPLAY: "true",
+    AUTHENTICATED_BACKFILL_SCOPE: "linkedin"
+  };
+  delete env.RETURNER_INSTAGRAM_VIEWER_HANDLE;
+  const calls = [];
+  const result = await runAuthenticatedSocialRunnerPreflight({
+    env,
+    runtimeResolver: () => ({ command: fixture.binaryA }),
+    verifyBrowserService: async () => ({
+      ok: true,
+      reason: "auth_browser_service_running"
+    }),
+    runCommand: async (args) => {
+      calls.push(args);
+      if (args[0] === "browser" && args[2] === "eval") {
+        assert.match(args[1], /^preflight-li-/);
+        return JSON.stringify([linkedInReadySignal()]);
+      }
+      return "";
+    },
+    sleep: async () => {}
+  });
+
+  assert.equal(result.ok, true);
+  assert.equal(result.reason, "authenticated_linkedin_runner_verified");
+  assert.equal(result.requestedScope, "linkedin");
+  assert.deepEqual(result.requestedPlatforms, ["linkedin"]);
+  assert.deepEqual(result.platformDebt, {});
+  assert.deepEqual(result.instagram, {
+    ok: false,
+    requested: false,
+    skipped: true,
+    reason: "authenticated_platform_not_requested",
+    retryable: false,
+    attempts: 0
+  });
+  assert.equal(result.linkedin.ok, true);
+  assert.equal(calls.some((args) => args[0] === "instagram"), false);
+  assert.equal(calls.some((args) => args[1]?.startsWith("preflight-ig-")), false);
+  assert.equal(calls.some((args) => args[1]?.startsWith("preflight-li-")), true);
+});
+
+test("the default all-platform scope remains fail-closed when Instagram is logged out", async (t) => {
+  const fixture = createRunnerFixture(t);
+  const calls = [];
+  const result = await runAuthenticatedSocialRunnerPreflight({
+    env: {
+      ...authenticatedPreflightEnvironment(fixture),
+      AUTHENTICATED_SOCIAL_REPLAY: "true"
+    },
+    runtimeResolver: () => ({ command: fixture.binaryA }),
+    verifyBrowserService: async () => ({
+      ok: true,
+      reason: "auth_browser_service_running"
+    }),
+    runCommand: async (args) => {
+      calls.push(args);
+      if (args[0] === "instagram") {
+        throw new Error("HTTP 401 - make sure you are logged in to Instagram");
+      }
+      if (args[0] === "browser" && args[2] === "eval") {
+        return JSON.stringify([linkedInReadySignal()]);
+      }
+      return "";
+    },
+    sleep: async () => {}
+  });
+
+  assert.equal(result.ok, false);
+  assert.equal(result.requestedScope, "all");
+  assert.deepEqual(result.requestedPlatforms, ["instagram", "linkedin"]);
+  assert.equal(result.linkedin.ok, true);
+  assert.equal(result.instagram.ok, false);
+  assert.deepEqual(result.platformDebt, {
+    instagram: "instagram_adapter_preflight_command_failed"
+  });
+  assert.equal(calls.some((args) => args[0] === "instagram"), true);
+});
+
+test("an unknown authenticated backfill scope fails before browser operations", async (t) => {
+  const fixture = createRunnerFixture(t);
+  let calls = 0;
+  const result = await runAuthenticatedSocialRunnerPreflight({
+    env: {
+      ...authenticatedPreflightEnvironment(fixture),
+      AUTHENTICATED_SOCIAL_REPLAY: "true",
+      AUTHENTICATED_BACKFILL_SCOPE: "instagram"
+    },
+    runCommand: async () => {
+      calls += 1;
+    },
+    verifyBrowserService: async () => {
+      calls += 1;
+    }
+  });
+
+  assert.equal(result.ok, false);
+  assert.equal(result.reason, "authenticated_backfill_scope_invalid");
+  assert.equal(result.requestedScope, null);
+  assert.deepEqual(result.requestedPlatforms, []);
+  assert.equal(calls, 0);
 });
 
 test("strict preflight fails closed before platform probes when the exact profile is disconnected", async (t) => {
