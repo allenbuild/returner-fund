@@ -111,7 +111,11 @@ import {
   reconcileCanonicalSocialAccountRows
 } from "./lib/social-account-upsert-reconciliation.mjs";
 import {
+  assertAuthenticatedBackfillTargetExists,
+  assertAuthenticatedLinkedInPlanTarget,
+  assertAuthenticatedReplayReceiptBinding,
   authenticatedBackfillTargetEquals,
+  compactAuthenticatedLinkedInPlan,
   resolveAuthenticatedBackfillTarget
 } from "./lib/authenticated-backfill-target.mjs";
 import { runAuthenticatedSocialRunnerPreflight } from "./verify-authenticated-social-runner.mjs";
@@ -547,6 +551,12 @@ await Promise.all([
       await refreshMutableYcCatalog();
     }
     catalogs = await loadAutonomousCatalogs(publicationArtifactRoot());
+    // Resolve the exact target against the pinned publication catalog before
+    // any authenticated browser preflight or navigation can begin.
+    assertAuthenticatedBackfillTargetExists(
+      catalogs,
+      args.authenticatedBackfillTarget
+    );
     resolvePublicNativeAuthor = buildAutonomousPublicNativeAuthorResolver(catalogs);
     resolveCanonicalTargetedAttribution = buildCanonicalTargetedAttributionResolver(catalogs);
     resolveLegacyPublicEvidenceBatch = buildLegacyPublicEvidenceBatchResolver(catalogs);
@@ -867,9 +877,15 @@ await Promise.all([
       ...(args.authenticatedSocialReplay
         ? { authenticatedSocialReplay: authenticatedSocial?.linkedinReplay ?? null }
         : {}),
-      mappedExpected: collectionCoverage.mappedExpected,
-      mappedNonTerminal: collectionCoverage.mappedNonTerminal,
-      terminalFailureBudget: terminalFailureBudget
+      mappedExpected: args.authenticatedSocialReplay
+        ? null
+        : collectionCoverage.mappedExpected,
+      mappedNonTerminal: args.authenticatedSocialReplay
+        ? null
+        : collectionCoverage.mappedNonTerminal,
+      terminalFailureBudget: args.authenticatedSocialReplay
+        ? null
+        : terminalFailureBudget
     };
     await writeSourceDeltaReceipt(publicationInputs.sourceDelta, sourceDeltaHistory);
 
@@ -4147,34 +4163,17 @@ async function runAuthenticatedLinkedInPlan(
     if (!Number.isSafeInteger(runnableTargetCount) || runnableTargetCount < 0) {
       throw new Error("LinkedIn plan-only child returned an invalid runnable target count.");
     }
-    return { ...result, plan, runnableTargetCount };
+    const { stdout: _discardedFullPlan, ...boundedResult } = result;
+    return {
+      ...boundedResult,
+      plan: compactAuthenticatedLinkedInPlan(plan),
+      runnableTargetCount
+    };
   } catch (error) {
     return {
       status: "failed",
       error: `LinkedIn plan-only result was invalid: ${errorMessage(error)}`
     };
-  }
-}
-
-function assertAuthenticatedLinkedInPlanTarget(plan, requestedTarget) {
-  if (!requestedTarget) return;
-  if (
-    plan?.batchSlug !== requestedTarget.batchSlug ||
-    !authenticatedBackfillTargetEquals(plan?.requestedTarget ?? null, requestedTarget)
-  ) {
-    throw new Error("LinkedIn plan-only child did not bind the exact requested replay target.");
-  }
-  const plannedTargets = Array.isArray(plan.targets)
-    ? plan.targets.filter((target) => target?.platform === "linkedin")
-    : [];
-  if (
-    plannedTargets.length === 0 ||
-    plannedTargets.some((target) =>
-      target.batchSlug !== requestedTarget.batchSlug ||
-      target.companySlug !== requestedTarget.companySlug
-    )
-  ) {
-    throw new Error("LinkedIn plan-only child returned missing or out-of-scope account targets.");
   }
 }
 
@@ -7541,9 +7540,18 @@ async function rebuildPublicationCandidateOnConcurrentBase({
     }),
     ...publicationCandidateReceiptFields(),
     evidenceCollectedAt: acceptedCollectionCompletedAt,
-    mappedExpected: publicationInputs.collectionCoverage.mappedExpected,
-    mappedNonTerminal: publicationInputs.collectionCoverage.mappedNonTerminal,
-    terminalFailureBudget: publicationInputs.sourceDelta.terminalFailureBudget
+    ...(args.authenticatedSocialReplay
+      ? { authenticatedSocialReplay: publicationInputs.sourceDelta.authenticatedSocialReplay }
+      : {}),
+    mappedExpected: args.authenticatedSocialReplay
+      ? null
+      : publicationInputs.collectionCoverage.mappedExpected,
+    mappedNonTerminal: args.authenticatedSocialReplay
+      ? null
+      : publicationInputs.collectionCoverage.mappedNonTerminal,
+    terminalFailureBudget: args.authenticatedSocialReplay
+      ? null
+      : publicationInputs.sourceDelta.terminalFailureBudget
   };
   await writeSourceDeltaReceipt(rebasedPublicationInputs.sourceDelta, rebasedSourceDeltaHistory);
   await buildAndValidatePublication(publicationRunId, publicationInputs.catalogState);
@@ -9239,6 +9247,12 @@ async function readCommitBackedReplayReceipt() {
       `Replay publication ${publishedCommit} has no exact schema-valid receipt for ${idempotencyKey}.`
     );
   }
+  assertAuthenticatedReplayReceiptBinding({
+    authenticatedReplay: args.authenticatedSocialReplay,
+    requestedScope: args.authenticatedBackfillScope,
+    requestedTarget: args.authenticatedBackfillTarget,
+    receipt: selected.receipt
+  });
   return selected;
 }
 

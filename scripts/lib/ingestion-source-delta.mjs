@@ -52,21 +52,29 @@ export function summarizeIngestionSourceDelta({
     0
   );
   const isFinalDailySlot = /-1800$/.test(String(idempotencyKey));
-  const mappedExpected = Number(collectionCoverage?.mappedExpected ?? 0);
-  const mappedSucceeded = Number(collectionCoverage?.mappedSucceeded ?? 0);
-  const mappedNeedsReview = Number(collectionCoverage?.mappedNeedsReview ?? 0);
-  const mappedBlockedOrEmpty = Number(collectionCoverage?.mappedBlockedOrEmpty ?? 0);
-  const providerBlocked = Number(collectionCoverage?.providerBlocked ?? 0);
-  const providerBlockedByReason = normalizeCountMap(
-    collectionCoverage?.providerBlockedByReason
+  const collectorValidation = collectionCoverage?.collectorValidation ?? null;
+  const mappedCoverageApplicable = collectorValidation?.status !== "not_applicable";
+  const mappedMetric = (value, fallback = 0) => mappedCoverageApplicable
+    ? Number(value ?? fallback)
+    : null;
+  const mappedExpected = mappedMetric(collectionCoverage?.mappedExpected);
+  const mappedSucceeded = mappedMetric(collectionCoverage?.mappedSucceeded);
+  const mappedNeedsReview = mappedMetric(collectionCoverage?.mappedNeedsReview);
+  const mappedBlockedOrEmpty = mappedMetric(collectionCoverage?.mappedBlockedOrEmpty);
+  const providerBlocked = mappedMetric(collectionCoverage?.providerBlocked);
+  const providerBlockedByReason = mappedCoverageApplicable
+    ? normalizeCountMap(collectionCoverage?.providerBlockedByReason)
+    : null;
+  const mappedProviderBlocked = mappedMetric(collectionCoverage?.mappedProviderBlocked);
+  const mappedProviderBlockedByReason = mappedCoverageApplicable
+    ? normalizeCountMap(collectionCoverage?.mappedProviderBlockedByReason)
+    : null;
+  const mappedScopeUnsupported = mappedMetric(collectionCoverage?.mappedScopeUnsupported);
+  const mappedFailureCount = mappedMetric(
+    collectionCoverage?.mappedFailed,
+    mappedFailures ?? 0
   );
-  const mappedProviderBlocked = Number(collectionCoverage?.mappedProviderBlocked ?? 0);
-  const mappedProviderBlockedByReason = normalizeCountMap(
-    collectionCoverage?.mappedProviderBlockedByReason
-  );
-  const mappedScopeUnsupported = Number(collectionCoverage?.mappedScopeUnsupported ?? 0);
-  const mappedFailureCount = Number(collectionCoverage?.mappedFailed ?? mappedFailures ?? 0);
-  const mappedNonTerminal = Number(collectionCoverage?.mappedNonTerminal ?? 0);
+  const mappedNonTerminal = mappedMetric(collectionCoverage?.mappedNonTerminal);
   const mappedSuccessRate = mappedExpected > 0 ? mappedSucceeded / mappedExpected : null;
   const collectionHealthReasons = [
     ...(credentialGaps ?? []).map((name) => {
@@ -102,6 +110,7 @@ export function summarizeIngestionSourceDelta({
         : "awaiting_second_slot",
     collectionHealth: collectionHealthReasons.length > 0 ? "degraded" : "complete",
     collectionHealthReasons,
+    collectorValidation,
     mappedExpected,
     mappedSucceeded,
     mappedNeedsReview,

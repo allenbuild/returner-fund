@@ -165,6 +165,52 @@ describe("logged-in social batch selection", () => {
     )).toBe(true);
   });
 
+  it("audits owner collisions across the full batch before exact company narrowing", () => {
+    const fixture = createAuthenticatedDataRootFixture();
+    try {
+      const snapshotPath = path.join(
+        fixture.dataRoot,
+        "src",
+        "lib",
+        "yc",
+        "summer-2026-companies.json"
+      );
+      const snapshot = JSON.parse(readFileSync(snapshotPath, "utf8"));
+      const otherCompany = snapshot.companies.find(
+        (company) => company.slug === "6thsense"
+      );
+      otherCompany.socialLinks = {
+        ...otherCompany.socialLinks,
+        linkedin: "https://www.linkedin.com/company/109672135"
+      };
+      writeFileSync(snapshotPath, `${JSON.stringify(snapshot, null, 2)}\n`);
+
+      const plan = runPlan([
+        "--batch=S26",
+        "--company-slug=gamgee",
+        "--entities=all",
+        "--platforms=linkedin",
+        "--allow-linkedin"
+      ], { SCORING_DATA_ROOT: fixture.dataRoot });
+
+      const collision = plan.ownerAccountCollisions.find(
+        (candidate) => candidate.accountIdentity === "linkedin:company/109672135"
+      );
+      expect(collision.targets.map((target) => target.companySlug).sort()).toEqual([
+        "6thsense",
+        "gamgee"
+      ]);
+      expect(plan.targets.some((target) =>
+        target.companySlug === "gamgee" &&
+        target.entityType === "company" &&
+        target.accountUrl === "https://www.linkedin.com/company/109672135"
+      )).toBe(false);
+      expect(plan.quarantinedTargetCount).toBe(1);
+    } finally {
+      rmSync(fixture.parent, { recursive: true, force: true });
+    }
+  });
+
   it("fails closed when an exact company slug is malformed, missing, or mixed with fuzzy selection", () => {
     for (const [args, expected] of [
       [["--company-slug=Gamgee"], /exact canonical lowercase company slug/],

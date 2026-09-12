@@ -87,6 +87,9 @@ import {
 } from "./lib/logged-in-checkpoint-union.mjs";
 import { canonicalSocialAccountUrl } from "./lib/social-account-url.mjs";
 import { validatedRepositoryDataRoot } from "./lib/validated-repository-data-root.mjs";
+import {
+  AUTHENTICATED_BACKFILL_COMPANY_SLUG_MAX_LENGTH
+} from "./lib/authenticated-backfill-target.mjs";
 
 if (booleanArg("--help") || booleanArg("-h")) {
   await writeStdout(`${usage()}\n`);
@@ -156,9 +159,15 @@ if (companyFilter && companySlugFilter !== undefined) {
 }
 if (
   companySlugFilter !== undefined &&
-  !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(companySlugFilter)
+  (
+    companySlugFilter.length > AUTHENTICATED_BACKFILL_COMPANY_SLUG_MAX_LENGTH ||
+    !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(companySlugFilter)
+  )
 ) {
-  throw new Error("--company-slug must be an exact canonical lowercase company slug.");
+  throw new Error(
+    `--company-slug must be an exact canonical lowercase company slug no longer than ` +
+    `${AUTHENTICATED_BACKFILL_COMPANY_SLUG_MAX_LENGTH} characters.`
+  );
 }
 const includeRetweets = booleanArg("--include-retweets");
 const allowXAdapterFallback = booleanArg("--allow-x-adapter-fallback");
@@ -235,9 +244,17 @@ if (companySlugFilter !== undefined && targetCompanies.length !== 1) {
     `resolved ${targetCompanies.length}.`
   );
 }
-const completeTargetPartition = partitionCollectionTargetsByOwnerAmbiguity(
-  collectTargets(targetCompanies)
-);
+// Exact targeting may narrow which owners run, but it must never narrow the
+// account-owner collision audit. Partition the complete batch first so a
+// target that shares its native account with an out-of-scope company remains
+// quarantined instead of becoming runnable merely because that owner was
+// hidden by --company-slug.
+const completeTargetPartition = companySlugFilter === undefined
+  ? partitionCollectionTargetsByOwnerAmbiguity(collectTargets(targetCompanies))
+  : narrowFullBatchTargetPartition(
+      partitionCollectionTargetsByOwnerAmbiguity(collectTargets(ycSnapshot.companies)),
+      companySlugFilter
+    );
 const checkpointEntries = [];
 for (const path of checkpointPaths) {
   checkpointEntries.push({
@@ -767,6 +784,19 @@ function socialAccountsFromGraphAccounts(accounts) {
       url: account?.url
     }))
     .filter((account) => ["x", "linkedin", "instagram"].includes(account.platform) && account.url);
+}
+
+function narrowFullBatchTargetPartition(partition, companySlug) {
+  const belongsToTarget = (target) => target?.companySlug === companySlug;
+  return {
+    targets: partition.targets.filter(belongsToTarget),
+    quarantinedTargets: partition.quarantinedTargets.filter(belongsToTarget),
+    // Retain every owner in an implicated collision as the proof explaining
+    // why the selected company's account was quarantined.
+    collisions: partition.collisions.filter((collision) =>
+      collision.targets.some(belongsToTarget)
+    )
+  };
 }
 
 function collectTargets(companies) {

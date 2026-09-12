@@ -160,6 +160,32 @@ test("accepts healthy mapped efficacy when credentials and terminal outcomes are
   assert.deepEqual(receipt.collectionHealthReasons, []);
 });
 
+test("marks public collector coverage as not applicable for authenticated replays", () => {
+  const receipt = summarizeIngestionSourceDelta({
+    idempotencyKey: "authenticated-linkedin-replay",
+    beforeSnapshots: [{ evidence: [row("100")] }],
+    afterSnapshots: [{ evidence: [row("100"), row("101")] }],
+    collectionCoverage: {
+      mappedExpected: 1837,
+      mappedSucceeded: 0,
+      mappedFailed: 0,
+      mappedNonTerminal: 0,
+      collectorValidation: {
+        status: "not_applicable",
+        reason: "authenticated_replay_does_not_run_public_or_github_collector_matrix"
+      }
+    }
+  });
+
+  assert.equal(receipt.collectionHealth, "complete");
+  assert.deepEqual(receipt.collectionHealthReasons, []);
+  assert.equal(receipt.mappedExpected, null);
+  assert.equal(receipt.mappedSucceeded, null);
+  assert.equal(receipt.mappedSuccessRate, null);
+  assert.equal(receipt.mappedNonTerminal, null);
+  assert.equal(receipt.collectorValidation.status, "not_applicable");
+});
+
 test("final daily slot becomes stale only when both slots found no new sources", () => {
   const stale = summarizeIngestionSourceDelta({
     idempotencyKey: "central-2026-07-21-1800",
