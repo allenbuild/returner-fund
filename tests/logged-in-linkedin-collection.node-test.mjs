@@ -5,6 +5,7 @@ import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, it } from "node:test";
+import { JSDOM } from "jsdom";
 import {
   withOpenCliBrowserSession
 } from "../scripts/lib/opencli-browser-session.mjs";
@@ -53,6 +54,21 @@ const collectorSource = readFileSync(
   new URL("../scripts/fetch-logged-in-social-traction.mjs", import.meta.url),
   "utf8"
 );
+
+function linkedInTimelineExtractorScript() {
+  const start = collectorSource.indexOf("function linkedInExtractJs()");
+  const end = collectorSource.indexOf("function linkedInSafetyProbeJs()", start);
+  assert.ok(start >= 0 && end > start, "LinkedIn timeline extractor must exist");
+  const functionSource = collectorSource.slice(start, end).trim();
+  const template = functionSource.match(/return `([\s\S]*)`;\n}$/);
+  assert.ok(template, "LinkedIn timeline extractor must return one template literal");
+  assert.doesNotMatch(template[1], /\$\{/);
+  return Function(`return \`${template[1]}\`;`)();
+}
+
+function executeLinkedInTimelineExtractor(dom) {
+  return dom.window.eval(linkedInTimelineExtractorScript());
+}
 
 function permissiveGlobalLeaseProvider() {
   let sequence = 0;
@@ -2914,6 +2930,70 @@ describe("logged-in LinkedIn collection", () => {
       }]], options),
       []
     );
+  });
+
+  it("executes root and descendant activity URN extraction without losing regex escapes", () => {
+    const rootActivityId = "7475000000000000777";
+    const descendantActivityId = "7475000000000000778";
+    const dom = new JSDOM(`<!doctype html>
+      <div class="scaffold-finite-scroll__content"><ul>
+        <li data-urn="urn:li:activity:${rootActivityId}">
+          <div class="update-components-actor">
+            <a class="update-components-actor__meta-link" href="/company/acme/">Acme</a>
+          </div>
+          <div class="update-components-text">
+            Acme launched its first production release for customers today.
+          </div>
+          <a href="/in/mentioned-person/">Mentioned Person</a>
+          <span>Feed post number 1</span>
+          <button aria-label="12 reactions"></button>
+        </li>
+        <li>
+          <div class="feed-shared-actor">
+            <a class="feed-shared-actor__meta-link" href="/in/founder/">Founder</a>
+          </div>
+          <div data-activity-urn="urn:li:activity:${descendantActivityId}"></div>
+          <div class="update-components-text">
+            Founder published another sufficiently detailed original update today.
+          </div>
+          <span>Feed post number 2</span>
+          <button aria-label="9 reactions"></button>
+        </li>
+      </ul></div>`, {
+      url: "https://www.linkedin.com/company/acme/posts/",
+      runScripts: "outside-only"
+    });
+    Object.defineProperty(dom.window.HTMLElement.prototype, "innerText", {
+      configurable: true,
+      get() {
+        return this.textContent ?? "";
+      }
+    });
+
+    try {
+      const posts = executeLinkedInTimelineExtractor(dom);
+      assert.deepEqual(
+        Array.from(posts, ({ url }) => url),
+        [
+          `https://www.linkedin.com/feed/update/urn:li:activity:${rootActivityId}/`,
+          `https://www.linkedin.com/feed/update/urn:li:activity:${descendantActivityId}/`
+        ]
+      );
+      assert.equal(
+        posts[0].primaryAuthorUrl,
+        "https://www.linkedin.com/company/acme/"
+      );
+      assert.deepEqual(Array.from(posts[0].authorUrls).sort(), [
+        "https://www.linkedin.com/company/acme/",
+        "https://www.linkedin.com/in/mentioned-person/"
+      ].sort());
+      assert.equal(
+        posts[1].primaryAuthorUrl,
+        "https://www.linkedin.com/in/founder/"
+      );
+    } finally {
+      dom.window.close();
+    }
   });
 
   it("binds the alias proof to the probes immediately after navigation and extraction", () => {

@@ -3637,7 +3637,7 @@ function linkedInExtractJs() {
     ];
     const rootActivityId = rootValues
       .join(" ")
-      .match(/urn:li:activity:(\d{10,})/i)?.[1];
+      .match(/urn:li:activity:(\\d{10,})/i)?.[1];
     if (rootActivityId) {
       return "https://www.linkedin.com/feed/update/urn:li:activity:" + rootActivityId + "/";
     }
@@ -3655,7 +3655,7 @@ function linkedInExtractJs() {
     const urnNodes = Array.from(card.querySelectorAll("[data-urn], [data-id], [data-activity-urn]"));
     for (const node of urnNodes) {
       const values = [node.getAttribute?.("data-urn"), node.getAttribute?.("data-id"), node.getAttribute?.("data-activity-urn")];
-      const activityId = values.join(" ").match(/urn:li:activity:(\d{10,})/i)?.[1];
+      const activityId = values.join(" ").match(/urn:li:activity:(\\d{10,})/i)?.[1];
       if (activityId) return "https://www.linkedin.com/feed/update/urn:li:activity:" + activityId + "/";
     }
     return null;
