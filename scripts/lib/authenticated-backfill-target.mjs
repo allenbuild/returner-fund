@@ -71,10 +71,15 @@ export function supportedAuthenticatedBackfillBatches() {
 
 export function assertAuthenticatedBackfillTargetExists(catalogs, requestedTarget) {
   if (!requestedTarget) return null;
+  const expectedCompanySourceKey = requestedTarget.batchSlug === "A16ZSR006"
+    ? `a16z-speedrun-006-${requestedTarget.companySlug}`
+    : `company-${requestedTarget.companySlug}`;
   const matches = (Array.isArray(catalogs) ? catalogs : [])
     .filter((catalog) => catalog?.slug === requestedTarget.batchSlug)
     .flatMap((catalog) => Array.isArray(catalog?.companies) ? catalog.companies : [])
-    .filter((company) => company?.slug === requestedTarget.companySlug);
+    // loadAutonomousCatalogs() intentionally exposes normalized company
+    // identities, not the source snapshot's raw slug field.
+    .filter((company) => company?.sourceKey === expectedCompanySourceKey);
   if (matches.length !== 1) {
     throw new Error(
       `Authenticated backfill target ${requestedTarget.batchSlug}/${requestedTarget.companySlug} ` +

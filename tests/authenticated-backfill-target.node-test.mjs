@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { fileURLToPath } from "node:url";
 
 import {
   assertAuthenticatedBackfillTargetExists,
@@ -9,6 +10,7 @@ import {
   compactAuthenticatedLinkedInPlan,
   resolveAuthenticatedBackfillTarget
 } from "../scripts/lib/authenticated-backfill-target.mjs";
+import { loadAutonomousCatalogs } from "../scripts/lib/autonomous-ingestion-plan.mjs";
 
 test("authenticated replay targeting defaults to the existing full replay", () => {
   assert.equal(resolveAuthenticatedBackfillTarget(), null);
@@ -49,8 +51,22 @@ test("authenticated replay targeting fails closed on partial or widened selector
 
 test("authenticated replay resolves its exact target before browser work", () => {
   const target = { batchSlug: "S26", companySlug: "gamgee" };
-  const catalogs = [{ slug: "S26", companies: [{ slug: "gamgee" }] }];
+  const catalogs = [
+    { slug: "S26", companies: [{ sourceKey: "company-gamgee" }] },
+    { slug: "S2026", companies: [{ sourceKey: "company-zenbu-2" }] },
+    { slug: "A16ZSR006", companies: [{ sourceKey: "a16z-speedrun-006-acceler8" }] }
+  ];
   assert.equal(assertAuthenticatedBackfillTargetExists(catalogs, target), target);
+  const zenbuTarget = { batchSlug: "S2026", companySlug: "zenbu-2" };
+  assert.equal(
+    assertAuthenticatedBackfillTargetExists(catalogs, zenbuTarget),
+    zenbuTarget
+  );
+  const speedrunTarget = { batchSlug: "A16ZSR006", companySlug: "acceler8" };
+  assert.equal(
+    assertAuthenticatedBackfillTargetExists(catalogs, speedrunTarget),
+    speedrunTarget
+  );
   assert.throws(
     () => assertAuthenticatedBackfillTargetExists(catalogs, {
       batchSlug: "S26",
@@ -58,6 +74,25 @@ test("authenticated replay resolves its exact target before browser work", () =>
     }),
     /must resolve to exactly one company/
   );
+  assert.throws(
+    () => assertAuthenticatedBackfillTargetExists(catalogs, {
+      batchSlug: "S26",
+      companySlug: "zenbu-2"
+    }),
+    /must resolve to exactly one company/
+  );
+});
+
+test("authenticated replay targets match the live normalized catalog identity shape", async () => {
+  const repositoryRoot = fileURLToPath(new URL("..", import.meta.url));
+  const catalogs = await loadAutonomousCatalogs(repositoryRoot);
+  for (const target of [
+    { batchSlug: "S26", companySlug: "gamgee" },
+    { batchSlug: "S2026", companySlug: "zenbu-2" },
+    { batchSlug: "A16ZSR006", companySlug: "acceler8" }
+  ]) {
+    assert.equal(assertAuthenticatedBackfillTargetExists(catalogs, target), target);
+  }
 });
 
 test("idempotent authenticated replay receipts bind exact scope and target", () => {
