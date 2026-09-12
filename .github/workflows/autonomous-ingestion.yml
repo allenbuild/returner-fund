@@ -35,6 +35,21 @@ on:
         options:
           - all
           - linkedin
+      authenticated_backfill_batch:
+        description: Exact batch for a targeted LinkedIn replay (all preserves full replay behavior)
+        required: false
+        default: all
+        type: choice
+        options:
+          - all
+          - S2026
+          - S26
+          - A16ZSR006
+      authenticated_backfill_company_slug:
+        description: Exact canonical company slug; requires a batch and the LinkedIn-only scope
+        required: false
+        default: ""
+        type: string
 
 permissions:
   contents: read
@@ -776,6 +791,8 @@ jobs:
         env:
           AUTHENTICATED_SOCIAL_REPLAY: ${{ inputs.authenticated_backfill || false }}
           AUTHENTICATED_BACKFILL_SCOPE: ${{ inputs.authenticated_backfill_scope || 'all' }}
+          AUTHENTICATED_BACKFILL_BATCH: ${{ inputs.authenticated_backfill_batch || 'all' }}
+          AUTHENTICATED_BACKFILL_COMPANY_SLUG: ${{ inputs.authenticated_backfill_company_slug || '' }}
         run: node scripts/verify-authenticated-social-runner.mjs
 
       - name: Run autonomous ingestion
@@ -804,6 +821,8 @@ jobs:
           INGESTION_PUBLICATION_BRANCH: main
           AUTHENTICATED_SOCIAL_REPLAY: ${{ inputs.authenticated_backfill || false }}
           AUTHENTICATED_BACKFILL_SCOPE: ${{ inputs.authenticated_backfill_scope || 'all' }}
+          AUTHENTICATED_BACKFILL_BATCH: ${{ inputs.authenticated_backfill_batch || 'all' }}
+          AUTHENTICATED_BACKFILL_COMPANY_SLUG: ${{ inputs.authenticated_backfill_company_slug || '' }}
           # The authenticated replay selects OPENCLI_HOME before consulting
           # this public state override. Only Linux steps restore or save it.
           RETURNER_INGESTION_STATE_ROOT: ${{ runner.temp }}/returner-fund-autonomous-ingestion-state/v1
@@ -871,7 +890,9 @@ jobs:
             --scheduled-at="$CANDIDATE_SCHEDULED_AT" \
             --recovery-debt="$CANDIDATE_RECOVERY_DEBT" \
             --authenticated-social-replay="$AUTHENTICATED_SOCIAL_REPLAY" \
-            --authenticated-backfill-scope="$AUTHENTICATED_BACKFILL_SCOPE"
+            --authenticated-backfill-scope="$AUTHENTICATED_BACKFILL_SCOPE" \
+            --authenticated-backfill-batch="$AUTHENTICATED_BACKFILL_BATCH" \
+            --authenticated-backfill-company-slug="$AUTHENTICATED_BACKFILL_COMPANY_SLUG"
 
       - name: Stage failed hosted collector recovery artifact
         id: stage_hosted_collector_artifact

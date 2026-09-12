@@ -13,6 +13,7 @@ import {
   instagramShouldRetryTransientBrowserFailure
 } from "./lib/logged-in-instagram-collection.mjs";
 import { verifyAuthBrowserLaunchAgent } from "./lib/auth-browser-service.mjs";
+import { resolveAuthenticatedBackfillTarget } from "./lib/authenticated-backfill-target.mjs";
 
 const INSTAGRAM_SETTINGS_URL = "https://www.instagram.com/accounts/edit/";
 const LINKEDIN_SELF_URL = "https://www.linkedin.com/in/me/";
@@ -293,11 +294,28 @@ export async function runAuthenticatedSocialRunnerPreflight({
       reason: "authenticated_backfill_scope_invalid"
     });
   }
+  let requestedTarget;
+  try {
+    requestedTarget = resolveAuthenticatedBackfillTarget({
+      authenticatedReplay: strictReplay,
+      requestedScope,
+      batchSlug: env.AUTHENTICATED_BACKFILL_BATCH ?? "all",
+      companySlug: env.AUTHENTICATED_BACKFILL_COMPANY_SLUG ?? ""
+    });
+  } catch {
+    return authenticatedPreflightResult({
+      requestedScope,
+      requestedTarget: null,
+      configured: false,
+      reason: "authenticated_backfill_target_invalid"
+    });
+  }
   const requestedPlatforms = AUTHENTICATED_BACKFILL_PLATFORMS[requestedScope];
   const configurationState = authenticatedRunnerConfigurationState(env, requestedPlatforms);
   if (configurationState.absent && !strictReplay) {
     return authenticatedPreflightResult({
       requestedScope,
+      requestedTarget,
       skipped: true,
       configured: false,
       reason: "authenticated_social_not_configured"
@@ -306,6 +324,7 @@ export async function runAuthenticatedSocialRunnerPreflight({
   if (!configurationState.complete) {
     return authenticatedPreflightResult({
       requestedScope,
+      requestedTarget,
       configured: false,
       reason: "authenticated_social_configuration_incomplete"
     });
@@ -322,6 +341,7 @@ export async function runAuthenticatedSocialRunnerPreflight({
   if (!configuration.ok) {
     return authenticatedPreflightResult({
       requestedScope,
+      requestedTarget,
       configured: false,
       reason: configuration.reason
     });
@@ -334,6 +354,7 @@ export async function runAuthenticatedSocialRunnerPreflight({
   if (requestedPlatforms.includes("instagram") && !instagramHandle) {
     return authenticatedPreflightResult({
       requestedScope,
+      requestedTarget,
       configured: false,
       reason: "instagram_viewer_handle_missing_or_invalid"
     });
@@ -341,6 +362,7 @@ export async function runAuthenticatedSocialRunnerPreflight({
   if (!linkedinSlug) {
     return authenticatedPreflightResult({
       requestedScope,
+      requestedTarget,
       configured: false,
       reason: "linkedin_viewer_profile_missing_or_invalid"
     });
@@ -371,6 +393,7 @@ export async function runAuthenticatedSocialRunnerPreflight({
   if (!service.ok) {
     return authenticatedPreflightResult({
       requestedScope,
+      requestedTarget,
       configured: true,
       reason: service.reason,
       service,
@@ -396,6 +419,7 @@ export async function runAuthenticatedSocialRunnerPreflight({
     };
     return authenticatedPreflightResult({
       requestedScope,
+      requestedTarget,
       configured: true,
       reason: profile.reason,
       service: browserService,
@@ -431,6 +455,7 @@ export async function runAuthenticatedSocialRunnerPreflight({
     : unrequestedPlatform();
   return authenticatedPreflightResult({
     requestedScope,
+    requestedTarget,
     configured: true,
     reason: linkedin.ok && (!requestedPlatforms.includes("instagram") || instagram.ok)
       ? requestedScope === "linkedin"
@@ -629,6 +654,7 @@ function authenticatedRunnerConfigurationState(env, requestedPlatforms = AUTHENT
 
 function authenticatedPreflightResult({
   requestedScope = "all",
+  requestedTarget = null,
   configured = false,
   skipped = false,
   reason,
@@ -653,6 +679,7 @@ function authenticatedPreflightResult({
       requestedPlatforms.every((platform) => readiness[platform]?.ok === true),
     requestedScope,
     requestedPlatforms,
+    requestedTarget,
     platformDebt,
     configured,
     skipped,
@@ -888,6 +915,8 @@ function writePreflightOutputs(result, outputPath) {
   if (!outputPath) return;
   const lines = [
     `authenticated_backfill_scope=${safeOutputValue(result.requestedScope)}`,
+    `authenticated_backfill_target_batch=${safeTargetBatch(result.requestedTarget?.batchSlug)}`,
+    `authenticated_backfill_target_company_slug=${safeCompanySlug(result.requestedTarget?.companySlug)}`,
     `requested_platforms=${(result.requestedPlatforms ?? []).join(",")}`,
     `platform_debt=${JSON.stringify(result.platformDebt ?? {})}`,
     `configured=${result.configured === true}`,
@@ -909,6 +938,16 @@ function safeOutputValue(value) {
 function safeAttemptCount(value) {
   const count = Number(value);
   return Number.isSafeInteger(count) && count >= 0 ? count : 0;
+}
+
+function safeTargetBatch(value) {
+  const normalized = String(value ?? "all").trim();
+  return /^(?:all|S2026|S26|A16ZSR006)$/.test(normalized) ? normalized : "unknown";
+}
+
+function safeCompanySlug(value) {
+  const normalized = String(value ?? "").trim();
+  return /^(?:|[a-z0-9]+(?:-[a-z0-9]+)*)$/.test(normalized) ? normalized : "unknown";
 }
 
 function delay(milliseconds) {

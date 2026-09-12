@@ -462,6 +462,7 @@ test("LinkedIn-only preflight proves the exact account without requiring or invo
   assert.equal(result.reason, "authenticated_linkedin_runner_verified");
   assert.equal(result.requestedScope, "linkedin");
   assert.deepEqual(result.requestedPlatforms, ["linkedin"]);
+  assert.equal(result.requestedTarget, null);
   assert.deepEqual(result.platformDebt, {});
   assert.deepEqual(result.instagram, {
     ok: false,
@@ -475,6 +476,61 @@ test("LinkedIn-only preflight proves the exact account without requiring or invo
   assert.equal(calls.some((args) => args[0] === "instagram"), false);
   assert.equal(calls.some((args) => args[1]?.startsWith("preflight-ig-")), false);
   assert.equal(calls.some((args) => args[1]?.startsWith("preflight-li-")), true);
+});
+
+test("targeted LinkedIn preflight binds S26 Gamgee before browser operations", async (t) => {
+  const fixture = createRunnerFixture(t);
+  const calls = [];
+  const result = await runAuthenticatedSocialRunnerPreflight({
+    env: {
+      ...authenticatedPreflightEnvironment(fixture),
+      AUTHENTICATED_SOCIAL_REPLAY: "true",
+      AUTHENTICATED_BACKFILL_SCOPE: "linkedin",
+      AUTHENTICATED_BACKFILL_BATCH: "S26",
+      AUTHENTICATED_BACKFILL_COMPANY_SLUG: "gamgee"
+    },
+    runtimeResolver: () => ({ command: fixture.binaryA }),
+    verifyBrowserService: async () => ({
+      ok: true,
+      reason: "auth_browser_service_running"
+    }),
+    runCommand: async (args) => {
+      calls.push(args);
+      if (args[0] === "browser" && args[2] === "eval") {
+        return JSON.stringify([linkedInReadySignal()]);
+      }
+      return "";
+    },
+    sleep: async () => {}
+  });
+
+  assert.equal(result.ok, true);
+  assert.deepEqual(result.requestedTarget, {
+    batchSlug: "S26",
+    companySlug: "gamgee"
+  });
+  assert.equal(calls.some((args) => args[0] === "instagram"), false);
+});
+
+test("target selectors fail before browser operations outside LinkedIn-only replay", async (t) => {
+  const fixture = createRunnerFixture(t);
+  let calls = 0;
+  const result = await runAuthenticatedSocialRunnerPreflight({
+    env: {
+      ...authenticatedPreflightEnvironment(fixture),
+      AUTHENTICATED_SOCIAL_REPLAY: "true",
+      AUTHENTICATED_BACKFILL_SCOPE: "all",
+      AUTHENTICATED_BACKFILL_BATCH: "S26",
+      AUTHENTICATED_BACKFILL_COMPANY_SLUG: "gamgee"
+    },
+    runCommand: async () => { calls += 1; },
+    verifyBrowserService: async () => { calls += 1; }
+  });
+
+  assert.equal(result.ok, false);
+  assert.equal(result.reason, "authenticated_backfill_target_invalid");
+  assert.equal(result.requestedTarget, null);
+  assert.equal(calls, 0);
 });
 
 test("the default all-platform scope remains fail-closed when Instagram is logged out", async (t) => {

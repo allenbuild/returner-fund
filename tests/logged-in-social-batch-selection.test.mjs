@@ -142,6 +142,47 @@ describe("logged-in social batch selection", () => {
     expect(plan.targets.some((target) => target.companySlug === "eden-robotics")).toBe(false);
   });
 
+  it("uses an exact canonical company slug for a targeted Gamgee LinkedIn plan", () => {
+    const plan = runPlan([
+      "--batch=S26",
+      "--company-slug=gamgee",
+      "--entities=all",
+      "--platforms=linkedin",
+      "--allow-linkedin",
+      "--linkedin-max-targets=5",
+      "--delay-ms=30000"
+    ]);
+
+    expect(plan.requestedTarget).toEqual({
+      batchSlug: "S26",
+      companySlug: "gamgee"
+    });
+    expect(plan.targets.length).toBeGreaterThan(0);
+    expect(plan.targets.every((target) =>
+      target.batchSlug === "S26" &&
+      target.companySlug === "gamgee" &&
+      target.platform === "linkedin"
+    )).toBe(true);
+  });
+
+  it("fails closed when an exact company slug is malformed, missing, or mixed with fuzzy selection", () => {
+    for (const [args, expected] of [
+      [["--company-slug=Gamgee"], /exact canonical lowercase company slug/],
+      [["--company-slug=does-not-exist"], /must resolve to exactly one company/],
+      [["--company=gamgee", "--company-slug=gamgee"], /cannot be combined/]
+    ]) {
+      const result = runPlanProcess([
+        "--batch=S26",
+        "--entities=all",
+        "--platforms=linkedin",
+        "--allow-linkedin",
+        ...args
+      ]);
+      expect(result.status).not.toBe(0);
+      expect(result.stderr).toMatch(expected);
+    }
+  });
+
   it("preserves both independently verified Eden founder X accounts", () => {
     const plan = runPlan([
       "--batch=S2026",

@@ -150,6 +150,16 @@ const terminalCompletedPlatforms = platformSetArg(
 );
 const entityFilter = stringArg("--entities") ?? "all"; // all | company | founder
 const companyFilter = stringArg("--company")?.toLowerCase();
+const companySlugFilter = stringArg("--company-slug");
+if (companyFilter && companySlugFilter !== undefined) {
+  throw new Error("--company and --company-slug cannot be combined.");
+}
+if (
+  companySlugFilter !== undefined &&
+  !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(companySlugFilter)
+) {
+  throw new Error("--company-slug must be an exact canonical lowercase company slug.");
+}
 const includeRetweets = booleanArg("--include-retweets");
 const allowXAdapterFallback = booleanArg("--allow-x-adapter-fallback");
 const xCollectionMode = resolveXCollectionMode(
@@ -213,10 +223,18 @@ const resolveLegacyLoggedInEvidenceBatch = buildLegacyPublicEvidenceBatchResolve
 );
 const targetCompanies = ycSnapshot.companies.filter(
   (company) =>
-    !companyFilter ||
-    company.name.toLowerCase().includes(companyFilter) ||
-    company.slug.toLowerCase() === companyFilter
+    companySlugFilter !== undefined
+      ? company.slug === companySlugFilter
+      : !companyFilter ||
+        company.name.toLowerCase().includes(companyFilter) ||
+        company.slug.toLowerCase() === companyFilter
 );
+if (companySlugFilter !== undefined && targetCompanies.length !== 1) {
+  throw new Error(
+    `--company-slug=${companySlugFilter} must resolve to exactly one company in ${batchConfig.slug}; ` +
+    `resolved ${targetCompanies.length}.`
+  );
+}
 const completeTargetPartition = partitionCollectionTargetsByOwnerAmbiguity(
   collectTargets(targetCompanies)
 );
@@ -362,6 +380,9 @@ if (planOnly) {
   const coverage = socialTargetCoverage(targetCompanies, prioritizedTargets);
   const planPayload = JSON.stringify({
     batchSlug: batchConfig.slug,
+    requestedTarget: companySlugFilter === undefined
+      ? null
+      : { batchSlug: batchConfig.slug, companySlug: companySlugFilter },
     snapshotPath: ycSnapshotPath,
     checkpointPath,
     catalogCompanyCount: ycSnapshot.companies.length,
@@ -631,6 +652,9 @@ const payload = {
   source: {
     label: "Opt-in logged-in browser social post ingestion",
     batchSlug: batchConfig.slug,
+    requestedTarget: companySlugFilter === undefined
+      ? null
+      : { batchSlug: batchConfig.slug, companySlug: companySlugFilter },
     fetchedAt: now,
     targetCount: targets.length,
     fetchedCount: targets.filter((target) => attemptMap.get(attemptKeyFor(target))?.status === "done").length,
@@ -2879,6 +2903,7 @@ function usage() {
     "  --platforms=x,linkedin,instagram",
     "  --entities=all|company|founder",
     "  --company=NAME",
+    "  --company-slug=SLUG       Exact canonical company selector (no fuzzy/name matching)",
     "  --max-targets=N",
     "  --linkedin-max-targets=N   LinkedIn-only cap (default/hard maximum: 5; lower values only)",
     "  --workers=N",

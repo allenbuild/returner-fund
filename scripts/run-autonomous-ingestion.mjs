@@ -110,6 +110,10 @@ import {
   canonicalSocialAccountRowIdentity,
   reconcileCanonicalSocialAccountRows
 } from "./lib/social-account-upsert-reconciliation.mjs";
+import {
+  authenticatedBackfillTargetEquals,
+  resolveAuthenticatedBackfillTarget
+} from "./lib/authenticated-backfill-target.mjs";
 import { runAuthenticatedSocialRunnerPreflight } from "./verify-authenticated-social-runner.mjs";
 
 let root;
@@ -172,6 +176,10 @@ const LINKEDIN_REPLAY_MAX_CHUNKS = 7;
 const LINKEDIN_REPLAY_TARGET_CAP = 5;
 const LINKEDIN_REPLAY_RESERVE_MS = 15 * 60_000;
 const LINKEDIN_REPLAY_PLAN_TIMEOUT_MS = 2 * 60_000;
+// Full catalogue plans are intentionally verbose (the current S26 plan is just over
+// 1 MiB). Keep a generous, explicit ceiling so receipt parsing can never silently
+// consume runCommand's default 40 KiB tail capture.
+const LINKEDIN_REPLAY_PLAN_CAPTURE_LIMIT = 16 * 1024 * 1024;
 const runWithPublicShardProcessSlot = createConcurrencyGuard(PUBLIC_SHARD_PROCESS_CONCURRENCY);
 // GitHub has a separate two-process lane. Each process uses four ordinary
 // collector workers, so the initial request fan-out is capped at eight while
@@ -626,6 +634,7 @@ await Promise.all([
         {
           historicalReplay: true,
           requestedScope: args.authenticatedBackfillScope,
+          requestedTarget: args.authenticatedBackfillTarget,
           requestedPlatforms: args.authenticatedBackfillScope === "linkedin"
             ? ["linkedin"]
             : ["instagram", "linkedin"],
@@ -639,7 +648,8 @@ await Promise.all([
       );
       authenticatedSocial = await runAuthenticatedCollectors({
         historicalReplay: true,
-        requestedScope: args.authenticatedBackfillScope
+        requestedScope: args.authenticatedBackfillScope,
+        requestedTarget: args.authenticatedBackfillTarget
       });
       await event(
         "collection.finished",
@@ -658,7 +668,13 @@ await Promise.all([
       validateAutonomousCollectorMatrix(collectionResults);
     }
     if ((args.skipNetwork || args.authenticatedSocialReplay) && run) {
-      await terminalizeQueuedTasks(run.id, "skipped", "network_collection_explicitly_skipped");
+      await terminalizeQueuedTasks(
+        run.id,
+        "skipped",
+        args.authenticatedSocialReplay
+          ? "public_collector_matrix_not_applicable_authenticated_replay"
+          : "network_collection_explicitly_skipped"
+      );
     } else if (catalogState) {
       await reconcileCollectorTasks(collectionResults, catalogState);
     }
@@ -699,6 +715,12 @@ await Promise.all([
     const terminalFailureBudget = autonomousMappedTerminalFailureBudget(
       collectionCoverage.mappedExpected
     );
+    collectionCoverage.collectorValidation = args.authenticatedSocialReplay
+      ? {
+          status: "not_applicable",
+          reason: "authenticated_replay_does_not_run_public_or_github_collector_matrix"
+        }
+      : { status: "required", reason: null };
     latestCollectionCoverage = collectionCoverage;
     latestTerminalFailureBudget = terminalFailureBudget;
     if (args.authenticatedSocialReplay) {
@@ -707,11 +729,13 @@ await Promise.all([
       assertSuccessfulCollection(collectionResults, collectionCoverage);
     }
     await recordCollectionCoverage(collectionCoverage, terminalFailureBudget);
-    validateMappedAutonomousCoverage(collectionCoverage, {
-      maxTerminalFailures: args.skipPublish
-        ? Number.POSITIVE_INFINITY
-        : terminalFailureBudget
-    });
+    if (!args.authenticatedSocialReplay) {
+      validateMappedAutonomousCoverage(collectionCoverage, {
+        maxTerminalFailures: args.skipPublish
+          ? Number.POSITIVE_INFINITY
+          : terminalFailureBudget
+      });
+    }
     if (!args.authenticatedSocialReplay) {
       assertSuccessfulTopVoiceRefresh(topVoiceRefresh);
     }
@@ -3395,14 +3419,32 @@ async function runCollectors() {
 
 async function runAuthenticatedCollectors({
   historicalReplay = false,
-  requestedScope = "all"
+  requestedScope = "all",
+  requestedTarget = null
 } = {}) {
   if (!["all", "linkedin"].includes(requestedScope)) {
     throw new Error("Authenticated collector scope must be all or linkedin.");
   }
+  if (requestedTarget) {
+    const validatedTarget = resolveAuthenticatedBackfillTarget({
+      authenticatedReplay: historicalReplay,
+      requestedScope,
+      batchSlug: requestedTarget.batchSlug,
+      companySlug: requestedTarget.companySlug
+    });
+    if (!authenticatedBackfillTargetEquals(validatedTarget, requestedTarget)) {
+      throw new Error("Authenticated collector target must be an exact canonical target.");
+    }
+  }
   const requestedPlatforms = requestedScope === "linkedin"
     ? ["linkedin"]
     : ["instagram", "linkedin"];
+  const selectedBatches = requestedTarget
+    ? AUTONOMOUS_BATCHES.filter((batch) => batch.slug === requestedTarget.batchSlug)
+    : AUTONOMOUS_BATCHES;
+  if (requestedTarget && selectedBatches.length !== 1) {
+    throw new Error("Authenticated collector target did not resolve to exactly one configured batch.");
+  }
   // Run this immediately before the authenticated collectors, after the public
   // lanes have drained. A workflow-start probe would otherwise be stale by the
   // time OpenCLI needs the browser bridge and exact platform adapter.
@@ -3411,7 +3453,10 @@ async function runAuthenticatedCollectors({
     const candidate = await runAuthenticatedSocialRunnerPreflight({
       env: {
         ...process.env,
-        AUTHENTICATED_BACKFILL_SCOPE: requestedScope
+        AUTHENTICATED_SOCIAL_REPLAY: historicalReplay ? "true" : "false",
+        AUTHENTICATED_BACKFILL_SCOPE: requestedScope,
+        AUTHENTICATED_BACKFILL_BATCH: requestedTarget?.batchSlug ?? "all",
+        AUTHENTICATED_BACKFILL_COMPANY_SLUG: requestedTarget?.companySlug ?? ""
       }
     });
     if (!candidate || typeof candidate !== "object" || Array.isArray(candidate)) {
@@ -3419,9 +3464,10 @@ async function runAuthenticatedCollectors({
     }
     if (
       candidate.requestedScope !== requestedScope ||
-      JSON.stringify(candidate.requestedPlatforms) !== JSON.stringify(requestedPlatforms)
+      JSON.stringify(candidate.requestedPlatforms) !== JSON.stringify(requestedPlatforms) ||
+      !authenticatedBackfillTargetEquals(candidate.requestedTarget ?? null, requestedTarget)
     ) {
-      throw new Error("Authenticated social preflight returned mismatched scope evidence.");
+      throw new Error("Authenticated social preflight returned mismatched scope or target evidence.");
     }
     preflight = candidate;
   } catch {
@@ -3444,6 +3490,7 @@ async function runAuthenticatedCollectors({
       ok: false,
       requestedScope,
       requestedPlatforms,
+      requestedTarget,
       platformDebt: Object.fromEntries(
         requestedPlatforms.map((platform) => [platform, unavailable.reason])
       ),
@@ -3458,6 +3505,7 @@ async function runAuthenticatedCollectors({
   const readiness = {
     requestedScope,
     requestedPlatforms,
+    requestedTarget,
     platformDebt: preflight.platformDebt ?? Object.fromEntries(
       requestedPlatforms
         .filter((platform) => preflight[platform]?.ok !== true)
@@ -3520,7 +3568,7 @@ async function runAuthenticatedCollectors({
     );
     const skippedReplayState = reduceLinkedInReplayState(
       createLinkedInReplayState(
-        AUTONOMOUS_BATCHES.map((batch) => batch.slug),
+        selectedBatches.map((batch) => batch.slug),
         { durableLockConfigured: false }
       ),
       { type: "configuration_skipped", reason: "runner_profile_not_configured" }
@@ -3530,6 +3578,7 @@ async function runAuthenticatedCollectors({
       reason: preflight.reason ?? "runner_profile_not_configured",
       requestedScope,
       requestedPlatforms,
+      requestedTarget,
       platformDebt: readiness.platformDebt,
       readiness,
       batches: [],
@@ -3553,7 +3602,7 @@ async function runAuthenticatedCollectors({
     );
   }
   let replayState = createLinkedInReplayState(
-    AUTONOMOUS_BATCHES.map((batch) => batch.slug),
+    selectedBatches.map((batch) => batch.slug),
     { durableLockConfigured: durableLinkedinLockReady }
   );
   if (!durableLinkedinLockReady) {
@@ -3572,7 +3621,7 @@ async function runAuthenticatedCollectors({
       { platform, readiness: platformReadiness }
     );
   }
-  for (const batch of AUTONOMOUS_BATCHES) {
+  for (const batch of selectedBatches) {
     const outputPath = loggedInOutputs.get(batch.slug);
     const checkpointPath = loggedInCheckpointOutputs.get(batch.slug);
     const commonArgs = [
@@ -3585,6 +3634,9 @@ async function runAuthenticatedCollectors({
       `--output-path=${outputPath}`,
       `--checkpoint-path=${checkpointPath}`
     ];
+    if (requestedTarget) {
+      commonArgs.push(`--company-slug=${requestedTarget.companySlug}`);
+    }
     const instagramWorkers = historicalReplay ? 2 : 1;
     const instagram = instagramReady
       ? await runAuthenticatedCollectorCommand(
@@ -3642,7 +3694,8 @@ async function runAuthenticatedCollectors({
       linkedin = await runAuthenticatedLinkedInReplayBatch({
         batch,
         commonArgs,
-        replayState
+        replayState,
+        requestedTarget
       });
       replayState = linkedin.replayState;
       delete linkedin.replayState;
@@ -3706,6 +3759,7 @@ async function runAuthenticatedCollectors({
     ...baseLinkedinReplay,
     requestedScope,
     requestedPlatforms,
+    requestedTarget,
     platformStatus,
     platformDebt
   };
@@ -3720,6 +3774,7 @@ async function runAuthenticatedCollectors({
     historicalReplay,
     requestedScope,
     requestedPlatforms,
+    requestedTarget,
     platformStatus,
     platformDebt,
     readiness,
@@ -3922,7 +3977,12 @@ function linkedInReplayChildDeadlineAt({
   return childDeadlineAt;
 }
 
-async function runAuthenticatedLinkedInReplayBatch({ batch, commonArgs, replayState }) {
+async function runAuthenticatedLinkedInReplayBatch({
+  batch,
+  commonArgs,
+  replayState,
+  requestedTarget = null
+}) {
   const batchResult = {
     status: "completed",
     chunks: [],
@@ -3957,7 +4017,7 @@ async function runAuthenticatedLinkedInReplayBatch({ batch, commonArgs, replaySt
     const plan = await runAuthenticatedLinkedInPlan(
       batch.slug,
       linkedinArgs,
-      { deadlineAt: childDeadlineAt }
+      { deadlineAt: childDeadlineAt, requestedTarget }
     );
     if (plan.status !== "completed") {
       state = reduceLinkedInReplayState(state, {
@@ -4048,10 +4108,10 @@ async function runAuthenticatedLinkedInReplayBatch({ batch, commonArgs, replaySt
       // The plan-only scan is read-only and gives the receipt an exact
       // remaining count after a child has flushed its durable checkpoint.
       const finalPlan = Date.now() < childDeadlineAt
-        ? await runAuthenticatedLinkedInPlan(
+          ? await runAuthenticatedLinkedInPlan(
             batch.slug,
             linkedinArgs,
-            { deadlineAt: childDeadlineAt }
+            { deadlineAt: childDeadlineAt, requestedTarget }
           )
         : { status: "deadline_exhausted" };
       if (finalPlan.status === "completed") {
@@ -4068,7 +4128,11 @@ async function runAuthenticatedLinkedInReplayBatch({ batch, commonArgs, replaySt
   return { ...batchResult, replayState: state };
 }
 
-async function runAuthenticatedLinkedInPlan(batchSlug, linkedinArgs, { deadlineAt } = {}) {
+async function runAuthenticatedLinkedInPlan(
+  batchSlug,
+  linkedinArgs,
+  { deadlineAt, requestedTarget = null } = {}
+) {
   const result = await runAuthenticatedCollectorCommand(
     batchSlug,
     "linkedin",
@@ -4078,6 +4142,7 @@ async function runAuthenticatedLinkedInPlan(batchSlug, linkedinArgs, { deadlineA
   if (result.status !== "completed") return result;
   try {
     const plan = parseJsonFromChildStdout(result.stdout);
+    assertAuthenticatedLinkedInPlanTarget(plan, requestedTarget);
     const runnableTargetCount = Number(plan?.linkedinExecution?.remainingTargetCount);
     if (!Number.isSafeInteger(runnableTargetCount) || runnableTargetCount < 0) {
       throw new Error("LinkedIn plan-only child returned an invalid runnable target count.");
@@ -4088,6 +4153,28 @@ async function runAuthenticatedLinkedInPlan(batchSlug, linkedinArgs, { deadlineA
       status: "failed",
       error: `LinkedIn plan-only result was invalid: ${errorMessage(error)}`
     };
+  }
+}
+
+function assertAuthenticatedLinkedInPlanTarget(plan, requestedTarget) {
+  if (!requestedTarget) return;
+  if (
+    plan?.batchSlug !== requestedTarget.batchSlug ||
+    !authenticatedBackfillTargetEquals(plan?.requestedTarget ?? null, requestedTarget)
+  ) {
+    throw new Error("LinkedIn plan-only child did not bind the exact requested replay target.");
+  }
+  const plannedTargets = Array.isArray(plan.targets)
+    ? plan.targets.filter((target) => target?.platform === "linkedin")
+    : [];
+  if (
+    plannedTargets.length === 0 ||
+    plannedTargets.some((target) =>
+      target.batchSlug !== requestedTarget.batchSlug ||
+      target.companySlug !== requestedTarget.companySlug
+    )
+  ) {
+    throw new Error("LinkedIn plan-only child returned missing or out-of-scope account targets.");
   }
 }
 
@@ -4120,6 +4207,8 @@ async function runAuthenticatedCollectorCommand(
         SCORING_DATA_ROOT: publicationArtifactRoot()
       },
       quiet: planOnly,
+      captureLimit: planOnly ? LINKEDIN_REPLAY_PLAN_CAPTURE_LIMIT : 40_000,
+      requireCompleteOutput: planOnly,
       cwd: root
     });
     return { status: "completed", exitCode: result.code, stdout: result.stdout };
@@ -5693,6 +5782,10 @@ async function recordCollectionCoverage(
     0,
     (coverage.mappedFailureSamples?.length ?? 0) - failedTaskSamples.length
   );
+  const collectorValidation = coverage.collectorValidation ?? {
+    status: "required",
+    reason: null
+  };
   const summary = {
     mappedExpected: coverage.mappedExpected,
     mappedSucceeded: coverage.mappedSucceeded,
@@ -5706,7 +5799,14 @@ async function recordCollectionCoverage(
     mappedFailed: coverage.mappedFailed,
     mappedNonTerminal: coverage.mappedNonTerminal,
     terminalFailureBudget,
-    status: budgetExceeded ? "failed_budget_exceeded" : degraded ? "degraded" : "complete",
+    status: collectorValidation.status === "not_applicable"
+      ? "not_applicable"
+      : budgetExceeded
+        ? "failed_budget_exceeded"
+        : degraded
+          ? "degraded"
+          : "complete",
+    collectorValidation,
     failedTaskSampleCount: coverage.mappedFailureSamples?.length ?? 0,
     failedTaskSamples,
     omittedFailureSamples
@@ -5729,6 +5829,9 @@ async function recordCollectionCoverage(
   await appendFile(githubSummary, [
     "## Collector coverage",
     `- Status: ${summary.status}`,
+    ...(collectorValidation.status === "not_applicable"
+      ? [`- Collector validation: not applicable (${collectorValidation.reason})`]
+      : []),
     `- Mapped tasks: ${coverage.mappedExpected}`,
     `- Native evidence: ${coverage.mappedSucceeded}`,
     `- Needs review: ${coverage.mappedNeedsReview}`,
@@ -5825,6 +5928,35 @@ function assertAuthenticatedReplayCanPublish(replay) {
   ) {
     throw new Error("Authenticated replay requested-platform receipt does not match its requested scope.");
   }
+  const requestedTarget = replay.requestedTarget ?? null;
+  if (!authenticatedBackfillTargetEquals(linkedinReplay.requestedTarget ?? null, requestedTarget)) {
+    throw new Error("Authenticated replay target receipt does not match its bounded LinkedIn replay receipt.");
+  }
+  if (requestedTarget) {
+    const validatedTarget = resolveAuthenticatedBackfillTarget({
+      authenticatedReplay: true,
+      requestedScope,
+      batchSlug: requestedTarget.batchSlug,
+      companySlug: requestedTarget.companySlug
+    });
+    if (!authenticatedBackfillTargetEquals(validatedTarget, requestedTarget)) {
+      throw new Error("Authenticated replay target receipt is not canonical.");
+    }
+    const expectedBatchKeys = [requestedTarget.batchSlug];
+    const replayBatchKeys = Object.keys(linkedinReplay.remainingByBatch ?? {});
+    const batches = replay.batches ?? [];
+    if (
+      JSON.stringify(replayBatchKeys) !== JSON.stringify(expectedBatchKeys) ||
+      batches.length !== 1 ||
+      batches[0]?.batchSlug !== requestedTarget.batchSlug ||
+      !authenticatedBackfillTargetEquals(
+        batches[0]?.linkedin?.finalPlan?.requestedTarget ?? null,
+        requestedTarget
+      )
+    ) {
+      throw new Error("Authenticated replay publication is not bound to the exact requested batch and company.");
+    }
+  }
   if (requestedScope === "linkedin") {
     const unexpectedInstagram = (replay.batches ?? []).find(
       ({ instagram }) => instagram?.status !== "skipped" ||
@@ -5874,6 +6006,25 @@ function assertAuthenticatedReplayCanPublish(replay) {
     : "partial";
   if (replay.status !== expectedReplayStatus) {
     throw new Error("Authenticated replay root status does not match requested-platform completion state.");
+  }
+  if (replay.historicalReplay && replay.status === "partial") {
+    if (
+      linkedinReplay.configurationSkipped ||
+      linkedinReplay.safetyStopped ||
+      linkedinReplay.infrastructureStopped
+    ) {
+      throw new Error(
+        "Authenticated historical replay cannot publish after a LinkedIn configuration, safety, or infrastructure stop."
+      );
+    }
+    const boundedCheckpointDebt =
+      (linkedinReplay.chunkBudgetExhausted || linkedinReplay.deadlineExhausted) &&
+      linkedinReplay.chunksCompleted > 0;
+    if (!boundedCheckpointDebt) {
+      throw new Error(
+        "Authenticated historical replay cannot publish a partial result without completed chunks and bounded checkpoint debt."
+      );
+    }
   }
   if (
     linkedinReplay.chunksAdmitted > LINKEDIN_REPLAY_MAX_CHUNKS ||
@@ -8946,6 +9097,8 @@ async function writeRunnerOutcome(outcome) {
     daily_source_health: normalized.dailySourceHealth ?? "",
     authenticated_social_replay: JSON.stringify(normalized.authenticatedSocialReplay ?? null),
     authenticated_backfill_scope: normalized.authenticatedSocialReplay?.requestedScope ?? "",
+    authenticated_backfill_target_batch: normalized.authenticatedSocialReplay?.requestedTarget?.batchSlug ?? "",
+    authenticated_backfill_target_company_slug: normalized.authenticatedSocialReplay?.requestedTarget?.companySlug ?? "",
     authenticated_requested_platforms: (normalized.authenticatedSocialReplay?.requestedPlatforms ?? []).join(","),
     authenticated_platform_debt: JSON.stringify(normalized.authenticatedSocialReplay?.platformDebt ?? []),
     linkedin_remaining_target_count: normalized.authenticatedSocialReplay?.remainingTargetCount ?? "",
@@ -9475,6 +9628,13 @@ function parseArgs(rawArgs) {
   if (!["all", "linkedin"].includes(authenticatedBackfillScope)) {
     throw new Error("--authenticated-backfill-scope must be all or linkedin.");
   }
+  const authenticatedSocialReplay = booleanValue("--authenticated-social-replay");
+  const authenticatedBackfillTarget = resolveAuthenticatedBackfillTarget({
+    authenticatedReplay: authenticatedSocialReplay,
+    requestedScope: authenticatedBackfillScope,
+    batchSlug: value("--authenticated-backfill-batch") ?? "all",
+    companySlug: value("--authenticated-backfill-company-slug") ?? ""
+  });
   return {
     idempotencyKey: value("--idempotency-key"),
     campaignKey: value("--campaign-key"),
@@ -9488,8 +9648,9 @@ function parseArgs(rawArgs) {
     resumeSnapshots: !rawArgs.includes("--no-resume-snapshots"),
     skipNetwork: rawArgs.includes("--skip-network"),
     skipPublish: rawArgs.includes("--skip-publish"),
-    authenticatedSocialReplay: booleanValue("--authenticated-social-replay"),
-    authenticatedBackfillScope
+    authenticatedSocialReplay,
+    authenticatedBackfillScope,
+    authenticatedBackfillTarget
   };
 }
 

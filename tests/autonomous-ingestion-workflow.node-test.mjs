@@ -3175,8 +3175,15 @@ test("workflow routes public ingestion to hosted Linux and authenticated replay 
     workflow,
     /authenticated_backfill_scope:[\s\S]*?default:\s*all[\s\S]*?type:\s*choice[\s\S]*?options:[\s\S]*?- all[\s\S]*?- linkedin/
   );
+  assert.match(
+    workflow,
+    /authenticated_backfill_batch:[\s\S]*?default:\s*all[\s\S]*?options:[\s\S]*?- S2026[\s\S]*?- S26[\s\S]*?- A16ZSR006/
+  );
+  assert.match(workflow, /authenticated_backfill_company_slug:[\s\S]*?type:\s*string/);
   assert.match(ingestJob, /--authenticated-social-replay="\$AUTHENTICATED_SOCIAL_REPLAY"/);
   assert.match(ingestJob, /--authenticated-backfill-scope="\$AUTHENTICATED_BACKFILL_SCOPE"/);
+  assert.match(ingestJob, /--authenticated-backfill-batch="\$AUTHENTICATED_BACKFILL_BATCH"/);
+  assert.match(ingestJob, /--authenticated-backfill-company-slug="\$AUTHENTICATED_BACKFILL_COMPANY_SLUG"/);
   const preflightIndex = ingestJob.indexOf("Preflight authenticated social runner");
   const ingestionIndex = ingestJob.indexOf("Run autonomous ingestion");
   assert.ok(preflightIndex >= 0, "authenticated runner preflight is required");
@@ -3191,6 +3198,14 @@ test("workflow routes public ingestion to hosted Linux and authenticated replay 
   assert.match(
     preflightStep,
     /AUTHENTICATED_BACKFILL_SCOPE:\s*\$\{\{ inputs\.authenticated_backfill_scope \|\| 'all' \}\}/
+  );
+  assert.match(
+    preflightStep,
+    /AUTHENTICATED_BACKFILL_BATCH:\s*\$\{\{ inputs\.authenticated_backfill_batch \|\| 'all' \}\}/
+  );
+  assert.match(
+    preflightStep,
+    /AUTHENTICATED_BACKFILL_COMPANY_SLUG:\s*\$\{\{ inputs\.authenticated_backfill_company_slug \|\| '' \}\}/
   );
   assert.doesNotMatch(
     preflightStep,
