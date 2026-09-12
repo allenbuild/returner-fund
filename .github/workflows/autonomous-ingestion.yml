@@ -50,6 +50,11 @@ on:
         required: false
         default: ""
         type: string
+      recover_authenticated_linkedin_lock:
+        description: Manually release one proven LinkedIn safety-quarantine before an exact targeted replay
+        required: false
+        default: false
+        type: boolean
 
 permissions:
   contents: read
@@ -784,6 +789,7 @@ jobs:
         run: npm ci
 
       - name: Preflight authenticated social runner
+        id: authenticated_social_preflight
         if: steps.revalidate.outputs.should_run == 'true' && steps.host_preflight.outputs.ready == 'true' && needs.resolve.outputs.trigger == 'manual-replay' && inputs.authenticated_backfill == true
         # Covers three bounded 60-second cold-bridge attempts per platform,
         # including session cleanup, without making the retry loop unbounded.
@@ -795,9 +801,25 @@ jobs:
           AUTHENTICATED_BACKFILL_COMPANY_SLUG: ${{ inputs.authenticated_backfill_company_slug || '' }}
         run: node scripts/verify-authenticated-social-runner.mjs
 
+      - name: Recover proven authenticated LinkedIn safety quarantine
+        id: authenticated_linkedin_lock_recovery
+        if: steps.revalidate.outputs.should_run == 'true' && steps.host_preflight.outputs.ready == 'true' && github.event_name == 'workflow_dispatch' && needs.resolve.outputs.trigger == 'manual-replay' && inputs.recover_authenticated_linkedin_lock == true
+        timeout-minutes: 2
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          RECOVER_AUTHENTICATED_LINKEDIN_LOCK: ${{ inputs.recover_authenticated_linkedin_lock || false }}
+          AUTHENTICATED_SOCIAL_PREFLIGHT_PASSED: ${{ steps.authenticated_social_preflight.outcome == 'success' }}
+          AUTHENTICATED_SOCIAL_REPLAY: ${{ inputs.authenticated_backfill || false }}
+          AUTHENTICATED_BACKFILL_SCOPE: ${{ inputs.authenticated_backfill_scope || 'all' }}
+          AUTHENTICATED_BACKFILL_BATCH: ${{ inputs.authenticated_backfill_batch || 'all' }}
+          AUTHENTICATED_BACKFILL_COMPANY_SLUG: ${{ inputs.authenticated_backfill_company_slug || '' }}
+          LINKEDIN_GLOBAL_LOCK_NAMESPACE: returner-fund-production-linkedin-allen-xu-v1
+        run: node scripts/recover-authenticated-linkedin-lock.mjs
+
       - name: Run autonomous ingestion
         id: ingestion
-        if: steps.revalidate.outputs.should_run == 'true' && steps.host_preflight.outputs.ready == 'true'
+        if: steps.revalidate.outputs.should_run == 'true' && steps.host_preflight.outputs.ready == 'true' && (inputs.recover_authenticated_linkedin_lock != true || steps.authenticated_linkedin_lock_recovery.outcome == 'success')
         timeout-minutes: ${{ runner.os == 'macOS' && 380 || 342 }}
         env:
           # The coordinator retains the sealed collection inputs while a

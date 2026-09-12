@@ -648,7 +648,7 @@ test("accepted resolver jobs fail closed and re-export only validated outputs", 
   }
 });
 
-test("all workflow shell blocks remain fixed at 63 and queued schedules are rechecked", (t) => {
+test("all workflow shell blocks remain fixed at 64 and queued schedules are rechecked", (t) => {
   const shellBlockCount = [workflow, dailyBenchmarkWorkflow, readFileSync(
     path.join(repositoryRoot, ".github", "workflows", "public-artifacts.yml"),
     "utf8"
@@ -656,7 +656,7 @@ test("all workflow shell blocks remain fixed at 63 and queued schedules are rech
     (total, source) => total + (source.match(/^ {8}run:/gm)?.length ?? 0),
     0
   );
-  assert.equal(shellBlockCount, 63);
+  assert.equal(shellBlockCount, 64);
 
   const directory = mkdtempSync(path.join(tmpdir(), "returner-queued-freshness-"));
   t.after(() => rmSync(directory, { recursive: true, force: true }));

@@ -25,12 +25,15 @@ export const LINKEDIN_ACCOUNT_PACING_STATE_PATH = join(
 
 const LINKEDIN_LAST_TARGET_COMPLETION = Symbol("linkedin-last-target-completion");
 const LINKEDIN_PACING_STATE_UNPROVEN_CODE = "LINKEDIN_PACING_STATE_UNPROVEN";
-const LINKEDIN_SAFETY_QUARANTINE_REASONS = new Set([
+export const LINKEDIN_SAFETY_QUARANTINE_REASONS = Object.freeze([
   "unproven-browser-session-cleanup",
   "unproven-host-pacing-state",
   "unproven-final-cooldown",
   "durable-lease-heartbeat-failure"
 ]);
+const LINKEDIN_SAFETY_QUARANTINE_REASON_SET = new Set(
+  LINKEDIN_SAFETY_QUARANTINE_REASONS
+);
 
 export function createLinkedInInteractionPacer({
   minimumDelayMs = LINKEDIN_MINIMUM_INTERACTION_DELAY_MS,
@@ -579,7 +582,7 @@ function assertLinkedInGlobalLeaseConfiguration(provider, namespace) {
   }
 }
 
-function linkedinGlobalLockKey(namespace) {
+export function linkedinGlobalLockKey(namespace) {
   return `authenticated-linkedin:${namespace.trim()}`;
 }
 
@@ -618,7 +621,7 @@ function linkedInSafetyQuarantineDuration(value) {
 }
 
 function linkedInSafetyQuarantineReason(value) {
-  if (!LINKEDIN_SAFETY_QUARANTINE_REASONS.has(value)) {
+  if (!LINKEDIN_SAFETY_QUARANTINE_REASON_SET.has(value)) {
     throw new RangeError("LinkedIn safety quarantine reason is not recognized.");
   }
   return value;
