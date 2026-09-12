@@ -1499,6 +1499,36 @@ test("workflow retry policy retries transient failures but fails closed on lease
     assert.equal(decision.reason, "transient-database-failure", failureCode);
   }
 
+  for (const output of [
+    outcome({
+      failureMessage: "Failed to claim runtime lock: Gateway Timeout",
+      failureDomain: "database"
+    }),
+    outcome({
+      failureMessage: "Failed to claim runtime lock: HTTP status 504",
+      failureDomain: "database"
+    }).replace("\nfailure_code=", "")
+  ]) {
+    const decision = classifyAutonomousWorkflowAttempt({ exitCode: 1, output });
+    assert.equal(decision.retryable, true);
+    assert.equal(decision.reason, "transient-database-failure");
+  }
+
+  for (const { failureMessage, failureCode = "" } of [
+    { failureMessage: "Failed to persist fixture rows: Gateway Timeout" },
+    {
+      failureMessage: "Failed to claim runtime lock: Gateway Timeout",
+      failureCode: "23505"
+    }
+  ]) {
+    const decision = classifyAutonomousWorkflowAttempt({
+      exitCode: 1,
+      output: outcome({ failureMessage, failureDomain: "database", failureCode })
+    });
+    assert.equal(decision.retryable, false, failureMessage);
+    assert.equal(decision.reason, "non-retryable-database-failure", failureMessage);
+  }
+
   for (const [failureCode, failureMessage] of [
     [
       "23505",

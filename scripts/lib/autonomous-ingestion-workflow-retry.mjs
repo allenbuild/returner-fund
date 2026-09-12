@@ -49,6 +49,7 @@ const PUBLICATION_MAY_HAVE_COMPLETED = new Set([
 // after work starts remains terminal through SEMANTIC_TERMINAL_FAILURE below.
 const RETRYABLE_LOCK_CONTENTION =
   /another ingestion coordinator owns the non-expired autonomous-ingestion lease/i;
+const RETRYABLE_UNCODED_RUNTIME_LOCK_FAILURE = /^Failed to claim runtime lock:/i;
 const SEMANTIC_TERMINAL_FAILURE = new RegExp(
   [
     "runtime lock (?:expired|was taken)",
@@ -197,6 +198,18 @@ export function classifyAutonomousWorkflowAttempt({
   }
   if (runnerStatus === "failed" && failureDomain === "database") {
     if (isRetryableAutonomousDatabaseFailure({ domain: failureDomain, code: failureCode })) {
+      return Object.freeze({
+        completed: false,
+        retryable: true,
+        reason: "transient-database-failure",
+        parsed
+      });
+    }
+    if (
+      failureCode.trim().length === 0 &&
+      RETRYABLE_UNCODED_RUNTIME_LOCK_FAILURE.test(failureMessage) &&
+      TRANSIENT_FAILURE.test(failureMessage)
+    ) {
       return Object.freeze({
         completed: false,
         retryable: true,
