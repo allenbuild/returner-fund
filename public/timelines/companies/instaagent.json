@@ -5,8 +5,8 @@
     "slug": "instaagent",
     "name": "InstaAgent"
   },
-  "generatedAt": "2026-09-12T13:57:04.121Z",
-  "lastModifiedAt": "2026-09-12T13:57:04.121Z",
+  "generatedAt": "2026-09-12T21:08:58.054Z",
+  "lastModifiedAt": "2026-09-12T21:08:58.054Z",
   "events": [
     {
       "id": "tle-0df2d9363897f81a3490a8ed",
@@ -31,30 +31,6 @@
           "url": "https://instagram.com/p/DYWQu84m37S"
         }
       ]
-    },
-    {
-      "id": "tle-7077e46bf6c238e08c272d3d",
-      "eventDate": "2026-05-11",
-      "eventDateType": "announcement_date",
-      "title": "InstaAgent launched on Y Combinator",
-      "summary": "InstaAgent Launch YC.",
-      "category": "product_launch",
-      "isMajor": false,
-      "hasConflict": false,
-      "conflictSummary": null,
-      "evidenceCount": 1,
-      "sourcePreview": [
-        {
-          "id": "src-55824eba2fe0e4f6d2a4f00b",
-          "title": "InstaAgent Launch YC",
-          "publisher": "InstaAgent Launch YC",
-          "domain": "youtube.com",
-          "sourceType": "video",
-          "publishedAt": "2026-05-11T13:39:58.000Z",
-          "evidenceRole": "primary",
-          "url": "https://youtube.com/watch?v=NM3l6c2cm0w"
-        }
-      ]
     }
   ],
   "groups": [
@@ -63,15 +39,15 @@
       "months": [
         {
           "month": "2026-05",
-          "count": 2
+          "count": 1
         }
       ]
     }
   ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 2,
-    "lastSuccessfulArtifactAt": "2026-09-12T13:57:04.121Z"
+    "publishedEventCount": 1,
+    "lastSuccessfulArtifactAt": "2026-09-12T21:08:58.054Z"
   },
   "nextCursor": null
 }

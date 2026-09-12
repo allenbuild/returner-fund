@@ -1,42 +1,46 @@
 {
   "schemaVersion": 1,
-  "idempotencyKey": "central-2026-09-12-0600",
-  "centralDay": "2026-09-12",
-  "observedAt": "2026-09-12T13:51:19.535Z",
-  "baselinePhysicalSources": 17997,
-  "publishedPhysicalSources": 18001,
-  "newPhysicalSources": 4,
-  "newPhysicalSourcesThisAttempt": 4,
-  "retainedPhysicalSources": 17997,
-  "removedPhysicalSources": 0,
-  "dailyNewPhysicalSources": 4,
+  "idempotencyKey": "incident-20260912-public-refresh-latest-01",
+  "centralDay": null,
+  "observedAt": "2026-09-12T21:03:10.340Z",
+  "baselinePhysicalSources": 18001,
+  "publishedPhysicalSources": 18003,
+  "newPhysicalSources": 3,
+  "newPhysicalSourcesThisAttempt": 3,
+  "retainedPhysicalSources": 18000,
+  "removedPhysicalSources": 1,
+  "dailyNewPhysicalSources": 2635,
   "dailySourceHealth": "healthy",
   "collectionHealth": "degraded",
   "collectionHealthReasons": [
     "missing_credential:X_BEARER_TOKEN",
     "missing_credential:EXA_API_KEY",
     "mapped_failures:2",
-    "provider_blocked:5912",
+    "provider_blocked:5911",
     "mapped_provider_blocked:2357",
     "mapped_scope_unsupported:10",
     "mapped_success_rate_below_10_percent:0.0321"
   ],
+  "collectorValidation": {
+    "status": "required",
+    "reason": null
+  },
   "mappedExpected": 2464,
   "mappedSucceeded": 79,
   "mappedNeedsReview": 248,
   "mappedBlockedOrEmpty": 2135,
-  "providerBlocked": 5912,
+  "providerBlocked": 5911,
   "providerBlockedByReason": {
-    "provider_blocked:duckduckgo_html:public_search_circuit_open": 1556,
-    "provider_blocked:instagram_public_json:instagram_public_access_blocked": 1011,
+    "provider_blocked:duckduckgo_html:public_search_circuit_open": 1511,
+    "provider_blocked:instagram_public_json:instagram_public_access_blocked": 1044,
     "provider_blocked:linkedin_public_html:linkedin_public_circuit_open": 1422,
     "provider_blocked:official_source_html:official_source_http_failure": 4,
     "provider_blocked:official_source_html:official_source_timeout": 1,
     "provider_blocked:official_source_html:official_source_transport_failure": 3,
     "provider_blocked:official_source_http:official_source_http_failure": 5,
-    "provider_blocked:official_source_http:official_source_timeout": 2,
+    "provider_blocked:official_source_http:official_source_timeout": 1,
     "provider_blocked:reddit_public_json:reddit_public_access_blocked": 481,
-    "provider_blocked:x_public_html:x_public_access_blocked": 1427
+    "provider_blocked:x_public_html:x_public_access_blocked": 1439
   },
   "mappedProviderBlocked": 2357,
   "mappedProviderBlockedByReason": {
@@ -51,7 +55,8 @@
   "mappedSuccessRate": 0.0321,
   "newestNewSourcePostedAt": null,
   "insertedByBatchPlatform": {
-    "S26:youtube": 4
+    "S2026:youtube": 1,
+    "S26:youtube": 2
   },
   "insertedSourceSamples": [
     {
@@ -59,8 +64,8 @@
       "platform": "youtube",
       "entityType": "company",
       "entityId": "company-guild",
-      "sourceUrl": "https://youtube.com/watch?v=Jx1jAL5cZHw",
-      "platformPostId": "Jx1jAL5cZHw",
+      "sourceUrl": "https://youtube.com/watch?v=69pX19JaiRs",
+      "platformPostId": "69pX19JaiRs",
       "platformObjectId": null,
       "postedAt": null
     },
@@ -68,35 +73,25 @@
       "batchSlug": "S26",
       "platform": "youtube",
       "entityType": "company",
-      "entityId": "company-guild",
-      "sourceUrl": "https://youtube.com/watch?v=6BNId00qxa0",
-      "platformPostId": "6BNId00qxa0",
+      "entityId": "company-joinmarble",
+      "sourceUrl": "https://youtube.com/watch?v=CqOZIMzNZPc",
+      "platformPostId": "CqOZIMzNZPc",
       "platformObjectId": null,
       "postedAt": null
     },
     {
-      "batchSlug": "S26",
+      "batchSlug": "S2026",
       "platform": "youtube",
       "entityType": "company",
-      "entityId": "company-guild",
-      "sourceUrl": "https://youtube.com/watch?v=jKf6lm956Ak",
-      "platformPostId": "jKf6lm956Ak",
-      "platformObjectId": null,
-      "postedAt": null
-    },
-    {
-      "batchSlug": "S26",
-      "platform": "youtube",
-      "entityType": "company",
-      "entityId": "company-moonshot-computer",
-      "sourceUrl": "https://youtube.com/watch?v=uTwNZaU4mus",
-      "platformPostId": "uTwNZaU4mus",
+      "entityId": "company-useparrot",
+      "sourceUrl": "https://youtube.com/watch?v=PcC3TVtlChE",
+      "platformPostId": "PcC3TVtlChE",
       "platformObjectId": null,
       "postedAt": null
     }
   ],
-  "trigger": "schedule",
-  "scheduledAt": "2026-09-12T11:00:00.000Z",
+  "trigger": "manual-replay",
+  "scheduledAt": null,
   "evidenceCollectedAt": "2026-09-12T13:48:10.301Z",
   "terminalFailureBudget": 124
 }

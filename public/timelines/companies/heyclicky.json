@@ -5,8 +5,8 @@
     "slug": "heyclicky",
     "name": "HeyClicky"
   },
-  "generatedAt": "2026-09-12T13:57:04.121Z",
-  "lastModifiedAt": "2026-09-12T13:57:04.121Z",
+  "generatedAt": "2026-09-12T21:08:58.054Z",
+  "lastModifiedAt": "2026-09-12T21:08:58.054Z",
   "events": [
     {
       "id": "tle-d745ea679167b3a6c16691cc",
@@ -189,7 +189,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 6,
-    "lastSuccessfulArtifactAt": "2026-09-12T13:57:04.121Z"
+    "lastSuccessfulArtifactAt": "2026-09-12T21:08:58.054Z"
   },
   "nextCursor": null
 }

@@ -5,8 +5,8 @@
     "slug": "kimpton-ai",
     "name": "Kimpton AI"
   },
-  "generatedAt": "2026-09-12T13:57:04.121Z",
-  "lastModifiedAt": "2026-09-12T13:57:04.121Z",
+  "generatedAt": "2026-09-12T21:08:58.054Z",
+  "lastModifiedAt": "2026-09-12T21:08:58.054Z",
   "events": [
     {
       "id": "tle-e5c4dd35349cb57bb588d6ca",
@@ -159,7 +159,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 5,
-    "lastSuccessfulArtifactAt": "2026-09-12T13:57:04.121Z"
+    "lastSuccessfulArtifactAt": "2026-09-12T21:08:58.054Z"
   },
   "nextCursor": null
 }

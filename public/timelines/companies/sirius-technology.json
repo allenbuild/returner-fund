@@ -5,8 +5,8 @@
     "slug": "sirius-technology",
     "name": "Sirius Technology"
   },
-  "generatedAt": "2026-09-12T13:57:04.121Z",
-  "lastModifiedAt": "2026-09-12T13:57:04.121Z",
+  "generatedAt": "2026-09-12T21:08:58.054Z",
+  "lastModifiedAt": "2026-09-12T21:08:58.054Z",
   "events": [
     {
       "id": "tle-35769ef91cc0be62bd2a0e45",
@@ -47,7 +47,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-09-12T13:57:04.121Z"
+    "lastSuccessfulArtifactAt": "2026-09-12T21:08:58.054Z"
   },
   "nextCursor": null
 }

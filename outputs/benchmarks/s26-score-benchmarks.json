@@ -1,7 +1,7 @@
 {
   "version": 1,
   "batchSlug": "S26",
-  "updatedAt": "2026-09-12T13:57:34.120Z",
+  "updatedAt": "2026-09-12T21:09:29.395Z",
   "daily": [
     {
       "recordedAt": "2026-07-06T05:00:00.000Z",
@@ -68353,9 +68353,9 @@
       ]
     },
     {
-      "recordedAt": "2026-09-12T13:57:34.120Z",
+      "recordedAt": "2026-09-12T21:09:29.395Z",
       "scoringModelVersion": "4.3.1",
-      "inputGeneratedAt": "2026-09-12T13:56:10.066Z",
+      "inputGeneratedAt": "2026-09-12T21:08:01.776Z",
       "companies": [
         {
           "companyId": "company-gamgee",
@@ -68376,12 +68376,6 @@
           "rank": 3
         },
         {
-          "companyId": "company-graphify-labs",
-          "companyName": "Graphify Labs",
-          "score": 91,
-          "rank": 4
-        },
-        {
           "companyId": "company-parasma",
           "companyName": "Parasma",
           "score": 91,
@@ -68391,31 +68385,37 @@
           "companyId": "company-lemonlime",
           "companyName": "LemonLime",
           "score": 90,
-          "rank": 6
+          "rank": 5
         },
         {
           "companyId": "company-prodigy-research",
           "companyName": "Prodigy Research",
           "score": 90,
-          "rank": 6
+          "rank": 5
         },
         {
           "companyId": "company-lumeria",
           "companyName": "Lumeria",
           "score": 88,
-          "rank": 8
+          "rank": 7
         },
         {
           "companyId": "company-applied-electrodynamics-inc",
           "companyName": "Applied Electrodynamics, Inc.",
           "score": 87,
-          "rank": 9
+          "rank": 8
+        },
+        {
+          "companyId": "company-graphify-labs",
+          "companyName": "Graphify Labs",
+          "score": 87,
+          "rank": 8
         },
         {
           "companyId": "company-meteoric",
           "companyName": "Meteoric",
           "score": 87,
-          "rank": 9
+          "rank": 8
         },
         {
           "companyId": "company-exosat",
