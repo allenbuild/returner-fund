@@ -5,9 +5,33 @@
     "slug": "hyperprobe",
     "name": "HyperProbe"
   },
-  "generatedAt": "2026-09-12T09:13:45.571Z",
-  "lastModifiedAt": "2026-09-12T09:13:45.571Z",
+  "generatedAt": "2026-09-12T13:57:04.121Z",
+  "lastModifiedAt": "2026-09-12T13:57:04.121Z",
   "events": [
+    {
+      "id": "tle-1d076bb8716b6308da79649d",
+      "eventDate": "2026-08-05",
+      "eventDateType": "announcement_date",
+      "title": "HyperProbe launched on Hacker News",
+      "summary": "Launch HN: HyperProbe (YC S26) – Agents that do read-only debugging in prod.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-54bd6081d1995a62580b7dc0",
+          "title": "Launch HN: HyperProbe (YC S26) – Agents that do read-only debugging in prod",
+          "publisher": "Launch HN: HyperProbe (YC S26) – Agents that do read-only debugging in prod",
+          "domain": "news.ycombinator.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-08-05T16:47:15.000Z",
+          "evidenceRole": "primary",
+          "url": "https://news.ycombinator.com/item?id=49185389"
+        }
+      ]
+    },
     {
       "id": "tle-458c9009c6e6dd6f0281554e",
       "eventDate": "2026-07-02",
@@ -62,6 +86,10 @@
       "year": 2026,
       "months": [
         {
+          "month": "2026-08",
+          "count": 1
+        },
+        {
           "month": "2026-07",
           "count": 1
         },
@@ -74,8 +102,8 @@
   ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 2,
-    "lastSuccessfulArtifactAt": "2026-09-12T09:13:45.571Z"
+    "publishedEventCount": 3,
+    "lastSuccessfulArtifactAt": "2026-09-12T13:57:04.121Z"
   },
   "nextCursor": null
 }

@@ -5,14 +5,14 @@
     "slug": "sunflower",
     "name": "Sunflower"
   },
-  "generatedAt": "2026-09-12T09:13:45.571Z",
-  "lastModifiedAt": "2026-09-12T09:13:45.571Z",
+  "generatedAt": "2026-09-12T13:57:04.121Z",
+  "lastModifiedAt": "2026-09-12T13:57:04.121Z",
   "events": [],
   "groups": [],
   "coverage": {
     "status": "partial",
     "publishedEventCount": 0,
-    "lastSuccessfulArtifactAt": "2026-09-12T09:13:45.571Z"
+    "lastSuccessfulArtifactAt": "2026-09-12T13:57:04.121Z"
   },
   "nextCursor": null
 }

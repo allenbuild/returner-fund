@@ -1,0 +1,66 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-almanac",
+    "slug": "almanac",
+    "name": "Almanac"
+  },
+  "event": {
+    "id": "tle-8223fc3cc4564088244f5971",
+    "eventDate": "2026-08-31",
+    "eventDateType": "announcement_date",
+    "title": "Almanac launched on Hacker News",
+    "summary": "Launch HN: Almanac (YC S26) – AI that knows your company.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-44c4a2b1e7c7b231fde2a80c",
+        "title": "Launch HN: Almanac (YC S26) – AI that knows your company",
+        "publisher": "Launch HN: Almanac (YC S26) – AI that knows your company",
+        "domain": "news.ycombinator.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-08-31T15:34:34.000Z",
+        "evidenceRole": "primary",
+        "url": "https://news.ycombinator.com/item?id=49511007"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-44c4a2b1e7c7b231fde2a80c",
+        "title": "Launch HN: Almanac (YC S26) – AI that knows your company",
+        "publisher": "Launch HN: Almanac (YC S26) – AI that knows your company",
+        "domain": "news.ycombinator.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-08-31T15:34:34.000Z",
+        "evidenceRole": "primary",
+        "url": "https://news.ycombinator.com/item?id=49511007",
+        "publicationDate": "2026-08-31T15:34:34.000Z",
+        "excerpt": "Launch HN: Almanac (YC S26) – AI that knows your company",
+        "sourceEventDate": "2026-08-31",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-21e0968508ed7ef953c1f2d5",
+        "platform": "hacker_news",
+        "account": "Launch HN: Almanac (YC S26) – AI that knows your company",
+        "postDate": "2026-08-31",
+        "excerpt": "Launch HN: Almanac (YC S26) – AI that knows your company",
+        "url": "https://news.ycombinator.com/item?id=49511007",
+        "metrics": {
+          "upvotes": 59,
+          "comments": 48
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-09-12T13:57:04.121Z",
+  "lastModifiedAt": "2026-09-12T13:57:04.121Z"
+}

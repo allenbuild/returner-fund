@@ -1,7 +1,7 @@
 {
   "version": 1,
   "batchSlug": "S26",
-  "updatedAt": "2026-09-12T09:14:16.484Z",
+  "updatedAt": "2026-09-12T13:57:34.120Z",
   "daily": [
     {
       "recordedAt": "2026-07-06T05:00:00.000Z",
@@ -68353,9 +68353,9 @@
       ]
     },
     {
-      "recordedAt": "2026-09-12T09:14:16.484Z",
+      "recordedAt": "2026-09-12T13:57:34.120Z",
       "scoringModelVersion": "4.3.1",
-      "inputGeneratedAt": "2026-09-12T09:12:50.401Z",
+      "inputGeneratedAt": "2026-09-12T13:56:10.066Z",
       "companies": [
         {
           "companyId": "company-gamgee",
@@ -69234,6 +69234,12 @@
           "rank": 136
         },
         {
+          "companyId": "company-guild",
+          "companyName": "GUILD",
+          "score": 58,
+          "rank": 147
+        },
+        {
           "companyId": "company-os3",
           "companyName": "OS3",
           "score": 58,
@@ -69252,34 +69258,28 @@
           "rank": 147
         },
         {
-          "companyId": "company-guild",
-          "companyName": "GUILD",
-          "score": 57,
-          "rank": 150
-        },
-        {
           "companyId": "company-mentlio",
           "companyName": "Mentlio",
           "score": 57,
-          "rank": 150
+          "rank": 151
         },
         {
           "companyId": "company-openrelay",
           "companyName": "OpenRelay",
           "score": 57,
-          "rank": 150
+          "rank": 151
         },
         {
           "companyId": "company-realpact",
           "companyName": "RealPact",
           "score": 57,
-          "rank": 150
+          "rank": 151
         },
         {
           "companyId": "company-subvysion",
           "companyName": "SubVysion",
           "score": 57,
-          "rank": 150
+          "rank": 151
         },
         {
           "companyId": "company-agent-fm",

@@ -5,9 +5,33 @@
     "slug": "mireye",
     "name": "Mireye"
   },
-  "generatedAt": "2026-09-12T09:13:45.571Z",
-  "lastModifiedAt": "2026-09-12T09:13:45.571Z",
+  "generatedAt": "2026-09-12T13:57:04.121Z",
+  "lastModifiedAt": "2026-09-12T13:57:04.121Z",
   "events": [
+    {
+      "id": "tle-ef10047c482933617f6f5480",
+      "eventDate": "2026-09-03",
+      "eventDateType": "announcement_date",
+      "title": "Mireye launched on Hacker News",
+      "summary": "Launch HN: Mireye (YC S26) – Infrastructure for Physical World AI Agents.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-56abc7d43b055b8120e31430",
+          "title": "Launch HN: Mireye (YC S26) – Infrastructure for Physical World AI Agents",
+          "publisher": "Launch HN: Mireye (YC S26) – Infrastructure for Physical World AI Agents",
+          "domain": "news.ycombinator.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-09-03T16:24:13.000Z",
+          "evidenceRole": "primary",
+          "url": "https://news.ycombinator.com/item?id=49552616"
+        }
+      ]
+    },
     {
       "id": "tle-a9f13d6818d2ed165a6de13d",
       "eventDate": "2026-07-31",
@@ -62,6 +86,10 @@
       "year": 2026,
       "months": [
         {
+          "month": "2026-09",
+          "count": 1
+        },
+        {
           "month": "2026-07",
           "count": 2
         }
@@ -70,8 +98,8 @@
   ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 2,
-    "lastSuccessfulArtifactAt": "2026-09-12T09:13:45.571Z"
+    "publishedEventCount": 3,
+    "lastSuccessfulArtifactAt": "2026-09-12T13:57:04.121Z"
   },
   "nextCursor": null
 }

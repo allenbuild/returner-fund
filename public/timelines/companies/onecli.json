@@ -5,8 +5,8 @@
     "slug": "onecli",
     "name": "OneCLI"
   },
-  "generatedAt": "2026-09-12T09:13:45.571Z",
-  "lastModifiedAt": "2026-09-12T09:13:45.571Z",
+  "generatedAt": "2026-09-12T13:57:04.121Z",
+  "lastModifiedAt": "2026-09-12T13:57:04.121Z",
   "events": [
     {
       "id": "tle-aecd7b77f38f9f555c532c52",
@@ -55,6 +55,30 @@
           "url": "https://x.com/jonathanfishner/status/2080304874282258697"
         }
       ]
+    },
+    {
+      "id": "tle-629602ffbfcc5eb3b50991fe",
+      "eventDate": "2026-07-21",
+      "eventDateType": "announcement_date",
+      "title": "OneCLI released OneCLI Is Live on the 1Password Marketplace",
+      "summary": "OneCLI Is Live on the 1Password Marketplace.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-6f3289fbc4958b52028abf3b",
+          "title": "OneCLI Is Live on the 1Password Marketplace",
+          "publisher": "OneCLI Is Live on the 1Password Marketplace",
+          "domain": "news.ycombinator.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-07-21T01:01:29.000Z",
+          "evidenceRole": "primary",
+          "url": "https://news.ycombinator.com/item?id=48986877"
+        }
+      ]
     }
   ],
   "groups": [
@@ -67,15 +91,15 @@
         },
         {
           "month": "2026-07",
-          "count": 1
+          "count": 2
         }
       ]
     }
   ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 2,
-    "lastSuccessfulArtifactAt": "2026-09-12T09:13:45.571Z"
+    "publishedEventCount": 3,
+    "lastSuccessfulArtifactAt": "2026-09-12T13:57:04.121Z"
   },
   "nextCursor": null
 }

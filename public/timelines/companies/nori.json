@@ -5,21 +5,31 @@
     "slug": "nori",
     "name": "Nori"
   },
-  "generatedAt": "2026-09-12T09:13:45.571Z",
-  "lastModifiedAt": "2026-09-12T09:13:45.571Z",
+  "generatedAt": "2026-09-12T13:57:04.121Z",
+  "lastModifiedAt": "2026-09-12T13:57:04.121Z",
   "events": [
     {
-      "id": "tle-de95439563d84aedc10ad55f",
-      "eventDate": "2026-08-20",
+      "id": "tle-f664b90870c0d58ca00af314",
+      "eventDate": "2026-09-01",
       "eventDateType": "announcement_date",
-      "title": "Nori launched on Y Combinator",
-      "summary": "Nori just launched on @ycombinator's Launch YC.",
+      "title": "Nori launched on Hacker News",
+      "summary": "Launch HN: Nori Robotics (YC S26) – A low-cost humanoid robot for development.",
       "category": "product_launch",
       "isMajor": true,
       "hasConflict": false,
       "conflictSummary": null,
-      "evidenceCount": 2,
+      "evidenceCount": 3,
       "sourcePreview": [
+        {
+          "id": "src-d52885a334088c8a3164163e",
+          "title": "Launch HN: Nori Robotics (YC S26) – A low-cost humanoid robot for development",
+          "publisher": "Launch HN: Nori Robotics (YC S26) – A low-cost humanoid robot for development",
+          "domain": "news.ycombinator.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-09-01T17:35:10.000Z",
+          "evidenceRole": "primary",
+          "url": "https://news.ycombinator.com/item?id=49525153"
+        },
         {
           "id": "src-268cc297102277ca7e4fb7bd",
           "title": "Nori just launched on @ycombinator's Launch YC! Nori: The $1688 humanoid robot.",
@@ -96,7 +106,7 @@
       "year": 2026,
       "months": [
         {
-          "month": "2026-08",
+          "month": "2026-09",
           "count": 1
         },
         {
@@ -113,7 +123,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 3,
-    "lastSuccessfulArtifactAt": "2026-09-12T09:13:45.571Z"
+    "lastSuccessfulArtifactAt": "2026-09-12T13:57:04.121Z"
   },
   "nextCursor": null
 }

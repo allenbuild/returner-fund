@@ -6,17 +6,27 @@
     "name": "Nori"
   },
   "event": {
-    "id": "tle-de95439563d84aedc10ad55f",
-    "eventDate": "2026-08-20",
+    "id": "tle-f664b90870c0d58ca00af314",
+    "eventDate": "2026-09-01",
     "eventDateType": "announcement_date",
-    "title": "Nori launched on Y Combinator",
-    "summary": "Nori just launched on @ycombinator's Launch YC.",
+    "title": "Nori launched on Hacker News",
+    "summary": "Launch HN: Nori Robotics (YC S26) – A low-cost humanoid robot for development.",
     "category": "product_launch",
     "isMajor": true,
     "hasConflict": false,
     "conflictSummary": null,
-    "evidenceCount": 2,
+    "evidenceCount": 3,
     "sourcePreview": [
+      {
+        "id": "src-d52885a334088c8a3164163e",
+        "title": "Launch HN: Nori Robotics (YC S26) – A low-cost humanoid robot for development",
+        "publisher": "Launch HN: Nori Robotics (YC S26) – A low-cost humanoid robot for development",
+        "domain": "news.ycombinator.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-09-01T17:35:10.000Z",
+        "evidenceRole": "primary",
+        "url": "https://news.ycombinator.com/item?id=49525153"
+      },
       {
         "id": "src-268cc297102277ca7e4fb7bd",
         "title": "Nori just launched on @ycombinator's Launch YC! Nori: The $1688 humanoid robot.",
@@ -40,6 +50,21 @@
     ],
     "evidence": [
       {
+        "id": "src-d52885a334088c8a3164163e",
+        "title": "Launch HN: Nori Robotics (YC S26) – A low-cost humanoid robot for development",
+        "publisher": "Launch HN: Nori Robotics (YC S26) – A low-cost humanoid robot for development",
+        "domain": "news.ycombinator.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-09-01T17:35:10.000Z",
+        "evidenceRole": "primary",
+        "url": "https://news.ycombinator.com/item?id=49525153",
+        "publicationDate": "2026-09-01T17:35:10.000Z",
+        "excerpt": "Launch HN: Nori Robotics (YC S26) – A low-cost humanoid robot for development",
+        "sourceEventDate": "2026-09-01",
+        "isConflicting": false,
+        "conflictDescription": null
+      },
+      {
         "id": "src-268cc297102277ca7e4fb7bd",
         "title": "Nori just launched on @ycombinator's Launch YC! Nori: The $1688 humanoid robot.",
         "publisher": "norirobotics",
@@ -50,7 +75,7 @@
         "url": "https://x.com/norirobotics/status/2090512306329489725",
         "publicationDate": "2026-08-20T18:52:28.000Z",
         "excerpt": "Nori just launched on @ycombinator's Launch YC! Nori: The $1688 humanoid robot. Check us out: https://t.co/UilNWaovf6",
-        "sourceEventDate": "2026-08-20",
+        "sourceEventDate": "2026-09-01",
         "isConflicting": false,
         "conflictDescription": null
       },
@@ -65,12 +90,25 @@
         "url": "https://x.com/antoniositongli/status/2090511976363700519",
         "publicationDate": "2026-08-20T18:51:09.000Z",
         "excerpt": "Nori just launched on @ycombinator's Launch YC! Nori: The $1688 humanoid robot. Check us out: https://t.co/JJ2BQ7EpRC",
-        "sourceEventDate": "2026-08-20",
+        "sourceEventDate": "2026-09-01",
         "isConflicting": false,
         "conflictDescription": null
       }
     ],
     "posts": [
+      {
+        "id": "post-7e8572afa3f7ba6b94bd05e1",
+        "platform": "hacker_news",
+        "account": null,
+        "postDate": "2026-09-01",
+        "excerpt": "Launch HN: Nori Robotics (YC S26) – A low-cost humanoid robot for development",
+        "url": "https://news.ycombinator.com/item?id=49525153",
+        "metrics": {
+          "upvotes": 201,
+          "comments": 66
+        },
+        "evidenceRole": "primary"
+      },
       {
         "id": "post-3b395003b0735ab13e9721e5",
         "platform": "x",
@@ -103,6 +141,6 @@
       }
     ]
   },
-  "generatedAt": "2026-09-12T09:13:45.571Z",
-  "lastModifiedAt": "2026-09-12T09:13:45.571Z"
+  "generatedAt": "2026-09-12T13:57:04.121Z",
+  "lastModifiedAt": "2026-09-12T13:57:04.121Z"
 }

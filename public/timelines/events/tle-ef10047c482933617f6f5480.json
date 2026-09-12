@@ -1,0 +1,66 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-mireye",
+    "slug": "mireye",
+    "name": "Mireye"
+  },
+  "event": {
+    "id": "tle-ef10047c482933617f6f5480",
+    "eventDate": "2026-09-03",
+    "eventDateType": "announcement_date",
+    "title": "Mireye launched on Hacker News",
+    "summary": "Launch HN: Mireye (YC S26) – Infrastructure for Physical World AI Agents.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-56abc7d43b055b8120e31430",
+        "title": "Launch HN: Mireye (YC S26) – Infrastructure for Physical World AI Agents",
+        "publisher": "Launch HN: Mireye (YC S26) – Infrastructure for Physical World AI Agents",
+        "domain": "news.ycombinator.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-09-03T16:24:13.000Z",
+        "evidenceRole": "primary",
+        "url": "https://news.ycombinator.com/item?id=49552616"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-56abc7d43b055b8120e31430",
+        "title": "Launch HN: Mireye (YC S26) – Infrastructure for Physical World AI Agents",
+        "publisher": "Launch HN: Mireye (YC S26) – Infrastructure for Physical World AI Agents",
+        "domain": "news.ycombinator.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-09-03T16:24:13.000Z",
+        "evidenceRole": "primary",
+        "url": "https://news.ycombinator.com/item?id=49552616",
+        "publicationDate": "2026-09-03T16:24:13.000Z",
+        "excerpt": "Launch HN: Mireye (YC S26) – Infrastructure for Physical World AI Agents",
+        "sourceEventDate": "2026-09-03",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-4e56d47ad3c8ea4d2eeaa8ae",
+        "platform": "hacker_news",
+        "account": "Launch HN: Mireye (YC S26) – Infrastructure for Physical World AI Agents",
+        "postDate": "2026-09-03",
+        "excerpt": "Launch HN: Mireye (YC S26) – Infrastructure for Physical World AI Agents",
+        "url": "https://news.ycombinator.com/item?id=49552616",
+        "metrics": {
+          "upvotes": 28,
+          "comments": 8
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-09-12T13:57:04.121Z",
+  "lastModifiedAt": "2026-09-12T13:57:04.121Z"
+}

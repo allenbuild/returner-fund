@@ -5,8 +5,8 @@
     "slug": "prized",
     "name": "Prized"
   },
-  "generatedAt": "2026-09-12T09:13:45.571Z",
-  "lastModifiedAt": "2026-09-12T09:13:45.571Z",
+  "generatedAt": "2026-09-12T13:57:04.121Z",
+  "lastModifiedAt": "2026-09-12T13:57:04.121Z",
   "events": [
     {
       "id": "tle-aa87eebd2f200c83ea454ba4",
@@ -33,17 +33,27 @@
       ]
     },
     {
-      "id": "tle-dbd0d6701f2414f6cab1717d",
-      "eventDate": "2026-07-29",
+      "id": "tle-051e39616b340a50a0cec4fb",
+      "eventDate": "2026-07-30",
       "eventDateType": "announcement_date",
-      "title": "Prized announced its public launch",
-      "summary": "Prized announced it was launching Prized Sandboxes Someone on your team asks to point Claude Code at the customer database.",
+      "title": "Prized launched on Hacker News",
+      "summary": "Launch HN: Prized (YC S26) – Let non-engineer staff build secure internal tools.",
       "category": "product_launch",
-      "isMajor": false,
+      "isMajor": true,
       "hasConflict": false,
       "conflictSummary": null,
-      "evidenceCount": 1,
+      "evidenceCount": 2,
       "sourcePreview": [
+        {
+          "id": "src-21cfdb86eb27c6c5ec573915",
+          "title": "Launch HN: Prized (YC S26) – Let non-engineer staff build secure internal tools",
+          "publisher": "Launch HN: Prized (YC S26) – Let non-engineer staff build secure internal tools",
+          "domain": "news.ycombinator.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-07-30T13:29:03.000Z",
+          "evidenceRole": "primary",
+          "url": "https://news.ycombinator.com/item?id=49109721"
+        },
         {
           "id": "src-4545b629cc7be112dbfdb134",
           "title": "Today we're launching Prized Sandboxes Someone on your team asks to point Claude Code at the customer database.",
@@ -132,7 +142,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 4,
-    "lastSuccessfulArtifactAt": "2026-09-12T09:13:45.571Z"
+    "lastSuccessfulArtifactAt": "2026-09-12T13:57:04.121Z"
   },
   "nextCursor": null
 }

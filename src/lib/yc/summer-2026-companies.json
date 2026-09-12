@@ -4,7 +4,7 @@
     "directoryUrl": "https://www.ycombinator.com/companies?batch=Summer%202026",
     "algoliaIndex": "YCCompany_production",
     "algoliaFilter": "batch:\"Summer 2026\"",
-    "fetchedAt": "2026-09-12T03:41:45.834Z",
+    "fetchedAt": "2026-09-12T13:16:34.106Z",
     "expectedCompanyCount": 234,
     "observedCompanyCount": 234,
     "directoryCompanyHitCount": 234,

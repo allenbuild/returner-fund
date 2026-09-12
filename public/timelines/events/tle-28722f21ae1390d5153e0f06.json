@@ -128,12 +128,12 @@
         "excerpt": "Guard for Agents puts your policies in the path of your AI agents. Connect the policy docs you already have in Notion, Linear or Google Drive through MCP, and ZeroDrift turns them into enforceable rules, then checks every agent message against them with a single API call before it's sent. Violations get fixed, blocked or escalated automatically, with every decision powered by Anchor 3.0-Preview and logged for review.",
         "url": "https://youtube.com/watch?v=fmYrVpCiuGA",
         "metrics": {
-          "views": 61
+          "views": 62
         },
         "evidenceRole": "primary"
       }
     ]
   },
-  "generatedAt": "2026-09-12T09:13:45.571Z",
-  "lastModifiedAt": "2026-09-12T09:13:45.571Z"
+  "generatedAt": "2026-09-12T13:57:04.121Z",
+  "lastModifiedAt": "2026-09-12T13:57:04.121Z"
 }

@@ -5,14 +5,49 @@
     "slug": "risklytics",
     "name": "Risklytics"
   },
-  "generatedAt": "2026-09-12T09:13:45.571Z",
-  "lastModifiedAt": "2026-09-12T09:13:45.571Z",
-  "events": [],
-  "groups": [],
+  "generatedAt": "2026-09-12T13:57:04.121Z",
+  "lastModifiedAt": "2026-09-12T13:57:04.121Z",
+  "events": [
+    {
+      "id": "tle-1b2f1cc1f4c2dfe61e446018",
+      "eventDate": "2026-08-26",
+      "eventDateType": "announcement_date",
+      "title": "Risklytics launched on Hacker News",
+      "summary": "Launch HN: Risklytics (YC S26) – Insurance brokerage for frontier tech companies.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-10ccfbc2566b618813e2c054",
+          "title": "Launch HN: Risklytics (YC S26) – Insurance brokerage for frontier tech companies",
+          "publisher": "Launch HN: Risklytics (YC S26) – Insurance brokerage for frontier tech companies",
+          "domain": "news.ycombinator.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-08-26T16:06:01.000Z",
+          "evidenceRole": "primary",
+          "url": "https://news.ycombinator.com/item?id=49451495"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-08",
+          "count": 1
+        }
+      ]
+    }
+  ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 0,
-    "lastSuccessfulArtifactAt": "2026-09-12T09:13:45.571Z"
+    "publishedEventCount": 1,
+    "lastSuccessfulArtifactAt": "2026-09-12T13:57:04.121Z"
   },
   "nextCursor": null
 }
