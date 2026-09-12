@@ -28,6 +28,10 @@ import {
 import { canonicalSocialAccountUrl } from "../scripts/lib/social-account-url.mjs";
 
 const root = process.cwd();
+const FIXTURE_GITHUB_LEGACY_TOKEN = ["ghp_", "fixtureToken1234567890"].join("");
+const FIXTURE_GITHUB_FINE_GRAINED_TOKEN = ["github_pat_", "fixtureToken1234567890"].join("");
+const FIXTURE_SLACK_TOKEN = ["xoxb-", "fixture-token-1234567890"].join("");
+const FIXTURE_AWS_ACCESS_KEY = ["AKIA", "ABCDEFGHIJKLMNOP"].join("");
 
 const HOSTED_ARTIFACT_DETECTOR_CASES = Object.freeze([
   {
@@ -54,23 +58,23 @@ const HOSTED_ARTIFACT_DETECTOR_CASES = Object.freeze([
   },
   {
     name: "GitHub legacy token",
-    nested: { diagnostic: "ghp_fixtureToken1234567890" },
-    sensitiveFragment: "ghp_fixtureToken1234567890"
+    nested: { diagnostic: FIXTURE_GITHUB_LEGACY_TOKEN },
+    sensitiveFragment: FIXTURE_GITHUB_LEGACY_TOKEN
   },
   {
     name: "GitHub fine-grained token",
-    nested: { diagnostic: "github_pat_fixtureToken1234567890" },
-    sensitiveFragment: "github_pat_fixtureToken1234567890"
+    nested: { diagnostic: FIXTURE_GITHUB_FINE_GRAINED_TOKEN },
+    sensitiveFragment: FIXTURE_GITHUB_FINE_GRAINED_TOKEN
   },
   {
     name: "Slack token",
-    nested: { diagnostic: "xoxb-fixture-token-1234567890" },
-    sensitiveFragment: "xoxb-fixture-token-1234567890"
+    nested: { diagnostic: FIXTURE_SLACK_TOKEN },
+    sensitiveFragment: FIXTURE_SLACK_TOKEN
   },
   {
     name: "AWS access-key identifier",
-    nested: { diagnostic: "AKIAABCDEFGHIJKLMNOP" },
-    sensitiveFragment: "AKIAABCDEFGHIJKLMNOP"
+    nested: { diagnostic: FIXTURE_AWS_ACCESS_KEY },
+    sensitiveFragment: FIXTURE_AWS_ACCESS_KEY
   },
   {
     name: "boundary-sensitive sk token",

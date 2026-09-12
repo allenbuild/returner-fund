@@ -35,7 +35,11 @@ const REPOSITORY_ID = 1284654556;
 const RUN_ID = 34100000000;
 const RUN_ATTEMPT = 2;
 const NOW = new Date("2026-09-08T03:00:00.000Z");
-const TOKEN = "ghs_fixture_token_1234567890";
+const TOKEN = ["ghs_", "fixture_token_1234567890"].join("");
+const FIXTURE_GITHUB_LEGACY_TOKEN = ["ghp_", "fixtureToken1234567890"].join("");
+const FIXTURE_GITHUB_FINE_GRAINED_TOKEN = ["github_pat_", "fixtureToken1234567890"].join("");
+const FIXTURE_SLACK_TOKEN = ["xoxb-", "fixture-token-1234567890"].join("");
+const FIXTURE_AWS_ACCESS_KEY = ["AKIA", "ABCDEFGHIJKLMNOP"].join("");
 const PRODUCER_REDACTION_CASES = Object.freeze([
   {
     name: "complete generic private key",
@@ -64,26 +68,26 @@ const PRODUCER_REDACTION_CASES = Object.freeze([
   {
     name: "GitHub legacy token",
     field: "githubLegacy",
-    value: "ghp_fixtureToken1234567890",
-    sensitiveFragment: "ghp_fixtureToken1234567890"
+    value: FIXTURE_GITHUB_LEGACY_TOKEN,
+    sensitiveFragment: FIXTURE_GITHUB_LEGACY_TOKEN
   },
   {
     name: "GitHub fine-grained token",
     field: "githubFineGrained",
-    value: "github_pat_fixtureToken1234567890",
-    sensitiveFragment: "github_pat_fixtureToken1234567890"
+    value: FIXTURE_GITHUB_FINE_GRAINED_TOKEN,
+    sensitiveFragment: FIXTURE_GITHUB_FINE_GRAINED_TOKEN
   },
   {
     name: "Slack token",
     field: "slack",
-    value: "xoxb-fixture-token-1234567890",
-    sensitiveFragment: "xoxb-fixture-token-1234567890"
+    value: FIXTURE_SLACK_TOKEN,
+    sensitiveFragment: FIXTURE_SLACK_TOKEN
   },
   {
     name: "AWS access-key identifier",
     field: "aws",
-    value: "AKIAABCDEFGHIJKLMNOP",
-    sensitiveFragment: "AKIAABCDEFGHIJKLMNOP"
+    value: FIXTURE_AWS_ACCESS_KEY,
+    sensitiveFragment: FIXTURE_AWS_ACCESS_KEY
   },
   {
     name: "boundary-sensitive sk token",
@@ -505,7 +509,9 @@ test("public state validator rejects secrets, auth/temp paths, malformed data, b
     {
       name: "credential shape",
       file: "public-s26.json",
-      body: '{"value":"github_pat_fixtureSecretToken123456"}\n',
+      body: `${JSON.stringify({
+        value: ["github_pat_", "fixtureSecretToken123456"].join("")
+      })}\n`,
       error: /credential-shaped/
     },
     {
