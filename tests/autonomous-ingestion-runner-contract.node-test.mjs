@@ -3106,7 +3106,21 @@ describe("autonomous ingestion runner static safety contracts", () => {
     assert.doesNotMatch(retry, /retryableFailures\.length === 0 \|\| attempt === maxAttempts/);
     assert.ok(retry.includes("args.resumeSnapshots"));
     assert.ok(retry.includes("collector.snapshot_resumed"));
+    assert.ok(retry.includes("COLLECTOR_RESUME_RETRYABLE_RECEIPT"));
+    assert.ok(retry.includes("collectorDiagnosticFingerprint(message)"));
+    assert.ok(retry.includes("sanitizeRunnerDiagnosticText(message, 500)"));
+    assert.ok(retry.includes("retryableFailures.slice(0, 20)"));
+    assert.ok(retry.includes("collectorRetryableDiagnosticRows(snapshot, retryableFailures)"));
+    assert.ok(retry.includes("omittedRetryableFailures"));
     assert.ok(retry.includes("terminalCoverage.nonTerminal === 0 && retryableFailures.length === 0"));
+    assert.match(
+      runner,
+      /function collectorRetryableDiagnosticRows\([\s\S]*\.filter\(\(\{ message \}\) => fingerprintsByMessage\.has\(message\)\)[\s\S]*\.slice\(0, 100\)/
+    );
+    assert.ok(runner.includes("attemptFingerprint"));
+    assert.ok(runner.includes("entityFingerprint"));
+    assert.ok(runner.includes("collectorShardIndex"));
+    assert.ok(runner.includes('function collectorDiagnosticFingerprint(value)'));
     assert.ok(retry.includes("expectedIdempotencyKey: idempotencyKey"));
     assert.ok(runner.includes('resumeSnapshots: !rawArgs.includes("--no-resume-snapshots")'));
   });

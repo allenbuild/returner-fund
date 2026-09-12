@@ -4777,6 +4777,20 @@ async function runCollectorWithRetries(command) {
         batchSlug: command.batchSlug,
         tasks: plannedTasks
       });
+      if (retryableFailures.length > 0) {
+        console.warn(`COLLECTOR_RESUME_RETRYABLE_RECEIPT ${JSON.stringify({
+          kind: command.kind,
+          batchSlug: command.batchSlug,
+          retryableFailureCount: retryableFailures.length,
+          retryableFailures: retryableFailures.slice(0, 20).map((message) => ({
+            fingerprint: collectorDiagnosticFingerprint(message),
+            message: sanitizeRunnerDiagnosticText(message, 500)
+          })),
+          matchingRows: collectorRetryableDiagnosticRows(snapshot, retryableFailures),
+          omittedRetryableFailures: Math.max(0, retryableFailures.length - 20),
+          terminalCoverage
+        })}`);
+      }
       if (terminalCoverage.nonTerminal === 0 && retryableFailures.length === 0) {
         await event(
           "collector.snapshot_resumed",
@@ -4910,6 +4924,107 @@ function warnOptionalRetryTelemetry(label, error) {
 
 function retryableFailuresFromSnapshot(snapshot) {
   return autonomousCollectorRetryableFailures(snapshot);
+}
+
+function collectorRetryableDiagnosticRows(snapshot, retryableFailures) {
+  const fingerprintsByMessage = new Map(retryableFailures.map((message) => [
+    String(message ?? "").trim(),
+    collectorDiagnosticFingerprint(message)
+  ]));
+  const rowMessage = (row, fallback = "") => String(
+    row?.message ?? row?.error ?? row?.failureReason ?? fallback
+  ).trim();
+  const candidates = [
+    ...Object.values(snapshot?.attempts ?? {}).map((row) => ({
+      rowKind: "attempt",
+      row,
+      message: rowMessage(
+        row,
+        `Retryable collector attempt ${row?.attemptKey || "unknown"}`
+      )
+    })),
+    ...(snapshot?.failures ?? []).map((row) => ({
+      rowKind: "failure",
+      row,
+      message: rowMessage(row)
+    })),
+    ...(snapshot?.accounts ?? []).map((row) => ({
+      rowKind: "account",
+      row,
+      message: rowMessage(row)
+    })),
+    ...(snapshot?.source?.discovery?.searchFailures ?? []).map((row) => ({
+      rowKind: "search_failure",
+      row,
+      message: rowMessage(row)
+    })),
+    ...(snapshot?.source?.discovery?.sourceChecks ?? []).map((row) => ({
+      rowKind: "source_check",
+      row,
+      message: rowMessage(row)
+    }))
+  ];
+  return candidates
+    .filter(({ message }) => fingerprintsByMessage.has(message))
+    .slice(0, 100)
+    .map(({ rowKind, row, message }) => ({
+      rowKind,
+      messageFingerprint: fingerprintsByMessage.get(message),
+      attemptFingerprint: row?.attemptKey || row?.attempt_key
+        ? collectorDiagnosticFingerprint(row.attemptKey ?? row.attempt_key)
+        : null,
+      entityFingerprint: row?.entityId || row?.accountUrl || row?.account_url || row?.url
+        ? collectorDiagnosticFingerprint([
+            row?.entityType ?? "company",
+            row?.entityId ?? "",
+            row?.accountUrl ?? row?.account_url ?? row?.url ?? ""
+          ].join("\n"))
+        : null,
+      platform: typeof row?.platform === "string"
+        ? sanitizeRunnerDiagnosticText(row.platform, 40)
+        : null,
+      batchSlug: typeof row?.batchSlug === "string"
+        ? sanitizeRunnerDiagnosticText(row.batchSlug, 40)
+        : null,
+      retryable: typeof row?.retryable === "boolean" ? row.retryable : null,
+      status: typeof row?.status === "string"
+        ? sanitizeRunnerDiagnosticText(row.status, 80)
+        : null,
+      outcomeStatus: typeof row?.outcomeStatus === "string"
+        ? sanitizeRunnerDiagnosticText(row.outcomeStatus, 80)
+        : null,
+      outcomeReason: typeof row?.outcomeReason === "string"
+        ? sanitizeRunnerDiagnosticText(row.outcomeReason, 160)
+        : null,
+      checkedAt: typeof row?.checkedAt === "string" ? row.checkedAt : null,
+      collectorShardIndex: Number.isSafeInteger(row?.collectorShardIndex)
+        ? row.collectorShardIndex
+        : null,
+      blocker: row?.blocker && typeof row.blocker === "object" && !Array.isArray(row.blocker)
+        ? {
+            provider: typeof row.blocker.provider === "string"
+              ? sanitizeRunnerDiagnosticText(row.blocker.provider, 80)
+              : null,
+            reason: typeof row.blocker.reason === "string"
+              ? sanitizeRunnerDiagnosticText(row.blocker.reason, 160)
+              : null,
+            code: typeof row.blocker.code === "string"
+              ? sanitizeRunnerDiagnosticText(row.blocker.code, 80)
+              : null,
+            httpStatus: Number.isSafeInteger(row.blocker.httpStatus)
+              ? row.blocker.httpStatus
+              : null,
+            retryAt: typeof row.blocker.retryAt === "string" ? row.blocker.retryAt : null
+          }
+        : null
+    }));
+}
+
+function collectorDiagnosticFingerprint(value) {
+  return createHash("sha256")
+    .update(String(value ?? ""))
+    .digest("hex")
+    .slice(0, 16);
 }
 
 function successfulCollectorRowCount(snapshot, kind) {
