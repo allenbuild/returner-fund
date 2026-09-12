@@ -1853,6 +1853,57 @@ test("generic Hacker News company lanes emit exact terminal owner receipts", asy
   assert.equal(receipt.outcomeReason, "collector_checked_blocked_or_empty");
 });
 
+test("Hacker News evidence preserves an exact native publication timestamp", async () => {
+  const directory = await mkdtemp(join(tmpdir(), "returner-public-hn-publication-time-"));
+  const output = join(directory, "public-evidence.json");
+  const checkpoint = join(directory, "checkpoint.json");
+  const discoveryAttempts = join(directory, "discovery-attempts.json");
+  const sourceDiscoveryPaths = join(directory, "source-discovery-paths.json");
+  const preload = join(directory, "mock-fetch.mjs");
+  const nativePostedAt = "2026-09-09T13:10:30Z";
+  await Promise.all([
+    writeFile(discoveryAttempts, "[]\n"),
+    writeFile(sourceDiscoveryPaths, "[]\n"),
+    writeFile(preload, `
+globalThis.fetch = async () => new Response(JSON.stringify({
+  hits: [{
+    objectID: "49625975",
+    title: "Launch HN: Eden Robotics (YC Spring 2026)",
+    url: "https://www.edenrobotics.ai/launch",
+    created_at: ${JSON.stringify(nativePostedAt)},
+    points: 11,
+    num_comments: 8
+  }]
+}), { status: 200, headers: { "content-type": "application/json" } });
+`)
+  ]);
+
+  execFileSync(process.execPath, [
+    "scripts/fetch-public-traction.mjs",
+    "--batch=S2026",
+    "--company=eden-robotics",
+    "--platforms=hacker_news",
+    "--social=none",
+    "--workers=1",
+    "--delay-ms=0",
+    "--force",
+    `--output=${output}`,
+    `--checkpoint=${checkpoint}`,
+    `--discovery-attempts=${discoveryAttempts}`,
+    `--source-discovery-paths=${sourceDiscoveryPaths}`
+  ], {
+    cwd: root,
+    env: { ...process.env, NODE_OPTIONS: `--import=${preload}` },
+    stdio: "pipe"
+  });
+
+  const snapshot = JSON.parse(await readFile(output, "utf8"));
+  const item = snapshot.evidence.find((row) => row.sourceUrl === "https://news.ycombinator.com/item?id=49625975");
+  assert.ok(item);
+  assert.equal(item.postedAt, "2026-09-09T13:10:30.000Z");
+  assert.equal(item.publishedAtPrecision, "exact");
+});
+
 test("Reddit access errors with JSON bodies are explicit blocked outcomes rather than empty searches", async () => {
   const directory = await mkdtemp(join(tmpdir(), "returner-public-reddit-blocked-"));
   const output = join(directory, "public-evidence.json");

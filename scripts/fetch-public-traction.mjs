@@ -2042,6 +2042,7 @@ async function ingestHackerNews(company) {
     return {
       evidence: hits.map((hit) => {
         const nativeUrl = `https://news.ycombinator.com/item?id=${hit.objectID}`;
+        const nativePostedAt = exactEvidenceTimestamp(hit.created_at);
         return evidenceItem({
           company,
           entityType: "company",
@@ -2053,7 +2054,8 @@ async function ingestHackerNews(company) {
           title: hit.title || company.name,
           text: hit.title || company.name,
           rawVisibleText: JSON.stringify(hit),
-          postedAt: hit.created_at,
+          postedAt: nativePostedAt,
+          publishedAtPrecision: nativePostedAt ? "exact" : "unknown",
           metrics: {
             upvotes: numberOrNull(hit.points),
             comments: numberOrNull(hit.num_comments)
@@ -2097,6 +2099,7 @@ async function ingestHackerNews(company) {
   return {
     evidence: hits.map((hit) => {
       const nativeUrl = `https://news.ycombinator.com/item?id=${hit.objectID}`;
+      const nativePostedAt = exactEvidenceTimestamp(hit.created_at);
       return evidenceItem({
         company,
         entityType: "company",
@@ -2108,7 +2111,8 @@ async function ingestHackerNews(company) {
         title: hit.title || company.name,
         text: hit.title || company.name,
         rawVisibleText: JSON.stringify(hit),
-        postedAt: hit.created_at,
+        postedAt: nativePostedAt,
+        publishedAtPrecision: nativePostedAt ? "exact" : "unknown",
         metrics: {
           upvotes: numberOrNull(hit.points),
           comments: numberOrNull(hit.num_comments)
