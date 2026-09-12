@@ -5,8 +5,8 @@
     "slug": "touchy",
     "name": "Touchy"
   },
-  "generatedAt": "2026-09-11T11:28:11.823Z",
-  "lastModifiedAt": "2026-09-11T11:28:11.823Z",
+  "generatedAt": "2026-09-12T04:09:14.205Z",
+  "lastModifiedAt": "2026-09-12T04:09:14.205Z",
   "events": [
     {
       "id": "tle-2fde6cf8f226df7319efe9bf",
@@ -123,7 +123,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 4,
-    "lastSuccessfulArtifactAt": "2026-09-11T11:28:11.823Z"
+    "lastSuccessfulArtifactAt": "2026-09-12T04:09:14.205Z"
   },
   "nextCursor": null
 }

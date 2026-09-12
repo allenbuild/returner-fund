@@ -1,7 +1,7 @@
 {
   "source": {
     "label": "Targeted long-run public evidence",
-    "fetchedAt": "2026-09-07T11:17:50.938Z",
+    "fetchedAt": "2026-09-12T00:16:27.341Z",
     "notes": [
       "Read-only public search/result snippets and accessible pages only.",
       "No Instagram login actions, likes, saves, follows, comments, DMs, or CAPTCHA bypassing.",
@@ -113,17 +113,15 @@
       "pidBackfilled": 1
     },
     "targetedMergeAudit": {
-      "mergedAt": "2026-09-07T15:52:37.056Z",
+      "mergedAt": "2026-09-12T03:49:01.107Z",
       "existingSnapshots": 1,
-      "existingInputRows": 3399,
+      "existingInputRows": 3380,
       "isolatedRunInputRows": 0,
       "acceptedRunRows": 0,
       "duplicateRows": 0,
-      "quarantinedRows": 19,
+      "quarantinedRows": 0,
       "canonicalReattributedRows": 93,
-      "quarantineReasonCounts": {
-        "entity_not_in_canonical_batch_catalog": 19
-      },
+      "quarantineReasonCounts": {},
       "attributionReconciliationCount": 243,
       "outputEvidenceRows": 3380,
       "outputNeedsReviewRows": 151

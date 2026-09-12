@@ -9527,5 +9527,244 @@
     "scheduledAt": "2026-09-07T11:00:00.000Z",
     "evidenceCollectedAt": "2026-09-07T15:52:35.996Z",
     "terminalFailureBudget": 123
+  },
+  {
+    "schemaVersion": 1,
+    "idempotencyKey": "central-2026-09-11-1800",
+    "centralDay": "2026-09-11",
+    "observedAt": "2026-09-12T04:05:47.783Z",
+    "baselinePhysicalSources": 17983,
+    "publishedPhysicalSources": 17997,
+    "newPhysicalSources": 17,
+    "newPhysicalSourcesThisAttempt": 17,
+    "retainedPhysicalSources": 17980,
+    "removedPhysicalSources": 3,
+    "dailyNewPhysicalSources": 17,
+    "dailySourceHealth": "healthy",
+    "collectionHealth": "degraded",
+    "collectionHealthReasons": [
+      "missing_credential:X_BEARER_TOKEN",
+      "missing_credential:EXA_API_KEY",
+      "mapped_failures:1",
+      "provider_blocked:5790",
+      "mapped_provider_blocked:2234",
+      "mapped_scope_unsupported:10",
+      "mapped_success_rate_below_10_percent:0.0325"
+    ],
+    "mappedExpected": 2464,
+    "mappedSucceeded": 80,
+    "mappedNeedsReview": 366,
+    "mappedBlockedOrEmpty": 2017,
+    "providerBlocked": 5790,
+    "providerBlockedByReason": {
+      "provider_blocked:duckduckgo_html:public_search_circuit_open": 1671,
+      "provider_blocked:instagram_public_json:instagram_public_access_blocked": 1008,
+      "provider_blocked:linkedin_public_html:linkedin_public_access_blocked": 1,
+      "provider_blocked:linkedin_public_html:linkedin_public_circuit_open": 1423,
+      "provider_blocked:official_source_html:official_source_http_failure": 5,
+      "provider_blocked:official_source_html:official_source_timeout": 1,
+      "provider_blocked:official_source_html:official_source_transport_failure": 4,
+      "provider_blocked:official_source_http:official_source_http_failure": 5,
+      "provider_blocked:official_source_http:official_source_timeout": 1,
+      "provider_blocked:reddit_public_json:reddit_public_access_blocked": 481,
+      "provider_blocked:x_public_html:x_public_access_blocked": 1190
+    },
+    "mappedProviderBlocked": 2234,
+    "mappedProviderBlockedByReason": {
+      "provider_blocked:duckduckgo_html:public_search_circuit_open": 8,
+      "provider_blocked:instagram_public_json:instagram_public_access_blocked": 44,
+      "provider_blocked:linkedin_public_html:linkedin_public_access_blocked": 1,
+      "provider_blocked:linkedin_public_html:linkedin_public_circuit_open": 1423,
+      "provider_blocked:x_public_html:x_public_access_blocked": 758
+    },
+    "mappedScopeUnsupported": 10,
+    "mappedFailures": 1,
+    "mappedNonTerminal": 0,
+    "mappedSuccessRate": 0.0325,
+    "newestNewSourcePostedAt": "2026-09-11T09:10:19Z",
+    "insertedByBatchPlatform": {
+      "A16ZSR006:github": 4,
+      "A16ZSR006:youtube": 5,
+      "S2026:github": 3,
+      "S26:github": 3,
+      "S26:hacker_news": 1,
+      "S26:youtube": 1
+    },
+    "insertedSourceSamples": [
+      {
+        "batchSlug": "A16ZSR006",
+        "platform": "youtube",
+        "entityType": "company",
+        "entityId": "a16z-speedrun-006-sun",
+        "sourceUrl": "https://youtube.com/watch?v=NURQ3g065C0",
+        "platformPostId": "NURQ3g065C0",
+        "platformObjectId": null,
+        "postedAt": "2026-09-08T06:10:38.000Z"
+      },
+      {
+        "batchSlug": "A16ZSR006",
+        "platform": "youtube",
+        "entityType": "company",
+        "entityId": "a16z-speedrun-006-idilio",
+        "sourceUrl": "https://youtube.com/watch?v=yBQZka5kmYU",
+        "platformPostId": "yBQZka5kmYU",
+        "platformObjectId": null,
+        "postedAt": "2026-09-09T22:35:49.000Z"
+      },
+      {
+        "batchSlug": "A16ZSR006",
+        "platform": "youtube",
+        "entityType": "company",
+        "entityId": "a16z-speedrun-006-antihero-studios",
+        "sourceUrl": "https://youtube.com/watch?v=YAmQUuDy5Vo",
+        "platformPostId": "YAmQUuDy5Vo",
+        "platformObjectId": null,
+        "postedAt": "2026-09-08T15:00:11.000Z"
+      },
+      {
+        "batchSlug": "A16ZSR006",
+        "platform": "youtube",
+        "entityType": "company",
+        "entityId": "a16z-speedrun-006-sun",
+        "sourceUrl": "https://youtube.com/watch?v=5iRJbR8hXyk",
+        "platformPostId": "5iRJbR8hXyk",
+        "platformObjectId": null,
+        "postedAt": "2026-09-09T17:35:44.000Z"
+      },
+      {
+        "batchSlug": "A16ZSR006",
+        "platform": "youtube",
+        "entityType": "company",
+        "entityId": "a16z-speedrun-006-sun",
+        "sourceUrl": "https://youtube.com/watch?v=EGRbmXhOt00",
+        "platformPostId": "EGRbmXhOt00",
+        "platformObjectId": null,
+        "postedAt": "2026-09-02T21:41:52.000Z"
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "youtube",
+        "entityType": "company",
+        "entityId": "company-moonshot-computer",
+        "sourceUrl": "https://youtube.com/watch?v=LuzJf915cjo",
+        "platformPostId": "LuzJf915cjo",
+        "platformObjectId": null,
+        "postedAt": null
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "hacker_news",
+        "entityType": "company",
+        "entityId": "company-rindler",
+        "sourceUrl": "https://news.ycombinator.com/item?id=49625975",
+        "platformPostId": "49625975",
+        "platformObjectId": null,
+        "postedAt": "2026-09-09T13:10:30Z"
+      },
+      {
+        "batchSlug": "S2026",
+        "platform": "github",
+        "entityType": "company",
+        "entityId": "company-limrun",
+        "sourceUrl": "https://github.com/limrun-inc/mcp",
+        "platformPostId": "limrun-inc/mcp",
+        "platformObjectId": "1365728120",
+        "postedAt": "2026-09-11T09:10:19Z"
+      },
+      {
+        "batchSlug": "S2026",
+        "platform": "github",
+        "entityType": "company",
+        "entityId": "company-rentahuman",
+        "sourceUrl": "https://github.com/rentahuman-ai/line-waiting-cli",
+        "platformPostId": "rentahuman-ai/line-waiting-cli",
+        "platformObjectId": "1360809643",
+        "postedAt": "2026-09-08T01:37:35Z"
+      },
+      {
+        "batchSlug": "S2026",
+        "platform": "github",
+        "entityType": "company",
+        "entityId": "company-smol-machines",
+        "sourceUrl": "https://github.com/smol-machines/smol-mcp",
+        "platformPostId": "smol-machines/smol-mcp",
+        "platformObjectId": "1363112453",
+        "postedAt": "2026-09-09T19:04:53Z"
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "github",
+        "entityType": "company",
+        "entityId": "company-robocurve",
+        "sourceUrl": "https://github.com/robocurve/stationerybench",
+        "platformPostId": "robocurve/stationerybench",
+        "platformObjectId": "1364907689",
+        "postedAt": "2026-09-10T20:49:07Z"
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "github",
+        "entityType": "company",
+        "entityId": "company-speko",
+        "sourceUrl": "https://github.com/SpekoAI/cli",
+        "platformPostId": "SpekoAI/cli",
+        "platformObjectId": "1360286997",
+        "postedAt": "2026-09-07T13:49:25Z"
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "github",
+        "entityType": "company",
+        "entityId": "company-contextdev",
+        "sourceUrl": "https://github.com/context-dot-dev/gemini-cli-context",
+        "platformPostId": "context-dot-dev/gemini-cli-context",
+        "platformObjectId": "1360350854",
+        "postedAt": "2026-09-07T14:50:41Z"
+      },
+      {
+        "batchSlug": "A16ZSR006",
+        "platform": "github",
+        "entityType": "founder",
+        "entityId": "a16z-speedrun-006-quo-labs-founder-audrey-lo",
+        "sourceUrl": "https://github.com/audrlo/old-google",
+        "platformPostId": "audrlo/old-google",
+        "platformObjectId": "1345669648",
+        "postedAt": "2026-08-25T04:20:26Z"
+      },
+      {
+        "batchSlug": "A16ZSR006",
+        "platform": "github",
+        "entityType": "founder",
+        "entityId": "a16z-speedrun-006-quo-labs-founder-audrey-lo",
+        "sourceUrl": "https://github.com/audrlo/linkedin-lowercase",
+        "platformPostId": "audrlo/linkedin-lowercase",
+        "platformObjectId": "1338954084",
+        "postedAt": "2026-08-19T00:39:17Z"
+      },
+      {
+        "batchSlug": "A16ZSR006",
+        "platform": "github",
+        "entityType": "founder",
+        "entityId": "a16z-speedrun-006-quo-labs-founder-audrey-lo",
+        "sourceUrl": "https://github.com/audrlo/peak-census",
+        "platformPostId": "audrlo/peak-census",
+        "platformObjectId": "1164617875",
+        "postedAt": "2026-02-23T09:43:23Z"
+      },
+      {
+        "batchSlug": "A16ZSR006",
+        "platform": "github",
+        "entityType": "founder",
+        "entityId": "a16z-speedrun-006-quo-labs-founder-audrey-lo",
+        "sourceUrl": "https://github.com/audrlo/california-maps",
+        "platformPostId": "audrlo/california-maps",
+        "platformObjectId": "1360825585",
+        "postedAt": "2026-09-08T02:04:00Z"
+      }
+    ],
+    "trigger": "schedule",
+    "scheduledAt": "2026-09-11T23:00:00.000Z",
+    "evidenceCollectedAt": "2026-09-12T03:49:00.313Z",
+    "terminalFailureBudget": 124
   }
 ]

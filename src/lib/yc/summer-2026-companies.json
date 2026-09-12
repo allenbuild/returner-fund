@@ -4,7 +4,7 @@
     "directoryUrl": "https://www.ycombinator.com/companies?batch=Summer%202026",
     "algoliaIndex": "YCCompany_production",
     "algoliaFilter": "batch:\"Summer 2026\"",
-    "fetchedAt": "2026-09-07T15:21:07.897Z",
+    "fetchedAt": "2026-09-12T03:41:45.834Z",
     "expectedCompanyCount": 234,
     "observedCompanyCount": 234,
     "directoryCompanyHitCount": 234,
@@ -464,7 +464,7 @@
       "batch": "Summer 2026",
       "ycProfileUrl": "https://www.ycombinator.com/companies/akon-labs",
       "websiteUrl": "https://akonlabs.com",
-      "tagline": "The Github For Coding Agents",
+      "tagline": "Databricks for Enterprise Codebases",
       "description": "",
       "industry": "B2B",
       "subindustry": "B2B",
@@ -472,10 +472,10 @@
         "B2B"
       ],
       "tags": [
-        "Artificial Intelligence",
         "Generative AI",
         "SaaS",
-        "B2B"
+        "B2B",
+        "AI"
       ],
       "location": "San Francisco",
       "teamSize": 2,
@@ -638,7 +638,7 @@
       "batch": "Summer 2026",
       "ycProfileUrl": "https://www.ycombinator.com/companies/allia-health",
       "websiteUrl": "https://allia.health/",
-      "tagline": "Clinically Integrated Group for Mental Health ",
+      "tagline": "First AI-Native Medical Group for Mental Health",
       "description": "Allia is the first full-stack, AI-native clinical group for mental health. We bring independent practices into one national clinical group that can deliver, measure, and improve care at scale - 600+ providers (350+ therapists, 200+ nurses & doctors, 30+ psychologists) across 70 sites in 32 states, plus telehealth nationwide. Every clinician runs on a single intelligent system of record. And, that intelligence coupled with scale unlocks what no single practice could achieve alone. ",
       "industry": "Healthcare",
       "subindustry": "Healthcare -> Healthcare Services",
@@ -730,6 +730,16 @@
           }
         },
         {
+          "id": "2271222",
+          "name": "Omar Elloumi",
+          "title": "Founder/CPO",
+          "bio": "CPO @ Alloovium (YC S26) spent three years at LexisNexis turning ML research into production systems for highly regulated legal data. \nNow i’m bringing that experience in AI & Product to build the future of construction @ Alloovium.",
+          "ycProfileUrl": "https://www.ycombinator.com/people/omar-elloumi",
+          "socialLinks": {
+            "linkedin": "https://www.linkedin.com/in/omar-elloumi/"
+          }
+        },
+        {
           "id": "3650351",
           "name": "Cielo Nicolosi",
           "title": "Founder/CTO",
@@ -754,16 +764,16 @@
       "batch": "Summer 2026",
       "ycProfileUrl": "https://www.ycombinator.com/companies/almanac",
       "websiteUrl": "https://usealmanac.com",
-      "tagline": "The agent that knows your work absurdly well",
-      "description": "Almanac is a proactive AI agent that deeply understands your work.\r\n\r\nToday people rely on a stack of productivity tools to hold the context of their work including todo lists, issue trackers, wikis, and CRMs. All of them have to be updated by hand, and none were built for AI. \r\n\r\nAlmanac maintains its own self-updating productivity suite for you. This gives it an absurdly good understanding of your work, based on which it proactively gets things done for you.\r\n\r\nAlmanac starts with individuals, but it's built for teams. As more of a team connects their work, the agent gains shared context across everyone, so it understands not just what you're doing but how the whole team's work fits together.",
+      "tagline": "Organizing company knowledge",
+      "description": "Almanac is an AI agent that deeply understands your work.\r\n\r\nToday people rely on a stack of productivity tools to hold the context of their work including todo lists, issue trackers, wikis, and CRMs. All of them have to be updated by hand, and none were built for AI. \r\n\r\nAlmanac maintains its own self-updating productivity suite for you. This gives it an absurdly good understanding of your work, based on which it proactively gets things done for you.\r\n\r\nAlmanac starts with individuals, but it's built for teams. As more of a team connects their work, the agent gains shared context across everyone, so it understands not just what you're doing but how the whole team's work fits together.",
       "industry": "B2B",
       "subindustry": "B2B",
       "industries": [
         "B2B"
       ],
       "tags": [
-        "Artificial Intelligence",
         "Generative AI",
+        "AI",
         "AI Assistant"
       ],
       "location": "San Francisco",
@@ -772,7 +782,7 @@
       "groupPartner": "Harshita Arora",
       "groupPartnerUrl": "https://www.ycombinator.com/people/harshita-arora",
       "socialLinks": {
-        "linkedin": "https://www.linkedin.com/company/the-almanac-ai",
+        "linkedin": "https://www.linkedin.com/company/usealmanac/",
         "x": "https://x.com/usealmanac"
       },
       "founders": [
@@ -1133,7 +1143,7 @@
           "id": "3118829",
           "name": "Shrish Janarthanan",
           "title": "Founder/CPO",
-          "bio": "CS @ Stanford. Building AI for IT Teams. ",
+          "bio": "CS @ Stanford. Cyber Security @ KPMG. Mayfield Fellow. Building AI for IT Teams. ",
           "ycProfileUrl": "https://www.ycombinator.com/people/shrish-janarthanan",
           "socialLinks": {
             "linkedin": "https://www.linkedin.com/in/shrishj/",
@@ -1156,7 +1166,7 @@
       "ycProfileUrl": "https://www.ycombinator.com/companies/withasync",
       "websiteUrl": "https://withasync.com",
       "tagline": "AI agents that run small businesses",
-      "description": "Async builds agents that change how businesses can run. Law firms, healthcare clinics and real estate companies hire our AI agents to automate complex work that's never been economical to staff with humans, letting us capture labor spend that didn't previously exist.",
+      "description": "Async builds AI agents that run small businesses. Law firms, healthcare clinics and real estate companies hire our AI agents to automate complex work that's never been economical to staff with humans, letting us capture labor spend that didn't previously exist.",
       "industry": "B2B",
       "subindustry": "B2B",
       "industries": [
@@ -1474,7 +1484,7 @@
       "batch": "Summer 2026",
       "ycProfileUrl": "https://www.ycombinator.com/companies/avoca-systems",
       "websiteUrl": "https://avocasystems.com",
-      "tagline": "The AI-powered operating system for radiology networks",
+      "tagline": "The AI operating system for radiology networks",
       "description": "Avoca is the AI patient access platform built for radiology. It integrates with a network’s existing systems and operational knowledge to automate calls, online scheduling, faxes, e-referrals and patient communications, from referral through to results and follow-up. Unlike generic scheduling tools, Avoca understands the clinical, operational and resource constraints behind every radiology booking, helping providers capture more demand, reduce administrative work and fill more scan capacity.",
       "industry": "Healthcare",
       "subindustry": "Healthcare",
@@ -1530,16 +1540,16 @@
       "batch": "Summer 2026",
       "ycProfileUrl": "https://www.ycombinator.com/companies/axelrod",
       "websiteUrl": "https://axelrod.live/",
-      "tagline": "Boutique Hotels that run themselves",
-      "description": "Autonomous software for hotels that takes over all front-of-house and back-of-house tasks with zero integrations, running operations better than your staff would. Axelrod is trusted by Michelin Key awarded boutique hotels and is live across 4 continents.",
+      "tagline": "Hotels that run themselves",
+      "description": "Autonomous software for hotels that takes over all front-of-house and back-of-house tasks with zero integrations, running operations better than your staff would. Axelrod is trusted by Michelin Key awarded and Marriott hotels and is live across 3 continents.",
       "industry": "B2B",
       "subindustry": "B2B",
       "industries": [
         "B2B"
       ],
       "tags": [
-        "Artificial Intelligence",
-        "Travel"
+        "Travel",
+        "AI"
       ],
       "location": "San Francisco",
       "teamSize": 2,
@@ -1644,16 +1654,16 @@
       "batch": "Summer 2026",
       "ycProfileUrl": "https://www.ycombinator.com/companies/belvedir",
       "websiteUrl": "https://belvedir.ai/",
-      "tagline": "The easiest way to make custom AI models",
-      "description": "Belvedir makes it cheap and easy for anyone to make custom AI. Connect us to your agent traces through our SDK and we autonomously train custom models + harnesses + routers, privately deploy them, and recursively improve them as they are used. \r\n\r\nOur customers have seen 10x reductions in inference costs and 2x increases on benchmark scores.\r\n\r\nCustom AI models are going to win. Belvedir is the infrastructure needed to make trillions of them.",
+      "tagline": "Custom Model Factory For Cheaper, Better, Faster AI",
+      "description": "Belvedir makes it cheap and easy for anyone to make custom AI. We collect your agent traces through our SDK and autonomously train custom models + harnesses + routers, privately deploy them, and recursively improve them as they are used. \r\n\r\nOur customers have seen 10x reductions in inference costs and 2x increases on benchmark scores.\r\n\r\nCustom AI models are going to win. Belvedir is the infrastructure needed to make trillions of them.",
       "industry": "B2B",
       "subindustry": "B2B",
       "industries": [
         "B2B"
       ],
       "tags": [
-        "Artificial Intelligence",
-        "Machine Learning"
+        "Machine Learning",
+        "AI"
       ],
       "location": "San Francisco",
       "teamSize": 1,
@@ -1809,7 +1819,7 @@
       "ycProfileUrl": "https://www.ycombinator.com/companies/bizmark",
       "websiteUrl": "https://bizmark.ai",
       "tagline": "OpenClaw for manufacturers",
-      "description": "Bizmark deploys optimization methods at manufacturers, distributors and retailers. This traditionally took years of work; we do it in weeks through an agentic approach. Our first customers are seeing millions in value in weeks. We’re currently at $xxxk ARR after 8 weeks of work, and we’ve beaten SAP, Oracle, and Infor for those contracts. The founders are cousins Rodrigo Mosqueira and Oscar Aguilar, who’ve previously grown a supply chain business from 0 to $60M and implemented optimization methods at Intel, Amazon, and J&J.",
+      "description": "Hey YC! We're Bizmark. I (Rodrigo) grew up in a factory, watching my mum run everything through Excel and email.\r\n\r\nThat’s why we’ve built Otto, the OpenClaw for manufacturers.\r\n\r\nIn a few days, he learns from your systems and spreadsheets to take over repetitive work in procurement, quoting, and production planning. \r\n\r\nOtto is live at multiple factories, bringing in $108k in annual recurring revenue. Last month, he worked the equivalent of 9 full-time employees.\r\n\r\nI did CS at UChicago and built a distribution business from 0 to $60M.\r\n\r\nMy cousin and cofounder Oscar did CS at Stanford and deployed AI for the US Air Force, Amazon, and the factories of Johnson & Johnson and Intel.\r\n\r\nThere's a quarter of a million manufacturers in the US, making this a $25B market.\r\n\r\nIn 5 years, they will all run on Otto-pilot.",
       "industry": "B2B",
       "subindustry": "B2B",
       "industries": [
@@ -2334,7 +2344,7 @@
       "ycProfileUrl": "https://www.ycombinator.com/companies/ai-coach",
       "websiteUrl": "https://www.getcoach.com/",
       "tagline": "The AI Coach for in person sales reps.",
-      "description": "Coach is the AI sales coach for in-person sales teams.\r\n\r\nReps record every meeting, and our AI figures out what your best closers do differently, then coaches everyone else to do the same, with precise, personalized feedback after every meeting. \r\n\r\nManagers finally see 100% of what happens in the field: Coach flags who's stuck and why, so they only step in when it matters, and can coach 5× more reps.\r\n\r\nAnd every meeting feeds one sales brain, so leadership finally gets answers to the questions that used to be guesswork. They finally see the game of their team not just the scoreboard.\r\n\r\nOur bet: in the AI era, in-person sales will only matter more. It may end up being one of the last truly human jobs.\r\n\r\nOur conviction: any motivated rep can become a great one, meeting after meeting.\r\n\r\nThe results so far: +32% average lift in conversion rate.\r\n\r\nCOΛCH, post-game video analysis for field sales reps. YC S26\r\n",
+      "description": "85% of all sales still happen face-to-face. Coach is how those get closed.\r\nOur AI turns in-depth sales conversation analysis into company knowledge and personalized coaching to help reps close more deals.",
       "industry": "B2B",
       "subindustry": "B2B -> Sales",
       "industries": [
@@ -2342,11 +2352,11 @@
         "Sales"
       ],
       "tags": [
-        "Artificial Intelligence",
         "SaaS",
         "B2B",
         "Sales",
-        "Sales Enablement"
+        "Sales Enablement",
+        "AI"
       ],
       "location": "San Francisco",
       "teamSize": 4,
@@ -2381,7 +2391,7 @@
           "id": "2929268",
           "name": "Nicolas Sebag",
           "title": "Founder/CTO",
-          "bio": "Founder & CTO at COΛCH\n\nI transform real-life conversations into actionnable intelligence.\n\nSpent the last 10 years building software products in hospitality, aeronautics, healthcare and many more industries.",
+          "bio": "Founder & CTO at COΛCH\nWe transform real-life conversations into actionnable intelligence.\nSpent the last 10 years building software products in hospitality, aeronautics, healthcare and more",
           "ycProfileUrl": "https://www.ycombinator.com/people/nicolas-sebag",
           "socialLinks": {
             "linkedin": "https://www.linkedin.com/in/nicolas-sebag-504747118/",
@@ -2797,7 +2807,7 @@
           "id": "1711673",
           "name": "Jordan Ibe",
           "title": "Founder",
-          "bio": "Co-founder @ Cova (YC S26). Prev Palantir, Uber, Cornell CS & Stats. Building infrastructure to support millions of caregiving families.",
+          "bio": "Co-founder @ Cova. Prev Palantir, Uber, Cornell CS & Stats. Building infrastructure to support millions of caregiving families.",
           "ycProfileUrl": "https://www.ycombinator.com/people/jordan-ibe",
           "socialLinks": {
             "linkedin": "https://www.linkedin.com/in/c-jordan-ibe/"
@@ -2902,8 +2912,8 @@
         "B2B"
       ],
       "tags": [
-        "Hard Tech",
-        "AI"
+        "Artificial Intelligence",
+        "Hard Tech"
       ],
       "location": "San Francisco",
       "teamSize": 3,
@@ -2953,17 +2963,17 @@
       "ycProfileUrl": "https://www.ycombinator.com/companies/datoric",
       "websiteUrl": "https://www.datoric.com",
       "tagline": "The secure training data R&D engine for physical AI",
-      "description": "Datoric develops custom datasets for voice models, robotics, and world models, treating research, collection, verification, and production as one continuous process. We work closely with frontier model teams to turn emerging limitations into testable data hypotheses, while running our own experiments ahead of customer demand. This allows us to operationalize validated methods into repeatable collection systems at scale.\r\n\r\nData is collected through private invite-only applications separated by modality, customer, and trust level. Every submission remains linked to the contributor, device, task, session, consent, rights, and processing history that produced it, giving our internal QA and fraud models the context to detect problems that may appear legitimate in the finished file. Each collection reveals new failure cases and quality signals that improve the systems behind the next dataset.\r\n\r\nOnce a collection method is validated, it becomes a reusable data recipe for future custom projects or independently collected, rights-cleared data products. This allows Datoric to turn what is emerging at the frontier into datasets available ahead of broader market demand.\r\n",
+      "description": "Datoric develops custom datasets for voice models, robotics, and world models, treating research, collection, verification, and production as one continuous process. We work closely with frontier model teams to turn emerging limitations and model failures into testable data hypotheses, while running our own experiments ahead of customer demand. This allows us to operationalize validated methods into repeatable collection systems at scale.\r\n\r\nData is collected through private invite-only applications separated by modality, customer, and trust level. Every submission remains linked to the contributor, device, task, session, consent, rights, and processing history that produced it, giving our internal QA and fraud models the context to detect problems that may appear legitimate in the finished file. Each collection reveals new failure cases and quality signals that improve the systems behind the next dataset.\r\n\r\nOnce a collection method is validated, we scale it up as a solution to the model failure and it also becomes a reusable data recipe for future custom projects or independently collected, rights-cleared data products. ",
       "industry": "B2B",
       "subindustry": "B2B",
       "industries": [
         "B2B"
       ],
       "tags": [
+        "Artificial Intelligence",
         "Machine Learning",
         "Robotics",
-        "Data Labeling",
-        "AI"
+        "Data Labeling"
       ],
       "location": "San Francisco",
       "teamSize": 2,
@@ -2988,7 +2998,7 @@
           "id": "2310490",
           "name": "Jeffrey Lin",
           "title": "Founder/CTO",
-          "bio": "CTO @ Datoric. Prev AI/ML & SWE Intern. Math & CS & Robotics at NYU. Created a bounding box algorithm for more efficient labeling as Head of Data for NYU Robotics Team. ",
+          "bio": "CTO @ Datoric. Prev AI/ML & SWE Intern. Math & CS & Robotics at NYU. Created a bounding box algorithm for more efficient labeling as Head of Data for the NYU Robotics Team. ",
           "ycProfileUrl": "https://www.ycombinator.com/people/jeffrey-lin",
           "socialLinks": {
             "linkedin": "https://www.linkedin.com/in/jeffrey-lin-7abaab255/",
@@ -3066,7 +3076,7 @@
       "ycProfileUrl": "https://www.ycombinator.com/companies/decawork",
       "websiteUrl": "https://decawork.ai/",
       "tagline": "Training company-specific models that approve AI actions.",
-      "description": "Giving an agent access to a system doesn’t tell it when using that access is right for the business. The same action can be appropriate for one task and wrong for another. Companies can’t turn every business judgment into a rule or have people manually approve every step.\r\n\r\nWe train a model for each company using its policies and the decisions its teams make in practice. The model is designed to understand the company’s business, critical systems, and priorities, and combine that context with an agent’s task and past actions. Its job is to decide, in real time, whether a proposed action serves the company’s interests and should be approved.\r\n\r\nCompanies will rent intelligence from AI labs or run open-source models to power their agents. They’ll own the models that keep their entire AI workforce acting in their interests. Decawork is building those models.",
+      "description": "An agent’s access should depend on the task it is doing. The same action can be appropriate for one task and wrong for another. Access decisions need to adapt in real time as the agent works, but companies can’t turn every business judgment into a fixed rules or have people manually approve every step.\r\n\r\nWe train small, company-specific models that approve AI actions in real time. They consider the company’s policies and interests, the agent’s current task, and its past actions to decide whether each proposed action should be allowed. Access is specific to the task at hand and reassessed as the agent works.\r\n\r\nCompanies will rent intelligence from AI labs or run open-source models to power their agents. They’ll own the models that keep their entire AI workforce acting in their interests. Decawork is building those models.",
       "industry": "B2B",
       "subindustry": "B2B -> Infrastructure",
       "industries": [
@@ -3074,10 +3084,10 @@
         "Infrastructure"
       ],
       "tags": [
+        "Artificial Intelligence",
         "B2B",
         "Security",
-        "Infrastructure",
-        "AI"
+        "Infrastructure"
       ],
       "location": "San Francisco",
       "teamSize": 2,
@@ -3247,7 +3257,7 @@
       "batch": "Summer 2026",
       "ycProfileUrl": "https://www.ycombinator.com/companies/denta",
       "websiteUrl": "https://denta.com",
-      "tagline": "AI-Native Dental Insurance",
+      "tagline": "Dental Insurance",
       "description": "Denta is dental insurance. As a full stack carrier, Denta makes insurance 30% cheaper by selling plans directly to employers and processing claims instantly with AI.\r\n\r\nI grew up in the back office of my dad’s dental practices, spent my high school years answering patient calls, and built software for over 300 dentists during college. I'm now solving the industry's biggest problem: insurance.\r\n\r\nEveryone knows how bad health insurance is, dental insurance is worse. In the US, dental insurers collect $100B per year. Despite the $25B of that spent on administration, it still takes insurers three weeks to pay claims with paper checks that Denta can pay electronically in seconds.\r\n\r\nDenta will insure every American, sparing patients and dentists the $25B burden of dealing with legacy carriers.",
       "industry": "Fintech",
       "subindustry": "Fintech -> Insurance",
@@ -3256,10 +3266,10 @@
         "Insurance"
       ],
       "tags": [
-        "Artificial Intelligence",
         "Fintech",
         "Healthcare",
-        "Health Insurance"
+        "Health Insurance",
+        "AI"
       ],
       "location": "San Francisco",
       "teamSize": 1,
@@ -3297,7 +3307,7 @@
       "batch": "Summer 2026",
       "ycProfileUrl": "https://www.ycombinator.com/companies/derya",
       "websiteUrl": "http://usederya.com",
-      "tagline": "Agents for Industrial Supply Chains",
+      "tagline": "AI Brokers for Industrial Trade",
       "description": "Derya deploys supply chain automations for startups, SMEs, and enterprises that fulfil their entire supply chain function, from prospecting and procurement to distribution of goods.\r\n\r\nOur mission is to rebuild the supply chain from the ground up, turning one of the world’s hardest coordination problems into an AI native system that moves commodities by being integrated into both the supply chain infrastructure and the customer. We work across robotics, commodities, and food & beverages companies; procuring goods and managing various operation functions for them.",
       "industry": "B2B",
       "subindustry": "B2B -> Supply Chain and Logistics",
@@ -3357,7 +3367,7 @@
       "ycProfileUrl": "https://www.ycombinator.com/companies/dialogus",
       "websiteUrl": "https://www.dialoguslabs.com/",
       "tagline": "The AI-native contact center",
-      "description": "Dialogus builds voice agent infrastructure for enterprises.\r\n\r\nMost companies can demo an AI voice agent, but getting one into production is hard. Enterprise agents need to connect to phone systems, internal tools, databases, CRMs, messaging channels, human escalation flows, monitoring, and compliance processes.\r\n\r\nDialogus provides the infrastructure to deploy production-grade voice agents that don’t just talk but complete real workflows. Our platform lets enterprises launch agents that collect information, validate it against internal systems, update records, send follow-up messages, and escalate edge cases to humans.",
+      "description": "Dialogus builds self-improving AI voice agents for enterprise operations.\r\n\r\nOur agents handle high-volume workflows across customer support, sales, collections, and other operational functions, integrating directly with the systems enterprises already use.\r\n\r\nOur agents continuously learn from real conversations and business outcomes: identifying where interactions fail, proposing improvements, testing those changes across thousands of simulated conversations, and deploying better versions with human oversight.\r\n\r\nThe result is AI that doesn’t just automate calls, it gets better at doing the job over time.",
       "industry": "B2B",
       "subindustry": "B2B -> Infrastructure",
       "industries": [
@@ -3533,7 +3543,7 @@
       "ycProfileUrl": "https://www.ycombinator.com/companies/donkey",
       "websiteUrl": "https://donkey.trade",
       "tagline": "The AI-native trading company: factory prices, delivered, one number",
-      "description": "Donkey is the modern trading company. We buy straight from Chinese factories and sell delivered to US importers: one USD price to their dock, duty paid, our own inspectors on the factory floor before the factory gets paid.\r\n\r\nMost importers buy through trading companies that mark up every container 15 to 30 percent and never reveal the factory. US customs records are public. Almost nobody reads them, so we arrive already knowing their supply lane. They send one photo of a part they reorder. We name the factory that actually makes it and beat their landed cost in 72 hours, or they keep their supplier.\r\n\r\nWe take title, run the inspection, move the money, and offer credit-insured net-45 terms to qualified buyers. The old trading giants ran this coordination with tens of thousands of people. Our machine runs it with a handful, and every settled order compounds the pricing and reliability data the next one runs on.\r\n\r\nTeam in SF and China, English and Mandarin. Know a US importer buying from China? Send them our way: one photo of a part, and we will name their factory. donkey.trade",
+      "description": "Donkey is the AI-native trading company. Upload a buying list and we land the whole container at one locked, delivered price, tariffs included. You buy from Donkey: one contract, one company responsible for everything between the factory floor and your door. Our own people check the cartons before the factory gets paid, and the balance is due when the goods are accepted at your dock.\r\n\r\nSmall businesses buy imports through three or four middlemen, each adding 15 to 30 points, because none of them can fill a container on their own. Big enough to buy pallets, never big enough to buy the box. Quotes float with freight, FX and tariffs and live 15 to 30 days.\r\n\r\nA trading company is rooms of people on the phone with factories, forwarders and brokers. Donkey runs that as one engine. It finds the real factory behind the customs record, stacks duty line by line, packs the container on weight and cube, and returns one number that holds from signature. Next comes the shared container: small buyers fill one box together at container prices, and every container earns better factory terms for the next one.\r\n\r\nTeam in San Francisco and Wuhan, English and Mandarin. If your business buys pallets of anything imported, send us your buying list.",
       "industry": "B2B",
       "subindustry": "B2B -> Supply Chain and Logistics",
       "industries": [
@@ -3541,13 +3551,13 @@
         "Supply Chain and Logistics"
       ],
       "tags": [
-        "Artificial Intelligence",
         "Logistics",
         "Manufacturing",
-        "Supply Chain"
+        "Supply Chain",
+        "AI"
       ],
       "location": "San Francisco",
-      "teamSize": 7,
+      "teamSize": 5,
       "status": "Active",
       "groupPartner": "Harshita Arora",
       "groupPartnerUrl": "https://www.ycombinator.com/people/harshita-arora",
@@ -3559,7 +3569,7 @@
           "id": "3038319",
           "name": "Benjamin Martindale",
           "title": "Founder/CEO",
-          "bio": "Prev founded Prelude OS: 31 paying Chinese factory customers cold-acquired in 39 days on the ground in Guangzhou; cash-flow positive. Advised heavy-equipment giants Sany and Sinoboom on overseas expansion. Featured on Mango TV, China's largest media station: factory-floor interview segments and a named 13-minute personal profile. Ran a Toronto marketing company: $4M closed for construction clients in 6 months. Fluent Mandarin. Finance at Rotman Commerce, UofT; dropped a credit short.",
+          "bio": "Grew up in his family's importing business in Toronto. Advised Chinese heavy-machinery giants on selling into the West and ran a Wuhan office in Mandarin. Featured on Mango TV, one of China's largest broadcasters: factory-floor segments and a named 13-minute profile. Founded a Toronto marketing company: $4M of construction deals closed in six months. Finance at Rotman, UofT, one credit short.",
           "ycProfileUrl": "https://www.ycombinator.com/people/benjamin-martindale",
           "socialLinks": {
             "linkedin": "https://www.linkedin.com/in/benjamin-martindale/"
@@ -3590,7 +3600,7 @@
       "batch": "Summer 2026",
       "ycProfileUrl": "https://www.ycombinator.com/companies/dream",
       "websiteUrl": "https://www.pingdream.com/",
-      "tagline": "AI cameras that catch asset damage",
+      "tagline": "Using VLMs to Catch Damage",
       "description": "Dream makes AI cameras that catch damage teams miss. Car dealerships, equipment rental companies, fleets, and more move expensive assets in and out all day, and undocumented damage is a costly leak.\r\n\r\nDream cameras are simple to set up and work automatically. Each vehicle or machine that passes is photographed from every angle, identified, and reconstructed into a complete condition record. On return or intake, Dream instantly flags new dents, scrapes, and changes your team might miss, giving one source of truth for every asset's condition over time.\r\n\r\nRyland worked at X/xAI and built aerial damage-detection vision at Vexcel Imaging. Alexander worked at AWS and trained edge-camera models deployed in the wild across Africa and India to detect poachers.",
       "industry": "B2B",
       "subindustry": "B2B",
@@ -3665,7 +3675,7 @@
       "location": "San Francisco",
       "teamSize": 7,
       "status": "Active",
-      "groupPartner": null,
+      "groupPartner": "Vivian Midha Shen",
       "groupPartnerUrl": null,
       "socialLinks": {
         "linkedin": "https://www.linkedin.com/company/earendil-robotics/"
@@ -4031,6 +4041,65 @@
       ]
     },
     {
+      "id": "32523",
+      "objectID": "32523",
+      "slug": "elite",
+      "name": "Elite",
+      "batch": "Summer 2026",
+      "ycProfileUrl": "https://www.ycombinator.com/companies/elite",
+      "websiteUrl": "https://elitehq.ai/",
+      "tagline": "Healthcare AI",
+      "description": "Elite builds AI voice agents that run the front office for healthcare practices. Elite answers every patient call instantly and finishes the job inside the practice's EHR: scheduling, triage, referrals, refills, eligibility, intake, and billing, across voice, SMS, and web, around the clock.\r\n\r\nFront offices are drowning in phone volume, so patients wait on hold, calls go unanswered, and staff get pulled away from care. Elite picks up every call, resolves the routine ones end to end, and escalates anything complex to the team with full context. It ships knowing the scheduling protocols of 18 specialties and writes back to more than 19 EHRs including Epic, athenahealth, eClinicalWorks, and ModMed. There is no rip-and-replace, it goes live in days, and every resolved patient interaction is what we charge for.\r\n\r\nOur starting point is healthcare. The mission is to rebuild the critical industries America runs on, including government, finance, insurance, and manufacturing, by deploying AI agents into the slow, manual workflows at their core.",
+      "industry": "Healthcare",
+      "subindustry": "Healthcare -> Healthcare IT",
+      "industries": [
+        "Healthcare",
+        "Healthcare IT"
+      ],
+      "tags": [
+        "Healthcare",
+        "AI"
+      ],
+      "location": "New York City, NY",
+      "teamSize": 2,
+      "status": "Active",
+      "groupPartner": "Jared Friedman",
+      "groupPartnerUrl": "https://www.ycombinator.com/people/jared-friedman",
+      "socialLinks": {
+        "linkedin": "https://www.linkedin.com/company/this-is-elite",
+        "x": "https://x.com/Stratum_Inc"
+      },
+      "founders": [
+        {
+          "id": "1648613",
+          "name": "Raj Jagiasi",
+          "title": "Founder/CEO",
+          "bio": "Co-founder at Elite - AI for healthcare. Prev GTM at Deel. MSc CS @ University of Bath.",
+          "ycProfileUrl": "https://www.ycombinator.com/people/raj-jagiasi",
+          "socialLinks": {
+            "linkedin": "https://www.linkedin.com/in/raj-jagiasi/",
+            "x": "https://x.com/raj_jagiasi"
+          }
+        },
+        {
+          "id": "1303141",
+          "name": "Vihaan Jagiasi",
+          "title": "Founder/CTO",
+          "bio": "Co-founder @ Elite — AI voice agents that run the healthcare front office. Prev founding engineer #3 at Cadastral (acquired by Legora). Waterloo dropout.",
+          "ycProfileUrl": "https://www.ycombinator.com/people/vihaan-jagiasi",
+          "socialLinks": {
+            "linkedin": "https://www.linkedin.com/in/vihaanjagiasi/",
+            "x": "https://x.com/VihaanJagiasi"
+          }
+        }
+      ],
+      "launch": null,
+      "sourceUrls": [
+        "https://www.ycombinator.com/companies/elite",
+        "https://www.ycombinator.com/companies?batch=Summer%202026"
+      ]
+    },
+    {
       "id": "32156",
       "objectID": "32156",
       "slug": "enact",
@@ -4165,7 +4234,7 @@
       "batch": "Summer 2026",
       "ycProfileUrl": "https://www.ycombinator.com/companies/ethos-space-resources",
       "websiteUrl": "https://ethos-space.com",
-      "tagline": "We make silicon on the Moon for the terawatt era of space power.",
+      "tagline": "We make silicon on the Moon, to power everything in space.",
       "description": "Ethos makes silicon on the Moon to power terawatt scale data centers. The Moon's surface is 21% silicon. We melt and electrolyze the lunar surface to make raw materials for solar panels. With solar panels made from the Moon, the constraint that limits data center scaling and everything else in space is gone.",
       "industry": "Industrials",
       "subindustry": "Industrials -> Aviation and Space",
@@ -4227,7 +4296,7 @@
       "batch": "Summer 2026",
       "ycProfileUrl": "https://www.ycombinator.com/companies/evergrove",
       "websiteUrl": "https://www.evergrovelabs.com/",
-      "tagline": "Care coordination for all of US healthcare, starting with work comp",
+      "tagline": "Instant healthcare for all, starting with work comp",
       "description": "We've built voice agents for the largest work comp managed care orgs and specialist PT networks in the country, making >500K calls annually and accelerating the speed at which they coordinate care. On average, our customers see a 40% increase in workflow completion, 10x decrease in cycle times, and >60% reduction in cost.\r\n\r\nWe think voice agents are the starting point for solving slow and fragmented care coordination in this market. Companies that manage an injured worker's care rely on short-staffed contact centres and archaic methods of info exchange: phone, fax, and email. Every delay along the path of care leads to slower rehab of the injured worker, lower throughput for providers, and higher expense for the insurer/employer.",
       "industry": "Healthcare",
       "subindustry": "Healthcare",
@@ -4383,7 +4452,7 @@
       "batch": "Summer 2026",
       "ycProfileUrl": "https://www.ycombinator.com/companies/experiential-labs",
       "websiteUrl": "https://experientiallabs.ai",
-      "tagline": "Open source AI gateway that turns your traffic into a better model",
+      "tagline": "Open source AI gateway that turns your traffic into better models",
       "description": "We are building an open source gateway for AI budget holders to control model access and turn their traffic into better models that they own. We're a team that has earned an ML PhD at Georgia Tech, scaled AutoGPT to 160k GitHub stars, and led a self-driving simulation team at Waabi.",
       "industry": "B2B",
       "subindustry": "B2B -> Infrastructure",
@@ -4479,7 +4548,7 @@
         },
         {
           "id": "2769430",
-          "name": "ibrahim abdu",
+          "name": "Ibrahim Abdu",
           "title": "Founder/CTO",
           "bio": "Red-teamed AI agents in Meta's Privacy org; built an SRE agent triaging 3M+ errors/month, saving 10,000+ engineering hours a year. Built a compiler for insider-trading detection at TradingHub: $100M+ in daily trades; Oxford PPE, top 8% of cohort.",
           "ycProfileUrl": "https://www.ycombinator.com/people/ibrahim-abdu",
@@ -4571,7 +4640,7 @@
       "batch": "Summer 2026",
       "ycProfileUrl": "https://www.ycombinator.com/companies/financial-datasets",
       "websiteUrl": "https://financialdatasets.ai/",
-      "tagline": "Connect your agent to the stock market ",
+      "tagline": "Connect your agents to the stock market ",
       "description": "Financial Datasets is the largest search index for stock market data, built for AI agents.\r\n\r\nWe index the world's markets so agents can search every filing, answer any financial question, and monitor markets in real time.\r\n\r\nFor 40 years, market data was built for humans reading a screen. We are rebuilding it for agents that research every company, all day, across the world.",
       "industry": "B2B",
       "subindustry": "B2B",
@@ -4579,9 +4648,9 @@
         "B2B"
       ],
       "tags": [
-        "Artificial Intelligence",
         "Fintech",
         "Investing",
+        "AI",
         "Stocks"
       ],
       "location": "New York City, NY",
@@ -4832,7 +4901,7 @@
           "bio": "19 y/o ex-Cambridge natural scientist\n\nprev growing brains in my bedroom\n\nnow growing exascale brains for continual learning",
           "ycProfileUrl": "https://www.ycombinator.com/people/michael-domarkas",
           "socialLinks": {
-            "linkedin": "https://www.linkedin.com/in/michael-domarkas",
+            "linkedin": "https://www.linkedin.com/in/michael-domarkas-621aa8262",
             "x": "https://x.com/MichaelDmrks"
           }
         }
@@ -4995,8 +5064,8 @@
       "batch": "Summer 2026",
       "ycProfileUrl": "https://www.ycombinator.com/companies/graphify-labs",
       "websiteUrl": "https://www.graphify.com/",
-      "tagline": "On-device knowledge graph engine for enterprises",
-      "description": "Graphify builds a queryable knowledge graph from your codebase, docs, and Jira. The open-source engine has 105K+ GitHub stars and ~5M downloads, and is used in production by engineers at Rootly, Geotab, Tweddle Group, and Superagent.\r\n\r\nOn top of that graph, our enterprise layer reviews every pull request and formally verifies each code change: it proves the new behavior matches the old, or hands back the exact input that breaks it. That makes it built for the changes teams fear most, like refactors, framework upgrades, and large-scale code migrations, where you need proof that nothing broke, not a guess.\r\n\r\nThe graph updates itself as the code changes and keeps context instead of forgetting it, so your whole team and their coding agents work from one shared, always-current view of the codebase instead of a thousand private threads.\r\n\r\nIt runs entirely inside your perimeter, fully air-gapped on-premise or self-hosted in your own cloud, so no code or data ever leaves your environment.",
+      "tagline": "On-device Knowledge Graph engine for Enterprise Software",
+      "description": "Graphify is a Knowledge Graph control plane for enterprise software. The open-source tool has 116K+ GitHub stars and 6.5M+ downloads, and is used in production by engineers at Shopify, Datadog, JP Morgan, American Express, Harvey, Automation Anywhere, and Vanguard.\r\n\r\nOn top of that graph, our enterprise layer reviews every pull request and formally verifies each code change: it proves the new behavior matches the old, or hands back the exact input that breaks it. That makes it built for the changes teams fear most, like refactors, framework upgrades, and large-scale migrations, where you need proof that nothing broke, not a guess.\r\n\r\nThe graph updates itself as the code changes and keeps context instead of forgetting it, so your whole team and their coding agents work from one shared, always-current view of the codebase instead of a thousand private threads.\r\n\r\nIt runs entirely inside your perimeter, fully air-gapped on-premise or self-hosted in your own cloud, so no code or data ever leaves your environment.",
       "industry": "B2B",
       "subindustry": "B2B -> Engineering, Product and Design",
       "industries": [
@@ -5007,8 +5076,8 @@
         "Developer Tools",
         "Open Source"
       ],
-      "location": "London, United Kingdom",
-      "teamSize": 2,
+      "location": "San Francisco",
+      "teamSize": 1,
       "status": "Active",
       "groupPartner": "Jared Friedman",
       "groupPartnerUrl": "https://www.ycombinator.com/people/jared-friedman",
@@ -5021,7 +5090,7 @@
           "id": "3674994",
           "name": "Safi Shamsi",
           "title": "Founder/CEO",
-          "bio": "Founder at Graphify Labs (YC S26). Built Graphify, an open-source knowledge graph engine that reached 100K+ GitHub stars and 4M+ PyPI downloads in about four months. Published researcher and author of The Memory Layer. MS Data Science, University of Birmingham; thesis on knowledge-graph-powered RAG systems achieving a 50% improvement in retrieval and 67% reduction in hallucinations.",
+          "bio": "Founder/CEO at Graphify Labs (YC S26). Built Graphify, an open-source knowledge graph engine that reached 116K+ GitHub stars and 6.5M+ PyPI downloads in about five months. Published researcher and author of The Memory Layer. MS Data Science, University of Birmingham; thesis on knowledge-graph-powered RAG systems achieving a 50% improvement in retrieval and 67% reduction in hallucinations.",
           "ycProfileUrl": "https://www.ycombinator.com/people/safi-shamsi",
           "socialLinks": {
             "linkedin": "https://www.linkedin.com/in/safi-shamsi/",
@@ -5043,7 +5112,7 @@
       "batch": "Summer 2026",
       "ycProfileUrl": "https://www.ycombinator.com/companies/greypoint-industries",
       "websiteUrl": "https://greypointindustries.com/",
-      "tagline": "Building drone swarms that hunt drone operators",
+      "tagline": "Building drone swarms that hunt hidden enemies.",
       "description": "We build LEGION, a drone swarm that identifies, geolocates, and tracks every emitter on the battlefield using the enemy’s own radio signals. LEGION enables our warfighters to precisely track previously obscured targets like jammers, command posts, and drone operators so they can proactively respond to threats instead of reacting to them.",
       "industry": "Industrials",
       "subindustry": "Industrials -> Defense",
@@ -5351,7 +5420,7 @@
       "ycProfileUrl": "https://www.ycombinator.com/companies/hardware-intelligence",
       "websiteUrl": "https://hardwareintelligence.ai",
       "tagline": "AI tools for the chips your AI runs on",
-      "description": "",
+      "description": "Hardware Intelligence makes chip design tools that cut simulation and debugging time by an order of magnitude. When a chip test fails, engineers need a recording of every internal signal - a waveform. We’ve developed WaveZip, which captures waveforms 500x smaller with 200x less overhead. We’re Rishov Sarkar (Georgia Tech PhD in chip simulation) and Athreya Anand (ex-Google, M.S. ML/AI).",
       "industry": "B2B",
       "subindustry": "B2B -> Engineering, Product and Design",
       "industries": [
@@ -5359,11 +5428,11 @@
         "Engineering, Product and Design"
       ],
       "tags": [
-        "Artificial Intelligence",
         "Developer Tools",
         "Hardware",
         "Enterprise Software",
-        "Semiconductors"
+        "Semiconductors",
+        "AI"
       ],
       "location": "San Francisco",
       "teamSize": 2,
@@ -5379,7 +5448,7 @@
           "id": "551607",
           "name": "Athreya Anand",
           "title": "Founder/CEO",
-          "bio": "Co-founder & CEO of Hardware Intelligence (hi). Athreya was a tech lead at Google where he led AI efforts across orgs from agentic workflow management tools to prediction models for Google Ventures. He has a Master's from Georgia Tech in Machine Learning and A.I., with technical expertise in agentic tools and chip design through his time at Google, AWS Inferentia, and Tesla. ",
+          "bio": "Co-founder & CEO of Hardware Intelligence. Athreya was a tech lead at Google where he led AI efforts across orgs from agentic workflow management tools to prediction models for Google Ventures. He has a Master's from Georgia Tech in Machine Learning and A.I., with technical expertise in agentic tools and chip design through his time at Google, AWS Inferentia, and Tesla. ",
           "ycProfileUrl": "https://www.ycombinator.com/people/athreya-anand",
           "socialLinks": {
             "linkedin": "https://www.linkedin.com/in/athreyaanand",
@@ -5390,7 +5459,7 @@
           "id": "2565323",
           "name": "Rishov Sarkar",
           "title": "Founder/CTO",
-          "bio": "Founder at hardware intelligence (YC S26). PhD in Electrical & Computer Engineering from Georgia Tech, where he won the 2022 ECE Graduate Teaching Assistant of the Year award. Previously developed simulators for AMD's AI Engine accelerator and worked on LLVM-based compilation flows at Siemens EDA. MS and BS in Computer Engineering from Georgia Tech.",
+          "bio": "Co-founder & CTO at Hardware Intelligence. Rishov graduated with his PhD in Electrical & Computer Engineering from Georgia Tech with six published first-author/co-first-author conference papers, including one best paper runner-up. He also developed simulators for AMD's AI Engine accelerator and worked on LLVM-based compilation flows at Siemens EDA. He earned his MS and BS in Computer Engineering from Georgia Tech.",
           "ycProfileUrl": "https://www.ycombinator.com/people/rishov-sarkar",
           "socialLinks": {
             "linkedin": "https://www.linkedin.com/in/rishovsarkar/",
@@ -5413,7 +5482,7 @@
       "ycProfileUrl": "https://www.ycombinator.com/companies/hebbian-robotics",
       "websiteUrl": "https://hebbianrobotics.com/",
       "tagline": "APIs for robotics data teams to verify data quality for model training",
-      "description": "Hebbian Robotics builds APIs for robotics data teams to verify data quality for model training.\r\n\r\nOur open source SDK allows teams to build quality control pipelines for their robotics data with our APIs: https://github.com/Hebbian-Robotics/hflow",
+      "description": "Hebbian Robotics builds APIs for robotics data teams to verify data quality for model training.  \r\n\r\nOur customers use us to build quality control pipelines in just a few lines of code, with custom models 10x faster and 8x cheaper than general foundation models. \r\n\r\nhttps://hebbianrobotics.com/\r\nhttps://github.com/Hebbian-Robotics/hflow",
       "industry": "Industrials",
       "subindustry": "Industrials -> Manufacturing and Robotics",
       "industries": [
@@ -5421,10 +5490,10 @@
         "Manufacturing and Robotics"
       ],
       "tags": [
-        "Artificial Intelligence",
         "Robotics",
         "Data Science",
         "Data Engineering",
+        "AI",
         "Databases"
       ],
       "location": "San Francisco",
@@ -5441,7 +5510,7 @@
           "id": "388120",
           "name": "Brandon Ong",
           "title": "Founder/CEO",
-          "bio": "Co-founder & CEO at Hebbian Robotics. Previously, built two-arm industrial cleaning robots at LionsBot International (Series B robotics startup), researched AI for low resource languages that topped Stanford's AI benchmarks and was co-founder & CTO at Gigit AI (backed by Sequoia India).",
+          "bio": "\nBrandon led AI at LionsBot (series B robotics startup) that deploys industrial cleaning robots globally and did foundation model research that topped Stanford’s AI benchmark (SEA-HELM), co-created with Percy Liang's group. He previously co-founded Gigit AI as CTO, backed by Sequoia India, where he was one of the first to train LLMs for Southeast Asian languages. He dropped out of his joint PhD in Robotics at Columbia and NTU to work on Hebbian, and was a national athlete in two sports.",
           "ycProfileUrl": "https://www.ycombinator.com/people/brandon-ong",
           "socialLinks": {
             "linkedin": "https://linkedin.com/in/ongjjbrandon",
@@ -5452,7 +5521,7 @@
           "id": "968709",
           "name": "Kingston Kuan",
           "title": "Founder/CTO",
-          "bio": "Co-founder at Hebbian Robotics. Previously, spent a few years at Jane Street building systems that scaled to millions of messages per second.",
+          "bio": "Kingston spent the last few years at Jane Street building systems that scaled to millions of messages per second. He graduated valedictorian from the National University of Singapore (NUS) in Computer Engineering.",
           "ycProfileUrl": "https://www.ycombinator.com/people/kingston-kuan",
           "socialLinks": {
             "linkedin": "https://www.linkedin.com/in/kingston-kuan/",
@@ -5843,7 +5912,7 @@
       "batch": "Summer 2026",
       "ycProfileUrl": "https://www.ycombinator.com/companies/hyperprobe",
       "websiteUrl": "https://hyperprobe.co",
-      "tagline": "Data layer AI Agents call to fix production apps on their own",
+      "tagline": "AI engineer that debugs and fixes production incidents in realtime",
       "description": "With tools like Cursor and Claude Code, writing software is no longer the bottleneck. Debugging is. Agents cannot fix production crashes using logs and traces that were sized for human eyeballs. The gap is missing data.\r\n\r\nHyperProbe allows agents to debug live software autonomously. Our SDK drops non-breaking probes straight into running services to read exact variable states from memory at the moment of failure, instead of reasoning backwards from flat logs.\r\n\r\nZero redeploys. Under 1% CPU overhead. Automatic PII redaction.\r\n\r\nWe turn 4-hour production war rooms into 10-minute automated resolutions. As agents write and operate more of the world's software, HyperProbe is the runtime observability layer that lets them understand what they built.\r\n\r\n",
       "industry": "B2B",
       "subindustry": "B2B -> Engineering, Product and Design",
@@ -5879,7 +5948,7 @@
           "id": "417680",
           "name": "Karan Raina",
           "title": "Founder/CTO",
-          "bio": "Founder and CTO at HyperTest (YC S26)",
+          "bio": "Founder and CTO at HyperTest (YC S26)\nMS CS Georgia Tech\n\n2nd time founder\nPreviously led a 50 member engineering team at Limetray",
           "ycProfileUrl": "https://www.ycombinator.com/people/karan-raina",
           "socialLinks": {
             "linkedin": "https://www.linkedin.com/in/karanraina/"
@@ -6173,7 +6242,7 @@
         "AI"
       ],
       "location": "San Francisco",
-      "teamSize": 4,
+      "teamSize": 3,
       "status": "Active",
       "groupPartner": "Diana Hu",
       "groupPartnerUrl": "https://www.ycombinator.com/people/diana-hu",
@@ -6184,7 +6253,7 @@
         {
           "id": "957153",
           "name": "Akhil Aggarwal",
-          "title": "Founder",
+          "title": "Founder/CEO",
           "bio": "Prev Investor at Bain Capital Ventures",
           "ycProfileUrl": "https://www.ycombinator.com/people/akhil-aggarwal",
           "socialLinks": {
@@ -6302,8 +6371,8 @@
       "location": "San Francisco",
       "teamSize": 30,
       "status": "Active",
-      "groupPartner": null,
-      "groupPartnerUrl": null,
+      "groupPartner": "Gustaf Alstromer",
+      "groupPartnerUrl": "https://www.ycombinator.com/people/gustaf-alstromer",
       "socialLinks": {
         "linkedin": "https://www.linkedin.com/company/isengard-industries/"
       },
@@ -6345,7 +6414,7 @@
       "ycProfileUrl": "https://www.ycombinator.com/companies/jcode",
       "websiteUrl": "https://jcode.sh/",
       "tagline": "The harness company",
-      "description": "An agent is LLM + harness: We work purely on that second component. We do research to produce the most capable harness. Our harness has 18k stars on github",
+      "description": "An agent is LLM + harness: We work purely on that second component. We do research and engineering to produce the most capable and efficient harness. Our harness has 20k stars on , and has $1m/month of inference spend",
       "industry": "Consumer",
       "subindustry": "Consumer",
       "industries": [
@@ -6391,7 +6460,7 @@
       "batch": "Summer 2026",
       "ycProfileUrl": "https://www.ycombinator.com/companies/kara",
       "websiteUrl": "https://karalabs.ai/",
-      "tagline": "Making Diamond Engineerable",
+      "tagline": "Making Diamond Semiconductors",
       "description": "Kara is building diamond semiconductors. \r\n\r\nWe begin with growing ultra-high purity diamond wafers for advanced hardware. Used in data centers, spacecrafts, RF systems, and quantum hardware, our diamond moves heat up to 5× better than copper, helping critical systems run cooler, faster, and more reliably. \r\n\r\nDiamond has spent centuries as a symbol. We are turning it into infrastructure.",
       "industry": "Industrials",
       "subindustry": "Industrials",
@@ -6448,8 +6517,8 @@
       "batch": "Summer 2026",
       "ycProfileUrl": "https://www.ycombinator.com/companies/kebra",
       "websiteUrl": "https://kebra.com",
-      "tagline": "Making the field queryable",
-      "description": "Kebra makes the field queryable.\n\nWe capture what happens across jobs, sites, and assets and turn it into a live operating memory that AI can query and act on. Our AI employees use that context to automate the work that follows across the systems companies already use.\n\nEvery job makes that memory richer, building the company specific context software agents use today and physical agents will need tomorrow.",
+      "tagline": "AI For The Skilled Workforce",
+      "description": "Kebra builds AI for skilled technicians.\r\n\r\nKebra guides technicians in the field in real time, documents their work, and automatically handles hours of back-office work; from dispatching technicians to filing warranty claims and managing inventory.",
       "industry": "B2B",
       "subindustry": "B2B -> Operations",
       "industries": [
@@ -6457,10 +6526,10 @@
         "Operations"
       ],
       "tags": [
-        "Artificial Intelligence",
         "B2B",
         "Home Services",
-        "Operations"
+        "Operations",
+        "AI"
       ],
       "location": "San Francisco",
       "teamSize": 2,
@@ -6765,7 +6834,7 @@
       "ycProfileUrl": "https://www.ycombinator.com/companies/levocred-ai",
       "websiteUrl": "https://levocred.com/",
       "tagline": "The Bloomberg of Loans",
-      "description": "Levocred puts AI agents inside lenders. They run the loan book and price new deals; one fund cut time to price from a week to two hours and replaced two analysts' work. \r\nEvery book we price trains a model for the $22T of US loans that never trade. That model becomes the exchange.",
+      "description": "Levocred AI is the Bloomberg of loans: AI agents that run and price a lender's book. One fund cut the time to mark its book from a week to two hours and now names us as data agent, the system of record, in its loan purchase agreements.\r\n\r\n$22T of US loans never trade because nobody can price them efficiently and defensibly. We fix pricing first by deploying inside lenders. Trading follows, the way it did for bonds.",
       "industry": "Fintech",
       "subindustry": "Fintech",
       "industries": [
@@ -6789,17 +6858,18 @@
           "id": "3179062",
           "name": "Mohit Gupta",
           "title": "Founder/CEO",
-          "bio": "Co-founder & CEO at Levocred AI (YC S26). \nPreviously Quantitative Researcher at a credit hedge fund, where he led AI/ML models that enabled $1B in lending and built core trading infrastructure from scratch. Holds an MA in Financial Engineering from UC Berkeley Haas and a BA in Computer Science from IIT Bombay.",
+          "bio": "Employee #1 at a credit fund that went from $10M to $1B AUM. Managed $200M at 23, evaluated $100B of loans. Ex Morgan Stanley fixed income. CS @ IIT Bombay, Finance @ UC Berkeley. Now building the Bloomberg of loans.",
           "ycProfileUrl": "https://www.ycombinator.com/people/mohit-gupta",
           "socialLinks": {
-            "linkedin": "https://www.linkedin.com/in/guptamohit2299/"
+            "linkedin": "https://www.linkedin.com/in/guptamohit2299/",
+            "x": "https://x.com/gupta_m0hit"
           }
         },
         {
           "id": "1978755",
           "name": "Saksham Gupta",
           "title": "Founder/CTO",
-          "bio": "Co-founder & CTO at Levocred AI (YC S26).\nPreviously Software Engineer at Edge Focus, where he built and scaled the trading and data infrastructure as the fund grew from $150M to $1B+ in AUM. BA in Electrical & Electronics from IIT Kanpur; led the Entrepreneurship Cell.",
+          "bio": "Founding engineer at a credit fund, where he built and scaled the trading and data infrastructure as the fund grew from $150M to $1B+ in AUM. EE @ IIT Kanpur",
           "ycProfileUrl": "https://www.ycombinator.com/people/saksham-gupta",
           "socialLinks": {
             "linkedin": "https://www.linkedin.com/in/gupsak"
@@ -7000,7 +7070,7 @@
         "AI"
       ],
       "location": "Boston",
-      "teamSize": 5,
+      "teamSize": 2,
       "status": "Active",
       "groupPartner": "Jared Friedman",
       "groupPartnerUrl": "https://www.ycombinator.com/people/jared-friedman",
@@ -7083,7 +7153,7 @@
           "id": "3470868",
           "name": "Anthea Guo",
           "title": "Founder/CTO",
-          "bio": "Founder at Lumeria. Previously Team Lead at Google, leading a 6-person Berkeley collaboration on DeepVariant. Built HPC pipelines at Boehringer Ingelheim. Built Streamind's phone-based pulse capture pipeline. Co-founded Computational Biology @ Berkeley.",
+          "bio": "Founder and CTO at Lumeria. Previously Team Lead at Google, leading a 6-person Berkeley collaboration on DeepVariant. Built HPC pipelines at Boehringer Ingelheim. Built Streamind's phone-based pulse capture pipeline. Co-founded Computational Biology @ Berkeley.",
           "ycProfileUrl": "https://www.ycombinator.com/people/anthea-guo",
           "socialLinks": {
             "linkedin": "https://www.linkedin.com/in/anthea-guo",
@@ -7312,7 +7382,7 @@
       "batch": "Summer 2026",
       "ycProfileUrl": "https://www.ycombinator.com/companies/manifold-2",
       "websiteUrl": "https://www.manifoldindustries.ai/",
-      "tagline": "Deployment-ready robotic labor for the supply chain industry ",
+      "tagline": "Drop-in robotic labor that works on Day 1",
       "description": "The US Warehouse industry spends $75bn on labor each year. Yet, only 10% of US warehouses have any form of automation, because existing robotics are too expensive and hard to integrate. \r\n\r\nManifold deploys autonomous robots that handle picking, loading / unloading, and palletizing — priced by pick. Integration in hours. No upfront costs. No retrofitting. No need to rebuild the operation around the robot. \r\n\r\nOur mission is to make it easy for any warehouse to adopt robotics.",
       "industry": "Industrials",
       "subindustry": "Industrials -> Manufacturing and Robotics",
@@ -7431,7 +7501,7 @@
       "ycProfileUrl": "https://www.ycombinator.com/companies/marengo",
       "websiteUrl": "https://marengox.com",
       "tagline": "AI-Native Engineering Firm designing Data Centers ",
-      "description": "Marengo is an AI-native engineering firm designing data centers in half the time and half the cost. We have $4M in design partnerships with two of the world's largest developers ($XB).\r\n\r\nMarengo is backed by YC, Future Planet Capital, undisclosed $2B AUM family office, and other top-tier investors.\r\n\r\nOur advisors include the former President & CEO of Saipem America ($3B+ P&L), former President of Exyte's Advanced Technology Facilities GBU ($6B+ P&L) and more.",
+      "description": "Marengo is an AI-native engineering firm designing data centers in half the time and half the cost. We have $4M in design partnerships with two of the world's largest developers ($XB).\r\n\r\nMarengo is backed by YC, Exor, Future Planet Capital, undisclosed $2B AUM family office, and other top-tier investors.\r\n\r\nOur team includes the former President & CEO of Saipem America ($3B+ P&L), former President of Exyte's Advanced Technology Facilities GBU ($6B+ P&L) and more.",
       "industry": "Industrials",
       "subindustry": "Industrials -> Energy",
       "industries": [
@@ -7439,10 +7509,10 @@
         "Energy"
       ],
       "tags": [
-        "Artificial Intelligence",
         "Design",
         "Energy",
-        "Architecture"
+        "Architecture",
+        "AI"
       ],
       "location": "San Francisco",
       "teamSize": 5,
@@ -7796,7 +7866,7 @@
       "batch": "Summer 2026",
       "ycProfileUrl": "https://www.ycombinator.com/companies/mireye",
       "websiteUrl": "https://www.mireye.com/",
-      "tagline": "Infrastructure for Physical World AI Agents",
+      "tagline": "Search Engine for the Physical World",
       "description": "AI agents are starting to act in the real world, but they can't reliably understand it. \r\n\r\nEvery fact about a place has its own silo: land in GIS maps, power in utility portals, people in census tables, policy in county PDFs. All built for humans, none for agents. Underneath, the data is fragmented across thousands of sources, unstructured and complex.\r\n\r\nMireye is building the infrastructure that powers agents to make decisions and act in the real world. One API and MCP to connect agents to the physical world with accurate data enrichment, signals and tools.\r\n\r\nOur mission is to index every inch of the earth, and make it as queryable as the web.",
       "industry": "B2B",
       "subindustry": "B2B -> Infrastructure",
@@ -7959,7 +8029,12 @@
       "industries": [
         "Consumer"
       ],
-      "tags": [],
+      "tags": [
+        "Consumer",
+        "Productivity",
+        "AI",
+        "AI Assistant"
+      ],
       "location": "Seattle, WA",
       "teamSize": 3,
       "status": "Active",
@@ -8064,8 +8139,8 @@
       "batch": "Summer 2026",
       "ycProfileUrl": "https://www.ycombinator.com/companies/most-robotic",
       "websiteUrl": "https://mostrobotic.com/",
-      "tagline": "Research lab for physical AI",
-      "description": "We're a robotics research lab pushing what's possible with physical AI.\r\n\r\nWe're MIT computer scientists & friends since middle school, with robotics research backgrounds and industry experience at NASA JPL, SpaceX, and AWS.\r\n\r\nEmail founders@mostrobotic.com to learn more.",
+      "tagline": "Research lab building the most robotic household in the world",
+      "description": "We're a robotics research lab pushing what's possible with physical AI.\r\n\r\nWe're MIT computer scientists & friends since middle school, with robotics research backgrounds and industry experience at NASA JPL, SpaceX, and AWS.",
       "industry": "Industrials",
       "subindustry": "Industrials -> Manufacturing and Robotics",
       "industries": [
@@ -8082,15 +8157,15 @@
       "groupPartner": "Ankit Gupta",
       "groupPartnerUrl": "https://www.ycombinator.com/people/ankit-gupta",
       "socialLinks": {
-        "linkedin": "https://www.linkedin.com/company/instancelabs/",
-        "x": "https://twitter.com/tryinstance"
+        "linkedin": "https://www.linkedin.com/company/mostrobotic/",
+        "x": "https://twitter.com/mostrobotic"
       },
       "founders": [
         {
           "id": "3107325",
           "name": "Claire Mao",
           "title": "Founder/CEO",
-          "bio": "MIT Math + CS. Prev SWE @ NASA JPL, aerospace research @ MIT Media Lab",
+          "bio": "MIT Math + CS. Aerospace research @ MIT Media Lab; prev @ NASA JPL",
           "ycProfileUrl": "https://www.ycombinator.com/people/claire-mao",
           "socialLinks": {
             "linkedin": "https://www.linkedin.com/in/clairemao-/",
@@ -8123,8 +8198,8 @@
       "batch": "Summer 2026",
       "ycProfileUrl": "https://www.ycombinator.com/companies/moving-atoms",
       "websiteUrl": "https://movingatoms.ai/",
-      "tagline": "World Models for training robots",
-      "description": "Our first model, Atom 1, pre-trained on the internets video, and fine tuned for physics.\r\nIt has been action conditioned, so you can simulate robot actions within it.\r\nThis lets Robot Labs train their robots using GPUs instead of relying on human collected manual data that is slow and expensive.\r\nIn unseen and hard to replicate environments, this is the only path to getting ANY training data.",
+      "tagline": "Virtual Reality for Training Robots",
+      "description": "Our first model, Atom 1, pre-trained on the internets video, and fine tuned for physics. \r\nIt has been action conditioned, so you can simulate robot actions within it.\r\nThis lets Robot Labs train their robots using GPUs instead of relying on human collected manual data that is slow and expensive.\r\nIn unseen and hard to replicate environments, this is the only path to getting ANY training data.",
       "industry": "Industrials",
       "subindustry": "Industrials -> Manufacturing and Robotics",
       "industries": [
@@ -8149,7 +8224,7 @@
           "id": "1776350",
           "name": "Shehryar Saroya",
           "title": "Founder/CEO",
-          "bio": "Founder at Moving Atoms (YC S26). \nPreviously AI @ TikTok (Core Recomendation Algorithm). Maths @ Oxford.",
+          "bio": "Previously AI @ TikTok (Core Recomendation Algorithm). \nMaths @ Oxford.",
           "ycProfileUrl": "https://www.ycombinator.com/people/shehryar-saroya",
           "socialLinks": {
             "linkedin": "https://linkedin.com/in/shehryar-saroya",
@@ -8160,7 +8235,7 @@
           "id": "2375000",
           "name": "Ahmad Saroya",
           "title": "Founder",
-          "bio": "Founder @ Moving Atoms\nStudied Mathematics @ Oxford, British Mathematical Olympiad Gold Medalist. \nTrained Neural nets for GCHQ (British government)",
+          "bio": "Studied Mathematics @ Oxford, Trained Neural nets for GCHQ\nBritish Mathematical Olympiad Gold Medalist. ",
           "ycProfileUrl": "https://www.ycombinator.com/people/ahmad-saroya",
           "socialLinks": {
             "linkedin": "https://www.linkedin.com/in/ahmad-saroya-a05400237/"
@@ -8220,10 +8295,12 @@
         {
           "id": "3676420",
           "name": "Yuan Tan",
-          "title": "Founder",
+          "title": "Founder/CTO",
           "bio": "Founder at Nebula Security (YC S26). Black Hat USA speaker. PhD dropout in System Security with experience in DARPA-funded fundamental research on program analysis.",
           "ycProfileUrl": "https://www.ycombinator.com/people/yuan-tan",
-          "socialLinks": {}
+          "socialLinks": {
+            "linkedin": "https://www.linkedin.com/in/yuantan1/"
+          }
         },
         {
           "id": "3676409",
@@ -8239,7 +8316,7 @@
         {
           "id": "3680004",
           "name": "Xiaochuan Yu",
-          "title": "Founder/CTO",
+          "title": "Founder/VP of Vulnerability Research",
           "bio": "Founder at Nebula Security (YC S26). Hacked into iPhone, Chrome, Firefox, Safari, QEMU, and various things in your daily life. DEFCON finalist for 3 consecutive years. $200k+ Bug Bounty in Chrome. Core member of r3kapig, the #1 hacking team in the world in 2025, on CTFTime. M.S. from UC San Diego. Research published at USENIX Security, BlackHat USA. Ph.D. droped out. ",
           "ycProfileUrl": "https://www.ycombinator.com/people/xiaochuan-yu",
           "socialLinks": {
@@ -8391,7 +8468,7 @@
       "batch": "Summer 2026",
       "ycProfileUrl": "https://www.ycombinator.com/companies/nex",
       "websiteUrl": "https://nex.ai",
-      "tagline": "Claude Cowork for high volume GTM workflows",
+      "tagline": "AI for high volume GTM Engineering",
       "description": "Nex builds and runs the complex, high-volume GTM workflows that general-purpose agents struggle with. Built by ex-HubSpotters who ran its three largest customer platforms and backed by HubSpot founder Dharmesh Shah.",
       "industry": "B2B",
       "subindustry": "B2B -> Sales",
@@ -8538,11 +8615,11 @@
           "id": "3426995",
           "name": "shreshth sharma",
           "title": "Founder/CTO",
-          "bio": "currently building simulated envs to create better evals @ olam labs, \npreviously: \nwas doing a cs and business double degree at uwaterloo (dropped out for yc)\nbuilding reinforcement learning systems and doing data science @ RBC\ni was briefly top 50 on fifa mobile",
+          "bio": "currently building mulit-agent envs to create better evals @ olam labs, \n\npreviously: \nwas doing a cs/math at waterloo\nand business double degree at laurier (dropped out to start olam labs )\ncreating reinforcement learning systems and doing data science @ RBC\ndid algorithmic arbitrage on prediction markets\nbriefly top 50 on fifa mobile",
           "ycProfileUrl": "https://www.ycombinator.com/people/shreshth-sharma",
           "socialLinks": {
             "linkedin": "https://www.linkedin.com/in/shreshth-sharma-950826247/",
-            "x": "https://x.com/shresh_data"
+            "x": "https://x.com/shresh"
           }
         }
       ],
@@ -8568,14 +8645,14 @@
         "Healthcare"
       ],
       "tags": [
+        "Artificial Intelligence",
         "Digital Health",
         "Healthcare",
         "Health & Wellness",
-        "Oncology",
-        "AI"
+        "Oncology"
       ],
       "location": "San Francisco",
-      "teamSize": 5,
+      "teamSize": 6,
       "status": "Active",
       "groupPartner": "Diana Hu",
       "groupPartnerUrl": "https://www.ycombinator.com/people/diana-hu",
@@ -8681,7 +8758,7 @@
       "batch": "Summer 2026",
       "ycProfileUrl": "https://www.ycombinator.com/companies/onetriangle",
       "websiteUrl": "https://onetriangle.ai/",
-      "tagline": "The cheapest, fastest lightweight inference. ",
+      "tagline": "The cheapest, fastest inference cloud",
       "description": "Inference has surpassed training as AI’s largest compute cost, accelerated by increasing demand for AI and agents. By using proprietary KV cache transfer tech, OneTriangle has cut inference costs by 20% and time by 40% compared to present standards.",
       "industry": "B2B",
       "subindustry": "B2B -> Infrastructure",
@@ -8808,7 +8885,7 @@
         "Engineering, Product and Design"
       ],
       "tags": [
-        "AI"
+        "Artificial Intelligence"
       ],
       "location": "Seattle, WA",
       "teamSize": 2,
@@ -8834,7 +8911,7 @@
           "id": "3742866",
           "name": "Prashant Patel",
           "title": "Founder/CTO",
-          "bio": "Founder at OpenRelay (YC S26). Previously Staff Engineer at Voltagepark building managed Inference and Orechestration software for 10,000+ GPU clusters and serverless compute that scaled to 10M+ executions/month. Founding member of Amazon Bedrock at AWS, led Custom Model Import from 0 to multi-million ARR and scaled inference infrastructure for models up to trillions of parameters. MS CS from NYU.",
+          "bio": "Founder at OpenRelay (YC S26). Previously Staff Engineer at Voltagepark building managed Inference and Orchestration software for 10,000+ GPU clusters and serverless compute that scaled to 10M+ executions/month. Founding member of Amazon Bedrock at AWS, led Custom Model Import from 0 to multi-million ARR and scaled inference infrastructure for models up to trillions of parameters. MS CS from NYU.",
           "ycProfileUrl": "https://www.ycombinator.com/people/prashant-patel",
           "socialLinks": {
             "linkedin": "https://www.linkedin.com/in/prashant182/"
@@ -8855,8 +8932,8 @@
       "batch": "Summer 2026",
       "ycProfileUrl": "https://www.ycombinator.com/companies/opentag",
       "websiteUrl": "https://www.tryopentag.com/",
-      "tagline": "The AI coworker that lives in Slack",
-      "description": "OpenTag - is an AI coworker that lives in your Slack and Teams. It has full context on your company, so it can answer questions, join calls, and take real work off your team's plate. OpenTag also keeps your company wiki and knowledge base up to date automatically, so your team's knowledge never goes stale or walks out the door.",
+      "tagline": "Model Agnostic AI coworker in Slack",
+      "description": "OpenTag is an AI coworker in your Slack with full context on your company. It answers questions and takes real work off your plate. It also keeps your wiki up to date automatically, so knowledge never goes stale.",
       "industry": "B2B",
       "subindustry": "B2B",
       "industries": [
@@ -8864,10 +8941,10 @@
       ],
       "tags": [
         "AIOps",
+        "Artificial Intelligence",
         "B2B",
         "Workflow Automation",
-        "Enterprise Software",
-        "AI"
+        "Enterprise Software"
       ],
       "location": "San Francisco",
       "teamSize": 3,
@@ -8882,7 +8959,7 @@
           "id": "802295",
           "name": "Tony Kam",
           "title": "Founder/CEO",
-          "bio": "Co-founder and CEO at Open Tag. Previously at Tesla and founded Lilac Labs (S24). Studied EECS at Berkeley.",
+          "bio": "Co-founder and CEO at OpenTag. Previously at Tesla and founded Lilac Labs (S24). Studied EECS at Berkeley.",
           "ycProfileUrl": "https://www.ycombinator.com/people/tony-kam",
           "socialLinks": {
             "linkedin": "https://linkedin.com/in/tonyshekkam",
@@ -8926,7 +9003,7 @@
       "ycProfileUrl": "https://www.ycombinator.com/companies/openvector",
       "websiteUrl": "https://openvector.com",
       "tagline": "AI that turns any camera to an autonomous worker with real-time vision",
-      "description": "OpenVector transforms any existing camera into an automated 24/7 workforce without requiring new hardware. Users simply describe a task in plain English, and OpenVector automatically builds a custom AI vision model to monitor the feed. When it detects an important physical event—like a stalled production cycle, a safety violation, or a waiting customer—it operates a computer just like a human to take immediate action. It integrates with legacy systems to make calls, send emails, update a POS/CRM, or trigger webhooks in real time. OpenVector enables any camera to do real work.",
+      "description": "OpenVector transforms any existing camera into an automated 24/7 workforce without requiring new hardware. We've built the world's fastest vision-language model inference engine that allows users to simply describe a task in plain English and automatically build a custom AI vision model to monitor their feed. When it detects an important physical event—like a stalled production cycle, a safety violation, or a waiting customer—it operates a computer just like a human to take immediate action. It integrates with legacy systems, makes calls, sends emails, updates a POS/CRM, or triggers webhooks in real time. OpenVector enables any camera to do real work.",
       "industry": "B2B",
       "subindustry": "B2B -> Infrastructure",
       "industries": [
@@ -9024,7 +9101,7 @@
           "id": "73303",
           "name": "Aamir Poonawalla",
           "title": "Founder/CTO",
-          "bio": "Founder at Orchestra (YC S26). 9 years at Instacart. Built the ads serving and ML infrastructure, auction platform, and experimentation framework. 2nd time YC Founder. MS in Computer Science from Georgia Tech.",
+          "bio": "Founder at Orchestra (YC S26). 10 years at Instacart. Built the ads serving and ML infrastructure, auction platform, and experimentation framework. 2nd time YC Founder. MS in Computer Science from Georgia Tech.",
           "ycProfileUrl": "https://www.ycombinator.com/people/aamir-poonawalla",
           "socialLinks": {
             "linkedin": "https://www.linkedin.com/in/aamir-p-a3575318/"
@@ -9045,8 +9122,8 @@
       "batch": "Summer 2026",
       "ycProfileUrl": "https://www.ycombinator.com/companies/os3",
       "websiteUrl": "https://os3robotics.com/",
-      "tagline": "Deploying US-Built Humanoid Robots & Training Video Action Models",
-      "description": "OS3 deploys US-built mobile semi humanoid robots for repetitive physical work.\r\n\r\nWe designed the robot, custom actuators, model and control stack as one system, then pretrained the model exclusively on 150,000 hours of video data spanning more than 2,000 tasks. Hospitality is our first deployment vertical. Through our Startup Partner program, teams are deploying OS3 robots in biotech, hospitals and data centers.\r\n\r\nOur two-person team built the robot and trained its first model in four months. We are making American robotics accessible to more businesses.",
+      "tagline": "Affordable, intelligent humanoid robots built to deploy at scale",
+      "description": "OS3 is building the platform that makes intelligent robots accessible to every business.\r\n\r\nToday, robotics is constrained by two fundamental bottlenecks: hardware is too expensive to deploy at scale, and robots are difficult to train because high-quality robotics data is scarce and costly to collect. \r\n\r\nWe built OS3 to solve both.\r\n\r\nOur two-person team designed and a US-made mobile humanoid robot for a fraction of the cost of commercial alternatives. On the intelligence side, instead of relying on expensive robot-generated training data, we trained our own video-action model on 150,000 hours of real-world video spanning more than 2,000 tasks. Every deployed robot feeds new experience into our reinforcement learning pipeline, self improving robot fleet over time.\r\n\r\nThis creates a robot that can be deployed across industries to automate repetitive, physical work without requiring a new robot or training pipeline for every task. Our robots are already deployed in hotels, with customers now expanding the platform into biotech, hospitals, and data centers, including a wet lab at Stanford.\r\n\r\nOur mission is to do for robotics what Apple did for personal computing: take technology that was once expensive, specialized, and inaccessible and make it powerful and usable at massive scale. We’re building toward a world with billions of intelligent robots, and OS3 is the platform that makes that possible.",
       "industry": "Industrials",
       "subindustry": "Industrials -> Manufacturing and Robotics",
       "industries": [
@@ -9054,10 +9131,10 @@
         "Manufacturing and Robotics"
       ],
       "tags": [
+        "Artificial Intelligence",
         "Hardware",
         "Robotics",
-        "B2B",
-        "AI"
+        "B2B"
       ],
       "location": "San Francisco",
       "teamSize": 2,
@@ -9202,17 +9279,17 @@
       "batch": "Summer 2026",
       "ycProfileUrl": "https://www.ycombinator.com/companies/palette-2",
       "websiteUrl": "https://palettelabs.com/",
-      "tagline": "An AI-Native Media Platform",
-      "description": "Palette is a self-improving AI-native media platform built by MIT computer scientists and multimodal researchers that unifies the creative workflow into a single generation engine. We eliminate tool and context fragmentation for creative and marketing teams in enterprises and allow content creators to transform static assets into controllable, repeatable, and self-improving workflows in order to autonomously improve quality and revenue growth.",
+      "tagline": "The Media Engine of the AI Era",
+      "description": "Palette is a self-improving AI-native media platform built by MIT computer scientists and multimodal researchers that unifies the creative workflow into a single generation engine. We’re building a fully autonomous production engine that generates, distributes, and optimizes interactive media for every brand and audience.",
       "industry": "B2B",
       "subindustry": "B2B",
       "industries": [
         "B2B"
       ],
       "tags": [
+        "Artificial Intelligence",
         "Generative AI",
-        "Video",
-        "AI"
+        "Video"
       ],
       "location": "San Francisco",
       "teamSize": 2,
@@ -9815,7 +9892,7 @@
       "batch": "Summer 2026",
       "ycProfileUrl": "https://www.ycombinator.com/companies/poth-labs",
       "websiteUrl": "https://pothlabs.com",
-      "tagline": "Conversational surveys that replace Qualtrics for large brands",
+      "tagline": "The customer brain that connects data to explain customer behavior",
       "description": "Poth is an agentic research platform that connects to your company data, creates hypotheses about what might be causing problems, and validates them using both existing data and adaptive user feedback.",
       "industry": "B2B",
       "subindustry": "B2B",
@@ -10115,7 +10192,7 @@
       "batch": "Summer 2026",
       "ycProfileUrl": "https://www.ycombinator.com/companies/prodigy-research",
       "websiteUrl": "https://prodigy.markets",
-      "tagline": "Training the world's best foundation model for quantitative finance.",
+      "tagline": "Training the world's best AI model for quantitative finance.",
       "description": "Prodigy is the frontier AI trading research lab. We've trained the world's best foundation model for quantitative finance. We've already achieved more than 100% returns in live trading over the course of our YC batch, doubling our capital while major indices were flat. Our founders previously worked on a trading desk at Jane Street, trained frontier AI models at Google DeepMind and shipped cutting-edge AI at Apple to billions of customers. Join us as we use AI to solve the market.",
       "industry": "Fintech",
       "subindustry": "Fintech",
@@ -10399,7 +10476,7 @@
       "batch": "Summer 2026",
       "ycProfileUrl": "https://www.ycombinator.com/companies/rapidfolio",
       "websiteUrl": "https://rapidfolio.com/",
-      "tagline": "AI for fintechs & banks",
+      "tagline": "AI-native back-office for banks and fintechs",
       "description": "Rapidfolio helps banks and fintechs fully automate back-office workflows like fraud investigations, KYB/KYC and loan underwriting, with accuracy and auditability.\r\n\r\nBuilt by fintech founders and operators, Rapidfolio is on a mission to ensure banks and fintechs scale their customer base without adding another back-office head count.",
       "industry": "B2B",
       "subindustry": "B2B",
@@ -10484,10 +10561,11 @@
           "id": "3475945",
           "name": "Ansh Tiwari",
           "title": "Founder/CEO",
-          "bio": "Co-Founder/CEO at Rasyn (S26)",
+          "bio": "CEO at Rasyn (YC S26) | ex-NASA, Caltech | 3x ICML",
           "ycProfileUrl": "https://www.ycombinator.com/people/ansh-tiwari",
           "socialLinks": {
-            "linkedin": "https://www.linkedin.com/in/ansschh/"
+            "linkedin": "https://www.linkedin.com/in/ansschh/",
+            "x": "https://x.com/4n5che"
           }
         },
         {
@@ -10504,10 +10582,11 @@
           "id": "3481804",
           "name": "Daood Hashmi",
           "title": "Founder",
-          "bio": "Founder at Rasyn. Currently a researcher in the Arnold and Marcus Lab at Caltech, working with a Nobel Laureate to build diffusion models that predict organic reaction mechanisms and propose novel synthetic pathways. Previously ran DFT and molecular dynamics simulations in the Goddard Lab. Chemical Engineering at Caltech.",
+          "bio": "Researching in the Arnold and Marcus Lab at Caltech",
           "ycProfileUrl": "https://www.ycombinator.com/people/daood-hashmi",
           "socialLinks": {
-            "linkedin": "https://www.linkedin.com/in/daood-hashmi-9588b8420/"
+            "linkedin": "https://www.linkedin.com/in/daood-hashmi-9588b8420/",
+            "x": "https://x.com/hash_me_NOT"
           }
         }
       ],
@@ -10564,7 +10643,7 @@
           "id": "3411828",
           "name": "Christ Xu",
           "title": "Founder/CTO",
-          "bio": "CTO at Rational. Youngest Tencent Senior SWE, OpenAI SWE.  2x IOI Camp, IMO Camp, published algo researcher.",
+          "bio": "CTO at Rational. Prev Youngest Tencent Senior SWE.  2x IOI Camp, IMO Camp, published algo researcher.",
           "ycProfileUrl": "https://www.ycombinator.com/people/christ-xu",
           "socialLinks": {
             "linkedin": "https://www.linkedin.com/in/christ-xu-687868298"
@@ -10658,7 +10737,7 @@
         "Machine Learning"
       ],
       "location": "San Francisco",
-      "teamSize": 2,
+      "teamSize": 5,
       "status": "Active",
       "groupPartner": "Jared Friedman",
       "groupPartnerUrl": "https://www.ycombinator.com/people/jared-friedman",
@@ -10705,7 +10784,7 @@
       "ycProfileUrl": "https://www.ycombinator.com/companies/rex-inc",
       "websiteUrl": "https://www.rex.inc",
       "tagline": "AI-native BPO for enterprise order-to-cash",
-      "description": "Rex is an AI-native service for order to cash. Rex replace manual operations with AI agents that continuously manage invoices, customers and exceptions.\r\n\r\nOrder to cash is a $60B outsourced function because the work is too messy for traditional automation. Every customer has different context, exceptions do not follow clean rules, and the next step is often buried in emails, portals, handoffs, or someone’s memory. Rex agents run continuously in the background and resolve work to SLA standards so cash keeps moving. We're live with pre-IPO tech companies, managing  >$500m in receivables from F100 companies, cutting manual follow-up cycles from weeks to hours.\r\n\r\nWe founded Rex after spending four years building Sequence, an a16z-backed finance ops platform, from zero to Series A — where we saw firsthand that at-scale, O2C still runs on manual labour.\r\n\r\nRex is the #1 winner of the Vercel AI Accelerator out of 2,500 teams, selected by Guillermo Rauch and leaders from OpenAI, Anthropic, Browserbase and more.",
+      "description": "Rex is an AI-native service for order to cash. Rex replaces manual operations with AI agents that continuously manage invoices, customers and exceptions.\r\n\r\nOrder to cash is a $60B outsourced function because the work is too messy for traditional automation. Every customer has different context, exceptions do not follow clean rules, and the next step is often buried in emails, portals, handoffs, or someone’s memory. Rex agents run continuously in the background and resolve work to SLA standards so cash keeps moving. We're live with pre-IPO tech companies, managing  >$500m in receivables from F100 companies, cutting manual follow-up cycles from weeks to hours.\r\n\r\nWe founded Rex after spending four years building Sequence, an a16z-backed finance ops platform, from zero to Series A — where we saw firsthand that at-scale, O2C still runs on manual labour.\r\n\r\nRex is the #1 winner of the Vercel AI Accelerator out of 2,500 teams, selected by Guillermo Rauch and leaders from OpenAI, Anthropic, Browserbase and more.",
       "industry": "B2B",
       "subindustry": "B2B -> Finance and Accounting",
       "industries": [
@@ -10713,10 +10792,10 @@
         "Finance and Accounting"
       ],
       "tags": [
-        "Artificial Intelligence",
         "B2B",
         "Enterprise",
-        "Enterprise Software"
+        "Enterprise Software",
+        "AI"
       ],
       "location": "San Francisco",
       "teamSize": 2,
@@ -10773,14 +10852,14 @@
         "Infrastructure"
       ],
       "tags": [
-        "Artificial Intelligence",
         "Developer Tools",
         "Reinforcement Learning",
         "Open Source",
-        "Infrastructure"
+        "Infrastructure",
+        "AI"
       ],
       "location": "San Francisco",
-      "teamSize": 0,
+      "teamSize": 5,
       "status": "Active",
       "groupPartner": "Harshita Arora",
       "groupPartnerUrl": "https://www.ycombinator.com/people/harshita-arora",
@@ -11117,7 +11196,7 @@
       "ycProfileUrl": "https://www.ycombinator.com/companies/salem-robotics-inc",
       "websiteUrl": "https://salemroboticsinc.com",
       "tagline": "Deploying robots to replace workers in hazardous spaces",
-      "description": "Our software turns any robot we deploy into an everyday independent worker at your facility. They are able to walk sites, handle instruments, overcome obstacles, collect measurements, and generate auditable compliance records, replacing hours of mandatory manual surveys and inspections. Built by Los Alamos robotics veterans and deterministic-manipulation researchers, we're starting in nuclear and expanding to other hazardous industries.",
+      "description": "Our software turns any robot we deploy into an everyday independent worker at your facility. They are able to walk sites, handle instruments, overcome obstacles, collect measurements, and generate auditable compliance records, replacing hours of mandatory manual surveys and inspections. Built by Los Alamos robotics veterans and deterministic-manipulation researchers, we started in nuclear and are already expanding to other hazardous industries.",
       "industry": "Industrials",
       "subindustry": "Industrials -> Manufacturing and Robotics",
       "industries": [
@@ -11205,7 +11284,7 @@
           "id": "716431",
           "name": "Louis Beaumont",
           "title": "Founder/CEO",
-          "bio": "Previously French surveillance (acquired) and hyperscale cloud observability at OVHCloud.\nBuilt video game bots business when I was 14. My training dataset: 150 books a year.",
+          "bio": "Previously French intelligence (acquired) and hyperscale cloud observability at OVHCloud.\nBuilt video game bots business when I was 14. My training dataset: 150 books a year.",
           "ycProfileUrl": "https://www.ycombinator.com/people/louis-beaumont",
           "socialLinks": {
             "linkedin": "https://www.linkedin.com/in/louis030195/",
@@ -11227,7 +11306,7 @@
       "batch": "Summer 2026",
       "ycProfileUrl": "https://www.ycombinator.com/companies/shielded",
       "websiteUrl": "https://www.shieldedglobal.com/",
-      "tagline": "The agentic origination desk for supply chain risk.",
+      "tagline": "We help Fortune 500 companies hedge their supply chain risk",
       "description": "Shielded connects companies’ internal and external data to map market shifts, tariffs, and disruptions directly to suppliers, products, and margins. We turn those impacts into real-time decisions that grow and protect the business. ",
       "industry": "B2B",
       "subindustry": "B2B -> Finance and Accounting",
@@ -11325,8 +11404,8 @@
       "batch": "Summer 2026",
       "ycProfileUrl": "https://www.ycombinator.com/companies/textsidekick",
       "websiteUrl": "https://textsidekick.com/",
-      "tagline": "AI agent that manages frontline operations over text",
-      "description": "Sidekick is an AI agent that manages frontline operations over text. Workers text problems, photos, or voice memos in any language; it answers from the company's own documents, creates and routes the work order, and syncs with the software the company already runs. No app, no login, works on any phone. It watches connected machine data and texts the right worker the moment something starts drifting, before it becomes downtime. And it compounds: most of the industrial world runs on undocumented knowledge, and Sidekick is the first thing that documents it as a byproduct of the work itself. Every interaction contributes to a searchable knowledge base the company owns, so tribal knowledge stops walking out the door when veterans retire.",
+      "tagline": "AI agent that manages manufacturing operations over text",
+      "description": "Sidekick is an AI agent that runs custom manufacturing operations over text. Workers text a problem, photo, video, or voice memo and get an answer from the shop's own documents. It reads live machine data and acts on its own: flagging issues before they become downtime, opening and routing work orders, and placing purchase orders. No app, no login.\r\n\r\nThese shops run on tribal knowledge: a handful of veterans know how every job is set up, and they are retiring. Sidekick learns from every message it handles, so answers outlive the people who gave them, and shops run 15% more jobs with the same crew. Sidekick captures it as a byproduct of the work, in an industry that was never documented.",
       "industry": "B2B",
       "subindustry": "B2B -> Operations",
       "industries": [
@@ -11455,7 +11534,7 @@
           "bio": "Founder and CEO of SpaceFlow Technologies. Previously researched computational linguistics at Cambridge under Prof. Anna Korhonen and developed system identification algorithms for motor control at UCLA's Institute of Pure and Applied Mathematics. BA in Computer Engineering from University of Cambridge. ",
           "ycProfileUrl": "https://www.ycombinator.com/people/emre-isik",
           "socialLinks": {
-            "linkedin": "https://www.linkedin.com/in/emre-i-6a88aa193?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=ios_app",
+            "linkedin": "https://www.linkedin.com/in/emre-isik-6a88aa193/",
             "x": "https://x.com/Emrre_isik"
           }
         },
@@ -11555,7 +11634,7 @@
       "ycProfileUrl": "https://www.ycombinator.com/companies/speko",
       "websiteUrl": "https://speko.ai/?utm_source=ycombinator&utm_medium=profile",
       "tagline": "OpenRouter for Voice AI: one API, every call on the best speech model",
-      "description": "Speko is a router for voice models: one API key, and your voice agent runs on the speech-to-text, LLM, and text-to-speech models we measured as best for your language and use case. The measurements are public at benchmarks.speko.ai: we test new models the day they ship and re-route when the numbers change, so you rewrite nothing. We ran this bake-off by hand for four years at Hupo, shipping production voice for Morgan Stanley, Prudential, HSBC, and Grab.",
+      "description": "Speko is a router for voice models: one API key, and your voice agent runs on the speech-to-text, LLM, and text-to-speech models we measured as best for your language and use case. The measurements are public at benchmarks.speko.ai: we test new models the day they ship and re-route when the numbers change, so you rewrite nothing. We ran this bake-off by hand for four years at previous company, shipping production voice for Fortune 500s.",
       "industry": "B2B",
       "subindustry": "B2B -> Infrastructure",
       "industries": [
@@ -11563,8 +11642,8 @@
         "Infrastructure"
       ],
       "tags": [
+        "Artificial Intelligence",
         "Developer Tools",
-        "AI",
         "Conversational AI"
       ],
       "location": "San Francisco",
@@ -11580,7 +11659,7 @@
           "id": "451241",
           "name": "Beknazar Abdikamalov",
           "title": "Founder/CEO",
-          "bio": "Founder and CEO of Speko (YC S26). Previously co-founder and CTO of Hupo (voice AI; $14M raised; backed by DST Global and Meta), where he spent four years shipping production voice AI for Morgan Stanley, Prudential, HSBC, and Grab in English, Thai, Chinese, Korean, and Japanese. He still has the Hupo file named thai1 through thai15, each line a hand-run speech-model experiment; that file is Speko's entire thesis. Earlier a software engineer at Amazon; MS in CS from UNIST, Korea.",
+          "bio": "Founder and CEO of Speko (YC S26). Previously co-founder and CTO of Hupo (voice AI; $14M raised; backed by DST Global and Meta), where he spent four years shipping production voice AI for fortune 500s in 10+ languages. Earlier a software engineer at Amazon; MS in CS from UNIST, Korea.",
           "ycProfileUrl": "https://www.ycombinator.com/people/beknazar-abdikamalov",
           "socialLinks": {
             "linkedin": "https://www.linkedin.com/in/abdik/",
@@ -11710,65 +11789,6 @@
       "launch": null,
       "sourceUrls": [
         "https://www.ycombinator.com/companies/stoa",
-        "https://www.ycombinator.com/companies?batch=Summer%202026"
-      ]
-    },
-    {
-      "id": "32523",
-      "objectID": "32523",
-      "slug": "stratum-industries",
-      "name": "Stratum Industries",
-      "batch": "Summer 2026",
-      "ycProfileUrl": "https://www.ycombinator.com/companies/stratum-industries",
-      "websiteUrl": "https://stratumindustries.co/",
-      "tagline": "Applied AI for Governments.",
-      "description": "Stratum Industries is the applied AI company for governments. We build AI agents that automate the slow, complex manual workflows governments run on, starting with application review, where files are still reviewed by hand, one at a time, leaving millions stuck in queues. \r\n\r\nStratum's agents review applications end to end with a human in the loop and full auditability, clearing entire backlogs in a fraction of the time. Our mission is to deploy AI across every vertical inside the government, saving agencies tens of billions in administrative cost and making the government one of the most efficient institutions in the world.",
-      "industry": "Government",
-      "subindustry": "Government",
-      "industries": [
-        "Government"
-      ],
-      "tags": [
-        "Artificial Intelligence",
-        "GovTech",
-        "Automation"
-      ],
-      "location": "New York City, NY",
-      "teamSize": 2,
-      "status": "Active",
-      "groupPartner": "Jared Friedman",
-      "groupPartnerUrl": "https://www.ycombinator.com/people/jared-friedman",
-      "socialLinks": {
-        "linkedin": "https://www.linkedin.com/company/stratum-industries",
-        "x": "https://x.com/Stratum_Inc"
-      },
-      "founders": [
-        {
-          "id": "1648613",
-          "name": "Raj Jagiasi",
-          "title": "Founder/CEO",
-          "bio": "Co-founder at Stratum Industries - Agents clearing the U.S. Government backlog. Prev GTM at Deel. MSc CS @ University of Bath.",
-          "ycProfileUrl": "https://www.ycombinator.com/people/raj-jagiasi",
-          "socialLinks": {
-            "linkedin": "https://www.linkedin.com/in/raj-jagiasi/",
-            "x": "https://x.com/raj_jagiasi"
-          }
-        },
-        {
-          "id": "1303141",
-          "name": "Vihaan Jagiasi",
-          "title": "Founder/CTO",
-          "bio": "co-founder @ Stratum Industries - agents clearing the U.S. governments backlog. prev founding engineer #3 at Cadastral (acquired by Legora). waterloo dropout",
-          "ycProfileUrl": "https://www.ycombinator.com/people/vihaan-jagiasi",
-          "socialLinks": {
-            "linkedin": "https://www.linkedin.com/in/vihaanjagiasi/",
-            "x": "https://x.com/VihaanJagiasi"
-          }
-        }
-      ],
-      "launch": null,
-      "sourceUrls": [
-        "https://www.ycombinator.com/companies/stratum-industries",
         "https://www.ycombinator.com/companies?batch=Summer%202026"
       ]
     },
@@ -12244,7 +12264,7 @@
       "batch": "Summer 2026",
       "ycProfileUrl": "https://www.ycombinator.com/companies/tensr",
       "websiteUrl": "https://tensr.com/",
-      "tagline": "Robotic factories that build robots.",
+      "tagline": "Robotic factories that build robots",
       "description": "Robotic factories that build robotics in the US. Currently operating a 12,000 sqft factory in the Bay Area and actively manufacturing customer orders for some of the largest robotics companies in the US and the International Space Station.\r\n\r\nWe’re a group of Berkeley graduate robotics researchers who previously won a full scale autonomous IndyCar competition at 160mph.",
       "industry": "Industrials",
       "subindustry": "Industrials -> Manufacturing and Robotics",
@@ -12265,7 +12285,6 @@
       "groupPartner": "Nicolas Dessaigne",
       "groupPartnerUrl": "https://www.ycombinator.com/people/nicolas-dessaigne",
       "socialLinks": {
-        "github": "https://github.com/tensr-labs",
         "linkedin": "https://www.linkedin.com/company/tensrinc/"
       },
       "founders": [
@@ -12756,7 +12775,7 @@
         {
           "id": "2519723",
           "name": "Matthew Chow",
-          "title": "Founder/CEO",
+          "title": "Founder",
           "bio": "Co-Founder at Trope. Launched safety critical software for the Tesla Cybertruck and Zipline's autonomous drones. Won Stanford's largest hackathon using autonomous agents. Sales in Japan at Schneider Electric. UBC computer engineering grad.",
           "ycProfileUrl": "https://www.ycombinator.com/people/matthew-chow",
           "socialLinks": {
@@ -12767,7 +12786,7 @@
         {
           "id": "1405446",
           "name": "Victor Vannara",
-          "title": "Founder/CTO",
+          "title": "Founder",
           "bio": "Co-Founder at Trope. Built the first AI customer support agent at Amazon Payments. Learned to code at 13 by building Discord bots used by 400k users. UBC computer science grad.",
           "ycProfileUrl": "https://www.ycombinator.com/people/victor-vannara",
           "socialLinks": {
@@ -13064,18 +13083,18 @@
       "batch": "Summer 2026",
       "ycProfileUrl": "https://www.ycombinator.com/companies/verdant",
       "websiteUrl": "https://www.verdantapp.com/",
-      "tagline": "AI infrastructure for local government, starting with permitting",
-      "description": "Verdant prepares local governments for the agentic era. Agents will interact with local governments at volumes and speeds that legacy software and workflows can't handle. Verdant builds both the system of record for agents and internal agents that let local government workflows keep up. \r\n\r\nWe're starting with permitting, the highest-volume workflow in local government that requires judgement. ",
+      "tagline": "AI Agents to Make Local Gov Efficient",
+      "description": "Verdant sells AI agents to local government to make them more efficient. We're starting with permitting, the highest-volume workflow in local government that requires judgment. \r\n\r\nMany startups fail to sell to government, but not us - we've processed 200+ applications and gone from 0 to 4 paid deployments across 4 states with an average close time of 4 weeks.",
       "industry": "Government",
       "subindustry": "Government",
       "industries": [
         "Government"
       ],
       "tags": [
-        "GovTech",
-        "AI"
+        "Artificial Intelligence",
+        "GovTech"
       ],
-      "location": "Washington, DC",
+      "location": "San Francisco",
       "teamSize": 2,
       "status": "Active",
       "groupPartner": "Jared Friedman",
@@ -13186,8 +13205,8 @@
       "batch": "Summer 2026",
       "ycProfileUrl": "https://www.ycombinator.com/companies/vernius-systems-inc",
       "websiteUrl": "https://www.vernius.systems",
-      "tagline": "Distributed radar systems for air defense",
-      "description": "We make radar seekers for interceptors. The seeker — the sensor that finds and locks onto targets — is the most critical and costly component in every interceptor. Developing a radar seeker takes a 200+ person team at Raytheon and hundreds of millions of dollars. We’ve built a pipeline which automates their entire engineering pipeline, and can produce working seekers in weeks, not years.",
+      "tagline": "Mass-deployable radars for air defense",
+      "description": "We make mass-deployable radars for unmanned systems. Our first product is Archimedes, a radar seeker that finds and locks onto targets, enabling autonomous intercept on any drone. We have over $580M in LOIs for Archimedes, across some of the largest defense primes in Ukraine, the EU, and the Middle East.\r\n\r\nSeekers are the most critical and costly component in every autonomous interceptor. Developing a radar seeker takes a 200+ person team at Raytheon and hundreds of millions of dollars. Archimedes is 100x cheaper than existing radar seekers on the market - and is the first product to make it feasible to deploy radars on every drone.",
       "industry": "Industrials",
       "subindustry": "Industrials -> Defense",
       "industries": [
@@ -13212,7 +13231,7 @@
           "id": "366617",
           "name": "Arthur Nguyen-cao",
           "title": "Founder/CEO",
-          "bio": "Founder at Vernius Systems. 6+ years RF PCB engineering.\n\nPrevious Technical Lead at Defence Tech for Ukraine, leading 14 engineers to develop FPV drone systems now fielded by Ukrainian units. Co-founded Auctify (raised $250K, featured in The Verge, 30K users), where we built the world's first AI smart glasses. Part of the $2.6B USAF B-52 Commercial Engine Replacement Program proposal at Pratt & Whitney.",
+          "bio": "Founder & CEO of Vernius Systems. 6+ years RF PCB engineering.\n\nLead 14 engineers at Defense Tech for Ukraine to develop FPV drone systems now fielded by Ukrainian units. Co-founded Auctify (raised $250K, featured in The Verge), where we built the world's first AI smart glasses. Developed the $2.6B USAF B-52 Commercial Engine Replacement Program proposal at Pratt & Whitney. Hobbies include computational fluid dynamics, rocketry, and civil aviation.",
           "ycProfileUrl": "https://www.ycombinator.com/people/arthur-nguyen-cao",
           "socialLinks": {
             "linkedin": "https://www.linkedin.com/in/arthur-nguyen-cao-690847146/",
@@ -13388,7 +13407,7 @@
         "Procurement"
       ],
       "location": "Gurugram, India",
-      "teamSize": 5,
+      "teamSize": 3,
       "status": "Active",
       "groupPartner": "Jared Friedman",
       "groupPartnerUrl": "https://www.ycombinator.com/people/jared-friedman",
@@ -13433,7 +13452,7 @@
       "ycProfileUrl": "https://www.ycombinator.com/companies/whitespace",
       "websiteUrl": "https://whitespacehq.ai/",
       "tagline": "AI Operating System for Wholesale Distribution",
-      "description": "Whitespace is the AI operating system for wholesale distribution. We give wholesale distributors self-improving AI agents that learn their business and do work like inventory planning, customer service, and order processing.",
+      "description": "Whitespace builds AI agents that run the entire operation of supply chain businesses, starting with wholesale distributors. We give them self-improving AI agents that learn their business and do work like inventory planning and customer service.",
       "industry": "B2B",
       "subindustry": "B2B -> Supply Chain and Logistics",
       "industries": [
@@ -13615,7 +13634,7 @@
         "B2B"
       ],
       "location": "Stockholm, Sweden",
-      "teamSize": 8,
+      "teamSize": 3,
       "status": "Active",
       "groupPartner": "Jared Friedman",
       "groupPartnerUrl": "https://www.ycombinator.com/people/jared-friedman",
@@ -13681,19 +13700,19 @@
       "batch": "Summer 2026",
       "ycProfileUrl": "https://www.ycombinator.com/companies/zomma",
       "websiteUrl": "https://zommalabs.com",
-      "tagline": "The AI BPO for finance, run on computer-use agents",
-      "description": "Zomma builds Computer Use Agents that do the repetitive screen work in finance: logging into portals, pulling reports, reconciling books, and filling forms across systems that will never get an API. Our agents use the same screens your ops team uses today, so there is no integration project. Every action stops for human approval before anything submits.",
+      "tagline": "The AI BPO for financial servies, run by computer-use agents",
+      "description": "Zomma is building the AI workforce for financial services with computer-use agents that onboard like humans and scale like compute. Its agents handle KYC reviews, transaction alerts, and disputes on the same screens human analysts use, no integration.",
       "industry": "B2B",
       "subindustry": "B2B",
       "industries": [
         "B2B"
       ],
       "tags": [
+        "Artificial Intelligence",
         "Robotic Process Automation",
         "Finance",
         "B2B",
-        "Workflow Automation",
-        "AI"
+        "Workflow Automation"
       ],
       "location": "San Francisco",
       "teamSize": 5,

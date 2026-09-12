@@ -1,7 +1,7 @@
 {
   "version": 1,
   "batchSlug": "S26",
-  "updatedAt": "2026-09-11T11:28:43.076Z",
+  "updatedAt": "2026-09-12T04:09:31.434Z",
   "daily": [
     {
       "recordedAt": "2026-07-06T05:00:00.000Z",
@@ -66942,9 +66942,9 @@
       ]
     },
     {
-      "recordedAt": "2026-09-11T11:28:43.076Z",
+      "recordedAt": "2026-09-12T04:09:31.434Z",
       "scoringModelVersion": "4.3.1",
-      "inputGeneratedAt": "2026-09-11T11:27:15.676Z",
+      "inputGeneratedAt": "2026-09-12T04:08:42.423Z",
       "companies": [
         {
           "companyId": "company-gamgee",
@@ -66965,28 +66965,28 @@
           "rank": 3
         },
         {
+          "companyId": "company-graphify-labs",
+          "companyName": "Graphify Labs",
+          "score": 91,
+          "rank": 4
+        },
+        {
           "companyId": "company-parasma",
           "companyName": "Parasma",
           "score": 91,
           "rank": 4
         },
         {
-          "companyId": "company-graphify-labs",
-          "companyName": "Graphify Labs",
-          "score": 90,
-          "rank": 5
-        },
-        {
           "companyId": "company-lemonlime",
           "companyName": "LemonLime",
           "score": 90,
-          "rank": 5
+          "rank": 6
         },
         {
           "companyId": "company-prodigy-research",
           "companyName": "Prodigy Research",
           "score": 90,
-          "rank": 5
+          "rank": 6
         },
         {
           "companyId": "company-lumeria",
@@ -67961,8 +67961,8 @@
           "rank": 169
         },
         {
-          "companyId": "company-stratum-industries",
-          "companyName": "Stratum Industries",
+          "companyId": "company-elite",
+          "companyName": "Elite",
           "score": 52,
           "rank": 169
         },
@@ -68063,16 +68063,16 @@
           "rank": 184
         },
         {
-          "companyId": "company-trident",
-          "companyName": "Trident",
+          "companyId": "company-rindler",
+          "companyName": "Rindler",
           "score": 48,
           "rank": 184
         },
         {
-          "companyId": "company-rindler",
-          "companyName": "Rindler",
-          "score": 47,
-          "rank": 188
+          "companyId": "company-trident",
+          "companyName": "Trident",
+          "score": 48,
+          "rank": 184
         },
         {
           "companyId": "company-skymerse",
@@ -68233,7 +68233,7 @@
         {
           "companyId": "company-erinys",
           "companyName": "Erinys",
-          "score": 17,
+          "score": 18,
           "rank": 215
         },
         {
@@ -68275,14 +68275,14 @@
         {
           "companyId": "company-akon-labs",
           "companyName": "Akon Labs",
-          "score": 12,
+          "score": 13,
           "rank": 222
         },
         {
           "companyId": "company-donkey",
           "companyName": "Donkey",
           "score": 12,
-          "rank": 222
+          "rank": 223
         },
         {
           "companyId": "company-derya",

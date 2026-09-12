@@ -1,7 +1,7 @@
 {
   "source": {
     "schemaVersion": 1,
-    "generatedFromFetchedAt": "2026-09-07T15:54:57.840Z",
+    "generatedFromFetchedAt": "2026-09-12T04:05:47.316Z",
     "publicationPolicy": "stored_but_unpublished",
     "scoringEligible": false,
     "reason": "Rows absent from a fully authoritative whole-cohort GitHub receipt are retained only for audit and manual attribution review; they are not scoring inputs.",
@@ -9140,8 +9140,7 @@
             "repositoryId": "1283545871",
             "status": "represented_in_current_canonical_receipt",
             "matchedBy": [
-              "repository_id",
-              "canonical_url"
+              "repository_id"
             ],
             "canonicalMatches": [
               {
@@ -9152,7 +9151,7 @@
                 "location": "repository",
                 "accountUrl": "https://github.com/insforge",
                 "repositoryId": "1283545871",
-                "repositoryUrl": "https://github.com/insforge/insta-cli"
+                "repositoryUrl": "https://github.com/insforge/instacloud-cli"
               }
             ]
           }
@@ -9963,8 +9962,7 @@
             "repositoryId": "1283545871",
             "status": "represented_in_current_canonical_receipt",
             "matchedBy": [
-              "repository_id",
-              "canonical_url"
+              "repository_id"
             ],
             "canonicalMatches": [
               {
@@ -9975,7 +9973,7 @@
                 "location": "repository",
                 "accountUrl": "https://github.com/insforge",
                 "repositoryId": "1283545871",
-                "repositoryUrl": "https://github.com/insforge/insta-cli"
+                "repositoryUrl": "https://github.com/insforge/instacloud-cli"
               }
             ]
           }
@@ -12351,23 +12349,9 @@
             "kind": "repository",
             "canonicalUrl": "https://github.com/limrun-inc/sample-kotlin-multiplatform-app",
             "repositoryId": "1305638142",
-            "status": "represented_in_current_canonical_receipt",
-            "matchedBy": [
-              "repository_id",
-              "canonical_url"
-            ],
-            "canonicalMatches": [
-              {
-                "entityType": "company",
-                "entityId": "company-limrun",
-                "entityName": "Limrun",
-                "accountKey": "company:company-limrun:limrun-inc:",
-                "location": "repository",
-                "accountUrl": "https://github.com/limrun-inc",
-                "repositoryId": "1305638142",
-                "repositoryUrl": "https://github.com/limrun-inc/sample-kotlin-multiplatform-app"
-              }
-            ]
+            "status": "not_represented_in_current_canonical_receipt",
+            "matchedBy": [],
+            "canonicalMatches": []
           }
         ]
       },
@@ -28495,23 +28479,9 @@
             "kind": "repository",
             "canonicalUrl": "https://github.com/spekoai/latency-ladder",
             "repositoryId": "1298812247",
-            "status": "represented_in_current_canonical_receipt",
-            "matchedBy": [
-              "repository_id",
-              "canonical_url"
-            ],
-            "canonicalMatches": [
-              {
-                "entityType": "company",
-                "entityId": "company-speko",
-                "entityName": "Speko",
-                "accountKey": "company:company-speko:spekoai:",
-                "location": "repository",
-                "accountUrl": "https://github.com/spekoai",
-                "repositoryId": "1298812247",
-                "repositoryUrl": "https://github.com/spekoai/latency-ladder"
-              }
-            ]
+            "status": "not_represented_in_current_canonical_receipt",
+            "matchedBy": [],
+            "canonicalMatches": []
           }
         ]
       },

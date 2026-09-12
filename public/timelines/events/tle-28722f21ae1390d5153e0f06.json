@@ -104,7 +104,7 @@
         "excerpt": "ZeroDrift Command is live. It's a control center for enterprise developers to connect their AI communication systems and enforce compliance in real time, every email, chat, and reply checked against your policies and regulations before it goes out. Corey Hobbs (Founding Principal PM) walks through the product: create a workspace, pick a managed rulebook like SEC or FINRA or upload your own policy document, and connect your traffic. Policy Studio turns your policies into enforceable rules, and…",
         "url": "https://youtube.com/watch?v=7NjUZp_IW-k",
         "metrics": {
-          "views": 101
+          "views": 105
         },
         "evidenceRole": "primary"
       },
@@ -128,12 +128,12 @@
         "excerpt": "Guard for Agents puts your policies in the path of your AI agents. Connect the policy docs you already have in Notion, Linear or Google Drive through MCP, and ZeroDrift turns them into enforceable rules, then checks every agent message against them with a single API call before it's sent. Violations get fixed, blocked or escalated automatically, with every decision powered by Anchor 3.0-Preview and logged for review.",
         "url": "https://youtube.com/watch?v=fmYrVpCiuGA",
         "metrics": {
-          "views": 55
+          "views": 61
         },
         "evidenceRole": "primary"
       }
     ]
   },
-  "generatedAt": "2026-09-11T11:28:11.823Z",
-  "lastModifiedAt": "2026-09-11T11:28:11.823Z"
+  "generatedAt": "2026-09-12T04:09:14.205Z",
+  "lastModifiedAt": "2026-09-12T04:09:14.205Z"
 }

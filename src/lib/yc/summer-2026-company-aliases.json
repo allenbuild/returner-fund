@@ -546,6 +546,47 @@
           }
         }
       ]
+    },
+    {
+      "companyId": "32523",
+      "fromSlug": "stratum-industries",
+      "fromName": "Stratum Industries",
+      "toSlug": "elite",
+      "toName": "Elite",
+      "companyAccounts": {
+        "linkedin": [
+          "https://www.linkedin.com/company/stratum-industries"
+        ],
+        "x": [
+          "https://x.com/Stratum_Inc"
+        ]
+      },
+      "founders": [
+        {
+          "founderId": "1648613",
+          "name": "Raj Jagiasi",
+          "accounts": {
+            "linkedin": [
+              "https://www.linkedin.com/in/raj-jagiasi/"
+            ],
+            "x": [
+              "https://x.com/raj_jagiasi"
+            ]
+          }
+        },
+        {
+          "founderId": "1303141",
+          "name": "Vihaan Jagiasi",
+          "accounts": {
+            "linkedin": [
+              "https://www.linkedin.com/in/vihaanjagiasi/"
+            ],
+            "x": [
+              "https://x.com/VihaanJagiasi"
+            ]
+          }
+        }
+      ]
     }
   ],
   "founderTransitions": [
@@ -1138,6 +1179,34 @@
         ],
         "x": [
           "https://x.com/_adamr_1"
+        ]
+      }
+    },
+    {
+      "companyId": "32204",
+      "companySlug": "alloovium",
+      "companyName": "Alloovium",
+      "founderId": "2271222",
+      "change": "added",
+      "fromName": null,
+      "toName": "Omar Elloumi",
+      "accounts": {
+        "linkedin": [
+          "https://www.linkedin.com/in/omar-elloumi/"
+        ]
+      }
+    },
+    {
+      "companyId": "32624",
+      "companySlug": "fabraix",
+      "companyName": "Fabraix",
+      "founderId": "2769430",
+      "change": "renamed",
+      "fromName": "ibrahim abdu",
+      "toName": "Ibrahim Abdu",
+      "accounts": {
+        "linkedin": [
+          "https://www.linkedin.com/in/i-a-7352b7137/"
         ]
       }
     }
