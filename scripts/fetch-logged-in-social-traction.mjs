@@ -1166,23 +1166,27 @@ async function fetchLinkedInPosts(target, workerIndex, collectionGuard = null) {
 
   const postGroups = [];
   const sourceFailures = [];
+  let browserCompanyIdentity = null;
   let attemptedSourceCount = 0;
   let completedSourceCount = 0;
 
   if (linkedinCollectionMode === "browser") {
     attemptedSourceCount += 1;
     try {
-      const browserPosts = await fetchLinkedInPostsFromBrowser(
+      const browserCollection = await fetchLinkedInPostsFromBrowser(
         target,
         workerIndex,
         activityUrl,
         collectionGuard
       );
+      const browserPosts = browserCollection.posts;
+      browserCompanyIdentity = browserCollection.browserCompanyIdentity;
       postGroups.push(browserPosts);
       const attributableBrowserPosts = mergeOwnedLinkedInPosts(
         [browserPosts],
         {
           accountUrl: target.url,
+          browserCompanyIdentity,
           targetName: target.name,
           limit: postLimit
         }
@@ -1211,6 +1215,7 @@ async function fetchLinkedInPosts(target, workerIndex, collectionGuard = null) {
     postGroups,
     {
       accountUrl: target.url,
+      browserCompanyIdentity,
       targetName: target.name,
       limit: postLimit
     }
@@ -1329,7 +1334,7 @@ async function fetchLinkedInPostsFromBrowser(
         { timeoutMs: 12_000 },
         { label: "initial browser wait" }
       );
-      await probeSafety();
+      const navigationProbe = await probeSafety();
       for (let index = 0; index < scrollPasses; index += 1) {
         await interact(
           ["browser", session, "scroll", "down", "--amount", "1200"],
@@ -1351,7 +1356,13 @@ async function fetchLinkedInPostsFromBrowser(
       if (posts.length === 0) {
         assertLinkedInSafetyClear(safetyProbe, "empty browser DOM extraction");
       }
-      return posts;
+      return {
+        posts,
+        browserCompanyIdentity: {
+          navigationState: parseJsonOutput(navigationProbe)[0] ?? null,
+          extractionState: parseJsonOutput(safetyProbe)[0] ?? null
+        }
+      };
     }
   });
 }
@@ -3721,6 +3732,15 @@ function linkedInExtractJs() {
 function linkedInSafetyProbeJs() {
   return `(() => [{
     currentUrl: location.href,
+    pageIdentityUrls: [...new Set([
+      document.querySelector('link[rel="canonical"]')?.href,
+      document.querySelector('meta[property="og:url"]')?.content,
+      ...Array.from(document.querySelectorAll([
+        "main a.org-top-card-primary-content__logo-container[href*='/company/']",
+        "main .org-top-card-summary__title a[href*='/company/']",
+        "main a[data-control-name='topcard_logo'][href*='/company/']"
+      ].join(","))).map((link) => link.href)
+    ].filter(Boolean))],
     title: document.title || "",
     visibleText: String(document.body?.innerText || "").slice(0, 8000)
   }])()`;

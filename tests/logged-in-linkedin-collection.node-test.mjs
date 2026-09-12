@@ -27,6 +27,7 @@ import {
   createSupabaseLinkedInGlobalLeaseProvider,
   finalizeLinkedInInteractionPacing,
   linkedinAdapterSupportsAccountUrl,
+  linkedinBrowserCompanyOwnershipAlias,
   linkedinCircuitDecision,
   linkedinCircuitStateTransition,
   linkedinCollectionAttemptState,
@@ -2591,6 +2592,144 @@ describe("logged-in LinkedIn collection", () => {
       false
     );
     assert.equal(linkedinAdapterSupportsAccountUrl("https://example.com/in/founder"), false);
+  });
+
+  it("derives a company vanity alias only from stable exact-navigation page identity", () => {
+    const navigationState = {
+      currentUrl:
+        "https://www.linkedin.com/company/gamgee-technologies/posts/?feedView=all",
+      pageIdentityUrls: [
+        "https://www.linkedin.com/company/gamgee-technologies/"
+      ]
+    };
+    const extractionState = {
+      currentUrl: "https://www.linkedin.com/company/gamgee-technologies/posts/",
+      pageIdentityUrls: [
+        "https://www.linkedin.com/company/gamgee-technologies/posts/"
+      ]
+    };
+
+    assert.equal(
+      linkedinBrowserCompanyOwnershipAlias({
+        requestedAccountUrl: "https://www.linkedin.com/company/109672135/",
+        navigationState,
+        extractionState
+      }),
+      "https://www.linkedin.com/company/gamgee-technologies/"
+    );
+
+    for (const unproven of [
+      {
+        ...navigationState,
+        currentUrl: "https://example.com/company/gamgee-technologies/posts/"
+      },
+      {
+        ...navigationState,
+        currentUrl: "https://www.linkedin.com/in/gamgee-technologies/posts/"
+      },
+      { ...navigationState, pageIdentityUrls: [] },
+      {
+        ...navigationState,
+        pageIdentityUrls: ["https://www.linkedin.com/company/someone-else/"]
+      }
+    ]) {
+      assert.equal(
+        linkedinBrowserCompanyOwnershipAlias({
+          requestedAccountUrl: "https://www.linkedin.com/company/109672135/",
+          navigationState: unproven,
+          extractionState
+        }),
+        null
+      );
+    }
+
+    assert.equal(
+      linkedinBrowserCompanyOwnershipAlias({
+        requestedAccountUrl: "https://www.linkedin.com/company/109672135/",
+        navigationState,
+        extractionState: {
+          currentUrl: "https://www.linkedin.com/company/someone-else/posts/",
+          pageIdentityUrls: ["https://www.linkedin.com/company/someone-else/"]
+        }
+      }),
+      null
+    );
+    assert.equal(
+      linkedinBrowserCompanyOwnershipAlias({
+        requestedAccountUrl: "https://www.linkedin.com/company/gamgee/",
+        navigationState,
+        extractionState
+      }),
+      null
+    );
+  });
+
+  it("accepts a vanity-authored company post only with the verified numeric-ID alias", () => {
+    const post = {
+      url:
+        "https://www.linkedin.com/posts/gamgee-technologies_launch-activity-7475000000000000101-good",
+      author: "Gamgee",
+      authorUrls: ["https://www.linkedin.com/company/gamgee-technologies/"],
+      body: "We launched a new product today.",
+      rawText: "Gamgee 2h We launched a new product today."
+    };
+    const options = {
+      accountUrl: "https://www.linkedin.com/company/109672135/",
+      targetName: "Gamgee",
+      limit: 5
+    };
+
+    assert.deepEqual(mergeOwnedLinkedInPosts([[post]], options), []);
+    assert.equal(
+      mergeOwnedLinkedInPosts([[post]], {
+        ...options,
+        browserCompanyIdentity: {
+          navigationState: {
+            currentUrl: "https://www.linkedin.com/company/gamgee-technologies/posts/",
+            pageIdentityUrls: ["https://www.linkedin.com/company/gamgee-technologies/"]
+          },
+          extractionState: {
+            currentUrl: "https://www.linkedin.com/company/gamgee-technologies/posts/",
+            pageIdentityUrls: ["https://www.linkedin.com/company/gamgee-technologies/"]
+          }
+        }
+      }).length,
+      1
+    );
+    assert.deepEqual(
+      mergeOwnedLinkedInPosts([[post]], {
+        ...options,
+        browserCompanyIdentity: {
+          navigationState: {
+            currentUrl: "https://www.linkedin.com/company/someone-else/posts/",
+            pageIdentityUrls: ["https://www.linkedin.com/company/someone-else/"]
+          },
+          extractionState: {
+            currentUrl: "https://www.linkedin.com/company/someone-else/posts/",
+            pageIdentityUrls: ["https://www.linkedin.com/company/someone-else/"]
+          }
+        }
+      }),
+      []
+    );
+  });
+
+  it("binds the alias proof to the probes immediately after navigation and extraction", () => {
+    assert.match(
+      collectorSource,
+      /\["browser", session, "open", activityUrl\][\s\S]*?const navigationProbe = await probeSafety\(\);/
+    );
+    assert.match(
+      collectorSource,
+      /const safetyProbe = await probeSafety\(\);[\s\S]*?browserCompanyIdentity: \{[\s\S]*?navigationState: parseJsonOutput\(navigationProbe\)\[0\][\s\S]*?extractionState: parseJsonOutput\(safetyProbe\)\[0\]/
+    );
+    assert.match(collectorSource, /pageIdentityUrls: \[\.\.\.new Set\(\[/);
+    assert.match(collectorSource, /link\[rel="canonical"\]/);
+    assert.match(collectorSource, /meta\[property="og:url"\]/);
+    assert.match(
+      collectorSource,
+      /browserCompanyIdentity = browserCollection\.browserCompanyIdentity/
+    );
   });
 
   it("fails closed on a native post URL or author that differs from the target", () => {

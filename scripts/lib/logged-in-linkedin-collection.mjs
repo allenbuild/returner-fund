@@ -1064,12 +1064,12 @@ export function mergeOwnedLinkedInPosts(
   postGroups,
   {
     accountUrl,
+    browserCompanyIdentity = null,
     targetName,
     limit = Number.POSITIVE_INFINITY
   }
 ) {
-  const expectedAccountSlug = linkedinAccountSlugFromUrl(accountUrl);
-  if (!expectedAccountSlug) return [];
+  if (!linkedinAccountSlugFromUrl(accountUrl)) return [];
 
   const observationsById = new Map();
   for (const post of postGroups.flat()) {
@@ -1107,27 +1107,127 @@ export function mergeOwnedLinkedInPosts(
     // lets DOM identity authorize adapter metrics without ever trusting an
     // opaque adapter row on its own.
     .filter((post) =>
-      linkedinPostStrictlyBelongsToAccount(post, accountUrl, targetName)
+      linkedinPostStrictlyBelongsToAccount(
+        post,
+        accountUrl,
+        targetName,
+        { browserCompanyIdentity }
+      )
     )
     .sort(compareLinkedInRecency)
     .slice(0, limit);
 }
 
-export function linkedinPostStrictlyBelongsToAccount(post, accountUrl, targetName) {
-  const expectedAccountSlug = linkedinAccountSlugFromUrl(accountUrl);
+export function linkedinPostStrictlyBelongsToAccount(
+  post,
+  accountUrl,
+  targetName,
+  { browserCompanyIdentity = null } = {}
+) {
+  const expectedAccountSlugs = linkedinExpectedAccountSlugs(
+    accountUrl,
+    browserCompanyIdentity
+  );
   const postId = linkedinPostIdFromUrl(post?.url);
-  if (!expectedAccountSlug || !postId || linkedinPostIsExplicitRepost(post, targetName)) {
+  if (!expectedAccountSlugs.size || !postId || linkedinPostIsExplicitRepost(post, targetName)) {
     return false;
   }
 
   const nativeAuthorSlug = linkedinNativeAuthorSlugFromUrl(post.url);
   const authorUrlMatch = (post.authorUrls ?? []).some(
-    (url) => linkedinAccountSlugFromUrl(url) === expectedAccountSlug
+    (url) => expectedAccountSlugs.has(linkedinAccountSlugFromUrl(url))
   );
-  if (nativeAuthorSlug && nativeAuthorSlug !== expectedAccountSlug) return false;
+  if (nativeAuthorSlug && !expectedAccountSlugs.has(nativeAuthorSlug)) return false;
   if (!nativeAuthorSlug && !authorUrlMatch) return false;
 
   return linkedinAuthorTextMatchesTarget(post, targetName);
+}
+
+export function linkedinBrowserCompanyOwnershipAlias({
+  requestedAccountUrl,
+  navigationState,
+  extractionState
+} = {}) {
+  const requested = linkedInCompanyAccountIdentity(requestedAccountUrl);
+  // Vanity redirects are needed only for numeric organization IDs. Do not
+  // broaden an already named account into a second owner identity.
+  if (!requested || !/^\d+$/.test(requested.slug)) return null;
+
+  const navigation = linkedInVerifiedCompanyPageIdentity(navigationState);
+  const extraction = linkedInVerifiedCompanyPageIdentity(extractionState);
+  if (!navigation || !extraction || navigation.slug !== extraction.slug) {
+    return null;
+  }
+  if (navigation.slug === requested.slug || /^\d+$/.test(navigation.slug)) return null;
+  return navigation.accountUrl;
+}
+
+function linkedinExpectedAccountSlugs(accountUrl, browserCompanyIdentity) {
+  const requestedSlug = linkedinAccountSlugFromUrl(accountUrl);
+  if (!requestedSlug) return new Set();
+  const slugs = new Set([requestedSlug]);
+  const verifiedAliasUrl = linkedinBrowserCompanyOwnershipAlias({
+    requestedAccountUrl: accountUrl,
+    navigationState: browserCompanyIdentity?.navigationState,
+    extractionState: browserCompanyIdentity?.extractionState
+  });
+  const aliasSlug = linkedinAccountSlugFromUrl(verifiedAliasUrl);
+  if (aliasSlug) slugs.add(aliasSlug);
+  return slugs;
+}
+
+function linkedInVerifiedCompanyPageIdentity(state) {
+  if (!state || typeof state !== "object") return null;
+  const current = linkedInCompanyAccountIdentity(state.currentUrl, {
+    requirePostsSurface: true
+  });
+  if (!current) return null;
+  const pageIdentityUrls = Array.isArray(state.pageIdentityUrls)
+    ? state.pageIdentityUrls
+    : [];
+  const pageIdentityMatches = pageIdentityUrls.some((value) => {
+    const identity = linkedInCompanyAccountIdentity(value);
+    return (
+      identity?.slug === current.slug &&
+      (identity.remainingPath.length === 0 ||
+        (identity.remainingPath.length === 1 && identity.remainingPath[0] === "posts"))
+    );
+  });
+  return pageIdentityMatches ? current : null;
+}
+
+function linkedInCompanyAccountIdentity(value, { requirePostsSurface = false } = {}) {
+  try {
+    const url = new URL(value);
+    const host = url.hostname.replace(/^www\./, "").toLowerCase();
+    if (
+      url.protocol !== "https:" ||
+      url.username ||
+      url.password ||
+      url.port ||
+      (host !== "linkedin.com" && !host.endsWith(".linkedin.com"))
+    ) {
+      return null;
+    }
+    const parts = decodeURIComponent(url.pathname).split("/").filter(Boolean);
+    if (parts[0]?.toLowerCase() !== "company") return null;
+    const slug = linkedinAccountSlugFromUrl(value);
+    const remainingPath = parts.slice(2).map((part) => part.toLowerCase());
+    if (
+      !slug ||
+      (requirePostsSurface &&
+        (remainingPath.length !== 1 || remainingPath[0] !== "posts"))
+    ) {
+      return null;
+    }
+    return {
+      slug,
+      remainingPath,
+      accountUrl: `https://www.linkedin.com/company/${encodeURIComponent(slug)}/`
+    };
+  } catch {
+    return null;
+  }
 }
 
 export function linkedinPostIsExplicitRepost(post, targetName = "") {
