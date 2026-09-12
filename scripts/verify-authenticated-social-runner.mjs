@@ -16,6 +16,7 @@ import { verifyAuthBrowserLaunchAgent } from "./lib/auth-browser-service.mjs";
 
 const INSTAGRAM_SETTINGS_URL = "https://www.instagram.com/accounts/edit/";
 const LINKEDIN_SELF_URL = "https://www.linkedin.com/in/me/";
+const BROWSER_PROFILE_PROBE_URL = "https://example.com/";
 const MAX_COMMAND_TIMEOUT_MS = 60_000;
 const MAX_WAIT_TIMEOUT_MS = 8_000;
 const MAX_PROFILE_CONFIG_BYTES = 1024 * 1024;
@@ -431,7 +432,7 @@ export async function verifyOpenCliBrowserProfileConnection(runCommand) {
       session,
       runOpenCli: runCommand,
       operation: () => runCommand(
-        ["browser", session, "open", "about:blank"],
+        ["browser", session, "open", BROWSER_PROFILE_PROBE_URL],
         { timeoutMs: MAX_COMMAND_TIMEOUT_MS }
       )
     });

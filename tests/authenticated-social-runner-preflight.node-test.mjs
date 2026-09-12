@@ -404,6 +404,10 @@ test("cold preflight retries a disconnected profile and proves the exact Instagr
     retryable: false,
     attempts: 1
   });
+  const profileOpen = calls.find((args) =>
+    args[0] === "browser" && args[1].startsWith("preflight-profile-") && args[2] === "open"
+  );
+  assert.deepEqual(profileOpen?.slice(2), ["open", "https://example.com/"]);
   assert.equal(result.linkedin.attempts, 1);
   assert.equal(result.instagram.attempts, 2);
   assert.deepEqual(sleeps, [2_000]);
