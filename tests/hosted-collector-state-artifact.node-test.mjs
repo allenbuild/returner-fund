@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
+import { createHash } from "node:crypto";
 import {
   mkdtemp,
   mkdir,
@@ -26,7 +27,7 @@ import {
   promoteHostedCollectorStateArtifact,
   stageHostedCollectorStateArtifact
 } from "../scripts/lib/hosted-collector-state-artifact.mjs";
-import { redactTokenLikeStrings } from "../scripts/lib/public-token-redaction.mjs";
+import { redactTokenLikeValues } from "../scripts/lib/public-token-redaction.mjs";
 
 const SLOT = "central-2026-09-07-1800";
 const SHA = "a".repeat(40);
@@ -35,6 +36,104 @@ const RUN_ID = 34100000000;
 const RUN_ATTEMPT = 2;
 const NOW = new Date("2026-09-08T03:00:00.000Z");
 const TOKEN = "ghs_fixture_token_1234567890";
+const PRODUCER_REDACTION_CASES = Object.freeze([
+  {
+    name: "complete generic private key",
+    field: "privateKey",
+    value: `-----BEGIN PRIVATE KEY-----\n${"private-material".repeat(2)}\n-----END PRIVATE KEY-----`,
+    sensitiveFragment: "-----BEGIN PRIVATE KEY-----"
+  },
+  {
+    name: "RSA private-key header",
+    field: "rsaPrivateKey",
+    value: "-----BEGIN RSA PRIVATE KEY----- truncated",
+    sensitiveFragment: "-----BEGIN RSA PRIVATE KEY-----"
+  },
+  {
+    name: "EC private-key header",
+    field: "ecPrivateKey",
+    value: "-----BEGIN EC PRIVATE KEY----- truncated",
+    sensitiveFragment: "-----BEGIN EC PRIVATE KEY-----"
+  },
+  {
+    name: "OpenSSH private-key header",
+    field: "openSshPrivateKey",
+    value: "-----BEGIN OPENSSH PRIVATE KEY----- truncated",
+    sensitiveFragment: "-----BEGIN OPENSSH PRIVATE KEY-----"
+  },
+  {
+    name: "GitHub legacy token",
+    field: "githubLegacy",
+    value: "ghp_fixtureToken1234567890",
+    sensitiveFragment: "ghp_fixtureToken1234567890"
+  },
+  {
+    name: "GitHub fine-grained token",
+    field: "githubFineGrained",
+    value: "github_pat_fixtureToken1234567890",
+    sensitiveFragment: "github_pat_fixtureToken1234567890"
+  },
+  {
+    name: "Slack token",
+    field: "slack",
+    value: "xoxb-fixture-token-1234567890",
+    sensitiveFragment: "xoxb-fixture-token-1234567890"
+  },
+  {
+    name: "AWS access-key identifier",
+    field: "aws",
+    value: "AKIAABCDEFGHIJKLMNOP",
+    sensitiveFragment: "AKIAABCDEFGHIJKLMNOP"
+  },
+  {
+    name: "boundary-sensitive sk token",
+    field: "openAiStyle",
+    value: `(sk-${"s".repeat(24)})`,
+    sensitiveFragment: `sk-${"s".repeat(24)}`
+  },
+  {
+    name: "JWT",
+    field: "jwt",
+    value: `eyJ${"h".repeat(12)}.${"p".repeat(12)}.${"s".repeat(12)}`,
+    sensitiveFragment: `eyJ${"h".repeat(12)}.${"p".repeat(12)}.${"s".repeat(12)}`
+  },
+  {
+    name: "punctuation-only Bearer value",
+    field: "bearer",
+    value: `Bearer <${"*".repeat(12)}!>`,
+    sensitiveFragment: `<${"*".repeat(12)}!>`
+  },
+  {
+    name: "escaped JSON authorization value",
+    field: "maskedAuthorization",
+    value: "authorization=************",
+    sensitiveFragment: "************"
+  },
+  {
+    name: "escaped JSON authorization backslashes",
+    field: "authorization",
+    value: "\\".repeat(6),
+    sensitiveFragment: "\\".repeat(6)
+  },
+  {
+    name: "authorization diagnostic backslashes",
+    field: "backslashAuthorizationDiagnostic",
+    value: `authorization:${"\\".repeat(6)}`,
+    sensitiveFragment: "\\".repeat(6)
+  },
+  {
+    name: "Bearer diagnostic backslashes",
+    field: "backslashBearerDiagnostic",
+    value: `Bearer ${"\\".repeat(6)}`,
+    sensitiveFragment: "\\".repeat(6)
+  },
+  {
+    name: "escaped JSON proxy authorization with a custom scheme",
+    field: "proxy-authorization",
+    value: `Custom-Scheme <${"!".repeat(12)}>`,
+    sensitiveFragment: `<${"!".repeat(12)}>`
+  }
+]);
 
 test("state artifact names are immutable and bound to Linux, slot, source, run, and attempt", () => {
   assert.equal(
@@ -121,7 +220,7 @@ test("redacted nested authorization diagnostics remain valid and artifact-safe",
     authorization: `Bearer <${"a".repeat(24)}>`,
     proxyAuthorization: `Proxy-Authorization: Custom-Scheme ${"b".repeat(24)}`
   });
-  const checkpointText = redactTokenLikeStrings(JSON.stringify({ rawVisibleText: nested }));
+  const checkpointText = JSON.stringify(redactTokenLikeValues({ rawVisibleText: nested }));
   const checkpoint = JSON.parse(checkpointText);
   assert.deepEqual(JSON.parse(checkpoint.rawVisibleText), {
     authorization: "Bearer [redacted-public-token]",
@@ -144,6 +243,151 @@ test("redacted nested authorization diagnostics remain valid and artifact-safe",
     bundleRoot
   });
   assert.equal(staged.fileCount, 1);
+});
+
+test("producer redaction aligns with every artifact detector and preserves resumable bytes", async (t) => {
+  const fixture = await stateFixture(t, { empty: true });
+  const attemptKey = "instagram:company:company-fixture:https://www.instagram.com/fixture/";
+  const campaignKey = "central-2026-09-07-1800-public-s26-shard-0-of-1";
+  const checkedAt = "2026-09-08T02:10:00.000Z";
+  const cutoff = "2026-09-08T02:00:00.000Z";
+  const journalName = `${"b".repeat(64)}.ndjson`;
+  const journalRelativePath = `recent-window-journals/shard-0-of-1/${journalName}`;
+  const journalText = `${JSON.stringify({
+    schemaVersion: "recent-native-page-receipt.v1",
+    sequence: 1,
+    attemptKey,
+    pairKey: "S26:company:company-fixture:instagram",
+    requestedAt: cutoff,
+    completedAt: checkedAt,
+    requestUrl: "https://www.instagram.com/api/v1/feed/user/fixture/",
+    status: "success",
+    cursorIn: null,
+    cursorOut: null,
+    sourceExhausted: true,
+    responseSha256: "c".repeat(64),
+    coverageFrom: "2026-08-08T02:00:00.000Z",
+    coverageThrough: cutoff
+  })}\n`;
+  const journalSha256 = createHash("sha256").update(journalText).digest("hex");
+  const journalPath = path.join(fixture.slotRoot, ...journalRelativePath.split("/"));
+  await mkdir(path.dirname(journalPath), { recursive: true });
+  await writeFile(journalPath, journalText);
+
+  const nestedDiagnostics = Object.fromEntries(
+    PRODUCER_REDACTION_CASES.map(({ field, value }) => [field, value])
+  );
+  const checkpoint = {
+    attempts: {
+      [attemptKey]: {
+        attemptKey,
+        batchSlug: "S26",
+        platform: "instagram",
+        companySlug: "fixture",
+        entityType: "company",
+        entityId: "company-fixture",
+        entityName: "Fixture",
+        accountUrl: "https://www.instagram.com/fixture/",
+        startedAt: cutoff,
+        checkedAt,
+        status: "completed",
+        outcomeStatus: "verified_recent_window",
+        retryable: false,
+        recentWindowCoverageCutoff: cutoff,
+        recentWindowProof: {
+          schemaVersion: "recent-native-window-proof.v1",
+          status: "complete",
+          coverageScope: "pair_all_native_targets",
+          coveredFrom: "2026-08-08T02:00:00.000Z",
+          coveredThrough: cutoff,
+          checkedAt,
+          sourceExhausted: true,
+          nextCursor: null,
+          truncated: false,
+          limitReached: false,
+          pageLimit: 2,
+          pagesAttempted: 1,
+          pagesFetched: 1,
+          blockers: [],
+          requestJournal: {
+            path: journalRelativePath,
+            sha256: journalSha256,
+            observedAt: checkedAt
+          }
+        },
+        source: {
+          autonomousAttempt: { campaignKey, attemptKey }
+        },
+        authorization: "\\".repeat(6),
+        backslashDiagnostic: `authorization:${"\\".repeat(6)}`,
+        rawVisibleText: JSON.stringify(nestedDiagnostics)
+      }
+    }
+  };
+  const checkpointText = `${JSON.stringify(redactTokenLikeValues(checkpoint))}\n`;
+  const parsedCheckpoint = JSON.parse(checkpointText);
+  const parsedAttempt = parsedCheckpoint.attempts[attemptKey];
+  const parsedDiagnostics = JSON.parse(parsedAttempt.rawVisibleText);
+  for (const detectorCase of PRODUCER_REDACTION_CASES) {
+    assert.equal(
+      checkpointText.includes(detectorCase.sensitiveFragment),
+      false,
+      `${detectorCase.name} must be removed before artifact staging`
+    );
+    assert.ok(
+      parsedDiagnostics[detectorCase.field].includes("[redacted-public-token]"),
+      `${detectorCase.name} must use the stable producer redaction marker`
+    );
+  }
+  assert.equal(parsedAttempt.attemptKey, attemptKey);
+  assert.equal(parsedAttempt.source.autonomousAttempt.campaignKey, campaignKey);
+  assert.equal(parsedAttempt.source.autonomousAttempt.attemptKey, attemptKey);
+  assert.equal(parsedAttempt.authorization, "[redacted-public-token]");
+  assert.equal(
+    parsedAttempt.backslashDiagnostic,
+    "authorization:[redacted-public-token]"
+  );
+  assert.equal(parsedAttempt.recentWindowProof.requestJournal.path, journalRelativePath);
+  assert.equal(parsedAttempt.recentWindowProof.requestJournal.sha256, journalSha256);
+
+  const checkpointPath = path.join(
+    fixture.slotRoot,
+    "checkpoint-public-s26-shard-0-of-1.json"
+  );
+  await writeFile(checkpointPath, checkpointText);
+  const bundleRoot = path.join(
+    fixture.managedRoot,
+    "returner-fund-hosted-collector-artifact",
+    "detector-alignment"
+  );
+  const staged = await stageHostedCollectorStateArtifact({
+    ...provenance(),
+    managedRoot: fixture.managedRoot,
+    stateRoot: fixture.stateRoot,
+    bundleRoot
+  });
+  assert.equal(staged.fileCount, 2);
+
+  const stagedCheckpointPath = path.join(
+    bundleRoot,
+    "state",
+    "slots",
+    hostedCollectorStateSlotSegment(SLOT),
+    "checkpoint-public-s26-shard-0-of-1.json"
+  );
+  const stagedJournalPath = path.join(
+    bundleRoot,
+    "state",
+    "slots",
+    hostedCollectorStateSlotSegment(SLOT),
+    ...journalRelativePath.split("/")
+  );
+  assert.equal(await readFile(stagedCheckpointPath, "utf8"), checkpointText);
+  const stagedJournalText = await readFile(stagedJournalPath, "utf8");
+  assert.equal(stagedJournalText, journalText);
+  assert.equal(createHash("sha256").update(stagedJournalText).digest("hex"), journalSha256);
+  assert.equal(await readFile(checkpointPath, "utf8"), checkpointText);
+  assert.equal(await readFile(journalPath, "utf8"), journalText);
 });
 
 test("the maximum supported file count produces a bounded manifest that promotes", async (t) => {

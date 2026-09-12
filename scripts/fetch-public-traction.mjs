@@ -101,7 +101,10 @@ import {
   completeAutonomousCollectorProvenance,
   readAutonomousCollectorLaunchProvenance
 } from "./lib/autonomous-collector-provenance.mjs";
-import { redactTokenLikeStrings } from "./lib/public-token-redaction.mjs";
+import {
+  redactTokenLikeStrings,
+  redactTokenLikeValues
+} from "./lib/public-token-redaction.mjs";
 import { reconcileRetiredFounderOperationalFailures } from "./lib/public-collector-operational-references.mjs";
 import { validatedRepositoryDataRoot } from "./lib/validated-repository-data-root.mjs";
 
@@ -826,6 +829,7 @@ async function runLane(lane, tasks, limit) {
         console.log(`[${lane}/worker-${workerIndex + 1}] ${task.label}`);
         const cooldown = platformCooldowns.get(lane);
         if (cooldown && cooldown.until > Date.now()) {
+          const checkedAt = lane === "instagram" ? new Date().toISOString() : now;
           const message = `Platform cooldown active until ${new Date(cooldown.until).toISOString()}: ${cooldown.reason}`;
           const providerBlocker = lane === "x"
             ? xPublicBlockerFromCooldown(cooldown, message)
@@ -844,12 +848,14 @@ async function runLane(lane, tasks, limit) {
                   identity.name,
                   identity.entityId
                 ),
+                checkedAt,
                 accountUrl: identity.accountUrl,
                 attemptKey: identity.attemptKey,
                 ...(providerBlocker ? { retryable: false, blocker: providerBlocker } : {})
               }
             : {
                 ...failure(lane, task.company, null, message),
+                checkedAt,
                 attemptKey: identity?.attemptKey ?? null
               });
           if (identity) {
@@ -860,7 +866,7 @@ async function runLane(lane, tasks, limit) {
             attemptMap.set(identity.attemptKey, socialAttemptRecord({
               attemptKey: identity.attemptKey,
               status: "failed",
-              checkedAt: now,
+              checkedAt,
               error: message,
               ...(providerBlocker ? { blocker: providerBlocker } : {}),
               ...recentWindowFields,
@@ -1417,6 +1423,13 @@ async function attemptSocialProfile(company, entity, entityType, platform, accou
       attemptSummary,
       attributedFailures
     );
+    const instagramFailureReceipt = platform === "instagram"
+      ? attributedFailures.find((row) =>
+          providerBlocker
+            ? row.blocker === providerBlocker
+            : row.message === attemptSummary.failureReason
+        ) ?? null
+      : null;
     const outcomeStatus = recentProof?.recentWindowProof
       ? "completed"
       : providerBlocker
@@ -1427,7 +1440,7 @@ async function attemptSocialProfile(company, entity, entityType, platform, accou
       attemptKey: key,
       status: "done",
       ...(recentProof?.startedAt ? { startedAt: recentProof.startedAt } : {}),
-      checkedAt: recentProof?.checkedAt ?? now,
+      checkedAt: instagramFailureReceipt?.checkedAt ?? recentProof?.checkedAt ?? now,
       error: recentProof?.recentWindowProof ? undefined : failureReason || undefined,
       ...(providerBlocker ? { blocker: providerBlocker } : {}),
       ...(recentProof?.recentWindowProof
@@ -1454,6 +1467,7 @@ async function attemptSocialProfile(company, entity, entityType, platform, accou
           : mappedTerminalOutcome?.reason ?? collectorOutcomeReason(attemptSummary)
     }, { platform, companySlug: company.slug, entityType, entityId, name, accountUrl: url }));
   } catch (error) {
+    const checkedAt = platform === "instagram" ? new Date().toISOString() : now;
     recordPlatformCooldownIfNeeded(platform, error);
     const officialSourceBlocked = error instanceof OfficialPublicSourceUnavailableError;
     const providerBlocker = officialSourceBlocked
@@ -1472,6 +1486,7 @@ async function attemptSocialProfile(company, entity, entityType, platform, accou
     );
     failures.push({
       ...failure(platform, company, url, errorMessage(error), entityType, name, entityId),
+      checkedAt,
       accountUrl: url,
       attemptKey: key,
       ...(providerBlocker ? { retryable, blocker: providerBlocker } : {})
@@ -1497,7 +1512,7 @@ async function attemptSocialProfile(company, entity, entityType, platform, accou
     attemptMap.set(key, socialAttemptRecord({
       attemptKey: key,
       status: "failed",
-      checkedAt: now,
+      checkedAt,
       error: message,
       ...(providerBlocker ? { blocker: providerBlocker } : {}),
       ...recentWindowFields,
@@ -4439,6 +4454,7 @@ async function ingestInstagramPublicProfile(company, entity, entityType, account
         entityName(entity, entityType),
         entityIdFor(company, entity, entityType)
       ),
+      checkedAt: new Date().toISOString(),
       ...(providerBlocker ? { retryable: false, blocker: providerBlocker } : {})
     });
   }
@@ -4455,6 +4471,7 @@ async function ingestInstagramPublicProfile(company, entity, entityType, account
         entityName(entity, entityType),
         entityIdFor(company, entity, entityType)
       ),
+      checkedAt: new Date().toISOString(),
       ...(nativeFeedReceipt.paginationProviderBlocker
         ? { retryable: false, blocker: nativeFeedReceipt.paginationProviderBlocker }
         : {})
@@ -8617,8 +8634,10 @@ function writeStdout(value) {
 }
 
 function serializeJson(value, { compact = false } = {}) {
-  return redactTokenLikeStrings(
-    JSON.stringify(withWellFormedJsonStrings(value), null, compact ? undefined : 2)
+  return JSON.stringify(
+    redactTokenLikeValues(withWellFormedJsonStrings(value)),
+    null,
+    compact ? undefined : 2
   );
 }
 

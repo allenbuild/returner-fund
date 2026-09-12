@@ -21,17 +21,107 @@ import {
   assertPublicEvidenceArtifactSize,
   serializeCompactPublicEvidenceArtifact
 } from "../scripts/lib/public-evidence-artifact.mjs";
-import { redactTokenLikeStrings } from "../scripts/lib/public-token-redaction.mjs";
+import {
+  redactTokenLikeStrings,
+  redactTokenLikeValues
+} from "../scripts/lib/public-token-redaction.mjs";
 import { canonicalSocialAccountUrl } from "../scripts/lib/social-account-url.mjs";
 
 const root = process.cwd();
+
+const HOSTED_ARTIFACT_DETECTOR_CASES = Object.freeze([
+  {
+    name: "complete generic private key",
+    nested: {
+      diagnostic: `-----BEGIN PRIVATE KEY-----\n${"private-material".repeat(2)}\n-----END PRIVATE KEY-----`
+    },
+    sensitiveFragment: "-----BEGIN PRIVATE KEY-----"
+  },
+  {
+    name: "RSA private-key header",
+    nested: { diagnostic: "-----BEGIN RSA PRIVATE KEY----- truncated" },
+    sensitiveFragment: "-----BEGIN RSA PRIVATE KEY-----"
+  },
+  {
+    name: "EC private-key header",
+    nested: { diagnostic: "-----BEGIN EC PRIVATE KEY----- truncated" },
+    sensitiveFragment: "-----BEGIN EC PRIVATE KEY-----"
+  },
+  {
+    name: "OpenSSH private-key header",
+    nested: { diagnostic: "-----BEGIN OPENSSH PRIVATE KEY----- truncated" },
+    sensitiveFragment: "-----BEGIN OPENSSH PRIVATE KEY-----"
+  },
+  {
+    name: "GitHub legacy token",
+    nested: { diagnostic: "ghp_fixtureToken1234567890" },
+    sensitiveFragment: "ghp_fixtureToken1234567890"
+  },
+  {
+    name: "GitHub fine-grained token",
+    nested: { diagnostic: "github_pat_fixtureToken1234567890" },
+    sensitiveFragment: "github_pat_fixtureToken1234567890"
+  },
+  {
+    name: "Slack token",
+    nested: { diagnostic: "xoxb-fixture-token-1234567890" },
+    sensitiveFragment: "xoxb-fixture-token-1234567890"
+  },
+  {
+    name: "AWS access-key identifier",
+    nested: { diagnostic: "AKIAABCDEFGHIJKLMNOP" },
+    sensitiveFragment: "AKIAABCDEFGHIJKLMNOP"
+  },
+  {
+    name: "boundary-sensitive sk token",
+    nested: { diagnostic: `(sk-${"s".repeat(24)})` },
+    sensitiveFragment: `sk-${"s".repeat(24)}`
+  },
+  {
+    name: "JWT",
+    nested: {
+      diagnostic: `eyJ${"h".repeat(12)}.${"p".repeat(12)}.${"s".repeat(12)}`
+    },
+    sensitiveFragment: `eyJ${"h".repeat(12)}.${"p".repeat(12)}.${"s".repeat(12)}`
+  },
+  {
+    name: "punctuation-only Bearer value",
+    nested: { diagnostic: `Bearer <${"*".repeat(12)}!>` },
+    sensitiveFragment: `<${"*".repeat(12)}!>`
+  },
+  {
+    name: "escaped JSON authorization value",
+    nested: { authorization: "************" },
+    sensitiveFragment: "************"
+  },
+  {
+    name: "escaped JSON authorization backslashes",
+    nested: { authorization: "\\".repeat(6) },
+    sensitiveFragment: "\\".repeat(6)
+  },
+  {
+    name: "authorization diagnostic backslashes",
+    nested: { diagnostic: `authorization:${"\\".repeat(6)}` },
+    sensitiveFragment: "\\".repeat(6)
+  },
+  {
+    name: "Bearer diagnostic backslashes",
+    nested: { diagnostic: `Bearer ${"\\".repeat(6)}` },
+    sensitiveFragment: "\\".repeat(6)
+  },
+  {
+    name: "escaped JSON proxy authorization with a custom scheme",
+    nested: { "proxy-authorization": `Custom-Scheme <${"!".repeat(12)}>` },
+    sensitiveFragment: `<${"!".repeat(12)}>`
+  }
+]);
 
 test("public output redaction preserves collector provenance while covering hosted-artifact credential shapes", () => {
   const campaignKey = "manual-replay-20260820T173210Z-full-public-ingestion-task-pagination-fix";
   const secret = `sk-${"a".repeat(24)}`;
   const jwt = `eyJ${"a".repeat(12)}.${"b".repeat(12)}.${"c".repeat(12)}`;
   const nestedBearer = `Bearer <${"f".repeat(24)}>`;
-  const serialized = redactTokenLikeStrings(JSON.stringify({
+  const serialized = JSON.stringify(redactTokenLikeValues({
     source: {
       autonomousAttempt: {
         campaignKey,
@@ -60,6 +150,93 @@ test("public output redaction preserves collector provenance while covering host
   assert.doesNotMatch(serialized, new RegExp(secret));
   assert.doesNotMatch(serialized, new RegExp(jwt.replace(/[.]/g, "\\.")));
   assert.doesNotMatch(serialized, new RegExp(nestedBearer.replace(/[<>]/g, "\\$&")));
+});
+
+test("public output redaction covers every hosted-artifact detector without breaking nested JSON", () => {
+  const campaignKey = "central-2026-09-11-0600-public-s26-shard-0-of-4";
+  for (const [index, detectorCase] of HOSTED_ARTIFACT_DETECTOR_CASES.entries()) {
+    const stableValue = `detector-case-${index}`;
+    const source = {
+      source: { autonomousAttempt: { campaignKey, attemptKey: campaignKey } },
+      rawVisibleText: JSON.stringify({ stable: stableValue, ...detectorCase.nested })
+    };
+    const unredacted = JSON.stringify(source);
+    assert.ok(
+      unredacted.includes(detectorCase.sensitiveFragment),
+      `${detectorCase.name} fixture must exercise its detector`
+    );
+
+    const redacted = JSON.stringify(redactTokenLikeValues(source));
+    const parsed = JSON.parse(redacted);
+    const nested = JSON.parse(parsed.rawVisibleText);
+
+    assert.equal(parsed.source.autonomousAttempt.campaignKey, campaignKey);
+    assert.equal(parsed.source.autonomousAttempt.attemptKey, campaignKey);
+    assert.equal(nested.stable, stableValue);
+    assert.ok(
+      redacted.includes("[redacted-public-token]"),
+      `${detectorCase.name} must emit the stable redaction marker`
+    );
+    assert.equal(
+      redacted.includes(detectorCase.sensitiveFragment),
+      false,
+      `${detectorCase.name} must not survive producer serialization`
+    );
+  }
+});
+
+test("structural redaction safely handles direct, diagnostic, and nested backslash credentials", () => {
+  const backslashes = "\\".repeat(6);
+  const source = {
+    authorization: backslashes,
+    diagnostic: `authorization:${backslashes}`,
+    bearerDiagnostic: `Bearer ${backslashes}`,
+    rawVisibleText: JSON.stringify({
+      authorization: backslashes,
+      diagnostic: `authorization:${backslashes}`,
+      bearerDiagnostic: `Bearer ${backslashes}`
+    })
+  };
+
+  const redacted = redactTokenLikeValues(source);
+  const serialized = JSON.stringify(redacted);
+  const nested = JSON.parse(redacted.rawVisibleText);
+
+  assert.equal(source.authorization, backslashes);
+  assert.equal(JSON.parse(source.rawVisibleText).authorization, backslashes);
+  assert.equal(redacted.authorization, "[redacted-public-token]");
+  assert.equal(redacted.diagnostic, "authorization:[redacted-public-token]");
+  assert.equal(redacted.bearerDiagnostic, "Bearer [redacted-public-token]");
+  assert.equal(nested.authorization, "[redacted-public-token]");
+  assert.equal(nested.diagnostic, "authorization:[redacted-public-token]");
+  assert.equal(nested.bearerDiagnostic, "Bearer [redacted-public-token]");
+  assert.doesNotThrow(() => JSON.parse(serialized));
+  assert.equal(serialized.includes(backslashes), false);
+
+  const directText = redactTokenLikeStrings(JSON.stringify({ authorization: backslashes }));
+  assert.deepEqual(JSON.parse(directText), {
+    authorization: "[redacted-public-token]"
+  });
+  const diagnosticText = redactTokenLikeStrings(JSON.stringify({
+    value: `authorization:${backslashes}`
+  }));
+  assert.deepEqual(JSON.parse(diagnosticText), {
+    value: "authorization:[redacted-public-token]"
+  });
+});
+
+test("structural redaction masks non-string authorization values", () => {
+  const redacted = redactTokenLikeValues({
+    authorization: 123456789012,
+    "proxy-authorization": [123456789012],
+    nested: { authorization: { token: 123456789012 } }
+  });
+
+  assert.deepEqual(redacted, {
+    authorization: "[redacted-public-token]",
+    "proxy-authorization": "[redacted-public-token]",
+    nested: { authorization: "[redacted-public-token]" }
+  });
 });
 
 function withMockPublicDns(source) {

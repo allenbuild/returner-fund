@@ -1629,6 +1629,93 @@ describe("autonomous collector snapshot validation", () => {
   });
 });
 
+function instagramShardedCooldownSnapshot() {
+  const runBinding = {
+    schemaVersion: 1,
+    attemptId: "public-s26-attempt",
+    campaignKey: "central-2026-09-11-0600",
+    idempotencyKey: "central-2026-09-11-0600",
+    executionNonce: "public-s26-execution",
+    kind: "public",
+    batchSlug: "S26",
+    shardCount: 2,
+    startedAt: "2026-09-11T22:00:00.000Z"
+  };
+  const shardAttempts = [{
+    ...runBinding,
+    shardIndex: 0,
+    completedAt: "2026-09-11T22:00:40.000Z"
+  }, {
+    ...runBinding,
+    shardIndex: 1,
+    completedAt: "2026-09-11T22:00:45.000Z"
+  }];
+  const transportAccountUrl = "https://instagram.com/transport";
+  const blockerAccountUrl = "https://instagram.com/blocked";
+  const transportAttemptKey =
+    `instagram:company:company-transport:${transportAccountUrl}`;
+  const blockerAttemptKey =
+    `instagram:company:company-blocked:${blockerAccountUrl}`;
+  const transportFailure = "fetch failed: ECONNRESET";
+
+  return {
+    source: {
+      label: "Public unauthenticated platform/page ingestion",
+      batchSlug: "S26",
+      shardCount: 2,
+      autonomousAttempt: { ...shardAttempts[1] },
+      shardAttempts
+    },
+    attempts: {
+      transport: {
+        attemptKey: transportAttemptKey,
+        batchSlug: "S26",
+        collectorShardIndex: 0,
+        platform: "instagram",
+        entityType: "company",
+        entityId: "company-transport",
+        accountUrl: transportAccountUrl,
+        checkedAt: "2026-09-11T22:00:06.000Z",
+        error: transportFailure,
+        retryable: true,
+        outcomeStatus: "failed",
+        outcomeReason: "collector_reported_failure"
+      },
+      blocker: {
+        attemptKey: blockerAttemptKey,
+        batchSlug: "S26",
+        collectorShardIndex: 1,
+        platform: "instagram",
+        entityType: "company",
+        entityId: "company-blocked",
+        accountUrl: blockerAccountUrl,
+        checkedAt: "2026-09-11T22:00:05.000Z",
+        error: "Instagram anonymous native feed returned HTTP 403.",
+        retryable: false,
+        outcomeStatus: "blocked_or_empty",
+        outcomeReason: "collector_provider_blocked",
+        blocker: {
+          provider: "instagram_public_json",
+          code: "instagram_public_access_blocked",
+          retryAt: "2026-09-11T22:10:05.000Z",
+          httpStatus: 403,
+          message: "Instagram anonymous native feed returned HTTP 403."
+        }
+      }
+    },
+    failures: [{
+      attemptKey: transportAttemptKey,
+      batchSlug: "S26",
+      platform: "instagram",
+      entityType: "company",
+      entityId: "company-transport",
+      accountUrl: transportAccountUrl,
+      checkedAt: "2026-09-11T22:00:06.000Z",
+      message: transportFailure
+    }]
+  };
+}
+
 describe("autonomous collector task accounting", () => {
   it("suppresses only deterministic profile 404 retries with a successful alternate terminal source path", () => {
     const snapshot = {
@@ -1898,6 +1985,138 @@ describe("autonomous collector task accounting", () => {
       outcomeReason: "collector_reported_failure"
     };
     assert.deepEqual(autonomousCollectorRetryableFailures(failed), [transportFailure]);
+  });
+
+  it("terminalizes an exact run-bound Instagram shard transport failure under a sibling provider cooldown", () => {
+    const snapshot = instagramShardedCooldownSnapshot();
+
+    assert.deepEqual(autonomousCollectorRetryableFailures(snapshot), []);
+
+    // A retry process keeps still-live terminal attempts in its exact slot
+    // checkpoint rather than rewriting their checkedAt timestamp.
+    snapshot.attempts.blocker.checkedAt = "2026-09-11T21:59:50.000Z";
+    snapshot.attempts.blocker.blocker.retryAt = "2026-09-11T22:10:00.000Z";
+    assert.deepEqual(autonomousCollectorRetryableFailures(snapshot), []);
+  });
+
+  it("does not suppress a distinct hard row that shares a correlated transport attempt identity", () => {
+    const snapshot = instagramShardedCooldownSnapshot();
+    const hardFailure = "HTTP 503 service unavailable";
+    snapshot.failures.push({
+      ...snapshot.failures[0],
+      message: hardFailure,
+      retryable: true
+    });
+
+    assert.deepEqual(autonomousCollectorRetryableFailures(snapshot), [hardFailure]);
+  });
+
+  it("stamps merged public attempts with only their validated source shard", () => {
+    const fixture = instagramShardedCooldownSnapshot();
+    const snapshots = fixture.source.shardAttempts.map((binding, shardIndex) => {
+      const sourceAttempt = shardIndex === 0
+        ? fixture.attempts.transport
+        : fixture.attempts.blocker;
+      const attempt = { ...sourceAttempt };
+      delete attempt.collectorShardIndex;
+      return {
+        source: {
+          label: "Public unauthenticated platform/page ingestion",
+          batchSlug: "S26",
+          fetchedAt: binding.startedAt,
+          companyShardIndex: shardIndex,
+          companyShardCount: 2,
+          autonomousAttempt: binding
+        },
+        evidence: [],
+        needsReview: [],
+        failures: [],
+        attempts: { [attempt.attemptKey]: attempt },
+        discoveryAttempts: [],
+        sourceDiscoveryPaths: []
+      };
+    });
+
+    const merged = mergePublicEvidenceSnapshots(snapshots);
+    const byAttemptKey = new Map(
+      Object.values(merged.attempts).map((attempt) => [attempt.attemptKey, attempt])
+    );
+    assert.equal(
+      byAttemptKey.get(fixture.attempts.transport.attemptKey).collectorShardIndex,
+      0
+    );
+    assert.equal(
+      byAttemptKey.get(fixture.attempts.blocker.attemptKey).collectorShardIndex,
+      1
+    );
+
+    delete snapshots[0].source.autonomousAttempt;
+    snapshots[0].attempts[fixture.attempts.transport.attemptKey].collectorShardIndex = 1;
+    const unbound = mergePublicEvidenceSnapshots([snapshots[0]]);
+    assert.equal(Object.values(unbound.attempts)[0].collectorShardIndex, undefined);
+  });
+
+  it("keeps Instagram shard transport failures retryable without exact provider, time, and run binding", () => {
+    const transportFailure = "fetch failed: ECONNRESET";
+    const cases = [
+      ["standalone snapshot", (snapshot) => {
+        delete snapshot.source.shardAttempts;
+        snapshot.source.shardCount = 1;
+        snapshot.source.autonomousAttempt.shardCount = 1;
+      }],
+      ["foreign shard execution", (snapshot) => {
+        snapshot.source.shardAttempts[0].executionNonce = "foreign-execution";
+      }],
+      ["expired cooldown interval", (snapshot) => {
+        snapshot.attempts.blocker.blocker.retryAt = "2026-09-11T22:00:05.500Z";
+      }],
+      ["blocker observed after the transport", (snapshot) => {
+        snapshot.attempts.blocker.checkedAt = "2026-09-11T22:00:07.000Z";
+      }],
+      ["late blocker in a long-running shard", (snapshot) => {
+        snapshot.source.shardAttempts[0].completedAt = "2026-09-11T23:00:00.000Z";
+        snapshot.attempts.blocker.checkedAt = "2026-09-11T22:50:00.000Z";
+        snapshot.attempts.blocker.blocker.retryAt = "2026-09-11T23:00:00.000Z";
+      }],
+      ["blocker exceeds the bounded provider cooldown", (snapshot) => {
+        snapshot.attempts.blocker.blocker.retryAt = "2026-09-11T22:31:05.001Z";
+        snapshot.source.shardAttempts[0].completedAt = "2026-09-11T22:31:06.000Z";
+      }],
+      ["same-shard blocker", (snapshot) => {
+        snapshot.attempts.blocker.collectorShardIndex = 0;
+      }],
+      ["missing transport shard provenance", (snapshot) => {
+        delete snapshot.attempts.transport.collectorShardIndex;
+      }],
+      ["foreign batch", (snapshot) => {
+        snapshot.attempts.transport.batchSlug = "S2026";
+        snapshot.failures[0].batchSlug = "S2026";
+      }],
+      ["untyped blocker", (snapshot) => {
+        snapshot.attempts.blocker.blocker.provider = "instagram_parser";
+      }],
+      ["inexact mapped identity", (snapshot) => {
+        snapshot.attempts.transport.attemptKey += ":other";
+        snapshot.failures[0].attemptKey += ":other";
+      }],
+      ["failure outside the collector attempt", (snapshot) => {
+        snapshot.attempts.transport.checkedAt = "2026-09-11T21:59:59.999Z";
+        snapshot.failures[0].checkedAt = "2026-09-11T21:59:59.999Z";
+      }],
+      ["failure timestamp does not match its attempt receipt", (snapshot) => {
+        snapshot.failures[0].checkedAt = "2026-09-11T22:00:06.001Z";
+      }]
+    ];
+
+    for (const [label, mutate] of cases) {
+      const snapshot = instagramShardedCooldownSnapshot();
+      mutate(snapshot);
+      assert.deepEqual(
+        autonomousCollectorRetryableFailures(snapshot),
+        [transportFailure],
+        label
+      );
+    }
   });
 
   it("corrects persisted terminal-review retry flags without hiding a real collection interruption", () => {

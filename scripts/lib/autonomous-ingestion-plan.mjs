@@ -1337,6 +1337,9 @@ const NON_RETRYABLE_COLLECTOR_HTTP_STATUS_PATTERN =
   /(?:\bhttp(?:[_ -]?status)?\s*[:=_/-]?\s*(?:400|401|404|405|410|422)\b|\bstatus(?: code)?\s*[:=_/-]?\s*(?:400|401|404|405|410|422)\b|\b400\s+bad request\b|\b401\s+unauthori[sz]ed\b|\b404\s+not found\b|\b405\s+method not allowed\b|\b410\s+gone\b|\b422\s+unprocessable entity\b)/i;
 const INTENTIONAL_INSTAGRAM_REVIEW_PATTERN =
   /(?:the mapped profile is a declared coauthor, not the native primary author|the post appeared on the profile surface without native owner or coauthor proof); queued for review and excluded from scored evidence\.?$/i;
+const INSTAGRAM_ANONYMOUS_TRANSPORT_FAILURE_PATTERN =
+  /(?:public fetch timed out|fetch failed|network|socket|\b(?:econn|enet|ehost|epipe|etimedout|und_err)[a-z0-9_]*\b|\babort(?:ed|error)?\b|timed out)/i;
+const INSTAGRAM_PROVIDER_COOLDOWN_MAX_MS = 31 * 60_000;
 
 export function isAutonomousCollectorFailureRetryable(message) {
   const normalized = String(message ?? "").trim();
@@ -1418,6 +1421,13 @@ export function autonomousCollectorRetryableFailures(snapshot) {
     if (!key) continue;
     sourceChecksByOwner.set(key, [...(sourceChecksByOwner.get(key) ?? []), check]);
   }
+  const instagramShardCooldown = runBoundInstagramShardCooldown(snapshot, attempts);
+  const retryDecision = (row) => {
+    if (instagramShardCooldownSuppressesRow(row, attemptsByKey, instagramShardCooldown)) {
+      return false;
+    }
+    return collectorFailureRetryDecision(row, attemptsByKey, attemptsByOwner);
+  };
 
   const explicitAttemptFailures = attempts
     .filter((attempt) => attempt.retryable === true)
@@ -1426,6 +1436,7 @@ export function autonomousCollectorRetryableFailures(snapshot) {
     // established intentional/provider terminal contracts may override an
     // explicit retryable flag.
     .filter((attempt) => !isAuthoritativeCollectorNoRetryAttempt(attempt))
+    .filter((attempt) => !instagramShardCooldown?.terminalizedAttempts.has(attempt))
     .map((attempt) =>
       attempt.error ??
       attempt.failureReason ??
@@ -1438,42 +1449,30 @@ export function autonomousCollectorRetryableFailures(snapshot) {
       newestCollectorAttempt(attemptsByOwner.get(collectorOwnerKey(check)) ?? []),
       sourceChecksByOwner.get(collectorOwnerKey(check)) ?? []
     ))
-    .filter((check) => collectorFailureRetryDecision(check, attemptsByKey, attemptsByOwner) !== false)
+    .filter((check) => retryDecision(check) !== false)
     .map((check) => check.error);
   const explicitRowFailures = [
     ...(snapshot?.failures ?? [])
       .filter((failure) => failure?.retryable === true)
-      .filter((failure) => collectorFailureRetryDecision(
-        failure,
-        attemptsByKey,
-        attemptsByOwner
-      ) === true)
+      .filter((failure) => retryDecision(failure) === true)
       .map((failure) => failure.message ?? failure.error),
     ...(snapshot?.accounts ?? [])
       .filter((account) => account?.retryable === true)
-      .filter((account) => collectorFailureRetryDecision(
-        account,
-        attemptsByKey,
-        attemptsByOwner
-      ) === true)
+      .filter((account) => retryDecision(account) === true)
       .map((account) => account.error),
     ...sourceChecks
       .filter((check) => check?.retryable === true)
-      .filter((check) => collectorFailureRetryDecision(
-        check,
-        attemptsByKey,
-        attemptsByOwner
-      ) === true)
+      .filter((check) => retryDecision(check) === true)
       .map((check) => check.error)
   ];
   const messages = [
     ...explicitAttemptFailures,
     ...(snapshot?.failures ?? [])
-      .filter((failure) => collectorFailureRetryDecision(failure, attemptsByKey, attemptsByOwner) !== false)
+      .filter((failure) => retryDecision(failure) !== false)
       .map((failure) => failure.message ?? failure.error),
     ...(snapshot?.accounts ?? [])
       .filter((account) => account.fetched === false)
-      .filter((account) => collectorFailureRetryDecision(account, attemptsByKey, attemptsByOwner) !== false)
+      .filter((account) => retryDecision(account) !== false)
       .map((account) => account.error),
     ...(snapshot?.source?.discovery?.searchFailures ?? []).map((failure) => failure.error ?? failure.message),
     ...sourceCheckFailures
@@ -1486,6 +1485,186 @@ export function autonomousCollectorRetryableFailures(snapshot) {
         explicitAttemptFailures.includes(message) ||
         explicitRowFailures.includes(message))
   )];
+}
+
+function runBoundInstagramShardCooldown(snapshot, attempts) {
+  // Instagram lanes are process-local, but the autonomous runner merges all
+  // shards that share one exact collector attempt. A sibling can therefore
+  // observe the provider's HTTP cooldown while another shard records only the
+  // transport symptom. Correlate those rows only after the complete shard/run
+  // binding is present; a standalone transport failure remains retryable.
+  const run = exactShardedPublicCollectorRun(snapshot);
+  if (!run) return null;
+  const runAttempts = attempts.filter((attempt) =>
+    attempt?.batchSlug === run.batchSlug &&
+    attemptWithinCollectorRun(attempt, run)
+  );
+  const blockers = attempts.flatMap((attempt) => {
+    if (
+      attempt?.batchSlug !== run.batchSlug ||
+      !isExactMappedInstagramAttempt(attempt) ||
+      attempt.retryable !== false ||
+      attempt.outcomeStatus !== "blocked_or_empty" ||
+      attempt.outcomeReason !== "collector_provider_blocked" ||
+      !isAutonomousProviderBlocker(attempt.blocker, { platform: "instagram" }) ||
+      attempt.blocker.provider !== "instagram_public_json"
+    ) return [];
+    const checkedAt = Date.parse(attempt.checkedAt);
+    const retryAt = Date.parse(attempt.blocker.retryAt ?? "");
+    const collectorShardIndex = exactCollectorShardIndex(attempt, run);
+    return canonicalIsoTimestamp(attempt.checkedAt, checkedAt) &&
+      Number.isFinite(retryAt) &&
+      collectorShardIndex !== null &&
+      checkedAt <= run.completedAtMs &&
+      retryAt > checkedAt &&
+      retryAt - checkedAt <= INSTAGRAM_PROVIDER_COOLDOWN_MAX_MS
+      ? [{ attempt, checkedAt, retryAt, collectorShardIndex }]
+      : [];
+  });
+  if (blockers.length === 0) return null;
+
+  const terminalizedAttempts = new Set(runAttempts.filter((attempt) => {
+    if (
+      attempt.retryable !== true ||
+      !isExactMappedInstagramAttempt(attempt) ||
+      !INSTAGRAM_ANONYMOUS_TRANSPORT_FAILURE_PATTERN.test(
+        String(attempt.error ?? attempt.failureReason ?? "")
+      )
+    ) return false;
+    const checkedAt = Date.parse(attempt.checkedAt);
+    const collectorShardIndex = exactCollectorShardIndex(attempt, run);
+    if (collectorShardIndex === null) return false;
+    return blockers.some((blocker) =>
+      blocker.collectorShardIndex !== collectorShardIndex &&
+      blocker.checkedAt <= checkedAt &&
+      checkedAt <= blocker.retryAt
+    );
+  }));
+  return terminalizedAttempts.size > 0 ? { run, terminalizedAttempts } : null;
+}
+
+function exactShardedPublicCollectorRun(snapshot) {
+  const source = snapshot?.source;
+  const aggregate = source?.autonomousAttempt;
+  const shardAttempts = source?.shardAttempts;
+  const batchSlug = String(source?.batchSlug ?? "").trim();
+  const shardCount = Number(source?.shardCount);
+  if (
+    source?.label !== "Public unauthenticated platform/page ingestion" ||
+    !batchSlug ||
+    !Number.isSafeInteger(shardCount) ||
+    shardCount <= 1 ||
+    !Array.isArray(shardAttempts) ||
+    shardAttempts.length !== shardCount ||
+    !samePublicCollectorRunBinding(aggregate, aggregate, { batchSlug, shardCount })
+  ) return null;
+
+  const shardIndexes = new Set();
+  let completedAtMs = Number.NEGATIVE_INFINITY;
+  for (const binding of shardAttempts) {
+    if (!samePublicCollectorRunBinding(binding, aggregate, { batchSlug, shardCount })) return null;
+    if (
+      !Number.isSafeInteger(binding.shardIndex) ||
+      binding.shardIndex < 0 ||
+      binding.shardIndex >= shardCount ||
+      shardIndexes.has(binding.shardIndex)
+    ) return null;
+    shardIndexes.add(binding.shardIndex);
+    completedAtMs = Math.max(completedAtMs, Date.parse(binding.completedAt));
+  }
+  if (!shardAttempts.some((binding) => sameAutonomousAttemptBinding(binding, aggregate))) {
+    return null;
+  }
+  return {
+    batchSlug,
+    shardCount,
+    startedAtMs: Date.parse(aggregate.startedAt),
+    completedAtMs
+  };
+}
+
+function samePublicCollectorRunBinding(binding, aggregate, { batchSlug, shardCount }) {
+  if (
+    !binding ||
+    typeof binding !== "object" ||
+    Array.isArray(binding) ||
+    binding.schemaVersion !== 1 ||
+    binding.kind !== "public" ||
+    binding.batchSlug !== batchSlug ||
+    binding.shardCount !== shardCount
+  ) return false;
+  for (const key of ["attemptId", "campaignKey", "idempotencyKey", "executionNonce", "startedAt"]) {
+    if (typeof binding[key] !== "string" || !binding[key].trim() || binding[key] !== aggregate?.[key]) {
+      return false;
+    }
+  }
+  const startedAt = Date.parse(binding.startedAt);
+  const completedAt = Date.parse(binding.completedAt);
+  return canonicalIsoTimestamp(binding.startedAt, startedAt) &&
+    canonicalIsoTimestamp(binding.completedAt, completedAt) &&
+    completedAt >= startedAt;
+}
+
+function sameAutonomousAttemptBinding(left, right) {
+  return [
+    "schemaVersion",
+    "attemptId",
+    "campaignKey",
+    "idempotencyKey",
+    "executionNonce",
+    "kind",
+    "batchSlug",
+    "shardIndex",
+    "shardCount",
+    "startedAt",
+    "completedAt"
+  ].every((key) => left?.[key] === right?.[key]);
+}
+
+function canonicalIsoTimestamp(value, parsed = Date.parse(value ?? "")) {
+  return Number.isFinite(parsed) && new Date(parsed).toISOString() === value;
+}
+
+function attemptWithinCollectorRun(attempt, run) {
+  const checkedAt = Date.parse(attempt?.checkedAt ?? "");
+  return canonicalIsoTimestamp(attempt?.checkedAt, checkedAt) &&
+    checkedAt >= run.startedAtMs &&
+    checkedAt <= run.completedAtMs;
+}
+
+function exactCollectorShardIndex(attempt, run) {
+  const shardIndex = attempt?.collectorShardIndex;
+  return Number.isSafeInteger(shardIndex) &&
+    shardIndex >= 0 &&
+    shardIndex < run.shardCount
+    ? shardIndex
+    : null;
+}
+
+function isExactMappedInstagramAttempt(attempt) {
+  if (attempt?.platform !== "instagram") return false;
+  const entityType = attempt.entityType ?? "company";
+  const entityId = String(attempt.entityId ?? "").trim();
+  const accountUrl = canonicalSocialAccountUrl("instagram", attempt.accountUrl);
+  if (!entityId || !accountUrl) return false;
+  return attempt.attemptKey === `instagram:${entityType}:${entityId}:${accountUrl}`;
+}
+
+function instagramShardCooldownSuppressesRow(row, attemptsByKey, correlation) {
+  if (!correlation || row?.platform !== "instagram") return false;
+  if (!INSTAGRAM_ANONYMOUS_TRANSPORT_FAILURE_PATTERN.test(
+    String(row?.message ?? row?.error ?? row?.failureReason ?? "")
+  )) return false;
+  const attemptKey = String(row?.attemptKey ?? row?.attempt_key ?? "").trim();
+  const exactAttempt = attemptKey ? attemptsByKey.get(attemptKey) : null;
+  return Boolean(
+    exactAttempt &&
+    correlation.terminalizedAttempts.has(exactAttempt) &&
+    row?.batchSlug === correlation.run.batchSlug &&
+    attemptWithinCollectorRun(row, correlation.run) &&
+    row.checkedAt === exactAttempt.checkedAt &&
+    exactCollectorFailureAttemptIdentityMatches(row, exactAttempt)
+  );
 }
 
 function collectorFailureRetryDecision(row, attemptsByKey, attemptsByOwner) {
@@ -2292,6 +2471,7 @@ export function mergePublicEvidenceSnapshots(
 function mergePublicCollectorAttempts(snapshots) {
   const attempts = new Map();
   for (const snapshot of snapshots) {
+    const collectorShardIndex = validatedPublicCollectorShardIndex(snapshot);
     for (const [storedKey, sourceAttempt] of Object.entries(snapshot.attempts ?? {})) {
       const batchSlug = String(
         sourceAttempt?.batchSlug ??
@@ -2309,8 +2489,10 @@ function mergePublicCollectorAttempts(snapshots) {
       const candidate = {
         ...sourceAttempt,
         attemptKey,
-        batchSlug
+        batchSlug,
+        ...(collectorShardIndex === null ? {} : { collectorShardIndex })
       };
+      if (collectorShardIndex === null) delete candidate.collectorShardIndex;
       const previous = attempts.get(canonicalKey);
       const candidateCheckedAt = Date.parse(candidate.checkedAt ?? "") || 0;
       const previousCheckedAt = Date.parse(previous?.checkedAt ?? "") || 0;
@@ -2329,6 +2511,29 @@ function mergePublicCollectorAttempts(snapshots) {
     }
   }
   return Object.fromEntries([...attempts.entries()].sort(([left], [right]) => left.localeCompare(right)));
+}
+
+function validatedPublicCollectorShardIndex(snapshot) {
+  const source = snapshot?.source;
+  const binding = source?.autonomousAttempt;
+  const shardIndex = source?.companyShardIndex;
+  const shardCount = source?.companyShardCount;
+  if (
+    source?.label !== "Public unauthenticated platform/page ingestion" ||
+    typeof source?.batchSlug !== "string" ||
+    !source.batchSlug.trim() ||
+    !Number.isSafeInteger(shardIndex) ||
+    !Number.isSafeInteger(shardCount) ||
+    shardCount <= 0 ||
+    shardIndex < 0 ||
+    shardIndex >= shardCount ||
+    binding?.schemaVersion !== 1 ||
+    binding.kind !== "public" ||
+    binding.batchSlug !== source.batchSlug ||
+    binding.shardIndex !== shardIndex ||
+    binding.shardCount !== shardCount
+  ) return null;
+  return shardIndex;
 }
 
 function normalizeCompanyNode(node, batch) {

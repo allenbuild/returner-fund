@@ -233,7 +233,7 @@ test("an exhausted exact native feed preserves verified-empty terminal proof", a
 test("exact first-page native-feed HTTP 403/429 is terminal for the current run", async (context) => {
   for (const status of [403, 429]) {
     const snapshot = await runMockedTashInstagramCollector(context, {
-      nativeFeedSteps: [{ status, payload: "access blocked" }]
+      nativeFeedSteps: [{ status, payload: "access blocked", delayMs: 25 }]
     });
     const attempt = tashInstagramAttempt(snapshot);
     const blockerFailure = snapshot.failures.find((row) =>
@@ -254,6 +254,9 @@ test("exact first-page native-feed HTTP 403/429 is terminal for the current run"
     assert.equal(attempt.retryable, false);
     assert.equal(attempt.outcomeStatus, "blocked_or_empty");
     assert.equal(attempt.outcomeReason, "collector_provider_blocked");
+    assert.equal(attempt.checkedAt, blockerFailure.checkedAt);
+    assert.ok(Date.parse(attempt.checkedAt) > Date.parse(snapshot.source.fetchedAt));
+    assert.equal(new Date(attempt.checkedAt).toISOString(), attempt.checkedAt);
     assert.deepEqual(autonomousCollectorRetryableFailures(snapshot), []);
   }
 });
@@ -281,6 +284,8 @@ test("partial exact native-feed HTTP 429 preserves page one without reopening th
   assert.equal(attempt.retryable, false);
   assert.equal(attempt.outcomeStatus, "blocked_or_empty");
   assert.equal(attempt.outcomeReason, "collector_provider_blocked");
+  assert.equal(attempt.checkedAt, failure.checkedAt);
+  assert.ok(Date.parse(attempt.checkedAt) > Date.parse(snapshot.source.fetchedAt));
   const receipt = JSON.parse(instagramEvidence[0].rawVisibleText).receipt.nativeFeed;
   assert.equal(receipt.truncationReason, "pagination_interrupted:http_429");
   assert.equal(receipt.pageCount, 1);
@@ -308,6 +313,8 @@ test("partial native-feed ECONNRESET remains retryable", async (context) => {
   assert.equal(attempt.retryable, true);
   assert.equal(attempt.outcomeStatus, "completed");
   assert.equal(attempt.outcomeReason, "collector_evidence_collected");
+  assert.equal(attempt.checkedAt, failure.checkedAt);
+  assert.ok(Date.parse(attempt.checkedAt) > Date.parse(snapshot.source.fetchedAt));
   const receipt = JSON.parse(instagramEvidence[0].rawVisibleText).receipt.nativeFeed;
   assert.equal(receipt.truncationReason, "pagination_interrupted:request_failed");
   assert.equal(receipt.pageCount, 1);
@@ -440,6 +447,7 @@ globalThis.fetch = async (url) => {
   if (value.includes("/api/v1/feed/user/tash.cards/username/")) {
     const step = feedSteps[feedCallIndex++];
     if (!step) throw new Error("unexpected native-feed request: " + value);
+    if (step.delayMs) await new Promise((resolve) => setTimeout(resolve, step.delayMs));
     if (step.error) throw new Error(step.error);
     return new Response(
       typeof step.payload === "string" ? step.payload : JSON.stringify(step.payload),
