@@ -46,6 +46,9 @@ jobs:
 
       - name: Resolve dashboard admission from the ingestion watermark
         id: priority
+        # workflow_run completions are admitted only when their exact run ID
+        # and attempt are named by the current acceptance marker. Scheduled and
+        # manually dispatched refreshes retain the watermark-only policy.
         run: node scripts/lib/dashboard-refresh-priority.mjs
 
       - name: Record dashboard admission
@@ -165,6 +168,9 @@ jobs:
       - name: Revalidate ingestion priority inside the publication lane
         id: priority_revalidation
         if: steps.host_preflight.outputs.ready == 'true'
+        # Re-read both current main and the immutable trigger payload. If the
+        # marker advanced while this job waited, the old completion is no
+        # longer bound and cannot publish over the newer accepted ingestion.
         run: node scripts/lib/dashboard-refresh-priority.mjs
 
       - name: Use Node.js

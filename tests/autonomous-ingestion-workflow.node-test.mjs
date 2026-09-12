@@ -189,6 +189,10 @@ test("dashboard refresh gives stale ingestion priority before entering the publi
     /Check out current main for priority decision[\s\S]*?ref:\s*main[\s\S]*?persist-credentials:\s*false/
   );
   assert.match(admissionJob, /node scripts\/lib\/dashboard-refresh-priority\.mjs/);
+  assert.match(
+    admissionJob,
+    /workflow_run completions are admitted only when their exact run ID[\s\S]*?attempt are named by the current acceptance marker/
+  );
   assert.doesNotMatch(admissionJob, /runs-on:\s*\[[^\n]*self-hosted|concurrency:\s*\n/);
   assert.doesNotMatch(admissionJob, /github\.event\.workflow_run\.conclusion/);
   assert.match(
@@ -209,6 +213,15 @@ test("dashboard refresh gives stale ingestion priority before entering the publi
   assert.match(
     refreshJob,
     /name: Revalidate ingestion priority inside the publication lane[\s\S]*?if: steps\.host_preflight\.outputs\.ready == 'true'[\s\S]*?node scripts\/lib\/dashboard-refresh-priority\.mjs/
+  );
+  assert.match(
+    refreshJob,
+    /Re-read both current main and the immutable trigger payload[\s\S]*?marker advanced while this job waited[\s\S]*?no[\s\S]*?longer bound/
+  );
+  assert.equal(
+    dashboardRefreshWorkflow.match(/node scripts\/lib\/dashboard-refresh-priority\.mjs/g)?.length,
+    2,
+    "event binding must be checked before and after entering the serialized publication lane"
   );
   assert.ok(
     refreshJob.indexOf("Revalidate ingestion priority inside the publication lane") <
