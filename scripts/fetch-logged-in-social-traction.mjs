@@ -3610,6 +3610,21 @@ function linkedInExtractJs() {
     if (!href) return null;
     try { return new URL(href, location.origin).toString(); } catch { return href || null; }
   };
+  const primaryAuthorUrlFromCard = (card) => {
+    const selectors = [
+      ".update-components-actor__meta-link[href]",
+      ".update-components-actor__container-link[href]",
+      ".feed-shared-actor__container-link[href]",
+      ".feed-shared-actor__meta-link[href]",
+      "[data-test-id='main-feed-activity-card__actor-link'][href]"
+    ].join(",");
+    // Preserve the first actor/header link exactly. Validation happens in the
+    // ownership layer; skipping an invalid outer actor here could otherwise
+    // promote a nested card's actor into primary-owner proof.
+    return Array.from(card.querySelectorAll(selectors))
+      .map((link) => absolute(link.getAttribute("href")))
+      .find(Boolean) ?? null;
+  };
   const nativePostUrl = (card) => {
     // Prefer the activity identity attached to the outer card itself. A
     // nested reshare can contain an embedded original-post permalink; scanning
@@ -3712,6 +3727,7 @@ function linkedInExtractJs() {
     return {
       rank: index + 1,
       url: updateUrl,
+      primaryAuthorUrl: primaryAuthorUrlFromCard(card),
       authorUrls: [...new Set(
         Array.from(card.querySelectorAll("a[href*='/in/'], a[href*='/company/']"))
           .map((link) => absolute(link.getAttribute("href")))

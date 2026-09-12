@@ -2631,6 +2631,39 @@ describe("logged-in LinkedIn collection", () => {
       {
         ...navigationState,
         pageIdentityUrls: ["https://www.linkedin.com/company/someone-else/"]
+      },
+      {
+        currentUrl: "http://www.linkedin.com/company/gamgee-technologies/posts/",
+        pageIdentityUrls: ["http://www.linkedin.com/company/gamgee-technologies/"]
+      },
+      {
+        currentUrl:
+          "https://attacker@www.linkedin.com/company/gamgee-technologies/posts/",
+        pageIdentityUrls: [
+          "https://attacker@www.linkedin.com/company/gamgee-technologies/"
+        ]
+      },
+      {
+        currentUrl: "https://www.linkedin.com:444/company/gamgee-technologies/posts/",
+        pageIdentityUrls: [
+          "https://www.linkedin.com:444/company/gamgee-technologies/"
+        ]
+      },
+      {
+        currentUrl:
+          "https://www.linkedin.com/company/gamgee-technologies/posts/extra/",
+        pageIdentityUrls: ["https://www.linkedin.com/company/gamgee-technologies/"]
+      },
+      ...["%00", "%23", "%2F", "%3F", "%5C"].map((delimiter) => ({
+        currentUrl:
+          `https://www.linkedin.com/company/gamgee${delimiter}technologies/posts/`,
+        pageIdentityUrls: [
+          `https://www.linkedin.com/company/gamgee${delimiter}technologies/`
+        ]
+      })),
+      {
+        currentUrl: "https://www.linkedin.com/company/---/posts/",
+        pageIdentityUrls: ["https://www.linkedin.com/company/---/"]
       }
     ]) {
       assert.equal(
@@ -2657,6 +2690,14 @@ describe("logged-in LinkedIn collection", () => {
     assert.equal(
       linkedinBrowserCompanyOwnershipAlias({
         requestedAccountUrl: "https://www.linkedin.com/company/gamgee/",
+        navigationState,
+        extractionState
+      }),
+      null
+    );
+    assert.equal(
+      linkedinBrowserCompanyOwnershipAlias({
+        requestedAccountUrl: "https://www.linkedin.com/company/109672135/posts/",
         navigationState,
         extractionState
       }),
@@ -2697,6 +2738,27 @@ describe("logged-in LinkedIn collection", () => {
       1
     );
     assert.deepEqual(
+      mergeOwnedLinkedInPosts([[
+        {
+          ...post,
+          primaryAuthorUrl: "https://www.linkedin.com/in/gamgee-technologies/"
+        }
+      ]], {
+        ...options,
+        browserCompanyIdentity: {
+          navigationState: {
+            currentUrl: "https://www.linkedin.com/company/gamgee-technologies/posts/",
+            pageIdentityUrls: ["https://www.linkedin.com/company/gamgee-technologies/"]
+          },
+          extractionState: {
+            currentUrl: "https://www.linkedin.com/company/gamgee-technologies/posts/",
+            pageIdentityUrls: ["https://www.linkedin.com/company/gamgee-technologies/"]
+          }
+        }
+      }),
+      []
+    );
+    assert.deepEqual(
       mergeOwnedLinkedInPosts([[post]], {
         ...options,
         browserCompanyIdentity: {
@@ -2710,6 +2772,146 @@ describe("logged-in LinkedIn collection", () => {
           }
         }
       }),
+      []
+    );
+  });
+
+  it("requires an exact typed primary author for opaque company activities", () => {
+    const browserCompanyIdentity = {
+      navigationState: {
+        currentUrl: "https://www.linkedin.com/company/gamgee-technologies/posts/",
+        pageIdentityUrls: ["https://www.linkedin.com/company/gamgee-technologies/"]
+      },
+      extractionState: {
+        currentUrl: "https://www.linkedin.com/company/gamgee-technologies/posts/",
+        pageIdentityUrls: ["https://www.linkedin.com/company/gamgee-technologies/"]
+      }
+    };
+    const options = {
+      accountUrl: "https://www.linkedin.com/company/109672135/",
+      browserCompanyIdentity,
+      targetName: "Gamgee",
+      limit: 5
+    };
+    const opaque = {
+      url: "https://www.linkedin.com/feed/update/urn:li:activity:7475000000000000102/",
+      author: "Gamgee",
+      body: "Gamgee launched a new product today.",
+      rawText: "Gamgee 2h Gamgee launched a new product today."
+    };
+
+    assert.deepEqual(
+      mergeOwnedLinkedInPosts([[{
+        ...opaque,
+        authorUrls: ["https://www.linkedin.com/company/gamgee-technologies/"]
+      }]], options),
+      []
+    );
+    assert.equal(
+      mergeOwnedLinkedInPosts([[{
+        ...opaque,
+        primaryAuthorUrl: "https://www.linkedin.com/company/gamgee-technologies/",
+        authorUrls: ["https://www.linkedin.com/company/gamgee-technologies/"]
+      }]], options).length,
+      1
+    );
+    assert.deepEqual(
+      mergeOwnedLinkedInPosts([[{
+        ...opaque,
+        primaryAuthorUrl: "https://www.linkedin.com/in/gamgee-technologies/",
+        authorUrls: [
+          "https://www.linkedin.com/in/gamgee-technologies/",
+          "https://www.linkedin.com/company/gamgee-technologies/"
+        ]
+      }]], options),
+      []
+    );
+    assert.deepEqual(
+      mergeOwnedLinkedInPosts([[{
+        ...opaque,
+        author: "Alice",
+        primaryAuthorUrl: "https://www.linkedin.com/in/alice/",
+        authorUrls: [
+          "https://www.linkedin.com/in/alice/",
+          "https://www.linkedin.com/company/gamgee-technologies/"
+        ],
+        rawText: "Gamgee 2h Alice mentioned Gamgee's launch."
+      }]], options),
+      []
+    );
+    assert.deepEqual(
+      mergeOwnedLinkedInPosts([
+        [{
+          ...opaque,
+          primaryAuthorUrl: "https://www.linkedin.com/company/gamgee-technologies/"
+        }],
+        [{ ...opaque, primaryAuthorUrl: "https://www.linkedin.com/in/alice/" }]
+      ], options),
+      []
+    );
+
+    for (const unsafePrimaryAuthorUrl of [
+      "ftp://www.linkedin.com/company/gamgee-technologies/",
+      "https://attacker@www.linkedin.com/company/gamgee-technologies/",
+      "https://www.linkedin.com:444/company/gamgee-technologies/",
+      "https://example.com/company/gamgee-technologies/",
+      "https://www.linkedin.com/company/gamgee-technologies/about/",
+      "https://www.linkedin.com/company/gamgee%00technologies/",
+      "https://www.linkedin.com/company/gamgee%3Ftechnologies/",
+      "https://www.linkedin.com/company/gamgee%23technologies/",
+      "https://www.linkedin.com/company/gamgee%2Ftechnologies/",
+      "https://www.linkedin.com/company/gamgee%5Ctechnologies/"
+    ]) {
+      assert.deepEqual(
+        mergeOwnedLinkedInPosts([[{
+          ...opaque,
+          primaryAuthorUrl: unsafePrimaryAuthorUrl,
+          authorUrls: ["https://www.linkedin.com/company/gamgee-technologies/"]
+        }]], options),
+        []
+      );
+    }
+  });
+
+  it("keeps verified company aliases subject to repost and nested-wrapper rejection", () => {
+    const browserCompanyIdentity = {
+      navigationState: {
+        currentUrl: "https://www.linkedin.com/company/gamgee-technologies/posts/",
+        pageIdentityUrls: ["https://www.linkedin.com/company/gamgee-technologies/"]
+      },
+      extractionState: {
+        currentUrl: "https://www.linkedin.com/company/gamgee-technologies/posts/",
+        pageIdentityUrls: ["https://www.linkedin.com/company/gamgee-technologies/"]
+      }
+    };
+    const options = {
+      accountUrl: "https://www.linkedin.com/company/109672135/",
+      browserCompanyIdentity,
+      targetName: "Gamgee",
+      limit: 5
+    };
+    const base = {
+      url:
+        "https://www.linkedin.com/posts/gamgee-technologies_launch-activity-7475000000000000103-good",
+      author: "Gamgee",
+      primaryAuthorUrl: "https://www.linkedin.com/company/gamgee-technologies/",
+      authorUrls: ["https://www.linkedin.com/company/gamgee-technologies/"],
+      body: "An embedded post body."
+    };
+
+    assert.deepEqual(
+      mergeOwnedLinkedInPosts([[{
+        ...base,
+        rawText: "Feed post number 1 Gamgee reposted this Someone Else 2h An embedded post body."
+      }]], options),
+      []
+    );
+    assert.deepEqual(
+      mergeOwnedLinkedInPosts([[{
+        ...base,
+        rawText:
+          "Feed post number 1 Gamgee 2h Follow An intro. Someone Else 2h Follow An embedded post body."
+      }]], options),
       []
     );
   });
@@ -2730,6 +2932,8 @@ describe("logged-in LinkedIn collection", () => {
       collectorSource,
       /browserCompanyIdentity = browserCollection\.browserCompanyIdentity/
     );
+    assert.match(collectorSource, /primaryAuthorUrl: primaryAuthorUrlFromCard\(card\)/);
+    assert.match(collectorSource, /\.update-components-actor__meta-link\[href\]/);
   });
 
   it("fails closed on a native post URL or author that differs from the target", () => {
@@ -3022,6 +3226,7 @@ describe("logged-in LinkedIn collection", () => {
           {
             url: opaqueUrl,
             author: "Founder Name",
+            primaryAuthorUrl: accountUrl,
             authorUrls: [accountUrl],
             body: "DOM body",
             rawText: "Founder Name\\n2h\\nDOM body",
@@ -3079,6 +3284,7 @@ describe("logged-in LinkedIn collection", () => {
           {
             url: opaqueUrl,
             author: "Someone Else",
+            primaryAuthorUrl: "https://www.linkedin.com/in/someone-else/",
             authorUrls: ["https://www.linkedin.com/in/someone-else/"],
             body: "DOM body from another profile",
             rawText: "Someone Else\\n2h\\nDOM body from another profile"
