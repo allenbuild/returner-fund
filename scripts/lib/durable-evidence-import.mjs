@@ -44,6 +44,11 @@ const DURABLE_WRITE_BATCH_SIZE = 250;
 // filters comfortably below Node/Undici's response-header limit even when a
 // reconciliation ledger contains thousands of evidence ids.
 const DURABLE_IN_FILTER_BATCH_SIZE = 100;
+// Read-only reconciliation queries can safely overlap, but keep the fan-out
+// deliberately small so a large ledger cannot stampede PostgREST. Waves are
+// awaited in full and flattened in batch order, preserving deterministic,
+// fail-closed aggregation even when responses finish out of order.
+const DURABLE_IN_FILTER_READ_CONCURRENCY = 4;
 const ATTRIBUTION_READ_COLUMNS = [
   "id", "evidence_id", "entity_type", "company_id", "founder_id", "batch_id",
   "attribution_type", "is_primary", "score_eligible", "review_state", "risk_level",
@@ -1545,12 +1550,23 @@ async function readRowsByInFilter({
 }) {
   const batches = rowBatches(values, DURABLE_IN_FILTER_BATCH_SIZE);
   const rows = [];
-  for (let index = 0; index < batches.length; index += 1) {
-    const response = await client
-      .from(table)
-      .select(columns)
-      .in(filterColumn, batches[index]);
-    rows.push(...checkedRows(response, `${operation} (batch ${index + 1}/${batches.length})`));
+  for (
+    let offset = 0;
+    offset < batches.length;
+    offset += DURABLE_IN_FILTER_READ_CONCURRENCY
+  ) {
+    const wave = batches.slice(offset, offset + DURABLE_IN_FILTER_READ_CONCURRENCY);
+    const settled = await Promise.allSettled(wave.map(async (batch, waveIndex) => {
+      const batchIndex = offset + waveIndex;
+      const response = await client
+        .from(table)
+        .select(columns)
+        .in(filterColumn, batch);
+      return checkedRows(response, `${operation} (batch ${batchIndex + 1}/${batches.length})`);
+    }));
+    const failure = settled.find((result) => result.status === "rejected");
+    if (failure) throw failure.reason;
+    for (const result of settled) rows.push(...result.value);
   }
   return rows;
 }

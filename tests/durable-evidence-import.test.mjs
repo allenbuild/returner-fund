@@ -87,6 +87,38 @@ function reconciliationEntry({
   };
 }
 
+function largeReconciliationFixture(postCount) {
+  const stalePosts = Array.from({ length: postCount }, (_, index) => {
+    const platformPostId = String(10_000 + index);
+    return publicPost({
+      entityType: "company",
+      entityId: "company-acme",
+      sourceUrl: `https://x.com/acme/status/${platformPostId}`,
+      platformPostId
+    });
+  });
+  const correctedPosts = stalePosts.map((post) => ({
+    ...post,
+    entityType: "founder",
+    entityId: "founder-acme-alice"
+  }));
+  const ledger = correctedPosts.map((post) => reconciliationEntry({
+    sourceUrl: post.sourceUrl,
+    platformPostId: post.platformPostId,
+    staleAttribution: {
+      batchSlug: "S2026",
+      entityType: "company",
+      entityId: "company-acme"
+    },
+    replacementAttribution: {
+      batchSlug: "S2026",
+      entityType: "founder",
+      entityId: "founder-acme-alice"
+    }
+  }));
+  return { stalePosts, correctedPosts, ledger };
+}
+
 describe("durable evidence import", () => {
   it("uses a resolver-stamped row batch when a mixed sanitized snapshot has no source batch", async () => {
     const client = new FakeSupabaseClient();
@@ -1269,15 +1301,7 @@ describe("durable evidence import", () => {
     const client = new FakeSupabaseClient();
     const catalogMaps = reconciliationCatalog();
     const postCount = 101;
-    const stalePosts = Array.from({ length: postCount }, (_, index) => {
-      const platformPostId = String(10_000 + index);
-      return publicPost({
-        entityType: "company",
-        entityId: "company-acme",
-        sourceUrl: `https://x.com/acme/status/${platformPostId}`,
-        platformPostId
-      });
-    });
+    const { stalePosts, correctedPosts, ledger } = largeReconciliationFixture(postCount);
     await importDurableEvidence({
       client,
       ingestionRunId: RUN_ID,
@@ -1285,25 +1309,6 @@ describe("durable evidence import", () => {
       publicSnapshot: publicSnapshot("S2026", stalePosts)
     });
 
-    const correctedPosts = stalePosts.map((post) => ({
-      ...post,
-      entityType: "founder",
-      entityId: "founder-acme-alice"
-    }));
-    const ledger = correctedPosts.map((post) => reconciliationEntry({
-      sourceUrl: post.sourceUrl,
-      platformPostId: post.platformPostId,
-      staleAttribution: {
-        batchSlug: "S2026",
-        entityType: "company",
-        entityId: "company-acme"
-      },
-      replacementAttribution: {
-        batchSlug: "S2026",
-        entityType: "founder",
-        entityId: "founder-acme-alice"
-      }
-    }));
     const callOffset = client.calls.length;
     const result = await importDurableEvidence({
       client,
@@ -1330,6 +1335,71 @@ describe("durable evidence import", () => {
       100,
       100
     ]);
+  });
+
+  it("runs large reconciliation reads in deterministic waves of at most four", async () => {
+    const client = new DelayedReconciliationReadSupabaseClient();
+    const catalogMaps = reconciliationCatalog();
+    const postCount = 401;
+    const { stalePosts, correctedPosts, ledger } = largeReconciliationFixture(postCount);
+    await importDurableEvidence({
+      client,
+      ingestionRunId: RUN_ID,
+      catalogMaps,
+      publicSnapshot: publicSnapshot("S2026", stalePosts)
+    });
+
+    const result = await importDurableEvidence({
+      client,
+      ingestionRunId: RUN_ID,
+      catalogMaps,
+      publicSnapshot: publicSnapshot("S2026", correctedPosts, "2026-07-18T13:00:00Z"),
+      attributionReconciliationLedger: ledger
+    });
+
+    expect(result.attributionReconciliation).toMatchObject({
+      unique: postCount,
+      retired: postCount,
+      replacementsExpected: postCount
+    });
+    expect(client.maxConcurrentReconciliationReads).toBe(4);
+    expect(client.reconciliationReadStarts).toHaveLength(10);
+    expect(client.reconciliationReadStarts.map((read) => read.activeAtStart)).toEqual([
+      1, 2, 3, 4, 1,
+      1, 2, 3, 4, 1
+    ]);
+    expect(client.reconciliationReadCompletions.slice(0, 4)).toEqual([4, 3, 2, 1]);
+  });
+
+  it("fails closed after the current reconciliation read wave and does not launch later batches", async () => {
+    const client = new DelayedReconciliationReadSupabaseClient({ failReadOrdinals: [2, 4] });
+    const catalogMaps = reconciliationCatalog();
+    const { stalePosts, correctedPosts, ledger } = largeReconciliationFixture(401);
+    await importDurableEvidence({
+      client,
+      ingestionRunId: RUN_ID,
+      catalogMaps,
+      publicSnapshot: publicSnapshot("S2026", stalePosts)
+    });
+    const callOffset = client.calls.length;
+
+    await expect(importDurableEvidence({
+      client,
+      ingestionRunId: RUN_ID,
+      catalogMaps,
+      publicSnapshot: publicSnapshot("S2026", correctedPosts, "2026-07-18T13:00:00Z"),
+      attributionReconciliationLedger: ledger
+    })).rejects.toThrow(
+      "read existing evidence_attributions for reconciliation (batch 2/5): planned read failure"
+    );
+
+    expect(client.maxConcurrentReconciliationReads).toBe(4);
+    expect(client.reconciliationReadStarts).toHaveLength(4);
+    expect(client.reconciliationReadCompletions).toHaveLength(4);
+    expect(client.calls.slice(callOffset).filter((call) =>
+      call.table === "evidence_attributions" &&
+      (call.operation === "upsert" || call.operation === "update")
+    )).toHaveLength(0);
   });
 
   it("drops a stale verified row explicitly quarantined by the reconciliation ledger", async () => {
@@ -1683,6 +1753,51 @@ class FakeSupabaseClient {
       }
     }
     return { data: query.selected ? returned.map((row) => selectRow(row, query.selected)) : returned, error: null };
+  }
+}
+
+class DelayedReconciliationReadSupabaseClient extends FakeSupabaseClient {
+  constructor({ failReadOrdinals = [] } = {}) {
+    super();
+    this.failReadOrdinals = new Set(failReadOrdinals);
+    this.activeReconciliationReads = 0;
+    this.maxConcurrentReconciliationReads = 0;
+    this.reconciliationReadStarts = [];
+    this.reconciliationReadCompletions = [];
+  }
+
+  async execute(query) {
+    const tracksReconciliationRead =
+      query.table === "evidence_attributions" &&
+      query.operation === "select" &&
+      query.filters.some((filter) =>
+        filter.type === "in" && filter.column === "evidence_id"
+      );
+    if (!tracksReconciliationRead) return super.execute(query);
+
+    const ordinal = this.reconciliationReadStarts.length + 1;
+    this.activeReconciliationReads += 1;
+    this.maxConcurrentReconciliationReads = Math.max(
+      this.maxConcurrentReconciliationReads,
+      this.activeReconciliationReads
+    );
+    this.reconciliationReadStarts.push({
+      ordinal,
+      activeAtStart: this.activeReconciliationReads,
+      values: [...query.filters.find((filter) => filter.column === "evidence_id").values]
+    });
+    try {
+      // Complete each four-request wave out of order. The importer must still
+      // aggregate rows and surface errors in deterministic batch order.
+      await new Promise((resolve) => setTimeout(resolve, (5 - ((ordinal - 1) % 4)) * 2));
+      if (this.failReadOrdinals.has(ordinal)) {
+        return { data: null, error: { message: "planned read failure" } };
+      }
+      return super.execute(query);
+    } finally {
+      this.activeReconciliationReads -= 1;
+      this.reconciliationReadCompletions.push(ordinal);
+    }
   }
 }
 
