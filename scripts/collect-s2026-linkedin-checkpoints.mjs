@@ -1359,7 +1359,16 @@ function assertCheckpointOutputConsistency(checkpoint, output) {
   for (const field of ["evidence", "needsReview", "attributionReconciliationLedger"]) {
     const checkpointRows = Array.isArray(checkpoint?.[field]) ? checkpoint[field] : [];
     const outputRows = Array.isArray(output?.[field]) ? output[field] : [];
-    if (JSON.stringify(checkpointRows) !== JSON.stringify(outputRows)) {
+    const canonicalCheckpointRows = checkpointRows
+      .map((row) => sha256(JSON.stringify(row)))
+      .sort();
+    const canonicalOutputRows = outputRows
+      .map((row) => sha256(JSON.stringify(row)))
+      .sort();
+    if (
+      canonicalCheckpointRows.length !== canonicalOutputRows.length ||
+      canonicalCheckpointRows.some((hash, index) => hash !== canonicalOutputRows[index])
+    ) {
       throw new Error(`Authenticated replay ${field} diverged between checkpoint and output.`);
     }
   }

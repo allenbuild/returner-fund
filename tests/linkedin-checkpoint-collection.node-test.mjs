@@ -272,7 +272,10 @@ test("durable intent reconciles partial progress and completed key is idempotent
     checkpoint.needsReview = [];
     checkpoint.attributionReconciliationLedger = [];
     const output = {
-      evidence: checkpoint.evidence,
+      // The production output is score-sorted while the checkpoint preserves
+      // collection order. The controller must compare their row multisets,
+      // not require an order that the collector deliberately does not retain.
+      evidence: [...checkpoint.evidence].reverse(),
       needsReview: checkpoint.needsReview,
       attributionReconciliationLedger: checkpoint.attributionReconciliationLedger
     };
