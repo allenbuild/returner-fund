@@ -577,7 +577,6 @@ export function dispatchFields({ batchSlug, key, checkpointSha256, remaining, ch
     authenticated_backfill_batch: batchSlug,
     authenticated_backfill_company_slug: "",
     recover_authenticated_linkedin_lock: "false",
-    incident_zenbu_battery_override: "false",
     incident_s2026_linkedin_backlog_battery_override: "true",
     incident_linkedin_checkpoint_only: checkpointOnly ? "true" : "false",
     incident_linkedin_expected_checkpoint_sha256: checkpointSha256,

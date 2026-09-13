@@ -49,6 +49,7 @@ test("builds exact checkpoint and final dispatch bindings", () => {
   });
   assert.equal(checkpoint.authenticated_backfill_batch, "S26");
   assert.equal(checkpoint.incident_linkedin_checkpoint_only, "true");
+  assert.equal(Object.hasOwn(checkpoint, "incident_zenbu_battery_override"), false);
   assert.equal(checkpoint.incident_linkedin_expected_checkpoint_sha256, checkpointBefore);
   assert.equal(checkpoint.incident_linkedin_expected_remaining, "21");
   const final = dispatchFields({
