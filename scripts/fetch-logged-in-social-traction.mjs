@@ -3808,8 +3808,8 @@ function linkedInExtractJs() {
   const fallbackCards = [...new Set([...linkCards.map((item) => item.card), ...metricCards])]
     .filter((card) => clean(card.innerText).length > 80)
     .filter((card, index, list) => !list.some((other, otherIndex) => otherIndex !== index && other.contains(card) && clean(other.innerText).length < clean(card.innerText).length * 1.8))
-    .slice(0, 40);
-  const cards = (exactCards.length ? exactCards : fallbackCards).slice(0, 40);
+    .slice(0, 100);
+  const cards = (exactCards.length ? exactCards : fallbackCards).slice(0, 100);
   const seen = new Set();
   return cards.map((card, index) => {
     const updateUrl = nativePostUrl(card);

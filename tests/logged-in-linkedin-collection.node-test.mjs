@@ -3098,6 +3098,7 @@ describe("logged-in LinkedIn collection", () => {
     assert.match(browserCollector, /const finalPass = await collectTimelinePass\(0\);/);
     assert.match(browserCollector, /browserPosts\.push\(\.\.\.pass\.posts\);/);
     assert.match(browserCollector, /mergeOwnedLinkedInPosts\(\[browserPosts\]/);
+    assert.match(linkedInTimelineExtractorScript(), /\.slice\(0, 100\)/);
     assert.doesNotMatch(browserCollector, /"scroll", "down"/);
     assert.doesNotMatch(browserCollector, /"wait", "time"/);
   });
