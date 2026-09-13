@@ -5,8 +5,8 @@
     "slug": "openrelay",
     "name": "OpenRelay"
   },
-  "generatedAt": "2026-09-12T21:08:58.054Z",
-  "lastModifiedAt": "2026-09-12T21:08:58.054Z",
+  "generatedAt": "2026-09-13T00:14:54.902Z",
+  "lastModifiedAt": "2026-09-13T00:14:54.902Z",
   "events": [
     {
       "id": "tle-80d5cd8c6cdb8eae7dfe8ff4",
@@ -47,7 +47,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-09-12T21:08:58.054Z"
+    "lastSuccessfulArtifactAt": "2026-09-13T00:14:54.902Z"
   },
   "nextCursor": null
 }

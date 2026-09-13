@@ -5,8 +5,8 @@
     "slug": "vendo",
     "name": "Vendo"
   },
-  "generatedAt": "2026-09-12T21:08:58.054Z",
-  "lastModifiedAt": "2026-09-12T21:08:58.054Z",
+  "generatedAt": "2026-09-13T00:14:54.902Z",
+  "lastModifiedAt": "2026-09-13T00:14:54.902Z",
   "events": [
     {
       "id": "tle-15441836ee4077a5acc7a684",
@@ -123,7 +123,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 3,
-    "lastSuccessfulArtifactAt": "2026-09-12T21:08:58.054Z"
+    "lastSuccessfulArtifactAt": "2026-09-13T00:14:54.902Z"
   },
   "nextCursor": null
 }
