@@ -3443,11 +3443,9 @@ test("workflow routes public ingestion to hosted Linux and authenticated replay 
   );
 });
 
-test("incident Zenbu battery authorization is bound to one exact first-attempt recovery", () => {
-  assert.match(
-    workflow,
-    /incident_zenbu_battery_override:[\s\S]*?One-run battery authorization for the exact S2026 Zenbu LinkedIn recovery incident[\s\S]*?default:\s*false[\s\S]*?type:\s*boolean/
-  );
+test("incident Zenbu battery authorization is closed after one exact dispatch", () => {
+  const dispatchSchema = workflow.slice(0, workflow.indexOf("\npermissions:"));
+  assert.doesNotMatch(dispatchSchema, /incident_zenbu_battery_override/);
 
   const hostPreflight = workflow.match(
     /- name: Preflight autonomous ingestion host[\s\S]*?(?=\n\s{6}- name:)/

@@ -55,12 +55,6 @@ on:
         required: false
         default: false
         type: boolean
-      incident_zenbu_battery_override:
-        description: One-run battery authorization for the exact S2026 Zenbu LinkedIn recovery incident
-        required: false
-        default: false
-        type: boolean
-
 permissions:
   contents: read
 
