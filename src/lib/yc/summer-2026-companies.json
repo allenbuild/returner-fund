@@ -4,7 +4,7 @@
     "directoryUrl": "https://www.ycombinator.com/companies?batch=Summer%202026",
     "algoliaIndex": "YCCompany_production",
     "algoliaFilter": "batch:\"Summer 2026\"",
-    "fetchedAt": "2026-09-12T23:35:48.390Z",
+    "fetchedAt": "2026-09-13T15:02:46.473Z",
     "expectedCompanyCount": 234,
     "observedCompanyCount": 234,
     "directoryCompanyHitCount": 234,
@@ -4085,7 +4085,7 @@
           "id": "1303141",
           "name": "Vihaan Jagiasi",
           "title": "Founder/CTO",
-          "bio": "Co-founder @ Elite — AI voice agents that run the healthcare front office. Prev founding engineer #3 at Cadastral (acquired by Legora). Waterloo dropout.",
+          "bio": "co-founder @ Elite. engineer #3 at cadastral (acq by Legora). waterloo dropout",
           "ycProfileUrl": "https://www.ycombinator.com/people/vihaan-jagiasi",
           "socialLinks": {
             "linkedin": "https://www.linkedin.com/in/vihaanjagiasi/",
@@ -6590,7 +6590,7 @@
         "Semiconductors",
         "AI"
       ],
-      "location": "London, United Kingdom",
+      "location": "San Francisco",
       "teamSize": 0,
       "status": "Active",
       "groupPartner": "Tyler Bosmeny",
@@ -7069,7 +7069,7 @@
         "Infrastructure",
         "AI"
       ],
-      "location": "Boston",
+      "location": "San Francisco",
       "teamSize": 2,
       "status": "Active",
       "groupPartner": "Jared Friedman",
@@ -10558,17 +10558,6 @@
       },
       "founders": [
         {
-          "id": "3475945",
-          "name": "Ansh Tiwari",
-          "title": "Founder/CEO",
-          "bio": "CEO at Rasyn (YC S26) | ex-NASA, Caltech | 3x ICML",
-          "ycProfileUrl": "https://www.ycombinator.com/people/ansh-tiwari",
-          "socialLinks": {
-            "linkedin": "https://www.linkedin.com/in/ansschh/",
-            "x": "https://x.com/4n5che"
-          }
-        },
-        {
           "id": "972683",
           "name": "Ayush Chauhan",
           "title": "Founder/CTO",
@@ -11210,7 +11199,7 @@
         "Defense",
         "Industrial"
       ],
-      "location": "Austin, TX",
+      "location": "San Francisco",
       "teamSize": 2,
       "status": "Active",
       "groupPartner": "Jon Xu",
@@ -13542,7 +13531,7 @@
           "bio": "Co-founder at Wondering. Previously at NotebookLM. Interested in the art and science of learning.",
           "ycProfileUrl": "https://www.ycombinator.com/people/cheng-wei-hu",
           "socialLinks": {
-            "linkedin": "https://www.linkedin.com/in/cwhu",
+            "linkedin": "https://www.linkedin.com/in/cwhu/",
             "x": "https://x.com/HcwXd"
           }
         },

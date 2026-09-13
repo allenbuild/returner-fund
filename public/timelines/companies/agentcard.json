@@ -5,8 +5,8 @@
     "slug": "agentcard",
     "name": "Agentcard"
   },
-  "generatedAt": "2026-09-13T10:12:58.348Z",
-  "lastModifiedAt": "2026-09-13T10:12:58.348Z",
+  "generatedAt": "2026-09-13T15:43:28.374Z",
+  "lastModifiedAt": "2026-09-13T15:43:28.374Z",
   "events": [
     {
       "id": "tle-bde1b80dd024f647fa7f05f6",
@@ -47,7 +47,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-09-13T10:12:58.348Z"
+    "lastSuccessfulArtifactAt": "2026-09-13T15:43:28.374Z"
   },
   "nextCursor": null
 }

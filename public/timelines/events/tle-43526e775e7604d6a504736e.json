@@ -1,0 +1,65 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-dock",
+    "slug": "dock",
+    "name": "Dock"
+  },
+  "event": {
+    "id": "tle-43526e775e7604d6a504736e",
+    "eventDate": "2026-09-09",
+    "eventDateType": "announcement_date",
+    "title": "Dock announced its public launch",
+    "summary": "Dock announced its public launch in a dated company video.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-8985d6c5d67a8db5ddb98a37",
+        "title": "Dock (YC S26) Launch Video",
+        "publisher": "Dock (YC S26) Launch Video",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-09-09T15:04:56.000Z",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=JO0dwm_NU_s"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-8985d6c5d67a8db5ddb98a37",
+        "title": "Dock (YC S26) Launch Video",
+        "publisher": "Dock (YC S26) Launch Video",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-09-09T15:04:56.000Z",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=JO0dwm_NU_s",
+        "publicationDate": "2026-09-09T15:04:56.000Z",
+        "excerpt": "Dock is a multiplayer agent harness and workspace that gives you a team of proactive agents that feel like colleagues instead of chat boxes. Learn more at trydock.ai",
+        "sourceEventDate": "2026-09-09",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-2f4347bce8fafd32065191e9",
+        "platform": "youtube",
+        "account": "Dock (YC S26) Launch Video",
+        "postDate": "2026-09-09",
+        "excerpt": "Dock is a multiplayer agent harness and workspace that gives you a team of proactive agents that feel like colleagues instead of chat boxes. Learn more at trydock.ai",
+        "url": "https://youtube.com/watch?v=JO0dwm_NU_s",
+        "metrics": {
+          "views": 109
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-09-13T15:43:28.374Z",
+  "lastModifiedAt": "2026-09-13T15:43:28.374Z"
+}

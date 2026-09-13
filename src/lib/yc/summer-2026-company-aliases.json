@@ -1209,6 +1209,23 @@
           "https://www.linkedin.com/in/i-a-7352b7137/"
         ]
       }
+    },
+    {
+      "companyId": "32261",
+      "companySlug": "rasyn",
+      "companyName": "Rasyn",
+      "founderId": "3475945",
+      "change": "removed",
+      "fromName": "Ansh Tiwari",
+      "toName": null,
+      "accounts": {
+        "linkedin": [
+          "https://www.linkedin.com/in/ansschh/"
+        ],
+        "x": [
+          "https://x.com/4n5che"
+        ]
+      }
     }
   ]
 }
