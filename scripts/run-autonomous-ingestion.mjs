@@ -103,7 +103,8 @@ import { comparePublicationSemantics } from "./lib/publication-semantic-diff.mjs
 import { buildVerifiedFirstPartyContextEvidenceValidator } from "./lib/first-party-authored-post-promotion.mjs";
 import {
   finalizeLoggedInEvidenceContent,
-  mergeLoggedInEvidenceRows
+  mergeLoggedInEvidenceRows,
+  remediateVerifiedLinkedInNativePublicationDates
 } from "./lib/logged-in-evidence-content-dedupe.mjs";
 import { isTimelineCoverageMigrationUnavailable } from "./lib/timeline-migration-availability.mjs";
 import {
@@ -2787,7 +2788,6 @@ async function prepareSanitizedPublicSnapshot(
   publicSnapshots,
   { baseRef = null, contentIdentityReferenceRows = [] } = {}
 ) {
-  if (publicSnapshots.length === 0) return null;
   const targetRoot = publicationArtifactRoot();
   const publicEvidencePath = "src/lib/social/public-evidence-current.json";
   const basePublicSnapshot = baseRef
@@ -2796,6 +2796,13 @@ async function prepareSanitizedPublicSnapshot(
   const previousPublicSnapshot = (
     await readPublicEvidenceArtifact(join(targetRoot, publicEvidencePath), { rootDir: targetRoot })
   ).snapshot;
+  if (publicSnapshots.length === 0) {
+    if (!args.authenticatedSocialReplay) return null;
+    return remediateVerifiedLinkedInNativePublicationDates(
+      previousPublicSnapshot ?? basePublicSnapshot,
+      { nowMs: runStartedAt?.getTime?.() ?? Date.now() }
+    );
+  }
   const firstPartyGraphDocuments = await Promise.all(
     AUTONOMOUS_BATCHES.map((batch) => readRequiredCanonicalJson(
       join(targetRoot, "public", "graph", batch.graphFile),
@@ -3150,7 +3157,7 @@ async function mergePublicationInputs(
 ) {
   const targetRoot = publicationArtifactRoot();
   const publicEvidencePath = "src/lib/social/public-evidence-current.json";
-  if (publicSnapshots.length > 0) {
+  if (sanitizedPublicSnapshot || publicSnapshots.length > 0) {
     const trustedPublicSnapshot = sanitizedPublicSnapshot ?? (
       baseRef
         ? await prepareSanitizedPublicSnapshot(publicSnapshots, { baseRef })

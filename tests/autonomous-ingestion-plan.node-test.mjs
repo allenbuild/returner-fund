@@ -55,6 +55,22 @@ describe("autonomous runner resume contract", () => {
       /await runFailFastBranches\(\[\s*\(\) => runCollectors\(\),\s*\(\) => resumeTopVoiceRefresh\(\)\s*\]\)/
     );
   });
+
+  it("republishes canonical LinkedIn date remediation during authenticated replay", async () => {
+    const source = await readFile(
+      join(repositoryRoot, "scripts/run-autonomous-ingestion.mjs"),
+      "utf8"
+    );
+
+    assert.match(
+      source,
+      /if \(publicSnapshots\.length === 0\) \{\s*if \(!args\.authenticatedSocialReplay\) return null;\s*return remediateVerifiedLinkedInNativePublicationDates\(/
+    );
+    assert.match(
+      source,
+      /if \(sanitizedPublicSnapshot \|\| publicSnapshots\.length > 0\) \{/
+    );
+  });
 });
 
 describe("autonomous ingestion planning against the collector catalogs", () => {
@@ -4196,6 +4212,31 @@ describe("autonomous collector failure identities", () => {
 });
 
 describe("autonomous public evidence merge", () => {
+  it("promotes a verified LinkedIn native activity id to an exact publication date", () => {
+    const merged = mergePublicEvidenceSnapshots([{
+      source: { batchSlug: "S26" },
+      evidence: [{
+        id: "linkedin-native-unknown-date",
+        entityType: "company",
+        entityId: "company-acme",
+        companySlug: "acme",
+        companyName: "Acme",
+        platform: "linkedin",
+        sourceUrl:
+          "https://www.linkedin.com/feed/update/urn:li:activity:7454820693017284608/",
+        platformPostId: "7454820693017284608",
+        postedAt: null,
+        publishedAtPrecision: "unknown",
+        metrics: { likes: 10 },
+        review_state: "verified"
+      }]
+    }], { fetchedAt: "2026-09-13T12:00:00.000Z" });
+
+    assert.equal(merged.evidence.length, 1);
+    assert.equal(merged.evidence[0].postedAt, "2026-04-28T09:15:57.086Z");
+    assert.equal(merged.evidence[0].publishedAtPrecision, "exact");
+  });
+
   it("bounds repeated operational histories while preserving the latest terminal receipt", () => {
     const attemptKey = "x:company:company-example:https://x.com/example";
     let merged = null;

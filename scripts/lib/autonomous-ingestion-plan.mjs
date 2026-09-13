@@ -8,6 +8,7 @@ import {
   sourceAuthorsCompatible,
   sourceContentIdentity
 } from "./source-content-identity.mjs";
+import { withDerivedNativePostedAt } from "./logged-in-evidence-content-dedupe.mjs";
 import {
   applyResolvedNativeAuthor,
   assessPublicEvidenceAttribution,
@@ -2224,14 +2225,12 @@ export function mergePublicEvidenceSnapshots(
   const quarantinedEvidence = [];
   const reconciliationCandidates = [];
   const acceptedOrigins = new Map();
+  const fetchedAtMs = Date.parse(fetchedAt);
+  const publicationClockMs = Number.isFinite(fetchedAtMs) ? fetchedAtMs : Date.now();
   for (const snapshot of snapshots) {
     reconciliationCandidates.push(...(snapshot.attributionReconciliationLedger ?? []));
     for (const sourceRow of snapshot.evidence ?? []) {
       const originalRow = withSnapshotRowBatch(sourceRow, snapshot, resolveBatchSlug);
-      const canonicalCompanyReassignment = typeof resolveNativeAuthor === "function"
-        ? canonicalMergedCompanyAttribution(originalRow, resolveNativeAuthor)
-        : null;
-      const canonicalRosterRow = canonicalCompanyReassignment?.row ?? originalRow;
       // Promotion receipts bind to the exact persisted row. Resolve their
       // exceptions before replay refreshes native-author metadata; otherwise
       // a fresh canonical resolver can overwrite receipt fields and silently
@@ -2242,6 +2241,13 @@ export function mergePublicEvidenceSnapshots(
       const verifiedContextEvidence =
         typeof allowVerifiedContextEvidence === "function" &&
         allowVerifiedContextEvidence(originalRow, { snapshot });
+      const publicationDatedRow = normalizePlatform(originalRow?.platform) === "linkedin"
+        ? withDerivedNativePostedAt(originalRow, "linkedin", { nowMs: publicationClockMs })
+        : originalRow;
+      const canonicalCompanyReassignment = typeof resolveNativeAuthor === "function"
+        ? canonicalMergedCompanyAttribution(publicationDatedRow, resolveNativeAuthor)
+        : null;
+      const canonicalRosterRow = canonicalCompanyReassignment?.row ?? publicationDatedRow;
       const freshNativeAuthorResolution = typeof resolveNativeAuthor === "function"
         ? resolveNativeAuthor(canonicalRosterRow)
         : null;

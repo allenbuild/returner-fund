@@ -2,7 +2,9 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import {
   finalizeLoggedInEvidenceContent,
-  mergeLoggedInEvidenceRows
+  mergeLoggedInEvidenceRows,
+  remediateVerifiedLinkedInNativePublicationDates,
+  withDerivedNativePostedAt
 } from "../scripts/lib/logged-in-evidence-content-dedupe.mjs";
 
 describe("logged-in evidence exact-content finalization", () => {
@@ -311,6 +313,7 @@ describe("logged-in evidence exact-content finalization", () => {
 
     assert.equal(result.evidence.length, 1);
     assert.equal(result.evidence[0].postedAt, "2026-04-28T09:15:57.086Z");
+    assert.equal(result.evidence[0].publishedAtPrecision, "exact");
     assert.deepEqual(result.needsReview, []);
   });
 
@@ -339,7 +342,100 @@ describe("logged-in evidence exact-content finalization", () => {
 
     assert.equal(result.evidence.length, 1);
     assert.equal(result.evidence[0].postedAt, "2026-04-28T09:15:57.086Z");
+    assert.equal(result.evidence[0].publishedAtPrecision, "exact");
     assert.deepEqual(result.needsReview, []);
+  });
+
+  it("replaces a stale unknown publication contract with the exact native LinkedIn instant", () => {
+    const row = {
+      platform: "linkedin",
+      sourceUrl:
+        "https://www.linkedin.com/feed/update/urn:li:activity:7454820693017284608/",
+      platformPostId: "7454820693017284608",
+      postedAt: "2026-04-28",
+      publishedAtPrecision: "unknown"
+    };
+
+    const remediated = withDerivedNativePostedAt(row, "linkedin", {
+      nowMs: Date.parse("2026-09-13T12:00:00.000Z")
+    });
+
+    assert.deepEqual(remediated, {
+      ...row,
+      postedAt: "2026-04-28T09:15:57.086Z",
+      publishedAtPrecision: "exact"
+    });
+    assert.equal(
+      withDerivedNativePostedAt(remediated, "linkedin", {
+        nowMs: Date.parse("2026-09-13T12:00:00.000Z")
+      }),
+      remediated
+    );
+  });
+
+  it("fails closed when native LinkedIn URL and explicit activity ids conflict", () => {
+    const row = {
+      platform: "linkedin",
+      sourceUrl:
+        "https://www.linkedin.com/feed/update/urn:li:activity:7454820693017284608/",
+      platformPostId: "7454820693017284609",
+      postedAt: null,
+      publishedAtPrecision: "unknown"
+    };
+
+    assert.equal(
+      withDerivedNativePostedAt(row, "linkedin", {
+        nowMs: Date.parse("2026-09-13T12:00:00.000Z")
+      }),
+      row
+    );
+  });
+
+  it("repairs only verified LinkedIn rows in a canonical snapshot", () => {
+    const eligible = {
+      id: "verified-linkedin",
+      batchSlug: "S26",
+      platform: "linkedin",
+      sourceUrl:
+        "https://www.linkedin.com/feed/update/urn:li:activity:7454820693017284608/",
+      platformPostId: "7454820693017284608",
+      postedAt: null,
+      publishedAtPrecision: "unknown",
+      review_state: "verified"
+    };
+    const spring = {
+      ...eligible,
+      id: "verified-linkedin-spring",
+      batchSlug: "S2026"
+    };
+    const unverified = { ...eligible, id: "review-linkedin", review_state: "needs_review" };
+    const x = { ...eligible, id: "verified-x", platform: "x" };
+    const snapshot = {
+      source: { label: "fixture" },
+      evidence: [eligible, spring, unverified, x]
+    };
+
+    const repaired = remediateVerifiedLinkedInNativePublicationDates(snapshot, {
+      nowMs: Date.parse("2026-09-13T12:00:00.000Z")
+    });
+
+    assert.notEqual(repaired, snapshot);
+    assert.deepEqual(repaired.evidence.map((row) => [
+      row.id,
+      row.postedAt,
+      row.publishedAtPrecision
+    ]), [
+      ["verified-linkedin", "2026-04-28T09:15:57.086Z", "exact"],
+      ["verified-linkedin-spring", "2026-04-28T09:15:57.086Z", "exact"],
+      ["review-linkedin", null, "unknown"],
+      ["verified-x", null, "unknown"]
+    ]);
+    assert.equal(
+      remediateVerifiedLinkedInNativePublicationDates(repaired, {
+        nowMs: Date.parse("2026-09-13T12:00:00.000Z")
+      }),
+      repaired
+    );
   });
 
   it("deterministically retains Nalin's lower X status and persists its target-scoped quarantine through checkpoint replay", () => {

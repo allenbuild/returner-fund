@@ -210,37 +210,83 @@ function quarantineIneligibleNativeObservations(rows, options) {
   return { evidence, needsReview };
 }
 
-function withDerivedNativePostedAt(row, platform) {
-  if (Number.isFinite(Date.parse(row?.postedAt ?? row?.posted_at ?? ""))) {
+export function withDerivedNativePostedAt(
+  row,
+  platform = row?.platform,
+  { nowMs = Date.now() } = {}
+) {
+  const normalizedPlatform = String(platform ?? "").toLowerCase();
+  if (
+    normalizedPlatform !== "linkedin" &&
+    Number.isFinite(Date.parse(row?.postedAt ?? row?.posted_at ?? ""))
+  ) {
     return row;
   }
-  const id =
-    normalizedNativePostId(
-      platform,
-      row?.platformPostId ?? row?.platform_post_id
-    ) ??
-    nativePostIdFromUrl(platform, row?.sourceUrl ?? row?.source_url);
+  const explicitId = normalizedNativePostId(
+    normalizedPlatform,
+    row?.platformPostId ?? row?.platform_post_id
+  );
+  const urlId = nativePostIdFromUrl(
+    normalizedPlatform,
+    row?.sourceUrl ?? row?.source_url
+  );
+  // A conflicting URL and explicit id can never establish a trustworthy
+  // publication instant. Leave the row unchanged so the ordinary native-id
+  // validation/quarantine path can fail closed.
+  if (explicitId && urlId && explicitId !== urlId) return row;
+  const id = explicitId ?? urlId;
   if (!id || !/^\d+$/.test(id)) return row;
 
   try {
     const snowflake = BigInt(id);
     const timestamp =
-      platform === "linkedin"
+      normalizedPlatform === "linkedin"
         ? Number(snowflake >> 22n)
-        : platform === "x"
+        : normalizedPlatform === "x"
           ? Number((snowflake >> 22n) + 1_288_834_974_657n)
           : NaN;
     if (
       !Number.isFinite(timestamp) ||
       timestamp < Date.parse("2006-01-01T00:00:00.000Z") ||
-      timestamp > Date.now() + 86_400_000
+      timestamp > nowMs + 86_400_000
     ) {
       return row;
     }
-    return { ...row, postedAt: new Date(timestamp).toISOString() };
+    const postedAt = new Date(timestamp).toISOString();
+    if (
+      row?.postedAt === postedAt &&
+      row?.publishedAtPrecision === "exact"
+    ) {
+      return row;
+    }
+    return {
+      ...row,
+      postedAt,
+      publishedAtPrecision: "exact"
+    };
   } catch {
     return row;
   }
+}
+
+export function remediateVerifiedLinkedInNativePublicationDates(
+  snapshot,
+  { nowMs = Date.now() } = {}
+) {
+  if (!snapshot || !Array.isArray(snapshot.evidence)) return snapshot;
+  let changed = false;
+  const evidence = snapshot.evidence.map((row) => {
+    if (
+      String(row?.platform ?? "").toLowerCase() !== "linkedin" ||
+      row?.review_state !== "verified"
+    ) {
+      return row;
+    }
+    const remediated = withDerivedNativePostedAt(row, "linkedin", { nowMs });
+    if (remediated !== row) changed = true;
+    return remediated;
+  });
+  return changed ? { ...snapshot, evidence } : snapshot;
 }
 
 function normalizePersistedOwnerCollisionReview(row) {
