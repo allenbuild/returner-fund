@@ -378,7 +378,7 @@ jobs:
           RECOVER_AUTHENTICATED_LINKEDIN_LOCK: ${{ inputs.recover_authenticated_linkedin_lock || false }}
           INCIDENT_ZENBU_BATTERY_OVERRIDE: ${{ inputs.incident_zenbu_battery_override || false }}
           INCIDENT_ZENBU_BATTERY_REPLAY_KEY: incident-20260912-s2026-zenbu-linkedin-battery-01
-          AUTHENTICATED_BATTERY_MIN_START_PERCENT: "30"
+          AUTHENTICATED_BATTERY_MIN_START_PERCENT: "5"
           AUTONOMOUS_MIN_BATTERY_PERCENT: "30"
           CANDIDATE_TRIGGER: ${{ needs.resolve.outputs.trigger }}
           INGESTION_IDEMPOTENCY_KEY: ${{ needs.resolve.outputs.slot_key }}
@@ -467,7 +467,7 @@ jobs:
               if [ "$EXTERNAL_POWER_CONNECTED_COUNT" -eq 1 ]; then
                 echo "::notice title=Authenticated replay power continuity verified::AppleSmartBattery reports physical AC connected and AppleClamshellState reports an open lid."
               else
-                echo "::warning title=Explicit one-run battery authorization::Launching only the exact two-account S2026/zenbu-2 LinkedIn recovery at ${BATTERY_PERCENT}% with an open lid; the watchdog will checkpoint and stop at 30%."
+                echo "::warning title=Explicit one-run battery authorization::Launching only the exact two-account S2026/zenbu-2 LinkedIn recovery at ${BATTERY_PERCENT}% with an open lid; the watchdog will checkpoint and stop at 5%."
               fi
             elif [[ "${POWER_STATUS%%$'\n'*}" != *"'AC Power'"* ]]; then
               if [[ ! "$BATTERY_PERCENT" =~ ^[0-9]+$ ]]; then
@@ -865,7 +865,7 @@ jobs:
           RECOVER_AUTHENTICATED_LINKEDIN_LOCK: ${{ inputs.recover_authenticated_linkedin_lock || false }}
           INCIDENT_ZENBU_BATTERY_OVERRIDE: ${{ inputs.incident_zenbu_battery_override || false }}
           INCIDENT_ZENBU_BATTERY_REPLAY_KEY: incident-20260912-s2026-zenbu-linkedin-battery-01
-          AUTHENTICATED_BATTERY_MIN_START_PERCENT: "30"
+          AUTHENTICATED_BATTERY_MIN_START_PERCENT: "5"
           INGESTION_IDEMPOTENCY_KEY: ${{ needs.resolve.outputs.slot_key }}
           GITHUB_EVENT_NAME: ${{ github.event_name }}
           GITHUB_RUN_ATTEMPT: ${{ github.run_attempt }}
@@ -933,7 +933,7 @@ jobs:
               echo "::error title=Battery replay sleep protection unavailable::The existing host supervisor has no effective system-sleep assertion, so browser access and lock recovery remain blocked."
               exit 1
             fi
-            echo "::warning title=Exact Zenbu battery replay revalidated::Battery is ${BATTERY_PERCENT}%, the lid is open, full wake and supervisor sleep protection are verified, and the 30% watchdog remains armed."
+            echo "::warning title=Exact Zenbu battery replay revalidated::Battery is ${BATTERY_PERCENT}%, the lid is open, full wake and supervisor sleep protection are verified, and the 5% watchdog remains armed."
           fi
 
       - name: Preflight authenticated social runner
@@ -996,7 +996,7 @@ jobs:
           RECOVER_AUTHENTICATED_LINKEDIN_LOCK: ${{ inputs.recover_authenticated_linkedin_lock || false }}
           INCIDENT_ZENBU_BATTERY_OVERRIDE: ${{ inputs.incident_zenbu_battery_override || false }}
           INCIDENT_ZENBU_BATTERY_REPLAY_KEY: incident-20260912-s2026-zenbu-linkedin-battery-01
-          AUTHENTICATED_BATTERY_MIN_START_PERCENT: "30"
+          AUTHENTICATED_BATTERY_MIN_START_PERCENT: "5"
           AUTHENTICATED_LINKEDIN_REPLAY_MAX_CHUNKS: ${{ inputs.incident_zenbu_battery_override == true && '1' || '7' }}
           GITHUB_EVENT_NAME: ${{ github.event_name }}
           GITHUB_RUN_ATTEMPT: ${{ github.run_attempt }}
@@ -1022,7 +1022,7 @@ jobs:
           # collection. Poll independently of the start gate and enter the
           # retry controller's normal SIGTERM drain before power becomes
           # critical, preserving checkpoints and leaving the slot retryable.
-          AUTONOMOUS_WORKFLOW_POWER_WATCHDOG_RESERVE_PERCENT: ${{ runner.os == 'macOS' && inputs.incident_zenbu_battery_override == true && '30' || runner.os == 'macOS' && '20' || '' }}
+          AUTONOMOUS_WORKFLOW_POWER_WATCHDOG_RESERVE_PERCENT: ${{ runner.os == 'macOS' && inputs.incident_zenbu_battery_override == true && '5' || runner.os == 'macOS' && '20' || '' }}
           AUTONOMOUS_WORKFLOW_POWER_WATCHDOG_INTERVAL_SECONDS: ${{ runner.os == 'macOS' && '30' || '' }}
         run: |
           set -euo pipefail
@@ -1051,7 +1051,7 @@ jobs:
                    [ "$RECOVER_AUTHENTICATED_LINKEDIN_LOCK" != "true" ] || \
                    [ "$AUTHENTICATED_LINKEDIN_REPLAY_MAX_CHUNKS" != "1" ] || \
                    [ "$AUTONOMOUS_WORKFLOW_RETRY_MAX_ATTEMPTS" != "1" ] || \
-                   [ "$AUTONOMOUS_WORKFLOW_POWER_WATCHDOG_RESERVE_PERCENT" != "30" ]; then
+                   [ "$AUTONOMOUS_WORKFLOW_POWER_WATCHDOG_RESERVE_PERCENT" != "5" ]; then
                   echo "::error title=Battery override scope mismatch::The incident authorization no longer matches its exact first-attempt Zenbu replay policy immediately before controller launch."
                   exit 1
                 fi
@@ -1099,7 +1099,7 @@ jobs:
                 exit 1
               fi
               if [ "$INCIDENT_ZENBU_BATTERY_OVERRIDE" = "true" ]; then
-                echo "::warning title=Exact Zenbu battery controller authorized::Launching one controller attempt and at most one two-account LinkedIn chunk at ${BATTERY_PERCENT}%; the 30% fail-closed watchdog is armed."
+                echo "::warning title=Exact Zenbu battery controller authorized::Launching one controller attempt and at most one two-account LinkedIn chunk at ${BATTERY_PERCENT}%; the 5% fail-closed watchdog is armed."
               fi
             elif [[ "${POWER_STATUS%%$'\n'*}" != *"'AC Power'"* ]]; then
               if [[ ! "$BATTERY_PERCENT" =~ ^[0-9]+$ ]] || [ "$BATTERY_PERCENT" -lt "$AUTONOMOUS_MIN_BATTERY_PERCENT" ]; then

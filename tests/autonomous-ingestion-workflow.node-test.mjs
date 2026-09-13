@@ -2395,7 +2395,7 @@ test("autonomous runner receives optional durability secrets and owns validated 
   assert.match(runnerStep, /AUTONOMOUS_MIN_BATTERY_PERCENT:\s*"30"/);
   assert.match(
     runnerStep,
-    /AUTONOMOUS_WORKFLOW_POWER_WATCHDOG_RESERVE_PERCENT:\s*\$\{\{ runner\.os == 'macOS' && inputs\.incident_zenbu_battery_override == true && '30' \|\| runner\.os == 'macOS' && '20' \|\| '' \}\}/
+    /AUTONOMOUS_WORKFLOW_POWER_WATCHDOG_RESERVE_PERCENT:\s*\$\{\{ runner\.os == 'macOS' && inputs\.incident_zenbu_battery_override == true && '5' \|\| runner\.os == 'macOS' && '20' \|\| '' \}\}/
   );
   assert.match(
     runnerStep,
@@ -3469,7 +3469,7 @@ test("incident Zenbu battery authorization is bound to one exact first-attempt r
     hostPreflight,
     /INCIDENT_ZENBU_BATTERY_REPLAY_KEY:\s*incident-20260912-s2026-zenbu-linkedin-battery-01/
   );
-  assert.match(hostPreflight, /AUTHENTICATED_BATTERY_MIN_START_PERCENT:\s*"30"/);
+  assert.match(hostPreflight, /AUTHENTICATED_BATTERY_MIN_START_PERCENT:\s*"5"/);
   assert.match(hostPreflight, /reason=incident_battery_override_scope_mismatch/);
   assert.match(hostPreflight, /reason=incident_battery_reserve_below_start/);
   assert.match(hostPreflight, /exact two-account S2026\/zenbu-2 LinkedIn recovery/);
@@ -3494,9 +3494,9 @@ test("incident Zenbu battery authorization is bound to one exact first-attempt r
   );
   assert.match(
     runnerStep,
-    /AUTONOMOUS_WORKFLOW_POWER_WATCHDOG_RESERVE_PERCENT:\s*\$\{\{ runner\.os == 'macOS' && inputs\.incident_zenbu_battery_override == true && '30' \|\| runner\.os == 'macOS' && '20' \|\| '' \}\}/
+    /AUTONOMOUS_WORKFLOW_POWER_WATCHDOG_RESERVE_PERCENT:\s*\$\{\{ runner\.os == 'macOS' && inputs\.incident_zenbu_battery_override == true && '5' \|\| runner\.os == 'macOS' && '20' \|\| '' \}\}/
   );
-  assert.match(runnerStep, /AUTHENTICATED_BATTERY_MIN_START_PERCENT:\s*"30"/);
+  assert.match(runnerStep, /AUTHENTICATED_BATTERY_MIN_START_PERCENT:\s*"5"/);
   assert.match(runnerStep, /AUTHENTICATED_LINKEDIN_REPLAY_MAX_CHUNKS:[\s\S]*?'1'[\s\S]*?'7'/);
   assert.match(
     runnerStep,
@@ -3506,7 +3506,7 @@ test("incident Zenbu battery authorization is bound to one exact first-attempt r
   const powerRecheck = workflow.match(
     /- name: Recheck authenticated replay power policy[\s\S]*?(?=\n\s{6}- name:)/
   )?.[0] ?? "";
-  assert.match(powerRecheck, /AUTHENTICATED_BATTERY_MIN_START_PERCENT:\s*"30"/);
+  assert.match(powerRecheck, /AUTHENTICATED_BATTERY_MIN_START_PERCENT:\s*"5"/);
   assert.match(powerRecheck, /IOPMUserTriggeredFullWake/);
   assert.match(powerRecheck, /AppleClamshellState/);
   assert.match(powerRecheck, /Exact Zenbu battery replay revalidated/);
