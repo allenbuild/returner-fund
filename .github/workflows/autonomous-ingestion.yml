@@ -60,6 +60,11 @@ on:
         required: false
         default: false
         type: boolean
+      incident_s2026_linkedin_backlog_battery_override:
+        description: Battery authorization for one bounded S2026 LinkedIn backlog sweep run
+        required: false
+        default: false
+        type: boolean
 permissions:
   contents: read
 
@@ -377,6 +382,7 @@ jobs:
           RECOVER_AUTHENTICATED_LINKEDIN_LOCK: ${{ inputs.recover_authenticated_linkedin_lock || false }}
           INCIDENT_ZENBU_BATTERY_OVERRIDE: ${{ inputs.incident_zenbu_battery_override || false }}
           INCIDENT_ZENBU_BATTERY_REPLAY_KEY: incident-20260912-s2026-zenbu-linkedin-battery-02
+          INCIDENT_S2026_LINKEDIN_BACKLOG_BATTERY_OVERRIDE: ${{ inputs.incident_s2026_linkedin_backlog_battery_override || false }}
           AUTHENTICATED_BATTERY_MIN_START_PERCENT: "5"
           AUTONOMOUS_MIN_BATTERY_PERCENT: "30"
           CANDIDATE_TRIGGER: ${{ needs.resolve.outputs.trigger }}
@@ -393,6 +399,14 @@ jobs:
             echo "reason=host_preflight_pending"
           } >> "$GITHUB_OUTPUT"
 
+          BATTERY_OVERRIDE_AUTHORIZED=false
+          if [ "$INCIDENT_ZENBU_BATTERY_OVERRIDE" = "true" ] && \
+             [ "$INCIDENT_S2026_LINKEDIN_BACKLOG_BATTERY_OVERRIDE" = "true" ]; then
+            echo "reason=incident_battery_override_conflict" >> "$GITHUB_OUTPUT"
+            echo "::error title=Battery override conflict::The exact Zenbu and bounded S2026 backlog battery authorizations cannot be combined."
+            exit 1
+          fi
+
           if [ "$INCIDENT_ZENBU_BATTERY_OVERRIDE" = "true" ]; then
             if [ "$GITHUB_EVENT_NAME" != "workflow_dispatch" ] || \
                [ "$GITHUB_RUN_ATTEMPT" != "1" ] || \
@@ -407,6 +421,28 @@ jobs:
               echo "::error title=Battery override scope mismatch::This one-run authorization is bound to the first-attempt exact S2026/zenbu-2 LinkedIn quarantine recovery and its unique replay key."
               exit 1
             fi
+            BATTERY_OVERRIDE_AUTHORIZED=true
+          fi
+
+          if [ "$INCIDENT_S2026_LINKEDIN_BACKLOG_BATTERY_OVERRIDE" = "true" ]; then
+            if [ "$GITHUB_EVENT_NAME" != "workflow_dispatch" ] || \
+               [ "$GITHUB_RUN_ATTEMPT" != "1" ] || \
+               [ "$CANDIDATE_TRIGGER" != "manual-replay" ] || \
+               [ "$AUTHENTICATED_SOCIAL_REPLAY" != "true" ] || \
+               [ "$AUTHENTICATED_BACKFILL_SCOPE" != "linkedin" ] || \
+               [ "$AUTHENTICATED_BACKFILL_BATCH" != "S2026" ] || \
+               [ -n "$AUTHENTICATED_BACKFILL_COMPANY_SLUG" ] || \
+               [ "$RECOVER_AUTHENTICATED_LINKEDIN_LOCK" != "false" ]; then
+              echo "reason=incident_s2026_linkedin_backlog_battery_override_scope_mismatch" >> "$GITHUB_OUTPUT"
+              echo "::error title=Backlog battery override scope mismatch::This authorization is limited to a first-attempt, batch-wide S2026 LinkedIn backlog replay without lock recovery."
+              exit 1
+            fi
+            if ! [[ "$INGESTION_IDEMPOTENCY_KEY" =~ ^incident-20260913-s2026-linkedin-backlog-[0-9]{3}$ ]]; then
+              echo "reason=incident_s2026_linkedin_backlog_battery_override_key_mismatch" >> "$GITHUB_OUTPUT"
+              echo "::error title=Backlog battery override key mismatch::The replay key must match incident-20260913-s2026-linkedin-backlog-NNN exactly."
+              exit 1
+            fi
+            BATTERY_OVERRIDE_AUTHORIZED=true
           fi
 
           if [ "$AUTHENTICATED_SOCIAL_REPLAY" = "true" ] && [ "${RUNNER_OS:-}" != "macOS" ]; then
@@ -438,14 +474,21 @@ jobs:
                 exit 1
               fi
               if [ "$EXTERNAL_POWER_CONNECTED_COUNT" -ne 1 ]; then
-                if [ "$INCIDENT_ZENBU_BATTERY_OVERRIDE" != "true" ]; then
+                if [ "$BATTERY_OVERRIDE_AUTHORIZED" != "true" ]; then
                   echo "reason=authenticated_external_power_disconnected" >> "$GITHUB_OUTPUT"
                   echo "::error title=Authenticated replay requires physical AC power::AppleSmartBattery reports ExternalConnected=No. Connect power before retrying; the pmset header is not accepted as proof."
                   exit 1
                 fi
-                if [[ ! "$BATTERY_PERCENT" =~ ^[0-9]+$ ]] || [ "$BATTERY_PERCENT" -lt "$AUTHENTICATED_BATTERY_MIN_START_PERCENT" ]; then
-                  echo "reason=incident_battery_reserve_below_start" >> "$GITHUB_OUTPUT"
-                  echo "::error title=Authorized battery reserve unavailable::The exact Zenbu replay requires at least ${AUTHENTICATED_BATTERY_MIN_START_PERCENT}% at start and hardware reports ${BATTERY_PERCENT:-unknown}%."
+                if [[ ! "$BATTERY_PERCENT" =~ ^[0-9]+$ ]] || \
+                   { [ "$INCIDENT_ZENBU_BATTERY_OVERRIDE" = "true" ] && [ "$BATTERY_PERCENT" -lt "$AUTHENTICATED_BATTERY_MIN_START_PERCENT" ]; } || \
+                   { [ "$INCIDENT_S2026_LINKEDIN_BACKLOG_BATTERY_OVERRIDE" = "true" ] && [ "$BATTERY_PERCENT" -le "$AUTHENTICATED_BATTERY_MIN_START_PERCENT" ]; }; then
+                  if [ "$INCIDENT_ZENBU_BATTERY_OVERRIDE" = "true" ]; then
+                    echo "reason=incident_battery_reserve_below_start" >> "$GITHUB_OUTPUT"
+                    echo "::error title=Authorized battery reserve unavailable::The exact Zenbu replay requires at least ${AUTHENTICATED_BATTERY_MIN_START_PERCENT}% at start and hardware reports ${BATTERY_PERCENT:-unknown}%."
+                  else
+                    echo "reason=incident_s2026_linkedin_backlog_battery_reserve_below_start" >> "$GITHUB_OUTPUT"
+                    echo "::error title=Authorized battery floor reached::The bounded S2026 LinkedIn backlog replay requires a verified battery level strictly above ${AUTHENTICATED_BATTERY_MIN_START_PERCENT}% and hardware reports ${BATTERY_PERCENT:-unknown}%."
+                  fi
                   exit 1
                 fi
               fi
@@ -465,8 +508,10 @@ jobs:
               fi
               if [ "$EXTERNAL_POWER_CONNECTED_COUNT" -eq 1 ]; then
                 echo "::notice title=Authenticated replay power continuity verified::AppleSmartBattery reports physical AC connected and AppleClamshellState reports an open lid."
-              else
+              elif [ "$INCIDENT_ZENBU_BATTERY_OVERRIDE" = "true" ]; then
                 echo "::warning title=Explicit one-run battery authorization::Launching only the exact two-account S2026/zenbu-2 LinkedIn recovery at ${BATTERY_PERCENT}% with an open lid; the watchdog will checkpoint and stop at 5%."
+              else
+                echo "::warning title=Explicit bounded backlog battery authorization::Launching one S2026 LinkedIn backlog sweep at ${BATTERY_PERCENT}% with an open lid and no AC or battery-runtime estimate requirement; every chunk rechecks the strict-above-5% floor and the watchdog stops at 5%."
               fi
             elif [[ "${POWER_STATUS%%$'\n'*}" != *"'AC Power'"* ]]; then
               if [[ ! "$BATTERY_PERCENT" =~ ^[0-9]+$ ]]; then
@@ -554,6 +599,10 @@ jobs:
               if [ "$INCIDENT_ZENBU_BATTERY_OVERRIDE" = "true" ]; then
                 echo "reason=incident_battery_supervisor_assertion_missing" >> "$GITHUB_OUTPUT"
                 echo "::error title=Battery replay sleep protection unavailable::The exact Zenbu battery authorization requires the pre-existing host supervisor to hold an effective system-sleep assertion before setup begins."
+                exit 1
+              elif [ "$INCIDENT_S2026_LINKEDIN_BACKLOG_BATTERY_OVERRIDE" = "true" ]; then
+                echo "reason=incident_s2026_linkedin_backlog_battery_supervisor_assertion_missing" >> "$GITHUB_OUTPUT"
+                echo "::error title=Battery replay sleep protection unavailable::The bounded S2026 LinkedIn backlog authorization requires the pre-existing host supervisor to hold an effective system-sleep assertion before setup begins."
                 exit 1
               fi
               echo "::warning title=Durable sleep assertion is missing::The job-scoped assertion will protect this run; reinstall the host supervisor to restore maintenance-wake coverage."
@@ -858,18 +907,28 @@ jobs:
         if: steps.revalidate.outputs.should_run == 'true' && steps.host_preflight.outputs.ready == 'true' && needs.resolve.outputs.trigger == 'manual-replay' && inputs.authenticated_backfill == true
         timeout-minutes: 1
         env:
+          AUTHENTICATED_SOCIAL_REPLAY: ${{ inputs.authenticated_backfill || false }}
           AUTHENTICATED_BACKFILL_SCOPE: ${{ inputs.authenticated_backfill_scope || 'all' }}
           AUTHENTICATED_BACKFILL_BATCH: ${{ inputs.authenticated_backfill_batch || 'all' }}
           AUTHENTICATED_BACKFILL_COMPANY_SLUG: ${{ inputs.authenticated_backfill_company_slug || '' }}
           RECOVER_AUTHENTICATED_LINKEDIN_LOCK: ${{ inputs.recover_authenticated_linkedin_lock || false }}
           INCIDENT_ZENBU_BATTERY_OVERRIDE: ${{ inputs.incident_zenbu_battery_override || false }}
           INCIDENT_ZENBU_BATTERY_REPLAY_KEY: incident-20260912-s2026-zenbu-linkedin-battery-02
+          INCIDENT_S2026_LINKEDIN_BACKLOG_BATTERY_OVERRIDE: ${{ inputs.incident_s2026_linkedin_backlog_battery_override || false }}
           AUTHENTICATED_BATTERY_MIN_START_PERCENT: "5"
           INGESTION_IDEMPOTENCY_KEY: ${{ needs.resolve.outputs.slot_key }}
+          CANDIDATE_TRIGGER: ${{ needs.resolve.outputs.trigger }}
           GITHUB_EVENT_NAME: ${{ github.event_name }}
           GITHUB_RUN_ATTEMPT: ${{ github.run_attempt }}
         run: |
           set -euo pipefail
+
+          BATTERY_OVERRIDE_AUTHORIZED=false
+          if [ "$INCIDENT_ZENBU_BATTERY_OVERRIDE" = "true" ] && \
+             [ "$INCIDENT_S2026_LINKEDIN_BACKLOG_BATTERY_OVERRIDE" = "true" ]; then
+            echo "::error title=Battery override conflict::The exact Zenbu and bounded S2026 backlog battery authorizations cannot be combined."
+            exit 1
+          fi
 
           if [ "$INCIDENT_ZENBU_BATTERY_OVERRIDE" = "true" ]; then
             if [ "$GITHUB_EVENT_NAME" != "workflow_dispatch" ] || \
@@ -882,6 +941,26 @@ jobs:
               echo "::error title=Battery override scope mismatch::The incident authorization no longer matches the exact first-attempt S2026/zenbu-2 LinkedIn recovery."
               exit 1
             fi
+            BATTERY_OVERRIDE_AUTHORIZED=true
+          fi
+
+          if [ "$INCIDENT_S2026_LINKEDIN_BACKLOG_BATTERY_OVERRIDE" = "true" ]; then
+            if [ "$GITHUB_EVENT_NAME" != "workflow_dispatch" ] || \
+               [ "$GITHUB_RUN_ATTEMPT" != "1" ] || \
+               [ "$CANDIDATE_TRIGGER" != "manual-replay" ] || \
+               [ "$AUTHENTICATED_SOCIAL_REPLAY" != "true" ] || \
+               [ "$AUTHENTICATED_BACKFILL_SCOPE" != "linkedin" ] || \
+               [ "$AUTHENTICATED_BACKFILL_BATCH" != "S2026" ] || \
+               [ -n "$AUTHENTICATED_BACKFILL_COMPANY_SLUG" ] || \
+               [ "$RECOVER_AUTHENTICATED_LINKEDIN_LOCK" != "false" ]; then
+              echo "::error title=Backlog battery override scope mismatch::The authorization no longer matches a first-attempt, batch-wide S2026 LinkedIn backlog replay without lock recovery."
+              exit 1
+            fi
+            if ! [[ "$INGESTION_IDEMPOTENCY_KEY" =~ ^incident-20260913-s2026-linkedin-backlog-[0-9]{3}$ ]]; then
+              echo "::error title=Backlog battery override key mismatch::The replay key must match incident-20260913-s2026-linkedin-backlog-NNN exactly."
+              exit 1
+            fi
+            BATTERY_OVERRIDE_AUTHORIZED=true
           fi
 
           POWER_STATUS="$(/usr/bin/pmset -g batt)"
@@ -900,12 +979,18 @@ jobs:
             exit 1
           fi
           if [ "$EXTERNAL_POWER_CONNECTED_COUNT" -ne 1 ]; then
-            if [ "$INCIDENT_ZENBU_BATTERY_OVERRIDE" != "true" ]; then
+            if [ "$BATTERY_OVERRIDE_AUTHORIZED" != "true" ]; then
               echo "::error title=Authenticated replay requires physical AC power::AppleSmartBattery reports ExternalConnected=No immediately before browser access."
               exit 1
             fi
-            if [ "$BATTERY_PERCENT_MATCH_COUNT" -ne 1 ] || [ "$BATTERY_PERCENT" -lt "$AUTHENTICATED_BATTERY_MIN_START_PERCENT" ]; then
-              echo "::error title=Authorized battery reserve unavailable::The exact Zenbu replay requires one verified battery reading at or above ${AUTHENTICATED_BATTERY_MIN_START_PERCENT}%; hardware reports ${BATTERY_PERCENT:-unknown}."
+            if [ "$BATTERY_PERCENT_MATCH_COUNT" -ne 1 ] || \
+               { [ "$INCIDENT_ZENBU_BATTERY_OVERRIDE" = "true" ] && [ "$BATTERY_PERCENT" -lt "$AUTHENTICATED_BATTERY_MIN_START_PERCENT" ]; } || \
+               { [ "$INCIDENT_S2026_LINKEDIN_BACKLOG_BATTERY_OVERRIDE" = "true" ] && [ "$BATTERY_PERCENT" -le "$AUTHENTICATED_BATTERY_MIN_START_PERCENT" ]; }; then
+              if [ "$INCIDENT_ZENBU_BATTERY_OVERRIDE" = "true" ]; then
+                echo "::error title=Authorized battery reserve unavailable::The exact Zenbu replay requires one verified battery reading at or above ${AUTHENTICATED_BATTERY_MIN_START_PERCENT}%; hardware reports ${BATTERY_PERCENT:-unknown}."
+              else
+                echo "::error title=Authorized battery floor reached::The bounded S2026 LinkedIn backlog replay requires one verified battery reading strictly above ${AUTHENTICATED_BATTERY_MIN_START_PERCENT}%; hardware reports ${BATTERY_PERCENT:-unknown}."
+              fi
               exit 1
             fi
           fi
@@ -933,6 +1018,13 @@ jobs:
               exit 1
             fi
             echo "::warning title=Exact Zenbu battery replay revalidated::Battery is ${BATTERY_PERCENT}%, the lid is open, full wake and supervisor sleep protection are verified, and the 5% watchdog remains armed."
+          elif [ "$INCIDENT_S2026_LINKEDIN_BACKLOG_BATTERY_OVERRIDE" = "true" ]; then
+            POWER_ASSERTIONS="$(/usr/bin/pmset -g assertions 2>/dev/null || true)"
+            if ! grep -Eq '^[[:space:]]*(PreventSystemSleep|PreventUserIdleSystemSleep)[[:space:]]+1([[:space:]]|$)' <<< "$POWER_ASSERTIONS"; then
+              echo "::error title=Battery replay sleep protection unavailable::The existing host supervisor has no effective system-sleep assertion, so the bounded S2026 LinkedIn backlog replay remains blocked."
+              exit 1
+            fi
+            echo "::warning title=S2026 LinkedIn backlog battery replay revalidated::Battery is ${BATTERY_PERCENT}%, the lid is open, full wake and supervisor sleep protection are verified, no AC or battery-runtime estimate is required, and the strict-above-5% per-chunk gate plus 5% watchdog remain armed."
           fi
 
       - name: Preflight authenticated social runner
@@ -995,8 +1087,9 @@ jobs:
           RECOVER_AUTHENTICATED_LINKEDIN_LOCK: ${{ inputs.recover_authenticated_linkedin_lock || false }}
           INCIDENT_ZENBU_BATTERY_OVERRIDE: ${{ inputs.incident_zenbu_battery_override || false }}
           INCIDENT_ZENBU_BATTERY_REPLAY_KEY: incident-20260912-s2026-zenbu-linkedin-battery-02
+          INCIDENT_S2026_LINKEDIN_BACKLOG_BATTERY_OVERRIDE: ${{ inputs.incident_s2026_linkedin_backlog_battery_override || false }}
           AUTHENTICATED_BATTERY_MIN_START_PERCENT: "5"
-          AUTHENTICATED_LINKEDIN_REPLAY_MAX_CHUNKS: ${{ inputs.incident_zenbu_battery_override == true && '1' || '7' }}
+          AUTHENTICATED_LINKEDIN_REPLAY_MAX_CHUNKS: ${{ inputs.incident_zenbu_battery_override == true && '1' || inputs.incident_s2026_linkedin_backlog_battery_override == true && '4' || '7' }}
           GITHUB_EVENT_NAME: ${{ github.event_name }}
           GITHUB_RUN_ATTEMPT: ${{ github.run_attempt }}
           # The authenticated replay selects OPENCLI_HOME before consulting
@@ -1006,7 +1099,7 @@ jobs:
           # allowlisted operational database failures. The persistent cron
           # wakeups keep retrying a stale slot across jobs until its repository
           # watermark advances.
-          AUTONOMOUS_WORKFLOW_RETRY_MAX_ATTEMPTS: ${{ inputs.incident_zenbu_battery_override == true && '1' || '6' }}
+          AUTONOMOUS_WORKFLOW_RETRY_MAX_ATTEMPTS: ${{ inputs.incident_zenbu_battery_override == true && '1' || inputs.incident_s2026_linkedin_backlog_battery_override == true && '1' || '6' }}
           # The hosted public controller stays within GitHub's six-hour job
           # ceiling while retaining one complete 331-minute child window. The
           # self-hosted authenticated lane keeps the wider retry allowance.
@@ -1021,7 +1114,7 @@ jobs:
           # collection. Poll independently of the start gate and enter the
           # retry controller's normal SIGTERM drain before power becomes
           # critical, preserving checkpoints and leaving the slot retryable.
-          AUTONOMOUS_WORKFLOW_POWER_WATCHDOG_RESERVE_PERCENT: ${{ runner.os == 'macOS' && inputs.incident_zenbu_battery_override == true && '5' || runner.os == 'macOS' && '20' || '' }}
+          AUTONOMOUS_WORKFLOW_POWER_WATCHDOG_RESERVE_PERCENT: ${{ runner.os == 'macOS' && inputs.incident_zenbu_battery_override == true && '5' || runner.os == 'macOS' && inputs.incident_s2026_linkedin_backlog_battery_override == true && '5' || runner.os == 'macOS' && '20' || '' }}
           AUTONOMOUS_WORKFLOW_POWER_WATCHDOG_INTERVAL_SECONDS: ${{ runner.os == 'macOS' && '30' || '' }}
         run: |
           set -euo pipefail
@@ -1039,6 +1132,13 @@ jobs:
               BATTERY_PERCENT="$BATTERY_PERCENT_VALUES"
             fi
             if [ "$AUTHENTICATED_SOCIAL_REPLAY" = "true" ]; then
+              BATTERY_OVERRIDE_AUTHORIZED=false
+              if [ "$INCIDENT_ZENBU_BATTERY_OVERRIDE" = "true" ] && \
+                 [ "$INCIDENT_S2026_LINKEDIN_BACKLOG_BATTERY_OVERRIDE" = "true" ]; then
+                echo "::error title=Battery override conflict::The exact Zenbu and bounded S2026 backlog battery authorizations cannot be combined."
+                exit 1
+              fi
+
               if [ "$INCIDENT_ZENBU_BATTERY_OVERRIDE" = "true" ]; then
                 if [ "$GITHUB_EVENT_NAME" != "workflow_dispatch" ] || \
                    [ "$GITHUB_RUN_ATTEMPT" != "1" ] || \
@@ -1054,6 +1154,28 @@ jobs:
                   echo "::error title=Battery override scope mismatch::The incident authorization no longer matches its exact first-attempt Zenbu replay policy immediately before controller launch."
                   exit 1
                 fi
+                BATTERY_OVERRIDE_AUTHORIZED=true
+              fi
+
+              if [ "$INCIDENT_S2026_LINKEDIN_BACKLOG_BATTERY_OVERRIDE" = "true" ]; then
+                if [ "$GITHUB_EVENT_NAME" != "workflow_dispatch" ] || \
+                   [ "$GITHUB_RUN_ATTEMPT" != "1" ] || \
+                   [ "$CANDIDATE_TRIGGER" != "manual-replay" ] || \
+                   [ "$AUTHENTICATED_BACKFILL_SCOPE" != "linkedin" ] || \
+                   [ "$AUTHENTICATED_BACKFILL_BATCH" != "S2026" ] || \
+                   [ -n "$AUTHENTICATED_BACKFILL_COMPANY_SLUG" ] || \
+                   [ "$RECOVER_AUTHENTICATED_LINKEDIN_LOCK" != "false" ] || \
+                   [ "$AUTHENTICATED_LINKEDIN_REPLAY_MAX_CHUNKS" != "4" ] || \
+                   [ "$AUTONOMOUS_WORKFLOW_RETRY_MAX_ATTEMPTS" != "1" ] || \
+                   [ "$AUTONOMOUS_WORKFLOW_POWER_WATCHDOG_RESERVE_PERCENT" != "5" ]; then
+                  echo "::error title=Backlog battery override scope mismatch::The authorization no longer matches its bounded first-attempt S2026 LinkedIn backlog controller policy."
+                  exit 1
+                fi
+                if ! [[ "$INGESTION_IDEMPOTENCY_KEY" =~ ^incident-20260913-s2026-linkedin-backlog-[0-9]{3}$ ]]; then
+                  echo "::error title=Backlog battery override key mismatch::The replay key must match incident-20260913-s2026-linkedin-backlog-NNN exactly."
+                  exit 1
+                fi
+                BATTERY_OVERRIDE_AUTHORIZED=true
               fi
 
               # Recheck the authoritative hardware state immediately before
@@ -1068,12 +1190,18 @@ jobs:
                 exit 1
               fi
               if [ "$EXTERNAL_POWER_CONNECTED_COUNT" -ne 1 ]; then
-                if [ "$INCIDENT_ZENBU_BATTERY_OVERRIDE" != "true" ]; then
+                if [ "$BATTERY_OVERRIDE_AUTHORIZED" != "true" ]; then
                   echo "::error title=Authenticated replay lost physical AC power::AppleSmartBattery reports ExternalConnected=No before controller launch. Reconnect power before retrying."
                   exit 1
                 fi
-                if [ "$BATTERY_PERCENT_MATCH_COUNT" -ne 1 ] || [ "$BATTERY_PERCENT" -lt "$AUTHENTICATED_BATTERY_MIN_START_PERCENT" ]; then
-                  echo "::error title=Authorized battery reserve unavailable::The exact Zenbu replay requires one verified reading at or above ${AUTHENTICATED_BATTERY_MIN_START_PERCENT}% immediately before controller launch; hardware reports ${BATTERY_PERCENT:-unknown}."
+                if [ "$BATTERY_PERCENT_MATCH_COUNT" -ne 1 ] || \
+                   { [ "$INCIDENT_ZENBU_BATTERY_OVERRIDE" = "true" ] && [ "$BATTERY_PERCENT" -lt "$AUTHENTICATED_BATTERY_MIN_START_PERCENT" ]; } || \
+                   { [ "$INCIDENT_S2026_LINKEDIN_BACKLOG_BATTERY_OVERRIDE" = "true" ] && [ "$BATTERY_PERCENT" -le "$AUTHENTICATED_BATTERY_MIN_START_PERCENT" ]; }; then
+                  if [ "$INCIDENT_ZENBU_BATTERY_OVERRIDE" = "true" ]; then
+                    echo "::error title=Authorized battery reserve unavailable::The exact Zenbu replay requires one verified reading at or above ${AUTHENTICATED_BATTERY_MIN_START_PERCENT}% immediately before controller launch; hardware reports ${BATTERY_PERCENT:-unknown}."
+                  else
+                    echo "::error title=Authorized battery floor reached::The bounded S2026 LinkedIn backlog replay requires one verified reading strictly above ${AUTHENTICATED_BATTERY_MIN_START_PERCENT}% immediately before controller launch; hardware reports ${BATTERY_PERCENT:-unknown}."
+                  fi
                   exit 1
                 fi
               fi
@@ -1099,6 +1227,8 @@ jobs:
               fi
               if [ "$INCIDENT_ZENBU_BATTERY_OVERRIDE" = "true" ]; then
                 echo "::warning title=Exact Zenbu battery controller authorized::Launching one controller attempt and at most one two-account LinkedIn chunk at ${BATTERY_PERCENT}%; the 5% fail-closed watchdog is armed."
+              elif [ "$INCIDENT_S2026_LINKEDIN_BACKLOG_BATTERY_OVERRIDE" = "true" ]; then
+                echo "::warning title=S2026 LinkedIn backlog battery controller authorized::Launching one controller attempt and at most four five-account LinkedIn chunks at ${BATTERY_PERCENT}% without AC or a battery-runtime estimate; every chunk rechecks the strict-above-5% floor and the 5% fail-closed watchdog is armed."
               fi
             elif [[ "${POWER_STATUS%%$'\n'*}" != *"'AC Power'"* ]]; then
               if [[ ! "$BATTERY_PERCENT" =~ ^[0-9]+$ ]] || [ "$BATTERY_PERCENT" -lt "$AUTONOMOUS_MIN_BATTERY_PERCENT" ]; then

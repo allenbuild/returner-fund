@@ -145,6 +145,88 @@ export async function readAuthenticatedMacPowerState() {
   });
 }
 
+export async function readAuthenticatedBatteryFloorAdmission({
+  floorPercent,
+  readPowerStatus = readMacPowerStatus,
+  readAuthenticatedPowerState = readAuthenticatedMacPowerState
+} = {}) {
+  if (!Number.isSafeInteger(floorPercent) || floorPercent < 0 || floorPercent > 100) {
+    throw new RangeError("Authenticated battery admission floor must be an integer from 0 to 100.");
+  }
+  if (typeof readPowerStatus !== "function" || typeof readAuthenticatedPowerState !== "function") {
+    throw new TypeError("Authenticated battery admission readers must be functions.");
+  }
+
+  let authenticatedPowerState;
+  try {
+    authenticatedPowerState = await readAuthenticatedPowerState();
+  } catch {
+    authenticatedPowerState = null;
+  }
+  const unsafeReason = authenticatedMacPowerUnsafeReason(authenticatedPowerState, {
+    allowDisconnectedBattery: true
+  });
+  if (unsafeReason) {
+    return Object.freeze({
+      admitted: false,
+      reason: unsafeReason,
+      externalConnected: authenticatedPowerState?.externalConnected ?? null,
+      clamshellOpen: authenticatedPowerState?.clamshellOpen ?? null,
+      batteryPercent: null,
+      floorPercent
+    });
+  }
+  if (authenticatedPowerState.externalConnected) {
+    return Object.freeze({
+      admitted: true,
+      reason: "ac_power",
+      externalConnected: true,
+      clamshellOpen: true,
+      batteryPercent: null,
+      floorPercent
+    });
+  }
+
+  let powerStatus;
+  try {
+    powerStatus = await readPowerStatus();
+  } catch {
+    powerStatus = null;
+  }
+  if (
+    !Number.isInteger(powerStatus?.batteryPercent) ||
+    powerStatus.batteryPercent < 0 ||
+    powerStatus.batteryPercent > 100
+  ) {
+    return Object.freeze({
+      admitted: false,
+      reason: AUTHENTICATED_MAC_POWER_UNSAFE_REASONS.BATTERY_PERCENT_UNVERIFIED,
+      externalConnected: false,
+      clamshellOpen: true,
+      batteryPercent: null,
+      floorPercent
+    });
+  }
+  if (powerStatus.batteryPercent <= floorPercent) {
+    return Object.freeze({
+      admitted: false,
+      reason: "incident_battery_floor_reached",
+      externalConnected: false,
+      clamshellOpen: true,
+      batteryPercent: powerStatus.batteryPercent,
+      floorPercent
+    });
+  }
+  return Object.freeze({
+    admitted: true,
+    reason: "battery_above_floor",
+    externalConnected: false,
+    clamshellOpen: true,
+    batteryPercent: powerStatus.batteryPercent,
+    floorPercent
+  });
+}
+
 export function startAutonomousIngestionPowerWatchdog({
   environment = process.env,
   onLowReserve,
@@ -166,16 +248,28 @@ export function startAutonomousIngestionPowerWatchdog({
   if (!config.enabled) return disabledWatchdog();
   const requireAuthenticatedMacPower =
     cleanString(environment.AUTHENTICATED_SOCIAL_REPLAY)?.toLowerCase() === "true";
-  const incidentOverrideValue = cleanString(
+  const zenbuIncidentOverrideValue = cleanString(
     environment.INCIDENT_ZENBU_BATTERY_OVERRIDE
   )?.toLowerCase();
-  if (incidentOverrideValue && !["true", "false"].includes(incidentOverrideValue)) {
+  if (zenbuIncidentOverrideValue && !["true", "false"].includes(zenbuIncidentOverrideValue)) {
     throw new Error("INCIDENT_ZENBU_BATTERY_OVERRIDE must be true or false.");
   }
-  const allowDisconnectedBattery = incidentOverrideValue === "true";
+  const backlogIncidentOverrideValue = cleanString(
+    environment.INCIDENT_S2026_LINKEDIN_BACKLOG_BATTERY_OVERRIDE
+  )?.toLowerCase();
+  if (backlogIncidentOverrideValue && !["true", "false"].includes(backlogIncidentOverrideValue)) {
+    throw new Error(
+      "INCIDENT_S2026_LINKEDIN_BACKLOG_BATTERY_OVERRIDE must be true or false."
+    );
+  }
+  if (zenbuIncidentOverrideValue === "true" && backlogIncidentOverrideValue === "true") {
+    throw new Error("Incident battery overrides cannot be combined.");
+  }
+  const allowDisconnectedBattery =
+    zenbuIncidentOverrideValue === "true" || backlogIncidentOverrideValue === "true";
   if (allowDisconnectedBattery && !requireAuthenticatedMacPower) {
     throw new Error(
-      "INCIDENT_ZENBU_BATTERY_OVERRIDE requires AUTHENTICATED_SOCIAL_REPLAY=true."
+      "Incident battery override requires AUTHENTICATED_SOCIAL_REPLAY=true."
     );
   }
 
@@ -298,7 +392,7 @@ function authenticatedMacPowerFailureAnnotation(reason) {
     return "::error title=Authenticated replay physical power unverified::AppleSmartBattery ExternalConnected telemetry is missing or ambiguous. Gracefully stopping authenticated ingestion fail closed; checkpoints and the stale Central slot remain retryable.";
   }
   if (reason === AUTHENTICATED_MAC_POWER_UNSAFE_REASONS.BATTERY_PERCENT_UNVERIFIED) {
-    return "::error title=Authorized battery reserve unverified::The exact Zenbu replay is running on its one-time battery authorization, but the battery percentage is missing or ambiguous. Gracefully stopping fail closed; checkpoints remain retryable.";
+    return "::error title=Authorized battery reserve unverified::The explicit incident replay is running on battery, but the battery percentage is missing or ambiguous. Gracefully stopping fail closed; checkpoints remain retryable.";
   }
   return "::error title=Authenticated replay lid state unverified::AppleClamshellState telemetry is missing or ambiguous. Gracefully stopping authenticated ingestion fail closed; checkpoints and the stale Central slot remain retryable.";
 }

@@ -40,6 +40,7 @@ import {
   parseAutonomousPowerWatchdogConfig,
   parseAuthenticatedMacPowerState,
   parseMacPowerStatus,
+  readAuthenticatedBatteryFloorAdmission,
   shouldTerminateForLowPower,
   startAutonomousIngestionPowerWatchdog
 } from "../scripts/lib/autonomous-ingestion-power-watchdog.mjs";
@@ -2031,6 +2032,101 @@ test("incident Zenbu battery watchdog stops when the numeric reserve is unreadab
   assert.match(errors.join("\n"), /battery percentage.*(?:missing|unverified|verify)/i);
 });
 
+test("S2026 backlog battery policy admits only a strict-above-5-percent per-chunk reading", async () => {
+  const disconnectedOpen = Object.freeze({
+    externalConnected: false,
+    clamshellOpen: true
+  });
+  const batteryAdmission = (batteryPercent) => readAuthenticatedBatteryFloorAdmission({
+    floorPercent: 5,
+    readAuthenticatedPowerState: async () => disconnectedOpen,
+    readPowerStatus: async () => ({ onACPower: true, batteryPercent })
+  });
+
+  assert.deepEqual(await batteryAdmission(6), {
+    admitted: true,
+    reason: "battery_above_floor",
+    externalConnected: false,
+    clamshellOpen: true,
+    batteryPercent: 6,
+    floorPercent: 5
+  });
+  assert.deepEqual(await batteryAdmission(5), {
+    admitted: false,
+    reason: "incident_battery_floor_reached",
+    externalConnected: false,
+    clamshellOpen: true,
+    batteryPercent: 5,
+    floorPercent: 5
+  });
+  assert.equal((await batteryAdmission(null)).reason, "incident_battery_percent_unverified");
+  assert.equal((await readAuthenticatedBatteryFloorAdmission({
+    floorPercent: 5,
+    readAuthenticatedPowerState: async () => ({
+      externalConnected: false,
+      clamshellOpen: false
+    }),
+    readPowerStatus: async () => ({ onACPower: false, batteryPercent: 100 })
+  })).reason, "authenticated_clamshell_closed");
+
+  let acBatteryReads = 0;
+  assert.deepEqual(await readAuthenticatedBatteryFloorAdmission({
+    floorPercent: 5,
+    readAuthenticatedPowerState: async () => ({
+      externalConnected: true,
+      clamshellOpen: true
+    }),
+    readPowerStatus: async () => {
+      acBatteryReads += 1;
+      throw new Error("AC admission must not require a battery estimate.");
+    }
+  }), {
+    admitted: true,
+    reason: "ac_power",
+    externalConnected: true,
+    clamshellOpen: true,
+    batteryPercent: null,
+    floorPercent: 5
+  });
+  assert.equal(acBatteryReads, 0);
+
+  const statuses = [
+    { onACPower: true, batteryPercent: 6 },
+    { onACPower: true, batteryPercent: 5 }
+  ];
+  const terminations = [];
+  let statusReads = 0;
+  const watchdog = startAutonomousIngestionPowerWatchdog({
+    environment: {
+      AUTHENTICATED_SOCIAL_REPLAY: "true",
+      INCIDENT_S2026_LINKEDIN_BACKLOG_BATTERY_OVERRIDE: "true",
+      AUTONOMOUS_WORKFLOW_POWER_WATCHDOG_RESERVE_PERCENT: "5",
+      AUTONOMOUS_WORKFLOW_POWER_WATCHDOG_INTERVAL_SECONDS: "30"
+    },
+    intervalMs: 1,
+    readAuthenticatedPowerState: async () => disconnectedOpen,
+    readPowerStatus: async () => statuses[Math.min(statusReads++, statuses.length - 1)],
+    onLowReserve: (status) => terminations.push(status),
+    reporter: { warn() {}, error() {} }
+  });
+  await watchdog.done;
+  await watchdog.stop();
+  assert.equal(statusReads, 2);
+  assert.deepEqual(terminations, [{ batteryPercent: 5, reservePercent: 5 }]);
+  assert.throws(
+    () => startAutonomousIngestionPowerWatchdog({
+      environment: {
+        AUTHENTICATED_SOCIAL_REPLAY: "true",
+        INCIDENT_ZENBU_BATTERY_OVERRIDE: "true",
+        INCIDENT_S2026_LINKEDIN_BACKLOG_BATTERY_OVERRIDE: "true",
+        AUTONOMOUS_WORKFLOW_POWER_WATCHDOG_RESERVE_PERCENT: "5"
+      },
+      onLowReserve() {}
+    }),
+    /cannot be combined/
+  );
+});
+
 test("power watchdog enters the retry controller SIGTERM drain and leaves the slot retryable", async (t) => {
   const directory = mkdtempSync(path.join(tmpdir(), "returner-power-watchdog-"));
   t.after(() => rmSync(directory, { recursive: true, force: true }));
@@ -2384,7 +2480,7 @@ test("autonomous runner receives optional durability secrets and owns validated 
   assert.doesNotMatch(runnerStep, /exec node scripts\/run-autonomous-ingestion\.mjs/);
   assert.match(
     runnerStep,
-    /AUTONOMOUS_WORKFLOW_RETRY_MAX_ATTEMPTS:\s*\$\{\{ inputs\.incident_zenbu_battery_override == true && '1' \|\| '6' \}\}/
+    /AUTONOMOUS_WORKFLOW_RETRY_MAX_ATTEMPTS:\s*\$\{\{ inputs\.incident_zenbu_battery_override == true && '1' \|\| inputs\.incident_s2026_linkedin_backlog_battery_override == true && '1' \|\| '6' \}\}/
   );
   assert.match(
     runnerStep,
@@ -2395,7 +2491,7 @@ test("autonomous runner receives optional durability secrets and owns validated 
   assert.match(runnerStep, /AUTONOMOUS_MIN_BATTERY_PERCENT:\s*"30"/);
   assert.match(
     runnerStep,
-    /AUTONOMOUS_WORKFLOW_POWER_WATCHDOG_RESERVE_PERCENT:\s*\$\{\{ runner\.os == 'macOS' && inputs\.incident_zenbu_battery_override == true && '5' \|\| runner\.os == 'macOS' && '20' \|\| '' \}\}/
+    /AUTONOMOUS_WORKFLOW_POWER_WATCHDOG_RESERVE_PERCENT:\s*\$\{\{ runner\.os == 'macOS' && inputs\.incident_zenbu_battery_override == true && '5' \|\| runner\.os == 'macOS' && inputs\.incident_s2026_linkedin_backlog_battery_override == true && '5' \|\| runner\.os == 'macOS' && '20' \|\| '' \}\}/
   );
   assert.match(
     runnerStep,
@@ -3490,11 +3586,11 @@ test("incident Zenbu battery continuation is bound after proven quarantine recov
   );
   assert.match(
     runnerStep,
-    /AUTONOMOUS_WORKFLOW_RETRY_MAX_ATTEMPTS:\s*\$\{\{ inputs\.incident_zenbu_battery_override == true && '1' \|\| '6' \}\}/
+    /AUTONOMOUS_WORKFLOW_RETRY_MAX_ATTEMPTS:\s*\$\{\{ inputs\.incident_zenbu_battery_override == true && '1' \|\| inputs\.incident_s2026_linkedin_backlog_battery_override == true && '1' \|\| '6' \}\}/
   );
   assert.match(
     runnerStep,
-    /AUTONOMOUS_WORKFLOW_POWER_WATCHDOG_RESERVE_PERCENT:\s*\$\{\{ runner\.os == 'macOS' && inputs\.incident_zenbu_battery_override == true && '5' \|\| runner\.os == 'macOS' && '20' \|\| '' \}\}/
+    /AUTONOMOUS_WORKFLOW_POWER_WATCHDOG_RESERVE_PERCENT:\s*\$\{\{ runner\.os == 'macOS' && inputs\.incident_zenbu_battery_override == true && '5' \|\| runner\.os == 'macOS' && inputs\.incident_s2026_linkedin_backlog_battery_override == true && '5' \|\| runner\.os == 'macOS' && '20' \|\| '' \}\}/
   );
   assert.match(runnerStep, /AUTHENTICATED_BATTERY_MIN_START_PERCENT:\s*"5"/);
   assert.match(runnerStep, /AUTHENTICATED_LINKEDIN_REPLAY_MAX_CHUNKS:[\s\S]*?'1'[\s\S]*?'7'/);
@@ -3527,6 +3623,81 @@ test("incident Zenbu battery continuation is bound after proven quarantine recov
       `${recheck} must be rechecked before controller launch`
     );
   }
+});
+
+test("S2026 LinkedIn backlog battery authorization is multi-run but narrowly bound", () => {
+  assert.match(
+    workflow,
+    /incident_s2026_linkedin_backlog_battery_override:[\s\S]*?Battery authorization for one bounded S2026 LinkedIn backlog sweep run[\s\S]*?default:\s*false[\s\S]*?type:\s*boolean/
+  );
+
+  const hostPreflight = workflow.match(
+    /- name: Preflight autonomous ingestion host[\s\S]*?(?=\n\s{6}- name:)/
+  )?.[0] ?? "";
+  const powerRecheck = workflow.match(
+    /- name: Recheck authenticated replay power policy[\s\S]*?(?=\n\s{6}- name:)/
+  )?.[0] ?? "";
+  const runnerStep = workflow.match(
+    /- name: Run autonomous ingestion[\s\S]*?(?=\n\s{6}- name:)/
+  )?.[0] ?? "";
+
+  for (const step of [hostPreflight, powerRecheck, runnerStep]) {
+    assert.match(
+      step,
+      /INCIDENT_S2026_LINKEDIN_BACKLOG_BATTERY_OVERRIDE:\s*\$\{\{ inputs\.incident_s2026_linkedin_backlog_battery_override \|\| false \}\}/
+    );
+    assert.match(step, /INCIDENT_ZENBU_BATTERY_OVERRIDE/);
+    assert.match(step, /Battery override conflict/);
+    assert.match(step, /GITHUB_EVENT_NAME" != "workflow_dispatch"/);
+    assert.match(step, /GITHUB_RUN_ATTEMPT" != "1"/);
+    assert.match(step, /CANDIDATE_TRIGGER" != "manual-replay"/);
+    assert.match(step, /AUTHENTICATED_BACKFILL_SCOPE" != "linkedin"/);
+    assert.match(step, /AUTHENTICATED_BACKFILL_BATCH" != "S2026"/);
+    assert.match(step, /-n "\$AUTHENTICATED_BACKFILL_COMPANY_SLUG"/);
+    assert.match(step, /RECOVER_AUTHENTICATED_LINKEDIN_LOCK" != "false"/);
+    assert.match(
+      step,
+      /\^incident-20260913-s2026-linkedin-backlog-\[0-9\]\{3\}\$/
+    );
+    assert.match(step, /BATTERY_OVERRIDE_AUTHORIZED=true/);
+    assert.match(step, /AppleClamshellState/);
+    assert.match(step, /IOPMUserTriggeredFullWake/);
+    assert.match(
+      step,
+      /INCIDENT_S2026_LINKEDIN_BACKLOG_BATTERY_OVERRIDE" = "true" \] && \[ "\$BATTERY_PERCENT" -le "\$AUTHENTICATED_BATTERY_MIN_START_PERCENT"/
+    );
+  }
+
+  assert.match(hostPreflight, /AUTHENTICATED_SOCIAL_REPLAY" != "true"/);
+  assert.match(powerRecheck, /AUTHENTICATED_SOCIAL_REPLAY" != "true"/);
+  assert.match(runnerStep, /if \[ "\$AUTHENTICATED_SOCIAL_REPLAY" = "true" \]; then/);
+  assert.match(hostPreflight, /bounded S2026 LinkedIn backlog authorization requires the pre-existing host supervisor/);
+  assert.match(powerRecheck, /S2026 LinkedIn backlog battery replay revalidated/);
+  assert.match(powerRecheck, /no AC or battery-runtime estimate is required/);
+  assert.match(powerRecheck, /strict-above-5% per-chunk gate/);
+  assert.match(runnerStep, /AUTHENTICATED_LINKEDIN_REPLAY_MAX_CHUNKS" != "4"/);
+  assert.match(runnerStep, /AUTONOMOUS_WORKFLOW_RETRY_MAX_ATTEMPTS" != "1"/);
+  assert.match(runnerStep, /AUTONOMOUS_WORKFLOW_POWER_WATCHDOG_RESERVE_PERCENT" != "5"/);
+  assert.match(
+    runnerStep,
+    /AUTHENTICATED_LINKEDIN_REPLAY_MAX_CHUNKS:\s*\$\{\{ inputs\.incident_zenbu_battery_override == true && '1' \|\| inputs\.incident_s2026_linkedin_backlog_battery_override == true && '4' \|\| '7' \}\}/
+  );
+  assert.match(
+    runnerStep,
+    /AUTONOMOUS_WORKFLOW_RETRY_MAX_ATTEMPTS:\s*\$\{\{ inputs\.incident_zenbu_battery_override == true && '1' \|\| inputs\.incident_s2026_linkedin_backlog_battery_override == true && '1' \|\| '6' \}\}/
+  );
+  assert.match(
+    runnerStep,
+    /AUTONOMOUS_WORKFLOW_POWER_WATCHDOG_RESERVE_PERCENT:\s*\$\{\{ runner\.os == 'macOS' && inputs\.incident_zenbu_battery_override == true && '5' \|\| runner\.os == 'macOS' && inputs\.incident_s2026_linkedin_backlog_battery_override == true && '5' \|\| runner\.os == 'macOS' && '20' \|\| '' \}\}/
+  );
+  assert.match(runnerStep, /at most four five-account LinkedIn chunks/);
+  assert.match(runnerStep, /without AC or a battery-runtime estimate/);
+  assert.match(runnerStep, /every chunk rechecks the strict-above-5% floor/);
+  assert.doesNotMatch(
+    workflow,
+    /incident_s2026_linkedin_backlog_battery_override == true && '1' \|\| '7'/,
+    "the backlog authorization must never inherit the exact Zenbu one-chunk cap"
+  );
 });
 
 test("failed or cancelled hosted collection restores source-bound redundant state without caching authenticated browser data", () => {

@@ -119,6 +119,7 @@ import {
   resolveAuthenticatedBackfillTarget
 } from "./lib/authenticated-backfill-target.mjs";
 import { runAuthenticatedSocialRunnerPreflight } from "./verify-authenticated-social-runner.mjs";
+import { readAuthenticatedBatteryFloorAdmission } from "./lib/autonomous-ingestion-power-watchdog.mjs";
 
 let root;
 const pinnedSourceRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
@@ -184,6 +185,24 @@ const LINKEDIN_REPLAY_MAX_CHUNKS = parseLinkedInReplayMaxChunks(
 );
 const LINKEDIN_REPLAY_TARGET_CAP = 5;
 const LINKEDIN_REPLAY_RESERVE_MS = 15 * 60_000;
+const INCIDENT_S2026_LINKEDIN_BACKLOG_BATTERY_OVERRIDE = parseEnvironmentBoolean(
+  process.env.INCIDENT_S2026_LINKEDIN_BACKLOG_BATTERY_OVERRIDE,
+  "INCIDENT_S2026_LINKEDIN_BACKLOG_BATTERY_OVERRIDE"
+);
+const LINKEDIN_REPLAY_ADMISSION_POLICY =
+  INCIDENT_S2026_LINKEDIN_BACKLOG_BATTERY_OVERRIDE
+    ? "battery-floor-watchdog"
+    : "runtime-budget";
+const LINKEDIN_REPLAY_BATTERY_FLOOR_PERCENT = 5;
+// A full five-target LinkedIn chunk takes about 19 minutes even at the hard
+// interaction-pacing floor, before browser and bridge overhead. Never admit a
+// new child unless it owns a conservative, explicit execution window in
+// addition to the importer/publication reserve and collection-drain headroom.
+// The explicitly authorized S2026 battery backlog instead relies on hardware
+// telemetry before every chunk and the independently polling 5% watchdog; it
+// never treats a wall-clock duration as an estimate of remaining battery life.
+const LINKEDIN_REPLAY_CHUNK_ADMISSION_MS =
+  INCIDENT_S2026_LINKEDIN_BACKLOG_BATTERY_OVERRIDE ? 0 : 25 * 60_000;
 const LINKEDIN_REPLAY_PLAN_TIMEOUT_MS = 2 * 60_000;
 // Full catalogue plans are intentionally verbose (the current S26 plan is just over
 // 1 MiB). Keep a generous, explicit ceiling so receipt parsing can never silently
@@ -223,6 +242,14 @@ function parseLinkedInReplayMaxChunks(value) {
     );
   }
   return Number(normalized);
+}
+
+function parseEnvironmentBoolean(value, label) {
+  if (value === undefined || value === null || String(value).trim() === "") return false;
+  const normalized = String(value).trim().toLowerCase();
+  if (normalized === "true") return true;
+  if (normalized === "false") return false;
+  throw new Error(`${label} must be true or false.`);
 }
 let heartbeatAbortController = null;
 let hardFailure = null;
@@ -403,6 +430,27 @@ runnerBudget = createAutonomousRunnerBudget({
 });
 if (!idempotencyKey) {
   throw new Error("--idempotency-key or INGESTION_IDEMPOTENCY_KEY is required.");
+}
+if (INCIDENT_S2026_LINKEDIN_BACKLOG_BATTERY_OVERRIDE) {
+  const backlogTarget = args.authenticatedBackfillTarget;
+  if (
+    process.env.GITHUB_EVENT_NAME !== "workflow_dispatch" ||
+    process.env.GITHUB_RUN_ATTEMPT !== "1" ||
+    args.candidateTrigger !== "manual-replay" ||
+    !args.authenticatedSocialReplay ||
+    args.authenticatedBackfillScope !== "linkedin" ||
+    backlogTarget?.batchSlug !== "S2026" ||
+    Object.hasOwn(backlogTarget ?? {}, "companySlug") ||
+    process.env.RECOVER_AUTHENTICATED_LINKEDIN_LOCK !== "false" ||
+    LINKEDIN_REPLAY_MAX_CHUNKS !== 4 ||
+    process.env.AUTONOMOUS_WORKFLOW_RETRY_MAX_ATTEMPTS !== "1" ||
+    process.env.AUTONOMOUS_WORKFLOW_POWER_WATCHDOG_RESERVE_PERCENT !== "5" ||
+    !/^incident-20260913-s2026-linkedin-backlog-[0-9]{3}$/.test(idempotencyKey)
+  ) {
+    throw new Error(
+      "S2026 LinkedIn backlog battery policy no longer matches its exact first-attempt manual replay authorization."
+    );
+  }
 }
 const lifecycleContractFixture = cleanEnv(
   process.env.AUTONOMOUS_INGESTION_LIFECYCLE_TEST_FIXTURE
@@ -675,7 +723,15 @@ await Promise.all([
           linkedinTargetCapPerChunk: LINKEDIN_REPLAY_TARGET_CAP,
           linkedinMaxChunks: LINKEDIN_REPLAY_MAX_CHUNKS,
           linkedinReserveMs: LINKEDIN_REPLAY_RESERVE_MS,
-          linkedinDrainHeadroomMs: AUTONOMOUS_PROCESS_BUDGETS.collectionDeadlineDrainHeadroomMs
+          linkedinDrainHeadroomMs: AUTONOMOUS_PROCESS_BUDGETS.collectionDeadlineDrainHeadroomMs,
+          linkedinChunkAdmissionPolicy: LINKEDIN_REPLAY_ADMISSION_POLICY,
+          linkedinWallClockChunkAdmissionMs: LINKEDIN_REPLAY_CHUNK_ADMISSION_MS,
+          linkedinBatteryFloorPercent: INCIDENT_S2026_LINKEDIN_BACKLOG_BATTERY_OVERRIDE
+            ? LINKEDIN_REPLAY_BATTERY_FLOOR_PERCENT
+            : null,
+          linkedinBatteryRuntimeEstimateRequired: false,
+          linkedinExternalPowerRequiredForChunkAdmission:
+            INCIDENT_S2026_LINKEDIN_BACKLOG_BATTERY_OVERRIDE ? false : null
         }
       );
       authenticatedSocial = await runAuthenticatedCollectors({
@@ -3935,6 +3991,7 @@ function decideLinkedInReplayAdmission({
   admittedChunks,
   remainingMs,
   reserveMs = LINKEDIN_REPLAY_RESERVE_MS,
+  chunkAdmissionMs = LINKEDIN_REPLAY_CHUNK_ADMISSION_MS,
   drainHeadroomMs = AUTONOMOUS_PROCESS_BUDGETS.collectionDeadlineDrainHeadroomMs,
   maxChunks = LINKEDIN_REPLAY_MAX_CHUNKS
 }) {
@@ -3958,12 +4015,19 @@ function decideLinkedInReplayAdmission({
   if (!Number.isFinite(requiredReserveMs) || requiredReserveMs < 0) {
     throw new RangeError("LinkedIn replay reserve must be a nonnegative finite number.");
   }
-  if (remaining < requiredReserveMs) {
+  const requiredChunkBudgetMs = Number(chunkAdmissionMs);
+  if (!Number.isFinite(requiredChunkBudgetMs) || requiredChunkBudgetMs < 0) {
+    throw new RangeError("LinkedIn replay chunk admission budget must be a nonnegative finite number.");
+  }
+  const requiredRemainingMs = requiredReserveMs + requiredChunkBudgetMs;
+  if (remaining < requiredRemainingMs) {
     return {
       action: "deadline-exhausted",
       runnableTargetCount: runnable,
       remainingMs: remaining,
-      requiredReserveMs
+      requiredReserveMs,
+      requiredChunkBudgetMs,
+      requiredRemainingMs
     };
   }
   return {
@@ -3972,7 +4036,9 @@ function decideLinkedInReplayAdmission({
     chunkNumber: chunksAdmitted + 1,
     maxChunks,
     targetCap: LINKEDIN_REPLAY_TARGET_CAP,
-    requiredReserveMs
+    requiredReserveMs,
+    requiredChunkBudgetMs,
+    requiredRemainingMs
   };
 }
 
@@ -3989,6 +4055,24 @@ function createLinkedInReplayResult({ status = "completed", batches = [], ...sta
     status,
     maxChunks: LINKEDIN_REPLAY_MAX_CHUNKS,
     targetCapPerChunk: LINKEDIN_REPLAY_TARGET_CAP,
+    reserveMs: LINKEDIN_REPLAY_RESERVE_MS,
+    drainHeadroomMs: AUTONOMOUS_PROCESS_BUDGETS.collectionDeadlineDrainHeadroomMs,
+    chunkAdmissionPolicy: LINKEDIN_REPLAY_ADMISSION_POLICY,
+    wallClockChunkAdmissionBudgetMs: LINKEDIN_REPLAY_CHUNK_ADMISSION_MS,
+    requiredRemainingForChunkMs:
+      LINKEDIN_REPLAY_RESERVE_MS +
+      AUTONOMOUS_PROCESS_BUDGETS.collectionDeadlineDrainHeadroomMs +
+      LINKEDIN_REPLAY_CHUNK_ADMISSION_MS,
+    batteryFloorPercent: INCIDENT_S2026_LINKEDIN_BACKLOG_BATTERY_OVERRIDE
+      ? LINKEDIN_REPLAY_BATTERY_FLOOR_PERCENT
+      : null,
+    batteryFloorComparison: INCIDENT_S2026_LINKEDIN_BACKLOG_BATTERY_OVERRIDE
+      ? "strictly_greater_than"
+      : null,
+    batteryRuntimeEstimateRequired: false,
+    externalPowerRequiredForChunkAdmission:
+      INCIDENT_S2026_LINKEDIN_BACKLOG_BATTERY_OVERRIDE ? false : null,
+    perChunkBatteryCheckRequired: INCIDENT_S2026_LINKEDIN_BACKLOG_BATTERY_OVERRIDE,
     chunksAdmitted: state.chunksAdmitted ?? 0,
     chunksAttempted: state.chunksAttempted ?? 0,
     chunksCompleted: state.chunksCompleted ?? 0,
@@ -4042,7 +4126,8 @@ async function runAuthenticatedLinkedInReplayBatch({
   batch,
   commonArgs,
   replayState,
-  requestedTarget = null
+  requestedTarget = null,
+  readChunkBatteryAdmission = readAuthenticatedBatteryFloorAdmission
 }) {
   const batchResult = {
     status: "completed",
@@ -4101,6 +4186,7 @@ async function runAuthenticatedLinkedInReplayBatch({
       admittedChunks: state.chunksAdmitted,
       remainingMs: collectionBudget.remainingMs(),
       reserveMs: LINKEDIN_REPLAY_RESERVE_MS,
+      chunkAdmissionMs: LINKEDIN_REPLAY_CHUNK_ADMISSION_MS,
       drainHeadroomMs: AUTONOMOUS_PROCESS_BUDGETS.collectionDeadlineDrainHeadroomMs,
       maxChunks: LINKEDIN_REPLAY_MAX_CHUNKS
     });
@@ -4120,6 +4206,46 @@ async function runAuthenticatedLinkedInReplayBatch({
       });
       batchResult.status = "deadline_exhausted";
       break;
+    }
+
+    let chunkPowerAdmission = null;
+    if (INCIDENT_S2026_LINKEDIN_BACKLOG_BATTERY_OVERRIDE) {
+      try {
+        chunkPowerAdmission = await readChunkBatteryAdmission({
+          floorPercent: LINKEDIN_REPLAY_BATTERY_FLOOR_PERCENT
+        });
+      } catch {
+        chunkPowerAdmission = Object.freeze({
+          admitted: false,
+          reason: "incident_battery_admission_check_failed",
+          externalConnected: null,
+          clamshellOpen: null,
+          batteryPercent: null,
+          floorPercent: LINKEDIN_REPLAY_BATTERY_FLOOR_PERCENT
+        });
+      }
+      batchResult.lastChunkPowerAdmission = chunkPowerAdmission;
+      await event(
+        "authenticated_social.linkedin_chunk_power_admission",
+        chunkPowerAdmission.admitted ? "info" : "warning",
+        chunkPowerAdmission.admitted
+          ? `Authenticated LinkedIn replay chunk power admission passed for ${batch.slug}.`
+          : `Authenticated LinkedIn replay chunk power admission stopped ${batch.slug}.`,
+        {
+          batchSlug: batch.slug,
+          chunkNumber: state.chunksAdmitted + 1,
+          ...chunkPowerAdmission
+        }
+      );
+      if (!chunkPowerAdmission.admitted) {
+        state = reduceLinkedInReplayState(state, {
+          type: "safety_stop",
+          batchSlug: batch.slug,
+          error: chunkPowerAdmission.reason
+        });
+        batchResult.status = "safety_stopped";
+        break;
+      }
     }
 
     state = reduceLinkedInReplayState(state, {
@@ -4144,6 +4270,9 @@ async function runAuthenticatedLinkedInReplayBatch({
         exitCode: chunk.exitCode ?? null,
         targetCap: LINKEDIN_REPLAY_TARGET_CAP,
         maxChunks: LINKEDIN_REPLAY_MAX_CHUNKS,
+        chunkAdmissionPolicy: LINKEDIN_REPLAY_ADMISSION_POLICY,
+        wallClockChunkAdmissionBudgetMs: LINKEDIN_REPLAY_CHUNK_ADMISSION_MS,
+        chunkPowerAdmission,
         safetyStopped: chunk.status === "safety_stopped",
         infrastructureStopped: chunk.status === "failed"
       }
@@ -4152,7 +4281,8 @@ async function runAuthenticatedLinkedInReplayBatch({
       chunkNumber,
       status: chunk.status,
       exitCode: chunk.exitCode ?? 0,
-      targetCap: LINKEDIN_REPLAY_TARGET_CAP
+      targetCap: LINKEDIN_REPLAY_TARGET_CAP,
+      powerAdmission: chunkPowerAdmission
     });
     state = reduceLinkedInReplayState(state, {
       type: chunk.status === "safety_stopped"
@@ -6122,6 +6252,34 @@ function assertAuthenticatedReplayCanPublish(replay) {
     linkedinReplay.targetCapacityAdmitted > LINKEDIN_REPLAY_MAX_CHUNKS * LINKEDIN_REPLAY_TARGET_CAP
   ) {
     throw new Error("Authenticated replay exceeded the bounded LinkedIn chunk or target capacity.");
+  }
+  if (
+    linkedinReplay.reserveMs !== LINKEDIN_REPLAY_RESERVE_MS ||
+    linkedinReplay.drainHeadroomMs !== AUTONOMOUS_PROCESS_BUDGETS.collectionDeadlineDrainHeadroomMs ||
+    linkedinReplay.chunkAdmissionPolicy !== LINKEDIN_REPLAY_ADMISSION_POLICY ||
+    linkedinReplay.wallClockChunkAdmissionBudgetMs !== LINKEDIN_REPLAY_CHUNK_ADMISSION_MS ||
+    linkedinReplay.requiredRemainingForChunkMs !==
+      LINKEDIN_REPLAY_RESERVE_MS +
+      AUTONOMOUS_PROCESS_BUDGETS.collectionDeadlineDrainHeadroomMs +
+      LINKEDIN_REPLAY_CHUNK_ADMISSION_MS ||
+    linkedinReplay.batteryFloorPercent !== (
+      INCIDENT_S2026_LINKEDIN_BACKLOG_BATTERY_OVERRIDE
+        ? LINKEDIN_REPLAY_BATTERY_FLOOR_PERCENT
+        : null
+    ) ||
+    linkedinReplay.batteryFloorComparison !== (
+      INCIDENT_S2026_LINKEDIN_BACKLOG_BATTERY_OVERRIDE
+        ? "strictly_greater_than"
+        : null
+    ) ||
+    linkedinReplay.batteryRuntimeEstimateRequired !== false ||
+    linkedinReplay.externalPowerRequiredForChunkAdmission !== (
+      INCIDENT_S2026_LINKEDIN_BACKLOG_BATTERY_OVERRIDE ? false : null
+    ) ||
+    linkedinReplay.perChunkBatteryCheckRequired !==
+      INCIDENT_S2026_LINKEDIN_BACKLOG_BATTERY_OVERRIDE
+  ) {
+    throw new Error("Authenticated replay did not preserve the exact LinkedIn chunk admission policy.");
   }
   if (linkedinReplay.configurationSkipped) {
     if (linkedinReplay.status !== "skipped" || linkedinReplay.durableLockConfigured) {

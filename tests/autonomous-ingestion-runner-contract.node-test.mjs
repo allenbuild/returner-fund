@@ -248,6 +248,51 @@ describe("autonomous ingestion runner CLI", () => {
     assert.match(widened.stderr, /requires the linkedin-only authenticated scope/);
   });
 
+  it("binds the backlog battery policy again at the runner boundary", async () => {
+    const openCliHome = await mkdtemp(path.join(os.tmpdir(), "backlog-battery-plan-"));
+    temporaryRoots.push(openCliHome);
+    const env = {
+      NODE_ENV: "test",
+      PATH: process.env.PATH ?? "/usr/local/bin:/usr/bin:/bin",
+      OPENCLI_HOME: openCliHome,
+      GITHUB_EVENT_NAME: "workflow_dispatch",
+      GITHUB_RUN_ATTEMPT: "1",
+      INCIDENT_S2026_LINKEDIN_BACKLOG_BATTERY_OVERRIDE: "true",
+      RECOVER_AUTHENTICATED_LINKEDIN_LOCK: "false",
+      AUTHENTICATED_LINKEDIN_REPLAY_MAX_CHUNKS: "4",
+      AUTONOMOUS_WORKFLOW_RETRY_MAX_ATTEMPTS: "1",
+      AUTONOMOUS_WORKFLOW_POWER_WATCHDOG_RESERVE_PERCENT: "5"
+    };
+    const args = [
+      runnerPath,
+      "--plan",
+      "--idempotency-key=incident-20260913-s2026-linkedin-backlog-001",
+      "--candidate-trigger=manual-replay",
+      "--authenticated-social-replay=true",
+      "--authenticated-backfill-scope=linkedin",
+      "--authenticated-backfill-batch=S2026",
+      "--authenticated-backfill-company-slug="
+    ];
+    const accepted = spawnSync(process.execPath, args, {
+      cwd: repositoryRoot,
+      env,
+      encoding: "utf8"
+    });
+    assert.equal(accepted.status, 0, accepted.stderr);
+
+    const wrongKey = spawnSync(process.execPath, [
+      ...args.slice(0, 2),
+      "--idempotency-key=incident-20260913-s2026-linkedin-backlog-1",
+      ...args.slice(3)
+    ], {
+      cwd: repositoryRoot,
+      env,
+      encoding: "utf8"
+    });
+    assert.notEqual(wrongKey.status, 0);
+    assert.match(wrongKey.stderr, /no longer matches its exact first-attempt manual replay authorization/);
+  });
+
   it("accepts recovery debt from exact trusted host-dispatch receipts across a main-head race", () => {
     const slot = latestEligibleCentralSlot(new Date());
     const head = spawnSync("git", ["rev-parse", "HEAD"], {
@@ -2453,14 +2498,18 @@ describe("autonomous ingestion runner static safety contracts", () => {
       const admission = replay.decideLinkedInReplayAdmission({
         runnableTargetCount,
         admittedChunks: state.chunksAdmitted,
-        remainingMs: 25 * 60_000,
+        remainingMs: 45 * 60_000,
         reserveMs: 15 * 60_000,
+        chunkAdmissionMs: 25 * 60_000,
         drainHeadroomMs: 5 * 60_000,
         maxChunks: 7
       });
       assert.equal(admission.action, "admit-chunk");
       assert.equal(admission.targetCap, 5);
       assert.equal(admission.chunkNumber, index + 1);
+      assert.equal(admission.requiredReserveMs, 20 * 60_000);
+      assert.equal(admission.requiredChunkBudgetMs, 25 * 60_000);
+      assert.equal(admission.requiredRemainingMs, 45 * 60_000);
       state = replay.reduceLinkedInReplayState(state, {
         type: "chunk_admitted",
         batchSlug: "S26"
@@ -2478,23 +2527,38 @@ describe("autonomous ingestion runner static safety contracts", () => {
       replay.decideLinkedInReplayAdmission({
         runnableTargetCount: 5,
         admittedChunks: 7,
-        remainingMs: 25 * 60_000,
+        remainingMs: 45 * 60_000,
         reserveMs: 15 * 60_000,
+        chunkAdmissionMs: 25 * 60_000,
         drainHeadroomMs: 5 * 60_000,
         maxChunks: 7
       }).action,
       "chunk-budget-exhausted"
     );
-    assert.equal(
-      replay.decideLinkedInReplayAdmission({
+    const deadlineAdmission = replay.decideLinkedInReplayAdmission({
+      runnableTargetCount: 5,
+      admittedChunks: 0,
+      remainingMs: 45 * 60_000 - 1,
+      reserveMs: 15 * 60_000,
+      chunkAdmissionMs: 25 * 60_000,
+      drainHeadroomMs: 5 * 60_000,
+      maxChunks: 7
+    });
+    assert.equal(deadlineAdmission.action, "deadline-exhausted");
+    assert.equal(deadlineAdmission.requiredReserveMs, 20 * 60_000);
+    assert.equal(deadlineAdmission.requiredChunkBudgetMs, 25 * 60_000);
+    assert.equal(deadlineAdmission.requiredRemainingMs, 45 * 60_000);
+    assert.throws(
+      () => replay.decideLinkedInReplayAdmission({
         runnableTargetCount: 5,
         admittedChunks: 0,
-        remainingMs: 20 * 60_000 - 1,
+        remainingMs: 45 * 60_000,
         reserveMs: 15 * 60_000,
+        chunkAdmissionMs: -1,
         drainHeadroomMs: 5 * 60_000,
         maxChunks: 7
-      }).action,
-      "deadline-exhausted"
+      }),
+      /chunk admission budget/
     );
     assert.equal(
       replay.decideLinkedInReplayAdmission({
@@ -2502,6 +2566,7 @@ describe("autonomous ingestion runner static safety contracts", () => {
         admittedChunks: 0,
         remainingMs: 0,
         reserveMs: 15 * 60_000,
+        chunkAdmissionMs: 25 * 60_000,
         drainHeadroomMs: 5 * 60_000,
         maxChunks: 7
       }).action,
@@ -2510,9 +2575,102 @@ describe("autonomous ingestion runner static safety contracts", () => {
     const result = replay.createLinkedInReplayResult(state);
     assert.equal(result.maxChunks, 7);
     assert.equal(result.targetCapPerChunk, 5);
+    assert.equal(result.reserveMs, 15 * 60_000);
+    assert.equal(result.drainHeadroomMs, 5 * 60_000);
+    assert.equal(result.chunkAdmissionPolicy, "runtime-budget");
+    assert.equal(result.wallClockChunkAdmissionBudgetMs, 25 * 60_000);
+    assert.equal(result.requiredRemainingForChunkMs, 45 * 60_000);
+    assert.equal(result.batteryFloorPercent, null);
+    assert.equal(result.perChunkBatteryCheckRequired, false);
+    assert.equal(result.batteryRuntimeEstimateRequired, false);
     assert.equal(result.remainingTargetCount, null);
     assert.equal(result.remainingTargetCountKnown, false);
     assert.deepEqual(result.unknownRemainingBatches, ["S26"]);
+  });
+
+  it("uses strict battery-floor admission without a 45-minute estimate for the S2026 backlog", async () => {
+    const observedFloors = [];
+    const plans = [5, 0];
+    const replay = linkedInReplayRuntime({
+      backlogBatteryOverride: true,
+      plan: async () => ({
+        status: "completed",
+        runnableTargetCount: plans.shift(),
+        plan: {}
+      }),
+      readChunkBatteryAdmission: async ({ floorPercent }) => {
+        observedFloors.push(floorPercent);
+        return {
+          admitted: true,
+          reason: "battery_above_floor",
+          externalConnected: false,
+          clamshellOpen: true,
+          batteryPercent: 6,
+          floorPercent
+        };
+      }
+    });
+    const admission = replay.decideLinkedInReplayAdmission({
+      runnableTargetCount: 5,
+      admittedChunks: 0,
+      remainingMs: 20 * 60_000,
+      reserveMs: 15 * 60_000,
+      chunkAdmissionMs: 0,
+      drainHeadroomMs: 5 * 60_000,
+      maxChunks: 4
+    });
+    assert.equal(admission.action, "admit-chunk");
+    assert.equal(admission.requiredChunkBudgetMs, 0);
+    assert.equal(admission.requiredRemainingMs, 20 * 60_000);
+
+    const result = await replay.runAuthenticatedLinkedInReplayBatch({
+      batch: { slug: "S2026" },
+      commonArgs: ["collector", "--checkpoint-path=/durable/checkpoint.json"],
+      replayState: replay.createLinkedInReplayState(["S2026"])
+    });
+    assert.deepEqual(observedFloors, [5]);
+    assert.equal(result.replayState.chunksAdmitted, 1);
+    assert.equal(result.lastChunkPowerAdmission.batteryPercent, 6);
+    const receipt = replay.createLinkedInReplayResult(result.replayState);
+    assert.equal(receipt.maxChunks, 4);
+    assert.equal(receipt.chunkAdmissionPolicy, "battery-floor-watchdog");
+    assert.equal(receipt.wallClockChunkAdmissionBudgetMs, 0);
+    assert.equal(receipt.requiredRemainingForChunkMs, 20 * 60_000);
+    assert.equal(receipt.batteryFloorPercent, 5);
+    assert.equal(receipt.batteryFloorComparison, "strictly_greater_than");
+    assert.equal(receipt.batteryRuntimeEstimateRequired, false);
+    assert.equal(receipt.externalPowerRequiredForChunkAdmission, false);
+    assert.equal(receipt.perChunkBatteryCheckRequired, true);
+  });
+
+  it("stops before admitting a backlog chunk at the 5-percent floor", async () => {
+    let collections = 0;
+    const replay = linkedInReplayRuntime({
+      backlogBatteryOverride: true,
+      plan: async () => ({ status: "completed", runnableTargetCount: 5, plan: {} }),
+      collect: async () => {
+        collections += 1;
+        return { status: "completed", exitCode: 0 };
+      },
+      readChunkBatteryAdmission: async ({ floorPercent }) => ({
+        admitted: false,
+        reason: "incident_battery_floor_reached",
+        externalConnected: false,
+        clamshellOpen: true,
+        batteryPercent: 5,
+        floorPercent
+      })
+    });
+    const result = await replay.runAuthenticatedLinkedInReplayBatch({
+      batch: { slug: "S2026" },
+      commonArgs: ["collector", "--checkpoint-path=/durable/checkpoint.json"],
+      replayState: replay.createLinkedInReplayState(["S2026"])
+    });
+    assert.equal(collections, 0);
+    assert.equal(result.status, "safety_stopped");
+    assert.equal(result.replayState.chunksAdmitted, 0);
+    assert.equal(result.replayState.stopError, "incident_battery_floor_reached");
+    assert.equal(result.lastChunkPowerAdmission.batteryPercent, 5);
   });
 
   it("propagates LinkedIn safety and infrastructure stops with unknown later-batch counts", () => {
@@ -2889,6 +3047,16 @@ describe("autonomous ingestion runner static safety contracts", () => {
     assert.throws(
       () => assertCanPublish({
         ...result,
+        linkedinReplay: {
+          ...result.linkedinReplay,
+          chunkAdmissionPolicy: "battery-floor-watchdog"
+        }
+      }),
+      /did not preserve the exact LinkedIn chunk admission policy/
+    );
+    assert.throws(
+      () => assertCanPublish({
+        ...result,
         batches: result.batches.map((batch, index) => index === 0
           ? { ...batch, instagram: { status: "completed" } }
           : batch)
@@ -2920,6 +3088,57 @@ describe("autonomous ingestion runner static safety contracts", () => {
       /Authenticated linkedin replay requires .*LINKEDIN_GLOBAL_LOCK_NAMESPACE/
     );
     assert.equal(collections, 0);
+  });
+
+  it("receipt-binds the S2026 backlog to watchdog-only battery admission", async () => {
+    const replay = linkedInReplayRuntime({ backlogBatteryOverride: true });
+    const requestedTarget = { batchSlug: "S2026" };
+    const runAuthenticatedCollectors = authenticatedCollectorsRuntime({
+      replay,
+      collect: async () => {
+        throw new Error("Backlog LinkedIn replay must not invoke the ordinary collector path.");
+      },
+      replayBatch: async ({ batch, replayState }) => ({
+        status: "completed",
+        chunks: [],
+        finalPlan: { requestedTarget },
+        replayState: replay.reduceLinkedInReplayState(replayState, {
+          type: "plan",
+          batchSlug: batch.slug,
+          runnableTargetCount: 0
+        })
+      })
+    });
+    const result = await runAuthenticatedCollectors({
+      historicalReplay: true,
+      requestedScope: "linkedin",
+      requestedTarget
+    });
+    const assertCanPublish = authenticatedReplayPublicationValidator({
+      backlogBatteryOverride: true
+    });
+    assert.doesNotThrow(() => assertCanPublish(result));
+    assert.equal(result.linkedinReplay.chunkAdmissionPolicy, "battery-floor-watchdog");
+    assert.equal(result.linkedinReplay.wallClockChunkAdmissionBudgetMs, 0);
+    assert.equal(result.linkedinReplay.requiredRemainingForChunkMs, 20 * 60_000);
+    for (const mutation of [
+      { chunkAdmissionPolicy: "runtime-budget" },
+      { wallClockChunkAdmissionBudgetMs: 25 * 60_000 },
+      { requiredRemainingForChunkMs: 45 * 60_000 },
+      { batteryFloorPercent: 4 },
+      { batteryFloorComparison: "greater_than_or_equal" },
+      { batteryRuntimeEstimateRequired: true },
+      { externalPowerRequiredForChunkAdmission: true },
+      { perChunkBatteryCheckRequired: false }
+    ]) {
+      assert.throws(
+        () => assertCanPublish({
+          ...result,
+          linkedinReplay: { ...result.linkedinReplay, ...mutation }
+        }),
+        /did not preserve the exact LinkedIn chunk admission policy/
+      );
+    }
   });
 
   it("runs and receipt-binds an exact S26 Gamgee LinkedIn replay without widening batches", async () => {
@@ -4949,7 +5168,16 @@ function linkedInReplayRuntime({
   nowMs = 1_800_000_000_000,
   collectionDeadlineAt = nowMs + 60 * 60_000,
   plan = async () => ({ status: "completed", runnableTargetCount: 0, plan: {} }),
-  collect = async () => ({ status: "completed", exitCode: 0 })
+  collect = async () => ({ status: "completed", exitCode: 0 }),
+  backlogBatteryOverride = false,
+  readChunkBatteryAdmission = async ({ floorPercent }) => ({
+    admitted: true,
+    reason: "battery_above_floor",
+    externalConnected: false,
+    clamshellOpen: true,
+    batteryPercent: floorPercent + 1,
+    floorPercent
+  })
 } = {}) {
   const replaySource = section(
     "function createLinkedInReplayState",
@@ -4959,10 +5187,15 @@ function linkedInReplayRuntime({
     "LINKEDIN_REPLAY_MAX_CHUNKS",
     "LINKEDIN_REPLAY_TARGET_CAP",
     "LINKEDIN_REPLAY_RESERVE_MS",
+    "LINKEDIN_REPLAY_ADMISSION_POLICY",
+    "LINKEDIN_REPLAY_CHUNK_ADMISSION_MS",
+    "LINKEDIN_REPLAY_BATTERY_FLOOR_PERCENT",
+    "INCIDENT_S2026_LINKEDIN_BACKLOG_BATTERY_OVERRIDE",
     "AUTONOMOUS_PROCESS_BUDGETS",
     "collectionBudget",
     "runAuthenticatedLinkedInPlan",
     "runAuthenticatedCollectorCommand",
+    "readAuthenticatedBatteryFloorAdmission",
     "event",
     "Date",
     `${replaySource}\nreturn {\n` +
@@ -4976,9 +5209,13 @@ function linkedInReplayRuntime({
       "};"
   );
   return runtime(
-    7,
+    backlogBatteryOverride ? 4 : 7,
     5,
     15 * 60_000,
+    backlogBatteryOverride ? "battery-floor-watchdog" : "runtime-budget",
+    backlogBatteryOverride ? 0 : 25 * 60_000,
+    5,
+    backlogBatteryOverride,
     { collectionDeadlineDrainHeadroomMs: 5 * 60_000 },
     {
       deadlineAt: collectionDeadlineAt,
@@ -4986,6 +5223,7 @@ function linkedInReplayRuntime({
     },
     plan,
     collect,
+    readChunkBatteryAdmission,
     async () => {},
     { now: () => nowMs }
   );
@@ -5138,7 +5376,7 @@ function authenticatedCollectorsRuntime({
   );
 }
 
-function authenticatedReplayPublicationValidator() {
+function authenticatedReplayPublicationValidator({ backlogBatteryOverride = false } = {}) {
   const validatorSource = section(
     "function assertAuthenticatedReplayCanPublish",
     "function assertSuccessfulTopVoiceRefresh"
@@ -5146,12 +5384,24 @@ function authenticatedReplayPublicationValidator() {
   return new Function(
     "LINKEDIN_REPLAY_MAX_CHUNKS",
     "LINKEDIN_REPLAY_TARGET_CAP",
+    "LINKEDIN_REPLAY_RESERVE_MS",
+    "LINKEDIN_REPLAY_ADMISSION_POLICY",
+    "LINKEDIN_REPLAY_CHUNK_ADMISSION_MS",
+    "LINKEDIN_REPLAY_BATTERY_FLOOR_PERCENT",
+    "INCIDENT_S2026_LINKEDIN_BACKLOG_BATTERY_OVERRIDE",
+    "AUTONOMOUS_PROCESS_BUDGETS",
     "authenticatedBackfillTargetEquals",
     "resolveAuthenticatedBackfillTarget",
     `${validatorSource}\nreturn assertAuthenticatedReplayCanPublish;`
   )(
-    7,
+    backlogBatteryOverride ? 4 : 7,
     5,
+    15 * 60_000,
+    backlogBatteryOverride ? "battery-floor-watchdog" : "runtime-budget",
+    backlogBatteryOverride ? 0 : 25 * 60_000,
+    5,
+    backlogBatteryOverride,
+    { collectionDeadlineDrainHeadroomMs: 5 * 60_000 },
     authenticatedBackfillTargetEquals,
     resolveAuthenticatedBackfillTarget
   );
