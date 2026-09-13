@@ -3136,7 +3136,10 @@ async function mergePublicationInputs(
   const mergedDiscoveryState = await mergeCollectorDiscoveryState(publicResults, { baseAttempts, basePaths });
   await writeJsonAtomic(publishedDiscoveryAttemptsPath, mergedDiscoveryState.discoveryAttempts);
   await writeJsonAtomic(publishedSourceDiscoveryPathsPath, mergedDiscoveryState.sourceDiscoveryPaths);
-  await publishGithubExports(githubSnapshots, { baseRef });
+  await publishGithubExports(githubSnapshots, {
+    baseRef,
+    authenticatedReplayCarryForward: args.authenticatedSocialReplay
+  });
 }
 
 async function mergeCollectorDiscoveryState(publicResults, { baseAttempts = [], basePaths = [] } = {}) {
@@ -7176,7 +7179,10 @@ async function cleanupPublicationWorktree() {
   return publicationWorktreeCleanupPromise;
 }
 
-async function publishGithubExports(snapshots, { baseRef = null } = {}) {
+async function publishGithubExports(
+  snapshots,
+  { baseRef = null, authenticatedReplayCarryForward = false } = {}
+) {
   const targetRoot = publicationArtifactRoot();
   const destinations = new Map([
     ["S2026", join(targetRoot, "src", "lib", "social", "github-traction.json")],
@@ -7196,6 +7202,16 @@ async function publishGithubExports(snapshots, { baseRef = null } = {}) {
       )
     ])
   ));
+
+  if (authenticatedReplayCarryForward) {
+    if (snapshots.length !== 0) {
+      throw new Error("Authenticated replay GitHub carry-forward cannot accept collector snapshots.");
+    }
+    return {
+      status: "carried_forward",
+      batches: [...previousByBatch.keys()]
+    };
+  }
 
   const snapshotByBatch = new Map();
   for (const snapshot of snapshots) {
@@ -7240,6 +7256,10 @@ async function publishGithubExports(snapshots, { baseRef = null } = {}) {
     await writeJsonAtomic(destination, reconciliation.snapshot);
   }
   await writeJsonAtomic(publishedGithubQuarantinePath, quarantineLedger);
+  return {
+    status: "published",
+    batches: publications.map(({ batchSlug }) => batchSlug)
+  };
 }
 
 async function publishRepositoryArtifacts(publicationRunId, publicationInputs) {
@@ -11274,6 +11294,33 @@ async function runLifecycleContractFixture(fixture) {
     } finally {
       args.authenticatedSocialReplay = previousAuthenticatedSocialReplay;
     }
+  }
+
+  if (fixture === "authenticated-github-carry-forward") {
+    const carryForward = await publishGithubExports([], {
+      authenticatedReplayCarryForward: true
+    });
+    let partialAuthenticatedFailure = null;
+    try {
+      await publishGithubExports(
+        [{ source: { batchSlug: "S2026" } }],
+        { authenticatedReplayCarryForward: true }
+      );
+    } catch (error) {
+      partialAuthenticatedFailure = errorMessage(error);
+    }
+    let standardMissingFailure = null;
+    try {
+      await publishGithubExports([]);
+    } catch (error) {
+      standardMissingFailure = errorMessage(error);
+    }
+    return emit({
+      fixture,
+      carryForward,
+      partialAuthenticatedFailure,
+      standardMissingFailure
+    });
   }
 
   if ([

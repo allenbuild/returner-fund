@@ -1013,6 +1013,25 @@ if (mode === "fail") {
     );
   });
 
+  it("carries validated canonical GitHub exports through authenticated-only replay", () => {
+    const payload = lifecycleFixturePayload(runLifecycleFixture(
+      "authenticated-github-carry-forward"
+    ));
+
+    assert.deepEqual(payload.carryForward, {
+      status: "carried_forward",
+      batches: ["S2026", "S26", "A16ZSR006"]
+    });
+    assert.match(
+      payload.partialAuthenticatedFailure,
+      /Authenticated replay GitHub carry-forward cannot accept collector snapshots/
+    );
+    assert.match(
+      payload.standardMissingFailure,
+      /Missing required GitHub publication receipts: S2026, S26, A16ZSR006/
+    );
+  });
+
   it("aborts and drains an in-flight heartbeat before finalization", () => {
     const result = runLifecycleFixture("heartbeat-drain");
 
@@ -3743,6 +3762,10 @@ describe("autonomous ingestion runner static safety contracts", () => {
     assert.equal((githubMerge.match(/\["S2026"|\["S26"|\["A16ZSR006"/g) ?? []).length, 3);
     assert.ok(githubMerge.includes("previousByBatch = new Map(await Promise.all("));
     assert.ok(githubMerge.indexOf("readRequiredCanonicalJson(") < githubMerge.indexOf("for (const snapshot of snapshots)"));
+    assert.ok(githubMerge.indexOf("readRequiredCanonicalJson(") < githubMerge.indexOf("if (authenticatedReplayCarryForward)"));
+    assert.ok(githubMerge.includes("snapshots.length !== 0"));
+    assert.ok(githubMerge.includes('status: "carried_forward"'));
+    assert.ok(githubMerge.includes("Authenticated replay GitHub carry-forward cannot accept collector snapshots."));
     assert.ok(githubMerge.indexOf("for (const snapshot of snapshots)") < githubMerge.indexOf("writeJsonAtomic(destination"));
     assert.doesNotMatch(githubMerge, /readJson\(destination/);
     assert.ok(githubMerge.includes("baseRef ? await readJsonFromGitRef(baseRef, relativeDestination, null) : null"));
@@ -4615,7 +4638,9 @@ describe("autonomous ingestion runner static safety contracts", () => {
     assert.ok(preparation.includes("mergePublicEvidenceSnapshots"));
     assert.ok(preparation.includes("resolveBatchSlug: resolveLegacyPublicEvidenceBatch"));
     assert.ok(preparation.includes("resolveNativeAuthor: resolvePublicNativeAuthor"));
-    assert.ok(merge.includes("publishGithubExports(githubSnapshots, { baseRef })"));
+    assert.ok(merge.includes("publishGithubExports(githubSnapshots, {"));
+    assert.ok(merge.includes("baseRef,"));
+    assert.ok(merge.includes("authenticatedReplayCarryForward: args.authenticatedSocialReplay"));
     const resolver = section(
       "export function buildLegacyPublicEvidenceBatchResolver",
       "function normalizedCatalogBatchAlias",
