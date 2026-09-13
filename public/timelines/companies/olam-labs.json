@@ -5,8 +5,8 @@
     "slug": "olam-labs",
     "name": "Olam Labs"
   },
-  "generatedAt": "2026-09-13T00:14:54.902Z",
-  "lastModifiedAt": "2026-09-13T00:14:54.902Z",
+  "generatedAt": "2026-09-13T10:12:58.348Z",
+  "lastModifiedAt": "2026-09-13T10:12:58.348Z",
   "events": [
     {
       "id": "tle-0c1ebccbe4ce46f14c32c305",
@@ -47,7 +47,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-09-13T00:14:54.902Z"
+    "lastSuccessfulArtifactAt": "2026-09-13T10:12:58.348Z"
   },
   "nextCursor": null
 }
