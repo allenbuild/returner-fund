@@ -998,6 +998,21 @@ if (mode === "fail") {
     assert.deepEqual(payload.updateReasons, ["fixture_network_collection_skipped"]);
   });
 
+  it("carries targeted evidence forward without a Top Voice result during authenticated replay", () => {
+    const payload = lifecycleFixturePayload(runLifecycleFixture(
+      "authenticated-targeted-evidence-carry-forward"
+    ));
+
+    assert.deepEqual(payload.snapshot.evidence, []);
+    assert.deepEqual(payload.snapshot.needsReview, []);
+    assert.deepEqual(payload.snapshot.attributionReconciliationLedger, []);
+    assert.match(payload.snapshot.source.label, /Authenticated replay targeted evidence carry-forward/);
+    assert.match(
+      payload.nonAuthenticatedFailure,
+      /Top Voice publication requires its validated isolated evidence snapshot/
+    );
+  });
+
   it("aborts and drains an in-flight heartbeat before finalization", () => {
     const result = runLifecycleFixture("heartbeat-drain");
 

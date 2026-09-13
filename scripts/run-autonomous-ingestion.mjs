@@ -2979,6 +2979,26 @@ function canonicalGithubContentIdentityRows(snapshot) {
   );
 }
 
+function isolatedTargetedEvidenceSnapshot(topVoiceRefresh) {
+  if (topVoiceRefresh?.isolatedEvidence?.snapshot) {
+    return topVoiceRefresh.isolatedEvidence.snapshot;
+  }
+  if (topVoiceRefresh == null && args.authenticatedSocialReplay) {
+    return {
+      source: {
+        label: "Authenticated replay targeted evidence carry-forward",
+        notes: [
+          "No Top Voice network collection runs during authenticated social replay; canonical targeted evidence is carried forward unchanged."
+        ]
+      },
+      evidence: [],
+      needsReview: [],
+      attributionReconciliationLedger: []
+    };
+  }
+  throw new Error("Top Voice publication requires its validated isolated evidence snapshot.");
+}
+
 async function prepareSanitizedTargetedSnapshot(topVoiceRefresh, { baseRef = null } = {}) {
   const targetRoot = publicationArtifactRoot();
   const targetedEvidencePath = "src/lib/social/targeted-evidence-current.json";
@@ -2988,7 +3008,7 @@ async function prepareSanitizedTargetedSnapshot(topVoiceRefresh, { baseRef = nul
   ]);
   return mergeTargetedEvidenceSnapshots(
     [baseTargetedSnapshot, previousTargetedSnapshot].filter(Boolean),
-    topVoiceRefresh.isolatedEvidence.snapshot,
+    isolatedTargetedEvidenceSnapshot(topVoiceRefresh),
     {
       resolveBatchSlug: resolveLegacyPublicEvidenceBatch,
       resolveEntityAttribution: resolveCanonicalTargetedAttribution,
@@ -11231,6 +11251,28 @@ async function runLifecycleContractFixture(fixture) {
       });
     } finally {
       supabase = previousSupabase;
+    }
+  }
+
+  if (fixture === "authenticated-targeted-evidence-carry-forward") {
+    const previousAuthenticatedSocialReplay = args.authenticatedSocialReplay;
+    try {
+      args.authenticatedSocialReplay = true;
+      const snapshot = isolatedTargetedEvidenceSnapshot(null);
+      args.authenticatedSocialReplay = false;
+      let nonAuthenticatedFailure = null;
+      try {
+        isolatedTargetedEvidenceSnapshot(null);
+      } catch (error) {
+        nonAuthenticatedFailure = errorMessage(error);
+      }
+      return emit({
+        fixture,
+        snapshot,
+        nonAuthenticatedFailure
+      });
+    } finally {
+      args.authenticatedSocialReplay = previousAuthenticatedSocialReplay;
     }
   }
 

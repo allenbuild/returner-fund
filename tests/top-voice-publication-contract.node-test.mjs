@@ -38,8 +38,8 @@ describe("Top Voice publication isolation contracts", () => {
 
     assert.match(preparation, /baseTargetedSnapshot/);
     assert.match(preparation, /previousTargetedSnapshot/);
-    assert.match(preparation, /readRequiredCanonicalJson\(join\(root, targetedEvidencePath\)/);
-    assert.match(preparation, /topVoiceRefresh\.isolatedEvidence\.snapshot/);
+    assert.match(preparation, /readRequiredCanonicalJson\(join\(targetRoot, targetedEvidencePath\)/);
+    assert.match(preparation, /isolatedTargetedEvidenceSnapshot\(topVoiceRefresh\)/);
     assert.match(preparation, /mergeTargetedEvidenceSnapshots/);
     assert.match(preparation, /validateEntityAttribution: isCanonicalBatchEntityAttribution/);
     assert.match(merge, /trustedTargetedSnapshot/);
@@ -50,17 +50,35 @@ describe("Top Voice publication isolation contracts", () => {
     );
     assert.match(
       publication,
-      /const rebasedSanitizedPublicSnapshot = await prepareSanitizedPublicSnapshot\([\s\S]*?\{ baseRef: `origin\/\$\{branch\}` \}[\s\S]*?\);/
+      /const rebasedSanitizedPublicSnapshot = await prepareSanitizedPublicSnapshot\([\s\S]*?baseRef: publicationBaseCommit[\s\S]*?\);/
     );
     assert.match(
       publication,
-      /const rebasedPublicationInputs = \{\s*\.\.\.publicationInputs,\s*sanitizedPublicSnapshot: rebasedSanitizedPublicSnapshot,\s*sanitizedTargetedSnapshot: rebasedSanitizedTargetedSnapshot\s*\};/
+      /const rebasedPublicationInputs = \{\s*\.\.\.publicationInputs,\s*loggedInEvidenceSnapshot: rebasedLoggedInEvidenceSnapshot,\s*sanitizedPublicSnapshot: rebasedSanitizedPublicSnapshot,\s*sanitizedTargetedSnapshot: rebasedSanitizedTargetedSnapshot\s*\};/
     );
     assert.match(
       publication,
-      /mergePublicationInputs\(rebasedPublicationInputs, \{ baseRef: `origin\/\$\{branch\}` \}\)/
+      /mergePublicationInputs\(rebasedPublicationInputs, \{ baseRef: publicationBaseCommit \}\)/
     );
     assert.doesNotMatch(publication, /mergePublicationInputs\(publicationInputs, \{ baseRef:/);
+  });
+
+  it("uses an explicit empty isolated snapshot only for authenticated replay carry-forward", () => {
+    const carryForward = section(
+      runner,
+      "function isolatedTargetedEvidenceSnapshot",
+      "async function prepareSanitizedTargetedSnapshot"
+    );
+
+    assert.match(carryForward, /topVoiceRefresh\?\.isolatedEvidence\?\.snapshot/);
+    assert.match(carryForward, /topVoiceRefresh == null && args\.authenticatedSocialReplay/);
+    assert.match(carryForward, /evidence:\s*\[\]/);
+    assert.match(carryForward, /needsReview:\s*\[\]/);
+    assert.match(carryForward, /attributionReconciliationLedger:\s*\[\]/);
+    assert.match(
+      carryForward,
+      /throw new Error\("Top Voice publication requires its validated isolated evidence snapshot\."\)/
+    );
   });
 
   it("persists explicit batch provenance and fails closed on missing canonical overrides", () => {
