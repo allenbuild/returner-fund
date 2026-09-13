@@ -678,12 +678,17 @@ async function main() {
           stop("completed_state_regressed", `${batchSlug} was recorded complete but now has ${plan.remaining} remaining targets.`);
         }
         const checkpointOnly = plan.remaining > FINAL_PUBLICATION_MAX_REMAINING;
-        const runs = await listWorkflowRuns(options);
+        let runs = await listWorkflowRuns(options);
         assertNoActiveRuns(runs);
         await assertRunnerOnlineAndIdle(options);
         await assertPhysicalSafety();
         const stableSha = await fetchRemoteMain(options);
         if (stableSha !== sourceSha) stop("source_drift", `Main changed after ${batchSlug} was planned.`);
+        runs = await listWorkflowRuns(options);
+        assertNoActiveRuns(runs);
+        await assertRunnerOnlineAndIdle(options);
+        const dispatchSha = await fetchRemoteMain(options);
+        if (dispatchSha !== sourceSha) stop("source_drift", `Main changed at the ${batchSlug} dispatch boundary.`);
         const key = chooseNextReplayKey(runs, batchSlug);
         const fields = dispatchFields({
           batchSlug,
