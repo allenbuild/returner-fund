@@ -486,6 +486,68 @@ export function createSupabaseLinkedInGlobalLeaseProvider(client, {
   });
 }
 
+// Controller coordination does not guard an authenticated browser session, so
+// it must use the ordinary expiring runtime-lock RPC. Unlike the account lock's
+// deliberate manual-recovery barrier, this provider safely reclaims an expired
+// row after a hard-killed controller.
+export function createSupabaseExpiringGlobalLeaseProvider(client, {
+  operationTimeoutMs = 15_000
+} = {}) {
+  if (!client || typeof client.rpc !== "function") {
+    throw new TypeError("Supabase expiring lease provider requires a Supabase client.");
+  }
+  const timeoutMs = finitePositiveInteger(operationTimeoutMs);
+  const call = async (name, parameters) => {
+    const { data, error } = await runBoundedSupabaseLeaseOperation(
+      () => client.rpc(name, parameters),
+      timeoutMs
+    );
+    if (error) throw new Error(`Supabase expiring lease ${name} failed.`, { cause: error });
+    return data;
+  };
+
+  return Object.freeze({
+    provider: "supabase_expiring_ingestion_runtime_locks",
+    async claim({ lockKey, ownerId, leaseDurationMs, metadata = {} }) {
+      const data = await call("claim_ingestion_runtime_lock", {
+        p_lock_key: lockKey,
+        p_owner_id: ownerId,
+        p_lease_duration: linkedInLeaseInterval(leaseDurationMs),
+        p_metadata_json: metadata
+      });
+      const row = Array.isArray(data) ? data[0] ?? null : data;
+      return typeof row?.lease_token === "string" && row.lease_token
+        ? { leaseToken: row.lease_token }
+        : null;
+    },
+    async renew({ lockKey, ownerId, leaseToken, leaseDurationMs }) {
+      return await call("renew_ingestion_runtime_lock", {
+        p_lock_key: lockKey,
+        p_owner_id: ownerId,
+        p_lease_token: leaseToken,
+        p_lease_duration: linkedInLeaseInterval(leaseDurationMs)
+      }) === true;
+    },
+    async quarantine({ lockKey, ownerId, leaseToken }) {
+      // An unexpected controller quarantine remains fail-closed for one lease
+      // interval, then becomes reclaimable without manual account-lock recovery.
+      return await call("renew_ingestion_runtime_lock", {
+        p_lock_key: lockKey,
+        p_owner_id: ownerId,
+        p_lease_token: leaseToken,
+        p_lease_duration: "1 hour"
+      }) === true;
+    },
+    async release({ lockKey, ownerId, leaseToken }) {
+      return await call("release_ingestion_runtime_lock", {
+        p_lock_key: lockKey,
+        p_owner_id: ownerId,
+        p_lease_token: leaseToken
+      }) === true;
+    }
+  });
+}
+
 function createLinkedInLeaseHeartbeat({
   globalLeaseProvider,
   lockKey,

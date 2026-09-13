@@ -270,6 +270,14 @@ describe("autonomous ingestion runner CLI", () => {
   it("binds the backlog battery policy again at the runner boundary", async () => {
     const openCliHome = await mkdtemp(path.join(os.tmpdir(), "backlog-battery-plan-"));
     temporaryRoots.push(openCliHome);
+    const checkpointBytes = Buffer.from("[]\n");
+    const replayRoot = path.join(
+      openCliHome,
+      "returner-fund-autonomous-replay",
+      "authenticated-social-history-v1-0b7b68f8578289bc"
+    );
+    await mkdir(replayRoot, { recursive: true });
+    await writeFile(path.join(replayRoot, "logged-in-checkpoint-s2026.json"), checkpointBytes);
     const env = {
       NODE_ENV: "test",
       PATH: process.env.PATH ?? "/usr/local/bin:/usr/bin:/bin",
@@ -280,7 +288,11 @@ describe("autonomous ingestion runner CLI", () => {
       RECOVER_AUTHENTICATED_LINKEDIN_LOCK: "false",
       AUTHENTICATED_LINKEDIN_REPLAY_MAX_CHUNKS: "4",
       AUTONOMOUS_WORKFLOW_RETRY_MAX_ATTEMPTS: "1",
-      AUTONOMOUS_WORKFLOW_POWER_WATCHDOG_RESERVE_PERCENT: "5"
+      AUTONOMOUS_WORKFLOW_POWER_WATCHDOG_RESERVE_PERCENT: "5",
+      INCIDENT_LINKEDIN_EXPECTED_CHECKPOINT_SHA256: createHash("sha256")
+        .update(checkpointBytes)
+        .digest("hex"),
+      INCIDENT_LINKEDIN_EXPECTED_REMAINING: "566"
     };
     const args = [
       runnerPath,
@@ -309,7 +321,7 @@ describe("autonomous ingestion runner CLI", () => {
       encoding: "utf8"
     });
     assert.notEqual(wrongKey.status, 0);
-    assert.match(wrongKey.stderr, /no longer matches its exact first-attempt manual replay authorization/);
+    assert.match(wrongKey.stderr, /no longer matches its exact first-attempt manual replay and checkpoint binding/);
   });
 
   it("accepts recovery debt from exact trusted host-dispatch receipts across a main-head race", () => {
@@ -2609,14 +2621,21 @@ describe("autonomous ingestion runner static safety contracts", () => {
 
   it("uses strict battery-floor admission without a 45-minute estimate for the S2026 backlog", async () => {
     const observedFloors = [];
-    const plans = [5, 0];
+    const plans = [12, 0];
     const replay = linkedInReplayRuntime({
       backlogBatteryOverride: true,
-      plan: async () => ({
-        status: "completed",
-        runnableTargetCount: plans.shift(),
-        plan: {}
-      }),
+      expectedRemaining: 12,
+      plan: async () => {
+        const remainingTargetCount = plans.shift();
+        return {
+          status: "completed",
+          runnableTargetCount: remainingTargetCount,
+          plan: {
+            remainingTargetCount,
+            linkedinExecution: { remainingTargetCount }
+          }
+        };
+      },
       readChunkBatteryAdmission: async ({ floorPercent }) => {
         observedFloors.push(floorPercent);
         return {
@@ -2666,7 +2685,14 @@ describe("autonomous ingestion runner static safety contracts", () => {
     let collections = 0;
     const replay = linkedInReplayRuntime({
       backlogBatteryOverride: true,
-      plan: async () => ({ status: "completed", runnableTargetCount: 5, plan: {} }),
+      plan: async () => ({
+        status: "completed",
+        runnableTargetCount: 5,
+        plan: {
+          remainingTargetCount: 5,
+          linkedinExecution: { remainingTargetCount: 5 }
+        }
+      }),
       collect: async () => {
         collections += 1;
         return { status: "completed", exitCode: 0 };
@@ -3185,6 +3211,7 @@ describe("autonomous ingestion runner static safety contracts", () => {
   });
 
   it("receipt-binds the S2026 backlog to watchdog-only battery admission", async () => {
+    const checkpointSha256 = "a".repeat(64);
     const replay = linkedInReplayRuntime({ backlogBatteryOverride: true });
     const requestedTarget = { batchSlug: "S2026" };
     const runAuthenticatedCollectors = authenticatedCollectorsRuntime({
@@ -3196,6 +3223,12 @@ describe("autonomous ingestion runner static safety contracts", () => {
         status: "completed",
         chunks: [],
         finalPlan: { requestedTarget },
+        checkpointBinding: {
+          batchSlug: "S2026",
+          checkpointSha256,
+          expectedRemainingTargetCount: 0,
+          observedRemainingTargetCount: 0
+        },
         replayState: replay.reduceLinkedInReplayState(replayState, {
           type: "plan",
           batchSlug: batch.slug,
@@ -3209,7 +3242,8 @@ describe("autonomous ingestion runner static safety contracts", () => {
       requestedTarget
     });
     const assertCanPublish = authenticatedReplayPublicationValidator({
-      backlogBatteryOverride: true
+      backlogBatteryOverride: true,
+      expectedCheckpointSha256: checkpointSha256
     });
     assert.doesNotThrow(() => assertCanPublish(result));
     assert.equal(result.linkedinReplay.chunkAdmissionPolicy, "battery-floor-watchdog");
@@ -5271,6 +5305,9 @@ function linkedInReplayRuntime({
   plan = async () => ({ status: "completed", runnableTargetCount: 0, plan: {} }),
   collect = async () => ({ status: "completed", exitCode: 0 }),
   backlogBatteryOverride = false,
+  expectedBatchSlug = "S2026",
+  expectedRemaining = 5,
+  expectedCheckpointSha256 = "a".repeat(64),
   readChunkBatteryAdmission = async ({ floorPercent }) => ({
     admitted: true,
     reason: "battery_above_floor",
@@ -5292,6 +5329,9 @@ function linkedInReplayRuntime({
     "LINKEDIN_REPLAY_CHUNK_ADMISSION_MS",
     "LINKEDIN_REPLAY_BATTERY_FLOOR_PERCENT",
     "INCIDENT_S2026_LINKEDIN_BACKLOG_BATTERY_OVERRIDE",
+    "INCIDENT_LINKEDIN_EXPECTED_REMAINING",
+    "INCIDENT_LINKEDIN_EXPECTED_CHECKPOINT_SHA256",
+    "args",
     "AUTONOMOUS_PROCESS_BUDGETS",
     "collectionBudget",
     "runAuthenticatedLinkedInPlan",
@@ -5317,6 +5357,9 @@ function linkedInReplayRuntime({
     backlogBatteryOverride ? 0 : 25 * 60_000,
     5,
     backlogBatteryOverride,
+    String(expectedRemaining),
+    expectedCheckpointSha256,
+    { authenticatedBackfillTarget: { batchSlug: expectedBatchSlug } },
     { collectionDeadlineDrainHeadroomMs: 5 * 60_000 },
     {
       deadlineAt: collectionDeadlineAt,
@@ -5479,7 +5522,12 @@ function authenticatedCollectorsRuntime({
   );
 }
 
-function authenticatedReplayPublicationValidator({ backlogBatteryOverride = false } = {}) {
+function authenticatedReplayPublicationValidator({
+  backlogBatteryOverride = false,
+  expectedBatchSlug = "S2026",
+  expectedRemaining = 0,
+  expectedCheckpointSha256 = "a".repeat(64)
+} = {}) {
   const validatorSource = section(
     "function assertAuthenticatedReplayCanPublish",
     "function assertSuccessfulTopVoiceRefresh"
@@ -5492,6 +5540,9 @@ function authenticatedReplayPublicationValidator({ backlogBatteryOverride = fals
     "LINKEDIN_REPLAY_CHUNK_ADMISSION_MS",
     "LINKEDIN_REPLAY_BATTERY_FLOOR_PERCENT",
     "INCIDENT_S2026_LINKEDIN_BACKLOG_BATTERY_OVERRIDE",
+    "INCIDENT_LINKEDIN_EXPECTED_REMAINING",
+    "INCIDENT_LINKEDIN_EXPECTED_CHECKPOINT_SHA256",
+    "args",
     "AUTONOMOUS_PROCESS_BUDGETS",
     "authenticatedBackfillPlatformsForScope",
     "authenticatedBackfillTargetEquals",
@@ -5505,6 +5556,9 @@ function authenticatedReplayPublicationValidator({ backlogBatteryOverride = fals
     backlogBatteryOverride ? 0 : 25 * 60_000,
     5,
     backlogBatteryOverride,
+    String(expectedRemaining),
+    expectedCheckpointSha256,
+    { authenticatedBackfillTarget: { batchSlug: expectedBatchSlug } },
     { collectionDeadlineDrainHeadroomMs: 5 * 60_000 },
     authenticatedBackfillPlatformsForScope,
     authenticatedBackfillTargetEquals,

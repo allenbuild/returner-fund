@@ -171,7 +171,7 @@ test("autonomous runs serialize through validation and acceptance without cancel
   );
   assert.match(
     workflow,
-    /validate_publication:[\s\S]*?if:\s*\$\{\{ always\(\) && needs\.resolve\.outputs\.should_run == 'true' && needs\.ingest\.outputs\.revalidation_should_run == 'true'/
+    /validate_publication:[\s\S]*?if:\s*\$\{\{ always\(\) && inputs\.incident_linkedin_checkpoint_only != true && needs\.resolve\.outputs\.should_run == 'true' && needs\.ingest\.outputs\.revalidation_should_run == 'true'/
   );
   assert.match(workflow, /permissions:\s*\n\s*contents:\s*read/);
   assert.match(workflow, /ingest:[\s\S]*?permissions:\s*\n\s*contents:\s*write/);
@@ -651,7 +651,7 @@ test("accepted resolver jobs fail closed and re-export only validated outputs", 
   }
 });
 
-test("all workflow shell blocks remain fixed at 65 and queued schedules are rechecked", (t) => {
+test("all workflow shell blocks remain fixed at 66 and queued schedules are rechecked", (t) => {
   const shellBlockCount = [workflow, dailyBenchmarkWorkflow, readFileSync(
     path.join(repositoryRoot, ".github", "workflows", "public-artifacts.yml"),
     "utf8"
@@ -659,7 +659,7 @@ test("all workflow shell blocks remain fixed at 65 and queued schedules are rech
     (total, source) => total + (source.match(/^ {8}run:/gm)?.length ?? 0),
     0
   );
-  assert.equal(shellBlockCount, 65);
+  assert.equal(shellBlockCount, 66);
 
   const directory = mkdtempSync(path.join(tmpdir(), "returner-queued-freshness-"));
   t.after(() => rmSync(directory, { recursive: true, force: true }));
@@ -3265,7 +3265,7 @@ exec "$REAL_GIT" "$@"
 
   assert.match(
     workflow,
-    /validate_publication:[\s\S]*?if:\s*\$\{\{ always\(\) && needs\.resolve\.outputs\.should_run == 'true' && needs\.ingest\.outputs\.revalidation_should_run == 'true' && needs\.ingest\.outputs\.host_ready == 'true' && needs\.ingest\.outputs\.commit_verified == 'true' && needs\.ingest\.outputs\.validation_candidate != '' \}\}[\s\S]*?target_sha:\s*\$\{\{ needs\.resolve\.outputs\.validation_replay == 'true' && needs\.resolve\.outputs\.source_sha \|\| needs\.ingest\.outputs\.validation_candidate \}\}/
+    /validate_publication:[\s\S]*?if:\s*\$\{\{ always\(\) && inputs\.incident_linkedin_checkpoint_only != true && needs\.resolve\.outputs\.should_run == 'true' && needs\.ingest\.outputs\.revalidation_should_run == 'true' && needs\.ingest\.outputs\.host_ready == 'true' && needs\.ingest\.outputs\.commit_verified == 'true' && needs\.ingest\.outputs\.validation_candidate != '' \}\}[\s\S]*?target_sha:\s*\$\{\{ needs\.resolve\.outputs\.validation_replay == 'true' && needs\.resolve\.outputs\.source_sha \|\| needs\.ingest\.outputs\.validation_candidate \}\}/
   );
   assert.match(
     dailyBenchmarkWorkflow,
@@ -3623,7 +3623,7 @@ test("incident Zenbu battery authorization is closed after the completed replay"
   }
 });
 
-test("S2026 LinkedIn backlog battery authorization is multi-run but narrowly bound", () => {
+test("2026 LinkedIn backlog authorization is batch-bound and checkpoint-bound", () => {
   assert.match(
     workflow,
     /incident_s2026_linkedin_backlog_battery_override:[\s\S]*?Battery authorization for one bounded S2026 LinkedIn backlog sweep run[\s\S]*?default:\s*false[\s\S]*?type:\s*boolean/
@@ -3650,13 +3650,15 @@ test("S2026 LinkedIn backlog battery authorization is multi-run but narrowly bou
     assert.match(step, /GITHUB_RUN_ATTEMPT" != "1"/);
     assert.match(step, /CANDIDATE_TRIGGER" != "manual-replay"/);
     assert.match(step, /AUTHENTICATED_BACKFILL_SCOPE" != "linkedin"/);
-    assert.match(step, /AUTHENTICATED_BACKFILL_BATCH" != "S2026"/);
+    assert.match(step, /BACKLOG_BATCH_AUTHORIZED/);
     assert.match(step, /-n "\$AUTHENTICATED_BACKFILL_COMPANY_SLUG"/);
     assert.match(step, /RECOVER_AUTHENTICATED_LINKEDIN_LOCK" != "false"/);
     assert.match(
       step,
-      /\^incident-20260913-s2026-linkedin-backlog-\[0-9\]\{3\}\$/
+      /\^\$\{BACKLOG_KEY_PREFIX\}\[0-9\]\{3\}\$/
     );
+    assert.match(step, /INCIDENT_LINKEDIN_EXPECTED_CHECKPOINT_SHA256/);
+    assert.match(step, /INCIDENT_LINKEDIN_EXPECTED_REMAINING/);
     assert.match(step, /BATTERY_OVERRIDE_AUTHORIZED=true/);
     assert.match(step, /AppleClamshellState/);
     assert.match(step, /IOPMUserTriggeredFullWake/);
@@ -3664,6 +3666,11 @@ test("S2026 LinkedIn backlog battery authorization is multi-run but narrowly bou
       step,
       /INCIDENT_S2026_LINKEDIN_BACKLOG_BATTERY_OVERRIDE" = "true" \] && \[ "\$BATTERY_PERCENT" -le "\$AUTHENTICATED_BATTERY_MIN_START_PERCENT"/
     );
+  }
+
+  for (const step of [hostPreflight, powerRecheck]) {
+    assert.match(step, /S2026:true\|S2026:false/);
+    assert.match(step, /S26:true\|S26:false/);
   }
 
   assert.match(hostPreflight, /AUTHENTICATED_SOCIAL_REPLAY" != "true"/);
@@ -3951,7 +3958,7 @@ test("inactive candidates and accepted publication outcomes have distinct audita
   assert.match(workflow, /RECEIPT_CONCLUSION:\s*\$\{\{ needs\.ingest\.outputs\.receipt_conclusion \}\}/);
   assert.match(workflow, /DAILY_NEW_PHYSICAL_SOURCES/);
   assert.match(workflow, /DAILY_SOURCE_HEALTH/);
-  assert.match(workflow, /RUNNER_STATUS:\s*\$\{\{ steps\.ingestion\.outputs\.runner_status \}\}/);
+  assert.match(workflow, /runner_status:\s*\$\{\{ steps\.checkpoint_collection\.outputs\.runner_status \|\| steps\.ingestion\.outputs\.runner_status \}\}/);
   assert.match(workflow, /PUBLISHED_COMMIT:\s*\$\{\{ steps\.ingestion\.outputs\.published_commit \}\}/);
   assert.match(workflow, /Receipt conclusion:/);
   assert.match(workflow, /if \[ "\$STATUS" = "resolver_failed" \] \|\| \[ "\$STATUS" = "accepted_slot_failed" \]/);
@@ -3978,10 +3985,10 @@ test("inactive candidates and accepted publication outcomes have distinct audita
   assert.match(workflow, /mappedProviderBlocked:\s*integerOrNull\(process\.env\.MAPPED_PROVIDER_BLOCKED\)/);
   assert.match(workflow, /mappedProviderBlockedByReason:\s*countMap\(process\.env\.MAPPED_PROVIDER_BLOCKED_BY_REASON\)/);
   assert.match(workflow, /validate_publication:[\s\S]*?uses:\s*\.\/\.github\/workflows\/public-artifacts\.yml[\s\S]*?target_sha:\s*\$\{\{ needs\.resolve\.outputs\.validation_replay == 'true' && needs\.resolve\.outputs\.source_sha \|\| needs\.ingest\.outputs\.validation_candidate \}\}[\s\S]*?policy_source_sha:\s*\$\{\{ needs\.resolve\.outputs\.source_sha \}\}/);
-  assert.match(workflow, /validate_publication:[\s\S]*?if:\s*\$\{\{ always\(\) && needs\.resolve\.outputs\.should_run == 'true' && needs\.ingest\.outputs\.revalidation_should_run == 'true' && needs\.ingest\.outputs\.host_ready == 'true' && needs\.ingest\.outputs\.commit_verified == 'true' && needs\.ingest\.outputs\.validation_candidate != '' \}\}/);
+  assert.match(workflow, /validate_publication:[\s\S]*?if:\s*\$\{\{ always\(\) && inputs\.incident_linkedin_checkpoint_only != true && needs\.resolve\.outputs\.should_run == 'true' && needs\.ingest\.outputs\.revalidation_should_run == 'true' && needs\.ingest\.outputs\.host_ready == 'true' && needs\.ingest\.outputs\.commit_verified == 'true' && needs\.ingest\.outputs\.validation_candidate != '' \}\}/);
   assert.match(workflow, /publication_kind:\s*\$\{\{ needs\.resolve\.outputs\.validation_replay != 'true' && 'autonomous-ingestion' \|\| '' \}\}/);
   assert.match(workflow, /publication_receipt_path:\s*\$\{\{ needs\.resolve\.outputs\.validation_replay != 'true' && 'outputs\/ingestion-source-delta-current\.json' \|\| '' \}\}/);
-  assert.match(workflow, /name:\s*Recover exact publication commit[\s\S]*?if:\s*\$\{\{ always\(\) && steps\.revalidate\.outputs\.should_run == 'true' && steps\.host_preflight\.outputs\.ready == 'true' \}\}/);
+  assert.match(workflow, /name:\s*Recover exact publication commit[\s\S]*?if:\s*\$\{\{ always\(\) && inputs\.incident_linkedin_checkpoint_only != true && steps\.revalidate\.outputs\.should_run == 'true' && steps\.host_preflight\.outputs\.ready == 'true' \}\}/);
   assert.match(workflow, /published_commit:\s*\$\{\{ steps\.recover_publication\.outputs\.published_commit \}\}/);
   assert.match(workflow, /needs:\s*\[resolve, ingest, validate_publication, accept_publication\]/);
   assert.match(workflow, /name:\s*Record validated slot acceptance/);

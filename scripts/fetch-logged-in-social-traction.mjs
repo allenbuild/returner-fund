@@ -545,6 +545,9 @@ async function collectTarget(target, workerIndex, collectionGuard = null) {
     const log = attemptStatus === "failed" ? console.warn : console.log;
     log(`${target.platform} ${target.companyName} / ${target.name}: ${result.evidence.length} posts (${attemptStatus})`);
   } catch (error) {
+    if (target.platform === "linkedin" && collectionGuard?.signal?.aborted) {
+      throw error;
+    }
     const message = errorMessage(error);
     failures.push(failure(target, message));
     attemptMap.set(attemptKey, { status: "failed", checkedAt: now, error: message });
@@ -612,19 +615,45 @@ await runWorkerPool(otherTargets, workers, async (target, workerIndex) => {
 
 if (linkedinTargets.length > 0) {
   const globalLock = requiredLinkedInGlobalLockConfiguration();
-  await withLinkedInAccountLock(
-    ({ signal, assertHealthy }) =>
-      runLinkedInSerialLane(linkedinTargets, (target, workerIndex) => {
-        assertHealthy();
-        return collectTarget(target, workerIndex, { signal, assertHealthy });
-      }, {
-        delayMs: linkedinExecution.delayMs,
-        sleep: delay,
-        shouldAbort: () => linkedinCircuitOpen || signal.aborted,
-        targetCap: linkedinExecution.targetCap
-      }),
-    globalLock
-  );
+  const gracefulShutdown = createLinkedInGracefulShutdown();
+  try {
+    await withLinkedInAccountLock(
+      ({ signal, assertHealthy }) => {
+        const collectionSignal = AbortSignal.any([
+          signal,
+          gracefulShutdown.signal
+        ]);
+        const assertCollectionHealthy = () => {
+          assertHealthy();
+          if (gracefulShutdown.signal.aborted) {
+            throw gracefulShutdown.signal.reason ?? new Error(
+              "LinkedIn collection received a graceful shutdown signal."
+            );
+          }
+        };
+        return runLinkedInSerialLane(linkedinTargets, (target, workerIndex) => {
+          assertCollectionHealthy();
+          return collectTarget(target, workerIndex, {
+            signal: collectionSignal,
+            assertHealthy: assertCollectionHealthy
+          });
+        }, {
+          delayMs: linkedinExecution.delayMs,
+          sleep: delay,
+          shouldAbort: () => linkedinCircuitOpen || collectionSignal.aborted,
+          targetCap: linkedinExecution.targetCap
+        });
+      },
+      globalLock
+    );
+  } finally {
+    gracefulShutdown.close();
+  }
+  if (gracefulShutdown.signal.aborted) {
+    throw gracefulShutdown.signal.reason ?? new Error(
+      "LinkedIn collection received a graceful shutdown signal."
+    );
+  }
 }
 
 if (xCircuitOpen) {
@@ -3016,6 +3045,29 @@ function requiredLinkedInGlobalLockConfiguration() {
 function cleanEnvironmentValue(value) {
   const cleaned = String(value ?? "").trim();
   return cleaned || null;
+}
+
+function createLinkedInGracefulShutdown() {
+  const controller = new AbortController();
+  const stop = (signalName) => {
+    if (controller.signal.aborted) return;
+    const error = new Error(
+      `LinkedIn collection received ${signalName}; completing account-lock cleanup.`
+    );
+    error.code = "LINKEDIN_GRACEFUL_SHUTDOWN";
+    controller.abort(error);
+  };
+  const onSigterm = () => stop("SIGTERM");
+  const onSigint = () => stop("SIGINT");
+  process.once("SIGTERM", onSigterm);
+  process.once("SIGINT", onSigint);
+  return Object.freeze({
+    signal: controller.signal,
+    close() {
+      process.removeListener("SIGTERM", onSigterm);
+      process.removeListener("SIGINT", onSigint);
+    }
+  });
 }
 
 function resolveXCollectionMode(value) {

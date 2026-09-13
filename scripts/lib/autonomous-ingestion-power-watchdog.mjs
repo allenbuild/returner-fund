@@ -17,6 +17,11 @@ const AUTHENTICATED_MAC_POWER_UNSAFE_REASONS = Object.freeze({
   CLAMSHELL_UNVERIFIED: "authenticated_clamshell_unverified"
 });
 
+const AUTHENTICATED_FULL_WAKE_UNSAFE_REASONS = Object.freeze({
+  INACTIVE: "authenticated_full_wake_inactive",
+  UNVERIFIED: "authenticated_full_wake_unverified"
+});
+
 export function parseAutonomousPowerWatchdogConfig(environment = process.env) {
   const reserveValue = cleanString(
     environment.AUTONOMOUS_WORKFLOW_POWER_WATCHDOG_RESERVE_PERCENT
@@ -143,6 +148,56 @@ export async function readAuthenticatedMacPowerState() {
     batteryTelemetry: battery.stdout,
     clamshellTelemetry: clamshell.stdout
   });
+}
+
+export function parseAuthenticatedMacFullWakeState(source) {
+  const value = uniqueIoregYesNoValue(source, "IOPMUserTriggeredFullWake");
+  return value === null ? null : value === "Yes";
+}
+
+export async function readAuthenticatedMacFullWakeState() {
+  const { stdout } = await execFileAsync(
+    "/usr/sbin/ioreg",
+    ["-r", "-k", "IOPMUserTriggeredFullWake", "-d", "4"],
+    {
+      encoding: "utf8",
+      timeout: POWER_STATUS_TIMEOUT_MS,
+      maxBuffer: 256 * 1_024
+    }
+  );
+  return parseAuthenticatedMacFullWakeState(stdout);
+}
+
+export async function readAuthenticatedLinkedInChunkAdmission({
+  floorPercent,
+  readPowerStatus = readMacPowerStatus,
+  readAuthenticatedPowerState = readAuthenticatedMacPowerState,
+  readFullWakeState = readAuthenticatedMacFullWakeState
+} = {}) {
+  const power = await readAuthenticatedBatteryFloorAdmission({
+    floorPercent,
+    readPowerStatus,
+    readAuthenticatedPowerState
+  });
+  if (!power.admitted) return power;
+
+  let fullWake;
+  try {
+    fullWake = await readFullWakeState();
+  } catch {
+    fullWake = null;
+  }
+  if (fullWake !== true) {
+    return Object.freeze({
+      ...power,
+      admitted: false,
+      reason: fullWake === false
+        ? AUTHENTICATED_FULL_WAKE_UNSAFE_REASONS.INACTIVE
+        : AUTHENTICATED_FULL_WAKE_UNSAFE_REASONS.UNVERIFIED,
+      fullWake
+    });
+  }
+  return Object.freeze({ ...power, fullWake: true });
 }
 
 export async function readAuthenticatedBatteryFloorAdmission({

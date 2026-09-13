@@ -62,6 +62,21 @@ on:
         required: false
         default: false
         type: boolean
+      incident_linkedin_checkpoint_only:
+        description: Collect exact S26 or S2026 LinkedIn checkpoints without importing or publishing
+        required: false
+        default: false
+        type: boolean
+      incident_linkedin_expected_checkpoint_sha256:
+        description: Exact durable batch checkpoint SHA-256 at dispatch time
+        required: false
+        default: ""
+        type: string
+      incident_linkedin_expected_remaining:
+        description: Exact terminal-completed LinkedIn remainder at dispatch time
+        required: false
+        default: ""
+        type: string
 permissions:
   contents: read
 
@@ -346,7 +361,7 @@ jobs:
       recovery_method: ${{ steps.recover_publication.outputs.recovery_method }}
       receipt_status: ${{ steps.publication_receipt.outputs.receipt_status }}
       receipt_conclusion: ${{ steps.publication_receipt.outputs.receipt_conclusion }}
-      runner_status: ${{ steps.ingestion.outputs.runner_status }}
+      runner_status: ${{ steps.checkpoint_collection.outputs.runner_status || steps.ingestion.outputs.runner_status }}
       runner_failure_message: ${{ steps.ingestion.outputs.failure_message }}
       provider_blocked: ${{ steps.ingestion.outputs.provider_blocked }}
       provider_blocked_by_reason: ${{ steps.ingestion.outputs.provider_blocked_by_reason }}
@@ -367,6 +382,23 @@ jobs:
       revalidated_main_commit: ${{ steps.revalidate.outputs.remote_main_commit }}
       host_ready: ${{ steps.host_preflight.outputs.ready }}
       host_defer_reason: ${{ steps.host_preflight.outputs.reason }}
+      checkpoint_only: ${{ steps.checkpoint_collection.outputs.checkpoint_only }}
+      checkpoint_batch: ${{ steps.checkpoint_collection.outputs.batch }}
+      checkpoint_receipt_sha256: ${{ steps.checkpoint_collection.outputs.receipt_sha256 }}
+      checkpoint_source_sha: ${{ steps.checkpoint_collection.outputs.source_sha }}
+      checkpoint_before_remaining: ${{ steps.checkpoint_collection.outputs.before_remaining }}
+      checkpoint_after_remaining: ${{ steps.checkpoint_collection.outputs.after_remaining }}
+      checkpoint_completed_targets: ${{ steps.checkpoint_collection.outputs.completed_targets }}
+      checkpoint_chunks_completed: ${{ steps.checkpoint_collection.outputs.chunks_completed }}
+      checkpoint_battery_chunks: ${{ steps.checkpoint_collection.outputs.battery_chunks }}
+      checkpoint_ac_chunks: ${{ steps.checkpoint_collection.outputs.ac_chunks }}
+      checkpoint_final_publication_ready: ${{ steps.checkpoint_collection.outputs.final_publication_ready }}
+      checkpoint_sha256_before: ${{ steps.checkpoint_collection.outputs.checkpoint_sha256_before }}
+      checkpoint_sha256_after: ${{ steps.checkpoint_collection.outputs.checkpoint_sha256_after }}
+      checkpoint_output_sha256_before: ${{ steps.checkpoint_collection.outputs.output_sha256_before }}
+      checkpoint_output_sha256_after: ${{ steps.checkpoint_collection.outputs.output_sha256_after }}
+      checkpoint_inventory_sha256: ${{ steps.checkpoint_collection.outputs.inventory_sha256 }}
+      checkpoint_collision_sha256: ${{ steps.checkpoint_collection.outputs.collision_sha256 }}
     steps:
       - name: Preflight autonomous ingestion host
         id: host_preflight
@@ -380,6 +412,9 @@ jobs:
           INCIDENT_ZENBU_BATTERY_OVERRIDE: ${{ inputs.incident_zenbu_battery_override || false }}
           INCIDENT_ZENBU_BATTERY_REPLAY_KEY: incident-20260912-s2026-zenbu-linkedin-battery-02
           INCIDENT_S2026_LINKEDIN_BACKLOG_BATTERY_OVERRIDE: ${{ inputs.incident_s2026_linkedin_backlog_battery_override || false }}
+          INCIDENT_LINKEDIN_EXPECTED_CHECKPOINT_SHA256: ${{ inputs.incident_linkedin_expected_checkpoint_sha256 || '' }}
+          INCIDENT_LINKEDIN_EXPECTED_REMAINING: ${{ inputs.incident_linkedin_expected_remaining || '' }}
+          INCIDENT_LINKEDIN_CHECKPOINT_ONLY: ${{ inputs.incident_linkedin_checkpoint_only || false }}
           AUTHENTICATED_BATTERY_MIN_START_PERCENT: "5"
           AUTONOMOUS_MIN_BATTERY_PERCENT: "30"
           CANDIDATE_TRIGGER: ${{ needs.resolve.outputs.trigger }}
@@ -397,6 +432,12 @@ jobs:
           } >> "$GITHUB_OUTPUT"
 
           BATTERY_OVERRIDE_AUTHORIZED=false
+          if [ "$INCIDENT_LINKEDIN_CHECKPOINT_ONLY" = "true" ] && \
+             [ "$INCIDENT_S2026_LINKEDIN_BACKLOG_BATTERY_OVERRIDE" != "true" ]; then
+            echo "reason=incident_linkedin_checkpoint_only_missing_battery_authorization" >> "$GITHUB_OUTPUT"
+            echo "::error title=Checkpoint-only authorization mismatch::The temporary S26/S2026 checkpoint lane requires its exact bounded backlog battery authorization."
+            exit 1
+          fi
           if [ "$INCIDENT_ZENBU_BATTERY_OVERRIDE" = "true" ] && \
              [ "$INCIDENT_S2026_LINKEDIN_BACKLOG_BATTERY_OVERRIDE" = "true" ]; then
             echo "reason=incident_battery_override_conflict" >> "$GITHUB_OUTPUT"
@@ -422,21 +463,40 @@ jobs:
           fi
 
           if [ "$INCIDENT_S2026_LINKEDIN_BACKLOG_BATTERY_OVERRIDE" = "true" ]; then
+            BACKLOG_BATCH_AUTHORIZED=false
+            BACKLOG_KEY_PREFIX=""
+            case "$AUTHENTICATED_BACKFILL_BATCH:$INCIDENT_LINKEDIN_CHECKPOINT_ONLY" in
+              S2026:true|S2026:false)
+                BACKLOG_BATCH_AUTHORIZED=true
+                BACKLOG_KEY_PREFIX="incident-20260913-s2026-linkedin-backlog-"
+                ;;
+              S26:true|S26:false)
+                BACKLOG_BATCH_AUTHORIZED=true
+                BACKLOG_KEY_PREFIX="incident-20260913-s26-linkedin-backlog-"
+                ;;
+            esac
             if [ "$GITHUB_EVENT_NAME" != "workflow_dispatch" ] || \
                [ "$GITHUB_RUN_ATTEMPT" != "1" ] || \
                [ "$CANDIDATE_TRIGGER" != "manual-replay" ] || \
                [ "$AUTHENTICATED_SOCIAL_REPLAY" != "true" ] || \
                [ "$AUTHENTICATED_BACKFILL_SCOPE" != "linkedin" ] || \
-               [ "$AUTHENTICATED_BACKFILL_BATCH" != "S2026" ] || \
+               [ "$BACKLOG_BATCH_AUTHORIZED" != "true" ] || \
                [ -n "$AUTHENTICATED_BACKFILL_COMPANY_SLUG" ] || \
                [ "$RECOVER_AUTHENTICATED_LINKEDIN_LOCK" != "false" ]; then
               echo "reason=incident_s2026_linkedin_backlog_battery_override_scope_mismatch" >> "$GITHUB_OUTPUT"
-              echo "::error title=Backlog battery override scope mismatch::This authorization is limited to a first-attempt, batch-wide S2026 LinkedIn backlog replay without lock recovery."
+              echo "::error title=Backlog battery override scope mismatch::This authorization is limited to a first-attempt, batch-wide S2026 or S26 LinkedIn replay without lock recovery."
               exit 1
             fi
-            if ! [[ "$INGESTION_IDEMPOTENCY_KEY" =~ ^incident-20260913-s2026-linkedin-backlog-[0-9]{3}$ ]]; then
+            if ! [[ "$INGESTION_IDEMPOTENCY_KEY" =~ ^${BACKLOG_KEY_PREFIX}[0-9]{3}$ ]] || \
+               [ "$INGESTION_IDEMPOTENCY_KEY" = "${BACKLOG_KEY_PREFIX}000" ]; then
               echo "reason=incident_s2026_linkedin_backlog_battery_override_key_mismatch" >> "$GITHUB_OUTPUT"
-              echo "::error title=Backlog battery override key mismatch::The replay key must match incident-20260913-s2026-linkedin-backlog-NNN exactly."
+              echo "::error title=Backlog battery override key mismatch::The replay key must match the selected batch's incident-20260913-*-linkedin-backlog-NNN contract with NNN from 001 to 999."
+              exit 1
+            fi
+            if ! [[ "$INCIDENT_LINKEDIN_EXPECTED_CHECKPOINT_SHA256" =~ ^[0-9a-f]{64}$ ]] || \
+               ! [[ "$INCIDENT_LINKEDIN_EXPECTED_REMAINING" =~ ^(0|[1-9][0-9]{0,3})$ ]]; then
+              echo "reason=incident_linkedin_checkpoint_binding_invalid" >> "$GITHUB_OUTPUT"
+              echo "::error title=Backlog checkpoint binding invalid::The replay requires one lowercase checkpoint SHA-256 and exact decimal remaining-target count captured at dispatch."
               exit 1
             fi
             BATTERY_OVERRIDE_AUTHORIZED=true
@@ -912,6 +972,9 @@ jobs:
           INCIDENT_ZENBU_BATTERY_OVERRIDE: ${{ inputs.incident_zenbu_battery_override || false }}
           INCIDENT_ZENBU_BATTERY_REPLAY_KEY: incident-20260912-s2026-zenbu-linkedin-battery-02
           INCIDENT_S2026_LINKEDIN_BACKLOG_BATTERY_OVERRIDE: ${{ inputs.incident_s2026_linkedin_backlog_battery_override || false }}
+          INCIDENT_LINKEDIN_EXPECTED_CHECKPOINT_SHA256: ${{ inputs.incident_linkedin_expected_checkpoint_sha256 || '' }}
+          INCIDENT_LINKEDIN_EXPECTED_REMAINING: ${{ inputs.incident_linkedin_expected_remaining || '' }}
+          INCIDENT_LINKEDIN_CHECKPOINT_ONLY: ${{ inputs.incident_linkedin_checkpoint_only || false }}
           AUTHENTICATED_BATTERY_MIN_START_PERCENT: "5"
           INGESTION_IDEMPOTENCY_KEY: ${{ needs.resolve.outputs.slot_key }}
           CANDIDATE_TRIGGER: ${{ needs.resolve.outputs.trigger }}
@@ -942,19 +1005,37 @@ jobs:
           fi
 
           if [ "$INCIDENT_S2026_LINKEDIN_BACKLOG_BATTERY_OVERRIDE" = "true" ]; then
+            BACKLOG_BATCH_AUTHORIZED=false
+            BACKLOG_KEY_PREFIX=""
+            case "$AUTHENTICATED_BACKFILL_BATCH:$INCIDENT_LINKEDIN_CHECKPOINT_ONLY" in
+              S2026:true|S2026:false)
+                BACKLOG_BATCH_AUTHORIZED=true
+                BACKLOG_KEY_PREFIX="incident-20260913-s2026-linkedin-backlog-"
+                ;;
+              S26:true|S26:false)
+                BACKLOG_BATCH_AUTHORIZED=true
+                BACKLOG_KEY_PREFIX="incident-20260913-s26-linkedin-backlog-"
+                ;;
+            esac
             if [ "$GITHUB_EVENT_NAME" != "workflow_dispatch" ] || \
                [ "$GITHUB_RUN_ATTEMPT" != "1" ] || \
                [ "$CANDIDATE_TRIGGER" != "manual-replay" ] || \
                [ "$AUTHENTICATED_SOCIAL_REPLAY" != "true" ] || \
                [ "$AUTHENTICATED_BACKFILL_SCOPE" != "linkedin" ] || \
-               [ "$AUTHENTICATED_BACKFILL_BATCH" != "S2026" ] || \
+               [ "$BACKLOG_BATCH_AUTHORIZED" != "true" ] || \
                [ -n "$AUTHENTICATED_BACKFILL_COMPANY_SLUG" ] || \
                [ "$RECOVER_AUTHENTICATED_LINKEDIN_LOCK" != "false" ]; then
-              echo "::error title=Backlog battery override scope mismatch::The authorization no longer matches a first-attempt, batch-wide S2026 LinkedIn backlog replay without lock recovery."
+              echo "::error title=Backlog battery override scope mismatch::The authorization no longer matches a first-attempt, batch-wide S2026 or S26 LinkedIn replay without lock recovery."
               exit 1
             fi
-            if ! [[ "$INGESTION_IDEMPOTENCY_KEY" =~ ^incident-20260913-s2026-linkedin-backlog-[0-9]{3}$ ]]; then
-              echo "::error title=Backlog battery override key mismatch::The replay key must match incident-20260913-s2026-linkedin-backlog-NNN exactly."
+            if ! [[ "$INGESTION_IDEMPOTENCY_KEY" =~ ^${BACKLOG_KEY_PREFIX}[0-9]{3}$ ]] || \
+               [ "$INGESTION_IDEMPOTENCY_KEY" = "${BACKLOG_KEY_PREFIX}000" ]; then
+              echo "::error title=Backlog battery override key mismatch::The replay key must match the selected batch's incident-20260913-*-linkedin-backlog-NNN contract with NNN from 001 to 999."
+              exit 1
+            fi
+            if ! [[ "$INCIDENT_LINKEDIN_EXPECTED_CHECKPOINT_SHA256" =~ ^[0-9a-f]{64}$ ]] || \
+               ! [[ "$INCIDENT_LINKEDIN_EXPECTED_REMAINING" =~ ^(0|[1-9][0-9]{0,3})$ ]]; then
+              echo "::error title=Backlog checkpoint binding invalid::The replay requires one lowercase checkpoint SHA-256 and exact decimal remaining-target count captured at dispatch."
               exit 1
             fi
             BATTERY_OVERRIDE_AUTHORIZED=true
@@ -1053,9 +1134,62 @@ jobs:
           LINKEDIN_GLOBAL_LOCK_NAMESPACE: returner-fund-production-linkedin-allen-xu-v1
         run: node scripts/recover-authenticated-linkedin-lock.mjs
 
+      - name: Collect bounded 2026 LinkedIn checkpoints
+        id: checkpoint_collection
+        if: inputs.incident_linkedin_checkpoint_only == true && steps.revalidate.outputs.should_run == 'true' && steps.host_preflight.outputs.ready == 'true' && steps.authenticated_replay_power_recheck.outcome == 'success' && steps.authenticated_social_preflight.outcome == 'success' && inputs.recover_authenticated_linkedin_lock != true
+        timeout-minutes: 300
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          LINKEDIN_GLOBAL_LOCK_NAMESPACE: returner-fund-production-linkedin-allen-xu-v1
+          INGESTION_IDEMPOTENCY_KEY: ${{ needs.resolve.outputs.slot_key }}
+          CANDIDATE_TRIGGER: ${{ needs.resolve.outputs.trigger }}
+          SOURCE_SHA: ${{ needs.resolve.outputs.source_sha }}
+          AUTHENTICATED_SOCIAL_REPLAY: ${{ inputs.authenticated_backfill || false }}
+          AUTHENTICATED_BACKFILL_SCOPE: ${{ inputs.authenticated_backfill_scope || 'all' }}
+          AUTHENTICATED_BACKFILL_BATCH: ${{ inputs.authenticated_backfill_batch || 'all' }}
+          AUTHENTICATED_BACKFILL_COMPANY_SLUG: ${{ inputs.authenticated_backfill_company_slug || '' }}
+          RECOVER_AUTHENTICATED_LINKEDIN_LOCK: ${{ inputs.recover_authenticated_linkedin_lock || false }}
+          INCIDENT_ZENBU_BATTERY_OVERRIDE: ${{ inputs.incident_zenbu_battery_override || false }}
+          INCIDENT_S2026_LINKEDIN_BACKLOG_BATTERY_OVERRIDE: ${{ inputs.incident_s2026_linkedin_backlog_battery_override || false }}
+          INCIDENT_LINKEDIN_EXPECTED_CHECKPOINT_SHA256: ${{ inputs.incident_linkedin_expected_checkpoint_sha256 || '' }}
+          INCIDENT_LINKEDIN_EXPECTED_REMAINING: ${{ inputs.incident_linkedin_expected_remaining || '' }}
+          INCIDENT_LINKEDIN_CHECKPOINT_ONLY: ${{ inputs.incident_linkedin_checkpoint_only || false }}
+          AUTONOMOUS_WORKFLOW_POWER_WATCHDOG_RESERVE_PERCENT: "5"
+          AUTONOMOUS_WORKFLOW_POWER_WATCHDOG_INTERVAL_SECONDS: "30"
+          GITHUB_EVENT_NAME: ${{ github.event_name }}
+          GITHUB_RUN_ATTEMPT: ${{ github.run_attempt }}
+        run: |
+          set -euo pipefail
+          /usr/bin/caffeinate -ims -w $$ &
+          CAFFEINATE_PID=$!
+          ASSERTION_READY=false
+          for attempt in 1 2 3 4 5; do
+            POWER_ASSERTIONS="$(/usr/bin/pmset -g assertions 2>/dev/null || true)"
+            if grep -Eq "pid[[:space:]]+${CAFFEINATE_PID}\\(caffeinate\\):.*Prevent(UserIdle)?SystemSleep" <<< "$POWER_ASSERTIONS"; then
+              ASSERTION_READY=true
+              break
+            fi
+            sleep 1
+          done
+          if [ "$ASSERTION_READY" != "true" ]; then
+            echo "::error title=Checkpoint sleep assertion failed::The job-scoped caffeinate process did not acquire a system-sleep assertion."
+            exit 1
+          fi
+          exec node scripts/collect-s2026-linkedin-checkpoints.mjs
+
+      - name: Upload 2026 LinkedIn checkpoint receipt
+        if: always() && steps.checkpoint_collection.outputs.receipt_path != ''
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: linkedin-checkpoint-receipt-${{ inputs.authenticated_backfill_batch }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ steps.checkpoint_collection.outputs.receipt_path }}
+          if-no-files-found: error
+          retention-days: 14
+
       - name: Run autonomous ingestion
         id: ingestion
-        if: steps.revalidate.outputs.should_run == 'true' && steps.host_preflight.outputs.ready == 'true' && (inputs.authenticated_backfill != true || steps.authenticated_replay_power_recheck.outcome == 'success') && (inputs.recover_authenticated_linkedin_lock != true || steps.authenticated_linkedin_lock_recovery.outcome == 'success')
+        if: inputs.incident_linkedin_checkpoint_only != true && steps.revalidate.outputs.should_run == 'true' && steps.host_preflight.outputs.ready == 'true' && (inputs.authenticated_backfill != true || steps.authenticated_replay_power_recheck.outcome == 'success') && (inputs.recover_authenticated_linkedin_lock != true || steps.authenticated_linkedin_lock_recovery.outcome == 'success')
         timeout-minutes: ${{ runner.os == 'macOS' && 380 || 342 }}
         env:
           # The coordinator retains the sealed collection inputs while a
@@ -1085,6 +1219,8 @@ jobs:
           INCIDENT_ZENBU_BATTERY_OVERRIDE: ${{ inputs.incident_zenbu_battery_override || false }}
           INCIDENT_ZENBU_BATTERY_REPLAY_KEY: incident-20260912-s2026-zenbu-linkedin-battery-02
           INCIDENT_S2026_LINKEDIN_BACKLOG_BATTERY_OVERRIDE: ${{ inputs.incident_s2026_linkedin_backlog_battery_override || false }}
+          INCIDENT_LINKEDIN_EXPECTED_CHECKPOINT_SHA256: ${{ inputs.incident_linkedin_expected_checkpoint_sha256 || '' }}
+          INCIDENT_LINKEDIN_EXPECTED_REMAINING: ${{ inputs.incident_linkedin_expected_remaining || '' }}
           AUTHENTICATED_BATTERY_MIN_START_PERCENT: "5"
           AUTHENTICATED_LINKEDIN_REPLAY_MAX_CHUNKS: ${{ inputs.incident_zenbu_battery_override == true && '1' || inputs.incident_s2026_linkedin_backlog_battery_override == true && '4' || '7' }}
           GITHUB_EVENT_NAME: ${{ github.event_name }}
@@ -1155,21 +1291,39 @@ jobs:
               fi
 
               if [ "$INCIDENT_S2026_LINKEDIN_BACKLOG_BATTERY_OVERRIDE" = "true" ]; then
+                BACKLOG_BATCH_AUTHORIZED=false
+                BACKLOG_KEY_PREFIX=""
+                case "$AUTHENTICATED_BACKFILL_BATCH" in
+                  S2026)
+                    BACKLOG_BATCH_AUTHORIZED=true
+                    BACKLOG_KEY_PREFIX="incident-20260913-s2026-linkedin-backlog-"
+                    ;;
+                  S26)
+                    BACKLOG_BATCH_AUTHORIZED=true
+                    BACKLOG_KEY_PREFIX="incident-20260913-s26-linkedin-backlog-"
+                    ;;
+                esac
                 if [ "$GITHUB_EVENT_NAME" != "workflow_dispatch" ] || \
                    [ "$GITHUB_RUN_ATTEMPT" != "1" ] || \
                    [ "$CANDIDATE_TRIGGER" != "manual-replay" ] || \
                    [ "$AUTHENTICATED_BACKFILL_SCOPE" != "linkedin" ] || \
-                   [ "$AUTHENTICATED_BACKFILL_BATCH" != "S2026" ] || \
+                   [ "$BACKLOG_BATCH_AUTHORIZED" != "true" ] || \
                    [ -n "$AUTHENTICATED_BACKFILL_COMPANY_SLUG" ] || \
                    [ "$RECOVER_AUTHENTICATED_LINKEDIN_LOCK" != "false" ] || \
                    [ "$AUTHENTICATED_LINKEDIN_REPLAY_MAX_CHUNKS" != "4" ] || \
                    [ "$AUTONOMOUS_WORKFLOW_RETRY_MAX_ATTEMPTS" != "1" ] || \
                    [ "$AUTONOMOUS_WORKFLOW_POWER_WATCHDOG_RESERVE_PERCENT" != "5" ]; then
-                  echo "::error title=Backlog battery override scope mismatch::The authorization no longer matches its bounded first-attempt S2026 LinkedIn backlog controller policy."
+                  echo "::error title=Backlog battery override scope mismatch::The authorization no longer matches its bounded first-attempt S26/S2026 LinkedIn backlog controller policy."
                   exit 1
                 fi
-                if ! [[ "$INGESTION_IDEMPOTENCY_KEY" =~ ^incident-20260913-s2026-linkedin-backlog-[0-9]{3}$ ]]; then
-                  echo "::error title=Backlog battery override key mismatch::The replay key must match incident-20260913-s2026-linkedin-backlog-NNN exactly."
+                if ! [[ "$INGESTION_IDEMPOTENCY_KEY" =~ ^${BACKLOG_KEY_PREFIX}[0-9]{3}$ ]] || \
+                   [ "$INGESTION_IDEMPOTENCY_KEY" = "${BACKLOG_KEY_PREFIX}000" ]; then
+                  echo "::error title=Backlog battery override key mismatch::The replay key must match the selected batch's incident-20260913-*-linkedin-backlog-NNN contract with NNN from 001 to 999."
+                  exit 1
+                fi
+                if ! [[ "$INCIDENT_LINKEDIN_EXPECTED_CHECKPOINT_SHA256" =~ ^[0-9a-f]{64}$ ]] || \
+                   ! [[ "$INCIDENT_LINKEDIN_EXPECTED_REMAINING" =~ ^(0|[1-9][0-9]{0,3})$ ]]; then
+                  echo "::error title=Backlog checkpoint binding invalid::The replay requires one lowercase checkpoint SHA-256 and exact decimal remaining-target count captured at dispatch."
                   exit 1
                 fi
                 BATTERY_OVERRIDE_AUTHORIZED=true
@@ -1316,7 +1470,7 @@ jobs:
 
       - name: Verify repository-backed publication commit
         id: verify_publication
-        if: steps.revalidate.outputs.should_run == 'true' && steps.host_preflight.outputs.ready == 'true'
+        if: inputs.incident_linkedin_checkpoint_only != true && steps.revalidate.outputs.should_run == 'true' && steps.host_preflight.outputs.ready == 'true'
         env:
           RUNNER_PUBLISHED_COMMIT: ${{ steps.ingestion.outputs.published_commit }}
         run: |
@@ -1350,7 +1504,7 @@ jobs:
 
       - name: Record publication receipt
         id: publication_receipt
-        if: steps.revalidate.outputs.should_run == 'true' && steps.host_preflight.outputs.ready == 'true'
+        if: inputs.incident_linkedin_checkpoint_only != true && steps.revalidate.outputs.should_run == 'true' && steps.host_preflight.outputs.ready == 'true'
         env:
           SLOT_KEY: ${{ needs.resolve.outputs.slot_key }}
           RUNNER_STATUS: ${{ steps.ingestion.outputs.runner_status }}
@@ -1371,7 +1525,7 @@ jobs:
 
       - name: Recover exact publication commit
         id: recover_publication
-        if: ${{ always() && steps.revalidate.outputs.should_run == 'true' && steps.host_preflight.outputs.ready == 'true' }}
+        if: ${{ always() && inputs.incident_linkedin_checkpoint_only != true && steps.revalidate.outputs.should_run == 'true' && steps.host_preflight.outputs.ready == 'true' }}
         env:
           VERIFIED_PUBLISHED_COMMIT: ${{ steps.verify_publication.outputs.published_commit }}
           RUNNER_PUBLISHED_COMMIT: ${{ steps.ingestion.outputs.published_commit }}
@@ -1628,7 +1782,7 @@ jobs:
   validate_publication:
     name: Validate published commit ${{ needs.ingest.outputs.published_commit }}
     needs: [resolve, ingest]
-    if: ${{ always() && needs.resolve.outputs.should_run == 'true' && needs.ingest.outputs.revalidation_should_run == 'true' && needs.ingest.outputs.host_ready == 'true' && needs.ingest.outputs.commit_verified == 'true' && needs.ingest.outputs.validation_candidate != '' }}
+    if: ${{ always() && inputs.incident_linkedin_checkpoint_only != true && needs.resolve.outputs.should_run == 'true' && needs.ingest.outputs.revalidation_should_run == 'true' && needs.ingest.outputs.host_ready == 'true' && needs.ingest.outputs.commit_verified == 'true' && needs.ingest.outputs.validation_candidate != '' }}
     permissions:
       contents: read
     uses: ./.github/workflows/public-artifacts.yml
@@ -1654,6 +1808,7 @@ jobs:
     if: >-
       ${{
         always() &&
+        inputs.incident_linkedin_checkpoint_only != true &&
         needs.resolve.outputs.should_run == 'true' &&
         needs.resolve.outputs.trigger == 'schedule' &&
         needs.validate_publication.result == 'success' &&
@@ -1849,6 +2004,24 @@ jobs:
           REVALIDATION_LATEST_SLOT_KEY: ${{ needs.ingest.outputs.revalidation_latest_slot_key }}
           HOST_READY: ${{ needs.ingest.outputs.host_ready }}
           HOST_DEFER_REASON: ${{ needs.ingest.outputs.host_defer_reason }}
+          CHECKPOINT_ONLY_REQUESTED: ${{ inputs.incident_linkedin_checkpoint_only || false }}
+          CHECKPOINT_ONLY: ${{ needs.ingest.outputs.checkpoint_only }}
+          RUNNER_STATUS: ${{ needs.ingest.outputs.runner_status }}
+          CHECKPOINT_BATCH: ${{ needs.ingest.outputs.checkpoint_batch }}
+          CHECKPOINT_RECEIPT_SHA256: ${{ needs.ingest.outputs.checkpoint_receipt_sha256 }}
+          CHECKPOINT_SOURCE_SHA: ${{ needs.ingest.outputs.checkpoint_source_sha }}
+          CHECKPOINT_BEFORE_REMAINING: ${{ needs.ingest.outputs.checkpoint_before_remaining }}
+          CHECKPOINT_AFTER_REMAINING: ${{ needs.ingest.outputs.checkpoint_after_remaining }}
+          CHECKPOINT_COMPLETED_TARGETS: ${{ needs.ingest.outputs.checkpoint_completed_targets }}
+          CHECKPOINT_CHUNKS_COMPLETED: ${{ needs.ingest.outputs.checkpoint_chunks_completed }}
+          CHECKPOINT_BATTERY_CHUNKS: ${{ needs.ingest.outputs.checkpoint_battery_chunks }}
+          CHECKPOINT_AC_CHUNKS: ${{ needs.ingest.outputs.checkpoint_ac_chunks }}
+          CHECKPOINT_SHA256_BEFORE: ${{ needs.ingest.outputs.checkpoint_sha256_before }}
+          CHECKPOINT_SHA256_AFTER: ${{ needs.ingest.outputs.checkpoint_sha256_after }}
+          CHECKPOINT_OUTPUT_SHA256_BEFORE: ${{ needs.ingest.outputs.checkpoint_output_sha256_before }}
+          CHECKPOINT_OUTPUT_SHA256_AFTER: ${{ needs.ingest.outputs.checkpoint_output_sha256_after }}
+          CHECKPOINT_INVENTORY_SHA256: ${{ needs.ingest.outputs.checkpoint_inventory_sha256 }}
+          CHECKPOINT_COLLISION_SHA256: ${{ needs.ingest.outputs.checkpoint_collision_sha256 }}
         run: |
           RECEIPT_RECOGNIZED=false
           case "$RECEIPT_CONCLUSION:$RECEIPT_STATUS" in
@@ -1866,6 +2039,46 @@ jobs:
               ACCEPTANCE_VALID=false
             fi
           fi
+          CHECKPOINT_RECEIPT_RECOGNIZED=false
+          CHECKPOINT_INVENTORY_RECOGNIZED=false
+          case "$CHECKPOINT_BATCH:$CHECKPOINT_INVENTORY_SHA256:$CHECKPOINT_COLLISION_SHA256" in
+            S26:3ea6464b0b025abdf8b526b260b7ea769b089f5a0ad8b30d0f9b3f9c15299182:1a8fd9092c9bf2ddd5789e49fda8795790baef84c2949a16fce6d20f579ff043)
+              CHECKPOINT_INVENTORY_RECOGNIZED=true
+              ;;
+            S2026:78fa2076a862d85e56a83fcbda588bbd3b4526cdb6c1ea1fb77093c73ab25a56:6914b5b2d04bdbc2cf5f0dbd10d2fee5ee60e463ca96daa2e2a9595d76bd5d45)
+              CHECKPOINT_INVENTORY_RECOGNIZED=true
+              ;;
+          esac
+          if [ "$CHECKPOINT_ONLY_REQUESTED" = "true" ] && \
+             [ "$CHECKPOINT_ONLY" = "true" ] && \
+             [ "$RUNNER_STATUS" = "checkpoint_collection_completed" ] && \
+             [ "$CHECKPOINT_SOURCE_SHA" = "$SOURCE_SHA" ] && \
+             [ "$CHECKPOINT_INVENTORY_RECOGNIZED" = "true" ] && \
+             [[ "$CHECKPOINT_RECEIPT_SHA256" =~ ^[0-9a-f]{64}$ ]] && \
+             [[ "$CHECKPOINT_SHA256_AFTER" =~ ^[0-9a-f]{64}$ ]] && \
+             { [ -z "$CHECKPOINT_SHA256_BEFORE" ] || [[ "$CHECKPOINT_SHA256_BEFORE" =~ ^[0-9a-f]{64}$ ]]; } && \
+             [ "$CHECKPOINT_SHA256_AFTER" != "$CHECKPOINT_SHA256_BEFORE" ] && \
+             [[ "$CHECKPOINT_OUTPUT_SHA256_AFTER" =~ ^[0-9a-f]{64}$ ]] && \
+             { [ -z "$CHECKPOINT_OUTPUT_SHA256_BEFORE" ] || [[ "$CHECKPOINT_OUTPUT_SHA256_BEFORE" =~ ^[0-9a-f]{64}$ ]]; } && \
+             [ "$CHECKPOINT_OUTPUT_SHA256_AFTER" != "$CHECKPOINT_OUTPUT_SHA256_BEFORE" ] && \
+             [[ "$CHECKPOINT_BEFORE_REMAINING" =~ ^[0-9]+$ ]] && \
+             [[ "$CHECKPOINT_AFTER_REMAINING" =~ ^[0-9]+$ ]] && \
+             [[ "$CHECKPOINT_COMPLETED_TARGETS" =~ ^[0-9]+$ ]] && \
+             [[ "$CHECKPOINT_CHUNKS_COMPLETED" =~ ^[0-9]+$ ]] && \
+             [[ "$CHECKPOINT_BATTERY_CHUNKS" =~ ^[0-9]+$ ]] && \
+             [[ "$CHECKPOINT_AC_CHUNKS" =~ ^[0-9]+$ ]] && \
+             [ "$CHECKPOINT_COMPLETED_TARGETS" -ge 1 ] && \
+             [ "$CHECKPOINT_COMPLETED_TARGETS" -le 60 ] && \
+             [ "$CHECKPOINT_CHUNKS_COMPLETED" -ge 1 ] && \
+             [ "$CHECKPOINT_CHUNKS_COMPLETED" -le 12 ] && \
+             [ "$CHECKPOINT_BATTERY_CHUNKS" -le 4 ] && \
+             [ $((CHECKPOINT_AC_CHUNKS + CHECKPOINT_BATTERY_CHUNKS)) -eq "$CHECKPOINT_CHUNKS_COMPLETED" ] && \
+             [ $((CHECKPOINT_BEFORE_REMAINING - CHECKPOINT_AFTER_REMAINING)) -eq "$CHECKPOINT_COMPLETED_TARGETS" ] && \
+             [ "$CHECKPOINT_COMPLETED_TARGETS" -ge "$CHECKPOINT_CHUNKS_COMPLETED" ] && \
+             { [ "$CHECKPOINT_BATTERY_CHUNKS" -eq 0 ] || [ "$CHECKPOINT_CHUNKS_COMPLETED" -le 4 ]; } && \
+             [ "$CHECKPOINT_COMPLETED_TARGETS" -le $((CHECKPOINT_CHUNKS_COMPLETED * 5)) ]; then
+            CHECKPOINT_RECEIPT_RECOGNIZED=true
+          fi
 
           if [ "$RESOLVE_RESULT" != "success" ]; then
             STATUS="resolver_failed"
@@ -1873,6 +2086,14 @@ jobs:
             STATUS="inactive_candidate_no_refresh"
           elif [ "$SHOULD_RUN" != "true" ] || [ -z "$SLOT_KEY" ]; then
             STATUS="resolver_failed"
+          elif [ "$CHECKPOINT_ONLY_REQUESTED" = "true" ] && \
+               [ "$INGEST_RESULT" = "success" ] && \
+               [ "$VALIDATION_RESULT" = "skipped" ] && \
+               [ "$ACCEPTANCE_RESULT" = "skipped" ] && \
+               [ "$CHECKPOINT_RECEIPT_RECOGNIZED" = "true" ] && \
+               [ "$COMMIT_PROOF_VALID" = "false" ] && \
+               [ "$COMMIT_REPOSITORY_VERIFIED" != "true" ]; then
+            STATUS="checkpoint_collection_completed"
           elif [ "$HOST_READY" = "false" ] && [ "$INGEST_RESULT" = "success" ] && [ "$VALIDATION_RESULT" = "skipped" ]; then
             STATUS="deferred_host_unavailable"
           elif [ "$REVALIDATION_SHOULD_RUN" = "false" ] && [ "$INGEST_RESULT" = "success" ] && [ "$VALIDATION_RESULT" = "skipped" ]; then
@@ -1892,6 +2113,7 @@ jobs:
             echo "- Acceptance marker result: $ACCEPTANCE_RESULT"
             echo "- Acceptance marker commit: ${ACCEPTANCE_MARKER_COMMIT:-none}"
             echo "- Receipt recognized: $RECEIPT_RECOGNIZED"
+            echo "- Checkpoint receipt recognized: $CHECKPOINT_RECEIPT_RECOGNIZED"
             echo "- Receipt conclusion: ${RECEIPT_CONCLUSION:-none}"
             echo "- Commit proof valid: $COMMIT_PROOF_VALID"
             echo "- Commit repository verified: ${COMMIT_REPOSITORY_VERIFIED:-false}"
@@ -1913,6 +2135,7 @@ jobs:
               echo "status=$STATUS"
               echo "receipt_recognized=$RECEIPT_RECOGNIZED"
               echo "commit_proof_valid=$COMMIT_PROOF_VALID"
+              echo "checkpoint_receipt_recognized=$CHECKPOINT_RECEIPT_RECOGNIZED"
             } >> "$GITHUB_OUTPUT"
           fi
           if [ "$STATUS" = "resolver_failed" ] || [ "$STATUS" = "accepted_slot_failed" ]; then
@@ -1978,6 +2201,24 @@ jobs:
           REVALIDATION_LATEST_SLOT_KEY: ${{ needs.ingest.outputs.revalidation_latest_slot_key }}
           HOST_READY: ${{ needs.ingest.outputs.host_ready }}
           HOST_DEFER_REASON: ${{ needs.ingest.outputs.host_defer_reason }}
+          CHECKPOINT_ONLY: ${{ needs.ingest.outputs.checkpoint_only }}
+          CHECKPOINT_RECEIPT_RECOGNIZED: ${{ steps.audit_outcome.outputs.checkpoint_receipt_recognized }}
+          CHECKPOINT_BATCH: ${{ needs.ingest.outputs.checkpoint_batch }}
+          CHECKPOINT_RECEIPT_SHA256: ${{ needs.ingest.outputs.checkpoint_receipt_sha256 }}
+          CHECKPOINT_SOURCE_SHA: ${{ needs.ingest.outputs.checkpoint_source_sha }}
+          CHECKPOINT_BEFORE_REMAINING: ${{ needs.ingest.outputs.checkpoint_before_remaining }}
+          CHECKPOINT_AFTER_REMAINING: ${{ needs.ingest.outputs.checkpoint_after_remaining }}
+          CHECKPOINT_COMPLETED_TARGETS: ${{ needs.ingest.outputs.checkpoint_completed_targets }}
+          CHECKPOINT_CHUNKS_COMPLETED: ${{ needs.ingest.outputs.checkpoint_chunks_completed }}
+          CHECKPOINT_BATTERY_CHUNKS: ${{ needs.ingest.outputs.checkpoint_battery_chunks }}
+          CHECKPOINT_AC_CHUNKS: ${{ needs.ingest.outputs.checkpoint_ac_chunks }}
+          CHECKPOINT_FINAL_PUBLICATION_READY: ${{ needs.ingest.outputs.checkpoint_final_publication_ready }}
+          CHECKPOINT_SHA256_BEFORE: ${{ needs.ingest.outputs.checkpoint_sha256_before }}
+          CHECKPOINT_SHA256_AFTER: ${{ needs.ingest.outputs.checkpoint_sha256_after }}
+          CHECKPOINT_OUTPUT_SHA256_BEFORE: ${{ needs.ingest.outputs.checkpoint_output_sha256_before }}
+          CHECKPOINT_OUTPUT_SHA256_AFTER: ${{ needs.ingest.outputs.checkpoint_output_sha256_after }}
+          CHECKPOINT_INVENTORY_SHA256: ${{ needs.ingest.outputs.checkpoint_inventory_sha256 }}
+          CHECKPOINT_COLLISION_SHA256: ${{ needs.ingest.outputs.checkpoint_collision_sha256 }}
           EVENT_NAME: ${{ github.event_name }}
           WORKFLOW_NAME: ${{ github.workflow }}
           REPOSITORY: ${{ github.repository }}
@@ -2062,6 +2303,26 @@ jobs:
             revalidationLatestSlotKey: optional(process.env.REVALIDATION_LATEST_SLOT_KEY),
             hostReady: booleanOrNull(process.env.HOST_READY),
             hostDeferReason: optional(process.env.HOST_DEFER_REASON),
+            checkpointCollection: {
+              checkpointOnly: booleanOrNull(process.env.CHECKPOINT_ONLY),
+              receiptRecognized: process.env.CHECKPOINT_RECEIPT_RECOGNIZED === "true",
+              batch: optional(process.env.CHECKPOINT_BATCH),
+              receiptSha256: optional(process.env.CHECKPOINT_RECEIPT_SHA256),
+              sourceSha: optional(process.env.CHECKPOINT_SOURCE_SHA),
+              beforeRemaining: integerOrNull(process.env.CHECKPOINT_BEFORE_REMAINING),
+              afterRemaining: integerOrNull(process.env.CHECKPOINT_AFTER_REMAINING),
+              completedTargets: integerOrNull(process.env.CHECKPOINT_COMPLETED_TARGETS),
+              chunksCompleted: integerOrNull(process.env.CHECKPOINT_CHUNKS_COMPLETED),
+              batteryChunks: integerOrNull(process.env.CHECKPOINT_BATTERY_CHUNKS),
+              acChunks: integerOrNull(process.env.CHECKPOINT_AC_CHUNKS),
+              finalPublicationReady: booleanOrNull(process.env.CHECKPOINT_FINAL_PUBLICATION_READY),
+              checkpointSha256Before: optional(process.env.CHECKPOINT_SHA256_BEFORE),
+              checkpointSha256After: optional(process.env.CHECKPOINT_SHA256_AFTER),
+              outputSha256Before: optional(process.env.CHECKPOINT_OUTPUT_SHA256_BEFORE),
+              outputSha256After: optional(process.env.CHECKPOINT_OUTPUT_SHA256_AFTER),
+              inventorySha256: optional(process.env.CHECKPOINT_INVENTORY_SHA256),
+              collisionSha256: optional(process.env.CHECKPOINT_COLLISION_SHA256)
+            },
             run: {
               id: optional(process.env.RUN_ID),
               attempt: optional(process.env.RUN_ATTEMPT),
@@ -2093,7 +2354,9 @@ jobs:
           const receiptPath = join(process.env.RUNNER_TEMP, "autonomous-ingestion-receipt", "receipt.json");
           const receipt = JSON.parse(await readFile(receiptPath, "utf8"));
           const exactSha = (value) => typeof value === "string" && /^[0-9a-f]{40}$/i.test(value);
+          const exactSha256 = (value) => typeof value === "string" && /^[0-9a-f]{64}$/.test(value);
           const nullableExactSha = (value) => value === null || exactSha(value);
+          const nullableExactSha256 = (value) => value === null || exactSha256(value);
           const nullableNonnegativeInteger = (value) => value === null || (Number.isInteger(value) && value >= 0);
           const validSlotKey = (value) => typeof value === "string" && /^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/.test(value);
           const strictUtcRfc3339 = (value) => {
@@ -2129,6 +2392,7 @@ jobs:
             "inactive_candidate_no_refresh",
             "deferred_host_unavailable",
             "queued_candidate_noop",
+            "checkpoint_collection_completed",
             "resolver_failed",
             "accepted_slot_failed"
           ]);
@@ -2189,6 +2453,40 @@ jobs:
             assert.ok(receipt.run[field].length > 0, `run.${field} must be nonempty`);
           }
           assert.ok(Number.isFinite(Date.parse(receipt.generatedAt)), "generatedAt must be an ISO timestamp");
+          assert.ok(
+            receipt.checkpointCollection &&
+              typeof receipt.checkpointCollection === "object" &&
+              !Array.isArray(receipt.checkpointCollection),
+            "checkpointCollection must be an object"
+          );
+          const checkpoint = receipt.checkpointCollection;
+          assert.ok(
+            checkpoint.checkpointOnly === null || typeof checkpoint.checkpointOnly === "boolean"
+          );
+          assert.equal(typeof checkpoint.receiptRecognized, "boolean");
+          assert.ok(checkpoint.batch === null || checkpoint.batch === "S26" || checkpoint.batch === "S2026");
+          for (const field of [
+            "beforeRemaining",
+            "afterRemaining",
+            "completedTargets",
+            "chunksCompleted",
+            "batteryChunks",
+            "acChunks"
+          ]) assert.ok(nullableNonnegativeInteger(checkpoint[field]), `checkpointCollection.${field} must be null or a nonnegative integer`);
+          for (const field of [
+            "receiptSha256",
+            "checkpointSha256Before",
+            "checkpointSha256After",
+            "outputSha256Before",
+            "outputSha256After",
+            "inventorySha256",
+            "collisionSha256"
+          ]) assert.ok(nullableExactSha256(checkpoint[field]), `checkpointCollection.${field} must be null or lowercase SHA-256`);
+          assert.ok(nullableExactSha(checkpoint.sourceSha));
+          assert.ok(
+            checkpoint.finalPublicationReady === null ||
+              typeof checkpoint.finalPublicationReady === "boolean"
+          );
 
           if (receipt.resolveResult === "success") {
             assert.ok(exactSha(receipt.sourceSha), "successful resolver requires sourceSha");
@@ -2252,6 +2550,46 @@ jobs:
             assert.equal(receipt.receiptConclusion, successfulStatuses.has(receipt.status) ? "success" : "warning");
             assert.equal(receipt.receiptRecognized, true);
             assert.equal(receipt.commitRepositoryVerified, true);
+            assert.ok(exactSha(receipt.executedSha));
+            assert.equal(receipt.executedSha, receipt.sourceSha);
+          } else if (receipt.status === "checkpoint_collection_completed") {
+            assert.equal(receipt.shouldRun, true);
+            assert.equal(receipt.resolveResult, "success");
+            assert.equal(receipt.ingestResult, "success");
+            assert.equal(receipt.validationResult, "skipped");
+            assert.equal(receipt.acceptanceResult, "skipped");
+            assert.equal(receipt.trigger, "manual-replay");
+            assert.equal(receipt.run.eventName, "workflow_dispatch");
+            assert.equal(receipt.hostReady, true);
+            assert.equal(receipt.revalidationShouldRun, true);
+            assert.equal(receipt.runnerStatus, "checkpoint_collection_completed");
+            assert.equal(checkpoint.checkpointOnly, true);
+            assert.equal(checkpoint.receiptRecognized, true);
+            assert.ok(checkpoint.batch === "S26" || checkpoint.batch === "S2026");
+            assert.equal(checkpoint.sourceSha, receipt.sourceSha);
+            assert.ok(exactSha256(checkpoint.receiptSha256));
+            assert.ok(exactSha256(checkpoint.checkpointSha256After));
+            assert.ok(exactSha256(checkpoint.outputSha256After));
+            assert.notEqual(checkpoint.checkpointSha256Before, checkpoint.checkpointSha256After);
+            assert.notEqual(checkpoint.outputSha256Before, checkpoint.outputSha256After);
+            assert.ok(checkpoint.completedTargets >= 1 && checkpoint.completedTargets <= 60);
+            assert.ok(checkpoint.chunksCompleted >= 1 && checkpoint.chunksCompleted <= 12);
+            assert.equal(
+              checkpoint.beforeRemaining - checkpoint.afterRemaining,
+              checkpoint.completedTargets
+            );
+            assert.equal(
+              checkpoint.batteryChunks + checkpoint.acChunks,
+              checkpoint.chunksCompleted
+            );
+            assert.ok(checkpoint.completedTargets >= checkpoint.chunksCompleted);
+            assert.ok(checkpoint.completedTargets <= checkpoint.chunksCompleted * 5);
+            if (checkpoint.batteryChunks > 0) assert.ok(checkpoint.chunksCompleted <= 4);
+            assert.equal(receipt.receiptRecognized, false);
+            assert.equal(receipt.commitProofValid, false);
+            assert.equal(receipt.commitRepositoryVerified, false);
+            assert.equal(receipt.publishedCommit, null);
+            assert.equal(receipt.acceptanceMarkerCommit, null);
             assert.ok(exactSha(receipt.executedSha));
             assert.equal(receipt.executedSha, receipt.sourceSha);
           } else if (receipt.status === "inactive_candidate_no_refresh") {

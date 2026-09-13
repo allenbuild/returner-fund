@@ -1444,7 +1444,7 @@ describe("logged-in LinkedIn collection", () => {
     assert.match(collectorSource, /targetCap: linkedinExecution\.targetCap/);
     assert.match(
       collectorSource,
-      /shouldAbort: \(\) => linkedinCircuitOpen \|\| signal\.aborted/
+      /shouldAbort: \(\) => linkedinCircuitOpen \|\| collectionSignal\.aborted/
     );
     assert.match(collectorSource, /requiredLinkedInGlobalLockConfiguration\(\)/);
     assert.match(collectorSource, /LINKEDIN_GLOBAL_LOCK_NAMESPACE/);

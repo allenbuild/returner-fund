@@ -191,6 +191,12 @@ const INCIDENT_S2026_LINKEDIN_BACKLOG_BATTERY_OVERRIDE = parseEnvironmentBoolean
   process.env.INCIDENT_S2026_LINKEDIN_BACKLOG_BATTERY_OVERRIDE,
   "INCIDENT_S2026_LINKEDIN_BACKLOG_BATTERY_OVERRIDE"
 );
+const INCIDENT_LINKEDIN_EXPECTED_CHECKPOINT_SHA256 = cleanEnv(
+  process.env.INCIDENT_LINKEDIN_EXPECTED_CHECKPOINT_SHA256
+);
+const INCIDENT_LINKEDIN_EXPECTED_REMAINING = cleanEnv(
+  process.env.INCIDENT_LINKEDIN_EXPECTED_REMAINING
+);
 const LINKEDIN_REPLAY_ADMISSION_POLICY =
   INCIDENT_S2026_LINKEDIN_BACKLOG_BATTERY_OVERRIDE
     ? "battery-floor-watchdog"
@@ -435,22 +441,28 @@ if (!idempotencyKey) {
 }
 if (INCIDENT_S2026_LINKEDIN_BACKLOG_BATTERY_OVERRIDE) {
   const backlogTarget = args.authenticatedBackfillTarget;
+  const backlogBatch = backlogTarget?.batchSlug;
+  const expectedReplayKeyPattern = new RegExp(
+    `^incident-20260913-${String(backlogBatch ?? "").toLowerCase()}-linkedin-backlog-(?!000)[0-9]{3}$`
+  );
   if (
     process.env.GITHUB_EVENT_NAME !== "workflow_dispatch" ||
     process.env.GITHUB_RUN_ATTEMPT !== "1" ||
     args.candidateTrigger !== "manual-replay" ||
     !args.authenticatedSocialReplay ||
     args.authenticatedBackfillScope !== "linkedin" ||
-    backlogTarget?.batchSlug !== "S2026" ||
+    !["S26", "S2026"].includes(backlogBatch) ||
     Object.hasOwn(backlogTarget ?? {}, "companySlug") ||
     process.env.RECOVER_AUTHENTICATED_LINKEDIN_LOCK !== "false" ||
     LINKEDIN_REPLAY_MAX_CHUNKS !== 4 ||
     process.env.AUTONOMOUS_WORKFLOW_RETRY_MAX_ATTEMPTS !== "1" ||
     process.env.AUTONOMOUS_WORKFLOW_POWER_WATCHDOG_RESERVE_PERCENT !== "5" ||
-    !/^incident-20260913-s2026-linkedin-backlog-[0-9]{3}$/.test(idempotencyKey)
+    !expectedReplayKeyPattern.test(idempotencyKey) ||
+    !/^[0-9a-f]{64}$/.test(INCIDENT_LINKEDIN_EXPECTED_CHECKPOINT_SHA256 ?? "") ||
+    !/^(0|[1-9][0-9]{0,3})$/.test(INCIDENT_LINKEDIN_EXPECTED_REMAINING ?? "")
   ) {
     throw new Error(
-      "S2026 LinkedIn backlog battery policy no longer matches its exact first-attempt manual replay authorization."
+      "LinkedIn backlog policy no longer matches its exact first-attempt manual replay and checkpoint binding."
     );
   }
 }
@@ -499,6 +511,16 @@ loggedInOutputs = new Map(
 loggedInCheckpointOutputs = new Map(
   AUTONOMOUS_BATCHES.map((batch) => [batch.slug, join(collectorRoot, `logged-in-checkpoint-${batch.slug.toLowerCase()}.json`)])
 );
+if (INCIDENT_S2026_LINKEDIN_BACKLOG_BATTERY_OVERRIDE) {
+  const batchSlug = args.authenticatedBackfillTarget.batchSlug;
+  const checkpointBytes = await readFile(loggedInCheckpointOutputs.get(batchSlug));
+  const checkpointSha256 = createHash("sha256").update(checkpointBytes).digest("hex");
+  if (checkpointSha256 !== INCIDENT_LINKEDIN_EXPECTED_CHECKPOINT_SHA256) {
+    throw new Error(
+      "Authenticated LinkedIn checkpoint changed after dispatch; refusing stale final publication."
+    );
+  }
+}
 discoveryAttemptOutputs = new Map(
   AUTONOMOUS_BATCHES.map((batch) => [batch.slug, join(collectorRoot, `discovery-attempts-${batch.slug.toLowerCase()}.json`)])
 );
@@ -4211,7 +4233,8 @@ async function runAuthenticatedLinkedInReplayBatch({
   const batchResult = {
     status: "completed",
     chunks: [],
-    finalPlan: null
+    finalPlan: null,
+    checkpointBinding: null
   };
   let state = replayState;
   const linkedinArgs = [
@@ -4253,6 +4276,30 @@ async function runAuthenticatedLinkedInReplayBatch({
       batchResult.status = plan.status;
       batchResult.finalPlan = plan.plan ?? null;
       break;
+    }
+    if (
+      INCIDENT_S2026_LINKEDIN_BACKLOG_BATTERY_OVERRIDE &&
+      batchResult.checkpointBinding === null
+    ) {
+      const expectedRemaining = Number(INCIDENT_LINKEDIN_EXPECTED_REMAINING);
+      const observedRemaining = plan.plan?.remainingTargetCount;
+      const executionRemaining = plan.plan?.linkedinExecution?.remainingTargetCount;
+      if (
+        batch.slug !== args.authenticatedBackfillTarget?.batchSlug ||
+        observedRemaining !== expectedRemaining ||
+        executionRemaining !== expectedRemaining ||
+        plan.runnableTargetCount !== expectedRemaining
+      ) {
+        throw new Error(
+          "Authenticated LinkedIn remaining-target count changed after dispatch; refusing stale final publication."
+        );
+      }
+      batchResult.checkpointBinding = Object.freeze({
+        batchSlug: batch.slug,
+        checkpointSha256: INCIDENT_LINKEDIN_EXPECTED_CHECKPOINT_SHA256,
+        expectedRemainingTargetCount: expectedRemaining,
+        observedRemainingTargetCount: observedRemaining
+      });
     }
     state = reduceLinkedInReplayState(state, {
       type: "plan",
@@ -6371,6 +6418,26 @@ function assertAuthenticatedReplayCanPublish(replay) {
       INCIDENT_S2026_LINKEDIN_BACKLOG_BATTERY_OVERRIDE
   ) {
     throw new Error("Authenticated replay did not preserve the exact LinkedIn chunk admission policy.");
+  }
+  if (INCIDENT_S2026_LINKEDIN_BACKLOG_BATTERY_OVERRIDE) {
+    const expectedBatchSlug = args.authenticatedBackfillTarget?.batchSlug;
+    const expectedRemaining = Number(INCIDENT_LINKEDIN_EXPECTED_REMAINING);
+    const batchReceipt = linkedinReplay.batches.find(
+      (entry) => entry?.batchSlug === expectedBatchSlug
+    );
+    const checkpointBinding = batchReceipt?.linkedin?.checkpointBinding;
+    if (
+      !checkpointBinding ||
+      checkpointBinding.batchSlug !== expectedBatchSlug ||
+      checkpointBinding.checkpointSha256 !==
+        INCIDENT_LINKEDIN_EXPECTED_CHECKPOINT_SHA256 ||
+      checkpointBinding.expectedRemainingTargetCount !== expectedRemaining ||
+      checkpointBinding.observedRemainingTargetCount !== expectedRemaining
+    ) {
+      throw new Error(
+        "Authenticated replay receipt did not preserve its exact initial checkpoint binding."
+      );
+    }
   }
   if (linkedinReplay.configurationSkipped) {
     if (linkedinReplay.status !== "skipped" || linkedinReplay.durableLockConfigured) {
