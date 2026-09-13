@@ -11,6 +11,11 @@ import { canonicalSocialAccountUrl } from "./social-account-url.mjs";
 
 export const LINKEDIN_MINIMUM_TARGET_DELAY_MS = 30_000;
 export const LINKEDIN_MINIMUM_INTERACTION_DELAY_MS = 3_000;
+// The legacy browser lane placed one separately paced safety probe between
+// scroll commands. Preserve that six-second scroll-to-scroll floor even when
+// the probe and following scroll share one browser evaluation.
+export const LINKEDIN_MINIMUM_SCROLL_DELAY_MS =
+  LINKEDIN_MINIMUM_INTERACTION_DELAY_MS * 2;
 export const LINKEDIN_MAX_TARGETS_PER_INVOCATION = 5;
 export const LINKEDIN_GLOBAL_LEASE_DURATION_MS = 20 * 60_000;
 export const LINKEDIN_UNPROVEN_SESSION_QUARANTINE_MS = 365 * 24 * 60 * 60_000;

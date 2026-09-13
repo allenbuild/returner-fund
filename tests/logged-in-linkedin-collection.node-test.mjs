@@ -21,6 +21,7 @@ import {
 } from "../scripts/lib/opencli-runtime.mjs";
 import {
   LINKEDIN_MINIMUM_INTERACTION_DELAY_MS,
+  LINKEDIN_MINIMUM_SCROLL_DELAY_MS,
   LINKEDIN_MINIMUM_TARGET_DELAY_MS,
   LINKEDIN_MAX_TARGETS_PER_INVOCATION,
   LINKEDIN_UNPROVEN_SESSION_QUARANTINE_MS,
@@ -68,6 +69,22 @@ function linkedInTimelineExtractorScript() {
 
 function executeLinkedInTimelineExtractor(dom) {
   return dom.window.eval(linkedInTimelineExtractorScript());
+}
+
+function linkedInTimelinePassScript(scrollAmount = 0) {
+  const start = collectorSource.indexOf("function linkedInExtractJs()");
+  assert.ok(start >= 0, "LinkedIn timeline pass helpers must exist");
+  const functionSource = collectorSource.slice(start).trim();
+  return Function(
+    `${functionSource}\nreturn linkedInTimelinePassJs(${JSON.stringify(scrollAmount)});`
+  )();
+}
+
+function linkedInBrowserCollectorSource() {
+  const start = collectorSource.indexOf("async function fetchLinkedInPostsFromBrowser(");
+  const end = collectorSource.indexOf("function linkedinFailedCollection(", start);
+  assert.ok(start >= 0 && end > start, "LinkedIn browser collector must exist");
+  return collectorSource.slice(start, end);
 }
 
 function permissiveGlobalLeaseProvider() {
@@ -1373,6 +1390,10 @@ describe("logged-in LinkedIn collection", () => {
   it("forces one serial worker and a conservative delay without throttling other platform workers", () => {
     assert.equal(LINKEDIN_MINIMUM_TARGET_DELAY_MS, 30_000);
     assert.ok(LINKEDIN_MINIMUM_INTERACTION_DELAY_MS >= 3_000);
+    assert.equal(
+      LINKEDIN_MINIMUM_SCROLL_DELAY_MS,
+      LINKEDIN_MINIMUM_INTERACTION_DELAY_MS * 2
+    );
     assert.equal(LINKEDIN_MAX_TARGETS_PER_INVOCATION, 5);
     assert.deepEqual(
       linkedinExecutionPolicy({ requestedWorkers: 8, requestedDelayMs: 1_500 }),
@@ -2585,10 +2606,10 @@ describe("logged-in LinkedIn collection", () => {
       assert.equal(linkedinSafetySignal(unrelated), null);
       assert.equal(linkedinFailureRequiresImmediateAbort(unrelated), false);
     }
-    assert.match(collectorSource, /await probeSafety\(\);/);
+    assert.match(collectorSource, /assertLinkedInSafetyClear\(pass\.safety, "browser timeline pass"\)/);
     assert.match(
       collectorSource,
-      /const raw = await interact\([\s\S]*?linkedInExtractJs\(\)[\s\S]*?const safetyProbe = await probeSafety\(\);[\s\S]*?if \(posts\.length === 0\)/
+      /const finalPass = await collectTimelinePass\(0\);[\s\S]*?if \(posts\.length === 0\) \{[\s\S]*?assertLinkedInSafetyClear\(finalPass\.safety, "empty browser DOM extraction"\)/
     );
     assert.doesNotMatch(collectorSource, /fetchLinkedInPostsFromAdapter/);
     assert.match(collectorSource, /stringArg\("--linkedin-mode"\) \?\? "browser"/);
@@ -2996,14 +3017,14 @@ describe("logged-in LinkedIn collection", () => {
     }
   });
 
-  it("binds the alias proof to the probes immediately after navigation and extraction", () => {
+  it("binds alias proof to the first and final safety-checked timeline passes", () => {
     assert.match(
       collectorSource,
-      /\["browser", session, "open", activityUrl\][\s\S]*?const navigationProbe = await probeSafety\(\);/
+      /\["browser", session, "open", activityUrl\][\s\S]*?const pass = await collectTimelinePass\(1_200\);[\s\S]*?navigationState \?\?= pass\.safety;/
     );
     assert.match(
       collectorSource,
-      /const safetyProbe = await probeSafety\(\);[\s\S]*?browserCompanyIdentity: \{[\s\S]*?navigationState: parseJsonOutput\(navigationProbe\)\[0\][\s\S]*?extractionState: parseJsonOutput\(safetyProbe\)\[0\]/
+      /const finalPass = await collectTimelinePass\(0\);[\s\S]*?extractionState = finalPass\.safety;[\s\S]*?browserCompanyIdentity: \{[\s\S]*?navigationState,[\s\S]*?extractionState/
     );
     assert.match(collectorSource, /pageIdentityUrls: \[\.\.\.new Set\(\[/);
     assert.match(collectorSource, /link\[rel="canonical"\]/);
@@ -3014,6 +3035,71 @@ describe("logged-in LinkedIn collection", () => {
     );
     assert.match(collectorSource, /primaryAuthorUrl: primaryAuthorUrlFromCard\(card\)/);
     assert.match(collectorSource, /\.update-components-actor__meta-link\[href\]/);
+  });
+
+  it("combines each safety snapshot, DOM extraction, and following scroll without losing cards", () => {
+    const activityId = "7475000000000000042";
+    const dom = new JSDOM(`<!doctype html><html><head>
+      <link rel="canonical" href="https://www.linkedin.com/company/acme/posts/">
+    </head><body><main><div class="scaffold-finite-scroll__content"><ul>
+      <li data-urn="urn:li:activity:${activityId}">
+        <a class="update-components-actor__meta-link" href="https://www.linkedin.com/company/acme/">Acme</a>
+        <span class="update-components-text">A sufficiently long native company update for the combined pass.</span>
+        <button aria-label="12 reactions"></button>
+        <span>12 reactions</span>
+      </li>
+    </ul></div></main></body></html>`, {
+      url: "https://www.linkedin.com/company/acme/posts/",
+      runScripts: "outside-only"
+    });
+    let scrollY = 0;
+    Object.defineProperty(dom.window, "scrollY", {
+      configurable: true,
+      get: () => scrollY
+    });
+    dom.window.scrollBy = (_x, amount) => {
+      scrollY += Number(amount);
+    };
+    Object.defineProperty(dom.window.HTMLElement.prototype, "innerText", {
+      configurable: true,
+      get() {
+        return this.textContent ?? "";
+      }
+    });
+
+    try {
+      const pass = dom.window.eval(linkedInTimelinePassScript(1_200))[0];
+      assert.equal(pass.safety.currentUrl, "https://www.linkedin.com/company/acme/posts/");
+      assert.deepEqual(
+        Array.from(pass.posts, ({ url }) => url),
+        [`https://www.linkedin.com/feed/update/urn:li:activity:${activityId}/`]
+      );
+      assert.deepEqual(
+        JSON.parse(JSON.stringify(pass.scroll)),
+        {
+          requestedAmount: 1_200,
+          beforeY: 0,
+          afterY: 1_200,
+          beforeHeight: 0,
+          afterHeight: 0
+        }
+      );
+    } finally {
+      dom.window.close();
+    }
+
+    const browserCollector = linkedInBrowserCollectorSource();
+    assert.match(browserCollector, /await delay\(11_000\);/);
+    assert.match(
+      browserCollector,
+      /await delay\(LINKEDIN_MINIMUM_SCROLL_DELAY_MS\);/g
+    );
+    assert.match(browserCollector, /const pass = await collectTimelinePass\(1_200\);/);
+    assert.match(browserCollector, /const finalPass = await collectTimelinePass\(0\);/);
+    assert.match(browserCollector, /browserPosts\.push\(\.\.\.pass\.posts\);/);
+    assert.match(browserCollector, /mergeOwnedLinkedInPosts\(\[browserPosts\]/);
+    assert.doesNotMatch(browserCollector, /"scroll", "down"/);
+    assert.doesNotMatch(browserCollector, /"wait", "time"/);
   });
 
   it("fails closed on a native post URL or author that differs from the target", () => {

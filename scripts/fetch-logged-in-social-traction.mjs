@@ -11,6 +11,7 @@ import {
 import {
   createLinkedInInteractionPacer,
   createSupabaseLinkedInGlobalLeaseProvider,
+  LINKEDIN_MINIMUM_SCROLL_DELAY_MS,
   linkedinCircuitStateTransition,
   linkedinCollectionAttemptState,
   linkedinExecutionPolicy,
@@ -1346,50 +1347,91 @@ async function fetchLinkedInPostsFromBrowser(
           });
         }
       };
-      const probeSafety = () =>
-        interact(
-          ["browser", session, "eval", linkedInSafetyProbeJs()],
-          { timeoutMs: 12_000 },
-          { label: "browser safety probe" }
+      const collectTimelinePass = async (scrollAmount = 0) => {
+        const raw = await interact(
+          ["browser", session, "eval", linkedInTimelinePassJs(scrollAmount)],
+          { timeoutMs: perTargetTimeoutMs },
+          { label: scrollAmount > 0 ? "browser timeline pass and scroll" : "browser final timeline pass" }
         );
+        const pass = parseJsonOutput(raw)[0];
+        if (
+          !pass ||
+          typeof pass !== "object" ||
+          !Array.isArray(pass.posts) ||
+          !pass.safety ||
+          typeof pass.safety !== "object"
+        ) {
+          throw new Error("LinkedIn browser timeline pass returned an invalid safety or post payload.");
+        }
+        // `interact` scans the entire raw payload. Keep this explicit object
+        // boundary too, so future payload changes cannot accidentally make the
+        // safety result advisory.
+        assertLinkedInSafetyClear(pass.safety, "browser timeline pass");
+        return pass;
+      };
 
       await interact(
         ["browser", session, "open", activityUrl],
         { timeoutMs: perTargetTimeoutMs },
         { label: "browser navigation" }
       );
-      await interact(
-        ["browser", session, "wait", "time", "5"],
-        { timeoutMs: 12_000 },
-        { label: "initial browser wait" }
-      );
-      const navigationProbe = await probeSafety();
+      // The former OpenCLI wait command was itself paced before and after its
+      // five-second timer, so navigation had at least eleven seconds to settle
+      // before its first safety probe. Preserve that temporal boundary without
+      // spawning a redundant browser process.
+      await delay(11_000);
+      collectionGuard?.assertHealthy?.();
+
+      const browserPosts = [];
+      let navigationState = null;
+      let extractionState = null;
       for (let index = 0; index < scrollPasses; index += 1) {
-        await interact(
-          ["browser", session, "scroll", "down", "--amount", "1200"],
-          { timeoutMs: 12_000 },
-          { optional: true, label: "browser scroll" }
-        );
-        await probeSafety();
+        if (index > 0) {
+          await delay(LINKEDIN_MINIMUM_SCROLL_DELAY_MS);
+          collectionGuard?.assertHealthy?.();
+        }
+        const pass = await collectTimelinePass(1_200);
+        navigationState ??= pass.safety;
+        extractionState = pass.safety;
+        browserPosts.push(...pass.posts);
+
+        const exactOwnedPosts = mergeOwnedLinkedInPosts([browserPosts], {
+          accountUrl: target.url,
+          browserCompanyIdentity: {
+            navigationState,
+            extractionState
+          },
+          targetName: target.name,
+          limit: postLimit
+        });
+        if (exactOwnedPosts.length >= postLimit) {
+          break;
+        }
       }
-      const raw = await interact(
-        ["browser", session, "eval", linkedInExtractJs()],
-        { timeoutMs: perTargetTimeoutMs },
-        { label: "browser DOM extraction" }
-      );
-      const safetyProbe = await probeSafety();
-      const posts = parseJsonOutput(raw);
+
+      // Always sample after the final scroll, including a limit-triggering
+      // scroll. This is both the hard post-interaction safety boundary and the
+      // final opportunity to retain cards loaded by that scroll.
+      if (scrollPasses > 0) {
+        await delay(LINKEDIN_MINIMUM_SCROLL_DELAY_MS);
+        collectionGuard?.assertHealthy?.();
+      }
+      const finalPass = await collectTimelinePass(0);
+      navigationState ??= finalPass.safety;
+      extractionState = finalPass.safety;
+      browserPosts.push(...finalPass.posts);
+      const posts = browserPosts;
       // The post-extraction probe is a hard boundary: an empty result behind
       // a login wall is an authentication failure, never a completed empty
       // timeline that can be checkpointed.
       if (posts.length === 0) {
-        assertLinkedInSafetyClear(safetyProbe, "empty browser DOM extraction");
+        assertLinkedInSafetyClear(finalPass.safety, "empty browser DOM extraction");
       }
       return {
         posts,
         browserCompanyIdentity: {
-          navigationState: parseJsonOutput(navigationProbe)[0] ?? null,
-          extractionState: parseJsonOutput(safetyProbe)[0] ?? null
+          navigationState,
+          extractionState
         }
       };
     }
@@ -3812,4 +3854,44 @@ function linkedInSafetyProbeJs() {
     title: document.title || "",
     visibleText: String(document.body?.innerText || "").slice(0, 8000)
   }])()`;
+}
+
+function linkedInTimelinePassJs(scrollAmount = 0) {
+  const amount = Number.isSafeInteger(scrollAmount) && scrollAmount > 0
+    ? Math.min(scrollAmount, 1_200)
+    : 0;
+  return `(() => {
+  const safety = (${linkedInSafetyProbeJs()})[0] || null;
+  const posts = ${linkedInExtractJs()};
+  const beforeY = Number(window.scrollY || 0);
+  const beforeHeight = Math.max(
+    Number(document.body?.scrollHeight || 0),
+    Number(document.documentElement?.scrollHeight || 0)
+  );
+  if (${amount} > 0) {
+    window.scrollBy(0, ${amount});
+    document.documentElement.scrollTop = Math.max(
+      Number(document.documentElement.scrollTop || 0),
+      Number(window.scrollY || 0)
+    );
+    document.body.scrollTop = Math.max(
+      Number(document.body.scrollTop || 0),
+      Number(window.scrollY || 0)
+    );
+  }
+  return [{
+    safety,
+    posts,
+    scroll: {
+      requestedAmount: ${amount},
+      beforeY,
+      afterY: Number(window.scrollY || 0),
+      beforeHeight,
+      afterHeight: Math.max(
+        Number(document.body?.scrollHeight || 0),
+        Number(document.documentElement?.scrollHeight || 0)
+      )
+    }
+  }];
+})()`;
 }
