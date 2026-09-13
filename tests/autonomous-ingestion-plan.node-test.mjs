@@ -70,6 +70,10 @@ describe("autonomous runner resume contract", () => {
       source,
       /if \(sanitizedPublicSnapshot \|\| publicSnapshots\.length > 0\) \{/
     );
+    assert.match(
+      source,
+      /const merged = mergeTargetedEvidenceSnapshots\([\s\S]*?return remediateVerifiedLinkedInNativePublicationDates\(merged, \{/
+    );
   });
 });
 

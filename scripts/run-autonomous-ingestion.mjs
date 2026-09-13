@@ -3071,7 +3071,7 @@ async function prepareSanitizedTargetedSnapshot(topVoiceRefresh, { baseRef = nul
     baseRef ? readJsonFromGitRef(baseRef, targetedEvidencePath, null) : null,
     readRequiredCanonicalJson(join(targetRoot, targetedEvidencePath), "Canonical targeted evidence snapshot")
   ]);
-  return mergeTargetedEvidenceSnapshots(
+  const merged = mergeTargetedEvidenceSnapshots(
     [baseTargetedSnapshot, previousTargetedSnapshot].filter(Boolean),
     isolatedTargetedEvidenceSnapshot(topVoiceRefresh),
     {
@@ -3080,6 +3080,9 @@ async function prepareSanitizedTargetedSnapshot(topVoiceRefresh, { baseRef = nul
       validateEntityAttribution: isCanonicalBatchEntityAttribution
     }
   );
+  return remediateVerifiedLinkedInNativePublicationDates(merged, {
+    nowMs: runStartedAt?.getTime?.() ?? Date.now()
+  });
 }
 
 function attributionReconciliationTargetKey(entry, attribution) {
