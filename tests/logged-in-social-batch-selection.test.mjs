@@ -127,6 +127,26 @@ describe("logged-in social batch selection", () => {
     );
   });
 
+  it("keeps an unfiltered Spring LinkedIn plan strictly inside S2026", () => {
+    const plan = runPlan([
+      "--batch=S2026",
+      "--entities=all",
+      "--platforms=linkedin",
+      "--allow-linkedin",
+      "--linkedin-max-targets=5",
+      "--delay-ms=30000"
+    ]);
+
+    expect(plan.batchSlug).toBe("S2026");
+    expect(plan.requestedTarget).toBeNull();
+    expect(plan.targets.length).toBeGreaterThan(5);
+    expect(new Set(plan.targets.map((target) => target.companySlug)).size).toBeGreaterThan(1);
+    expect(plan.targets.every((target) =>
+      target.batchSlug === "S2026" && target.platform === "linkedin"
+    )).toBe(true);
+    expect(plan.runnableTargets).toHaveLength(5);
+  });
+
   it("keeps the Summer batch as the default without mixing Spring targets", () => {
     const plan = runPlan([
       "--company=6thsense",

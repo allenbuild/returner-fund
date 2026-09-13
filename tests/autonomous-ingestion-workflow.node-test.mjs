@@ -3291,9 +3291,12 @@ test("workflow routes public ingestion to hosted Linux and authenticated replay 
   );
   assert.match(
     workflow,
-    /authenticated_backfill_batch:[\s\S]*?default:\s*all[\s\S]*?options:[\s\S]*?- S2026[\s\S]*?- S26[\s\S]*?- A16ZSR006/
+    /authenticated_backfill_batch:[\s\S]*?description:\s*Exact LinkedIn replay batch[\s\S]*?default:\s*all[\s\S]*?options:[\s\S]*?- S2026[\s\S]*?- S26[\s\S]*?- A16ZSR006/
   );
-  assert.match(workflow, /authenticated_backfill_company_slug:[\s\S]*?type:\s*string/);
+  assert.match(
+    workflow,
+    /authenticated_backfill_company_slug:[\s\S]*?description:\s*Optional exact canonical company slug; requires an exact batch and LinkedIn-only scope[\s\S]*?type:\s*string/
+  );
   assert.match(ingestJob, /--authenticated-social-replay="\$AUTHENTICATED_SOCIAL_REPLAY"/);
   assert.match(ingestJob, /--authenticated-backfill-scope="\$AUTHENTICATED_BACKFILL_SCOPE"/);
   assert.match(ingestJob, /--authenticated-backfill-batch="\$AUTHENTICATED_BACKFILL_BATCH"/);

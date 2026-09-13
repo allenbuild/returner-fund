@@ -18,7 +18,9 @@ import {
 } from "../scripts/lib/ingestion-schedule.mjs";
 import { isTimelineCoverageMigrationUnavailable } from "../scripts/lib/timeline-migration-availability.mjs";
 import {
+  assertAuthenticatedLinkedInPlanTarget,
   authenticatedBackfillTargetEquals,
+  compactAuthenticatedLinkedInPlan,
   resolveAuthenticatedBackfillTarget
 } from "../scripts/lib/authenticated-backfill-target.mjs";
 import {
@@ -201,6 +203,49 @@ describe("autonomous ingestion runner CLI", () => {
       githubTasksPerProcess: 4,
       githubInitialRequestsAcrossProcesses: 8
     });
+  });
+
+  it("accepts and reports a batch-only Spring LinkedIn selector at the CLI boundary", async () => {
+    const openCliHome = await mkdtemp(path.join(os.tmpdir(), "batch-only-plan-"));
+    temporaryRoots.push(openCliHome);
+    const env = {
+      NODE_ENV: "test",
+      PATH: process.env.PATH ?? "/usr/local/bin:/usr/bin:/bin",
+      OPENCLI_HOME: openCliHome
+    };
+    const args = [
+      runnerPath,
+      "--plan",
+      "--idempotency-key=spring-batch-plan-contract",
+      "--candidate-trigger=manual-replay",
+      "--authenticated-social-replay=true",
+      "--authenticated-backfill-scope=linkedin",
+      "--authenticated-backfill-batch=S2026",
+      "--authenticated-backfill-company-slug="
+    ];
+
+    const accepted = spawnSync(process.execPath, args, {
+      cwd: repositoryRoot,
+      env,
+      encoding: "utf8"
+    });
+    assert.equal(accepted.status, 0, accepted.stderr);
+    const plan = JSON.parse(accepted.stdout);
+    assert.deepEqual(plan.authenticatedSocialReplay, {
+      requestedScope: "linkedin",
+      requestedTarget: { batchSlug: "S2026" }
+    });
+
+    const widened = spawnSync(process.execPath, [
+      ...args.filter((arg) => arg !== "--authenticated-backfill-scope=linkedin"),
+      "--authenticated-backfill-scope=all"
+    ], {
+      cwd: repositoryRoot,
+      env,
+      encoding: "utf8"
+    });
+    assert.notEqual(widened.status, 0);
+    assert.match(widened.stderr, /requires the linkedin-only authenticated scope/);
   });
 
   it("accepts recovery debt from exact trusted host-dispatch receipts across a main-head race", () => {
@@ -2292,6 +2337,44 @@ describe("autonomous ingestion runner static safety contracts", () => {
     assert.equal(calls[0][2].quiet, true);
   });
 
+  it("normalizes an unfiltered child plan into an exact batch-bound replay receipt", async () => {
+    const requestedTarget = { batchSlug: "S2026" };
+    const targets = ["zenbu-2", "eden-robotics"].map((companySlug) => ({
+      batchSlug: "S2026",
+      companySlug,
+      entityType: "company",
+      entityId: `company-${companySlug}`,
+      platform: "linkedin",
+      checkpointKey: `S2026:linkedin:company-${companySlug}`
+    }));
+    const rawPlan = {
+      batchSlug: "S2026",
+      requestedTarget: null,
+      targets,
+      runnableTargets: targets,
+      linkedinExecution: { remainingTargetCount: 2 }
+    };
+    const runAuthenticatedLinkedInPlan = authenticatedLinkedInPlanRuntime({
+      commandResult: {
+        status: "completed",
+        exitCode: 0,
+        stdout: JSON.stringify(rawPlan)
+      }
+    });
+
+    const result = await runAuthenticatedLinkedInPlan(
+      "S2026",
+      ["collector.mjs"],
+      { deadlineAt: 100_000, requestedTarget }
+    );
+
+    assert.equal(result.status, "completed");
+    assert.equal(result.runnableTargetCount, 2);
+    assert.deepEqual(result.plan.requestedTarget, requestedTarget);
+    assert.equal(result.plan.targetCount, 2);
+    assert.equal("targets" in result.plan, false);
+  });
+
   it("drives LinkedIn historical replay through a sequential seven-chunk state machine", () => {
     const replay = linkedInReplayRuntime();
 
@@ -2894,6 +2977,73 @@ describe("autonomous ingestion runner static safety contracts", () => {
     }));
   });
 
+  it("runs and receipt-binds a Spring batch-only LinkedIn replay without a company filter", async () => {
+    const replay = linkedInReplayRuntime();
+    const replayCalls = [];
+    const requestedTarget = { batchSlug: "S2026" };
+    const runAuthenticatedCollectors = authenticatedCollectorsRuntime({
+      replay,
+      collect: async () => {
+        throw new Error("Batch-only LinkedIn replay must not invoke the ordinary collector path.");
+      },
+      replayBatch: async ({ batch, commonArgs, replayState, requestedTarget: childTarget }) => {
+        replayCalls.push({ batchSlug: batch.slug, commonArgs, childTarget });
+        return {
+          status: "completed",
+          chunks: [],
+          finalPlan: { requestedTarget: childTarget },
+          replayState: replay.reduceLinkedInReplayState(replayState, {
+            type: "plan",
+            batchSlug: batch.slug,
+            runnableTargetCount: 0
+          })
+        };
+      }
+    });
+
+    const result = await runAuthenticatedCollectors({
+      historicalReplay: true,
+      requestedScope: "linkedin",
+      requestedTarget
+    });
+
+    assert.equal(result.status, "completed");
+    assert.deepEqual(result.requestedTarget, requestedTarget);
+    assert.deepEqual(result.linkedinReplay.requestedTarget, requestedTarget);
+    assert.deepEqual(Object.keys(result.linkedinReplay.remainingByBatch), ["S2026"]);
+    assert.deepEqual(result.batches.map(({ batchSlug }) => batchSlug), ["S2026"]);
+    assert.equal(replayCalls.length, 1);
+    assert.equal(replayCalls[0].batchSlug, "S2026");
+    assert.deepEqual(replayCalls[0].childTarget, requestedTarget);
+    assert.equal(
+      replayCalls[0].commonArgs.some((arg) => arg.startsWith("--company-slug=")),
+      false
+    );
+
+    const assertCanPublish = authenticatedReplayPublicationValidator();
+    assert.doesNotThrow(() => assertCanPublish(result));
+    assert.throws(
+      () => assertCanPublish({
+        ...result,
+        linkedinReplay: {
+          ...result.linkedinReplay,
+          requestedTarget: { batchSlug: "S26" }
+        }
+      }),
+      /target receipt does not match/
+    );
+    assert.throws(
+      () => assertCanPublish({
+        ...result,
+        batches: [{
+          ...result.batches[0],
+          batchSlug: "S26"
+        }]
+      }),
+      /not bound to the exact requested batch and company scope/
+    );
+  });
+
   it("records scheduled per-platform preflight debt without blocking a ready authenticated lane", async () => {
     const replay = linkedInReplayRuntime();
     const collected = [];
@@ -3001,6 +3151,7 @@ describe("autonomous ingestion runner static safety contracts", () => {
     assert.doesNotMatch(replayBatch, /platforms=instagram|runAuthenticatedCollectorCommand\(\s*batch\.slug,\s*"instagram"/);
     assert.match(replayBatch, /--terminal-completed-platforms=linkedin/);
     assert.match(authenticatedLoop, /const selectedBatches = requestedTarget/);
+    assert.match(authenticatedLoop, /if \(requestedTarget\?\.companySlug\)/);
     assert.match(authenticatedLoop, /commonArgs\.push\(`--company-slug=\$\{requestedTarget\.companySlug\}`\)/);
     assert.match(authenticatedLoop, /checkpointPath/);
     assert.match(replayBatch, /--linkedin-mode=browser/);
@@ -3013,6 +3164,7 @@ describe("autonomous ingestion runner static safety contracts", () => {
       "async function runAuthenticatedCollectorCommand"
     );
     assert.match(linkedInPlan, /linkedinExecution\?\.remainingTargetCount/);
+    assert.match(linkedInPlan, /compactAuthenticatedLinkedInPlan\(plan\)[\s\S]*?requestedTarget/);
     assert.doesNotMatch(linkedInPlan, /linkedinExecution\?\.runnableTargetCount/);
 
     const authenticatedBranch = section(
@@ -4683,6 +4835,28 @@ function section(start, end, source = runner) {
   return source.slice(startIndex, endIndex);
 }
 
+function authenticatedLinkedInPlanRuntime({ commandResult }) {
+  const planSource = section(
+    "async function runAuthenticatedLinkedInPlan",
+    "async function runAuthenticatedCollectorCommand"
+  );
+  const runtime = new Function(
+    "runAuthenticatedCollectorCommand",
+    "parseJsonFromChildStdout",
+    "assertAuthenticatedLinkedInPlanTarget",
+    "compactAuthenticatedLinkedInPlan",
+    "errorMessage",
+    `${planSource}\nreturn runAuthenticatedLinkedInPlan;`
+  );
+  return runtime(
+    async () => commandResult,
+    (stdout) => JSON.parse(String(stdout)),
+    assertAuthenticatedLinkedInPlanTarget,
+    compactAuthenticatedLinkedInPlan,
+    (error) => error instanceof Error ? error.message : String(error)
+  );
+}
+
 function linkedInReplayRuntime({
   nowMs = 1_800_000_000_000,
   collectionDeadlineAt = nowMs + 60 * 60_000,
@@ -4846,7 +5020,9 @@ function authenticatedCollectorsRuntime({
         options.env.AUTHENTICATED_BACKFILL_BATCH !== "all"
         ? {
             batchSlug: options.env.AUTHENTICATED_BACKFILL_BATCH,
-            companySlug: options.env.AUTHENTICATED_BACKFILL_COMPANY_SLUG
+            ...(options.env.AUTHENTICATED_BACKFILL_COMPANY_SLUG
+              ? { companySlug: options.env.AUTHENTICATED_BACKFILL_COMPANY_SLUG }
+              : {})
           }
         : null;
       return {

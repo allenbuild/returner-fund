@@ -551,8 +551,8 @@ await Promise.all([
       await refreshMutableYcCatalog();
     }
     catalogs = await loadAutonomousCatalogs(publicationArtifactRoot());
-    // Resolve the exact target against the pinned publication catalog before
-    // any authenticated browser preflight or navigation can begin.
+    // Resolve the exact batch/company scope against the pinned publication
+    // catalog before any authenticated browser preflight or navigation begins.
     assertAuthenticatedBackfillTargetExists(
       catalogs,
       args.authenticatedBackfillTarget
@@ -569,6 +569,12 @@ await Promise.all([
     if (args.plan) {
       console.log(JSON.stringify({
         idempotencyKey,
+        authenticatedSocialReplay: args.authenticatedSocialReplay
+          ? {
+              requestedScope: args.authenticatedBackfillScope,
+              requestedTarget: args.authenticatedBackfillTarget
+            }
+          : null,
         batches: catalogSummary(catalogs),
         coverage: plannedCoverage,
         concurrency: {
@@ -3650,7 +3656,7 @@ async function runAuthenticatedCollectors({
       `--output-path=${outputPath}`,
       `--checkpoint-path=${checkpointPath}`
     ];
-    if (requestedTarget) {
+    if (requestedTarget?.companySlug) {
       commonArgs.push(`--company-slug=${requestedTarget.companySlug}`);
     }
     const instagramWorkers = historicalReplay ? 2 : 1;
@@ -4166,7 +4172,14 @@ async function runAuthenticatedLinkedInPlan(
     const { stdout: _discardedFullPlan, ...boundedResult } = result;
     return {
       ...boundedResult,
-      plan: compactAuthenticatedLinkedInPlan(plan),
+      plan: {
+        ...compactAuthenticatedLinkedInPlan(plan),
+        // The child plan proves an unfiltered single-batch invocation through
+        // plan.batchSlug plus its complete target inventory. Persist the
+        // parent's canonical selector so the publication receipt binds a
+        // batch-only replay just as strictly as an exact-company replay.
+        requestedTarget
+      },
       runnableTargetCount
     };
   } catch (error) {
@@ -5953,7 +5966,7 @@ function assertAuthenticatedReplayCanPublish(replay) {
         requestedTarget
       )
     ) {
-      throw new Error("Authenticated replay publication is not bound to the exact requested batch and company.");
+      throw new Error("Authenticated replay publication is not bound to the exact requested batch and company scope.");
     }
   }
   if (requestedScope === "linkedin") {

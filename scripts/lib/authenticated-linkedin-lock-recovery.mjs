@@ -48,7 +48,7 @@ export function validateAuthenticatedLinkedInLockRecoveryRequest(env = process.e
   } catch {
     throw recoveryError("requires one exact supported batch and canonical company slug");
   }
-  if (!requestedTarget) {
+  if (!requestedTarget?.companySlug) {
     throw recoveryError("requires one exact supported batch and canonical company slug");
   }
 

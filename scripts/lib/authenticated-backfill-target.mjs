@@ -30,9 +30,9 @@ export function resolveAuthenticatedBackfillTarget({
       "Authenticated backfill target requires the linkedin-only authenticated scope."
     );
   }
-  if (hasBatch !== hasCompany) {
+  if (!hasBatch && hasCompany) {
     throw new Error(
-      "Authenticated backfill target requires both an exact batch and an exact company slug."
+      "Authenticated backfill company targeting requires an exact batch."
     );
   }
   if (!AUTHENTICATED_BACKFILL_BATCHES.includes(normalizedBatch)) {
@@ -40,10 +40,10 @@ export function resolveAuthenticatedBackfillTarget({
       `Authenticated backfill target batch must be one of ${AUTHENTICATED_BACKFILL_BATCHES.join(", ")}.`
     );
   }
-  if (
+  if (hasCompany && (
     normalizedCompany.length > AUTHENTICATED_BACKFILL_COMPANY_SLUG_MAX_LENGTH ||
     !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(normalizedCompany)
-  ) {
+  )) {
     throw new Error(
       `Authenticated backfill target company slug must be a canonical lowercase slug no longer than ` +
       `${AUTHENTICATED_BACKFILL_COMPANY_SLUG_MAX_LENGTH} characters.`
@@ -51,17 +51,21 @@ export function resolveAuthenticatedBackfillTarget({
   }
   return Object.freeze({
     batchSlug: normalizedBatch,
-    companySlug: normalizedCompany
+    ...(hasCompany ? { companySlug: normalizedCompany } : {})
   });
 }
 
 export function authenticatedBackfillTargetEquals(left, right) {
   if (left === null || right === null) return left === right;
+  if (
+    !isCanonicalAuthenticatedBackfillTarget(left) ||
+    !isCanonicalAuthenticatedBackfillTarget(right)
+  ) {
+    return false;
+  }
   return Boolean(
-    left &&
-    right &&
     left.batchSlug === right.batchSlug &&
-    left.companySlug === right.companySlug
+    optionalCompanySlug(left) === optionalCompanySlug(right)
   );
 }
 
@@ -71,11 +75,22 @@ export function supportedAuthenticatedBackfillBatches() {
 
 export function assertAuthenticatedBackfillTargetExists(catalogs, requestedTarget) {
   if (!requestedTarget) return null;
+  if (!isCanonicalAuthenticatedBackfillTarget(requestedTarget)) {
+    throw new Error("Authenticated backfill target is not canonical.");
+  }
+  const matchingCatalogs = (Array.isArray(catalogs) ? catalogs : [])
+    .filter((catalog) => catalog?.slug === requestedTarget.batchSlug);
+  if (matchingCatalogs.length !== 1) {
+    throw new Error(
+      `Authenticated backfill target batch ${requestedTarget.batchSlug} ` +
+      `must resolve to exactly one pinned publication catalog; resolved ${matchingCatalogs.length}.`
+    );
+  }
+  if (!requestedTarget.companySlug) return requestedTarget;
   const expectedCompanySourceKey = requestedTarget.batchSlug === "A16ZSR006"
     ? `a16z-speedrun-006-${requestedTarget.companySlug}`
     : `company-${requestedTarget.companySlug}`;
-  const matches = (Array.isArray(catalogs) ? catalogs : [])
-    .filter((catalog) => catalog?.slug === requestedTarget.batchSlug)
+  const matches = matchingCatalogs
     .flatMap((catalog) => Array.isArray(catalog?.companies) ? catalog.companies : [])
     // loadAutonomousCatalogs() intentionally exposes normalized company
     // identities, not the source snapshot's raw slug field.
@@ -129,6 +144,10 @@ export function assertAuthenticatedReplayReceiptBinding({
 }
 
 export function assertAuthenticatedLinkedInPlanTarget(plan, requestedTarget) {
+  if (requestedTarget && !isCanonicalAuthenticatedBackfillTarget(requestedTarget)) {
+    throw new Error("LinkedIn plan-only child received a non-canonical requested target.");
+  }
+  const requestedCompanySlug = optionalCompanySlug(requestedTarget);
   for (const [label, targets, requireNonEmpty] of [
     ["targets", plan?.targets, Boolean(requestedTarget)],
     ["runnableTargets", plan?.runnableTargets, false]
@@ -139,7 +158,7 @@ export function assertAuthenticatedLinkedInPlanTarget(plan, requestedTarget) {
     if (targets.some((target) =>
       target?.platform !== "linkedin" || (requestedTarget && (
       target?.batchSlug !== requestedTarget.batchSlug ||
-      target?.companySlug !== requestedTarget.companySlug
+      (requestedCompanySlug !== null && target?.companySlug !== requestedCompanySlug)
       ))
     )) {
       throw new Error(
@@ -150,9 +169,11 @@ export function assertAuthenticatedLinkedInPlanTarget(plan, requestedTarget) {
   if (!requestedTarget) return;
   if (
     plan?.batchSlug !== requestedTarget.batchSlug ||
-    !authenticatedBackfillTargetEquals(plan?.requestedTarget ?? null, requestedTarget)
+    (requestedCompanySlug === null
+      ? plan?.requestedTarget !== null && plan?.requestedTarget !== undefined
+      : !authenticatedBackfillTargetEquals(plan?.requestedTarget ?? null, requestedTarget))
   ) {
-    throw new Error("LinkedIn plan-only child did not bind the exact requested replay target.");
+    throw new Error("LinkedIn plan-only child did not bind the exact requested replay batch and company scope.");
   }
 }
 
@@ -213,4 +234,30 @@ function nonnegativeIntegerOrNull(value) {
 
 function canonicalHash(value) {
   return createHash("sha256").update(JSON.stringify(value)).digest("hex");
+}
+
+function optionalCompanySlug(target) {
+  return target && Object.hasOwn(target, "companySlug")
+    ? target.companySlug
+    : null;
+}
+
+function isCanonicalAuthenticatedBackfillTarget(target) {
+  if (!target || typeof target !== "object" || Array.isArray(target)) return false;
+  if (!AUTHENTICATED_BACKFILL_BATCHES.includes(target.batchSlug)) return false;
+  const keys = Object.keys(target).sort();
+  if (!Object.hasOwn(target, "companySlug")) {
+    return keys.length === 1 && keys[0] === "batchSlug";
+  }
+  if (
+    keys.length !== 2 ||
+    keys[0] !== "batchSlug" ||
+    keys[1] !== "companySlug"
+  ) {
+    return false;
+  }
+  return typeof target.companySlug === "string" &&
+    target.companySlug.length > 0 &&
+    target.companySlug.length <= AUTHENTICATED_BACKFILL_COMPANY_SLUG_MAX_LENGTH &&
+    /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(target.companySlug);
 }

@@ -36,7 +36,7 @@ on:
           - all
           - linkedin
       authenticated_backfill_batch:
-        description: Exact batch for a targeted LinkedIn replay (all preserves full replay behavior)
+        description: Exact LinkedIn replay batch (all preserves full replay behavior)
         required: false
         default: all
         type: choice
@@ -46,7 +46,7 @@ on:
           - S26
           - A16ZSR006
       authenticated_backfill_company_slug:
-        description: Exact canonical company slug; requires a batch and the LinkedIn-only scope
+        description: Optional exact canonical company slug; requires an exact batch and LinkedIn-only scope
         required: false
         default: ""
         type: string

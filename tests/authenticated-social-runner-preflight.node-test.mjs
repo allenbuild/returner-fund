@@ -512,6 +512,37 @@ test("targeted LinkedIn preflight binds S26 Gamgee before browser operations", a
   assert.equal(calls.some((args) => args[0] === "instagram"), false);
 });
 
+test("batch-only LinkedIn preflight binds Spring before browser operations", async (t) => {
+  const fixture = createRunnerFixture(t);
+  const calls = [];
+  const result = await runAuthenticatedSocialRunnerPreflight({
+    env: {
+      ...authenticatedPreflightEnvironment(fixture),
+      AUTHENTICATED_SOCIAL_REPLAY: "true",
+      AUTHENTICATED_BACKFILL_SCOPE: "linkedin",
+      AUTHENTICATED_BACKFILL_BATCH: "S2026",
+      AUTHENTICATED_BACKFILL_COMPANY_SLUG: ""
+    },
+    runtimeResolver: () => ({ command: fixture.binaryA }),
+    verifyBrowserService: async () => ({
+      ok: true,
+      reason: "auth_browser_service_running"
+    }),
+    runCommand: async (args) => {
+      calls.push(args);
+      if (args[0] === "browser" && args[2] === "eval") {
+        return JSON.stringify([linkedInReadySignal()]);
+      }
+      return "";
+    },
+    sleep: async () => {}
+  });
+
+  assert.equal(result.ok, true);
+  assert.deepEqual(result.requestedTarget, { batchSlug: "S2026" });
+  assert.equal(calls.some((args) => args[0] === "instagram"), false);
+});
+
 test("target selectors fail before browser operations outside LinkedIn-only replay", async (t) => {
   const fixture = createRunnerFixture(t);
   let calls = 0;
