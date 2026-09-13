@@ -378,7 +378,7 @@ jobs:
           RECOVER_AUTHENTICATED_LINKEDIN_LOCK: ${{ inputs.recover_authenticated_linkedin_lock || false }}
           INCIDENT_ZENBU_BATTERY_OVERRIDE: ${{ inputs.incident_zenbu_battery_override || false }}
           INCIDENT_ZENBU_BATTERY_REPLAY_KEY: incident-20260912-s2026-zenbu-linkedin-battery-01
-          AUTHENTICATED_BATTERY_MIN_START_PERCENT: "40"
+          AUTHENTICATED_BATTERY_MIN_START_PERCENT: "30"
           AUTONOMOUS_MIN_BATTERY_PERCENT: "30"
           CANDIDATE_TRIGGER: ${{ needs.resolve.outputs.trigger }}
           INGESTION_IDEMPOTENCY_KEY: ${{ needs.resolve.outputs.slot_key }}
@@ -865,7 +865,7 @@ jobs:
           RECOVER_AUTHENTICATED_LINKEDIN_LOCK: ${{ inputs.recover_authenticated_linkedin_lock || false }}
           INCIDENT_ZENBU_BATTERY_OVERRIDE: ${{ inputs.incident_zenbu_battery_override || false }}
           INCIDENT_ZENBU_BATTERY_REPLAY_KEY: incident-20260912-s2026-zenbu-linkedin-battery-01
-          AUTHENTICATED_BATTERY_MIN_START_PERCENT: "40"
+          AUTHENTICATED_BATTERY_MIN_START_PERCENT: "30"
           INGESTION_IDEMPOTENCY_KEY: ${{ needs.resolve.outputs.slot_key }}
           GITHUB_EVENT_NAME: ${{ github.event_name }}
           GITHUB_RUN_ATTEMPT: ${{ github.run_attempt }}
@@ -996,7 +996,7 @@ jobs:
           RECOVER_AUTHENTICATED_LINKEDIN_LOCK: ${{ inputs.recover_authenticated_linkedin_lock || false }}
           INCIDENT_ZENBU_BATTERY_OVERRIDE: ${{ inputs.incident_zenbu_battery_override || false }}
           INCIDENT_ZENBU_BATTERY_REPLAY_KEY: incident-20260912-s2026-zenbu-linkedin-battery-01
-          AUTHENTICATED_BATTERY_MIN_START_PERCENT: "40"
+          AUTHENTICATED_BATTERY_MIN_START_PERCENT: "30"
           AUTHENTICATED_LINKEDIN_REPLAY_MAX_CHUNKS: ${{ inputs.incident_zenbu_battery_override == true && '1' || '7' }}
           GITHUB_EVENT_NAME: ${{ github.event_name }}
           GITHUB_RUN_ATTEMPT: ${{ github.run_attempt }}
