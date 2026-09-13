@@ -1265,6 +1265,73 @@ describe("durable evidence import", () => {
     expect(client.calls).toHaveLength(0);
   });
 
+  it("batches reconciliation reads so large in-filters cannot overflow response headers", async () => {
+    const client = new FakeSupabaseClient();
+    const catalogMaps = reconciliationCatalog();
+    const postCount = 101;
+    const stalePosts = Array.from({ length: postCount }, (_, index) => {
+      const platformPostId = String(10_000 + index);
+      return publicPost({
+        entityType: "company",
+        entityId: "company-acme",
+        sourceUrl: `https://x.com/acme/status/${platformPostId}`,
+        platformPostId
+      });
+    });
+    await importDurableEvidence({
+      client,
+      ingestionRunId: RUN_ID,
+      catalogMaps,
+      publicSnapshot: publicSnapshot("S2026", stalePosts)
+    });
+
+    const correctedPosts = stalePosts.map((post) => ({
+      ...post,
+      entityType: "founder",
+      entityId: "founder-acme-alice"
+    }));
+    const ledger = correctedPosts.map((post) => reconciliationEntry({
+      sourceUrl: post.sourceUrl,
+      platformPostId: post.platformPostId,
+      staleAttribution: {
+        batchSlug: "S2026",
+        entityType: "company",
+        entityId: "company-acme"
+      },
+      replacementAttribution: {
+        batchSlug: "S2026",
+        entityType: "founder",
+        entityId: "founder-acme-alice"
+      }
+    }));
+    const callOffset = client.calls.length;
+    const result = await importDurableEvidence({
+      client,
+      ingestionRunId: RUN_ID,
+      catalogMaps,
+      publicSnapshot: publicSnapshot("S2026", correctedPosts, "2026-07-18T13:00:00Z"),
+      attributionReconciliationLedger: ledger
+    });
+
+    const attributionReads = client.calls.slice(callOffset).filter((call) =>
+      call.table === "evidence_attributions" &&
+      call.operation === "select" &&
+      call.filters.some((filter) => filter.type === "in" && filter.column === "evidence_id")
+    );
+    expect(result.attributionReconciliation).toMatchObject({
+      unique: postCount,
+      retired: postCount,
+      replacementsExpected: postCount
+    });
+    expect(attributionReads).toHaveLength(4);
+    expect(attributionReads.map((call) => call.filters[0].values.length).sort((a, b) => a - b)).toEqual([
+      1,
+      1,
+      100,
+      100
+    ]);
+  });
+
   it("drops a stale verified row explicitly quarantined by the reconciliation ledger", async () => {
     const client = new FakeSupabaseClient();
     const catalogMaps = reconciliationCatalog();

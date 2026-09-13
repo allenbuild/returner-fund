@@ -40,6 +40,10 @@ const DERIVED_METRICS = new Set(["score", "profile_score", "contribution_score",
 const ATTRIBUTION_TYPES = new Set(["subject", "author", "mention", "account_owner", "founder_rollup", "other"]);
 const RECONCILIATION_DISPOSITIONS = new Set(["reattributed", "quarantined"]);
 const DURABLE_WRITE_BATCH_SIZE = 250;
+// PostgREST reflects the request query in response headers. Keep `.in(...)`
+// filters comfortably below Node/Undici's response-header limit even when a
+// reconciliation ledger contains thousands of evidence ids.
+const DURABLE_IN_FILTER_BATCH_SIZE = 100;
 const ATTRIBUTION_READ_COLUMNS = [
   "id", "evidence_id", "entity_type", "company_id", "founder_id", "batch_id",
   "attribution_type", "is_primary", "score_eligible", "review_state", "risk_level",
@@ -851,11 +855,14 @@ async function resolveReconciliationEvidenceIds({ client, entries, evidenceIds }
     entries.filter((entry) => !entry.evidenceId).map((entry) => entry.canonicalKey)
   )];
   if (missingKeys.length > 0) {
-    const response = await client
-      .from("evidence_items")
-      .select("id,platform,canonical_key")
-      .in("canonical_key", missingKeys);
-    const rows = checkedRows(response, "read reconciliation evidence_items");
+    const rows = await readRowsByInFilter({
+      client,
+      table: "evidence_items",
+      columns: "id,platform,canonical_key",
+      filterColumn: "canonical_key",
+      values: missingKeys,
+      operation: "read reconciliation evidence_items"
+    });
     for (const row of rows) {
       const key = `${normalizePlatform(row.platform)}\u0000${row.canonical_key}`;
       if (evidenceIds.has(key) && evidenceIds.get(key) !== row.id) {
@@ -916,11 +923,14 @@ async function retireEnumeratedAttributions({
   const evidenceIdValues = [...new Set(entries.map((entry) => entry.evidenceId).filter(Boolean))];
   let existing = [];
   if (evidenceIdValues.length > 0) {
-    const response = await client
-      .from("evidence_attributions")
-      .select(ATTRIBUTION_READ_COLUMNS)
-      .in("evidence_id", evidenceIdValues);
-    existing = checkedRows(response, "read existing evidence_attributions for reconciliation");
+    existing = await readRowsByInFilter({
+      client,
+      table: "evidence_attributions",
+      columns: ATTRIBUTION_READ_COLUMNS,
+      filterColumn: "evidence_id",
+      values: evidenceIdValues,
+      operation: "read existing evidence_attributions for reconciliation"
+    });
   }
 
   for (const entry of entries) {
@@ -1041,11 +1051,14 @@ function reconciliationMetadataMatchesTarget(metadata, target) {
 async function assertAttributionReconciliationReadBack({ client, entries, generatedAttributions }) {
   const evidenceIds = [...new Set(entries.map((entry) => entry.evidenceId).filter(Boolean))];
   if (evidenceIds.length === 0) return;
-  const response = await client
-    .from("evidence_attributions")
-    .select(ATTRIBUTION_READ_COLUMNS)
-    .in("evidence_id", evidenceIds);
-  const rows = checkedRows(response, "read back reconciled evidence_attributions");
+  const rows = await readRowsByInFilter({
+    client,
+    table: "evidence_attributions",
+    columns: ATTRIBUTION_READ_COLUMNS,
+    filterColumn: "evidence_id",
+    values: evidenceIds,
+    operation: "read back reconciled evidence_attributions"
+  });
   for (const entry of entries) {
     if (!entry.evidenceId) continue;
     const staleRows = rows.filter((row) =>
@@ -1520,6 +1533,26 @@ function rowBatches(rows, size = DURABLE_WRITE_BATCH_SIZE) {
     batches.push(rows.slice(offset, offset + size));
   }
   return batches;
+}
+
+async function readRowsByInFilter({
+  client,
+  table,
+  columns,
+  filterColumn,
+  values,
+  operation
+}) {
+  const batches = rowBatches(values, DURABLE_IN_FILTER_BATCH_SIZE);
+  const rows = [];
+  for (let index = 0; index < batches.length; index += 1) {
+    const response = await client
+      .from(table)
+      .select(columns)
+      .in(filterColumn, batches[index]);
+    rows.push(...checkedRows(response, `${operation} (batch ${index + 1}/${batches.length})`));
+  }
+  return rows;
 }
 
 function checkedRows(response, operation) {
