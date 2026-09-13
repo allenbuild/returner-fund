@@ -55,6 +55,11 @@ on:
         required: false
         default: false
         type: boolean
+      incident_zenbu_battery_override:
+        description: One-run battery authorization for the exact S2026 Zenbu LinkedIn recovery incident
+        required: false
+        default: false
+        type: boolean
 permissions:
   contents: read
 
@@ -371,7 +376,7 @@ jobs:
           AUTHENTICATED_BACKFILL_COMPANY_SLUG: ${{ inputs.authenticated_backfill_company_slug || '' }}
           RECOVER_AUTHENTICATED_LINKEDIN_LOCK: ${{ inputs.recover_authenticated_linkedin_lock || false }}
           INCIDENT_ZENBU_BATTERY_OVERRIDE: ${{ inputs.incident_zenbu_battery_override || false }}
-          INCIDENT_ZENBU_BATTERY_REPLAY_KEY: incident-20260912-s2026-zenbu-linkedin-battery-01
+          INCIDENT_ZENBU_BATTERY_REPLAY_KEY: incident-20260912-s2026-zenbu-linkedin-battery-02
           AUTHENTICATED_BATTERY_MIN_START_PERCENT: "5"
           AUTONOMOUS_MIN_BATTERY_PERCENT: "30"
           CANDIDATE_TRIGGER: ${{ needs.resolve.outputs.trigger }}
@@ -397,7 +402,7 @@ jobs:
                [ "$AUTHENTICATED_BACKFILL_SCOPE" != "linkedin" ] || \
                [ "$AUTHENTICATED_BACKFILL_BATCH" != "S2026" ] || \
                [ "$AUTHENTICATED_BACKFILL_COMPANY_SLUG" != "zenbu-2" ] || \
-               [ "$RECOVER_AUTHENTICATED_LINKEDIN_LOCK" != "true" ]; then
+               [ "$RECOVER_AUTHENTICATED_LINKEDIN_LOCK" != "false" ]; then
               echo "reason=incident_battery_override_scope_mismatch" >> "$GITHUB_OUTPUT"
               echo "::error title=Battery override scope mismatch::This one-run authorization is bound to the first-attempt exact S2026/zenbu-2 LinkedIn quarantine recovery and its unique replay key."
               exit 1
@@ -858,7 +863,7 @@ jobs:
           AUTHENTICATED_BACKFILL_COMPANY_SLUG: ${{ inputs.authenticated_backfill_company_slug || '' }}
           RECOVER_AUTHENTICATED_LINKEDIN_LOCK: ${{ inputs.recover_authenticated_linkedin_lock || false }}
           INCIDENT_ZENBU_BATTERY_OVERRIDE: ${{ inputs.incident_zenbu_battery_override || false }}
-          INCIDENT_ZENBU_BATTERY_REPLAY_KEY: incident-20260912-s2026-zenbu-linkedin-battery-01
+          INCIDENT_ZENBU_BATTERY_REPLAY_KEY: incident-20260912-s2026-zenbu-linkedin-battery-02
           AUTHENTICATED_BATTERY_MIN_START_PERCENT: "5"
           INGESTION_IDEMPOTENCY_KEY: ${{ needs.resolve.outputs.slot_key }}
           GITHUB_EVENT_NAME: ${{ github.event_name }}
@@ -873,7 +878,7 @@ jobs:
                [ "$AUTHENTICATED_BACKFILL_SCOPE" != "linkedin" ] || \
                [ "$AUTHENTICATED_BACKFILL_BATCH" != "S2026" ] || \
                [ "$AUTHENTICATED_BACKFILL_COMPANY_SLUG" != "zenbu-2" ] || \
-               [ "$RECOVER_AUTHENTICATED_LINKEDIN_LOCK" != "true" ]; then
+               [ "$RECOVER_AUTHENTICATED_LINKEDIN_LOCK" != "false" ]; then
               echo "::error title=Battery override scope mismatch::The incident authorization no longer matches the exact first-attempt S2026/zenbu-2 LinkedIn recovery."
               exit 1
             fi
@@ -989,7 +994,7 @@ jobs:
           AUTHENTICATED_BACKFILL_COMPANY_SLUG: ${{ inputs.authenticated_backfill_company_slug || '' }}
           RECOVER_AUTHENTICATED_LINKEDIN_LOCK: ${{ inputs.recover_authenticated_linkedin_lock || false }}
           INCIDENT_ZENBU_BATTERY_OVERRIDE: ${{ inputs.incident_zenbu_battery_override || false }}
-          INCIDENT_ZENBU_BATTERY_REPLAY_KEY: incident-20260912-s2026-zenbu-linkedin-battery-01
+          INCIDENT_ZENBU_BATTERY_REPLAY_KEY: incident-20260912-s2026-zenbu-linkedin-battery-02
           AUTHENTICATED_BATTERY_MIN_START_PERCENT: "5"
           AUTHENTICATED_LINKEDIN_REPLAY_MAX_CHUNKS: ${{ inputs.incident_zenbu_battery_override == true && '1' || '7' }}
           GITHUB_EVENT_NAME: ${{ github.event_name }}
@@ -1042,7 +1047,7 @@ jobs:
                    [ "$AUTHENTICATED_BACKFILL_SCOPE" != "linkedin" ] || \
                    [ "$AUTHENTICATED_BACKFILL_BATCH" != "S2026" ] || \
                    [ "$AUTHENTICATED_BACKFILL_COMPANY_SLUG" != "zenbu-2" ] || \
-                   [ "$RECOVER_AUTHENTICATED_LINKEDIN_LOCK" != "true" ] || \
+                   [ "$RECOVER_AUTHENTICATED_LINKEDIN_LOCK" != "false" ] || \
                    [ "$AUTHENTICATED_LINKEDIN_REPLAY_MAX_CHUNKS" != "1" ] || \
                    [ "$AUTONOMOUS_WORKFLOW_RETRY_MAX_ATTEMPTS" != "1" ] || \
                    [ "$AUTONOMOUS_WORKFLOW_POWER_WATCHDOG_RESERVE_PERCENT" != "5" ]; then

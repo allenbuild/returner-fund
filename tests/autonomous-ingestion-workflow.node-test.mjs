@@ -3443,9 +3443,11 @@ test("workflow routes public ingestion to hosted Linux and authenticated replay 
   );
 });
 
-test("incident Zenbu battery authorization is closed after one exact dispatch", () => {
-  const dispatchSchema = workflow.slice(0, workflow.indexOf("\npermissions:"));
-  assert.doesNotMatch(dispatchSchema, /incident_zenbu_battery_override/);
+test("incident Zenbu battery continuation is bound after proven quarantine recovery", () => {
+  assert.match(
+    workflow,
+    /incident_zenbu_battery_override:[\s\S]*?One-run battery authorization for the exact S2026 Zenbu LinkedIn recovery incident[\s\S]*?default:\s*false[\s\S]*?type:\s*boolean/
+  );
 
   const hostPreflight = workflow.match(
     /- name: Preflight autonomous ingestion host[\s\S]*?(?=\n\s{6}- name:)/
@@ -3459,13 +3461,13 @@ test("incident Zenbu battery authorization is closed after one exact dispatch", 
     'AUTHENTICATED_BACKFILL_SCOPE" != "linkedin"',
     'AUTHENTICATED_BACKFILL_BATCH" != "S2026"',
     'AUTHENTICATED_BACKFILL_COMPANY_SLUG" != "zenbu-2"',
-    'RECOVER_AUTHENTICATED_LINKEDIN_LOCK" != "true"'
+    'RECOVER_AUTHENTICATED_LINKEDIN_LOCK" != "false"'
   ]) {
     assert.ok(hostPreflight.includes(exactBinding), `missing incident binding ${exactBinding}`);
   }
   assert.match(
     hostPreflight,
-    /INCIDENT_ZENBU_BATTERY_REPLAY_KEY:\s*incident-20260912-s2026-zenbu-linkedin-battery-01/
+    /INCIDENT_ZENBU_BATTERY_REPLAY_KEY:\s*incident-20260912-s2026-zenbu-linkedin-battery-02/
   );
   assert.match(hostPreflight, /AUTHENTICATED_BATTERY_MIN_START_PERCENT:\s*"5"/);
   assert.match(hostPreflight, /reason=incident_battery_override_scope_mismatch/);
