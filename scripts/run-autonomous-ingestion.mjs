@@ -164,6 +164,9 @@ const INGESTION_TASK_READ_PAGE_SIZE = 1_000;
 const INGESTION_TASK_READ_MIN_PAGE_SIZE = 125;
 const INGESTION_TASK_READ_MAX_ATTEMPTS = 4;
 const INGESTION_TASK_READ_SUCCESS_PAGES_BEFORE_GROWTH = 2;
+const INGESTION_TASK_TERMINALIZE_CHUNK_SIZE = 100;
+const INGESTION_TASK_TERMINALIZE_MIN_CHUNK_SIZE = 10;
+const INGESTION_TASK_TERMINALIZE_MAX_ATTEMPTS = 4;
 // Structured Git output is parsed as a complete NUL-delimited record stream.
 // Never silently tail-truncate it: a partial first path can be misclassified
 // as an unsafe absolute path during publication recovery.
@@ -5413,16 +5416,53 @@ async function finishTasks(ids, status, reason, attempts = 1) {
   check(error, `finish ${ids.length} ingestion tasks`);
 }
 
-async function terminalizeQueuedTasks(runId, status, reason) {
+async function terminalizeQueuedTaskIds(runId, ids, status, reason, terminalAt, attempt = 1) {
   const { error } = await runSupabaseOperation(
-    "terminalize skipped network tasks",
+    `terminalize skipped network tasks (${ids.length})`,
     () => supabase
       .from("ingestion_tasks")
-      .update({ status, terminal_at: new Date().toISOString(), terminal_reason: reason })
+      .update({ status, terminal_at: terminalAt, terminal_reason: reason })
+      .in("id", ids)
+      .eq("ingestion_run_id", runId)
+      .eq("status", "queued"),
+    { timeoutMs: SUPABASE_BULK_OPERATION_TIMEOUT_MS }
+  );
+  if (!error) return;
+  if (!isRetryableIngestionTaskReadError(error)) {
+    check(error, `terminalize skipped network tasks (${ids.length})`);
+  }
+  if (ids.length > INGESTION_TASK_TERMINALIZE_MIN_CHUNK_SIZE) {
+    const reducedChunkSize = Math.max(
+      INGESTION_TASK_TERMINALIZE_MIN_CHUNK_SIZE,
+      Math.floor(ids.length / 2)
+    );
+    for (const reducedIds of chunks(ids, reducedChunkSize)) {
+      await terminalizeQueuedTaskIds(runId, reducedIds, status, reason, terminalAt);
+    }
+    return;
+  }
+  if (attempt < INGESTION_TASK_TERMINALIZE_MAX_ATTEMPTS) {
+    await delay(250 * attempt);
+    await terminalizeQueuedTaskIds(runId, ids, status, reason, terminalAt, attempt + 1);
+    return;
+  }
+  check(error, `terminalize skipped network tasks (${ids.length})`);
+}
+
+async function terminalizeQueuedTasks(runId, status, reason) {
+  const queuedTasks = await readAllIngestionTaskRows(
+    "read queued tasks for network terminalization",
+    "id",
+    (query) => query
       .eq("ingestion_run_id", runId)
       .eq("status", "queued")
   );
-  check(error, "terminalize skipped network tasks");
+  const terminalAt = new Date().toISOString();
+  await mapWithConcurrency(
+    chunks(queuedTasks.map((task) => task.id), INGESTION_TASK_TERMINALIZE_CHUNK_SIZE),
+    4,
+    (ids) => terminalizeQueuedTaskIds(runId, ids, status, reason, terminalAt)
+  );
 }
 
 async function importDurableEvidence({
@@ -11082,6 +11122,115 @@ async function runLifecycleContractFixture(fixture) {
     } finally {
       supabase = previousSupabase;
       lifecycleOperationTimeoutOverrideMs = previousTimeoutOverride;
+    }
+  }
+
+  if (fixture === "ingestion-task-terminalization") {
+    const previousSupabase = supabase;
+    const fixtureRunId = "terminalization-fixture-run";
+    const fixtureReason = "fixture_network_collection_skipped";
+    const fixtureRows = Array.from({ length: 235 }, (_, index) => ({
+      id: `task-${String(index + 1).padStart(3, "0")}`
+    }));
+    const readRequests = [];
+    const updateRequests = [];
+    const successfulUpdateCounts = new Map();
+    try {
+      supabase = {
+        from: (table) => {
+          if (table !== "ingestion_tasks") throw new Error(`Unexpected fixture table: ${table}`);
+          const request = {
+            mode: null,
+            cursor: null,
+            pageSize: null,
+            payload: null,
+            ids: [],
+            filters: []
+          };
+          const query = {
+            select: () => {
+              request.mode = "select";
+              return query;
+            },
+            update: (payload) => {
+              request.mode = "update";
+              request.payload = payload;
+              return query;
+            },
+            order: () => query,
+            limit: (pageSize) => {
+              request.pageSize = pageSize;
+              return query;
+            },
+            gt: (column, cursor) => {
+              if (column !== "id") throw new Error(`Unexpected fixture cursor column: ${column}`);
+              request.cursor = cursor;
+              return query;
+            },
+            in: (column, ids) => {
+              if (column !== "id") throw new Error(`Unexpected fixture IN column: ${column}`);
+              request.ids = ids;
+              return query;
+            },
+            eq: (column, value) => {
+              request.filters.push([column, value]);
+              return query;
+            },
+            abortSignal: () => {
+              if (request.mode === "select") {
+                readRequests.push({
+                  cursor: request.cursor,
+                  pageSize: request.pageSize,
+                  filters: request.filters
+                });
+                const cursorIndex = request.cursor === null
+                  ? -1
+                  : fixtureRows.findIndex((row) => row.id === request.cursor);
+                const serverCap = 70;
+                return Promise.resolve({
+                  data: fixtureRows.slice(
+                    cursorIndex + 1,
+                    cursorIndex + 1 + Math.min(request.pageSize, serverCap)
+                  ),
+                  error: null
+                });
+              }
+              if (request.mode !== "update") throw new Error("Fixture query mode was not selected.");
+              updateRequests.push({
+                ids: [...request.ids],
+                filters: request.filters,
+                payload: request.payload
+              });
+              if (request.ids.length > 50) {
+                return Promise.resolve({
+                  data: null,
+                  error: { code: "57014", message: "canceling statement due to statement timeout" }
+                });
+              }
+              for (const id of request.ids) {
+                successfulUpdateCounts.set(id, (successfulUpdateCounts.get(id) ?? 0) + 1);
+              }
+              return Promise.resolve({ data: null, error: null });
+            }
+          };
+          return query;
+        }
+      };
+      await terminalizeQueuedTasks(fixtureRunId, "skipped", fixtureReason);
+      const successfulIds = [...successfulUpdateCounts.keys()].sort();
+      return emit({
+        fixture,
+        readRequests,
+        updateSizes: updateRequests.map((request) => request.ids.length),
+        successfulIds,
+        duplicateSuccessfulIds: successfulIds.filter((id) => successfulUpdateCounts.get(id) !== 1),
+        updateFilters: updateRequests.map((request) => request.filters),
+        terminalAtValues: [...new Set(updateRequests.map((request) => request.payload?.terminal_at))],
+        updateStatuses: [...new Set(updateRequests.map((request) => request.payload?.status))],
+        updateReasons: [...new Set(updateRequests.map((request) => request.payload?.terminal_reason))]
+      });
+    } finally {
+      supabase = previousSupabase;
     }
   }
 

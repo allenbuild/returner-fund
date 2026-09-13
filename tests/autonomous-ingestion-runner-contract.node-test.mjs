@@ -968,6 +968,36 @@ if (mode === "fail") {
     assert.equal(payload.queryCalls, 4);
   });
 
+  it("terminalizes a large queued task set in retryable, bounded ID chunks", () => {
+    const payload = lifecycleFixturePayload(runLifecycleFixture(
+      "ingestion-task-terminalization"
+    ));
+
+    assert.equal(payload.readRequests.length, 5);
+    assert.deepEqual(
+      payload.readRequests.map((request) => request.cursor),
+      [null, "task-070", "task-140", "task-210", "task-235"]
+    );
+    assert.ok(payload.readRequests.every((request) => request.pageSize === 1_000));
+    assert.ok(payload.readRequests.every((request) => JSON.stringify(request.filters) === JSON.stringify([
+      ["ingestion_run_id", "terminalization-fixture-run"],
+      ["status", "queued"]
+    ])));
+    assert.deepEqual([...payload.updateSizes].sort((left, right) => left - right), [35, 50, 50, 50, 50, 100, 100]);
+    assert.equal(payload.successfulIds.length, 235);
+    assert.equal(payload.successfulIds[0], "task-001");
+    assert.equal(payload.successfulIds.at(-1), "task-235");
+    assert.deepEqual(payload.duplicateSuccessfulIds, []);
+    assert.ok(payload.updateFilters.every((filters) => JSON.stringify(filters) === JSON.stringify([
+      ["ingestion_run_id", "terminalization-fixture-run"],
+      ["status", "queued"]
+    ])));
+    assert.equal(payload.terminalAtValues.length, 1);
+    assert.match(payload.terminalAtValues[0], /^\d{4}-\d{2}-\d{2}T/);
+    assert.deepEqual(payload.updateStatuses, ["skipped"]);
+    assert.deepEqual(payload.updateReasons, ["fixture_network_collection_skipped"]);
+  });
+
   it("aborts and drains an in-flight heartbeat before finalization", () => {
     const result = runLifecycleFixture("heartbeat-drain");
 
@@ -3829,6 +3859,7 @@ describe("autonomous ingestion runner static safety contracts", () => {
     const enqueue = section("async function enqueueTasks", "async function runCollectors");
     const reconcile = section("async function reconcileCollectorTasks", "async function tasksFor");
     const finish = section("async function finishTasks", "async function terminalizeQueuedTasks");
+    const terminalize = section("async function terminalizeQueuedTaskIds", "async function importDurableEvidence");
     const concurrency = section("async function mapWithConcurrency", "function delay");
 
     assert.ok(enqueue.includes("mapWithConcurrency(chunks(rows, 250), 4"));
@@ -3840,6 +3871,18 @@ describe("autonomous ingestion runner static safety contracts", () => {
     assert.doesNotMatch(reconcile, /const snapshot = result\.ok\s*\?/);
     assert.doesNotMatch(reconcile, /failed \? "failed" : "completed"/);
     assert.ok(finish.includes('.in("id", ids)'));
+    assert.ok(terminalize.includes("readAllIngestionTaskRows("));
+    assert.ok(terminalize.includes('.in("id", ids)'));
+    assert.ok(terminalize.includes("INGESTION_TASK_TERMINALIZE_CHUNK_SIZE"));
+    assert.ok(terminalize.includes("INGESTION_TASK_TERMINALIZE_MIN_CHUNK_SIZE"));
+    assert.ok(terminalize.includes("INGESTION_TASK_TERMINALIZE_MAX_ATTEMPTS"));
+    assert.ok(terminalize.includes("isRetryableIngestionTaskReadError(error)"));
+    assert.ok(terminalize.includes("mapWithConcurrency("));
+    assert.ok(terminalize.includes("SUPABASE_BULK_OPERATION_TIMEOUT_MS"));
+    assert.doesNotMatch(
+      terminalize,
+      /\.update\([^)]*\)\s*\.eq\("ingestion_run_id", runId\)\s*\.eq\("status", "queued"\)/s
+    );
     assert.ok(concurrency.includes("await Promise.allSettled(workers)"));
     assert.doesNotMatch(reconcile, /await finishTask\(/);
   });
