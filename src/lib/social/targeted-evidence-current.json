@@ -101,7 +101,8 @@
       "Imported 7 strict native rows from 2026-07-29-manual-sweep-s2026-strict-accepted.json; refreshed 0 duplicates and rejected 0.",
       "Imported 10 strict native rows from 2026-07-29-manual-sweep-s26-strict-accepted.json; refreshed 0 duplicates and rejected 0.",
       "Imported 1 strict native rows from graphify-public-linkedin-evidence.json; refreshed 0 duplicates and rejected 0.",
-      "Imported 1 strict native rows from graphify-hn-evidence.json; refreshed 0 duplicates and rejected 0."
+      "Imported 1 strict native rows from graphify-hn-evidence.json; refreshed 0 duplicates and rejected 0.",
+      "No Top Voice network collection runs during authenticated social replay; canonical targeted evidence is carried forward unchanged."
     ],
     "sourceHuntImportedAt": "2026-08-01T06:22:08Z",
     "generatedAt": "2026-07-16T02:18:38.478Z",
@@ -113,7 +114,7 @@
       "pidBackfilled": 1
     },
     "targetedMergeAudit": {
-      "mergedAt": "2026-09-13T15:34:31.633Z",
+      "mergedAt": "2026-09-13T20:37:51.942Z",
       "existingSnapshots": 1,
       "existingInputRows": 3380,
       "isolatedRunInputRows": 0,

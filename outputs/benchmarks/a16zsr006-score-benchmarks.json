@@ -1,7 +1,7 @@
 {
   "version": 1,
   "batchSlug": "A16ZSR006",
-  "updatedAt": "2026-09-13T15:43:59.908Z",
+  "updatedAt": "2026-09-13T20:57:45.765Z",
   "daily": [
     {
       "recordedAt": "2026-07-06T05:00:00.000Z",
@@ -25298,9 +25298,9 @@
       ]
     },
     {
-      "recordedAt": "2026-09-13T15:43:59.908Z",
+      "recordedAt": "2026-09-13T20:57:45.765Z",
       "scoringModelVersion": "4.3.1",
-      "inputGeneratedAt": "2026-09-13T15:43:28.374Z",
+      "inputGeneratedAt": "2026-09-13T20:57:32.947Z",
       "companies": [
         {
           "companyId": "a16z-speedrun-006-antihero-studios",

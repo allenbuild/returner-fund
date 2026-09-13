@@ -5,14 +5,14 @@
     "slug": "hardware-intelligence",
     "name": "hardware intelligence"
   },
-  "generatedAt": "2026-09-13T15:43:28.374Z",
-  "lastModifiedAt": "2026-09-13T15:43:28.374Z",
+  "generatedAt": "2026-09-13T20:57:32.947Z",
+  "lastModifiedAt": "2026-09-13T20:57:32.947Z",
   "events": [],
   "groups": [],
   "coverage": {
     "status": "partial",
     "publishedEventCount": 0,
-    "lastSuccessfulArtifactAt": "2026-09-13T15:43:28.374Z"
+    "lastSuccessfulArtifactAt": "2026-09-13T20:57:32.947Z"
   },
   "nextCursor": null
 }

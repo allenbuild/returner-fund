@@ -10189,5 +10189,185 @@
     "scheduledAt": "2026-09-13T11:00:00.000Z",
     "evidenceCollectedAt": "2026-09-13T15:34:30.477Z",
     "terminalFailureBudget": 124
+  },
+  {
+    "schemaVersion": 1,
+    "idempotencyKey": "incident-20260912-s2026-zenbu-linkedin-battery-02",
+    "centralDay": null,
+    "observedAt": "2026-09-13T20:55:00.060Z",
+    "baselinePhysicalSources": 18010,
+    "publishedPhysicalSources": 18013,
+    "newPhysicalSources": 3,
+    "newPhysicalSourcesThisAttempt": 3,
+    "retainedPhysicalSources": 18010,
+    "removedPhysicalSources": 0,
+    "dailyNewPhysicalSources": 2638,
+    "dailySourceHealth": "healthy",
+    "collectionHealth": "complete",
+    "collectionHealthReasons": [],
+    "collectorValidation": {
+      "status": "not_applicable",
+      "reason": "authenticated_replay_does_not_run_public_or_github_collector_matrix"
+    },
+    "mappedExpected": null,
+    "mappedSucceeded": null,
+    "mappedNeedsReview": null,
+    "mappedBlockedOrEmpty": null,
+    "providerBlocked": null,
+    "providerBlockedByReason": null,
+    "mappedProviderBlocked": null,
+    "mappedProviderBlockedByReason": null,
+    "mappedScopeUnsupported": null,
+    "mappedFailures": null,
+    "mappedNonTerminal": null,
+    "mappedSuccessRate": null,
+    "newestNewSourcePostedAt": "2026-05-13T19:00:12.382Z",
+    "insertedByBatchPlatform": {
+      "S2026:linkedin": 3
+    },
+    "insertedSourceSamples": [
+      {
+        "batchSlug": "S2026",
+        "platform": "linkedin",
+        "entityType": "founder",
+        "entityId": "founder-zenbu-2-rob-pruzan-3026245",
+        "sourceUrl": "https://www.linkedin.com/feed/update/urn:li:activity:7233122103468662785/",
+        "platformPostId": "7233122103468662785",
+        "platformObjectId": null,
+        "postedAt": "2024-08-24T14:44:54.377Z"
+      },
+      {
+        "batchSlug": "S2026",
+        "platform": "linkedin",
+        "entityType": "founder",
+        "entityId": "founder-zenbu-2-rob-pruzan-3026245",
+        "sourceUrl": "https://www.linkedin.com/feed/update/urn:li:activity:7312515334299631616/",
+        "platformPostId": "7312515334299631616",
+        "platformObjectId": null,
+        "postedAt": "2025-03-31T16:45:15.662Z"
+      },
+      {
+        "batchSlug": "S2026",
+        "platform": "linkedin",
+        "entityType": "founder",
+        "entityId": "founder-zenbu-2-rob-pruzan-3026245",
+        "sourceUrl": "https://www.linkedin.com/feed/update/urn:li:activity:7460403543569731587/",
+        "platformPostId": "7460403543569731587",
+        "platformObjectId": null,
+        "postedAt": "2026-05-13T19:00:12.382Z"
+      }
+    ],
+    "trigger": "manual-replay",
+    "scheduledAt": null,
+    "evidenceCollectedAt": "2026-09-13T15:34:30.477Z",
+    "authenticatedSocialReplay": {
+      "status": "completed",
+      "maxChunks": 1,
+      "targetCapPerChunk": 5,
+      "reserveMs": 900000,
+      "drainHeadroomMs": 300000,
+      "chunkAdmissionPolicy": "runtime-budget",
+      "wallClockChunkAdmissionBudgetMs": 1500000,
+      "requiredRemainingForChunkMs": 2700000,
+      "batteryFloorPercent": null,
+      "batteryFloorComparison": null,
+      "batteryRuntimeEstimateRequired": false,
+      "externalPowerRequiredForChunkAdmission": null,
+      "perChunkBatteryCheckRequired": false,
+      "chunksAdmitted": 0,
+      "chunksAttempted": 0,
+      "chunksCompleted": 0,
+      "targetCapacityAdmitted": 0,
+      "remainingTargetCount": 0,
+      "remainingTargetCountKnown": true,
+      "knownRemainingTargetCount": 0,
+      "unknownRemainingBatches": [],
+      "remainingByBatch": {
+        "S2026": 0
+      },
+      "durableLockConfigured": true,
+      "configurationSkipped": false,
+      "chunkBudgetExhausted": false,
+      "deadlineExhausted": false,
+      "safetyStopped": false,
+      "infrastructureStopped": false,
+      "stopBatchSlug": null,
+      "stopError": null,
+      "batches": [
+        {
+          "batchSlug": "S2026",
+          "instagram": {
+            "status": "skipped",
+            "reason": "authenticated_platform_not_requested",
+            "preflightReason": "authenticated_platform_not_requested"
+          },
+          "linkedin": {
+            "status": "completed",
+            "chunks": [],
+            "finalPlan": {
+              "schemaVersion": 1,
+              "batchSlug": "S2026",
+              "requestedTarget": {
+                "batchSlug": "S2026",
+                "companySlug": "zenbu-2"
+              },
+              "catalogCompanyCount": 197,
+              "companyCount": 1,
+              "founderCount": 1,
+              "remainingTargetCount": 0,
+              "selectedForThisInvocationCount": 0,
+              "linkedinExecution": {
+                "remainingTargetCount": 0,
+                "selectedForThisInvocationCount": 0,
+                "runnableTargetCount": 0
+              },
+              "targetCount": 2,
+              "runnableTargetCount": 0,
+              "targetIdentitiesSha256": "dfe867d32c86c3e045d1ee4ad168041e69f9786e879fc6100c8d8ee42c163433",
+              "runnableTargetIdentitiesSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+              "targetIdentitySamples": [
+                {
+                  "batchSlug": "S2026",
+                  "companySlug": "zenbu-2",
+                  "entityType": "company",
+                  "entityId": "company-zenbu-2",
+                  "platform": "linkedin",
+                  "checkpointKey": "S2026:linkedin:company-zenbu-2:https://www.linkedin.com/company/116834103/"
+                },
+                {
+                  "batchSlug": "S2026",
+                  "companySlug": "zenbu-2",
+                  "entityType": "founder",
+                  "entityId": "founder-zenbu-2-rob-pruzan-3026245",
+                  "platform": "linkedin",
+                  "checkpointKey": "S2026:linkedin:founder-zenbu-2-rob-pruzan-3026245:https://www.linkedin.com/in/robert-pruzan/"
+                }
+              ],
+              "runnableTargetIdentitySamples": []
+            }
+          }
+        }
+      ],
+      "requestedScope": "linkedin",
+      "requestedPlatforms": [
+        "linkedin"
+      ],
+      "requestedTarget": {
+        "batchSlug": "S2026",
+        "companySlug": "zenbu-2"
+      },
+      "platformStatus": {
+        "instagram": {
+          "requested": false,
+          "status": "not_requested"
+        },
+        "linkedin": {
+          "requested": true,
+          "status": "completed"
+        }
+      },
+      "platformDebt": []
+    },
+    "terminalFailureBudget": null
   }
 ]
