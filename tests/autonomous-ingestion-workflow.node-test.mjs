@@ -650,7 +650,7 @@ test("accepted resolver jobs fail closed and re-export only validated outputs", 
   }
 });
 
-test("all workflow shell blocks remain fixed at 64 and queued schedules are rechecked", (t) => {
+test("all workflow shell blocks remain fixed at 65 and queued schedules are rechecked", (t) => {
   const shellBlockCount = [workflow, dailyBenchmarkWorkflow, readFileSync(
     path.join(repositoryRoot, ".github", "workflows", "public-artifacts.yml"),
     "utf8"
@@ -658,7 +658,7 @@ test("all workflow shell blocks remain fixed at 64 and queued schedules are rech
     (total, source) => total + (source.match(/^ {8}run:/gm)?.length ?? 0),
     0
   );
-  assert.equal(shellBlockCount, 64);
+  assert.equal(shellBlockCount, 65);
 
   const directory = mkdtempSync(path.join(tmpdir(), "returner-queued-freshness-"));
   t.after(() => rmSync(directory, { recursive: true, force: true }));
@@ -1924,6 +1924,113 @@ test("authenticated power watchdog trusts hardware power and lid telemetry fail 
   assert.match(errors.join("\n"), /ExternalConnected=No/);
 });
 
+test("incident Zenbu battery watchdog permits only open-lid battery work and drains at 30 percent", async () => {
+  const disconnectedOpen = Object.freeze({
+    externalConnected: false,
+    clamshellOpen: true
+  });
+  const disconnectedClosed = Object.freeze({
+    externalConnected: false,
+    clamshellOpen: false
+  });
+  const disconnectedUnverifiedLid = Object.freeze({
+    externalConnected: false,
+    clamshellOpen: null
+  });
+
+  assert.equal(
+    authenticatedMacPowerUnsafeReason(disconnectedOpen),
+    "authenticated_external_power_disconnected",
+    "the default authenticated replay must still reject disconnected power"
+  );
+  assert.equal(
+    authenticatedMacPowerUnsafeReason(disconnectedOpen, {
+      allowDisconnectedBattery: true
+    }),
+    null
+  );
+  assert.equal(
+    authenticatedMacPowerUnsafeReason(disconnectedClosed, {
+      allowDisconnectedBattery: true
+    }),
+    "authenticated_clamshell_closed"
+  );
+  assert.equal(
+    authenticatedMacPowerUnsafeReason(disconnectedUnverifiedLid, {
+      allowDisconnectedBattery: true
+    }),
+    "authenticated_clamshell_unverified"
+  );
+
+  const stalePmsetAboveFloor = parseMacPowerStatus(
+    "Now drawing from 'AC Power'\n -InternalBattery-0 31%; discharging; 0:20 remaining"
+  );
+  const stalePmsetAtFloor = parseMacPowerStatus(
+    "Now drawing from 'AC Power'\n -InternalBattery-0 30%; discharging; 0:18 remaining"
+  );
+  assert.equal(shouldTerminateForLowPower(stalePmsetAtFloor, 30), false);
+  assert.equal(
+    shouldTerminateForLowPower(stalePmsetAboveFloor, 30, { forceBattery: true }),
+    false
+  );
+  assert.equal(
+    shouldTerminateForLowPower(stalePmsetAtFloor, 30, { forceBattery: true }),
+    true,
+    "authoritative disconnected telemetry must override a stale pmset AC header"
+  );
+
+  const statuses = [stalePmsetAboveFloor, stalePmsetAtFloor];
+  const terminations = [];
+  let statusReads = 0;
+  const watchdog = startAutonomousIngestionPowerWatchdog({
+    environment: {
+      AUTHENTICATED_SOCIAL_REPLAY: "true",
+      INCIDENT_ZENBU_BATTERY_OVERRIDE: "true",
+      AUTONOMOUS_WORKFLOW_POWER_WATCHDOG_RESERVE_PERCENT: "30",
+      AUTONOMOUS_WORKFLOW_POWER_WATCHDOG_INTERVAL_SECONDS: "30"
+    },
+    intervalMs: 1,
+    readAuthenticatedPowerState: async () => disconnectedOpen,
+    readPowerStatus: async () => statuses[Math.min(statusReads++, statuses.length - 1)],
+    onLowReserve: (status) => terminations.push(status),
+    reporter: { warn() {}, error() {} }
+  });
+  await watchdog.done;
+  await watchdog.stop();
+
+  assert.equal(statusReads, 2);
+  assert.equal(terminations.length, 1);
+  assert.equal(terminations[0].batteryPercent, 30);
+  assert.equal(terminations[0].reservePercent, 30);
+});
+
+test("incident Zenbu battery watchdog stops when the numeric reserve is unreadable", async () => {
+  const terminations = [];
+  const errors = [];
+  const watchdog = startAutonomousIngestionPowerWatchdog({
+    environment: {
+      AUTHENTICATED_SOCIAL_REPLAY: "true",
+      INCIDENT_ZENBU_BATTERY_OVERRIDE: "true",
+      AUTONOMOUS_WORKFLOW_POWER_WATCHDOG_RESERVE_PERCENT: "30",
+      AUTONOMOUS_WORKFLOW_POWER_WATCHDOG_INTERVAL_SECONDS: "30"
+    },
+    intervalMs: 1,
+    readAuthenticatedPowerState: async () => ({
+      externalConnected: false,
+      clamshellOpen: true
+    }),
+    readPowerStatus: async () => ({ onACPower: true, batteryPercent: null }),
+    onLowReserve: (status) => terminations.push(status),
+    reporter: { warn() {}, error(message) { errors.push(message); } }
+  });
+  await watchdog.done;
+  await watchdog.stop();
+
+  assert.equal(terminations.length, 1);
+  assert.equal(terminations[0].reason, "incident_battery_percent_unverified");
+  assert.match(errors.join("\n"), /battery percentage.*(?:missing|unverified|verify)/i);
+});
+
 test("power watchdog enters the retry controller SIGTERM drain and leaves the slot retryable", async (t) => {
   const directory = mkdtempSync(path.join(tmpdir(), "returner-power-watchdog-"));
   t.after(() => rmSync(directory, { recursive: true, force: true }));
@@ -2203,7 +2310,10 @@ test("autonomous runner receives optional durability secrets and owns validated 
   assert.doesNotMatch(hostPreflight, /git config --(?:local|global|system)/);
   assert.match(hostPreflight, /echo "ready=true"/);
   assert.match(hostPreflight, /\/usr\/bin\/pmset -g assertions/);
-  assert.match(hostPreflight, /PreventSystemSleep\[\[:space:\]\]\+1/);
+  assert.match(
+    hostPreflight,
+    /\(PreventSystemSleep\|PreventUserIdleSystemSleep\)\[\[:space:\]\]\+1/
+  );
   assert.match(hostPreflight, /if \[ "\$AUTHENTICATED_SOCIAL_REPLAY" = "true" \]/);
   assert.match(hostPreflight, /\/usr\/sbin\/ioreg -r -c AppleSmartBattery -d 1/);
   assert.match(hostPreflight, /"ExternalConnected"/);
@@ -2253,7 +2363,7 @@ test("autonomous runner receives optional durability secrets and owns validated 
   assert.doesNotMatch(runnerStep, /NEXT_PUBLIC_SUPABASE_URL:\?/);
   assert.doesNotMatch(runnerStep, /SUPABASE_SERVICE_ROLE_KEY:\?/);
   assert.match(runnerStep, /exec node scripts\/lib\/autonomous-ingestion-workflow-retry\.mjs --/);
-  assert.doesNotMatch(runnerStep, /IOPMUserTriggeredFullWake/);
+  assert.match(runnerStep, /IOPMUserTriggeredFullWake/);
   assert.match(runnerStep, /\/usr\/bin\/pmset -g batt/);
   assert.match(runnerStep, /\/usr\/sbin\/ioreg -r -c AppleSmartBattery -d 1/);
   assert.match(runnerStep, /"ExternalConnected"/);
@@ -2272,7 +2382,10 @@ test("autonomous runner receives optional durability secrets and owns validated 
   assert.doesNotMatch(runnerStep, /\/usr\/bin\/caffeinate -[^\n]*u[^\n]* -w \$\$/);
   assert.doesNotMatch(runnerStep, /\/usr\/bin\/caffeinate -u/);
   assert.doesNotMatch(runnerStep, /exec node scripts\/run-autonomous-ingestion\.mjs/);
-  assert.match(runnerStep, /AUTONOMOUS_WORKFLOW_RETRY_MAX_ATTEMPTS:\s*"6"/);
+  assert.match(
+    runnerStep,
+    /AUTONOMOUS_WORKFLOW_RETRY_MAX_ATTEMPTS:\s*\$\{\{ inputs\.incident_zenbu_battery_override == true && '1' \|\| '6' \}\}/
+  );
   assert.match(
     runnerStep,
     /AUTONOMOUS_WORKFLOW_RETRY_MAX_ELAPSED_SECONDS:\s*\$\{\{ runner\.os == 'macOS' && '22200' \|\| '20100' \}\}/
@@ -2282,7 +2395,7 @@ test("autonomous runner receives optional durability secrets and owns validated 
   assert.match(runnerStep, /AUTONOMOUS_MIN_BATTERY_PERCENT:\s*"30"/);
   assert.match(
     runnerStep,
-    /AUTONOMOUS_WORKFLOW_POWER_WATCHDOG_RESERVE_PERCENT:\s*\$\{\{ runner\.os == 'macOS' && '20' \|\| '' \}\}/
+    /AUTONOMOUS_WORKFLOW_POWER_WATCHDOG_RESERVE_PERCENT:\s*\$\{\{ runner\.os == 'macOS' && inputs\.incident_zenbu_battery_override == true && '30' \|\| runner\.os == 'macOS' && '20' \|\| '' \}\}/
   );
   assert.match(
     runnerStep,
@@ -3328,6 +3441,92 @@ test("workflow routes public ingestion to hosted Linux and authenticated replay 
     preflightStep,
     /SUPABASE|X_BEARER|EXA_API|GITHUB_TOKEN/
   );
+});
+
+test("incident Zenbu battery authorization is bound to one exact first-attempt recovery", () => {
+  assert.match(
+    workflow,
+    /incident_zenbu_battery_override:[\s\S]*?One-run battery authorization for the exact S2026 Zenbu LinkedIn recovery incident[\s\S]*?default:\s*false[\s\S]*?type:\s*boolean/
+  );
+
+  const hostPreflight = workflow.match(
+    /- name: Preflight autonomous ingestion host[\s\S]*?(?=\n\s{6}- name:)/
+  )?.[0] ?? "";
+  for (const exactBinding of [
+    'GITHUB_EVENT_NAME" != "workflow_dispatch"',
+    'GITHUB_RUN_ATTEMPT" != "1"',
+    'CANDIDATE_TRIGGER" != "manual-replay"',
+    'INGESTION_IDEMPOTENCY_KEY" != "$INCIDENT_ZENBU_BATTERY_REPLAY_KEY"',
+    'AUTHENTICATED_SOCIAL_REPLAY" != "true"',
+    'AUTHENTICATED_BACKFILL_SCOPE" != "linkedin"',
+    'AUTHENTICATED_BACKFILL_BATCH" != "S2026"',
+    'AUTHENTICATED_BACKFILL_COMPANY_SLUG" != "zenbu-2"',
+    'RECOVER_AUTHENTICATED_LINKEDIN_LOCK" != "true"'
+  ]) {
+    assert.ok(hostPreflight.includes(exactBinding), `missing incident binding ${exactBinding}`);
+  }
+  assert.match(
+    hostPreflight,
+    /INCIDENT_ZENBU_BATTERY_REPLAY_KEY:\s*incident-20260912-s2026-zenbu-linkedin-battery-01/
+  );
+  assert.match(hostPreflight, /AUTHENTICATED_BATTERY_MIN_START_PERCENT:\s*"40"/);
+  assert.match(hostPreflight, /reason=incident_battery_override_scope_mismatch/);
+  assert.match(hostPreflight, /reason=incident_battery_reserve_below_start/);
+  assert.match(hostPreflight, /exact two-account S2026\/zenbu-2 LinkedIn recovery/);
+  assert.ok(
+    hostPreflight.indexOf("EXTERNAL_POWER_MATCH_COUNT") <
+      hostPreflight.indexOf("CLAMSHELL_MATCH_COUNT") &&
+      hostPreflight.indexOf("CLAMSHELL_MATCH_COUNT") <
+      hostPreflight.indexOf("FULL_WAKE_MATCH_COUNT"),
+    "hardware power, lid, and user full-wake checks must all precede readiness"
+  );
+
+  const runnerStep = workflow.match(
+    /- name: Run autonomous ingestion[\s\S]*?(?=\n\s{6}- name:)/
+  )?.[0] ?? "";
+  assert.match(
+    runnerStep,
+    /INCIDENT_ZENBU_BATTERY_OVERRIDE:\s*\$\{\{ inputs\.incident_zenbu_battery_override \|\| false \}\}/
+  );
+  assert.match(
+    runnerStep,
+    /AUTONOMOUS_WORKFLOW_RETRY_MAX_ATTEMPTS:\s*\$\{\{ inputs\.incident_zenbu_battery_override == true && '1' \|\| '6' \}\}/
+  );
+  assert.match(
+    runnerStep,
+    /AUTONOMOUS_WORKFLOW_POWER_WATCHDOG_RESERVE_PERCENT:\s*\$\{\{ runner\.os == 'macOS' && inputs\.incident_zenbu_battery_override == true && '30' \|\| runner\.os == 'macOS' && '20' \|\| '' \}\}/
+  );
+  assert.match(runnerStep, /AUTHENTICATED_BATTERY_MIN_START_PERCENT:\s*"40"/);
+  assert.match(runnerStep, /AUTHENTICATED_LINKEDIN_REPLAY_MAX_CHUNKS:[\s\S]*?'1'[\s\S]*?'7'/);
+  assert.match(
+    runnerStep,
+    /inputs\.authenticated_backfill != true \|\| steps\.authenticated_replay_power_recheck\.outcome == 'success'/
+  );
+
+  const powerRecheck = workflow.match(
+    /- name: Recheck authenticated replay power policy[\s\S]*?(?=\n\s{6}- name:)/
+  )?.[0] ?? "";
+  assert.match(powerRecheck, /AUTHENTICATED_BATTERY_MIN_START_PERCENT:\s*"40"/);
+  assert.match(powerRecheck, /IOPMUserTriggeredFullWake/);
+  assert.match(powerRecheck, /AppleClamshellState/);
+  assert.match(powerRecheck, /Exact Zenbu battery replay revalidated/);
+  assert.match(powerRecheck, /watchdog remains armed/);
+  const controllerIndex = runnerStep.indexOf(
+    "exec node scripts/lib/autonomous-ingestion-workflow-retry.mjs --"
+  );
+  assert.ok(controllerIndex > 0);
+  for (const recheck of [
+    "/usr/sbin/ioreg -r -c AppleSmartBattery -d 1",
+    "/usr/sbin/ioreg -r -k AppleClamshellState -d 4",
+    "/usr/sbin/ioreg -r -k IOPMUserTriggeredFullWake -d 4",
+    "AUTHENTICATED_BATTERY_MIN_START_PERCENT"
+  ]) {
+    const recheckIndex = powerRecheck.indexOf(recheck);
+    assert.ok(
+      recheckIndex >= 0 && workflow.indexOf(powerRecheck) < workflow.indexOf(runnerStep),
+      `${recheck} must be rechecked before controller launch`
+    );
+  }
 });
 
 test("failed or cancelled hosted collection restores source-bound redundant state without caching authenticated browser data", () => {

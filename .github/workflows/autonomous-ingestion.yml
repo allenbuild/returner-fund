@@ -55,6 +55,11 @@ on:
         required: false
         default: false
         type: boolean
+      incident_zenbu_battery_override:
+        description: One-run battery authorization for the exact S2026 Zenbu LinkedIn recovery incident
+        required: false
+        default: false
+        type: boolean
 
 permissions:
   contents: read
@@ -367,8 +372,18 @@ jobs:
         timeout-minutes: 1
         env:
           AUTHENTICATED_SOCIAL_REPLAY: ${{ inputs.authenticated_backfill || false }}
+          AUTHENTICATED_BACKFILL_SCOPE: ${{ inputs.authenticated_backfill_scope || 'all' }}
+          AUTHENTICATED_BACKFILL_BATCH: ${{ inputs.authenticated_backfill_batch || 'all' }}
+          AUTHENTICATED_BACKFILL_COMPANY_SLUG: ${{ inputs.authenticated_backfill_company_slug || '' }}
+          RECOVER_AUTHENTICATED_LINKEDIN_LOCK: ${{ inputs.recover_authenticated_linkedin_lock || false }}
+          INCIDENT_ZENBU_BATTERY_OVERRIDE: ${{ inputs.incident_zenbu_battery_override || false }}
+          INCIDENT_ZENBU_BATTERY_REPLAY_KEY: incident-20260912-s2026-zenbu-linkedin-battery-01
+          AUTHENTICATED_BATTERY_MIN_START_PERCENT: "40"
           AUTONOMOUS_MIN_BATTERY_PERCENT: "30"
           CANDIDATE_TRIGGER: ${{ needs.resolve.outputs.trigger }}
+          INGESTION_IDEMPOTENCY_KEY: ${{ needs.resolve.outputs.slot_key }}
+          GITHUB_EVENT_NAME: ${{ github.event_name }}
+          GITHUB_RUN_ATTEMPT: ${{ github.run_attempt }}
           GITHUB_REPOSITORY: ${{ github.repository }}
           GITHUB_TOKEN: ${{ github.token }}
         run: |
@@ -379,6 +394,22 @@ jobs:
             echo "reason=host_preflight_pending"
           } >> "$GITHUB_OUTPUT"
 
+          if [ "$INCIDENT_ZENBU_BATTERY_OVERRIDE" = "true" ]; then
+            if [ "$GITHUB_EVENT_NAME" != "workflow_dispatch" ] || \
+               [ "$GITHUB_RUN_ATTEMPT" != "1" ] || \
+               [ "$CANDIDATE_TRIGGER" != "manual-replay" ] || \
+               [ "$INGESTION_IDEMPOTENCY_KEY" != "$INCIDENT_ZENBU_BATTERY_REPLAY_KEY" ] || \
+               [ "$AUTHENTICATED_SOCIAL_REPLAY" != "true" ] || \
+               [ "$AUTHENTICATED_BACKFILL_SCOPE" != "linkedin" ] || \
+               [ "$AUTHENTICATED_BACKFILL_BATCH" != "S2026" ] || \
+               [ "$AUTHENTICATED_BACKFILL_COMPANY_SLUG" != "zenbu-2" ] || \
+               [ "$RECOVER_AUTHENTICATED_LINKEDIN_LOCK" != "true" ]; then
+              echo "reason=incident_battery_override_scope_mismatch" >> "$GITHUB_OUTPUT"
+              echo "::error title=Battery override scope mismatch::This one-run authorization is bound to the first-attempt exact S2026/zenbu-2 LinkedIn quarantine recovery and its unique replay key."
+              exit 1
+            fi
+          fi
+
           if [ "$AUTHENTICATED_SOCIAL_REPLAY" = "true" ] && [ "${RUNNER_OS:-}" != "macOS" ]; then
             echo "reason=authenticated_replay_requires_local_mac" >> "$GITHUB_OUTPUT"
             echo "::error title=Authenticated replay runner mismatch::Authenticated browser replay must run on the dedicated local Mac."
@@ -387,7 +418,12 @@ jobs:
 
           if [ "${RUNNER_OS:-}" = "macOS" ]; then
             POWER_STATUS="$(/usr/bin/pmset -g batt)"
-            BATTERY_PERCENT="$(sed -nE 's/.*[[:space:]]([0-9]{1,3})%;.*/\1/p' <<< "$POWER_STATUS" | head -n 1)"
+            BATTERY_PERCENT_VALUES="$(sed -nE 's/.*[[:space:]]([0-9]{1,3})%;.*/\1/p' <<< "$POWER_STATUS")"
+            BATTERY_PERCENT_MATCH_COUNT="$(grep -Ec '^(100|[0-9]{1,2})$' <<< "$BATTERY_PERCENT_VALUES" || true)"
+            BATTERY_PERCENT=""
+            if [ "$BATTERY_PERCENT_MATCH_COUNT" -eq 1 ]; then
+              BATTERY_PERCENT="$BATTERY_PERCENT_VALUES"
+            fi
             if [ "$AUTHENTICATED_SOCIAL_REPLAY" = "true" ]; then
               # pmset can retain an "AC Power" header after the charger is
               # physically disconnected. Authenticated browser work must use
@@ -403,9 +439,16 @@ jobs:
                 exit 1
               fi
               if [ "$EXTERNAL_POWER_CONNECTED_COUNT" -ne 1 ]; then
-                echo "reason=authenticated_external_power_disconnected" >> "$GITHUB_OUTPUT"
-                echo "::error title=Authenticated replay requires physical AC power::AppleSmartBattery reports ExternalConnected=No. Connect power before retrying; the pmset header is not accepted as proof."
-                exit 1
+                if [ "$INCIDENT_ZENBU_BATTERY_OVERRIDE" != "true" ]; then
+                  echo "reason=authenticated_external_power_disconnected" >> "$GITHUB_OUTPUT"
+                  echo "::error title=Authenticated replay requires physical AC power::AppleSmartBattery reports ExternalConnected=No. Connect power before retrying; the pmset header is not accepted as proof."
+                  exit 1
+                fi
+                if [[ ! "$BATTERY_PERCENT" =~ ^[0-9]+$ ]] || [ "$BATTERY_PERCENT" -lt "$AUTHENTICATED_BATTERY_MIN_START_PERCENT" ]; then
+                  echo "reason=incident_battery_reserve_below_start" >> "$GITHUB_OUTPUT"
+                  echo "::error title=Authorized battery reserve unavailable::The exact Zenbu replay requires at least ${AUTHENTICATED_BATTERY_MIN_START_PERCENT}% at start and hardware reports ${BATTERY_PERCENT:-unknown}%."
+                  exit 1
+                fi
               fi
 
               CLAMSHELL_STATE="$(/usr/sbin/ioreg -r -k AppleClamshellState -d 4 2>/dev/null || true)"
@@ -421,7 +464,11 @@ jobs:
                 echo "::error title=Authenticated replay requires an open lid::AppleClamshellState reports Yes. Open the Mac lid before retrying because caffeinate cannot override clamshell sleep."
                 exit 1
               fi
-              echo "::notice title=Authenticated replay power continuity verified::AppleSmartBattery reports physical AC connected and AppleClamshellState reports an open lid."
+              if [ "$EXTERNAL_POWER_CONNECTED_COUNT" -eq 1 ]; then
+                echo "::notice title=Authenticated replay power continuity verified::AppleSmartBattery reports physical AC connected and AppleClamshellState reports an open lid."
+              else
+                echo "::warning title=Explicit one-run battery authorization::Launching only the exact two-account S2026/zenbu-2 LinkedIn recovery at ${BATTERY_PERCENT}% with an open lid; the watchdog will checkpoint and stop at 30%."
+              fi
             elif [[ "${POWER_STATUS%%$'\n'*}" != *"'AC Power'"* ]]; then
               if [[ ! "$BATTERY_PERCENT" =~ ^[0-9]+$ ]]; then
                 echo "::warning title=Runner power state unavailable::The battery reserve could not be verified. This slot remains stale and the host supervisor will retry it."
@@ -504,7 +551,12 @@ jobs:
 
           if [ "${RUNNER_OS:-}" = "macOS" ]; then
             POWER_ASSERTIONS="$(/usr/bin/pmset -g assertions 2>/dev/null || true)"
-            if ! grep -Eq '^[[:space:]]*PreventSystemSleep[[:space:]]+1([[:space:]]|$)' <<< "$POWER_ASSERTIONS"; then
+            if ! grep -Eq '^[[:space:]]*(PreventSystemSleep|PreventUserIdleSystemSleep)[[:space:]]+1([[:space:]]|$)' <<< "$POWER_ASSERTIONS"; then
+              if [ "$INCIDENT_ZENBU_BATTERY_OVERRIDE" = "true" ]; then
+                echo "reason=incident_battery_supervisor_assertion_missing" >> "$GITHUB_OUTPUT"
+                echo "::error title=Battery replay sleep protection unavailable::The exact Zenbu battery authorization requires the pre-existing host supervisor to hold an effective system-sleep assertion before setup begins."
+                exit 1
+              fi
               echo "::warning title=Durable sleep assertion is missing::The job-scoped assertion will protect this run; reinstall the host supervisor to restore maintenance-wake coverage."
             fi
 
@@ -802,9 +854,91 @@ jobs:
         timeout-minutes: 5
         run: npm ci
 
+      - name: Recheck authenticated replay power policy
+        id: authenticated_replay_power_recheck
+        if: steps.revalidate.outputs.should_run == 'true' && steps.host_preflight.outputs.ready == 'true' && needs.resolve.outputs.trigger == 'manual-replay' && inputs.authenticated_backfill == true
+        timeout-minutes: 1
+        env:
+          AUTHENTICATED_BACKFILL_SCOPE: ${{ inputs.authenticated_backfill_scope || 'all' }}
+          AUTHENTICATED_BACKFILL_BATCH: ${{ inputs.authenticated_backfill_batch || 'all' }}
+          AUTHENTICATED_BACKFILL_COMPANY_SLUG: ${{ inputs.authenticated_backfill_company_slug || '' }}
+          RECOVER_AUTHENTICATED_LINKEDIN_LOCK: ${{ inputs.recover_authenticated_linkedin_lock || false }}
+          INCIDENT_ZENBU_BATTERY_OVERRIDE: ${{ inputs.incident_zenbu_battery_override || false }}
+          INCIDENT_ZENBU_BATTERY_REPLAY_KEY: incident-20260912-s2026-zenbu-linkedin-battery-01
+          AUTHENTICATED_BATTERY_MIN_START_PERCENT: "40"
+          INGESTION_IDEMPOTENCY_KEY: ${{ needs.resolve.outputs.slot_key }}
+          GITHUB_EVENT_NAME: ${{ github.event_name }}
+          GITHUB_RUN_ATTEMPT: ${{ github.run_attempt }}
+        run: |
+          set -euo pipefail
+
+          if [ "$INCIDENT_ZENBU_BATTERY_OVERRIDE" = "true" ]; then
+            if [ "$GITHUB_EVENT_NAME" != "workflow_dispatch" ] || \
+               [ "$GITHUB_RUN_ATTEMPT" != "1" ] || \
+               [ "$INGESTION_IDEMPOTENCY_KEY" != "$INCIDENT_ZENBU_BATTERY_REPLAY_KEY" ] || \
+               [ "$AUTHENTICATED_BACKFILL_SCOPE" != "linkedin" ] || \
+               [ "$AUTHENTICATED_BACKFILL_BATCH" != "S2026" ] || \
+               [ "$AUTHENTICATED_BACKFILL_COMPANY_SLUG" != "zenbu-2" ] || \
+               [ "$RECOVER_AUTHENTICATED_LINKEDIN_LOCK" != "true" ]; then
+              echo "::error title=Battery override scope mismatch::The incident authorization no longer matches the exact first-attempt S2026/zenbu-2 LinkedIn recovery."
+              exit 1
+            fi
+          fi
+
+          POWER_STATUS="$(/usr/bin/pmset -g batt)"
+          BATTERY_PERCENT_VALUES="$(sed -nE 's/.*[[:space:]]([0-9]{1,3})%;.*/\1/p' <<< "$POWER_STATUS")"
+          BATTERY_PERCENT_MATCH_COUNT="$(grep -Ec '^(100|[0-9]{1,2})$' <<< "$BATTERY_PERCENT_VALUES" || true)"
+          BATTERY_PERCENT=""
+          if [ "$BATTERY_PERCENT_MATCH_COUNT" -eq 1 ]; then
+            BATTERY_PERCENT="$BATTERY_PERCENT_VALUES"
+          fi
+
+          SMART_BATTERY_STATE="$(/usr/sbin/ioreg -r -c AppleSmartBattery -d 1 2>/dev/null || true)"
+          EXTERNAL_POWER_MATCH_COUNT="$(grep -Eoc '^[[:space:]|]*"ExternalConnected"[[:space:]]*=[[:space:]]*(Yes|No)[[:space:]]*$' <<< "$SMART_BATTERY_STATE" || true)"
+          EXTERNAL_POWER_CONNECTED_COUNT="$(grep -Eoc '^[[:space:]|]*"ExternalConnected"[[:space:]]*=[[:space:]]*Yes[[:space:]]*$' <<< "$SMART_BATTERY_STATE" || true)"
+          if [ "$EXTERNAL_POWER_MATCH_COUNT" -ne 1 ]; then
+            echo "::error title=Authenticated replay physical power unverified::AppleSmartBattery ExternalConnected telemetry is missing or ambiguous immediately before browser access."
+            exit 1
+          fi
+          if [ "$EXTERNAL_POWER_CONNECTED_COUNT" -ne 1 ]; then
+            if [ "$INCIDENT_ZENBU_BATTERY_OVERRIDE" != "true" ]; then
+              echo "::error title=Authenticated replay requires physical AC power::AppleSmartBattery reports ExternalConnected=No immediately before browser access."
+              exit 1
+            fi
+            if [ "$BATTERY_PERCENT_MATCH_COUNT" -ne 1 ] || [ "$BATTERY_PERCENT" -lt "$AUTHENTICATED_BATTERY_MIN_START_PERCENT" ]; then
+              echo "::error title=Authorized battery reserve unavailable::The exact Zenbu replay requires one verified battery reading at or above ${AUTHENTICATED_BATTERY_MIN_START_PERCENT}%; hardware reports ${BATTERY_PERCENT:-unknown}."
+              exit 1
+            fi
+          fi
+
+          CLAMSHELL_STATE="$(/usr/sbin/ioreg -r -k AppleClamshellState -d 4 2>/dev/null || true)"
+          CLAMSHELL_MATCH_COUNT="$(grep -Eoc '^[[:space:]|]*"AppleClamshellState"[[:space:]]*=[[:space:]]*(Yes|No)[[:space:]]*$' <<< "$CLAMSHELL_STATE" || true)"
+          CLAMSHELL_OPEN_COUNT="$(grep -Eoc '^[[:space:]|]*"AppleClamshellState"[[:space:]]*=[[:space:]]*No[[:space:]]*$' <<< "$CLAMSHELL_STATE" || true)"
+          if [ "$CLAMSHELL_MATCH_COUNT" -ne 1 ] || [ "$CLAMSHELL_OPEN_COUNT" -ne 1 ]; then
+            echo "::error title=Authenticated replay requires one verified open-lid state::AppleClamshellState is missing, ambiguous, or closed immediately before browser access."
+            exit 1
+          fi
+
+          USER_WAKE_STATE="$(/usr/sbin/ioreg -r -k IOPMUserTriggeredFullWake -d 4 2>/dev/null || true)"
+          WAKE_MATCH_COUNT="$(grep -Eoc '^[[:space:]|]*"IOPMUserTriggeredFullWake"[[:space:]]*=[[:space:]]*(Yes|No)[[:space:]]*$' <<< "$USER_WAKE_STATE" || true)"
+          FULL_WAKE_MATCH_COUNT="$(grep -Eoc '^[[:space:]|]*"IOPMUserTriggeredFullWake"[[:space:]]*=[[:space:]]*Yes[[:space:]]*$' <<< "$USER_WAKE_STATE" || true)"
+          if [ "$WAKE_MATCH_COUNT" -ne 1 ] || [ "$FULL_WAKE_MATCH_COUNT" -ne 1 ]; then
+            echo "::error title=Authenticated replay requires a user full wake::The Mac is not in one verified user-triggered full-wake state immediately before browser access."
+            exit 1
+          fi
+
+          if [ "$INCIDENT_ZENBU_BATTERY_OVERRIDE" = "true" ]; then
+            POWER_ASSERTIONS="$(/usr/bin/pmset -g assertions 2>/dev/null || true)"
+            if ! grep -Eq '^[[:space:]]*(PreventSystemSleep|PreventUserIdleSystemSleep)[[:space:]]+1([[:space:]]|$)' <<< "$POWER_ASSERTIONS"; then
+              echo "::error title=Battery replay sleep protection unavailable::The existing host supervisor has no effective system-sleep assertion, so browser access and lock recovery remain blocked."
+              exit 1
+            fi
+            echo "::warning title=Exact Zenbu battery replay revalidated::Battery is ${BATTERY_PERCENT}%, the lid is open, full wake and supervisor sleep protection are verified, and the 30% watchdog remains armed."
+          fi
+
       - name: Preflight authenticated social runner
         id: authenticated_social_preflight
-        if: steps.revalidate.outputs.should_run == 'true' && steps.host_preflight.outputs.ready == 'true' && needs.resolve.outputs.trigger == 'manual-replay' && inputs.authenticated_backfill == true
+        if: steps.revalidate.outputs.should_run == 'true' && steps.host_preflight.outputs.ready == 'true' && needs.resolve.outputs.trigger == 'manual-replay' && inputs.authenticated_backfill == true && steps.authenticated_replay_power_recheck.outcome == 'success'
         # Covers three bounded 60-second cold-bridge attempts per platform,
         # including session cleanup, without making the retry loop unbounded.
         timeout-minutes: 20
@@ -817,7 +951,7 @@ jobs:
 
       - name: Recover proven authenticated LinkedIn safety quarantine
         id: authenticated_linkedin_lock_recovery
-        if: steps.revalidate.outputs.should_run == 'true' && steps.host_preflight.outputs.ready == 'true' && github.event_name == 'workflow_dispatch' && needs.resolve.outputs.trigger == 'manual-replay' && inputs.recover_authenticated_linkedin_lock == true
+        if: steps.revalidate.outputs.should_run == 'true' && steps.host_preflight.outputs.ready == 'true' && github.event_name == 'workflow_dispatch' && needs.resolve.outputs.trigger == 'manual-replay' && inputs.recover_authenticated_linkedin_lock == true && steps.authenticated_replay_power_recheck.outcome == 'success' && steps.authenticated_social_preflight.outcome == 'success'
         timeout-minutes: 2
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
@@ -833,7 +967,7 @@ jobs:
 
       - name: Run autonomous ingestion
         id: ingestion
-        if: steps.revalidate.outputs.should_run == 'true' && steps.host_preflight.outputs.ready == 'true' && (inputs.recover_authenticated_linkedin_lock != true || steps.authenticated_linkedin_lock_recovery.outcome == 'success')
+        if: steps.revalidate.outputs.should_run == 'true' && steps.host_preflight.outputs.ready == 'true' && (inputs.authenticated_backfill != true || steps.authenticated_replay_power_recheck.outcome == 'success') && (inputs.recover_authenticated_linkedin_lock != true || steps.authenticated_linkedin_lock_recovery.outcome == 'success')
         timeout-minutes: ${{ runner.os == 'macOS' && 380 || 342 }}
         env:
           # The coordinator retains the sealed collection inputs while a
@@ -859,6 +993,13 @@ jobs:
           AUTHENTICATED_BACKFILL_SCOPE: ${{ inputs.authenticated_backfill_scope || 'all' }}
           AUTHENTICATED_BACKFILL_BATCH: ${{ inputs.authenticated_backfill_batch || 'all' }}
           AUTHENTICATED_BACKFILL_COMPANY_SLUG: ${{ inputs.authenticated_backfill_company_slug || '' }}
+          RECOVER_AUTHENTICATED_LINKEDIN_LOCK: ${{ inputs.recover_authenticated_linkedin_lock || false }}
+          INCIDENT_ZENBU_BATTERY_OVERRIDE: ${{ inputs.incident_zenbu_battery_override || false }}
+          INCIDENT_ZENBU_BATTERY_REPLAY_KEY: incident-20260912-s2026-zenbu-linkedin-battery-01
+          AUTHENTICATED_BATTERY_MIN_START_PERCENT: "40"
+          AUTHENTICATED_LINKEDIN_REPLAY_MAX_CHUNKS: ${{ inputs.incident_zenbu_battery_override == true && '1' || '7' }}
+          GITHUB_EVENT_NAME: ${{ github.event_name }}
+          GITHUB_RUN_ATTEMPT: ${{ github.run_attempt }}
           # The authenticated replay selects OPENCLI_HOME before consulting
           # this public state override. Only Linux steps restore or save it.
           RETURNER_INGESTION_STATE_ROOT: ${{ runner.temp }}/returner-fund-autonomous-ingestion-state/v1
@@ -866,7 +1007,7 @@ jobs:
           # allowlisted operational database failures. The persistent cron
           # wakeups keep retrying a stale slot across jobs until its repository
           # watermark advances.
-          AUTONOMOUS_WORKFLOW_RETRY_MAX_ATTEMPTS: "6"
+          AUTONOMOUS_WORKFLOW_RETRY_MAX_ATTEMPTS: ${{ inputs.incident_zenbu_battery_override == true && '1' || '6' }}
           # The hosted public controller stays within GitHub's six-hour job
           # ceiling while retaining one complete 331-minute child window. The
           # self-hosted authenticated lane keeps the wider retry allowance.
@@ -881,7 +1022,7 @@ jobs:
           # collection. Poll independently of the start gate and enter the
           # retry controller's normal SIGTERM drain before power becomes
           # critical, preserving checkpoints and leaving the slot retryable.
-          AUTONOMOUS_WORKFLOW_POWER_WATCHDOG_RESERVE_PERCENT: ${{ runner.os == 'macOS' && '20' || '' }}
+          AUTONOMOUS_WORKFLOW_POWER_WATCHDOG_RESERVE_PERCENT: ${{ runner.os == 'macOS' && inputs.incident_zenbu_battery_override == true && '30' || runner.os == 'macOS' && '20' || '' }}
           AUTONOMOUS_WORKFLOW_POWER_WATCHDOG_INTERVAL_SECONDS: ${{ runner.os == 'macOS' && '30' || '' }}
         run: |
           set -euo pipefail
@@ -892,8 +1033,30 @@ jobs:
             /usr/bin/caffeinate -ims -w $$ &
             CAFFEINATE_PID=$!
             POWER_STATUS="$(/usr/bin/pmset -g batt)"
-            BATTERY_PERCENT="$(sed -nE 's/.*[[:space:]]([0-9]{1,3})%;.*/\1/p' <<< "$POWER_STATUS" | head -n 1)"
+            BATTERY_PERCENT_VALUES="$(sed -nE 's/.*[[:space:]]([0-9]{1,3})%;.*/\1/p' <<< "$POWER_STATUS")"
+            BATTERY_PERCENT_MATCH_COUNT="$(grep -Ec '^(100|[0-9]{1,2})$' <<< "$BATTERY_PERCENT_VALUES" || true)"
+            BATTERY_PERCENT=""
+            if [ "$BATTERY_PERCENT_MATCH_COUNT" -eq 1 ]; then
+              BATTERY_PERCENT="$BATTERY_PERCENT_VALUES"
+            fi
             if [ "$AUTHENTICATED_SOCIAL_REPLAY" = "true" ]; then
+              if [ "$INCIDENT_ZENBU_BATTERY_OVERRIDE" = "true" ]; then
+                if [ "$GITHUB_EVENT_NAME" != "workflow_dispatch" ] || \
+                   [ "$GITHUB_RUN_ATTEMPT" != "1" ] || \
+                   [ "$CANDIDATE_TRIGGER" != "manual-replay" ] || \
+                   [ "$INGESTION_IDEMPOTENCY_KEY" != "$INCIDENT_ZENBU_BATTERY_REPLAY_KEY" ] || \
+                   [ "$AUTHENTICATED_BACKFILL_SCOPE" != "linkedin" ] || \
+                   [ "$AUTHENTICATED_BACKFILL_BATCH" != "S2026" ] || \
+                   [ "$AUTHENTICATED_BACKFILL_COMPANY_SLUG" != "zenbu-2" ] || \
+                   [ "$RECOVER_AUTHENTICATED_LINKEDIN_LOCK" != "true" ] || \
+                   [ "$AUTHENTICATED_LINKEDIN_REPLAY_MAX_CHUNKS" != "1" ] || \
+                   [ "$AUTONOMOUS_WORKFLOW_RETRY_MAX_ATTEMPTS" != "1" ] || \
+                   [ "$AUTONOMOUS_WORKFLOW_POWER_WATCHDOG_RESERVE_PERCENT" != "30" ]; then
+                  echo "::error title=Battery override scope mismatch::The incident authorization no longer matches its exact first-attempt Zenbu replay policy immediately before controller launch."
+                  exit 1
+                fi
+              fi
+
               # Recheck the authoritative hardware state immediately before
               # launching the controller. The earlier host gate can go stale
               # during checkout/setup, and pmset may retain an AC header after
@@ -906,8 +1069,14 @@ jobs:
                 exit 1
               fi
               if [ "$EXTERNAL_POWER_CONNECTED_COUNT" -ne 1 ]; then
-                echo "::error title=Authenticated replay lost physical AC power::AppleSmartBattery reports ExternalConnected=No before controller launch. Reconnect power before retrying."
-                exit 1
+                if [ "$INCIDENT_ZENBU_BATTERY_OVERRIDE" != "true" ]; then
+                  echo "::error title=Authenticated replay lost physical AC power::AppleSmartBattery reports ExternalConnected=No before controller launch. Reconnect power before retrying."
+                  exit 1
+                fi
+                if [ "$BATTERY_PERCENT_MATCH_COUNT" -ne 1 ] || [ "$BATTERY_PERCENT" -lt "$AUTHENTICATED_BATTERY_MIN_START_PERCENT" ]; then
+                  echo "::error title=Authorized battery reserve unavailable::The exact Zenbu replay requires one verified reading at or above ${AUTHENTICATED_BATTERY_MIN_START_PERCENT}% immediately before controller launch; hardware reports ${BATTERY_PERCENT:-unknown}."
+                  exit 1
+                fi
               fi
 
               CLAMSHELL_STATE="$(/usr/sbin/ioreg -r -k AppleClamshellState -d 4 2>/dev/null || true)"
@@ -920,6 +1089,17 @@ jobs:
               if [ "$CLAMSHELL_OPEN_COUNT" -ne 1 ]; then
                 echo "::error title=Authenticated replay lid closed::AppleClamshellState reports Yes before controller launch. Open the lid before retrying because caffeinate cannot override clamshell sleep."
                 exit 1
+              fi
+
+              USER_WAKE_STATE="$(/usr/sbin/ioreg -r -k IOPMUserTriggeredFullWake -d 4 2>/dev/null || true)"
+              WAKE_MATCH_COUNT="$(grep -Eoc '^[[:space:]|]*"IOPMUserTriggeredFullWake"[[:space:]]*=[[:space:]]*(Yes|No)[[:space:]]*$' <<< "$USER_WAKE_STATE" || true)"
+              FULL_WAKE_MATCH_COUNT="$(grep -Eoc '^[[:space:]|]*"IOPMUserTriggeredFullWake"[[:space:]]*=[[:space:]]*Yes[[:space:]]*$' <<< "$USER_WAKE_STATE" || true)"
+              if [ "$WAKE_MATCH_COUNT" -ne 1 ] || [ "$FULL_WAKE_MATCH_COUNT" -ne 1 ]; then
+                echo "::error title=Authenticated replay requires a user full wake::The full-wake state became missing, ambiguous, or inactive before controller launch."
+                exit 1
+              fi
+              if [ "$INCIDENT_ZENBU_BATTERY_OVERRIDE" = "true" ]; then
+                echo "::warning title=Exact Zenbu battery controller authorized::Launching one controller attempt and at most one two-account LinkedIn chunk at ${BATTERY_PERCENT}%; the 30% fail-closed watchdog is armed."
               fi
             elif [[ "${POWER_STATUS%%$'\n'*}" != *"'AC Power'"* ]]; then
               if [[ ! "$BATTERY_PERCENT" =~ ^[0-9]+$ ]] || [ "$BATTERY_PERCENT" -lt "$AUTONOMOUS_MIN_BATTERY_PERCENT" ]; then

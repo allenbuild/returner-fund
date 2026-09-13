@@ -12,6 +12,7 @@ const POWER_STATUS_TIMEOUT_MS = 5_000;
 const AUTHENTICATED_MAC_POWER_UNSAFE_REASONS = Object.freeze({
   EXTERNAL_POWER_DISCONNECTED: "authenticated_external_power_disconnected",
   EXTERNAL_POWER_UNVERIFIED: "authenticated_external_power_unverified",
+  BATTERY_PERCENT_UNVERIFIED: "incident_battery_percent_unverified",
   CLAMSHELL_CLOSED: "authenticated_clamshell_closed",
   CLAMSHELL_UNVERIFIED: "authenticated_clamshell_unverified"
 });
@@ -61,8 +62,12 @@ export function parseMacPowerStatus(source) {
   });
 }
 
-export function shouldTerminateForLowPower(status, reservePercent) {
-  return status?.onACPower === false &&
+export function shouldTerminateForLowPower(
+  status,
+  reservePercent,
+  { forceBattery = false } = {}
+) {
+  return (forceBattery || status?.onACPower === false) &&
     Number.isInteger(status?.batteryPercent) &&
     status.batteryPercent <= reservePercent;
 }
@@ -86,11 +91,15 @@ export function parseAuthenticatedMacPowerState({
   });
 }
 
-export function authenticatedMacPowerUnsafeReason(status) {
-  if (status?.externalConnected !== true) {
-    return status?.externalConnected === false
-      ? AUTHENTICATED_MAC_POWER_UNSAFE_REASONS.EXTERNAL_POWER_DISCONNECTED
-      : AUTHENTICATED_MAC_POWER_UNSAFE_REASONS.EXTERNAL_POWER_UNVERIFIED;
+export function authenticatedMacPowerUnsafeReason(
+  status,
+  { allowDisconnectedBattery = false } = {}
+) {
+  if (status?.externalConnected === null || status?.externalConnected === undefined) {
+    return AUTHENTICATED_MAC_POWER_UNSAFE_REASONS.EXTERNAL_POWER_UNVERIFIED;
+  }
+  if (status.externalConnected === false && !allowDisconnectedBattery) {
+    return AUTHENTICATED_MAC_POWER_UNSAFE_REASONS.EXTERNAL_POWER_DISCONNECTED;
   }
   if (status?.clamshellOpen !== true) {
     return status?.clamshellOpen === false
@@ -157,6 +166,18 @@ export function startAutonomousIngestionPowerWatchdog({
   if (!config.enabled) return disabledWatchdog();
   const requireAuthenticatedMacPower =
     cleanString(environment.AUTHENTICATED_SOCIAL_REPLAY)?.toLowerCase() === "true";
+  const incidentOverrideValue = cleanString(
+    environment.INCIDENT_ZENBU_BATTERY_OVERRIDE
+  )?.toLowerCase();
+  if (incidentOverrideValue && !["true", "false"].includes(incidentOverrideValue)) {
+    throw new Error("INCIDENT_ZENBU_BATTERY_OVERRIDE must be true or false.");
+  }
+  const allowDisconnectedBattery = incidentOverrideValue === "true";
+  if (allowDisconnectedBattery && !requireAuthenticatedMacPower) {
+    throw new Error(
+      "INCIDENT_ZENBU_BATTERY_OVERRIDE requires AUTHENTICATED_SOCIAL_REPLAY=true."
+    );
+  }
 
   const pollIntervalMs = intervalMs ?? config.intervalSeconds * 1_000;
   if (!Number.isFinite(pollIntervalMs) || pollIntervalMs < 1) {
@@ -170,6 +191,7 @@ export function startAutonomousIngestionPowerWatchdog({
 
   const done = (async () => {
     while (!stopped && !tripped) {
+      let runningOnAuthorizedBattery = false;
       if (requireAuthenticatedMacPower) {
         let authenticatedPowerState;
         try {
@@ -178,7 +200,9 @@ export function startAutonomousIngestionPowerWatchdog({
           authenticatedPowerState = null;
         }
         if (stopped) break;
-        const unsafeReason = authenticatedMacPowerUnsafeReason(authenticatedPowerState);
+        const unsafeReason = authenticatedMacPowerUnsafeReason(authenticatedPowerState, {
+          allowDisconnectedBattery
+        });
         if (unsafeReason) {
           tripped = true;
           reporter.error(authenticatedMacPowerFailureAnnotation(unsafeReason));
@@ -189,6 +213,8 @@ export function startAutonomousIngestionPowerWatchdog({
           }));
           break;
         }
+        runningOnAuthorizedBattery = allowDisconnectedBattery &&
+          authenticatedPowerState.externalConnected === false;
       }
 
       let status;
@@ -199,6 +225,18 @@ export function startAutonomousIngestionPowerWatchdog({
       }
 
       if (stopped) break;
+      if (runningOnAuthorizedBattery && !Number.isInteger(status?.batteryPercent)) {
+        const reason = AUTHENTICATED_MAC_POWER_UNSAFE_REASONS.BATTERY_PERCENT_UNVERIFIED;
+        tripped = true;
+        reporter.error(authenticatedMacPowerFailureAnnotation(reason));
+        onLowReserve(Object.freeze({
+          reason,
+          batteryPercent: null,
+          reservePercent: config.reservePercent,
+          externalConnected: false
+        }));
+        break;
+      }
       if (!status || (
         status.onACPower === false && !Number.isInteger(status.batteryPercent)
       )) {
@@ -210,7 +248,9 @@ export function startAutonomousIngestionPowerWatchdog({
         }
       } else {
         unreadableWarningEmitted = false;
-        if (shouldTerminateForLowPower(status, config.reservePercent)) {
+        if (shouldTerminateForLowPower(status, config.reservePercent, {
+          forceBattery: runningOnAuthorizedBattery
+        })) {
           tripped = true;
           reporter.error(
             `::error title=Runner battery reserve reached safe floor::The Mac is on battery at ${status.batteryPercent}%. Gracefully stopping autonomous ingestion at the ${config.reservePercent}% reserve floor; checkpoints and the stale Central slot remain retryable.`
@@ -256,6 +296,9 @@ function authenticatedMacPowerFailureAnnotation(reason) {
   }
   if (reason === AUTHENTICATED_MAC_POWER_UNSAFE_REASONS.EXTERNAL_POWER_UNVERIFIED) {
     return "::error title=Authenticated replay physical power unverified::AppleSmartBattery ExternalConnected telemetry is missing or ambiguous. Gracefully stopping authenticated ingestion fail closed; checkpoints and the stale Central slot remain retryable.";
+  }
+  if (reason === AUTHENTICATED_MAC_POWER_UNSAFE_REASONS.BATTERY_PERCENT_UNVERIFIED) {
+    return "::error title=Authorized battery reserve unverified::The exact Zenbu replay is running on its one-time battery authorization, but the battery percentage is missing or ambiguous. Gracefully stopping fail closed; checkpoints remain retryable.";
   }
   return "::error title=Authenticated replay lid state unverified::AppleClamshellState telemetry is missing or ambiguous. Gracefully stopping authenticated ingestion fail closed; checkpoints and the stale Central slot remain retryable.";
 }

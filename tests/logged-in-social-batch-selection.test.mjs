@@ -185,6 +185,42 @@ describe("logged-in social batch selection", () => {
     )).toBe(true);
   });
 
+  it("binds the incident Zenbu replay to exactly two runnable LinkedIn accounts", () => {
+    const plan = runPlan([
+      "--batch=S2026",
+      "--company-slug=zenbu-2",
+      "--entities=all",
+      "--platforms=linkedin",
+      "--allow-linkedin",
+      "--linkedin-max-targets=5",
+      "--delay-ms=30000"
+    ]);
+
+    expect(plan.requestedTarget).toEqual({
+      batchSlug: "S2026",
+      companySlug: "zenbu-2"
+    });
+    expect(plan.targets).toHaveLength(2);
+    expect(plan.runnableTargets).toHaveLength(2);
+    expect(plan.linkedinExecution).toEqual(expect.objectContaining({
+      serial: true,
+      runnableTargetCount: 2,
+      targetCap: 5,
+      delayMs: 30_000
+    }));
+    expect(plan.targets.every((target) =>
+      target.batchSlug === "S2026" &&
+      target.companySlug === "zenbu-2" &&
+      target.platform === "linkedin"
+    )).toBe(true);
+    expect(new Set(plan.targets.map((target) => target.entityType))).toEqual(
+      new Set(["company", "founder"])
+    );
+    expect(plan.runnableTargets.map((target) => target.checkpointKey).sort()).toEqual(
+      plan.targets.map((target) => target.checkpointKey).sort()
+    );
+  });
+
   it("audits owner collisions across the full batch before exact company narrowing", () => {
     const fixture = createAuthenticatedDataRootFixture();
     try {

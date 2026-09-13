@@ -176,7 +176,9 @@ const PUBLIC_COLLECTOR_SHARDS = Object.freeze({
 const PUBLIC_SHARD_PROCESS_CONCURRENCY = 2;
 const PUBLIC_COLLECTOR_TASK_CONCURRENCY = 8;
 const PUBLIC_SOCIAL_LANE_CONCURRENCY = 1;
-const LINKEDIN_REPLAY_MAX_CHUNKS = 7;
+const LINKEDIN_REPLAY_MAX_CHUNKS = parseLinkedInReplayMaxChunks(
+  process.env.AUTHENTICATED_LINKEDIN_REPLAY_MAX_CHUNKS
+);
 const LINKEDIN_REPLAY_TARGET_CAP = 5;
 const LINKEDIN_REPLAY_RESERVE_MS = 15 * 60_000;
 const LINKEDIN_REPLAY_PLAN_TIMEOUT_MS = 2 * 60_000;
@@ -208,6 +210,17 @@ let heartbeatTimer = null;
 let heartbeatInFlight = null;
 let heartbeatDrainPromise = null;
 let heartbeatSchedulingStopped = false;
+
+function parseLinkedInReplayMaxChunks(value) {
+  if (value === undefined || value === null || String(value).trim() === "") return 7;
+  const normalized = String(value).trim();
+  if (!/^[1-7]$/.test(normalized)) {
+    throw new Error(
+      "AUTHENTICATED_LINKEDIN_REPLAY_MAX_CHUNKS must be an integer between 1 and 7."
+    );
+  }
+  return Number(normalized);
+}
 let heartbeatAbortController = null;
 let hardFailure = null;
 let heartbeatFailure = null;
