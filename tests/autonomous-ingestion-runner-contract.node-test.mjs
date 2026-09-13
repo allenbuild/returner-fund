@@ -4680,6 +4680,11 @@ describe("autonomous ingestion runner static safety contracts", () => {
 
     assert.ok(auditIndex > -1 && manifestIndex > auditIndex && validationIndex > manifestIndex);
     assert.ok(publicationBuild.includes("`--run-dir=${collectorRoot}`"));
+    assert.ok(
+      publicationBuild.includes(
+        "...(args.authenticatedSocialReplay ? [] : [`--run-dir=${collectorRoot}`])"
+      )
+    );
     assert.ok(!publicationBuild.includes("`--run-dir=${workRoot}`"));
     assert.ok(publicationBuild.includes("--output="));
   });

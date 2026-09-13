@@ -6772,7 +6772,13 @@ async function buildAndValidatePublication(publicationRunId, catalogState) {
   });
   await runCommand(process.execPath, [
     sourcePath("scripts", "audit-cohort-coverage.mjs"),
-    `--run-dir=${collectorRoot}`,
+    // Authenticated replay intentionally owns only durable logged-in snapshots.
+    // It does not run the public/GitHub collector matrix, so asking the audit to
+    // reconcile that replay root as a full collector run manufactures six
+    // missing-output failures. Canonical-only mode still hard-gates catalog,
+    // plan, graph-owner, and unresolved-reference integrity. Normal collection
+    // retains the stronger per-run output reconciliation.
+    ...(args.authenticatedSocialReplay ? [] : [`--run-dir=${collectorRoot}`]),
     `--output=${publishedCohortAuditPath}`
   ], {
     timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.artifactValidationMs,
