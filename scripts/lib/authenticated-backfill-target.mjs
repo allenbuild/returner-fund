@@ -5,6 +5,12 @@ const AUTHENTICATED_BACKFILL_BATCHES = Object.freeze([
   "S26",
   "A16ZSR006"
 ]);
+const AUTHENTICATED_BACKFILL_SCOPE_PLATFORMS = Object.freeze({
+  all: Object.freeze(["x", "instagram", "linkedin"]),
+  x: Object.freeze(["x"]),
+  instagram: Object.freeze(["instagram"]),
+  linkedin: Object.freeze(["linkedin"])
+});
 export const AUTHENTICATED_BACKFILL_COMPANY_SLUG_MAX_LENGTH = 128;
 const AUTHENTICATED_PLAN_IDENTITY_SAMPLE_LIMIT = 10;
 
@@ -25,9 +31,9 @@ export function resolveAuthenticatedBackfillTarget({
       "Authenticated backfill target is available only with authenticated social replay."
     );
   }
-  if (requestedScope !== "linkedin") {
+  if (!Object.hasOwn(AUTHENTICATED_BACKFILL_SCOPE_PLATFORMS, requestedScope)) {
     throw new Error(
-      "Authenticated backfill target requires the linkedin-only authenticated scope."
+      "Authenticated backfill target requires an allowed authenticated scope."
     );
   }
   if (!hasBatch && hasCompany) {
@@ -38,6 +44,11 @@ export function resolveAuthenticatedBackfillTarget({
   if (!AUTHENTICATED_BACKFILL_BATCHES.includes(normalizedBatch)) {
     throw new Error(
       `Authenticated backfill target batch must be one of ${AUTHENTICATED_BACKFILL_BATCHES.join(", ")}.`
+    );
+  }
+  if (hasCompany && requestedScope !== "linkedin") {
+    throw new Error(
+      "Authenticated backfill company targeting requires the linkedin-only authenticated scope."
     );
   }
   if (hasCompany && (
@@ -71,6 +82,11 @@ export function authenticatedBackfillTargetEquals(left, right) {
 
 export function supportedAuthenticatedBackfillBatches() {
   return [...AUTHENTICATED_BACKFILL_BATCHES];
+}
+
+export function authenticatedBackfillPlatformsForScope(requestedScope) {
+  if (!Object.hasOwn(AUTHENTICATED_BACKFILL_SCOPE_PLATFORMS, requestedScope)) return null;
+  return [...AUTHENTICATED_BACKFILL_SCOPE_PLATFORMS[requestedScope]];
 }
 
 export function assertAuthenticatedBackfillTargetExists(catalogs, requestedTarget) {
@@ -122,11 +138,7 @@ export function assertAuthenticatedReplayReceiptBinding({
     }
     return;
   }
-  const expectedPlatforms = requestedScope === "linkedin"
-    ? ["linkedin"]
-    : requestedScope === "all"
-      ? ["instagram", "linkedin"]
-      : null;
+  const expectedPlatforms = authenticatedBackfillPlatformsForScope(requestedScope);
   if (
     !receiptClaimsAuthenticatedReplay ||
     !expectedPlatforms ||

@@ -23,7 +23,7 @@ on:
         required: true
         type: string
       authenticated_backfill:
-        description: Replay authenticated Instagram history and advance the serial LinkedIn lane
+        description: Replay authenticated X/Instagram history and advance the serial LinkedIn lane
         required: false
         default: false
         type: boolean
@@ -34,9 +34,11 @@ on:
         type: choice
         options:
           - all
+          - x
+          - instagram
           - linkedin
       authenticated_backfill_batch:
-        description: Exact LinkedIn replay batch (all preserves full replay behavior)
+        description: Exact authenticated replay batch (all preserves full replay behavior)
         required: false
         default: all
         type: choice

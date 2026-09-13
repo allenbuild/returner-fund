@@ -6,6 +6,7 @@ import {
   assertAuthenticatedBackfillTargetExists,
   assertAuthenticatedLinkedInPlanTarget,
   assertAuthenticatedReplayReceiptBinding,
+  authenticatedBackfillPlatformsForScope,
   authenticatedBackfillTargetEquals,
   compactAuthenticatedLinkedInPlan,
   resolveAuthenticatedBackfillTarget
@@ -57,12 +58,33 @@ test("authenticated replay targeting accepts an exact LinkedIn batch without wid
   }), false);
 });
 
+test("authenticated replay targeting accepts batch-only X and Instagram scopes", () => {
+  for (const requestedScope of ["x", "instagram", "all"]) {
+    assert.deepEqual(resolveAuthenticatedBackfillTarget({
+      authenticatedReplay: true,
+      requestedScope,
+      batchSlug: "S26"
+    }), { batchSlug: "S26" });
+  }
+  assert.deepEqual(authenticatedBackfillPlatformsForScope("all"), [
+    "x",
+    "instagram",
+    "linkedin"
+  ]);
+  assert.deepEqual(authenticatedBackfillPlatformsForScope("x"), ["x"]);
+  assert.deepEqual(authenticatedBackfillPlatformsForScope("instagram"), ["instagram"]);
+  assert.deepEqual(authenticatedBackfillPlatformsForScope("linkedin"), ["linkedin"]);
+  assert.equal(authenticatedBackfillPlatformsForScope("unknown"), null);
+  assert.equal(authenticatedBackfillPlatformsForScope("__proto__"), null);
+});
+
 test("authenticated replay targeting fails closed on invalid or widened selectors", () => {
   for (const [options, expected] of [
     [{ batchSlug: "S26", companySlug: "gamgee" }, /only with authenticated social replay/],
     [{ batchSlug: "S2026" }, /only with authenticated social replay/],
     [{ authenticatedReplay: true, requestedScope: "all", batchSlug: "S26", companySlug: "gamgee" }, /linkedin-only/],
-    [{ authenticatedReplay: true, requestedScope: "all", batchSlug: "S2026" }, /linkedin-only/],
+    [{ authenticatedReplay: true, requestedScope: "x", batchSlug: "S26", companySlug: "gamgee" }, /linkedin-only/],
+    [{ authenticatedReplay: true, requestedScope: "unknown", batchSlug: "S2026" }, /allowed authenticated scope/],
     [{ authenticatedReplay: true, requestedScope: "linkedin", companySlug: "gamgee" }, /requires an exact batch/],
     [{ authenticatedReplay: true, requestedScope: "linkedin", batchSlug: "W99", companySlug: "gamgee" }, /must be one of/],
     [{ authenticatedReplay: true, requestedScope: "linkedin", batchSlug: "S26", companySlug: "Gamgee" }, /canonical lowercase slug/],
@@ -180,6 +202,29 @@ test("idempotent authenticated replay receipts bind a batch-only selector", () =
       receipt
     }), /does not match the exact requested scope and target/);
   }
+});
+
+test("idempotent replay receipts bind X-only scope and batch", () => {
+  const requestedTarget = { batchSlug: "S26" };
+  const receipt = {
+    authenticatedSocialReplay: {
+      requestedScope: "x",
+      requestedPlatforms: ["x"],
+      requestedTarget
+    }
+  };
+  assert.doesNotThrow(() => assertAuthenticatedReplayReceiptBinding({
+    authenticatedReplay: true,
+    requestedScope: "x",
+    requestedTarget,
+    receipt
+  }));
+  assert.throws(() => assertAuthenticatedReplayReceiptBinding({
+    authenticatedReplay: true,
+    requestedScope: "all",
+    requestedTarget,
+    receipt
+  }), /does not match the exact requested scope and target/);
 });
 
 test("targeted LinkedIn plans reject every widened target and compact full payloads", () => {

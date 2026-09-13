@@ -19,6 +19,7 @@ import {
 import { isTimelineCoverageMigrationUnavailable } from "../scripts/lib/timeline-migration-availability.mjs";
 import {
   assertAuthenticatedLinkedInPlanTarget,
+  authenticatedBackfillPlatformsForScope,
   authenticatedBackfillTargetEquals,
   compactAuthenticatedLinkedInPlan,
   resolveAuthenticatedBackfillTarget
@@ -205,7 +206,7 @@ describe("autonomous ingestion runner CLI", () => {
     });
   });
 
-  it("accepts and reports a batch-only Spring LinkedIn selector at the CLI boundary", async () => {
+  it("accepts batch-only authenticated platform selectors and keeps company targeting LinkedIn-only", async () => {
     const openCliHome = await mkdtemp(path.join(os.tmpdir(), "batch-only-plan-"));
     temporaryRoots.push(openCliHome);
     const env = {
@@ -236,16 +237,34 @@ describe("autonomous ingestion runner CLI", () => {
       requestedTarget: { batchSlug: "S2026" }
     });
 
-    const widened = spawnSync(process.execPath, [
+    const xOnly = spawnSync(process.execPath, [
       ...args.filter((arg) => arg !== "--authenticated-backfill-scope=linkedin"),
-      "--authenticated-backfill-scope=all"
+      "--authenticated-backfill-scope=x"
     ], {
       cwd: repositoryRoot,
       env,
       encoding: "utf8"
     });
-    assert.notEqual(widened.status, 0);
-    assert.match(widened.stderr, /requires the linkedin-only authenticated scope/);
+    assert.equal(xOnly.status, 0, xOnly.stderr);
+    assert.deepEqual(JSON.parse(xOnly.stdout).authenticatedSocialReplay, {
+      requestedScope: "x",
+      requestedTarget: { batchSlug: "S2026" }
+    });
+
+    const widenedCompany = spawnSync(process.execPath, [
+      ...args.filter((arg) =>
+        arg !== "--authenticated-backfill-scope=linkedin" &&
+        arg !== "--authenticated-backfill-company-slug="
+      ),
+      "--authenticated-backfill-scope=all",
+      "--authenticated-backfill-company-slug=gamgee"
+    ], {
+      cwd: repositoryRoot,
+      env,
+      encoding: "utf8"
+    });
+    assert.notEqual(widenedCompany.status, 0);
+    assert.match(widenedCompany.stderr, /company targeting requires the linkedin-only authenticated scope/);
   });
 
   it("binds the backlog battery policy again at the runner boundary", async () => {
@@ -2839,13 +2858,15 @@ describe("autonomous ingestion runner static safety contracts", () => {
 
   it("continues every later Instagram batch after LinkedIn safety stop and keeps unscanned counts unknown", async () => {
     const replay = linkedInReplayRuntime();
+    const xBatches = [];
     const instagramBatches = [];
     const replayBatches = [];
     const runAuthenticatedCollectors = authenticatedCollectorsRuntime({
       replay,
       collect: async (batchSlug, platform) => {
-        assert.equal(platform, "instagram");
-        instagramBatches.push(batchSlug);
+        if (platform === "x") xBatches.push(batchSlug);
+        else if (platform === "instagram") instagramBatches.push(batchSlug);
+        else assert.fail(`unexpected ordinary authenticated platform ${platform}`);
         return { status: "completed", exitCode: 0 };
       },
       replayBatch: async ({ batch, replayState }) => {
@@ -2880,19 +2901,21 @@ describe("autonomous ingestion runner static safety contracts", () => {
 
     const result = await runAuthenticatedCollectors({ historicalReplay: true });
 
+    assert.deepEqual(xBatches, ["S2026", "S26", "A16ZSR006"]);
     assert.deepEqual(instagramBatches, ["S2026", "S26", "A16ZSR006"]);
     assert.deepEqual(replayBatches, ["S2026"]);
     assert.equal(result.batches.length, 3);
     assert.deepEqual(
-      result.batches.map(({ batchSlug, instagram, linkedin }) => ({
+      result.batches.map(({ batchSlug, x, instagram, linkedin }) => ({
         batchSlug,
+        x: x.status,
         instagram: instagram.status,
         linkedin: linkedin.status
       })),
       [
-        { batchSlug: "S2026", instagram: "completed", linkedin: "safety_stopped" },
-        { batchSlug: "S26", instagram: "completed", linkedin: "skipped" },
-        { batchSlug: "A16ZSR006", instagram: "completed", linkedin: "skipped" }
+        { batchSlug: "S2026", x: "completed", instagram: "completed", linkedin: "safety_stopped" },
+        { batchSlug: "S26", x: "completed", instagram: "completed", linkedin: "skipped" },
+        { batchSlug: "A16ZSR006", x: "completed", instagram: "completed", linkedin: "skipped" }
       ]
     );
     assert.equal(result.status, "partial");
@@ -2914,13 +2937,15 @@ describe("autonomous ingestion runner static safety contracts", () => {
 
   it("reports missing durable LinkedIn lock as an incomplete unknown replay that cannot claim publication completion", async () => {
     const replay = linkedInReplayRuntime();
+    const xBatches = [];
     const instagramBatches = [];
     const runAuthenticatedCollectors = authenticatedCollectorsRuntime({
       replay,
       env: authenticatedCollectorEnvironment({ durableLock: false }),
       collect: async (batchSlug, platform) => {
-        assert.equal(platform, "instagram");
-        instagramBatches.push(batchSlug);
+        if (platform === "x") xBatches.push(batchSlug);
+        else if (platform === "instagram") instagramBatches.push(batchSlug);
+        else assert.fail(`unexpected ordinary authenticated platform ${platform}`);
         return { status: "completed", exitCode: 0 };
       },
       replayBatch: async () => {
@@ -2930,6 +2955,7 @@ describe("autonomous ingestion runner static safety contracts", () => {
 
     const result = await runAuthenticatedCollectors({ historicalReplay: true });
 
+    assert.deepEqual(xBatches, ["S2026", "S26", "A16ZSR006"]);
     assert.deepEqual(instagramBatches, ["S2026", "S26", "A16ZSR006"]);
     assert.equal(result.status, "partial");
     assert.equal(result.linkedinReplay.status, "skipped");
@@ -3032,12 +3058,15 @@ describe("autonomous ingestion runner static safety contracts", () => {
     assert.deepEqual(result.requestedPlatforms, ["linkedin"]);
     assert.deepEqual(result.platformDebt, []);
     assert.deepEqual(result.platformStatus, {
+      x: { requested: false, status: "not_requested" },
       instagram: { requested: false, status: "not_requested" },
       linkedin: { requested: true, status: "completed" }
     });
-    assert.ok(result.batches.every(({ instagram }) =>
-      instagram.status === "skipped" &&
-      instagram.reason === "authenticated_platform_not_requested"
+    assert.ok(result.batches.every(({ x, instagram }) =>
+      [x, instagram].every((platform) =>
+        platform.status === "skipped" &&
+        platform.reason === "authenticated_platform_not_requested"
+      )
     ));
     assert.equal(result.linkedinReplay.requestedScope, "linkedin");
     assert.deepEqual(result.linkedinReplay.requestedPlatforms, ["linkedin"]);
@@ -3061,7 +3090,7 @@ describe("autonomous ingestion runner static safety contracts", () => {
           ? { ...batch, instagram: { status: "completed" } }
           : batch)
       }),
-      /Instagram collector was invoked/
+      /unrequested instagram collector was invoked/
     );
     assert.throws(
       () => assertCanPublish({ ...result, status: "partial" }),
@@ -3088,6 +3117,71 @@ describe("autonomous ingestion runner static safety contracts", () => {
       /Authenticated linkedin replay requires .*LINKEDIN_GLOBAL_LOCK_NAMESPACE/
     );
     assert.equal(collections, 0);
+  });
+
+  it("runs batch-bound X-only and Instagram-only replays without the LinkedIn lane", async () => {
+    for (const requestedScope of ["x", "instagram"]) {
+      const replay = linkedInReplayRuntime();
+      const collectorCalls = [];
+      const requestedTarget = { batchSlug: "S26" };
+      const runAuthenticatedCollectors = authenticatedCollectorsRuntime({
+        replay,
+        env: authenticatedCollectorEnvironment({ durableLock: false }),
+        collect: async (batchSlug, platform, args) => {
+          collectorCalls.push({ batchSlug, platform, args });
+          return { status: "completed", exitCode: 0 };
+        },
+        replayBatch: async () => {
+          throw new Error("Non-LinkedIn replay must not invoke the LinkedIn chunk runner.");
+        }
+      });
+
+      const result = await runAuthenticatedCollectors({
+        historicalReplay: true,
+        requestedScope,
+        requestedTarget
+      });
+
+      assert.equal(result.status, "completed");
+      assert.deepEqual(result.requestedPlatforms, [requestedScope]);
+      assert.deepEqual(result.requestedTarget, requestedTarget);
+      assert.deepEqual(result.batches.map(({ batchSlug }) => batchSlug), ["S26"]);
+      assert.equal(collectorCalls.length, 1);
+      assert.equal(collectorCalls[0].batchSlug, "S26");
+      assert.equal(collectorCalls[0].platform, requestedScope);
+      assert.ok(collectorCalls[0].args.includes(`--platforms=${requestedScope}`));
+      if (requestedScope === "x") {
+        assert.ok(collectorCalls[0].args.includes("--x-mode=adapter"));
+        assert.ok(collectorCalls[0].args.includes("--workers=3"));
+      }
+      assert.equal(collectorCalls[0].args.includes("--allow-linkedin"), false);
+      assert.equal(result.linkedinReplay.status, "not_applicable");
+      assert.doesNotThrow(() => authenticatedReplayPublicationValidator()(result));
+
+      const requestedStatus = {
+        ...result.platformStatus,
+        [requestedScope]: { requested: true, status: "incomplete" }
+      };
+      const requestedDebt = [{
+        platform: requestedScope,
+        status: "incomplete",
+        reason: "authenticated_collection_incomplete"
+      }];
+      assert.throws(
+        () => authenticatedReplayPublicationValidator()({
+          ...result,
+          status: "partial",
+          platformStatus: requestedStatus,
+          platformDebt: requestedDebt,
+          linkedinReplay: {
+            ...result.linkedinReplay,
+            platformStatus: requestedStatus,
+            platformDebt: requestedDebt
+          }
+        }),
+        /cannot publish while requested non-LinkedIn platforms are incomplete/
+      );
+    }
   });
 
   it("receipt-binds the S2026 backlog to watchdog-only battery admission", async () => {
@@ -3194,6 +3288,7 @@ describe("autonomous ingestion runner static safety contracts", () => {
       /target receipt does not match/
     );
     const incompletePlatformStatus = {
+      x: { requested: false, status: "not_requested" },
       instagram: { requested: false, status: "not_requested" },
       linkedin: { requested: true, status: "stopped" }
     };
@@ -3224,6 +3319,7 @@ describe("autonomous ingestion runner static safety contracts", () => {
     );
 
     const boundedDebtStatus = {
+      x: { requested: false, status: "not_requested" },
       instagram: { requested: false, status: "not_requested" },
       linkedin: { requested: true, status: "incomplete" }
     };
@@ -3340,6 +3436,7 @@ describe("autonomous ingestion runner static safety contracts", () => {
         skipped: false,
         reason: "authenticated_social_platform_preflight_failed",
         service: { ok: true, reason: "auth_browser_service_running", attempts: 1 },
+        x: { ok: true, reason: "x_self_account_verified", attempts: 1 },
         instagram: {
           ok: false,
           reason: "instagram_adapter_preflight_command_failed",
@@ -3359,16 +3456,19 @@ describe("autonomous ingestion runner static safety contracts", () => {
     const result = await runAuthenticatedCollectors();
     assert.equal(result.status, "partial");
     assert.deepEqual(collected, [
+      ["S2026", "x"],
       ["S2026", "linkedin"],
+      ["S26", "x"],
       ["S26", "linkedin"],
+      ["A16ZSR006", "x"],
       ["A16ZSR006", "linkedin"]
     ]);
     assert.deepEqual(
-      result.batches.map(({ instagram, linkedin }) => [instagram.status, linkedin.status]),
+      result.batches.map(({ x, instagram, linkedin }) => [x.status, instagram.status, linkedin.status]),
       [
-        ["skipped", "completed"],
-        ["skipped", "completed"],
-        ["skipped", "completed"]
+        ["completed", "skipped", "completed"],
+        ["completed", "skipped", "completed"],
+        ["completed", "skipped", "completed"]
       ]
     );
     assert.equal(
@@ -3405,6 +3505,7 @@ describe("autonomous ingestion runner static safety contracts", () => {
         skipped: false,
         reason: "authenticated_social_platform_preflight_failed",
         service: { ok: true, reason: "auth_browser_service_running", attempts: 1 },
+        x: { ok: true, reason: "x_self_account_verified", attempts: 1 },
         instagram: { ok: true, reason: "instagram_self_account_verified", attempts: 1 },
         linkedin: { ok: false, reason: "linkedin_login_wall", attempts: 1 }
       }),
@@ -5306,6 +5407,7 @@ function authenticatedCollectorsRuntime({
     skipped: false,
     reason: "authenticated_social_runner_verified",
     service: { ok: true, reason: "auth_browser_service_running", attempts: 1 },
+    x: { ok: true, reason: "x_self_account_verified", attempts: 1 },
     instagram: { ok: true, reason: "instagram_self_account_verified", attempts: 1 },
     linkedin: { ok: true, reason: "linkedin_self_profile_verified", attempts: 1 }
   }),
@@ -5332,6 +5434,7 @@ function authenticatedCollectorsRuntime({
     "createLinkedInReplayResult",
     "linkedInReplayIsComplete",
     "LINKEDIN_REPLAY_TARGET_CAP",
+    "authenticatedBackfillPlatformsForScope",
     "authenticatedBackfillTargetEquals",
     "resolveAuthenticatedBackfillTarget",
     `${collectorsSource}\nreturn runAuthenticatedCollectors;`
@@ -5354,9 +5457,8 @@ function authenticatedCollectorsRuntime({
       return {
         ...result,
         requestedScope: result.requestedScope ?? requestedScope,
-        requestedPlatforms: result.requestedPlatforms ?? (
-          requestedScope === "linkedin" ? ["linkedin"] : ["instagram", "linkedin"]
-        ),
+        requestedPlatforms: result.requestedPlatforms ??
+          authenticatedBackfillPlatformsForScope(requestedScope),
         requestedTarget: result.requestedTarget ?? requestedTarget
       };
     },
@@ -5371,6 +5473,7 @@ function authenticatedCollectorsRuntime({
     replay.createLinkedInReplayResult,
     replay.linkedInReplayIsComplete,
     5,
+    authenticatedBackfillPlatformsForScope,
     authenticatedBackfillTargetEquals,
     resolveAuthenticatedBackfillTarget
   );
@@ -5390,6 +5493,7 @@ function authenticatedReplayPublicationValidator({ backlogBatteryOverride = fals
     "LINKEDIN_REPLAY_BATTERY_FLOOR_PERCENT",
     "INCIDENT_S2026_LINKEDIN_BACKLOG_BATTERY_OVERRIDE",
     "AUTONOMOUS_PROCESS_BUDGETS",
+    "authenticatedBackfillPlatformsForScope",
     "authenticatedBackfillTargetEquals",
     "resolveAuthenticatedBackfillTarget",
     `${validatorSource}\nreturn assertAuthenticatedReplayCanPublish;`
@@ -5402,6 +5506,7 @@ function authenticatedReplayPublicationValidator({ backlogBatteryOverride = fals
     5,
     backlogBatteryOverride,
     { collectionDeadlineDrainHeadroomMs: 5 * 60_000 },
+    authenticatedBackfillPlatformsForScope,
     authenticatedBackfillTargetEquals,
     resolveAuthenticatedBackfillTarget
   );

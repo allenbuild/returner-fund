@@ -26,8 +26,34 @@ import {
   retryAuthenticatedPreflight,
   runAuthenticatedSocialRunnerPreflight,
   resolveOpenCliProfileConfiguration,
-  verifyOpenCliBrowserProfileConnection
+  verifyOpenCliBrowserProfileConnection,
+  xViewerIdentityDecision
 } from "../scripts/verify-authenticated-social-runner.mjs";
+
+test("X preflight requires a logged-in canonical self identity", () => {
+  const ready = {
+    loggedIn: true,
+    site: "twitter",
+    username: "AllenXTech",
+    url: "https://x.com/allenxtech"
+  };
+  assert.deepEqual(xViewerIdentityDecision(ready), {
+    ok: true,
+    reason: "x_self_account_verified"
+  });
+  for (const override of [
+    { loggedIn: false },
+    { site: "instagram" },
+    { username: null },
+    { username: "another_user" },
+    { url: "http://x.com/allenxtech" },
+    { url: "https://twitter.com/allenxtech" },
+    { url: "https://evil.example/allenxtech" },
+    { url: "https://x.com/allenxtech/status/1" }
+  ]) {
+    assert.equal(xViewerIdentityDecision({ ...ready, ...override }).ok, false);
+  }
+});
 
 test("Instagram preflight requires an exact HTTPS account-settings self signal", () => {
   const base = {
@@ -332,8 +358,9 @@ test("runner configuration fails closed before any browser operation", () => {
   assert.equal(normalizeLinkedInViewerSlug("bad slug!"), null);
   assert.equal(normalizeAuthenticatedBackfillScope(), "all");
   assert.equal(normalizeAuthenticatedBackfillScope("all"), "all");
+  assert.equal(normalizeAuthenticatedBackfillScope("x"), "x");
+  assert.equal(normalizeAuthenticatedBackfillScope("instagram"), "instagram");
   assert.equal(normalizeAuthenticatedBackfillScope("linkedin"), "linkedin");
-  assert.equal(normalizeAuthenticatedBackfillScope("instagram"), null);
   assert.equal(normalizeAuthenticatedBackfillScope("LinkedIn"), null);
 });
 
@@ -367,6 +394,17 @@ test("cold preflight retries a disconnected profile and proves the exact Instagr
   let instagramAdapterAttempts = 0;
   const runCommand = async (args) => {
     calls.push(args);
+    if (args[0] === "twitter") {
+      assert.deepEqual(args, [
+        "twitter",
+        "whoami",
+        "-f",
+        "json",
+        "--site-session",
+        "persistent"
+      ]);
+      return JSON.stringify([xReadySignal()]);
+    }
     if (args[0] === "instagram") {
       instagramAdapterAttempts += 1;
       assert.deepEqual(args, [
@@ -415,6 +453,7 @@ test("cold preflight retries a disconnected profile and proves the exact Instagr
   );
   assert.deepEqual(profileOpen?.slice(2), ["open", "https://example.com/"]);
   assert.equal(result.linkedin.attempts, 1);
+  assert.equal(result.x.attempts, 1);
   assert.equal(result.instagram.attempts, 2);
   assert.deepEqual(sleeps, [2_000]);
   const linkedinEvalIndex = calls.findIndex((args) =>
@@ -429,6 +468,41 @@ test("cold preflight retries a disconnected profile and proves the exact Instagr
   assert.equal(calls.at(-1)[0], "browser");
   assert.equal(calls.at(-1)[2], "close");
   assert.match(calls.at(-1)[1], /^preflight-ig-/);
+});
+
+test("X-only preflight proves adapter identity without requiring LinkedIn or Instagram", async (t) => {
+  const fixture = createRunnerFixture(t);
+  const env = {
+    ...authenticatedPreflightEnvironment(fixture),
+    AUTHENTICATED_SOCIAL_REPLAY: "true",
+    AUTHENTICATED_BACKFILL_SCOPE: "x",
+    AUTHENTICATED_BACKFILL_BATCH: "S26"
+  };
+  delete env.RETURNER_INSTAGRAM_VIEWER_HANDLE;
+  delete env.RETURNER_LINKEDIN_VIEWER_PROFILE;
+  const calls = [];
+  const result = await runAuthenticatedSocialRunnerPreflight({
+    env,
+    runtimeResolver: () => ({ command: fixture.binaryA }),
+    verifyBrowserService: async () => ({ ok: true, reason: "auth_browser_service_running" }),
+    runCommand: async (args) => {
+      calls.push(args);
+      if (args[0] === "twitter") return JSON.stringify([xReadySignal()]);
+      return "";
+    },
+    sleep: async () => {}
+  });
+
+  assert.equal(result.ok, true);
+  assert.equal(result.requestedScope, "x");
+  assert.deepEqual(result.requestedPlatforms, ["x"]);
+  assert.deepEqual(result.requestedTarget, { batchSlug: "S26" });
+  assert.equal(result.x.ok, true);
+  assert.equal(result.instagram.requested, false);
+  assert.equal(result.linkedin.requested, false);
+  assert.equal(calls.filter((args) => args[0] === "twitter").length, 1);
+  assert.equal(calls.some((args) => args[0] === "instagram"), false);
+  assert.equal(calls.some((args) => args[1]?.startsWith("preflight-li-")), false);
 });
 
 test("LinkedIn-only preflight proves the exact account without requiring or invoking Instagram", async (t) => {
@@ -579,6 +653,7 @@ test("the default all-platform scope remains fail-closed when Instagram is logge
     }),
     runCommand: async (args) => {
       calls.push(args);
+      if (args[0] === "twitter") return JSON.stringify([xReadySignal()]);
       if (args[0] === "instagram") {
         throw new Error("HTTP 401 - make sure you are logged in to Instagram");
       }
@@ -592,7 +667,8 @@ test("the default all-platform scope remains fail-closed when Instagram is logge
 
   assert.equal(result.ok, false);
   assert.equal(result.requestedScope, "all");
-  assert.deepEqual(result.requestedPlatforms, ["instagram", "linkedin"]);
+  assert.deepEqual(result.requestedPlatforms, ["x", "instagram", "linkedin"]);
+  assert.equal(result.x.ok, true);
   assert.equal(result.linkedin.ok, true);
   assert.equal(result.instagram.ok, false);
   assert.deepEqual(result.platformDebt, {
@@ -608,7 +684,7 @@ test("an unknown authenticated backfill scope fails before browser operations", 
     env: {
       ...authenticatedPreflightEnvironment(fixture),
       AUTHENTICATED_SOCIAL_REPLAY: "true",
-      AUTHENTICATED_BACKFILL_SCOPE: "instagram"
+      AUTHENTICATED_BACKFILL_SCOPE: "tiktok"
     },
     runCommand: async () => {
       calls += 1;
@@ -660,6 +736,7 @@ test("strict preflight fails closed before platform probes when the exact profil
   });
   assert.equal(result.instagram.reason, "auth_browser_profile_not_connected");
   assert.equal(result.linkedin.reason, "auth_browser_profile_not_connected");
+  assert.equal(result.x.reason, "auth_browser_profile_not_connected");
   assert.equal(result.instagram.attempts, 0);
   assert.equal(result.linkedin.attempts, 0);
   assert.deepEqual(sleeps, [1_000, 2_000, 4_000, 8_000]);
@@ -696,6 +773,7 @@ test("scheduled preflight skips absent configuration and preserves per-platform 
   assert.equal(skipped.skipped, true);
   assert.equal(skipped.instagram.attempts, 0);
   assert.equal(skipped.linkedin.attempts, 0);
+  assert.equal(skipped.x.attempts, 0);
   assert.equal(calls, 0);
 
   const fixture = createRunnerFixture(t);
@@ -705,6 +783,7 @@ test("scheduled preflight skips absent configuration and preserves per-platform 
     runtimeResolver: () => ({ command: fixture.binaryA }),
     verifyBrowserService: async () => ({ ok: true, reason: "auth_browser_service_running" }),
     runCommand: async (args) => {
+      if (args[0] === "twitter") return JSON.stringify([xReadySignal()]);
       if (args[0] === "instagram") return JSON.stringify({ username: "allenxtech" });
       if (args[0] === "browser" && args[2] === "eval") {
         return args[1].startsWith("preflight-li-")
@@ -781,6 +860,15 @@ function instagramReadySignal() {
     loginWall: false,
     challenge: false,
     rateLimited: false
+  };
+}
+
+function xReadySignal() {
+  return {
+    logged_in: true,
+    site: "twitter",
+    username: "allenxtech",
+    url: "https://x.com/allenxtech"
   };
 }
 

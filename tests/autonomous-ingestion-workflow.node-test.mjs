@@ -3496,11 +3496,11 @@ test("workflow routes public ingestion to hosted Linux and authenticated replay 
   assert.match(workflow, /authenticated_backfill:[\s\S]*?type:\s*boolean/);
   assert.match(
     workflow,
-    /authenticated_backfill_scope:[\s\S]*?default:\s*all[\s\S]*?type:\s*choice[\s\S]*?options:[\s\S]*?- all[\s\S]*?- linkedin/
+    /authenticated_backfill_scope:[\s\S]*?default:\s*all[\s\S]*?type:\s*choice[\s\S]*?options:[\s\S]*?- all[\s\S]*?- x[\s\S]*?- instagram[\s\S]*?- linkedin/
   );
   assert.match(
     workflow,
-    /authenticated_backfill_batch:[\s\S]*?description:\s*Exact LinkedIn replay batch[\s\S]*?default:\s*all[\s\S]*?options:[\s\S]*?- S2026[\s\S]*?- S26[\s\S]*?- A16ZSR006/
+    /authenticated_backfill_batch:[\s\S]*?description:\s*Exact authenticated replay batch[\s\S]*?default:\s*all[\s\S]*?options:[\s\S]*?- S2026[\s\S]*?- S26[\s\S]*?- A16ZSR006/
   );
   assert.match(
     workflow,
