@@ -1226,6 +1226,20 @@
           "https://x.com/4n5che"
         ]
       }
+    },
+    {
+      "companyId": "32261",
+      "companySlug": "rasyn",
+      "companyName": "Rasyn",
+      "founderId": "972683",
+      "change": "removed",
+      "fromName": "Ayush Chauhan",
+      "toName": null,
+      "accounts": {
+        "linkedin": [
+          "https://www.linkedin.com/in/ayushchauhan0203/"
+        ]
+      }
     }
   ]
 }

@@ -39,7 +39,7 @@
         "evidenceRole": "primary",
         "url": "https://youtube.com/watch?v=aFcB1fJhPmY",
         "publicationDate": "2026-07-06T17:07:43-07:00",
-        "excerpt": "LemonLime enables any business to deploy custom AI automations in minutes. Get started at https://lemonlime.ai",
+        "excerpt": "LemonLime YC Launch | We Love Small",
         "sourceEventDate": "2026-07-07",
         "isConflicting": false,
         "conflictDescription": null
@@ -51,17 +51,15 @@
         "platform": "youtube",
         "account": "LemonLime YC Launch | We Love Small",
         "postDate": "2026-07-07",
-        "excerpt": "LemonLime enables any business to deploy custom AI automations in minutes. Get started at https://lemonlime.ai",
+        "excerpt": "LemonLime YC Launch | We Love Small",
         "url": "https://youtube.com/watch?v=aFcB1fJhPmY",
         "metrics": {
-          "views": 403,
-          "likes": 1,
-          "comments": 0
+          "views": 434
         },
         "evidenceRole": "primary"
       }
     ]
   },
-  "generatedAt": "2026-09-14T11:26:46.441Z",
-  "lastModifiedAt": "2026-09-14T11:26:46.441Z"
+  "generatedAt": "2026-09-14T12:34:31.938Z",
+  "lastModifiedAt": "2026-09-14T12:34:31.938Z"
 }

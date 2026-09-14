@@ -2,7 +2,7 @@
   "schemaVersion": "cohort-coverage-audit.v1",
   "status": "pass",
   "planProvided": true,
-  "runOutputsProvided": false,
+  "runOutputsProvided": true,
   "structuralFailureCount": 0,
   "structuralFailureKinds": [],
   "batches": [
@@ -12,8 +12,8 @@
         "catalog": "src/lib/social/a16z-speedrun-006-social-accounts.json",
         "profileSource": "src/lib/graph/a16z-speedrun-006-dataset.ts",
         "graph": "public/graph/a16zsr006.json",
-        "publicRun": null,
-        "githubRun": null
+        "publicRun": "/home/runner/work/_temp/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-09-14-0600-09706a09ed44bd71/public-a16zsr006.json",
+        "githubRun": "/home/runner/work/_temp/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-09-14-0600-09706a09ed44bd71/github-a16zsr006.json"
       },
       "counts": {
         "companies": 59,
@@ -828,8 +828,8 @@
         "catalog": "src/lib/yc/spring-2026-companies.json",
         "profileSource": null,
         "graph": "public/graph/s2026.json",
-        "publicRun": null,
-        "githubRun": null
+        "publicRun": "/home/runner/work/_temp/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-09-14-0600-09706a09ed44bd71/public-s2026.json",
+        "githubRun": "/home/runner/work/_temp/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-09-14-0600-09706a09ed44bd71/github-s2026.json"
       },
       "counts": {
         "companies": 197,
@@ -840,7 +840,7 @@
         "plannedOwnerMappings": 994,
         "multiAccountOwnerMappings": 1,
         "graphEvidence": 5000,
-        "graphNeedsReview": 10361
+        "graphNeedsReview": 10468
       },
       "structural": {
         "status": "pass",
@@ -2418,19 +2418,19 @@
         "catalog": "src/lib/yc/summer-2026-companies.json",
         "profileSource": null,
         "graph": "public/graph/s26.json",
-        "publicRun": null,
-        "githubRun": null
+        "publicRun": "/home/runner/work/_temp/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-09-14-0600-09706a09ed44bd71/public-s26.json",
+        "githubRun": "/home/runner/work/_temp/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-09-14-0600-09706a09ed44bd71/github-s26.json"
       },
       "counts": {
         "companies": 234,
-        "founders": 467,
-        "catalogOwnerMappings": 1129,
-        "graphOwnerMappings": 1116,
-        "catalogOwnerPlatformGroups": 1127,
-        "plannedOwnerMappings": 1129,
+        "founders": 466,
+        "catalogOwnerMappings": 1128,
+        "graphOwnerMappings": 1115,
+        "catalogOwnerPlatformGroups": 1126,
+        "plannedOwnerMappings": 1128,
         "multiAccountOwnerMappings": 2,
         "graphEvidence": 5000,
-        "graphNeedsReview": 7287
+        "graphNeedsReview": 7301
       },
       "structural": {
         "status": "pass",
@@ -2728,37 +2728,37 @@
             "companyMapped": 12,
             "companyMissing": 222,
             "founderMapped": 1,
-            "founderMissing": 466
+            "founderMissing": 465
           },
           "instagram": {
             "companyMapped": 7,
             "companyMissing": 227,
             "founderMapped": 0,
-            "founderMissing": 467
+            "founderMissing": 466
           },
           "linkedin": {
             "companyMapped": 210,
             "companyMissing": 24,
-            "founderMapped": 464,
+            "founderMapped": 463,
             "founderMissing": 3
           },
           "product_hunt": {
             "companyMapped": 5,
             "companyMissing": 229,
             "founderMapped": 0,
-            "founderMissing": 467
+            "founderMissing": 466
           },
           "x": {
             "companyMapped": 137,
             "companyMissing": 97,
             "founderMapped": 279,
-            "founderMissing": 188
+            "founderMissing": 187
           },
           "youtube": {
             "companyMapped": 11,
             "companyMissing": 223,
             "founderMapped": 0,
-            "founderMissing": 467
+            "founderMissing": 466
           }
         },
         "noMappedAccounts": [
@@ -3794,11 +3794,6 @@
             "entityId": "founder-rapidfolio-frederik-vanhevel-2636714",
             "name": "Frederik Vanhevel",
             "companyName": "Rapidfolio"
-          },
-          {
-            "entityId": "founder-rasyn-ayush-chauhan-972683",
-            "name": "Ayush Chauhan",
-            "companyName": "Rasyn"
           },
           {
             "entityId": "founder-rasyn-daood-hashmi-3481804",

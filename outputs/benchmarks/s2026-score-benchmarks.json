@@ -1,7 +1,7 @@
 {
   "version": 1,
   "batchSlug": "S2026",
-  "updatedAt": "2026-09-14T11:27:16.487Z",
+  "updatedAt": "2026-09-14T12:34:49.552Z",
   "daily": [
     {
       "recordedAt": "2026-06-29T16:52:33.375Z",
@@ -90382,9 +90382,9 @@
       ]
     },
     {
-      "recordedAt": "2026-09-14T11:27:16.487Z",
+      "recordedAt": "2026-09-14T12:34:49.552Z",
       "scoringModelVersion": "4.3.1",
-      "inputGeneratedAt": "2026-09-14T11:24:33.868Z",
+      "inputGeneratedAt": "2026-09-14T12:33:14.146Z",
       "companies": [
         {
           "companyId": "company-heyclicky",
@@ -91113,6 +91113,12 @@
           "rank": 118
         },
         {
+          "companyId": "company-kugelaudio",
+          "companyName": "KugelAudio",
+          "score": 56,
+          "rank": 118
+        },
+        {
           "companyId": "company-pairio",
           "companyName": "Pairio",
           "score": 56,
@@ -91140,37 +91146,31 @@
           "companyId": "company-auxos",
           "companyName": "Auxos",
           "score": 55,
-          "rank": 126
+          "rank": 127
         },
         {
           "companyId": "company-drippay",
           "companyName": "Drip",
           "score": 55,
-          "rank": 126
+          "rank": 127
         },
         {
           "companyId": "company-instaagent",
           "companyName": "InstaAgent",
           "score": 55,
-          "rank": 126
-        },
-        {
-          "companyId": "company-kugelaudio",
-          "companyName": "KugelAudio",
-          "score": 55,
-          "rank": 126
+          "rank": 127
         },
         {
           "companyId": "company-rudus",
           "companyName": "Rudus",
           "score": 55,
-          "rank": 126
+          "rank": 127
         },
         {
           "companyId": "company-shotwellai",
           "companyName": "shotwell.ai",
           "score": 55,
-          "rank": 126
+          "rank": 127
         },
         {
           "companyId": "company-arctic-health",

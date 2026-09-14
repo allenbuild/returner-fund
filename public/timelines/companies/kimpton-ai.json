@@ -5,8 +5,8 @@
     "slug": "kimpton-ai",
     "name": "Kimpton AI"
   },
-  "generatedAt": "2026-09-14T11:26:46.441Z",
-  "lastModifiedAt": "2026-09-14T11:26:46.441Z",
+  "generatedAt": "2026-09-14T12:34:31.938Z",
+  "lastModifiedAt": "2026-09-14T12:34:31.938Z",
   "events": [
     {
       "id": "tle-e5c4dd35349cb57bb588d6ca",
@@ -81,7 +81,7 @@
         {
           "id": "src-2e550c4611ca0be8438eee4a",
           "title": "Launch YC: Kimpton AI",
-          "publisher": "Launch YC: Kimpton AI",
+          "publisher": "Kimpton AI",
           "domain": "youtube.com",
           "sourceType": "video",
           "publishedAt": "2026-05-27T23:13:09-07:00",
@@ -169,7 +169,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 5,
-    "lastSuccessfulArtifactAt": "2026-09-14T11:26:46.441Z"
+    "lastSuccessfulArtifactAt": "2026-09-14T12:34:31.938Z"
   },
   "nextCursor": null
 }

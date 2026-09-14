@@ -1,7 +1,7 @@
 {
   "version": 1,
   "batchSlug": "S26",
-  "updatedAt": "2026-09-14T11:27:16.487Z",
+  "updatedAt": "2026-09-14T12:34:49.552Z",
   "daily": [
     {
       "recordedAt": "2026-07-06T05:00:00.000Z",
@@ -71175,9 +71175,9 @@
       ]
     },
     {
-      "recordedAt": "2026-09-14T11:27:16.487Z",
+      "recordedAt": "2026-09-14T12:34:49.552Z",
       "scoringModelVersion": "4.3.1",
-      "inputGeneratedAt": "2026-09-14T11:25:52.418Z",
+      "inputGeneratedAt": "2026-09-14T12:34:00.108Z",
       "companies": [
         {
           "companyId": "company-gamgee",
@@ -71228,214 +71228,214 @@
           "rank": 8
         },
         {
+          "companyId": "company-joinmarble",
+          "companyName": "Marble",
+          "score": 88,
+          "rank": 8
+        },
+        {
           "companyId": "company-applied-electrodynamics-inc",
           "companyName": "Applied Electrodynamics, Inc.",
           "score": 87,
-          "rank": 9
+          "rank": 10
         },
         {
           "companyId": "company-meteoric",
           "companyName": "Meteoric",
           "score": 87,
-          "rank": 9
+          "rank": 10
         },
         {
           "companyId": "company-exosat",
           "companyName": "Exosat",
           "score": 86,
-          "rank": 11
+          "rank": 12
         },
         {
           "companyId": "company-hop-aero",
           "companyName": "Hop Aero",
           "score": 86,
-          "rank": 11
+          "rank": 12
         },
         {
           "companyId": "company-speko",
           "companyName": "Speko",
           "score": 86,
-          "rank": 11
+          "rank": 12
         },
         {
           "companyId": "company-mosaic-inc",
           "companyName": "Mosaic",
           "score": 85,
-          "rank": 14
+          "rank": 15
         },
         {
           "companyId": "company-omanta",
           "companyName": "Omanta",
           "score": 84,
-          "rank": 15
+          "rank": 16
         },
         {
           "companyId": "company-vernius-systems-inc",
           "companyName": "Vernius Systems, Inc.",
           "score": 84,
-          "rank": 15
+          "rank": 16
         },
         {
           "companyId": "company-agnost-ai",
           "companyName": "Agnost AI",
           "score": 83,
-          "rank": 17
+          "rank": 18
         },
         {
           "companyId": "company-billow-ai-labs",
           "companyName": "Billow AI Labs",
           "score": 83,
-          "rank": 17
+          "rank": 18
         },
         {
           "companyId": "company-cosmic-robotics",
           "companyName": "Cosmic Robotics",
           "score": 83,
-          "rank": 17
+          "rank": 18
         },
         {
           "companyId": "company-noril1",
           "companyName": "Nori",
           "score": 82,
-          "rank": 20
+          "rank": 21
         },
         {
           "companyId": "company-standard-machines",
           "companyName": "Standard Machines",
           "score": 82,
-          "rank": 20
+          "rank": 21
         },
         {
           "companyId": "company-waddle-labs",
           "companyName": "Waddle Labs",
           "score": 82,
-          "rank": 20
+          "rank": 21
         },
         {
           "companyId": "company-familiar",
           "companyName": "Familiar",
           "score": 81,
-          "rank": 23
+          "rank": 24
         },
         {
           "companyId": "company-induction-labs",
           "companyName": "Induction Labs",
           "score": 81,
-          "rank": 23
+          "rank": 24
         },
         {
           "companyId": "company-talentpluto",
           "companyName": "Pluto",
           "score": 81,
-          "rank": 23
+          "rank": 24
         },
         {
           "companyId": "company-screenpipe",
           "companyName": "screenpipe",
           "score": 80,
-          "rank": 26
+          "rank": 27
         },
         {
           "companyId": "company-wondering",
           "companyName": "Wondering",
           "score": 80,
-          "rank": 26
+          "rank": 27
         },
         {
           "companyId": "company-impact-drones",
           "companyName": "IMPACT Drones",
           "score": 79,
-          "rank": 28
+          "rank": 29
         },
         {
           "companyId": "company-provenmetal",
           "companyName": "ProvenMetal",
           "score": 79,
-          "rank": 28
+          "rank": 29
         },
         {
           "companyId": "company-robocurve",
           "companyName": "Robocurve",
           "score": 79,
-          "rank": 28
+          "rank": 29
         },
         {
           "companyId": "company-vendo",
           "companyName": "Vendo",
           "score": 79,
-          "rank": 28
+          "rank": 29
         },
         {
           "companyId": "company-contextdev",
           "companyName": "Context.dev",
           "score": 78,
-          "rank": 32
+          "rank": 33
         },
         {
           "companyId": "company-markov",
           "companyName": "Markov",
           "score": 78,
-          "rank": 32
+          "rank": 33
         },
         {
           "companyId": "company-petrarch",
           "companyName": "Petrarch",
           "score": 78,
-          "rank": 32
+          "rank": 33
         },
         {
           "companyId": "company-tash",
           "companyName": "tash",
           "score": 78,
-          "rank": 32
+          "rank": 33
         },
         {
           "companyId": "company-trope",
           "companyName": "Trope",
           "score": 78,
-          "rank": 32
+          "rank": 33
         },
         {
           "companyId": "company-fabraix",
           "companyName": "Fabraix",
           "score": 77,
-          "rank": 37
+          "rank": 38
         },
         {
           "companyId": "company-nebula-security",
           "companyName": "Nebula Security",
           "score": 77,
-          "rank": 37
+          "rank": 38
         },
         {
           "companyId": "company-olam-labs",
           "companyName": "Olam Labs",
           "score": 77,
-          "rank": 37
+          "rank": 38
         },
         {
           "companyId": "company-archal",
           "companyName": "Archal",
           "score": 76,
-          "rank": 40
+          "rank": 41
         },
         {
           "companyId": "company-bloomy",
           "companyName": "Bloomy",
           "score": 76,
-          "rank": 40
+          "rank": 41
         },
         {
           "companyId": "company-egoist-machines",
           "companyName": "Egoist Machines",
           "score": 76,
-          "rank": 40
-        },
-        {
-          "companyId": "company-joinmarble",
-          "companyName": "Marble",
-          "score": 76,
-          "rank": 40
+          "rank": 41
         },
         {
           "companyId": "company-glen",
