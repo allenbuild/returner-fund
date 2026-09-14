@@ -5,8 +5,8 @@
     "slug": "egoist-machines",
     "name": "Egoist Machines"
   },
-  "generatedAt": "2026-09-14T02:31:10.288Z",
-  "lastModifiedAt": "2026-09-14T02:31:10.288Z",
+  "generatedAt": "2026-09-14T11:26:46.441Z",
+  "lastModifiedAt": "2026-09-14T11:26:46.441Z",
   "events": [
     {
       "id": "tle-2e43761086e2c8612b603229",
@@ -113,7 +113,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 3,
-    "lastSuccessfulArtifactAt": "2026-09-14T02:31:10.288Z"
+    "lastSuccessfulArtifactAt": "2026-09-14T11:26:46.441Z"
   },
   "nextCursor": null
 }
