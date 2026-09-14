@@ -3719,19 +3719,17 @@ function linkedInExtractJs() {
       .map((link) => absolute(link.getAttribute("href")))
       .find(Boolean) ?? null;
   };
+  const activityIdFromRoot = (card) => [
+    card.getAttribute?.("data-urn"),
+    card.getAttribute?.("data-id"),
+    card.getAttribute?.("data-activity-urn")
+  ].join(" ").match(/urn:li:activity:(\\d{10,})/i)?.[1] ?? null;
   const nativePostUrl = (card) => {
     // Prefer the activity identity attached to the outer card itself. A
     // nested reshare can contain an embedded original-post permalink; scanning
     // descendant anchors first incorrectly assigns that parent's ID and body
     // to every outer profile that commented on it.
-    const rootValues = [
-      card.getAttribute?.("data-urn"),
-      card.getAttribute?.("data-id"),
-      card.getAttribute?.("data-activity-urn")
-    ];
-    const rootActivityId = rootValues
-      .join(" ")
-      .match(/urn:li:activity:(\\d{10,})/i)?.[1];
+    const rootActivityId = activityIdFromRoot(card);
     if (rootActivityId) {
       return "https://www.linkedin.com/feed/update/urn:li:activity:" + rootActivityId + "/";
     }
@@ -3794,6 +3792,42 @@ function linkedInExtractJs() {
   };
   const exactCards = Array.from(document.querySelectorAll(".scaffold-finite-scroll__content > ul > li, ul.display-flex.flex-wrap.list-style-none.justify-center > li"))
     .filter((card) => /Feed post number|Visible to anyone|reactions?|comments?|reposts?/i.test(card.innerText || ""));
+  // Current organization timelines render each real update as a div-backed
+  // activity card inside an occludable wrapper. Those cards can expose no
+  // permalink anchor at all; the native activity URN on the card is then the
+  // only stable post identity. Select only recognized activity-card roots and
+  // leave URL construction to nativePostUrl's exact root-attribute check.
+  // Nested activity cards belong to an outer reshare wrapper, so retain the
+  // outermost activity root and let strict primary-actor ownership/repost
+  // checks decide whether that wrapper belongs to the requested account.
+  const activityCardSelector = [
+    ".feed-shared-update-v2[data-urn*='urn:li:activity:']",
+    ".feed-shared-update-v2[data-id*='urn:li:activity:']",
+    ".feed-shared-update-v2[data-activity-urn*='urn:li:activity:']",
+    "article[data-urn*='urn:li:activity:']",
+    "article[data-id*='urn:li:activity:']",
+    "article[data-activity-urn*='urn:li:activity:']",
+    "[data-test-id='main-feed-activity-card'][data-urn*='urn:li:activity:']",
+    "[data-test-id='main-feed-activity-card'][data-id*='urn:li:activity:']",
+    "[data-test-id='main-feed-activity-card'][data-activity-urn*='urn:li:activity:']"
+  ].join(",");
+  const activityCardCandidates = Array.from(document.querySelectorAll(activityCardSelector));
+  const activityCards = activityCardCandidates
+    .filter((card) => {
+      const activityId = activityIdFromRoot(card);
+      return !activityCardCandidates.some((other) => {
+        if (other === card) return false;
+        const otherActivityId = activityIdFromRoot(other);
+        // Equivalent nested roots are redundant layout wrappers: keep the
+        // narrower card. A distinct nested root is embedded reshare content:
+        // keep its outer activity wrapper and never promote the embedded ID.
+        return (
+          (card.contains(other) && otherActivityId === activityId) ||
+          (other.contains(card) && otherActivityId !== activityId)
+        );
+      });
+    })
+    .filter((card) => clean(card.innerText).length > 80);
   const linkCards = Array.from(document.querySelectorAll("a[href*='/feed/update/urn:li:activity:'], a[href*='/posts/'][href*='activity-']"))
     .map((link) => {
       let card = link.closest("li") || link.closest("article") || link.closest(".relative.artdeco-card") || link.parentElement;
@@ -3809,7 +3843,11 @@ function linkedInExtractJs() {
     .filter((card) => clean(card.innerText).length > 80)
     .filter((card, index, list) => !list.some((other, otherIndex) => otherIndex !== index && other.contains(card) && clean(other.innerText).length < clean(card.innerText).length * 1.8))
     .slice(0, 100);
-  const cards = (exactCards.length ? exactCards : fallbackCards).slice(0, 100);
+  // Prefer the narrow native activity roots, then union legacy layouts. Using
+  // a union matters on mixed/virtualized timelines: one legacy <li> must not
+  // suppress every modern div-backed card currently mounted beside it.
+  const cards = [...new Set([...activityCards, ...exactCards, ...fallbackCards])]
+    .slice(0, 100);
   const seen = new Set();
   return cards.map((card, index) => {
     const updateUrl = nativePostUrl(card);

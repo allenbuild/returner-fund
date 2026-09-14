@@ -3017,6 +3017,84 @@ describe("logged-in LinkedIn collection", () => {
     }
   });
 
+  it("extracts permalink-less div-backed company cards from their native activity roots", () => {
+    const originalActivityId = "7475000000000000881";
+    const repostActivityId = "7475000000000000882";
+    const nestedActivityId = "7475000000000000883";
+    const dom = new JSDOM(`<!doctype html><main>
+      <div class="occludable-update">
+        <div class="feed-shared-update-v2" data-urn="urn:li:activity:${originalActivityId}">
+          <a class="update-components-actor__meta-link" href="/company/alliahealth/posts?trk=feed_actor">Allia Health</a>
+          <div class="update-components-text">
+            We are expanding access to better healthcare for more families this month.
+          </div>
+          <button aria-label="31 reactions"></button>
+          <button aria-label="4 comments"></button>
+        </div>
+      </div>
+      <div class="occludable-update">
+        <div class="feed-shared-update-v2" data-urn="urn:li:activity:${repostActivityId}">
+          <a class="update-components-actor__meta-link" href="/in/amieleighton/?miniProfileUrn=abc">Amie Leighton</a>
+          <div class="update-components-text">
+            Amie reposted this update with a sufficiently long personal introduction.
+          </div>
+          <div class="feed-shared-update-v2" data-urn="urn:li:activity:${nestedActivityId}">
+            <a class="update-components-actor__meta-link" href="/company/alliahealth/">Allia Health</a>
+            <div class="update-components-text">
+              This embedded company post must not be promoted out of its outer repost wrapper.
+            </div>
+          </div>
+          <span>Feed post number 2 Amie Leighton reposted this</span>
+          <button aria-label="7 reactions"></button>
+        </div>
+      </div>
+    </main>`, {
+      url: "https://www.linkedin.com/company/alliahealth/posts/",
+      runScripts: "outside-only"
+    });
+    Object.defineProperty(dom.window.HTMLElement.prototype, "innerText", {
+      configurable: true,
+      get() {
+        return this.textContent ?? "";
+      }
+    });
+
+    try {
+      const posts = executeLinkedInTimelineExtractor(dom);
+      assert.deepEqual(
+        Array.from(posts, ({ url }) => url),
+        [
+          `https://www.linkedin.com/feed/update/urn:li:activity:${originalActivityId}/`,
+          `https://www.linkedin.com/feed/update/urn:li:activity:${repostActivityId}/`
+        ]
+      );
+      assert.equal(
+        posts[0].primaryAuthorUrl,
+        "https://www.linkedin.com/company/alliahealth/posts?trk=feed_actor"
+      );
+      assert.equal(
+        posts[1].primaryAuthorUrl,
+        "https://www.linkedin.com/in/amieleighton/?miniProfileUrn=abc"
+      );
+      assert.equal(
+        posts.some((post) => post.url.includes(nestedActivityId)),
+        false
+      );
+
+      const owned = mergeOwnedLinkedInPosts([posts], {
+        accountUrl: "https://www.linkedin.com/company/alliahealth/",
+        targetName: "Allia Health",
+        limit: 100
+      });
+      assert.deepEqual(
+        Array.from(owned, ({ url }) => url),
+        [`https://www.linkedin.com/feed/update/urn:li:activity:${originalActivityId}/`]
+      );
+    } finally {
+      dom.window.close();
+    }
+  });
+
   it("binds alias proof to the first and final safety-checked timeline passes", () => {
     assert.match(
       collectorSource,

@@ -1213,8 +1213,15 @@ export function linkedinPostStrictlyBelongsToAccount(
   const primaryAuthorMatches = primaryAuthorUrls.length > 0 &&
     primaryAuthorUrls.every((url) => {
       const identity = linkedInAccountIdentity(url);
+      const exactActorSurface =
+        identity?.remainingPath.length === 0 ||
+        (
+          identity?.namespace === "company" &&
+          identity.remainingPath.length === 1 &&
+          identity.remainingPath[0] === "posts"
+        );
       return (
-        identity?.remainingPath.length === 0 &&
+        exactActorSurface &&
         expectedAccountIdentities.has(identity.key)
       );
     });
