@@ -1,0 +1,131 @@
+name: Recover Authenticated LinkedIn Orphan
+run-name: Recover LinkedIn orphan ${{ inputs.phase }} for run ${{ inputs.canceled_run_id }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      phase:
+        description: Inspect first; apply only with the exact emitted fingerprint
+        required: true
+        type: choice
+        options:
+          - inspect
+          - apply
+      recover_authenticated_linkedin_lock:
+        description: Explicit authorization for this recovery-only workflow
+        required: true
+        default: false
+        type: boolean
+      batch:
+        description: Exact interrupted LinkedIn checkpoint batch
+        required: true
+        type: choice
+        options:
+          - S26
+          - S2026
+      company_slug:
+        description: Exact canonical company slug for the interrupted target
+        required: true
+        type: string
+      canceled_run_id:
+        description: Exact canceled autonomous-ingestion run ID
+        required: true
+        type: string
+      canceled_run_attempt:
+        description: Exact canceled autonomous-ingestion run attempt
+        required: true
+        default: "1"
+        type: string
+      idempotency_key:
+        description: Exact pending checkpoint-controller idempotency key
+        required: true
+        type: string
+      target_key:
+        description: Exact interrupted checkpoint target key including account URL
+        required: true
+        type: string
+      expected_fingerprint:
+        description: Empty for inspect; exact 64-hex inspect fingerprint for apply
+        required: false
+        default: ""
+        type: string
+
+permissions:
+  actions: read
+  contents: read
+
+# Serialize with every autonomous collector. The local account-acquisition
+# guard below additionally excludes non-workflow collectors during apply.
+concurrency:
+  group: autonomous-ingestion-main
+  queue: max
+  cancel-in-progress: false
+
+jobs:
+  recover:
+    name: Recovery-only LinkedIn lease proof
+    if: github.ref == 'refs/heads/main' && github.ref_type == 'branch'
+    runs-on: [self-hosted, macOS, ARM64, returner-social, returner-auth-browser]
+    timeout-minutes: 30
+    steps:
+      - name: Check out exact main dispatch
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Use Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version-file: package.json
+          cache: npm
+
+      - name: Install locked dependencies
+        run: npm ci
+
+      - name: Preflight authenticated LinkedIn runner
+        id: authenticated_social_preflight
+        timeout-minutes: 20
+        env:
+          AUTHENTICATED_SOCIAL_REPLAY: "true"
+          AUTHENTICATED_BACKFILL_SCOPE: linkedin
+          AUTHENTICATED_BACKFILL_BATCH: ${{ inputs.batch }}
+          AUTHENTICATED_BACKFILL_COMPANY_SLUG: ${{ inputs.company_slug }}
+        run: node scripts/verify-authenticated-social-runner.mjs
+
+      - name: Inspect or release exact orphan lease only
+        id: recovery
+        timeout-minutes: 5
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          GITHUB_TOKEN: ${{ github.token }}
+          RECOVER_AUTHENTICATED_LINKEDIN_LOCK: ${{ inputs.recover_authenticated_linkedin_lock }}
+          AUTHENTICATED_SOCIAL_PREFLIGHT_PASSED: ${{ steps.authenticated_social_preflight.outcome == 'success' && steps.authenticated_social_preflight.outputs.linkedin_ready == 'true' && steps.authenticated_social_preflight.outputs.authenticated_backfill_scope == 'linkedin' && steps.authenticated_social_preflight.outputs.authenticated_backfill_target_batch == inputs.batch && steps.authenticated_social_preflight.outputs.authenticated_backfill_target_company_slug == inputs.company_slug }}
+          AUTHENTICATED_SOCIAL_REPLAY: "true"
+          AUTHENTICATED_BACKFILL_SCOPE: linkedin
+          AUTHENTICATED_BACKFILL_BATCH: ${{ inputs.batch }}
+          AUTHENTICATED_BACKFILL_COMPANY_SLUG: ${{ inputs.company_slug }}
+          LINKEDIN_GLOBAL_LOCK_NAMESPACE: returner-fund-production-linkedin-allen-xu-v1
+          AUTHENTICATED_LINKEDIN_ORPHAN_RECOVERY_PHASE: ${{ inputs.phase }}
+          AUTHENTICATED_LINKEDIN_ORPHAN_CANCELED_RUN_ID: ${{ inputs.canceled_run_id }}
+          AUTHENTICATED_LINKEDIN_ORPHAN_CANCELED_RUN_ATTEMPT: ${{ inputs.canceled_run_attempt }}
+          AUTHENTICATED_LINKEDIN_ORPHAN_IDEMPOTENCY_KEY: ${{ inputs.idempotency_key }}
+          AUTHENTICATED_LINKEDIN_ORPHAN_TARGET_KEY: ${{ inputs.target_key }}
+          AUTHENTICATED_LINKEDIN_ORPHAN_EXPECTED_FINGERPRINT: ${{ inputs.expected_fingerprint }}
+        run: node scripts/recover-authenticated-linkedin-orphan.mjs
+
+      - name: Record recovery-only result
+        env:
+          STATUS: ${{ steps.recovery.outputs.status }}
+          FINGERPRINT: ${{ steps.recovery.outputs.fingerprint }}
+        run: |
+          set -euo pipefail
+          {
+            echo "## Authenticated LinkedIn orphan recovery"
+            echo "- Status: $STATUS"
+            echo "- Evidence fingerprint: $FINGERPRINT"
+            echo "- Collection ready: false"
+            echo "- Local sealed recovery remains required; this workflow never ingests."
+          } >> "$GITHUB_STEP_SUMMARY"
