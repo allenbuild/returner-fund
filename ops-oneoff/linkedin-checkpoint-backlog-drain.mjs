@@ -642,8 +642,11 @@ async function main() {
     return;
   }
   await assertLocalPrerequisites(options);
-  const release = await acquireExclusiveLock(`${options.statePath}.lock`);
+  const recoveryLockPath = `${options.statePath}.recovery.lock`;
+  await assertNoDriverRecovery(recoveryLockPath);
+  const release = await acquireExclusiveLock(`${options.statePath}.lock`, recoveryLockPath);
   try {
+    await assertNoDriverRecovery(recoveryLockPath);
     let state = await readDriverState(options);
     if (options.adoptRunId !== null) {
       if (state.pending && Number(state.pending.runId) !== options.adoptRunId) {
@@ -1392,7 +1395,8 @@ async function writeDriverState(options, state) {
   await rename(temporary, options.statePath);
 }
 
-async function acquireExclusiveLock(lockPath) {
+async function acquireExclusiveLock(lockPath, recoveryLockPath = null) {
+  if (recoveryLockPath) await assertNoDriverRecovery(recoveryLockPath);
   await mkdir(path.dirname(lockPath), { recursive: true });
   try {
     const handle = await open(lockPath, "wx", 0o600);
@@ -1403,8 +1407,9 @@ async function acquireExclusiveLock(lockPath) {
     let owner;
     try { owner = JSON.parse(await readFile(lockPath, "utf8")); } catch { stop("driver_lock_ambiguous", `Unreadable lock: ${lockPath}.`); }
     if (Number.isSafeInteger(owner?.pid) && processExists(owner.pid)) stop("driver_already_running", `Driver PID ${owner.pid} is already active.`);
+    if (recoveryLockPath) await assertNoDriverRecovery(recoveryLockPath);
     await rm(lockPath);
-    return acquireExclusiveLock(lockPath);
+    return acquireExclusiveLock(lockPath, recoveryLockPath);
   }
   let released = false;
   return async () => {
@@ -1412,6 +1417,16 @@ async function acquireExclusiveLock(lockPath) {
     released = true;
     await rm(lockPath, { force: true });
   };
+}
+
+async function assertNoDriverRecovery(recoveryLockPath) {
+  try {
+    await access(recoveryLockPath, fsConstants.F_OK);
+  } catch (error) {
+    if (error?.code === "ENOENT") return;
+    throw error;
+  }
+  stop("driver_recovery_active", `A sealed local-state recovery is active: ${recoveryLockPath}.`);
 }
 
 function durablePaths(options, batchSlug) {
