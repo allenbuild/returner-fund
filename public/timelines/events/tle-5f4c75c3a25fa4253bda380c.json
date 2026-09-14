@@ -12,11 +12,21 @@
     "title": "Kimpton AI released Kimpton Email Agent",
     "summary": "Kimpton AI introduced Kimpton Email Agent.",
     "category": "product_launch",
-    "isMajor": false,
+    "isMajor": true,
     "hasConflict": false,
     "conflictSummary": null,
-    "evidenceCount": 1,
+    "evidenceCount": 2,
     "sourcePreview": [
+      {
+        "id": "src-5acd9b67441a52152f1c9b51",
+        "title": "Introducing Kimpton Email Agent. Forward any email to - ask@kimpton.ai - and Kimpton replies in the thread, grounded in: - Your portfolios - Your transactions - Your vault - Tens of thousands of... | Kimpton AI",
+        "publisher": "kimptonai",
+        "domain": "linkedin.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-06-12T18:54:51.246Z",
+        "evidenceRole": "primary",
+        "url": "https://linkedin.com/posts/kimptonai_introducing-kimpton-email-agent-forward-activity-7471273832595619840-ia1w"
+      },
       {
         "id": "src-78b211fd2e5f54f4b6482efc",
         "title": "Introducing Kimpton Email Agent. Forward any email to - [redacted-email] - and Kimpton replies in the thread, grounded in: - Your portfolio...",
@@ -29,6 +39,21 @@
       }
     ],
     "evidence": [
+      {
+        "id": "src-5acd9b67441a52152f1c9b51",
+        "title": "Introducing Kimpton Email Agent. Forward any email to - ask@kimpton.ai - and Kimpton replies in the thread, grounded in: - Your portfolios - Your transactions - Your vault - Tens of thousands of... | Kimpton AI",
+        "publisher": "kimptonai",
+        "domain": "linkedin.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-06-12T18:54:51.246Z",
+        "evidenceRole": "primary",
+        "url": "https://linkedin.com/posts/kimptonai_introducing-kimpton-email-agent-forward-activity-7471273832595619840-ia1w",
+        "publicationDate": "2026-06-12T18:54:51.246Z",
+        "excerpt": "Introducing Kimpton Email Agent. Forward any email to - ask@kimpton.ai - and Kimpton replies in the thread, grounded in: - Your portfolios - Your transactions - Your vault - Tens of thousands of global real-time and historical prices - SEC filings, options chains, news, company fundamentals, earnings transcripts, and more! ...more",
+        "sourceEventDate": "2026-06-12",
+        "isConflicting": false,
+        "conflictDescription": null
+      },
       {
         "id": "src-78b211fd2e5f54f4b6482efc",
         "title": "Introducing Kimpton Email Agent. Forward any email to - [redacted-email] - and Kimpton replies in the thread, grounded in: - Your portfolio...",
@@ -46,6 +71,19 @@
       }
     ],
     "posts": [
+      {
+        "id": "post-caae0e90a76c8c41f605e3dc",
+        "platform": "linkedin",
+        "account": "kimptonai",
+        "postDate": "2026-06-12",
+        "excerpt": "Introducing Kimpton Email Agent. Forward any email to - ask@kimpton.ai - and Kimpton replies in the thread, grounded in: - Your portfolios - Your transactions - Your vault - Tens of thousands of global real-time and historical prices - SEC filings, options chains, news, company fundamentals, earnings transcripts, and more! ...more",
+        "url": "https://linkedin.com/posts/kimptonai_introducing-kimpton-email-agent-forward-activity-7471273832595619840-ia1w",
+        "metrics": {
+          "reactions": 22,
+          "comments": 3
+        },
+        "evidenceRole": "primary"
+      },
       {
         "id": "post-27a4f8bdb2613c4c1aace5e2",
         "platform": "x",
@@ -66,6 +104,6 @@
       }
     ]
   },
-  "generatedAt": "2026-09-13T20:57:32.947Z",
-  "lastModifiedAt": "2026-09-13T20:57:32.947Z"
+  "generatedAt": "2026-09-14T02:31:10.288Z",
+  "lastModifiedAt": "2026-09-14T02:31:10.288Z"
 }

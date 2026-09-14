@@ -1,0 +1,66 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-testerarmy",
+    "slug": "testerarmy",
+    "name": "TesterArmy"
+  },
+  "event": {
+    "id": "tle-78517c269e059dcee5a172bc",
+    "eventDate": "2026-06-05",
+    "eventDateType": "announcement_date",
+    "title": "TesterArmy added support for testing on Android 🤖 You can upload your",
+    "summary": "TesterArmy now supports testing on Android 🤖 You can upload your.apk and start testing in minutes.",
+    "category": "product_update",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-b4e129cd7d3504f40a8ed519",
+        "title": "TesterArmy now supports testing on Android 🤖 You can upload your .apk and start testing in minutes. Try it now for free: https://lnkd.in/e55yadMd | TesterArmy (YC P26)",
+        "publisher": "testerarmy",
+        "domain": "linkedin.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-06-05T23:43:29.293Z",
+        "evidenceRole": "primary",
+        "url": "https://linkedin.com/posts/testerarmy_testerarmy-now-supports-testing-on-android-activity-7468809754690138113-gW_C"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-b4e129cd7d3504f40a8ed519",
+        "title": "TesterArmy now supports testing on Android 🤖 You can upload your .apk and start testing in minutes. Try it now for free: https://lnkd.in/e55yadMd | TesterArmy (YC P26)",
+        "publisher": "testerarmy",
+        "domain": "linkedin.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-06-05T23:43:29.293Z",
+        "evidenceRole": "primary",
+        "url": "https://linkedin.com/posts/testerarmy_testerarmy-now-supports-testing-on-android-activity-7468809754690138113-gW_C",
+        "publicationDate": "2026-06-05T23:43:29.293Z",
+        "excerpt": "TesterArmy now supports testing on Android 🤖 You can upload your .apk and start testing in minutes. Try it now for free: ...more",
+        "sourceEventDate": "2026-06-05",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-8621792e89c24c23ab1bdb63",
+        "platform": "linkedin",
+        "account": "testerarmy",
+        "postDate": "2026-06-05",
+        "excerpt": "TesterArmy now supports testing on Android 🤖 You can upload your .apk and start testing in minutes. Try it now for free: ...more",
+        "url": "https://linkedin.com/posts/testerarmy_testerarmy-now-supports-testing-on-android-activity-7468809754690138113-gW_C",
+        "metrics": {
+          "reactions": 21,
+          "comments": 1
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-09-14T02:31:10.288Z",
+  "lastModifiedAt": "2026-09-14T02:31:10.288Z"
+}

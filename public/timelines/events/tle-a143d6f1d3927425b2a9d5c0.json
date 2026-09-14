@@ -1,0 +1,66 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-atomarine",
+    "slug": "atomarine",
+    "name": "Atomarine"
+  },
+  "event": {
+    "id": "tle-a143d6f1d3927425b2a9d5c0",
+    "eventDate": "2026-07-27",
+    "eventDateType": "announcement_date",
+    "title": "Atomarine released on YC",
+    "summary": "Atomarine announced it was launching on YC.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-3ae986ce09958dc10b28f280",
+        "title": "Today we are launching on YC! We are building the most scalable solution for compute and power infrastructure. Follow for more! | Atomarine",
+        "publisher": "atomarine",
+        "domain": "linkedin.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-07-27T20:11:15.369Z",
+        "evidenceRole": "primary",
+        "url": "https://linkedin.com/posts/atomarine_today-we-are-launching-on-yc-we-are-building-activity-7487600513753153536-vztk"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-3ae986ce09958dc10b28f280",
+        "title": "Today we are launching on YC! We are building the most scalable solution for compute and power infrastructure. Follow for more! | Atomarine",
+        "publisher": "atomarine",
+        "domain": "linkedin.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-07-27T20:11:15.369Z",
+        "evidenceRole": "primary",
+        "url": "https://linkedin.com/posts/atomarine_today-we-are-launching-on-yc-we-are-building-activity-7487600513753153536-vztk",
+        "publicationDate": "2026-07-27T20:11:15.369Z",
+        "excerpt": "Today we are launching on YC! We are building the most scalable solution for compute and power infrastructure. Follow for more!",
+        "sourceEventDate": "2026-07-27",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-fa2937912557a88845821aa0",
+        "platform": "linkedin",
+        "account": "atomarine",
+        "postDate": "2026-07-27",
+        "excerpt": "Today we are launching on YC! We are building the most scalable solution for compute and power infrastructure. Follow for more!",
+        "url": "https://linkedin.com/posts/atomarine_today-we-are-launching-on-yc-we-are-building-activity-7487600513753153536-vztk",
+        "metrics": {
+          "reactions": 60,
+          "comments": 5
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-09-14T02:31:10.288Z",
+  "lastModifiedAt": "2026-09-14T02:31:10.288Z"
+}

@@ -1,0 +1,66 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-hessian",
+    "slug": "hessian",
+    "name": "Hessian"
+  },
+  "event": {
+    "id": "tle-0ca0fd88a7f53ae7f73af7ce",
+    "eventDate": "2026-05-22",
+    "eventDateType": "announcement_date",
+    "title": "Hessian released Hessian (YC P26) to get you AI-Native! | Bao Nguyen",
+    "summary": "Launching Hessian (YC P26) to get you AI-Native.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-0bfa878e2c12bde1bf5cbf2b",
+        "title": "Launching Hessian (YC P26) to get you AI-Native! | Bao Nguyen",
+        "publisher": "bao-thai-nguyen",
+        "domain": "linkedin.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-05-22T21:36:00.494Z",
+        "evidenceRole": "primary",
+        "url": "https://linkedin.com/posts/bao-thai-nguyen_launching-hessian-yc-p26-to-get-you-ai-native-activity-7463704243183505408-zu-Z"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-0bfa878e2c12bde1bf5cbf2b",
+        "title": "Launching Hessian (YC P26) to get you AI-Native! | Bao Nguyen",
+        "publisher": "bao-thai-nguyen",
+        "domain": "linkedin.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-05-22T21:36:00.494Z",
+        "evidenceRole": "primary",
+        "url": "https://linkedin.com/posts/bao-thai-nguyen_launching-hessian-yc-p26-to-get-you-ai-native-activity-7463704243183505408-zu-Z",
+        "publicationDate": "2026-05-22T21:36:00.494Z",
+        "excerpt": "[Skip to main content](https://linkedin.com/posts/bao-thai-nguyen_launching-hessian-yc-p26-to-get-you-ai-native-activity-7463704243183505408-zu-Z#main-content)[LinkedIn](https://linkedin.com/?trk=[redacted-public-param]) * [Top Content](https://www.linkedin.com/top-content?trk=[redacted-public-param]) * [People](https://www.linkedin.com/pub/dir/+/+?trk=[redacted-public-param]) * [Learning](https://www.linkedin.com/learning/search?trk=[redacted-public-param]) *…",
+        "sourceEventDate": "2026-05-22",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-9d02a9623ca2dfc4375f3611",
+        "platform": "linkedin",
+        "account": "bao-thai-nguyen",
+        "postDate": "2026-05-22",
+        "excerpt": "[Skip to main content](https://linkedin.com/posts/bao-thai-nguyen_launching-hessian-yc-p26-to-get-you-ai-native-activity-7463704243183505408-zu-Z#main-content)[LinkedIn](https://linkedin.com/?trk=[redacted-public-param]) * [Top Content](https://www.linkedin.com/top-content?trk=[redacted-public-param]) * [People](https://www.linkedin.com/pub/dir/+/+?trk=[redacted-public-param]) * [Learning](https://www.linkedin.com/learning/search?trk=[redacted-public-param]) *…",
+        "url": "https://linkedin.com/posts/bao-thai-nguyen_launching-hessian-yc-p26-to-get-you-ai-native-activity-7463704243183505408-zu-Z",
+        "metrics": {
+          "reactions": 45,
+          "comments": 7
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-09-14T02:31:10.288Z",
+  "lastModifiedAt": "2026-09-14T02:31:10.288Z"
+}

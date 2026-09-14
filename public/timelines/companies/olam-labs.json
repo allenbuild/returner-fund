@@ -5,9 +5,33 @@
     "slug": "olam-labs",
     "name": "Olam Labs"
   },
-  "generatedAt": "2026-09-13T20:57:32.947Z",
-  "lastModifiedAt": "2026-09-13T20:57:32.947Z",
+  "generatedAt": "2026-09-14T02:31:10.288Z",
+  "lastModifiedAt": "2026-09-14T02:31:10.288Z",
   "events": [
+    {
+      "id": "tle-a868620d46da34fe60946439",
+      "eventDate": "2026-07-20",
+      "eventDateType": "announcement_date",
+      "title": "Olam Labs released Social Arena and Deception Index",
+      "summary": "Olam Labs introduced Social Arena and Deception Index for AI Model Benchmarking | Olam Labs (YC S26) posted on the topic | LinkedIn.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-c1c33abc6d044480e8c1a4e0",
+          "title": "Introducing Social Arena and Deception Index for AI Model Benchmarking | Olam Labs (YC S26) posted on the topic | LinkedIn",
+          "publisher": "olam-labs",
+          "domain": "linkedin.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-07-20T21:23:05.312Z",
+          "evidenceRole": "primary",
+          "url": "https://linkedin.com/posts/olam-labs_today-were-releasing-social-arena-and-our-activity-7485081875904929792-5Hte"
+        }
+      ]
+    },
     {
       "id": "tle-0c1ebccbe4ce46f14c32c305",
       "eventDate": "2026-07-20",
@@ -39,15 +63,15 @@
       "months": [
         {
           "month": "2026-07",
-          "count": 1
+          "count": 2
         }
       ]
     }
   ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-09-13T20:57:32.947Z"
+    "publishedEventCount": 2,
+    "lastSuccessfulArtifactAt": "2026-09-14T02:31:10.288Z"
   },
   "nextCursor": null
 }

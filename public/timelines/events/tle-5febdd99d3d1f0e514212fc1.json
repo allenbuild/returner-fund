@@ -23,7 +23,7 @@
         "publisher": "wondering-app",
         "domain": "linkedin.com",
         "sourceType": "company_post",
-        "publishedAt": "2026-07-24T18:09:13.380Z",
+        "publishedAt": "2026-07-24T18:09:13.398Z",
         "evidenceRole": "primary",
         "url": "https://linkedin.com/posts/wondering-app_today-we-are-excited-to-share-that-wondering-activity-7486482639583891456-tZSX"
       },
@@ -45,10 +45,10 @@
         "publisher": "wondering-app",
         "domain": "linkedin.com",
         "sourceType": "company_post",
-        "publishedAt": "2026-07-24T18:09:13.380Z",
+        "publishedAt": "2026-07-24T18:09:13.398Z",
         "evidenceRole": "primary",
         "url": "https://linkedin.com/posts/wondering-app_today-we-are-excited-to-share-that-wondering-activity-7486482639583891456-tZSX",
-        "publicationDate": "2026-07-24T18:09:13.380Z",
+        "publicationDate": "2026-07-24T18:09:13.398Z",
         "excerpt": "Today we are excited to share that Wondering joined Y Combinator! Almost everyone has something they gave up on learning. Maybe the subject felt too complicated. Maybe life was just too busy. Somewhere along the way, “I want to learn this” quietly became “I guess I never will.” We’re building Wondering to change that. Wondering turns any complex topic into a structured path of short, visual, interactive lessons, personalized to your background, learning style, and how deep you want to go.…",
         "sourceEventDate": "2026-07-24",
         "isConflicting": false,
@@ -102,6 +102,6 @@
       }
     ]
   },
-  "generatedAt": "2026-09-13T20:57:32.947Z",
-  "lastModifiedAt": "2026-09-13T20:57:32.947Z"
+  "generatedAt": "2026-09-14T02:31:10.288Z",
+  "lastModifiedAt": "2026-09-14T02:31:10.288Z"
 }

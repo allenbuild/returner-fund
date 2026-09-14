@@ -5,8 +5,8 @@
     "slug": "kimpton-ai",
     "name": "Kimpton AI"
   },
-  "generatedAt": "2026-09-13T20:57:32.947Z",
-  "lastModifiedAt": "2026-09-13T20:57:32.947Z",
+  "generatedAt": "2026-09-14T02:31:10.288Z",
+  "lastModifiedAt": "2026-09-14T02:31:10.288Z",
   "events": [
     {
       "id": "tle-e5c4dd35349cb57bb588d6ca",
@@ -39,11 +39,21 @@
       "title": "Kimpton AI released Kimpton Email Agent",
       "summary": "Kimpton AI introduced Kimpton Email Agent.",
       "category": "product_launch",
-      "isMajor": false,
+      "isMajor": true,
       "hasConflict": false,
       "conflictSummary": null,
-      "evidenceCount": 1,
+      "evidenceCount": 2,
       "sourcePreview": [
+        {
+          "id": "src-5acd9b67441a52152f1c9b51",
+          "title": "Introducing Kimpton Email Agent. Forward any email to - ask@kimpton.ai - and Kimpton replies in the thread, grounded in: - Your portfolios - Your transactions - Your vault - Tens of thousands of... | Kimpton AI",
+          "publisher": "kimptonai",
+          "domain": "linkedin.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-06-12T18:54:51.246Z",
+          "evidenceRole": "primary",
+          "url": "https://linkedin.com/posts/kimptonai_introducing-kimpton-email-agent-forward-activity-7471273832595619840-ia1w"
+        },
         {
           "id": "src-78b211fd2e5f54f4b6482efc",
           "title": "Introducing Kimpton Email Agent. Forward any email to - [redacted-email] - and Kimpton replies in the thread, grounded in: - Your portfolio...",
@@ -159,7 +169,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 5,
-    "lastSuccessfulArtifactAt": "2026-09-13T20:57:32.947Z"
+    "lastSuccessfulArtifactAt": "2026-09-14T02:31:10.288Z"
   },
   "nextCursor": null
 }

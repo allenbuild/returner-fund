@@ -5,14 +5,14 @@
     "slug": "grip",
     "name": "Grip"
   },
-  "generatedAt": "2026-09-13T20:57:32.947Z",
-  "lastModifiedAt": "2026-09-13T20:57:32.947Z",
+  "generatedAt": "2026-09-14T02:31:10.288Z",
+  "lastModifiedAt": "2026-09-14T02:31:10.288Z",
   "events": [],
   "groups": [],
   "coverage": {
     "status": "partial",
     "publishedEventCount": 0,
-    "lastSuccessfulArtifactAt": "2026-09-13T20:57:32.947Z"
+    "lastSuccessfulArtifactAt": "2026-09-14T02:31:10.288Z"
   },
   "nextCursor": null
 }

@@ -5,8 +5,8 @@
     "slug": "edotenv",
     "name": "EdotEnv"
   },
-  "generatedAt": "2026-09-13T20:57:32.947Z",
-  "lastModifiedAt": "2026-09-13T20:57:32.947Z",
+  "generatedAt": "2026-09-14T02:31:10.288Z",
+  "lastModifiedAt": "2026-09-14T02:31:10.288Z",
   "events": [
     {
       "id": "tle-a560e0c591cb576d4a226d78",
@@ -71,7 +71,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 2,
-    "lastSuccessfulArtifactAt": "2026-09-13T20:57:32.947Z"
+    "lastSuccessfulArtifactAt": "2026-09-14T02:31:10.288Z"
   },
   "nextCursor": null
 }

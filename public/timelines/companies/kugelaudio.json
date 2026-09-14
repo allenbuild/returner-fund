@@ -5,8 +5,8 @@
     "slug": "kugelaudio",
     "name": "KugelAudio"
   },
-  "generatedAt": "2026-09-13T20:57:32.947Z",
-  "lastModifiedAt": "2026-09-13T20:57:32.947Z",
+  "generatedAt": "2026-09-14T02:31:10.288Z",
+  "lastModifiedAt": "2026-09-14T02:31:10.288Z",
   "events": [
     {
       "id": "tle-363995df6f8883b100864fef",
@@ -50,7 +50,7 @@
           "publisher": "kugelaudio",
           "domain": "linkedin.com",
           "sourceType": "company_post",
-          "publishedAt": "2026-04-21T06:35:38.269Z",
+          "publishedAt": "2026-04-21T06:35:38.286Z",
           "evidenceRole": "primary",
           "url": "https://linkedin.com/posts/kugelaudio_were-excited-to-share-that-kugelaudio-has-activity-7452243633787023360-8XRA"
         }
@@ -75,7 +75,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 2,
-    "lastSuccessfulArtifactAt": "2026-09-13T20:57:32.947Z"
+    "lastSuccessfulArtifactAt": "2026-09-14T02:31:10.288Z"
   },
   "nextCursor": null
 }

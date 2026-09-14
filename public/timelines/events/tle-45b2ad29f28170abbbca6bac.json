@@ -1,0 +1,66 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-tsenta",
+    "slug": "tsenta",
+    "name": "Tsenta"
+  },
+  "event": {
+    "id": "tle-45b2ad29f28170abbbca6bac",
+    "eventDate": "2026-06-27",
+    "eventDateType": "announcement_date",
+    "title": "Tsenta became publicly available",
+    "summary": "Tsenta's new networking feature is now live.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-dc787538dfd454eb7ecc5745",
+        "title": "Tsenta's new networking feature is now live! Find recruiters for jobs that you've applied to, along with people in your network working at target companies. Everyone gets 10 free searches /... | Agnay Srivastava",
+        "publisher": "agnay",
+        "domain": "linkedin.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-06-27T22:14:47.421Z",
+        "evidenceRole": "primary",
+        "url": "https://linkedin.com/posts/activity-7476759966184488960-tjEV"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-dc787538dfd454eb7ecc5745",
+        "title": "Tsenta's new networking feature is now live! Find recruiters for jobs that you've applied to, along with people in your network working at target companies. Everyone gets 10 free searches /... | Agnay Srivastava",
+        "publisher": "agnay",
+        "domain": "linkedin.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-06-27T22:14:47.421Z",
+        "evidenceRole": "primary",
+        "url": "https://linkedin.com/posts/activity-7476759966184488960-tjEV",
+        "publicationDate": "2026-06-27T22:14:47.421Z",
+        "excerpt": "Everyone gets 10 free searches /... | Agnay Srivastava URL Source: https://linkedin.com/posts/activity-7476759966184488960-tjEV Markdown Content: Agree & Join LinkedIn By clicking Continue to join or sign in, you agree to LinkedIn’s [User Agreement](https://linkedin.com/legal/user-agreement?trk=[redacted-public-param]), [Privacy Policy](https://linkedin.com/legal/privacy-policy?trk=[redacted-public-param]), and [Cookie…",
+        "sourceEventDate": "2026-06-27",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-5ab8aec1834fb0c50b0dbe3a",
+        "platform": "linkedin",
+        "account": "agnay",
+        "postDate": "2026-06-27",
+        "excerpt": "Everyone gets 10 free searches /... | Agnay Srivastava URL Source: https://linkedin.com/posts/activity-7476759966184488960-tjEV Markdown Content: Agree & Join LinkedIn By clicking Continue to join or sign in, you agree to LinkedIn’s [User Agreement](https://linkedin.com/legal/user-agreement?trk=[redacted-public-param]), [Privacy Policy](https://linkedin.com/legal/privacy-policy?trk=[redacted-public-param]), and [Cookie…",
+        "url": "https://linkedin.com/posts/activity-7476759966184488960-tjEV",
+        "metrics": {
+          "reactions": 86,
+          "comments": 7
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-09-14T02:31:10.288Z",
+  "lastModifiedAt": "2026-09-14T02:31:10.288Z"
+}

@@ -1,0 +1,66 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-pentagon",
+    "slug": "pentagon",
+    "name": "Pentagon"
+  },
+  "event": {
+    "id": "tle-29b5cb5f330b020b93534a08",
+    "eventDate": "2026-05-21",
+    "eventDateType": "announcement_date",
+    "title": "Pentagon was accepted into Y Combinator",
+    "summary": "When we first joined YC with Pentagon, I (obviously) had a good perception of the world's greatest startup accelerator - but I was relatively neutral on what the experience would actually feel like.",
+    "category": "accelerator",
+    "isMajor": true,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-d63d8c15bc7bd4bf966c126b",
+        "title": "When we first joined YC with Pentagon, I (obviously) had a good perception of the world's greatest startup accelerator - but I was relatively neutral on what the experience would a",
+        "publisher": "edgarpavlovsky",
+        "domain": "linkedin.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-05-21T15:26:48.899Z",
+        "evidenceRole": "primary",
+        "url": "https://linkedin.com/posts/edgarpavlovsky_when-we-first-joined-yc-with-pentagon-i-activity-7463248944794324992-A-DL"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-d63d8c15bc7bd4bf966c126b",
+        "title": "When we first joined YC with Pentagon, I (obviously) had a good perception of the world's greatest startup accelerator - but I was relatively neutral on what the experience would a",
+        "publisher": "edgarpavlovsky",
+        "domain": "linkedin.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-05-21T15:26:48.899Z",
+        "evidenceRole": "primary",
+        "url": "https://linkedin.com/posts/edgarpavlovsky_when-we-first-joined-yc-with-pentagon-i-activity-7463248944794324992-A-DL",
+        "publicationDate": "2026-05-21T15:26:48.899Z",
+        "excerpt": "When we first joined YC with Pentagon, I (obviously) had a good perception of the world's greatest startup accelerator - but I was relatively neutral on what the experience would actually feel like. I'm humbled to say that the camraderie I've felt from the YC community these past weeks has been standout and far above my expectations. There's a persistent energy that lifts you up, but there is also - and this is probably my favorite part - just a very simple drive from within to wake up every…",
+        "sourceEventDate": "2026-05-21",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-b7a4a8cf82a4283141933471",
+        "platform": "linkedin",
+        "account": "edgarpavlovsky",
+        "postDate": "2026-05-21",
+        "excerpt": "When we first joined YC with Pentagon, I (obviously) had a good perception of the world's greatest startup accelerator - but I was relatively neutral on what the experience would actually feel like. I'm humbled to say that the camraderie I've felt from the YC community these past weeks has been standout and far above my expectations. There's a persistent energy that lifts you up, but there is also - and this is probably my favorite part - just a very simple drive from within to wake up every…",
+        "url": "https://linkedin.com/posts/edgarpavlovsky_when-we-first-joined-yc-with-pentagon-i-activity-7463248944794324992-A-DL",
+        "metrics": {
+          "reactions": 46,
+          "comments": 3
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-09-14T02:31:10.288Z",
+  "lastModifiedAt": "2026-09-14T02:31:10.288Z"
+}

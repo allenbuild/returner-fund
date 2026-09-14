@@ -5,8 +5,8 @@
     "slug": "wondering",
     "name": "Wondering"
   },
-  "generatedAt": "2026-09-13T20:57:32.947Z",
-  "lastModifiedAt": "2026-09-13T20:57:32.947Z",
+  "generatedAt": "2026-09-14T02:31:10.288Z",
+  "lastModifiedAt": "2026-09-14T02:31:10.288Z",
   "events": [
     {
       "id": "tle-6a261bc25456a7c37d6a37de",
@@ -122,7 +122,7 @@
           "publisher": "wondering-app",
           "domain": "linkedin.com",
           "sourceType": "company_post",
-          "publishedAt": "2026-07-24T18:09:13.380Z",
+          "publishedAt": "2026-07-24T18:09:13.398Z",
           "evidenceRole": "primary",
           "url": "https://linkedin.com/posts/wondering-app_today-we-are-excited-to-share-that-wondering-activity-7486482639583891456-tZSX"
         },
@@ -219,7 +219,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 7,
-    "lastSuccessfulArtifactAt": "2026-09-13T20:57:32.947Z"
+    "lastSuccessfulArtifactAt": "2026-09-14T02:31:10.288Z"
   },
   "nextCursor": null
 }

@@ -1,0 +1,107 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-zenbu-2",
+    "slug": "zenbu",
+    "name": "Zenbu"
+  },
+  "event": {
+    "id": "tle-2438d5136b46824b8379825c",
+    "eventDate": "2026-05-13",
+    "eventDateType": "announcement_date",
+    "title": "Zenbu was introduced",
+    "summary": "Zenbu introduced Zenbu.js - The JavaScript framework for hackable software Zenbu.js lets you build applications that can be edited by your users.",
+    "category": "product_launch",
+    "isMajor": true,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 2,
+    "sourcePreview": [
+      {
+        "id": "src-1679d123354da4bd538930a0",
+        "title": "Introducing Zenbu.js - The JavaScript framework for hackable software Zenbu.js lets you build applications that can be edited by your users. I was motivated to build Zenbu.js because I wanted to edit the software I use with my coding…",
+        "publisher": "Rob Pruzan LinkedIn post",
+        "domain": "linkedin.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-05-13T19:00:12.382Z",
+        "evidenceRole": "primary",
+        "url": "https://www.linkedin.com/feed/update/urn:li:activity:7460403543569731587"
+      },
+      {
+        "id": "src-2f69dbf3d5743bbea0c830f3",
+        "title": "Zenbu (YC P26) Launch Video",
+        "publisher": "Zenbu (YC P26) Launch Video",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-06-03T01:55:53-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=ZUbY8zdv7Rc"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-1679d123354da4bd538930a0",
+        "title": "Introducing Zenbu.js - The JavaScript framework for hackable software Zenbu.js lets you build applications that can be edited by your users. I was motivated to build Zenbu.js because I wanted to edit the software I use with my coding…",
+        "publisher": "Rob Pruzan LinkedIn post",
+        "domain": "linkedin.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-05-13T19:00:12.382Z",
+        "evidenceRole": "primary",
+        "url": "https://www.linkedin.com/feed/update/urn:li:activity:7460403543569731587",
+        "publicationDate": "2026-05-13T19:00:12.382Z",
+        "excerpt": "Introducing Zenbu.js - The JavaScript framework for hackable software Zenbu.js lets you build applications that can be edited by your users. I was motivated to build Zenbu.js because I wanted to edit the software I use with my coding agents. The problem with current applications is that they ship frozen source code that cannot be modified When you install a Zenbu.js app, you are essentially cloning a git repo onto your computer, and running it in development mode. Any changes made to that…",
+        "sourceEventDate": "2026-05-13",
+        "isConflicting": false,
+        "conflictDescription": null
+      },
+      {
+        "id": "src-2f69dbf3d5743bbea0c830f3",
+        "title": "Zenbu (YC P26) Launch Video",
+        "publisher": "Zenbu (YC P26) Launch Video",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-06-03T01:55:53-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=ZUbY8zdv7Rc",
+        "publicationDate": "2026-06-03T01:55:53-07:00",
+        "excerpt": "A highly extensible IDE for managing coding agents Try today at https://zenbu.dev",
+        "sourceEventDate": "2026-06-03",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-0bc2309116a64f25d738c456",
+        "platform": "linkedin",
+        "account": "Rob Pruzan LinkedIn post",
+        "postDate": "2026-05-13",
+        "excerpt": "Introducing Zenbu.js - The JavaScript framework for hackable software Zenbu.js lets you build applications that can be edited by your users. I was motivated to build Zenbu.js because I wanted to edit the software I use with my coding agents. The problem with current applications is that they ship frozen source code that cannot be modified When you install a Zenbu.js app, you are essentially cloning a git repo onto your computer, and running it in development mode. Any changes made to that…",
+        "url": "https://www.linkedin.com/feed/update/urn:li:activity:7460403543569731587",
+        "metrics": {
+          "likes": 58,
+          "comments": 9,
+          "reposts": 2,
+          "views": 0
+        },
+        "evidenceRole": "primary"
+      },
+      {
+        "id": "post-d73e05b6f2092dfe855dfae4",
+        "platform": "youtube",
+        "account": "Zenbu (YC P26) Launch Video",
+        "postDate": "2026-06-03",
+        "excerpt": "A highly extensible IDE for managing coding agents Try today at https://zenbu.dev",
+        "url": "https://youtube.com/watch?v=ZUbY8zdv7Rc",
+        "metrics": {
+          "views": 156,
+          "likes": 2,
+          "comments": 0
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-09-14T02:31:10.288Z",
+  "lastModifiedAt": "2026-09-14T02:31:10.288Z"
+}

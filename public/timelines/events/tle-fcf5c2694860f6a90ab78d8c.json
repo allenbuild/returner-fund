@@ -23,7 +23,7 @@
         "publisher": "HERA",
         "domain": "linkedin.com",
         "sourceType": "company_post",
-        "publishedAt": "2026-07-14T00:42:55.545Z",
+        "publishedAt": "2026-07-14T00:42:55.568Z",
         "evidenceRole": "primary",
         "url": "https://linkedin.com/posts/heraengineer_today-were-launching-hera-engineering-activity-7482595451624505344-ccd1"
       }
@@ -35,10 +35,10 @@
         "publisher": "HERA",
         "domain": "linkedin.com",
         "sourceType": "company_post",
-        "publishedAt": "2026-07-14T00:42:55.545Z",
+        "publishedAt": "2026-07-14T00:42:55.568Z",
         "evidenceRole": "primary",
         "url": "https://linkedin.com/posts/heraengineer_today-were-launching-hera-engineering-activity-7482595451624505344-ccd1",
-        "publicationDate": "2026-07-14T00:42:55.545Z",
+        "publicationDate": "2026-07-14T00:42:55.568Z",
         "excerpt": "Today we're launching Hera. Hera helps engineers review drawings before release: GD&T conformance, tolerance stackups, and cross-drawing consistency.",
         "sourceEventDate": "2026-07-14",
         "isConflicting": false,
@@ -61,6 +61,6 @@
       }
     ]
   },
-  "generatedAt": "2026-09-13T20:57:32.947Z",
-  "lastModifiedAt": "2026-09-13T20:57:32.947Z"
+  "generatedAt": "2026-09-14T02:31:10.288Z",
+  "lastModifiedAt": "2026-09-14T02:31:10.288Z"
 }

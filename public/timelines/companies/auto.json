@@ -5,8 +5,8 @@
     "slug": "auto",
     "name": "Auto"
   },
-  "generatedAt": "2026-09-13T20:57:32.947Z",
-  "lastModifiedAt": "2026-09-13T20:57:32.947Z",
+  "generatedAt": "2026-09-14T02:31:10.288Z",
+  "lastModifiedAt": "2026-09-14T02:31:10.288Z",
   "events": [
     {
       "id": "tle-49a74bd7ee1e4b1c7084e22c",
@@ -31,6 +31,30 @@
           "url": "https://x.com/autoaicam/status/2077452103715561819"
         }
       ]
+    },
+    {
+      "id": "tle-8cbca6423dd5a55f8d5599b3",
+      "eventDate": "2026-07-08",
+      "eventDateType": "announcement_date",
+      "title": "Auto announced its public launch",
+      "summary": "Auto IS LAUNCHING OUR FIRST CREATOR SPRINT.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-d64e3a599f68a1bf4f939747",
+          "title": "Auto IS LAUNCHING OUR FIRST CREATOR SPRINT! This is your chance to get paid and learn by working at a top startup. The goal of the sprint is to help people understand the power of frames and... | Abdul Wahaj",
+          "publisher": "abdulwahaj786",
+          "domain": "linkedin.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-07-08T19:50:49.607Z",
+          "evidenceRole": "primary",
+          "url": "https://linkedin.com/posts/activity-7480710003088322560-Hvvq"
+        }
+      ]
     }
   ],
   "groups": [
@@ -39,15 +63,15 @@
       "months": [
         {
           "month": "2026-07",
-          "count": 1
+          "count": 2
         }
       ]
     }
   ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-09-13T20:57:32.947Z"
+    "publishedEventCount": 2,
+    "lastSuccessfulArtifactAt": "2026-09-14T02:31:10.288Z"
   },
   "nextCursor": null
 }

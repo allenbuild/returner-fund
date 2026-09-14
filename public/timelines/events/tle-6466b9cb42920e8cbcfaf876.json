@@ -23,7 +23,7 @@
         "publisher": "runtm",
         "domain": "linkedin.com",
         "sourceType": "company_post",
-        "publishedAt": "2026-06-30T15:00:06.378Z",
+        "publishedAt": "2026-06-30T15:00:06.402Z",
         "evidenceRole": "primary",
         "url": "https://linkedin.com/posts/runtm_claude-code-for-pms-activity-7477737738058874880-WXVQ"
       }
@@ -35,10 +35,10 @@
         "publisher": "runtm",
         "domain": "linkedin.com",
         "sourceType": "company_post",
-        "publishedAt": "2026-06-30T15:00:06.378Z",
+        "publishedAt": "2026-06-30T15:00:06.402Z",
         "evidenceRole": "primary",
         "url": "https://linkedin.com/posts/runtm_claude-code-for-pms-activity-7477737738058874880-WXVQ",
-        "publicationDate": "2026-06-30T15:00:06.378Z",
+        "publicationDate": "2026-06-30T15:00:06.402Z",
         "excerpt": "We're launching claudecodeforpms.com, a site where PMs can find and contribute best practices for shipping faster with Claude Code. Christopher Lee was our first contributor. He wrote a PRD on managing secrets with coding agents, used Runtime to build it into the site, and merged the first PR in minutes. See how he did it here: https://lnkd.in/gDHg-QK7 If you have a Claude Code practice worth adding, comment below. We'll give you a month of free Runtime premium if you contribute to our repo…",
         "sourceEventDate": "2026-06-30",
         "isConflicting": false,
@@ -61,6 +61,6 @@
       }
     ]
   },
-  "generatedAt": "2026-09-13T20:57:32.947Z",
-  "lastModifiedAt": "2026-09-13T20:57:32.947Z"
+  "generatedAt": "2026-09-14T02:31:10.288Z",
+  "lastModifiedAt": "2026-09-14T02:31:10.288Z"
 }

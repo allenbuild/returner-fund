@@ -5,8 +5,8 @@
     "slug": "prototyping-io",
     "name": "Prototyping.io"
   },
-  "generatedAt": "2026-09-13T20:57:32.947Z",
-  "lastModifiedAt": "2026-09-13T20:57:32.947Z",
+  "generatedAt": "2026-09-14T02:31:10.288Z",
+  "lastModifiedAt": "2026-09-14T02:31:10.288Z",
   "events": [
     {
       "id": "tle-a1fb8789b02387a8e021b868",
@@ -50,7 +50,7 @@
           "publisher": "preritoberai",
           "domain": "linkedin.com",
           "sourceType": "founder_post",
-          "publishedAt": "2026-03-25T16:13:03.023Z",
+          "publishedAt": "2026-03-25T16:13:03.049Z",
           "evidenceRole": "primary",
           "url": "https://linkedin.com/posts/preritoberai_excited-to-share-that-we-got-into-y-combinator-activity-7442604472083599360-6IsL"
         },
@@ -60,7 +60,7 @@
           "publisher": "revanth279",
           "domain": "linkedin.com",
           "sourceType": "founder_post",
-          "publishedAt": "2026-03-25T15:45:43.091Z",
+          "publishedAt": "2026-03-25T15:45:43.114Z",
           "evidenceRole": "primary",
           "url": "https://www.linkedin.com/posts/revanth279_we-got-into-y-combinator-p26-for-years-activity-7442597593697902592-t6LX"
         }
@@ -85,7 +85,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 2,
-    "lastSuccessfulArtifactAt": "2026-09-13T20:57:32.947Z"
+    "lastSuccessfulArtifactAt": "2026-09-14T02:31:10.288Z"
   },
   "nextCursor": null
 }

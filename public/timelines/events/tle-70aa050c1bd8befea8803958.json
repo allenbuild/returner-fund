@@ -6,17 +6,27 @@
     "name": "BentoLabs AI"
   },
   "event": {
-    "id": "tle-582cc743bc7fb59607a6f6a9",
+    "id": "tle-70aa050c1bd8befea8803958",
     "eventDate": "2026-06-01",
     "eventDateType": "announcement_date",
-    "title": "BentoLabs AI launched on Y Combinator",
-    "summary": "BentoLabs AI is live on @ycombinator .",
+    "title": "BentoLabs AI announced its public launch",
+    "summary": "BentoLabs AI is live on Y Combinator.",
     "category": "product_launch",
     "isMajor": true,
     "hasConflict": false,
     "conflictSummary": null,
-    "evidenceCount": 2,
+    "evidenceCount": 3,
     "sourcePreview": [
+      {
+        "id": "src-80514f48d7d12359f6e9b287",
+        "title": "We are live on Y Combinator. Building the monitoring and learning layer for long-running agents. Go check us out if you haven't. | BentoLabs AI (YC P26)",
+        "publisher": "bentolabs-ai",
+        "domain": "linkedin.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-06-01T12:26:43.451Z",
+        "evidenceRole": "primary",
+        "url": "https://linkedin.com/posts/bentolabs-ai_we-are-live-on-y-combinator-building-the-activity-7467189889982423040-oeF5"
+      },
       {
         "id": "src-7ff6d82915e43e4247cd79cb",
         "title": "We are live on @ycombinator ! Building the monitoring and learning layer for long-running agents.",
@@ -39,6 +49,21 @@
       }
     ],
     "evidence": [
+      {
+        "id": "src-80514f48d7d12359f6e9b287",
+        "title": "We are live on Y Combinator. Building the monitoring and learning layer for long-running agents. Go check us out if you haven't. | BentoLabs AI (YC P26)",
+        "publisher": "bentolabs-ai",
+        "domain": "linkedin.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-06-01T12:26:43.451Z",
+        "evidenceRole": "primary",
+        "url": "https://linkedin.com/posts/bentolabs-ai_we-are-live-on-y-combinator-building-the-activity-7467189889982423040-oeF5",
+        "publicationDate": "2026-06-01T12:26:43.451Z",
+        "excerpt": "We are live on Y Combinator. Building the monitoring and learning layer for long-running agents. Go check us out if you haven't.",
+        "sourceEventDate": "2026-06-01",
+        "isConflicting": false,
+        "conflictDescription": null
+      },
       {
         "id": "src-7ff6d82915e43e4247cd79cb",
         "title": "We are live on @ycombinator ! Building the monitoring and learning layer for long-running agents.",
@@ -72,6 +97,19 @@
     ],
     "posts": [
       {
+        "id": "post-d905b8f727dc830b6ad30fe5",
+        "platform": "linkedin",
+        "account": "bentolabs-ai",
+        "postDate": "2026-06-01",
+        "excerpt": "We are live on Y Combinator. Building the monitoring and learning layer for long-running agents. Go check us out if you haven't.",
+        "url": "https://linkedin.com/posts/bentolabs-ai_we-are-live-on-y-combinator-building-the-activity-7467189889982423040-oeF5",
+        "metrics": {
+          "reactions": 42,
+          "comments": 2
+        },
+        "evidenceRole": "primary"
+      },
+      {
         "id": "post-28ff63ab1454387ec4975cba",
         "platform": "x",
         "account": "bentolabsai",
@@ -102,6 +140,6 @@
       }
     ]
   },
-  "generatedAt": "2026-09-13T20:57:32.947Z",
-  "lastModifiedAt": "2026-09-13T20:57:32.947Z"
+  "generatedAt": "2026-09-14T02:31:10.288Z",
+  "lastModifiedAt": "2026-09-14T02:31:10.288Z"
 }

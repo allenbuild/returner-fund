@@ -5,14 +5,49 @@
     "slug": "hessian",
     "name": "Hessian"
   },
-  "generatedAt": "2026-09-13T20:57:32.947Z",
-  "lastModifiedAt": "2026-09-13T20:57:32.947Z",
-  "events": [],
-  "groups": [],
+  "generatedAt": "2026-09-14T02:31:10.288Z",
+  "lastModifiedAt": "2026-09-14T02:31:10.288Z",
+  "events": [
+    {
+      "id": "tle-0ca0fd88a7f53ae7f73af7ce",
+      "eventDate": "2026-05-22",
+      "eventDateType": "announcement_date",
+      "title": "Hessian released Hessian (YC P26) to get you AI-Native! | Bao Nguyen",
+      "summary": "Launching Hessian (YC P26) to get you AI-Native.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-0bfa878e2c12bde1bf5cbf2b",
+          "title": "Launching Hessian (YC P26) to get you AI-Native! | Bao Nguyen",
+          "publisher": "bao-thai-nguyen",
+          "domain": "linkedin.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-05-22T21:36:00.494Z",
+          "evidenceRole": "primary",
+          "url": "https://linkedin.com/posts/bao-thai-nguyen_launching-hessian-yc-p26-to-get-you-ai-native-activity-7463704243183505408-zu-Z"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-05",
+          "count": 1
+        }
+      ]
+    }
+  ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 0,
-    "lastSuccessfulArtifactAt": "2026-09-13T20:57:32.947Z"
+    "publishedEventCount": 1,
+    "lastSuccessfulArtifactAt": "2026-09-14T02:31:10.288Z"
   },
   "nextCursor": null
 }

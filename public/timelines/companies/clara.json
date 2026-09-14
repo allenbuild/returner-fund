@@ -5,21 +5,31 @@
     "slug": "clara",
     "name": "Clara"
   },
-  "generatedAt": "2026-09-13T20:57:32.947Z",
-  "lastModifiedAt": "2026-09-13T20:57:32.947Z",
+  "generatedAt": "2026-09-14T02:31:10.288Z",
+  "lastModifiedAt": "2026-09-14T02:31:10.288Z",
   "events": [
     {
       "id": "tle-cd72528e9ff12bdb0333a262",
       "eventDate": "2026-05-14",
       "eventDateType": "announcement_date",
       "title": "Clara announced its public launch",
-      "summary": "Clara announced it was launching Clara, an AI-powered primary care doctor with licensed medical providers reviewing everything.",
+      "summary": "Clara announced it was launching Clara: an AI-powered primary care doctor.",
       "category": "product_launch",
-      "isMajor": false,
+      "isMajor": true,
       "hasConflict": false,
       "conflictSummary": null,
-      "evidenceCount": 1,
+      "evidenceCount": 2,
       "sourcePreview": [
+        {
+          "id": "src-e4bf3fbf5c40aa9f88358972",
+          "title": "Today we're launching Clara: an AI-powered primary care doctor. Clara securely pulls your medical history from 150,000+ hospitals, labs, and pharmacies and reads all of it, every time you interact with us. We draft prescription refills,…",
+          "publisher": "Zeeshan Ahmed LinkedIn post",
+          "domain": "linkedin.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-05-14T18:58:52.693Z",
+          "evidenceRole": "primary",
+          "url": "https://www.linkedin.com/feed/update/urn:li:activity:7460765597195345920"
+        },
         {
           "id": "src-02a7d0bc717faec61e7ed7fe",
           "title": "Today we are launching Clara, an AI-powered primary care doctor with licensed medical providers reviewing everything.",
@@ -47,7 +57,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-09-13T20:57:32.947Z"
+    "lastSuccessfulArtifactAt": "2026-09-14T02:31:10.288Z"
   },
   "nextCursor": null
 }

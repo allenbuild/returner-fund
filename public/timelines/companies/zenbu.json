@@ -5,21 +5,31 @@
     "slug": "zenbu",
     "name": "Zenbu"
   },
-  "generatedAt": "2026-09-13T20:57:32.947Z",
-  "lastModifiedAt": "2026-09-13T20:57:32.947Z",
+  "generatedAt": "2026-09-14T02:31:10.288Z",
+  "lastModifiedAt": "2026-09-14T02:31:10.288Z",
   "events": [
     {
-      "id": "tle-c14eeaecd8f72e50755df93b",
-      "eventDate": "2026-06-03",
+      "id": "tle-2438d5136b46824b8379825c",
+      "eventDate": "2026-05-13",
       "eventDateType": "announcement_date",
-      "title": "Zenbu announced its public launch",
-      "summary": "Zenbu announced its public launch in a dated company video.",
+      "title": "Zenbu was introduced",
+      "summary": "Zenbu introduced Zenbu.js - The JavaScript framework for hackable software Zenbu.js lets you build applications that can be edited by your users.",
       "category": "product_launch",
-      "isMajor": false,
+      "isMajor": true,
       "hasConflict": false,
       "conflictSummary": null,
-      "evidenceCount": 1,
+      "evidenceCount": 2,
       "sourcePreview": [
+        {
+          "id": "src-1679d123354da4bd538930a0",
+          "title": "Introducing Zenbu.js - The JavaScript framework for hackable software Zenbu.js lets you build applications that can be edited by your users. I was motivated to build Zenbu.js because I wanted to edit the software I use with my coding…",
+          "publisher": "Rob Pruzan LinkedIn post",
+          "domain": "linkedin.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-05-13T19:00:12.382Z",
+          "evidenceRole": "primary",
+          "url": "https://www.linkedin.com/feed/update/urn:li:activity:7460403543569731587"
+        },
         {
           "id": "src-2f69dbf3d5743bbea0c830f3",
           "title": "Zenbu (YC P26) Launch Video",
@@ -62,12 +72,8 @@
       "year": 2026,
       "months": [
         {
-          "month": "2026-06",
-          "count": 1
-        },
-        {
           "month": "2026-05",
-          "count": 1
+          "count": 2
         }
       ]
     }
@@ -75,7 +81,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 2,
-    "lastSuccessfulArtifactAt": "2026-09-13T20:57:32.947Z"
+    "lastSuccessfulArtifactAt": "2026-09-14T02:31:10.288Z"
   },
   "nextCursor": null
 }

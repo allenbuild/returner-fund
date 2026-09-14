@@ -5,8 +5,8 @@
     "slug": "verdant",
     "name": "Verdant"
   },
-  "generatedAt": "2026-09-13T20:57:32.947Z",
-  "lastModifiedAt": "2026-09-13T20:57:32.947Z",
+  "generatedAt": "2026-09-14T02:31:10.288Z",
+  "lastModifiedAt": "2026-09-14T02:31:10.288Z",
   "events": [
     {
       "id": "tle-a7ff16c5f6838419c90243ec",
@@ -26,7 +26,7 @@
           "publisher": "jason-yi1",
           "domain": "linkedin.com",
           "sourceType": "founder_post",
-          "publishedAt": "2026-06-30T01:05:40.056Z",
+          "publishedAt": "2026-06-30T01:05:40.080Z",
           "evidenceRole": "primary",
           "url": "https://www.linkedin.com/posts/jason-yi1_excited-to-share-that-verdant-has-been-accepted-activity-7477527744684171264-8gZg"
         }
@@ -47,7 +47,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-09-13T20:57:32.947Z"
+    "lastSuccessfulArtifactAt": "2026-09-14T02:31:10.288Z"
   },
   "nextCursor": null
 }

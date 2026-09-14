@@ -5,9 +5,33 @@
     "slug": "pentagon",
     "name": "Pentagon"
   },
-  "generatedAt": "2026-09-13T20:57:32.947Z",
-  "lastModifiedAt": "2026-09-13T20:57:32.947Z",
+  "generatedAt": "2026-09-14T02:31:10.288Z",
+  "lastModifiedAt": "2026-09-14T02:31:10.288Z",
   "events": [
+    {
+      "id": "tle-29b5cb5f330b020b93534a08",
+      "eventDate": "2026-05-21",
+      "eventDateType": "announcement_date",
+      "title": "Pentagon was accepted into Y Combinator",
+      "summary": "When we first joined YC with Pentagon, I (obviously) had a good perception of the world's greatest startup accelerator - but I was relatively neutral on what the experience would actually feel like.",
+      "category": "accelerator",
+      "isMajor": true,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-d63d8c15bc7bd4bf966c126b",
+          "title": "When we first joined YC with Pentagon, I (obviously) had a good perception of the world's greatest startup accelerator - but I was relatively neutral on what the experience would a",
+          "publisher": "edgarpavlovsky",
+          "domain": "linkedin.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-05-21T15:26:48.899Z",
+          "evidenceRole": "primary",
+          "url": "https://linkedin.com/posts/edgarpavlovsky_when-we-first-joined-yc-with-pentagon-i-activity-7463248944794324992-A-DL"
+        }
+      ]
+    },
     {
       "id": "tle-fc1dd3cadb176b7d3295ad77",
       "eventDate": "2026-05-20",
@@ -49,15 +73,15 @@
       "months": [
         {
           "month": "2026-05",
-          "count": 1
+          "count": 2
         }
       ]
     }
   ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-09-13T20:57:32.947Z"
+    "publishedEventCount": 2,
+    "lastSuccessfulArtifactAt": "2026-09-14T02:31:10.288Z"
   },
   "nextCursor": null
 }

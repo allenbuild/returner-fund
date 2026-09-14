@@ -1,0 +1,66 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-drafted",
+    "slug": "drafted",
+    "name": "Drafted"
+  },
+  "event": {
+    "id": "tle-4ce47345f347d0d85c45d2ca",
+    "eventDate": "2026-07-24",
+    "eventDateType": "announcement_date",
+    "title": "Drafted added support for Metric Units | Drafted posted on the topic | LinkedIn",
+    "summary": "Drafted Now Supports Metric Units | Drafted posted on the topic | LinkedIn.",
+    "category": "product_update",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-2a6a612ac2b786cecfff3de7",
+        "title": "Drafted Now Supports Metric Units | Drafted posted on the topic | LinkedIn",
+        "publisher": "draftedai",
+        "domain": "linkedin.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-07-24T18:23:55.403Z",
+        "evidenceRole": "primary",
+        "url": "https://linkedin.com/posts/draftedai_users-across-150-countries-asked-for-it-activity-7486486338980978688-qyWE"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-2a6a612ac2b786cecfff3de7",
+        "title": "Drafted Now Supports Metric Units | Drafted posted on the topic | LinkedIn",
+        "publisher": "draftedai",
+        "domain": "linkedin.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-07-24T18:23:55.403Z",
+        "evidenceRole": "primary",
+        "url": "https://linkedin.com/posts/draftedai_users-across-150-countries-asked-for-it-activity-7486486338980978688-qyWE",
+        "publicationDate": "2026-07-24T18:23:55.403Z",
+        "excerpt": "Users across 150+ countries asked for it, and it’s now live in Drafted. Drafted now supports metric units. You can switch between imperial and metric anytime, making it easier to design in the units you use every day. ...more",
+        "sourceEventDate": "2026-07-24",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-9f2e8adfa2106a841b3abc33",
+        "platform": "linkedin",
+        "account": "draftedai",
+        "postDate": "2026-07-24",
+        "excerpt": "Users across 150+ countries asked for it, and it’s now live in Drafted. Drafted now supports metric units. You can switch between imperial and metric anytime, making it easier to design in the units you use every day. ...more",
+        "url": "https://linkedin.com/posts/draftedai_users-across-150-countries-asked-for-it-activity-7486486338980978688-qyWE",
+        "metrics": {
+          "reactions": 19,
+          "comments": 2
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-09-14T02:31:10.288Z",
+  "lastModifiedAt": "2026-09-14T02:31:10.288Z"
+}

@@ -1,0 +1,66 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-result",
+    "slug": "result",
+    "name": "Result"
+  },
+  "event": {
+    "id": "tle-57d306ae17f95ad60d4777cc",
+    "eventDate": "2026-05-16",
+    "eventDateType": "announcement_date",
+    "title": "Result was introduced",
+    "summary": "Announcing Result.dev The operating system for the next generation of internet companies.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-a4fb88fe7c62d8e3a21036a8",
+        "title": "Announcing Result.dev The operating system for the next generation of internet companies. The fastest way to start, run, and grow an internet business — incorporation to your first dollar. Then... | Savio Martin | 15 comments",
+        "publisher": "saviomartin",
+        "domain": "linkedin.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-05-16T16:34:18.404Z",
+        "evidenceRole": "primary",
+        "url": "https://linkedin.com/posts/saviomartin_announcing-resultdev-the-operating-system-activity-7461453990321479680-1ZRF"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-a4fb88fe7c62d8e3a21036a8",
+        "title": "Announcing Result.dev The operating system for the next generation of internet companies. The fastest way to start, run, and grow an internet business — incorporation to your first dollar. Then... | Savio Martin | 15 comments",
+        "publisher": "saviomartin",
+        "domain": "linkedin.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-05-16T16:34:18.404Z",
+        "evidenceRole": "primary",
+        "url": "https://linkedin.com/posts/saviomartin_announcing-resultdev-the-operating-system-activity-7461453990321479680-1ZRF",
+        "publicationDate": "2026-05-16T16:34:18.404Z",
+        "excerpt": "Announcing Result.dev The operating system for the next generation of internet companies. The fastest way to start, run, and grow an internet business — incorporation to your first dollar. Then your millionth. Limited capacity. Private beta opens today. ...more",
+        "sourceEventDate": "2026-05-16",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-31253b9d8b0ff3b503d796dc",
+        "platform": "linkedin",
+        "account": "saviomartin",
+        "postDate": "2026-05-16",
+        "excerpt": "Announcing Result.dev The operating system for the next generation of internet companies. The fastest way to start, run, and grow an internet business — incorporation to your first dollar. Then your millionth. Limited capacity. Private beta opens today. ...more",
+        "url": "https://linkedin.com/posts/saviomartin_announcing-resultdev-the-operating-system-activity-7461453990321479680-1ZRF",
+        "metrics": {
+          "reactions": 190,
+          "comments": 15
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-09-14T02:31:10.288Z",
+  "lastModifiedAt": "2026-09-14T02:31:10.288Z"
+}

@@ -5,8 +5,8 @@
     "slug": "hyperprobe",
     "name": "HyperProbe"
   },
-  "generatedAt": "2026-09-13T20:57:32.947Z",
-  "lastModifiedAt": "2026-09-13T20:57:32.947Z",
+  "generatedAt": "2026-09-14T02:31:10.288Z",
+  "lastModifiedAt": "2026-09-14T02:31:10.288Z",
   "events": [
     {
       "id": "tle-1d076bb8716b6308da79649d",
@@ -74,7 +74,7 @@
           "publisher": "shailendra-singh-shekhawat",
           "domain": "linkedin.com",
           "sourceType": "company_post",
-          "publishedAt": "2026-06-30T03:00:02.138Z",
+          "publishedAt": "2026-06-30T03:00:02.183Z",
           "evidenceRole": "primary",
           "url": "https://www.linkedin.com/posts/shailendra-singh-shekhawat_hyperprobe-yc-summerbatch-activity-7477556526430482432-X6nT"
         }
@@ -103,7 +103,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 3,
-    "lastSuccessfulArtifactAt": "2026-09-13T20:57:32.947Z"
+    "lastSuccessfulArtifactAt": "2026-09-14T02:31:10.288Z"
   },
   "nextCursor": null
 }

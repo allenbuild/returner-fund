@@ -1,0 +1,65 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-testerarmy",
+    "slug": "testerarmy",
+    "name": "TesterArmy"
+  },
+  "event": {
+    "id": "tle-1200009f45165d6e45ef2f72",
+    "eventDate": "2026-07-16",
+    "eventDateType": "announcement_date",
+    "title": "TesterArmy enabled New in TesterArmy 🎉 TesterArmy agent to read OTP codes from SMS and create phone numbers on demand",
+    "summary": "New in TesterArmy 🎉 TesterArmy agent can now read OTP codes from SMS and create phone numbers on demand....more.",
+    "category": "product_update",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-cfe4501bec4e4468666420b2",
+        "title": "New in TesterArmy 🎉 TesterArmy agent can now read OTP codes from SMS and create phone numbers on demand. | TesterArmy (YC P26)",
+        "publisher": "testerarmy",
+        "domain": "linkedin.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-07-16T13:30:56.173Z",
+        "evidenceRole": "primary",
+        "url": "https://linkedin.com/posts/testerarmy_new-in-testerarmy-testerarmy-agent-can-activity-7483513503421599745-XMdm"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-cfe4501bec4e4468666420b2",
+        "title": "New in TesterArmy 🎉 TesterArmy agent can now read OTP codes from SMS and create phone numbers on demand. | TesterArmy (YC P26)",
+        "publisher": "testerarmy",
+        "domain": "linkedin.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-07-16T13:30:56.173Z",
+        "evidenceRole": "primary",
+        "url": "https://linkedin.com/posts/testerarmy_new-in-testerarmy-testerarmy-agent-can-activity-7483513503421599745-XMdm",
+        "publicationDate": "2026-07-16T13:30:56.173Z",
+        "excerpt": "New in TesterArmy 🎉 TesterArmy agent can now read OTP codes from SMS and create phone numbers on demand. ...more",
+        "sourceEventDate": "2026-07-16",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-ce8328a4e04480c75ab8a1cd",
+        "platform": "linkedin",
+        "account": "testerarmy",
+        "postDate": "2026-07-16",
+        "excerpt": "New in TesterArmy 🎉 TesterArmy agent can now read OTP codes from SMS and create phone numbers on demand. ...more",
+        "url": "https://linkedin.com/posts/testerarmy_new-in-testerarmy-testerarmy-agent-can-activity-7483513503421599745-XMdm",
+        "metrics": {
+          "reactions": 16
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-09-14T02:31:10.288Z",
+  "lastModifiedAt": "2026-09-14T02:31:10.288Z"
+}

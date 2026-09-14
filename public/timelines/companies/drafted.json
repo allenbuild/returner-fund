@@ -5,9 +5,33 @@
     "slug": "drafted",
     "name": "Drafted"
   },
-  "generatedAt": "2026-09-13T20:57:32.947Z",
-  "lastModifiedAt": "2026-09-13T20:57:32.947Z",
+  "generatedAt": "2026-09-14T02:31:10.288Z",
+  "lastModifiedAt": "2026-09-14T02:31:10.288Z",
   "events": [
+    {
+      "id": "tle-4ce47345f347d0d85c45d2ca",
+      "eventDate": "2026-07-24",
+      "eventDateType": "announcement_date",
+      "title": "Drafted added support for Metric Units | Drafted posted on the topic | LinkedIn",
+      "summary": "Drafted Now Supports Metric Units | Drafted posted on the topic | LinkedIn.",
+      "category": "product_update",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-2a6a612ac2b786cecfff3de7",
+          "title": "Drafted Now Supports Metric Units | Drafted posted on the topic | LinkedIn",
+          "publisher": "draftedai",
+          "domain": "linkedin.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-07-24T18:23:55.403Z",
+          "evidenceRole": "primary",
+          "url": "https://linkedin.com/posts/draftedai_users-across-150-countries-asked-for-it-activity-7486486338980978688-qyWE"
+        }
+      ]
+    },
     {
       "id": "tle-21f9fe1d74498b265e148232",
       "eventDate": "2026-07-23",
@@ -87,7 +111,7 @@
       "months": [
         {
           "month": "2026-07",
-          "count": 2
+          "count": 3
         },
         {
           "month": "2026-06",
@@ -98,8 +122,8 @@
   ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 3,
-    "lastSuccessfulArtifactAt": "2026-09-13T20:57:32.947Z"
+    "publishedEventCount": 4,
+    "lastSuccessfulArtifactAt": "2026-09-14T02:31:10.288Z"
   },
   "nextCursor": null
 }

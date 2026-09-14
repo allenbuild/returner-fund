@@ -10369,5 +10369,424 @@
       "platformDebt": []
     },
     "terminalFailureBudget": null
+  },
+  {
+    "schemaVersion": 1,
+    "idempotencyKey": "incident-20260913-s26-linkedin-backlog-002",
+    "centralDay": null,
+    "observedAt": "2026-09-14T02:29:03.405Z",
+    "baselinePhysicalSources": 18013,
+    "publishedPhysicalSources": 18021,
+    "newPhysicalSources": 8,
+    "newPhysicalSourcesThisAttempt": 8,
+    "retainedPhysicalSources": 18013,
+    "removedPhysicalSources": 0,
+    "dailyNewPhysicalSources": 2646,
+    "dailySourceHealth": "healthy",
+    "collectionHealth": "complete",
+    "collectionHealthReasons": [],
+    "collectorValidation": {
+      "status": "not_applicable",
+      "reason": "authenticated_replay_does_not_run_public_or_github_collector_matrix"
+    },
+    "mappedExpected": null,
+    "mappedSucceeded": null,
+    "mappedNeedsReview": null,
+    "mappedBlockedOrEmpty": null,
+    "providerBlocked": null,
+    "providerBlockedByReason": null,
+    "mappedProviderBlocked": null,
+    "mappedProviderBlockedByReason": null,
+    "mappedScopeUnsupported": null,
+    "mappedFailures": null,
+    "mappedNonTerminal": null,
+    "mappedSuccessRate": null,
+    "newestNewSourcePostedAt": "2026-09-11T16:02:42.925Z",
+    "insertedByBatchPlatform": {
+      "S26:linkedin": 8
+    },
+    "insertedSourceSamples": [
+      {
+        "batchSlug": "S26",
+        "platform": "linkedin",
+        "entityType": "company",
+        "entityId": "company-akon-labs",
+        "sourceUrl": "https://www.linkedin.com/feed/update/urn:li:activity:7501675262682542080/",
+        "platformPostId": "7501675262682542080",
+        "platformObjectId": null,
+        "postedAt": "2026-09-04T16:19:17.010Z"
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "linkedin",
+        "entityType": "company",
+        "entityId": "company-akon-labs",
+        "sourceUrl": "https://www.linkedin.com/feed/update/urn:li:activity:7502046540526456832/",
+        "platformPostId": "7502046540526456832",
+        "platformObjectId": null,
+        "postedAt": "2026-09-05T16:54:36.546Z"
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "linkedin",
+        "entityType": "company",
+        "entityId": "company-akon-labs",
+        "sourceUrl": "https://www.linkedin.com/feed/update/urn:li:activity:7504207808247283713/",
+        "platformPostId": "7504207808247283713",
+        "platformObjectId": null,
+        "postedAt": "2026-09-11T16:02:42.925Z"
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "linkedin",
+        "entityType": "company",
+        "entityId": "company-allia-health",
+        "sourceUrl": "https://www.linkedin.com/feed/update/urn:li:activity:7499183696328011776/",
+        "platformPostId": "7499183696328011776",
+        "platformObjectId": null,
+        "postedAt": "2026-08-28T19:18:41.300Z"
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "linkedin",
+        "entityType": "company",
+        "entityId": "company-atlas-discovery",
+        "sourceUrl": "https://www.linkedin.com/feed/update/urn:li:activity:7475273281244385280/",
+        "platformPostId": "7475273281244385280",
+        "platformObjectId": null,
+        "postedAt": "2026-06-23T19:47:14.110Z"
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "linkedin",
+        "entityType": "company",
+        "entityId": "company-cerenovus",
+        "sourceUrl": "https://www.linkedin.com/feed/update/urn:li:activity:7469842979965382656/",
+        "platformPostId": "7469842979965382656",
+        "platformObjectId": null,
+        "postedAt": "2026-06-08T20:09:09.395Z"
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "linkedin",
+        "entityType": "company",
+        "entityId": "company-chromie",
+        "sourceUrl": "https://www.linkedin.com/feed/update/urn:li:activity:7501674266287886336/",
+        "platformPostId": "7501674266287886336",
+        "platformObjectId": null,
+        "postedAt": "2026-09-04T16:15:19.451Z"
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "linkedin",
+        "entityType": "company",
+        "entityId": "company-click",
+        "sourceUrl": "https://www.linkedin.com/feed/update/urn:li:activity:7413638287266865153/",
+        "platformPostId": "7413638287266865153",
+        "platformObjectId": null,
+        "postedAt": "2026-01-04T17:51:46.423Z"
+      }
+    ],
+    "trigger": "manual-replay",
+    "scheduledAt": null,
+    "evidenceCollectedAt": "2026-09-13T15:34:30.477Z",
+    "authenticatedSocialReplay": {
+      "status": "incomplete",
+      "maxChunks": 4,
+      "targetCapPerChunk": 5,
+      "reserveMs": 900000,
+      "drainHeadroomMs": 300000,
+      "chunkAdmissionPolicy": "battery-floor-watchdog",
+      "wallClockChunkAdmissionBudgetMs": 0,
+      "requiredRemainingForChunkMs": 1200000,
+      "batteryFloorPercent": 5,
+      "batteryFloorComparison": "strictly_greater_than",
+      "batteryRuntimeEstimateRequired": false,
+      "externalPowerRequiredForChunkAdmission": false,
+      "perChunkBatteryCheckRequired": true,
+      "chunksAdmitted": 4,
+      "chunksAttempted": 4,
+      "chunksCompleted": 4,
+      "targetCapacityAdmitted": 20,
+      "remainingTargetCount": 657,
+      "remainingTargetCountKnown": true,
+      "knownRemainingTargetCount": 657,
+      "unknownRemainingBatches": [],
+      "remainingByBatch": {
+        "S26": 657
+      },
+      "durableLockConfigured": true,
+      "configurationSkipped": false,
+      "chunkBudgetExhausted": true,
+      "deadlineExhausted": false,
+      "safetyStopped": false,
+      "infrastructureStopped": false,
+      "stopBatchSlug": "S26",
+      "stopError": null,
+      "batches": [
+        {
+          "batchSlug": "S26",
+          "x": {
+            "status": "skipped",
+            "reason": "authenticated_platform_not_requested",
+            "preflightReason": "authenticated_platform_not_requested"
+          },
+          "instagram": {
+            "status": "skipped",
+            "reason": "authenticated_platform_not_requested",
+            "preflightReason": "authenticated_platform_not_requested"
+          },
+          "linkedin": {
+            "status": "chunk_budget_exhausted",
+            "chunks": [
+              {
+                "chunkNumber": 1,
+                "status": "completed",
+                "exitCode": 0,
+                "targetCap": 5,
+                "powerAdmission": {
+                  "admitted": true,
+                  "reason": "battery_above_floor",
+                  "externalConnected": false,
+                  "clamshellOpen": true,
+                  "batteryPercent": 99,
+                  "floorPercent": 5
+                }
+              },
+              {
+                "chunkNumber": 2,
+                "status": "completed",
+                "exitCode": 0,
+                "targetCap": 5,
+                "powerAdmission": {
+                  "admitted": true,
+                  "reason": "battery_above_floor",
+                  "externalConnected": false,
+                  "clamshellOpen": true,
+                  "batteryPercent": 86,
+                  "floorPercent": 5
+                }
+              },
+              {
+                "chunkNumber": 3,
+                "status": "completed",
+                "exitCode": 0,
+                "targetCap": 5,
+                "powerAdmission": {
+                  "admitted": true,
+                  "reason": "battery_above_floor",
+                  "externalConnected": false,
+                  "clamshellOpen": true,
+                  "batteryPercent": 73,
+                  "floorPercent": 5
+                }
+              },
+              {
+                "chunkNumber": 4,
+                "status": "completed",
+                "exitCode": 0,
+                "targetCap": 5,
+                "powerAdmission": {
+                  "admitted": true,
+                  "reason": "battery_above_floor",
+                  "externalConnected": false,
+                  "clamshellOpen": true,
+                  "batteryPercent": 61,
+                  "floorPercent": 5
+                }
+              }
+            ],
+            "finalPlan": {
+              "schemaVersion": 1,
+              "batchSlug": "S26",
+              "requestedTarget": {
+                "batchSlug": "S26"
+              },
+              "catalogCompanyCount": 234,
+              "companyCount": 234,
+              "founderCount": 467,
+              "remainingTargetCount": 657,
+              "selectedForThisInvocationCount": 5,
+              "linkedinExecution": {
+                "remainingTargetCount": 657,
+                "selectedForThisInvocationCount": 5,
+                "runnableTargetCount": 5
+              },
+              "targetCount": 672,
+              "runnableTargetCount": 5,
+              "targetIdentitiesSha256": "f602835eb7e3b770f6886ebe039a63a9a3b4c105520ceb0baf81218a2c3abd24",
+              "runnableTargetIdentitiesSha256": "03c4828d206a27be583e073ee004db53010090510c63db283c31194a421ee258",
+              "targetIdentitySamples": [
+                {
+                  "batchSlug": "S26",
+                  "companySlug": "coarena",
+                  "entityType": "company",
+                  "entityId": "company-coarena",
+                  "platform": "linkedin",
+                  "checkpointKey": "S26:linkedin:company-coarena:https://www.linkedin.com/company/coastyai"
+                },
+                {
+                  "batchSlug": "S26",
+                  "companySlug": "conifer",
+                  "entityType": "company",
+                  "entityId": "company-conifer",
+                  "platform": "linkedin",
+                  "checkpointKey": "S26:linkedin:company-conifer:https://www.linkedin.com/company/coniferbuild"
+                },
+                {
+                  "batchSlug": "S26",
+                  "companySlug": "contextdev",
+                  "entityType": "company",
+                  "entityId": "company-contextdev",
+                  "platform": "linkedin",
+                  "checkpointKey": "S26:linkedin:company-contextdev:https://www.linkedin.com/company/contextdev/"
+                },
+                {
+                  "batchSlug": "S26",
+                  "companySlug": "control-seat",
+                  "entityType": "company",
+                  "entityId": "company-control-seat",
+                  "platform": "linkedin",
+                  "checkpointKey": "S26:linkedin:company-control-seat:https://www.linkedin.com/company/control-seat"
+                },
+                {
+                  "batchSlug": "S26",
+                  "companySlug": "cova",
+                  "entityType": "company",
+                  "entityId": "company-cova",
+                  "platform": "linkedin",
+                  "checkpointKey": "S26:linkedin:company-cova:https://www.linkedin.com/company/cova-home-care"
+                },
+                {
+                  "batchSlug": "S26",
+                  "companySlug": "daqstra",
+                  "entityType": "company",
+                  "entityId": "company-daqstra",
+                  "platform": "linkedin",
+                  "checkpointKey": "S26:linkedin:company-daqstra:https://www.linkedin.com/company/daqstra/"
+                },
+                {
+                  "batchSlug": "S26",
+                  "companySlug": "datoric",
+                  "entityType": "company",
+                  "entityId": "company-datoric",
+                  "platform": "linkedin",
+                  "checkpointKey": "S26:linkedin:company-datoric:https://www.linkedin.com/company/arzulehq/"
+                },
+                {
+                  "batchSlug": "S26",
+                  "companySlug": "dawn-industries",
+                  "entityType": "company",
+                  "entityId": "company-dawn-industries",
+                  "platform": "linkedin",
+                  "checkpointKey": "S26:linkedin:company-dawn-industries:https://www.linkedin.com/company/dawn-industries-inc/"
+                },
+                {
+                  "batchSlug": "S26",
+                  "companySlug": "decawork",
+                  "entityType": "company",
+                  "entityId": "company-decawork",
+                  "platform": "linkedin",
+                  "checkpointKey": "S26:linkedin:company-decawork:https://www.linkedin.com/company/decawork-ai/"
+                },
+                {
+                  "batchSlug": "S26",
+                  "companySlug": "deepreach-inc",
+                  "entityType": "company",
+                  "entityId": "company-deepreach-inc",
+                  "platform": "linkedin",
+                  "checkpointKey": "S26:linkedin:company-deepreach-inc:https://www.linkedin.com/in/timothyli-deepreach/"
+                }
+              ],
+              "runnableTargetIdentitySamples": [
+                {
+                  "batchSlug": "S26",
+                  "companySlug": "coarena",
+                  "entityType": "company",
+                  "entityId": "company-coarena",
+                  "platform": "linkedin",
+                  "checkpointKey": "S26:linkedin:company-coarena:https://www.linkedin.com/company/coastyai"
+                },
+                {
+                  "batchSlug": "S26",
+                  "companySlug": "conifer",
+                  "entityType": "company",
+                  "entityId": "company-conifer",
+                  "platform": "linkedin",
+                  "checkpointKey": "S26:linkedin:company-conifer:https://www.linkedin.com/company/coniferbuild"
+                },
+                {
+                  "batchSlug": "S26",
+                  "companySlug": "contextdev",
+                  "entityType": "company",
+                  "entityId": "company-contextdev",
+                  "platform": "linkedin",
+                  "checkpointKey": "S26:linkedin:company-contextdev:https://www.linkedin.com/company/contextdev/"
+                },
+                {
+                  "batchSlug": "S26",
+                  "companySlug": "control-seat",
+                  "entityType": "company",
+                  "entityId": "company-control-seat",
+                  "platform": "linkedin",
+                  "checkpointKey": "S26:linkedin:company-control-seat:https://www.linkedin.com/company/control-seat"
+                },
+                {
+                  "batchSlug": "S26",
+                  "companySlug": "cova",
+                  "entityType": "company",
+                  "entityId": "company-cova",
+                  "platform": "linkedin",
+                  "checkpointKey": "S26:linkedin:company-cova:https://www.linkedin.com/company/cova-home-care"
+                }
+              ]
+            },
+            "checkpointBinding": {
+              "batchSlug": "S26",
+              "checkpointSha256": "86743415af8ff33c34dc05c257105d748a243b88409bde49688b993effb20897",
+              "expectedRemainingTargetCount": 672,
+              "observedRemainingTargetCount": 672
+            },
+            "lastChunkPowerAdmission": {
+              "admitted": true,
+              "reason": "battery_above_floor",
+              "externalConnected": false,
+              "clamshellOpen": true,
+              "batteryPercent": 61,
+              "floorPercent": 5
+            }
+          }
+        }
+      ],
+      "requestedScope": "linkedin",
+      "requestedPlatforms": [
+        "linkedin"
+      ],
+      "requestedTarget": {
+        "batchSlug": "S26"
+      },
+      "platformStatus": {
+        "x": {
+          "requested": false,
+          "status": "not_requested"
+        },
+        "instagram": {
+          "requested": false,
+          "status": "not_requested"
+        },
+        "linkedin": {
+          "requested": true,
+          "status": "incomplete"
+        }
+      },
+      "platformDebt": [
+        {
+          "platform": "linkedin",
+          "status": "incomplete",
+          "reason": "authenticated_collection_incomplete"
+        }
+      ]
+    },
+    "terminalFailureBudget": null
   }
 ]

@@ -10,13 +10,23 @@
     "eventDate": "2026-05-14",
     "eventDateType": "announcement_date",
     "title": "Clara announced its public launch",
-    "summary": "Clara announced it was launching Clara, an AI-powered primary care doctor with licensed medical providers reviewing everything.",
+    "summary": "Clara announced it was launching Clara: an AI-powered primary care doctor.",
     "category": "product_launch",
-    "isMajor": false,
+    "isMajor": true,
     "hasConflict": false,
     "conflictSummary": null,
-    "evidenceCount": 1,
+    "evidenceCount": 2,
     "sourcePreview": [
+      {
+        "id": "src-e4bf3fbf5c40aa9f88358972",
+        "title": "Today we're launching Clara: an AI-powered primary care doctor. Clara securely pulls your medical history from 150,000+ hospitals, labs, and pharmacies and reads all of it, every time you interact with us. We draft prescription refills,…",
+        "publisher": "Zeeshan Ahmed LinkedIn post",
+        "domain": "linkedin.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-05-14T18:58:52.693Z",
+        "evidenceRole": "primary",
+        "url": "https://www.linkedin.com/feed/update/urn:li:activity:7460765597195345920"
+      },
       {
         "id": "src-02a7d0bc717faec61e7ed7fe",
         "title": "Today we are launching Clara, an AI-powered primary care doctor with licensed medical providers reviewing everything.",
@@ -29,6 +39,21 @@
       }
     ],
     "evidence": [
+      {
+        "id": "src-e4bf3fbf5c40aa9f88358972",
+        "title": "Today we're launching Clara: an AI-powered primary care doctor. Clara securely pulls your medical history from 150,000+ hospitals, labs, and pharmacies and reads all of it, every time you interact with us. We draft prescription refills,…",
+        "publisher": "Zeeshan Ahmed LinkedIn post",
+        "domain": "linkedin.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-05-14T18:58:52.693Z",
+        "evidenceRole": "primary",
+        "url": "https://www.linkedin.com/feed/update/urn:li:activity:7460765597195345920",
+        "publicationDate": "2026-05-14T18:58:52.693Z",
+        "excerpt": "Today we're launching Clara: an AI-powered primary care doctor. Clara securely pulls your medical history from 150,000+ hospitals, labs, and pharmacies and reads all of it, every time you interact with us. We draft prescription refills, lab orders, and care plans for a clinician in your state to review and sign off on. Members can upgrade to connect their wearables or bundle longevity lab panels. Clara is building a team with the experience to shepherd in the era of AI primary care, grounded…",
+        "sourceEventDate": "2026-05-14",
+        "isConflicting": false,
+        "conflictDescription": null
+      },
       {
         "id": "src-02a7d0bc717faec61e7ed7fe",
         "title": "Today we are launching Clara, an AI-powered primary care doctor with licensed medical providers reviewing everything.",
@@ -47,6 +72,21 @@
     ],
     "posts": [
       {
+        "id": "post-dbe4975d426d27d8f48bf3c5",
+        "platform": "linkedin",
+        "account": "Zeeshan Ahmed LinkedIn post",
+        "postDate": "2026-05-14",
+        "excerpt": "Today we're launching Clara: an AI-powered primary care doctor. Clara securely pulls your medical history from 150,000+ hospitals, labs, and pharmacies and reads all of it, every time you interact with us. We draft prescription refills, lab orders, and care plans for a clinician in your state to review and sign off on. Members can upgrade to connect their wearables or bundle longevity lab panels. Clara is building a team with the experience to shepherd in the era of AI primary care, grounded…",
+        "url": "https://www.linkedin.com/feed/update/urn:li:activity:7460765597195345920",
+        "metrics": {
+          "likes": 23,
+          "comments": 2,
+          "reposts": 0,
+          "views": 0
+        },
+        "evidenceRole": "primary"
+      },
+      {
         "id": "post-e014dd0c9ed1203467cfac39",
         "platform": "x",
         "account": "askclarahealth",
@@ -63,6 +103,6 @@
       }
     ]
   },
-  "generatedAt": "2026-09-13T20:57:32.947Z",
-  "lastModifiedAt": "2026-09-13T20:57:32.947Z"
+  "generatedAt": "2026-09-14T02:31:10.288Z",
+  "lastModifiedAt": "2026-09-14T02:31:10.288Z"
 }

@@ -5,8 +5,8 @@
     "slug": "andco",
     "name": "Andco"
   },
-  "generatedAt": "2026-09-13T20:57:32.947Z",
-  "lastModifiedAt": "2026-09-13T20:57:32.947Z",
+  "generatedAt": "2026-09-14T02:31:10.288Z",
+  "lastModifiedAt": "2026-09-14T02:31:10.288Z",
   "events": [
     {
       "id": "tle-995fc2dc64830e37eb211315",
@@ -26,7 +26,7 @@
           "publisher": "ryanxue",
           "domain": "linkedin.com",
           "sourceType": "founder_post",
-          "publishedAt": "2026-07-28T00:15:40.646Z",
+          "publishedAt": "2026-07-28T00:15:40.675Z",
           "evidenceRole": "primary",
           "url": "https://linkedin.com/posts/ryanxue_introducing-provider-routing-by-andco-every-activity-7487662024504725504-Fp4f"
         }
@@ -47,7 +47,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-09-13T20:57:32.947Z"
+    "lastSuccessfulArtifactAt": "2026-09-14T02:31:10.288Z"
   },
   "nextCursor": null
 }

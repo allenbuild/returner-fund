@@ -1,0 +1,66 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-induction-labs",
+    "slug": "induction-labs",
+    "name": "Induction Labs"
+  },
+  "event": {
+    "id": "tle-88586bd3d35dea23e955ebf3",
+    "eventDate": "2026-07-23",
+    "eventDateType": "announcement_date",
+    "title": "Induction Labs released Imagination Models",
+    "summary": "Induction Labs introduced Imagination Models for Scalable Learning from Video | Induction Labs posted on the topic | LinkedIn.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-a894e50a876f589f07894e10",
+        "title": "Introducing Imagination Models for Scalable Learning from Video | Induction Labs posted on the topic | LinkedIn",
+        "publisher": "induction-labs",
+        "domain": "linkedin.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-07-23T16:03:20.091Z",
+        "evidenceRole": "primary",
+        "url": "https://linkedin.com/posts/induction-labs_today-were-introducing-imagination-models-activity-7486088570852769792-_3o6"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-a894e50a876f589f07894e10",
+        "title": "Introducing Imagination Models for Scalable Learning from Video | Induction Labs posted on the topic | LinkedIn",
+        "publisher": "induction-labs",
+        "domain": "linkedin.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-07-23T16:03:20.091Z",
+        "evidenceRole": "primary",
+        "url": "https://linkedin.com/posts/induction-labs_today-were-introducing-imagination-models-activity-7486088570852769792-_3o6",
+        "publicationDate": "2026-07-23T16:03:20.091Z",
+        "excerpt": "Today, we’re introducing imagination models, a new foundation model architecture designed to unlock learning from internet-scale video. The internet contains millions of hours of video of people using computers, doing skilled work, and interacting with the world. Current models can’t learn scalably from this data, and imagination models unlock it. Instead of learning to predict actions, imagination models learn by predicting what happens next in video, implicitly learning how to act. Photon-1,…",
+        "sourceEventDate": "2026-07-23",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-a69d9787e2745cceab3fc594",
+        "platform": "linkedin",
+        "account": "induction-labs",
+        "postDate": "2026-07-23",
+        "excerpt": "Today, we’re introducing imagination models, a new foundation model architecture designed to unlock learning from internet-scale video. The internet contains millions of hours of video of people using computers, doing skilled work, and interacting with the world. Current models can’t learn scalably from this data, and imagination models unlock it. Instead of learning to predict actions, imagination models learn by predicting what happens next in video, implicitly learning how to act. Photon-1,…",
+        "url": "https://linkedin.com/posts/induction-labs_today-were-introducing-imagination-models-activity-7486088570852769792-_3o6",
+        "metrics": {
+          "reactions": 127,
+          "comments": 10
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-09-14T02:31:10.288Z",
+  "lastModifiedAt": "2026-09-14T02:31:10.288Z"
+}

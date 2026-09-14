@@ -5,8 +5,8 @@
     "slug": "lamina-labs",
     "name": "Lamina Labs"
   },
-  "generatedAt": "2026-09-13T20:57:32.947Z",
-  "lastModifiedAt": "2026-09-13T20:57:32.947Z",
+  "generatedAt": "2026-09-14T02:31:10.288Z",
+  "lastModifiedAt": "2026-09-14T02:31:10.288Z",
   "events": [
     {
       "id": "tle-a243a2c0d98de7032bcca241",
@@ -137,6 +137,30 @@
           "url": "https://x.com/laminalabs/status/2062589838369669592"
         }
       ]
+    },
+    {
+      "id": "tle-c8167d88b4db651bf8178ca2",
+      "eventDate": "2026-05-31",
+      "eventDateType": "announcement_date",
+      "title": "Lamina Labs released ChatGPT",
+      "summary": "Lamina Labs introduced ChatGPT for Explainer Videos in Under 20 Seconds | Lamina Labs posted on the topic | LinkedIn.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-7f9456b1812f329070f31304",
+          "title": "Introducing ChatGPT for Explainer Videos in Under 20 Seconds | Lamina Labs posted on the topic | LinkedIn",
+          "publisher": "lamina-labs",
+          "domain": "linkedin.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-05-31T08:23:39.563Z",
+          "evidenceRole": "primary",
+          "url": "https://linkedin.com/posts/lamina-labs_today-were-introducing-chatgpt-for-explainer-activity-7466766332857053184-cGIc"
+        }
+      ]
     }
   ],
   "groups": [
@@ -150,14 +174,18 @@
         {
           "month": "2026-06",
           "count": 2
+        },
+        {
+          "month": "2026-05",
+          "count": 1
         }
       ]
     }
   ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 5,
-    "lastSuccessfulArtifactAt": "2026-09-13T20:57:32.947Z"
+    "publishedEventCount": 6,
+    "lastSuccessfulArtifactAt": "2026-09-14T02:31:10.288Z"
   },
   "nextCursor": null
 }

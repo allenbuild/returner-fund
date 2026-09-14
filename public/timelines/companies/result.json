@@ -5,8 +5,8 @@
     "slug": "result",
     "name": "Result"
   },
-  "generatedAt": "2026-09-13T20:57:32.947Z",
-  "lastModifiedAt": "2026-09-13T20:57:32.947Z",
+  "generatedAt": "2026-09-14T02:31:10.288Z",
+  "lastModifiedAt": "2026-09-14T02:31:10.288Z",
   "events": [
     {
       "id": "tle-fe8ea70ba05f1cdf52571678",
@@ -57,6 +57,30 @@
       ]
     },
     {
+      "id": "tle-57d306ae17f95ad60d4777cc",
+      "eventDate": "2026-05-16",
+      "eventDateType": "announcement_date",
+      "title": "Result was introduced",
+      "summary": "Announcing Result.dev The operating system for the next generation of internet companies.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-a4fb88fe7c62d8e3a21036a8",
+          "title": "Announcing Result.dev The operating system for the next generation of internet companies. The fastest way to start, run, and grow an internet business — incorporation to your first dollar. Then... | Savio Martin | 15 comments",
+          "publisher": "saviomartin",
+          "domain": "linkedin.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-05-16T16:34:18.404Z",
+          "evidenceRole": "primary",
+          "url": "https://linkedin.com/posts/saviomartin_announcing-resultdev-the-operating-system-activity-7461453990321479680-1ZRF"
+        }
+      ]
+    },
+    {
       "id": "tle-32f26a3d40674e0bca275c0a",
       "eventDate": "2026-05-15",
       "eventDateType": "announcement_date",
@@ -74,7 +98,7 @@
           "publisher": "aaryan-kushwah",
           "domain": "linkedin.com",
           "sourceType": "founder_post",
-          "publishedAt": "2026-05-15T17:49:52.462Z",
+          "publishedAt": "2026-05-15T17:49:52.478Z",
           "evidenceRole": "primary",
           "url": "https://www.linkedin.com/posts/aaryan-kushwah_we-got-into-y-combinator-p26-as-some-of-the-activity-7461110619740487681-qQOY"
         },
@@ -84,7 +108,7 @@
           "publisher": "saviomartin",
           "domain": "linkedin.com",
           "sourceType": "founder_post",
-          "publishedAt": "2026-05-15T17:50:20.409Z",
+          "publishedAt": "2026-05-15T17:50:20.430Z",
           "evidenceRole": "primary",
           "url": "https://www.linkedin.com/posts/saviomartin_we-got-into-y-combinator-p26-after-scaling-activity-7461110736979857408-uzU7"
         },
@@ -111,15 +135,15 @@
         },
         {
           "month": "2026-05",
-          "count": 2
+          "count": 3
         }
       ]
     }
   ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 3,
-    "lastSuccessfulArtifactAt": "2026-09-13T20:57:32.947Z"
+    "publishedEventCount": 4,
+    "lastSuccessfulArtifactAt": "2026-09-14T02:31:10.288Z"
   },
   "nextCursor": null
 }

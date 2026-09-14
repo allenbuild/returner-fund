@@ -1,7 +1,7 @@
 {
   "version": 1,
   "batchSlug": "S26",
-  "updatedAt": "2026-09-13T20:57:45.765Z",
+  "updatedAt": "2026-09-14T02:31:21.616Z",
   "daily": [
     {
       "recordedAt": "2026-07-06T05:00:00.000Z",
@@ -69764,9 +69764,9 @@
       ]
     },
     {
-      "recordedAt": "2026-09-13T20:57:45.765Z",
+      "recordedAt": "2026-09-14T02:31:21.616Z",
       "scoringModelVersion": "4.3.1",
-      "inputGeneratedAt": "2026-09-13T20:57:10.039Z",
+      "inputGeneratedAt": "2026-09-14T02:30:50.135Z",
       "companies": [
         {
           "companyId": "company-gamgee",
@@ -70903,207 +70903,207 @@
           "rank": 189
         },
         {
+          "companyId": "company-akon-labs",
+          "companyName": "Akon Labs",
+          "score": 45,
+          "rank": 190
+        },
+        {
           "companyId": "company-chromie",
           "companyName": "Chromie",
-          "score": 44,
+          "score": 45,
           "rank": 190
         },
         {
           "companyId": "company-ooak-data",
           "companyName": "Ooak Data",
           "score": 44,
-          "rank": 190
+          "rank": 192
         },
         {
           "companyId": "company-baud",
           "companyName": "Baud",
           "score": 43,
-          "rank": 192
+          "rank": 193
         },
         {
           "companyId": "company-kebra",
           "companyName": "Kebra",
           "score": 43,
-          "rank": 192
+          "rank": 193
         },
         {
           "companyId": "company-moving-atoms",
           "companyName": "Moving Atoms",
           "score": 43,
-          "rank": 192
+          "rank": 193
         },
         {
           "companyId": "company-cuebench",
           "companyName": "CueBench",
           "score": 42,
-          "rank": 195
+          "rank": 196
         },
         {
           "companyId": "company-qlo",
           "companyName": "Qlo",
           "score": 40,
-          "rank": 196
+          "rank": 197
         },
         {
           "companyId": "company-dock",
           "companyName": "Dock",
           "score": 38,
-          "rank": 197
+          "rank": 198
         },
         {
           "companyId": "company-ekpa",
           "companyName": "Ekpa",
           "score": 38,
-          "rank": 197
+          "rank": 198
         },
         {
           "companyId": "company-earendil-robotics",
           "companyName": "Earendil Robotics",
           "score": 37,
-          "rank": 199
+          "rank": 200
         },
         {
           "companyId": "company-frontier-computing",
           "companyName": "Frontier Computing",
           "score": 37,
-          "rank": 199
+          "rank": 200
         },
         {
           "companyId": "company-bizmark",
           "companyName": "Bizmark",
           "score": 36,
-          "rank": 201
+          "rank": 202
         },
         {
           "companyId": "company-derya",
           "companyName": "Derya",
           "score": 36,
-          "rank": 201
+          "rank": 202
         },
         {
           "companyId": "company-tovenai",
           "companyName": "TovenAI",
           "score": 35,
-          "rank": 203
+          "rank": 204
         },
         {
           "companyId": "company-libra-robotics",
           "companyName": "Libra Robotics",
           "score": 33,
-          "rank": 204
+          "rank": 205
         },
         {
           "companyId": "company-kara",
           "companyName": "Kara",
           "score": 31,
-          "rank": 205
+          "rank": 206
         },
         {
           "companyId": "company-callbook-ai",
           "companyName": "Callbook AI",
           "score": 30,
-          "rank": 206
+          "rank": 207
         },
         {
           "companyId": "company-openvector",
           "companyName": "OpenVector",
           "score": 28,
-          "rank": 207
+          "rank": 208
         },
         {
           "companyId": "company-luca-iq",
           "companyName": "Luca IQ",
           "score": 27,
-          "rank": 208
+          "rank": 209
         },
         {
           "companyId": "company-atlia",
           "companyName": "Atlia",
           "score": 26,
-          "rank": 209
+          "rank": 210
         },
         {
           "companyId": "company-dream",
           "companyName": "Dream",
           "score": 26,
-          "rank": 209
+          "rank": 210
         },
         {
           "companyId": "company-waybill",
           "companyName": "Waybill",
           "score": 25,
-          "rank": 211
+          "rank": 212
         },
         {
           "companyId": "company-palisade-2",
           "companyName": "Palisade",
           "score": 23,
-          "rank": 212
+          "rank": 213
         },
         {
           "companyId": "company-bernard",
           "companyName": "Bernard",
           "score": 19,
-          "rank": 213
+          "rank": 214
         },
         {
           "companyId": "company-grip",
           "companyName": "Grip",
           "score": 19,
-          "rank": 213
+          "rank": 214
         },
         {
           "companyId": "company-proprio-robotics",
           "companyName": "Proprio Robotics",
           "score": 19,
-          "rank": 213
+          "rank": 214
         },
         {
           "companyId": "company-erinys",
           "companyName": "Erinys",
           "score": 18,
-          "rank": 216
+          "rank": 217
         },
         {
           "companyId": "company-dawn-industries",
           "companyName": "Dawn Industries",
           "score": 16,
-          "rank": 217
+          "rank": 218
         },
         {
           "companyId": "company-isengard-industries-inc",
           "companyName": "Isengard Industries Inc",
           "score": 16,
-          "rank": 217
+          "rank": 218
         },
         {
           "companyId": "company-verdict-machine",
           "companyName": "Verdict Machine",
           "score": 16,
-          "rank": 217
+          "rank": 218
         },
         {
           "companyId": "company-manifold-2",
           "companyName": "Manifold",
           "score": 15,
-          "rank": 220
+          "rank": 221
         },
         {
           "companyId": "company-pacific",
           "companyName": "Pacific",
           "score": 15,
-          "rank": 220
+          "rank": 221
         },
         {
           "companyId": "company-evergrove",
           "companyName": "Evergrove",
           "score": 14,
-          "rank": 222
-        },
-        {
-          "companyId": "company-akon-labs",
-          "companyName": "Akon Labs",
-          "score": 13,
           "rank": 223
         },
         {

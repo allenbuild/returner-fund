@@ -5,8 +5,8 @@
     "slug": "general-instinct",
     "name": "General Instinct"
   },
-  "generatedAt": "2026-09-13T20:57:32.947Z",
-  "lastModifiedAt": "2026-09-13T20:57:32.947Z",
+  "generatedAt": "2026-09-14T02:31:10.288Z",
+  "lastModifiedAt": "2026-09-14T02:31:10.288Z",
   "events": [
     {
       "id": "tle-e4f607aa1b717650819e2074",
@@ -31,6 +31,30 @@
           "url": "https://news.ycombinator.com/item?id=48414869"
         }
       ]
+    },
+    {
+      "id": "tle-7440c626893301ad9b04cee3",
+      "eventDate": "2026-03-22",
+      "eventDateType": "announcement_date",
+      "title": "General Instinct released Instinct v0",
+      "summary": "General Instinct introduced Instinct v0: the first agent that sees the physical world.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-63e62691b61a2d8498194a7f",
+          "title": "Introducing Instinct v0: the first agent that sees the physical world. Deploy it on edge devices like iPhones or run it in the cloud. With hybrid inference, Instinct keeps vision-based workflows... | General Instinct (YC P26)",
+          "publisher": "general-instinct",
+          "domain": "linkedin.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-03-22T23:59:55.908Z",
+          "evidenceRole": "primary",
+          "url": "https://linkedin.com/posts/general-instinct_introducing-instinct-v0-the-first-agent-activity-7441634802933526528-ohs6"
+        }
+      ]
     }
   ],
   "groups": [
@@ -40,14 +64,18 @@
         {
           "month": "2026-06",
           "count": 1
+        },
+        {
+          "month": "2026-03",
+          "count": 1
         }
       ]
     }
   ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-09-13T20:57:32.947Z"
+    "publishedEventCount": 2,
+    "lastSuccessfulArtifactAt": "2026-09-14T02:31:10.288Z"
   },
   "nextCursor": null
 }

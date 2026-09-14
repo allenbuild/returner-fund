@@ -23,7 +23,7 @@
         "publisher": "reason-blocks",
         "domain": "linkedin.com",
         "sourceType": "company_post",
-        "publishedAt": "2026-04-08T01:43:32.545Z",
+        "publishedAt": "2026-04-08T01:43:32.565Z",
         "evidenceRole": "primary",
         "url": "https://linkedin.com/posts/reason-blocks_reasonblocks-activity-7447459083332411392-iQux"
       }
@@ -35,10 +35,10 @@
         "publisher": "reason-blocks",
         "domain": "linkedin.com",
         "sourceType": "company_post",
-        "publishedAt": "2026-04-08T01:43:32.545Z",
+        "publishedAt": "2026-04-08T01:43:32.565Z",
         "evidenceRole": "primary",
         "url": "https://linkedin.com/posts/reason-blocks_reasonblocks-activity-7447459083332411392-iQux",
-        "publicationDate": "2026-04-08T01:43:32.545Z",
+        "publicationDate": "2026-04-08T01:43:32.565Z",
         "excerpt": "We're launching ReasonBlocks! Every AI agent call starts from scratch — your agent solves a problem and immediately forgets how it got to the solution. Next time it sees the same type of task, it explores from zero again. Multiply that across code gen, finance dashboards, pen testing, ops automation, anything where agents do similar tasks repeatedly, and you're paying for the same reasoning over and over. No compounding improvement: your 1000th call is no smarter than your 1st. We built…",
         "sourceEventDate": "2026-04-08",
         "isConflicting": false,
@@ -61,6 +61,6 @@
       }
     ]
   },
-  "generatedAt": "2026-09-13T20:57:32.947Z",
-  "lastModifiedAt": "2026-09-13T20:57:32.947Z"
+  "generatedAt": "2026-09-14T02:31:10.288Z",
+  "lastModifiedAt": "2026-09-14T02:31:10.288Z"
 }

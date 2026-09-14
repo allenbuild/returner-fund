@@ -5,8 +5,8 @@
     "slug": "rise-reforming",
     "name": "Rise Reforming"
   },
-  "generatedAt": "2026-09-13T20:57:32.947Z",
-  "lastModifiedAt": "2026-09-13T20:57:32.947Z",
+  "generatedAt": "2026-09-14T02:31:10.288Z",
+  "lastModifiedAt": "2026-09-14T02:31:10.288Z",
   "events": [
     {
       "id": "tle-e163e0c844c4f7038e6c48bd",
@@ -60,7 +60,7 @@
           "publisher": "jonavanoord",
           "domain": "linkedin.com",
           "sourceType": "founder_post",
-          "publishedAt": "2024-02-29T18:03:21.951Z",
+          "publishedAt": "2024-02-29T18:03:21.991Z",
           "evidenceRole": "primary",
           "url": "https://linkedin.com/posts/jonavanoord_i-am-excited-and-proud-to-announce-that-rise-activity-7169029395410571265-v_zv"
         }
@@ -90,7 +90,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 2,
-    "lastSuccessfulArtifactAt": "2026-09-13T20:57:32.947Z"
+    "lastSuccessfulArtifactAt": "2026-09-14T02:31:10.288Z"
   },
   "nextCursor": null
 }

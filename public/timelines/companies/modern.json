@@ -5,8 +5,8 @@
     "slug": "modern",
     "name": "Modern"
   },
-  "generatedAt": "2026-09-13T20:57:32.947Z",
-  "lastModifiedAt": "2026-09-13T20:57:32.947Z",
+  "generatedAt": "2026-09-14T02:31:10.288Z",
+  "lastModifiedAt": "2026-09-14T02:31:10.288Z",
   "events": [
     {
       "id": "tle-626773014ab76ec72f7f36a9",
@@ -26,7 +26,7 @@
           "publisher": "atomovski",
           "domain": "linkedin.com",
           "sourceType": "founder_post",
-          "publishedAt": "2026-04-08T23:48:05.356Z",
+          "publishedAt": "2026-04-08T23:48:05.372Z",
           "evidenceRole": "primary",
           "url": "https://linkedin.com/posts/atomovski_i-joined-y-combinator-p26-batch-with-seb-activity-7447792416444743680-ioTb"
         }
@@ -47,7 +47,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-09-13T20:57:32.947Z"
+    "lastSuccessfulArtifactAt": "2026-09-14T02:31:10.288Z"
   },
   "nextCursor": null
 }

@@ -12,10 +12,10 @@
     "title": "Syncere released Lume",
     "summary": "Syncere introduced Lume.",
     "category": "product_launch",
-    "isMajor": false,
+    "isMajor": true,
     "hasConflict": false,
     "conflictSummary": null,
-    "evidenceCount": 1,
+    "evidenceCount": 2,
     "sourcePreview": [
       {
         "id": "src-902aa508af8f00b64ce78723",
@@ -26,6 +26,16 @@
         "publishedAt": "2026-04-08T18:10:29.000Z",
         "evidenceRole": "primary",
         "url": "https://instagram.com/reel/DW4VYvfidcr"
+      },
+      {
+        "id": "src-bef5eabb1f6daccf17f40d5d",
+        "title": "Introducing Lume. A lamp that does your chores. Order now. Shipping this summer! | Syncere",
+        "publisher": "bysyncere",
+        "domain": "linkedin.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-04-08T18:22:37.179Z",
+        "evidenceRole": "primary",
+        "url": "https://linkedin.com/posts/bysyncere_introducing-lume-a-lamp-that-does-your-chores-activity-7447710509266653185-jsiW"
       }
     ],
     "evidence": [
@@ -40,6 +50,21 @@
         "url": "https://instagram.com/reel/DW4VYvfidcr",
         "publicationDate": "2026-04-08T18:10:29.000Z",
         "excerpt": "Introducing Lume. A lamp that does your chores. Order now. Shipping this summer.",
+        "sourceEventDate": "2026-04-08",
+        "isConflicting": false,
+        "conflictDescription": null
+      },
+      {
+        "id": "src-bef5eabb1f6daccf17f40d5d",
+        "title": "Introducing Lume. A lamp that does your chores. Order now. Shipping this summer! | Syncere",
+        "publisher": "bysyncere",
+        "domain": "linkedin.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-04-08T18:22:37.179Z",
+        "evidenceRole": "primary",
+        "url": "https://linkedin.com/posts/bysyncere_introducing-lume-a-lamp-that-does-your-chores-activity-7447710509266653185-jsiW",
+        "publicationDate": "2026-04-08T18:22:37.179Z",
+        "excerpt": "A lamp that does your chores.",
         "sourceEventDate": "2026-04-08",
         "isConflicting": false,
         "conflictDescription": null
@@ -59,9 +84,22 @@
           "views": 4221
         },
         "evidenceRole": "primary"
+      },
+      {
+        "id": "post-95d4d8495354ebf318b526e0",
+        "platform": "linkedin",
+        "account": "bysyncere",
+        "postDate": "2026-04-08",
+        "excerpt": "A lamp that does your chores.",
+        "url": "https://linkedin.com/posts/bysyncere_introducing-lume-a-lamp-that-does-your-chores-activity-7447710509266653185-jsiW",
+        "metrics": {
+          "reactions": 82,
+          "comments": 5
+        },
+        "evidenceRole": "primary"
       }
     ]
   },
-  "generatedAt": "2026-09-13T20:57:32.947Z",
-  "lastModifiedAt": "2026-09-13T20:57:32.947Z"
+  "generatedAt": "2026-09-14T02:31:10.288Z",
+  "lastModifiedAt": "2026-09-14T02:31:10.288Z"
 }

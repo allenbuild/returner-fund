@@ -23,7 +23,7 @@
         "publisher": "watoinc",
         "domain": "linkedin.com",
         "sourceType": "company_post",
-        "publishedAt": "2026-05-17T20:28:05.231Z",
+        "publishedAt": "2026-05-17T20:28:05.252Z",
         "evidenceRole": "primary",
         "url": "https://linkedin.com/posts/watoinc_introducing-wato-were-building-the-shared-activity-7461875211051823104-sTAZ"
       },
@@ -55,10 +55,10 @@
         "publisher": "watoinc",
         "domain": "linkedin.com",
         "sourceType": "company_post",
-        "publishedAt": "2026-05-17T20:28:05.231Z",
+        "publishedAt": "2026-05-17T20:28:05.252Z",
         "evidenceRole": "primary",
         "url": "https://linkedin.com/posts/watoinc_introducing-wato-were-building-the-shared-activity-7461875211051823104-sTAZ",
-        "publicationDate": "2026-05-17T20:28:05.231Z",
+        "publicationDate": "2026-05-17T20:28:05.252Z",
         "excerpt": "Introducing Wato! We’re building the shared context layer for AI-enabled teams. Every team building with agents eventually hits the same wall: the work does not compound. An agent solves something useful, finds the right workflow, learns the weird caveat, builds a dashboard, or writes a playbook. Then that knowledge disappears into a chat thread, and the next agent starts from zero. Wato gives teams a shared layer for agent memory, reusable workflows, connected tools, and living artifacts like…",
         "sourceEventDate": "2026-05-17",
         "isConflicting": false,
@@ -145,6 +145,6 @@
       }
     ]
   },
-  "generatedAt": "2026-09-13T20:57:32.947Z",
-  "lastModifiedAt": "2026-09-13T20:57:32.947Z"
+  "generatedAt": "2026-09-14T02:31:10.288Z",
+  "lastModifiedAt": "2026-09-14T02:31:10.288Z"
 }

@@ -15,7 +15,7 @@
     "isMajor": true,
     "hasConflict": false,
     "conflictSummary": null,
-    "evidenceCount": 3,
+    "evidenceCount": 4,
     "sourcePreview": [
       {
         "id": "src-0e01ef8d77be9a4cebbb694c",
@@ -23,9 +23,19 @@
         "publisher": "stagereview",
         "domain": "linkedin.com",
         "sourceType": "company_post",
-        "publishedAt": "2026-04-30T17:48:06.865Z",
+        "publishedAt": "2026-04-30T17:48:06.886Z",
         "evidenceRole": "primary",
         "url": "https://linkedin.com/posts/stagereview_introducing-stage-a-modern-code-review-platform-activity-7455674358871760896-nKGz"
+      },
+      {
+        "id": "src-97843b517cb71abb9a1c82aa",
+        "title": "Introducing Stage CLI for AI Generated Changes | Stage (YC P26) posted on the topic | LinkedIn",
+        "publisher": "stagereview",
+        "domain": "linkedin.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-05-07T16:55:36.317Z",
+        "evidenceRole": "primary",
+        "url": "https://linkedin.com/posts/stagereview_stage-cli-demo-activity-7458197859486564352--TpW"
       },
       {
         "id": "src-57fdec74d469b59dba99418d",
@@ -36,16 +46,6 @@
         "publishedAt": "2026-05-07T16:24:19.000Z",
         "evidenceRole": "primary",
         "url": "https://x.com/DeanStratakos/status/2052424299827634676"
-      },
-      {
-        "id": "src-4f2dc620c07b5548266e796c",
-        "title": "Introducing Stage",
-        "publisher": "Introducing Stage",
-        "domain": "youtube.com",
-        "sourceType": "video",
-        "publishedAt": "2026-05-19T18:05:59-07:00",
-        "evidenceRole": "primary",
-        "url": "https://youtube.com/watch?v=EjMjGAqSLvo"
       }
     ],
     "evidence": [
@@ -55,11 +55,26 @@
         "publisher": "stagereview",
         "domain": "linkedin.com",
         "sourceType": "company_post",
-        "publishedAt": "2026-04-30T17:48:06.865Z",
+        "publishedAt": "2026-04-30T17:48:06.886Z",
         "evidenceRole": "primary",
         "url": "https://linkedin.com/posts/stagereview_introducing-stage-a-modern-code-review-platform-activity-7455674358871760896-nKGz",
-        "publicationDate": "2026-04-30T17:48:06.865Z",
+        "publicationDate": "2026-04-30T17:48:06.886Z",
         "excerpt": "Introducing Stage, a modern code review platform that your engineering team actually want to use. We got tired of using GitHub to review AI generated code so we rebuilt the review process around the way you already naturally think, letting you ship faster and with more confidence. Try it out on your next PR today.",
+        "sourceEventDate": "2026-04-30",
+        "isConflicting": false,
+        "conflictDescription": null
+      },
+      {
+        "id": "src-97843b517cb71abb9a1c82aa",
+        "title": "Introducing Stage CLI for AI Generated Changes | Stage (YC P26) posted on the topic | LinkedIn",
+        "publisher": "stagereview",
+        "domain": "linkedin.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-05-07T16:55:36.317Z",
+        "evidenceRole": "primary",
+        "url": "https://linkedin.com/posts/stagereview_stage-cli-demo-activity-7458197859486564352--TpW",
+        "publicationDate": "2026-05-07T16:55:36.317Z",
+        "excerpt": "Introducing the Stage CLI: a better way of reading your AI generated changes via a guided, elegant UI. Our early users begged us for a way to use the Stage chapters experience before they open a PR, so we did. Open source and runs completely locally. Just run /stage-chapters in any coding agent. ...more",
         "sourceEventDate": "2026-04-30",
         "isConflicting": false,
         "conflictDescription": null
@@ -110,6 +125,19 @@
         "evidenceRole": "primary"
       },
       {
+        "id": "post-16f898d14a4f093210770804",
+        "platform": "linkedin",
+        "account": "stagereview",
+        "postDate": "2026-05-07",
+        "excerpt": "Introducing the Stage CLI: a better way of reading your AI generated changes via a guided, elegant UI. Our early users begged us for a way to use the Stage chapters experience before they open a PR, so we did. Open source and runs completely locally. Just run /stage-chapters in any coding agent. ...more",
+        "url": "https://linkedin.com/posts/stagereview_stage-cli-demo-activity-7458197859486564352--TpW",
+        "metrics": {
+          "reactions": 21,
+          "comments": 1
+        },
+        "evidenceRole": "primary"
+      },
+      {
         "id": "post-36cc0f08e68927d46500db1d",
         "platform": "x",
         "account": "DeanStratakos",
@@ -142,6 +170,6 @@
       }
     ]
   },
-  "generatedAt": "2026-09-13T20:57:32.947Z",
-  "lastModifiedAt": "2026-09-13T20:57:32.947Z"
+  "generatedAt": "2026-09-14T02:31:10.288Z",
+  "lastModifiedAt": "2026-09-14T02:31:10.288Z"
 }

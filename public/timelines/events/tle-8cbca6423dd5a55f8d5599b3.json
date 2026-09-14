@@ -1,0 +1,66 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "a16z-speedrun-006-auto",
+    "slug": "auto",
+    "name": "Auto"
+  },
+  "event": {
+    "id": "tle-8cbca6423dd5a55f8d5599b3",
+    "eventDate": "2026-07-08",
+    "eventDateType": "announcement_date",
+    "title": "Auto announced its public launch",
+    "summary": "Auto IS LAUNCHING OUR FIRST CREATOR SPRINT.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-d64e3a599f68a1bf4f939747",
+        "title": "Auto IS LAUNCHING OUR FIRST CREATOR SPRINT! This is your chance to get paid and learn by working at a top startup. The goal of the sprint is to help people understand the power of frames and... | Abdul Wahaj",
+        "publisher": "abdulwahaj786",
+        "domain": "linkedin.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-07-08T19:50:49.607Z",
+        "evidenceRole": "primary",
+        "url": "https://linkedin.com/posts/activity-7480710003088322560-Hvvq"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-d64e3a599f68a1bf4f939747",
+        "title": "Auto IS LAUNCHING OUR FIRST CREATOR SPRINT! This is your chance to get paid and learn by working at a top startup. The goal of the sprint is to help people understand the power of frames and... | Abdul Wahaj",
+        "publisher": "abdulwahaj786",
+        "domain": "linkedin.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-07-08T19:50:49.607Z",
+        "evidenceRole": "primary",
+        "url": "https://linkedin.com/posts/activity-7480710003088322560-Hvvq",
+        "publicationDate": "2026-07-08T19:50:49.607Z",
+        "excerpt": "The goal of the sprint is to help people understand the power of frames and... | Abdul Wahaj URL Source: https://linkedin.com/posts/activity-7480710003088322560-Hvvq Markdown Content: Agree & Join LinkedIn By clicking Continue to join or sign in, you agree to LinkedIn’s [User Agreement](https://linkedin.com/legal/user-agreement?trk=[redacted-public-param]), [Privacy Policy](https://linkedin.com/legal/privacy-policy?trk=[redacted-public-param]), and [Cookie…",
+        "sourceEventDate": "2026-07-08",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-4256b4507bc426a1e8e1cf78",
+        "platform": "linkedin",
+        "account": "abdulwahaj786",
+        "postDate": "2026-07-08",
+        "excerpt": "The goal of the sprint is to help people understand the power of frames and... | Abdul Wahaj URL Source: https://linkedin.com/posts/activity-7480710003088322560-Hvvq Markdown Content: Agree & Join LinkedIn By clicking Continue to join or sign in, you agree to LinkedIn’s [User Agreement](https://linkedin.com/legal/user-agreement?trk=[redacted-public-param]), [Privacy Policy](https://linkedin.com/legal/privacy-policy?trk=[redacted-public-param]), and [Cookie…",
+        "url": "https://linkedin.com/posts/activity-7480710003088322560-Hvvq",
+        "metrics": {
+          "reactions": 47,
+          "comments": 8
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-09-14T02:31:10.288Z",
+  "lastModifiedAt": "2026-09-14T02:31:10.288Z"
+}

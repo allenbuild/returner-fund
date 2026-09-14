@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-aerogen-systems",
+    "slug": "aerogen-systems",
+    "name": "Aerogen Systems"
+  },
+  "event": {
+    "id": "tle-e3e69a2a8df690e44f7de413",
+    "eventDate": "2026-06-25",
+    "eventDateType": "announcement_date",
+    "title": "Aerogen Systems was accepted into Y Combinator S26",
+    "summary": "Aerogen Systems reported (YC S26) just joined Y Combinator 🚀 We're building for one of the most expensive problems in chip manufacturing: contamination control at the tool level.",
+    "category": "accelerator",
+    "isMajor": true,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-301ad007d2ad3373d7953153",
+        "title": "(YC S26) just joined Y Combinator 🚀 We're building for one of the most expensive problems in chip manufacturing: contamination control at the tool level. As transistors approach atomic scales, manufacturing processes get brutally…",
+        "publisher": "Aerogen Systems LinkedIn post",
+        "domain": "linkedin.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-06-25T22:20:07.596Z",
+        "evidenceRole": "primary",
+        "url": "https://www.linkedin.com/feed/update/urn:li:activity:7476036533364412416"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-301ad007d2ad3373d7953153",
+        "title": "(YC S26) just joined Y Combinator 🚀 We're building for one of the most expensive problems in chip manufacturing: contamination control at the tool level. As transistors approach atomic scales, manufacturing processes get brutally…",
+        "publisher": "Aerogen Systems LinkedIn post",
+        "domain": "linkedin.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-06-25T22:20:07.596Z",
+        "evidenceRole": "primary",
+        "url": "https://www.linkedin.com/feed/update/urn:li:activity:7476036533364412416",
+        "publicationDate": "2026-06-25T22:20:07.596Z",
+        "excerpt": "(YC S26) just joined Y Combinator 🚀 We're building for one of the most expensive problems in chip manufacturing: contamination control at the tool level. As transistors approach atomic scales, manufacturing processes get brutally sensitive to Airborne Molecular Contamination (AMC). We build systems that destroy contamination directly in the tool, working quietly in the background of a fab to claw back massive yield loss that's currently left on the table while slashing ultra-high purity…",
+        "sourceEventDate": "2026-06-25",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-7c4e234b5f5d19a8806ddaab",
+        "platform": "linkedin",
+        "account": "Aerogen Systems LinkedIn post",
+        "postDate": "2026-06-25",
+        "excerpt": "(YC S26) just joined Y Combinator 🚀 We're building for one of the most expensive problems in chip manufacturing: contamination control at the tool level. As transistors approach atomic scales, manufacturing processes get brutally sensitive to Airborne Molecular Contamination (AMC). We build systems that destroy contamination directly in the tool, working quietly in the background of a fab to claw back massive yield loss that's currently left on the table while slashing ultra-high purity…",
+        "url": "https://www.linkedin.com/feed/update/urn:li:activity:7476036533364412416",
+        "metrics": {
+          "likes": 17,
+          "comments": 4,
+          "reposts": 1,
+          "views": 0
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-09-14T02:31:10.288Z",
+  "lastModifiedAt": "2026-09-14T02:31:10.288Z"
+}

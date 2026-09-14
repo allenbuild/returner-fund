@@ -1,0 +1,66 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-runtime",
+    "slug": "runtime",
+    "name": "Runtime"
+  },
+  "event": {
+    "id": "tle-3401e9d9f249c0907a6482c4",
+    "eventDate": "2026-04-14",
+    "eventDateType": "announcement_date",
+    "title": "Runtime released on YC",
+    "summary": "Runtime launched on YC today.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-3b0fda1a4d9ef3be3905c82f",
+        "title": "We launched on YC today. Runtime gives your whole team the sandboxes, harnesses, and observability to ship safely with any coding agent. Works with Claude Code, Codex, Copilot, and others. One... | Runtime",
+        "publisher": "runtm",
+        "domain": "linkedin.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-04-14T18:29:07.993Z",
+        "evidenceRole": "primary",
+        "url": "https://linkedin.com/posts/runtm_we-launched-on-yc-today-runtime-gives-your-activity-7449886475653128192-3cro"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-3b0fda1a4d9ef3be3905c82f",
+        "title": "We launched on YC today. Runtime gives your whole team the sandboxes, harnesses, and observability to ship safely with any coding agent. Works with Claude Code, Codex, Copilot, and others. One... | Runtime",
+        "publisher": "runtm",
+        "domain": "linkedin.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-04-14T18:29:07.993Z",
+        "evidenceRole": "primary",
+        "url": "https://linkedin.com/posts/runtm_we-launched-on-yc-today-runtime-gives-your-activity-7449886475653128192-3cro",
+        "publicationDate": "2026-04-14T18:29:07.993Z",
+        "excerpt": "We launched on YC today. Runtime gives your whole team the sandboxes, harnesses, and observability to ship safely with any coding agent. Works with Claude Code, Codex, Copilot, and others. One environment setup, full visibility, one-click deploys. Sign up at app.runtm.com or book a demo in the link below.",
+        "sourceEventDate": "2026-04-14",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-1f42e6b022e5bb4ea6d4d7c0",
+        "platform": "linkedin",
+        "account": "runtm",
+        "postDate": "2026-04-14",
+        "excerpt": "We launched on YC today. Runtime gives your whole team the sandboxes, harnesses, and observability to ship safely with any coding agent. Works with Claude Code, Codex, Copilot, and others. One environment setup, full visibility, one-click deploys. Sign up at app.runtm.com or book a demo in the link below.",
+        "url": "https://linkedin.com/posts/runtm_we-launched-on-yc-today-runtime-gives-your-activity-7449886475653128192-3cro",
+        "metrics": {
+          "reactions": 8,
+          "comments": 2
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-09-14T02:31:10.288Z",
+  "lastModifiedAt": "2026-09-14T02:31:10.288Z"
+}

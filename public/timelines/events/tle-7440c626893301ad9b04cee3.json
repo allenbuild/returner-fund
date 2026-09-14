@@ -1,0 +1,66 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-general-instinct",
+    "slug": "general-instinct",
+    "name": "General Instinct"
+  },
+  "event": {
+    "id": "tle-7440c626893301ad9b04cee3",
+    "eventDate": "2026-03-22",
+    "eventDateType": "announcement_date",
+    "title": "General Instinct released Instinct v0",
+    "summary": "General Instinct introduced Instinct v0: the first agent that sees the physical world.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-63e62691b61a2d8498194a7f",
+        "title": "Introducing Instinct v0: the first agent that sees the physical world. Deploy it on edge devices like iPhones or run it in the cloud. With hybrid inference, Instinct keeps vision-based workflows... | General Instinct (YC P26)",
+        "publisher": "general-instinct",
+        "domain": "linkedin.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-03-22T23:59:55.908Z",
+        "evidenceRole": "primary",
+        "url": "https://linkedin.com/posts/general-instinct_introducing-instinct-v0-the-first-agent-activity-7441634802933526528-ohs6"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-63e62691b61a2d8498194a7f",
+        "title": "Introducing Instinct v0: the first agent that sees the physical world. Deploy it on edge devices like iPhones or run it in the cloud. With hybrid inference, Instinct keeps vision-based workflows... | General Instinct (YC P26)",
+        "publisher": "general-instinct",
+        "domain": "linkedin.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-03-22T23:59:55.908Z",
+        "evidenceRole": "primary",
+        "url": "https://linkedin.com/posts/general-instinct_introducing-instinct-v0-the-first-agent-activity-7441634802933526528-ohs6",
+        "publicationDate": "2026-03-22T23:59:55.908Z",
+        "excerpt": "Introducing Instinct v0: the first agent that sees the physical world. Deploy it on edge devices like iPhones or run it in the cloud. With hybrid inference, Instinct keeps vision-based workflows running even when connectivity drops. From wearables to real-world assistants, Instinct is built for AI that can see, react, and acts beyond the browser. Book a demo here: ...more",
+        "sourceEventDate": "2026-03-22",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-919f37c7645f24fd5706af0d",
+        "platform": "linkedin",
+        "account": "general-instinct",
+        "postDate": "2026-03-22",
+        "excerpt": "Introducing Instinct v0: the first agent that sees the physical world. Deploy it on edge devices like iPhones or run it in the cloud. With hybrid inference, Instinct keeps vision-based workflows running even when connectivity drops. From wearables to real-world assistants, Instinct is built for AI that can see, react, and acts beyond the browser. Book a demo here: ...more",
+        "url": "https://linkedin.com/posts/general-instinct_introducing-instinct-v0-the-first-agent-activity-7441634802933526528-ohs6",
+        "metrics": {
+          "reactions": 83,
+          "comments": 8
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-09-14T02:31:10.288Z",
+  "lastModifiedAt": "2026-09-14T02:31:10.288Z"
+}

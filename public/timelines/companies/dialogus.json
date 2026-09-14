@@ -5,8 +5,8 @@
     "slug": "dialogus",
     "name": "Dialogus"
   },
-  "generatedAt": "2026-09-13T20:57:32.947Z",
-  "lastModifiedAt": "2026-09-13T20:57:32.947Z",
+  "generatedAt": "2026-09-14T02:31:10.288Z",
+  "lastModifiedAt": "2026-09-14T02:31:10.288Z",
   "events": [
     {
       "id": "tle-f847db2598f56fd295058d6e",
@@ -26,7 +26,7 @@
           "publisher": "rodrigoteranhdz",
           "domain": "linkedin.com",
           "sourceType": "founder_post",
-          "publishedAt": "2026-06-27T20:32:03.800Z",
+          "publishedAt": "2026-06-27T20:32:03.826Z",
           "evidenceRole": "primary",
           "url": "https://www.linkedin.com/posts/rodrigoteranhdz_ycombinator-yc-dialogus-activity-7476734114193240064-SbX4"
         }
@@ -47,7 +47,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-09-13T20:57:32.947Z"
+    "lastSuccessfulArtifactAt": "2026-09-14T02:31:10.288Z"
   },
   "nextCursor": null
 }

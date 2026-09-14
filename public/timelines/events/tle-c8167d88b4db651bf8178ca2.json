@@ -1,0 +1,66 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-lamina-labs",
+    "slug": "lamina-labs",
+    "name": "Lamina Labs"
+  },
+  "event": {
+    "id": "tle-c8167d88b4db651bf8178ca2",
+    "eventDate": "2026-05-31",
+    "eventDateType": "announcement_date",
+    "title": "Lamina Labs released ChatGPT",
+    "summary": "Lamina Labs introduced ChatGPT for Explainer Videos in Under 20 Seconds | Lamina Labs posted on the topic | LinkedIn.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-7f9456b1812f329070f31304",
+        "title": "Introducing ChatGPT for Explainer Videos in Under 20 Seconds | Lamina Labs posted on the topic | LinkedIn",
+        "publisher": "lamina-labs",
+        "domain": "linkedin.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-05-31T08:23:39.563Z",
+        "evidenceRole": "primary",
+        "url": "https://linkedin.com/posts/lamina-labs_today-were-introducing-chatgpt-for-explainer-activity-7466766332857053184-cGIc"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-7f9456b1812f329070f31304",
+        "title": "Introducing ChatGPT for Explainer Videos in Under 20 Seconds | Lamina Labs posted on the topic | LinkedIn",
+        "publisher": "lamina-labs",
+        "domain": "linkedin.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-05-31T08:23:39.563Z",
+        "evidenceRole": "primary",
+        "url": "https://linkedin.com/posts/lamina-labs_today-were-introducing-chatgpt-for-explainer-activity-7466766332857053184-cGIc",
+        "publicationDate": "2026-05-31T08:23:39.563Z",
+        "excerpt": "Today, we're introducing ChatGPT for Explainer Videos. Give Simi a prompt or a doc. It turns it into a whiteboard explainer video. Any topic. Any length. In seconds. On our fastest tier, your video is ready to watch in under 20 seconds. Everyone's talking about AI video. But is any of it actually teaching you anything? Simi does. Built for: > Course lessons generated in minutes > Customer training for enterprise teams > Breaking down complex topics for students > Explainer videos for startups…",
+        "sourceEventDate": "2026-05-31",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-64884fbbddc9a8d04f46558c",
+        "platform": "linkedin",
+        "account": "lamina-labs",
+        "postDate": "2026-05-31",
+        "excerpt": "Today, we're introducing ChatGPT for Explainer Videos. Give Simi a prompt or a doc. It turns it into a whiteboard explainer video. Any topic. Any length. In seconds. On our fastest tier, your video is ready to watch in under 20 seconds. Everyone's talking about AI video. But is any of it actually teaching you anything? Simi does. Built for: > Course lessons generated in minutes > Customer training for enterprise teams > Breaking down complex topics for students > Explainer videos for startups…",
+        "url": "https://linkedin.com/posts/lamina-labs_today-were-introducing-chatgpt-for-explainer-activity-7466766332857053184-cGIc",
+        "metrics": {
+          "reactions": 61,
+          "comments": 2
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-09-14T02:31:10.288Z",
+  "lastModifiedAt": "2026-09-14T02:31:10.288Z"
+}

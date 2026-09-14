@@ -1,0 +1,66 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-olam-labs",
+    "slug": "olam-labs",
+    "name": "Olam Labs"
+  },
+  "event": {
+    "id": "tle-a868620d46da34fe60946439",
+    "eventDate": "2026-07-20",
+    "eventDateType": "announcement_date",
+    "title": "Olam Labs released Social Arena and Deception Index",
+    "summary": "Olam Labs introduced Social Arena and Deception Index for AI Model Benchmarking | Olam Labs (YC S26) posted on the topic | LinkedIn.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-c1c33abc6d044480e8c1a4e0",
+        "title": "Introducing Social Arena and Deception Index for AI Model Benchmarking | Olam Labs (YC S26) posted on the topic | LinkedIn",
+        "publisher": "olam-labs",
+        "domain": "linkedin.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-07-20T21:23:05.312Z",
+        "evidenceRole": "primary",
+        "url": "https://linkedin.com/posts/olam-labs_today-were-releasing-social-arena-and-our-activity-7485081875904929792-5Hte"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-c1c33abc6d044480e8c1a4e0",
+        "title": "Introducing Social Arena and Deception Index for AI Model Benchmarking | Olam Labs (YC S26) posted on the topic | LinkedIn",
+        "publisher": "olam-labs",
+        "domain": "linkedin.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-07-20T21:23:05.312Z",
+        "evidenceRole": "primary",
+        "url": "https://linkedin.com/posts/olam-labs_today-were-releasing-social-arena-and-our-activity-7485081875904929792-5Hte",
+        "publicationDate": "2026-07-20T21:23:05.312Z",
+        "excerpt": "Today we're releasing Social Arena, and our first AI model benchmark, the Deception Index. We've been in the Y Combinator Summer 2026 batch building a new way to evaluate frontier AI models. Social Arena is the first platform where humans come play social games like Risk, Catan, or Poker versus AI agents. You can play today at But on the backend, each opponent is actually its own agent running as a multi-agent environment as your game. They're running in their own sandbox with a generic coding…",
+        "sourceEventDate": "2026-07-20",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-807fcc1f819de4420d60cadb",
+        "platform": "linkedin",
+        "account": "olam-labs",
+        "postDate": "2026-07-20",
+        "excerpt": "Today we're releasing Social Arena, and our first AI model benchmark, the Deception Index. We've been in the Y Combinator Summer 2026 batch building a new way to evaluate frontier AI models. Social Arena is the first platform where humans come play social games like Risk, Catan, or Poker versus AI agents. You can play today at But on the backend, each opponent is actually its own agent running as a multi-agent environment as your game. They're running in their own sandbox with a generic coding…",
+        "url": "https://linkedin.com/posts/olam-labs_today-were-releasing-social-arena-and-our-activity-7485081875904929792-5Hte",
+        "metrics": {
+          "reactions": 70,
+          "comments": 10
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-09-14T02:31:10.288Z",
+  "lastModifiedAt": "2026-09-14T02:31:10.288Z"
+}

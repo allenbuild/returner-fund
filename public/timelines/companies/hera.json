@@ -5,8 +5,8 @@
     "slug": "hera",
     "name": "HERA"
   },
-  "generatedAt": "2026-09-13T20:57:32.947Z",
-  "lastModifiedAt": "2026-09-13T20:57:32.947Z",
+  "generatedAt": "2026-09-14T02:31:10.288Z",
+  "lastModifiedAt": "2026-09-14T02:31:10.288Z",
   "events": [
     {
       "id": "tle-1a206244b6ecb2e6f56bbc65",
@@ -50,7 +50,7 @@
           "publisher": "HERA",
           "domain": "linkedin.com",
           "sourceType": "company_post",
-          "publishedAt": "2026-07-14T00:42:55.545Z",
+          "publishedAt": "2026-07-14T00:42:55.568Z",
           "evidenceRole": "primary",
           "url": "https://linkedin.com/posts/heraengineer_today-were-launching-hera-engineering-activity-7482595451624505344-ccd1"
         }
@@ -71,7 +71,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 2,
-    "lastSuccessfulArtifactAt": "2026-09-13T20:57:32.947Z"
+    "lastSuccessfulArtifactAt": "2026-09-14T02:31:10.288Z"
   },
   "nextCursor": null
 }
