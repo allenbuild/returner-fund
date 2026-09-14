@@ -3308,6 +3308,7 @@ describe("autonomous ingestion runner static safety contracts", () => {
     assert.equal(replayCalls[0].batchSlug, "S26");
     assert.deepEqual(replayCalls[0].childTarget, requestedTarget);
     assert.ok(replayCalls[0].commonArgs.includes("--company-slug=gamgee"));
+    assert.ok(replayCalls[0].commonArgs.includes("--force"));
 
     const assertCanPublish = authenticatedReplayPublicationValidator();
     assert.doesNotThrow(() => assertCanPublish(result));

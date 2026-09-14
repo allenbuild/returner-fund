@@ -3807,6 +3807,12 @@ async function runAuthenticatedCollectors({
     ];
     if (requestedTarget?.companySlug) {
       commonArgs.push(`--company-slug=${requestedTarget.companySlug}`);
+      // An exact company-scoped manual replay is an explicit request to
+      // re-observe that company's mapped accounts. This also lets a targeted
+      // validation recover a previously terminal empty observation after the
+      // collector's DOM contract changes, without broadening the replay to
+      // any other company or deleting durable history.
+      commonArgs.push("--force");
     }
     const x = xReady
       ? await runAuthenticatedCollectorCommand(
