@@ -2330,7 +2330,8 @@ export function mergePublicEvidenceSnapshots(
   const contentReconciliation = reconcileMergedPublicContentIdentities(
     acceptedEvidence,
     contentIdentityReferenceRows,
-    resolveBatchSlug
+    resolveBatchSlug,
+    publicationClockMs
   );
   // Refreshes and URL aliases for one exact attribution are ordinary updates,
   // not review-worthy duplicates. Collapse those first, then prevent only a
@@ -3612,22 +3613,34 @@ function evidenceKey(row) {
   return `${rowBatchScope(row)}:${entityId}:${platform}:post:${stableIdentity}`;
 }
 
-function reconcileMergedPublicContentIdentities(rows, referenceRows, resolveBatchSlug) {
+function reconcileMergedPublicContentIdentities(
+  rows,
+  referenceRows,
+  resolveBatchSlug,
+  publicationClockMs
+) {
   const referenceIndex = new Map();
   const acceptedIndex = new Map();
   const evidence = [];
   const duplicates = [];
 
+  const contentIdentityForRow = (row) => {
+    const identityRow = normalizePlatform(row?.platform) === "linkedin"
+      ? withDerivedNativePostedAt(row, "linkedin", { nowMs: publicationClockMs })
+      : row;
+    return mergedPublicSourceContentIdentity(identityRow);
+  };
+
   for (const sourceRow of referenceRows ?? []) {
     const row = scopedContentIdentityRow(sourceRow, resolveBatchSlug);
-    const contentIdentity = mergedPublicSourceContentIdentity(row);
+    const contentIdentity = contentIdentityForRow(row);
     if (!contentIdentity) continue;
     indexMergedContentIdentity(referenceIndex, row, contentIdentity);
   }
 
   for (const sourceRow of [...rows].sort(compareMergedContentPreference)) {
     const row = scopedContentIdentityRow(sourceRow, resolveBatchSlug);
-    const contentIdentity = mergedPublicSourceContentIdentity(row);
+    const contentIdentity = contentIdentityForRow(row);
     if (!contentIdentity) {
       evidence.push(row);
       continue;

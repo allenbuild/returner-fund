@@ -4886,6 +4886,74 @@ describe("autonomous public evidence merge", () => {
     assert.deepEqual(merged.needsReview, []);
   });
 
+  it("keeps a signed LinkedIn promotion row unchanged while normalizing its content identity", () => {
+    const company = {
+      name: "Example",
+      sourceKey: "company-example",
+      description: "Example builds durable software."
+    };
+    const owner = {
+      batchSlug: "S26",
+      entityType: "company",
+      entityId: "company-example",
+      companyEntityId: "company-example",
+      companySlug: "example",
+      companyName: "Example"
+    };
+    const resolveNativeAuthor = () => ({
+      status: "matched",
+      reason: "fresh_canonical_resolution",
+      owner,
+      company
+    });
+    resolveNativeAuthor.companyForRow = () => ({ ...owner, company });
+    resolveNativeAuthor.companyOwners = [{ ...owner, company }];
+    const row = {
+      id: "metricless-linkedin-with-signed-receipt",
+      batchSlug: "S26",
+      entityType: "company",
+      entityId: "company-example",
+      entityName: "Example",
+      companySlug: "example",
+      companyName: "Example",
+      platform: "linkedin",
+      platformPostId: "7482811226582867968",
+      sourceUrl:
+        "https://www.linkedin.com/posts/example_activity-7482811226582867968-test",
+      title: "Example YC S26 product walkthrough",
+      text:
+        "Example shares its YC S26 product walkthrough and explains how durable software makes every customer workflow faster, safer, and easier to operate.",
+      postedAt: "2026-07-01T12:00:00.000Z",
+      metrics: { reactions: 0 },
+      contributionScore: 0,
+      review_state: "verified",
+      linkStatus: "verified",
+      attributionStatus: "verified",
+      attributionVersion: 3,
+      attributionMode: "account_owner",
+      nativeAuthorResolution: {
+        status: "matched",
+        reason: "signed_metricless_receipt",
+        owner
+      }
+    };
+
+    const merged = mergePublicEvidenceSnapshots([{
+      source: { batchSlug: "S26" },
+      evidence: [row],
+      needsReview: [],
+      failures: []
+    }], {
+      fetchedAt: "2026-09-13T12:00:00.000Z",
+      resolveNativeAuthor,
+      allowVerifiedMetriclessEvidence: (candidate) =>
+        candidate?.nativeAuthorResolution?.reason === "signed_metricless_receipt"
+    });
+
+    assert.deepEqual(merged.evidence, [row]);
+    assert.deepEqual(merged.needsReview, []);
+  });
+
   it("preserves already-promoted strict first-party web and RSS context across autonomous merge", () => {
     const web = strictFirstPartyContextRow({
       id: "first-party-web-launch",
