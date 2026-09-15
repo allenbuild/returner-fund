@@ -12,8 +12,8 @@
         "catalog": "src/lib/social/a16z-speedrun-006-social-accounts.json",
         "profileSource": "src/lib/graph/a16z-speedrun-006-dataset.ts",
         "graph": "public/graph/a16zsr006.json",
-        "publicRun": "/home/runner/work/_temp/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-09-14-0600-09706a09ed44bd71/public-a16zsr006.json",
-        "githubRun": "/home/runner/work/_temp/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-09-14-0600-09706a09ed44bd71/github-a16zsr006.json"
+        "publicRun": "/home/runner/work/_temp/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-09-14-1800-2efec7586e9ec6ed/public-a16zsr006.json",
+        "githubRun": "/home/runner/work/_temp/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-09-14-1800-2efec7586e9ec6ed/github-a16zsr006.json"
       },
       "counts": {
         "companies": 59,
@@ -24,7 +24,7 @@
         "plannedOwnerMappings": 339,
         "multiAccountOwnerMappings": 4,
         "graphEvidence": 5000,
-        "graphNeedsReview": 2438
+        "graphNeedsReview": 2439
       },
       "structural": {
         "status": "pass",
@@ -828,8 +828,8 @@
         "catalog": "src/lib/yc/spring-2026-companies.json",
         "profileSource": null,
         "graph": "public/graph/s2026.json",
-        "publicRun": "/home/runner/work/_temp/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-09-14-0600-09706a09ed44bd71/public-s2026.json",
-        "githubRun": "/home/runner/work/_temp/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-09-14-0600-09706a09ed44bd71/github-s2026.json"
+        "publicRun": "/home/runner/work/_temp/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-09-14-1800-2efec7586e9ec6ed/public-s2026.json",
+        "githubRun": "/home/runner/work/_temp/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-09-14-1800-2efec7586e9ec6ed/github-s2026.json"
       },
       "counts": {
         "companies": 197,
@@ -840,7 +840,7 @@
         "plannedOwnerMappings": 994,
         "multiAccountOwnerMappings": 1,
         "graphEvidence": 5000,
-        "graphNeedsReview": 10468
+        "graphNeedsReview": 10483
       },
       "structural": {
         "status": "pass",
@@ -2418,8 +2418,8 @@
         "catalog": "src/lib/yc/summer-2026-companies.json",
         "profileSource": null,
         "graph": "public/graph/s26.json",
-        "publicRun": "/home/runner/work/_temp/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-09-14-0600-09706a09ed44bd71/public-s26.json",
-        "githubRun": "/home/runner/work/_temp/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-09-14-0600-09706a09ed44bd71/github-s26.json"
+        "publicRun": "/home/runner/work/_temp/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-09-14-1800-2efec7586e9ec6ed/public-s26.json",
+        "githubRun": "/home/runner/work/_temp/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-09-14-1800-2efec7586e9ec6ed/github-s26.json"
       },
       "counts": {
         "companies": 234,
@@ -2430,7 +2430,7 @@
         "plannedOwnerMappings": 1128,
         "multiAccountOwnerMappings": 2,
         "graphEvidence": 5000,
-        "graphNeedsReview": 7301
+        "graphNeedsReview": 7296
       },
       "structural": {
         "status": "pass",
@@ -3606,6 +3606,11 @@
             "companyName": "Marker"
           },
           {
+            "entityId": "founder-markov-harish-ashok-2921049",
+            "name": "Harish Ashok",
+            "companyName": "Markov"
+          },
+          {
             "entityId": "founder-mass-magnetics-eric-silver-3652354",
             "name": "Eric Silver",
             "companyName": "Mass Magnetics"
@@ -3641,9 +3646,9 @@
             "companyName": "Moving Atoms"
           },
           {
-            "entityId": "founder-nebula-security-yuan-tan-3676420",
+            "entityId": "founder-nebusec-yuan-tan-3676420",
             "name": "Yuan Tan",
-            "companyName": "Nebula Security"
+            "companyName": "NebuSec"
           },
           {
             "entityId": "founder-neuromorphic-cem-toker-3316337",
@@ -4468,6 +4473,11 @@
             "entityId": "founder-marengo-gad-marconi-3410964",
             "name": "Gad Marconi",
             "companyName": "Marengo"
+          },
+          {
+            "entityId": "founder-markov-harish-ashok-2921049",
+            "name": "Harish Ashok",
+            "companyName": "Markov"
           },
           {
             "entityId": "founder-mass-magnetics-eric-silver-3652354",

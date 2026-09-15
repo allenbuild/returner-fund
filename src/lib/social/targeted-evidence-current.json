@@ -1,7 +1,7 @@
 {
   "source": {
     "label": "Targeted long-run public evidence",
-    "fetchedAt": "2026-09-14T11:57:39.110Z",
+    "fetchedAt": "2026-09-14T23:16:29.579Z",
     "notes": [
       "Read-only public search/result snippets and accessible pages only.",
       "No Instagram login actions, likes, saves, follows, comments, DMs, or CAPTCHA bypassing.",
@@ -114,16 +114,16 @@
       "pidBackfilled": 1
     },
     "targetedMergeAudit": {
-      "mergedAt": "2026-09-14T12:28:50.682Z",
+      "mergedAt": "2026-09-14T23:47:41.505Z",
       "existingSnapshots": 1,
       "existingInputRows": 3380,
       "isolatedRunInputRows": 0,
       "acceptedRunRows": 0,
       "duplicateRows": 0,
       "quarantinedRows": 0,
-      "canonicalReattributedRows": 93,
+      "canonicalReattributedRows": 113,
       "quarantineReasonCounts": {},
-      "attributionReconciliationCount": 243,
+      "attributionReconciliationCount": 263,
       "outputEvidenceRows": 3380,
       "outputNeedsReviewRows": 151
     },
@@ -50638,10 +50638,10 @@
       "batchSlug": "S2026"
     },
     {
-      "companyName": "Nebula Security",
+      "companyName": "NebuSec",
       "companyId": "company-nebula-security",
       "entityType": "founder",
-      "entityId": "founder-nebula-security-xiaochuan-yu-3680004",
+      "entityId": "founder-nebusec-xiaochuan-yu-3680004",
       "entityName": "Xiaochuan Yu",
       "accountUrl": "https://x.com/Nyaaaaa_ovo",
       "handle": "Nyaaaaa_ovo",
@@ -50679,11 +50679,19 @@
       "first_seen_at": "2026-07-24T12:49:59.000Z",
       "last_checked_at": "2026-07-24T12:49:59.000Z",
       "last_updated_at": "2026-06-29T13:40:19.000Z",
-      "companySlug": "nebula-security",
-      "attachedCompanyId": "company-nebula-security",
+      "companySlug": "nebusec",
+      "attachedCompanyId": "company-nebusec",
       "thumbnailUrl": "/evidence-thumbnails/x/source-hunt-095d18e3d04e73757e5c.svg",
       "thumbnailSource": "fxtwitter-text-preview",
       "mediaUrl": "/evidence-thumbnails/x/source-hunt-095d18e3d04e73757e5c.svg",
+      "previousAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-nebula-security-xiaochuan-yu-3680004",
+        "companySlug": "nebula-security",
+        "companyName": "Nebula Security"
+      },
+      "attributionReconciliationReason": "canonical_targeted_legacy_entity_alias",
       "batchSlug": "S26"
     },
     {
@@ -51185,10 +51193,10 @@
       "batchSlug": "S2026"
     },
     {
-      "companyName": "Nebula Security",
+      "companyName": "NebuSec",
       "companyId": "company-nebula-security",
       "entityType": "founder",
-      "entityId": "founder-nebula-security-frank-wu-3676409",
+      "entityId": "founder-nebusec-frank-wu-3676409",
       "entityName": "Frank Wu",
       "accountUrl": "https://x.com/FrankOverF1ow",
       "handle": "FrankOverF1ow",
@@ -51226,11 +51234,19 @@
       "first_seen_at": "2026-07-24T12:49:59.000Z",
       "last_checked_at": "2026-07-24T12:49:59.000Z",
       "last_updated_at": "2026-06-24T09:02:53.000Z",
-      "companySlug": "nebula-security",
-      "attachedCompanyId": "company-nebula-security",
+      "companySlug": "nebusec",
+      "attachedCompanyId": "company-nebusec",
       "thumbnailUrl": "/evidence-thumbnails/x/source-hunt-1a0c8d94ef0cf15bde98.svg",
       "thumbnailSource": "fxtwitter-text-preview",
       "mediaUrl": "/evidence-thumbnails/x/source-hunt-1a0c8d94ef0cf15bde98.svg",
+      "previousAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-nebula-security-frank-wu-3676409",
+        "companySlug": "nebula-security",
+        "companyName": "Nebula Security"
+      },
+      "attributionReconciliationReason": "canonical_targeted_legacy_entity_alias",
       "batchSlug": "S26"
     },
     {
@@ -52834,10 +52850,10 @@
       "batchSlug": "S2026"
     },
     {
-      "companyName": "Nebula Security",
+      "companyName": "NebuSec",
       "companyId": "company-nebula-security",
       "entityType": "founder",
-      "entityId": "founder-nebula-security-xiaochuan-yu-3680004",
+      "entityId": "founder-nebusec-xiaochuan-yu-3680004",
       "entityName": "Xiaochuan Yu",
       "accountUrl": "https://x.com/Nyaaaaa_ovo",
       "handle": "Nyaaaaa_ovo",
@@ -52875,11 +52891,19 @@
       "first_seen_at": "2026-07-24T12:49:59.000Z",
       "last_checked_at": "2026-07-24T12:49:59.000Z",
       "last_updated_at": "2026-06-18T17:25:12.000Z",
-      "companySlug": "nebula-security",
-      "attachedCompanyId": "company-nebula-security",
+      "companySlug": "nebusec",
+      "attachedCompanyId": "company-nebusec",
       "thumbnailUrl": "/evidence-thumbnails/x/source-hunt-42d56fd60000ec482085.svg",
       "thumbnailSource": "fxtwitter-text-preview",
       "mediaUrl": "/evidence-thumbnails/x/source-hunt-42d56fd60000ec482085.svg",
+      "previousAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-nebula-security-xiaochuan-yu-3680004",
+        "companySlug": "nebula-security",
+        "companyName": "Nebula Security"
+      },
+      "attributionReconciliationReason": "canonical_targeted_legacy_entity_alias",
       "batchSlug": "S26"
     },
     {
@@ -56863,10 +56887,10 @@
       "batchSlug": "S2026"
     },
     {
-      "companyName": "Nebula Security",
+      "companyName": "NebuSec",
       "companyId": "company-nebula-security",
       "entityType": "founder",
-      "entityId": "founder-nebula-security-xiaochuan-yu-3680004",
+      "entityId": "founder-nebusec-xiaochuan-yu-3680004",
       "entityName": "Xiaochuan Yu",
       "accountUrl": "https://x.com/Nyaaaaa_ovo",
       "handle": "Nyaaaaa_ovo",
@@ -56904,11 +56928,19 @@
       "first_seen_at": "2026-07-24T12:49:59.000Z",
       "last_checked_at": "2026-07-24T12:49:59.000Z",
       "last_updated_at": "2026-06-24T09:35:55.000Z",
-      "companySlug": "nebula-security",
-      "attachedCompanyId": "company-nebula-security",
+      "companySlug": "nebusec",
+      "attachedCompanyId": "company-nebusec",
       "thumbnailUrl": "/evidence-thumbnails/x/source-hunt-968e9c6451e67cfdf5d6.svg",
       "thumbnailSource": "fxtwitter-text-preview",
       "mediaUrl": "/evidence-thumbnails/x/source-hunt-968e9c6451e67cfdf5d6.svg",
+      "previousAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-nebula-security-xiaochuan-yu-3680004",
+        "companySlug": "nebula-security",
+        "companyName": "Nebula Security"
+      },
+      "attributionReconciliationReason": "canonical_targeted_legacy_entity_alias",
       "batchSlug": "S26"
     },
     {
@@ -62971,10 +63003,10 @@
       "batchSlug": "S2026"
     },
     {
-      "companyName": "Nebula Security",
+      "companyName": "NebuSec",
       "companyId": "company-nebula-security",
       "entityType": "founder",
-      "entityId": "founder-nebula-security-xiaochuan-yu-3680004",
+      "entityId": "founder-nebusec-xiaochuan-yu-3680004",
       "entityName": "Xiaochuan Yu",
       "accountUrl": "https://x.com/Nyaaaaa_ovo",
       "handle": "Nyaaaaa_ovo",
@@ -63012,11 +63044,19 @@
       "first_seen_at": "2026-07-24T12:46:41.000Z",
       "last_checked_at": "2026-07-24T12:46:41.000Z",
       "last_updated_at": "2026-07-19T01:21:55.000Z",
-      "companySlug": "nebula-security",
-      "attachedCompanyId": "company-nebula-security",
+      "companySlug": "nebusec",
+      "attachedCompanyId": "company-nebusec",
       "thumbnailUrl": "/evidence-thumbnails/x/source-hunt-098775ea675183545813.svg",
       "thumbnailSource": "fxtwitter-text-preview",
       "mediaUrl": "/evidence-thumbnails/x/source-hunt-098775ea675183545813.svg",
+      "previousAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-nebula-security-xiaochuan-yu-3680004",
+        "companySlug": "nebula-security",
+        "companyName": "Nebula Security"
+      },
+      "attributionReconciliationReason": "canonical_targeted_legacy_entity_alias",
       "batchSlug": "S26"
     },
     {
@@ -64147,10 +64187,10 @@
       "batchSlug": "S2026"
     },
     {
-      "companyName": "Nebula Security",
+      "companyName": "NebuSec",
       "companyId": "company-nebula-security",
       "entityType": "founder",
-      "entityId": "founder-nebula-security-xiaochuan-yu-3680004",
+      "entityId": "founder-nebusec-xiaochuan-yu-3680004",
       "entityName": "Xiaochuan Yu",
       "accountUrl": "https://x.com/Nyaaaaa_ovo",
       "handle": "Nyaaaaa_ovo",
@@ -64188,11 +64228,19 @@
       "first_seen_at": "2026-07-24T12:46:41.000Z",
       "last_checked_at": "2026-07-24T12:46:41.000Z",
       "last_updated_at": "2026-07-08T01:23:36.000Z",
-      "companySlug": "nebula-security",
-      "attachedCompanyId": "company-nebula-security",
+      "companySlug": "nebusec",
+      "attachedCompanyId": "company-nebusec",
       "thumbnailUrl": "/evidence-thumbnails/x/source-hunt-12f899fd66ded341e3bd.svg",
       "thumbnailSource": "fxtwitter-text-preview",
       "mediaUrl": "/evidence-thumbnails/x/source-hunt-12f899fd66ded341e3bd.svg",
+      "previousAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-nebula-security-xiaochuan-yu-3680004",
+        "companySlug": "nebula-security",
+        "companyName": "Nebula Security"
+      },
+      "attributionReconciliationReason": "canonical_targeted_legacy_entity_alias",
       "batchSlug": "S26"
     },
     {
@@ -80053,10 +80101,10 @@
       "batchSlug": "S26"
     },
     {
-      "companyName": "Nebula Security",
+      "companyName": "NebuSec",
       "companyId": "company-nebula-security",
       "entityType": "founder",
-      "entityId": "founder-nebula-security-frank-wu-3676409",
+      "entityId": "founder-nebusec-frank-wu-3676409",
       "entityName": "Frank Wu",
       "accountUrl": "https://x.com/FrankOverF1ow",
       "handle": "FrankOverF1ow",
@@ -80094,11 +80142,19 @@
       "first_seen_at": "2026-07-24T12:46:41.000Z",
       "last_checked_at": "2026-07-24T12:46:41.000Z",
       "last_updated_at": "2026-07-08T01:46:53.000Z",
-      "companySlug": "nebula-security",
-      "attachedCompanyId": "company-nebula-security",
+      "companySlug": "nebusec",
+      "attachedCompanyId": "company-nebusec",
       "thumbnailUrl": "/evidence-thumbnails/x/source-hunt-bba7afdf6e045ebf1cc2.svg",
       "thumbnailSource": "fxtwitter-text-preview",
       "mediaUrl": "/evidence-thumbnails/x/source-hunt-bba7afdf6e045ebf1cc2.svg",
+      "previousAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-nebula-security-frank-wu-3676409",
+        "companySlug": "nebula-security",
+        "companyName": "Nebula Security"
+      },
+      "attributionReconciliationReason": "canonical_targeted_legacy_entity_alias",
       "batchSlug": "S26"
     },
     {
@@ -80551,10 +80607,10 @@
       "batchSlug": "S2026"
     },
     {
-      "companyName": "Nebula Security",
+      "companyName": "NebuSec",
       "companyId": "company-nebula-security",
       "entityType": "founder",
-      "entityId": "founder-nebula-security-frank-wu-3676409",
+      "entityId": "founder-nebusec-frank-wu-3676409",
       "entityName": "Frank Wu",
       "accountUrl": "https://x.com/FrankOverF1ow",
       "handle": "FrankOverF1ow",
@@ -80592,11 +80648,19 @@
       "first_seen_at": "2026-07-24T12:46:41.000Z",
       "last_checked_at": "2026-07-24T12:46:41.000Z",
       "last_updated_at": "2026-07-05T01:01:04.000Z",
-      "companySlug": "nebula-security",
-      "attachedCompanyId": "company-nebula-security",
+      "companySlug": "nebusec",
+      "attachedCompanyId": "company-nebusec",
       "thumbnailUrl": "https://pbs.twimg.com/media/HMbPE7UawAA8yp1.jpg?name=orig",
       "thumbnailSource": "fxtwitter-direct-media",
       "mediaUrl": "/evidence-thumbnails/x/source-hunt-c0f30c041242da23ebdf.jpg",
+      "previousAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-nebula-security-frank-wu-3676409",
+        "companySlug": "nebula-security",
+        "companyName": "Nebula Security"
+      },
+      "attributionReconciliationReason": "canonical_targeted_legacy_entity_alias",
       "batchSlug": "S26"
     },
     {
@@ -83139,10 +83203,10 @@
       "batchSlug": "S2026"
     },
     {
-      "companyName": "Nebula Security",
+      "companyName": "NebuSec",
       "companyId": "company-nebula-security",
       "entityType": "founder",
-      "entityId": "founder-nebula-security-xiaochuan-yu-3680004",
+      "entityId": "founder-nebusec-xiaochuan-yu-3680004",
       "entityName": "Xiaochuan Yu",
       "accountUrl": "https://x.com/Nyaaaaa_ovo",
       "handle": "Nyaaaaa_ovo",
@@ -83180,11 +83244,19 @@
       "first_seen_at": "2026-07-24T12:46:41.000Z",
       "last_checked_at": "2026-07-24T12:46:41.000Z",
       "last_updated_at": "2026-07-02T01:34:53.000Z",
-      "companySlug": "nebula-security",
-      "attachedCompanyId": "company-nebula-security",
+      "companySlug": "nebusec",
+      "attachedCompanyId": "company-nebusec",
       "thumbnailUrl": "/evidence-thumbnails/x/source-hunt-df1e71eefb8b7bba2bbd.svg",
       "thumbnailSource": "fxtwitter-text-preview",
       "mediaUrl": "/evidence-thumbnails/x/source-hunt-df1e71eefb8b7bba2bbd.svg",
+      "previousAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-nebula-security-xiaochuan-yu-3680004",
+        "companySlug": "nebula-security",
+        "companyName": "Nebula Security"
+      },
+      "attributionReconciliationReason": "canonical_targeted_legacy_entity_alias",
       "batchSlug": "S26"
     },
     {
@@ -83972,10 +84044,10 @@
       "batchSlug": "S2026"
     },
     {
-      "companyName": "Nebula Security",
+      "companyName": "NebuSec",
       "companyId": "company-nebula-security",
       "entityType": "founder",
-      "entityId": "founder-nebula-security-xiaochuan-yu-3680004",
+      "entityId": "founder-nebusec-xiaochuan-yu-3680004",
       "entityName": "Xiaochuan Yu",
       "accountUrl": "https://x.com/Nyaaaaa_ovo",
       "handle": "Nyaaaaa_ovo",
@@ -84013,11 +84085,19 @@
       "first_seen_at": "2026-07-24T12:46:41.000Z",
       "last_checked_at": "2026-07-24T12:46:41.000Z",
       "last_updated_at": "2026-07-21T00:59:03.000Z",
-      "companySlug": "nebula-security",
-      "attachedCompanyId": "company-nebula-security",
+      "companySlug": "nebusec",
+      "attachedCompanyId": "company-nebusec",
       "thumbnailUrl": "/evidence-thumbnails/x/source-hunt-e93e9ff00a8506dafab8.svg",
       "thumbnailSource": "local-cache",
       "mediaUrl": "/evidence-thumbnails/x/source-hunt-e93e9ff00a8506dafab8.svg",
+      "previousAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-nebula-security-xiaochuan-yu-3680004",
+        "companySlug": "nebula-security",
+        "companyName": "Nebula Security"
+      },
+      "attributionReconciliationReason": "canonical_targeted_legacy_entity_alias",
       "batchSlug": "S26"
     },
     {
@@ -89208,8 +89288,8 @@
     },
     {
       "entityType": "company",
-      "entityId": "company-nebula-security",
-      "companyName": "Nebula Security",
+      "entityId": "company-nebusec",
+      "companyName": "NebuSec",
       "platform": "x",
       "sourceUrl": "https://x.com/nebusecurity/status/2080413243143856320",
       "platformPostId": "2080413243143856320",
@@ -89235,11 +89315,19 @@
       "first_seen_at": "2026-07-24T12:43:50.000Z",
       "last_checked_at": "2026-07-24T12:43:50.000Z",
       "last_updated_at": "2026-07-23T22:02:24.000Z",
-      "entityName": "Nebula Security",
-      "companySlug": "nebula-security",
-      "attachedCompanyId": "company-nebula-security",
+      "entityName": "NebuSec",
+      "companySlug": "nebusec",
+      "attachedCompanyId": "company-nebusec",
       "thumbnailUrl": "https://pbs.twimg.com/amplify_video_thumb/2080412386302066688/img/xnZz_eL7lCrKaiPe.jpg",
       "thumbnailSource": "x-media",
+      "previousAttribution": {
+        "batchSlug": "S26",
+        "entityType": "company",
+        "entityId": "company-nebula-security",
+        "companySlug": "nebula-security",
+        "companyName": "Nebula Security"
+      },
+      "attributionReconciliationReason": "canonical_targeted_legacy_entity_alias",
       "batchSlug": "S26"
     },
     {
@@ -94323,10 +94411,10 @@
       "batchSlug": "S26"
     },
     {
-      "companyName": "Nebula Security",
+      "companyName": "NebuSec",
       "companyId": "company-nebula-security",
       "entityType": "founder",
-      "entityId": "founder-nebula-security-xiaochuan-yu-3680004",
+      "entityId": "founder-nebusec-xiaochuan-yu-3680004",
       "entityName": "Xiaochuan Yu",
       "accountUrl": "https://x.com/Nyaaaaa_ovo",
       "handle": "Nyaaaaa_ovo",
@@ -94364,11 +94452,19 @@
       "first_seen_at": "2026-07-24T12:41:41.000Z",
       "last_checked_at": "2026-07-24T12:41:41.000Z",
       "last_updated_at": "2026-07-23T23:15:23.000Z",
-      "companySlug": "nebula-security",
-      "attachedCompanyId": "company-nebula-security",
+      "companySlug": "nebusec",
+      "attachedCompanyId": "company-nebusec",
       "thumbnailUrl": "https://pbs.twimg.com/media/HN8s5WeaIAAzwTG.jpg?name=orig",
       "thumbnailSource": "fxtwitter-direct-media",
       "mediaUrl": "/evidence-thumbnails/x/source-hunt-736aba5dc3626ff615d5.jpg",
+      "previousAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-nebula-security-xiaochuan-yu-3680004",
+        "companySlug": "nebula-security",
+        "companyName": "Nebula Security"
+      },
+      "attributionReconciliationReason": "canonical_targeted_legacy_entity_alias",
       "batchSlug": "S26"
     },
     {
@@ -96046,10 +96142,10 @@
       "batchSlug": "S26"
     },
     {
-      "companyName": "Nebula Security",
+      "companyName": "NebuSec",
       "companyId": "company-nebula-security",
       "entityType": "founder",
-      "entityId": "founder-nebula-security-eten-zou-1626290",
+      "entityId": "founder-nebusec-eten-zou-1626290",
       "entityName": "Eten Zou",
       "accountUrl": "https://x.com/etenal7",
       "handle": "etenal7",
@@ -96087,11 +96183,19 @@
       "first_seen_at": "2026-07-24T12:41:41.000Z",
       "last_checked_at": "2026-07-24T12:41:41.000Z",
       "last_updated_at": "2026-07-23T22:17:27.000Z",
-      "companySlug": "nebula-security",
-      "attachedCompanyId": "company-nebula-security",
+      "companySlug": "nebusec",
+      "attachedCompanyId": "company-nebusec",
       "thumbnailUrl": "/evidence-thumbnails/x/source-hunt-9c091c316802a3065636.svg",
       "thumbnailSource": "fxtwitter-text-preview",
       "mediaUrl": "/evidence-thumbnails/x/source-hunt-9c091c316802a3065636.svg",
+      "previousAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-nebula-security-eten-zou-1626290",
+        "companySlug": "nebula-security",
+        "companyName": "Nebula Security"
+      },
+      "attributionReconciliationReason": "canonical_targeted_legacy_entity_alias",
       "batchSlug": "S26"
     },
     {
@@ -99639,10 +99743,10 @@
       "batchSlug": "S2026"
     },
     {
-      "companyName": "Nebula Security",
+      "companyName": "NebuSec",
       "companyId": "company-nebula-security",
       "entityType": "founder",
-      "entityId": "founder-nebula-security-eten-zou-1626290",
+      "entityId": "founder-nebusec-eten-zou-1626290",
       "entityName": "Eten Zou",
       "accountUrl": "https://x.com/etenal7",
       "handle": "etenal7",
@@ -99680,11 +99784,19 @@
       "first_seen_at": "2026-07-24T12:41:41.000Z",
       "last_checked_at": "2026-07-24T12:41:41.000Z",
       "last_updated_at": "2026-07-22T05:26:08.000Z",
-      "companySlug": "nebula-security",
-      "attachedCompanyId": "company-nebula-security",
+      "companySlug": "nebusec",
+      "attachedCompanyId": "company-nebusec",
       "thumbnailUrl": "/evidence-thumbnails/x/source-hunt-f167a6f60a767c7a0518.svg",
       "thumbnailSource": "fxtwitter-text-preview",
       "mediaUrl": "/evidence-thumbnails/x/source-hunt-f167a6f60a767c7a0518.svg",
+      "previousAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-nebula-security-eten-zou-1626290",
+        "companySlug": "nebula-security",
+        "companyName": "Nebula Security"
+      },
+      "attributionReconciliationReason": "canonical_targeted_legacy_entity_alias",
       "batchSlug": "S26"
     },
     {
@@ -111720,9 +111832,9 @@
       "id": "hacker_news-hacker_news_story-s26-company-nebula-security-48592738",
       "batch": "S26",
       "entityType": "company",
-      "entityId": "company-nebula-security",
-      "companySlug": "nebula-security",
-      "companyName": "Nebula Security",
+      "entityId": "company-nebusec",
+      "companySlug": "nebusec",
+      "companyName": "NebuSec",
       "platform": "hacker_news",
       "sourceUrl": "https://news.ycombinator.com/item?id=48592738",
       "platformPostId": "48592738",
@@ -111743,20 +111855,28 @@
       "first_seen_at": "2026-07-19T06:35:00Z",
       "last_checked_at": "2026-07-19T06:35:00.000Z",
       "last_updated_at": "2026-06-18T22:55:30Z",
-      "entityName": "Nebula Security",
-      "attachedCompanyId": "company-nebula-security",
+      "entityName": "NebuSec",
+      "attachedCompanyId": "company-nebusec",
       "thumbnailUrl": "https://news.ycombinator.com/favicon.ico",
       "thumbnailSource": "link-preview-favicon-blocked",
       "mediaUrl": "/evidence-thumbnails/hacker_news/hacker-news-hacker-news-story-s26-company-nebula-security-48592738.svg",
+      "previousAttribution": {
+        "batchSlug": "S26",
+        "entityType": "company",
+        "entityId": "company-nebula-security",
+        "companySlug": "nebula-security",
+        "companyName": "Nebula Security"
+      },
+      "attributionReconciliationReason": "canonical_targeted_legacy_entity_alias",
       "batchSlug": "S26"
     },
     {
       "id": "hacker_news-hacker_news_story-s26-company-nebula-security-48826404",
       "batch": "S26",
       "entityType": "company",
-      "entityId": "company-nebula-security",
-      "companySlug": "nebula-security",
-      "companyName": "Nebula Security",
+      "entityId": "company-nebusec",
+      "companySlug": "nebusec",
+      "companyName": "NebuSec",
       "platform": "hacker_news",
       "sourceUrl": "https://news.ycombinator.com/item?id=48826404",
       "platformPostId": "48826404",
@@ -111777,11 +111897,19 @@
       "first_seen_at": "2026-07-19T06:35:00Z",
       "last_checked_at": "2026-07-19T06:35:00.000Z",
       "last_updated_at": "2026-07-08T01:37:10Z",
-      "entityName": "Nebula Security",
-      "attachedCompanyId": "company-nebula-security",
+      "entityName": "NebuSec",
+      "attachedCompanyId": "company-nebusec",
       "thumbnailUrl": "https://nebusec.ai/_astro/social-preview.BvQ1tugL.png",
       "thumbnailSource": "link-preview-og-image",
       "mediaUrl": "/evidence-thumbnails/hacker_news/hacker-news-hacker-news-story-s26-company-nebula-security-48826404.svg",
+      "previousAttribution": {
+        "batchSlug": "S26",
+        "entityType": "company",
+        "entityId": "company-nebula-security",
+        "companySlug": "nebula-security",
+        "companyName": "Nebula Security"
+      },
+      "attributionReconciliationReason": "canonical_targeted_legacy_entity_alias",
       "batchSlug": "S26"
     },
     {
@@ -140002,9 +140130,9 @@
     {
       "id": "github-all_batches_nonx_nonlinkedin_sol_ultra-s26-company-nebula-security-nebusec-nebusec-vega-skill",
       "entityType": "company",
-      "entityId": "company-nebula-security",
-      "companyName": "Nebula Security",
-      "companySlug": "nebula-security",
+      "entityId": "company-nebusec",
+      "companyName": "NebuSec",
+      "companySlug": "nebusec",
       "platform": "github",
       "title": "NebuSec/vega-skill",
       "sourceUrl": "https://github.com/NebuSec/vega-skill",
@@ -140035,7 +140163,7 @@
       "first_seen_at": "2026-07-16T02:02:15Z",
       "last_checked_at": "2026-07-16T02:02:15Z",
       "last_updated_at": "2026-07-16T02:16:53.074Z",
-      "attachedCompanyId": "company-nebula-security",
+      "attachedCompanyId": "company-nebusec",
       "attachedCompanyName": "Nebula Security",
       "socialAccountId": "github:company:NebuSec",
       "accountUrl": null,
@@ -140075,10 +140203,18 @@
         "reason": "Native GitHub repository HTML exposed official organization identity, repository activity, and counters."
       },
       "why": "NebuSec/vega-skill NebuSec/vega-skill. 4 stars, 1 fork, 0 open issues.",
-      "entityName": "Nebula Security",
+      "entityName": "NebuSec",
       "sourceMetadata": {
         "lastActivityAt": "2026-07-05T05:41:53Z"
       },
+      "previousAttribution": {
+        "batchSlug": "S26",
+        "entityType": "company",
+        "entityId": "company-nebula-security",
+        "companySlug": "nebula-security",
+        "companyName": "Nebula Security"
+      },
+      "attributionReconciliationReason": "canonical_targeted_legacy_entity_alias",
       "batchSlug": "S26"
     },
     {
@@ -149303,8 +149439,8 @@
     {
       "id": "hacker_news-hacker_news_story-s26-company-nebula-security-48834309",
       "entityType": "company",
-      "entityId": "company-nebula-security",
-      "companyName": "Nebula Security",
+      "entityId": "company-nebusec",
+      "companyName": "NebuSec",
       "platform": "hacker_news",
       "title": "GhostLock, a stack-UAF that has existed in all Linux distributions for 15 years",
       "sourceUrl": "https://news.ycombinator.com/item?id=48834309",
@@ -149325,12 +149461,20 @@
       "last_updated_at": "2026-07-08T16:53:58.000Z",
       "linkStatus": "verified",
       "linkCheckedAt": "2026-07-15T23:45:00.000Z",
-      "entityName": "Nebula Security",
-      "companySlug": "nebula-security",
-      "attachedCompanyId": "company-nebula-security",
+      "entityName": "NebuSec",
+      "companySlug": "nebusec",
+      "attachedCompanyId": "company-nebusec",
       "thumbnailUrl": "https://nebusec.ai/_astro/social-preview.BvQ1tugL.png",
       "thumbnailSource": "link-preview-og-image",
       "mediaUrl": "/evidence-thumbnails/hacker_news/hacker-news-hacker-news-story-s26-company-nebula-security-48834309.svg",
+      "previousAttribution": {
+        "batchSlug": "S26",
+        "entityType": "company",
+        "entityId": "company-nebula-security",
+        "companySlug": "nebula-security",
+        "companyName": "Nebula Security"
+      },
+      "attributionReconciliationReason": "canonical_targeted_legacy_entity_alias",
       "batchSlug": "S26"
     },
     {
@@ -150886,8 +151030,8 @@
     {
       "id": "github-first-party-s26-company-nebula-security-nebusec-cybermeowfia",
       "entityType": "company",
-      "entityId": "company-nebula-security",
-      "companyName": "Nebula Security",
+      "entityId": "company-nebusec",
+      "companyName": "NebuSec",
       "platform": "github",
       "title": "NebuSec/CyberMeowfia",
       "sourceUrl": "https://github.com/NebuSec/CyberMeowfia",
@@ -150910,12 +151054,20 @@
       "last_updated_at": "2026-07-15T22:30:00.000Z",
       "linkStatus": "verified",
       "linkCheckedAt": "2026-07-15T22:30:00.000Z",
-      "entityName": "Nebula Security",
-      "companySlug": "nebula-security",
-      "attachedCompanyId": "company-nebula-security",
+      "entityName": "NebuSec",
+      "companySlug": "nebusec",
+      "attachedCompanyId": "company-nebusec",
       "thumbnailUrl": "https://opengraph.githubassets.com/github-first-party-s26-company-nebula-security-nebusec-cybermeowfia/NebuSec/CyberMeowfia",
       "thumbnailSource": "github",
       "mediaUrl": "https://github.com/NebuSec/CyberMeowfia",
+      "previousAttribution": {
+        "batchSlug": "S26",
+        "entityType": "company",
+        "entityId": "company-nebula-security",
+        "companySlug": "nebula-security",
+        "companyName": "Nebula Security"
+      },
+      "attributionReconciliationReason": "canonical_targeted_legacy_entity_alias",
       "batchSlug": "S26"
     },
     {
@@ -155112,8 +155264,8 @@
     {
       "id": "live-x-company-nebula-security-2069707520160227688",
       "entityType": "company",
-      "entityId": "company-nebula-security",
-      "companyName": "Nebula Security",
+      "entityId": "company-nebusec",
+      "companyName": "NebuSec",
       "platform": "x",
       "title": "Nebula Security is now backed by Y Combinator.\n\nWe’re celebrating by bringing you the world’s first Android 17 root demo — “IonStack”, a ur…",
       "sourceUrl": "https://x.com/nebusecurity/status/2069707520160227688",
@@ -155150,9 +155302,17 @@
       "first_seen_at": "2026-07-14T22:52:52.606Z",
       "last_checked_at": "2026-07-15T01:36:34.554Z",
       "last_updated_at": "2026-06-24T09:01:40.000Z",
-      "entityName": "Nebula Security",
-      "companySlug": "nebula-security",
-      "attachedCompanyId": "company-nebula-security",
+      "entityName": "NebuSec",
+      "companySlug": "nebusec",
+      "attachedCompanyId": "company-nebusec",
+      "previousAttribution": {
+        "batchSlug": "S26",
+        "entityType": "company",
+        "entityId": "company-nebula-security",
+        "companySlug": "nebula-security",
+        "companyName": "Nebula Security"
+      },
+      "attributionReconciliationReason": "canonical_targeted_legacy_entity_alias",
       "batchSlug": "S26"
     },
     {
@@ -161752,6 +161912,44 @@
     },
     {
       "platform": "github",
+      "sourceUrl": "https://github.com/NebuSec/CyberMeowfia",
+      "platformPostId": "NebuSec/CyberMeowfia",
+      "disposition": "reattributed",
+      "reason": "canonical_targeted_legacy_entity_alias",
+      "staleAttribution": {
+        "batchSlug": "S26",
+        "entityType": "company",
+        "entityId": "company-nebula-security",
+        "attributionType": "subject"
+      },
+      "replacementAttribution": {
+        "batchSlug": "S26",
+        "entityType": "company",
+        "entityId": "company-nebusec",
+        "attributionType": "subject"
+      }
+    },
+    {
+      "platform": "github",
+      "sourceUrl": "https://github.com/NebuSec/vega-skill",
+      "platformPostId": "NebuSec/vega-skill",
+      "disposition": "reattributed",
+      "reason": "canonical_targeted_legacy_entity_alias",
+      "staleAttribution": {
+        "batchSlug": "S26",
+        "entityType": "company",
+        "entityId": "company-nebula-security",
+        "attributionType": "subject"
+      },
+      "replacementAttribution": {
+        "batchSlug": "S26",
+        "entityType": "company",
+        "entityId": "company-nebusec",
+        "attributionType": "subject"
+      }
+    },
+    {
+      "platform": "github",
       "sourceUrl": "https://github.com/understudylabs/lowermyaibill",
       "platformPostId": "understudylabs/lowermyaibill",
       "disposition": "reattributed",
@@ -161967,6 +162165,63 @@
         "batchSlug": "S26",
         "entityType": "founder",
         "entityId": "founder-coasty-prateek-jannu-1194042",
+        "attributionType": "subject"
+      }
+    },
+    {
+      "platform": "hacker_news",
+      "sourceUrl": "https://news.ycombinator.com/item?id=48592738",
+      "platformPostId": "48592738",
+      "disposition": "reattributed",
+      "reason": "canonical_targeted_legacy_entity_alias",
+      "staleAttribution": {
+        "batchSlug": "S26",
+        "entityType": "company",
+        "entityId": "company-nebula-security",
+        "attributionType": "subject"
+      },
+      "replacementAttribution": {
+        "batchSlug": "S26",
+        "entityType": "company",
+        "entityId": "company-nebusec",
+        "attributionType": "subject"
+      }
+    },
+    {
+      "platform": "hacker_news",
+      "sourceUrl": "https://news.ycombinator.com/item?id=48826404",
+      "platformPostId": "48826404",
+      "disposition": "reattributed",
+      "reason": "canonical_targeted_legacy_entity_alias",
+      "staleAttribution": {
+        "batchSlug": "S26",
+        "entityType": "company",
+        "entityId": "company-nebula-security",
+        "attributionType": "subject"
+      },
+      "replacementAttribution": {
+        "batchSlug": "S26",
+        "entityType": "company",
+        "entityId": "company-nebusec",
+        "attributionType": "subject"
+      }
+    },
+    {
+      "platform": "hacker_news",
+      "sourceUrl": "https://news.ycombinator.com/item?id=48834309",
+      "platformPostId": "48834309",
+      "disposition": "reattributed",
+      "reason": "canonical_targeted_legacy_entity_alias",
+      "staleAttribution": {
+        "batchSlug": "S26",
+        "entityType": "company",
+        "entityId": "company-nebula-security",
+        "attributionType": "subject"
+      },
+      "replacementAttribution": {
+        "batchSlug": "S26",
+        "entityType": "company",
+        "entityId": "company-nebusec",
         "attributionType": "subject"
       }
     },
@@ -163164,6 +163419,25 @@
     },
     {
       "platform": "x",
+      "sourceUrl": "https://x.com/nyaaaaa_ovo/status/2067659908070392254",
+      "platformPostId": "2067659908070392254",
+      "disposition": "reattributed",
+      "reason": "canonical_targeted_legacy_entity_alias",
+      "staleAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-nebula-security-xiaochuan-yu-3680004",
+        "attributionType": "subject"
+      },
+      "replacementAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-nebusec-xiaochuan-yu-3680004",
+        "attributionType": "subject"
+      }
+    },
+    {
+      "platform": "x",
       "sourceUrl": "https://x.com/parth_badhwar/status/2067806455047041262",
       "platformPostId": "2067806455047041262",
       "disposition": "reattributed",
@@ -163274,6 +163548,63 @@
         "batchSlug": "S26",
         "entityType": "founder",
         "entityId": "founder-shepherd-3-philip-meng-2723488",
+        "attributionType": "subject"
+      }
+    },
+    {
+      "platform": "x",
+      "sourceUrl": "https://x.com/nebusecurity/status/2069707520160227688",
+      "platformPostId": "2069707520160227688",
+      "disposition": "reattributed",
+      "reason": "canonical_targeted_legacy_entity_alias",
+      "staleAttribution": {
+        "batchSlug": "S26",
+        "entityType": "company",
+        "entityId": "company-nebula-security",
+        "attributionType": "subject"
+      },
+      "replacementAttribution": {
+        "batchSlug": "S26",
+        "entityType": "company",
+        "entityId": "company-nebusec",
+        "attributionType": "subject"
+      }
+    },
+    {
+      "platform": "x",
+      "sourceUrl": "https://x.com/frankoverf1ow/status/2069707824134045794",
+      "platformPostId": "2069707824134045794",
+      "disposition": "reattributed",
+      "reason": "canonical_targeted_legacy_entity_alias",
+      "staleAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-nebula-security-frank-wu-3676409",
+        "attributionType": "subject"
+      },
+      "replacementAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-nebusec-frank-wu-3676409",
+        "attributionType": "subject"
+      }
+    },
+    {
+      "platform": "x",
+      "sourceUrl": "https://x.com/nyaaaaa_ovo/status/2069716138574172613",
+      "platformPostId": "2069716138574172613",
+      "disposition": "reattributed",
+      "reason": "canonical_targeted_legacy_entity_alias",
+      "staleAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-nebula-security-xiaochuan-yu-3680004",
+        "attributionType": "subject"
+      },
+      "replacementAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-nebusec-xiaochuan-yu-3680004",
         "attributionType": "subject"
       }
     },
@@ -163502,6 +163833,25 @@
     },
     {
       "platform": "x",
+      "sourceUrl": "https://x.com/nyaaaaa_ovo/status/2071589582467149971",
+      "platformPostId": "2071589582467149971",
+      "disposition": "reattributed",
+      "reason": "canonical_targeted_legacy_entity_alias",
+      "staleAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-nebula-security-xiaochuan-yu-3680004",
+        "attributionType": "subject"
+      },
+      "replacementAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-nebusec-xiaochuan-yu-3680004",
+        "attributionType": "subject"
+      }
+    },
+    {
+      "platform": "x",
       "sourceUrl": "https://x.com/opendottrade/status/2071989624470466662",
       "platformPostId": "2071989624470466662",
       "disposition": "reattributed",
@@ -163638,6 +163988,44 @@
     },
     {
       "platform": "x",
+      "sourceUrl": "https://x.com/nyaaaaa_ovo/status/2072494183840129035",
+      "platformPostId": "2072494183840129035",
+      "disposition": "reattributed",
+      "reason": "canonical_targeted_legacy_entity_alias",
+      "staleAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-nebula-security-xiaochuan-yu-3680004",
+        "attributionType": "subject"
+      },
+      "replacementAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-nebusec-xiaochuan-yu-3680004",
+        "attributionType": "subject"
+      }
+    },
+    {
+      "platform": "x",
+      "sourceUrl": "https://x.com/frankoverf1ow/status/2073572840075567348",
+      "platformPostId": "2073572840075567348",
+      "disposition": "reattributed",
+      "reason": "canonical_targeted_legacy_entity_alias",
+      "staleAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-nebula-security-frank-wu-3676409",
+        "attributionType": "subject"
+      },
+      "replacementAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-nebusec-frank-wu-3676409",
+        "attributionType": "subject"
+      }
+    },
+    {
+      "platform": "x",
       "sourceUrl": "https://x.com/opendottrade/status/2074170563560718842",
       "platformPostId": "2074170563560718842",
       "disposition": "reattributed",
@@ -163760,6 +164148,44 @@
         "batchSlug": "S26",
         "entityType": "founder",
         "entityId": "founder-osmaura-kali-abeje-2718831",
+        "attributionType": "subject"
+      }
+    },
+    {
+      "platform": "x",
+      "sourceUrl": "https://x.com/nyaaaaa_ovo/status/2074665673704538271",
+      "platformPostId": "2074665673704538271",
+      "disposition": "reattributed",
+      "reason": "canonical_targeted_legacy_entity_alias",
+      "staleAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-nebula-security-xiaochuan-yu-3680004",
+        "attributionType": "subject"
+      },
+      "replacementAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-nebusec-xiaochuan-yu-3680004",
+        "attributionType": "subject"
+      }
+    },
+    {
+      "platform": "x",
+      "sourceUrl": "https://x.com/frankoverf1ow/status/2074671532077650048",
+      "platformPostId": "2074671532077650048",
+      "disposition": "reattributed",
+      "reason": "canonical_targeted_legacy_entity_alias",
+      "staleAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-nebula-security-frank-wu-3676409",
+        "attributionType": "subject"
+      },
+      "replacementAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-nebusec-frank-wu-3676409",
         "attributionType": "subject"
       }
     },
@@ -164742,6 +165168,25 @@
     },
     {
       "platform": "x",
+      "sourceUrl": "https://x.com/nyaaaaa_ovo/status/2078651515456373121",
+      "platformPostId": "2078651515456373121",
+      "disposition": "reattributed",
+      "reason": "canonical_targeted_legacy_entity_alias",
+      "staleAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-nebula-security-xiaochuan-yu-3680004",
+        "attributionType": "subject"
+      },
+      "replacementAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-nebusec-xiaochuan-yu-3680004",
+        "attributionType": "subject"
+      }
+    },
+    {
+      "platform": "x",
       "sourceUrl": "https://x.com/theophorus7/status/2078663929040109773",
       "platformPostId": "2078663929040109773",
       "disposition": "quarantined",
@@ -164948,6 +165393,25 @@
     },
     {
       "platform": "x",
+      "sourceUrl": "https://x.com/nyaaaaa_ovo/status/2079370535260319849",
+      "platformPostId": "2079370535260319849",
+      "disposition": "reattributed",
+      "reason": "canonical_targeted_legacy_entity_alias",
+      "staleAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-nebula-security-xiaochuan-yu-3680004",
+        "attributionType": "subject"
+      },
+      "replacementAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-nebusec-xiaochuan-yu-3680004",
+        "attributionType": "subject"
+      }
+    },
+    {
+      "platform": "x",
       "sourceUrl": "https://x.com/ojaskandy/status/2079409309117739251",
       "platformPostId": "2079409309117739251",
       "disposition": "reattributed",
@@ -164994,6 +165458,25 @@
         "batchSlug": "S26",
         "entityType": "company",
         "entityId": "company-coasty",
+        "attributionType": "subject"
+      }
+    },
+    {
+      "platform": "x",
+      "sourceUrl": "https://x.com/etenal7/status/2079800138877534587",
+      "platformPostId": "2079800138877534587",
+      "disposition": "reattributed",
+      "reason": "canonical_targeted_legacy_entity_alias",
+      "staleAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-nebula-security-eten-zou-1626290",
+        "attributionType": "subject"
+      },
+      "replacementAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-nebusec-eten-zou-1626290",
         "attributionType": "subject"
       }
     },
@@ -165064,6 +165547,63 @@
         "batchSlug": "S26",
         "entityType": "founder",
         "entityId": "founder-amulet-varun-puru-936447",
+        "attributionType": "subject"
+      }
+    },
+    {
+      "platform": "x",
+      "sourceUrl": "https://x.com/nebusecurity/status/2080413243143856320",
+      "platformPostId": "2080413243143856320",
+      "disposition": "reattributed",
+      "reason": "canonical_targeted_legacy_entity_alias",
+      "staleAttribution": {
+        "batchSlug": "S26",
+        "entityType": "company",
+        "entityId": "company-nebula-security",
+        "attributionType": "subject"
+      },
+      "replacementAttribution": {
+        "batchSlug": "S26",
+        "entityType": "company",
+        "entityId": "company-nebusec",
+        "attributionType": "subject"
+      }
+    },
+    {
+      "platform": "x",
+      "sourceUrl": "https://x.com/etenal7/status/2080417031799914631",
+      "platformPostId": "2080417031799914631",
+      "disposition": "reattributed",
+      "reason": "canonical_targeted_legacy_entity_alias",
+      "staleAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-nebula-security-eten-zou-1626290",
+        "attributionType": "subject"
+      },
+      "replacementAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-nebusec-eten-zou-1626290",
+        "attributionType": "subject"
+      }
+    },
+    {
+      "platform": "x",
+      "sourceUrl": "https://x.com/nyaaaaa_ovo/status/2080431610248486970",
+      "platformPostId": "2080431610248486970",
+      "disposition": "reattributed",
+      "reason": "canonical_targeted_legacy_entity_alias",
+      "staleAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-nebula-security-xiaochuan-yu-3680004",
+        "attributionType": "subject"
+      },
+      "replacementAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-nebusec-xiaochuan-yu-3680004",
         "attributionType": "subject"
       }
     },

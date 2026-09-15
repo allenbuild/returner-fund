@@ -1,22 +1,22 @@
 {
   "schemaVersion": 1,
-  "idempotencyKey": "central-2026-09-14-0600",
+  "idempotencyKey": "central-2026-09-14-1800",
   "centralDay": "2026-09-14",
-  "observedAt": "2026-09-14T12:31:04.423Z",
-  "baselinePhysicalSources": 18021,
-  "publishedPhysicalSources": 18032,
-  "newPhysicalSources": 11,
-  "newPhysicalSourcesThisAttempt": 11,
-  "retainedPhysicalSources": 18021,
-  "removedPhysicalSources": 0,
-  "dailyNewPhysicalSources": 11,
+  "observedAt": "2026-09-14T23:49:43.461Z",
+  "baselinePhysicalSources": 18032,
+  "publishedPhysicalSources": 18024,
+  "newPhysicalSources": 2,
+  "newPhysicalSourcesThisAttempt": 2,
+  "retainedPhysicalSources": 18022,
+  "removedPhysicalSources": 10,
+  "dailyNewPhysicalSources": 13,
   "dailySourceHealth": "healthy",
   "collectionHealth": "degraded",
   "collectionHealthReasons": [
     "missing_credential:X_BEARER_TOKEN",
     "missing_credential:EXA_API_KEY",
     "mapped_failures:2",
-    "provider_blocked:5905",
+    "provider_blocked:5906",
     "mapped_provider_blocked:2354",
     "mapped_scope_unsupported:10",
     "mapped_success_rate_below_10_percent:0.0325"
@@ -27,20 +27,20 @@
   },
   "mappedExpected": 2461,
   "mappedSucceeded": 80,
-  "mappedNeedsReview": 247,
-  "mappedBlockedOrEmpty": 2132,
-  "providerBlocked": 5905,
+  "mappedNeedsReview": 248,
+  "mappedBlockedOrEmpty": 2131,
+  "providerBlocked": 5906,
   "providerBlockedByReason": {
-    "provider_blocked:duckduckgo_html:public_search_circuit_open": 1521,
-    "provider_blocked:instagram_public_json:instagram_public_access_blocked": 1044,
+    "provider_blocked:duckduckgo_html:public_search_circuit_open": 1514,
+    "provider_blocked:instagram_public_json:instagram_public_access_blocked": 1039,
     "provider_blocked:linkedin_public_html:linkedin_public_circuit_open": 1420,
-    "provider_blocked:official_source_html:official_source_http_failure": 4,
+    "provider_blocked:official_source_html:official_source_http_failure": 5,
     "provider_blocked:official_source_html:official_source_timeout": 1,
     "provider_blocked:official_source_html:official_source_transport_failure": 3,
     "provider_blocked:official_source_http:official_source_http_failure": 5,
     "provider_blocked:official_source_http:official_source_timeout": 1,
     "provider_blocked:reddit_public_json:reddit_public_access_blocked": 481,
-    "provider_blocked:x_public_html:x_public_access_blocked": 1425
+    "provider_blocked:x_public_html:x_public_access_blocked": 1437
   },
   "mappedProviderBlocked": 2354,
   "mappedProviderBlockedByReason": {
@@ -53,125 +53,35 @@
   "mappedFailures": 2,
   "mappedNonTerminal": 0,
   "mappedSuccessRate": 0.0325,
-  "newestNewSourcePostedAt": "2026-09-09T15:38:59Z",
+  "newestNewSourcePostedAt": "2026-09-14T20:54:02.000Z",
   "insertedByBatchPlatform": {
-    "S2026:github": 5,
-    "S26:youtube": 6
+    "A16ZSR006:youtube": 1,
+    "S26:github": 1
   },
   "insertedSourceSamples": [
     {
-      "batchSlug": "S26",
+      "batchSlug": "A16ZSR006",
       "platform": "youtube",
       "entityType": "company",
-      "entityId": "company-joinmarble",
-      "sourceUrl": "https://youtube.com/watch?v=fHYSXHW7hys",
-      "platformPostId": "fHYSXHW7hys",
+      "entityId": "a16z-speedrun-006-idilio",
+      "sourceUrl": "https://youtube.com/watch?v=pUkeEyRL8Ts",
+      "platformPostId": "pUkeEyRL8Ts",
       "platformObjectId": null,
-      "postedAt": null
+      "postedAt": "2026-09-14T20:54:02.000Z"
     },
     {
       "batchSlug": "S26",
-      "platform": "youtube",
-      "entityType": "company",
-      "entityId": "company-joinmarble",
-      "sourceUrl": "https://youtube.com/watch?v=nChMmLgSAoI",
-      "platformPostId": "nChMmLgSAoI",
-      "platformObjectId": null,
-      "postedAt": null
-    },
-    {
-      "batchSlug": "S26",
-      "platform": "youtube",
-      "entityType": "company",
-      "entityId": "company-joinmarble",
-      "sourceUrl": "https://youtube.com/watch?v=XQWxkSQYSLg",
-      "platformPostId": "XQWxkSQYSLg",
-      "platformObjectId": null,
-      "postedAt": null
-    },
-    {
-      "batchSlug": "S26",
-      "platform": "youtube",
-      "entityType": "company",
-      "entityId": "company-magma",
-      "sourceUrl": "https://youtube.com/watch?v=iPxuOgAh0VU",
-      "platformPostId": "iPxuOgAh0VU",
-      "platformObjectId": null,
-      "postedAt": null
-    },
-    {
-      "batchSlug": "S26",
-      "platform": "youtube",
-      "entityType": "company",
-      "entityId": "company-mosaic-inc",
-      "sourceUrl": "https://youtube.com/watch?v=0LJ-Yesy2rI",
-      "platformPostId": "0LJ-Yesy2rI",
-      "platformObjectId": null,
-      "postedAt": null
-    },
-    {
-      "batchSlug": "S26",
-      "platform": "youtube",
-      "entityType": "company",
-      "entityId": "company-mosaic-inc",
-      "sourceUrl": "https://youtube.com/watch?v=5dEEuVE5i5g",
-      "platformPostId": "5dEEuVE5i5g",
-      "platformObjectId": null,
-      "postedAt": null
-    },
-    {
-      "batchSlug": "S2026",
       "platform": "github",
       "entityType": "company",
-      "entityId": "company-kugelaudio",
-      "sourceUrl": "https://github.com/Kugelaudio/kugelaudio-open",
-      "platformPostId": "Kugelaudio/kugelaudio-open",
-      "platformObjectId": "1132399830",
-      "postedAt": "2026-01-11T22:12:55Z"
-    },
-    {
-      "batchSlug": "S2026",
-      "platform": "github",
-      "entityType": "company",
-      "entityId": "company-kugelaudio",
-      "sourceUrl": "https://github.com/Kugelaudio/java-sdk",
-      "platformPostId": "Kugelaudio/java-sdk",
-      "platformObjectId": "1173647713",
-      "postedAt": "2026-03-05T15:45:01Z"
-    },
-    {
-      "batchSlug": "S2026",
-      "platform": "github",
-      "entityType": "company",
-      "entityId": "company-gigacatalyst",
-      "sourceUrl": "https://github.com/gigacatalyst/giga-ai-creator-release",
-      "platformPostId": "gigacatalyst/giga-ai-creator-release",
-      "platformObjectId": "1086010956",
-      "postedAt": "2025-10-29T20:24:04Z"
-    },
-    {
-      "batchSlug": "S2026",
-      "platform": "github",
-      "entityType": "company",
-      "entityId": "company-gigacatalyst",
-      "sourceUrl": "https://github.com/gigacatalyst/pumpgtm",
-      "platformPostId": "gigacatalyst/pumpgtm",
-      "platformObjectId": "1362881404",
-      "postedAt": "2026-09-09T15:38:59Z"
-    },
-    {
-      "batchSlug": "S2026",
-      "platform": "github",
-      "entityType": "company",
-      "entityId": "company-gigacatalyst",
-      "sourceUrl": "https://github.com/gigacatalyst/gigacatalyst-go",
-      "platformPostId": "gigacatalyst/gigacatalyst-go",
-      "platformObjectId": "1235113766",
-      "postedAt": "2026-05-11T02:52:44Z"
+      "entityId": "company-nebusec",
+      "sourceUrl": "https://github.com/NebuSec/nebu-skill",
+      "platformPostId": "NebuSec/nebu-skill",
+      "platformObjectId": "1370173527",
+      "postedAt": "2026-09-14T15:55:36Z"
     }
   ],
   "trigger": "schedule",
-  "scheduledAt": "2026-09-14T11:00:00.000Z",
-  "evidenceCollectedAt": "2026-09-14T12:28:49.895Z",
+  "scheduledAt": "2026-09-14T23:00:00.000Z",
+  "evidenceCollectedAt": "2026-09-14T23:47:40.504Z",
   "terminalFailureBudget": 124
 }

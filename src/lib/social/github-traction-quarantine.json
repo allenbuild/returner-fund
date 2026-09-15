@@ -1,7 +1,7 @@
 {
   "source": {
     "schemaVersion": 1,
-    "generatedFromFetchedAt": "2026-09-14T12:31:03.962Z",
+    "generatedFromFetchedAt": "2026-09-14T23:49:42.902Z",
     "publicationPolicy": "stored_but_unpublished",
     "scoringEligible": false,
     "reason": "Rows absent from a fully authoritative whole-cohort GitHub receipt are retained only for audit and manual attribution review; they are not scoring inputs.",
@@ -24111,6 +24111,16 @@
             "accountUrl": "https://github.com/nebusec",
             "repositoryId": null,
             "repositoryUrl": null
+          },
+          {
+            "entityType": "company",
+            "entityId": "company-nebusec",
+            "entityName": "NebuSec",
+            "accountKey": "company:company-nebusec:nebusec:",
+            "location": "account",
+            "accountUrl": "https://github.com/nebusec",
+            "repositoryId": null,
+            "repositoryUrl": null
           }
         ],
         "repositories": [
@@ -24133,6 +24143,16 @@
                 "accountUrl": "https://github.com/nebusec",
                 "repositoryId": "1285906429",
                 "repositoryUrl": "https://github.com/nebusec/cybermeowfia"
+              },
+              {
+                "entityType": "company",
+                "entityId": "company-nebusec",
+                "entityName": "NebuSec",
+                "accountKey": "company:company-nebusec:nebusec:",
+                "location": "repository",
+                "accountUrl": "https://github.com/nebusec",
+                "repositoryId": "1285906429",
+                "repositoryUrl": "https://github.com/nebusec/cybermeowfia"
               }
             ]
           },
@@ -24151,6 +24171,16 @@
                 "entityId": "company-nebula-security",
                 "entityName": "Nebula Security",
                 "accountKey": "company:company-nebula-security:nebusec:",
+                "location": "repository",
+                "accountUrl": "https://github.com/nebusec",
+                "repositoryId": "1289586912",
+                "repositoryUrl": "https://github.com/nebusec/vega-skill"
+              },
+              {
+                "entityType": "company",
+                "entityId": "company-nebusec",
+                "entityName": "NebuSec",
+                "accountKey": "company:company-nebusec:nebusec:",
                 "location": "repository",
                 "accountUrl": "https://github.com/nebusec",
                 "repositoryId": "1289586912",
@@ -24264,6 +24294,16 @@
             "accountUrl": "https://github.com/nebusec",
             "repositoryId": null,
             "repositoryUrl": null
+          },
+          {
+            "entityType": "company",
+            "entityId": "company-nebusec",
+            "entityName": "NebuSec",
+            "accountKey": "company:company-nebusec:nebusec:",
+            "location": "account",
+            "accountUrl": "https://github.com/nebusec",
+            "repositoryId": null,
+            "repositoryUrl": null
           }
         ],
         "repositories": [
@@ -24286,6 +24326,16 @@
                 "accountUrl": "https://github.com/nebusec",
                 "repositoryId": "1285906429",
                 "repositoryUrl": "https://github.com/nebusec/cybermeowfia"
+              },
+              {
+                "entityType": "company",
+                "entityId": "company-nebusec",
+                "entityName": "NebuSec",
+                "accountKey": "company:company-nebusec:nebusec:",
+                "location": "repository",
+                "accountUrl": "https://github.com/nebusec",
+                "repositoryId": "1285906429",
+                "repositoryUrl": "https://github.com/nebusec/cybermeowfia"
               }
             ]
           },
@@ -24304,6 +24354,16 @@
                 "entityId": "company-nebula-security",
                 "entityName": "Nebula Security",
                 "accountKey": "company:company-nebula-security:nebusec:",
+                "location": "repository",
+                "accountUrl": "https://github.com/nebusec",
+                "repositoryId": "1289586912",
+                "repositoryUrl": "https://github.com/nebusec/vega-skill"
+              },
+              {
+                "entityType": "company",
+                "entityId": "company-nebusec",
+                "entityName": "NebuSec",
+                "accountKey": "company:company-nebusec:nebusec:",
                 "location": "repository",
                 "accountUrl": "https://github.com/nebusec",
                 "repositoryId": "1289586912",
@@ -24417,6 +24477,16 @@
             "accountUrl": "https://github.com/nebusec",
             "repositoryId": null,
             "repositoryUrl": null
+          },
+          {
+            "entityType": "company",
+            "entityId": "company-nebusec",
+            "entityName": "NebuSec",
+            "accountKey": "company:company-nebusec:nebusec:",
+            "location": "account",
+            "accountUrl": "https://github.com/nebusec",
+            "repositoryId": null,
+            "repositoryUrl": null
           }
         ],
         "repositories": [
@@ -24439,6 +24509,16 @@
                 "accountUrl": "https://github.com/nebusec",
                 "repositoryId": "1285906429",
                 "repositoryUrl": "https://github.com/nebusec/cybermeowfia"
+              },
+              {
+                "entityType": "company",
+                "entityId": "company-nebusec",
+                "entityName": "NebuSec",
+                "accountKey": "company:company-nebusec:nebusec:",
+                "location": "repository",
+                "accountUrl": "https://github.com/nebusec",
+                "repositoryId": "1285906429",
+                "repositoryUrl": "https://github.com/nebusec/cybermeowfia"
               }
             ]
           },
@@ -24457,6 +24537,16 @@
                 "entityId": "company-nebula-security",
                 "entityName": "Nebula Security",
                 "accountKey": "company:company-nebula-security:nebusec:",
+                "location": "repository",
+                "accountUrl": "https://github.com/nebusec",
+                "repositoryId": "1289586912",
+                "repositoryUrl": "https://github.com/nebusec/vega-skill"
+              },
+              {
+                "entityType": "company",
+                "entityId": "company-nebusec",
+                "entityName": "NebuSec",
+                "accountKey": "company:company-nebusec:nebusec:",
                 "location": "repository",
                 "accountUrl": "https://github.com/nebusec",
                 "repositoryId": "1289586912",
@@ -24570,6 +24660,16 @@
             "accountUrl": "https://github.com/nebusec",
             "repositoryId": null,
             "repositoryUrl": null
+          },
+          {
+            "entityType": "company",
+            "entityId": "company-nebusec",
+            "entityName": "NebuSec",
+            "accountKey": "company:company-nebusec:nebusec:",
+            "location": "account",
+            "accountUrl": "https://github.com/nebusec",
+            "repositoryId": null,
+            "repositoryUrl": null
           }
         ],
         "repositories": [
@@ -24592,6 +24692,16 @@
                 "accountUrl": "https://github.com/nebusec",
                 "repositoryId": "1285906429",
                 "repositoryUrl": "https://github.com/nebusec/cybermeowfia"
+              },
+              {
+                "entityType": "company",
+                "entityId": "company-nebusec",
+                "entityName": "NebuSec",
+                "accountKey": "company:company-nebusec:nebusec:",
+                "location": "repository",
+                "accountUrl": "https://github.com/nebusec",
+                "repositoryId": "1285906429",
+                "repositoryUrl": "https://github.com/nebusec/cybermeowfia"
               }
             ]
           },
@@ -24610,6 +24720,16 @@
                 "entityId": "company-nebula-security",
                 "entityName": "Nebula Security",
                 "accountKey": "company:company-nebula-security:nebusec:",
+                "location": "repository",
+                "accountUrl": "https://github.com/nebusec",
+                "repositoryId": "1289586912",
+                "repositoryUrl": "https://github.com/nebusec/vega-skill"
+              },
+              {
+                "entityType": "company",
+                "entityId": "company-nebusec",
+                "entityName": "NebuSec",
+                "accountKey": "company:company-nebusec:nebusec:",
                 "location": "repository",
                 "accountUrl": "https://github.com/nebusec",
                 "repositoryId": "1289586912",

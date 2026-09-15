@@ -4,7 +4,7 @@
     "directoryUrl": "https://www.ycombinator.com/companies?batch=Summer%202026",
     "algoliaIndex": "YCCompany_production",
     "algoliaFilter": "batch:\"Summer 2026\"",
-    "fetchedAt": "2026-09-14T11:57:14.589Z",
+    "fetchedAt": "2026-09-14T23:16:11.275Z",
     "expectedCompanyCount": 234,
     "observedCompanyCount": 234,
     "directoryCompanyHitCount": 234,
@@ -7673,7 +7673,7 @@
           "ycProfileUrl": "https://www.ycombinator.com/people/harish-ashok",
           "socialLinks": {
             "linkedin": "https://www.linkedin.com/in/harish-ashok",
-            "x": "https://x.com/habril27"
+            "x": "https://x.com/harishashok"
           }
         }
       ],
@@ -8251,13 +8251,13 @@
     {
       "id": "32138",
       "objectID": "32138",
-      "slug": "nebula-security",
-      "name": "Nebula Security",
+      "slug": "nebusec",
+      "name": "NebuSec",
       "batch": "Summer 2026",
-      "ycProfileUrl": "https://www.ycombinator.com/companies/nebula-security",
+      "ycProfileUrl": "https://www.ycombinator.com/companies/nebusec",
       "websiteUrl": "https://nebusec.ai",
       "tagline": "Autonomous AI defense system for cyber attack",
-      "description": "Nebula Security is founded by the world’s #1 hacking team.\r\n\r\nWe were the first team to build an nginx RCE and the first to root Android 17. Our co-founders include members of the world’s No. 1 CTF team, DEF CON winners, Black Hat speakers, and PhD in cybersecurity. We have won $400K in bug bounties by exploiting the Linux kernel and Chrome browser.\r\n\r\n“Audited by Nebula Security” is a mark of serious security credibility: a signal to customers, investors, and partners that your product has been reviewed by the world’s best hackers.",
+      "description": "NebuSec is founded by the world’s #1 hacking team.\r\n\r\nWe were the first team to build an nginx RCE and the first to root Android 17. Our co-founders include members of the world’s No. 1 CTF team, DEF CON winners, Black Hat speakers, and PhD in cybersecurity. We have won $400K in bug bounties by exploiting the Linux kernel and Chrome browser.\r\n\r\n“Audited by NebuSec” is a mark of serious security credibility: a signal to customers, investors, and partners that your product has been reviewed by the world’s best hackers.",
       "industry": "B2B",
       "subindustry": "B2B -> Security",
       "industries": [
@@ -8265,11 +8265,11 @@
         "Security"
       ],
       "tags": [
+        "Artificial Intelligence",
         "B2B",
         "Security",
         "Cybersecurity",
-        "Enterprise",
-        "AI"
+        "Enterprise"
       ],
       "location": "San Francisco",
       "teamSize": 4,
@@ -8327,7 +8327,7 @@
       ],
       "launch": null,
       "sourceUrls": [
-        "https://www.ycombinator.com/companies/nebula-security",
+        "https://www.ycombinator.com/companies/nebusec",
         "https://www.ycombinator.com/companies?batch=Summer%202026"
       ]
     },
@@ -8698,19 +8698,19 @@
       "ycProfileUrl": "https://www.ycombinator.com/companies/onecli",
       "websiteUrl": "https://onecli.sh",
       "tagline": "The open source AI teammates for your company.",
-      "description": "OneCLI is an open source agent harness for teams. Each employee gets their own sandboxed pro assistant agent, connected to their GitHub, Gmail, Notion, Dropbox, or CRM right from the chat/Slack, while the whole workspace runs under one policy your admins control.\r\n\r\nAgents never hold real secrets: the credential is injected at the network layer, per request, after the call is authorized. You can't steal what isn't there.",
+      "description": "OneCLI (YC S26) is an open-source AI teammates platform for teams. Like Grok Bot, but self-hostable, loved by developers. \r\n\r\nEach employee gets their own sandboxed pro assistant agent, connected to their GitHub, Gmail, Notion, Dropbox, or CRM right from the chat/Slack, while the whole workspace runs under one policy your admins control.\r\n\r\nAgents never hold real secrets: the credential is injected at the network layer, per request, after the call is authorized. You can't steal what isn't there.",
       "industry": "B2B",
-      "subindustry": "B2B -> Security",
+      "subindustry": "B2B -> Productivity",
       "industries": [
         "B2B",
-        "Security"
+        "Productivity"
       ],
       "tags": [
+        "AIOps",
+        "Artificial Intelligence",
         "B2B",
-        "Security",
-        "Open Source",
-        "Infrastructure",
-        "AI"
+        "Workflow Automation",
+        "Open Source"
       ],
       "location": "San Francisco",
       "teamSize": 0,
@@ -10881,10 +10881,10 @@
         "Engineering, Product and Design"
       ],
       "tags": [
+        "Artificial Intelligence",
         "Developer Tools",
         "SaaS",
-        "Infrastructure",
-        "AI"
+        "Infrastructure"
       ],
       "location": "San Francisco",
       "teamSize": 2,
@@ -12201,7 +12201,7 @@
           "id": "536910",
           "name": "Hamze Al-Zamkan",
           "title": "Founder/CEO",
-          "bio": "Co-Founder @ Tenor. Building accountable AI workers that connect business outcomes to token spend, so companies can measure ROI and scale what works.\nAs President of TUM.ai, he scaled it into Europe's largest student-led AI initiative. Spent his university years at TUM and CDTM working at venture-backed startups to apply those learnings to a company of his own.",
+          "bio": "Co-Founder @ Tenor\n\nAs President of TUM.ai, he scaled it into Europe's largest student-led AI initiative. Spent his university years at TUM and CDTM working at venture-backed startups to apply those learnings to a company of his own.",
           "ycProfileUrl": "https://www.ycombinator.com/people/hamze-al-zamkan",
           "socialLinks": {
             "linkedin": "https://www.linkedin.com/in/hamze-al-zamkan/"
@@ -12211,7 +12211,7 @@
           "id": "2719109",
           "name": "Amgad Al-Zamkan",
           "title": "Founder/CPO",
-          "bio": "Co-founder @ Tenor.\nPreviously at Amazon, studied CS at UC Berkeley and TUM. As a grad student, Amgad's research focused on optimization objectives in recommendation algorithms and shaping adaptive decision systems.",
+          "bio": "Co-founder @ Tenor.\nPreviously at Amazon, studied CS at UC Berkeley and TUM. As a grad student, Amgad's research focused on recommendation algorithms and shaping adaptive decision systems.",
           "ycProfileUrl": "https://www.ycombinator.com/people/amgad-al-zamkan",
           "socialLinks": {
             "linkedin": "https://www.linkedin.com/in/amgad-al-zamkan/"
@@ -13029,7 +13029,7 @@
           "id": "2705364",
           "name": "Nour Zahzah",
           "title": "Founder/CEO",
-          "bio": "Co-Founder & CEO at Vendo (YC S26). MechE at UC Berkeley. Previously founded a company building in-store AI shopping assistants for retailers. Played professional academy soccer at SJ Earthquakes for 7 years. ",
+          "bio": "Co-Founder & CEO at Vendo (YC S26). MechE at UC Berkeley. Previously founded a company building in-store AI shopping assistants for retailers and did mechanical design for startups. Played professional academy soccer at SJ Earthquakes for 7 years. ",
           "ycProfileUrl": "https://www.ycombinator.com/people/nour-zahzah",
           "socialLinks": {
             "linkedin": "https://www.linkedin.com/in/nourzahzah",

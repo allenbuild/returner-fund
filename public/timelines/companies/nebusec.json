@@ -1,19 +1,19 @@
 {
   "schemaVersion": "company-timeline.v1",
   "company": {
-    "id": "company-nebula-security",
-    "slug": "nebula-security",
-    "name": "Nebula Security"
+    "id": "company-nebusec",
+    "slug": "nebusec",
+    "name": "NebuSec"
   },
-  "generatedAt": "2026-09-14T12:34:31.938Z",
-  "lastModifiedAt": "2026-09-14T12:34:31.938Z",
+  "generatedAt": "2026-09-14T23:53:48.861Z",
+  "lastModifiedAt": "2026-09-14T23:53:48.861Z",
   "events": [
     {
-      "id": "tle-cf36fbd14a85345d32e58cec",
+      "id": "tle-b273af0f68a84bab584aac89",
       "eventDate": "2026-08-03",
       "eventDateType": "announcement_date",
-      "title": "Nebula Security released an open-source project",
-      "summary": "Nebula Security has also open-sourced two more LPE exploits for the latest Android on CyberMeowfia, Have fun.",
+      "title": "NebuSec released an open-source project",
+      "summary": "NebuSec has also open-sourced two more LPE exploits for the latest Android on CyberMeowfia, Have fun.",
       "category": "open_source",
       "isMajor": false,
       "hasConflict": false,
@@ -47,7 +47,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-09-14T12:34:31.938Z"
+    "lastSuccessfulArtifactAt": "2026-09-14T23:53:48.861Z"
   },
   "nextCursor": null
 }

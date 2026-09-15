@@ -1,7 +1,7 @@
 {
   "version": 1,
   "batchSlug": "S26",
-  "updatedAt": "2026-09-14T12:34:49.552Z",
+  "updatedAt": "2026-09-14T23:54:10.555Z",
   "daily": [
     {
       "recordedAt": "2026-07-06T05:00:00.000Z",
@@ -71175,9 +71175,9 @@
       ]
     },
     {
-      "recordedAt": "2026-09-14T12:34:49.552Z",
+      "recordedAt": "2026-09-14T23:54:10.555Z",
       "scoringModelVersion": "4.3.1",
-      "inputGeneratedAt": "2026-09-14T12:34:00.108Z",
+      "inputGeneratedAt": "2026-09-14T23:53:12.403Z",
       "companies": [
         {
           "companyId": "company-gamgee",
@@ -71378,12 +71378,6 @@
           "rank": 33
         },
         {
-          "companyId": "company-markov",
-          "companyName": "Markov",
-          "score": 78,
-          "rank": 33
-        },
-        {
           "companyId": "company-petrarch",
           "companyName": "Petrarch",
           "score": 78,
@@ -71405,85 +71399,91 @@
           "companyId": "company-fabraix",
           "companyName": "Fabraix",
           "score": 77,
-          "rank": 38
+          "rank": 37
         },
         {
-          "companyId": "company-nebula-security",
-          "companyName": "Nebula Security",
+          "companyId": "company-nebusec",
+          "companyName": "NebuSec",
           "score": 77,
-          "rank": 38
+          "rank": 37
         },
         {
           "companyId": "company-olam-labs",
           "companyName": "Olam Labs",
           "score": 77,
-          "rank": 38
+          "rank": 37
         },
         {
           "companyId": "company-archal",
           "companyName": "Archal",
           "score": 76,
-          "rank": 41
+          "rank": 40
         },
         {
           "companyId": "company-bloomy",
           "companyName": "Bloomy",
           "score": 76,
-          "rank": 41
+          "rank": 40
         },
         {
           "companyId": "company-egoist-machines",
           "companyName": "Egoist Machines",
           "score": 76,
-          "rank": 41
+          "rank": 40
         },
         {
           "companyId": "company-glen",
           "companyName": "Glen",
           "score": 75,
-          "rank": 44
+          "rank": 43
         },
         {
           "companyId": "company-inkbox",
           "companyName": "Inkbox",
           "score": 75,
-          "rank": 44
+          "rank": 43
         },
         {
           "companyId": "company-tenor",
           "companyName": "Tenor",
           "score": 75,
-          "rank": 44
+          "rank": 43
         },
         {
           "companyId": "company-6thsense",
           "companyName": "6thSense",
           "score": 74,
-          "rank": 47
+          "rank": 46
         },
         {
           "companyId": "company-assemble",
           "companyName": "Assemble",
           "score": 74,
-          "rank": 47
+          "rank": 46
         },
         {
           "companyId": "company-codag",
           "companyName": "Codag",
           "score": 74,
-          "rank": 47
+          "rank": 46
+        },
+        {
+          "companyId": "company-markov",
+          "companyName": "Markov",
+          "score": 74,
+          "rank": 46
         },
         {
           "companyId": "company-rekursivai",
           "companyName": "rekursiv.ai",
           "score": 74,
-          "rank": 47
+          "rank": 46
         },
         {
           "companyId": "company-ronanrx-inc",
           "companyName": "RonanRx Inc.",
           "score": 74,
-          "rank": 47
+          "rank": 46
         },
         {
           "companyId": "company-decawork",

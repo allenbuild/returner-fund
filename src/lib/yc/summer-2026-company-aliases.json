@@ -587,6 +587,68 @@
           }
         }
       ]
+    },
+    {
+      "companyId": "32138",
+      "fromSlug": "nebula-security",
+      "fromName": "Nebula Security",
+      "toSlug": "nebusec",
+      "toName": "NebuSec",
+      "companyAccounts": {
+        "linkedin": [
+          "https://www.linkedin.com/company/125323912"
+        ],
+        "x": [
+          "https://x.com/nebusecurity"
+        ]
+      },
+      "founders": [
+        {
+          "founderId": "1626290",
+          "name": "Eten Zou",
+          "accounts": {
+            "linkedin": [
+              "https://www.linkedin.com/in/xiaochen-zou-phd-29540b168"
+            ],
+            "x": [
+              "https://x.com/etenal7"
+            ]
+          }
+        },
+        {
+          "founderId": "3676420",
+          "name": "Yuan Tan",
+          "accounts": {
+            "linkedin": [
+              "https://www.linkedin.com/in/yuantan1/"
+            ]
+          }
+        },
+        {
+          "founderId": "3676409",
+          "name": "Frank Wu",
+          "accounts": {
+            "linkedin": [
+              "https://www.linkedin.com/in/yifan-wu-cs"
+            ],
+            "x": [
+              "https://x.com/FrankOverF1ow"
+            ]
+          }
+        },
+        {
+          "founderId": "3680004",
+          "name": "Xiaochuan Yu",
+          "accounts": {
+            "linkedin": [
+              "https://www.linkedin.com/in/xiaochuan-yu-3103a5297"
+            ],
+            "x": [
+              "https://x.com/Nyaaaaa_ovo"
+            ]
+          }
+        }
+      ]
     }
   ],
   "founderTransitions": [
