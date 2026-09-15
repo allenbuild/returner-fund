@@ -4,7 +4,7 @@
     "directoryUrl": "https://www.ycombinator.com/companies?batch=Summer%202026",
     "algoliaIndex": "YCCompany_production",
     "algoliaFilter": "batch:\"Summer 2026\"",
-    "fetchedAt": "2026-09-14T23:16:11.275Z",
+    "fetchedAt": "2026-09-15T12:07:21.388Z",
     "expectedCompanyCount": 234,
     "observedCompanyCount": 234,
     "directoryCompanyHitCount": 234,
@@ -6479,7 +6479,8 @@
       "groupPartner": "Brad Flora",
       "groupPartnerUrl": "https://www.ycombinator.com/people/brad-flora",
       "socialLinks": {
-        "linkedin": "https://www.linkedin.com/company/kara-labs"
+        "linkedin": "https://www.linkedin.com/company/kara-labs",
+        "x": "https://x.com/KaraLabsAI"
       },
       "founders": [
         {
@@ -12678,9 +12679,9 @@
         "Security"
       ],
       "tags": [
-        "Artificial Intelligence",
         "Security",
-        "Cybersecurity"
+        "Cybersecurity",
+        "AI"
       ],
       "location": "San Francisco",
       "teamSize": 4,
@@ -13431,7 +13432,7 @@
       "ycProfileUrl": "https://www.ycombinator.com/companies/whitespace",
       "websiteUrl": "https://whitespacehq.ai/",
       "tagline": "AI Operating System for Wholesale Distribution",
-      "description": "Whitespace builds AI agents that run the entire operation of supply chain businesses, starting with wholesale distributors. We give them self-improving AI agents that learn their business and do work like inventory planning and customer service.",
+      "description": "Whitespace builds AI agents that run the entire operation of supply chain businesses, starting with wholesale distributors. We give them self-improving AI agents that learn their business and do work like inventory planning and customer service.\r\n\r\nWe're building towards a world where all supply chain operations run through our agents, and all physical goods purchases can happen across businesses without human touch.",
       "industry": "B2B",
       "subindustry": "B2B -> Supply Chain and Logistics",
       "industries": [
@@ -13439,10 +13440,10 @@
         "Supply Chain and Logistics"
       ],
       "tags": [
-        "Artificial Intelligence",
         "SaaS",
         "B2B",
-        "Supply Chain"
+        "Supply Chain",
+        "AI"
       ],
       "location": "San Francisco",
       "teamSize": 2,

@@ -12,8 +12,8 @@
         "catalog": "src/lib/social/a16z-speedrun-006-social-accounts.json",
         "profileSource": "src/lib/graph/a16z-speedrun-006-dataset.ts",
         "graph": "public/graph/a16zsr006.json",
-        "publicRun": "/home/runner/work/_temp/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-09-14-1800-2efec7586e9ec6ed/public-a16zsr006.json",
-        "githubRun": "/home/runner/work/_temp/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-09-14-1800-2efec7586e9ec6ed/github-a16zsr006.json"
+        "publicRun": "/home/runner/work/_temp/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-09-15-0600-769788fcae8c7cb1/public-a16zsr006.json",
+        "githubRun": "/home/runner/work/_temp/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-09-15-0600-769788fcae8c7cb1/github-a16zsr006.json"
       },
       "counts": {
         "companies": 59,
@@ -24,7 +24,7 @@
         "plannedOwnerMappings": 339,
         "multiAccountOwnerMappings": 4,
         "graphEvidence": 5000,
-        "graphNeedsReview": 2439
+        "graphNeedsReview": 2443
       },
       "structural": {
         "status": "pass",
@@ -828,8 +828,8 @@
         "catalog": "src/lib/yc/spring-2026-companies.json",
         "profileSource": null,
         "graph": "public/graph/s2026.json",
-        "publicRun": "/home/runner/work/_temp/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-09-14-1800-2efec7586e9ec6ed/public-s2026.json",
-        "githubRun": "/home/runner/work/_temp/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-09-14-1800-2efec7586e9ec6ed/github-s2026.json"
+        "publicRun": "/home/runner/work/_temp/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-09-15-0600-769788fcae8c7cb1/public-s2026.json",
+        "githubRun": "/home/runner/work/_temp/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-09-15-0600-769788fcae8c7cb1/github-s2026.json"
       },
       "counts": {
         "companies": 197,
@@ -840,7 +840,7 @@
         "plannedOwnerMappings": 994,
         "multiAccountOwnerMappings": 1,
         "graphEvidence": 5000,
-        "graphNeedsReview": 10483
+        "graphNeedsReview": 10498
       },
       "structural": {
         "status": "pass",
@@ -2418,19 +2418,19 @@
         "catalog": "src/lib/yc/summer-2026-companies.json",
         "profileSource": null,
         "graph": "public/graph/s26.json",
-        "publicRun": "/home/runner/work/_temp/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-09-14-1800-2efec7586e9ec6ed/public-s26.json",
-        "githubRun": "/home/runner/work/_temp/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-09-14-1800-2efec7586e9ec6ed/github-s26.json"
+        "publicRun": "/home/runner/work/_temp/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-09-15-0600-769788fcae8c7cb1/public-s26.json",
+        "githubRun": "/home/runner/work/_temp/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-09-15-0600-769788fcae8c7cb1/github-s26.json"
       },
       "counts": {
         "companies": 234,
         "founders": 466,
-        "catalogOwnerMappings": 1128,
-        "graphOwnerMappings": 1115,
-        "catalogOwnerPlatformGroups": 1126,
-        "plannedOwnerMappings": 1128,
+        "catalogOwnerMappings": 1129,
+        "graphOwnerMappings": 1116,
+        "catalogOwnerPlatformGroups": 1127,
+        "plannedOwnerMappings": 1129,
         "multiAccountOwnerMappings": 2,
         "graphEvidence": 5000,
-        "graphNeedsReview": 7296
+        "graphNeedsReview": 7309
       },
       "structural": {
         "status": "pass",
@@ -2749,8 +2749,8 @@
             "founderMissing": 466
           },
           "x": {
-            "companyMapped": 137,
-            "companyMissing": 97,
+            "companyMapped": 138,
+            "companyMissing": 96,
             "founderMapped": 279,
             "founderMissing": 187
           },

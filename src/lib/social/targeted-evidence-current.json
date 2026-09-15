@@ -1,7 +1,7 @@
 {
   "source": {
     "label": "Targeted long-run public evidence",
-    "fetchedAt": "2026-09-14T23:16:29.579Z",
+    "fetchedAt": "2026-09-15T12:07:44.486Z",
     "notes": [
       "Read-only public search/result snippets and accessible pages only.",
       "No Instagram login actions, likes, saves, follows, comments, DMs, or CAPTCHA bypassing.",
@@ -114,7 +114,7 @@
       "pidBackfilled": 1
     },
     "targetedMergeAudit": {
-      "mergedAt": "2026-09-14T23:47:41.505Z",
+      "mergedAt": "2026-09-15T12:38:57.939Z",
       "existingSnapshots": 1,
       "existingInputRows": 3380,
       "isolatedRunInputRows": 0,

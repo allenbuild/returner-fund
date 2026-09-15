@@ -1,15 +1,15 @@
 {
   "schemaVersion": 1,
-  "idempotencyKey": "central-2026-09-14-1800",
-  "centralDay": "2026-09-14",
-  "observedAt": "2026-09-14T23:49:43.461Z",
-  "baselinePhysicalSources": 18032,
-  "publishedPhysicalSources": 18024,
-  "newPhysicalSources": 2,
-  "newPhysicalSourcesThisAttempt": 2,
-  "retainedPhysicalSources": 18022,
-  "removedPhysicalSources": 10,
-  "dailyNewPhysicalSources": 13,
+  "idempotencyKey": "central-2026-09-15-0600",
+  "centralDay": "2026-09-15",
+  "observedAt": "2026-09-15T12:41:12.461Z",
+  "baselinePhysicalSources": 18024,
+  "publishedPhysicalSources": 18025,
+  "newPhysicalSources": 1,
+  "newPhysicalSourcesThisAttempt": 1,
+  "retainedPhysicalSources": 18024,
+  "removedPhysicalSources": 0,
+  "dailyNewPhysicalSources": 1,
   "dailySourceHealth": "healthy",
   "collectionHealth": "degraded",
   "collectionHealthReasons": [
@@ -17,7 +17,7 @@
     "missing_credential:EXA_API_KEY",
     "mapped_failures:2",
     "provider_blocked:5906",
-    "mapped_provider_blocked:2354",
+    "mapped_provider_blocked:2355",
     "mapped_scope_unsupported:10",
     "mapped_success_rate_below_10_percent:0.0325"
   ],
@@ -25,14 +25,14 @@
     "status": "required",
     "reason": null
   },
-  "mappedExpected": 2461,
+  "mappedExpected": 2462,
   "mappedSucceeded": 80,
   "mappedNeedsReview": 248,
-  "mappedBlockedOrEmpty": 2131,
+  "mappedBlockedOrEmpty": 2132,
   "providerBlocked": 5906,
   "providerBlockedByReason": {
-    "provider_blocked:duckduckgo_html:public_search_circuit_open": 1514,
-    "provider_blocked:instagram_public_json:instagram_public_access_blocked": 1039,
+    "provider_blocked:duckduckgo_html:public_search_circuit_open": 1509,
+    "provider_blocked:instagram_public_json:instagram_public_access_blocked": 1044,
     "provider_blocked:linkedin_public_html:linkedin_public_circuit_open": 1420,
     "provider_blocked:official_source_html:official_source_http_failure": 5,
     "provider_blocked:official_source_html:official_source_timeout": 1,
@@ -42,46 +42,35 @@
     "provider_blocked:reddit_public_json:reddit_public_access_blocked": 481,
     "provider_blocked:x_public_html:x_public_access_blocked": 1437
   },
-  "mappedProviderBlocked": 2354,
+  "mappedProviderBlocked": 2355,
   "mappedProviderBlockedByReason": {
     "provider_blocked:duckduckgo_html:public_search_circuit_open": 10,
     "provider_blocked:instagram_public_json:instagram_public_access_blocked": 44,
     "provider_blocked:linkedin_public_html:linkedin_public_circuit_open": 1420,
-    "provider_blocked:x_public_html:x_public_access_blocked": 880
+    "provider_blocked:x_public_html:x_public_access_blocked": 881
   },
   "mappedScopeUnsupported": 10,
   "mappedFailures": 2,
   "mappedNonTerminal": 0,
   "mappedSuccessRate": 0.0325,
-  "newestNewSourcePostedAt": "2026-09-14T20:54:02.000Z",
+  "newestNewSourcePostedAt": null,
   "insertedByBatchPlatform": {
-    "A16ZSR006:youtube": 1,
-    "S26:github": 1
+    "S26:youtube": 1
   },
   "insertedSourceSamples": [
     {
-      "batchSlug": "A16ZSR006",
+      "batchSlug": "S26",
       "platform": "youtube",
       "entityType": "company",
-      "entityId": "a16z-speedrun-006-idilio",
-      "sourceUrl": "https://youtube.com/watch?v=pUkeEyRL8Ts",
-      "platformPostId": "pUkeEyRL8Ts",
+      "entityId": "company-guild",
+      "sourceUrl": "https://youtube.com/watch?v=0HGOa1OTihA",
+      "platformPostId": "0HGOa1OTihA",
       "platformObjectId": null,
-      "postedAt": "2026-09-14T20:54:02.000Z"
-    },
-    {
-      "batchSlug": "S26",
-      "platform": "github",
-      "entityType": "company",
-      "entityId": "company-nebusec",
-      "sourceUrl": "https://github.com/NebuSec/nebu-skill",
-      "platformPostId": "NebuSec/nebu-skill",
-      "platformObjectId": "1370173527",
-      "postedAt": "2026-09-14T15:55:36Z"
+      "postedAt": null
     }
   ],
   "trigger": "schedule",
-  "scheduledAt": "2026-09-14T23:00:00.000Z",
-  "evidenceCollectedAt": "2026-09-14T23:47:40.504Z",
+  "scheduledAt": "2026-09-15T11:00:00.000Z",
+  "evidenceCollectedAt": "2026-09-15T12:38:56.841Z",
   "terminalFailureBudget": 124
 }

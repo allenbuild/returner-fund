@@ -1,7 +1,7 @@
 {
   "version": 1,
   "batchSlug": "S26",
-  "updatedAt": "2026-09-15T10:00:57.126Z",
+  "updatedAt": "2026-09-15T12:47:26.299Z",
   "daily": [
     {
       "recordedAt": "2026-07-06T05:00:00.000Z",
@@ -72586,9 +72586,9 @@
       ]
     },
     {
-      "recordedAt": "2026-09-15T10:00:57.126Z",
+      "recordedAt": "2026-09-15T12:47:26.299Z",
       "scoringModelVersion": "4.3.1",
-      "inputGeneratedAt": "2026-09-15T09:59:26.429Z",
+      "inputGeneratedAt": "2026-09-15T12:45:59.028Z",
       "companies": [
         {
           "companyId": "company-gamgee",
@@ -73875,6 +73875,12 @@
           "rank": 214
         },
         {
+          "companyId": "company-erinys",
+          "companyName": "Erinys",
+          "score": 19,
+          "rank": 214
+        },
+        {
           "companyId": "company-grip",
           "companyName": "Grip",
           "score": 19,
@@ -73885,12 +73891,6 @@
           "companyName": "Proprio Robotics",
           "score": 19,
           "rank": 214
-        },
-        {
-          "companyId": "company-erinys",
-          "companyName": "Erinys",
-          "score": 18,
-          "rank": 217
         },
         {
           "companyId": "company-dawn-industries",
