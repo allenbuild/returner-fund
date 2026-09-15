@@ -5,8 +5,8 @@
     "slug": "clara",
     "name": "Clara"
   },
-  "generatedAt": "2026-09-14T23:53:48.861Z",
-  "lastModifiedAt": "2026-09-14T23:53:48.861Z",
+  "generatedAt": "2026-09-15T10:00:24.568Z",
+  "lastModifiedAt": "2026-09-15T10:00:24.568Z",
   "events": [
     {
       "id": "tle-cd72528e9ff12bdb0333a262",
@@ -57,7 +57,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-09-14T23:53:48.861Z"
+    "lastSuccessfulArtifactAt": "2026-09-15T10:00:24.568Z"
   },
   "nextCursor": null
 }

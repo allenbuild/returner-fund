@@ -5,8 +5,8 @@
     "slug": "belong",
     "name": "Belong"
   },
-  "generatedAt": "2026-09-14T23:53:48.861Z",
-  "lastModifiedAt": "2026-09-14T23:53:48.861Z",
+  "generatedAt": "2026-09-15T10:00:24.568Z",
+  "lastModifiedAt": "2026-09-15T10:00:24.568Z",
   "events": [
     {
       "id": "tle-f29104cdd97ce60d0bbe844f",
@@ -47,7 +47,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-09-14T23:53:48.861Z"
+    "lastSuccessfulArtifactAt": "2026-09-15T10:00:24.568Z"
   },
   "nextCursor": null
 }

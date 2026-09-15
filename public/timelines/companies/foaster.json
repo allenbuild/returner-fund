@@ -5,8 +5,8 @@
     "slug": "foaster",
     "name": "Foaster"
   },
-  "generatedAt": "2026-09-14T23:53:48.861Z",
-  "lastModifiedAt": "2026-09-14T23:53:48.861Z",
+  "generatedAt": "2026-09-15T10:00:24.568Z",
+  "lastModifiedAt": "2026-09-15T10:00:24.568Z",
   "events": [
     {
       "id": "tle-e4d35194b24a196cfe41eb8e",
@@ -95,7 +95,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 3,
-    "lastSuccessfulArtifactAt": "2026-09-14T23:53:48.861Z"
+    "lastSuccessfulArtifactAt": "2026-09-15T10:00:24.568Z"
   },
   "nextCursor": null
 }
