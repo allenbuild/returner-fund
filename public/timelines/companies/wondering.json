@@ -5,8 +5,8 @@
     "slug": "wondering",
     "name": "Wondering"
   },
-  "generatedAt": "2026-09-16T09:51:02.585Z",
-  "lastModifiedAt": "2026-09-16T09:51:02.585Z",
+  "generatedAt": "2026-09-16T12:17:23.583Z",
+  "lastModifiedAt": "2026-09-16T12:17:23.583Z",
   "events": [
     {
       "id": "tle-6a261bc25456a7c37d6a37de",
@@ -219,7 +219,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 7,
-    "lastSuccessfulArtifactAt": "2026-09-16T09:51:02.585Z"
+    "lastSuccessfulArtifactAt": "2026-09-16T12:17:23.583Z"
   },
   "nextCursor": null
 }

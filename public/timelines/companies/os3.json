@@ -5,8 +5,8 @@
     "slug": "os3",
     "name": "OS3"
   },
-  "generatedAt": "2026-09-16T09:51:02.585Z",
-  "lastModifiedAt": "2026-09-16T09:51:02.585Z",
+  "generatedAt": "2026-09-16T12:17:23.583Z",
+  "lastModifiedAt": "2026-09-16T12:17:23.583Z",
   "events": [
     {
       "id": "tle-fa2920fb6f6fca0f1a8850ba",
@@ -47,7 +47,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-09-16T09:51:02.585Z"
+    "lastSuccessfulArtifactAt": "2026-09-16T12:17:23.583Z"
   },
   "nextCursor": null
 }

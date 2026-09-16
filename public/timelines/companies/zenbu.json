@@ -5,8 +5,8 @@
     "slug": "zenbu",
     "name": "Zenbu"
   },
-  "generatedAt": "2026-09-16T09:51:02.585Z",
-  "lastModifiedAt": "2026-09-16T09:51:02.585Z",
+  "generatedAt": "2026-09-16T12:17:23.583Z",
+  "lastModifiedAt": "2026-09-16T12:17:23.583Z",
   "events": [
     {
       "id": "tle-2438d5136b46824b8379825c",
@@ -81,7 +81,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 2,
-    "lastSuccessfulArtifactAt": "2026-09-16T09:51:02.585Z"
+    "lastSuccessfulArtifactAt": "2026-09-16T12:17:23.583Z"
   },
   "nextCursor": null
 }

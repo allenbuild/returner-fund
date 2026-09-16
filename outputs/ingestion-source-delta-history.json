@@ -11277,5 +11277,81 @@
     "scheduledAt": "2026-09-15T23:00:00.000Z",
     "evidenceCollectedAt": "2026-09-15T23:48:07.863Z",
     "terminalFailureBudget": 123
+  },
+  {
+    "schemaVersion": 1,
+    "idempotencyKey": "central-2026-09-16-0600",
+    "centralDay": "2026-09-16",
+    "observedAt": "2026-09-16T12:11:31.588Z",
+    "baselinePhysicalSources": 18032,
+    "publishedPhysicalSources": 18033,
+    "newPhysicalSources": 1,
+    "newPhysicalSourcesThisAttempt": 1,
+    "retainedPhysicalSources": 18032,
+    "removedPhysicalSources": 0,
+    "dailyNewPhysicalSources": 1,
+    "dailySourceHealth": "healthy",
+    "collectionHealth": "degraded",
+    "collectionHealthReasons": [
+      "missing_credential:X_BEARER_TOKEN",
+      "missing_credential:EXA_API_KEY",
+      "mapped_failures:2",
+      "provider_blocked:5896",
+      "mapped_provider_blocked:2351",
+      "mapped_scope_unsupported:10",
+      "mapped_success_rate_below_10_percent:0.0325"
+    ],
+    "collectorValidation": {
+      "status": "required",
+      "reason": null
+    },
+    "mappedExpected": 2458,
+    "mappedSucceeded": 80,
+    "mappedNeedsReview": 248,
+    "mappedBlockedOrEmpty": 2128,
+    "providerBlocked": 5896,
+    "providerBlockedByReason": {
+      "provider_blocked:duckduckgo_html:public_search_circuit_open": 1505,
+      "provider_blocked:instagram_public_json:instagram_public_access_blocked": 1044,
+      "provider_blocked:linkedin_public_html:linkedin_public_circuit_open": 1418,
+      "provider_blocked:official_source_html:official_source_http_failure": 4,
+      "provider_blocked:official_source_html:official_source_timeout": 1,
+      "provider_blocked:official_source_html:official_source_transport_failure": 3,
+      "provider_blocked:official_source_http:official_source_http_failure": 5,
+      "provider_blocked:official_source_http:official_source_timeout": 1,
+      "provider_blocked:reddit_public_json:reddit_public_access_blocked": 480,
+      "provider_blocked:x_public_html:x_public_access_blocked": 1435
+    },
+    "mappedProviderBlocked": 2351,
+    "mappedProviderBlockedByReason": {
+      "provider_blocked:duckduckgo_html:public_search_circuit_open": 10,
+      "provider_blocked:instagram_public_json:instagram_public_access_blocked": 44,
+      "provider_blocked:linkedin_public_html:linkedin_public_circuit_open": 1418,
+      "provider_blocked:x_public_html:x_public_access_blocked": 879
+    },
+    "mappedScopeUnsupported": 10,
+    "mappedFailures": 2,
+    "mappedNonTerminal": 0,
+    "mappedSuccessRate": 0.0325,
+    "newestNewSourcePostedAt": null,
+    "insertedByBatchPlatform": {
+      "S2026:youtube": 1
+    },
+    "insertedSourceSamples": [
+      {
+        "batchSlug": "S2026",
+        "platform": "youtube",
+        "entityType": "company",
+        "entityId": "company-complir",
+        "sourceUrl": "https://youtube.com/watch?v=2r4o2Z902_o",
+        "platformPostId": "2r4o2Z902_o",
+        "platformObjectId": null,
+        "postedAt": null
+      }
+    ],
+    "trigger": "schedule",
+    "scheduledAt": "2026-09-16T11:00:00.000Z",
+    "evidenceCollectedAt": "2026-09-16T12:09:34.481Z",
+    "terminalFailureBudget": 123
   }
 ]

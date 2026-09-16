@@ -5,8 +5,8 @@
     "slug": "inloop-robotics",
     "name": "InLoop Robotics"
   },
-  "generatedAt": "2026-09-16T09:51:02.585Z",
-  "lastModifiedAt": "2026-09-16T09:51:02.585Z",
+  "generatedAt": "2026-09-16T12:17:23.583Z",
+  "lastModifiedAt": "2026-09-16T12:17:23.583Z",
   "events": [
     {
       "id": "tle-9d79eb6e6667153543982980",
@@ -47,7 +47,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-09-16T09:51:02.585Z"
+    "lastSuccessfulArtifactAt": "2026-09-16T12:17:23.583Z"
   },
   "nextCursor": null
 }

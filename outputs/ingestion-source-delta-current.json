@@ -1,22 +1,22 @@
 {
   "schemaVersion": 1,
-  "idempotencyKey": "central-2026-09-15-1800",
-  "centralDay": "2026-09-15",
-  "observedAt": "2026-09-15T23:50:08.613Z",
-  "baselinePhysicalSources": 18025,
-  "publishedPhysicalSources": 18032,
-  "newPhysicalSources": 8,
-  "newPhysicalSourcesThisAttempt": 8,
-  "retainedPhysicalSources": 18024,
-  "removedPhysicalSources": 1,
-  "dailyNewPhysicalSources": 9,
+  "idempotencyKey": "central-2026-09-16-0600",
+  "centralDay": "2026-09-16",
+  "observedAt": "2026-09-16T12:11:31.588Z",
+  "baselinePhysicalSources": 18032,
+  "publishedPhysicalSources": 18033,
+  "newPhysicalSources": 1,
+  "newPhysicalSourcesThisAttempt": 1,
+  "retainedPhysicalSources": 18032,
+  "removedPhysicalSources": 0,
+  "dailyNewPhysicalSources": 1,
   "dailySourceHealth": "healthy",
   "collectionHealth": "degraded",
   "collectionHealthReasons": [
     "missing_credential:X_BEARER_TOKEN",
     "missing_credential:EXA_API_KEY",
     "mapped_failures:2",
-    "provider_blocked:5897",
+    "provider_blocked:5896",
     "mapped_provider_blocked:2351",
     "mapped_scope_unsupported:10",
     "mapped_success_rate_below_10_percent:0.0325"
@@ -29,12 +29,12 @@
   "mappedSucceeded": 80,
   "mappedNeedsReview": 248,
   "mappedBlockedOrEmpty": 2128,
-  "providerBlocked": 5897,
+  "providerBlocked": 5896,
   "providerBlockedByReason": {
     "provider_blocked:duckduckgo_html:public_search_circuit_open": 1505,
     "provider_blocked:instagram_public_json:instagram_public_access_blocked": 1044,
     "provider_blocked:linkedin_public_html:linkedin_public_circuit_open": 1418,
-    "provider_blocked:official_source_html:official_source_http_failure": 5,
+    "provider_blocked:official_source_html:official_source_http_failure": 4,
     "provider_blocked:official_source_html:official_source_timeout": 1,
     "provider_blocked:official_source_html:official_source_transport_failure": 3,
     "provider_blocked:official_source_http:official_source_http_failure": 5,
@@ -53,97 +53,24 @@
   "mappedFailures": 2,
   "mappedNonTerminal": 0,
   "mappedSuccessRate": 0.0325,
-  "newestNewSourcePostedAt": "2026-09-15T17:38:07Z",
+  "newestNewSourcePostedAt": null,
   "insertedByBatchPlatform": {
-    "A16ZSR006:youtube": 1,
-    "S2026:github": 2,
-    "S2026:youtube": 2,
-    "S26:youtube": 3
+    "S2026:youtube": 1
   },
   "insertedSourceSamples": [
     {
-      "batchSlug": "A16ZSR006",
-      "platform": "youtube",
-      "entityType": "company",
-      "entityId": "a16z-speedrun-006-antihero-studios",
-      "sourceUrl": "https://youtube.com/watch?v=BcZ8IJlk7dQ",
-      "platformPostId": "BcZ8IJlk7dQ",
-      "platformObjectId": null,
-      "postedAt": "2026-09-15T15:00:30.000Z"
-    },
-    {
-      "batchSlug": "S26",
-      "platform": "youtube",
-      "entityType": "company",
-      "entityId": "company-moonshot-computer",
-      "sourceUrl": "https://youtube.com/watch?v=691FVfOyP54",
-      "platformPostId": "691FVfOyP54",
-      "platformObjectId": null,
-      "postedAt": null
-    },
-    {
-      "batchSlug": "S26",
-      "platform": "youtube",
-      "entityType": "company",
-      "entityId": "company-joinmarble",
-      "sourceUrl": "https://youtube.com/watch?v=JG9ZiEebA2g",
-      "platformPostId": "JG9ZiEebA2g",
-      "platformObjectId": null,
-      "postedAt": null
-    },
-    {
-      "batchSlug": "S26",
-      "platform": "youtube",
-      "entityType": "company",
-      "entityId": "company-sunflower",
-      "sourceUrl": "https://youtube.com/watch?v=ftMrQUGgrto",
-      "platformPostId": "ftMrQUGgrto",
-      "platformObjectId": null,
-      "postedAt": null
-    },
-    {
       "batchSlug": "S2026",
       "platform": "youtube",
       "entityType": "company",
-      "entityId": "company-9-mothers-corporation",
-      "sourceUrl": "https://youtube.com/watch?v=Ag5LVytT1dU",
-      "platformPostId": "Ag5LVytT1dU",
+      "entityId": "company-complir",
+      "sourceUrl": "https://youtube.com/watch?v=2r4o2Z902_o",
+      "platformPostId": "2r4o2Z902_o",
       "platformObjectId": null,
       "postedAt": null
-    },
-    {
-      "batchSlug": "S2026",
-      "platform": "youtube",
-      "entityType": "company",
-      "entityId": "company-arden",
-      "sourceUrl": "https://youtube.com/watch?v=7R05ThJd8ic",
-      "platformPostId": "7R05ThJd8ic",
-      "platformObjectId": null,
-      "postedAt": null
-    },
-    {
-      "batchSlug": "S2026",
-      "platform": "github",
-      "entityType": "company",
-      "entityId": "company-korso",
-      "sourceUrl": "https://github.com/Korso-AI/korso-downloads",
-      "platformPostId": "Korso-AI/korso-downloads",
-      "platformObjectId": "1371558674",
-      "postedAt": "2026-09-15T13:51:26Z"
-    },
-    {
-      "batchSlug": "S2026",
-      "platform": "github",
-      "entityType": "company",
-      "entityId": "company-keyframe-labs",
-      "sourceUrl": "https://github.com/keyframelabs/examples",
-      "platformPostId": "keyframelabs/examples",
-      "platformObjectId": "1371879247",
-      "postedAt": "2026-09-15T17:38:07Z"
     }
   ],
   "trigger": "schedule",
-  "scheduledAt": "2026-09-15T23:00:00.000Z",
-  "evidenceCollectedAt": "2026-09-15T23:48:07.863Z",
+  "scheduledAt": "2026-09-16T11:00:00.000Z",
+  "evidenceCollectedAt": "2026-09-16T12:09:34.481Z",
   "terminalFailureBudget": 123
 }
