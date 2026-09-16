@@ -5,8 +5,8 @@
     "slug": "regbase",
     "name": "Regbase"
   },
-  "generatedAt": "2026-09-15T23:56:12.858Z",
-  "lastModifiedAt": "2026-09-15T23:56:12.858Z",
+  "generatedAt": "2026-09-16T09:51:02.585Z",
+  "lastModifiedAt": "2026-09-16T09:51:02.585Z",
   "events": [
     {
       "id": "tle-114046b430d985a88c9d5654",
@@ -67,7 +67,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-09-15T23:56:12.858Z"
+    "lastSuccessfulArtifactAt": "2026-09-16T09:51:02.585Z"
   },
   "nextCursor": null
 }
