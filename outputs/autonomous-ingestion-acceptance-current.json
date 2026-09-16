@@ -3,7 +3,7 @@
   "kind": "autonomous-ingestion-publication-acceptance",
   "slotKey": "central-2026-09-15-1800",
   "scheduledAt": "2026-09-15T23:00:00.000Z",
-  "acceptedAt": "2026-09-16T01:03:14.000Z",
+  "acceptedAt": "2026-09-16T11:30:24.000Z",
   "publicationCommit": "1c7b1cc5ad4084f7379b0a1f7669f48a9ace276a",
   "publicationSourceSha": "0b0dffc54793fb8cee2078ad4e898e559bbbea1b",
   "publicationRunId": "35034757241",
@@ -13,13 +13,13 @@
   "manifestPath": "public/graph/manifest.json",
   "publicationManifestSha256": "66e23d9207455db4c995a8c10071fe84cd6d20c5102d9c586217f538ccb6687f",
   "publicationManifestContentHash": "49fa3c5872b6fc510c5e6e4482667b7dcf56079116e6d5bcebd7c03bcbbe6c0d",
-  "validatedManifestSha256": "66e23d9207455db4c995a8c10071fe84cd6d20c5102d9c586217f538ccb6687f",
-  "validatedManifestContentHash": "49fa3c5872b6fc510c5e6e4482667b7dcf56079116e6d5bcebd7c03bcbbe6c0d",
+  "validatedManifestSha256": "27db230ac34a81140f070123d48bfc1bc997a4f8bd2d074c0e51eaeeead327b0",
+  "validatedManifestContentHash": "ba572b50cc52a60ca0fb7b61a9f05eaaa9638825548158d459a01690dc049167",
   "evidenceCollectedAt": "2026-09-15T23:48:07.863Z",
   "validation": {
-    "validatedSha": "1c7b1cc5ad4084f7379b0a1f7669f48a9ace276a",
-    "workflowRunId": "35034757241",
+    "validatedSha": "871c58c0c184e74cf03f69469a834ab0c7c43204",
+    "workflowRunId": "35083689192",
     "workflowRunAttempt": "1"
   },
-  "bindingSha256": "026c547ce7a0e749a96e817e1016d802c610756b3837e9278a472da86ec64d4f"
+  "bindingSha256": "aaee35c12011e899cb875222a730e76df3cf39257eb38c87d3aeee03e5b15a98"
 }
