@@ -5,8 +5,8 @@
     "slug": "lemonlime",
     "name": "LemonLime"
   },
-  "generatedAt": "2026-09-15T12:46:54.984Z",
-  "lastModifiedAt": "2026-09-15T12:46:54.984Z",
+  "generatedAt": "2026-09-15T23:56:12.858Z",
+  "lastModifiedAt": "2026-09-15T23:56:12.858Z",
   "events": [
     {
       "id": "tle-4e3e041240fa0c8e0e7f5b2b",
@@ -47,7 +47,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-09-15T12:46:54.984Z"
+    "lastSuccessfulArtifactAt": "2026-09-15T23:56:12.858Z"
   },
   "nextCursor": null
 }

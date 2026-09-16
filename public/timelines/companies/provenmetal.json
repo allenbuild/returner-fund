@@ -5,8 +5,8 @@
     "slug": "provenmetal",
     "name": "ProvenMetal"
   },
-  "generatedAt": "2026-09-15T12:46:54.984Z",
-  "lastModifiedAt": "2026-09-15T12:46:54.984Z",
+  "generatedAt": "2026-09-15T23:56:12.858Z",
+  "lastModifiedAt": "2026-09-15T23:56:12.858Z",
   "events": [
     {
       "id": "tle-1b7ae7e288a17b8e2ed8d349",
@@ -57,7 +57,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-09-15T12:46:54.984Z"
+    "lastSuccessfulArtifactAt": "2026-09-15T23:56:12.858Z"
   },
   "nextCursor": null
 }

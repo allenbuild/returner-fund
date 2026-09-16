@@ -12,8 +12,8 @@
         "catalog": "src/lib/social/a16z-speedrun-006-social-accounts.json",
         "profileSource": "src/lib/graph/a16z-speedrun-006-dataset.ts",
         "graph": "public/graph/a16zsr006.json",
-        "publicRun": "/home/runner/work/_temp/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-09-15-0600-769788fcae8c7cb1/public-a16zsr006.json",
-        "githubRun": "/home/runner/work/_temp/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-09-15-0600-769788fcae8c7cb1/github-a16zsr006.json"
+        "publicRun": "/home/runner/work/_temp/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-09-15-1800-a189ca91b653e580/public-a16zsr006.json",
+        "githubRun": "/home/runner/work/_temp/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-09-15-1800-a189ca91b653e580/github-a16zsr006.json"
       },
       "counts": {
         "companies": 59,
@@ -24,7 +24,7 @@
         "plannedOwnerMappings": 339,
         "multiAccountOwnerMappings": 4,
         "graphEvidence": 5000,
-        "graphNeedsReview": 2443
+        "graphNeedsReview": 2446
       },
       "structural": {
         "status": "pass",
@@ -828,8 +828,8 @@
         "catalog": "src/lib/yc/spring-2026-companies.json",
         "profileSource": null,
         "graph": "public/graph/s2026.json",
-        "publicRun": "/home/runner/work/_temp/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-09-15-0600-769788fcae8c7cb1/public-s2026.json",
-        "githubRun": "/home/runner/work/_temp/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-09-15-0600-769788fcae8c7cb1/github-s2026.json"
+        "publicRun": "/home/runner/work/_temp/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-09-15-1800-a189ca91b653e580/public-s2026.json",
+        "githubRun": "/home/runner/work/_temp/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-09-15-1800-a189ca91b653e580/github-s2026.json"
       },
       "counts": {
         "companies": 197,
@@ -840,7 +840,7 @@
         "plannedOwnerMappings": 994,
         "multiAccountOwnerMappings": 1,
         "graphEvidence": 5000,
-        "graphNeedsReview": 10498
+        "graphNeedsReview": 10512
       },
       "structural": {
         "status": "pass",
@@ -2418,19 +2418,19 @@
         "catalog": "src/lib/yc/summer-2026-companies.json",
         "profileSource": null,
         "graph": "public/graph/s26.json",
-        "publicRun": "/home/runner/work/_temp/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-09-15-0600-769788fcae8c7cb1/public-s26.json",
-        "githubRun": "/home/runner/work/_temp/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-09-15-0600-769788fcae8c7cb1/github-s26.json"
+        "publicRun": "/home/runner/work/_temp/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-09-15-1800-a189ca91b653e580/public-s26.json",
+        "githubRun": "/home/runner/work/_temp/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-09-15-1800-a189ca91b653e580/github-s26.json"
       },
       "counts": {
-        "companies": 234,
-        "founders": 466,
-        "catalogOwnerMappings": 1129,
-        "graphOwnerMappings": 1116,
-        "catalogOwnerPlatformGroups": 1127,
-        "plannedOwnerMappings": 1129,
+        "companies": 233,
+        "founders": 465,
+        "catalogOwnerMappings": 1125,
+        "graphOwnerMappings": 1113,
+        "catalogOwnerPlatformGroups": 1123,
+        "plannedOwnerMappings": 1125,
         "multiAccountOwnerMappings": 2,
         "graphEvidence": 5000,
-        "graphNeedsReview": 7309
+        "graphNeedsReview": 7324
       },
       "structural": {
         "status": "pass",
@@ -2578,24 +2578,6 @@
           {
             "batchSlug": "S26",
             "entityType": "company",
-            "entityId": "company-lyon",
-            "entityName": "Lyon",
-            "sourceId": "32191",
-            "companyEntityId": "company-lyon",
-            "companySlug": "lyon",
-            "platform": "x",
-            "canonicalUrl": "https://x.com/gabrielnoya7",
-            "originalUrl": "https://x.com/gabrielnoya7",
-            "ownerReferenceCandidates": [
-              "32191",
-              "company-lyon",
-              "lyon"
-            ],
-            "key": "S26|company|company-lyon|x|https://x.com/gabrielnoya7"
-          },
-          {
-            "batchSlug": "S26",
-            "entityType": "company",
             "entityId": "company-sunflower",
             "entityName": "Sunflower",
             "sourceId": "30914",
@@ -2726,39 +2708,39 @@
         "mappingCoverage": {
           "github": {
             "companyMapped": 12,
-            "companyMissing": 222,
+            "companyMissing": 221,
             "founderMapped": 1,
-            "founderMissing": 465
+            "founderMissing": 464
           },
           "instagram": {
             "companyMapped": 7,
-            "companyMissing": 227,
+            "companyMissing": 226,
             "founderMapped": 0,
-            "founderMissing": 466
+            "founderMissing": 465
           },
           "linkedin": {
-            "companyMapped": 210,
+            "companyMapped": 209,
             "companyMissing": 24,
-            "founderMapped": 463,
+            "founderMapped": 462,
             "founderMissing": 3
           },
           "product_hunt": {
             "companyMapped": 5,
-            "companyMissing": 229,
+            "companyMissing": 228,
             "founderMapped": 0,
-            "founderMissing": 466
+            "founderMissing": 465
           },
           "x": {
-            "companyMapped": 138,
+            "companyMapped": 137,
             "companyMissing": 96,
-            "founderMapped": 279,
+            "founderMapped": 278,
             "founderMissing": 187
           },
           "youtube": {
             "companyMapped": 11,
-            "companyMissing": 223,
+            "companyMissing": 222,
             "founderMapped": 0,
-            "founderMissing": 466
+            "founderMissing": 465
           }
         },
         "noMappedAccounts": [
@@ -2895,11 +2877,6 @@
             "companyName": null
           },
           {
-            "entityId": "company-lyon",
-            "name": "Lyon",
-            "companyName": null
-          },
-          {
             "entityId": "company-mass-magnetics",
             "name": "Mass Magnetics",
             "companyName": null
@@ -2939,11 +2916,6 @@
           {
             "entityId": "company-hilstart",
             "name": "Hilstart",
-            "companyName": null
-          },
-          {
-            "entityId": "company-lyon",
-            "name": "Lyon",
             "companyName": null
           },
           {
@@ -3026,11 +2998,6 @@
           {
             "entityId": "company-insurf",
             "name": "Insurf",
-            "companyName": null
-          },
-          {
-            "entityId": "company-lyon",
-            "name": "Lyon",
             "companyName": null
           },
           {
@@ -3576,11 +3543,6 @@
             "companyName": "Luca IQ"
           },
           {
-            "entityId": "founder-lyon-gabriel-noya-1690305",
-            "name": "Gabriel Noya",
-            "companyName": "Lyon"
-          },
-          {
             "entityId": "founder-manifold-2-joshua-ibrahim-3614218",
             "name": "Joshua Ibrahim",
             "companyName": "Manifold"
@@ -4068,11 +4030,6 @@
             "companyName": null
           },
           {
-            "entityId": "company-lyon",
-            "name": "Lyon",
-            "companyName": null
-          },
-          {
             "entityId": "company-mass-magnetics",
             "name": "Mass Magnetics",
             "companyName": null
@@ -4453,11 +4410,6 @@
             "entityId": "founder-luca-iq-angelo-policicchio-2754880",
             "name": "Angelo Policicchio",
             "companyName": "Luca IQ"
-          },
-          {
-            "entityId": "founder-lyon-gabriel-noya-1690305",
-            "name": "Gabriel Noya",
-            "companyName": "Lyon"
           },
           {
             "entityId": "founder-manifold-2-joshua-ibrahim-3614218",

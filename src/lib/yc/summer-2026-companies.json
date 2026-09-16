@@ -4,10 +4,10 @@
     "directoryUrl": "https://www.ycombinator.com/companies?batch=Summer%202026",
     "algoliaIndex": "YCCompany_production",
     "algoliaFilter": "batch:\"Summer 2026\"",
-    "fetchedAt": "2026-09-15T12:07:21.388Z",
-    "expectedCompanyCount": 234,
-    "observedCompanyCount": 234,
-    "directoryCompanyHitCount": 234,
+    "fetchedAt": "2026-09-15T23:16:43.702Z",
+    "expectedCompanyCount": 233,
+    "observedCompanyCount": 233,
+    "directoryCompanyHitCount": 233,
     "verifiedRetiredCompanyCount": 0,
     "verifiedRetiredCompanies": [],
     "minimumCompanyCount": 167,
@@ -1329,7 +1329,7 @@
           "id": "1730500",
           "name": "Shaan Yadav",
           "title": "Founder",
-          "bio": "Co-founder at Atlia, creating the modern property management company. \nPrev. gpus at Apple, brain-computer interfaces at Yale and computer architecture research at Duke.",
+          "bio": "Co-founder at Atlia, systems for properties to operate autonomously.\nPrev. gpus at Apple, brain-computer interfaces at Yale and computer architecture research at Duke.",
           "ycProfileUrl": "https://www.ycombinator.com/people/shaan-yadav",
           "socialLinks": {
             "linkedin": "https://www.linkedin.com/in/shaanyadav",
@@ -6519,7 +6519,7 @@
       "ycProfileUrl": "https://www.ycombinator.com/companies/kebra",
       "websiteUrl": "https://kebra.com",
       "tagline": "AI For The Skilled Workforce",
-      "description": "Kebra builds AI for skilled technicians.\r\n\r\nKebra guides technicians in the field in real time, documents their work, and automatically handles hours of back-office work; from dispatching technicians to filing warranty claims and managing inventory.",
+      "description": "Kebra builds AI for skilled technicians.\r\n\r\nKebra guides technicians in the field in real time, documents their job, and automatically handles hours of back-office work; from dispatching technicians to filing warranty claims and managing inventory.",
       "industry": "B2B",
       "subindustry": "B2B -> Operations",
       "industries": [
@@ -6527,10 +6527,10 @@
         "Operations"
       ],
       "tags": [
+        "Artificial Intelligence",
         "B2B",
         "Home Services",
-        "Operations",
-        "AI"
+        "Operations"
       ],
       "location": "San Francisco",
       "teamSize": 2,
@@ -7165,56 +7165,6 @@
       "launch": null,
       "sourceUrls": [
         "https://www.ycombinator.com/companies/lumeria",
-        "https://www.ycombinator.com/companies?batch=Summer%202026"
-      ]
-    },
-    {
-      "id": "32191",
-      "objectID": "32191",
-      "slug": "lyon",
-      "name": "Lyon",
-      "batch": "Summer 2026",
-      "ycProfileUrl": "https://www.ycombinator.com/companies/lyon",
-      "websiteUrl": "https://lyon.so",
-      "tagline": "Foundation models on enterprise transaction data.",
-      "description": "Lyon builds private foundation models for banks, insurance companies, and fintechs. Each model learns from the company’s proprietary transactions, payments, clicks, and customer interactions to predict credit, fraud, collections, income, churn, and lifetime value; and runs inside the company’s cloud, so its data and intelligence remain under its control. Lyon is already working with a major insurer and trained a model on 28B transactions for a fintech serving tens of millions of active users, identifying premium-card converters 4x more precisely than its existing rules; the model is now being deployed for credit.",
-      "industry": "B2B",
-      "subindustry": "B2B -> Analytics",
-      "industries": [
-        "B2B",
-        "Analytics"
-      ],
-      "tags": [
-        "Machine Learning",
-        "Finance",
-        "Data Science",
-        "Big Data"
-      ],
-      "location": "San Francisco",
-      "teamSize": 2,
-      "status": "Active",
-      "groupPartner": "Gustaf Alstromer",
-      "groupPartnerUrl": "https://www.ycombinator.com/people/gustaf-alstromer",
-      "socialLinks": {
-        "linkedin": "https://www.linkedin.com/company/lyon-ai/",
-        "x": "https://x.com/gabrielnoya7"
-      },
-      "founders": [
-        {
-          "id": "1690305",
-          "name": "Gabriel Noya",
-          "title": "Founder/CEO",
-          "bio": "Stanford EE and CS 26'",
-          "ycProfileUrl": "https://www.ycombinator.com/people/gabriel-noya",
-          "socialLinks": {
-            "linkedin": "https://linkedin.com/in/gabriel-noya",
-            "x": "https://x.com/gabrielnoya7"
-          }
-        }
-      ],
-      "launch": null,
-      "sourceUrls": [
-        "https://www.ycombinator.com/companies/lyon",
         "https://www.ycombinator.com/companies?batch=Summer%202026"
       ]
     },
