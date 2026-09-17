@@ -5,8 +5,8 @@
     "slug": "inth",
     "name": "Inth"
   },
-  "generatedAt": "2026-09-16T23:53:22.810Z",
-  "lastModifiedAt": "2026-09-16T23:53:22.810Z",
+  "generatedAt": "2026-09-17T10:02:30.381Z",
+  "lastModifiedAt": "2026-09-17T10:02:30.381Z",
   "events": [
     {
       "id": "tle-ccbad5cfa63c6efafcfbb86d",
@@ -109,7 +109,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 3,
-    "lastSuccessfulArtifactAt": "2026-09-16T23:53:22.810Z"
+    "lastSuccessfulArtifactAt": "2026-09-17T10:02:30.381Z"
   },
   "nextCursor": null
 }

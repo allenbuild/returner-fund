@@ -5,8 +5,8 @@
     "slug": "nori",
     "name": "Nori"
   },
-  "generatedAt": "2026-09-16T23:53:22.810Z",
-  "lastModifiedAt": "2026-09-16T23:53:22.810Z",
+  "generatedAt": "2026-09-17T10:02:30.381Z",
+  "lastModifiedAt": "2026-09-17T10:02:30.381Z",
   "events": [
     {
       "id": "tle-f664b90870c0d58ca00af314",
@@ -123,7 +123,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 3,
-    "lastSuccessfulArtifactAt": "2026-09-16T23:53:22.810Z"
+    "lastSuccessfulArtifactAt": "2026-09-17T10:02:30.381Z"
   },
   "nextCursor": null
 }

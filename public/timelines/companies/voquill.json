@@ -5,8 +5,8 @@
     "slug": "voquill",
     "name": "Voquill"
   },
-  "generatedAt": "2026-09-16T23:53:22.810Z",
-  "lastModifiedAt": "2026-09-16T23:53:22.810Z",
+  "generatedAt": "2026-09-17T10:02:30.381Z",
+  "lastModifiedAt": "2026-09-17T10:02:30.381Z",
   "events": [
     {
       "id": "tle-48bb8e51f5a1db43f4e16f7c",
@@ -75,7 +75,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 2,
-    "lastSuccessfulArtifactAt": "2026-09-16T23:53:22.810Z"
+    "lastSuccessfulArtifactAt": "2026-09-17T10:02:30.381Z"
   },
   "nextCursor": null
 }
