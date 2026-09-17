@@ -20,7 +20,7 @@
       {
         "id": "src-8e0c0bebaf531b79bcab9cac",
         "title": "HyperProbe Demo | YC BF Launch",
-        "publisher": "KaranRaina95",
+        "publisher": "HyperProbe Demo | YC BF Launch",
         "domain": "youtube.com",
         "sourceType": "video",
         "publishedAt": "2026-07-02T15:31:10-07:00",
@@ -32,14 +32,14 @@
       {
         "id": "src-8e0c0bebaf531b79bcab9cac",
         "title": "HyperProbe Demo | YC BF Launch",
-        "publisher": "KaranRaina95",
+        "publisher": "HyperProbe Demo | YC BF Launch",
         "domain": "youtube.com",
         "sourceType": "video",
         "publishedAt": "2026-07-02T15:31:10-07:00",
         "evidenceRole": "primary",
         "url": "https://youtube.com/watch?v=ivV7I--ta5c",
         "publicationDate": "2026-07-02T15:31:10-07:00",
-        "excerpt": "Demo on how to use HyperProbe to debug live production issues using AI.",
+        "excerpt": "HyperProbe Demo | YC BF Launch",
         "sourceEventDate": "2026-07-02",
         "isConflicting": false,
         "conflictDescription": null
@@ -49,17 +49,17 @@
       {
         "id": "post-4059b82fb64c6d7e544f99c7",
         "platform": "youtube",
-        "account": "KaranRaina95",
+        "account": "HyperProbe Demo | YC BF Launch",
         "postDate": "2026-07-02",
-        "excerpt": "Demo on how to use HyperProbe to debug live production issues using AI.",
+        "excerpt": "HyperProbe Demo | YC BF Launch",
         "url": "https://youtube.com/watch?v=ivV7I--ta5c",
         "metrics": {
-          "views": 91
+          "views": 319
         },
         "evidenceRole": "primary"
       }
     ]
   },
-  "generatedAt": "2026-09-17T10:02:30.381Z",
-  "lastModifiedAt": "2026-09-17T10:02:30.381Z"
+  "generatedAt": "2026-09-17T12:51:32.041Z",
+  "lastModifiedAt": "2026-09-17T12:51:32.041Z"
 }

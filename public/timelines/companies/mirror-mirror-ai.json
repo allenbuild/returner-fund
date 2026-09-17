@@ -5,8 +5,8 @@
     "slug": "mirror-mirror-ai",
     "name": "Mirror Mirror AI"
   },
-  "generatedAt": "2026-09-17T10:02:30.381Z",
-  "lastModifiedAt": "2026-09-17T10:02:30.381Z",
+  "generatedAt": "2026-09-17T12:51:32.041Z",
+  "lastModifiedAt": "2026-09-17T12:51:32.041Z",
   "events": [
     {
       "id": "tle-c821ec3afe8e613fafb1b118",
@@ -128,7 +128,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 3,
-    "lastSuccessfulArtifactAt": "2026-09-17T10:02:30.381Z"
+    "lastSuccessfulArtifactAt": "2026-09-17T12:51:32.041Z"
   },
   "nextCursor": null
 }

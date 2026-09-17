@@ -11471,5 +11471,112 @@
     "scheduledAt": "2026-09-16T23:00:00.000Z",
     "evidenceCollectedAt": "2026-09-16T23:47:39.892Z",
     "terminalFailureBudget": 123
+  },
+  {
+    "schemaVersion": 1,
+    "idempotencyKey": "central-2026-09-17-0600",
+    "centralDay": "2026-09-17",
+    "observedAt": "2026-09-17T12:45:48.700Z",
+    "baselinePhysicalSources": 18018,
+    "publishedPhysicalSources": 18022,
+    "newPhysicalSources": 4,
+    "newPhysicalSourcesThisAttempt": 4,
+    "retainedPhysicalSources": 18018,
+    "removedPhysicalSources": 0,
+    "dailyNewPhysicalSources": 4,
+    "dailySourceHealth": "healthy",
+    "collectionHealth": "degraded",
+    "collectionHealthReasons": [
+      "missing_credential:X_BEARER_TOKEN",
+      "missing_credential:EXA_API_KEY",
+      "mapped_failures:2",
+      "provider_blocked:5893",
+      "mapped_provider_blocked:2351",
+      "mapped_scope_unsupported:10",
+      "mapped_success_rate_below_10_percent:0.0325"
+    ],
+    "collectorValidation": {
+      "status": "required",
+      "reason": null
+    },
+    "mappedExpected": 2458,
+    "mappedSucceeded": 80,
+    "mappedNeedsReview": 248,
+    "mappedBlockedOrEmpty": 2128,
+    "providerBlocked": 5893,
+    "providerBlockedByReason": {
+      "provider_blocked:duckduckgo_html:public_search_circuit_open": 1507,
+      "provider_blocked:instagram_public_json:instagram_public_access_blocked": 1040,
+      "provider_blocked:linkedin_public_html:linkedin_public_circuit_open": 1418,
+      "provider_blocked:official_source_html:official_source_http_failure": 4,
+      "provider_blocked:official_source_html:official_source_timeout": 1,
+      "provider_blocked:official_source_html:official_source_transport_failure": 3,
+      "provider_blocked:official_source_http:official_source_http_failure": 5,
+      "provider_blocked:official_source_http:official_source_timeout": 1,
+      "provider_blocked:reddit_public_json:reddit_public_access_blocked": 479,
+      "provider_blocked:x_public_html:x_public_access_blocked": 1435
+    },
+    "mappedProviderBlocked": 2351,
+    "mappedProviderBlockedByReason": {
+      "provider_blocked:duckduckgo_html:public_search_circuit_open": 10,
+      "provider_blocked:instagram_public_json:instagram_public_access_blocked": 44,
+      "provider_blocked:linkedin_public_html:linkedin_public_circuit_open": 1418,
+      "provider_blocked:x_public_html:x_public_access_blocked": 879
+    },
+    "mappedScopeUnsupported": 10,
+    "mappedFailures": 2,
+    "mappedNonTerminal": 0,
+    "mappedSuccessRate": 0.0325,
+    "newestNewSourcePostedAt": "2026-09-16T23:06:18.000Z",
+    "insertedByBatchPlatform": {
+      "A16ZSR006:youtube": 1,
+      "S26:youtube": 3
+    },
+    "insertedSourceSamples": [
+      {
+        "batchSlug": "A16ZSR006",
+        "platform": "youtube",
+        "entityType": "company",
+        "entityId": "a16z-speedrun-006-idilio",
+        "sourceUrl": "https://youtube.com/watch?v=EYYFVR-1OP0",
+        "platformPostId": "EYYFVR-1OP0",
+        "platformObjectId": null,
+        "postedAt": "2026-09-16T23:06:18.000Z"
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "youtube",
+        "entityType": "company",
+        "entityId": "company-textsidekick",
+        "sourceUrl": "https://youtube.com/watch?v=J7eaqcNhxZM",
+        "platformPostId": "J7eaqcNhxZM",
+        "platformObjectId": null,
+        "postedAt": null
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "youtube",
+        "entityType": "company",
+        "entityId": "company-mosaic-inc",
+        "sourceUrl": "https://youtube.com/watch?v=wZl_nVkgRt8",
+        "platformPostId": "wZl_nVkgRt8",
+        "platformObjectId": null,
+        "postedAt": null
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "youtube",
+        "entityType": "company",
+        "entityId": "company-almanac",
+        "sourceUrl": "https://youtube.com/watch?v=ENXX_SzE8K4",
+        "platformPostId": "ENXX_SzE8K4",
+        "platformObjectId": null,
+        "postedAt": null
+      }
+    ],
+    "trigger": "schedule",
+    "scheduledAt": "2026-09-17T11:00:00.000Z",
+    "evidenceCollectedAt": "2026-09-17T12:43:52.549Z",
+    "terminalFailureBudget": 123
   }
 ]

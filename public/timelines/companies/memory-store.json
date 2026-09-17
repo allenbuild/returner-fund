@@ -5,8 +5,8 @@
     "slug": "memory-store",
     "name": "Memory Store"
   },
-  "generatedAt": "2026-09-17T10:02:30.381Z",
-  "lastModifiedAt": "2026-09-17T10:02:30.381Z",
+  "generatedAt": "2026-09-17T12:51:32.041Z",
+  "lastModifiedAt": "2026-09-17T12:51:32.041Z",
   "events": [
     {
       "id": "tle-dda8ebe8c800d1a78242aae7",
@@ -47,7 +47,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-09-17T10:02:30.381Z"
+    "lastSuccessfulArtifactAt": "2026-09-17T12:51:32.041Z"
   },
   "nextCursor": null
 }

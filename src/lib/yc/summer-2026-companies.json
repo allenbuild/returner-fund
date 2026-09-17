@@ -4,7 +4,7 @@
     "directoryUrl": "https://www.ycombinator.com/companies?batch=Summer%202026",
     "algoliaIndex": "YCCompany_production",
     "algoliaFilter": "batch:\"Summer 2026\"",
-    "fetchedAt": "2026-09-16T23:16:12.857Z",
+    "fetchedAt": "2026-09-17T12:12:32.281Z",
     "expectedCompanyCount": 232,
     "observedCompanyCount": 232,
     "directoryCompanyHitCount": 232,
@@ -2558,7 +2558,7 @@
       "ycProfileUrl": "https://www.ycombinator.com/companies/contextdev",
       "websiteUrl": "https://context.dev",
       "tagline": "We give AI agents realtime web context via API",
-      "description": "Context.dev gives AI agents structured data from any website through a single API.\r\n\r\nWe help developers build smarter agents & products that depend on accurate, fresh web data.\r\n\r\nIf you need structured data from the internet, you need Context.dev\r\n\r\nProud to power agentic products at Mintlify, Super, Vizzy, Klarna, and 400+ other companies. ",
+      "description": "Context.dev gives AI agents structured data from any website through a single API.\r\n\r\nWe help developers build smarter agents & products that depend on accurate, fresh web data.\r\n\r\nIf you need structured data from the internet, you need Context.dev\r\n\r\nProud to power agentic products at Mintlify, Super, Vizzy, Klarna, and 600+ other companies. ",
       "industry": "B2B",
       "subindustry": "B2B -> Infrastructure",
       "industries": [
@@ -2566,12 +2566,12 @@
         "Infrastructure"
       ],
       "tags": [
+        "Artificial Intelligence",
         "B2B",
-        "AI",
         "APIs"
       ],
       "location": "San Francisco",
-      "teamSize": 1,
+      "teamSize": 6,
       "status": "Active",
       "groupPartner": "Jon Xu",
       "groupPartnerUrl": "https://www.ycombinator.com/people/jon-xu",
@@ -3658,7 +3658,7 @@
       "ycProfileUrl": "https://www.ycombinator.com/companies/edgerun",
       "websiteUrl": "https://edgerun.com",
       "tagline": "Military exoskeletons",
-      "description": "Edgerun builds powered legs that double a soldier's range. Started this year. $100M+ in Ukrainian LOIs, requested by the most combat-experienced infantry on Earth. Our work is just beginning.",
+      "description": "Edgerun builds military exoskeletons. The first product is a 10-pound hip system that fits over existing kit and doubles a soldier’s range. Since April 2026, Edgerun built over a dozen iterations of their product through continuous field tests with Ukrainian fighters and secured $150M+ in LOIs. Founder David Venegas previously co-founded Durin (autonomous mining robotics) and worked at Stoke Space (at 19) and Hadrian. He is a high-school dropout, state-championship runner, adventure athlete, and pilot. Edgerun is a Y Combinator company backed by General H.R. McMaster, Cyan Banister, Joshua Steinman and Jason Miller. edgerun.com",
       "industry": "Industrials",
       "subindustry": "Industrials -> Defense",
       "industries": [
@@ -3685,7 +3685,7 @@
           "id": "1393855",
           "name": "David Venegas",
           "title": "Founder/CEO",
-          "bio": "Founder @ Edgerun, building military exoskeletons. Started the company in early 2026 after researching NASA's spacesuit program; units are now being field-iterated in Ukraine with $100M+ in LOIs. Previously co-founded Durin (autonomous mining robotics) and worked at Hadrian and Stoke Space at 19. High-school dropout, state-championship runner, skydiver, scuba diver, pilot.",
+          "bio": "Founder @ Edgerun, building military exoskeletons. Started the company in early 2026 after researching NASA's spacesuit program. Previously co-founded Durin (autonomous mining robotics) and worked at Hadrian and Stoke Space at 19. High-school dropout, state-championship runner, adventure athlete, pilot.",
           "ycProfileUrl": "https://www.ycombinator.com/people/david-venegas",
           "socialLinks": {
             "linkedin": "https://www.linkedin.com/in/david-venegas-m/",
@@ -9133,7 +9133,7 @@
       "name": "Pacific",
       "batch": "Summer 2026",
       "ycProfileUrl": "https://www.ycombinator.com/companies/pacific",
-      "websiteUrl": "https://gopacific.ai/",
+      "websiteUrl": "https://pacific.space",
       "tagline": "Mass-producing and financing micro data center incredibly quickly.",
       "description": "We mass-produce modular data centers that deploy on stalled infrastructure projects losing billions per week.\r\n\r\nDelayed infrastructure projects hemorrhage $1B a week in the US alone - Pacific mass-produces modular data centers that deploy on those sites in days and turn their unused power into revenue.\r\n\r\nData centers are stuck for years waiting for power, while delayed construction sites across the world sit on unused interconnects, losing billions of dollars per week in interest on trillions of dollars of debt. Our pods deploy on those sites and generate revenue for them in days. They use diamond wafers in the cooling system so pods run anywhere on earth, even a desert. \r\n\r\nWe'll use the same mechanisms we're building today to deploy compute across the galaxy.\r\n",
       "industry": "Industrials",
@@ -9149,14 +9149,26 @@
         "AI"
       ],
       "location": "London, United Kingdom",
-      "teamSize": 3,
+      "teamSize": 6,
       "status": "Active",
       "groupPartner": "Brad Flora",
       "groupPartnerUrl": "https://www.ycombinator.com/people/brad-flora",
       "socialLinks": {
         "linkedin": "https://www.linkedin.com/company/pacific-compute"
       },
-      "founders": [],
+      "founders": [
+        {
+          "id": "3218344",
+          "name": "Harper Dammann Smith",
+          "title": "Founder/CEO",
+          "bio": "Founder and CEO of Pacific - Grew my drone startup to $1M in revenue at 18; left school to shoot expeditions for Red Bull on 7,000m peaks. Studied aerospace engineering; dropped out after selling my first company. Now mass producing modular data centers that deploy in days turning unused power into Ai factories.\n\nI'll go to space one day.\n",
+          "ycProfileUrl": "https://www.ycombinator.com/people/harper-dammann-smith",
+          "socialLinks": {
+            "linkedin": "https://www.linkedin.com/in/harper-dammann-smith/",
+            "x": "https://x.com/harperdammann?s=21"
+          }
+        }
+      ],
       "launch": null,
       "sourceUrls": [
         "https://www.ycombinator.com/companies/pacific",
@@ -10449,6 +10461,17 @@
         "x": "https://x.com/rasyn_lab"
       },
       "founders": [
+        {
+          "id": "3475945",
+          "name": "Ansh Tiwari",
+          "title": "Founder/CEO",
+          "bio": "CEO at Rasyn (YC S26) | ex-NASA | 3x ICML",
+          "ycProfileUrl": "https://www.ycombinator.com/people/ansh-tiwari",
+          "socialLinks": {
+            "linkedin": "https://www.linkedin.com/in/ansschh/",
+            "x": "https://x.com/4n5che"
+          }
+        },
         {
           "id": "972683",
           "name": "Ayush Chauhan",

@@ -1,7 +1,7 @@
 {
   "version": 1,
   "batchSlug": "S26",
-  "updatedAt": "2026-09-17T10:03:01.490Z",
+  "updatedAt": "2026-09-17T12:52:03.210Z",
   "daily": [
     {
       "recordedAt": "2026-07-06T05:00:00.000Z",
@@ -75390,9 +75390,9 @@
       ]
     },
     {
-      "recordedAt": "2026-09-17T10:03:01.490Z",
+      "recordedAt": "2026-09-17T12:52:03.210Z",
       "scoringModelVersion": "4.3.1",
-      "inputGeneratedAt": "2026-09-17T10:01:34.903Z",
+      "inputGeneratedAt": "2026-09-17T12:50:36.863Z",
       "companies": [
         {
           "companyId": "company-gamgee",
