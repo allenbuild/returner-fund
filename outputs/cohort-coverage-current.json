@@ -12,8 +12,8 @@
         "catalog": "src/lib/social/a16z-speedrun-006-social-accounts.json",
         "profileSource": "src/lib/graph/a16z-speedrun-006-dataset.ts",
         "graph": "public/graph/a16zsr006.json",
-        "publicRun": "/home/runner/work/_temp/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-09-16-0600-1cc9c11fec835cca/public-a16zsr006.json",
-        "githubRun": "/home/runner/work/_temp/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-09-16-0600-1cc9c11fec835cca/github-a16zsr006.json"
+        "publicRun": "/home/runner/work/_temp/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-09-16-1800-478f33025a11b539/public-a16zsr006.json",
+        "githubRun": "/home/runner/work/_temp/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-09-16-1800-478f33025a11b539/github-a16zsr006.json"
       },
       "counts": {
         "companies": 59,
@@ -24,7 +24,7 @@
         "plannedOwnerMappings": 339,
         "multiAccountOwnerMappings": 4,
         "graphEvidence": 5000,
-        "graphNeedsReview": 2447
+        "graphNeedsReview": 2448
       },
       "structural": {
         "status": "pass",
@@ -828,8 +828,8 @@
         "catalog": "src/lib/yc/spring-2026-companies.json",
         "profileSource": null,
         "graph": "public/graph/s2026.json",
-        "publicRun": "/home/runner/work/_temp/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-09-16-0600-1cc9c11fec835cca/public-s2026.json",
-        "githubRun": "/home/runner/work/_temp/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-09-16-0600-1cc9c11fec835cca/github-s2026.json"
+        "publicRun": "/home/runner/work/_temp/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-09-16-1800-478f33025a11b539/public-s2026.json",
+        "githubRun": "/home/runner/work/_temp/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-09-16-1800-478f33025a11b539/github-s2026.json"
       },
       "counts": {
         "companies": 197,
@@ -840,7 +840,7 @@
         "plannedOwnerMappings": 994,
         "multiAccountOwnerMappings": 1,
         "graphEvidence": 5000,
-        "graphNeedsReview": 10525
+        "graphNeedsReview": 10538
       },
       "structural": {
         "status": "pass",
@@ -2418,19 +2418,19 @@
         "catalog": "src/lib/yc/summer-2026-companies.json",
         "profileSource": null,
         "graph": "public/graph/s26.json",
-        "publicRun": "/home/runner/work/_temp/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-09-16-0600-1cc9c11fec835cca/public-s26.json",
-        "githubRun": "/home/runner/work/_temp/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-09-16-0600-1cc9c11fec835cca/github-s26.json"
+        "publicRun": "/home/runner/work/_temp/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-09-16-1800-478f33025a11b539/public-s26.json",
+        "githubRun": "/home/runner/work/_temp/returner-fund-autonomous-ingestion-state/v1/slots/central-2026-09-16-1800-478f33025a11b539/github-s26.json"
       },
       "counts": {
-        "companies": 233,
-        "founders": 465,
-        "catalogOwnerMappings": 1125,
-        "graphOwnerMappings": 1113,
-        "catalogOwnerPlatformGroups": 1123,
-        "plannedOwnerMappings": 1125,
+        "companies": 232,
+        "founders": 464,
+        "catalogOwnerMappings": 1121,
+        "graphOwnerMappings": 1109,
+        "catalogOwnerPlatformGroups": 1119,
+        "plannedOwnerMappings": 1121,
         "multiAccountOwnerMappings": 2,
         "graphEvidence": 5000,
-        "graphNeedsReview": 7358
+        "graphNeedsReview": 7361
       },
       "structural": {
         "status": "pass",
@@ -2708,39 +2708,39 @@
         "mappingCoverage": {
           "github": {
             "companyMapped": 12,
-            "companyMissing": 221,
+            "companyMissing": 220,
             "founderMapped": 1,
-            "founderMissing": 464
+            "founderMissing": 463
           },
           "instagram": {
             "companyMapped": 7,
-            "companyMissing": 226,
+            "companyMissing": 225,
             "founderMapped": 0,
-            "founderMissing": 465
+            "founderMissing": 464
           },
           "linkedin": {
-            "companyMapped": 209,
+            "companyMapped": 208,
             "companyMissing": 24,
-            "founderMapped": 462,
+            "founderMapped": 461,
             "founderMissing": 3
           },
           "product_hunt": {
             "companyMapped": 5,
-            "companyMissing": 228,
+            "companyMissing": 227,
             "founderMapped": 0,
-            "founderMissing": 465
+            "founderMissing": 464
           },
           "x": {
             "companyMapped": 137,
-            "companyMissing": 96,
-            "founderMapped": 278,
-            "founderMissing": 187
+            "companyMissing": 95,
+            "founderMapped": 276,
+            "founderMissing": 188
           },
           "youtube": {
             "companyMapped": 11,
-            "companyMissing": 222,
+            "companyMissing": 221,
             "founderMapped": 0,
-            "founderMissing": 465
+            "founderMissing": 464
           }
         },
         "noMappedAccounts": [
@@ -3761,6 +3761,11 @@
             "entityId": "founder-rapidfolio-frederik-vanhevel-2636714",
             "name": "Frederik Vanhevel",
             "companyName": "Rapidfolio"
+          },
+          {
+            "entityId": "founder-rasyn-ayush-chauhan-972683",
+            "name": "Ayush Chauhan",
+            "companyName": "Rasyn"
           },
           {
             "entityId": "founder-rasyn-daood-hashmi-3481804",

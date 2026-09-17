@@ -5,8 +5,8 @@
     "slug": "dock",
     "name": "Dock"
   },
-  "generatedAt": "2026-09-16T12:17:23.583Z",
-  "lastModifiedAt": "2026-09-16T12:17:23.583Z",
+  "generatedAt": "2026-09-16T23:53:22.810Z",
+  "lastModifiedAt": "2026-09-16T23:53:22.810Z",
   "events": [
     {
       "id": "tle-43526e775e7604d6a504736e",
@@ -103,7 +103,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 3,
-    "lastSuccessfulArtifactAt": "2026-09-16T12:17:23.583Z"
+    "lastSuccessfulArtifactAt": "2026-09-16T23:53:22.810Z"
   },
   "nextCursor": null
 }

@@ -5,9 +5,33 @@
     "slug": "screenpipe",
     "name": "screenpipe"
   },
-  "generatedAt": "2026-09-16T12:17:23.583Z",
-  "lastModifiedAt": "2026-09-16T12:17:23.583Z",
+  "generatedAt": "2026-09-16T23:53:22.810Z",
+  "lastModifiedAt": "2026-09-16T23:53:22.810Z",
   "events": [
+    {
+      "id": "tle-51c93913cf53c09f8fab90e1",
+      "eventDate": "2026-09-16",
+      "eventDateType": "announcement_date",
+      "title": "screenpipe released Screenpipe Workflows",
+      "summary": "screenpipe introduced Screenpipe Workflows.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-2db16dce0126479ffd5f6443",
+          "title": "Introducing Screenpipe Workflows",
+          "publisher": "Introducing Screenpipe Workflows",
+          "domain": "youtube.com",
+          "sourceType": "video",
+          "publishedAt": "2026-09-16T15:00:35.000Z",
+          "evidenceRole": "primary",
+          "url": "https://youtube.com/watch?v=1p0jsfDz2fs"
+        }
+      ]
+    },
     {
       "id": "tle-a23ec3bf308f64ad46e21ec8",
       "eventDate": "2026-08-20",
@@ -250,6 +274,10 @@
       "year": 2026,
       "months": [
         {
+          "month": "2026-09",
+          "count": 1
+        },
+        {
           "month": "2026-08",
           "count": 2
         },
@@ -270,8 +298,8 @@
   ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 9,
-    "lastSuccessfulArtifactAt": "2026-09-16T12:17:23.583Z"
+    "publishedEventCount": 10,
+    "lastSuccessfulArtifactAt": "2026-09-16T23:53:22.810Z"
   },
   "nextCursor": null
 }

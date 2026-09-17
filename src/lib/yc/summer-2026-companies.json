@@ -4,10 +4,10 @@
     "directoryUrl": "https://www.ycombinator.com/companies?batch=Summer%202026",
     "algoliaIndex": "YCCompany_production",
     "algoliaFilter": "batch:\"Summer 2026\"",
-    "fetchedAt": "2026-09-16T11:38:10.537Z",
-    "expectedCompanyCount": 233,
-    "observedCompanyCount": 233,
-    "directoryCompanyHitCount": 233,
+    "fetchedAt": "2026-09-16T23:16:12.857Z",
+    "expectedCompanyCount": 232,
+    "observedCompanyCount": 232,
+    "directoryCompanyHitCount": 232,
     "verifiedRetiredCompanyCount": 0,
     "verifiedRetiredCompanies": [],
     "minimumCompanyCount": 167,
@@ -1912,65 +1912,6 @@
       "launch": null,
       "sourceUrls": [
         "https://www.ycombinator.com/companies/bloomy",
-        "https://www.ycombinator.com/companies?batch=Summer%202026"
-      ]
-    },
-    {
-      "id": "32197",
-      "objectID": "32197",
-      "slug": "buildbox",
-      "name": "Buildbox",
-      "batch": "Summer 2026",
-      "ycProfileUrl": "https://www.ycombinator.com/companies/buildbox",
-      "websiteUrl": "https://heybuildbox.com",
-      "tagline": "Agent analytics for real user outcomes",
-      "description": "Buildbox helps product teams improve the human-agent experience. We analyze user intent, agent behavior, and outcomes to find where users get stuck or lose trust, then turn those findings into ranked, reproducible issues. ",
-      "industry": "B2B",
-      "subindustry": "B2B -> Analytics",
-      "industries": [
-        "B2B",
-        "Analytics"
-      ],
-      "tags": [
-        "Analytics",
-        "Enterprise Software",
-        "AI"
-      ],
-      "location": "San Francisco",
-      "teamSize": 2,
-      "status": "Active",
-      "groupPartner": "Jon Xu",
-      "groupPartnerUrl": "https://www.ycombinator.com/people/jon-xu",
-      "socialLinks": {
-        "linkedin": "https://www.linkedin.com/company/heybuildbox/"
-      },
-      "founders": [
-        {
-          "id": "949567",
-          "name": "Trishala Jain",
-          "title": "Founder/CEO",
-          "bio": "Co-Founder of Buildbox. Prev Google Labs, MongoDB, AppDynamics. UC Berkeley M.E.T.  (EECS + Business).",
-          "ycProfileUrl": "https://www.ycombinator.com/people/trishala-jain",
-          "socialLinks": {
-            "linkedin": "https://linkedin.com/in/trishalajain7",
-            "x": "https://x.com/hitrishala"
-          }
-        },
-        {
-          "id": "1420688",
-          "name": "Mark Nour",
-          "title": "Founder/CTO",
-          "bio": "Co-Founder of Buildbox. Prev Netflix, Google Cloud, Berkeley CS",
-          "ycProfileUrl": "https://www.ycombinator.com/people/mark-nour",
-          "socialLinks": {
-            "linkedin": "https://www.linkedin.com/in/marknour",
-            "x": "https://x.com/marknnour"
-          }
-        }
-      ],
-      "launch": null,
-      "sourceUrls": [
-        "https://www.ycombinator.com/companies/buildbox",
         "https://www.ycombinator.com/companies?batch=Summer%202026"
       ]
     },
@@ -5281,7 +5222,7 @@
           "id": "208755",
           "name": "Alex Yee",
           "title": "Founder/CTO",
-          "bio": "Founder, Grocalo. 2x YC founder, built & sold onederful (W18). Founding engineer at Lyra Health ($5B+). Principal Engineer at Theranova (patents: Osteoboost, Centese, Accuryn). MS BioE, Stanford; BS, UCSD.",
+          "bio": "Founder, Grocalo. 2x YC founder, built & sold onederful (W18). Founding engineer at Lyra Health ($5B+). MS BioE, Stanford; BS, UCSD.",
           "ycProfileUrl": "https://www.ycombinator.com/people/alex-yee",
           "socialLinks": {
             "linkedin": "https://www.linkedin.com/in/alexyee1/"
@@ -10508,6 +10449,16 @@
         "x": "https://x.com/rasyn_lab"
       },
       "founders": [
+        {
+          "id": "972683",
+          "name": "Ayush Chauhan",
+          "title": "Founder/CTO",
+          "bio": "CTO at Rasyn (S26)",
+          "ycProfileUrl": "https://www.ycombinator.com/people/ayush-chauhan",
+          "socialLinks": {
+            "linkedin": "https://www.linkedin.com/in/ayushchauhan0203/"
+          }
+        },
         {
           "id": "3481804",
           "name": "Daood Hashmi",

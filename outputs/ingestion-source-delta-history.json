@@ -11353,5 +11353,123 @@
     "scheduledAt": "2026-09-16T11:00:00.000Z",
     "evidenceCollectedAt": "2026-09-16T12:09:34.481Z",
     "terminalFailureBudget": 123
+  },
+  {
+    "schemaVersion": 1,
+    "idempotencyKey": "central-2026-09-16-1800",
+    "centralDay": "2026-09-16",
+    "observedAt": "2026-09-16T23:49:36.772Z",
+    "baselinePhysicalSources": 18033,
+    "publishedPhysicalSources": 18018,
+    "newPhysicalSources": 5,
+    "newPhysicalSourcesThisAttempt": 5,
+    "retainedPhysicalSources": 18013,
+    "removedPhysicalSources": 20,
+    "dailyNewPhysicalSources": 6,
+    "dailySourceHealth": "healthy",
+    "collectionHealth": "degraded",
+    "collectionHealthReasons": [
+      "missing_credential:X_BEARER_TOKEN",
+      "missing_credential:EXA_API_KEY",
+      "mapped_failures:2",
+      "provider_blocked:5887",
+      "mapped_provider_blocked:2347",
+      "mapped_scope_unsupported:10",
+      "mapped_success_rate_below_10_percent:0.0326"
+    ],
+    "collectorValidation": {
+      "status": "required",
+      "reason": null
+    },
+    "mappedExpected": 2454,
+    "mappedSucceeded": 80,
+    "mappedNeedsReview": 248,
+    "mappedBlockedOrEmpty": 2124,
+    "providerBlocked": 5887,
+    "providerBlockedByReason": {
+      "provider_blocked:duckduckgo_html:public_search_circuit_open": 1507,
+      "provider_blocked:instagram_public_json:instagram_public_access_blocked": 1041,
+      "provider_blocked:linkedin_public_html:linkedin_public_circuit_open": 1416,
+      "provider_blocked:official_source_html:official_source_http_failure": 4,
+      "provider_blocked:official_source_html:official_source_timeout": 1,
+      "provider_blocked:official_source_html:official_source_transport_failure": 3,
+      "provider_blocked:official_source_http:official_source_http_failure": 5,
+      "provider_blocked:official_source_http:official_source_timeout": 1,
+      "provider_blocked:reddit_public_json:reddit_public_access_blocked": 479,
+      "provider_blocked:x_public_html:x_public_access_blocked": 1430
+    },
+    "mappedProviderBlocked": 2347,
+    "mappedProviderBlockedByReason": {
+      "provider_blocked:duckduckgo_html:public_search_circuit_open": 10,
+      "provider_blocked:instagram_public_json:instagram_public_access_blocked": 44,
+      "provider_blocked:linkedin_public_html:linkedin_public_circuit_open": 1416,
+      "provider_blocked:x_public_html:x_public_access_blocked": 877
+    },
+    "mappedScopeUnsupported": 10,
+    "mappedFailures": 2,
+    "mappedNonTerminal": 0,
+    "mappedSuccessRate": 0.0326,
+    "newestNewSourcePostedAt": "2026-09-16T20:05:47.000Z",
+    "insertedByBatchPlatform": {
+      "A16ZSR006:youtube": 1,
+      "S2026:youtube": 1,
+      "S26:youtube": 3
+    },
+    "insertedSourceSamples": [
+      {
+        "batchSlug": "A16ZSR006",
+        "platform": "youtube",
+        "entityType": "company",
+        "entityId": "a16z-speedrun-006-idilio",
+        "sourceUrl": "https://youtube.com/watch?v=Sdo4eO0cwfw",
+        "platformPostId": "Sdo4eO0cwfw",
+        "platformObjectId": null,
+        "postedAt": "2026-09-16T20:05:47.000Z"
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "youtube",
+        "entityType": "company",
+        "entityId": "company-pango",
+        "sourceUrl": "https://youtube.com/watch?v=pBGU6_-ZZhk",
+        "platformPostId": "pBGU6_-ZZhk",
+        "platformObjectId": null,
+        "postedAt": null
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "youtube",
+        "entityType": "company",
+        "entityId": "company-donkey",
+        "sourceUrl": "https://youtube.com/watch?v=P6leIt1YS0Q",
+        "platformPostId": "P6leIt1YS0Q",
+        "platformObjectId": null,
+        "postedAt": null
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "youtube",
+        "entityType": "company",
+        "entityId": "company-screenpipe",
+        "sourceUrl": "https://youtube.com/watch?v=1p0jsfDz2fs",
+        "platformPostId": "1p0jsfDz2fs",
+        "platformObjectId": null,
+        "postedAt": "2026-09-16T15:00:35.000Z"
+      },
+      {
+        "batchSlug": "S2026",
+        "platform": "youtube",
+        "entityType": "company",
+        "entityId": "company-dispatch",
+        "sourceUrl": "https://youtube.com/watch?v=x4hG36DwZyw",
+        "platformPostId": "x4hG36DwZyw",
+        "platformObjectId": null,
+        "postedAt": null
+      }
+    ],
+    "trigger": "schedule",
+    "scheduledAt": "2026-09-16T23:00:00.000Z",
+    "evidenceCollectedAt": "2026-09-16T23:47:39.892Z",
+    "terminalFailureBudget": 123
   }
 ]
