@@ -5,8 +5,8 @@
     "slug": "amboras",
     "name": "Amboras"
   },
-  "generatedAt": "2026-09-17T12:51:32.041Z",
-  "lastModifiedAt": "2026-09-17T12:51:32.041Z",
+  "generatedAt": "2026-09-18T09:41:17.056Z",
+  "lastModifiedAt": "2026-09-18T09:41:17.056Z",
   "events": [
     {
       "id": "tle-68e0cea80a5991c3bdc1aac3",
@@ -47,7 +47,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-09-17T12:51:32.041Z"
+    "lastSuccessfulArtifactAt": "2026-09-18T09:41:17.056Z"
   },
   "nextCursor": null
 }
