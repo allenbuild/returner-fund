@@ -5,8 +5,8 @@
     "slug": "agnost-ai",
     "name": "Agnost AI"
   },
-  "generatedAt": "2026-09-18T09:41:17.056Z",
-  "lastModifiedAt": "2026-09-18T09:41:17.056Z",
+  "generatedAt": "2026-09-19T09:37:29.910Z",
+  "lastModifiedAt": "2026-09-19T09:37:29.910Z",
   "events": [
     {
       "id": "tle-1595112c2624390236423f6d",
@@ -167,7 +167,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 5,
-    "lastSuccessfulArtifactAt": "2026-09-18T09:41:17.056Z"
+    "lastSuccessfulArtifactAt": "2026-09-19T09:37:29.910Z"
   },
   "nextCursor": null
 }

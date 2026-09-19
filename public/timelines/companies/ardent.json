@@ -5,8 +5,8 @@
     "slug": "ardent",
     "name": "Ardent"
   },
-  "generatedAt": "2026-09-18T09:41:17.056Z",
-  "lastModifiedAt": "2026-09-18T09:41:17.056Z",
+  "generatedAt": "2026-09-19T09:37:29.910Z",
+  "lastModifiedAt": "2026-09-19T09:37:29.910Z",
   "events": [
     {
       "id": "tle-ff2e94420468c0bfe1ba8b94",
@@ -47,7 +47,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-09-18T09:41:17.056Z"
+    "lastSuccessfulArtifactAt": "2026-09-19T09:37:29.910Z"
   },
   "nextCursor": null
 }

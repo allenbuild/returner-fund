@@ -5,8 +5,8 @@
     "slug": "mireye",
     "name": "Mireye"
   },
-  "generatedAt": "2026-09-18T09:41:17.056Z",
-  "lastModifiedAt": "2026-09-18T09:41:17.056Z",
+  "generatedAt": "2026-09-19T09:37:29.910Z",
+  "lastModifiedAt": "2026-09-19T09:37:29.910Z",
   "events": [
     {
       "id": "tle-ef10047c482933617f6f5480",
@@ -99,7 +99,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 3,
-    "lastSuccessfulArtifactAt": "2026-09-18T09:41:17.056Z"
+    "lastSuccessfulArtifactAt": "2026-09-19T09:37:29.910Z"
   },
   "nextCursor": null
 }
