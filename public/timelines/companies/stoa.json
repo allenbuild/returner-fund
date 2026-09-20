@@ -5,8 +5,8 @@
     "slug": "stoa",
     "name": "Stoa"
   },
-  "generatedAt": "2026-09-19T09:37:29.910Z",
-  "lastModifiedAt": "2026-09-19T09:37:29.910Z",
+  "generatedAt": "2026-09-20T09:48:34.686Z",
+  "lastModifiedAt": "2026-09-20T09:48:34.686Z",
   "events": [
     {
       "id": "tle-96d52c009df55ee3373660c3",
@@ -57,7 +57,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-09-19T09:37:29.910Z"
+    "lastSuccessfulArtifactAt": "2026-09-20T09:48:34.686Z"
   },
   "nextCursor": null
 }
