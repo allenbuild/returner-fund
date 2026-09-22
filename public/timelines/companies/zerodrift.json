@@ -5,8 +5,8 @@
     "slug": "zerodrift",
     "name": "ZeroDrift"
   },
-  "generatedAt": "2026-09-21T10:43:33.339Z",
-  "lastModifiedAt": "2026-09-21T10:43:33.339Z",
+  "generatedAt": "2026-09-22T09:48:55.424Z",
+  "lastModifiedAt": "2026-09-22T09:48:55.424Z",
   "events": [
     {
       "id": "tle-0ef6fed2e4a50d5157d02739",
@@ -123,7 +123,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 3,
-    "lastSuccessfulArtifactAt": "2026-09-21T10:43:33.339Z"
+    "lastSuccessfulArtifactAt": "2026-09-22T09:48:55.424Z"
   },
   "nextCursor": null
 }

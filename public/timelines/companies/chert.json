@@ -5,8 +5,8 @@
     "slug": "chert",
     "name": "Chert"
   },
-  "generatedAt": "2026-09-21T10:43:33.339Z",
-  "lastModifiedAt": "2026-09-21T10:43:33.339Z",
+  "generatedAt": "2026-09-22T09:48:55.424Z",
+  "lastModifiedAt": "2026-09-22T09:48:55.424Z",
   "events": [
     {
       "id": "tle-e13b344d5664753d372d3014",
@@ -47,7 +47,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-09-21T10:43:33.339Z"
+    "lastSuccessfulArtifactAt": "2026-09-22T09:48:55.424Z"
   },
   "nextCursor": null
 }

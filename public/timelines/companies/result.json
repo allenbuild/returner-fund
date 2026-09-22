@@ -5,8 +5,8 @@
     "slug": "result",
     "name": "Result"
   },
-  "generatedAt": "2026-09-21T10:43:33.339Z",
-  "lastModifiedAt": "2026-09-21T10:43:33.339Z",
+  "generatedAt": "2026-09-22T09:48:55.424Z",
+  "lastModifiedAt": "2026-09-22T09:48:55.424Z",
   "events": [
     {
       "id": "tle-fe8ea70ba05f1cdf52571678",
@@ -143,7 +143,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 4,
-    "lastSuccessfulArtifactAt": "2026-09-21T10:43:33.339Z"
+    "lastSuccessfulArtifactAt": "2026-09-22T09:48:55.424Z"
   },
   "nextCursor": null
 }
