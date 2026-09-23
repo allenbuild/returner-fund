@@ -5,8 +5,8 @@
     "slug": "atomarine",
     "name": "Atomarine"
   },
-  "generatedAt": "2026-09-22T09:48:55.424Z",
-  "lastModifiedAt": "2026-09-22T09:48:55.424Z",
+  "generatedAt": "2026-09-23T10:04:41.875Z",
+  "lastModifiedAt": "2026-09-23T10:04:41.875Z",
   "events": [
     {
       "id": "tle-a143d6f1d3927425b2a9d5c0",
@@ -47,7 +47,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-09-22T09:48:55.424Z"
+    "lastSuccessfulArtifactAt": "2026-09-23T10:04:41.875Z"
   },
   "nextCursor": null
 }

@@ -5,8 +5,8 @@
     "slug": "prescience-inc",
     "name": "Prescience, Inc."
   },
-  "generatedAt": "2026-09-22T09:48:55.424Z",
-  "lastModifiedAt": "2026-09-22T09:48:55.424Z",
+  "generatedAt": "2026-09-23T10:04:41.875Z",
+  "lastModifiedAt": "2026-09-23T10:04:41.875Z",
   "events": [
     {
       "id": "tle-ffe7ae791948d9dcc590f09a",
@@ -57,7 +57,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-09-22T09:48:55.424Z"
+    "lastSuccessfulArtifactAt": "2026-09-23T10:04:41.875Z"
   },
   "nextCursor": null
 }
