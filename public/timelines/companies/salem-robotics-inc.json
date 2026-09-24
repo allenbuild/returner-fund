@@ -5,8 +5,8 @@
     "slug": "salem-robotics-inc",
     "name": "Salem Robotics Inc"
   },
-  "generatedAt": "2026-09-23T10:04:41.875Z",
-  "lastModifiedAt": "2026-09-23T10:04:41.875Z",
+  "generatedAt": "2026-09-24T09:56:34.122Z",
+  "lastModifiedAt": "2026-09-24T09:56:34.122Z",
   "events": [
     {
       "id": "tle-34a96891e6682732aec084e6",
@@ -47,7 +47,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-09-23T10:04:41.875Z"
+    "lastSuccessfulArtifactAt": "2026-09-24T09:56:34.122Z"
   },
   "nextCursor": null
 }

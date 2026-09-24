@@ -5,8 +5,8 @@
     "slug": "omanta",
     "name": "Omanta"
   },
-  "generatedAt": "2026-09-23T10:04:41.875Z",
-  "lastModifiedAt": "2026-09-23T10:04:41.875Z",
+  "generatedAt": "2026-09-24T09:56:34.122Z",
+  "lastModifiedAt": "2026-09-24T09:56:34.122Z",
   "events": [
     {
       "id": "tle-fd78adefc86c3f32e141211c",
@@ -71,7 +71,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 2,
-    "lastSuccessfulArtifactAt": "2026-09-23T10:04:41.875Z"
+    "lastSuccessfulArtifactAt": "2026-09-24T09:56:34.122Z"
   },
   "nextCursor": null
 }
