@@ -5,8 +5,8 @@
     "slug": "hera",
     "name": "HERA"
   },
-  "generatedAt": "2026-09-24T09:56:34.122Z",
-  "lastModifiedAt": "2026-09-24T09:56:34.122Z",
+  "generatedAt": "2026-09-25T10:10:50.254Z",
+  "lastModifiedAt": "2026-09-25T10:10:50.254Z",
   "events": [
     {
       "id": "tle-1a206244b6ecb2e6f56bbc65",
@@ -71,7 +71,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 2,
-    "lastSuccessfulArtifactAt": "2026-09-24T09:56:34.122Z"
+    "lastSuccessfulArtifactAt": "2026-09-25T10:10:50.254Z"
   },
   "nextCursor": null
 }
