@@ -5,8 +5,8 @@
     "slug": "trellis",
     "name": "Trellis"
   },
-  "generatedAt": "2026-09-25T10:10:50.254Z",
-  "lastModifiedAt": "2026-09-25T10:10:50.254Z",
+  "generatedAt": "2026-09-26T09:52:13.500Z",
+  "lastModifiedAt": "2026-09-26T09:52:13.500Z",
   "events": [
     {
       "id": "tle-70ed2a2527cdad560f9f9e2e",
@@ -47,7 +47,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-09-25T10:10:50.254Z"
+    "lastSuccessfulArtifactAt": "2026-09-26T09:52:13.500Z"
   },
   "nextCursor": null
 }

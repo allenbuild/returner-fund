@@ -5,8 +5,8 @@
     "slug": "saudara-ai",
     "name": "Saudara AI"
   },
-  "generatedAt": "2026-09-25T10:10:50.254Z",
-  "lastModifiedAt": "2026-09-25T10:10:50.254Z",
+  "generatedAt": "2026-09-26T09:52:13.500Z",
+  "lastModifiedAt": "2026-09-26T09:52:13.500Z",
   "events": [
     {
       "id": "tle-b43f853f488b581da13cb2dd",
@@ -47,7 +47,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-09-25T10:10:50.254Z"
+    "lastSuccessfulArtifactAt": "2026-09-26T09:52:13.500Z"
   },
   "nextCursor": null
 }
