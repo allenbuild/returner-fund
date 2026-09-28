@@ -5,8 +5,8 @@
     "slug": "general-instinct",
     "name": "General Instinct"
   },
-  "generatedAt": "2026-09-27T10:35:59.792Z",
-  "lastModifiedAt": "2026-09-27T10:35:59.792Z",
+  "generatedAt": "2026-09-28T11:58:46.057Z",
+  "lastModifiedAt": "2026-09-28T11:58:46.057Z",
   "events": [
     {
       "id": "tle-e4f607aa1b717650819e2074",
@@ -75,7 +75,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 2,
-    "lastSuccessfulArtifactAt": "2026-09-27T10:35:59.792Z"
+    "lastSuccessfulArtifactAt": "2026-09-28T11:58:46.057Z"
   },
   "nextCursor": null
 }

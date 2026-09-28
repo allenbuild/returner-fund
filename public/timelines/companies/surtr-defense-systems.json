@@ -5,8 +5,8 @@
     "slug": "surtr-defense-systems",
     "name": "Surtr Defense Systems"
   },
-  "generatedAt": "2026-09-27T10:35:59.792Z",
-  "lastModifiedAt": "2026-09-27T10:35:59.792Z",
+  "generatedAt": "2026-09-28T11:58:46.057Z",
+  "lastModifiedAt": "2026-09-28T11:58:46.057Z",
   "events": [
     {
       "id": "tle-d6bb670fec923c649e49e580",
@@ -47,7 +47,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-09-27T10:35:59.792Z"
+    "lastSuccessfulArtifactAt": "2026-09-28T11:58:46.057Z"
   },
   "nextCursor": null
 }
