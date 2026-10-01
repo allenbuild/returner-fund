@@ -5,8 +5,8 @@
     "slug": "prodigy-research",
     "name": "Prodigy Research"
   },
-  "generatedAt": "2026-09-30T11:07:10.692Z",
-  "lastModifiedAt": "2026-09-30T11:07:10.692Z",
+  "generatedAt": "2026-10-01T12:05:31.518Z",
+  "lastModifiedAt": "2026-10-01T12:05:31.518Z",
   "events": [
     {
       "id": "tle-de70f461686de1efb669882d",
@@ -57,7 +57,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-09-30T11:07:10.692Z"
+    "lastSuccessfulArtifactAt": "2026-10-01T12:05:31.518Z"
   },
   "nextCursor": null
 }
