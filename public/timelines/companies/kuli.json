@@ -5,8 +5,8 @@
     "slug": "kuli",
     "name": "Kuli"
   },
-  "generatedAt": "2026-10-02T11:05:32.788Z",
-  "lastModifiedAt": "2026-10-02T11:05:32.788Z",
+  "generatedAt": "2026-10-03T10:26:00.883Z",
+  "lastModifiedAt": "2026-10-03T10:26:00.883Z",
   "events": [
     {
       "id": "tle-42c8c30dce1b5c4920673f01",
@@ -47,7 +47,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-10-02T11:05:32.788Z"
+    "lastSuccessfulArtifactAt": "2026-10-03T10:26:00.883Z"
   },
   "nextCursor": null
 }
