@@ -5,8 +5,8 @@
     "slug": "prized",
     "name": "Prized"
   },
-  "generatedAt": "2026-10-03T10:26:00.883Z",
-  "lastModifiedAt": "2026-10-03T10:26:00.883Z",
+  "generatedAt": "2026-10-04T11:09:26.626Z",
+  "lastModifiedAt": "2026-10-04T11:09:26.626Z",
   "events": [
     {
       "id": "tle-aa87eebd2f200c83ea454ba4",
@@ -142,7 +142,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 4,
-    "lastSuccessfulArtifactAt": "2026-10-03T10:26:00.883Z"
+    "lastSuccessfulArtifactAt": "2026-10-04T11:09:26.626Z"
   },
   "nextCursor": null
 }
