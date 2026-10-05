@@ -5,8 +5,8 @@
     "slug": "inkbox",
     "name": "Inkbox"
   },
-  "generatedAt": "2026-10-04T11:09:26.626Z",
-  "lastModifiedAt": "2026-10-04T11:09:26.626Z",
+  "generatedAt": "2026-10-05T12:16:33.185Z",
+  "lastModifiedAt": "2026-10-05T12:16:33.185Z",
   "events": [
     {
       "id": "tle-539a518cae173dc0445c6652",
@@ -132,7 +132,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 4,
-    "lastSuccessfulArtifactAt": "2026-10-04T11:09:26.626Z"
+    "lastSuccessfulArtifactAt": "2026-10-05T12:16:33.185Z"
   },
   "nextCursor": null
 }

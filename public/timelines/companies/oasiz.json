@@ -5,8 +5,8 @@
     "slug": "oasiz",
     "name": "Oasiz"
   },
-  "generatedAt": "2026-10-04T11:09:26.626Z",
-  "lastModifiedAt": "2026-10-04T11:09:26.626Z",
+  "generatedAt": "2026-10-05T12:16:33.185Z",
+  "lastModifiedAt": "2026-10-05T12:16:33.185Z",
   "events": [
     {
       "id": "tle-c2ecc7f1bd531d8437ed724f",
@@ -47,7 +47,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-10-04T11:09:26.626Z"
+    "lastSuccessfulArtifactAt": "2026-10-05T12:16:33.185Z"
   },
   "nextCursor": null
 }

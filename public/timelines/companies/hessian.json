@@ -5,8 +5,8 @@
     "slug": "hessian",
     "name": "Hessian"
   },
-  "generatedAt": "2026-10-04T11:09:26.626Z",
-  "lastModifiedAt": "2026-10-04T11:09:26.626Z",
+  "generatedAt": "2026-10-05T12:16:33.185Z",
+  "lastModifiedAt": "2026-10-05T12:16:33.185Z",
   "events": [
     {
       "id": "tle-0ca0fd88a7f53ae7f73af7ce",
@@ -47,7 +47,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-10-04T11:09:26.626Z"
+    "lastSuccessfulArtifactAt": "2026-10-05T12:16:33.185Z"
   },
   "nextCursor": null
 }
