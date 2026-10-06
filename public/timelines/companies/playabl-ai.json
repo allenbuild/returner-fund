@@ -5,8 +5,8 @@
     "slug": "playabl-ai",
     "name": "Playabl.ai"
   },
-  "generatedAt": "2026-10-05T12:16:33.185Z",
-  "lastModifiedAt": "2026-10-05T12:16:33.185Z",
+  "generatedAt": "2026-10-06T12:00:47.612Z",
+  "lastModifiedAt": "2026-10-06T12:00:47.612Z",
   "events": [
     {
       "id": "tle-453d8b8efbcef864bae6f717",
@@ -47,7 +47,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-10-05T12:16:33.185Z"
+    "lastSuccessfulArtifactAt": "2026-10-06T12:00:47.612Z"
   },
   "nextCursor": null
 }

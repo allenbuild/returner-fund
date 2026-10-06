@@ -5,8 +5,8 @@
     "slug": "hyperprobe",
     "name": "HyperProbe"
   },
-  "generatedAt": "2026-10-05T12:16:33.185Z",
-  "lastModifiedAt": "2026-10-05T12:16:33.185Z",
+  "generatedAt": "2026-10-06T12:00:47.612Z",
+  "lastModifiedAt": "2026-10-06T12:00:47.612Z",
   "events": [
     {
       "id": "tle-1d076bb8716b6308da79649d",
@@ -103,7 +103,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 3,
-    "lastSuccessfulArtifactAt": "2026-10-05T12:16:33.185Z"
+    "lastSuccessfulArtifactAt": "2026-10-06T12:00:47.612Z"
   },
   "nextCursor": null
 }

@@ -5,8 +5,8 @@
     "slug": "nebusec",
     "name": "NebuSec"
   },
-  "generatedAt": "2026-10-05T12:16:33.185Z",
-  "lastModifiedAt": "2026-10-05T12:16:33.185Z",
+  "generatedAt": "2026-10-06T12:00:47.612Z",
+  "lastModifiedAt": "2026-10-06T12:00:47.612Z",
   "events": [
     {
       "id": "tle-b273af0f68a84bab584aac89",
@@ -47,7 +47,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-10-05T12:16:33.185Z"
+    "lastSuccessfulArtifactAt": "2026-10-06T12:00:47.612Z"
   },
   "nextCursor": null
 }
