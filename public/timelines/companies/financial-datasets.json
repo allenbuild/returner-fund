@@ -5,8 +5,8 @@
     "slug": "financial-datasets",
     "name": "Financial Datasets"
   },
-  "generatedAt": "2026-10-06T12:00:47.612Z",
-  "lastModifiedAt": "2026-10-06T12:00:47.612Z",
+  "generatedAt": "2026-10-07T12:00:03.681Z",
+  "lastModifiedAt": "2026-10-07T12:00:03.681Z",
   "events": [
     {
       "id": "tle-0d2e33f345897d1148d88af1",
@@ -99,7 +99,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 3,
-    "lastSuccessfulArtifactAt": "2026-10-06T12:00:47.612Z"
+    "lastSuccessfulArtifactAt": "2026-10-07T12:00:03.681Z"
   },
   "nextCursor": null
 }
