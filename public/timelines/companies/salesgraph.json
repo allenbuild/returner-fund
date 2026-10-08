@@ -5,8 +5,8 @@
     "slug": "salesgraph",
     "name": "Salesgraph"
   },
-  "generatedAt": "2026-10-07T12:00:03.681Z",
-  "lastModifiedAt": "2026-10-07T12:00:03.681Z",
+  "generatedAt": "2026-10-08T11:57:48.665Z",
+  "lastModifiedAt": "2026-10-08T11:57:48.665Z",
   "events": [
     {
       "id": "tle-956ebb20588856af1e1d1142",
@@ -47,7 +47,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-10-07T12:00:03.681Z"
+    "lastSuccessfulArtifactAt": "2026-10-08T11:57:48.665Z"
   },
   "nextCursor": null
 }

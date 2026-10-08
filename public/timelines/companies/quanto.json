@@ -5,8 +5,8 @@
     "slug": "quanto",
     "name": "Quanto"
   },
-  "generatedAt": "2026-10-07T12:00:03.681Z",
-  "lastModifiedAt": "2026-10-07T12:00:03.681Z",
+  "generatedAt": "2026-10-08T11:57:48.665Z",
+  "lastModifiedAt": "2026-10-08T11:57:48.665Z",
   "events": [
     {
       "id": "tle-50fa7246689ca2ee37515950",
@@ -47,7 +47,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-10-07T12:00:03.681Z"
+    "lastSuccessfulArtifactAt": "2026-10-08T11:57:48.665Z"
   },
   "nextCursor": null
 }
