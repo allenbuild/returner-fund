@@ -5,8 +5,8 @@
     "slug": "takecareos",
     "name": "TakeCareOS"
   },
-  "generatedAt": "2026-10-08T11:57:48.665Z",
-  "lastModifiedAt": "2026-10-08T11:57:48.665Z",
+  "generatedAt": "2026-10-09T11:57:46.733Z",
+  "lastModifiedAt": "2026-10-09T11:57:46.733Z",
   "events": [
     {
       "id": "tle-0fd851d6181324bc58258253",
@@ -47,7 +47,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-10-08T11:57:48.665Z"
+    "lastSuccessfulArtifactAt": "2026-10-09T11:57:46.733Z"
   },
   "nextCursor": null
 }

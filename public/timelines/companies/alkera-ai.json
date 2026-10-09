@@ -5,8 +5,8 @@
     "slug": "alkera-ai",
     "name": "Alkera AI"
   },
-  "generatedAt": "2026-10-08T11:57:48.665Z",
-  "lastModifiedAt": "2026-10-08T11:57:48.665Z",
+  "generatedAt": "2026-10-09T11:57:46.733Z",
+  "lastModifiedAt": "2026-10-09T11:57:46.733Z",
   "events": [
     {
       "id": "tle-ea7878b34eabb6a5839d62af",
@@ -71,7 +71,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 2,
-    "lastSuccessfulArtifactAt": "2026-10-08T11:57:48.665Z"
+    "lastSuccessfulArtifactAt": "2026-10-09T11:57:46.733Z"
   },
   "nextCursor": null
 }
