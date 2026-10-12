@@ -5,8 +5,8 @@
     "slug": "asendia-ai",
     "name": "Asendia AI"
   },
-  "generatedAt": "2026-10-10T12:25:07.840Z",
-  "lastModifiedAt": "2026-10-10T12:25:07.840Z",
+  "generatedAt": "2026-10-12T13:00:38.814Z",
+  "lastModifiedAt": "2026-10-12T13:00:38.814Z",
   "events": [
     {
       "id": "tle-10c4e49d4a737e7538e90d3e",
@@ -71,7 +71,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 2,
-    "lastSuccessfulArtifactAt": "2026-10-10T12:25:07.840Z"
+    "lastSuccessfulArtifactAt": "2026-10-12T13:00:38.814Z"
   },
   "nextCursor": null
 }
