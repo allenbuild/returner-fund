@@ -5,8 +5,8 @@
     "slug": "auto",
     "name": "Auto"
   },
-  "generatedAt": "2026-10-12T13:00:38.814Z",
-  "lastModifiedAt": "2026-10-12T13:00:38.814Z",
+  "generatedAt": "2026-10-13T12:39:18.071Z",
+  "lastModifiedAt": "2026-10-13T12:39:18.071Z",
   "events": [
     {
       "id": "tle-49a74bd7ee1e4b1c7084e22c",
@@ -71,7 +71,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 2,
-    "lastSuccessfulArtifactAt": "2026-10-12T13:00:38.814Z"
+    "lastSuccessfulArtifactAt": "2026-10-13T12:39:18.071Z"
   },
   "nextCursor": null
 }
