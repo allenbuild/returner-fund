@@ -5,8 +5,8 @@
     "slug": "sun",
     "name": "SUN"
   },
-  "generatedAt": "2026-10-13T12:39:18.071Z",
-  "lastModifiedAt": "2026-10-13T12:39:18.071Z",
+  "generatedAt": "2026-10-14T10:08:13.743Z",
+  "lastModifiedAt": "2026-10-14T10:08:13.743Z",
   "events": [
     {
       "id": "tle-fe554ffcc6de9d022e53b5fb",
@@ -207,7 +207,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 5,
-    "lastSuccessfulArtifactAt": "2026-10-13T12:39:18.071Z"
+    "lastSuccessfulArtifactAt": "2026-10-14T10:08:13.743Z"
   },
   "nextCursor": null
 }
