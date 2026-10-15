@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
   "kind": "daily-score-benchmark-publication",
-  "slotKey": "daily-benchmark-2026-10-14",
-  "sourceSha": "5241949b26c4969be0e29241a48b12faf12e3c1a",
-  "runId": "38546065317",
+  "slotKey": "daily-benchmark-2026-10-15",
+  "sourceSha": "935d7c7bb031402fdc88bca2f2ff6a9fdb3be0ed",
+  "runId": "38714478132",
   "runAttempt": "1",
   "trigger": "schedule",
   "scheduledUtcHour": "5",
-  "scheduledAt": "2026-10-14T05:00:00.000Z",
-  "centralDate": "2026-10-14",
-  "generatedAt": "2026-10-14T10:31:42.190Z"
+  "scheduledAt": "2026-10-15T05:00:00.000Z",
+  "centralDate": "2026-10-15",
+  "generatedAt": "2026-10-15T10:12:54.906Z"
 }

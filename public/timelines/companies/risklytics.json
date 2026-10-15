@@ -5,8 +5,8 @@
     "slug": "risklytics",
     "name": "Risklytics"
   },
-  "generatedAt": "2026-10-14T10:08:13.743Z",
-  "lastModifiedAt": "2026-10-14T10:08:13.743Z",
+  "generatedAt": "2026-10-15T09:50:08.756Z",
+  "lastModifiedAt": "2026-10-15T09:50:08.756Z",
   "events": [
     {
       "id": "tle-1b2f1cc1f4c2dfe61e446018",
@@ -47,7 +47,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-10-14T10:08:13.743Z"
+    "lastSuccessfulArtifactAt": "2026-10-15T09:50:08.756Z"
   },
   "nextCursor": null
 }

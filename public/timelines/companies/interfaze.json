@@ -5,8 +5,8 @@
     "slug": "interfaze",
     "name": "Interfaze"
   },
-  "generatedAt": "2026-10-14T10:08:13.743Z",
-  "lastModifiedAt": "2026-10-14T10:08:13.743Z",
+  "generatedAt": "2026-10-15T09:50:08.756Z",
+  "lastModifiedAt": "2026-10-15T09:50:08.756Z",
   "events": [
     {
       "id": "tle-5893cfe6d4f1089a5b3a492d",
@@ -179,7 +179,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 6,
-    "lastSuccessfulArtifactAt": "2026-10-14T10:08:13.743Z"
+    "lastSuccessfulArtifactAt": "2026-10-15T09:50:08.756Z"
   },
   "nextCursor": null
 }

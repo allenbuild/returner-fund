@@ -5,8 +5,8 @@
     "slug": "projectx",
     "name": "ProjectX"
   },
-  "generatedAt": "2026-10-14T10:08:13.743Z",
-  "lastModifiedAt": "2026-10-14T10:08:13.743Z",
+  "generatedAt": "2026-10-15T09:50:08.756Z",
+  "lastModifiedAt": "2026-10-15T09:50:08.756Z",
   "events": [
     {
       "id": "tle-c1a8da11524b6aaf2dc87518",
@@ -127,7 +127,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 4,
-    "lastSuccessfulArtifactAt": "2026-10-14T10:08:13.743Z"
+    "lastSuccessfulArtifactAt": "2026-10-15T09:50:08.756Z"
   },
   "nextCursor": null
 }
