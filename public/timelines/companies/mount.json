@@ -5,8 +5,8 @@
     "slug": "mount",
     "name": "Mount"
   },
-  "generatedAt": "2026-10-15T09:50:08.756Z",
-  "lastModifiedAt": "2026-10-15T09:50:08.756Z",
+  "generatedAt": "2026-10-16T09:43:43.424Z",
+  "lastModifiedAt": "2026-10-16T09:43:43.424Z",
   "events": [
     {
       "id": "tle-7836ddb4042c266ef784ff77",
@@ -47,7 +47,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-10-15T09:50:08.756Z"
+    "lastSuccessfulArtifactAt": "2026-10-16T09:43:43.424Z"
   },
   "nextCursor": null
 }

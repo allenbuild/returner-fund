@@ -5,14 +5,14 @@
     "slug": "ploy",
     "name": "Ploy"
   },
-  "generatedAt": "2026-10-15T09:50:08.756Z",
-  "lastModifiedAt": "2026-10-15T09:50:08.756Z",
+  "generatedAt": "2026-10-16T09:43:43.424Z",
+  "lastModifiedAt": "2026-10-16T09:43:43.424Z",
   "events": [],
   "groups": [],
   "coverage": {
     "status": "partial",
     "publishedEventCount": 0,
-    "lastSuccessfulArtifactAt": "2026-10-15T09:50:08.756Z"
+    "lastSuccessfulArtifactAt": "2026-10-16T09:43:43.424Z"
   },
   "nextCursor": null
 }

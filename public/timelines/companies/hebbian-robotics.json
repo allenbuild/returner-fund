@@ -5,8 +5,8 @@
     "slug": "hebbian-robotics",
     "name": "Hebbian Robotics"
   },
-  "generatedAt": "2026-10-15T09:50:08.756Z",
-  "lastModifiedAt": "2026-10-15T09:50:08.756Z",
+  "generatedAt": "2026-10-16T09:43:43.424Z",
+  "lastModifiedAt": "2026-10-16T09:43:43.424Z",
   "events": [
     {
       "id": "tle-9ac2d07a7f86f3fbaa6a6269",
@@ -47,7 +47,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-10-15T09:50:08.756Z"
+    "lastSuccessfulArtifactAt": "2026-10-16T09:43:43.424Z"
   },
   "nextCursor": null
 }
