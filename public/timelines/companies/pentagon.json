@@ -5,8 +5,8 @@
     "slug": "pentagon",
     "name": "Pentagon"
   },
-  "generatedAt": "2026-10-16T09:43:43.424Z",
-  "lastModifiedAt": "2026-10-16T09:43:43.424Z",
+  "generatedAt": "2026-10-17T09:10:03.393Z",
+  "lastModifiedAt": "2026-10-17T09:10:03.393Z",
   "events": [
     {
       "id": "tle-29b5cb5f330b020b93534a08",
@@ -81,7 +81,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 2,
-    "lastSuccessfulArtifactAt": "2026-10-16T09:43:43.424Z"
+    "lastSuccessfulArtifactAt": "2026-10-17T09:10:03.393Z"
   },
   "nextCursor": null
 }

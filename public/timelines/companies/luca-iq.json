@@ -5,8 +5,8 @@
     "slug": "luca-iq",
     "name": "Luca IQ"
   },
-  "generatedAt": "2026-10-16T09:43:43.424Z",
-  "lastModifiedAt": "2026-10-16T09:43:43.424Z",
+  "generatedAt": "2026-10-17T09:10:03.393Z",
+  "lastModifiedAt": "2026-10-17T09:10:03.393Z",
   "events": [
     {
       "id": "tle-202b5b550ca7d65dfcff9ae4",
@@ -47,7 +47,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-10-16T09:43:43.424Z"
+    "lastSuccessfulArtifactAt": "2026-10-17T09:10:03.393Z"
   },
   "nextCursor": null
 }
