@@ -5,8 +5,8 @@
     "slug": "onecli",
     "name": "OneCLI"
   },
-  "generatedAt": "2026-10-17T09:10:03.393Z",
-  "lastModifiedAt": "2026-10-17T09:10:03.393Z",
+  "generatedAt": "2026-10-18T09:33:02.904Z",
+  "lastModifiedAt": "2026-10-18T09:33:02.904Z",
   "events": [
     {
       "id": "tle-aecd7b77f38f9f555c532c52",
@@ -99,7 +99,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 3,
-    "lastSuccessfulArtifactAt": "2026-10-17T09:10:03.393Z"
+    "lastSuccessfulArtifactAt": "2026-10-18T09:33:02.904Z"
   },
   "nextCursor": null
 }

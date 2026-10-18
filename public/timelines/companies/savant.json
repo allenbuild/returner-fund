@@ -5,14 +5,14 @@
     "slug": "savant",
     "name": "Savant"
   },
-  "generatedAt": "2026-10-17T09:10:03.393Z",
-  "lastModifiedAt": "2026-10-17T09:10:03.393Z",
+  "generatedAt": "2026-10-18T09:33:02.904Z",
+  "lastModifiedAt": "2026-10-18T09:33:02.904Z",
   "events": [],
   "groups": [],
   "coverage": {
     "status": "partial",
     "publishedEventCount": 0,
-    "lastSuccessfulArtifactAt": "2026-10-17T09:10:03.393Z"
+    "lastSuccessfulArtifactAt": "2026-10-18T09:33:02.904Z"
   },
   "nextCursor": null
 }
