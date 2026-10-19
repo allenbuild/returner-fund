@@ -5,8 +5,8 @@
     "slug": "marble",
     "name": "Marble"
   },
-  "generatedAt": "2026-10-18T09:33:02.904Z",
-  "lastModifiedAt": "2026-10-18T09:33:02.904Z",
+  "generatedAt": "2026-10-19T10:44:18.824Z",
+  "lastModifiedAt": "2026-10-19T10:44:18.824Z",
   "events": [
     {
       "id": "tle-19f2451f2c004f32e6156fa3",
@@ -47,7 +47,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-10-18T09:33:02.904Z"
+    "lastSuccessfulArtifactAt": "2026-10-19T10:44:18.824Z"
   },
   "nextCursor": null
 }

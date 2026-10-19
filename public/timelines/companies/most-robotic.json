@@ -5,8 +5,8 @@
     "slug": "most-robotic",
     "name": "Most Robotic"
   },
-  "generatedAt": "2026-10-18T09:33:02.904Z",
-  "lastModifiedAt": "2026-10-18T09:33:02.904Z",
+  "generatedAt": "2026-10-19T10:44:18.824Z",
+  "lastModifiedAt": "2026-10-19T10:44:18.824Z",
   "events": [
     {
       "id": "tle-7c28d24c6555aaa46ec6f6a6",
@@ -47,7 +47,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-10-18T09:33:02.904Z"
+    "lastSuccessfulArtifactAt": "2026-10-19T10:44:18.824Z"
   },
   "nextCursor": null
 }

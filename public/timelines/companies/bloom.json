@@ -5,8 +5,8 @@
     "slug": "bloom",
     "name": "Bloom"
   },
-  "generatedAt": "2026-10-18T09:33:02.904Z",
-  "lastModifiedAt": "2026-10-18T09:33:02.904Z",
+  "generatedAt": "2026-10-19T10:44:18.824Z",
+  "lastModifiedAt": "2026-10-19T10:44:18.824Z",
   "events": [
     {
       "id": "tle-8674ef48150c3a3d1f8ffd2f",
@@ -71,7 +71,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 2,
-    "lastSuccessfulArtifactAt": "2026-10-18T09:33:02.904Z"
+    "lastSuccessfulArtifactAt": "2026-10-19T10:44:18.824Z"
   },
   "nextCursor": null
 }
