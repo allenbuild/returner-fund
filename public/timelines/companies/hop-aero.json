@@ -5,8 +5,8 @@
     "slug": "hop-aero",
     "name": "Hop Aero"
   },
-  "generatedAt": "2026-10-20T10:01:40.015Z",
-  "lastModifiedAt": "2026-10-20T10:01:40.015Z",
+  "generatedAt": "2026-10-21T10:01:19.418Z",
+  "lastModifiedAt": "2026-10-21T10:01:19.418Z",
   "events": [
     {
       "id": "tle-c7c2e659c85d7a46481f5ece",
@@ -47,7 +47,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-10-20T10:01:40.015Z"
+    "lastSuccessfulArtifactAt": "2026-10-21T10:01:19.418Z"
   },
   "nextCursor": null
 }

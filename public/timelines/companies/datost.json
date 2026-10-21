@@ -5,8 +5,8 @@
     "slug": "datost",
     "name": "Datost"
   },
-  "generatedAt": "2026-10-20T10:01:40.015Z",
-  "lastModifiedAt": "2026-10-20T10:01:40.015Z",
+  "generatedAt": "2026-10-21T10:01:19.418Z",
+  "lastModifiedAt": "2026-10-21T10:01:19.418Z",
   "events": [
     {
       "id": "tle-f54d557607fd3e0af9adee2e",
@@ -47,7 +47,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-10-20T10:01:40.015Z"
+    "lastSuccessfulArtifactAt": "2026-10-21T10:01:19.418Z"
   },
   "nextCursor": null
 }

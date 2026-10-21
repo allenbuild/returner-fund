@@ -5,8 +5,8 @@
     "slug": "rex",
     "name": "Rex"
   },
-  "generatedAt": "2026-10-20T10:01:40.015Z",
-  "lastModifiedAt": "2026-10-20T10:01:40.015Z",
+  "generatedAt": "2026-10-21T10:01:19.418Z",
+  "lastModifiedAt": "2026-10-21T10:01:19.418Z",
   "events": [
     {
       "id": "tle-2c95b860b7a490f80e030b96",
@@ -47,7 +47,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-10-20T10:01:40.015Z"
+    "lastSuccessfulArtifactAt": "2026-10-21T10:01:19.418Z"
   },
   "nextCursor": null
 }
