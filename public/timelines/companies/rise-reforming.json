@@ -5,8 +5,8 @@
     "slug": "rise-reforming",
     "name": "Rise Reforming"
   },
-  "generatedAt": "2026-10-21T10:01:19.418Z",
-  "lastModifiedAt": "2026-10-21T10:01:19.418Z",
+  "generatedAt": "2026-10-22T10:30:33.148Z",
+  "lastModifiedAt": "2026-10-22T10:30:33.148Z",
   "events": [
     {
       "id": "tle-e163e0c844c4f7038e6c48bd",
@@ -90,7 +90,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 2,
-    "lastSuccessfulArtifactAt": "2026-10-21T10:01:19.418Z"
+    "lastSuccessfulArtifactAt": "2026-10-22T10:30:33.148Z"
   },
   "nextCursor": null
 }
