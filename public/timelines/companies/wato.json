@@ -5,8 +5,8 @@
     "slug": "wato",
     "name": "Wato"
   },
-  "generatedAt": "2026-10-22T10:30:33.148Z",
-  "lastModifiedAt": "2026-10-22T10:30:33.148Z",
+  "generatedAt": "2026-10-24T09:31:19.507Z",
+  "lastModifiedAt": "2026-10-24T09:31:19.507Z",
   "events": [
     {
       "id": "tle-f8cc0cf7dae61c89c370e9d9",
@@ -67,7 +67,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-10-22T10:30:33.148Z"
+    "lastSuccessfulArtifactAt": "2026-10-24T09:31:19.507Z"
   },
   "nextCursor": null
 }

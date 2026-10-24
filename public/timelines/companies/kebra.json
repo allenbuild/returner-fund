@@ -5,8 +5,8 @@
     "slug": "kebra",
     "name": "Kebra"
   },
-  "generatedAt": "2026-10-22T10:30:33.148Z",
-  "lastModifiedAt": "2026-10-22T10:30:33.148Z",
+  "generatedAt": "2026-10-24T09:31:19.507Z",
+  "lastModifiedAt": "2026-10-24T09:31:19.507Z",
   "events": [
     {
       "id": "tle-ed8ec2de3380ddb7e34de5c9",
@@ -47,7 +47,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-10-22T10:30:33.148Z"
+    "lastSuccessfulArtifactAt": "2026-10-24T09:31:19.507Z"
   },
   "nextCursor": null
 }
