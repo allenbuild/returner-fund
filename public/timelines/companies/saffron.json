@@ -5,8 +5,8 @@
     "slug": "saffron",
     "name": "Saffron"
   },
-  "generatedAt": "2026-10-24T09:31:19.507Z",
-  "lastModifiedAt": "2026-10-24T09:31:19.507Z",
+  "generatedAt": "2026-10-25T09:46:06.589Z",
+  "lastModifiedAt": "2026-10-25T09:46:06.589Z",
   "events": [
     {
       "id": "tle-92f2e55eb6cc80f3d4e73023",
@@ -47,7 +47,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-10-24T09:31:19.507Z"
+    "lastSuccessfulArtifactAt": "2026-10-25T09:46:06.589Z"
   },
   "nextCursor": null
 }
