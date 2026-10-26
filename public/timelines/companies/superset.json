@@ -5,8 +5,8 @@
     "slug": "superset",
     "name": "Superset"
   },
-  "generatedAt": "2026-10-25T09:46:06.589Z",
-  "lastModifiedAt": "2026-10-25T09:46:06.589Z",
+  "generatedAt": "2026-10-26T10:59:03.432Z",
+  "lastModifiedAt": "2026-10-26T10:59:03.432Z",
   "events": [
     {
       "id": "tle-1165352752c0cb1477834654",
@@ -151,7 +151,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 4,
-    "lastSuccessfulArtifactAt": "2026-10-25T09:46:06.589Z"
+    "lastSuccessfulArtifactAt": "2026-10-26T10:59:03.432Z"
   },
   "nextCursor": null
 }
