@@ -5,8 +5,8 @@
     "slug": "modern",
     "name": "Modern"
   },
-  "generatedAt": "2026-10-26T10:59:03.432Z",
-  "lastModifiedAt": "2026-10-26T10:59:03.432Z",
+  "generatedAt": "2026-10-27T10:25:57.804Z",
+  "lastModifiedAt": "2026-10-27T10:25:57.804Z",
   "events": [
     {
       "id": "tle-626773014ab76ec72f7f36a9",
@@ -47,7 +47,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-10-26T10:59:03.432Z"
+    "lastSuccessfulArtifactAt": "2026-10-27T10:25:57.804Z"
   },
   "nextCursor": null
 }
