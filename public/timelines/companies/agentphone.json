@@ -5,8 +5,8 @@
     "slug": "agentphone",
     "name": "AgentPhone"
   },
-  "generatedAt": "2026-10-27T10:25:57.804Z",
-  "lastModifiedAt": "2026-10-27T10:25:57.804Z",
+  "generatedAt": "2026-10-28T11:11:56.987Z",
+  "lastModifiedAt": "2026-10-28T11:11:56.987Z",
   "events": [
     {
       "id": "tle-d25bcedc7926f04f5e8d7453",
@@ -47,7 +47,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-10-27T10:25:57.804Z"
+    "lastSuccessfulArtifactAt": "2026-10-28T11:11:56.987Z"
   },
   "nextCursor": null
 }
