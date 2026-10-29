@@ -5,8 +5,8 @@
     "slug": "minicor",
     "name": "Minicor"
   },
-  "generatedAt": "2026-10-28T11:11:56.987Z",
-  "lastModifiedAt": "2026-10-28T11:11:56.987Z",
+  "generatedAt": "2026-10-29T11:31:13.517Z",
+  "lastModifiedAt": "2026-10-29T11:31:13.517Z",
   "events": [
     {
       "id": "tle-4f1406d3910450241b829011",
@@ -75,7 +75,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 2,
-    "lastSuccessfulArtifactAt": "2026-10-28T11:11:56.987Z"
+    "lastSuccessfulArtifactAt": "2026-10-29T11:31:13.517Z"
   },
   "nextCursor": null
 }

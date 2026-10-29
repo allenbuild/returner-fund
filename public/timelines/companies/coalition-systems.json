@@ -5,14 +5,14 @@
     "slug": "coalition-systems",
     "name": "Coalition Systems"
   },
-  "generatedAt": "2026-10-28T11:11:56.987Z",
-  "lastModifiedAt": "2026-10-28T11:11:56.987Z",
+  "generatedAt": "2026-10-29T11:31:13.517Z",
+  "lastModifiedAt": "2026-10-29T11:31:13.517Z",
   "events": [],
   "groups": [],
   "coverage": {
     "status": "partial",
     "publishedEventCount": 0,
-    "lastSuccessfulArtifactAt": "2026-10-28T11:11:56.987Z"
+    "lastSuccessfulArtifactAt": "2026-10-29T11:31:13.517Z"
   },
   "nextCursor": null
 }
