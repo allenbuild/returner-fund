@@ -5,8 +5,8 @@
     "slug": "syncere",
     "name": "Syncere"
   },
-  "generatedAt": "2026-10-30T11:22:10.178Z",
-  "lastModifiedAt": "2026-10-30T11:22:10.178Z",
+  "generatedAt": "2026-10-31T10:52:10.667Z",
+  "lastModifiedAt": "2026-10-31T10:52:10.667Z",
   "events": [
     {
       "id": "tle-1ead686a0735a925012af525",
@@ -57,7 +57,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-10-30T11:22:10.178Z"
+    "lastSuccessfulArtifactAt": "2026-10-31T10:52:10.667Z"
   },
   "nextCursor": null
 }
