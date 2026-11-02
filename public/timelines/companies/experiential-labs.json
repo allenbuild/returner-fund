@@ -5,8 +5,8 @@
     "slug": "experiential-labs",
     "name": "Experiential Labs"
   },
-  "generatedAt": "2026-11-01T11:52:23.254Z",
-  "lastModifiedAt": "2026-11-01T11:52:23.254Z",
+  "generatedAt": "2026-11-02T15:00:38.977Z",
+  "lastModifiedAt": "2026-11-02T15:00:38.977Z",
   "events": [
     {
       "id": "tle-677e6af0e7f3cafd45f4600c",
@@ -47,7 +47,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-11-01T11:52:23.254Z"
+    "lastSuccessfulArtifactAt": "2026-11-02T15:00:38.977Z"
   },
   "nextCursor": null
 }

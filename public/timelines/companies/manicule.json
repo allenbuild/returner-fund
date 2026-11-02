@@ -5,8 +5,8 @@
     "slug": "manicule",
     "name": "Manicule"
   },
-  "generatedAt": "2026-11-01T11:52:23.254Z",
-  "lastModifiedAt": "2026-11-01T11:52:23.254Z",
+  "generatedAt": "2026-11-02T15:00:38.977Z",
+  "lastModifiedAt": "2026-11-02T15:00:38.977Z",
   "events": [
     {
       "id": "tle-2452544c2e734f52e06ab37e",
@@ -47,7 +47,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-11-01T11:52:23.254Z"
+    "lastSuccessfulArtifactAt": "2026-11-02T15:00:38.977Z"
   },
   "nextCursor": null
 }

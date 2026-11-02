@@ -5,8 +5,8 @@
     "slug": "cignara",
     "name": "Cignara"
   },
-  "generatedAt": "2026-11-01T11:52:23.254Z",
-  "lastModifiedAt": "2026-11-01T11:52:23.254Z",
+  "generatedAt": "2026-11-02T15:00:38.977Z",
+  "lastModifiedAt": "2026-11-02T15:00:38.977Z",
   "events": [
     {
       "id": "tle-c7d1292510e0c196c7188b49",
@@ -47,7 +47,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-11-01T11:52:23.254Z"
+    "lastSuccessfulArtifactAt": "2026-11-02T15:00:38.977Z"
   },
   "nextCursor": null
 }
