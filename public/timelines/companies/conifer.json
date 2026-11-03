@@ -5,8 +5,8 @@
     "slug": "conifer",
     "name": "Conifer"
   },
-  "generatedAt": "2026-11-02T15:00:38.977Z",
-  "lastModifiedAt": "2026-11-02T15:00:38.977Z",
+  "generatedAt": "2026-11-03T13:48:53.404Z",
+  "lastModifiedAt": "2026-11-03T13:48:53.404Z",
   "events": [
     {
       "id": "tle-d64a6a72ecb97d71e7d495ab",
@@ -75,7 +75,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 2,
-    "lastSuccessfulArtifactAt": "2026-11-02T15:00:38.977Z"
+    "lastSuccessfulArtifactAt": "2026-11-03T13:48:53.404Z"
   },
   "nextCursor": null
 }
