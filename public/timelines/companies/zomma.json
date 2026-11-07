@@ -5,8 +5,8 @@
     "slug": "zomma",
     "name": "Zomma"
   },
-  "generatedAt": "2026-11-03T13:48:53.404Z",
-  "lastModifiedAt": "2026-11-03T13:48:53.404Z",
+  "generatedAt": "2026-11-07T12:41:50.988Z",
+  "lastModifiedAt": "2026-11-07T12:41:50.988Z",
   "events": [
     {
       "id": "tle-dd5a4d5ccea0e7300de1ae1c",
@@ -47,7 +47,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-11-03T13:48:53.404Z"
+    "lastSuccessfulArtifactAt": "2026-11-07T12:41:50.988Z"
   },
   "nextCursor": null
 }
