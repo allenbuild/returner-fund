@@ -5,8 +5,8 @@
     "slug": "snapp-stats",
     "name": "Snapp Stats"
   },
-  "generatedAt": "2026-11-07T12:41:50.988Z",
-  "lastModifiedAt": "2026-11-07T12:41:50.988Z",
+  "generatedAt": "2026-11-08T12:54:43.696Z",
+  "lastModifiedAt": "2026-11-08T12:54:43.696Z",
   "events": [
     {
       "id": "tle-6a25e08de81141c759fff9b2",
@@ -131,7 +131,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 4,
-    "lastSuccessfulArtifactAt": "2026-11-07T12:41:50.988Z"
+    "lastSuccessfulArtifactAt": "2026-11-08T12:54:43.696Z"
   },
   "nextCursor": null
 }
