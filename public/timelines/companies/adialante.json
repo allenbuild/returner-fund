@@ -5,8 +5,8 @@
     "slug": "adialante",
     "name": "Adialante"
   },
-  "generatedAt": "2026-11-08T12:54:43.696Z",
-  "lastModifiedAt": "2026-11-08T12:54:43.696Z",
+  "generatedAt": "2026-11-09T15:24:04.349Z",
+  "lastModifiedAt": "2026-11-09T15:24:04.349Z",
   "events": [
     {
       "id": "tle-4f6b758a0af3bc92a10e0173",
@@ -47,7 +47,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-11-08T12:54:43.696Z"
+    "lastSuccessfulArtifactAt": "2026-11-09T15:24:04.349Z"
   },
   "nextCursor": null
 }
