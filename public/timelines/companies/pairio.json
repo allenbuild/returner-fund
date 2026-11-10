@@ -5,8 +5,8 @@
     "slug": "pairio",
     "name": "Pairio"
   },
-  "generatedAt": "2026-11-09T15:24:04.349Z",
-  "lastModifiedAt": "2026-11-09T15:24:04.349Z",
+  "generatedAt": "2026-11-10T14:34:13.757Z",
+  "lastModifiedAt": "2026-11-10T14:34:13.757Z",
   "events": [
     {
       "id": "tle-7a83d39d90eada73e606860a",
@@ -47,7 +47,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-11-09T15:24:04.349Z"
+    "lastSuccessfulArtifactAt": "2026-11-10T14:34:13.757Z"
   },
   "nextCursor": null
 }

@@ -5,8 +5,8 @@
     "slug": "machine0",
     "name": "machine0"
   },
-  "generatedAt": "2026-11-09T15:24:04.349Z",
-  "lastModifiedAt": "2026-11-09T15:24:04.349Z",
+  "generatedAt": "2026-11-10T14:34:13.757Z",
+  "lastModifiedAt": "2026-11-10T14:34:13.757Z",
   "events": [
     {
       "id": "tle-b3bdd6b304a2f4a37b9433e8",
@@ -161,7 +161,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 5,
-    "lastSuccessfulArtifactAt": "2026-11-09T15:24:04.349Z"
+    "lastSuccessfulArtifactAt": "2026-11-10T14:34:13.757Z"
   },
   "nextCursor": null
 }
