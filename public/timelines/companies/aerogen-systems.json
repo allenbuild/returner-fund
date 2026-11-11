@@ -5,8 +5,8 @@
     "slug": "aerogen-systems",
     "name": "Aerogen Systems"
   },
-  "generatedAt": "2026-11-10T14:34:13.757Z",
-  "lastModifiedAt": "2026-11-10T14:34:13.757Z",
+  "generatedAt": "2026-11-11T13:47:32.429Z",
+  "lastModifiedAt": "2026-11-11T13:47:32.429Z",
   "events": [
     {
       "id": "tle-b0045b6eac63f264ebd14453",
@@ -75,7 +75,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 2,
-    "lastSuccessfulArtifactAt": "2026-11-10T14:34:13.757Z"
+    "lastSuccessfulArtifactAt": "2026-11-11T13:47:32.429Z"
   },
   "nextCursor": null
 }

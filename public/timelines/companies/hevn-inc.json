@@ -5,8 +5,8 @@
     "slug": "hevn-inc",
     "name": "HEVN, inc"
   },
-  "generatedAt": "2026-11-10T14:34:13.757Z",
-  "lastModifiedAt": "2026-11-10T14:34:13.757Z",
+  "generatedAt": "2026-11-11T13:47:32.429Z",
+  "lastModifiedAt": "2026-11-11T13:47:32.429Z",
   "events": [
     {
       "id": "tle-687852945f90b44d6043f076",
@@ -47,7 +47,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-11-10T14:34:13.757Z"
+    "lastSuccessfulArtifactAt": "2026-11-11T13:47:32.429Z"
   },
   "nextCursor": null
 }
