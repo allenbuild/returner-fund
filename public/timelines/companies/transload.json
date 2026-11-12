@@ -5,8 +5,8 @@
     "slug": "transload",
     "name": "transload"
   },
-  "generatedAt": "2026-11-11T13:47:32.429Z",
-  "lastModifiedAt": "2026-11-11T13:47:32.429Z",
+  "generatedAt": "2026-11-12T14:49:10.297Z",
+  "lastModifiedAt": "2026-11-12T14:49:10.297Z",
   "events": [
     {
       "id": "tle-9e7872c2e4fb80957b1a88e6",
@@ -57,7 +57,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-11-11T13:47:32.429Z"
+    "lastSuccessfulArtifactAt": "2026-11-12T14:49:10.297Z"
   },
   "nextCursor": null
 }

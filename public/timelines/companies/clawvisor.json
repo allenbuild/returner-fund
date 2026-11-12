@@ -5,8 +5,8 @@
     "slug": "clawvisor",
     "name": "Clawvisor"
   },
-  "generatedAt": "2026-11-11T13:47:32.429Z",
-  "lastModifiedAt": "2026-11-11T13:47:32.429Z",
+  "generatedAt": "2026-11-12T14:49:10.297Z",
+  "lastModifiedAt": "2026-11-12T14:49:10.297Z",
   "events": [
     {
       "id": "tle-a60da5b1c402d772da211a14",
@@ -71,7 +71,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 2,
-    "lastSuccessfulArtifactAt": "2026-11-11T13:47:32.429Z"
+    "lastSuccessfulArtifactAt": "2026-11-12T14:49:10.297Z"
   },
   "nextCursor": null
 }
