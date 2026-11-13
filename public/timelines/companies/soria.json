@@ -5,8 +5,8 @@
     "slug": "soria",
     "name": "Soria"
   },
-  "generatedAt": "2026-11-12T14:49:10.297Z",
-  "lastModifiedAt": "2026-11-12T14:49:10.297Z",
+  "generatedAt": "2026-11-13T14:09:00.219Z",
+  "lastModifiedAt": "2026-11-13T14:09:00.219Z",
   "events": [
     {
       "id": "tle-ca6b58b5fdd4ec4ea26a3bef",
@@ -47,7 +47,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-11-12T14:49:10.297Z"
+    "lastSuccessfulArtifactAt": "2026-11-13T14:09:00.219Z"
   },
   "nextCursor": null
 }
