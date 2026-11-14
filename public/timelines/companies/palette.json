@@ -5,8 +5,8 @@
     "slug": "palette",
     "name": "Palette"
   },
-  "generatedAt": "2026-11-13T14:09:00.219Z",
-  "lastModifiedAt": "2026-11-13T14:09:00.219Z",
+  "generatedAt": "2026-11-14T13:10:25.087Z",
+  "lastModifiedAt": "2026-11-14T13:10:25.087Z",
   "events": [
     {
       "id": "tle-6e6b73d38340638d88b27dc1",
@@ -99,7 +99,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 3,
-    "lastSuccessfulArtifactAt": "2026-11-13T14:09:00.219Z"
+    "lastSuccessfulArtifactAt": "2026-11-14T13:10:25.087Z"
   },
   "nextCursor": null
 }
