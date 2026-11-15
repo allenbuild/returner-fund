@@ -5,8 +5,8 @@
     "slug": "prototyping-io",
     "name": "Prototyping.io"
   },
-  "generatedAt": "2026-11-14T13:10:25.087Z",
-  "lastModifiedAt": "2026-11-14T13:10:25.087Z",
+  "generatedAt": "2026-11-15T13:37:09.881Z",
+  "lastModifiedAt": "2026-11-15T13:37:09.881Z",
   "events": [
     {
       "id": "tle-a1fb8789b02387a8e021b868",
@@ -85,7 +85,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 2,
-    "lastSuccessfulArtifactAt": "2026-11-14T13:10:25.087Z"
+    "lastSuccessfulArtifactAt": "2026-11-15T13:37:09.881Z"
   },
   "nextCursor": null
 }

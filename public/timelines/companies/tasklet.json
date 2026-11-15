@@ -5,8 +5,8 @@
     "slug": "tasklet",
     "name": "Tasklet"
   },
-  "generatedAt": "2026-11-14T13:10:25.087Z",
-  "lastModifiedAt": "2026-11-14T13:10:25.087Z",
+  "generatedAt": "2026-11-15T13:37:09.881Z",
+  "lastModifiedAt": "2026-11-15T13:37:09.881Z",
   "events": [
     {
       "id": "tle-b3c3037d617b465ad3eda48f",
@@ -360,7 +360,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 12,
-    "lastSuccessfulArtifactAt": "2026-11-14T13:10:25.087Z"
+    "lastSuccessfulArtifactAt": "2026-11-15T13:37:09.881Z"
   },
   "nextCursor": null
 }
