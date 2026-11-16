@@ -5,8 +5,8 @@
     "slug": "instaagent",
     "name": "InstaAgent"
   },
-  "generatedAt": "2026-11-15T13:37:09.881Z",
-  "lastModifiedAt": "2026-11-15T13:37:09.881Z",
+  "generatedAt": "2026-11-16T14:57:39.751Z",
+  "lastModifiedAt": "2026-11-16T14:57:39.751Z",
   "events": [
     {
       "id": "tle-0df2d9363897f81a3490a8ed",
@@ -47,7 +47,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-11-15T13:37:09.881Z"
+    "lastSuccessfulArtifactAt": "2026-11-16T14:57:39.751Z"
   },
   "nextCursor": null
 }

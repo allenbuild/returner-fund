@@ -5,8 +5,8 @@
     "slug": "insforge",
     "name": "InsForge"
   },
-  "generatedAt": "2026-11-15T13:37:09.881Z",
-  "lastModifiedAt": "2026-11-15T13:37:09.881Z",
+  "generatedAt": "2026-11-16T14:57:39.751Z",
+  "lastModifiedAt": "2026-11-16T14:57:39.751Z",
   "events": [
     {
       "id": "tle-dbc36236a97f23c739f4e5b4",
@@ -347,7 +347,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 12,
-    "lastSuccessfulArtifactAt": "2026-11-15T13:37:09.881Z"
+    "lastSuccessfulArtifactAt": "2026-11-16T14:57:39.751Z"
   },
   "nextCursor": null
 }

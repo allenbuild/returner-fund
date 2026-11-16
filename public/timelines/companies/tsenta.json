@@ -5,8 +5,8 @@
     "slug": "tsenta",
     "name": "Tsenta"
   },
-  "generatedAt": "2026-11-15T13:37:09.881Z",
-  "lastModifiedAt": "2026-11-15T13:37:09.881Z",
+  "generatedAt": "2026-11-16T14:57:39.751Z",
+  "lastModifiedAt": "2026-11-16T14:57:39.751Z",
   "events": [
     {
       "id": "tle-5df0145a4e1cd1e92625feba",
@@ -159,7 +159,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 5,
-    "lastSuccessfulArtifactAt": "2026-11-15T13:37:09.881Z"
+    "lastSuccessfulArtifactAt": "2026-11-16T14:57:39.751Z"
   },
   "nextCursor": null
 }
