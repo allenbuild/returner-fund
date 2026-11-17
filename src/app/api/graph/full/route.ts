@@ -22,6 +22,7 @@ import {
   loadUserInsiderConfiguration
 } from "@/lib/social/user-insiders-server";
 import { streamJsonResponse } from "@/lib/http/stream-json-response";
+import { publicationCanonicalBaseGraph } from "@/lib/graph/publication-graph-build-scope";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -32,6 +33,8 @@ const platforms = [
   "x",
   "linkedin",
   "instagram",
+  "facebook",
+  "threads",
   "product_hunt",
   "youtube",
   "rss",
@@ -67,7 +70,7 @@ const topVoiceAudiences = ["off", "yc_partners", "insiders"] as const satisfies 
 const GRAPH_RESPONSE_CACHE_TTL_MS = 60_000;
 const DEFAULT_BATCH_SLUG = "S2026";
 const MAX_FILTER_VALUES = 64;
-const batchSlugs = new Set(["S2026", "S26", "A16ZSR006"]);
+const batchSlugs = new Set(["S2026", "S26", "A16ZSR006", "F26"]);
 const commaSeparatedValuesSchema = z.string().transform((value) =>
   value.split(",").map((item) => item.trim())
 );
@@ -308,18 +311,25 @@ export async function GET(request: Request) {
     // the process-wide graph cache.
     retainResult: false,
     build: () => {
-      const baseGraph = buildGraphResponse({ batchSlug, topVoices: "off" }, dataset);
-      const liveBaseGraph = overlayLiveEvidenceOnGraph(baseGraph, liveEvidence, {
-        topVoices: "off",
-        calibrationCohort: dataset.companies
-      }).graph;
-      let canonicalGraph = liveBaseGraph;
-      try {
-        const benchmarkRows = ensureBenchmarkMomentum(liveBaseGraph).graph.fastestGaining;
-        canonicalGraph = applyBenchmarkMomentumRows(liveBaseGraph, benchmarkRows);
-      } catch (error) {
-        console.error("Graph benchmark momentum failed; returning graph without persisted benchmark deltas", error);
-      }
+      const buildBase = () => {
+        const baseGraph = buildGraphResponse({ batchSlug, topVoices: "off" }, dataset);
+        const liveBaseGraph = overlayLiveEvidenceOnGraph(baseGraph, liveEvidence, {
+          topVoices: "off", calibrationCohort: dataset.companies
+        }).graph;
+        try {
+          const benchmarkRows = ensureBenchmarkMomentum(liveBaseGraph).graph.fastestGaining;
+          return applyBenchmarkMomentumRows(liveBaseGraph, benchmarkRows);
+        } catch (error) {
+          console.error("Graph benchmark momentum failed; returning graph without persisted benchmark deltas", error);
+          return liveBaseGraph;
+        }
+      };
+      const canonicalGraph = publicationRequest
+        ? publicationCanonicalBaseGraph(JSON.stringify({
+          batchSlug, benchmarkCentralDay: centralDayKey(now),
+          benchmarkStore: benchmarkStoreVersion(batchSlug), liveEvidence: liveEvidenceCacheVersion(liveEvidence)
+        }), buildBase)
+        : buildBase();
       const graphForAudience = filters.topVoices === "off"
         ? canonicalGraph
         : (() => {

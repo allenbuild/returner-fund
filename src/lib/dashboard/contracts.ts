@@ -47,6 +47,8 @@ export const DASHBOARD_PLATFORMS = [
   "x",
   "linkedin",
   "instagram",
+  "facebook",
+  "threads",
   "product_hunt",
   "youtube",
   "rss",
@@ -90,7 +92,7 @@ export type DashboardTop100EligibilityReason =
   | "unsupported_content";
 
 const DASHBOARD_TOP100_SOCIAL_PLATFORMS = new Set<DashboardNativePlatform>([
-  "x", "instagram", "linkedin", "youtube", "tiktok", "bluesky"
+  "x", "instagram", "facebook", "threads", "linkedin", "youtube", "tiktok", "bluesky"
 ]);
 
 /**

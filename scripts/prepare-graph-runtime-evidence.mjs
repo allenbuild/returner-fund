@@ -6,9 +6,11 @@ import { pathToFileURL } from "node:url";
 import { gzipSync } from "node:zlib";
 import { readPublicEvidenceArtifact } from "./lib/public-evidence-artifact.mjs";
 import { validatedRepositoryDataRoot } from "./lib/validated-repository-data-root.mjs";
+import { materializeTargetedEvidence } from "./lib/packed-targeted-evidence.mjs";
+import { preparePublishedGraphRuntimeSnapshots } from "./lib/packed-published-graphs.mjs";
 
 const snapshotNames = ["public", "logged-in", "targeted", "volume"];
-const acceptedBatches = new Set(["S26", "S2026", "P26", "A16ZSR006"]);
+const acceptedBatches = new Set(["S26", "S2026", "P26", "A16ZSR006", "F26"]);
 const historicalSlugs = new Set(["blueprints", "bylaw", "litmus-build", "perceptron-ml"]);
 const reviewKeys = [
   "id", "batchSlug", "batch_slug", "entityType", "entityId", "entityName",
@@ -21,6 +23,8 @@ export async function prepareGraphRuntimeEvidence({ rootDir } = {}) {
     label: "graph runtime evidence data root"
   });
   const outputRoot = join(root, "generated-runtime", "graph");
+  await materializeTargetedEvidence({ rootDir: root });
+  await preparePublishedGraphRuntimeSnapshots({ rootDir: root, allowMissing: true });
   const readJson = async (relativePath) =>
     JSON.parse(await readFile(join(root, relativePath), "utf8"));
   const [summer, spring, overrides] = await Promise.all([

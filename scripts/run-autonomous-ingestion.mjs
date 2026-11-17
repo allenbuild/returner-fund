@@ -122,6 +122,18 @@ import {
 } from "./lib/authenticated-backfill-target.mjs";
 import { runAuthenticatedSocialRunnerPreflight } from "./verify-authenticated-social-runner.mjs";
 import { readAuthenticatedBatteryFloorAdmission } from "./lib/autonomous-ingestion-power-watchdog.mjs";
+import {
+  materializeTargetedEvidence,
+  packTargetedEvidence,
+  TARGETED_EVIDENCE_MANIFEST_PATH,
+  TARGETED_EVIDENCE_PACK_PATH,
+  TARGETED_EVIDENCE_PATH
+} from "./lib/packed-targeted-evidence.mjs";
+import {
+  assertNoTrackedRawTargetedEvidence,
+  readTargetedEvidenceFromGitRef,
+  refreshPublicationTargetedEvidence
+} from "./lib/autonomous-targeted-evidence.mjs";
 
 let root;
 const pinnedSourceRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
@@ -3279,6 +3291,22 @@ async function readPublicEvidenceFromGitRef(ref, fallback) {
 }
 
 async function readJsonFromGitRef(ref, path, fallback) {
+  if (path === TARGETED_EVIDENCE_PATH) {
+    const childEnvironment = buildChildEnvironment("publication_data", {}, root);
+    assertPublicationCommandCredentialBoundary("git", root, childEnvironment);
+    const snapshot = await readTargetedEvidenceFromGitRef({
+      cwd: root, ref, env: childEnvironment,
+      timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitDiffMs,
+      beforeRead: () => {
+        assertLeaseHealthy();
+        return runnerBudget.timeoutMs(AUTONOMOUS_PROCESS_BUDGETS.gitDiffMs, "read immutable targeted evidence");
+      },
+      onChild: (child) => trackChildProcess(child),
+      onChildExit: (child) => disposeTrackedChildProcess(child)
+    });
+    assertLeaseHealthy();
+    return snapshot ?? fallback;
+  }
   const source = await readTextFromGitRef(ref, path, null);
   if (source === null) return fallback;
   try {
@@ -7230,6 +7258,7 @@ async function ensurePublicationWorktree() {
     publicationBaseCommit = baseCommit;
     configurePublicationArtifactPaths(publicationRoot);
     await exposePinnedDependenciesToPublicationWorktree();
+    await materializeTargetedEvidence({ rootDir: publicationRoot });
     return publicationRoot;
   } catch (error) {
     publicationRoot = target;
@@ -8188,6 +8217,16 @@ async function recordPublicationPushRetry({
 
 async function stageRepositoryArtifacts() {
   assertIsolatedPublicationWorktree();
+  const trackedRaw = await runCommand("git", ["ls-files", "--stage", "--", TARGETED_EVIDENCE_PATH], {
+    timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitDiffMs,
+    label: "verify packed targeted evidence publication base",
+    quiet: true,
+    recordEvents: false,
+    cwd: publicationRoot
+  });
+  assertNoTrackedRawTargetedEvidence(trackedRaw.stdout);
+  await materializeTargetedEvidence({ rootDir: publicationRoot });
+  await packTargetedEvidence({ rootDir: publicationRoot });
   await runCommand("git", [
     "add", "--",
     ...repositoryArtifactPaths()
@@ -8269,6 +8308,7 @@ async function transplantPublicationArtifactsOntoRetryBase({
       }
     );
   }
+  await refreshPublicationTargetedEvidence({ rootDir: publicationRoot });
 }
 
 async function assertPublicationArtifactsDeletedFromRetryWorktree(paths) {
@@ -8364,7 +8404,8 @@ function repositoryArtifactPaths() {
     "docs/outputs/scoring-diagnostics-v4-audit.json",
     "docs/outputs/scoring-diagnostics-v4-report.md",
     "src/lib/social/public-evidence-current.json",
-    "src/lib/social/targeted-evidence-current.json",
+    TARGETED_EVIDENCE_PACK_PATH,
+    TARGETED_EVIDENCE_MANIFEST_PATH,
     "src/lib/social/logged-in-evidence-current.json",
     "src/lib/social/github-traction.json",
     "src/lib/social/github-traction-summer-2026.json",

@@ -31,6 +31,8 @@ function normalizePlatform(value: string | null): Platform {
     candidate === "x" ||
     candidate === "linkedin" ||
     candidate === "instagram" ||
+    candidate === "facebook" ||
+    candidate === "threads" ||
     candidate === "product_hunt" ||
     candidate === "youtube" ||
     candidate === "rss" ||

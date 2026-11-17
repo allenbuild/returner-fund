@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "method": "actual_next_build_nft_manifest_observation",
+  "engine": {
+    "next": "16.2.9",
+    "node": "24.14.0",
+    "bundler": "Turbopack"
+  },
+  "patternMarkers": {
+    "/api/graph/route": "native",
+    "/api/graph!(/**)": "extglob",
+    "/api/graph": "broad",
+    "/api/graph{/route,}": "brace",
+    "/api/graph$": "dollar"
+  },
+  "markerRoutes": {
+    "native": [
+      "graph"
+    ],
+    "extglob": [],
+    "broad": [
+      "graph",
+      "graph/full",
+      "graph/refresh"
+    ],
+    "brace": [
+      "graph",
+      "graph/full",
+      "graph/refresh"
+    ],
+    "dollar": []
+  },
+  "explicitFullExclusionRemovedBroadMarker": false,
+  "probeConfigSha256": "4dcee4bb8acd52ab73b9f4352693b3ff7089ad76cbf786a14f431fa2ac8469a1"
+}

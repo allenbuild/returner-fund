@@ -3,7 +3,7 @@ import { buildGraphResponse } from "@/lib/graph/graph-builder";
 import { yc2026GraphDataset } from "@/lib/graph/yc-spring-2026-dataset";
 import { TRACTION_SCORING_CONFIG } from "@/lib/scoring/traction-config";
 
-const BATCHES = ["S2026", "S26", "A16ZSR006"];
+const BATCHES = ["S2026", "S26", "A16ZSR006", "F26"];
 
 describe("global company benchmark integration", () => {
   it("uses one current-company factor across all batches and maps the global best to the configured target", () => {

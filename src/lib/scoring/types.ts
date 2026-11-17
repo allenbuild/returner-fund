@@ -3,6 +3,8 @@ export type Platform =
   | "twitter"
   | "linkedin"
   | "instagram"
+  | "facebook"
+  | "threads"
   | "product_hunt"
   | "github"
   | "youtube"

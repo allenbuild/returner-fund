@@ -1,5 +1,6 @@
 import * as cheerio from "cheerio";
 import { resolve } from "node:path";
+import { pathToFileURL } from "node:url";
 import { fetchTextWithRetry } from "./lib/retrying-http-text.mjs";
 import {
   publishCatalogAndAliasLedger,
@@ -363,7 +364,14 @@ async function fetchCompanyDetail(slug, signal) {
     throw new Error(`Could not find data-page payload for ${slug}`);
   }
   const page = JSON.parse(dataPage);
-  return page.props.company;
+  return {
+    ...page.props.company,
+    launches: Array.isArray(page.props.launches)
+      ? page.props.launches
+      : Array.isArray(page.props.company.launches)
+        ? page.props.company.launches
+        : []
+  };
 }
 
 async function verifyCompanyRetirement(hit, detail404, algolia, signal) {
@@ -456,10 +464,11 @@ function requestText(url, { signal, ...init }) {
 
 function sanitizeCompany(hit, detail, index, config) {
   const ycUrl = `https://www.ycombinator.com/companies/${hit.slug}`;
+  const companyProfileUrl = detail.ycdc_url ?? ycUrl;
   const groupPartner = detail.primary_group_partner?.full_name ?? null;
   const launch = Array.isArray(detail.launches) ? detail.launches[0] : null;
   const founders = Array.isArray(detail.founders)
-    ? detail.founders.map((founder) => sanitizeFounder(founder, hit.slug))
+    ? detail.founders.map((founder) => sanitizeFounder(founder, hit.slug, companyProfileUrl))
     : [];
 
   return {
@@ -468,7 +477,7 @@ function sanitizeCompany(hit, detail, index, config) {
     slug: hit.slug,
     name: detail.name ?? hit.name,
     batch: detail.batch_name ?? hit.batch,
-    ycProfileUrl: detail.ycdc_url ?? ycUrl,
+    ycProfileUrl: companyProfileUrl,
     websiteUrl: detail.website || hit.website || null,
     tagline: detail.one_liner ?? hit.one_liner ?? "",
     description: detail.long_description ?? hit.long_description ?? "",
@@ -500,13 +509,15 @@ function sanitizeCompany(hit, detail, index, config) {
   };
 }
 
-function sanitizeFounder(founder, companySlug) {
+export function sanitizeFounder(founder, companySlug, officialCompanyProfileUrl) {
   return {
     id: String(founder.user_id ?? `${companySlug}-${slugify(founder.full_name ?? "founder")}`),
     name: founder.full_name ?? "Unknown founder",
     title: founder.title ?? null,
     bio: founder.founder_bio ?? "",
-    ycProfileUrl: founder.user_id ? `https://www.ycombinator.com/people/${slugify(founder.full_name ?? String(founder.user_id))}` : null,
+    // The native company payload supplies identity/socials, not a verified
+    // person-page URL. A name-derived /people/ URL is not a source receipt.
+    ycProfileUrl: officialCompanyProfileUrl ?? null,
     socialLinks: sanitizeSocialLinks({
       linkedin: founder.linkedin_url,
       x: founder.twitter_url
@@ -572,7 +583,9 @@ async function mapLimit(items, limit, mapper) {
   return results;
 }
 
-main().catch((error) => {
-  console.error(error);
-  process.exitCode = 1;
-});
+if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
+  main().catch((error) => {
+    console.error(error);
+    process.exitCode = 1;
+  });
+}

@@ -57,6 +57,11 @@ export function overlayLiveEvidenceOnGraph(
   const liveEvidence: EvidenceItem[] = [];
 
   for (const record of records) {
+    const recordBatch = liveEvidenceRecordBatchSlug(record);
+    if (recordBatch && recordBatch !== graph.batch.slug.toUpperCase()) {
+      hiddenEvidence.push(hidden(record, `hidden_by_batch:${graph.batch.slug}`));
+      continue;
+    }
     if (topVoiceAudience !== "off") {
       hiddenEvidence.push(hidden(record, `hidden_by_top_voice_filter:${topVoiceAudience}`));
       continue;
@@ -123,6 +128,7 @@ export function liveEvidenceRecordToEvidenceItem(record: LiveEvidenceRecord): Ev
 
   return enrichEvidenceThumbnail({
     id: record.id,
+    batchSlug: liveEvidenceRecordBatchSlug(record) ?? undefined,
     entityType: record.entityType,
     entityId: record.entityId,
     platform: record.platform,
@@ -158,6 +164,18 @@ export function liveEvidenceRecordToEvidenceItem(record: LiveEvidenceRecord): Ev
     matchReason: record.matchReason,
     review_state: record.review_state
   });
+}
+
+export function liveEvidenceRecordBatchSlug(record: LiveEvidenceRecord): string | null {
+  const explicit = String(record.batchSlug ?? record.batch_slug ?? "").trim().toUpperCase();
+  if (explicit) return explicit;
+  try {
+    const raw = JSON.parse(record.rawVisibleText) as { profile?: { batchSlug?: unknown } };
+    const stored = raw?.profile?.batchSlug;
+    return typeof stored === "string" && stored.trim() ? stored.trim().toUpperCase() : null;
+  } catch {
+    return null;
+  }
 }
 
 function materializedSocialAccountIds(graph: GraphResponse): Map<string, string> {
@@ -255,6 +273,11 @@ function canonicalSocialAccountUrl(platform: Platform, rawUrl: string | null | u
     if (platform === "tiktok" && (host === "tiktok.com" || host.endsWith(".tiktok.com"))) {
       const handle = parts[0]?.replace(/^@/, "");
       return handle ? `https://tiktok.com/@${handle.toLowerCase()}` : null;
+    }
+    if (platform === "threads" && host === "threads.com" && /^@[A-Za-z0-9_.]+$/.test(parts[0] ?? "")) return `https://threads.com/${parts[0].toLowerCase()}`;
+    if (platform === "facebook" && ["facebook.com", "m.facebook.com", "web.facebook.com"].includes(host)) {
+      const accountParts = parts[0]?.toLowerCase() === "people" ? parts.slice(0, 3) : parts.slice(0, 1);
+      return accountParts.length ? `https://facebook.com/${accountParts.join("/").toLowerCase()}` : null;
     }
 
     if (platform === "bluesky" && host === "bsky.app") {

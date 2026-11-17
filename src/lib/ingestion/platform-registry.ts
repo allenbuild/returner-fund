@@ -5,6 +5,8 @@ export const REPRESENTED_PLATFORMS = [
   "x",
   "linkedin",
   "instagram",
+  "facebook",
+  "threads",
   "product_hunt",
   "youtube",
   "rss",
@@ -59,6 +61,22 @@ const BOTH_ENTITY_TYPES = ["company", "founder"] as const satisfies readonly Ent
 const COMPANY_ONLY = ["company"] as const satisfies readonly EntityType[];
 
 export const PLATFORM_REGISTRY = [
+  platform({
+    platform: "threads",
+    sourceRole: "native_unscored",
+    appliesTo: BOTH_ENTITY_TYPES,
+    accountModel: "profile",
+    auth: optionalAuth([], "Public native observations only; account creation and terms acceptance are separate actions."),
+    collector: collector("manual_only", ["manual"], false, true, false, "Receipt-verified originals require a verified owner and literal native outbound account link; history remains unscored and login frontiers remain explicit.")
+  }),
+  platform({
+    platform: "facebook",
+    sourceRole: "native_unscored",
+    appliesTo: COMPANY_ONLY,
+    accountModel: "profile",
+    auth: optionalAuth([], "Read-only native observations require explicit session authorization or a public page."),
+    collector: collector("manual_only", ["manual"], false, true, false, "Receipt-verified official company posts and profile updates are retained as unscored native history; no calibrated traction model is configured.")
+  }),
   platform({
     platform: "github",
     sourceRole: "native_traction",
@@ -152,8 +170,8 @@ export const PLATFORM_REGISTRY = [
     sourceRole: "native_unscored",
     appliesTo: BOTH_ENTITY_TYPES,
     accountModel: "profile",
-    auth: unavailableAuth("Future collection requires an approved official access path."),
-    collector: collector("disabled", ["none"], false, false, false, "Native evidence is forward-compatible but unscored and collection is disabled.")
+    auth: optionalAuth([], "Manual read-only native browser collection requires explicit session authorization or a public profile."),
+    collector: collector("manual_only", ["manual"], false, true, true, "Explicit company-scoped native observations can be converted after official website account ownership and native body/metric verification; evidence remains unscored.")
   }),
   platform({
     platform: "bluesky",

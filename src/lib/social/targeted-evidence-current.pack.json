@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "path": "src/lib/social/targeted-evidence-current.json",
+  "bytes": 291777830,
+  "sha256": "ed1be760a3870fd12d7c07e0027582ef9113a5de19fd398aa6324e2c9b458591",
+  "packPath": "src/lib/social/targeted-evidence-current.json.gz",
+  "packBytes": 34439396,
+  "packSha256": "6c06e74d8d8740252951f10e92a27b713cdd6e2b84e192eef55fe9aa3cfe2dbc"
+}

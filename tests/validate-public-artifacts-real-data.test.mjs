@@ -18,7 +18,8 @@ const RESPONSE_BUILT_AT = new Date().toISOString();
 const MIN_FULL_SOURCE_EVIDENCE_COUNTS = {
   S2026: 20_000,
   S26: 13_000,
-  A16ZSR006: 9_000
+  A16ZSR006: 9_000,
+  F26: 1
 };
 
 describe("public artifact validator against canonical v4 responses", () => {
@@ -51,7 +52,9 @@ describe("public artifact validator against canonical v4 responses", () => {
     );
     if (descriptor.audience === "off") {
       expect(sourceGraph.evidence).toHaveLength(sourceEvidenceCount);
-      expect(sourceGraph.evidence.length).toBeGreaterThan(PUBLIC_GRAPH_EVIDENCE_LIMIT);
+      if (MIN_FULL_SOURCE_EVIDENCE_COUNTS[descriptor.batch] > PUBLIC_GRAPH_EVIDENCE_LIMIT) {
+        expect(sourceGraph.evidence.length).toBeGreaterThan(PUBLIC_GRAPH_EVIDENCE_LIMIT);
+      }
     }
 
     const publicGraph = sanitizeGraphResponse(sourceGraph, {

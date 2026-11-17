@@ -4,6 +4,15 @@ import { EvidenceMediaCard } from "@/components/EvidenceMediaCard";
 import type { EvidenceItem } from "@/lib/graph/types";
 
 describe("EvidenceMediaCard", () => {
+  it("does not display an observation placeholder as an unknown publication date", () => {
+    const item: EvidenceItem = { id: "native-short-relative-publication", entityType: "company", entityId: "company-native", platform: "youtube", authorName: "Native AI", authorHandle: "trynative", postedAt: "2026-11-16T21:20:00.000Z", publishedAtPrecision: "unknown", text: "Exact native Short description.", mediaType: "video", metrics: { views: 1, likes: 0 }, contributionScore: 0, tractionStatus: "unscored", sourceUrl: "https://www.youtube.com/shorts/Ig4H1QhpAoE", why: "The native publication label supplies only four hours ago." };
+    const { container } = render(<EvidenceMediaCard item={item} />);
+    expect(screen.getByText("Date unavailable")).toBeInTheDocument();
+    expect(screen.getByText("Unscored")).toBeInTheDocument();
+    expect(container.querySelector("time")).toBeNull();
+    expect(screen.queryByText("November 16th, 2026")).not.toBeInTheDocument();
+  });
+
   it("renders the compact public evidence surface without debug metadata", () => {
     const item: EvidenceItem = {
       id: "ev-card",

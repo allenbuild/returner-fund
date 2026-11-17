@@ -6,6 +6,7 @@
     "node": "24.14.0"
   },
   "scripts": {
+    "postinstall": "node scripts/materialize-targeted-evidence.mjs",
     "prepare:graph-runtime": "node scripts/prepare-graph-runtime-evidence.mjs",
     "graph:inclusion:audit": "node --experimental-strip-types --loader ./scripts/lib/scoring-diagnostics-ts-loader.mjs scripts/audit-graph-source-inclusion.mjs",
     "dev": "npm run prepare:graph-runtime && next dev",

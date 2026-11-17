@@ -1,9 +1,11 @@
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
 import { mkdir, mkdtemp, readFile, readdir, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { spawnSync } from "node:child_process";
 import test from "node:test";
+import { isVerifiedNativeLinkedInCompanyDetailReceipt } from "../src/lib/graph/linkedin-company-detail-receipt.mjs";
 
 const root = resolve(import.meta.dirname, "..");
 const importer = resolve(root, "scripts/import-source-hunt-evidence.mjs");
@@ -15,6 +17,126 @@ const canonicalEvidenceFiles = [
   "targeted-evidence-current.json"
 ];
 const danielaBody = "I have never been this excited about anything. Last year, it took me using OpenClaw for all of 5 minutes to realize that the world is fundamentally changing. Technology is moving fast enough to completely rewrite how people work, what a small team can pull off, and who gets to build at all. And it’s only accelerating. I immediately turned to Jordan and I told him I want to be a part of this. It was simply too exciting not to. We dropped everything. We started talking to everyone we knew about how they were using AI. What did they know? What did they wish they could do? What was holding them back? A pattern showed up immediately. The people building and using these tools live in a bubble. Step outside it, and the businesses that stand to gain the most from this technology are the ones that have the least access and understanding of it. Today we’re taking LemonLime out of stealth to close ";
+
+test("positive YouTube DOM claims require their complete native and official-owner receipt", async () => {
+  const row = { batchSlug: "F26", companySlug: "aucert", companyName: "Aucert", entityType: "company", entityId: "company-aucert", platform: "youtube", platformPostId: "abcdefghijk", sourceUrl: "https://www.youtube.com/watch?v=abcdefghijk", text: "A claimed native company video description.", postedAt: "2026-11-11", publishedAtPrecision: "day", metrics: { views: 1234, likes: 7 }, review_state: "verified", attributionVersion: 3, attributionStatus: "verified", attributionMode: "author", attributionProvenance: "authorized_native_youtube_watch_dom_v1", rawVisibleText: JSON.stringify({ source: "authorized_native_youtube_watch_dom_v1" }) };
+  const fixture = await fixtureFiles({ evidence: [] }, { evidence: [row] });
+  const result = runImporter(fixture, "--include-batches=F26", "--scope-batch-dedupe", "--strict", "--dry-run");
+  assert.notEqual(result.status, 0);
+  assert.match(result.stdout, /missing_native_youtube_dom_receipt/);
+  assert.deepEqual(JSON.parse(await readFile(fixture.target, "utf8")).evidence, []);
+});
+
+test("relative-date YouTube claims cannot bypass strict native owner and body proof", async () => {
+  const row = { batchSlug: "F26", companySlug: "native", companyName: "Native", entityType: "company", entityId: "company-native", platform: "youtube", platformPostId: "abcdefghijk", sourceUrl: "https://www.youtube.com/shorts/abcdefghijk", text: "An unproved claimed company video.", postedAt: null, publishedAtPrecision: "unknown", metrics: { views: 1, likes: 0 }, contributionScore: 0, tractionStatus: "unscored", review_state: "verified", attributionVersion: 3, attributionStatus: "verified", attributionMode: "author", attributionProvenance: "authorized_native_youtube_short_unknown_date_dom_v1", rawVisibleText: JSON.stringify({ source: "authorized_native_youtube_short_unknown_date_dom_v1" }) };
+  const fixture = await fixtureFiles({ evidence: [] }, { evidence: [row] });
+  const result = runImporter(fixture, "--include-batches=F26", "--scope-batch-dedupe", "--retain-zero-engagement", "--strict", "--dry-run");
+  assert.notEqual(result.status, 0);
+  assert.match(result.stdout, /youtube_unknown_date_native_receipt_required/);
+  assert.deepEqual(JSON.parse(await readFile(fixture.target, "utf8")).evidence, []);
+});
+
+test("preserves exact whitespace in proved native LinkedIn originals after canonical normalization", async () => {
+  const profile = "https://www.linkedin.com/company/wondersearch", id = "7513974843927707648", url = `https://www.linkedin.com/feed/update/urn:li:activity:${id}/`, text = "\nExact native buyer caption. \n";
+  const menu = "Open control menu for post by Wondersearch", captionHtml = `<span>${text}</span>`;
+  const reaction = { tag: "BUTTON", ariaLabel: "Reaction button state: no reaction", text: "2", html: '<button aria-label="Reaction button state: no reaction">2</button>' };
+  const redirect = { href: `https://www.linkedin.com/signup/cold-join?session_redirect=${encodeURIComponent(url)}`, text: "Join" };
+  const detail = { url, observedRedirectTarget: url, observedRedirectLink: redirect, observedAt, menuLabel: menu, primaryActorLinks: [{ href: profile, text: "Wondersearch" }], captionHtml, captionText: text, fullnessControls: [], nativeControls: [reaction], cardHtml: `<div><a href="${profile}">Wondersearch</a><button aria-label="${menu}"></button>${captionHtml}${reaction.html}</div>` };
+  const receipt = { mechanism: "native_linkedin_company_detail_redirect_v1", companySlug: "wondersearch", profileUrl: profile, observedAt, review: { card: { key: "exact-native-card", menu, body: text }, nativeEmbedLinks: [redirect], signedInNativeDetail: detail } };
+  const row = { batchSlug: "F26", companySlug: "wondersearch", companyName: "Wondersearch", entityId: "company-wondersearch", entityType: "company", platform: "linkedin", platformPostId: id, sourceUrl: url, accountUrl: profile, authorName: "Wondersearch", title: "Native caption", text, originalText: text, metrics: { reactions: 2 }, postedAt: null, publishedAtPrecision: "unknown", review_state: "verified", attributionVersion: 3, attributionStatus: "verified", attributionMode: "author", attributionProvenance: "native_linkedin_company_detail_v1", attributionSignals: ["official_yc_linked_company_account", "visible_native_linkedin_post"], rawVisibleText: JSON.stringify({ source: "authorized_linkedin_browser_dom_v1", observedAt, post: { id, url, text, metrics: { reactions: 2 }, bodyTruncated: false, publishedAt: null, nativeCompanyDetailReceipt: receipt }, validation: { source: "fall_2026_native_linkedin_company_detail_ingestion_v1", archiveHashesVerified: true, nativeCompanyDetailReceiptSha256: createHash("sha256").update(JSON.stringify(receipt)).digest("hex") } }) };
+  const fixture = await fixtureFiles({ evidence: [] }, { evidence: [row] });
+  const result = runImporter(fixture, "--include-batches=F26", "--scope-batch-dedupe", "--strict", "--write");
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+  const saved = JSON.parse(await readFile(fixture.target, "utf8")).evidence[0];
+  assert.equal(saved.text, text); assert.equal(saved.originalText, text);
+  assert.equal(isVerifiedNativeLinkedInCompanyDetailReceipt(saved, { entityId: row.entityId, companySlug: row.companySlug, companyName: row.companyName, socialAccounts: { linkedin: [profile] } }), true);
+});
+
+test("imports explicit Fall 2026 company and founder identities", async () => {
+  const rows = [
+    { entityType: "company", entityId: "company-acyclic", platformPostId: "2100000000000000001" },
+    { entityType: "founder", entityId: "founder-acyclic-ram-vinjamuri-3653810", platformPostId: "2100000000000000002" }
+  ].map((identity) => ({
+    ...identity,
+    batchSlug: "F26",
+    companyName: "Acyclic Labs",
+    companySlug: "acyclic",
+    platform: "x",
+    sourceUrl: `https://x.com/fallfixture/status/${identity.platformPostId}`,
+    postedAt: null,
+    text: "Acyclic Labs product launch from the verified company and founder accounts.",
+    metrics: { likes: 1 },
+    review_state: "verified",
+    matchReason: "Verified native post on the exact official account."
+  }));
+  const fixture = await fixtureFiles({ evidence: [] }, { evidence: rows });
+  const result = runImporter(fixture, "--include-batches=F26", "--strict", "--write");
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+  const target = JSON.parse(await readFile(fixture.target, "utf8"));
+  assert.deepEqual(target.evidence.map((row) => row.entityId).sort(), rows.map((row) => row.entityId).sort());
+  assert.equal(target.evidence.every((row) => row.batchSlug === "F26"), true);
+});
+
+test("explicit batch dedupe preserves prior rows and remains idempotent within Fall", async () => {
+  const original = {
+    id: "existing-summer-attribution",
+    batchSlug: "S26",
+    entityType: "company",
+    entityId: "company-acyclic",
+    companyName: "Acyclic Labs",
+    platform: "x",
+    sourceUrl: "https://x.com/fallfixture/status/2100000000000000003",
+    platformPostId: "2100000000000000003",
+    authorHandle: "fallfixture",
+    text: "Acyclic Labs ships a native production system with a complete demonstration and verified customer workflow, shared directly from the official company account.",
+    postedAt: null,
+    metrics: { likes: 2 },
+    review_state: "verified"
+  };
+  const incoming = { ...original, batchSlug: "F26", metrics: { likes: 4 } };
+  const fixture = await fixtureFiles({ evidence: [original] }, { evidence: [incoming] });
+  const defaults = runImporter(fixture, "--include-batches=F26", "--strict", "--dry-run");
+  assert.equal(defaults.status, 0, defaults.stderr || defaults.stdout);
+  assert.equal(JSON.parse(defaults.stdout).duplicates, 1);
+
+  const flags = ["--include-batches=F26", "--scope-batch-dedupe", "--strict", "--write"];
+  const first = runImporter(fixture, ...flags);
+  assert.equal(first.status, 0, first.stderr || first.stdout);
+  assert.equal(JSON.parse(first.stdout).accepted, 1);
+  let target = JSON.parse(await readFile(fixture.target, "utf8"));
+  assert.equal(target.evidence.length, 2);
+  assert.deepEqual(target.evidence.find((row) => row.batchSlug === "S26"), original);
+  assert.notEqual(target.evidence.find((row) => row.batchSlug === "F26").id, original.id);
+
+  const replay = runImporter(fixture, ...flags);
+  assert.equal(replay.status, 0, replay.stderr || replay.stdout);
+  assert.equal(JSON.parse(replay.stdout).accepted, 0);
+  assert.equal(JSON.parse(replay.stdout).duplicates, 1);
+  target = JSON.parse(await readFile(fixture.target, "utf8"));
+  assert.equal(target.evidence.length, 2);
+  assert.deepEqual(target.evidence.find((row) => row.batchSlug === "S26"), original);
+
+  await writeJson(fixture.input, { evidence: [{
+    ...incoming,
+    sourceUrl: "https://x.com/fallfixture/status/2100000000000000004",
+    platformPostId: "2100000000000000004"
+  }] });
+  const contentReplay = runImporter(fixture, ...flags);
+  assert.equal(contentReplay.status, 0, contentReplay.stderr || contentReplay.stdout);
+  const audit = JSON.parse(contentReplay.stdout);
+  assert.equal(audit.accepted, 0);
+  assert.equal(audit.duplicateRows[0].duplicateReason, "same_platform_author_substantive_body");
+  assert.match(audit.duplicateRows[0].existingId, /^source-hunt-/);
+});
+
+test("batch dedupe requires one explicit included batch", async () => {
+  const fixture = await fixtureFiles({ evidence: [] }, { evidence: [] });
+  for (const batches of [[], ["--include-batches=F26,S26"]]) {
+    const result = runImporter(fixture, "--scope-batch-dedupe", "--dry-run", ...batches);
+    assert.notEqual(result.status, 0);
+    assert.match(result.stderr, /requires exactly one explicit --include-batches/);
+  }
+});
 
 test("imports verified native evidence and preserves case-sensitive post ids", async () => {
   const fixture = await fixtureFiles({ evidence: [] }, {
@@ -40,6 +162,220 @@ test("imports verified native evidence and preserves case-sensitive post ids", a
   assert.equal(target.evidence[0].contributionScore, 1);
   assert.equal(target.source.evidenceCount, 1);
 });
+
+test("retains receipt-bound zero and unknown engagement originals unscored only with explicit opt-in", async () => {
+  for (const metrics of [{ reactions: 0 }, {}]) {
+    const row = verifiedZeroLinkedInRow(metrics);
+    const fixture = await fixtureFiles({ evidence: [] }, { evidence: [row] });
+    const flags = ["--include-batches=F26", "--scope-batch-dedupe", "--strict"];
+    const defaults = runImporter(fixture, ...flags, "--dry-run");
+    assert.notEqual(defaults.status, 0);
+    assert.match(defaults.stdout, /no_visible_positive_scoring_metrics/);
+    const optedIn = runImporter(fixture, ...flags, "--retain-zero-engagement", "--write");
+    assert.equal(optedIn.status, 0, optedIn.stderr || optedIn.stdout);
+    const saved = JSON.parse(await readFile(fixture.target, "utf8")).evidence[0];
+    assert.deepEqual(saved.metrics, metrics);
+    assert.equal(saved.contributionScore, 0);
+    assert.equal(saved.tractionStatus, "unscored");
+    assert.match(saved.tractionLimitations.join(" "), /Missing metrics remain unknown/);
+    assert.equal(saved.postedAt, null);
+    assert.equal(saved.publishedAtPrecision, "unknown");
+  }
+});
+
+test("retains a proved captionless X original with case-insensitive canonical ownership and no invented body", async () => {
+  const platformPostId = "2105361550546735299", accountUrl = "https://x.com/RamV2003", sourceUrl = `${accountUrl}/status/${platformPostId}`;
+  const metrics = { replies: 0, reposts: 0, likes: 1, views: 27 }, publishedAt = "2026-07-18T12:00:00.000Z";
+  const raw = {
+    source: "authenticated_native_x_ui_v1", observedAt, exportedAt: observedAt, accountUrl,
+    identitySourceUrl: "https://www.ycombinator.com/companies/acyclic",
+    post: { platformPostId, authorHandle: "RamV2003", publishedAt, nativeDateLink: sourceUrl, url: sourceUrl, text: "", bodyTruncated: false, captionAbsent: true,
+      ownTweetTextElementCount: 0, ownVisibleTextAbsent: true, ownNativeArticleLinks: [],
+      ownMediaPermalinks: [{ href: `${sourceUrl}/photo/1`, nativePostId: platformPostId, kind: "photo", mediaIndex: "1", visibleMediaUrls: ["https://pbs.twimg.com/media/ExactOwnImage.jpg"] }] },
+    metrics, renderedArticleTextIncludingQuotedContent: "Ram Vinjamuri\n@RamV2003\nJul 18\n27",
+    metricObservations: [{ observedAt, metrics, nativeVisibleLabels: ["0 Replies. Reply", "0 reposts. Repost", "1 Like. Like", "27 views. View post analytics"] }]
+  };
+  const row = { entityType: "founder", entityId: "founder-acyclic-ram-vinjamuri-3653810", batchSlug: "F26", companySlug: "acyclic", companyName: "Acyclic Labs",
+    platform: "x", platformPostId, sourceUrl, accountUrl, authorHandle: "RamV2003", authorName: "Ram Vinjamuri", text: "", originalText: "", captionAbsent: true, bodyTruncated: false,
+    postedAt: publishedAt, metrics, contributionScore: 0, tractionStatus: "unscored", review_state: "verified", attributionVersion: 3, attributionStatus: "verified",
+    attributionSignals: ["official_yc_roster_account", "native_post_author"], rawVisibleText: JSON.stringify(raw) };
+  const fixture = await fixtureFiles({ evidence: [] }, { evidence: [row] });
+  const flags = ["--include-batches=F26", "--scope-batch-dedupe", "--strict"];
+  assert.notEqual(runImporter(fixture, ...flags, "--dry-run").status, 0);
+  const result = runImporter(fixture, ...flags, "--retain-zero-engagement", "--write");
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+  const [saved] = JSON.parse(await readFile(fixture.target, "utf8")).evidence;
+  assert.equal(saved.text, ""); assert.equal(saved.originalText, ""); assert.equal(saved.captionAbsent, true);
+  assert.equal(saved.contributionScore, 0); assert.equal(saved.tractionStatus, "unscored"); assert.deepEqual(saved.metrics, metrics);
+  const wrong = structuredClone(row), wrongRaw = JSON.parse(wrong.rawVisibleText); wrongRaw.post.ownMediaPermalinks[0].nativePostId = "another"; wrong.rawVisibleText = JSON.stringify(wrongRaw);
+  await writeFile(fixture.input, JSON.stringify({ evidence: [wrong] }));
+  const rejected = runImporter(fixture, ...flags, "--retain-zero-engagement", "--dry-run");
+  assert.notEqual(rejected.status, 0); assert.match(rejected.stdout, /x_captionless_exact_own_media_required/);
+});
+
+test("zero engagement opt-in keeps native identity, owner, body, cohort and metric validation", async () => {
+  const original = verifiedZeroLinkedInRow({ reactions: 0 });
+  const mutations = [
+    { entityId: "company-does-not-exist" },
+    { entityId: "company-heyclicky" },
+    { platformPostId: "7518380931548606465" },
+    { accountUrl: "https://www.linkedin.com/company/other-owner" },
+    { text: "A different body than the observed native caption." },
+    { metrics: { reactions: -1 } },
+    { metrics: { reactions: "0" } },
+    { attributionSignals: [] },
+    { rawVisibleText: JSON.stringify({ source: "public_search_snippet" }) }
+  ];
+  for (const mutation of mutations) {
+    const fixture = await fixtureFiles({ evidence: [] }, { evidence: [{ ...original, ...mutation }] });
+    const result = runImporter(fixture, "--include-batches=F26", "--scope-batch-dedupe", "--retain-zero-engagement", "--strict", "--dry-run");
+    assert.notEqual(result.status, 0, JSON.stringify(mutation));
+    assert.equal(JSON.parse(result.stdout).accepted, 0);
+  }
+  const fixture = await fixtureFiles({ evidence: [] }, { evidence: [original] });
+  const unscoped = runImporter(fixture, "--retain-zero-engagement", "--dry-run");
+  assert.notEqual(unscoped.status, 0);
+  assert.match(unscoped.stderr, /requires --scope-batch-dedupe/);
+});
+
+test("zero engagement founder captions require the exact roster founder account", async () => {
+  const row = verifiedZeroLinkedInRow({ reactions: 0 });
+  const accountUrl = "https://www.linkedin.com/in/dale-everett";
+  row.entityId = "founder-wondersearch-dale-ng-3185776";
+  row.entityType = "founder";
+  row.accountUrl = accountUrl;
+  row.attributionSignals = ["official_yc_linked_founder_account", "visible_native_linkedin_post", "visible_author_matches_official_founder"];
+  const raw = JSON.parse(row.rawVisibleText);
+  raw.post.author.profileUrl = accountUrl;
+  row.rawVisibleText = JSON.stringify(raw);
+  const fixture = await fixtureFiles({ evidence: [] }, { evidence: [row] });
+  const result = runImporter(fixture, "--include-batches=F26", "--scope-batch-dedupe", "--retain-zero-engagement", "--strict", "--write");
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+  const saved = JSON.parse(await readFile(fixture.target, "utf8")).evidence[0];
+  assert.equal(saved.entityType, "founder");
+  assert.equal(saved.contributionScore, 0);
+  assert.equal(saved.tractionStatus, "unscored");
+  raw.post.author.profileUrl = "https://www.linkedin.com/in/someone-else";
+  await writeJson(fixture.input, { evidence: [{ ...row, accountUrl: raw.post.author.profileUrl, rawVisibleText: JSON.stringify(raw) }] });
+  const invalid = runImporter(fixture, "--include-batches=F26", "--scope-batch-dedupe", "--retain-zero-engagement", "--strict", "--dry-run");
+  assert.notEqual(invalid.status, 0);
+  assert.match(invalid.stdout, /zero_engagement_author_not_canonical_account/);
+});
+
+test("captionless native media keeps an empty body and real metrics while remaining unscored", async () => {
+  const nativeObservedAt = "2026-11-16T03:00:00.000Z";
+  const sourceUrl = "https://www.instagram.com/reel/Dd2nucIjTDp/";
+  const accountUrl = "https://www.instagram.com/kairosdental_/";
+  const nativeText = "1\nkairosdental_\nOriginal audio\nkairosdental_\n15\n2\nSeptember 28";
+  const captionAbsenceProof = {
+    source: "authorized_native_instagram_caption_absence_review_v1", review_state: "verified",
+    platformPostId: "Dd2nucIjTDp", authorHandle: "kairosdental_", observedAt: nativeObservedAt,
+    nativeTextSha256: createHash("sha256").update(nativeText).digest("hex")
+  };
+  const metrics = { likes: 15, comments: 2 };
+  const row = {
+    entityType: "company", entityId: "company-kairos-health", companyName: "Kairos Health", batchSlug: "F26",
+    platform: "instagram", platformPostId: "Dd2nucIjTDp", sourceUrl, accountUrl, authorHandle: "kairosdental_",
+    text: "", originalText: "", captionAbsent: true, title: "Kairos Health Instagram media post", metrics,
+    postedAt: "2026-09-29T01:51:50.000Z", review_state: "verified", attributionVersion: 3, attributionStatus: "verified",
+    attributionSignals: ["mapped_official_account", "exact_native_author"],
+    rawVisibleText: JSON.stringify({
+      source: "authorized_native_instagram_dom_v1",
+      identityProof: { entityId: "company-kairos-health", profileUrl: accountUrl, review_state: "verified", visibleWebsite: "kairoshealthai.com" },
+      post: { shortcode: "Dd2nucIjTDp", url: sourceUrl, text: "", nativeText, authorHandle: "kairosdental_", captionAbsent: true, captionAbsenceProof, controls: [{ icons: ["Like"] }, { icons: ["Comment"] }], media: { images: [], videos: [{ src: "blob:https://www.instagram.com/native-session-only" }] }, metrics }
+    })
+  };
+  const fixture = await fixtureFiles({ evidence: [] }, { evidence: [row] });
+  fixture.observedAt = nativeObservedAt;
+  const flags = ["--include-batches=F26", "--scope-batch-dedupe", "--strict"];
+  const defaultResult = runImporter(fixture, ...flags, "--dry-run");
+  assert.notEqual(defaultResult.status, 0);
+  assert.match(defaultResult.stdout, /captionless_native_history_requires_retention_opt_in/);
+  const result = runImporter(fixture, ...flags, "--retain-zero-engagement", "--write");
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+  const saved = JSON.parse(await readFile(fixture.target, "utf8")).evidence[0];
+  assert.equal(saved.text, "");
+  assert.equal(saved.originalText, "");
+  assert.equal(saved.captionAbsent, true);
+  assert.deepEqual(saved.metrics, metrics);
+  assert.equal(saved.contributionScore, 0);
+  assert.equal(saved.tractionStatus, "unscored");
+  const raw = JSON.parse(row.rawVisibleText);
+  raw.post.captionAbsenceProof.nativeTextSha256 = "0".repeat(64);
+  await writeJson(fixture.input, { evidence: [{ ...row, rawVisibleText: JSON.stringify(raw) }] });
+  const tampered = runImporter(fixture, ...flags, "--retain-zero-engagement", "--dry-run");
+  assert.notEqual(tampered.status, 0);
+  assert.match(tampered.stdout, /caption_absence_requires_exact_native_review_receipt/);
+});
+
+test("LinkedIn image-only history preserves an empty caption under an exact native media receipt", async () => {
+  const row = verifiedZeroLinkedInRow({ reactions: 8, comments: 6 });
+  row.entityId = "company-redoubt-insurance";
+  row.companySlug = "redoubt-insurance";
+  row.companyName = "Redoubt Insurance";
+  row.authorName = "Redoubt Insurance";
+  row.accountUrl = "https://www.linkedin.com/company/redoubt-insurance/";
+  row.platformPostId = "7527442953485766656";
+  row.sourceUrl = `https://www.linkedin.com/feed/update/urn:li:activity:${row.platformPostId}/`;
+  row.text = ""; row.originalText = ""; row.captionAbsent = true;
+  const nativeObservation = {
+    cardText: "Feed post\nRedoubt Insurance\n1d\nFollow\n8\n6",
+    nativeEmbedPreview: {
+      activityUrn: `urn:li:activity:${row.platformPostId}`,
+      text: "Redoubt Insurance\n252 followers\n1d\nLinkedIn\n8\n6 Comments\nLike\nComment\nShare",
+      links: [{ href: row.accountUrl, text: row.authorName }]
+    },
+    media: { images: [{ src: "https://media.licdn.com/native-image.jpg", alt: "View image" }] }
+  };
+  const post = {
+    id: row.platformPostId, url: row.sourceUrl, text: "", captionAbsent: true,
+    author: { name: row.authorName, profileUrl: row.accountUrl }, metrics: row.metrics,
+    nativeObservation,
+    captionAbsenceProof: {
+      source: "authorized_native_linkedin_caption_absence_review_v1", review_state: "verified",
+      platformPostId: row.platformPostId, observedAt: "2026-11-16T03:00:00.000Z",
+      nativeObservationSha256: createHash("sha256").update(JSON.stringify(nativeObservation)).digest("hex")
+    }
+  };
+  const raw = { source: "authorized_linkedin_browser_dom_v1", officialIdentitySourceUrl: "https://www.ycombinator.com/companies/redoubt-insurance", post };
+  row.rawVisibleText = JSON.stringify(raw);
+  const fixture = await fixtureFiles({ evidence: [] }, { evidence: [row] });
+  const flags = ["--include-batches=F26", "--scope-batch-dedupe", "--strict"];
+  const ordinary = runImporter(fixture, ...flags, "--dry-run");
+  assert.notEqual(ordinary.status, 0);
+  assert.match(ordinary.stdout, /captionless_native_history_requires_retention_opt_in/);
+  const kept = runImporter(fixture, ...flags, "--retain-zero-engagement", "--write");
+  assert.equal(kept.status, 0, kept.stderr || kept.stdout);
+  const saved = JSON.parse(await readFile(fixture.target, "utf8")).evidence[0];
+  assert.equal(saved.text, ""); assert.equal(saved.originalText, "");
+  assert.deepEqual(saved.metrics, row.metrics); assert.equal(saved.contributionScore, 0);
+  assert.equal(saved.tractionStatus, "unscored");
+  nativeObservation.nativeEmbedPreview.text += "\nA caption that must not disappear.";
+  post.captionAbsenceProof.nativeObservationSha256 = createHash("sha256").update(JSON.stringify(nativeObservation)).digest("hex");
+  await writeJson(fixture.input, { evidence: [{ ...row, rawVisibleText: JSON.stringify(raw) }] });
+  const caption = runImporter(fixture, ...flags, "--retain-zero-engagement", "--dry-run");
+  assert.notEqual(caption.status, 0);
+  assert.match(caption.stdout, /caption_absence_requires_exact_native_review_receipt/);
+});
+
+function verifiedZeroLinkedInRow(metrics) {
+  const sourceUrl = "https://www.linkedin.com/feed/update/urn:li:activity:7518380931548606464/";
+  const accountUrl = "https://www.linkedin.com/company/wondersearch";
+  const text = "This is quite possibly the greatest age of exploration.";
+  return {
+    entityType: "company", entityId: "company-wondersearch", batchSlug: "F26",
+    companySlug: "wondersearch", companyName: "Wondersearch", platform: "linkedin",
+    platformPostId: "7518380931548606464", sourceUrl, accountUrl, authorName: "FlashDrive (YC F26)",
+    text, originalText: text, postedAt: null, publishedAtPrecision: "unknown", metrics,
+    review_state: "verified", attributionVersion: 3, attributionStatus: "verified",
+    attributionSignals: ["official_yc_linked_company_account", "visible_native_linkedin_post", "visible_author_matches_official_company"],
+    rawVisibleText: JSON.stringify({
+      source: "authorized_linkedin_browser_dom_v1",
+      officialIdentitySourceUrl: "https://www.ycombinator.com/companies/wondersearch",
+      post: { id: "7518380931548606464", url: sourceUrl, text, author: { profileUrl: accountUrl }, metrics }
+    })
+  };
+}
 
 test("uses GitHub repository creation as publication and keeps pushes as activity metadata", async () => {
   const createdAt = "2024-10-05T21:50:44.000Z";
@@ -809,7 +1145,7 @@ function runImporter(fixture, ...mode) {
     importer,
     `--input=${fixture.input}`,
     `--target=${fixture.target}`,
-    `--observed-at=${observedAt}`,
+    `--observed-at=${fixture.observedAt ?? observedAt}`,
     `--external-evidence-root=${fixture.directory}`,
     ...mode
   ], { cwd: root, encoding: "utf8" });

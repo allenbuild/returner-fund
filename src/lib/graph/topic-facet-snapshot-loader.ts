@@ -4,7 +4,7 @@ import {
   type TopicFacetSnapshot
 } from "./topic-facets";
 
-export const TOPIC_FACET_BATCHES = ["S2026", "S26", "A16ZSR006"] as const;
+export const TOPIC_FACET_BATCHES = ["S2026", "S26", "A16ZSR006", "F26"] as const;
 export type TopicFacetBatchSlug = typeof TOPIC_FACET_BATCHES[number];
 
 const TOPIC_FACET_ENDPOINT = "/api/topic-facets";

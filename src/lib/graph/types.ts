@@ -8,6 +8,8 @@ export const PLATFORM_VALUES = [
   "x",
   "linkedin",
   "instagram",
+  "facebook",
+  "threads",
   "product_hunt",
   "youtube",
   "rss",
@@ -99,6 +101,9 @@ export interface EvidenceItem {
   text: string;
   /** Full partner-authored source body, kept separate from display text. */
   originalText?: string;
+  captionAbsent?: boolean;
+  nativeContentKind?: "authored_post" | "profile_photo_update" | "cover_photo_update";
+  countsAsAuthoredPost?: boolean;
   attributionProvenance?: string;
   /** Exact sentence spans selected by the partner-conviction scorer. */
   verbatimContributingSentences?: string[];

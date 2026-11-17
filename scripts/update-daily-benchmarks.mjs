@@ -21,7 +21,10 @@ export const BATCH_SNAPSHOTS = [
   { slug: "S26", filename: "s26-insiders.json", topVoices: "insiders" },
   { slug: "A16ZSR006", filename: "a16zsr006.json" },
   { slug: "A16ZSR006", filename: "a16zsr006-yc-partners.json", topVoices: "yc_partners" },
-  { slug: "A16ZSR006", filename: "a16zsr006-insiders.json", topVoices: "insiders" }
+  { slug: "A16ZSR006", filename: "a16zsr006-insiders.json", topVoices: "insiders" },
+  { slug: "F26", filename: "f26.json" },
+  { slug: "F26", filename: "f26-yc-partners.json", topVoices: "yc_partners" },
+  { slug: "F26", filename: "f26-insiders.json", topVoices: "insiders" }
 ];
 
 const DEFAULT_PORT = 3100;
@@ -135,7 +138,8 @@ export async function main(
       status: "updated",
       baseUrl: server?.baseUrl ?? "pinned-source-in-process",
       scoringModelVersion: result.scoringModelVersion,
-      writtenFiles: result.writtenFiles
+      writtenFiles: result.writtenFiles,
+      ...(pinnedProvider?.buildStats ? { publicationBuild: pinnedProvider.buildStats() } : {})
     };
     console.log(JSON.stringify(payload, null, 2));
     return payload;
@@ -150,8 +154,13 @@ export async function createPinnedSourceGraphProvider() {
   const previousToken = process.env.GRAPH_PUBLICATION_BUILD_TOKEN;
   process.env.GRAPH_PUBLICATION_BUILD_TOKEN = publicationToken;
   let finished = false;
+  let buildScope;
   try {
-    const { GET } = await import("../src/app/api/graph/full/route.ts");
+    const [{ GET }, { createPublicationGraphBuildScope }] = await Promise.all([
+      import("../src/app/api/graph/full/route.ts"),
+      import("../src/lib/graph/publication-graph-build-scope.ts")
+    ]);
+    buildScope = createPublicationGraphBuildScope();
     return {
       async fetchGraph(batchSlug, topVoices) {
         if (finished) throw new Error("Pinned graph provider was already finalized.");
@@ -159,9 +168,9 @@ export async function createPinnedSourceGraphProvider() {
         url.searchParams.set("batch", batchSlug);
         url.searchParams.set("includeNonScoring", "true");
         if (topVoices) url.searchParams.set("topVoices", topVoices);
-        const response = await GET(new Request(url, {
+        const response = await buildScope.run(() => GET(new Request(url, {
           headers: { "x-returner-publication-build": publicationToken }
-        }));
+        })));
         if (!response.ok) {
           throw new Error(
             `Pinned graph computation failed for ${batchSlug}/${topVoices ?? "off"}: ` +
@@ -170,13 +179,16 @@ export async function createPinnedSourceGraphProvider() {
         }
         return response.json();
       },
+      buildStats: () => buildScope.stats(),
       async finish() {
         if (finished) return;
         finished = true;
+        buildScope.close();
         restoreEnvironmentValue("GRAPH_PUBLICATION_BUILD_TOKEN", previousToken);
       }
     };
   } catch (error) {
+    buildScope?.close();
     restoreEnvironmentValue("GRAPH_PUBLICATION_BUILD_TOKEN", previousToken);
     throw error;
   }

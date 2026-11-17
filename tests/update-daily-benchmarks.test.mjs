@@ -279,7 +279,7 @@ describe("daily benchmark updater", () => {
     expect(inherited[1].graph.leaderboard).toBe(snapshots[1].graph.leaderboard);
   });
 
-  it("rejects the whole set before staging when any of the nine snapshots is invalid", async () => {
+  it("rejects the whole set before staging when any snapshot is invalid", async () => {
     const rootDir = fs.mkdtempSync(path.join(os.tmpdir(), "daily-benchmark-invalid-"));
     const sentinelPath = path.join(rootDir, "public", "graph", "s2026.json");
     fs.mkdirSync(path.dirname(sentinelPath), { recursive: true });
@@ -353,7 +353,7 @@ describe("daily benchmark updater", () => {
     ).toThrow(/nodes\[0\]\.score.*scoreBreakdown\.totalScore/i);
   });
 
-  it("rejects all nine atomically when one company breakdown is incomplete", async () => {
+  it("rejects every graph atomically when one company breakdown is incomplete", async () => {
     const rootDir = fs.mkdtempSync(path.join(os.tmpdir(), "daily-benchmark-v4-contract-"));
     const sentinelPath = path.join(rootDir, "public", "graph", "s2026.json");
     fs.mkdirSync(path.dirname(sentinelPath), { recursive: true });
@@ -376,7 +376,7 @@ describe("daily benchmark updater", () => {
     expect(fs.existsSync(path.join(rootDir, "outputs"))).toBe(false);
   });
 
-  it("publishes all nine graphs and three append-only histories after validation", async () => {
+  it("publishes every graph and append-only history after validation", async () => {
     const rootDir = fs.mkdtempSync(path.join(os.tmpdir(), "daily-benchmark-valid-"));
     const generatedAt = new Date("2026-07-16T05:00:10.000Z");
     const recordedAt = new Date("2026-07-16T05:01:00.000Z");
@@ -387,7 +387,7 @@ describe("daily benchmark updater", () => {
       companies: [{ companyId: "legacy", companyName: "Legacy", score: 1, rank: 99 }]
     };
 
-    for (const slug of ["s2026", "s26", "a16zsr006"]) {
+    for (const slug of ["s2026", "s26", "a16zsr006", "f26"]) {
       const historyPath = path.join(rootDir, "outputs", "benchmarks", `${slug}-score-benchmarks.json`);
       fs.mkdirSync(path.dirname(historyPath), { recursive: true });
       fs.writeFileSync(
@@ -411,8 +411,8 @@ describe("daily benchmark updater", () => {
       expectedCentralDate: "2026-07-16"
     });
 
-    expect(result.writtenFiles.filter((file) => file.kind === "graph")).toHaveLength(9);
-    expect(result.writtenFiles.filter((file) => file.kind === "history")).toHaveLength(3);
+    expect(result.writtenFiles.filter((file) => file.kind === "graph")).toHaveLength(BATCH_SNAPSHOTS.length);
+    expect(result.writtenFiles.filter((file) => file.kind === "history")).toHaveLength(new Set(BATCH_SNAPSHOTS.map((descriptor) => descriptor.slug)).size);
     for (const descriptor of BATCH_SNAPSHOTS) {
       const graphPath = path.join(rootDir, "public", "graph", descriptor.filename);
       const publishedGraph = JSON.parse(fs.readFileSync(graphPath, "utf8"));
@@ -425,7 +425,7 @@ describe("daily benchmark updater", () => {
         expect(publishedGraph.leaderboard[0]).toEqual(expect.objectContaining({ score: 86, rank: 1 }));
       }
     }
-    for (const slug of ["s2026", "s26", "a16zsr006"]) {
+    for (const slug of ["s2026", "s26", "a16zsr006", "f26"]) {
       const history = JSON.parse(
         fs.readFileSync(path.join(rootDir, "outputs", "benchmarks", `${slug}-score-benchmarks.json`), "utf8")
       );

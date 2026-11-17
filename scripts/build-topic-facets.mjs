@@ -8,7 +8,8 @@ import { validatedRepositoryDataRoot } from "./lib/validated-repository-data-roo
 const BATCHES = [
   { slug: "S2026", file: "s2026" },
   { slug: "S26", file: "s26" },
-  { slug: "A16ZSR006", file: "a16zsr006" }
+  { slug: "A16ZSR006", file: "a16zsr006" },
+  { slug: "F26", file: "f26" }
 ];
 const AUDIENCES = ["off", "yc_partners", "insiders"];
 const SNAPSHOT_VERSION = "2026-08-09-full-corpus-topics";

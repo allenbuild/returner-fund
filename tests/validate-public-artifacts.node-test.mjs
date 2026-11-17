@@ -11,6 +11,8 @@ import {
   PublicArtifactValidationError,
   RANKED_POSTS_SIDECAR_PATH,
   S26_CATALOG_PATH,
+  F26_CATALOG_PATH,
+  collectYcGraphCensusViolations,
   collectCanonicalGraphSetViolations,
   collectGraphArtifactViolations,
   collectHistoryArtifactViolations,
@@ -31,7 +33,7 @@ afterEach(async () => {
   );
 });
 
-test("validates the complete nine-graph and three-history manifest without a server", async () => {
+test("validates the complete graph and history manifest without a server", async () => {
   const rootDir = await writeValidArtifactTree();
 
   const result = await validatePublicArtifacts({ rootDir });
@@ -39,12 +41,12 @@ test("validates the complete nine-graph and three-history manifest without a ser
   assert.deepEqual(result, {
     status: "ok",
     scoringModel: "returner-traction@4.3.1",
-    graphSnapshots: 9,
-    historyFiles: 3,
-    graphNodes: 9,
-    evidenceRows: 9,
-    versionedDailyEntries: 3,
-    versionedWeeklyEntries: 3
+    graphSnapshots: GRAPH_ARTIFACTS.length,
+    historyFiles: HISTORY_ARTIFACTS.length,
+    graphNodes: GRAPH_ARTIFACTS.length,
+    evidenceRows: GRAPH_ARTIFACTS.length,
+    versionedDailyEntries: HISTORY_ARTIFACTS.length,
+    versionedWeeklyEntries: HISTORY_ARTIFACTS.length
   });
 });
 
@@ -132,6 +134,23 @@ test("enforces the S26 catalog count and exact base ID/slug census across graph 
   );
   assert.match(violations, /entityId company-not-in-catalog is absent from the S26 catalog/);
   assert.match(violations, /ycProfileUrl slug not-in-catalog is absent from the S26 catalog/);
+});
+
+test("enforces the Fall roster census independently of the Summer graph", () => {
+  const catalog = makeS26Catalog([{ id: "35000", slug: "fall-company" }]);
+  const entries = [{
+    descriptor: GRAPH_ARTIFACTS.find((descriptor) => descriptor.batch === "F26" && descriptor.audience === "off"),
+    graph: {
+      batch: { slug: "F26", companyCountObserved: 1, companyCountExpected: 1 },
+      nodes: [{ entityType: "company", entityId: "company-fall-company", ycProfileUrl: catalog.companies[0].ycProfileUrl }]
+    }
+  }];
+  const scope = { batchSlug: "F26", catalogPath: F26_CATALOG_PATH };
+  assert.deepEqual(collectYcGraphCensusViolations(catalog, entries, scope), []);
+  entries[0].graph.nodes[0].ycProfileUrl = "https://www.ycombinator.com/companies/summer-company";
+  const violations = collectYcGraphCensusViolations(catalog, entries, scope).join("\n");
+  assert.match(violations, /summer-company is absent from the F26 catalog/);
+  assert.match(violations, /company slug census must match the F26 catalog; missing fall-company/);
 });
 
 test("rejects internally inconsistent S26 catalog IDs, slugs, and source counts", () => {
@@ -260,7 +279,7 @@ test("rejects per-batch or audience-specific global benchmark signatures", () =>
 
   const violations = collectCanonicalGraphSetViolations(entries).join("\n");
 
-  assert.match(violations, /calibration\.cohortSize must be global count 3/);
+  assert.match(violations, /calibration\.cohortSize must be global count 4/);
   assert.match(violations, /calibration\.benchmarkScore must be global maximum 67/);
   assert.match(violations, /calibration\.benchmarkTarget must be 95/);
 });
@@ -434,6 +453,14 @@ test("accepts locale LinkedIn hosts but rejects lookalike domains", () => {
     nativeEvidenceIdentityFromUrl("linkedin", `https://pt.linkedin.com.evil.example${postPath}`),
     null
   );
+});
+
+test("accepts exact native LinkedIn UGC posts without relabeling them as activities", () => {
+  const id = "6765693790826180608";
+  assert.equal(nativeEvidenceIdentityFromUrl("linkedin", `https://www.linkedin.com/posts/jay_hiring-ugcPost-${id}-gyCH/?utm_source=share`), `ugcPost:${id}`);
+  assert.equal(nativeEvidenceIdentityFromUrl("linkedin", `https://www.linkedin.com/feed/update/urn:li:ugcPost:${id}/`), `ugcPost:${id}`);
+  assert.equal(nativeEvidenceIdentityFromUrl("linkedin", `https://www.linkedin.com/feed/update/urn:li:activity:${id}/`), id);
+  assert.equal(nativeEvidenceIdentityFromUrl("linkedin", `https://notlinkedin.com/posts/jay_hiring-ugcPost-${id}-gyCH/`), null);
 });
 
 test("enforces canonical materialized account lineage and preserves explicit null lineage", () => {
@@ -971,9 +998,9 @@ test("reports missing committed artifacts as one deterministic validation error"
       assert.ok(error instanceof PublicArtifactValidationError);
       assert.equal(
         error.violations.length,
-        GRAPH_ARTIFACTS.length + HISTORY_ARTIFACTS.length + 2
+        GRAPH_ARTIFACTS.length + HISTORY_ARTIFACTS.length + 3
       );
-      assert.match(error.message, /Public artifact validation failed with 14 violation\(s\)/);
+      assert.match(error.message, /Public artifact validation failed with 19 violation\(s\)/);
       assert.match(error.violations[0], /public\/graph\/s2026\.json: could not be read/);
       assert.ok(
         error.violations.some((violation) =>
@@ -993,6 +1020,7 @@ async function writeValidArtifactTree({
   temporaryRoots.push(rootDir);
 
   await writeJson(rootDir, S26_CATALOG_PATH, makeS26Catalog());
+  await writeJson(rootDir, F26_CATALOG_PATH, makeS26Catalog([{ id: "35000", slug: "f26" }]));
   await writeJson(
     rootDir,
     RANKED_POSTS_SIDECAR_PATH,
@@ -1083,7 +1111,7 @@ function makeGraph(descriptor, serial, generatedAt = GENERATED_AT) {
   const selectedTopVoiceAudience = { id: audience };
   const calibration = {
     method: "global_best_ratio",
-    cohortSize: 3,
+    cohortSize: HISTORY_ARTIFACTS.length,
     percentile: null,
     inputScore: absoluteScore,
     benchmarkScore,

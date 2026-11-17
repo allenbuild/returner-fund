@@ -68,6 +68,13 @@ describe("canonical evidence URL normalization", () => {
       objectType: "post"
     },
     {
+      platform: "linkedin",
+      url: "https://www.linkedin.com/posts/jay-flaherty-53b3b659_pulse-is-hiring-ugcPost-6765693790826180608-gyCH/?trk=profile",
+      canonicalUrl: "https://linkedin.com/feed/update/urn:li:ugcPost:6765693790826180608",
+      nativeId: "ugcPost:6765693790826180608",
+      objectType: "post"
+    },
+    {
       platform: "bluesky",
       url: "https://bsky.app/profile/Founder.Example/post/3lxyzABC?utm_source=share#thread",
       canonicalUrl: "https://bsky.app/profile/founder.example/post/3lxyzABC",

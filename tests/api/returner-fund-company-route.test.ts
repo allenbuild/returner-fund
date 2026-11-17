@@ -21,6 +21,16 @@ describe("GET /api/v1/companies/[slug]/returner-fund", () => {
     expect(lookup).not.toHaveBeenCalled();
   });
 
+  it("looks up an explicitly requested Fall company in the Fall batch", async () => {
+    const lookup = vi.fn(async (): Promise<ReturnerFundCompanyLookupResult> => ({ status: "not_found" }));
+    const response = await request(
+      "https://returner.fund/api/v1/companies/gatherhq/returner-fund?batch=F26",
+      { authorize: async () => true, keyIsConfigured: () => false, lookup }
+    );
+    expect(response.status).toBe(404);
+    expect(lookup).toHaveBeenCalledWith({ companyReference: "gatherhq", batchSlug: "F26", limit: 5 });
+  });
+
   it("rejects a request when the optional pre-shared key check fails", async () => {
     const response = await request(
       "https://returner.fund/api/v1/companies/atlia/returner-fund?batch=S26",

@@ -768,7 +768,7 @@ describe("dashboard filters", () => {
     );
   });
 
-  it("places the in-place Top 100 mode above Spring, Summer, and Speedrun in the batch selector", () => {
+  it("places the in-place Top 100 mode above Spring, Summer, Fall, and Speedrun in the batch selector", () => {
     const fullGraph = graphResponse([
       makeNode("company:heyclicky", "HeyClicky", "b2b", "#7dd3fc", "Partner A")
     ]);
@@ -784,15 +784,17 @@ describe("dashboard filters", () => {
     const options = within(batchSelector).getAllByRole("option");
 
     expect(batchSelector).toHaveValue("S2026");
-    expect(options).toHaveLength(4);
+    expect(options).toHaveLength(5);
     expect(options[0]).toHaveTextContent("Top 100");
     expect(options[0]).toHaveValue("__dashboard");
     expect(options[1]).toHaveTextContent("YC Spring 2026 (P26)");
     expect(options[1]).toHaveValue("S2026");
     expect(options[2]).toHaveTextContent("YC Summer 2026 (S26)");
     expect(options[2]).toHaveValue("S26");
-    expect(options[3]).toHaveTextContent("a16z speedrun 006");
-    expect(options[3]).toHaveValue("A16ZSR006");
+    expect(options[3]).toHaveTextContent("YC Fall 2026 (F26)");
+    expect(options[3]).toHaveValue("F26");
+    expect(options[4]).toHaveTextContent("a16z speedrun 006");
+    expect(options[4]).toHaveValue("A16ZSR006");
   });
 
   it("switches Top 100 into the map shell without navigating away", async () => {
@@ -1202,7 +1204,10 @@ describe("dashboard filters", () => {
     expect(new URLSearchParams(window.location.search).get("topVoices")).toBe("insiders");
   });
 
-  it("switches batches through a fresh static snapshot and revalidates once", async () => {
+  it.each([
+    { slug: "A16ZSR006", filename: "a16zsr006", label: "a16z speedrun 006", count: 59, title: "a16z Network Map", loading: "Loading a16z map..." },
+    { slug: "F26", filename: "f26", label: "YC Fall 2026 (F26)", count: 235, title: "YC Network Map", loading: "Loading YC map..." }
+  ])("switches to $slug through a fresh static snapshot and revalidates once", async (target) => {
     vi.useFakeTimers();
     const springGraph = graphResponse([
       makeNode("company:screenpipe", "screenpipe", "b2b", "#7dd3fc", "Partner A", 100)
@@ -1210,7 +1215,7 @@ describe("dashboard filters", () => {
     const speedrunGraph = withBenchmarkDates(
       staticGraphFixture(graphResponse(
         [makeNode("company:sun", "SUN", "consumer", "#88CCF6", "Partner A", 100)],
-        { slug: "A16ZSR006", label: "a16z speedrun 006", companyCountExpected: 59, companyCountObserved: 59 }
+        { slug: target.slug, label: target.label, companyCountExpected: target.count, companyCountObserved: target.count }
       )),
       localDateIso(-1),
       localDateIso(-7)
@@ -1220,7 +1225,7 @@ describe("dashboard filters", () => {
       const url = String(input);
       return {
         ok: true,
-        json: async () => (url.includes("a16zsr006") || url.includes("batch=A16ZSR006") ? speedrunGraph : springGraph)
+        json: async () => (url.includes(`/graph/${target.filename}`) || url.includes(`batch=${target.slug}`) ? speedrunGraph : springGraph)
       };
     });
     vi.stubGlobal("fetch", fetchMock);
@@ -1229,22 +1234,22 @@ describe("dashboard filters", () => {
 
     expect(within(screen.getByTestId("graph-canvas")).getByText("screenpipe")).toBeInTheDocument();
     expect(document.title).toBe("YC Network Map");
-    fireEvent.change(screen.getByRole("combobox", { name: /batch/i }), { target: { value: "A16ZSR006" } });
-    expect(document.title).toBe("a16z Network Map");
+    fireEvent.change(screen.getByRole("combobox", { name: /batch/i }), { target: { value: target.slug } });
+    expect(document.title).toBe(target.title);
 
     const resultsRegion = screen.getByRole("region", { name: "Network map results" });
     expect(resultsRegion).toHaveAttribute("aria-busy", "true");
-    expect(screen.getByText("Loading a16z map...")).toBeInTheDocument();
+    expect(screen.getByText(target.loading)).toBeInTheDocument();
 
     await act(async () => {
       await vi.advanceTimersByTimeAsync(0);
     });
     expect(within(screen.getByTestId("graph-canvas")).getByText("SUN")).toBeInTheDocument();
     expect(within(screen.getByTestId("graph-canvas")).queryByText("screenpipe")).not.toBeInTheDocument();
-    expect(fetchMock.mock.calls.some(([input]) => String(input).startsWith("/graph/a16zsr006.json"))).toBe(true);
+    expect(fetchMock.mock.calls.some(([input]) => String(input).startsWith(`/graph/${target.filename}.json`))).toBe(true);
     expect(
       fetchMock.mock.calls
-        .some(([input]) => String(input) === "/api/graph?batch=A16ZSR006")
+        .some(([input]) => String(input) === `/api/graph?batch=${target.slug}`)
     ).toBe(false);
     expect(resultsRegion).toHaveAttribute("aria-busy", "true");
     await act(async () => {
@@ -1256,7 +1261,7 @@ describe("dashboard filters", () => {
     });
     expect(
       fetchMock.mock.calls
-        .filter(([input]) => String(input) === "/api/graph?batch=A16ZSR006")
+        .filter(([input]) => String(input) === `/api/graph?batch=${target.slug}`)
     ).toHaveLength(1);
     fireEvent.change(screen.getByRole("combobox", { name: /batch/i }), { target: { value: "S2026" } });
     expect(screen.getByText("Loading YC map...")).toBeInTheDocument();
@@ -2512,6 +2517,7 @@ function graphResponse(
     batches: [
       { slug: "S2026", label: "YC Spring 2026 (P26)", companyCountExpected: 197, companyCountObserved: 197 },
       { slug: "S26", label: "YC Summer 2026 (S26)", companyCountExpected: 83, companyCountObserved: 83 },
+      { slug: "F26", label: "YC Fall 2026 (F26)", companyCountExpected: 235, companyCountObserved: 235 },
       { slug: "A16ZSR006", label: "a16z speedrun 006", companyCountExpected: 59, companyCountObserved: 59 }
     ],
     nodes: batchNodes,

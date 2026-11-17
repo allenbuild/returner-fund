@@ -102,53 +102,64 @@ const adminDiagnosticsTraceExcludes = [
 ];
 const fullGraphTraceExcludes = [
   ...graphTraceExcludes,
+  "public/graph/**/*",
+  "generated-runtime/published-graph/**/*"
+];
+const graphRefreshTraceExcludes = [
+  ...graphTraceExcludes,
+  "generated-runtime/published-graph/**/*"
+];
+const publishedGraphTraceExcludes = [
+  ...graphTraceExcludes,
   "public/graph/**/*"
 ];
 const insiderRecomputeTraceExcludes = [
-  ...graphTraceExcludes,
+  ...publishedGraphTraceExcludes,
   // The recompute route allowlists only base and Insider snapshots. Turbopack
   // also discovers these sibling files through the bounded dynamic path, but
   // they can never be opened by that route.
-  "public/graph/*-yc-partners.json",
-  "public/graph/manifest.json"
+  "generated-runtime/published-graph/*-yc-partners.json.gz"
+];
+const packedGraphSnapshotPath = (path) => path.replace("public/graph/", "generated-runtime/published-graph/") + ".gz";
+const returnerFundApiTraceExcludes = [
+  ...publishedGraphTraceExcludes,
+  "generated-runtime/published-graph/*-yc-partners.json.gz",
+  "generated-runtime/published-graph/*-insiders.json.gz"
 ];
 const insiderRuntimeSnapshots = [
   "public/graph/s2026.json",
   "public/graph/s2026-insiders.json",
   "public/graph/s26.json",
+  "public/graph/f26.json",
   "public/graph/s26-insiders.json",
+  "public/graph/f26-insiders.json",
   "public/graph/a16zsr006.json",
   "public/graph/a16zsr006-insiders.json"
-];
+].map(packedGraphSnapshotPath);
 const returnerFundApiSnapshots = [
   "public/graph/s2026.json",
   "public/graph/s26.json",
+  "public/graph/f26.json",
   "public/graph/a16zsr006.json"
-];
-// The company API always requests the canonical `off` audience. Turbopack's
-// bounded dynamic path also discovers sibling audience snapshots, but those
-// files can never be opened by this route and needlessly grow every deploy.
-const returnerFundApiTraceExcludes = [
-  ...graphTraceExcludes,
-  "generated-runtime/**/*",
-  "public/graph/*-yc-partners.json",
-  "public/graph/*-insiders.json",
-  "public/graph/manifest.json"
-];
+].map(packedGraphSnapshotPath);
 const publishedGraphRuntimeSnapshots = [
   "public/graph/s2026.json",
   "public/graph/s2026-yc-partners.json",
   "public/graph/s2026-insiders.json",
   "public/graph/s26.json",
+  "public/graph/f26.json",
   "public/graph/s26-yc-partners.json",
+  "public/graph/f26-yc-partners.json",
   "public/graph/s26-insiders.json",
+  "public/graph/f26-insiders.json",
   "public/graph/a16zsr006.json",
   "public/graph/a16zsr006-yc-partners.json",
   "public/graph/a16zsr006-insiders.json"
-];
-// Next matches trace keys with substring semantics. The negative extglob keeps
-// the lightweight graph snapshot bundle from leaking into /api/graph/full and
-// /api/graph/refresh while still matching the canonical /api/graph route.
+].map(packedGraphSnapshotPath);
+// Native Turbopack matches the /route entry and does not support this
+// negative extglob; the JS tracing path matches the normalized URL. Declare
+// both exact-scope keys. A broad /api/graph include leaks into full/refresh
+// because native includes are applied after excludes.
 const canonicalGraphTraceKey = "/api/graph!(/**)";
 
 /** @type {import('next').NextConfig} */
@@ -252,6 +263,7 @@ const nextConfig = {
   },
   outputFileTracingIncludes: {
     [canonicalGraphTraceKey]: [...benchmarkRuntimeData, ...publishedGraphRuntimeSnapshots],
+    "/api/graph/route": [...benchmarkRuntimeData, ...publishedGraphRuntimeSnapshots],
     "/api/yc-partners": ["public/graph/*.json"],
     "/api/graph/full": graphRuntimeData,
     "/api/graph/refresh": [...graphRuntimeData, "public/graph/*.json"],
@@ -274,9 +286,10 @@ const nextConfig = {
     "/api/dashboard/stories/[stableKey]/sources": dashboardRuntimeData
   },
   outputFileTracingExcludes: {
-    [canonicalGraphTraceKey]: graphTraceExcludes,
+    [canonicalGraphTraceKey]: publishedGraphTraceExcludes,
+    "/api/graph/route": publishedGraphTraceExcludes,
     "/api/graph/full": fullGraphTraceExcludes,
-    "/api/graph/refresh": graphTraceExcludes,
+    "/api/graph/refresh": graphRefreshTraceExcludes,
     "/api/insiders/recompute": insiderRecomputeTraceExcludes,
     "/api/v1/companies/*/returner-fund": returnerFundApiTraceExcludes,
     "/api/admin/ingestion": adminDiagnosticsTraceExcludes,

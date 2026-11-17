@@ -148,7 +148,7 @@ export function isDashboardCandidateEligible(candidate: Pick<DashboardCandidate,
 }
 
 const TOP100_SOCIAL_PLATFORMS = new Set<DashboardCandidate["platform"]>([
-  "x", "instagram", "linkedin", "youtube", "tiktok", "bluesky"
+  "x", "instagram", "facebook", "threads", "linkedin", "youtube", "tiktok", "bluesky"
 ]);
 const HIGH_CONFIDENCE_SOCIAL_TOPICS = new Set<DashboardTopic>([
   "launches", "research", "funding", "open_source", "ai", "robotics", "biotech"

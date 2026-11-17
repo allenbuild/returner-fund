@@ -4656,9 +4656,11 @@ describe("autonomous ingestion runner static safety contracts", () => {
     assert.ok(completionIndex > pushIndex);
   });
 
-  it("publishes newly discovered raw Top Voice evidence with the generated graphs", () => {
+  it("publishes newly discovered Top Voice evidence through the exact packed artifacts", () => {
     const artifactPaths = section("function repositoryArtifactPaths", "function publicationBranch");
-    assert.ok(artifactPaths.includes('"src/lib/social/targeted-evidence-current.json"'));
+    assert.ok(artifactPaths.includes("TARGETED_EVIDENCE_PACK_PATH"));
+    assert.ok(artifactPaths.includes("TARGETED_EVIDENCE_MANIFEST_PATH"));
+    assert.doesNotMatch(artifactPaths, /"src\/lib\/social\/targeted-evidence-current\.json"/);
   });
 
   it("publishes the merged authenticated evidence ledger with the generated graphs", () => {
@@ -5750,6 +5752,7 @@ async function runPublicationRaceFixture({ mode, concurrentAdvanceCount }) {
 
   runGit(repositoryRoot, ["worktree", "add", "--detach", publicationRoot, baseCommit]);
   try {
+    // Three retry attempts restore and repack the verified canonical snapshot.
     const result = runLifecycleFixture("publication-race-loop", {
       GITHUB_RUN_ID: "publication-race-fixture",
       GITHUB_RUN_ATTEMPT: "1",
@@ -5758,14 +5761,18 @@ async function runPublicationRaceFixture({ mode, concurrentAdvanceCount }) {
       LIFECYCLE_FIXTURE_BASE_COMMIT: baseCommit,
       LIFECYCLE_FIXTURE_PUBLICATION_RACE_MODE: mode,
       LIFECYCLE_FIXTURE_CONCURRENT_COMMITS: concurrentCommits.join(",")
-    }, repositoryRoot, 15_000);
+    }, repositoryRoot, 60_000);
     return {
       payload: lifecycleFixturePayload(result),
       baseCommit,
       concurrentCommits
     };
   } finally {
-    runGit(repositoryRoot, ["worktree", "remove", "--force", publicationRoot]);
+    // The runner can remove its owned worktree on failure; preserve that failure.
+    const registeredWorktrees = runGit(repositoryRoot, ["worktree", "list", "--porcelain"]).stdout;
+    if (registeredWorktrees.split("\n").includes(`worktree ${publicationRoot}`)) {
+      runGit(repositoryRoot, ["worktree", "remove", "--force", publicationRoot]);
+    }
     runGit(repositoryRoot, ["worktree", "prune"]);
   }
 }

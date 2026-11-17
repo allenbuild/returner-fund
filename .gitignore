@@ -22,3 +22,10 @@ generated-runtime/
 .vercel
 .env.local
 outputs/timeline-public-discovery-current.json
+src/lib/social/targeted-evidence-current.json
+/outputs/fall-2026/*
+!/outputs/fall-2026/local-publication-summary.json
+!/outputs/fall-2026/full-history-coverage-ledger.json
+__pycache__/
+*.pyc
+.DS_Store

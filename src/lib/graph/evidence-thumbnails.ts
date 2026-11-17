@@ -34,6 +34,8 @@ const MARKDOWN_IMAGE = /!\[[^\]]*]\((https?:\/\/[^)\s]+)\)/gi;
 const PLATFORM_HOST_HINTS: Record<Platform, RegExp[]> = {
   x: [/pbs\.twimg\.com\/(?:media|amplify_video_thumb|tweet_video_thumb|card_img)\//i],
   instagram: [/cdninstagram\.com/i, /fbcdn\.net/i],
+  facebook: [/fbcdn\.net/i],
+  threads: [/cdninstagram\.com/i, /fbcdn\.net/i],
   linkedin: [/media\.licdn\.com/i],
   product_hunt: [/ph-files\.imgix\.net/i, /producthunt\.com/i],
   youtube: [/i\.ytimg\.com\/vi\//i],
@@ -60,6 +62,7 @@ const REJECT_ALWAYS = [
 ];
 
 const PLATFORM_REJECTS: Partial<Record<Platform, RegExp[]>> = {
+  threads: [/profile_pic/i, /s150x150/i, /t51\.82787-19/i],
   instagram: [/profile_pic/i, /s150x150/i, /e35\/s\d+x\d+/i, /t51\.82787-19/i],
   linkedin: [/profile-displayphoto/i, /company-logo/i],
   product_hunt: [/favicon/i],

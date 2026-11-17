@@ -11,6 +11,8 @@ const GLOBAL_BENCHMARK_TARGET = 95;
 const EDGE_TYPES = new Set(["industry_similarity", "same_group_partner"]);
 const CANONICAL_ACCOUNT_ID_WWW_PLATFORMS = new Set([
   "instagram",
+  "facebook",
+  "threads",
   "linkedin",
   "product_hunt",
   "reddit",
@@ -1935,6 +1937,11 @@ function canonicalSocialAccountUrl(platform, rawUrl) {
     if (platform === "tiktok" && (host === "tiktok.com" || host.endsWith(".tiktok.com"))) {
       const handle = parts[0]?.replace(/^@/, "");
       return handle ? `https://tiktok.com/@${handle.toLowerCase()}` : null;
+    }
+    if (platform === "threads" && host === "threads.com" && /^@[A-Za-z0-9_.]+$/.test(parts[0] ?? "")) return `https://threads.com/${parts[0].toLowerCase()}`;
+    if (platform === "facebook" && ["facebook.com", "m.facebook.com", "web.facebook.com"].includes(host)) {
+      const accountParts = parts[0]?.toLowerCase() === "people" ? parts.slice(0, 3) : parts.slice(0, 1);
+      return accountParts.length ? `https://facebook.com/${accountParts.join("/").toLowerCase()}` : null;
     }
 
     if (platform === "bluesky" && host === "bsky.app") {

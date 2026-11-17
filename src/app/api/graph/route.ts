@@ -37,6 +37,8 @@ const platforms = [
   "x",
   "linkedin",
   "instagram",
+  "facebook",
+  "threads",
   "product_hunt",
   "youtube",
   "rss",

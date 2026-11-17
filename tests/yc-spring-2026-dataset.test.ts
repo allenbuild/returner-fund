@@ -21,6 +21,7 @@ import type { SocialAccountSummary } from "@/lib/graph/types";
 import springGithubSnapshot from "@/lib/social/github-traction.json";
 import summerGithubSnapshot from "@/lib/social/github-traction-summer-2026.json";
 import summerCompaniesSnapshot from "@/lib/yc/summer-2026-companies.json";
+import fallCompaniesSnapshot from "@/lib/yc/fall-2026-companies.json";
 
 const targetedEvidenceSnapshot = JSON.parse(
   readFileSync(join(process.cwd(), "src/lib/social/targeted-evidence-current.json"), "utf8")
@@ -722,6 +723,12 @@ describe("YC Summer 2026 official snapshot", () => {
         label: "YC Summer 2026 (S26)",
         companyCountExpected: summerCompaniesSnapshot.source.expectedCompanyCount,
         companyCountObserved: summerCompaniesSnapshot.source.observedCompanyCount
+      },
+      {
+        slug: "F26",
+        label: "YC Fall 2026 (F26)",
+        companyCountExpected: fallCompaniesSnapshot.source.expectedCompanyCount,
+        companyCountObserved: fallCompaniesSnapshot.source.observedCompanyCount
       },
       {
         slug: "A16ZSR006",

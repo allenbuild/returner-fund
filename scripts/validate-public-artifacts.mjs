@@ -50,13 +50,17 @@ export const GRAPH_ARTIFACTS = Object.freeze([
   graphArtifact("S26", "s26-insiders.json", "insiders"),
   graphArtifact("A16ZSR006", "a16zsr006.json"),
   graphArtifact("A16ZSR006", "a16zsr006-yc-partners.json", "yc_partners"),
-  graphArtifact("A16ZSR006", "a16zsr006-insiders.json", "insiders")
+  graphArtifact("A16ZSR006", "a16zsr006-insiders.json", "insiders"),
+  graphArtifact("F26", "f26.json"),
+  graphArtifact("F26", "f26-yc-partners.json", "yc_partners"),
+  graphArtifact("F26", "f26-insiders.json", "insiders")
 ]);
 
 export const HISTORY_ARTIFACTS = Object.freeze([
   historyArtifact("S2026", "s2026-score-benchmarks.json"),
   historyArtifact("S26", "s26-score-benchmarks.json"),
-  historyArtifact("A16ZSR006", "a16zsr006-score-benchmarks.json")
+  historyArtifact("A16ZSR006", "a16zsr006-score-benchmarks.json"),
+  historyArtifact("F26", "f26-score-benchmarks.json")
 ]);
 
 export const S26_CATALOG_PATH = path.posix.join(
@@ -71,6 +75,8 @@ export const RANKED_POSTS_SIDECAR_PATH = path.posix.join(
   "graph",
   "ranked-posts-sidecar.generated.json"
 );
+
+export const F26_CATALOG_PATH = path.posix.join("src", "lib", "yc", "fall-2026-companies.json");
 
 const PLATFORM_WEIGHTS = Object.freeze({
   x: 0.21,
@@ -203,6 +209,12 @@ export async function validatePublicArtifacts({
       )
     );
   }
+  const f26Catalog = await readJsonArtifact(rootDir, F26_CATALOG_PATH, violations);
+  if (f26Catalog !== null) {
+    violations.push(...collectYcGraphCensusViolations(f26Catalog, graphArtifacts, {
+      batchSlug: "F26", catalogPath: F26_CATALOG_PATH
+    }));
+  }
   violations.push(...collectCanonicalGraphSetViolations(graphArtifacts));
 
   for (const descriptor of HISTORY_ARTIFACTS) {
@@ -288,12 +300,18 @@ export function collectRankedPostsSidecarGraphAlignmentViolations(
 }
 
 export function collectS26GraphCensusViolations(catalog, graphArtifacts) {
+  return collectYcGraphCensusViolations(catalog, graphArtifacts, {
+    batchSlug: "S26", catalogPath: S26_CATALOG_PATH
+  });
+}
+
+export function collectYcGraphCensusViolations(catalog, graphArtifacts, { batchSlug, catalogPath }) {
   const violations = [];
   if (!isRecord(catalog)) {
-    return [`${S26_CATALOG_PATH}: expected a JSON object`];
+    return [`${catalogPath}: expected a JSON object`];
   }
   if (!Array.isArray(catalog.companies) || catalog.companies.length === 0) {
-    return [`${S26_CATALOG_PATH}: companies must be a non-empty array`];
+    return [`${catalogPath}: companies must be a non-empty array`];
   }
 
   const catalogCount = catalog.companies.length;
@@ -304,7 +322,7 @@ export function collectS26GraphCensusViolations(catalog, graphArtifacts) {
       sourceCount !== catalogCount
     ) {
       violations.push(
-        `${S26_CATALOG_PATH}: source.${sourceCountField} must equal the ${catalogCount}-company catalog, received ${formatValue(sourceCount)}`
+        `${catalogPath}: source.${sourceCountField} must equal the ${catalogCount}-company catalog, received ${formatValue(sourceCount)}`
       );
     }
   }
@@ -314,7 +332,7 @@ export function collectS26GraphCensusViolations(catalog, graphArtifacts) {
   const catalogIds = new Map();
   const catalogObjectIds = new Map();
   for (const [index, company] of catalog.companies.entries()) {
-    const scope = `${S26_CATALOG_PATH}: companies[${index}]`;
+    const scope = `${catalogPath}: companies[${index}]`;
     if (!isRecord(company)) {
       violations.push(`${scope} must be an object`);
       continue;
@@ -371,13 +389,13 @@ export function collectS26GraphCensusViolations(catalog, graphArtifacts) {
   for (const entry of Array.isArray(graphArtifacts) ? graphArtifacts : []) {
     const descriptor = entry?.descriptor;
     const graph = entry?.graph;
-    if (descriptor?.batch !== "S26" || !isRecord(graph)) continue;
+    if (descriptor?.batch !== batchSlug || !isRecord(graph)) continue;
     const artifactPath = descriptor.path;
     for (const countField of ["companyCountObserved", "companyCountExpected"]) {
       const graphCount = graph.batch?.[countField];
       if (graphCount !== undefined && graphCount !== catalogCount) {
         violations.push(
-          `${artifactPath}: batch.${countField} must match the S26 catalog count ${catalogCount}, received ${formatValue(graphCount)}`
+          `${artifactPath}: batch.${countField} must match the ${batchSlug} catalog count ${catalogCount}, received ${formatValue(graphCount)}`
         );
       }
     }
@@ -396,16 +414,16 @@ export function collectS26GraphCensusViolations(catalog, graphArtifacts) {
 
       const catalogCompany = entityId ? catalogByEntityId.get(entityId) : null;
       if (entityId && !catalogCompany) {
-        violations.push(`${scope}.entityId ${entityId} is absent from the S26 catalog`);
+        violations.push(`${scope}.entityId ${entityId} is absent from the ${batchSlug} catalog`);
       }
       if (!slug) {
         violations.push(`${scope}.ycProfileUrl must contain a canonical YC company slug`);
       } else if (!catalogBySlug.has(slug)) {
-        violations.push(`${scope}.ycProfileUrl slug ${slug} is absent from the S26 catalog`);
+        violations.push(`${scope}.ycProfileUrl slug ${slug} is absent from the ${batchSlug} catalog`);
       }
       if (catalogCompany && slug && catalogCompany.slug !== slug) {
         violations.push(
-          `${scope} pairs entityId ${entityId} with YC slug ${slug}; the S26 catalog maps it to ${catalogCompany.slug}`
+          `${scope} pairs entityId ${entityId} with YC slug ${slug}; the ${batchSlug} catalog maps it to ${catalogCompany.slug}`
         );
       }
     }
@@ -416,7 +434,7 @@ export function collectS26GraphCensusViolations(catalog, graphArtifacts) {
     if ((descriptor.audience ?? "off") !== "off") continue;
     if (companyNodes.length !== catalogCount) {
       violations.push(
-        `${artifactPath}: base snapshot has ${companyNodes.length} company nodes for the ${catalogCount}-company S26 catalog`
+        `${artifactPath}: base snapshot has ${companyNodes.length} company nodes for the ${catalogCount}-company ${batchSlug} catalog`
       );
     }
     appendSetCensusViolation(
@@ -424,14 +442,16 @@ export function collectS26GraphCensusViolations(catalog, graphArtifacts) {
       artifactPath,
       "company entityId",
       new Set(catalogByEntityId.keys()),
-      graphEntityIds
+      graphEntityIds,
+      batchSlug
     );
     appendSetCensusViolation(
       violations,
       artifactPath,
       "company slug",
       new Set(catalogBySlug.keys()),
-      graphSlugs
+      graphSlugs,
+      batchSlug
     );
   }
 
@@ -1771,6 +1791,9 @@ export function nativeEvidenceIdentityFromUrl(platform, rawUrl) {
     }
     if (platform === "linkedin") {
       if (host !== "linkedin.com" && !host.endsWith(".linkedin.com")) return null;
+      const ugcId = pathname.match(/^\/feed\/update\/urn:li:ugcPost:(\d+)$/i)?.[1]
+        ?? pathname.match(/^\/posts\/[^/]*-ugcPost-(\d+)(?:-[^/]+)?$/i)?.[1];
+      if (ugcId) return `ugcPost:${ugcId}`;
       const feedId = pathname.match(/^\/feed\/update\/urn:li:activity:(\d+)$/i)?.[1];
       if (feedId) return feedId;
       const postSegment = pathname.match(/^\/posts\/([^/]+)$/i)?.[1];
@@ -1864,7 +1887,10 @@ function platformPostIdIdentity(platform, rawValue) {
       value
     );
   }
-  if (platform === "linkedin") return value.match(/activity[-:](\d+)/i)?.[1] ?? value;
+  if (platform === "linkedin") {
+    const ugcId = value.match(/ugcPost[-:](\d+)/i)?.[1];
+    return ugcId ? `ugcPost:${ugcId}` : value.match(/activity[-:](\d+)/i)?.[1] ?? value;
+  }
   if (platform === "youtube") {
     return value.match(/^(?:shorts|live)\/([A-Za-z0-9_-]+)$/i)?.[1] ?? validObjectId(value) ?? value;
   }
@@ -1931,13 +1957,14 @@ function appendSetCensusViolation(
   artifactPath,
   label,
   expectedValues,
-  observedValues
+  observedValues,
+  batchSlug
 ) {
   const missing = [...expectedValues].filter((value) => !observedValues.has(value)).sort();
   const unexpected = [...observedValues].filter((value) => !expectedValues.has(value)).sort();
   if (missing.length === 0 && unexpected.length === 0) return;
   violations.push(
-    `${artifactPath}: ${label} census must match the S26 catalog` +
+    `${artifactPath}: ${label} census must match the ${batchSlug} catalog` +
       `${missing.length ? `; missing ${missing.join(", ")}` : ""}` +
       `${unexpected.length ? `; unexpected ${unexpected.join(", ")}` : ""}`
   );

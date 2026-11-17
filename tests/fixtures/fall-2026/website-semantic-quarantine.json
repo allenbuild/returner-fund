@@ -1,0 +1,424 @@
+{
+  "recommendedQuarantineRows": [
+    {
+      "sourceUrl": "https://armorerlabs.com/threat-intel/microsoft-exposure-management-secure-now-agentic-containment-2026-08"
+    },
+    {
+      "sourceUrl": "https://armorerlabs.com/threat-intel/microsoft-security-exposure-management-agentic-containment-2026-08"
+    },
+    {
+      "sourceUrl": "https://armorerlabs.com/threat-intel/copa-continual-preference-optimization-prompt-injection-2026-08"
+    },
+    {
+      "sourceUrl": "https://armorerlabs.com/threat-intel/post-training-least-privilege-tool-using-agents-2026-08"
+    },
+    {
+      "sourceUrl": "https://armorerlabs.com/threat-intel/arxiv-task-conditioned-least-privilege-mcp-2026-08"
+    },
+    {
+      "sourceUrl": "https://armorerlabs.com/threat-intel/404media-meta-ai-instagram-account-takeover-2026-06"
+    },
+    {
+      "sourceUrl": "https://armorerlabs.com/threat-intel/meta-ai-support-bot-instagram-account-takeovers-2026-06"
+    },
+    {
+      "sourceUrl": "https://armorerlabs.com/threat-intel/owasp-agent-memory-guard-2026-06"
+    },
+    {
+      "sourceUrl": "https://armorerlabs.com/threat-intel/agent-memory-operation-screening-2026-06"
+    },
+    {
+      "sourceUrl": "https://armorerlabs.com/threat-intel/agentic-ai-careful-adoption-guidance-2026-05"
+    },
+    {
+      "sourceUrl": "https://armorerlabs.com/threat-intel/microsoft-agent-governance-toolkit"
+    },
+    {
+      "sourceUrl": "https://armorerlabs.com/threat-intel/github-langchain-runtime-deserialization-allowlist-cve-2026-44843"
+    },
+    {
+      "sourceUrl": "https://armorerlabs.com/threat-intel/langchain-runtime-deserialization-allowlist-2026-05"
+    },
+    {
+      "sourceUrl": "https://armorerlabs.com/threat-intel/arxiv-agenttrust-runtime-interception-2026-05"
+    },
+    {
+      "sourceUrl": "https://armorerlabs.com/threat-intel/agent-tool-call-runtime-interception-2026-05"
+    },
+    {
+      "sourceUrl": "https://armorerlabs.com/threat-intel/agent-safety-regression-testing-2026-05"
+    },
+    {
+      "sourceUrl": "https://armorerlabs.com/threat-intel/microsoft-rampart-clarity-agent-safety-tools-2026-05-20"
+    },
+    {
+      "sourceUrl": "https://armorerlabs.com/threat-intel/nist-caisi-ai-agent-security-rfi-summary-2026-05"
+    },
+    {
+      "sourceUrl": "https://armorerlabs.com/threat-intel/openclaw-clawhavoc-campaign-amos-2026-02"
+    },
+    {
+      "sourceUrl": "https://armorerlabs.com/threat-intel/barrack-ai-openclaw-security-nightmare-2026-02"
+    },
+    {
+      "sourceUrl": "https://armorerlabs.com/threat-intel/cyera-claw-chain-openclaw-vulns-2026-05"
+    },
+    {
+      "sourceUrl": "https://armorerlabs.com/threat-intel/openclaw-claw-chain-four-chainable-vulns-2026-05"
+    },
+    {
+      "sourceUrl": "https://armorerlabs.com/threat-intel/microsoft-semantic-kernel-agent-rce-2026-05-07"
+    },
+    {
+      "sourceUrl": "https://armorerlabs.com/threat-intel/semantic-kernel-prompt-injection-rce-2026-05"
+    },
+    {
+      "sourceUrl": "https://armorerlabs.com/threat-intel/akamai-mcp-backend-vulnerabilities-2026-05-12"
+    },
+    {
+      "sourceUrl": "https://armorerlabs.com/threat-intel/mcp-database-backend-validation-vulnerabilities-2026-05"
+    },
+    {
+      "sourceUrl": "https://armorerlabs.com/threat-intel/cybergov-careful-adoption-agentic-ai-services-2026-05"
+    },
+    {
+      "sourceUrl": "https://armorerlabs.com/threat-intel/intcyberdigest-tanstack-npm-attack-2026-05"
+    },
+    {
+      "sourceUrl": "https://armorerlabs.com/threat-intel/tanstack-npm-shai-hulud-ai-tooling-supply-chain-2026-05"
+    },
+    {
+      "sourceUrl": "https://armorerlabs.com/threat-intel/malicious-deepseek-claw-skill-campaign"
+    },
+    {
+      "sourceUrl": "https://armorerlabs.com/threat-intel/cryptika-malicious-openclaw-deepseek-skill-2026-05"
+    },
+    {
+      "sourceUrl": "https://armorerlabs.com/threat-intel/cybersecurity-insiders-malicious-openclaw-deepseek-skill-2026-05"
+    },
+    {
+      "sourceUrl": "https://armorerlabs.com/threat-intel/krebs-canvas-breach-disrupts-schools-2026-05-07"
+    },
+    {
+      "sourceUrl": "https://armorerlabs.com/threat-intel/instructure-canvas-shinyhunters-extortion-2026-05"
+    },
+    {
+      "sourceUrl": "https://armorerlabs.com/threat-intel/clawjacked-local-api-exposure-rce"
+    },
+    {
+      "sourceUrl": "https://armorerlabs.com/threat-intel/oasis-openclaw-vulnerability-2026-05-10"
+    },
+    {
+      "sourceUrl": "https://armorerlabs.com/threat-intel/oasis-clawjacked-2026-02-19"
+    },
+    {
+      "sourceUrl": "https://armorerlabs.com/threat-intel/instructure-security-incident-update-2026-05-09"
+    },
+    {
+      "sourceUrl": "https://armorerlabs.com/threat-intel/explicit-agent-memory-conversation-scoping-2026-05"
+    },
+    {
+      "sourceUrl": "https://armorerlabs.com/threat-intel/spring-ai-1-1-6-explicit-conversation-id-2026-05-08"
+    },
+    {
+      "sourceUrl": "https://armorerlabs.com/threat-intel/hn-probus-ai-vuln-scanner-2026-05-05"
+    },
+    {
+      "sourceUrl": "https://armorerlabs.com/threat-intel/vercel-ai-pr-14750-toolloopagent-calloptions-schema-2026-04-27"
+    },
+    {
+      "sourceUrl": "https://armorerlabs.com/threat-intel/vercel-ai-sdk-toolloopagent-calloptions-schema-bypass-2026-04"
+    },
+    {
+      "sourceUrl": "https://armorerlabs.com/threat-intel/ai-coding-agent-runtime-credential-exposure-2026-04"
+    },
+    {
+      "sourceUrl": "https://armorerlabs.com/threat-intel/action-gates-and-runtime-guards"
+    },
+    {
+      "sourceUrl": "https://armorerlabs.com/threat-intel/venturebeat-ai-coding-agent-credential-exploits-2026-04-30"
+    },
+    {
+      "sourceUrl": "https://armorerlabs.com/threat-intel/github-workflow-agent-comment-control-credential-theft-2026-04"
+    },
+    {
+      "sourceUrl": "https://armorerlabs.com/threat-intel/mcp-stdio-command-execution-and-tool-integrity-risks-2026-05"
+    },
+    {
+      "sourceUrl": "https://armorerlabs.com/threat-intel/csa-mcp-security-crisis-2026-05-04"
+    },
+    {
+      "sourceUrl": "https://armorerlabs.com/threat-intel/oddguan-comment-control-agent-credential-theft-2026-04-15"
+    },
+    {
+      "sourceUrl": "https://armorerlabs.com/threat-intel/executivegov-agentic-ai-security-guidance-2026-05-01"
+    },
+    {
+      "sourceUrl": "https://armorerlabs.com/threat-intel/endorlabs-ai-sast-openclaw-2026-02-10"
+    },
+    {
+      "sourceUrl": "https://armorerlabs.com/threat-intel/ai-security-tools-roundup-openclaw-relevant-2026-02"
+    },
+    {
+      "sourceUrl": "https://armorerlabs.com/threat-intel/clawsec-scanner"
+    },
+    {
+      "sourceUrl": "https://armorerlabs.com/threat-intel/clawsec-scanner-announcement-2026-03"
+    },
+    {
+      "sourceUrl": "https://armorerlabs.com/threat-intel/clawsec-suite"
+    },
+    {
+      "sourceUrl": "https://armorerlabs.com/threat-intel/clawsec-releases-and-skill-index"
+    },
+    {
+      "sourceUrl": "https://armorerlabs.com/threat-intel/clawsec-suite-announcement-2026-02"
+    },
+    {
+      "sourceUrl": "https://armorerlabs.com/threat-intel/clawdint-internal-content-leak-2026-03"
+    },
+    {
+      "sourceUrl": "https://armorerlabs.com/threat-intel/endorlabs-openclaw-vulnerability-set-2026-02"
+    },
+    {
+      "sourceUrl": "https://armorerlabs.com/threat-intel/hebrew-openclaw-hardening-prompt-guidance"
+    },
+    {
+      "sourceUrl": "https://armorerlabs.com/threat-intel/hebrew-openclaw-runtime-guard-tools-roundup"
+    },
+    {
+      "sourceUrl": "https://armorerlabs.com/threat-intel/endorlabs-six-openclaw-vulns-2026-02-18"
+    },
+    {
+      "sourceUrl": "https://armorerlabs.com/threat-intel/lukasz-olejnik-integrators-not-isolators-2026-02-02"
+    },
+    {
+      "sourceUrl": "https://armorerlabs.com/threat-intel/mass-exposed-openclaw-instances-2026-02"
+    },
+    {
+      "sourceUrl": "https://armorerlabs.com/threat-intel/semgrep-openclaw-security-engineers-cheat-sheet-2026-02"
+    },
+    {
+      "sourceUrl": "https://armorerlabs.com/threat-intel/agent-overreach-sensitive-systems"
+    },
+    {
+      "sourceUrl": "https://armorerlabs.com/threat-intel/openclaw-gateway-security-baseline"
+    },
+    {
+      "sourceUrl": "https://armorerlabs.com/threat-intel/openclaw-gateway-security-docs"
+    },
+    {
+      "sourceUrl": "https://armorerlabs.com/threat-intel/openclaw-security-engineers-cheat-sheet"
+    },
+    {
+      "sourceUrl": "https://armorerlabs.com/threat-intel/pillar-agent-spawn-campaign-2026-03"
+    },
+    {
+      "sourceUrl": "https://armorerlabs.com/threat-intel/infosecurity-openclaw-exposed-instances-2026-02-09"
+    },
+    {
+      "sourceUrl": "https://native.no/changelog/versions"
+    },
+    {
+      "sourceUrl": "https://operatechnologies.com/stories/amazon-regional-fulfillment"
+    },
+    {
+      "sourceUrl": "https://operatechnologies.com/stories/transvision-shared-taxi-routes"
+    },
+    {
+      "sourceUrl": "https://operatechnologies.com/stories/dhl-supply-chain-routing"
+    },
+    {
+      "sourceUrl": "https://operatechnologies.com/stories/stockholm-home-care-scheduling"
+    },
+    {
+      "sourceUrl": "https://operatechnologies.com/stories/miso-power-markets"
+    },
+    {
+      "sourceUrl": "https://operatechnologies.com/stories/canadian-pacific-operating-plan"
+    },
+    {
+      "sourceUrl": "https://operatechnologies.com/stories/baosteel-production-planning"
+    },
+    {
+      "sourceUrl": "https://operatechnologies.com/stories/tata-steel-annealing-control"
+    },
+    {
+      "sourceUrl": "https://operatechnologies.com/stories/merck-animal-health-biomanufacturing"
+    },
+    {
+      "sourceUrl": "https://operatechnologies.com/stories/samsung-fab-cycle-time"
+    },
+    {
+      "sourceUrl": "https://operatechnologies.com/stories/american-airlines-yield-management"
+    },
+    {
+      "sourceUrl": "https://operatechnologies.com/stories/lyft-driver-matching"
+    },
+    {
+      "sourceUrl": "https://operatechnologies.com/stories/alibaba-delivery-routing"
+    },
+    {
+      "sourceUrl": "https://operatechnologies.com/stories/chile-school-meals-auction"
+    },
+    {
+      "sourceUrl": "https://operatechnologies.com/stories/hp-product-portfolio"
+    },
+    {
+      "sourceUrl": "https://operatechnologies.com/stories/sears-technician-dispatch"
+    },
+    {
+      "sourceUrl": "https://operatechnologies.com/stories/ns-dutch-timetable"
+    },
+    {
+      "sourceUrl": "https://operatechnologies.com/stories/swift-beef-scheduling"
+    },
+    {
+      "sourceUrl": "https://operatechnologies.com/stories/lenovo-laptop-scheduling"
+    },
+    {
+      "sourceUrl": "https://operatechnologies.com/stories/gm-production-throughput"
+    },
+    {
+      "sourceUrl": "https://operatechnologies.com/stories/tnt-express-network"
+    },
+    {
+      "sourceUrl": "https://operatechnologies.com/stories/molslinjen-ferry-forecasting"
+    },
+    {
+      "sourceUrl": "https://operatechnologies.com/stories/chevron-refinery-planning"
+    },
+    {
+      "sourceUrl": "https://operatechnologies.com/stories/meituan-courier-dispatch"
+    },
+    {
+      "sourceUrl": "https://operatechnologies.com/stories/air-new-zealand-crew-scheduling"
+    },
+    {
+      "sourceUrl": "https://operatechnologies.com/stories/intel-product-supply"
+    },
+    {
+      "sourceUrl": "https://operatechnologies.com/stories/walmart-load-planner"
+    },
+    {
+      "sourceUrl": "https://operatechnologies.com/stories/microsoft-cloud-supply-chain"
+    },
+    {
+      "sourceUrl": "https://operatechnologies.com/stories/csx-empty-railcars"
+    },
+    {
+      "sourceUrl": "https://operatechnologies.com/stories/ups-orion"
+    },
+    {
+      "sourceUrl": "https://operatechnologies.com/stories/waste-management"
+    },
+    {
+      "sourceUrl": "https://operatechnologies.com/stories/coca-cola-enterprises"
+    },
+    {
+      "sourceUrl": "https://operatechnologies.com/stories/schneider-national"
+    },
+    {
+      "sourceUrl": "https://operatechnologies.com/stories/zara"
+    },
+    {
+      "sourceUrl": "https://operatechnologies.com/stories/kroger"
+    },
+    {
+      "sourceUrl": "https://operatechnologies.com/stories/kellogg"
+    },
+    {
+      "sourceUrl": "https://operatechnologies.com/stories/pg-plant-network"
+    },
+    {
+      "sourceUrl": "https://operatechnologies.com/stories/taco-bell"
+    },
+    {
+      "sourceUrl": "https://operatechnologies.com/stories/hartford-hospital"
+    },
+    {
+      "sourceUrl": "https://operatechnologies.com/stories/continental-crew-recovery"
+    },
+    {
+      "sourceUrl": "https://operatechnologies.com/stories/google-datacenter-cooling"
+    },
+    {
+      "sourceUrl": "https://docs.quivly.ai/updates/2026-07"
+    },
+    {
+      "sourceUrl": "https://docs.quivly.ai/updates/2026-08"
+    },
+    {
+      "sourceUrl": "https://docs.quivly.ai/updates/2026-06"
+    },
+    {
+      "sourceUrl": "https://docs.quivly.ai/updates/2026-10"
+    },
+    {
+      "sourceUrl": "https://docs.quivly.ai/updates/2026-09"
+    },
+    {
+      "sourceUrl": "https://docs.quivly.ai/updates/2026-05"
+    },
+    {
+      "sourceUrl": "https://docs.quivly.ai/updates/2026-11"
+    },
+    {
+      "sourceUrl": "https://docs.quivly.ai/updates/2026-04"
+    },
+    {
+      "sourceUrl": "https://docs.quivly.ai/updates/2026-03"
+    },
+    {
+      "sourceUrl": "https://docs.quivly.ai/updates/2026-02"
+    },
+    {
+      "sourceUrl": "https://docs.quivly.ai/updates/2026-01"
+    },
+    {
+      "sourceUrl": "https://docs.quivly.ai/updates/2025-12"
+    },
+    {
+      "sourceUrl": "https://docs.quivly.ai/updates/2025-11"
+    },
+    {
+      "sourceUrl": "https://docs.quivly.ai/updates/2025-10"
+    },
+    {
+      "sourceUrl": "https://docs.quivly.ai/updates/2025-09"
+    },
+    {
+      "sourceUrl": "https://enterpriseam.com/egypt/2026/08/10/one-egyptian-founder-and-ai-enthusiast-is-out-to-fix-the-broken-visa-process-plaguing-residents-of-the-global-south/"
+    },
+    {
+      "sourceUrl": "https://enterpriseam.com/egypt/2026/11/15/welcoming-an-old-friend-edita-backs-your-morning-read-as-we-roll-out-our-redesign/"
+    },
+    {
+      "sourceUrl": "https://enterpriseam.com/egypt/2026/11/15/egypts-final-imf-review-moves-to-virtual-talks-with-usd-2-3-bn-at-stake-and-a-15-december-deadline/"
+    },
+    {
+      "sourceUrl": "https://enterpriseam.com/egypt/2026/11/15/731276/"
+    },
+    {
+      "sourceUrl": "https://enterpriseam.com/egypt/2026/11/15/how-a-usd-2-15-bn-data-center-could-put-egypt-in-the-ai-export-business/"
+    },
+    {
+      "sourceUrl": "https://enterpriseam.com/egypt/2026/11/15/731279/"
+    },
+    {
+      "sourceUrl": "https://enterpriseam.com/egypt/2026/11/15/engie-led-consortium-reaches-financial-close-on-900-mw-ras-shokeir-wind-farm/"
+    },
+    {
+      "sourceUrl": "https://enterpriseam.com/egypt/2026/11/15/oberheiden-makes-his-case-for-egypt-post-before-senate-committee/"
+    },
+    {
+      "sourceUrl": "https://enterpriseam.com/egypt/2026/11/15/fra-keeps-the-door-closed-on-new-consumer-and-microfinance-lenders-for-another-year/"
+    },
+    {
+      "sourceUrl": "https://enterpriseam.com/egypt/2026/11/15/egpc-signs-halliburton-to-design-50-well-fracking-program-in-gpcs-fields/"
+    },
+    {
+      "sourceUrl": "https://enterpriseam.com/egypt/2026/11/15/sarwa-ins-names-mohamed-abdel-aziz-as-managing-director-from-january-2027/"
+    }
+  ]
+}

@@ -3,7 +3,7 @@ import { join } from "node:path";
 import type { EvidenceItem, GraphNode, GraphResponse, Platform } from "@/lib/graph/types";
 import { slugify } from "./site";
 
-const GRAPH_FILES = ["s2026.json", "s26.json", "a16zsr006.json"] as const;
+const GRAPH_FILES = ["s2026.json", "s26.json", "a16zsr006.json", "f26.json"] as const;
 
 export interface PublicCompany {
   slug: string;
@@ -281,5 +281,5 @@ function groupedCompanies(
 }
 
 function platformValues(): Platform[] {
-  return ["github", "x", "linkedin", "instagram", "product_hunt", "youtube", "rss", "web", "reddit", "hacker_news", "bilibili", "tiktok", "bluesky"];
+  return ["github", "x", "linkedin", "instagram", "facebook", "threads", "product_hunt", "youtube", "rss", "web", "reddit", "hacker_news", "bilibili", "tiktok", "bluesky"];
 }

@@ -5,12 +5,17 @@ import type { GraphResponse, TopVoiceAudienceId } from "./types";
 export const PUBLISHED_GRAPH_BATCH_FILES = {
   S2026: "s2026",
   S26: "s26",
+  F26: "f26",
   A16ZSR006: "a16zsr006"
 } as const;
 
 export type PublishedGraphBatchSlug = keyof typeof PUBLISHED_GRAPH_BATCH_FILES;
 
 const GRAPH_SNAPSHOT_MAX_BYTES = 20 * 1024 * 1024;
+// Fall's verified original article bodies make its bounded public preview
+// larger than the other cohorts. Keep a separate ceiling and leave the cache
+// budget unchanged, so a large Fall response is read without being retained.
+const FALL_GRAPH_SNAPSHOT_MAX_BYTES = 80 * 1024 * 1024;
 const GRAPH_SNAPSHOT_FETCH_TIMEOUT_MS = 12_000;
 const GRAPH_SNAPSHOT_CACHE_MAX_BYTES = 24 * 1024 * 1024;
 const GRAPH_SNAPSHOT_CACHE_TTL_MS = 60_000;
@@ -84,9 +89,10 @@ async function loadAndValidatePublishedGraph(
     raw = await fetchPublishedGraphSnapshot(filename, fileError, input.fetchImpl ?? fetch);
   }
 
-  if (Buffer.byteLength(raw) > GRAPH_SNAPSHOT_MAX_BYTES) {
+  const maxBytes = publishedGraphSnapshotMaxBytes(filename);
+  if (Buffer.byteLength(raw) > maxBytes) {
     throw new Error(
-      `Published graph snapshot ${filename} exceeded the ${GRAPH_SNAPSHOT_MAX_BYTES}-byte limit.`
+      `Published graph snapshot ${filename} exceeded the ${maxBytes}-byte limit.`
     );
   }
 
@@ -171,9 +177,10 @@ async function fetchPublishedGraphSnapshot(
   }
 
   const contentLength = Number(response.headers.get("content-length") ?? "0");
-  if (contentLength > GRAPH_SNAPSHOT_MAX_BYTES) {
+  const maxBytes = publishedGraphSnapshotMaxBytes(filename);
+  if (contentLength > maxBytes) {
     throw new Error(
-      `Published graph snapshot ${filename} exceeded the ${GRAPH_SNAPSHOT_MAX_BYTES}-byte limit.`
+      `Published graph snapshot ${filename} exceeded the ${maxBytes}-byte limit.`
     );
   }
   return readBoundedResponseText(response, filename);
@@ -192,10 +199,11 @@ async function readBoundedResponseText(
       const { done, value } = await reader.read();
       if (done) break;
       byteLength += value.byteLength;
-      if (byteLength > GRAPH_SNAPSHOT_MAX_BYTES) {
+      const maxBytes = publishedGraphSnapshotMaxBytes(filename);
+      if (byteLength > maxBytes) {
         await reader.cancel("Published graph snapshot exceeded its byte limit.");
         throw new Error(
-          `Published graph snapshot ${filename} exceeded the ${GRAPH_SNAPSHOT_MAX_BYTES}-byte limit.`
+          `Published graph snapshot ${filename} exceeded the ${maxBytes}-byte limit.`
         );
       }
       chunks.push(value);
@@ -204,6 +212,12 @@ async function readBoundedResponseText(
     reader.releaseLock();
   }
   return Buffer.concat(chunks, byteLength).toString("utf8");
+}
+
+function publishedGraphSnapshotMaxBytes(filename: string): number {
+  return /^f26(?:-yc-partners|-insiders)?\.json$/.test(filename)
+    ? FALL_GRAPH_SNAPSHOT_MAX_BYTES
+    : GRAPH_SNAPSHOT_MAX_BYTES;
 }
 
 function trustedDeploymentOrigin(): URL {

@@ -987,9 +987,10 @@ function resolveBatchConfig(value) {
 function batchConfigs() {
   const ycSnapshotPath = join(root, "src", "lib", "yc", "summer-2026-companies.json");
   const ycSpringSnapshotPath = join(root, "src", "lib", "yc", "spring-2026-companies.json");
+  const ycFallSnapshotPath = join(root, "src", "lib", "yc", "fall-2026-companies.json");
   const a16zDatasetPath = join(root, "src", "lib", "graph", "a16z-speedrun-006-dataset.ts");
 
-  return [
+  const configs = [
     {
       slug: "S26",
       aliases: ["S26", "YC_S26", "YC_SUMMER_2026", "YC_SUMMER_2026_S26", "SUMMER_2026"],
@@ -1070,6 +1071,20 @@ function batchConfigs() {
         "a16z Speedrun 006 profiles in the local graph dataset do not include explicit GitHub social links, so official company websites are scanned by default.",
         "GitHub search discovery is available with --search for conservative same-domain or same-owner matches; use --no-website to disable official website discovery."
       ]
+    }
+  ];
+  return [
+    ...configs,
+    {
+      ...configs[0],
+      slug: "F26",
+      aliases: ["F26", "F2026", "YC_F26", "YC_F2026", "YC_FALL_2026", "FALL_2026"],
+      label: "YC Fall 2026 (F26)",
+      sourceLabel: "GitHub public API for official YC Fall 2026 GitHub links",
+      sourcePath: relativePath(ycFallSnapshotPath),
+      outputPath: join(root, "src", "lib", "social", "github-traction-fall-2026.json"),
+      loadSnapshot: async () => JSON.parse(await readFile(ycFallSnapshotPath, "utf8")),
+      notes: configs[0].notes.map((note) => note.replaceAll("Summer 2026", "Fall 2026"))
     }
   ];
 }

@@ -1,0 +1,1 @@
+export function facebookNativeIdentity(value: unknown): { accountKey: string | null; profileUrl: string | null; postId: string | null; sourceUrl: string; kind: "profile" | "post" | "permalink" | "reel" } | null;

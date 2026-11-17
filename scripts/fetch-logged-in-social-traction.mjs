@@ -65,6 +65,8 @@ import {
   prioritizeInstagramTargets
 } from "./lib/logged-in-instagram-collection.mjs";
 import {
+  AUTONOMOUS_BATCHES,
+  YC_FALL_2026_BATCH,
   buildLegacyPublicEvidenceBatchResolver,
   loadAutonomousCatalogs
 } from "./lib/autonomous-ingestion-plan.mjs";
@@ -229,7 +231,11 @@ const verifiedSocialOverrides = await readRequiredCanonicalJson(
   "Verified social overrides"
 );
 const resolveLegacyLoggedInEvidenceBatch = buildLegacyPublicEvidenceBatchResolver(
-  await loadAutonomousCatalogs(dataRoot)
+  await loadAutonomousCatalogs(dataRoot, {
+    batches: batchConfig.slug === "F26"
+      ? [...AUTONOMOUS_BATCHES, YC_FALL_2026_BATCH]
+      : AUTONOMOUS_BATCHES
+  })
 );
 const targetCompanies = ycSnapshot.companies.filter(
   (company) =>
@@ -3010,8 +3016,8 @@ function usage() {
     "Usage: node scripts/fetch-logged-in-social-traction.mjs [options]",
     "",
     "Options:",
-    "  --batch=S26|S2026|A16ZSR006",
-    "  --batch-slug=S26|S2026|A16ZSR006",
+    "  --batch=F26|S26|S2026|A16ZSR006",
+    "  --batch-slug=F26|S26|S2026|A16ZSR006",
     "  --platforms=x,linkedin,instagram",
     "  --entities=all|company|founder",
     "  --company=NAME",
@@ -3131,6 +3137,13 @@ function resolveBatchConfig(value) {
     .trim()
     .toUpperCase()
     .replace(/[^A-Z0-9]/g, "");
+  if (["F26", "F2026", "YCF26", "YCF2026", "FALL2026", "YCFALL2026"].includes(normalized)) {
+    return {
+      slug: "F26",
+      label: "YC Fall 2026 (F26)",
+      snapshotPath: join(dataRoot, "src", "lib", "yc", "fall-2026-companies.json")
+    };
+  }
   if (["S26", "YCS26", "SUMMER2026", "YCSUMMER2026"].includes(normalized)) {
     return {
       slug: "S26",
@@ -3152,7 +3165,7 @@ function resolveBatchConfig(value) {
       snapshotPath: join(dataRoot, "public", "graph", "a16zsr006.json")
     };
   }
-  throw new Error(`Unsupported --batch=${value}. Supported batches: S26, S2026, A16ZSR006.`);
+  throw new Error(`Unsupported --batch=${value}. Supported batches: F26, S26, S2026, A16ZSR006.`);
 }
 
 function errorMessage(error) {

@@ -3,6 +3,8 @@ import { join } from "node:path";
 import { readRequiredCanonicalJson } from "./canonical-json.mjs";
 import { applyPublicEvidenceOperationalRetention } from "./public-evidence-artifact.mjs";
 import { canonicalSocialAccountUrl } from "./social-account-url.mjs";
+import { facebookNativeIdentity } from "../../src/lib/graph/facebook-native-identity.mjs";
+import { nativeThreadsIdentity } from "../../src/lib/graph/threads-native-identity.mjs";
 import {
   publicationTimesCompatible,
   sourceAuthorsCompatible,
@@ -67,6 +69,21 @@ export const AUTONOMOUS_BATCHES = Object.freeze([
     githubSourcePath: "src/lib/graph/a16z-speedrun-006-dataset.ts"
   }
 ]);
+
+// Manual cohort ingestion can opt in without changing the scheduled catalog.
+export const YC_FALL_2026_BATCH = Object.freeze({
+  slug: "F26",
+  label: "YC Fall 2026 (F26)",
+  graphFile: "f26.json",
+  catalogFile: "src/lib/yc/fall-2026-companies.json",
+  catalogFormat: "yc_snapshot",
+  batchLabel: "Fall 2026",
+  minimumCompanyCount: 1,
+  dynamicCatalogCounts: true,
+  expectedCompanyCount: null,
+  expectedFounderCount: null,
+  githubSourcePath: "src/lib/yc/fall-2026-companies.json"
+});
 
 const MINUTE_MS = 60_000;
 
@@ -212,6 +229,7 @@ const PUBLIC_PLATFORM_COLLECTORS = new Set([
 ]);
 const FOUNDER_SOCIAL_PLATFORMS = new Set(["github", "x", "instagram", "linkedin"]);
 const EXPLICITLY_UNAVAILABLE = new Set(["bilibili", "tiktok", "bluesky"]);
+const CATALOG_METADATA_PLATFORMS = new Set(["facebook", "threads", "tiktok"]);
 const AUTONOMOUS_PROVIDER_BLOCKER_CODES = new Map([
   ["x_public_html", new Set([
     "x_public_access_blocked"
@@ -264,13 +282,13 @@ const AUTONOMOUS_PROVIDER_BLOCKER_CODES = new Map([
   ])]
 ]);
 
-export async function loadAutonomousCatalogs(root) {
+export async function loadAutonomousCatalogs(root, { batches = AUTONOMOUS_BATCHES } = {}) {
   const verifiedSocialOverrides = await readRequiredCanonicalJson(
     join(root, "src", "lib", "social", "verified-social-overrides.json"),
     "Verified social overrides"
   );
   const catalogs = await Promise.all(
-    AUTONOMOUS_BATCHES.map(async (batch) => {
+    batches.map(async (batch) => {
       const path = batch.catalogFile
         ? join(root, batch.catalogFile)
         : join(root, "public", "graph", batch.graphFile);
@@ -399,10 +417,11 @@ function validateDynamicYcSnapshot(source, batch) {
     if (!id || !slug) {
       throw new Error(`${batch.catalogFile} contains a company without an immutable ID or slug.`);
     }
-    if (company.batch !== "Summer 2026") {
+    const expectedBatchLabel = batch.batchLabel ?? "Summer 2026";
+    if (company.batch !== expectedBatchLabel) {
       throw new Error(
         `${batch.catalogFile} contains ${slug} in ${company.batch ?? "an unknown batch"}; ` +
-        "expected Summer 2026."
+        `expected ${expectedBatchLabel}.`
       );
     }
     if (ids.has(id) || slugs.has(slug)) {
@@ -2862,10 +2881,10 @@ export function normalizeVerifiedSocialOverrideLinks(overrideLinks) {
         throw new Error(`Verified ${rawPlatform} override URL array contains a malformed URL value.`);
       }
       const platform = normalizePlatform(rawPlatform);
-      if (!AUTONOMOUS_PLATFORMS.includes(platform)) {
+      if (!AUTONOMOUS_PLATFORMS.includes(platform) && !CATALOG_METADATA_PLATFORMS.has(platform)) {
         throw new Error(`Verified social override uses unsupported platform: ${rawPlatform}`);
       }
-      const canonicalUrl = canonicalSocialAccountUrl(platform, rawUrl);
+      const canonicalUrl = canonicalCatalogAccountUrl(platform, rawUrl);
       if (!canonicalUrl) {
         throw new Error(`Verified ${platform} override URL does not match its platform: ${rawUrl}`);
       }
@@ -2902,10 +2921,33 @@ function retiredOwnerAccounts(ownerOverride) {
   return records;
 }
 
+// Catalog ownership metadata does not enable an autonomous collector. Threads
+// and Facebook have no task platform; TikTok remains explicitly unavailable.
+function canonicalCatalogAccountUrl(platform, rawUrl) {
+  const ordinary = canonicalSocialAccountUrl(platform, rawUrl);
+  if (ordinary || !CATALOG_METADATA_PLATFORMS.has(platform)) return ordinary;
+  try {
+    const url = new URL(rawUrl);
+    if (url.protocol !== "https:" || url.username || url.password || url.port || url.hash) return null;
+    if (platform === "threads") {
+      const identity = nativeThreadsIdentity(rawUrl);
+      return identity && !identity.postId ? `https://www.threads.com/@${identity.handle}` : null;
+    }
+    if (platform === "facebook") {
+      if ([...url.searchParams.keys()].some((key) => url.pathname !== "/profile.php" || key !== "id")) return null;
+      const identity = facebookNativeIdentity(rawUrl);
+      return identity?.kind === "profile" ? identity.profileUrl : null;
+    }
+    const match = url.pathname.match(/^\/@([A-Za-z0-9_.]{1,24})\/?$/);
+    return ["tiktok.com", "www.tiktok.com"].includes(url.hostname) && !url.search && match
+      ? `https://www.tiktok.com/@${match[1].toLowerCase()}` : null;
+  } catch { return null; }
+}
+
 function ownerAccountCanonicalKey(platform, rawUrl) {
   if (!platform || !rawUrl) return null;
   const normalizedPlatform = normalizePlatform(platform);
-  const canonicalUrl = canonicalSocialAccountUrl(normalizedPlatform, rawUrl);
+  const canonicalUrl = canonicalCatalogAccountUrl(normalizedPlatform, rawUrl);
   return canonicalUrl ? `${normalizedPlatform}:${canonicalUrl.toLowerCase()}` : null;
 }
 
@@ -3032,7 +3074,7 @@ function tasksForEntity({ runKey, batch, company, entity, platform }) {
 function taskForEntityAccount({ runKey, batch, company, entity, platform, account }) {
   const entityType = entity.entityType;
   const canonicalAccountUrl = account
-    ? canonicalSocialAccountUrl(platform, account.url)
+    ? canonicalCatalogAccountUrl(platform, account.url)
     : null;
   if (account && !canonicalAccountUrl) {
     throw new Error(

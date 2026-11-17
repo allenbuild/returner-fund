@@ -1,0 +1,74 @@
+{
+  "source": "fall_2026_verified_linkedin_founder_alias_registry_v1",
+  "proofs": [
+    {
+      "source": "fall_2026_linkedin_founder_alias_v1",
+      "batchSlug": "F26",
+      "companySlug": "championeffect-inc",
+      "founderId": "56520",
+      "founderName": "Kevin Law",
+      "officialProfileUrl": "https://www.linkedin.com/in/kevin-law-4b526525",
+      "profileUrl": "https://www.linkedin.com/in/kvnlw/",
+      "method": "native_official_profile_redirect",
+      "observedAt": "2026-11-16T19:22:34.394Z",
+      "officialIdentitySourceUrl": "https://www.ycombinator.com/companies/championeffect-inc",
+      "officialFounderIdentitySourceUrl": "https://www.ycombinator.com/people/kevin-law",
+      "nativeProfile": {
+        "heading": "Kevin Law",
+        "resolvedUrl": "https://www.linkedin.com/in/kvnlw/",
+        "mainHtmlSha256": "bf98d3ce1027e3140a30e06dbd86aebcd8e0f4bf47e095e9780acfdd67bd2ea8"
+      },
+      "ownership": null,
+      "archives": [
+        {
+          "path": "outputs/fall-2026/browser-checkpoints/linkedin-founder-kevin-profile-ui-current.json",
+          "sha256": "bac2193882566099461905a7e116ddd56016e90f3c847daa5e8ebbd83e20e7f0"
+        }
+      ],
+      "validation": {
+        "source": "fall_2026_linkedin_founder_alias_ingestion_v1",
+        "archiveHashesVerified": true,
+        "contentSha256": "080895c4d8bfc1cc7dc66199cda3538a397999165ba880d83caf2e88636e3cd5"
+      }
+    },
+    {
+      "source": "fall_2026_linkedin_founder_alias_v1",
+      "batchSlug": "F26",
+      "companySlug": "championeffect-inc",
+      "founderId": "116587",
+      "founderName": "Emre Simdi",
+      "officialProfileUrl": "https://tr.linkedin.com/in/emre-%C5%9Fimdi-8b256949",
+      "profileUrl": "https://www.linkedin.com/in/emresimdi/",
+      "method": "official_homepage_founder_link_and_native_profile",
+      "observedAt": "2026-11-16T19:30:05.357Z",
+      "officialIdentitySourceUrl": "https://www.ycombinator.com/companies/championeffect-inc",
+      "officialFounderIdentitySourceUrl": "https://www.ycombinator.com/people/emre-simdi",
+      "nativeProfile": {
+        "heading": "Emre Simdi",
+        "resolvedUrl": "https://www.linkedin.com/in/emresimdi/",
+        "mainHtmlSha256": "70afbe1f0b9ad5a2cef516347663287420c24bc1744d0f7a8caff796c74891b0"
+      },
+      "ownership": {
+        "officialWebsite": "https://championeffect.com",
+        "sourceUrl": "https://championeffect.com/",
+        "founderFigcaptionHtml": "<figcaption><span class=\"landing_name__hZ_5K\">Emre<a class=\"landing_li__y3rKH\" href=\"https://www.linkedin.com/in/emresimdi/\" target=\"_blank\" rel=\"noopener noreferrer\" aria-label=\"Emre on LinkedIn\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M20.45 20.45h-3.55v-5.57c0-1.33-.03-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.36V9h3.41v1.56h.05c.47-.9 1.63-1.85 3.36-1.85 3.6 0 4.27 2.37 4.27 5.45v6.29zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V9h3.56v11.45z\"></path></svg></a></span><small>Co-founder</small><small class=\"landing_prev__DPZjI\">Previously GTM Lead at Cambly</small></figcaption>",
+        "htmlSha256": "831e30e98d0940496b0c9c8295c353b4a897b267e1df37594a7ac60842e2474d"
+      },
+      "archives": [
+        {
+          "path": "outputs/fall-2026/browser-checkpoints/linkedin-founder-emre-profile-ui-current.json",
+          "sha256": "2def5b17d318b05657e655149cc1c5241624a6022375403f1020e7d90ee962d6"
+        },
+        {
+          "path": "outputs/fall-2026/public-history-cache/championeffect-inc/831e30e98d0940496b0c9c8295c353b4a897b267e1df37594a7ac60842e2474d.html",
+          "sha256": "831e30e98d0940496b0c9c8295c353b4a897b267e1df37594a7ac60842e2474d"
+        }
+      ],
+      "validation": {
+        "source": "fall_2026_linkedin_founder_alias_ingestion_v1",
+        "archiveHashesVerified": true,
+        "contentSha256": "e57dc935d90d33a55fc8b2467183a38d217145ba7d00cf53587645c6068d44f0"
+      }
+    }
+  ]
+}

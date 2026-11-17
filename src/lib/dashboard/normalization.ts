@@ -107,6 +107,8 @@ export function platformLabel(platform: DashboardPlatform | DashboardNativePlatf
     x: "X",
     linkedin: "LinkedIn",
     instagram: "Instagram",
+    facebook: "Facebook",
+    threads: "Threads",
     product_hunt: "Product Hunt",
     youtube: "YouTube",
     rss: "RSS",

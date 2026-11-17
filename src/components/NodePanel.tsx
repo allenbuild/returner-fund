@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { dedupeEvidenceItems } from "@/lib/graph/dedupe";
 import { getCompanyVerticalDefinition } from "@/lib/graph/company-verticals";
+import { founderProfileSourceUrl } from "@/lib/graph/founder-profile-source.mjs";
 import { TOP_POSTS_LIMIT } from "@/lib/graph/presentation-limits";
 import type { EvidenceItem, GraphNode } from "@/lib/graph/types";
 import { displayPlatformContributions } from "@/lib/scoring/presentation";
@@ -157,7 +158,7 @@ export function NodePanel({ node, evidence, highlightedFounderId }: NodePanelPro
               <div className="founder-chip-list">
                 {node.founders.map((founder) => (
                   <a
-                    href={founder.ycProfileUrl}
+                    href={founderProfileSourceUrl(node, founder)}
                     target="_blank"
                     rel="noreferrer"
                     key={founder.id}

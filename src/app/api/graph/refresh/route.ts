@@ -60,6 +60,8 @@ const PLATFORM_VALUES = [
   "x",
   "linkedin",
   "instagram",
+  "facebook",
+  "threads",
   "product_hunt",
   "youtube",
   "rss",
@@ -1342,7 +1344,8 @@ async function loadGeneratedGraphSnapshot(
   const batchFilenames: Record<string, string> = {
     A16ZSR006: "a16zsr006",
     S2026: "s2026",
-    S26: "s26"
+    S26: "s26",
+    F26: "f26"
   };
   const audienceSuffixes: Record<TopVoiceAudienceId, string> = {
     off: "",

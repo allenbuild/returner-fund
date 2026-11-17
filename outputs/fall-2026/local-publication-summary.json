@@ -1,0 +1,760 @@
+{
+  "status": "main_integration_artifacts_validated",
+  "generatedAt": "2026-11-17T01:57:01.023Z",
+  "fullHistoryComplete": false,
+  "companyNodes": 235,
+  "publicPreviewEvidence": 5000,
+  "uncappedSourceEvidence": 16897,
+  "omittedFromPreview": 11897,
+  "previewByPlatform": {
+    "x": 3330,
+    "linkedin": 674,
+    "github": 77,
+    "youtube": 141,
+    "instagram": 778
+  },
+  "sourceNativePosts": 9573,
+  "sourceNativeByPlatform": {
+    "x": 7693,
+    "linkedin": 768,
+    "instagram": 1005,
+    "tiktok": 90,
+    "facebook": 13,
+    "threads": 4
+  },
+  "sourceNativeUnscored": 323,
+  "previewNativeUnscored": 0,
+  "canonicalFallRows": 16691,
+  "canonicalTotal": 20071,
+  "preservedEarlierCohortRows": 3380,
+  "preservedEarlierCohortSha256": "c0724226643827e0cc9b749625975e55bcd8ffc540b9ec8fe28fc46fe5f6d9e7",
+  "publicArticleReleaseContexts": {
+    "rawCandidates": 2591,
+    "importedAfterSemanticReview": 2451,
+    "quarantinedNonAuthoredOrUnavailable": 140,
+    "articlePosts": 2142,
+    "releasePosts": 309,
+    "companies": 71,
+    "unknownPublicationDates": 263,
+    "contributionScore": 0,
+    "fullHistoryComplete": false
+  },
+  "nativeGithubReleaseContexts": {
+    "rawNativeRecords": 4215,
+    "accepted": 4215,
+    "heldForOwnershipProof": 0,
+    "metadataOnly": 2675,
+    "exactReviewedRepositoriesResolved": 3,
+    "releaseRowsOwnershipResolved": 623,
+    "repositoryCollectionsExhausted": 167,
+    "repositoryCollectionsAttempted": 167,
+    "nativeResponsePages": 213,
+    "contributionScore": 0
+  },
+  "graphCheckpoint": "fall-2026-live-4.3.1-20261117T015231Z",
+  "canonicalCheckpoint": "current-main-plus-fall-checkpoint-30",
+  "derivedCheckpoint": "fall-2026-live-4.3.1-20261117T015231Z",
+  "latestCanonical": {
+    "observedAt": "2026-11-16T22:44:01.322Z",
+    "status": "current_main_plus_fall_checkpoint_30",
+    "fullHistoryComplete": false,
+    "mergeMode": "preserve_current_main_append_exact_F26",
+    "before": 3380,
+    "after": 20071,
+    "incoming": 16691,
+    "newRows": 16691,
+    "duplicates": 0,
+    "rejected": 0,
+    "updated": 0,
+    "fallEvidence": 16691,
+    "nativePosts": 9573,
+    "uniqueNativePosts": 9573,
+    "byPlatform": {
+      "x": 7693,
+      "linkedin": 768,
+      "instagram": 1005,
+      "tiktok": 90,
+      "facebook": 13,
+      "threads": 4
+    },
+    "unscoredNative": 323,
+    "nativeYouTubePosts": 247,
+    "nativeYouTubeUnscoredPosts": 1,
+    "founderPublicationContexts": 2,
+    "preservedEarlierCohortRows": 3380,
+    "preservedEarlierCohortSha256": "c0724226643827e0cc9b749625975e55bcd8ffc540b9ec8fe28fc46fe5f6d9e7",
+    "canonicalSha256": "ed1be760a3870fd12d7c07e0027582ef9113a5de19fd398aa6324e2c9b458591",
+    "priorCanonicalSha256": "781c15b904f84f0d590c016d97c9429fe1fd621fca6059e572eb252c1fbbfd85",
+    "path": "outputs/fall-2026/live-integration",
+    "integrationAudit": {
+      "path": "outputs/fall-2026/live-integration/canonical-retention-audit.json",
+      "sha256": "163712c2a834de9e40e4dc47734c1f15914ef58573349ef0d76279d0d34dba01",
+      "bytes": 2574
+    },
+    "publishedGraphCheckpoint": "fall-2026-live-4.3.1-20261117T015231Z",
+    "graphPublicationPending": false
+  },
+  "validation": {
+    "status": "ok",
+    "scoringModel": "returner-traction@4.3.1",
+    "graphSnapshots": 12,
+    "historyFiles": 4,
+    "graphNodes": 815,
+    "evidenceRows": 20151,
+    "versionedDailyEntries": 217,
+    "versionedWeeklyEntries": 37
+  },
+  "artifactManifest": {
+    "path": "public/graph/manifest.json",
+    "ingestionRunId": "fall-2026-live-4.3.1-20261117T015231Z",
+    "contentHash": "c89350e19c8eb9bfdc1a6b0fad4dba0777f4fd8d094c5ed03e5f4776115a7c0c",
+    "publishedAt": "2026-11-17T02:02:31.198Z",
+    "evidenceCollectedAt": "2026-09-17T12:43:52.549Z",
+    "evidenceCollectedAtKind": "accepted-full-collection",
+    "validation": {
+      "status": "valid",
+      "graphArtifacts": 12,
+      "benchmarkArtifacts": 6,
+      "supportingArtifacts": 5,
+      "publishedAt": "2026-11-17T02:02:31.198Z",
+      "evidenceCollectedAt": "2026-09-17T12:43:52.549Z",
+      "evidenceCollectedAtKind": "accepted-full-collection"
+    }
+  },
+  "rankedPosts": {
+    "status": "written_and_validated",
+    "output": "src/lib/graph/ranked-posts-sidecar.generated.json",
+    "scopes": 12,
+    "sourceEvidence": 63565,
+    "fullRankable": 25554,
+    "previewRankable": 19723,
+    "representedRankable": 25554,
+    "overflowRankable": 5831,
+    "crossAudiencePreviewProjections": 28
+  },
+  "publicationBuild": {
+    "baseBuilds": 4,
+    "baseReuses": 8,
+    "retainedBases": 4
+  },
+  "collectedHistory": {
+    "path": "outputs/fall-2026/collection/checkpoint-30/collected-history/collected-history.json",
+    "sha256": "aa2dc340cf15010c442bb38b1471e661923196f39fcea0ab98bd5c05f8db8c9a",
+    "summary": {
+      "runtimeObservations": 16691,
+      "canonicalFallRows": 16691,
+      "nativeYouTubePosts": 247,
+      "nativeYouTubeUnscoredPosts": 1,
+      "founderPublicationContexts": 2,
+      "repositorySnapshotAccounts": 39,
+      "repositorySnapshotRepositories": 167,
+      "exactReviewedRepositoryOwnershipProofs": 3,
+      "reviewMetadata": 0,
+      "nativeInputReviewRows": 2538,
+      "separateNativeArticleBodyContexts": 6,
+      "separateNativeArticleBodyCharacters": 29508
+    },
+    "fullHistoryComplete": false
+  },
+  "sizeAudit": {
+    "bytes": 13920959,
+    "gzip6Bytes": 2017002,
+    "sha256": "9689c89804f2576a4817e635a4fcfcc0d4f3cf9b8b46b982548a5bc0e3cad766",
+    "previewByPlatform": {
+      "x": 3330,
+      "linkedin": 674,
+      "github": 77,
+      "youtube": 141,
+      "instagram": 778
+    },
+    "previewUnscored": 0,
+    "sourceProjection": {
+      "maxEvidence": 5000,
+      "sourceEvidenceCount": 16897,
+      "retainedEvidenceCount": 5000,
+      "omittedEvidenceCount": 11897,
+      "sourcePositiveEvidenceCount": 16596,
+      "retainedPositiveEvidenceCount": 5000,
+      "omittedPositiveEvidenceCount": 11596
+    }
+  },
+  "tests": {
+    "ingestorSyntax": "3/3",
+    "fallCollectorAndMetadataPlanning": "7/7",
+    "nativePublicRegression": "4/4",
+    "refreshedDataRoot": "2/2",
+    "canonicalOwnerPlanner": "3/3",
+    "packedPublication": "13/13",
+    "focusedLint": "passed (existing warnings only)",
+    "artifactValidation": "passed"
+  },
+  "latestCollectedHistory": "outputs/fall-2026/collection/checkpoint-30/collected-history/collected-history.json",
+  "latestCanonicalCheckpoint": {
+    "observedAt": "2026-11-16T22:44:01.322Z",
+    "status": "current_main_plus_fall_checkpoint_30",
+    "fullHistoryComplete": false,
+    "mergeMode": "preserve_current_main_append_exact_F26",
+    "before": 3380,
+    "after": 20071,
+    "incoming": 16691,
+    "newRows": 16691,
+    "duplicates": 0,
+    "rejected": 0,
+    "updated": 0,
+    "fallEvidence": 16691,
+    "nativePosts": 9573,
+    "uniqueNativePosts": 9573,
+    "byPlatform": {
+      "x": 7693,
+      "linkedin": 768,
+      "instagram": 1005,
+      "tiktok": 90,
+      "facebook": 13,
+      "threads": 4
+    },
+    "unscoredNative": 323,
+    "nativeYouTubePosts": 247,
+    "nativeYouTubeUnscoredPosts": 1,
+    "founderPublicationContexts": 2,
+    "preservedEarlierCohortRows": 3380,
+    "preservedEarlierCohortSha256": "c0724226643827e0cc9b749625975e55bcd8ffc540b9ec8fe28fc46fe5f6d9e7",
+    "canonicalSha256": "ed1be760a3870fd12d7c07e0027582ef9113a5de19fd398aa6324e2c9b458591",
+    "priorCanonicalSha256": "781c15b904f84f0d590c016d97c9429fe1fd621fca6059e572eb252c1fbbfd85",
+    "path": "outputs/fall-2026/live-integration",
+    "integrationAudit": {
+      "path": "outputs/fall-2026/live-integration/canonical-retention-audit.json",
+      "sha256": "163712c2a834de9e40e4dc47734c1f15914ef58573349ef0d76279d0d34dba01",
+      "bytes": 2574
+    },
+    "publishedGraphCheckpoint": "fall-2026-live-4.3.1-20261117T015231Z",
+    "graphPublicationPending": false
+  },
+  "linkedinAttributionReconciliation": {
+    "status": "written",
+    "before": 13457,
+    "after": 13442,
+    "removedPreviousVersions": 51,
+    "correctedFounderPosts": 36,
+    "quarantinedPosts": 17,
+    "preservedEarlierCohortRows": 3407,
+    "preservedEarlierCohortSha256": "f25733277153e8518d1b4544a2fa82587e31836a226d3873496335b7bc278443",
+    "targetBeforeSha256": "53865fa1500d9717a6c1e19fe83307a1d0def3627f2ea0e52087626304286d01",
+    "targetAfterSha256": "5dd930726655cce9176bcc19ff754d13c8bb60a996969d04c9814ea4bbb2ce3b",
+    "output": "outputs/fall-2026/collection/linkedin-author-reconciliation-written"
+  },
+  "nativePhysicalRetentionAudit": "outputs/fall-2026/collection/checkpoint-30/native-physical-post-retention-audit.json",
+  "canonicalNativePosts": 9573,
+  "canonicalNativeByPlatform": {
+    "x": 7693,
+    "linkedin": 768,
+    "instagram": 1005,
+    "tiktok": 90,
+    "facebook": 13,
+    "threads": 4
+  },
+  "canonicalNativeUnscored": 323,
+  "runtimeNativeRetention": {
+    "canonicalNativePhysicalPosts": 9573,
+    "runtimeNativePhysicalPosts": 9573,
+    "runtimeHeld": [],
+    "sourceGraphEvidence": 16897
+  },
+  "canonicalWhitespaceRepairAfterPublishedCheckpoint21": {
+    "status": "written",
+    "scope": "F26_verified_native_linkedin_whitespace_only",
+    "targetBeforeSha256": "b4638debdf7f3ffa93010511dc378aaf1edd39e602d2a26fd58a509e5d4ba25e",
+    "targetAfterSha256": "61b99247e999e90656f51ec5a8f25448e2506c62722590e39ccb9f0da47c47ca",
+    "preservedEarlierCohortSha256": "f25733277153e8518d1b4544a2fa82587e31836a226d3873496335b7bc278443",
+    "corrected": 1,
+    "corrections": [
+      {
+        "entityId": "founder-gatherhq-jay-flaherty-1823180",
+        "platformPostId": "7211455835254710274",
+        "sourceUrl": "https://linkedin.com/feed/update/urn:li:activity:7211455835254710274",
+        "beforeText": "If you're looking for a freelance content wiz, look no further! Aaron is the best there is.",
+        "afterText": "If you're looking for a freelance content wiz, look no further! Aaron is the best there is. ",
+        "originalTextPreserved": true,
+        "nativeBodySha256": "2cd5aa646f59b5fde7f9c6d6be7aab858e1b70475230122dd5149ddd7e277db3",
+        "observationSource": "outputs/fall-2026/collection/checkpoint-21/linkedin-founder-native-checkpoint-1.json",
+        "observationSourceSha256": "3cb5ede67f513ad3fc234f0a644f7e6330469ce3a1753a5b2fe7174ccce219de"
+      }
+    ]
+  },
+  "collectionAccessFrontiers": {
+    "linkedin": {
+      "status": "paused",
+      "nativeObservation": "Company collection reached a signed-out homepage; further authenticated requests stopped.",
+      "userReportedAccountState": "Prior account temporarily restricted with identity verification requested.",
+      "replacementAccountUsedForCollection": false,
+      "previouslySavedNativeReceiptsContinueProcessing": true,
+      "fullHistoryComplete": false,
+      "recordedAt": "2026-11-16T20:39:03.171Z"
+    },
+    "facebook": {
+      "scope": "readily_available_public_posts",
+      "loginRequested": false,
+      "fullHistoryComplete": false
+    },
+    "threads": {
+      "scope": "four_available_public_posts",
+      "frontier": "Native Log in to see more; new account creation/Terms acceptance not performed.",
+      "fullHistoryComplete": false
+    },
+    "youtube": {
+      "state": "available_native_surfaces_partially_collected",
+      "aucertDetails": 2,
+      "rhemDetails": 22,
+      "nativeListed": 42,
+      "nativeDetails": 35,
+      "nativePendingDetails": 7,
+      "pause": "Generic native error; cause unspecified, no429 claim.",
+      "fullHistoryComplete": false
+    },
+    "x": {
+      "status": "paused_for_user_requested_push",
+      "latestFrozenInput": "outputs/fall-2026/collection/x-native-sealed-1794868760978.json",
+      "latestStrictInputRows": 7635,
+      "canonicalNativeRows": 7693,
+      "sourceEditConflictHeldAndSafeCanonicalVersionPreserved": true,
+      "fullHistoryComplete": false,
+      "note": "Newest sealed joined-month search window processed; prior interrupted native Replies frontier and other account/surface gaps remain explicit in the coverage ledger."
+    }
+  },
+  "supplementalCoverage": {
+    "path": "outputs/fall-2026/collection/checkpoint-26/supplemental-coverage/archive-audit.json",
+    "files": 14,
+    "includes": [
+      "Veeza Posts/Reels",
+      "SpaceSheep Posts/Reels",
+      "Roma Posts/Reels and held external-primary detail",
+      "all-roster account history coverage ledger",
+      "Trepo/Covera/Antimattr.one Posts and Reels"
+    ],
+    "canonicalEvidenceChanged": false,
+    "fullHistoryComplete": false,
+    "auditPath": "outputs/fall-2026/collection/checkpoint-26/supplemental-coverage/archive-audit.json",
+    "artifacts": 26,
+    "approvedRowsAdded": 0
+  },
+  "nativeArticleBodyContexts": {
+    "checkpoint": 30,
+    "contexts": 6,
+    "bodyCharacters": 29508,
+    "countsAsNativePosts": false,
+    "contributionScore": 0,
+    "path": "outputs/fall-2026/collection/checkpoint-30/collected-history/native-article-body-contexts.json",
+    "canonicalTargetedEvidenceChanged": false
+  },
+  "latestCoverageLedger": {
+    "path": "outputs/fall-2026/full-history-coverage-ledger.json",
+    "sha256": "f4cfa36892687e2efd9916c04696b1540416cdcc3c4acd33894d8c3957895477",
+    "bytes": 8115783,
+    "fullHistoryComplete": false,
+    "originalCollectionCheckpoint": 30,
+    "publicationRunId": "fall-2026-live-4.3.1-20261117T015231Z"
+  },
+  "nativeYouTubePosts": 247,
+  "nativeYouTubeUnscoredPosts": 1,
+  "founderPublicationContexts": 2,
+  "publicationRun": {
+    "successfulStartedAt": "2026-11-17T01:52:31.206Z",
+    "successfulFinishedAt": "2026-11-17T02:01:52.554Z",
+    "successfulElapsedMs": 561348,
+    "stages": [
+      {
+        "name": "graphs_and_benchmarks",
+        "status": "written_and_validated",
+        "startedAt": "2026-11-17T01:52:43.193Z",
+        "finishedAt": "2026-11-17T01:58:15.589Z",
+        "elapsedMs": 332477
+      },
+      {
+        "name": "topic_facets",
+        "status": "written_and_validated",
+        "startedAt": "2026-11-17T01:58:15.824Z",
+        "finishedAt": "2026-11-17T02:00:11.034Z",
+        "elapsedMs": 115211
+      },
+      {
+        "name": "ranked_posts",
+        "status": "written_and_validated",
+        "startedAt": "2026-11-17T02:00:11.252Z",
+        "finishedAt": "2026-11-17T02:01:52.282Z",
+        "elapsedMs": 101023
+      }
+    ],
+    "runtimePreparedBeforeBuilderImport": true,
+    "attempts": 1
+  },
+  "provenanceDisplayCorrections": {
+    "articleContexts": 6,
+    "articleMetadataCasAudit": "outputs/fall-2026/collection/checkpoint-29/native-article-provenance-correction-audit.json",
+    "historicalDerivedReferencesAudit": "outputs/fall-2026/collection/checkpoint-29/founder-derived-person-url-provenance-audit.json",
+    "historicalInstagramReferences": 3,
+    "historicalLinkedInReferences": 173,
+    "nativeOwnershipBodyClockMetricsUnchanged": true,
+    "F26FounderLinks": "Actual supplied official YC company URL; source roster unchanged."
+  },
+  "canonicalSha256": "ed1be760a3870fd12d7c07e0027582ef9113a5de19fd398aa6324e2c9b458591",
+  "canonicalFileBytes": 291777830,
+  "nativeSocialPostsIncludingYouTube": 9820,
+  "otherOriginalContextRows": 6871,
+  "pushFreeze": {
+    "canonicalCheckpoint": "current-main-plus-fall-checkpoint-30",
+    "publishedCheckpoint": "fall-2026-live-4.3.1-20261117T015231Z",
+    "canonicalMutationAllowed": false,
+    "canonicalSha256": "ed1be760a3870fd12d7c07e0027582ef9113a5de19fd398aa6324e2c9b458591",
+    "artifactManifestContentHash": "c89350e19c8eb9bfdc1a6b0fad4dba0777f4fd8d094c5ed03e5f4776115a7c0c",
+    "allCollectionPaused": true,
+    "repositoryPushHandledByRoot": true
+  },
+  "historicalFeaturePublication": {
+    "scope": "Original feature checkpoint 30 publication before current-main integration; original receipts retained without claiming revalidation.",
+    "status": "local_checkpoint_30_artifacts_validated",
+    "generatedAt": "2026-11-16T22:48:06.046Z",
+    "graphCheckpoint": 30,
+    "canonicalCheckpoint": 30,
+    "derivedCheckpoint": 30,
+    "latestCanonical": {
+      "observedAt": "2026-11-16T22:44:01.322Z",
+      "status": "local_checkpoint_30_artifacts_validated",
+      "fullHistoryComplete": false,
+      "before": 19065,
+      "after": 20098,
+      "incoming": 7692,
+      "newRows": 1033,
+      "duplicates": 6659,
+      "rejected": 0,
+      "updated": 0,
+      "fallEvidence": 16691,
+      "nativePosts": 9573,
+      "uniqueNativePosts": 9573,
+      "byPlatform": {
+        "x": 7693,
+        "linkedin": 768,
+        "instagram": 1005,
+        "tiktok": 90,
+        "facebook": 13,
+        "threads": 4
+      },
+      "unscoredNative": 323,
+      "nativeYouTubePosts": 247,
+      "nativeYouTubeUnscoredPosts": 1,
+      "founderPublicationContexts": 2,
+      "incomingPostsMissingFromCanonical": 0,
+      "preservedEarlierCohortRows": 3407,
+      "preservedEarlierCohortSha256": "f25733277153e8518d1b4544a2fa82587e31836a226d3873496335b7bc278443",
+      "canonicalSha256": "a76e120105f5d1fbc1b1cc37f5602b363ff78257d4967acfa04cfb2d00a819b9",
+      "priorCanonicalSha256": "3c0bf85fd91115933d055fa59d952b7df41373ff93a42d8aee0a3c957a2b7bfc",
+      "path": "outputs/fall-2026/collection/checkpoint-30",
+      "collectedHistoryArchive": "outputs/fall-2026/collection/checkpoint-30/collected-history/collected-history.json",
+      "publishedGraphCheckpoint": "checkpoint-30",
+      "graphPublicationPending": false
+    },
+    "validation": {
+      "status": "ok",
+      "scoringModel": "returner-traction@4.2.0",
+      "graphSnapshots": 12,
+      "historyFiles": 4,
+      "graphNodes": 818,
+      "evidenceRows": 20149,
+      "versionedDailyEntries": 56,
+      "versionedWeeklyEntries": 13
+    },
+    "artifactManifest": {
+      "path": "public/graph/manifest.json",
+      "ingestionRunId": "fall-2026-checkpoint-30-20261116T225152Z",
+      "contentHash": "11e9eba8430f59758898ed6fb4deb76ad8f143c395a366513f5a928322a52936",
+      "validation": {
+        "status": "valid",
+        "manifestPath": "/Users/allenxu/Documents/Codex/2026-07-09/pu/returner-fund/public/graph/manifest.json",
+        "contentHash": "11e9eba8430f59758898ed6fb4deb76ad8f143c395a366513f5a928322a52936",
+        "graphArtifacts": 12,
+        "benchmarkArtifacts": 6,
+        "supportingArtifacts": 5
+      }
+    },
+    "rankedPosts": {
+      "status": "written_and_validated",
+      "output": "src/lib/graph/ranked-posts-sidecar.generated.json",
+      "scopes": 12,
+      "sourceEvidence": 62434,
+      "fullRankable": 24316,
+      "previewRankable": 19015,
+      "representedRankable": 24316,
+      "overflowRankable": 5301,
+      "crossAudiencePreviewProjections": 25
+    },
+    "publicationBuild": {
+      "baseBuilds": 4,
+      "baseReuses": 8,
+      "retainedBases": 4
+    },
+    "routeSmoke": {
+      "localEphemeralAccessConfiguration": true,
+      "existingLocalServerReused": true,
+      "graphs": [
+        {
+          "batch": "F26",
+          "status": 200,
+          "companyCount": 235,
+          "nodeCount": 235,
+          "evidenceCount": 5000,
+          "generatedAt": "2026-11-16T22:48:06.046Z",
+          "projection": {
+            "maxEvidence": 5000,
+            "sourceEvidenceCount": 16897,
+            "retainedEvidenceCount": 5000,
+            "omittedEvidenceCount": 11897,
+            "sourcePositiveEvidenceCount": 16596,
+            "retainedPositiveEvidenceCount": 5000,
+            "omittedPositiveEvidenceCount": 11596
+          }
+        },
+        {
+          "batch": "S26",
+          "status": 200,
+          "companyCount": 237,
+          "nodeCount": 237,
+          "evidenceCount": 5000,
+          "generatedAt": "2026-11-16T22:47:28.853Z",
+          "projection": {
+            "maxEvidence": 5000,
+            "sourceEvidenceCount": 14281,
+            "retainedEvidenceCount": 5000,
+            "omittedEvidenceCount": 9281,
+            "sourcePositiveEvidenceCount": 4426,
+            "retainedPositiveEvidenceCount": 4422,
+            "omittedPositiveEvidenceCount": 4
+          }
+        },
+        {
+          "batch": "S2026",
+          "status": 200,
+          "companyCount": 197,
+          "nodeCount": 197,
+          "evidenceCount": 5000,
+          "generatedAt": "2026-11-16T22:47:05.893Z",
+          "projection": {
+            "maxEvidence": 5000,
+            "sourceEvidenceCount": 21739,
+            "retainedEvidenceCount": 5000,
+            "omittedEvidenceCount": 16739,
+            "sourcePositiveEvidenceCount": 5900,
+            "retainedPositiveEvidenceCount": 5000,
+            "omittedPositiveEvidenceCount": 900
+          }
+        },
+        {
+          "batch": "A16ZSR006",
+          "status": 200,
+          "companyCount": 59,
+          "nodeCount": 59,
+          "evidenceCount": 5000,
+          "generatedAt": "2026-11-16T22:47:47.867Z",
+          "projection": {
+            "maxEvidence": 5000,
+            "sourceEvidenceCount": 9393,
+            "retainedEvidenceCount": 5000,
+            "omittedEvidenceCount": 4393,
+            "sourcePositiveEvidenceCount": 4477,
+            "retainedPositiveEvidenceCount": 4469,
+            "omittedPositiveEvidenceCount": 8
+          }
+        }
+      ],
+      "nativeFilters": [
+        {
+          "platform": "facebook",
+          "status": 200,
+          "evidenceCount": 0,
+          "allUnscored": true
+        },
+        {
+          "platform": "threads",
+          "status": 200,
+          "evidenceCount": 0,
+          "allUnscored": true
+        }
+      ],
+      "page": {
+        "status": 200,
+        "htmlBytes": 55811,
+        "hasFallLabel": true
+      }
+    },
+    "sizeAudit": {
+      "bytes": 13905181,
+      "gzip6Bytes": 2025048,
+      "sha256": "600d07dc6592abe5684a478a93601efd0e0b2512e1ad3cfb7bf953c5017c7e44",
+      "previewByPlatform": {
+        "x": 3316,
+        "github": 87,
+        "linkedin": 674,
+        "youtube": 143,
+        "instagram": 780
+      },
+      "previewUnscored": 0,
+      "sourceProjection": {
+        "maxEvidence": 5000,
+        "sourceEvidenceCount": 16897,
+        "retainedEvidenceCount": 5000,
+        "omittedEvidenceCount": 11897,
+        "sourcePositiveEvidenceCount": 16596,
+        "retainedPositiveEvidenceCount": 5000,
+        "omittedPositiveEvidenceCount": 11596
+      },
+      "dominantEvidenceFields": {
+        "thumbnailUrl": 1096662,
+        "text": 979254,
+        "originalText": 964668,
+        "title": 635189,
+        "socialAccountId": 454575,
+        "mediaUrl": 388484,
+        "mediaUrls": 364888
+      }
+    },
+    "tests": {
+      "focusedNativeWebsiteImporter": 43,
+      "nativeGithubRelease": 12,
+      "datasetIntegration": 13,
+      "dashboardAndPublishedRoute": 74,
+      "fallLargeSnapshotCacheBudget": 1,
+      "typecheck": "passed",
+      "targetedLint": "passed",
+      "publicationBaseReuse": 4,
+      "publisherAndReuse": 43,
+      "ownedPublicationContext": 6,
+      "facebookTikTokStrictImporter": 41,
+      "nativePlatformStrictImporter": "41/41",
+      "linkedinAttribution": "10/10",
+      "tiktokWhitespace": "7/7",
+      "latestTypecheck": "passed",
+      "sharedDatasetAndGraphContracts": "80/80",
+      "nativeImporterAndFollowups": "68/68",
+      "latestNativeLinkedInReceipts": "21/21 (founder16+company5)",
+      "nativeLinkedInAliases": "3/3",
+      "canonicalNativeIdentity": "64/64",
+      "scopedImporterRegressions": "8/8",
+      "nativeVerbatimNormalization": "1/1",
+      "ugcArtifactValidator": "2/2",
+      "latestTargetedLint": "passed",
+      "actualHttpRoutes": "4 cohorts + Facebook/Threads filters + Fall page passed",
+      "instagramNativeFounderNaming": "3/3",
+      "instagramFounderNamingAndSocialProof": "6/6",
+      "nativeTeamIdentity": "14/14",
+      "nativeCompanyProfileIdentity": "3/3",
+      "nativeCaptionAbsenceReview": "passed",
+      "sidecarScopedReuse": "6/6 + 7 integration fixtures"
+    },
+    "archivedArtifacts": "outputs/fall-2026/collection/checkpoint-30/published-artifacts",
+    "latestCanonicalCheckpoint": {
+      "observedAt": "2026-11-16T22:44:01.322Z",
+      "status": "local_checkpoint_30_artifacts_validated",
+      "fullHistoryComplete": false,
+      "before": 19065,
+      "after": 20098,
+      "incoming": 7692,
+      "newRows": 1033,
+      "duplicates": 6659,
+      "rejected": 0,
+      "updated": 0,
+      "fallEvidence": 16691,
+      "nativePosts": 9573,
+      "uniqueNativePosts": 9573,
+      "byPlatform": {
+        "x": 7693,
+        "linkedin": 768,
+        "instagram": 1005,
+        "tiktok": 90,
+        "facebook": 13,
+        "threads": 4
+      },
+      "unscoredNative": 323,
+      "nativeYouTubePosts": 247,
+      "nativeYouTubeUnscoredPosts": 1,
+      "founderPublicationContexts": 2,
+      "incomingPostsMissingFromCanonical": 0,
+      "preservedEarlierCohortRows": 3407,
+      "preservedEarlierCohortSha256": "f25733277153e8518d1b4544a2fa82587e31836a226d3873496335b7bc278443",
+      "canonicalSha256": "a76e120105f5d1fbc1b1cc37f5602b363ff78257d4967acfa04cfb2d00a819b9",
+      "priorCanonicalSha256": "3c0bf85fd91115933d055fa59d952b7df41373ff93a42d8aee0a3c957a2b7bfc",
+      "path": "outputs/fall-2026/collection/checkpoint-30",
+      "collectedHistoryArchive": "outputs/fall-2026/collection/checkpoint-30/collected-history/collected-history.json",
+      "publishedGraphCheckpoint": "checkpoint-30",
+      "graphPublicationPending": false
+    },
+    "publicationRun": {
+      "successfulStartedAt": "2026-11-16T22:44:47.447Z",
+      "successfulFinishedAt": "2026-11-16T22:51:52.176Z",
+      "successfulElapsedMs": 424729,
+      "stages": [
+        {
+          "name": "graphs_and_benchmarks",
+          "status": "written_and_validated",
+          "startedAt": "2026-11-16T22:44:50.241Z",
+          "finishedAt": "2026-11-16T22:49:05.315Z",
+          "elapsedMs": 255073
+        },
+        {
+          "name": "topic_facets",
+          "status": "written_and_validated",
+          "startedAt": "2026-11-16T22:49:05.494Z",
+          "finishedAt": "2026-11-16T22:50:33.470Z",
+          "elapsedMs": 87975
+        },
+        {
+          "name": "ranked_posts",
+          "status": "written_and_validated",
+          "startedAt": "2026-11-16T22:50:33.618Z",
+          "finishedAt": "2026-11-16T22:51:51.958Z",
+          "elapsedMs": 78334
+        }
+      ],
+      "runtimePreparedBeforeBuilderImport": true,
+      "attempts": 1
+    },
+    "newNativeSourceFidelityAudit": {
+      "path": "outputs/fall-2026/collection/checkpoint-30/new-native-source-fidelity-audit.json",
+      "sha256": "ab3a0163dbc1e54e5de5c47e1a452a57cfab99dc8dc875db38f480eaa121d01e",
+      "newRows": 1033,
+      "allPriorRowsPreserved": 19065,
+      "newProvedCaptionlessUnscored": 6
+    },
+    "pushFreeze": {
+      "canonicalCheckpoint": 30,
+      "publishedCheckpoint": 30,
+      "canonicalMutationAllowed": false,
+      "canonicalSha256": "a76e120105f5d1fbc1b1cc37f5602b363ff78257d4967acfa04cfb2d00a819b9",
+      "artifactManifestContentHash": "11e9eba8430f59758898ed6fb4deb76ad8f143c395a366513f5a928322a52936",
+      "allCollectionPaused": true,
+      "repositoryPushHandledByRoot": true
+    },
+    "latestCoverageLedger": {
+      "checkpoint": 30,
+      "path": "outputs/fall-2026/collection/checkpoint-30/full-history-coverage-ledger.json",
+      "sha256": "e358349e1903d369e569b553e68c1745d0ac58d98226ffd63e97252bfe346a94",
+      "fullHistoryComplete": false
+    }
+  },
+  "publicationArtifacts": "work/live-publication-4.3.1",
+  "mainIntegration": {
+    "baseRef": "38ae85d07f346d6701519ef7f21b4b475f4475cb",
+    "featureRef": "5a800a061badfe8270644d45fad6745669f43c10",
+    "integrationAudit": {
+      "path": "outputs/fall-2026/live-integration/canonical-retention-audit.json",
+      "sha256": "163712c2a834de9e40e4dc47734c1f15914ef58573349ef0d76279d0d34dba01",
+      "bytes": 2574
+    },
+    "publicationAudit": {
+      "path": "work/live-publication-4.3.1/final-publication-audit.json",
+      "sha256": "ad59c9ce09104f79f77638257815ce1f2518d03fecc19f21f445c7fe4e01fe59",
+      "bytes": 3586
+    },
+    "mainCorrectionsPreserved": true,
+    "allFallRowsPreserved": true,
+    "excludedStaleEarlierFeatureOnlyRows": 30,
+    "nativeAccountCoverageUnchanged": true,
+    "fullHistoryComplete": false
+  }
+}

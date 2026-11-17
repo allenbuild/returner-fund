@@ -1,12 +1,15 @@
 import ycSummer2026Snapshot from "@/lib/yc/summer-2026-companies.json";
 import ycSpring2026Snapshot from "@/lib/yc/spring-2026-companies.json";
+import ycFall2026Snapshot from "@/lib/yc/fall-2026-companies.json";
 import githubTractionSnapshot from "@/lib/social/github-traction-summer-2026.json";
 import springGithubTractionSnapshot from "@/lib/social/github-traction.json";
+import fallGithubTractionSnapshot from "@/lib/social/github-traction-fall-2026.json";
+import fallGithubRepositoryOwnership from "@/lib/social/github-repository-ownership-fall-2026.json";
 import verifiedSocialOverridesJson from "@/lib/social/verified-social-overrides.json";
+import fallLinkedInFounderAliases from "@/lib/social/linkedin-founder-aliases-fall-2026.json";
 import ycPartnerVerbatimText from "@/lib/social/yc-partner-verbatim-text.json";
-import { existsSync, readFileSync } from "node:fs";
-import { join } from "node:path";
-import { gunzipSync } from "node:zlib";
+import { readGraphRuntimeJson } from "./runtime-json.mjs";
+import { createHash } from "node:crypto";
 import { calibrateBatchCompanyScores } from "@/lib/scoring/batch-calibration";
 import { benchmarkGlobalCompanyScores } from "@/lib/scoring/global-score-benchmark";
 import { a16zSpeedrun006GraphDataset } from "./a16z-speedrun-006-dataset";
@@ -42,6 +45,19 @@ import {
   nativeLinkStatusFromVerifiedReceipt
 } from "./native-link-attestation";
 import { originalEvidenceText } from "./verbatim-evidence-text";
+import { officialWebsiteArticleContextReasons } from "./official-website-context-receipt.mjs";
+import { isVerifiedOfficialPublicationArticleContext, OFFICIAL_PUBLICATION_CONTEXT_SOURCE } from "./official-publication-context-receipt.mjs";
+import { isVerifiedRobinFounderPublicationContext, ROBIN_FOUNDER_PUBLICATION_SOURCE } from "./robin-founder-publication-context-receipt.mjs";
+import { isVerifiedNativeTikTokReceipt } from "./tiktok-native-receipt.mjs";
+import { isVerifiedNativeFacebookReceipt } from "./facebook-native-receipt.mjs";
+import { isVerifiedNativeThreadsReceipt } from "./threads-native-receipt.mjs";
+import { isVerifiedNativeXCaptionlessPost } from "./x-caption-absence-receipt.mjs";
+import { isVerifiedNativeYouTubeDomReceipt } from "./youtube-native-dom-receipt.mjs";
+import { isVerifiedNativeYouTubeUnknownDateReceipt, NATIVE_YOUTUBE_UNKNOWN_DATE_SOURCE } from "./youtube-native-unknown-date-receipt.mjs";
+import { isVerifiedNativeLinkedInFounderHistoryReceipt } from "./linkedin-founder-history-receipt.mjs";
+import { isVerifiedNativeLinkedInCompanyDetailReceipt } from "./linkedin-company-detail-receipt.mjs";
+import { verifiedFallLinkedInFounderAccounts } from "./linkedin-founder-aliases.mjs";
+import { createNativeGithubReleaseContextVerifier, isVerifiedNativeGithubRepositoryOwnershipProof, NATIVE_GITHUB_RELEASE_SOURCE } from "./github-release-context-receipt.mjs";
 import { reconcilePublishedCompanyScores } from "./published-score-reconciliation";
 import {
   applyAttributionGuard,
@@ -97,20 +113,9 @@ const volumeEvidenceSnapshot: unknown = readRuntimeJson(
 );
 
 function readRuntimeJson(relativePath: GraphRuntimeProjectionPath): unknown {
-  const runtimePath = resolveRuntimeDataPath(relativePath);
-  // These exact files are declared in outputFileTracingIncludes. Ignoring the
-  // resolved argument here prevents Turbopack from treating it as a repo-wide
-  // filesystem glob while preserving cwd-independent local/test resolution.
-  return JSON.parse(gunzipSync(readFileSync(/* turbopackIgnore: true */ runtimePath)).toString("utf8"));
-}
-
-function resolveRuntimeDataPath(relativePath: GraphRuntimeProjectionPath): string {
-  for (const root of [process.cwd(), process.env.INIT_CWD, process.env.PWD]) {
-    if (!root) continue;
-    const runtimePath = join(/* turbopackIgnore: true */ root, relativePath);
-    if (existsSync(/* turbopackIgnore: true */ runtimePath)) return runtimePath;
-  }
-  return join(/* turbopackIgnore: true */ process.cwd(), relativePath);
+  // Main's traced runtime projections remain gzip files. The shared reader
+  // takes their logical JSON names and resolves the gzip fallback per root.
+  return readGraphRuntimeJson(relativePath.slice(0, -3));
 }
 
 interface RawCompany {
@@ -142,7 +147,7 @@ interface RawFounder {
 }
 
 type RawSocialLinks = Partial<
-  Record<"github" | "linkedin" | "x" | "instagram" | "tiktok" | "bluesky", string>
+  Record<"github" | "linkedin" | "x" | "instagram" | "facebook" | "threads" | "tiktok" | "bluesky", string>
 >;
 
 type RetirableSocialPlatform = keyof RawSocialLinks | "youtube" | "product_hunt";
@@ -244,6 +249,7 @@ interface PublicEvidenceRecord {
   id: string;
   batchSlug?: string;
   batch_slug?: string;
+  companySlug?: string;
   entityType: "company" | "founder";
   entityId: string;
   companyName: string;
@@ -255,6 +261,10 @@ interface PublicEvidenceRecord {
   authorHandle?: string | null;
   text: string;
   originalText?: string | null;
+  mediaType?: EvidenceItem["mediaType"];
+  captionAbsent?: boolean;
+  nativeContentKind?: EvidenceItem["nativeContentKind"];
+  countsAsAuthoredPost?: boolean;
   thumbnailUrl?: string | null;
   thumbnailSource?: string | null;
   mediaUrl?: string | null;
@@ -330,6 +340,8 @@ export const YC_SUMMER_2026_BATCH_SLUG = "S26";
 export const YC_SUMMER_2026_BATCH_LABEL = "YC Summer 2026 (S26)";
 export const YC_SPRING_2026_BATCH_SLUG = "S2026";
 export const YC_SPRING_2026_BATCH_LABEL = "YC Spring 2026 (P26)";
+export const YC_FALL_2026_BATCH_SLUG = "F26";
+export const YC_FALL_2026_BATCH_LABEL = "YC Fall 2026 (F26)";
 
 const SUMMER_COMPANY_SLUG_RENAMES = [
   {
@@ -391,11 +403,15 @@ const GENERIC_SOCIAL_IDENTITIES = new Set([
 
 const snapshot = ycSummer2026Snapshot as RawSnapshot;
 const springSnapshot = ycSpring2026Snapshot as RawSnapshot;
+const fallSnapshot = ycFall2026Snapshot as RawSnapshot;
 const githubSnapshot = githubTractionSnapshot as GithubSnapshot;
 const springGithubSnapshot = springGithubTractionSnapshot as GithubSnapshot;
+const fallGithubSnapshot = fallGithubTractionSnapshot as GithubSnapshot;
+const verifyNativeGithubReleaseContext = createNativeGithubReleaseContextVerifier(fallGithubSnapshot);
 const githubRepositoriesByIdentity = buildGithubRepositoryIndex([
   githubSnapshot,
-  springGithubSnapshot
+  springGithubSnapshot,
+  fallGithubSnapshot
 ]);
 const publicSnapshot = publicEvidenceSnapshot as PublicEvidenceSnapshot;
 const loggedInSnapshot = loggedInEvidenceSnapshot as PublicEvidenceSnapshot;
@@ -420,7 +436,8 @@ assertRawEvidenceTemporalPreflight(volumeSnapshot.evidence, {
 const verifiedSocialOverrides = verifiedSocialOverridesJson as Record<string, VerifiedSocialOverride>;
 const companyIdByEntityId = buildCompanyIdByEntityId([
   ...snapshot.companies,
-  ...springSnapshot.companies
+  ...springSnapshot.companies,
+  ...fallSnapshot.companies
 ]);
 const summerCompanyById = new Map(snapshot.companies.map((company) => [companyId(company), company]));
 const springCompanyById = new Map(springSnapshot.companies.map((company) => [companyId(company), company]));
@@ -439,11 +456,19 @@ const springKnownFounderIds = new Set(springSnapshot.companies.flatMap((company)
   ...manualFounderOverrides(company).map((founder) => manualFounderId(company, founder))
 ]));
 const springKnownEntityIds = new Set([...springKnownCompanyIds, ...springKnownFounderIds]);
+const fallKnownEntityIds = new Set(fallSnapshot.companies.flatMap((company) => [
+  companyId(company),
+  ...company.founders.map((founder) => founderId(company, founder)),
+  ...manualFounderOverrides(company).map((founder) => manualFounderId(company, founder))
+]));
 const crossBatchEntityIds = new Set(
-  [...knownEntityIds].filter((entityId) => springKnownEntityIds.has(entityId))
+  [...knownEntityIds, ...springKnownEntityIds, ...fallKnownEntityIds].filter((entityId) =>
+    [knownEntityIds, springKnownEntityIds, fallKnownEntityIds]
+      .filter((entityIds) => entityIds.has(entityId)).length > 1
+  )
 );
 const officialGithubUrlsByEntityId = buildOfficialSummerGithubUrlsByEntityId();
-const allowedLoggedInPlatforms = new Set(["instagram", "x", "linkedin", "tiktok", "bluesky"]);
+const allowedLoggedInPlatforms = new Set(["instagram", "x", "linkedin", "facebook", "tiktok", "bluesky"]);
 const allowedLoggedInEvidence = loggedInSnapshot.evidence.filter((item) =>
   allowedLoggedInPlatforms.has(item.platform)
 );
@@ -596,18 +621,23 @@ const rawYcSummer2026GraphDataset: DemoGraphDataset = {
 };
 
 const springDataset = buildSpring2026GraphDataset();
+const fallDataset = buildFall2026GraphDataset();
 const rawGlobalCompanyPopulation = [
   ...rawYcSummer2026GraphDataset.companies,
   ...springDataset.companies,
+  ...fallDataset.companies,
   ...a16zSpeedrun006GraphDataset.companies
 ];
-const globallyPublishedEvidence = dedupeEvidenceItems(
-  [
-    ...rawYcSummer2026GraphDataset.evidence,
-    ...springDataset.evidence,
-    ...a16zSpeedrun006GraphDataset.evidence
-  ].filter((item) => !hasCrossBatchEntityAmbiguity(item))
-);
+// Physical post dedupe applies inside a cohort. Explicit attributions of the
+// same native post in a later cohort must retain their separate batch scope.
+const globallyPublishedEvidence = [
+  rawYcSummer2026GraphDataset,
+  springDataset,
+  fallDataset,
+  a16zSpeedrun006GraphDataset
+].flatMap((dataset) => dedupeEvidenceItems(
+  dataset.evidence.filter((item) => !hasCrossBatchEntityAmbiguity(item))
+));
 const reconciledGlobalCompanyPopulation = reconcilePublishedCompanyScores(
   rawGlobalCompanyPopulation,
   globallyPublishedEvidence
@@ -633,28 +663,193 @@ export const yc2026GraphDataset: DemoGraphDataset = {
   batches: [
     ...springDataset.batches,
     ...ycSummer2026GraphDataset.batches,
+    ...fallDataset.batches,
     ...a16zSpeedrun006GraphDataset.batches
   ],
   companies: globallyBenchmarkedCompanies,
   founders: [
     ...ycSummer2026GraphDataset.founders,
     ...springDataset.founders,
+    ...fallDataset.founders,
     ...a16zSpeedrun006GraphDataset.founders
   ],
   evidence: globallyPublishedEvidence,
   needsReview: [
     ...(ycSummer2026GraphDataset.needsReview ?? []),
     ...(springDataset.needsReview ?? []),
+    ...(fallDataset.needsReview ?? []),
     ...(a16zSpeedrun006GraphDataset.needsReview ?? [])
   ].filter((item) => !hasCrossBatchEntityAmbiguity(item)),
   platformStatus: [
     ...springDataset.platformStatus,
     ...ycSummer2026GraphDataset.platformStatus,
+    ...fallDataset.platformStatus,
     ...a16zSpeedrun006GraphDataset.platformStatus
   ]
 };
 
 export const ycSpring2026GraphDataset = yc2026GraphDataset;
+
+export const ycFall2026GraphDataset: DemoGraphDataset = {
+  ...fallDataset,
+  companies: globallyBenchmarkedCompanies.filter((company) => company.batchSlug === YC_FALL_2026_BATCH_SLUG)
+};
+
+function buildFall2026GraphDataset(): DemoGraphDataset {
+  const batchSlug = YC_FALL_2026_BATCH_SLUG;
+  const aliases = buildVerifiedFounderAliases(fallSnapshot.companies);
+  const companiesById = new Map(fallSnapshot.companies.map((company) => [companyId(company), company]));
+  const context = buildAttributionContext(fallSnapshot.companies.map(attributionCompanyProfile));
+  // A new cohort admits only explicit batch attribution, including when a YC
+  // slug or founder also appears in a historical snapshot of an earlier batch.
+  const rawEvidence = [
+    ...publicSnapshot.evidence,
+    ...allowedLoggedInEvidence,
+    ...targetedSnapshot.evidence,
+    ...volumeSnapshot.evidence
+  ]
+    .filter((item) => scopedEvidenceToBatch(item, batchSlug))
+    .map((item) => canonicalizeVerifiedFounderEntity(item, aliases))
+    .filter((item) => fallKnownEntityIds.has(item.entityId))
+    .filter((item) => item.review_state === "verified" && item.linkStatus !== "invalid")
+    .filter((item) => item.attributionProvenance !== "official_company_website_article_v1" || isVerifiedOfficialWebsiteArticleContext(item))
+    .filter((item) => item.attributionProvenance !== NATIVE_GITHUB_RELEASE_SOURCE || isVerifiedOfficialGithubReleaseContext(item))
+    .filter((item) => item.attributionProvenance !== OFFICIAL_PUBLICATION_CONTEXT_SOURCE || isVerifiedOfficialCompanyPublicationContext(item))
+    .filter((item) => item.attributionProvenance !== ROBIN_FOUNDER_PUBLICATION_SOURCE || isVerifiedOfficialFounderPublicationContext(item))
+    .filter((item) => item.platform !== "tiktok" || isVerifiedFallNativeTikTok(item))
+    .filter((item) => item.platform !== "facebook" || isVerifiedFallNativeFacebook(item))
+    .filter((item) => item.platform !== "threads" || isVerifiedNativeThreadsReceipt(item))
+    .filter((item) => item.platform !== "x" || item.captionAbsent !== true || isVerifiedFallNativeXCaptionless(item))
+    .filter((item) => !/^authorized_native_youtube_.*_dom_v1$/.test(item.attributionProvenance ?? "") || isVerifiedFallNativeYouTubeDom(item))
+    .filter((item) => item.platform !== "hacker_news" || acceptedNativeHackerNewsEvidence(item, batchSlug, false))
+    .filter((item) => item.platform !== "linkedin" || isAcceptedPublicEvidence(item))
+    .filter((item) => item.attributionProvenance !== "native_linkedin_founder_history_v1" || isVerifiedFallNativeLinkedInFounderHistory(item))
+    .filter((item) => item.attributionProvenance !== "native_linkedin_company_detail_v1" || isVerifiedFallNativeLinkedInCompanyDetail(item))
+    .map((item) => {
+      if (isVerifiedFallNativeYouTubeDom(item)) {
+        const unknownPublication = item.attributionProvenance === NATIVE_YOUTUBE_UNKNOWN_DATE_SOURCE;
+        return {
+          ...publicEvidenceItem(item), text: item.text, originalText: item.originalText ?? item.text,
+          publishedAtPrecision: unknownPublication ? "unknown" as const : "day" as const,
+          ...(unknownPublication ? { contributionScore: 0, tractionStatus: "unscored" as const } : {})
+        };
+      }
+      if (item.attributionProvenance === "native_linkedin_company_detail_v1" && isVerifiedFallNativeLinkedInCompanyDetail(item)) return {
+        ...publicEvidenceItem(item), text: item.text, originalText: item.originalText ?? item.text
+      };
+      if (item.attributionProvenance === "native_linkedin_founder_history_v1" && isVerifiedFallNativeLinkedInFounderHistory(item)) return {
+        ...publicEvidenceItem(item), text: item.text, originalText: item.originalText ?? item.text
+      };
+      if (item.platform === "x" && item.captionAbsent === true && isVerifiedFallNativeXCaptionless(item)) return {
+        ...publicEvidenceItem(item), text: "", captionAbsent: true,
+        contributionScore: 0, tractionStatus: "unscored" as const
+      };
+      if (item.platform === "threads" && isVerifiedNativeThreadsReceipt(item)) return {
+        ...publicEvidenceItem(item), text: item.text, originalText: item.originalText ?? item.text,
+        contributionScore: 0, tractionStatus: "unscored" as const, publishedAtPrecision: "exact" as const
+      };
+      if (item.platform === "facebook" && isVerifiedFallNativeFacebook(item)) return {
+        ...publicEvidenceItem(item), text: item.text,
+        originalText: item.captionAbsent ? undefined : item.originalText ?? undefined,
+        nativeContentKind: item.nativeContentKind, countsAsAuthoredPost: item.countsAsAuthoredPost,
+        contributionScore: 0, tractionStatus: "unscored" as const, publishedAtPrecision: "unknown" as const
+      };
+      if (item.platform === "tiktok" && isVerifiedFallNativeTikTok(item)) return {
+        ...publicEvidenceItem(item), text: item.text,
+        originalText: item.captionAbsent ? undefined : item.originalText ?? undefined,
+        mediaType: item.mediaType ?? "video",
+        publishedAtPrecision: "unknown" as const
+      };
+      const nativeRelease = isVerifiedOfficialGithubReleaseContext(item);
+      const founderPublication = isVerifiedOfficialFounderPublicationContext(item);
+      return isVerifiedOfficialYcLaunchContext(item) || isVerifiedOfficialWebsiteArticleContext(item) || isVerifiedOfficialCompanyPublicationContext(item) || founderPublication || nativeRelease
+        ? {
+          ...publicEvidenceItem(item),
+          // Preserve exact source bytes; ordinary prose heuristics may mistake
+          // real first-party prose beginning with "shared" for an editorial summary.
+          originalText: item.captionAbsent === true ? undefined : item.originalText ?? item.text,
+          text: item.text,
+          platformPostId: nativeRelease ? item.platformPostId : contextEvidenceContentUrl("web", item.sourceUrl) ?? item.sourceUrl,
+          contributionScore: 0,
+          ...(founderPublication ? { postedAt: item.postedAt!, publishedAtPrecision: "exact" as const, mediaType: "text" as const, tractionStatus: "unscored" as const,
+            why: item.matchReason ?? "Exact founder-owned publication original; official company founder identity, native profile and personal-site publication ownership, full original body, byline and publication clock are independently verified. Native social engagement is not assigned a traction score."
+          } : {}),
+          ...(nativeRelease ? { postedAt: item.postedAt!, publishedAtPrecision: "exact" as const, mediaType: "text" as const, tractionStatus: "unscored" as const } : {})
+        }
+        : publicEvidenceItemWithAttributionGuard(item, context, companiesById);
+    });
+  const githubRows = fallGithubSnapshot.accounts
+    .filter((account) => fallKnownEntityIds.has(account.entityId))
+    .flatMap((account) => githubEvidenceForSnapshot(account, fallGithubSnapshot, { maxItems: Infinity }))
+    .map((item) => {
+      const scoped = { ...item, batchSlug };
+      // A launch can verify one product repository without establishing
+      // ownership of the publisher's other repositories or account aggregate.
+      const proof = fallGithubRepositoryOwnership.proofs.find((candidate) =>
+        item.platformObjectId && item.platformPostId &&
+        candidate.entityId === item.entityId &&
+        candidate.repositoryFullName.toLowerCase() === item.platformPostId.toLowerCase() &&
+        candidate.repositoryUrl.toLowerCase() === item.sourceUrl.toLowerCase() &&
+        isVerifiedNativeGithubRepositoryOwnershipProof(candidate)
+      );
+      if (!proof) return applyAttributionGuard(scoped, context);
+      const raw = JSON.parse(item.rawVisibleText ?? "{}");
+      return {
+        ...scoped,
+        rawVisibleText: JSON.stringify({ ...raw, officialRepositoryOwnershipProof: proof }),
+        attributionProvenance: "official_yc_launch_repository_ownership_v1",
+        matchReason: `${item.matchReason} Exact repository ownership is explicitly stated in official YC launch ${proof.nativeLaunch.id}; its archived body and repository link are hash-verified.`,
+        review_state: "verified" as const
+      };
+    });
+  const unresolvedEvidence = normalizeEvidenceScores(
+    canonicalizeBatchEvidence(dedupeBatchEvidence([...rawEvidence, ...githubRows]))
+      .map((item) => normalizeEvidenceTemporalSemantics(item))
+  );
+  const byEntityId = groupEvidenceByEntity(unresolvedEvidence);
+  const companies = calibrateBatchCompanyScores(fallSnapshot.companies.map((raw) => companyRecordForBatch(raw, {
+    batchSlug, evidenceByEntityId: byEntityId
+  })));
+  const founders = fallSnapshot.companies.flatMap((raw) => founderRecordsForBatch(raw, {
+    batchSlug, evidenceByEntityId: byEntityId
+  }));
+  const counts = countEvidenceByPlatform(unresolvedEvidence);
+  const platforms: Platform[] = ["x", "linkedin", "instagram", "facebook", "threads", "tiktok", "youtube", "github", "hacker_news", "reddit", "product_hunt"];
+  return {
+    mode: "official_snapshot",
+    batches: [{
+      slug: batchSlug,
+      label: YC_FALL_2026_BATCH_LABEL,
+      companyCountExpected: fallSnapshot.source.expectedCompanyCount,
+      companyCountObserved: fallSnapshot.source.observedCompanyCount
+    }],
+    companies,
+    founders,
+    evidence: resolveEvidenceSocialAccountIds(unresolvedEvidence, companies, founders),
+    needsReview: [
+      ...publicSnapshot.needsReview,
+      ...allowedLoggedInNeedsReview,
+      ...targetedSnapshot.needsReview
+    ]
+      .filter((item) => scopedEvidenceToBatch(item, batchSlug))
+      .map((item) => canonicalizeVerifiedFounderEntity(item, aliases))
+      .filter((item) => fallKnownEntityIds.has(item.entityId))
+      .map(publicNeedsReviewItem),
+    platformStatus: [
+      {
+        platform: "web", batchSlugs: [batchSlug], status: "disabled",
+        authMethod: "Public YC launches and official company article archives",
+        notes: "Official YC launch posts and receipt-verified company articles and releases are preserved as original context and contribute zero traction score."
+      },
+      ...platforms.map((platform) => ({
+        platform, batchSlugs: [batchSlug],
+        status: counts[platform] ? "working" as const : "public_only" as const,
+        authMethod: "Verified native public posts and authorized read-only sessions",
+        notes: `${counts[platform] ?? 0} verified Fall 2026 evidence rows. ${["facebook", "threads", "tiktok"].includes(platform) ? "Native history remains unscored because no calibrated traction model is configured. " : ""}Collection coverage and blocked accounts are recorded in the ingestion audit; available rows do not establish exhaustive account history.`
+      }))
+    ]
+  };
+}
 
 function buildSpring2026GraphDataset(): DemoGraphDataset {
   const springAttributionContext = buildAttributionContext(springSnapshot.companies.map(attributionCompanyProfile));
@@ -848,7 +1043,9 @@ function countOfficialSocialLinks(companies: RawCompany[]) {
     x: { company: 0, founder: 0 },
     instagram: { company: 0, founder: 0 },
     tiktok: { company: 0, founder: 0 },
-    bluesky: { company: 0, founder: 0 }
+    bluesky: { company: 0, founder: 0 },
+    facebook: { company: 0, founder: 0 },
+    threads: { company: 0, founder: 0 }
   };
 
   for (const company of companies) {
@@ -1064,7 +1261,11 @@ function githubEvidence(account: GithubAccount): EvidenceItem[] {
   return githubEvidenceForSnapshot(account, githubSnapshot);
 }
 
-function githubEvidenceForSnapshot(account: GithubAccount, sourceSnapshot: GithubSnapshot): EvidenceItem[] {
+function githubEvidenceForSnapshot(
+  account: GithubAccount,
+  sourceSnapshot: GithubSnapshot,
+  { maxItems = 20 }: { maxItems?: number } = {}
+): EvidenceItem[] {
   if (!account.fetched || !account.aggregate) {
     return [];
   }
@@ -1148,7 +1349,7 @@ function githubEvidenceForSnapshot(account: GithubAccount, sourceSnapshot: Githu
   return [profile, ...repoItems]
     .map(enrichEvidenceThumbnail)
     .sort((a, b) => b.contributionScore - a.contributionScore)
-    .slice(0, 20);
+    .slice(0, maxItems);
 }
 
 function publicationTimestampPrecision(value: string): EvidenceItem["publishedAtPrecision"] {
@@ -1182,6 +1383,7 @@ function hasRelativeXPublicationLabel(rawVisibleText: string): boolean {
 }
 
 function publicEvidenceItem(item: PublicEvidenceRecord): EvidenceItem {
+  const fallCaptionAbsent = scopedEvidenceToBatch(item, YC_FALL_2026_BATCH_SLUG) && item.captionAbsent === true;
   const isRetweet = item.platform === "x" && /"is_retweet"\s*:\s*true/i.test(item.rawVisibleText ?? "");
   const isProfileContext = isProfileOnlySocialEvidence(item);
   const isLinkedInActivityFragment = isLinkedInProfileActivityFragment(item);
@@ -1203,7 +1405,7 @@ function publicEvidenceItem(item: PublicEvidenceRecord): EvidenceItem {
   ].filter(Boolean);
   const displayTitle = evidenceDisplayText(item, item.companyName);
   const verbatimText = ycPartnerVerbatimText[item.sourceUrl as keyof typeof ycPartnerVerbatimText];
-  const originalText = verbatimText || originalEvidenceText({
+  const originalText = fallCaptionAbsent ? undefined : verbatimText || originalEvidenceText({
     platform: item.platform,
     title: displayTitle,
     text: item.text,
@@ -1258,7 +1460,8 @@ function publicEvidenceItem(item: PublicEvidenceRecord): EvidenceItem {
     observedAt,
     metricsCheckedAt: item.last_checked_at ?? item.last_updated_at ?? publicSnapshot.source.fetchedAt,
     title: displayTitle,
-    text: verbatimText || item.text || displayTitle,
+    text: fallCaptionAbsent ? "" : verbatimText || item.text || displayTitle,
+    ...(fallCaptionAbsent ? { captionAbsent: true } : {}),
     ...(originalText ? { originalText } : {}),
     ...(item.attributionProvenance ? { attributionProvenance: item.attributionProvenance } : {}),
     mediaType: mediaTypeForPlatform(item.platform),
@@ -1548,8 +1751,9 @@ function platformPostIdFromUrl(platform: Platform, rawUrl: string): string | nul
       return path.match(/\/status\/(\d+)/i)?.[1] ?? null;
     }
     if (platform === "tiktok") {
-      return path.match(/^\/@[A-Za-z0-9._-]+\/video\/(\d+)/i)?.[1] ?? null;
+      return path.match(/^\/@[A-Za-z0-9._-]+\/(?:video|photo)\/(\d+)/i)?.[1] ?? null;
     }
+    if (platform === "threads") return path.match(/^\/@[A-Za-z0-9_.]+\/post\/([A-Za-z0-9_-]+)$/)?.[1] ?? null;
     if (platform === "bluesky") {
       const match = path.match(/^\/profile\/([^/]+)\/post\/([^/]+)/i);
       return match ? `${match[1].toLowerCase()}/post/${match[2]}` : null;
@@ -1609,7 +1813,7 @@ function isProfileOnlySocialEvidence(item: PublicEvidenceRecord): boolean {
       return !/\/feed\/update\/|\/posts\//.test(pathAndHash);
     }
     if (item.platform === "tiktok") {
-      return !/\/@[a-z0-9._-]+\/video\/\d+/i.test(pathAndHash);
+      return !/\/@[a-z0-9._-]+\/(?:video|photo)\/\d+/i.test(pathAndHash);
     }
     if (item.platform === "bluesky") {
       return !/^\/profile\/[^/]+\/post\/[^/]+/i.test(pathAndHash);
@@ -1983,6 +2187,7 @@ function hasVerifiedSemanticAttributionReceipt(item: PublicEvidenceRecord): bool
 }
 
 function shouldTrustCanonicalAttributionReceiptAtGraphBoundary(item: PublicEvidenceRecord): boolean {
+  if (isVerifiedFallNativeYouTubeDom(item)) return true;
   if (isVerifiedOfficialYcCompanyPageYouTubeEmbed(item)) {
     return true;
   }
@@ -2012,6 +2217,141 @@ function shouldTrustCanonicalAttributionReceiptAtGraphBoundary(item: PublicEvide
   return false;
 }
 
+export function isVerifiedOfficialYcLaunchContext(item: unknown): boolean {
+  if (!item || typeof item !== "object" || Array.isArray(item)) return false;
+  const evidence = item as Partial<PublicEvidenceRecord>;
+  if (
+    !scopedEvidenceToBatch(evidence, YC_FALL_2026_BATCH_SLUG) ||
+    evidence.platform !== "web" || evidence.entityType !== "company" ||
+    evidence.review_state !== "verified" ||
+    evidence.attributionProvenance !== "official_yc_launch_context_v1" ||
+    evidence.contributionScore !== 0 || Object.keys(evidence.metrics ?? {}).length > 0
+  ) return false;
+  const company = fallSnapshot.companies.find((candidate) => companyId(candidate) === evidence.entityId);
+  const receipt = rawVisibleTextRecord(evidence.rawVisibleText);
+  const launch = recordFromUnknown(receipt?.launch);
+  if (
+    !company || !launch ||
+    stringRecordValue(receipt, "source") !== evidence.attributionProvenance ||
+    stringRecordValue(receipt, "officialYcProfileUrl") !== company.ycProfileUrl ||
+    !/^[a-f0-9]{64}$/i.test(stringRecordValue(receipt, "sourceHtmlSha256") ?? "") ||
+    launch.state !== "public" || !Number.isSafeInteger(launch.id) ||
+    typeof launch.body !== "string" || !launch.body.trim() ||
+    launch.body !== evidence.originalText || launch.body !== evidence.text ||
+    launch.created_at !== evidence.postedAt ||
+    evidence.companyName !== company.name
+  ) return false;
+  const urlValue = stringRecordValue(launch, "ycdc_launch_url") ?? stringRecordValue(launch, "url");
+  try {
+    const url = new URL(urlValue ?? "");
+    const publishedMs = Date.parse(String(launch.created_at ?? ""));
+    const observedMs = Date.parse(evidence.last_checked_at ?? evidence.first_seen_at ?? "");
+    return url.origin === "https://www.ycombinator.com" && url.pathname.startsWith("/launches/") &&
+      url.href === evidence.sourceUrl && Number.isFinite(publishedMs) &&
+      Number.isFinite(observedMs) && publishedMs <= observedMs;
+  } catch {
+    return false;
+  }
+}
+
+export function isVerifiedOfficialWebsiteArticleContext(item: unknown): boolean {
+  if (!item || typeof item !== "object" || Array.isArray(item)) return false;
+  const evidence = item as Partial<PublicEvidenceRecord>;
+  if (
+    evidence.review_state !== "verified" ||
+    evidence.attributionProvenance !== "official_company_website_article_v1" ||
+    evidence.contributionScore !== 0 || Object.keys(evidence.metrics ?? {}).length
+  ) return false;
+  const company = fallSnapshot.companies.find((candidate) => companyId(candidate) === evidence.entityId);
+  if (!company || officialWebsiteArticleContextReasons(item, company).length) return false;
+  const raw = rawVisibleTextRecord(evidence.rawVisibleText);
+  const validation = recordFromUnknown(raw?.validation);
+  return validation?.source === "fall_2026_official_article_ingestion_v1" &&
+    validation.archiveHashesVerified === true && validation.originalBodyFragmentsVerified === true &&
+    validation.originalHtmlSha256 === recordFromUnknown(raw?.originalHtml)?.sha256 &&
+    typeof evidence.originalText === "string" &&
+    validation.originalBodySha256 === createHash("sha256").update(evidence.originalText).digest("hex");
+}
+
+export function isVerifiedOfficialGithubReleaseContext(item: unknown): boolean {
+  if (!item || typeof item !== "object" || Array.isArray(item) || (item as Partial<PublicEvidenceRecord>).attributionProvenance !== NATIVE_GITHUB_RELEASE_SOURCE) return false;
+  return verifyNativeGithubReleaseContext(item);
+}
+
+export function isVerifiedOfficialCompanyPublicationContext(item: unknown): boolean {
+  if (!item || typeof item !== "object" || Array.isArray(item)) return false;
+  const evidence = item as Partial<PublicEvidenceRecord>;
+  if (evidence.attributionProvenance !== OFFICIAL_PUBLICATION_CONTEXT_SOURCE) return false;
+  const company = fallSnapshot.companies.find((candidate) => companyId(candidate) === evidence.entityId);
+  return isVerifiedOfficialPublicationArticleContext(item, company);
+}
+
+export function isVerifiedFallNativeYouTubeDom(item: unknown): boolean {
+  if (!item || typeof item !== "object" || Array.isArray(item)) return false;
+  const evidence = item as PublicEvidenceRecord;
+  if (evidence.batchSlug !== "F26" || evidence.platform !== "youtube" || !/^authorized_native_youtube_.*_dom_v1$/.test(evidence.attributionProvenance ?? "")) return false;
+  const company = fallSnapshot.companies.find((row) => row.slug === evidence.companySlug);
+  return Boolean(company && (evidence.attributionProvenance === NATIVE_YOUTUBE_UNKNOWN_DATE_SOURCE
+    ? isVerifiedNativeYouTubeUnknownDateReceipt(evidence, company)
+    : isVerifiedNativeYouTubeDomReceipt(evidence, company)));
+}
+
+export function isVerifiedOfficialFounderPublicationContext(item: unknown): boolean {
+  if (!item || typeof item !== "object" || Array.isArray(item)) return false;
+  const evidence = item as Partial<PublicEvidenceRecord>;
+  if (evidence.batchSlug !== "F26" || evidence.attributionProvenance !== ROBIN_FOUNDER_PUBLICATION_SOURCE) return false;
+  for (const company of fallSnapshot.companies) {
+    const founder = company.founders.find((candidate) => founderId(company, candidate) === evidence.entityId);
+    if (founder) return isVerifiedRobinFounderPublicationContext(item, { entityId: evidence.entityId, companySlug: company.slug, companyName: company.name, founderName: founder.name, socialAccounts: { x: founder.socialLinks.x } });
+  }
+  return false;
+}
+
+export function isVerifiedFallNativeTikTok(item: unknown): boolean {
+  if (!item || typeof item !== "object" || Array.isArray(item)) return false;
+  const evidence = item as Partial<PublicEvidenceRecord>;
+  if (evidence.platform !== "tiktok") return false;
+  const company = fallSnapshot.companies.find((candidate) => companyId(candidate) === evidence.entityId);
+  return isVerifiedNativeTikTokReceipt(item, company);
+}
+
+export function isVerifiedFallNativeFacebook(item: unknown): boolean {
+  if (!item || typeof item !== "object" || Array.isArray(item)) return false;
+  const evidence = item as Partial<PublicEvidenceRecord>;
+  if (evidence.platform !== "facebook") return false;
+  const company = fallSnapshot.companies.find((candidate) => companyId(candidate) === evidence.entityId);
+  return isVerifiedNativeFacebookReceipt(item, company);
+}
+
+export function isVerifiedFallNativeXCaptionless(item: unknown): boolean {
+  if (!item || typeof item !== "object" || Array.isArray(item) || !isVerifiedNativeXCaptionlessPost(item)) return false;
+  const evidence = item as Partial<PublicEvidenceRecord>;
+  for (const company of fallSnapshot.companies) {
+    const owner = evidence.entityId === companyId(company) ? company : company.founders.find((founder) => founderId(company, founder) === evidence.entityId);
+    if (owner) return Boolean(owner.socialLinks.x && evidence.accountUrl && canonicalAccountUrl(owner.socialLinks.x) === canonicalAccountUrl(evidence.accountUrl));
+  }
+  return false;
+}
+
+export function isVerifiedFallNativeLinkedInFounderHistory(item: unknown): boolean {
+  if (!item || typeof item !== "object" || Array.isArray(item)) return false;
+  const evidence = item as Partial<PublicEvidenceRecord>;
+  if (evidence.platform !== "linkedin" || evidence.attributionProvenance !== "native_linkedin_founder_history_v1") return false;
+  for (const company of fallSnapshot.companies) {
+    const founder = company.founders.find((candidate) => founderId(company, candidate) === evidence.entityId);
+    if (founder) return isVerifiedNativeLinkedInFounderHistoryReceipt(item, { entityId: evidence.entityId, entityType: "founder", companySlug: company.slug, companyName: company.name, founderName: founder.name, socialAccounts: { linkedin: verifiedFallLinkedInFounderAccounts(company, founder, fallLinkedInFounderAliases) } });
+  }
+  return false;
+}
+
+export function isVerifiedFallNativeLinkedInCompanyDetail(item: unknown): boolean {
+  if (!item || typeof item !== "object" || Array.isArray(item)) return false;
+  const evidence = item as Partial<PublicEvidenceRecord>;
+  if (evidence.platform !== "linkedin" || evidence.attributionProvenance !== "native_linkedin_company_detail_v1") return false;
+  const company = fallSnapshot.companies.find((candidate) => companyId(candidate) === evidence.entityId);
+  return Boolean(company && isVerifiedNativeLinkedInCompanyDetailReceipt(item, { entityId: companyId(company), entityType: "company", companySlug: company.slug, companyName: company.name, socialAccounts: { linkedin: [company.socialLinks.linkedin] } }));
+}
+
 export function isVerifiedOfficialYcCompanyPageYouTubeEmbed(item: unknown): boolean {
   if (!item || typeof item !== "object" || Array.isArray(item)) {
     return false;
@@ -2033,7 +2373,9 @@ export function isVerifiedOfficialYcCompanyPageYouTubeEmbed(item: unknown): bool
       ? snapshot.companies
       : explicitBatchSlug === YC_SPRING_2026_BATCH_SLUG
         ? springSnapshot.companies
-        : null;
+        : explicitBatchSlug === YC_FALL_2026_BATCH_SLUG
+          ? fallSnapshot.companies
+          : null;
   if (!catalog) {
     return false;
   }
@@ -2079,12 +2421,18 @@ export function isVerifiedOfficialYcCompanyPageYouTubeEmbed(item: unknown): bool
   const receiptViews = finiteRecordNumber(receiptMetrics, "views");
   const receiptLikes = finiteRecordNumber(receiptMetrics, "likes");
   const receiptComments = finiteRecordNumber(receiptMetrics, "comments");
+  const matchesOptionalMetric = (key: "likes" | "comments", receiptValue: number | null) => {
+    const value = evidence.metrics?.[key];
+    return value == null
+      ? receiptValue === null
+      : typeof value === "number" && Number.isFinite(value) && receiptValue === value;
+  };
   return (
     receiptViews !== null &&
     receiptViews > 0 &&
     receiptViews === Number(evidence.metrics?.views) &&
-    receiptLikes === Number(evidence.metrics?.likes ?? 0) &&
-    receiptComments === Number(evidence.metrics?.comments ?? 0)
+    matchesOptionalMetric("likes", receiptLikes) &&
+    matchesOptionalMetric("comments", receiptComments)
   );
 }
 
@@ -2149,7 +2497,13 @@ function isLoggedInLinkedInActivityEvidence(item: PublicEvidenceRecord): boolean
 }
 
 function linkedInPostAuthorMatchesKnownEntity(item: PublicEvidenceRecord): boolean {
-  const company = snapshot.companies.find((candidate) =>
+  const batchSlug = String(item.batchSlug ?? item.batch_slug ?? "").trim().toUpperCase();
+  const catalog = batchSlug === YC_FALL_2026_BATCH_SLUG
+    ? fallSnapshot.companies
+    : batchSlug === YC_SPRING_2026_BATCH_SLUG
+      ? springSnapshot.companies
+      : snapshot.companies;
+  const company = catalog.find((candidate) =>
     companyId(candidate) === item.entityId ||
     candidate.founders.some((founder) => founderId(candidate, founder) === item.entityId) ||
     manualFounderOverrides(candidate).some((founder) => manualFounderId(candidate, founder) === item.entityId)
@@ -2438,7 +2792,7 @@ function evidenceAccountUrls(item: EvidenceItem): string[] {
 }
 
 function canDeriveAccountUrlFromSource(platform: Platform): boolean {
-  return platform === "github" || platform === "x" || platform === "tiktok" || platform === "bluesky";
+  return platform === "github" || platform === "x" || platform === "tiktok" || platform === "threads" || platform === "bluesky";
 }
 
 function addMaterializedSocialAccounts(
@@ -2606,13 +2960,15 @@ function socialAccountsFor(
   return (Object.entries(links) as [keyof RawSocialLinks, string][])
     .filter(([, url]) => Boolean(url))
     .filter(([platform, url]) => urlMatchesPlatform(url, platform))
+    .filter(([platform, url]) => platform !== "linkedin" || /\/(?:company|in|school)\/[^/?#]+/i.test(new URL(url).pathname))
     .map(([platform, url]) => {
-      const handle = handleFromUrl(url);
+      const publicAccountUrl = platform === "linkedin" || platform === "facebook" ? canonicalAccountUrl(url) : url;
+      const handle = handleFromUrl(publicAccountUrl);
       return {
-        id: materializedSocialAccountId(options.entityType, options.entityId, platform, url),
+        id: materializedSocialAccountId(options.entityType, options.entityId, platform, publicAccountUrl),
         platform,
         handle,
-        url,
+        url: publicAccountUrl,
         review_state: handle ? "verified" : "rejected",
         discoveredFromUrl: options.discoveredFromUrl,
         matchReason: handle
@@ -2777,6 +3133,11 @@ function canonicalAccountUrl(rawUrl: string): string {
       const handle = parts[0]?.replace(/^@/, "");
       if (handle) return `https://tiktok.com/@${handle.toLowerCase()}`;
     }
+    if (host === "threads.com" && /^@[A-Za-z0-9_.]+$/.test(parts[0] ?? "")) return `https://threads.com/${parts[0].toLowerCase()}`;
+    if (["facebook.com", "m.facebook.com", "web.facebook.com"].includes(host)) {
+      const accountParts = parts[0]?.toLowerCase() === "people" ? parts.slice(0, 3) : parts.slice(0, 1);
+      if (accountParts.length) return `https://facebook.com/${accountParts.join("/").toLowerCase()}`;
+    }
 
     if (host === "bsky.app") {
       const handle = parts[0]?.toLowerCase() === "profile" ? parts[1] : null;
@@ -2829,6 +3190,8 @@ function urlMatchesPlatform(url: string, platform: string): boolean {
     if (platform === "github") return host === "github.com";
     if (platform === "instagram") return host === "instagram.com";
     if (platform === "tiktok") return host === "tiktok.com" || host === "m.tiktok.com";
+    if (platform === "facebook") return host === "facebook.com" || host === "m.facebook.com" || host === "web.facebook.com";
+    if (platform === "threads") return host === "threads.com";
     if (platform === "bluesky") return host === "bsky.app";
     if (platform === "youtube") return host === "youtube.com";
     if (platform === "reddit") return host === "reddit.com" || host.endsWith(".reddit.com");

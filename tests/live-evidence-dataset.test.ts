@@ -5,10 +5,44 @@ import {
   liveEvidenceVisibilityForGraph
 } from "@/lib/graph/live-evidence-dataset";
 import { aggregateBalancedTractionScore } from "@/lib/graph/traction-scoring";
+import { liveEvidenceRecordToEvidenceItem, overlayLiveEvidenceOnGraph } from "@/lib/graph/live-evidence-overlay";
 import type { LiveEvidenceRecord } from "@/lib/ingestion/live-source-refresh";
-import type { CompanyRecord, DemoGraphDataset, EvidenceItem } from "@/lib/graph/types";
+import type { CompanyRecord, DemoGraphDataset, EvidenceItem, GraphResponse } from "@/lib/graph/types";
 
 describe("live evidence dataset merge", () => {
+  it("keeps a repeated company ID and shared native post scoped to its explicit batch", () => {
+    const base = baseDataset();
+    const oldPost = { ...evidenceItem("2077045452579778664", { likes: 2 }, 10, "company-screenpipe"), id: "summer-shared", batchSlug: "S26" };
+    const fallPost = { ...oldPost, id: "fall-shared", batchSlug: "F26" };
+    const dataset = {
+      ...base,
+      companies: [companyRecord("company-screenpipe", "S26"), companyRecord("company-screenpipe", "F26")],
+      evidence: [oldPost, fallPost]
+    };
+    const merged = datasetWithLiveEvidence(dataset, [liveXRecord({ batchSlug: "F26" })]);
+    expect(merged.evidence.find((row) => row.batchSlug === "S26")).toEqual(oldPost);
+    expect(merged.evidence.filter((row) => row.batchSlug === "F26")).toHaveLength(1);
+    expect(merged.evidence.find((row) => row.batchSlug === "F26")?.metrics.likes).toBe(697);
+    expect(datasetWithLiveEvidence(dataset, [liveXRecord()])).toBe(dataset);
+  });
+
+  it("retains native batch receipts in live conversion, cache identity and overlay admission", () => {
+    const fall = liveXRecord({ batchSlug: "F26" });
+    expect(liveEvidenceRecordToEvidenceItem(fall).batchSlug).toBe("F26");
+    expect(liveEvidenceCacheVersion([fall])).not.toBe(liveEvidenceCacheVersion([{ ...fall, batchSlug: "S26" }]));
+    const graph = {
+      batch: { slug: "S26" }, selectedTopVoiceAudience: { id: "off" }, nodes: [], evidence: []
+    } as unknown as GraphResponse;
+    const result = overlayLiveEvidenceOnGraph(graph, [fall]);
+    expect(result.graph).toBe(graph);
+    expect(result.visibleEvidence).toEqual([]);
+    expect(result.hiddenEvidence[0].reason).toBe("hidden_by_batch:S26");
+    const summerItem = { ...liveEvidenceRecordToEvidenceItem(fall), batchSlug: "S26" };
+    const visibility = liveEvidenceVisibilityForGraph([summerItem], [fall]);
+    expect(visibility.visibleEvidence).toEqual([]);
+    expect(visibility.hiddenEvidence).toHaveLength(1);
+  });
+
   it("normalizes live evidence scores before top-voice graph rollups consume them", () => {
     const dataset = datasetWithLiveEvidence(baseDataset(), [
       liveXRecord({

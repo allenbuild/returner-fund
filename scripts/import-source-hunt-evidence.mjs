@@ -1,6 +1,20 @@
 import { createHash } from "node:crypto";
 import { readFile, rename, writeFile } from "node:fs/promises";
 import { basename, resolve } from "node:path";
+import { isOfficialInstagramOutboundReceipt } from "./lib/instagram-official-outbound-proof.mjs";
+import { isVerifiedInstagramCaptionAbsence } from "./lib/instagram-caption-absence-proof.mjs";
+import { isVerifiedLinkedInCaptionAbsence } from "./lib/linkedin-caption-absence-proof.mjs";
+import { isVerifiedInstagramFounderSocialIdentity } from "./lib/instagram-founder-social-proof.mjs";
+import { isVerifiedInstagramFounderTeamIdentity } from "./lib/instagram-founder-team-proof.mjs";
+import { verifiedNativeTikTokReasons } from "../src/lib/graph/tiktok-native-receipt.mjs";
+import { facebookNativeIdentity, verifiedNativeFacebookReasons } from "../src/lib/graph/facebook-native-receipt.mjs";
+import { nativeThreadsIdentity, verifiedNativeThreadsReasons } from "../src/lib/graph/threads-native-receipt.mjs";
+import { isVerifiedNativeXCaptionlessPost, nativeXCaptionlessPostReasons } from "../src/lib/graph/x-caption-absence-receipt.mjs";
+import { verifiedNativeYouTubeDomReasons } from "../src/lib/graph/youtube-native-dom-receipt.mjs";
+import { verifiedNativeYouTubeUnknownDateReasons, NATIVE_YOUTUBE_UNKNOWN_DATE_SOURCE } from "../src/lib/graph/youtube-native-unknown-date-receipt.mjs";
+import { verifiedNativeLinkedInFounderHistoryReasons } from "../src/lib/graph/linkedin-founder-history-receipt.mjs";
+import { verifiedNativeLinkedInCompanyDetailReasons } from "../src/lib/graph/linkedin-company-detail-receipt.mjs";
+import { verifiedFallLinkedInFounderAccounts } from "../src/lib/graph/linkedin-founder-aliases.mjs";
 import {
   publicationTimesCompatible,
   sourceAuthorsCompatible,
@@ -16,6 +30,9 @@ const DISPLAY_METRICS = {
   x: new Set(["views", "likes", "replies", "reposts", "quotes", "bookmarks"]),
   linkedin: new Set(["views", "reactions", "comments", "reposts"]),
   instagram: new Set(["views", "likes", "comments", "shares", "saves"]),
+  tiktok: new Set(["likes", "comments", "saves"]),
+  facebook: new Set(),
+  threads: new Set(),
   product_hunt: new Set(["upvotes", "comments"]),
   youtube: new Set(["views", "likes", "comments"]),
   hacker_news: new Set(["upvotes", "comments"]),
@@ -27,6 +44,9 @@ const SCORING_METRICS = {
   x: new Set(["views", "likes", "replies", "reposts", "quotes"]),
   linkedin: new Set(["views", "reactions", "comments", "reposts"]),
   instagram: new Set(["views", "likes", "comments", "shares", "saves"]),
+  tiktok: new Set(["likes", "comments", "saves"]),
+  facebook: new Set(),
+  threads: new Set(),
   product_hunt: new Set(["upvotes", "comments"]),
   youtube: new Set(["views", "likes", "comments"]),
   hacker_news: new Set(["upvotes", "comments"]),
@@ -52,6 +72,8 @@ const writeMode = process.argv.includes("--write");
 const strict = process.argv.includes("--strict");
 const appendOnly = process.argv.includes("--append-only");
 const refreshGenerated = process.argv.includes("--refresh-generated");
+const scopeBatchDedupe = process.argv.includes("--scope-batch-dedupe");
+const retainZeroEngagement = process.argv.includes("--retain-zero-engagement");
 const inputPaths = valueArgs("--input").map((value) => resolve(root, value));
 const observedAt = validTimestamp(stringArg("--observed-at"));
 const includedBatches = new Set(
@@ -66,6 +88,12 @@ if (inputPaths.length === 0) {
 }
 if (!observedAt) throw new Error("Pass a deterministic --observed-at=<ISO timestamp>.");
 if (dryRun === writeMode) throw new Error("Pass exactly one of --dry-run or --write.");
+if (scopeBatchDedupe && includedBatches.size !== 1) {
+  throw new Error("--scope-batch-dedupe requires exactly one explicit --include-batches value.");
+}
+if (retainZeroEngagement && (!scopeBatchDedupe || includedBatches.size !== 1)) {
+  throw new Error("--retain-zero-engagement requires --scope-batch-dedupe and exactly one explicit --include-batches value.");
+}
 
 const targetPublicArtifact = targetPath === canonicalPublicEvidencePath
   ? await readPublicEvidenceArtifact(targetPath, { rootDir: root })
@@ -98,6 +126,8 @@ const audit = {
   duplicates: 0,
   duplicateRows: [],
   includedBatches: [...includedBatches],
+  ...(scopeBatchDedupe ? { batchScopedDedupe: true } : {}),
+  ...(retainZeroEngagement ? { retainZeroEngagement: true } : {}),
   skipped: 0,
   skippedRows: [],
   rejected: 0,
@@ -291,7 +321,30 @@ function normalizeEvidence(row, inputPath, rowIndex, entitiesById, targetKind) {
   if (suppliedPostId && native?.postId && identityPostId(platform, suppliedPostId) !== identityPostId(platform, native.postId)) {
     reasons.push("native_id_conflict");
   }
-  if (!hasPositiveScoringMetric(platform, metrics)) reasons.push("no_visible_positive_scoring_metrics");
+  const zeroEngagement = !hasPositiveScoringMetric(platform, metrics);
+  const unscoredNativePlatform = ["tiktok", "facebook", "threads"].includes(platform);
+  const captionlessHistory = ["x", "instagram", "linkedin", "tiktok", "facebook"].includes(platform) && row.captionAbsent === true;
+  const nativeYouTubeDom = platform === "youtube" && /^authorized_native_youtube_.*_dom_v1$/.test(row.attributionProvenance ?? "");
+  const unknownYouTubePublication = nativeYouTubeDom && row.attributionProvenance === NATIVE_YOUTUBE_UNKNOWN_DATE_SOURCE;
+  if (platform === "x" && row.captionAbsent === true) reasons.push(...nativeXCaptionlessPostReasons(row));
+  if (platform === "tiktok") reasons.push(...verifiedNativeTikTokReasons(row, entity));
+  if (platform === "facebook") reasons.push(...verifiedNativeFacebookReasons(row, entity));
+  if (platform === "threads") reasons.push(...verifiedNativeThreadsReasons(row));
+  if (nativeYouTubeDom) reasons.push(...nativeYouTubeDomReasons(row, entity));
+  if (unknownYouTubePublication && !zeroEngagement) {
+    if (!retainZeroEngagement) reasons.push("unknown_native_publication_requires_unscored_retention_opt_in");
+    else reasons.push(...verifiedZeroNativeReasons(row, platform, native, entity, rawVisibleText, metrics));
+  }
+  if (platform === "linkedin" && row.attributionProvenance === "native_linkedin_founder_history_v1") reasons.push(...verifiedNativeLinkedInFounderHistoryReasons(row, { ...entity, entityId }));
+  if (platform === "linkedin" && row.attributionProvenance === "native_linkedin_company_detail_v1") reasons.push(...verifiedNativeLinkedInCompanyDetailReasons(row, { ...entity, entityId }));
+  if (zeroEngagement) {
+    if (!retainZeroEngagement) reasons.push("no_visible_positive_scoring_metrics");
+    else reasons.push(...verifiedZeroNativeReasons(row, platform, native, entity, rawVisibleText, metrics));
+  }
+  if (captionlessHistory && !zeroEngagement) {
+    if (!retainZeroEngagement) reasons.push("captionless_native_history_requires_retention_opt_in");
+    else reasons.push(...verifiedZeroNativeReasons(row, platform, native, entity, rawVisibleText, metrics));
+  }
   if (metricResult.unsupported.length > 0) reasons.push(`unsupported_metrics:${metricResult.unsupported.join(",")}`);
   if (row?.review_state !== "verified") reasons.push("not_verified");
   if (["invalid", "blocked"].includes(row?.linkStatus)) reasons.push("invalid_link");
@@ -335,11 +388,15 @@ function normalizeEvidence(row, inputPath, rowIndex, entitiesById, targetKind) {
 
   const platformPostId = native.postId;
   const title = cleanString(row.title ?? row.text ?? row.content ?? row.body) ?? `${displayPlatform(platform)} activity`;
-  const text = cleanString(row.text ?? row.content ?? row.body) ?? title;
+  const exactNativeLinkedInBody = platform === "linkedin" && ["native_linkedin_founder_history_v1", "native_linkedin_company_detail_v1"].includes(row.attributionProvenance);
+  const text = captionlessHistory ? "" : ["tiktok", "facebook", "threads"].includes(platform) || exactNativeLinkedInBody || nativeYouTubeDom ? row.text : cleanString(row.text ?? row.content ?? row.body) ?? title;
   const checkedAt = observedAt;
-  const id = cleanString(row.id) ?? stableId(`${platform}:${platformPostId}:${entityId}`);
+  const id = scopeBatchDedupe
+    ? stableId(`${explicitBatchSlug(row)}:${platform}:${platformPostId}:${entityId}`)
+    : cleanString(row.id) ?? stableId(`${platform}:${platformPostId}:${entityId}`);
   if (targetKind === "a16z") {
     const normalized = {
+      ...(scopeBatchDedupe ? { batchSlug: explicitBatchSlug(row) } : {}),
       companySlug: entity.companySlug,
       companyName: entity.companyName,
       entityType: entity.entityType,
@@ -361,6 +418,8 @@ function normalizeEvidence(row, inputPath, rowIndex, entitiesById, targetKind) {
       ...(cleanString(row.thumbnailUrl) ? { thumbnailUrl: cleanString(row.thumbnailUrl) } : {}),
       ...(cleanString(row.thumbnailSource) ? { thumbnailSource: cleanString(row.thumbnailSource) } : {}),
       metrics,
+      ...(zeroEngagement || captionlessHistory ? zeroEngagementFields(row, captionlessHistory) : {}),
+      ...(unscoredNativePlatform ? unscoredNativePlatformFields(row, platform) : {}),
       rawVisibleText: rawVisibleText ?? JSON.stringify({
         source: "strict_source_hunt",
         metrics,
@@ -400,7 +459,9 @@ function normalizeEvidence(row, inputPath, rowIndex, entitiesById, targetKind) {
     }),
     postedAt,
     metrics,
-    contributionScore: Math.max(1, finiteNumber(row.contributionScore) ?? 1),
+    contributionScore: zeroEngagement || captionlessHistory || unknownYouTubePublication ? 0 : Math.max(1, finiteNumber(row.contributionScore) ?? 1),
+    ...(zeroEngagement || captionlessHistory ? zeroEngagementFields(row, captionlessHistory) : {}),
+    ...(unscoredNativePlatform ? unscoredNativePlatformFields(row, platform) : {}),
     review_state: "verified",
     matchReason: matchReason ?? "Native activity URL from a verified company or founder account with visible metrics.",
     first_seen_at: validTimestamp(row.first_seen_at) ?? observedAt,
@@ -437,15 +498,15 @@ function indexEvidenceRow(row, source) {
   sourceByRow.set(row, source);
   const normalized = normalizedIdentity(row);
   const entityId = canonicalEntityId(row, entitiesById, targetKind);
-  const identityKey = attributedIdentityKey(normalized.identity, entityId);
-  const urlKey = attributedIdentityKey(normalized.urlIdentity, entityId);
+  const identityKey = attributedIdentityKey(normalized.identity, entityId, row);
+  const urlKey = attributedIdentityKey(normalized.urlIdentity, entityId, row);
   if (identityKey) rowsByIdentity.set(identityKey, row);
   if (urlKey) rowsByUrl.set(urlKey, row);
 
   const contentIdentity = evidenceContentIdentity(row, entityId);
   if (!contentIdentity) return;
   for (const physicalKey of contentIdentity.keys) {
-    const contentKey = attributedIdentityKey(physicalKey, entityId);
+    const contentKey = attributedIdentityKey(physicalKey, entityId, row);
     if (!contentKey) continue;
     const indexed = rowsByContent.get(contentKey) ?? [];
     indexed.push({ row, contentIdentity });
@@ -455,21 +516,29 @@ function indexEvidenceRow(row, source) {
 
 function findDuplicate(row, entityId) {
   const normalized = normalizedIdentity(row);
-  const identityKey = attributedIdentityKey(normalized.identity, entityId);
+  const identityKey = attributedIdentityKey(normalized.identity, entityId, row);
   const identityMatch = identityKey ? rowsByIdentity.get(identityKey) : null;
   if (identityMatch) return { row: identityMatch, reason: "same_platform_post_id" };
 
-  const urlKey = attributedIdentityKey(normalized.urlIdentity, entityId);
+  const urlKey = attributedIdentityKey(normalized.urlIdentity, entityId, row);
   const urlMatch = urlKey ? rowsByUrl.get(urlKey) : null;
   if (urlMatch) return { row: urlMatch, reason: "same_canonical_source_url" };
 
   const incomingContentIdentity = evidenceContentIdentity(row, entityId);
   if (!incomingContentIdentity) return null;
   for (const physicalKey of incomingContentIdentity.keys) {
-    const contentKey = attributedIdentityKey(physicalKey, entityId);
+    const contentKey = attributedIdentityKey(physicalKey, entityId, row);
     for (const indexed of rowsByContent.get(contentKey) ?? []) {
       if (!sourceAuthorsCompatible(incomingContentIdentity, indexed.contentIdentity)) continue;
       if (!publicationTimesCompatible(incomingContentIdentity, indexed.contentIdentity)) continue;
+      // Full native Facebook history may repeat a caption on separate physical
+      // reels. Both exact owner/permalink receipts must pass; ID and URL matches
+      // above still dedupe, and other platforms retain their default contract.
+      const entity = entitiesById.get(entityId);
+      if (scopeBatchDedupe && retainZeroEngagement && explicitBatchSlug(row) === "F26" && row.platform === "facebook"
+        && row.platformPostId !== indexed.row.platformPostId
+        && verifiedNativeFacebookReasons(row, entity).length === 0
+        && verifiedNativeFacebookReasons(indexed.row, entity).length === 0) continue;
       return {
         row: indexed.row,
         reason: "same_platform_author_substantive_body",
@@ -505,8 +574,16 @@ function evidenceContentIdentity(row, entityId) {
   });
 }
 
-function attributedIdentityKey(physicalIdentity, entityId) {
-  return physicalIdentity && entityId ? `${entityId}:${physicalIdentity}` : null;
+function explicitBatchSlug(row) {
+  return cleanString(row?.batchSlug ?? row?.batch)?.toUpperCase() ?? null;
+}
+
+function attributedIdentityKey(physicalIdentity, entityId, row) {
+  if (!physicalIdentity || !entityId) return null;
+  const attribution = `${entityId}:${physicalIdentity}`;
+  return scopeBatchDedupe
+    ? `${explicitBatchSlug(row) ?? "[unscoped]"}:${attribution}`
+    : attribution;
 }
 
 function resolveInputAttribution(row, entitiesById, targetKind) {
@@ -733,6 +810,18 @@ function nativeIdentity(platform, sourceUrl) {
     const index = parts.findIndex((part) => part.toLowerCase() === "status");
     if (index > 0 && /^\d+$/.test(parts[index + 1] ?? "")) return { postId: parts[index + 1] };
   }
+  if (platform === "tiktok" && ["tiktok.com", "m.tiktok.com"].includes(host)) {
+    const match = url.pathname.match(/^\/@[A-Za-z0-9._-]+\/(?:video|photo)\/(\d+)\/?$/);
+    if (match) return { postId: match[1] };
+  }
+  if (platform === "facebook") {
+    const identity = facebookNativeIdentity(sourceUrl);
+    if (identity?.postId) return { postId: identity.postId };
+  }
+  if (platform === "threads") {
+    const identity = nativeThreadsIdentity(sourceUrl);
+    if (identity?.postId) return { postId: identity.postId };
+  }
   if (platform === "instagram" && host.endsWith("instagram.com") && /^(p|reel|tv)$/.test(parts[0] ?? "")) {
     if (/^[A-Za-z0-9_-]+$/.test(parts[1] ?? "")) return { postId: parts[1] };
   }
@@ -741,6 +830,9 @@ function nativeIdentity(platform, sourceUrl) {
     if (/^[A-Za-z0-9_-]{6,}$/.test(id ?? "")) return { postId: id };
   }
   if (platform === "linkedin" && host.endsWith("linkedin.com")) {
+    const ugc = url.pathname.match(/^\/feed\/update\/urn:li:ugcPost:(\d{10,})\/?$/i)?.[1]
+      ?? url.pathname.match(/^\/posts\/[^/]*-ugcPost-(\d{10,})(?:-[^/]+)?\/?$/i)?.[1];
+    if (ugc && (host === "linkedin.com" || host.endsWith(".linkedin.com"))) return { postId: `ugcPost:${ugc}` };
     const activity = sourceUrl.match(/(?:activity[:\-]|activity-)(\d{10,})/i)?.[1];
     const update = sourceUrl.match(/urn:li:(?:activity|share|ugcPost):(\d{10,})/i)?.[1];
     if (activity ?? update) return { postId: activity ?? update };
@@ -816,6 +908,106 @@ function hasPositiveScoringMetric(platform, metrics) {
   return [...(SCORING_METRICS[platform] ?? [])].some((key) => Number(metrics[key] ?? 0) > 0);
 }
 
+function zeroEngagementFields(row, captionlessHistory = false) {
+  return {
+    contributionScore: 0,
+    tractionStatus: "unscored",
+    tractionLimitations: [...new Set([
+      ...(Array.isArray(row.tractionLimitations) ? row.tractionLimitations : []),
+      captionlessHistory
+        ? "Native media has no visible caption. Its native identity, date, owner, media receipt and observed metrics are retained as unscored account-history metadata; no caption text is created."
+        : "Native original retained for account history without visible positive scoring metrics. Missing metrics remain unknown and this post contributes no traction score."
+    ])]
+  };
+}
+
+function unscoredNativePlatformFields(row, platform) {
+  return { contributionScore: 0, tractionStatus: "unscored", tractionLimitations: [...new Set([...(row.tractionLimitations ?? []), `No calibrated traction model is configured for ${platform}; observed native engagement is retained without a traction contribution.`])] };
+}
+
+function nativeYouTubeDomReasons(row, entity) {
+  return row.attributionProvenance === NATIVE_YOUTUBE_UNKNOWN_DATE_SOURCE
+    ? verifiedNativeYouTubeUnknownDateReasons(row, entity)
+    : verifiedNativeYouTubeDomReasons(row, entity);
+}
+
+/** This opt-in history lane binds an existing verified account receipt to the
+ * exact outer native post. It never upgrades reposts, search hits, or subjects
+ * of another account's post into company/founder originals. */
+function verifiedZeroNativeReasons(row, platform, native, entity, rawVisibleText, metrics) {
+  if (platform === "youtube" && /^authorized_native_youtube_.*_dom_v1$/.test(row.attributionProvenance ?? "")) return [
+    ...(!entity?.batchSlugs?.includes(explicitBatchSlug(row)) || !includedBatches.has(explicitBatchSlug(row)) ? ["zero_engagement_requires_explicit_canonical_batch_entity"] : []),
+    ...nativeYouTubeDomReasons(row, entity)
+  ];
+  if (["tiktok", "facebook", "threads"].includes(platform)) {
+    return [
+      ...(!entity?.batchSlugs?.includes(explicitBatchSlug(row)) || !includedBatches.has(explicitBatchSlug(row)) ? ["zero_engagement_requires_explicit_canonical_batch_entity"] : []),
+      ...(platform === "tiktok" ? verifiedNativeTikTokReasons(row, entity) : platform === "threads" ? verifiedNativeThreadsReasons(row) : verifiedNativeFacebookReasons(row, entity))
+    ];
+  }
+  const reasons = [];
+  const sources = {
+    x: "authenticated_native_x_ui_v1",
+    linkedin: "authorized_linkedin_browser_dom_v1",
+    instagram: "authorized_native_instagram_dom_v1"
+  };
+  const raw = parsedVisibleText(rawVisibleText);
+  const post = raw?.post;
+  const batch = explicitBatchSlug(row);
+  if (!sources[platform] || raw?.source !== sources[platform] || !post) return ["zero_engagement_requires_native_original_receipt"];
+  if (!entity?.batchSlugs?.includes(batch) || !includedBatches.has(batch)) reasons.push("zero_engagement_requires_explicit_canonical_batch_entity");
+  const signals = new Set(row.attributionSignals ?? []);
+  const requiredSignals = {
+    x: ["official_yc_roster_account", "native_post_author"],
+    linkedin: entity?.entityType === "founder"
+      ? ["official_yc_linked_founder_account", "visible_native_linkedin_post", "visible_author_matches_official_founder"]
+      : ["official_yc_linked_company_account", "visible_native_linkedin_post", "visible_author_matches_official_company"],
+    instagram: ["mapped_official_account", "exact_native_author"]
+  }[platform];
+  if (row.attributionVersion !== 3 || row.attributionStatus !== "verified" || !requiredSignals.every((signal) => signals.has(signal))) {
+    reasons.push("zero_engagement_requires_verified_account_attribution");
+  }
+  const rawUrl = canonicalUrl(post.url ?? post.sourceUrl);
+  const rawNative = nativeIdentity(platform, rawUrl);
+  const rawId = cleanString(post.id ?? post.platformPostId ?? post.shortcode);
+  if (!native || rawNative?.postId !== native.postId || rawId !== native.postId) reasons.push("zero_engagement_receipt_native_id_conflict");
+  const accountUrl = canonicalUrl(row.accountUrl);
+  const authorUrl = canonicalUrl(platform === "linkedin" ? post.author?.profileUrl : platform === "instagram" ? raw.identityProof?.profileUrl : raw.accountUrl);
+  if (!accountUrl || accountUrl !== authorUrl) reasons.push("zero_engagement_receipt_owner_conflict");
+  const canonicalAccountMatches = entity?.socialAccounts?.[platform]?.some((known) =>
+    platform === "x" ? known?.toLowerCase() === accountUrl?.toLowerCase() : known === accountUrl
+  );
+  if (platform !== "instagram" && !canonicalAccountMatches) reasons.push("zero_engagement_author_not_canonical_account");
+  const rowHandle = cleanString(row.authorHandle)?.replace(/^@/, "").toLowerCase();
+  const rawHandle = cleanString(post.authorHandle)?.replace(/^@/, "").toLowerCase();
+  if (platform !== "linkedin" && (!rowHandle || rowHandle !== rawHandle)) reasons.push("zero_engagement_receipt_author_conflict");
+  if (platform === "instagram") {
+    if (raw.identityProof?.entityId !== row.entityId || raw.identityProof?.review_state !== "verified") reasons.push("zero_engagement_receipt_identity_conflict");
+    const proofDomain = websiteDomain(raw.identityProof?.visibleWebsite);
+    if ((!proofDomain || proofDomain !== websiteDomain(entity?.websiteUrl)) && !isOfficialInstagramOutboundReceipt(raw.identityProof?.officialWebsiteOutboundReceipt, { slug: entity?.companySlug, websiteUrl: entity?.websiteUrl }, row.accountUrl) && !isVerifiedInstagramFounderSocialIdentity(raw.identityProof, { ...entity, entityId: row.entityId }) && !isVerifiedInstagramFounderTeamIdentity(raw.identityProof, { ...entity, entityId: row.entityId })) reasons.push("zero_engagement_receipt_official_domain_conflict");
+  } else {
+    const identityUrl = canonicalUrl(raw.officialIdentitySourceUrl ?? raw.identitySourceUrl);
+    if (identityUrl !== canonicalUrl(`https://www.ycombinator.com/companies/${entity?.companySlug}`)) reasons.push("zero_engagement_receipt_identity_conflict");
+  }
+  const verifiedCaptionAbsent = row.captionAbsent === true && post.captionAbsent === true && (
+    platform === "x" && isVerifiedNativeXCaptionlessPost(row) ||
+    platform === "instagram" && isVerifiedInstagramCaptionAbsence(post, post.captionAbsenceProof, row.authorHandle, native?.postId) ||
+    platform === "linkedin" && isVerifiedLinkedInCaptionAbsence(post, post.captionAbsenceProof, row.accountUrl, native?.postId)
+  );
+  if (row.captionAbsent === true && !verifiedCaptionAbsent) reasons.push("caption_absence_requires_exact_native_review_receipt");
+  if (!verifiedCaptionAbsent && (!cleanString(row.text) || cleanString(row.text) !== cleanString(post.text) || (row.originalText && cleanString(row.originalText) !== cleanString(post.text)))) reasons.push("zero_engagement_receipt_body_conflict");
+  if (row.bodyTruncated || post.bodyTruncated || post.is_retweet || post.isRepost || ["repost", "third_party_subject_context"].includes(post.kind)) reasons.push("zero_engagement_requires_original_body");
+  const rawMetrics = post.metrics ?? raw.metrics ?? {};
+  const rawNormalized = normalizeMetrics(platform, rawMetrics).metrics;
+  if (Object.keys(rawNormalized).length !== Object.keys(metrics).length || Object.entries(metrics).some(([key, value]) => rawNormalized[key] !== value)) reasons.push("zero_engagement_receipt_metrics_conflict");
+  for (const supplied of [row.metrics ?? {}, rawMetrics]) {
+    if (!supplied || typeof supplied !== "object" || Array.isArray(supplied) || Object.values(supplied).some((value) => typeof value !== "number" || !Number.isFinite(value) || value < 0)) {
+      reasons.push("zero_engagement_requires_nonnegative_observed_metrics");
+    }
+  }
+  return [...new Set(reasons)];
+}
+
 function sameAttribution(existing, incomingEntityId, entitiesById, targetKind) {
   return canonicalEntityId(existing, entitiesById, targetKind) === incomingEntityId;
 }
@@ -878,14 +1070,14 @@ function canonicalUrl(value) {
 function normalizePlatform(value) {
   const aliases = { twitter: "x", producthunt: "product_hunt", hn: "hacker_news", hackernews: "hacker_news" };
   const platform = aliases[String(value ?? "").toLowerCase()] ?? String(value ?? "").toLowerCase();
-  return new Set(["x", "instagram", "linkedin", "youtube", "github", "reddit", "product_hunt", "hacker_news"]).has(platform) ? platform : null;
+  return new Set(["x", "instagram", "linkedin", "tiktok", "facebook", "threads", "youtube", "github", "reddit", "product_hunt", "hacker_news"]).has(platform) ? platform : null;
 }
 
 function normalizeMediaType(value, platform, sourceUrl) {
   const supported = new Set(["text", "image", "video", "link", "repo", "launch", "unknown"]);
   const mediaType = String(value ?? "").toLowerCase();
   if (supported.has(mediaType)) return mediaType;
-  if (platform === "youtube") return "video";
+  if (platform === "youtube" || platform === "tiktok") return "video";
   if (platform === "instagram") return /\/(?:reel|tv)\//i.test(sourceUrl) ? "video" : "image";
   if (platform === "github") return "repo";
   if (platform === "product_hunt") return "launch";
@@ -954,26 +1146,36 @@ async function readJson(path) {
 }
 
 async function knownYcEntities() {
+  const founderAliases = await readJson(resolve(root, "src/lib/social/linkedin-founder-aliases-fall-2026.json"));
   const snapshots = await Promise.all([
     readJson(resolve(root, "src/lib/yc/spring-2026-companies.json")),
-    readJson(resolve(root, "src/lib/yc/summer-2026-companies.json"))
+    readJson(resolve(root, "src/lib/yc/summer-2026-companies.json")),
+    readJson(resolve(root, "src/lib/yc/fall-2026-companies.json"))
   ]);
   const entities = new Map();
   const currentCompanySlugs = new Set();
-  for (const snapshot of snapshots) {
+  for (const [snapshotIndex, snapshot] of snapshots.entries()) {
+    const batchSlug = ["S2026", "S26", "F26"][snapshotIndex];
     for (const company of snapshot.companies ?? []) {
       currentCompanySlugs.add(company.slug);
       entities.set(`company-${company.slug}`, {
         entityType: "company",
         companyName: company.name,
-        companySlug: company.slug
+        companySlug: company.slug,
+        websiteUrl: company.websiteUrl,
+        socialAccounts: knownSocialAccounts(company.socialLinks, entities.get(`company-${company.slug}`)?.socialAccounts),
+        batchSlugs: [...new Set([...(entities.get(`company-${company.slug}`)?.batchSlugs ?? []), batchSlug])]
       });
       for (const founder of company.founders ?? []) {
+        const founderLinks = batchSlug === "F26" ? { ...founder.socialLinks, linkedin: verifiedFallLinkedInFounderAccounts(company, founder, founderAliases) } : founder.socialLinks;
         entities.set(`founder-${company.slug}-${slugify(founder.name)}-${founder.id}`, {
           entityType: "founder",
           companyName: company.name,
           companySlug: company.slug,
-          founderName: founder.name
+          founderName: founder.name,
+          websiteUrl: company.websiteUrl,
+          socialAccounts: knownSocialAccounts(founderLinks, entities.get(`founder-${company.slug}-${slugify(founder.name)}-${founder.id}`)?.socialAccounts),
+          batchSlugs: [...new Set([...(entities.get(`founder-${company.slug}-${slugify(founder.name)}-${founder.id}`)?.batchSlugs ?? []), batchSlug])]
         });
       }
     }
@@ -986,11 +1188,32 @@ async function knownYcEntities() {
         entityType: row.entityType,
         companyName: row.companyName ?? existing?.companyName,
         companySlug: row.companySlug ?? existing?.companySlug,
-        founderName: existing?.founderName
+        founderName: existing?.founderName,
+        websiteUrl: existing?.websiteUrl,
+        socialAccounts: existing?.socialAccounts,
+        batchSlugs: existing?.batchSlugs
       });
     }
   }
   return entities;
+}
+
+function knownSocialAccounts(links, previous = {}) {
+  const result = { ...previous };
+  for (const [platform, value] of Object.entries(links ?? {})) {
+    for (const candidate of Array.isArray(value) ? value : [value]) {
+      const url = canonicalUrl(candidate);
+      if (url) result[platform] = [...new Set([...(result[platform] ?? []), url])];
+    }
+  }
+  return result;
+}
+
+function websiteDomain(value) {
+  const text = cleanString(value);
+  if (!text) return null;
+  try { return new URL(text.includes("://") ? text : `https://${text}`).hostname.toLowerCase().replace(/^www\./, ""); }
+  catch { return null; }
 }
 
 async function knownA16zEntities() {
@@ -1008,7 +1231,8 @@ async function knownA16zEntities() {
     addUniqueEntity(entities, `a16z-speedrun-006-${companySlug}`, {
       entityType: "company",
       companyName,
-      companySlug
+      companySlug,
+      batchSlugs: ["A16ZSR006"]
     });
     for (const founder of company.founders ?? []) {
       const founderName = cleanString(founder.name);
@@ -1017,7 +1241,8 @@ async function knownA16zEntities() {
         entityType: "founder",
         companyName,
         companySlug,
-        founderName
+        founderName,
+        batchSlugs: ["A16ZSR006"]
       });
     }
   }

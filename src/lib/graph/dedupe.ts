@@ -1,5 +1,7 @@
 import type { EvidenceItem } from "./types";
 import { normalizeMetricsForScoring } from "../scoring/traction-config";
+import { facebookNativeIdentity } from "./facebook-native-identity.mjs";
+import { nativeThreadsIdentity } from "./threads-native-identity.mjs";
 
 const TRACKING_PARAMS = /^(utm_|fbclid$|gclid$|igshid$|mc_|ref$|ref_src$|s$|t$)/i;
 const OBJECT_ID = /^[A-Za-z0-9_-]+$/;
@@ -99,6 +101,11 @@ export function canonicalEvidenceUrl(rawUrl: string): string {
     if (url.hostname.endsWith("linkedin.com")) {
       url.search = "";
       url.pathname = url.pathname.replace(/\/$/, "");
+    }
+
+    if (url.hostname === "facebook.com") {
+      const native = facebookNativeIdentity(url.toString());
+      if (native) return native.sourceUrl.replace(/^https:\/\/www\./, "https://");
     }
 
     url.pathname = url.pathname.replace(/\/$/, "");
@@ -353,8 +360,12 @@ export function nativeEvidenceIdentityFromUrl(
 
     if (platform === "tiktok") {
       if (!hostIs(host, "tiktok.com", "m.tiktok.com")) return null;
-      return path.match(/^\/@[A-Za-z0-9._-]+\/video\/(\d+)$/i)?.[1] ?? null;
+      return path.match(/^\/@[A-Za-z0-9._-]+\/(?:video|photo)\/(\d+)$/i)?.[1] ?? null;
     }
+    if (platform === "facebook") {
+      return facebookNativeIdentity(rawUrl)?.postId ?? null;
+    }
+    if (platform === "threads") return nativeThreadsIdentity(rawUrl)?.postId ?? null;
 
     if (platform === "bluesky") {
       if (host !== "bsky.app") return null;
@@ -369,6 +380,9 @@ export function nativeEvidenceIdentityFromUrl(
 
     if (platform === "linkedin") {
       if (!hostIsDomainOrSubdomain(host, "linkedin.com")) return null;
+      const ugcId = path.match(/^\/feed\/update\/urn:li:ugcPost:(\d+)$/i)?.[1]
+        ?? path.match(/^\/posts\/[^/]*-ugcPost-(\d+)(?:-[^/]+)?$/i)?.[1];
+      if (ugcId) return `ugcPost:${ugcId}`;
       const feedId = path.match(/^\/feed\/update\/urn:li:activity:(\d+)$/i)?.[1];
       if (feedId) return feedId;
       const postSegment = path.match(/^\/posts\/([^/]+)$/i)?.[1];
@@ -479,7 +493,7 @@ function platformPostIdIdentity(
     return nativeEvidenceIdentityFromUrl(platform, value) ?? value;
   }
   if (platform === "x") return value.match(/(?:^|\/)status\/(\d+)/i)?.[1] ?? value;
-  if (platform === "tiktok") return value.match(/(?:^|\/)video\/(\d+)/i)?.[1] ?? value;
+  if (platform === "tiktok") return value.match(/(?:^|\/)(?:video|photo)\/(\d+)/i)?.[1] ?? value;
   if (platform === "bluesky") {
     const atUri = value.match(/^at:\/\/([^/]+)\/app\.bsky\.feed\.post\/([^/]+)$/i);
     if (atUri) return blueskyPostIdentity(atUri[1], atUri[2]);
@@ -492,7 +506,10 @@ function platformPostIdIdentity(
       validObjectId(value) ??
       value;
   }
-  if (platform === "linkedin") return value.match(/activity[-:](\d+)/i)?.[1] ?? value;
+  if (platform === "linkedin") {
+    const ugcId = value.match(/ugcPost[-:](\d+)/i)?.[1];
+    return ugcId ? `ugcPost:${ugcId}` : value.match(/activity[-:](\d+)/i)?.[1] ?? value;
+  }
   if (platform === "youtube") {
     return value.match(/^(?:shorts|live)\/([A-Za-z0-9_-]+)$/i)?.[1] ?? validObjectId(value) ?? value;
   }
