@@ -30,6 +30,8 @@ const SAFE_EXACT_PATHS = new Set([
   "src/lib/social/logged-in-evidence-current.json",
   "src/lib/social/public-evidence-current.json",
   "src/lib/social/targeted-evidence-current.json",
+  "src/lib/social/targeted-evidence-current.json.gz",
+  "src/lib/social/targeted-evidence-current.pack.json",
   "src/lib/yc/summer-2026-companies.json",
   "src/lib/yc/summer-2026-company-aliases.json"
 ]);
@@ -45,11 +47,11 @@ const SAFE_INERT_PUBLICATION_BASE_EXACT_PATHS = new Set([
 ]);
 
 const SAFE_GENERATED_PATH_PATTERNS = Object.freeze([
-  /^outputs\/benchmarks\/(?:a16zsr006|s2025|s2026|s26|w2026)-score-benchmarks\.json$/,
-  /^public\/graph\/(?:a16zsr006|s2026|s26)(?:-(?:insiders|yc-partners))?\.json$/,
+  /^outputs\/benchmarks\/(?:a16zsr006|f26|s2025|s2026|s26|w2026)-score-benchmarks\.json$/,
+  /^public\/graph\/(?:a16zsr006|f26|s2026|s26)(?:-(?:insiders|yc-partners))?\.json$/,
   /^public\/timelines\/companies\/[a-z0-9](?:[a-z0-9-]{0,126}[a-z0-9])?\.json$/,
   /^public\/timelines\/events\/tle-[0-9a-f]{24}\.json$/,
-  /^public\/topic-facets\/(?:a16zsr006|s2026|s26)\.json$/
+  /^public\/topic-facets\/(?:a16zsr006|f26|s2026|s26)\.json$/
 ]);
 
 // A concurrent main advance may contain ordinary application source changes.

@@ -10,21 +10,27 @@ const sha256 = (bytes) => createHash("sha256").update(bytes).digest("hex");
 const validHash = (value) => /^[a-f0-9]{64}$/.test(value ?? "");
 const exists = async (path) => { try { await access(path); return true; } catch (error) { if (error.code === "ENOENT") return false; throw error; } };
 
-/** Restore the exact committed bytes on a fresh checkout; preserve local ingestion work. */
-export async function materializeTargetedEvidence({ rootDir = process.cwd() } = {}) {
-  const root = resolve(rootDir), target = join(root, TARGETED_EVIDENCE_PATH);
-  if (await exists(target)) return { status: "existing", path: TARGETED_EVIDENCE_PATH };
-  const manifest = JSON.parse(await readFile(join(root, TARGETED_EVIDENCE_MANIFEST_PATH), "utf8"));
-  if (manifest.version !== 1 || manifest.path !== TARGETED_EVIDENCE_PATH || manifest.packPath !== TARGETED_EVIDENCE_PACK_PATH
+/** Verify immutable packed bytes for filesystem and Git-ref readers alike. */
+export function decodePackedTargetedEvidence(manifest, packed) {
+  if (!manifest || manifest.version !== 1 || manifest.path !== TARGETED_EVIDENCE_PATH || manifest.packPath !== TARGETED_EVIDENCE_PACK_PATH
     || !validHash(manifest.sha256) || !validHash(manifest.packSha256)
     || !Number.isSafeInteger(manifest.bytes) || manifest.bytes < 1 || manifest.bytes > 1024 ** 3
     || !Number.isSafeInteger(manifest.packBytes) || manifest.packBytes < 1 || manifest.packBytes >= 100 * 1024 ** 2) {
     throw new Error("Invalid targeted evidence pack manifest");
   }
-  const packed = await readFile(join(root, TARGETED_EVIDENCE_PACK_PATH));
   if (packed.length !== manifest.packBytes || sha256(packed) !== manifest.packSha256) throw new Error("Targeted evidence compressed checksum mismatch");
   const bytes = gunzipSync(packed, { maxOutputLength: manifest.bytes });
   if (bytes.length !== manifest.bytes || sha256(bytes) !== manifest.sha256) throw new Error("Targeted evidence restored checksum mismatch");
+  return bytes;
+}
+
+/** Restore the exact committed bytes on a fresh checkout; preserve local ingestion work. */
+export async function materializeTargetedEvidence({ rootDir = process.cwd() } = {}) {
+  const root = resolve(rootDir), target = join(root, TARGETED_EVIDENCE_PATH);
+  if (await exists(target)) return { status: "existing", path: TARGETED_EVIDENCE_PATH };
+  const manifest = JSON.parse(await readFile(join(root, TARGETED_EVIDENCE_MANIFEST_PATH), "utf8"));
+  const packed = await readFile(join(root, TARGETED_EVIDENCE_PACK_PATH));
+  const bytes = decodePackedTargetedEvidence(manifest, packed);
   JSON.parse(bytes.toString("utf8"));
   await mkdir(dirname(target), { recursive: true });
   const temporary = `${target}.${randomUUID()}.tmp`;
