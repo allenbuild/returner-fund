@@ -44,7 +44,7 @@ const REPORT_PATH = path.join(
   "outputs",
   "scoring-diagnostics-v4-report.md"
 );
-// This audit deliberately loads and rescans every scored row in all three cohorts.
+// This audit deliberately loads and rescans every scored row in all four cohorts.
 // The volume publication can add tens of thousands of rows to the runtime snapshot,
 // so allow the bounded watchdog to scale to a cold shared-runner execution while
 // keeping the release job's own timeout as the outer safety limit.
@@ -122,6 +122,11 @@ test(
     const retention = validateBoundedScoringAuditRetention(audit);
     const auditBytes = Buffer.byteLength(regenerated.audit);
     assert.equal(audit.metadata.schema_version, SCORING_AUDIT_SCHEMA_VERSION);
+    assert.deepEqual(
+      audit.cohorts.map((cohort) => cohort.cohort).sort(),
+      ["A16ZSR006", "F26", "S2026", "S26"]
+    );
+    assert.equal(audit.global_summary.cohort_count, 4);
     assert.equal(
       retention.example_limit_per_collection,
       SCORING_AUDIT_DETAIL_EXAMPLE_LIMIT

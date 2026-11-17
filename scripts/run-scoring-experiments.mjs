@@ -3,6 +3,7 @@ import { execFileSync, spawnSync } from "node:child_process";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { incrementalCanonicalSha256 } from "./lib/incremental-canonical-sha256.mjs";
 
 const REPOSITORY_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const SCRIPT_PATH = fileURLToPath(import.meta.url);
@@ -179,7 +180,7 @@ const experimentReport = {
     production_config_mutated: productionConfigHashBefore !== productionConfigHashAfter,
     normalization_parity_assertions: normalizationParityAssertions,
     input_hashes: inputHashes,
-    dataset_sha256: sha256(canonicalJson(yc2026GraphDataset)),
+    dataset_sha256: incrementalCanonicalSha256(yc2026GraphDataset),
     safety: {
       input_mode: "read_only_local_snapshots",
       network_fetch: "disabled",

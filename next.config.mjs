@@ -1,6 +1,12 @@
 const benchmarkRuntimeData = [
   "outputs/benchmarks/**/*.json",
 ];
+// Next's serverless launcher imports these through runtime indirection. The
+// native route trace omits them even though the full bootstrap requires both.
+const nextBootstrapRuntimeData = [
+  "node_modules/next/dist/lib/framework/boundary-constants.js",
+  "node_modules/@swc/helpers/_/_interop_require_default/package.json"
+];
 const graphEvidenceRuntimeData = [
   "generated-runtime/graph/public-evidence-current.json.gz",
   "generated-runtime/graph/logged-in-evidence-current.json.gz",
@@ -55,7 +61,8 @@ const graphTraceExcludes = [
   "README.md",
   "next.config.mjs",
   "package-lock.json",
-  "package.json",
+  // A bare package.json exclusion also prunes dependency descriptors. Next's
+  // serverless bootstrap needs their main/exports entries before our handler.
   "pnpm-lock.yaml",
   "pnpm-workspace.yaml",
   "tsconfig.json",
@@ -262,11 +269,11 @@ const nextConfig = {
     ];
   },
   outputFileTracingIncludes: {
-    [canonicalGraphTraceKey]: [...benchmarkRuntimeData, ...publishedGraphRuntimeSnapshots],
-    "/api/graph/route": [...benchmarkRuntimeData, ...publishedGraphRuntimeSnapshots],
+    [canonicalGraphTraceKey]: [...nextBootstrapRuntimeData, ...benchmarkRuntimeData, ...publishedGraphRuntimeSnapshots],
+    "/api/graph/route": [...nextBootstrapRuntimeData, ...benchmarkRuntimeData, ...publishedGraphRuntimeSnapshots],
     "/api/yc-partners": ["public/graph/*.json"],
-    "/api/graph/full": graphRuntimeData,
-    "/api/graph/refresh": [...graphRuntimeData, "public/graph/*.json"],
+    "/api/graph/full": [...nextBootstrapRuntimeData, ...graphRuntimeData],
+    "/api/graph/refresh": [...nextBootstrapRuntimeData, ...graphRuntimeData, "public/graph/*.json"],
     "/debug/duplicates": graphRuntimeData,
     "/debug/evidence": graphRuntimeData,
     "/debug/instagram-coverage": [
@@ -276,9 +283,9 @@ const nextConfig = {
     "/debug/scoring": graphRuntimeData,
     "/debug/thumbnails": graphRuntimeData,
     "/debug/workers": graphRuntimeData,
-    "/api/insiders/recompute": [...insiderRuntimeSnapshots, ...benchmarkRuntimeData],
+    "/api/insiders/recompute": [...nextBootstrapRuntimeData, ...insiderRuntimeSnapshots, ...benchmarkRuntimeData],
     "/api/companies/[slug]/timeline": [...timelineRuntimeData, ...timelineInternalRuntimeData],
-    "/api/v1/companies/*/returner-fund": returnerFundApiSnapshots,
+    "/api/v1/companies/*/returner-fund": [...nextBootstrapRuntimeData, ...returnerFundApiSnapshots],
     "/api/timeline/events/[eventId]": [...timelineRuntimeData, ...timelineInternalRuntimeData],
     "/api/admin/timeline/**/*": [...timelineRuntimeData, ...timelineInternalRuntimeData],
     "/dashboard": dashboardRuntimeData,

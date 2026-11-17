@@ -4,6 +4,8 @@ import { access, mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
+import { BATCH_SNAPSHOTS } from "../../scripts/update-daily-benchmarks.mjs";
+import { GRAPH_ARTIFACTS, HISTORY_ARTIFACTS } from "../../scripts/validate-public-artifacts.mjs";
 import {
   SCORING_V4_MIGRATIONS,
   buildMigrationApplyArgs,
@@ -131,7 +133,7 @@ test("migration dry-run and missing environment paths execute no database comman
   assert.equal(commandCalls, 0);
 });
 
-test("publisher covers nine graphs and three histories through the existing direct-Next publisher", async () => {
+test("publisher covers twelve graphs and four histories through the existing direct-Next publisher", async () => {
   assert.doesNotThrow(() => assertArtifactCoverage());
   assert.throws(() => parsePublishArgs(["--port=0"], {}), /Invalid --port/);
   assert.throws(
@@ -142,8 +144,12 @@ test("publisher covers nine graphs and three histories through the existing dire
 
   const args = parsePublishArgs(["--dry-run", "--port=3199"], {});
   const plan = buildPublicationPlan({ rootDir: REPOSITORY_ROOT, args });
-  assert.equal(plan.graphPaths.length, 9);
-  assert.equal(plan.historyPaths.length, 3);
+  assert.equal(plan.graphPaths.length, 12);
+  assert.equal(plan.historyPaths.length, 4);
+  for (const suffix of ["", "-insiders", "-yc-partners"]) {
+    assert.ok(plan.graphPaths.includes(`public/graph/f26${suffix}.json`));
+  }
+  assert.ok(plan.historyPaths.includes("outputs/benchmarks/f26-score-benchmarks.json"));
   assert.match(plan.commands.find((command) => command.label === "publish").args[0], /update-daily-benchmarks\.mjs$/);
   assert.match(plan.commands.find((command) => command.label === "validate").args[0], /validate-public-artifacts\.mjs$/);
 
@@ -156,8 +162,8 @@ test("publisher covers nine graphs and three histories through the existing dire
       }
     })
   );
-  assert.equal(dryRun.graphSnapshots, 9);
-  assert.equal(dryRun.historyFiles, 3);
+  assert.equal(dryRun.graphSnapshots, 12);
+  assert.equal(dryRun.historyFiles, 4);
   assert.equal(dryRun.databaseBackfillPerformed, false);
 
   const calls = [];
@@ -179,6 +185,19 @@ test("publisher covers nine graphs and three histories through the existing dire
     "update-daily-benchmarks.mjs",
     "validate-public-artifacts.mjs"
   ]);
+});
+
+test("publisher refuses missing, duplicate, misattributed and mismatched artifact families", () => {
+  assert.throws(() => assertArtifactCoverage({ batchSnapshots: BATCH_SNAPSHOTS.slice(0, 9) }), /twelve graphs and four histories/);
+  const duplicate = BATCH_SNAPSHOTS.map((row) => ({ ...row }));
+  duplicate[11] = { ...duplicate[10] };
+  assert.throws(() => assertArtifactCoverage({ batchSnapshots: duplicate }), /do not match/);
+  const wrongBatch = GRAPH_ARTIFACTS.map((row, i) => i === 11 ? { ...row, batch: "S26" } : row);
+  assert.throws(() => assertArtifactCoverage({ graphArtifacts: wrongBatch }), /exactly once/);
+  const wrongAudience = BATCH_SNAPSHOTS.map((row, i) => i === 11 ? { ...row, topVoices: "yc_partners" } : row);
+  assert.throws(() => assertArtifactCoverage({ batchSnapshots: wrongAudience }), /exactly once/);
+  const wrongHistory = HISTORY_ARTIFACTS.map((row, i) => i === 3 ? { ...row, path: "outputs/benchmarks/s26-score-benchmarks.json" } : row);
+  assert.throws(() => assertArtifactCoverage({ historyArtifacts: wrongHistory }), /exactly once/);
 });
 
 test("rollback preparation is read-only and preserves model and history rows", async () => {

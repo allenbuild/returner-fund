@@ -31,7 +31,7 @@ const REPORT_WRITE_PATH = resolveOutputPath("--report-output", REPORT_OUTPUT_PAT
 const DEFAULT_FROZEN_CLOCK = "2026-07-17T12:00:00.000Z";
 const FROZEN_CLOCK = argumentValue("--clock") ?? DEFAULT_FROZEN_CLOCK;
 const EXPECTED_INPUT_SHA256 = argumentValue("--expect-input-sha256");
-const COHORT_SLUGS = ["S2026", "S26", "A16ZSR006"];
+const COHORT_SLUGS = ["S2026", "S26", "A16ZSR006", "F26"];
 const PUBLICATION_DATE_ISSUES = new Set([
   "missing_or_invalid_publication_date",
   "publication_date_precision_unknown",

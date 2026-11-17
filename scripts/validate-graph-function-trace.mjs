@@ -1,4 +1,4 @@
-import { readFileSync, statSync } from "node:fs";
+import { existsSync, readFileSync, statSync } from "node:fs";
 import { dirname, isAbsolute, normalize, relative, resolve, sep } from "node:path";
 
 const MEBIBYTE = 1024 * 1024;
@@ -22,6 +22,10 @@ const MAX_DEBUG_TRACE_BYTES = 190 * MEBIBYTE;
 // function budget for those release-time refresh inputs.
 const MAX_REFRESH_TRACE_BYTES = 225 * MEBIBYTE;
 const REPOSITORY_ROOT = resolve(".");
+const NEXT_BOOTSTRAP_RUNTIME_DEPENDENCIES = [
+  "node_modules/next/dist/lib/framework/boundary-constants.js",
+  "node_modules/@swc/helpers/_/_interop_require_default/package.json"
+];
 const GRAPH_RUNTIME_PROJECTIONS = [
   "generated-runtime/graph/public-evidence-current.json.gz",
   "generated-runtime/graph/logged-in-evidence-current.json.gz",
@@ -78,6 +82,7 @@ const routeTraces = [
     manifest: ".next/server/app/api/graph/route.js.nft.json",
     maxBytes: MAX_TRACE_BYTES,
     required: [
+      ...NEXT_BOOTSTRAP_RUNTIME_DEPENDENCIES,
       "generated-runtime/published-graph/s2026.json.gz",
       "generated-runtime/published-graph/s2026-yc-partners.json.gz",
       "generated-runtime/published-graph/s2026-insiders.json.gz",
@@ -102,7 +107,7 @@ const routeTraces = [
     label: "full graph diagnostics",
     manifest: ".next/server/app/api/graph/full/route.js.nft.json",
     maxBytes: MAX_FULL_GRAPH_TRACE_BYTES,
-    required: GRAPH_RUNTIME_PROJECTIONS,
+    required: [...NEXT_BOOTSTRAP_RUNTIME_DEPENDENCIES, ...GRAPH_RUNTIME_PROJECTIONS],
     forbidden: [
       `${normalize("/generated-runtime/published-graph/")}`,
       `${normalize("/public/graph/")}`,
@@ -114,7 +119,7 @@ const routeTraces = [
     label: "graph refresh",
     manifest: ".next/server/app/api/graph/refresh/route.js.nft.json",
     maxBytes: MAX_REFRESH_TRACE_BYTES,
-    required: GRAPH_RUNTIME_PROJECTIONS,
+    required: [...NEXT_BOOTSTRAP_RUNTIME_DEPENDENCIES, ...GRAPH_RUNTIME_PROJECTIONS],
     forbidden: [
       `${normalize("/generated-runtime/published-graph/")}`,
       ...WHOLE_REPOSITORY_TRACE_FRAGMENTS,
@@ -126,6 +131,7 @@ const routeTraces = [
     manifest: ".next/server/app/api/insiders/recompute/route.js.nft.json",
     maxBytes: 70 * MEBIBYTE,
     required: [
+      ...NEXT_BOOTSTRAP_RUNTIME_DEPENDENCIES,
       "generated-runtime/published-graph/s2026.json.gz",
       "generated-runtime/published-graph/s2026-insiders.json.gz",
       "generated-runtime/published-graph/s26.json.gz",
@@ -152,6 +158,7 @@ const routeTraces = [
     manifest: ".next/server/app/api/v1/companies/[slug]/returner-fund/route.js.nft.json",
     maxBytes: 75 * MEBIBYTE,
     required: [
+      ...NEXT_BOOTSTRAP_RUNTIME_DEPENDENCIES,
       "generated-runtime/published-graph/s2026.json.gz",
       "generated-runtime/published-graph/s26.json.gz",
       "generated-runtime/published-graph/f26.json.gz",
@@ -185,6 +192,7 @@ const routeTraces = [
 ];
 
 let failed = false;
+const nodePackageDescriptors = new Map();
 
 for (const route of routeTraces) {
   const manifestPath = resolve(route.manifest);
@@ -210,6 +218,12 @@ for (const route of routeTraces) {
       (filePath) => normalize(filePath) === resolvedRequiredPath
     );
   });
+  // Directory imports can need package.json even when their main JS file is
+  // present. A bare tracing exclusion used to strip these from Next's own
+  // bootstrap, so validate the package boundary for every traced dependency.
+  const tracedPaths = new Set(tracedFiles.map((filePath) => normalize(filePath)));
+  const missingPackageDescriptors = [...new Set(tracedFiles.map(nodePackageDescriptor)
+    .filter((filePath) => filePath !== null && !tracedPaths.has(filePath)))];
 
   console.log(
     `${route.label} trace: ${tracedFiles.length} entries, ${(traceBytes / MEBIBYTE).toFixed(1)} MiB`
@@ -233,10 +247,40 @@ for (const route of routeTraces) {
     );
     failed = true;
   }
+  if (missingPackageDescriptors.length) {
+    console.error(
+      `${route.label} trace is missing Node package descriptors:\n${missingPackageDescriptors.join("\n")}`
+    );
+    failed = true;
+  }
 }
 
 if (failed) {
   process.exitCode = 1;
+}
+
+function nodePackageDescriptor(filePath) {
+  const policyPath = repositoryRelativePolicyPath(filePath);
+  if (policyPath === null || !policyPath.startsWith(`${sep}node_modules${sep}`)) return null;
+  let directory = dirname(filePath);
+  const nodeModulesRoot = resolve("node_modules");
+  const visited = [];
+  while (directory !== nodeModulesRoot && directory.startsWith(`${nodeModulesRoot}${sep}`)) {
+    if (nodePackageDescriptors.has(directory)) {
+      const descriptor = nodePackageDescriptors.get(directory);
+      for (const parent of visited) nodePackageDescriptors.set(parent, descriptor);
+      return descriptor;
+    }
+    visited.push(directory);
+    const candidate = resolve(directory, "package.json");
+    if (existsSync(candidate)) {
+      for (const parent of visited) nodePackageDescriptors.set(parent, candidate);
+      return candidate;
+    }
+    directory = dirname(directory);
+  }
+  for (const parent of visited) nodePackageDescriptors.set(parent, null);
+  return null;
 }
 
 function repositoryRelativePolicyPath(filePath) {

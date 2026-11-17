@@ -138,19 +138,43 @@ export async function main(
   return result;
 }
 
-export function assertArtifactCoverage() {
-  if (BATCH_SNAPSHOTS.length !== 9 || GRAPH_ARTIFACTS.length !== 9 || HISTORY_ARTIFACTS.length !== 3) {
-    throw new Error("Scoring-v4 publication must cover exactly nine graphs and three histories.");
+export function assertArtifactCoverage({
+  batchSnapshots = BATCH_SNAPSHOTS,
+  graphArtifacts = GRAPH_ARTIFACTS,
+  historyArtifacts = HISTORY_ARTIFACTS
+} = {}) {
+  if (batchSnapshots.length !== 12 || graphArtifacts.length !== 12 || historyArtifacts.length !== 4) {
+    throw new Error("Scoring-v4 publication must cover exactly twelve graphs and four histories.");
   }
   const publisherPaths = new Set(
-    BATCH_SNAPSHOTS.map((snapshot) => path.posix.join("public", "graph", snapshot.filename))
+    batchSnapshots.map((snapshot) => path.posix.join("public", "graph", snapshot.filename))
   );
-  const validatorPaths = new Set(GRAPH_ARTIFACTS.map((artifact) => artifact.path));
+  const validatorPaths = new Set(graphArtifacts.map((artifact) => artifact.path));
   if (
     publisherPaths.size !== validatorPaths.size ||
     [...publisherPaths].some((artifactPath) => !validatorPaths.has(artifactPath))
   ) {
     throw new Error("Publisher and validator graph artifact sets do not match.");
+  }
+  const batches = ["S2026", "S26", "A16ZSR006", "F26"];
+  const audiences = [["off", ""], ["yc_partners", "-yc-partners"], ["insiders", "-insiders"]];
+  const expectedGraphs = new Set(batches.flatMap((batch) => audiences.map(([audience, suffix]) =>
+    `${batch}:${audience}:public/graph/${batch.toLowerCase()}${suffix}.json`
+  )));
+  const publisherFamilies = new Set(batchSnapshots.map((snapshot) =>
+    `${snapshot.slug}:${snapshot.topVoices ?? "off"}:public/graph/${snapshot.filename}`
+  ));
+  const validatorFamilies = new Set(graphArtifacts.map((artifact) =>
+    `${artifact.batch}:${artifact.audience}:${artifact.path}`
+  ));
+  const expectedHistories = new Set(batches.map((batch) =>
+    `${batch}:outputs/benchmarks/${batch.toLowerCase()}-score-benchmarks.json`
+  ));
+  const actualHistories = new Set(historyArtifacts.map((artifact) => `${artifact.batch}:${artifact.path}`));
+  if ([publisherFamilies, validatorFamilies].some((families) =>
+    families.size !== expectedGraphs.size || [...expectedGraphs].some((family) => !families.has(family))
+  ) || actualHistories.size !== expectedHistories.size || [...expectedHistories].some((family) => !actualHistories.has(family))) {
+    throw new Error("Scoring-v4 artifact paths must cover each supported cohort and audience exactly once.");
   }
 }
 

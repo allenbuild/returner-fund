@@ -31,6 +31,10 @@ const returnerFundApiSnapshots = [
   "generated-runtime/published-graph/f26.json.gz",
   "generated-runtime/published-graph/a16zsr006.json.gz"
 ];
+const nextBootstrapRuntimeDependencies = [
+  "node_modules/next/dist/lib/framework/boundary-constants.js",
+  "node_modules/@swc/helpers/_/_interop_require_default/package.json"
+];
 
 describe("graph runtime trace contract", () => {
   it("accepts full and refresh traces containing every compact evidence projection", () => {
@@ -137,6 +141,22 @@ describe("graph runtime trace contract", () => {
     for (const projection of graphRuntimeProjections) expect(config).toContain(`"${projection}"`);
     expect(config).not.toMatch(/generated-runtime\/graph\/[a-z-]+-evidence-current\.json["']/);
   });
+
+  it.each(["graph", "full", "refresh", "insider", "company"])("rejects missing Node bootstrap metadata in the %s trace", (route) => {
+    const result = runValidator({ missingBootstrapDescriptorFrom: route });
+    expect(result.status).toBe(1);
+    expect(result.output).toContain("trace is missing Node package descriptors:");
+    expect(result.output).toContain("node_modules/next/dist/compiled/source-map/package.json");
+  });
+
+  it.each(["graph", "full", "refresh", "insider", "company"].flatMap((route) =>
+    nextBootstrapRuntimeDependencies.map((dependency) => ({ route, dependency }))
+  ))("rejects a missing launcher asset in $route: $dependency", ({ route, dependency }) => {
+    const result = runValidator({ missingBootstrapAssetFrom: route, missingBootstrapAsset: dependency });
+    expect(result.status).toBe(1);
+    expect(result.output).toContain("trace is missing required runtime snapshots:");
+    expect(result.output).toContain(dependency);
+  });
 });
 
 function runValidator(options: {
@@ -149,6 +169,9 @@ function runValidator(options: {
   leakUncompressedIntoFull?: string;
   leakUnusedGraphSnapshotIntoReturnerApi?: boolean;
   runUnderWorkParent?: boolean;
+  missingBootstrapDescriptorFrom?: string;
+  missingBootstrapAssetFrom?: string;
+  missingBootstrapAsset?: string;
 } = {}) {
   const fixtureRoot = mkdtempSync(join(tmpdir(), "graph-trace-contract-"));
   const root = options.runUnderWorkParent
@@ -159,20 +182,34 @@ function runValidator(options: {
     for (const file of [...publishedGraphSnapshots, ...graphRuntimeProjections]) {
       writeFixtureFile(root, file);
     }
+    for (const dependency of nextBootstrapRuntimeDependencies) writeFixtureFile(root, dependency);
 
     const rawPublicSnapshot = "public/graph/f26.json";
     if (options.leakPublicSnapshot) writeFixtureFile(root, rawPublicSnapshot);
     const graphFiles = publishedGraphSnapshots.filter((file) => file !== options.missingFromGraph);
+    const bootstrapMain = "node_modules/next/dist/compiled/source-map/source-map.js";
+    const bootstrapDescriptor = "node_modules/next/dist/compiled/source-map/package.json";
+    if (options.missingBootstrapDescriptorFrom) {
+      writeFixtureFile(root, bootstrapMain);
+      writeFixtureFile(root, bootstrapDescriptor);
+    }
+    const withBootstrap = (route: string, files: string[]) => [
+      ...files,
+      ...nextBootstrapRuntimeDependencies.filter((dependency) =>
+        !(options.missingBootstrapAssetFrom === route && options.missingBootstrapAsset === dependency)
+      ),
+      ...(options.missingBootstrapDescriptorFrom === route ? [bootstrapMain] : [])
+    ];
     if (options.leakPublicSnapshot === "graph") graphFiles.push(rawPublicSnapshot);
-    writeManifest(root, ".next/server/app/api/graph/route.js.nft.json", graphFiles);
+    writeManifest(root, ".next/server/app/api/graph/route.js.nft.json", withBootstrap("graph", graphFiles));
     writeManifest(
       root,
       ".next/server/app/api/v1/companies/[slug]/returner-fund/route.js.nft.json",
-      [
+      withBootstrap("company", [
         ...returnerFundApiSnapshots,
         ...(options.leakPublicSnapshot === "company" ? [rawPublicSnapshot] : []),
         ...(options.leakUnusedGraphSnapshotIntoReturnerApi ? ["generated-runtime/published-graph/s26-yc-partners.json.gz"] : [])
-      ]
+      ])
     );
     const fullTraceFiles = graphRuntimeProjections.filter((file) => file !== options.missingFromFull);
     const allowedPackageScript = "node_modules/trace-fixture/scripts/allowed.js";
@@ -196,10 +233,10 @@ function runValidator(options: {
     writeManifest(
       root,
       ".next/server/app/api/graph/full/route.js.nft.json",
-      fullTraceFiles
+      withBootstrap("full", fullTraceFiles)
     );
-    writeManifest(root, ".next/server/app/api/graph/refresh/route.js.nft.json", graphRuntimeProjections);
-    writeManifest(root, ".next/server/app/api/insiders/recompute/route.js.nft.json", [
+    writeManifest(root, ".next/server/app/api/graph/refresh/route.js.nft.json", withBootstrap("refresh", graphRuntimeProjections));
+    writeManifest(root, ".next/server/app/api/insiders/recompute/route.js.nft.json", withBootstrap("insider", [
       "generated-runtime/published-graph/s2026.json.gz",
       "generated-runtime/published-graph/s2026-insiders.json.gz",
       "generated-runtime/published-graph/s26.json.gz",
@@ -209,7 +246,7 @@ function runValidator(options: {
       "generated-runtime/published-graph/a16zsr006.json.gz",
       "generated-runtime/published-graph/a16zsr006-insiders.json.gz",
       ...(options.leakPublicSnapshot === "insider" ? [rawPublicSnapshot] : [])
-    ]);
+    ]));
     writeManifest(root, ".next/server/app/api/admin/ingestion/route.js.nft.json", []);
     for (const route of [
       "duplicates",
