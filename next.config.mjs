@@ -2,10 +2,10 @@ const benchmarkRuntimeData = [
   "outputs/benchmarks/**/*.json",
 ];
 const graphEvidenceRuntimeData = [
-  "generated-runtime/graph/public-evidence-current.json",
-  "generated-runtime/graph/logged-in-evidence-current.json",
-  "generated-runtime/graph/targeted-evidence-current.json",
-  "generated-runtime/graph/volume-evidence-current.json",
+  "generated-runtime/graph/public-evidence-current.json.gz",
+  "generated-runtime/graph/logged-in-evidence-current.json.gz",
+  "generated-runtime/graph/targeted-evidence-current.json.gz",
+  "generated-runtime/graph/volume-evidence-current.json.gz",
 ];
 const timelineRuntimeData = [
   "public/timelines/**/*.json",
@@ -46,6 +46,10 @@ const graphTraceExcludes = [
   "src/lib/social/logged-in-evidence-current.json",
   "src/lib/social/public-evidence-current.json",
   "src/lib/social/targeted-evidence-current.json",
+  "generated-runtime/graph/public-evidence-current.json",
+  "generated-runtime/graph/logged-in-evidence-current.json",
+  "generated-runtime/graph/targeted-evidence-current.json",
+  "generated-runtime/graph/volume-evidence-current.json",
   "src/lib/social/volume-evidence-current.json",
   "src/**/*.{css,ts,tsx}",
   "supabase/**/*",
@@ -81,6 +85,10 @@ const debugGraphTraceExcludes = [
   "src/lib/social/logged-in-evidence-current.json",
   "src/lib/social/public-evidence-current.json",
   "src/lib/social/targeted-evidence-current.json",
+  "generated-runtime/graph/public-evidence-current.json",
+  "generated-runtime/graph/logged-in-evidence-current.json",
+  "generated-runtime/graph/targeted-evidence-current.json",
+  "generated-runtime/graph/volume-evidence-current.json",
   "src/lib/social/volume-evidence-current.json",
   "supabase/**/*",
   "tests/**/*",
@@ -102,43 +110,64 @@ const adminDiagnosticsTraceExcludes = [
 ];
 const fullGraphTraceExcludes = [
   ...graphTraceExcludes,
+  "public/graph/**/*",
+  "generated-runtime/published-graph/**/*"
+];
+const graphRefreshTraceExcludes = [
+  ...graphTraceExcludes,
+  "generated-runtime/published-graph/**/*"
+];
+const publishedGraphTraceExcludes = [
+  ...graphTraceExcludes,
   "public/graph/**/*"
 ];
 const insiderRecomputeTraceExcludes = [
-  ...graphTraceExcludes,
+  ...publishedGraphTraceExcludes,
   // The recompute route allowlists only base and Insider snapshots. Turbopack
   // also discovers these sibling files through the bounded dynamic path, but
   // they can never be opened by that route.
-  "public/graph/*-yc-partners.json",
-  "public/graph/manifest.json"
+  "generated-runtime/published-graph/*-yc-partners.json.gz"
+];
+const packedGraphSnapshotPath = (path) => path.replace("public/graph/", "generated-runtime/published-graph/") + ".gz";
+const returnerFundApiTraceExcludes = [
+  ...publishedGraphTraceExcludes,
+  "generated-runtime/published-graph/*-yc-partners.json.gz",
+  "generated-runtime/published-graph/*-insiders.json.gz"
 ];
 const insiderRuntimeSnapshots = [
   "public/graph/s2026.json",
   "public/graph/s2026-insiders.json",
   "public/graph/s26.json",
+  "public/graph/f26.json",
   "public/graph/s26-insiders.json",
+  "public/graph/f26-insiders.json",
   "public/graph/a16zsr006.json",
   "public/graph/a16zsr006-insiders.json"
-];
+].map(packedGraphSnapshotPath);
 const returnerFundApiSnapshots = [
   "public/graph/s2026.json",
   "public/graph/s26.json",
+  "public/graph/f26.json",
   "public/graph/a16zsr006.json"
-];
+].map(packedGraphSnapshotPath);
 const publishedGraphRuntimeSnapshots = [
   "public/graph/s2026.json",
   "public/graph/s2026-yc-partners.json",
   "public/graph/s2026-insiders.json",
   "public/graph/s26.json",
+  "public/graph/f26.json",
   "public/graph/s26-yc-partners.json",
+  "public/graph/f26-yc-partners.json",
   "public/graph/s26-insiders.json",
+  "public/graph/f26-insiders.json",
   "public/graph/a16zsr006.json",
   "public/graph/a16zsr006-yc-partners.json",
   "public/graph/a16zsr006-insiders.json"
-];
-// Next matches trace keys with substring semantics. The negative extglob keeps
-// the lightweight graph snapshot bundle from leaking into /api/graph/full and
-// /api/graph/refresh while still matching the canonical /api/graph route.
+].map(packedGraphSnapshotPath);
+// Native Turbopack matches the /route entry and does not support this
+// negative extglob; the JS tracing path matches the normalized URL. Declare
+// both exact-scope keys. A broad /api/graph include leaks into full/refresh
+// because native includes are applied after excludes.
 const canonicalGraphTraceKey = "/api/graph!(/**)";
 
 /** @type {import('next').NextConfig} */
@@ -242,6 +271,7 @@ const nextConfig = {
   },
   outputFileTracingIncludes: {
     [canonicalGraphTraceKey]: [...benchmarkRuntimeData, ...publishedGraphRuntimeSnapshots],
+    "/api/graph/route": [...benchmarkRuntimeData, ...publishedGraphRuntimeSnapshots],
     "/api/yc-partners": ["public/graph/*.json"],
     "/api/graph/full": graphRuntimeData,
     "/api/graph/refresh": [...graphRuntimeData, "public/graph/*.json"],
@@ -256,7 +286,7 @@ const nextConfig = {
     "/debug/workers": graphRuntimeData,
     "/api/insiders/recompute": [...insiderRuntimeSnapshots, ...benchmarkRuntimeData],
     "/api/companies/[slug]/timeline": [...timelineRuntimeData, ...timelineInternalRuntimeData],
-    "/api/v1/companies/[slug]/returner-fund": returnerFundApiSnapshots,
+    "/api/v1/companies/*/returner-fund": returnerFundApiSnapshots,
     "/api/timeline/events/[eventId]": [...timelineRuntimeData, ...timelineInternalRuntimeData],
     "/api/admin/timeline/**/*": [...timelineRuntimeData, ...timelineInternalRuntimeData],
     "/dashboard": dashboardRuntimeData,
@@ -264,10 +294,12 @@ const nextConfig = {
     "/api/dashboard/stories/[stableKey]/sources": dashboardRuntimeData
   },
   outputFileTracingExcludes: {
-    [canonicalGraphTraceKey]: graphTraceExcludes,
+    [canonicalGraphTraceKey]: publishedGraphTraceExcludes,
+    "/api/graph/route": publishedGraphTraceExcludes,
     "/api/graph/full": fullGraphTraceExcludes,
-    "/api/graph/refresh": graphTraceExcludes,
+    "/api/graph/refresh": graphRefreshTraceExcludes,
     "/api/insiders/recompute": insiderRecomputeTraceExcludes,
+    "/api/v1/companies/*/returner-fund": returnerFundApiTraceExcludes,
     "/api/admin/ingestion": adminDiagnosticsTraceExcludes,
     "/debug/duplicates": debugGraphTraceExcludes,
     "/debug/evidence": debugGraphTraceExcludes,

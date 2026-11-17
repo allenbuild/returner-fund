@@ -20,7 +20,7 @@ import { safeDate } from "./normalization";
 import { buildDashboardSnapshot } from "./pipeline";
 import { dashboardCandidatesFromGraph } from "./returner-candidates";
 
-const RETURNER_BATCHES: readonly PublishedGraphBatchSlug[] = ["S2026", "S26", "A16ZSR006"];
+const RETURNER_BATCHES: readonly PublishedGraphBatchSlug[] = ["S2026", "S26", "A16ZSR006", "F26"];
 // The scheduled worker snapshots an exact hour a few minutes before its
 // bounded public adapters finish. Permit that expected scheduler/adapter
 // skew, but reject a malformed timestamp materially beyond the run.

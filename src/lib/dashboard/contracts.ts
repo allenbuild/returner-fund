@@ -47,6 +47,8 @@ export const DASHBOARD_PLATFORMS = [
   "x",
   "linkedin",
   "instagram",
+  "facebook",
+  "threads",
   "product_hunt",
   "youtube",
   "rss",
@@ -80,7 +82,7 @@ export const DASHBOARD_TOP100_CONTENT_KINDS = ["viral_post", "news_article"] as 
 export type DashboardTop100ContentKind = (typeof DASHBOARD_TOP100_CONTENT_KINDS)[number];
 
 const DASHBOARD_TOP100_SOCIAL_PLATFORMS = new Set<DashboardNativePlatform>([
-  "x", "instagram", "linkedin", "youtube", "tiktok", "bluesky"
+  "x", "instagram", "facebook", "threads", "linkedin", "youtube", "tiktok", "bluesky"
 ]);
 
 /**

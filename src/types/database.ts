@@ -17,6 +17,8 @@ export type SocialPlatform =
   | "twitter"
   | "linkedin"
   | "instagram"
+  | "facebook"
+  | "threads"
   | "product_hunt"
   | "youtube"
   | "tiktok"

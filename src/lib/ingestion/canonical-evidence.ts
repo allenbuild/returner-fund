@@ -553,6 +553,11 @@ function normalizeLinkedInUrl(
 ): CanonicalUrlNormalization {
   if (host !== "linkedin.com") return hostMismatch(platform, sourceUrl, url);
   const decodedPath = safeDecode(path);
+  const ugcId = decodedPath.match(/^\/feed\/update\/urn:li:ugcPost:(\d+)$/i)?.[1]
+    ?? decodedPath.match(/^\/posts\/[^/]*-ugcPost-(\d+)(?:-[^/]+)?$/i)?.[1];
+  if (ugcId) {
+    return nativeResult(platform, sourceUrl, `https://linkedin.com/feed/update/urn:li:ugcPost:${ugcId}`, `ugcPost:${ugcId}`, "post");
+  }
   const activityId = decodedPath.match(/^\/feed\/update\/urn:li:(?:activity|share):(\d+)$/i)?.[1]
     ?? decodedPath.match(/^\/posts\/[^/]*activity[-:](\d+)[^/]*$/i)?.[1]
     ?? null;

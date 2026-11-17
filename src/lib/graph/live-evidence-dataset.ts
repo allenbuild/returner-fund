@@ -1,5 +1,6 @@
 import {
   canonicalLiveEvidenceKey,
+  liveEvidenceRecordBatchSlug,
   liveEvidenceRecordToEvidenceItem,
   mergeLiveEvidenceItems
 } from "./live-evidence-overlay";
@@ -14,27 +15,24 @@ export function datasetWithLiveEvidence(
     return dataset;
   }
 
-  const companyIdByEntityId = datasetCompanyOwnershipMap(dataset);
-  const batchSlugByCompanyId = new Map(
-    dataset.companies.map((company) => [company.id, company.batchSlug] as const)
-  );
+  const resolveOwner = datasetCompanyOwnershipResolver(dataset);
+  const ownerForEvidence = (item: EvidenceItem) =>
+    resolveOwner(item.entityId, item.batchSlug) ??
+    (item.attachedCompanyId ? resolveOwner(item.attachedCompanyId, item.batchSlug) : undefined);
   const companyIdForEvidence = (item: EvidenceItem) =>
-    companyIdByEntityId.get(item.entityId) ?? item.attachedCompanyId;
-  const batchSlugForEvidence = (item: EvidenceItem) => {
-    const companyId = companyIdForEvidence(item);
-    return companyId ? batchSlugByCompanyId.get(companyId) : undefined;
-  };
+    ownerForEvidence(item)?.companyId;
+  const batchSlugForEvidence = (item: EvidenceItem) => ownerForEvidence(item)?.batchSlug;
   const liveEvidenceByBatch = new Map<string, EvidenceItem[]>();
 
   for (const record of records) {
-    const companyId = companyIdByEntityId.get(record.entityId);
-    const batchSlug = companyId ? batchSlugByCompanyId.get(companyId) : undefined;
-    if (!companyId || !batchSlug) {
+    const owner = resolveOwner(record.entityId, liveEvidenceRecordBatchSlug(record));
+    if (!owner) {
       continue;
     }
+    const { companyId, batchSlug } = owner;
     const item = liveEvidenceRecordToEvidenceItem(record);
     const batchEvidence = liveEvidenceByBatch.get(batchSlug) ?? [];
-    batchEvidence.push({ ...item, attachedCompanyId: companyId });
+    batchEvidence.push({ ...item, batchSlug, attachedCompanyId: companyId });
     liveEvidenceByBatch.set(batchSlug, batchEvidence);
   }
 
@@ -87,6 +85,7 @@ function liveEvidenceRecordSignature(record: LiveEvidenceRecord): string {
 
   return [
     record.id,
+    liveEvidenceRecordBatchSlug(record) ?? "legacy-unscoped",
     record.entityId,
     record.platform,
     record.platformPostId ?? record.sourceUrl,
@@ -135,20 +134,39 @@ export function liveEvidenceVisibilityForGraph(graphEvidence: EvidenceItem[], re
     reason: string;
   }>;
 } {
-  const liveKeys = new Set(records.map((record) => canonicalLiveEvidenceKey(liveEvidenceRecordToEvidenceItem(record))));
+  const liveKeys = new Map<string, Set<string>>();
+  for (const record of records) {
+    const item = liveEvidenceRecordToEvidenceItem(record);
+    const key = canonicalLiveEvidenceKey(item);
+    liveKeys.set(key, new Set([...(liveKeys.get(key) ?? []), item.batchSlug ?? ""]));
+  }
+  const graphBatchesByKey = new Map<string, Set<string>>();
+  for (const item of graphEvidence) {
+    const key = canonicalLiveEvidenceKey(item);
+    if (liveKeys.has(key)) graphBatchesByKey.set(key, new Set([...(graphBatchesByKey.get(key) ?? []), item.batchSlug ?? ""]));
+  }
   const visibleByKey = new Map<string, EvidenceItem>();
   for (const item of graphEvidence) {
     const key = canonicalLiveEvidenceKey(item);
-    if (liveKeys.has(key) && !visibleByKey.has(key)) {
-      visibleByKey.set(key, item);
+    const batches = liveKeys.get(key);
+    const batch = item.batchSlug ?? "";
+    const matches = batches?.has(batch) || (batches?.has("") && graphBatchesByKey.get(key)?.size === 1);
+    const scopedKey = `${batch}:${key}`;
+    if (matches && !visibleByKey.has(scopedKey)) {
+      visibleByKey.set(scopedKey, item);
     }
   }
   const visibleEvidence = [...visibleByKey.entries()]
     .sort(([left], [right]) => left.localeCompare(right))
     .map(([, item]) => item);
   const visibleKeys = new Set(visibleByKey.keys());
+  const visiblePhysicalKeys = new Set(visibleEvidence.map((item) => canonicalLiveEvidenceKey(item)));
   const hiddenEvidence = records
-    .filter((record) => !visibleKeys.has(canonicalLiveEvidenceKey(liveEvidenceRecordToEvidenceItem(record))))
+    .filter((record) => {
+      const item = liveEvidenceRecordToEvidenceItem(record);
+      const key = canonicalLiveEvidenceKey(item);
+      return item.batchSlug ? !visibleKeys.has(`${item.batchSlug}:${key}`) : !visiblePhysicalKeys.has(key);
+    })
     .map((record) => ({
       sourceUrl: record.sourceUrl,
       companyName: record.companyName,
@@ -165,16 +183,33 @@ export function liveEvidenceVisibilityForGraph(graphEvidence: EvidenceItem[], re
   return { visibleEvidence, hiddenEvidence };
 }
 
-function datasetCompanyOwnershipMap(dataset: DemoGraphDataset): Map<string, string> {
-  const companyIdByEntityId = new Map(dataset.companies.map((company) => [company.id, company.id] as const));
+function datasetCompanyOwnershipResolver(dataset: DemoGraphDataset) {
+  type Owner = { companyId: string; batchSlug: string };
+  const scopedOwners = new Map<string, Map<string, Owner>>();
+  const legacyOwners = new Map<string, Map<string, Owner>>();
+  const add = (entityId: string, companyId: string, batchSlug: string) => {
+    const normalizedBatch = batchSlug.trim().toUpperCase();
+    const owner = { companyId, batchSlug: normalizedBatch };
+    const identity = `${normalizedBatch}:${companyId}`;
+    const scoped = `${normalizedBatch}:${entityId}`;
+    scopedOwners.set(scoped, new Map([...(scopedOwners.get(scoped) ?? []), [identity, owner]]));
+    legacyOwners.set(entityId, new Map([...(legacyOwners.get(entityId) ?? []), [identity, owner]]));
+  };
+  for (const company of dataset.companies) add(company.id, company.id, company.batchSlug);
   for (const founder of dataset.founders) {
     const companyId = [...founder.companyIds].sort()[0];
     if (companyId) {
-      companyIdByEntityId.set(founder.id, companyId);
-      companyIdByEntityId.set(founder.id.replace(/^founder:/, ""), companyId);
+      add(founder.id, companyId, founder.batchSlug);
+      add(founder.id.replace(/^founder:/, ""), companyId, founder.batchSlug);
     }
   }
-  return companyIdByEntityId;
+  return (entityId: string, batchSlug?: string | null): Owner | undefined => {
+    const explicitBatch = String(batchSlug ?? "").trim().toUpperCase();
+    const candidates = explicitBatch
+      ? scopedOwners.get(`${explicitBatch}:${entityId}`)
+      : legacyOwners.get(entityId);
+    return candidates?.size === 1 ? [...candidates.values()][0] : undefined;
+  };
 }
 
 function replaceAffectedBatchEvidence(

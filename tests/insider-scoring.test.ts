@@ -192,7 +192,8 @@ describe("weighted Insider scoring", () => {
     for (const [baseFilename, insiderFilename] of [
       ["a16zsr006.json", "a16zsr006-insiders.json"],
       ["s2026.json", "s2026-insiders.json"],
-      ["s26.json", "s26-insiders.json"]
+      ["s26.json", "s26-insiders.json"],
+      ["f26.json", "f26-insiders.json"]
     ]) {
       const baseGraph = publicGraphFixture(baseFilename);
       const insiderGraph = publicGraphFixture(insiderFilename);
@@ -232,7 +233,8 @@ describe("weighted Insider scoring", () => {
     for (const [baseFilename, insiderFilename] of [
       ["a16zsr006.json", "a16zsr006-insiders.json"],
       ["s2026.json", "s2026-insiders.json"],
-      ["s26.json", "s26-insiders.json"]
+      ["s26.json", "s26-insiders.json"],
+      ["f26.json", "f26-insiders.json"]
     ]) {
       const baseGraph = publicGraphFixture(baseFilename);
       const insiderGraph = publicGraphFixture(insiderFilename);

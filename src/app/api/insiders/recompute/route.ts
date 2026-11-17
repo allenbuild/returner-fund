@@ -16,6 +16,7 @@ export const runtime = "nodejs";
 const BATCH_FILES = {
   S2026: "s2026",
   S26: "s26",
+  F26: "f26",
   A16ZSR006: "a16zsr006"
 } as const;
 type SupportedBatchSlug = keyof typeof BATCH_FILES;

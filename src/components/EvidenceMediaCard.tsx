@@ -75,7 +75,9 @@ function EvidenceMediaCardContent({ item, compact = false }: EvidenceMediaCardPr
             <PlatformLogo platform={item.platform} />
             <span>{formatPlatform(item.platform)}</span>
           </span>
-          <time dateTime={item.postedAt}>{postDate}</time>
+          {item.publishedAtPrecision === "unknown"
+            ? <span>Date unavailable</span>
+            : <time dateTime={item.postedAt}>{postDate}</time>}
         </div>
         <h4>{snippet}</h4>
         {metrics && <p className="evidence-card-stats">{metrics}</p>}

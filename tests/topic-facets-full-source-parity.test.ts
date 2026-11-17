@@ -20,7 +20,8 @@ import { ycSpring2026GraphDataset } from "@/lib/graph/yc-spring-2026-dataset";
 const COHORTS = [
   { batchSlug: "S2026", filename: "s2026" },
   { batchSlug: "S26", filename: "s26" },
-  { batchSlug: "A16ZSR006", filename: "a16zsr006" }
+  { batchSlug: "A16ZSR006", filename: "a16zsr006" },
+  { batchSlug: "F26", filename: "f26" }
 ] as const;
 
 describe("topic facet full-source parity", () => {

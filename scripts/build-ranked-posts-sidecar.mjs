@@ -5,11 +5,13 @@ import { readFile, rename, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { validatedRepositoryDataRoot } from "./lib/validated-repository-data-root.mjs";
+import { createRankedPostsPhysicalMapCache } from "./lib/ranked-posts-physical-map-cache.mjs";
 
 const BATCHES = [
   { slug: "S26", file: "s26" },
   { slug: "S2026", file: "s2026" },
-  { slug: "A16ZSR006", file: "a16zsr006" }
+  { slug: "A16ZSR006", file: "a16zsr006" },
+  { slug: "F26", file: "f26" }
 ];
 const AUDIENCES = ["off", "yc_partners", "insiders"];
 const SIDECAR_VERSION = "ranked-posts-full-corpus-v1";
@@ -67,6 +69,10 @@ export async function buildRankedPostsSidecarSnapshot({
     canonicalPostKey,
     canonicalEvidenceUrl
   });
+  // Every source array and row is immutable for this single offline build.
+  // Keep validated rankability results local to this publication lifetime.
+  const physicalMapCache = createRankedPostsPhysicalMapCache(dependencies);
+  try {
   const batches = {};
   const previewGeneratedAt = [];
   const parityScopes = [];
@@ -86,10 +92,8 @@ export async function buildRankedPostsSidecarSnapshot({
     if (!canonicalGraph) {
       throw new Error(`Ranked Posts sidecar is missing the canonical ${batch.slug} graph.`);
     }
-    const canonicalRankableByKey = rankablePhysicalMap({
+    const canonicalRankableByKey = physicalMapCache.physicalMap({
       evidence: canonicalGraph.evidence ?? [],
-      rankableEvidence: dependencies.rankableEvidence,
-      canonicalPostKey: dependencies.canonicalPostKey,
       label: `${batch.slug}/off full graph`
     });
     const canonicalCompanyByEntity = companyOwnershipIndex(canonicalGraph.nodes ?? []);
@@ -109,6 +113,7 @@ export async function buildRankedPostsSidecarSnapshot({
         rankableEvidence: dependencies.rankableEvidence,
         canonicalPostKey: dependencies.canonicalPostKey,
         canonicalEvidenceUrl: dependencies.canonicalEvidenceUrl,
+        physicalMapCache,
         canonicalPreviewOnlyByKey: audience === "off" ? undefined : canonicalRankableByKey,
         canonicalCompanyByEntity: audience === "off" ? undefined : canonicalCompanyByEntity
       });
@@ -117,16 +122,12 @@ export async function buildRankedPostsSidecarSnapshot({
       parityScopes.push({
         batchSlug: batch.slug,
         audience,
-        fullKeys: rankablePhysicalKeys({
-          graph: fullGraph,
-          rankableEvidence: dependencies.rankableEvidence,
-          canonicalPostKey: dependencies.canonicalPostKey,
+        fullKeys: physicalMapCache.sortedKeys({
+          evidence: fullGraph.evidence ?? [],
           label: `${batch.slug}/${audience} full graph`
         }),
-        previewKeys: rankablePhysicalKeys({
-          graph: previewGraph,
-          rankableEvidence: dependencies.rankableEvidence,
-          canonicalPostKey: dependencies.canonicalPostKey,
+        previewKeys: physicalMapCache.sortedKeys({
+          evidence: previewGraph.evidence ?? [],
           label: `${batch.slug}/${audience} preview graph`
         }),
         overflowKeys: scope.evidence.map(dependencies.canonicalPostKey),
@@ -141,6 +142,9 @@ export async function buildRankedPostsSidecarSnapshot({
     canonicalParity: buildCanonicalParity(parityScopes),
     batches
   };
+  } finally {
+    physicalMapCache.close();
+  }
 }
 
 export function buildRankedPostsSidecarScope({
@@ -150,7 +154,8 @@ export function buildRankedPostsSidecarScope({
   canonicalPostKey,
   canonicalEvidenceUrl,
   canonicalPreviewOnlyByKey,
-  canonicalCompanyByEntity
+  canonicalCompanyByEntity,
+  physicalMapCache
 }) {
   if (fullGraph.batch.slug !== previewGraph.batch.slug) {
     throw new Error("Ranked Posts sidecar inputs must describe the same batch.");
@@ -162,13 +167,14 @@ export function buildRankedPostsSidecarScope({
   const fullCompanyByEntity = companyOwnershipIndex(fullGraph.nodes ?? []);
   const previewCompanyByEntity = companyOwnershipIndex(previewGraph.nodes ?? []);
   const scopeLabel = `${fullGraph.batch.slug}/${fullGraph.selectedTopVoiceAudience.id}`;
-  const fullByKey = rankablePhysicalMap({
+  const physicalMap = physicalMapCache?.physicalMap ?? rankablePhysicalMap;
+  const fullByKey = physicalMap({
     evidence: fullGraph.evidence ?? [],
     rankableEvidence,
     canonicalPostKey,
     label: `${scopeLabel} full graph`
   });
-  const previewByKey = rankablePhysicalMap({
+  const previewByKey = physicalMap({
     evidence: previewGraph.evidence ?? [],
     rankableEvidence,
     canonicalPostKey,
@@ -408,15 +414,6 @@ function countByCompany(items, companyByEntity) {
     counts.set(companyId, (counts.get(companyId) ?? 0) + 1);
   }
   return Object.fromEntries([...counts].sort(([left], [right]) => left.localeCompare(right)));
-}
-
-function rankablePhysicalKeys({ graph, rankableEvidence, canonicalPostKey, label }) {
-  return [...rankablePhysicalMap({
-    evidence: graph.evidence ?? [],
-    rankableEvidence,
-    canonicalPostKey,
-    label
-  }).keys()].sort();
 }
 
 function rankablePhysicalMap({ evidence, rankableEvidence, canonicalPostKey, label }) {

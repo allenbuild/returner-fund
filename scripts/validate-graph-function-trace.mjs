@@ -23,10 +23,10 @@ const MAX_DEBUG_TRACE_BYTES = 190 * MEBIBYTE;
 const MAX_REFRESH_TRACE_BYTES = 225 * MEBIBYTE;
 const REPOSITORY_ROOT = resolve(".");
 const GRAPH_RUNTIME_PROJECTIONS = [
-  "generated-runtime/graph/public-evidence-current.json",
-  "generated-runtime/graph/logged-in-evidence-current.json",
-  "generated-runtime/graph/targeted-evidence-current.json",
-  "generated-runtime/graph/volume-evidence-current.json"
+  "generated-runtime/graph/public-evidence-current.json.gz",
+  "generated-runtime/graph/logged-in-evidence-current.json.gz",
+  "generated-runtime/graph/targeted-evidence-current.json.gz",
+  "generated-runtime/graph/volume-evidence-current.json.gz"
 ];
 const WHOLE_REPOSITORY_TRACE_FRAGMENTS = [
   `${normalize("/artifacts/")}`,
@@ -39,6 +39,10 @@ const WHOLE_REPOSITORY_TRACE_FRAGMENTS = [
   `${normalize("/next.config.mjs")}`
 ];
 const RAW_EVIDENCE_FRAGMENTS = [
+  `${normalize("/generated-runtime/graph/public-evidence-current.json")}`,
+  `${normalize("/generated-runtime/graph/logged-in-evidence-current.json")}`,
+  `${normalize("/generated-runtime/graph/targeted-evidence-current.json")}`,
+  `${normalize("/generated-runtime/graph/volume-evidence-current.json")}`,
   `${normalize("/src/lib/social/public-evidence-current.json")}`,
   `${normalize("/src/lib/social/logged-in-evidence-current.json")}`,
   `${normalize("/src/lib/social/targeted-evidence-current.json")}`,
@@ -74,17 +78,21 @@ const routeTraces = [
     manifest: ".next/server/app/api/graph/route.js.nft.json",
     maxBytes: MAX_TRACE_BYTES,
     required: [
-      "public/graph/s2026.json",
-      "public/graph/s2026-yc-partners.json",
-      "public/graph/s2026-insiders.json",
-      "public/graph/s26.json",
-      "public/graph/s26-yc-partners.json",
-      "public/graph/s26-insiders.json",
-      "public/graph/a16zsr006.json",
-      "public/graph/a16zsr006-yc-partners.json",
-      "public/graph/a16zsr006-insiders.json"
+      "generated-runtime/published-graph/s2026.json.gz",
+      "generated-runtime/published-graph/s2026-yc-partners.json.gz",
+      "generated-runtime/published-graph/s2026-insiders.json.gz",
+      "generated-runtime/published-graph/s26.json.gz",
+      "generated-runtime/published-graph/f26.json.gz",
+      "generated-runtime/published-graph/s26-yc-partners.json.gz",
+      "generated-runtime/published-graph/f26-yc-partners.json.gz",
+      "generated-runtime/published-graph/s26-insiders.json.gz",
+      "generated-runtime/published-graph/f26-insiders.json.gz",
+      "generated-runtime/published-graph/a16zsr006.json.gz",
+      "generated-runtime/published-graph/a16zsr006-yc-partners.json.gz",
+      "generated-runtime/published-graph/a16zsr006-insiders.json.gz"
     ],
     forbidden: [
+      `${normalize("/public/graph/")}`,
       `${normalize("/src/lib/social/public-evidence-current.json")}`,
       `${normalize("/src/lib/social/logged-in-evidence-current.json")}`,
       `${normalize("/src/lib/social/targeted-evidence-current.json")}`
@@ -96,6 +104,7 @@ const routeTraces = [
     maxBytes: MAX_FULL_GRAPH_TRACE_BYTES,
     required: GRAPH_RUNTIME_PROJECTIONS,
     forbidden: [
+      `${normalize("/generated-runtime/published-graph/")}`,
       `${normalize("/public/graph/")}`,
       ...WHOLE_REPOSITORY_TRACE_FRAGMENTS,
       ...RAW_EVIDENCE_FRAGMENTS
@@ -107,6 +116,7 @@ const routeTraces = [
     maxBytes: MAX_REFRESH_TRACE_BYTES,
     required: GRAPH_RUNTIME_PROJECTIONS,
     forbidden: [
+      `${normalize("/generated-runtime/published-graph/")}`,
       ...WHOLE_REPOSITORY_TRACE_FRAGMENTS,
       ...RAW_EVIDENCE_FRAGMENTS
     ]
@@ -116,19 +126,23 @@ const routeTraces = [
     manifest: ".next/server/app/api/insiders/recompute/route.js.nft.json",
     maxBytes: 70 * MEBIBYTE,
     required: [
-      "public/graph/s2026.json",
-      "public/graph/s2026-insiders.json",
-      "public/graph/s26.json",
-      "public/graph/s26-insiders.json",
-      "public/graph/a16zsr006.json",
-      "public/graph/a16zsr006-insiders.json"
+      "generated-runtime/published-graph/s2026.json.gz",
+      "generated-runtime/published-graph/s2026-insiders.json.gz",
+      "generated-runtime/published-graph/s26.json.gz",
+      "generated-runtime/published-graph/f26.json.gz",
+      "generated-runtime/published-graph/s26-insiders.json.gz",
+      "generated-runtime/published-graph/f26-insiders.json.gz",
+      "generated-runtime/published-graph/a16zsr006.json.gz",
+      "generated-runtime/published-graph/a16zsr006-insiders.json.gz"
     ],
     forbidden: [
+      `${normalize("/public/graph/")}`,
       `${normalize("/src/lib/social/public-evidence-current.json")}`,
       `${normalize("/src/lib/social/logged-in-evidence-current.json")}`,
       `${normalize("/src/lib/social/targeted-evidence-current.json")}`,
       `${normalize("/public/graph/s2026-yc-partners.json")}`,
       `${normalize("/public/graph/s26-yc-partners.json")}`,
+      `${normalize("/public/graph/f26-yc-partners.json")}`,
       `${normalize("/public/graph/a16zsr006-yc-partners.json")}`,
       `${normalize("/public/graph/manifest.json")}`
     ]
@@ -138,14 +152,16 @@ const routeTraces = [
     manifest: ".next/server/app/api/v1/companies/[slug]/returner-fund/route.js.nft.json",
     maxBytes: 65 * MEBIBYTE,
     required: [
-      "public/graph/s2026.json",
-      "public/graph/s26.json",
-      "public/graph/a16zsr006.json"
+      "generated-runtime/published-graph/s2026.json.gz",
+      "generated-runtime/published-graph/s26.json.gz",
+      "generated-runtime/published-graph/f26.json.gz",
+      "generated-runtime/published-graph/a16zsr006.json.gz"
     ],
     forbidden: [
+      `${normalize("/public/graph/")}`,
       ...WHOLE_REPOSITORY_TRACE_FRAGMENTS,
       ...RAW_EVIDENCE_FRAGMENTS,
-      `${normalize("/generated-runtime/")}`
+      `${normalize("/generated-runtime/graph/")}`
     ]
   },
   {

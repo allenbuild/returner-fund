@@ -163,6 +163,14 @@ describe("evidence dedupe", () => {
     ).toBeNull();
   });
 
+  it("keeps genuine LinkedIn UGC identities separate from activity namespaces", () => {
+    const id = "6765693790826180608";
+    expect(nativeEvidenceIdentityFromUrl("linkedin", `https://www.linkedin.com/posts/jay_hiring-ugcPost-${id}-gyCH/`)).toBe(`ugcPost:${id}`);
+    expect(nativeEvidenceIdentityFromUrl("linkedin", `https://www.linkedin.com/feed/update/urn:li:ugcPost:${id}/`)).toBe(`ugcPost:${id}`);
+    expect(nativeEvidenceIdentityFromUrl("linkedin", `https://www.linkedin.com/feed/update/urn:li:activity:${id}/`)).toBe(id);
+    expect(nativeEvidenceIdentityFromUrl("linkedin", `https://notlinkedin.com/posts/jay_hiring-ugcPost-${id}-gyCH/`)).toBeNull();
+  });
+
   it("keeps only the strongest duplicate evidence row", () => {
     const items = [
       evidence("low", "https://x.com/allenxtech/status/12345?utm_source=one", 20),

@@ -1,0 +1,122 @@
+{
+  "source": {
+    "kind": "official_yc_launch_repository_ownership_v1",
+    "proofAuditPath": "outputs/source-hunt/2026-11-15-fall-2026-github-review-owner-proof-audit.json",
+    "proofAuditSha256": "91587e8e278a6954ca37a14effe01339d59d096d7fc62c2af3356c0214e6452d",
+    "archiveHashesVerified": true
+  },
+  "proofs": [
+    {
+      "source": "official_yc_launch_repository_ownership_v1",
+      "companySlug": "agent-relay",
+      "companyName": "Agent Relay",
+      "entityId": "company-agent-relay",
+      "repositoryFullName": "AgentWorkforce/relay",
+      "repositoryUrl": "https://github.com/AgentWorkforce/relay",
+      "officialYcCompanyUrl": "https://www.ycombinator.com/companies/agent-relay",
+      "nativeLaunch": {
+        "id": 124128,
+        "url": "https://www.ycombinator.com/launches/WI4-agent-relay-let-your-teams-coding-agents-message-each-other",
+        "state": "public",
+        "postedAt": "2026-10-23T15:00:00.238Z",
+        "authorName": "Will Washburn",
+        "body": "**TL;DR - You can stop copy/pasting messages between agents now**\n\nSoon, agents will outnumber people on the internet. We think they should be able to find each other, talk to each other, and work together.\n\nToday, even agents working on the same project depend on humans to connect them. My agent needs something from your agent, so the message takes this route:\n\nMy agent → **me → you** → your agent.\n\nEvery person on the team can have agents producing work faster, while the team still waits on people to pass questions, context, and updates between them. We’re all the bottleneck!\n\nWe built Agent Relay to fix that.\n\n![uploaded image](/media/?type=post&id=124128&key=user_uploads/50118/7832a56a-13b4-49e3-a610-bf9dfbab0b49)\n\n**How it works**\n\nAgent Relay works inside the tools you already use, like the Codex Mac app, Claude in the terminal or even Conductor. Start your sessions as usual, and then choose which agents they can talk to. Relay runs in the background, delivering messages between them.\n\nBefore Relay, handing off work meant having my agent write up a summary, pasting it to Khaliq in Slack, and him pasting it into his agent. Now my agent just asks his. It can read his session to see what he changed and why, ask follow-up questions, and get pinged the moment his work is ready.\n\nWe don’t have to carry messages between them, and everyone can keep using their preferred tools.\n\nShared, searchable session history lets agents catch up on what their teammates did and why, even after those sessions have ended.\n\nAgent Relay is [open source](https://github.com/agentworkforce/relay). You can self-host it or if you prefer to not to spend your days managing difficult infrastructure you can use our hosted cloud.\n\n**What our customers say:**\n\n![uploaded image](/media/?type=post&id=124128&key=user_uploads/50118/d9f2fcda-2207-4157-9881-2fe29ce428ce)\n\n**Our Team**:\\\nWe’re Will and Khaliq. We met on the basketball court in high school and have been teammates ever since. Khaliq went on to play basketball at Cornell. Will went on to dominate rec leagues.\n\nSince then, we’ve been building software and leading engineering teams. Khaliq was the founding engineer at Nango (W23) and lead engineer at Overview (W19). Will spent 14 years building Tailwind to eight-figure ARR and leading its engineering team.\n\nNow we run 50+ agents in parallel ourselves, and we’re building Agent Relay to solve the coordination problems we hit every day.\n\nMessaging is where we’re starting. We want the agents on your team to work as naturally as the team does.\n\n**Ask:**\n\nIf you’re running coding agents on your team and still have a backlog, we’d love to learn more about your company and buy you lunch. You can reach out at [founders@agentrelay.com](mailto:founders@agentrelay.com) \n\nDon’t be a meat proxy. Get your agents on the relay. \n\n<https://agentrelay.com>",
+        "bodySha256": "2f8cb6710a88ec9434399496de7a36e616ec9d03e34bbb49b2ab998acdc319b0",
+        "repositoryLinkParagraphs": [
+          "Agent Relay is [open source](https://github.com/agentworkforce/relay). You can self-host it or if you prefer to not to spend your days managing difficult infrastructure you can use our hosted cloud."
+        ],
+        "ownershipClaimParagraphs": [
+          "Agent Relay is [open source](https://github.com/agentworkforce/relay). You can self-host it or if you prefer to not to spend your days managing difficult infrastructure you can use our hosted cloud."
+        ]
+      },
+      "observedAt": "2026-11-16T02:41:04.005133+00:00",
+      "sourceArchivePath": "outputs/source-hunt/2026-11-15-fall-2026-web-context.json",
+      "sourceArchiveSha256": "a463e9c7d055fb674bb55f68d0cdebe5573fc2d6225fd7fe0a34affab6d842b8",
+      "proofAuditPath": "outputs/source-hunt/2026-11-15-fall-2026-github-review-owner-proof-audit.json",
+      "proofAuditSha256": "91587e8e278a6954ca37a14effe01339d59d096d7fc62c2af3356c0214e6452d",
+      "validation": {
+        "source": "fall_2026_yc_launch_repository_ownership_ingestion_v1",
+        "archiveHashesVerified": true,
+        "nativeLaunchFieldsVerified": true,
+        "sourceArchiveSha256": "a463e9c7d055fb674bb55f68d0cdebe5573fc2d6225fd7fe0a34affab6d842b8",
+        "proofAuditSha256": "91587e8e278a6954ca37a14effe01339d59d096d7fc62c2af3356c0214e6452d",
+        "proofContentSha256": "39d4fa21b174d70c6ea3536063f3a1c81b326ef9fbce27d28a5c694fbb4f0279"
+      }
+    },
+    {
+      "source": "official_yc_launch_repository_ownership_v1",
+      "companySlug": "limnion",
+      "companyName": "Limnion",
+      "entityId": "company-limnion",
+      "repositoryFullName": "siglake/siglake",
+      "repositoryUrl": "https://github.com/siglake/siglake",
+      "officialYcCompanyUrl": "https://www.ycombinator.com/companies/limnion",
+      "nativeLaunch": {
+        "id": 125687,
+        "url": "https://www.ycombinator.com/launches/WhD-limnion-telemetry-storage-built-for-the-agentic-era",
+        "state": "public",
+        "postedAt": "2026-11-05T16:00:00.187Z",
+        "authorName": "Todd Persen",
+        "body": "**Modern observability is dying.**\n\n<https://youtu.be/eE0DmtIGSsw>\n\nLimnion is building telemetry storage for the agentic era. Our open-source foundation, Siglake, stores your logs and traces in open formats in your own cloud storage, so your AI agents can query them directly with SQL. No vendor lock-in, no proprietary API in the way. Here’s why I think this is what observability needs.\n\nGone are the days of humans building dashboards by hand, scrubbing through log lines, and manually tuning alert thresholds. Agents are becoming the primary consumers of telemetry — and when you actually need to look at a dashboard, an agent can create one on the fly. My prediction: 90% of human-centric observability work disappears within two years.\n\nObservability isn’t becoming less valuable — it’s more valuable than ever. What’s changing is who it’s for. The tooling we have today was built for one job: making vast amounts of data understandable to humans. Once humans are no longer the primary consumers, the entire paradigm changes.\n\nTraditional observability won’t disappear, but will instead shrink into something much narrower: a thin governance layer. Humans will still watch the handful of genuinely critical systems and keep an eye on the agentic layer itself to make sure it’s doing its job. Someone has to watch the watchers. Everything else migrates to agent-native platforms.\n\nThe stakes are big. Gartner expects observability platforms to be a \\~$14B market by 2028 — Datadog alone is guiding to \\~$4.5B in revenue this year — and 44% of Gartner clients already spend more than $1M a year on observability. My bet is that most of that value migrates to the agentic layer, leaving legacy observability as a governance market that’s a fraction of its current size.\n\nThat migration is the opportunity — and today’s vendors are on the wrong side of it. Observability vendors, by and large, extract enormous sums for walled gardens that were never built for agentic consumption. They are not — and never will be — incentivized to give your agents wide-open access to the underlying data. Their business model depends on keeping it locked in.\n\nThe agentic era needs the opposite: telemetry storage that’s open by design and built for agents first. That’s Siglake.\n\nSiglake stores telemetry in purely open formats — Parquet, Iceberg, Arrow — and makes it queryable with SQL by default. Your data lives in your own object storage, readable by Siglake, any Iceberg engine, or your agents directly. Pull it into DuckDB, feed it into a Spark pipeline, or consume a live Arrow stream to drive custom anomaly detection that feeds your agents for proactive monitoring.\n\n![uploaded image](/media/?type=post&id=125687&key=user_uploads/57320/9965b1ba-0608-4672-b5de-8ee004bdf5cb)\n\nCompanies are already weighing their observability spend against competing AI budgets and realizing that an open, agent-native backend compounds their AI investment instead of competing with it. Siglake is Apache 2.0, and it will stay that way — the open core of the platform we’re building at Limnion.\n\nI’ve spent \\~15 years in this space. I co-founded InfluxData (YC W13) and Era Software (acquired by ServiceNow), built observability products for Cloud Foundry at Pivotal, and served as CTO of Hydrolix. I’ve watched this same pattern repeat at company after company — it’s why I’m building Limnion and making Siglake open-source.\n\nIf you’re rethinking your observability stack for the agentic era — or you just want to argue with the thesis — I’d love to talk. Siglake is on [GitHub](https://github.com/siglake/siglake), and you can reach me anytime at [todd@limnion.ai](mailto:todd@limnion.ai).",
+        "bodySha256": "497857b704c66adba76afc89842389a7ebcded09d4a958ab5b5b824d19d1a34a",
+        "repositoryLinkParagraphs": [
+          "If you’re rethinking your observability stack for the agentic era — or you just want to argue with the thesis — I’d love to talk. Siglake is on [GitHub](https://github.com/siglake/siglake), and you can reach me anytime at [todd@limnion.ai](mailto:todd@limnion.ai)."
+        ],
+        "ownershipClaimParagraphs": [
+          "Limnion is building telemetry storage for the agentic era. Our open-source foundation, Siglake, stores your logs and traces in open formats in your own cloud storage, so your AI agents can query them directly with SQL. No vendor lock-in, no proprietary API in the way. Here’s why I think this is what observability needs.",
+          "Companies are already weighing their observability spend against competing AI budgets and realizing that an open, agent-native backend compounds their AI investment instead of competing with it. Siglake is Apache 2.0, and it will stay that way — the open core of the platform we’re building at Limnion."
+        ]
+      },
+      "observedAt": "2026-11-16T02:41:08.832513+00:00",
+      "sourceArchivePath": "outputs/source-hunt/2026-11-15-fall-2026-web-context.json",
+      "sourceArchiveSha256": "a463e9c7d055fb674bb55f68d0cdebe5573fc2d6225fd7fe0a34affab6d842b8",
+      "proofAuditPath": "outputs/source-hunt/2026-11-15-fall-2026-github-review-owner-proof-audit.json",
+      "proofAuditSha256": "91587e8e278a6954ca37a14effe01339d59d096d7fc62c2af3356c0214e6452d",
+      "validation": {
+        "source": "fall_2026_yc_launch_repository_ownership_ingestion_v1",
+        "archiveHashesVerified": true,
+        "nativeLaunchFieldsVerified": true,
+        "sourceArchiveSha256": "a463e9c7d055fb674bb55f68d0cdebe5573fc2d6225fd7fe0a34affab6d842b8",
+        "proofAuditSha256": "91587e8e278a6954ca37a14effe01339d59d096d7fc62c2af3356c0214e6452d",
+        "proofContentSha256": "085a4a8fcbcc88a8ec9362830eba2713d0ae67411b020ce1c78f25e4f850545d"
+      }
+    },
+    {
+      "source": "official_yc_launch_repository_ownership_v1",
+      "companySlug": "useterse",
+      "companyName": "Terse",
+      "entityId": "company-useterse",
+      "repositoryFullName": "TerseAI/durable-actors",
+      "repositoryUrl": "https://github.com/TerseAI/durable-actors",
+      "officialYcCompanyUrl": "https://www.ycombinator.com/companies/useterse",
+      "nativeLaunch": {
+        "id": 125318,
+        "url": "https://www.ycombinator.com/launches/WbG-durable-actors-the-perfect-primitive-for-multiplayer-ai-and-agent-coordination",
+        "state": "public",
+        "postedAt": "2026-10-29T19:30:00.301Z",
+        "authorName": "Thomas Elias Karatzas",
+        "body": "Hey everyone, Thomas &amp; Olivier here, founders of Terse (<https://www.useterse.ai/>).\\\n\\\nWe are building the next Agent Infra company and we are announcing our first product: Durable Actors. An open source alternative to Durable Objects.\\\n\\\nStar us on Github! <https://github.com/TerseAI/durable-actors>\\\n\\\nDurable Actors help you build real-time applications like chat systems (e.g. ChatGPT, Codex), collaboration tools (e.g. Notion), and agent swarms (e.g. Devin).\n\nThey provide _stateful serverless functions_, a foundational building block that abstracts away persistence, coordination, and infrastructure challenges in distributed systems.\\\n\\\nWhy is this useful? It reduces complexity tremendously and It saves you a lot of money!\\\n\\\nOur actors go dormant and back up in S3 when not in use. So agents only incur cost when your users are getting value from them. Because each actor has its own database and websocket server, we remove a ton of pressure from your main DB as well as your websocket server and you can scale those down.\\\n\\\nIn addition to being cost efficient, they are the perfect tool for building agentic applications. You no longer need to store JSONB in your Postgres DB, no more complicated websocket logic, it handles race conditions elegantly and helps keeps your REST API fully stateless.\\\n\\\nHere is me with a whiteboard explaining why this is the future of multiplayer infra:\\\n<https://youtu.be/UNaG-PLw17s>\\\n\\\nAnd here is a demo using Durable Actors to make a mini-lovable.\\\n<https://www.youtube.com/watch?v=wpF3VTmljqM>\\\n\\\nWho Are We?\\\n\\\nI was previously at Apple for 7 years as a Staff Engineer working on the platform for Siri and Apple Intelligence. \\\n\\\nOlivier was a Tech Lead at SquareSpace and the New York Times building highly scalable data pipelines for marketing teams. \n\n\\\nWe met in at @McGill University and have stayed close friends since. We won several hackathons together, and even worked on a project that had 15K MAU.\\\n\\\nWhy are we building this?\\\n\\\nIn 2021, Swift released actors. It was game changing for my team where threads competing for resources/data races were our #1 source of bugs.\\\n\\\nAgents are becoming like threads now. We have many of them doing work at the same time, and they sometimes need to share a CRM record, a code base etc… It’s a very similar problem!\\\n\\\nThe actor model is a perfect fit for this. It only allows one agent in the actor at a time, preventing race conditions at the core of it.\\\n\\\nI came across this problem when looking to have 10 agents do work on a large CSV. I was using Postgres to store a shared state variable, and the snapshotting system was serving stale data to half of the agents causing duplicate work to happen. I quickly realized, there was no existing tool to solve this problem outside of locks in front of Postgres, which is essentially System-R.\\\n\\\nI then came across Durable Objects, and found the magic line “Designed to give serverless functions state”. It then hit me this was the correct architecture for this. Cloudflare forces you to go through there workers platform to access this functionality and has insane lock in. I then realized we needed another alternative. That alternative is now Durable Actors.",
+        "bodySha256": "a41b9ef1e532e325e255044961fbbdb5e6e11ea93fdcf40f97e328aaf3f21127",
+        "repositoryLinkParagraphs": [
+          "Hey everyone, Thomas &amp; Olivier here, founders of Terse (<https://www.useterse.ai/>).\\\n\\\nWe are building the next Agent Infra company and we are announcing our first product: Durable Actors. An open source alternative to Durable Objects.\\\n\\\nStar us on Github! <https://github.com/TerseAI/durable-actors>\\\n\\\nDurable Actors help you build real-time applications like chat systems (e.g. ChatGPT, Codex), collaboration tools (e.g. Notion), and agent swarms (e.g. Devin)."
+        ],
+        "ownershipClaimParagraphs": [
+          "Hey everyone, Thomas &amp; Olivier here, founders of Terse (<https://www.useterse.ai/>).\\\n\\\nWe are building the next Agent Infra company and we are announcing our first product: Durable Actors. An open source alternative to Durable Objects.\\\n\\\nStar us on Github! <https://github.com/TerseAI/durable-actors>\\\n\\\nDurable Actors help you build real-time applications like chat systems (e.g. ChatGPT, Codex), collaboration tools (e.g. Notion), and agent swarms (e.g. Devin)."
+        ]
+      },
+      "observedAt": "2026-11-16T02:41:11.959883+00:00",
+      "sourceArchivePath": "outputs/source-hunt/2026-11-15-fall-2026-web-context.json",
+      "sourceArchiveSha256": "a463e9c7d055fb674bb55f68d0cdebe5573fc2d6225fd7fe0a34affab6d842b8",
+      "proofAuditPath": "outputs/source-hunt/2026-11-15-fall-2026-github-review-owner-proof-audit.json",
+      "proofAuditSha256": "91587e8e278a6954ca37a14effe01339d59d096d7fc62c2af3356c0214e6452d",
+      "validation": {
+        "source": "fall_2026_yc_launch_repository_ownership_ingestion_v1",
+        "archiveHashesVerified": true,
+        "nativeLaunchFieldsVerified": true,
+        "sourceArchiveSha256": "a463e9c7d055fb674bb55f68d0cdebe5573fc2d6225fd7fe0a34affab6d842b8",
+        "proofAuditSha256": "91587e8e278a6954ca37a14effe01339d59d096d7fc62c2af3356c0214e6452d",
+        "proofContentSha256": "753d18b9d4809273f3dcb28d951857cf94ecec419f80d9eb7ec4bf0a753b9b67"
+      }
+    }
+  ]
+}

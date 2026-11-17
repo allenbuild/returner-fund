@@ -2138,5 +2138,1280 @@
       "checkedAt": "2026-08-03T04:58:56.750Z"
     },
     "sourceUrl": "https://youart.ai"
+  },
+  "vexo": {
+    "batchSlug": "F26",
+    "companySocialLinks": {
+      "instagram": "https://www.instagram.com/tryvexoai/"
+    },
+    "instagramValidation": {
+      "review_state": "verified",
+      "method": "native_profile_exact_official_domain_and_company_identity",
+      "sourceUrl": "https://www.instagram.com/tryvexoai/",
+      "officialWebsite": "https://www.vexoai.com/",
+      "checkedAt": "2026-11-16T02:56:37.761Z"
+    },
+    "sourceUrl": "https://www.ycombinator.com/companies/vexo",
+    "matchReason": "Authorized native Instagram profile inspection confirms the exact YC-listed official website domain; collaborator posts remain attributed to their native author.",
+    "founders": [
+      {
+        "id": "1123245",
+        "name": "Haris Malik",
+        "socialLinks": {
+          "instagram": "https://www.instagram.com/realharismalik/"
+        },
+        "sourceUrl": "https://www.instagram.com/realharismalik/",
+        "matchReason": "Native founder profile links to the exact official vexoai.com domain and explicitly states Building @tryvexoai; matched to roster founder Haris Malik1123245."
+      },
+      {
+        "id": "4000265",
+        "name": "Farqaleet Kiani",
+        "socialLinks": {
+          "instagram": "https://www.instagram.com/kiani_build/"
+        },
+        "sourceUrl": "https://www.instagram.com/kiani_build/",
+        "matchReason": "Native profile name Farqaleet Kiani, company account @tryvexoai, exact vexoai.com outbound domain and ex-Tesla bio match existing YC founder4000265."
+      }
+    ]
+  },
+  "spacesheep": {
+    "batchSlug": "F26",
+    "companySocialLinks": {
+      "instagram": "https://www.instagram.com/getspacesheep/"
+    },
+    "instagramValidation": {
+      "review_state": "verified",
+      "method": "native_profile_exact_official_domain_and_company_identity",
+      "sourceUrl": "https://www.instagram.com/getspacesheep/",
+      "officialWebsite": "https://spacesheep.dev/",
+      "checkedAt": "2026-11-16T02:59:00.679Z",
+      "officialWebsiteOutboundReceipt": {
+        "companySlug": "spacesheep",
+        "companyName": "Spacesheep",
+        "officialWebsite": "https://spacesheep.dev/",
+        "finalWebsiteUrl": "https://spacesheep.dev/",
+        "instagramUrl": "https://www.instagram.com/getspacesheep/",
+        "anchorText": "",
+        "anchorHtml": "<a href=\"https://www.instagram.com/getspacesheep/\" target=\"_blank\" rel=\"noopener\" aria-label=\"spacesheep on Instagram\" title=\"Instagram\" data-mp-cta=\"social_instagram\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M7.0301.084c-1.2768.0602-2.1487.264-2.911.5634-.7888.3075-1.4575.72-2.1228 1.3877-.6652.6677-1.075 1.3368-1.3802 2.127-.2954.7638-.4956 1.6365-.552 2.914-.0564 1.2775-.0689 1.6882-.0626 4.947.0062 3.2586.0206 3.6671.0825 4.9473.061 1.2765.264 2.1482.5635 2.9107.308.7889.72 1.4573 1.388 2.1228.6679.6655 1.3365 1.0743 2.1285 1.38.7632.295 1.6361.4961 2.9134.552 1.2773.056 1.6884.069 4.9462.0627 3.2578-.0062 3.668-.0207 4.9478-.0814 1.28-.0607 2.147-.2652 2.9098-.5633.7889-.3086 1.4578-.72 2.1228-1.3881.665-.6682 1.0745-1.3378 1.3795-2.1284.2957-.7632.4966-1.636.552-2.9124.056-1.2809.0692-1.6898.063-4.948-.0063-3.2583-.021-3.6668-.0817-4.9465-.0607-1.2797-.264-2.1487-.5633-2.9117-.3084-.7889-.72-1.4568-1.3876-2.1228C21.2982 1.33 20.628.9208 19.8378.6165 19.074.321 18.2017.1197 16.9244.0645 15.6471.0093 15.236-.005 11.977.0014 8.718.0076 8.31.0215 7.0301.0839m.1402 21.6932c-1.17-.0509-1.8053-.2453-2.2287-.408-.5606-.216-.96-.4771-1.3819-.895-.422-.4178-.6811-.8186-.9-1.378-.1644-.4234-.3624-1.058-.4171-2.228-.0595-1.2645-.072-1.6442-.079-4.848-.007-3.2037.0053-3.583.0607-4.848.05-1.169.2456-1.805.408-2.2282.216-.5613.4762-.96.895-1.3816.4188-.4217.8184-.6814 1.3783-.9003.423-.1651 1.0575-.3614 2.227-.4171 1.2655-.06 1.6447-.072 4.848-.079 3.2033-.007 3.5835.005 4.8495.0608 1.169.0508 1.8053.2445 2.228.408.5608.216.96.4754 1.3816.895.4217.4194.6816.8176.9005 1.3787.1653.4217.3617 1.056.4169 2.2263.0602 1.2655.0739 1.645.0796 4.848.0058 3.203-.0055 3.5834-.061 4.848-.051 1.17-.245 1.8055-.408 2.2294-.216.5604-.4763.96-.8954 1.3814-.419.4215-.8181.6811-1.3783.9-.4224.1649-1.0577.3617-2.2262.4174-1.2656.0595-1.6448.072-4.8493.079-3.2045.007-3.5825-.006-4.848-.0608M16.953 5.5864A1.44 1.44 0 1 0 18.39 4.144a1.44 1.44 0 0 0-1.437 1.4424M5.8385 12.012c.0067 3.4032 2.7706 6.1557 6.173 6.1493 3.4026-.0065 6.157-2.7701 6.1506-6.1733-.0065-3.4032-2.771-6.1565-6.174-6.1498-3.403.0067-6.156 2.771-6.1496 6.1738M8 12.0077a4 4 0 1 1 4.008 3.9921A3.9996 3.9996 0 0 1 8 12.0077\"/></svg></a>",
+        "htmlSha256": "c948b85a4b67a476abec5986d92fd748a53b2243722c961e145f3a347256bb12",
+        "observedAt": "2026-11-16T03:23:05.663Z",
+        "ownershipStatus": "outbound_link_observed_native_account_identity_pending"
+      }
+    },
+    "sourceUrl": "https://www.ycombinator.com/companies/spacesheep",
+    "matchReason": "Authorized native profile identity is bound to the exact official company domain or its literal outbound Instagram anchor; collaborator posts retain their actual native author."
+  },
+  "trepo": {
+    "batchSlug": "F26",
+    "companySocialLinks": {
+      "instagram": "https://www.instagram.com/hellotrepo/",
+      "tiktok": "https://www.tiktok.com/@trepozach"
+    },
+    "instagramValidation": {
+      "review_state": "verified",
+      "method": "native_profile_exact_official_domain_and_company_identity",
+      "sourceUrl": "https://www.instagram.com/hellotrepo/",
+      "officialWebsite": "https://hellotrepo.com/",
+      "checkedAt": "2026-11-16T02:59:06.799Z",
+      "officialWebsiteOutboundReceipt": {
+        "companySlug": "trepo",
+        "companyName": "Trepo",
+        "officialWebsite": "https://hellotrepo.com/",
+        "finalWebsiteUrl": "https://hellotrepo.com/",
+        "instagramUrl": "https://www.instagram.com/hellotrepo/",
+        "anchorText": "",
+        "anchorHtml": "<a href=\"https://www.instagram.com/hellotrepo/\" target=\"_blank\" rel=\"noopener noreferrer\" aria-label=\"Trepo on Instagram\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" aria-hidden=\"true\"><rect x=\"3\" y=\"3\" width=\"18\" height=\"18\" rx=\"5\"/><circle cx=\"12\" cy=\"12\" r=\"4.2\"/><circle cx=\"17.5\" cy=\"6.5\" r=\"1\" fill=\"currentColor\" stroke=\"none\"/></svg></a>",
+        "htmlSha256": "ec04f2fe170d637ab317f7fa045b6cae600e6e4450ead158dab71805664bcf58",
+        "observedAt": "2026-11-16T03:23:06.605Z",
+        "ownershipStatus": "outbound_link_observed_native_account_identity_pending"
+      }
+    },
+    "sourceUrl": "https://www.ycombinator.com/companies/trepo",
+    "matchReason": "Authorized native profile identity is bound to the exact official company domain or its literal outbound Instagram anchor; collaborator posts retain their actual native author.",
+    "tiktokValidation": {
+      "review_state": "verified",
+      "method": "literal_official_website_anchor_and_native_company_profile_video",
+      "sourceUrl": "https://www.tiktok.com/@trepozach",
+      "officialWebsite": "https://hellotrepo.com/",
+      "officialOutboundReceipt": {
+        "companySlug": "trepo",
+        "companyName": "Trepo",
+        "officialYcProfileUrl": "https://www.ycombinator.com/companies/trepo",
+        "officialWebsite": "https://hellotrepo.com/",
+        "platform": "tiktok",
+        "linkKind": "account_or_community",
+        "sourceUrl": "https://www.tiktok.com/@trepozach",
+        "nativeHref": "https://www.tiktok.com/@trepozach",
+        "anchorText": "",
+        "anchorAriaLabel": "Trepo on TikTok",
+        "anchorTitle": null,
+        "rel": "noopener noreferrer",
+        "anchorHtml": "<a data-social=\"tiktok\" href=\"https://www.tiktok.com/@trepozach\" target=\"_blank\" rel=\"noopener noreferrer\" aria-label=\"Trepo on TikTok\"><svg viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M15.5 2H12v13.8a3 3 0 1 1-2.5-3V9.3A6.5 6.5 0 1 0 15.5 16V8a9 9 0 0 0 5.5 1.9V6.4A5.5 5.5 0 0 1 15.5 2Z\"></path></svg></a>",
+        "nearbyText": "",
+        "ancestors": [
+          {
+            "tag": "nav",
+            "id": null,
+            "class": "trepo-footer-socials",
+            "role": null
+          },
+          {
+            "tag": "div",
+            "id": null,
+            "class": "trepo-footer-right",
+            "role": null
+          },
+          {
+            "tag": "div",
+            "id": null,
+            "class": "trepo-footer-inner",
+            "role": null
+          },
+          {
+            "tag": "footer",
+            "id": "site-footer",
+            "class": "trepo-footer",
+            "role": null
+          },
+          {
+            "tag": "body",
+            "id": null,
+            "class": "hide-notes",
+            "role": null
+          },
+          {
+            "tag": "html",
+            "id": null,
+            "class": null,
+            "role": null
+          }
+        ],
+        "discoveredOn": "https://hellotrepo.com/",
+        "observedAt": "2026-11-16T03:36:39.116586+00:00",
+        "sourceHtmlArchivePath": "outputs/fall-2026/public-history-cache/trepo/4526cea08a3b9168f673760507bc05e44cd4bdb8977c2666028113f303d5d3dc.html",
+        "sourceHtmlSha256": "4526cea08a3b9168f673760507bc05e44cd4bdb8977c2666028113f303d5d3dc",
+        "ownershipStatus": "official_company_account_or_community_link",
+        "nativeAccountVerified": false,
+        "ownershipRationale": "Exact company account/community is linked in the official company homepage's social footer or contact-social navigation, with company-specific identity or explicit company platform label.",
+        "verifiedOwnershipScope": "Only this exact homepage-linked account/publication target; native platform profile and post history have not been fetched in this audit."
+      },
+      "inventorySha256": "4b1235f38e36c5f3813ebbc8e3a1da0050d92034efcb697476343f8870b20ada",
+      "checkedAt": "2026-11-16T17:39:49.666Z"
+    }
+  },
+  "antimattr": {
+    "batchSlug": "F26",
+    "companySocialLinks": {
+      "instagram": "https://www.instagram.com/antimattr.one/"
+    },
+    "instagramValidation": {
+      "review_state": "verified",
+      "method": "native_profile_exact_official_domain_and_company_identity",
+      "sourceUrl": "https://www.instagram.com/antimattr.one/",
+      "officialWebsite": "https://www.antimattr.one/project-mnemosyne",
+      "checkedAt": "2026-11-16T02:59:12.277Z",
+      "officialWebsiteOutboundReceipt": {
+        "companySlug": "antimattr",
+        "companyName": "antimattr",
+        "officialWebsite": "https://www.antimattr.one/project-mnemosyne",
+        "finalWebsiteUrl": "https://www.antimattr.one/project-mnemosyne",
+        "instagramUrl": "https://www.instagram.com/antimattr.one/",
+        "anchorText": "Instagram",
+        "anchorHtml": "<a class=\"framer-text framer-styles-preset-fk91e0\" data-styles-preset=\"ZXYUqWMoY\" href=\"https://www.instagram.com/antimattr.one/\" target=\"_blank\" rel>Instagram</a>",
+        "htmlSha256": "e0b10b57c6fbb9b9bcf2382a4534eb4272d3f423f5ea43acbed00037a0afb23e",
+        "observedAt": "2026-11-16T03:22:54.261Z",
+        "ownershipStatus": "outbound_link_observed_native_account_identity_pending"
+      }
+    },
+    "sourceUrl": "https://www.ycombinator.com/companies/antimattr",
+    "matchReason": "Authorized native profile identity is bound to the exact official company domain or its literal outbound Instagram anchor; collaborator posts retain their actual native author.",
+    "founders": [
+      {
+        "id": "3579391",
+        "name": "Sridipto Ghosh",
+        "socialLinks": {
+          "instagram": "https://www.instagram.com/ghosh.sridipto/"
+        },
+        "sourceUrl": "https://www.instagram.com/ghosh.sridipto/",
+        "matchReason": "Authorized native profile header exactly names existing YC founder Sridipto Ghosh, explicitly states building @antimattr.one, and links the exact official company domain antimattr.one. Map only this handle to existing founder ID 3579391; collaborator handles remain separate."
+      },
+      {
+        "id": "3675155",
+        "name": "Sirsho C",
+        "socialLinks": {
+          "instagram": "https://www.instagram.com/sirsho29/",
+          "threads": "https://www.threads.com/@sirsho29"
+        },
+        "sourceUrl": "https://www.instagram.com/sirsho29/",
+        "matchReason": "Native profile links both exact official YC-linked X and LinkedIn accounts for existing founder 3675155, and explicitly states building @antimattr.one. Native full name Sirsho Chakraborty remains an observed display name; the existing Sirsho C roster entity is retained.",
+        "threadsValidation": {
+          "review_state": "verified",
+          "sourceUrl": "https://www.threads.com/@sirsho29",
+          "identityArchivePath": "outputs/fall-2026/browser-checkpoints/instagram-sirsho-identity-ui-current.json",
+          "identityArchiveSha256": "d222eaf18a27f8b6008313cf1cbc09efed4c7b7a2ca3fb22aee63ccef7bacf3f"
+        }
+      }
+    ]
+  },
+  "covera": {
+    "batchSlug": "F26",
+    "companySocialLinks": {
+      "instagram": "https://www.instagram.com/covera.agents/",
+      "facebook": "https://www.facebook.com/covera.agents"
+    },
+    "instagramValidation": {
+      "review_state": "verified",
+      "method": "native_profile_exact_official_domain_and_company_identity",
+      "sourceUrl": "https://www.instagram.com/covera.agents/",
+      "officialWebsite": "https://www.covera-agents.com/?utm_source=ycombinator&utm_medium=company_profile&utm_campaign=yc_f26",
+      "checkedAt": "2026-11-16T03:11:27.565Z",
+      "officialWebsiteOutboundReceipt": {
+        "companySlug": "covera",
+        "companyName": "Covera",
+        "officialWebsite": "https://www.covera-agents.com/?utm_source=ycombinator&utm_medium=company_profile&utm_campaign=yc_f26",
+        "finalWebsiteUrl": "https://www.covera-agents.com/?utm_source=ycombinator&utm_medium=company_profile&utm_campaign=yc_f26",
+        "instagramUrl": "https://www.instagram.com/covera.agents/",
+        "anchorText": "",
+        "anchorHtml": "<a href=\"https://www.instagram.com/covera.agents/\" target=\"_blank\" rel=\"noopener noreferrer\" aria-label=\"Covera on Instagram\" title=\"Instagram\" class=\"block text-muted transition-colors hover:text-fg\"><svg viewBox=\"0 0 24 24\" width=\"20\" height=\"20\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M7.0301.084c-1.2768.0602-2.1487.264-2.911.5634-.7888.3075-1.4575.72-2.1228 1.3877-.6652.6677-1.075 1.3368-1.3802 2.127-.2954.7638-.4956 1.6365-.552 2.914-.0564 1.2775-.0689 1.6882-.0626 4.947.0062 3.2586.0206 3.6671.0825 4.9473.061 1.2765.264 2.1482.5635 2.9107.308.7889.72 1.4573 1.388 2.1228.6679.6655 1.3365 1.0743 2.1285 1.38.7632.295 1.6361.4961 2.9134.552 1.2773.056 1.6884.069 4.9462.0627 3.2578-.0062 3.668-.0207 4.9478-.0814 1.28-.0607 2.147-.2652 2.9098-.5633.7889-.3086 1.4578-.72 2.1228-1.3881.665-.6682 1.0745-1.3378 1.3795-2.1284.2957-.7632.4966-1.636.552-2.9124.056-1.2809.0692-1.6898.063-4.948-.0063-3.2583-.021-3.6668-.0817-4.9465-.0607-1.2797-.264-2.1487-.5633-2.9117-.3084-.7889-.72-1.4568-1.3876-2.1228C21.2982 1.33 20.628.9208 19.8378.6165 19.074.321 18.2017.1197 16.9244.0645 15.6471.0093 15.236-.005 11.977.0014 8.718.0076 8.31.0215 7.0301.0839m.1402 21.6932c-1.17-.0509-1.8053-.2453-2.2287-.408-.5606-.216-.96-.4771-1.3819-.895-.422-.4178-.6811-.8186-.9-1.378-.1644-.4234-.3624-1.058-.4171-2.228-.0595-1.2645-.072-1.6442-.079-4.848-.007-3.2037.0053-3.583.0607-4.848.05-1.169.2456-1.805.408-2.2282.216-.5613.4762-.96.895-1.3816.4188-.4217.8184-.6814 1.3783-.9003.423-.1651 1.0575-.3614 2.227-.4171 1.2655-.06 1.6447-.072 4.848-.079 3.2033-.007 3.5835.005 4.8495.0608 1.169.0508 1.8053.2445 2.228.408.5608.216.96.4754 1.3816.895.4217.4194.6816.8176.9005 1.3787.1653.4217.3617 1.056.4169 2.2263.0602 1.2655.0739 1.645.0796 4.848.0058 3.203-.0055 3.5834-.061 4.848-.051 1.17-.245 1.8055-.408 2.2294-.216.5604-.4763.96-.8954 1.3814-.419.4215-.8181.6811-1.3783.9-.4224.1649-1.0577.3617-2.2262.4174-1.2656.0595-1.6448.072-4.8493.079-3.2045.007-3.5825-.006-4.848-.0608M16.953 5.5864A1.44 1.44 0 1 0 18.39 4.144a1.44 1.44 0 0 0-1.437 1.4424M5.8385 12.012c.0067 3.4032 2.7706 6.1557 6.173 6.1493 3.4026-.0065 6.157-2.7701 6.1506-6.1733-.0065-3.4032-2.771-6.1565-6.174-6.1498-3.403.0067-6.156 2.771-6.1496 6.1738M8 12.0077a4 4 0 1 1 4.008 3.9921A3.9996 3.9996 0 0 1 8 12.0077\"></path></svg></a>",
+        "htmlSha256": "334157f6ba3e94f982a8ee17c136e8ec1d9ae27d58e82a4df2c1b29da090026f",
+        "observedAt": "2026-11-16T03:22:56.167Z",
+        "ownershipStatus": "outbound_link_observed_native_account_identity_pending"
+      }
+    },
+    "sourceUrl": "https://www.ycombinator.com/companies/covera",
+    "matchReason": "Authorized native profile identity is bound to the exact official company domain or its literal outbound Instagram anchor; collaborator posts retain their actual native author.",
+    "facebookValidation": {
+      "review_state": "verified",
+      "method": "literal_official_website_anchor_and_native_own_author_post",
+      "sourceUrl": "https://www.facebook.com/covera.agents",
+      "officialWebsite": "https://www.covera-agents.com/?utm_source=ycombinator&utm_medium=company_profile&utm_campaign=yc_f26",
+      "officialOutboundReceipt": {
+        "companySlug": "covera",
+        "companyName": "Covera",
+        "officialYcProfileUrl": "https://www.ycombinator.com/companies/covera",
+        "officialWebsite": "https://www.covera-agents.com/?utm_source=ycombinator&utm_medium=company_profile&utm_campaign=yc_f26",
+        "platform": "facebook",
+        "linkKind": "account_or_page",
+        "sourceUrl": "https://www.facebook.com/covera.agents",
+        "nativeHref": "https://www.facebook.com/covera.agents",
+        "anchorText": "",
+        "anchorAriaLabel": "Covera on Facebook",
+        "anchorTitle": "Facebook",
+        "rel": "noopener noreferrer",
+        "anchorHtml": "<a href=\"https://www.facebook.com/covera.agents\" target=\"_blank\" rel=\"noopener noreferrer\" aria-label=\"Covera on Facebook\" title=\"Facebook\" class=\"block text-muted transition-colors hover:text-fg\"><svg viewBox=\"0 0 24 24\" width=\"20\" height=\"20\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M9.101 23.691v-7.98H6.627v-3.667h2.474v-1.58c0-4.085 1.848-5.978 5.858-5.978.401 0 .955.042 1.468.103a8.68 8.68 0 0 1 1.141.195v3.325a8.623 8.623 0 0 0-.653-.036 26.805 26.805 0 0 0-.733-.009c-.707 0-1.259.096-1.675.309a1.686 1.686 0 0 0-.679.622c-.258.42-.374.995-.374 1.752v1.297h3.919l-.386 2.103-.287 1.564h-3.246v8.245C19.396 23.238 24 18.179 24 12.044c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.628 3.874 10.35 9.101 11.647Z\"></path></svg></a>",
+        "nearbyText": "",
+        "ancestors": [
+          {
+            "tag": "li",
+            "id": null,
+            "class": null,
+            "role": null
+          },
+          {
+            "tag": "ul",
+            "id": null,
+            "class": "flex items-center gap-4 mt-5",
+            "role": null
+          },
+          {
+            "tag": "div",
+            "id": null,
+            "class": null,
+            "role": null
+          },
+          {
+            "tag": "div",
+            "id": null,
+            "class": "mx-auto flex max-w-6xl flex-col gap-8 sm:flex-row sm:items-center sm:justify-between",
+            "role": null
+          },
+          {
+            "tag": "footer",
+            "id": null,
+            "class": "overflow-hidden bg-ink px-6 pt-12 lg:px-10",
+            "role": null
+          },
+          {
+            "tag": "body",
+            "id": null,
+            "class": "min-h-screen bg-paper text-body",
+            "role": null
+          }
+        ],
+        "discoveredOn": "https://www.covera-agents.com/",
+        "observedAt": "2026-11-16T03:33:45.060227+00:00",
+        "sourceHtmlArchivePath": "outputs/fall-2026/public-history-cache/covera/334157f6ba3e94f982a8ee17c136e8ec1d9ae27d58e82a4df2c1b29da090026f.html",
+        "sourceHtmlSha256": "334157f6ba3e94f982a8ee17c136e8ec1d9ae27d58e82a4df2c1b29da090026f",
+        "ownershipStatus": "official_company_account_or_community_link",
+        "nativeAccountVerified": false,
+        "ownershipRationale": "Exact company account/community is linked in the official company homepage's social footer or contact-social navigation, with company-specific identity or explicit company platform label.",
+        "verifiedOwnershipScope": "Only this exact homepage-linked account/publication target; native platform profile and post history have not been fetched in this audit."
+      },
+      "inventorySha256": "4b1235f38e36c5f3813ebbc8e3a1da0050d92034efcb697476343f8870b20ada",
+      "checkedAt": "2026-11-16T17:22:56.690Z"
+    }
+  },
+  "ignition-benefits": {
+    "batchSlug": "F26",
+    "companySocialLinks": {
+      "instagram": "https://www.instagram.com/ignitionbenefits/",
+      "facebook": "https://www.facebook.com/IgnitionBenefits"
+    },
+    "instagramValidation": {
+      "review_state": "verified",
+      "method": "native_profile_exact_official_domain_and_company_identity",
+      "sourceUrl": "https://www.instagram.com/ignitionbenefits/",
+      "officialWebsite": "https://www.ignitionbenefits.com/",
+      "checkedAt": "2026-11-16T03:11:33.590Z",
+      "officialWebsiteOutboundReceipt": {
+        "companySlug": "ignition-benefits",
+        "companyName": "Ignition Benefits",
+        "officialWebsite": "https://www.ignitionbenefits.com/",
+        "finalWebsiteUrl": "https://www.ignitionbenefits.com/",
+        "instagramUrl": "https://www.instagram.com/ignitionbenefits",
+        "anchorText": "",
+        "anchorHtml": "<a aria-label=\"twitter link\" data-w-id=\"4dbc76d0-1048-21fb-5714-e5f36e6e8cc2\" href=\"https://www.instagram.com/ignitionbenefits\" target=\"_blank\" class=\"footer_socials is-v2 w-inline-block\"><img loading=\"lazy\" src=\"https://cdn.prod.website-files.com/69f22330e53a32bb7629af14/6a551edf1a5df704ade86715_Ellipse%2017%20(2).png\" alt=\"BG\" class=\"blur-decor\"/><img loading=\"lazy\" src=\"https://cdn.prod.website-files.com/69f22330e53a32bb7629af14/6a93c3862ad97404ab951bc5_new-instagram-logo-glyph%201.svg\" alt=\"\"/></a>",
+        "htmlSha256": "3596469452ed821d8a0830e486d6ef0c8e67d315f8cb9b4ef268d27a789ca147",
+        "observedAt": "2026-11-16T03:22:59.464Z",
+        "ownershipStatus": "outbound_link_observed_native_account_identity_pending"
+      }
+    },
+    "sourceUrl": "https://www.ycombinator.com/companies/ignition-benefits",
+    "matchReason": "Authorized native profile identity is bound to the exact official company domain or its literal outbound Instagram anchor; collaborator posts retain their actual native author.",
+    "facebookValidation": {
+      "review_state": "verified",
+      "method": "literal_official_website_anchor_and_native_own_author_post",
+      "sourceUrl": "https://www.facebook.com/IgnitionBenefits",
+      "officialWebsite": "https://www.ignitionbenefits.com/",
+      "officialOutboundReceipt": {
+        "companySlug": "ignition-benefits",
+        "companyName": "Ignition Benefits",
+        "officialYcProfileUrl": "https://www.ycombinator.com/companies/ignition-benefits",
+        "officialWebsite": "https://www.ignitionbenefits.com/",
+        "platform": "facebook",
+        "linkKind": "account_or_page",
+        "sourceUrl": "https://www.facebook.com/IgnitionBenefits/",
+        "nativeHref": "https://www.facebook.com/IgnitionBenefits/",
+        "anchorText": "",
+        "anchorAriaLabel": "twitter link",
+        "anchorTitle": null,
+        "rel": null,
+        "anchorHtml": "<a aria-label=\"twitter link\" data-w-id=\"4dbc76d0-1048-21fb-5714-e5f36e6e8cbf\" href=\"https://www.facebook.com/IgnitionBenefits/\" target=\"_blank\" class=\"footer_socials is-v2 w-inline-block\"><img loading=\"lazy\" src=\"https://cdn.prod.website-files.com/69f22330e53a32bb7629af14/6a551edf1a5df704ade86715_Ellipse%2017%20(2).png\" alt=\"BG\" class=\"blur-decor\"><div class=\"w-embed\"><svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\" display=\"block\">\n<path d=\"M22 12.3038C22 6.74718 17.5229 2.24268 12 2.24268C6.47715 2.24268 2 6.74718 2 12.3038C2 17.3255 5.65684 21.4879 10.4375 22.2427V15.2121H7.89844V12.3038H10.4375V10.0872C10.4375 7.56564 11.9305 6.1728 14.2146 6.1728C15.3088 6.1728 16.4531 6.36931 16.4531 6.36931V8.84529H15.1922C13.95 8.84529 13.5625 9.6209 13.5625 10.4166V12.3038H16.3359L15.8926 15.2121H13.5625V22.2427C18.3432 21.4879 22 17.3257 22 12.3038Z\" fill=\"#F4F1EB\"></path>\n</svg>\n</div></a>",
+        "nearbyText": "",
+        "ancestors": [
+          {
+            "tag": "div",
+            "id": null,
+            "class": "footer_social-links",
+            "role": null
+          },
+          {
+            "tag": "div",
+            "id": "w-node-_4dbc76d0-1048-21fb-5714-e5f36e6e8cb7-6e6e8c79",
+            "class": "footer_social-column",
+            "role": null
+          },
+          {
+            "tag": "div",
+            "id": null,
+            "class": "footer-v2_bottom",
+            "role": null
+          },
+          {
+            "tag": "div",
+            "id": null,
+            "class": "footer_wrapper footer-padding",
+            "role": null
+          },
+          {
+            "tag": "div",
+            "id": null,
+            "class": "container-large-v2",
+            "role": null
+          },
+          {
+            "tag": "div",
+            "id": null,
+            "class": "padding-global",
+            "role": null
+          }
+        ],
+        "discoveredOn": "https://www.ignitionbenefits.com/",
+        "observedAt": "2026-11-16T03:34:16.909865+00:00",
+        "sourceHtmlArchivePath": "outputs/fall-2026/public-history-cache/ignition-benefits/3596469452ed821d8a0830e486d6ef0c8e67d315f8cb9b4ef268d27a789ca147.html",
+        "sourceHtmlSha256": "3596469452ed821d8a0830e486d6ef0c8e67d315f8cb9b4ef268d27a789ca147",
+        "ownershipStatus": "official_company_account_or_community_link",
+        "nativeAccountVerified": false,
+        "ownershipRationale": "Exact company account/community is linked in the official company homepage's social footer or contact-social navigation, with company-specific identity or explicit company platform label.",
+        "verifiedOwnershipScope": "Only this exact homepage-linked account/publication target; native platform profile and post history have not been fetched in this audit."
+      },
+      "inventorySha256": "4b1235f38e36c5f3813ebbc8e3a1da0050d92034efcb697476343f8870b20ada",
+      "checkedAt": "2026-11-16T17:34:20.730Z"
+    }
+  },
+  "audora": {
+    "batchSlug": "F26",
+    "companySocialLinks": {
+      "instagram": "https://www.instagram.com/tryaudora/"
+    },
+    "instagramValidation": {
+      "review_state": "verified",
+      "method": "native_profile_exact_official_domain_and_company_identity",
+      "sourceUrl": "https://www.instagram.com/tryaudora/",
+      "officialWebsite": "https://audora.art",
+      "checkedAt": "2026-11-16T03:11:39.796Z",
+      "officialWebsiteOutboundReceipt": {
+        "companySlug": "audora",
+        "companyName": "Audora",
+        "officialWebsite": "https://audora.art",
+        "finalWebsiteUrl": "https://audora.art/",
+        "instagramUrl": "https://www.instagram.com/tryaudora/",
+        "anchorText": "",
+        "anchorHtml": "<a href=\"https://www.instagram.com/tryaudora/?hl=en\" aria-label=\"Audora on Instagram\" rel=\"me noopener\" target=\"_blank\" class=\"svelte-zgljar\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\" class=\"svelte-zgljar\"><!----><rect x=\"3\" y=\"3\" width=\"18\" height=\"18\" rx=\"5\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" /><circle cx=\"12\" cy=\"12\" r=\"4.1\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" /><circle cx=\"17.3\" cy=\"6.7\" r=\"1.1\" fill=\"currentColor\" /><!----></svg></a>",
+        "htmlSha256": "acd404bb199728c398bb916760441817e6fcce91f00c004c0824200c70558472",
+        "observedAt": "2026-11-16T03:22:55.133Z",
+        "ownershipStatus": "outbound_link_observed_native_account_identity_pending"
+      }
+    },
+    "sourceUrl": "https://www.ycombinator.com/companies/audora",
+    "matchReason": "Authorized native profile identity is bound to the exact official company domain or its literal outbound Instagram anchor; collaborator posts retain their actual native author."
+  },
+  "kairos-health": {
+    "batchSlug": "F26",
+    "companySocialLinks": {
+      "instagram": "https://www.instagram.com/kairosdental_/",
+      "tiktok": "https://www.tiktok.com/@kairosdental_"
+    },
+    "instagramValidation": {
+      "review_state": "verified",
+      "method": "official_website_outbound_instagram_anchor_and_native_profile",
+      "sourceUrl": "https://www.instagram.com/kairosdental_/",
+      "officialWebsite": "https://kairoshealthai.com",
+      "checkedAt": "2026-11-16T03:20:44.969Z",
+      "officialWebsiteOutboundReceipt": {
+        "companySlug": "kairos-health",
+        "companyName": "Kairos Health",
+        "officialWebsite": "https://kairoshealthai.com",
+        "finalWebsiteUrl": "https://kairoshealthai.com/",
+        "instagramUrl": "https://www.instagram.com/kairosdental_",
+        "anchorText": "Instagram",
+        "anchorHtml": "<a class=\"contact-item\" href=\"https://www.instagram.com/kairosdental_\" target=\"_blank\" rel=\"noopener noreferrer\"><span class=\"contact-icon\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><rect x=\"3\" y=\"3\" width=\"18\" height=\"18\" rx=\"5\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"></rect><circle cx=\"12\" cy=\"12\" r=\"4\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"></circle><circle cx=\"17.5\" cy=\"6.5\" r=\"1.25\"></circle></svg></span><span>Instagram</span></a>",
+        "htmlSha256": "4efbc3065b61269de1d3255f848b07e634532c52ba7e1f0fddc60fe311feb1c4",
+        "observedAt": "2026-11-16T03:22:59.991Z",
+        "ownershipStatus": "outbound_link_observed_native_account_identity_pending"
+      }
+    },
+    "sourceUrl": "https://www.ycombinator.com/companies/kairos-health",
+    "matchReason": "Authorized native profile identity is bound to the exact official company domain or its literal outbound Instagram anchor; collaborator posts retain their actual native author.",
+    "tiktokValidation": {
+      "review_state": "verified",
+      "method": "literal_official_website_anchor_and_native_company_profile_video",
+      "sourceUrl": "https://www.tiktok.com/@kairosdental_",
+      "officialWebsite": "https://kairoshealthai.com",
+      "officialOutboundReceipt": {
+        "companySlug": "kairos-health",
+        "companyName": "Kairos Health",
+        "officialYcProfileUrl": "https://www.ycombinator.com/companies/kairos-health",
+        "officialWebsite": "https://kairoshealthai.com",
+        "platform": "tiktok",
+        "linkKind": "account_or_community",
+        "sourceUrl": "https://www.tiktok.com/@kairosdental_",
+        "nativeHref": "https://www.tiktok.com/@kairosdental_",
+        "anchorText": "TikTok",
+        "anchorAriaLabel": null,
+        "anchorTitle": null,
+        "rel": "noopener noreferrer",
+        "anchorHtml": "<a class=\"contact-item\" href=\"https://www.tiktok.com/@kairosdental_\" target=\"_blank\" rel=\"noopener noreferrer\"><span class=\"contact-icon\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M19.589 6.686a4.793 4.793 0 0 1-3.77-4.245V2H12.37v13.672a2.895 2.895 0 0 1-2.896 2.879 2.9 2.9 0 0 1-2.895-2.896 2.9 2.9 0 0 1 2.895-2.896c.296 0 .58.046.849.128V9.37a6.31 6.31 0 0 0-.849-.058A6.347 6.347 0 0 0 3.127 15.66 6.347 6.347 0 0 0 9.474 22a6.35 6.35 0 0 0 6.347-6.347V8.72A8.2 8.2 0 0 0 20.62 10.26V6.813a4.838 4.838 0 0 1-1.031-.127z\"></path></svg></span><span>TikTok</span></a>",
+        "nearbyText": "TikTok",
+        "ancestors": [
+          {
+            "tag": "li",
+            "id": null,
+            "class": null,
+            "role": null
+          },
+          {
+            "tag": "ul",
+            "id": null,
+            "class": "contact-social-list",
+            "role": null
+          },
+          {
+            "tag": "div",
+            "id": null,
+            "class": "contact-dropdown-inner",
+            "role": null
+          },
+          {
+            "tag": "div",
+            "id": "_R_8ilfbb_",
+            "class": "contact-dropdown",
+            "role": null
+          },
+          {
+            "tag": "div",
+            "id": null,
+            "class": "nav-contact",
+            "role": null
+          },
+          {
+            "tag": "div",
+            "id": null,
+            "class": "desktop-links",
+            "role": null
+          }
+        ],
+        "discoveredOn": "https://kairoshealthai.com/",
+        "observedAt": "2026-11-16T03:34:24.358626+00:00",
+        "sourceHtmlArchivePath": "outputs/fall-2026/public-history-cache/kairos-health/4efbc3065b61269de1d3255f848b07e634532c52ba7e1f0fddc60fe311feb1c4.html",
+        "sourceHtmlSha256": "4efbc3065b61269de1d3255f848b07e634532c52ba7e1f0fddc60fe311feb1c4",
+        "ownershipStatus": "official_company_account_or_community_link",
+        "nativeAccountVerified": false,
+        "ownershipRationale": "Exact company account/community is linked in the official company homepage's social footer or contact-social navigation, with company-specific identity or explicit company platform label.",
+        "verifiedOwnershipScope": "Only this exact homepage-linked account/publication target; native platform profile and post history have not been fetched in this audit."
+      },
+      "inventorySha256": "4b1235f38e36c5f3813ebbc8e3a1da0050d92034efcb697476343f8870b20ada",
+      "checkedAt": "2026-11-16T17:19:35.790Z"
+    }
+  },
+  "yam": {
+    "batchSlug": "F26",
+    "companySocialLinks": {
+      "instagram": "https://www.instagram.com/playhiyam/",
+      "facebook": "https://www.facebook.com/playhiyam",
+      "tiktok": "https://www.tiktok.com/@playhiyam"
+    },
+    "instagramValidation": {
+      "review_state": "verified",
+      "method": "native_profile_exact_official_domain_and_company_identity",
+      "sourceUrl": "https://www.instagram.com/playhiyam/",
+      "officialWebsite": "https://hiyam.ai/",
+      "checkedAt": "2026-11-16T03:20:48.125Z",
+      "officialWebsiteOutboundReceipt": {
+        "companySlug": "yam",
+        "companyName": "Yam",
+        "officialWebsite": "https://hiyam.ai/",
+        "finalWebsiteUrl": "https://www.hiyam.ai/",
+        "instagramUrl": "https://www.instagram.com/playhiyam",
+        "anchorText": "Instagram",
+        "anchorHtml": "<a href=\"https://www.instagram.com/playhiyam\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"block py-1.5 text-sm text-zinc-400 transition-colors hover:text-white\">Instagram</a>",
+        "htmlSha256": "3298a8f049c5831a8606b759d4717d50cafb83411291c08593f7a9d755e3443d",
+        "observedAt": "2026-11-16T03:23:07.865Z",
+        "ownershipStatus": "outbound_link_observed_native_account_identity_pending"
+      }
+    },
+    "sourceUrl": "https://www.ycombinator.com/companies/yam",
+    "matchReason": "Authorized native profile identity is bound to the exact official company domain or its literal outbound Instagram anchor; collaborator posts retain their actual native author.",
+    "facebookValidation": {
+      "review_state": "verified",
+      "method": "literal_official_website_anchor_and_native_own_author_post",
+      "sourceUrl": "https://www.facebook.com/playhiyam",
+      "officialWebsite": "https://hiyam.ai/",
+      "officialOutboundReceipt": {
+        "companySlug": "yam",
+        "companyName": "Yam",
+        "officialYcProfileUrl": "https://www.ycombinator.com/companies/yam",
+        "officialWebsite": "https://hiyam.ai/",
+        "platform": "facebook",
+        "linkKind": "account_or_page",
+        "sourceUrl": "https://www.facebook.com/playhiyam",
+        "nativeHref": "https://www.facebook.com/playhiyam",
+        "anchorText": "Facebook",
+        "anchorAriaLabel": null,
+        "anchorTitle": null,
+        "rel": "noopener noreferrer",
+        "anchorHtml": "<a href=\"https://www.facebook.com/playhiyam\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"block py-1.5 text-sm text-zinc-400 transition-colors hover:text-white\">Facebook</a>",
+        "nearbyText": "Facebook",
+        "ancestors": [
+          {
+            "tag": "li",
+            "id": null,
+            "class": null,
+            "role": null
+          },
+          {
+            "tag": "ul",
+            "id": null,
+            "class": null,
+            "role": null
+          },
+          {
+            "tag": "nav",
+            "id": null,
+            "class": "row-span-2 grid grid-rows-subgrid gap-y-0",
+            "role": null
+          },
+          {
+            "tag": "div",
+            "id": null,
+            "class": "grid grid-cols-2 gap-x-4 gap-y-8 md:grid-cols-4 lg:grid-cols-5 lg:gap-8",
+            "role": null
+          },
+          {
+            "tag": "div",
+            "id": null,
+            "class": "pl-[calc(1rem+var(--safe-left))] pr-[calc(1rem+var(--safe-right))] sm:pl-[calc(1.5rem+var(--safe-left))] sm:pr-[calc(1.5rem+var(--safe-right))] lg:pl-[calc(2rem+var(--safe-left))] lg:pr-[calc(2rem+var(--safe-right))] mx-auto w-full max-w-[1920px]",
+            "role": null
+          },
+          {
+            "tag": "footer",
+            "id": null,
+            "class": "pb-6 pt-10",
+            "role": null
+          }
+        ],
+        "discoveredOn": "https://www.hiyam.ai/",
+        "observedAt": "2026-11-16T03:36:59.018382+00:00",
+        "sourceHtmlArchivePath": "outputs/fall-2026/public-history-cache/yam/ac6ceb241675b7d1ea74b13055119112f81f24d8c782f8c89f8202b3732dd079.html",
+        "sourceHtmlSha256": "ac6ceb241675b7d1ea74b13055119112f81f24d8c782f8c89f8202b3732dd079",
+        "ownershipStatus": "official_company_account_or_community_link",
+        "nativeAccountVerified": false,
+        "ownershipRationale": "Exact company account/community is linked in the official company homepage's social footer or contact-social navigation, with company-specific identity or explicit company platform label.",
+        "verifiedOwnershipScope": "Only this exact homepage-linked account/publication target; native platform profile and post history have not been fetched in this audit."
+      },
+      "inventorySha256": "4b1235f38e36c5f3813ebbc8e3a1da0050d92034efcb697476343f8870b20ada",
+      "checkedAt": "2026-11-16T18:02:01.650Z"
+    },
+    "tiktokValidation": {
+      "review_state": "verified",
+      "method": "literal_official_website_anchor_and_native_company_profile_video",
+      "sourceUrl": "https://www.tiktok.com/@playhiyam",
+      "officialWebsite": "https://hiyam.ai/",
+      "officialOutboundReceipt": {
+        "companySlug": "yam",
+        "companyName": "Yam",
+        "officialYcProfileUrl": "https://www.ycombinator.com/companies/yam",
+        "officialWebsite": "https://hiyam.ai/",
+        "platform": "tiktok",
+        "linkKind": "account_or_community",
+        "sourceUrl": "https://www.tiktok.com/@playhiyam",
+        "nativeHref": "https://www.tiktok.com/@playhiyam",
+        "anchorText": "TikTok",
+        "anchorAriaLabel": null,
+        "anchorTitle": null,
+        "rel": "noopener noreferrer",
+        "anchorHtml": "<a href=\"https://www.tiktok.com/@playhiyam\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"block py-1.5 text-sm text-zinc-400 transition-colors hover:text-white\">TikTok</a>",
+        "nearbyText": "TikTok",
+        "ancestors": [
+          {
+            "tag": "li",
+            "id": null,
+            "class": null,
+            "role": null
+          },
+          {
+            "tag": "ul",
+            "id": null,
+            "class": null,
+            "role": null
+          },
+          {
+            "tag": "nav",
+            "id": null,
+            "class": "row-span-2 grid grid-rows-subgrid gap-y-0",
+            "role": null
+          },
+          {
+            "tag": "div",
+            "id": null,
+            "class": "grid grid-cols-2 gap-x-4 gap-y-8 md:grid-cols-4 lg:grid-cols-5 lg:gap-8",
+            "role": null
+          },
+          {
+            "tag": "div",
+            "id": null,
+            "class": "pl-[calc(1rem+var(--safe-left))] pr-[calc(1rem+var(--safe-right))] sm:pl-[calc(1.5rem+var(--safe-left))] sm:pr-[calc(1.5rem+var(--safe-right))] lg:pl-[calc(2rem+var(--safe-left))] lg:pr-[calc(2rem+var(--safe-right))] mx-auto w-full max-w-[1920px]",
+            "role": null
+          },
+          {
+            "tag": "footer",
+            "id": null,
+            "class": "pb-6 pt-10",
+            "role": null
+          }
+        ],
+        "discoveredOn": "https://www.hiyam.ai/",
+        "observedAt": "2026-11-16T03:36:59.018382+00:00",
+        "sourceHtmlArchivePath": "outputs/fall-2026/public-history-cache/yam/ac6ceb241675b7d1ea74b13055119112f81f24d8c782f8c89f8202b3732dd079.html",
+        "sourceHtmlSha256": "ac6ceb241675b7d1ea74b13055119112f81f24d8c782f8c89f8202b3732dd079",
+        "ownershipStatus": "official_company_account_or_community_link",
+        "nativeAccountVerified": false,
+        "ownershipRationale": "Exact company account/community is linked in the official company homepage's social footer or contact-social navigation, with company-specific identity or explicit company platform label.",
+        "verifiedOwnershipScope": "Only this exact homepage-linked account/publication target; native platform profile and post history have not been fetched in this audit."
+      },
+      "inventorySha256": "4b1235f38e36c5f3813ebbc8e3a1da0050d92034efcb697476343f8870b20ada",
+      "checkedAt": "2026-11-16T18:01:59.213Z"
+    }
+  },
+  "native": {
+    "batchSlug": "F26",
+    "companySocialLinks": {
+      "instagram": "https://www.instagram.com/native.no/"
+    },
+    "instagramValidation": {
+      "review_state": "verified",
+      "method": "native_profile_exact_official_domain_and_company_identity",
+      "sourceUrl": "https://www.instagram.com/native.no/",
+      "officialWebsite": "https://native.no/",
+      "checkedAt": "2026-11-16T03:20:51.407Z",
+      "officialWebsiteOutboundReceipt": {
+        "companySlug": "native",
+        "companyName": "Native",
+        "officialWebsite": "https://native.no/",
+        "finalWebsiteUrl": "https://native.no/",
+        "instagramUrl": "https://www.instagram.com/native.no/",
+        "anchorText": "",
+        "anchorHtml": "<a href=\"https://www.instagram.com/native.no/\" target=\"_blank\" rel=\"noopener noreferrer\" aria-label=\"Instagram\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"2\" y=\"2\" width=\"20\" height=\"20\" rx=\"5\" ry=\"5\"></rect><path d=\"M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z\"></path><line x1=\"17.5\" y1=\"6.5\" x2=\"17.51\" y2=\"6.5\"></line></svg></a>",
+        "htmlSha256": "eb887deff6959b091b900e90fd7fc14a8f7581e38675b2d49d2cbf29a626c65c",
+        "observedAt": "2026-11-16T03:23:01.014Z",
+        "ownershipStatus": "outbound_link_observed_native_account_identity_pending"
+      }
+    },
+    "sourceUrl": "https://www.ycombinator.com/companies/native",
+    "matchReason": "Authorized native profile identity is bound to the exact official company domain or its literal outbound Instagram anchor; collaborator posts retain their actual native author."
+  },
+  "roma": {
+    "batchSlug": "F26",
+    "companySocialLinks": {
+      "instagram": "https://www.instagram.com/romaromahq/"
+    },
+    "instagramValidation": {
+      "review_state": "verified",
+      "method": "official_website_outbound_instagram_anchor_and_native_profile",
+      "sourceUrl": "https://www.instagram.com/romaromahq/",
+      "officialWebsite": "https://roma.app",
+      "checkedAt": "2026-11-16T03:21:06.122Z",
+      "officialWebsiteOutboundReceipt": {
+        "companySlug": "roma",
+        "companyName": "Roma",
+        "officialWebsite": "https://roma.app",
+        "finalWebsiteUrl": "https://roma.app/",
+        "instagramUrl": "https://www.instagram.com/romaromahq/",
+        "anchorText": "Instagram",
+        "anchorHtml": "<a href=\"https://www.instagram.com/romaromahq/\" target=\"_blank\" rel=\"noreferrer\">Instagram</a>",
+        "htmlSha256": "7663708a432ff4bf012a3202dda7a253bf1d0c96571208521f53d1f216cbcdfa",
+        "observedAt": "2026-11-16T03:23:05.001Z",
+        "ownershipStatus": "outbound_link_observed_native_account_identity_pending"
+      }
+    },
+    "sourceUrl": "https://www.ycombinator.com/companies/roma",
+    "matchReason": "Authorized native profile identity is bound to the exact official company domain or its literal outbound Instagram anchor; collaborator posts retain their actual native author.",
+    "founders": [
+      {
+        "id": "24212",
+        "name": "Jan Senderek",
+        "socialLinks": {
+          "instagram": "https://www.instagram.com/jansenderek/"
+        },
+        "sourceUrl": "https://www.instagram.com/jansenderek/",
+        "matchReason": "Parent directly confirmed this native founder profile by explicit company mention, exact official website domain, and existing YC founder identity lineage; bind to the existing roster founder ID only."
+      }
+    ]
+  },
+  "conus": {
+    "batchSlug": "F26",
+    "companySocialLinks": {
+      "instagram": "https://www.instagram.com/conusmed/"
+    },
+    "instagramValidation": {
+      "review_state": "verified",
+      "method": "native_profile_exact_official_domain_and_company_identity",
+      "sourceUrl": "https://www.instagram.com/conusmed/",
+      "officialWebsite": "https://www.conus-med.com",
+      "checkedAt": "2026-11-16T03:21:09.621Z",
+      "officialWebsiteOutboundReceipt": {
+        "companySlug": "conus",
+        "companyName": "CONUS",
+        "officialWebsite": "https://www.conus-med.com",
+        "finalWebsiteUrl": "https://conus-med.com/",
+        "instagramUrl": "https://www.instagram.com/conusmed/",
+        "anchorText": "",
+        "anchorHtml": "<a class=\"footer-social-instagram\" href=\"https://www.instagram.com/conusmed/\" aria-label=\"Instagram\" target=\"_blank\" rel=\"noreferrer noopener\"><svg stroke=\"currentColor\" fill=\"currentColor\" stroke-width=\"0\" viewBox=\"0 0 448 512\" aria-hidden=\"true\" focusable=\"false\" height=\"1em\" width=\"1em\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M224.1 141c-63.6 0-114.9 51.3-114.9 114.9s51.3 114.9 114.9 114.9S339 319.5 339 255.9 287.7 141 224.1 141zm0 189.6c-41.1 0-74.7-33.5-74.7-74.7s33.5-74.7 74.7-74.7 74.7 33.5 74.7 74.7-33.6 74.7-74.7 74.7zm146.4-194.3c0 14.9-12 26.8-26.8 26.8-14.9 0-26.8-12-26.8-26.8s12-26.8 26.8-26.8 26.8 12 26.8 26.8zm76.1 27.2c-1.7-35.9-9.9-67.7-36.2-93.9-26.2-26.2-58-34.4-93.9-36.2-37-2.1-147.9-2.1-184.9 0-35.8 1.7-67.6 9.9-93.9 36.1s-34.4 58-36.2 93.9c-2.1 37-2.1 147.9 0 184.9 1.7 35.9 9.9 67.7 36.2 93.9s58 34.4 93.9 36.2c37 2.1 147.9 2.1 184.9 0 35.9-1.7 67.7-9.9 93.9-36.2 26.2-26.2 34.4-58 36.2-93.9 2.1-37 2.1-147.8 0-184.8zM398.8 388c-7.8 19.6-22.9 34.7-42.6 42.6-29.5 11.7-99.5 9-132.1 9s-102.7 2.6-132.1-9c-19.6-7.8-34.7-22.9-42.6-42.6-11.7-29.5-9-99.5-9-132.1s-2.6-102.7 9-132.1c7.8-19.6 22.9-34.7 42.6-42.6 29.5-11.7 99.5-9 132.1-9s102.7-2.6 132.1 9c19.6 7.8 34.7 22.9 42.6 42.6 11.7 29.5 9 99.5 9 132.1s2.7 102.7-9 132.1z\"></path></svg></a>",
+        "htmlSha256": "00517d7e5b66cd2ab9c4ff2c45d2da6e756fb1494230176dddb756c2cf5b660e",
+        "observedAt": "2026-11-16T03:22:56.107Z",
+        "ownershipStatus": "outbound_link_observed_native_account_identity_pending"
+      }
+    },
+    "sourceUrl": "https://www.ycombinator.com/companies/conus",
+    "matchReason": "Authorized native profile identity is bound to the exact official company domain or its literal outbound Instagram anchor; collaborator posts retain their actual native author."
+  },
+  "volaren": {
+    "batchSlug": "F26",
+    "companySocialLinks": {
+      "instagram": "https://www.instagram.com/volaren.ai/"
+    },
+    "instagramValidation": {
+      "review_state": "verified",
+      "method": "native_profile_exact_official_domain_and_company_identity",
+      "sourceUrl": "https://www.instagram.com/volaren.ai/",
+      "officialWebsite": "https://www.volaren.ai",
+      "checkedAt": "2026-11-16T03:21:13.054Z",
+      "officialWebsiteOutboundReceipt": {
+        "companySlug": "volaren",
+        "companyName": "Volaren",
+        "officialWebsite": "https://www.volaren.ai",
+        "finalWebsiteUrl": "https://www.volaren.ai/",
+        "instagramUrl": "https://www.instagram.com/volaren.ai",
+        "anchorText": "",
+        "anchorHtml": "<a href=\"https://www.instagram.com/volaren.ai\" target=\"_blank\" rel=\"noopener noreferrer\" aria-label=\"Volaren on Instagram\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M12 2.163c3.204 0 3.584.012 4.85.07 1.17.053 1.805.249 2.227.415.562.217.96.477 1.382.896.419.42.679.819.896 1.381.164.422.36 1.057.413 2.227.057 1.266.07 1.646.07 4.85s-.015 3.585-.074 4.85c-.061 1.17-.256 1.805-.421 2.227-.224.562-.479.96-.899 1.382-.419.419-.824.679-1.38.896-.42.164-1.065.36-2.235.413-1.274.057-1.649.07-4.859.07-3.211 0-3.586-.015-4.859-.074-1.171-.061-1.816-.256-2.236-.421-.569-.224-.96-.479-1.379-.899-.421-.419-.69-.824-.9-1.38-.165-.42-.359-1.065-.42-2.235-.045-1.26-.061-1.649-.061-4.844 0-3.196.016-3.586.061-4.861.061-1.17.255-1.814.42-2.234.21-.57.479-.96.9-1.381.419-.419.81-.689 1.379-.898.42-.166 1.051-.361 2.221-.421C8.416 2.175 8.796 2.163 12 2.163zm0-2.163C8.741 0 8.333.014 7.053.072 5.775.132 4.905.333 4.14.63c-.789.306-1.459.717-2.126 1.384S.935 3.35.63 4.14C.333 4.905.131 5.775.072 7.053.012 8.333 0 8.74 0 12s.015 3.667.072 4.947c.06 1.277.261 2.148.558 2.913.306.788.717 1.459 1.384 2.126.667.666 1.336 1.079 2.126 1.384.766.296 1.636.499 2.913.558C8.333 23.988 8.74 24 12 24s3.667-.015 4.947-.072c1.277-.06 2.148-.262 2.913-.558.788-.306 1.459-.718 2.126-1.384.666-.667 1.079-1.335 1.384-2.126.296-.765.499-1.636.558-2.913.06-1.28.072-1.687.072-4.947s-.015-3.667-.072-4.947c-.06-1.277-.262-2.149-.558-2.913-.306-.789-.718-1.459-1.384-2.126C21.319 1.347 20.651.935 19.86.63c-.765-.297-1.636-.499-2.913-.558C15.667.012 15.26 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z\"></path></svg></a>",
+        "htmlSha256": "af81e897d1f5b46d3f52dc2a543682457a1285a61730afb5ac40824b3c882943",
+        "observedAt": "2026-11-16T03:23:07.148Z",
+        "ownershipStatus": "outbound_link_observed_native_account_identity_pending"
+      }
+    },
+    "sourceUrl": "https://www.ycombinator.com/companies/volaren",
+    "matchReason": "Authorized native profile identity is bound to the exact official company domain or its literal outbound Instagram anchor; collaborator posts retain their actual native author."
+  },
+  "deepmark": {
+    "batchSlug": "F26",
+    "companySocialLinks": {
+      "instagram": "https://www.instagram.com/deepmark.me/"
+    },
+    "instagramValidation": {
+      "review_state": "verified",
+      "method": "official_website_outbound_instagram_anchor_and_native_profile",
+      "sourceUrl": "https://www.instagram.com/deepmark.me/",
+      "officialWebsite": "https://www.deepmark.me",
+      "checkedAt": "2026-11-16T03:22:24.399Z",
+      "officialWebsiteOutboundReceipt": {
+        "companySlug": "deepmark",
+        "companyName": "DeepMark",
+        "officialWebsite": "https://www.deepmark.me",
+        "finalWebsiteUrl": "https://www.deepmark.me/",
+        "instagramUrl": "https://www.instagram.com/deepmark.me/",
+        "anchorText": "",
+        "anchorHtml": "<a href=\"https://www.instagram.com/deepmark.me/\" target=\"_blank\" rel=\"noopener noreferrer\" aria-label=\"Deepmark on Instagram\" class=\"text-blue-500 hover:text-blue-400 transition-colors\"><svg-icon src=\"/assets/icons/instagram.svg\" ngh=\"0\"><svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M12 4.21173C14.5365 4.21173 14.837 4.22123 15.8389 4.267C16.4411 4.27427 17.0377 4.38499 17.6024 4.59432C18.0151 4.74662 18.3884 4.9895 18.6949 5.30509C19.0105 5.61156 19.2534 5.98488 19.4057 6.39759C19.615 6.96235 19.7257 7.55888 19.733 8.16114C19.7788 9.16295 19.7883 9.4635 19.7883 12C19.7883 14.5365 19.7788 14.837 19.733 15.8389C19.7257 16.4411 19.615 17.0377 19.4057 17.6024C19.2476 18.0122 19.0055 18.3844 18.6949 18.6949C18.3844 19.0055 18.0122 19.2476 17.6024 19.4057C17.0377 19.615 16.4411 19.7257 15.8389 19.733C14.837 19.7788 14.5365 19.7883 12 19.7883C9.4635 19.7883 9.16295 19.7788 8.16114 19.733C7.55859 19.7258 6.96176 19.6151 6.39673 19.4057C5.98433 19.2533 5.61132 19.0104 5.30509 18.6949C4.9895 18.3884 4.74662 18.0151 4.59432 17.6024C4.38499 17.0377 4.27427 16.4411 4.267 15.8389C4.22123 14.837 4.21173 14.5365 4.21173 12C4.21173 9.4635 4.22123 9.16295 4.267 8.16114C4.27427 7.55888 4.38499 6.96235 4.59432 6.39759C4.74662 5.98488 4.9895 5.61156 5.30509 5.30509C5.61156 4.9895 5.98488 4.74662 6.39759 4.59432C6.96235 4.38499 7.55888 4.27427 8.16114 4.267C9.16295 4.22123 9.4635 4.21173 12 4.21173ZM12 2.5C9.42032 2.5 9.09645 2.51123 8.08341 2.557C7.29535 2.57272 6.51567 2.72194 5.7775 2.99832C5.1433 3.2371 4.56886 3.61141 4.09427 4.09514C3.61096 4.56956 3.23695 5.14369 2.99832 5.7775C2.72224 6.51572 2.57331 7.2954 2.55786 8.08341C2.51036 9.09645 2.5 9.42032 2.5 12C2.5 14.5797 2.51123 14.9035 2.557 15.9166C2.57272 16.7046 2.72194 17.4843 2.99832 18.2225C3.2371 18.8567 3.61141 19.4311 4.09514 19.9057C4.56956 20.389 5.14369 20.763 5.7775 21.0017C6.51572 21.2778 7.2954 21.4267 8.08341 21.4421C9.09645 21.4896 9.42032 21.5 12 21.5C14.5797 21.5 14.9035 21.4888 15.9166 21.443C16.7046 21.4273 17.4843 21.2781 18.2225 21.0017C18.8538 20.7576 19.4271 20.3843 19.9057 19.9057C20.3843 19.4271 20.7576 18.8538 21.0017 18.2225C21.2778 17.4843 21.4267 16.7046 21.4421 15.9166C21.4896 14.9035 21.5 14.5797 21.5 12C21.5 9.42032 21.4888 9.09645 21.443 8.08341C21.4273 7.29535 21.2781 6.51567 21.0017 5.7775C20.7629 5.1433 20.3886 4.56886 19.9049 4.09427C19.4304 3.61096 18.8563 3.23695 18.2225 2.99832C17.4843 2.72224 16.7046 2.57331 15.9166 2.55786C14.9035 2.51036 14.5797 2.5 12 2.5ZM12 7.12132C11.0351 7.12132 10.0918 7.40745 9.28955 7.94352C8.48725 8.4796 7.86194 9.24155 7.49269 10.133C7.12343 11.0245 7.02682 12.0054 7.21506 12.9518C7.40331 13.8982 7.86796 14.7675 8.55025 15.4497C9.23255 16.132 10.1018 16.5967 11.0482 16.7849C11.9946 16.9732 12.9755 16.8766 13.867 16.5073C14.7585 16.1381 15.5204 15.5127 16.0565 14.7105C16.5926 13.9082 16.8787 12.9649 16.8787 12C16.8787 10.7061 16.3647 9.46518 15.4497 8.55025C14.5348 7.63532 13.2939 7",
+        "htmlSha256": "88fe94e87e9c34cceb4605171e7ad710fa064a4605dec1afa7f0f00c18e5a904",
+        "observedAt": "2026-11-16T03:22:56.236Z",
+        "ownershipStatus": "outbound_link_observed_native_account_identity_pending"
+      }
+    },
+    "sourceUrl": "https://www.ycombinator.com/companies/deepmark",
+    "matchReason": "Authorized native profile identity is bound to the exact official company domain or its literal outbound Instagram anchor; collaborator posts retain their actual native author.",
+    "founders": [
+      {
+        "id": "2023960",
+        "name": "Slavko Kovačević",
+        "socialLinks": {
+          "instagram": "https://www.instagram.com/slavzilla/"
+        },
+        "sourceUrl": "https://www.instagram.com/slavzilla/",
+        "matchReason": "The official company’s formal team introduction names this exact existing YC founder and corroborating biography. Its captured native primary-company header links exactly the sole personal coauthor; following that literal anchor reaches the matching native personal profile. Source HTML/profile/intro archives are rehashed. Post authorship remains the actual native primary author, independently of coauthor identity."
+      },
+      {
+        "id": "2547276",
+        "name": "Kosta Pavlović",
+        "socialLinks": {
+          "instagram": "https://www.instagram.com/kosta.pavlovic/"
+        },
+        "sourceUrl": "https://www.instagram.com/kosta.pavlovic/",
+        "matchReason": "The official company’s formal team introduction names this exact existing YC founder and corroborating biography. Its captured native primary-company header links exactly the sole personal coauthor; following that literal anchor reaches the matching native personal profile. Source HTML/profile/intro archives are rehashed. Post authorship remains the actual native primary author, independently of coauthor identity."
+      }
+    ]
+  },
+  "veeza-ai": {
+    "batchSlug": "F26",
+    "companySocialLinks": {
+      "instagram": "https://www.instagram.com/veeza.ai/"
+    },
+    "instagramValidation": {
+      "review_state": "verified",
+      "method": "native_profile_exact_official_domain_and_company_identity",
+      "sourceUrl": "https://www.instagram.com/veeza.ai/",
+      "officialWebsite": "https://veeza.ai",
+      "checkedAt": "2026-11-16T03:22:30.854Z",
+      "officialWebsiteOutboundReceipt": {
+        "companySlug": "veeza-ai",
+        "companyName": "Veeza AI",
+        "officialWebsite": "https://veeza.ai",
+        "finalWebsiteUrl": "https://www.veeza.ai/en",
+        "instagramUrl": "https://www.instagram.com/veeza.ai/",
+        "anchorText": "",
+        "anchorHtml": "<a href=\"https://www.instagram.com/veeza.ai/\" target=\"_blank\" rel=\"me noopener noreferrer\" aria-label=\"Veeza on Instagram\" title=\"Instagram\" class=\"flex h-9 w-9 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-white hover:text-slate-900 hover:ring-1 hover:ring-slate-200\"><svg class=\"h-4 w-4\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><rect x=\"3\" y=\"3\" width=\"18\" height=\"18\" rx=\"5\"></rect><circle cx=\"12\" cy=\"12\" r=\"4\"></circle><path d=\"M17.5 6.5h.01\"></path></svg></a>",
+        "htmlSha256": "df339590fd83cb9aca924bb5184f58c73518056dd8f7dc5cb7cd049ebef4b741",
+        "observedAt": "2026-11-16T03:23:06.779Z",
+        "ownershipStatus": "outbound_link_observed_native_account_identity_pending"
+      }
+    },
+    "sourceUrl": "https://www.ycombinator.com/companies/veeza-ai",
+    "matchReason": "Authorized native profile identity is bound to the exact official company domain or its literal outbound Instagram anchor; collaborator posts retain their actual native author.",
+    "founders": [
+      {
+        "id": "578651",
+        "name": "Aly Moursy",
+        "socialLinks": {
+          "instagram": "https://www.instagram.com/alyveeza.ai/"
+        },
+        "sourceUrl": "https://www.instagram.com/alyveeza.ai/",
+        "matchReason": "Native profile names Aly from Veeza AI, explicitly states Founder of @veeza.ai (YC F26), and links the exact official veeza.ai website; YC roster has one Veeza founder, Aly Moursy. Official website name/social mapping is retained separately. Exact existing founder ID is bound through the hashed official homepage JSON-LD with Aly Moursy and his existing LinkedIn URL; no company account or new founder is created."
+      }
+    ]
+  },
+  "caladh": {
+    "batchSlug": "F26",
+    "companySocialLinks": {
+      "instagram": "https://www.instagram.com/caladhtech/"
+    },
+    "instagramValidation": {
+      "review_state": "verified",
+      "method": "official_website_outbound_instagram_anchor_and_native_profile",
+      "sourceUrl": "https://www.instagram.com/caladhtech/",
+      "officialWebsite": "https://caladh.com",
+      "checkedAt": "2026-11-16T03:22:34.133Z",
+      "officialWebsiteOutboundReceipt": {
+        "companySlug": "caladh",
+        "companyName": "Caladh",
+        "officialWebsite": "https://caladh.com",
+        "finalWebsiteUrl": "https://caladh.com/",
+        "instagramUrl": "https://www.instagram.com/caladhtech",
+        "anchorText": "",
+        "anchorHtml": "<a href=\"https://www.instagram.com/caladhtech\" target=\"_blank\" rel=\"noopener noreferrer\" aria-label=\"Caladh on Instagram\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><rect x=\"2.5\" y=\"2.5\" width=\"19\" height=\"19\" rx=\"5.5\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"/><circle cx=\"12\" cy=\"12\" r=\"4.3\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"/><circle cx=\"17.6\" cy=\"6.4\" r=\"1.3\" fill=\"currentColor\"/></svg></a>",
+        "htmlSha256": "f37995c56f808a7fb04b8b597a8147e8ea616847f4f49dbf81139f6afb7e579f",
+        "observedAt": "2026-11-16T03:22:55.569Z",
+        "ownershipStatus": "outbound_link_observed_native_account_identity_pending"
+      }
+    },
+    "sourceUrl": "https://www.ycombinator.com/companies/caladh",
+    "matchReason": "Authorized native profile identity is bound to the exact official company domain or its literal outbound Instagram anchor; collaborator posts retain their actual native author."
+  },
+  "rhem-labs": {
+    "batchSlug": "F26",
+    "companySocialLinks": {
+      "instagram": "https://www.instagram.com/rhemcares/",
+      "facebook": "https://www.facebook.com/people/Rhem-Labs/61589516291255"
+    },
+    "instagramValidation": {
+      "review_state": "verified",
+      "method": "native_profile_exact_official_domain_and_company_identity",
+      "sourceUrl": "https://www.instagram.com/rhemcares/",
+      "officialWebsite": "https://rhem.ai",
+      "checkedAt": "2026-11-16T03:22:37.513Z",
+      "officialWebsiteOutboundReceipt": {
+        "companySlug": "rhem-labs",
+        "companyName": "Rhem Labs",
+        "officialWebsite": "https://rhem.ai",
+        "finalWebsiteUrl": "https://www.rhem.ai/",
+        "instagramUrl": "https://instagram.com/rhemcares",
+        "anchorText": "Instagram",
+        "anchorHtml": "<a href=\"https://instagram.com/rhemcares\" aria-label=\"Instagram (opens in a new tab)\" title=\"Instagram\" target=\"_blank\" rel=\"noopener noreferrer\">Instagram</a>",
+        "htmlSha256": "de055f8fcd271060b7eb1047bc35e00443fda3b1745d94004f3bb5fd384d7155",
+        "observedAt": "2026-11-16T03:23:04.733Z",
+        "ownershipStatus": "outbound_link_observed_native_account_identity_pending"
+      }
+    },
+    "sourceUrl": "https://www.ycombinator.com/companies/rhem-labs",
+    "matchReason": "Authorized native profile identity is bound to the exact official company domain or its literal outbound Instagram anchor; collaborator posts retain their actual native author.",
+    "facebookValidation": {
+      "review_state": "verified",
+      "method": "literal_official_website_anchor_and_native_own_author_post",
+      "sourceUrl": "https://www.facebook.com/people/Rhem-Labs/61589516291255",
+      "officialWebsite": "https://rhem.ai",
+      "officialOutboundReceipt": {
+        "companySlug": "rhem-labs",
+        "companyName": "Rhem Labs",
+        "officialYcProfileUrl": "https://www.ycombinator.com/companies/rhem-labs",
+        "officialWebsite": "https://rhem.ai",
+        "platform": "facebook",
+        "linkKind": "account_or_page",
+        "sourceUrl": "https://www.facebook.com/people/Rhem-Labs/61589516291255/",
+        "nativeHref": "https://www.facebook.com/people/Rhem-Labs/61589516291255/",
+        "anchorText": "Facebook",
+        "anchorAriaLabel": "Facebook (opens in a new tab)",
+        "anchorTitle": "Facebook",
+        "rel": "noopener noreferrer",
+        "anchorHtml": "<a href=\"https://www.facebook.com/people/Rhem-Labs/61589516291255/\" aria-label=\"Facebook (opens in a new tab)\" title=\"Facebook\" target=\"_blank\" rel=\"noopener noreferrer\">Facebook</a>",
+        "nearbyText": "TwitterInstagramFacebookYouTube",
+        "ancestors": [
+          {
+            "tag": "nav",
+            "id": null,
+            "class": "pv-footer-socials",
+            "role": null
+          },
+          {
+            "tag": "div",
+            "id": null,
+            "class": "pv-footer-column",
+            "role": null
+          },
+          {
+            "tag": "div",
+            "id": null,
+            "class": "pv-footer-main",
+            "role": null
+          },
+          {
+            "tag": "div",
+            "id": null,
+            "class": "pv-footer-inner",
+            "role": null
+          },
+          {
+            "tag": "div",
+            "id": null,
+            "class": "pv-footer-scene",
+            "role": null
+          },
+          {
+            "tag": "footer",
+            "id": null,
+            "class": "pv-footer",
+            "role": null
+          }
+        ],
+        "discoveredOn": "https://www.rhem.ai/",
+        "observedAt": "2026-11-16T03:35:49.391291+00:00",
+        "sourceHtmlArchivePath": "outputs/fall-2026/public-history-cache/rhem-labs/de055f8fcd271060b7eb1047bc35e00443fda3b1745d94004f3bb5fd384d7155.html",
+        "sourceHtmlSha256": "de055f8fcd271060b7eb1047bc35e00443fda3b1745d94004f3bb5fd384d7155",
+        "ownershipStatus": "official_company_account_or_community_link",
+        "nativeAccountVerified": false,
+        "ownershipRationale": "Exact company account/community is linked in the official company homepage's social footer or contact-social navigation, with company-specific identity or explicit company platform label.",
+        "verifiedOwnershipScope": "Only this exact homepage-linked account/publication target; native platform profile and post history have not been fetched in this audit."
+      },
+      "inventorySha256": "4b1235f38e36c5f3813ebbc8e3a1da0050d92034efcb697476343f8870b20ada",
+      "checkedAt": "2026-11-16T17:52:11.297Z"
+    },
+    "founders": [
+      {
+        "id": "1690205",
+        "name": "Jacob Shen",
+        "socialLinks": {
+          "instagram": "https://www.instagram.com/jacobhardware/"
+        },
+        "sourceUrl": "https://www.instagram.com/jacobhardware/",
+        "matchReason": "Native actual founder-naming post explicitly identifies Jacob Shen and links @JacobHardware. The actual linked profile states building @rhemcares and has a native outbound link to the exact official rhem.ai domain. Existing YC founder1690205 is extended; no new founder is created. Third-party post remains non-authored context."
+      }
+    ]
+  },
+  "vyra": {
+    "batchSlug": "F26",
+    "companySocialLinks": {
+      "instagram": "https://www.instagram.com/app.usevyra/"
+    },
+    "instagramValidation": {
+      "review_state": "verified",
+      "method": "official_website_outbound_instagram_anchor_and_native_profile",
+      "sourceUrl": "https://www.instagram.com/app.usevyra/",
+      "officialWebsite": "https://usevyra.com",
+      "checkedAt": "2026-11-16T03:30:54.129Z",
+      "officialWebsiteOutboundReceipt": {
+        "companySlug": "vyra",
+        "companyName": "Vyra",
+        "officialWebsite": "https://usevyra.com",
+        "finalWebsiteUrl": "https://www.usevyra.com/",
+        "instagramUrl": "https://www.instagram.com/app.usevyra/",
+        "anchorText": "",
+        "anchorHtml": "<a href=\"https://www.instagram.com/app.usevyra/\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"flex h-9 w-9 items-center justify-center rounded-lg border border-[var(--surface-border)] bg-white text-[var(--foreground-subtle)] transition-all duration-200 hover:border-[var(--surface-border-hover)] hover:text-[var(--foreground-muted)]\" aria-label=\"Instagram\"><svg width=\"15\" height=\"15\" viewBox=\"0 0 24 24\" fill=\"currentColor\"><path d=\"M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z\"></path></svg></a>",
+        "htmlSha256": "c0eb633a9b9c8889120b0ae1f8cd6d99d624abf91ae102c973992f217ed4752c",
+        "observedAt": "2026-11-16T03:23:07.316Z",
+        "ownershipStatus": "outbound_link_observed_native_account_identity_pending"
+      }
+    },
+    "sourceUrl": "https://www.ycombinator.com/companies/vyra",
+    "matchReason": "Authorized native profile identity is bound to the exact official company domain or its literal outbound Instagram anchor; collaborator posts retain their actual native author.",
+    "founders": [
+      {
+        "id": "3090217",
+        "name": "Sulan Zhang",
+        "socialLinks": {
+          "instagram": "https://www.instagram.com/sulansart/"
+        },
+        "sourceUrl": "https://www.instagram.com/sulansart/",
+        "matchReason": "Parent directly confirmed this native founder profile by explicit company mention, exact official website domain, and existing YC founder identity lineage; bind to the existing roster founder ID only."
+      }
+    ]
+  },
+  "quippy": {
+    "batchSlug": "F26",
+    "companySocialLinks": {
+      "tiktok": "https://www.tiktok.com/@therealquippy"
+    },
+    "tiktokValidation": {
+      "review_state": "verified",
+      "method": "literal_official_website_anchor_and_native_company_profile_video",
+      "sourceUrl": "https://www.tiktok.com/@therealquippy",
+      "officialWebsite": "https://quippyapp.com",
+      "officialOutboundReceipt": {
+        "companySlug": "quippy",
+        "companyName": "Quippy",
+        "officialYcProfileUrl": "https://www.ycombinator.com/companies/quippy",
+        "officialWebsite": "https://quippyapp.com",
+        "platform": "tiktok",
+        "linkKind": "account_or_community",
+        "sourceUrl": "https://tiktok.com/@therealquippy",
+        "nativeHref": "https://tiktok.com/@therealquippy",
+        "anchorText": "",
+        "anchorAriaLabel": "TikTok",
+        "anchorTitle": null,
+        "rel": "noopener noreferrer",
+        "anchorHtml": "<a class=\"footer-social-link\" href=\"https://tiktok.com/@therealquippy\" target=\"_blank\" rel=\"noopener noreferrer\" aria-label=\"TikTok\" data-outbound-type=\"social\" data-outbound-id=\"tiktok\" data-astro-cid-sz7xmlte=\"\"> <svg viewBox=\"0 0 24 24\" width=\"18\" height=\"18\" aria-hidden=\"true\" data-astro-cid-sz7xmlte=\"\"><path d=\"M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z\" fill=\"currentColor\"></path></svg> </a>",
+        "nearbyText": "",
+        "ancestors": [
+          {
+            "tag": "div",
+            "id": null,
+            "class": "footer-social-icons",
+            "role": null
+          },
+          {
+            "tag": "div",
+            "id": null,
+            "class": "footer-connect",
+            "role": null
+          },
+          {
+            "tag": "div",
+            "id": null,
+            "class": "footer-right",
+            "role": null
+          },
+          {
+            "tag": "div",
+            "id": null,
+            "class": "shell footer-inner",
+            "role": null
+          },
+          {
+            "tag": "footer",
+            "id": null,
+            "class": "footer",
+            "role": null
+          },
+          {
+            "tag": "body",
+            "id": null,
+            "class": null,
+            "role": null
+          }
+        ],
+        "discoveredOn": "https://quippyapp.com/",
+        "observedAt": "2026-11-16T03:35:42.998080+00:00",
+        "sourceHtmlArchivePath": "outputs/fall-2026/public-history-cache/quippy/5eead591f28bc49ab6ee66c5926d3e2cc399ccb248f9c0e5f2d8e7793b40a4b7.html",
+        "sourceHtmlSha256": "5eead591f28bc49ab6ee66c5926d3e2cc399ccb248f9c0e5f2d8e7793b40a4b7",
+        "ownershipStatus": "official_company_account_or_community_link",
+        "nativeAccountVerified": false,
+        "ownershipRationale": "Exact company account/community is linked in the official company homepage's social footer or contact-social navigation, with company-specific identity or explicit company platform label.",
+        "verifiedOwnershipScope": "Only this exact homepage-linked account/publication target; native platform profile and post history have not been fetched in this audit."
+      },
+      "inventorySha256": "4b1235f38e36c5f3813ebbc8e3a1da0050d92034efcb697476343f8870b20ada",
+      "checkedAt": "2026-11-16T17:28:17.843Z"
+    }
+  },
+  "championeffect-inc": {
+    "batchSlug": "F26",
+    "founders": [
+      {
+        "id": "56520",
+        "name": "Kevin Law",
+        "socialLinks": {
+          "linkedin": "https://www.linkedin.com/in/kvnlw/"
+        },
+        "sourceUrl": "https://www.linkedin.com/in/kvnlw/",
+        "matchReason": "Exact roster founder identity is bound to the current native LinkedIn account by native_official_profile_redirect; archived source hashes are preserved.",
+        "linkedinIdentityProof": {
+          "source": "fall_2026_linkedin_founder_alias_v1",
+          "batchSlug": "F26",
+          "companySlug": "championeffect-inc",
+          "founderId": "56520",
+          "founderName": "Kevin Law",
+          "officialProfileUrl": "https://www.linkedin.com/in/kevin-law-4b526525",
+          "profileUrl": "https://www.linkedin.com/in/kvnlw/",
+          "method": "native_official_profile_redirect",
+          "observedAt": "2026-11-16T19:22:34.394Z",
+          "officialIdentitySourceUrl": "https://www.ycombinator.com/companies/championeffect-inc",
+          "officialFounderIdentitySourceUrl": "https://www.ycombinator.com/people/kevin-law",
+          "nativeProfile": {
+            "heading": "Kevin Law",
+            "resolvedUrl": "https://www.linkedin.com/in/kvnlw/",
+            "mainHtmlSha256": "bf98d3ce1027e3140a30e06dbd86aebcd8e0f4bf47e095e9780acfdd67bd2ea8"
+          },
+          "ownership": null,
+          "archives": [
+            {
+              "path": "outputs/fall-2026/browser-checkpoints/linkedin-founder-kevin-profile-ui-current.json",
+              "sha256": "bac2193882566099461905a7e116ddd56016e90f3c847daa5e8ebbd83e20e7f0"
+            }
+          ],
+          "validation": {
+            "source": "fall_2026_linkedin_founder_alias_ingestion_v1",
+            "archiveHashesVerified": true,
+            "contentSha256": "080895c4d8bfc1cc7dc66199cda3538a397999165ba880d83caf2e88636e3cd5"
+          }
+        }
+      },
+      {
+        "id": "116587",
+        "name": "Emre Simdi",
+        "socialLinks": {
+          "linkedin": "https://www.linkedin.com/in/emresimdi/"
+        },
+        "sourceUrl": "https://www.linkedin.com/in/emresimdi/",
+        "matchReason": "Exact roster founder identity is bound to the current native LinkedIn account by official_homepage_founder_link_and_native_profile; archived source hashes are preserved.",
+        "linkedinIdentityProof": {
+          "source": "fall_2026_linkedin_founder_alias_v1",
+          "batchSlug": "F26",
+          "companySlug": "championeffect-inc",
+          "founderId": "116587",
+          "founderName": "Emre Simdi",
+          "officialProfileUrl": "https://tr.linkedin.com/in/emre-%C5%9Fimdi-8b256949",
+          "profileUrl": "https://www.linkedin.com/in/emresimdi/",
+          "method": "official_homepage_founder_link_and_native_profile",
+          "observedAt": "2026-11-16T19:30:05.357Z",
+          "officialIdentitySourceUrl": "https://www.ycombinator.com/companies/championeffect-inc",
+          "officialFounderIdentitySourceUrl": "https://www.ycombinator.com/people/emre-simdi",
+          "nativeProfile": {
+            "heading": "Emre Simdi",
+            "resolvedUrl": "https://www.linkedin.com/in/emresimdi/",
+            "mainHtmlSha256": "70afbe1f0b9ad5a2cef516347663287420c24bc1744d0f7a8caff796c74891b0"
+          },
+          "ownership": {
+            "officialWebsite": "https://championeffect.com",
+            "sourceUrl": "https://championeffect.com/",
+            "founderFigcaptionHtml": "<figcaption><span class=\"landing_name__hZ_5K\">Emre<a class=\"landing_li__y3rKH\" href=\"https://www.linkedin.com/in/emresimdi/\" target=\"_blank\" rel=\"noopener noreferrer\" aria-label=\"Emre on LinkedIn\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M20.45 20.45h-3.55v-5.57c0-1.33-.03-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.36V9h3.41v1.56h.05c.47-.9 1.63-1.85 3.36-1.85 3.6 0 4.27 2.37 4.27 5.45v6.29zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V9h3.56v11.45z\"></path></svg></a></span><small>Co-founder</small><small class=\"landing_prev__DPZjI\">Previously GTM Lead at Cambly</small></figcaption>",
+            "htmlSha256": "831e30e98d0940496b0c9c8295c353b4a897b267e1df37594a7ac60842e2474d"
+          },
+          "archives": [
+            {
+              "path": "outputs/fall-2026/browser-checkpoints/linkedin-founder-emre-profile-ui-current.json",
+              "sha256": "2def5b17d318b05657e655149cc1c5241624a6022375403f1020e7d90ee962d6"
+            },
+            {
+              "path": "outputs/fall-2026/public-history-cache/championeffect-inc/831e30e98d0940496b0c9c8295c353b4a897b267e1df37594a7ac60842e2474d.html",
+              "sha256": "831e30e98d0940496b0c9c8295c353b4a897b267e1df37594a7ac60842e2474d"
+            }
+          ],
+          "validation": {
+            "source": "fall_2026_linkedin_founder_alias_ingestion_v1",
+            "archiveHashesVerified": true,
+            "contentSha256": "e57dc935d90d33a55fc8b2467183a38d217145ba7d00cf53587645c6068d44f0"
+          }
+        }
+      }
+    ]
+  },
+  "altair-health": {
+    "batchSlug": "F26",
+    "companySocialLinks": {
+      "instagram": "https://www.instagram.com/altair.health/"
+    },
+    "instagramValidation": {
+      "review_state": "verified",
+      "method": "native_profile_exact_official_domain_and_company_identity",
+      "sourceUrl": "https://www.instagram.com/altair.health/",
+      "officialWebsite": "https://www.altair-health.com",
+      "checkedAt": "2026-11-16T20:25:41.361Z",
+      "officialWebsiteOutboundReceipt": {
+        "companySlug": "altair-health",
+        "officialWebsite": "https://www.altair-health.com",
+        "finalWebsiteUrl": "https://altair-health.com/docs/blog",
+        "instagramUrl": "https://www.instagram.com/altair.health/",
+        "anchorText": "",
+        "anchorHtml": "<a href=\"https://www.instagram.com/altair.health/\" target=\"_blank\" rel=\"noopener noreferrer\" aria-label=\"Instagram\"><svg viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z\"></path></svg></a>",
+        "htmlSha256": "8ed62ccafd6362821af62cc9ddba31da092e52e2332de3ddd52285f808ed34aa",
+        "observedAt": "2026-11-16T03:33:29.122337+00:00"
+      }
+    },
+    "sourceUrl": "https://www.ycombinator.com/companies/altair-health",
+    "matchReason": "Authorized native profile identity is bound to the exact official company domain or its literal outbound Instagram anchor; collaborator posts retain their actual native author."
   }
 }

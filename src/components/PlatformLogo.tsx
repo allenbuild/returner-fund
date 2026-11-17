@@ -46,6 +46,8 @@ export function formatPlatform(platform: Platform): string {
     x: "X",
     linkedin: "LinkedIn",
     instagram: "Instagram",
+    facebook: "Facebook",
+    threads: "Threads",
     product_hunt: "Product Hunt",
     youtube: "YouTube",
     rss: "RSS",
@@ -61,6 +63,10 @@ export function formatPlatform(platform: Platform): string {
 
 function renderPlatformLogo(platform: Platform, gradientId: string) {
   switch (platform) {
+    case "threads":
+      return <><rect width="24" height="24" rx="4" fill="#111" /><text x="12" y="18" fill="#fff" textAnchor="middle" fontFamily="Arial, sans-serif" fontSize="20">@</text></>;
+    case "facebook":
+      return <><rect width="24" height="24" rx="4" fill="#0866FF" /><path fill="#fff" d="M14.5 21v-8.2h2.8l.4-3.2h-3.2V7.5c0-.9.3-1.6 1.6-1.6H18V3.1c-.4 0-1.5-.1-2.7-.1-2.7 0-4.5 1.6-4.5 4.5v2.1H8v3.2h2.8V21h3.7Z" /></>;
     case "tiktok":
       return (
         <>

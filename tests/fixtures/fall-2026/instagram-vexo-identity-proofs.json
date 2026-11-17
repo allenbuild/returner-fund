@@ -1,0 +1,45 @@
+{
+  "batchSlug": "F26",
+  "companySlug": "vexo",
+  "companyHandle": "tryvexoai",
+  "recordedAt": "2026-11-16T02:56:37.761Z",
+  "verificationMethod": "Parent agent direct authorized native Instagram profile DOM observation",
+  "accounts": [
+    {
+      "handle": "tryvexoai",
+      "entityType": "company",
+      "profileUrl": "https://www.instagram.com/tryvexoai/",
+      "visibleName": "Vexo",
+      "visibleWebsite": "vexoai.com/checkout",
+      "visibleBio": "AI wearables",
+      "review_state": "verified",
+      "verificationNotes": "Verified native company profile header and outbound domain exactly match the official YC-listed Vexo website."
+    },
+    {
+      "handle": "realharismalik",
+      "entityType": "founder",
+      "founderId": "1123245",
+      "founderName": "Haris Malik",
+      "profileUrl": "https://www.instagram.com/realharismalik/",
+      "visibleName": "Haris 🇵🇰",
+      "visibleWebsite": "vexoai.com",
+      "visibleBio": "Building @tryvexoai | SF",
+      "companyAccountMention": "tryvexoai",
+      "review_state": "verified",
+      "verificationNotes": "Parent observed native founder profile, exact official website domain, and explicit company account mention; roster lists Haris Malik as founder/CEO."
+    },
+    {
+      "handle": "kiani_build",
+      "entityType": "founder",
+      "founderId": "4000265",
+      "founderName": "Farqaleet Kiani",
+      "profileUrl": "https://www.instagram.com/kiani_build/",
+      "visibleName": "Farqaleet Kiani",
+      "visibleWebsite": "www.vexoai.com/checkout",
+      "visibleBio": "Follow our journey building @tryvexoai Ex Embedded SWE @teslamotors",
+      "companyAccountMention": "tryvexoai",
+      "review_state": "verified",
+      "verificationNotes": "Parent directly observed exact founder name, company account mention, official domain, and ex-Tesla lineage matching the YC roster."
+    }
+  ]
+}

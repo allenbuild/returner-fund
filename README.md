@@ -29,6 +29,14 @@ npm run dev
 
 Open `http://localhost:3000`.
 
+## Evidence Snapshot Storage
+
+The targeted evidence snapshot is committed as `src/lib/social/targeted-evidence-current.json.gz`, with its original byte count and SHA-256 in `targeted-evidence-current.pack.json`. Dependency installation and `npm run prepare:graph-runtime` restore the exact JSON bytes when the local file is missing. Existing local ingestion work is preserved.
+
+After updating the local targeted snapshot, run `node scripts/pack-targeted-evidence.mjs` and commit the compressed snapshot and manifest together. The expanded JSON is ignored by Git. Runtime preparation also produces compressed graph projections for production function bundles.
+
+Fall collection coverage remains partial. Local browser captures, authentication configuration, and intermediate collection archives are excluded from the pushed dataset; the canonical records retain their collected bodies and provenance receipts.
+
 ## Available Commands
 
 - `npm run dev` starts the local Next.js server.

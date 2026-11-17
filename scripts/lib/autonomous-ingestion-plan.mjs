@@ -67,6 +67,21 @@ export const AUTONOMOUS_BATCHES = Object.freeze([
   }
 ]);
 
+// Manual cohort ingestion can opt in without changing the scheduled catalog.
+export const YC_FALL_2026_BATCH = Object.freeze({
+  slug: "F26",
+  label: "YC Fall 2026 (F26)",
+  graphFile: "f26.json",
+  catalogFile: "src/lib/yc/fall-2026-companies.json",
+  catalogFormat: "yc_snapshot",
+  batchLabel: "Fall 2026",
+  minimumCompanyCount: 1,
+  dynamicCatalogCounts: true,
+  expectedCompanyCount: null,
+  expectedFounderCount: null,
+  githubSourcePath: "src/lib/yc/fall-2026-companies.json"
+});
+
 const MINUTE_MS = 60_000;
 
 export const AUTONOMOUS_PROCESS_BUDGETS = Object.freeze({
@@ -244,13 +259,13 @@ const AUTONOMOUS_PROVIDER_BLOCKER_CODES = new Map([
   ])]
 ]);
 
-export async function loadAutonomousCatalogs(root) {
+export async function loadAutonomousCatalogs(root, { batches = AUTONOMOUS_BATCHES } = {}) {
   const verifiedSocialOverrides = await readRequiredCanonicalJson(
     join(root, "src", "lib", "social", "verified-social-overrides.json"),
     "Verified social overrides"
   );
   const catalogs = await Promise.all(
-    AUTONOMOUS_BATCHES.map(async (batch) => {
+    batches.map(async (batch) => {
       const path = batch.catalogFile
         ? join(root, batch.catalogFile)
         : join(root, "public", "graph", batch.graphFile);
@@ -379,10 +394,11 @@ function validateDynamicYcSnapshot(source, batch) {
     if (!id || !slug) {
       throw new Error(`${batch.catalogFile} contains a company without an immutable ID or slug.`);
     }
-    if (company.batch !== "Summer 2026") {
+    const expectedBatchLabel = batch.batchLabel ?? "Summer 2026";
+    if (company.batch !== expectedBatchLabel) {
       throw new Error(
         `${batch.catalogFile} contains ${slug} in ${company.batch ?? "an unknown batch"}; ` +
-        "expected Summer 2026."
+        `expected ${expectedBatchLabel}.`
       );
     }
     if (ids.has(id) || slugs.has(slug)) {

@@ -69,6 +69,26 @@ describe("GET /api/graph published snapshot runtime", () => {
     vi.unstubAllEnvs();
   });
 
+  it("serves an explicitly selected Fall snapshot without loading the full graph runtime", async () => {
+    snapshotBodies.set("f26.json", neutralizePublishedMomentum(
+      readFileSync(join(process.cwd(), "public", "graph", "f26.json"), "utf8")
+    ));
+    const { GET } = await import("@/app/api/graph/route");
+    const response = await GET(new Request("http://localhost/api/graph?batch=F26"));
+    const graph = await response.json() as GraphResponse;
+    expect(response.status).toBe(200);
+    expect(response.headers.get("x-graph-source")).toBe("published_snapshot");
+    expect(readRuntimeGraphSnapshotFile).toHaveBeenCalledWith("f26.json");
+    expect(graph.batch.slug).toBe("F26");
+    expect(graph.nodes.filter((node) => node.entityType === "company")).toHaveLength(235);
+    expect(graph.nodes.every((node) => node.batchSlug === "F26")).toBe(true);
+    if (Buffer.byteLength(snapshotBodies.get("f26.json")!) > 24 * 1024 * 1024) {
+      const { loadPublishedGraphSnapshot } = await import("@/lib/graph/published-graph-snapshot");
+      await loadPublishedGraphSnapshot({ batchSlug: "F26", audienceId: "off" });
+      expect(readRuntimeGraphSnapshotFile).toHaveBeenCalledTimes(2);
+    }
+  }, 30_000);
+
   it("hydrates benchmark momentum without changing the published graph", async () => {
     const published = snapshot("s26.json");
     const companyId = published.fastestGaining[0]?.companyId;

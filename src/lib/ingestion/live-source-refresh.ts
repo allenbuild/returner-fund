@@ -835,6 +835,10 @@ async function loadXTargets(
         "spring-2026-companies.json"
       ),
       slug: "S2026"
+    },
+    {
+      path: join(/* turbopackIgnore: true */ rootDir, "src", "lib", "yc", "fall-2026-companies.json"),
+      slug: "F26"
     }
   ].filter(({ slug }) => selectedBatchSlugs.has(slug));
   const snapshots = await Promise.all(
@@ -1214,6 +1218,10 @@ async function loadCompanyMatchTargets(
         "spring-2026-companies.json"
       ),
       slug: "S2026"
+    },
+    {
+      path: join(/* turbopackIgnore: true */ rootDir, "src", "lib", "yc", "fall-2026-companies.json"),
+      slug: "F26"
     }
   ].filter(({ slug }) => selectedBatchSlugs.has(slug));
   const snapshots = await Promise.all(

@@ -6,6 +6,25 @@ describe("YC batch parser", () => {
     expect(normalizeBatchSlug("YC Summer 2026")).toBe("S26");
     expect(normalizeBatchSlug("summer 2026")).toBe("S26");
     expect(normalizeBatchSlug("W 2026")).toBe("W2026");
+    expect(normalizeBatchSlug("YC Fall 2026")).toBe("F26");
+    expect(normalizeBatchSlug("F2026")).toBe("F26");
+    expect(normalizeBatchSlug("F26")).toBe("F26");
+  });
+
+  it("builds Fall directory requests and excludes other cohort cards", async () => {
+    let requestedUrl = "";
+    const adapter = new YcBatchAdapter({
+      fetchImpl: async (url) => {
+        requestedUrl = String(url);
+        return new Response(`<article><a href="/companies/fall-co">Fall Co</a> <span>Fall 2026</span></article>
+          <article><a href="/companies/summer-co">Summer Co</a> <span>Summer 2026</span></article>`);
+      }
+    });
+    const batch = await adapter.fetchBatch("F2026");
+    expect(requestedUrl).toBe("https://www.ycombinator.com/companies?batch=Fall%202026");
+    expect(batch.batchSlug).toBe("F26");
+    expect(batch.label).toBe("Fall 2026");
+    expect(batch.companies.map((company) => company.name)).toEqual(["Fall Co"]);
   });
 
   it("parses official structured payloads as verified records", () => {

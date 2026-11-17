@@ -36,6 +36,7 @@ import {
 import { extractXPublicProfileReceipt } from "./lib/x-public-profile-html.mjs";
 import {
   assessPublicEvidenceAttribution,
+  assessYouTubeSearchAttribution,
   assessLinkedInPrimaryPostBody,
   containsExactTokenSequence,
   extractLinkedInPrimaryPostText,
@@ -417,7 +418,7 @@ function usage() {
     "Usage: node scripts/fetch-public-traction.mjs [options]",
     "",
     "Options:",
-    "  --batch=S26|S2026|A16ZSR006",
+    "  --batch=F26|S26|S2026|A16ZSR006",
     "  --platforms=x,linkedin,instagram,product_hunt,youtube,web,rss,hacker_news,reddit",
     "  --social=company|all|none",
     "  --company=NAME_OR_SLUG",
@@ -1812,9 +1813,8 @@ async function ingestYouTube(company) {
     .filter((item) => isPotentialCompanyMention(company, `${item.title} ${item.description}`))
     .slice(0, 12);
   const enrichedResults = await Promise.all(candidates.map(enrichYouTubeNativeChannel));
-  const assessedResults = enrichedResults.map((video) => ({
-    video,
-    attribution: publicEvidenceAttributionAssessment(company, {
+  const assessedResults = await Promise.all(enrichedResults.map(async (candidate) => {
+    const assess = (video) => publicEvidenceAttributionAssessment(company, {
       platform: "youtube",
       sourceUrl: `https://www.youtube.com/watch?v=${video.videoId}`,
       title: video.title,
@@ -1822,8 +1822,26 @@ async function ingestYouTube(company) {
       rawVisibleText: video.raw,
       youtubeChannelId: video.youtubeChannelId,
       youtubeChannelUrl: video.youtubeChannelUrl,
-      youtubeChannelName: video.youtubeChannelName
-    })
+      youtubeChannelName: video.youtubeChannelName,
+      matchReason: "Public YouTube search result."
+    });
+    const preliminary = assess(candidate);
+    const native = preliminary.verified
+      ? await fetchYouTubeWatchMetadata(candidate.videoId)
+      : null;
+    const video = native ? { ...candidate, ...native } : candidate;
+    const attribution = assess(video);
+    const nativePublishedAt = native?.postedAt ? Date.parse(native.postedAt) : NaN;
+    return {
+      video,
+      attribution,
+      nativeReceiptValid: Boolean(
+        native &&
+        (native.youtubeChannelId || native.youtubeChannelUrl) &&
+        Number.isFinite(nativePublishedAt) &&
+        nativePublishedAt <= Date.parse(now)
+      )
+    };
   }));
 
   if (!assessedResults.length && !officialLaunchResults.evidence.length && !officialLaunchResults.needsReview.length) {
@@ -1831,23 +1849,26 @@ async function ingestYouTube(company) {
   }
 
   const verifiedResults = assessedResults
-    .filter(({ video, attribution }) => attribution.verified && (video.youtubeChannelId || video.youtubeChannelUrl))
+    .filter(({ attribution, nativeReceiptValid }) => attribution.verified && nativeReceiptValid)
     .slice(0, 3);
   const needsReviewItems = assessedResults
-    .filter(({ video, attribution }) => !attribution.verified || (!video.youtubeChannelId && !video.youtubeChannelUrl))
-    .map(({ video, attribution }) => ({
+    .filter(({ attribution, nativeReceiptValid }) => !attribution.verified || !nativeReceiptValid)
+    .map(({ video, attribution, nativeReceiptValid }) => ({
       ...reviewCandidate(
         company,
         "youtube",
         `https://www.youtube.com/watch?v=${video.videoId}`,
         !attribution.verified
           ? `Semantic YouTube attribution rejected: ${attribution.reason}.`
-          : "Native YouTube video candidate lacked a persisted native channel ID or URL; attribution was not accepted."
+          : !nativeReceiptValid
+            ? "YouTube search candidate lacked an exact native watch-page channel and nonfuture publication-date receipt; attribution was not accepted."
+            : "Native YouTube video candidate lacked a persisted native channel ID or URL; attribution was not accepted."
       ),
       title: sanitizePublicText(video.title),
       text: truncatePublicText(video.description || video.title, 600),
       rawVisibleText: truncatePublicText(video.raw, 6000),
       platformPostId: video.videoId,
+      postedAt: video.postedAt ?? null,
       metrics: removeNullish({ views: video.views }),
       youtubeChannelId: video.youtubeChannelId ?? null,
       youtubeChannelUrl: video.youtubeChannelUrl ?? null,
@@ -1872,6 +1893,7 @@ async function ingestYouTube(company) {
         title: video.title,
         text: video.description || video.title,
         rawVisibleText: video.raw,
+        postedAt: video.postedAt,
         metrics: {
           views: video.views
         },
@@ -1986,6 +2008,7 @@ async function fetchYouTubeWatchMetadata(videoId) {
     if (!response.ok) return null;
     const detailsStart = html.indexOf('"videoDetails":{');
     const details = detailsStart >= 0 ? html.slice(detailsStart, detailsStart + 120_000) : html;
+    if (jsonStringField(details, "videoId") !== videoId) return null;
     const youtubeChannelId = jsonStringField(details, "channelId");
     const youtubeChannelName = jsonStringField(details, "author") ?? jsonStringField(html, "ownerChannelName");
     return {
@@ -6086,7 +6109,10 @@ function publicEvidenceAttributionAssessment(company, item) {
   ) {
     signals.push("native_channel_roster_founder");
   }
-  return assessPublicEvidenceAttribution({
+  const assess = isGenericSearchYouTube(item)
+    ? assessYouTubeSearchAttribution
+    : assessPublicEvidenceAttribution;
+  return assess({
     batchSlug: batchConfig.slug,
     companyName: company.name,
     text,
@@ -6489,8 +6515,11 @@ function batchContextFromSnapshot(snapshot) {
   const isA16zSpeedrun006 = /a16z\s+Speedrun\s+006|A16ZSR006/i.test(decodedSourceText);
   const isSummer2026 = /\bSummer\s+2026\b/i.test(decodedSourceText) || /\bS26\b/i.test(decodedSourceText);
   const isSpring2026 = /\bSpring\s+2026\b/i.test(decodedSourceText) || /\bS2026\b|\bP26\b/i.test(decodedSourceText);
+  const isFall2026 = /\bFall\s+2026\b/i.test(decodedSourceText) || /\bF(?:20)?26\b/i.test(decodedSourceText);
   const searchAliases = isA16zSpeedrun006
     ? ["a16z Speedrun 006", "a16z Speedrun", "Speedrun 006"]
+    : isFall2026
+      ? ["YC Fall 2026", "Fall 2026", "YC F26"]
     : isSummer2026
       ? ["YC Summer 2026", "Summer 2026", "YC S26"]
       : isSpring2026
@@ -6498,6 +6527,8 @@ function batchContextFromSnapshot(snapshot) {
         : ["Y Combinator"];
   const contextAliases = isA16zSpeedrun006
     ? ["a16z Speedrun 006", "a16z Speedrun", "Speedrun 006", "A16ZSR006", "a16z"]
+    : isFall2026
+      ? ["YC Fall 2026", "Fall 2026", "YC F26", "F26", "YC F2026", "F2026"]
     : isSummer2026
       ? ["YC Summer 2026", "Summer 2026", "YC S26", "S26"]
       : isSpring2026
@@ -6723,6 +6754,11 @@ function retiredOwnerSocialAccounts(ownerOverride) {
 
 async function loadCanonicalCompanyCatalog(currentSnapshot, currentConfig) {
   const descriptors = [
+    {
+      slug: "F26",
+      label: "YC Fall 2026 (F26)",
+      snapshotPath: join(root, "src", "lib", "yc", "fall-2026-companies.json")
+    },
     {
       slug: "S2026",
       label: "YC Spring 2026 (P26)",
@@ -7798,6 +7834,15 @@ function resolveBatchConfig(value) {
     .toUpperCase()
     .replace(/[^A-Z0-9]+/g, "");
 
+  if (["F26", "F2026", "YCF26", "YCF2026", "YCFALL2026", "FALL2026"].includes(normalized)) {
+    return {
+      slug: "F26",
+      label: "YC Fall 2026 (F26)",
+      snapshotPath: join(root, "src", "lib", "yc", "fall-2026-companies.json"),
+      graphPath: join(root, "public", "graph", "f26.json")
+    };
+  }
+
   if (["S26", "YCS26", "YCSUMMER2026", "SUMMER2026"].includes(normalized)) {
     return {
       slug: "S26",
@@ -7825,7 +7870,7 @@ function resolveBatchConfig(value) {
     };
   }
 
-  throw new Error(`Unsupported --batch=${value}. Supported batches: S26, S2026, A16ZSR006.`);
+  throw new Error(`Unsupported --batch=${value}. Supported batches: F26, S26, S2026, A16ZSR006.`);
 }
 
 function errorMessage(error) {

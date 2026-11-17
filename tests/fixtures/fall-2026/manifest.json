@@ -1,0 +1,90 @@
+{
+  "schemaVersion": 1,
+  "scope": "Public integration fixtures only; these projections are not production physical attribution receipts",
+  "fixtures": [
+    {
+      "fixture": "official-yc-launches.json",
+      "sha256": "75f1d81eee19782022ed20669263dc19e9225b0a044bde100d70afb1561082fb",
+      "bytes": 651209,
+      "sourcePath": "outputs/source-hunt/2026-11-15-fall-2026-web-context.json",
+      "sourceSha256": "a463e9c7d055fb674bb55f68d0cdebe5573fc2d6225fd7fe0a34affab6d842b8",
+      "projection": "Only independent public native body/URL/date/author fields consumed by the integration assertions; no receipt DOM or browser chrome",
+      "records": 235
+    },
+    {
+      "fixture": "official-github-releases.json",
+      "sha256": "317b1b78811c2ebd0501218547b07ed61b8d8074cdd731c5ae7d962a7292a03f",
+      "bytes": 2661542,
+      "sourcePath": "outputs/source-hunt/2026-11-15-fall-2026-github-release-context.json",
+      "sourceSha256": "d494e56e2c147d2a8e5ef5ed41306d078949f15a04cf6afb2611fa054efbf118",
+      "projection": "Only independent public native body/URL/date/author fields consumed by the integration assertions; no receipt DOM or browser chrome",
+      "records": 4215
+    },
+    {
+      "fixture": "official-website-articles.json.gz",
+      "sha256": "d2b4b9369c8dcf00b6080b6e9a32f96115b38a92b6d1e43f58484b5dcf8f6de9",
+      "bytes": 9551914,
+      "sourcePath": "outputs/source-hunt/2026-11-15-fall-2026-public-history-context-sanitized.json",
+      "sourceSha256": "e45437bb1e540b77786c97391b40204a338d155ba703ecca5e9bdeaf6006f2df",
+      "projection": "Only independent public native body/URL/date/author fields consumed by the integration assertions; no receipt DOM or browser chrome",
+      "records": 2451,
+      "uncompressedBytes": 31351701,
+      "uncompressedSha256": "c0cd7c0a915456edeabd63d6410b4f52e6553321a4ee626e5c87eec52e3cb9d6",
+      "compression": "gzip; full exact public bodies retained"
+    },
+    {
+      "fixture": "website-semantic-quarantine.json",
+      "sha256": "71afed2242c0131fc39753a317f9750bf034a0aec3d8c1cb2e382a6770686e67",
+      "bytes": 15148,
+      "sourcePath": "outputs/source-hunt/2026-11-15-fall-2026-public-history-semantic-audit.json",
+      "sourceSha256": "56f86a19a4f027743ddbcceebc12b7e1d699e81da08aff7f8b9c26160aa9dd2d",
+      "projection": "Only independent public native body/URL/date/author fields consumed by the integration assertions; no receipt DOM or browser chrome",
+      "records": 140
+    },
+    {
+      "fixture": "official-particularity-publication.json",
+      "sha256": "f80458bc280a71fafe45773a7cadd05cc1e19da074e92798d0af1c56ddf23bbf",
+      "bytes": 24685,
+      "sourcePath": "outputs/source-hunt/2026-11-15-fall-2026-particularity-substack-context.json",
+      "sourceSha256": "19ec4d4770206a8d9c15b88a92a6c0dd6d4ebcdeccc1a1420f267664eea6e571",
+      "projection": "Only independent public native body/URL/date/author fields consumed by the integration assertions; no receipt DOM or browser chrome",
+      "records": 2
+    },
+    {
+      "fixture": "instagram-vexo-native-observations.json",
+      "sha256": "db69ebc90df569e29796eb8281cfb5d2c6518c29cde1833e1c981f69f2589283",
+      "bytes": 8450,
+      "sourcePath": "outputs/fall-2026/instagram-vexo-native-observations.json",
+      "sourceSha256": "db69ebc90df569e29796eb8281cfb5d2c6518c29cde1833e1c981f69f2589283",
+      "projection": "Exact compact public observation/account proof; no raw DOM or private viewer chrome"
+    },
+    {
+      "fixture": "instagram-vexo-additional-native-observations.json",
+      "sha256": "65092d0320d5ebaac54a4d0b327ac075b593de0b7b4d9ec0ca210edaff0805eb",
+      "bytes": 6278,
+      "sourcePath": "outputs/fall-2026/instagram-vexo-additional-native-observations.json",
+      "sourceSha256": "65092d0320d5ebaac54a4d0b327ac075b593de0b7b4d9ec0ca210edaff0805eb",
+      "projection": "Exact compact public observation/account proof; no raw DOM or private viewer chrome"
+    },
+    {
+      "fixture": "instagram-vexo-identity-proofs.json",
+      "sha256": "bde3a17fcaff21ff1e1b30e0f1d23f81c6b03ad26deac8b40577bd2e1af3549c",
+      "bytes": 1882,
+      "sourcePath": "outputs/fall-2026/instagram-vexo-identity-proofs.json",
+      "sourceSha256": "bde3a17fcaff21ff1e1b30e0f1d23f81c6b03ad26deac8b40577bd2e1af3549c",
+      "projection": "Exact compact public observation/account proof; no raw DOM or private viewer chrome"
+    },
+    {
+      "fixture": "instagram-empty-identity-seed.json",
+      "sha256": "b15c447f5850e28f1d5cfa95d702aec6cd3f6ad2413b574ce319296cb466952d",
+      "bytes": 22,
+      "source": "Hermetic empty optional inputs for the synthetic converter tests"
+    },
+    {
+      "fixture": "instagram-empty-caption-decisions.json",
+      "sha256": "9002af79263f4adf8a53e1c03462303b3516ee520170cea99dd190ceeadefe07",
+      "bytes": 18,
+      "source": "Hermetic empty optional inputs for the synthetic converter tests"
+    }
+  ]
+}

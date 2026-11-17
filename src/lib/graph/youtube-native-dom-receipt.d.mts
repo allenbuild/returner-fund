@@ -1,0 +1,15 @@
+export const NATIVE_YOUTUBE_DOM_SOURCE: string;
+export const NATIVE_YOUTUBE_DOM_VALIDATION: string;
+export const NATIVE_YOUTUBE_SHORT_DOM_SOURCE: string;
+export const NATIVE_YOUTUBE_SHORT_DOM_VALIDATION: string;
+export function nativeYouTubeDomSource(native: unknown): string | null;
+export function nativeYouTubeDomValidation(native: unknown): string | null;
+export function isNativeYouTubeDomProvenance(value: unknown): boolean;
+export function nativeYouTubePostId(value: unknown): string | null;
+export function nativeYouTubeVideoId(value: unknown): string | null;
+export function nativeYouTubeChannelIdentity(value: unknown): { channelId: string | null; handle: string | null; url: string } | null;
+export function nativeYouTubeDomInfo(native: unknown): { publishedDay: string; publishedAtPrecision: "day"; metrics: { views: number; likes: number } } | null;
+export function nativeYouTubeShortDescription(native: unknown): { ok: boolean; reasons: string[]; text: string | null; html: string | null; normalization: Record<string, unknown> | null };
+export function nativeYouTubeDomSummary(receipt: unknown, company: unknown): { ok: boolean; reasons: string[]; videoId: string | null; sourceUrl: string | null; channelId: string | null; channelHandle: string | null; channelName: string | null; title: string | null; text: string | null; descriptionNormalization?: Record<string, unknown> | null; publishedDay: string | null; publishedAtPrecision: "day"; metrics: Record<string, number> };
+export function verifiedNativeYouTubeDomReasons(row: unknown, company: unknown): string[];
+export function isVerifiedNativeYouTubeDomReceipt(row: unknown, company: unknown): boolean;

@@ -15,6 +15,7 @@ export function topicFacetSnapshotUrl(batchSlug: string): string | null {
   const filename = {
     S2026: "s2026",
     S26: "s26",
+    F26: "f26",
     A16ZSR006: "a16zsr006"
   }[batchSlug];
   return filename

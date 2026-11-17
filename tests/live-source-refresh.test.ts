@@ -14,6 +14,32 @@ const X_PROVIDER_RESPONSE_CASES = [
 type XProviderResponseShape = (typeof X_PROVIDER_RESPONSE_CASES)[number]["shape"];
 
 describe("live source refresh", () => {
+  it("loads explicit Fall targets without expanding default refresh scope", async () => {
+    const directory = await mkdtemp(join(tmpdir(), "fall-live-refresh-"));
+    const targetedEvidencePath = join(directory, "targeted.json");
+    const stageLogPath = join(directory, "stages.json");
+    await writeFile(targetedEvidencePath, JSON.stringify({ source: {}, evidence: [], needsReview: [] }));
+    try {
+      const result = await runLiveSourceRefresh({
+        rootDir: process.cwd(), batchSlug: "F26", platforms: ["x"], maxXTargets: 0,
+        xSourceUrls: ["https://x.com/0securitylabs/status/2077045452579778664"],
+        targetedEvidencePath, stageLogPath, now: new Date("2026-11-15T18:00:00.000Z"),
+        fetchImpl: async (input) => String(input).includes("api.fxtwitter.com")
+          ? Response.json({ code: 200, tweet: {
+              id: "2077045452579778664", url: "https://x.com/0securitylabs/status/2077045452579778664",
+              text: "0.security ships autonomous fixes from the official company account.",
+              created_timestamp: 1784041200, likes: 2,
+              author: { screen_name: "0securitylabs", name: "0.security", url: "https://x.com/0securitylabs" }
+            } })
+          : new Response("not found", { status: 404 })
+      });
+      expect(result.acceptedEvidence).toHaveLength(1);
+      expect(result.acceptedEvidence[0]).toMatchObject({ batchSlug: "F26", entityId: "company-0security" });
+    } finally {
+      await rm(directory, { recursive: true, force: true });
+    }
+  });
+
   it("discovers and stores the current Screenpipe X post from public profile HTML and post JSON", async () => {
     const tempDir = await mkdtemp(join(tmpdir(), "returner-live-refresh-"));
     const targetedEvidencePath = join(tempDir, "targeted-evidence-current.json");

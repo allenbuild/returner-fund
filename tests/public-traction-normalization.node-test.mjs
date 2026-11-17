@@ -2350,6 +2350,16 @@ globalThis.fetch = async (url) => {
   if (value.includes("youtube.com/results")) {
     return new Response(searchBody, { status: 200 });
   }
+  if (value === "https://www.youtube.com/watch?v=${strongCompanyId}") {
+    return new Response(JSON.stringify({
+      videoDetails: {
+        videoId: "${strongCompanyId}", title: "Kara (YC S26): Making diamond an engineering material",
+        shortDescription: "Kara (YC S26): Making diamond an engineering material",
+        channelId: "UCKaraLabsOfficial", author: "Kara Labs", viewCount: "240"
+      },
+      publishDate: "2026-07-01"
+    }), { status: 200 });
+  }
   return new Response("<html></html>", { status: 200 });
 };
 `)
@@ -2392,6 +2402,7 @@ globalThis.fetch = async (url) => {
   const accepted = snapshot.evidence.find((row) => row.platformPostId === strongCompanyId);
   assert.ok(accepted);
   assert.equal(accepted.attributionStatus, "verified");
+  assert.equal(accepted.postedAt, "2026-07-01");
   assert.match(accepted.matchReason, /independent_identity_anchor|exact_company_and_expected_cohort/);
 });
 

@@ -6,26 +6,30 @@ import { describe, expect, it } from "vitest";
 
 const validatorPath = join(process.cwd(), "scripts/validate-graph-function-trace.mjs");
 const graphRuntimeProjections = [
-  "generated-runtime/graph/public-evidence-current.json",
-  "generated-runtime/graph/logged-in-evidence-current.json",
-  "generated-runtime/graph/targeted-evidence-current.json",
-  "generated-runtime/graph/volume-evidence-current.json"
+  "generated-runtime/graph/public-evidence-current.json.gz",
+  "generated-runtime/graph/logged-in-evidence-current.json.gz",
+  "generated-runtime/graph/targeted-evidence-current.json.gz",
+  "generated-runtime/graph/volume-evidence-current.json.gz"
 ];
 const publishedGraphSnapshots = [
-  "public/graph/s2026.json",
-  "public/graph/s2026-yc-partners.json",
-  "public/graph/s2026-insiders.json",
-  "public/graph/s26.json",
-  "public/graph/s26-yc-partners.json",
-  "public/graph/s26-insiders.json",
-  "public/graph/a16zsr006.json",
-  "public/graph/a16zsr006-yc-partners.json",
-  "public/graph/a16zsr006-insiders.json"
+  "generated-runtime/published-graph/s2026.json.gz",
+  "generated-runtime/published-graph/s2026-yc-partners.json.gz",
+  "generated-runtime/published-graph/s2026-insiders.json.gz",
+  "generated-runtime/published-graph/s26.json.gz",
+  "generated-runtime/published-graph/f26.json.gz",
+  "generated-runtime/published-graph/s26-yc-partners.json.gz",
+  "generated-runtime/published-graph/f26-yc-partners.json.gz",
+  "generated-runtime/published-graph/s26-insiders.json.gz",
+  "generated-runtime/published-graph/f26-insiders.json.gz",
+  "generated-runtime/published-graph/a16zsr006.json.gz",
+  "generated-runtime/published-graph/a16zsr006-yc-partners.json.gz",
+  "generated-runtime/published-graph/a16zsr006-insiders.json.gz"
 ];
 const returnerFundApiSnapshots = [
-  "public/graph/s2026.json",
-  "public/graph/s26.json",
-  "public/graph/a16zsr006.json"
+  "generated-runtime/published-graph/s2026.json.gz",
+  "generated-runtime/published-graph/s26.json.gz",
+  "generated-runtime/published-graph/f26.json.gz",
+  "generated-runtime/published-graph/a16zsr006.json.gz"
 ];
 
 describe("graph runtime trace contract", () => {
@@ -52,6 +56,27 @@ describe("graph runtime trace contract", () => {
     expect(result.status).toBe(1);
     expect(result.output).toContain("full graph diagnostics trace contains forbidden runtime artifacts:");
     expect(result.output).toContain("trace-leak-sentinel.json");
+  });
+
+  it.each(["public", "logged-in", "targeted", "volume"])("rejects an uncompressed %s runtime file even when gzip is present", (name) => {
+    const path = `generated-runtime/graph/${name}-evidence-current.json`;
+    const result = runValidator({ leakUncompressedIntoFull: path });
+    expect(result.status).toBe(1);
+    expect(result.output).toContain("full graph diagnostics trace contains forbidden runtime artifacts:");
+    expect(result.output).toContain(path);
+  });
+
+  it("rejects a public graph function missing its compressed Fall snapshot", () => {
+    const result = runValidator({ missingFromGraph: "generated-runtime/published-graph/f26.json.gz" });
+    expect(result.status).toBe(1);
+    expect(result.output).toContain("graph trace is missing required runtime snapshots:");
+  });
+
+  it.each(["graph", "insider", "company"])("rejects raw public snapshots in the %s function", (route) => {
+    const result = runValidator({ leakPublicSnapshot: route });
+    expect(result.status).toBe(1);
+    expect(result.output).toContain("contains forbidden runtime artifacts:");
+    expect(result.output).toContain("public/graph/f26.json");
   });
 
   it("does not treat the GitHub Actions work parent as a repository leak", () => {
@@ -89,18 +114,26 @@ describe("graph runtime trace contract", () => {
       "src/lib/graph/yc-spring-2026-dataset.ts"
     ]) {
       const source = readFileSync(join(process.cwd(), file), "utf8");
-      expect(source).toContain("join(/* turbopackIgnore: true */ root, relativePath)");
-      expect(source).toContain("existsSync(/* turbopackIgnore: true */ runtimePath)");
-      expect(source).toContain("readFileSync(/* turbopackIgnore: true */ runtimePath");
+      expect(source).toContain('import { readGraphRuntimeJson } from "./runtime-json.mjs"');
+      expect(source).toContain("return readGraphRuntimeJson(relativePath)");
     }
+    const reader = readFileSync(join(process.cwd(), "src/lib/graph/runtime-json.mjs"), "utf8");
+    expect(reader).toContain("join(/* turbopackIgnore: true */ root, relativePath)");
+    expect(reader).toContain("existsSync(/* turbopackIgnore: true */ runtimePath)");
+    expect(reader).toContain("readFileSync(/* turbopackIgnore: true */ runtimePath");
+    expect(reader).toContain("existsSync(/* turbopackIgnore: true */ compressedPath)");
+    expect(reader).toContain("readFileSync(/* turbopackIgnore: true */ compressedPath)");
   });
 });
 
 function runValidator(options: {
   missingFromFull?: string;
+  missingFromGraph?: string;
+  leakPublicSnapshot?: string;
   leakWholeRepositoryFileIntoFull?: boolean;
   leakRepositoryWorkFileIntoFull?: boolean;
   leakMuslSharpIntoDebug?: boolean;
+  leakUncompressedIntoFull?: string;
   runUnderWorkParent?: boolean;
 } = {}) {
   const fixtureRoot = mkdtempSync(join(tmpdir(), "graph-trace-contract-"));
@@ -113,16 +146,25 @@ function runValidator(options: {
       writeFixtureFile(root, file);
     }
 
-    writeManifest(root, ".next/server/app/api/graph/route.js.nft.json", publishedGraphSnapshots);
+    const rawPublicSnapshot = "public/graph/f26.json";
+    if (options.leakPublicSnapshot) writeFixtureFile(root, rawPublicSnapshot);
+    const graphFiles = publishedGraphSnapshots.filter((file) => file !== options.missingFromGraph);
+    if (options.leakPublicSnapshot === "graph") graphFiles.push(rawPublicSnapshot);
+    writeManifest(root, ".next/server/app/api/graph/route.js.nft.json", graphFiles);
     writeManifest(
       root,
       ".next/server/app/api/v1/companies/[slug]/returner-fund/route.js.nft.json",
-      returnerFundApiSnapshots
+      [...returnerFundApiSnapshots, ...(options.leakPublicSnapshot === "company" ? [rawPublicSnapshot] : [])]
     );
     const fullTraceFiles = graphRuntimeProjections.filter((file) => file !== options.missingFromFull);
     const allowedPackageScript = "node_modules/trace-fixture/scripts/allowed.js";
     writeFixtureFile(root, allowedPackageScript);
     fullTraceFiles.push(allowedPackageScript);
+    if (options.leakUncompressedIntoFull) {
+      const leakPath = options.leakUncompressedIntoFull;
+      writeFixtureFile(root, leakPath);
+      fullTraceFiles.push(leakPath);
+    }
     if (options.leakWholeRepositoryFileIntoFull) {
       const leakPath = "public/timelines/companies/trace-leak-sentinel.json";
       writeFixtureFile(root, leakPath);
@@ -140,12 +182,15 @@ function runValidator(options: {
     );
     writeManifest(root, ".next/server/app/api/graph/refresh/route.js.nft.json", graphRuntimeProjections);
     writeManifest(root, ".next/server/app/api/insiders/recompute/route.js.nft.json", [
-      "public/graph/s2026.json",
-      "public/graph/s2026-insiders.json",
-      "public/graph/s26.json",
-      "public/graph/s26-insiders.json",
-      "public/graph/a16zsr006.json",
-      "public/graph/a16zsr006-insiders.json"
+      "generated-runtime/published-graph/s2026.json.gz",
+      "generated-runtime/published-graph/s2026-insiders.json.gz",
+      "generated-runtime/published-graph/s26.json.gz",
+      "generated-runtime/published-graph/f26.json.gz",
+      "generated-runtime/published-graph/s26-insiders.json.gz",
+      "generated-runtime/published-graph/f26-insiders.json.gz",
+      "generated-runtime/published-graph/a16zsr006.json.gz",
+      "generated-runtime/published-graph/a16zsr006-insiders.json.gz",
+      ...(options.leakPublicSnapshot === "insider" ? [rawPublicSnapshot] : [])
     ]);
     writeManifest(root, ".next/server/app/api/admin/ingestion/route.js.nft.json", []);
     for (const route of [

@@ -15,7 +15,7 @@ export const dynamic = "force-dynamic";
 export const maxDuration = 10;
 
 const querySchema = z.object({
-  batch: z.enum(["S2026", "S26", "A16ZSR006"]),
+  batch: z.enum(["S2026", "S26", "A16ZSR006", "F26"]),
   limit: z.coerce.number().int().min(1).max(20).default(RETURNER_FUND_POST_LIMIT_DEFAULT),
 }).strict();
 const companyReferenceSchema = z.string()

@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
 import path from "node:path";
 import test from "node:test";
 
@@ -7,6 +8,42 @@ import {
   buildRankedPostsSidecarScope,
   buildRankedPostsSidecarSnapshot
 } from "../scripts/build-ranked-posts-sidecar.mjs";
+import { createRankedPostsPhysicalMapCache } from "../scripts/lib/ranked-posts-physical-map-cache.mjs";
+
+test("publication-local map reuse produces byte-identical sidecar scopes", () => {
+  const fullGraph = fixtureGraph([fixtureEvidence("visible", "company-1"), fixtureEvidence("overflow", "company-2"), fixtureEvidence("unranked", "company-1", false)]);
+  const previewGraph = fixtureGraph([fixtureEvidence("visible", "company-1")]);
+  const dependencies = { rankableEvidence: (items) => items.filter((item) => item.rankable), canonicalPostKey: fixturePostKey, canonicalEvidenceUrl: fixtureCanonicalUrl };
+  const cache = createRankedPostsPhysicalMapCache(dependencies);
+  try {
+    const direct = buildRankedPostsSidecarScope({ fullGraph, previewGraph, ...dependencies });
+    const reused = buildRankedPostsSidecarScope({ fullGraph, previewGraph, ...dependencies, physicalMapCache: cache });
+    assert.equal(JSON.stringify(reused), JSON.stringify(direct));
+    assert.equal(JSON.stringify(buildRankedPostsSidecarScope({ fullGraph, previewGraph, ...dependencies, physicalMapCache: cache })), JSON.stringify(direct));
+    assert.equal(cache.stats().computations, 2);
+  } finally { cache.close(); }
+});
+
+test("one snapshot computes rankability once for each of its 24 exact source arrays", async (t) => {
+  const rootDir = await mkdtemp(path.join(tmpdir(), "ranked-sidecar-snapshot-"));
+  t.after(() => rm(rootDir, { recursive: true, force: true }));
+  await mkdir(path.join(rootDir, "public", "graph"), { recursive: true });
+  const graphs = new Map();
+  for (const [slug, file] of [["S26", "s26"], ["S2026", "s2026"], ["A16ZSR006", "a16zsr006"], ["F26", "f26"]]) {
+    for (const [audience, suffix] of [["off", ""], ["yc_partners", "-yc-partners"], ["insiders", "-insiders"]]) {
+      const graph = fixtureGraph([fixtureEvidence("visible", "company-1"), fixtureEvidence("overflow", "company-2")], audience);
+      graph.batch.slug = slug;
+      graphs.set(`${slug}:${audience}`, graph);
+      await writeFile(path.join(rootDir, "public", "graph", `${file}${suffix}.json`), JSON.stringify({ ...graph, evidence: graph.evidence.slice(0, 1) }));
+    }
+  }
+  let computations = 0;
+  const snapshot = await buildRankedPostsSidecarSnapshot({ rootDir, buildGraphResponse: ({ batchSlug, topVoices }) => graphs.get(`${batchSlug}:${topVoices}`), rankableEvidence: (rows) => { computations++; return rows.filter((row) => row.rankable); }, canonicalPostKey: fixturePostKey, canonicalEvidenceUrl: fixtureCanonicalUrl });
+  assert.equal(computations, 24);
+  assert.equal(snapshot.canonicalParity.fullRankableCount, 24);
+  assert.equal(snapshot.canonicalParity.representedRankableDigest, snapshot.canonicalParity.fullRankableDigest);
+  assert.equal(snapshot.canonicalParity.overflowRankableCount, 12);
+});
 
 test("the sidecar stores every rankable post omitted by a bounded preview", () => {
   const fullGraph = fixtureGraph([
@@ -162,7 +199,7 @@ test("the generated sidecar has exact parity with every full cohort/audience gra
     );
   }
   const scopes = Object.values(expected.batches).flatMap((batch) => Object.values(batch));
-  assert.equal(scopes.length, 9);
+  assert.equal(scopes.length, Object.keys(expected.batches).length * 3);
   for (const scope of scopes) {
     assert.equal(scope.representedRankableDigest, scope.fullRankableDigest);
     assert.equal(scope.overflowRankableCount, scope.evidence.length);
@@ -173,17 +210,18 @@ test("the generated sidecar has exact parity with every full cohort/audience gra
   }
 
   const { selectRankedPosts } = await import("../src/lib/graph/ranked-posts.ts");
-  for (const file of ["s2026", "s26", "a16zsr006"]) {
+  for (const file of ["s2026", "s26", "a16zsr006", "f26"]) {
     const graph = JSON.parse(await readFile(
       path.join(rootDir, "public", "graph", `${file}.json`),
       "utf8"
     ));
     const ranked = selectRankedPosts(graph, { period: "all_time" });
-    assert.equal(ranked.length, 100, `${file} should display exactly 100 ranked posts`);
+    const expectedCount = Math.min(100, expected.batches[graph.batch.slug].off.fullRankableCount);
+    assert.equal(ranked.length, expectedCount, `${file} should display every available post up to 100`);
     assert.equal(
       new Set(ranked.map((item) => item.canonicalPostKey)).size,
-      100,
-      `${file} should display 100 unique physical posts`
+      expectedCount,
+      `${file} should display unique physical posts`
     );
   }
 });

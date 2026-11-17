@@ -3,11 +3,14 @@
 import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import { join, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
+import { gzipSync } from "node:zlib";
 import { readPublicEvidenceArtifact } from "./lib/public-evidence-artifact.mjs";
 import { validatedRepositoryDataRoot } from "./lib/validated-repository-data-root.mjs";
+import { materializeTargetedEvidence } from "./lib/packed-targeted-evidence.mjs";
+import { preparePublishedGraphRuntimeSnapshots } from "./lib/packed-published-graphs.mjs";
 
 const snapshotNames = ["public", "logged-in", "targeted", "volume"];
-const acceptedBatches = new Set(["S26", "S2026", "P26", "A16ZSR006"]);
+const acceptedBatches = new Set(["S26", "S2026", "P26", "A16ZSR006", "F26"]);
 const historicalSlugs = new Set(["blueprints", "bylaw", "litmus-build", "perceptron-ml"]);
 const reviewKeys = [
   "id", "batchSlug", "batch_slug", "entityType", "entityId", "entityName",
@@ -20,6 +23,8 @@ export async function prepareGraphRuntimeEvidence({ rootDir } = {}) {
     label: "graph runtime evidence data root"
   });
   const outputRoot = join(root, "generated-runtime", "graph");
+  await materializeTargetedEvidence({ rootDir: root });
+  await preparePublishedGraphRuntimeSnapshots({ rootDir: root, allowMissing: true });
   const readJson = async (relativePath) =>
     JSON.parse(await readFile(join(root, relativePath), "utf8"));
   const [summer, spring, overrides] = await Promise.all([
@@ -70,6 +75,12 @@ export async function prepareGraphRuntimeEvidence({ rootDir } = {}) {
     const serialized = `${JSON.stringify(output)}\n`;
     await writeFile(temporary, serialized, "utf8");
     await rename(temporary, target);
+    // Deploy compressed projections. Keep raw files for local scripts;
+    // decompression must reproduce their exact compact bytes.
+    const compressedTarget = `${target}.gz`;
+    const compressedTemporary = `${compressedTarget}.${process.pid}.tmp`;
+    await writeFile(compressedTemporary, gzipSync(serialized, { level: 9 }));
+    await rename(compressedTemporary, compressedTarget);
     results.push({ name, evidence: evidence.length, needsReview: needsReview.length, bytes: Buffer.byteLength(serialized) });
   }
 

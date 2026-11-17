@@ -38,6 +38,18 @@ describe("topic facet snapshot loader", () => {
     expect(fetchImpl).toHaveBeenCalledTimes(1);
   });
 
+  it("loads Fall facets and rejects a different batch returned by that endpoint", async () => {
+    const fallSnapshot = { ...snapshot, batchSlug: "F26" };
+    const fetchImpl = vi.fn<typeof fetch>(async (input) => {
+      expect(String(input)).toMatch(/^\/api\/topic-facets\/F26\?v=/);
+      return new Response(JSON.stringify(fallSnapshot));
+    });
+    await expect(loadCurrentTopicFacetSnapshot("F26", { fetchImpl })).resolves.toEqual(fallSnapshot);
+    await expect(loadCurrentTopicFacetSnapshot("F26", {
+      fetchImpl: async () => new Response(JSON.stringify(snapshot))
+    })).rejects.toThrow("batch, version, or shape validation");
+  });
+
   it("deduplicates concurrent requests but does not retain completed responses", async () => {
     let resolveResponse!: (response: Response) => void;
     const fetchImpl = vi.fn<typeof fetch>(() => new Promise((resolve) => {

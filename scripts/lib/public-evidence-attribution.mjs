@@ -63,6 +63,9 @@ export function isCollisionProneCompanyName(companyName) {
 
 export function organizationQualifiedBatchMarker(batchSlug, text) {
   const value = String(text ?? "");
+  if (batchSlug === "F26") {
+    return /(?:\bYC\s*(?:F26|F2026|Fall\s+2026)\b|\bY\s*Combinator\s*(?:F26|F2026|Fall\s+2026)\b)/i.test(value);
+  }
   if (batchSlug === "S2026") {
     return /(?:\bYC\s*(?:P26|S2026|Spring\s+2026)\b|\bY\s*Combinator\s*(?:P26|S2026|Spring\s+2026)\b)/i.test(value);
   }
@@ -77,6 +80,11 @@ export function organizationQualifiedBatchMarker(batchSlug, text) {
 
 export function conflictingOrganizationBatchMarker(batchSlug, text) {
   const value = String(text ?? "");
+  const fallMarker = /(?:\bYC\s*(?:F26|F2026|Fall\s+2026)\b|\bY\s*Combinator\s*(?:F26|F2026|Fall\s+2026)\b)/i.test(value);
+  if (["S2026", "S26"].includes(batchSlug) && fallMarker) return true;
+  if (batchSlug === "F26") {
+    return /(?:\bYC\s*(?:P26|S26|S2026|Spring\s+2026|Summer\s+2026)\b|\bY\s*Combinator\s*(?:P26|S26|S2026|Spring\s+2026|Summer\s+2026)\b)/i.test(value);
+  }
   if (batchSlug === "S2026") {
     return /(?:\bYC\s*(?:S26|Summer\s+2026)\b|\bY\s*Combinator\s*(?:S26|Summer\s+2026)\b)/i.test(value);
   }
@@ -157,6 +165,16 @@ export function assessPublicEvidenceAttribution({
   };
 }
 
+// A search result's channel title is discovery text, not independent proof
+// that the channel belongs to this company. Keep mapped owners, exact cohort,
+// domain, catalog, and founder corroboration under the ordinary assessment.
+export function assessYouTubeSearchAttribution(args) {
+  return assessPublicEvidenceAttribution({
+    ...args,
+    signals: (args.signals ?? []).filter((signal) => signal !== "native_channel_brand")
+  });
+}
+
 function containsExactCompactMultiTokenName(text, companyName) {
   const tokens = normalizeBoundaryIdentity(companyName).match(/[a-z0-9]+/g) ?? [];
   if (tokens.length < 2) return false;
@@ -177,7 +195,7 @@ export function containsControlledCompanyBrandVariant(text, companyName) {
   if (base.replace(/\s+/g, "").length < 4) return false;
   const basePattern = base.split(/\s+/).map(escapeRegExp).join("[^\\p{L}\\p{N}]+");
   return new RegExp(
-    `(?:^|[^\\p{L}\\p{N}])${basePattern}\\s*\\(\\s*(?:YC\\s*(?:P26|S26|S2026)|Y\\s*Combinator\\s*(?:P26|S26|S2026)|a16z\\s+Speedrun(?:\\s+006)?)\\s*\\)`,
+    `(?:^|[^\\p{L}\\p{N}])${basePattern}\\s*\\(\\s*(?:YC\\s*(?:F26|F2026|P26|S26|S2026)|Y\\s*Combinator\\s*(?:F26|F2026|P26|S26|S2026)|a16z\\s+Speedrun(?:\\s+006)?)\\s*\\)`,
     "iu"
   ).test(normalizeBoundaryIdentity(text));
 }
@@ -342,6 +360,9 @@ export function extractLinkedInPrimaryPostText(row) {
 
 export function organizationQualifiedBatchMarkerCount(batchSlug, text) {
   const value = String(text ?? "");
+  if (batchSlug === "F26") {
+    return value.match(/(?:\bYC\s*(?:F26|F2026|Fall\s+2026)\b|\bY\s*Combinator\s*(?:F26|F2026|Fall\s+2026)\b)/gi)?.length ?? 0;
+  }
   if (batchSlug === "S2026") {
     return value.match(/(?:\bYC\s*(?:P26|S2026|Spring\s+2026)\b|\bY\s*Combinator\s*(?:P26|S2026|Spring\s+2026)\b)/gi)?.length ?? 0;
   }
@@ -384,7 +405,9 @@ export function isListOrRoundupAttributionContext(batchSlug, text) {
 
 function organizationQualifiedBatchMarkerMatches(batchSlug, text) {
   const value = String(text ?? "");
-  const pattern = batchSlug === "S2026"
+  const pattern = batchSlug === "F26"
+    ? /(?:\bYC\s*(?:F26|F2026|Fall\s+2026)\b|\bY\s*Combinator\s*(?:F26|F2026|Fall\s+2026)\b)/gi
+    : batchSlug === "S2026"
     ? /(?:\bYC\s*(?:P26|S2026|Spring\s+2026)\b|\bY\s*Combinator\s*(?:P26|S2026|Spring\s+2026)\b)/gi
     : batchSlug === "S26"
       ? /(?:\bYC\s*(?:S26|Summer\s+2026)\b|\bY\s*Combinator\s*(?:S26|Summer\s+2026)\b)/gi
@@ -439,7 +462,7 @@ function cleanSubjectField(value, { title = false, preservePipeSuffix = false } 
     text = [
       segments[0],
       ...segments.slice(1).filter((segment) =>
-        /(?:\bYC\s*(?:P26|S26|S2026|Spring\s+2026|Summer\s+2026)\b|\bY\s*Combinator\s*(?:P26|S26|S2026|Spring\s+2026|Summer\s+2026)\b|\ba16z\s+Speedrun(?:\s+006)?\b|\bA16ZSR006\b)/i.test(segment)
+        /(?:\bYC\s*(?:F26|F2026|P26|S26|S2026|Fall\s+2026|Spring\s+2026|Summer\s+2026)\b|\bY\s*Combinator\s*(?:F26|F2026|P26|S26|S2026|Fall\s+2026|Spring\s+2026|Summer\s+2026)\b|\ba16z\s+Speedrun(?:\s+006)?\b|\bA16ZSR006\b)/i.test(segment)
       )
     ].filter(Boolean).join(" | ");
   }

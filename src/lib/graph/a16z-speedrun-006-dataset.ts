@@ -1,6 +1,5 @@
 import { calibrateBatchCompanyScores } from "@/lib/scoring/batch-calibration";
-import { existsSync, readFileSync } from "node:fs";
-import { join } from "node:path";
+import { readGraphRuntimeJson } from "./runtime-json.mjs";
 
 import {
   canonicalEvidenceKey,
@@ -65,20 +64,7 @@ const speedrunSocialAccountSnapshot: unknown = readRuntimeJson(
 );
 
 function readRuntimeJson(relativePath: A16zRuntimeJsonPath): unknown {
-  const runtimePath = resolveRuntimeDataPath(relativePath);
-  // These exact files are declared in outputFileTracingIncludes. Ignoring the
-  // resolved argument here prevents Turbopack from treating it as a repo-wide
-  // filesystem glob while preserving cwd-independent local/test resolution.
-  return JSON.parse(readFileSync(/* turbopackIgnore: true */ runtimePath, "utf8"));
-}
-
-function resolveRuntimeDataPath(relativePath: A16zRuntimeJsonPath): string {
-  for (const root of [process.cwd(), process.env.INIT_CWD, process.env.PWD]) {
-    if (!root) continue;
-    const runtimePath = join(/* turbopackIgnore: true */ root, relativePath);
-    if (existsSync(/* turbopackIgnore: true */ runtimePath)) return runtimePath;
-  }
-  return join(/* turbopackIgnore: true */ process.cwd(), relativePath);
+  return readGraphRuntimeJson(relativePath);
 }
 
 export const A16Z_SPEEDRUN_006_BATCH_SLUG = "A16ZSR006";

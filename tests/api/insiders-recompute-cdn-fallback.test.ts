@@ -23,6 +23,8 @@ const snapshotBodies = new Map(
     "s2026-insiders.json",
     "s26.json",
     "s26-insiders.json",
+    "f26.json",
+    "f26-insiders.json",
     "a16zsr006.json",
     "a16zsr006-insiders.json"
   ].map((filename) => [
@@ -79,7 +81,8 @@ describe("POST /api/insiders/recompute snapshot CDN fallback", () => {
   it.each([
     ["S2026", "s2026"],
     ["S26", "s26"],
-    ["A16ZSR006", "a16zsr006"]
+    ["A16ZSR006", "a16zsr006"],
+    ["F26", "f26"]
   ] as const)(
     "loads the %s base and Insider snapshots from fixed CDN paths",
     async (batchSlug, filename) => {

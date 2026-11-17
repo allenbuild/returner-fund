@@ -1,0 +1,11 @@
+export const NATIVE_GITHUB_RELEASE_SOURCE: string;
+export const NATIVE_GITHUB_RELEASE_VALIDATION: string;
+export function githubReleaseSha256(value: string | Uint8Array): string;
+export function nativeGithubReleaseReceipt(row: unknown): Record<string, unknown> | null;
+export function githubReleaseNativeFields(row: unknown): Record<string, unknown>;
+export function nativeGithubReleaseOwnerNeedsReview(row: unknown): boolean;
+export function nativeGithubReleaseContextReasons(row: unknown, snapshot: unknown): string[];
+export function isVerifiedNativeGithubReleaseContext(row: unknown, snapshot: unknown): boolean;
+export function createNativeGithubReleaseContextVerifier(snapshot: unknown): (row: unknown) => boolean;
+export const NATIVE_GITHUB_REVIEWED_REPOSITORIES: Readonly<Record<string, { readonly companySlug: string; readonly nativeLaunchId: number; readonly ownershipClaims: readonly string[] }>>;
+export function isVerifiedNativeGithubRepositoryOwnershipProof(proof: unknown): boolean;

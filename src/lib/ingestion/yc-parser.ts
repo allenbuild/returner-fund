@@ -9,17 +9,20 @@ import type {
 
 export function normalizeBatchSlug(input: string): string {
   const cleaned = input.trim().toUpperCase().replace(/^YC\s+/, "").replace(/\s+/g, " ");
-  const compactShortMatch = cleaned.match(/\b([PSW])\s*(\d{2})\b/);
+  const compactShortMatch = cleaned.match(/\b([FPSW])\s*(\d{2})\b/);
   if (compactShortMatch) return `${compactShortMatch[1]}${compactShortMatch[2]}`;
 
-  const compactMatch = cleaned.match(/\b([PSW])\s*(20\d{2})\b/);
+  const compactMatch = cleaned.match(/\b([FPSW])\s*(20\d{2})\b/);
   if (compactMatch) {
-    return compactMatch[1] === "S" ? `S${compactMatch[2].slice(2)}` : `${compactMatch[1]}${compactMatch[2]}`;
+    return ["F", "S"].includes(compactMatch[1])
+      ? `${compactMatch[1]}${compactMatch[2].slice(2)}`
+      : `${compactMatch[1]}${compactMatch[2]}`;
   }
 
-  const seasonMatch = cleaned.match(/\b(SPRING|SUMMER|WINTER)\s+(20\d{2})\b/);
+  const seasonMatch = cleaned.match(/\b(FALL|SPRING|SUMMER|WINTER)\s+(20\d{2})\b/);
   if (seasonMatch) {
     if (seasonMatch[1] === "SUMMER") return `S${seasonMatch[2].slice(2)}`;
+    if (seasonMatch[1] === "FALL") return `F${seasonMatch[2].slice(2)}`;
     return `${seasonMatch[1] === "SPRING" ? "P" : "W"}${seasonMatch[2]}`;
   }
 
@@ -28,8 +31,8 @@ export function normalizeBatchSlug(input: string): string {
 
 export function batchSlugToLabel(batchSlug: string): string {
   const normalized = normalizeBatchSlug(batchSlug);
-  const shortMatch = normalized.match(/^S(\d{2})$/);
-  if (shortMatch) return `Summer 20${shortMatch[1]}`;
+  const shortMatch = normalized.match(/^([FS])(\d{2})$/);
+  if (shortMatch) return `${shortMatch[1] === "F" ? "Fall" : "Summer"} 20${shortMatch[2]}`;
   const match = normalized.match(/^([PW])(20\d{2})$/);
   if (!match) return normalized;
   return `${match[1] === "P" ? "Spring" : "Winter"} ${match[2]}`;
@@ -72,7 +75,7 @@ export function parseYcCompaniesFromHtml(html: string, batchSlugInput: string, s
     if (!href || !name || name.length > 120) return;
 
     const containerText = $(anchor).closest("article, li, div").text().replace(/\s+/g, " ").trim();
-    if (!textMatchesBatch(containerText, batchSlug) && /(?:Summer|Winter)\s+20\d{2}|\b[SW]20\d{2}\b/i.test(containerText)) {
+    if (!textMatchesBatch(containerText, batchSlug) && /(?:Fall|Spring|Summer|Winter)\s+20\d{2}|\b[FPSW](?:20)?\d{2}\b/i.test(containerText)) {
       return;
     }
 

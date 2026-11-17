@@ -3,6 +3,8 @@ export type Platform =
   | "x"
   | "linkedin"
   | "instagram"
+  | "facebook"
+  | "threads"
   | "product_hunt"
   | "youtube"
   | "rss"

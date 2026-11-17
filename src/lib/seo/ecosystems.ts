@@ -30,7 +30,7 @@ export interface EcosystemSnapshot {
 }
 
 const BATCHES: Record<EcosystemKey, string[]> = {
-  yc: ["S2026", "S26"],
+  yc: ["S2026", "S26", "F26"],
   a16z: ["A16ZSR006"]
 };
 

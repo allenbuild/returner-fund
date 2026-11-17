@@ -37,7 +37,7 @@ function withSiteUrl<T>(configured: string | undefined, run: () => T): T {
 }
 
 describe("public SEO catalog", () => {
-  it("builds stable, unique routes from the three canonical graph snapshots", () => {
+  it("builds stable, unique routes from every canonical graph snapshot", () => {
     const catalog = getCatalog();
     const expectedCompanies = catalog.graphs.reduce(
       (total, graph) => total + graph.nodes.filter((node) => node.entityType === "company").length,
