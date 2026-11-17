@@ -1,5 +1,5 @@
-import { describe, expect, it } from "vitest";
-import { readFileSync } from "node:fs";
+import { beforeAll, describe, expect, it } from "vitest";
+import { createReadStream, readFileSync } from "node:fs";
 import { join } from "node:path";
 import {
   canonicalPostKey,
@@ -23,9 +23,7 @@ import summerGithubSnapshot from "@/lib/social/github-traction-summer-2026.json"
 import summerCompaniesSnapshot from "@/lib/yc/summer-2026-companies.json";
 import fallCompaniesSnapshot from "@/lib/yc/fall-2026-companies.json";
 
-const targetedEvidenceSnapshot = JSON.parse(
-  readFileSync(join(process.cwd(), "src/lib/social/targeted-evidence-current.json"), "utf8")
-) as {
+type TargetedTestReceipts = {
   evidence: Array<{
     id: string;
     sourceUrl: string;
@@ -50,6 +48,107 @@ const targetedEvidenceSnapshot = JSON.parse(
     };
   }>;
 };
+
+// Keep the independent canonical source for all existing receipt assertions,
+// without retaining a second copy of its full browser/public history snapshot.
+async function readTargetedTestReceipts(): Promise<TargetedTestReceipts> {
+  const result: TargetedTestReceipts = { evidence: [], needsReview: [] };
+  const reviewUrls = new Set([
+    "https://github.com/coasty-ai/coasty-osworld",
+    "https://github.com/coasty-ai/llmhub-api",
+    "https://github.com/coasty-ai/.github"
+  ]);
+  const selectedId = "product_hunt-all_batches_nonx_nonlinkedin_sol_ultra-s2026-company-cignara-nalin-gupta1-products-cignara";
+  type Section = keyof TargetedTestReceipts;
+  const opened = new Set<Section>();
+  const completed = new Set<Section>();
+  const counts = { evidence: 0, needsReview: 0 };
+  let section: Section | null = null;
+  let rowLines: string[] | null = null;
+  let rowBytes = 0;
+  let pending = "";
+  let lastNonemptyLine = "";
+  let boundary: "first" | "row" | "separator" = "first";
+  const maxRowBytes = 32 * 1024 * 1024;
+
+  function consumeLine(line: string) {
+    if (line.trim()) lastNonemptyLine = line;
+    const header = /^  "(evidence|needsReview)": \[$/.exec(line);
+    if (header) {
+      const next = header[1] as Section;
+      if (section || opened.has(next)) throw new Error("Unexpected canonical receipt array boundary.");
+      section = next;
+      opened.add(next);
+      boundary = "first";
+      return;
+    }
+    if (!section) return;
+    if (line === "  ]" || line === "  ],") {
+      if (rowLines || boundary === "row") throw new Error("Canonical receipt array ended inside a row or after a trailing separator.");
+      completed.add(section);
+      section = null;
+      return;
+    }
+    if (!rowLines) {
+      // CAS append preserves some evidence separators on their own line.
+      if (/^\s*$/.test(line)) return;
+      if (/^\s*,\s*$/.test(line)) {
+        if (boundary !== "separator") throw new Error("Unexpected canonical receipt separator.");
+        boundary = "row";
+        return;
+      }
+      if (line !== "    {") throw new Error("Unexpected canonical receipt row boundary.");
+      if (boundary === "separator") throw new Error("Canonical receipt rows are missing a separator.");
+      rowLines = [];
+      rowBytes = 0;
+    }
+    rowBytes += Buffer.byteLength(line, "utf8") + 1;
+    if (rowBytes > maxRowBytes) throw new Error("Canonical test receipt exceeds its bounded row size.");
+    rowLines.push(line);
+    if (line !== "    }" && line !== "    },") return;
+    const row = JSON.parse(rowLines.join("\n").replace(/,$/, ""));
+    if (!row || typeof row !== "object" || Array.isArray(row)) throw new Error("Malformed canonical receipt row.");
+    counts[section] += 1;
+    if (section === "evidence") {
+      if (typeof row.id !== "string" || typeof row.sourceUrl !== "string") throw new Error("Malformed canonical evidence identity.");
+      if (row.id === selectedId || row.sourceUrl.toLowerCase() === "https://github.com/onecli/onecli-plugin") {
+        result.evidence.push(row);
+      }
+    } else if (typeof row.candidateUrl === "string" && reviewUrls.has(row.candidateUrl.toLowerCase())) {
+      result.needsReview.push(row);
+    }
+    boundary = line.endsWith(",") ? "row" : "separator";
+    rowLines = null;
+  }
+
+  for await (const chunk of createReadStream(join(process.cwd(), "src/lib/social/targeted-evidence-current.json"), {
+    encoding: "utf8", highWaterMark: 64 * 1024
+  })) {
+    pending += chunk;
+    let newline;
+    while ((newline = pending.indexOf("\n")) !== -1) {
+      consumeLine(pending.slice(0, newline));
+      pending = pending.slice(newline + 1);
+    }
+    if (Buffer.byteLength(pending, "utf8") > maxRowBytes) throw new Error("Canonical test receipt exceeds its bounded line size.");
+  }
+  if (pending) consumeLine(pending);
+  if (section || rowLines || completed.size !== 2 || counts.evidence === 0 || counts.needsReview === 0 || lastNonemptyLine !== "}") {
+    throw new Error("Canonical evidence and review arrays were not completely read.");
+  }
+  if (result.evidence.length !== 2 || result.needsReview.length !== 3
+    || !result.evidence.some((row) => row.id === selectedId)
+    || !result.evidence.some((row) => row.sourceUrl.toLowerCase() === "https://github.com/onecli/onecli-plugin")
+    || new Set(result.needsReview.map((row) => row.candidateUrl.toLowerCase())).size !== reviewUrls.size) {
+    throw new Error("Canonical source did not contain the exact five physical test receipts.");
+  }
+  return result;
+}
+
+let targetedEvidenceSnapshot: TargetedTestReceipts;
+beforeAll(async () => {
+  targetedEvidenceSnapshot = await readTargetedTestReceipts();
+}, 90_000);
 
 const publicReviewLedgerSnapshot = JSON.parse(
   readFileSync(join(process.cwd(), "outputs/public-ingestion-review-ledger-current.json"), "utf8")
@@ -1155,25 +1254,26 @@ describe("YC Summer 2026 official snapshot", () => {
       expect(handleFromUrl(malformedUrl)).toBeNull();
     }
 
-    const expectedSnapshotAccounts = new Map([
-      ["https://www.linkedin.com/company/109776165/admin/dashboard/", "109776165"],
-      ["https://www.linkedin.com/company/huscarl/about/", "huscarl"],
-      ["https://www.linkedin.com/company/lamina-labs/about/", "lamina-labs"],
-      ["https://www.linkedin.com/company/108252929/admin/dashboard/", "108252929"],
-      ["https://www.linkedin.com/company/mountyc26/posts/?feedView=all", "mountyc26"],
-      ["https://www.linkedin.com/company/111953568/admin/dashboard/", "111953568"],
-      ["https://www.linkedin.com/company/coniferbuild", "coniferbuild"],
-      ["https://www.linkedin.com/company/131464079", "131464079"],
-      ["https://www.linkedin.com/company/130274179/admin/dashboard/", "130274179"]
-    ]);
+    const expectedSnapshotAccounts = [
+      ["https://www.linkedin.com/company/109776165/admin/dashboard/", "https://linkedin.com/company/109776165", "109776165"],
+      ["https://www.linkedin.com/company/huscarl/about/", "https://linkedin.com/company/huscarl", "huscarl"],
+      ["https://www.linkedin.com/company/lamina-labs/about/", "https://linkedin.com/company/lamina-labs", "lamina-labs"],
+      ["https://www.linkedin.com/company/108252929/admin/dashboard/", "https://linkedin.com/company/108252929", "108252929"],
+      ["https://www.linkedin.com/company/mountyc26/posts/?feedView=all", "https://linkedin.com/company/mountyc26", "mountyc26"],
+      ["https://www.linkedin.com/company/111953568/admin/dashboard/", "https://linkedin.com/company/111953568", "111953568"],
+      ["https://www.linkedin.com/company/coniferbuild", "https://linkedin.com/company/coniferbuild", "coniferbuild"],
+      ["https://www.linkedin.com/company/131464079", "https://linkedin.com/company/131464079", "131464079"],
+      ["https://www.linkedin.com/company/130274179/admin/dashboard/", "https://linkedin.com/company/130274179", "130274179"]
+    ] as const;
     const socialAccounts = [
       ...ycSpring2026GraphDataset.companies.flatMap((company) => company.socialAccounts),
       ...ycSpring2026GraphDataset.founders.flatMap((founder) => founder.socialAccounts)
     ];
 
-    for (const [url, expectedHandle] of expectedSnapshotAccounts) {
-      expect(socialAccounts.find((account) => account.url === url)).toEqual(
-        expect.objectContaining({ handle: expectedHandle, review_state: "verified" })
+    for (const [snapshotUrl, publicRootUrl, expectedHandle] of expectedSnapshotAccounts) {
+      expect(handleFromUrl(snapshotUrl)).toBe(expectedHandle);
+      expect(socialAccounts.find((account) => account.url === publicRootUrl)).toEqual(
+        expect.objectContaining({ url: publicRootUrl, handle: expectedHandle, review_state: "verified" })
       );
     }
     expect(
@@ -1184,7 +1284,7 @@ describe("YC Summer 2026 official snapshot", () => {
       )
     ).toEqual(
       expect.objectContaining({
-        url: "https://www.linkedin.com/company/130274179/admin/dashboard/",
+        url: "https://linkedin.com/company/130274179",
         handle: "130274179",
         review_state: "verified"
       })

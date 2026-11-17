@@ -50,7 +50,10 @@ describe("topic facet full-source parity", () => {
 
       expect(publishedEvidence.length).toBeLessThanOrEqual(ownedEvidence.length);
       expect(graph.evidence).toHaveLength(publishedEvidence.length);
-      expect(actualByIdentity.size).toBe(graph.evidence.length);
+      // One physical post may have two genuinely co-primary topics. Corpus
+      // coverage counts posts; exact row parity below counts topic/post pairs.
+      expect(new Set(actualRows.map((row) => row.postKey)).size).toBe(graph.evidence.length);
+      expect(actualByIdentity.size).toBe(expectedByIdentity.size);
       expect(parityFailures(actualByIdentity, expectedByIdentity)).toEqual([]);
       expect(parityFailures(actualByIdentity, graphByIdentity)).toEqual([]);
 
@@ -65,6 +68,35 @@ describe("topic facet full-source parity", () => {
       expect(actualRows.some((row) => foreignUnscopedPostKeys.has(row.postKey))).toBe(false);
     }
   }, 300_000);
+
+  it("retains both co-primary facets without counting an extra physical post", () => {
+    const item: EvidenceItem = {
+      id: "co-primary-post",
+      entityType: "company",
+      entityId: "company-acme",
+      platform: "web",
+      authorName: "Acme",
+      authorHandle: "acme",
+      postedAt: "2026-11-01T12:00:00.000Z",
+      text: "We partnered with Acme on a contract and reached 1,000 users. Revenue remains strong.",
+      mediaType: "text",
+      metrics: {},
+      contributionScore: 0,
+      sourceUrl: "https://acme.example/blog/customer-milestone",
+      platformPostId: "https://acme.example/blog/customer-milestone",
+      why: "Native company article",
+      review_state: "verified"
+    };
+    const rows = rowsForEvidence([item], new Map([[item.entityId, item.entityId]]));
+    expect(rows.map((row) => row.topic)).toEqual([
+      "traction-growth",
+      "customer-partnership-deployment"
+    ]);
+    expect(new Set(rows.map((row) => row.postKey)).size).toBe(1);
+    expect(rowsByIdentity(rows).size).toBe(2);
+    expect(parityFailures(rowsByIdentity(rows.slice(0, 1)), rowsByIdentity(rows)))
+      .toEqual([`missing:${rows[1]!.topic}\u0000${rows[1]!.postKey}`]);
+  });
 });
 
 function readSnapshot(filename: string): TopicFacetSnapshot {

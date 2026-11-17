@@ -7,6 +7,7 @@ import {
   rankedPostsSidecarLoaderInFlightCount,
   RANKED_POSTS_SIDECAR_CACHE_MAX_ENTRIES,
   RANKED_POSTS_SIDECAR_IN_FLIGHT_MAX_ENTRIES,
+  RANKED_POSTS_SIDECAR_MAX_BYTES,
   RANKED_POSTS_SIDECAR_MAX_EVIDENCE_ROWS,
   type TopVoiceAudienceId,
   type RankedPostsGraphTarget
@@ -35,6 +36,9 @@ describe("ranked posts sidecar loader", () => {
   it("fetches and accepts one current server snapshot when the bundled timestamp is stale", async () => {
     const generatedAt = "2031-04-15T12:00:00.000Z";
     const remote = snapshotWithScopeTimestamp(generatedAt);
+    expect(Object.keys(remote.batches)).toEqual(Object.keys(rankedPostsSidecarSnapshot.batches));
+    expect(new TextEncoder().encode(JSON.stringify(remote)).byteLength)
+      .toBeLessThanOrEqual(RANKED_POSTS_SIDECAR_MAX_BYTES);
     const fetchImpl = vi.fn<typeof fetch>(async () => new Response(JSON.stringify(remote), {
       status: 200,
       headers: { "content-type": "application/json" }
@@ -44,6 +48,32 @@ describe("ranked posts sidecar loader", () => {
 
     expect(scope.previewGeneratedAt).toBe(generatedAt);
     expect(fetchImpl).toHaveBeenCalledTimes(1);
+  });
+
+  it("rejects an over-budget Content-Length before reading or caching the body", async () => {
+    const response = new Response("{}", {
+      headers: { "content-length": String(RANKED_POSTS_SIDECAR_MAX_BYTES + 1) }
+    });
+    const readBody = vi.spyOn(response, "text");
+    const fetchImpl = vi.fn<typeof fetch>(async () => response);
+
+    await expect(loadRankedPostsSidecarForGraph(graphTarget("2031-04-15T12:00:00.000Z"), {
+      fetchImpl
+    })).rejects.toThrow("exceeded the size limit");
+    expect(readBody).not.toHaveBeenCalled();
+    expect(rankedPostsSidecarLoaderCacheEntryCount()).toBe(0);
+    expect(rankedPostsSidecarLoaderInFlightCount()).toBe(0);
+  });
+
+  it("rejects an over-budget decoded body even without a Content-Length", async () => {
+    const body = JSON.stringify({ padding: "x".repeat(RANKED_POSTS_SIDECAR_MAX_BYTES) });
+    const fetchImpl = vi.fn<typeof fetch>(async () => new Response(body));
+
+    await expect(loadRankedPostsSidecarForGraph(graphTarget("2031-04-15T12:00:00.000Z"), {
+      fetchImpl
+    })).rejects.toThrow("exceeded the size limit");
+    expect(rankedPostsSidecarLoaderCacheEntryCount()).toBe(0);
+    expect(rankedPostsSidecarLoaderInFlightCount()).toBe(0);
   });
 
   it("deduplicates concurrent stale-sidecar requests", async () => {

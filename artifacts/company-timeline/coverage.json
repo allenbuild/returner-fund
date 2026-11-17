@@ -5,15 +5,15 @@
   "sourceArtifacts": [
     {
       "path": "public/graph/a16zsr006.json",
-      "sha256": "a4527f88adc35621c8c0f2e6d1d95f3ce1463b026c08f1ba8c6ef167a2746869"
+      "sha256": "7de103c1121ea35e9a70415a7d035b071400477491c9c38c20dc4013511b52dc"
     },
     {
       "path": "public/graph/s2026.json",
-      "sha256": "8c82d0682adb84c7c0015af846d81690deeb9483e2c83ce22a25a93ce2a4b282"
+      "sha256": "5c5d6a6dad505fc532f6540ad9787e15baf4cd6ef4658bfb3d7eebc811d146cf"
     },
     {
       "path": "public/graph/s26.json",
-      "sha256": "5811fcf4a6a2e677a960516d4a80bf40c4627f9f1015b462ed4e470927ad8f00"
+      "sha256": "defb5751c19a61eba2dcb953e3b5953a8ae679b89bb5b0182fad37257b75cc0d"
     },
     {
       "path": "src/lib/social/public-evidence-current.json",
@@ -25,7 +25,7 @@
     },
     {
       "path": "src/lib/social/targeted-evidence-current.json",
-      "sha256": "781c15b904f84f0d590c016d97c9429fe1fd621fca6059e572eb252c1fbbfd85"
+      "sha256": "ed1be760a3870fd12d7c07e0027582ef9113a5de19fd398aa6324e2c9b458591"
     },
     {
       "path": "src/lib/social/volume-evidence-current.json",
@@ -12707,5 +12707,70 @@
       "lastSuccessfulArtifactAt": "2026-11-16T14:57:39.751Z",
       "lastError": "official website discovery was not executed by the static graph backfill; institutional profile discovery was not executed by the static graph backfill; public web discovery requires a configured search provider credential; historical archive discovery is not configured; historical gap follow-up requires a configured search provider credential."
     }
-  ]
+  ],
+  "sourceArtifactLineage": {
+    "refreshedAt": "2026-11-17T03:16:59.160Z",
+    "operation": "current-source-digest-refresh",
+    "historicalCheckpoint": {
+      "gitRef": "38ae85d07f346d6701519ef7f21b4b475f4475cb",
+      "path": "artifacts/company-timeline/coverage.json",
+      "sha256": "10b8b6159d40e04553a9ae108d667c2c894316bed3b436bec518b6e0e27c9b38",
+      "generatedAt": "2026-11-16T14:57:39.751Z",
+      "sourceArtifacts": [
+        {
+          "path": "public/graph/a16zsr006.json",
+          "sha256": "a4527f88adc35621c8c0f2e6d1d95f3ce1463b026c08f1ba8c6ef167a2746869"
+        },
+        {
+          "path": "public/graph/s2026.json",
+          "sha256": "8c82d0682adb84c7c0015af846d81690deeb9483e2c83ce22a25a93ce2a4b282"
+        },
+        {
+          "path": "public/graph/s26.json",
+          "sha256": "5811fcf4a6a2e677a960516d4a80bf40c4627f9f1015b462ed4e470927ad8f00"
+        },
+        {
+          "path": "src/lib/social/public-evidence-current.json",
+          "sha256": "17e2f5f1ae33c9f0dd98f1df9331bd00968a6a0ba505911f480b0c4f3a41112c"
+        },
+        {
+          "path": "src/lib/social/logged-in-evidence-current.json",
+          "sha256": "3d07b4cfbc32a921705aeb752b273913a906b6a4b266ce7a60a00c207928fcab"
+        },
+        {
+          "path": "src/lib/social/targeted-evidence-current.json",
+          "sha256": "781c15b904f84f0d590c016d97c9429fe1fd621fca6059e572eb252c1fbbfd85"
+        },
+        {
+          "path": "src/lib/social/volume-evidence-current.json",
+          "sha256": "bebb9b43ebf1928fc514aec252be5cdcfc46971d1d559fd1d8bb629a46827e2f"
+        }
+      ]
+    },
+    "refreshedArtifacts": [
+      {
+        "path": "public/graph/a16zsr006.json",
+        "previousSha256": "a4527f88adc35621c8c0f2e6d1d95f3ce1463b026c08f1ba8c6ef167a2746869",
+        "currentSha256": "7de103c1121ea35e9a70415a7d035b071400477491c9c38c20dc4013511b52dc"
+      },
+      {
+        "path": "public/graph/s2026.json",
+        "previousSha256": "8c82d0682adb84c7c0015af846d81690deeb9483e2c83ce22a25a93ce2a4b282",
+        "currentSha256": "5c5d6a6dad505fc532f6540ad9787e15baf4cd6ef4658bfb3d7eebc811d146cf"
+      },
+      {
+        "path": "public/graph/s26.json",
+        "previousSha256": "5811fcf4a6a2e677a960516d4a80bf40c4627f9f1015b462ed4e470927ad8f00",
+        "currentSha256": "defb5751c19a61eba2dcb953e3b5953a8ae679b89bb5b0182fad37257b75cc0d"
+      },
+      {
+        "path": "src/lib/social/targeted-evidence-current.json",
+        "previousSha256": "781c15b904f84f0d590c016d97c9429fe1fd621fca6059e572eb252c1fbbfd85",
+        "currentSha256": "ed1be760a3870fd12d7c07e0027582ef9113a5de19fd398aa6324e2c9b458591"
+      }
+    ],
+    "timelineEventsRebuilt": false,
+    "historyCoverageRecomputed": false,
+    "note": "Current source digests were refreshed after merging the Fall cohort and republishing the existing cohorts. Historical timeline events, generation time, company inventory, source-class coverage, and partial-history statuses remain those of the original checkpoint. This refresh does not claim that new source evidence was backfilled into these timelines."
+  }
 }

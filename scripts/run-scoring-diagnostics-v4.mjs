@@ -76,14 +76,12 @@ globalThis.fetch = async () => {
   throw new Error("Network access is disabled by scoring diagnostics v4.");
 };
 
-const [datasetModule, scoringModule, configModule, dedupeModule] = await Promise.all([
-  import("../src/lib/graph/yc-spring-2026-dataset.ts"),
+const [scoringModule, configModule, dedupeModule] = await Promise.all([
   import("../src/lib/graph/traction-scoring.ts"),
   import("../src/lib/graph/traction-scoring-config.ts"),
   import("../src/lib/graph/dedupe.ts")
 ]);
 
-const { yc2026GraphDataset } = datasetModule;
 const {
   aggregateBalancedTractionScore,
   computeEvidenceRawEngagement,
@@ -180,6 +178,7 @@ const WEIGHTED_PLATFORMS = Object.entries(TRACTION_SCORING_CONFIG.platformWeight
 
 const inputHashes = await buildInputHashManifest();
 assertExpectedInputHash(inputHashes);
+const { yc2026GraphDataset } = await import("../src/lib/graph/yc-spring-2026-dataset.ts");
 const cohortMemberships = entityCohortMemberships(yc2026GraphDataset);
 const cohortEvidencePartition = cohortEvidencePartitionObservation(yc2026GraphDataset);
 const cohortContexts = COHORT_SLUGS.map((slug) => buildCohortContext(slug));

@@ -30,6 +30,8 @@ describe("ingestion platform registry", () => {
     ]);
     expect(CONTEXTUAL_PLATFORMS).toEqual(["rss", "web"]);
     expect(PLATFORM_REGISTRY.filter((entry) => entry.sourceRole === "native_unscored").map((entry) => entry.platform)).toEqual([
+      "facebook",
+      "threads",
       "tiktok",
       "bluesky"
     ]);
@@ -45,12 +47,41 @@ describe("ingestion platform registry", () => {
     expect(byPlatform.web?.collector.supportsEvidenceCollection).toBe(true);
     expect(byPlatform.bilibili?.nativeTractionEligible).toBe(true);
     expect(byPlatform.bilibili?.collector.supportsEvidenceCollection).toBe(false);
-    expect(byPlatform.tiktok?.collector.availability).toBe("disabled");
+    expect(byPlatform.tiktok).toMatchObject({
+      sourceRole: "native_unscored",
+      nativeTractionEligible: false,
+      collector: {
+        availability: "manual_only",
+        modes: ["manual"],
+        supportsAccountDiscovery: false,
+        supportsEvidenceCollection: true
+      }
+    });
+    expect(NATIVE_TRACTION_PLATFORMS).not.toContain("tiktok");
     expect(byPlatform.bluesky?.auth.mode).toBe("unavailable");
   });
 });
 
 describe("buildAccountInventory", () => {
+  it("keeps a declared TikTok account manual and unscored while honoring explicit disablement", () => {
+    const input: BuildAccountInventoryInput = {
+      companies: [{
+        id: "manual-tiktok",
+        socialAccounts: [{ platform: "tiktok", url: "https://www.tiktok.com/@manualfixture" }]
+      }],
+      founders: []
+    };
+    const row = buildAccountInventory(input).find((entry) => entry.platform === "tiktok");
+    expect(row).toMatchObject({
+      status: "ready",
+      sourceRole: "native_unscored",
+      nativeTractionEligible: false,
+      collector: { availability: "manual_only", modes: ["manual"], supportsAccountDiscovery: false }
+    });
+    expect(buildAccountInventory({ ...input, disabledPlatforms: ["tiktok"] })
+      .find((entry) => entry.platform === "tiktok")?.status).toBe("disabled");
+  });
+
   it("emits one deterministic terminal row for every entity/platform pair", () => {
     const input: BuildAccountInventoryInput = {
       companies: [
@@ -104,7 +135,7 @@ describe("buildAccountInventory", () => {
     expect(byKey["founder:founder-a:x"]?.status).toBe("ready");
     expect(byKey["founder:founder-a:product_hunt"]?.status).toBe("not_applicable");
     expect(byKey["founder:founder-a:product_hunt"]?.terminal).toBe(true);
-    expect(byKey["founder:founder-a:tiktok"]?.status).toBe("disabled");
+    expect(byKey["founder:founder-a:tiktok"]?.status).toBe("missing_account");
     expect(byKey["founder:founder-a:bluesky"]?.status).toBe("disabled");
   });
 

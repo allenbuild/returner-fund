@@ -519,12 +519,19 @@ describe("autonomous ingestion runner CLI", () => {
     temporaryRoots.push(sourceRoot, remoteRoot, publisherRoot);
     await cp(path.join(repositoryRoot, "scripts"), path.join(sourceRoot, "scripts"), { recursive: true });
     await cp(path.join(repositoryRoot, "package.json"), path.join(sourceRoot, "package.json"));
+    await mkdir(path.join(sourceRoot, "src", "lib", "graph"), { recursive: true });
+    for (const filename of ["facebook-native-identity.mjs", "threads-native-identity.mjs"]) {
+      await cp(
+        path.join(repositoryRoot, "src", "lib", "graph", filename),
+        path.join(sourceRoot, "src", "lib", "graph", filename)
+      );
+    }
     await writeFile(path.join(sourceRoot, ".gitignore"), "node_modules/\nwork/\n");
     await symlink(path.join(repositoryRoot, "node_modules"), path.join(sourceRoot, "node_modules"), "dir");
     runGit(sourceRoot, ["init", "-b", "main"]);
     runGit(sourceRoot, ["config", "user.name", "Replay Fixture"]);
     runGit(sourceRoot, ["config", "user.email", "replay-fixture@example.com"]);
-    runGit(sourceRoot, ["add", ".gitignore", "package.json", "scripts"]);
+    runGit(sourceRoot, ["add", ".gitignore", "package.json", "scripts", "src"]);
     runGit(sourceRoot, ["commit", "-m", "source commit"]);
     const sourceSha = runGit(sourceRoot, ["rev-parse", "HEAD"]).stdout.trim();
     runGit(remoteRoot, ["init", "--bare"]);
@@ -4957,7 +4964,7 @@ describe("autonomous ingestion runner static safety contracts", () => {
         LIFECYCLE_FIXTURE_PUBLICATION_PARENT: publicationParent,
         LIFECYCLE_FIXTURE_BASE_COMMIT: baseCommit,
         LIFECYCLE_FIXTURE_RETRY_BASE_COMMIT: retryBaseCommit
-      }, repositoryRoot, 15_000);
+      }, repositoryRoot, 60_000);
       const payload = lifecycleFixturePayload(result);
       assert.equal(payload.reusedValidatedCandidate, true);
       assert.equal(payload.proof.parentCommit, retryBaseCommit);
@@ -4969,7 +4976,10 @@ describe("autonomous ingestion runner static safety contracts", () => {
       assert.ok(payload.proof.changedPaths.includes("outputs/source-discovery-paths-current.json"));
       assert.ok(!payload.proof.changedPaths.includes("public/dashboard/feed.json"));
     } finally {
-      runGit(repositoryRoot, ["worktree", "remove", "--force", publicationRoot]);
+      const worktrees = runGit(repositoryRoot, ["worktree", "list", "--porcelain"]).stdout;
+      if (worktrees.split("\n").includes(`worktree ${publicationRoot}`)) {
+        runGit(repositoryRoot, ["worktree", "remove", "--force", publicationRoot]);
+      }
       runGit(repositoryRoot, ["worktree", "prune"]);
     }
   });

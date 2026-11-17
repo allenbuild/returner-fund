@@ -62,22 +62,6 @@ const COMPANY_ONLY = ["company"] as const satisfies readonly EntityType[];
 
 export const PLATFORM_REGISTRY = [
   platform({
-    platform: "threads",
-    sourceRole: "native_unscored",
-    appliesTo: BOTH_ENTITY_TYPES,
-    accountModel: "profile",
-    auth: optionalAuth([], "Public native observations only; account creation and terms acceptance are separate actions."),
-    collector: collector("manual_only", ["manual"], false, true, false, "Receipt-verified originals require a verified owner and literal native outbound account link; history remains unscored and login frontiers remain explicit.")
-  }),
-  platform({
-    platform: "facebook",
-    sourceRole: "native_unscored",
-    appliesTo: COMPANY_ONLY,
-    accountModel: "profile",
-    auth: optionalAuth([], "Read-only native observations require explicit session authorization or a public page."),
-    collector: collector("manual_only", ["manual"], false, true, false, "Receipt-verified official company posts and profile updates are retained as unscored native history; no calibrated traction model is configured.")
-  }),
-  platform({
     platform: "github",
     sourceRole: "native_traction",
     appliesTo: BOTH_ENTITY_TYPES,
@@ -108,6 +92,22 @@ export const PLATFORM_REGISTRY = [
     accountModel: "profile",
     auth: optionalAuth([], "Public attempts are supported; the logged-in collector is opt-in."),
     collector: collector("partial", ["standalone_script"], true, true, true, "Broad public and opt-in logged-in scripts exist, but access can be blocked.")
+  }),
+  platform({
+    platform: "facebook",
+    sourceRole: "native_unscored",
+    appliesTo: COMPANY_ONLY,
+    accountModel: "profile",
+    auth: optionalAuth([], "Read-only native observations require explicit session authorization or a public page."),
+    collector: collector("manual_only", ["manual"], false, true, false, "Receipt-verified official company posts and profile updates are retained as unscored native history; no calibrated traction model is configured.")
+  }),
+  platform({
+    platform: "threads",
+    sourceRole: "native_unscored",
+    appliesTo: BOTH_ENTITY_TYPES,
+    accountModel: "profile",
+    auth: optionalAuth([], "Public native observations only; account creation and terms acceptance are separate actions."),
+    collector: collector("manual_only", ["manual"], false, true, false, "Receipt-verified originals require a verified owner and literal native outbound account link; history remains unscored and login frontiers remain explicit.")
   }),
   platform({
     platform: "product_hunt",

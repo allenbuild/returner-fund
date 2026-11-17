@@ -16,7 +16,9 @@ import {
 import { PLATFORM_VALUES, type EvidenceItem, type TopVoiceAudienceId } from "./types";
 
 const RANKED_POSTS_SIDECAR_URL = "/api/ranked-posts-sidecar";
-const RANKED_POSTS_SIDECAR_MAX_BYTES = 4 * 1024 * 1024;
+// The current four-cohort response is 12,834,057 decoded bytes. Keep bounded
+// headroom for the full snapshot while checking both headers and decoded JSON.
+export const RANKED_POSTS_SIDECAR_MAX_BYTES = 16 * 1024 * 1024;
 const RANKED_POSTS_SIDECAR_TIMEOUT_MS = 12_000;
 export const RANKED_POSTS_SIDECAR_MAX_EVIDENCE_ROWS = 10_000;
 export const RANKED_POSTS_SIDECAR_CACHE_MAX_ENTRIES = 9;
